@@ -11,14 +11,14 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#ifndef PMTIME_H
-#define PMTIME_H
+#ifndef QMC_TIME_H
+#define QMC_TIME_H
 
 #include <sys/time.h>
 
 class QIcon;
 
-class PmTime
+class QmcTime
 {
 public:
     typedef enum {
@@ -56,10 +56,10 @@ public:
     typedef struct {
 	unsigned int	magic;
 	unsigned int	length;
-	PmTime::Command	command;
-	PmTime::Source	source;
-	PmTime::State	state;
-	PmTime::Mode	mode;
+	QmcTime::Command command;
+	QmcTime::Source	source;
+	QmcTime::State	state;
+	QmcTime::Mode	mode;
 	struct timeval	delta;
 	struct timeval	position;
 	struct timeval	start;		// archive only
@@ -96,7 +96,7 @@ public:
     static const int FastModeDelay = 100;	// milliseconds
     static const int DefaultDelta = 2;		// seconds
 
-    static QIcon *icon(PmTime::Icon);
+    static QIcon *icon(QmcTime::Icon);
     static double defaultSpeed(double delta)
 	{ return 2.0 * delta; }		// num deltas per second
     static double minimumSpeed(double delta)
@@ -118,4 +118,4 @@ public:
     static double deltaValue(QString delta, DeltaUnits units);
 };
 
-#endif	// PMTIME_H
+#endif	// QMC_TIME_H

@@ -15,25 +15,17 @@
  */
 #include "pmtimelive.h"
 
-#include <QtCore/QDir>
-#include <QtCore/QUrl>
 #include <QtCore/QTimer>
-#include <QtCore/QLibraryInfo>
-#include <QtGui/QDesktopServices>
 #include <QtGui/QValidator>
-#include <QtGui/QWhatsThis>
-#include <QtGui/QMessageBox>
-#include <QtGui/QCloseEvent>
 #include <QtGui/QActionGroup>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
-#include <sys/time.h>
-#include <pmtime.h>
+#include "pmtime.h"
 #include "version.h"
 #include "aboutdialog.h"
 #include "seealsodialog.h"
 
-PmTimeLive::PmTimeLive() : QMainWindow(NULL)
+PmTimeLive::PmTimeLive() : PmTime()
 {
     setupUi(this);
 #ifdef Q_OS_MAC        // fixup after relocation of the MenuBar by Qt
@@ -119,28 +111,6 @@ void PmTimeLive::init()
 void PmTimeLive::quit()
 {
     console->post("live quit!\n");
-}
-
-void PmTimeLive::helpAbout()
-{
-    AboutDialog about(this);
-    about.exec();
-}
-
-void PmTimeLive::helpAboutQt()
-{
-    QApplication::aboutQt();
-}
-
-void PmTimeLive::helpSeeAlso()
-{
-    SeeAlsoDialog about(this);
-    about.exec();
-}
-
-void PmTimeLive::whatsThis()
-{
-    QWhatsThis::enterWhatsThisMode();
 }
 
 int PmTimeLive::timerInterval()
@@ -245,40 +215,9 @@ void PmTimeLive::displayDeltaText()
     lineEditDelta->setText(text);
 }
 
-void PmTimeLive::showConsole()
-{
-    console->show();
-}
-
 void PmTimeLive::disableConsole()
 {
     optionsShowConsoleAction->setVisible(false);
-}
-
-void PmTimeLive::hideWindow()
-{
-    if (isVisible())
-	hide();
-    else {
-	show();
-	raise();
-    }
-}
-
-void PmTimeLive::popup(bool hello_popetts)
-{
-    if (!hello_popetts)
-	hide();
-    else {
-	show();
-	raise();
-    }
-}
-
-void PmTimeLive::closeEvent(QCloseEvent *ce)
-{
-    hide();
-    ce->ignore();
 }
 
 void PmTimeLive::lineEditDelta_changed(const QString &)
@@ -382,18 +321,5 @@ void PmTimeLive::setTime(PmTime::Packet *k, char *tzdata)
 	    my.timer->start(timerInterval());
 	displayDeltaText();
 	displayPosition();
-    }
-}
-
-void PmTimeLive::helpManual()
-{
-    bool ok;
-    QString documents("file://" HTMLDIR);
-    QString separator = QString(__pmPathSeparator());
-    documents.append(separator).append("timecontrol.html");
-    ok = QDesktopServices::openUrl(QUrl(documents, QUrl::TolerantMode));
-    if (!ok) {
-        documents.prepend("Failed to open:\n");
-        QMessageBox::warning(this, pmProgname, documents);
     }
 }

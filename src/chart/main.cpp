@@ -145,48 +145,6 @@ char *timeHiResString(double time)
     return s;
 }
 
-double PmTime::secondsToUnits(double value, PmTime::DeltaUnits units)
-{
-    switch (units) {
-    case Milliseconds:
-	value = value * 1000.0;
-	break;
-    case Minutes:
-	value = value / 60.0;
-	break;
-    case Hours:
-	value = value / (60.0 * 60.0);
-	break;
-    case Days:
-	value = value / (60.0 * 60.0 * 24.0);
-	break;
-    case Weeks:
-	value = value / (60.0 * 60.0 * 24.0 * 7.0);
-	break;
-    case Seconds:
-    default:
-	break;
-    }
-    return value;
-}
-
-double PmTime::deltaValue(QString delta, PmTime::DeltaUnits units)
-{
-    return PmTime::secondsToUnits(delta.trimmed().toDouble(), units);
-}
-
-QString PmTime::deltaString(double value, PmTime::DeltaUnits units)
-{
-    QString delta;
-
-    value = PmTime::secondsToUnits(value, units);
-    if ((double)(int)value == value)
-	delta.sprintf("%.2f", value);
-    else
-	delta.sprintf("%.6f", value);
-    return delta;
-}
-
 void nomem(void)
 {
     // no point trying to report anything ... dump core is the best bet

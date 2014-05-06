@@ -518,7 +518,7 @@
   </action>
  </widget>
  <includes>
-  <include location="local" >pmtime.h</include>
+  <include location="local" >qmc_time.h</include>
   <include location="local" >tabdialog.h</include>
   <include location="local" >infodialog.h</include>
   <include location="local" >chartdialog.h</include>

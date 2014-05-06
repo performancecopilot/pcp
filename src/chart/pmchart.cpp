@@ -229,7 +229,7 @@ void PmChart::setButtonState(TimeButton::State state)
     my.statusBar->timeButton()->setButtonState(state);
 }
 
-void PmChart::step(bool live, PmTime::Packet *packet)
+void PmChart::step(bool live, QmcTime::Packet *packet)
 {
     if (live)
 	liveGroup->step(packet);
@@ -237,7 +237,7 @@ void PmChart::step(bool live, PmTime::Packet *packet)
 	archiveGroup->step(packet);
 }
 
-void PmChart::VCRMode(bool live, PmTime::Packet *packet, bool drag)
+void PmChart::VCRMode(bool live, QmcTime::Packet *packet, bool drag)
 {
     if (live)
 	liveGroup->VCRMode(packet, drag);
@@ -245,7 +245,7 @@ void PmChart::VCRMode(bool live, PmTime::Packet *packet, bool drag)
 	archiveGroup->VCRMode(packet, drag);
 }
 
-void PmChart::timeZone(bool live, PmTime::Packet *packet, char *tzdata)
+void PmChart::timeZone(bool live, QmcTime::Packet *packet, char *tzdata)
 {
     if (live)
 	liveGroup->setTimezone(packet, tzdata);
@@ -770,7 +770,7 @@ void PmChart::setDateLabel(QString label)
 void PmChart::setRecordState(bool record)
 {
     liveGroup->newButtonState(liveGroup->pmtimeState(),
-				PmTime::NormalMode, record);
+				QmcTime::NormalMode, record);
     setButtonState(liveGroup->buttonState());
     enableUi();
 }

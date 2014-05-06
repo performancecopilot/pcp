@@ -1,19 +1,20 @@
 TEMPLATE	= app
 LANGUAGE	= C++
-HEADERS		= aboutdialog.h console.h pmtimearch.h pmtimelive.h \
-		  seealsodialog.h showboundsdialog.h \
+HEADERS		= console.h pmtime.h pmtimearch.h pmtimelive.h \
+		  aboutdialog.h seealsodialog.h showboundsdialog.h \
 		  timelord.h timezone.h
-SOURCES		= aboutdialog.cpp console.cpp pmtimearch.cpp pmtimelive.cpp \
-		  seealsodialog.cpp showboundsdialog.cpp \
+SOURCES		= console.cpp pmtime.cpp pmtimearch.cpp pmtimelive.cpp \
+		  aboutdialog.cpp seealsodialog.cpp showboundsdialog.cpp \
 		  timelord.cpp main.cpp
 FORMS		= aboutdialog.ui console.ui pmtimelive.ui pmtimearch.ui \
 		  seealsodialog.ui showboundsdialog.ui
 ICON		= pmtime.icns
 RC_FILE		= pmtime.rc
 RESOURCES	= pmtime.qrc
-INCLUDEPATH	+= ../include ../libqwt
+INCLUDEPATH	+= ../include ../libqmc ../libqwt
 win32:INCLUDEPATH += @pcp_dir@/include
-LIBS		= -lpcp -L../libqwt -lqwt
+LIBS		= -lpcp -L../libqmc -lqmc -L../libqwt -lqwt
+LIBS		+= -L../libqmc/@qt_release@ -L../libqmc/build/@qt_release@
 LIBS		+= -L../libqwt/@qt_release@ -L../libqwt/build/@qt_release@
 win32:LIBS	+= -L @pcp_dir@/bin -L @pcp_dir@/local/bin -lwsock32
 QT		+= network

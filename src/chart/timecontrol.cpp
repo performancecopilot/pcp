@@ -12,8 +12,7 @@
  * for more details.
  */
 #include "main.h"
-#include <pmtime.h>
-
+#include <qmc_time.h>
 #include <QtGui/QMessageBox>
 #include <QtGui/QApplication>
 #include <QtNetwork/QHostAddress>
@@ -23,15 +22,15 @@ TimeControl::TimeControl() : QProcess(NULL)
     my.tcpPort = -1;
     my.tzLength = 0;
     my.tzData = NULL;
-    my.bufferLength = sizeof(PmTime::Packet);
+    my.bufferLength = sizeof(QmcTime::Packet);
 
     my.buffer = (char *)malloc(my.bufferLength);
-    my.livePacket = (PmTime::Packet *)malloc(sizeof(PmTime::Packet));
-    my.archivePacket = (PmTime::Packet *)malloc(sizeof(PmTime::Packet));
+    my.livePacket = (QmcTime::Packet *)malloc(sizeof(QmcTime::Packet));
+    my.archivePacket = (QmcTime::Packet *)malloc(sizeof(QmcTime::Packet));
     if (!my.buffer || !my.livePacket || !my.archivePacket)
 	nomem();
-    my.livePacket->magic = PmTime::Magic;
-    my.livePacket->source = PmTime::HostSource;
+    my.livePacket->magic = QmcTime::Magic;
+    my.livePacket->source = QmcTime::HostSource;
     my.liveState = TimeControl::Disconnected;
     my.liveSocket = new QTcpSocket(this);
     connect(my.liveSocket, SIGNAL(connected()),
@@ -41,8 +40,8 @@ TimeControl::TimeControl() : QProcess(NULL)
     connect(my.liveSocket, SIGNAL(readyRead()),
 				SLOT(liveProtocolMessage()));
 
-    my.archivePacket->magic = PmTime::Magic;
-    my.archivePacket->source = PmTime::ArchiveSource;
+    my.archivePacket->magic = QmcTime::Magic;
+    my.archivePacket->source = QmcTime::ArchiveSource;
     my.archiveState = TimeControl::Disconnected;
     my.archiveSocket = new QTcpSocket(this);
     connect(my.archiveSocket, SIGNAL(connected()),
@@ -88,8 +87,8 @@ void TimeControl::init(int port, bool live,
 	nomem();
 
     my.livePacket->length = my.archivePacket->length =
-				sizeof(PmTime::Packet) + my.tzLength;
-    my.livePacket->command = my.archivePacket->command = PmTime::Set;
+				sizeof(QmcTime::Packet) + my.tzLength;
+    my.livePacket->command = my.archivePacket->command = QmcTime::Set;
     my.livePacket->delta = my.archivePacket->delta = *interval;
     if (live) {
 	my.livePacket->position = *position;
@@ -123,9 +122,9 @@ void TimeControl::addArchive(
 		struct timeval starttime, struct timeval endtime,
 		QString tzstring, QString tzlabel, bool atEnd)
 {
-    PmTime::Packet *message;
+    QmcTime::Packet *message;
     int tzlen = tzstring.length(), lablen = tzlabel.length();
-    int sz = sizeof(PmTime::Packet) + tzlen + 1 + lablen + 1;
+    int sz = sizeof(QmcTime::Packet) + tzlen + 1 + lablen + 1;
 
     if (my.archivePacket->position.tv_sec == 0) {	// first archive
 	my.archivePacket->position = atEnd ? endtime : starttime;
@@ -133,10 +132,10 @@ void TimeControl::addArchive(
 	my.archivePacket->end = endtime;
     }
 
-    if ((message = (PmTime::Packet *)malloc(sz)) == NULL)
+    if ((message = (QmcTime::Packet *)malloc(sz)) == NULL)
 	nomem();
     *message = *my.archivePacket;
-    message->command = PmTime::Bounds;
+    message->command = QmcTime::Bounds;
     message->length = sz;
     message->start = starttime;
     message->end = endtime;
@@ -165,10 +164,10 @@ void TimeControl::archiveConnect()
 
 void TimeControl::showLiveTimeControl(void)
 {
-    my.livePacket->command = PmTime::GUIShow;
-    my.livePacket->length = sizeof(PmTime::Packet);
+    my.livePacket->command = QmcTime::GUIShow;
+    my.livePacket->length = sizeof(QmcTime::Packet);
     if (my.liveSocket->write((const char *)my.livePacket,
-					sizeof(PmTime::Packet)) < 0)
+					sizeof(QmcTime::Packet)) < 0)
 	QMessageBox::warning(0,
                 QApplication::tr("Error"),
                 QApplication::tr("Cannot get pmtime to show itself."),
@@ -177,10 +176,10 @@ void TimeControl::showLiveTimeControl(void)
 
 void TimeControl::showArchiveTimeControl(void)
 {
-    my.archivePacket->command = PmTime::GUIShow;
-    my.archivePacket->length = sizeof(PmTime::Packet);
+    my.archivePacket->command = QmcTime::GUIShow;
+    my.archivePacket->length = sizeof(QmcTime::Packet);
     if (my.archiveSocket->write((const char *)my.archivePacket,
-					sizeof(PmTime::Packet)) < 0)
+					sizeof(QmcTime::Packet)) < 0)
 	QMessageBox::warning(0,
     		QApplication::tr("Error"),
     		QApplication::tr("Cannot get pmtime to show itself."),
@@ -189,10 +188,10 @@ void TimeControl::showArchiveTimeControl(void)
 
 void TimeControl::hideLiveTimeControl()
 {
-    my.livePacket->command = PmTime::GUIHide;
-    my.livePacket->length = sizeof(PmTime::Packet);
+    my.livePacket->command = QmcTime::GUIHide;
+    my.livePacket->length = sizeof(QmcTime::Packet);
     if (my.liveSocket->write((const char *)my.livePacket,
-					sizeof(PmTime::Packet)) < 0)
+					sizeof(QmcTime::Packet)) < 0)
 	QMessageBox::warning(0,
 		QApplication::tr("Error"),
 		QApplication::tr("Cannot get pmtime to hide itself."),
@@ -201,10 +200,10 @@ void TimeControl::hideLiveTimeControl()
 
 void TimeControl::hideArchiveTimeControl()
 {
-    my.archivePacket->command = PmTime::GUIHide;
-    my.archivePacket->length = sizeof(PmTime::Packet);
+    my.archivePacket->command = QmcTime::GUIHide;
+    my.archivePacket->length = sizeof(QmcTime::Packet);
     if (my.archiveSocket->write((const char *)my.archivePacket,
-					sizeof(PmTime::Packet)) < 0)
+					sizeof(QmcTime::Packet)) < 0)
 	QMessageBox::warning(0,
 		QApplication::tr("Error"),
 		QApplication::tr("Cannot get pmtime to hide itself."),
@@ -243,7 +242,7 @@ void TimeControl::archiveCloseConnection()
 void TimeControl::liveSocketConnected()
 {
     if (my.liveSocket->write((const char *)my.livePacket,
-				sizeof(PmTime::Packet)) < 0) {
+				sizeof(QmcTime::Packet)) < 0) {
 	QMessageBox::critical(0,
 		QApplication::tr("Fatal error"),
 		QApplication::tr(
@@ -265,7 +264,7 @@ void TimeControl::liveSocketConnected()
 void TimeControl::archiveSocketConnected()
 {
     if (my.archiveSocket->write((const char *)my.archivePacket,
-				sizeof(PmTime::Packet)) < 0) {
+				sizeof(QmcTime::Packet)) < 0) {
 	QMessageBox::critical(0,
 		QApplication::tr("Fatal error"),
 		QApplication::tr(
@@ -325,10 +324,10 @@ void TimeControl::readPortFromStdout(void)
 }
 
 void TimeControl::protocolMessage(bool live,
-	PmTime::Packet *packet, QTcpSocket *socket, ProtocolState *state)
+	QmcTime::Packet *packet, QTcpSocket *socket, ProtocolState *state)
 {
-    int sts, need = sizeof(PmTime::Packet), offset = 0;
-    PmTime::Packet *msg;
+    int sts, need = sizeof(QmcTime::Packet), offset = 0;
+    QmcTime::Packet *msg;
 
     // Read one pmtime packet, handling both small reads and large packets
     for (;;) {
@@ -346,8 +345,8 @@ void TimeControl::protocolMessage(bool live,
 	    continue;
 	}
 
-	msg = (PmTime::Packet *)my.buffer;
-	if (msg->magic != PmTime::Magic) {
+	msg = (QmcTime::Packet *)my.buffer;
+	if (msg->magic != QmcTime::Magic) {
 	    QMessageBox::critical(0,
 		QApplication::tr("Fatal error"),
 		QApplication::tr("Bad client message magic number."),
@@ -359,7 +358,7 @@ void TimeControl::protocolMessage(bool live,
 	    my.buffer = (char *)realloc(my.buffer, my.bufferLength);
 	    if (!my.buffer)
 		nomem();
-	    msg = (PmTime::Packet *)my.buffer;
+	    msg = (QmcTime::Packet *)my.buffer;
 	}
 	if (msg->length > (uint)offset + sts) {
 	    offset += sts;
@@ -377,7 +376,7 @@ void TimeControl::protocolMessage(bool live,
 
     switch (*state) {
     case TimeControl::AwaitingACK:
-	if (msg->command != PmTime::ACK) {
+	if (msg->command != QmcTime::ACK) {
 	    QMessageBox::critical(0,
 		QApplication::tr("Fatal error"),
 		QApplication::tr("Initial ACK not received from pmtime."),
@@ -393,7 +392,7 @@ void TimeControl::protocolMessage(bool live,
 	}
 	*state = TimeControl::ClientReady;
 	if (msg->length > packet->length) {
-	    packet = (PmTime::Packet *)realloc(packet, msg->length);
+	    packet = (QmcTime::Packet *)realloc(packet, msg->length);
 	    if (!packet)
 		nomem();
 	}
@@ -406,10 +405,10 @@ void TimeControl::protocolMessage(bool live,
 	break;
 
     case TimeControl::ClientReady:
-	if (msg->command == PmTime::Step) {
+	if (msg->command == QmcTime::Step) {
 	    pmchart->step(live, msg);
-	    msg->command = PmTime::ACK;
-	    msg->length = sizeof(PmTime::Packet);
+	    msg->command = QmcTime::ACK;
+	    msg->length = sizeof(QmcTime::Packet);
 	    sts = socket->write((const char *)msg, msg->length);
 	    if (sts < 0 || sts != (int)msg->length) {
 		QMessageBox::critical(0,
@@ -418,11 +417,11 @@ void TimeControl::protocolMessage(bool live,
 			QApplication::tr("Quit") );
 		exit(1);
 	    }
-	} else if (msg->command == PmTime::VCRMode ||
-		   msg->command == PmTime::VCRModeDrag ||
-		   msg->command == PmTime::Bounds) {
-	    pmchart->VCRMode(live, msg, msg->command == PmTime::VCRModeDrag);
-	} else if (msg->command == PmTime::TZ) {
+	} else if (msg->command == QmcTime::VCRMode ||
+		   msg->command == QmcTime::VCRModeDrag ||
+		   msg->command == QmcTime::Bounds) {
+	    pmchart->VCRMode(live, msg, msg->command == QmcTime::VCRModeDrag);
+	} else if (msg->command == QmcTime::TZ) {
 	    pmchart->timeZone(live, msg, (char *)msg->data);
 	}
 	break;
@@ -439,9 +438,9 @@ void TimeControl::protocolMessage(bool live,
 }
 
 void TimeControl::protocolMessageLoop(bool live,
-	PmTime::Packet *packet, QTcpSocket *socket, ProtocolState *state)
+	QmcTime::Packet *packet, QTcpSocket *socket, ProtocolState *state)
 {
     do {
 	protocolMessage(live, packet, socket, state);
-    } while (socket->bytesAvailable() >= (int)sizeof(PmTime::Packet));
+    } while (socket->bytesAvailable() >= (int)sizeof(QmcTime::Packet));
 }

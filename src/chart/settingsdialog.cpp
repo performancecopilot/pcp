@@ -76,12 +76,12 @@ void SettingsDialog::enableUi()
 
 void SettingsDialog::reset()
 {
-    my.chartUnits = PmTime::Seconds;
+    my.chartUnits = QmcTime::Seconds;
     chartDeltaLineEdit->setText(
-	PmTime::deltaString(globalSettings.chartDelta, my.chartUnits));
-    my.loggerUnits = PmTime::Seconds;
+	QmcTime::deltaString(globalSettings.chartDelta, my.chartUnits));
+    my.loggerUnits = QmcTime::Seconds;
     loggerDeltaLineEdit->setText(
-	PmTime::deltaString(globalSettings.loggerDelta, my.loggerUnits));
+	QmcTime::deltaString(globalSettings.loggerDelta, my.loggerUnits));
 
     my.visibleHistory = my.sampleHistory = 0;
     visibleCounter->setValue(globalSettings.visibleHistory);
@@ -129,7 +129,7 @@ void SettingsDialog::chartDeltaLineEdit_editingFinished()
 
     // convert to seconds, make sure its still in range 0.001-INT_MAX
     if (chartDeltaLineEdit->isModified())
-	input = PmTime::deltaValue(chartDeltaLineEdit->text(), my.chartUnits);
+	input = QmcTime::deltaValue(chartDeltaLineEdit->text(), my.chartUnits);
     if (input < 0.001 || input > INT_MAX) {
 	QString msg = tr("Default Chart Sampling Interval is invalid.\n");
 	msg.append(chartDeltaLineEdit->text());
@@ -149,7 +149,7 @@ void SettingsDialog::loggerDeltaLineEdit_editingFinished()
 
     // convert to seconds, make sure its still in range 0.001-INT_MAX
     if (loggerDeltaLineEdit->isModified())
-	input = PmTime::deltaValue(loggerDeltaLineEdit->text(), my.loggerUnits);
+	input = QmcTime::deltaValue(loggerDeltaLineEdit->text(), my.loggerUnits);
     if (input < 0.001 || input > INT_MAX) {
 	QString msg = tr("Default Record Sampling Interval is invalid.\n");
 	msg.append(loggerDeltaLineEdit->text());
@@ -165,16 +165,16 @@ void SettingsDialog::loggerDeltaLineEdit_editingFinished()
 
 void SettingsDialog::chartDeltaUnitsComboBox_activated(int value)
 {
-    double v = PmTime::deltaValue(chartDeltaLineEdit->text(), my.chartUnits);
-    my.chartUnits = (PmTime::DeltaUnits)value;
-    chartDeltaLineEdit->setText(PmTime::deltaString(v, my.chartUnits));
+    double v = QmcTime::deltaValue(chartDeltaLineEdit->text(), my.chartUnits);
+    my.chartUnits = (QmcTime::DeltaUnits)value;
+    chartDeltaLineEdit->setText(QmcTime::deltaString(v, my.chartUnits));
 }
 
 void SettingsDialog::loggerDeltaUnitsComboBox_activated(int value)
 {
-    double v = PmTime::deltaValue(loggerDeltaLineEdit->text(), my.loggerUnits);
-    my.loggerUnits = (PmTime::DeltaUnits)value;
-    loggerDeltaLineEdit->setText(PmTime::deltaString(v, my.loggerUnits));
+    double v = QmcTime::deltaValue(loggerDeltaLineEdit->text(), my.loggerUnits);
+    my.loggerUnits = (QmcTime::DeltaUnits)value;
+    loggerDeltaLineEdit->setText(QmcTime::deltaString(v, my.loggerUnits));
 }
 
 void SettingsDialog::visible_valueChanged(int value)

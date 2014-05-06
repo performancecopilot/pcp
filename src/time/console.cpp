@@ -13,7 +13,7 @@
  * for more details.
  */
 #include "console.h"
-#include <pmtime.h>
+#include "pmtime.h"
 #include <stdarg.h>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>

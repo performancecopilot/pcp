@@ -17,7 +17,7 @@
 #include "ui_recorddialog.h"
 #include <QtCore/QProcess>
 #include <QtGui/QFileDialog>
-#include "pmtime.h"
+#include <qmc_time.h>
 
 class Tab;
 
@@ -49,7 +49,7 @@ private:
     struct {
 	Tab *tab;
 	QString delta;
-	PmTime::DeltaUnits units;
+	QmcTime::DeltaUnits units;
 
 	QString view;
 	QString folio;

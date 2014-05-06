@@ -17,11 +17,11 @@
 #define PMTIMELIVE_H
 
 #include "ui_pmtimelive.h"
-#include <pmtime.h>
+#include "pmtime.h"
 #include "console.h"
 #include "timezone.h"
 
-class PmTimeLive : public QMainWindow, public Ui::PmTimeLive
+class PmTimeLive : public PmTime, public Ui::PmTimeLive
 {
     Q_OBJECT
 
@@ -33,7 +33,6 @@ public:
     virtual int timerInterval();
     virtual void displayPosition();
     virtual void displayDeltaText();
-    virtual void popup(bool hello_popetts);
     virtual void addTimezone(const char *string);
     virtual void setTime(PmTime::Packet *k, char *tzdata);
 
@@ -47,25 +46,15 @@ public slots:
     virtual void clickShowMsec();
     virtual void clickShowYear();
     virtual void changeDelta(int value);
-    virtual void showConsole();
     virtual void disableConsole();
-    virtual void hideWindow();
     virtual void lineEditDelta_changed(const QString &s);
     virtual void lineEditDelta_validate();
     virtual void setTimezone(QAction * action);
-    virtual void helpManual();
-    virtual void helpAbout();
-    virtual void helpAboutQt();
-    virtual void helpSeeAlso();
-    virtual void whatsThis();
 
 signals:
     void timePulse(PmTime::Packet *);
     void vcrModePulse(PmTime::Packet *, int);
     void tzPulse(PmTime::Packet *, char *, int, char *, int);
-
-protected:
-    virtual void closeEvent(QCloseEvent *ce);
 
 private:
     struct {

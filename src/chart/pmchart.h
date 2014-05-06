@@ -17,7 +17,7 @@
 
 #include "ui_pmchart.h"
 #include "statusbar.h"
-#include <pmtime.h>
+#include <qmc_time.h>
 
 class TimeAxis;
 class NameSpace;
@@ -69,9 +69,9 @@ public:
     QLabel *dateLabel() { return my.statusBar->dateLabel(); }
     Chart *acceptNewChart();
 
-    virtual void step(bool livemode, PmTime::Packet *pmtime);
-    virtual void VCRMode(bool livemode, PmTime::Packet *pmtime, bool drag);
-    virtual void timeZone(bool livemode, PmTime::Packet *pmtime, char *tzdata);
+    virtual void step(bool livemode, QmcTime::Packet *pmtime);
+    virtual void VCRMode(bool livemode, QmcTime::Packet *pmtime, bool drag);
+    virtual void timeZone(bool livemode, QmcTime::Packet *pmtime, char *tzdata);
     virtual void setStyle(char *style);
     virtual void updateHeight(int);
     virtual void metricInfo(QString src, QString m, QString inst, int srcType);

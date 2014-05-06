@@ -17,12 +17,12 @@
 #define PMTIMEARCH_H
 
 #include "ui_pmtimearch.h"
-#include <pmtime.h>
+#include "pmtime.h"
 #include "console.h"
 #include "showboundsdialog.h"
 #include "timezone.h"
 
-class PmTimeArch : public QMainWindow, public Ui::PmTimeArch
+class PmTimeArch : public PmTime, public Ui::PmTimeArch
 {
     Q_OBJECT
 
@@ -40,7 +40,6 @@ public:
     virtual void displayPositionSlide();
     virtual void setPositionSlideRange();
     virtual void setPositionSlideDelta();
-    virtual void popup(bool hello_popetts);
     virtual void addTimezone(const char *string);
     virtual void setTime(PmTime::Packet *k, char *tzdata);
     virtual void addBound(PmTime::Packet *k, char *tzdata);
@@ -54,6 +53,7 @@ public slots:
     virtual void stop_clicked();
     virtual void timerTick();
     virtual void changeDelta(int value);
+    virtual void disableConsole();
     virtual void changeControl(int value);
     virtual void updateTime();
     virtual void pressedPosition();
@@ -65,29 +65,18 @@ public slots:
     virtual void changeSpeed(double value);
     virtual void showBounds();
     virtual void doneBounds();
-    virtual void showConsole();
-    virtual void disableConsole();
-    virtual void hideWindow();
     virtual void lineEditDelta_changed(const QString & s);
     virtual void lineEditCtime_changed(const QString & s);
     virtual void lineEditDelta_validate();
     virtual void lineEditCtime_validate();
     virtual void lineEditSpeed_validate();
     virtual void setTimezone(QAction *action);
-    virtual void helpManual();
-    virtual void helpAbout();
-    virtual void helpAboutQt();
-    virtual void helpSeeAlso();
-    virtual void whatsThis();
 
 signals:
     void timePulse(PmTime::Packet *);
     void boundsPulse(PmTime::Packet *);
     void vcrModePulse(PmTime::Packet *, int);
     void tzPulse(PmTime::Packet *, char *, int, char *, int);
-
-protected:
-    virtual void closeEvent(QCloseEvent * ce);
 
 private:
     struct {

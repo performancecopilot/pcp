@@ -17,7 +17,7 @@
 #include <QtCore/QString>
 #include <QtCore/QProcess>
 #include <QtNetwork/QTcpSocket>
-#include <pmtime.h>
+#include <qmc_time.h>
 
 class TimeControl : public QProcess
 {
@@ -80,9 +80,9 @@ private:
     } ProtocolState;
 
     void startTimeServer();
-    void protocolMessage(bool live, PmTime::Packet *pmtime,
+    void protocolMessage(bool live, QmcTime::Packet *pmtime,
 			 QTcpSocket *socket, ProtocolState *state);
-    void protocolMessageLoop(bool live, PmTime::Packet *pmtime,
+    void protocolMessageLoop(bool live, QmcTime::Packet *pmtime,
 			 QTcpSocket *socket, ProtocolState *state);
 
     struct {
@@ -94,11 +94,11 @@ private:
 	char *buffer;
 
 	QTcpSocket *liveSocket;
-	PmTime::Packet *livePacket;
+	QmcTime::Packet *livePacket;
 	ProtocolState liveState;
 
 	QTcpSocket *archiveSocket;
-	PmTime::Packet *archivePacket;
+	QmcTime::Packet *archivePacket;
 	ProtocolState archiveState;
     } my;
 };

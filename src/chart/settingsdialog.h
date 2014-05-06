@@ -18,7 +18,7 @@
 #include "ui_settingsdialog.h"
 #include "colorbutton.h"
 #include "colorscheme.h"
-#include "pmtime.h"
+#include <qmc_time.h>
 
 class SettingsDialog : public QDialog, public Ui::SettingsDialog
 {
@@ -119,8 +119,8 @@ private:
     void displayVisibleCounter();
 
     struct {
-	PmTime::DeltaUnits chartUnits;
-	PmTime::DeltaUnits loggerUnits;
+	QmcTime::DeltaUnits chartUnits;
+	QmcTime::DeltaUnits loggerUnits;
 	int visibleHistory;
 	int sampleHistory;
 	QString newScheme;

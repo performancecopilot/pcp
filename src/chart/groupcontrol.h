@@ -22,7 +22,7 @@
 #include <qwt_plot.h>
 #include <qwt_scale_draw.h>
 #include <qmc_group.h>
-#include <pmtime.h>
+#include <qmc_time.h>
 #include "gadget.h"
 #include "timebutton.h"
 
@@ -48,9 +48,9 @@ public:
 
     double *timeAxisData(void);
 
-    void step(PmTime::Packet *);
-    void VCRMode(PmTime::Packet *, bool);
-    void setTimezone(PmTime::Packet *, char *);
+    void step(QmcTime::Packet *);
+    void VCRMode(QmcTime::Packet *, bool);
+    void setTimezone(QmcTime::Packet *, char *);
 
     void setupWorldView();
     void updateTimeButton();
@@ -58,8 +58,8 @@ public:
     void updateTimeAxis(time_t secs);
 
     TimeButton::State buttonState();
-    PmTime::State pmtimeState();
-    void newButtonState(PmTime::State, PmTime::Mode, bool);
+    QmcTime::State pmtimeState();
+    void newButtonState(QmcTime::State, QmcTime::Mode, bool);
 
 public Q_SLOTS:
     void timeSelectionActive(Gadget *, int);
@@ -77,13 +77,13 @@ private:
 
     char *timeState();
     void refreshGadgets(bool);
-    bool isActive(PmTime::Packet *);
-    void adjustWorldView(PmTime::Packet *, bool);
-    void adjustLiveWorldViewForward(PmTime::Packet *);
-    void adjustLiveWorldViewStopped(PmTime::Packet *);
-    void adjustArchiveWorldViewForward(PmTime::Packet *, bool);
-    void adjustArchiveWorldViewStopped(PmTime::Packet *, bool);
-    void adjustArchiveWorldViewBackward(PmTime::Packet *, bool);
+    bool isActive(QmcTime::Packet *);
+    void adjustWorldView(QmcTime::Packet *, bool);
+    void adjustLiveWorldViewForward(QmcTime::Packet *);
+    void adjustLiveWorldViewStopped(QmcTime::Packet *);
+    void adjustArchiveWorldViewForward(QmcTime::Packet *, bool);
+    void adjustArchiveWorldViewStopped(QmcTime::Packet *, bool);
+    void adjustArchiveWorldViewBackward(QmcTime::Packet *, bool);
 
     struct {
 	QList<Gadget*> gadgetsList;	// gadgets with metrics in this group
@@ -98,8 +98,8 @@ private:
 	double *timeData;		// time array (intervals)
 
 	TimeButton::State buttonState;
-	PmTime::Source pmtimeSource;	// reliable archive/host test
-	PmTime::State pmtimeState;
+	QmcTime::Source pmtimeSource;	// reliable archive/host test
+	QmcTime::State pmtimeState;
 	State timeState;
     } my;
 };
