@@ -2232,7 +2232,7 @@ __pmStringToSockAddr(const char *cp)
 #define PM_NET_ADDR_STRING_SIZE 46 /* from the NSPR API reference */
 
 char *
-__pmSockAddrToString(__pmSockAddr *addr)
+__pmSockAddrToString(const __pmSockAddr *addr)
 {
     PRStatus	prStatus;
     char	*buf;

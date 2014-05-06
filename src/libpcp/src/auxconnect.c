@@ -1186,7 +1186,7 @@ __pmStringToSockAddr(const char *cp)
  * The caller must free the buffer.
  */
 char *
-__pmSockAddrToString(__pmSockAddr *addr)
+__pmSockAddrToString(const __pmSockAddr *addr)
 {
     char str[INET6_ADDRSTRLEN];
     int family;
