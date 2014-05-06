@@ -1,7 +1,7 @@
 /*
  * systemd support for the systemd PMDA
  *
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -567,11 +567,6 @@ systemd_init(pmdaInterface *dp)
     int sts;
     int journal_fd;
 
-    /* The systemwide journal may be accessed by the adm user (group);
-       root access is not necessary. */
-    __pmSetProcessIdentity(username);
-
-    dp->comm.flags |= PDU_FLAG_AUTH;
     dp->version.six.desc = systemd_desc;
     dp->version.six.fetch = systemd_fetch;
     dp->version.six.text = systemd_text;
@@ -776,8 +771,14 @@ main(int argc, char **argv)
 
     FD_ZERO (&fds);
     pmdaOpenLog(&desc);
-    systemd_init(&desc); // sets some fds
+
+    /* The systemwide journal may be accessed by the adm user (group);
+       root access is not necessary. */
+    __pmSetProcessIdentity(username);
+    desc.comm.flags |= PDU_FLAG_AUTH;
     pmdaConnect(&desc);
+    // After this point, systemd_init is allowed to take some extra time.
+    systemd_init(&desc); // sets some fds
     systemdMain(&desc); // sets some more fds
     systemd_shutdown();
     exit(0);
