@@ -1207,4 +1207,16 @@ __pmSockAddrToString(__pmSockAddr *addr)
     return strdup(str);
 }
 
+__pmSockAddr *
+__pmSockAddrFirstSubnetAddr(const __pmSockAddr *addr, int maskBits)
+{
+    return NULL;
+}
+
+__pmSockAddr *
+__pmSockAddrNextSubnetAddr(__pmSockAddr *addr, int maskBits)
+{
+    return NULL;
+}
+
 #endif /* !HAVE_SECURE_SOCKETS */

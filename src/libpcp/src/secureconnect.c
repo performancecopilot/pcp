@@ -2252,3 +2252,121 @@ __pmSockAddrToString(__pmSockAddr *addr)
     }
     return buf;
 }
+
+__pmSockAddr *
+__pmSockAddrFirstSubnetAddr(const __pmSockAddr *netAddr, int maskBits)
+{
+    PRUint32		mask;
+    __pmSockAddr	*addr;
+    
+/* Make a copy of the net address for iteration purposes. */
+    addr = __pmSockAddrDup(netAddr);
+    if (addr) {
+	/*
+	 * Construct the first address in the subnet based on the given number
+	 * of mask bits.
+	 */
+	if (addr->sockaddr.raw.family == PR_AF_INET) {
+	    /* An inet address. The ip address is in network byte order. */
+	    PRUint32 ip = ntohl(addr->sockaddr.inet.ip);
+	    mask = ~((1 << (32 - maskBits)) - 1);
+	    ip &= mask;
+	    addr->sockaddr.inet.ip = htonl(ip);
+	}
+	else if (addr->sockaddr.raw.family == PR_AF_INET6) {
+	    int ix;
+	    /*
+	     * Manipulate the ipv6 address one byte at a time. There is no
+	     * host/network byte order.
+	     * Mask the byte at the subnet mask boundary. Leave the higher order bytes alone
+	     * and clear the lower order bytes.
+	     */
+	    ix = maskBits / 8;
+	    maskBits %= 8;
+	    mask = ~((1 << (8 - maskBits)) - 1);
+	    addr->sockaddr.ipv6.ip._S6_un._S6_u8[ix] &= mask;
+	    for (++ix; ix < 16; ++ix)
+		addr->sockaddr.ipv6.ip._S6_un._S6_u8[ix] = 0;
+	}
+	else {
+	    /* not applicable to other address families, e.g. PR_AF_LOCAL. */
+	    __pmNotifyErr(LOG_ERR,
+			  "%s:__pmSockAddrFirstSubnetAddr: Unsupported address family: %d\n",
+			  __FILE__, addr->sockaddr.raw.family);
+	    __pmSockAddrFree(addr);
+	    return NULL;
+	}
+    }
+
+    return addr;
+}
+
+__pmSockAddr *
+__pmSockAddrNextSubnetAddr(__pmSockAddr *addr, int maskBits)
+{
+    PRUint32	mask;
+
+    if (addr) {
+	/*
+	 * Construct the next address in the subnet based on the given the
+	 * previous address and the given number of mask bits.
+	 */
+	if (addr->sockaddr.raw.family == PR_AF_INET) {
+	    /* An inet address. The ip address is in network byte order. */
+	    PRUint32 ip = ntohl(addr->sockaddr.inet.ip);
+	    PRUint32 mask = (1 << (32 - maskBits)) - 1;
+
+	    /* Is this the final address? */
+	    if ((ip & mask) == mask) {
+		__pmSockAddrFree(addr);
+		return NULL;
+	    }
+	    /* Bump up the address. */
+	    ++ip;
+	    addr->sockaddr.inet.ip = htonl(ip);	    
+	}
+	else if (addr->sockaddr.raw.family == PR_AF_INET6) {
+	    int ix, ix1;
+	    /*
+	     * Manipulate the ipv6 address one byte at a time. There is no
+	     * host/network byte order.
+	     * First determine whether this is the final address. Do this by
+	     * comparing the high order bits of the subnet against the maximum.
+	     */
+	    ix = maskBits / 8;
+	    if (ix < 16) {
+		maskBits %= 8;
+		mask = (1 << (8 - maskBits)) - 1;
+		if ((addr->sockaddr.ipv6.ip._S6_un._S6_u8[ix] & mask) == mask) {
+		    /* The highest order bits are maxed out. Check the remaining bits. */
+		    for (++ix; ix < 16; ++ix) {
+			if (addr->sockaddr.ipv6.ip._S6_un._S6_u8[ix] != 0xff)
+			    break;
+		    }
+		}
+	    }
+	    if (ix >= 16) {
+		/* This is the final address. */
+		__pmSockAddrFree(addr);
+		return NULL;
+	    }
+	    /* Bump up the address. Don't forget to carry into the higher order bits
+	       when necessary. */
+	    for (ix1 = 15; ix1 >= ix; --ix1) {
+		++addr->sockaddr.ipv6.ip._S6_un._S6_u8[ix1];
+		if (addr->sockaddr.ipv6.ip._S6_un._S6_u8[ix1] != 0)
+		    break; /* no carry */
+	    }
+	}
+	else {
+	    /* not applicable to other address families, e.g. PR_AF_LOCAL. */
+	    __pmNotifyErr(LOG_ERR,
+			  "%s:__pmSockAddrFirstSubnetAddr: Unsupported address family: %d\n",
+			  __FILE__, addr->sockaddr.raw.family);
+	    __pmSockAddrFree(addr);
+	    return NULL;
+	}
+    }
+
+    return addr;
+}
