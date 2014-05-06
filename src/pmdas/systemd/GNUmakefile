@@ -16,7 +16,6 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 CMDTARGET = pmdasystemd$(EXECSUFFIX)
-LIBTARGET = pmda_systemd.so
 DFILES 	= README
 CFILES	= systemd.c
 LCFLAGS = $(SYSTEMD_CFLAGS)
@@ -34,14 +33,13 @@ default:	build-me
 include $(BUILDRULES)
 
 ifneq "$(PMDA_SYSTEMD)" ""
-build-me: domain.h $(LIBTARGET) $(CMDTARGET)
+build-me: domain.h $(CMDTARGET)
 
 install:	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) root help pmns $(PMDADIR)
 	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
-	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
 else
 build-me:
 install:
