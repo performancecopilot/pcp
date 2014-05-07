@@ -22,7 +22,7 @@ HEADERS = aboutdialog.h chartdialog.h exportdialog.h hostdialog.h \
 	  groupcontrol.h gadget.h sampling.h tracing.h
 SOURCES = $(HEADERS:.h=.cpp) view.cpp
 LSRCFILES = $(QRCFILE) $(RCFILE) $(UIFILES) $(HEADERS) $(SOURCES) \
-	  $(PROJECT) $(DESKTOP) $(WRAPPER).IN $(XMLFILE).in
+	  $(PROJECT) $(DESKTOP) $(WRAPPER).in $(XMLFILE).in
 LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER) $(XMLFILE)
 
 ICONLINKS = aboutpcp.png aboutpmchart.png pmchart.png pmtime.png \
@@ -54,13 +54,15 @@ include $(BUILDRULES)
 
 ifeq ($(WINDOW),mac)
 PKG_MAC_DIR = /Applications/$(COMMAND).app/Contents
-wrappers: $(WRAPPER)
+wrappers: $(WRAPPER) $(XMLFILE)
 else
 wrappers:
 endif
 
-$(WRAPPER): $(WRAPPER).IN
+$(WRAPPER): $(WRAPPER).in
 	$(SED) -e '/\# .*/b' -e 's;PKG_MAC_DIR;$(PKG_MAC_DIR);g' < $< > $@
+$(XMLFILE): $(XMLFILE).in
+	$(SED) -e 's;PKG_VERSION;$(PKG_VERSION);g' < $< > $@
 
 install: default
 	$(SUBDIRS_MAKERULE)

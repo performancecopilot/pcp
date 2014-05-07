@@ -15,7 +15,7 @@ HEADERS = aboutdialog.h console.h pmtime.h pmtimearch.h pmtimelive.h \
 SOURCES = aboutdialog.cpp console.cpp pmtime.cpp pmtimearch.cpp pmtimelive.cpp \
 	  seealsodialog.cpp showboundsdialog.cpp timelord.cpp main.cpp
 LSRCFILES = $(PROJECT) $(QRCFILE) $(RCFILE) $(UIFILES) $(HEADERS) \
-	   $(SOURCES) $(WRAPPER).IN $(XMLFILE).in
+	   $(SOURCES) $(WRAPPER).in $(XMLFILE).in
 LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER) $(XMLFILE)
 
 ICONLINKS = play_off.png play_on.png fastfwd_off.png fastfwd_on.png \
@@ -33,13 +33,15 @@ include $(BUILDRULES)
 
 ifeq ($(WINDOW),mac)
 PKG_MAC_DIR = /Library/PCP/$(COMMAND).app/Contents
-wrappers: $(WRAPPER)
+wrappers: $(WRAPPER) $(XMLFILE)
 else
 wrappers:
 endif
 
-$(WRAPPER): $(WRAPPER).IN
+$(WRAPPER): $(WRAPPER).in
 	$(SED) -e '/\# .*/b' -e 's;PKG_MAC_DIR;$(PKG_MAC_DIR);g' < $< > $@
+$(XMLFILE): $(XMLFILE).in
+	$(SED) -e 's;PKG_VERSION;$(PKG_VERSION);g' < $< > $@
 
 install: default
 ifneq ($(WINDOW),mac)

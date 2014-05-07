@@ -11,11 +11,11 @@ HEADERS = pmquery.h
 SOURCES = $(HEADERS:.h=.cpp) main.cpp
 SCRIPTS = pmconfirm.sh pmmessage.sh
 LSRCFILES = $(PROJECT) $(QRCFILE) $(SCRIPTS) $(HEADERS) $(SOURCES) \
-	  $(WRAPPER).IN pmconfirm.sh.IN pmmessage.sh.IN $(XMLFILE).in
+	  $(WRAPPER).in pmconfirm.sh.in pmmessage.sh.in $(XMLFILE).in
 LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER) $(SCRIPTS) $(XMLFILE)
 
 ICONLINKS = $(ICNFILE) dialog-archive.png dialog-error.png dialog-host.png \
-	    dialog-information.png dialog-question.png dialog-warning.png
+	  dialog-information.png dialog-question.png dialog-warning.png
 
 default: iconlinks wrappers
 	$(QTMAKE)
@@ -26,18 +26,20 @@ include $(BUILDRULES)
 ifeq ($(WINDOW),mac)
 PKG_MAC_DIR = /Library/PCP/$(COMMAND).app/Contents
 PKG_SUB_DIR = $(PKG_MAC_DIR)/MacOS
-wrappers: $(WRAPPER) $(SCRIPTS)
+wrappers: $(WRAPPER) $(SCRIPTS) $(XMLFILE)
 else
 PKG_SUB_DIR = $(PKG_BIN_DIR)
-wrappers: $(WRAPPER) $(SCRIPTS)
+wrappers: $(SCRIPTS)
 endif
 
-$(WRAPPER): $(WRAPPER).IN
+$(WRAPPER): $(WRAPPER).in
 	@ $(SED) -e '/\# .*/b' -e 's;PKG_BIN_DIR;$(PKG_SUB_DIR);g' < $< > $@
-pmmessage.sh: pmmessage.sh.IN
+pmmessage.sh: pmmessage.sh.in
 	@ $(SED) -e '/\# .*/b' -e 's;PKG_BIN_DIR;$(PKG_SUB_DIR);g' < $< > $@
-pmconfirm.sh: pmconfirm.sh.IN
+pmconfirm.sh: pmconfirm.sh.in
 	@ $(SED) -e '/\# .*/b' -e 's;PKG_BIN_DIR;$(PKG_SUB_DIR);g' < $< > $@
+$(XMLFILE): $(XMLFILE).in
+	$(SED) -e 's;PKG_VERSION;$(PKG_VERSION);g' < $< > $@
 
 install: default
 ifneq ($(WINDOW),mac)

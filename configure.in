@@ -35,7 +35,4 @@ AC_MANUAL_FORMAT
 AC_OUTPUT( \
 	src/include/builddefs \
 	src/include/version.h \
-	src/pmquery/pmquery.info \
-	src/pmchart/pmchart.info \
-	src/pmtime/pmtime.info \
 	pcp-gui.lsm )
