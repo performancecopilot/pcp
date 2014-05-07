@@ -1,5 +1,6 @@
 #!/bin/sh
 #
+# Copyright (c) 2014 Red Hat.
 # Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -14,29 +15,37 @@
 # 
 # Compare two PCP archives and report significant differences
 #
+
+# Get standard environment
+. $PCP_DIR/etc/pcp.env
+
 tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
-sts=0
-trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
+status=1
+trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
+prog=`basename $0`
+
+cat > $tmp/usage << EOF
+# Usage: [options] archive1 [archive2]
+
+Options:
+  -d,--keep            debug, keep intermediate files
+  -p=N,--precision=N   number of digits to display after the decimal point
+  -q=N,--threshold=N   change interesting threshold to be > N or < 1/N [N=2]
+  --start
+  --finish
+  -B=TIME,--begin=TIME  start time for second archive (optional)
+  -E=TIME,--end=TIME    end time for second archive (optional)
+  -x=REGEX              egrep(1) pattern of metric(s) to be excluded
+  -X=FILE               file containing egrep(1) patterns to exclude
+  --timezone
+  --hostzone
+  --help
+EOF
 
 _usage()
 {
-    echo "Usage: $0 [options] archive1 [archive2]"
-    echo
-    echo "Options:"
-    echo "  -d         debug, keep temp files"
-    echo "  -p digits  number of digits to display after the decimal point"
-    echo "  -q thres   change interesting threshold to be > thres or < 1/thres"
-    echo "             [default 2]"
-    echo "  -S start   start time, see PCPIntro(1)"
-    echo "  -T end     end time, see PCPIntro(1)"
-    echo "  -B start   start time, second archive (optional)"
-    echo "  -E end     end time, second archive (optional)"
-    echo "  -x metric  egrep(1) pattern of metric(s) to be excluded"
-    echo "  -X file    file containing egrep(1) patterns to exclude"
-    echo "  -z         use local timezone, see PCPIntro(1)"
-    echo "  -Z zone    set reporting timezone"
-    sts=1
-    exit $sts
+    pmgetopt --usage --progname=$prog --config=$tmp/usage
+    exit $status
 }
 
 _fix()
@@ -57,61 +66,61 @@ start2=""
 finish1=""
 finish2=""
 precision=3
-while getopts dp:q:S:T:B:E:x:X:zZ:? c
+
+ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
+[ $? != 0 ] && exit 1
+
+eval set -- "$ARGS"
+while [ $# -gt 0 ]
 do
-    case $c
+    case "$1"
     in
-	d)
-	    trap "exit \$sts" 0 1 2 3 15
-	    otmp="$tmp"
-	    tmp=`pwd`/tmp
-	    if [ -d $tmp ]
-	    then
-		:
-	    else
-		mkdir $tmp || exit 1
-	    fi
-	    mv $otmp/exclude $tmp/exclude
-	    rmdir $otmp
-	    ;;
-	p)
-	    precision="$OPTARG"
-	    opts="$opts -p $precision"
-	    ;;
-	q)
-	    thres="$OPTARG"
-	    ;;
-	S)
-	    start1="$OPTARG"
-	    ;;
-	T)
-	    finish1="$OPTARG"
-	    ;;
-	B)
-	    start2="$OPTARG"
-	    ;;
-	E)
-	    finish2="$OPTARG"
-	    ;;
-	x)
-	    echo "$OPTARG" >>$tmp/exclude
-	    ;;
-	X)
-	    cat "$OPTARG" >>$tmp/exclude
-	    ;;
-	z)
-	    opts="$opts -z"
-	    ;;
-	Z)
-	    opts="$opts -Z $OPTARG"
-	    ;;
-	?)
-	    _usage
-	    # NOTREACHED
-	    ;;
+	-d)	trap "exit \$status" 0 1 2 3 15
+		otmp="$tmp"
+		tmp=`pwd`/tmp
+		[ -d "$tmp" ] || mkdir "$tmp" || exit 1
+		mv $otmp/exclude $tmp/exclude
+		rmdir $otmp
+		;;
+	-p)	precision="$2"
+		shift
+		opts="$opts -p $precision"
+		;;
+	-q)	thres="$2"
+		shift
+		;;
+	-S)	start1="$2"
+		shift
+		;;
+	-T)	finish1="$2"
+		shift
+		;;
+	-B)	start2="$2"
+		shift
+		;;
+	-E)	finish2="$2"
+		shift
+		;;
+	-x)	echo "$2" >>$tmp/exclude
+		shift
+		;;
+	-X)	cat "$2" >>$tmp/exclude
+		shift
+		;;
+	-z)	opts="$opts -z"
+		;;
+	-Z)	opts="$opts -Z $2"
+		shift
+		;;
+	--)	shift
+		break
+		;;
+	-\?)	_usage
+		# NOTREACHED
+		;;
     esac
+    shift
 done
-shift `expr $OPTIND - 1`
 
 if [ $# -lt 1 -o $# -gt 2 ]
 then
@@ -119,11 +128,11 @@ then
     # NOTREACHED
 elif [ $# -eq 2 ]
 then
-    arch1=$1
-    arch2=$2
+    arch1="$1"
+    arch2="$2"
 else
-    arch1=$1
-    arch2=$1
+    arch1="$1"
+    arch2="$1"
 fi
 
 echo "Directory: `pwd`"
@@ -285,3 +294,5 @@ $2 / $3 > '"$thres"' || $3 / $2 > '"$thres"'	{
 | sort -nr -k 3,3 \
 | sed -e 's/100+/>100/' -e 's/ 0.001-/<0.001 /'
 
+status=0
+exit

@@ -17,18 +17,23 @@
 int
 main(int argc, char *argv[])
 {
-    struct hostent	*servInfo;
+    __pmFdSet		wfds;
+    __pmSockAddr	*myAddr;
+    __pmHostEnt		*servInfo;
+    void		*enumIx;
+    int			flags = 0;
     char		*endnum;
     int			port = 0;
     int			s;
-    int			nodelay = 1;
-    struct linger	nolinger = {1, 0};
-    struct sockaddr_in	myAddr;
-    FILE		*fp;
     int			errflag = 0;
     int			cflag = 0;
     int			vflag = 0;
     int			sts = 1;
+    ssize_t		bytes;
+    int			ret;
+    struct timeval	canwait = { 5, 000000 };
+    struct timeval	stv;
+    struct timeval	*pstv;
     int			c;
 
     while ((c = getopt(argc, argv, "cv?")) != EOF) {
@@ -62,23 +67,70 @@ main(int argc, char *argv[])
 	goto done;
     }
 
-    if ((servInfo = gethostbyname(argv[optind])) == NULL) {
+    if ((servInfo = __pmGetAddrInfo(argv[optind])) == NULL) {
 	if (vflag)
-	    fprintf(stderr, "gethostbyname: %s\n", hoststrerror());
+	    fprintf(stderr, "__pmGetAddrInfo: %s\n", hoststrerror());
 	goto done;
     }
-    if ((s = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-	if (vflag)
-	    fprintf(stderr, "socket: %s\n", netstrerror());
-	goto done;
-    }
-    setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (char *) &nodelay, (__pmSockLen)sizeof(nodelay));
-    setsockopt(s, SOL_SOCKET, SO_LINGER, (char *) &nolinger, (__pmSockLen)sizeof(nolinger));
-    memset(&myAddr, 0, sizeof(myAddr));
-    myAddr.sin_family = AF_INET;
-    memcpy(&myAddr.sin_addr, servInfo->h_addr, servInfo->h_length);
-    myAddr.sin_port = htons(port);
-    if (connect(s, (struct sockaddr*) &myAddr, sizeof(myAddr)) < 0) {
+
+    s = -1;
+    enumIx = NULL;
+    for (myAddr = __pmHostEntGetSockAddr(servInfo, &enumIx);
+	 myAddr != NULL;
+	 myAddr = __pmHostEntGetSockAddr(servInfo, &enumIx)) {
+	/* Create a socket */
+	if (__pmSockAddrIsInet(myAddr))
+	    s = __pmCreateSocket();
+	else if (__pmSockAddrIsIPv6(myAddr))
+	    s = __pmCreateIPv6Socket();
+	else
+	    continue;
+	if (s < 0) {
+	    __pmSockAddrFree(myAddr);
+	    continue; /* Try the next address */
+	}
+
+	/* Attempt to connect */
+	flags = __pmConnectTo(s, myAddr, port);
+	__pmSockAddrFree(myAddr);
+
+	if (flags < 0) {
+	    /*
+	     * Mark failure in case we fall out the end of the loop
+	     * and try next address. s has been closed in __pmConnectTo().
+	     */
+	    setoserror(ECONNREFUSED);
+	    s = -1;
+	    continue;
+	}
+
+	/* FNDELAY and we're in progress - wait on select */
+	stv = canwait;
+	pstv = (stv.tv_sec || stv.tv_usec) ? &stv : NULL;
+	__pmFD_ZERO(&wfds);
+	__pmFD_SET(s, &wfds);
+	ret = __pmSelectWrite(s+1, &wfds, pstv);
+
+	/* Was the connection successful? */
+	if (ret == 0)
+	    setoserror(ETIMEDOUT);
+	else if (ret > 0) {
+	    ret = __pmConnectCheckError(s);
+	    if (ret == 0)
+		break;
+	    setoserror(ret);
+	}
+
+	/* Unsuccessful connection. */
+	__pmCloseSocket(s);
+	s = -1;
+    } /* loop over addresses */
+
+    __pmHostEntFree(servInfo);
+
+    if (s != -1)
+	s = __pmConnectRestoreFlags(s, flags);
+    if (s < 0) {
 	if (vflag)
 	    fprintf(stderr, "connect: %s\n", netstrerror());
 	goto done;
@@ -90,7 +142,6 @@ main(int argc, char *argv[])
 	goto done;
     }
 
-    fp = fdopen(s, "r+");
     if (vflag)
 	fprintf(stderr, "send ...\n");
     while ((c = getc(stdin)) != EOF) {
@@ -98,27 +149,30 @@ main(int argc, char *argv[])
 	    fputc(c, stderr);
 	    fflush(stderr);
 	}
-	fputc(c, fp);
-	if (ferror(fp)) {
+	if (__pmWrite(s, &c, sizeof(c)) != sizeof(c)) {
 	    if (vflag)
 		fprintf(stderr, "telnet write: %s\n", osstrerror());
 	    goto done;
 	}
-	fflush(fp);
     }
 
     if (vflag)
 	fprintf(stderr, "recv ...\n");
-    while ((c = getc(fp)) != EOF) {
+    while ((bytes = __pmRead(s, &c, sizeof(c))) == sizeof(c)) {
 	if (vflag) {
 	    fputc(c, stderr);
 	    fflush(stderr);
 	}
     }
-    if (ferror(fp)) {
-	if (vflag)
-	    fprintf(stderr, "telnet read: %s\n", osstrerror());
-	goto done;
+    if (bytes < 0) {
+	/*
+	 * If __pmSocketClosed(), then treat it as EOF.
+	 */
+	if (! __pmSocketClosed()) {
+	    if (vflag)
+		fprintf(stderr, "telnet read: %s\n", osstrerror());
+	    goto done;
+	}
     }
 
     sts = 0;

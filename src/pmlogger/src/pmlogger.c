@@ -39,7 +39,6 @@ int		archive_version = PM_LOG_VERS02; /* Type of archive to create */
 int		linger;			/* linger with no tasks/events */
 int		rflag;			/* report sizes */
 struct timeval	delta = { 60, 0 };	/* default logging interval */
-int		unbuffered;		/* is -u specified? */
 int		qa_case;		/* QA error injection state */
 char		*note;			/* note for port map file */
 
@@ -53,25 +52,6 @@ static time_t	rsc_start;
 static char	*rsc_prog = "<unknown>";
 static char	*folio_name = "<unknown>";
 static char	*dialog_title = "PCP Archive Recording Session";
-
-/*
- * flush stdio buffers
- */
-int
-do_flush(void)
-{
-    int		sts;
-
-    sts = 0;
-    if (fflush(logctl.l_mdfp) != 0)
-	sts = oserror();
-    if (fflush(logctl.l_mfp) != 0 && sts == 0)
-	sts = oserror();
-    if (fflush(logctl.l_tifp) != 0 && sts == 0)
-	sts = oserror();
-
-    return sts;
-}
 
 void
 run_done(int sts, char *msg)
@@ -321,11 +301,6 @@ do_dialog(char cmd)
     char	tmp[MAXPATHLEN];
 #endif
 
-    /*
-     * flush archive buffers so size is accurate
-     */
-    do_flush();
-
     time(&now);
     now -= rsc_start;
     if (now == 0)
@@ -473,6 +448,35 @@ failed:
     }
 }
 
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("Options"),
+    { "config", 1, 'c', "FILE", "file to load configuration from" },
+    PMOPT_DEBUG,
+    PMOPT_HOST,
+    { "log", 1, 'l', "FILE", "redirect diagnostics and trace output" },
+    { "linger", 0, 'L', 0, "run even if not primary logger instance and nothing to log" },
+    { "note", 1, 'm', "MSG", "descriptive note to be added to the port map file" },
+    PMOPT_NAMESPACE,
+    { "primary", 0, 'P', 0, "execute as primary logger instance" },
+    { "report", 0, 'r', 0, "report record sizes and archive growth rate" },
+    { "size", 1, 's', "SIZE", "terminate after endsize has been accumulated" },
+    { "interval", 1, 't', "DELTA", "default logging interval [default 60.0 seconds]" },
+    PMOPT_FINISH,
+    { "", 0, 'u', 0, "output is unbuffered [default now, so -u is a no-op]" },
+    { "username", 1, 'U', "USER", "in daemon mode, run as named user [default pcp]" },
+    { "volsize", 1, 'v', "SIZE", "switch log volumes after size has been accumulated" },
+    { "version", 1, 'V', "NUM", "version for archive (default and only version is 2)" },
+    { "", 1, 'x', "FD", "control file descriptor for running from pmRecordControl(3)" },
+    { "", 0, 'y', 0, "set timezone for times to local time rather than from PMCD host" },
+    PMOPT_HELP,
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .short_options = "c:D:h:l:Lm:n:Prs:T:t:uU:v:V:x:y?",
+    .long_options = longopts,
+    .short_usage = "[options] archive",
+};
 
 int
 main(int argc, char **argv)
@@ -480,7 +484,6 @@ main(int argc, char **argv)
     int			c;
     int			sts;
     int			sep = __pmPathSeparator();
-    int			errflag = 0;
     int			use_localtime = 0;
     int			isdaemon = 0;
     char		*pmnsfile = PM_NS_DEFAULT;
@@ -497,7 +500,6 @@ main(int argc, char **argv)
     int	    		ctx;		/* handle corresponding to ctxp below */
     __pmContext  	*ctxp;		/* pmlogger has just this one context */
 
-    __pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
     /*
@@ -506,47 +508,46 @@ main(int argc, char **argv)
      *		corresponding changes are made to pmnewlog when pmlogger
      *		options are passed through from the control file
      */
-    while ((c = getopt(argc, argv, "c:D:h:l:Lm:n:Prs:T:t:uU:v:V:x:y?")) != EOF) {
+    while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 
 	case 'c':		/* config file */
-	    if (access(optarg, F_OK) == 0)
-		configfile = optarg;
+	    if (access(opts.optarg, F_OK) == 0)
+		configfile = opts.optarg;
 	    else {
 		/* does not exist as given, try the standard place */
 		char *sysconf = pmGetConfig("PCP_SYSCONF_DIR");
-		int sz = strlen(sysconf)+strlen("/pmlogger/")+strlen(optarg)+1;
-		if ( (configfile = (char *)malloc(sz)) == NULL ) {
+		int sz = strlen(sysconf)+strlen("/pmlogger/")+strlen(opts.optarg)+1;
+		if ((configfile = (char *)malloc(sz)) == NULL)
 		    __pmNoMem("config file name", sz, PM_FATAL_ERR);
-		}
 		snprintf(configfile, sz,
 			"%s%c" "pmlogger" "%c%s",
-			sysconf, sep, sep, optarg);
+			sysconf, sep, sep, opts.optarg);
 		if (access(configfile, F_OK) != 0) {
 		    /* still no good, error handling happens below */
 		    free(configfile);
-		    configfile = optarg;
+		    configfile = opts.optarg;
 		}
 	    }
 	    break;
 
 	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	    sts = __pmParseDebug(opts.optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
-		    pmProgname, optarg);
-		errflag++;
+		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+			pmProgname, opts.optarg);
+		opts.errors++;
 	    }
 	    else
 		pmDebug |= sts;
 	    break;
 
 	case 'h':		/* hostname for PMCD to contact */
-	    pmcd_host_conn = optarg;
+	    pmcd_host_conn = opts.optarg;
 	    break;
 
 	case 'l':		/* log file name */
-	    logfile = optarg;
+	    logfile = opts.optarg;
 	    break;
 
 	case 'L':		/* linger if not primary logger */
@@ -554,13 +555,13 @@ main(int argc, char **argv)
 	    break;
 
 	case 'm':		/* note for port map file */
-	    note = optarg;
+	    note = opts.optarg;
 	    isdaemon = ((strcmp(note, "pmlogger_check") == 0) ||
 			(strcmp(note, "pmlogger_daily") == 0));
 	    break;
 
 	case 'n':		/* alternative name space file */
-	    pmnsfile = optarg;
+	    pmnsfile = opts.optarg;
 	    break;
 
 	case 'P':		/* this is the primary pmlogger */
@@ -573,70 +574,73 @@ main(int argc, char **argv)
 	    break;
 
 	case 's':		/* exit size */
-	    if (ParseSize(optarg, &exit_samples, &exit_bytes, 
-		&exit_time) < 0) {
-	      fprintf(stderr, "%s: illegal size argument '%s' for -s\n", 
-                      pmProgname, optarg);
-	      errflag++;
-            }
-	    if (exit_time.tv_sec > 0) {
-	      __pmAFregister(&exit_time, NULL, run_done_callback);
-            }
+	    sts = ParseSize(opts.optarg, &exit_samples, &exit_bytes, &exit_time);
+	    if (sts < 0) {
+		pmprintf("%s: illegal size argument '%s' for exit size\n",
+			pmProgname, opts.optarg);
+		opts.errors++;
+	    }
+	    else if (exit_time.tv_sec > 0) {
+		__pmAFregister(&exit_time, NULL, run_done_callback);
+	    }
 	    break;
 
 	case 'T':		/* end time */
-	    runtime = optarg;
+	    runtime = opts.optarg;
             break;
 
 	case 't':		/* change default logging interval */
-	    if (pmParseInterval(optarg, &delta, &p) < 0) {
-		fprintf(stderr, "%s: illegal -t argument\n", pmProgname);
-		fputs(p, stderr);
+	    if (pmParseInterval(opts.optarg, &delta, &p) < 0) {
+		pmprintf("%s: illegal -t argument\n%s", pmProgname, p);
 		free(p);
-		errflag++;
+		opts.errors++;
 	    }
 	    break;
 
 	case 'U':		/* run as named user */
-	    username = optarg;
+	    username = opts.optarg;
 	    isdaemon = 1;
 	    break;
 
 	case 'u':		/* flush output buffers after each fetch */
-	    unbuffered = 1;
+	    /*
+	     * all archive write I/O is unbuffered now, so maintain -u
+	     * for backwards compatibility only
+	     */
 	    break;
 
 	case 'v':		/* volume switch after given size */
-	    if (ParseSize(optarg, &vol_switch_samples, &vol_switch_bytes,
-                &vol_switch_time) < 0) {
-	      fprintf(stderr, "%s: illegal size argument '%s' for -v\n", 
-                      pmProgname, optarg);
-	      errflag++;
-            }
-	    if (vol_switch_time.tv_sec > 0) {
-	      vol_switch_afid = __pmAFregister(&vol_switch_time, NULL, 
-                                           vol_switch_callback);
+	    sts = ParseSize(opts.optarg, &vol_switch_samples, &vol_switch_bytes,
+			    &vol_switch_time);
+	    if (sts < 0) {
+		pmprintf("%s: illegal size argument '%s' for volume size\n", 
+			pmProgname, opts.optarg);
+		opts.errors++;
+	    }
+	    else if (vol_switch_time.tv_sec > 0) {
+		vol_switch_afid = __pmAFregister(&vol_switch_time, NULL, 
+						 vol_switch_callback);
             }
 	    break;
 
         case 'V': 
-	    archive_version = (int)strtol(optarg, &endnum, 10);
-            if (*endnum != '\0' ||
-                archive_version != PM_LOG_VERS02) {
-                fprintf(stderr, "%s: -V requires a version number of "
-                        "%d\n", pmProgname, 
-                        PM_LOG_VERS02); 
-		errflag++;
-            }
+	    archive_version = (int)strtol(opts.optarg, &endnum, 10);
+	    if (*endnum != '\0' || archive_version != PM_LOG_VERS02) {
+		pmprintf("%s: -V requires a version number of %d\n",
+			 pmProgname, PM_LOG_VERS02); 
+		opts.errors++;
+	    }
 	    break;
 
 	case 'x':		/* recording session control fd */
-	    rsc_fd = (int)strtol(optarg, &endnum, 10);
+	    rsc_fd = (int)strtol(opts.optarg, &endnum, 10);
 	    if (*endnum != '\0' || rsc_fd < 0) {
-		fprintf(stderr, "%s: -x requires a non-negative numeric argument\n", pmProgname);
-		errflag++;
+		pmprintf("%s: -x requires a non-negative numeric argument\n", pmProgname);
+		opts.errors++;
 	    }
-	    time(&rsc_start);
+	    else {
+		time(&rsc_start);
+	    }
 	    break;
 
 	case 'y':
@@ -645,40 +649,26 @@ main(int argc, char **argv)
 
 	case '?':
 	default:
-	    errflag++;
+	    opts.errors++;
 	    break;
 	}
     }
 
-    if (errflag || optind != argc-1) {
-	fprintf(stderr,
-"Usage: %s [options] archive\n\
-\n\
-Options:\n\
-  -c configfile file to load configuration from\n\
-  -h host	metrics source is PMCD on host\n\
-  -l logfile	redirect diagnostics and trace output\n\
-  -L		linger, even if not primary logger instance and nothing to log\n\
-  -m note       note to be added to the port map file\n\
-  -n pmnsfile   use an alternative PMNS\n\
-  -P		execute as primary logger instance\n\
-  -r		report record sizes and archive growth rate\n\
-  -s endsize	terminate after endsize has been accumulated\n\
-  -t interval   default logging interval [default 60.0 seconds]\n\
-  -T endtime	terminate at given time\n\
-  -u		output is unbuffered\n\
-  -U username   in daemon mode, run as named user [default pcp]\n\
-  -v volsize	switch log volumes after volsize has been accumulated\n\
-  -V version    version for archive (default and only version is 2)\n\
-  -x fd		control file descriptor for application launching pmlogger\n\
-		via pmRecordControl(3)\n\
-  -y		set timezone for times to local time rather than that of PMCD host\n",
-			pmProgname);
-	exit(1);
+    if (primary && pmcd_host != NULL) {
+	pmprintf(
+	    "%s: -P and -h are mutually exclusive; use -P only when running\n"
+	    "%s on the same (local) host as the PMCD to which it connects.\n",
+		pmProgname, pmProgname);
+	opts.errors++;
     }
 
-    if (primary && pmcd_host != NULL) {
-	fprintf(stderr, "%s: -P and -h are mutually exclusive ... use -P only when running\n%s on the same (local) host as the PMCD to which it connects.\n", pmProgname, pmProgname);
+    if (!opts.errors && opts.optind != argc - 1) {
+	pmprintf("%s: insufficient arguments\n", pmProgname);
+	opts.errors++;
+    }
+
+    if (opts.errors) {
+	pmUsageMessage(&opts);
 	exit(1);
     }
 
@@ -700,7 +690,7 @@ Options:\n\
     }
 
     /* base name for archive is here ... */
-    archBase = argv[optind];
+    archBase = argv[opts.optind];
 
     if (pmcd_host_conn == NULL)
 	pmcd_host_conn = "local:";
@@ -926,14 +916,6 @@ Options:\n\
 	__pmFD_COPY(&readyfds, &fds);
 	nready = __pmSelectRead(numfds, &readyfds, NULL);
 
-	if (wantflush) {
-	    /*
-	     * flush request via SIGUSR1
-	     */
-	    do_flush();
-	    wantflush = 0;
-	}
-
 	if (nready > 0) {
 	    /* block signals to simplify IO handling */
 	    __pmAFblock();
@@ -1134,7 +1116,6 @@ newvolume(int vol_switch_type)
 	logctl.l_mfp = newfp;
 	logctl.l_label.ill_vol = logctl.l_curvol = nextvol;
 	__pmLogWriteLabel(logctl.l_mfp, &logctl.l_label);
-	fflush(logctl.l_mfp);
 	time(&now);
 	fprintf(stderr, "New log volume %d, via %s at %s",
 		nextvol, vol_sw_strs[vol_switch_type], ctime(&now));

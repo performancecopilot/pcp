@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  */
 
 /* Check access control wildcarding, bad ops etc. */
@@ -25,13 +25,8 @@ main(int argc, char **argv)
     int			copt;
     char		name[4*8 + 7 + 1]; /* handles full IPv6 address, if supported */
     char		*wnames[4] = { ".*", "38.*", "38.202.*", "38.202.16.*" };
-#if PCP_VER >= 3611
     char		*wnames6[4] = { ":*", "26:*", "26:ca:*", "26:ca:10:*" };
     __pmSockAddr	*inaddr;
-#else
-    __pmInAddr		inaddr;
-    __pmIPAddr		ipaddr;
-#endif
 
     /* trim cmd name of leading directory components */
     __pmSetProgname(argv[0]);
@@ -122,7 +117,6 @@ Options:\n\
 			fprintf(stderr, "set %03x for host %d.%d.%d.%d\n",
 				perm, a[ai], b[bi], c[ci], d[di]);
 		    }
-#if PCP_VER >= 3611
 		    if (ipv6) {
 			sprintf(name, "%x:%x:%x:%x:%x:%x:%x:%x",
 				a[ai], b[bi], c[ci], d[di],
@@ -151,7 +145,6 @@ Options:\n\
 				a[ai], b[bi], c[ci], d[di],
 				a[ai], b[bi], c[ci], d[di]);
 		    }
-#endif
 		}
 
     /* ops 8 and 9 are for wildcard testing:
@@ -172,28 +165,22 @@ Options:\n\
 		sts = s;
 	    }
 	}
-#if PCP_VER >= 3611
 	if (ipv6) {
 	    if ((s = __pmAccAddHost(wnames6[i], 0x300, (i << 8), 0)) < 0) {
 		fprintf(stderr, "cannot add IPv6 host for op%d: %s\n", i, strerror(s));
 		sts = s;
 	    }
 	}
-#endif
     }
     if (sts < 0)
 	return 1;
 
-#if PCP_VER >= 3801
     putc('\n', stderr);
-#endif
 
     putc('\n', stderr);
     __pmAccDumpHosts(stderr);
 
-#if PCP_VER >= 3801
     putc('\n', stderr);
-#endif
 
     putc('\n', stderr);
     if (ipv4) {
@@ -203,7 +190,6 @@ Options:\n\
 		    for (ci = 0; ci < 4; ci++)
 			for (di = 0; di < 4; di++) {
 			  char	buf[20];
-#if PCP_VER >= 3611
 			    char   *host;
 			    sprintf(buf, "%d.%d.%d.%d", a[ai]+i, b[bi]+i, c[ci]+i, d[di]+i);
 			    if ((inaddr =__pmStringToSockAddr(buf)) == NULL) {
@@ -220,22 +206,8 @@ Options:\n\
 			    }
 			    fprintf(stderr, "got %03x for host %s\n", perm, host);
 			    free(host);
-#else
-			    sprintf(buf, "%d.%d.%d.%d", a[ai]+i, b[bi]+i, c[ci]+i, d[di]+i);
-			    inet_aton(buf, &inaddr);
-			    ipaddr = __pmInAddrToIPAddr(&inaddr);
-			    s = __pmAccAddClient(ipaddr, &perm);
-			    if (s < 0) {
-				fprintf(stderr, "from %s error: %s\n",
-					inet_ntoa(inaddr), pmErrStr(s));
-				continue;
-			    }
-			    fprintf(stderr, "got %03x for host %s\n",
-				    perm, inet_ntoa(inaddr));
-#endif
 			}
     }
-#if PCP_VER >= 3611
     if (ipv6) {
 	for (i = 0; i < 2; i++)
 	    for (ai = 0; ai < 4; ai++)
@@ -263,7 +235,6 @@ Options:\n\
 			    free(host);
 			}
     }
-#endif
     
     return 0;
 }

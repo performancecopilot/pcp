@@ -465,9 +465,9 @@ log_callback(int afid, void *data)
 	if (rflag) {
 	    /*
 	     * bytes = PDU len - sizeof (header) + 2 * sizeof (int)
-             * see __pmLogPutResult for details of how PDU buffer is
-             * reformatted to make len shorter by one int before the
-             * record is written to the external file
+             * see logputresult() in libpcp/logutil.c for details of how
+	     * a PDU buffer is reformatted to make len shorter by one int
+	     * before the record is written to the external file
 	     */
 	    pdu_bytes += ((__pmPDUHdr *)pb)->len - sizeof (__pmPDUHdr) + 
 		2*sizeof(int); 
@@ -495,8 +495,8 @@ log_callback(int afid, void *data)
 	 */
 	last_log_offset = ftell(logctl.l_mfp);
 	assert(last_log_offset >= 0);
-	if ((sts = __pmLogPutResult(&logctl, pb)) < 0) {
-	    fprintf(stderr, "__pmLogPutResult: %s\n", pmErrStr(sts));
+	if ((sts = __pmLogPutResult2(&logctl, pb)) < 0) {
+	    fprintf(stderr, "__pmLogPutResult2: %s\n", pmErrStr(sts));
 	    exit(1);
 	}
 
@@ -624,9 +624,6 @@ log_callback(int afid, void *data)
 #endif
 	}
 
-	if (needti)
-	    fflush(logctl.l_mdfp);
-
 	if (needti) {
 	    /*
 	     * need to unwind seek pointer to start of most recent
@@ -736,15 +733,6 @@ log_callback(int afid, void *data)
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL2)
 	    fprintf(stderr, "callback: new volume based on size (%d)\n", (int)ftell(logctl.l_mfp));
-#endif
-    }
-
-    if (unbuffered) {
-	/* -u on command line */
-	do_flush();
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL2)
-	    fprintf(stderr, "callback: flush for -u\n");
 #endif
     }
 

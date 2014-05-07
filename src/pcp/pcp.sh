@@ -21,7 +21,7 @@
 
 sts=2
 tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
-trap "rm -rf $tmp; exit \$sts" 0 1 2 3  15
+trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 
 errors=0
 progname=`basename $0`
@@ -39,31 +39,39 @@ done
 metrics="pmcd.numagents pmcd.numclients pmcd.version pmcd.build pmcd.timezone pmcd.hostname pmcd.agent.status pmcd.pmlogger.archive pmcd.pmlogger.pmcd_host hinv.ncpu hinv.ndisk hinv.nnode hinv.nrouter hinv.nxbow hinv.ncell hinv.physmem hinv.cputype pmda.uname pmcd.pmie.pmcd_host pmcd.pmie.configfile pmcd.pmie.numrules pmcd.pmie.logfile"
 pmiemetrics="pmcd.pmie.actions pmcd.pmie.eval.true pmcd.pmie.eval.false pmcd.pmie.eval.unknown pmcd.pmie.eval.expected"
 
+# usage spec for pmgetopt, note posix flag (commands mean no reordering)
+cat > $tmp/usage << EOF
+# getopts: A:a:D:gh:Ln:O:p:PS:s:T:t:Z:z?
+# Usage: [options] [[...] command [...]]
+
+Summary Options:
+   --archive
+   --host
+   --namespace
+   -P,--pmie     display pmie evaluation statistics
+   --help
+
+Command Options:
+   --align
+   --archive
+   --debug
+   --guimode
+   --host
+   --namespace
+   --origin
+   --guiport
+   --start
+   --samples
+   --finish
+   --interval
+   --timezone
+   --hostzone
+# end
+EOF
+
 _usage()
 {
     [ ! -z "$@" ] && echo $@ 1>&2
-    echo 1>&2 "Usage: $progname [options] [[...] command [...]]
-
-Summary Options:
-  -a FILE       metrics source is a PCP log archive
-  -h HOST       metrics source is PMCD on host
-  -n FILE       use an alternative PMNS
-  -P            display pmie evaluation statistics
-
-Command Options:
-  -A TIME       align sample times on natural boundaries
-  -a FILE       metrics source is a PCP log archive
-  -g            start in GUI mode with new time control
-  -h HOST       metrics source is PMCD on host
-  -n FILE       use an alternative PMNS
-  -O TIME       initial sample time within the time window
-  -p N          port for connection to existing time control
-  -S TIME       start of the time window
-  -s N          terminate after this many samples
-  -T TIME       end of the time window
-  -t DELTA      sampling interval
-  -Z TZ         set reporting timezone
-  -z            set reporting timezone to local time of metrics source"
 
     ls $PCP_BINADM_DIR/pcp-* $HOME/.pcp/bin/pcp-* 2>/dev/null | \
     while read command
@@ -72,10 +80,11 @@ Command Options:
 	basename "$command" | sed -e 's/^pcp-//g' >> $tmp/cmds
     done
 
-    echo
+    echo >> $tmp/usage
     ( $PCP_ECHO_PROG $PCP_ECHO_N "Available Commands:     ""$PCP_ECHO_C" && \
-    sort -u < $tmp/cmds ) | _fmt
-    exit
+    sort -u < $tmp/cmds ) | _fmt >> $tmp/usage
+    pmgetopt --progname=$progname --usage --config=$tmp/usage
+    exit 1
 }
 
 _plural()
@@ -105,84 +114,102 @@ NR > 1	{ printf "           %s\n", $0; next }
 }
 
 opts=""
+ARGS=`pmgetopt --progname=$progname --config=$tmp/usage -- "$@"`
+[ $? != 0 ] && exit 1
 
-while getopts "A:a:D:gh:Ln:O:p:PS:s:T:t:Z:z?" c
+eval set -- "$ARGS"
+while [ $# -gt 0 ]
 do
-    case $c in
-      A)
+    case "$1" in
+      -A)
 	Aflag=true
-	pcp_align_time="$OPTARG"
+	pcp_align_time="$2"
+	shift
 	;;
-      a)
+      -a)
 	aflag=true
-	pcp_archive="$OPTARG"
-	opts="$opts -a $OPTARG"
+	pcp_archive="$2"
+	opts="$opts -a $2"
+	shift
 	;;
-      D)
+      -D)
 	Dflag=true
-	pcp_debug="$OPTARG"
-	opts="$opts -D $OPTARG"
+	pcp_debug="$2"
+	opts="$opts -D $2"
+	shift
 	;;
-      g)
+      -g)
 	gflag=true
 	;;
-      h)
+      -h)
 	hflag=true
-	pcp_host=$OPTARG
-	opts="$opts -h $OPTARG"
+	pcp_host="$2"
+	opts="$opts -h $2"
+	shift
 	;;
-      L)
+      -L)
 	Lflag=true
 	;;
-      n)
+      -n)
 	nflag=true
-	pcp_namespace="$OPTARG"
-	opts="$opts -n $OPTARG"
+	pcp_namespace="$2"
+	opts="$opts -n $2"
+	shift
 	;;
-      O)
+      -O)
 	Oflag=true
-	pcp_origin_time="$OPTARG"
+	pcp_origin_time="$2"
+	shift
 	;;
-      P)
+      -P)
 	Pflag=true
 	metrics="$metrics $pmiemetrics"
 	;;
-      p)
+      -p)
 	pflag=true
-	pcp_guiport="$OPTARG"
+	pcp_guiport="$2"
+	shift
 	;;
-      S)
+      -S)
 	Sflag=true
-	pcp_start_time="$OPTARG"
+	pcp_start_time="$2"
+	shift
 	;;
-      s)
+      -s)
 	sflag=true
-	pcp_samples="$OPTARG"
+	pcp_samples="$2"
+	shift
 	;;
-      T)
+      -T)
 	Tflag=true
-	pcp_finish_time="$OPTARG"
+	pcp_finish_time="$2"
+	shift
 	;;
-      t)
+      -t)
 	tflag=true
-	pcp_interval="$OPTARG"
+	pcp_interval="$2"
+	shift
 	;;
-      Z)
+      -Z)
 	Zflag=true
-	pcp_timezone="$OPTARG"
+	pcp_timezone="$2"
+	shift
 	;;
-      z)
+      -z)
 	zflag=true
 	;;
-      ?)
+      -\?)
 	_usage ""
 	;;
+      --)	# end of options, start of arguments
+	shift
+	break
+	;;
     esac
+    shift	# finished with this option now, next!
 done
 
-shift `expr $OPTIND - 1`
-
-if [ $# -ge 1 ]
+if [ $# -gt 0 ]
 then
     # pcp-command mode - seek out a matching command and execute it
     # with the remaining arguments - pmGetOptions(3) will discover

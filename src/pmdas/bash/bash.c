@@ -1,7 +1,7 @@
 /*
  * Bash -x trace PMDA
  *
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 2012 Nathan Scott.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -65,6 +65,23 @@ static pmdaMetric metrics[] = {
 	PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 };
 #define METRIC_COUNT	(sizeof(metrics)/sizeof(metrics[0]))
+
+static pmLongOptions longopts[] = {
+    PMDA_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    PMDAOPT_DOMAIN,
+    PMDAOPT_LOGFILE,
+    { "memory", 1, 'm', "SIZE", "maximum memory used per logfile (default 2MB)" },
+    { "interval", 1, 's', "DELTA", "default delay between iterations (default 1 sec)" },
+    PMDAOPT_USERNAME,
+    PMOPT_HELP,
+    PMDA_OPTIONS_END
+};
+
+static pmdaOptions opts = {
+    .short_options = "D:d:l:m:s:U:?",
+    .long_options = longopts,
+};
 
 
 static void
@@ -397,21 +414,6 @@ convertUnits(char **endnum, long *maxmem)
     (*endnum)++;
 }
 
-static void
-usage(void)
-{
-    fprintf(stderr,
-	"Usage: %s [options]\n\n"
-	"Options:\n"
-	"  -d domain    use domain (numeric) for metrics domain of PMDA\n"
-	"  -l logfile   write log into logfile rather than the default\n"
-	"  -m memory    maximum memory used per logfile (default %ld bytes)\n"
-	"  -s interval  default delay between iterations (default %d sec)\n"
-	"  -U username  user account to run under (default \"pcp\")\n",
-		pmProgname, bash_maxmem, (int)bash_interval.tv_sec);
-    exit(1);
-}
-
 int
 main(int argc, char **argv)
 {
@@ -419,7 +421,7 @@ main(int argc, char **argv)
     char		*endnum;
     pmdaInterface	desc;
     long		minmem;
-    int			c, err = 0, sep = __pmPathSeparator();
+    int			c, sep = __pmPathSeparator();
 
     __pmSetProgname(argv[0]);
     __pmGetUsername(&username);
@@ -430,40 +432,37 @@ main(int argc, char **argv)
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&desc, PMDA_INTERFACE_5, pmProgname, BASH, "bash.log", helppath);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:l:m:s:U:?", &desc, &err)) != EOF) {
+    while ((c = pmdaGetOptions(argc, argv, &opts, &desc)) != EOF) {
 	switch (c) {
-	    case 'm':
-		bash_maxmem = strtol(optarg, &endnum, 10);
-		if (*endnum != '\0')
-		    convertUnits(&endnum, &bash_maxmem);
-		if (*endnum != '\0' || bash_maxmem < minmem) {
-		    fprintf(stderr, "%s: invalid max memory '%s' (min=%ld)\n",
-			    pmProgname, optarg, minmem);
-		    err++;
-		}
-		break;
+	case 'm':
+	    bash_maxmem = strtol(opts.optarg, &endnum, 10);
+	    if (*endnum != '\0')
+		convertUnits(&endnum, &bash_maxmem);
+	    if (*endnum != '\0' || bash_maxmem < minmem) {
+		pmprintf("%s: invalid max memory '%s' (min=%ld)\n",
+			    pmProgname, opts.optarg, minmem);
+		opts.errors++;
+	    }
+	    break;
 
-	    case 's':
-		if (pmParseInterval(optarg, &bash_interval, &endnum) < 0) {
-		    fprintf(stderr, "%s: -s requires a time interval: %s\n",
-			    pmProgname, endnum);
-		    free(endnum);
-		    err++;
-		}
-		break;
-
-	    case 'U':
-		username = optarg;
-		break;
-
-	    default:
-		err++;
-		break;
+	case 's':
+	    if (pmParseInterval(opts.optarg, &bash_interval, &endnum) < 0) {
+		pmprintf("%s: -s requires a time interval: %s\n",
+			 pmProgname, endnum);
+		free(endnum);
+		opts.errors++;
+	    }
+	    break;
 	}
     }
 
-    if (err)
-    	usage();
+    if (opts.errors) {
+    	pmdaUsageMessage(&opts);
+	exit(1);
+    }
+
+    if (opts.username)
+	username = opts.username;
 
     pmdaOpenLog(&desc);
     bash_init(&desc);

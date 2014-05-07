@@ -1,6 +1,7 @@
 /*
  * pmlogreduce - statistical reduction of a PCP archive log
  *
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -13,10 +14,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- *
  * TODO (global list)
  * 	- check for counter overflow in doscan()
  * 	- optimization (maybe) for discrete and instantaneous metrics
@@ -52,42 +49,161 @@
 __pmTimeval	current;		/* most recent timestamp overall */
 char		*iname;			/* name of input archive */
 pmLogLabel	ilabel;			/* input archive label */
-int		numpmid = 0;		/* all metrics from the input archive */
-pmID		*pmidlist = NULL;	/* ditto */
-char		**namelist = NULL;	/* ditto */
-metric_t	*metriclist;		/* ditto */
+int		numpmid;		/* all metrics from the input archive */
+pmID		*pmidlist;
+char		**namelist;
+metric_t	*metriclist;
 __pmLogCtl	logctl;			/* output archive control */
 /* command line args */
 double		targ = 600.0;		/* -t arg - interval b/n output samples */
 int		sarg = -1;		/* -s arg - finish after X samples */
-char		*Sarg = NULL;		/* -S arg - window start */
-char		*Targ = NULL;		/* -T arg - window end */
-char		*Aarg = NULL;		/* -A arg - output time alignment */
+char		*Sarg;			/* -S arg - window start */
+char		*Targ;			/* -T arg - window end */
+char		*Aarg;			/* -A arg - output time alignment */
 int		varg = -1;		/* -v arg - switch log vol every X */
-int		zarg = 0;		/* -z arg - use archive timezone */
-char		*tz = NULL;		/* -Z arg - use timezone from user */
+int		zarg;			/* -z arg - use archive timezone */
+char		*tz;			/* -Z arg - use timezone from user */
 
-int	        written = 0;		/* num log writes so far */
-int		exit_status = 0;
+int	        written;		/* num log writes so far */
+int		exit_status;
 
 /* archive control stuff */
 int		ictx_a;
 char		*oname;			/* name of output archive */
 pmLogLabel	olabel;			/* output archive label */
-struct timeval	winstart_tval = {0,0};	/* window start tval*/
+struct timeval	winstart_tval;		/* window start tval*/
 
 /* time window stuff */
-static struct timeval logstart_tval = {0,0};	/* reduced log start */
-static struct timeval logend_tval = {0,0};	/* reduced log end */
-static struct timeval winend_tval = {0,0};	/* window end tval*/
+static struct timeval logstart_tval;	/* reduced log start */
+static struct timeval logend_tval;	/* reduced log end */
+static struct timeval winend_tval;	/* window end tval */
 
 /* cmd line args that could exist, but don't (needed for pmParseTimeWin) */
-char	*Oarg = NULL;			/* -O arg - non-existent */
+static char	*Oarg;			/* -O arg - non-existent */
 
-extern void dometric(const char *);
-extern void usage(void);
-extern double tv2double(struct timeval *);
-extern int parseargs(int, char **);
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("Options"),
+    PMOPT_ALIGN,
+    PMOPT_DEBUG,
+    PMOPT_START,
+    PMOPT_SAMPLES,
+    PMOPT_FINISH,
+    { "interval", 1, 't', "DELTA", "sample output interval [default 10min]" },
+    { "", 1, 'v', "NUM", "switch log volumes after this many samples" },
+    PMOPT_TIMEZONE,
+    PMOPT_HOSTZONE,
+    PMOPT_HELP,
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .short_options = "A:D:S:s:T:t:v:Z:z?",
+    .long_options = longopts,
+    .short_usage = "[options] input-archive output-archive",
+};
+
+static double
+tv2double(struct timeval *tv)
+{
+    return tv->tv_sec + (double)tv->tv_usec / 1000000.0;
+}
+
+static int
+parseargs(int argc, char *argv[])
+{
+    int			c;
+    int			sts;
+    char		*endnum;
+    char		*msg;
+    struct timeval	interval;
+
+    while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
+	switch (c) {
+
+	case 'A':	/* output time alignment */
+	    Aarg = opts.optarg;
+	    break;
+
+	case 'D':	/* debug flag */
+	    sts = __pmParseDebug(opts.optarg);
+	    if (sts < 0) {
+		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+			pmProgname, opts.optarg);
+		opts.errors++;
+	    }
+	    else
+		pmDebug |= sts;
+	    break;
+
+	case 's':	/* number of samples to write out */
+	    sarg = (int)strtol(opts.optarg, &endnum, 10);
+	    if (*endnum != '\0' || sarg < 0) {
+		pmprintf("%s: -s requires numeric argument\n",
+			pmProgname);
+		opts.errors++;
+	    }
+	    break;
+
+	case 'S':	/* start time for reduction */
+	    Sarg = opts.optarg;
+	    break;
+
+	case 'T':	/* end time for reduction */
+	    Targ = opts.optarg;
+	    break;
+
+	case 't':	/* output sample interval */
+	    if (pmParseInterval(opts.optarg, &interval, &msg) < 0) {
+		pmprintf("%s", msg);
+		free(msg);
+		opts.errors++;
+	    }
+	    else
+		targ = tv2double(&interval);
+	    break;
+
+	case 'v':	/* number of samples per volume */
+	    varg = (int)strtol(opts.optarg, &endnum, 10);
+	    if (*endnum != '\0' || varg < 0) {
+		pmprintf("%s: -v requires numeric argument\n",
+			pmProgname);
+		opts.errors++;
+	    }
+	    break;
+
+	case 'Z':	/* use timezone from command line */
+	    if (zarg) {
+		pmprintf("%s: at most one of -Z and/or -z allowed\n",
+			pmProgname);
+		opts.errors++;
+
+	    }
+	    tz = opts.optarg;
+	    break;
+
+	case 'z':	/* use timezone from archive */
+	    if (tz != NULL) {
+		pmprintf("%s: at most one of -Z and/or -z allowed\n",
+			pmProgname);
+		opts.errors++;
+	    }
+	    zarg++;
+	    break;
+
+	case '?':
+	default:
+	    opts.errors++;
+	    break;
+	}
+    }
+
+    if (opts.errors == 0 && opts.optind > argc-2) {
+	pmprintf("%s: Error: insufficient arguments\n", pmProgname);
+	opts.errors++;
+    }
+
+    return -opts.errors;
+}
 
 int
 main(int argc, char **argv)
@@ -100,23 +216,20 @@ main(int argc, char **argv)
     struct timeval	unused;
     unsigned long	peek_offset;
 
-    __pmSetProgname(argv[0]);
-
     /* process cmd line args */
     if (parseargs(argc, argv) < 0) {
-	usage();
+	pmUsageMessage(&opts);
 	exit(1);
     }
 
-
-    /* input  archive name is argv[optind] */
+    /* input  archive name is argv[opts.optind] */
     /* output archive name is argv[argc-1]) */
 
     /* output archive */
     oname = argv[argc-1];
 
     /* input archive */
-    iname = argv[optind];
+    iname = argv[opts.optind];
 
     /*
      * This is the interp mode context
@@ -132,19 +245,16 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    if ((sts = pmGetArchiveEnd(&unused)) < 0) {
-	fprintf(stderr, "%s: Error: cannot get end of archive (%s): %s\n",
-		pmProgname, iname, pmErrStr(sts));
-	exit(1);
-    }
-
     /* start time */
     logstart_tval.tv_sec = ilabel.ll_start.tv_sec;
     logstart_tval.tv_usec = ilabel.ll_start.tv_usec;
 
     /* end time */
-    logend_tval.tv_sec = unused.tv_sec;
-    logend_tval.tv_usec = unused.tv_usec;
+    if ((sts = pmGetArchiveEnd(&logend_tval)) < 0) {
+	fprintf(stderr, "%s: Error: cannot get end of archive (%s): %s\n",
+		pmProgname, iname, pmErrStr(sts));
+	exit(1);
+    }
 
     if (zarg) {
 	/* use TZ from metrics source (input-archive) */
@@ -343,10 +453,10 @@ main(int argc, char **argv)
 	doindom(orp);
 
 	/* write out log record */
-	sts = __pmLogPutResult(&logctl, pb);
+	sts = __pmLogPutResult2(&logctl, pb);
 	__pmUnpinPDUBuf(pb);
 	if (sts < 0) {
-	    fprintf(stderr, "%s: Error: __pmLogPutResult: log data: %s\n",
+	    fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
 		    pmProgname, pmErrStr(sts));
 	    goto cleanup;
 	}

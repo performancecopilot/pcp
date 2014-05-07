@@ -105,15 +105,15 @@ doscan(struct timeval *end)
 	    } markrec;
 	    /*
 	     * add space for, but don't bump length for, trailer so
-	     * __pmLogPutResut() has space for trailer in the buffer
+	     * __pmLogPutResult2() has space for trailer in the buffer
 	     */
 	    markrec.len = sizeof(markrec) - sizeof(__pmPDU);
 	    markrec.type = markrec.from = 0;
 	    markrec.timestamp.tv_sec = htonl(rp->timestamp.tv_sec);
 	    markrec.timestamp.tv_usec = htonl(rp->timestamp.tv_usec);
 	    markrec.numpmid = 0;
-	    if ((sts = __pmLogPutResult(&logctl, (__pmPDU *)&markrec)) < 0) {
-		fprintf(stderr, "%s: Error: __pmLogPutResult: mark record write: %s\n",
+	    if ((sts = __pmLogPutResult2(&logctl, (__pmPDU *)&markrec)) < 0) {
+		fprintf(stderr, "%s: Error: __pmLogPutResult2: mark record write: %s\n",
 			pmProgname, pmErrStr(sts));
 		exit(1);
 	    }

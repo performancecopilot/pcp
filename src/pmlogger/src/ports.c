@@ -43,7 +43,6 @@ static const char *linkSocketPath;/* Link to socket for primary logger */
 
 int		ctlfds[CFD_NUM] = {-1, -1, -1};/* fds for control ports: */
 int		ctlport;	/* pmlogger control port number */
-int		wantflush;	/* flush via SIGUSR1 flag */
 
 static void
 cleanup(void)
@@ -108,10 +107,8 @@ static void
 sigusr1_handler(int sig)
 {
     /*
-     * set the flag ... flush occurs in main event loop when we're
-     * quiescent
+     * no-op now that all archive write I/O is unbuffered
      */
-    wantflush = 1;
 #ifndef IS_MINGW
     __pmSetSignalHandler(SIGUSR1, sigusr1_handler);
 #endif
@@ -561,7 +558,7 @@ init_ports(void)
  */
 
 int		clientfd = -1;
-unsigned int	clientops = 0;		/* for access control (deny ops) */
+unsigned int	denyops = 0;		/* for access control (ops not allowed) */
 char		pmlc_host[MAXHOSTNAMELEN];
 int		connect_state = 0;
 
@@ -660,7 +657,7 @@ control_req(int ctlfd)
     if (hostName != NULL)
 	free(hostName);
 
-    sts = __pmAccAddClient(addr, &clientops);
+    sts = __pmAccAddClient(addr, &denyops);
     if (sts < 0) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {

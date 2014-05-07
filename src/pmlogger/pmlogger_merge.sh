@@ -1,5 +1,6 @@
 #! /bin/sh
 #
+# Copyright (c) 2014 Red Hat.
 # Copyright (c) 1995,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -12,10 +13,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#
 # merge a group of logfiles, e.g. all those for today
 #
 # default case, w/out arguments uses the default pmlogger filename
@@ -50,31 +47,46 @@ _warning()
     force=false
 }
 
-usage="Usage: $prog [-fNV] [input-basename ... output-name]"
+cat > $tmp/usage << EOF
+Usage: [options] [input-basename ... output-name]
+
+Options:
+  -f, --force    remove input files after creating output files
+  -N, --showme   perform a dry run, showing what would be done
+  -V, --verbose  increase diagnostic verbosity
+  --help
+EOF
 
 # option parsing
-#
-while getopts fNV c
+ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
+[ $? != 0 ] && exit 1
+
+eval set -- "$ARGS"
+while [ $# -gt 0 ]
 do
-    case $c
+    case "$1"
     in
 
-	f)	force=true
+	-f)	force=true
 		;;
 
-	N)	SHOWME=true
+	-N)	SHOWME=true
 		RM="echo + rm"
 		;;
 
-	V)	VERBOSE=true
+	-V)	VERBOSE=true
 		;;
 
-	\?)	echo "$usage"
+	--)	shift
+		break
+		;;
+
+	-\?)	pmgetopt --usage --progname=$prog --config=$tmp/usage
 		_abandon
 		;;
     esac
+    shift
 done
-shift `expr $OPTIND - 1`
 
 if [ $# -eq 0 ]
 then
@@ -90,7 +102,7 @@ then
     done
     output="$1"
 else
-    echo "$usage"
+    pmgetopt --usage --progname=$prog --config=$tmp/usage
     status=1
     exit
 fi

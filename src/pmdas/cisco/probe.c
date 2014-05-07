@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2012 Red Hat.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -262,17 +263,22 @@ int
 main(int argc, char **argv)
 {
     int			errflag = 0;
+    int			Nflag = 0;
     int			c;
     int			sts;
     char		*endnum;
     char		*passwd = NULL;
     char		*username = NULL;
-    struct hostent	*hostInfo;
+    __pmHostEnt		*hostInfo = NULL;
 
     __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "D:P:s:U:x:?")) != EOF) {
+    while ((c = getopt(argc, argv, "ND:P:s:U:x:?")) != EOF) {
 	switch (c) {
+
+	    case 'N':	/* check flag */
+		Nflag = 1;
+		break;
 
 	    case 'D':	/* debug flag */
 		sts = __pmParseDebug(optarg);
@@ -316,8 +322,12 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    if ((hostInfo = gethostbyname(argv[optind])) == NULL) {
+    if (!Nflag)
+	hostInfo = __pmGetAddrInfo(argv[optind]);
+
+    if (hostInfo == NULL) {
 	FILE	*f;
+
 	if ((f = fopen(argv[optind], "r")) == NULL) {
 	    fprintf(stderr, "%s: unknown hostname or filename %s: %s\n",
 		pmProgname, argv[optind], hoststrerror());
@@ -340,7 +350,6 @@ main(int argc, char **argv)
 	}
     } else {
 	cisco_t c;
-	struct sockaddr_in *sinp = & c.ipaddr;
 
 	c.host = argv[optind];
 	c.username = username;
@@ -348,11 +357,8 @@ main(int argc, char **argv)
 	c.fin = NULL;
 	c.fout = NULL;
 	c.prompt = prompt;
-
-	memset(sinp, 0, sizeof(c.ipaddr));
-	sinp->sin_family = AF_INET;
-	memcpy(&sinp->sin_addr, hostInfo->h_addr, hostInfo->h_length);
-	sinp->sin_port = htons(23);	/* telnet */
+	c.hostinfo = hostInfo;
+	c.port = 23; /* telnet */
 
 	probe_cisco(&c);
     }

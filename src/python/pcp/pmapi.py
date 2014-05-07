@@ -21,7 +21,7 @@
 # Additional Information:
 #
 # Performance Co-Pilot Web Site
-# http://oss.sgi.com/projects/pcp
+# http://www.performancecopilot.org
 #
 # Performance Co-Pilot Programmer's Guide
 # cf. Chapter 3. PMAPI - The Performance Metrics API
@@ -757,6 +757,10 @@ class pmOptions(object):
     def pmSetLongOptionHeader(self, heading):
         """ Add a new section heading into the long option usage message """
         return c_api.pmSetLongOptionHeader(heading)
+
+    def pmSetLongOptionText(self, text):
+        """ Add some descriptive text into the long option usage message """
+        return c_api.pmSetLongOptionText(text)
 
     def pmSetLongOptionAlign(self):
         """ Add support for -A/--align into PMAPI monitor tool """

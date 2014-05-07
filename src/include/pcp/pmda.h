@@ -276,6 +276,7 @@ extern __pmDSO *__pmLookupDSO(int /*domain*/);
 
 #define PMDA_OPTIONS "D:d:h:i:l:pu:U:"
 #define PMDA_OPTIONS_HEADER(s)	{ "", 0, '-', 0, (s) }
+#define PMDA_OPTIONS_TEXT(s)	{ "", 0, '|', 0, (s) }
 #define PMDA_OPTIONS_END	{ NULL, 0, 0, 0, NULL }
 
 #define PMDAOPT_DEBUG	{ "debug",      1, 'D', "DBG", \

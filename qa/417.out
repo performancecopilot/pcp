@@ -123,12 +123,12 @@ irix.network.interface.out.bytes
     inst [2 or "lo0"] value 19752688
 
 === pmdumplog -t ===
-pmdumplog: Cannot locate end of archive: Corrupted record in a PCP archive log
+Note: timezone set to local timezone of host "moomba" from archive
+
+pmdumplog: Cannot locate end of archive bad: Corrupted record in a PCP archive log
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
-
-Note: timezone set to local timezone of host "moomba" from archive
 
 
 Temporal Index
@@ -256,12 +256,12 @@ Temporal Index
              Log Vol    end(meta)     end(log)
 
 === pmdumplog -l ===
-pmdumplog: Cannot locate end of archive: Corrupted record in a PCP archive log
+Note: timezone set to local timezone of host "moomba" from archive
+
+pmdumplog: Cannot locate end of archive bad: Corrupted record in a PCP archive log
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
-
-Note: timezone set to local timezone of host "moomba" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host moomba
@@ -269,12 +269,12 @@ Performance metrics from host moomba
   ending     UNKNOWN
 
 === pmdumplog -L ===
-pmdumplog: Cannot locate end of archive: Corrupted record in a PCP archive log
+Note: timezone set to local timezone of host "moomba" from archive
+
+pmdumplog: Cannot locate end of archive bad: Corrupted record in a PCP archive log
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
-
-Note: timezone set to local timezone of host "moomba" from archive
 
 Log Label (Log Format Version 2)
 Performance metrics from host moomba
@@ -284,7 +284,7 @@ Archive timezone: EST-11EST-10,86/2:00,303/2:00
 PID for pmlogger: 29015
 
 === pmdumplog -m ===
-pmdumplog: Cannot locate end of archive: Corrupted record in a PCP archive log
+pmdumplog: Cannot locate end of archive bad: Corrupted record in a PCP archive log
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
@@ -349,7 +349,7 @@ Note: timezone set to local timezone of host "moomba" from archive
               1.10.3 (irix.kernel.all.pswitch): value 4195911
 
 === pmlogsummary ===
-pmlogsummary: Cannot locate end of archive: Corrupted record in a PCP archive log
+pmlogsummary: Cannot locate end of archive bad: Corrupted record in a PCP archive log
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.

@@ -19,17 +19,49 @@
 #include <sys/stat.h>
 
 static struct timeval	tv;
+static char		timebuf[32];	/* for pmCtime result + .xxx */
 static int		numpmid;
 static pmID		*pmid;
-static char		*archbasename;
 static int		sflag;
 static int		xflag;		/* for -x (long timestamps) */
+
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    { "all", 0, 'a', 0, "dump everything" },
+    { "descs", 0, 'd', 0, "dump metric descriptions" },
+    { "insts", 0, 'i', 0, "dump instance domain descriptions" },
+    { "", 0, 'L', 0, "more verbose form of archive label dump" },
+    { "label", 0, 'l', 0, "dump the archive label" },
+    { "metrics", 0, 'm', 0, "dump values of the metrics (default)" },
+    PMOPT_NAMESPACE,
+    { "reverse", 0, 'r', 0, "process archive in reverse chronological order" },
+    PMOPT_START,
+    { "sizes", 0, 's', 0, "report size of data records in archive" },
+    PMOPT_FINISH,
+    { "", 0, 't', 0, "dump the temporal index" },
+    { "", 1, 'v', "FILE", "verbose hex dump of a physical file in raw format" },
+    { "", 0, 'x', 0, "include date in reported timestamps" },
+    PMOPT_TIMEZONE,
+    PMOPT_HOSTZONE,
+    PMOPT_HELP,
+    PMAPI_OPTIONS_END
+};
+
+static int overrides(int, pmOptions *);
+static pmOptions opts = {
+    .flags = PM_OPTFLAG_DONE | PM_OPTFLAG_STDOUT_TZ | PM_OPTFLAG_BOUNDARIES,
+    .short_options = "aD:dilLmn:rS:sT:tv:xZ:z?",
+    .long_options = longopts,
+    .short_usage = "[options] [archive [metricname ...]]",
+    .override = overrides,
+};
 
 /*
  * return -1, 0 or 1 as the struct timeval's compare
  * a < b, a == b or a > b
  */
-int
+static int
 tvcmp(struct timeval a, struct timeval b)
 {
     if (a.tv_sec < b.tv_sec)
@@ -80,7 +112,7 @@ do_size(pmResult *rp)
     return nbyte;
 }
 
-void
+static void
 dumpresult(pmResult *resp)
 {
     int		i;
@@ -99,14 +131,13 @@ dumpresult(pmResult *resp)
     if (xflag) {
 	char	       *ddmm;
 	char	       *yr;
-	char		timebuf[32];		/* for pmCtime result + .xxx */
+
 	ddmm = pmCtime(&resp->timestamp.tv_sec, timebuf);
 	ddmm[10] = '\0';
 	yr = &ddmm[20];
 	printf("%s ", ddmm);
 	__pmPrintStamp(stdout, &resp->timestamp);
 	printf(" %4.4s", yr);
-
     }
     else
 	__pmPrintStamp(stdout, &resp->timestamp);
@@ -384,14 +415,14 @@ dumpTI(__pmContext *ctxp)
 	__pmPrintStamp(stdout, &tv);
 	printf("    %4d  %11d  %11d\n", tip->ti_vol, tip->ti_meta, tip->ti_log);
 	if (i == 0) {
-	    sprintf(path, "%s.meta", archbasename);
+	    sprintf(path, "%s.meta", opts.archives[0]);
 	    if (stat(path, &sbuf) == 0)
 		meta_size = sbuf.st_size;
 	    else
 		meta_size = -1;
 	}
 	if (lastp == NULL || tip->ti_vol != lastp->ti_vol) { 
-	    sprintf(path, "%s.%d", archbasename, tip->ti_vol);
+	    sprintf(path, "%s.%d", opts.archives[0], tip->ti_vol);
 	    if (stat(path, &sbuf) == 0)
 		log_size = sbuf.st_size;
 	    else {
@@ -441,6 +472,49 @@ dumpTI(__pmContext *ctxp)
 		printf("             Error: offset to log file decreased\n");
 	}
 	lastp = tip;
+    }
+}
+
+static void
+dumpLabel(int verbose)
+{
+    pmLogLabel	label;
+    char	*ddmm;
+    char	*yr;
+    int		sts;
+
+    if ((sts = pmGetArchiveLabel(&label)) < 0) {
+	fprintf(stderr, "%s: Cannot get archive label record: %s\n",
+		pmProgname, pmErrStr(sts));
+	exit(1);
+    }
+
+    printf("Log Label (Log Format Version %d)\n", label.ll_magic & 0xff);
+    printf("Performance metrics from host %s\n", label.ll_hostname);
+
+    ddmm = pmCtime(&label.ll_start.tv_sec, timebuf);
+    ddmm[10] = '\0';
+    yr = &ddmm[20];
+    printf("  commencing %s ", ddmm);
+    __pmPrintStamp(stdout, &label.ll_start);
+    printf(" %4.4s\n", yr);
+
+    if (opts.finish.tv_sec == INT_MAX) {
+	/* pmGetArchiveEnd() failed! */
+	printf("  ending     UNKNOWN\n");
+    }
+    else {
+	ddmm = pmCtime(&opts.finish.tv_sec, timebuf);
+	ddmm[10] = '\0';
+	yr = &ddmm[20];
+	printf("  ending     %s ", ddmm);
+	__pmPrintStamp(stdout, &opts.finish);
+	printf(" %4.4s\n", yr);
+    }
+
+    if (verbose) {
+	printf("Archive timezone: %s\n", label.ll_tz);
+	printf("PID for pmlogger: %" FMT_PID "\n", label.ll_pid);
     }
 }
 
@@ -505,16 +579,22 @@ dometric(const char *name)
     }
 }
 
+static int
+overrides(int opt, pmOptions *opts)
+{
+    if (opt == 'a' || opt == 'L' || opt == 's' || opt == 't')
+	return 1;
+    return 0;
+}
+
 int
 main(int argc, char *argv[])
 {
     int			c;
     int			sts;
-    int			errflag = 0;
-    char		*pmnsfile = PM_NS_DEFAULT;
-    char		*rawfile = NULL;	/* initialize to pander to gcc */
+    char		*rawfile = NULL;
     int			i;
-    int			n;
+    int			ctxid;
     int			first = 1;
     int			dflag = 0;
     int			iflag = 0;
@@ -524,25 +604,11 @@ main(int argc, char *argv[])
     int			tflag = 0;
     int			vflag = 0;
     int			mode = PM_MODE_FORW;
-    char		*p;
     __pmContext		*ctxp;
     pmResult		*result;
-    char		*start = NULL;
-    char		*finish = NULL;
-    struct timeval	startTime = { 0, 0 }; 
-    struct timeval 	endTime = { INT_MAX, 0 };
-    struct timeval	appStart;
-    struct timeval	appEnd;
-    struct timeval	appOffset;
-    pmLogLabel		label;			/* get hostname for archives */
-    int			zflag = 0;		/* for -z */
-    char 		*tz = NULL;		/* for -Z timezone */
-    char		timebuf[32];		/* for pmCtime result + .xxx */
     struct timeval	done;
 
-    __pmSetProgname(argv[0]);
-
-    while ((c = getopt(argc, argv, "aD:dilLmn:rS:sT:tv:xZ:z?")) != EOF) {
+    while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
 
 	case 'a':	/* dump everything */
@@ -551,17 +617,6 @@ main(int argc, char *argv[])
 
 	case 'd':	/* dump pmDesc structures */
 	    dflag = 1;
-	    break;
-
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
-	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
-		    pmProgname, optarg);
-		errflag++;
-	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'i':	/* dump instance domains */
@@ -581,24 +636,12 @@ main(int argc, char *argv[])
 	    mflag = 1;
 	    break;
 
-	case 'n':	/* alternative name space file */
-	    pmnsfile = optarg;
-	    break;
-
 	case 'r':	/* read log in reverse chornological order */
 	    mode = PM_MODE_BACK;
 	    break;
 
-	case 'S':	/* start time */
-	    start = optarg;
-	    break;
-
 	case 's':	/* report data size in log */
 	    sflag = 1;
-	    break;
-
-	case 'T':	/* terminate time */
-	    finish = optarg;
 	    break;
 
 	case 't':	/* dump temporal index */
@@ -607,61 +650,19 @@ main(int argc, char *argv[])
 
 	case 'v':	/* verbose, dump in raw format */
 	    vflag = 1;
-	    rawfile = optarg;
+	    rawfile = opts.optarg;
 	    break;
 
 	case 'x':	/* report Ddd Mmm DD <timestamp> YYYY */
 	    xflag = 1;
 	    break;
-
-	case 'z':	/* timezone from host */
-	    if (tz != NULL) {
-		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
-		errflag++;
-	    }
-	    zflag++;
-	    break;
-
-	case 'Z':	/* $TZ timezone */
-	    if (zflag) {
-		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmProgname);
-		errflag++;
-	    }
-	    tz = optarg;
-	    break;
-
-	case '?':
-	default:
-	    errflag++;
-	    break;
 	}
     }
 
-    if (errflag ||
-	(vflag && optind != argc) ||
-	(!vflag && optind > argc-1)) {
-	fprintf(stderr,
-"Usage: %s [options] archive [metricname ...]\n"
-"       %s -v file\n"
-"\n"
-"Options:\n"
-"  -a            dump everything\n"
-"  -d            dump metric descriptions\n"
-"  -i            dump instance domain descriptions\n"
-"  -L            more verbose form of -l\n"
-"  -l            dump the archive label\n"
-"  -m            dump values of the metrics (default)\n"
-"  -n pmnsfile   use an alternative local PMNS\n"
-"  -r            process archive in reverse chronological order\n"
-"  -S start      start of the time window\n"
-"  -s            report size of data records in archive\n"
-"  -T finish     end of the time window\n"
-"  -t            dump the temporal index\n"
-"  -v file       verbose hex dump of a physical file in raw format\n"
-"  -x            include date in reported timestamps\n"
-"  -Z timezone   set reporting timezone\n"
-"  -z            set reporting timezone to local time for host from -a\n",
-                pmProgname, pmProgname);
+    if (opts.errors ||
+	(vflag && opts.optind != argc) ||
+	(!vflag && opts.optind > argc - 1)) {
+	pmUsageMessage(&opts);
 	exit(1);
     }
 
@@ -679,35 +680,40 @@ main(int argc, char *argv[])
     if (dflag + iflag + lflag + mflag + tflag == 0)
 	mflag = 1;	/* default */
 
-    archbasename = argv[optind];
-    if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, archbasename)) < 0) {
-	fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n", pmProgname, argv[optind], pmErrStr(sts));
+    /* delay option end processing until now that we have the archive name */
+    __pmAddOptArchive(&opts, argv[opts.optind]);
+    opts.flags &= ~PM_OPTFLAG_DONE;
+    __pmEndOptions(&opts);
+
+    if ((sts = ctxid = pmNewContext(PM_CONTEXT_ARCHIVE, opts.archives[0])) < 0) {
+	fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
+		pmProgname, argv[opts.optind], pmErrStr(sts));
 	exit(1);
     }
-    optind++;
-
-    if (pmnsfile != PM_NS_DEFAULT) {
-	if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
-	    fprintf(stderr, "%s: Cannot load namespace from \"%s\": %s\n", pmProgname, pmnsfile, pmErrStr(sts));
-	    exit(1);
-	}
+    /* complete TZ and time window option (origin) setup */
+    if (pmGetContextOptions(ctxid, &opts)) {
+	pmflush();
+	exit(1);
     }
 
-    numpmid = argc - optind;
+    opts.optind++;
+    numpmid = argc - opts.optind;
     if (numpmid) {
 	numpmid = 0;
 	pmid = NULL;
-	for (i = 0 ; optind < argc; i++, optind++) {
+	for (i = 0; opts.optind < argc; i++, opts.optind++) {
 	    numpmid++;
 	    pmid = (pmID *)realloc(pmid, numpmid * sizeof(pmID));
-	    if ((sts = pmLookupName(1, &argv[optind], &pmid[numpmid-1])) < 0) {
+	    if ((sts = pmLookupName(1, &argv[opts.optind], &pmid[numpmid-1])) < 0) {
 		if (sts == PM_ERR_NONLEAF) {
 		    numpmid--;
-		    if ((sts = pmTraversePMNS(argv[optind], dometric)) < 0)
-			fprintf(stderr, "%s: pmTraversePMNS(%s): %s\n", pmProgname, argv[optind], pmErrStr(sts));
+		    if ((sts = pmTraversePMNS(argv[opts.optind], dometric)) < 0)
+			fprintf(stderr, "%s: pmTraversePMNS(%s): %s\n",
+				pmProgname, argv[opts.optind], pmErrStr(sts));
 		}
 		else
-		    fprintf(stderr, "%s: pmLookupName(%s): %s\n", pmProgname, argv[optind], pmErrStr(sts));
+		    fprintf(stderr, "%s: pmLookupName(%s): %s\n",
+			    pmProgname, argv[opts.optind], pmErrStr(sts));
 		if (sts < 0)
 		    numpmid--;
 	    }
@@ -718,16 +724,6 @@ main(int argc, char *argv[])
 	}
     }
 
-    if ((n = pmWhichContext()) >= 0) {
-	if ((ctxp = __pmHandleToPtr(n)) == NULL) {
-	    fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", pmProgname, n);
-	    exit(1);
-	}
-    }
-    else {
-	fprintf(stderr, "%s: %s!\n", pmProgname, pmErrStr(PM_ERR_NOCONTEXT));
-	exit(1);
-    }
     /*
      * Note: ctxp->c_lock remains locked throughout ... __pmHandleToPtr()
      *       is only called once, and a single context is used throughout
@@ -736,85 +732,16 @@ main(int argc, char *argv[])
      *       This works because ctxp->c_lock is a recursive lock and
      *       pmdumplog is single-threaded.
      */
-
-    if ((sts = pmGetArchiveLabel(&label)) < 0) {
-	fprintf(stderr, "%s: Cannot get archive label record: %s\n",
-	    pmProgname, pmErrStr(sts));
-	exit(1);
-    }
-    startTime = label.ll_start;;
-
-    if ((sts = pmGetArchiveEnd(&endTime)) < 0) {
-	endTime.tv_sec = INT_MAX;
-	endTime.tv_usec = 0;
-	fflush(stdout);
-	fprintf(stderr, "%s: Cannot locate end of archive: %s\n",
-	    pmProgname, pmErrStr(sts));
-	fprintf(stderr, "\nWARNING: This archive is sufficiently damaged that it may not be possible to\n");
-	fprintf(stderr, "         produce complete information.  Continuing and hoping for the best.\n\n");
-	fflush(stderr);
-    }
-
-    if (zflag) {
-	if ((sts = pmNewContextZone()) < 0) {
-	    fprintf(stderr, "%s: Cannot set context timezone: %s\n",
-		pmProgname, pmErrStr(sts));
-	    exit(1);
-	}
-	printf("Note: timezone set to local timezone of host \"%s\" from archive\n\n",
-	    label.ll_hostname);
-    }
-    else if (tz != NULL) {
-	if ((sts = pmNewZone(tz)) < 0) {
-	    fprintf(stderr, "%s: Cannot set timezone to \"%s\": %s\n",
-		pmProgname, tz, pmErrStr(sts));
-	    exit(1);
-	}
-	printf("Note: timezone set to \"TZ=%s\"\n\n", tz);
-    }
-
-    sts = pmParseTimeWindow(start, finish, NULL, NULL, &startTime,
-			    &endTime, &appStart, &appEnd, &appOffset,
-			    &p);
-    pmSetMode(mode, &appStart, 0);
-
-    if (sts < 0) {
-	fprintf(stderr, "%s:\n%s\n", pmProgname, p);
+    if ((ctxp = __pmHandleToPtr(ctxid)) == NULL) {
+	fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n",
+		pmProgname, ctxid);
 	exit(1);
     }
 
-    if (lflag) {
-	char	       *ddmm;
-	char	       *yr;
+    pmSetMode(mode, &opts.start, 0);
 
-	printf("Log Label (Log Format Version %d)\n", label.ll_magic & 0xff);
-	printf("Performance metrics from host %s\n", label.ll_hostname);
-
-	ddmm = pmCtime(&label.ll_start.tv_sec, timebuf);
-	ddmm[10] = '\0';
-	yr = &ddmm[20];
-	printf("  commencing %s ", ddmm);
-	__pmPrintStamp(stdout, &label.ll_start);
-	printf(" %4.4s\n", yr);
-
-	if (endTime.tv_sec == INT_MAX) {
-	    /* pmGetArchiveEnd() failed! */
-	    printf("  ending     UNKNOWN\n");
-	}
-	else {
-	    ddmm = pmCtime(&endTime.tv_sec, timebuf);
-	    ddmm[10] = '\0';
-	    yr = &ddmm[20];
-	    printf("  ending     %s ", ddmm);
-	    __pmPrintStamp(stdout, &endTime);
-	    printf(" %4.4s\n", yr);
-	}
-
-	if (Lflag) {
-	    printf("Archive timezone: %s\n", label.ll_tz);
-	    printf("PID for pmlogger: %" FMT_PID "\n", label.ll_pid);
-	}
-    }
+    if (lflag)
+	dumpLabel(Lflag);
 
     if (dflag)
 	dumpDesc(ctxp);
@@ -827,10 +754,10 @@ main(int argc, char *argv[])
 
     if (mflag) {
 	if (mode == PM_MODE_FORW) {
-	    if (start != NULL || finish != NULL) {
+	    if (opts.start_optarg != NULL || opts.finish_optarg != NULL) {
 		/* -S or -T */
-		sts = pmSetMode(mode, &appStart, 0);
-		done = appEnd;
+		sts = pmSetMode(mode, &opts.start, 0);
+		done = opts.finish;
 	    }
 	    else {
 		/* read the whole archive */
@@ -841,11 +768,12 @@ main(int argc, char *argv[])
 	    }
 	}
 	else {
-	    if (start != NULL || finish != NULL) {
+	    if (opts.start_optarg != NULL || opts.finish_optarg != NULL) {
 		/* -S or -T */
-		appEnd.tv_sec = INT_MAX;
-		sts = pmSetMode(mode, &appEnd, 0);
-		done = appStart;
+		done.tv_sec = INT_MAX;
+		done.tv_usec = 0;
+		sts = pmSetMode(mode, &done, 0);
+		done = opts.start;
 	    }
 	    else {
 		/* read the whole archive backwards */
@@ -869,7 +797,8 @@ main(int argc, char *argv[])
 		break;
 	    if (first && mode == PM_MODE_BACK) {
 		first = 0;
-		printf("\nLog finished at %24.24s - dump in reverse order\n", pmCtime(&result->timestamp.tv_sec, timebuf));
+		printf("\nLog finished at %24.24s - dump in reverse order\n",
+			pmCtime(&result->timestamp.tv_sec, timebuf));
 	    }
 	    if ((mode == PM_MODE_FORW && tvcmp(result->timestamp, done) > 0) ||
 		(mode == PM_MODE_BACK && tvcmp(result->timestamp, done) < 0)) {

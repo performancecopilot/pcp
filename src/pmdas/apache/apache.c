@@ -1,7 +1,7 @@
 /*
  * Apache PMDA
  *
- * Copyright (C) 2012 Red Hat.
+ * Copyright (C) 2012-2014 Red Hat.
  * Copyright (C) 2008-2010 Aconex.  All Rights Reserved.
  * Copyright (C) 2000 Michal Kara.  All Rights Reserved.
  *
@@ -30,6 +30,29 @@ static char *username;
 static int http_port = 80;
 static char *http_server = "localhost";
 static char *http_path = "server-status";
+
+static pmLongOptions longopts[] = {
+    PMDA_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    PMDAOPT_DOMAIN,
+    PMDAOPT_LOGFILE,
+    { "server", 1, 'S', "HOST", "use remote host, instead of localhost" },
+    { "port", 1, 'P', "PORT", "use given port on server, instead of port 80" },
+    { "location", 1, 'L', "LOC", "use location on server, instead of 'server-status'" },
+    PMDAOPT_USERNAME,
+    PMOPT_HELP,
+    PMDA_OPTIONS_TEXT("\nExactly one of the following options may appear:"),
+    PMDAOPT_INET,
+    PMDAOPT_PIPE,
+    PMDAOPT_UNIX,
+    PMDAOPT_IPV6,
+    PMDA_OPTIONS_END
+};
+
+static pmdaOptions opts = {
+    .short_options = "D:d:i:l:pu:L:P:S:U:6:?",
+    .long_options = longopts,
+};
 
 static pmdaMetric metrictab[] = {
 /* apache.total_accesses */
@@ -468,30 +491,10 @@ apache_init(pmdaInterface *dp)
     pmdaInit(dp, NULL, 0, metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
 }
 
-static void
-usage(void)
-{
-    fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
-    fputs("Options:\n"
-"  -d domain    use domain (numeric) for metrics domain of PMDA\n"
-"  -l logfile   write log into logfile rather than using default log name\n"
-"  -S server    use remote server, instead of localhost\n"
-"  -P port      use port on server, instead of port 80\n"
-"  -L location  use location on server, instead of 'server-status'\n"
-"  -U username  user account to run under (default \"pcp\")\n"
-"\nExactly one of the following options may appear:\n"
-"  -i port      expect PMCD to connect on given inet port (number or name)\n"
-"  -p           expect PMCD to supply stdin/stdout (pipe)\n"
-"  -u socket    expect PMCD to connect on given unix domain socket\n"
-"  -6 port      expect PMCD to connect on given ipv6 port (number or name)\n",
-	stderr);		
-    exit(1);
-}
-
 int
 main(int argc, char **argv)
 {
-    int			c, errflag = 0, sep = __pmPathSeparator();
+    int			c, sep = __pmPathSeparator();
     pmdaInterface	pmda;
     char		helppath[MAXPATHLEN];
 
@@ -503,29 +506,29 @@ main(int argc, char **argv)
     pmdaDaemon(&pmda, PMDA_INTERFACE_3, pmProgname, APACHE, "apache.log",
 		helppath);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:i:l:pu:L:P:S:U:6:?", &pmda, &errflag)) != EOF) {
+    while ((c = pmdaGetOptions(argc, argv, &opts, &pmda)) != EOF) {
 	switch(c) {
 	case 'S':
-	    http_server = optarg;
+	    http_server = opts.optarg;
 	    break;
 	case 'P':
-	    http_port = (int)strtol(optarg, (char **)NULL, 10);
+	    http_port = (int)strtol(opts.optarg, (char **)NULL, 10);
 	    break;
 	case 'L':
-	    if (optarg[0] == '/')
-		optarg++;
-	    http_path = optarg;
+	    if (opts.optarg[0] == '/')
+		opts.optarg++;
+	    http_path = opts.optarg;
 	    break;
-	case 'U':
-	    username = optarg;
-	    break;
-	default:
-	    errflag++;
 	}
     }
 
-    if (errflag)
-	usage();
+    if (opts.errors) {
+	pmdaUsageMessage(&opts);
+	exit(1);
+    }
+
+    if (opts.username)
+	username = opts.username;
 
     pmdaOpenLog(&pmda);
     apache_init(&pmda);

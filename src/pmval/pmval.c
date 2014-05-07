@@ -817,11 +817,11 @@ main(int argc, char *argv[])
 	}
     }
 
-    if (opts.optind >= argc) {
+    if (!opts.errors && opts.optind >= argc) {
 	pmprintf("Error: no metricname specified\n\n");
 	opts.errors++;
     }
-    else if (opts.optind < argc - 1) {
+    else if (!opts.errors && opts.optind < argc - 1) {
 	pmprintf("Error: pmval can only process one metricname at a time\n\n");
 	opts.errors++;
     }

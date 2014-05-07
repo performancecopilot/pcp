@@ -1,7 +1,7 @@
 /*
  * Global Filesystem v2 (GFS2) PMDA
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -860,17 +860,19 @@ gfs2_init(pmdaInterface *dp)
     pmdaInit(dp, indomtable, nindoms, metrictable, nmetrics);
 }
 
-static void
-usage(void)
-{
-    fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
-    fputs("Options:\n"
-	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
-	  "  -l logfile   write log into logfile rather than using default log name\n"
-	  "  -U username  user account to run under (default \"pcp\")\n",
-	  stderr);		
-    exit(1);
-}
+static pmLongOptions longopts[] = {
+    PMDA_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    PMDAOPT_DOMAIN,
+    PMDAOPT_LOGFILE,
+    PMOPT_HELP,
+    PMDA_OPTIONS_END
+};
+
+static pmdaOptions opts = {
+    .short_options = "D:d:l:?",
+    .long_options = longopts,
+};
 
 /*
  * Set up the agent if running as a daemon.
@@ -879,7 +881,6 @@ int
 main(int argc, char **argv)
 {
     int			sep = __pmPathSeparator();
-    int			err = 0;
     pmdaInterface	dispatch;
     char		helppath[MAXPATHLEN];
 
@@ -888,11 +889,11 @@ main(int argc, char **argv)
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, GFS2, "gfs2.log", helppath);
 
-    if (pmdaGetOpt(argc, argv, "D:d:l:?", &dispatch, &err) != EOF)
-	err++;
-
-    if (err)
-	usage();
+    pmdaGetOptions(argc, argv, &opts, &dispatch);
+    if (opts.errors) {
+	pmdaUsageMessage(&opts);
+	exit(1);
+    }
 
     pmdaOpenLog(&dispatch);
     gfs2_init(&dispatch);

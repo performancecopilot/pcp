@@ -759,6 +759,10 @@ pmUsageMessage(pmOptions *opts)
 	    pmprintf("\n%s:\n", option->message);
 	    continue;
         }
+	if (option->short_opt == '|') {	/* descriptive text */
+	    pmprintf("%s\n", option->message);
+	    continue;
+        }
 
 	message = option->argname ? option->argname : "?";
 	if (option->long_opt && option->long_opt[0] != '\0') {
@@ -956,7 +960,7 @@ pmgetopt_r(int argc, char *const *argv, pmOptions *d)
     int quiet = (d->flags & PM_OPTFLAG_QUIET);
     int print_errors = d->opterr || !quiet;
 
-    if (argc < 1)
+    if (argc < 1 || !optstring)
 	return -1;
 
     d->optarg = NULL;

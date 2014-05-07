@@ -42,7 +42,6 @@ static char menu[] =
 "  status                             information about connected pmlogger\n"
 "  query metric-list                  show logging state of metrics\n"
 "  new volume                         start a new log volume\n"
-"  flush                              flush the log buffers to disk\n"
 "\n"
 "  log { mandatory | advisory } on <interval> _metric-list\n"
 "  log { mandatory | advisory } off _metric-list\n"

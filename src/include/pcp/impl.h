@@ -585,6 +585,13 @@ extern ssize_t __pmRead(int, void *, size_t);
 extern ssize_t __pmSend(int, const void *, size_t, int);
 extern ssize_t __pmRecv(int, void *, size_t, int);
 extern int __pmConnectTo(int, const __pmSockAddr *, int);
+extern int __pmConnectCheckError(int);
+extern int __pmConnectRestoreFlags(int, int);
+extern int __pmSocketClosed(void);
+extern int __pmGetFileStatusFlags(int);
+extern int __pmSetFileStatusFlags(int, int);
+extern int __pmGetFileDescriptorFlags(int);
+extern int __pmSetFileDescriptorFlags(int, int);
 
 extern int  __pmFD(int);
 extern void __pmFD_CLR(int, __pmFdSet *);
@@ -1020,6 +1027,7 @@ extern int __pmLogLookupInDom(__pmLogCtl *, pmInDom, __pmTimeval *, const char *
 extern int __pmLogNameInDom(__pmLogCtl *, pmInDom, __pmTimeval *, int, char **);
 
 extern int __pmLogPutResult(__pmLogCtl *, __pmPDU *);
+extern int __pmLogPutResult2(__pmLogCtl *, __pmPDU *);
 extern int __pmLogFetch(__pmContext *, int, pmID *, pmResult **);
 extern int __pmLogFetchInterp(__pmContext *, int, pmID *, pmResult **);
 extern void __pmLogSetTime(__pmContext *);

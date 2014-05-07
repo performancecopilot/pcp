@@ -19,8 +19,12 @@ BuildRequires: ncurses-devel
 BuildRequires: readline-devel
 BuildRequires: cyrus-sasl-devel
 BuildRequires: libmicrohttpd-devel
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+BuildRequires: systemtap-sdt-devel
+%else
 %ifnarch ppc ppc64
 BuildRequires: systemtap-sdt-devel
+%endif
 %endif
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: initscripts man
@@ -365,7 +369,8 @@ rm -f $RPM_BUILD_ROOT/%{_includedir}/pcp/configsz.h
 
 %if %{disable_infiniband}
 # remove pmdainfiniband on platforms lacking IB devel packages.
-rm -f $RPM_BUILD_ROOT/%{_pmdasdir}/ib $RPM_BUILD_ROOT/man1/pmdaib.1.gz
+rm -f $RPM_BUILD_ROOT/%{_pmdasdir}/ib
+rm -f $RPM_BUILD_ROOT/%{_mandir}/man1/pmdaib.1.gz
 rm -fr $RPM_BUILD_ROOT/%{_pmdasdir}/infiniband
 %endif
 
@@ -387,7 +392,7 @@ ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
 sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >base_exec.list
 ls -1 $RPM_BUILD_ROOT/%{_mandir}/man1 |\
 sed -e 's#^#'%{_mandir}'\/man1\/#' >base_man.list
-cat base_pmdas.list base_bin.list base_conf.list base_exec.list base_man.list |\
+cat base_pmdas.list base_bin.list base_exec.list base_man.list |\
 egrep -v 'pmdaib|pmmgr|pmweb|2pcp' |\
 egrep -v %{_confdir} | egrep -v %{_logsdir} > base.list
 
@@ -728,6 +733,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 * Wed Mar 19 2014 Nathan Scott <nathans@redhat.com> - 3.9.1-1
 - Update to latest PCP sources.
+
+* Thu Feb 20 2014 Nathan Scott <nathans@redhat.com> - 3.9.0-2
+- Workaround further PowerPC/tapset-related build fallout.
 
 * Wed Feb 19 2014 Nathan Scott <nathans@redhat.com> - 3.9.0-1
 - Create new sub-packages for pcp-webapi and pcp-manager

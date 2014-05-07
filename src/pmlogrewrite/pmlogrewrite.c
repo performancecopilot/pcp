@@ -1,7 +1,7 @@
 /*
  * pmlogrewrite - config-driven stream editor for PCP archives
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -26,32 +26,31 @@
 #include <assert.h>
 
 global_t	global;
-indomspec_t	*indom_root = NULL;
-metricspec_t	*metric_root = NULL;
+indomspec_t	*indom_root;
+metricspec_t	*metric_root;
 int		lineno;
 
-/*
- *  Usage
- */
-static void
-usage(void)
-{
-    fprintf(stderr,
-"Usage: %s [options] input-archive [output-archive]\n\
-\n\
-Options:\n\
-  -c config   file or directory to load rules from\n\
-  -C          parse config file(s) and quit (sets -v and -w also)\n\
-  -d          desperate, save output archive even after error\n\
-  -i          rewrite in place, input-archive will be over-written\n\
-  -q          quick mode, no output if no change\n\
-  -s          do scale conversion\n\
-  -v          verbose\n\
-  -w          emit warnings [default is silence]\n\
-\n\
-output-archive is required unless -i is specified\n",
-	pmProgname);
-}
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    { "config", 1, 'c', "PATH", "file or directory to load rules from" },
+    { "check", 0, 'C', 0, "parse config file(s) and quit (verbose warnings also)" },
+    { "desperate", 0, 'd', 0, "desperate, save output archive even after error" },
+    { "", 0, 'i', 0, "rewrite in place, input-archive will be over-written" },
+    { "quick", 0, 'q', 0, "quick mode, no output if no change" },
+    { "scale", 0, 's', 0, "do scale conversion" },
+    { "verbose", 0, 'v', 0, "increased diagnostic verbosity" },
+    { "warnings", 0, 'w', 0, "emit warnings [default is silence]" },
+    PMAPI_OPTIONS_TEXT(""),
+    PMAPI_OPTIONS_TEXT("output-archive is required unless -i is specified"),
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .short_options = "c:CdD:iqsvw?",
+    .long_options = longopts,
+    .short_usage = "[options] input-archive [output-archive]",
+};
 
 /*
  *  Global variables
@@ -68,16 +67,16 @@ inarch_t		inarch;		/* input archive control */
 outarch_t		outarch;	/* output archive control */
 
 /* command line args */
-int	nconf = 0;			/* number of config files */
-char	**conf = NULL;			/* list of config files */
-char	*configfile = NULL;		/* current config file */
-int	Cflag = 0;			/* -C parse config and quit */
-int	dflag = 0;			/* -d desperate */
-int	iflag = 0;			/* -i in-place */
-int	qflag = 0;			/* -q quick or quiet */
-int	sflag = 0;			/* -s scale values */
-int	vflag = 0;			/* -v verbosity */
-int	wflag = 0;			/* -w emit warnings */
+int	nconf;				/* number of config files */
+char	**conf;				/* list of config files */
+char	*configfile;			/* current config file */
+int	Cflag;				/* -C parse config and quit */
+int	dflag;				/* -d desperate */
+int	iflag;				/* -i in-place */
+int	qflag;				/* -q quick or quiet */
+int	sflag;				/* -s scale values */
+int	vflag;				/* -v verbosity */
+int	wflag;				/* -w emit warnings */
 
 /*
  *  report that archive is corrupted
@@ -256,43 +255,41 @@ parseargs(int argc, char *argv[])
     int			c;
     int			sts;
     int			sep = __pmPathSeparator();
-    int			errflag = 0;
     struct stat		sbuf;
 
-    while ((c = getopt(argc, argv, "c:CdD:iqsvw?")) != EOF) {
+    while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 
 	case 'c':	/* config file */
-	    if (stat(optarg, &sbuf) < 0) {
-		fprintf(stderr, "%s: stat(%s) failed: %s\n",
-			pmProgname, optarg, osstrerror());
-		errflag++;
+	    if (stat(opts.optarg, &sbuf) < 0) {
+		pmprintf("%s: stat(%s) failed: %s\n",
+			pmProgname, opts.optarg, osstrerror());
+		opts.errors++;
 		break;
 	    }
 	    if (S_ISREG(sbuf.st_mode) || S_ISLINK(sbuf.st_mode)) {
 		nconf++;
 		if ((conf = (char **)realloc(conf, nconf*sizeof(conf[0]))) != NULL)
-		    conf[nconf-1] = optarg;
+		    conf[nconf-1] = opts.optarg;
 	    }
 	    else if (S_ISDIR(sbuf.st_mode)) {
 		DIR		*dirp;
 		struct dirent	*dp;
 		char		path[MAXPATHLEN+1];
 
-		if ((dirp = opendir(optarg)) == NULL) {
-		    fprintf(stderr, "%s: opendir(%s) failed: %s\n", pmProgname, optarg, osstrerror());
-		    errflag++;
+		if ((dirp = opendir(opts.optarg)) == NULL) {
+		    pmprintf("%s: opendir(%s) failed: %s\n", pmProgname, opts.optarg, osstrerror());
+		    opts.errors++;
 		}
 		else while ((dp = readdir(dirp)) != NULL) {
 		    /* skip ., .. and "hidden" files */
 		    if (dp->d_name[0] == '.') continue;
-		    snprintf(path, sizeof(path), "%s%c%s", optarg, sep, dp->d_name);
+		    snprintf(path, sizeof(path), "%s%c%s", opts.optarg, sep, dp->d_name);
 		    if (stat(path, &sbuf) < 0) {
-			fprintf(stderr, "%s: %s: %s\n",
-				pmProgname, path, osstrerror());
-			errflag++;
+			pmprintf("%s: %s: %s\n", pmProgname, path, osstrerror());
+			opts.errors++;
 		    }
-		    if (S_ISREG(sbuf.st_mode) || S_ISLINK(sbuf.st_mode)) {
+		    else if (S_ISREG(sbuf.st_mode) || S_ISLINK(sbuf.st_mode)) {
 			nconf++;
 			if ((conf = (char **)realloc(conf, nconf*sizeof(conf[0]))) == NULL)
 			    break;
@@ -307,11 +304,11 @@ parseargs(int argc, char *argv[])
 		    closedir(dirp);
 	    }
 	    else {
-		fprintf(stderr, "Error: -c config %s is not a file or directory\n", optarg);
-		errflag++;
+		pmprintf("%s: Error: -c config %s is not a file or directory\n", pmProgname, opts.optarg);
+		opts.errors++;
 	    }
 	    if (nconf > 0 && conf == NULL) {
-		fprintf(stderr, "conf[%d] realloc(%d) failed: %s\n", nconf, (int)(nconf*sizeof(conf[0])), strerror(errno));
+		fprintf(stderr, "%s: Error: conf[%d] realloc(%d) failed: %s\n", pmProgname, nconf, (int)(nconf*sizeof(conf[0])), strerror(errno));
 		abandon();
 		/*NOTREACHED*/
 	    }
@@ -328,11 +325,11 @@ parseargs(int argc, char *argv[])
 	    break;
 
 	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	    sts = __pmParseDebug(opts.optarg);
 	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
-		    pmProgname, optarg);
-		errflag++;
+		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+			pmProgname, opts.optarg);
+		opts.errors++;
 	    }
 	    else
 		pmDebug |= sts;
@@ -360,18 +357,18 @@ parseargs(int argc, char *argv[])
 
 	case '?':
 	default:
-	    errflag++;
+	    opts.errors++;
 	    break;
 	}
     }
 
-    if (errflag == 0) {
-	if ((iflag == 0 && optind != argc-2) ||
-	    (iflag == 1 && optind != argc-1))
-	    errflag++;
+    if (opts.errors == 0) {
+	if ((iflag == 0 && opts.optind != argc-2) ||
+	    (iflag == 1 && opts.optind != argc-1))
+	    opts.errors++;
     }
 
-    return -errflag;
+    return -opts.errors;
 }
 
 static void
@@ -865,7 +862,6 @@ check_output()
     }
 }
 
-
 int
 main(int argc, char **argv)
 {
@@ -874,17 +870,16 @@ main(int argc, char **argv)
     int		stsmeta = 0;		/* sts from nextmeta() */
     int		i;
     int		ti_idx;			/* next slot for input temporal index */
+    int		dir_fd = -1;		/* poinless initialization to humour gcc */
     int		needti = 0;
     int		doneti = 0;
     __pmTimeval	tstamp = { 0 };		/* for last log record */
     off_t	old_log_offset = 0;	/* log offset before last log record */
     off_t	old_meta_offset;
 
-    __pmSetProgname(argv[0]);
-
     /* process cmd line args */
     if (parseargs(argc, argv) < 0) {
-	usage();
+	pmUsageMessage(&opts);
 	exit(1);
     }
 
@@ -906,7 +901,8 @@ main(int argc, char **argv)
     assert(inarch.ctxp != NULL);
 
     if ((sts = pmGetArchiveLabel(&inarch.label)) < 0) {
-	fprintf(stderr, "%s: Error: cannot get archive label record (%s): %s\n", pmProgname, inarch.name, pmErrStr(sts));
+	fprintf(stderr, "%s: Error: cannot get archive label record (%s): %s\n",
+		pmProgname, inarch.name, pmErrStr(sts));
 	exit(1);
     }
 
@@ -929,6 +925,7 @@ main(int argc, char **argv)
 	 * + close the temporary file descriptors and unlink the basename
 	 *   files
 	 * + create the output as per normal in outarch.name
+	 * + fsync() all the output files and the container directory
 	 * + rename the _input_ archive files using the _second_ temporary
 	 *   basename
 	 * + rename the output archive files to the basename of the input
@@ -947,13 +944,18 @@ main(int argc, char **argv)
 	path[sizeof(path)-1] = '\0';
 	strncpy(dname, dirname(path), sizeof(dname));
 	dname[sizeof(dname)-1] = '\0';
+	if ((dir_fd = open(dname, O_RDONLY)) < 0) {
+	    fprintf(stderr, "%s: Error: cannot open directory \"%s\" for reading: %s\n", pmProgname, dname, strerror(errno));
+	    abandon();
+	    /*NOTREACHED*/
+	}
 	sprintf(path, "%s%cXXXXXX", dname, __pmPathSeparator());
 	cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
 	tmp_f1 = mkstemp(path);
 	umask(cur_umask);
 	outarch.name = strdup(path);
 	if (outarch.name == NULL) {
-	    fprintf(stderr, "temp file strdup(%s) failed: %s\n", path, strerror(errno));
+	    fprintf(stderr, "%s: Error: temp file strdup(%s) failed: %s\n", pmProgname, path, strerror(errno));
 	    abandon();
 	    /*NOTREACHED*/
 	}
@@ -973,14 +975,14 @@ main(int argc, char **argv)
 	dname[sizeof(dname)-1] = '\0';
 
 	if ((s = tempnam(dname, fname)) == NULL) {
-	    fprintf(stderr, "Error: first tempnam() failed: %s\n", strerror(errno));
+	    fprintf(stderr, "%s: Error: first tempnam() failed: %s\n", pmProgname, strerror(errno));
 	    abandon();
 	    /*NOTREACHED*/
 	}
 	else {
 	    outarch.name = strdup(s);
 	    if (outarch.name == NULL) {
-		fprintf(stderr, "temp file strdup(%s) failed: %s\n", s, strerror(errno));
+		fprintf(stderr, "%s: Error: temp file strdup(%s) failed: %s\n", pmProgname, s, strerror(errno));
 		abandon();
 		/*NOTREACHED*/
 	    }
@@ -989,7 +991,7 @@ main(int argc, char **argv)
 	    umask(cur_umask);
 	}
 	if ((s = tempnam(dname, fname)) == NULL) {
-	    fprintf(stderr, "Error: second tempnam() failed: %s\n", strerror(errno));
+	    fprintf(stderr, "%s: Error: second tempnam() failed: %s\n", pmProgname, strerror(errno));
 	    abandon();
 	    /*NOTREACHED*/
 	}
@@ -1001,12 +1003,12 @@ main(int argc, char **argv)
 	}
 #endif
 	if (tmp_f1 < 0) {
-	    fprintf(stderr, "Error: create first temp (%s) failed: %s\n", outarch.name, strerror(errno));
+	    fprintf(stderr, "%s: Error: create first temp (%s) failed: %s\n", pmProgname, outarch.name, strerror(errno));
 	    abandon();
 	    /*NOTREACHED*/
 	}
 	if (tmp_f2 < 0) {
-	    fprintf(stderr, "Error: create second temp (%s) failed: %s\n", bak_base, strerror(errno));
+	    fprintf(stderr, "%s: Error: create second temp (%s) failed: %s\n", pmProgname, bak_base, strerror(errno));
 	    abandon();
 	    /*NOTREACHED*/
 	}
@@ -1245,6 +1247,35 @@ main(int argc, char **argv)
     }
 
     if (iflag) {
+	/*
+	 * fsync() to make sure new archive is safe before we start
+	 * renaming ...
+	 */
+	if (fsync(fileno(outarch.logctl.l_mdfp)) < 0) {
+	    fprintf(stderr, "%s: Error: fsync(%d) failed for output metadata file: %s\n",
+		pmProgname, fileno(outarch.logctl.l_mdfp), strerror(errno));
+		abandon();
+		/*NOTREACHED*/
+	}
+	if (fsync(fileno(outarch.logctl.l_mfp)) < 0) {
+	    fprintf(stderr, "%s: Error: fsync(%d) failed for output data file: %s\n",
+		pmProgname, fileno(outarch.logctl.l_mfp), strerror(errno));
+		abandon();
+		/*NOTREACHED*/
+	}
+	if (fsync(fileno(outarch.logctl.l_tifp)) < 0) {
+	    fprintf(stderr, "%s: Error: fsync(%d) failed for output index file: %s\n",
+		pmProgname, fileno(outarch.logctl.l_tifp), strerror(errno));
+		abandon();
+		/*NOTREACHED*/
+	}
+	if (fsync(dir_fd) < 0) {
+	    fprintf(stderr, "%s: Error: fsync(%d) failed for output directory: %s\n",
+		pmProgname, dir_fd, strerror(errno));
+		abandon();
+		/*NOTREACHED*/
+	}
+	close(dir_fd);
 	if (_pmLogRename(inarch.name, bak_base) < 0) {
 	    abandon();
 	    /*NOTREACHED*/

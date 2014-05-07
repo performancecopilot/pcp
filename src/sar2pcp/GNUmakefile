@@ -14,10 +14,10 @@
 # for more details.
 #
 
-TOPDIR = ../../..
+TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-SCRIPT	= iostat2pcp
+SCRIPT	= sar2pcp
 LDIRT	= $(MAN_PAGES) $(MAN_PAGES).tmp
 LSRCFILES	= $(SCRIPT) README
 

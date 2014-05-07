@@ -13,14 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f $seq.out
-if [ $PCP_VER -lt 3604 ]
-then
-    ln $seq.out.1 $seq.out || exit 1
-else
-    ln $seq.out.2 $seq.out || exit 1
-fi
-
 trap "$sudo rm -f $tmp.*; exit" 0 1 2 3 15
 signal=$PCP_BINADM_DIR/pmsignal
 
@@ -39,7 +31,7 @@ _filter_pmlogger()
 	-e 's/(nil)/ADDR/g' \
 	-e 's/value [0-9]*/value INT/g' \
 	-e 's/[0-2][0-9]:00:00.000/TIME/' \
-	-e '/__pmLogPutResult/{
+	-e '/logputresult/{
 s/len=[0-9]*/len=NNN/
 s/posn=[0-9]*/posn=NNN/
 }' \

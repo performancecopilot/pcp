@@ -657,7 +657,7 @@ connect_pmcd(void)
      * pcp/pmda.py that explicitly do NOT connect to pmcd and treat
      * these as no-ops here.
      *
-     * Otherwise call pmdaConnet() to complete the PMDA's IPC
+     * Otherwise call pmdaConnect() to complete the PMDA's IPC
      * channel setup and complete the connection handshake with
      * pmcd.
      */

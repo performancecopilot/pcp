@@ -13,14 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f $seq.out
-if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
-then
-    ln $seq.out.linux $seq.out
-else
-    ln $seq.out.irix $seq.out
-fi
-
 signal=$PCP_BINADM_DIR/pmsignal
 newlog=$PCP_BINADM_DIR/pmnewlog
 trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15

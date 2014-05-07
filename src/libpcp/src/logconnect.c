@@ -333,7 +333,7 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 	    if ((servInfo = __pmGetAddrInfo(connectionSpec)) == NULL) {
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_CONTEXT)
-		    fprintf(stderr, "__pmConnectLogger: gethostbyname: %s\n",
+		    fprintf(stderr, "__pmConnectLogger: __pmGetAddrInfo: %s\n",
 			    hoststrerror());
 #endif
 		return -EHOSTUNREACH;

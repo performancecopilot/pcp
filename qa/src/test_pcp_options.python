@@ -57,6 +57,8 @@ options.pmSetLongOptionHelp()
 options.pmSetLongOptionHeader("Test Options")
 options.pmSetLongOption("force", 0, 'f', '', "force some behaviour")
 options.pmSetLongOption("list", 1, 'l', "FILE", "open a list file")
+options.pmSetLongOptionText("")
+options.pmSetLongOptionText("The parameter parameter is not optional.")
 
 options.pmSetOptionCallback(optionsCB)
 options.pmSetOverrideCallback(overrideCB)

@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 2008 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -142,6 +143,25 @@ compare_golden(FILE *f, const char *file, int sts, int warnings)
     }
 }
 
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("Options"),
+    { "host", 1, 'h', "HOSTNAME", "set the hostname for all files in archive" },
+    { "label", 0, 'l', 0, "dump the archive label" },
+    { "", 0, 'L', 0, "more verbose form of label dump" },
+    { "pid", 1, 'p', "PID", "set the logger process ID field for all files in archive" },
+    { "", 0, 's', 0, "write the label sentinel values for all files in archive" },
+    { "verbose", 0, 'v', 0, "run in verbose mode, reporting on each stage of checking" },
+    { "version", 1, 'V', "NUM", "write magic and version numbers for all files in archive" },
+    { "timezone", 1, 'Z', "TZ", "set the timezone for all files in archive" },
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .short_options = "D:h:lLp:svV:Z:?",
+    .long_options = longopts,
+    .short_usage = "[options] archive",
+};
+
 int
 main(int argc, char *argv[])
 {
@@ -149,7 +169,6 @@ main(int argc, char *argv[])
     int			sts;
     int			lflag = 0;
     int			Lflag = 0;
-    int			errflag = 0;
     int			verbose = 0;
     int			version = 0;
     int			readonly = 1;
@@ -160,24 +179,21 @@ main(int argc, char *argv[])
     char 		*host = NULL;
     char		buffer[MAXPATHLEN];
 
-    __pmSetProgname(argv[0]);
-
-    while ((c = getopt(argc, argv, "D:h:lLp:svV:Z:?")) != EOF) {
+    while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
+	    sts = __pmParseDebug(opts.optarg);
 	    if (sts < 0) {
-		fprintf(stderr,
-			"%s: unrecognized debug flag specification (%s)\n",
-			pmProgname, optarg);
-		errflag++;
+		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+			pmProgname, opts.optarg);
+		opts.errors++;
 	    }
 	    else
 		pmDebug |= sts;
 	    break;
 
 	case 'h':	/* rewrite hostname */
-	    host = optarg;
+	    host = opts.optarg;
 	    readonly = 0;
 	    break;
 
@@ -190,7 +206,7 @@ main(int argc, char *argv[])
 	    break;
 
 	case 'p':	/* rewrite pid */
-	    pid = atoi(optarg);
+	    pid = atoi(opts.optarg);
 	    readonly = 0;
 	    break;
 
@@ -203,45 +219,38 @@ main(int argc, char *argv[])
 	    break;
 
 	case 'V':	/* reset magic and version numbers */
-	    version = atoi(optarg);
+	    version = atoi(opts.optarg);
 	    if (version != PM_LOG_VERS02) {
 		fprintf(stderr, "%s: unknown version number (%s)\n",
-			pmProgname, optarg);
-		errflag++;
+			pmProgname, opts.optarg);
+		opts.errors++;
 	    }
 	    readonly = 0;
 	    break;
 
 	case 'Z':	/* $TZ timezone */
-	    tz = optarg;
+	    tz = opts.optarg;
 	    readonly = 0;
 	    break;
 
 	case '?':
 	default:
-	    errflag++;
+	    opts.errors++;
 	    break;
 	}
     }
 
-    if (errflag || optind != argc - 1) {
-	fprintf(stderr,
-"Usage: %s [options] archive\n"
-"\n"
-"Options:\n"
-"  -h hostname  set the hostname for all files in archive\n"
-"  -l           dump the archive label\n"
-"  -L           more verbose form of -l\n"
-"  -p pid       set the logger process ID field for all files in archive\n"
-"  -s           write the label sentinel values for all files in archive\n"
-"  -v           run in verbose mode, reporting on each stage of checking\n"
-"  -V version   write magic and version numbers for all files in archive\n"
-"  -Z timezone  set the timezone for all files in archive\n",
-		pmProgname);
+    if (opts.optind != argc - 1) {
+	pmprintf("%s: insufficient arguments\n", pmProgname);
+	opts.errors++;
+    }
+
+    if (opts.errors) {
+	pmUsageMessage(&opts);
 	exit(1);
     }
 
-    archive = argv[optind];
+    archive = argv[opts.optind];
     warnings = (readonly || verbose);
 
     if (verbose)

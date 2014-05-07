@@ -25,7 +25,7 @@ getflags(void)
     if (getenv("PM_OPTFLAG_MULTI") != NULL)
 	flags |= PM_OPTFLAG_MULTI;
     if (getenv("PM_OPTFLAG_POSIX") != NULL)
-	flags |= PM_OPTFLAG_MULTI;
+	flags |= PM_OPTFLAG_POSIX;
     if (getenv("PM_OPTFLAG_MIXED") != NULL)
 	flags |= PM_OPTFLAG_MIXED;
     if (getenv("PM_OPTFLAG_ENV_ONLY") != NULL)

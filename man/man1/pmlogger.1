@@ -362,7 +362,7 @@ See also the
 .B \-v
 option above.
 .PP
-The buffers for the current log may be flushed to disk using the
+Historically the buffers for the current log may be flushed to disk using the
 \f3flush\f1 command of
 .BR pmlc (1),
 or by sending
@@ -370,10 +370,23 @@ or by sending
 a SIGUSR1 signal
 or by using the
 .B \-u
-option (the latter forces every log write to be unbuffered).
-This is useful when the log needs to be read while
-.B pmlogger
-is still running.
+option.
+The current version of
+.I pmlogger
+and the
+.I libpcp
+routines that underpin
+.I pmlogger
+unconditionally use unbuffered writes and a single
+.BR fwrite (3)
+for each logical record written, and so ``flushing'' does not
+force any additional data to be written to the file system.
+The
+.B \-u
+option, the SIGUSR1 handling and the
+.BR pmlc (1)
+.B flush
+command are retained for backwards compatibility.
 .P
 When launched with the 
 .B \-x 
@@ -422,17 +435,17 @@ and
 are equivalent.
 .PP
 The syntax for the configuration file is as follows.
-.IP 1.
+.IP 1. 5n
 Words are separated by white space (space, tab or newline).
-.IP 2.
+.IP 2. 5n
 The symbol ``#'' (hash) introduces a comment, and all text up
 to the next newline
 is ignored.
-.IP 3.
+.IP 3. 5n
 Keywords (shown in
 .B bold
 below) must appear literally (i.e. in lower case).
-.IP 4.
+.IP 4. 5n
 Each specification begins with the optional keyword
 .BR log ,
 followed by one of the states
@@ -442,7 +455,7 @@ followed by one of the states
 .BR "advisory on"
 or
 .BR "advisory off" .
-.IP 5.
+.IP 5. 5n
 For the
 .B on
 states, a logging interval must follow using the syntax ``\c
@@ -490,13 +503,13 @@ argument follows the syntax described in
 .BR PCPIntro (1),
 and in the simplest form may be an unsigned integer (the implied
 units in this case are seconds).
-.IP 6.
+.IP 6. 5n
 Following the state and possible interval specifications comes
 a ``{'', followed by a list of one or more metric specifications
 and a closing ``}''.
 The list is white space (or comma) separated.
 If there is only one metric specification in the list, the braces are optional.
-.IP 7.
+.IP 7. 5n
 A metric specification consists of a metric name optionally
 followed by a set of instance names.
 The metric name follows the standard PCP naming conventions, see
@@ -522,37 +535,70 @@ for more information.
 If no instances are given, then the logging specification
 is applied to all instances of the associated metric.
 .RE
-.IP 8.
+.IP 8. 5n
 There may be an arbitrary number of logging specifications.
-.IP 9.
+.IP 9. 5n
 Following all of the logging specifications, there may be an optional
 access control section, introduced by the literal token
 .BR [access] .
-Thereafter come access control rules of the form ``\c
+Thereafter come access control rules that allow or disallow operations
+from particular hosts or groups of hosts.
+.RS 5n
+.PP
+The operations may be used to interrogate or control a running
+.B pmlogger
+using
+.BR pmlc (1)
+and fall into the following classes:
+.TP 15
+.B enquire
+interrogate the status of
+.B pmlogger
+and the metrics it is logging
+.PD 0
+.TP 15
+.B advisory
+Change advisory logging.
+.TP 15
+.B mandatory
+Change mandatory logging.
+.TP
+.B all
+All of the above.
+.PD
+.PP
+Access control rules are of the form ``\c
 .B allow
 .I hostlist
 .B :
-.I operation
+.I operationlist
 .BR ; ''
 and ``\c
 .B disallow
 .I hostlist
 .B :
-.I operation
+.I operationlist
 .BR ; ''.
-
-The base
-.I operations
-are
-.BR advisory ,
-.BR mandatory
-and
-.BR enquire .
-In all other aspects, these access control statements follow the syntactic
-and semantic rules defined for the access control mechanisms used
-by PMCD
-and are fully documented in
+.PP
+The
+.I hostlist
+follows the syntax and semantics for the access control mechanisms
+used by PMCD and are fully documented in
 .BR pmcd (1).
+An
+.I operationslist
+is a comma separated list of the operations
+.BR advisory ,
+.BR mandatory ,
+.B enquire
+and
+.BR all .
+.PP
+A missing 
+.BR [access]
+section allows all access and is equivalent to
+.BR "allow * : all;" .
+.RE
 .SH EXAMPLES
 For each PCP utility, there is a sample
 .B pmlogger

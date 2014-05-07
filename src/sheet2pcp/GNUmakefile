@@ -14,12 +14,12 @@
 # for more details.
 #
 
-TOPDIR = ../../..
+TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-SCRIPT	= sar2pcp
+SCRIPT	= sheet2pcp
 LDIRT	= $(MAN_PAGES) $(MAN_PAGES).tmp
-LSRCFILES	= $(SCRIPT) README
+LSRCFILES	= $(SCRIPT)
 
 ifneq ($(POD2MAN),)
 MAN_SECTION = 1

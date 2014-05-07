@@ -191,6 +191,11 @@ This command works only while a connection to a pmlogger instance is
 established, and requests the pmlogger instance
 to flush to disk all buffers associated with the current archive.
 For old-timers, \f3sync\f1 is a synonym for \f3flush\f1.
+In current versions of
+.BR pmlogger (1)
+all writes are unbuffered and aligned with the logical records in the external
+files, so this command achieves nothing, but is retained for backwards
+compatibility.
 .TP 4
 \f3help\f1
 Displays a summary of the available commands.
@@ -331,6 +336,80 @@ permissible transition in the logging state).  A request to log specific
 instances of a metric when all instances of a metric are already being logged
 is refused by
 .BR pmlogger .
+.SH "ACCESS CONTROL"
+.B pmlc
+may have restricted access to and control over
+.BR pmlogger (1)
+processes.
+.PP
+If a
+.BR pmlogger (1)
+is unable to export its control information to the local
+.BR pmcd (1),
+then that
+.BR pmlogger (1)
+cannot cannot be connected to nor controlled by
+.BR pmlc .
+In practice, this means the
+.BR pmlogger (1)
+process has to be owned by the user ``pcp'' and/or the group ``pcp''.
+If
+.BR pmlogger (1)
+is running on the host ``foo'' then
+use ``pminfo -f -h foo pmcd.pmlogger'' to verify that the
+.BR pmlogger (1)
+of interest is known to
+.BR pmcd (1),
+alternatively
+.BR pmlogger (1)
+instances that are not reported from the
+.B pmlc
+.B "show loggers @foo"
+command are not known to
+.BR pmcd (1)
+on the host ``foo''.
+.PP
+If
+.BR pmlogger (1)
+is launched with a configuration file that contains an
+.B [access]
+section, then
+.B pmlc
+will be unable to connect to that
+.BR pmlogger (1)
+unless the access controls allow
+.B some
+access from the host where
+.B pmlc
+is being run.
+Minimally this requires the
+.B enquire
+access to be permitted in the
+.BR pmlogger (1)
+access control section.
+.PP
+If
+.B pmlc
+is able to connect to the
+.BR pmlogger (1)
+of interest, then the following table summarizes the permissions needed
+to perform different
+.B pmlc
+commands:
+.TS
+box,center;
+c | c
+lf(B) | l.
+\fBpmlc\fP command	Required \fBpmlogger\fP access
+=
+show loggers	Any
+connect	Any of \fBenquire\fP, \fBadvisory\fP or \fBmandatory\fP
+status	Any of \fBenquire\fP, \fBadvisory\fP or \fBmandatory\fP
+query \fR...\fP	Any of \fBenquire\fP, \fBadvisory\fP or \fBmandatory\fP
+log advisory \fR...\fP	\fBadvisory\fP
+log mandatory \fR...\fP	\fBmandatory\fP
+new volume	\fBmandatory\fP
+.TE
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_

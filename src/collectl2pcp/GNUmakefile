@@ -11,7 +11,7 @@
 # for more details.
 #
 
-TOPDIR = ../../..
+TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 HFILES = metrics.h

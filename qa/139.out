@@ -19,7 +19,6 @@ pmlc commands
   status                             information about connected pmlogger
   query metric-list                  show logging state of metrics
   new volume                         start a new log volume
-  flush                              flush the log buffers to disk
   log mandatory maybe _metric-list
   timezone local|logger|'<timezone>' change reporting timezone
   help                               print this help message

@@ -1,0 +1,134 @@
+QA output created by 492
+=== usage cases ===
+pmlogrewrite: invalid option -- 'x'
+Usage: pmlogrewrite [options] input-archive [output-archive]
+
+Options:
+  -c PATH, --config=PATH
+                        file or directory to load rules from
+  -C, --check           parse config file(s) and quit (verbose warnings also)
+  -d, --desperate       desperate, save output archive even after error
+  -i                    rewrite in place, input-archive will be over-written
+  -q, --quick           quick mode, no output if no change
+  -s, --scale           do scale conversion
+  -v, --verbose         increased diagnostic verbosity
+  -w, --warnings        emit warnings [default is silence]
+
+output-archive is required unless -i is specified
+
+Usage: pmlogrewrite [options] input-archive [output-archive]
+
+Options:
+  -c PATH, --config=PATH
+                        file or directory to load rules from
+  -C, --check           parse config file(s) and quit (verbose warnings also)
+  -d, --desperate       desperate, save output archive even after error
+  -i                    rewrite in place, input-archive will be over-written
+  -q, --quick           quick mode, no output if no change
+  -s, --scale           do scale conversion
+  -v, --verbose         increased diagnostic verbosity
+  -w, --warnings        emit warnings [default is silence]
+
+output-archive is required unless -i is specified
+
+pmlogrewrite: stat(no.such.file) failed: No such file or directory
+Usage: pmlogrewrite [options] input-archive [output-archive]
+
+Options:
+  -c PATH, --config=PATH
+                        file or directory to load rules from
+  -C, --check           parse config file(s) and quit (verbose warnings also)
+  -d, --desperate       desperate, save output archive even after error
+  -i                    rewrite in place, input-archive will be over-written
+  -q, --quick           quick mode, no output if no change
+  -s, --scale           do scale conversion
+  -v, --verbose         increased diagnostic verbosity
+  -w, --warnings        emit warnings [default is silence]
+
+output-archive is required unless -i is specified
+
+pmlogrewrite: Error: -c config /dev/tty is not a file or directory
+Usage: pmlogrewrite [options] input-archive [output-archive]
+
+Options:
+  -c PATH, --config=PATH
+                        file or directory to load rules from
+  -C, --check           parse config file(s) and quit (verbose warnings also)
+  -d, --desperate       desperate, save output archive even after error
+  -i                    rewrite in place, input-archive will be over-written
+  -q, --quick           quick mode, no output if no change
+  -s, --scale           do scale conversion
+  -v, --verbose         increased diagnostic verbosity
+  -w, --warnings        emit warnings [default is silence]
+
+output-archive is required unless -i is specified
+
+pmlogrewrite: Cannot open config file "TMP.forbidden": Permission denied
+
+pmlogrewrite: opendir(TMP.forbiddendir) failed: Permission denied
+Usage: pmlogrewrite [options] input-archive [output-archive]
+
+Options:
+  -c PATH, --config=PATH
+                        file or directory to load rules from
+  -C, --check           parse config file(s) and quit (verbose warnings also)
+  -d, --desperate       desperate, save output archive even after error
+  -i                    rewrite in place, input-archive will be over-written
+  -q, --quick           quick mode, no output if no change
+  -s, --scale           do scale conversion
+  -v, --verbose         increased diagnostic verbosity
+  -w, --warnings        emit warnings [default is silence]
+
+output-archive is required unless -i is specified
+
+pmlogrewrite: stat(TMP.forbiddendir/blah) failed: Permission denied
+Usage: pmlogrewrite [options] input-archive [output-archive]
+
+Options:
+  -c PATH, --config=PATH
+                        file or directory to load rules from
+  -C, --check           parse config file(s) and quit (verbose warnings also)
+  -d, --desperate       desperate, save output archive even after error
+  -i                    rewrite in place, input-archive will be over-written
+  -q, --quick           quick mode, no output if no change
+  -s, --scale           do scale conversion
+  -v, --verbose         increased diagnostic verbosity
+  -w, --warnings        emit warnings [default is silence]
+
+output-archive is required unless -i is specified
+
+pmlogrewrite: Cannot open config file "TMP.configdir/forbidden": Permission denied
+
+pmlogrewrite: Cannot open config file "TMP.link": Permission denied
+
+pmlogrewrite: Cannot open config file "TMP.link/forbidden": Permission denied
+
+=== truncated archive ===
+pmlogrewrite: Error: __pmLogRead[log src/ok-truncbin]: Corrupted record in a PCP archive log
+pmlogrewrite: Error occurred at byte offset 204456 into a file of 204800 bytes.
+Archive "TMP.new" not created.
+input records: 416
+output records: no file
+
+=== truncated archive -d ===
+pmlogrewrite: Error: __pmLogRead[log src/ok-truncbin]: Corrupted record in a PCP archive log
+pmlogrewrite: Error occurred at byte offset 204456 into a file of 204800 bytes.
+The last record, and the remainder of this file will not be processed.
+Archive "TMP.new" creation truncated.
+input records: 416
+output records: 416
+
+===  bad label ===
+pmlogrewrite: Error: cannot open archive "src/badlen-8": Illegal label record at start of a PCP archive log file
+input records: 0
+output records: no file
+
+=== truncated metadata ===
+pmlogrewrite: Error: cannot open archive "src/badlen-9": Corrupted record in a PCP archive log
+input records: 0
+output records: no file
+
+===  bad version ===
+pmlogrewrite: Error: cannot open archive "src/err_v1": Illegal label record at start of a PCP archive log file
+input records: 0
+output records: no file

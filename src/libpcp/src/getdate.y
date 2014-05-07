@@ -893,7 +893,7 @@ static table const *lookup_word(parser_control const *pc, char *word)
     return NULL;
 }
 
-static int yylex(YYSTYPE * lvalp, parser_control * pc)
+static int yylex(union YYSTYPE * lvalp, parser_control * pc)
 {
     unsigned char c;
     size_t count;
