@@ -11,11 +11,11 @@
 #ifndef QMC_SOURCE_H
 #define QMC_SOURCE_H
 
-#include <qmc.h>
+#include "qmc.h"
+
 #include <qlist.h>
 #include <qstring.h>
 #include <qtextstream.h>
-#include "version.h"
 
 class QmcSource
 {

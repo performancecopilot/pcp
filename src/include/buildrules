@@ -14,12 +14,6 @@ clean clobber:
 realclean distclean: clean
 	rm -f $(TOPDIR)/src/include/builddefs \
 	      $(TOPDIR)/src/include/version.h \
-	      $(TOPDIR)/src/libqmc/libqmc.pro \
-	      $(TOPDIR)/src/libqwt/libqwt.pro \
-	      $(TOPDIR)/src/pmdumptext/pmdumptext.pro \
-	      $(TOPDIR)/src/pmquery/pmquery.pro \
-	      $(TOPDIR)/src/pmchart/pmchart.pro \
-	      $(TOPDIR)/src/pmtime/pmtime.pro \
 	rm -f $(TOPDIR)/pcp-gui.lsm $(TOPDIR)/configure
 
 
@@ -52,22 +46,22 @@ src-link-pcp-gui : $(SRCFILES) $(CONFFILES) $(SUBDIRS)
 	done
 
 ifeq ($(PKG_PLATFORM),darwin)
-QTMAKE = $(QMAKE) -spec macx-g++ && make -f Makefile
+QTMAKE = $(QMAKE) -spec macx-g++ CONFIG+=$(QT_RELEASE) && make -f Makefile
 MACBUILD = $(COMMAND).app/Contents
 BINARY = $(MACBUILD)/MacOS/$(COMMAND)
 LNMAKE = test ! -f $(BINARY) -o -L $(COMMAND) || $(LN_S) $(BINARY) $(COMMAND)
 WINDOW = mac
 endif
 ifeq ($(PKG_PLATFORM),mingw)
-QTMAKE = $(QMAKE) && $(MAKE) -f Makefile
+QTMAKE = $(QMAKE) CONFIG+=$(QT_RELEASE) && $(MAKE) -f Makefile
 BINARY = $(QT_RELEASE)/$(COMMAND)
 LNMAKE =
 WINDOW = win
 endif
 ifeq "$(findstring $(PKG_PLATFORM),darwin mingw)" ""
-QTMAKE = +$(QMAKE) && $(MAKE) $(MAKEOPTS) -f Makefile
-BINARY = $(COMMAND)
-LNMAKE =
+QTMAKE = $(QMAKE) CONFIG+=$(QT_RELEASE) && $(MAKE) $(MAKEOPTS) -f Makefile
+BINARY = build/$(QT_RELEASE)/$(COMMAND)
+LNMAKE = test ! -f $(BINARY) -o -L $(COMMAND) || $(LN_S) $(BINARY) $(COMMAND)
 WINDOW = x11
 endif
 

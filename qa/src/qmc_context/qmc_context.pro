@@ -1,7 +1,12 @@
 TEMPLATE        = app
 LANGUAGE        = C++
 SOURCES         = qmc_context.cpp
-INCLUDEPATH     += ../../../src/include ../../../src/libqmc
-LIBS            = -lpcp -lqmc
-LIBS            += -L../../../src/libqmc -L../../../src/libqmc/build/Default
-CONFIG          += qt warn_on debug
+CONFIG          += qt console warn_on
+INCLUDEPATH     += ../../../src/include
+INCLUDEPATH     += ../../../src/libpcp_qmc/src
+release:DESTDIR = build/debug
+debug:DESTDIR   = build/release
+LIBS            += -L../../../src/libpcp_qmc/src
+LIBS            += -L../../../src/libpcp_qmc/src/$$DESTDIR
+LIBS            += -lpcp_qmc -lpcp
+QT		-= gui

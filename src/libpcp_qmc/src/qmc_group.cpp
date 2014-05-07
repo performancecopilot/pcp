@@ -15,10 +15,10 @@
 
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
-#include <qmc_group.h>
-#include <qmc_source.h>
-#include <qmc_context.h>
-#include <qmc_metric.h>
+#include "qmc_group.h"
+#include "qmc_source.h"
+#include "qmc_context.h"
+#include "qmc_metric.h"
 
 int QmcGroup::tzLocal = -1;
 bool QmcGroup::tzLocalInit = false;

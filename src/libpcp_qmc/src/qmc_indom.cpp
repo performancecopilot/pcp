@@ -13,8 +13,8 @@
  * License for more details.
  */
 
-#include <qmc_indom.h>
-#include <qmc_desc.h>
+#include "qmc_indom.h"
+#include "qmc_desc.h"
 #include <ctype.h>
 #include <QVector>
 #include <QStringList>

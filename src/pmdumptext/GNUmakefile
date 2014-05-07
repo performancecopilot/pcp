@@ -6,8 +6,7 @@ include $(TOPDIR)/src/include/builddefs
 QRCFILE = $(COMMAND).qrc
 UIFILES = $(shell echo *.ui)
 SOURCES = pmdumptext.cpp
-CONFFILES = $(PROJECT)
-LSRCFILES = $(PROJECT).in $(SOURCES)
+LSRCFILES = $(PROJECT) $(SOURCES)
 LDIRT = $(COMMAND)
 
 default:

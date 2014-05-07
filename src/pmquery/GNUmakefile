@@ -10,8 +10,7 @@ XMLFILE = $(COMMAND).info
 HEADERS = pmquery.h
 SOURCES = $(HEADERS:.h=.cpp) main.cpp
 SCRIPTS = pmconfirm.sh pmmessage.sh
-CONFFILES = $(PROJECT)
-LSRCFILES = $(PROJECT).in $(QRCFILE) $(SCRIPTS) $(HEADERS) $(SOURCES) \
+LSRCFILES = $(PROJECT) $(QRCFILE) $(SCRIPTS) $(HEADERS) $(SOURCES) \
 	  $(WRAPPER).IN pmconfirm.sh.IN pmmessage.sh.IN $(XMLFILE).in
 LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER) $(SCRIPTS) $(XMLFILE)
 

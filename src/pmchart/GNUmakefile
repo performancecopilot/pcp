@@ -21,9 +21,8 @@ HEADERS = aboutdialog.h chartdialog.h exportdialog.h hostdialog.h \
 	  timeaxis.h timebutton.h timecontrol.h \
 	  groupcontrol.h gadget.h sampling.h tracing.h
 SOURCES = $(HEADERS:.h=.cpp) view.cpp
-CONFFILES = $(PROJECT)
-LSRCFILES = $(PROJECT).in $(QRCFILE) $(RCFILE) $(UIFILES) $(HEADERS) $(SOURCES) \
-	  $(DESKTOP) $(WRAPPER).IN $(XMLFILE).in
+LSRCFILES = $(QRCFILE) $(RCFILE) $(UIFILES) $(HEADERS) $(SOURCES) \
+	  $(PROJECT) $(DESKTOP) $(WRAPPER).IN $(XMLFILE).in
 LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER) $(XMLFILE)
 
 ICONLINKS = aboutpcp.png aboutpmchart.png pmchart.png pmtime.png \

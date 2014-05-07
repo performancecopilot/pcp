@@ -9,8 +9,8 @@
  * (at your option) any later version.
  */
 
-#include <qmc_context.h>
-#include <qmc_metric.h>
+#include "qmc_context.h"
+#include "qmc_metric.h"
 #include <limits.h>
 #include <QVector>
 #include <QStringList>

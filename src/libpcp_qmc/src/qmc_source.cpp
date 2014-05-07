@@ -8,7 +8,7 @@
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
  */
-#include <qmc_source.h>
+#include "qmc_source.h"
 
 QString QmcSource::localHost;
 QList<QmcSource*> QmcSource::sourceList;

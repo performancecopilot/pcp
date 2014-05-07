@@ -1,9 +1,7 @@
-TARGET		= qmc
+TARGET		= pcp_qmc
 TEMPLATE	= lib
 VERSION		= 1.0.0
-INCLUDEPATH	+= .  ../include
-win32:INCLUDEPATH += @pcp_dir@/include
-CONFIG		+= qt staticlib warn_on @qt_release@
+CONFIG		+= qt staticlib warn_on
 
 HEADERS	= qmc_context.h qmc_desc.h qmc_group.h \
 	  qmc_indom.h qmc_metric.h qmc_source.h \

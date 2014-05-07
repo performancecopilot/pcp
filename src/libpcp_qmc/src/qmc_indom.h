@@ -15,7 +15,7 @@
 #ifndef QMC_INDOM_H
 #define QMC_INDOM_H
 
-#include <qmc.h>
+#include "qmc.h"
 
 #include <qlist.h>
 #include <qstring.h>

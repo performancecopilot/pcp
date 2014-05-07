@@ -11,10 +11,10 @@
 #ifndef QMC_CONTEXT_H
 #define QMC_CONTEXT_H
 
-#include <qmc.h>
-#include <qmc_desc.h>
-#include <qmc_indom.h>
-#include <qmc_source.h>
+#include "qmc.h"
+#include "qmc_desc.h"
+#include "qmc_indom.h"
+#include "qmc_source.h"
 
 #include <qhash.h>
 #include <qlist.h>

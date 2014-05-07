@@ -13,7 +13,7 @@
  * for more details.
  */
 #include <QtGui/QIcon>
-#include <qmc_time.h>
+#include "qmc_time.h"
 
 //
 // Map icon type name to QIcon

@@ -35,13 +35,7 @@ AC_MANUAL_FORMAT
 AC_OUTPUT( \
 	src/include/builddefs \
 	src/include/version.h \
-	src/libqmc/libqmc.pro \
-	src/libqwt/libqwt.pro \
-	src/pmdumptext/pmdumptext.pro \
 	src/pmquery/pmquery.info \
-	src/pmquery/pmquery.pro \
 	src/pmchart/pmchart.info \
-	src/pmchart/pmchart.pro \
 	src/pmtime/pmtime.info \
-	src/pmtime/pmtime.pro \
 	pcp-gui.lsm )

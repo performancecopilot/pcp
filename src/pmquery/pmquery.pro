@@ -4,4 +4,6 @@ HEADERS		= pmquery.h
 SOURCES		= pmquery.cpp main.cpp
 ICON		= pmquery.icns
 RESOURCES	= pmquery.qrc
-CONFIG		+= qt warn_on @qt_release@
+CONFIG		+= qt warn_on
+release:DESTDIR	= build/debug
+debug:DESTDIR	= build/release

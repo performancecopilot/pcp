@@ -11,8 +11,8 @@
 #ifndef QMC_GROUP_H
 #define QMC_GROUP_H
 
-#include <qmc.h>
-#include <qmc_context.h>
+#include "qmc.h"
+#include "qmc_context.h"
 
 #include <qlist.h>
 #include <qstring.h>

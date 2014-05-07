@@ -9,8 +9,8 @@
  */
 
 #include <strings.h>
-#include <qmc_metric.h>
-#include <qmc_group.h>
+#include "qmc_metric.h"
+#include "qmc_group.h"
 
 QmcMetricValue::QmcMetricValue()
 {

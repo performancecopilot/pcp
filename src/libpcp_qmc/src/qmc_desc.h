@@ -10,8 +10,7 @@
 #ifndef QMC_DESC_H
 #define QMC_DESC_H
 
-#include <qmc.h>
-
+#include "qmc.h"
 #include <qstring.h>
 
 class QmcDesc

@@ -7,7 +7,7 @@
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
  */
-#include <qmc_desc.h>
+#include "qmc_desc.h"
 #include <QTextStream>
 
 QmcDesc::QmcDesc(pmID pmid)
