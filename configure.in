@@ -77,6 +77,18 @@ AC_ARG_WITH([discovery],
     [do_discovery=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-discovery=$withval"],
     [do_discovery=check])
 
+AC_ARG_WITH([qt],
+    [AC_HELP_STRING([--with-qt],
+                   [enable support for tools requiring Qt (default is on)])],
+    [do_qt=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-qt=$withval"],
+    [do_qt=check])
+
+AC_ARG_WITH([books],
+    [AC_HELP_STRING([--with-books],
+                   [enable building of the PCP books (default is off)])],
+    [do_books=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books=$withval"],
+    [do_books=off])
+
 #
 # Note: the following environment variables may be
 # set to override the defaults.
@@ -386,6 +398,52 @@ AC_SUBST(GIT)
 
 AC_CHECK_PROGS(PYTHON, python)
 AC_SUBST(PYTHON)
+
+qmake=$QMAKE
+enable_qt=false
+qt_release=release
+AS_IF([test "x$do_qt" != "xno"], [
+    enable_qt=true
+    
+    if test -z "$QMAKE"
+    then
+	AC_PATH_PROGS(QMAKE, [qmake-qt4 qmake],, [$QTDIR/bin:/usr/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin])
+    fi
+    qmake=$QMAKE
+    if test -z "$QMAKE"
+    then
+	enable_qt=false
+    else
+	AC_MSG_CHECKING([Qt version])
+	eval `$qmake --version | awk '/Using Qt version/ { ver=4; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export QT_MAJOR=%d QT_MINOR=%d QT_POINT=%d\n",$major,$minor,$point }'`
+	if test "$QT_MAJOR" -lt 4; then
+	    echo
+	    echo WARNING: Qt version 4.4 or later does not seem to be installed.
+	    echo Cannot proceed with the Qt $QT_MAJOR installation found.
+	    enable_qt=false
+	fi
+	if test "$QT_MAJOR" -eq 4 -a "$QT_MINOR" -lt 4 ; then
+	    echo
+	    echo WARNING: Qt version 4.$QT_MINOR is too old.
+	    echo Qt version 4.4 or later is required for Qt builds.
+	    enable_qt=false
+	fi
+	AC_MSG_RESULT([$QT_MAJOR.$QT_MINOR.$QT_POINT])
+    fi
+
+    if test "$do_qt" != "check" -a "$enable_qt" != "true"
+    then
+	AC_MSG_ERROR(cannot enable Qt - no supported Qt installation found)
+    elif test "$do_qt" = "debug"
+    then
+	dnl Debug/release style build? (non-debug by default)
+	qt_release=debug
+	enable_qt=true
+    fi
+])
+AC_SUBST(qt_release)
+AC_SUBST(enable_qt)
+AC_SUBST(qmake)
 
 dnl check if user wants their own C compiler
 cflags_abi=
@@ -704,6 +762,39 @@ if test -z "$MAKEPKG"; then
 fi
 makepkg=$MAKEPKG
 AC_SUBST(makepkg)
+
+dnl check if a toolchain is available for the books
+test -z "$PUBLICAN" && AC_PATH_PROG(PUBLICAN, publican)
+publican=$PUBLICAN
+AC_SUBST(publican)
+test -z "$DBLATEX" && AC_PATH_PROG(DBLATEX, dblatex)
+dblatex=$DBLATEX
+AC_SUBST(dblatex)
+test -z "$XMLTO" && AC_PATH_PROG(XMLTO, xmlto)
+xmlto=$XMLTO
+AC_SUBST(xmlto)
+
+book_toolchain=""
+if test "$do_books" = "check" -o "$do_books" = "yes"
+then
+    if test "$BOOK_TOOLCHAIN" != ""
+    then
+        book_toolchain=$BOOK_TOOLCHAIN
+    elif test "$DBLATEX" != ""
+    then
+        book_toolchain=dblatex
+    elif test "$PUBLICAN" != ""
+    then
+        book_toolchain=publican
+    elif test "$XMLTO" != ""
+    then
+        book_toolchain=xmlto
+    elif test "$do_books" = "yes"
+    then
+	AC_MSG_ERROR(cannot enable books build - no toolchain found)
+    fi
+fi
+AC_SUBST(book_toolchain)
 
 dnl check if symbolic links are supported
 AC_PROG_LN_S
@@ -1957,6 +2048,21 @@ dnl include files
 pcp_inc_dir=`eval echo $includedir/pcp`
 pcp_inc_dir=`eval echo $pcp_inc_dir`
 AC_SUBST(pcp_inc_dir)
+
+dnl books - pdfs, html
+pcp_books_dir=`eval echo $datarootdir/doc/pcp-doc`
+pcp_books_dir=`eval echo $pcp_books_dir`
+AC_SUBST(pcp_books_dir)
+
+dnl icon pixmap files
+pcp_icons_dir=`eval echo $datarootdir/pcp-gui/pixmaps`
+pcp_icons_dir=`eval echo $pcp_icons_dir`
+AC_SUBST(pcp_icons_dir)
+
+dnl desktop application entries
+pcp_desktop_dir=`eval echo $datarootdir/applications`
+pcp_desktop_dir=`eval echo $pcp_desktop_dir`
+AC_SUBST(pcp_desktop_dir)
 
 dnl rc/startup files
 AC_ARG_WITH(rcdir,[AC_HELP_STRING([--with-rcdir],[rc directory [SYSCONFDIR/rc.d]])],

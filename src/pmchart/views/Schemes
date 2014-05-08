@@ -1,0 +1,6 @@
+#kmchart
+version 1
+scheme Fire	#f2b600 #ede200 #d21005 #e4d904 #f35241
+scheme Nature	#b4ff3a #d2954e #069806 #8b5f07 #08ed00
+scheme Neon	#ff34f9 #fffb00 #1df0ff #12ff01 #ffc800
+scheme Ocean	#f5dd85 #aaf5cb #4790f5 #bdcfcc #12cfa0

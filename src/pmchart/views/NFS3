@@ -1,0 +1,6 @@
+#kmchart
+version 1
+
+chart title "NFS3 Calls [%h]" style plot
+	plot legend "client" metric nfs3.client.calls
+	plot legend "server" metric nfs3.server.calls

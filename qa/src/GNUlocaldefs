@@ -188,7 +188,7 @@ MYFILES += $(SRCARCH) \
 	simple.sxc simple.xls simple.xlsx \
 	iostat iostat-c iostat-d iostat-d-k iostat-d-m iostat-p-ALL \
 	iostat-t iostat-t.ISO iostat-x iostat-z iostat-z-p-ALL \
-	pmtimezone.c pthread_barrier.h pv.c qa_test.c \
+	pthread_barrier.h pv.c qa_test.c qa_timezone.c \
 	sa-sysstat-10.0.1 sa-sysstat-9.0.6 sa-sysstat-9.1.7 permslist
 
 MYSCRIPTS = grind-tools ipcs_clear make.dodgey mkarch-all mkbadlen \
@@ -240,7 +240,7 @@ LDIRT	+= *.log domain.h help.pag help.dir \
 	dodgey-mixed.0 dodgey-mixed.index dodgey-mixed.meta \
 	reduce-gap.0 reduce-gap.index reduce-gap.meta \
 	chkctx2_lite.c fetchrate_lite.c \
-	localconfig.h gmon.out pmtimzone.so pmtimezone.o \
+	localconfig.h gmon.out \
 	$(TARGETS)
 
 .ORDER:	torture_api \
@@ -755,8 +755,8 @@ torture_pmns: torture_pmns.c
 getpid.so:	getpid.o
 	$(LD) -shared -o getpid.so -nostdlib getpid.o
 
-pmtimezone.so:	pmtimezone.o
-	$(LD) -shared -o pmtimezone.so -nostdlib pmtimezone.o
+qa_timezone.so:	qa_timezone.o
+	$(LD) -shared -o qa_timezone.so -nostdlib qa_timezone.o
 
 arch_maxfd.o:	localconfig.h
 scale.o:	localconfig.h

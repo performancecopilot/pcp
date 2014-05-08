@@ -4,7 +4,7 @@ Priority: extra
 Homepage: http://www.performancecopilot.org
 Maintainer: PCP Development Team <pcp@mail.performancecopilot.org>
 Uploaders: Nathan Scott <nathans@debian.org>, Anibal Monsalve Salazar <anibal@debian.org>
-Build-Depends: bison, flex, gawk, procps, pkg-config, debhelper (>= 5), perl (>= 5.6), libreadline-dev | libreadline5-dev | libreadline-gplv2-dev, chrpath, libbsd-dev [kfreebsd-any], libkvm-dev [kfreebsd-any], python-all, python-all-dev, libnspr4-dev, libnss3-dev, libsasl2-dev, libmicrohttpd-dev, libavahi-common-dev, autotools-dev
+Build-Depends: bison, flex, gawk, procps, pkg-config, debhelper (>= 5), perl (>= 5.6), libreadline-dev | libreadline5-dev | libreadline-gplv2-dev, chrpath, libbsd-dev [kfreebsd-any], libkvm-dev [kfreebsd-any], python-all, python-all-dev, libnspr4-dev, libnss3-dev, libsasl2-dev, libmicrohttpd-dev, libavahi-common-dev, libqt4-dev, autotools-dev
 #Architecture-dependent -- Build-Depends: libibumad-dev, libibmad-dev
 Standards-Version: 3.9.3
 X-Python-Version: >= 2.6
@@ -329,21 +329,27 @@ Description: Tool for importing data from collectl into PCP archive logs
  into standard PCP archive logs for replay with any PCP monitoring tool.
  (such as pmie, pmlogsummary, pmchart or pmdumptext).
 
-#Package: pcp-pmda-infiniband
-#Depends: ${misc:Depends}, ${shlibs:Depends}
-#Architecture: any
-#Description: Infiniband performance metrics domain agent (PMDA)
-# Performance Metrics Domain Agent (PMDA) for collecting Infiniband
-# staticstics.  By default, it monitors the local HCAs but can also
-# be configured to monitor remote GUIDs such as IB switches.
+Package: pcp-doc
+Section: doc
+Depends: ${misc:Depends}
+Breaks: pcp-gui (<< 1.5.0)
+Replaces: pcp-gui (<< 1.5.0)
+Recommends: pcp, pcp-gui
+Architecture: all
+Description: Documentation and tutorial for the Performance Co-Pilot
+ The pcp-doc package provides useful information on using and
+ configuring the Performance Co-Pilot (PCP) toolkit for system
+ level performance management.  It includes tutorials, HOWTOs,
+ and other detailed documentation about the internals of core
+ PCP utilities and daemons, and the PCP graphical tools.
 
 Package: pcp-testsuite
 Depends: ${misc:Depends}, ${shlibs:Depends}, pcp (= ${binary:Version})
 Architecture: any
 Suggests: valgrind
-Provides: pcpqa
-Conflicts: pcpqa
-Replaces: pcpqa
+Provides: pcpqa, pcp-gui-testsuite
+Conflicts: pcpqa, pcp-gui-testsuite
+Replaces: pcpqa, pcp-gui-testsuite
 Description: Performance Co-Pilot (PCP) Test Suite
  Quality assurance test suite for Performance Co-Pilot (PCP).
  .

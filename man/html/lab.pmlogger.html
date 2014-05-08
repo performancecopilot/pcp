@@ -1,0 +1,242 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!--
+ (c) Copyright 2010 Aconex. All rights reserved.
+ (c) Copyright 2000-2004 Silicon Graphics Inc. All rights reserved.
+ Permission is granted to copy, distribute, and/or modify this document
+ under the terms of the Creative Commons Attribution-Share Alike, Version
+ 3.0 or any later version published by the Creative Commons Corp. A copy
+ of the license is available at
+ http://creativecommons.org/licenses/by-sa/3.0/us/ .
+-->
+<HTML>
+<HEAD>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta http-equiv="content-style-type" content="text/css">
+	<link href="pcpdoc.css" rel="stylesheet" type="text/css">
+	<link href="images/pcp.ico" rel="icon" type="image/ico">
+	<TITLE>Archive log management</TITLE>
+</HEAD>
+<BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/pcpicon.png" NAME="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
+	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
+	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	</TR>
+</TABLE>
+<H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Archive log management</FONT></H1>
+<TABLE WIDTH=15% BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
+	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
+pmlc
+pmafm
+pmlogger
+pmdumplog
+mpvis
+mkaf
+</PRE></TD></TR>
+</TABLE>
+<P>This chapter of the Performance Co-Pilot tutorial covers PCP tools for
+creating and managing PCP archive logs.</P>
+<P>For an explanation of Performance Co-Pilot terms and acronyms, consult 
+the <A HREF="glossary.html">PCP glossary</A>.</P>
+<UL>
+    <LI>
+    <A HREF="#overview">Overview</A> 
+    <LI>
+    <A HREF="#primary">Primary Logger</A> 
+    <LI>
+    <A HREF="#other">Other Logger Instances</A> 
+    <LI>
+    <A HREF="#create">Creating and Replaying PCP Archive Logs</A> 
+    <LI>
+    <A HREF="#folios">PCP Archive Folios</A> 
+    <LI>
+    <A HREF="#control">Controlling <I>pmlogger</I></A> 
+    <LI>
+    <A HREF="#manage">Management of PCP Archives</A> 
+</UL>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="overview">Overview</I></A></B></FONT></P></TD></TR>
+</TABLE>
+<P>The Performance Co-Pilot includes many facilities for creating and 
+replaying archive logs that capture performance information.</P>
+<P>For all PCP monitoring tools, metrics values may come from a real-time 
+feed (i.e. from <I>pmcd</I> on some host), or from an archive log.</P>
+<P>Users have complete control of what metrics are collected, how often 
+and in which logs.&nbsp;&nbsp;These decisions can be changed dynamically.</P>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="primary">Primary Logger</A></B></FONT></P></TD></TR>
+</TABLE>
+<P>The primary instance of the PCP archive logger (<I>pmlogger</I>) may be 
+started on a collector system each time <I>pmcd</I> is started.</P>
+<P>This action is controlled by the chkconfig option `pmlogger'.
+To turn it on, as <B>root</B> do the following:</P>
+<P>
+<TT># chkconfig pmlogger on</TT></BR>
+<TT># /etc/init.d/pcp start</TT></P>
+<P>The specification for hosts to log, and <I>pmlogger</I> options is
+given in the $PCP_CONFIG_DIR/pmlogger/control</A> file.</P>
+<P>This has a default entry for the local host, which specifies the metrics
+to be logged, and the frequency of logging - by default, using the file
+$PCP_CONFIG_DIR/pmlogger/config.default</A>.</P>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="other">Other Logger Instances</A></B></FONT></P></TD></TR>
+</TABLE>
+<P>Additional instances of <I>pmlogger</I> may be started at any time,
+running on either a collector system or a monitor system.</P>
+<P>In all cases, each <I>pmlogger</I> instance will create an archive log
+for metrics from a single collector system.</P>
+<P>The initial specification of what to log is given in a configuration file;
+the syntax is fully described in the <I>pmlogger</I>(1) man page.</P>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="create">Creating and Replaying PCP Archive Logs</A></B></FONT></P></TD></TR>
+</TABLE>
+<P>Some configuration files are supplied, e.g. to create archive logs 
+suitable for the PCP visualization tools.
+These may be found in the directory $PCP_CONFIG_DIR/pmlogger.</P>
+<P>A simple example has been provided to illustrate the creation of an 
+archive log, and subsequent playback using <I>mpvis</I>.
+(All of the PCP monitoring tools accept the command line arguments 
+<B>-a </B><TT>archivename</TT> to replay from an archive).</P>
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;In a command shell enter:<BR>
+<PRE><B>
+$ source /etc/pcp.conf
+$ cd /tmp
+$ rm -f myarchive.*
+$ $PCP_BINADM_DIR/pmlogger -T 30sec -t 1sec \
+        -c $PCP_CONFIG_DIR/pmlogger/config.mpvis myarchive
+$ ls myarchive.*
+$ mpvis -a myarchive
+</B></PRE>
+</TD></TR>
+</TABLE>
+
+<UL>
+    <LI>
+    This starts <I>pmlogger</I> with <B><I>localhost</I></B> as the default
+    host from which metrics will be fetched, a logging duration of
+    <B>30 seconds</B>, a logging interval of <B>1 second</B>, a configuration
+    from the $PCP_CONFIG_DIR/pmlogger/config.mpvis</A> file, and
+    <I>myarchive</I> as the base name of the output archive.
+    <LI>
+    Once the archive has been created, the directory listing of
+    <I>myarchive.*</I> shows that the archive log created by <I>pmlogger</I>
+    is composed of 3 files.
+    <LI>
+    When <I>mpvis</I> starts up, click the left mouse button on the
+    <B><I>Play</I></B> button in the <B>PCP Archive Time Control</B>
+    dialog.  <I>mpvis</I> will start replaying values from the archive
+    at the same speed at which they were recorded.
+    <LI>
+    Double click the left mouse button on the <B><I>Play</I></B> button
+    in the <B>PCP Archive Time Control</B> dialog.  <I>mpvis</I> should
+    now replay the values in a <I>Fast Forward</I> mode until it reaches
+    the end of the archive.
+    <LI>
+    Select the <B>Options->Show Bounds</B> option from the <B>PCP Archive
+    Time Control</B> dialog menu bar.  The exposed <B>Archive Time Bounds</B>
+    dialog displays the bounds of the archive.  Another way to look at
+    the bounds of the archive is by using <I>pmdumplog</I>:
+<PRE>
+    $ pmdumplog -L myarchive
+</PRE>
+    For more information on <I>pmdumplog</I> refer to the <I>pmdumplog</I>(1)
+    man page.
+</UL>
+</P>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="folios">Archive Folios</A></B></FONT></P></TD></TR>
+</TABLE>
+<P>An archive folio is a named collection of PCP archives.
+These are typically used to provide a convenient way of processing multiple, 
+correlated PCP archives.</P>
+<P>Archive folios are created with <I>mkaf</I>.</P>
+<P>The contents of an archive folio can be processed using the <I>pmafm</I>
+utility.</P>
+<P>A simple example has been provided to illustrate the creation and
+subsequent processing of a folio.</P>
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;In a command shell enter:<BR>
+<PRE><B>
+$ source /etc/pcp.conf
+$ cd /tmp
+$ tar xzf $PCP_DEMOS_DIR/tutorials/pmie.tar.gz
+$ tar xzf $PCP_DEMOS_DIR/tutorials/cpuperf.tar.gz
+$ $PCP_BINADM_DIR/mkaf pmie/babylon.perdisk.0 \
+	cpuperf/babylon.percpu.0 > myfolio
+$ pmafm myfolio list
+$ pmafm myfolio pmdumplog -l
+</B></PRE>
+</TD></TR>
+</TABLE>
+<UL>
+    <LI>
+    The <I>mkaf</I> creates a folio called <B><I>myfolio</I></B> which
+    includes the archives <I>babylon.percpu</I> and <I>babylon.perdisk</I>.
+    Note that the archives are not changed in any way, and a new archive
+    is not created.
+    <LI>
+    The <I>pmafm</I> tool may now be used to perform different operations
+    on the folio <B><I>myfolio</I></B>, such as listing the folio contents,
+    or using other tools to open the archive logs contained in the folio.
+    If <I>pmafm</I> is given a folio name but no arguments, it will run
+    in interactive mode.
+</UL>
+</P>
+<P>For more information on folios refer to the <I>mkaf</I>(1) and
+<I>pmafm</I>(1) man pages.</P>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="control">Controlling <I>pmlogger</I></A></B></FONT></P></TD></TR>
+</TABLE>
+<P>The <I>pmlc</I> utility may be used to interrogate any <I>pmlogger</I>
+instance running either locally or remotely.&nbsp;&nbsp;Use <I>pmlc</I> to</P>
+<UL>
+    <LI>
+    add or delete metrics or metric instances to be logged
+    <LI>
+    change the logging frequency for selected metrics
+</UL>
+<P>The line-oriented command interface to <I>pmlc</I>(1) is fully described
+in the man page.</P>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="manage">Management of PCP Archives</A></B></FONT></P></TD></TR>
+</TABLE>
+<P>PCP includes a suite of scripts and tools to automate the collection 
+and management of archives.</P>
+<P>Briefly, these facilities include:</P>
+<UL>
+    <LI>daily log rotation (<I>pmlogger_daily</I>(1))
+    <LI>archive log merging (<I>pmlogextract</I>(1))
+    <LI>automatic restarting of failed <I>pmlogger</I> instances
+    (<I>pmlogger_check</I>(1))
+    <LI>creation of snapshots from archives (<I>pmsnap</I>(1))
+    <LI>maintenance of archive folios for active archives
+    (<I>mkaf</I>(1) and <I>pmafm</I>(1))
+</UL>
+
+<P><BR></P>
+<HR>
+<CENTER>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=80%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc.</FONT></P></TD>
+	<TD WIDTH=20%><P ALIGN=RIGHT><A HREF="http://oss.sgi.com/projects/pcp/"><FONT COLOR="#000060">PCP</FONT></A></P></TD> </TR>
+</TABLE>
+</CENTER>
+</BODY>
+</HTML>

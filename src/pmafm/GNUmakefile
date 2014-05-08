@@ -22,7 +22,7 @@ include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
 TARGETS = pmafm mkaf
-LSRCFILES = mkaf pmafm pmafm.pcp template
+LSRCFILES = mkaf pmafm pmafm.pcp pmafm.pcp-gui template
 AFM_DIR = $(PCP_VAR_DIR)/config/pmafm
 
 default :: default_pcp
@@ -38,5 +38,6 @@ install_pcp : default_pcp
 	$(INSTALL) -m 755 mkaf $(PCP_BINADM_DIR)/mkaf$(SHELLSUFFIX)
 	$(INSTALL) -m 755 -d $(AFM_DIR)
 	$(INSTALL) -m 644 pmafm.pcp $(AFM_DIR)/pcp
+	$(INSTALL) -m 644 pmafm.pcp-gui $(AFM_DIR)/pcp-gui
 
 include $(BUILDRULES)

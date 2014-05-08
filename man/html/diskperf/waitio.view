@@ -1,0 +1,18 @@
+#pmchart
+Version 2.0 host dynamic
+
+Global width 758
+Global height 470
+Global points 90
+
+Chart Title "CPU Utilization" Style utilization
+	Plot Color #3f3f3f3fbfbf Host * Metric kernel.all.cpu.user
+	Plot Color #fefe00000000 Host * Metric kernel.all.cpu.sys
+	Plot Color #ffff3f3fbfbf Host * Metric kernel.all.cpu.sxbrk
+	Plot Color #e3e3e3e30000 Host * Metric kernel.all.cpu.intr
+	Plot Color #0000bfbfffff Host * Metric kernel.all.cpu.wait.total
+	Plot Color #0000ffff0000 Host * Metric kernel.all.cpu.idle
+Chart Title "Disk Activity" Style stacking
+	Plot Color #-cycle Host * Metric disk.all.read
+	Plot Color #-cycle Host * Metric disk.all.write
+

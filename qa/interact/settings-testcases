@@ -1,0 +1,103 @@
+Global Settings
+===============
+
+Sampling
+
+[ ] Open the Settings dialog.  This is available from the Edit
+    menu (Linux) or from the pmchart Preferences menu on a Mac.
+[ ] Type some invalid chart intervals into the one-line editor
+    (try: abc, 0.1.1, -1 - none should be possible)
+[ ] Set the chart interval to zero and press OK - should block
+    this with an error dialog.
+
+[ ] Type some invalid logger intervals into the one-line editor
+    (try: 0XY, 1.0.2, -1 - none should be possible)
+[ ] Set the logger interval to zero and press OK - should block
+    this with an error dialog.
+
+[ ] Set default logger interval to 20 minutes
+    Change units to Milliseconds; value should be:   1,200,000 
+    Change units to Seconds;      value should be:       1,200
+    Change units to Minutes;      value should be:          20
+    Change units to Hours;        value should be:    0.333333
+    Change units to Days;         value should be:    0.138888
+    Change units to Weeks;        value should be:    0.001984
+[ ] Set default chart interval to 0.25 seconds	
+    Change units to Milliseconds; value should be:         250
+    Change units to Seconds;      value should be:        0.25
+    Change units to Minutes;      value should be:    0.004166
+    Change units to Hours;        value should be:    0.000069
+    Change units to Days;         value should be:    0.000002
+    Change units to Weeks;        value should be:    0.000000
+    Change units to Seconds; reset value to 0.25 seconds
+[ ] Move the sample history and visible history sliders - they
+    should never allow visible history to become less than the
+    sample history, and neither is ever allowed to become less
+    than 2.
+[ ] Check that only numeric values can be entered into each of
+    the visible and simple history spin boxes - check range of
+    values is again 2 -> maximum (360 at the moment).
+[ ] Check that the spin box Up/Down arrows increase/decrease
+    each value by 1, and that PageUp/PageDown increase/decrease
+    each value by 10 - check the range of values is again 2 ->
+    the maximum, for all of Up/Down/PageUp/PageDown.
+[ ] Set sample history size to 4
+[ ] Set visible history size to 2
+[ ] Press OK, exit pmchart, restart pmchart, bring up Settings
+    dialog and verify the following values are set...
+    ( ) Default Chart Interval:  0.25 seconds
+    ( ) Default Record Interval: 1200 seconds
+    ( ) Default Visible Points:  2
+    ( ) Default Sample Count:    4
+
+
+Colors
+
+[ ] Open the Settings Dialog, click on the Colors tab.
+[ ] Click the Selected Chart Highlight button, select a different
+    colour (hot pink), and click OK.  Verify that the push button
+    changes colour to your selection.
+[ ] Click the Canvas Background button, select a different colour
+    (white), and click OK.  Verify that the push button changes
+    colour to your selection.
+[ ] Click on one of the existing Default plot colours and select a
+    different colour.  Verify the new colour is displayed for that
+    button.
+[ ] Click on any three of the white (empty) color buttons and make
+    a colour selection for each.  Any three buttons - gaps in the
+    set are fine, and testing extremes (next free slot, last free)
+    is a good idea too).
+[ ] Push the OK button to accept your changes.
+[ ] Open the QA View "qa/views/RotateColors", and expand the window
+    the full height of your screen .  Also open the Settings dialog
+    again at the colors page, and verify that the colors have been
+    used for each plot in the View in the order listed on the page.
+[ ] Verify also that the Settings dialog is displaying the colours
+    you selected before, but with no spaces between colours now -
+    i.e. with any unused (white) "gap" buttons removed.
+[ ] Finally, verify that the plot after the final colour specified
+    originally in the Settings dialog has rotated back to the first
+    colour, the next has rotated back to the second colour, etc.
+
+
+Toolbar
+
+[ ] Open the Settings Dialog, click on the Toolbar tab.
+[ ] Uncheck the "Show Toolbar on Startup" check box.
+[ ] Select "Right and Vertical" from the Location/Orientation box.
+[ ] Quit pmchart.  Restart pmchart.  Verify that the Toolbar is not
+    displayed at all.  Verify also that the Toolbar option from the
+    Options menu is not checked.
+[ ] Select the Toolbar item in the Options menu.  Verify that the
+    toolbar is now displayed on the right of the main charting area
+    instead of across the top of the main window.
+[ ] Open the Settings dialog once more, verifying that the "Show
+    Toolbar on Startup" option is not checked and that the Location/
+    Orientation combo box shows Right/Vertical.
+[ ] Make a series of selections from the Actions list (items are
+    selected and deselected simply by clicking on them).  Press the
+    OK button and verify that the main window is updated to display
+    your selected actions, instead of the defaults.
+[ ] Exit pmchart.  Restart pmchart.  Verify that your selected set of
+    actions is still displayed, in preference to the defaults.
+

@@ -1,0 +1,211 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!--
+ (c) Copyright 2010 Aconex. All rights reserved.
+ (c) Copyright 2000-2004 Silicon Graphics Inc. All rights reserved.
+ Permission is granted to copy, distribute, and/or modify this document
+ under the terms of the Creative Commons Attribution-Share Alike, Version
+ 3.0 or any later version published by the Creative Commons Corp. A copy
+ of the license is available at
+ http://creativecommons.org/licenses/by-sa/3.0/us/ .
+-->
+<HTML>
+<HEAD>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta http-equiv="content-style-type" content="text/css">
+	<link href="pcpdoc.css" rel="stylesheet" type="text/css">
+	<link href="images/pcp.ico" rel="icon" type="image/ico">
+	<TITLE>Performance Visualisation with pmview</TITLE>
+</HEAD>
+<BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/pcpicon.png" NAME="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
+	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
+	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	</TR>
+</TABLE>
+<H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Performance Visualisation with <I>pmview</I></FONT></H1>
+<TABLE WIDTH=15% BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
+	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
+pmview
+mpvis
+osvis
+dkvis
+pmafm
+pmtime
+pmchart
+</PRE></TD></TR>
+</TABLE>
+<P><B>Note:</B> The open source version of <I>pmview</I> is currently under development, and is <B>not</B> yet shipped as part of PCP GUI, but is available for experimental use in the development source tree.</P>
+<P>Visual tools take advantage of common cognitive skills, especially for visual pattern matching and scene change discrimination.
+The motivation for visualization of performance data is very similar to that used for engineering visualization, visual simulation, and database mining through visualization - visually rich representations of complex data sets are powerful aids to understanding and detection of unexpected relationships.</P>
+
+<UL>
+    <LI>
+    <A HREF="#realtime">Live monitoring and user interface concepts</A> 
+    <LI>
+    <A HREF="#archive">Retrospective monitoring and tool drill-down</A> 
+    <LI>
+    <A HREF="#vis">The &quot;vis&quot; tools</A> 
+    <LI>
+    <A HREF="#simple">Simple scene construction</A> 
+</UL>
+<TABLE WIDTH=50% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Extract the PCP archives and configuration files we will use in this tutorial into the current working directory:
+<PRE><B>
+$ . /etc/pcp.env
+$ tar xzf $PCP_DEMOS_DIR/tutorials/pmview.tar.gz
+</B></PRE>
+</TD></TR>
+</TABLE>
+<P>For an explanation of Performance Co-Pilot terms and acronyms, consult 
+the <A HREF="glossary.html">PCP glossary</A>.</P>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="realtime">Live monitoring and user interface concepts</A></B></FONT></P></TD></TR>
+</TABLE>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=568><P VALIGN=MIDDLE ALIGN=RIGHT><CENTER><BR><IMG ALIGN=RIGHT SRC="images/mpvis.png" BORDER=0></CENTER></P></TD>
+	<TD WIDTH=10></TD>
+	<TD><TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+		<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;The <I>mpvis</I> command monitors the CPU utilization for each CPU:<BR>
+<PRE><B>
+$ mpvis
+</B></PRE>
+<UL>
+    <LI> Move the cursor over each block in the scene. Take time to read the 
+    (changed) text box above the 3D scene and understand what it is telling 
+    you. In particular, identify the source of the metric, the name of the 
+    metric, the instance of the metric, the current value ... can you 
+    explain what &quot;millisec / second&quot; really means? 
+    <LI> Click the left mouse over one block in the scene. How is this 
+    different? 
+    <LI> Click on the &quot;Live&quot; button or Ctrl-T or <B><I>Options -&gt;
+    Show Time Control</I></B> from the menu bar. In the <B>PCP Live Time 
+    Control</B> dialog, experiment with changing the update <B><I>Interval</I></B>
+     (this is the interval at which new metric values are fetched from <I>pmcd</I>). 
+    <LI> Quit with <B><I>File -&gt; Quit</I></B> or Ctrl-Q. 
+</UL>
+		</TD></TR>
+	</TABLE></TD>
+</TABLE>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="archive">Retrospective monitoring and tool drill-down</A></B></FONT></P></TD></TR>
+</TABLE>
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR><TD><TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+		<TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;The <I>dkvis</I> command monitors the per-disk I/O activity:<BR>
+<PRE><B>
+$ dkvis -a pmie/babylon.perdisk
+</B></PRE>
+<UL>
+    <LI> In the <I>dkvis</I> window (above the top left-hand corner of the 
+    scene) change the <B><I>Scale</I></B> to be 5 using either the 
+    thumbwheel or the text box to the right of the thumbwheel. 
+    <LI> In the associated <B>PCP Archive Time Control</B> dialog, changing 
+    the update <B><I>Interval</I></B> to 2 minutes (remember to Enter 
+    after you have changed the <B><I>Interval</I></B> text box).
+    <LI> Double click the <B><I>Play</I></B> button. When the replay 
+    finished, drag the slider in the <B>PCP Archive Time Control</B>
+    dialog back to near the middle of the range and release the 
+    slider. 
+    <LI> Back in the <I>dkvis</I> window, move the cursor over each block in 
+    the scene. Take time to read the (changed) text box above the 3D scene 
+    and understand what it's telling you. In particular, identify the 
+    source of the metric, the name of the metric, the instance of the 
+    metric, the current value ... can you explain what &quot;count / 
+    second&quot; really means? 
+    <LI> Select all of the blocks for controller <B>dks1</B> (use 
+    &quot;Shift-select&quot; to do multiple selections), and then <B><I>Launch -&gt; pmchart</I></B>
+    from the main menu. In the pmchart window use <B><I>File -&gt; Open View</I></B>
+    from the menu bar to add the <B>LoadAvg</B> view. 
+    This is a &quot;drill-down&quot; example. 
+    <LI> Use the <B>PCP Archive Time Control</B> dialog again - this time 
+    notice that you're controlling movement through both <I>dkvis</I>
+    and <I>pmchart</I> using the same time control window (that's 
+    because <I>pmchart</I> was launched from <I>dkvis</I>). 
+    <LI> Quit from <I>dkvis</I>. Notice that <I>pmchart</I> and the <I>pmtime</I>
+    dialog remain. Quit from <I>pmchart</I>.
+</UL>
+		</TD></TABLE>
+	</TD>
+	<TD WIDTH=10></TD>
+	<TD WIDTH=486><P VALIGN=MIDDLE ALIGN=RIGHT><CENTER><BR><IMG ALIGN=RIGHT SRC="images/dkvis.png" BORDER=0></CENTER></P></TD>
+	</TR>
+</TABLE>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="vis">The &quot;vis&quot; tools</A></B></FONT></P></TD></TR>
+</TABLE>
+<P> Try some of the other &quot;vis&quot; tools. All of these are 
+    "front-ends" to <I>pmview</I> as shown in this diagram:</P>
+<CENTER>
+<IMG SRC="images/pmview.flow.png" ALIGN="MIDDLE" WIDTH="444" HEIGHT="227">
+</CENTER>
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;In a command shell enter:<BR>
+<PRE><B>
+$ osvis
+</B></PRE>
+Move the cursor over each baseplane for more information.&nbsp;&nbsp;Now enter:
+<PRE><B>
+$ pmafm pmie/godzillaweb.folio replay
+</B></PRE>
+<I>pmafm</I> is a folio manager which allows you to work with a folio of archives for
+many visualisation tools; in this case, with the folio <TT>godzillaweb</TT>.
+</TD></TR>
+</TABLE>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="simple">Simple scene construction</A></B></FONT></P></TD></TR>
+</TABLE>
+<P>The text file <A HREF="pmview/example.view">pmview/example.view</A>
+specifies a <I>pmview</I> configuration having one baseplane with 
+one bar containing three metrics (5, 10, and 15 minute load averages), 
+and separate bars for each of the disk read and write metrics. 
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To display this scene, run:<BR>
+<PRE><B>
+$ pmview &lt; pmie/example.view
+</B></PRE>
+An a learning exercise, copy <I>example.view</I> and modify the configuration so
+that instead of having the disk metrics as two separate blocks (bars), they 
+appear as a single stacked bar showing both metrics, one on top of the other. 
+</TD></TR>
+</TABLE>
+<H4>Hints</H4>
+<UL>
+    <LI>
+    The <I>osvis</I> tool we saw earlier uses stacked bars for memory 
+    and CPU utilization. 
+    <LI>
+    The configuration generated by <B>any</B> <I>pmview </I>front-end 
+    script can be viewed using a <B>-V</B> option to the front-end 
+    tool, and a <B>-C</B> option means quit after generating the 
+    configuration (do not launch <I>pmview</I>). So the following may 
+    be helpful: 
+    <PRE>
+ <I> </I><B>$</B><I> </I>osvis -V -C<I> </I>
+    
+</PRE>
+    <LI>
+    The <I>pmview(1)</I> man page describes the <I>pmview </I>configuration 
+    format in detail. Look for the <B><TT>_stack</TT></B> object. 
+</UL>
+
+<P><BR></P>
+<HR>
+<CENTER>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=80%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc.</FONT></P></TD>
+	<TD WIDTH=20%><P ALIGN=RIGHT><A HREF="http://oss.sgi.com/projects/pcp/"><FONT COLOR="#000060">PCP</FONT></A></P></TD> </TR>
+</TABLE>
+</CENTER>
+</BODY>
+</HTML>

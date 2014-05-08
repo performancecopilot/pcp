@@ -17,19 +17,85 @@ TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-SUBDIRS = include libpcp pmns \
-	  libpcp_pmda libpcp_trace libpcp_http libpcp_pmcd libpcp_gui \
-	  libpcp_mmv libpcp_import \
-	  pmconfig newhelp pmfind pminfo pmcpp pmcd pmcd_wait pmerr pmdbg \
-	  pmdate pmie pmieconf pmpost pmprobe pmlock pmval pmlogger \
-	  pmdumplog pmlogextract pmstore pmhostname pmgenmap pmevent \
-	  pmlogconf pmloglabel pmlogsummary pmclient pcp pmlc dbpmda \
-	  pmtrace pmstat pmsocks pmdas pmafm procmemstat \
-	  pmlogreduce genpmda pmproxy pmsignal pmsleep pmtop \
-	  autofsd-probe telnet-probe bashrc pmiestatus \
-	  pmevent pmlogrewrite pmcollectl pmatop pmwebapi \
-	  perl python win32ctl pmmgr pmgetopt \
-	  collectl2pcp iostat2pcp mrtg2pcp sar2pcp sheet2pcp
+SUBDIRS = \
+	include \
+	libpcp \
+	pmns \
+	libpcp_pmda \
+	libpcp_trace \
+	libpcp_http \
+	libpcp_pmcd \
+	libpcp_gui \
+	libpcp_mmv \
+	libpcp_import \
+	libpcp_qmc \
+	libpcp_qwt \
+	pminfo \
+	pmprobe \
+	bashrc \
+	dbpmda \
+	genpmda \
+	newhelp \
+	pcp \
+	pmafm \
+	pmatop \
+	pmcollectl \
+	pmfind \
+	pmcpp \
+	pmcd \
+	pmcd_wait \
+	pmchart \
+	pmclient \
+	pmconfig \
+	pmdas \
+	pmdate \
+	pmdbg \
+	pmdumplog \
+	pmdumptext \
+	pmerr \
+	pmevent \
+	pmgenmap \
+	pmgetopt \
+	pmhostname \
+	pmie \
+	pmieconf \
+	pmiestatus \
+	pmlc \
+	pmlock \
+	pmlogextract \
+	pmlogger \
+	pmlogreduce \
+	pmlogconf \
+	pmloglabel \
+	pmlogrewrite \
+	pmlogsummary \
+	pmmgr \
+	pmpost \
+	pmproxy \
+	pmquery \
+	pmstat \
+	pmstore \
+	pmsocks \
+	pmtrace \
+	pmsignal \
+	pmsleep \
+	pmsnap \
+	pmtop \
+	pmtime \
+	pmwebapi \
+	pmval \
+	perl \
+	python \
+	procmemstat \
+	autofsd-probe \
+	telnet-probe \
+	collectl2pcp \
+	iostat2pcp \
+	mrtg2pcp \
+	sar2pcp \
+	sheet2pcp \
+	win32ctl \
+	#
 
 default :: default_pcp
 

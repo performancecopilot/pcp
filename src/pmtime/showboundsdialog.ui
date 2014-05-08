@@ -1,0 +1,303 @@
+<ui version="4.0" >
+ <class>ShowBounds</class>
+ <widget class="QDialog" name="ShowBounds" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>324</width>
+    <height>181</height>
+   </rect>
+  </property>
+  <property name="acceptDrops" >
+   <bool>false</bool>
+  </property>
+  <property name="windowTitle" >
+   <string>Archive Time Bounds</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="pmtime.qrc" >:/pmtime.png</iconset>
+  </property>
+  <property name="whatsThis" >
+   <string>The Archive Bounds dialog displays and allows modifications
+to the start and end time of a (set of) PCP data archive(s).
+This effectively restricts all pmtime clients (e.g. pmval, pmchart)
+to a subset of the available performance data.</string>
+  </property>
+  <property name="sizeGripEnabled" >
+   <bool>false</bool>
+  </property>
+  <property name="modal" >
+   <bool>false</bool>
+  </property>
+  <layout class="QGridLayout" >
+   <property name="margin" >
+    <number>7</number>
+   </property>
+   <property name="spacing" >
+    <number>6</number>
+   </property>
+   <item row="0" column="0" >
+    <layout class="QVBoxLayout" >
+     <property name="margin" >
+      <number>0</number>
+     </property>
+     <property name="spacing" >
+      <number>4</number>
+     </property>
+     <item>
+      <layout class="QGridLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item row="3" column="0" colspan="2" >
+        <widget class="QwtSlider" name="sliderEnd" >
+         <property name="whatsThis" >
+          <string>Modify the archive end time as seen by all&lt;br>
+pmtime clients (e.g. pmval, pmchart).&lt;br>&lt;br>
+This cannot be set before the start time of the&lt;br>
+archive with the earliest start time, nor beyond&lt;br>
+of the archive with the latest end time.&lt;br>
+It also cannot be less than the current start&lt;br>
+time.</string>
+         </property>
+         <property name="orientation" >
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="backgroundStyle" >
+          <enum>QwtSlider::Groove</enum>
+         </property>
+         <property name="handleSize" >
+          <size>
+           <width>12</width>
+           <height>16</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" >
+        <widget class="QLabel" name="endLabel" >
+         <property name="text" >
+          <string>End</string>
+         </property>
+         <property name="wordWrap" >
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" >
+        <widget class="QLabel" name="startLabel" >
+         <property name="text" >
+          <string>Start</string>
+         </property>
+         <property name="wordWrap" >
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1" >
+        <widget class="QLineEdit" name="lineEditStart" >
+         <property name="whatsThis" >
+          <string>Modify the archive start time as seen by all&lt;br>
+pmtime clients (e.g. pmval, pmchart).&lt;br>&lt;br>
+This cannot be set before the start time of the&lt;br>
+archive with the earliest start time, nor beyond&lt;br>
+of the archive with the latest end time.&lt;br>
+It also cannot be greater than the current end&lt;br>
+time.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2" >
+        <widget class="QwtSlider" name="sliderStart" >
+         <property name="whatsThis" >
+          <string>Modify the archive start time as seen by all&lt;br>
+pmtime clients (e.g. pmval, pmchart).&lt;br>&lt;br>
+This cannot be set before the start time of the&lt;br>
+archive with the earliest start time, nor beyond&lt;br>
+of the archive with the latest end time.&lt;br>
+It also cannot be greater than the current end&lt;br>
+time.</string>
+         </property>
+         <property name="orientation" >
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="backgroundStyle" >
+          <enum>QwtSlider::Groove</enum>
+         </property>
+         <property name="handleSize" >
+          <size>
+           <width>12</width>
+           <height>16</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1" >
+        <widget class="QLineEdit" name="lineEditEnd" >
+         <property name="whatsThis" >
+          <string>Modify the archive end time as seen by all&lt;br>
+pmtime clients (e.g. pmval, pmchart).&lt;br>&lt;br>
+This cannot be set before the start time of the&lt;br>
+archive with the earliest start time, nor beyond&lt;br>
+of the archive with the latest end time.&lt;br>
+It also cannot be less than the current start&lt;br>
+time.</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeType" >
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>20</width>
+         <height>16</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item>
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType" >
+          <enum>QSizePolicy::Expanding</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="buttonOK" >
+         <property name="text" >
+          <string>&amp;OK</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="buttonCancel" >
+         <property name="text" >
+          <string>&amp;Cancel</string>
+         </property>
+         <property name="shortcut" >
+          <string/>
+         </property>
+         <property name="autoDefault" >
+          <bool>true</bool>
+         </property>
+         <property name="default" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <customwidgets>
+  <customwidget>
+   <class>QwtSlider</class>
+   <extends>QWidget</extends>
+   <header>qwt_slider.h</header>
+  </customwidget>
+ </customwidgets>
+ <includes>
+  <include location="local" >console.h</include>
+ </includes>
+ <resources>
+  <include location="pmtime.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonOK</sender>
+   <signal>clicked()</signal>
+   <receiver>ShowBounds</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonCancel</sender>
+   <signal>clicked()</signal>
+   <receiver>ShowBounds</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sliderStart</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>ShowBounds</receiver>
+   <slot>changedStart(double)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sliderEnd</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>ShowBounds</receiver>
+   <slot>changedEnd(double)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

@@ -1,0 +1,62 @@
+nas_write_load: (groupid=0, jobs=1): err= 0: pid=4103
+  Description  : [NAS writes workload model]
+  write: io=361MB, bw=1,233KB/s, iops=37, runt=300026msec
+    clat (usec): min=276, max=1,325K, avg=2721.65, stdev=47070.32
+     lat (usec): min=277, max=1,325K, avg=2722.20, stdev=47070.32
+    bw (KB/s) : min=   34, max= 4486, per=25.12%, avg=1239.08, stdev=178.78
+  cpu          : usr=0.07%, sys=0.08%, ctx=22911, majf=0, minf=35
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued r/w: total=0/11386, short=0/0
+     lat (usec): 500=7.47%, 750=37.05%, 1000=38.94%
+     lat (msec): 2=15.25%, 4=0.40%, 10=0.40%, 20=0.23%, 50=0.02%
+     lat (msec): 100=0.07%, 250=0.02%, 500=0.01%, 1000=0.01%, 2000=0.13%
+nas_write_load: (groupid=0, jobs=1): err= 0: pid=4104
+  Description  : [NAS writes workload model]
+  write: io=361MB, bw=1,233KB/s, iops=37, runt=300019msec
+    clat (usec): min=246, max=1,339K, avg=2744.08, stdev=47828.98
+     lat (usec): min=247, max=1,339K, avg=2744.61, stdev=47828.99
+    bw (KB/s) : min=  159, max= 4390, per=25.09%, avg=1237.54, stdev=145.93
+  cpu          : usr=0.08%, sys=0.09%, ctx=22978, majf=0, minf=36
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued r/w: total=0/11375, short=0/0
+     lat (usec): 250=0.01%, 500=6.45%, 750=36.13%, 1000=38.38%
+     lat (msec): 2=17.59%, 4=0.66%, 10=0.37%, 20=0.16%, 50=0.02%
+     lat (msec): 100=0.07%, 250=0.02%, 2000=0.14%
+nas_write_load: (groupid=0, jobs=1): err= 0: pid=4105
+  Description  : [NAS writes workload model]
+  write: io=361MB, bw=1,233KB/s, iops=38, runt=300003msec
+    clat (usec): min=236, max=1,341K, avg=2719.56, stdev=46987.83
+     lat (usec): min=236, max=1,341K, avg=2720.10, stdev=46987.83
+    bw (KB/s) : min=    4, max= 4525, per=25.11%, avg=1238.19, stdev=173.06
+  cpu          : usr=0.08%, sys=0.08%, ctx=22919, majf=0, minf=36
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued r/w: total=0/11429, short=0/0
+     lat (usec): 250=0.02%, 500=7.89%, 750=37.06%, 1000=40.38%
+     lat (msec): 2=13.08%, 4=0.63%, 10=0.41%, 20=0.27%, 50=0.02%
+     lat (msec): 100=0.07%, 250=0.02%, 500=0.01%, 1000=0.01%, 2000=0.13%
+nas_write_load: (groupid=0, jobs=1): err= 0: pid=4106
+  Description  : [NAS writes workload model]
+  write: io=361MB, bw=1,233KB/s, iops=38, runt=300013msec
+    clat (usec): min=244, max=1,326K, avg=2723.53, stdev=46927.49
+     lat (usec): min=245, max=1,326K, avg=2724.08, stdev=46927.49
+    bw (KB/s) : min=  177, max= 4412, per=25.09%, avg=1237.60, stdev=146.61
+  cpu          : usr=0.08%, sys=0.09%, ctx=22951, majf=0, minf=36
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued r/w: total=0/11451, short=0/0
+     lat (usec): 250=0.02%, 500=7.13%, 750=38.34%, 1000=37.93%
+     lat (msec): 2=15.12%, 4=0.61%, 10=0.38%, 20=0.21%, 50=0.02%
+     lat (msec): 100=0.07%, 250=0.04%, 2000=0.14%
+
+Run status group 0 (all jobs):
+  WRITE: io=1,445MB, aggrb=4,932KB/s, minb=1,262KB/s, maxb=1,262KB/s, mint=300003msec, maxt=300026msec
+
+Disk stats (read/write):
+  sdh: ios=88419/89190, merge=530/442, ticks=290558/2570922, in_queue=2861475, util=73.81%

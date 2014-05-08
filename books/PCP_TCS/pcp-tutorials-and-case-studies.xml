@@ -1,0 +1,334 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//Norman Walsh//DTD DocBk XML V4.1.2//EN" "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+<book status="final" security="public"><title>Performance Co-Pilot&#x2122; Tutorials and Case Studies</title>
+<bookinfo><edition>3</edition>
+
+<othercredit>
+<contrib>Maintained by</contrib>
+<affiliation>
+<orgname>The Performance Co-Pilot Development Team</orgname>
+<address>
+<email>pcp@mail.performancecopilot.org</email>
+<otheraddr>
+<ulink url="http://www.performancecopilot.org"/>
+<inlinemediaobject><imageobject><imagedata fileref="figures/pcp.svg"/></imageobject></inlinemediaobject>
+</otheraddr>
+</address>
+</affiliation>
+</othercredit>
+
+<copyright>
+<year>2012</year>
+<year>2014</year>
+<holder>Red Hat, Inc.</holder>
+</copyright>
+
+<copyright>
+<year>2007</year>
+<year>2013</year>
+<holder>Aconex.</holder>
+</copyright>
+
+<copyright>
+<year>2000</year>
+<year>2013</year>
+<holder>Silicon Graphics, Inc.</holder>
+</copyright>
+
+<legalnotice>
+<title>LICENSE</title>
+<para>Permission is granted to copy, distribute, and/or modify this document under
+the terms of the Creative Commons Attribution-Share Alike, Version 3.0 or any
+later version published by the Creative Commons Corp.
+A copy of the license is available at
+<ulink url="http://creativecommons.org/licenses/by-sa/3.0/us/"/></para>
+</legalnotice>
+
+<legalnotice>
+<title>TRADEMARKS AND ATTRIBUTIONS</title>
+<para>Red Hat and the Shadowman logo are trademarks of Red Hat, Inc.,
+registered in the United States and other countries.</para>
+<para>Silicon Graphics, SGI and the SGI logo are registered trademarks
+and Performance Co-Pilot is a trademark of Silicon Graphics, Inc.</para>
+<para>Cisco is a registered trademark of Cisco Systems, Inc.
+Linux is a registered trademark of Linus Torvalds, used with permission.
+UNIX is a registered trademark of The Open Group.</para>
+</legalnotice>
+
+<revhistory>
+<revision><revnumber>001</revnumber><date>August 2013</date><revremark>Initial collation.</revremark></revision>
+</revhistory>
+
+</bookinfo>
+<toc/>
+
+
+<preface id="id5178752">
+
+<title>About This Book</title>
+<para>This book is a collection of tutorials, case studies, and short stories about
+various aspects of the Performance Co-Pilot (PCP) performance analysis toolkit.
+Topics range from basic installation through to detailed analysis techniques,
+with everything in-between, that even seasoned PCP users can expect to learn from.
+</para>
+<para>Much like PCP is an open source, cross-platform software package - where
+customizations are actively encouraged - so too is this book. If you have
+interesting experiences to share, please consider contibuting - the XML source
+to this book is available, along with the PCP source code.</para>
+<para>&#x201C;About This Book&#x201D; includes short descriptions of the chapters
+in this book, directs you to additional sources of information, and explains
+typographical conventions.</para>
+<section id="id5178771">
+
+<title>What This Book Contains</title>
+<para>This book contains the following chapters:</para>
+<itemizedlist>
+<listitem><para><xref linkend="LE21795-PARENT"/>, contains introductory topics around installation of PCP.</para>
+</listitem>
+<listitem><para><xref linkend="LE98072-PARENT"/>, contains a series of hands-on tutorials covering use of specific PCP monitor tools, secure collector setup.</para>
+</listitem>
+<listitem><para><xref linkend="LE25915-PARENT"/>, provides a set of case studies of use of PCP to address problems, or understand certain system behaviours using PCP.</para>
+</listitem></itemizedlist>
+<para>It provides a series of real-world examples of using various PCP tools,
+and lessons learned from deploying the toolkit in production environments.
+It serves to provide reinforcement of the general concepts discussed in the
+other books described in the <xref linkend="id5178933"/>, with additional case
+studies and more detailed discussion of individual tools.</para>
+</section>
+<section id="id5178891">
+
+<title>Audience for This Book</title>
+<para>This book has something for everyone - early topics will aid those getting
+started with PCP, while later sections cover in-depth material, sometimes requiring
+detailed understanding of operating system internals.</para>
+<para>Some familiarity with the basic concepts behind PCP is assumed.</para>
+</section>
+<section id="id5178933">
+
+<title>Related Resources</title>
+<para>The <citetitle>Performance Co-Pilot User's and Administrator's Guide</citetitle>
+is intended for system administrators and performance analysts who are directly
+using and administering PCP installations.</para>
+<para>The <citetitle>Performance Co-Pilot Programmer's Guide</citetitle>
+is intended for developers who want to use the PCP framework and services for
+exporting additional collections of performance metrics, or for delivering
+new or customized applications to enhance performance management.
+</para>
+<para>Additional resources include man pages and the project web site.</para>
+</section>
+<section id="id5178968">
+
+<title>Man Pages</title>
+<para>The operating system man pages provide concise reference information on the use of commands, subroutines, and system resources. There is usually a man page for each PCP command or subroutine. To see a list of all the PCP man pages, start from the following command:</para>
+<literallayout class="monospaced"><userinput>man PCPIntro</userinput></literallayout>
+<para>Each man page usually has a &quot;SEE ALSO&quot; section, linking to other, related entries.</para>
+<para>To see a particular man page, supply its name to the <literal>man</literal> command, for example:</para>
+<literallayout class="monospaced"><userinput>man pcp</userinput></literallayout>
+<para>The man pages are arranged in different sections separating commands, programming interfaces, and so on.
+For a complete list of manual sections on a platform enter the command:</para>
+<literallayout class="monospaced"><userinput>man man</userinput></literallayout>
+<para>When referring to man pages, this guide follows a standard convention: the section number in parentheses follows the item. For example, <command>pminfo(1)</command> refers to the man page in section 1 for the <command>pminfo</command> command.</para>
+</section>
+<section id="id5179157">
+
+<title>Web Site</title>
+<para>The following web site is accessible to everyone:</para>
+<variablelist condition="sgi_termlength:wide">
+<varlistentry>
+<term><emphasis role="bold">URL</emphasis></term><listitem><para><emphasis role="bold">Description</emphasis></para></listitem></varlistentry>
+<varlistentry>
+<term><ulink url="http://www.performancecopilot.org">http://www.performancecopilot.org</ulink></term>
+<listitem><para>PCP is open source software released under
+the GNU General Public License (GPL) and GNU Lesser General Public License (LGPL)</para>
+</listitem></varlistentry>
+</variablelist>
+</section>
+<section id="id5179276">
+
+<title>Conventions</title>
+<para>The following conventions are used throughout this document:<variablelist>
+<varlistentry>
+<term><emphasis role="bold">Convention</emphasis></term><listitem><para><emphasis role="bold">Meaning</emphasis></para></listitem></varlistentry>
+<varlistentry>
+<term><literal>${PCP_VARIABLE}</literal></term>
+<listitem><para>A brace-enclosed all-capital-letters syntax indicates a variable
+that has been sourced from the global <filename>/etc/pcp.conf</filename> file.
+These special variables indicate parameters that affect all PCP commands,
+and are likely to be different between platforms.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><literal>command</literal></term>
+<listitem><para>This fixed-space font denotes literal items such as commands,
+files, routines, path names, signals, messages, and programming language
+structures. </para>
+</listitem>
+</varlistentry>
+
+<varlistentry>
+<term><replaceable>variable</replaceable></term>
+<listitem><para>Italic typeface denotes variable entries and words or concepts being
+defined.</para>
+</listitem></varlistentry>
+
+<varlistentry>
+<term><userinput>user input</userinput></term>
+<listitem><para>This bold, fixed-space font denotes literal  items that the user enters in interactive  sessions.  (Output is shown in nonbold,  fixed-space font.)</para>
+</listitem></varlistentry>
+
+<varlistentry>
+<term>[ ]</term>
+<listitem><para>Brackets enclose optional portions of a  command or directive line.</para>
+</listitem></varlistentry>
+
+<varlistentry>
+<term>...</term>
+<listitem><para>Ellipses indicate that a preceding element can be repeated.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term>ALL CAPS</term>
+<listitem><para>All capital letters denote environment variables, operator names, directives, defined constants, and macros in C programs.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term>()</term>
+<listitem><para>Parentheses that follow function names surround function arguments or are empty if the function has no arguments; parentheses that follow commands surround man page section numbers.</para>
+</listitem></varlistentry>
+</variablelist></para>
+
+</section>
+<section id="z825546061melby">
+
+<title>Reader Comments</title>
+<para>If you have comments about the technical accuracy, content, or organization of this document, contact the PCP maintainers using either the email address or the web site listed earlier.</para>
+<para>We value your comments and will respond to them promptly.</para>
+</section>
+</preface>
+
+
+<chapter id="LE21795-PARENT">
+
+<title>Supported Platforms Installation</title>
+<para>Binary packages for Linux (deb and rpm formats), Mac OS X, Solaris and Windows are
+made available by the PCP development team.</para>
+<para>These are all freely available from the download section of the PCP project web site.</para>
+
+<section id="id5177140">
+
+<title>Linux Installation</title>
+<para><indexterm id="IG313401778"><primary>Linux</primary></indexterm>Pre-packaged binaries are available for the Linux platform ... XXX</para>
+</section>
+<section id="id5177343">
+
+<title>Mac OS X Installation</title>
+<para><indexterm id="IG313401779"><primary>Mac OS X</primary></indexterm>After downloading the <literal>dmg</literal> file for your platform, double-click on the PCP <literal>dmg</literal> icon in the Finder application, and follow the installation instructions presented by the Installer.</para>
+<para>Mac OS X versions 10.5 and onward are generally available, although older versions can be built from source.</para>
+</section>
+<section id="id5177529">
+
+<title>Solaris Installation</title>
+<para><indexterm id="IG313401780"><primary>Solaris</primary></indexterm>Download and unzip the latest binary package from the PCP project web site.</para>
+<para>To install the package for the first time, issue the following commands:</para>
+<programlisting><userinput>pkgadd -d pcp-${PCP_VERSION}</userinput>
+  Say 'y' to all of the questions.
+<userinput>svcadm enable pmcd</userinput></programlisting>
+<para>To upgrade an existing installation, issue the following commands:</para>
+<programlisting><userinput>pkgadd -d pcp-${PCP_VERSION}</userinput>
+<userinput>pkgadd -d pcp-${PCP_VERSION}</userinput>
+<userinput>svcadm enable pmcd</userinput></programlisting>
+</section>
+<section id="id5177616">
+
+<title>Windows Installation</title>
+<para><indexterm id="IG313401781"><primary>Windows</primary></indexterm> After downloading the PCP Glider <literal>msi</literal> file, right-click on the command prompt icon, select <literal>Run As Administrator</literal>, and enter:</para>
+<programlisting><userinput>msiexec /i pcp-glider-${PCP_VERSION}.msi</userinput>
+<userinput>cd C:\Glider\scripts</userinput>
+<userinput>postinst.bat</userinput></programlisting>
+<para>The command line utilities can now be accessed from a Windows shell or the provided (POSIX) shell. The graphical tools can be accessed via the Windows <literal>Start</literal> menu.</para>
+</section>
+</chapter>
+
+
+<chapter id="LE98072-PARENT">
+
+<title>Tutorials</title>
+<para>From a high-level PCP can be considered to contain two classes of software utility:</para>
+<itemizedlist>
+<listitem><para>PCP Collectors. These are the parts of PCP that collect and extract performance data from various domains, such as the kernel or a database.</para>
+</listitem>
+<listitem><para>PCP Monitors.  These are the parts of PCP that display data collected from hosts (or archives) that have the PCP Collector installed.</para>
+</listitem></itemizedlist>
+<para>The tutorials of this section focus on various monitoring tools initially, and then finish up with some extensions to collector systems not covered in the <citetitle>Performance Co-Pilot User's and Administrator's Guide</citetitle>.</para>
+
+<section id="id5187772">
+<title>Using PCP Charts</title>
+<para>...</para>
+</section>
+
+<section id="id5188149">
+<title>Logging Basics</title>
+<para>...</para>
+</section>
+
+<section id="id5188221">
+<title>Automated Reasoning</title>
+<para>...</para>
+</section>
+
+
+</chapter>
+
+
+<chapter id="LE25915-PARENT">
+<title>Case Studies</title>
+
+<section id="id5187771">
+<title>Understanding System-Level Processor Performance</title>
+<para>...</para>
+</section>
+
+<section id="id5187773">
+<title>Understanding Measures of Disk Performance</title>
+<para>...</para>
+</section>
+
+<section id="id5187774">
+<title>An Operating System Upgrade Evaluation</title>
+<para>...</para>
+</section>
+
+<section id="id5187775">
+<title>Comparing Storage System Performance</title>
+<para>...</para>
+</section>
+
+<section id="id5187776">
+<title>Central Logging: Instrumenting Distributed Event Logs</title>
+<para>...</para>
+</section>
+
+
+</chapter>
+
+
+<index id="sgi-index">
+
+<indexentry>
+   <primaryie>Linux <link linkend="IG313401778">Supported Platforms Installation</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>Max OS X <link linkend="IG313401779">Supported Platform Installations</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>Solaris <link linkend="IG313401780">Supported Platform Installations</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>Windows <link linkend="IG313401781">Supported Platforms Installation</link></primaryie>
+</indexentry>
+
+</index>
+
+</book>

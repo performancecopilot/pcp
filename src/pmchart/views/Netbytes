@@ -1,0 +1,6 @@
+#kmchart
+version 1
+
+chart title "Network Interface Bytes [%h]" style stacking
+	plot legend "in %i" metric network.interface.in.bytes not-matching "^lo|^gif|^sl|^sit|^stf|^tun|^wlt|^virbr|^vnet|^vmnet|^MS TCP Loopback interface"
+	plot legend "out %i" metric network.interface.out.bytes not-matching "^lo|^gif|^sl|^sit|^stf|^tun|^wlt|^virbr|^vnet|^vmnet|^MS TCP Loopback interface"

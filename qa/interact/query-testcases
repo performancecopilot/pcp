@@ -1,0 +1,80 @@
+pmquery
+=======
+
+Message
+
+[ ] Run: pmquery -icon archive -b One -b Two -b Three
+    This should display a dialog with three numbered buttons,
+    an archive icon and empty text box.  Click on the button
+    labeled "Two", and the dialog should be dismissed and the
+    text "Two" written to the terminal.
+
+[ ] Run: pmquery -icon info -b One -b Two -B Three 
+    This should display a dialog with three numbered buttons,
+    a light bulb icon and empty text box, and the button with'
+    label Three should be visibly the default.  Hit the enter
+    key, and the dialog should be dismissed with the text
+    "Three" written to the terminal.
+
+[ ] Run: pmquery -icon error -b Cancel -B OK
+    A dialog with stop sign and two buttons.  Hit the Escape
+    key and the window should be dismissed with no output sent
+    to the terminal.
+
+[ ] Run: pmquery -icon question -buttons OK,Cancel -default OK
+    Window should have a question mark icon, two buttons, with
+    the OK button being leftmost and default.  Press the OK
+    button and verify that the text OK is sent to the terminal.
+
+[ ] Run: pmquery -icon question -buttons OK:1,Cancel,201:201
+    A window should be displayed with three buttons - the third
+    should have the label "201", and clicking it should cause
+    pmquery to exit with status 201 - verify this by typing
+    "echo $?" in the terminal after clicking the "201" button.
+
+Input
+
+[ ] Run: pmquery -icon host -input -t default.local
+    The window should have the conputer icon, and an editable
+    text box containing the text default.local.  Append "123"
+    to the text and press "Continue" - verify that the modified
+    string is displayed in the terminal.
+
+
+File I/O
+
+[ ] Run: echo Text | pmquery -icon critical -file -
+    Should display an error icon and a text box containing the
+    string "Text"
+
+[ ] Run: pmquery -icon critical -file /dev/null
+    Should display an error icon and an empty text box.
+
+[ ] Run: pmquery -icon critical -file /tmp/message
+    Should display a "no such file" error message
+
+[ ] Run: echo Text > /tmp/message
+         pmquery -icon critical -file /tmp/message
+    Should display an error icon and a text box containing the
+    string "Text".
+
+[ ] Run: pmquery -icon critical -B OK -print
+    Hit the OK button and text "OK" should be written out.
+
+[ ] Run: pmquery -icon critical -B OK -noprint
+    Hit the OK button and no text should be written out.
+
+[ ] Run: pmquery -icon critical -B OK -timeout 2
+    Wait for two seconds, and the dialog should dismiss itself.
+
+[ ] Run: pmquery -icon critical -file /tmp/message -useslider
+    Text box with "Text" should have a vertical slider.
+
+[ ] Run: pmquery -icon critical -file /tmp/message -noslider
+    Text box with "Text" should have no vertical slider.
+
+[ ] Run: pmquery -icon critical -file /tmp/message -noframe
+    Text box with "Text" should have no outline frame.
+
+[ ] Run: pmquery -icon critical -t one -t two -t three -header Eek
+    Three lines of text, a single button and window titled "Eek".

@@ -1,0 +1,53 @@
+Scaling Charts
+==============
+
+See also qa 006 for automated tests.
+
+[ ] Start pmchart as follows:
+	$ pmafm 20071023-08-06-36.folio replay
+
+[ ] The initial configuration should be from top to bottom (5 charts):
+
+	Y-axis scale		Max Y-axis value
+	Kbyte			1000
+	byte/millisec		1000
+	nanosec			1000
+	<nothing>		1000
+	Kbyte/sec		1000
+    
+[ ] Open pmtime
+    - move the time slider back to the start of the archive
+    - change Archive Control to Step
+    - click Step Forward 10 times
+
+    The chart configuration should change to be:
+
+	Y-axis scale		Max Y-axis value
+	Gbyte			110
+	Mbyte/millisec		36
+	millisec		10
+	<nothing>		0.18
+	Kbyte/sec		80
+
+[ ] Change Archive Control to Fast, and click Fast Forward until the end
+    of the archive is reached.
+
+    The chart configuration should change to be:
+
+	Y-axis scale		Max Y-axis value
+	Gbyte			110
+	Mbyte/millisec		100
+	hour			30		
+	<nothing>		1
+	Mbyte/sec		50
+
+[ ] Click Fast Backward until the start of the archive is reached.
+
+    The chart configuration should change to be:
+
+	Y-axis scale		Max Y-axis value
+	Gbyte			110
+	Mbyte/millisec		36
+	millisec		0.1
+	<nothing>		0.18
+	Kbyte/sec		80

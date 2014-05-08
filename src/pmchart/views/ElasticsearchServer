@@ -1,0 +1,29 @@
+#kmchart
+version 1
+
+# CPU view
+chart title "CPU Utilization [%h]" style utilization
+	plot legend "User" color #2d2de2 metric kernel.all.cpu.user
+	plot legend "Sys" color #e71717 metric kernel.all.cpu.sys
+	optional-plot legend "Nice" color #c2f3c2 metric kernel.all.cpu.nice
+	optional-plot legend "Intr" color #cdcd00 metric kernel.all.cpu.intr
+	optional-plot legend "Wait" color #00cdcd metric kernel.all.cpu.wait.total
+	optional-plot legend "Steal" color #fba2f5 metric kernel.all.cpu.steal
+	plot legend "Idle" color #16d816 metric kernel.all.cpu.idle
+
+chart title "Average Load [%h]" style plot antialiasing off
+	plot legend "1 min" metric kernel.all.load instance "1 minute"
+	plot legend "# cpus" metric hinv.ncpu
+
+# Query/Fetch per second
+chart title "Searches" style plot antialiasing off
+	plot legend "Query" metric elasticsearch.search.all.total.search.query_total
+	plot legend "Fetch" metric elasticsearch.search.all.total.search.fetch_total
+
+# CPU usage per node
+chart title "CPU %" style plot antialiasing off
+	plot legend "cpu %i" metric elasticsearch.nodes.process.cpu.percent
+
+# Doc count per node
+chart title "Document" style plot antialiasing off
+	plot legend "docs %i" metric elasticsearch.nodes.indices.docs.count

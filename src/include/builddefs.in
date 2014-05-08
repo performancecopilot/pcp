@@ -127,10 +127,17 @@ SRCFILES = GNUmakefile $(HFILES) $(CFILES) $(CXXFILES) $(MFILES) \
 
 LDLIBS = $(LLDLIBS) $(PLDLIBS)
 MAKEOPTS = --no-print-directory
-DIRT = $(LDIRT) dep dep.bak $(OBJECTS) $(CMDTARGET) $(CXXMDTARGET) \
-	$(LIBTARGET) $(STATICLIBTARGET) \
-	*.[1-9].gz *.[1-9].bz2 *.[1-9].lzma *.[1-9].xz *.[1-9].tmp
-DIRDIRT = $(LDIRDIRT)
+
+ifdef PROJECT
+QTDIRDIRT = build debug release .obj .ui .moc .qrc *.xcodeproj *.app
+QTDIRT = *.a *.o ui_* moc_* qrc_* Info.plist Makefile* object_script.*
+endif
+DEPDIRT = dep dep.bak
+MANDIRT = *.[1-9].gz *.[1-9].bz2 *.[1-9].lzma *.[1-9].xz *.[1-9].tmp
+LIBDIRT = $(LIBTARGET) $(STATICLIBTARGET)
+CDIRT = $(OBJECTS) $(CMDTARGET) $(CXXMDTARGET)
+DIRT = $(LDIRT) $(DEPDIRT) $(MANDIRT) $(QTDIRT) $(CDIRT) $(LIBDIRT)
+DIRDIRT = $(LDIRDIRT) $(QTDIRDIRT)
 
 OBJECTS = $(ASFILES:.s=.o) \
           $(CFILES:.c=.o) \
@@ -155,6 +162,7 @@ GREP    = @grep@
 GIT	= @GIT@
 PYTHON	= @PYTHON@
 DTRACE  = @DTRACE@
+QMAKE	= @qmake@
 
 INSTALL_SH = $(TOPDIR)/install-sh
 INSTALL	= $(INSTALL_SH) -o $(PCP_USER_INSTALL) -g $(PCP_GROUP_INSTALL)
@@ -192,19 +200,29 @@ MAKEPKG	= @makepkg@
 GENPMDA	= $(TOPDIR)/src/genpmda/genpmda
 PKGMK	= @pkgmk@
 MD5SUM	= @md5sum@
+XMLTO	= @xmlto@
+DBLATEX	= @dblatex@
+PUBLICAN = @publican@
+BOOK_TOOLCHAIN = @book_toolchain@
 
 HAVE_GZIPPED_MANPAGES = @have_gzipped_manpages@
 HAVE_BZIP2ED_MANPAGES = @have_bzip2ed_manpages@
 HAVE_LZMAED_MANPAGES = @have_lzmaed_manpages@
 HAVE_XZED_MANPAGES = @have_xzed_manpages@
 PCP_MAN_DIR = @pcp_man_dir@
+PCP_BOOKS_DIR = @pcp_books_dir@
+PCP_ICONS_DIR = @pcp_icons_dir@
+PCP_DESKTOP_DIR = @pcp_desktop_dir@
 
 NEED_OLD_TBL_HEADER = @need_old_tbl_header@
 RDYNAMIC_FLAG = @rdynamic_flag@
+QT_RELEASE = @qt_release@
+
 ENABLE_SHARED = @enable_shared@
 ENABLE_SECURE = @enable_secure@
 ENABLE_PROBES = @enable_probes@
 ENABLE_AVAHI  = @enable_avahi@
+ENABLE_QT     = @enable_qt@
 
 # additional libraries needed for particular functions
 LIB_FOR_BASENAME = @lib_for_basename@
@@ -574,7 +592,83 @@ PYTHON_INSTALL =
 endif
 endif
 
-#
+# Qt magic for build/installs across all the supported platforms
+ifeq ($(PCP_PLATFORM),darwin)
+QTMAKE = $(QMAKE) -spec macx-g++ CONFIG+=$(QT_RELEASE) && make -f Makefile
+MACBUILD = $(COMMAND).app/Contents
+BINARY = $(MACBUILD)/MacOS/$(COMMAND)
+LNMAKE = test ! -f $(BINARY) -o -L $(COMMAND) || $(LN_S) $(BINARY) $(COMMAND)
+WINDOW = mac
+endif
+ifeq ($(PCP_PLATFORM),mingw)
+QTMAKE = $(QMAKE) CONFIG+=$(QT_RELEASE) && $(MAKE) -f Makefile
+BINARY = $(QT_RELEASE)/$(COMMAND)
+LNMAKE =
+WINDOW = win
+endif
+ifeq "$(findstring $(PCP_PLATFORM),darwin mingw)" ""
+QTMAKE = $(QMAKE) CONFIG+=$(QT_RELEASE) && $(MAKE) $(MAKEOPTS) -f Makefile
+BINARY = build/$(QT_RELEASE)/$(COMMAND)
+LNMAKE = test ! -f $(BINARY) -o -L $(COMMAND) || $(LN_S) $(BINARY) $(COMMAND)
+WINDOW = x11
+endif
+
+ifeq ($(PCP_PLATFORM),darwin)
+INSTALL_DIRECTORY_HIERARCHY=\
+	d=$(1); while [ "$$d" != "$(2)" -a "$$d" != "/" -a "$$d" != "." ] ; do \
+                echo $$d; d=`dirname $$d`; done | sort | while read id; do \
+                $(INSTALL) -m 755 -d $$id || exit 1; done
+
+INSTALL_QT_RESOURCES=\
+	printf "[Paths]\nPlugins=/Library/PCP/Plugins\n\n" > qt.conf; \
+	$(INSTALL) -m 644 qt.conf $(1)/qt.conf; \
+	rm qt.conf; \
+	find frameworks -type d -name qt_menu.nib | while read nib; do \
+                $(INSTALL) -m 755 -d $(1)/qt_menu.nib || exit 1; \
+                find $$nib -type f | while read nibs; do \
+                        f=`basename $$nibs`; \
+                        $(INSTALL) -m 644 $$nibs $(1)/qt_menu.nib/$$f || exit 1; \
+                done; \
+        done
+
+MAC_APPSUPPORT_DIR=/Library/PCP
+MAC_FRAMEWORKS_DIR=$(MAC_APPSUPPORT_DIR)/Frameworks
+
+# WARNING!
+# This rule modified the binary it was given, once modified the
+# binary cannot be used with this rule again.
+# If the binary is installed then it's important to call this
+# rule before calling install rule for the binary.
+INSTALL_QT_FRAMEWORKS=\
+    otool -L $(1) | awk '{if (NR != 1) {print $$1}}' |\
+    egrep 'Qt.*\.framework' | while read qt; do \
+	tdir=`dirname $$qt`; \
+	install_name_tool -change $$qt $(MAC_FRAMEWORKS_DIR)/$$qt $(1);\
+	$(call INSTALL_DIRECTORY_HIERARCHY,$(MAC_FRAMEWORKS_DIR)/$$tdir,/Library/PCP); \
+	mkdir -p frameworks/$$tdir || exit 1; \
+	fwqt="frameworks/$$qt"; \
+	cp /Library/Frameworks/$$qt frameworks/$$qt || exit 1; \
+	otool -L $$fwqt | awk '{if (NR != 1) {print $$1}}' |\
+	egrep 'Qt.*\.framework' | while read dep; do \
+	    install_name_tool -change $$dep $(MAC_FRAMEWORKS_DIR)/$$dep $$fwqt;\
+	done; \
+	$(INSTALL) frameworks/$$qt $(MAC_FRAMEWORKS_DIR)/$$qt; \
+	if [ -d /Library/Frameworks/$$tdir/Resources ] ; then \
+	    $(INSTALL) -d $(MAC_FRAMEWORKS_DIR)/$$tdir/Resources; \
+	    (cd /Library/Frameworks/$$tdir; find Resources -type f) | \
+		while read rf; do \
+		    rfpath="$$tdir/$$rf"; rfd=`dirname $$rfpath`; \
+		    fwpath="frameworks/$$rfpath"; brfd=`basename $$rfd`; \
+		    mkdir -p frameworks/$$rfd || exit 1; \
+		    cp /Library/Frameworks/$$rfpath $$fwpath || exit 1; \
+		    [ $$brfd != qt_menu.nib ] || continue;  \
+		    $(INSTALL) -d $(MAC_FRAMEWORKS_DIR)/$$rfd || exit 1; \
+		    $(INSTALL) $$fwpath $(MAC_FRAMEWORKS_DIR)/$$rfpath;\
+		done \
+	fi; done
+endif
+
+
 # For targets that should always be rebuilt,
 # define a target that is never up-to-date.
 # Targets needing this should depend on $(_FORCE)

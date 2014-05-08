@@ -1,0 +1,423 @@
+'\"macro stdmacro
+.TH PMDUMPTEXT 1 "SGI" "Performance Co-Pilot"
+.SH NAME
+\f3pmdumptext\f1 \- dump performance metrics to an ASCII table
+.\" literals use .B or \f3
+.\" arguments use .I or \f2
+.SH SYNOPSIS
+\f3pmdumptext\f1
+[\f3\-CFgGHilmMNoruXz\f1]
+[\f3\-A\f1 \f2align\f1]
+[\f3\-a\f1 \f2archive\f1[\f3,\f2archive\f3,\f1...]]
+[\f3\-c\f1 \f2config\f1]
+[\f3\-d\f1 \f2delimiter\f1]
+[\f3\-f\f1 \f2format\f1]
+[\f3\-h\f1 \f2host\f1]
+[\f3\-n\f1 \f2pmnsfile\f1]
+[\f3\-O\f1 \f2offset\f1]
+[\f3\-p\f1 \f2port\f1]
+[\f3\-P\f1 \f2precision\f1]
+[\f3\-R\f1 \f2lines\f1]
+[\f3\-s\f1 \f2sample\f1]
+[\f3\-S\f1 \f2starttime\f1]
+[\f3\-t\f1 \f2interval\f1]
+[\f3\-T\f1 \f2endtime\f1]
+[\f3\-U\f1 \f2string\f1]
+[\f3\-w\f1 \f2width\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+[\f2metric \f1...]
+.SH DESCRIPTION
+.B pmdumptext
+outputs the values of performance metrics collected live or from a
+Performance Co-Pilot (PCP) archive.
+By default, the metric values are displayed in tab separated columns,
+prefixed by a timestamp.
+.PP
+Unless directed to another host by the
+.B \-h
+option, or to one or more archives by the
+.B \-a
+option, 
+.B pmdumptext
+will contact
+.BR pmcd (1)
+on the local host to obtain the required information.
+.PP
+.B pmdumptext
+may be run in interactive mode with the
+.B \-i
+option which displays the values in equal width columns.  Without this option,
+no attempt is made to line up any values allowing the output to be easily
+parsed by other applications.
+.PP
+The format of the output can be further controlled by changing the
+precision of the values with
+.BR \-P ,
+the width of the columns with
+.BR \-w ,
+and the format of the values with the 
+.BR \-G
+and
+.BR \-F
+options for the shortest of scientific or fixed digits, and a fixed
+width format, respectively.
+.PP
+The 
+.I metrics
+to be dumped can be listed on the command line, in a 
+.I config
+file, or piped to
+.B pmdumptext
+on
+.IR stdin .
+A metric consists of an optional source (host or archive), the metric name,
+and an optional instance list immediately after the name.  A colon is used to 
+separate a host name from the metric, and a forward slash (``/'') to 
+separate an archive name from the metric.  Instances are enclosed in square 
+brackets and a comma is used between each instance if more than one is stated.
+For example, some legal metrics are:
+.PP
+.in 1.5i
+.ft CW
+.nf
+kernel.all.cpu.idle
+myhost:kernel.all.cpu.idle[cpu0,cpu3]
+/path/to/myarchive/kernel.all.cpu.idle[cpu1]
+.fi
+.ft R
+.in
+.PP
+The format of a metric is further described in
+.BR PCPIntro (1).
+A normalization value may optionally follow a metric name in a 
+.I config
+file or on 
+.IR stdin .
+The metric value will be scaled by this value.  For example, if the file
+system ``/dev/root'' has a capacity of 1965437 bytes, then the percentage of
+the file system that is used could be dumped with this
+.IR config :
+.PP
+.in 1.5i
+.ft CW
+.nf
+filesys.used[/dev/root] 19654.37
+.fi
+.ft R
+.in
+.PP
+A normalization value may not be used with
+.I metrics
+specified as command line arguments.
+.PP
+A metric name is not required to be a leaf node in the Performance Metrics Name
+Space (PMNS), except when one or more instances are specified.
+For example, to dump all file system metrics, only
+.I filesys
+is required to dump
+.IR filesys.capacity ,
+.IR filesys.used ,
+.IR filesys.free
+etc.
+.SH COMMAND LINE OPTIONS
+The command line options
+.BR \-A , 
+.BR \-O , 
+.B \-S
+and
+.B \-T
+control the alignment, offset, start and end time when visualizing metrics
+from archives.  These options are common to most Performance Co-Pilot tools
+and are fully described in 
+.BR PCPIntro (1).
+.PP
+The other available options are:
+.PP
+.IP \f3\-a\f1
+Specify an 
+.I archive
+from which metrics can be obtained for a particular host.  
+.I archive
+is the basename of an archive, previously created by
+.BR pmlogger (1).
+Multiple archives (separated by commas or in different \f3\-a\f1 options)
+from different hosts may be given, but only one per host is
+permitted.  Any metrics that are not associated with a specific host or archive
+will use the first archive as their source.
+.IP \f3\-C\f1
+Exit before dumping any values, but after parsing the metrics.  Metrics,
+instances, normals and units are listed if 
+.BR \-m ,
+.BR \-l ,
+.BR \-N
+and/or
+.BR \-u
+are specified.
+.IP \f3\-c\f1
+If no
+.I metrics
+are listed on the command line, a 
+.I config
+file can be used to specify the
+.IR metrics
+to be dumped.
+Unlike the command line 
+.IR metrics ,
+each metric may be followed by a normalization value.  Empty lines and
+lines that begin with ``#'' are ignored.
+.IP \f3\-d\f1
+Specify the 
+.I delimiter
+that separates each column of output.  The 
+.I delimiter
+may only be a single character.
+.IP \f3\-f\f1
+Use the
+.I format
+string for formatting the timestamp with each set of values.  The syntax of
+this string is the same as that described in
+.BR strftime (3).
+An empty 
+.I format
+string (eg. '') will remove the timestamps from the output.
+.IP \f3\-F\f1
+Output the values in a fixed width format of 6 characters.  Positive
+numbers are represented as \f2dd\f1.\f2dd\f3u\f1 and negative numbers as
+\f3[\f1-\f3]\f2d\f1.\f2dd\f3u\f1.  The postfix multiplier may have the values
+.BR K (10^3),
+.BR M (10^6),
+.BR G (10^9)
+and
+.BR T (10^12).
+For example, 4567 would be displayed as 4.57K, even if the units of the metric
+are bytes.
+.IP \f3\-G\f1
+Output the values using the shortest of a scientific format or a decimal
+notation.
+.IP \f3\-g\f1
+Run in graphical user interface (GUI) mode, with
+.B pmtime
+being used for VCR-alike time control functionality.
+.IP \f3\-h\f1
+Fetch performance metrics from
+.BR pmcd (1)
+on
+.IR host ,
+rather than the default localhost.
+.IP \f3\-H\f1
+Show all headers before dumping any metric values.  This is equivalent to
+.BR \-lmNu .
+.IP \f3\-i\f1
+Output the data in fixed width columns using fixed width values (see
+.BR \-F )
+so that it is human-readable.  This option may not be used with
+.B \-P
+as fixed point values are not fixed width.  This option will also affect the
+output of 
+.BR \-m
+and
+.BR \-u
+options as the metric, instance and unit names will be truncated.
+.IP \f3\-l\f1
+Show the source of the metrics.  In interactive mode, the host of the metrics
+is shown.  In non-interactive mode, this option shows the source of
+the metrics with the metric name even if 
+.B \-m
+is not specified.
+.IP \f3\-m\f1
+Output the metric names before the metric values.  The source and units of 
+the metrics may also be dumped with the \f3\-l\f1 and \f3\-u\f1 options 
+respectively.  If in interactive mode, the metrics names may be truncated,
+and the instance names, where relevant, are also truncated on the follow
+line.
+.IP \f3\-M\f1
+Output the column number and complete metric names before dumping any values.
+If the
+.B \-l
+flag is also specified, the source of the metrics is also shown.
+.IP \f3\-n\f1
+Load an alternative local PMNS from the file
+.IR pmnsfile.
+.IP \f3\-o\f1
+When a timestamp is being reported (ie. unless an empty format string is
+given with the
+.B \-f 
+option), the timestamp is prefixed with the offset in seconds from
+the start of the archive or the beginning of the execution of
+.BR pmdumptext .
+.IP \f3\-N\f1
+Output the normalization factors before the metric values.
+.IP \f3\-p\f1
+Connect to
+.BR pmtime (1)
+on the specified
+.IR port .
+.IP \f3\-P\f1
+Set the
+.I precision
+of the values.  This option may not be used with
+.B \-F
+as the precision is constant.  The default precision is 3.
+.IP \f3\-r\f1
+Output the raw metric values, do not convert counters to rates.  This option
+also causes
+.B pmdumptext
+to ignore the normalization values for each metric.
+.IP \f3\-R\f1
+Repeat the header every
+.I lines
+of output.  This option is useful in interactive mode when using a
+graphical window to avoid the header scrolling beyond the window's buffer,
+and to realign the header if the window is resized.
+.IP \f3\-s\f1
+.B pmdumptext
+will terminate after this many samples.
+.IP \f3\-t\f1
+The
+.I interval
+argument follows the syntax described in
+.BR PCPIntro (1),
+and in the simplest form may be an unsigned integer (the implied
+units in this case are seconds).
+The default interval is 1.0 seconds.
+.IP \f3\-u\f1
+Output the units of the metrics before the first values, but after the metric
+names if \f3\-m\f1 is also specified.
+.IP \f3\-U\f1
+Change the output when values are unavailable to
+.IR string .
+The default string is ``?''.
+.IP \f3\-w\f1
+Set the column width of the output.  Strings will be truncated to this width,
+and maybe postfixed by ``...'' if the
+.I width
+is greater than 5.
+.IP \f3\-X\f1
+Output the column number and complete metric names, one-per-line,
+both before dumping the first set of values and again each time the
+header is repeated.
+.IP \f3\-z\f1
+Use the local timezone of the host that is the source of the 
+performance metrics, as identified by either the
+.B \-h
+or the first
+.B \-a
+options.
+The default is to use the timezone of the local host.
+.IP \f3\-Z\f1
+Use
+.I timezone
+when displaying the date and time.
+.I Timezone
+is in the format of the environment variable
+.B TZ
+as described in
+.BR environ (5).
+.SH MULTIPLE SOURCES
+.B pmdumptext
+supports the dumping of metrics from multiple hosts or archives.  The metrics
+listed on the command line or in the
+.I config
+file may have no specific source or come from different sources.
+.PP
+However, restrictions apply when archives
+are specified on the command line 
+.RB ( \-a )
+and/or in the configuration file.  Firstly, there may be only one archive 
+for any one host.  Secondly, the hosts of any metrics with host sources
+must correspond to the host of an archive, either on the command line or
+previously as the source of another metric.
+.PP
+The options
+.B \-a
+and
+.B \-h
+may not be used together.
+.SH UNIT CONVERSION
+All metrics that have the semantics of counters are automatically converted to
+rates over the sample time interval.  In interactive mode,
+.B pmdumptext
+will also change the units of some metrics so that they are easier to
+comprehend:
+.TP
+o
+All metrics with space units (bytes to terabytes) are scaled to bytes.  Note
+that 1024 bytes with be represented as 1.02K, not 1.00K.
+.TP
+o
+Metrics that are counters with time units (nanoseconds to hours) represent time
+utilization over the sample interval.  The unit strings of such metrics is
+changed to ``Time Utilization'' or abbreviated to ``util'' and the values
+are normalized to the range zero to one.
+.SH EXAMPLES
+o To examine the load on two hosts foo and bar, simultaneously:
+.PP
+.in 0.5i
+.ft CW
+.nf
+$ pmdumptext \-il 'foo:kernel.all.load[1]' 'bar:kernel.all.load[1]'
+             Source        foo     bar
+Wed Jul 30 11:37:53      0.309   0.409
+Wed Jul 30 11:37:54      0.309   0.409
+Wed Jul 30 11:37:55      0.309   0.409
+.fi
+.ft R
+.in
+.PP
+o To output the memory utilization on a remote host called bong with a simpler timestamp:
+.PP
+.in 0.5i
+.ft CW
+.nf
+$ pmdumptext \-imu \-h bong \-f '%H:%M:%S' mem.util
+  Metric        kernel  fs_ctl  _dirty  _clean    free    user
+   Units             b       b       b       b       b       b
+09:32:28         8.98M   0.97M   0.00    3.90M   7.13M  46.13M
+09:32:29         8.99M   0.98M   0.00    5.71M   5.39M  46.03M
+09:32:30         8.99M   1.07M   0.00    5.81M   4.55M  46.69M
+09:32:31         9.03M   1.16M   0.00    6.45M   3.48M  47.00M
+09:32:32         9.09M   1.18M  20.48K   6.23M   3.29M  47.30M
+.fi
+.ft R
+.in
+.PP
+o To dump all metrics collected in an archive at a 30 second interval to a file
+for processing by another tool:
+.PP
+.in 0.5i
+.ft CW
+.nf
+$ pminfo \-a archive | pmdumptext \-t 30s \-m \-a archive > outfile
+.fi
+.ft R
+.in
+.SH FILES
+.TP 10
+.B "$PCP_VAR_DIR/pmns/*"
+default PMNS specification files
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (4).
+.SH SEE ALSO
+.BR pmchart (1),
+.BR pmtime (1),
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pmlogger (1),
+.BR pmlogextract (1),
+.BR pmval (1),
+.BR PMAPI (3),
+.BR strftime (3)
+and
+.BR environ (5).

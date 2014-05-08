@@ -8,6 +8,14 @@ LINTDIR = $(PCP_SHARE_DIR)/../lintian/overrides
 PCP_FILES = pcp.preinst pcp.prerm pcp.postinst pcp.postrm pcp.conffiles
 PCP_LINT = pcp.lintian 
 
+PCPDOC = pcp-doc
+PCPDOC_FILES = pcp-doc.dirs pcp-doc.install
+PCPDOC_DOC_DIR = $(PCP_DOC_DIR)/../pcp-doc
+
+PCPGUI = pcp-gui
+PCPGUI_FILES = pcp-gui.dirs pcp-gui.install
+PCPGUI_DOC_DIR = $(PCP_DOC_DIR)/../pcp-gui
+
 PCPWEBAPI = pcp-webapi
 PCPWEBAPI_FILES = pcp-webapi.dirs pcp-webapi.install pcp-webapi.prerm \
 		  pcp-webapi.postinst pcp-webapi.postrm
@@ -97,10 +105,11 @@ LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
 	$(PCPIMPORTCOLLECTL)
 
 LSRCFILES = changelog compat copyright rules \
-	control.master control.webapi control \
+	configversions control control.master \
+	control.webapi control.pcpgui control.pmdaib \
 	pcp.preinst.head.in pcp.preinst.head pcp.preinst.tail \
 	pcp.postinst.head.in pcp.postinst.head pcp.postinst.tail \
-	pcp.postrm.head pcp.postrm.tail configversions \
+	pcp.postrm.head pcp.postrm.tail \
 	$(LINTIAN) $(PCP_LINT) \
 	$(PCP_FILES) $(LIBPCP_FILES) $(DEVPCP_FILES) \
 	$(PCPCFG_FILES) $(PCPTESTSUITE_FILES) \
@@ -112,7 +121,8 @@ LSRCFILES = changelog compat copyright rules \
 	$(LIBIMPORT_FILES) $(DEVIMPORT_FILES) \
 	$(PCPIMPORTSAR_FILES) $(PCPIMPORTMRTG_FILES) \
 	$(PCPIMPORTSHEET_FILES) $(PCPIMPORTIOSTAT_FILES) \
-	$(PCPIMPORTCOLLECTL_FILES) $(PCPPMDAINFINIBAND_FILES)
+	$(PCPIMPORTCOLLECTL_FILES) $(PCPPMDAINFINIBAND_FILES) \
+	$(PCPGUI_FILES) $(PCPDOC_FILES)
 
 default: pcp.preinst pcp.postinst pcp.postrm control
 
@@ -127,6 +137,15 @@ endif
 default_pcp : default
 
 install_pcp : install
+
+install-pcpgui:
+ifeq ($(HAVE_QT), 1)
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(PCPGUI_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(PCPGUI_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(PCPGUI_DOC_DIR)/changelog.Debian
+endif
+endif
 
 install-webapi:
 ifeq ($(HAVE_LIBMICROHTTPD), 1)
@@ -296,8 +315,11 @@ pcp.postrm:	pcp.postrm.head configversions pcp.postrm.tail
 	rm -f $@
 	cat pcp.postrm.head configversions pcp.postrm.tail > $@
 
-control:	control.master control.webapi
+control:	control.master control.webapi control.pcpgui
 	cat control.master >control
 ifeq ($(HAVE_LIBMICROHTTPD), 1)
 	cat control.webapi >>control
+endif
+ifeq ($(ENABLE_QT), 1)
+	cat control.pcpgui >>control
 endif

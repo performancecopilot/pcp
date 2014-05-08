@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta http-equiv="content-style-type" content="text/css">
+	<link href="pcpdoc.css" rel="stylesheet" type="text/css">
+	<link href="images/pcp.ico" rel="icon" type="image/ico">
+	<TITLE>PCP Installation</TITLE>
+</HEAD>
+<BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/pcpicon.png" NAME="pcpicon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></TD>
+	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
+	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	</TR>
+</TABLE>
+<H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Installation</FONT></H1>
+<P>Binary packages for Linux (<i>deb</i> and <i>rpm</i> formats), Mac OS X, Solaris and Windows are made available by the PCP development team.&nbsp;&nbsp;The latest version can always be found in the download section of the <A HREF="http://oss.sgi.com/projects/pcp/downloads/">PCP project</A> web pages.&nbsp;&nbsp;Its also worth noting that many Linux distributions now ship PCP - these include Debian, Fedora, Slackware, SuSE and Ubuntu.</P>
+<P>PCP GUI runs natively on Mac OS X, X11 (Linux/Unix) and Windows, and binary packages for these platforms are available in the same location.&nbsp;&nbsp;The installation instructions for each differ significantly - below we discuss each in turn, and finally cover building the tools from source.</P>
+<UL>
+	<LI><A HREF="#rpm">Linux (rpm format)</A>
+	<LI><A HREF="#deb">Linux (deb format)</A>
+	<LI><A HREF="#mac">Mac OS X</A>
+	<LI><A HREF="#sun">Solaris</A>
+	<LI><A HREF="#win">Windows</A>
+	<LI><A HREF="#src">Building from source</A>
+</UL>
+<P>The typical PCP installation is conceptually divided into two major components - <A HREF="glossary.html#collector">collectors</A> and <A HREF="glossary.html#monitor">monitors</A>.&nbsp;&nbsp;There are usually multiple systems of each type in any given deployment.</P>
+<P>For server-focussed systems (Linux in particular) PCP is literally divided into multiple packages along these lines, with separate PCP and PCP GUI packages (primarily due to dependencies on graphical libraries which are unlikely to be installed on a Linux server).&nbsp;&nbsp;On the other platforms, like Mac OS X and Windows, this is much less of an issue and so a single PCP package is shipped which covers both needs.</P>
+<P>PCP GUI has a runtime dependency on the Qt4 shared libraries.&nbsp;&nbsp;These are usually available from a package named <B>qt4</B>.&nbsp;&nbsp;Version 3 of the Qt libraries <I><B>will not work</B></I>.</P>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Linux using <A NAME="rpm"><I>rpm</I></A> format (Fedora, RHEL, SuSE)</B></FONT></P></TD></TR>
+</TABLE>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;If using packages <B>from your distribution</B>, in a command shell enter:<BR>
+<PRE><B>
+# yum install pcp pcp-gui
+</B></PRE>
+<BR>
+&nbsp;&nbsp;&nbsp;If using packages <B>downloaded from oss.sgi.com</B>, in a command shell enter:<BR>
+<PRE><B>
+# rpm -Uvh *pcp*.rpm
+</B></PRE>
+<BR>
+</TD></TR>
+</TABLE>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Linux using <A NAME="deb"><I>deb</I></A> format (Debian, Ubuntu)</B></FONT></P></TD></TR>
+</TABLE>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;If using packages <B>from your distribution</B>, in a command shell enter:<BR>
+<PRE><B>
+# apt-get install pcp pcp-gui
+</B></PRE>
+<BR>
+&nbsp;&nbsp;&nbsp;If using packages <B>downloaded from oss.sgi.com</B>, in a command shell enter:<BR>
+<PRE><B>
+# dpkg -i *pcp*.deb
+</B></PRE>
+<BR>
+</TD></TR>
+</TABLE>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="mac">Mac</A> OS X Installation</B></FONT></P></TD></TR>
+</TABLE>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;After downloading the <I>dmg</I> file for your platform, double-click on the PCP <I>dmg</I> icon, and follow the installation instructions presented by the Installer.&nbsp&nbsp;Note that users of Snow Leopard (Mac OS X 10.6) or later, should use the 64 bit packages.<BR>
+<BR>
+</TD></TR>
+</TABLE>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="sun">Solaris</A> Installation</B></FONT></P></TD></TR>
+</TABLE>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;After downloading (and gunzip'ing) the binary package, to perform a fresh install:<BR>
+<PRE><B>
+# pkgadd -d pcp-X.Y.Z
+<I>&nbsp;&nbsp;Say 'y' to all the questions</I>
+# svcadm enable pmcd
+</B></PRE><BR>
+Or to update to a newer version:
+<PRE><B>
+# pkgrm pcp-X.Y.OLD
+# pkgadd -d pcp X.Y.Z
+# svcadm enable pmcd
+</B></PRE>
+<BR>
+</TD></TR>
+</TABLE>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="win">Windows</A> Installation</B></FONT></P></TD></TR>
+</TABLE>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;After downloading the PCP Glider <I>msi</I> file, right-click on the command prompt icon, select <I><B>Run As Administrator</B></I>, and enter:<BR>
+<PRE><B>
+# msiexec /i pcp-glider-*.msi
+# cd C:\Glider\scripts
+# postinst.bat
+</B></PRE><BR>
+Before upgrading or removing PCP Glider, run:
+<PRE><B>
+# cd C:\Glider\scripts
+# prerm.bat
+</B></PRE><BR>
+The command line utilities can now be accessed from a Windows shell or the provided (POSIX) shell.&nbsp;&nbsp;The graphical tools can be accessed via the Windows <I>Start</I> menu.
+<BR>
+</TD></TR>
+</TABLE>
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Building from <A NAME="src">source</A></B></FONT></P></TD></TR>
+</TABLE>
+<P>The best way to build PCP and PCP GUI from source is to use the <B>git</B> source code management (SCM) tools.  This SCM is freely available and runs natively on many different platforms.
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;First, get the current version of the source code for both PCP GUI and PCP:<BR>
+<PRE><B>
+$ git clone git://oss.sgi.com/pcp/pcp.git pcp
+$ git clone git://oss.sgi.com/pcp/pcp-gui.git pcp-gui
+</B></PRE><BR>
+Then build and install:
+<PRE><B>
+$ cd pcp
+$ make default install
+$ cd ../pcp-gui
+$ make default install
+</B></PRE>
+<BR>
+</TD></TR>
+</TABLE>
+<P>When building from source, you'll need to ensure you have the following tools and libraries installed: a C compiler (for PCP), a C++ compiler (for PCP GUI), <I>autoconf</I>, <I>lex</I>, <I>yacc</I>, and the Qt4 development tools (including <I>qmake</I>), libraries and headers.&nbsp;&nbsp;On Mac OS X, the Apple <I>Xcode</I</I>> development environment is also required, as it is used by the Qt application build process.&nbsp;&nbsp;<I>Inkscape</I> - a Scalable Vector Graphics (SVG) editor - can be used to modify the icons, but is not required during the build process.</P>
+<P>If you encounter difficulties building either pcp or pcp-gui, consult the <A HREF="contacts.html">contacts page</A> which contains contact information for people who can provide additional assistance.</P>
+
+<P><BR></P>
+<HR>
+<CENTER>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=80%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc.</FONT></P></TD>
+	<TD WIDTH=20%><P ALIGN=RIGHT><A HREF="http://oss.sgi.com/projects/pcp/"><FONT COLOR="#000060">PCP</FONT></A></P></TD> </TR>
+</TABLE>
+</CENTER>
+</BODY>
+</HTML>

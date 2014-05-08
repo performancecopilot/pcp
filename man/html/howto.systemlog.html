@@ -1,0 +1,500 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta http-equiv="content-style-type" content="text/css">
+	<link href="pcpdoc.css" rel="stylesheet" type="text/css">
+	<link href="images/pcp.ico" rel="icon" type="image/ico">
+	<TITLE>System Event Log Instrumentation</TITLE>
+</HEAD>
+<BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/pcpicon.png" NAME="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
+	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
+	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	</TR>
+</TABLE>
+<H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>System Event Log Instrumentation</FONT></H1>
+<TABLE WIDTH=15% BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
+	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
+pmval
+pmevent
+pmchart
+pmdalogger
+pmdarsyslog
+pmdaelasticsearch
+</PRE></TD></TR>
+</TABLE>
+<P>Capturing system event log information from a collection of geographically
+distributed systems in a reliable and useful way presents many challenges.
+In order for operations and engineering triage teams to be able to filter
+important events from this huge amount of information, events need to be
+shipped to a central location, reliably, where they can be indexed and
+searched.</P>
+<P>Ideally this is done in a way that is both timely and removed
+from the systems under observation.  Being timely allows events relevant
+to an active production problem are available to triage personnel.  Being
+removed from the production system allows for a reduction of impact to the
+observed system, and also allows for collation of events from cooperating
+systems (separate databases, application servers, web servers and storage
+servers, for example).</P>
+<P>In addition to the events logged by the operating system kernel and the
+system daemons, it is also highly desirable to capture application events
+as well.  For minimal operational maintenance overhead, these should all
+be managed by a single, reliable event shipping system for application
+logs.
+This case study documents the design and deployment of one such system,
+and focuses on the performance instrumentation used for monitoring and
+problem diagnosis in the event management service itself.</P>
+</P>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>&nbsp;Technology Choices</B></FONT></P></TD></TR>
+</TABLE>
+<P>A brief overview of the technologies used, and why they
+were selected from the many alternatives available, follows.
+As this was likely to become a critical system infrastructure component,
+and the organisation had existing operational and engineering expertise
+in Linux and Java, open source solutions were generally preferred.
+The opportunity to evaluate new technologies was foreseen and affected
+some of the choices made.</P>
+<P><B>Event capturing and transport</B></P>
+<P><A HREF="http://www.rsyslog.com/">rsyslog</A>
+is the default system log daemon on the Linux distribution used, and
+it provides efficient, reliable end-to-end delivery.
+It turned out to be easily instrumented - providing both its own metrics
+and mechanisms for extending with metrics specific to our own needs.
+<P><B>Index and search functionality</B></P>
+<P><A HREF="http://www.elasticsearch.org/">elasticsearch</A> and
+<A HREF="http://mobz.github.com/elasticsearch-head/">elasticsearch-head</A>
+are used as the mechanisms for indexing event messages as they arrive, and
+providing event search functionality.</P>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>&nbsp;High-level Design</B></FONT></P></TD></TR>
+</TABLE>
+<P>The design caters for a fairly typical medium-sized web application
+deployment.
+Each data centre hosting the application (distributed throughout the
+world) contains several racks of equipment dedicated to delivering the
+service.
+Individual racks are populated with closely cooperating machines, each
+generating their own system and application logs.
+<P>
+<CENTER>
+<IMG SRC="images/systemlogs.png" ALIGN="MIDDLE" WIDTH="576" HEIGHT="370">
+</CENTER>
+</P>
+<P>Initially, all logs are streamed directly to a central machine in the
+local deployment (typically, within the same rack).
+On those machines where application logs are being generated the logs
+are immediately merged into the system log stream using the syslog
+networking protocol.
+We made use of the syslog &quot;facility&quot; concept, to designate all
+application logs to be &quot;local0&quot; facility.
+</P>
+<P>On average, one instance would typically generate several gigabytes of
+application logs each day.
+The system log traffic is a tiny fraction of that.
+</P>
+<P>This separation of application log messages from system log messages
+became most useful at the final end point (indexing), since the facility
+identifier travels with each message (as does source hostname, timestamp
+and priority information).
+Since elasticsearch was chosen as the indexing and search technology,
+the application was modified (via Log4J configuration) to generate logs
+messages in <a href="http://json.org">JSON</a> format.
+This allowed the information-rich application logs to maintain a clear
+separation of critical information (request ID, user ID, identifiers for
+the pages being accessed, and many more application level details), such
+that these fields could be separately indexed on the receiving end.
+</P>
+<P>For the remainder of the operating system and service level messages,
+conversion to JSON was performed at the final stage, just prior to being
+indexed, with the syslog message being one indexed field.  The source host
+and event generation timestamp that travelled with the message are also
+separately indexed.
+</P>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>&nbsp;Deployment and Instrumentation: rsyslog</B></FONT></P></TD></TR>
+</TABLE>
+<P>It was highly desirable to gain insight into many levels of the event
+transfer process.
+Identifying hosts generating too much traffic, or hosts not generating
+any log traffic (misconfiguration) was initially important - so, event
+counters, and cumulative byte counts of events generated was required.
+It was also important to be able to see these data rates alongside the
+network interface data rates, to understand the additional load generated
+through live streaming of the event log data.
+</P>
+
+<P><B>Instrumenting <i>rsyslog</i> internals</B></P>
+<P>The <I>rsyslog</I> daemon runs on each and every machine involved, so
+low overhead is a desirable attribute in any instrumentation added.
+Not all of the machines are configured the same though (the event
+&quot;forwarders&quot; and event &quot;indexers&quot; differ to the
+&quot;leaf&quot; nodes, which form most of the event sources), and
+so the configuration of <I>rsyslog</I> required some care.
+</P>
+<P>We took a two-pronged approach to instrumenting the <I>rsyslog</I>
+processes.  On inspection, it turned out that there is some existing
+instrumentation on the <I>rsyslog</I> internal workings available.
+It must be explicitly enabled - both at the source level and at runtime.
+To enable the instrumentation in an <I>rsyslog</I> build, the
+<TT>--enable-impstats</TT> build configuration flag is needed.
+Then, enabling the statistics and exporting them at runtime requires
+the following additions to the <I>rsyslog</I> configuration:
+<PRE>
+&#09;# Provide rsyslog statistics
+&#09;$ModLoad impstats
+&#09;$PStatsInterval 5
+</PRE>
+<P>This instructs <I>rsyslog</I> to load the statistics module, and to
+export the current state of its statistics on a 5 second interval.
+We can then capture those statistics to an arbitrary output channel,
+again using a configuration addition.</P>
+</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+<TR><TD>
+  <IMG ALIGN=RIGHT SRC="images/systemlog-arrival.png" HEIGHT="506" WIDTH="398" BORDER=0>
+</TD>
+<TD>
+  <TABLE BORDER=0 CELLPADDING=0 CELLSPACING=15>
+  <TR><TD>
+  <P>We would like to incorporate the <I>rsyslog</I> statistics
+  (giving insight into arrival rates and queueing behaviour) into our
+  overall performance management strategy - tracking them alongside all 
+  of our other metrics for comparison, graphing, alarming, etc.  This is
+  acheived by a PMDA - <I>pmdarsyslog</I> - which exports these metrics:
+<I><PRE>
+&#09;rsyslog.interval
+&#09;rsyslog.queues.size
+&#09;rsyslog.queues.maxsize
+&#09;rsyslog.queues.full
+&#09;rsyslog.queues.enqueued
+&#09;rsyslog.imuxsock.submitted
+&#09;rsyslog.imuxsock.discarded
+&#09;rsyslog.imuxsock.numratelimiters
+&#09;rsyslog.elasticsearch.connfail
+&#09;rsyslog.elasticsearch.submits
+&#09;rsyslog.elasticsearch.success
+&#09;rsyslog.elasticsearch.failed </PRE></I>
+  </TD></TR>
+  <TR><TD>
+    <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+    <TR><TD BGCOLOR="#e2e2e2" WIDTH=50%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Install <I>pmdarsyslog</I>:
+    <PRE><B># source /etc/pcp.env
+# cd $PCP_PMDAS_DIR/rsyslog
+# ./Install </B></PRE>
+    </TD></TR>
+    </TABLE>
+  </TD></TR>
+  </TABLE>
+</TD></TR>
+</TABLE>
+<P>The <I>rsyslog</I> configuration addition to achieve the link up
+between <I>rsyslog</I> and <I>pmdarsyslog</I> is:</P>
+<PRE>
+&#09;# Performance instrumentation
+&#09;syslog.info                     |/var/log/pcp/rsyslog/stats
+</PRE>
+<P>Note that once enabling this, care must be taken to ensure those stats
+values are logged only where we wish.  In our case, we did not wish these
+to end up in the system log file, nor being included in the set of values
+being shipped for indexing.
+The configuration entries that achieve this restriction in our scenario
+are as follows:
+<PRE>
+&#09;*.*;local0.none;syslog.!=info   /var/log/messages
+&#09;*.*;syslog.!=info               @@log1;RSYSLOG_ForwardFormat
+&#09;$ActionExecOnlyWhenPreviousIsSuspended on
+&#09;& @@log2
+&#09;& /var/spool/rsyslog-buffer
+&#09;$ActionExecOnlyWhenPreviousIsSuspended off
+</PRE>
+<P>The <I>syslog.info</I> tag identifies the input channel where the
+periodic <I>rsyslog</I> metric values are written.
+So, the first line above prevents the <I>rsyslog</I> metric values
+(<I>syslog.!=info</I>) from appearing in the local system log file
+(<I>/var/log/messages</I>).
+In addition, we prevent all local application log messages from going
+there (&quot;local0&quot;), which is simply so we don't duplicate work that
+the application is already doing itself.
+The remaining configuration lines are those responsible for forwarding
+local host messages to the central log forwarding server for a rack
+(log1), and for failing over to a second log server (log2).
+Note how we choose not to forward the <I>syslog.info</I> message class.
+</P>
+<P>From our findings so far, it is worth keep an eye (<I>pmie</I>) on the
+queue fullness and discard counts, as they appear to be handy indicators
+that a node might not be be keeping up.
+In addition, the interval metric should also be kept under surveilance -
+if messages arrive more frequently than the configured interval (five
+seconds in our case), then it indicates a node somewhere is forwarding
+its instrumentation where it should not be (i.e. a misconfiguration).
+</P>
+
+<P><B>Instrumenting <i>rsyslog</i> output channels</B></P>
+<P>We can now extend the high level system log counters by drilling
+down to specific output channels.
+We use the ability of <I>rsyslog</I> to write to a named pipe once more -
+this provides a coordination point between the PCP PMDA and the daemon,
+without having to log to disk and deal with issues like filesystem free
+space management, log rotation, and so forth.
+</P>
+<P>We extend our configuration with two more lines, as follows:</P>
+<PRE>
+&#09;# Performance instrumentation
+&#09;syslog.info                     |/var/log/pcp/rsyslog/stats
+&#09;local0.*                        |/var/log/pcp/logger/applog
+&#09;*.*;local0.none;syslog.!=info   |/var/log/pcp/logger/syslog
+</PRE>
+<P>The final two lines are feeding all application and other traffic
+into two named pipes (fifos) for processing.  These need to exist
+before <I>rsyslog</I> starts up, and <I>pmdalogger</I> needs to be
+configured (at PMDA install time) to be listening for data on these
+files.</P>
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+<TR>
+<TD>
+  <TABLE BORDER=0 CELLPADDING=0 CELLSPACING=15>
+  <TR><TD>
+  <P>Once that is done, new metrics are then available that give
+  insight into the number of events being seen for each class of log,
+  as well as the total event traffic throughput for each:</P>
+  <I><PRE>
+&#09;logger.perfile.applog.bytes
+&#09;logger.perfile.applog.count
+&#09;logger.perfile.syslog.bytes
+&#09;logger.perfile.syslog.count </PRE></I>
+  </TD></TR>
+  <TR><TD>
+    <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+    <TR><TD BGCOLOR="#e2e2e2" WIDTH=50%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Install <I>pmdalogger</I>:
+    <PRE><B># source /etc/pcp.env
+# cd $PCP_PMDAS_DIR/logger
+# ./Install </B></PRE>
+    <P>Follow the prompts and configure two logfile entries for the two
+       named pipes.</P>
+<BR>
+    </TD></TR>
+    </TABLE>
+  </TD></TR>
+  </TABLE>
+</TD>
+<TD>
+  <IMG ALIGN=RIGHT SRC="images/systemlog-throughput.png" HEIGHT="418" WIDTH="370" BORDER=0>
+</TD>
+</TR>
+</TABLE>
+
+<P><B>Deeper event analysis</B>
+<P>Finally, this was an opportunity to begin to evaluate the utility of
+recently introduced event tracing functionality in PCP.
+The logger PMDA which was separately counting application and system log
+traffic also had visibility to all event traffic, and has been used to
+inspect log contents (for checking event arrival, and for verifying JSON
+validity, etc) in what proved a much more convenient way than snooping
+the raw network traffic.</P>
+<I><PRE>
+&#09;&#09;logger.perfile.applog.records
+&#09;&#09;logger.perfile.syslog.records
+</PRE></I>
+<P>This was done with the command line utility <I>pmevent</I>, which is the
+first and most simple of event tracing tools - but even in this basic
+&quot;text dump&quot; form, insight was gained by being able to see the
+exact traffic passing through each output stream, and some configuration
+problems were diagnosed and resolved through its use.
+</P>
+<P>
+<CENTER>
+<IMG SRC="images/systemlog-events.png" ALIGN="MIDDLE" WIDTH="826" HEIGHT="455">
+</CENTER>
+</P>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>&nbsp;A Quick Aside: Buffer Sizes</B></FONT></P></TD></TR>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH=100%>
+<BR>
+<P>If there is a chance of sending extremely large messages through
+<I>rsyslog</I> in your environment, such as JVM stack traces or the
+like, we found it necessary to increase the default maximum message
+size permitted:</P>
+<PRE>
+&#09;# Global directives
+&#09;$MaxMessageSize 65536
+&#09;$PreserveFQDN on
+</PRE>
+<P>We also insisted that sending hosts fully qualified domain names are
+always used, as some of the (global) hosts would otherwise have ambiguous
+hostnames.</P>
+<P>Buffer sizes can also become problematic in the named pipe implementation
+in the Linux kernel.  The default (and until relatively recently, unchangeable)
+buffer size is 16 pages, which on the typical 4KiB page size system, gives us
+only 64KiB.
+Since late 2010, this can now be queried and modified though an fcntl(2),
+and system wide limited are imposed (1MiB maximum, for non-root users).</P>
+<PRE>
+&#09;cat /proc/sys/fs/pipe-max-size
+&#09;1048576
+</PRE>
+<P>If you're interested in the details of the pipe implementation, refer
+to <TT>fs/pipe.c</TT> in the Linux kernel source.</P>
+<BR>
+
+</TD></TR>
+</TABLE>
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>&nbsp;Deployment and Instrumentation: elasticsearch</B></FONT></P></TD></TR>
+</TABLE>
+<P><B>Instrumenting elasticsearch</B>
+<P>We come to the final stage of our deployment.
+System log messages are now flowing to our central repository at an
+alarming rate, now we need an efficient way to index them immediately
+as they arrive, and also to allow interactive queries of that indexed
+data.
+This turns out to have been made easy by the <I>elasticsearch</I>
+project, which is a distributed, RESTful, search engine built on top
+of Lucene.</P>
+<P>A basic setup involves downloading the code, untarring, and running
+<I>bin/elasticsearch -f</I>.  That's it, with no more configuration than
+that we have a working solution which correctly identifies the timestamp
+fields as distinct from the other text.</P>
+<P>From there we can increase reliability and scalability in a number of
+ways with <I>elasticsearch</I>, but that setup will differ for different
+deployments and is outside the scope here.</P>
+<P>Configuring <I>rsyslog</I> to send messages in the JSON format which
+the <I>elasticsearch</I> REST API uses, is a matter of configuring the
+appropriate output module.
+As was the case with the <I>rsyslog</I> stats module, this must be
+explicitly enabled - both at the source level and at runtime.
+To enable this functionality in an <I>rsyslog</I> build, the
+<TT>--enable-elasticsearch</TT> build configuration flag is needed.</P>
+<PRE>
+&#09;#
+&#09;# Create a searchable index using elasticsearch
+&#09;# 
+&#09;$ModLoad omelasticsearch
+&#09;*.=info;*.=notice;*.=warn;\
+&#09;&#09;auth,authpriv.none;\
+&#09;&#09;cron,daemon.none;\
+&#09;&#09;mail,news,syslog.none&#09;&#09;:omelasticsearch:
+</PRE>
+<P>The default template does a good job of transforming the arriving
+<I>rsyslog</I> messages (including timestamps, facility, priority,
+sending hostname, etc) into JSON.
+In our case, the application code sending messages on the &quot;local0&quot;
+facility has already prepared messages in a rich JSON format already,
+so we just use a basic <I>rsyslog</I> template that effectively passes
+any &quot;local0&quot; messages straight through to the keeper.</P>
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+<TR>
+<TD>
+  <TABLE BORDER=0 CELLPADDING=0 CELLSPACING=15>
+  <TR><TD>
+  <P>For monitoring of the cluster, another PMDA exists which exports
+  the statistics that <I>elasticsearch</I> makes available.
+  This exports information about the individual cluster nodes (if more
+  than one cluster node is in use) - their JVM memory statistics,
+  cluster and node status, document indexing rates, etc.</P>
+  </TD></TR>
+  <TR><TD>
+    <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+    <TR><TD BGCOLOR="#e2e2e2" WIDTH=50%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Install <I>pmdaelasticsearch</I>:
+    <PRE><B># source /etc/pcp.env
+# cd $PCP_PMDAS_DIR/elasticsearch
+# ./Install </B></PRE>
+<BR>
+    </TD></TR>
+  </TD></TR>
+  <TR><TD>
+<P>And the following metrics become available:</P>
+<I><PRE>
+elasticsearch.cluster.active_shards
+elasticsearch.cluster.relocating_shards
+elasticsearch.cluster.timed_out
+elasticsearch.cluster.active_primary_shards
+elasticsearch.cluster.number_of_nodes
+elasticsearch.cluster.number_of_data_nodes
+elasticsearch.cluster.cluster_name
+elasticsearch.cluster.unassigned_shards
+elasticsearch.cluster.initializing_shards
+elasticsearch.cluster.status.code
+elasticsearch.cluster.status.colour
+</PRE></I>
+  </TD></TR>
+    </TABLE>
+  </TD></TR>
+  </TABLE>
+</TD>
+<TD>
+<I><PRE>
+&#09;elasticsearch.nodes.indices.size
+&#09;elasticsearch.nodes.cache.field_size
+&#09;elasticsearch.nodes.cache.field_evictions
+&#09;elasticsearch.nodes.cache.filter_size
+&#09;elasticsearch.nodes.cache.filter_evictions
+&#09;elasticsearch.nodes.cache.filter_count
+&#09;elasticsearch.nodes.merges.total_time
+&#09;elasticsearch.nodes.merges.current
+&#09;elasticsearch.nodes.merges.total
+&#09;elasticsearch.nodes.jvm.vm_version
+&#09;elasticsearch.nodes.jvm.version
+&#09;elasticsearch.nodes.jvm.vm_name
+&#09;elasticsearch.nodes.jvm.pid
+&#09;elasticsearch.nodes.jvm.uptime_s
+&#09;elasticsearch.nodes.jvm.uptime
+&#09;elasticsearch.nodes.jvm.gc.count
+&#09;elasticsearch.nodes.jvm.gc.time
+&#09;elasticsearch.nodes.jvm.gc.collectors.Copy.time
+&#09;elasticsearch.nodes.jvm.gc.collectors.Copy.count
+&#09;elasticsearch.nodes.jvm.gc.collectors.ParNew.count
+&#09;elasticsearch.nodes.jvm.gc.collectors.ParNew.time
+&#09;elasticsearch.nodes.jvm.gc.collectors.CMS.count
+&#09;elasticsearch.nodes.jvm.gc.collectors.CMS.time
+&#09;elasticsearch.nodes.jvm.threads.count
+&#09;elasticsearch.nodes.jvm.threads.peak_count
+&#09;elasticsearch.nodes.jvm.mem.heap_max
+&#09;elasticsearch.nodes.jvm.mem.heap_committed
+&#09;elasticsearch.nodes.jvm.mem.non_heap_init
+&#09;elasticsearch.nodes.jvm.mem.heap_init
+&#09;elasticsearch.nodes.jvm.mem.non_heap_committed
+&#09;elasticsearch.nodes.jvm.mem.non_heap_used
+&#09;elasticsearch.nodes.jvm.mem.non_heap_max
+&#09;elasticsearch.nodes.jvm.mem.heap_used
+&#09;elasticsearch.nodes.docs.count
+&#09;elasticsearch.nodes.docs.num_docs
+</PRE></I>
+</TD>
+</TR>
+</TABLE>
+
+<P><B>Search queries</B>
+<P>Now that data is being indexed in <I>elasticsearch</I>, we can make
+interactive queries using <I>elasticsearch-head</I>, which looks a bit
+like this:</P>
+
+<P>
+<CENTER>
+<IMG SRC="images/elasticsearch.png" ALIGN="MIDDLE" WIDTH="1356" HEIGHT="490">
+</CENTER>
+</P>
+
+<P><BR></P>
+<HR>
+<CENTER>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=80%><P>Copyright &copy; 2011 <FONT COLOR="#000060">Nathan Scott</FONT></P></TD>
+	<TD WIDTH=20%><P ALIGN=RIGHT><A HREF="http://oss.sgi.com/projects/pcp/"><FONT COLOR="#000060">PCP</FONT></A></P></TD> </TR>
+</TABLE>
+</CENTER>
+</BODY>
+</HTML>

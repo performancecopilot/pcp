@@ -1,0 +1,105 @@
+'\"macro stdmacro
+.\" Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.TH QMC_METRIC 3 "SGI" "Performance Co-Pilot"
+.SH NAME
+\f3QmcMetric\f1 \- container for a metric and all its values
+.SH "C++ SYNOPSIS"
+.ft 3
+#include <pcp/pmc/Metric.h>
+.sp
+CC ... \-lpcp_pmc \-lpcp 
+.ft 1
+.SH DESCRIPTION
+A
+.B QmcMetric
+object is a container for a single metric and all its values.
+.PP
+The
+.B QmcMetricValue
+structure is used to hold the instance index, values and errors of each
+instance.  In the case of a singular metric, a single
+.B QmcMetricValue
+object is used.
+.PP
+A
+.B QmcMetric
+object consists of a list of
+.B QmcMetricValue
+objects, indexes to the descriptors in the metric's
+.B QmcGroup
+and
+.B QmcContext
+and flags to indicate if the instances are explicit or implicit, and if
+only active metrics are required after 
+.B QmcMetric::updateIndom
+is called.
+.SH "CONSTRUCTORS"
+Metrics should be constructed through the
+.B QmcGroup::addMetric
+methods as this will ensure that the references to the metric's context,
+descriptor and instance domain are correctly initialized.
+.SH INSTANCES
+For metrics with an instance domain it is possible to add and remove any
+instance, and also update the instance list to reflect changes in a dynamic
+instance domain.
+.TP 4
+.B "bool updateIndom();"
+Update the metric to include new instances.  This method will first call
+.B QmcContext::update
+to update the instance domain.  If the
+.I active
+flag is set in the
+.B QmcGroup::addMetric
+call, only instances will exported by the metric, otherwise the metric will
+export all instances listed in the domain.
+
+The ordering of instances may change as a result of this call.  Instances
+that already existed will keep their current and previous values and errors,
+even if they are in a different order.
+.TP
+.B "int addInst(QString const& name);"
+Add the instance
+.B name
+to the metric.  If the instance does not exist in the instance domain,
+a 
+.BR PMAPI (3)
+error will be returned.  This method ignores the value of the
+.I active
+flag set in the
+.B QmcMetric
+constructor.
+.TP
+.B "void removeInst(uint_t index);"
+Remove the instance at position
+.I index 
+from the metric.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR QMC (3),
+.BR QMC_Context (3),
+.BR QMC_Group (3),
+.BR pmflush (3)
+and
+.BR pmprintf (3).
+.SH DIAGNOSTICS
+Error messages are generated using
+.BR pmprintf (3)
+but are not flushed. It is the responsibility of the user to call
+.BR pmflush (3)
+to output any messages.
+.PP
+Additional diagnostics may be activated by adding 
+.B DBG_TRACE_PMC
+to the global
+.IR pmDebug .

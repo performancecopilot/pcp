@@ -1,0 +1,430 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!--
+ (c) Copyright 2000-2004 Silicon Graphics Inc. All rights reserved.
+ Permission is granted to copy, distribute, and/or modify this document
+ under the terms of the Creative Commons Attribution-Share Alike, Version
+ 3.0 or any later version published by the Creative Commons Corp. A copy
+ of the license is available at
+ http://creativecommons.org/licenses/by-sa/3.0/us/ .
+-->
+<HTML>
+<HEAD>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta http-equiv="content-style-type" content="text/css">
+	<link href="pcpdoc.css" rel="stylesheet" type="text/css">
+	<link href="images/pcp.ico" rel="icon" type="image/ico">
+	<TITLE>Understanding system-level processor performance</TITLE>
+</HEAD>
+<BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/pcpicon.png" NAME="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
+	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
+	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	</TR>
+</TABLE>
+<H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Understanding measures of system-level processor performance</FONT></H1>
+<TABLE WIDTH=15% BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
+	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
+pmchart
+mpvis
+sar
+</PRE></TD></TR>
+</TABLE>
+<P>This chapter of the Performance Co-Pilot tutorial provides some hints 
+on how to interpret and understand the various measures of system-level 
+processor (CPU) performance.</P>
+<P>All modern operating systems collect processor resource utilization at both
+the <B>process</B>-level and the <B>system</B>-level.&nbsp;&nbsp;This tutorial relate specifically to the <B>system</B>-level metrics.</P>
+<P>For an explanation of Performance Co-Pilot terms and acronyms, consult 
+the <A HREF="glossary.html">PCP glossary</A>.</P>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>How the system-level CPU time is computed</B></FONT></P></TD></TR>
+</TABLE>
+<P>
+Both <I>sar</I> and Performance Co-Pilot (PCP) use a common collection 
+of system-level CPU performance instrumentation from the kernel. 
+This instrumentation is based upon statistical sampling of the state of <B>each</B>
+ CPU in the kernel's software clock interrupt routine which is commonly
+called 100 times (HZ) per second on every CPU.</P>
+<P>
+At each observation a CPU is attributed a quantum of 10 milliseconds of 
+elapsed time to one of several counters based on the current state of 
+the code executing on that CPU.</P>
+<P>
+This sort of statistical sampling is subject to some anomalies, 
+particularly when activity is strongly correlated with the clock 
+interrupts, however the distribution of observations over several 
+seconds or minutes is often an accurate reflection of the true 
+distribution of CPU time. The kernel profiling mechanisms offer higher
+resolution should that be required, however that is beyond the scope
+of this document.</P>
+<P>
+The CPU state is determined by considering what the CPU was doing just 
+before the clock interrupt, as follows:</P>
+<OL>
+    <LI>
+    If executing a <B>user</B> thread (i.e. above the kernel system 
+    call interface for some process) then the state is CPU_USER. 
+    <LI>
+    If executing a kernel interrupt thread, then the state is CPU_INTR. 
+    <LI>
+    If executing a kernel thread waiting for a graphics event, then the 
+    state is CPU_WAIT. 
+    <LI>
+    If otherwise executing a kernel thread, then the state is CPU_KERNEL. 
+    <LI>
+    If not executing a kernel thread and some I/O is pending, then the 
+    state is CPU_WAIT. 
+    <LI>
+    If not executing a kernel thread and no I/O is pending and some user 
+    thread is paused waiting for memory to become available, then the state 
+    is CPU_SXBRK. 
+    <LI>
+    Otherwise the state is CPU_IDLE. 
+</OL>
+<P>
+These states are mutually exclusive and complete, so exactly one state 
+is assigned for each CPU at each clock interrupt.</P>
+<P>
+The kernel agent for PCP exports the following metrics:</P>
+<TABLE BORDER="1">
+    <CAPTION ALIGN="BOTTOM"><B>Table 1: Raw PCP CPU metrics</B></CAPTION>
+    <TR VALIGN="TOP">
+        <TH>PCP Metric</TH>
+        <TH>Semantics</TH>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>kernel.all.cpu.user</TT></I></TD>
+        <TD>Time counted when in CPU_USER state.</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>kernel.all.cpu.sys</TT></I></TD>
+        <TD>Time counted when in CPU_KERNEL state.</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>kernel.all.cpu.intr</TT></I></TD>
+        <TD>Time counted when in CPU_INTR state.</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>kernel.all.cpu.sxbrk</TT></I></TD>
+        <TD>Time counted when in CPU_SXBRK state (IRIX only).</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>kernel.all.cpu.wait.total</TT></I></TD>
+        <TD>Time counted when in CPU_WAIT state (UNIX only).</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>kernel.all.cpu.idle</TT></I></TD>
+        <TD>Time counted when in CPU_IDLE state.</TD>
+    </TR>
+</TABLE>
+<P>
+These metrics are all &quot;counters&quot; in units of milliseconds 
+(cumulative since system boot time) so when displayed with most PCP 
+tools they are &quot;rate converted&quot; (sampled periodically and the 
+differences between consecutive values converted to time utilization in 
+units of milliseconds per second over the sample interval). Since the 
+raw values are aggregated across all CPUs, the time utilization for any 
+of the metrics above is in the range 0 to N*1000 for an N CPU system; 
+for some PCP tools this is reported as a percentage in the range 0 to 
+N*100 percent.</P>
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Using <I>pmchart</I> to display CPU activity (aggregated over all CPUs).<BR>
+<PRE><B>
+$ source /etc/pcp.conf
+$ tar xzf $PCP_DEMOS_DIR/tutorials/cpuperf.tgz
+$ pmchart -c CPU -t 2sec -O -0sec -a cpuperf/moomba.pmkstat
+</B></PRE>
+<BR>
+This command will provide the interactive charts described here.
+</TD></TR>
+</TABLE>
+
+<P>On IRIX, the CPU_WAIT state is further subdivided into components describing 
+different types of &quot;waiting&quot;:</P>
+<OL>
+    <LI>
+    If executing a kernel thread waiting for a graphics context switch, 
+    then the waiting classification W_GFXC is true. 
+    <LI>
+    If executing a kernel thread waiting for a graphics FIFO operation to 
+    complete, then the waiting classification W_GFXF is true. 
+    <LI>
+    If not executing any thread and an I/O involving a block device (most 
+    likely associated with a file system but independent of the CPU from 
+    which the I/O was initiated), then the waiting classification W_IO is 
+    true. 
+    <LI>
+    If not executing any thread and an I/O involving a swap operation 
+    (independent of the CPU from which the I/O was initiated), then the 
+    waiting classification W_SWAP is true. 
+    <LI>
+    If not executing any thread and an I/O involving a raw device is 
+    pending (independent of the CPU from which the I/O was initiated), then 
+    the waiting classification W_PIO is true. 
+</OL>
+<P>
+More than one of the group { W_IO, W_SWAP, W_PIO } can be true each 
+time, however this group and W_GFXC and W_GFXF are all mutually 
+exclusive. If the state is CPU_WAIT, then at least one of the 
+classifications must be true.</P>
+<P>
+The IRIX agent for PCP exports the following CPU &quot;wait&quot; 
+metrics, the sum of which approximately equals <I><TT>kernel.all.cpu.wait.total</TT></I>:</P>
+<TABLE BORDER="1">
+    <CAPTION ALIGN="BOTTOM"><B>Table 2: Raw PCP CPU wait metrics</B></CAPTION>
+    <TR VALIGN="TOP">
+        <TH>PCP Metric</TH>
+        <TH>Semantics</TH>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>kernel.all.cpu.wait.gfxc</TT></I></TD>
+        <TD>Time counted when W_GFXC is true.</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>kernel.all.cpu.wait.gfxf</TT></I></TD>
+        <TD>Time counted when W_GFXF is true.</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>kernel.all.cpu.wait.io</TT></I></TD>
+        <TD>Time counted when W_IO is true.</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>kernel.all.cpu.wait.pio</TT></I></TD>
+        <TD>Time counted when W_SWAP is true.</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>kernel.all.cpu.wait.swap</TT></I></TD>
+        <TD>Time counted when W_PIO is true.</TD>
+    </TR>
+</TABLE>
+<P>
+These metrics are all &quot;counters&quot; in units of milliseconds 
+(cumulative since system boot time) so when displayed with most PCP 
+tools they are &quot;rate converted&quot; (sampled periodically and the 
+differences between consecutive values converted to time utilization in 
+units of milliseconds per second over the sample interval). Since the 
+raw values are aggregated across all CPUs, the time utilization for any 
+of the metrics above is in the range 0 to N*1000 for an N CPU system; 
+for some PCP tools this is reported as a percentage in the range 0 to 
+N*100 percent.</P>
+<P>
+Note that for a multiprocessor system with one I/O pending, <B>all</B>
+ otherwise idle CPUs will be assigned the CPU_WAIT state. This may lead 
+to an over-estimate of the I/O wait time, as discussed in the 
+companion <A HREF="howto.diskperf.html">How to understand measures of 
+disk performance</A> document.</P>
+<P>
+In IRIX 6.5.2 additional instrumentation was added to help address the 
+wait time attribution by looking at the <B>number</B> of waiting 
+processes in various states, rather than the state of a CPU with 
+reference to the cardinality of the various sets of waiting processes. 
+The wait I/O queue length is defined as the number of processes 
+waiting on events corresponding to the classifications W_IO, W_SWAP or 
+W_PIO. The metrics shown in the table below are computed on only <B>one</B>
+ of the CPUs (the &quot;clock-master&quot;) each clock interrupt.</P>
+<TABLE BORDER="1">
+    <CAPTION ALIGN="BOTTOM"><B>Table 3: Raw PCP wait I/O queue length 
+    metrics</B></CAPTION>
+    <TR VALIGN="TOP">
+        <TH>PCP Metric</TH>
+        <TH>Semantics</TH>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>kernel.all.waitio.queue</TT></I></TD>
+        <TD>Cumulative total of the wait I/O queue lengths, as observed 
+            on each clock interrupt.</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>kernel.all.waitio.occ</TT></I></TD>
+        <TD>Cumulative total of the number of times the wait I/O queue 
+            length is greater than zero, as observed on each clock interrupt.</TD>
+    </TR>
+</TABLE>
+<P>
+These metrics may be used with PCP tools as follows:</P>
+<UL>
+    <LI>
+    Displaying <I><TT>kernel.all.waitio.queue</TT></I> with <I>pmval</I>, <I>pmdumptext</I>, <I>pmchart</I>, 
+    etc. will display the time average of the wait I/O queue length 
+    multiplied by the frequency of clock interrupts, i.e. by 100. 
+    <LI>
+    Displaying <I><TT>kernel.all.waitio.occ</TT></I> with <I>pmval</I>, <I>pmdumptext</I>, <I>pmchart</I>, 
+    etc. will display the probability that the wait I/O queue is not empty 
+    multiplied by the frequency of clock interrupts, i.e. by 100. This 
+    value (converted to a percentage) is reported as <I><TT>%wioocc</TT></I>
+     by the <B>-q</B> option of <I>sar.</I> 
+    <LI>
+    Using <I>pmie</I> with the expression<BR>
+     <I><TT>kernel.all.waitio.queue / kernel.all.waitio.occ</TT></I><BR>
+     will report the stochastic average of the wait I/O queue length, 
+    conditional upon the queue not being empty. This value is reported as <I><TT>wioq-sz</TT></I>
+     by the <B>-q</B> option of <I>sar.</I> 
+</UL>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>The per-CPU variants</B></FONT></P></TD></TR>
+</TABLE>
+<P>
+Inside the kernel, most of the metrics described above are 
+accumulated per-CPU for reasons of efficiency (to reduce the locking 
+overheads and minimize dirty cache-line traffic).</P>
+<P>
+PCP exports the per-CPU versions of the system-wide metrics with metric 
+names formed by replacing <B><I><TT>all</TT></I></B> by <B><I><TT>percpu</TT></I></B>, 
+e.g. <I><TT>kernel.percpu.cpu.user</TT></I>.</P>
+<P>
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;The <I>mpvis</I> tool provides 3-D visualization of these per-CPU metrics.<PRE><B>
+$ mpvis -a cpuperf/babylon.percpu
+</B></PRE>
+<BR>
+When the window is shown, use the <A HREF="timecontrol.html">PCP Archive Time Control</A> dialog to scroll through the archive (Fast Forward).
+</TD></TR>
+</TABLE>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Reconciling sar -u and PCP CPU performance metrics</B></FONT></P></TD></TR>
+</TABLE>
+<P>
+The <I>sar</I> metrics are scaled based on the number of CPUs and 
+expressed in percentages, PCP metrics are in units of milliseconds per 
+second after rate conversion; this explains the PCP metric <I><TT>hinv.ncpu</TT></I>
+ and the constants 100 and 1000 in the expressions below.</P>
+<P>
+When run with a <B>-u</B> option, <I>sar</I> reports the following:</P>
+<TABLE BORDER="1">
+    <CAPTION ALIGN="BOTTOM"><B>Table 3: PCP and sar metric equivalents</B></CAPTION>
+    <TR>
+        <TH><I>sar</I><BR>
+            metric</TH>
+        <TH>PCP equivalent (assuming rate conversion)</TH>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>%usr</TT></I></TD>
+        <TD>100 * <I><TT>kernel.all.cpu.user</TT></I> / (<I><TT>hinv.ncpu </TT></I>* 
+            1000)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>%sys</TT></I></TD>
+        <TD>100 * <I><TT>kernel.all.cpu.sys</TT></I> / (<I><TT>hinv.ncpu </TT></I>* 
+            1000)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>%intr</TT></I></TD>
+        <TD>100 * <I><TT>kernel.all.cpu.intr</TT></I> / (<I><TT>hinv.ncpu </TT></I>* 
+            1000)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>%wio</TT></I></TD>
+        <TD>100 * <I><TT>kernel.all.cpu.wait.total</TT></I> / (<I><TT>hinv.ncpu </TT></I>* 
+            1000)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>%idle</TT></I></TD>
+        <TD>100 * <I><TT>kernel.all.cpu.idle</TT></I> / (<I><TT>hinv.ncpu </TT></I>* 
+            1000)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>%sbrk</TT></I></TD>
+        <TD>100 * <I><TT>kernel.all.cpu.sxbrk </TT></I>/ (<I><TT>hinv.ncpu </TT></I>* 
+            1000)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>%wfs</TT></I></TD>
+        <TD>100 * <I><TT>kernel.all.cpu.wait.io</TT></I> / <I><TT>kernel.all.cpu.wait.total</TT></I></TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>%wswp</TT></I></TD>
+        <TD>100 * <I><TT>kernel.all.cpu.wait.swap</TT></I> / <I><TT>kernel.all.cpu.wait.total</TT></I></TD>
+    </TR>
+    <TR>
+        <TD><I><TT>%wphy</TT></I></TD>
+        <TD>100 * <I><TT>kernel.all.cpu.wait.pio</TT></I> / <I><TT>kernel.all.cpu.wait.total</TT></I></TD>
+    </TR>
+    <TR>
+        <TD><I><TT>%wgsw</TT></I></TD>
+        <TD>100 * <I><TT>kernel.all.cpu.wait.gfxc</TT></I> / <I><TT>kernel.all.cpu.wait.total</TT></I></TD>
+    </TR>
+    <TR>
+        <TD><I><TT>%wfif</TT></I></TD>
+        <TD>100 * <I><TT>kernel.all.cpu.wait.gfxf</TT></I> / <I><TT>kernel.all.cpu.wait.total</TT></I></TD>
+    </TR>
+</TABLE>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>The load average</B></FONT></P></TD></TR>
+</TABLE>
+<P>
+The &quot;load average&quot; is reported by <I>uptime</I>, <I>top</I>, 
+etc. and the PCP metric <I><TT>kernel.all.load</TT></I>.</P>
+<P>
+The load average is an indirect measure of the demand for CPU 
+resources. It is calculated using the previous load average (<I>load</I>) 
+and the number of currently runnable processes (<I>nrun</I>) and an 
+exponential dampening expression, e.g. for the &quot;1 minute&quot; 
+average, the expression is:</P>
+<PRE>
+load = exp(-5/60) * load + (1 - exp(-5/60)) * nrun
+</PRE>
+<P>
+The three load averages use different exponential constants and are all 
+re-computed every 5 seconds.</P>
+<P>
+<I>nrun</I> is computed as follows:</P>
+<OL>
+    <LI>
+    Inspect every process. 
+    <LI>
+    If the process is not likely to be runnable in the near future (state 
+    not SRUN), ignore it. 
+    <LI>
+    Inspect every thread of the process. 
+    <LI>
+    If the thread is sleeping and not currently expanding its address space 
+    (state not SXBRK) and not in a long-term sleep, increment <I>nrun.</I>
+     
+    <LI>
+    If the thread is stopped, ignore it.
+    <LI>
+    Otherwise if the thread is not &quot;weightless&quot; (being ignored by 
+    the scheduler), increment <I>nrun.</I>
+</OL>
+<P>
+Note that the &quot;run queue length&quot; (a variant of which is 
+reported by the <B>-q</B> option of <I>sar</I>) counts processes using 
+a similar, but not identical algorithm:</P>
+<OL>
+    <LI>
+    Inspect every process. 
+    <LI>
+    If the process is not likely to be runnable in the near future (state 
+    not SRUN), ignore it.
+    <LI>
+    Inspect every thread of the process.
+    <LI>
+    If the thread is sleeping and not currently expanding its address space 
+    (state not SXBRK), ignore it
+    <LI>
+    If the thread is stopped, ignore it.
+    <LI>
+    Otherwise increment the &quot;run queue length&quot;.
+</OL>
+
+<P><BR></P>
+<HR>
+<CENTER>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=80%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc.</FONT></P></TD>
+	<TD WIDTH=20%><P ALIGN=RIGHT><A HREF="http://oss.sgi.com/projects/pcp/"><FONT COLOR="#000060">PCP</FONT></A></P></TD> </TR>
+</TABLE>
+</CENTER>
+</BODY>
+</HTML>
