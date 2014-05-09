@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP GUI QA Test No. 016
+# PCP QA Test No. 1016
 # Test QmcContext functionality
 #
 seq=`basename $0`
@@ -20,7 +20,7 @@ _filter()
 }
 
 cd $here/archives
-$here/src/qmc_context/qmc_context -DPMC 2>&1 | _filter
+$here/qt/qmc_context/qmc_context -DPMC 2>&1 | _filter
 
 # success, all done
 status=0

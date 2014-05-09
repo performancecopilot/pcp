@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP GUI QA Test No. 017
+# PCP QA Test No. 1017
 # Test QmcMetric functionality
 #
 seq=`basename $0`
@@ -77,7 +77,7 @@ cd $PCP_PMDAS_DIR/simple
 $sudo ./Install </dev/null >$tmp.install 2>&1
 _check_metric simple.now
 
-cd $here/src/qmc_metric
+cd $here/qt/qmc_metric
 $sudo ./qmc_metric -DPMC,OPTFETCH 2>&1 | _filter
 
 cd $PCP_PMDAS_DIR/simple

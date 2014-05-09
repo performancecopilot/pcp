@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP GUI QA Test No. 019
+# PCP QA Test No. 1019
 # Exercise QmcGroup while illustrating pmjd-like clients and protocols
 #
 seq=`basename $0`
@@ -83,7 +83,7 @@ cd $here
 _check_metric dynamic.numinsts
 
 pmstore dynamic.control.del "-1"
-src/qmc_group/qmc_group -DPDU,PMC 2>$tmp.stderr | _filter1
+qt/qmc_group/qmc_group -DPDU,PMC 2>$tmp.stderr | _filter1
 cat $tmp.stderr | _filter2
 
 status=0

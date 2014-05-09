@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP GUI QA Test No. 007
+# PCP QA Test No. 1007
 # Check handling of "tab" keyword in configuration language.
 #
 seq=`basename $0`

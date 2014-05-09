@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP GUI QA Test No. 022
+# PCP QA Test No. 1022
 # -S and -T values that are _both_ before the start, or after the end
 # of an archive ...
 #

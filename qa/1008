@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP GUI QA Test No. 008
+# PCP QA Test No. 1008
 # Metrics class error handling, instance matching etc.
 #
 seq=`basename $0`

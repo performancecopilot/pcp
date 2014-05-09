@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP GUI QA Test No. 006
+# PCP QA Test No. 1006
 # Check units compatibility in view loading
 #
 seq=`basename $0`

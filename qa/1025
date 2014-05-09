@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP GUI QA Test No. 025
+# PCP QA Test No. 1025
 # Test out handling of > MAXHOSTNAMELEN (64) hostnames
 #
 seq=`basename $0`

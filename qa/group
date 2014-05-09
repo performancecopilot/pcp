@@ -965,7 +965,6 @@ avahi
 1021 libqmc local
 1022 pmdumptext local
 1023 pmdumptext local
-1024 libqmc local flakey
 1025 pmdumptext local
 1026 pmdumptext remote
 1027 pmdumptext local

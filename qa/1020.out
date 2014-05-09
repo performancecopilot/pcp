@@ -1,4 +1,4 @@
-QA output created by 020
+QA output created by 1020
 dynamic.control.del old value=0 new value=-1
 
 *** 1: Line <N> - Create two fetch groups ***

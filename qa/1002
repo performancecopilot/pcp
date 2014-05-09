@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP GUI QA Test No. 002
+# PCP QA Test No. 1002
 # Syntax errors in the Version line of the config file
 #
 seq=`basename $0`

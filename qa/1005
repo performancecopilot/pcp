@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP GUI QA Test No. 005
+# PCP QA Test No. 1005
 # Check handling of missing plot title keyword - caused SEGV,
 # observed while hand-crafting config file for interactive QA
 # in the Settings dialog.

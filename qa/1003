@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP GUI QA Test No. 003
+# PCP QA Test No. 1003
 # Check that Global clause is detected
 #
 seq=`basename $0`

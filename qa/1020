@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP GUI QA Test No. 020
+# PCP QA Test No. 1020
 # libqmc dynamic indom testing
 #
 seq=`basename $0`
@@ -65,7 +65,7 @@ cd $here
 _check_metric dynamic.numinsts
 
 pmstore dynamic.control.del "-1"
-src/qmc_dynamic/qmc_dynamic -DPDU,PMC,INDOM,OPTFETCH 2>$tmp.stderr \
+qt/qmc_dynamic/qmc_dynamic -DPDU,PMC,INDOM,OPTFETCH 2>$tmp.stderr \
 	| sed -e "s/: Line [0-9][0-9]* /: Line <N> /"
 cat $tmp.stderr | _filter2
 

@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP GUI QA Test No. 013
+# PCP QA Test No. 1013
 # Test QmcMetric::formatNumber
 #
 seq=`basename $0`
@@ -19,9 +19,9 @@ for i in \
 	99950000000000.0 99951000000000.0
 do
     echo $i | $PCP_AWK_PROG '{printf("%17s = ", $1); }'
-    src/qmc_format/qmc_format $i
+    qt/qmc_format/qmc_format $i
     echo -$i | $PCP_AWK_PROG '{printf("%17s = ", $1); }'
-    src/qmc_format/qmc_format -$i
+    qt/qmc_format/qmc_format -$i
 done
 
 # success, all done

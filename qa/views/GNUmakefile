@@ -14,3 +14,7 @@ install: $(VIEWFILES)
 	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
 
 include $(BUILDRULES)
+
+default_pcp:
+
+install_pcp:

@@ -1,4 +1,4 @@
-QA output created by 007
+QA output created by 1007
 === Valid, no error ===
 === Bad syntax, no tab specification ===
 Error: stdin[4] Syntax error: expecting "<tab label>", found End-of-Line

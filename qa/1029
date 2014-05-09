@@ -38,7 +38,7 @@ _filter()
 
 rm -f $seq.full
 pmstore sample.event.reset 1 >$seq.full
-$here/src/qmc_event/qmc_event -DPMC,OPTFETCH 2>&1 | _filter
+$here/qt/qmc_event/qmc_event -DPMC,OPTFETCH 2>&1 | _filter
 
 # success, all done
 status=0

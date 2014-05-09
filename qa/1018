@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP GUI QA Test No. 018
+# PCP QA Test No. 1018
 # Test QmcSource functionality
 #
 seq=`basename $0`
@@ -29,11 +29,11 @@ _filter()
     #  spits its output.
 }
 
-$sudo src/qmc_source/qmc_source -DPMC 2>&1 | _filter
+$sudo qt/qmc_source/qmc_source -DPMC 2>&1 | _filter
 
 # What happens if we stop pmcd
 $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
-$sudo src/qmc_source/qmc_source -DPMC 2>&1 | _filter
+$sudo qt/qmc_source/qmc_source -DPMC 2>&1 | _filter
 
 $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 _wait_for_pmcd

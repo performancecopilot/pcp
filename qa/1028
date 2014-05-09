@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP GUI QA Test No. 028
+# PCP QA Test No. 1028
 # Exercise pmdumptext handling of config files with no final EOL
 #
 seq=`basename $0`
