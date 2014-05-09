@@ -250,7 +250,7 @@ static pmLongOptions longopts[] = {
     { "foreground", 0, 'f', 0, "run in the foreground" },
     { "log", 1, 'l', "FILE", "redirect diagnostics and trace output" },
     { "verbose", 0, 'v', 0, "increase verbosity" },
-    { "username", 1, 'U', "USER", "assume identity of username [default pcp]" },
+    { "username", 1, 'U', "USER", "decrease privilege from root to user [default pcp]" },
     { "", 1, 'x', "PATH", "fatal messages at startup sent to file [default /dev/tty]" },
     PMOPT_HELP,
     PMAPI_OPTIONS_END
@@ -436,14 +436,18 @@ main(int argc, char *argv[])
     __pmServerCreatePIDFile(PM_SERVER_WEBD_SPEC, 0);
     presence = __pmServerAdvertisePresence(PM_SERVER_WEBD_SPEC, port);
 
-    __pmOpenLog(pmProgname, logfile, stderr, &sts);
-    /* close old stdout, and force stdout into same stream as stderr */
-    fflush(stdout);
-    close(fileno(stdout));
-    if (dup(fileno(stderr)) == -1)
-	fprintf(stderr, "Warning: dup() failed: %s\n", pmErrStr(-oserror()));
+    if (run_daemon) { /* in foreground mode, leave diagnostic fd's alone */
+        __pmOpenLog(pmProgname, logfile, stderr, &sts);
+
+        /* close old stdout, and force stdout into same stream as stderr */
+        fflush(stdout);
+        close(fileno(stdout));
+        if (dup(fileno(stderr)) == -1)
+            fprintf(stderr, "Warning: dup() failed: %s\n", pmErrStr(-oserror()));
+    }
+
     fprintf(stderr, "%s: PID = %" FMT_PID ", PMAPI URL = %s\n",
-	    pmProgname, getpid(), uriprefix);
+            pmProgname, getpid(), uriprefix);
     server_dump_request_ports(stderr, d4 != NULL, d6 != NULL, port);
     server_dump_configuration(stderr);
     fflush(stderr);
@@ -457,7 +461,8 @@ main(int argc, char *argv[])
     /* __pmSetSignalHandler(SIGPIPE, handle_signals); */
 
     /* lose root privileges if we have them */
-    __pmSetProcessIdentity(username);
+    if (geteuid() == 0)
+        __pmSetProcessIdentity(username);
 
     /* Setup randomness for calls to random() */
     pmweb_init_random_seed();
