@@ -2106,7 +2106,7 @@ AC_SUBST(pcp_tmp_dir)
 dnl doc directory
 AC_ARG_WITH(docdir,[AC_HELP_STRING([--with-docdir],[docs directory [DOCDIR/pcp-VERSION]])],
                    [pcp_doc_dir=$withval],
-                   [pcp_doc_dir=$docdir/pcp-${PACKAGE_VERSION}])
+                   [PACKAGE=pcp-${PACKAGE_VERSION}; pcp_doc_dir=$docdir])
 pcp_doc_dir=`eval echo $pcp_doc_dir`
 pcp_doc_dir=`eval echo $pcp_doc_dir`
 AC_SUBST(pcp_doc_dir)

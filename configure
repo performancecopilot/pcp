@@ -12565,7 +12565,7 @@ pcp_tmp_dir=`eval echo $pcp_var_dir/tmp`
 if test "${with_docdir+set}" = set; then :
   withval=$with_docdir; pcp_doc_dir=$withval
 else
-  pcp_doc_dir=$docdir/pcp-${PACKAGE_VERSION}
+  PACKAGE=pcp-${PACKAGE_VERSION}; pcp_doc_dir=$docdir
 fi
 
 pcp_doc_dir=`eval echo $pcp_doc_dir`
