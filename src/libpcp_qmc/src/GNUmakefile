@@ -7,9 +7,19 @@ HEADERS = $(shell echo *.h)
 SOURCES = $(shell echo *.cpp)
 LSRCFILES = $(SOURCES) $(HEADERS) $(PROJECT)
 
-default: $(PROJECT)
-	$(QTMAKE)
+default: build-me
 
 include $(BUILDRULES)
 
+ifeq "$(ENABLE_QT)" "true"
+build-me: $(PROJECT)
+	$(QTMAKE)
+else
+build-me:
+endif
+
 install: default
+
+default_pcp:	default
+
+install_pcp:	install
