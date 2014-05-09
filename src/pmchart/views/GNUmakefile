@@ -8,10 +8,14 @@ VIEWS	= CPU Disk Diskbytes Loadavg NFS2 NFS3 Filesystem Memory Netbytes \
 
 LSRCFILES = $(VIEWS)
 
-default:
+default build-me:
 
 include $(BUILDRULES)
 
 install:	default
 	$(INSTALL) -m 755 -d $(VIEWDIR)
 	$(INSTALL) -m 0444 $(VIEWS) $(VIEWDIR)
+
+default_pcp:	default
+
+install_pcp:	install

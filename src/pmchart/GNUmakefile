@@ -50,7 +50,7 @@ default: build-me
 include $(BUILDRULES)
 
 ifeq "$(ENABLE_QT)" "true"
-build-me: iconlinks wrappers
+build-me: iconlinks wrappers $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 	$(QTMAKE)
 	$(LNMAKE)
@@ -67,7 +67,7 @@ $(WRAPPER): $(WRAPPER).in
 $(XMLFILE): $(XMLFILE).in
 	$(SED) -e 's;PACKAGE_VERSION;$(PACKAGE_VERSION);g' < $< > $@
 
-install: default
+install: default $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 ifeq ($(WINDOW),win)
 	$(INSTALL) -m 755 $(BINARY) $(PCP_BIN_DIR)/$(COMMAND)
