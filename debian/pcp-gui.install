@@ -5,7 +5,7 @@ usr/bin/pmdumptext
 usr/bin/pmmessage
 usr/bin/pmquery
 usr/bin/pmtime
-usr/libexec/pcp/bin/pmsnap
+usr/lib/pcp/bin/pmsnap
 usr/share/applications/pmchart.desktop
 usr/share/man/man1/pmchart.1.gz
 usr/share/man/man1/pmconfirm.1.gz
