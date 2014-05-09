@@ -1,7 +1,7 @@
 /*
  * GFS2 ftrace based trace-point metrics.
  *
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2013 - 2014 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -116,7 +116,7 @@ static int
 gfs2_extract_trace_values(char *buffer)
 {
     struct ftrace_data temp;
-    int major, minor;
+    unsigned int major, minor;
     char *data;
 
     /* Allocate memory for our data */
@@ -128,7 +128,7 @@ gfs2_extract_trace_values(char *buffer)
     }
 
     /* Interpret data, we work out what tracepoint it belongs to first */
-    if ((data = strstr(buffer, "gfs2_glock_state_change: "))) {
+    if (((data = strstr(buffer, "gfs2_glock_state_change: ")))) {
         temp.tracepoint = GLOCK_STATE_CHANGE;
         sscanf(data, "gfs2_glock_state_change: %"SCNu32",%"SCNu32"", &major, &minor);
 
