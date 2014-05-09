@@ -1,7 +1,7 @@
 /*
  * GFS2 gfs2_glock_lock_time trace-point metrics.
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013 - 2014 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -76,7 +76,7 @@ gfs2_worst_glock_fetch(int item, struct worst_glock *worst_glock, pmAtomValue *a
         return 0;
 
     /* Check to see if we have values to assign */
-    if (worst_glock->lock_type == LOCKTIME_INODE || worst_glock->lock_type == LOCKTIME_RGRP){
+    if (worst_glock->lock_type == WORSTGLOCK_INODE || worst_glock->lock_type == WORSTGLOCK_RGRP){
         switch(item){
             case WORSTGLOCK_LOCK_TYPE:
                 atom->ul = worst_glock->lock_type; /* Glock type number */
@@ -159,7 +159,7 @@ gfs2_extract_worst_glock(char *buffer)
     glock.dev_id = makedev(major, minor);
 
     /* Filter on required lock types */
-    if ((glock.lock_type == LOCKTIME_INODE || glock.lock_type == LOCKTIME_RGRP) &&
+    if ((glock.lock_type == WORSTGLOCK_INODE || glock.lock_type == WORSTGLOCK_RGRP) &&
         (glock.dlm > COUNT_THRESHOLD || glock.queue > COUNT_THRESHOLD)) {
 
         /* Re-allocate and extend array if we are near capacity */

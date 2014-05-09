@@ -1,7 +1,7 @@
 /*
  * GFS2 gfs2_glock_lock_time trace-point metrics.
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013 - 2014 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -34,15 +34,15 @@ enum {
 };
 
 enum {
-    LOCKTIME_TRANS = 1,
-    LOCKTIME_INODE = 2,
-    LOCKTIME_RGRP = 3,
-    LOCKTIME_META = 4,
-    LOCKTIME_IOPEN = 5,
-    LOCKTIME_FLOCK = 6,
-    LOCKTIME_RESERVED = 7,
-    LOCKTIME_QUOTA = 8,
-    LOCKTIME_JOURNAL = 9
+    WORSTGLOCK_TRANS = 1,
+    WORSTGLOCK_INODE = 2,
+    WORSTGLOCK_RGRP = 3,
+    WORSTGLOCK_META = 4,
+    WORSTGLOCK_IOPEN = 5,
+    WORSTGLOCK_FLOCK = 6,
+    WORSTGLOCK_RESERVED = 7,
+    WORSTGLOCK_QUOTA = 8,
+    WORSTGLOCK_JOURNAL = 9
 };
 
 struct worst_glock {
