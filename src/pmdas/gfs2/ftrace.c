@@ -1,7 +1,7 @@
 /*
  * GFS2 ftrace based trace-point metrics.
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2014 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -368,14 +368,14 @@ gfs2_assign_ftrace(pmInDom gfs2_fs_indom)
                 fs->ftrace.values[FTRACE_PROMOTE_TOTAL]++;
 
             } else if (ftrace_data[k].tracepoint == GLOCK_QUEUE) {
-                char state[3], queue[3];
+                char state[3], queue[8];
             
                 sscanf(ftrace_data[k].data, 
-                    "gfs2_glock_queue: %*d,%*d glock %*d:%*d %squeue %s", 
+                    "gfs2_glock_queue: %*d,%*d glock %*d:%*d %s %s", 
                     queue, state
                 );
 
-                if (strncmp(queue, "", 2) == 0) {
+                if (strncmp(queue, "queue", 6) == 0) {
                     if (strncmp(state, "NL", 2) == 0) {
                         fs->ftrace.values[FTRACE_GLOCKQUEUE_QUEUE_NULLLOCK]++;
                     } else if (strncmp(state, "CR", 2) == 0) {
@@ -391,7 +391,7 @@ gfs2_assign_ftrace(pmInDom gfs2_fs_indom)
                     }
                     fs->ftrace.values[FTRACE_GLOCKQUEUE_QUEUE_TOTAL]++;
 
-                } else if (strncmp(queue, "de", 2) == 0) {
+                } else if (strncmp(queue, "dequeue", 8) == 0) {
                     if (strncmp(state, "NL", 2) == 0) {
                         fs->ftrace.values[FTRACE_GLOCKQUEUE_DEQUEUE_NULLLOCK]++;
                     } else if (strncmp(state, "CR", 2) == 0) {
