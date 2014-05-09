@@ -21,8 +21,8 @@ $(BINTAR): $(PCPLOGS) $(CONFIGS)
 include $(BUILDRULES)
 
 install install-dev: default
-	$(INSTALL) -m 755 -d $(PKG_DEMOS_DIR)/tutorials
-	$(INSTALL) -m 644 $(BINTAR) $(PKG_DEMOS_DIR)/tutorials/$(BINTAR)
+	$(INSTALL) -m 755 -d $(PCP_DEMOS_DIR)/tutorials
+	$(INSTALL) -m 644 $(BINTAR) $(PCP_DEMOS_DIR)/tutorials/$(BINTAR)
 	$(INSTALL) -m 755 -d $(PCP_BOOKS_DIR)/html/$(BUNDLE)
 	$(INSTALL) -m 644 $(CONFIGS) $(PCP_BOOKS_DIR)/html/$(BUNDLE)
 

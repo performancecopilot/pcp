@@ -9,11 +9,14 @@ SOURCES = pmdumptext.cpp
 LSRCFILES = $(PROJECT) $(SOURCES)
 LDIRT = $(COMMAND)
 
-default:
-	$(QTMAKE)
-	$(LNMAKE)
+default: build-me
 
 include $(BUILDRULES)
+
+ifeq "$(ENABLE_QT)" "true"
+build-me:
+	$(QTMAKE)
+	$(LNMAKE)
 
 install: default
 ifeq ($(WINDOW),mac)
@@ -22,6 +25,10 @@ ifeq ($(WINDOW),mac)
 	rm $(BINARY)
 else
 	$(INSTALL) -m 755 $(BINARY) $(PCP_BIN_DIR)/$(COMMAND)
+endif
+else
+build-me:
+install:
 endif
 
 default_pcp:	default

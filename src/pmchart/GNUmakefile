@@ -45,12 +45,15 @@ ICONLINKS = aboutpcp.png aboutpmchart.png pmchart.png pmtime.png \
 
 SUBDIRS = views
 
-default: iconlinks wrappers
+default: build-me
+
+include $(BUILDRULES)
+
+ifeq "$(ENABLE_QT)" "true"
+build-me: iconlinks wrappers
 	$(SUBDIRS_MAKERULE)
 	$(QTMAKE)
 	$(LNMAKE)
-
-include $(BUILDRULES)
 
 ifeq ($(WINDOW),mac)
 PKG_MAC_DIR = /Applications/$(COMMAND).app/Contents
@@ -86,6 +89,10 @@ ifeq ($(WINDOW),mac)
 	$(INSTALL) -m 755 -d $(PKG_MAC_DIR)/Resources
 	$(INSTALL) -m 644 $(ICNFILE) $(PKG_MAC_DIR)/Resources/$(ICNFILE)
 	$(call INSTALL_QT_RESOURCES,$(PKG_MAC_DIR)/Resources)
+endif
+else
+build-me:
+install:
 endif
 
 default_pcp:	default

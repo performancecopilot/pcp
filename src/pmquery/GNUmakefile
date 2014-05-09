@@ -17,11 +17,14 @@ LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER) $(SCRIPTS) $(XMLFILE)
 ICONLINKS = $(ICNFILE) dialog-archive.png dialog-error.png dialog-host.png \
 	  dialog-information.png dialog-question.png dialog-warning.png
 
-default: iconlinks wrappers
-	$(QTMAKE)
-	$(LNMAKE)
+default: build-me
 
 include $(BUILDRULES)
+
+ifeq "$(ENABLE_QT)" "true"
+build-me: iconlinks wrappers
+	$(QTMAKE)
+	$(LNMAKE)
 
 ifeq ($(WINDOW),mac)
 PKG_MAC_DIR = /Library/PCP/$(COMMAND).app/Contents
@@ -59,6 +62,10 @@ ifeq ($(WINDOW),mac)
 	$(INSTALL) -m 755 -d $(PKG_MAC_DIR)/Resources
 	$(INSTALL) -m 644 $(ICNFILE) $(PKG_MAC_DIR)/Resources/$(ICNFILE)
 	$(call INSTALL_QT_RESOURCES,$(PKG_MAC_DIR)/Resources)
+endif
+else
+build-me:
+install:
 endif
 
 default_pcp:	default

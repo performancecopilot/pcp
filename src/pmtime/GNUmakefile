@@ -25,11 +25,14 @@ ICONLINKS = play_off.png play_on.png fastfwd_off.png fastfwd_on.png \
 	whatsthis.png edit-clear.png internet-web-browser.png pmtime.png \
 	$(ICNFILE) $(ICOFILE)
 
-default: iconlinks wrappers
-	$(QTMAKE)
-	$(LNMAKE)
+default: build-me
 
 include $(BUILDRULES)
+
+ifeq "$(ENABLE_QT)" "true"
+build-me: iconlinks wrappers
+	$(QTMAKE)
+	$(LNMAKE)
 
 ifeq ($(WINDOW),mac)
 PKG_MAC_DIR = /Library/PCP/$(COMMAND).app/Contents
@@ -58,6 +61,10 @@ else
 	$(INSTALL) -m 755 -d $(PKG_MAC_DIR)/Resources
 	$(INSTALL) -m 644 $(ICNFILE) $(PKG_MAC_DIR)/Resources/$(ICNFILE)
 	$(call INSTALL_QT_RESOURCES,$(PKG_MAC_DIR)/Resources)
+endif
+else
+build-me:
+install:
 endif
 
 default_pcp:	default
