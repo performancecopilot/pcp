@@ -36,7 +36,6 @@ var/lib/pcp/config/pmchart/Schemes
 var/lib/pcp/config/pmchart/Sockets
 var/lib/pcp/config/pmchart/Swap
 var/lib/pcp/config/pmchart/Syscalls
-var/lib/pcp/config/pmsnap
 var/lib/pcp/config/pmsnap/Snap
 var/lib/pcp/config/pmsnap/crontab
 var/lib/pcp/config/pmsnap/summary.html

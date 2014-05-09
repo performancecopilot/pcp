@@ -77,7 +77,7 @@ alldir = $(dirpcp) $(dirpcpcfg) \
 		$(dirpcp_manager) $(dirpcp_webapi) \
 		$(dirpcp_python)
 
-zip = @export GZIP=-9q
+zip = export GZIP=-9q
 pkgpcp = $(zip) NO_CHOWN=true DIST_ROOT=`pwd`/$(dirpcp);
 pkgpcpgui = $(zip) DIST_ROOT=`pwd`/$(dirgui);
 pkgpcpdoc = $(zip) DIST_ROOT=`pwd`/$(dirdoc);
@@ -113,6 +113,7 @@ uninstallpydir = ls -d debian/$(pcp)/usr/lib*/python* | xargs rm -fr
 uninstalltest = cat debian/$(pcp_testsuite).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
 uninstalldirs = rmdir debian/$(pcp)/usr/include/pcp debian/$(pcp)/usr/include debian/$(pcp)/usr/share/man/man3
 uninstallib = cat debian/$(pcp_pmda_infiniband).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
+uninstallgui = cat debian/$(pcpgui).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
 uninstallweb = find debian/$(pcp) -iname \*pmweb\* | xargs rm -fr
 uninstallmgr = find debian/$(pcp) -name \*pmmgr\* | xargs rm -fr
 unrpathperl = find $(allperldir) -name \*.so | xargs chrpath -d
@@ -180,6 +181,7 @@ binary-arch: checkroot build-stamp
 	dh_install --sourcedir=debian/$(pcp)
 	@$(uninstall)
 	@$(uninstallib)
+	@$(uninstallgui)
 	@$(uninstalldirs)
 	@$(uninstalltest)
 	@$(uninstallmgr)

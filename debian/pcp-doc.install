@@ -33,9 +33,9 @@ usr/share/doc/pcp-doc/html/timecontrol.html
 usr/share/doc/pcp-doc/html/views.html
 usr/share/doc/pcp-doc/html/diskmodel/model.fio
 usr/share/doc/pcp-doc/html/diskmodel/model.folio
-usr/share/doc/pcp-doc/html/diskmodel/model.pl
+usr/share/doc/pcp-doc/html/diskmodel/model.pl.gz
 usr/share/doc/pcp-doc/html/diskmodel/model.view
-usr/share/doc/pcp-doc/html/diskmodel/model.xls
+usr/share/doc/pcp-doc/html/diskmodel/model.xls.gz
 usr/share/doc/pcp-doc/html/diskmodel/nasread.out
 usr/share/doc/pcp-doc/html/diskmodel/naswrite.out
 usr/share/doc/pcp-doc/html/images/cpu_pswitch.png
@@ -109,9 +109,9 @@ usr/share/doc/pcp-doc/html/pmie/pswitch.pmie
 usr/share/doc/pcp-doc/html/pmie/pswitch.view
 usr/share/doc/pcp-doc/html/pmview/example.view
 usr/share/doc/pcp-doc/html/pmview/godzilla.web.folio
-usr/share/doc/pcp-doc/html/pmview/godzilla.web.view
-usr/share/doc/pcp-doc/pcp-programmers-guide.pdf
-usr/share/doc/pcp-doc/pcp-users-and-administrators-guide.pdf
+usr/share/doc/pcp-doc/html/pmview/godzilla.web.view.gz
+usr/share/doc/pcp-doc/pcp-programmers-guide.pdf.gz
+usr/share/doc/pcp-doc/pcp-users-and-administrators-guide.pdf.gz
 usr/share/pcp/demos/tutorials/cpuperf.tar.gz
 usr/share/pcp/demos/tutorials/diskmodel.tar.gz
 usr/share/pcp/demos/tutorials/diskperf.tar.gz

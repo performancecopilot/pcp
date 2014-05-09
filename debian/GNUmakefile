@@ -320,6 +320,6 @@ control:	control.master control.webapi control.pcpgui
 ifeq ($(HAVE_LIBMICROHTTPD), 1)
 	cat control.webapi >>control
 endif
-ifeq ($(ENABLE_QT), 1)
+ifeq ($(ENABLE_QT), true)
 	cat control.pcpgui >>control
 endif
