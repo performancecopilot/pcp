@@ -32,8 +32,7 @@ main(int argc, char **argv)
     int		numpmid = 3;
     pmID	pmid[3];
     char	*name[] = { "sample.seconds", "sample.drift", "sample.milliseconds" };
-    pmDesc	desc;
-    int		type[3];
+    pmDesc	desc[3];
     struct timeval tend = {0x7fffffff, 0};
 
     __pmSetProgname(argv[0]);
@@ -161,13 +160,11 @@ Options\n\
     }
 
     for (i = 0; i < numpmid; i++) {
-	sts = pmLookupDesc(pmid[i], &desc);
+	sts = pmLookupDesc(pmid[i], &desc[i]);
 	if (sts < 0) {
 	    printf("Warning: pmLookupDesc(%s): %s\n", pmIDStr(pmid[i]), pmErrStr(sts));
-	    type[i] = -1;
+	    desc[i].type = -1;
 	}
-	else
-	    type[i] = desc.type;
     }
 
     for (i = 0; i < samples; i++) {
@@ -198,12 +195,16 @@ Options\n\
 				result->vset[j]->vlist[k].inst);
 			continue;
 		    }
-		    if (type[j] == PM_TYPE_32 || type[j] == PM_TYPE_U32) {
-			printf("delta[%d]: %d\n", k,
-			    result->vset[j]->vlist[k].value.lval -
-			    prev->vset[j]->vlist[k].value.lval);
+		    if (desc[j].type == PM_TYPE_32 || desc[j].type == PM_TYPE_U32) {
+			if (desc[j].sem == PM_SEM_COUNTER)
+			    printf("delta[%d]: %d\n", k,
+				result->vset[j]->vlist[k].value.lval -
+				prev->vset[j]->vlist[k].value.lval);
+			else
+			    printf("value[%d]: %d\n", k,
+				result->vset[j]->vlist[k].value.lval);
 		    }
-		    else if (type[j] == PM_TYPE_DOUBLE) {
+		    else if (desc[j].type == PM_TYPE_DOUBLE) {
 			void		*cp = (void *)result->vset[j]->vlist[k].value.pval->vbuf;
 			void		*pp = (void *)prev->vset[j]->vlist[k].value.pval->vbuf;
 			double		cv, pv;
@@ -211,17 +212,21 @@ Options\n\
 
 			memcpy((void *)&av, cp, sizeof(pmAtomValue));
 			cv = av.d;
-			memcpy((void *)&av, pp, sizeof(pmAtomValue));
-			pv = av.d;
-			printf("delta[%d]: %.0f\n", k, cv - pv);
+			if (desc[j].sem == PM_SEM_COUNTER) {
+			    memcpy((void *)&av, pp, sizeof(pmAtomValue));
+			    pv = av.d;
+			    printf("delta[%d]: %.0f\n", k, cv - pv);
+			}
+			else
+			    printf("value[%d]: %.0f\n", k, cv);
 		    }
-		    else if (type[j] == PM_TYPE_STRING) {
+		    else if (desc[j].type == PM_TYPE_STRING) {
 			printf("value[%d]: %s\n", k,
 			    result->vset[j]->vlist[k].value.pval->vbuf);
 		    }
 		    else {
 			printf("don't know how to display type %d for PMID %s\n",
-			    type[j], pmIDStr(pmid[j]));
+			    desc[j].type, pmIDStr(pmid[j]));
 			break;
 		    }
 		}
