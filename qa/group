@@ -913,6 +913,7 @@ avahi
 779 pmda local oss
 783 pmda.rpm local oss
 786 context context_local libpcp local oss
+787 archive local oss pmie pmlogrewrite pmdumplog pmval
 798 pmda.nfsclient local oss
 815 pmie local oss
 823 pmda.sample pmstore secure local oss
