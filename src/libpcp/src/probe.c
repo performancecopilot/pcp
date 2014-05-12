@@ -94,7 +94,6 @@ attemptConnection (void *arg)
     struct timeval	*pstv;
     __pmFdSet		wfds;
     __pmServiceInfo	serviceInfo;
-    int			newNumUrls;
     int			attempt;
     connectionContext *context = arg;
 	
@@ -156,10 +155,8 @@ attemptConnection (void *arg)
 	serviceInfo.spec = context->service;
 	serviceInfo.address = __pmSockAddrDup(context->address);
 	LOCK_LOCK(&lock);
-	newNumUrls = __pmAddDiscoveredService(&serviceInfo, *context->numUrls, context->urls);
+	*context->numUrls = __pmAddDiscoveredService(&serviceInfo, *context->numUrls, context->urls);
 	LOCK_UNLOCK(&lock);
-	if (newNumUrls >= 0)
-	    *context->numUrls = newNumUrls;
     }
 
  done:
