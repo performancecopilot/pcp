@@ -167,7 +167,7 @@ newNSPRHandle(void)
     PM_UNLOCK(__pmLock_libpcp);
 
     /* No free handles available */
-    return -1;
+    return -EAGAIN;
 }
 
 static void
@@ -2259,7 +2259,7 @@ __pmSockAddrFirstSubnetAddr(const __pmSockAddr *netAddr, int maskBits)
     PRUint32		mask;
     __pmSockAddr	*addr;
     
-/* Make a copy of the net address for iteration purposes. */
+    /* Make a copy of the net address for iteration purposes. */
     addr = __pmSockAddrDup(netAddr);
     if (addr) {
 	/*
