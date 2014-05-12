@@ -315,7 +315,7 @@ p_profile.o
 p_result.o
 probe.o
     ?lock			# a mutex
-    ?threadsRemaining		# guarded by lock
+    addressesRemaining		# guarded by lock
     ?threadsComplete		# a semaphore
 profile.o
 p_text.o

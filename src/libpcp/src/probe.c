@@ -20,6 +20,8 @@
  * Service discovery by active probing. The given subnet is probed for the requested
  * service(s).
  */
+static unsigned addressesRemaining;
+
 #if PM_MULTI_THREAD
 /*
  * Multi thread support. We need to protect the updating of the url list and the
@@ -27,7 +29,6 @@
  */
 #include <semaphore.h>
 static __pmMutex lock;
-static unsigned threadsRemaining;
 static sem_t threadsComplete;
 #define LOCK_INIT(lock) pthread_mutex_init(lock, NULL)
 #define LOCK_LOCK(lock) PM_LOCK(*(lock))
@@ -41,16 +42,16 @@ static sem_t threadsComplete;
 #define THREAD_DETACH() (pthread_detach(pthread_self()))
 #else
 /* No multi thread support. */
-#define LOCK_INIT(lock) 0
-#define LOCK_LOCK(lock) 0
-#define LOCK_UNLOCK(lock) 0
-#define LOCK_TERM(lock) 0
-#define SEM_INIT(sem) 0
-#define SEM_WAIT(sem) 0
-#define SEM_POST(sem) 0
-#define SEM_TERM(sem) 0
+#define LOCK_INIT(lock) /* do nothing */
+#define LOCK_LOCK(lock) /* do nothing */
+#define LOCK_UNLOCK(lock) /* do nothing */
+#define LOCK_TERM(lock) /* do nothing */
+#define SEM_INIT(sem, value) /* do nothing */
+#define SEM_WAIT(sem) /* do nothing */
+#define SEM_POST(sem) /* do nothing */
+#define SEM_TERM(sem) /* do nothing */
 #define THREAD_START(thread, func, arg) (func(arg), 0)
-#define THREAD_DETACH() 0
+#define THREAD_DETACH() /* do nothing */
 #endif
 
 /* The number of connection attempts remaining. */
@@ -75,8 +76,8 @@ cleanupThread (void)
      * the semaphore.
      */
     LOCK_LOCK(&lock);
-    --threadsRemaining;
-    isFinalThread = (threadsRemaining == 0);
+    --addressesRemaining;
+    isFinalThread = (addressesRemaining == 0);
     LOCK_UNLOCK(&lock);
     if (isFinalThread)
 	SEM_POST(&threadsComplete);
@@ -307,7 +308,7 @@ probeForServices (
     LOCK_INIT(&lock);
     SEM_INIT(&threadsComplete, 0);
 
-    threadsRemaining = subnetSize(netAddress, maskBits);
+    addressesRemaining = subnetSize(netAddress, maskBits);
     prevNumUrls = numUrls;
     for (address = __pmSockAddrFirstSubnetAddr(netAddress, maskBits);
 	 address != NULL;
