@@ -2,6 +2,7 @@ TARGET		= pcp_qmc
 TEMPLATE	= lib
 VERSION		= 1.0.0
 CONFIG		+= qt staticlib warn_on
+INCLUDEPATH	+= ../../include
 
 HEADERS	= qmc_context.h qmc_desc.h qmc_group.h \
 	  qmc_indom.h qmc_metric.h qmc_source.h \

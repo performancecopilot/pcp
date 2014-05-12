@@ -15,6 +15,7 @@ CONFIG		+= qt warn_on
 INCLUDEPATH	+= ../include ../libpcp_qwt/src ../libpcp_qmc/src
 release:DESTDIR	= build/debug
 debug:DESTDIR	= build/release
+LIBS		+= -L../libpcp/src
 LIBS		+= -L../libpcp_qwt/src -L../libpcp_qwt/src/$$DESTDIR
 LIBS		+= -L../libpcp_qmc/src -L../libpcp_qmc/src/$$DESTDIR
 LIBS		+= -lpcp_qwt -lpcp_qmc -lpcp
