@@ -4,7 +4,7 @@ include $(TOPDIR)/src/include/builddefs
 COMMAND = qmc_hosts
 PROJECT = $(COMMAND).pro
 SOURCES = $(COMMAND).cpp
-TESTDIR = $(PCP_VAR_DIR)/testsuite/src/$(COMMAND)
+TESTDIR = $(PCP_VAR_DIR)/testsuite/qt/$(COMMAND)
 
 LSRCFILES = $(PROJECT) $(SOURCES)
 LDIRDIRT = build $(COMMAND).xcodeproj
