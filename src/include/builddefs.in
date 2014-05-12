@@ -595,7 +595,7 @@ endif
 # Qt magic for build/installs across all the supported platforms
 ifeq ($(PCP_PLATFORM),darwin)
 QTMAKE = $(QMAKE) -spec macx-g++ CONFIG+=$(QT_RELEASE) && make -f Makefile
-MACBUILD = $(COMMAND).app/Contents
+MACBUILD = build/$(QT_RELEASE)/$(COMMAND).app/Contents
 BINARY = $(MACBUILD)/MacOS/$(COMMAND)
 LNMAKE = test ! -f $(BINARY) -o -L $(COMMAND) || $(LN_S) $(BINARY) $(COMMAND)
 WINDOW = mac
