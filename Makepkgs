@@ -303,9 +303,9 @@ prepare_debian_control()
     echo "== Preparing source tree for dpkg-buildpackage"
     rm -f $tmp/failed debian/control
     if $verbose ; then
-	($MAKE -j1 -C debian control 2>&1 || touch $tmp/failed) | tee -a $LOGDIR/pcp
+	($MAKE -C debian control 2>&1 || touch $tmp/failed) | tee -a $LOGDIR/pcp
     else
-	($MAKE -j1 -C debian control 2>&1 || touch $tmp/failed) >> $LOGDIR/pcp
+	($MAKE -C debian control 2>&1 || touch $tmp/failed) >> $LOGDIR/pcp
     fi
     [ -f $tmp/failed ] && build_failure debian control
 }
@@ -353,9 +353,9 @@ default_build()
 
     rm -f $tmp/failed
     if $verbose ; then
-	($MAKE -j1 default_pcp 2>&1 || touch $tmp/failed) | tee -a $LOGDIR/pcp
+	($MAKE default_pcp 2>&1 || touch $tmp/failed) | tee -a $LOGDIR/pcp
     else
-	($MAKE -j1 default_pcp 2>&1 || touch $tmp/failed) >> $LOGDIR/pcp
+	($MAKE default_pcp 2>&1 || touch $tmp/failed) >> $LOGDIR/pcp
     fi
     [ -f $tmp/failed ] && build_failure Make default_pcp
 }
@@ -367,9 +367,9 @@ packaging_pcp()
 
     rm -f $tmp/failed
     if $verbose ; then
-	($MAKE -j1 -C build pack_pcp 2>&1 || touch $tmp/failed) | tee -a $LOGDIR/pcp
+	($MAKE -C build pack_pcp 2>&1 || touch $tmp/failed) | tee -a $LOGDIR/pcp
     else
-	($MAKE -j1 -C build pack_pcp 2>&1 || touch $tmp/failed) >> $LOGDIR/pcp
+	($MAKE -C build pack_pcp 2>&1 || touch $tmp/failed) >> $LOGDIR/pcp
     fi
     [ -f $tmp/failed ] && build_failure Packaging via pack_pcp
 }
@@ -382,9 +382,9 @@ packaging_rpm()
     rm -f $tmp/failed
     export DIST_ROOT=${topdir}/build/rpm/${source}
     if $verbose ; then
-	($MAKE -j1 -C build/rpm pack_pcp 2>&1 || touch $tmp/failed) | tee -a $LOGDIR/pcp
+	($MAKE -C build/rpm pack_pcp 2>&1 || touch $tmp/failed) | tee -a $LOGDIR/pcp
     else
-	($MAKE -j1 -C build/rpm pack_pcp 2>&1 || touch $tmp/failed) >> $LOGDIR/pcp
+	($MAKE -C build/rpm pack_pcp 2>&1 || touch $tmp/failed) >> $LOGDIR/pcp
     fi
     [ -f $tmp/failed ] && build_failure Packaging RPMs via pack_pcp
 }

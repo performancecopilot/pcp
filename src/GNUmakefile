@@ -17,10 +17,10 @@ TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-SUBDIRS = \
-	include \
-	libpcp \
-	pmns \
+INCLUDE_SUBDIR = include
+PMNS_SUBDIR = pmns
+LIBPCP_SUBDIR = libpcp
+LIBS_SUBDIRS = \
 	libpcp_pmda \
 	libpcp_trace \
 	libpcp_http \
@@ -29,7 +29,9 @@ SUBDIRS = \
 	libpcp_mmv \
 	libpcp_import \
 	libpcp_qmc \
-	libpcp_qwt \
+	libpcp_qwt
+
+OTHER_SUBDIRS = \
 	pminfo \
 	pmprobe \
 	bashrc \
@@ -97,7 +99,16 @@ SUBDIRS = \
 	win32ctl \
 	#
 
+SUBDIRS = \
+	$(INCLUDE_SUBDIR) \
+	$(LIBPCP_SUBDIR) \
+	$(PMNS_SUBDIR) \
+	$(LIBS_SUBDIRS) \
+	$(OTHER_SUBDIRS)
+
 default :: default_pcp
+
+include $(BUILDRULES)
 
 default_pcp : $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
@@ -107,4 +118,7 @@ install :: default_pcp install_pcp
 install_pcp : $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
-include $(BUILDRULES)
+$(LIBPCP_SUBDIR): $(INCLUDE_SUBDIR)
+$(PMNS_SUBDIR): $(LIBPCP_SUBDIR)
+$(LIBS_SUBDIRS): $(PMNS_SUBDIR)
+$(OTHER_SUBDIRS): $(LIBS_SUBDIRS)
