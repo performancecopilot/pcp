@@ -255,8 +255,8 @@ pcp.py
 avahi
 
 # test-group association ... one line per test
-# add :retired as a tag immediately after the test number to keep the
-# test number allocated, but prevent the test from being run
+# add :retired or :reserved as a tag immediately after the test number
+# to keep the test number allocated, but prevent the test from being run
 
 # ... use sort -n from here on down to tidy up this mess
 #
@@ -868,7 +868,7 @@ avahi
 660 pmwebapi local oss
 702 python libpcp local oss
 703 pmda.weblog local oss
-704 pmda.mmv python mmv local oss
+704:reserved pmda.mmv python mmv local oss
 705 libpcp local oss
 706 libpcp local oss
 707 python libpcp local oss
@@ -914,7 +914,7 @@ avahi
 779 pmda local oss
 783 pmda.rpm local oss
 786 context context_local libpcp local oss
-787 archive local oss pmie pmlogrewrite pmdumplog pmval
+787:reserved archive local oss pmie pmlogrewrite pmdumplog pmval
 798 pmda.nfsclient local oss
 815 pmie local oss
 823 pmda.sample pmstore secure local oss
