@@ -115,8 +115,12 @@ attemptConnection (void *arg)
 	    break;
 	usleep(100000);
     }
-    if (attempt > 0)
-	fprintf (stderr, "Waited for %d attempts for an available fd\n", attempt);
+    if (pmDebug & DBG_TRACE_DISCOVERY) {
+	if (attempt > 0) {
+	    __pmNotifyErr(LOG_INFO, "Waited for %d attempts for an available fd\n",
+			  attempt);
+	}
+    }
 
     if (s < 0) {
 	char *addrString = __pmSockAddrToString(context->address);
@@ -229,8 +233,12 @@ dispatchConnection (
 	free(addrString);
 	cleanupThread();
     }
-    else if (attempt > 0)
-	fprintf (stderr, "Waited for %d attempts to create a thread\n", attempt);
+    else if (pmDebug & DBG_TRACE_DISCOVERY) {
+	if (attempt > 0) {
+	    __pmNotifyErr(LOG_INFO, "Waited for %d attempts to create a thread\n",
+			  attempt);
+	}
+    }
 }
 
 static unsigned
