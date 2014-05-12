@@ -1,7 +1,7 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-TESTDIR = $(subst pcp,pcp-gui,$(PCP_VAR_DIR))/testsuite/archives
+TESTDIR = $(PCP_VAR_DIR)/testsuite/archives
 SRCARCH = chartqa1.0 viewqa1.0 viewqa2.0 viewqa3.0 rattle.0 oview-short.0 \
 	  snort-disks.0 vldb-disks.0 moomba.pmkstat.0 gap.0 gap2.0 \
 	  20071023-08-06-36.0

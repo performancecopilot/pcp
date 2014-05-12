@@ -1,7 +1,7 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-TESTDIR = $(subst pcp,pcp-gui,$(PCP_VAR_DIR))/testsuite/views
+TESTDIR = $(PCP_VAR_DIR)/testsuite/views
 VIEWFILES = 006-01 006-02 006-03 006-04 006-05 \
 	    AntiAliasing NoSuchHost RotateColors ScaleManual
 LSRCFILES = $(VIEWFILES) GNUmakefile.install
