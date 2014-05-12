@@ -61,8 +61,8 @@ then
 other
 
 ## test-group association ... one line per test
-## add :retired as a tag immediately after the test number to keep the
-## test number allocated, but prevent the test from being run
+## add :retired or :reserved as a tag immediately after the test number
+## to keep the test number allocated, but prevent the test from being run
 
 ## ... use sort -n from here on down to tidy up this mess
 ##
@@ -106,7 +106,7 @@ fi
 #
 while true
 do
-    id=`sed -n -e 's/:retired / /' -e '/^[0-9]/s/[ 	].*//p' <group \
+    id=`sed -n -e 's/:\(retired\|reserved\) / /' -e '/^[0-9]/s/[ 	].*//p' <group \
 	| LC_COLLATE=POSIX sort -n \
 	| $PCP_AWK_PROG '
 BEGIN		{ last = '$try' }
