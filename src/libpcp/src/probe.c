@@ -89,7 +89,7 @@ attemptConnection (void *arg)
     int			s;
     int			flags;
     int			sts;
-    struct timeval	canwait = { 5, 000000 };
+    struct timeval	canwait = { 1, 000000 };
     struct timeval	stv;
     struct timeval	*pstv;
     __pmFdSet		wfds;
