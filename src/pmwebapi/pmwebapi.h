@@ -29,24 +29,25 @@
 /* ------------------------------------------------------------------------ */
 
 extern const char uriprefix[];
-extern char *archivesdir;             /* set by -A option */
-extern char *resourcedir;             /* set by -R option */
-extern unsigned verbosity;            /* set by -v option */
-extern unsigned maxtimeout;           /* set by -t option */
-extern unsigned new_contexts_p;       /* set by -N option */
-extern unsigned exit_p;               /* counted by SIG* handler */
+extern char *archivesdir;	/* set by -A option */
+extern char *resourcedir;	/* set by -R option */
+extern unsigned verbosity;	/* set by -v option */
+extern unsigned maxtimeout;	/* set by -t option */
+extern unsigned new_contexts_p;	/* set by -N option */
+extern unsigned exit_p;		/* counted by SIG* handler */
 
 /* ------------------------------------------------------------------------ */
 
 extern int pmwebapi_bind_permanent (int webapi_ctx, int pcp_context);
 extern int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
-                             const char* url, const char* method,
-                             const char* upload_data, size_t *upload_data_size);
+			     const char *url, const char *method,
+			     const char *upload_data, size_t * upload_data_size);
 extern unsigned pmwebapi_gc (void);
 extern void pmwebapi_deallocate_all (void);
 extern int pmwebres_respond (void *cls, struct MHD_Connection *connection,
-                             const char* url);
+			     const char *url);
 
-extern void pmweb_notify (int, struct MHD_Connection*, const char *, ...) __PM_PRINTFLIKE(3,4);
+extern void pmweb_notify (int, struct MHD_Connection *, const char *,
+			  ...) __PM_PRINTFLIKE (3, 4);
 
 extern void pmweb_start_daemon (int, char **);
