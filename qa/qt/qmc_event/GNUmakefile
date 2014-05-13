@@ -10,13 +10,13 @@ LSRCFILES = $(PROJECT) $(SOURCES)
 LDIRDIRT = build $(COMMAND).xcodeproj
 LDIRT = $(COMMAND) *.o Makefile
 
-default:
+default default_pcp:
 ifeq "$(ENABLE_QT)" "true"
 	$(QTMAKE)
 	$(LNMAKE)
 endif
 
-install: default
+install install_pcp: default
 	$(INSTALL) -m 755 -d $(TESTDIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
 	$(INSTALL) -m 644 $(PROJECT) $(SOURCES) $(TESTDIR)
@@ -25,7 +25,3 @@ ifeq "$(ENABLE_QT)" "true"
 endif
 
 include $(BUILDRULES)
-
-default_pcp:
-
-install_pcp:
