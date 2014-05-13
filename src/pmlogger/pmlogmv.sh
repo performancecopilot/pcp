@@ -23,7 +23,7 @@
 
 status=1
 tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
-trap "rm -rf $tmp.*; exit \$status" 0
+trap "rm -rf $tmp; exit \$status" 0
 trap "_cleanup; rm -rf $tmp; exit \$status" 1 2 3 15
 prog=`basename $0`
 
@@ -107,9 +107,9 @@ new="$2"
 
 _cleanup()
 {
-    if [ -f $tmp.old ]
+    if [ -f $tmp/old ]
     then
-	for f in `cat $tmp.old`
+	for f in `cat $tmp/old`
 	do
 	    if [ ! -f "$f" ]
 	    then
@@ -118,7 +118,7 @@ _cleanup()
 		then
 		    echo >&2 "$prog: Fatal: $f and $new.$part lost"
 		    ls -l "$old"* "$new"*
-		    rm -f $tmp.old
+		    rm -f $tmp/old
 		    return
 		fi
 		$verbose && echo >&2 "cleanup: recover $f from $new.$part"
@@ -128,35 +128,35 @@ _cleanup()
 		else
 		    echo >&2 "$prog: Fatal: ln $new.$part $f failed!"
 		    ls -l "$old"* "$new"*
-		    rm -f $tmp.old
+		    rm -f $tmp/old
 		    return
 		fi
 	    fi
 	done
     fi
-    if [ -f $tmp.new ]
+    if [ -f $tmp/new ]
     then
-	for f in `cat $tmp.new`
+	for f in `cat $tmp/new`
 	do
 	    $verbose && echo >&2 "cleanup: remove $f"
 	    eval $RMF "$f"
 	done
-	rm -f $tmp.new
+	rm -f $tmp/new
     fi
     exit
 }
 
 # get oldnames inventory check required files are present
 #
-ls "$old".* 2>&1 | egrep '\.(index|meta|[0-9][0-9]*)$' >$tmp.old
-if [ -s $tmp.old ]
+ls "$old".* 2>&1 | egrep '\.(index|meta|[0-9][0-9]*)$' >$tmp/old
+if [ -s $tmp/old ]
 then
     # $old may be an ambiguous suffix, e.g. 20140417.00 (with more than
     # one .HH archives) ... pick the suffixes and make sure there are
     # no duplicates
     #
-    touch $tmp.ok
-    sed <$tmp.old \
+    touch $tmp/ok
+    sed <$tmp/old \
 	-e 's/.*\.index$/index/' \
 	-e 's/.*\.meta$/meta/' \
 	-e 's/.*\.\([0-9][0-9]*\)$/\1/' \
@@ -170,17 +170,17 @@ then
 	    	;;
 	    *)
 	    	echo >&2 "$prog: Error: oldname argument ($old) is a prefix for multiple PCP archive files:"
-		grep "\\.$x\$" $tmp.old | sed -e 's/^/    /' >&2
-		rm -f $tmp.ok
+		grep "\\.$x\$" $tmp/old | sed -e 's/^/    /' >&2
+		rm -f $tmp/ok
 		;;
 	esac
     done
-    [ -f $tmp.ok ] || exit
+    [ -f $tmp/ok ] || exit
 else
     echo >&2 "$prog: Error: cannot find any files for the input archive ($old)"
     exit
 fi
-if grep -q '.[0-9][0-9]*$' $tmp.old
+if grep -q '.[0-9][0-9]*$' $tmp/old
 then
     :
 else
@@ -188,7 +188,7 @@ else
     ls -l "$old"*
     exit
 fi
-if grep -q '.meta$' $tmp.old
+if grep -q '.meta$' $tmp/old
 then
     :
 else
@@ -199,7 +199,7 @@ fi
 
 # (hard) link oldnames and newnames
 #
-for f in `cat $tmp.old`
+for f in `cat $tmp/old`
 do
     if [ ! -f "$f" ]
     then
@@ -217,7 +217,7 @@ do
 	# NOTREACHED
     fi
     $verbose && echo >&2 "link $f -> $new.$part"
-    echo "$new.$part" >>$tmp.new
+    echo "$new.$part" >>$tmp/new
     if eval $LN "$f" "$new.$part"
     then
 	:
@@ -231,7 +231,7 @@ done
 
 # unlink oldnames provided link count is 2
 #
-for f in `cat $tmp.old`
+for f in `cat $tmp/old`
 do
     if [ ! -f "$f" ]
     then
