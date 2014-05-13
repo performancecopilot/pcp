@@ -128,7 +128,7 @@ gfs2_extract_trace_values(char *buffer)
     }
 
     /* Interpret data, we work out what tracepoint it belongs to first */
-    if (((data = strstr(buffer, "gfs2_glock_state_change: ")))) {
+    if ((data = strstr(buffer, "gfs2_glock_state_change: "))) {
         temp.tracepoint = GLOCK_STATE_CHANGE;
         sscanf(data, "gfs2_glock_state_change: %"SCNu32",%"SCNu32"", &major, &minor);
 
@@ -407,7 +407,7 @@ gfs2_assign_ftrace(pmInDom gfs2_fs_indom)
                     }
                     fs->ftrace.values[FTRACE_GLOCKQUEUE_DEQUEUE_TOTAL]++;
                 }
-                fs->ftrace.values[FTRACE_PROMOTE_TOTAL]++;
+                fs->ftrace.values[FTRACE_GLOCKQUEUE_TOTAL]++;
 
             } else if (ftrace_data[k].tracepoint == GLOCK_LOCK_TIME) {
                 uint32_t lock_type;
