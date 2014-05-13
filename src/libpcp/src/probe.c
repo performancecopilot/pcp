@@ -20,7 +20,9 @@
  * Service discovery by active probing. The given subnet is probed for the requested
  * service(s).
  */
-static unsigned addressesRemaining;
+static unsigned		addressesRemaining;
+static __pmSockAddr	*netAddress;
+static int		maskBits;
 
 #if PM_MULTI_THREAD
 /*
@@ -29,7 +31,9 @@ static unsigned addressesRemaining;
  */
 #include <semaphore.h>
 static __pmMutex lock;
+static sem_t threadsAvailable;
 static sem_t threadsComplete;
+static unsigned	maxThreads = SEM_VALUE_MAX; /* No fixed limit by default */
 #define LOCK_INIT(lock) pthread_mutex_init(lock, NULL)
 #define LOCK_LOCK(lock) PM_LOCK(*(lock))
 #define LOCK_UNLOCK(lock) PM_UNLOCK((*lock))
@@ -64,7 +68,7 @@ typedef struct connectionContext {
 } connectionContext;
 
 static void
-cleanupThread (void)
+attemptComplete (void)
 {
     int	isFinalThread;
     /*
@@ -168,7 +172,10 @@ attemptConnection (void *arg)
      */
     __pmSockAddrFree(context->address);
     free(context);
-    cleanupThread ();
+    attemptComplete ();
+
+    /* Always post this semaphore, which enforces the max number of active threads. */
+    SEM_POST(&threadsAvailable);
 
     return NULL;
 }
@@ -206,7 +213,7 @@ dispatchConnection (
 	__pmNotifyErr(LOG_ERR, "__pmProbeDiscoverServices: unable to copy socket address %s",
 		      addrString);
 	free(addrString);
-	cleanupThread();
+	attemptComplete();
 	return;
     }
 
@@ -215,11 +222,18 @@ dispatchConnection (
      * new thread, the only error that can occur is EAGAIN. Sleep for 0.1 seconds
      * before trying again. We must have a limit in case something goes wrong. Make it
      * 5 seconds (50 * 100,000 usecs).
+     *
+     * Respect the requested maximum number of threads.
      */
+    SEM_WAIT(&threadsAvailable);
     for (attempt = 0; attempt < 50; ++attempt) {
+
+	/* Attempt the connection on a new thread. */
         rc = THREAD_START(&thread, attemptConnection, context);
 	if (rc != EAGAIN)
 	    break;
+
+	/* Wait before trying again. */
 	usleep(100000);
     }
 
@@ -229,7 +243,8 @@ dispatchConnection (
 	__pmNotifyErr(LOG_ERR, "__pmProbeDiscoverServices: unable to start a thread to probe address %s",
 		      addrString);
 	free(addrString);
-	cleanupThread();
+	attemptComplete();
+	SEM_POST(&threadsAvailable);
     }
     else if (pmDebug & DBG_TRACE_DISCOVERY) {
 	if (attempt > 0) {
@@ -304,8 +319,8 @@ probeForServices (
      * Each connection attempt could be on its own thread, so use synchronization
      * controls.
      */
-
     LOCK_INIT(&lock);
+    SEM_INIT(&threadsAvailable, maxThreads);
     SEM_INIT(&threadsComplete, 0);
 
     addressesRemaining = subnetSize(netAddress, maskBits);
@@ -318,42 +333,53 @@ probeForServices (
 
     /* Wait for all the connection attempts to finish. */
     SEM_WAIT(&threadsComplete);
-    SEM_TERM(&threadsComplete);
 
-    /* The lock must not be destroyed until all of the threads have finished. */
+    /* These must not be destroyed until all of the threads have finished. */
+    SEM_TERM(&threadsAvailable);
+    SEM_TERM(&threadsComplete);
     LOCK_TERM(&lock);
 
     /* Return the number of new urls. */
     return numUrls - prevNumUrls;
 }
 
-int
-__pmProbeDiscoverServices(const char *service, const char *mechanism, int numUrls, char ***urls)
+/*
+ * Parse the mechanism string for options. The first option will be of the form
+ *
+ *   probe=<net-address>/<maskSize>
+ *
+ * Subesquent options, if any, will be separated by commas. Currently supported:
+ *
+ *   maxThreads=<integer>  -- specifies a hard limit on the number of active threads.
+ */
+static int
+parseOptions(const char *mechanism)
 {
     const char		*addressString;
     const char		*maskString;
     size_t		len;
     char		*buf;
     char		*end;
-    __pmSockAddr	*netAddress;
-    int			maskBits;
+    const char		*option;
     int			family;
+    int			sts;
+    long		longVal;
 
     /* Nothing to probe? */
     if (mechanism == NULL)
-	return 0;
+	return -1;
 
-    /* First extract the subnet argument and parse it. */
+    /* First extract the subnet argument, parse it and check it. */
     addressString = strchr(mechanism, '=');
     if (addressString == NULL || addressString[1] == '\0') {
 	__pmNotifyErr(LOG_ERR, "__pmProbeDiscoverServices: No argument provided");
-	return 0;
+	return -1;
     }
     ++addressString;
-    maskString = strchr(mechanism, '/');
+    maskString = strchr(addressString, '/');
     if (maskString == NULL || maskString[1] == '\0') {
 	__pmNotifyErr(LOG_ERR, "__pmProbeDiscoverServices: No subnet mask provided");
-	return 0;
+	return -1;
     }
     ++maskString;
 
@@ -367,46 +393,124 @@ __pmProbeDiscoverServices(const char *service, const char *mechanism, int numUrl
 	__pmNotifyErr(LOG_ERR, "__pmProbeDiscoverServices: Address '%s' is not valid",
 		      buf);
 	free(buf);
-	return 0;
+	return -1;
     }
     free(buf);
 
     /* Convert the mask string to an integer */
     maskBits = strtol(maskString, &end, 0);
-    if (*end != '\0') {
+    if (*end != '\0' && *end != ',') {
 	__pmNotifyErr(LOG_ERR, "__pmProbeDiscoverServices: Subnet mask '%s' is not valid",
 		      maskString);
-	return 0;
+	return -1;
     }
 
     /* Check the number of bits in the mask against the address family. */
     if (maskBits < 0) {
 	__pmNotifyErr(LOG_ERR, "__pmProbeDiscoverServices: Inet subnet mask must be >= 0 bits");
-	return 0;
+	return -1;
     }
     family = __pmSockAddrGetFamily(netAddress);
     switch (family) {
     case AF_INET:
 	if (maskBits > 32) {
 	    __pmNotifyErr(LOG_ERR, "__pmProbeDiscoverServices: Inet subnet mask must be <= 32 bits");
-	    return 0;
+	    return -1;
 	}
 	break;
     case AF_INET6:
 	if (maskBits > 128) {
 	    __pmNotifyErr(LOG_ERR, "__pmProbeDiscoverServices: Inet subnet mask must be <= 128 bits");
-	    return 0;
+	    return -1;
 	}
 	break;
     default:
 	__pmNotifyErr(LOG_ERR, "__pmProbeDiscoverServices: Unsupported address family, %d",
 		      family);
-	return 0;
+	return -1;
     }
+
+    /* Parse any remaining options. */
+    option = end;
+    if (*option == '\0')
+	return 0; /* no options */
+
+    sts = 0;
+    do {
+	/* All additional options begin with a separating comma.
+	 * Make sure something has been specified.
+	 */
+	++option;
+	if (*option == '\0') {
+	    __pmNotifyErr(LOG_ERR, "__pmProbeDiscoverServices: Missing option after ','");
+	    return -1;
+	}
+	
+	/* Examine the option. */
+	if (strncmp(option, "maxThreads=", 11) == 0) {
+	    option += 11;
+	    longVal = strtol(option, &end, 0);
+	    if (*end != '\0' && *end != ',') {
+		__pmNotifyErr(LOG_ERR, "__pmProbeDiscoverServices: maxThreads value '%s' is not valid",
+			      option);
+		sts = -1;
+	    }
+	    else {
+		option = end;
+		/*
+		 * Make sure the value is positive. Large values are ok. They have the
+		 * effect of "no fixed limit". However, there is an actual limit to be
+		 * observed. sem_init(3) says that it is SEM_VALUE_MAX. However, on f19,
+		 * where SEM_VALUE_MAX is 0xffffffff, values higher than 0x7fffffff cause
+		 * the semaphore to block on the first sem_wait.
+		 */
+		if (longVal > 0x7fffffff) {
+		    __pmNotifyErr(LOG_ERR, "__pmProbeDiscoverServices: maxThreads value %ld must not exceed %u",
+				  longVal, 0x7fffffff);
+		    sts = -1;
+		}
+		else if (longVal <= 0) {
+		    __pmNotifyErr(LOG_ERR, "__pmProbeDiscoverServices: maxThreads value %ld must be positive",
+				  longVal);
+		    sts = -1;
+		}
+		else {
+#if PM_MULTI_THREAD
+		    maxThreads = longVal;
+#else
+		    __pmNotifyErr(LOG_WARNING, "__pmProbeDiscoverServices: no thread support. Ignoring maxThreads value %ld",
+				  longVal);
+#endif
+		}
+	    }
+	}
+	else {
+	    /* An invalid option. Skip it. */
+	    __pmNotifyErr(LOG_ERR, "__pmProbeDiscoverServices: option '%s' is not valid",
+			  option);
+	    sts = -1;
+	    for (++option; *option != '\0' && *option != ','; ++option)
+		;
+	}
+    } while (*option != '\0');
+
+    return sts;
+}
+
+int
+__pmProbeDiscoverServices(const char *service, const char *mechanism, int numUrls, char ***urls)
+{
+    int	sts;
+
+    /* Interpret the mechanism string. */
+    sts = parseOptions(mechanism);
+    if (sts != 0)
+	return 0;
 
     /* Everything checks out. Now do the actual probing. */
     numUrls = probeForServices (service, netAddress, maskBits, numUrls, urls);
 
+    /* Clean up */
     __pmSockAddrFree(netAddress);
 
     return numUrls;
