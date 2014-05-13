@@ -20,7 +20,7 @@
  * Service discovery by active probing. The given subnet is probed for the requested
  * service(s).
  */
-static unsigned		addressesRemaining;
+static __pmSockAddr	*addressesProcessed;
 static __pmSockAddr	*netAddress;
 static int		maskBits;
 
@@ -87,8 +87,8 @@ attemptComplete (void)
      * the semaphore.
      */
     LOCK_LOCK(&lock);
-    --addressesRemaining;
-    isFinalThread = (addressesRemaining == 0);
+    addressesProcessed = __pmSockAddrNextSubnetAddr(addressesProcessed, maskBits);
+    isFinalThread = (addressesProcessed == NULL);
     LOCK_UNLOCK(&lock);
     if (isFinalThread)
 	SEM_POST(&threadsComplete);
@@ -261,26 +261,6 @@ dispatchConnection (
     }
 }
 
-static unsigned
-subnetSize (const __pmSockAddr *addr, int maskBits)
-{
-    int family;
-    int netBits;
-    /*
-     * The address family has already been checked, so we need only consider
-     * inet and ipv6. Also, the size of the mask has also been checked so that
-     * the size of the subnet will be reasonable. i.e. the arithmetic below will
-     * not overflow.
-     */
-    family = __pmSockAddrGetFamily(addr);
-    if (family == AF_INET)
-	netBits = 32;
-    else
-	netBits = 128;
-
-    return 1 << (netBits - maskBits);
-}
-
 static int
 probeForServices (
     const char *service,
@@ -334,7 +314,23 @@ probeForServices (
     ATTR_INIT(&attr);
     ATTR_SET_STACKSIZE(&attr);
 
-    addressesRemaining = subnetSize(netAddress, maskBits);
+    /*
+     * Since the connection attempts may be on separate threads,
+     * we need a counter to be incremented by each thread as they end so that
+     * we know when all of the threads have ended.
+     * IPv6 has 128 bits, so it is possible that the number of addresses could
+     * exceed the range of the native integer types or of a semaphore. However,
+     * a __pmSockAddr can be used for this purpose, since it can represent all
+     * of the addresses to be probed. Use the subnet iteration API to initialize
+     * and increment this counter. When the last thread has been processed, this
+     * pointer will be freed by the API and become NULL.
+     *
+     * Note that this is separate from the iteration over addresses which is done
+     * in the loop below for the purpose of launching connection attempts.
+     */
+    addressesProcessed = __pmSockAddrFirstSubnetAddr(netAddress, maskBits);
+
+    /* Dispatch the connection attempts. */
     prevNumUrls = numUrls;
     for (address = __pmSockAddrFirstSubnetAddr(netAddress, maskBits);
 	 address != NULL;

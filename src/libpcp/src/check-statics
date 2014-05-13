@@ -316,7 +316,7 @@ p_result.o
 probe.o
     netAddress			# main thread only
     maskBits			# main thread only
-    addressesRemaining		# guarded by lock
+    addressesProcessed		# guarded by lock
     ?maxThreads			# main thread only
     ?lock			# a mutex
     ?attr			# thread attributes
