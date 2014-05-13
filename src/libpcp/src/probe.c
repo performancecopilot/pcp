@@ -16,6 +16,8 @@
 #include "internal.h"
 #include "probe.h"
 
+#define IS_MULTI_THREAD (PM_MULTI_THREAD && HAVE_SEM_T)
+
 /*
  * Service discovery by active probing. The given subnet is probed for the requested
  * service(s).
@@ -24,7 +26,7 @@ static __pmSockAddr	*addressesProcessed;
 static __pmSockAddr	*netAddress;
 static int		maskBits;
 
-#if PM_MULTI_THREAD
+#if IS_MULTI_THREAD
 /*
  * Multi thread support. We need to protect the updating of the url list and the
  * unfinished thread counter.
@@ -197,7 +199,7 @@ dispatchConnection (
     char ***urls
 )
 {
-#if PM_MULTI_THREAD
+#if IS_MULTI_THREAD
     pthread_t thread;
 #endif
     connectionContext *context;
@@ -483,7 +485,7 @@ parseOptions(const char *mechanism)
 		    sts = -1;
 		}
 		else {
-#if PM_MULTI_THREAD
+#if IS_MULTI_THREAD
 		    maxThreads = longVal;
 #else
 		    __pmNotifyErr(LOG_WARNING, "__pmProbeDiscoverServices: no thread support. Ignoring maxThreads value %ld",
