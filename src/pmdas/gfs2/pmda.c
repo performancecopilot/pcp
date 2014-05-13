@@ -774,6 +774,20 @@ gfs2_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     return 1;
 }
 
+static void
+gfs2_tracepoints_init()
+{
+    FILE *fp;
+
+    fp = fopen("/sys/kernel/debug/tracing/events/gfs2/enable", "w");
+    if (!fp) {
+        fprintf(stderr, "Unable to automatically enable GFS2 tracepoints");
+    } else {
+        fprintf(fp, "%d\n", 1);
+        fclose(fp);
+    }
+}
+
 static int
 gfs2_store(pmResult *result, pmdaExt *pmda)
 {
@@ -858,6 +872,8 @@ gfs2_init(pmdaInterface *dp)
 
     pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
     pmdaInit(dp, indomtable, nindoms, metrictable, nmetrics);
+
+    gfs2_tracepoints_init();
 }
 
 static pmLongOptions longopts[] = {
