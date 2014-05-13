@@ -17,6 +17,7 @@ main(int argc, char **argv)
     int		j;
     int		k;
     double	tdiff;
+    int		dflag = 0;
     int		errflag = 0;
     int		ahtype = 0;
     char	*host = NULL;			/* pander to gcc */
@@ -37,7 +38,7 @@ main(int argc, char **argv)
 
     __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "a:D:n:s:t:?")) != EOF) {
+    while ((c = getopt(argc, argv, "a:D:dn:s:t:?")) != EOF) {
 	switch (c) {
 
 	case 'a':	/* archive name */
@@ -47,6 +48,10 @@ main(int argc, char **argv)
 	    }
 	    ahtype = PM_CONTEXT_ARCHIVE;
 	    host = optarg;
+	    break;
+
+	case 'd':	/* use metric descriptor to decide on rate conversion */
+	    dflag++;
 	    break;
 
 	case 'D':	/* debug flag */
@@ -93,6 +98,7 @@ main(int argc, char **argv)
 \n\
 Options\n\
   -a   archive	  metrics source is an archive log\n\
+  -d              use metric descriptors to decide on value or delta\n\
   -D   debug	  standard PCP debug flag\n\
   -n   namespace  use an alternative PMNS\n\
   -s   samples	  terminate after this many iterations\n\
@@ -196,7 +202,7 @@ Options\n\
 			continue;
 		    }
 		    if (desc[j].type == PM_TYPE_32 || desc[j].type == PM_TYPE_U32) {
-			if (desc[j].sem == PM_SEM_COUNTER)
+			if (!dflag || desc[j].sem == PM_SEM_COUNTER)
 			    printf("delta[%d]: %d\n", k,
 				result->vset[j]->vlist[k].value.lval -
 				prev->vset[j]->vlist[k].value.lval);
@@ -212,7 +218,7 @@ Options\n\
 
 			memcpy((void *)&av, cp, sizeof(pmAtomValue));
 			cv = av.d;
-			if (desc[j].sem == PM_SEM_COUNTER) {
+			if (!dflag || desc[j].sem == PM_SEM_COUNTER) {
 			    memcpy((void *)&av, pp, sizeof(pmAtomValue));
 			    pv = av.d;
 			    printf("delta[%d]: %.0f\n", k, cv - pv);

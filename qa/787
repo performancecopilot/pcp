@@ -57,7 +57,7 @@ do
 
     echo
     echo "+++ backwards +++"
-    src/interp1 -s 1000 -a src/slow -t 3600 $metric
+    src/interp1 -d -s 1000 -a src/slow -t 3600 $metric
 
     echo "`echo $metric | sed -e 's/\./_/g'` = $metric;" >>$tmp.pmie
 done
