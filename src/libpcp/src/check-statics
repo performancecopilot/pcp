@@ -314,11 +314,12 @@ p_pmns.o
 p_profile.o
 p_result.o
 probe.o
-    ?lock			# a mutex
     netAddress			# main thread only
     maskBits			# main thread only
-    ?maxThreads			# main thread only
     addressesRemaining		# guarded by lock
+    ?maxThreads			# main thread only
+    ?lock			# a mutex
+    ?attr			# thread attributes
     ?threadsComplete		# a semaphore
     ?threadsAvailable		# a semaphore
 profile.o

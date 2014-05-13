@@ -31,6 +31,7 @@ static int		maskBits;
  */
 #include <semaphore.h>
 static __pmMutex lock;
+static pthread_attr_t attr;
 static sem_t threadsAvailable;
 static sem_t threadsComplete;
 static unsigned	maxThreads = SEM_VALUE_MAX; /* No fixed limit by default */
@@ -42,8 +43,11 @@ static unsigned	maxThreads = SEM_VALUE_MAX; /* No fixed limit by default */
 #define SEM_WAIT(sem) sem_wait(sem)
 #define SEM_POST(sem) sem_post(sem)
 #define SEM_TERM(sem) sem_destroy(sem)
-#define THREAD_START(thread, func, arg) (pthread_create(thread, NULL, func, arg))
-#define THREAD_DETACH() (pthread_detach(pthread_self()))
+#define ATTR_INIT(attr) pthread_attr_init(attr)
+#define ATTR_SET_STACKSIZE(attr) pthread_attr_setstacksize(attr, PTHREAD_STACK_MIN)
+#define ATTR_TERM(attr) pthread_attr_destroy(attr)
+#define THREAD_START(thread, attr, func, arg) pthread_create(thread, attr, func, arg)
+#define THREAD_DETACH() pthread_detach(pthread_self())
 #else
 /* No multi thread support. */
 #define LOCK_INIT(lock) /* do nothing */
@@ -54,7 +58,10 @@ static unsigned	maxThreads = SEM_VALUE_MAX; /* No fixed limit by default */
 #define SEM_WAIT(sem) /* do nothing */
 #define SEM_POST(sem) /* do nothing */
 #define SEM_TERM(sem) /* do nothing */
-#define THREAD_START(thread, func, arg) (func(arg), 0)
+#define ATTR_INIT(attr) /* do nothing */
+#define ATTR_SET_STACKSIZE(attr) /* do nothing */
+#define ATTR_TERM(attr) /* do nothing */
+#define THREAD_START(thread, attr, func, arg) (func(arg), 0)
 #define THREAD_DETACH() /* do nothing */
 #endif
 
@@ -229,7 +236,7 @@ dispatchConnection (
     for (attempt = 0; attempt < 50; ++attempt) {
 
 	/* Attempt the connection on a new thread. */
-        rc = THREAD_START(&thread, attemptConnection, context);
+        rc = THREAD_START(&thread, &attr, attemptConnection, context);
 	if (rc != EAGAIN)
 	    break;
 
@@ -323,6 +330,10 @@ probeForServices (
     SEM_INIT(&threadsAvailable, maxThreads);
     SEM_INIT(&threadsComplete, 0);
 
+    /* We don't need much stack for our worker threads. */
+    ATTR_INIT(&attr);
+    ATTR_SET_STACKSIZE(&attr);
+
     addressesRemaining = subnetSize(netAddress, maskBits);
     prevNumUrls = numUrls;
     for (address = __pmSockAddrFirstSubnetAddr(netAddress, maskBits);
@@ -335,6 +346,7 @@ probeForServices (
     SEM_WAIT(&threadsComplete);
 
     /* These must not be destroyed until all of the threads have finished. */
+    ATTR_TERM(&attr);
     SEM_TERM(&threadsAvailable);
     SEM_TERM(&threadsComplete);
     LOCK_TERM(&lock);
