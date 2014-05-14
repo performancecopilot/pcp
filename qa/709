@@ -73,7 +73,7 @@ else
     echo "-sN network interface names are okay"
 fi
 $PYCOLLECTL -sD -c2 >| /tmp/,$$ 2>&1 
-for i in $(lsblk -n -io KNAME,TYPE | /usr/bin/grep disk | sed 's/ .*$//') ; do
+for i in $(lsblk -n -io KNAME,TYPE | grep disk | sed 's/ .*$//') ; do
     if grep -q $i /tmp/,$$ ; then true ; else NOMATCH=1 ; fi
 done
 if [ ! -z "$NOMATCH" ] ; then

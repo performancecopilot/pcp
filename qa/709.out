@@ -38,7 +38,7 @@ KBIn PktIn KBOut PktOut
 9M 9M 9M 9M 9M 9M 9M 9M 9M 9M 9M 9M 9M 9M 9 9 9 9 9 9
 -sN network interface names are okay
 -sD disk names are okay
-#<--------CPU--------> <----------Disks-----------> <----------Network--------->
+#<--------CPU--------><----------Disks-----------><----------Network---------->
 #cpu sys inter ctxsw KBRead Reads KBWrit Writes KBIn PktIn KBOut PktOut
 9 9 9 9 9 9 9 9 9 9 9 9
 9 9 9 9 9 9 9 9 9 9 9 9
