@@ -4,32 +4,25 @@
 </head>
 <body bgcolor=#ffffff>
     <center>
-    <h1>SGI(R) Performance Co-Pilot<br>
-       	for Apple(R) Mac OS X</h1>
+    <h1>Performance Co-Pilot<br>
+       	for Mac OS X</h1>
     </center>
 <p>Performance Co-Pilot (PCP) is a framework and services to support
 system-level performance monitoring and performance management.</p>
 
-<p>The PCP open source release provides a unifying abstraction for all of
-the interesting performance data in a system, and allows client
-applications to easily retrieve and process any subset of that data
-using a single API.</p>
+<p>PCP provides a unifying abstraction for all of the interesting
+performance data in a system, and allows client applications to
+easily retrieve and process any subset of that data using a single
+API.</p>
 
 <p>A client-server architecture allows multiple clients to monitor the
 same host, and a single client to monitor multiple hosts (e.g. in a
-Beowulf cluster).  This enables centralized monitoring of distributed
+cluster).  This enables centralized monitoring of distributed
 processing.</p>
 
 <p>Integrated archive logging and replay so a client application can use
 the same API to process real-time data from a host or historical data
 from an archive.</p>
-
-<p>The framework supports APIs and configuration file formats that enable
-the scope of performance monitoring to be extended at all levels.<p>
-
-<p>The open source release of PCP provides a subset of the features of
-SGI's Performance Co-Pilot products for IRIX (see
-<a href="http://www.sgi.com/products/software/co-pilot/">http://www.sgi.com/products/software/co-pilot/</a>).</p>
 
 <p>The architecture and services of the base PCP infrastructure are
 especially attractive for those tackling the harder system-level
@@ -42,27 +35,28 @@ of moving parts.</p>
 
 <p>The open source release of PCP includes all of the PCP libraries,
 infrastructure and daemons, along with a Darwin agent that exports a
-broad range of performance data from 7.4.x (Mac OSX 10.4.x).
+broad range of performance data from 7.4.x (Mac OS X 10.4) onward.
 This includes coverage of activity in the areas of:</p>
 <ul>
     <li>CPU 
-    <li>disk 
-    <li>memory 
-    <li>swapping 
-    <li>network 
+    <li>Disk 
+    <li>Memory 
+    <li>Swapping 
+    <li>Network 
     <li>NFS 
     <li>RPC 
-    <li>filesystems 
-    <li>all the per-process statistics 
+    <li>Filesystems 
 </ul>
 <p>Other agents export performance data from: </p>
 <ul>
-    <li>Web server activity logs 
-    <li>arbitrary application-level tracing (via a PCP trace library) 
+    <li>Apache
     <li>Cisco routers 
-    <li>sendmail 
-    <li>the mail queue 
-    <li>the PCP infrastructure itself 
+    <li>Databases
+    <li>ElasticSearch 
+    <li>Postfix
+    <li>Samba
+    <li>Web server activity logs 
+    <li>... and many more places.
 </ul>
 
 <p>For more information and details on how to contribute to the PCP
@@ -71,4 +65,3 @@ http://www.performancecopilot.org/</a></p>
 
 </body>
 </html>
-

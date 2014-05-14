@@ -1,0 +1,45 @@
+#!/bin/sh
+# PCP QA Test No. 1003
+# Check that Global clause is detected
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+. ./common.test
+
+status=0	# success is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+cat <<End-of-File | pmchart -Dappl2 -C -c - 2>&1 | _filter_views
+#pmchart
+Version 1.1 host dynamic
+
+Global width 800
+Global height 600
+Global points 30
+
+Chart Title "Memory Usage" Style stacking
+# IRIX
+	Optional-Plot Color #f8ff00 Host * Metric mem.util.kernel
+	Optional-Plot Color #00ffff Host * Metric mem.util.fs_ctl
+	Optional-Plot Color #ff0000 Host * Metric mem.util.fs_dirty
+	Optional-Plot Color #fe00ff Host * Metric mem.util.fs_clean
+	Optional-Plot Color #0000fd Host * Metric mem.util.user
+
+# IRIX and Linux
+	Plot Color #00ff00 Host * Metric mem.util.free
+
+# Linux
+	Optional-Plot Color #fefe32 Host * Metric mem.util.mapped
+	Optional-Plot Color #fe68ad Host * Metric mem.util.bufmem
+	Optional-Plot Color #00f1ea Host * Metric mem.util.pageTables
+	Optional-Plot Color #e873e4 Host * Metric mem.util.slab
+	Optional-Plot Color #327ffe Host * Metric mem.util.cached
+	Optional-Plot Color #007f00 Host * Metric mem.util.other
+
+Chart Title "Dirty Buffers" Style stacking
+	Optional-Plot Color #fe3732 Host * Metric mem.util.dirty
+	Optional-Plot Color #ff8900 Host * Metric mem.util.writeback
+	Optional-Plot Color #008900 Host * Metric mem.util.cache_clean
+End-of-File

@@ -1,0 +1,5 @@
+#kmchart
+version 1
+chart title "QA Units BAD - time(->time util) and count(->count/sec)" style plot
+    plot metric sample.seconds
+    plot metric sample.step_counter

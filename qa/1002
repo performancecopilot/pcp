@@ -1,0 +1,63 @@
+#!/bin/sh
+# PCP QA Test No. 1002
+# Syntax errors in the Version line of the config file
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+. ./common.test
+
+status=0	# success is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cat <<End-of-File | pmchart -Dappl2 -c - -C 2>&1 | _filter_views
+#pmchart
+Fluff
+End-of-File
+
+cat <<End-of-File | pmchart -Dappl2 -c - -C 2>&1 | _filter_views
+#pmchart
+Version
+End-of-File
+
+cat <<End-of-File | pmchart -Dappl2 -c - -C 2>&1 | _filter_views
+#pmchart
+Version xxx
+End-of-File
+
+cat <<End-of-File | pmchart -Dappl2 -c - -C 2>&1 | _filter_views
+#pmchart
+Version 1.0
+End-of-File
+
+cat <<End-of-File | pmchart -Dappl2 -c - -C 2>&1 | _filter_views
+#pmchart
+Version 2.0 foo
+End-of-File
+
+cat <<End-of-File | pmchart -Dappl2 -c - -C 2>&1 | _filter_views
+#kmchart
+Version 1 foo
+End-of-File
+
+cat <<End-of-File | pmchart -Dappl2 -c - -C 2>&1 | _filter_views
+#kmchart
+Version 1 HOST
+End-of-File
+
+cat <<End-of-File | pmchart -Dappl2 -c - -C 2>&1 | _filter_views
+#kmchart
+Version 1 HOST fluff
+End-of-File
+
+cat <<End-of-File | pmchart -Dappl2 -c - -C 2>&1 | _filter_views
+#kmchart
+VERSION 1 HOST DYNAMIC fluff
+End-of-File
+
+cat <<End-of-File | pmchart -Dappl2 -c - -C 2>&1 | _filter_views
+#kmchart
+version 1 host literal fluff
+End-of-File
+
+exit

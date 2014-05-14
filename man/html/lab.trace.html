@@ -1,0 +1,555 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!--
+ (c) Copyright 2010 Aconex. All rights reserved.
+ (c) Copyright 2000-2004 Silicon Graphics Inc. All rights reserved.
+ Permission is granted to copy, distribute, and/or modify this document
+ under the terms of the Creative Commons Attribution-Share Alike, Version
+ 3.0 or any later version published by the Creative Commons Corp. A copy
+ of the license is available at
+ http://creativecommons.org/licenses/by-sa/3.0/us/ .
+-->
+<HTML>
+<HEAD>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta http-equiv="content-style-type" content="text/css">
+	<link href="pcpdoc.css" rel="stylesheet" type="text/css">
+	<link href="images/pcp.ico" rel="icon" type="image/ico">
+	<TITLE>Trace Agent</TITLE>
+</HEAD>
+<BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/pcpicon.png" NAME="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
+	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
+	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	</TR>
+</TABLE>
+<H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Trace Agent</FONT></H1>
+<TABLE WIDTH=15% BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
+	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
+pmdatrace
+pmtrace
+pminfo
+</PRE></TD></TR>
+</TABLE>
+<P>This chapter of the Performance Co-Pilot tutorial discusses application
+instrumentation using the <B>trace</B> PMDA (Performance Metrics Domain Agent).
+The trace agent has similar aims to the <A HREF="lab.mmapvalues.html">Memory
+Mapped Values</A> (MMV) agent, in that both interfaces for application instrumentation.
+The main differences are:</P>
+<UL>
+    <LI> The <I>trace</I> PMDA is a predecessor to <I>MMV</I>, and it is expected
+	that most instrumented applications would use <I>MMV</I>.
+    <LI> The <I>trace</I> interface uses sockets for communication between
+	applications and agent, <I>MMV</I> uses memory mapped files.&nbsp;&nbsp;This
+	is heavier weight but allows for instrumentation to be sent between hosts,
+	optionally.
+    <LI> <I>MMV</I> allows the application to completely specify every aspect of
+	each metric it exports, the <I>trace</I> agent has a small number of metrics
+	with relatively fixed metadata, and each applications instrumentation is
+	exported as an instance of these fixed metrics.
+    <LI> This fixed nature of the <I>trace</I> metrics caters for existance of the
+	program <I>pmtrace</I> allowing simple instrumentation from the shell.
+</UL>
+
+<P>For an explanation of Performance Co-Pilot terms and acronyms, consult 
+the <A HREF="glossary.html">PCP glossary</A>.</P>
+<UL>
+    <LI> <A HREF="#overview">Overview</A> 
+    <LI> <A HREF="#design">Trace Agent Design</A> 
+    <UL>
+        <LI> Application Interaction 
+        <LI> Sampling Techniques 
+        <LI> Configuring the Trace Agent
+    </UL>
+    <LI> <A HREF="#traceapi">The Trace API</A> 
+    <UL>
+        <LI> Transactions 
+        <LI> Point Tracing 
+        <LI> Observations/Counters 
+        <LI> Configuring the Trace library 
+    </UL>
+    <LI> <A HREF="#export">Instrumenting Applications to Export Performance Data</A> 
+</UL>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="overview">Overview</A></B></FONT></P></TD></TR>
+</TABLE>
+<P> This document provides an introduction to the design of the <B>trace</B>
+agent, in an effort to explain how to configure the agent optimally for 
+a particular problem domain.&nbsp;&nbsp;This will be most useful as a supplement 
+to the functional coverage which the manual pages provide to both the 
+agent and the library interfaces.</P>
+<P> Details of the use of the <B>trace</B> agent, and the associated
+library (<I>libpcp_trace</I>) for instrumenting applications, are also 
+discussed.</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;In a command shell enter:<BR>
+<PRE><B>
+# . /etc/pcp.conf
+# cd $PCP_PMDAS_DIR/trace
+# ./Install
+</PRE></B>
+Export a value, from the shell using:
+<PRE><B>
+$ pmtrace -v 100 "database-users"
+$ pminfo -f trace
+</PRE></B>
+</TD></TR>
+</TABLE>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="design">Trace Agent Design</A></B></FONT></P></TD></TR>
+</TABLE>
+<H4>Application Interaction</H4>
+<P> The diagram below describes the general state maintained within the <B>trace</B>
+agent.&nbsp;&nbsp;Applications which are linked with the <I>libpcp_trace</I>
+ library make calls through the trace Applications Programmer Interface 
+(API), resulting in inter-process communication of trace data between 
+the application and the <B>trace</B> agent.&nbsp;&nbsp;This data consists of an 
+identification tag, and the performance data associated with that 
+particular tag.&nbsp;&nbsp;The <B>trace</B> agent aggregates the incoming 
+information and periodically updates the exported summary information 
+to describe activity in the recent past.</P>
+<P>
+As each PDU (Protocol Data Unit) is received, its data is stored in the 
+current <I>working buffer</I>, and at the same time the global counter 
+associated with the particular tag contained within the PDU is 
+incremented.&nbsp;&nbsp;The working buffer contains all performance data which has 
+arrived since the previous time interval elapsed, and is discussed in 
+greater detail in the <B>Rolling Window Sampling Technique</B> section 
+below.</P>
+<CENTER><P ALIGN="CENTER">
+<IMG SRC="images/trace_1.png" ALIGN="MIDDLE" WIDTH="511" HEIGHT="332"></P>
+</CENTER><P>
+<BR>
+</P>
+<H4>
+Sampling Techniques</H4>
+<P>
+The <B>trace</B> agent employs a <B>rolling window periodic sampling</B>
+ technique.&nbsp;&nbsp;The recency of the data exported by the agent is determined 
+by its arrival time at the agent in conjunction with the length of the 
+sampling period being maintained by the <B>trace</B> agent.&nbsp;&nbsp;Through the 
+use of rolling window sampling, the <B>trace</B> agent is able to 
+present a more accurate representation of the available trace data at 
+any given time.</P>
+<P>
+The metrics affected by the agents rolling window sampling technique 
+are:</P>
+<UL>
+    <LI>
+    <B><TT>trace.transact.rate</TT></B> 
+    <LI>
+    <B><TT>trace.transact.ave_time</TT></B> 
+    <LI>
+    <B><TT>trace.transact.min_time</TT></B> 
+    <LI>
+    <B><TT>trace.transact.max_time</TT></B> 
+    <LI>
+    <B><TT>trace.point.rate</TT></B> 
+    <LI>
+    <B><TT>trace.observe.rate</TT></B> 
+    <LI>
+    <B><TT>trace.counter.rate</TT></B> 
+</UL>
+<P>
+The remaining metrics are either global counters, control metrics, or 
+the last seen observation/counter value.&nbsp;&nbsp;All metrics exported by the <B>trace</B>
+agent are explained in detail in the API section below.</P>
+<H5>
+Simple periodic sampling</H5>
+<P>
+This technique uses a single historical buffer to store the history of 
+events which have occurred over the sampling interval.&nbsp;&nbsp;As events occur 
+they are recorded in the working buffer.&nbsp;&nbsp;At the end of each sampling 
+interval the working buffer (which at that time holds the historical 
+data for the sampling interval just finished) is copied into the 
+historical buffer, and the working buffer is cleared (ready to hold new 
+events from the sampling interval now starting).</P>
+<H5>
+Rolling window periodic sampling</H5>
+<P>
+In contrast to simple periodic sampling with its single historical 
+buffer, the rolling window periodic sampling technique maintains a 
+number of separate buffers.&nbsp;&nbsp;One buffer is marked as the current working 
+buffer, and the remainder of the buffers hold historical data.&nbsp;&nbsp;As each 
+event occurs, the current working buffer is updated to reflect this.</P>
+<P>
+At a specified interval (which is a function of the number of 
+historical buffers maintained) the current working buffer and the 
+accumulated data which it holds is moved into the set of historical 
+buffers, and a new working buffer is used.</P>
+<P>
+The primary advantage of the rolling window approach is that at the 
+point where data is actually exported, the data which is exported has a 
+higher probability of reflecting a more recent sampling period than the 
+data exported using simple periodic sampling.</P>
+<CENTER><P ALIGN="CENTER">
+<IMG SRC="images/trace_buffer.png" ALIGN="MIDDLE" WIDTH="425"
+ HEIGHT="391"></P>
+</CENTER><P>
+<BR>
+</P>
+<P>
+The data collected over each sample duration and exported using the 
+rolling window technique provides a more up-to-date representation of 
+the activity during the most recently completed sample duration.</P>
+<P>
+The <B>trace</B> agent allows the length of the sample duration to be 
+configured, as well as the number of historical buffers which are to be 
+maintained.&nbsp;&nbsp;The rolling window is implemented in the <B>trace</B> agent
+as a ring buffer (as shown earlier in the &quot;Trace agent
+Overview&quot; diagram), such that when the current working buffer is 
+moved into the set of historical buffers, the least recent historical 
+buffer is cleared of data and becomes the new working buffer.</P>
+<H5>
+Example of window periodic sampling </H5>
+<P>
+Consider the scenario where one wants to know the rate of transactions 
+over the last 10 seconds.&nbsp;&nbsp;To do this one would set the sampling rate 
+for the trace agent to be 10 seconds and would fetch the metric <B><TT>trace.transact.rate</TT></B>.
+So if in the last 10 seconds we had 8 transactions take place then we 
+would have a transaction rate of 8/10 or 0.8 transactions per second.</P>
+<P>
+As mentioned above, the trace agent does not actually do this.&nbsp;&nbsp;It 
+instead does its calculations automatically at a subinterval of the 
+sampling interval.&nbsp;&nbsp;Consider the example above with a calculation 
+subinterval of 2 seconds.&nbsp;&nbsp;Please refer to the bar chart below.&nbsp;&nbsp;At time 
+13.5 secs the user requests the transaction rate and is told it is has 
+a value of 0.7 transactions per second.&nbsp;&nbsp;In actual fact, the transaction 
+rate was 0.8 but the agent has done its calculations on the sampling 
+interval from 2 secs to 12 secs and not from 3.5 secs to 13.5 secs.
+Every 2 seconds it will do the metrics calculations on the last 10 
+seconds at that time.&nbsp;&nbsp;It does this for efficiency and so it is not 
+driven each time to do a calculation for a fetch request.</P>
+<CENTER><P ALIGN="CENTER">
+<IMG SRC="images/trace_example.png" ALIGN="MIDDLE"></P>
+</CENTER><P>
+<BR>
+</P>
+<H4>
+Configuring the Trace agent</H4>
+<P>
+The <B>trace</B> agent is configurable primarily through command line 
+options.&nbsp;&nbsp;The list of command line options presented below is not 
+exhaustive, but covers those options which are particularly relevant to 
+tuning the manner in which performance data is collected.</P>
+<H5>
+Options: </H5>
+<DL>
+    <DT>
+    <B>Access Controls</B> 
+    <DD>
+    host-based access control is offered by the <B>trace</B> agent, 
+    allowing and disallowing connections from instrumented applications 
+    running on specified hosts or groups of hosts.&nbsp;&nbsp;Limits to the number of 
+    connections allowed from individual hosts can also be mandated 
+    <DT>
+    <B>Sample Duration</B> 
+    <DD>
+    interval over which metrics are to be maintained before being 
+    discarded.
+    <DT>
+    <B>Number of Historical Buffers</B> 
+    <DD>
+    the data maintained for the sample duration is held in a number of 
+    internal buffers within the <B>trace</B> agent.&nbsp;&nbsp;This number is 
+    configurable, allowing the rolling window effect to be tuned (within 
+    the sample duration) 
+    <DT>
+    <B>Observation/Counter Metric Units</B> 
+    <DD>
+    since the data being exported by the <B><TT>trace.observe.value</TT></B>
+     and <B><TT>trace.counter.value</TT></B> metrics is user-defined, 
+    the <B>trace</B> agent by default exports these metrics with a type 
+    of &quot;none&quot;.&nbsp;&nbsp;A framework is provided allowing this to be made 
+    more specific (bytes per second, for example), allowing the exported 
+    values to be plotted along with other performance metrics of similar 
+    units by tools like <I>pmchart</I>) 
+    <DT>
+    <B>Instance Domain Refresh</B> 
+    <DD>
+    the set of instances exported for each of the trace metrics can be 
+    cleared through the storable <B><TT>trace.control.reset</TT></B>
+     metric.
+</DL>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="traceapi">The Trace API</A></B></FONT></P></TD></TR>
+</TABLE>
+<P>The <I>libpcp_trace</I> Applications Programmer Interface (API) may be 
+called from C, C++, Fortran, and Java.&nbsp;&nbsp;Each language has access to the 
+complete set of functionality offered by <I>libpcp_trace</I>, although 
+in some cases the calling conventions differ slightly between 
+languages.&nbsp;&nbsp;An overview of each of the different tracing mechanisms 
+offered by the API follows, as well as an explanation of their mappings 
+to the actual performance metrics exported by the <B>trace</B> agent.</P>
+<H4>Transactions </H4>
+<P>Paired calls to the <I>pmtracebegin</I>(3) and <I>pmtraceend</I>(3) API 
+functions will result in transaction data being sent to the agent with 
+a measure of the time interval between the two calls (which is assumed 
+to be the transaction service time).&nbsp;&nbsp;Using the <I>pmtraceabort</I>(3) 
+call causes data for that particular transaction to be discarded.
+Transaction data is exported through the <B>trace</B> agents <B><TT>trace.transact</TT></B>
+ metrics.</P>
+<DL>
+    <DT>
+    <B><TT>trace.transact.count</TT></B> 
+    <DD>
+    running count for each transaction type seen since the trace agent started 
+    <DT>
+    <B><TT>trace.transact.rate</TT></B> 
+    <DD>
+    the average rate at which each transaction type is completed, 
+    calculated over the last sample duration 
+    <DT>
+    <B><TT>trace.transact.ave_time</TT></B> 
+    <DD>
+    the average service time per transaction type, calculated over the last 
+    sample duration 
+    <DT>
+    <B><TT>trace.transact.min_time</TT></B> 
+    <DD>
+    minimum service time per transaction type within the last sample 
+    duration 
+    <DT>
+    <B><TT>trace.transact.max_time</TT></B> 
+    <DD>
+    maximum service time per transaction type within the last sample 
+    duration 
+    <DT>
+    <B><TT>trace.transact.total_time</TT></B> 
+    <DD>
+    cumulative time spent processing each transaction since the <B>trace</B>
+    agent started running 
+</DL>
+<H4>
+Point tracing </H4>
+<P>
+Point tracing allows the application programmer to export metrics 
+related to salient events.&nbsp;&nbsp;The <I>pmtracepoint</I>(3) function is most 
+useful when start and end points are not well defined, eg. when the 
+code branches in such a way that a transaction cannot be clearly 
+identified, or when processing does not follow a transactional model, 
+or the desired instrumentation is akin to event rates rather than event 
+service times.&nbsp;&nbsp;This data is exported through the <B><TT>trace.point</TT></B>
+ metrics.</P>
+<DL>
+    <DT>
+    <B><TT>trace.point.count</TT></B> 
+    <DD>
+    running count of point observations for each tag seen since the <B>trace</B>
+    agent started 
+    <DT>
+    <B><TT>trace.point.rate</TT></B> 
+    <DD>
+    the average rate at which observation points occur for each tag, within 
+    the last sample duration 
+</DL>
+<H4>
+Observations/Counters</H4>
+<P>
+The <I>pmtraceobs</I>(3) and <I>pmtracecounter</I>(3) functions have 
+similar semantics to <I>pmtracepoint</I>(3), but also allow an 
+arbitrary numeric value to be passed to the <B>trace</B> agent.&nbsp;&nbsp;The most 
+recent value for each tag is then immediately available from the agent.
+Observation and counter data is exported through the <B><TT>trace.observe</TT></B>
+ and <B><TT>trace.counter</TT></B> metrics, and these differ only in 
+the PMAPI semantics associated with their respective value metrics (the 
+PMAPI semantics for these two metrics is &quot;instantaneous&quot; or 
+&quot;counter&quot; - refer to the PMAPI(3) manual page for details on 
+PMAPI metric semantics).</P>
+<DL>
+    <DT>
+    <B><TT>trace.observe.count, trace.counter.count</TT></B> 
+    <DD>
+    running count of observations/counters seen since the <B>trace</B>
+    agent started 
+    <DT>
+    <B><TT>trace.observe.rate, trace.counter.rate</TT></B> 
+    <DD>
+    the average rate at which observations/counters for each tag occur, 
+    calculated over the last sample duration 
+    <DT>
+    <B><TT>trace.observe.value, trace.counter.value</TT></B> 
+    <DD>
+    the numeric value associated with the observation/counter last seen by 
+    the agent
+</DL>
+<H4>
+Configuring the Trace library </H4>
+<P>
+The trace library is configurable through the use of environment 
+variables, as well as through state flags, which provide diagnostic 
+output and enable or disable the configurable functionality within the 
+library.</P>
+<H5>
+Environment variables: </H5>
+<DL>
+    <DT>
+    <B><TT>PCP_TRACE_HOST</TT></B> 
+    <DD>
+    the name of the host where the <B>trace</B> agent is running 
+    <DT>
+    <B><TT>PCP_TRACE_PORT</TT></B> 
+    <DD>
+    TCP/IP port number on which the <B>trace</B> agent is accepting 
+    client connections 
+    <DT>
+    <B><TT>PCP_TRACE_TIMEOUT</TT></B> 
+    <DD>
+    number to seconds to wait until assuming that the initial connection is 
+    not going to be made, and timeout is to occur (the default is three 
+    seconds) 
+    <DT>
+    <B><TT>PCP_TRACE_REQTIMEOUT</TT></B> 
+    <DD>
+    number of seconds to allow before timing out on awaiting 
+    acknowledgement from the <B>trace</B> agent after trace data has 
+    been sent to it.&nbsp;&nbsp;This variable has no effect in the asynchronous trace 
+    protocol (refer to <B><TT>PMTRACE_STATE_ASYNC</TT></B> under `State 
+    Flags', below) 
+    <DT>
+    <B><TT>PCP_TRACE_RECONNECT</TT></B> 
+    <DD>
+    a list of values which represents the backoff approach to be taken by 
+    the <I>libpcp_trace</I> library routines when attempting to 
+    reconnect to the <B>trace</B> agent after a connection has been 
+    lost.&nbsp;&nbsp;The list of values should be a positive number of seconds for the 
+    application to delay before making the next reconnection attempt.&nbsp;&nbsp;When 
+    the final value in the list is reached, that value is then used for all 
+    subsequent reconnection attempts.
+</DL>
+<H5>
+State flags: </H5>
+<P>
+The following flags can be used to customize the operation of the <I>libpcp_trace</I>
+ routines.&nbsp;&nbsp;These are registered through the <I>pmtracestate</I>(3) 
+call, and can be set either individually or together.</P>
+<DL>
+    <DT>
+    <B><TT>PMTRACE_STATE_NONE</TT></B> 
+    <DD>
+    the default - no state flags have been set - the fault-tolerant, 
+    synchronous protocol is used for communicating with the agent, and no 
+    diagnostic messages are displayed by the <I>libpcp_trace</I>
+     routines <B><TT>PMTRACE_STATE_API</TT></B> 
+    <DD>
+    high-level diagnostics - simply displays entry into each of the API 
+    routines 
+    <DT>
+    <B><TT>PMTRACE_STATE_COMMS</TT></B> 
+    <DD>
+    diagnostic messages related to establishing and maintaining the 
+    communication channel between application and agent
+    <DT>
+    <B><TT>PMTRACE_STATE_PDU</TT></B> 
+    <DD>
+    the low-level details of the trace PDUs (Protocol Data Units) is 
+    displayed as each PDU is transmitted or received 
+    <DT>
+    <B><TT>PMTRACE_STATE_PDUBUF</TT></B> 
+    <DD>
+    the full contents of the PDU buffers are dumped, as PDUs are 
+    transmitted and received 
+    <DT>
+    <B><TT>PMTRACE_STATE_NOAGENT</TT></B> 
+    <DD>
+    if set, causes inter-process communication between the instrumented 
+    application and the <B>trace</B> agent to be skipped - this is 
+    intended as a debugging aid for applications using <I>libpcp_trace</I>
+     
+    <DT>
+    <B><TT>PMTRACE_STATE_ASYNC</TT></B> 
+    <DD>
+    flag which enables the asynchronous trace protocol, such that the 
+    application does not block awaiting acknowledgement PDUs from the agent.
+    This must be set before using the other <I>libpcp_trace</I> entry 
+    points in order for it to be effective.
+</DL>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="export">Instrumenting Applications to Export Performance Data</A></B></FONT></P></TD></TR>
+</TABLE>
+<P>The <I>libpcp_trace</I> library is designed to encourage application 
+developers (Independent Software Vendors and end-user customers) to 
+embed calls in their code that enable application performance data to 
+be exported.&nbsp;&nbsp;When combined with system-level performance data this 
+allows total performance and resource demands of an application to be 
+correlated with application activity.</P>
+<P>Some illustrative application performance metrics might be:</P>
+<UL>
+    <LI>
+    computation state (especially for codes with major shifts in resource 
+    demands between phases of their execution) 
+    <LI>
+    problem size and parameters, e.g. degree of parallelism 
+    <LI>
+    throughput in terms of sub problems solved, iteration count, 
+    transactions, data sets inspected, etc.
+    <LI>
+    service time by operation type 
+</UL>
+<P>
+The <I>libpcp_trace</I> library approach offers a number of attractive 
+features:</P>
+<UL>
+    <LI>
+    a simple API for inserting instrumentation calls into an application, 
+    eg.
+    <PRE>
+  pmtracebegin(&quot;pass 1&quot;);
+  ...
+  pmtraceend(&quot;pass 1&quot;);
+  ...
+  pmtraceobs(&quot;threads&quot;, N);
+</PRE>
+    <LI> trace routines may be called from C, C++, Fortran and Java, and are 
+    well suited to macro encapsulation for compile-time inclusion/exclusion 
+    <LI>the PCP version of the library allows numerical observations, measures 
+    time between matching begin-end calls, etc. to be shipped to a PCP 
+    agent and then exported into the PCP infrastructure ... exporting is 
+    controlled by environment variables, so the overhead is very low if the 
+    metrics are not being exported
+</UL>
+<P>
+Once the application performance metrics are exported into the PCP 
+framework, all of the PCP tools may be leveraged to provide performance 
+monitoring and management, including:</P>
+<UL>
+    <LI>
+    2-D and 3-D visualization of resource demands and performance, showing 
+    concurrent system activity and application activity 
+    <LI>
+    transport of performance data over the network for distributed 
+    performance management 
+    <LI>
+    archive logging for historical records of performance, most useful for 
+    problem diagnosis, post mortem analysis, performance regression 
+    testing, capacity planning, benchmarking 
+    <LI>
+    automated alarms when &quot;bad&quot; performance is observed (either 
+    in real-time or when scanning archives) 
+</UL>
+<P>
+The relationship between the application, the <I>libpcp_trace</I>
+ library, the <B>trace</B> agent and the rest of the PCP infrastructure 
+is shown below:</P>
+<CENTER><P ALIGN="CENTER">
+<IMG SRC="images/trace_libpcp.png" WIDTH="288" HEIGHT="183"></P>
+</CENTER>
+
+<P><BR></P>
+<HR>
+<CENTER>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=80%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc.</FONT></P></TD>
+	<TD WIDTH=20%><P ALIGN=RIGHT><A HREF="http://oss.sgi.com/projects/pcp/"><FONT COLOR="#000060">PCP</FONT></A></P></TD> </TR>
+</TABLE>
+</CENTER>
+</BODY>
+</HTML>

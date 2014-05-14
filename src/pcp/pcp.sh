@@ -249,7 +249,7 @@ $hflag && $aflag && _usage "$progname: -a and -h mutually exclusive"
 
 if $aflag
 then
-    eval `pmdumplog -Lz "$pcp_archive" | $PCP_AWK_PROG '
+    eval `pmdumplog -Lz "$pcp_archive" 2>/dev/null | $PCP_AWK_PROG '
 /^Performance metrics from host/	{  printf "pcp_host=%s\n", $5  }
 /^Archive timezone: /			{  printf "timezone=%s\n", $3  }
 /^  commencing/				{  tmp = substr($5, 7, 6)
@@ -266,10 +266,10 @@ if eval pminfo $opts -f $metrics > $tmp/metrics 2>$tmp/err
 then
     :
 else
-    if grep "^pminfo:" $tmp/metrics > /dev/null 2>&1
+    if grep "^pminfo:" $tmp/err > /dev/null 2>&1
     then
 	$PCP_ECHO_PROG $PCP_ECHO_N "$progname: ""$PCP_ECHO_C"
-	sed < $tmp/metrics -e 's/^pminfo: //g'
+	sed < $tmp/err -e 's/^pminfo: //g'
 	sts=1
 	exit
     fi

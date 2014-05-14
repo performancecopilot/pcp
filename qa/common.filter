@@ -697,3 +697,25 @@ _filter_install()
         -e 's/.* \(bytes of symbol table\)/  NNN \1/' \
         -e '/Performance Co-Pilot starting/d'
 }
+
+_filter_post()
+{
+    sed \
+	-e 's/^host [^ :]*:/host <host>:/'
+}
+
+_filter_console()
+{
+    sed \
+	-e 's/^ *[0-9]*\.[0-9][0-9]/<timestamp>/' \
+	-e 's/0x0$/(nil)/' \
+	-e 's/0x[0-9a-f]*/<addr>/' \
+	-e 's/src=[^ ]*/src=<host>/' \
+	-e '/Tab::updateTimeAxis:/s/used .*/used .../'
+}
+
+_filter_views()
+{
+    sed \
+	-e "s,^Load View: $PCP_VAR_DIR,Load View: PCP_VAR_DIR,"
+}

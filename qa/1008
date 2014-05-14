@@ -1,0 +1,61 @@
+#!/bin/sh
+# PCP QA Test No. 1008
+# Metrics class error handling, instance matching etc.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+. ./common.test
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+localhost=$host
+otherhost=no.such.host
+dump="pmdumptext -s 1"
+tz=`pmprobe -v pmcd.timezone | sed -e 's/.* "//' -e 's/"//'`
+
+_filter()
+{
+    sed \
+    	-e "s/$otherhost[\.a-zA-Z0-9\-]*/OTHER_HOST/g" \
+    	-e "s/$localhost[\.a-zA-Z0-9\-]*/THIS_HOST/g" \
+	-e "s#$tz#TZ#"
+}
+
+echo "--- bogus host ---"
+$dump -h bogus.host.i.hope hinv.ncpu 2>&1 | _filter
+$dump bogus.host.i.hope:hinv.ncpu 2>&1 | _filter
+
+echo "--- bogus archive ---"
+$dump -a bogus_archive_i_hope 2>&1 | _filter
+$dump bogus_archive_i_hope/hinv.ncpu 2>&1 | _filter
+
+echo "--- bogus metric ---"
+$dump go.faster 2>&1 | _filter
+
+echo "--- bogus instance ---"
+$dump "kernel.percpu.cpu.user[cpu999999]" 2>&1 | _filter
+
+echo "--- metric has no instances ---"
+$dump "hinv.ncpu[cpu0]" 2>&1 | _filter
+
+echo "--- matching instances up to leading space ---"
+$dump -imC "kernel.all.load[15,5,1]" 2>&1 | _filter
+
+echo "--- two archives from the same host ---"
+$dump -a archives/gap,archives/gap2 hinv.ncpu
+$dump -a archives/gap2 archives/gap/hinv.ncpu
+
+echo "--- no matching archive for host ---"
+$dump -a archives/gap ${otherhost}:hinv.ncpu 2>&1 | _filter
+
+echo "--- live and archive contexts ---"
+$dump -h $localhost archives/gap/hinv.ncpu 2>&1 | _filter
+
+echo "--- handle a string or aggregate metric ---"
+$dump -f "TIME:" pmcd.timezone sample.sysinfo 2>&1 | _filter
+
+# success, all done
+status=0
+exit

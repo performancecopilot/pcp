@@ -1,0 +1,251 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta http-equiv="content-style-type" content="text/css">
+	<link href="pcpdoc.css" rel="stylesheet" type="text/css">
+	<link href="images/pcp.ico" rel="icon" type="image/ico">
+	<TITLE>PCP Manual</TITLE>
+</HEAD>
+<BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/pcpicon.png" NAME="pcpicon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></TD>
+	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
+	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	</TR>
+</TABLE>
+<H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>PCP Introduction</FONT></H1>
+<P>The Performance Co-Pilot (PCP) is an open source toolkit designed for monitoring and managing system-level performance.  These services are distributed and scalable to accommodate the most complex system configurations and performance problems.
+<P>PCP supports many different platforms, including (but not limited to) Linux, MacOSX, FreeBSD, IRIX, Solaris and Windows (Win32).  From a high-level PCP can be considered to contain two classes of software utility:
+<UL> <LI><I>PCP Collectors</I>.  These are the parts of PCP that collect and extract performance data from various sources, e.g. the kernel or a database.  These are available from <A HREF="http://oss.sgi.com/projects/pcp/">http://oss.sgi.com/projects/pcp/</A>.
+<P> <LI><I>PCP Monitors</I>.  These are the parts of PCP that display data collected from hosts (or archives) that have the PCP Collector installed.  Many monitor tools are available as part of PCP.  Other monitoring tools are available separately, such as pmchart, in layered packages that build on the core PCP functionality.
+</UL>
+<P>This document describes the high-level features and options common to most PCP utilities available on all platforms.
+<P>&nbsp;</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Overview</B></FONT></P></TD></TR>
+</TABLE>
+<P>The PCP architecture is distributed in the sense that any PCP tool may be executing remotely.  On the host (or hosts) being  monitored, each domain of performance metrics, whether the kernel, a service layer, a database, a web server, an application, etc. requires a Performance Metrics Domain Agent (PMDA) which is responsible for collecting performance measurements from that domain.  All PMDAs are controlled by the Performance Metrics Collector Daemon (<B>pmcd</B>(1)) on the same host.
+<P>Client applications (the monitoring tools) connect to <B>pmcd</B>(1), which acts as a router for requests, by forwarding requests to the appropriate PMDA and returning the responses to the clients.  Clients may also access performance data from a PCP archive (created using <B>pmlogger</B>(1)) for retrospective analysis.
+<P>Each tool or command is documented completely in its own reference page.
+<P>The following performance monitoring applications are primarily console based, are typically run directly from the command line, and are all part of the base PCP package.
+<UL><LI><I>pmstat</I> - Outputs an ASCII high-level summary of system performance.
+    <LI><I>pmie</I> - An inference engine that can evaluate predicate-action rules to perform alarms and automate system management tasks.
+    <LI><I>pminfo</I> - Interrogate specific performance metrics and the meta data that describes them.
+    <LI><I>pmlogger</I> - Generates PCP archives of performance metrics suitable for replay by most PCP tools.
+    <LI><I>pmval</I> - Simple periodic reporting for some or all instances of a performance metric, with optional VCR time control.
+</UL>
+<P>Additional tools can be found in the layered PCP GUI package.
+<UL><LI><I>pmchart</I> - Strip charts for arbitrary combinations of performance metrics.
+    <LI><I>pmdumptext</I> - Produce ASCII reports for arbitrary combinations of performance metrics.
+</UL>
+<P>&nbsp;</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Common Command Line Arguments</B></FONT></P></TD></TR>
+</TABLE>
+<P>There is a set of common command line arguments that are used consistently by most PCP tools.
+<P>&nbsp;</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+	<TR><TD WIDTH=25%><P><B>-a archive</B></P></TD>
+	    <TD><P>Performance metric information is retrospectively retrieved from the Performance Co-Pilot (PCP) archive, previously generated by <B>pmlogger</B>(1).  The <B>-a</B> and <B>-h</B> options are mutually exclusive.</P></TD>
+	</TR>
+	<TR><TD WIDTH=25%><P><B>-a archive[,archive,..]</B></P></TD>
+	    <TD><P>An alternate form of <B>-a</B> for applications that are able to handle multiple archives.</P></TD>
+	</TR>
+	<TR><TD WIDTH=25%><P><B>-h hostname</B></P></TD>
+	    <TD><P>Unless directed to another host by the <B>-h</B> option, or to an archive by the <B>-a</B> option, the source of performance metrics will be the Performance Metrics Collector Daemon (PMCD) on the local host.  The <B>-a</B> and <B>-h</B> options are mutually exclusive.</P></TD>
+	</TR>
+	<TR><TD WIDTH=25%><P><B>-s samples</B></P></TD>
+	    <TD><P>The argument <B>samples</B> defines the number of samples to be retrieved and reported.  If <B>samples</B> is 0 or <B>-s</B> is not specified, the application will sample and report continuously (in real time mode) or until the end of the PCP archive (in archive mode).</P></TD>
+	</TR>
+	<TR><TD WIDTH=25%><P><B>-z</B></P></TD>
+	    <TD><P>Change the reporting timezone to the local timezone at the host that is the source of the performance metrics, as identified via either the <B>-h</B> or <B>-a</B> options.</P></TD>
+	</TR>
+	<TR><TD WIDTH=25%><P><B>-Z timezone</B></P></TD>
+	    <TD><P>By default, applications report the time of day according to the local timezone on the system where the application is executed.  The <B>-Z</B> option changes the timezone to <B>timezone</B> in the format of the environment variable TZ as described in <B>environ</B>(5).</P></TD>
+	</TR>
+</TABLE>
+<P>&nbsp;</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Interval Specification and Alignment</B></FONT></P></TD></TR>
+</TABLE>
+<P>Most PCP tools operate with periodic sampling or reporting, and the <B>-t</B> and <B>-A</B> options may be used to control the duration of the sample interval and the alignment of the sample times.
+<P>&nbsp;</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+	<TR><TD WIDTH=25%><P><B>-t interval</B></P></TD>
+	    <TD><P>Set the update or reporting interval.</P>
+<P>The interval argument is specified as a sequence of one or more elements of the form
+           <I>number[units]</I>
+where <I>number</I> is an integer or floating point constant (parsed using <B>strtod</B>(3)) and the optional <I>units</I> is one of: seconds, second, secs, sec, s, minutes, minute, mins, min, m, hours, hour, h, days, day and d.  If the <I>unit</I> is empty, second is assumed.</P>
+<P>In addition, the upper case (or mixed case) version of any of the above is also acceptable.
+<P>Spaces anywhere in the <B>interval</B> are ignored, so 4 days 6 hours 30 minutes, 4day6hour30min, 4d6h30m and 4d6.5h are all equivalent.
+<P>Multiple specifications are additive, e.g. ‘‘1hour 15mins 30secs’’ is interpreted as 3600+900+30 seconds.  </TR>
+	<TR><TD WIDTH=25%><P><B>-A align</B></P></TD>
+	    <TD><P>By default samples are not necessarily aligned on any natural unit of time.  The <B>-A</B> option may be used to force the initial sample to be aligned on the boundary of a natural time unit.  For example <B>-A 1sec</B>, <B>-A 30min</B> and <B>-A 1hour</B> specify alignment on whole seconds, half and whole hours respectively.
+<P>The align argument follows the syntax for an interval argument described above for the <B>-t</B> option.
+<P>Note that alignment occurs by advancing the time as required, and that <B>-A</B> acts as a modifier to advance both the start of the time window (see the next section) and the origin time (if  the <B>-O</B> option is specified).
+<P>&nbsp;</P></TR>
+</TABLE>
+<P>&nbsp;</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Time Window Specification</B></FONT></P></TD></TR>
+</TABLE>
+<P>Many PCP tools are designed to operate in some time window of interest, e.g. to define a termination time for real time monitoring or to define a start and end time within a PCP archive log.
+<P>In the absence of the <B>-O</B> and <B>-A</B> options to specify an initial sample time origin and time alignment (see above), the PCP application will retrieve the first sample at the start of the time window.
+<P>The following options may be used to specify a time window of interest.
+<P>&nbsp;</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+	<TR><TD WIDTH=25%><P><B>-S starttime</B></P></TD>
+	    <TD><P>By default the time window commences immediately in real time mode, or coincides with time at the start of the PCP archive log in archive mode.  The <B>-S</B> option may be used to specify a later time for the start of the time window.
+<P>The <B>starttime</B> parameter may be given in one of three forms (<B>interval</B> is the same as for the <B>-t</B> option as described above, <B>ctime</B> is described below):
+<P><B>interval</B>  To specify an offset from the current time (in real time mode) or the beginning of a PCP archive (in archive mode) simply specify the interval of time as the argument.  For example <I>-S 30min</I> will set the start of the time window to be  exactly 30 minutes from now in real time mode, or exactly 30 minutes from the start of a PCP archive.
+<P><B>-interval</B>  To specify an offset from the end of a PCP archive log, prefix the interval argument with a minus sign.  In this case, the start of the time window precedes the time at the end of archive by the given interval.  For example <I>-S -1hour</I> will set the start of the time window to be exactly one hour before the time of the last sample in a PCP archive log.
+<P><B>@ctime</B>  To specify the calendar date and time (local time in the reporting timezone) for the start of the time window, use the <B>ctime</B>(3) syntax preceded by an at sign.  For example <I>-S ’@ Mon Mar 4 13:07:47 1996’</I>. </P></TD></TR>
+	<TR><TD WIDTH=25%><P><B>-T endtime</B></P></TD>
+	    <TD><P>By default the end of the time window is unbounded (in real time mode) or aligned with the time at the end of a PCP archive log (in archive mode).  The <B>-T</B> option may be used to specify an earlier time for the end of the time window.
+<P>The <B>endtime</B> parameter may be given in one of three forms (interval is the same as for the <B>-t</B> option as described above, <B>ctime</B> is described below):
+<P><B>interval</B>  To specify an offset from the start of the time window simply use the interval of time as the argument.  For example <I>-T 2h30m</I> will set the end of the time window to be 2 hours and 30 minutes after the start of the time window.
+<P><B>-interval</B>  To specify an offset back from the time at the end of a PCP archive log, prefix the interval argument with a minus sign.  For example <I>-T -90m</I> will set the end of the time window to be 90 minutes before the time of the last sample in a PCP archive log.
+<P><B>@ctime</B>  To specify the calendar date and time (local time in the reporting timezone) for the end of the time window, use the <B>ctime</B>(3C) syntax preceded by an at sign.  For example <I>-T ’@ Mon Mar 4 13:07:47 1996’</I>. </P></TD></TR>
+	<TR><TD WIDTH=25%><P><B>-O origin</B></P></TD>
+	    <TD><P>By default samples are fetched from the start of the time window (see description of <B>-S</B> option) to the end of the time window (see description of <B>-T</B> option).  The <B>-O</B> option allows the specification of an origin within the time window to be used as the initial sample time.  This is useful for interactive use of a PCP tool with the <B>pmtime</B>(1) VCR replay facility.
+<P>The <B>origin</B> argument accepted by <B>-O</B> conforms to the same syntax and semantics as the <B>starttime</B> argument for the <B>-T</B> option.
+<P>For example <I>-O -0</I> specifies that the initial position should be at the end of the time window; this is most useful when wishing to replay "backwards" within the time window. </P></TD></TR>
+</TABLE>
+<P>The <B>ctime</B> argument for the <B>-O</B>, <B>-S</B> and <B>-T</B> options is based upon the calendar date and time format of <B>ctime</B>(3C), but may be a fully specified time string like <I>Mon Mar  4 13:07:47 1996</I> or a partially specified time like <I>Mar 4 1996</I>, <I>Mar 4</I>, <I>Mar</I>, <I>13:07:50</I> or <I>13:08</I>.
+<P>For any missing low order fields, the default value of 0 is assumed for hours, minutes and seconds, 1 for day of the month and Jan for months.  Hence, the following are equivalent: <I>-S ’@ Mar 1996’</I> and <I>-S ’@ Mar 1 00:00:00 1996’.</I>
+<P>If any high order fields are missing, they are filled in by starting with the year, month and day from the current time (real time mode) or the time at the beginning of the PCP archive log (archive mode) and advancing the time until it matches the fields that are specified.  So, for example if the time window starts by default at "Mon Mar 4 13:07:47 1996", then <I>-S @13:10</I> corresponds to 13:10:00 on Mon Mar 4, 1996, while <I>-S @10:00</I> corresponds to 10:00:00 on Tue Mar 5, 1996 (note this is the following day).
+<P>For greater precision than afforded by <B>ctime</B>(3C), the seconds component may be a floating point number.
+<P>Also the 12 hour clock (am/pm notation) is supported, so for example <I>13:07</I> and <I>1:07 pm</I> are equivalent.
+<P>&nbsp;</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Performance Metrics - Names and Identifiers</B></FONT></P></TD></TR>
+</TABLE>
+<P>The number of performance metric names supported by PCP in IRIX is of the order of a few thousand.  There are fewer metrics on Linux, but still a considerable number.  The PCP libraries and applications use an internal identification scheme that unambiguously associates a single integer with each known performance metric.  This integer is known as the Performance Metric Identifier, or PMID.  Although not a requirement, PMIDs tend to have global consistency across all systems, so a particular performance metric usually has the same PMID.
+<P>For all users and most applications, direct use of the PMIDs would be inappropriate (e.g. this would limit the range of accessible metrics, make the code hard to maintain, force the user interface to be particularly baroque, etc.).  Hence a Performance Metrics Name Space (PMNS) is used to provide external names and a hierarchic classification for performance metrics.  A PMNS is represented as a tree, with each node having a label, a pointer to either a PMID (for leaf nodes) or a set of descendent nodes in the PMNS (for non-leaf nodes).
+<P>A node label must begin with an alphabetic character, followed by zero or more characters drawn from the alphabetics, the digits and character `_´ (underscore).  For alphabetic characters in a node label, upper and lower case are distinguished.
+<P>By convention, the name of a performance metric is constructed by concatenation of the node labels on a path through the PMNS from the root node to a leaf node, with a ‘‘.’’ as a separator.  The root node in the PMNS is unlabeled, so all names begin with the label associated with one of the descendent nodes below the root node of the PMNS, e.g. <I>kernel.percpu.syscall</I>.  Typically (although this is not a requirement) there would be at most one name for each PMID in a PMNS.  For example <I>kernel.all.cpu.idle</I> and <I>disk.dev.read</I> are the unique names for two distinct performance metrics, each with a unique PMID.
+<P>Groups of related PMIDs may be named by naming a non-leaf node in the PMNS tree, e.g. <I>disk</I>.
+<P>There may be PMIDs with no associated name in a PMNS; this is most likely to occur when specific PMIDs are not available in all systems, e.g. if ORACLE is not installed on a system, there is no good reason to pollute the PMNS with names for all of the ORACLE performance metrics.
+<P>Note also that there is no requirement for the PMNS to be the same on all systems, however in practice most applications would be developed against a stable PMNS that was assumed to be a subset of the PMNS on all systems.  Indeed the PCP distribution includes a default local PMNS for just this purpose.
+<P>The default local PMNS is located at $PCP_VAR_DIR/pmns/root however the environment variable PMNS_DEFAULT may be set to the full pathname of a different PMNS which will then be used as the default local PMNS.
+<P>Most applications do not use the local PMNS, but rather import parts of the PMNS as required from the same place that performance metrics are fetched, i.e. from <B>pmcd</B>(1) for live monitoring or from a PCP archive for retrospective monitoring.
+<P>To explore the PMNS use <B>pminfo</B>(1), or if the PCP GUI package is installed the New Chart and Metric Search windows within <B>pmchart</B>(1).
+<P>&nbsp;</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Performance Metric Specifications</B></FONT></P></TD></TR>
+</TABLE>
+<P>In configuration files and (to a lesser extent) command line options, metric specifications adhere to the following syntax rules.
+<P>If the source of performance metrics is real time from <B>pmcd</B>(1) then the accepted syntax is
+<P><I>                 host:metric[instance1,instance2,...]</I>
+<P>If the source of performance metrics is a PCP archive log then the accepted syntax is
+<P><I>                 archive/metric[instance1,instance2,...]</I>
+<P>The host:, archive/ and [instance1,instance2,...] components are all optional.
+<P>The <B>,</B> delimiter in the list of instance names may be replaced by whitespace.
+<P>Special characters in instance names may be escaped by surrounding the name in double quotes or preceding the character with a backslash.
+<P>White space is ignored everywhere except within a quoted instance name.
+<P>An empty instance is silently ignored, and in particular ‘‘[]’’ is the same as no instance, while ‘‘[one,,,two]’’ is parsed as specifying just the two instances ‘‘one’’ and ‘‘two’’.
+<P>&nbsp;</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>PMCD and Archive Versions</B></FONT></P></TD></TR>
+</TABLE>
+<P>Since PCP version 2, version information has been associated with <B>pmcd</B>(1) and PCP archives.  The version number is used in a number of ways, but most noticeably for the distributed pmns(4).  In PCP version 1, the client applications would load the PMNS from the default PMNS file but in PCP version 2, the client applications extract the PMNS information from <B>pmcd</B> or a PCP archive.  Thus in PCP version 2, the version number is used to determine if the PMNS to use is from the default local file or from the actual current source of the metrics.
+<P>&nbsp;</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Environment</B></FONT></P></TD></TR>
+</TABLE>
+<P>In addition to the PCP run time environment and configuration variables described in the PCP Environment section below, the following environment variables apply to all installations.
+<P>&nbsp;</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+	<TR><TD WIDTH=25%><P><B>PCP_STDERR</B></P></TD>
+	    <TD><P>Many PCP tools support the environment variable <B>PCP_STDERR</B>, which can be used to control where error messages are sent.  When unset, the default behavior is that ‘‘usage’’ messages and option parsing errors are reported on standard error, other messages after initial startup are sent to the default destination for the tool, i.e. standard error for ASCII tools, or a dialog for GUI tools.
+<P>If <B>PCP_STDERR</B> is set to the literal value <B>DISPLAY</B> then all messages will be displayed in a dialog.  This is used for any tools launched from a Desktop environment.
+<P>If <B>PCP_STDERR</B> is set to any other value, the value is assumed to be a filename, and all messages will be written there.</P></TD></TR>
+	<TR><TD WIDTH=25%><P><B>PMCD_CONNECT_TIMEOUT</B></P></TD>
+	    <TD><P>When attempting to connect to a remote <B>pmcd</B>(1) on a machine that is booting, the connection attempt could potentially block for a long time until the remote machine finishes its initialization.
+<P>Most PCP applications and some of the PCP library routines will abort and return an error if the connection has not been established after some specified interval has elapsed.   The  default interval is 5 seconds.  This may be modified by setting <B>PMCD_CONNECT_TIMEOUT</B> in the environment to a real number of seconds for the desired timeout.  This is most useful in cases where the remote host is at the end of a slow network, requiring longer latencies to establish the connection correctly.</P></TD></TR>
+	<TR><TD WIDTH=25%><P><B>PMCD_RECONNECT_TIMEOUT</B></P></TD>
+	    <TD><P>When a monitor or client application loses a connection to a <B>pmcd</B>(1), the connection may be re-established by calling a service routine in the PCP library.  However, attempts to reconnect are controlled by a back-off strategy to avoid flooding the network with reconnection requests.  By default, the back-off delays are 5, 10, 20, 40 and 80 seconds for consecutive reconnection requests from a client (the last delay will be repeated for any further attempts after the fifth).  Setting the environment variable <B>PMCD_RECONNECT_TIMEOUT</B> to a comma separated list of positive integers will re-define the back-off delays, e.g. setting <B>PMCD_RECONNECT_TIMEOUT</B> to ‘‘1,2’’ will back-off for 1 second, then attempt another connection request every 2 seconds thereafter.  <P></TD></TR>
+	<TR><TD WIDTH=25%><P><B>PMCD_WAIT_TIMEOUT</B></P></TD>
+	    <TD><P>When <B>pmcd</B>(1) is started from <I>$PCP_RC_DIR/pcp</I> then the primary instance of <B>pmlogger</B>(1) will be started if the configuration flag pmlogger is <B>chkconfig</B>’ed on and <B>pmcd</B> is running and accepting connections.
+<P>The check on <B>pmcd</B>’s readiness will wait up to <B>PMCD_WAIT_TIMEOUT</B> seconds.  If pmcd has a long startup time (such as on a very large system), then PMCD_WAIT_TIMEOUT can be set to provide a maximum wait longer than the default 60 seconds.</P></TD></TR>
+	<TR><TD WIDTH=25%><P><B>PMNS_DEFAULT</B></P></TD>
+	    <TD><P>If set, then this is interpreted as the the full pathname to be used as the default local PMNS for <B>pmLoadNameSpace</B>(3).  Otherwise, the default local PMNS is located at <I>$PCP_VAR_DIR/pcp/pmns/root</I> for base PCP installations.</P></TD></TR>
+	<TR><TD WIDTH=25%><P><B>PCP_COUNTER_WRAP</B></P></TD>
+	    <TD><P>Many of the performance metrics exported from PCP agents have the semantics of <I>counter</I> meaning they are expected to be monotonically increasing.  Under some circumstances, one value of these metrics may be less than the previously fetched value.  This can happen when a counter of finite precision overflows, or when the PCP agent has been reset or restarted, or when the PCP agent is exporting values from some underlying instrumentation that is subject to some asynchronous discontinuity.
+<P>The environment variable <B>PCP_COUNTER_WRAP</B> may be set to indicate that all such cases of a decreasing <I>counter</I> should be treated as a counter overflow, and hence the values are assumed to have wrapped once in the interval  between consecutive samples.  This ‘‘wrapping’’ behavior was the default in earlier PCP versions, but by default has been disabled in PCP release from version 1.3 on.</P></TD></TR>
+	<TR><TD WIDTH=25%><P><B>PMDA_PATH</B></P></TD>
+	    <TD><P>The <B>PMDA_PATH</B> environment variable may be used to modify the search path used by <B>pmcd</B>(1) and <B>pmNewContext</B>(3) (for PM_CONTEXT_LOCAL contexts) when searching for a daemon or DSO PMDA.  The syntax follows that for <B>PATH</B> in <B>sh</B>(1), i.e. a colon separated list of directories, and the default search path is ‘‘/var/pcp/lib:/usr/pcp/lib’’, (or ‘‘/var/lib/pcp/lib’’ on Linux, depending on the value of the $PCP_VAR_DIR environment variable).</P></TD></TR>
+	<TR><TD WIDTH=25%><P><B>PMCD_PORT</B></P></TD>
+	    <TD><P>The TPC/IP port(s) used by <B>pmcd</B>(1) to create the socket for incoming connections and requests, was historically 4321 and more recently the officially registered port 44321; in the current release, both port numbers are used by default as a transitional arrangement.  This may be over-ridden by setting PMCD_PORT to a different port number, or a comma-separated list of port numbers.  If a non-default port is used when <B>pmcd</B>(1) is started, then every monitoring application connecting to that <B>pmcd</B>(1) must also have <B>PMCD_PORT</B> set in their environment before attempting a connection.</P></TD></TR>
+</TABLE>
+<P>The following environment variables are relevant to installations in which <B>pmlogger</B>(1), the PCP archive logger, is used.
+<P>&nbsp;</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+	<TR><TD WIDTH=25%><P><B>PMLOGGER_PORT</B></P></TD>
+	    <TD><P>The environment variable <B>PMLOGGER_PORT</B> may be used to change the base TCP/IP port number used by <B>pmlogger</B>(1) to create the socket to which <B>pmlc</B>(1) instances will try and connect.  The default base port number is 4330.  When used, <B>PMLOGGER_PORT</B> should be set in the environment before <B>pmlogger</B>(1) is executed.</P></TD></TR>
+</TABLE>
+<P>If you have the PCP package installed, then the following environment variables are relevant to the Performance Metrics Domain Agents (PMDAs).
+<P>&nbsp;</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+	<TR><TD WIDTH=25%><P><B>PMDA_LOCAL_PROC</B></P></TD>
+	    <TD><P>If set, then a context established with the type of <B>PM_CONTEXT_LOCAL</B> will have access to the ‘‘proc’’ PMDA to retrieve performance metrics about individual processes.</P></TD></TR>
+	<TR><TD WIDTH=25%><P><B>PMDA_LOCAL_SAMPLE</B></P></TD>
+	    <TD><P>If set, then a context established with the type of PM_CONTEXT_LOCAL will have access to the ‘‘sample’’ PMDA if this optional PMDA has been installed locally.</P></TD></TR>
+	<TR><TD WIDTH=25%><P><B>PMIECONF_PATH</B></P></TD>
+	    <TD><P>If set, <B>pmieconf</B>(1) will form its <B>pmieconf</B>(4) specification (set of parameterized <B>pmie</B>(1) rules) using all valid <B>pmieconf</B> files found below each subdirectory in this colon-separated list of subdirectories.  If not set, the default is $PCP_VAR_DIR/config/pmieconf.</P></TD></TR>
+</TABLE>
+<P>&nbsp;</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Files</B></FONT></P></TD></TR>
+</TABLE>
+<P>&nbsp;</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+	<TR><TD WIDTH=25%><P><B>/etc/pcp.conf</B></P></TD>
+	    <TD><P>Configuration file for the PCP runtime environment, see <B>pcp.conf</B>(4).</P></TD></TR>
+	<TR><TD WIDTH=25%><P><B>$PCP_RC_DIR/pcp</B></P></TD>
+	    <TD><P>Script for starting and stopping <B>pmcd</B>(1).</P></TD></TR>
+	<TR><TD WIDTH=25%><P><B>$PCP_PMCDCONF_PATH</B></P></TD>
+	    <TD><P>Control file for <B>pmcd</B>(1).</P></TD></TR>
+	<TR><TD WIDTH=25%><P><B>$PCP_PMCDOPTIONS_PATH</B></P></TD>
+	    <TD><P>Command line options passed to <B>pmcd</B>(1) when it is started from <B>$PCP_RC_DIR/pcp</B>.  All the command line option lines should start with a hyphen as the first character.  This file can also contain environment variable settings of the form "VARIABLE=value".
+</P></TD></TR>
+	<TR><TD WIDTH=25%><P><B>$PCP_BINADM_DIR</B></P></TD>
+	    <TD><P>Location of PCP utilities for collecting and maintaining PCP archives, PMDA help text, PMNS files etc.</P></TD></TR>
+	<TR><TD WIDTH=25%><P><B>$PCP_PMDAS_DIR</B></P></TD>
+	    <TD><P>Parent directory of the installation directory for Dynamic Shared Object (DSO) PMDAs.</P></TD></TR>
+	<TR><TD WIDTH=25%><P><B>$PCP_RUN_DIR/pmcd.pid</B></P></TD>
+	    <TD><P>If pmcd is running, this file contains an ascii decimal representation of its process ID.</P></TD></TR>
+	<TR><TD WIDTH=25%><P><B>$PCP_LOG_DIR/pmcd</B></P></TD>
+	    <TD><P>Default location of log files for <B>pmcd</B>(1), current directory for running PMDAs.  Archives generated by <B>pmlogger</B>(1) are generally below <B>$PCP_LOG_DIR/pmlogger</B>.</P></TD></TR>
+	<TR><TD WIDTH=25%><P><B>$PCP_LOG_DIR/pmcd/pmcd.log</B></P></TD>
+	    <TD><P>Diagnostic and status log for the current running <B>pmcd</B>(1) process.  The first place to look when there are problems associated with <B>pmcd</B>.</P></TD></TR>
+	<TR><TD WIDTH=25%><P><B>$PCP_LOG_DIR/pmcd/pmcd.log.prev</B></P></TD>
+	    <TD><P>Diagnostic and status log for the previous <B>pmcd</B>(1) instance.</P></TD></TR>
+	<TR><TD WIDTH=25%><P><B>$PCP_LOG_DIR/NOTICES</B></P></TD>
+	    <TD><P>Log of <B>pmcd</B>(1) and PMDA starts, stops, additions and removals.</P></TD></TR>
+	<TR><TD WIDTH=25%><P><B>$PCP_VAR_DIR/config</B></P></TD>
+	    <TD><P>Contains directories of configuration files for several PCP tools.</P></TD></TR>
+	<TR><TD WIDTH=25%><P><B>$PCP_VAR_DIR/config/pmcd/rc.local</B></P></TD>
+	    <TD><P>Local script for controlling PCP boot, shutdown and restart actions.</P></TD></TR>
+	<TR><TD WIDTH=25%><P><B>$PCP_VAR_DIR/pmns/root</B></P></TD>
+	    <TD><P>The ASCII <B>$PCP_LOG_DIR/NOTICES/pmns</B>(4) exported by <B>pmcd</B>(1) by default.  This PMNS is be the super set of all other PMNS files installed in <B>$PCP_VAR_DIR/pmns</B>.</P></TD></TR>
+	<TR><TD WIDTH=25%><P><B>$PCP_LOG_DIR/NOTICES</B></P></TD>
+	    <TD><P>In addition to the <B>pmcd</B>(1) and PMDA activity, may be used to log alarms and notices from <B>pmie</B>(1) via <B>pmpost</B>(1). </P></TD></TR>
+	<TR><TD WIDTH=25%><P><B>$PCP_VAR_DIR/config/pmlogger/control</B></P></TD>
+	    <TD><P>Control file for <B>pmlogger</B>(1) instances launched from <B>$PCP_RC_DIR/pcp</B> and/or managed by <B>pmlogger_check</B>(1) and <B>pmlogger_daily</B>(1) as part of a production PCP archive collection setup.</P></TD></TR>
+</TABLE>
+<P>&nbsp;</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>PCP Environment</B></FONT></P></TD></TR>
+</TABLE>
+<P>Environment variables with the prefix PCP_ are used to parameterize the file and directory names used by PCP.  On each installation, the file <B>/etc/pcp.conf</B> contains the local values for these variables.  The <B>$PCP_CONF</B> variable may be used to specify an alternative configuration file, as described in <B>pcp.conf</B>(4).
+<HR>
+<CENTER>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=50%><P>Copyright &copy; 2000 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">SGI</FONT></A> and Copyright &copy; 2008-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A></P></TD>
+	<TD WIDTH=50%><P ALIGN=RIGHT>PCP</P></TD> </TR>
+</TABLE>
+</CENTER>
+</BODY>
+</HTML>

@@ -1,0 +1,38 @@
+#kmchart
+version 1
+
+# CPU view
+chart title "CPU Utilization [%h]" style utilization
+	plot legend "User" color #2d2de2 metric kernel.all.cpu.user
+	plot legend "Sys" color #e71717 metric kernel.all.cpu.sys
+	optional-plot legend "Nice" color #c2f3c2 metric kernel.all.cpu.nice
+	optional-plot legend "Intr" color #cdcd00 metric kernel.all.cpu.intr
+	optional-plot legend "Wait" color #00cdcd metric kernel.all.cpu.wait.total
+	optional-plot legend "Steal" color #fba2f5 metric kernel.all.cpu.steal
+	plot legend "Idle" color #16d816 metric kernel.all.cpu.idle
+
+chart title "Average Load [%h]" style plot antialiasing off
+	plot legend "1 min" metric kernel.all.load instance "1 minute"
+	plot legend "# cpus" metric hinv.ncpu
+
+# Netbytes view
+chart title "Network Interface Bytes [%h]" style stacking
+	plot legend "in %i" metric network.interface.in.bytes not-matching "^lo|^sl|^ppp|^sit|^gif|^stf|^wlt|^vmnet|^MS TCP Loopback interface"
+	plot legend "out %i" metric network.interface.out.bytes not-matching "^lo|^sl|^ppp|^sit|^gif|^stf|^wlt|^vmnet|^MS TCP Loopback interface"
+
+chart title "Busy/Idle servers" style plot antialiasing off
+	plot legend "Busy" metric apache.busy_servers
+	plot legend "Idle" metric apache.idle_servers
+
+chart style stacking
+	plot legend "Closing" color #ffff00 metric apache.sb_closing
+	plot legend "DNS" color #0000ff metric apache.sb_dns_lookup
+	plot legend "Finishing" color #ff0000 metric apache.sb_finishing
+	plot legend "Cleanup" color #008000 metric apache.sb_idle_cleanup
+	plot legend "Keepalive" color #ee82ee metric apache.sb_keepalive
+	plot legend "Logging" color #aa5500 metric apache.sb_logging
+	plot legend "Open" color #666666 metric apache.sb_open_slot
+	plot legend "Reading" color #aaff00 metric apache.sb_reading
+	plot legend "Starting" color #aa00ff metric apache.sb_starting
+	plot legend "Waiting" color #aaaa7f metric apache.sb_waiting
+	plot legend "Writing" color #ffff00 metric apache.sb_writing_reply

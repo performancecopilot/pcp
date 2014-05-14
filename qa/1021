@@ -1,0 +1,13 @@
+#!/bin/sh
+# PCP QA Test No. 1021
+# Check PMC handles host to archive mapping with multiple groups
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+. ./common.test
+
+# real QA test starts here
+
+qt/qmc_hosts/qmc_hosts -DPMC 2>&1 \
+	| sed -e 's/: Line [0-9][0-9]*/: Line <N>/'
+exit $?

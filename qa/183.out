@@ -1,0 +1,97 @@
+QA output created by 183
+=== usage ===
+pmnewlog: Insufficient arguments
+
+Usage: pmnewlog [options] archive
+
+pmnewlog options:
+  -a FILE, --access=FILE
+                        specify access controls for the new pmlogger
+  -C FILE, --save=FILE  save the configuration of new pmlogger in FILE
+  -c FILE, --config=FILE
+                        file to load configuration from
+  -N, --showme          perform a dry run, showing what would be done
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -P, --primary         execute as primary logger instance
+  -p PID, --pid=PID     restart non-primary logger with pid
+  -s, --socks           use pmsocks
+  -V, --verbose         turn on verbose reporting of pmnewlog progress
+  -?, --help            show this usage message and exit
+
+pmlogger options:
+  -c FILE, --config=FILE
+                        file to load configuration from
+  -l FILE, --log=FILE   redirect diagnostics and trace output
+  -L, --linger          run even if not primary logger instance and nothing to log
+  -m MSG, --note=MSG    descriptive note to be added to the port map file
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -P, --primary         execute as primary logger instance
+  -r, --report          report record sizes and archive growth rate
+  -t DELTA, --interval=DELTA
+                        default logging interval
+  -T TIME, --finish=TIME
+                        end of the time window
+  -v SIZE, --volsize=SIZE
+                        switch log volumes after size has been accumulated
+  -y                    set timezone for times to local time rather than from PMCD host
+
+Sorry, but this is fatal.  No new pmlogger instance has been started.
+
+=== archive exists ===
+OK, previous one renamed using "-00" suffix
+
+=== no non-primary logger ===
+Looking for pmlogger (process PID) ...
+pmnewlog: Error: process not found
+
+Sorry, but this is fatal.  No new pmlogger instance has been started.
+
+=== no primary logger ===
+Looking for primary pmlogger ...
+pmnewlog: Error: process not found
+
+Sorry, but this is fatal.  No new pmlogger instance has been started.
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
+
+=== process is not called pmlogger ===
+Looking for pmlogger (process PID) ...
+pmnewlog: Error: process not found
+
+Sorry, but this is fatal.  No new pmlogger instance has been started.
+
+=== process is not really pmlogger ===
+Getting logged host name from pmlogger (process PID) ... failed to connect
+
+	Unable to connect to pmlogger at HOST: [TCP/IP error]
+
+Sorry, but this is fatal.  No new pmlogger instance has been started.
+
+=== non-primary logger busy ===
+Getting logged host name from pmlogger (process PID) ... failed to connect
+
+	Unable to connect to pmlogger at HOST: [TCP/IP error]
+
+Sorry, but this is fatal.  No new pmlogger instance has been started.
+
+=== primary logger busy ===
+Contacting primary pmlogger to get logging state ... failed to connect
+
+	Unable to connect to primary pmlogger at HOST: [TCP/IP error]
+
+Sorry, but this is fatal.  No new pmlogger instance has been started.
+
+=== no extracted configuration ===
+pmnewlog: Error: failed to collect configuration info from pmlogger (process PID)
+Most likely this pmlogger instance is inactive.
+Sorry, but this is fatal.  No new pmlogger instance has been started.
+
+=== wrong uid to kill pmlogger ===
+KILL: Operation not permitted
+KILL: Operation not permitted
+KILL: Operation not permitted
+ failed!
+Sorry, but this is fatal.  No new pmlogger instance has been started.

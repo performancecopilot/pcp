@@ -1,0 +1,560 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta http-equiv="content-style-type" content="text/css">
+	<title>Importing Data and Creating PCP Archives</title>
+	<link href="pcpdoc.css" rel="stylesheet" type="text/css">
+	<link href="images/pcp.ico" rel="icon" type="image/ico">
+</head>
+<body lang="en-AU" text="#000060" dir="LTR">
+<table width="100%" border=0 cellpadding=0 cellspacing=0>
+	<tr> <td width=64 height=64><font color="#000080"><a href="http://oss.sgi.com/projects/pcp/"><img src="images/pcpicon.png" alt="pmcharticon" align=top width=64 height=64 border=0></a></font></td>
+	<td width=1><p>&nbsp;&nbsp;&nbsp;&nbsp;</p></td>
+	<td width=500><p style="vertical-align:middle; text-align:left;"><a href="index.html"><font color="#cc0000">Home</font></a>&nbsp;&nbsp;&middot;&nbsp;<a href="lab.pmlogger.html"><font color="#cc0000">Archive Logger</font></a></p></td>
+	</tr>
+</table>
+<h1>Importing data and creating PCP archives</h1>
+<table width="15%" border=0 cellpadding=5 cellspacing=10 align=right>
+	<tr><td bgcolor="#e2e2e2"><img src="images/system-search.png" alt="search" width=16 height=16 border=0>&nbsp;&nbsp;<i>Tools</i><br><pre>
+PCP::LogImport
+pmlogsummary
+pmlogger
+pmchart
+pmie
+perl
+</pre></td></tr>
+</table>
+<p>For most performance data processed by the Performance Co-Pilot (PCP),
+the information is gathered by domain-specific agents or Performance
+Metric Domain Agents (PMDAs).  The data and metadata (describing the
+performance data) is then provided via the Performance Metric Co-ordinating Daemon (PMCD) directly to real-time PCP monitoring tools like <i>pmchart</i>,
+<i>pmie</i>, <i>pmval</i>, etc. or written to PCP archive files
+by <i>pmlogger</i> for
+subsequent retrospective analysis using these same PCP tools.
+</p>
+<p>This document describes an alternative method of importing
+performance data into PCP by creating PCP archives from files or data
+streams that have no knowledge of PCP.
+</p>
+<ul>
+  <li><a href="#prereqs">Prerequisites</a>
+  <li><a href="#identify">Identify Metrics and Metadata</a>
+  <li><a href="#scripting">Getting Started Scripting</a>
+  <li><a href="#metadata">Revisiting the Metadata</a>
+  <li><a href="#instances">Multi-valued Metrics and Instance Domains</a>
+  <li><a href="#handles">Handles</a>
+  <li><a href="#timezones">Timezones</a>
+  <li><a href="#extras">Bells and Whistles</a>
+  <li><a href="#complete">Complete Solution</a>
+</ul>
+<p>The services needed to build an import tool are included in the
+<i>libpcp_import</i> package and a Perl wrapper is provided in the <b>PCP::LogImport</b>
+module.
+The C and Perl APIs are effectively identical.
+Refer to the <b>LOGIMPORT</b>(3)
+manual page for an overview of these services.
+The examples in this document will be given in Perl.
+</p>
+<p>Several import tools are already provided with PCP, namely:
+</p>
+<table border="1" cellspacing="1" cellpadding="5">
+<tr><th>Tool</th><th>Function</th>
+</tr>
+<tr><td><i>sheet2pcp</i></td>
+    <td>Import data from a spreadsheet in CSV, OpenOffice or Microsoft Office format.</td></tr>
+<tr><td><i>sar2pcp</i></td>
+    <td>Import data from the <i>sadc</i> (System Activity Reporting Collector)
+        that is part of the <i>sysstat</i> package and modelled on the
+	classical Unix <i>sar</i> tools.</td></tr>
+<tr><td><i>iostat2pcp</i></td>
+    <td>Import data from output of the <i>iostat</i> command
+        that is part of the <i>sysstat</i> package and modelled on the
+	Berkeley Unix command of the same name.</td></tr>
+</table>
+
+<p>
+These scripts are all written in Perl, and we shall refer to them in
+this document to present examples of specific aspects of the LOGIMPORT
+services or the issues to be considered when building an import tool.
+</p>
+
+<p>
+For the most part in this document we'll be developing an import tool
+for log files from a file migration application.
+Some sample log lines are shown below:
+</p>
+<table cellpadding=10><tr><td bgcolor="#e2e2e2">
+<pre>
+2010-07-04 13:46:29 14 files (6, 8, 0) 142512 bytes (92098)
+2010-07-04 13:46:59 51 files (28, 23, 0) 132761 bytes (33239)
+2010-07-04 13:47:29 36 files (23, 12, 1) 5733152 bytes (5688400)
+2010-07-04 13:47:59 49 files (40, 9, 0) 118418 bytes (70669)
+2010-07-04 13:48:29 30 files (7, 23, 0) 210531 bytes (52261)
+2010-07-04 13:48:59 23 files (6, 17, 0) 81048 bytes (15175)
+2010-07-04 13:49:29 55 files (31, 24, 0) 190841 bytes (27908)
+2010-07-04 13:49:59 54 files (49, 5, 0) 14078 bytes (1213)
+2010-07-04 13:50:29 38 files (19, 19, 0) 82398 bytes (16781)
+2010-07-04 13:50:59 0 files (0, 0, 0) 0 bytes (0)
+2010-07-04 13:51:29 31 files (8, 23, 0) 202755 bytes (41984)
+2010-07-04 13:51:59 0 files (0, 0, 0) 0 bytes (0)
+2010-07-04 13:52:29 7 files (4, 3, 0) 15954 bytes (8789)
+</pre>
+</td></tr></table>
+
+<p>Each line begins with a date and time, then the count of
+the number of files migrated over the last time interval, then
+three counts in parenthesis corresponding to the number of small files
+(less than 1024 bytes), medium files (less than 1024*1024 bytes) and
+large (more than 1024*1024 bytes) files that were migrated, then the total
+number of bytes moved and finally the size (in bytes) of the largest
+file moved.
+</p>
+
+<h2><a name="prereqs">Prerequisites</a></h2>
+
+<p>The input data stream needs to conform to some basic principles
+before we can consider importing information to PCP:</p>
+
+<ul>
+<li><b>Timestamps</b>.  A PCP archive is a time-series of observations, hence
+we need a date and time stamp for each observation.  In the simplest
+case there is a representation of
+the date and time in the input records.  Sometimes the date and time appears as a text string,
+sometimes it is encoded in a binary file and
+sometimes it requires some guesswork to reconstruct the date and time
+of each observation (see <i>iostat2pcp</i> for example).
+In all cases, it will be necessary to have the datestamp available in the
+internal system clock format, namely seconds and microseconds since
+the &quot;epoch&quot;.  Fortunately the Perl module <b>Date::Parse</b>
+does a reasonable job of parsing dates and times in text format,
+although some preprocessing of the date may
+be required to force into an ISO 8601 compatible format (see <b>dodate()</b>
+in <i>sheet2pcp</i>, <i>iostat2pcp</i> and <i>sar2pcp</i> for a
+number of examples).
+<p>We shall return to timestamps and the associated matter of <b>timezones</b>
+a little later in this document.
+</p>
+</li>
+
+<li>
+<b>Regular format</b>.
+Some file formats (often application logs) can be quite difficult to parse
+and extract the data you wish to import into PCP.  Pre-processing can help
+remove ambiguities, cull irrelevant information and make life generally easier.
+As an example, <i>sar2pcp</i> uses <i>sadf</i> to translate the binary data
+file from <i>sadc</i> into an XML stream that is much easier to process.
+</li>
+</ul>
+
+<h2><a name="identify">Identify PCP Metrics and Metadata</a></h2>
+
+<p>
+Incremental development is encouraged.  So we shall start with one
+metric being the number of files migrated.
+</p>
+
+<p>The first task is to assign
+a name &ndash; the rules must conform to those for the Performance Metrics
+Name Space (PMNS), namely a number of components separated by periods
+&quot;.&quot; with each component starting with an alphabetic followed
+by zero or more characters drawn from the alphabetics, digits and the
+underscore &quot;_&quot; character (see <b>pmns</b>(4) for more
+details). For our metrics we'll use the prefix <b>mover.</b> and so the
+first metric will be known as <b>mover.nfile</b>.
+</p>
+
+<p>
+Next the metadata for each metric must be defined.  This is basically the
+fields of a <b>pmDesc</b> data structure as defined in <b>pmLookupDesc</b>(3).
+The following table describes the information required, some of the
+options and the values chosen for <b>mover.nfile</b>.
+</p>
+
+<table border="1" cellspacing="1" cellpadding="1" align="left">
+<tr align="center">
+  <th>Metadata</th><th>Options</th><th>mover.nfile</th>
+</tr>
+<tr align="left">
+  <td>Unique Performance Metric Identifier (PMID)</td>
+  <td><b>PM_ID_NULL</b> for a default assignment, else use the
+     <b>pmid_build</b> macro as described in <b>pmiAddMetric</b>(3).
+     </td>
+  <td><b>PM_ID_NULL</b></td>
+</tr>
+<tr>
+  <td>(Data) Type</td>
+  <td><b>PM_TYPE_32</b> for a 32-bit integer, etc.  See <b>pmLookupDesc</b>(3)
+      for a full list and description.
+      </td>
+  <td><b>PM_TYPE_U32</b></td>
+</tr>
+<tr>
+  <td>Instance Domain (indom)</td>
+  <td>If there is only one value for the metric, then this should be
+      <b>PM_INDOM_NULL</b>, else it should be a value constructed using
+      the <b>pmInDom_build</b> macro, see <b>pmiAddMetric</b>(3).
+      </td>
+  <td><b>PM_INDOM_NULL</b></td>
+</tr>
+<tr>
+  <td>Semantics</td>
+  <td>Defines how to interpret consecutive values.  If the values are
+      from a counter that is monotonically increasing, use
+      <b>PM_SEM_COUNTER</b>.  If there is no relationship between one
+      observation and the next, use <b>PM_SEM_INSTANT</b>.  As a special
+      case, if the value is most <u>unlikely</u> to change over time (e.g. a
+      configuration parameter), then use <b>PM_SEM_DISCRETE</b>.
+      </td>
+  <td><b>PM_SEM_INSTANT</b></td>
+</tr>
+<tr>
+  <td>Units</td>
+  <td>The interpretation of values for each metric is defined by
+      classifying the metric along three orthogonal axes, namely
+      <u>space</u>, <u>time</u> and <u>count</u> (for events, messages, calls, packets, etc.).
+      For each axis, we need to specify the <b>dimension</b> (0 for not
+      appropriate, -1 if the value is &quot;per unit&quot; along this axis
+      or 1 if the value is measured in units along this axis) and the
+      <b>scale</b> (if the dimension is not zero) to define the absolute
+      magnitude of values along this axis.  Refer to <b>pmLookupDesc</b>(3)
+      for a full list of the available options.  Use a <b>pmiUnits</b>(3)
+      constructor to build a units value.
+      </td>
+  <td><b>pmiUnits(0,0,1,0,0,PM_COUNT_ONE)</b></td>
+</tr>
+</table>
+<p>&nbsp;</p>
+
+<h2><a name="scripting">Getting Started Scripting</a></h2>
+
+<p>The basic algorithm follows this template:</p>
+<ul>
+    <li>Define metadata</li>
+    <li>Loop over input data
+        <ul>
+	    <li>output values</li>
+	    <li>write PCP archive record</li>
+	</ul>
+    </li>
+</ul>
+
+<p>For our sample file migration data, the following minimalist Perl
+script will do the job</p>
+
+<table cellpadding=10><tr><td bgcolor="#e2e2e2">
+<pre>
+use strict;
+use warnings;
+use Date::Parse;
+use Date::Format;
+use PCP::LogImport;
+
+pmiStart("mover_v1", 0);
+pmiAddMetric("mover.nfile",
+	     PM_ID_NULL, PM_TYPE_U32, PM_INDOM_NULL,
+	     PM_SEM_INSTANT, pmiUnits(0,0,1,0,0,PM_COUNT_ONE));
+
+open(INFILE, "&lt;mover.log");
+while (&lt;INFILE&gt;) {
+    my @part;
+    chomp;
+    @part = split(/\s+/, $_);
+    pmiPutValue("mover.nfile", "", $part[2]);
+    pmiWrite(str2time($part[0] . "T" . $part[1], "UTC"), 0);
+}
+
+pmiEnd();
+</pre>
+</td></tr></table>
+
+<p>The resultant archive contains one metric.</p>
+<table cellpadding=10><tr><td bgcolor="#e2e2e2">
+<pre>
+$ pminfo -d -a mover_v1
+
+mover.nfile
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+        Semantics: instant  Units: count
+</pre>
+</td></tr></table>
+
+<p><table><tr style="vertical-align:top;"><td>
+<p>And when plotted with <i>pmchart</i> produces a graph like
+this ...</p>
+</td><td>
+<img src="images/mover.nfile.instant.png" alt="nfile.instant">
+</td></tr></table>
+<p>&nbsp;</p>
+
+<h2><a name="metadata">Revisiting the Metadata</a></h2>
+
+<table><tr style="vertical-align:top;"><td>
+<p>The number of files migrated in this example could be exported as either
+the instantaneous value over the previous sample interval, or accumulated
+as a running total.  If the running total is used and
+the semantics of the <b>mover.nfile</b> metric
+remains <b>PM_SEM_INSTANT</b> the resultant archive produces a graph
+like this ...
+which is not generally useful for analysis!</p>
+</td><td>
+<img src="images/mover.nfile.step.png" alt="nfile.step" style="vertical-align:top;">
+</td></tr>
+<tr style="vertical-align:top;"><td>
+<p>So we change the data
+semantics to be <b>PM_SEM_COUNTER</b> and rely on the fact that most
+PCP monitoring tools will automatically rate convert counters before
+displaying them. This produces a very similar
+graph to the first one (the plot style is the only difference) when the output archive is
+replayed with the same sample interval as found in the input log file (30 seconds).
+</td><td>
+<img src="images/mover.nfile.counter.png" alt="nfile.counter" style="vertical-align:top;">
+</td></tr>
+<tr style="vertical-align:top;"><td>
+<p>The real difference in the choice of data semantics can
+seen when the sample interval for replay is longer than the sample
+interval in the PCP archive.  Using a replay interval of 180 seconds
+(6 times the sample interval in the archive), produces the following
+graph for the <b>PM_SEM_INSTANT</b> data.</p>
+</td><td>
+<img src="images/mover.nfile.instant.3min.png" alt="nfile.instant.3min" style="vertical-align:top;">
+<tr style="vertical-align:top;"><td>
+<p>And the <b>PM_SEM_COUNTER</b> data is displayed like this.</p>
+</td><td>
+<img src="images/mover.nfile.counter.3min.png" alt="nfile.counter.3min" style="vertical-align:top;">
+</td></tr></table>
+
+<p>
+For the <b>PM_SEM_INSTANT</b> metric, the only choice available to <i>pmchart</i>
+(and indeed any PCP reporting tool) is to use the most recent observed
+value at each reporting interval.  In the example above, this means 5
+data values from the archive are skipped and the 6th value is used for
+each reporting interval.  By comparison, for a <b>PM_SEM_COUNTER</b>
+metric, all the reporting tools sample the metric at the start of
+the interval and at the end of the interval and then report the
+linearly interpolated rate over the interval, which includes the &quot;history&quot; of what was observed in each of the 6 archive intervals for
+each reporting interval.</p>
+
+<p>This can be seen more clearly when the data is tabulated rather than
+plotted.</p>
+
+<table border=1 cellpadding=3>
+<tr><th rowspan=3>Time</th><th colspan=2>PM_SEM_INSTANT</th><th colspan=4>PM_SEM_COUNTER</th></tr>
+<tr><th>30sec samples</th><th>180sec samples</th><th colspan=2>30sec samples</th><th colspan=2>180sec samples</th></tr>
+<tr><th>files</th><th>files</th><th>files/sec</th><th>files</th><th>files/sec</th><th>files</th></tr>
+<tr align="center"><td>23:58:59.000</td><td>34</td><td>&nbsp;</td><td>1.133</td><td>34.0</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr align="center"><td>23:59:29.000</td><td>5</td><td>&nbsp;</td><td>0.167</td><td>5.0</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr align="center"><td>23:59:59.000</td><td>12</td><td>&nbsp;</td><td>0.400</td><td>12.0</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr align="center"><td>00:00:29.000</td><td>39</td><td>&nbsp;</td><td>1.300</td><td>39.0</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr align="center"><td>00:00:59.000</td><td>3</td><td>&nbsp;</td><td>0.100</td><td>3.0</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr align="center"><td>00:01:29.000</td><td>0</td><td>0</td><td>0.000</td><td>0.0</td><td>0.517</td><td>93.0</td></tr>
+<tr align="center"><td>00:01:59.000</td><td>10</td><td>&nbsp;</td><td>0.333</td><td>10.0</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr align="center"><td>00:02:29.000</td><td>42</td><td>&nbsp;</td><td>1.400</td><td>42.0</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr align="center"><td>00:02:59.000</td><td>42</td><td>&nbsp;</td><td>1.400</td><td>42.0</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr align="center"><td>00:03:29.000</td><td>28</td><td>&nbsp;</td><td>0.933</td><td>28.0</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr align="center"><td>00:03:59.000</td><td>28</td><td>&nbsp;</td><td>0.933</td><td>28.0</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr align="center"><td>00:04:29.000</td><td>6</td><td>6</td><td>0.200</td><td>6.0</td><td>0.867</td><td>156.0</td></tr>
+<tr align="center"><td>00:04:59.000</td><td>57</td><td>&nbsp;</td><td>1.900</td><td>57.0</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr align="center"><td>00:05:29.000</td><td>0</td><td>&nbsp;</td><td>0.000</td><td>0.0</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr align="center"><td>00:05:59.000</td><td>15</td><td>&nbsp;</td><td>0.500</td><td>15.0</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr align="center"><td>00:06:29.000</td><td>27</td><td>&nbsp;</td><td>0.900</td><td>27.0</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr align="center"><td>00:06:59.000</td><td>53</td><td>&nbsp;</td><td>1.767</td><td>53.0</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr align="center"><td>00:07:29.000</td><td>57</td><td>57</td><td>1.900</td><td>57.0</td><td>1.16</td><td>209.0</td></tr>
+</table>
+
+
+<p>Where the semantics of the data matches that of a free-running counter
+and where the total can easily be extracted from the input data source,
+it is <b>always</b> better to export PCP metrics with the semantics
+of <b>PM_SEM_COUNTER</b>.  Note that the base value for a counter is
+arbitrary and zero works just fine.</p>
+
+<p>Using similar arguments we can identify two additional singular metrics
+that can be extracted from the log as <b>mover.nbyte</b> (a free-running
+counter of the number of bytes migrated) and <b>mover.max_file_size</b>
+(an instantaneous metric reporting the size of the largest file migrated
+in the previous interval).  With these additions, our minimalist Perl
+script has become ...</p>
+
+<table cellpadding=10><tr><td bgcolor="#e2e2e2">
+<pre>
+use strict;
+use warnings;
+use Date::Parse;
+use Date::Format;
+use PCP::LogImport;
+
+my $nfile = 0;
+my $nbyte = 0;
+
+pmiStart("mover_v3", 0);
+pmiAddMetric("mover.nfile",
+	     PM_ID_NULL, PM_TYPE_U32, PM_INDOM_NULL,
+	     PM_SEM_COUNTER, pmiUnits(0,0,1,0,0,PM_COUNT_ONE));
+pmiAddMetric("mover.nbyte",
+	     PM_ID_NULL, PM_TYPE_U64, PM_INDOM_NULL,
+	     PM_SEM_COUNTER, pmiUnits(1,0,0,PM_SPACE_BYTE,0,0));
+pmiAddMetric("mover.max_file_size",
+	     PM_ID_NULL, PM_TYPE_U64, PM_INDOM_NULL,
+	     PM_SEM_INSTANT, pmiUnits(1,0,0,PM_SPACE_BYTE,0,0));
+
+open(INFILE, "&lt;mover.log");
+while (&lt;INFILE&gt;) {
+    my @part;
+    chomp;
+    s/[(),]//g;		# remove all (, ) and ,
+    @part = split(/\s+/, $_);
+    $nfile += $part[2];
+    pmiPutValue("mover.nfile", "", $nfile);
+    $nbyte += $part[7];
+    pmiPutValue("mover.nbyte", "", $nbyte);
+    pmiPutValue("mover.max_file_size", "", $part[9]);
+    pmiWrite(str2time($part[0] . "T" . $part[1], "UTC"), 0);
+}
+
+pmiEnd();
+</pre>
+</td></tr></table>
+
+<p>
+This produces a PCP archive that can be plotted with <i>pmchart</i>
+to produce the following graph.</p>
+<p><center>
+<img src="images/mover.v3.png" alt="mover.v3">
+</center></p>
+
+<h2><a name="instances">Multi-valued Metrics and Instance Domains</a></h2>
+
+<p>Metrics that have more than one value are supported in PCP through
+the concept of an Instance Domain (or <b>indom</b>) which is a
+set with an internal unique identifier (an integer) and a unique external
+name (a string) for each instance that may have an associated values.
+There can be many Instance Domains.  And many metrics can be associated
+with the same Instance Domain.</p>
+
+<p>The remaining metric in our example is <b>mover.nfile_by_size</b>
+which has the same metadata as <b>mover.nfile</b> except there is
+an associated Instance Domain to accommodate the 3 values
+(&quot;&lt;=1Kbyte&quot;, &quot;&lt;=1Mbyte&quot; and
+&quot;&gt;1Mbyte&quot;).
+The Instance Domain identifier is constructed using the <b>pmInDom_build</b>
+macro, and then used in calls to <b>pmiAddInstance</b>(3) to make the association
+for each metric-instance pair.
+The relevant metadata declarations are
+as follows:</p>
+
+<table cellpadding=10><tr><td bgcolor="#e2e2e2">
+<pre>
+my $sz_indom = pmInDom_build(PMI_DOMAIN, 0);
+my @nfile_by_size = (0,0,0);
+
+pmiAddMetric("mover.nfile_by_size",
+             PM_ID_NULL, PM_TYPE_U32, $sz_indom,
+	     PM_SEM_COUNTER, pmiUnits(0,0,1,0,0,PM_COUNT_ONE));
+pmiAddInstance($sz_indom, "&lt;=1Kbyte", 0);
+pmiAddInstance($sz_indom, "&lt;=1Mbyte", 1);
+pmiAddInstance($sz_indom, "&gt;1Mbyte", 2);
+</pre>
+</td></tr></table>
+
+<p>And then in the loop, these additional calls to <b>pmiPutValue</b>(3)
+are required:
+
+<table cellpadding=10><tr><td bgcolor="#e2e2e2">
+<pre>
+$nfile_by_size[0] += $part[4];
+pmiPutValue("mover.nfile_by_size", "&lt;=1Kbyte", $nfile_by_size[0]);
+$nfile_by_size[1] += $part[5];
+pmiPutValue("mover.nfile_by_size", "&lt;=1Mbyte", $nfile_by_size[1]);
+$nfile_by_size[2] += $part[6];
+pmiPutValue("mover.nfile_by_size", "&gt;1Mbyte", $nfile_by_size[2]);
+</pre>
+</td></tr></table>
+
+<p>
+This produces our final PCP archive that can be plotted with <i>pmchart</i>
+to produce the following graph.</p>
+<p><center>
+<img src="images/mover.png" alt="mover">
+</center></p>
+
+<h2><a name="handles">Handles</a></h2>
+
+<p>If there is a lot of data and/or a lot of PCP metrics, the calls
+to <b>pmiPutValue</b>(3) in the inner loop of the import application
+may become expensive as a consequence of the repeated text-based
+lookup for a metric name and an instance name.</p>
+
+<p>The <b>LOGIMPORT</b>(3) infrastructure provides a &quot;handles&quot;
+mechanism that may be used to improve efficiency.
+<b>pmiGetHandle</b>(3) may be used to obtain a &quot;handle&quot; for
+a metric-instance pair (once the metric and instance have been defined),
+then <b>pmiPutValueHandle</b>(3) may be used instead of <b>pmiPutValue</b>(3).</p>
+
+<h2><a name="timezones">Timezones</a></h2>
+
+<p>The interpretation of the timestamps in the output PCP archive is
+dependent on the timezone in which PCP believes the archive was created.</p>
+
+<p>Since many import log files do not report the timezone, the <b>LOGIMPORT</b>(3)
+services assume a default timezone of <b>UTC</b>.
+An alternative timezone may be specified using <b>pmiSetTimezone</b>(3),
+but a corresponding adjustment needs to be made to the date and time
+conversions when arriving at the timestamp for each sample, e.g.
+using <b>str2time</b>() and/or <b>ctime</b>().
+Unfortunately the format for the timezone offset is not handled
+the same in all places &ndash; for the ugly details,
+refer to the <b>&ndash;Z</b> command line
+processing and the <b>do_label</b>() procedure in the
+complete <a href="importdata/mover2pcp">mover2pcp</a> example code.</p>
+
+<h2><a name="extras">Bells and Whistles</a></h2>
+
+<p>The Perl code we've been using thus far is minimalist and needs
+several extensions to make the application robust.  Specifically these
+include:</p>
+
+<ul>
+<li>For singular metrics, wrap the <b>pmiAddMetric</b>(3) calls in
+error handling logic,
+handle the per-metric metadata variations
+and create the handle for later use, see the <b>def_single</b>()
+procedure.</li>
+
+<li>The <b>def_multi</b>() procedure performs a similar function for
+multi-valued metrics, except the handle creation is deferred until
+each instance is processed.</li>
+
+<li>For each metric-instance pair associated with a multi-valued
+metric, the <b>def_metric_inst</b>() procedure maintains a cache of
+indoms and instances for those indoms so that internal instance
+identifiers can be allocated automatically and <b>pmiAddInstance</b>(3)
+is only called the first time each unique instance is observed for
+each instance domain.  Also there is error checking logic here and
+a new handle is allocated for each metric-instance pair.</li>
+
+<li>The <b>put</b>() procedure is a wrapper around
+<b>pmiPutValueHandle</b>(3) that includes some error handling
+and stepping through the array of handles created earlier.</li>
+
+<li>Timezone and archive label details are addressed in the
+<b>do_label</b>() procedure.</li>
+
+<li>Add error checking at the end of the loop after each
+value has been added to the next output record.</li>
+
+</ul>
+
+<h2><a name="complete">Complete Solution</a></h2>
+
+<p>The complete mover2pcp Perl script can be viewed <a href="importdata/mover2pcp">here</a>.</p>
+
+<hr>
+<center>
+<table width="100%" border=0 cellpadding=0 cellspacing=0>
+	<tr> <td width="50%"><p>Copyright &copy; 2010 <a href="http://www.kenj.com.au"><font color="#000060">Ken McDonell</font></a></p></td>
+	<td width=50%><p align=right><a href="http://oss.sgi.com/projects/pcp/"><font color="#000060">PCP</font></a></p></td> </tr>
+</table>
+</center>
+</body>
+</html>

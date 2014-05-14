@@ -1,5 +1,6 @@
 #!/bin/sh
 # 
+# Copyright (c) 2014 Red Hat.
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -18,20 +19,28 @@
 
 . $PCP_DIR/etc/pcp.env
 
+status=1
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 prog=`basename $0`
 sigs="HUP USR1 TERM KILL"
+
+cat > $tmp/usage << EOF
+# Usage: [options] PID ... | name ...
+
+Options:
+  -a,--all          send signal to all named processes (killall mode)
+  -l,--list         list available signals
+  -n,--dry-run      list processes that would be affected
+  -s=N,--signal=N   signal to send ($sigs)"
+  --help
+EOF
 
 usage()
 {
     [ ! -z "$@" ] && echo $@ 1>&2
-    echo 1>&2 "Usage: $prog [options] PID ... | name ...
-
-Options:
-  -a            send signal to all named processes (killall mode)
-  -l            list available signals
-  -n            dry-run, list processes that would be affected
-  -s signal     signal to send ($sigs)"
-    exit 0
+    pmgetopt --progname=$prog --config=$tmp/usage --usage
+    exit 1
 }
 
 check()
@@ -47,21 +56,33 @@ signal=TERM
 aflag=false
 lflag=false
 nflag=false
-while getopts "?alns:" c
+
+ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
+[ $? != 0 ] && exit 1
+
+eval set -- "$ARGS"
+while [ $# -gt 0 ]
 do
-    case $c in
-      a) aflag=true ;;
-      l) lflag=true ;;
-      n) nflag=true ;;
-      s) signal=`check "$OPTARG"` ;;
-      ?) usage "" ;;
+    case "$1"
+    in
+	-a)	aflag=true ;;
+	-l)	lflag=true ;;
+	-n)	nflag=true ;;
+	-s)	signal=`check "$2"`
+		shift
+		;;
+	--)	shift
+		break
+		;;
+	-\?)	usage ""
+		;;
     esac
+    shift
 done
 
 [ $lflag = true ] && echo "$sigs" && exit 0
 
-shift `expr $OPTIND - 1`
-[ $# -lt 1 ] && usage "$prog: too few arguments"
+[ $# -lt 1 ] && usage "$prog: Insufficient arguments"
 
 if [ $aflag = true ]
 then
@@ -74,7 +95,12 @@ then
 else
     pids="$@"
 fi
-[ $nflag = true ] && echo "$pids" && exit 0
+if [ $nflag = true ]
+then
+    echo "$pids"
+    status=0
+    exit
+fi
 
 sts=0
 if [ "$PCP_PLATFORM" = mingw ]
@@ -90,4 +116,5 @@ else
     done
 fi
 
-exit $sts
+status=$sts
+exit

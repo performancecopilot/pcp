@@ -43,7 +43,7 @@ SUBDIRS = src
 ifneq ($(TARGET_OS),mingw)
 SUBDIRS += qa
 endif
-SUBDIRS += man build debian
+SUBDIRS += man books images build debian
 
 default :: default_pcp
 
@@ -122,6 +122,9 @@ else
 realclean distclean clean clobber:
 	@true
 endif
+
+aclocal.m4:
+	aclocal --acdir=`pwd`/m4 --output=$@
 
 pcp.lsm src/include/builddefs src/include/pcp/platform_defs.h: configure pcp.lsm.in src/include/builddefs.in src/include/pcp/platform_defs.h.in
 	@echo Please run ./configure with the appropriate options to generate $@.

@@ -1,0 +1,33 @@
+#!/bin/sh
+# PCP QA Test No. 1006
+# Check units compatibility in view loading
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+. ./common.test
+
+status=0	# success is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+PCP_STDERR=$tmp.post
+for config in views/006-01 views/006-02 views/006-03 views/006-04 views/006-05
+do
+    echo "=== $config ==="
+    cat $config
+    rm -f $tmp.post
+    pmchart -CC -D appl0 -c $config >$tmp.out 2>$tmp.err
+    echo "exit=$?"
+    echo "--- out ---"
+    cat $tmp.out
+    echo "--- err ---"
+    _filter_console <$tmp.err
+    echo "--- post ---"
+    if [ -f $tmp.post ]
+    then
+	_filter_post <$tmp.post
+    fi
+done
+
+# success, all done
+exit

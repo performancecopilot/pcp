@@ -1,0 +1,6 @@
+#kmchart
+version 1
+
+chart title "IOPS over all Disks [%h]" style stacking
+	plot legend "Reads" color yellow metric disk.all.read
+	plot legend "Writes" color violet metric disk.all.write

@@ -170,3 +170,10 @@ usr/share/man/man3/pmUseContext.3.gz
 usr/share/man/man3/pmUseZone.3.gz
 usr/share/man/man3/pmWhichContext.3.gz
 usr/share/man/man3/pmWhichZone.3.gz
+usr/share/man/man3/QMC.3.gz
+usr/share/man/man3/QmcContext.3.gz
+usr/share/man/man3/QmcDesc.3.gz
+usr/share/man/man3/QmcGroup.3.gz
+usr/share/man/man3/QmcIndom.3.gz
+usr/share/man/man3/QmcMetric.3.gz
+usr/share/man/man3/QmcSource.3.gz

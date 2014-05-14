@@ -47,6 +47,8 @@ flakey
 pmcd
 # pmcd proxy
 pmproxy
+# strip chart app
+pmchart
 # pmdumptext app
 pmdumptext
 # pmdumplog app
@@ -112,7 +114,7 @@ pmlogextract
 pmlogreduce
 # log summary app
 pmlogsummary
-# pmlogger configuration tool
+# pmlogger configuration app
 pmlogconf
 
 # general context manipulations, includes profile cacheing
@@ -177,8 +179,8 @@ libirixpmda
 # Linux platform PMDA
 pmda.linux
 
-# libpcp_dev
-libpcp_dev
+# metrics class tests
+libqmc
 
 # libpcp_import - pmi* routines for log importing
 libpcp_import
@@ -253,13 +255,12 @@ pcp.py
 avahi
 
 # test-group association ... one line per test
-# add :retired as a tag immediately after the test number to keep the
-# test number allocated, but prevent the test from being run
+# add :retired or :reserved as a tag immediately after the test number
+# to keep the test number allocated, but prevent the test from being run
 
 # ... use sort -n from here on down to tidy up this mess
 #
 000 other pmcd local ostest oss
-#824 pmda local oss
 001 pdu local ostest oss sanity
 002 pdu pmcd local ostest oss sanity
 003 pdu pmcd mem_leak local ostest oss
@@ -581,11 +582,11 @@ avahi
 326 pmlogger pmval libpcp pmcd local pmda.install folio oss pmdumplog
 327 archive oss local pmdumplog
 328 logutil local pmlogextract oss pmdumplog
-329:retired  archive mem_leak local purify oss
-330:retired  archive mem_leak local purify oss
-331:retired  archive mem_leak local purify oss
-332:retired  archive mem_leak local purify oss
-333:retired  archive mem_leak local purify oss
+329:retired archive mem_leak local purify oss
+330:retired archive mem_leak local purify oss
+331:retired archive mem_leak local purify oss
+332:retired archive mem_leak local purify oss
+333:retired archive mem_leak local purify oss
 334 derive local oss
 335 derive local oss
 336 trace local pmda.install oss
@@ -666,7 +667,7 @@ avahi
 411 pmda.simple local pmda.install oss
 412 wrap archive libpcp pmval local oss pmdumplog
 413 pmie local oss event
-414 libpcp_dev local oss
+414 libpcp local oss
 415 pmval pmstore local oss event
 416 pmda.news dbpmda local oss sanity perl
 417 archive local oss pmdumplog
@@ -867,7 +868,7 @@ avahi
 660 pmwebapi local oss
 702 python libpcp local oss
 703 pmda.weblog local oss
-704 pmda.mmv python mmv local oss
+704:reserved pmda.mmv python mmv local oss
 705 libpcp local oss
 706 libpcp local oss
 707 python libpcp local oss
@@ -913,10 +914,12 @@ avahi
 779 pmda local oss
 783 pmda.rpm local oss
 786 context context_local libpcp local oss
+787:reserved archive local oss pmie pmlogrewrite pmdumplog pmval
 798 pmda.nfsclient local oss
 815 pmie local oss
 823 pmda.sample pmstore secure local oss
 827 pmlogrewrite pmda.linux local oss
+830 other local oss
 831 pmda.sample pmstore secure local oss
 832 pmda.sample pmstore secure local oss
 840 avahi local oss
@@ -941,6 +944,34 @@ avahi
 978 libpcp sanity local oss
 991 python local oss
 994 other verify oss
+1001 pmchart local
+1002 pmchart local
+1003 pmchart local
+1004 pmchart local
+1005 pmchart local
+1006 pmchart local
+1007 pmchart local
+1008 libqmc local
+1009 libqmc local
+1010 libqmc local
+1011 libqmc local
+1012 libqmc local
+1013 libqmc local
+1014 libqmc local
+1015 libqmc local
+1016 libqmc local
+1017:retired libqmc local flakey
+1018:retired libqmc local flakey
+1019:retired libqmc local flakey
+1020:retired libqmc local flakey
+1021 libqmc local
+1022 pmdumptext local
+1023 pmdumptext local
+1025 pmdumptext local
+1026 pmdumptext remote
+1027 pmdumptext local
+1028 pmdumptext local
+1029 libqmc local
 1044 pmie local pmieconf sgi sanity
 1045 pmie local pmieconf sgi
 1046 pmie local pmieconf sgi

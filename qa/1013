@@ -1,0 +1,29 @@
+#!/bin/sh
+# PCP QA Test No. 1013
+# Test QmcMetric::formatNumber
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+. ./common.test
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+for i in \
+	0 \
+	0.00001 0.0001 0.001 0.01 0.1 1.0 10.0 100.0 1000.0 10000.0 \
+	1000000.0 10000000.0 100000000.0 1000000000.0 10000000000.0 \
+	100000000000.0 1000000000000.0 10000000000000.0 \
+	0.005 0.0051 9.995 9.9951 99.95 99.951 99950.0 99951.0 \
+	99950000.0 99951000.0 99950000000.0 99951000000.0 \
+	99950000000000.0 99951000000000.0
+do
+    echo $i | $PCP_AWK_PROG '{printf("%17s = ", $1); }'
+    qt/qmc_format/qmc_format $i
+    echo -$i | $PCP_AWK_PROG '{printf("%17s = ", $1); }'
+    qt/qmc_format/qmc_format -$i
+done
+
+# success, all done
+status=0
+exit

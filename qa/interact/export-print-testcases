@@ -1,0 +1,57 @@
+Export and Print
+================
+
+Export
+
+[ ] Run: pmchart -a archives/chartqa1 -c views/ScaleManual
+[ ] Verify that the default image format (png) is show, the default file
+    name is $HOME/chart.png, and that the Width/Height are 302/280 pixels
+    respectively.
+[ ] Shift the quality slider up/down - check that the value is updated in
+    the Quality spin box.  Check the reverse also - that the slider moves
+    when values are entered via the Quality spin box controls.
+[ ] Enter the following parameters:
+    - Image format: jpeg (make sure that the file extension changes)
+    - Transparent background disabled
+    - Filename /tmp/qa1.jpeg
+    - All Charts in Tab enabled
+    and Press OK.
+[ ] Verify using an image editor (eog, gimp, xv, ...) that a jpeg image
+    matching the main pmchart window is generated in that file.
+[ ] Select the second (bottom) chart in the main window, then open the
+    Export dialog once again.
+[ ] The previous settings should all have been preserved.  Enable the
+    transparent background option, and click the Selected Chart Only
+    toggle button.  When you click that button, the Width/Heigth should
+    be updated to 302/151 pixels.  Modify those values to 300/150 pixels.
+    Change the format to png (check the filename extension is updated),
+    and press OK.
+[ ] Verify with your image viewing tool that a transparent background
+    png format image with only the selected chart has been generated,
+    and that it has dimensions 300/150 pixels.
+[ ] Open the Export dialog once again, and press OK.  You should see a
+    dialog prompting you whether you want to overwrite the existing
+    /tmp/qa1.png file.  Click cancel, and cancel in the export dialog.
+
+
+Print
+
+[ ] Open the Print Dialog, click on Print to File, and enter the
+    file name "/tmp/qa2.pdf".
+[ ] Set paper Orientation to Landscape.
+[ ] Set paper Format to B5.
+[ ] Press Print, and verify that the file generated displays both of
+    the charts and matches the above printing parameters, using a pdf
+    viewing tool (xpdf, gnome-viewer, ...)
+
+[ ] Open the Print Dialog, click on Print to File, and enter the
+    file name "/tmp/qa3.pdf".
+[ ] Set paper Orientation to Portrait.
+[ ] Set paper Format to A4.
+[ ] Press Print, and verify that the file generated matches these
+    parameters, using your pdf viewing tool, and shows both graphs.
+
+[ ] If you have a printer connected, send a job to the printer instead
+    of to a file, and verify it once more (print parameters will now
+    depend on your printer and available paper).
+ 

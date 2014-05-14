@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta http-equiv="content-style-type" content="text/css">
+	<link href="pcpdoc.css" rel="stylesheet" type="text/css">
+	<link href="images/pcp.ico" rel="icon" type="image/ico">
+	<TITLE>Time Control</TITLE>
+</HEAD>
+<BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/pmtimeicon.png" NAME="pmtimeicon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></TD>
+	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
+	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	</TR>
+</TABLE>
+<H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Time Control</FONT></H1>
+<P>The graphical time control utility, <I>pmtime</I>, is used to coordinate all aspects of time synchonisation in <I>pmchart</I>.&nbsp;&nbsp;Most importantly, this means the current sample time is set by <I>pmtime</I>, but also includes things like the update delta, update speed, and the timezone.&nbsp;&nbsp;It presents a VCR model which can be used to stop time, play forwards, rewind, and fast forward through time.
+</P>
+<P><BR></P>
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Main Window</B></FONT></P></TD></TR>
+</TABLE>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+        <TR><TD><P><BR><I>pmtime</I> operates in either live or archive mode, depending on the data source.&nbsp;&nbsp;In archive mode, there is additional functionality available, as both forward and backward movement is possible, and it is can speed up or slow down the time updates relative to real time.&nbsp;&nbsp;Some functionality is common between the two modes, however.&nbsp;&nbsp;The sample interval (and units) can always be set using the <I>Interval</I>.&nbsp;&nbsp;The current time position is always displayed in the <I>Position</I> text box (this equates to the rightmost time point in the <I>pmchart</I> window).&nbsp;&nbsp;And when hosts or archives from different timezones to the monitoring host are used, a drop-down list of available timezones is available from the options menu, which allows you to change the reporting timezone in the monitoring tools (this always defaults to localtime on the monitoring host - <B>not</B> the monitored host).</P>
+	<TD WIDTH=456><P VALIGN=MIDDLE ALIGN=RIGHT><CENTER><BR><IMG ALIGN=RIGHT SRC="images/pmtime_clients.png" BORDER=0></CENTER></P></TD>
+</TABLE>
+<P><I>pmtime</I> can actually coordinate the flow of time to multiple client programs.&nbsp;&nbsp;For example, if a second <I>pmchart</I> is started via the <I>Options</I> menu, it will share the time control process with the original <I>pmchart</I> and both will be updated in lock-step.&nbsp;&nbsp;This is true for both Live and Archive monitoring, and there is even support for controlling time for other PCP clients (like <I>pmval</I>) as well.</P>
+<BR>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Live Mode</B></FONT></P></TD></TR>
+</TABLE>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR><TD WIDTH=350><P VALIGN=MIDDLE ALIGN=LEFT><CENTER><BR><IMG ALIGN=LEFT SRC="images/pmtime_live.png" BORDER=0></CENTER></P></TD>
+	<TD><BR><P>There are just two states available in live mode:<UL><LI>Playing, where time updates are sent to the client at a continuous rate in real time.
+	<LI>Stopped, where time is frozen at a particular point in time.
+</UL></P>
+	</TR>
+</TABLE>
+</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Archive Mode</B></FONT></P></TD></TR>
+</TABLE>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR><TD WIDTH=350><P VALIGN=MIDDLE ALIGN=LEFT><CENTER><BR><IMG ALIGN=LEFT SRC="images/pmtime_archive.png" BORDER=0></CENTER></P></TD>
+	<TD><BR><P>There are several modes of playback available in archive mode:<UL><LI>Normal mode, where time updates are sent to the client at a continuous rate (usually not too different to the original live recording), as determined by the "Speed" wheel setting.
+	<LI>Step mode, where time is only advanced/retreated (by clicking on the Step button) one sample at a time.
+	<LI>Fast mode, where time is moved quickly in either a fast forward or fast rewind direction, and the visible charts are updated as quickly as possible.
+</UL></P><P>The Speed setting can be changed by directly editing the text entry box, or more simply by selecting and rotating the wheel either left or right.&nbsp;&nbsp;Speed is only relevent in Normal mode.</TD>
+	</TR>
+</TABLE>
+<P>In archive mode, the <I>Position</I> text box is editable, and any valid PCP timestamp can be entered here.&nbsp;&nbsp;Alternatively, and more simply, the archive mode provides a slider beneath the <I>Position</I> text box allowing the time position to be set directly using the pointing device (click, drag, and release at the desired time position).
+</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR><TD><BR><P>One last feature specific to archive mode, is the <I>Time Bounds</I> dialog.&nbsp;&nbsp;This window, available from the <I>Options</I> menu, displays the start and end position for all archives presented to <I>pmchart</I> (and hence <I>pmtime</I>).&nbsp;&nbsp;The editable <I>Start</I> and <I>End</I> position text boxes (and associated sliders) allow the time updates to be restricted to a specific time range.&nbsp;&nbsp;Once archive play/rewind hits these caliper points, replay will stop (independent of whether that is the start or end of the archive).&nbsp;&nbsp;This allows for a fine-grained level of focus around particular performance events.</TD>
+	<TD WIDTH=350><P VALIGN=MIDDLE ALIGN=RIGHT><CENTER><BR><IMG ALIGN=RIGHT SRC="images/pmtime_bounds.png" BORDER=0></CENTER></P></TD>
+	</TR>
+</TABLE>
+<P><BR></P>
+<HR>
+<CENTER>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=50%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A></P></TD>
+	<TD WIDTH=50%><P ALIGN=RIGHT>PCP</P></TD> </TR>
+</TABLE>
+</CENTER>
+</BODY>
+</HTML>

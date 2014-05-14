@@ -13,15 +13,6 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# check for new version ... may need -o to force "old style" behaviour
-#
-if pmlogger_daily -\? 2>&1 | grep '^.*-o.*(old style)' >/dev/null
-then
-    oflag='-o'
-else
-    oflag=''
-fi
-
 # get standard filters
 . ./common.product
 . ./common.filter
@@ -123,7 +114,7 @@ LOCALHOSTNAME	n   n	'"$tmp"'	./config'
     echo
     echo "=== [${verbose+verbose}] regular show ==="
     echo "=== [${verbose+verbose}] regular show ===" >>$seq.full
-    $sudo $PCP_BINADM_DIR/pmlogger_daily $oflag -c $tmp/control -k 3 $verbose 2>&1 \
+    $sudo $PCP_BINADM_DIR/pmlogger_daily -o -c $tmp/control -k 3 $verbose 2>&1 \
     | _filter
     ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort
 
@@ -134,7 +125,7 @@ LOCALHOSTNAME	n   n	'"$tmp"'	./config'
     do
 	mv $tmp/$yesterday.$ext $tmp/save.$ext
     done
-    $sudo $PCP_BINADM_DIR/pmlogger_daily $oflag -c $tmp/control -k 2 $verbose 2>&1 \
+    $sudo $PCP_BINADM_DIR/pmlogger_daily -o -c $tmp/control -k 2 $verbose 2>&1 \
     | _filter
     ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort
 
@@ -146,7 +137,7 @@ LOCALHOSTNAME	n   n	'"$tmp"'	./config'
 	cp src/arch_a.$ext $tmp/$yesterday.17.18.$ext
 	mv $tmp/save.$ext $tmp/$yesterday.$ext
     done
-    $sudo $PCP_BINADM_DIR/pmlogger_daily $oflag -c $tmp/control -k 2 $verbose 2>&1 \
+    $sudo $PCP_BINADM_DIR/pmlogger_daily -o -c $tmp/control -k 2 $verbose 2>&1 \
     | _filter
     ls $tmp | sed -f $tmp/sed | LC_COLLATE=POSIX sort
 

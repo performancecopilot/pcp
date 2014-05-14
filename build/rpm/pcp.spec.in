@@ -29,6 +29,13 @@ BuildRequires: libmicrohttpd-devel
 %if @have_rpmlib@ == 1
 BuildRequires: rpm-devel
 %endif
+%if "@enable_qt@" == "true"
+%if "%{_vendor}" == "suse"
+BuildRequires: qt-devel >= 4.4
+%else
+BuildRequires: qt4-devel >= 4.4
+%endif
+%endif
 %if "%{_vendor}" == "redhat"
 BuildRequires: initscripts man /bin/hostname
 %endif
@@ -342,6 +349,44 @@ Requires: pcp-libs = @package_version@
 The python PCP module contains the language bindings for
 building Performance Metric API (PMAPI) tools using Python.
 
+%if "@enable_qt@" == "true"
+#
+# pcp-gui package for Qt tools
+#
+%package -n pcp-gui
+License: GPLv2+ and LGPLv2+ and LGPLv2+ with exceptions
+Group: Applications/System
+Summary: Visualization tools for the Performance Co-Pilot toolkit
+URL: http://www.performancecopilot.org
+Requires: pcp-libs = %{version}-%{release}
+
+%description -n pcp-gui
+Visualization tools for the Performance Co-Pilot toolkit.
+The pcp-gui package primarily includes visualization tools for
+monitoring systems using live and archived Performance Co-Pilot
+(PCP) sources.
+%endif
+
+#
+# pcp-doc package
+#
+%package -n pcp-doc
+Group: Documentation
+BuildArch: noarch
+Summary: Documentation and tutorial for the Performance Co-Pilot
+URL: http://www.performancecopilot.org
+
+%description -n pcp-doc
+Documentation and tutorial for the Performance Co-Pilot
+Performance Co-Pilot (PCP) provides a framework and services to support
+system-level performance monitoring and performance management.
+
+The pcp-doc package provides useful information on using and
+configuring the Performance Co-Pilot (PCP) toolkit for system
+level performance management.  It includes tutorials, HOWTOs,
+and other detailed documentation about the internals of core
+PCP utilities and daemons, and the PCP graphical tools.
+
 %if "@pmda_infiniband@" == "infiniband"
 #
 # pcp-pmda-infiniband
@@ -441,11 +486,23 @@ cat >>conf_files <<WEBEOF
 pmwebd/pmwebd.options
 WEBEOF
 %endif
+%if "@enable_qt@" == "true"
+cat >>conf_files <<GUIEOF
+pmsnap/control
+pmsnap/crontab
+GUIEOF
+%endif
 
 #
 # Files for the various subpackages.  We use these subpackages
 # to isolate the (somewhat exotic) dependencies for these tools.
 # Likewise, for the pcp-pmda and pcp-testsuite subpackages.
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp-doc' >docs_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'tutorials' >>docs_files
+%if "@enable_qt@" == "true"
+PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
+awk '{print $NF}' $DIST_MANIFEST | egrep "$PCP_GUI|pixmaps" > gui_files
+%endif
 %if @have_libmicrohttpd@ == 1
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pmweb|PMWEBAPI' >webapi_files
 %endif
@@ -467,6 +524,8 @@ rm -f *_files.rpm
 sort -u $DIST_MANIFEST | $PCP_AWK_PROG ' 
 BEGIN {
     while( getline < "cfg_files") cfg[$0]=1;
+    while( getline < "gui_files") gui[$0]=1;
+    while( getline < "docs_files") doc[$0]=1;
     while( getline < "libs_files") lib[$0]=1;
     while( getline < "devel_files") dev[$0]=1;
     while( getline < "webapi_files") webapi[$0]=1;
@@ -478,10 +537,13 @@ BEGIN {
     while( getline < "import_sheet2pcp_files") import_sheet2pcp[$0]=1;
     while( getline < "import_mrtg2pcp_files") import_mrtg2pcp[$0]=1;
     while( getline < "import_collectl2pcp_files") import_collectl2pcp[$0]=1;
+    while( getline < "import_collectl2pcp_files") import_collectl2pcp[$0]=1;
     while( getline < "conf_files") conf[nconf++]=$0;
 }
 {
     if (cfg[$NF]) f="cfg_files.rpm";
+    else if (gui[$NF]) f="gui_files.rpm";
+    else if (doc[$NF]) f="docs_files.rpm";
     else if (lib[$NF]) f="libs_files.rpm";
     else if (dev[$NF]) f="devel_files.rpm";
     else if (webapi[$NF]) f="webapi_files.rpm";
@@ -680,6 +742,14 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %files libs-devel -f devel_files.rpm
 %defattr(-,root,root)
+
+%files doc -f docs_files.rpm
+%defattr(-,root,root)
+
+%if "@enable_qt@" == "true"
+%files gui -f gui_files.rpm
+%defattr(-,root,root)
+%endif
 
 %if @have_libmicrohttpd@ == 1
 %files webapi -f webapi_files.rpm

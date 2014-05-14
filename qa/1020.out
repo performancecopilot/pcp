@@ -1,0 +1,310 @@
+QA output created by 1020
+dynamic.control.del old value=0 new value=-1
+
+*** 1: Line <N> - Create two fetch groups ***
+
+*** 2: Line <N> - Add number of instances to both groups ***
+dynamic.numinsts = Missing metric value(s)
+dynamic.numinsts = Missing metric value(s)
+
+*** 3: Line <N> - Fetch both groups ***
+dynamic.numinsts = 0 none
+dynamic.numinsts = 0 none
+
+*** 4: Line <N> - Add dynamic metrics to both groups ***
+dynamic.discrete: 0 instances
+dynamic.instant: 0 instances
+dynamic.counter: 0 instances
+dynamic.discrete: 0 instances
+dynamic.instant: 0 instances
+dynamic.counter: 0 instances
+
+*** 5: Line <N> - Fetch both groups ***
+dynamic.numinsts = 0
+
+
+247.0: 0 instances (0 NULL)
+dynamic.numinsts = 0
+
+
+247.0: 0 instances (0 NULL)
+
+*** 6: Line <N> - Add an instance ***
+dynamic.control.add 1
+
+*** 7: Line <N> - Fetch first group ***
+dynamic.numinsts = 1
+
+
+247.0: 0 instances (0 NULL)
+
+*** 8: Line <N> - Update indom for first group ***
+
+*** 9: Line <N> - Fetch first group ***
+dynamic.numinsts = 1
+
+[1] = "1" = 2 (Missing metric value(s))
+
+247.0: 1 instances (0 NULL)
+  [1] = "1" (3 refs) active
+
+*** 10: Line <N> - Fetch first group ***
+dynamic.numinsts = 1
+
+[1] = "1" = 3 (3)
+
+247.0: 1 instances (0 NULL)
+  [1] = "1" (3 refs) active
+
+*** 11: Line <N> - Fetch first group ***
+dynamic.numinsts = 1
+
+[1] = "1" = 4 (4)
+
+247.0: 1 instances (0 NULL)
+  [1] = "1" (3 refs) active
+
+*** 12: Line <N> - Add another instance ***
+dynamic.control.add 5
+
+*** 13: Line <N> - Fetch first group ***
+dynamic.numinsts = 2
+
+[1] = "1" = 6 (6)
+
+247.0: 1 instances (0 NULL)
+  [1] = "1" (3 refs) active
+
+*** 14: Line <N> - Update indom for first group ***
+
+*** 15: Line <N> - Fetch first group ***
+dynamic.numinsts = 2
+
+[1] = "1" = 7 (7)
+[5] = "5" = 10 (Missing metric value(s))
+
+247.0: 2 instances (0 NULL)
+  [1] = "1" (3 refs) active
+  [5] = "5" (3 refs) active
+
+*** 16: Line <N> - Fetch first group ***
+dynamic.numinsts = 2
+
+[1] = "1" = 8 (8)
+[5] = "5" = 15 (15)
+
+247.0: 2 instances (0 NULL)
+  [1] = "1" (3 refs) active
+  [5] = "5" (3 refs) active
+
+*** 17: Line <N> - Delete first instance ***
+dynamic.control.del 1
+
+*** 18: Line <N> - Fetch first group ***
+dynamic.numinsts = 1
+
+[1] = Missing metric value(s)
+[5] = "5" = 25 (25)
+
+247.0: 2 instances (0 NULL)
+  [1] = "1" (3 refs) active
+  [5] = "5" (3 refs) active
+
+*** 19: Line <N> - Update indom for first group ***
+
+*** 20: Line <N> - Fetch first group ***
+dynamic.numinsts = 1
+
+[5] = "5" = 30 (30)
+
+247.0: 1 instances (1 NULL)
+  NULL -> -1
+  [5] = "5" (3 refs) active
+
+*** 21: Line <N> - Fetch second group ***
+dynamic.numinsts = 1
+
+
+247.0: 0 instances (0 NULL)
+
+*** 22: Line <N> - Update indom for second group ***
+
+*** 23: Line <N> - Fetch second group ***
+dynamic.numinsts = 1
+
+[5] = "5" = 40 (Missing metric value(s))
+
+247.0: 1 instances (0 NULL)
+  [5] = "5" (3 refs) active
+
+*** 24: Line <N> - Fetch second group ***
+dynamic.numinsts = 1
+
+[5] = "5" = 45 (45)
+
+247.0: 1 instances (0 NULL)
+  [5] = "5" (3 refs) active
+
+*** 25: Line <N> - Delete second instance, add new instance ***
+dynamic.control.del 5
+dynamic.control.add 3
+
+*** 26: Line <N> - Fetch first group ***
+dynamic.numinsts = 1
+
+[5] = Missing metric value(s)
+
+247.0: 1 instances (1 NULL)
+  NULL -> -1
+  [5] = "5" (3 refs) active
+
+*** 27: Line <N> - Update indom for first group ***
+
+*** 28: Line <N> - Fetch first group ***
+dynamic.numinsts = 1
+
+[3] = "3" = 6 (Missing metric value(s))
+
+247.0: 1 instances (1 NULL)
+  [3] = "3" (3 refs) active
+  NULL -> -1
+
+*** 29: Line <N> - Fetch first group ***
+dynamic.numinsts = 1
+
+[3] = "3" = 9 (9)
+
+247.0: 1 instances (1 NULL)
+  [3] = "3" (3 refs) active
+  NULL -> -1
+
+*** 30: Line <N> - Fetch second group ***
+dynamic.numinsts = 1
+
+[5] = Missing metric value(s)
+
+247.0: 1 instances (0 NULL)
+  [5] = "5" (3 refs) active
+
+*** 31: Line <N> - Update indom for second group ***
+
+*** 32: Line <N> - Fetch second group ***
+dynamic.numinsts = 1
+
+[5] = Missing metric value(s)
+[3] = "3" = 15 (Missing metric value(s))
+
+247.0: 2 instances (0 NULL)
+  [5] = "5" (3 refs) inactive
+  [3] = "3" (3 refs) active
+
+*** 33: Line <N> - Fetch second group ***
+dynamic.numinsts = 1
+
+[5] = Missing metric value(s)
+[3] = "3" = 18 (18)
+
+247.0: 2 instances (0 NULL)
+  [5] = "5" (3 refs) inactive
+  [3] = "3" (3 refs) active
+
+*** 34: Line <N> - Delete third instance ***
+dynamic.control.del 3
+
+*** 35: Line <N> - Fetch first group ***
+dynamic.numinsts = 0
+
+[3] = Missing metric value(s)
+
+247.0: 1 instances (1 NULL)
+  [3] = "3" (3 refs) active
+  NULL -> -1
+
+*** 36: Line <N> - Update indom for first group ***
+
+*** 37: Line <N> - Fetch first group ***
+dynamic.numinsts = 0
+
+
+247.0: 0 instances (2 NULL)
+  NULL -> 1
+  NULL -> -1
+
+*** 38: Line <N> - Fetch second group ***
+dynamic.numinsts = 0
+
+[5] = Missing metric value(s)
+[3] = Missing metric value(s)
+
+247.0: 2 instances (0 NULL)
+  [5] = "5" (3 refs) inactive
+  [3] = "3" (3 refs) active
+
+*** 39: Line <N> - Update indom for second group ***
+
+*** 40: Line <N> - Fetch second group ***
+dynamic.numinsts = 0
+
+[5] = Missing metric value(s)
+[3] = Missing metric value(s)
+
+247.0: 2 instances (0 NULL)
+  [5] = "5" (3 refs) inactive
+  [3] = "3" (3 refs) inactive
+
+*** 41: Line <N> - Add second instance again ***
+dynamic.control.add 5
+
+*** 42: Line <N> - Fetch first group ***
+dynamic.numinsts = 1
+
+
+247.0: 0 instances (2 NULL)
+  NULL -> 1
+  NULL -> -1
+
+*** 43: Line <N> - Update indom for first group ***
+
+*** 44: Line <N> - Fetch first group ***
+dynamic.numinsts = 1
+
+[5] = "5" = 10 (Missing metric value(s))
+
+247.0: 1 instances (1 NULL)
+  [5] = "5" (3 refs) active
+  NULL -> -1
+
+*** 45: Line <N> - Fetch second group ***
+dynamic.numinsts = 1
+
+[5] = "5" = 15 (Missing metric value(s))
+[3] = Missing metric value(s)
+
+247.0: 2 instances (0 NULL)
+  [5] = "5" (3 refs) inactive
+  [3] = "3" (3 refs) inactive
+
+*** 46: Line <N> - Update indom for second group ***
+
+*** 47: Line <N> - Fetch second group ***
+dynamic.numinsts = 1
+
+[5] = "5" = 20 (20)
+[3] = Missing metric value(s)
+
+247.0: 2 instances (0 NULL)
+  [5] = "5" (3 refs) active
+  [3] = "3" (3 refs) inactive
+
+*** PDUs ***
+ 8 pmGetPDU: DESC
+ 1 pmGetPDU: ERROR
+ 12 pmGetPDU: INSTANCE
+ 9 pmGetPDU: PMNS_IDS
+ 31 pmGetPDU: RESULT
+ 1 pmXmitPDU: CREDS
+ 8 pmXmitPDU: DESC_REQ
+ 31 pmXmitPDU: FETCH
+ 12 pmXmitPDU: INSTANCE_REQ
+ 9 pmXmitPDU: PMNS_NAMES
+ 10 pmXmitPDU: PROFILE

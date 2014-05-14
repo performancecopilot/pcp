@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2014 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@ TOPDIR	= ../..
 include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS	= src examples
-OTHERS  = control stomp rc_pmie pmie2col pmie_check.sh pmie_daily.sh
+OTHERS  = control stomp rc_pmie pmie2col.sh pmie_check.sh pmie_daily.sh
 
 LSRCFILES = $(OTHERS) crontab.in
 LDIRT	= crontab
@@ -43,7 +43,7 @@ install::	default
 	$(INSTALL) -m 664 -o $(PCP_USER) -g $(PCP_GROUP) control $(PCP_PMIECONTROL_PATH)
 	$(INSTALL) -m 755 pmie_check.sh $(PCP_BINADM_DIR)/pmie_check
 	$(INSTALL) -m 755 pmie_daily.sh $(PCP_BINADM_DIR)/pmie_daily
-	$(INSTALL) -m 755 pmie2col $(PCP_BIN_DIR)/pmie2col
+	$(INSTALL) -m 755 pmie2col.sh $(PCP_BIN_DIR)/pmie2col
 	$(INSTALL) -m 755 rc_pmie $(PCP_RC_DIR)/pmie
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmie
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)/pmie

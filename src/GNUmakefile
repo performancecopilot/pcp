@@ -17,20 +17,98 @@ TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-SUBDIRS = include libpcp pmns \
-	  libpcp_pmda libpcp_trace libpcp_http libpcp_pmcd libpcp_gui \
-	  libpcp_mmv libpcp_import \
-	  pmconfig newhelp pmfind pminfo pmcpp pmcd pmcd_wait pmerr pmdbg \
-	  pmdate pmie pmieconf pmpost pmprobe pmlock pmval pmlogger \
-	  pmdumplog pmlogextract pmstore pmhostname pmgenmap pmevent \
-	  pmlogconf pmloglabel pmlogsummary pmclient pcp pmlc dbpmda \
-	  pmtrace pmstat pmsocks pmdas pmafm procmemstat pmimport \
-	  pmlogreduce genpmda pmproxy pmsignal pmsleep pmtop \
-	  autofsd-probe telnet-probe bashrc pmiestatus \
-	  pmevent pmlogrewrite pmcollectl pmatop pmwebapi \
-	  perl python win32ctl pmmgr pmgetopt
+INCLUDE_SUBDIR = include
+PMNS_SUBDIR = pmns
+LIBPCP_SUBDIR = libpcp
+LIBS_SUBDIRS = \
+	libpcp_pmda \
+	libpcp_trace \
+	libpcp_http \
+	libpcp_pmcd \
+	libpcp_gui \
+	libpcp_mmv \
+	libpcp_import \
+	libpcp_qmc \
+	libpcp_qwt
+
+OTHER_SUBDIRS = \
+	pminfo \
+	pmprobe \
+	bashrc \
+	dbpmda \
+	genpmda \
+	newhelp \
+	pcp \
+	pmafm \
+	pmatop \
+	pmcollectl \
+	pmfind \
+	pmcpp \
+	pmcd \
+	pmcd_wait \
+	pmchart \
+	pmclient \
+	pmconfig \
+	pmdas \
+	pmdate \
+	pmdbg \
+	pmdumplog \
+	pmdumptext \
+	pmerr \
+	pmevent \
+	pmgenmap \
+	pmgetopt \
+	pmhostname \
+	pmie \
+	pmieconf \
+	pmiestatus \
+	pmlc \
+	pmlock \
+	pmlogextract \
+	pmlogger \
+	pmlogreduce \
+	pmlogconf \
+	pmloglabel \
+	pmlogrewrite \
+	pmlogsummary \
+	pmmgr \
+	pmpost \
+	pmproxy \
+	pmquery \
+	pmstat \
+	pmstore \
+	pmsocks \
+	pmtrace \
+	pmsignal \
+	pmsleep \
+	pmsnap \
+	pmtop \
+	pmtime \
+	pmwebapi \
+	pmval \
+	perl \
+	python \
+	procmemstat \
+	autofsd-probe \
+	telnet-probe \
+	collectl2pcp \
+	iostat2pcp \
+	mrtg2pcp \
+	sar2pcp \
+	sheet2pcp \
+	win32ctl \
+	#
+
+SUBDIRS = \
+	$(INCLUDE_SUBDIR) \
+	$(LIBPCP_SUBDIR) \
+	$(PMNS_SUBDIR) \
+	$(LIBS_SUBDIRS) \
+	$(OTHER_SUBDIRS)
 
 default :: default_pcp
+
+include $(BUILDRULES)
 
 default_pcp : $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
@@ -40,4 +118,7 @@ install :: default_pcp install_pcp
 install_pcp : $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
-include $(BUILDRULES)
+$(LIBPCP_SUBDIR): $(INCLUDE_SUBDIR)
+$(PMNS_SUBDIR): $(LIBPCP_SUBDIR)
+$(LIBS_SUBDIRS): $(PMNS_SUBDIR)
+$(OTHER_SUBDIRS): $(LIBS_SUBDIRS)

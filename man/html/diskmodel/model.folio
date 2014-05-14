@@ -1,0 +1,10 @@
+PCPFolio
+Version: 1
+# use pmafm(1) to process this PCP archive folio
+#
+Created: on verge at Wed Jul 28 12:36:42 EST 2010
+Creator: pmchart model.view
+# 		Host			Basename
+#
+Archive:        db2                     ./dbdata
+Archive:        nas2                    ./nasdata

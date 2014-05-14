@@ -24,16 +24,6 @@ status=0	# success is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 rm -f $seq.full
 
-# check for new version ... may need -o to force "old style" behaviour
-#
-if pmlogger_daily -\? 2>&1 | grep '^.*-o.*(old style)' >/dev/null
-then
-    oflag='-o'
-    echo "Using -o" >>$seq.full
-else
-    oflag=''
-fi
-
 _filter()
 {
     sed \
@@ -105,6 +95,6 @@ echo "done, now=$now" >>$seq.full
 # real QA test starts here
 test -f $PCP_LOG_DIR/NOTICES && \
 	$sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.orig
-$sudo $PCP_BINADM_DIR/pmlogger_daily $oflag -k 550 -N -c $tmp.control 2>&1 \
+$sudo $PCP_BINADM_DIR/pmlogger_daily -o -k 550 -N -c $tmp.control 2>&1 \
 | tee -a $seq.full \
 | _filter

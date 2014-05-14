@@ -1,0 +1,26 @@
+#!/bin/sh
+# PCP QA Test No. 1027
+# Exercise PM_CONTEXT_LOCAL extensions to pmParseMetricSpec() and libpcp_qmc
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+. ./common.test
+
+status=0	# success is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo 'expected to pass when sampledso is installed'
+pmdumptext -t 0.5 -s 1 @:sampledso.bin | _filter_pmdumptext
+pmstore sampledso.write_me 42
+echo "expect 2 2 42"
+pmdumptext -t 0.5 -s 1 @:sampledso.write_me sampledso.write_me localhost:sampledso.write_me \
+| _filter_pmdumptext
+echo "expect 42 42 2"
+pmdumptext -t 0.5 -s 1 localhost:sampledso.write_me sampledso.write_me @:sampledso.write_me \
+| _filter_pmdumptext
+
+pmstore sampledso.write_me 2
+
+# success, all done
+exit

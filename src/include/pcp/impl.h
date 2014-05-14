@@ -147,10 +147,14 @@ pmid_domain(pmID id)
 static inline pmID
 pmid_build(unsigned int domain, unsigned int cluster, unsigned int item)
 {
-    pmID id = 0;
-    __pmid_int(&id)->domain = domain;
-    __pmid_int(&id)->cluster = cluster;
-    __pmid_int(&id)->item = item;
+    pmID id;
+    __pmID_int idint;
+
+    idint.flag = 0;
+    idint.domain = domain;
+    idint.cluster = cluster;
+    idint.item = item;
+    memcpy(&id, &idint, sizeof(id));
     return id;
 }
 
@@ -179,11 +183,13 @@ __pmindom_int(pmInDom *idp)
     /* avoid gcc's warning about dereferencing type-punned pointers */
     return (__pmInDom_int *)idp;
 }
+
 static inline unsigned int 
 pmInDom_domain(pmInDom id)
 {
     return __pmindom_int(&id)->domain;
 }
+
 static inline unsigned int 
 pmInDom_serial(pmInDom id)
 {
@@ -191,13 +197,16 @@ pmInDom_serial(pmInDom id)
 }
 
 static inline pmInDom
-pmInDom_build (unsigned int domain, unsigned int serial)
+pmInDom_build(unsigned int domain, unsigned int serial)
 {
-    pmInDom ind = 0;
+    pmInDom ind;
+    __pmInDom_int indint;
 
-    __pmindom_int(&ind)->domain = domain;
-    __pmindom_int(&ind)->serial = serial;
-    return (ind);
+    indint.flag = 0;
+    indint.domain = domain;
+    indint.serial = serial;
+    memcpy(&ind, &indint, sizeof(ind));
+    return ind;
 }
 
 /*
@@ -332,7 +341,7 @@ typedef enum {
 } __pmHashWalkState;
 
 extern void __pmHashInit(__pmHashCtl *);
-typedef __pmHashWalkState (*__pmHashWalkCallback)(const __pmHashNode *, void *);
+typedef __pmHashWalkState(*__pmHashWalkCallback)(const __pmHashNode *, void *);
 extern void __pmHashWalkCB(__pmHashWalkCallback, void *, const __pmHashCtl *);
 extern __pmHashNode *__pmHashWalk(__pmHashCtl *, __pmHashWalkState);
 extern __pmHashNode *__pmHashSearch(unsigned int, __pmHashCtl *);
@@ -606,7 +615,7 @@ extern __pmSockAddr *__pmSockAddrAlloc(void);
 extern void	     __pmSockAddrFree(__pmSockAddr *);
 extern size_t	     __pmSockAddrSize(void);
 extern void	     __pmSockAddrInit(__pmSockAddr *, int, int, int);
-extern int	     __pmSockAddrCompare (const __pmSockAddr *, const __pmSockAddr *);
+extern int	     __pmSockAddrCompare(const __pmSockAddr *, const __pmSockAddr *);
 extern __pmSockAddr *__pmSockAddrDup(const __pmSockAddr *);
 extern __pmSockAddr *__pmSockAddrMask(__pmSockAddr *, const __pmSockAddr *);
 extern void	     __pmSockAddrSetFamily(__pmSockAddr *, int);

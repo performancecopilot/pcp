@@ -1,0 +1,92 @@
+#!/bin/sh
+# PCP QA Test No. 1011
+# Compare pmdumptext output to pmval
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+. ./common.test
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+date=`pmdumplog -l archives/gap | grep commencing |
+	sed -e 's/  commencing //' -e 's/\.[0-9]*//'`
+
+_diff_filter()
+{
+    # do nothing, we want to see all of the text if there are differences
+    #
+    cat
+    # old stuff ...
+    #
+    # sed \
+    # -e "s/$date/DATE/g" \
+    # -e "s/^[<>] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]/TIME/"
+}
+
+# Note: pmdumptext and pmval can disagree about the timezone when
+#       processing an archive, in the presence of timestamps in the
+#       archive coming from a period of daylight savings, and it not
+#       currently being a period of daylight savings, or vice versa.
+#       This sometimes produces a difference of 1 hour in the reported
+#       time between the tools, hence the HH: filtering here and in
+#       _pmdumptext_filter.
+#       Given the way timezones work for Linux in particular, this
+#       difference cannot be fixed, as the two applications use different
+#       ways of interacting with the PCP timezones support.
+#
+_pmval_filter()
+{
+    $PCP_AWK_PROG '{if (NF > 0) print $0}' |
+    sed \
+    -e 's/No values available/?/' \
+    -e '/^[a-z]*:/d' \
+    -e 's/.[0-9][0-9][0-9][ 	]*/ /' \
+    -e 's/\.0*//' \
+    -e 's/^[012][0-9]:/HH:/' \
+    -e '/bin-/d' \
+    -e 's/[ ]*$//' \
+    -e 's/  [ ]*/ /g'
+}
+
+_pmdumptext_filter()
+{
+    sed \
+    -e 's/^[012][0-9]:/HH:/' \
+    -e 's/? ? ? ? ? ? ? ? ?/?/'
+}
+
+# real QA test starts here
+rm -f $seq.full
+
+for metric in \
+    pmcd.pdu_in.total \
+    pmcd.pdu_in.fetch \
+    pmcd.numagents \
+    sample.bin
+do
+    echo Raw $metric
+    echo Raw $metric >>$seq.full
+    pmval -t 1 -r -a archives/gap $metric 2>&1 | _pmval_filter > $tmp.pmval
+    pmdumptext -G -w 16 -t 1 -r -a archives/gap -d" " -f "%H:%M:%S" $metric 2>&1 | _pmdumptext_filter > $tmp.dump
+    diff $tmp.pmval $tmp.dump | _diff_filter
+    echo "--- pmval ---" >>$seq.full
+    cat $tmp.pmval >>$seq.full
+    echo "--- pmdumptext ---" >>$seq.full
+    cat $tmp.dump >>$seq.full
+
+    echo Rate $metric
+    echo Rate $metric >>$seq.full
+    pmval -t 1 -a archives/gap $metric 2>&1 | _pmval_filter > $tmp.pmval
+    pmdumptext -G -w 16 -t 1 -a archives/gap -d" " -f "%H:%M:%S" $metric 2>&1 | _pmdumptext_filter > $tmp.dump 
+    diff $tmp.pmval $tmp.dump | _diff_filter
+    echo "--- pmval ---" >>$seq.full
+    cat $tmp.pmval >>$seq.full
+    echo "--- pmdumptext ---" >>$seq.full
+    cat $tmp.dump >>$seq.full
+
+done
+
+# success, all done
+status=0
+exit

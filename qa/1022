@@ -1,0 +1,29 @@
+#!/bin/sh
+# PCP QA Test No. 1022
+# -S and -T values that are _both_ before the start, or after the end
+# of an archive ...
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+. ./common.test
+
+status=0	# success is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+#
+# Performance metrics from host rattle
+#   commencing Sat May 17 21:22:42.025 1997
+#   ending     Mon May 19 10:22:42.021 1997
+
+# -S and -T before the start of the archive
+#
+pmdumptext -z -S '@Sat May 10 01:00:00 1997' -T '@Sat May 10 01:00:00 1997' -a archives/rattle irix.kernel.all.load
+
+# -S and -T after the end of the archive
+#
+echo
+pmdumptext -z -S '@Sat May 24 01:00:00 1997' -T '@Sat May 24 01:00:00 1997' -a archives/rattle irix.kernel.all.load
+
+# success, all done
+exit

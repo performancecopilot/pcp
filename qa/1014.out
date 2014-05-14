@@ -1,0 +1,12 @@
+QA output created by 1014
+*** Compare metric descriptor with pminfo output ***
+hinv.ncpu
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+
+hinv.ncpu
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+
+*** Fetch a bad descriptor ***
+qmc_desc: Error: Bogus metric: Unknown or illegal metric identifier

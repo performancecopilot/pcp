@@ -1,0 +1,55 @@
+QA output created by 1004
+=== Cisco ===
+Load View: PCP_VAR_DIR/config/pmchart/Schemes
+Load View: stdin
+openView: new chart: style=Line autoscale=yes legend=yes
+openView: new plot color=#-cycle metric=cisco.rate_in
+openView: new chart: style=Line autoscale=yes legend=yes
+openView: new plot color=#-cycle metric=cisco.rate_out
+
+=== Disk ===
+Load View: PCP_VAR_DIR/config/pmchart/Schemes
+Load View: stdin
+openView: new chart: style=Stack title="Disk Activity" autoscale=yes legend=yes
+openView: new plot color=yellow metric=disk.all.read
+openView: new plot color=violet metric=disk.all.write
+
+=== CPU ===
+Load View: PCP_VAR_DIR/config/pmchart/Schemes
+Load View: stdin
+openView: new chart: style=Util title="CPU Utilization" autoscale=yes legend=yes
+openView: new plot color=#2d2de2 metric=kernel.all.cpu.user
+openView: new plot color=#e71717 metric=kernel.all.cpu.sys
+openView: new optional-plot color=rgbi:0.9/0.1/0.5 metric=kernel.all.cpu.sxbrk
+openView: new optional-plot color=rgbi:0.4/0.9/0.4 metric=kernel.all.cpu.nice
+openView: new plot color=rgbi:0.8/0.8/0.0 metric=kernel.all.cpu.intr
+openView: new optional-plot color=rgbi:0.0/0.8/0.8 metric=kernel.all.cpu.wait.total
+openView: new plot color=#16e116 metric=kernel.all.cpu.idle
+
+=== Loadavg ===
+Load View: PCP_VAR_DIR/config/pmchart/Schemes
+Load View: stdin
+openView: new chart: style=Line title="Average Load" autoscale=yes legend=yes
+openView: new plot legend="1 min" metric=kernel.all.load inst=1 minute match=instance
+openView: new plot legend="5 min" metric=kernel.all.load inst=5 minute match=instance
+openView: new plot legend="15 min" metric=kernel.all.load inst=15 minute match=instance
+
+=== Net.bytes ===
+Load View: PCP_VAR_DIR/config/pmchart/Schemes
+Load View: stdin
+openView: new chart: style=Stack title="Network Interface Activity" autoscale=yes legend=yes
+openView: new plot metric=network.interface.in.bytes inst=^lo|^sl|^ppp match=not-matching
+openView: new plot metric=network.interface.out.bytes inst=^lo|^sl|^ppp match=not-matching
+
+=== PMCD ===
+Load View: PCP_VAR_DIR/config/pmchart/Schemes
+Load View: stdin
+openView: new chart: style=Stack title="PDUs In and Out for PMCD" autoscale=yes legend=yes
+openView: new plot color=#-cycle metric=pmcd.pdu_in.total
+openView: new plot color=#-cycle metric=pmcd.pdu_out.total
+openView: new chart: style=Stack title="CPU Time for PMCD and DSO PMDAs" autoscale=yes legend=yes
+openView: new optional-plot color=#2d2de2 metric=proc.psinfo.utime inst=/usr/share/pcp/bin/pmcd match=matching
+openView: new optional-plot color=#e71717 metric=proc.psinfo.stime inst=/usr/share/pcp/bin/pmcd match=matching
+openView: new chart: style=Stack title="CPU Time for Other PMDAs" autoscale=yes
+openView: new optional-plot color=#2d2de2 metric=proc.psinfo.utime inst=/pmda match=matching
+openView: new optional-plot color=#e71717 metric=proc.psinfo.stime inst=/pmda match=matching

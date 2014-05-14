@@ -1,0 +1,52 @@
+#!/bin/sh
+# PCP QA Test No. 1007
+# Check handling of "tab" keyword in configuration language.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+. ./common.test
+
+status=0	# success is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "=== Valid, no error ==="
+cat <<End-of-File | pmchart -c - -C
+#kmchart
+version 1
+tab "1" points 300 samples 300
+chart title "Tab Test" style stacking
+    plot legend "User" color #2d2de2 metric kernel.all.cpu.user
+tab "2" points 0 samples 20
+tab "3" points 20 samples 200
+End-of-File
+
+echo "=== Bad syntax, no tab specification ==="
+cat <<End-of-File | pmchart -c - -C
+#kmchart
+version 1
+tab
+End-of-File
+
+echo "=== Bad syntax, no point keyword ==="
+cat <<End-of-File | pmchart -c - -C
+#kmchart
+version 1
+tab "Indexing Host" 300
+End-of-File
+
+echo "=== Bad syntax, no point value ==="
+cat <<End-of-File | pmchart -c - -C
+#kmchart
+version 1
+tab "DB" points
+End-of-File
+
+echo "=== Bad syntax, no sample value ==="
+cat <<End-of-File | pmchart -c - -C
+#kmchart
+version 1
+tab "App" points 34 samples
+End-of-File
+
+exit

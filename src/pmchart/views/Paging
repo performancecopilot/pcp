@@ -1,0 +1,6 @@
+#kmchart
+version 1
+
+chart title "VM Activity - Page Migrations [%h]" style plot
+	plot legend "Out" metric swap.pagesout
+	plot legend "In" metric swap.pagesin

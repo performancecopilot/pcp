@@ -1,0 +1,90 @@
+#!/bin/sh
+# PCP QA Test No. 1019
+# Exercise QmcGroup while illustrating pmjd-like clients and protocols
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+. ./common.test
+
+cd "$PCP_VAR_DIR/testsuite" || \
+	_notrun "Cannot find PCP QA testsuite directory"
+
+_cleanup()
+{
+    if [ ! -f $tmp.done ]
+    then
+	cd $PCP_VAR_DIR/testsuite/pmdas/dynamic
+	$sudo ./Remove >>$here/src/$seq.full
+	cd $here
+	touch $tmp.done
+    fi
+}
+
+status=1	# failure is the default!
+rm -f $seq.full
+trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter1()
+{
+    sed \
+	-e "s/$host [:A-Z][A-Z]*[-A-Za-z0-9,/:\.]*/HOST TIMEZONE/" \
+	-e "s/localhost [:A-Z][A-Z]*[-A-Za-z0-9,/:\.]*/LOCALHOST TIMEZONE/" \
+	-e "s/irix\.//g" \
+	-e "s/^\- [0-9][0-9]*\.[0-9][0-9]*$/- NUM/" \
+	-e "s/^\- [0-9][0-9]*$/- NUM/" \
+	-e "s/: Line [0-9][0-9]* /: Line <N> /" \
+    | $PCP_AWK_PROG '
+BEGIN		{ mode = 0 }
+/Client1/	{ mode = 1; print; next }
+/Client2/	{ mode = 1; print; next }
+$1 == "FETCH" && mode == 1			{ mode = 2; print; next }
+$1 == "CONTEXT" && $2 == "0" && mode == 2	{ printf("CONTEXT 0 DELTA SEC USEC\n"); next }
+		{ mode = 0; print; next }'
+}
+
+_filter2()
+{
+    sed -n \
+	-e '/^\*\*\*/p' \
+	-e '/pmGetPDU/p' \
+	-e '/pmXmitPDU/p' \
+	-e '/^PMC_/p' \
+    | sed \
+	-e "s/^\[[0-9]*\]//" \
+	-e "s/fd=[0-9]/fd=#/" \
+	-e "s/from=[0-9]*/from=###/" \
+	-e "s/$host/HOST/" \
+	-e "s/id = [0-9]*/id = ##########/" \
+	-e "s/ptr = 0x0/ptr = NULL/" \
+	-e "s/ptr = 0x[0-9a-f]*/ptr = 0x########/" \
+    > $tmp.filtered
+
+    echo
+    echo "*** PDUs ***"
+    sed -n < $tmp.filtered \
+	-e '/pmGetPDU/p' \
+	-e '/pmXmitPDU/p' \
+    | sed \
+	-e "s/ fd=.*//" \
+    | sort \
+    | uniq -c \
+    | sed -e 's/  */ /g'
+
+    echo "*** Transactions ***" >> $seq.full
+    echo >> $seq.full
+    cat $tmp.filtered >> $seq.full
+}
+
+# real QA test starts here
+cd $PCP_VAR_DIR/testsuite/pmdas/dynamic
+$sudo make >$here/$seq.full 2>&1
+$sudo ./Install </dev/null >>$here/$seq.full
+cd $here
+_check_metric dynamic.numinsts
+
+pmstore dynamic.control.del "-1"
+qt/qmc_group/qmc_group -DPDU,PMC 2>$tmp.stderr | _filter1
+cat $tmp.stderr | _filter2
+
+status=0
+exit

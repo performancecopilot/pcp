@@ -1,0 +1,22 @@
+#!/bin/sh
+# PCP QA Test No. 1005
+# Check handling of missing plot title keyword - caused SEGV,
+# observed while hand-crafting config file for interactive QA
+# in the Settings dialog.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+. ./common.test
+
+status=0	# success is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cat <<End-of-File | pmchart -c - -C
+#kmchart
+version 1
+chart title "Settings Color Test" style stacking
+    plot "01" metric sample.hordes.one instance "1"
+End-of-File
+
+exit

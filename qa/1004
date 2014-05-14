@@ -1,0 +1,94 @@
+#!/bin/sh
+# PCP QA Test No. 1004
+# Some simple views ...
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+. ./common.test
+
+status=0	# success is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+echo "=== Cisco ==="
+cat <<End-of-File | pmchart -C -c - -Dappl2 2>&1 | _filter_views
+#pmchart
+Version 1.2 host dynamic
+
+Chart Style plot
+	Plot Color #-cycle Host * Metric cisco.rate_in
+
+Chart Style plot
+	Plot Color #-cycle Host * Metric cisco.rate_out
+
+End-of-File
+
+echo
+echo "=== Disk ==="
+cat <<End-of-File | pmchart -C -c - -Dappl2 2>&1 | _filter_views
+#pmchart
+Version 1.1 host dynamic
+Chart Title "Disk Activity" Style stacking
+	Plot Color yellow Host * Metric disk.all.read
+	Plot Color violet Host * Metric disk.all.write
+End-of-File
+
+echo
+echo "=== CPU ==="
+cat <<End-of-File | pmchart -C -c - -Dappl2 2>&1 | _filter_views
+#pmchart
+Version 1.1 host dynamic
+Chart Title "CPU Utilization" Style utilization
+	Plot Color #2d2de2 Host * Metric kernel.all.cpu.user
+	Plot Color #e71717 Host * Metric kernel.all.cpu.sys
+	Optional-Plot Color rgbi:0.9/0.1/0.5 Host * Metric kernel.all.cpu.sxbrk
+	Optional-Plot Color rgbi:0.4/0.9/0.4 Host * Metric kernel.all.cpu.nice
+	Plot Color rgbi:0.8/0.8/0.0 Host * Metric kernel.all.cpu.intr
+	Optional-Plot Color rgbi:0.0/0.8/0.8 Host * Metric kernel.all.cpu.wait.total
+	Plot Color #16e116 Host * Metric kernel.all.cpu.idle
+End-of-File
+
+echo
+echo "=== Loadavg ==="
+cat <<End-of-File | pmchart -C -c - -Dappl2 2>&1 | _filter_views
+#kmchart
+version 1 host dynamic
+chart title "Average Load" style plot
+    plot legend "1 min" metric kernel.all.load instance "1 minute"
+    plot legend "5 min" metric kernel.all.load instance "5 minute"
+    plot legend "15 min" metric kernel.all.load instance "15 minute"
+End-of-File
+
+echo
+echo "=== Net.bytes ==="
+cat <<End-of-File | pmchart -C -c - -Dappl2 2>&1 | _filter_views
+#kmchart
+version 1
+chart title "Network Interface Activity" style stacking
+    plot metric network.interface.in.bytes not-matching "^lo|^sl|^ppp"
+    plot metric network.interface.out.bytes not-matching "^lo|^sl|^ppp"
+End-of-File
+
+echo
+echo "=== PMCD ==="
+cat <<End-of-File | pmchart -C -c - -Dappl2 2>&1 | _filter_views
+#kmchart
+version 1 host dynamic
+
+chart title "PDUs In and Out for PMCD" style stacking
+    plot color #-cycle host * metric pmcd.pdu_in.total
+    plot color #-cycle host * metric pmcd.pdu_out.total
+
+chart title "CPU Time for PMCD and DSO PMDAs" style stacking
+# for Linux
+    optional-plot color #2d2de2 host * metric proc.psinfo.utime matching "/usr/share/pcp/bin/pmcd"
+    optional-plot color #e71717 host * metric proc.psinfo.stime matching "/usr/share/pcp/bin/pmcd"
+
+chart title "CPU Time for Other PMDAs" style stacking legend off
+# for Linux
+    optional-plot color #2d2de2 host * metric proc.psinfo.utime matching "/pmda"
+    optional-plot color #e71717 host * metric proc.psinfo.stime matching "/pmda"
+End-of-File
+
+exit

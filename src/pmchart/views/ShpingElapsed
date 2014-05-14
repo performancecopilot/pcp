@@ -1,0 +1,5 @@
+#kmchart
+version 1
+
+chart title "shping Response Time [%h]" style plot
+	plot legend "%i" metric shping.time.real

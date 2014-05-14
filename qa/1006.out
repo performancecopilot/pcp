@@ -1,0 +1,241 @@
+QA output created by 1006
+=== views/006-01 ===
+#kmchart
+version 1
+chart title "QA Units compatible - time" style plot
+    plot metric sample.seconds
+    plot metric sample.milliseconds
+exit=0
+--- out ---
+--- err ---
+<timestamp>: Console available
+<timestamp>: Global settings setup complete
+<timestamp>: Metric group setup complete (0 hosts, 0 archives)
+<timestamp>: Timezones and time window setup complete
+<timestamp>: Loading resource :/play_live.png
+<timestamp>: Loading resource :/stop_live.png
+<timestamp>: Loading resource :/play_record.png
+<timestamp>: Loading resource :/stop_record.png
+<timestamp>: Loading resource :/play_archive.png
+<timestamp>: Loading resource :/stop_archive.png
+<timestamp>: Loading resource :/back_archive.png
+<timestamp>: Loading resource :/stepfwd_archive.png
+<timestamp>: Loading resource :/stepback_archive.png
+<timestamp>: Loading resource :/fastfwd_archive.png
+<timestamp>: Loading resource :/fastback_archive.png
+<timestamp>: Time button resources loaded
+<timestamp>: Phase1 user interface constructors complete
+<timestamp>: PmChart::setActiveTab index=0 r=1
+<timestamp>: Phase2 user interface setup complete
+<timestamp>: Chart::ctor complete(<addr>)
+<timestamp>: Chart::setCurrent(<addr>) true
+<timestamp>: Tab::addChart: [0]->Chart <addr>
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem metric=sample.seconds
+<timestamp>: addItem <addr> nitems=1
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem metric=sample.milliseconds
+<timestamp>: SamplingEngine::isCompatible type=5, units=millisec
+<timestamp>: addItem <addr> nitems=2
+--- post ---
+=== views/006-02 ===
+#kmchart
+version 1
+chart title "QA Units odd but OK - time(util) and none" style plot
+    plot metric sample.seconds
+    plot metric sample.control
+exit=0
+--- out ---
+--- err ---
+<timestamp>: Console available
+<timestamp>: Global settings setup complete
+<timestamp>: Metric group setup complete (0 hosts, 0 archives)
+<timestamp>: Timezones and time window setup complete
+<timestamp>: Loading resource :/play_live.png
+<timestamp>: Loading resource :/stop_live.png
+<timestamp>: Loading resource :/play_record.png
+<timestamp>: Loading resource :/stop_record.png
+<timestamp>: Loading resource :/play_archive.png
+<timestamp>: Loading resource :/stop_archive.png
+<timestamp>: Loading resource :/back_archive.png
+<timestamp>: Loading resource :/stepfwd_archive.png
+<timestamp>: Loading resource :/stepback_archive.png
+<timestamp>: Loading resource :/fastfwd_archive.png
+<timestamp>: Loading resource :/fastback_archive.png
+<timestamp>: Time button resources loaded
+<timestamp>: Phase1 user interface constructors complete
+<timestamp>: PmChart::setActiveTab index=0 r=1
+<timestamp>: Phase2 user interface setup complete
+<timestamp>: Chart::ctor complete(<addr>)
+<timestamp>: Chart::setCurrent(<addr>) true
+<timestamp>: Tab::addChart: [0]->Chart <addr>
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem metric=sample.seconds
+<timestamp>: addItem <addr> nitems=1
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem metric=sample.control
+<timestamp>: SamplingEngine::isCompatible type=0, units=
+<timestamp>: addItem <addr> nitems=2
+--- post ---
+=== views/006-03 ===
+#kmchart
+version 1
+chart title "QA Units BAD - time(->time util) and count(->count/sec)" style plot
+    plot metric sample.seconds
+    plot metric sample.step_counter
+exit=1
+--- out ---
+--- err ---
+<timestamp>: Console available
+<timestamp>: Global settings setup complete
+<timestamp>: Metric group setup complete (0 hosts, 0 archives)
+<timestamp>: Timezones and time window setup complete
+<timestamp>: Loading resource :/play_live.png
+<timestamp>: Loading resource :/stop_live.png
+<timestamp>: Loading resource :/play_record.png
+<timestamp>: Loading resource :/stop_record.png
+<timestamp>: Loading resource :/play_archive.png
+<timestamp>: Loading resource :/stop_archive.png
+<timestamp>: Loading resource :/back_archive.png
+<timestamp>: Loading resource :/stepfwd_archive.png
+<timestamp>: Loading resource :/stepback_archive.png
+<timestamp>: Loading resource :/fastfwd_archive.png
+<timestamp>: Loading resource :/fastback_archive.png
+<timestamp>: Time button resources loaded
+<timestamp>: Phase1 user interface constructors complete
+<timestamp>: PmChart::setActiveTab index=0 r=1
+<timestamp>: Phase2 user interface setup complete
+<timestamp>: Chart::ctor complete(<addr>)
+<timestamp>: Chart::setCurrent(<addr>) true
+<timestamp>: Tab::addChart: [0]->Chart <addr>
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem metric=sample.seconds
+<timestamp>: addItem <addr> nitems=1
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem metric=sample.step_counter
+<timestamp>: SamplingEngine::isCompatible type=0, units=count
+--- post ---
+Error: views/006-03[6] 
+Failed to plot metric "sample.step_counter" for
+host <host>:
+Units for this metric are not compatible with other plots in this chart
+=== views/006-04 ===
+#kmchart
+version 1
+chart title "QA Units OK - inst first" style plot
+    plot metric sample.byte_rate
+    plot metric sample.byte_ctr
+chart title "QA Units OK - ctr first" style plot
+    plot metric sample.byte_ctr
+    plot metric sample.byte_rate
+chart title "QA Units OK - Kbyte/sec and byte/msec" style plot
+    plot metric sample.mirage
+    plot metric sample.mirage_longlong
+chart title "QA Units OK - count/sec and count(->count/sec)" style plot
+    plot metric sample.write_me
+    plot metric sample.pdu
+
+
+exit=0
+--- out ---
+--- err ---
+<timestamp>: Console available
+<timestamp>: Global settings setup complete
+<timestamp>: Metric group setup complete (0 hosts, 0 archives)
+<timestamp>: Timezones and time window setup complete
+<timestamp>: Loading resource :/play_live.png
+<timestamp>: Loading resource :/stop_live.png
+<timestamp>: Loading resource :/play_record.png
+<timestamp>: Loading resource :/stop_record.png
+<timestamp>: Loading resource :/play_archive.png
+<timestamp>: Loading resource :/stop_archive.png
+<timestamp>: Loading resource :/back_archive.png
+<timestamp>: Loading resource :/stepfwd_archive.png
+<timestamp>: Loading resource :/stepback_archive.png
+<timestamp>: Loading resource :/fastfwd_archive.png
+<timestamp>: Loading resource :/fastback_archive.png
+<timestamp>: Time button resources loaded
+<timestamp>: Phase1 user interface constructors complete
+<timestamp>: PmChart::setActiveTab index=0 r=1
+<timestamp>: Phase2 user interface setup complete
+<timestamp>: Chart::ctor complete(<addr>)
+<timestamp>: Chart::setCurrent(<addr>) true
+<timestamp>: Tab::addChart: [0]->Chart <addr>
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem metric=sample.byte_rate
+<timestamp>: addItem <addr> nitems=1
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem metric=sample.byte_ctr
+<timestamp>: SamplingEngine::isCompatible type=0, units=byte
+<timestamp>: addItem <addr> nitems=2
+<timestamp>: Chart::ctor complete(<addr>)
+<timestamp>: Tab::addChart: [0]->Chart <addr>
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem metric=sample.byte_ctr
+<timestamp>: addItem <addr> nitems=1
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem metric=sample.byte_rate
+<timestamp>: SamplingEngine::isCompatible type=0, units=byte / sec
+<timestamp>: addItem <addr> nitems=2
+<timestamp>: Chart::ctor complete(<addr>)
+<timestamp>: Tab::addChart: [0]->Chart <addr>
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem instance sample.mirage[m-00]
+<timestamp>: addItem <addr> nitems=1
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem instance sample.mirage_longlong[m-00]
+<timestamp>: SamplingEngine::isCompatible type=2, units=byte / millisec
+<timestamp>: addItem <addr> nitems=2
+<timestamp>: Chart::ctor complete(<addr>)
+<timestamp>: Tab::addChart: [0]->Chart <addr>
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem metric=sample.write_me
+<timestamp>: addItem <addr> nitems=1
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem metric=sample.pdu
+<timestamp>: SamplingEngine::isCompatible type=3, units=count
+<timestamp>: addItem <addr> nitems=2
+--- post ---
+=== views/006-05 ===
+#kmchart
+version 1
+chart title "QA Units BAD - byte / msec and count/sec" style plot
+    plot metric sample.mirage_longlong
+    plot metric sample.write_me
+
+exit=1
+--- out ---
+--- err ---
+<timestamp>: Console available
+<timestamp>: Global settings setup complete
+<timestamp>: Metric group setup complete (0 hosts, 0 archives)
+<timestamp>: Timezones and time window setup complete
+<timestamp>: Loading resource :/play_live.png
+<timestamp>: Loading resource :/stop_live.png
+<timestamp>: Loading resource :/play_record.png
+<timestamp>: Loading resource :/stop_record.png
+<timestamp>: Loading resource :/play_archive.png
+<timestamp>: Loading resource :/stop_archive.png
+<timestamp>: Loading resource :/back_archive.png
+<timestamp>: Loading resource :/stepfwd_archive.png
+<timestamp>: Loading resource :/stepback_archive.png
+<timestamp>: Loading resource :/fastfwd_archive.png
+<timestamp>: Loading resource :/fastback_archive.png
+<timestamp>: Time button resources loaded
+<timestamp>: Phase1 user interface constructors complete
+<timestamp>: PmChart::setActiveTab index=0 r=1
+<timestamp>: Phase2 user interface setup complete
+<timestamp>: Chart::ctor complete(<addr>)
+<timestamp>: Chart::setCurrent(<addr>) true
+<timestamp>: Tab::addChart: [0]->Chart <addr>
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem instance sample.mirage_longlong[m-00]
+<timestamp>: addItem <addr> nitems=1
+<timestamp>: Chart::addItem src=<host>
+<timestamp>: addItem metric=sample.write_me
+<timestamp>: SamplingEngine::isCompatible type=0, units=count / sec
+--- post ---
+Error: views/006-05[7] 
+Failed to plot metric "sample.write_me" for
+host <host>:
+Units for this metric are not compatible with other plots in this chart

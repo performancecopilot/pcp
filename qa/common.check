@@ -527,6 +527,17 @@ _check_purify()
     [ $? -eq 0 ] || _notrun "No purify binary found"
 }
 
+_check_display()
+{
+    # note: non-X systems (MacOSX, Windows) must pass here unchallenged
+    which xdpyinfo >/dev/null 2>&1
+    if test $? -eq 0
+    then
+	DISPLAY=$PCPQA_CLOSE_X_SERVER xdpyinfo >/dev/null 2>&1 || \
+	    _notrun "Failed sanity check on DISPLAY $PCPQA_CLOSE_X_SERVER"
+    fi
+}
+
 # valgrind support
 #
 # typical usage:

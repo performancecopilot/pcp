@@ -1,0 +1,43 @@
+#!/bin/sh
+# PCP QA Test No. 1018
+# Test QmcSource functionality
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+. ./common.test
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+tz=`pmprobe -v pmcd.timezone | sed -e 's/.* "//' -e 's/"//'`
+
+_filter()
+{
+    sed \
+    	-e "s/$host/HOST/g" \
+	-e 's/sts = -146,/sts = ECONNREFUSED,/' \
+	-e 's/sts = -111,/sts = ECONNREFUSED,/' \
+	-e "s/snort/HOST/g" \
+	-e "s#EST-11EST-10,89/2:00,299/2:00#TZ#g" \
+	-e "s#$tz#TZ#g"
+
+    #  The sed(1) command "s#EST-11EST-10,89/2:00,299/2:00#TZ#g" is required
+    #  for when pmc_source uses the archive oview-short.  oview-short
+    #  contains this timezone, so is required to be masked when pmc_source
+    #  spits its output.
+}
+
+$sudo qt/qmc_source/qmc_source -DPMC 2>&1 | _filter
+
+# What happens if we stop pmcd
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+$sudo qt/qmc_source/qmc_source -DPMC 2>&1 | _filter
+
+$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+_wait_for_pmcd
+
+# success, all done
+status=0
+exit

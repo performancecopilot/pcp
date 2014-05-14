@@ -1,0 +1,519 @@
+pcp-gui 1.5.13 (6 March 2014)
+    - Remove pmchart one-metric-multiple-hosts legend ambiguity
+    - Add support for a global font preference setting
+    - Add support for a saved hosts preference setting
+    - Add -H option to pmchart for initial saved host importing
+      (matching the behaviour of the same pmstat option)
+    - Default to explicit hostname views when saving a chart
+      containing plots from multiple hosts.
+    - Update Fedora/EPEL packaging to make pcp-doc into a noarch
+      package, as nature intended.
+
+pcp-gui 1.5.12 (19 February 2014)
+    - Updates to the Programmers Guide to cover Python modules
+    - Fix removal of plots from a chart with multiple selections
+    - Fix pmchart window resizing on chart deletion and title
+      changes
+    - Improvements to Edit Chart dialog plot deletion and later
+      re-animation
+    - Ensure correct pmContext is used for several libqmc calls
+    - Support full hostname dynamic expansion via %H, analagous
+      to the existing short hostname dynamic expansion via %h,
+      for chart titles.
+    - Fix %i expansion in pmchart plot legend; during the File
+      -> Save View menu option this plot wildcard was not being
+      preserved.
+    - Extend the wildcard set for plot legends - full and short
+      variants for instances, metrics and hosts now exist, with
+      the heuristics used for shortening described in pmchart(1).
+    - Update pmchart Metric Search dialog to display hosts also,
+      for all matching search results.
+    - Add to the UI and search logic to allow regular expression
+      matching on host names, in addition to metric and instance
+      names.
+    - Improve pmchart metric selection with multiple hosts - for
+      this case, do not expand all namespace trees all at once,
+      it results in UI clutter.  Just show the top level hosts,
+      initially, so the user can choose where navigation starts.
+
+pcp-gui 1.5.11 (1 November 2013)
+    - Updates to the PCP Programmers Guide (now complete).
+    - Fix bug where chart selection showed incorrect units for
+      reported values below the timeline.
+
+pcp-gui 1.5.10 (9 September 2013)
+    - Updates to the PCP Users and Administrators Guide.
+    - Updates to the PCP Programmers Guide.
+    - Install a known-good pdf version of each book.
+    - Convert pmchart over to use pmGetContextHostName for more
+      accurate hostname reporting.
+
+pcp-gui 1.5.9 (28 July 2013)
+    - Fix problems with pmchart Samples/Visible History.
+    - Support authenticated connections in New Host dialog.
+    - Fix pmchart startup handling lack of metrics source.
+    - Fix missing metric handling for archive View files.
+    - Usability improvements for the New/Edit Chart Apply button.
+    - Resolve packaging issue where /usr/bin gets installed.
+    - Preserve the update interval when loading a pmchart view.
+    - Fixes a sigsegv in pmchart command line error handling.
+    - Add optional kernel.all.cpu.guest plot to standard CPU view.
+    - Update pmchart title [%h] with list of metric host names.
+    - Improve correctness in the show-/hide-time-control mechanism.
+    - Add a close button to preferences dialog to improve usability.
+    - Fix Preference dialog handling of Remove color scheme button.
+    - Add new pmchart views into the installed set (ElasticSearch,
+      Apache) - thanks to Owen Butler.
+    - New tutorial covering setup of PCP authentication mechanisms.
+    - Incorporate the PCP books into the build (pcp-doc subpackage).
+
+pcp-gui 1.5.8 (20 April 2013)
+    - Fix a build issue when building with older PCP header files.
+
+pcp-gui 1.5.7 (19 April 2013)
+    - General QString toAscii de-corruption.
+    - Fix memory corruption in pmchart Save View dialog.
+    - Remove all use of the QAssistantClient class.
+    - Remove remaining references to old Qt doc adp files.
+    - Extensions to the New Host dialog box allowing secure socket
+      connections to be explicitly requested.
+    - Add a secure connections tutorial documents.
+    - Several documentation updates.
+
+pcp-gui 1.5.6 (26 October 2012)
+    - Added the pcp-gui-testsuite package into the builds.
+    - Much work getting the QA suite stable and all tests passing.
+    - Tutorials end up in -doc package, not the -gui runtime.
+    - Move the fedora spec for pcp-gui under source control.
+    - Move up to the latest Qwt major release (6+), major API rework.
+    - Initial support for pmchart event record decoding and display.
+    - Increase the maximum number of displayed samples to cover a
+      full days worth of data at a finer-grained interval.
+    - Tweaks to desktop integration file to match current standards.
+    - Add the extender-bar feature, which extends the time selection
+      cross-hair into all of the charts (not just the selected one).
+
+pcp-gui 1.5.5 (21 March 2012)
+    - Fix long-standing pmchart bug where the current archive position
+      would revert to the beginning of the archive after adding a new
+      chart or plot to an existing chart.
+
+pcp-gui 1.5.4 (17 January 2012)
+    - Need to remake aclocal.m4 to pick up autoconf macro change.
+
+pcp-gui 1.5.3 (8 January 2012)
+    - Add Encoding=UTF-8, needed by desktop-file-validate for
+      RHEL builds.
+    - Fix man page format configure check for minimal build deps
+      used in Debian builds.
+
+pcp-gui 1.5.2 (1 December 2011)
+    - Updates to source files with incorrect FSF address for rpmlint.
+    - Fix compilation warnings.
+    - Relax Debian dependencies somewhat (only pcp libs required).
+    - Add new Qt help library dependency on Debian build.
+    - Additional examples in the pcp-doc documents.
+
+pcp-gui 1.5.1 (1 October 2010)
+    - Build fix for rpm generation.
+    - Build fix for Win32 builds (hide Mac).
+    - Add support for .bz2 manual page compression.
+    - Fix lintian warning (deb packages) wrt an empty dir.
+
+pcp-gui 1.5.0 (29 September 2010)
+    - Split out pcp-doc from pcp-gui (packaging, not source).
+    - Merged Qwt 5.2 sources.
+    - Fix image generation issues.
+    - Fix auto-scaling Y-axis to clamp it at zero.
+    - Fix dotted instance names in Edit Chart dialog.
+    - Fix online menu links to tutorial in pmchart/pmtime.
+    - Fix long archive path name failure.
+    - Added hotkeys for chart delete, new tab and close tab.
+    - Fixed up the not-selected-chart font colouring.
+    - Improved Mac build process to ship Qt libraries.
+    - Fix online help links and icons in Qt adp files.
+    - Merged old (SGI) tutorial docs, and extensively updated them.
+    - Added new docs for pmimport, and disk workkload modelling.
+    - Updated images in the online docs to match current UI.
+
+pcp-gui 1.4.9 (13 July 2010)
+    - Fix path issues for online html docs.
+    - Fix metric selector failure to handle metric lookup errors.
+
+pcp-gui 1.4.7 (16 June 2010)
+    - Fix pcp-gui qt rpm package dependencies for modern SuSE variants.
+    - Resolve installation issues on Mac OS X 10.6 and later.
+
+pcp-gui 1.4.6 (24 February 2010)
+    - Fix saving of Views with instance names containing embedded
+      double quote characters (more common on Windows servers).
+    - Use correct source when reporting errors in context creation.
+
+pcp-gui 1.4.5 (2 September 2009)
+    - Fix problem with latest autoconf handling of AC_CONF_LEX.
+    - Fix uninit'd variable causing spurious non-rate-conversion.
+
+pcp-gui 1.4.4 (31 July 2009)
+    - Fix bug 843 - Confused state of AutoScale and Min/Max fields.
+    - Add an "Apply" button to Create/Edit chart dialogs.
+    - Allow New charts to be non-rate-converted.
+    - Tweaked default font size on Windows
+    - Fixed a bug where pressing OK on New Chart with no selected
+      metrics would popup an error, but continue creating an (empty)
+      new chart anyway.
+    - Fix a longstanding chart alignment problem.
+    - Fix bad right-to-left layout in preferences dialog fields.
+
+pcp-gui 1.4.3 (10 June 2009)
+    - Fix use-after-free issue on deleting a chart.
+    - Improve temporary file cleanup on Win32.
+    - Fix gcc 4.4.0 compiler errors.
+
+pcp-gui 1.4.2 (28 May 2009)
+    - Fixes to pmchart problems (bugzilla bug numbers below):
+	835 - win32 pmchart not-matching clause causes segfault
+    - Purged all use of MSYS regex library as part of the above fix
+    - Improve Windows desktop integration - icons rcc-compiled in now
+
+pcp-gui 1.4.1 (22 May 2009)
+    - Fixes to pmchart problems (bugzilla bug numbers below):
+	824 - Able to select metrics for an invalid host 
+	825 - Default position of the PCP Live Time Control window 
+	826 - Disconnect between reported time-zone and displayed time
+	827 - Use of mixed path separators
+	829 - Improper handling of tab options in view-config files 
+	830 - Specifying a config file when starting Windows pmchart
+    - Note: Initial version of pmview merged into development branch
+
+pcp-gui 1.4.0 (5 May 2009)
+    - Finally fix the font issue that has plagued us for years,
+      causing many fonts to be displayed incorrectly in pmchart.
+    - Fix a timezone related reporting issue in pmdumptext, this
+      was causing -z and -Z options to misfire.
+
+pcp-gui 1.3.5 (3 April 2009)
+    - Fix pmdumptext handling of config files with no final EOL.
+    - Improve hostname-truncation heuristic for chart titles.
+    - Fix logic error in Chart -> Delete causing SIGSEGV.
+    - Fix selection bug in View Open/Save dialogs.
+    - Fix stacked bar Y-axis scaling on plot enabling/disabling.
+    - Increase the default colour scheme to having ten colours.
+
+pcp-gui 1.3.4 (21 March 2009)
+    - Fix a couple of MacOSX regressions, vanishing charts and
+      vanishing toolbars.
+    - Clarify documentation about licenses and license versions
+      for each component of PCP GUI, for the Debian folk.
+
+pcp-gui 1.3.3 (4 March 2009)
+    - Correct a MinGW build issue for the stable branch.
+    - Improve the pmchart/kmchart config file searching.
+
+pcp-gui 1.3.2 (26 February 2009)
+    - Updates to CPU view for Linux virtualisation time,
+      and sync-up the Overview with CPU/Loadavg views.
+    - Fix path search for pmchart system views.
+    - Fix rpm spec file dependencies for new Qt4.
+    - Fix quirk in initial archive position setting.
+    - Fix Mac OS X specific pmchart wrapper script.
+
+pcp-gui 1.3.1 (17 February 2009)
+    - Fix up image generation regression.
+    - Correct use of pmquery within pmchart as xconfirm prog.
+
+pcp-gui 1.3.0 (5 February 2009)
+    - Packaging update to pave the way for new visualisation
+      tools in this package, beyond just the original kmchart.
+    - Rename km* -> pm* - all executables, docs, images, etc,
+      as this package will now be the official repository of
+      PCP graphical tools.
+
+kmchart 1.2.9 (29 January 2009)
+    - Minor (Mac/Win) platform-specific changes, and changes
+      to allow older versions of Qt to still be used.
+    - Fix a Mac OS X packaging regression (make install rule).
+    - Rework preference dialog for better Mac OS X integration.
+    - Use unified title-and-toolbar on Mac by default, with an
+      option to use the Linux/Windows style via preferences.
+    - Allow builds under Qt 4.2 once more.
+
+kmchart 1.2.8 (27 January 2009)
+    - Numerous Win32 build and packaging tweaks.
+    - Fix recording of metrics with an instance domain.
+    - Fix scale-setting from a config file.
+    - Fix compilation under gcc 4.4.
+    - Install rpm config files with the (noreplace) keyword.
+    - Update PMCD view, removing hard-coded paths.
+    - Add a Memory view.
+
+kmchart 1.2.7 (22 May 2008)
+    - Resolve another build dependency in the Debian package.
+
+kmchart 1.2.6 (9 May 2008)
+    - Some gcc variants need an explicit <limits> include to
+      find the NaN definitions from the std namespace.
+
+kmchart 1.2.5 (8 May 2008)
+    - Resolve another build dependency in the Debian package.
+
+kmchart 1.2.4 (7 May 2008)
+    - Resolve some build dependencies in the Debian packages.
+
+kmchart 1.2.3 (6 May 2008)
+    - Reinstate part of the removed configure logic ($ZIP).
+
+kmchart 1.2.2 (6 May 2008)
+    - Tidied up rough edges on the Max OS X icons.
+    - Fixed up configure script to only check for tools we use.
+
+kmchart 1.2.1 (3 May 2008)
+    - Some Mac OS X specific fixes, in particular fixing the
+      QT build invocation under Mac OS X 10.5 and Xcode 3.0.
+
+kmchart 1.2.0 (1 May 2008)
+    - Fix namespace expansion issue in the metric selector.
+    - Fix command line image generation so it no longer opens a
+      window on X11.
+    - Fix timezone issue with value label.
+    - Fix Live mode Stop/Start icon status reporting.
+
+kmchart 1.1.5 (28 April 2008)
+    - Workaround Qt4.3 issue with toolbar QSize calculations.
+
+kmchart 1.1.4 (28 April 2008)
+    - Fix loss of color settings in edit chart dialog.
+    - Fix default file extensions on image save from command line.
+    - Fix time axis alignment when using a vertical toolbar.
+
+kmchart 1.1.3 (24 April 2008)
+    - Ugh, also ensure all scripts are picked up in the source.
+
+kmchart 1.1.2 (24 April 2008)
+    - Fix kmchart main window sizing issue on Mac OS X
+    - Ensure all sources are picked up in the shipped source.
+
+kmchart 1.1.1 (23 April 2008)
+    - Fix a last-minute typo causing compiler warning.
+    - Minor cleanups to the Debian package build.
+
+kmchart 1.1.0 (23 April 2008)
+    - Added kmsnap(1) for automating chart image generation.
+    - Reworked the time axis layout management.
+    - Fixed the Dock icons on Mac OS X.
+    - Fixed the packaging on Mac OS X, so that the pre-built
+      packages install on both 10.4 and 10.5, and such that
+      kmchart is installed like other "real" Applications.
+    - Fixed issues with generated images (fonts and layouts)
+    - Fixed several issues surrounding legends, which we now draw
+      without the surrounding frame by default - only when a plot
+      is disabled is its legend drawn indented now, which gives a
+      much cleaner default UI in the default case.
+    - Default to png image format, if none other requested, as
+      it is always supported in all Qt builds (unlike gif).
+
+kmchart 1.0.0 (5 March 2008)
+    - Fix the handling of missed updates in live mode - no longer
+      clears the entire history every time that happens.
+    - Fix up error handling in case of failed pmlogger processes.
+    - Fix kmtime handling of the time bounds when additional logs
+      are added on-the-fly.
+    - Fix timezone setting problem.
+    - Make background preference changes affect existing charts.
+    - Enable local context mode (-L option).
+    - Switch to "release" Qt make options instead of "debug".
+
+kmchart 1.0.0rc7 (21 February 2008)
+    - Debian packaging, hooray!
+    - Update "tab" keyword to allow a default host for each tab
+
+kmchart 1.0.0rc6 (13 February 2008)
+    - Huge number of man page, online help text and web docs updated
+      (body of all docs now complete, could use some review though).
+    - Added "tab" keyword to the view file format.
+
+kmchart 1.0.0rc5 (16 January 2008)
+    - SRPM and source tarball build fix (missing targets).
+    - man page updates.
+
+kmchart 1.0.0rc4 (10 January 2008)
+    - Desktop integration for GNOME and KDE.
+    - Fixed some install problems when building from SRPM.
+    - Try harder to install as root.root before falling back to using
+      the build user.group combination.
+
+kmchart 1.0.0rc3 (23 November 2007)
+    - Fixed a nasty regression in the last VCR mode changes, and
+      commented out an earlier fix too - that one will need some
+      re-engineering as its too slow (see git log for details).
+    - This versions useable however, so its the first real -rc.
+
+kmchart 1.0.0rc2 (22 November 2007)
+    - Two timezone related fixes.
+    - Initial work on Gnome/KDE desktop integration.
+
+kmchart 1.0.0rc1 (21 November 2007)
+    - Stop/start VCR mode changes for live mode
+    - Fix+re-enable the "side step" code, which detects kmtime steps
+      that are more than a delta greater than expected, and fills in
+      the intervening area with NaN values (i.e. a hole is plotted).
+    - Documentation and small fixes are the only remaining issues.
+
+kmchart 1.0.0Beta7 (15 November 2007)
+    - Record mode work, automatic Tab creation for replay is now
+      working well.
+    - Resolve some time axis issues, although I think some remain.
+
+kmchart 1.0.0Beta6 (8 November 2007)
+    - Modification to the time interval in kmtime now does the right
+      thing in kmchart.
+    - Several difficult time control issues resolved - fast fwd and
+      high speed play now work well.
+
+kmchart 1.0.0Beta5 (7 November 2007)
+    - Fix the issue where, when started in archive mode, a Live tab's
+      time axis wasn't being updated at all.
+    - Fix time axis in chart export/print mechanism.
+    - Archive time axis looks sensible when started in live mode now.
+    - Fix up default new tab label when switching live/archive.
+    - Disable antialiasing for Loadavg view (all instantaneous metrics)
+
+kmchart 1.0.0Beta4 (1 November 2007)
+    - Allow installs on MacOSX 10.5 as well
+    - Fix srpm build issues
+    - Resolve kmtime layout issues on Mac/Fedora
+
+kmchart 1.0.0Beta3 (31 October 2007)
+    - Next beta images - fixed export-to-image-file code, and a bunch
+      of fixes in the switch-chart-type area.
+
+kmchart 1.0.0Beta2 (29 October 2007)
+    - Next beta images, improved time axis scaling and vertical chart
+      alignment are the biggest source changes.
+
+kmchart 1.0.0Beta1 (22 October 2007)
+    - First beta images, as we lead up to the initial kmchart release.
+    - Too many changes from 0.7 to outline, all across the board.
+
+kmchart 0.7 (11 July 2007)
+    - first git-based release of kmchart
+    - numerous kmchart fixes and features
+    - added kmquery, a Qt-based xconfirm and xmessage replacement that
+      provides a consistent look to kmchart (needed particularly for a
+      planned revamp to Record mode).
+
+kmchart 0.6
+    - kmtime support added
+    - unified time axis introduced
+    - support for tabs added to kmchart
+    - support for simultaneous live and archive mode tabs
+    - reworked metric selection dialog _completely_
+    - shiny new icons added all over the shop
+    - merged Load System View and Load User View dialogs
+
+kmchart 0.5
+[released ??? 2006 on http://sourceforge.net/projects/pcpaddons]
+    - fixed segv from "legend off" in view config
+    - new tool - pm2km to convert pmchart views into kmchart views
+    - added view configs for: Apache, CPU, Loadavg, NFS2, NFS3, Disk,
+      Filesys, PMCD, Syscalls, Paging, Overview, Sockets, Cisco,
+      ShpingCPU, ShpingElapsed
+    - new GNUmakefile wrappers to work around Makefile being rebuilt
+      by Qt Designer
+    - File->Open System View now looks for system views in
+      $(PCP_VAR_LIB)/config/kmchart
+    - added support for plotting all instances of metrics with
+      instance domains (see the Filesys view)
+    - %i expands to instance name in plot legend
+    - time counters are rate converted and scaled, so plotted in the range
+      0.0 to 1.0
+    - saving of configuration through File->Save User View now works
+
+kmchart 0.4.1
+[released 28 Feb 2006 on http://sourceforge.net/projects/pcpaddons]
+    - fix small botch in 0.4 release
+
+kmchart 0.4
+[released 28 Feb 2006 on http://sourceforge.net/projects/pcpaddons]
+    - view (config) parser added, so can now load user and systems views,
+      supporting both the old pmchart syntax and some kmchart improvements
+    - QA suite created (more pcpqa for the fans)
+    - small PCP 2.5.0 patch with just the required libpmc changes
+    - better handling of minimum size and resizing
+    - for New->Plot, default style is always Line (inheriting the
+      default from the previous chart was just plain wrong)
+    - handle pmchart syntax for instance or pattern in view config
+      file (no quotes, use text to end of line), as well as kmchart syntax
+      (instance identifiers enclosed in quotes)
+    - %h expands to hostname in chart title
+    - one timer for all charts (as opposed to one time for each chart), so
+      all time axes are temporally correlated (reduced memory footprint as
+      a side effect)
+    - plot color shown as a block in the legend for improved usability
+    - Edit->Delete->chart implemented
+    - current chart highlighted with color change for axes and titles
+      (black->red)
+    - improved top-level re-sizing logic
+    - File->New Plot is now a modeless dialog, so plots appear in the main
+      window as they are created
+    - File->Print implemented, although it only prints the current chart
+      at this stage
+    - Help->About implemented
+    - Edit->Colors implemented
+    - Autoscaling logic fixed up so it actually works now
+    - Loadavg and CPU as first views
+
+kmchart 0.3
+[released 17 Jan 2006 on http://sourceforge.net/projects/pcpaddons]
+    - move Qwt base from 4.2 to 5.0 beta (20050831 at this stage)
+    - add to current and create new chart both functional in MetricSelection
+      dialog
+    - metrics really being fetched using libpcp_pmc methods ... real data
+      values being used for plots
+    - complete overhaul for the APIs to the Chart and Plot classes
+    - fixed y-axis scaling dialog behaviour
+    - Edit->Colors ... implemented
+    - plot data arrays allocated dynamically (in preparation for *History
+      changes on command line and via UI)
+    - common x-axis time data across all charts and single timer thread
+      so all charts updated at the same time
+    - initial support for left-mouse selection of "current" chart in a
+      multi-chart configuration ... and some visible feedback (title and
+      y-axis label appear in red)
+    - update interval specified via -t on command line
+    - initial view loading support through -c config on command line (hack
+      to load hard-coded CPU view, i.e. no view config file parser,
+      at the moment to demonstrate completeness of API into the Chart
+      and Plot classes
+    - initial #-cycle support for default color rotation for plots within
+      a chart
+    - pale blue rather than grey for the plot canvas background
+    - rudimentary chart resizing with outer window resizing
+    - full support for Stack, Util, Area and Line plots, including changing
+      style on the fly via the UI
+    - add support for Legend labels as alternative to the default metric
+      specification being used (enhancement over pmchart) 
+    - make MetricSelection dialog modeless
+    - added File->Print support
+    - added Help->About support
+    - graph Title and Legend manipulation in the UI works now
+    - changing host/archive source in MetricSelection does not keep adding
+      the same hosts/archives to the selection list ... and the PMNS
+      transition now appears to be correct
+    - instance domains for archive contexts are loaded using
+      pmGetIndomArchive() rather than pmGetIndom() to remove any temporal
+      dependency in the possible instances
+
+kmchart 0.2 [mailed out 4 Jan 2006]
+    - added plot legend handling (a la the Qwt bode example with some
+      enhancements)
+    - fix Edit->Chart Title and Legend so that it really controls the
+      show/hide function of the plot Legend
+    - rework Graph::addPlot() to get metric spec into the Graph class
+    - remove the last vestiages of the global currentChart struct, moving
+      the associated data into the Graph class
+    - make changes in Edit->Y Axis Scaling stick after dialog done
+    - ensure consistent handling of Chart Style changes
+    - improve resizing of main window after a new Chart is added
+
+kmchart 0.1 [mailed out 2 Jan 2006]
+    -  initial version

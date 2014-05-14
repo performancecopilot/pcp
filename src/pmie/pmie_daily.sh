@@ -1,8 +1,8 @@
 #! /bin/sh
 #
+# Copyright (c) 2013-2014 Red Hat.
+# Copyright (c) 2007 Aconex.  All Rights Reserved.
 # Copyright (c) 1995-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
-# Portions Copyright (c) 2007 Aconex.  All Rights Reserved.
-# Copyright (c) 2013 Red Hat, Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -108,20 +108,23 @@ fi
 eval $PWDCMND -P >/dev/null 2>&1
 [ $? -eq 0 ] && PWDCMND="$PWDCMND -P"
 
+echo > $tmp/usage
+cat >> $tmp/usage <<EOF
+Options:
+  -c=FILE,--control=FILE  pmie control file
+  -k=N,--discard=N        remove pmie log files after N days
+  -m=ADDRs,--mail=ADDRs   send daily log files to email addresses
+  -N,--showme             perform a dry run, showing what would be done
+  -V,--verbose            verbose output (multiple times for very verbose)
+  -x=N,--compress-after=N  compress pmie log files after N days
+  -X=PROGRAM,--compressor=PROGRAM  use PROGRAM for pmie log file compression
+  -Y=REGEX,--regex=REGEX  egrep filter when compressing files ["$COMPRESSREGEX"]
+  --help
+EOF
+
 _usage()
 {
-    cat - <<EOF
-Usage: $prog [options]
-
-Options:
-  -c control    pmie control file
-  -k discard    remove logfiles after "discard" days
-  -N            show-me mode, no operations performed
-  -V            verbose output
-  -x compress   compress log files after "compress" days
-  -X program    use program for log file compression
-  -Y regex      egrep filter for files not to compress ["$COMPRESSREGEX"]
-EOF
+    pmgetopt --progname=$prog --config=$tmp/usage --usage
     status=1
     exit
 }
@@ -135,13 +138,19 @@ VERBOSE=false
 VERY_VERBOSE=false
 MYARGS=""
 
-while getopts c:k:m:NVx:X:Y:? c
+ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
+[ $? != 0 ] && exit 1
+
+eval set -- "$ARGS"
+while [ $# -gt 0 ]
 do
-    case $c
+    case "$1"
     in
-	c)	CONTROL="$OPTARG"
+	-c)	CONTROL="$2"
+		shift
 		;;
-	k)	CULLAFTER="$OPTARG"
+	-k)	CULLAFTER="$2"
+		shift
 		check=`echo "$CULLAFTER" | sed -e 's/[0-9]//g'`
 		if [ ! -z "$check" -a X"$check" != Xforever ]
 		then
@@ -150,14 +159,15 @@ do
 		    exit
 		fi
 		;;
-	m)	MAILME="$OPTARG"
+	-m)	MAILME="$2"
+		shift
 		;;
-	N)	SHOWME=true
+	-N)	SHOWME=true
 		RM="echo + rm"
 		KILL="echo + kill"
 		MYARGS="$MYARGS -N"
 		;;
-	V)	if $VERBOSE
+	-V)	if $VERBOSE
 		then
 		    VERY_VERBOSE=true
 		else
@@ -165,7 +175,8 @@ do
 		fi
 		MYARGS="$MYARGS -V"
 		;;
-	x)	COMPRESSAFTER="$OPTARG"
+	-x)	COMPRESSAFTER="$2"
+		shift
 		check=`echo "$COMPRESSAFTER" | sed -e 's/[0-9]//g'`
 		if [ ! -z "$check" ]
 		then
@@ -174,19 +185,24 @@ do
 		    exit
 		fi
 		;;
-	X)	COMPRESS="$OPTARG"
+	-X)	COMPRESS="$2"
+		shift
 		;;
-	Y)	COMPRESSREGEX="$OPTARG"
+	-Y)	COMPRESSREGEX="$2"
+		shift
 		;;
-	?)	_usage
+	--)	shift
+		break
+		;;
+	-\?)	_usage
 		;;
     esac
+    shift
 done
-shift `expr $OPTIND - 1`
 
 [ $# -ne 0 ] && _usage
 
-if [ ! -f $CONTROL ]
+if [ ! -f "$CONTROL" ]
 then
     echo "$prog: Error: cannot find control file ($CONTROL)"
     status=1

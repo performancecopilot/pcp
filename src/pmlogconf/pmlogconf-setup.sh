@@ -3,6 +3,7 @@
 # pmlogconf-setup - parse and process a group file to produce an
 # initial configuration file control line
 #
+# Copyright (c) 2014 Red Hat.
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -19,46 +20,60 @@
 # Get standard environment
 . $PCP_DIR/etc/pcp.env
 
+status=1
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
+#debug# tmp=`pwd`/tmp-setup
 prog=`basename $0`
+
+cat > $tmp/usage << EOF
+# Usage: [options] file
+
+Options:
+  --host
+  -v,--verbose   increase diagnostic verbosity
+  --help
+EOF
 
 _usage()
 {
-    echo "Usage: $prog [-v] [-h hostname] file"
+    pmgetopt --progname=$prog --config=$tmp/usage --usage
     exit 1
 }
 
-HOST=localhost
+HOST=local:
 verbose=false
-while getopts h:v? c
+
+ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
+[ $? != 0 ] && exit 1
+
+eval set -- "$ARGS"
+while [ $# -gt 0 ]
 do
-    case $c
+    case "$1"
     in
-	h)	# host to contact for "probe" tests
-		HOST=$OPTARG
+	-h)	# host to contact for "probe" tests
+		HOST="$2"
+		shift
 		;;
 
-	v)	# verbose
+	-v)	# verbose
 		verbose=true
 		;;
 
-	?)	# eh?
+	--)	shift
+		break
+		;;
+
+	-\?)	# eh?
 		_usage
 		# NOTREACHED
 		;;
     esac
+    shift
 done
-shift `expr $OPTIND - 1`
 
-if [ $# -ne 1 ]
-then
-    _usage
-    # NOTREACHED
-fi
-
-sts=1
-tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
-trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
-#debug# tmp=`pwd`/tmp-setup
+[ $# -eq 1 ] || _usage
 
 # find "probe metric [condition] [state_rule]" line to determine action
 # or
@@ -380,10 +395,10 @@ then
     else
 	echo "#+ $1:x::"
     fi
-    sts=0
+    status=0
 else
     $verbose && $PCP_ECHO_PROG >&2
-    $PCP_ECHO_PROG "$1: Botch: no errors and no probe results ... try -v" >&2
+    $PCP_ECHO_PROG "$1: Botch: no errors and no probe results ... try verbose mode" >&2
 fi
 
 exit

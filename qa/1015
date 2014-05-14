@@ -1,0 +1,10 @@
+#!/bin/sh
+# PCP QA Test No. 1015
+# Test QmcIndom functionality
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+. ./common.test
+
+qt/qmc_indom/qmc_indom
+exit $?

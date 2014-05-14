@@ -28,12 +28,28 @@
 # Get standard environment
 . $PCP_DIR/etc/pcp.env
 
+status=1
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
+#debug# tmp=`pwd`/tmp
 prog=`basename $0`
+
+cat > $tmp/usage << EOF
+# Usage: [options] configfile
+
+Options:
+    -c                    add message and timestamp (not for interactive use)
+    -d=DIR,--groups=DIR   specify path to the pmlogconf groups directory
+    --host
+    -q,--quiet            quiet, suppress logging interval dialog
+    -r,--reprobe          every group reconsidered for inclusion in configfile
+    -v,--verbose          increase diagnostic verbosity
+    --help
+EOF
 
 _usage()
 {
-    echo "Usage: $prog [-cqrv] [-d groupsdir] [-h hostname] configfile"
-    sts=1
+    pmgetopt --progname=$prog --config=$tmp/usage --usage
     exit
 }
 
@@ -47,62 +63,61 @@ HOST=''
 verbose=false
 setupflags=''
 
-while getopts c:d:h:qrv? c
+ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
+[ $? != 0 ] && exit 1
+
+eval set -- "$ARGS"
+while [ $# -gt 0 ]
 do
-    case $c
+    case "$1"
     in
-	c)	# automated, non-interactive file creation
+	-c)	# automated, non-interactive file creation
 		autocreate=true
 		;;
 
-	d)	# base directory for the group files
-		BASE="$OPTARG"
+	-d)	# base directory for the group files
+		BASE="$2"
+		shift
 		;;
 
-	h)	# host to contact for "probe" tests
-		HOST=$OPTARG
+	-h)	# host to contact for "probe" tests
+		HOST="$2"
+		shift
 		;;
 
-	q)	# "quick" mode, don't change logging intervals
+	-q)	# "quick" mode, don't change logging intervals
 		quick=true
 		;;
 
-	r)	# reprobe
+	-r)	# reprobe
 		reprobe=true
 		;;
 
-	v)	# verbose
+	-v)	# verbose
 		verbose=true
 		setupflags="$setupflags -v"
 		;;
 
-	?)	# eh?
-		_usage
-		# NOTREACHED
+	--)	# end options
+		shift
+		break
+		;;
+
+	-\?)	_usage
 		;;
     esac
+    shift
 done
-shift `expr $OPTIND - 1`
 
-if [ $# -ne 1 ]
-then
-    _usage
-    # NOTREACHED
-fi
+[ $# -eq 1 ] || _usage
 
-if [ ! -d $BASE ]
+if [ -n "$BASE" -a ! -d "$BASE" ]
 then
     echo "$prog: Error: base directory ($BASE) for group files does not exist"
-    sts=1
     exit
 fi
 
-config=$1
-
-tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
-sts=0
-trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
-#debug# tmp=`pwd`/tmp
+config="$1"
 
 # split $tmp/ctl at the line containing the unprocessed tag to
 # produce
@@ -169,7 +184,7 @@ BEGIN						{ out = "'"$tmp/pre"'" }
 /DO NOT UPDATE THE FILE ABOVE/			{ out = "'"$tmp/post"'" }
 						{ print >out }'
 	    mv $tmp/pre $tmp/ctl
-	    [ -z "$HOST" ] && HOST=localhost
+	    [ -z "$HOST" ] && HOST=local:
 	    if $PCP_BINADM_DIR/pmlogconf-setup -h $HOST $setupflags $BASE/"$tag" 2>$tmp/err >$tmp/out
 	    then
 		:
@@ -193,7 +208,7 @@ BEGIN						{ out = "'"$tmp/pre"'" }
 
 	if $reprobe
 	then
-	    [ -z "$HOST" ] && HOST=localhost
+	    [ -z "$HOST" ] && HOST=local:
 	    if $PCP_BINADM_DIR/pmlogconf-setup -h $HOST $setupflags $BASE/"$tag" 2>$tmp/err >$tmp/out
 	    then
 		:
@@ -425,14 +440,13 @@ then
     if [ ! -f "$config" ]
     then
 	echo "$prog: Error: config file \"$config\" does not exist and cannot be created"
-	sts=1
 	exit
     fi
 
     $PCP_ECHO_PROG "Creating config file \"$config\" using default settings ..."
     prompt=false
     new=true
-    [ -z "$HOST" ] && HOST=localhost
+    [ -z "$HOST" ] && HOST=local:
     [ -z "$BASE" ] && BASE=$PCP_VAR_DIR/config/pmlogconf
 
     cat <<End-of-File >$tmp/in
@@ -573,18 +587,15 @@ s; S2:; networking/rpc:;
 	    cp "$config" $tmp/in
 	else
 	    echo "$prog: Error: existing config file \"$config\" is wrong version ($version)"
-	    sts=1
 	    exit
 	fi
     else
 	echo "$prog: Error: existing \"$config\" is not a $prog control file"
-	sts=1
 	exit
     fi
     if [ ! -w "$config" ]
     then
 	echo "$prog: Error: existing config file \"$config\" is not writeable"
-	sts=1
 	exit
     fi
 
@@ -651,4 +662,4 @@ else
     fi
 fi
 
-exit 0
+status=0

@@ -1,0 +1,6 @@
+#kmchart
+version 1
+
+chart title "Disk Throughput [%h]" style stacking
+	plot legend "Read rate" color yellow metric disk.all.read_bytes
+	plot legend "Write rate" color violet metric disk.all.write_bytes

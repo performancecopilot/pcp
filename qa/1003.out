@@ -1,0 +1,20 @@
+QA output created by 1003
+Load View: PCP_VAR_DIR/config/pmchart/Schemes
+Load View: stdin
+openView: new chart: style=Stack title="Memory Usage" autoscale=yes legend=yes
+openView: new optional-plot color=#f8ff00 metric=mem.util.kernel
+openView: new optional-plot color=#00ffff metric=mem.util.fs_ctl
+openView: new optional-plot color=#ff0000 metric=mem.util.fs_dirty
+openView: new optional-plot color=#fe00ff metric=mem.util.fs_clean
+openView: new optional-plot color=#0000fd metric=mem.util.user
+openView: new plot color=#00ff00 metric=mem.util.free
+openView: new optional-plot color=#fefe32 metric=mem.util.mapped
+openView: new optional-plot color=#fe68ad metric=mem.util.bufmem
+openView: new optional-plot color=#00f1ea metric=mem.util.pageTables
+openView: new optional-plot color=#e873e4 metric=mem.util.slab
+openView: new optional-plot color=#327ffe metric=mem.util.cached
+openView: new optional-plot color=#007f00 metric=mem.util.other
+openView: new chart: style=Stack title="Dirty Buffers" autoscale=yes legend=yes
+openView: new optional-plot color=#fe3732 metric=mem.util.dirty
+openView: new optional-plot color=#ff8900 metric=mem.util.writeback
+openView: new optional-plot color=#008900 metric=mem.util.cache_clean

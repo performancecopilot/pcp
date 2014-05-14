@@ -1,0 +1,40 @@
+#!/bin/sh
+# PCP QA Test No. 1025
+# Test out handling of > MAXHOSTNAMELEN (64) hostnames
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+. ./common.test
+
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+   $sudo rm -f $tmp.*
+}
+
+# real QA test starts here
+
+rm -f $seq.full
+
+metric="sample.control"
+cat <<EOF >$tmp.config
+log mandatory on 1 sec {
+    $metric
+}
+EOF
+
+pmlogger -s1 -c $tmp.config -l $tmp.log $tmp.arch 1>$tmp.out 2>&1
+cat $tmp.log >> $seq.full
+
+bighostname="abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcde"
+pmloglabel -h $bighostname $tmp.arch >> $seq.full
+
+pmdumplog -l $tmp.arch | sed -e '/commencing/d' -e '/ending/d'
+
+pmdumptext -C -a $tmp.arch $bighostname:$metric
+
+# success, all done
+status=0
+exit

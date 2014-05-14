@@ -1,0 +1,38 @@
+QA output created by 1015
+*** Lookup an indom ***
+1.1: 8 instances (0 NULL)
+  [65792] = "cpu:1.1.a" (0 refs) active
+  [65793] = "cpu:1.1.b" (0 refs) active
+  [66304] = "cpu:1.3.a" (0 refs) active
+  [66305] = "cpu:1.3.b" (0 refs) active
+  [131328] = "cpu:2.1.a" (0 refs) active
+  [131329] = "cpu:2.1.b" (0 refs) active
+  [131840] = "cpu:2.3.a" (0 refs) active
+  [131841] = "cpu:2.3.b" (0 refs) active
+
+*** Reference one instance ***
+1.1: 8 instances (0 NULL)
+  [65792] = "cpu:1.1.a" (0 refs) active
+  [65793] = "cpu:1.1.b" (0 refs) active
+  [66304] = "cpu:1.3.a" (1 refs) active
+  [66305] = "cpu:1.3.b" (0 refs) active
+  [131328] = "cpu:2.1.a" (0 refs) active
+  [131329] = "cpu:2.1.b" (0 refs) active
+  [131840] = "cpu:2.3.a" (0 refs) active
+  [131841] = "cpu:2.3.b" (0 refs) active
+Dump Instance Profile state=INCLUDE, 1 profiles
+	Profile [0] indom=4194305 [1.1] state=EXCLUDE 1 instances
+		Instances: [66304]
+
+*** Reference all instances ***
+1.1: 8 instances (0 NULL)
+  [65792] = "cpu:1.1.a" (1 refs) active
+  [65793] = "cpu:1.1.b" (1 refs) active
+  [66304] = "cpu:1.3.a" (2 refs) active
+  [66305] = "cpu:1.3.b" (1 refs) active
+  [131328] = "cpu:2.1.a" (1 refs) active
+  [131329] = "cpu:2.1.b" (1 refs) active
+  [131840] = "cpu:2.3.a" (1 refs) active
+  [131841] = "cpu:2.3.b" (1 refs) active
+Dump Instance Profile state=INCLUDE, 1 profiles
+	Profile [0] indom=4194305 [1.1] state=INCLUDE 0 instances

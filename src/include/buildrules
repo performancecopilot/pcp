@@ -1,5 +1,6 @@
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2014 Red Hat.
+# Copyright (c) 2007 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -80,6 +81,24 @@ else
 endif
 endif
 
+ifdef ICONLINKS
+iconlinks:
+	@for l in $(ICONLINKS) ; do \
+	    if [ ! -L $$l -a ! -f $$l ] ; then \
+		$(LN_S) $(TOPDIR)/images/$$l $$l ; \
+	    fi \
+	done
+endif
+
+ifdef WINDOWLINKS
+windowlinks:
+	@for l in $(WINDOWLINKS) ; do \
+	    if [ ! -L $$l -a ! -f $$l ] ; then \
+		$(LN_S) $(WINDOW)_$$l $$l ; \
+	    fi \
+	done
+endif
+
 # Suffix rule to support transition for YFILES to OBJECTS
 %.tab.h : %.y
 	$(YACC) -d -b `basename $< .y` $<
@@ -93,6 +112,18 @@ endif
 
 %.pl: %.perl
 	$(LN_S) $< $@
+
+# Suffix rule to support transition for XML to PDF (books)
+%.pdf:	%.xml
+ifeq ($(BOOK_TOOLCHAIN),publican)
+	$(PUBLICAN) build --langs=en-US --formats=pdf
+endif
+ifeq ($(BOOK_TOOLCHAIN),xmlto)
+	$(XMLTO) --with-fop pdf $^
+endif
+ifeq ($(BOOK_TOOLCHAIN),dblatex)
+	$(DBLATEX) --type pdf $^
+endif
 
 ifeq ($(TARGET_OS), mingw)
 #

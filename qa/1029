@@ -1,0 +1,45 @@
+#!/bin/sh
+# Test libqmc event tracing functionality
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+. ./common.test
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s/$host/HOST/g" \
+	-e "/^sample\.seconds/s/= 0.[0-9][0-9]*/= 1/g" \
+	-e "/^sample\.seconds/s/= 1.[0-9][0-9]*/= 1/g" \
+	-e "/^sample\.seconds/s/= 1 /= NUMBER /g" \
+	-e "/^sample\.seconds/s/= 0 /= NUMBER /g" \
+	-e "/::genProfile/s/id = [0-9]*,/id = NNN,/" \
+	-e "s/ptr = 0x[1-9a-f][0-9a-f]*/ptr = 0x########/g" \
+	-e "/lookupDesc:/s/29\.0\.2$/<pmid for sample.seconds>/" \
+	-e "/lookupDesc:/s/29\.0\.127$/<pmid for sample.event.type>/" \
+	-e "/lookupDesc:/s/29\.0\.128$/<pmid for sample.event.param_32>/" \
+	-e "/lookupDesc:/s/29\.0\.129$/<pmid for sample.event.param_u32>/" \
+	-e "/lookupDesc:/s/29\.0\.130$/<pmid for sample.event.param_64>/" \
+	-e "/lookupDesc:/s/29\.0\.131$/<pmid for sample.event.param_u64>/" \
+	-e "/lookupDesc:/s/29\.0\.132$/<pmid for sample.event.param_float>/" \
+	-e "/lookupDesc:/s/29\.0\.133$/<pmid for sample.event.param_double>/" \
+	-e "/lookupDesc:/s/29\.0\.134$/<pmid for sample.event.param_string>/" \
+	-e "/lookupDesc:/s/29\.0\.135$/<pmid for sample.event.param_aggregate>/" \
+	-e "/lookupDesc:/s/29\.0\.136$/<pmid for sample.event.records>/" \
+	-e "/lookupInDom:/s/29\.10$/<indom for sample.event.records>/" \
+	-e 's/^  [0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/  <timestamp>/' \
+
+}
+
+# real QA test starts here
+
+rm -f $seq.full
+pmstore sample.event.reset 1 >$seq.full
+$here/qt/qmc_event/qmc_event -DPMC,OPTFETCH 2>&1 | _filter
+
+# success, all done
+status=0
+exit

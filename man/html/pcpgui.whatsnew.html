@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta http-equiv="content-style-type" content="text/css">
+	<link href="pcpdoc.css" rel="stylesheet" type="text/css">
+	<link href="images/pcp.ico" rel="icon" type="image/ico">
+	<TITLE>PCP Manual</TITLE>
+</HEAD>
+<BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/pmcharticon.png" NAME="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></TD>
+	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
+	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	</TR>
+</TABLE>
+<H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>What's New in PCP GUI</FONT></H1>
+<P>
+This package provides the first open implementation of the original SGI pmchart utility.  It offers all of the important functionality of the original tool and several interesting advances.  It also offers a more modern user interface supporting Tabbed viewing, a toolbar, styles, gradient shading of widgets, and so on, making use of these now commonplace user interface components to provide the next step forward, while aiming to retain all of the usefulness of the original.
+<P>&nbsp;
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>PCP GUI 1.0 - pmchart</B></FONT></P></TD></TR>
+</TABLE>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+	<TR> <TD WIDTH=100%><UL>
+		<LI><P STYLE=" margin-bottom: 0cm; margin-top: 0cm;"><FONT COLOR="#000060">Multiple Tabs</FONT></P>
+		<LI><P STYLE=" margin-bottom: 0cm; margin-top: 0cm;"><FONT COLOR="#000060">Support for simultaneous Live and Archive mode</FONT></P>
+		<LI><P STYLE=" margin-bottom: 0cm; margin-top: 0cm;"><FONT COLOR="#000060">Redesigned metric selector, allowing all aspects of charts to be setup (or edited) at once</FONT></P>
+		<LI><P STYLE=" margin-bottom: 0cm; margin-top: 0cm;"><FONT COLOR="#000060">Metric and instance name search and selection facility</FONT></P>
+		<LI><P STYLE=" margin-bottom: 0cm; margin-top: 0cm;"><FONT COLOR="#000060">Ability to vertically resize and temporarily collapse individual charts</FONT></P>
+		<LI><P STYLE=" margin-bottom: 0cm; margin-top: 0cm;"><FONT COLOR="#000060">Extended record functionality, allowing log size querying and creation of an Archive Tab at the end of the recording</FONT></P>
+		<LI><P STYLE=" margin-bottom: 0cm; margin-top: 0cm;"><FONT COLOR="#000060">Extended printing and image export support, with many image formats supported, optional background transparency and image scaling</FONT></P>
+		<LI><P STYLE=" margin-bottom: 0cm; margin-top: 0cm;"><FONT COLOR="#000060">Configurable toolbar for quick access to commonly used functionality</FONT></P>
+		<LI><P STYLE=" margin-bottom: 0cm; margin-top: 0cm;"><FONT COLOR="#000060">User interface configurability within the tool instead of external configuration files only</FONT></P>
+		<LI><P STYLE=" margin-bottom: 0cm; margin-top: 0cm;"><FONT COLOR="#000060">Native platform configuration mechanisms used for user interface Preferences</FONT></P>
+		<LI><P STYLE=" margin-bottom: 0cm; margin-top: 0cm;"><FONT COLOR="#000060">User interface support for creating and using color schemes (all aspects of the specification language now editable via user interface)</FONT></P>
+		<LI><P STYLE=" margin-bottom: 0cm; margin-top: 0cm;"><FONT COLOR="#000060">Support for MacOSX, X11 (Linux) and Windows platforms (Qt based)</FONT></P>
+<P>&nbsp;
+	</UL></TD>
+</TABLE>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff">Original SGI pmchart</FONT></P></TD></TR>
+</TABLE>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+	<TR> <TD WIDTH=100%><UL>
+		<LI><P STYLE=" margin-bottom: 0cm; margin-top: 0cm;"><FONT COLOR="#000060">VCR-like time control model</FONT></P>
+		<LI><P STYLE=" margin-bottom: 0cm; margin-top: 0cm;"><FONT COLOR="#000060">Vertically aligned charts, unified time axis</FONT></P>
+		<LI><P STYLE=" margin-bottom: 0cm; margin-top: 0cm;"><FONT COLOR="#000060">Separate time control process, keeping multiple clients updated with the same time position simultaneously</FONT></P>
+		<LI><P STYLE=" margin-bottom: 0cm; margin-top: 0cm;"><FONT COLOR="#000060">Source data from multiple hosts simultaneously</FONT></P>
+		<LI><P STYLE=" margin-bottom: 0cm; margin-top: 0cm;"><FONT COLOR="#000060">Source data from live hosts and archives using the same interface</FONT></P>
+		<LI><P STYLE=" margin-bottom: 0cm; margin-top: 0cm;"><FONT COLOR="#000060">View specification language, with multiple metrics, multiple charts, color schemes, and regular expressions on instance names</FONT></P>
+		<LI><P STYLE=" margin-bottom: 0cm; margin-top: 0cm;"><FONT COLOR="#000060">Record mode, with pmlogger(1) extensions and communication protocol</FONT></P>
+		<LI><P STYLE=" margin-bottom: 0cm; margin-top: 0cm;"><FONT COLOR="#000060">User interface configurability through X11 resources</FONT></P>
+		<LI><P STYLE=" margin-bottom: 0cm; margin-top: 0cm;"><FONT COLOR="#000060">Printing support, with export to PostScript and GIF format incorporated</FONT></P>
+		<LI><P STYLE=" margin-bottom: 0cm; margin-top: 0cm;"><FONT COLOR="#000060">Auto-scaling of Y-Axis metric values</FONT></P>
+		<LI><P STYLE=" margin-bottom: 0cm; margin-top: 0cm;"><FONT COLOR="#000060">Most aspects of the specification language editable via the user interface</FONT></P>
+		<LI><P STYLE=" margin-bottom: 0cm; margin-top: 0cm;"><FONT COLOR="#000060">Support for IRIX and Linux platforms (X11 based)</FONT></P>
+		<LI><P STYLE=" margin-bottom: 0cm; margin-top: 0cm;"><FONT COLOR="#000060">And much, much more...</FONT></P>
+<P>&nbsp;
+	</UL></TD>
+</TABLE>
+<HR>
+<CENTER>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=50%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A></P></TD>
+	<TD WIDTH=50%><P ALIGN=RIGHT>PCP</P></TD> </TR>
+</TABLE>
+</CENTER>
+</BODY>
+</HTML>

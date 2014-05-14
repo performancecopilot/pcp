@@ -2,7 +2,7 @@
 #
 # pmcc.py
 #
-# Copyright (C) 2013 Red Hat
+# Copyright (C) 2013-2014 Red Hat
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of the "pcp" module, the python interfaces for the
@@ -175,7 +175,7 @@ class MetricCache(pmContext):
     ##
     # overloads
   
-    def __init__(self, typed = PM_CONTEXT_HOST, target = "localhost"):
+    def __init__(self, typed = PM_CONTEXT_HOST, target = "local:"):
         pmContext.__init__(self, typed, target)
         self._mcIndomD = {}
         self._mcByNameD = {}
@@ -351,7 +351,7 @@ class MetricGroupManager(dict, MetricCache):
     ##
     # overloads
 
-    def __init__(self, typed = PM_CONTEXT_HOST, target = "localhost"):
+    def __init__(self, typed = PM_CONTEXT_HOST, target = "local:"):
         MetricCache.__init__(self, typed, target)
         dict.__init__(self)
 

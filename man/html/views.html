@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta http-equiv="content-style-type" content="text/css">
+	<link href="pcpdoc.css" rel="stylesheet" type="text/css">
+	<link href="images/pcp.ico" rel="icon" type="image/ico">
+	<TITLE>Chart Views</TITLE>
+</HEAD>
+<BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/pmcharticon.png" NAME="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></TD>
+	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
+	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	</TR>
+</TABLE>
+<H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Views</FONT></H1>
+<P>The primary pmchart configuration file is the  "view", which allows the metadata associated with one or more charts to be saved in the filesystem.  This metadata describes all aspects of the charts, including which PCP metrics and instances are to be used, which hosts, which colors, the chart titles, use of chart legends, and much more.
+<P>From a conceptual point of view, there are two classes of view.  These views share the same configuration file format, described below.  The differences lie in where they are installed and how they are manipulated.
+<P>The first class, the "system" view, is simply any view that is installed as part of the pmchart package.  These are stored in <I>$PCP_VAR_DIR/config/pmchart</I>.  When the <I>File→Open View</I> dialog is displayed, it is these views that are initially listed.  The system views cannot be modified by a normal user, and should not be modified even by a user with suitable priviledges, as they will be overwritten during an upgrade.
+<P>The second class of view is the "user" view.  These views are created on-the-fly using the <I>File→Save View</I> dialog.  This is a mechanism for individual users to save their commonly used views.  Access to these views is achieved through the <I>File→Open View</I> dialog, as with the system views.  Once the dialog is opened, the list of views can be toggled between user and system views by clicking on the two toggle buttons in the top right corner.  User views are stored in <I>$HOME/.pcp/pmchart</I>.
+<P>&nbsp;</P>
+<P>The current pmchart configuration file syntax has <A HREF="pmchart.html">evolved</A> from the original SGI pmchart syntax.
+<P>&nbsp;</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Configuration File Syntax</B></FONT></P></TD></TR>
+</TABLE>
+<P>pmchart loads predefined chart configurations (or "views") from external files that conform to the following rules.  In the descriptions below keywords (shown in bold) may appear in upper, lower or mixed case, elements shown as [stuff] are optional, and user-supplied elements are shown as <other stuff>.  A vertical bar (|) is used where syntactic elements are alternatives.  Quotes (") may be used to enclose lexical elements that may contain white space, such as titles, labels and instance names.
+<P><OL>
+       <LI>The first line defines the configuration file type and should be
+<PRE>    #kmchart</PRE>
+although pmchart provides backwards compatibility for original SGI pmchart formats with an initial line of
+<PRE>    #pmchart</PRE>
+       <LI>After the first line, lines beginning with "#" as the first non-whitespace character are treated as comments and skipped.  Similarly blank lines are skipped.<PRE></PRE>
+       <LI>The next line should be
+<PRE>    version &lt;n&gt; <host-clause></PRE>
+where &lt;n&gt; depends on the configuration file type, and is 1 for kmchart else 1.1, 1.2 or 2.0 for pmchart.
+<BR>The &lt;host-clause&gt; part is optional (and ignored) for pmchart configuration files, but required for the older pmchart configuration files, and is of the form
+<PRE>    host literal</PRE>
+or
+<PRE>    host dynamic</PRE>
+       <LI>A configuration contains one or more charts defined as follows:
+<PRE>    chart [title &lt;title&gt;] style &lt;style&gt; &lt;options&gt;</PRE>
+If specified, the title will appear centred and above the graph area of the chart.  The &lt;title&gt; is usually enclosed in quotes (") and if it contains the sequence "%h" this will be replaced by the short form of the hostname for the default source of metrics at the time this chart was loaded.  After the view is loaded, the title visibility and setting can be manipulated using the Chart Title text box in the <I>Edit→Chart</I> dialog.
+<BR>The &lt;options&gt; are zero or more of the optional elements:
+<PRE>    [scale [from] &lt;ymin&gt; [to] &lt;ymax&gt;] [legend &lt;onoff&gt;]</PRE>
+If <B>scale</B> is specified, the vertical scaling is set for all plots in the chart to a y-range defined by &lt;ymin&gt; and &lt;ymax&gt;.  Otherwise the vertical axis will be autoscaled based on the values currently being plotted.
+<BR>&lt;onoff&gt; is one of the keywords <B>on</B> or <B>off</B> and the <B>legend</B> clause controls the presence or absence of the plot legend below the graph area.  The default is for the legend to be shown.  After the view is loaded, the legend visibility can be toggled using the Show Legend button in the <I>Edit→Chart</I> dialog.<PRE></PRE>
+       <LI>pmchart supports a <B>global</B> clause to specify the dimensions of the top-level window (using the <B>width</B> and <B>height</B> keywords), the number of visible points (<B>points</B> keyword) and the starting X and Y axis positions on the screen (<B>xpos</B> and <B>ypos</B> keywords).  Each of these global attributes takes an integer value as the sole qualifier.<PRE></PRE>
+       <LI>Each chart has one or more plots associated with it, as defined by one of the following specifications:
+<PRE>    plot
+       [legend &lt;title&gt;] [color &lt;colorspec&gt;] [host &lt;hostspec&gt;]
+       metric &lt;metricname&gt;
+       [ instance &lt;inst&gt; | matching &lt;pat&gt; | not-matching &lt;pat&gt; ]</PRE>
+The keyword <B>plot</B> may be replaced with the keyword <B>optional-plot</B>, in which case if the source of performance data does not include the specified performance metric and/or instance, then this plot is silently dropped from the chart.
+<BR>If specified, the title will appear in the chart legend.  The &lt;title&gt; is usually enclosed in quotes (") and if it contains the sequence "%i" this will be replaced by the metric instance name (if any).
+<P>For pmchart configuration files, the keyword <B>title</B> must be used instead of <B>legend</B>.  pmchart supports either keyword.
+<BR>The <B>color</B> clause is optional for new pmchart configuration files, but it is mandatory for older pmchart configuration files.  &lt;colorspec&gt; may be one of the following:
+<PRE>    #-cycle<BR>
+    rgbi:rr:gg:bb<BR>
+    #rgb<BR>
+    #rrggbb<BR>
+    #rrrgggbbb<BR>
+    #rrrrggggbbbb<BR>
+    &lt;Xcolor&gt;</PRE>
+where each of r, g and b are hexidecimal digits (0-9 and A-F) representing respectively the red, green and blue color components.  &lt;Xcolor&gt; is one of the color names from the X color database, e.g. red or steelblue, see also the output from <B>showrgb</B>(1) on X11 platforms.
+<BR>The "color" #-cycle specifies that pmchart should use the next in a pallet of colors that it uses cyclically for each chart.  This is the default if the <B>color</B> clause is omitted.
+<BR>The &lt;hostspec&gt; in the <B>host</B> clause may be a hostname, an IP address or an asterisk (*); the latter is used to mean the default source of performance metrics.  For pmchart configuration files, the <B>host</B> clause must be present, for new pmchart configuration files it is optional, and if missing the default source of performance metrics will be used.
+<BR>The optional <B>instance</B> specification,
+	<OL><LI>is omitted in which case one plot will be created for every instance of the &lt;metricname&gt; metric
+	<LI>starts with <B>instance</B>, in which case only the instance named <inst> will be plotted
+	<LI>starts with <B>matching</B>, in which case all instances whose names match the pattern &lt;pat&gt; will be plotted; the pattern uses extended regular expression notation in the style of <B>egrep</B>(1) (refer to the <I>PMCD</I> view for an example)
+	<LI>starts with <B>not-matching</B>, in which case all instances whose names do not match the pattern &lt;pat&gt; will be plotted; the pattern uses extended regular expression notation in the style of <B>egrep</B>(1) (refer to the <I>Netbytes</I> view for an example)
+<BR>The original pmchart syntax uses a bizarre notation where &lt;inst&gt; and &lt;pat&gt; extend from the first non-white space character to the end of the input line.  For modern pmchart configuration files these elements are either delimited by white space, or enclosed in quotes (").
+</OL><PRE></PRE>
+       <LI>The optional <B>tab</B> directive can be used to create views with multiple charts which span multiple Tabs.  The synax is as follows:
+<PRE>    tab &lt;label&gt; [host &lt;host&gt;] [points &lt;points&gt; [samples &lt;samples&gt;]]</PRE>
+<BR>All chart specifications following this keyword will be created on the new Tab, until the end of the configuration file or until another <B>tab</B> keyword is encountered.
+</OL>
+<P>&nbsp;</P>
+<HR>
+<CENTER>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=50%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A></P></TD>
+	<TD WIDTH=50%><P ALIGN=RIGHT>PCP</P></TD> </TR>
+</TABLE>
+</CENTER>
+</BODY>
+</HTML>

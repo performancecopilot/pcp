@@ -310,7 +310,7 @@ verbose=false
 paranoid=false
 group=false
 xgroup=false
-retired=false
+rflag=false
 selbygroup=false
 snarf=''
 showme=false
@@ -328,11 +328,11 @@ do
 
 	# arg after -g
 	group_list=`
-	if $retired
+	if $rflag
 	then
-	    sed -e 's/\([0-9]\):retired /\1 /' <group
+	    sed -e 's/\([0-9]\):\(retired\|reserved\) /\1 /' <group
 	else
-	    sed -e '/[0-9]:retired /d' <group
+	    sed -e '/[0-9]:\(retired\|reserved\) /d' <group
 	fi \
 	| sed -n -e 's/$/ /' -e "/^[0-9][0-9]*.* $r /"'{
 s/ .*//p
@@ -361,21 +361,21 @@ s/ .*//p
 
 	# if no test numbers, do everything from group file
 	[ -s $tmp.list ] || \
-	if $retired
+	if $rflag
 	then
-	    sed -e 's/\([0-9]\):retired /\1 /' <group
+	    sed -e 's/\([0-9]\):\(retired\|reserved\) /\1 /' <group
 	else
-	    sed -e '/[0-9]:retired /d' <group
+	    sed -e '/[0-9]:\(retired\|reserved\) /d' <group
 	fi \
 	| sed -n -e '/^[0-9]/s/[ 	].*//p' >$tmp.list
 
 	# arg after -x
 	group_list=`
-	if $retired
+	if $rflag
 	then
-	    sed -e 's/\([0-9]\):retired /\1 /' <group
+	    sed -e 's/\([0-9]\):\(retired\|reserved\) /\1 /' <group
 	else
-	    sed -e '/[0-9]:retired /d' <group
+	    sed -e '/[0-9]:\(retired\|reserved\) /d' <group
 	fi \
 	| sed -n \
 	    -e "/^[0-9].* $r /s/[ 	].*//p" \
@@ -442,7 +442,7 @@ check options
     -s		sssh mode diff [no diff, regular output]
     -n		show me, do not run tests
     -q		quick, no PMDA checks (you are on your own)
-    -r		include retired tests
+    -r		include reserved and retired tests
     -t		turn on tracing
     -T		output timestamps
     -x group	exclude tests from these groups (multiple flags allowed)
@@ -481,11 +481,11 @@ p
 	    | while read group
 	    do
 		num=`
-		    if $retired
+		    if $rflag
 		    then
-			sed -e 's/\([0-9]\):retired /\1 /' <group
+			sed -e 's/\([0-9]\):\(retired\|reserved\) /\1 /' <group
 		    else
-			sed -e '/[0-9]:retired /d' <group
+			sed -e '/[0-9]:\(retired\|reserved\) /d' <group
 		    fi \
 		    | egrep "^[0-9].*[ 	]$group([ 	]|$)" \
 		    | wc -l \
@@ -521,8 +521,8 @@ p
 	    xpand=false
 	    ;;
 
-	-r)	# include retired tests
-	    retired=true
+	-r)	# include reserved and retired tests
+	    rflag=true
 	    xpand=false
 	    ;;
 
@@ -591,11 +591,11 @@ p
 	start=`echo $start | sed -e 's/^0*\(.\)/\1/'`
 	end=`echo $end | sed -e 's/^0*\(.\)/\1/'`
 	have_test_arg=true
-	if $retired
+	if $rflag
 	then
-	    sed -e 's/\([0-9]\):retired /\1 /' <group
+	    sed -e 's/\([0-9]\):\(retired\|reserved\) /\1 /' <group
 	else
-	    sed -e '/[0-9]:retired /d' <group
+	    sed -e '/[0-9]:\(retired\|reserved\) /d' <group
 	fi >$tmp.group
 	$PCP_AWK_PROG </dev/null '
 BEGIN	{ for (t='$start'; t<='$end'; t++) printf "%03d\n",t }' \
@@ -611,6 +611,10 @@ BEGIN	{ for (t='$start'; t<='$end'; t++) printf "%03d\n",t }' \
 	    then
 		# in group file, but retired
 		echo "$id - retired test, ignored"
+	    elif egrep -s "^$id:reserved([ 	]|$)" group >/dev/null
+	    then
+		# in group file, but reserved
+		echo "$id - reserved test, ignored"
 	    else
 		# oops
 		$range || echo "$id - unknown test, ignored"
@@ -637,11 +641,11 @@ else
     	else
 	    # no test numbers, do everything from group file
 	    touch $tmp.list
-	    if $retired
+	    if $rflag
 	    then
-		sed -e 's/\([0-9]\):retired /\1 /' <group
+		sed -e 's/\([0-9]\):\(retired\|reserved\) /\1 /' <group
 	    else
-		sed -e '/[0-9]:retired /d' <group
+		sed -e '/[0-9]:\(retired\|reserved\) /d' <group
 	    fi \
 	    | sed -n -e '/^[0-9]/{
 s/[ 	].*//

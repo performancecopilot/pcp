@@ -1,0 +1,755 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!--
+ (c) Copyright 2000-2004 Silicon Graphics Inc. All rights reserved.
+ Permission is granted to copy, distribute, and/or modify this document
+ under the terms of the Creative Commons Attribution-Share Alike, Version
+ 3.0 or any later version published by the Creative Commons Corp. A copy
+ of the license is available at
+ http://creativecommons.org/licenses/by-sa/3.0/us/ .
+-->
+<HTML>
+<HEAD>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta http-equiv="content-style-type" content="text/css">
+	<link href="pcpdoc.css" rel="stylesheet" type="text/css">
+	<link href="images/pcp.ico" rel="icon" type="image/ico">
+	<TITLE>How to understand disk performance</TITLE>
+</HEAD>
+<BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/pcpicon.png" NAME="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
+	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
+	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	</TR>
+</TABLE>
+<H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>How to understand measures of disk performance</FONT></H1>
+<TABLE WIDTH=15% BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
+	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
+pmchart
+sar
+</PRE></TD></TR>
+</TABLE>
+<P>This chapter of the Performance Co-Pilot tutorial provides some hints 
+on how to interpret and understand the various measures of disk 
+performance.</P>
+<P>For an explanation of Performance Co-Pilot terms and acronyms, consult 
+the <A HREF="glossary.html">PCP glossary</A>.</P>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Reconciling sar -d and PCP disk performance metrics</B></FONT></P></TD></TR>
+</TABLE>
+<P>
+Both <I>sar</I> and Performance Co-Pilot (PCP) use a common collection 
+of disk performance instrumentation from the block layer in the kernel,
+however the disk performance metrics provided by <I>sar</I> and PCP
+differ in their derivation and semantics.&nbsp;&nbsp;This document
+is an attempt to explain these differences. </P>
+<P>
+It is convenient to define the ``response time'' to be the time to 
+complete a disk operation as the sum of the time spent:</P>
+<UL>
+    <LI>
+    entering the read() or write() system call and set up for an I/O 
+    operation (time here is CPU bound and is assumed to be negligible per 
+    I/O) 
+    <LI>
+    in a queue of pending requests waiting to be handed to the device 
+    controller (the ``queue time'') 
+    <LI>
+    the time between the request being handed to the device controller and 
+    the end of transfer interrupt (the ``(device) service time''), 
+    typically composed of delays due to request scheduling at the 
+    controller, bus arbitration, possible seek time, rotational latency, 
+    data transfer, etc. 
+    <LI>
+    time to process the end of transfer interrupt, housekeeping at the end 
+    of an I/O operation and return from the read() or write() system call 
+    (time here is CPU bound and also assumed to be negligible per I/O) 
+</UL>
+<P>
+Note that while the CPU time per I/O is assumed to be small in 
+relationship to the times involving operations at the device level, 
+when the system-wide I/O rate is high (and it could be tens of 
+thousands of I/Os per second on a very large configuration), the <B>aggregate</B>
+ CPU demand to support this I/O activity may be significant.</P>
+<P>
+The kernel agents for PCP export the following metrics for each disk spindle:</P>
+<TABLE BORDER="1">
+    <CAPTION ALIGN="BOTTOM"><B>Table 1: Raw PCP disk metrics</B></CAPTION>
+    <TR VALIGN="TOP">
+        <TH>Metric</TH>
+        <TH>Units</TH>
+        <TH>Semantics</TH>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>disk.dev.read</TT></I></TD>
+        <TD>number</TD>
+        <TD>running total of <B>read</B> I/O requests since boot time</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>disk.dev.write</TT></I></TD>
+        <TD>number</TD>
+        <TD>running total of <B>write</B> I/O requests since boot time</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>disk.dev.total</TT></I></TD>
+        <TD>number</TD>
+        <TD>running total of I/O requests since boot time, equals <I><TT>disk.dev.read</TT></I>
+             + <I><TT>disk.dev.write</TT></I></TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>disk.dev.blkread</TT></I></TD>
+        <TD>number</TD>
+        <TD>running total of data <B>read</B> since boot time in units 
+            of 512-byte blocks</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>disk.dev.blkwrite</TT></I></TD>
+        <TD>number</TD>
+        <TD>running total of data <B>written</B> since boot time in 
+            units of 512-byte blocks</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>disk.dev.blktotal</TT></I></TD>
+        <TD>number</TD>
+        <TD>running total of data <B>read</B> or <B>written</B> since 
+            boot time in units of 512-bytes, equals <I><TT>disk.dev.blkread 
+            + disk.dev.blkwrite</TT></I></TD>
+    </TR>
+    <TR>
+        <TD><I><TT>disk.dev.read_bytes</TT></I></TD>
+        <TD>Kbytes</TD>
+        <TD>running total of data <B>read</B> since boot time in units 
+            of Kbytes</TD>
+    </TR>
+    <TR>
+        <TD><I><TT>disk.dev.write_bytes</TT></I></TD>
+        <TD>Kbytes</TD>
+        <TD>running total of data <B>written</B> since boot time in 
+            units of Kbytes</TD>
+    </TR>
+    <TR>
+        <TD><I><TT>disk.dev.bytes</TT></I></TD>
+        <TD>Kbytes</TD>
+        <TD>running total of data <B>read</B> or <B>written</B> since 
+            boot time in units of Kbytes, equals <I><TT>disk.dev.read_bytes 
+            + disk.dev.write_bytes</TT></I></TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>disk.dev.active</TT></I></TD>
+        <TD>milliseconds</TD>
+        <TD>running total (milliseconds since boot time) of time this 
+            device has been busy servicing at least one I/O request</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>disk.dev.response</TT></I></TD>
+        <TD>milliseconds</TD>
+        <TD>running total (milliseconds since boot time) of the 
+            response time for all completed I/O requests</TD>
+    </TR>
+</TABLE>
+<P>
+These metrics are all &quot;counters&quot; so when displayed with most 
+PCP tools, they are sampled periodically and the differences between 
+consecutive values converted to rates or time utilization over the 
+sample interval as follows:</P>
+<TABLE BORDER="1">
+    <CAPTION ALIGN="BOTTOM"><B>Table 2: PCP disk metrics as reported by 
+    most PCP tools</B></CAPTION>
+    <TR VALIGN="TOP">
+        <TH>Metric</TH>
+        <TH>Units</TH>
+        <TH>Semantics</TH>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>disk.dev.read</TT></I></TD>
+        <TD>number per second</TD>
+        <TD><B>read</B> I/O requests per second (or <B>read</B> IOPS)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>disk.dev.write</TT></I></TD>
+        <TD>number per second</TD>
+        <TD><B>write</B> I/O requests per second (or <B>write</B> IOPS)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>disk.dev.total</TT></I></TD>
+        <TD>number per second</TD>
+        <TD>I/O requests per second (or IOPS)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>disk.dev.blkread</TT></I></TD>
+        <TD>number per second</TD>
+        <TD>2 * (Kbytes <B>read</B> per second)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>disk.dev.blkwrite</TT></I></TD>
+        <TD>number per second</TD>
+        <TD>2 * (Kbytes <B>written </B>per second)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>disk.dev.blktotal</TT></I></TD>
+        <TD>number per second</TD>
+        <TD>2 * (Kbytes <B>read</B> or <B>written</B> per second)</TD>
+    </TR>
+    <TR>
+        <TD><I><TT>disk.dev.read_bytes</TT></I></TD>
+        <TD>Kbytes per second</TD>
+        <TD>Kbytes <B>read</B> per second</TD>
+    </TR>
+    <TR>
+        <TD><I><TT>disk.dev.write_bytes</TT></I></TD>
+        <TD>Kbytes per second</TD>
+        <TD>Kbytes <B>written </B>per second</TD>
+    </TR>
+    <TR>
+        <TD><I><TT>disk.dev.bytes</TT></I></TD>
+        <TD>Kbytes per second</TD>
+        <TD>Kbytes <B>read</B> or <B>written</B> per second</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>disk.dev.active</TT></I></TD>
+        <TD>time utilization</TD>
+        <TD>fraction of time device was &quot;busy&quot; over the 
+            sample interval (either in the range 0.0-1.0 or expressed as a 
+            percentage in the rance 0-100); in this context &quot;busy&quot; means 
+            servicing one or more I/O requests</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>disk.dev.response</TT></I></TD>
+        <TD>time utilization</TD>
+        <TD>time average of the response time over the interval; this 
+            is a slightly strange metric in that values larger than 1.0 (or 100%) 
+            imply either device saturation, or controller saturation or a very 
+            ``bursty'' request arrival pattern -- in isolation there is <B>no 
+            sensible interpretation</B> of the rate converted value 
+            this metric </TD>
+    </TR>
+</TABLE>
+<P>
+The <I>sar</I> metrics <I><TT>avque</TT></I>, <I><TT>avwait</TT></I>
+ and <I><TT>avserv</TT></I> are subject to widespread 
+misinterpretation, and so warrant some special explanation. They may be 
+understood with the aid of a simple illustrative example. Consider the 
+following snapshot of disk activity in which the response time has been 
+simplified to be a multiple of 10 milliseconds for each I/O operation 
+over a 100 millisecond sample interval (this is an unlikely 
+simplification, but makes the arithmetic easier).</P>
+<CENTER><P ALIGN="CENTER">
+<IMG SRC="images/sar-d.png" WIDTH="529" HEIGHT="152"></P>
+</CENTER><P>
+Each green block represents a 4 Kbyte read. Each red block represents a 
+16Kbyte write.</P>
+<DL>
+    <DT>
+    <I><TT>avque</TT></I> 
+    <DD>
+    <P>
+    The <B><I>stochastic</I></B> <B><I>average</I></B> of the 
+    &quot;queue&quot; length sampled just before each I/O is complete, 
+    where ``queue'' here includes those requests in the queue <B>and</B>
+     those being serviced by the device controller. Unfortunately the <B><I>stochastic</I></B>
+     <B><I>average</I></B> of a queue length is not the same as the 
+    more commonly understood <B><I>temporal</I></B> or <B><I>time</I></B>
+     <B><I>average</I></B> of a queue length. </P>
+    <P>
+    In the table below, <B>R</B> is the contribution to the sum of the 
+    response times, <B>Qs</B> is the contribution to the sum of the 
+    queue length used to compute the <B><I>stochastic</I></B> average 
+    and <B>Qt</B> is the contribution to the sum of the queue length 
+    &#215; time used to compute the <B><I>temporal</I></B> average. </P>
+</DL>
+    <CENTER>
+    <TABLE BORDER="1">
+        <TR>
+            <TH ALIGN="CENTER">
+            <B>Time</B><BR>
+             (msec)</TH>
+        <TH ALIGN="CENTER"><B>Event</B></TH>
+        <TH ALIGN="CENTER"><B>R</B><BR>
+             (msec)</TH>
+        <TH ALIGN="CENTER"><B>Qs</B></TH>
+        <TH ALIGN="CENTER"><B>Qt</B><BR>
+             (msec)</TH>
+    </TR>
+    <TR>
+        <TD ALIGN="RIGHT">300</TD>
+        <TD>Start I/O #1 (write)</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+    </TR>
+    <TR>
+        <TD ALIGN="RIGHT">320</TD>
+        <TD>End I/O #1</TD>
+        <TD ALIGN="RIGHT">20</TD>
+        <TD ALIGN="RIGHT">1</TD>
+        <TD ALIGN="RIGHT">1&#215;20</TD>
+    </TR>
+    <TR>
+        <TD ALIGN="RIGHT">320</TD>
+        <TD>Start I/O #2 (read)</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+    </TR>
+    <TR>
+        <TD ALIGN="RIGHT">320</TD>
+        <TD>Start I/O #3 (read)</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+    </TR>
+    <TR>
+        <TD ALIGN="RIGHT">330</TD>
+        <TD>End I/O #2</TD>
+        <TD ALIGN="RIGHT">10</TD>
+        <TD ALIGN="RIGHT">2</TD>
+        <TD ALIGN="RIGHT">2&#215;10</TD>
+    </TR>
+    <TR>
+        <TD ALIGN="RIGHT">340</TD>
+        <TD>End I/O #3</TD>
+        <TD ALIGN="RIGHT">20</TD>
+        <TD ALIGN="RIGHT">1</TD>
+        <TD ALIGN="RIGHT">1&#215;10</TD>
+    </TR>
+    <TR>
+        <TD ALIGN="RIGHT">360</TD>
+        <TD>Start I/O #4 (write)</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+    </TR>
+    <TR>
+        <TD ALIGN="RIGHT">360</TD>
+        <TD>Start I/O #5 (read)</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+    </TR>
+    <TR>
+        <TD ALIGN="RIGHT">360</TD>
+        <TD>Start I/O #6 (read)</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+        <TD ALIGN="RIGHT">&nbsp;</TD>
+    </TR>
+    <TR>
+        <TD ALIGN="RIGHT">370</TD>
+        <TD>End I/O #6</TD>
+        <TD ALIGN="RIGHT">10</TD>
+        <TD ALIGN="RIGHT">3</TD>
+        <TD ALIGN="RIGHT">3&#215;10</TD>
+    </TR>
+    <TR>
+        <TD ALIGN="RIGHT">380</TD>
+        <TD>End I/O #5</TD>
+        <TD ALIGN="RIGHT">20</TD>
+        <TD ALIGN="RIGHT">2</TD>
+        <TD ALIGN="RIGHT">2&#215;10</TD>
+    </TR>
+    <TR>
+        <TD ALIGN="RIGHT">400</TD>
+        <TD>End I/O #4</TD>
+        <TD ALIGN="RIGHT">40</TD>
+        <TD ALIGN="RIGHT">1</TD>
+        <TD ALIGN="RIGHT">1&#215;20</TD>
+    </TR>
+</TABLE>
+</CENTER>
+<DL>
+    <DT>
+    &nbsp;
+    <DD>
+    <P>
+    The (stochastic) average response time is sum(<B>R</B>) / 6 = 120 / 
+    6 = 20 msec.</P>
+    <P>
+    The <B><I>stochastic</I></B> <B><I>average</I></B> of the queue 
+    length is sum(<B>Qs</B>) / 6 = 10 / 6 = 1.67.</P>
+    <P>
+    The <B><I>temporal </I></B> <B><I>average</I></B> of the queue 
+    length is sum(<B>Qt</B>) / 100 = 120 / 100 = 1.20.</P>
+    <P>
+    Even in this simple example, the two methods for computing the &quot;average&quot; 
+    queue length produce different answers.  As the inter-arrival rate 
+    for I/O requests becomes more variable, and particularly when many I/O 
+    requests are issued in a short period of time followed by a period of
+    quiescence, the two methods produce radically different results.</P>
+    <P>
+    For example if the idle period in the example above was 420 msec rather 
+    than 20 msec, then the <B><I>stochastic</I></B> <B><I>average</I></B>
+     would remain unchanged at 1.67, but the <B><I>temporal average</I></B>
+     would fall to 120/500 = 0.24 ... given that this disk is now <B>idle</B> 
+    for 420/500 = 84% of the time one can see how misleading the <B><I>stochastic</I></B>
+     <B><I>average</I></B> can be. Unfortunately many disks are subject 
+    to exactly this pattern of short bursts when many I/Os are enqueued, 
+    followed by long periods of comparative calm (consider flushing dirty 
+    blocks by <I>bdflush</I> in IRIX or the DBWR process in Oracle). 
+    Under these circumstances, <I><TT>avque</TT> </I>as reported by <I>sar</I>
+     can be very misleading.</P>
+    <DT>
+    <I><TT>avserv</TT></I>
+    <DD>
+    <P>
+    Because multiple operations may be processed by the controller at the 
+    same time, and the order of completion is not necessarily the same as 
+    the order of dispatch, the notion of individual service time is 
+    difficult (if not impossible) to measure. Rather, <I>sar</I>
+     approximates using the total time the disk was busy processing at 
+    least one request divided by the number of completed requests.</P>
+    <P>
+    In the example above this translates to busy for 80 msec, in which time 
+    6 I/Os were completed, so the average service time is 13.33 msec.</P>
+    <DT>
+    <I><TT>avwait</TT></I>
+    <DD>
+    <P>
+    For reasons similar to those applying to <I><TT>avserv</TT></I> the 
+    average time spent waiting cannot be split between waiting in the 
+    queue of requests to be sent to the controller and waiting at the 
+    controller while some other concurrent request is being processed. So <I>sar</I>
+     computes the total time spent waiting as the total response time minus 
+    the total service time, and then averages over the number of completed 
+    requests.</P>
+    <P>
+    In the example above this translates to a total waiting time of 120 
+    msec - 80 msec, in which time 6 I/Os were completed, so the average 
+    waiting time is 6.67 msec.</P>
+</DL>
+<P>
+When run with a <B>-d</B> option, <I>sar</I> reports the following for 
+each disk spindle:</P>
+<TABLE BORDER="1">
+    <CAPTION ALIGN="BOTTOM"><B>Table 3: PCP and sar metric equivalents</B></CAPTION>
+    <TR VALIGN="TOP">
+        <TH>Metric</TH>
+        <TH>Units</TH>
+        <TH>PCP equivalent<BR>
+             (in terms of the rate converted metrics in Table 2)</TH>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>%busy</TT></I></TD>
+        <TD>percent</TD>
+        <TD>100 * <I><TT>disk.dev.active</TT></I> </TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>avque</TT></I></TD>
+        <TD>I/O operations</TD>
+        <TD>N/A (see above)</TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>r+w/s</TT></I></TD>
+        <TD>I/Os per second</TD>
+        <TD><I><TT>disk.dev.total</TT></I></TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>blks/s</TT></I></TD>
+        <TD>512-byte blocks per second</TD>
+        <TD><I><TT>disk.dev.blktotal</TT></I></TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>w/s</TT></I></TD>
+        <TD><B>write</B> I/Os per second</TD>
+        <TD><I><TT>disk.dev.write</TT></I></TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>wblks/s</TT></I></TD>
+        <TD>512-byte blocks <B>written</B> per second</TD>
+        <TD><I><TT>disk.dev.blkwrite</TT></I></TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>avwait</TT></I></TD>
+        <TD>milliseconds</TD>
+        <TD>1000 * (<I><TT>disk.dev.response</TT></I> <I><TT>- 
+            disk.dev.active)</TT></I> / <I><TT>disk.dev.total</TT></I></TD>
+    </TR>
+    <TR VALIGN="TOP">
+        <TD><I><TT>avserv</TT></I></TD>
+        <TD>milliseconds</TD>
+        <TD>1000 * <I><TT>disk.dev.active</TT></I> / <I><TT>disk.dev.total</TT></I></TD>
+    </TR>
+</TABLE>
+<P>
+The table below shows how the PCP tools and <I>sar</I> would report the 
+disk performance over the 100 millisecond interval from the example 
+above:</P>
+<TABLE BORDER="1">
+    <CAPTION ALIGN="BOTTOM"><B>Table 3: Illustrative values and 
+    calculations</B></CAPTION>
+    <TR>
+        <TH>Rate converted PCP metric<BR>
+             (like in Table 2)</TH>
+        <TH>sar metrics</TH>
+        <TH>Explanation</TH>
+    </TR>
+    <TR>
+        <TD><I><TT>disk.dev.read</TT></I></TD>
+        <TD>N/A</TD>
+        <TD>4 reads in 100 msec = 40 reads per second</TD>
+    </TR>
+    <TR>
+        <TD><I><TT>disk.dev.write</TT></I></TD>
+        <TD><I><TT>w/s</TT></I></TD>
+        <TD>2 writes in 100 msec = 20 writes per second</TD>
+    </TR>
+    <TR>
+        <TD><I><TT>disk.dev.total</TT></I></TD>
+        <TD><I><TT>r+w/s</TT></I></TD>
+        <TD>4 reads + 2 write in 100 msec = 60 I/Os per second</TD>
+    </TR>
+    <TR>
+        <TD><I><TT>disk.dev.blkread</TT></I></TD>
+        <TD>N/A</TD>
+        <TD>4 * 4 Kbytes = 32 blocks in 100 msec = 320 blocks read per 
+            second</TD>
+    </TR>
+    <TR>
+        <TD><I><TT>disk.dev.blkwrite</TT></I></TD>
+        <TD><I><TT>wblks/s</TT></I></TD>
+        <TD>2 * 16 Kbytes = 64 blocks in 100 msec = 640 blocks written 
+            per second</TD>
+    </TR>
+    <TR>
+        <TD><I><TT>disk.dev.blktotal</TT></I></TD>
+        <TD><I><TT>blks/s</TT></I></TD>
+        <TD>96 blocks in 100 msec = 960 blocks per second</TD>
+    </TR>
+    <TR>
+        <TD><I><TT>disk.dev.read_bytes</TT></I></TD>
+        <TD>N/A</TD>
+        <TD>4 * 4 Kbytes = 16 Kbytes in 100 msec = 160 Kbytes per second</TD>
+    </TR>
+    <TR>
+        <TD><I><TT>disk.dev.write_bytes</TT></I></TD>
+        <TD>N/A</TD>
+        <TD>2 * 16 Kbytes = 32 Kbytes in 100 msec = 320 Kbytes per 
+            second</TD>
+    </TR>
+    <TR>
+        <TD><I><TT>disk.dev.bytes</TT></I></TD>
+        <TD>N/A</TD>
+        <TD>48 Kbytes in 100 msec = 480 Kbytes per second</TD>
+    </TR>
+    <TR>
+        <TD><I><TT>disk.dev.active</TT></I></TD>
+        <TD><I><TT>%busy</TT></I></TD>
+        <TD>80 msec active in 100 msec = 0.8 or 80%</TD>
+    </TR>
+    <TR>
+        <TD><I><TT>disk.dev.response</TT></I></TD>
+        <TD>N/A</TD>
+        <TD>Disregard (see comments in Table 2)</TD>
+    </TR>
+    <TR>
+        <TD>N/A</TD>
+        <TD><I><TT>avque</TT></I></TD>
+        <TD>1.67 requests (see derivation above)</TD>
+    </TR>
+    <TR>
+        <TD>N/A</TD>
+        <TD><I><TT>avwait</TT></I></TD>
+        <TD>6.67 msec (see derivation above)</TD>
+    </TR>
+    <TR>
+        <TD>N/A</TD>
+        <TD><I><TT>avserv</TT></I></TD>
+        <TD>13.33 msec (see derivation above)</TD>
+    </TR>
+</TABLE>
+<P>
+In practice many of these metrics are of little use. Fortunately the 
+most common performance problems related to disks can be identified 
+quite simply as follows:</P>
+<DL>
+    <DT>
+    <B>Device saturation</B> 
+    <DD>
+    Occurs when <I><TT>disk.dev.active</TT></I> is close to 1.0 
+    (which is the same as <I><TT>%busy</TT></I> is close to 100%). 
+    <DT>
+    <B>Device throughput</B> 
+    <DD>
+    Use <I><TT>disk.dev.bytes</TT></I> (or <I><TT>blks/s</TT></I>
+     divided by 2 to produce Kbytes per second) 
+    <DD>
+    The peak value depends on the bus and disk characteristics, and is 
+    subject to significant variation depending on the distribution, size 
+    and type of requests. Fortunately in many environments the peak value 
+    does not change over time, so once established, monitoring thresholds 
+    tend to remain valid.
+    <DT>
+    <B>Read/write mix</B> 
+    <DD>
+    For some disks (and RAID devices in particular) writes may be slower 
+    than reads. The ratio of <I><TT>disk.dev.write</TT></I> to <I><TT>disk.dev.total</TT></I>
+     (or <I><TT>w/s</TT></I> to <I><TT>r+w/s</TT></I>) indicates the 
+    fraction of I/O requests that are writes. 
+</DL>
+<P>
+In terms of the available instrumentation from the IRIX kernel, one 
+potentially useful metric would be the stochastic average of the 
+response time per completed I/O operation, which in the sample above 
+would be 20 msec. Unfortunately no performance tool reports this 
+directly.</P>
+<UL>
+    <LI>
+    For <I>sar</I>, this metric is the sum of <I><TT>avwait</TT></I>
+     and <I><TT>avserv</TT></I>. 
+    <P>
+    </P>
+    <LI>
+    The common PCP tools only support temporal rate conversion for 
+    counters, however the stochastic average of the response time can be 
+    computed with the PCP inference engine (<I>pmie</I>) using an 
+    expression of the form: 
+    <PRE>
+<TT>avg_resp = 1000 * disk.dev.response / disk.dev.total;</TT>
+</PRE>
+</UL>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>A real example</B></FONT></P></TD></TR>
+</TABLE>
+<P>
+Consider this data from<B> sar -d</B> with a <B>10 minute</B> update 
+interval:</P>
+<PRE>
+ device %busy  avque  r+w/s  blks/s    w/s wblks/s  avwait  avserv
+ dks0d2    34   12.8     32     988     29     874   123.1    10.5
+ dks0d5    34   12.5     33    1006     29     891   119.0    10.4
+</PRE>
+<P>
+At first impression, queue lengths of 12-13 requests and wait time of 
+120msec looks pretty bad. </P>
+<P>
+But further investigation is warranted ...</P>
+<UL>
+    <LI>
+    most of the I/Os are writes (58 of 65 I/Os per second) 
+    <LI>
+    average I/Os are (874+891)*512/(29+29) = 15580 bytes ... close to 
+    default 16K filesystem block size 
+    <LI>
+    to sustain (874+891)*512 = 903680 bytes of write throughput per second 
+    for at least 10 minutes you are doing a lot of file writes 
+    <LI>
+    the disks are not unduly busy at 34% utilization 
+    <LI>
+    consider what happens when <I>bdflush</I>, <I>pdflush</I> and 
+    friends run ... lets make some simplifying assumptions to make the 
+    arithmetic easy 
+    <UL>
+        <LI>
+        we are dirtying (writing) 60 x 16 Kbyte pages (983040 bytes) per second 
+        <LI>
+        flushing goes off every 10 seconds, but the page cache is scanned in 
+        something under 10 msec 
+        <LI>
+        to keep up, each flush must push out 600 pages 
+        <LI>
+        I/O is balanced across 2 disks 
+        <LI>
+        disk service time is 10 msec per I/O 
+        <LI>
+        after the flushing code has scanned the page cache, all 300 writes per 
+        disk are on the queue <B>before</B> the first one is done (this 
+        is what skews the wait time and queue lengths) 
+    </UL>
+    <LI>
+    disk utilization is 300 * 10 / (10 * 1000) = 0.3 = 30% 
+    <LI>
+    the stochastic average wait time is (0 + 10 + 20 + ... + 2990) / 300 
+    &gt; = 150 msec 
+    <LI>
+    time to empty the queue after a flush is 3 seconds 
+    <LI>
+    the temporal average queue length is 0 * 7/10 + 150 * 3/10 = 45 
+</UL>
+<P>
+The complicating issue here is that the I/O demand is very bursty and 
+this is what skews the &quot;average&quot; measures.</P>
+<P>
+In this case, the I/O is probably <B>asynchronous</B> with respect to 
+the process(es) doing the writing. Under these circumstances, 
+performance is unlikely to improve dramatically if the aggregate I/O 
+bandwidth was increased (e.g. by spreading the writes across more disk 
+spindles).</P>
+<P>
+However if the I/O is <B>synchronous</B> (e.g. it it was read dominated, 
+or the I/O was to a raw disk), then more I/O would reduce application 
+running time.</P>
+<P>
+There are also <B>hybrid</B> scenarios in which a small number of 
+synchronous reads are seriously slowed down during the bursts of 
+asynchronous writes. In the example above, a read could have the 
+misfortune of being queued behind 300 writes (or delayed for 3 seconds).</P>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Beware of Wait I/O</B></FONT></P></TD></TR>
+</TABLE>
+<P>
+PCP (and <I>sar</I> and <I>osview</I> and ...) all report CPU 
+utilization broken down into:</P>
+<UL>
+    <LI>
+    user 
+    <LI>
+    system (sys, intr) 
+    <LI>
+    idle 
+    <LI>
+    wait (for file system I/O, graphics, physical I/O and swap I/O) 
+</UL>
+<P>
+Because I/O does not &quot;belong&quot; to any processor (and in some 
+cases may not &quot;belong&quot; to any current process), a CPU that is 
+&quot;waiting for I/O&quot; is more accurately described as an 
+&quot;idle CPU while at least one I/O is outstanding&quot;.</P>
+<P>
+Anomalous Wait I/O time occurs under light load when a small number of <B>processes</B>
+are waiting for I/O but many <B>CPUs</B> are otherwise idle, but 
+appear in the &quot;Wait for I/O&quot; state. When the number of CPUs 
+increases to 30, 60 or 120 then 1 process doing I/O can make all of the 
+CPUs except 1 look like they are all waiting for I/O, but clearly no 
+amount of I/O bandwidth increase is going to make any difference to 
+these CPUs. And if that one process is doing asynchronous I/O and not 
+blocking, then additional I/O bandwidth will not make it run faster 
+either.</P>
+
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Using <I>pmchart</I> to display concurrent disk and CPU activity (aggregated over all CPUs and all disks respectively).<BR>
+<PRE><B>
+$ source /etc/pcp.conf
+$ tar xzf $PCP_DEMOS_DIR/tutorials/diskperf.tgz
+$ pmchart -t 2sec -O -0sec -a diskperf/waitio -c diskperf/waitio.view
+</B></PRE>
+<P>The system has 4 CPUs, several disks and only 1 process really doing I/O.</P>
+<P>Note that over time:</P>
+<UL>
+    <LI>
+    in the top chart as the CPU user (blue) and system (red) time 
+    increases, the Wait I/O (pale blue) time decreases 
+    <LI>
+    from the bottom chart, the I/O rate is pretty constant throughout 
+    <LI>
+    in the bursts where the I/O rate falls, the Wait I/O time becomes CPU 
+    idle (green) time 
+</UL>
+</TD></TR>
+</TABLE>
+
+<P><BR></P>
+<HR>
+<CENTER>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=80%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc.</FONT></P></TD>
+	<TD WIDTH=20%><P ALIGN=RIGHT><A HREF="http://oss.sgi.com/projects/pcp/"><FONT COLOR="#000060">PCP</FONT></A></P></TD> </TR>
+</TABLE>
+</CENTER>
+</BODY>
+</HTML>
+</HTML>

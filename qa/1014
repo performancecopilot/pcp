@@ -1,0 +1,10 @@
+#!/bin/sh
+# PCP QA Test No. 1014
+# Exercise the QmcDesc class
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+. ./common.test
+
+qt/qmc_desc/qmc_desc
+exit $?

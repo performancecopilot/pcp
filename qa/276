@@ -15,15 +15,23 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.config
 
-status=0	# success is the default!
+rm -f $seq.out
+which pmchart >/dev/null 2>&1
+if [ $? -eq 0 ]
+then
+    _check_display
+    ln $seq.out.pcpgui $seq.out
+else
+    # pcp-gui tools not installed
+    ln $seq.out.nongui $seq.out
+fi
+
+status=1	# failure is the default!
 $sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-DISPLAY=$PCPQA_CLOSE_X_SERVER
-export DISPLAY
-
 # real QA test starts here
+export DISPLAY=$PCPQA_CLOSE_X_SERVER
 src/grind-tools -v -a src/fcsw_indom fcsw.port.bytes_out
-
-# success, all done
+status=$?
 exit

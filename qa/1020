@@ -1,0 +1,74 @@
+#!/bin/sh
+# PCP QA Test No. 1020
+# libqmc dynamic indom testing
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+. ./common.test
+
+cd "$PCP_VAR_DIR/testsuite" || \
+	_notrun "Cannot find PCP QA testsuite directory"
+
+_cleanup()
+{
+    if [ ! -f $tmp.done ]
+    then
+	cd $PCP_VAR_DIR/testsuite/pmdas/dynamic
+	$sudo ./Remove >>$here/src/$seq.full
+	cd $here
+	touch $tmp.done
+    fi
+}
+
+status=1	# failure is the default!
+rm -f $seq.full
+trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter2()
+{
+    sed -n \
+	-e '/^\*\*\*/p' \
+	-e '/pmGetPDU/p' \
+	-e '/pmXmitPDU/p' \
+	-e '/^PMC_/p' \
+    | sed \
+	-e "s/^\[[0-9]*\]//" \
+	-e "s/fd=[0-9]/fd=#/" \
+	-e "s/from=[0-9]*/from=###/" \
+	-e "s/$host/HOST/" \
+	-e "s/id = [0-9]*/id = ##########/" \
+	-e "s/ptr = 0x0/ptr = NULL/" \
+	-e "s/ptr = 0x[0-9a-f]*/ptr = 0x########/" \
+    > $tmp.filtered
+
+    echo
+    echo "*** PDUs ***"
+    sed -n < $tmp.filtered \
+	-e '/pmGetPDU/p' \
+	-e '/pmXmitPDU/p' \
+    | sed \
+	-e "s/ fd=.*//" \
+    | LC_COLLATE=POSIX sort \
+    | uniq -c \
+    | sed -e 's/  */ /g'
+
+    echo "*** Transactions ***" > $seq.full
+    echo >> $seq.full
+    cat $tmp.filtered >> $seq.full
+}
+
+# real QA test starts here
+cd $PCP_VAR_DIR/testsuite/pmdas/dynamic
+$sudo make >$here/$seq.full 2>&1
+$sudo ./Install </dev/null >>$here/$seq.full
+cd $here
+_check_metric dynamic.numinsts
+
+pmstore dynamic.control.del "-1"
+qt/qmc_dynamic/qmc_dynamic -DPDU,PMC,INDOM,OPTFETCH 2>$tmp.stderr \
+	| sed -e "s/: Line [0-9][0-9]* /: Line <N> /"
+cat $tmp.stderr | _filter2
+
+# success, all done
+status=0
+exit

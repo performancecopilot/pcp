@@ -1,0 +1,23 @@
+#kmchart
+version 1
+
+view "Database"
+
+chart title "Data Device IOPs [db2]" style stacking
+  plot legend "Reads" color yellow host db2 metric disk.dev.read instance F:
+  plot legend "Writes" color blue host db2 metric disk.dev.write instance F:
+
+chart title "Data Device Throughput [db2]" style stacking
+  plot legend "Read rate" color yellow host db2 metric disk.dev.read_bytes instance F:
+  plot legend "Write rate" color blue host db2 metric disk.dev.write_bytes instance F:
+
+view "Filestore"
+
+chart title "Filestore Device IOPs [nas2]" style stacking
+  plot legend "Reads" color yellow host nas2 metric disk.dev.read instance sdi
+  plot legend "Writes" color blue host nas2 metric disk.dev.write instance sdi
+
+chart title "Filestore Device Throughput [nas2]" style stacking
+  plot legend "Read rate" color yellow host nas2 metric disk.dev.read_bytes instance sdi
+  plot legend "Write rate" color blue host nas2 metric disk.dev.write_bytes instance sdi
+

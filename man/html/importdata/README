@@ -1,0 +1,9 @@
+mover2pcp - example used in lab.importdata.html in pcp-doc
+
+    mover.log - sample log file
+    mk.mover.log - script to create fake mover.log
+    moverv1 - minimalist version 1
+    moverv2 - minimalist version 2
+    moverv3 - minimalist version 3
+    moverv4 - minimalist version 4
+    mover2pcp - final script

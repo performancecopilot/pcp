@@ -645,6 +645,9 @@ pcp_run_dir
 pcp_log_dir
 pcp_sysconfig_dir
 pcp_rc_dir
+pcp_desktop_dir
+pcp_icons_dir
+pcp_books_dir
 pcp_inc_dir
 pcp_sbin_dir
 pcp_bin_dir
@@ -720,6 +723,13 @@ LEXLIB
 LEX_OUTPUT_ROOT
 LEX
 LN_S
+book_toolchain
+xmlto
+XMLTO
+dblatex
+DBLATEX
+publican
+PUBLICAN
 makepkg
 MAKEPKG
 dpkg
@@ -772,6 +782,10 @@ cflags_abi
 cc_is_gcc
 cc
 CCPATH
+qmake
+enable_qt
+qt_release
+QMAKE
 PYTHON
 GIT
 LTLIBOBJS
@@ -870,6 +884,8 @@ with_infiniband
 with_user
 with_group
 with_discovery
+with_qt
+with_books
 enable_ssp
 enable_pie
 enable_visibility
@@ -1544,6 +1560,9 @@ Optional Packages:
                           pcp)
   --with-group            user group under which daemons run (default is pcp)
   --with-discovery        enable support for service discovery (default is on)
+  --with-qt               enable support for tools requiring Qt (default is
+                          on)
+  --with-books            enable building of the PCP books (default is off)
   --with-configdir        configuration directory [LOCALSTATEDIR/pcp/config]
   --with-perl_installdirs perl installdirs [vendor]
   --with-perl_install_base
@@ -2532,6 +2551,24 @@ if test "${with_discovery+set}" = set; then :
   withval=$with_discovery; do_discovery=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-discovery=$withval"
 else
   do_discovery=check
+fi
+
+
+
+# Check whether --with-qt was given.
+if test "${with_qt+set}" = set; then :
+  withval=$with_qt; do_qt=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-qt=$withval"
+else
+  do_qt=check
+fi
+
+
+
+# Check whether --with-books was given.
+if test "${with_books+set}" = set; then :
+  withval=$with_books; do_books=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books=$withval"
+else
+  do_books=off
 fi
 
 
@@ -5890,6 +5927,100 @@ done
 
 
 
+qmake=$QMAKE
+enable_qt=false
+qt_release=release
+if test "x$do_qt" != "xno"; then :
+
+    enable_qt=true
+
+    if test -z "$QMAKE"
+    then
+	for ac_prog in qmake-qt4 qmake
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_QMAKE+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $QMAKE in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_QMAKE="$QMAKE" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="$QTDIR/bin:/usr/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin"
+for as_dir in $as_dummy
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_QMAKE="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+QMAKE=$ac_cv_path_QMAKE
+if test -n "$QMAKE"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $QMAKE" >&5
+$as_echo "$QMAKE" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test -n "$QMAKE" && break
+done
+
+    fi
+    qmake=$QMAKE
+    if test -z "$QMAKE"
+    then
+	enable_qt=false
+    else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Qt version" >&5
+$as_echo_n "checking Qt version... " >&6; }
+	eval `$qmake --version | awk '/Using Qt version/ { ver=4; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export QT_MAJOR=%d QT_MINOR=%d QT_POINT=%d\n",$major,$minor,$point }'`
+	if test "$QT_MAJOR" -lt 4; then
+	    echo
+	    echo WARNING: Qt version 4.4 or later does not seem to be installed.
+	    echo Cannot proceed with the Qt $QT_MAJOR installation found.
+	    enable_qt=false
+	fi
+	if test "$QT_MAJOR" -eq 4 -a "$QT_MINOR" -lt 4 ; then
+	    echo
+	    echo WARNING: Qt version 4.$QT_MINOR is too old.
+	    echo Qt version 4.4 or later is required for Qt builds.
+	    enable_qt=false
+	fi
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $QT_MAJOR.$QT_MINOR.$QT_POINT" >&5
+$as_echo "$QT_MAJOR.$QT_MINOR.$QT_POINT" >&6; }
+    fi
+
+    if test "$do_qt" != "check" -a "$enable_qt" != "true"
+    then
+	as_fn_error $? "cannot enable Qt - no supported Qt installation found" "$LINENO" 5
+    elif test "$do_qt" = "debug"
+    then
+		qt_release=debug
+	enable_qt=true
+    fi
+
+fi
+
+
+
+
 cflags_abi=
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
@@ -7719,6 +7850,155 @@ fi
 
 fi
 makepkg=$MAKEPKG
+
+
+test -z "$PUBLICAN" && # Extract the first word of "publican", so it can be a program name with args.
+set dummy publican; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_PUBLICAN+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $PUBLICAN in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_PUBLICAN="$PUBLICAN" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_PUBLICAN="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+PUBLICAN=$ac_cv_path_PUBLICAN
+if test -n "$PUBLICAN"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PUBLICAN" >&5
+$as_echo "$PUBLICAN" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+publican=$PUBLICAN
+
+test -z "$DBLATEX" && # Extract the first word of "dblatex", so it can be a program name with args.
+set dummy dblatex; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_DBLATEX+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $DBLATEX in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_DBLATEX="$DBLATEX" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_DBLATEX="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+DBLATEX=$ac_cv_path_DBLATEX
+if test -n "$DBLATEX"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $DBLATEX" >&5
+$as_echo "$DBLATEX" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+dblatex=$DBLATEX
+
+test -z "$XMLTO" && # Extract the first word of "xmlto", so it can be a program name with args.
+set dummy xmlto; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_XMLTO+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $XMLTO in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_XMLTO="$XMLTO" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_XMLTO="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+XMLTO=$ac_cv_path_XMLTO
+if test -n "$XMLTO"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $XMLTO" >&5
+$as_echo "$XMLTO" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+xmlto=$XMLTO
+
+
+book_toolchain=""
+if test "$do_books" = "check" -o "$do_books" = "yes"
+then
+    if test "$BOOK_TOOLCHAIN" != ""
+    then
+        book_toolchain=$BOOK_TOOLCHAIN
+    elif test "$DBLATEX" != ""
+    then
+        book_toolchain=dblatex
+    elif test "$PUBLICAN" != ""
+    then
+        book_toolchain=publican
+    elif test "$XMLTO" != ""
+    then
+        book_toolchain=xmlto
+    elif test "$do_books" = "yes"
+    then
+	as_fn_error $? "cannot enable books build - no toolchain found" "$LINENO" 5
+    fi
+fi
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ln -s works" >&5
@@ -12232,6 +12512,18 @@ pcp_inc_dir=`eval echo $includedir/pcp`
 pcp_inc_dir=`eval echo $pcp_inc_dir`
 
 
+pcp_books_dir=`eval echo $datarootdir/doc/pcp-doc`
+pcp_books_dir=`eval echo $pcp_books_dir`
+
+
+pcp_icons_dir=`eval echo $datarootdir/pcp-gui/pixmaps`
+pcp_icons_dir=`eval echo $pcp_icons_dir`
+
+
+pcp_desktop_dir=`eval echo $datarootdir/applications`
+pcp_desktop_dir=`eval echo $pcp_desktop_dir`
+
+
 
 # Check whether --with-rcdir was given.
 if test "${with_rcdir+set}" = set; then :
@@ -12296,7 +12588,7 @@ pcp_tmp_dir=`eval echo $pcp_var_dir/tmp`
 if test "${with_docdir+set}" = set; then :
   withval=$with_docdir; pcp_doc_dir=$withval
 else
-  pcp_doc_dir=$docdir/pcp-${PACKAGE_VERSION}
+  PACKAGE=pcp-${PACKAGE_VERSION}; pcp_doc_dir=$docdir
 fi
 
 pcp_doc_dir=`eval echo $pcp_doc_dir`

@@ -1,0 +1,91 @@
+#!/bin/sh
+# PCP QA Test No. 1017
+# Test QmcMetric functionality
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+. ./common.test
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+SIMPLE_CONF=$PCP_PMDAS_DIR/simple/simple.conf
+status=1	# failure is the default!
+rm -f $seq.full
+
+_cleanup()
+{
+    [ -f $tmp.conf ] && $sudo cp $tmp.conf $PCP_PMDAS_DIR/simple/simple.conf
+    [ -f $tmp.pmcd.conf ] && $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+    $sudo killall -HUP pmcd
+    _wait_for_pmcd
+    rm -f $tmp.*
+}
+
+_filter()
+{
+    tee $here/$seq.full |\
+    sed \
+	-e "s/$host/HOST/g" \
+	-e "/^sample\.seconds/s/= 0.9[0-9]*/= 1/g" \
+	-e "/^sample\.seconds/s/= 1.0[0-9]*/= 1/g" \
+	-e "/^sample\.seconds/s/= 1 /= NUMBER /g" \
+	-e "/^sample\.seconds/s/= 0 /= NUMBER /g" \
+	-e '/ minute" /s/= [0-9][0-9]*\.[0-9]*/= NUMBER/g' \
+	-e '/ minute" /s/= [0-9][0-9]*/= NUMBER/g' \
+	-e "s/ptr = 0x[1-9a-f][0-9a-f]*/ptr = 0x########/g" \
+	-e '/"sec"/{
+s/[0-9][0-9]* none/VALUE none/
+s/\[[0-9][0-9]*]/[I]/
+}' \
+	-e '/"min"/{
+s/[0-9][0-9]* none/VALUE none/
+s/\[[0-9][0-9]*]/[J]/
+}' \
+	-e '/"hour"/{
+s/[0-9][0-9]* none/VALUE none/
+s/\[[0-9][0-9]*]/[K]/
+}' \
+	-e "/hinv\.ncpu =/s/[0-9][0-9]* none/VALUE none/" \
+	-e "/lookupDesc:/s/29\.0\.31$/<pmid for sample.string.hullo>/" \
+	-e "/lookupDesc:/s/29\.0\.6$/<pmid for sample.bin>/" \
+	-e "/lookupDesc:/s/29\.0\.2$/<pmid for sample.seconds>/" \
+	-e "/lookupDesc:/s/1\.18\.2$/<pmid for hinv.ncpu>/" \
+	-e "/lookupDesc:/s/60\.0\.32$/<pmid for hinv.ncpu>/" \
+	-e "/lookupDesc:/s/1\.18\.3$/<pmid for kernel.all.load>/" \
+	-e "/lookupDesc:/s/60\.2\.0$/<pmid for kernel.all.load>/" \
+	-e "/lookupPMID:/s/60\.2\.0$/<pmid for kernel.all.load>/" \
+	-e "/lookupInDom:/s/1\.5$/<indom for kernel.all.load>/" \
+	-e "/lookupInDom:/s/60\.2$/<indom for kernel.all.load>/" \
+	-e "/lookupInDom:/s/29\.2$/<indom for sample.bin>/" \
+	-e "/::genProfile/s/id = [0-9]*,/id = NNN,/" \
+	-e "/::genProfile/s/ptr = 0$/ptr = 0x0/"
+
+}
+
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+cp $SIMPLE_CONF $tmp.conf
+echo "sec" > $tmp.newconf
+$sudo rm -f $SIMPLE_CONF
+$sudo cp $tmp.newconf $SIMPLE_CONF
+
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+cd $PCP_PMDAS_DIR/simple
+$sudo ./Install </dev/null >$tmp.install 2>&1
+_check_metric simple.now
+
+cd $here/qt/qmc_metric
+$sudo ./qmc_metric -DPMC,OPTFETCH 2>&1 | _filter
+
+cd $PCP_PMDAS_DIR/simple
+$sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+$sudo cp $tmp.conf $SIMPLE_CONF
+rm -f $tmp.pmcd.conf $tmp.conf
+$sudo ./Remove </dev/null >$tmp.remove 2>&1
+
+# success, all done
+status=0
+exit

@@ -24,7 +24,6 @@ sample.long.one
 
 # need mandatory
 flush
-Error: No permission to perform requested operation
 new volume
 Error: No permission to perform requested operation
 log advisory on 5sec sample.long.one
@@ -66,7 +65,6 @@ sample.long.one
 
 # need mandatory
 flush
-Error: No permission to perform requested operation
 new volume
 Error: No permission to perform requested operation
 log advisory on 5sec sample.long.one
@@ -147,7 +145,6 @@ sample.long.one
 
 # need mandatory
 flush
-Error: No permission to perform requested operation
 new volume
 Error: No permission to perform requested operation
 log advisory on 5sec sample.long.one

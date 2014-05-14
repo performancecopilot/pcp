@@ -5,11 +5,11 @@
 
 . ../common.rc  # for $sudo, $tmp, $here and pcp.env
 
-if make pmtimezone.so
+if make qa_timezone.so
 then
     :
 else
-    echo "make pmtimezone.so failed ... I give up!"
+    echo "make qa_timezone.so failed ... I give up!"
     exit 1
 fi
 
@@ -20,7 +20,7 @@ $sudo $PCP_RC_DIR/pcp stop
 for hr in 10 11 12
 do
     export PCPQA_TZ=EST-$hr
-    export LD_PRELOAD=`pwd`/pmtimezone.so
+    export LD_PRELOAD=`pwd`/qa_timezone.so
     pmcd &
     rm -f tzchange-$hr-*
     for a in a b

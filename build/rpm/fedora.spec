@@ -31,6 +31,8 @@ BuildRequires: initscripts man
 %if 0%{?fedora} >= 18 || 0%{?rhel} >= 7
 BuildRequires: systemd-devel
 %endif
+BuildRequires: desktop-file-utils
+BuildRequires: qt4-devel >= 4.4
  
 Requires: bash gawk sed grep fileutils findutils initscripts perl
 Requires: python
@@ -342,6 +344,42 @@ Requires: pcp-libs = %{version}-%{release}
 The python PCP module contains the language bindings for
 building Performance Metric API (PMAPI) tools using Python.
 
+#
+# pcp-gui package for Qt tools
+#
+%package -n pcp-gui
+License: GPLv2+ and LGPLv2+ and LGPLv2+ with exceptions
+Group: Applications/System
+Summary: Visualization tools for the Performance Co-Pilot toolkit
+URL: http://www.performancecopilot.org
+Requires: pcp-libs = %{version}-%{release}
+
+%description
+Visualization tools for the Performance Co-Pilot toolkit.
+The pcp-gui package primarily includes visualization tools for
+monitoring systems using live and archived Performance Co-Pilot
+(PCP) sources.
+
+#
+# pcp-doc package
+#
+%package -n pcp-doc
+Group: Documentation
+BuildArch: noarch
+Summary: Documentation and tutorial for the Performance Co-Pilot
+URL: http://www.performancecopilot.org
+
+%description -n pcp-doc
+Documentation and tutorial for the Performance Co-Pilot
+Performance Co-Pilot (PCP) provides a framework and services to support
+system-level performance monitoring and performance management.
+
+The pcp-doc package provides useful information on using and
+configuring the Performance Co-Pilot (PCP) toolkit for system
+level performance management.  It includes tutorials, HOWTOs,
+and other detailed documentation about the internals of core
+PCP utilities and daemons, and the PCP graphical tools.
+
 %prep
 %setup -q
 
@@ -374,6 +412,10 @@ rm -f $RPM_BUILD_ROOT/%{_mandir}/man1/pmdaib.1.gz
 rm -fr $RPM_BUILD_ROOT/%{_pmdasdir}/infiniband
 %endif
 
+# remove leftover pcp-gui bits?  (TODO - is this rm still needed?)
+rm -rf $RPM_BUILD_ROOT/usr/share/doc/pcp-gui
+desktop-file-validate $RPM_BUILD_ROOT/%{_datadir}/applications/pmchart.desktop
+
 # default chkconfig off for Fedora and RHEL
 for f in $RPM_BUILD_ROOT/%{_initddir}/{pcp,pmcd,pmlogger,pmie,pmwebd,pmmgr,pmproxy}; do
 	sed -i -e '/^# chkconfig/s/:.*$/: - 95 05/' -e '/^# Default-Start:/s/:.*$/:/' $f
@@ -381,20 +423,28 @@ done
 
 # list of PMDAs in the base pkg
 ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
-egrep -v 'simple|sample|trivial|txmon' |\
-egrep -v '^ib$|infiniband' |\
-sed -e 's#^#'%{_pmdasdir}'\/#' >base_pmdas.list
+  egrep -v 'simple|sample|trivial|txmon' |\
+  egrep -v '^ib$|infiniband' |\
+  sed -e 's#^#'%{_pmdasdir}'\/#' >base_pmdas.list
 
 # all base pcp package files except those split out into sub packages
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
-sed -e 's#^#'%{_bindir}'\/#' >base_bin.list
+  sed -e 's#^#'%{_bindir}'\/#' >base_bin.list
 ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
-sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >base_exec.list
+  sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >base_exec.list
 ls -1 $RPM_BUILD_ROOT/%{_mandir}/man1 |\
-sed -e 's#^#'%{_mandir}'\/man1\/#' >base_man.list
+  sed -e 's#^#'%{_mandir}'\/man1\/#' >base_man.list
+ls -1 $RPM_BUILD_ROOT/%{_docdir}/pcp-doc |\
+  sed -e 's#^#'%{docdir}'\/#' > pcp-doc.list
+ls -1 $RPM_BUILD_ROOT/%{_datadir}/pcp/demos/tutorials |\
+  sed -e 's#^#'%{_datadir}/pcp/demos/tutorials'\/#' >>pcp-doc.list
+PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
+cat base_bin.list base_exec.list base_man.list |\
+  egrep "$PCP_GUI|pixmaps" > pcp-gui.list
 cat base_pmdas.list base_bin.list base_exec.list base_man.list |\
-egrep -v 'pmdaib|pmmgr|pmweb|2pcp' |\
-egrep -v %{_confdir} | egrep -v %{_logsdir} > base.list
+  egrep -v 'pmdaib|pmmgr|pmweb|2pcp' |\
+  egrep -v "$PCP_GUI|pixmaps|pcp-doc|tutorials" |\
+  egrep -v %{_confdir} | egrep -v %{_logsdir} > base.list
 
 # all devel pcp package files except those split out into sub packages
 ls -1 $RPM_BUILD_ROOT/%{_mandir}/man3 |\
@@ -722,9 +772,25 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %files -n python-pcp -f python-pcp.list.rpm
 %defattr(-,root,root)
 
+%files -n pcp-gui -f pcp-gui.list
+%defattr(-,root,root,-)
+
+%{_sysconfdir}/pcp/pmsnap
+%config(noreplace) %{_sysconfdir}/pcp/pmsnap
+%{_localstatedir}/lib/pcp/config/pmsnap
+%dir %{_localstatedir}/lib/pcp/config/pmsnap
+%{_localstatedir}/lib/pcp/config/pmchart
+%dir %{_localstatedir}/lib/pcp/config/pmchart
+%{_localstatedir}/lib/pcp/config/pmafm/pcp-gui
+%{_datadir}/applications/pmchart.desktop
+
+%files -n pcp-doc -f pcp-doc.list
+%defattr(-,root,root,-)
+
 %changelog
 * Wed May 14 2014 Dave Brolley <brolley@redhat.com> - 3.9.3-1
-- Under development.
+- Merged pcp-gui and pcp-doc packages into core PCP.
+- Update to latest PCP sources.
 
 * Tue Apr 15 2014 Dave Brolley <brolley@redhat.com> - 3.9.2-1
 - Improve pmdarpm(1) concurrency complications (BZ 1044297)
