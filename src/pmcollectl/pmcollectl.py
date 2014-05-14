@@ -337,13 +337,14 @@ class _diskCollectPrint(_CollectPrint):
     def print_detail(self):
         for j in xrange(len(self.ss.metric_pmids)):
             try:
-                (inst, iname) = pm.pmGetInDom(self.ss.metric_descs[j])
-                break
+		if (self.ss.metrics[j] == 'disk.dev.read'):
+		    (inst, iname) = pm.pmGetInDom(self.ss.metric_descs[j])
+		    break
             except pmapi.pmErr, e:
                 iname = "X"
 
         # metric values may be scalars or arrays depending on # of disks
-        for j in xrange(self.ss.get_len(self.ss.get_metric_value('disk.dev.read_bytes'))):
+        for j in xrange(len(iname)):
             print "%-10s %6d %6d %4d %4d  %6d %6d %4d %4d  %6d %6d %4d %6d %4d" % (
                 iname[j],
                 self.ss.get_scalar_value ('disk.dev.read_bytes', j),
@@ -472,12 +473,13 @@ class _netCollectPrint(_CollectPrint):
     def print_detail(self):
         for j in xrange(len(self.ss.metric_pmids)):
             try:
-                (inst, iname) = pm.pmGetInDom(self.ss.metric_descs[j])
-                break
+		if (self.ss.metrics[j] == 'network.interface.in.bytes'):
+		    (inst, iname) = pm.pmGetInDom(self.ss.metric_descs[j])
+		    break
             except pmapi.pmErr, e: # pylint: disable-msg=C0103
                 iname = "X"
 
-        for j in xrange(len(self.ss.get_metric_value('network.interface.in.bytes'))):
+        for j in xrange(len(iname)):
             print '%4d %-7s %6d %5d %6d %6d %6d %6d %6d %6d %6d %6d %7d' % (
                 j, iname[j],
                 self.ss.get_metric_value('network.interface.in.bytes')[j] / 1024,

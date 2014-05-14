@@ -2,7 +2,7 @@
 # PCP QA Test No. 709
 # Exercise the python collectl implementation
 #
-# Copyright (c) 2012, 2013 Red Hat.
+# Copyright (c) 2012, 2013, 2014 Red Hat.
 #
 
 seq=`basename $0`
@@ -59,10 +59,28 @@ $PYCOLLECTL -sc -c2 --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
 $PYCOLLECTL -sd -c2 --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
 $PYCOLLECTL -sn -c2 --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
 $PYCOLLECTL -sm -c2 --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
-# need a generic way to test this on any system
+
+$PYCOLLECTL -sN -c2 >| /tmp/,$$ 2>&1 
+for i in $(netstat -i | sed -e '/^[A-Z]/d' -e 's/ .*$//') ; do
+    if grep -q $i /tmp/,$$ ; then true ; else NOMATCH=1 ; fi
+done
+if [ ! -z "$NOMATCH" ] ; then
+    echo "No match for -sN";cat /tmp/,$$ >> $tmp.out
+    unset NOMATCH
+else
+    echo "-sN network interface names are okay"
+fi
+$PYCOLLECTL -sD -c2 >| /tmp/,$$ 2>&1 
+for i in $(lsblk -n -io KNAME,TYPE | /usr/bin/grep disk | sed 's/ .*$//') ; do
+    if grep -q $i /tmp/,$$ ; then true ; else NOMATCH=1 ; fi
+done
+if [ ! -z "$NOMATCH" ] ; then
+    echo "No match for -sD";cat /tmp/,$$ >> $tmp.out
+else
+    echo "-sD disk names are okay"
+fi
+# need a generic way to test these on any system
 # $PYCOLLECTL -sC -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
-# $PYCOLLECTL -sD -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
-# $PYCOLLECTL -sN -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
 # $PYCOLLECTL -sJ -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
 # $PYCOLLECTL -sCD -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
 $PYCOLLECTL -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
