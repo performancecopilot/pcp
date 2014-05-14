@@ -788,7 +788,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root,-)
 
 %changelog
-* Wed May 14 2014 Dave Brolley <brolley@redhat.com> - 3.9.3-1
+* Thu May 15 2014 Nathan Scott <nathans@redhat.com> - 3.9.3-1
 - Merged pcp-gui and pcp-doc packages into core PCP.
 - Update to latest PCP sources.
 

@@ -1,5 +1,4 @@
-pcp-3.9.3 (14 May 2014)
-    - Under development
+pcp-3.9.3 (15 May 2014)
     - pmlogger: improved archive I/O features, esp for access to
       archives while they are actively being written
     - pmlogger/pmlc: all flushing operations are now no-ops, but
@@ -23,6 +22,10 @@ pcp-3.9.3 (14 May 2014)
       pmsignal, pmlogconf
     - pmlogger: improve pmlc access controls
     - man pages: more detailed pmlc/pmlogger access control docs
+    - pmda systemd: adopt slow-start capability
+    - pcp command: improved error handling
+    - pmcollectl: correct reporting of disk and network details
+    - merged pcp-gui source tree (back) into pcp
 
 pcp-3.9.2 (15 April 2014)
     - python api: direct support for creating derived metrics

@@ -1,8 +1,9 @@
 pcp (3.9.3) unstable; urgency=low
 
-  * Under development.
+  * New release (full details in CHANGELOG).
+  * Merges pcp and pcp-gui trees into a single git repo.
 
- -- Nathan Scott <nathans@debian.org>  Wed, 14 May 2014 00:00:00 +1000
+ -- Nathan Scott <nathans@debian.org>  Thu, 15 May 2014 09:09:18 +1000
 
 pcp (3.9.2) unstable; urgency=low
 
