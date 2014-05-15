@@ -1,4 +1,7 @@
-pcp-3.9.3 (15 May 2014)
+pcp-3.9.5 (18 June 2014)
+    - Under development.
+
+pcp-3.9.4 (15 May 2014)
     - pmlogger: improved archive I/O features, esp for access to
       archives while they are actively being written
     - pmlogger/pmlc: all flushing operations are now no-ops, but

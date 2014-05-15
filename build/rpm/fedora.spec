@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.9.4
+Version: 3.9.5
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -812,6 +812,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root,-)
 
 %changelog
+* Wed Jun 18 2014 Nathan Scott <nathans@redhat.com> - 3.9.5-1
+- Under development.
+
 * Thu May 15 2014 Nathan Scott <nathans@redhat.com> - 3.9.4-1
 - Merged pcp-gui and pcp-doc packages into core PCP.
 - Allow for conditional libmicrohttpd builds in spec file.
