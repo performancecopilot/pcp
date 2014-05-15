@@ -23,7 +23,11 @@ store(char const* name, char const* inst)
 
     sprintf(buf, "pmstore %s %s > /dev/null\n", name, inst);
     cout << name << ' ' << inst << endl;
-    system(buf);
+    if (system(buf) < 0) {
+	pmprintf("%s: cannot run system(%s)\n", pmProgname, buf);
+	pmflush();
+	exit(1);
+    }
 }
 
 void

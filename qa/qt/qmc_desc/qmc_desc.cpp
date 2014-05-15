@@ -77,7 +77,11 @@ main(int argc, char* argv[])
     __pmPrintDesc(stdout, &hinv_ncpu_desc);
     fflush(stdout);
     fflush(stderr);
-    system("pminfo -d hinv.ncpu");
+    if (system("pminfo -d hinv.ncpu") < 0) {
+	pmprintf("%s: Error: Unable to run pminfo\n", pmProgname);
+	pmflush();
+	sts = 1;
+    }
     fflush(stdout);
     fflush(stderr);
 
@@ -89,9 +93,8 @@ main(int argc, char* argv[])
 	pmprintf("%s: Error: Bogus metric: %s\n",
 		 pmProgname, pmErrStr(bad_pmc.status()));
 	pmflush();
-    }
-    else
 	sts = 1;
+    }
 
     return sts;
 }

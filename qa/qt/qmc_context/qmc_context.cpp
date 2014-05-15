@@ -72,7 +72,7 @@ main(int argc, char* argv[])
 
     fprintf(stderr, "\n*** Cacheing of descriptors and indoms ***\n");
     QmcDesc *desc;
-    QmcIndom *indom;
+    QmcIndom *indom = NULL;
 
     sts = context1.lookupInDom("hinv.ncpu", indomIndex);
     if (sts < 0) {
