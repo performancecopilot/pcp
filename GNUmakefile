@@ -32,12 +32,10 @@ LSRCFILES = aclocal.m4 configure config.guess config.sub \
 	    configure.in pcp.lsm.in Makepkgs install-sh \
 	    $(DOCFILES) $(LICFILES)
 LDIRT = config.cache config.status config.log files.rpm pro_files.rpm \
-	pcp-$(PACKAGE_MAJOR).$(PACKAGE_MINOR).$(PACKAGE_REVISION) \
-	pcp-*-$(PACKAGE_MAJOR).$(PACKAGE_MINOR).$(PACKAGE_REVISION) \
-	root-*/include root-*/lib root-*/*.rpm root-*/default_pro \
 	autom4te.cache install.manifest install_pro.manifest \
 	debug*.list devel_files libs_files base_files.rpm libs_files.rpm \
 	devel_files.rpm perl-pcp*.list* python-pcp*.list* conf_files
+LDIRDIRT = pcp-?.?.?  pcp-*-?.?.?
 
 SUBDIRS = src
 ifneq ($(TARGET_OS),mingw)
