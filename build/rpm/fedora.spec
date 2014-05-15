@@ -9,6 +9,7 @@ URL: http://www.performancecopilot.org
 Group: Applications/System
 Source0: pcp-%{version}.src.tar.gz
 
+%define disable_qt 1
 %define disable_microhttpd 0
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -35,8 +36,10 @@ BuildRequires: initscripts man
 %if 0%{?fedora} >= 18 || 0%{?rhel} >= 7
 BuildRequires: systemd-devel
 %endif
+%if !%{disable_qt}
 BuildRequires: desktop-file-utils
 BuildRequires: qt4-devel >= 4.4
+%endif
  
 Requires: bash gawk sed grep fileutils findutils initscripts perl
 Requires: python
@@ -80,6 +83,10 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 
 %if %{disable_infiniband}
 %define _with_ib --with-infiniband=no
+%endif
+
+%if %{disable_qt}
+%define _with_ib --with-qt=no
 %endif
 
 %description
@@ -352,6 +359,7 @@ Requires: pcp-libs = %{version}-%{release}
 The python PCP module contains the language bindings for
 building Performance Metric API (PMAPI) tools using Python.
 
+%if !%{disable_qt}
 #
 # pcp-gui package for Qt tools
 #
@@ -367,6 +375,7 @@ Visualization tools for the Performance Co-Pilot toolkit.
 The pcp-gui package primarily includes visualization tools for
 monitoring systems using live and archived Performance Co-Pilot
 (PCP) sources.
+%endif
 
 #
 # pcp-doc package
@@ -395,13 +404,14 @@ PCP utilities and daemons, and the PCP graphical tools.
 rm -Rf $RPM_BUILD_ROOT
 
 %build
-%configure --with-rcdir=%{_initddir} %{?_with_doc} %{?_with_ib}
+%configure --with-rcdir=%{_initddir} %{?_with_doc} %{?_with_ib} %{?_with_qt}
 make default_pcp
 
 %install
 rm -Rf $RPM_BUILD_ROOT
 export NO_CHOWN=true DIST_ROOT=$RPM_BUILD_ROOT
 make install_pcp
+PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
 
 # Fix stuff we do/don't want to ship
 rm -f $RPM_BUILD_ROOT/%{_libdir}/*.a
@@ -428,8 +438,13 @@ rm -f $RPM_BUILD_ROOT/%{_mandir}/man1/pmdaib.1.gz
 rm -fr $RPM_BUILD_ROOT/%{_pmdasdir}/infiniband
 %endif
 
+%if %{disable_qt}
+rm -fr $RPM_BUILD_ROOT/%{_pixmapdir}
+rm -f `find $RPM_BUILD_ROOT/%{_mandir}/man1 | egrep "$PCP_GUI"`
+%else
 rm -rf $RPM_BUILD_ROOT/usr/share/doc/pcp-gui
 desktop-file-validate $RPM_BUILD_ROOT/%{_datadir}/applications/pmchart.desktop
+%endif
 
 # default chkconfig off for Fedora and RHEL
 for f in $RPM_BUILD_ROOT/%{_initddir}/{pcp,pmcd,pmlogger,pmie,pmwebd,pmmgr,pmproxy}; do
@@ -456,7 +471,6 @@ ls -1 $RPM_BUILD_ROOT/%{_datadir}/pcp/demos/tutorials |\
   sed -e 's#^#'%{_datadir}/pcp/demos/tutorials'\/#' >>pcp-doc.list
 ls -1 $RPM_BUILD_ROOT/%{_pixmapdir} |\
   sed -e 's#^#'%{_pixmapdir}'\/#' > pcp-gui.list
-PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
 cat base_bin.list base_exec.list base_man.list |\
   egrep "$PCP_GUI" >> pcp-gui.list
 cat base_pmdas.list base_bin.list base_exec.list base_man.list |\
@@ -796,6 +810,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %files -n python-pcp -f python-pcp.list.rpm
 %defattr(-,root,root)
 
+%if !%{disable_qt}
 %files -n pcp-gui -f pcp-gui.list
 %defattr(-,root,root,-)
 
@@ -807,6 +822,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %dir %{_localstatedir}/lib/pcp/config/pmchart
 %{_localstatedir}/lib/pcp/config/pmafm/pcp-gui
 %{_datadir}/applications/pmchart.desktop
+%endif
 
 %files -n pcp-doc -f pcp-doc.list
 %defattr(-,root,root,-)
