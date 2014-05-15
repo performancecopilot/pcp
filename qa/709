@@ -13,11 +13,9 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ $PCP_PLATFORM = linux ] || _notrun "test uses Linux-specific commands"
-
 status=0	# success is the default!
 $sudo rm -fr $tmp.* $seq.full
-trap "rm -fr $tmp.*; exit \$status" 0 1 2 3 15
+trap "cd $here; rm -fr $tmp.*; exit \$status" 0 1 2 3 15
 
 remove_extra_whitespace()
 {
@@ -32,10 +30,9 @@ remove_extra_whitespace()
 	-e 's/RECORD.*$/RECORD/' \
 	-e 's/<-*Int/<-Int/' \
 	-e 's/Int-*>/Int->/' \
-
+    # end
 }
 
-# sed -e 's/ [a-zA-Z0-9]* *$//'
 remove_extra_columns()
 {
     sed \
@@ -43,7 +40,27 @@ remove_extra_columns()
 	-e 's/ [a-zA-Z0-9 ]* *$//' \
 	-e 's/^#<-*-/#<--/g' \
 	-e 's/-*->/--->/g' \
+    # end
+}
 
+# using a given metric (arg1), check that each of its instances
+# exists in output file (arg2).
+#
+check_instances()
+{
+    metric=$1
+    file=$2
+    eval set -- `pmprobe -I $metric`
+    [ $? -eq 0 ] || exit 1
+    shift  # skip metric name
+    shift  # skip instance count
+    while [ $# -gt 0 ]
+    do
+	instance="$1"
+	shift
+	grep -q "$instance" $file && continue
+	echo "Instance $instance of $metric is missing from $file!"
+    done
 }
 
 # real QA test starts here
@@ -52,60 +69,48 @@ cd $tmp.$seq
 
 #PYCOLLECTL=pmcollectl.py	# developer version
 PYCOLLECTL=pmcollectl		# installed version
-$PYCOLLECTL -sc -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL -sd -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL -sn -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL -sj -c2 | remove_extra_whitespace | remove_extra_columns | tee -a $tmp.out 2>&1
-$PYCOLLECTL -sm -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL -sc -c2 --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL -sd -c2 --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL -sn -c2 --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL -sm -c2 --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
+args="-c 2 -i 0.1"
+$PYCOLLECTL $args -sc | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL $args -sd | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL $args -sn | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL $args -sj | remove_extra_whitespace | remove_extra_columns | tee -a $tmp.out 2>&1
+$PYCOLLECTL $args -sm | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL $args -sc --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL $args -sd --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL $args -sn --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL $args -sm --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
 
-$PYCOLLECTL -sN -c2 >| /tmp/,$$ 2>&1 
-for i in $(netstat -i | sed -e '/^[A-Z]/d' -e 's/ .*$//') ; do
-    if grep -q $i /tmp/,$$ ; then true ; else NOMATCH=1 ; fi
-done
-if [ ! -z "$NOMATCH" ] ; then
-    echo "No match for -sN";cat /tmp/,$$ >> $tmp.out
-    unset NOMATCH
-else
-    echo "-sN network interface names are okay"
-fi
-$PYCOLLECTL -sD -c2 >| /tmp/,$$ 2>&1 
-for i in $(lsblk -n -io KNAME,TYPE | grep disk | sed 's/ .*$//') ; do
-    if grep -q $i /tmp/,$$ ; then true ; else NOMATCH=1 ; fi
-done
-if [ ! -z "$NOMATCH" ] ; then
-    echo "No match for -sD";cat /tmp/,$$ >> $tmp.out
-else
-    echo "-sD disk names are okay"
-fi
+$PYCOLLECTL $args -sN > $tmp.net 2>&1 
+check_instances network.interface.total.bytes $tmp.net
+
+$PYCOLLECTL $args -sD > $tmp.disk 2>&1 
+check_instances disk.dev.total_bytes $tmp.disk
+
 # need a generic way to test these on any system
-# $PYCOLLECTL -sC -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
-# $PYCOLLECTL -sJ -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
-# $PYCOLLECTL -sCD -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL -c2 --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL -scd -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL -scd -c2 --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
-# test playback
-$PYCOLLECTL -sdDcCnNjJm -f test.pmcollectl -c10
-$PYCOLLECTL -sd -c2 -p test.pmcollectl | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL -sc -c2 -p test.pmcollectl | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL -sn -c2 -p test.pmcollectl | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL -sm -c2 -p test.pmcollectl | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL -sd -c2 -p test.pmcollectl --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL -sc -c2 -p test.pmcollectl --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL -sn -c2 -p test.pmcollectl --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL -sm -c2 -p test.pmcollectl --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
+# $PYCOLLECTL $args -sC | remove_extra_whitespace | tee -a $tmp.out 2>&1
+# $PYCOLLECTL $args -sJ | remove_extra_whitespace | tee -a $tmp.out 2>&1
+# $PYCOLLECTL $args -sCD | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL $args | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL $args --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL $args -scd | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL $args -scd --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
 
+# test playback
+interval=1
+$PYCOLLECTL -sdDcCnNjJm -f test.pmcollectl -c10 #-i $interval
+# TODO: if we fix RH BZ 1098117, we can make above -i 0.1 too
+logargs="-c 2 -i $interval -p test.pmcollectl"
+$PYCOLLECTL $logargs -sd | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL $logargs -sc | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL $logargs -sn | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL $logargs -sm | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL $logargs -sd --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL $logargs -sc --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL $logargs -sn --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PYCOLLECTL $logargs -sm --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
 
 cat $tmp.out >>$here/$seq.full
 
 # success, all done
-rm -rf test.pmcollectl
-cd $here
-
 status=0
 exit

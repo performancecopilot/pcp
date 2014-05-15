@@ -36,8 +36,6 @@ KBIn PktIn KBOut PktOut
 # Total Used Free Buff Cached Slab Mapped Anon Commit Locked Inact Total Used Free In Out Fault MajFt In Out
 9M 9M 9M 9M 9M 9M 9M 9M 9M 9M 9M 9M 9M 9M 9 9 9 9 9 9
 9M 9M 9M 9M 9M 9M 9M 9M 9M 9M 9M 9M 9M 9M 9 9 9 9 9 9
--sN network interface names are okay
--sD disk names are okay
 #<--------CPU--------><----------Disks-----------><----------Network---------->
 #cpu sys inter ctxsw KBRead Reads KBWrit Writes KBIn PktIn KBOut PktOut
 9 9 9 9 9 9 9 9 9 9 9 9
