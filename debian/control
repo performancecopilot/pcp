@@ -332,8 +332,8 @@ Description: Tool for importing data from collectl into PCP archive logs
 Package: pcp-doc
 Section: doc
 Depends: ${misc:Depends}
-Breaks: pcp-gui (<< 1.5.0)
-Replaces: pcp-gui (<< 1.5.0)
+Breaks: pcp-gui (<< 1.5.13)
+Replaces: pcp-gui (<< 1.5.13)
 Recommends: pcp, pcp-gui
 Architecture: all
 Description: Documentation and tutorial for the Performance Co-Pilot
