@@ -156,30 +156,6 @@ ifdef SUBDIRS
 .PRECIOUS: $(SUBDIRS)
 endif
 
-src-pcp : $(SRCFILES) $(SUBDIRS)
-	@test ! -z "$$SRC_ROOT" || ( echo '$$SRC_ROOT not set ... bozo!' ; echo "... generally unsafe to run make src-pcp outside the Makepkgs script"; exit 1 )
-	@test -z "$$DIR" && DIR="."; \
-	for f in `echo $^`; do \
-	    if test -d $$f ; then \
-		$(MAKE) $(MAKEOPTS) -j 1 DIR=$$DIR/$$f -C $$f $@ || exit $$?; \
-	    else \
-		$(ECHO) $$DIR/$$f; \
-	    fi; \
-	done
-
-src-link-pcp : $(SRCFILES) $(CONFFILES) $(SUBDIRS)
-	@test ! -z "$$SRCLINK_ROOT" || ( echo '$$SRCLINK_ROOT not set ... bozo!' ; echo "... generally unsafe to run make src-link-pcp outside the Makepkgs script"; exit 1 )
-	@test -z "$$DIR" && DIR="."; \
-	for f in `echo $^`; do \
-	    if test -d $$f ; then \
-		echo "=== $$DIR/$$f ==="; \
-		mkdir $$SRCLINK_ROOT/$$DIR/$$f || exit $$?; \
-		$(MAKE) $(MAKEOPTS) -j 1 DIR=$$DIR/$$f -C $$f $@ || exit $$?; \
-	    else \
-		ln $$f $$SRCLINK_ROOT/$$DIR/$$f || exit $$?; \
-	    fi; \
-	done
-
 endif
 
 $(_FORCE):
