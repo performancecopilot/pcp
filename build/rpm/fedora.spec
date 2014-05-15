@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.9.3
+Version: 3.9.4
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -8,6 +8,8 @@ License: GPLv2+ and LGPLv2.1+
 URL: http://www.performancecopilot.org
 Group: Applications/System
 Source0: pcp-%{version}.src.tar.gz
+
+%define disable_microhttpd 0
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: procps autoconf bison flex
@@ -18,7 +20,9 @@ BuildRequires: python-devel
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
 BuildRequires: cyrus-sasl-devel
+%if !%{disable_microhttpd}
 BuildRequires: libmicrohttpd-devel
+%endif
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 BuildRequires: systemtap-sdt-devel
 %else
@@ -167,6 +171,7 @@ efficient log management services.
 The pcp-manager package aims to aggressively enable new PCP features
 and as a result may not be suited to all production environments.
 
+%if !%{disable_microhttpd}
 #
 # pcp-webapi
 #
@@ -183,6 +188,7 @@ Requires: pcp-libs = %{version}-%{release}
 Provides a daemon (pmwebd) that binds a large subset of the Performance
 Co-Pilot (PCP) client API (PMAPI) to RESTful web applications using the
 HTTP (PMWEBAPI) protocol.
+%endif
 
 #
 # perl-PCP-PMDA. This is the PCP agent perl binding.
@@ -407,6 +413,14 @@ rm -f $RPM_BUILD_ROOT/%{_bindir}/sheet2pcp $RPM_BUILD_ROOT/%{_mandir}/man1/sheet
 # remove configsz.h as this is not multilib friendly.
 rm -f $RPM_BUILD_ROOT/%{_includedir}/pcp/configsz.h
 
+%if %{disable_microhttpd}
+rm -f $RPM_BUILD_ROOT/%{_mandir}/man1/pmwebd.*
+rm -f $RPM_BUILD_ROOT/%{_mandir}/man3/PMWEBAPI.*
+rm -fr $RPM_BUILD_ROOT/%{_confdir}/pmwebd
+rm -fr $RPM_BUILD_ROOT/%{_initddir}/pmwebd
+rm -f $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin/pmwebd
+%endif
+
 %if %{disable_infiniband}
 # remove pmdainfiniband on platforms lacking IB devel packages.
 rm -f $RPM_BUILD_ROOT/%{_pmdasdir}/ib
@@ -419,6 +433,7 @@ desktop-file-validate $RPM_BUILD_ROOT/%{_datadir}/applications/pmchart.desktop
 
 # default chkconfig off for Fedora and RHEL
 for f in $RPM_BUILD_ROOT/%{_initddir}/{pcp,pmcd,pmlogger,pmie,pmwebd,pmmgr,pmproxy}; do
+	test -f "$f" || continue
 	sed -i -e '/^# chkconfig/s/:.*$/: - 95 05/' -e '/^# Default-Start:/s/:.*$/:/' $f
 done
 
@@ -514,12 +529,14 @@ do
 done
 exit 0
 
+%if !%{disable_microhttpd}
 %preun webapi
 if [ "$1" -eq 0 ]
 then
     /sbin/service pmwebd stop >/dev/null 2>&1
     /sbin/chkconfig --del pmwebd >/dev/null 2>&1
 fi
+%endif
 
 %preun manager
 if [ "$1" -eq 0 ]
@@ -548,10 +565,12 @@ then
     rm -f "$PCP_PMNS_DIR/.NeedRebuild" >/dev/null 2>&1
 fi
 
+%if !%{disable_microhttpd}
 %post webapi
 chown -R pcp:pcp %{_logsdir}/pmwebd 2>/dev/null
 /sbin/chkconfig --add pmwebd >/dev/null 2>&1
 /sbin/service pmwebd condrestart
+%endif
 
 %post manager
 chown -R pcp:pcp %{_logsdir}/pmmgr 2>/dev/null
@@ -713,6 +732,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,pcpqa,pcpqa)
 %{_testsdir}
 
+%if !%{disable_microhttpd}
 %files webapi
 %defattr(-,root,root)
 %{_initddir}/pmwebd
@@ -722,6 +742,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %config(noreplace) %{_confdir}/pmwebd/pmwebd.options
 %{_mandir}/man1/pmwebd.1.gz
 %{_mandir}/man3/PMWEBAPI.3.gz
+%endif
 
 %files manager
 %defattr(-,root,root)
@@ -791,8 +812,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root,-)
 
 %changelog
-* Thu May 15 2014 Nathan Scott <nathans@redhat.com> - 3.9.3-1
+* Thu May 15 2014 Nathan Scott <nathans@redhat.com> - 3.9.4-1
 - Merged pcp-gui and pcp-doc packages into core PCP.
+- Allow for conditional libmicrohttpd builds in spec file.
 - Adopt slow-start capability in systemd PMDA (BZ 1073658)
 - Resolve pmcollectl network/disk mis-reporting (BZ 1097095)
 - Update to latest PCP sources.
