@@ -228,7 +228,7 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
     if (numpmid >= (INT_MAX - sizeof(pmResult)) / sizeof(pmValueSet *)) {
 #ifdef PCP_DEBUG
 	if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
-	    fprintf(stderr, "__pmDecodeResult: Bad: numpmid=%d larger than max %ld\n", numpmid, INT_MAX - sizeof(pmResult) / sizeof(pmValueSet *));
+	    fprintf(stderr, "__pmDecodeResult: Bad: numpmid=%d larger than max %ld\n", numpmid, (long)(INT_MAX - sizeof(pmResult) / sizeof(pmValueSet *)));
 	}
 #endif
 	return PM_ERR_IPC;
@@ -289,7 +289,7 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 	    if (numval >= (INT_MAX - sizeof(*vlp)) / sizeof(__pmValue_PDU)) {
 #ifdef PCP_DEBUG
 		if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
-		    fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] numval=%d > max=%ld\n", i, numval, (INT_MAX - sizeof(*vlp)) / sizeof(__pmValue_PDU));
+		    fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] numval=%d > max=%ld\n", i, numval, (long)((INT_MAX - sizeof(*vlp)) / sizeof(__pmValue_PDU)));
 		}
 #endif
 		goto corrupt;
@@ -541,7 +541,7 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 	    if (vsp->numval >= (INT_MAX - sizeof(*vlp)) / sizeof(__pmValue_PDU)) {
 #ifdef PCP_DEBUG
 		if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
-		    fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] numval=%d > max=%ld\n", i, vsp->numval, (INT_MAX - sizeof(*vlp)) / sizeof(__pmValue_PDU));
+		    fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] numval=%d > max=%ld\n", i, vsp->numval, (long)((INT_MAX - sizeof(*vlp)) / sizeof(__pmValue_PDU)));
 		}
 #endif
 		goto corrupt;
