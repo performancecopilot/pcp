@@ -793,6 +793,8 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %changelog
 * Thu May 15 2014 Nathan Scott <nathans@redhat.com> - 3.9.3-1
 - Merged pcp-gui and pcp-doc packages into core PCP.
+- Adopt slow-start capability in systemd PMDA (BZ 1073658)
+- Resolve pmcollectl network/disk mis-reporting (BZ 1097095)
 - Update to latest PCP sources.
 
 * Tue Apr 15 2014 Dave Brolley <brolley@redhat.com> - 3.9.2-1
