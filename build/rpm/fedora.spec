@@ -53,6 +53,8 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 %define _tempsdir %{_localstatedir}/lib/pcp/tmp
 %define _pmdasdir %{_localstatedir}/lib/pcp/pmdas
 %define _testsdir %{_localstatedir}/lib/pcp/testsuite
+%define _pixmapdir %{_datadir}/pcp-gui/pixmaps
+%define _booksdir %{_datadir}/doc/pcp-doc
 
 %if 0%{?fedora} >= 20
 %define _with_doc --with-docdir=%{_docdir}/%{name}
@@ -354,7 +356,7 @@ Summary: Visualization tools for the Performance Co-Pilot toolkit
 URL: http://www.performancecopilot.org
 Requires: pcp-libs = %{version}-%{release}
 
-%description
+%description -n pcp-gui
 Visualization tools for the Performance Co-Pilot toolkit.
 The pcp-gui package primarily includes visualization tools for
 monitoring systems using live and archived Performance Co-Pilot
@@ -412,7 +414,6 @@ rm -f $RPM_BUILD_ROOT/%{_mandir}/man1/pmdaib.1.gz
 rm -fr $RPM_BUILD_ROOT/%{_pmdasdir}/infiniband
 %endif
 
-# remove leftover pcp-gui bits?  (TODO - is this rm still needed?)
 rm -rf $RPM_BUILD_ROOT/usr/share/doc/pcp-gui
 desktop-file-validate $RPM_BUILD_ROOT/%{_datadir}/applications/pmchart.desktop
 
@@ -434,13 +435,15 @@ ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
   sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >base_exec.list
 ls -1 $RPM_BUILD_ROOT/%{_mandir}/man1 |\
   sed -e 's#^#'%{_mandir}'\/man1\/#' >base_man.list
-ls -1 $RPM_BUILD_ROOT/%{_docdir}/pcp-doc |\
-  sed -e 's#^#'%{docdir}'\/#' > pcp-doc.list
+ls -1 $RPM_BUILD_ROOT/%{_booksdir} |\
+  sed -e 's#^#'%{_booksdir}'\/#' > pcp-doc.list
 ls -1 $RPM_BUILD_ROOT/%{_datadir}/pcp/demos/tutorials |\
   sed -e 's#^#'%{_datadir}/pcp/demos/tutorials'\/#' >>pcp-doc.list
+ls -1 $RPM_BUILD_ROOT/%{_pixmapdir} |\
+  sed -e 's#^#'%{_pixmapdir}'\/#' > pcp-gui.list
 PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
 cat base_bin.list base_exec.list base_man.list |\
-  egrep "$PCP_GUI|pixmaps" > pcp-gui.list
+  egrep "$PCP_GUI" >> pcp-gui.list
 cat base_pmdas.list base_bin.list base_exec.list base_man.list |\
   egrep -v 'pmdaib|pmmgr|pmweb|2pcp' |\
   egrep -v "$PCP_GUI|pixmaps|pcp-doc|tutorials" |\
@@ -655,7 +658,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %attr(0664,pcp,pcp) %config(noreplace) %{_confdir}/pmlogger/control
 %{_localstatedir}/lib/pcp/config/*
 
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5 
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %{tapsetdir}/pmcd.stp
 %else				# rhel5
 %ifarch ppc ppc64
