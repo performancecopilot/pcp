@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 1997,2004-2006 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2007 Aconex.  All Rights Reserved.
  * 
@@ -14,12 +15,8 @@
  */
 #include <math.h>
 #include <float.h>
-#include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include <errno.h>
-#include <time.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <QTextStream>
@@ -29,60 +26,80 @@
 #include <qmc_context.h>
 
 // Temporary buffer
-char buffer[256];
+static char buffer[256];
 
 // List of metrics
-QmcGroup *group;
-QList<QmcMetric*> metrics;
-bool isLive = false;
-int numValues;
-int doMetricType = PM_CONTEXT_HOST;
-bool doMetricFlag = true;
-double doMetricScale = 0.0;
-QString doMetricSource;
-
-// Command line flags
-bool dumpFlag = true;
-bool metricFlag = false;
-bool niceFlag = false;
-bool unitFlag = false;
-bool sourceFlag = false;
-bool timeFlag = true;
-bool timeOffsetFlag = false;
-bool rawFlag = false;
-bool zflag = false;
-bool shortFlag = false;
-bool descFlag = false;
-bool widthFlag = false;
-bool precFlag = false;
-bool normFlag = false;
-bool headerFlag = false;
-bool fullFlag = false;
-bool fullXFlag = false;
+static QmcGroup *group;
+static QList<QmcMetric*> metrics;
+static bool isLive = false;
+static int numValues;
+static int doMetricType = PM_CONTEXT_HOST;
+static bool doMetricFlag = true;
+static double doMetricScale = 0.0;
+static QString doMetricSource;
 
 // Command line options
-QString errStr = "?";
-QString timeFormat;
-QString pmnsFile;
-QString timeZone;
-char delimiter = '\t';
-int precision = 3;
-int width = 6;
-int numSamples = 0;
-int sampleCount = 0;
-int repeatLines = 0;
+static bool dumpFlag = true;
+static bool metricFlag;
+static bool niceFlag;
+static bool unitFlag;
+static bool sourceFlag;
+static bool timeFlag = true;
+static bool timeOffsetFlag;
+static bool rawFlag;
+static bool shortFlag;
+static bool descFlag;
+static bool widthFlag;
+static bool precFlag;
+static bool normFlag;
+static bool headerFlag;
+static bool fullFlag;
+static bool fullXFlag;
+
+static QString errStr = "?";
+static QString timeFormat;
+static char delimiter = '\t';
+static int precision = 3;
+static int width = 6;
+static int sampleCount;
+static int repeatLines;
+
+static pmLongOptions longopts[] = {
+    PMAPI_GENERAL_OPTIONS,
+    PMAPI_OPTIONS_HEADER("Reporting options"),
+    { "config", 1, 'c', "FILE", "read list of metrics from FILE" },
+    { "check", 0, 'C', 0, "exit before dumping any values" },
+    { "delimiter", 1, 'd', "CHAR", "character separating each column" },
+    { "time-format", 1, 'f', "FMT", "time format string" },
+    { "fixed", 0, 'F', 0, "print fixed width values" },
+    { "scientific", 0, 'G', 0, "print values in scientific format if shorter" },
+    { "headers", 0, 'H', 0, "show all headers" },
+    { "interactive", 0, 'i', 0, "format columns for interactive use" },
+    { "source", 0, 'l', 0, "show source of metrics" },
+    { "metrics", 0, 'm', 0, "show metric names" },
+    { "", 0, 'M', 0, "show complete metrics names" },
+    { "", 0, 'N', 0, "show normalizing factor" },
+    { "offset", 0, 'o', 0, "prefix timestamp with offset in seconds" },
+    { "precision", 1, 'P', "N", "floating point precision [default 3]" },
+    { "repeat", 1, 'R', "N", "repeat header every N of lines" },
+    { "raw", 0, 'r', 0, "output raw values, no rate conversion" },
+    { "unavailable", 1, 'U', "STR", "unavailable value string [default \"?\"]" },
+    { "units", 0, 'u', 0, "show metric units" },
+    { "width", 1, 'w', "N", "set column width" },
+    { "extended", 0, 'X', 0, "show complete metrics names (extended form)" },
+    PMAPI_OPTIONS_END
+};
 
 // Collection start time
-struct timeval logStartTime;
+static struct timeval logStartTime;
 
 // This may be putenv, so make it static
 static QString tzEnv = "TZ=";
 
-QTextStream cerr(stderr);
-QTextStream cout(stdout);
+static QTextStream cerr(stderr);
+static QTextStream cout(stdout);
 
-static
-void
+static void
 checkUnits(QmcMetric *metric)
 {
     pmUnits units;
@@ -227,56 +244,9 @@ traverse(const char *str, double scale)
 }
 
 //
-// usage
-//
-
-void usage()
-{
-    pmprintf("Usage: %s [options] [metrics ...]\n\n", pmProgname);
-
-    pmprintf(
-"Options:\n\
-  -A align                align sample times on natural boundaries\n\
-  -a archive[,archive...] metric sources are PCP log archive(s)\n\
-  -C                      exit before dumping any values\n\
-  -c config               read list of metrics from config\n\
-  -d delimiter            character separating each column\n\
-  -f format               time format string\n\
-  -F                      print fixed width values\n\
-  -G                      print values in scientific format if shorter\n\
-  -H                      show all headers\n\
-  -h host                 metrics source is PMCD on host\n\
-  -i                      format columns for interactive use\n\
-  -l                      show source of metrics\n\
-  -m                      show metric names\n\
-  -M                      show complete metrics names\n\
-  -N                      show normalizing factor\n\
-  -n pmnsfile             use an alternative PMNS\n\
-  -O offset               initial offset into the time window\n\
-  -o			  prefix timestamp with offset in seconds\n\
-  -P precision            floating point precision [default 3]\n\
-  -R lines                repeat header every number of lines\n\
-  -r                      output raw values, no rate conversion\n\
-  -S starttime            start of the time window\n\
-  -s sample               terminate after this many samples\n\
-  -T endtime              end of the time window\n\
-  -t interval             sample interval [default 1.0 second]\n\
-  -U string               unavailable value string [default \"?\"]\n\
-  -u                      show metric units\n\
-  -w width                set column width\n\
-  -X                      show complete metrics names (extended form)\n\
-  -Z timezone             set reporting timezone\n\
-  -z                      set reporting timezone to local time of metrics source\n");
-
-    pmflush();
-    exit(1);
-}
-
-//
 // parseConfig: parse list of metrics with optional scaling factor
 //
-
-int
+static int
 parseConfig(QString const& configName, FILE *configFile)
 {
     char	buf[1024];
@@ -348,11 +318,7 @@ parseConfig(QString const& configName, FILE *configFile)
     return err;
 }
 
-//
-// dumptime
-//
-
-const char *
+static const char *
 dumpTime(struct timeval const &curPos)
 {
     time_t	curTime = (time_t)(curPos.tv_sec);
@@ -384,11 +350,7 @@ dumpTime(struct timeval const &curPos)
     return buffer;
 }
 
-//
-// dumpHeader
-//
-
-void
+static void
 dumpHeader()
 {
     static bool	fullOnce = false;
@@ -699,7 +661,7 @@ tospec(struct timeval tv, struct timespec *ts)
     return ts;
 }
 
-void
+static void
 sleeptill(struct timeval sched)
 {
     int sts;
@@ -717,17 +679,24 @@ sleeptill(struct timeval sched)
     }
 }
 
+static int
+override(int opt, pmOptions *opts)
+{
+    (void)opts;
+    if (opt == 'H' || opt == 'a' || opt == 'N')
+	return 1;
+    return 0;
+}
+
 int
 main(int argc, char *argv[])
 {
-    char *msg, *endnum = NULL;
-    int errflag = 0, sts = 0;
+    char *endnum = NULL;
+    int sts = 0;
     int c, l, m, i, v;
     int lines = 0;
 
     // Metrics
-    QStringList archives;
-    QString host;
     QmcMetric *metric;
     double value = 0;
 
@@ -735,71 +704,36 @@ main(int argc, char *argv[])
     QString configName;
     FILE *configFile = NULL;
 
-    // Flags for setting time boundaries.
-    int Aflag = 0;		// 0 ctime, 1 +offset, 2 -offset
-    char *Atime = NULL;		// tm from -A flag
-    int Sflag = 0;		// 0 ctime, 1 +offset, 2 -offset
-    char *Stime = NULL;		// tm from -S flag
-    int Oflag = 0;		// 0 ctime, 1 +offset, 2 -offset
-    char *Otime = NULL;		// tm from -S flag
-    int Tflag = 0;		// 0 ctime, 1 +offset, 2 -offset
-    char *Ttime = NULL;		// tm from -T flag
-
     // Timing
     QString tzLabel;
     QString tzString;
     struct timeval logEndTime;
-    struct timeval realStartTime;
-    struct timeval realEndTime;
-    struct timeval position;
-    struct timeval interval;
     double endTime;
     double delay;
     double pos;
 
-    // Set the program name for error messages
-    __pmSetProgname(argv[0]);
+    // Parse command line options
+    //
+    pmOptions opts;
+    memset(&opts, 0, sizeof(opts));
+    opts.flags = PM_OPTFLAG_MULTI;
+    opts.short_options = PMAPI_OPTIONS "c:Cd:f:FGHilmMNoP:rR:uU:w:X";
+    opts.long_options = longopts;
+    opts.short_usage = "[options] [metrics ...]";
+    opts.override = override;
 
-    // Default update interval is 1 second
-    interval.tv_sec = 1;
-    interval.tv_usec = 0;
-
-    // Create the metric fetch group
-    group = new QmcGroup(true);
-
-//
-// Parse command line options
-//
-
-    while((c = getopt(argc, argv, 
-	   "A:a:c:Cd:D:f:FgGh:HilmMn:NO:op:P:rR:s:S:t:T:uU:Vw:XZ:z?")) != EOF) {
+    while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
-	case 'A':       // alignment
-            if (Aflag) {
-		pmprintf("%s: at most one -A allowed\n", pmProgname);
-                errflag++;
-            }
-            Atime = optarg;
-            Aflag = 1;
-            break;
-
-        case 'a':       // archive name
-	    if (host.length() > 0) {
-		pmprintf("%s: -a and -h may not be used together\n", 
-			 pmProgname);
-		errflag++;
-	    }
-	    else {
-		endnum = strtok(optarg, ", \t");
-		while (endnum) {
-		    archives.append(QString(endnum));
-		    endnum = strtok(NULL, ", \t");
-		}
+	case 'a':       // archive name
+	    endnum = strtok(opts.optarg, ", \t");
+	    while (endnum) {
+		__pmAddOptArchive(&opts, endnum);
+		endnum = strtok(NULL, ", \t");
 	    }
 	    break;
 
 	case 'c':	// config file
-	    configName = optarg;
+	    configName = opts.optarg;
 	    break;
 
 	case 'C':	// parse config, output metrics and units only
@@ -807,39 +741,28 @@ main(int argc, char *argv[])
 	    break;
 
 	case 'd':	// delimiter
-	    if (strlen(optarg) == 2 && optarg[0] == '\\') {
-	    	switch (optarg[1]) {
+	    if (strlen(opts.optarg) == 2 && opts.optarg[0] == '\\') {
+	    	switch (opts.optarg[1]) {
 		    case 'n':
 			delimiter = '\n';
 			break;
 		    case 't':
-		    	delimiter = '\t';
+			delimiter = '\t';
 			break;
 		    default:
-		    	delimiter = ' ';
+			delimiter = ' ';
 		}
 	    }
-	    else if (strlen(optarg) > 1) {
-	    	pmprintf("%s: delimiter must be one character\n", pmProgname);
-		errflag++;
+	    else if (strlen(opts.optarg) > 1) {
+		pmprintf("%s: delimiter must be one character\n", pmProgname);
+		opts.errors++;
 	    }
 	    else
-	    	delimiter = optarg[0];
-	    break;
-
-	case 'D':	// debug flag
-	    sts = __pmParseDebug(optarg);
-	    if (sts < 0) {
-                pmprintf("%s: unrecognized debug flag specification (%s)\n",
-			 pmProgname, optarg);
-		errflag++;
-	    }
-	    else
-		pmDebug |= sts;
+	    	delimiter = opts.optarg[0];
 	    break;
 
 	case 'f':	// Time format
-	    timeFormat = optarg;
+	    timeFormat = opts.optarg;
 	    if (timeFormat.length() == 0)
 	    	timeFlag = false;
 	    else
@@ -850,43 +773,25 @@ main(int argc, char *argv[])
 	    if (shortFlag) {
 		pmprintf("%s: -F and -G options may not be used together\n",
 			 pmProgname);
-		errflag++;
+		opts.errors++;
 	    }
 	    else
 		descFlag = true;
-	    break;
-
-	case 'g':	// GUI mode with pmtime
 	    break;
 
 	case 'G':	// Shortest format
 	    if (descFlag) {
 		pmprintf("%s: -F and -G may not be used together\n", 
 			 pmProgname);
-		errflag++;
+		opts.errors++;
 	    }
 	    else if (niceFlag) {
 		pmprintf("%s: -i and -G may not be used togther\n",
 			 pmProgname);
-		errflag++;
+		opts.errors++;
 	    }
 	    else
 		shortFlag = true;
-	    break;
-
-        case 'h':       // contact PMCD on this hostname
-	    if (archives.size() > 0) {
-		pmprintf("%s: -a and -h may not be used together\n", 
-			 pmProgname);
-		errflag++;
-	    }
-	    else if (host.length() > 0) {
-		pmprintf("%s: only one host (-h) may be specifiedn\n",
-			 pmProgname);
-		errflag++;
-	    }
-	    else
-		host = optarg;
 	    break;
 
 	case 'H':	// show all headers
@@ -897,12 +802,12 @@ main(int argc, char *argv[])
 	    if (precFlag) {
 		pmprintf("%s: -i and -P may not be used togther\n",
 			 pmProgname);
-		errflag++;
+		opts.errors++;
 	    }
 	    else if (shortFlag) {
 		pmprintf("%s: -i and -G may not be used togther\n",
 			 pmProgname);
-		errflag++;
+		opts.errors++;
 	    }
 	    else
 		niceFlag = true;
@@ -925,104 +830,48 @@ main(int argc, char *argv[])
 	    fullXFlag = true;
 	    break;
 
-        case 'n':       // alternative namespace
-	    if (pmnsFile.length() != 0) {
-		pmprintf("%s: at most one -n option allowed\n", pmProgname);
-		errflag++;
-	    }
-	    else
-		pmnsFile = optarg;
-	    break;
-
 	case 'N':	// show normalization values
 	    normFlag = true;
 	    break;
 
-        case 'O':	// offset sample time
-            if (Oflag) {
-                pmprintf("%s: at most one -O allowed\n", pmProgname);
-                errflag++;
-            }
-            Otime = optarg;
-            Oflag = 1;
-            break;
-
 	case 'o':	// report timeOffset
 	    timeOffsetFlag = true;
-	    break;
-
-	case 'p':	// GUI port number for connecting to pmtime
 	    break;
 
         case 'P':       // precision
 	    if (widthFlag) {
 		pmprintf("%s: -P and -w may not be used together\n",
 			 pmProgname);
-		errflag++;
+		opts.errors++;
 	    }
 	    else if (niceFlag) {
 		pmprintf("%s: -i and -P may not be used together\n",
 			 pmProgname);
-		errflag++;
+		opts.errors++;
 	    }
 	    else {
-		precision = (int)strtol(optarg, &endnum, 10);
+		precision = (int)strtol(opts.optarg, &endnum, 10);
 		precFlag = true;
 		if (*endnum != '\0' || precision < 0) {
 		    pmprintf("%s: -P requires a positive numeric argument\n",
 			     pmProgname);
-		    errflag++;
+		    opts.errors++;
 		}
 	    }
             break;
 
-	case 's':	// number of samples
-            numSamples = (int)strtol(optarg, &endnum, 10);
-            if (*endnum != '\0' || numSamples <= 0) {
-                pmprintf("%s: -s requires a positive numeric argument\n",
-			 pmProgname);
-                errflag++;
-            }
-            break;
 	    
-        case 'S':
-            if (Sflag) {
-                pmprintf("%s: at most one -S allowed\n", pmProgname);
-                errflag++;
-            }
-            Stime = optarg;
-            Sflag = 1;
-            break;
-
 	case 'r':	// output raw values
 	    rawFlag = true;
 	    break;
 
 	case 'R':	// repeat header
-	    repeatLines = (int)strtol(optarg, &endnum, 10);
+	    repeatLines = (int)strtol(opts.optarg, &endnum, 10);
             if (*endnum != '\0' || repeatLines <= 0) {
                 pmprintf("%s: -R requires a positive numeric argument\n",
 			 pmProgname);
-                errflag++;
+                opts.errors++;
             }
-            break;
-
-        case 't':       // sampling interval
-            if (pmParseInterval(optarg, &interval, &msg) < 0) {
-		pmprintf("%s\n", msg);
-                free(msg);
-                errflag++;
-            }
-            break;
-
-
-        case 'T':       // run time
-            if (Tflag) {
-                pmprintf("%s: at most one -T allowed\n", pmProgname);
-                errflag++;
-            }
-            Ttime = optarg;
-            Tflag = 1;
             break;
 
 	case 'u':	// show units
@@ -1030,96 +879,71 @@ main(int argc, char *argv[])
 	    break;
 
 	case 'U':	// error string
-	    errStr = optarg;
+	    errStr = opts.optarg;
 	    break;
-
-	case 'V':	// version
-	    printf("%s %s\n", pmProgname, pmGetConfig("VERSION"));
-	    exit(0);
 
         case 'w':       // width
 	    if (precFlag) {
 		pmprintf("%s: -P and -w may not be used together\n",
 			 pmProgname);
-		errflag++;
+		opts.errors++;
 	    }
 	    else {
-		width = (int)strtol(optarg, &endnum, 10);
+		width = (int)strtol(opts.optarg, &endnum, 10);
 		widthFlag = true;
 		if (*endnum != '\0' || width < 0) {
 		    pmprintf("%s: -w requires a positive numeric argument\n",
 			     pmProgname);
-		    errflag++;
+		    opts.errors++;
 		}
 		else if (width < 3) {
 		    pmprintf("%s: -w must be greater than 2\n", pmProgname);
-		    errflag++;
+		    opts.errors++;
 		}
 	    }
             break;
-        case 'z':       // timezone from host
-            if (timeZone.length()) {
-                pmprintf("%s: -z and -Z may not be used together\n",
-			 pmProgname);
-                errflag++;
-            }
-            zflag = true;
-            break;
-
-        case 'Z':       // $TZ timezone
-            if (zflag) {
-                pmprintf("%s: -z and -Z may not be used together\n",
-			 pmProgname);
-                errflag++;
-            }
-            timeZone = optarg;
-            break;
-
-        case '?':
-        default:
-            errflag++;
-            break;
-        }
-    }
-
-    if (errflag > 0) {
-	usage();
-    }
-
-    if (headerFlag) {
-	metricFlag = unitFlag = sourceFlag = normFlag = true;
-    }
-    if (fullXFlag) {
-	niceFlag = true;
-    }
-
-    // Get local namespace is requested before opening any contexts
-    //
-    if (pmnsFile.length()) {
-	sts = pmLoadNameSpace((const char *)pmnsFile.toAscii());
-	if (sts < 0) {
-	    pmprintf("%s: %s\n", pmProgname, pmErrStr(sts));
-	    pmflush();
-	    exit(1);
 	}
     }
 
-    // Create archive contexts
-    //
-    if (archives.size() > 0) {
-	for (c = 0; c < archives.size(); c++)
-	    if (group->use(PM_CONTEXT_ARCHIVE, archives[c]) < 0)
-		errflag++;
-    }
-    // Create live context
-    //
-    else if (host.length() > 0) {
-	if (group->use(PM_CONTEXT_HOST, host) < 0)
-	    errflag++;
+    if (opts.context == PM_CONTEXT_HOST) {
+	if (opts.nhosts > 1) {
+	    pmprintf("%s: only one host may be specified\n", pmProgname);
+	    opts.errors++;
+	}
     }
 
-    if (errflag) {
-    	pmflush();
+    if (opts.errors > 0) {
+	pmUsageMessage(&opts);
+	exit(1);
+    }
+
+    // Default update interval is 1 second
+    if (opts.interval.tv_sec == 0 && opts.interval.tv_usec == 0)
+	opts.interval.tv_sec = 1;
+
+    if (headerFlag)
+	metricFlag = unitFlag = sourceFlag = normFlag = true;
+
+    if (fullXFlag)
+	niceFlag = true;
+
+    // Create the metric fetch group
+    group = new QmcGroup(true);
+
+    // Create archive contexts
+    if (opts.narchives > 0) {
+	for (c = 0; c < opts.narchives; c++)
+	    if (group->use(PM_CONTEXT_ARCHIVE, opts.archives[c]) < 0)
+		opts.errors++;
+    }
+    // Create live context
+    else if (opts.nhosts > 0) {
+	if (group->use(PM_CONTEXT_HOST, opts.hosts[0]) < 0)
+	    opts.errors++;
+    }
+
+    if (opts.errors) {
+	pmflush();
 	exit(1);
     }
 
@@ -1153,11 +977,11 @@ main(int argc, char *argv[])
     }
 
     if (pmDebug & DBG_TRACE_APPL0)
-	cerr << "main: optind = " << optind << ", argc = " << argc
+	cerr << "main: optind = " << opts.optind << ", argc = " << argc
 	     << ", width = " << width << ", precision = " << precision
 	     << endl;
 
-    if (optind == argc) {
+    if (opts.optind == argc) {
 	if (configName.length() == 0) {
 	    configFile = stdin;
 	    configName = "(stdin)";
@@ -1175,16 +999,16 @@ main(int argc, char *argv[])
     else if (configName.length()) {
 	pmprintf("%s: configuration file cannot be specified with metrics\n",
 		 pmProgname);
-	usage();
+	exit(1);
     }
     
     if (configFile != NULL) {
-	errflag = parseConfig(configName, configFile);
+	opts.errors = parseConfig(configName, configFile);
     }
     else {
-	for (c = optind; c < argc; c++) {
+	for (c = opts.optind; c < argc; c++) {
 	    if (traverse(argv[c], 0.0) < 0)
-		errflag++;
+		opts.errors++;
 	}
     }
 
@@ -1193,7 +1017,7 @@ main(int argc, char *argv[])
 	pmflush();
 	exit(1);
     }
-    else if (errflag)
+    else if (opts.errors)
         pmprintf("%s: Warning: Some metrics ignored, continuing with valid metrics\n",
 		 pmProgname);
 
@@ -1208,23 +1032,16 @@ main(int argc, char *argv[])
     if (group->context()->source().type() != PM_CONTEXT_ARCHIVE)
 	isLive = true;
 
-    if (isLive && (Aflag || Oflag || Sflag)) {
-	pmprintf("%s: Error: -A, -O and -S options ignored in live mode\n",
-		 pmProgname);
-	pmflush();
-	exit(1);
-    }
-
     if (pmDebug & DBG_TRACE_APPL0)
 	cerr << "main: default source is " << *(group->context()) << endl;
 
-    if (zflag)
+    if (opts.tzflag)
 	group->useTZ();
-    else if (timeZone.length()) {
-	sts = group->useTZ(timeZone);
-        if ((sts = pmNewZone((const char *)timeZone.toAscii())) < 0) {
+    else if (opts.timezone) {
+	sts = group->useTZ(opts.timezone);
+        if ((sts = pmNewZone(opts.timezone)) < 0) {
 	    pmprintf("%s: cannot set timezone to \"%s\": %s\n", pmProgname,
-			(const char *)timeZone.toAscii(), pmErrStr(sts));
+			opts.timezone, pmErrStr(sts));
 	    pmflush();
 	    exit(1);
         }
@@ -1275,25 +1092,25 @@ main(int argc, char *argv[])
              << endl;
     }
 
-    sts = pmParseTimeWindow(Stime, Ttime, Atime, Otime,
-			    &logStartTime, &logEndTime, &realStartTime,
-			    &realEndTime, &position,
-			    &msg);
-
+    sts = pmParseTimeWindow(opts.start_optarg, opts.finish_optarg,
+			    opts.align_optarg, opts.origin_optarg,
+			    &logStartTime, &logEndTime, &opts.start,
+			    &opts.finish, &opts.origin, &endnum);
     if (sts < 0) {
-	pmprintf("%s\n", msg);
-	usage();
+	pmprintf("%s\n", endnum);
+	pmUsageMessage(&opts);
+	exit(1);
     }
 
-    pos = __pmtimevalToReal(&position);
-    endTime = __pmtimevalToReal(&realEndTime);
-    delay = (int)(__pmtimevalToReal(&interval) * 1000.0);
+    pos = __pmtimevalToReal(&opts.origin);
+    endTime = __pmtimevalToReal(&opts.finish);
+    delay = (int)(__pmtimevalToReal(&opts.interval) * 1000.0);
 
-    if (endTime < pos && Tflag == false)
-    	endTime = DBL_MAX;
+    if (endTime < pos && opts.finish_optarg == NULL)
+	endTime = DBL_MAX;
 
     if (pmDebug & DBG_TRACE_APPL0) {
-	cerr << "main: realStartTime = " << __pmtimevalToReal(&realStartTime)
+	cerr << "main: realStartTime = " << __pmtimevalToReal(&opts.start)
 	     << ", endTime = " << endTime << ", pos = " << pos 
 	     << ", delay = " << delay << endl;
     }
@@ -1301,18 +1118,17 @@ main(int argc, char *argv[])
     pmflush();
     dumpHeader();
 
-    if (fullXFlag == false) {
-	// Only dump full names once
+    // Only dump full names once
+    if (fullXFlag == false)
 	fullFlag = false;
-    }
 
     if (!dumpFlag)
 	exit(0);
 
     if (!isLive) {
 	int tmp_mode = PM_MODE_INTERP;
-	int tmp_delay = getXTBintervalFromTimeval(&tmp_mode, &interval);
-	group->setArchiveMode(tmp_mode, &position, tmp_delay);
+	int tmp_delay = getXTBintervalFromTimeval(&tmp_mode, &opts.interval);
+	group->setArchiveMode(tmp_mode, &opts.origin, tmp_delay);
     }
 
     if (shortFlag) {
@@ -1323,14 +1139,15 @@ main(int argc, char *argv[])
 	cout.setRealNumberNotation(QTextStream::FixedNotation);
     }
 
-    while(pos <= endTime && 
-	  ((numSamples > 0 && sampleCount < numSamples) || numSamples == 0)) {
+    while (pos <= endTime && 
+	   ((opts.samples > 0 && sampleCount < opts.samples) ||
+	     opts.samples == 0)) {
 
 	group->fetch();
 	sampleCount++;
 
 	if (timeFlag)
-	    cout << dumpTime(position) << delimiter;
+	    cout << dumpTime(opts.origin) << delimiter;
 
 	for (m = 0, v = 1; m < metrics.size(); m++) {
 	    metric = metrics[m];
@@ -1424,12 +1241,15 @@ main(int argc, char *argv[])
 	}
 	cout << endl;
 
-	position = tadd(position, interval);
+//	if (opts.samples > 0 && sampleCount == opts.samples)
+//	    continue;	/* do not sleep needlessly */
+
+	opts.origin = tadd(opts.origin, opts.interval);
 
 	if (isLive)
-	    sleeptill(position);
+	    sleeptill(opts.origin);
 
-	pos = __pmtimevalToReal(&position);
+	pos = __pmtimevalToReal(&opts.origin);
 	lines++;
 	if (repeatLines > 0 && repeatLines == lines) {
 	    cout << endl;

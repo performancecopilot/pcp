@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014, Red Hat.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * Copyright (c) 2006-2007, Aconex.  All Rights Reserved.
  * 
@@ -18,6 +19,15 @@
 #include "timelord.h"
 #include "pmtime.h"
 
+static pmOptions opts;
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("Options"),
+    PMOPT_GUIPORT,
+    PMOPT_VERSION,
+    PMOPT_HELP,
+    PMAPI_OPTIONS_END
+};
+
 static void setupEnvironment(void)
 {
     QString confirm = pmGetConfig("PCP_BIN_DIR");
@@ -34,69 +44,30 @@ static void setupEnvironment(void)
 
 int main(int argc, char **argv)
 {
-    int			c;
-    int			sts;
-    int			errorFlag = 0;
-    int			port = -1, autoport = 0;
-    char		*endnum, *envstr, portname[32];
-    static char		usage[] = "Usage: %s [-V] [-a | -h] [-p port]\n";
+    int		autoport = 0;
 
     QApplication a(argc, argv);
-    __pmSetProgname(argv[0]);
     setupEnvironment();
 
-    while ((c = getopt(argc, argv, "ahp:D:V?")) != EOF) {
-	switch (c) {
-
-	case 'a':
-	case 'h':
-	    break;
-
-	case 'p':
-	    port = (int)strtol(optarg, &endnum, 10);
-	    if (*endnum != '\0' || port < 0) {
-		pmprintf("%s: requires a numeric port (not %s)\n",
-			pmProgname, optarg);
-		errorFlag++;
-	    }
-	    break;
-
-	case 'D':
-	    sts = __pmParseDebug(optarg);
-	    if (sts < 0) {
-		pmprintf("%s: unrecognized debug flag specification (%s)\n",
-			pmProgname, optarg);
-		errorFlag++;
-	    }
-	    else
-		pmDebug |= sts;
-	    break;
-
-	case 'V':		/* version */
-	    printf("%s %s\n", pmProgname, pmGetConfig("PCP_VERSION"));
-	    exit(0);
-
-	case '?':
-	    errorFlag++;
-	    break;
-	}
-    }
-
-    if (errorFlag || optind != argc) {
-	pmprintf(usage, pmProgname);
-	pmflush();
+    opts.short_options = "D:p:V?";
+    opts.long_options = longopts;
+    pmGetOptions(argc, argv, &opts);
+    if (opts.errors || opts.optind != argc) {
+	pmUsageMessage(&opts);
 	exit(1);
     }
 
-    if (port == -1) {
+    if (!opts.guiport) {
+	char	*endnum, *envstr;
+
 	autoport = 1;
-	if ((envstr = getenv("KMTIME_PORT")) == NULL) {
-	    port = PmTime::BasePort;
+	if ((envstr = getenv("PMTIME_PORT")) == NULL) {
+	    opts.guiport = PmTime::BasePort;
 	} else {
-	    port = strtol(envstr, &endnum, 0);
-	    if (*endnum != '\0' || port < 0) {
+	    opts.guiport = strtol(envstr, &endnum, 0);
+	    if (*endnum != '\0' || opts.guiport < 0) {
 		pmprintf(
-		    "%s: KMTIME_PORT must be a numeric port number (not %s)\n",
+		    "%s: PMTIME_PORT must be a numeric port number (not %s)\n",
 			pmProgname, envstr);
 		pmflush();
 		exit(1);
@@ -107,22 +78,23 @@ int main(int argc, char **argv)
     console = new Console;
     TimeLord tl(&a);
     do {
-	if (tl.listen(QHostAddress::LocalHost, port))
+	if (tl.listen(QHostAddress::LocalHost, opts.guiport))
 	    break;
-	port++;
-    } while (autoport && (port >= 0));
+	opts.guiport++;
+    } while (autoport && (opts.guiport >= 0));
 
-    if (!port || tl.isListening() == false) {
+    if (!opts.guiport || tl.isListening() == false) {
 	if (!autoport)
 	    pmprintf("%s: cannot find an available port\n", pmProgname);
 	else
 	    pmprintf("%s: cannot connect to requested port (%d)\n",
-		    pmProgname, port);
+		    pmProgname, opts.guiport);
 	pmflush();
 	exit(1);
     } else if (autoport) {	/* write to stdout for client */
-	c = snprintf(portname, sizeof(portname), "port=%u\n", port);
-	if (write(fileno(stdout), portname, c + 1) < 0) {
+	char	name[32];
+	int	c = snprintf(name, sizeof(name), "port=%u\n", opts.guiport);
+	if (write(fileno(stdout), name, c + 1) < 0) {
 	    if (errno != EPIPE) {
 		pmprintf("%s: cannot write port for client: %s\n",
 		    pmProgname, strerror(errno));

@@ -89,8 +89,11 @@ pmdumptext -i -G -umN
 pmdumptext: -i and -G may not be used togther
 Usage: pmdumptext [options] [metrics ...]
 
-Options:
-...
+General options:
+...:
+
+Reporting options:
+...:
 
 pmdumptext -i -f %H:%M:%S -umN
   Metric    one    ten undred illion    ten undred illion
@@ -141,8 +144,11 @@ pmdumptext -i -w 10 -G -umN
 pmdumptext: -i and -G may not be used togther
 Usage: pmdumptext [options] [metrics ...]
 
-Options:
-...
+General options:
+...:
+
+Reporting options:
+...:
 
 pmdumptext -i -w 10 -f %H:%M:%S -umN
   Metric hordes.one double.ten    hundred    million double.ten    hundred    million
