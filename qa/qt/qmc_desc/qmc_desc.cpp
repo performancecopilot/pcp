@@ -93,8 +93,9 @@ main(int argc, char* argv[])
 	pmprintf("%s: Error: Bogus metric: %s\n",
 		 pmProgname, pmErrStr(bad_pmc.status()));
 	pmflush();
-	sts = 1;
     }
+    else
+	sts = 1;
 
     return sts;
 }
