@@ -2498,6 +2498,10 @@ dnl AC_CHECK_LIB(microhttpd,MHD_start_daemon,[have_libmicrohttpd=1],[have_libmic
 AC_SUBST(HAVE_LIBMICROHTTPD,[$have_libmicrohttpd])
 LIBS=$savedLIBS
 
+dnl Do you have graphics libraries for pmwebapi?
+PKG_CHECK_MODULES([cairo], [cairo >= 1.2, cairo-ft >= 1.2, cairo-png >= 1.2], [have_cairo=1], [have_cairo=0])
+AC_SUBST(HAVE_CAIRO,[$have_cairo])
+
 dnl Do you have RPM Package Manager libraries for pmdarpm?
 savedLIBS=$LIBS
 AC_MSG_CHECKING([for rpmlib > 4.4.2])

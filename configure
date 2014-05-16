@@ -622,6 +622,9 @@ ac_includes_default="\
 ac_subst_vars='PACKAGE_CONFIGURE
 BUILD_PMMGR
 HAVE_RPMLIB
+HAVE_CAIRO
+cairo_LIBS
+cairo_CFLAGS
 HAVE_LIBMICROHTTPD
 lib_for_curses
 lib_for_readline
@@ -936,7 +939,9 @@ YACC
 YFLAGS
 SYSTEMD_CFLAGS
 SYSTEMD_LIBS
-XMKMF'
+XMKMF
+cairo_CFLAGS
+cairo_LIBS'
 
 
 # Initialize some variables set by options.
@@ -1623,6 +1628,9 @@ Some influential environment variables:
   SYSTEMD_LIBS
               linker flags for SYSTEMD, overriding pkg-config
   XMKMF       Path to xmkmf, Makefile generator for X Window System
+  cairo_CFLAGS
+              C compiler flags for cairo, overriding pkg-config
+  cairo_LIBS  linker flags for cairo, overriding pkg-config
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -13836,6 +13844,80 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 HAVE_LIBMICROHTTPD=$have_libmicrohttpd
 
 LIBS=$savedLIBS
+
+
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for cairo" >&5
+$as_echo_n "checking for cairo... " >&6; }
+
+if test -n "$cairo_CFLAGS"; then
+    pkg_cv_cairo_CFLAGS="$cairo_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"cairo >= 1.2, cairo-ft >= 1.2, cairo-png >= 1.2\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "cairo >= 1.2, cairo-ft >= 1.2, cairo-png >= 1.2") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_cairo_CFLAGS=`$PKG_CONFIG --cflags "cairo >= 1.2, cairo-ft >= 1.2, cairo-png >= 1.2" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$cairo_LIBS"; then
+    pkg_cv_cairo_LIBS="$cairo_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"cairo >= 1.2, cairo-ft >= 1.2, cairo-png >= 1.2\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "cairo >= 1.2, cairo-ft >= 1.2, cairo-png >= 1.2") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_cairo_LIBS=`$PKG_CONFIG --libs "cairo >= 1.2, cairo-ft >= 1.2, cairo-png >= 1.2" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        cairo_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "cairo >= 1.2, cairo-ft >= 1.2, cairo-png >= 1.2" 2>&1`
+        else
+	        cairo_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "cairo >= 1.2, cairo-ft >= 1.2, cairo-png >= 1.2" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$cairo_PKG_ERRORS" >&5
+
+	have_cairo=0
+elif test $pkg_failed = untried; then
+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	have_cairo=0
+else
+	cairo_CFLAGS=$pkg_cv_cairo_CFLAGS
+	cairo_LIBS=$pkg_cv_cairo_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	have_cairo=1
+fi
+HAVE_CAIRO=$have_cairo
+
 
 savedLIBS=$LIBS
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for rpmlib > 4.4.2" >&5
