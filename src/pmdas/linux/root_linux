@@ -660,7 +660,7 @@ network.tcp {
     fastopenpassivefail	60:53:108
     fastopenlistenoverflow 60:53:109
     fastopencookiereqd	60:53:110
-    spuriosrtxhostqueues 60:53:111
+    spuriousrtxhostqueues 60:53:111
     busypollrxpackets	60:53:112
     autocorking		60:53:113
     fromzerowindowadv	60:53:114

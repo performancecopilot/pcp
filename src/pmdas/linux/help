@@ -976,7 +976,9 @@ Due to SYNACK retrans count lower than defer_accept value
 @ network.tcp.retransfail Number of failed tcp_retransmit_skb() calls
 @ network.tcp.rcvcoalesce Number of times tried to coalesce the receive queue
 @ network.tcp.ofoqueue Number of packets queued in OFO queue
-@ network.tcp.ofodrop Number of packets meant to be queued in OFO but dropped because socket rcvbuf limit hit
+@ network.tcp.ofodrop Number of packets meant to be queued in OFO but dropped due to limits hit
+Number of packets meant to be queued in OFO but dropped because socket rcvbuf
+limit reached.
 @ network.tcp.ofomerge Number of packets in OFO that were merged with other packets
 @ network.tcp.challengeack Number of challenge ACKs sent (RFC 5961 3.2)
 @ network.tcp.synchallenge Number of challenge ACKs sent in response to SYN packets
@@ -986,13 +988,15 @@ Due to SYNACK retrans count lower than defer_accept value
 @ network.tcp.fastopenpassivefail Number of passive fast open attempts failed
 @ network.tcp.fastopenlistenoverflow Number of times the fastopen listen queue overflowed
 @ network.tcp.fastopencookiereqd Number of fast open cookies requested
-@ network.tcp.spuriosrtxhostqueues Number of times detected that the fast clone is not yet freed in tcp_transmit_skb()
+@ network.tcp.spuriousrtxhostqueues Number of times that the fast clone is not yet freed in tcp_transmit_skb()
 @ network.tcp.busypollrxpackets Number of low latency application-fetched packets
 @ network.tcp.autocorking Number of times stack detected skb was underused and its flush was deferred
 @ network.tcp.fromzerowindowadv Number of times window went from zero to non-zero
 @ network.tcp.tozerowindowadv Number of times window went from non-zero to zero
 @ network.tcp.wantzerowindowadv Number of times zero window announced
-@ network.tcp.synretrans Number of SYN-SYN/ACK retransmits to break down retransmissions in SYN, fast/timeout retransmits
+@ network.tcp.synretrans Number of SYN-SYN/ACK retransmits
+Number of SYN-SYN/ACK retransmits to break down retransmissions in SYN, fast/timeout
+retransmits.
 @ network.tcp.origdatasent Number of outgoing packets with original data
 Excluding retransmission but including data-in-SYN). This counter is different from
 TcpOutSegs because TcpOutSegs also tracks pure ACKs. TCPOrigDataSent is
