@@ -48,6 +48,7 @@
 #include "proc_net_sockstat.h"
 #include "proc_net_tcp.h"
 #include "proc_partitions.h"
+#include "proc_net_netstat.h"
 #include "proc_net_snmp.h"
 #include "proc_scsi.h"
 #include "proc_slabinfo.h"
@@ -96,6 +97,7 @@ int _pm_idletime_size; /* size in bytes of the idle cputime metric */
 proc_vmstat_t _pm_proc_vmstat;
 proc_net_snmp_t _pm_proc_net_snmp;
 pmdaInstid _pm_proc_net_snmp_indom_id[NR_ICMPMSG_COUNTERS];
+proc_net_netstat_t _pm_proc_net_netstat;
 
 /*
  * Metric Instance Domains (statically initialized ones only)
@@ -2323,6 +2325,605 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_NET_SNMP,89), PM_TYPE_U64, ICMPMSG_INDOM, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
+/*
+ * network netstat cluster
+ */
+
+/* network.ip.innoroutes */
+  { &_pm_proc_net_netstat.ip[_PM_NETSTAT_IPEXT_INNOROUTES],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip.intruncatedpkts */
+  { &_pm_proc_net_netstat.ip[_PM_NETSTAT_IPEXT_INTRUNCATEDPKTS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip.inmcastpkts */
+  { &_pm_proc_net_netstat.ip[_PM_NETSTAT_IPEXT_INMCASTPKTS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip.outmcastpkts */
+  { &_pm_proc_net_netstat.ip[_PM_NETSTAT_IPEXT_OUTMCASTPKTS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip.inbcastpkts */
+  { &_pm_proc_net_netstat.ip[_PM_NETSTAT_IPEXT_INBCASTPKTS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip.outbcastpkts */
+  { &_pm_proc_net_netstat.ip[_PM_NETSTAT_IPEXT_OUTBCASTPKTS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip.inoctets */
+  { &_pm_proc_net_netstat.ip[_PM_NETSTAT_IPEXT_INOCTETS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip.outoctets */
+  { &_pm_proc_net_netstat.ip[_PM_NETSTAT_IPEXT_OUTOCTETS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip.inmcastoctets */
+  { &_pm_proc_net_netstat.ip[_PM_NETSTAT_IPEXT_INMCASTOCTETS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip.outmcastoctets */
+  { &_pm_proc_net_netstat.ip[_PM_NETSTAT_IPEXT_OUTMCASTOCTETS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,9), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip.inbcastoctets */
+  { &_pm_proc_net_netstat.ip[_PM_NETSTAT_IPEXT_INBCASTOCTETS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,10), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip.outbcastoctets */
+  { &_pm_proc_net_netstat.ip[_PM_NETSTAT_IPEXT_OUTBCASTOCTETS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,11), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip.csumerrors */
+  { &_pm_proc_net_netstat.ip[_PM_NETSTAT_IPEXT_CSUMERRORS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,12), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip.noectpkts */
+  { &_pm_proc_net_netstat.ip[_PM_NETSTAT_IPEXT_NOECTPKTS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,13), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip.ect1pkts */
+  { &_pm_proc_net_netstat.ip[_PM_NETSTAT_IPEXT_ECT1PKTS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,14), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip.ect0pkts */
+  { &_pm_proc_net_netstat.ip[_PM_NETSTAT_IPEXT_ECT0PKTS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,15), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip.cepkts */
+  { &_pm_proc_net_netstat.ip[_PM_NETSTAT_IPEXT_CEPKTS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,16), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.syncookiessent */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_SYNCOOKIESSENT],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,17), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.syncookiesrecv */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_SYNCOOKIESRECV],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,18), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.syncookiesfailed */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_SYNCOOKIESFAILED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,19), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.embryonicrsts */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_EMBRYONICRSTS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,20), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.prunecalled */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_PRUNECALLED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,21), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.rcvpruned */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_RCVPRUNED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,22), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.ofopruned */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_OFOPRUNED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,23), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.outofwindowicmps */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_OUTOFWINDOWICMPS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,24), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.lockdroppedicmps */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_LOCKDROPPEDICMPS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,25), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.arpfilter */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_ARPFILTER],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,26), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.timewaited */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TIMEWAITED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,27), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.timewaitrecycled */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TIMEWAITRECYCLED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,28), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.timewaitkilled */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TIMEWAITKILLED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,29), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.pawspassiverejected */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_PAWSPASSIVEREJECTED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,30), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.pawsactiverejected */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_PAWSACTIVEREJECTED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,31), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.pawsestabrejected */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_PAWSESTABREJECTED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,32), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.delayedacks */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_DELAYEDACKS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,33), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.delayedacklocked */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_DELAYEDACKLOCKED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,34), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.delayedacklost */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_DELAYEDACKLOST],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,35), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.listenoverflows */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_LISTENOVERFLOWS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,36), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.listendrops */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_LISTENDROPS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,37), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.prequeued */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPPREQUEUED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,38), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.directcopyfrombacklog */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPDIRECTCOPYFROMBACKLOG],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,39), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.directcopyfromprequeue */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPDIRECTCOPYFROMPREQUEUE],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,40), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.prequeuedropped */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPPREQUEUEDROPPED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,41), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.hphits*/
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPHPHITS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,42), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.hphitstouser */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPHPHITSTOUSER],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,43), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.pureacks */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPPUREACKS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,44), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.hpacks */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPHPACKS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,45), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.renorecovery */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPRENORECOVERY],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,46), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.sackrecovery */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPSACKRECOVERY],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,47), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.sackreneging */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPSACKRENEGING],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,48), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.fackreorder */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPFACKREORDER],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,49), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.sackreorder */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPSACKREORDER],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,50), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.renoreorder */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPRENOREORDER],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,51), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tsreorder */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPTSREORDER],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,52), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.fullundo */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPFULLUNDO],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,53), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.partialundo */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPPARTIALUNDO],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,54), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.dsackundo */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPDSACKUNDO],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,55), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.lossundo */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPLOSSUNDO],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,56), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.lostretransmit */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPLOSTRETRANSMIT],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,57), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.renofailures */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPRENOFAILURES],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,58), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.sackfailures */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPSACKFAILURES],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,59), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.lossfailures */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPLOSSFAILURES],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,60), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.fastretrans */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPFASTRETRANS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,61), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.forwardretrans */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPFORWARDRETRANS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,62), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.slowstartretrans */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPSLOWSTARTRETRANS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,63), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.timeouts */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPTIMEOUTS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,64), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.lossprobes */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPLOSSPROBES],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,65), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.lossproberecovery */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPLOSSPROBERECOVERY],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,66), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.renorecoveryfail */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPRENORECOVERYFAIL],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,67), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.sackrecoveryfail */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPSACKRECOVERYFAIL],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,68), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.schedulerfailed */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPSCHEDULERFAILED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,69), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.rcvcollapsed */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPRCVCOLLAPSED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,70), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.dsackoldsent */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPDSACKOLDSENT],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,71), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.dsackofosent */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPDSACKOFOSENT],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,72), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.dsackrecv */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPDSACKRECV],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,73), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.dsackoforecv */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPDSACKOFORECV],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,74), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.abortondata */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPABORTONDATA],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,75), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.abortonclose */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPABORTONCLOSE],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,76), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.abortonmemory */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPABORTONMEMORY],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,77), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.abortontimeout */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPABORTONTIMEOUT],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,78), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.abortonlinger */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPABORTONLINGER],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,79), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.abortfailed */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPABORTFAILED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,80), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.memorypressures */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPMEMORYPRESSURES],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,81), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.sackdiscard */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPSACKDISCARD],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,82), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.dsackignoredold */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPDSACKIGNOREDOLD],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,83), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.dsackignorednoundo */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPDSACKIGNOREDNOUNDO],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,84), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.spuriousrtos */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPSPURIOUSRTOS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,85), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.md5notfound */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPMD5NOTFOUND],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,86), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.md5unexpected */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPMD5UNEXPECTED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,87), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.sackshifted */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_SACKSHIFTED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,88), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.sackmerged */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_SACKMERGED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,89), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.sackshiftfallback */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_SACKSHIFTFALLBACK],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,90), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.backlogdrop */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPBACKLOGDROP],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,91), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.minttldrop */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPMINTTLDROP],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,92), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.deferacceptdrop */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPDEFERACCEPTDROP],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,93), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.iprpfilter */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_IPRPFILTER],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,94), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.timewaitoverflow */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPTIMEWAITOVERFLOW],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,95), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.reqqfulldocookies */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPREQQFULLDOCOOKIES],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,96), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.reqqfulldrop */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPREQQFULLDROP],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,97), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.retransfail */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPRETRANSFAIL],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,98), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.rcvcoalesce */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPRCVCOALESCE],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,99), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.ofoqueue */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPOFOQUEUE],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,100), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.ofodrop */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPOFODROP],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,101), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.ofomerge */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPOFOMERGE],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,102), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.challengeack */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPCHALLENGEACK],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,103), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.synchallenge */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPSYNCHALLENGE],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,104), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.fastopenactive */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPFASTOPENACTIVE],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,105), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.fastopenactivefail */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPFASTOPENACTIVEFAIL],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,106), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.fastopenpassive */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPFASTOPENPASSIVE],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,107), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.fastopenpassivefail */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPFASTOPENPASSIVEFAIL],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,108), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.fastopenlistenoverflow */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPFASTOPENLISTENOVERFLOW],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,109), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.fastopencookiereqd */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPFASTOPENCOOKIEREQD],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,110), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.spuriousrtxhostqueues */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPSPURIOUS_RTX_HOSTQUEUES],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,111), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.busypollrxpackets */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_BUSYPOLLRXPACKETS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,112), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.autocorking */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPAUTOCORKING],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,113), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.fromzerowindowadv */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPFROMZEROWINDOWADV],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,114), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tozerowindowadv */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPTOZEROWINDOWADV],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,115), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.wantzerowindowadv */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPWANTZEROWINDOWADV],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,116), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.synretrans */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPSYNRETRANS],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,117), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.origdatasent */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPORIGDATASENT],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,118), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
 /* hinv.map.scsi */
     { NULL, 
       { PMDA_PMID(CLUSTER_SCSI,0), PM_TYPE_STRING, SCSI_INDOM, PM_SEM_DISCRETE, 
@@ -3164,6 +3765,9 @@ linux_refresh(pmdaExt *pmda, int *need_refresh)
     if (need_refresh[CLUSTER_NET_TCP])
 	refresh_proc_net_tcp(&proc_net_tcp);
 
+    if (need_refresh[CLUSTER_NET_NETSTAT])
+	refresh_proc_net_netstat(&_pm_proc_net_netstat);
+
     if (need_refresh[CLUSTER_SLAB])
 	refresh_proc_slabinfo(&proc_slabinfo);
 
@@ -3294,6 +3898,11 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (*(__uint64_t *)mdesc->m_user == (__uint64_t)-1)
 		if (idp->item != 53)	/* tcp.maxconn is special */
 		    return 0; /* no value available on this kernel */
+	}
+	else
+	if (idp->cluster == CLUSTER_NET_NETSTAT) {
+	    if (*(__uint64_t *)mdesc->m_user == (__uint64_t)-1)
+	        return 0; /* no value available on this kernel */
 	}
 	else
 	if (idp->cluster == CLUSTER_NET_NFS) {
