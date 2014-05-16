@@ -29,6 +29,7 @@ TARGETS = $(TARGET) $(LTARGET)
 
 LLDFLAGS = -L$(TOPDIR)/src/libpcp_mmv/src -L$(TOPDIR)/src/libpcp/src
 LLDLIBS = -lpcp_mmv $(PCPLIB)
+LDIRT = mmvdump acme
 
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
 DEMODIR = $(PCP_DEMOS_DIR)/$(IAM)
