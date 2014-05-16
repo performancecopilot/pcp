@@ -1,5 +1,7 @@
 - incoming & outgoing ACL
 - ssl
+- -A generalization (multiple options?  search subdirectories?)
+- discovery API for hosts, archives
 - pmStore ?
 - missing APIs
   - time control
