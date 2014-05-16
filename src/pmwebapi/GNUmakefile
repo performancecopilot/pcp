@@ -30,7 +30,14 @@ SUBDIRS = jsdemos
 
 default:	build-me
 
+$(OBJECTS): $(HFILES)
+
 include $(BUILDRULES)
+
+ifeq "$(HAVE_CAIRO)" "1"
+LLDLIBS += $(LIB_FOR_CAIRO)
+LCFLAGS += -DHAVE_CAIRO
+endif
 
 ifeq "$(HAVE_LIBMICROHTTPD)" "1"
 build-me:	$(CMDTARGET) pmwebd.service

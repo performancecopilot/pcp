@@ -237,9 +237,11 @@ LIB_FOR_SASL = @lib_for_sasl@
 LIB_FOR_SSL = @lib_for_ssl@
 LIB_FOR_AVAHI = @lib_for_avahi@
 LIB_FOR_ATOMIC = @lib_for_atomic@
+LIB_FOR_CAIRO = @cairo_LIBS@
 
 HAVE_LIBMICROHTTPD = @HAVE_LIBMICROHTTPD@
 HAVE_RPMLIB = @HAVE_RPMLIB@
+HAVE_CAIRO = @HAVE_CAIRO@
 
 SHELL = /bin/sh
 IMAGES_DIR = $(TOPDIR)/all-images
