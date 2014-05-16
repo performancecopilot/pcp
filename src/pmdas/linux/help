@@ -872,6 +872,136 @@ tools running on IRIX.
 @ network.udplite.sndbuferrors count of udplite send buffer errors
 @ network.udplite.incsumerrors count of udplite in checksum errors
 
+@ network.ip.innoroutes Number of IP datagrams discarded due to no routes in forwarding path
+@ network.ip.intruncatedpkts Number of IP datagrams discarded due to frame not carrying enough data
+@ network.ip.inmcastpkts Number of received IP multicast datagrams
+@ network.ip.outmcastpkts Number of sent IP multicast datagrams
+@ network.ip.inbcastpkts Number of received IP broadcast datagrams
+@ network.ip.outbcastpkts Number of sent IP bradcast datagrams
+@ network.ip.inoctets Number of received octets
+@ network.ip.outoctets Number of sent octets
+@ network.ip.inmcastoctets Number of received IP multicast octets
+@ network.ip.outmcastoctets Number of sent IP multicast octets
+@ network.ip.inbcastoctets Number of received IP broadcast octets
+@ network.ip.outbcastoctets Number of sent IP broadcast octets
+@ network.ip.csumerrors Number of IP datagrams with checksum errors
+@ network.ip.noectpkts Number of packets received with NOECT
+@ network.ip.ect1pkts Number of packets received with ECT(1)
+@ network.ip.ect0pkts Number of packets received with ECT(0)
+@ network.ip.cepkts Number of packets received with Congestion Experimented
+
+@ network.tcp.syncookiessent Number of sent SYN cookies
+@ network.tcp.syncookiesrecv Number of received SYN cookies
+@ network.tcp.syncookiesfailed Number of failed SYN cookies
+@ network.tcp.embryonicrsts Number of resets received for embryonic SYN_RECV sockets
+@ network.tcp.prunecalled Number of packets pruned from receive queue because of socket buffer overrun
+@ network.tcp.rcvpruned Number of packets pruned from receive queue
+@ network.tcp.ofopruned Number of packets dropped from out-of-order queue because of socket buffer overrun
+@ network.tcp.outofwindowicmps Number of dropped out of window ICMPs
+@ network.tcp.lockdroppedicmps Number of dropped ICMP because socket was locked
+@ network.tcp.arpfilter Number of arp packets filtered
+@ network.tcp.timewaited Number of TCP sockets finished time wait in fast timer
+@ network.tcp.timewaitrecycled Number of time wait sockets recycled by time stamp
+@ network.tcp.timewaitkilled Number of TCP sockets finished time wait in slow timer
+@ network.tcp.pawspassiverejected Number of passive connections rejected because of timestamp
+@ network.tcp.pawsactiverejected Number of active connections rejected because of timestamp
+@ network.tcp.pawsestabrejected Number of packets rejects in established connections because of timestamp
+@ network.tcp.delayedacks Number of delayed acks sent
+@ network.tcp.delayedacklocked Number of delayed acks further delayed because of locked socket
+@ network.tcp.delayedacklost Number of times quick ack mode was activated times
+@ network.tcp.listenoverflows Number of times the listen queue of a socket overflowed
+@ network.tcp.listendrops Number of SYNs to LISTEN sockets dropped
+@ network.tcp.prequeued Number of packets directly queued to recvmsg prequeue
+@ network.tcp.directcopyfrombacklog Number of bytes directly in process context from backlog
+@ network.tcp.directcopyfromprequeue Number of bytes directly received in process context from prequeue
+@ network.tcp.prequeueddropped Number of packets dropped from prequeue
+@ network.tcp.hphits Number of packet headers predicted
+@ network.tcp.hphitstouser Number of packets header predicted and directly queued to user
+@ network.tcp.pureacks Number of acknowledgments not containing data payload received
+@ network.tcp.hpacks Number of predicted acknowledgments
+@ network.tcp.renorecovery Number of times recovered from packet loss due to fast retransmit
+@ network.tcp.sackrecovery Number of times recovered from packet loss by selective acknowledgements
+@ network.tcp.sackreneging Number of bad SACK blocks received
+@ network.tcp.fackreorder Number of times detected reordering using FACK
+@ network.tcp.sackreorder Number of times detected reordering using SACK
+@ network.tcp.renoreorder Number of times detected reordering using reno fast retransmit
+@ network.tcp.tsreorder Number of times detected reordering times using time stamp
+@ network.tcp.fullundo Number of congestion windows fully recovered without slow start
+@ network.tcp.partialundo Number of congestion windows partially recovered using Hoe heuristic
+@ network.tcp.dsackundo Number of congestion windows recovered without slow start using DSACK
+@ network.tcp.lossundo Number of congestion windows recovered without slow start after partial ack
+@ network.tcp.lostretransmit Number of retransmits lost
+@ network.tcp.renofailures Number of timeouts after reno fast retransmit
+@ network.tcp.sackfailures Number of timeouts after SACK recovery
+@ network.tcp.lossfailures Number of timeouts in loss state
+@ network.tcp.fastretrans Number of fast retransmits
+@ network.tcp.forwardretrans Number of forward retransmits
+@ network.tcp.slowstartretrans Number of retransmits in slow start
+@ network.tcp.timeouts Number of other TCP timeouts
+@ network.tcp.lossprobes Number of sent TCP loss probes
+@ network.tcp.lossproberecovery Number of TCP loss probe recoveries
+@ network.tcp.renorecoveryfail Number of reno fast retransmits failed
+@ network.tcp.sackrecoveryfail Number of SACK retransmits failed
+@ network.tcp.schedulerfail Number of times receiver scheduled too late for direct processing
+@ network.tcp.rcvcollapsed Number of packets collapsed in receive queue due to low socket buffer
+@ network.tcp.dsackoldsent Number of DSACKs sent for old packets
+@ network.tcp.dsackofosent Number of DSACKs sent for out of order packets
+@ network.tcp.dsackrecv Number of DSACKs received
+@ network.tcp.dsackoforecv Number of DSACKs for out of order packets received
+@ network.tcp.abortondata Number of connections reset due to unexpected data
+@ network.tcp.abortonclose Number of connections reset due to early user close
+@ network.tcp.abortonmemory Number of connections aborted due to memory pressure
+@ network.tcp.abortontimeout Number of connections aborted due to timeout
+@ network.tcp.abortonlinger Number of connections aborted after user close in linger timeout
+@ network.tcp.abortfailed Number of times unable to send RST due to no memory
+@ network.tcp.memorypressures Numer of times TCP ran low on memory
+@ network.tcp.sackdiscard Number of SACKs discarded
+@ network.tcp.dsackignoredold Number of ignored old duplicate SACKs
+@ network.tcp.dsackignorednoundo Number of ignored duplicate SACKs with undo_marker not set
+@ network.tcp.spuriousrtos Number of FRTO's successfully detected spurious RTOs
+@ network.tcp.md5notfound Number of times MD5 hash expected but not found
+@ network.tcp.md5unexpected Number of times MD5 hash unexpected but found
+@ network.tcp.sackshifted Number of SACKs shifted
+@ network.tcp.sackmerged Number of SACKs merged
+@ network.tcp.sackshiftfallback Number of SACKs fallbacks
+@ network.tcp.backlogdrop Number of frames dropped because of full backlog queue
+@ network.tcp.minttldrop Number of frames dropped when TTL is under the minimum
+@ network.tcp.deferacceptdrop Number of dropped ACK frames when socket is in SYN-RECV state
+Due to SYNACK retrans count lower than defer_accept value
+
+@ network.tcp.iprpfilter Number of packets dropped in input path because of rp_filter settings
+@ network.tcp.timewaitoverflow Number of occurences of time wait bucket overflow
+@ network.tcp.reqqfulldocookies Number of times a SYNCOOKIE was replied to client
+@ network.tcp.reqqfulldrop Number of times a SYN request was dropped due to disabled syncookies
+@ network.tcp.retransfail Number of failed tcp_retransmit_skb() calls
+@ network.tcp.rcvcoalesce Number of times tried to coalesce the receive queue
+@ network.tcp.ofoqueue Number of packets queued in OFO queue
+@ network.tcp.ofodrop Number of packets meant to be queued in OFO but dropped due to limits hit
+Number of packets meant to be queued in OFO but dropped because socket rcvbuf
+limit reached.
+@ network.tcp.ofomerge Number of packets in OFO that were merged with other packets
+@ network.tcp.challengeack Number of challenge ACKs sent (RFC 5961 3.2)
+@ network.tcp.synchallenge Number of challenge ACKs sent in response to SYN packets
+@ network.tcp.fastopenactive Number of successful active fast opens
+@ network.tcp.fastopenactivefail Number of fast open attempts failed due to remote not accepting it or time outs
+@ network.tcp.fastopenpassive Number of successful passive fast opens
+@ network.tcp.fastopenpassivefail Number of passive fast open attempts failed
+@ network.tcp.fastopenlistenoverflow Number of times the fastopen listen queue overflowed
+@ network.tcp.fastopencookiereqd Number of fast open cookies requested
+@ network.tcp.spuriousrtxhostqueues Number of times that the fast clone is not yet freed in tcp_transmit_skb()
+@ network.tcp.busypollrxpackets Number of low latency application-fetched packets
+@ network.tcp.autocorking Number of times stack detected skb was underused and its flush was deferred
+@ network.tcp.fromzerowindowadv Number of times window went from zero to non-zero
+@ network.tcp.tozerowindowadv Number of times window went from non-zero to zero
+@ network.tcp.wantzerowindowadv Number of times zero window announced
+@ network.tcp.synretrans Number of SYN-SYN/ACK retransmits
+Number of SYN-SYN/ACK retransmits to break down retransmissions in SYN, fast/timeout
+retransmits.
+@ network.tcp.origdatasent Number of outgoing packets with original data
+Excluding retransmission but including data-in-SYN). This counter is different from
+TcpOutSegs because TcpOutSegs also tracks pure ACKs. TCPOrigDataSent is
+more useful to track the TCP retransmission rate.
+
 @ pmda.uname identity and type of current system
 Identity and type of current system.  The concatenation of the values
 returned from utsname(2), also similar to uname -a.

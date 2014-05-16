@@ -501,6 +501,23 @@ network.ip {
     fragoks		60:14:16
     fragfails		60:14:17
     fragcreates		60:14:18
+    innoroutes          60:53:00
+    intruncatedpkts     60:53:01
+    inmcastpkts         60:53:02
+    outmcastpkts        60:53:03
+    inbcastpkts         60:53:04
+    outbcastpkts        60:53:05
+    inoctets            60:53:06
+    outoctets           60:53:07
+    inmcastoctets       60:53:08
+    outmcastoctets      60:53:09
+    inbcastoctets       60:53:10
+    outbcastoctets      60:53:11
+    csumerrors          60:53:12
+    noectpkts           60:53:13
+    ect1pkts            60:53:14
+    ect0pkts            60:53:15
+    cepkts              60:53:16
 }
 
 network.icmp {
@@ -549,6 +566,108 @@ network.tcp {
     inerrs		60:14:62
     outrsts		60:14:63
     incsumerrors	60:14:64
+    syncookiessent	60:53:17
+    syncookiesrecv	60:53:18
+    syncookiesfailed	60:53:19
+    embryonicrsts	60:53:20
+    prunecalled		60:53:21
+    rcvpruned		60:53:22
+    ofopruned		60:53:23
+    outofwindowicmps	60:53:24
+    lockdroppedicmps	60:53:25
+    arpfilter		60:53:26
+    timewaited		60:53:27
+    timewaitrecycled	60:53:28
+    timewaitkilled	60:53:29
+    pawspassiverejected 60:53:30
+    pawsactiverejected	60:53:31
+    pawsestabrejected	60:53:32
+    delayedacks		60:53:33
+    delayedacklocked	60:53:34
+    delayedacklost	60:53:35
+    listenoverflows	60:53:36
+    listendrops		60:53:37
+    prequeued		60:53:38
+    directcopyfrombacklog 60:53:39
+    directcopyfromprequeue 60:53:40
+    prequeueddropped	60:53:41
+    hphits		60:53:42
+    hphitstouser	60:53:43
+    pureacks		60:53:44
+    hpacks		60:53:45
+    renorecovery	60:53:46
+    sackrecovery	60:53:47
+    sackreneging	60:53:48
+    fackreorder		60:53:49
+    sackreorder		60:53:50
+    renoreorder		60:53:51
+    tsreorder		60:53:52
+    fullundo		60:53:53
+    partialundo		60:53:54
+    dsackundo		60:53:55
+    lossundo		60:53:56
+    lostretransmit	60:53:57
+    renofailures	60:53:58
+    sackfailures	60:53:59
+    lossfailures	60:53:60
+    fastretrans		60:53:61
+    forwardretrans	60:53:62
+    slowstartretrans	60:53:63
+    timeouts		60:53:64
+    lossprobes		60:53:65
+    lossproberecovery	60:53:66
+    renorecoveryfail	60:53:67
+    sackrecoveryfail	60:53:68
+    schedulerfail	60:53:69
+    rcvcollapsed	60:53:70
+    dsackoldsent	60:53:71
+    dsackofosent	60:53:72
+    dsackrecv		60:53:73
+    dsackoforecv	60:53:74
+    abortondata		60:53:75
+    abortonclose	60:53:76
+    abortonmemory	60:53:77
+    abortontimeout	60:53:78
+    abortonlinger	60:53:79
+    abortfailed		60:53:80
+    memorypressures	60:53:81
+    sackdiscard		60:53:82
+    dsackignoredold	60:53:83
+    dsackignorednoundo	60:53:84
+    spuriousrtos	60:53:85
+    md5notfound		60:53:86
+    md5unexpected	60:53:87
+    sackshifted		60:53:88
+    sackmerged		60:53:89
+    sackshiftfallback	60:53:90
+    backlogdrop		60:53:91
+    minttldrop		60:53:92
+    deferacceptdrop	60:53:93
+    iprpfilter		60:53:94
+    timewaitoverflow	60:53:95
+    reqqfulldocookies	60:53:96
+    reqqfulldrop	60:53:97
+    retransfail		60:53:98
+    rcvcoalesce		60:53:99
+    ofoqueue		60:53:100
+    ofodrop		60:53:101
+    ofomerge		60:53:102
+    challengeack	60:53:103
+    synchallenge	60:53:104
+    fastopenactive	60:53:105
+    fastopenactivefail	60:53:106
+    fastopenpassive	60:53:107
+    fastopenpassivefail	60:53:108
+    fastopenlistenoverflow 60:53:109
+    fastopencookiereqd	60:53:110
+    spuriousrtxhostqueues 60:53:111
+    busypollrxpackets	60:53:112
+    autocorking		60:53:113
+    fromzerowindowadv	60:53:114
+    tozerowindowadv	60:53:115
+    wantzerowindowadv	60:53:116
+    synretrans		60:53:117
+    origdatasent	60:53:118
 }
 
 network.udp {

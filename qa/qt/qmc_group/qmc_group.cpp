@@ -477,8 +477,16 @@ store(char const* name, char const* inst)
 
     sprintf(buf, "pmstore %s %s > /dev/null\n", name, inst);
     cout << name << ' ' << inst << endl;
-    system(buf);
-    system("pminfo -f dynamic");
+    if (system(buf) < 0) {
+	pmprintf("%s: system(%s) failed\n", pmProgname, buf);
+	pmflush();
+	exit(1);
+    }
+    if (system("pminfo -f dynamic") < 0) {
+	pmprintf("%s: system(pminfo) failed\n", pmProgname);
+	pmflush();
+	exit(1);
+    }
 }
 
 static int msgCount = 1;

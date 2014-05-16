@@ -19,9 +19,8 @@ include $(TOPDIR)/src/include/builddefs
 
 SCRIPTS = cleanconfigs cleantmpdirs
 LSRCFILES = $(SCRIPTS) GNUlocaldefs.in
-LDIRT = $(TOPDIR)/$(PACKAGE_NAME)-$(PACKAGE_VERSION) \
-	$(TOPDIR)/$(PACKAGE_NAME)-$(PACKAGE_VERSION)-$(PACKAGE_REVISION) \
-	pack_pcp.bin pack_pro.bin pro.src deb
+LDIRT = pack_pcp.bin pack_pro.bin pro.src
+LDIRDIRT = deb $(TOPDIR)/$(PACKAGE_NAME)-?.?.?
 
 # for clean and clobber
 SUBDIRS = tar rpm mac aix sun

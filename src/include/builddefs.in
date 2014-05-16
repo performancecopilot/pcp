@@ -694,7 +694,7 @@ ifdef PCP_ALTLIBS
 ifeq ($(PCP_LIB_DIR),$(PCP_LIB32_DIR))
 PCP_ALTLIBS =
 else
-ifneq "$(findstring $(MAKECMDGOALS),clean clobber src-pcp)" ""
+ifneq "$(findstring $(MAKECMDGOALS),clean clobber)" ""
 PCP_ALTLIBS =
 endif
 endif

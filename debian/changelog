@@ -1,8 +1,16 @@
-pcp (3.9.3) unstable; urgency=low
+pcp (3.9.5) unstable; urgency=low
 
   * Under development.
+  * Ensure mmvdump is not in the source tarball (closes: #746996)
 
- -- Nathan Scott <nathans@debian.org>  Wed, 14 May 2014 00:00:00 +1000
+ -- Nathan Scott <nathans@debian.org>  Wed, 18 Jun 2014 14:24:41 +1000
+
+pcp (3.9.4) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Merges pcp and pcp-gui trees into a single git repo.
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 15 May 2014 14:24:41 +1000
 
 pcp (3.9.2) unstable; urgency=low
 
