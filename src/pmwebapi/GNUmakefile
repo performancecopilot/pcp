@@ -25,8 +25,14 @@ LDIRT = pmwebd.log pmwebd.service
 LCFLAGS += -Wextra
 LCFLAGS += $(PIECFLAGS)
 LLDFLAGS += $(PIELDFLAGS)
+ifeq "$(HAVE_CAIRO)" "true"
+LLDLIBS += $(LIB_FOR_CAIRO)
+LCFLAGS += -DHAVE_CAIRO
+endif
 
 default:	build-me
+
+$(OBJECTS): $(HFILES)
 
 include $(BUILDRULES)
 
