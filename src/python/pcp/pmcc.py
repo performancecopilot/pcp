@@ -20,9 +20,9 @@
 #
 
 import sys
-from ctypes import c_uint, c_char_p
-from pcp.pmapi import pmContext, pmErr, pmResult, LIBPCP
-from cpmapi import PM_CONTEXT_HOST, PM_INDOM_NULL, PM_IN_NULL, PM_ID_NULL
+from ctypes import c_int, c_uint, c_char_p, cast, POINTER, byref
+from pcp.pmapi import pmContext, pmErr, pmResult, LIBPCP, get_indom, pmValueSet, pmValue, pmDesc
+from cpmapi import PM_CONTEXT_HOST, PM_INDOM_NULL, PM_IN_NULL, PM_ID_NULL, PM_SPACE_BYTE, PM_TYPE_U32
 
 
 class MetricCore(object):
@@ -53,13 +53,15 @@ class Metric(object):
     # constructor
 
     def __init__(self, core):
-        self._core = core
+        self._core = core   # MetricCore
+        self._vset = None   # pmValueSet member
         self._values = None
+        self._prevvset = None
         self._prevValues = None
         self._convType = core.desc.contents.type
         self._convUnits = core.desc.contents.units
         self._errorStatus = None
-        self._netValues = None
+        self._netValues = None # (instance, name, value)
         self._netPrevValues = None
 
     ##
@@ -78,26 +80,35 @@ class Metric(object):
     def _R_help(self):
         return self._core.help
 
-    ## 
-    # instance property read methods
+    def get_vlist(self, vset, vlist_idx):
+        """ Return the vlist[vlist_idx] of vset[vset_idx] """
+        listptr = cast(vset.contents.vlist, POINTER(pmValue))
+        return listptr[vlist_idx]
+
+    def get_inst(self, vset, vlist_idx):
+        """ Return the inst for vlist[vlist_idx] of vset[vset_idx] """
+        return self.get_vlist(vset, vset_idx, vlist_idx).inst
 
     def computeValues(self, inValues):
-        """ compute value """
+        """  Extract the value for a singleton or list of instances as a triple (inst, name, val) """
         vset = inValues
         ctx = self.ctx
-        instD = ctx.mcGetInstD(self.desc.indom)
+        instD = ctx.mcGetInstD(get_indom(self.desc))
         numval = vset.numval
         valL = []
         for i in range(numval):
-            instval = vset.vlist[i].inst
-            name = instD[instval]
+            instval = self.get_vlist(vset, i)
+            try:
+                name = instD[instval.inst]
+            except KeyError:
+                name = ""
             outAtom = self.ctx.pmExtractValue(
-                     vset.valfmt, vset.vlist[i],
-                     self.desc.type, self._convType)
-            if self._convUnits:
-                outAtom = self.ctx.pmConvScale(
-                     self._convType, outAtom,
-                     self.desc.units, self._convUnits)
+                vset.valfmt, self.get_vlist(vset, i),
+                self.desc.type, self._convType)
+            # if self._convUnits:
+            #     outAtom = self.ctx.pmConvScale(
+            #          self._convType, outAtom,
+            #          self.desc.units, self._convUnits)
             value = outAtom.dref(self._convType)
             valL.append((instval, name, value))
         return valL
@@ -114,21 +125,21 @@ class Metric(object):
         return self._errorStatus
 
     def _R_netPrevValues(self):
-        if not self._prevValues:
+        if not self._prevvset:
             return None
         if type(self._netPrevValues) == type(None):
-            self._netPrevValues = self.computeValues(self._prevValues)
+            self._netPrevValues = self.computeValues(self._prevvset)
         return self._netPrevValues
     def _R_netValues(self):
-        if not self._values:
+        if not self._vset:
             return None
         if type(self._netValues) == type(None):
-            self._netValues = self.computeValues(self._values)
+            self._netValues = self.computeValues(self._vset)
         return self._netValues
 
     def _W_values(self, values):
         self._prev = self._values
-        self._values = value
+        self._values = values
         self._netPrev = self._netValue
         self._netValue = None
     def _W_convType(self, value):
@@ -154,7 +165,6 @@ class Metric(object):
     netPrevValues = property(_R_netPrevValues, None, None, None)
 
     def metricPrint(self):
-        print self.ctx.pmIDStr(self.pmid), self.name
         indomstr = self.ctx.pmInDomStr(self.desc.indom)
         print "   ", "indom:", indomstr
         instD = self.ctx.mcGetInstD(self.desc.indom)
@@ -185,15 +195,17 @@ class MetricCache(pmContext):
     # methods
   
     def mcGetInstD(self, indom):
+        """ Query the instance : instance_list dictionary """
         return self._mcIndomD[indom]
 
     def _mcAdd(self, core):
+        """ Update the dictionary """
         indom = core.desc.contents.indom
         if not self._mcIndomD.has_key(indom):
-            if indom == PM_INDOM_NULL:
+            if c_int(indom).value == c_int(PM_INDOM_NULL).value:
                 instmap = { PM_IN_NULL : "PM_IN_NULL" }
             else:
-                instL, nameL = self.pmGetInDom(indom)
+                instL, nameL = self.pmGetInDom(core.desc)
                 instmap = dict(zip(instL, nameL))
             self._mcIndomD.update({indom: instmap})
 
@@ -201,6 +213,7 @@ class MetricCache(pmContext):
         self._mcByPmidD.update({core.pmid: core})
 
     def mcGetCoresByName(self, nameL):
+        """ Update the core (metric id, description,...) list """
         coreL = []
         missD = None
         errL = None
@@ -225,7 +238,7 @@ class MetricCache(pmContext):
                         errL = []
                     errL.append(name)
                 else:
-                    # create core
+                    # create core pmDesc
                     newcore = self._mcCreateCore(name, pmid)
                     # update core ref in return list
                     coreL[missD[name]] = newcore
@@ -233,6 +246,7 @@ class MetricCache(pmContext):
         return coreL, errL
     
     def _mcCreateCore(self, name, pmid):
+        """ Update the core description """
         newcore = MetricCore(self, name, pmid)
         try:
             newcore.desc = self.pmLookupDesc(pmid)
@@ -244,7 +258,7 @@ class MetricCache(pmContext):
         return newcore
 
     def mcFetchPmids(self, nameL):
-        # note: some names have identical pmids
+        """ Update the core metric ids.  note: some names have identical pmids """
         errL = None
         nameA = (c_char_p * len(nameL))()
         for index, name in enumerate(nameL):
@@ -318,6 +332,7 @@ class MetricGroup(dict):
     # methods
 
     def mgAdd(self, nameL):
+        """ Create the list of Metric(s) """
         coreL, errL = self._ctx.mcGetCoresByName(nameL)
         for core in coreL:
             metric = Metric(core)
@@ -329,15 +344,16 @@ class MetricGroup(dict):
             self._pmidArray[x] = c_uint(self[key].pmid)
 
     def mgFetch(self):
-        # fetch the metric values
+        """ Fetch the list of Metric values.  Save the old value.  """
         try:
             self.result = self._ctx.pmFetch(self._pmidArray)
             # update the result entries in each metric
             result = self.result.contents
-            for i in range(result.numpmid):
-                pmid = result.get_pmid(i)
-                vset = result.get_vset(i)
-                self._altD[pmid].vset = vset
+            for i in range(self.result.contents.numpmid):
+                pmid = self.result.contents.get_pmid(i)
+                vset = self.result.contents.get_vset(i)
+                self._altD[pmid]._prevvset = self._altD[pmid]._vset
+                self._altD[pmid]._vset = vset
         except pmErr, error:
             print "pmFetch: ", error
 
@@ -360,5 +376,3 @@ class MetricGroupManager(dict, MetricCache):
             raise KeyError, "metric group with that key already exists"
         else:
             dict.__setitem__(self, attr, MetricGroup(self, inL = value))
-    
-
