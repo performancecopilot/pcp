@@ -943,6 +943,8 @@ avahi
 972 pmda.zswap dbpmda local oss
 973 pmda.zswap pmda.install local oss
 978 libpcp sanity local oss
+979 python local oss
+980 python local oss
 991 python local oss
 994 other verify oss
 1001 pmchart local
