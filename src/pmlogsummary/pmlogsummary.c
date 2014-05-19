@@ -1085,7 +1085,7 @@ main(int argc, char *argv[])
 	}
     }
 
-    if (opts.optind >= argc) {
+    if (!opts.errors && opts.optind >= argc) {
 	pmprintf("Error: no archive specified\n\n");
 	opts.errors++;
     }
