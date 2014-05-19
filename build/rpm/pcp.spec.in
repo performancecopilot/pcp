@@ -518,7 +518,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'collectl2pcp' >import_collectl2pcp_fil
 %if "@pmda_infiniband@" == "infiniband"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'infiniband|pmdaib|pmdas/ib' >pmda_infiniband_files
 %endif
-touch webapi_files manager_files pmda_infiniband_files
+touch gui_files webapi_files manager_files pmda_infiniband_files
 
 rm -f *_files.rpm
 sort -u $DIST_MANIFEST | $PCP_AWK_PROG ' 
