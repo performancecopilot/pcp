@@ -1,0 +1,26 @@
+#!/bin/sh
+# PCP QA Test No. 701
+# Exercise fix for pmlogcheck segv with certain inputs.
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pmlogcheck $here/src/ace_v2
+echo "Silence is golden"
+
+# success, all done
+status=0
+exit
