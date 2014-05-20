@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014, Red Hat.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * Copyright (c) 2007-2009, Aconex.  All Rights Reserved.
  * 
@@ -23,6 +23,7 @@
 #define DESPERATE 0
 
 int Cflag;
+int Hflag;
 int Lflag;
 int Wflag;
 char *outfile;
@@ -37,45 +38,20 @@ GroupControl *activeGroup;	// currently active metric fetchgroup
 TimeControl *pmtime;		// one timecontrol class for pmtime
 PmChart *pmchart;
 
-static const char *options = "A:a:Cc:D:f:F:g:h:H:Lo:n:O:p:s:S:T:t:Vv:WzZ:?";
-
-static void usage(void)
-{
-    pmprintf("Usage: %s [options] [sources]\n\n"
-"Options:\n"
-"  -A align      align sample times on natural boundaries\n"
-"  -a archive    add PCP log archive to metrics source list\n"
-"  -c configfile initial view to load\n"
-"  -C            with -c, parse config, report any errors and exit\n"
-"  -CC           like -C, but also connect to pmcd to check semantics\n"
-"  -F fontsize   use font of given size [default: %d]\n"
-"  -f font       use font family [default: %s]\n"
-"  -g geometry   image geometry Width x Height (WxH)\n"
-"  -H hostfile   setup a list of saved hosts for sourcing metrics\n"
-"  -h host       add host to list of live metrics sources\n"
-"  -L            directly fetch metrics from localhost, PMCD is not used\n"
-"  -n pmnsfile   use an alternative PMNS\n"
-"  -O offset     initial offset into the time window\n"
-"  -o outfile    export image to outfile\n"
-"  -p port       port name for connection to existing time control\n"
-"  -S starttime  start of the time window\n"
-"  -s samples    sample history [default: %d points]\n"
-"  -T endtime    end of the time window\n"
-"  -t interval   sample interval [default: %d seconds]\n"
-"  -V            display pmchart version number and exit\n"
-"  -v visible    visible history [default: %d points]\n"
-"  -W            export images using an opaque (white) background\n"
-"  -Z timezone   set reporting timezone\n"
-"  -z            set reporting timezone to local time of metrics source\n",
-	pmProgname,
-	PmChart::defaultFontSize(),
-	PmChart::defaultFontFamily(),
-	PmChart::defaultSampleHistory(),
-	(int)PmChart::defaultChartDelta(),
-	PmChart::defaultVisibleHistory());
-    pmflush();
-    exit(1);
-}
+static pmLongOptions longopts[] = {
+    PMAPI_GENERAL_OPTIONS,
+    PMAPI_OPTIONS_HEADER("Reporting options"),
+    { "view", 1, 'c', "VIEW", "chart view(s) to load on startup" },
+    { "check", 0, 'C', 0, "with -c, parse config, report any errors and exit" },
+    { "font-size", 1, 'F', "SIZE", "use font of given size" },
+    { "font-family", 1, 'f', "FONT", "use font family" },
+    { "geometry", 1, 'g', "WxH", "image geometry Width x Height" },
+    { "output", 1, 'o', "FILE", "export image to FILE (type from suffix)" },
+    { "samples", 1, 's', "N", "buffer up N points of sample history" },
+    { "visible", 1, 'v', "N", "display N points of visible history" },
+    { "white", 0, 'W', 0, "export images using an opaque (white) background" },
+    PMAPI_OPTIONS_END
+};
 
 // a := a + b for struct timevals
 void tadd(struct timeval *a, struct timeval *b)
@@ -287,7 +263,7 @@ void checkHistory(int samples, int visible)
     }
 }
 
-void readSettings(void)
+static void readSettings(void)
 {
     QSettings userSettings;
     userSettings.beginGroup(pmProgname);
@@ -400,7 +376,7 @@ void readSettings(void)
     userSettings.endGroup();
 }
 
-void readSchemes(void)
+static void readSchemes(void)
 {
     QChar sep(__pmPathSeparator());
     QString schemes = pmGetConfig("PCP_VAR_DIR");
@@ -434,7 +410,7 @@ QColor nextColor(QString scheme, int *sequence)
     return colorList.at(seq);
 }
 
-void setupViewGlobals()
+static void setupViewGlobals()
 {
     int w, h, points, x, y;
 
@@ -457,223 +433,129 @@ void setupViewGlobals()
     }
 }
 
+static int
+override(int opt, pmOptions *opts)
+{
+    (void)opts;
+    if (opt == 'g')
+        return 1;
+    if (opt == 'H')
+	Hflag = 1;
+    if (opt == 'L')
+	Lflag = 1;
+    return 0;
+}
+
 int
 main(int argc, char ** argv)
 {
     int			c, sts;
-    int			errflg = 0;
-    char		*endnum, *msg;
-    char		*pmnsfile = NULL;	/* local namespace file */
-    char		*Sflag = NULL;		/* argument of -S flag */
-    char		*Tflag = NULL;		/* argument of -T flag */
-    char		*Aflag = NULL;		/* argument of -A flag */
-    char		*Oflag = NULL;		/* argument of -O flag */
-    char		*tz = NULL;		/* for -Z timezone */
-    int			zflag = 0;		/* for -z (source zone) */
     int			sh = -1;		/* sample history length */
     int			vh = -1;		/* visible history length */
-    int			port = -1;		/* pmtime port number */
-    struct timeval	delta;
-    struct timeval	origin;
+    char		*endnum;
+    Tab			*tab;
     struct timeval	logStartTime;
     struct timeval	logEndTime;
-    struct timeval	realStartTime;
-    struct timeval	realEndTime;
-    struct timeval	position;
-    Tab			*tab;
-    QStringList		hosts;
-    QStringList		archives;
     QStringList		configs;
     QString		tzLabel;
     QString		tzString;
+    pmOptions		opts;
 
-    __pmtimevalNow(&origin);
+    __pmtimevalNow(&opts.origin);
     __pmSetProgname(argv[0]);
     QApplication a(argc, argv);
     setupEnvironment();
     readSettings();
 
-    fromsec(globalSettings.chartDelta, &delta);
+    memset(&opts, 0, sizeof(opts));
+    opts.flags = PM_OPTFLAG_MULTI | PM_OPTFLAG_MIXED;
+    opts.short_options = "A:a:Cc:D:f:F:g:h:H:Ln:o:O:p:s:S:T:t:Vv:WzZ:?";
+    opts.long_options = longopts;
+    opts.short_usage = "[options] [sources]";
+    opts.override = override;
 
-    tab = new Tab;
-    liveGroup = new GroupControl();
-    archiveGroup = new GroupControl();
 
-    while ((c = getopt(argc, argv, options)) != EOF) {
+    while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
-
-	case 'A':	/* sample alignment */
-	    Aflag = optarg;
-	    break;
-
-	case 'a':
-	    archives.append(optarg);
-	    break;
 
 	case 'C':
 	    Cflag++;
 	    break;
 
 	case 'c':
-	    configs.append(optarg);
-	    break;
-
-	case 'D':
-	    sts = __pmParseDebug(optarg);
-	    if (sts < 0) {
-		pmprintf("%s: unrecognized debug flag specification (%s)\n",
-			pmProgname, optarg);
-		errflg++;
-	    } else
-		pmDebug |= sts;
+	    configs.append(opts.optarg);
 	    break;
 
 	case 'f':
-	    globalSettings.fontFamily = optarg;
+	    globalSettings.fontFamily = opts.optarg;
 	    break;
 
 	case 'F':
-	    sts = (int)strtol(optarg, &endnum, 10);
+	    sts = (int)strtol(opts.optarg, &endnum, 10);
 	    if (*endnum != '\0' || c < 0) {
 		pmprintf("%s: -F requires a numeric argument\n", pmProgname);
-		errflg++;
+		opts.errors++;
 	    } else {
 		globalSettings.fontSize = sts;
 	    }
 	    break;
 
 	case 'g':
-	    outgeometry = optarg;
-	    break;
-
-	case 'h':
-	    hosts.append(optarg);
-	    break;
-
-	case 'H': {
-	    QFile file(optarg);
-	    if (!file.open(QIODevice::ReadOnly)) {
-		pmprintf("Cannot open hosts files %s: %s", optarg,
-			 (const char *)file.errorString().toAscii());
-		errflg++;
-	    } else {
-		QTextStream in(&file);
-		while (!in.atEnd()) {
-		    globalSettings.savedHosts.append(in.readLine().trimmed());
-		    globalSettings.savedHostsModified = true;
-		}
-		file.close();
-	    }
-	    break;
-	}
-
-#ifdef PM_USE_CONTEXT_LOCAL
-	case 'L':		/* local context */
-	    Lflag = 1;
-	    break;
-#endif
-
-	case 'n':		/* alternative PMNS */
-	    pmnsfile = optarg;
+	    outgeometry = opts.optarg;
 	    break;
 
 	case 'o':		/* output image file */
-	    outfile = optarg;
-	    break;
-
-	case 'O':		/* sample offset */
-	    Oflag = optarg;
-	    break;
-
-	case 'p':		/* existing pmtime port */
-	    port = (int)strtol(optarg, &endnum, 10);
-	    if (*endnum != '\0' || c < 0) {
-		pmprintf("%s: -p requires a numeric argument\n", pmProgname);
-		errflg++;
-	    }
-	    break;
-
-	case 's':		/* sample history */
-	    sh = (int)strtol(optarg, &endnum, 10);
-	    if (*endnum != '\0' || sh < 1) {
-		pmprintf("%s: -s requires a numeric argument, larger than 1\n",
-			 pmProgname);
-		errflg++;
-	    }
-	    break;
-
-	case 'S':		/* start run time */
-	    Sflag = optarg;
-	    break;
-
-	case 't':		/* sampling interval */
-	    if (pmParseInterval(optarg, &delta, &msg) < 0) {
-		pmprintf("%s: cannot parse interval\n%s", pmProgname, msg);
-		free(msg);
-		errflg++;
-	    }
-	    break;
-
-	case 'T':		/* run time */
-	    Tflag = optarg;
+	    outfile = opts.optarg;
 	    break;
 
 	case 'W':		/* white image background */
 	    Wflag = 1;
 	    break;
 
-	case 'v':		/* vertical history */
-	    vh = (int)strtol(optarg, &endnum, 10);
+	case 'v':		/* visible history */
+	    vh = (int)strtol(opts.optarg, &endnum, 10);
 	    if (*endnum != '\0' || vh < 1) {
 		pmprintf("%s: -v requires a numeric argument, larger than 1\n",
 			 pmProgname);
-		errflg++;
+		opts.errors++;
 	    }
 	    break;
-
-	case 'V':		/* version */
-	    printf("%s %s\n", pmProgname, pmGetConfig("PCP_VERSION"));
-	    exit(0);
-
-	case 'z':		/* timezone from host */
-	    if (tz != NULL) {
-		pmprintf("%s: at most one of -Z and/or -z allowed\n",
-			pmProgname);
-		errflg++;
-	    }
-	    zflag++;
-	    break;
-
-	case 'Z':		/* $TZ timezone */
-	    if (zflag) {
-		pmprintf("%s: at most one of -Z and/or -z allowed\n",
-			pmProgname);
-		errflg++;
-	    }
-	    tz = optarg;
-	    break;
-
-	case '?':
-	default:
-	    usage();
 	}
     }
 
-    if (archives.size() > 0)
-	while (optind < argc)
-	    archives.append(argv[optind++]);
-    else {
-	hosts = globalSettings.savedHosts + hosts;
-	while (optind < argc)
-	    hosts.append(argv[optind++]);
+    /* hosts from a Hosts file are added to the SavedHosts list */
+    if (Hflag) {
+	for (int i = 0; i < opts.nhosts; i++)
+	    globalSettings.savedHosts.append(opts.hosts[i]);
+	globalSettings.savedHostsModified = true;
     }
 
-    if (optind != argc)
-	errflg++;
-    if (errflg)
-	usage();
+    if (opts.narchives > 0) {
+	while (opts.optind < argc)
+	    __pmAddOptArchive(&opts, argv[opts.optind++]);
+    } else {
+	if (!Hflag) {
+	    for (c = 0; c < globalSettings.savedHosts.size(); c++) {
+		const QString &host = globalSettings.savedHosts.at(c);
+		__pmAddOptHost(&opts, (char *)(const char *)host.toAscii());
+	    }
+	}
+	while (opts.optind < argc)
+	    __pmAddOptHost(&opts, argv[opts.optind++]);
+    }
 
-    console = new Console(origin);
+    if (opts.optind != argc)
+	opts.errors++;
+    if (opts.errors) {
+	pmUsageMessage(&opts);
+	exit(1);
+    }
+
+    /* set initial sampling interval from command line, else global setting */
+    if (opts.interval.tv_sec == 0 && opts.interval.tv_usec == 0)
+	fromsec(globalSettings.chartDelta, &opts.interval);
+
+    console = new Console(opts.origin);
 
     //
     // Deal with user requested sample/visible points globalSettings.  These
@@ -681,6 +563,7 @@ main(int argc, char ** argv)
     // of pmchart.  They should not be written though, unless requested
     // later via the Settings dialog.
     //
+    sh = opts.samples ? opts.samples : -1;
     if (vh != -1 || sh != -1) {
 	if (sh == -1)
 	    sh = globalSettings.sampleHistory;
@@ -698,43 +581,38 @@ main(int argc, char ** argv)
     }
     console->post("Global settings setup complete");
 
-    if (pmnsfile && (sts = pmLoadNameSpace(pmnsfile)) < 0) {
-	pmprintf("%s: %s\n", pmProgname, pmErrStr(sts));
-	pmflush();
-	exit(1);
-    }
-
     // Create all of the sources
+    liveGroup = new GroupControl();
+    archiveGroup = new GroupControl();
     if (Lflag)
 	liveGroup->use(PM_CONTEXT_LOCAL, QmcSource::localHost);
-    for (c = 0; c < hosts.size(); c++) {
-	if (liveGroup->use(PM_CONTEXT_HOST, hosts[c]) < 0)
-	    hosts.removeAt(c--);
-    }
-    for (c = 0; c < archives.size(); c++) {
-	if (archiveGroup->use(PM_CONTEXT_ARCHIVE, archives[c]) < 0)
-	    archives.removeAt(c--);
-    }
-    if (!Lflag && hosts.size() == 0 && archives.size() == 0)
+    sts = opts.nhosts + opts.narchives;
+    for (c = 0; c < opts.nhosts; c++)
+	if (liveGroup->use(PM_CONTEXT_HOST, opts.hosts[c]) < 0)
+	    sts--;
+    for (c = 0; c < opts.narchives; c++)
+	if (archiveGroup->use(PM_CONTEXT_ARCHIVE, opts.archives[c]) < 0)
+	    sts--;
+    if (Lflag == 0 && sts == 0)
 	liveGroup->createLocalContext();
     pmflush();
     console->post("Metric group setup complete (%d hosts, %d archives)",
-			hosts.size(), archives.size());
+			opts.nhosts, opts.narchives);
 
-    if (zflag) {
-	if (archives.size() > 0)
+    if (opts.tzflag) {
+	if (opts.narchives > 0)
 	    archiveGroup->useTZ();
-	if (hosts.size() > 0)
+	if (opts.nhosts > 0)
 	    liveGroup->useTZ();
     }
-    else if (tz != NULL) {
-	if (archives.size() > 0)
-	    archiveGroup->useTZ(QString(tz));
-	if (hosts.size() > 0)
-	    liveGroup->useTZ(QString(tz));
-	if ((sts = pmNewZone(tz)) < 0) {
+    else if (opts.timezone != NULL) {
+	if (opts.narchives > 0)
+	    archiveGroup->useTZ(QString(opts.timezone));
+	if (opts.nhosts > 0)
+	    liveGroup->useTZ(QString(opts.timezone));
+	if ((sts = pmNewZone(opts.timezone)) < 0) {
 	    pmprintf("%s: cannot set timezone to \"%s\": %s\n",
-		    pmProgname, (char *)tz, pmErrStr(sts));
+		    pmProgname, (char *)opts.timezone, pmErrStr(sts));
 	    pmflush();
 	    exit(1);
 	}
@@ -747,37 +625,39 @@ main(int argc, char ** argv)
     // set in that mode too.  Later we'll make a second connection
     // in the other mode (and only "on-demand").
     //
-    if (archives.size() > 0) {
+    if (opts.narchives > 0) {
 	archiveGroup->defaultTZ(tzLabel, tzString);
 	archiveGroup->updateBounds();
 	logStartTime = archiveGroup->logStart();
 	logEndTime = archiveGroup->logEnd();
-	if ((sts = pmParseTimeWindow(Sflag, Tflag, Aflag, Oflag,
-				     &logStartTime, &logEndTime,
-				     &realStartTime, &realEndTime,
-				     &position, &msg)) < 0) {
-	    pmprintf("Cannot parse archive time window\n%s\n", msg);
-	    free(msg);
-	    usage();
+	if ((sts = pmParseTimeWindow(opts.start_optarg, opts.finish_optarg,
+					opts.align_optarg, opts.origin_optarg,
+					&logStartTime, &logEndTime, &opts.start,
+					&opts.finish, &opts.origin, &endnum)) < 0) {
+	    pmprintf("Cannot parse archive time window\n%s\n", endnum);
+	    pmUsageMessage(&opts);
+	    free(endnum);
+	    exit(1);
 	}
 	// move position to account for initial visible points
-	if (tcmp(&position, &realStartTime) <= 0)
+	if (tcmp(&opts.origin, &opts.start) <= 0)
 	    for (c = 0; c < globalSettings.visibleHistory - 2; c++)
-		tadd(&position, &delta);
-	if (tcmp(&position, &realEndTime) > 0)
-	    position = realEndTime;
+		tadd(&opts.origin, &opts.interval);
+	if (tcmp(&opts.origin, &opts.finish) > 0)
+	    opts.origin = opts.finish;
     }
     else {
 	liveGroup->defaultTZ(tzLabel, tzString);
 	__pmtimevalNow(&logStartTime);
 	logEndTime.tv_sec = logEndTime.tv_usec = INT_MAX;
-	if ((sts = pmParseTimeWindow(Sflag, Tflag, Aflag, Oflag,
-					&logStartTime, &logEndTime,
-					&realStartTime, &realEndTime,
-					&position, &msg)) < 0) {
-	    pmprintf("Cannot parse live time window\n%s\n", msg);
-	    free(msg);
-	    usage();
+	if ((sts = pmParseTimeWindow(opts.start_optarg, opts.finish_optarg,
+					opts.align_optarg, opts.origin_optarg,
+					&logStartTime, &logEndTime, &opts.start,
+					&opts.finish, &opts.origin, &endnum)) < 0) {
+	    pmprintf("Cannot parse live time window\n%s\n", endnum);
+	    pmUsageMessage(&opts);
+	    free(endnum);
+	    exit(1);
 	}
     }
     console->post("Timezones and time window setup complete");
@@ -788,14 +668,17 @@ main(int argc, char ** argv)
     if (globalSettings.fontStyle.contains("Bold"))
 	globalFont->setBold(true);
 
+    tab = new Tab;
     fileIconProvider = new FileIconProvider();
+
     pmchart = new PmChart;
     pmtime = new TimeControl;
+
     console->post("Phase1 user interface constructors complete");
 
     // Start pmtime process for time management
-    pmtime->init(port, archives.size() == 0, &delta, &position,
-		 &realStartTime, &realEndTime, tzString, tzLabel);
+    pmtime->init(opts.guiport, opts.narchives == 0, &opts.interval, &opts.origin,
+		 &opts.start, &opts.finish, tzString, tzLabel);
 
     pmchart->init();
     liveGroup->init(globalSettings.sampleHistory,
@@ -807,9 +690,9 @@ main(int argc, char ** argv)
 
     //
     // We setup the pmchart tab list late, so we don't have to deal
-    // with kmtime messages reaching the Tabs until we're all setup.
+    // with pmtime messages reaching the Tabs until we're all setup.
     //
-    if (archives.size() == 0)
+    if (opts.narchives == 0)
 	tab->init(pmchart->tabWidget(), liveGroup, "Live");
     else
 	tab->init(pmchart->tabWidget(), archiveGroup, "Archive");
@@ -820,8 +703,8 @@ main(int argc, char ** argv)
     readSchemes();
     for (c = 0; c < configs.size(); c++)
 	if (!OpenViewDialog::openView((const char *)configs[c].toAscii()))
-	    errflg++;
-    if (errflg)
+	    opts.errors++;
+    if (opts.errors)
 	exit(1);
     setupViewGlobals();
     pmflush();

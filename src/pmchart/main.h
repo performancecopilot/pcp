@@ -75,7 +75,6 @@ typedef struct {
 } Settings;
 
 extern Settings globalSettings;
-extern void readSettings();
 extern void writeSettings();
 extern QColor nextColor(QString, int *);
 
