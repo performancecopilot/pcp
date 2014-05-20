@@ -355,6 +355,11 @@ docheck(pmResult *result)
 			continue;
 		    }
 		}
+		if (k >= checkdata->listsize) {	/* only error values observed so far */
+		    k = checkdata->listsize;
+		    newHashInst(vp, checkdata, vsp->valfmt, &result->timestamp, k);
+		    continue;
+		}
 
 		timediff = result->timestamp;
 		tsub(&timediff, &(checkdata->instlist[k]->lasttime));
@@ -449,7 +454,7 @@ main(int argc, char *argv[])
 	}
     }
 
-    if (opts.optind >= argc) {
+    if (!opts.errors && opts.optind >= argc) {
 	pmprintf("Error: no archive specified\n\n");
 	opts.errors++;
     }

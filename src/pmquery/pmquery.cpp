@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -14,8 +15,8 @@
 #include "pmquery.h"
 
 #define max(a,b) ((a)>(b)?(a):(b))
-#define DEFAULT_EDIT_WIDTH	420	/* in units of pixels */
-#define DEFAULT_EDIT_HEIGHT	160	/* only for usesliderflag */
+#define DEFAULT_EDIT_WIDTH	640	/* in units of pixels */
+#define DEFAULT_EDIT_HEIGHT	320	/* only for usesliderflag */
 
 enum icontypes {
     INFO_ICON,
@@ -227,7 +228,11 @@ PmQuery::PmQuery(bool inputflag, bool printflag, bool noframeflag,
 	vboxLayout1->addWidget(lineEdit);
     }
     else {
+	QFont	fixed("monospace");
+	fixed.setStyleHint(QFont::TypeWriter);
+
 	textEdit = new QTextEdit(this);
+	textEdit->setFont(fixed);
 	textEdit->setLineWrapMode(QTextEdit::FixedColumnWidth);
 	textEdit->setLineWrapColumnOrWidth(80);
 	textEdit->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -260,6 +265,8 @@ PmQuery::PmQuery(bool inputflag, bool printflag, bool noframeflag,
 	textEdit->setMinimumSize(QSize(width, height));
 	textEdit->setSizePolicy(QSizePolicy::MinimumExpanding,
 				QSizePolicy::MinimumExpanding);
+	textEdit->moveCursor(QTextCursor::Start);
+	textEdit->ensureCursorVisible();
 	vboxLayout1->addWidget(textEdit);
     }
 

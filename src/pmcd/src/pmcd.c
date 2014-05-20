@@ -25,6 +25,7 @@
 #define TO_STRING(s)	STRINGIFY(s)
 
 static char	*FdToString(int);
+static void	ResetBadHosts(void);
 
 int		AgentDied;		/* for updating mapdom[] */
 static int	timeToDie;		/* For SIGINT handling */
@@ -484,7 +485,7 @@ SignalShutdown(void)
     exit(0);
 }
 
-void
+static void
 SignalRestart(void)
 {
     time_t	now;
@@ -497,7 +498,7 @@ SignalRestart(void)
     ParseRestartAgents(configFileName);
 }
 
-void
+static void
 SignalReloadPMNS(void)
 {
     int sts;
@@ -741,7 +742,7 @@ ClientLoop(void)
 }
 
 #ifdef HAVE_SA_SIGINFO
-void
+static void
 SigIntProc(int sig, siginfo_t *sip, void *x)
 {
     killer_sig = sig;
@@ -751,30 +752,38 @@ SigIntProc(int sig, siginfo_t *sip, void *x)
     }
     timeToDie = 1;
 }
+#elif IS_MINGW
+static void
+SigIntProc(int sig)
+{
+    SignalShutdown();
+}
 #else
-void SigIntProc(int sig)
+static void
+SigIntProc(int sig)
 {
     killer_sig = sig;
-#ifndef IS_MINGW
     signal(SIGINT, SigIntProc);
     signal(SIGTERM, SigIntProc);
     timeToDie = 1;
-#else
-    SignalShutdown();
-#endif
 }
 #endif
 
-void SigHupProc(int s)
+#ifdef IS_MINGW
+static void
+SigHupProc(int sig)
 {
-#ifndef IS_MINGW
-    signal(SIGHUP, SigHupProc);
-    restart = 1;
-#else
     SignalRestart();
     SignalReloadPMNS();
-#endif
 }
+#else
+static void
+SigHupProc(int sig)
+{
+    signal(SIGHUP, SigHupProc);
+    restart = 1;
+}
+#endif
 
 #if HAVE_TRACE_BACK_STACK
 /*
@@ -798,13 +807,13 @@ do_traceback(FILE *f)
     for (i = 0; i < MAX_PCS; i++)
 	call_fn[i] = names[i];
     res = trace_back_stack(MAX_PCS, call_addr, call_fn, MAX_PCS, MAX_SIZE);
-    for (i = 1; i < res; i++)
+    for (i = 1; i < res; i++) {
 #if defined(HAVE_64BIT_PTR)
 	fprintf(f, "  0x%016llx [%s]\n", call_addr[i], call_fn[i]);
 #else
 	fprintf(f, "  0x%08lx [%s]\n", (__uint32_t)call_addr[i], call_fn[i]);
 #endif
-    return;
+    }
 }
 #endif /* HAVE_TRACE_BACK_STACK */
 
@@ -830,19 +839,18 @@ do_traceback(FILE *f)
     if (symbols == NULL) {
 	fprintf(f, "backtrace_symbols failed!\n");
 	return;
-
     }
     for (i = 1; i < nframe; i++)
 	fprintf(f, "  " PRINTF_P_PFX "%p [%s]\n", buf[i], symbols[i]);
-
-    return;
 }
 #endif /* HAVE_BACKTRACE */
 
-void SigBad(int sig)
+static void
+SigBad(int sig)
 {
-    __pmNotifyErr(LOG_ERR, "Unexpected signal %d ...\n", sig);
     if (pmDebug & DBG_TRACE_DESPERATE) {
+	__pmNotifyErr(LOG_ERR, "Unexpected signal %d ...\n", sig);
+
 	/* -D desperate on the command line to enable traceback,
 	 * if we have platform support for it
 	 */
@@ -852,9 +860,9 @@ void SigBad(int sig)
 #else
 	fprintf(stderr, "\nSorry, no procedure call traceback support ...\n");
 #endif
+	fprintf(stderr, "\nDumping to core ...\n");
+	fflush(stderr);
     }
-    fprintf(stderr, "\nDumping to core ...\n");
-    fflush(stderr);
     abort();
 }
 
@@ -999,7 +1007,7 @@ AddBadHost(struct __pmSockAddr *hostId)
     return 1;
 }
 
-void
+static void
 ResetBadHosts(void)
 {
     if (szBadHosts) {

@@ -394,24 +394,30 @@ ClientLoop(void)
     }
 }
 
+#ifdef IS_MINGW
 static void
 SigIntProc(int s)
 {
-#ifdef IS_MINGW
     SignalShutdown();
+}
 #else
+static void
+SigIntProc(int s)
+{
     signal(SIGINT, SigIntProc);
     signal(SIGTERM, SigIntProc);
     timeToDie = 1;
-#endif
 }
+#endif
 
 static void
 SigBad(int sig)
 {
-    __pmNotifyErr(LOG_ERR, "Unexpected signal %d ...\n", sig);
-    fprintf(stderr, "\nDumping to core ...\n");
-    fflush(stderr);
+    if (pmDebug & DBG_TRACE_DESPERATE) {
+	__pmNotifyErr(LOG_ERR, "Unexpected signal %d ...\n", sig);
+	fprintf(stderr, "\nDumping to core ...\n");
+	fflush(stderr);
+    }
     abort();
 }
 

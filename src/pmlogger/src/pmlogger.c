@@ -29,6 +29,7 @@ __int64_t	vol_switch_bytes = -1;   /* number of bytes 'til vol switch */
 struct timeval	vol_switch_time;         /* time interval 'til vol switch */
 int		vol_samples_counter;     /* Counts samples - reset for new vol*/
 int		vol_switch_afid = -1;    /* afid of event for vol switch */
+int		vol_switch_flag;         /* sighup received - switch vol now */
 int		parse_done;
 int		primary;		/* Non-zero for primary pmlogger */
 char	    	*archBase;		/* base name for log files */
@@ -916,9 +917,9 @@ main(int argc, char **argv)
 	__pmFD_COPY(&readyfds, &fds);
 	nready = __pmSelectRead(numfds, &readyfds, NULL);
 
+	/* block signals to simplify IO handling */
+	__pmAFblock();
 	if (nready > 0) {
-	    /* block signals to simplify IO handling */
-	    __pmAFblock();
 
 	    /* handle request on control port */
 	    for (i = 0; i < CFD_NUM; ++i) {
@@ -1047,13 +1048,16 @@ main(int argc, char **argv)
 		    do_dialog('X');
 		}
 	    }
-
-	    __pmAFunblock();
+	}
+	else if (vol_switch_flag) {
+	    newvolume(VOL_SW_SIGHUP);
+	    vol_switch_flag = 0;
 	}
 	else if (nready < 0 && neterror() != EINTR)
 	    fprintf(stderr, "Error: select: %s\n", netstrerror());
-    }
 
+	__pmAFunblock();
+    }
 }
 
 

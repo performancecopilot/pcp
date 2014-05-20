@@ -35,7 +35,6 @@
 . $PCP_SHARE_DIR/lib/rc-proc.sh
 
 PMIECTRL=$PCP_PMIECONTROL_PATH
-RUNDIR=$PCP_LOG_DIR/pmie
 pmprog=$PCP_RC_DIR/pmie
 prog=$PCP_RC_DIR/`basename $0`
 
@@ -219,15 +218,6 @@ case "$1" in
 	then
 	    if is_chkconfig_on pmie
 	    then
-		if [ ! -d "$RUNDIR" ]
-		then
-		    # Should not happen, but needs to match permissions
-		    # from package, as defined in src/pmie/GNUmakefile
-		    #
-		    mkdir -p -m 775 "$RUNDIR"
-		    chown $PCP_USER:$PCP_GROUP "$RUNDIR"
-		fi
-		cd $RUNDIR
 		if which pmie_check >/dev/null 2>&1
 		then
 		    if [ ! -f $PMIECTRL ]

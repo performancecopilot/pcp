@@ -37,7 +37,6 @@
 . $PCP_SHARE_DIR/lib/rc-proc.sh
 
 PMLOGCTRL=$PCP_PMLOGGERCONTROL_PATH
-RUNDIR=$PCP_LOG_DIR/pmcd
 PMLOGGER=$PCP_BINADM_DIR/pmlogger
 prog=$PCP_RC_DIR/`basename $0`
 

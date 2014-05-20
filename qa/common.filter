@@ -120,6 +120,7 @@ _filter_pmlogger_log()
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]$/DATE/' \
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
 	-e 's/pmlogger([1-9][0-9]*) Error:/pmlogger(PID) Error:/' \
+	-e '/^pmlogger: Signalled (signal=[1-9][0-9]*).*/d' \
         -e '/^\(Log for pmlogger on\) [^ ][^ ]*/s//\1 HOST/' \
 	-e '/^Starting logger/s/host ".*/host "HOST"/' \
 	-e '/^Archive basename: /s/:.*/: ARCHIVE/' \
@@ -135,6 +136,7 @@ _filter_pmie_log()
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/TIMESTAMP/' \
 	-e '/^\(Log for pmie on\) [^ ][^ ]*/s//\1 HOST/' \
 	-e 's/^pmie: PID = [0-9][0-9]*, default host = .*/pmie: PID,HOST/g' \
+	-e '/pmie(.*) Info: pmie caught SIGINT or SIGTERM/d' \
 	-e '/pmie([0-9][0-9]*)/s//pmie(PID)/' \
 	-e '/^pmie: /s/- on line/- near line/'
 }

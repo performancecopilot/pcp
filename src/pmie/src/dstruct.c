@@ -2,7 +2,7 @@
  * dstruct.c - central data structures and associated operations
  ***********************************************************************
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -68,6 +68,7 @@ int		isdaemon;			/* run as a daemon */
 int		agent;				/* secret agent mode? */
 int		applet;				/* applet mode? */
 int		dowrap;				/* counter wrap? default no */
+int		dorotate;			/* is a log rotation pending? */
 int		noDnsFlag;			/* do a default name lookup? */
 pmiestats_t	*perf;				/* live performance data */
 pmiestats_t	instrument;			/* used if no mmap (archive) */
@@ -276,6 +277,10 @@ sleepTight(Task *t, int type)
 		    break;
 		}
 		sts = nanosleep(&ts, &tleft);
+		if (dorotate) {
+		    logRotate();
+		    dorotate = 0;
+		}
 		if (sts == 0 || (sts < 0 && oserror() != EINTR))
 		    break;
 		ts = tleft;

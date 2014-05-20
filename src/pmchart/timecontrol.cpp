@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014, Red Hat.
  * Copyright (c) 2006-2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -109,7 +110,7 @@ void TimeControl::init(int port, bool live,
     strncpy(my.tzData, (const char *)tzstring.toAscii(), tzlen+1);
     strncpy(my.tzData + tzlen+1, (const char *)tzlabel.toAscii(), lablen+1);
 
-    if (port < 0) {
+    if (port <= 0) {
 	startTimeServer();
     } else {
 	my.tcpPort = port;
