@@ -363,6 +363,7 @@ void reflectTime(RealTime);		/* update time vars to reflect now */
 #define SLEEP_EVAL	0
 #define SLEEP_RETRY	1
 void sleepTight(Task *, int);		/* sleep until retry or eval time */
+void logRotate(void);			/* close current, start a new log */
 
 /*
  * diagnostic tracing
@@ -411,6 +412,7 @@ extern int	   isdaemon;	/* run as a daemon */
 extern int         agent;	/* secret agent mode? */
 extern int         applet;	/* applet mode? */
 extern int	   dowrap;	/* counter wrap? default no */
+extern int	   dorotate;	/* log rotation was requested */
 extern int         noDnsFlag;	/* hostname DNS lookup needed? */
 extern pmiestats_t *perf;	/* pmie performance data ptr */
 extern pmiestats_t instrument;	/* pmie performance data struct */
@@ -459,5 +461,3 @@ void agentInit(void);		/* initialize evaluation parameters */
 #define UNITS_UNKNOWN(u) (u.dimCount == -1 && u.scaleCount == 7)
 
 #endif /* DSTRUCT_H */
-
-

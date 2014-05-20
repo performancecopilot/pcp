@@ -189,7 +189,6 @@ Log for pmlogger on HOST started DATE
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
-pmlogger: Signalled (signal=15), exiting
 
 Log finished DATE
 

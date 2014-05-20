@@ -162,6 +162,7 @@ extern int		ctlfds[CFD_NUM];
 extern int		exit_samples;
 extern int		vol_switch_samples;
 extern __int64_t	vol_switch_bytes;
+extern int		vol_switch_flag;
 extern int		vol_samples_counter;
 extern int		archive_version; 
 extern int		parse_done;

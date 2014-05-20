@@ -382,7 +382,8 @@ sigintproc(int sig)
 {
     __pmSetSignalHandler(SIGINT, SIG_IGN);
     __pmSetSignalHandler(SIGTERM, SIG_IGN);
-    __pmNotifyErr(LOG_INFO, "%s caught SIGINT or SIGTERM\n", pmProgname);
+    if (pmDebug & DBG_TRACE_DESPERATE)
+	__pmNotifyErr(LOG_INFO, "%s caught SIGINT or SIGTERM\n", pmProgname);
     exit(1);
 }
 
@@ -409,8 +410,8 @@ remap_stdout_stderr(void)
 			pmProgname, j, i, fileno(stderr));
 }
 
-static void
-sighupproc(int sig)
+void
+logRotate(void)
 {
     FILE *fp;
     int sts;
@@ -426,6 +427,12 @@ sighupproc(int sig)
     }
 }
 
+static void
+sighupproc(int sig)
+{
+    __pmSetSignalHandler(SIGHUP, sighupproc);
+   dorotate = 1;
+}
 
 static void
 dotraceback(void)
@@ -444,16 +451,17 @@ dotraceback(void)
     for (i = 1; i < res; i++)
     fprintf(stderr, "  " PRINTF_P_PFX "%p [%s]\n", (void *)call_addr[i], call_fn[i]);
 #endif
-    return;
 }
 
 static void
 sigbadproc(int sig)
 {
-    __pmNotifyErr(LOG_ERR, "Unexpected signal %d ...\n", sig);
-    dotraceback();
-    fprintf(stderr, "\nDumping to core ...\n");
-    fflush(stderr);
+    if (pmDebug & DBG_TRACE_DESPERATE) {
+	__pmNotifyErr(LOG_ERR, "Unexpected signal %d ...\n", sig);
+	dotraceback();
+	fprintf(stderr, "\nDumping to core ...\n");
+	fflush(stderr);
+    }
     stopmonitor();
     abort();
 }

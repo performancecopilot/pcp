@@ -214,7 +214,6 @@ extern void Shutdown(void);
 extern int  ParseInitAgents(char *);
 extern void ParseRestartAgents(char *);
 extern void PrintAgentInfo(FILE *);
-extern void ResetBadHosts(void);
 extern void MarkStateChanges(int);
 extern void CleanupClient(ClientInfo *, int);
 extern int ClientsAuthentication(AgentInfo *);

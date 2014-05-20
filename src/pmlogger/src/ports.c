@@ -36,10 +36,8 @@
 
 static char	*ctlfile;	/* Control directory/portmap name */
 static char	*linkfile;	/* Link name for primary logger */
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
 static const char *socketPath;	/* Path to unix domain sockets. */
 static const char *linkSocketPath;/* Link to socket for primary logger */
-#endif
 
 int		ctlfds[CFD_NUM] = {-1, -1, -1};/* fds for control ports: */
 int		ctlport;	/* pmlogger control port number */
@@ -51,22 +49,28 @@ cleanup(void)
 	unlink(linkfile);
     if (ctlfile != NULL)
 	unlink(ctlfile);
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
     if (linkSocketPath != NULL)
 	unlink(linkSocketPath);
     if (socketPath != NULL)
 	unlink(socketPath);
-#endif
 }
 
 static void
 sigexit_handler(int sig)
 {
 #ifdef PCP_DEBUG
-    fprintf(stderr, "pmlogger: Signalled (signal=%d), exiting\n", sig);
+    if (pmDebug & DBG_TRACE_DESPERATE)
+	fprintf(stderr, "pmlogger: Signalled (signal=%d), exiting\n", sig);
 #endif
     cleanup();
     exit(1);
+}
+
+static void
+sighup_handler(int sig)
+{
+    __pmSetSignalHandler(SIGHUP, sighup_handler);
+    vol_switch_flag = 1;
 }
 
 #ifndef IS_MINGW
@@ -74,24 +78,14 @@ static void
 sigcore_handler(int sig)
 {
 #ifdef PCP_DEBUG
-    fprintf(stderr, "pmlogger: Signalled (signal=%d), exiting (core dumped)\n", sig);
+    if (pmDebug & DBG_TRACE_DESPERATE)
+	fprintf(stderr, "pmlogger: Signalled (signal=%d), exiting (core dumped)\n", sig);
 #endif
     __pmSetSignalHandler(SIGABRT, SIG_DFL);	/* Don't come back here */
     cleanup();
     abort();
 }
-#endif
 
-static void
-sighup_handler(int sig)
-{
-    /* SIGHUP is used to force a log volume change */
-    __pmSetSignalHandler(SIGHUP, SIG_IGN);
-    newvolume(VOL_SW_SIGHUP);
-    __pmSetSignalHandler(SIGHUP, sighup_handler);
-}
-
-#ifndef IS_MINGW
 static void
 sigpipe_handler(int sig)
 {
@@ -101,7 +95,6 @@ sigpipe_handler(int sig)
      */
     __pmSetSignalHandler(SIGPIPE, sigpipe_handler);
 }
-#endif
 
 static void
 sigusr1_handler(int sig)
@@ -109,20 +102,7 @@ sigusr1_handler(int sig)
     /*
      * no-op now that all archive write I/O is unbuffered
      */
-#ifndef IS_MINGW
     __pmSetSignalHandler(SIGUSR1, sigusr1_handler);
-#endif
-}
-
-#ifndef IS_MINGW
-/*
- * if we are launched from pmRecord*() in libpcp, then we
- * may end up using popen() to run xconfirm(1), and then there
- * is a chance of us receiving SIGCHLD ... just ignore this signal
- */
-static void
-sigchld_handler(int sig)
-{
 }
 #endif
 
@@ -154,10 +134,10 @@ static sig_map_t	sig_handler[] = {
     { SIGALRM,	sigexit_handler },	/* Exit   Alarm Clock */
 #endif
     { SIGTERM,	sigexit_handler },	/* Exit   Terminated */
-    { SIGUSR1,	sigusr1_handler },	/* Exit   User Signal 1 */
 #ifndef IS_MINGW
+    { SIGUSR1,	sigusr1_handler },	/* NOP    User Signal 1 - [was fflush(3)] */
     { SIGUSR2,	sigexit_handler },	/* Exit   User Signal 2 */
-    { SIGCHLD,	sigchld_handler },	/* NOP    Child stopped or terminated */
+    { SIGCHLD,	SIG_IGN },		/* NOP    Child stopped or terminated */
 #ifdef SIGPWR
     { SIGPWR,	SIG_DFL },		/* Ignore Power Fail/Restart */
 #endif

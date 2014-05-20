@@ -18,7 +18,6 @@ New log volume 3, via SIGHUP at DATE
 New log volume 4, via SIGHUP at DATE
 New log volume 5, via pmlc request at DATE
 New log volume 6, via pmlc request at DATE
-pmlogger: Signalled (signal=15), exiting
 
 Log finished DATE
 Created 9 archive pieces.
