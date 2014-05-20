@@ -476,7 +476,7 @@ avahi
 220 pmlogger local oss
 221 pmlogger local oss
 222 other local oss
-223 pmns local oss
+223:retired pmns local oss
 224 pmcd local oss
 225 derive local oss
 226 dbpmda local oss
