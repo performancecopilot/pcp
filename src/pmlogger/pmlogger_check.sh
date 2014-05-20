@@ -271,7 +271,7 @@ _configure_pmlogger()
             cat "$configfile"
             echo "=== end pmlogconf file ==="
         else
-            (id "$PCP_USER" && chown $PCP_USER:$PCP_GROUP "$configfile") >/dev/null 2>&1
+            chown $PCP_USER:$PCP_GROUP "$configfile" >/dev/null 2>&1
         fi
     fi
 }
@@ -525,7 +525,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 
     # ensure pcp user will be able to write there
     #
-    (id "$PCP_USER" && chown -R $PCP_USER:$PCP_GROUP "$dir") >/dev/null 2>&1
+    chown -R $PCP_USER:$PCP_GROUP "$dir" >/dev/null 2>&1
     if [ ! -w "$dir" ]
     then
         echo "$prog: Warning: no write access in $dir, skip lock file processing"
@@ -809,7 +809,7 @@ END				{ print m }'`
 	then
 	    $VERBOSE && echo "Latest folio created for $LOGNAME"
             mkaf $LOGNAME.0 >Latest
-            (id "$PCP_USER" && chown $PCP_USER:$PCP_GROUP Latest) >/dev/null 2>&1
+            chown $PCP_USER:$PCP_GROUP Latest >/dev/null 2>&1
 	else
 	    logdir=`dirname $LOGNAME`
 	    if $TERSE
