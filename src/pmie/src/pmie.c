@@ -25,10 +25,9 @@
 
 #include <ctype.h>
 #include <limits.h>
+#include <sys/stat.h>
 #include "pmapi.h"
 #include "impl.h"
-#include <sys/stat.h>
-#include <assert.h>
 
 #include "dstruct.h"
 #include "stomp.h"
@@ -73,45 +72,59 @@ static char menu[] =
 "  h or ?             - print this menu of commands\n"
 "  q                  - quit\n\n";
 
-static char usage[] =
-    "Usage: %s [options] [filename ...]\n\n"
-    "Options:\n"
-    "  -A align     align sample times on natural boundaries\n"
-    "  -a archive   metrics source is a PCP log archive\n"
-    "  -b           one line buffered output stream, stdout on stderr\n"
-    "  -C           parse configuration and exit\n"
-    "  -c filename  configuration file\n"
-    "  -d           interactive debugging mode\n"
-    "  -e           force timestamps to be reported when used with -V, -v or -W\n"
-    "  -f           run in foreground\n"
-    "  -H           do not do a name lookup on the default hostname\n"
-    "  -h host      metrics source is PMCD on host\n"
-    "  -j stompfile stomp protocol (JMS) file [default %s%cconfig%cpmie%cstomp]\n"
-    "  -l logfile   send status and error messages to logfile\n"
-    "  -n pmnsfile  use an alternative PMNS\n"
-    "  -O offset    initial offset into the time window\n"
-    "  -S starttime start of the time window\n"
-    "  -T endtime   end of the time window\n"
-    "  -t interval  sample interval [default 10 seconds]\n"
-    "  -U username  in daemon mode, run as named user [default pcp]\n"
-    "  -V           verbose mode, annotated expression values printed\n"
-    "  -v           verbose mode, expression values printed\n"
-    "  -W           verbose mode, satisfying expression values printed\n"
-    "  -x           run in domain agent mode (summary PMDA)\n"
-    "  -Z timezone  set reporting timezone\n"
-    "  -z           set reporting timezone to local time of metrics source\n";
-
 /***********************************************************************
- * usage message
+ * command line usage
  ***********************************************************************/
 
-static void
-usageMessage(void)
+static int
+override(int opt, pmOptions *opts)
 {
-    int sep = __pmPathSeparator();
-    fprintf(stderr, usage, pmProgname, pmGetConfig("PCP_VAR_DIR"), sep,sep,sep);
-    exit(1);
+    if (opt == 'a' || opt == 'h' || opt == 'H' || opt == 'V')
+	return 1;
+    return 0;
 }
+
+static pmLongOptions longopts[] = {
+    PMAPI_OPTIONS_HEADER("General options"),
+    PMOPT_ALIGN,
+    PMOPT_ARCHIVE,
+    PMOPT_DEBUG,
+    PMOPT_HOST,
+    PMOPT_NAMESPACE,
+    PMOPT_ORIGIN,
+    PMOPT_START,
+    PMOPT_FINISH,
+    PMOPT_INTERVAL,
+    PMOPT_TIMEZONE,
+    PMOPT_HOSTZONE,
+    PMOPT_HELP,
+    PMAPI_OPTIONS_HEADER("Runtime options"),
+    { "check", 0, 'C', 0, "parse configuration and exit" },
+    { "config", 1, 'c', "FILE", "configuration file" },
+    { "interact", 0, 'd', 0, "interactive debugging mode" },
+    { "foreground", 0, 'f', 0, "run in the foreground, not as a daemon" },
+    { "", 0, 'H', NULL }, /* was: no DNS lookup on the default hostname */
+    { "", 1, 'j', "FILE", "stomp protocol (JMS) file" },
+    { "logfile", 1, 'l', "FILE", "send status and error messages to FILE" },
+    { "username", 1, 'U', "USER", "run as named USER in daemon mode [default pcp]" },
+    PMAPI_OPTIONS_HEADER("Reporting options"),
+    { "buffer", 0, 'b', 0, "one line buffered output stream, stdout on stderr" },
+    { "timestamp", 0, 'e', 0, "force timestamps to be reported with -V, -v or -W" },
+    { "", 0, 'v', 0, "verbose mode, expression values printed" },
+    { "verbose", 0, 'V', 0, "verbose mode, annotated expression values printed" },
+    { "", 0, 'W', 0, "verbose mode, satisfying expression values printed" },
+    { "secret-applet", 0, 'X', 0, "run in secret applet mode (thin client)" },
+    { "secret-agent", 0, 'x', 0, "run in secret agent mode (summary PMDA)" },
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .flags = PM_OPTFLAG_STDOUT_TZ,
+    .short_options = "a:A:bc:CdD:efHh:j:l:n:O:S:t:T:U:vVWXxzZ:?",
+    .long_options = longopts,
+    .short_usage = "[options] [filename ...]",
+    .override = override,
+};
 
 
 /***********************************************************************
@@ -475,7 +488,6 @@ getargs(int argc, char *argv[])
     char		*msg;
     int			checkFlag = 0;
     int			foreground = 0;
-    int			err = 0;
     int			sts;
     int			c;
     int			bflag = 0;
@@ -491,19 +503,18 @@ getargs(int argc, char *argv[])
     memset(&tv2, 0, sizeof(tv2));
     dstructInit();
 
-    while ((c=getopt(argc, argv, "a:A:bc:CdD:efHh:j:l:n:O:S:t:T:U:vVWXxzZ:?")) != EOF) {
+    while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
         switch (c) {
 
 	case 'a':			/* archives */
 	    if (dfltConn && dfltConn != PM_CONTEXT_ARCHIVE) {
                 /* (technically, multiple -a's are allowed.) */
-		fprintf(stderr, "%s: at most one of -a or -h allowed\n",
-			pmProgname);
-		err++;
+		pmprintf("%s: at most one of -a or -h allowed\n", pmProgname);
+		opts.errors++;
 		break;
 	    }
-	    dfltConn = PM_CONTEXT_ARCHIVE;
-	    subopts = optarg;
+	    dfltConn = opts.context = PM_CONTEXT_ARCHIVE;
+	    subopts = opts.optarg;
 	    for ( ; ; ) {
 		subopt = subopts;
 		subopts = strchr(subopts, ',');
@@ -520,22 +531,17 @@ getargs(int argc, char *argv[])
 	    foreground = 1;
 	    break;
 
-	case 'A': 			/* sample alignment */
-	    alignFlag = optarg;
-	    break;
-
 	case 'b':			/* line buffered, stdout on stderr */
 	    bflag++;
 	    break;
 
 	case 'c': 			/* configuration file */
 	    if (interactive) {
-		fprintf(stderr, "%s: at most one of -c and -d allowed\n",
-			pmProgname);
-		err++;
+		pmprintf("%s: at most one of -c and -d allowed\n", pmProgname);
+		opts.errors++;
 		break;
 	    }
-	    configfile = optarg;
+	    configfile = opts.optarg;
 	    break;
 
 	case 'C': 			/* check config and exit */
@@ -544,23 +550,11 @@ getargs(int argc, char *argv[])
 
 	case 'd': 			/* interactive mode */
 	    if (configfile) {
-		fprintf(stderr, "%s: at most one of -c and -d allowed\n",
-			pmProgname);
-		err++;
+		pmprintf("%s: at most one of -c and -d allowed\n", pmProgname);
+		opts.errors++;
 		break;
 	    }
 	    interactive = 1;
-	    break;
-
-	case 'D':	/* debug flag */
-	    sts = __pmParseDebug(optarg);
-	    if (sts < 0) {
-		fprintf(stderr, "%s: unrecognized debug flag specification "
-			"(%s)\n", pmProgname, optarg);
-		err++;
-	    }
-	    else
-		pmDebug |= sts;
 	    break;
 
 	case 'e':	/* force timestamps */
@@ -571,66 +565,36 @@ getargs(int argc, char *argv[])
 	    foreground = 1;
 	    break;
 
-	case 'H': 			/* no name lookup on exported host */
-	    noDnsFlag = 1;
+	case 'H': 			/* deprecated: no DNS lookups */
 	    break;
 
 	case 'h': 			/* default host name */
 	    if (dfltConn) {
-		fprintf(stderr, "%s: at most one of -a or -h allowed\n",
-			pmProgname);
-		err++;
+		pmprintf("%s: at most one of -a or -h allowed\n", pmProgname);
+		opts.errors++;
 		break;
 	    }
-	    dfltConn = PM_CONTEXT_HOST;
-	    dfltHostConn = optarg;
+	    dfltConn = opts.context = PM_CONTEXT_HOST;
+	    dfltHostConn = opts.optarg;
             dfltHostName = ""; /* unknown until newContext */
 	    break;
 
         case 'j':			/* stomp protocol (JMS) config */
-	    stompfile = optarg;
+	    stompfile = opts.optarg;
 	    break;
 
 	case 'l':			/* alternate log file */
 	    if (commandlog != NULL) {
-		fprintf(stderr, "%s: at most one -l option is allowed\n",
-			pmProgname);
-		err++;
+		pmprintf("%s: at most one -l option is allowed\n", pmProgname);
+		opts.errors++;
 		break;
 	    }
-	    commandlog = optarg;
+	    commandlog = opts.optarg;
 	    isdaemon = 1;
 	    break;
 
-        case 'n':			/* alternate namespace file */
-	    pmnsfile = optarg;
-	    break;
-
-	case 'O':			/* position within time window */
-	    offsetFlag = optarg;
-	    break;
-
-	case 'S':			/* start run time */
-	    startFlag = optarg;
-	    break;
-
-	case 't':			/* sample interval */
-	    if (pmParseInterval(optarg, &tv1, &msg) == 0)
-		dfltDelta = realize(tv1);
-	    else {
-		fprintf(stderr, "%s: could not parse -t argument (%s)\n", pmProgname, optarg);
-		fputs(msg, stderr);
-		free(msg);
-		err++;
-	    }
-	    break;
-
-	case 'T':			/* evaluation period */
-	    stopFlag = optarg;
-	    break;
-
 	case 'U': 			/* run as named user */
-	    username = optarg;
+	    username = opts.optarg;
 	    isdaemon = 1;
 	    break;
 
@@ -657,45 +621,31 @@ getargs(int argc, char *argv[])
 	    verbose = 1;
 	    isdaemon = 1;
 	    break;
-
-	case 'z':			/* timezone from host */
-	    hostZone = 1;
-	    if (timeZone) {
-		fprintf(stderr, "%s: only one of -Z and -z allowed\n",
-			pmProgname);
-		err++;
-	    }
-	    break;
-
-	case 'Z':			/* explicit TZ string */
-	    timeZone = optarg;
-	    if (hostZone) {
-		fprintf(stderr, "%s: only one of -Z and -z allowed\n",
-			pmProgname);
-		err++;
-	    }
-	    break;
-
-	case '?':
-            err++;
 	}
     }
 
-    if (configfile && optind != argc) {
-	fprintf(stderr, "%s: extra filenames cannot be given after using -c\n",
+    if (!opts.errors && configfile && opts.optind != argc) {
+	pmprintf("%s: extra filenames cannot be given after using -c\n",
 		pmProgname);
-	err++;
+	opts.errors++;
     }
-    if (bflag && agent) {
-	fprintf(stderr, "%s: the -b and -x options are incompatible\n",
+    if (!opts.errors && bflag && agent) {
+	pmprintf("%s: the -b and -x options are incompatible\n",
 		pmProgname);
-	err++;
+	opts.errors++;
     }
-    if (err)
-    	usageMessage();
+    if (opts.errors) {
+    	pmUsageMessage(&opts);
+	exit(1);
+    }
 
     if (foreground)
 	isdaemon = 0;
+
+    hostZone = opts.tzflag;
+    timeZone = opts.timezone;
+    if (opts.interval.tv_sec || opts.interval.tv_usec)
+	dfltDelta = realize(opts.interval);
 
     if (archives || interactive)
 	perf = &instrument;
@@ -773,7 +723,6 @@ getargs(int argc, char *argv[])
 	    pmDestroyContext(sts);
         }
     }
-    assert (dfltHostName != NULL);
 
     if (!archives && !interactive) {
 	if (commandlog != NULL)
@@ -795,7 +744,8 @@ getargs(int argc, char *argv[])
 	tv2.tv_sec = INT_MAX;		/* sizeof(time_t) == sizeof(int) */
 	tv2.tv_usec = 0;
     }
-    if (pmParseTimeWindow(startFlag, stopFlag, alignFlag, offsetFlag,
+    if (pmParseTimeWindow(opts.start_optarg, opts.finish_optarg,
+			  opts.align_optarg, opts.origin_optarg,
                           &tv1, &tv2,
                           &tv, &tv2, &tv1,
 		          &msg) < 0) {
@@ -806,24 +756,17 @@ getargs(int argc, char *argv[])
     stop = realize(tv2);
     runTime = stop - start;
 
-    /* initialize PMAPI */
-    if (pmnsfile != PM_NS_DEFAULT && (sts = pmLoadNameSpace(pmnsfile)) < 0) {
-	fprintf(stderr, "%s: pmLoadNameSpace failed: %s\n", pmProgname,
-		pmErrStr(sts));
-	exit(1);
-    }
-
     /* when not in secret agent mode, register client id with pmcd */
     if (!agent)
 	clientid = __pmGetClientId(argc, argv);
 
-    if (!interactive && optind == argc) {	/* stdin or config file */
+    if (!interactive && opts.optind == argc) {	/* stdin or config file */
 	load(configfile);
     }
     else {					/* list of 1/more filenames */
-	while (optind < argc) {
-	    load(argv[optind]);
-	    optind++;
+	while (opts.optind < argc) {
+	    load(argv[opts.optind]);
+	    opts.optind++;
 	}
     }
 
@@ -867,7 +810,8 @@ getargs(int argc, char *argv[])
 	tv2.tv_sec = INT_MAX;
 	tv2.tv_usec = 0;
     }
-    if (pmParseTimeWindow(startFlag, stopFlag, alignFlag, offsetFlag,
+    if (pmParseTimeWindow(opts.start_optarg, opts.finish_optarg,
+			  opts.align_optarg, opts.origin_optarg,
 		          &tv1, &tv2,
                           &tv, &tv2, &tv1,
 		          &msg) < 0) {
@@ -1006,7 +950,6 @@ interact(void)
 int
 main(int argc, char **argv)
 {
-    __pmSetProgname(argv[0]);
     __pmGetUsername(&username);
     setlinebuf(stdout);
 
