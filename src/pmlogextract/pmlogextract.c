@@ -41,6 +41,7 @@ static pmLongOptions longopts[] = {
     { "", 0, 'w', 0, "ignore day/month/year" },
     PMOPT_TIMEZONE,
     PMOPT_HOSTZONE
+    PMAPI_OPTIONS_END
 };
 
 static pmOptions opts = {
