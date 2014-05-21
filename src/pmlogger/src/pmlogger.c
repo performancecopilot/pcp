@@ -40,6 +40,7 @@ int		archive_version = PM_LOG_VERS02; /* Type of archive to create */
 int		linger;			/* linger with no tasks/events */
 int		rflag;			/* report sizes */
 struct timeval	delta = { 60, 0 };	/* default logging interval */
+int		exit_code;		/* code to pass to exit (zero/signum) */
 int		qa_case;		/* QA error injection state */
 char		*note;			/* note for port map file */
 
@@ -1057,9 +1058,12 @@ main(int argc, char **argv)
 	    fprintf(stderr, "Error: select: %s\n", netstrerror());
 
 	__pmAFunblock();
-    }
-}
 
+	if (exit_code)
+	    break;
+    }
+    exit(exit_code);
+}
 
 int
 newvolume(int vol_switch_type)
@@ -1129,7 +1133,6 @@ newvolume(int vol_switch_type)
 	return -oserror();
 }
 
-
 void
 disconnect(int sts)
 {
@@ -1194,5 +1197,3 @@ reconnect(void)
     return sts;
 }
 #endif
-
-

@@ -168,6 +168,7 @@ extern int		archive_version;
 extern int		parse_done;
 extern __int64_t	exit_bytes;
 extern __int64_t	vol_bytes;
+extern int		exit_code;
 
 /* event record handling */
 extern int do_events(pmValueSet *);

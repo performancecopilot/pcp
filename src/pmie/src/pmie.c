@@ -2,7 +2,7 @@
  * pmie.c - performance inference engine
  ***********************************************************************
  *
- * Copyright (c) 2013 Red Hat, Inc.
+ * Copyright (c) 2013-2014 Red Hat, Inc.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -384,13 +384,7 @@ sigintproc(int sig)
     __pmSetSignalHandler(SIGTERM, SIG_IGN);
     if (pmDebug & DBG_TRACE_DESPERATE)
 	__pmNotifyErr(LOG_INFO, "%s caught SIGINT or SIGTERM\n", pmProgname);
-    exit(1);
-}
-
-static void
-sigbye(int sig)
-{
-    exit(0);
+    doexit = sig;
 }
 
 static void
@@ -463,7 +457,7 @@ sigbadproc(int sig)
 	fflush(stderr);
     }
     stopmonitor();
-    abort();
+    _exit(sig);
 }
 
 
@@ -722,8 +716,8 @@ getargs(int argc, char *argv[])
     }
     else {
 	/* need to catch these so the atexit() processing is done */
-	__pmSetSignalHandler(SIGINT, sigbye);
-	__pmSetSignalHandler(SIGTERM, sigbye);
+	__pmSetSignalHandler(SIGINT, sigintproc);
+	__pmSetSignalHandler(SIGTERM, sigintproc);
     }
 
     if (commandlog != NULL) {

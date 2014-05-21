@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -412,6 +412,7 @@ extern int	   isdaemon;	/* run as a daemon */
 extern int         agent;	/* secret agent mode? */
 extern int         applet;	/* applet mode? */
 extern int	   dowrap;	/* counter wrap? default no */
+extern int	   doexit;	/* signalled its time to exit */
 extern int	   dorotate;	/* log rotation was requested */
 extern int         noDnsFlag;	/* hostname DNS lookup needed? */
 extern pmiestats_t *perf;	/* pmie performance data ptr */
