@@ -1561,7 +1561,7 @@ __thread int x;], [],
 	    AC_MSG_RESULT(no))
 
 	dnl Check if sem_t is defined in semephore.h
-	AC_MSG_CHECKING([for sem_t in semephore.h])
+	AC_MSG_CHECKING([for sem_t in semaphore.h])
 	AC_TRY_COMPILE([#include <semaphore.h>], [sem_t mysem;],
 	    AC_DEFINE(HAVE_SEM_T) AC_MSG_RESULT(yes),
 	    AC_MSG_RESULT(no))
