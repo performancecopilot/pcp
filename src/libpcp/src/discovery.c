@@ -73,6 +73,7 @@ int pmDiscoverServices(const char *service,
 		       char ***urls)
 {
     int numUrls;
+
     /*
      * Attempt to discover the requested service(s) using the requested or
      * all available means.
@@ -100,39 +101,26 @@ int pmDiscoverServices(const char *service,
 int
 __pmAddDiscoveredService(__pmServiceInfo *info, int numUrls, char ***urls)
 {
-    const char* prefix;
-    char *addressString;
+    const char *protocol = info->protocol;
+    char *address;
     char *url;
     size_t size;
     int isIPv6;
     int port;
-    /*
-     * Add the given address and port to the given list of urls.
-     * Build the new entry first, so that we can filter out duplicates.
-     * Currently, only "pmcd" is supported.
-     */
-    if (strcmp(info->spec, PM_SERVER_SERVICE_SPEC) == 0) {
-	prefix = "pcp://";
-    }
-    else {
-	__pmNotifyErr(LOG_ERR,
-		      "__pmAddDiscoveredService: Unsupported service: '%s'",
-		      info->spec);
-	return -EOPNOTSUPP;
-    }
 
     /*
-     * Allocate the new entry. We need room for the url prefix, the address
+     * Allocate the new entry. We need room for the URL prefix, the address
      * and the port. IPv6 addresses require a set of [] surrounding the
      * address in order to distinguish the port.
      */
     port = __pmSockAddrGetPort(info->address);
-    addressString = __pmSockAddrToString(info->address);
-    if (addressString == NULL) {
+    address = __pmSockAddrToString(info->address);
+    if (address == NULL) {
 	__pmNoMem("__pmAddDiscoveredService: can't allocate address buffer",
 		  0, PM_FATAL_ERR);
     }
-    size = strlen(prefix) + strlen(addressString) + sizeof(":65535");
+    size = strlen(protocol) + sizeof("://");
+    size += strlen(address) + sizeof(":65535");
     if ((isIPv6 = (__pmSockAddrGetFamily(info->address) == AF_INET6)))
 	size += 2;
     url = malloc(size);
@@ -141,10 +129,10 @@ __pmAddDiscoveredService(__pmServiceInfo *info, int numUrls, char ***urls)
 		  size, PM_FATAL_ERR);
     }
     if (isIPv6)
-	snprintf(url, size, "%s[%s]:%u", prefix, addressString, (uint16_t)port);
+	snprintf(url, size, "%s://[%s]:%u", protocol, address, (uint16_t)port);
     else
-	snprintf(url, size, "%s%s:%u", prefix, addressString, (uint16_t)port);
-    free(addressString);
+	snprintf(url, size, "%s://%s:%u", protocol, address, (uint16_t)port);
+    free(address);
 
     /*
      * Now search the current list for the new entry.

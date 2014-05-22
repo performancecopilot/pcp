@@ -892,6 +892,7 @@ avahi
 724 pmfind local oss
 725 pmda.jbd2 local oss
 726 pmlogger pmdumplog local oss
+727 avahi local oss
 728 libpcp local oss
 733 pmie pmval pmdumplog local oss
 735 pmda.proc local oss
@@ -937,6 +938,7 @@ avahi
 944 pmcd secure local oss
 945 pmlogrewrite pmda.xfs local oss
 946 pmfind avahi local oss
+950 avahi local oss
 957 pmda.linux local oss
 962 archive local oss
 966 secure local oss

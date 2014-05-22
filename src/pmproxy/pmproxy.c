@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -418,7 +418,7 @@ SigBad(int sig)
 	fprintf(stderr, "\nDumping to core ...\n");
 	fflush(stderr);
     }
-    abort();
+    _exit(sig);
 }
 
 /*
@@ -470,6 +470,7 @@ main(int argc, char *argv[])
     GetProxyHostname();
 
     if (run_daemon) {
+	__pmServerSetServiceSpec(PM_SERVER_PROXY_SPEC);
 	fflush(stderr);
 	StartDaemon(argc, argv);
     }

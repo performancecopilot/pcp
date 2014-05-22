@@ -534,28 +534,38 @@ resolveCallback(
     switch (event) {
 	case AVAHI_RESOLVER_FAILURE:
 	    context->error = avahi_client_errno(avahi_service_resolver_get_client(r));
-            break;
+	    break;
 
 	case AVAHI_RESOLVER_FOUND:
-	    /* Currently, only pmcd is supported. */
-	    if (strcmp(type, "_pmcd._tcp") == 0) {
+	    if (strcmp(type, "_" PM_SERVER_SERVICE_SPEC "._tcp") == 0) {
 		serviceInfo.spec = PM_SERVER_SERVICE_SPEC;
-		avahi_address_snprint(addressString, sizeof(addressString), address);
-		serviceInfo.address = __pmStringToSockAddr(addressString);
-		if (serviceInfo.address == NULL) {
-		    context->error = ENOMEM;
-		    break;
-		}
-		__pmSockAddrSetPort(serviceInfo.address, port);
-		__pmSockAddrSetScope(serviceInfo.address, interface);
-		numUrls = __pmAddDiscoveredService(&serviceInfo, numUrls, urls);
-		if (numUrls >= 0)
-		    context->numUrls = numUrls;
-		__pmSockAddrFree(serviceInfo.address);
+		serviceInfo.protocol = SERVER_PROTOCOL;
 	    }
-	    else
+	    else if (strcmp(type, "_" PM_SERVER_PROXY_SPEC "._tcp") == 0) {
+		serviceInfo.spec = PM_SERVER_PROXY_SPEC;
+		serviceInfo.protocol = PROXY_PROTOCOL;
+	    }
+	    else if (strcmp(type, "_" PM_SERVER_WEBD_SPEC "._tcp") == 0) {
+		serviceInfo.spec = PM_SERVER_WEBD_SPEC;
+		serviceInfo.protocol = PMWEBD_PROTOCOL;
+	    }
+	    else {
 		context->error = EINVAL;
+		break;
+	    }
+
+	    avahi_address_snprint(addressString, sizeof(addressString), address);
+	    serviceInfo.address = __pmStringToSockAddr(addressString);
+	    if (serviceInfo.address == NULL) {
+		context->error = ENOMEM;
+		break;
+	    }
+	    __pmSockAddrSetPort(serviceInfo.address, port);
+	    __pmSockAddrSetScope(serviceInfo.address, interface);
+	    context->numUrls = __pmAddDiscoveredService(&serviceInfo, numUrls, urls);
+	    __pmSockAddrFree(serviceInfo.address);
 	    break;
+
 	default:
 	    break;
     }

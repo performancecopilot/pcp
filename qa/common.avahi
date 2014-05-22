@@ -1,0 +1,43 @@
+#
+# Common shell routines for testing Avahi service discovery
+# Copyright (c) 2013-2014 Red Hat.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+avahi_notrun_checks()
+{
+    _get_libpcp_config
+    $service_discovery || _notrun "No support for service discovery"
+
+    # Is avahi-browse installed?
+    which avahi-browse >/dev/null 2>&1 || _notrun avahi-browse is not installed
+
+    # Is the avahi-daemon installed and running?  (maybe /sbin or /usr/sbin)
+    avahi-daemon --check 2>/dev/null || _notrun avahi-daemon is not available
+}
+
+avahi_cleanup()
+{
+    cd $here
+    $sudo $signal -a "$service" >/dev/null 2>&1
+    rm -f $tmp.*
+}
+
+avahi_service()
+{
+    $sudo "$PCP_RC_DIR/$service" restart > $seq.full 2>&1
+}
+
+avahi_verify()
+{
+    echo "Verify $service avahi service advertising"
+    hostname=`hostname`
+    avahi-browse -rt -d local "_$service._tcp" | \
+	tee -a $seq.full | \
+	grep -m1 "hostname = .$hostname" | \
+	sed -e "s/$hostname/HOSTNAME/g"
+}

@@ -819,7 +819,9 @@ extern int pmUnpackEventRecords(pmValueSet *, int, pmResult ***);
 extern void pmFreeEventResult(pmResult **);
 
 /* Service discovery, for clients. */
-#define PM_SERVER_SERVICE_SPEC "pmcd"
+#define PM_SERVER_SERVICE_SPEC	"pmcd"
+#define PM_SERVER_PROXY_SPEC	"pmproxy"
+#define PM_SERVER_WEBD_SPEC	"pmwebd"
 
 extern int pmDiscoverServices(const char *, const char *, char ***);
 

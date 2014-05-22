@@ -63,7 +63,14 @@ sigexit_handler(int sig)
 	fprintf(stderr, "pmlogger: Signalled (signal=%d), exiting\n", sig);
 #endif
     cleanup();
-    exit(1);
+    _exit(sig);
+}
+
+static void
+sigterm_handler(int sig)
+{
+    /* exit as soon as possible, handler is deferred for log cleanup */
+    exit_code = sig;
 }
 
 static void
@@ -83,7 +90,7 @@ sigcore_handler(int sig)
 #endif
     __pmSetSignalHandler(SIGABRT, SIG_DFL);	/* Don't come back here */
     cleanup();
-    abort();
+    _exit(sig);
 }
 
 static void
@@ -116,7 +123,7 @@ typedef struct {
  */
 static sig_map_t	sig_handler[] = {
     { SIGHUP,	sighup_handler },	/* Exit   Hangup [see termio(7)] */
-    { SIGINT,	sigexit_handler },	/* Exit   Interrupt [see termio(7)] */
+    { SIGINT,	sigterm_handler },	/* Exit   Interrupt [see termio(7)] */
 #ifndef IS_MINGW
     { SIGQUIT,	sigcore_handler },	/* Core   Quit [see termio(7)] */
     { SIGILL,	sigcore_handler },	/* Core   Illegal Instruction */
@@ -131,9 +138,9 @@ static sig_map_t	sig_handler[] = {
     { SIGSEGV,	sigcore_handler },	/* Core   Segmentation Fault */
     { SIGSYS,	sigcore_handler },	/* Core   Bad System Call */
     { SIGPIPE,	sigpipe_handler },	/* Exit   Broken Pipe */
-    { SIGALRM,	sigexit_handler },	/* Exit   Alarm Clock */
+    { SIGALRM,	sigterm_handler },	/* Exit   Alarm Clock */
 #endif
-    { SIGTERM,	sigexit_handler },	/* Exit   Terminated */
+    { SIGTERM,	sigterm_handler },	/* Exit   Terminated */
 #ifndef IS_MINGW
     { SIGUSR1,	sigusr1_handler },	/* NOP    User Signal 1 - [was fflush(3)] */
     { SIGUSR2,	sigexit_handler },	/* Exit   User Signal 2 */
@@ -151,9 +158,9 @@ static sig_map_t	sig_handler[] = {
     { SIGCONT,	SIG_DFL },		/* Ignore Continued */
     { SIGTTIN,	SIG_DFL },		/* Stop   Stopped (tty input) */
     { SIGTTOU,	SIG_DFL },		/* Stop   Stopped (tty output) */
-    { SIGVTALRM, sigexit_handler },	/* Exit   Virtual Timer Expired */
+    { SIGVTALRM, sigterm_handler },	/* Exit   Virtual Timer Expired */
 
-    { SIGPROF,	sigexit_handler },	/* Exit   Profiling Timer Expired */
+    { SIGPROF,	sigterm_handler },	/* Exit   Profiling Timer Expired */
     { SIGXCPU,	sigcore_handler },	/* Core   CPU time limit exceeded [see getrlimit(2)] */
     { SIGXFSZ,	sigcore_handler}	/* Core   File size limit exceeded [see getrlimit(2)] */
 #endif

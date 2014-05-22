@@ -68,8 +68,8 @@ int		isdaemon;			/* run as a daemon */
 int		agent;				/* secret agent mode? */
 int		applet;				/* applet mode? */
 int		dowrap;				/* counter wrap? default no */
+int		doexit;				/* time to exit stage left? */
 int		dorotate;			/* is a log rotation pending? */
-int		noDnsFlag;			/* do a default name lookup? */
 pmiestats_t	*perf;				/* live performance data */
 pmiestats_t	instrument;			/* used if no mmap (archive) */
 
@@ -277,6 +277,9 @@ sleepTight(Task *t, int type)
 		    break;
 		}
 		sts = nanosleep(&ts, &tleft);
+		/* deferred signal handling done immediately */
+		if (doexit)
+		    exit(doexit);
 		if (dorotate) {
 		    logRotate();
 		    dorotate = 0;

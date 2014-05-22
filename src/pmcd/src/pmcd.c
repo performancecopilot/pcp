@@ -863,7 +863,7 @@ SigBad(int sig)
 	fprintf(stderr, "\nDumping to core ...\n");
 	fflush(stderr);
     }
-    abort();
+    _exit(sig);
 }
 
 int

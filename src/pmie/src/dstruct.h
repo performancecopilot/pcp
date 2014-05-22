@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -399,10 +399,6 @@ extern RealTime	   last;	/* archive end point */
 extern char	   *dfltHostConn;  /* default PM_CONTEXT_HOST parameter  */
 extern char	   *dfltHostName;  /* pmContextGetHostName of host name */
 extern RealTime	   dfltDelta;	/* default sample interval */
-extern char        *startFlag;  /* start time specified? */
-extern char        *stopFlag;   /* end time specified? */
-extern char        *alignFlag;  /* align time specified? */
-extern char        *offsetFlag; /* offset time specified? */
 extern RealTime    runTime;	/* run time interval */
 extern int	   hostZone;	/* timezone from host? */
 extern char	   *timeZone;	/* timezone from command line */
@@ -412,8 +408,8 @@ extern int	   isdaemon;	/* run as a daemon */
 extern int         agent;	/* secret agent mode? */
 extern int         applet;	/* applet mode? */
 extern int	   dowrap;	/* counter wrap? default no */
+extern int	   doexit;	/* signalled its time to exit */
 extern int	   dorotate;	/* log rotation was requested */
-extern int         noDnsFlag;	/* hostname DNS lookup needed? */
 extern pmiestats_t *perf;	/* pmie performance data ptr */
 extern pmiestats_t instrument;	/* pmie performance data struct */
 

@@ -11,7 +11,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-
 #include "pmapi.h"
 #include "impl.h"
 
@@ -19,11 +18,19 @@ static int	quiet;
 static char	*service;
 static char	*mechanism;
 
+static int override(int, pmOptions *);
+
+static const char *services[] = {
+    PM_SERVER_SERVICE_SPEC,
+    PM_SERVER_PROXY_SPEC,
+    PM_SERVER_WEBD_SPEC,
+};
+
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Discovery options"),
     PMOPT_DEBUG,
     { "mechanism", 1, 'm', "NAME", "set the discovery method to use [avahi|probe=<subnet>|all]" },
-    { "service", 1, 's', "NAME", "discover local services [pmcd|...]" },
+    { "service", 1, 's', "NAME", "discover services [pmcd|pmproxy|pmwebd|...|all]" },
     PMAPI_OPTIONS_HEADER("Reporting options"),
     { "quiet", 0, 'q', 0, "quiet mode, do not write to stdout" },
     PMOPT_HELP,
@@ -33,31 +40,36 @@ static pmLongOptions longopts[] = {
 static pmOptions opts = {
     .short_options = "D:m:s:q?",
     .long_options = longopts,
+    .override = override,
 };
 
 static int
-discovery(void)
+override(int opt, pmOptions *opts)
+{
+    (void)opts;
+    return (opt == 's');
+}
+
+static int
+discovery(const char *spec)
 {
     int		i, sts;
     char	**urls;
 
-    if (!service)
-	service = PM_SERVER_SERVICE_SPEC;	/* pmcd */
-
-    sts = pmDiscoverServices(service, mechanism, &urls);
+    sts = pmDiscoverServices(spec, mechanism, &urls);
     if (sts < 0) {
 	fprintf(stderr, "%s: service %s discovery failure: %s\n",
-		pmProgname, service, pmErrStr(sts));
+		pmProgname, spec, pmErrStr(sts));
 	return 2;
     }
     if (sts == 0) {
 	if (!quiet)
-	    printf("No %s servers discovered\n", service);
+	    printf("No %s servers discovered\n", spec);
 	return 1;
     }
 
     if (!quiet) {
-	printf("Discovered %s servers:\n", service);
+	printf("Discovered %s servers:\n", spec);
 	for (i = 0; i < sts; ++i)
 	    printf("  %s\n", urls[i]);
     }
@@ -68,21 +80,15 @@ discovery(void)
 int
 main(int argc, char **argv)
 {
-    int		c;
+    int		c, total;
 
-    while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
+    while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
-	case 'D':
-	    if ((c = __pmParseDebug(opts.optarg)) < 0) {
-		pmprintf("%s: unrecognized debug flag specification (%s)\n",
-			pmProgname, opts.optarg);
-		opts.errors++;
-	    } else {
-		pmDebug |= c;
-	    }
-	    break;
-	case 's':
-	    service = opts.optarg;
+	case 's':	/* local services */
+	    if (strcmp(opts.optarg, "all") == 0)
+		service = NULL;
+	    else
+		service = opts.optarg;
 	    break;
 	case 'm':	/* discovery mechanism */
 	    if (strcmp(opts.optarg, "all") == 0)
@@ -107,5 +113,15 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    return discovery();
+    if (service)
+	return discovery(service);
+
+    for (c = total = 0; c < sizeof(services)/sizeof(services[0]); c++)
+	total += (discovery(services[c]) != 0);
+
+    /*
+     * Exit status indicates total failure - success indicates
+     * something (any service, any mechanism) was discovered.
+     */
+    return total == sizeof(services)/sizeof(services[0]);
 }
