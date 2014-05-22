@@ -141,11 +141,13 @@ class _StandardOutput(object):
         else:
             self.stdout = False
             self.so_stdscr = out
-    def addstr(self, str):
+    def addstr(self, str, clrtoeol=False):
         if self.stdout:
             sys.stdout.write(str)
         else:
             self.so_stdscr.addstr (str)
+            if (clrtoeol):
+                self.so_stdscr.clrtoeol()
     def clear(self):
         if not self.stdout:
             self.so_stdscr.clear()
@@ -196,6 +198,7 @@ class _AtopPrint(object):
     def __init__(self, ss, a_stdscr):
         self.ss = ss
         self.p_stdscr = a_stdscr
+        self.command_line = self.p_stdscr.getyx()[0]
         self.apyx = a_stdscr.getmaxyx()
     def end_of_screen(self):
         return (self.p_stdscr.getyx()[0] >= self.apyx[0]-1)
@@ -743,7 +746,8 @@ def main (stdscr_p):
                 # TODO Next/Previous Page
                 else:
                     stdscr.move (proc.command_line, 0)
-                    stdscr.addstr ("Invalid command %s\nType 'h' to see a list of valid commands" % (cmd))
+                    stdscr.addstr ("Invalid command %s\n" % (cmd), True)
+                    stdscr.addstr ("Type 'h' to see a list of valid commands", True)
                     stdscr.refresh()
                     time.sleep(2)
             i_samples += 1
