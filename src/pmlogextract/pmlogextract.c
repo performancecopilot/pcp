@@ -40,7 +40,7 @@ static pmLongOptions longopts[] = {
     { "", 1, 'v', "SAMPLES", "switch log volumes after this many samples" },
     { "", 0, 'w', 0, "ignore day/month/year" },
     PMOPT_TIMEZONE,
-    PMOPT_HOSTZONE
+    PMOPT_HOSTZONE,
     PMAPI_OPTIONS_END
 };
 
