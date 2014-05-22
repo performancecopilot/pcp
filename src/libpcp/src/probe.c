@@ -171,6 +171,13 @@ attemptConnection(void *arg)
     if (sts == 0) {
 	serviceInfo.spec = context->service;
 	serviceInfo.address = __pmSockAddrDup(context->address);
+	if (strcmp(context->service, PM_SERVER_SERVICE_SPEC) == 0)
+	    serviceInfo.protocol = SERVER_PROTOCOL;
+	else if (strcmp(context->service, PM_SERVER_PROXY_SPEC) == 0)
+	    serviceInfo.protocol = PROXY_PROTOCOL;
+	else if (strcmp(context->service, PM_SERVER_WEBD_SPEC) == 0)
+	    serviceInfo.protocol = PMWEBD_PROTOCOL;
+
 	LOCK_LOCK(&lock);
 	*context->numUrls =
 	    __pmAddDiscoveredService(&serviceInfo, *context->numUrls,
@@ -279,34 +286,17 @@ probeForServices(
     char ***urls
 )
 {
-    char		*end;
     int			port;
-    const char		*env;
     __pmSockAddr	*address;
     int			prevNumUrls;
 
-    /* The service is either a service name (e.g. pmcd) or a port number. */
-    if (strcmp(service, "pmcd") == 0) {
-	if ((env = getenv("PMCD_PORT")) != NULL) {
-	    port = strtol(env, &end, 0);
-	    if (*end != '\0' || port < 0) {
-		__pmNotifyErr(LOG_WARNING,
-			      "__pmProbeDiscoverServices: ignored bad PMCD_PORT = '%s'\n",
-			      env);
-		port = SERVER_PORT;
-	    }
-	}
-	else
-	    port = SERVER_PORT;
-    }
-    else {
-	port = strtol(service, &end, 0);
-	if (*end != '\0') {
-	    __pmNotifyErr(LOG_ERR,
-			  "__pmProbeDiscoverServices: service '%s; is not valid",
-			  service);
-	    return 0;
-	}
+    /* Determine the port number for this service. */
+    port = __pmServiceSpecToPort(service);
+    if (port < 0) {
+	__pmNotifyErr(LOG_ERR,
+		      "__pmProbeDiscoverServices: service '%s; is not valid",
+		      service);
+	return 0;
     }
     __pmSockAddrSetPort(netAddress, port);
 

@@ -260,6 +260,7 @@ typedef struct {
     const char		*protocol;
 } __pmServiceInfo;
 
+extern int __pmServiceSpecToPort(const char *) _PCP_HIDDEN;
 extern int  __pmAddDiscoveredService(__pmServiceInfo *, int, char ***) _PCP_HIDDEN;
 
 #endif /* _INTERNAL_H */

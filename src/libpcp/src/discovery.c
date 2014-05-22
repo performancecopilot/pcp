@@ -17,6 +17,40 @@
 #include "avahi.h"
 #include "probe.h"
 
+int
+__pmServiceSpecToPort(const char *service)
+{
+    char	*env;
+    char	*end;
+    int		port;
+
+    /* The service is a service name (e.g. pmcd). */
+    if (strcmp(service, PM_SERVER_SERVICE_SPEC) == 0) {
+	if ((env = getenv("PMCD_PORT")) != NULL) {
+	    port = strtol(env, &end, 0);
+	    if (*end != '\0' || port < 0) {
+		__pmNotifyErr(LOG_WARNING,
+			      "__pmProbeDiscoverServices: ignored bad PMCD_PORT = '%s'\n",
+			      env);
+		port = SERVER_PORT;
+	    }
+	}
+	else
+	    port = SERVER_PORT;
+    }
+    else if (strcmp(service, PM_SERVER_PROXY_SPEC) == 0) {
+	port = PROXY_PORT;
+    }
+    else if (strcmp(service, PM_SERVER_WEBD_SPEC) == 0) {
+	port = PMWEBD_PORT;
+    }
+    else
+	port = -EOPNOTSUPP;
+
+    return port;
+}
+
+
 #if defined(HAVE_SERVICE_DISCOVERY)
 
 /*
