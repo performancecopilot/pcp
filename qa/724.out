@@ -4,4 +4,6 @@ No unknown servers discovered
 Exit status: 1
 Unknown mechanism
 pmfind: service pmcd discovery failure: Operation not supported
+pmfind: service pmproxy discovery failure: Operation not supported
+pmfind: service pmwebd discovery failure: Operation not supported
 Exit status: 2

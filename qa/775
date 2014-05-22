@@ -16,6 +16,9 @@ echo "QA output created by $seq"
 _get_libpcp_config
 $service_discovery || _notrun "No support for service discovery"
 
+signal=$PCP_BINADM_DIR/pmsignal
+$sudo $signal -a pmproxy pmwebd
+
 # Make sure that at least one of the supported discovery mechanisms is available.
 discovery_available=false
 avahi-daemon --check 2>/dev/null && discovery_available=true

@@ -252,6 +252,7 @@ struct __pmServerPresence {
 typedef struct {
     const char		*spec;
     __pmSockAddr	*address;
+    const char		*protocol;
 } __pmServiceInfo;
 
 extern int  __pmAddDiscoveredService(__pmServiceInfo *, int, char ***) _PCP_HIDDEN;

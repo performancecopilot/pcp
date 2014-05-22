@@ -1,8 +1,8 @@
 #!/bin/sh
-# PCP QA Test No. 840
-# Test that pmcd advertises its presence using avahi
+# PCP QA Test No. 727
+# Check that pmwebd advertises its presence using avahi
 #
-# Copyright (c) 2013-2014 Red Hat.  All Rights Reserved.
+# Copyright (c) 2014 Red Hat.
 #
 
 seq=`basename $0`
@@ -13,10 +13,11 @@ avahi_notrun_checks
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "avahi_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-service=pmcd
+service=pmwebd
+avahi_service
 avahi_verify
 status=0
 exit

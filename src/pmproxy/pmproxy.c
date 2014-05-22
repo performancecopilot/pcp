@@ -470,6 +470,7 @@ main(int argc, char *argv[])
     GetProxyHostname();
 
     if (run_daemon) {
+	__pmServerSetServiceSpec(PM_SERVER_PROXY_SPEC);
 	fflush(stderr);
 	StartDaemon(argc, argv);
     }

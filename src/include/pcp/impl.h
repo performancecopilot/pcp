@@ -83,17 +83,19 @@ extern int __pmGetInternalState(void);
  * environment
  */
 #define SERVER_PORT 44321
-
+#define SERVER_PROTOCOL "pcp"
 /*
  * port that clients connect to pmproxy(1) on by default, over-ride with
  * $PMPROXY_PORT in environment
  */
 #define PROXY_PORT 44322
+#define PROXY_PROTOCOL "proxy"
 
 /*
  * port that clients connect to pmwebd(1) by default
  */
 #define PMWEBD_PORT 44323
+#define PMWEBD_PROTOCOL "http"
 
 /*
  * Internally, this is how to decode a PMID!
