@@ -78,19 +78,18 @@ def scale (value, magnitude):
 
 # record ---------------------------------------------------------------
 
-def record (host, context, config, interval, path):
+def record (context, config, duration, path, host):
 
     # -f saves the metrics in a directory
     if os.path.exists(path):
         return "playback directory %s already exists\n" % path
     try:
+        (tvp, err) = pmapi.pmContext.pmParseInterval(str(duration))
         status = context.pmRecordSetup (path, ME, 0) # pylint: disable=W0621
         (status, rhp) = context.pmRecordAddHost (host, 1, config)
-        status = context.pmRecordControl (0, c_gui.PM_REC_SETARG, "-T" + str(interval) + "sec")
+        status = context.pmRecordControl (0, c_gui.PM_REC_SETARG, "-T" + str(tvp.tv_sec) + "sec")
         status = context.pmRecordControl (0, c_gui.PM_REC_ON, "")
-        time.sleep(interval)
-        context.pmRecordControl (0, c_gui.PM_REC_STATUS, "")
-        status = context.pmRecordControl (rhp, c_gui.PM_REC_OFF, "")
+        pmapi.pmContext.pmtimevalSleep(tvp)
     except pmapi.pmErr, e:
         return "Cannot create PCP archive: " + path + " " + str(e)
     return ""
@@ -98,7 +97,7 @@ def record (host, context, config, interval, path):
 # record_add_creator ------------------------------------------------------
 
 def record_add_creator (path):
-    fdesc = open (path, "r+")
+    fdesc = open (path, "a+")
     args = ""
     for i in sys.argv:
         args = args + i + " "
@@ -573,7 +572,6 @@ def main (stdscr_p):
     sort = ""
     duration = 0
     interval_arg = 5
-    duration_arg = 0
     n_samples = 0
     output_type = "g"
     host = ""
@@ -613,7 +611,7 @@ def main (stdscr_p):
                     return sys.argv[0] + ": Unknown option " + sys.argv[i] \
                         + "\nTry `" + sys.argv[0] + " --help' for more information."
             else:
-                interval_arg = int(sys.argv[i])
+                interval_arg = sys.argv[i]
                 i += 1
                 if (i < len(sys.argv)):
                     n_samples = int(sys.argv[i])
@@ -655,26 +653,22 @@ def main (stdscr_p):
             pmc = pmapi.pmContext(target=host)
         except pmapi.pmErr, e:
             return "Cannot connect to pmcd on " + host
-
-    if duration_arg != 0:
-        (timeval, errmsg) = pmc.pmParseInterval(duration_arg)
-        if code < 0:
-            return errmsg
-        duration = timeval.tv_sec
+        
+    host = pmc.pmGetContextHostName()
+    (delta, errmsg) = pmc.pmParseInterval(str(interval_arg))
 
     ss.setup_metrics (pmc)
 
     if create_archive:
         configuration = "log mandatory on every " + \
-            str(interval_arg) + " seconds { "
+            str(delta.tv_sec) + " seconds { "
         configuration += ss.dump_metrics()
         configuration += "}"
-        if duration == 0:
-            if n_samples != 0:
-                duration = n_samples * interval_arg
-            else:
-                duration = 10 * interval_arg
-        status = record (host, pmgui.GuiClient(), configuration, duration, output_file)
+        if n_samples != 0:
+            duration = n_samples * delta.tv_sec
+        else:
+            duration = 10 * interval_arg
+        status = record (pmgui.GuiClient(), configuration, duration, output_file, host)
         if status != "":
             return status
         record_add_creator (output_file)
@@ -683,7 +677,6 @@ def main (stdscr_p):
     i_samples = 0
     subsys_cmds = ['g', 'm']
 
-    (delta, errmsg) = pmc.pmParseInterval(str(interval_arg) + " seconds")
     disk.interval = delta.tv_sec
     disk.replay_archive = replay_archive
 

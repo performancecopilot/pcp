@@ -65,19 +65,19 @@ for i in $(netstat -i | sed -e '/^[A-Z]/d' -e 's/ .*$//') ; do
     if grep -q $i /tmp/,$$ ; then true ; else NOMATCH=1 ; fi
 done
 if [ ! -z "$NOMATCH" ] ; then
-    echo "No match for -sN";cat /tmp/,$$ >> $tmp.out
+    (echo "No match for -sN";cat /tmp/,$$) | tee -a $tmp.out 2>&1
     unset NOMATCH
 else
-    echo "-sN network interface names are okay"
+    echo "-sN network interface names are okay" | tee -a $tmp.out 2>&1
 fi
 $PYCOLLECTL -sD -c2 >| /tmp/,$$ 2>&1 
 for i in $(lsblk -n -io KNAME,TYPE | /usr/bin/grep disk | sed 's/ .*$//') ; do
     if grep -q $i /tmp/,$$ ; then true ; else NOMATCH=1 ; fi
 done
 if [ ! -z "$NOMATCH" ] ; then
-    echo "No match for -sD";cat /tmp/,$$ >> $tmp.out
+    (echo "No match for -sD";cat /tmp/,$$) | tee -a $tmp.out 2>&1
 else
-    echo "-sD disk names are okay"
+    echo "-sD disk names are okay" | tee -a $tmp.out 2>&1
 fi
 # need a generic way to test these on any system
 # $PYCOLLECTL -sC -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
@@ -88,7 +88,7 @@ $PYCOLLECTL -c2 --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
 $PYCOLLECTL -scd -c2 | remove_extra_whitespace | tee -a $tmp.out 2>&1
 $PYCOLLECTL -scd -c2 --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
 # test playback
-$PYCOLLECTL -sdDcCnNjJm -f test.pmcollectl -c10
+$PYCOLLECTL -sdDcCnNjJm -f test.pmcollectl -c10 -i1.2
 $PYCOLLECTL -sd -c2 -p test.pmcollectl | remove_extra_whitespace | tee -a $tmp.out 2>&1
 $PYCOLLECTL -sc -c2 -p test.pmcollectl | remove_extra_whitespace | tee -a $tmp.out 2>&1
 $PYCOLLECTL -sn -c2 -p test.pmcollectl | remove_extra_whitespace | tee -a $tmp.out 2>&1
@@ -102,7 +102,7 @@ $PYCOLLECTL -sm -c2 -p test.pmcollectl --verbose | remove_extra_whitespace | tee
 cat $tmp.out >>$here/$seq.full
 
 # success, all done
-rm -rf test.pmcollectl
+eval `pmafm test.pmcollectl remove`
 cd $here
 
 status=0

@@ -73,9 +73,14 @@ fi
 $PMATOP -r $here/src/pmatop-722.0 -m 1 1 | redact_header | remove_extra_whitespace | tee -a $tmp.out 2>&1
 $PMATOP -r $here/src/pmatop-722.0 -g 1 1 | redact_header | remove_extra_whitespace | tee -a $tmp.out 2>&1
 
+$PMATOP -w test.pmatop 1.2 10
+if pmafm test.pmatop  check | grep -q OK
+then echo pmatop log creation OK | tee -a $tmp.out 2>&1
+else echo pmatop log creation FAILED | tee -a $tmp.out 2>&1; fi
+
 cat $tmp.out >>$here/$seq.full
 
 # success, all done
-/bin/rm -rf test.pmcollectl
+eval `pmafm test.pmatop remove`
 status=0
 exit

@@ -61,17 +61,17 @@ def scale (value, magnitude):
 
 # record ---------------------------------------------------------------
 
-def record (context, config, interval, path, host):
+def record (context, config, duration, path, host):
     
     if os.path.exists(path):
         print ME + "archive %s already exists\n" % path
         sys.exit(1)
+    (tvp, err) = pm.pmParseInterval(str(duration))
     status = context.pmRecordSetup (path, ME, 0) # pylint: disable=W0621
     (status, rhp) = context.pmRecordAddHost (host, 1, config) # just a filename
-    status = context.pmRecordControl (0, c_gui.PM_REC_SETARG, "-T" + str(interval) + "sec")
+    status = context.pmRecordControl (0, c_gui.PM_REC_SETARG, "-T" + str(tvp.tv_sec) + "sec")
     status = context.pmRecordControl (0, c_gui.PM_REC_ON, "")
-    # sleep +1 to make sure pmlogger gets to the -T limit
-    time.sleep(interval+1)
+    pm.pmtimevalSleep(tvp)
     # don't need to do anything else ... pmlogger will stop of it's own
     # once -T limit is reached, or pmcollectl exits, and in particular
     # calling
@@ -564,6 +564,8 @@ if __name__ == '__main__':
         elif (sys.argv[argx] == "-i" or sys.argv[argx] == "--interval"):
             argx += 1
             interval_arg = sys.argv[argx]
+        elif (sys.argv[argx][:2] == "-i"):
+            interval_arg = sys.argv[argx][2:]
 	# TODO: --subsys XYZ
         elif (sys.argv[argx][:2] == "-s"):
             for ssx in xrange(len(sys.argv[argx][2:])):
@@ -624,22 +626,19 @@ if __name__ == '__main__':
     host = pm.pmGetContextHostName()
 
     if duration_arg != 0:
-        (code, timeval, errmsg) = pm.pmParseInterval(duration_arg)
-        if code < 0:
-            print errmsg
-            sys.exit(1)
+        (timeval, errmsg) = pm.pmParseInterval(duration_arg)
         duration = timeval.tv_sec
 
     (delta, errmsg) = pm.pmParseInterval(str(interval_arg) + " seconds")
 
     if create_archive:
         configuration = "log mandatory on every " + \
-            str(interval_arg) + " seconds { "
+            str(delta.tv_sec) + " seconds { "
         configuration += ss.dump_metrics()
         configuration += "}"
         if duration == 0:
             if n_samples != 0:
-                duration = n_samples * interval_arg
+                duration = n_samples * delta.tv_sec
             else:
                 duration = 10 * interval_arg
         record (pmgui.GuiClient(), configuration, duration, output_file, host)
