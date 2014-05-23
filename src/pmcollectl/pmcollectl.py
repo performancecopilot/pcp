@@ -3,7 +3,7 @@
 #
 # pmcollectl.py
 #
-# Copyright (C) 2012-2013 Red Hat Inc.
+# Copyright (C) 2012-2014 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -66,10 +66,10 @@ def record (context, config, duration, path, host):
     if os.path.exists(path):
         print ME + "archive %s already exists\n" % path
         sys.exit(1)
-    (tvp, err) = pm.pmParseInterval(str(duration))
+    (tvp, err) = pm.pmParseInterval(str(duration) + " seconds")
     status = context.pmRecordSetup (path, ME, 0) # pylint: disable=W0621
     (status, rhp) = context.pmRecordAddHost (host, 1, config) # just a filename
-    status = context.pmRecordControl (0, c_gui.PM_REC_SETARG, "-T" + str(tvp.tv_sec) + "sec")
+    status = context.pmRecordControl (0, c_gui.PM_REC_SETARG, "-T" + str(tvp) + "sec")
     status = context.pmRecordControl (0, c_gui.PM_REC_ON, "")
     pm.pmtimevalSleep(tvp)
     # don't need to do anything else ... pmlogger will stop of it's own
@@ -514,7 +514,7 @@ if __name__ == '__main__':
     verbosity = "brief"
     output_file = ""
     input_file = ""
-    duration = 0
+    duration = 0.0
     interval_arg = 1
     duration_arg = 0
     create_archive = False
@@ -628,21 +628,22 @@ if __name__ == '__main__':
     host = pm.pmGetContextHostName()
 
     if duration_arg != 0:
-        (timeval, errmsg) = pm.pmParseInterval(duration_arg)
-        duration = timeval.tv_sec
+        (timeval, errmsg) = pm.pmParseInterval(str(duration_arg))
+        duration = c_api.pmtimevalToReal(timeval)
 
     (delta, errmsg) = pm.pmParseInterval(str(interval_arg) + " seconds")
 
     if create_archive:
-        configuration = "log mandatory on every " + \
-            str(delta.tv_sec) + " seconds { "
+        delta_seconds = c_api.pmtimevalToReal(delta.tv_sec, delta.tv_usec)
+        msec = str(int(1000.0 * delta_seconds))
+        configuration = "log mandatory on every " + msec + " milliseconds { "
         configuration += ss.dump_metrics()
         configuration += "}"
-        if duration == 0:
+        if duration == 0.0:
             if n_samples != 0:
-                duration = n_samples * delta.tv_sec
+                duration = float(n_samples) * delta_seconds
             else:
-                duration = 10 * interval_arg
+                duration = float(10) * delta_seconds
         record (pmgui.GuiClient(), configuration, duration, output_file, host)
         record_add_creator (output_file)
         sys.exit(0)
