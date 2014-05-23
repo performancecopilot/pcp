@@ -69,11 +69,12 @@ static unsigned	maxThreads = SEM_VALUE_MAX; /* No fixed limit by default */
 
 /* The number of connection attempts remaining. */
 typedef struct connectionContext {
-    const char *service;
-    __pmSockAddr *address;
-    int port;
-    int *numUrls;
-    char ***urls;
+    const char		*service;
+    __pmSockAddr	*address;
+    int			nports;
+    const int		*ports;
+    int			*numUrls;
+    char		***urls;
 } connectionContext;
 
 static void
@@ -107,6 +108,7 @@ attemptConnection(void *arg)
     int			sts;
     __pmFdSet		wfds;
     __pmServiceInfo	serviceInfo;
+    int			p;
     int			attempt;
     struct timeval	canwait = {0, 100000 * 1000}; /* 0.1 seconds */
     connectionContext	*context = arg;
@@ -114,75 +116,79 @@ attemptConnection(void *arg)
     /* If we are on our own thread, then run detached. */
     THREAD_DETACH();
 
-    /*
-     * Create a socket. There may be a limit on open fds. If we get EAGAIN, then
-     * wait 0.1 seconds and try again.  We must have a limit in case something
-     * goes wrong. Make it 5 seconds (50 * 100,000 usecs).
-     */
-    for (attempt = 0; attempt < 50; ++attempt) {
-	if (__pmSockAddrIsInet(context->address))
-	    s = __pmCreateSocket();
-	else /* address family already checked */
-	    s = __pmCreateIPv6Socket();
-	if (s != -EAGAIN)
-	    break;
-	__pmtimevalSleep(canwait);
-    }
-    if (pmDebug & DBG_TRACE_DISCOVERY) {
-	if (attempt > 0) {
-	    __pmNotifyErr(LOG_INFO,
-			  "Waited for %d attempts for an available fd\n",
-			  attempt);
+    /* Attempt a connection on each of the given ports. */
+    for (p = 0; p < context->nports; ++p) {
+	__pmSockAddrSetPort(context->address, context->ports[p]);
+	/*
+	 * Create a socket. There may be a limit on open fds. If we get EAGAIN,
+	 * then wait 0.1 seconds and try again.  We must have a limit in case
+	 * something goes wrong. Make it 5 seconds (50 * 100,000 usecs).
+	 */
+	for (attempt = 0; attempt < 50; ++attempt) {
+	    if (__pmSockAddrIsInet(context->address))
+		s = __pmCreateSocket();
+	    else /* address family already checked */
+		s = __pmCreateIPv6Socket();
+	    if (s != -EAGAIN)
+		break;
+	    __pmtimevalSleep(canwait);
 	}
-    }
+	if (pmDebug & DBG_TRACE_DISCOVERY) {
+	    if (attempt > 0) {
+		__pmNotifyErr(LOG_INFO,
+			      "Waited for %d attempts for an available fd\n",
+			      attempt);
+	    }
+	}
 
-    if (s < 0) {
-	char *addrString = __pmSockAddrToString(context->address);
-	__pmNotifyErr(LOG_WARNING,
-		      "__pmProbeDiscoverServices: Unable to create socket for address, %s",
-		      addrString);
-	free(addrString);
-	goto done;
-    }
+	if (s < 0) {
+	    char *addrString = __pmSockAddrToString(context->address);
+	    __pmNotifyErr(LOG_WARNING,
+			  "__pmProbeDiscoverServices: Unable to create socket for address %s",
+			  addrString);
+	    free(addrString);
+	    goto done;
+	}
 
-    /*
-     * Attempt to connect. If flags comes back as less than zero, then the
-     * socket has already been closed by __pmConnectTo().
-     */
-    sts = -1;
-    flags = __pmConnectTo(s, context->address, context->port);
-    if (flags >= 0) {
-	/* FNDELAY and we're in progress - wait on select */
-	__pmFD_ZERO(&wfds);
-	__pmFD_SET(s, &wfds);
-	canwait = *__pmConnectTimeout();
-	sts = __pmSelectWrite(s+1, &wfds, &canwait);
+	/*
+	 * Attempt to connect. If flags comes back as less than zero, then the
+	 * socket has already been closed by __pmConnectTo().
+	 */
+	sts = -1;
+	flags = __pmConnectTo(s, context->address, context->ports[p]);
+	if (flags >= 0) {
+	    /* FNDELAY and we're in progress - wait on select */
+	    __pmFD_ZERO(&wfds);
+	    __pmFD_SET(s, &wfds);
+	    canwait = *__pmConnectTimeout();
+	    sts = __pmSelectWrite(s+1, &wfds, &canwait);
 
-	/* Was the connection successful? */
-	if (sts == 0)
-	    sts = -1; /* Timed out */
-	else if (sts > 0)
-	    sts = __pmConnectCheckError(s);
+	    /* Was the connection successful? */
+	    if (sts == 0)
+		sts = -1; /* Timed out */
+	    else if (sts > 0)
+		sts = __pmConnectCheckError(s);
 
-	__pmCloseSocket(s);
-    }
+	    __pmCloseSocket(s);
+	}
 
-    /* If connection was successful, add this service to the list.  */
-    if (sts == 0) {
-	serviceInfo.spec = context->service;
-	serviceInfo.address = __pmSockAddrDup(context->address);
-	if (strcmp(context->service, PM_SERVER_SERVICE_SPEC) == 0)
-	    serviceInfo.protocol = SERVER_PROTOCOL;
-	else if (strcmp(context->service, PM_SERVER_PROXY_SPEC) == 0)
-	    serviceInfo.protocol = PROXY_PROTOCOL;
-	else if (strcmp(context->service, PM_SERVER_WEBD_SPEC) == 0)
-	    serviceInfo.protocol = PMWEBD_PROTOCOL;
+	/* If connection was successful, add this service to the list.  */
+	if (sts == 0) {
+	    serviceInfo.spec = context->service;
+	    serviceInfo.address = context->address;
+	    if (strcmp(context->service, PM_SERVER_SERVICE_SPEC) == 0)
+		serviceInfo.protocol = SERVER_PROTOCOL;
+	    else if (strcmp(context->service, PM_SERVER_PROXY_SPEC) == 0)
+		serviceInfo.protocol = PROXY_PROTOCOL;
+	    else if (strcmp(context->service, PM_SERVER_WEBD_SPEC) == 0)
+		serviceInfo.protocol = PMWEBD_PROTOCOL;
 
-	LOCK_LOCK(&lock);
-	*context->numUrls =
-	    __pmAddDiscoveredService(&serviceInfo, *context->numUrls,
-				     context->urls);
-	LOCK_UNLOCK(&lock);
+	    LOCK_LOCK(&lock);
+	    *context->numUrls =
+		__pmAddDiscoveredService(&serviceInfo, *context->numUrls,
+					 context->urls);
+	    LOCK_UNLOCK(&lock);
+	}
     }
 
  done:
@@ -203,11 +209,12 @@ attemptConnection(void *arg)
 /* Dispatch a connection attempt, on its own thread, if supported. */
 static void
 dispatchConnection(
-    const char *service,
-    const __pmSockAddr *address,
-    int port,
-    int *numUrls,
-    char ***urls
+    const char		*service,
+    const __pmSockAddr	*address,
+    int			nports,
+    const int		*ports,
+    int			*numUrls,
+    char		***urls
 )
 {
 #if IS_MULTI_THREAD
@@ -225,7 +232,8 @@ dispatchConnection(
 		  sizeof(*context), PM_FATAL_ERR);
     }
     context->service = service;
-    context->port = port;
+    context->ports = ports;
+    context->nports = nports;
     context->numUrls = numUrls;
     context->urls = urls;
     context->address = __pmSockAddrDup(address);
@@ -286,19 +294,21 @@ probeForServices(
     char ***urls
 )
 {
-    int			port;
+    int			*ports;
+    int			nports;
     __pmSockAddr	*address;
     int			prevNumUrls;
 
     /* Determine the port number for this service. */
-    port = __pmServiceSpecToPort(service);
-    if (port < 0) {
+    ports = NULL;
+    nports = 0;
+    nports = __pmServiceAddPorts(service, &ports, nports);
+    if (nports <= 0) {
 	__pmNotifyErr(LOG_ERR,
-		      "__pmProbeDiscoverServices: service '%s; is not valid",
+		      "__pmProbeDiscoverServices: could not find ports for service '%s'",
 		      service);
 	return 0;
     }
-    __pmSockAddrSetPort(netAddress, port);
 
     /*
      * We have a network address, a subnet mask size and a port. Iterate over
@@ -335,13 +345,14 @@ probeForServices(
     for (address = __pmSockAddrFirstSubnetAddr(netAddress, maskBits);
 	 address != NULL;
 	 address = __pmSockAddrNextSubnetAddr(address, maskBits)) {
-	dispatchConnection(service, address, port, &numUrls, urls);
+	dispatchConnection(service, address, nports, ports, &numUrls, urls);
     }
 
     /* Wait for all the connection attempts to finish. */
     SEM_WAIT(&threadsComplete);
 
     /* These must not be destroyed until all of the threads have finished. */
+    free(ports);
     ATTR_TERM(&attr);
     SEM_TERM(&threadsAvailable);
     SEM_TERM(&threadsComplete);

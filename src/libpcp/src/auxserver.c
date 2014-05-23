@@ -22,6 +22,9 @@
 #include <ucred.h>
 #endif
 
+#define STRINGIFY(s)	#s
+#define TO_STRING(s)	STRINGIFY(s)
+
 /*
  * Info about a request port that clients may connect to a server on
  */
@@ -61,6 +64,94 @@ static int   localSocketFd = -EPROTO;
 static const char *serviceSpec;
 
 int
+__pmServiceAddPorts(const char *service, int **ports, int nports)
+{
+    /* The service is a service name (e.g. pmcd). */
+    if (strcmp(service, PM_SERVER_SERVICE_SPEC) == 0)
+	nports = __pmPMCDAddPorts(ports, nports);
+    else if (strcmp(service, PM_SERVER_PROXY_SPEC) == 0)
+	nports = __pmProxyAddPorts(ports, nports);
+    else if (strcmp(service, PM_SERVER_WEBD_SPEC) == 0)
+	nports = __pmWebdAddPorts(ports, nports);
+    else
+	nports = -EOPNOTSUPP;
+
+    return nports;
+}
+
+int
+__pmPMCDAddPorts(int **ports, int nports)
+{
+    char *env;
+
+    if ((env = getenv("PMCD_PORT")) != NULL)
+	nports = __pmAddPorts(env, ports, nports);
+    else
+	nports = __pmAddPorts(TO_STRING(SERVER_PORT), ports, nports);
+
+    return nports;
+}
+
+int
+__pmProxyAddPorts(int **ports, int nports)
+{
+    char *env;
+
+    if ((env = getenv("PMPROXY_PORT")) != NULL)
+	nports = __pmAddPorts(env, ports, nports);
+    else
+	nports = __pmAddPorts(TO_STRING(PROXY_PORT), ports, nports);
+
+    return nports;
+}
+
+int
+__pmWebdAddPorts(int **ports, int nports)
+{
+    char *env;
+
+    if ((env = getenv("PMWEBD_PORT")) != NULL)
+	nports = __pmAddPorts(env, ports, nports);
+    else
+	nports = __pmAddPorts(TO_STRING(PMWEBD_PORT), ports, nports);
+
+    return nports;
+}
+
+int
+__pmAddPorts(const char *portstr, int **ports, int nports)
+{
+    char	*endptr, *p = (char *)portstr;
+    size_t	size;
+
+    /*
+     * one (of possibly several) ports for client requests
+     * ... accept a comma separated list of ports here
+     */
+    for ( ; ; ) {
+	int port = (int)strtol(p, &endptr, 0);
+	if ((*endptr != '\0' && *endptr != ',') || port < 0)
+	    return -EINVAL;
+
+	size = (nports + 1) * sizeof(int);
+	if ((*ports = (int *)realloc(*ports, size)) == NULL)
+	    __pmNoMem("__pmAddPorts: cannot grow port list", size, PM_FATAL_ERR);
+	(*ports)[nports++] = port;
+	if (*endptr == '\0')
+	    break;
+	p = &endptr[1];
+    }
+    return nports;
+}
+
+int
+__pmServerAddPorts(const char *ports)
+{
+    nport = __pmAddPorts(ports, &portlist, nport);
+    return nport;
+}
+
+int
 __pmServerAddInterface(const char *address)
 {
     size_t size = (nintf+1) * sizeof(char *);
@@ -71,31 +162,6 @@ __pmServerAddInterface(const char *address)
 	__pmNoMem("AddInterface: cannot grow interface list", size, PM_FATAL_ERR);
     intflist[nintf++] = strdup(address);
     return nintf;
-}
-
-int
-__pmServerAddPorts(const char *ports)
-{
-    char	*endptr, *p = (char *)ports;
-
-    /*
-     * one (of possibly several) ports for client requests
-     * ... accept a comma separated list of ports here
-     */
-    for ( ; ; ) {
-	size_t	size = (nport + 1) * sizeof(int);
-	int	port = (int)strtol(p, &endptr, 0);
-
-	if ((*endptr != '\0' && *endptr != ',') || port < 0)
-	    return -EINVAL;
-	if ((portlist = (int *)realloc(portlist, size)) == NULL)
-	    __pmNoMem("AddPorts: cannot grow port list", size, PM_FATAL_ERR);
-	portlist[nport++] = port;
-	if (*endptr == '\0')
-	    break;
-	p = &endptr[1];
-    }
-    return nport;
 }
 
 void
