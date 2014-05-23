@@ -96,9 +96,8 @@ $PYCOLLECTL $args -scd | remove_extra_whitespace | tee -a $tmp.out 2>&1
 $PYCOLLECTL $args -scd --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
 
 # test playback
-interval=1
-$PYCOLLECTL -sdDcCnNjJm -f test.pmcollectl -c10 #-i $interval
-# TODO: if we fix RH BZ 1098117, we can make above -i 0.1 too
+interval=0.1
+$PYCOLLECTL -sdDcCnNjJm -f test.pmcollectl -c10 -i $interval
 logargs="-c 2 -i $interval -p test.pmcollectl"
 $PYCOLLECTL $logargs -sd | remove_extra_whitespace | tee -a $tmp.out 2>&1
 $PYCOLLECTL $logargs -sc | remove_extra_whitespace | tee -a $tmp.out 2>&1
@@ -108,8 +107,9 @@ $PYCOLLECTL $logargs -sd --verbose | remove_extra_whitespace | tee -a $tmp.out 2
 $PYCOLLECTL $logargs -sc --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
 $PYCOLLECTL $logargs -sn --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
 $PYCOLLECTL $logargs -sm --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
-
 cat $tmp.out >>$here/$seq.full
+
+eval `pmafm test.pmcollectl remove`
 
 # success, all done
 status=0
