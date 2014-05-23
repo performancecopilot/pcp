@@ -9,6 +9,7 @@ delta	once
 	pmda.uname
 	pmcd.numagents
 	pmcd.numclients
+	pmcd.services
 	pmcd.version
 	pmcd.build
 	pmcd.agent.status

@@ -642,6 +642,7 @@ _filter_torture_api()
 	-e '/kernel\.all\.cpu/s/valfmt: [01]/valfmt: 0-or-1/' \
 	-e '/^    hostname /d' \
 	-e '/^    license /d' \
+	-e '/^    services /d' \
 	-e '/^    aconex /d' \
 	-e '/^    apache /d' \
 	-e '/^    bonding /d' \

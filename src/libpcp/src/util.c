@@ -2118,4 +2118,58 @@ __pmMemoryUnmap(void *addr, size_t sz)
 {
     munmap(addr, sz);
 }
+
+#if HAVE_TRACE_BACK_STACK
+#include <libexc.h>
+#define MAX_DEPTH 30	/* max callback procedure depth */
+#define MAX_SIZE 48	/* max function name length */
+
+void
+__pmDumpStack(FILE *f)
+{
+    __uint64_t	call_addr[MAX_DEPTH];
+    char	*call_fn[MAX_DEPTH];
+    char	names[MAX_DEPTH][MAX_SIZE];
+    int		res;
+    int		i;
+
+    for (i = 0; i < MAX_DEPTH; i++)
+	call_fn[i] = names[i];
+    res = trace_back_stack(MAX_DEPTH, call_addr, call_fn, MAX_DEPTH, MAX_SIZE);
+    for (i = 1; i < res; i++) {
+#if defined(HAVE_64BIT_PTR)
+	fprintf(f, "  0x%016llx [%s]\n", call_addr[i], call_fn[i]);
+#else
+	fprintf(f, "  0x%08lx [%s]\n", (__uint32_t)call_addr[i], call_fn[i]);
 #endif
+    }
+}
+
+#elif HAVE_BACKTRACE
+#include <execinfo.h>
+#define MAX_DEPTH 30	/* max callback procedure depth */
+
+void
+__pmDumpStack(FILE *f)
+{
+    int		nframe;
+    void	*buf[MAX_DEPTH];
+    char	**symbols;
+    int		i;
+
+    nframe = backtrace(buf, MAX_DEPTH);
+    if (nframe < 1) {
+	fprintf(f, "backtrace -> %d frames?\n", nframe);
+	return;
+    }
+    symbols = backtrace_symbols(buf, nframe);
+    if (symbols == NULL) {
+	fprintf(f, "backtrace_symbols failed!\n");
+	return;
+    }
+    for (i = 1; i < nframe; i++)
+	fprintf(f, "  " PRINTF_P_PFX "%p [%s]\n", buf[i], symbols[i]);
+}
+#endif /* HAVE_BACKTRACE */
+
+#endif /* !IS_MINGW */

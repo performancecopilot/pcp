@@ -470,9 +470,9 @@ main(int argc, char *argv[])
     GetProxyHostname();
 
     if (run_daemon) {
-	__pmServerSetServiceSpec(PM_SERVER_PROXY_SPEC);
 	fflush(stderr);
 	StartDaemon(argc, argv);
+	__pmServerCreatePIDFile(PM_SERVER_PROXY_SPEC, 0);
     }
 
     __pmSetSignalHandler(SIGHUP, SIG_IGN);

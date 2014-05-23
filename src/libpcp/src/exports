@@ -442,3 +442,9 @@ PCP_3.4 {
     __pmSocketClosed;
     __pmLogPutResult2;
 } PCP_3.3;
+
+PCP_3.5 {
+  global:
+    __pmDumpStack;
+    __pmServerCreatePIDFile;
+} PCP_3.4;
