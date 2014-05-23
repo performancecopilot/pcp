@@ -479,13 +479,13 @@ main(int argc, char ** argv)
     QString		tzString;
     pmOptions		opts;
 
+    memset(&opts, 0, sizeof(opts));
     __pmtimevalNow(&opts.origin);
     __pmSetProgname(argv[0]);
     QApplication a(argc, argv);
     setupEnvironment();
     readSettings();
 
-    memset(&opts, 0, sizeof(opts));
     opts.flags = PM_OPTFLAG_MULTI | PM_OPTFLAG_MIXED;
     opts.short_options = "A:a:Cc:D:f:F:g:h:H:Ln:o:O:p:s:S:T:t:Vv:WzZ:?";
     opts.long_options = longopts;
