@@ -1087,7 +1087,7 @@ services(void)
 		    continue;
 		servicelist[offset++] = ' ';
 		strcpy(&servicelist[offset], dp->d_name);
-		offset += length + 1;
+		offset += length;
 	    }
 	    closedir(rundir);
 	}
