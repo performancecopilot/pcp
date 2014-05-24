@@ -597,6 +597,9 @@ LIBPCP.pmConvScale.argtypes = [
     c_int, POINTER(pmAtomValue), POINTER(pmUnits), POINTER(pmAtomValue),
     POINTER(pmUnits)]
 
+LIBPCP.pmUnitsStr.restype = c_char_p
+LIBPCP.pmUnitsStr.argtypes = [POINTER(pmUnits)]
+
 LIBPCP.pmUnitsStr_r.restype = c_char_p
 LIBPCP.pmUnitsStr_r.argtypes = [POINTER(pmUnits), c_char_p, c_int]
 
