@@ -1777,8 +1777,8 @@ class pmContext(object):
         (timeval_ctype, "error message") = pmParseInterval("time string")
         """
         tvp = timeval()
-        errmsg = POINTER(c_char_p)()
-        status = LIBPCP.pmParseInterval(interval, byref(tvp), errmsg)
+        errmsg = c_char_p()
+        status = LIBPCP.pmParseInterval(interval, byref(tvp), byref(errmsg))
         if status < 0:
             raise pmErr, status
         return tvp, errmsg
