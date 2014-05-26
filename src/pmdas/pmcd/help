@@ -411,6 +411,10 @@ bits 15..8
 bits 23..16
         the number of the signal that terminated the PMDA
 
+@ pmcd.services running PCP services on the local host
+A space-separated string representing all running PCP services with PID
+files in $PCP_RUN_DIR (such as pmcd itself, pmproxy and a few others).
+
 @ pmcd.openfds highest PMCD file descriptor
 The highest file descriptor index used by PMCD for a Client or PMDA
 connection.

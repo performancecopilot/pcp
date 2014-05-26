@@ -25,8 +25,9 @@ pmcd {
     timezone	PMCD:0:5
     simabi	PMCD:0:6
     version	PMCD:0:7
-    build	PMCD:0:20
+    services	PMCD:0:16
     openfds	PMCD:0:17
+    build	PMCD:0:20
     hostname	PMCD:0:21
     pmie
     buf

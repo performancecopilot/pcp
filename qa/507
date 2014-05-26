@@ -61,6 +61,7 @@ log mandatory on once {
     pmda.uname
     pmcd.numagents
     pmcd.numclients
+    pmcd.services
     pmcd.version
     pmcd.build
     pmcd.timezone
@@ -131,7 +132,7 @@ pminfo -fa src/pcpcmd pmcd.pmlogger
 echo
 echo 'pcp(1) output:'
 pcp -n src/root_irix -a src/pcpcmd | fgrep -v "$PCP_PMDAS_DIR/summary"
-    # dont use pmie output here cos archive doesn't have all metrics
+# dont use services/pmie output here cos archive doesn't have all metrics
 
 # success, all done
 status=0

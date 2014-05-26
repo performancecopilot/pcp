@@ -433,6 +433,7 @@ main(int argc, char *argv[])
     }
 
     /* tell the world we have arrived */
+    __pmServerCreatePIDFile(PM_SERVER_WEBD_SPEC, 0);
     presence = __pmServerAdvertisePresence(PM_SERVER_WEBD_SPEC, port);
 
     __pmOpenLog(pmProgname, logfile, stderr, &sts);

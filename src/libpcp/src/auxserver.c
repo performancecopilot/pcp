@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -198,6 +198,42 @@ __pmServerSetServiceSpec(const char *spec)
 	serviceSpec = strdup(spec);
     else
 	serviceSpec = PM_SERVER_SERVICE_SPEC;
+}
+
+static void
+pidonexit(void)
+{
+    char        pidpath[MAXPATHLEN];
+
+    if (serviceSpec) {
+	snprintf(pidpath, sizeof(pidpath), "%s%c%s.pid",
+	    pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator(), serviceSpec);
+	unlink(pidpath);
+    }
+}
+
+int
+__pmServerCreatePIDFile(const char *spec, int verbose)
+{
+    char        pidpath[MAXPATHLEN];
+    FILE        *pidfile;
+
+    if (!serviceSpec)
+	__pmServerSetServiceSpec(spec);
+
+    snprintf(pidpath, sizeof(pidpath), "%s%c%s.pid",
+	     pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator(), spec);
+
+    if ((pidfile = fopen(pidpath, "w")) == NULL) {
+	if (verbose)
+	    fprintf(stderr, "Error: cannot open PID file %s\n", pidpath);
+	return -oserror();
+    }
+    atexit(pidonexit);
+    fprintf(pidfile, "%" FMT_PID, getpid());
+    fclose(pidfile);
+    chmod(pidpath, S_IRUSR | S_IRGRP | S_IROTH);
+    return 0;
 }
 
 void

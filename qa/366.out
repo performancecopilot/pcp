@@ -410,6 +410,7 @@ QA output created by 366
 > 	pmda.uname
 > 	pmcd.numagents
 > 	pmcd.numclients
+> 	pmcd.services
 > 	pmcd.version
 > 	pmcd.build
 > 	pmcd.agent.status

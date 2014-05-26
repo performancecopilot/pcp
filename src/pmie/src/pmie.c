@@ -36,12 +36,6 @@
 #include "eval.h"
 #include "show.h"
 
-#if HAVE_TRACE_BACK_STACK
-#define MAX_PCS 30	/* max callback procedure depth */
-#define MAX_SIZE 48	/* max function name length     */
-#include <libexc.h>
-#endif
-
 
 /***********************************************************************
  * constants
@@ -442,31 +436,12 @@ sighupproc(int sig)
 }
 
 static void
-dotraceback(void)
-{
-#if HAVE_TRACE_BACK_STACK
-    __uint64_t	call_addr[MAX_PCS];
-    char	*call_fn[MAX_PCS];
-    char	names[MAX_PCS][MAX_SIZE];
-    int		res;
-    int		i;
-
-    fprintf(stderr, "\nProcedure call traceback ...\n");
-    for (i = 0; i < MAX_PCS; i++)
-        call_fn[i] = names[i];
-    res = trace_back_stack(MAX_PCS, call_addr, call_fn, MAX_PCS, MAX_SIZE);
-    for (i = 1; i < res; i++)
-    fprintf(stderr, "  " PRINTF_P_PFX "%p [%s]\n", (void *)call_addr[i], call_fn[i]);
-#endif
-}
-
-static void
 sigbadproc(int sig)
 {
     if (pmDebug & DBG_TRACE_DESPERATE) {
 	__pmNotifyErr(LOG_ERR, "Unexpected signal %d ...\n", sig);
-	dotraceback();
-	fprintf(stderr, "\nDumping to core ...\n");
+	fprintf(stderr, "\nProcedure call traceback ...\n");
+	__pmDumpStack(stderr);
 	fflush(stderr);
     }
     stopmonitor();

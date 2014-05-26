@@ -82,24 +82,6 @@ DontStart(void)
     exit(1);
 }
 
-static int
-CreatePIDfile(void)
-{
-    char	pidpath[MAXPATHLEN];
-    FILE	*pidfile;
-
-    snprintf(pidpath, sizeof(pidpath), "%s%c" "pmcd.pid",
-		pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator());
-    if ((pidfile = fopen(pidpath, "w")) == NULL) {
-	fprintf(stderr, "Error: Cant open PID file %s\n", pidpath);
-	return -1;
-    }
-    fprintf(pidfile, "%" FMT_PID, getpid());
-    fflush(pidfile);
-    fclose(pidfile);
-    return 0;
-}
-
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("General options"),
     PMOPT_DEBUG,
@@ -785,66 +767,6 @@ SigHupProc(int sig)
 }
 #endif
 
-#if HAVE_TRACE_BACK_STACK
-/*
- * max callback procedure depth (MAX_PCS) and max function name length
- * (MAX_SIZE)
- */
-#define MAX_PCS 30
-#define MAX_SIZE 48
-
-#include <libexc.h>
-
-static void
-do_traceback(FILE *f)
-{
-    __uint64_t	call_addr[MAX_PCS];
-    char	*call_fn[MAX_PCS];
-    char	names[MAX_PCS][MAX_SIZE];
-    int		res;
-    int		i;
-
-    for (i = 0; i < MAX_PCS; i++)
-	call_fn[i] = names[i];
-    res = trace_back_stack(MAX_PCS, call_addr, call_fn, MAX_PCS, MAX_SIZE);
-    for (i = 1; i < res; i++) {
-#if defined(HAVE_64BIT_PTR)
-	fprintf(f, "  0x%016llx [%s]\n", call_addr[i], call_fn[i]);
-#else
-	fprintf(f, "  0x%08lx [%s]\n", (__uint32_t)call_addr[i], call_fn[i]);
-#endif
-    }
-}
-#endif /* HAVE_TRACE_BACK_STACK */
-
-#if HAVE_BACKTRACE
-#include <execinfo.h>
-
-#define MAX_DEPTH 30
-
-static void
-do_traceback(FILE *f)
-{
-    int		nframe;
-    void	*buf[MAX_DEPTH];
-    char	**symbols;
-    int		i;
-
-    nframe = backtrace(buf, MAX_DEPTH);
-    if (nframe < 1) {
-	fprintf(f, "backtrace -> %d frames?\n", nframe);
-	return;
-    }
-    symbols = backtrace_symbols(buf, nframe);
-    if (symbols == NULL) {
-	fprintf(f, "backtrace_symbols failed!\n");
-	return;
-    }
-    for (i = 1; i < nframe; i++)
-	fprintf(f, "  " PRINTF_P_PFX "%p [%s]\n", buf[i], symbols[i]);
-}
-#endif /* HAVE_BACKTRACE */
-
 static void
 SigBad(int sig)
 {
@@ -854,13 +776,8 @@ SigBad(int sig)
 	/* -D desperate on the command line to enable traceback,
 	 * if we have platform support for it
 	 */
-#if defined(HAVE_TRACE_BACK_STACK) || defined(HAVE_BACKTRACE)
 	fprintf(stderr, "\nProcedure call traceback ...\n");
-	do_traceback(stderr);
-#else
-	fprintf(stderr, "\nSorry, no procedure call traceback support ...\n");
-#endif
-	fprintf(stderr, "\nDumping to core ...\n");
+	__pmDumpStack(stderr);
 	fflush(stderr);
     }
     _exit(sig);
@@ -950,7 +867,7 @@ main(int argc, char *argv[])
     }
 
     if (run_daemon) {
-	if (CreatePIDfile() < 0)
+	if (__pmServerCreatePIDFile(PM_SERVER_SERVICE_SPEC, PM_FATAL_ERR) < 0)
 	    DontStart();
 	if (__pmSetProcessIdentity(username) < 0)
 	    DontStart();

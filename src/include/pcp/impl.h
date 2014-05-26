@@ -300,6 +300,7 @@ extern void __pmFreeResultValues(pmResult *);
 extern char *__pmPDUTypeStr_r(int, char *, int);
 extern const char *__pmPDUTypeStr(int);			/* NOT thread-safe */
 extern void __pmDumpNameSpace(FILE *, int);
+extern void __pmDumpStack(FILE *);
 EXTERN int __pmLogReads;
 
 #ifdef PCP_DEBUG
@@ -661,6 +662,7 @@ typedef enum {
 extern int __pmServerHasFeature(__pmServerFeature);
 extern int __pmServerSetFeature(__pmServerFeature);
 extern int __pmServerClearFeature(__pmServerFeature);
+extern int __pmServerCreatePIDFile(const char *, int);
 extern int __pmServerAddPorts(const char *);
 extern int __pmServerAddInterface(const char *);
 extern void __pmServerSetLocalSocket(const char *);

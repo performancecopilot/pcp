@@ -80,7 +80,7 @@ discovery(const char *spec)
 int
 main(int argc, char **argv)
 {
-    int		c, total;
+    int		c, sts, total;
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
@@ -116,12 +116,14 @@ main(int argc, char **argv)
     if (service)
 	return discovery(service);
 
-    for (c = total = 0; c < sizeof(services)/sizeof(services[0]); c++)
-	total += (discovery(services[c]) != 0);
+    for (c = sts = total = 0; c < sizeof(services)/sizeof(services[0]); c++) {
+	sts |= discovery(services[c]);
+	total += (sts != 0);
+    }
 
     /*
      * Exit status indicates total failure - success indicates
      * something (any service, any mechanism) was discovered.
      */
-    return total == sizeof(services)/sizeof(services[0]);
+    return total == sizeof(services)/sizeof(services[0]) ? sts : 0;
 }

@@ -376,6 +376,12 @@ __pmProcessRunTimes(double *usr, double *sys)
 }
 
 void
+__pmDumpStack(FILE *f)
+{
+   /* TODO: StackWalk64 API */
+}
+
+void
 __pmtimevalNow(struct timeval *tv)
 {
     struct timespec ts;

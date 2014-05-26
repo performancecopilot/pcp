@@ -26,7 +26,7 @@ trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 errors=0
 progname=`basename $0`
 pcp_host=`hostname` # may match pmcd.hostname
-for var in unknown version build numagents numclients ncpu ndisk nnode nrouter nxbow ncell mem cputype uname timezone hostname status
+for var in unknown version build numagents numclients ncpu ndisk nnode nrouter nxbow ncell mem cputype uname timezone hostname services status
 do
     eval $var="unknown?"
 done
@@ -36,7 +36,7 @@ do
 done
 
 # metrics
-metrics="pmcd.numagents pmcd.numclients pmcd.version pmcd.build pmcd.timezone pmcd.hostname pmcd.agent.status pmcd.pmlogger.archive pmcd.pmlogger.pmcd_host hinv.ncpu hinv.ndisk hinv.nnode hinv.nrouter hinv.nxbow hinv.ncell hinv.physmem hinv.cputype pmda.uname pmcd.pmie.pmcd_host pmcd.pmie.configfile pmcd.pmie.numrules pmcd.pmie.logfile"
+metrics="pmcd.numagents pmcd.numclients pmcd.version pmcd.build pmcd.timezone pmcd.hostname pmcd.services pmcd.agent.status pmcd.pmlogger.archive pmcd.pmlogger.pmcd_host hinv.ncpu hinv.ndisk hinv.nnode hinv.nrouter hinv.nxbow hinv.ncell hinv.physmem hinv.cputype pmda.uname pmcd.pmie.pmcd_host pmcd.pmie.configfile pmcd.pmie.numrules pmcd.pmie.logfile"
 pmiemetrics="pmcd.pmie.actions pmcd.pmie.eval.true pmcd.pmie.eval.false pmcd.pmie.eval.unknown pmcd.pmie.eval.expected"
 
 # usage spec for pmgetopt, note posix flag (commands mean no reordering)
@@ -327,6 +327,7 @@ mode == 3		{ inst(); next }
 /pmcd.numclients/	{ mode = 1; quote="numclients"; next }
 /pmcd.timezone/		{ mode = 1; quote="timezone"; next }
 /pmcd.hostname/		{ mode = 1; quote="hostname"; next }
+/pmcd.services/		{ mode = 1; quote="services"; next }
 /pmcd.agent.status/	{ mode = 2; count = 0; quote="status"; next }
 /pmcd.pmlogger.archive/	{ mode = 3; count = 0; quote="log_archive"; next }
 /pmcd.pmlogger.pmcd_host/ { mode = 3; count = 0; quote="log_host"; next }
@@ -395,6 +396,7 @@ else
     uname="$uname"
 fi
 
+[ "$services" = $unknown ] && services=""
 [ "$timezone" = $unknown ] && timezone="Unknown"
 [ "$hostname" = $unknown ] || pcp_host="$hostname"
 
@@ -510,6 +512,7 @@ echo
 echo " platform: ${uname}"
 echo " hardware: "`echo $hardware | _fmt`
 echo " timezone: $timezone"
+[ -n "$services" ] && echo " services: $services"
 
 echo "     pmcd: ${version},${numagents}$numclients"
 
