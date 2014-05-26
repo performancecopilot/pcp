@@ -242,32 +242,22 @@ __pmConnectTimeout(void)
 int
 __pmAuxConnectPMCD(const char *hostname)
 {
-    static int		pmcd_port;
+    static int		*pmcd_ports = NULL;
     static int		first_time = 1;
 
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if (first_time) {
-	char	*env_str;
-	char	*end_ptr;
+	int	nports = 0;
 
 	first_time = 0;
 
-	if ((env_str = getenv("PMCD_PORT")) != NULL) {
-	    pmcd_port = (int)strtol(env_str, &end_ptr, 0);
-	    if (*end_ptr != '\0' || pmcd_port < 0) {
-		__pmNotifyErr(LOG_WARNING,
-			      "%s:__pmAuxConnectPMCD: ignored bad PMCD_PORT = '%s'\n",
-			      __FILE__, env_str);
-		pmcd_port = SERVER_PORT;
-	    }
-	}
-	else
-	    pmcd_port = SERVER_PORT;
+	/* __pmPMCDAddPorts discovers at least one valid port, if it returns. */
+	__pmPMCDAddPorts(&pmcd_ports, nports);
     }
     PM_UNLOCK(__pmLock_libpcp);
 
-    return __pmAuxConnectPMCDPort(hostname, pmcd_port);
+    return __pmAuxConnectPMCDPort(hostname, pmcd_ports[0]);
 }
 
 int

@@ -83,39 +83,57 @@ int
 __pmPMCDAddPorts(int **ports, int nports)
 {
     char *env;
+    int  new_nports = nports;
 
     if ((env = getenv("PMCD_PORT")) != NULL)
-	nports = __pmAddPorts(env, ports, nports);
-    else
-	nports = __pmAddPorts(TO_STRING(SERVER_PORT), ports, nports);
+	new_nports = __pmAddPorts(env, ports, nports);
 
-    return nports;
+    /*
+     * Add the default port, if no new ports were added or if there was an
+     * error.
+     */
+    if (new_nports <= nports)
+	new_nports = __pmAddPorts(TO_STRING(SERVER_PORT), ports, nports);
+
+    return new_nports;
 }
 
 int
 __pmProxyAddPorts(int **ports, int nports)
 {
     char *env;
+    int  new_nports = nports;
 
     if ((env = getenv("PMPROXY_PORT")) != NULL)
-	nports = __pmAddPorts(env, ports, nports);
-    else
-	nports = __pmAddPorts(TO_STRING(PROXY_PORT), ports, nports);
+	new_nports = __pmAddPorts(env, ports, nports);
 
-    return nports;
+    /*
+     * Add the default port, if no new ports were added or if there was an
+     * error.
+     */
+    if (new_nports <= nports)
+	new_nports = __pmAddPorts(TO_STRING(PROXY_PORT), ports, nports);
+
+    return new_nports;
 }
 
 int
 __pmWebdAddPorts(int **ports, int nports)
 {
     char *env;
+    int  new_nports = nports;
 
     if ((env = getenv("PMWEBD_PORT")) != NULL)
-	nports = __pmAddPorts(env, ports, nports);
-    else
-	nports = __pmAddPorts(TO_STRING(PMWEBD_PORT), ports, nports);
+	new_nports = __pmAddPorts(env, ports, nports);
 
-    return nports;
+    /*
+     * Add the default port, if no new ports were added or if there was an
+     * error.
+     */
+    if (new_nports <= nports)
+	new_nports = __pmAddPorts(TO_STRING(PMWEBD_PORT), ports, nports);
+
+    return new_nports;
 }
 
 int
