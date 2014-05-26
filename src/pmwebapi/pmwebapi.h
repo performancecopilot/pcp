@@ -1,7 +1,7 @@
 /*
  * JSON web bridge for PMAPI.
  *
- * Copyright (c) 2011-2013 Red Hat Inc.
+ * Copyright (c) 2011-2014 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,7 +33,8 @@ extern char *archivesdir;	/* set by -A option */
 extern char *resourcedir;	/* set by -R option */
 extern unsigned verbosity;	/* set by -v option */
 extern unsigned maxtimeout;	/* set by -t option */
-extern unsigned new_contexts_p;	/* set by -N option */
+extern unsigned new_contexts_p;	/* cleared by -N option */
+extern unsigned graphite_p;	/* set by -G option */
 extern unsigned exit_p;		/* counted by SIG* handler */
 
 /* ------------------------------------------------------------------------ */
@@ -46,6 +47,10 @@ extern unsigned pmwebapi_gc (void);
 extern void pmwebapi_deallocate_all (void);
 extern int pmwebres_respond (void *cls, struct MHD_Connection *connection,
 			     const char *url);
+extern int pmgraphite_respond (void *cls, struct MHD_Connection *connection,
+                               const char *url);
+
+extern int mhd_notify_error (struct MHD_Connection *connection, int rc);
 
 extern void pmweb_notify (int, struct MHD_Connection *, const char *,
 			  ...) __PM_PRINTFLIKE (3, 4);

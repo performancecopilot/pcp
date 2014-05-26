@@ -17,7 +17,8 @@ include $(TOPDIR)/src/include/builddefs
 
 CMDTARGET = pmwebd$(EXECSUFFIX)
 HFILES = pmwebapi.h
-CFILES	= main.c util.c pmwebapi.c pmresapi.c
+CFILES	= main.c util.c pmwebapi.c pmresapi.c pmgraphite.c
+LSRCFILES = rc_pmwebd pmwebd.options
 
 LLDLIBS = $(PCPLIB) -lmicrohttpd
 LDIRT = pmwebd.log pmwebd.service
