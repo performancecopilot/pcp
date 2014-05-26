@@ -22,12 +22,14 @@ char *archivesdir = ".";	/* set by -A option */
 unsigned verbosity;		/* set by -v option */
 unsigned maxtimeout = 300;	/* set by -t option */
 unsigned perm_context = 1;	/* set by -c option, changed by -h/-a/-L */
-unsigned new_contexts_p = 1;	/* set by -N option */
+unsigned new_contexts_p = 1;	/* cleared by -N option */
+unsigned graphite_p;	/* set by -G option */
 unsigned exit_p;		/* counted by SIG* handler */
 static char *logfile = "pmwebd.log";
 static char *fatalfile = "/dev/tty";	/* fatal messages at startup go here */
 static char *username;
 static __pmServerPresence *presence;
+
 
 static int
 mhd_log_args (void *connection, enum MHD_ValueKind kind,
@@ -38,6 +40,42 @@ mhd_log_args (void *connection, enum MHD_ValueKind kind,
 		  key, value ? "=" : "", value ? value : "");
     return MHD_YES;
 }
+
+
+/* Print a best-effort message as a plain-text http response; anything
+   to avoid a dreaded MHD_NO, which results in a 500 return code.
+   That in turn could be interpreted by a web client as an invitation
+   to try, try again. */
+int mhd_notify_error (struct MHD_Connection *connection, int rc)
+{
+    char error_message[1000];
+    char pmmsg[PM_MAXERRMSGLEN];
+    struct MHD_Response *resp;
+
+    (void) pmErrStr_r (rc, pmmsg, sizeof (pmmsg));
+    (void) snprintf (error_message, sizeof (error_message),
+		     "PMWEBD error, code %d: %s", rc, pmmsg);
+    resp = MHD_create_response_from_buffer (strlen (error_message), error_message,
+					    MHD_RESPMEM_MUST_COPY);
+    if (resp == NULL) {
+	pmweb_notify (LOG_ERR, connection, "MHD_create_response_from_buffer failed\n");
+	return MHD_NO;
+    }
+
+    (void) MHD_add_response_header (resp, "Content-Type", "text/plain");
+
+    rc = MHD_queue_response (connection, MHD_HTTP_BAD_REQUEST, resp);
+    MHD_destroy_response (resp);
+
+    if (rc != MHD_YES) {
+	pmweb_notify (LOG_ERR, connection, "MHD_queue_response failed\n");
+	return MHD_NO;
+    }
+
+    return MHD_YES;
+}
+
+
 
 /*
  * Respond to a new incoming HTTP request.  It may be
@@ -78,6 +116,13 @@ mhd_respond (void *cls, struct MHD_Connection *connection,
     if (0 == strncmp (url, uriprefix, strlen (uriprefix)))
 	return pmwebapi_respond (cls, connection, &url[strlen (uriprefix) + 1],	/* strip prefix */
 				 method, upload_data, upload_data_size);
+    /* graphite? */
+    else if (graphite_p &&
+             (0 == strcmp (method, "GET") || 0 == strcmp (method, "POST")) &&
+             (0 == strncmp (url, "/render", 7) || 
+              0 == strncmp (url, "/metrics", 8) ||
+              0 == strncmp (url, "/rawdata", 8)))
+        return pmgraphite_respond (cls, connection, url);
     /* pmresapi? */
     else if (0 == strcmp (method, "GET") && resourcedir != NULL)
 	return pmwebres_respond (cls, connection, url);
@@ -150,6 +195,8 @@ static void server_dump_configuration (FILE * f)
     int sep = __pmPathSeparator ();
     int len;
 
+    fprintf(f, "Using libmicrohttpd %s\n", MHD_get_version());
+
     cwd = getcwd (cwdpath, sizeof (cwdpath));
     if (resourcedir) {
 	len = (__pmAbsolutePath (resourcedir) || !cwd) ?
@@ -176,12 +223,16 @@ static void server_dump_configuration (FILE * f)
     } else {
 	fprintf (f, "Remote context creation requests disabled\n");
     }
+    if (graphite_p) {
+        fprintf (f, "Serving graphite API\n");
+    }
 }
 
 static void pmweb_init_random_seed (void)
 {
     struct timeval tv;
 
+    /* XXX: PR_GetRandomNoise() */
     gettimeofday (&tv, NULL);
     srandom ((unsigned int) getpid () ^
 	     (unsigned int) tv.tv_sec ^ (unsigned int) tv.tv_usec);
@@ -216,6 +267,7 @@ static int option_overrides (int opt, pmOptions * opts)
 	case 'A':
 	case 'a':
 	case 'h':
+	case 'G':
 	case 'L':
 	case 'N':
 	case 'p':
@@ -232,6 +284,7 @@ static pmLongOptions longopts[] = {
     {"ipv6", 0, '6', 0, "listen on IPv6 only"},
     {"timeout", 1, 't', "SEC", "max time (seconds) for PMAPI polling [default 300]"},
     {"resources", 1, 'R', "DIR", "serve non-API files from given directory"},
+    {"graphite", 0, 'G', 0, "enable graphite 0.9 API/backend emulation"},
     PMAPI_OPTIONS_HEADER ("Context options"),
     {"context", 1, 'c', "NUM", "set next permanent-binding context number"},
     {"host", 1, 'h', "HOST", "permanent-bind next context to PMCD on host"},
@@ -253,7 +306,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "A:a:c:D:fh:K:Ll:Np:R:t:U:vx:46?",
+    .short_options = "A:a:c:D:fh:K:Ll:Np:R:Gt:U:vx:46?",
     .long_options = longopts,
     .override = option_overrides,
 };
@@ -294,6 +347,10 @@ int main (int argc, char *argv[])
 
 	    case 'R':
 		resourcedir = opts.optarg;
+		break;
+
+	    case 'G':
+		graphite_p = 1;
 		break;
 
 	    case 'A':

@@ -170,40 +170,6 @@ int pmwebapi_bind_permanent (int webapi_ctx, int pcp_context)
 }
 
 
-/* Print a best-effort message as a plain-text http response; anything
-   to avoid a dreaded MHD_NO, which results in a 500 return code.
-   That in turn could be interpreted by a web client as an invitation
-   to try, try again. */
-static int pmwebapi_notify_error (struct MHD_Connection *connection, int rc)
-{
-    char error_message[1000];
-    char pmmsg[PM_MAXERRMSGLEN];
-    struct MHD_Response *resp;
-
-    (void) pmErrStr_r (rc, pmmsg, sizeof (pmmsg));
-    (void) snprintf (error_message, sizeof (error_message),
-		     "PMWEBAPI error, code %d: %s", rc, pmmsg);
-    resp = MHD_create_response_from_buffer (strlen (error_message), error_message,
-					    MHD_RESPMEM_MUST_COPY);
-    if (resp == NULL) {
-	pmweb_notify (LOG_ERR, connection, "MHD_create_response_from_buffer failed\n");
-	return MHD_NO;
-    }
-
-    (void) MHD_add_response_header (resp, "Content-Type", "text/plain");
-
-    rc = MHD_queue_response (connection, MHD_HTTP_BAD_REQUEST, resp);
-    MHD_destroy_response (resp);
-
-    if (rc != MHD_YES) {
-	pmweb_notify (LOG_ERR, connection, "MHD_queue_response failed\n");
-	return MHD_NO;
-    }
-
-    return MHD_YES;
-}
-
-
 static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
 {
     /* Create a context. */
@@ -388,7 +354,7 @@ static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
  out1:
     MHD_destroy_response (resp);
  out:
-    return pmwebapi_notify_error (connection, rc);
+    return mhd_notify_error (connection, rc);
 }
 
 
@@ -655,7 +621,7 @@ static int pmwebapi_respond_metric_list (struct MHD_Connection *connection,
   out1:
     MHD_destroy_response (resp);
   out:
-    return pmwebapi_notify_error (connection, rc);
+    return mhd_notify_error (connection, rc);
 }
 
 
@@ -995,7 +961,7 @@ static int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
   out1:
     MHD_destroy_response (resp);
   out:
-    return pmwebapi_notify_error (connection, rc);
+    return mhd_notify_error (connection, rc);
 }
 
 
@@ -1204,7 +1170,7 @@ static int pmwebapi_respond_instance_list (struct MHD_Connection *connection,
   out1:
     MHD_destroy_response (resp);
   out:
-    return pmwebapi_notify_error (connection, rc);
+    return mhd_notify_error (connection, rc);
 }
 
 
@@ -1363,7 +1329,8 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
 
     pmweb_notify (LOG_WARNING, connection, "unrecognized %s context command %s \n",
 		  method, context_command);
+    rc = -EINVAL;
 
   out:
-    return pmwebapi_notify_error (connection, rc);
+    return mhd_notify_error (connection, rc);
 }
