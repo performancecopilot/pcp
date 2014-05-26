@@ -894,6 +894,7 @@ avahi
 726 pmlogger pmdumplog local oss
 727 avahi local oss
 728 libpcp local oss
+729 python local oss
 733 pmie pmval pmdumplog local oss
 735 pmda.proc local oss
 736 pmlogrewrite local oss
