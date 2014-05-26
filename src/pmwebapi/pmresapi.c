@@ -76,7 +76,6 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection, const char *
     unsigned int resp_code = MHD_HTTP_OK;
     struct MHD_Response *resp;
     const char *ctype = NULL;
-    static const char error_page[] = "PMRESAPI error";	/* could also be an actual error page... */
 
     (void) cls;
     assert (resourcedir != NULL);	/* facility is enabled at all */
@@ -151,21 +150,5 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection, const char *
     return rc;
 
   error_response:
-    resp = MHD_create_response_from_buffer (strlen (error_page),
-					    (char *) error_page, MHD_RESPMEM_PERSISTENT);
-    if (resp == NULL) {
-	pmweb_notify (LOG_ERR, connection, "MHD_create_response_from_callback failed\n");
-	return MHD_NO;
-    }
-
-    (void) MHD_add_response_header (resp, "Content-Type", "text/plain");
-
-    rc = MHD_queue_response (connection, resp_code, resp);
-    MHD_destroy_response (resp);
-    if (rc != MHD_YES) {
-	pmweb_notify (LOG_ERR, connection, "MHD_queue_response failed\n");
-	return MHD_NO;
-    }
-
-    return rc;
+    return mhd_notify_error (connection, -EINVAL);
 }

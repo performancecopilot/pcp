@@ -44,6 +44,8 @@ An
 .hy
 header is added to all JSON responses.
 
+In addition, pmwebd may serve a subset of the graphite 0.9.2 web-api.
+
 .SH CONTEXT CREATION: pmNewContext
 
 To create a new web context identifier, a web client invokes:
@@ -244,7 +246,12 @@ This is not likely to be supported, as it is destructive and would offer
 a tempting target to brute-force attackers.  Instead, the pmwebd timeout
 is used to automatically free unused contexts. 
 
+.SH GRAPHITE
+
+
+
 .SH SEE ALSO
+
 .BR PCPIntro (1),
 .BR PCPIntro (3),
 .BR pmwebd (3),
