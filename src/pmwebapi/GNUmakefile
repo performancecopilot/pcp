@@ -15,9 +15,9 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-CMDTARGET = pmwebd$(EXECSUFFIX)
-HFILES = pmwebapi.h
-CFILES	= main.c util.c pmwebapi.c pmresapi.c pmgraphite.c
+CXXMDTARGET = pmwebd$(EXECSUFFIX)
+HFILES = pmwebapi.h util.h
+CXXFILES = main.cxx pmwebapi.cxx pmresapi.cxx pmgraphite.cxx util.cxx
 LSRCFILES = rc_pmwebd pmwebd.options
 
 LLDLIBS = $(PCPLIB) -lmicrohttpd
@@ -41,7 +41,7 @@ LCFLAGS += -DHAVE_CAIRO
 endif
 
 ifeq "$(HAVE_LIBMICROHTTPD)" "1"
-build-me:	$(CMDTARGET) pmwebd.service
+build-me:	$(CXXMDTARGET) pmwebd.service
 
 pmwebd.service:	pmwebd.service.in
 	$(SED) -e 's;@path@;'$(PCP_RC_DIR)';' $< > $@
@@ -53,7 +53,7 @@ install:	default
 ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmwebd.service $(PCP_SYSTEMDUNIT_DIR)/pmwebd.service
 endif
-	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
+	$(INSTALL) -m 755 $(CXXMDTARGET) $(PCP_BINADM_DIR)/$(CXXMDTARGET)
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmwebd
 else
 build-me:
