@@ -19,29 +19,20 @@
  */
 
 #include "pmwebapi.h"
-#include <stdio.h>
-#include <stdarg.h>
-#include <inttypes.h>
-#include <ctype.h>
-#include <fts.h>
+
+extern "C" {
 #ifdef HAVE_CAIRO
 #include <cairo/cairo.h>
 #endif
+} using namespace std;
 
 
 /* ------------------------------------------------------------------------ */
-
-/* Search for archives under given base directory.  */
-
-
-/* ------------------------------------------------------------------------ */
-
 
 int pmgraphite_respond (void *cls, struct MHD_Connection *connection,
-                        const char *url)
+			const vector < string > &url)
 {
     int rc;
-
 
     /* XXX: emit CORS header, e.g.
        https://developer.mozilla.org/en-US/docs/HTTP/Access_control_CORS */
@@ -49,10 +40,10 @@ int pmgraphite_respond (void *cls, struct MHD_Connection *connection,
     /* -------------------------------------------------------------------- */
     /* context creation */
     /*
-    if (0 == strcmp (url, "render") &&
-	(0 == strcmp (method, "POST") || 0 == strcmp (method, "GET")))
-	return pmgraphite_render (connection);
-    */
+       if (0 == strcmp (url, "render") &&
+       (0 == strcmp (method, "POST") || 0 == strcmp (method, "GET")))
+       return pmgraphite_render (connection);
+     */
 
     rc = -EINVAL;
 

@@ -18,6 +18,10 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
+#include <string>
+#include <ios>
+
+extern "C" {
 #include "pmapi.h"
 #include "impl.h"
 #include <assert.h>
@@ -25,12 +29,16 @@
 #include <time.h>
 #include <stdarg.h>
 #include <microhttpd.h>
+}
+
+#include "util.h"
+
 
 /* ------------------------------------------------------------------------ */
 
-extern const char uriprefix[];
-extern char *archivesdir;	/* set by -A option */
-extern char *resourcedir;	/* set by -R option */
+extern std::string uriprefix;
+extern std::string archivesdir;	/* set by -A option */
+extern std::string resourcedir;	/* set by -R option */
 extern unsigned verbosity;	/* set by -v option */
 extern unsigned maxtimeout;	/* set by -t option */
 extern unsigned new_contexts_p;	/* cleared by -N option */
@@ -41,18 +49,13 @@ extern unsigned exit_p;		/* counted by SIG* handler */
 
 extern int pmwebapi_bind_permanent (int webapi_ctx, int pcp_context);
 extern int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
-			     const char *url, const char *method,
+			     const std::vector<std::string>& url, const std::string& method,
 			     const char *upload_data, size_t * upload_data_size);
 extern unsigned pmwebapi_gc (void);
 extern void pmwebapi_deallocate_all (void);
 extern int pmwebres_respond (void *cls, struct MHD_Connection *connection,
-			     const char *url);
+			     const std::string& url);
 extern int pmgraphite_respond (void *cls, struct MHD_Connection *connection,
-                               const char *url);
+                               const std::vector<std::string>& url);
 
 extern int mhd_notify_error (struct MHD_Connection *connection, int rc);
-
-extern void pmweb_notify (int, struct MHD_Connection *, const char *,
-			  ...) __PM_PRINTFLIKE (3, 4);
-
-extern void pmweb_start_daemon (int, char **);
