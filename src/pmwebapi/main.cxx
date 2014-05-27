@@ -16,28 +16,36 @@
 
 #include "pmwebapi.h"
 
-const char uriprefix[] = "/pmapi";
-char *resourcedir;		/* set by -R option */
-char *archivesdir = ".";	/* set by -A option */
+#include <string>
+#include <iostream>
+#include <fstream>
+
+using namespace std;
+
+string uriprefix = "pmapi";
+string resourcedir;		/* set by -R option */
+string archivesdir = ".";	/* set by -A option */// XXX: set from getcwd()/realpath()
 unsigned verbosity;		/* set by -v option */
 unsigned maxtimeout = 300;	/* set by -t option */
 unsigned perm_context = 1;	/* set by -c option, changed by -h/-a/-L */
 unsigned new_contexts_p = 1;	/* cleared by -N option */
-unsigned graphite_p;	/* set by -G option */
+unsigned graphite_p;		/* set by -G option */
 unsigned exit_p;		/* counted by SIG* handler */
-static char *logfile = "pmwebd.log";
-static char *fatalfile = "/dev/tty";	/* fatal messages at startup go here */
-static char *username;
 static __pmServerPresence *presence;
+string logfile = "";		/* set by -l option */
+string fatalfile = "/dev/tty";	/* fatal messages at startup go here */
 
 
-static int
-mhd_log_args (void *connection, enum MHD_ValueKind kind,
-	      const char *key, const char *value)
+
+
+int mhd_log_args (void *connection, enum MHD_ValueKind kind,
+		  const char *key, const char *value)
 {
     (void) kind;
-    pmweb_notify (LOG_DEBUG, connection, "%s%s%s",
-		  key, value ? "=" : "", value ? value : "");
+    connstamp (clog, (MHD_Connection *) connection)
+	<< key << (value ? "=" : "")
+	<< (value ? value : "")
+	<< endl;
     return MHD_YES;
 }
 
@@ -58,7 +66,7 @@ int mhd_notify_error (struct MHD_Connection *connection, int rc)
     resp = MHD_create_response_from_buffer (strlen (error_message), error_message,
 					    MHD_RESPMEM_MUST_COPY);
     if (resp == NULL) {
-	pmweb_notify (LOG_ERR, connection, "MHD_create_response_from_buffer failed\n");
+	connstamp (cerr, connection) << "MHD_create_response_from_buffer failed" << endl;
 	return MHD_NO;
     }
 
@@ -68,7 +76,7 @@ int mhd_notify_error (struct MHD_Connection *connection, int rc)
     MHD_destroy_response (resp);
 
     if (rc != MHD_YES) {
-	pmweb_notify (LOG_ERR, connection, "MHD_queue_response failed\n");
+	connstamp (cerr, connection) << "MHD_queue_response failed" << endl;
 	return MHD_NO;
     }
 
@@ -86,15 +94,13 @@ int mhd_notify_error (struct MHD_Connection *connection, int rc)
  */
 static int
 mhd_respond (void *cls, struct MHD_Connection *connection,
-	     const char *url, const char *method, const char *version,
+	     const char *url0, const char *method0, const char *version,
 	     const char *upload_data, size_t * upload_data_size, void **con_cls)
 {
-    /* "error_page" could also be an actual error page... */
-    static const char error_page[] = "PMWEBD error";
-    static int dummy;
+    string url = url0;
+    string method = method0 ? string (method0) : "";
 
-    struct MHD_Response *resp = NULL;
-    int sts;
+    static int dummy;
 
     /*
      * MHD calls us at least twice per request.  Skip the first one,
@@ -107,70 +113,59 @@ mhd_respond (void *cls, struct MHD_Connection *connection,
     *con_cls = NULL;
 
     if (verbosity > 1)
-	pmweb_notify (LOG_INFO, connection, "%s %s %s", version, method, url);
+	connstamp (clog, connection) << version << " " << method << " " << url << endl;
     if (verbosity > 2)		/* Print arguments too. */
 	(void) MHD_get_connection_values (connection, MHD_GET_ARGUMENT_KIND,
 					  &mhd_log_args, connection);
 
-    /* pmwebapi? */
-    if (0 == strncmp (url, uriprefix, strlen (uriprefix)))
-	return pmwebapi_respond (cls, connection, &url[strlen (uriprefix) + 1],	/* strip prefix */
-				 method, upload_data, upload_data_size);
-    /* graphite? */
-    else if (graphite_p &&
-             (0 == strcmp (method, "GET") || 0 == strcmp (method, "POST")) &&
-             (0 == strncmp (url, "/render", 7) || 
-              0 == strncmp (url, "/metrics", 8) ||
-              0 == strncmp (url, "/rawdata", 8)))
-        return pmgraphite_respond (cls, connection, url);
-    /* pmresapi? */
-    else if (0 == strcmp (method, "GET") && resourcedir != NULL)
-	return pmwebres_respond (cls, connection, url);
+    // first component (or the whole remainder)
+    // XXX: what about ?querystr?
+    vector < string > url_tokens = split (url, '/');
+    if (url_tokens.size () >= 2) {
+	const string & url1 = url_tokens[1];
 
-    /* junk? */
-    MHD_add_response_header (resp, "Content-Type", "text/plain");
-    resp = MHD_create_response_from_buffer (strlen (error_page),
-					    (char *) error_page, MHD_RESPMEM_PERSISTENT);
-    if (resp == NULL) {
-	pmweb_notify (LOG_ERR, connection, "MHD_create_response_from_callback failed\n");
-	return MHD_NO;
+	/* pmwebapi? */
+	if (url1 == uriprefix)
+	    return pmwebapi_respond (cls, connection, url_tokens,	/* strip prefix */
+				     method, upload_data, upload_data_size);
+	/* graphite? */
+	else if (graphite_p &&
+		 (method == "GET" || method == "POST") &&
+		 (url1 == "render" || url1 == "metrics" || url1 == "rawdata"))
+	    return pmgraphite_respond (cls, connection, url_tokens);
+
+	/* pmresapi? */
+	else if ((resourcedir != "") && (method == "GET"))
+	    return pmwebres_respond (cls, connection, url);
     }
 
-    sts = MHD_queue_response (connection, MHD_HTTP_BAD_REQUEST, resp);
-    MHD_destroy_response (resp);
-    if (sts != MHD_YES) {
-	pmweb_notify (LOG_ERR, connection, "MHD_queue_response failed\n");
-	return MHD_NO;
-    }
-    return MHD_YES;
+    return mhd_notify_error (connection, -EINVAL);
 }
 
 static void handle_signals (int sig)
 {
     (void) sig;
     exit_p++;
+    // NB: invoke no async-signal-unsafe functions!
 }
 
 static void pmweb_dont_start (void)
 {
-    FILE *tty;
-    FILE *log;
+    timestamp (cerr) << "pmwebd not started due to errors!" << endl;
 
-    __pmNotifyErr (LOG_ERR, "pmwebd not started due to errors!\n");
+    ofstream tty (fatalfile.c_str ());
+    if (tty.good ()) {
+	timestamp (tty) << "NOTE: pmwebd not started due to errors!" << endl;
 
-    if ((tty = fopen (fatalfile, "w")) != NULL) {
-	fflush (stderr);
-	fprintf (tty, "NOTE: pmwebd not started due to errors!  ");
-	if ((log = fopen (logfile, "r")) != NULL) {
-	    int c;
-
-	    fprintf (tty, "Log file \"%s\" contains ...\n", logfile);
-	    while ((c = fgetc (log)) != EOF)
-		fputc (c, tty);
-	    fclose (log);
-	} else
-	    fprintf (tty, "Log file \"%s\" has vanished!\n", logfile);
-	fclose (tty);
+	// copy logfile to tty, if it was specified
+	if (logfile != "") {
+	    tty << "Log file \"" << logfile << "\" contains ..." << endl;
+	    ifstream log (logfile.c_str ());
+	    if (log.good ())
+		tty << log.rdbuf ();
+	    else
+		tty << "Log file \"" << logfile << "\" has vanished ..." << endl;
+	}
     }
     exit (1);
 }
@@ -179,54 +174,49 @@ static void pmweb_dont_start (void)
  * Local variant of __pmServerDumpRequestPorts - remove this
  * when an NSS-based pmweb daemon is built.
  */
-static void server_dump_request_ports (FILE * f, int ipv4, int ipv6, int port)
+static void server_dump_request_ports (int ipv4, int ipv6, int port)
 {
     if (ipv4)
-	fprintf (f, "Started daemon on IPv4 TCP port %d\n", port);
+	clog << "Started daemon on IPv4 TCP port " << port << endl;
     if (ipv6)
-	fprintf (f, "Started daemon on IPv6 TCP port %d\n", port);
+	clog << "Started daemon on IPv6 TCP port " << port << endl;
 }
 
-static void server_dump_configuration (FILE * f)
+static void server_dump_configuration ()
 {
     char *cwd;
-    char path[MAXPATHLEN];
     char cwdpath[MAXPATHLEN];
-    int sep = __pmPathSeparator ();
-    int len;
+    char sep = __pmPathSeparator ();
 
-    fprintf(f, "Using libmicrohttpd %s\n", MHD_get_version());
+    // Assume timestamp() already just called, so we
+    // don't have to repeat.
+
+    clog << "Using libmicrohttpd " << MHD_get_version () << endl;
 
     cwd = getcwd (cwdpath, sizeof (cwdpath));
-    if (resourcedir) {
-	len = (__pmAbsolutePath (resourcedir) || !cwd) ?
-	    snprintf (path, sizeof (path), "%s", resourcedir) :
-	    snprintf (path, sizeof (path), "%s%c%s", cwd, sep, resourcedir);
-	while (len-- > 1) {
-	    if (path[len] != '.' && path[len] != sep)
-		break;
-	    path[len] = '\0';
-	}
-	fprintf (f, "Serving non-pmwebapi URLs under directory %s\n", path);
+
+    if (resourcedir != "") {
+	clog << "Serving non-pmwebapi URLs under directory ";
+	// (NB: __pmAbsolutePath() should take const args)
+	if (__pmAbsolutePath ((char *) resourcedir.c_str ()) || !cwd)
+	    clog << resourcedir << endl;
+	else
+	    clog << cwd << sep << resourcedir << endl;
     }
+
     if (new_contexts_p) {
-	len = (__pmAbsolutePath (archivesdir) || !cwd) ?
-	    snprintf (path, sizeof (path), "%s", archivesdir) :
-	    snprintf (path, sizeof (path), "%s%c%s", cwd, sep, archivesdir);
-	while (len-- > 1) {
-	    if (path[len] != '.' && path[len] != sep)
-		break;
-	    path[len] = '\0';
-	}
+	clog << "Serving archives under directory ";
+	if (__pmAbsolutePath ((char *) archivesdir.c_str ()) || !cwd)
+	    clog << archivesdir << endl;
+	else
+	    clog << cwd << sep << archivesdir << endl;
 	/* XXX: network outbound ACL */
-	fprintf (f, "Serving PCP archives under directory %s\n", path);
-    } else {
-	fprintf (f, "Remote context creation requests disabled\n");
-    }
-    if (graphite_p) {
-        fprintf (f, "Serving graphite API\n");
-    }
+    } else
+	clog << "Remote context creation requests disabled" << endl;
+
+    clog << "Graphite API " << (graphite_p ? "enabled" : "disabled") << endl;
 }
+
 
 static void pmweb_init_random_seed (void)
 {
@@ -237,6 +227,7 @@ static void pmweb_init_random_seed (void)
     srandom ((unsigned int) getpid () ^
 	     (unsigned int) tv.tv_sec ^ (unsigned int) tv.tv_usec);
 }
+
 
 static void pmweb_shutdown (struct MHD_Daemon *d4, struct MHD_Daemon *d6)
 {
@@ -255,7 +246,7 @@ static void pmweb_shutdown (struct MHD_Daemon *d4, struct MHD_Daemon *d6)
      */
     pmwebapi_deallocate_all ();
 
-    __pmNotifyErr (LOG_INFO, "pmwebd Shutdown\n");
+    timestamp (clog) << "pmwebd shutdown" << endl;
     fflush (stderr);
 }
 
@@ -290,13 +281,10 @@ static pmLongOptions longopts[] = {
     {"host", 1, 'h', "HOST", "permanent-bind next context to PMCD on host"},
     {"archive", 1, 'a', "FILE", "permanent-bind next context to archive"},
     {"local-PMDA", 0, 'L', 0, "permanent-bind next context to local PMDAs"},
-    PMOPT_SPECLOCAL,
-    PMOPT_LOCALPMDA,
     {"", 0, 'N', 0, "disable remote new-context requests"},
     {"", 1, 'A', "DIR", "permit remote new-archive-context under dir [default CWD]"},
     PMAPI_OPTIONS_HEADER ("Other"),
     PMOPT_DEBUG,
-    {"foreground", 0, 'f', 0, "run in the foreground"},
     {"log", 1, 'l', "FILE", "redirect diagnostics and trace output"},
     {"verbose", 0, 'v', 0, "increase verbosity"},
     {"username", 1, 'U', "USER", "decrease privilege from root to user [default pcp]"},
@@ -305,11 +293,7 @@ static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_END
 };
 
-static pmOptions opts = {
-    .short_options = "A:a:c:D:fh:K:Ll:Np:R:Gt:U:vx:46?",
-    .long_options = longopts,
-    .override = option_overrides,
-};
+static pmOptions opts;
 
 int main (int argc, char *argv[])
 {
@@ -318,14 +302,18 @@ int main (int argc, char *argv[])
     int ctx;
     int mhd_ipv4 = 1;
     int mhd_ipv6 = 1;
-    int run_daemon = 1;
     int port = PMWEBD_PORT;
     char *endptr;
     struct MHD_Daemon *d4 = NULL;
     struct MHD_Daemon *d6 = NULL;
 
     umask (022);
-    __pmGetUsername (&username);
+    char *username_str;
+    __pmGetUsername (&username_str);
+
+    opts.short_options = "A:a:c:D:h:Ll:Np:R:Gt:U:vx:46?";
+    opts.long_options = longopts;
+    opts.override = option_overrides;
 
     while ((c = pmGetOptions (argc, argv, &opts)) != EOF) {
 	switch (c) {
@@ -425,11 +413,6 @@ int main (int argc, char *argv[])
 		new_contexts_p = 0;
 		break;
 
-	    case 'f':
-		/* foreground, i.e. do _not_ run as a daemon */
-		run_daemon = 0;
-		break;
-
 	    case 'l':
 		/* log file name */
 		logfile = opts.optarg;
@@ -437,7 +420,7 @@ int main (int argc, char *argv[])
 
 	    case 'U':
 		/* run as user username */
-		username = opts.optarg;
+		username_str = opts.optarg;
 		break;
 
 	    case 'x':
@@ -449,11 +432,6 @@ int main (int argc, char *argv[])
     if (opts.errors) {
 	pmUsageMessage (&opts);
 	exit (EXIT_FAILURE);
-    }
-
-    if (run_daemon) {
-	fflush (stderr);
-	pmweb_start_daemon (argc, argv);
     }
 
     /*
@@ -476,25 +454,41 @@ int main (int argc, char *argv[])
 	pmweb_dont_start ();
     }
 
+    /* lose root privileges if we have them */
+    if (geteuid () == 0)
+	__pmSetProcessIdentity (username_str);
+
     /* tell the world we have arrived */
     __pmServerCreatePIDFile(PM_SERVER_WEBD_SPEC, 0);
     presence = __pmServerAdvertisePresence(PM_SERVER_WEBD_SPEC, port);
 
-    if (run_daemon) { /* in foreground mode, leave diagnostic fd's alone */
-        __pmOpenLog(pmProgname, logfile, stderr, &sts);
-
-	/* close old stdout, and force stdout into same stream as stderr */
-	fflush (stdout);
-	close (fileno (stdout));
-	if (dup (fileno (stderr)) == -1)
-	    fprintf (stderr, "Warning: dup() failed: %s\n", pmErrStr (-oserror ()));
+    // (re)create log file, redirect stdout/stderr
+    // NB: must be done after __pmSetProcessIdentity() for proper file permissions
+    if (logfile != "") {
+	int fd;
+	(void) unlink (logfile.c_str ());	// in case one's left over from a previous other-uid run
+	fd = open (logfile.c_str (), O_WRONLY | O_APPEND | O_CREAT | O_TRUNC, 0666);
+	if (fd < 0)
+	    timestamp (cerr) << "Cannot re-create logfile " << logfile << endl;
+	else {
+	    int rc;
+	    // Move the new file descriptors on top of stdout/stderr
+	    rc = dup2 (fd, STDOUT_FILENO);
+	    if (rc < 0)		// rather unlikely
+		timestamp (cerr) << "Cannot redirect logfile to stdout" << endl;
+	    rc = dup2 (fd, STDERR_FILENO);
+	    if (rc < 0)		// rather unlikely
+		timestamp (cerr) << "Cannot redirect logfile to stderr" << endl;
+	    rc = close (fd);
+	    if (rc < 0)		// rather unlikely
+		timestamp (cerr) << "Cannot close logfile fd" << endl;
+	}
     }
 
-    fprintf (stderr, "%s: PID = %" FMT_PID ", PMAPI URL = %s\n",
-	     pmProgname, getpid (), uriprefix);
-    server_dump_request_ports (stderr, d4 != NULL, d6 != NULL, port);
-    server_dump_configuration (stderr);
-    fflush (stderr);
+    timestamp (clog) << pmProgname << " PID = " << getpid ()
+	<< " PMAPI URL = " << uriprefix << endl;
+    server_dump_request_ports (d4 != NULL, d6 != NULL, port);
+    server_dump_configuration ();
 
     /* Set up signal handlers. */
     __pmSetSignalHandler (SIGHUP, SIG_IGN);
@@ -503,10 +497,6 @@ int main (int argc, char *argv[])
     __pmSetSignalHandler (SIGQUIT, handle_signals);
     /* Not this one; might get it from pmcd momentary disconnection. */
     /* __pmSetSignalHandler(SIGPIPE, handle_signals); */
-
-    /* lose root privileges if we have them */
-    if (geteuid () == 0)
-	__pmSetProcessIdentity (username);
 
     /* Setup randomness for calls to random() */
     pmweb_init_random_seed ();
@@ -546,62 +536,4 @@ int main (int argc, char *argv[])
 
     pmweb_shutdown (d4, d6);
     return 0;
-}
-
-/*
- * Generate a __pmNotifyErr with the given arguments,
- * but also adding some per-connection metadata info.
- */
-void pmweb_notify (int priority, struct MHD_Connection *conn, const char *fmt, ...)
-{
-    struct sockaddr *so;
-    va_list arg;
-    char message_buf[2048];	/* size similar to __pmNotifyErr */
-    char *message_tail;
-    size_t message_len;
-    char hostname[128];
-    char servname[128];
-    int sts = -1;
-
-    /* Look up client address data. */
-    so = (struct sockaddr *) MHD_get_connection_info (conn,
-						      MHD_CONNECTION_INFO_CLIENT_ADDRESS)->
-	client_addr;
-
-    if (so && so->sa_family == AF_INET)
-	sts = getnameinfo (so, sizeof (struct sockaddr_in),
-			   hostname, sizeof (hostname),
-			   servname, sizeof (servname), NI_NUMERICHOST | NI_NUMERICSERV);
-    else if (so && so->sa_family == AF_INET6)
-	sts = getnameinfo (so, sizeof (struct sockaddr_in6),
-			   hostname, sizeof (hostname),
-			   servname, sizeof (servname), NI_NUMERICHOST | NI_NUMERICSERV);
-    if (sts != 0)
-	hostname[0] = servname[0] = '\0';
-
-    /* Add the [hostname:port] as a prefix */
-    sts = snprintf (message_buf, sizeof (message_buf), "[%s:%s] ", hostname, servname);
-
-    if (sts > 0 && sts < (int) sizeof (message_buf)) {
-	message_tail = message_buf + sts;	/* Keep it only if successful. */
-	message_len = sizeof (message_buf) - sts;
-    } else {
-	message_tail = message_buf;
-	message_len = sizeof (message_buf);
-    }
-
-    /* Add the remaining incoming text. */
-    va_start (arg, fmt);
-    sts = vsnprintf (message_tail, message_len, fmt, arg);
-    va_end (arg);
-
-    /*
-     * Delegate, but avoid format-string vulnerabilities.  Drop the
-     * trailing \n, if there is one, since __pmNotifyErr will add one
-     * for us (since it is missing from the %s format string).
-     */
-    if (sts >= 0 && sts < (int) message_len)
-	if (message_tail[sts - 1] == '\n')
-	    message_tail[sts - 1] = '\0';
-    __pmNotifyErr (priority, "%s", message_buf);
 }

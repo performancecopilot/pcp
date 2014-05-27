@@ -1,7 +1,7 @@
 /*
  * JSON web bridge for PMAPI.
  *
- * Copyright (c) 2011-2013 Red Hat Inc.
+ * Copyright (c) 2011-2014 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,6 +20,8 @@
 
 #include "pmwebapi.h"
 #include "config.h"
+
+using namespace std;
 
 
 /* ------------------------------------------------------------------------ */
@@ -67,7 +69,7 @@ static const char *create_rfc822_date (time_t t)
 /* Respond to a GET request, not under the pmwebapi URL prefix.  This
    is a mini fileserver, just for small standalone installations of
    pmwebapi-based web front-ends. */
-int pmwebres_respond (void *cls, struct MHD_Connection *connection, const char *url)
+int pmwebres_respond (void *cls, struct MHD_Connection *connection, const string & url)
 {
     int fd = -1;
     int rc;
@@ -78,31 +80,30 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection, const char *
     const char *ctype = NULL;
 
     (void) cls;
-    assert (resourcedir != NULL);	/* facility is enabled at all */
+    assert (resourcedir != "");	/* facility is enabled at all */
 
     assert (url[0] == '/');
-    rc = snprintf (filename, sizeof (filename), "%s%s", resourcedir, url);
+    rc = snprintf (filename, sizeof (filename), "%s%s", resourcedir.c_str (),
+		   url.c_str ());
     if (rc < 0 || rc >= (int) sizeof (filename))
 	goto error_response;
 
     /* Reject some obvious ways of escaping resourcedir. */
     if (NULL != strstr (filename, "/../")) {
-	pmweb_notify (LOG_ERR, connection, "pmwebres suspicious url %s\n", url);
+	connstamp (cerr, connection) << "pmwebres suspicious url " << url << endl;
 	goto error_response;
     }
 
     fd = open (filename, O_RDONLY);
     if (fd < 0) {
-	pmweb_notify (LOG_ERR, connection, "pmwebres open %s failed (%d)\n", filename,
-		      fd);
+	connstamp (cerr, connection) << "pmwebres failed to open " << filename << endl;
 	resp_code = MHD_HTTP_NOT_FOUND;
 	goto error_response;
     }
 
     rc = fstat (fd, &fds);
     if (rc < 0) {
-	pmweb_notify (LOG_ERR, connection, "pmwebres stat %s failed (%d)\n", filename,
-		      rc);
+	connstamp (cerr, connection) << "pmwebres failed to stat " << filename << endl;
 	close (fd);
 	goto error_response;
     }
@@ -110,7 +111,7 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection, const char *
     /* XXX: handle if-modified-since */
 
     if (!S_ISREG (fds.st_mode)) {
-	pmweb_notify (LOG_ERR, connection, "pmwebres non-file %s attempted\n", filename);
+	connstamp (cerr, connection) << "pmwebres non-file " << filename << endl;
 	close (fd);
 
 	/* XXX: list directory, or redirect to index.html instead? */
@@ -119,11 +120,11 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection, const char *
     }
 
     if (verbosity > 2)
-	pmweb_notify (LOG_INFO, connection, "pmwebres serving file %s.\n", filename);
+	connstamp (clog, connection) << "pmwebres serving file " << filename << endl;
 
     resp = MHD_create_response_from_fd_at_offset (fds.st_size, fd, 0);	/* auto-closes fd */
     if (resp == NULL) {
-	pmweb_notify (LOG_ERR, connection, "MHD_create_response_from_callback failed\n");
+	connstamp (cerr, connection) << "MHD_create_response_from_callbac failed" << endl;
 	goto error_response;
     }
 
