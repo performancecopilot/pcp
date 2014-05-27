@@ -62,9 +62,9 @@ unsigned pmwebapi_gc ()
     for (context_map::iterator it = contexts.begin (); it != contexts.end (); /* null */ ) {
 
 	if (it->second->expires == 0) {	// permanent
-            it ++;
+	    it++;
 	    continue;
-        }
+	}
 
 	if (it->second->expires < now) {
 	    if (verbosity)
@@ -75,12 +75,12 @@ unsigned pmwebapi_gc ()
 	    context_map::iterator it2 = it++;
 	    contexts.erase (it2);
 	} else {
-            if (soonest == 0)	// first
-                soonest = it->second->expires;
-            else if (soonest > it->second->expires)	// not earliest
-                soonest = it->second->expires;
-            it ++;
-        }
+	    if (soonest == 0)	// first
+		soonest = it->second->expires;
+	    else if (soonest > it->second->expires)	// not earliest
+		soonest = it->second->expires;
+	    it++;
+	}
     }
 
     return soonest ? (unsigned) (soonest - now) : maxtimeout;
@@ -257,12 +257,8 @@ static int pmwebapi_respond_new_context (struct MHD_Connection
 	    if (webapi_ctx <= 0)
 		continue;
 	    rc = webcontext_allocate (webapi_ctx, &c);
-	    if (rc == 0) {
-		if (verbosity)
-		    connstamp (clog, connection) << "webapi context=" << webapi_ctx
-			<< " pm=" << context << "created." << endl;
+	    if (rc == 0)
 		break;
-	    }
 
 	    /* This may already exist.  We loop in case the key id already exists. */
 	}
@@ -334,135 +330,51 @@ static int pmwebapi_respond_new_context (struct MHD_Connection
 
 /* ------------------------------------------------------------------------ */
 
-/* Buffer for building a MHD_Response incrementally.  libmicrohttpd does not
-   provide such a facility natively. */
-/* XXX: convert to stringstream? */
-struct mhdb {
-    size_t buf_size;
-    size_t buf_used;
-    char *buf;			/* malloc/realloc()'d.  If NULL, mhdbuf is a loser: 
-				   Attempt no landings there. */
-};
-
-/* Create a MHD response buffer of given initial size.  Upon failure,
-   leave the buffer unallocated, which will block any mhdb_printfs,
-   and cause mhdb_fini_response to fail. */
-static void mhdb_init (struct mhdb *md, size_t size)
-{
-    md->buf_size = size;
-    md->buf_used = 0;
-    md->buf = (char *) malloc (md->buf_size);	/* may be NULL => loser */
-}
-
-
-/* Add a given formatted string to the end of the MHD response buffer.
-   Extend/realloc the buffer if needed.  If unable, free the buffer,
-   which will block any further mhdb_vsprintfs, and cause the
-   mhdb_fini_response to fail. */
-static void mhdb_printf (struct mhdb *md, const char *fmt, ...)
-    __attribute__ ((format (printf, 2, 3)));
-static void mhdb_printf (struct mhdb *md, const char *fmt, ...)
-{
-    va_list vl;
-    int n;
-    int buf_remaining = md->buf_size - md->buf_used;
-    if (md->buf == NULL)
-	return;			/* reject loser */
-    va_start (vl, fmt);
-    n = vsnprintf (md->buf + md->buf_used, buf_remaining, fmt, vl);
-    va_end (vl);
-    if (n >= buf_remaining) {	/* complex case: buffer overflow */
-	char *nbuf;
-	md->buf_size += n * 128;	/* pad it to discourage reoffense */
-	buf_remaining += n * 128;
-	nbuf = (char *) realloc (md->buf, md->buf_size);
-	if (nbuf == NULL) {	/* ENOMEM */
-	    free (md->buf);	/* realloc left it alone */
-	    md->buf = NULL;	/* tag loser */
-	} else {		/* success */
-	    md->buf = nbuf;
-	    /* Try vsnprintf again into the new buffer. */
-	    va_start (vl, fmt);
-	    n = vsnprintf (md->buf + md->buf_used, buf_remaining, fmt, vl);
-	    va_end (vl);
-	    assert (n >= 0 && n < buf_remaining);	/* should not fail */
-	    md->buf_used += n;
-	}
-    } else if (n < 0) {		/* simple case: other vsprintf error */
-	free (md->buf);
-	md->buf = NULL;		/* tag loser */
-    } else {			/* normal case: vsprintf success */
-	md->buf_used += n;
-    }
-
-}
-
 
 /* Print a string with JSON quoting.  Replace non-ASCII characters
    with \uFFFD "REPLACEMENT CHARACTER". */
-static void mhdb_print_qstring (struct mhdb *md, const char *value)
+static void json_quote (ostream & o, const string & value)
 {
-    const char *c;
-    mhdb_printf (md, "\"");
-    for (c = value; *c; c++) {
-	if (!isascii (*c))
-	    mhdb_printf (md, "\\uFFFD");
-	else if (isalnum (*c))
-	    mhdb_printf (md, "%c", *c);
-	else if (ispunct (*c) && !iscntrl (*c) && (*c != '\\' && *c != '\"'))
-	    mhdb_printf (md, "%c", *c);
-	else if (*c == ' ')
-	    mhdb_printf (md, "%c", *c);
+    const char hex[] = "0123456789ABCDEF";
+    o << '"';
+    for (unsigned i = 0; i < value.length (); i++) {
+	char c = value[i];
+	if (!isascii (c))
+	    o << "\\uFFFD";
+	else if (isalnum (c))
+	    o << c;
+	else if (ispunct (c) && !iscntrl (c) && (c != '\\' && c != '\"'))
+	    o << c;
+	else if (c == ' ')
+	    o << c;
 	else
-	    mhdb_printf (md, "\\u00%02x", *c);
+	    o << "\\u00" << hex[(c >> 4) & 0xf] << hex[(c >> 0) & 0xf];
     }
-    mhdb_printf (md, "\"");
+    o << '"';
 }
 
 
 /* A convenience function to print a vanilla-ascii key and an
    unknown ancestry value as a JSON pair.  Add given suffix,
    which is likely to be a comma or a \n. */
-static void mhdb_print_key_value (struct mhdb *md, const char *key,
-				  const char *value, const char *suffix)
+template < class Value >
+    void json_key_value (ostream & o, const string & key,
+			 const Value & value, const char *suffix = " ")
 {
-    mhdb_printf (md, "\"%s\":", key);
-    mhdb_print_qstring (md, value);
-    mhdb_printf (md, "%s", suffix);
+    o << '"' << key << '"' << ':' << value << suffix;
 }
 
+// prevent pointers (including char*) from coming this way
+template < class Value > void json_key_value (ostream &, const string &, const Value *, const char *);	// link-time error
 
-#if 0				/* unused */
-/* Ensure that any recent mhdb_printfs are canceled, and that the
-   final mhdb_fini_response will fail. */
-static void mhdb_unprintf (struct mhdb *md)
+template <>			// <-- NB: important for proper overloading/specialization of the template
+void json_key_value (ostream & o, const string & key,
+		     const string & value, const char *suffix)
 {
-    if (md->buf) {
-	free (md->buf);
-	md->buf = NULL;
-    }
+    o << '"' << key << '"' << ':';
+    json_quote (o, value);
+    o << suffix;
 }
-#endif
-
-
-/* Create a MHD_Response from the mhdb, now that we're done with it.
-   If the buffer overflowed earlier (was unable to be extended), or if
-   the MHD_create_response* function fails, return NULL.  Ensure that
-   the buffer will be freed either by us here, or later by a
-   successful MHD_create_response* function. */
-static struct MHD_Response *mhdb_fini_response (struct mhdb *md)
-{
-    struct MHD_Response *r;
-    if (md->buf == NULL)
-	return NULL;		/* reject loser */
-    r = MHD_create_response_from_buffer (md->buf_used, md->buf, MHD_RESPMEM_MUST_FREE);
-    if (r == NULL) {
-	free (md->buf);		/* we need to free it ourselves */
-	/* fall through */
-    }
-    return r;
-}
-
 
 
 
@@ -471,9 +383,11 @@ static struct MHD_Response *mhdb_fini_response (struct mhdb *md)
 struct metric_list_traverse_closure {
     struct MHD_Connection *connection;
     struct webcontext *c;
-    struct mhdb mhdb;
+    ostringstream *mhdb;
     unsigned num_metrics;
 };
+
+
 static void metric_list_traverse (const char *metric, void *closure)
 {
     struct metric_list_traverse_closure *mltc =
@@ -499,30 +413,33 @@ static void metric_list_traverse (const char *metric, void *closure)
     }
 
     if (mltc->num_metrics > 0)
-	mhdb_printf (&mltc->mhdb, ",\n");
-    mhdb_printf (&mltc->mhdb, "{ ");
-    mhdb_print_key_value (&mltc->mhdb, "name", metric, ",");
+	*mltc->mhdb << ",\n";
+
+    *mltc->mhdb << "{";
+
+    json_key_value (*mltc->mhdb, "name", string (metric), ",");
     rc = pmLookupText (metric_id, PM_TEXT_ONELINE, &metric_text);
     if (rc == 0) {
-	mhdb_print_key_value (&mltc->mhdb, "text-oneline", metric_text, ",");
+	json_key_value (*mltc->mhdb, "text-oneline", string (metric_text), ",");
 	free (metric_text);
     }
     rc = pmLookupText (metric_id, PM_TEXT_HELP, &metric_text);
     if (rc == 0) {
-	mhdb_print_key_value (&mltc->mhdb, "text-help", metric_text, ",");
+	json_key_value (*mltc->mhdb, "text-help", string (metric_text), ",");
 	free (metric_text);
     }
-    mhdb_printf (&mltc->mhdb, "\"pmid\":%lu, ", (unsigned long) metric_id);
+    json_key_value (*mltc->mhdb, "pmid", (unsigned long) metric_id);
     if (metric_desc.indom != PM_INDOM_NULL)
-	mhdb_printf (&mltc->mhdb, "\"indom\":%lu, ", (unsigned long) metric_desc.indom);
-    mhdb_print_key_value (&mltc->mhdb, "sem",
-			  (metric_desc.sem ==
-			   PM_SEM_COUNTER ? "counter" : metric_desc.sem ==
-			   PM_SEM_INSTANT ? "instant" : metric_desc.sem ==
-			   PM_SEM_DISCRETE ? "discrete" : "unknown"), ",");
-    mhdb_print_key_value (&mltc->mhdb, "units", pmUnitsStr (&metric_desc.units), ",");
-    mhdb_print_key_value (&mltc->mhdb, "type", pmTypeStr (metric_desc.type), "");
-    mhdb_printf (&mltc->mhdb, "}");
+	json_key_value (*mltc->mhdb, "indom", (unsigned long) metric_desc.indom);
+    json_key_value (*mltc->mhdb, "sem",
+		    string (metric_desc.sem ==
+			    PM_SEM_COUNTER ? "counter" : metric_desc.sem ==
+			    PM_SEM_INSTANT ? "instant" : metric_desc.sem ==
+			    PM_SEM_DISCRETE ? "discrete" : "unknown"), ",");
+    json_key_value (*mltc->mhdb, "units", string (pmUnitsStr (&metric_desc.units)), ",");
+    json_key_value (*mltc->mhdb, "type", string (pmTypeStr (metric_desc.type)), "");
+
+    *mltc->mhdb << "}";
     mltc->num_metrics++;
 }
 
@@ -537,21 +454,27 @@ static int pmwebapi_respond_metric_list (struct MHD_Connection
     mltc.connection = connection;
     mltc.c = c;
     mltc.num_metrics = 0;
-    /* We need to construct a copy of the entire JSON metric metadata string,
-       in one long malloc()'d buffer.  We size it generously to avoid having
-       to realloc the bad boy and cause copies. */
-    mhdb_init (&mltc.mhdb, 300000);	/* 1000 pmns entries * 300 bytes each */
-    mhdb_printf (&mltc.mhdb, "{ \"metrics\":[\n");
+    mltc.mhdb = new ostringstream ();
+
+    *mltc.mhdb << "{ \"metrics\":[\n";
+
     val = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "prefix");
     if (val == NULL)
 	val = "";
     (void) pmTraversePMNS_r (val, &metric_list_traverse, &mltc);	/* cannot fail */
     /* XXX: also handle pmids=... */
     /* XXX: also handle names=... */
-    mhdb_printf (&mltc.mhdb, "] }");
-    resp = mhdb_fini_response (&mltc.mhdb);
+
+    *mltc.mhdb << "]}";
+
+    string s = mltc.mhdb->str ();
+    delete mltc.mhdb;
+    mltc.mhdb = 0;
+    resp =
+	MHD_create_response_from_buffer (s.length (), (void *) s.c_str (),
+					 MHD_RESPMEM_MUST_COPY);
     if (resp == NULL) {
-	connstamp (cerr, connection) << "mhdb_response failed" << endl;
+	connstamp (cerr, connection) << "MHD_create_response_from_buffer failed" << endl;
 	rc = -ENOMEM;
 	goto out;
     }
@@ -587,7 +510,7 @@ static int pmwebapi_respond_metric_list (struct MHD_Connection
 /* Print "value":<RENDERING>, possibly nested for PM_TYPE_EVENT.
    Upon failure to decode, print less and return non-0. */
 
-static int pmwebapi_format_value (struct mhdb *output,
+static int pmwebapi_format_value (ostream & output,
 				  pmDesc * desc, pmValueSet * pvs, int vsidx)
 {
     pmValue *value = &pvs->vlist[vsidx];
@@ -600,42 +523,47 @@ static int pmwebapi_format_value (struct mhdb *output,
 	numres = pmUnpackEventRecords (pvs, vsidx, &res);
 	if (numres < 0)
 	    return numres;
-	mhdb_printf (output, "\"events\":[");
+
+	output << "\"events\":[";
 	for (i = 0; i < numres; i++) {
 	    int j;
 	    if (i > 0)
-		mhdb_printf (output, ",");
-	    mhdb_printf (output, "{ \"timestamp\": { \"s\":%lu, \"us\":%lu } ",
-			 res[i]->timestamp.tv_sec, res[i]->timestamp.tv_usec);
-	    mhdb_printf (output, ", \"fields\":[");
+		output << ",";
+
+	    output << "{" << "\"timestamp\":{";
+	    json_key_value (output, "s", res[i]->timestamp.tv_sec, ",");
+	    json_key_value (output, "us", res[i]->timestamp.tv_usec);
+	    output << "}" << ", \"fields\":[";
+
 	    for (j = 0; j < res[i]->numpmid; j++) {
 		pmValueSet *fieldvsp = res[i]->vset[j];
 		pmDesc fielddesc;
 		char *fieldname;
 		if (j > 0)
-		    mhdb_printf (output, ",");
-		mhdb_printf (output, "{");
+		    output << ",";
+
+		output << "{";
+
 		/* recurse */
 		rc = pmLookupDesc (fieldvsp->pmid, &fielddesc);
 		if (rc == 0)
 		    rc = pmwebapi_format_value (output, &fielddesc, fieldvsp, 0);
 		if (rc == 0)	/* printer value: ... etc. ? */
-		    mhdb_printf (output, ", ");
+		    output << ", ";
 		/* XXX: handle value: for event.flags / event.missed */
 		rc = pmNameID (fieldvsp->pmid, &fieldname);
 		if (rc == 0) {
-		    mhdb_printf (output, "\"name\":\"%s\"", fieldname);
+		    json_key_value (output, "name", fieldname);
 		    free (fieldname);
 		} else {
-		    mhdb_printf (output, "\"name\":\"%s\"", pmIDStr (fieldvsp->pmid));
+		    json_key_value (output, "name", pmIDStr (fieldvsp->pmid));
 		}
 
-		mhdb_printf (output, "}");
+		output << "}";
 	    }
-	    mhdb_printf (output, "]");
-	    mhdb_printf (output, "}\n");
+	    output << "]}\n";
 	}
-	mhdb_printf (output, "]");
+
 	pmFreeEventResult (res);
 	return 0;
     }
@@ -645,26 +573,26 @@ static int pmwebapi_format_value (struct mhdb *output,
 	return rc;
     switch (desc->type) {
 	case PM_TYPE_32:
-	    mhdb_printf (output, "\"value\":%i", a.l);
+	    json_key_value (output, "value", a.l);
 	    break;
 	case PM_TYPE_U32:
-	    mhdb_printf (output, "\"value\":%u", a.ul);
+	    json_key_value (output, "value", a.ul);
 	    break;
 	case PM_TYPE_64:
-	    mhdb_printf (output, "\"value\":%" PRIi64, a.ll);
+	    json_key_value (output, "value", a.ll);
 	    break;
 	case PM_TYPE_U64:
-	    mhdb_printf (output, "\"value\":%" PRIu64, a.ull);
+	    json_key_value (output, "value", a.ull);
 	    break;
 	case PM_TYPE_FLOAT:
-	    mhdb_printf (output, "\"value\":%g", (double) a.f);
+	    json_key_value (output, "value", a.f);
 	    break;
 	case PM_TYPE_DOUBLE:
-	    mhdb_printf (output, "\"value\":%g", a.d);
+	    json_key_value (output, "value", a.d);
 	    break;
 	case PM_TYPE_STRING:
-	    mhdb_print_key_value (output, "value", a.cp, "");
-	    free (a.cp);
+	    json_key_value (output, "value", a.cp);
+	    free (a.cp);	// NB: required by pmapi 
 	    break;
 	case PM_TYPE_AGGREGATE:
 	case PM_TYPE_AGGREGATE_STATIC:
@@ -677,34 +605,30 @@ static int pmwebapi_format_value (struct mhdb *output,
 		    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 		if (value->value.pval->vlen < PM_VAL_HDR_SIZE)	/* less than zero size? */
 		    return -EINVAL;
-		mhdb_printf (output, "\"value\":\"");
+		output << "\"value\":\"";
 		for (i = 0; i < p_size; /* */ ) {
 		    unsigned char byte_0 = i < p_size ? p_bytes[i++] : 0;
 		    unsigned char byte_1 = i < p_size ? p_bytes[i++] : 0;
 		    unsigned char byte_2 = i < p_size ? p_bytes[i++] : 0;
 		    unsigned int triple = (byte_0 << 16) | (byte_1 << 8) | byte_2;
-		    mhdb_printf (output, "%c",
-				 base64_encoding_table[(triple >> 3 * 6) & 63]);
-		    mhdb_printf (output, "%c",
-				 base64_encoding_table[(triple >> 2 * 6) & 63]);
-		    mhdb_printf (output, "%c",
-				 base64_encoding_table[(triple >> 1 * 6) & 63]);
-		    mhdb_printf (output, "%c",
-				 base64_encoding_table[(triple >> 0 * 6) & 63]);
+		    output << base64_encoding_table[(triple >> 3 * 6) & 63];
+		    output << base64_encoding_table[(triple >> 2 * 6) & 63];
+		    output << base64_encoding_table[(triple >> 1 * 6) & 63];
+		    output << base64_encoding_table[(triple >> 0 * 6) & 63];
 		}
 		switch (p_size % 3) {
 		    case 0:	/*mhdb_printf (output, ""); */
 			break;
 		    case 1:
-			mhdb_printf (output, "==");
+			output << "==";
 			break;
 		    case 2:
-			mhdb_printf (output, "=");
+			output << "=";
 			break;
 		}
-		mhdb_printf (output, "\"");
+		output << "\"";
 		if (desc->type != PM_TYPE_AGGREGATE_STATIC)	/* XXX: correct? */
-		    free (a.vbp);
+		    free (a.vbp);	// NB: required by pmapi
 		break;
 	    }
 	default:
@@ -726,11 +650,12 @@ static int pmwebapi_respond_metric_fetch (struct MHD_Connection
     int rc = 0;
     int max_num_metrics;
     int num_metrics;
+    ostringstream output;
     int printed_metrics;	/* exclude skipped ones */
     pmID *metrics;
-    struct mhdb output;
     pmResult *results;
     int i;
+
     (void) c;
     val_pmids = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "pmids");
     if (val_pmids == NULL)
@@ -766,7 +691,7 @@ static int pmwebapi_respond_metric_fetch (struct MHD_Connection
 	    val_names++;
 	    continue;
 	}
-
+	// XXX: c++ify
 	/* Copy just this name piece. */
 	if (name_end) {
 	    name = strndup (val_names, (name_end - val_names));
@@ -783,7 +708,6 @@ static int pmwebapi_respond_metric_fetch (struct MHD_Connection
 	    metrics[num_metrics++] = found_pmid;
 	}
     }
-
 
     /* Loop over pmids= numbers in val_pmids, append them to metrics[]. */
     while (*val_pmids) {
@@ -810,13 +734,11 @@ static int pmwebapi_respond_metric_fetch (struct MHD_Connection
     /* NB: we don't care about the possibility of PMCD_*_AGENT bits
        being set, so rc > 0. */
 
-    /* We need to construct a copy of the entire JSON metric value
-       string, in one long malloc()'d buffer.  We size it generously to
-       avoid having to realloc the bad boy and cause copies. */
-    mhdb_init (&output, num_metrics * 200);	/* WAG: per-metric size */
-    mhdb_printf (&output, "{ \"timestamp\": { \"s\":%lu, \"us\":%lu },\n",
-		 results->timestamp.tv_sec, results->timestamp.tv_usec);
-    mhdb_printf (&output, "\"values\": [\n");
+    output << "{" << "\"timestamp\":{";
+    json_key_value (output, "s", results->timestamp.tv_sec, ",");
+    json_key_value (output, "us", results->timestamp.tv_usec);
+    output << "}" << ", \"values\":[";
+
     assert (results->numpmid == num_metrics);
     printed_metrics = 0;
     for (i = 0; i < results->numpmid; i++) {
@@ -830,35 +752,45 @@ static int pmwebapi_respond_metric_fetch (struct MHD_Connection
 	if (rc < 0)
 	    continue;		/* quietly skip it */
 	if (printed_metrics >= 1)
-	    mhdb_printf (&output, ",\n");
-	mhdb_printf (&output, "{ ");
-	mhdb_printf (&output, "\"pmid\":%lu, ", (unsigned long) pvs->pmid);
+	    output << ",\n";
+
+
+	output << "{";
+	json_key_value (output, "pmid", pvs->pmid, ",");
+
 	rc = pmNameID (pvs->pmid, &metric_name);
 	if (rc == 0) {
-	    mhdb_print_key_value (&output, "name", metric_name, ",");
+	    json_key_value (output, "name", string (metric_name), ",");
 	    free (metric_name);
 	}
-	mhdb_printf (&output, "\"instances\": [\n");
+	output << "\"instances\":[\n";
 	for (j = 0; j < pvs->numval; j++) {
 	    pmValue *val = &pvs->vlist[j];
 	    int printed_value;
-	    mhdb_printf (&output, "{");
-	    printed_value = !pmwebapi_format_value (&output, &desc, pvs, j);
-	    if (desc.indom != PM_INDOM_NULL)
-		mhdb_printf (&output, "%s \"instance\":%d", printed_value ? ", " : "",	/* comma separation */
-			     val->inst);
-	    mhdb_printf (&output, "}");
+	    output << "{";
+	    printed_value = !pmwebapi_format_value (output, &desc, pvs, j);
+	    if (desc.indom != PM_INDOM_NULL) {
+		if (printed_value)
+		    output << ",";
+		json_key_value (output, "instance", val->inst);
+	    }
+	    output << "}";
 	    if (j + 1 < pvs->numval)
-		mhdb_printf (&output, ",");	/* comma separation */
+		output << ",";
 	}
-	mhdb_printf (&output, "] }");	/* iteration over instances */
+	output << "]}";		// iteration over instances
 	printed_metrics++;	/* comma separation at beginning of loop */
     }
-    mhdb_printf (&output, "] }");	/* iteration over metrics */
+    output << "]}";		// iteration over metrics
     pmFreeResult (results);	/* not needed any more */
-    resp = mhdb_fini_response (&output);
+
+    {
+	string s = output.str ();
+	resp = MHD_create_response_from_buffer (s.length (), (void *) s.c_str (),
+						MHD_RESPMEM_MUST_COPY);
+    }
     if (resp == NULL) {
-	connstamp (cerr, connection) << "mhdb_response failed" << endl;
+	connstamp (cerr, connection) << "MHDB_create_response_from_buffer failed" << endl;
 	rc = -ENOMEM;
 	goto out;
     }
@@ -905,13 +837,13 @@ static int pmwebapi_respond_instance_list (struct MHD_Connection
     int num_instances;
     int printed_instances;
     int *instances;
-    struct mhdb output;
     pmID metric_id;
     pmDesc metric_desc;
     pmInDom inDom;
     int i;
     int *instlist;
     char **namelist = NULL;
+    ostringstream output;
 
     (void) c;
     val_indom = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "indom");
@@ -1023,10 +955,10 @@ static int pmwebapi_respond_instance_list (struct MHD_Connection
 	instlist = instances;
     }
 
-    /* Build the response string all in one giant buffer: */
-    mhdb_init (&output, num_instances * 200);
-    mhdb_printf (&output, "{ \"indom\": %lu,\n", (unsigned long) inDom);
-    mhdb_printf (&output, "\"instances\": [\n");
+    output << "{";
+    json_key_value (output, "indom", inDom, ",");
+
+    output << "\"instances\":[\n";
     printed_instances = 0;
     for (i = 0; i < num_instances; i++) {
 	char *instance_name;
@@ -1039,22 +971,29 @@ static int pmwebapi_respond_instance_list (struct MHD_Connection
 	}
 
 	if (printed_instances >= 1)
-	    mhdb_printf (&output, ",\n");
-	mhdb_printf (&output, "{ \"instance\":%d,\n", instlist[i]);
-	mhdb_print_key_value (&output, "name", instance_name, "\n");
-	mhdb_printf (&output, "}");
+	    output << ",\n";
+
+	output << "{";
+	json_key_value (output, "instance", instlist[i], ",");
+	json_key_value (output, "name", string (instance_name));
+	output << "}";
 	if (namelist == NULL)
 	    free (instance_name);
 	printed_instances++;	/* comma separation at beginning of loop */
     }
-    mhdb_printf (&output, "] }");	/* iteration over instances */
+    output << "]}";		// iteration over instances
+
     /* Free no-longer-needed things: */
     free (instlist);
     if (namelist != NULL)
 	free (namelist);
-    resp = mhdb_fini_response (&output);
+    {
+	string s = output.str ();
+	resp = MHD_create_response_from_buffer (s.length (), (void *) s.c_str (),
+						MHD_RESPMEM_MUST_COPY);
+    }
     if (resp == NULL) {
-	connstamp (cerr, connection) << "mhdb_response failed" << endl;
+	connstamp (cerr, connection) << "MHD_create_response_from_buffer failed" << endl;
 	rc = -ENOMEM;
 	goto out;
     }

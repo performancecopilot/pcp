@@ -25,8 +25,6 @@
 
 extern "C" {
 #include <microhttpd.h>
-}
-
-extern std::ostream& timestamp(std::ostream &o);
-extern std::ostream& connstamp(std::ostream &o, MHD_Connection*);
-extern std::vector<std::string> split (const std::string&s, char delim);
+} extern std::ostream & timestamp (std::ostream & o);
+extern std::ostream & connstamp (std::ostream & o, MHD_Connection *);
+extern std::vector < std::string > split (const std::string & s, char delim);
