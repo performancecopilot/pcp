@@ -251,7 +251,7 @@ BEGIN			{ exports="" }
 			}
 END			{ if (exports != "") print "export", exports }'`
 
-	    $PMWEBD $OPTS
+	    $PMWEBD $OPTS &
 	    $RC_STATUS -v
 
 	    $PCP_BINADM_DIR/pmpost "start pmwebd from $pmprog"
