@@ -37,13 +37,16 @@ _success_filter()
 
 # real QA test starts here
 # Make sure we can use ifconfig
-if [ ! -x /sbin/ifconfig ]
+if [ -x /sbin/ifconfig ]
 then
+    IFCONFIG=/sbin/ifconfig
+else
     which ifconfig 2>/dev/null || _notrun "can't find ifconfig"
+    IFCONFIG=`which ifconfig`
 fi
 
 # Obtain the inet addresses of the active network interfaces
-ipv4_addrs=`/sbin/ifconfig | \
+ipv4_addrs=`$IFCONFIG | \
   grep 'inet ' | \
   grep -v 127.0.0.1 | \
   awk '{ print $2 }'`
@@ -82,7 +85,7 @@ do
 done
 
 # Obtain the ipv6 addresses of the active network interfaces
-ipv6_addrs=`/sbin/ifconfig | \
+ipv6_addrs=`$IFCONFIG | \
   awk '\
     / mtu /  { interface=substr($1, 1, length($1) - 1) } \
     /inet6 / && !/::1/ { print $2"%"interface }'`
