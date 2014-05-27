@@ -105,10 +105,12 @@ class Metric(object):
             outAtom = self.ctx.pmExtractValue(
                 vset.valfmt, self.get_vlist(vset, i),
                 self.desc.type, self._convType)
-            # if self._convUnits:
-            #     outAtom = self.ctx.pmConvScale(
-            #          self._convType, outAtom,
-            #          self.desc.units, self._convUnits)
+            if self._convUnits:
+                desc = (POINTER(pmDesc) * 1)()
+                desc[0] = self.desc
+                outAtom = self.ctx.pmConvScale(
+                    self._convType, outAtom,
+                    desc, 0, self._convUnits)
             value = outAtom.dref(self._convType)
             valL.append((instval, name, value))
         return valL
