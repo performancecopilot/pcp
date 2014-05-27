@@ -20,9 +20,9 @@
 #
 
 import sys
-from ctypes import c_int, c_uint, c_char_p, cast, POINTER, byref
-from pcp.pmapi import pmContext, pmErr, pmResult, LIBPCP, get_indom, pmValueSet, pmValue, pmDesc
-from cpmapi import PM_CONTEXT_HOST, PM_INDOM_NULL, PM_IN_NULL, PM_ID_NULL, PM_SPACE_BYTE, PM_TYPE_U32
+from ctypes import c_int, c_uint, c_char_p, cast, POINTER
+from pcp.pmapi import pmContext, pmErr, pmResult, pmValueSet, pmValue, pmDesc
+from cpmapi import PM_CONTEXT_HOST, PM_CONTEXT_ARCHIVE, PM_INDOM_NULL, PM_IN_NULL, PM_ID_NULL
 
 
 class MetricCore(object):
@@ -93,7 +93,7 @@ class Metric(object):
         """  Extract the value for a singleton or list of instances as a triple (inst, name, val) """
         vset = inValues
         ctx = self.ctx
-        instD = ctx.mcGetInstD(get_indom(self.desc))
+        instD = ctx.mcGetInstD(self.desc.contents.indom)
         numval = vset.numval
         valL = []
         for i in range(numval):
@@ -187,6 +187,7 @@ class MetricCache(pmContext):
   
     def __init__(self, typed = PM_CONTEXT_HOST, target = "local:"):
         pmContext.__init__(self, typed, target)
+        self._typed = typed
         self._mcIndomD = {}
         self._mcByNameD = {}
         self._mcByPmidD = {}
@@ -205,7 +206,10 @@ class MetricCache(pmContext):
             if c_int(indom).value == c_int(PM_INDOM_NULL).value:
                 instmap = { PM_IN_NULL : "PM_IN_NULL" }
             else:
-                instL, nameL = self.pmGetInDom(core.desc)
+                if self._typed == PM_CONTEXT_ARCHIVE:
+                    instL, nameL = self.pmGetInDomArchive(core.desc)
+                else:
+                    instL, nameL = self.pmGetInDom(core.desc)
                 instmap = dict(zip(instL, nameL))
             self._mcIndomD.update({indom: instmap})
 
