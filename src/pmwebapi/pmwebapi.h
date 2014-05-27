@@ -30,13 +30,9 @@ extern "C" {
 #include <stdarg.h>
 #include <microhttpd.h>
 }
-
 #include "util.h"
-
-
 /* ------------------------------------------------------------------------ */
-
-extern std::string uriprefix;
+    extern std::string uriprefix;
 extern std::string archivesdir;	/* set by -A option */
 extern std::string resourcedir;	/* set by -R option */
 extern unsigned verbosity;	/* set by -v option */
@@ -49,13 +45,14 @@ extern unsigned exit_p;		/* counted by SIG* handler */
 
 extern int pmwebapi_bind_permanent (int webapi_ctx, int pcp_context);
 extern int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
-			     const std::vector<std::string>& url, const std::string& method,
-			     const char *upload_data, size_t * upload_data_size);
+			     const std::vector < std::string > &url,
+			     const std::string & method, const char *upload_data,
+			     size_t * upload_data_size);
 extern unsigned pmwebapi_gc (void);
 extern void pmwebapi_deallocate_all (void);
 extern int pmwebres_respond (void *cls, struct MHD_Connection *connection,
-			     const std::string& url);
+			     const std::string & url);
 extern int pmgraphite_respond (void *cls, struct MHD_Connection *connection,
-                               const std::vector<std::string>& url);
+			       const std::vector < std::string > &url);
 
 extern int mhd_notify_error (struct MHD_Connection *connection, int rc);
