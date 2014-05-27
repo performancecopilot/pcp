@@ -914,6 +914,7 @@ avahi
 763 pmda local oss
 768 pmlogextract local oss
 775 sanity pmfind local oss
+776 pmfind local oss
 779 pmda local oss
 783 pmda.rpm local oss
 786 context context_local libpcp local oss

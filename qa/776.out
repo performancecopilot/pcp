@@ -1,0 +1,37 @@
+QA output created by 776
+-m probe=INET_ADDR/32
+Discovered pmcd servers:
+Exit status: 0
+-s pmcd -m probe=INET_ADDR/31
+Discovered pmcd servers:
+Exit status: 0
+-q -m probe=INET_ADDR/30
+Exit status: 0
+-q -s pmcd -m probe=INET_ADDR/29
+Exit status: 0
+-q -s pmcd -m probe=INET_ADDR/28,maxThreads=8
+Exit status: 0
+-m probe=INET_ADDR/32
+Discovered pmcd servers:
+Exit status: 0
+-s pmcd -m probe=INET_ADDR/31
+Discovered pmcd servers:
+Exit status: 0
+-q -m probe=INET_ADDR/30
+Exit status: 0
+-q -s pmcd -m probe=INET_ADDR/29
+Exit status: 0
+-q -s pmcd -m probe=INET_ADDR/28,maxThreads=8
+Exit status: 0
+-m probe=IPV6_ADDR/128
+Discovered pmcd servers:
+Exit status: 0
+-s pmcd -m probe=IPV6_ADDR/127
+Discovered pmcd servers:
+Exit status: 0
+-q -m probe=IPV6_ADDR/126
+Exit status: 0
+-q -s pmcd -m probe=IPV6_ADDR/125
+Exit status: 0
+-q -s pmcd -m probe=IPV6_ADDR/124,maxThreads=8
+Exit status: 0
