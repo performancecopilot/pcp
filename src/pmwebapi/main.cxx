@@ -450,7 +450,7 @@ int main (int argc, char *argv[])
 			       &mhd_respond, NULL,	/* handler callback */
 			       MHD_OPTION_CONNECTION_TIMEOUT, maxtimeout, MHD_OPTION_END);
     if (d4 == NULL && d6 == NULL) {
-	__pmNotifyErr (LOG_ERR, "error starting microhttpd daemons\n");
+	timestamp (cerr) << "Error starting microhttpd daemons on port " << port << endl;
 	pmweb_dont_start ();
     }
 
