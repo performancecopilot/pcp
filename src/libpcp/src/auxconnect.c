@@ -525,15 +525,17 @@ __pmFirstIpv6SubnetAddr(unsigned char *addr, int maskBits)
     /*
      * Manipulate the ipv6 address one byte at a time. There is no
      * host/network byte order.
-     * Mask the byte at the subnet mask boundary. Leave the higher order bytes alone
-     * and clear the lower order bytes.
+     * Mask the byte at the subnet mask boundary. Leave the higher order bytes
+     * alone and clear the lower order bytes.
      */
     ix = maskBits / 8;
-    maskBits %= 8;
-    mask = ~((1 << (8 - maskBits)) - 1);
-    addr[ix] &= mask;
-    for (++ix; ix < 16; ++ix)
-	addr[ix] = 0;
+    if (ix < 16) {
+	maskBits %= 8;
+	mask = ~((1 << (8 - maskBits)) - 1);
+	addr[ix] &= mask;
+	for (++ix; ix < 16; ++ix)
+	    addr[ix] = 0;
+    }
 
     return addr;
 }
