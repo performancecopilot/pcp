@@ -3,7 +3,7 @@
 #
 # pmatop.py
 #
-# Copyright (C) 2013 Red Hat Inc.
+# Copyright (C) 2013, 2014 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -83,15 +83,17 @@ def record (context, config, duration, path, host):
     # -f saves the metrics in a directory
     if os.path.exists(path):
         return "playback directory %s already exists\n" % path
-    try:
-        (tvp, err) = pmapi.pmContext.pmParseInterval(str(duration))
-        status = context.pmRecordSetup (path, ME, 0) # pylint: disable=W0621
-        (status, rhp) = context.pmRecordAddHost (host, 1, config)
-        status = context.pmRecordControl (0, c_gui.PM_REC_SETARG, "-T" + str(tvp.tv_sec) + "sec")
-        status = context.pmRecordControl (0, c_gui.PM_REC_ON, "")
-        pmapi.pmContext.pmtimevalSleep(tvp)
-    except pmapi.pmErr, e:
-        return "Cannot create PCP archive: " + path + " " + str(e)
+    (tvp, err) = pmapi.pmContext.pmParseInterval(str(duration))
+    status = context.pmRecordSetup (path, ME, 0) # pylint: disable=W0621
+    (status, rhp) = context.pmRecordAddHost (host, 1, config)
+    deadhand = "-T" + str(tvp) + "sec"
+    status = context.pmRecordControl (0, c_gui.PM_REC_SETARG, deadhand)
+    status = context.pmRecordControl (0, c_gui.PM_REC_ON, "")
+    pmapi.pmContext.pmtimevalSleep(tvp)
+    status = context.pmRecordControl (rhp, c_gui.PM_REC_OFF, "")
+    # Note: pmlogger has a deadhand timer that will make it stop of its
+    # own accord once -T limit is reached; but we send an OFF-recording
+    # message anyway for cleanliness, just prior to pmatop exiting.
     return ""
 
 # record_add_creator ------------------------------------------------------
@@ -770,10 +772,11 @@ def sigwinch_handler(n, frame):
 if __name__ == '__main__':
     if sys.stdout.isatty():
         signal.signal(signal.SIGWINCH, sigwinch_handler)
-        status = curses.wrapper(main)   # pylint: disable-msg=C0103
-        # You're running in a real terminal
-    else:
+        try:
+            status = curses.wrapper(main)   # pylint: disable-msg=C0103
+        except curses.error, e:
+            status = "Error in the curses module.  Try running " + ME + " in a larger window."
+    else:                       # Output is piped or redirected
         status = main(sys.stdout)
-        # You're being piped or redirected
     if (status != ""):
         print status
