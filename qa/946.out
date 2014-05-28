@@ -1,8 +1,6 @@
 QA output created by 946
 -m avahi
 Discovered pmcd servers:
-No pmproxy servers discovered
-No pmwebd servers discovered
 Exit status: 0
 -s pmcd -m avahi
 Discovered pmcd servers:
@@ -17,6 +15,4 @@ Exit status: 0
 Exit status: 0
 -m all
 Discovered pmcd servers:
-No pmproxy servers discovered
-No pmwebd servers discovered
 Exit status: 0

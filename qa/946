@@ -30,8 +30,13 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _success_filter()
 {
+    # Only pmcd is guaranteed to be running, but other services may also be.
     sed \
-	-e '/  pcp:/d'
+	-e '/  pcp:/d' \
+	-e '/  proxy:/d' \
+	-e '/  http:/d' \
+	-e '/No pmproxy servers discovered/d' \
+	-e '/No pmwebd servers discovered/d'
 }
 
 # real QA test starts here
