@@ -84,12 +84,20 @@ def record (context, config, duration, path, host):
     if os.path.exists(path):
         return "playback directory %s already exists\n" % path
     try:
-        (tvp, err) = pmapi.pmContext.pmParseInterval(str(duration))
-        status = context.pmRecordSetup (path, ME, 0) # pylint: disable=W0621
-        (status, rhp) = context.pmRecordAddHost (host, 1, config)
-        status = context.pmRecordControl (0, c_gui.PM_REC_SETARG, "-T" + str(tvp.tv_sec) + "sec")
-        status = context.pmRecordControl (0, c_gui.PM_REC_ON, "")
-        pmapi.pmContext.pmtimevalSleep(tvp)
+        # Non-graphical application using libpcp_gui services - never want
+        # to see popup dialogs from pmlogger(1) here, so force the issue.
+        os.environ['PCP_XCONFIRM_PROG'] = '/bin/true'
+        interval = pmapi.timeval.fromInterval(str(duration) + " seconds")
+        context.pmRecordSetup(path, ME, 0) # pylint: disable=W0621
+        context.pmRecordAddHost(host, 1, config)
+        deadhand = "-T" + str(interval) + "seconds"
+        context.pmRecordControl(0, c_gui.PM_REC_SETARG, deadhand)
+        context.pmRecordControl(0, c_gui.PM_REC_ON, "")
+        interval.sleep()
+        context.pmRecordControl(0, c_gui.PM_REC_OFF, "")
+        # Note: pmlogger has a deadhand timer that will make it stop of its
+        # own accord once -T limit is reached; but we send an OFF-recording
+        # message anyway for cleanliness, just prior to pmcollectl exiting.
     except pmapi.pmErr, e:
         return "Cannot create PCP archive: " + path + " " + str(e)
     return ""
@@ -573,7 +581,7 @@ def main (stdscr_p):
     output_file = ""
     input_file = ""
     sort = ""
-    duration = 0
+    duration = 0.0
     interval_arg = 5
     n_samples = 0
     output_type = "g"
@@ -658,19 +666,20 @@ def main (stdscr_p):
             return "Cannot connect to pmcd on " + host
         
     host = pmc.pmGetContextHostName()
-    (delta, errmsg) = pmc.pmParseInterval(str(interval_arg))
+    (delta, errmsg) = pmc.pmParseInterval(str(interval_arg) + " seconds")
 
     ss.setup_metrics (pmc)
 
     if create_archive:
-        configuration = "log mandatory on every " + \
-            str(delta.tv_sec) + " seconds { "
+        delta_seconds = c_api.pmtimevalToReal(delta.tv_sec, delta.tv_usec)
+        msec = str(int(1000.0 * delta_seconds))
+        configuration = "log mandatory on every " + msec + " milliseconds { "
         configuration += ss.dump_metrics()
         configuration += "}"
         if n_samples != 0:
-            duration = n_samples * delta.tv_sec
+            duration = float(n_samples) * delta_seconds
         else:
-            duration = 10 * interval_arg
+            duration = float(10) * delta_seconds
         status = record (pmgui.GuiClient(), configuration, duration, output_file, host)
         if status != "":
             return status
