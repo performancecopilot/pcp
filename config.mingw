@@ -1,0 +1,8 @@
+sizeof_int=4
+sizeof_long=8
+sizeof_pointer=8
+bit_field_scheme=2100
+have_procfs=false
+printf_p_prefix=0x
+pcp_ps_have_bsd=false
+pcp_ps_all_flags=-eflW
