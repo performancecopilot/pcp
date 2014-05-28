@@ -2721,7 +2721,6 @@ test -n "$target_alias" &&
 
 if test -z "$target"
 then
-    echo
     echo '
 FATAL ERROR: Cannot guess your target, try explicit specification
              using --target or ask pcp@mail.performancecopilot.org'
@@ -2740,6 +2739,19 @@ fi
 echo Building on $build for $target
 echo "Build: os=$build_os cpu=$build_cpu"
 echo "Target: os=$target_os cpu=$target_cpu"
+
+if test "$cross_compiling" = "yes"; then
+    if test -f ./config.$target_os; then
+	. ./config.$target_os
+    else
+	echo
+	echo "
+FATAL ERROR: Cannot perform cross-compilation without a file to source
+             configuration information from (config.$target_os is missing)"
+	rm -rf conftest conftest.*
+	exit 1
+    fi
+fi
 
 target_distro=$target_os
 if test $target_os = linux
@@ -4529,21 +4541,7 @@ esac
 # targets a build for non-system directories such as /usr/local.
 # AC_PREFIX_DEFAULT([])
 
-if test -f VERSION.pcp
-then
-    . ./VERSION.pcp
-fi
-
-if test -z "$PACKAGE_MAJOR" ; then
-    PACKAGE_MAJOR=1
-fi
-
-for V in MINOR REVISION BUILD; do
-	P=`eval echo \\$PACKAGE_$i`
-	if test -z "$P"; then
-		eval PACKAGE_${i}=0
-	fi
-done
+. ./VERSION.pcp
 PACKAGE_VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
 
 
@@ -8469,12 +8467,13 @@ else
 fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for ps style" >&5
+if test "$cross_compiling" != "yes"; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for ps style" >&5
 $as_echo_n "checking for ps style... " >&6; }
-pcp_ps_all_flags=''
-if $pcp_ps_prog -ef >conftest.out 2>/dev/null
-then
-    ans=`$awk <conftest.out '
+    pcp_ps_all_flags=''
+    if $pcp_ps_prog -ef >conftest.out 2>/dev/null
+    then
+	ans=`$awk <conftest.out '
 NR == 1			{ if ($1 != "UID" && $1 != "USER") exit
 			  if ($2 != "PID") exit
 			}
@@ -8486,18 +8485,21 @@ $2 == 1 && / \/sbin\/init/ { print "OK"; exit }
 # Fedora 15
 $2 == 1 && / \/bin\/systemd/ { print "OK"; exit }
 # Fedora 17
-$2 == 1 && / \/usr\/lib\/systemd\/systemd/ { print "OK"; exit }'`
-    if test "$ans" = OK
-    then
-	pcp_ps_have_bsd=false
-	pcp_ps_all_flags=-ef
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: SysV" >&5
+$2 == 1 && / \/usr\/lib\/systemd\/systemd/ { print "OK"; exit }
+# Debian sid
+$2 == 1 && / \/lib\/systemd\/systemd/ { print "OK"; exit }'`
+	if test "$ans" = OK
+	then
+	    pcp_ps_have_bsd=false
+	    pcp_ps_all_flags=-ef
+	    { $as_echo "$as_me:${as_lineno-$LINENO}: result: SysV" >&5
 $as_echo "SysV" >&6; }
+	fi
     fi
-fi
-if test -z "$pcp_ps_all_flags" && $pcp_ps_prog auxww >conftest.out 2>/dev/null
-then
-    ans=`$awk <conftest.out '
+
+    if test -z "$pcp_ps_all_flags" && $pcp_ps_prog auxww >conftest.out 2>/dev/null
+    then
+	ans=`$awk <conftest.out '
 NR == 1			{ if ($1 != "UID" && $1 != "USER") exit
 			  if ($2 != "PID") exit
 			}
@@ -8505,24 +8507,24 @@ $2 == 1 && / init/	{ print "OK"; exit }
 $2 == 1 && / \/sbin\/init/ { print "OK"; exit }
 $2 == 1 && / \/sbin\/launchd/ { print "OK"; exit }
 $2 == 1 && / \/init/	{ print "OK"; exit }'`
-    if test "$ans" = OK
-    then
-	pcp_ps_have_bsd=true
-	pcp_ps_all_flags=auxww
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: BSD" >&5
+	if test "$ans" = OK
+	then
+	    pcp_ps_have_bsd=true
+	    pcp_ps_all_flags=auxww
+	    { $as_echo "$as_me:${as_lineno-$LINENO}: result: BSD" >&5
 $as_echo "BSD" >&6; }
+	fi
     fi
-fi
-if test -z "$pcp_ps_all_flags" && $pcp_ps_prog -eflW >conftest.out 2>/dev/null
-then
-    if test $target_os = mingw
+
+        if $pcp_ps_prog ${pcp_ps_all_flags}w >/dev/null 2>&1
     then
-	pcp_ps_have_bsd=false
-	pcp_ps_all_flags=-eflW
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: MinGW" >&5
-$as_echo "MinGW" >&6; }
+	if test $target_os != solaris
+	then
+	    pcp_ps_all_flags=${pcp_ps_all_flags}w
+	fi
     fi
 fi
+
 if test -z "$pcp_ps_all_flags"
 then
         { $as_echo "$as_me:${as_lineno-$LINENO}: result: unknown" >&5
@@ -8531,13 +8533,6 @@ $as_echo "unknown" >&6; }
     echo "format output from your ps(1)."
     rm -rf conftest conftest.*
     exit 1
-fi
-if $pcp_ps_prog ${pcp_ps_all_flags}w >/dev/null 2>&1
-then
-    if test $target_os != solaris
-    then
-	pcp_ps_all_flags=${pcp_ps_all_flags}w
-    fi
 fi
 
 
@@ -8570,12 +8565,21 @@ fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for /proc " >&5
 $as_echo_n "checking for /proc ... " >&6; }
-if test -d /proc
+if test "$cross_compiling" = "yes"; then
+    ans=$have_procfs
+    echo "cross-compile -> \"$ans\"" >&5
+elif test -d /proc
 then
-    $as_echo "#define HAVE_PROCFS 1" >>confdefs.h
-
+    have_procfs=true
+else
+    have_procfs=false
+fi
+if $have_procfs
+then
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
+    $as_echo "#define HAVE_PROCFS 1" >>confdefs.h
+
 else
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
@@ -10489,14 +10493,19 @@ rm -f conftest.*
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if printf %p produces 0x prefix" >&5
 $as_echo_n "checking if printf %p produces 0x prefix... " >&6; }
-cat <<End-of-File >conftest.c
+if test "$cross_compiling" = "yes"; then
+    ans=$printf_p_prefix
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
 #include <stdio.h>
 main(int argc,  char **argv) { printf("%p", argv); exit(0); }
 End-of-File
-(eval $ac_compile) 2>&5
-(eval $ac_link) 2>&5
-ans=`./conftest`
-echo "./conftest -> \"$ans\"" >&5
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+fi
 case "$ans"
 in
     0x*)
@@ -10591,6 +10600,9 @@ $2 == "bozo"	{ t = $1
 	;;
     long|'long int')
 	_fmt='"ld"'
+	;;
+    'long long'|'long long int')
+	_fmt='"lld"'
 	;;
     'unsigned long'|'unsigned long int'|'long unsigned int')
 	_fmt='"lu"'
@@ -10837,14 +10849,19 @@ fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking sizeof long" >&5
 $as_echo_n "checking sizeof long... " >&6; }
-cat <<End-of-File >conftest.c
+if test "$cross_compiling" = "yes"; then
+    ans=$sizeof_long
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
 #include <stdio.h>
 main() { printf("%d", (int)sizeof(long)); }
 End-of-File
-(eval $ac_compile) 2>&5
-(eval $ac_link) 2>&5
-ans=`./conftest`
-echo "./conftest -> \"$ans\"" >&5
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
 $as_echo "$ans" >&6; }
 if test "$ans" = 4; then
@@ -10864,14 +10881,19 @@ rm -rf conftest conftest.*
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking sizeof pointer" >&5
 $as_echo_n "checking sizeof pointer... " >&6; }
-cat <<End-of-File >conftest.c
+if test "$cross_compiling" = "yes"; then
+    ans=$sizeof_pointer
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
 #include <stdio.h>
 main() { printf("%d", (int)sizeof(char *)); }
 End-of-File
-(eval $ac_compile) 2>&5
-(eval $ac_link) 2>&5
-ans=`./conftest`
-echo "./conftest -> \"$ans\"" >&5
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
 $as_echo "$ans" >&6; }
 if test "$ans" = 4; then
@@ -10893,14 +10915,19 @@ rm -rf conftest conftest.*
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking sizeof int" >&5
 $as_echo_n "checking sizeof int... " >&6; }
-cat <<End-of-File >conftest.c
+if test "$cross_compiling" = "yes"; then
+    ans=$sizeof_int
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
 #include <stdio.h>
 main() { printf("%d", (int)sizeof(int)); }
 End-of-File
-(eval $ac_compile) 2>&5
-(eval $ac_link) 2>&5
-ans=`./conftest`
-echo "./conftest -> \"$ans\"" >&5
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
 $as_echo "$ans" >&6; }
 if test "$ans" != 4
@@ -10916,14 +10943,19 @@ rm -rf conftest conftest.*
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if bit fields allocated left-to-right" >&5
 $as_echo_n "checking if bit fields allocated left-to-right... " >&6; }
-cat <<End-of-File >conftest.c
+if test "$cross_compiling" = "yes"; then
+    ans=$bit_field_scheme
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
 union { struct { unsigned int b:4; unsigned int c:4; } a; int p; } u;
 main() { u.a.b = 1; u.a.c = 2; printf("%0*x", 2*sizeof(int), u.p); }
 End-of-File
-(eval $ac_compile) 2>&5
-(eval $ac_link) 2>&5
-ans=`./conftest`
-echo "./conftest -> \"$ans\"" >&5
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+fi
 case "$ans"
 in
     1200*|*0012)

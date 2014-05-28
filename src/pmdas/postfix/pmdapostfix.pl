@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012,2014 Red Hat.
 # Copyright (c) 2009-2010 Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -211,7 +211,7 @@ $pmda->add_indom($postfix_sent_indom, \@postfix_sent_dom, '', '');
 $pmda->add_indom($postfix_received_indom, \@postfix_received_dom, '', '');
 $pmda->add_tail($logfile, \&postfix_log_parser, 0);
 $pmda->set_fetch_callback(\&postfix_fetch_callback);
-$pmda->set_user('pcp');
+$pmda->set_user('postfix');
 $pmda->run;
 
 =pod

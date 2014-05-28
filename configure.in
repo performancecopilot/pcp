@@ -100,7 +100,6 @@ dnl Guess target platfrom
 AC_CANONICAL_SYSTEM
 if test -z "$target"
 then
-    echo
     echo '
 FATAL ERROR: Cannot guess your target, try explicit specification
              using --target or ask pcp@mail.performancecopilot.org'
@@ -121,6 +120,19 @@ fi
 echo Building on $build for $target 
 echo "Build: os=$build_os cpu=$build_cpu"
 echo "Target: os=$target_os cpu=$target_cpu"
+
+if test "$cross_compiling" = "yes"; then
+    if test -f ./config.$target_os; then
+	. ./config.$target_os
+    else
+	echo
+	echo "
+FATAL ERROR: Cannot perform cross-compilation without a file to source
+             configuration information from (config.$target_os is missing)"
+	rm -rf conftest conftest.*
+	exit 1
+    fi
+fi
 
 dnl CFLAGS setting is a co-dependency between here and PCFLAGS in
 dnl src/include/builddefs.in ... need to be the same in both places
@@ -357,21 +369,7 @@ AC_SUBST(pcp_platform_paths)
 # targets a build for non-system directories such as /usr/local.
 # AC_PREFIX_DEFAULT([])
 
-if test -f VERSION.pcp
-then
-    . ./VERSION.pcp
-fi
-
-if test -z "$PACKAGE_MAJOR" ; then
-    PACKAGE_MAJOR=1
-fi
-
-for V in MINOR REVISION BUILD; do
-	P=`eval echo \\$PACKAGE_$i`
-	if test -z "$P"; then
-		eval PACKAGE_${i}=0
-	fi
-done
+. ./VERSION.pcp
 PACKAGE_VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
 AC_SUBST(PACKAGE_VERSION)
 AC_SUBST(PACKAGE_MAJOR)
@@ -929,11 +927,12 @@ AC_SUBST(pcp_ps_prog)
 
 dnl ps variants, need $pcp_ps_prog and $awk from above
 dnl want user in col 1, pid in col 2, and command+ps args at the end
-AC_MSG_CHECKING([for ps style])
-pcp_ps_all_flags=''
-if $pcp_ps_prog -ef >conftest.out 2>/dev/null
-then
-    ans=`$awk <conftest.out '
+if test "$cross_compiling" != "yes"; then
+    AC_MSG_CHECKING([for ps style])
+    pcp_ps_all_flags=''
+    if $pcp_ps_prog -ef >conftest.out 2>/dev/null
+    then
+	ans=`$awk <conftest.out '
 NR == 1			{ if ($1 != "UID" && $1 != "USER") exit
 			  if ($2 != "PID") exit
 			}
@@ -945,17 +944,20 @@ $2 == 1 && / \/sbin\/init/ { print "OK"; exit }
 # Fedora 15
 $2 == 1 && / \/bin\/systemd/ { print "OK"; exit }
 # Fedora 17
-$2 == 1 && / \/usr\/lib\/systemd\/systemd/ { print "OK"; exit }'`
-    if test "$ans" = OK
-    then
-	pcp_ps_have_bsd=false
-	pcp_ps_all_flags=-ef
-	AC_MSG_RESULT(SysV)
+$2 == 1 && / \/usr\/lib\/systemd\/systemd/ { print "OK"; exit }
+# Debian sid
+$2 == 1 && / \/lib\/systemd\/systemd/ { print "OK"; exit }'`
+	if test "$ans" = OK
+	then
+	    pcp_ps_have_bsd=false
+	    pcp_ps_all_flags=-ef
+	    AC_MSG_RESULT(SysV)
+	fi
     fi
-fi
-if test -z "$pcp_ps_all_flags" && $pcp_ps_prog auxww >conftest.out 2>/dev/null
-then
-    ans=`$awk <conftest.out '
+
+    if test -z "$pcp_ps_all_flags" && $pcp_ps_prog auxww >conftest.out 2>/dev/null
+    then
+	ans=`$awk <conftest.out '
 NR == 1			{ if ($1 != "UID" && $1 != "USER") exit
 			  if ($2 != "PID") exit
 			}
@@ -963,22 +965,24 @@ $2 == 1 && / init/	{ print "OK"; exit }
 $2 == 1 && / \/sbin\/init/ { print "OK"; exit }
 $2 == 1 && / \/sbin\/launchd/ { print "OK"; exit }
 $2 == 1 && / \/init/	{ print "OK"; exit }'`
-    if test "$ans" = OK
+	if test "$ans" = OK
+	then
+	    pcp_ps_have_bsd=true
+	    pcp_ps_all_flags=auxww
+	    AC_MSG_RESULT(BSD)
+	fi
+    fi
+
+    dnl checking for w(ide) option so more psargs chars
+    if $pcp_ps_prog ${pcp_ps_all_flags}w >/dev/null 2>&1
     then
-	pcp_ps_have_bsd=true
-	pcp_ps_all_flags=auxww
-	AC_MSG_RESULT(BSD)
+	if test $target_os != solaris
+	then
+	    pcp_ps_all_flags=${pcp_ps_all_flags}w
+	fi
     fi
 fi
-if test -z "$pcp_ps_all_flags" && $pcp_ps_prog -eflW >conftest.out 2>/dev/null
-then
-    if test $target_os = mingw
-    then
-	pcp_ps_have_bsd=false
-	pcp_ps_all_flags=-eflW
-	AC_MSG_RESULT(MinGW)
-    fi
-fi
+
 if test -z "$pcp_ps_all_flags"
 then
     dnl this is bad ... need to expand the cases or relax the tests
@@ -987,14 +991,6 @@ then
     echo "format output from your ps(1)."
     rm -rf conftest conftest.*
     exit 1
-fi
-dnl checking for w(ide) option so more psargs chars
-if $pcp_ps_prog ${pcp_ps_all_flags}w >/dev/null 2>&1
-then
-    if test $target_os != solaris
-    then
-	pcp_ps_all_flags=${pcp_ps_all_flags}w
-    fi
 fi
 AC_SUBST(pcp_ps_have_bsd)
 AC_SUBST(pcp_ps_all_flags)
@@ -1028,10 +1024,19 @@ AC_SUBST(which)
 
 dnl checks for /proc pseudo file system
 AC_MSG_CHECKING([for /proc ])
-if test -d /proc
+if test "$cross_compiling" = "yes"; then
+    ans=$have_procfs
+    echo "cross-compile -> \"$ans\"" >&5
+elif test -d /proc
 then
-    AC_DEFINE(HAVE_PROCFS)
+    have_procfs=true
+else
+    have_procfs=false
+fi
+if $have_procfs
+then
     AC_MSG_RESULT(yes)
+    AC_DEFINE(HAVE_PROCFS)
 else
     AC_MSG_RESULT(no)
 fi
@@ -1333,14 +1338,19 @@ rm -f conftest.*
 
 dnl check if printf %p has 0x prefix
 AC_MSG_CHECKING([if printf %p produces 0x prefix])
-cat <<End-of-File >conftest.c
+if test "$cross_compiling" = "yes"; then
+    ans=$printf_p_prefix
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
 #include <stdio.h>
 main(int argc,  char **argv) { printf("%p", argv); exit(0); }
 End-of-File
-(eval $ac_compile) 2>&5
-(eval $ac_link) 2>&5
-ans=`./conftest`
-echo "./conftest -> \"$ans\"" >&5
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+fi
 case "$ans"
 in
     0x*)
@@ -1432,6 +1442,9 @@ $2 == "bozo"	{ t = $1
 	;;
     long|'long int')
 	_fmt='"ld"'
+	;;
+    'long long'|'long long int')
+	_fmt='"lld"'
 	;;
     'unsigned long'|'unsigned long int'|'long unsigned int')
 	_fmt='"lu"'
@@ -1570,14 +1583,19 @@ fi
 
 dnl check sizeof long
 AC_MSG_CHECKING([sizeof long])
-cat <<End-of-File >conftest.c
+if test "$cross_compiling" = "yes"; then
+    ans=$sizeof_long
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
 #include <stdio.h>
 main() { printf("%d", (int)sizeof(long)); }
 End-of-File
-(eval $ac_compile) 2>&5
-(eval $ac_link) 2>&5
-ans=`./conftest`
-echo "./conftest -> \"$ans\"" >&5
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+fi
 AC_MSG_RESULT($ans)
 if test "$ans" = 4; then
     AC_DEFINE(HAVE_32BIT_LONG)
@@ -1594,14 +1612,19 @@ rm -rf conftest conftest.*
 
 dnl check sizeof pointer
 AC_MSG_CHECKING([sizeof pointer])
-cat <<End-of-File >conftest.c
+if test "$cross_compiling" = "yes"; then
+    ans=$sizeof_pointer
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
 #include <stdio.h>
 main() { printf("%d", (int)sizeof(char *)); }
 End-of-File
-(eval $ac_compile) 2>&5
-(eval $ac_link) 2>&5
-ans=`./conftest`
-echo "./conftest -> \"$ans\"" >&5
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+fi
 AC_MSG_RESULT($ans)
 if test "$ans" = 4; then
     AC_DEFINE(HAVE_32BIT_PTR)
@@ -1620,14 +1643,19 @@ rm -rf conftest conftest.*
 
 dnl check sizeof int. If not 32, we die
 AC_MSG_CHECKING([sizeof int])
-cat <<End-of-File >conftest.c
+if test "$cross_compiling" = "yes"; then
+    ans=$sizeof_int
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
 #include <stdio.h>
 main() { printf("%d", (int)sizeof(int)); }
 End-of-File
-(eval $ac_compile) 2>&5
-(eval $ac_link) 2>&5
-ans=`./conftest`
-echo "./conftest -> \"$ans\"" >&5
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+fi
 AC_MSG_RESULT($ans)
 if test "$ans" != 4
 then
@@ -1642,14 +1670,19 @@ rm -rf conftest conftest.*
 
 dnl check bit field allocation order within a word
 AC_MSG_CHECKING([if bit fields allocated left-to-right])
-cat <<End-of-File >conftest.c
+if test "$cross_compiling" = "yes"; then
+    ans=$bit_field_scheme
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
 union { struct { unsigned int b:4; unsigned int c:4; } a; int p; } u;
 main() { u.a.b = 1; u.a.c = 2; printf("%0*x", 2*sizeof(int), u.p); }
 End-of-File
-(eval $ac_compile) 2>&5
-(eval $ac_link) 2>&5
-ans=`./conftest`
-echo "./conftest -> \"$ans\"" >&5
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+fi
 case "$ans"
 in
     1200*|*0012)

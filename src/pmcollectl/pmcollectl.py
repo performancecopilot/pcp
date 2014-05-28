@@ -66,18 +66,20 @@ def record (context, config, duration, path, host):
     if os.path.exists(path):
         print ME + "archive %s already exists\n" % path
         sys.exit(1)
-    (tvp, err) = pm.pmParseInterval(str(duration) + " seconds")
-    status = context.pmRecordSetup (path, ME, 0) # pylint: disable=W0621
-    (status, rhp) = context.pmRecordAddHost (host, 1, config) # just a filename
-    status = context.pmRecordControl (0, c_gui.PM_REC_SETARG, "-T" + str(tvp) + "sec")
-    status = context.pmRecordControl (0, c_gui.PM_REC_ON, "")
-    pm.pmtimevalSleep(tvp)
-    # don't need to do anything else ... pmlogger will stop of it's own
-    # once -T limit is reached, or pmcollectl exits, and in particular
-    # calling
-    # status = context.pmRecordControl (rhp, c_gui.PM_REC_OFF, "")
-    # produces a popup dialog we don't want
-    #
+    # Non-graphical application using libpcp_gui services - never want
+    # to see popup dialogs from pmlogger(1) here, so force the issue.
+    os.environ['PCP_XCONFIRM_PROG'] = '/bin/true'
+    interval = pmapi.timeval.fromInterval(str(duration) + " seconds")
+    context.pmRecordSetup(path, ME, 0) # pylint: disable=W0621
+    context.pmRecordAddHost(host, 1, config) # just a filename
+    deadhand = "-T" + str(interval) + "seconds"
+    context.pmRecordControl(0, c_gui.PM_REC_SETARG, deadhand)
+    context.pmRecordControl(0, c_gui.PM_REC_ON, "")
+    interval.sleep()
+    context.pmRecordControl(0, c_gui.PM_REC_OFF, "")
+    # Note: pmlogger has a deadhand timer that will make it stop of its
+    # own accord once -T limit is reached; but we send an OFF-recording
+    # message anyway for cleanliness, just prior to pmcollectl exiting.
 
 # record_add_creator ------------------------------------------------------
 
