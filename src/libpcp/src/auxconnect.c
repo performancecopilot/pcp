@@ -243,20 +243,14 @@ int
 __pmAuxConnectPMCD(const char *hostname)
 {
     static int		*pmcd_ports = NULL;
-    static int		first_time = 1;
 
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
-    if (first_time) {
-	int	nports = 0;
-
-	first_time = 0;
-
-	/* __pmPMCDAddPorts discovers at least one valid port, if it returns. */
-	__pmPMCDAddPorts(&pmcd_ports, nports);
-    }
+    if (pmcd_ports == NULL)
+	__pmPMCDAddPorts(&pmcd_ports, 0);
     PM_UNLOCK(__pmLock_libpcp);
 
+    /* __pmPMCDAddPorts discovers at least one valid port, if it returns. */
     return __pmAuxConnectPMCDPort(hostname, pmcd_ports[0]);
 }
 

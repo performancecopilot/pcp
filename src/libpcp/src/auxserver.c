@@ -57,7 +57,8 @@ static int	nport;
 static int	*portlist;
 
 /*
- * The unix domain socket we're willing to listen for clients on, from -s (or env)
+ * The unix domain socket we're willing to listen for clients on,
+ * from -s (or env)
  */
 static const char *localSocketPath;
 static int   localSocketFd = -EPROTO;
@@ -66,7 +67,17 @@ static const char *serviceSpec;
 int
 __pmServiceAddPorts(const char *service, int **ports, int nports)
 {
-    /* The service is a service name (e.g. pmcd). */
+    /*
+     * The list of ports referenced by *ports may be (re)allocated
+     * using calls to realloc(3) with a new size based on nports.
+     * For an empty list, *ports must be NULL and nports must be 0.
+     * It is the responsibility of the caller to free this memory.
+     *
+     * If -EOPNOTSUPP is not returned, then this function is
+     * guaranteed to return a list containing at least 1 element.
+     *
+     * The service is a service name (e.g. pmcd).
+     */
     if (strcmp(service, PM_SERVER_SERVICE_SPEC) == 0)
 	nports = __pmPMCDAddPorts(ports, nports);
     else if (strcmp(service, PM_SERVER_PROXY_SPEC) == 0)
@@ -82,6 +93,15 @@ __pmServiceAddPorts(const char *service, int **ports, int nports)
 int
 __pmPMCDAddPorts(int **ports, int nports)
 {
+    /*
+     * The list of ports referenced by *ports may be (re)allocated
+     * using calls to realloc(3) with a new size based on nports.
+     * For an empty list, *ports must be NULL and nports must be 0.
+     * It is the responsibility of the caller to free this memory.
+     *
+     * This function is guaranteed to return a list containing at least
+     * 1 element.
+     */
     char *env;
     int  new_nports = nports;
 
@@ -101,6 +121,15 @@ __pmPMCDAddPorts(int **ports, int nports)
 int
 __pmProxyAddPorts(int **ports, int nports)
 {
+    /*
+     * The list of ports referenced by *ports may be (re)allocated
+     * using calls to realloc(3) with a new size based on nports.
+     * For an empty list, *ports must be NULL and nports must be 0.
+     * It is the responsibility of the caller to free this memory.
+     *
+     * This function is guaranteed to return a list containing at least
+     * 1 element.
+     */
     char *env;
     int  new_nports = nports;
 
@@ -120,6 +149,15 @@ __pmProxyAddPorts(int **ports, int nports)
 int
 __pmWebdAddPorts(int **ports, int nports)
 {
+    /*
+     * The list of ports referenced by *ports may be (re)allocated
+     * using calls to realloc(3) with a new size based on nports.
+     * For an empty list, *ports must be NULL and nports must be 0.
+     * It is the responsibility of the caller to free this memory.
+     *
+     * This function is guaranteed to return a list containing at least
+     * 1 element.
+     */
     char *env;
     int  new_nports = nports;
 
@@ -139,6 +177,15 @@ __pmWebdAddPorts(int **ports, int nports)
 int
 __pmAddPorts(const char *portstr, int **ports, int nports)
 {
+    /*
+     * The list of ports referenced by *ports may be (re)allocated
+     * using calls to realloc(3) with a new size based on nports.
+     * For an empty list, *ports must be NULL and nports must be 0.
+     * It is the responsibility of the caller to free this memory.
+     *
+     * If sufficient memory cannot be allocated, then this function
+     * calls __pmNoMem() and does not return.
+     */
     char	*endptr, *p = (char *)portstr;
     size_t	size;
 

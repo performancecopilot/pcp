@@ -210,10 +210,7 @@ static int	*global_portlist;
 static void
 load_pmcd_ports(void)
 {
-    static int	first_time = 1;
-
-    if (first_time) {
-	first_time = 0;
+    if (global_portlist == NULL) {
 	/* __pmPMCDAddPorts discovers at least one valid port, if it returns. */
 	global_nports = __pmPMCDAddPorts(&global_portlist, global_nports);
     }
