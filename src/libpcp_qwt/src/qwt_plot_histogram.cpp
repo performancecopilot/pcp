@@ -532,7 +532,10 @@ void QwtPlotHistogram::flushPolygon( QPainter *painter,
             polygon += QPointF( baseLine, polygon.first().y() );
         }
         QwtPainter::drawPolygon( painter, polygon );
-        polygon.resize( polygon.size() - 2 );
+	int resize = polygon.size();
+	if ( resize > 1 )
+	    resize -= 2;
+        polygon.resize( resize );
     }
     if ( d_data->pen.style() != Qt::NoPen )
     {
