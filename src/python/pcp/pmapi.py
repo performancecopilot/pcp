@@ -144,8 +144,23 @@ class timeval(Structure):
         self.tv_sec = sec
         self.tv_usec = usec
 
+    @classmethod
+    def fromInterval(builder, interval):
+        """ Construct timeval from a string using pmParseInterval """
+        tvp = builder()
+        errmsg = c_char_p()
+        status = LIBPCP.pmParseInterval(interval, byref(tvp), byref(errmsg))
+        if status < 0:
+            raise pmErr, (status, errmsg)
+        return tvp
+
     def __str__(self):
         return "%.3f" % c_api.pmtimevalToReal(self.tv_sec, self.tv_usec)
+
+    def sleep(self):
+        """ Delay for the amount of time specified by this timeval. """
+        c_api.pmtimevalSleep(self.tv_sec, self.tv_usec)
+        return None
 
 class tm(Structure):
     _fields_ = [("tm_sec", c_int),
@@ -377,7 +392,7 @@ pmDescPtr.sem = property(lambda x: x.contents.sem, None, None, None)
 pmDescPtr.type = property(lambda x: x.contents.type, None, None, None)
 
 
-def get_indom( pmdesc ):
+def get_indom(pmdesc):
     """Internal function to extract an indom from a pmdesc
 
        Allow functions requiring an indom to be passed a pmDesc* instead
@@ -398,12 +413,26 @@ class pmMetricSpec(Structure):
     """
     _fields_ = [ ("isarch", c_int),
                  ("source", c_char_p),
-                 ("metric", c_int),
-                 ("ninst", c_char_p),
+                 ("metric", c_char_p),
+                 ("ninst", c_int),
                  ("inst",  POINTER(c_char_p)) ]
+    def __str__(self):
+        insts = map(lambda x: str(self.inst[x]), range(self.ninst))
+        fields = (addressof(self), self.isarch, self.source, insts)
+        return "pmMetricSpec@%#lx src=%s metric=%s insts=" % fields
+
+    @classmethod
+    def fromString(builder, string, isarch = 0, source = ''):
+        result = POINTER(builder)()
+        errmsg = c_char_p()
+        status = LIBPCP.pmParseMetricSpec(string, isarch, source,
+                                        byref(result), byref(errmsg))
+        if status < 0:
+            raise pmErr, (status, errmsg)
+        return result
 
 class pmLogLabel(Structure):
-    """Label Record at the start of every log file - as exported above the PMAPI
+    """Label record at the start of every log file
     """
     _fields_ = [ ("magic", c_int),
                  ("pid_t", c_int),
@@ -1774,27 +1803,16 @@ class pmContext(object):
     @staticmethod
     def pmParseInterval(interval):
         """PMAPI - parse a textual time interval into a timeval struct
-        (timeval_ctype, "error message") = pmParseInterval("time string")
+        (timeval_ctype, '') = pmParseInterval("time string")
         """
-        tvp = timeval()
-        errmsg = c_char_p()
-        status = LIBPCP.pmParseInterval(interval, byref(tvp), byref(errmsg))
-        if status < 0:
-            raise pmErr, status
-        return tvp, errmsg
+	return (timeval.fromInterval(interval), '')
 
     @staticmethod
-    def pmParseMetricSpec(string, isarch, source):
+    def pmParseMetricSpec(string, isarch = 0, source = ''):
         """PMAPI - parse a textual metric specification into a struct
-        (result,errormsg) = pmParseMetricSpec("hinv.ncpu", 0, "localhost")
+        (result, '') = pmParseMetricSpec("hinv.ncpu", 0, "localhost")
         """
-        rsltp = POINTER(pmMetricSpec)()
-        errmsg = c_char_p()
-        status = LIBPCP.pmParseMetricSpec(string, isarch, source,
-                                        byref(rsltp), byref(errmsg))
-        if status < 0:
-            raise pmErr, status
-        return rsltp, errmsg
+        return (pmMetricSpec.fromString(string, isarch, source), '')
 
     @staticmethod
     def pmtimevalSleep(tvp):
@@ -1802,6 +1820,5 @@ class pmContext(object):
             Useful for implementing tools that do metric sampling.
             Single arg is timeval in tuple returned from pmParseInterval().
         """
-        c_api.pmtimevalSleep(tvp.tv_sec, tvp.tv_usec)
-        return None
+        return tvp.sleep()
 

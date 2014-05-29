@@ -1,7 +1,7 @@
 pcp (3.9.5) unstable; urgency=low
 
   * Under development.
-  * Ensure mmvdump is not in the source tarball (closes: #746996)
+  * Resolve FTBFS on build systems using systemd (closes: #746994)
 
  -- Nathan Scott <nathans@debian.org>  Wed, 18 Jun 2014 14:24:41 +1000
 
