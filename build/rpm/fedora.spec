@@ -9,7 +9,7 @@ URL: http://www.performancecopilot.org
 Group: Applications/System
 Source0: pcp-%{version}.src.tar.gz
 
-%define disable_qt 1
+%define disable_qt 0
 %define disable_microhttpd 0
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -480,6 +480,8 @@ cat base_pmdas.list base_bin.list base_exec.list base_man.list |\
 # all devel pcp package files except those split out into sub packages
 ls -1 $RPM_BUILD_ROOT/%{_mandir}/man3 |\
 sed -e 's#^#'%{_mandir}'\/man3\/#' | egrep -v '3pm|PMWEBAPI' >devel.list
+ls -1 $RPM_BUILD_ROOT/%{_datadir}/pcp/demos |\
+sed -e 's#^#'%{_datadir}'\/pcp\/demos\/#' | egrep -v tutorials >> devel.list
 
 %pre testsuite
 test -d %{_testsdir} || mkdir -p -m 755 %{_testsdir}
@@ -730,7 +732,6 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %{_libdir}/libpcp_trace.so
 %{_libdir}/libpcp_import.so
 %{_includedir}/pcp/*.h
-%{_datadir}/pcp/demos
 %{_datadir}/pcp/examples
 
 # PMDAs that ship src and are not for production use
@@ -826,7 +827,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root,-)
 
 %changelog
-* Wed Jun 18 2014 Nathan Scott <nathans@redhat.com> - 3.9.5-1
+* Wed Jun 18 2014 Dave Brolley <brolley@redhat.com> - 3.9.5-1
 - Under development.
 
 * Thu May 15 2014 Nathan Scott <nathans@redhat.com> - 3.9.4-1
