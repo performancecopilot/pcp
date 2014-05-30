@@ -220,12 +220,15 @@ int
 __pmServerAddInterface(const char *address)
 {
     size_t size = (nintf+1) * sizeof(char *);
+    char *interface;
 
     /* one (of possibly several) IP addresses for client requests */
     intflist = (char **)realloc(intflist, nintf * sizeof(char *));
     if (intflist == NULL)
 	__pmNoMem("AddInterface: cannot grow interface list", size, PM_FATAL_ERR);
-    intflist[nintf++] = strdup(address);
+    if ((interface = strdup(address)) == NULL)
+	__pmNoMem("AddInterface: cannot strdup interface", strlen(address), PM_FATAL_ERR);
+    intflist[nintf++] = interface;
     return nintf;
 }
 
