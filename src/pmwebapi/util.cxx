@@ -21,7 +21,8 @@
 #include <sstream>
 #include <vector>
 
-extern "C" {
+extern "C"
+{
 #include <sys/stat.h>
 #include <sys/syscall.h>
 #include <time.h>
@@ -41,11 +42,10 @@ ostream & timestamp (ostream & o)
     time (&now);
     char *now2 = ctime (&now);
     if (now2) {
-        now2[19] = '\0';    // overwrite \n
+        now2[19] = '\0';		// overwrite \n
     }
 
-    return o << "[" << (now2 ? now2 : "") << "] " << pmProgname << "(" << getpid () <<
-           "): ";
+    return o << "[" << (now2 ? now2 : "") << "] " << pmProgname << "(" << getpid () << "): ";
     // NB: we're single-threaded; no point printing out a thread-id too
 }
 
@@ -58,18 +58,17 @@ ostream & connstamp (ostream & o, struct MHD_Connection * conn)
     int sts = -1;
 
     /* Look up client address data. */
-    const union MHD_ConnectionInfo *u =
-                MHD_get_connection_info (conn, MHD_CONNECTION_INFO_CLIENT_ADDRESS);
+    const union MHD_ConnectionInfo *u = MHD_get_connection_info (conn,
+                                                MHD_CONNECTION_INFO_CLIENT_ADDRESS);
     struct sockaddr *so = u ? u->client_addr : 0;
 
-    if (so && so->sa_family == AF_INET)
-        sts = getnameinfo (so, sizeof (struct sockaddr_in),
-                           hostname, sizeof (hostname),
+    if (so && so->sa_family == AF_INET) {
+        sts = getnameinfo (so, sizeof (struct sockaddr_in), hostname, sizeof (hostname), servname,
+                           sizeof (servname), NI_NUMERICHOST | NI_NUMERICSERV);
+    } else if (so && so->sa_family == AF_INET6) {
+        sts = getnameinfo (so, sizeof (struct sockaddr_in6), hostname, sizeof (hostname),
                            servname, sizeof (servname), NI_NUMERICHOST | NI_NUMERICSERV);
-    else if (so && so->sa_family == AF_INET6)
-        sts = getnameinfo (so, sizeof (struct sockaddr_in6),
-                           hostname, sizeof (hostname),
-                           servname, sizeof (servname), NI_NUMERICHOST | NI_NUMERICSERV);
+    }
     if (sts != 0) {
         hostname[0] = servname[0] = '\0';
     }
@@ -81,9 +80,9 @@ ostream & connstamp (ostream & o, struct MHD_Connection * conn)
 
 
 // based on http://stackoverflow.com/a/236803/661150
-vector < string > split (const std::string & s, char delim)
+vector <string> split (const std::string & s, char delim)
 {
-    vector < string > elems;
+    vector <string> elems;
     stringstream ss (s);
     string item;
     while (getline (ss, item, delim)) {
@@ -97,7 +96,8 @@ vector < string > split (const std::string & s, char delim)
 // realpath(3), and check whether the latter is beneath the first.
 // This is intended to catch naughty people passing /../ in URLs.
 // Default to rejection (on errors).
-bool cursed_path_p (const string & blessed, const string & questionable)
+bool
+cursed_path_p (const string & blessed, const string & questionable)
 {
     char *rp1c = realpath (blessed.c_str (), NULL);
     if (rp1c == NULL) {
@@ -113,17 +113,46 @@ bool cursed_path_p (const string & blessed, const string & questionable)
     string rp2 = string (rp2c);
     free (rp2c);
 
-    if (rp1 == rp2) {	// identical: OK
+    if (rp1 == rp2) {
+        // identical: OK
         return false;
     }
 
-    if (rp2.size () < rp1.size () + 1) {	// rp2 cannot be nested within rp1
+    if (rp2.size () < rp1.size () + 1) {
+        // rp2 cannot be nested within rp1
         return true;
     }
 
-    if (rp2.substr (0, rp1.size () + 1) == (rp1 + '/')) {	// rp2 nested beneath rp1/
+    if (rp2.substr (0, rp1.size () + 1) == (rp1 + '/')) {
+        // rp2 nested beneath rp1/
         return false;
     }
 
     return true;
+}
+
+
+
+/* Print a string with JSON quoting.  Replace non-ASCII characters
+   with \uFFFD "REPLACEMENT CHARACTER". */
+void
+json_quote (ostream & o, const string & value)
+{
+    const char hex[] = "0123456789ABCDEF";
+    o << '"';
+    for (unsigned i = 0; i < value.length (); i++) {
+        char c = value[i];
+        if (!isascii (c)) {
+            o << "\\uFFFD";
+        } else if (isalnum (c)) {
+            o << c;
+        } else if (ispunct (c) && !iscntrl (c) && (c != '\\' && c != '\"')) {
+            o << c;
+        } else if (c == ' ') {
+            o << c;
+        } else {
+            o << "\\u00" << hex[ (c >> 4) & 0xf] << hex[ (c >> 0) & 0xf];
+        }
+    }
+    o << '"';
 }
