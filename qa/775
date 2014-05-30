@@ -31,12 +31,17 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 _success_filter()
 {
     # Only pmcd is guaranteed to be running, but other services may also be.
+    # Transform two cases - no servers vs found servers - into deterministic
+    # output for the --all invocations
     sed \
 	-e '/  pcp:/d' \
 	-e '/  proxy:/d' \
 	-e '/  http:/d' \
-	-e '/No pmproxy servers discovered/d' \
-	-e '/No pmwebd servers discovered/d'
+	-e 's/No \(pmproxy servers\) discovered/Sought \1/g' \
+	-e 's/No \(pmwebd servers\) discovered/Sought \1/g' \
+	-e 's/Discovered \(pmproxy servers\):/Sought \1/g' \
+	-e 's/Discovered \(pmwebd servers\):/Sought \1/g' \
+    # end
 }
 
 # real QA test starts here
