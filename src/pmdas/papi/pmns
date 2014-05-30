@@ -1,0 +1,41 @@
+/*
+ * Metrics for papi PMDA
+ *
+ * Copyright (c) 2014 Red Hat, Inc.  All Rights Reserved.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
+
+papi {
+    kernel
+    enable_counters PAPI:0:1
+}
+
+papi.kernel {
+    total_inst PAPI:0:0
+    L1_DCM PAPI:0:2
+    L1_ICM PAPI:0:3
+    L2_DCM PAPI:0:4
+    L2_ICM PAPI:0:5
+    L3_DCM PAPI:0:6
+    L3_ICM PAPI:0:7
+    L1_TCM PAPI:0:8
+    L2_TCM PAPI:0:9
+    L3_TCM PAPI:0:10
+    TLB_DM PAPI:0:11
+    TLB_IM PAPI:0:12
+    TLB_TL PAPI:0:13
+    L1_LDM PAPI:0:14
+    L1_STM PAPI:0:15
+    L2_LDM PAPI:0:16
+    L2_STM PAPI:0:17
+}
+
