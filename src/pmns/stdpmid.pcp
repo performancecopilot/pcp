@@ -104,7 +104,10 @@ RPM		123
 QPID		124
 ZSWAP		125
 PAPI		126
+<<<<<<< HEAD
 PERF		127
+=======
+>>>>>>> Initial papi pmda version
 ### NEXT FREE SLOT ###
 SLOW_PYTHON	242
 SLOW		243
