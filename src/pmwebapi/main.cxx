@@ -24,7 +24,7 @@ using namespace std;
 
 string uriprefix = "pmapi";
 string resourcedir;		/* set by -R option */
-string archivesdir = ".";	/* set by -A option */// XXX: set from getcwd()/realpath()
+string archivesdir = ".";	/* set by -A option */
 unsigned verbosity;		/* set by -v option */
 unsigned maxtimeout = 300;	/* set by -t option */
 unsigned perm_context = 1;	/* set by -c option, changed by -h/-a/-L */
@@ -97,6 +97,8 @@ mhd_respond (void *cls, struct MHD_Connection *connection,
 	     const char *url0, const char *method0, const char *version,
 	     const char *upload_data, size_t * upload_data_size, void **con_cls)
 {
+    (void) cls;			// closure parameter unused
+
     string url = url0;
     string method = method0 ? string (method0) : "";
 
@@ -112,6 +114,18 @@ mhd_respond (void *cls, struct MHD_Connection *connection,
     }
     *con_cls = NULL;
 
+    /*
+     * MHD calls us at least thrice per POST request.  Skip the second
+     * one, since it only gives us upload_data, which we don't care about,
+     * and we can't respond at that stage anyhow.
+     */
+    if (method == "POST" && *upload_data_size != 0) {
+	// we don't process POST data incrementally
+	*upload_data_size = 0;
+	return MHD_YES;
+    }
+
+
     if (verbosity > 1)
 	connstamp (clog, connection) << version << " " << method << " " << url << endl;
     if (verbosity > 2)		/* Print arguments too. */
@@ -121,24 +135,25 @@ mhd_respond (void *cls, struct MHD_Connection *connection,
     // first component (or the whole remainder)
     // XXX: what about ?querystr?
     vector < string > url_tokens = split (url, '/');
-    if (url_tokens.size () >= 2) {
-	const string & url1 = url_tokens[1];
+    string url1 = (url_tokens.size () >= 2) ? url_tokens[1] : "";
+    string url2 = (url_tokens.size () >= 3) ? url_tokens[2] : "";
 
-	/* pmwebapi? */
-	if (url1 == uriprefix)
-	    return pmwebapi_respond (cls, connection, url_tokens,	/* strip prefix */
-				     method, upload_data, upload_data_size);
-	/* graphite? */
-	else if (graphite_p &&
-		 (method == "GET" || method == "POST") &&
-		 (url1 == "render" || url1 == "metrics" || url1 == "rawdata"))
-	    return pmgraphite_respond (cls, connection, url_tokens);
+    /* pmwebapi? */
+    if (url1 == uriprefix)
+	return pmwebapi_respond (connection, url_tokens);
+    /* graphite? */
+    else if (graphite_p &&
+	     (method == "GET" || method == "POST") &&
+	     (url1 == "graphite") &&
+	     ((url2 == "render") || (url2 == "metrics") || (url2 == "rawdata")
+	      || (url2 == "browser")))
+	return pmgraphite_respond (connection, url_tokens);
 
-	/* pmresapi? */
-	else if ((resourcedir != "") && (method == "GET"))
-	    return pmwebres_respond (cls, connection, url);
-    }
+    /* pmresapi? */
+    else if ((resourcedir != "") && (method == "GET"))
+	return pmwebres_respond (connection, url);
 
+    /* fall through */
     return mhd_notify_error (connection, -EINVAL);
 }
 
@@ -205,11 +220,8 @@ static void server_dump_configuration ()
     }
 
     if (new_contexts_p) {
-	clog << "Serving archives under directory ";
-	if (__pmAbsolutePath ((char *) archivesdir.c_str ()) || !cwd)
-	    clog << archivesdir << endl;
-	else
-	    clog << cwd << sep << archivesdir << endl;
+	clog << "Remote context creation requests enabled" << endl;
+	clog << "Archive base directory: " << archivesdir << endl;
 	/* XXX: network outbound ACL */
     } else
 	clog << "Remote context creation requests disabled" << endl;
