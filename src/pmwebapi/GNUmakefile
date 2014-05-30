@@ -69,3 +69,6 @@ install_pcp :: install
 
 install_pcp :: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
+
+indent:
+	astyle -A10 -n -v $(CXXFILES) $(HFILES)
