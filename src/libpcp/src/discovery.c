@@ -15,6 +15,7 @@
 #include "impl.h"
 #include "internal.h"
 #include "avahi.h"
+#include "probe.h"
 
 #if defined(HAVE_SERVICE_DISCOVERY)
 
@@ -64,6 +65,9 @@ __pmServerUnadvertisePresence(__pmServerPresence *s)
     free(s);
 }
 
+/*
+ * Service discovery API entry point.
+ */
 int pmDiscoverServices(const char *service,
 		       const char *mechanism,
 		       char ***urls)
@@ -78,8 +82,14 @@ int pmDiscoverServices(const char *service,
      */
     *urls = NULL;
     numUrls = 0;
-    if (mechanism == NULL || strncmp(mechanism, "avahi", 5) == 0)
+    if (mechanism == NULL) {
 	numUrls += __pmAvahiDiscoverServices(service, mechanism, numUrls, urls);
+	numUrls += __pmProbeDiscoverServices(service, mechanism, numUrls, urls);
+    }
+    else if (mechanism == NULL || strncmp(mechanism, "avahi", 5) == 0)
+	numUrls += __pmAvahiDiscoverServices(service, mechanism, numUrls, urls);
+    else if (mechanism == NULL || strncmp(mechanism, "probe", 5) == 0)
+	numUrls += __pmProbeDiscoverServices(service, mechanism, numUrls, urls);
     else
 	return -EOPNOTSUPP;
 

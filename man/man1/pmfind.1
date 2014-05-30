@@ -27,13 +27,15 @@ network and prints a list of URLs corresponding to the services discovered.
 .PP
 By default
 .B pmfind
-will search for servers advertising the
-.BR pmcd (1)
-service, however an alternate PCP
+will search for all supported PCP services, however a specific PCP
 .I service
 to discover can be specified using the
 .B \-s
-option.
+option. Supported services are
+.BR pmcd (1),
+.BR pmproxy (1)
+and
+.BR pmwebd (1) .
 .PP
 The
 .B \-m
@@ -43,8 +45,22 @@ that
 .B pmfind
 uses when performing service discovery.
 By default, or if the keyword "all" is specified, every available
-mechanism will be used (iteratively).
-Currently, "avahi" is the only supported discovery mechanism.
+mechanism will be used (iteratively). Supported machanisms are:
+.TP
+.B avahi
+Searches for services which are broadcasting using mDNS via
+.BR avahi-daemon(8).
+.TP
+.B probe=<net-address>/<mask-bits>
+Actively probes the given subnet for the requested PCP service(s).
+<net-address> is an inet or ipv6
+network address and <mask-bits> is the number of bits used to define the
+subnet. For example, 192.168.1.0/24 defines an 8 bit subnet consisting of the
+addresses 192.168.1.0 through 192.168.1.255.
+An optional suffix \fB",maxThreads=N"\fP may be added to limit the number of
+threads used while probing. The default is no fixed limit, which is to say that
+the process' rlimits for the number of threads and open file descriptors
+will be respected.
 .PP
 The
 .B \-q
@@ -73,6 +89,8 @@ that is intended to be self-explanatory.
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),
+.BR pmproxy (1),
+.BR pmwebd (1),
 .BR PMAPI (3),
 .BR pmDiscoverServices (3),
 .BR pcp.conf (5)

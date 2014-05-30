@@ -188,6 +188,11 @@ struct __pmHostEnt {
 };
 #endif
 
+extern unsigned __pmFirstInetSubnetAddr(unsigned, int) _PCP_HIDDEN;
+extern unsigned __pmNextInetSubnetAddr(unsigned, int) _PCP_HIDDEN;
+extern unsigned char *__pmFirstIpv6SubnetAddr(unsigned char *, int maskBits) _PCP_HIDDEN;
+extern unsigned char *__pmNextIpv6SubnetAddr(unsigned char *, int maskBits) _PCP_HIDDEN;
+
 extern int __pmInitSecureSockets(void) _PCP_HIDDEN;
 extern int __pmInitCertificates(void) _PCP_HIDDEN;
 extern int __pmInitSocket(int, int) _PCP_HIDDEN;
@@ -256,5 +261,11 @@ typedef struct {
 } __pmServiceInfo;
 
 extern int  __pmAddDiscoveredService(__pmServiceInfo *, int, char ***) _PCP_HIDDEN;
+
+extern int __pmServiceAddPorts(const char *, int **, int) _PCP_HIDDEN;
+extern int __pmPMCDAddPorts(int **, int) _PCP_HIDDEN;
+extern int __pmProxyAddPorts(int **, int) _PCP_HIDDEN;
+extern int __pmWebdAddPorts(int **, int) _PCP_HIDDEN;
+extern int __pmAddPorts(const char *, int **, int) _PCP_HIDDEN;
 
 #endif /* _INTERNAL_H */

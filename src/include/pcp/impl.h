@@ -631,9 +631,11 @@ extern int	     __pmSockAddrIsLoopBack(const __pmSockAddr *);
 extern int	     __pmSockAddrIsInet(const __pmSockAddr *);
 extern int	     __pmSockAddrIsIPv6(const __pmSockAddr *);
 extern int	     __pmSockAddrIsUnix(const __pmSockAddr *);
-extern char *	     __pmSockAddrToString(__pmSockAddr *);
+extern char *	     __pmSockAddrToString(const __pmSockAddr *);
 extern __pmSockAddr *__pmStringToSockAddr(const char *);
 extern __pmSockAddr *__pmLoopBackAddress(int);
+extern __pmSockAddr *__pmSockAddrFirstSubnetAddr(const __pmSockAddr *, int);
+extern __pmSockAddr *__pmSockAddrNextSubnetAddr(__pmSockAddr *, int);
 
 extern __pmHostEnt * __pmHostEntAlloc(void);
 extern void	     __pmHostEntFree(__pmHostEnt *);

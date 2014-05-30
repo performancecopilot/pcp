@@ -1,0 +1,88 @@
+#!/bin/sh
+# PCP QA Test No. 766
+# Test using the pmfind app to find PCP servers using the active probing
+# discovery mechanism. Probe inet only.
+#
+# Copyright (c) 2014 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_get_libpcp_config
+$service_discovery || _notrun "No support for service discovery"
+
+signal=$PCP_BINADM_DIR/pmsignal
+$sudo $signal -a pmproxy pmwebd
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_success_filter()
+{
+    # Only pmcd is guaranteed to be running, but other services may also be.
+    sed \
+	-e '/  pcp:/d' \
+	-e '/  proxy:/d' \
+	-e '/  http:/d' \
+	-e '/No pmproxy servers discovered/d' \
+	-e '/No pmwebd servers discovered/d'
+}
+
+# real QA test starts here
+# Make sure we can use ifconfig
+if [ -x /sbin/ifconfig ]
+then
+    IFCONFIG=/sbin/ifconfig
+else
+    which ifconfig 2>/dev/null || _notrun "can't find ifconfig"
+    IFCONFIG=`which ifconfig`
+fi
+
+# Obtain the inet address of an active network interface
+addr=`$IFCONFIG | \
+  grep 'inet ' | \
+  grep -v 127.0.0.1 | \
+  awk '{ print $2 }' | \
+  head -n1`
+
+[ -z addr ] && _notrun "no active inet interfaces"
+
+# Probe the obtained network.
+# Test various combinations of service queries and subnet sizes. Keep the
+# subnet size small -- say max 4 bits.
+echo "-m probe=$addr/32" >> $seq.full
+echo "-m probe=INET_ADDR/32"
+pmfind -m probe=$addr/32 | _success_filter
+echo "Exit status: $?" | tee -a $seq.full
+
+echo "-s pmcd -m probe=$addr/31" >> $seq.full
+echo "-s pmcd -m probe=INET_ADDR/31"
+pmfind -s pmcd -m probe=$addr/30 | _success_filter
+echo "Exit status: $?" | tee -a $seq.full
+
+echo "-q -m probe=$addr/30" >> $seq.full
+echo "-q -m probe=INET_ADDR/30"
+pmfind -q -m probe=$addr/29 | _success_filter
+echo "Exit status: $?" | tee -a $seq.full
+
+echo "-q -s pmcd -m probe=$addr/29" >> $seq.full
+echo "-q -s pmcd -m probe=INET_ADDR/29"
+pmfind -q -s pmcd -m probe=$addr/28 | _success_filter
+echo "Exit status: $?" | tee -a $seq.full
+
+echo "-q -s pmcd -m probe=$addr/28,maxThreads=8" >> $seq.full
+echo "-q -s pmcd -m probe=INET_ADDR/28,maxThreads=8"
+pmfind -q -s pmcd -m probe=$addr/28,maxThreads=8 | _success_filter
+echo "Exit status: $?" | tee -a $seq.full
+
+# success, all done
+status=0
+
+exit

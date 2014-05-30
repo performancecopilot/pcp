@@ -22,6 +22,9 @@
 #include <ucred.h>
 #endif
 
+#define STRINGIFY(s)	#s
+#define TO_STRING(s)	STRINGIFY(s)
+
 /*
  * Info about a request port that clients may connect to a server on
  */
@@ -54,11 +57,164 @@ static int	nport;
 static int	*portlist;
 
 /*
- * The unix domain socket we're willing to listen for clients on, from -s (or env)
+ * The unix domain socket we're willing to listen for clients on,
+ * from -s (or env)
  */
 static const char *localSocketPath;
 static int   localSocketFd = -EPROTO;
 static const char *serviceSpec;
+
+int
+__pmServiceAddPorts(const char *service, int **ports, int nports)
+{
+    /*
+     * The list of ports referenced by *ports may be (re)allocated
+     * using calls to realloc(3) with a new size based on nports.
+     * For an empty list, *ports must be NULL and nports must be 0.
+     * It is the responsibility of the caller to free this memory.
+     *
+     * If -EOPNOTSUPP is not returned, then this function is
+     * guaranteed to return a list containing at least 1 element.
+     *
+     * The service is a service name (e.g. pmcd).
+     */
+    if (strcmp(service, PM_SERVER_SERVICE_SPEC) == 0)
+	nports = __pmPMCDAddPorts(ports, nports);
+    else if (strcmp(service, PM_SERVER_PROXY_SPEC) == 0)
+	nports = __pmProxyAddPorts(ports, nports);
+    else if (strcmp(service, PM_SERVER_WEBD_SPEC) == 0)
+	nports = __pmWebdAddPorts(ports, nports);
+    else
+	nports = -EOPNOTSUPP;
+
+    return nports;
+}
+
+int
+__pmPMCDAddPorts(int **ports, int nports)
+{
+    /*
+     * The list of ports referenced by *ports may be (re)allocated
+     * using calls to realloc(3) with a new size based on nports.
+     * For an empty list, *ports must be NULL and nports must be 0.
+     * It is the responsibility of the caller to free this memory.
+     *
+     * This function is guaranteed to return a list containing at least
+     * 1 element.
+     */
+    char *env;
+    int  new_nports = nports;
+
+    if ((env = getenv("PMCD_PORT")) != NULL)
+	new_nports = __pmAddPorts(env, ports, nports);
+
+    /*
+     * Add the default port, if no new ports were added or if there was an
+     * error.
+     */
+    if (new_nports <= nports)
+	new_nports = __pmAddPorts(TO_STRING(SERVER_PORT), ports, nports);
+
+    return new_nports;
+}
+
+int
+__pmProxyAddPorts(int **ports, int nports)
+{
+    /*
+     * The list of ports referenced by *ports may be (re)allocated
+     * using calls to realloc(3) with a new size based on nports.
+     * For an empty list, *ports must be NULL and nports must be 0.
+     * It is the responsibility of the caller to free this memory.
+     *
+     * This function is guaranteed to return a list containing at least
+     * 1 element.
+     */
+    char *env;
+    int  new_nports = nports;
+
+    if ((env = getenv("PMPROXY_PORT")) != NULL)
+	new_nports = __pmAddPorts(env, ports, nports);
+
+    /*
+     * Add the default port, if no new ports were added or if there was an
+     * error.
+     */
+    if (new_nports <= nports)
+	new_nports = __pmAddPorts(TO_STRING(PROXY_PORT), ports, nports);
+
+    return new_nports;
+}
+
+int
+__pmWebdAddPorts(int **ports, int nports)
+{
+    /*
+     * The list of ports referenced by *ports may be (re)allocated
+     * using calls to realloc(3) with a new size based on nports.
+     * For an empty list, *ports must be NULL and nports must be 0.
+     * It is the responsibility of the caller to free this memory.
+     *
+     * This function is guaranteed to return a list containing at least
+     * 1 element.
+     */
+    char *env;
+    int  new_nports = nports;
+
+    if ((env = getenv("PMWEBD_PORT")) != NULL)
+	new_nports = __pmAddPorts(env, ports, nports);
+
+    /*
+     * Add the default port, if no new ports were added or if there was an
+     * error.
+     */
+    if (new_nports <= nports)
+	new_nports = __pmAddPorts(TO_STRING(PMWEBD_PORT), ports, nports);
+
+    return new_nports;
+}
+
+int
+__pmAddPorts(const char *portstr, int **ports, int nports)
+{
+    /*
+     * The list of ports referenced by *ports may be (re)allocated
+     * using calls to realloc(3) with a new size based on nports.
+     * For an empty list, *ports must be NULL and nports must be 0.
+     * It is the responsibility of the caller to free this memory.
+     *
+     * If sufficient memory cannot be allocated, then this function
+     * calls __pmNoMem() and does not return.
+     */
+    char	*endptr, *p = (char *)portstr;
+    size_t	size;
+
+    /*
+     * one (of possibly several) ports for client requests
+     * ... accept a comma separated list of ports here
+     */
+    for ( ; ; ) {
+	int port = (int)strtol(p, &endptr, 0);
+	if ((*endptr != '\0' && *endptr != ',') || port < 0)
+	    return -EINVAL;
+
+	size = (nports + 1) * sizeof(int);
+	if ((*ports = (int *)realloc(*ports, size)) == NULL)
+	    __pmNoMem("__pmAddPorts: cannot grow port list", size, PM_FATAL_ERR);
+	(*ports)[nports++] = port;
+	if (*endptr == '\0')
+	    break;
+	p = &endptr[1];
+    }
+    return nports;
+}
+
+int
+__pmServerAddPorts(const char *ports)
+{
+    nport = __pmAddPorts(ports, &portlist, nport);
+    return nport;
+}
 
 int
 __pmServerAddInterface(const char *address)
@@ -71,31 +227,6 @@ __pmServerAddInterface(const char *address)
 	__pmNoMem("AddInterface: cannot grow interface list", size, PM_FATAL_ERR);
     intflist[nintf++] = strdup(address);
     return nintf;
-}
-
-int
-__pmServerAddPorts(const char *ports)
-{
-    char	*endptr, *p = (char *)ports;
-
-    /*
-     * one (of possibly several) ports for client requests
-     * ... accept a comma separated list of ports here
-     */
-    for ( ; ; ) {
-	size_t	size = (nport + 1) * sizeof(int);
-	int	port = (int)strtol(p, &endptr, 0);
-
-	if ((*endptr != '\0' && *endptr != ',') || port < 0)
-	    return -EINVAL;
-	if ((portlist = (int *)realloc(portlist, size)) == NULL)
-	    __pmNoMem("AddPorts: cannot grow port list", size, PM_FATAL_ERR);
-	portlist[nport++] = port;
-	if (*endptr == '\0')
-	    break;
-	p = &endptr[1];
-    }
-    return nport;
 }
 
 void

@@ -95,7 +95,7 @@ AF.o
 auxconnect.o
     canwait			# guarded by __pmLock_libpcp mutex
     first_time			# guarded by __pmLock_libpcp mutex
-    pmcd_port			# guarded by __pmLock_libpcp mutex
+    pmcd_ports			# guarded by __pmLock_libpcp mutex
     pmcd_socket			# guarded by __pmLock_libpcp mutex
 auxserver.o
     nport			# single-threaded server scope
@@ -132,10 +132,8 @@ connectlocal.o
 connect.o
     global_nports		# guarded by __pmLock_libpcp mutex
     global_portlist		# guarded by __pmLock_libpcp mutex
-    default_portlist		# guarded by __pmLock_libpcp mutex
     first_time			# guarded by __pmLock_libpcp mutex
     proxy			# guarded by __pmLock_libpcp mutex
-    proxy_port			# guarded by __pmLock_libpcp mutex
 context.o
     _mode			# const
     def_backoff			# guarded by __pmLock_libpcp mutex
@@ -313,6 +311,15 @@ pmns.o
 p_pmns.o
 p_profile.o
 p_result.o
+probe.o
+    netAddress			# main thread only
+    maskBits			# main thread only
+    addressesProcessed		# guarded by lock
+    ?maxThreads			# main thread only
+    ?lock			# a mutex
+    ?attr			# thread attributes
+    ?threadsComplete		# a semaphore
+    ?threadsAvailable		# a semaphore
 profile.o
 p_text.o
 rtime.o
