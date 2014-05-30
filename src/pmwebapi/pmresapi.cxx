@@ -21,6 +21,8 @@
 #include "pmwebapi.h"
 #include "config.h"
 
+#include <iostream>
+
 using namespace std;
 
 
@@ -69,49 +71,73 @@ static const char *create_rfc822_date (time_t t)
 /* Respond to a GET request, not under the pmwebapi URL prefix.  This
    is a mini fileserver, just for small standalone installations of
    pmwebapi-based web front-ends. */
-int pmwebres_respond (void *cls, struct MHD_Connection *connection, const string & url)
+int pmwebres_respond (struct MHD_Connection *connection, const string & url)
 {
     int fd = -1;
     int rc;
-    char filename[PATH_MAX];
     struct stat fds;
     unsigned int resp_code = MHD_HTTP_OK;
     struct MHD_Response *resp;
     const char *ctype = NULL;
 
-    (void) cls;
     assert (resourcedir != "");	/* facility is enabled at all */
-
     assert (url[0] == '/');
-    rc = snprintf (filename, sizeof (filename), "%s%s", resourcedir.c_str (),
-		   url.c_str ());
-    if (rc < 0 || rc >= (int) sizeof (filename))
-	goto error_response;
 
-    /* Reject some obvious ways of escaping resourcedir. */
-    if (NULL != strstr (filename, "/../")) {
-	connstamp (cerr, connection) << "pmwebres suspicious url " << url << endl;
+    string resourcefile = resourcedir + url;	// pass through / path separators
+
+    if (cursed_path_p (resourcedir, resourcefile)) {
+	connstamp (cerr,
+		   connection) << "suspicious resource path " << resourcefile << endl;
 	goto error_response;
     }
 
-    fd = open (filename, O_RDONLY);
+    fd = open (resourcefile.c_str (), O_RDONLY);
     if (fd < 0) {
-	connstamp (cerr, connection) << "pmwebres failed to open " << filename << endl;
+	connstamp (cerr,
+		   connection) << "pmwebres failed to open " << resourcefile << endl;
 	resp_code = MHD_HTTP_NOT_FOUND;
 	goto error_response;
     }
 
     rc = fstat (fd, &fds);
     if (rc < 0) {
-	connstamp (cerr, connection) << "pmwebres failed to stat " << filename << endl;
+	connstamp (cerr,
+		   connection) << "pmwebres failed to stat " << resourcefile << endl;
 	close (fd);
 	goto error_response;
     }
 
     /* XXX: handle if-modified-since */
 
+    if (S_ISDIR (fds.st_mode)) {
+
+	string new_file = url;
+	// NB: don't add a redundant / -- unlike in UNIX paths, // are not harmless in URLs
+	if (url[url.size () - 1] != '/')
+	    new_file += '/';
+	new_file += "index.html";
+
+	static char blank[] = "";
+	resp =
+	    MHD_create_response_from_buffer (strlen (blank), blank,
+					     MHD_RESPMEM_PERSISTENT);
+	if (resp) {
+	    rc = MHD_add_response_header (resp, "Location", new_file.c_str ());
+	    if (rc != MHD_YES)
+		connstamp (cerr,
+			   connection) << "MHD_add_response_header Location: failed" <<
+		    endl;
+	    rc = MHD_queue_response (connection, MHD_HTTP_FOUND /* 302 */ , resp);
+	    if (rc != MHD_YES)
+		connstamp (cerr, connection) << "MHD_queue_response failed" << endl;
+	    MHD_destroy_response (resp);
+	    return MHD_YES;
+	}
+	return MHD_NO;		// general 500 error
+    }
+
     if (!S_ISREG (fds.st_mode)) {
-	connstamp (cerr, connection) << "pmwebres non-file " << filename << endl;
+	connstamp (cerr, connection) << "pmwebres non-file " << resourcefile << endl;
 	close (fd);
 
 	/* XXX: list directory, or redirect to index.html instead? */
@@ -120,7 +146,7 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection, const string
     }
 
     if (verbosity > 2)
-	connstamp (clog, connection) << "pmwebres serving file " << filename << endl;
+	connstamp (clog, connection) << "pmwebres serving file " << resourcefile << endl;
 
     resp = MHD_create_response_from_fd_at_offset (fds.st_size, fd, 0);	/* auto-closes fd */
     if (resp == NULL) {
@@ -129,7 +155,7 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection, const string
     }
 
     /* Guess at a suitable MIME content-type. */
-    ctype = guess_content_type (filename);
+    ctype = guess_content_type (resourcefile.c_str ());
     if (ctype)
 	(void) MHD_add_response_header (resp, "Content-Type", ctype);
 
@@ -139,10 +165,12 @@ int pmwebres_respond (void *cls, struct MHD_Connection *connection, const string
     if (ctype)
 	(void) MHD_add_response_header (resp, "Last-Modified", ctype);
 
+#if 0
     /* Add a 5-minute expiry. */
     ctype = create_rfc822_date (time (0) + 300);	/* XXX: configure */
     if (ctype)
 	(void) MHD_add_response_header (resp, "Expires", ctype);
+#endif
 
     (void) MHD_add_response_header (resp, "Cache-Control", "public");
 

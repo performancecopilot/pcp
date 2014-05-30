@@ -12,15 +12,21 @@
  * for more details.
  */
 
-#include "util.h"
+#define _XOPEN_SOURCE 500
+
 #include "pmapi.h"
 #include "impl.h"
+
+#include <iostream>
+#include <sstream>
+#include <vector>
 
 extern "C" {
 #include <sys/stat.h>
 #include <sys/syscall.h>
 #include <time.h>
 #include <stdarg.h>
+#include <stdlib.h>
 #include <netdb.h>
 #include <microhttpd.h>
 } using namespace std;
@@ -81,4 +87,36 @@ vector < string > split (const std::string & s, char delim)
 	elems.push_back (item);
     }
     return elems;
+}
+
+
+// Take two names of files/directories.  Resolve them both with
+// realpath(3), and check whether the latter is beneath the first.
+// This is intended to catch naughty people passing /../ in URLs.
+// Default to rejection (on errors).
+bool cursed_path_p (const string & blessed, const string & questionable)
+{
+    char *rp1c = realpath (blessed.c_str (), NULL);
+    if (rp1c == NULL)
+	return true;
+    string rp1 = string (rp1c);
+    free (rp1c);
+
+    char *rp2c = realpath (questionable.c_str (), NULL);
+    if (rp2c == NULL) {
+	return true;
+    }
+    string rp2 = string (rp2c);
+    free (rp2c);
+
+    if (rp1 == rp2)		// identical: OK
+	return false;
+
+    if (rp2.size () < rp1.size () + 1)	// rp2 cannot be nested within rp1
+	return true;
+
+    if (rp2.substr (0, rp1.size () + 1) == (rp1 + '/'))	// rp2 nested beneath rp1/
+	return false;
+
+    return true;
 }
