@@ -227,7 +227,7 @@ connectLoggerLocal(const char *local_socket)
 int
 __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 {
-    int			n, sts;
+    int			n, sts = 0;
     __pmLogPort		*lpp;
     int			fd;	/* Fd for socket connection to pmcd */
     __pmPDU		*pb;
