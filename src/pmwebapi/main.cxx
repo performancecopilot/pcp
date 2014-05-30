@@ -39,13 +39,13 @@ string fatalfile = "/dev/tty";	/* fatal messages at startup go here */
 
 
 int mhd_log_args (void *connection, enum MHD_ValueKind kind,
-		  const char *key, const char *value)
+                  const char *key, const char *value)
 {
     (void) kind;
     connstamp (clog, (MHD_Connection *) connection)
-	<< key << (value ? "=" : "")
-	<< (value ? value : "")
-	<< endl;
+            << key << (value ? "=" : "")
+            << (value ? value : "")
+            << endl;
     return MHD_YES;
 }
 
@@ -62,12 +62,12 @@ int mhd_notify_error (struct MHD_Connection *connection, int rc)
 
     (void) pmErrStr_r (rc, pmmsg, sizeof (pmmsg));
     (void) snprintf (error_message, sizeof (error_message),
-		     "PMWEBD error, code %d: %s", rc, pmmsg);
+                     "PMWEBD error, code %d: %s", rc, pmmsg);
     resp = MHD_create_response_from_buffer (strlen (error_message), error_message,
-					    MHD_RESPMEM_MUST_COPY);
+                                            MHD_RESPMEM_MUST_COPY);
     if (resp == NULL) {
-	connstamp (cerr, connection) << "MHD_create_response_from_buffer failed" << endl;
-	return MHD_NO;
+        connstamp (cerr, connection) << "MHD_create_response_from_buffer failed" << endl;
+        return MHD_NO;
     }
 
     (void) MHD_add_response_header (resp, "Content-Type", "text/plain");
@@ -76,8 +76,8 @@ int mhd_notify_error (struct MHD_Connection *connection, int rc)
     MHD_destroy_response (resp);
 
     if (rc != MHD_YES) {
-	connstamp (cerr, connection) << "MHD_queue_response failed" << endl;
-	return MHD_NO;
+        connstamp (cerr, connection) << "MHD_queue_response failed" << endl;
+        return MHD_NO;
     }
 
     return MHD_YES;
@@ -94,8 +94,8 @@ int mhd_notify_error (struct MHD_Connection *connection, int rc)
  */
 static int
 mhd_respond (void *cls, struct MHD_Connection *connection,
-	     const char *url0, const char *method0, const char *version,
-	     const char *upload_data, size_t * upload_data_size, void **con_cls)
+             const char *url0, const char *method0, const char *version,
+             const char *upload_data, size_t * upload_data_size, void **con_cls)
 {
     (void) cls;			// closure parameter unused
 
@@ -109,8 +109,8 @@ mhd_respond (void *cls, struct MHD_Connection *connection,
      * since it only gives us headers, and not any POST content.
      */
     if (&dummy != *con_cls) {
-	*con_cls = &dummy;
-	return MHD_YES;
+        *con_cls = &dummy;
+        return MHD_YES;
     }
     *con_cls = NULL;
 
@@ -120,17 +120,18 @@ mhd_respond (void *cls, struct MHD_Connection *connection,
      * and we can't respond at that stage anyhow.
      */
     if (method == "POST" && *upload_data_size != 0) {
-	// we don't process POST data incrementally
-	*upload_data_size = 0;
-	return MHD_YES;
+        // we don't process POST data incrementally
+        *upload_data_size = 0;
+        return MHD_YES;
     }
 
 
-    if (verbosity > 1)
-	connstamp (clog, connection) << version << " " << method << " " << url << endl;
+    if (verbosity > 1) {
+        connstamp (clog, connection) << version << " " << method << " " << url << endl;
+    }
     if (verbosity > 2)		/* Print arguments too. */
-	(void) MHD_get_connection_values (connection, MHD_GET_ARGUMENT_KIND,
-					  &mhd_log_args, connection);
+        (void) MHD_get_connection_values (connection, MHD_GET_ARGUMENT_KIND,
+                                          &mhd_log_args, connection);
 
     // first component (or the whole remainder)
     // XXX: what about ?querystr?
@@ -139,19 +140,22 @@ mhd_respond (void *cls, struct MHD_Connection *connection,
     string url2 = (url_tokens.size () >= 3) ? url_tokens[2] : "";
 
     /* pmwebapi? */
-    if (url1 == uriprefix)
-	return pmwebapi_respond (connection, url_tokens);
+    if (url1 == uriprefix) {
+        return pmwebapi_respond (connection, url_tokens);
+    }
     /* graphite? */
     else if (graphite_p &&
-	     (method == "GET" || method == "POST") &&
-	     (url1 == "graphite") &&
-	     ((url2 == "render") || (url2 == "metrics") || (url2 == "rawdata")
-	      || (url2 == "browser")))
-	return pmgraphite_respond (connection, url_tokens);
+             (method == "GET" || method == "POST") &&
+             (url1 == "graphite") &&
+             ((url2 == "render") || (url2 == "metrics") || (url2 == "rawdata")
+              || (url2 == "browser"))) {
+        return pmgraphite_respond (connection, url_tokens);
+    }
 
     /* pmresapi? */
-    else if ((resourcedir != "") && (method == "GET"))
-	return pmwebres_respond (connection, url);
+    else if ((resourcedir != "") && (method == "GET")) {
+        return pmwebres_respond (connection, url);
+    }
 
     /* fall through */
     return mhd_notify_error (connection, -EINVAL);
@@ -170,17 +174,18 @@ static void pmweb_dont_start (void)
 
     ofstream tty (fatalfile.c_str ());
     if (tty.good ()) {
-	timestamp (tty) << "NOTE: pmwebd not started due to errors!" << endl;
+        timestamp (tty) << "NOTE: pmwebd not started due to errors!" << endl;
 
-	// copy logfile to tty, if it was specified
-	if (logfile != "") {
-	    tty << "Log file \"" << logfile << "\" contains ..." << endl;
-	    ifstream log (logfile.c_str ());
-	    if (log.good ())
-		tty << log.rdbuf ();
-	    else
-		tty << "Log file \"" << logfile << "\" has vanished ..." << endl;
-	}
+        // copy logfile to tty, if it was specified
+        if (logfile != "") {
+            tty << "Log file \"" << logfile << "\" contains ..." << endl;
+            ifstream log (logfile.c_str ());
+            if (log.good ()) {
+                tty << log.rdbuf ();
+            } else {
+                tty << "Log file \"" << logfile << "\" has vanished ..." << endl;
+            }
+        }
     }
     exit (1);
 }
@@ -191,10 +196,12 @@ static void pmweb_dont_start (void)
  */
 static void server_dump_request_ports (int ipv4, int ipv6, int port)
 {
-    if (ipv4)
-	clog << "Started daemon on IPv4 TCP port " << port << endl;
-    if (ipv6)
-	clog << "Started daemon on IPv6 TCP port " << port << endl;
+    if (ipv4) {
+        clog << "Started daemon on IPv4 TCP port " << port << endl;
+    }
+    if (ipv6) {
+        clog << "Started daemon on IPv6 TCP port " << port << endl;
+    }
 }
 
 static void server_dump_configuration ()
@@ -211,20 +218,22 @@ static void server_dump_configuration ()
     cwd = getcwd (cwdpath, sizeof (cwdpath));
 
     if (resourcedir != "") {
-	clog << "Serving non-pmwebapi URLs under directory ";
-	// (NB: __pmAbsolutePath() should take const args)
-	if (__pmAbsolutePath ((char *) resourcedir.c_str ()) || !cwd)
-	    clog << resourcedir << endl;
-	else
-	    clog << cwd << sep << resourcedir << endl;
+        clog << "Serving non-pmwebapi URLs under directory ";
+        // (NB: __pmAbsolutePath() should take const args)
+        if (__pmAbsolutePath ((char *) resourcedir.c_str ()) || !cwd) {
+            clog << resourcedir << endl;
+        } else {
+            clog << cwd << sep << resourcedir << endl;
+        }
     }
 
     if (new_contexts_p) {
-	clog << "Remote context creation requests enabled" << endl;
-	clog << "Archive base directory: " << archivesdir << endl;
-	/* XXX: network outbound ACL */
-    } else
-	clog << "Remote context creation requests disabled" << endl;
+        clog << "Remote context creation requests enabled" << endl;
+        clog << "Archive base directory: " << archivesdir << endl;
+        /* XXX: network outbound ACL */
+    } else {
+        clog << "Remote context creation requests disabled" << endl;
+    }
 
     clog << "Graphite API " << (graphite_p ? "enabled" : "disabled") << endl;
 }
@@ -237,17 +246,19 @@ static void pmweb_init_random_seed (void)
     /* XXX: PR_GetRandomNoise() */
     gettimeofday (&tv, NULL);
     srandom ((unsigned int) getpid () ^
-	     (unsigned int) tv.tv_sec ^ (unsigned int) tv.tv_usec);
+             (unsigned int) tv.tv_sec ^ (unsigned int) tv.tv_usec);
 }
 
 
 static void pmweb_shutdown (struct MHD_Daemon *d4, struct MHD_Daemon *d6)
 {
     /* Shut down cleanly, out of a misplaced sense of propriety. */
-    if (d4)
-	MHD_stop_daemon (d4);
-    if (d6)
-	MHD_stop_daemon (d6);
+    if (d4) {
+        MHD_stop_daemon (d4);
+    }
+    if (d6) {
+        MHD_stop_daemon (d6);
+    }
 
     /* No longer advertise pmwebd presence on the network. */
     __pmServerUnadvertisePresence(presence);
@@ -267,15 +278,15 @@ static int option_overrides (int opt, pmOptions * opts)
     (void) opts;
 
     switch (opt) {
-	case 'A':
-	case 'a':
-	case 'h':
-	case 'G':
-	case 'L':
-	case 'N':
-	case 'p':
-	case 't':
-	    return 1;
+    case 'A':
+    case 'a':
+    case 'h':
+    case 'G':
+    case 'L':
+    case 'N':
+    case 'p':
+    case 't':
+        return 1;
     }
     return 0;
 }
@@ -328,122 +339,122 @@ int main (int argc, char *argv[])
     opts.override = option_overrides;
 
     while ((c = pmGetOptions (argc, argv, &opts)) != EOF) {
-	switch (c) {
-	    case 'p':
-		port = (int) strtol (opts.optarg, &endptr, 0);
-		if (*endptr != '\0' || port < 0 || port > 65535) {
-		    pmprintf ("%s: invalid port number %s\n", pmProgname, opts.optarg);
-		    opts.errors++;
-		}
-		break;
+        switch (c) {
+        case 'p':
+            port = (int) strtol (opts.optarg, &endptr, 0);
+            if (*endptr != '\0' || port < 0 || port > 65535) {
+                pmprintf ("%s: invalid port number %s\n", pmProgname, opts.optarg);
+                opts.errors++;
+            }
+            break;
 
-	    case 't':
-		maxtimeout = strtoul (opts.optarg, &endptr, 0);
-		if (*endptr != '\0') {
-		    pmprintf ("%s: invalid timeout %s\n", pmProgname, opts.optarg);
-		    opts.errors++;
-		}
-		break;
+        case 't':
+            maxtimeout = strtoul (opts.optarg, &endptr, 0);
+            if (*endptr != '\0') {
+                pmprintf ("%s: invalid timeout %s\n", pmProgname, opts.optarg);
+                opts.errors++;
+            }
+            break;
 
-	    case 'R':
-		resourcedir = opts.optarg;
-		break;
+        case 'R':
+            resourcedir = opts.optarg;
+            break;
 
-	    case 'G':
-		graphite_p = 1;
-		break;
+        case 'G':
+            graphite_p = 1;
+            break;
 
-	    case 'A':
-		archivesdir = opts.optarg;
-		break;
+        case 'A':
+            archivesdir = opts.optarg;
+            break;
 
-	    case '6':
-		mhd_ipv6 = 1;
-		mhd_ipv4 = 0;
-		break;
+        case '6':
+            mhd_ipv6 = 1;
+            mhd_ipv4 = 0;
+            break;
 
-	    case '4':
-		mhd_ipv4 = 1;
-		mhd_ipv6 = 0;
-		break;
+        case '4':
+            mhd_ipv4 = 1;
+            mhd_ipv6 = 0;
+            break;
 
-	    case 'v':
-		verbosity++;
-		break;
+        case 'v':
+            verbosity++;
+            break;
 
-	    case 'c':
-		perm_context = strtoul (opts.optarg, &endptr, 0);
-		if (*endptr != '\0' || perm_context >= INT_MAX) {
-		    pmprintf ("%s: invalid context number %s\n", pmProgname, opts.optarg);
-		    opts.errors++;
-		}
-		break;
+        case 'c':
+            perm_context = strtoul (opts.optarg, &endptr, 0);
+            if (*endptr != '\0' || perm_context >= INT_MAX) {
+                pmprintf ("%s: invalid context number %s\n", pmProgname, opts.optarg);
+                opts.errors++;
+            }
+            break;
 
-	    case 'h':
-		if ((ctx = pmNewContext (PM_CONTEXT_HOST, opts.optarg)) < 0) {
-		    __pmNotifyErr (LOG_ERR, "new context failed\n");
-		    exit (EXIT_FAILURE);
-		}
-		if ((sts = pmwebapi_bind_permanent (perm_context++, ctx)) < 0) {
-		    __pmNotifyErr (LOG_ERR, "permanent bind failed\n");
-		    exit (EXIT_FAILURE);
-		}
-		__pmNotifyErr (LOG_INFO,
-			       "context (web%d=pm%d) created, host %s, permanent\n",
-			       perm_context - 1, ctx, opts.optarg);
-		break;
+        case 'h':
+            if ((ctx = pmNewContext (PM_CONTEXT_HOST, opts.optarg)) < 0) {
+                __pmNotifyErr (LOG_ERR, "new context failed\n");
+                exit (EXIT_FAILURE);
+            }
+            if ((sts = pmwebapi_bind_permanent (perm_context++, ctx)) < 0) {
+                __pmNotifyErr (LOG_ERR, "permanent bind failed\n");
+                exit (EXIT_FAILURE);
+            }
+            __pmNotifyErr (LOG_INFO,
+                           "context (web%d=pm%d) created, host %s, permanent\n",
+                           perm_context - 1, ctx, opts.optarg);
+            break;
 
-	    case 'a':
-		if ((ctx = pmNewContext (PM_CONTEXT_ARCHIVE, opts.optarg)) < 0) {
-		    __pmNotifyErr (LOG_ERR, "new context failed\n");
-		    exit (EXIT_FAILURE);
-		}
-		if ((sts = pmwebapi_bind_permanent (perm_context++, ctx)) < 0) {
-		    __pmNotifyErr (LOG_ERR, "permanent bind failed\n");
-		    exit (EXIT_FAILURE);
-		}
-		__pmNotifyErr (LOG_INFO,
-			       "context (web%d=pm%d) created, archive %s, permanent\n",
-			       perm_context - 1, ctx, opts.optarg);
-		break;
+        case 'a':
+            if ((ctx = pmNewContext (PM_CONTEXT_ARCHIVE, opts.optarg)) < 0) {
+                __pmNotifyErr (LOG_ERR, "new context failed\n");
+                exit (EXIT_FAILURE);
+            }
+            if ((sts = pmwebapi_bind_permanent (perm_context++, ctx)) < 0) {
+                __pmNotifyErr (LOG_ERR, "permanent bind failed\n");
+                exit (EXIT_FAILURE);
+            }
+            __pmNotifyErr (LOG_INFO,
+                           "context (web%d=pm%d) created, archive %s, permanent\n",
+                           perm_context - 1, ctx, opts.optarg);
+            break;
 
-	    case 'L':
-		if ((ctx = pmNewContext (PM_CONTEXT_LOCAL, NULL)) < 0) {
-		    __pmNotifyErr (LOG_ERR, "new context failed\n");
-		    exit (EXIT_FAILURE);
-		}
-		if ((sts = pmwebapi_bind_permanent (perm_context++, ctx)) < 0) {
-		    __pmNotifyErr (LOG_ERR, "permanent bind failed\n");
-		    exit (EXIT_FAILURE);
-		}
-		__pmNotifyErr (LOG_INFO,
-			       "context (web%d=pm%d) created, local, permanent\n",
-			       perm_context - 1, ctx);
-		break;
+        case 'L':
+            if ((ctx = pmNewContext (PM_CONTEXT_LOCAL, NULL)) < 0) {
+                __pmNotifyErr (LOG_ERR, "new context failed\n");
+                exit (EXIT_FAILURE);
+            }
+            if ((sts = pmwebapi_bind_permanent (perm_context++, ctx)) < 0) {
+                __pmNotifyErr (LOG_ERR, "permanent bind failed\n");
+                exit (EXIT_FAILURE);
+            }
+            __pmNotifyErr (LOG_INFO,
+                           "context (web%d=pm%d) created, local, permanent\n",
+                           perm_context - 1, ctx);
+            break;
 
-	    case 'N':
-		new_contexts_p = 0;
-		break;
+        case 'N':
+            new_contexts_p = 0;
+            break;
 
-	    case 'l':
-		/* log file name */
-		logfile = opts.optarg;
-		break;
+        case 'l':
+            /* log file name */
+            logfile = opts.optarg;
+            break;
 
-	    case 'U':
-		/* run as user username */
-		username_str = opts.optarg;
-		break;
+        case 'U':
+            /* run as user username */
+            username_str = opts.optarg;
+            break;
 
-	    case 'x':
-		fatalfile = opts.optarg;
-		break;
-	}
+        case 'x':
+            fatalfile = opts.optarg;
+            break;
+        }
     }
 
     if (opts.errors) {
-	pmUsageMessage (&opts);
-	exit (EXIT_FAILURE);
+        pmUsageMessage (&opts);
+        exit (EXIT_FAILURE);
     }
 
     /*
@@ -454,21 +465,22 @@ int main (int argc, char *argv[])
      * to add ample locking over pmwebd context structures etc.
      */
     if (mhd_ipv4)
-	d4 = MHD_start_daemon (0, port, NULL, NULL,	/* default accept policy */
-			       &mhd_respond, NULL,	/* handler callback */
-			       MHD_OPTION_CONNECTION_TIMEOUT, maxtimeout, MHD_OPTION_END);
+        d4 = MHD_start_daemon (0, port, NULL, NULL,	/* default accept policy */
+                               &mhd_respond, NULL,	/* handler callback */
+                               MHD_OPTION_CONNECTION_TIMEOUT, maxtimeout, MHD_OPTION_END);
     if (mhd_ipv6)
-	d6 = MHD_start_daemon (MHD_USE_IPv6, port, NULL, NULL,	/* default accept policy */
-			       &mhd_respond, NULL,	/* handler callback */
-			       MHD_OPTION_CONNECTION_TIMEOUT, maxtimeout, MHD_OPTION_END);
+        d6 = MHD_start_daemon (MHD_USE_IPv6, port, NULL, NULL,	/* default accept policy */
+                               &mhd_respond, NULL,	/* handler callback */
+                               MHD_OPTION_CONNECTION_TIMEOUT, maxtimeout, MHD_OPTION_END);
     if (d4 == NULL && d6 == NULL) {
-	timestamp (cerr) << "Error starting microhttpd daemons on port " << port << endl;
-	pmweb_dont_start ();
+        timestamp (cerr) << "Error starting microhttpd daemons on port " << port << endl;
+        pmweb_dont_start ();
     }
 
     /* lose root privileges if we have them */
-    if (geteuid () == 0)
-	__pmSetProcessIdentity (username_str);
+    if (geteuid () == 0) {
+        __pmSetProcessIdentity (username_str);
+    }
 
     /* tell the world we have arrived */
     __pmServerCreatePIDFile(PM_SERVER_WEBD_SPEC, 0);
@@ -477,28 +489,31 @@ int main (int argc, char *argv[])
     // (re)create log file, redirect stdout/stderr
     // NB: must be done after __pmSetProcessIdentity() for proper file permissions
     if (logfile != "") {
-	int fd;
-	(void) unlink (logfile.c_str ());	// in case one's left over from a previous other-uid run
-	fd = open (logfile.c_str (), O_WRONLY | O_APPEND | O_CREAT | O_TRUNC, 0666);
-	if (fd < 0)
-	    timestamp (cerr) << "Cannot re-create logfile " << logfile << endl;
-	else {
-	    int rc;
-	    // Move the new file descriptors on top of stdout/stderr
-	    rc = dup2 (fd, STDOUT_FILENO);
-	    if (rc < 0)		// rather unlikely
-		timestamp (cerr) << "Cannot redirect logfile to stdout" << endl;
-	    rc = dup2 (fd, STDERR_FILENO);
-	    if (rc < 0)		// rather unlikely
-		timestamp (cerr) << "Cannot redirect logfile to stderr" << endl;
-	    rc = close (fd);
-	    if (rc < 0)		// rather unlikely
-		timestamp (cerr) << "Cannot close logfile fd" << endl;
-	}
+        int fd;
+        (void) unlink (logfile.c_str ());	// in case one's left over from a previous other-uid run
+        fd = open (logfile.c_str (), O_WRONLY | O_APPEND | O_CREAT | O_TRUNC, 0666);
+        if (fd < 0) {
+            timestamp (cerr) << "Cannot re-create logfile " << logfile << endl;
+        } else {
+            int rc;
+            // Move the new file descriptors on top of stdout/stderr
+            rc = dup2 (fd, STDOUT_FILENO);
+            if (rc < 0) {	// rather unlikely
+                timestamp (cerr) << "Cannot redirect logfile to stdout" << endl;
+            }
+            rc = dup2 (fd, STDERR_FILENO);
+            if (rc < 0) {	// rather unlikely
+                timestamp (cerr) << "Cannot redirect logfile to stderr" << endl;
+            }
+            rc = close (fd);
+            if (rc < 0) {	// rather unlikely
+                timestamp (cerr) << "Cannot close logfile fd" << endl;
+            }
+        }
     }
 
     timestamp (clog) << pmProgname << " PID = " << getpid ()
-	<< " PMAPI URL = " << uriprefix << endl;
+                     << " PMAPI URL = " << uriprefix << endl;
     server_dump_request_ports (d4 != NULL, d6 != NULL, port);
     server_dump_configuration ();
 
@@ -515,35 +530,39 @@ int main (int argc, char *argv[])
 
     /* Block indefinitely. */
     while (!exit_p) {
-	struct timeval tv;
-	fd_set rs;
-	fd_set ws;
-	fd_set es;
-	int max = 0;
+        struct timeval tv;
+        fd_set rs;
+        fd_set ws;
+        fd_set es;
+        int max = 0;
 
-	/* Based upon MHD fileserver_example_external_select.c */
-	FD_ZERO (&rs);
-	FD_ZERO (&ws);
-	FD_ZERO (&es);
-	if (d4 && MHD_YES != MHD_get_fdset (d4, &rs, &ws, &es, &max))
-	    break;		/* fatal internal error */
-	if (d6 && MHD_YES != MHD_get_fdset (d6, &rs, &ws, &es, &max))
-	    break;		/* fatal internal error */
+        /* Based upon MHD fileserver_example_external_select.c */
+        FD_ZERO (&rs);
+        FD_ZERO (&ws);
+        FD_ZERO (&es);
+        if (d4 && MHD_YES != MHD_get_fdset (d4, &rs, &ws, &es, &max)) {
+            break;    /* fatal internal error */
+        }
+        if (d6 && MHD_YES != MHD_get_fdset (d6, &rs, &ws, &es, &max)) {
+            break;    /* fatal internal error */
+        }
 
-	/*
-	 * Find the next expiry.  We don't need to bound it by
-	 * MHD_get_timeout, since we don't use a small
-	 * MHD_OPTION_CONNECTION_TIMEOUT.
-	 */
-	tv.tv_sec = pmwebapi_gc ();
-	tv.tv_usec = 0;
+        /*
+         * Find the next expiry.  We don't need to bound it by
+         * MHD_get_timeout, since we don't use a small
+         * MHD_OPTION_CONNECTION_TIMEOUT.
+         */
+        tv.tv_sec = pmwebapi_gc ();
+        tv.tv_usec = 0;
 
-	select (max + 1, &rs, &ws, &es, &tv);
+        select (max + 1, &rs, &ws, &es, &tv);
 
-	if (d4)
-	    MHD_run (d4);
-	if (d6)
-	    MHD_run (d6);
+        if (d4) {
+            MHD_run (d4);
+        }
+        if (d6) {
+            MHD_run (d6);
+        }
     }
 
     pmweb_shutdown (d4, d6);

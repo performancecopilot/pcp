@@ -48,11 +48,12 @@ string pmgraphite_metric_encode (const string & foo)
 
     assert (foo.size () > 0);
     for (unsigned i = 0; i < foo.size (); i++) {
-	char c = foo[i];
-	if (isalnum (c) || (c == '_'))
-	    output += c;
-	else
-	    output += "%" + hex[(c >> 4) & 15] + hex[(c >> 0) & 15];
+        char c = foo[i];
+        if (isalnum (c) || (c == '_')) {
+            output += c;
+        } else {
+            output += "%" + hex[(c >> 4) & 15] + hex[(c >> 0) & 15];
+        }
     }
     return output;
 }
@@ -64,19 +65,23 @@ string pmgraphite_metric_decode (const string & foo)
     string output;
     static const char hex[] = "0123456789ABCDEF";
     for (unsigned i = 0; i < foo.size (); i++) {
-	char c = foo[i];
-	if (c == '%') {
-	    if (i + 2 >= foo.size ())
-		return "";
-	    const char *p = lower_bound (hex, hex + 16, foo[i + 1]);
-	    if (*p != foo[i + 1])
-		return "";
-	    const char *q = lower_bound (hex, hex + 16, foo[i + 2]);
-	    if (*q != foo[i + 2])
-		return "";
-	    output += (char) (((p - hex) << 4) | (q - hex));
-	} else
-	    output += c;
+        char c = foo[i];
+        if (c == '%') {
+            if (i + 2 >= foo.size ()) {
+                return "";
+            }
+            const char *p = lower_bound (hex, hex + 16, foo[i + 1]);
+            if (*p != foo[i + 1]) {
+                return "";
+            }
+            const char *q = lower_bound (hex, hex + 16, foo[i + 2]);
+            if (*q != foo[i + 2]) {
+                return "";
+            }
+            output += (char) (((p - hex) << 4) | (q - hex));
+        } else {
+            output += c;
+        }
     }
     return output;
 
@@ -98,45 +103,47 @@ vector < float >pmgraphite_fetch_series (struct MHD_Connection *connection, cons
     vector < float >output;
 
     // XXX: in future, parse graphite functions-of-metrics
-    // XXX: in future, parse target-component wildcards 
+    // XXX: in future, parse target-component wildcards
     // XXX: in future, cache the pmid/pmdesc/inst# -> pcp-context
 
     vector < string > target_tok = split (target, '.');
     if (target_tok.size () < 2) {
-	connstamp (cerr, connection) << "not enough target components" << endl;
-	return empty_output;
+        connstamp (cerr, connection) << "not enough target components" << endl;
+        return empty_output;
     }
     for (unsigned i = 0; i < target_tok.size (); i++)
-	if (target_tok[i] == "") {
-	    connstamp (cerr, connection) << "empty target components" << endl;
-	    return empty_output;
-	}
+        if (target_tok[i] == "") {
+            connstamp (cerr, connection) << "empty target components" << endl;
+            return empty_output;
+        }
     // Extract the archive file/directory name
     string archive;
     string archive_part = pmgraphite_metric_decode (target_tok[0]);
     if (archive_part == "") {
-	connstamp (cerr,
-		   connection) << "undecodeable archive-path " << target_tok[0] << endl;
-	return empty_output;
+        connstamp (cerr,
+                   connection) << "undecodeable archive-path " << target_tok[0] << endl;
+        return empty_output;
     }
-    if (__pmAbsolutePath ((char *) archive_part.c_str ()))	// accept absolute paths too
-	archive = archive_part;
-    else
-	archive = archivesdir + (char) __pmPathSeparator () + archive_part;
+    if (__pmAbsolutePath ((char *) archive_part.c_str ())) {	// accept absolute paths too
+        archive = archive_part;
+    } else {
+        archive = archivesdir + (char) __pmPathSeparator () + archive_part;
+    }
 
     if (cursed_path_p (archivesdir, archive)) {
-	connstamp (cerr, connection) << "invalid archive path " << archive << endl;
-	return empty_output;
+        connstamp (cerr, connection) << "invalid archive path " << archive << endl;
+        return empty_output;
     }
     // Open the bad boy.
     // XXX: if it's a directory, redirect to the newest entry
     int pmc = pmNewContext (PM_CONTEXT_ARCHIVE, archive.c_str ());
     if (pmc < 0) {
-	// error already noted
-	return empty_output;
+        // error already noted
+        return empty_output;
     }
-    if (verbosity > 2)
-	connstamp (clog, connection) << "opened archive " << archive << endl;
+    if (verbosity > 2) {
+        connstamp (clog, connection) << "opened archive " << archive << endl;
+    }
 
     // NB: past this point, exit via 'goto out;' to release pmc
 
@@ -145,10 +152,11 @@ vector < float >pmgraphite_fetch_series (struct MHD_Connection *connection, cons
     // the end.
     string metric_name;
     for (unsigned i = 1; i < target_tok.size () - 1; i++) {
-	const string & piece = target_tok[i];
-	if (i > 1)
-	    metric_name += '.';
-	metric_name += piece;
+        const string & piece = target_tok[i];
+        if (i > 1) {
+            metric_name += '.';
+        }
+        metric_name += piece;
     }
     string last_component = target_tok[target_tok.size () - 1];
 
@@ -156,74 +164,74 @@ vector < float >pmgraphite_fetch_series (struct MHD_Connection *connection, cons
     pmDesc pmd;
 
     {
-	char *namelist[1];
-	pmID pmidlist[1];
-	namelist[0] = (char *) metric_name.c_str ();
-	int sts = pmLookupName (1, namelist, pmidlist);
+        char *namelist[1];
+        pmID pmidlist[1];
+        namelist[0] = (char *) metric_name.c_str ();
+        int sts = pmLookupName (1, namelist, pmidlist);
 
-	if (sts == 1) {		// found ... last name must be instance domain name
-	    pmid = pmidlist[0];
-	    sts = pmLookupDesc (pmid, &pmd);
-	    if (sts != 0) {
-		connstamp (clog,
-			   connection) << "cannot find metric descriptor " << metric_name
-		    << endl;
-		goto out;
-	    }
-	    // check that there is an instance domain, in order to use that last component 
-	    if (pmd.indom == PM_INDOM_NULL) {
-		connstamp (clog,
-			   connection) << "metric " << metric_name <<
-		    " lacks expected indom " << last_component << endl;
-		goto out;
+        if (sts == 1) {		// found ... last name must be instance domain name
+            pmid = pmidlist[0];
+            sts = pmLookupDesc (pmid, &pmd);
+            if (sts != 0) {
+                connstamp (clog,
+                           connection) << "cannot find metric descriptor " << metric_name
+                                       << endl;
+                goto out;
+            }
+            // check that there is an instance domain, in order to use that last component
+            if (pmd.indom == PM_INDOM_NULL) {
+                connstamp (clog,
+                           connection) << "metric " << metric_name <<
+                                       " lacks expected indom " << last_component << endl;
+                goto out;
 
-	    }
-	    // look up that instance name
-	    string instance_name = last_component;
-	    int inst = pmLookupInDomArchive (pmd.indom,
-					     (char *) instance_name.c_str ());	// XXX: why not pmLookupInDom?
-	    if (inst < 0) {
-		connstamp (clog,
-			   connection) << "metric " << metric_name <<
-		    " lacks recognized indom " << last_component << endl;
-		goto out;
-	    }
-	    // activate only that instance name in the profile
-	    sts = pmDelProfile (pmd.indom, 0, NULL);
-	    sts |= pmAddProfile (pmd.indom, 1, &inst);
-	    if (sts != 0) {
-		connstamp (clog,
-			   connection) << "metric " << metric_name <<
-		    " cannot set unitary instance profile " << inst << endl;
-		goto out;
-	    }
-	} else {		// not found ... ok, try again with that last component
-	    metric_name = metric_name + '.' + last_component;
-	    namelist[0] = (char *) metric_name.c_str ();
-	    int sts = pmLookupName (1, namelist, pmidlist);
-	    if (sts != 1) {	// still not found .. give up
-		connstamp (clog,
-			   connection) << "cannot find metric name " << metric_name <<
-		    endl;
-		goto out;
-	    }
+            }
+            // look up that instance name
+            string instance_name = last_component;
+            int inst = pmLookupInDomArchive (pmd.indom,
+                                             (char *) instance_name.c_str ());	// XXX: why not pmLookupInDom?
+            if (inst < 0) {
+                connstamp (clog,
+                           connection) << "metric " << metric_name <<
+                                       " lacks recognized indom " << last_component << endl;
+                goto out;
+            }
+            // activate only that instance name in the profile
+            sts = pmDelProfile (pmd.indom, 0, NULL);
+            sts |= pmAddProfile (pmd.indom, 1, &inst);
+            if (sts != 0) {
+                connstamp (clog,
+                           connection) << "metric " << metric_name <<
+                                       " cannot set unitary instance profile " << inst << endl;
+                goto out;
+            }
+        } else {		// not found ... ok, try again with that last component
+            metric_name = metric_name + '.' + last_component;
+            namelist[0] = (char *) metric_name.c_str ();
+            int sts = pmLookupName (1, namelist, pmidlist);
+            if (sts != 1) {	// still not found .. give up
+                connstamp (clog,
+                           connection) << "cannot find metric name " << metric_name <<
+                                       endl;
+                goto out;
+            }
 
-	    pmid = pmidlist[0];
-	    sts = pmLookupDesc (pmid, &pmd);
-	    if (sts != 0) {
-		connstamp (clog,
-			   connection) << "cannot find metric descriptor " << metric_name
-		    << endl;
-		goto out;
-	    }
-	    // check that there is no instance domain
-	    if (pmd.indom != PM_INDOM_NULL) {
-		connstamp (clog,
-			   connection) << "metric " << metric_name <<
-		    " has unexpected indom " << pmd.indom << endl;
-		goto out;
-	    }
-	}
+            pmid = pmidlist[0];
+            sts = pmLookupDesc (pmid, &pmd);
+            if (sts != 0) {
+                connstamp (clog,
+                           connection) << "cannot find metric descriptor " << metric_name
+                                       << endl;
+                goto out;
+            }
+            // check that there is no instance domain
+            if (pmd.indom != PM_INDOM_NULL) {
+                connstamp (clog,
+                           connection) << "metric " << metric_name <<
+                                       " has unexpected indom " << pmd.indom << endl;
+                goto out;
+            }
+        }
     }
 
     // OK, to recap, if we got this far, we have an open pmcontext to the archive,
@@ -231,25 +239,25 @@ vector < float >pmgraphite_fetch_series (struct MHD_Connection *connection, cons
 
     // Check that the pmDesc type is numeric
     switch (pmd.type) {
-	case PM_TYPE_32:
-	case PM_TYPE_U32:
-	case PM_TYPE_64:
-	case PM_TYPE_U64:
-	case PM_TYPE_FLOAT:
-	case PM_TYPE_DOUBLE:
-	    ;
-	default:
-	    connstamp (clog,
-		       connection) << "metric " << metric_name << " has unsupported type"
-		<< endl;
-	    goto out;
+    case PM_TYPE_32:
+    case PM_TYPE_U32:
+    case PM_TYPE_64:
+    case PM_TYPE_U64:
+    case PM_TYPE_FLOAT:
+    case PM_TYPE_DOUBLE:
+        ;
+    default:
+        connstamp (clog,
+                   connection) << "metric " << metric_name << " has unsupported type"
+                               << endl;
+        goto out;
     }
 
-    // Time to 
+    // Time to
 
 
 
-  out:
+out:
     pmDestroyContext (pmc);
 
     return output;
@@ -277,6 +285,6 @@ int pmgraphite_respond (struct MHD_Connection *connection, const vector < string
 
     rc = -EINVAL;
 
-  out:
+out:
     return mhd_notify_error (connection, rc);
 }
