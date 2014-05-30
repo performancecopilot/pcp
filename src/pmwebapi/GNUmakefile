@@ -60,3 +60,6 @@ endif
 default_pcp ::	default
 
 install_pcp :: install
+
+indent:
+	astyle -A10 -n -v $(CXXFILES) $(HFILES)
