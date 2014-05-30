@@ -3,7 +3,7 @@
 #
 # pmatop.py
 #
-# Copyright (C) 2013 Red Hat Inc.
+# Copyright (C) 2013, 2014 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -779,10 +779,11 @@ def sigwinch_handler(n, frame):
 if __name__ == '__main__':
     if sys.stdout.isatty():
         signal.signal(signal.SIGWINCH, sigwinch_handler)
-        status = curses.wrapper(main)   # pylint: disable-msg=C0103
-        # You're running in a real terminal
-    else:
+        try:
+            status = curses.wrapper(main)   # pylint: disable-msg=C0103
+        except curses.error, e:
+            status = "Error in the curses module.  Try running " + ME + " in a larger window."
+    else:                       # Output is piped or redirected
         status = main(sys.stdout)
-        # You're being piped or redirected
     if (status != ""):
         print status
