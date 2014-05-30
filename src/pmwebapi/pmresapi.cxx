@@ -28,7 +28,8 @@ using namespace std;
 
 /* ------------------------------------------------------------------------ */
 
-static const char *guess_content_type (const char *filename)
+static const char *
+guess_content_type (const char *filename)
 {
     const char *extension = rindex (filename, '.');
     if (extension == NULL) {
@@ -65,7 +66,8 @@ static const char *guess_content_type (const char *filename)
 }
 
 
-static const char *create_rfc822_date (time_t t)
+static const char *
+create_rfc822_date (time_t t)
 {
     static char datebuf[80];	/* if-threaded: unstaticify */
     struct tm *now = gmtime (&t);
@@ -81,7 +83,8 @@ static const char *create_rfc822_date (time_t t)
 /* Respond to a GET request, not under the pmwebapi URL prefix.  This
    is a mini fileserver, just for small standalone installations of
    pmwebapi-based web front-ends. */
-int pmwebres_respond (struct MHD_Connection *connection, const string & url)
+int
+pmwebres_respond (struct MHD_Connection *connection, const string & url)
 {
     int fd = -1;
     int rc;
@@ -96,23 +99,20 @@ int pmwebres_respond (struct MHD_Connection *connection, const string & url)
     string resourcefile = resourcedir + url;	// pass through / path separators
 
     if (cursed_path_p (resourcedir, resourcefile)) {
-        connstamp (cerr,
-                   connection) << "suspicious resource path " << resourcefile << endl;
+        connstamp (cerr, connection) << "suspicious resource path " << resourcefile << endl;
         goto error_response;
     }
 
     fd = open (resourcefile.c_str (), O_RDONLY);
     if (fd < 0) {
-        connstamp (cerr,
-                   connection) << "pmwebres failed to open " << resourcefile << endl;
+        connstamp (cerr, connection) << "pmwebres failed to open " << resourcefile << endl;
         resp_code = MHD_HTTP_NOT_FOUND;
         goto error_response;
     }
 
     rc = fstat (fd, &fds);
     if (rc < 0) {
-        connstamp (cerr,
-                   connection) << "pmwebres failed to stat " << resourcefile << endl;
+        connstamp (cerr, connection) << "pmwebres failed to stat " << resourcefile << endl;
         close (fd);
         goto error_response;
     }
@@ -129,15 +129,12 @@ int pmwebres_respond (struct MHD_Connection *connection, const string & url)
         new_file += "index.html";
 
         static char blank[] = "";
-        resp =
-            MHD_create_response_from_buffer (strlen (blank), blank,
-                                             MHD_RESPMEM_PERSISTENT);
+        resp = MHD_create_response_from_buffer (strlen (blank), blank, MHD_RESPMEM_PERSISTENT);
         if (resp) {
             rc = MHD_add_response_header (resp, "Location", new_file.c_str ());
-            if (rc != MHD_YES)
-                connstamp (cerr,
-                           connection) << "MHD_add_response_header Location: failed" <<
-                                       endl;
+            if (rc != MHD_YES) {
+                connstamp (cerr, connection) << "MHD_add_response_header Location: failed" << endl;
+            }
             rc = MHD_queue_response (connection, MHD_HTTP_FOUND /* 302 */ , resp);
             if (rc != MHD_YES) {
                 connstamp (cerr, connection) << "MHD_queue_response failed" << endl;

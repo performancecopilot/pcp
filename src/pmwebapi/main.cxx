@@ -38,14 +38,13 @@ string fatalfile = "/dev/tty";	/* fatal messages at startup go here */
 
 
 
-int mhd_log_args (void *connection, enum MHD_ValueKind kind,
-                  const char *key, const char *value)
+int
+mhd_log_args (void *connection, enum MHD_ValueKind kind, const char *key,
+              const char *value)
 {
     (void) kind;
-    connstamp (clog, (MHD_Connection *) connection)
-            << key << (value ? "=" : "")
-            << (value ? value : "")
-            << endl;
+    connstamp (clog, (MHD_Connection *) connection) << key << (value ? "=" : "") <<
+            (value ? value : "") << endl;
     return MHD_YES;
 }
 
@@ -54,15 +53,16 @@ int mhd_log_args (void *connection, enum MHD_ValueKind kind,
    to avoid a dreaded MHD_NO, which results in a 500 return code.
    That in turn could be interpreted by a web client as an invitation
    to try, try again. */
-int mhd_notify_error (struct MHD_Connection *connection, int rc)
+int
+mhd_notify_error (struct MHD_Connection *connection, int rc)
 {
     char error_message[1000];
     char pmmsg[PM_MAXERRMSGLEN];
     struct MHD_Response *resp;
 
     (void) pmErrStr_r (rc, pmmsg, sizeof (pmmsg));
-    (void) snprintf (error_message, sizeof (error_message),
-                     "PMWEBD error, code %d: %s", rc, pmmsg);
+    (void) snprintf (error_message, sizeof (error_message), "PMWEBD error, code %d: %s", rc,
+                     pmmsg);
     resp = MHD_create_response_from_buffer (strlen (error_message), error_message,
                                             MHD_RESPMEM_MUST_COPY);
     if (resp == NULL) {
@@ -93,82 +93,90 @@ int mhd_notify_error (struct MHD_Connection *connection, int rc)
  * (c) access to some non-API URI: serve it from $resourcedir/ if configured.
  */
 static int
-mhd_respond (void *cls, struct MHD_Connection *connection,
-             const char *url0, const char *method0, const char *version,
-             const char *upload_data, size_t * upload_data_size, void **con_cls)
+mhd_respond (void *cls, struct MHD_Connection *connection, const char *url0,
+             const char *method0, const char *version, const char *upload_data,
+             size_t * upload_data_size, void **con_cls)
 {
-    (void) cls;			// closure parameter unused
+    try {
+        (void) cls;			// closure parameter unused
 
-    string url = url0;
-    string method = method0 ? string (method0) : "";
+        string url = url0;
+        string method = method0 ? string (method0) : "";
 
-    static int dummy;
+        static int dummy;
 
-    /*
-     * MHD calls us at least twice per request.  Skip the first one,
-     * since it only gives us headers, and not any POST content.
-     */
-    if (&dummy != *con_cls) {
-        *con_cls = &dummy;
-        return MHD_YES;
+        /*
+         * MHD calls us at least twice per request.  Skip the first one,
+         * since it only gives us headers, and not any POST content.
+         */
+        if (&dummy != *con_cls) {
+            *con_cls = &dummy;
+            return MHD_YES;
+        }
+        *con_cls = NULL;
+
+        /*
+         * MHD calls us at least thrice per POST request.  Skip the second
+         * one, since it only gives us upload_data, which we don't care about,
+         * and we can't respond at that stage anyhow.
+         */
+        if (method == "POST" && *upload_data_size != 0) {
+            // we don't process POST data incrementally
+            (void) upload_data;
+            *upload_data_size = 0;
+            return MHD_YES;
+        }
+
+
+        if (verbosity > 1) {
+            connstamp (clog, connection) << version << " " << method << " " << url << endl;
+        }
+        if (verbosity > 2) {
+            /* Print arguments too. */
+            (void) MHD_get_connection_values (connection, MHD_GET_ARGUMENT_KIND, &mhd_log_args,
+                                              connection);
+        }
+
+        // first component (or the whole remainder)
+        // XXX: what about ?querystr?
+        vector <string> url_tokens = split (url, '/');
+        string url1 = (url_tokens.size () >= 2) ? url_tokens[1] : "";
+        string url2 = (url_tokens.size () >= 3) ? url_tokens[2] : "";
+
+        /* pmwebapi? */
+        if (url1 == uriprefix) {
+            return pmwebapi_respond (connection, url_tokens);
+        }
+        /* graphite? */
+        else if (graphite_p && (method == "GET" || method == "POST") && (url1 == "graphite")
+                 && ((url2 == "render") || (url2 == "metrics") || (url2 == "rawdata")
+                     || (url2 == "browser"))) {
+            return pmgraphite_respond (connection, url_tokens);
+        }
+
+        /* pmresapi? */
+        else if ((resourcedir != "") && (method == "GET")) {
+            return pmwebres_respond (connection, url);
+        }
+
+        /* fall through */
+        return mhd_notify_error (connection, -EINVAL);
+    } catch (...) {
+        connstamp (cerr, connection) << "c++ exception caught" << endl;
+        return MHD_NO;
     }
-    *con_cls = NULL;
-
-    /*
-     * MHD calls us at least thrice per POST request.  Skip the second
-     * one, since it only gives us upload_data, which we don't care about,
-     * and we can't respond at that stage anyhow.
-     */
-    if (method == "POST" && *upload_data_size != 0) {
-        // we don't process POST data incrementally
-        *upload_data_size = 0;
-        return MHD_YES;
-    }
-
-
-    if (verbosity > 1) {
-        connstamp (clog, connection) << version << " " << method << " " << url << endl;
-    }
-    if (verbosity > 2)		/* Print arguments too. */
-        (void) MHD_get_connection_values (connection, MHD_GET_ARGUMENT_KIND,
-                                          &mhd_log_args, connection);
-
-    // first component (or the whole remainder)
-    // XXX: what about ?querystr?
-    vector < string > url_tokens = split (url, '/');
-    string url1 = (url_tokens.size () >= 2) ? url_tokens[1] : "";
-    string url2 = (url_tokens.size () >= 3) ? url_tokens[2] : "";
-
-    /* pmwebapi? */
-    if (url1 == uriprefix) {
-        return pmwebapi_respond (connection, url_tokens);
-    }
-    /* graphite? */
-    else if (graphite_p &&
-             (method == "GET" || method == "POST") &&
-             (url1 == "graphite") &&
-             ((url2 == "render") || (url2 == "metrics") || (url2 == "rawdata")
-              || (url2 == "browser"))) {
-        return pmgraphite_respond (connection, url_tokens);
-    }
-
-    /* pmresapi? */
-    else if ((resourcedir != "") && (method == "GET")) {
-        return pmwebres_respond (connection, url);
-    }
-
-    /* fall through */
-    return mhd_notify_error (connection, -EINVAL);
 }
 
-static void handle_signals (int sig)
+static void
+handle_signals (int sig)
 {
     (void) sig;
     exit_p++;
     // NB: invoke no async-signal-unsafe functions!
 }
 
-static void pmweb_dont_start (void)
+static void
+pmweb_dont_start (void)
 {
     timestamp (cerr) << "pmwebd not started due to errors!" << endl;
 
@@ -194,7 +202,8 @@ static void pmweb_dont_start (void)
  * Local variant of __pmServerDumpRequestPorts - remove this
  * when an NSS-based pmweb daemon is built.
  */
-static void server_dump_request_ports (int ipv4, int ipv6, int port)
+static void
+server_dump_request_ports (int ipv4, int ipv6, int port)
 {
     if (ipv4) {
         clog << "Started daemon on IPv4 TCP port " << port << endl;
@@ -204,7 +213,8 @@ static void server_dump_request_ports (int ipv4, int ipv6, int port)
     }
 }
 
-static void server_dump_configuration ()
+static void
+server_dump_configuration ()
 {
     char *cwd;
     char cwdpath[MAXPATHLEN];
@@ -239,18 +249,19 @@ static void server_dump_configuration ()
 }
 
 
-static void pmweb_init_random_seed (void)
+static void
+pmweb_init_random_seed (void)
 {
     struct timeval tv;
 
     /* XXX: PR_GetRandomNoise() */
     gettimeofday (&tv, NULL);
-    srandom ((unsigned int) getpid () ^
-             (unsigned int) tv.tv_sec ^ (unsigned int) tv.tv_usec);
+    srandom ((unsigned int) getpid () ^ (unsigned int) tv.tv_sec ^ (unsigned int) tv.tv_usec);
 }
 
 
-static void pmweb_shutdown (struct MHD_Daemon *d4, struct MHD_Daemon *d6)
+static void
+pmweb_shutdown (struct MHD_Daemon *d4, struct MHD_Daemon *d6)
 {
     /* Shut down cleanly, out of a misplaced sense of propriety. */
     if (d4) {
@@ -273,7 +284,8 @@ static void pmweb_shutdown (struct MHD_Daemon *d4, struct MHD_Daemon *d6)
     fflush (stderr);
 }
 
-static int option_overrides (int opt, pmOptions * opts)
+static int
+option_overrides (int opt, pmOptions * opts)
 {
     (void) opts;
 
@@ -318,7 +330,8 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts;
 
-int main (int argc, char *argv[])
+int
+main (int argc, char *argv[])
 {
     int c;
     int sts;
@@ -399,8 +412,7 @@ int main (int argc, char *argv[])
                 __pmNotifyErr (LOG_ERR, "permanent bind failed\n");
                 exit (EXIT_FAILURE);
             }
-            __pmNotifyErr (LOG_INFO,
-                           "context (web%d=pm%d) created, host %s, permanent\n",
+            __pmNotifyErr (LOG_INFO, "context (web%d=pm%d) created, host %s, permanent\n",
                            perm_context - 1, ctx, opts.optarg);
             break;
 
@@ -413,8 +425,7 @@ int main (int argc, char *argv[])
                 __pmNotifyErr (LOG_ERR, "permanent bind failed\n");
                 exit (EXIT_FAILURE);
             }
-            __pmNotifyErr (LOG_INFO,
-                           "context (web%d=pm%d) created, archive %s, permanent\n",
+            __pmNotifyErr (LOG_INFO, "context (web%d=pm%d) created, archive %s, permanent\n",
                            perm_context - 1, ctx, opts.optarg);
             break;
 
@@ -427,8 +438,7 @@ int main (int argc, char *argv[])
                 __pmNotifyErr (LOG_ERR, "permanent bind failed\n");
                 exit (EXIT_FAILURE);
             }
-            __pmNotifyErr (LOG_INFO,
-                           "context (web%d=pm%d) created, local, permanent\n",
+            __pmNotifyErr (LOG_INFO, "context (web%d=pm%d) created, local, permanent\n",
                            perm_context - 1, ctx);
             break;
 
@@ -498,22 +508,25 @@ int main (int argc, char *argv[])
             int rc;
             // Move the new file descriptors on top of stdout/stderr
             rc = dup2 (fd, STDOUT_FILENO);
-            if (rc < 0) {	// rather unlikely
+            if (rc < 0) {
+                // rather unlikely
                 timestamp (cerr) << "Cannot redirect logfile to stdout" << endl;
             }
             rc = dup2 (fd, STDERR_FILENO);
-            if (rc < 0) {	// rather unlikely
+            if (rc < 0) {
+                // rather unlikely
                 timestamp (cerr) << "Cannot redirect logfile to stderr" << endl;
             }
             rc = close (fd);
-            if (rc < 0) {	// rather unlikely
+            if (rc < 0) {
+                // rather unlikely
                 timestamp (cerr) << "Cannot close logfile fd" << endl;
             }
         }
     }
 
-    timestamp (clog) << pmProgname << " PID = " << getpid ()
-                     << " PMAPI URL = " << uriprefix << endl;
+    timestamp (clog) << pmProgname << " PID = " << getpid () << " PMAPI URL = " << uriprefix
+                     << endl;
     server_dump_request_ports (d4 != NULL, d6 != NULL, port);
     server_dump_configuration ();
 
@@ -541,10 +554,10 @@ int main (int argc, char *argv[])
         FD_ZERO (&ws);
         FD_ZERO (&es);
         if (d4 && MHD_YES != MHD_get_fdset (d4, &rs, &ws, &es, &max)) {
-            break;    /* fatal internal error */
+            break;		/* fatal internal error */
         }
         if (d6 && MHD_YES != MHD_get_fdset (d6, &rs, &ws, &es, &max)) {
-            break;    /* fatal internal error */
+            break;		/* fatal internal error */
         }
 
         /*
