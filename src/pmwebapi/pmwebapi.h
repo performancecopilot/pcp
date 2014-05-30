@@ -31,9 +31,11 @@ extern "C" {
 #include <stdarg.h>
 #include <microhttpd.h>
 }
-																																																																																	    /* ------------------------------------------------------------------------ *//* a subset of option flags that needs to be read by the other modules */
-    extern std::string uriprefix;
-																							/* hard-coded */
+
+/* ------------------------------------------------------------------------ */
+
+/* a subset of option flags that needs to be read by the other modules */
+extern std::string uriprefix;   /* hard-coded */
 extern std::string archivesdir;	/* set by -A option */
 extern std::string resourcedir;	/* set by -R option */
 extern unsigned verbosity;	/* set by -v option */
@@ -49,7 +51,7 @@ extern int mhd_notify_error (struct MHD_Connection *connection, int rc);
 // pmwebapi.cxx
 extern int pmwebapi_bind_permanent (int webapi_ctx, int pcp_context);
 extern int pmwebapi_respond (struct MHD_Connection *connection,
-			     const std::vector < std::string > &url);
+                             const std::vector < std::string > &url);
 extern unsigned pmwebapi_gc (void);
 extern void pmwebapi_deallocate_all (void);
 
@@ -58,7 +60,7 @@ extern int pmwebres_respond (struct MHD_Connection *connection, const std::strin
 
 // pmgraphite.cxx
 extern int pmgraphite_respond (struct MHD_Connection *connection,
-			       const std::vector < std::string > &url);
+                               const std::vector < std::string > &url);
 
 // util.cxx
 extern std::ostream & timestamp (std::ostream & o);
