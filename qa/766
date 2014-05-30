@@ -31,26 +31,30 @@ _success_filter()
 	-e '/  pcp:/d' \
 	-e '/  proxy:/d' \
 	-e '/  http:/d' \
-	-e '/No pmproxy servers discovered/d' \
-	-e '/No pmwebd servers discovered/d'
+	-e 's/No \(pmproxy servers\) discovered/Sought \1/g' \
+	-e 's/No \(pmwebd servers\) discovered/Sought \1/g' \
+	-e 's/Discovered \(pmproxy servers\):/Sought \1/g' \
+	-e 's/Discovered \(pmwebd servers\):/Sought \1/g' \
+    # end
 }
 
 # real QA test starts here
-# Make sure we can use ifconfig
-if [ -x /sbin/ifconfig ]
-then
-    IFCONFIG=/sbin/ifconfig
-else
-    which ifconfig 2>/dev/null || _notrun "can't find ifconfig"
-    IFCONFIG=`which ifconfig`
-fi
+# Make sure we can use pminfo
+which pminfo >/dev/null 2>&1 || _notrun "can't find pminfo"
 
 # Obtain the inet address of an active network interface
-addr=`$IFCONFIG | \
-  grep 'inet ' | \
+# We're extracting a metric of the form:
+#
+#    inst [0 or "eth0"] value "172.31.0.12"
+#
+# and then extracting the address
+#
+addr=`pminfo -f network.interface.inet_addr | \
+  tail -n +3 | \
   grep -v 127.0.0.1 | \
-  awk '{ print $2 }' | \
-  head -n1`
+  head -n1 | \
+  awk '{ print $6 }' | \
+  sed s/\"//g`
 
 [ -z addr ] && _notrun "no active inet interfaces"
 

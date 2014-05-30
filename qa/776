@@ -31,28 +31,44 @@ _success_filter()
 	-e '/  pcp:/d' \
 	-e '/  proxy:/d' \
 	-e '/  http:/d' \
-	-e '/No pmproxy servers discovered/d' \
-	-e '/No pmwebd servers discovered/d'
+	-e 's/No \(pmproxy servers\) discovered/Sought \1/g' \
+	-e 's/No \(pmwebd servers\) discovered/Sought \1/g' \
+	-e 's/Discovered \(pmproxy servers\):/Sought \1/g' \
+	-e 's/Discovered \(pmwebd servers\):/Sought \1/g' \
+    # end
 }
 
 # real QA test starts here
-# Make sure we can use ifconfig
-if [ -x /sbin/ifconfig ]
-then
-    IFCONFIG=/sbin/ifconfig
-else
-    which ifconfig 2>/dev/null || _notrun "can't find ifconfig"
-    IFCONFIG=`which ifconfig`
-fi
+# Make sure we can use pminfo
+which pminfo >/dev/null 2>&1 || _notrun "can't find pminfo"
 
 # Obtain the ipv6 address of an active network interface
-addr=`$IFCONFIG | \
-  awk '\
-    / mtu /  { interface=substr($1, 1, length($1) - 1) } \
-    /inet6 / && !/::1/ { print $2"%"interface }' | \
+# We're extracting a metric of the form:
+#
+#     inst [0 or "eth0"] value "fe80::3ea9:f4ff:fe76:6c24/64"
+#
+metric=`pminfo -f network.interface.ipv6_addr | \
+  tail -n +3 | \
+  grep -v ::1 | \
   head -n1`
 
-[ -z addr ] && _notrun "no active ipv6 interfaces"
+[ -z metric ] && _notrun "no active ipv6 interfaces"
+
+# Extract the address
+addr=`echo $metric | \
+  awk '{ print $6 }' | \
+  sed -e 's/\"//g' -e 's|/.*$||'`
+
+# Extract the interface
+interface=`echo $metric | \
+  awk '{ print $4 }' | \
+  sed -e 's/\"//g'  -e 's/\]//'`
+
+# combine the address and the interface form a complete address of the form
+#
+# fe80::3ea9:f4ff:fe76:6c24%eth0
+#
+addr=$addr"%"$interface
 
 # Probe the obtained network.
 # Test various combinations of service queries and subnet sizes. Keep the
