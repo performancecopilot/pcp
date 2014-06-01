@@ -1,0 +1,4 @@
+/*! grafana - v1.5.4 - 2014-05-13
+ * Copyright (c) 2014 Torkel Ödegaard; Licensed Apache License */
+
+define("panels/annotations/module",["angular","app","underscore"],function(a,b,c){var d=a.module("kibana.panels.annotations",[]);b.useModule(d),d.controller("AnnotationsCtrl",["$scope","dashboard","$rootScope",function(b,d,e){b.panelMeta={status:"Stable",description:"Annotations"};var f={annotations:[]},g={name:"",type:"graphite metric",showLine:!0,iconColor:"#C0C6BE",lineColor:"rgba(255, 96, 96, 0.592157)",iconSize:13,enable:!0};c.defaults(b.panel,f),b.init=function(){b.currentAnnnotation=a.copy(g),b.currentIsNew=!0},b.edit=function(a){b.currentAnnnotation=a,b.currentIsNew=!1},b.update=function(){b.currentAnnnotation=a.copy(g),b.currentIsNew=!0},b.add=function(){b.panel.annotations.push(b.currentAnnnotation),b.currentAnnnotation=a.copy(g)},b.hide=function(a){a.enable=!a.enable,e.$broadcast("refresh")}}])});

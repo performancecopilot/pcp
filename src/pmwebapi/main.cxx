@@ -37,18 +37,6 @@ string fatalfile = "/dev/tty";	/* fatal messages at startup go here */
 
 
 
-
-int
-mhd_log_args (void *connection, enum MHD_ValueKind kind, const char *key,
-              const char *value)
-{
-    (void) kind;
-    connstamp (clog, (MHD_Connection *) connection) << key << (value ? "=" : "") <<
-            (value ? value : "") << endl;
-    return MHD_YES;
-}
-
-
 /* Print a best-effort message as a plain-text http response; anything
    to avoid a dreaded MHD_NO, which results in a 500 return code.
    That in turn could be interpreted by a web client as an invitation
@@ -85,6 +73,79 @@ mhd_notify_error (struct MHD_Connection *connection, int rc)
 
 
 
+/* A POST- and GET- processor pair for MHD, allowing GET and POST parameters to be
+   interchangeably used within a common http_params output structure. */
+static int
+mhd_post_iterator (void *cls,
+                   enum MHD_ValueKind kind,
+                   const char *key,
+                   const char *filename,
+                   const char *content_type,
+                   const char *transfer_encoding,
+                   const char *data, uint64_t off, size_t size)
+{
+    (void) kind;
+    (void) filename;
+    (void) content_type;
+    (void) transfer_encoding;
+    http_params *c = (http_params *) cls;
+    assert (c);
+    c->insert(make_pair(string(key), string(& data[off], size)));
+    return MHD_YES;
+}
+
+static int
+mhd_get_iterator (void *cls, enum MHD_ValueKind kind, const char *key,
+                  const char *value)
+{
+    (void) kind;
+    http_params *c = (http_params *) cls;
+    assert (c);
+    c->insert(make_pair(string(key), string(value ? value : "")));
+    return MHD_YES;
+}
+
+
+
+// An instance of this is associated with a mhd request-in-progress.
+// We use this because mhd calls back into mhd_respond etc. several times
+// during the processing of an http request, and we need to save state
+// between them.
+
+struct mhd_connection_context
+{
+    struct MHD_PostProcessor* pp;
+    http_params params;
+
+    mhd_connection_context (): pp(0) {}
+};
+
+
+// A std::map<>-style operator[] for http_params; we just the value of
+// an arbitrary named parameter.  Return "" if not found.
+string http_params::operator [] (const string& s) const
+{
+    http_params::const_iterator x = this->find(s);
+    if (x == this->end())
+        return string("");
+    else
+        return (x->second);
+}
+
+
+vector<string> http_params::find_all (const string& s) const
+{
+    vector<string> all;
+    pair <http_params::const_iterator, http_params::const_iterator> them= this->equal_range(s);
+    for (http_params::const_iterator x = them.first;
+         x != them.second;
+         x++)
+        all.push_back (x->second);
+
+    return all;
+}
+
+
 /*
  * Respond to a new incoming HTTP request.  It may be
  * one of three general categories:
@@ -103,55 +164,70 @@ mhd_respond (void *cls, struct MHD_Connection *connection, const char *url0,
         string url = url0;
         string method = method0 ? string (method0) : "";
 
-        static int dummy;
-
-        /*
-         * MHD calls us at least twice per request.  Skip the first one,
-         * since it only gives us headers, and not any POST content.
-         */
-        if (&dummy != *con_cls) {
-            *con_cls = &dummy;
-            return MHD_YES;
-        }
-        *con_cls = NULL;
-
-        /*
-         * MHD calls us at least thrice per POST request.  Skip the second
-         * one, since it only gives us upload_data, which we don't care about,
-         * and we can't respond at that stage anyhow.
-         */
-        if (method == "POST" && *upload_data_size != 0) {
-            // we don't process POST data incrementally
-            (void) upload_data;
-            *upload_data_size = 0;
-            return MHD_YES;
+        // First call?  Create a context.
+        if (*con_cls == NULL) {
+            // create a context
+            mhd_connection_context* mhd_cc = new mhd_connection_context();
+            *con_cls= (void *) mhd_cc; // deleted later
+            if (method == "POST") {
+                mhd_cc->pp = MHD_create_post_processor (connection, 1024, &mhd_post_iterator,
+                                                        (void*) & mhd_cc->params);
+                if (mhd_cc->pp == 0) {
+                    connstamp (cerr, connection) << "error setting up POST processor" << endl;
+                    return MHD_NO; // internal error
+                }
+            }
+            return MHD_YES; // expect another call shortly
         }
 
+        // Get our context
+        mhd_connection_context* mhd_cc = (mhd_connection_context*) (*con_cls);
+        assert (mhd_cc);
 
+        // Intermediate call?  Store away POST parameters, if any.
+        if (method == "POST") {
+            MHD_post_process (mhd_cc->pp, upload_data, *upload_data_size);
+            if (*upload_data_size != 0) { // intermediate call
+                *upload_data_size = 0;
+                return MHD_YES;
+            }
+
+            // final call, fall through
+            assert (mhd_cc->pp);
+            MHD_destroy_post_processor (mhd_cc->pp);
+            mhd_cc->pp = 0;
+        }
+
+        // extract GET arguments 
+        (void) MHD_get_connection_values (connection, MHD_GET_ARGUMENT_KIND, &mhd_get_iterator,
+                                          (void*) & mhd_cc->params);
+
+        // Trace request
         if (verbosity > 1) {
             connstamp (clog, connection) << version << " " << method << " " << url << endl;
         }
         if (verbosity > 2) {
-            /* Print arguments too. */
-            (void) MHD_get_connection_values (connection, MHD_GET_ARGUMENT_KIND, &mhd_log_args,
-                                              connection);
+            for (http_params::iterator it = mhd_cc->params.begin();
+                 it != mhd_cc->params.end();
+                 it ++)
+                connstamp (clog, connection) << it->first << "=" << it->second << endl;
         }
 
         // first component (or the whole remainder)
-        // XXX: what about ?querystr?
         vector <string> url_tokens = split (url, '/');
         string url1 = (url_tokens.size () >= 2) ? url_tokens[1] : "";
         string url2 = (url_tokens.size () >= 3) ? url_tokens[2] : "";
 
         /* pmwebapi? */
         if (url1 == uriprefix) {
-            return pmwebapi_respond (connection, url_tokens);
+            return pmwebapi_respond (connection, mhd_cc->params, url_tokens);
         }
+
         /* graphite? */
         else if (graphite_p && (method == "GET" || method == "POST") && (url1 == "graphite")
                  && ((url2 == "render") || (url2 == "metrics") || (url2 == "rawdata")
                      || (url2 == "browser"))) {
-            return pmgraphite_respond (connection, url_tokens);
+            return pmgraphite_respond (connection, mhd_cc->params, url_tokens);
         }
 
         /* pmresapi? */
@@ -161,6 +237,7 @@ mhd_respond (void *cls, struct MHD_Connection *connection, const char *url0,
 
         /* fall through */
         return mhd_notify_error (connection, -EINVAL);
+
     } catch (...) {
         connstamp (cerr, connection) << "c++ exception caught" << endl;
         return MHD_NO;
@@ -174,6 +251,31 @@ handle_signals (int sig)
     exit_p++;
     // NB: invoke no async-signal-unsafe functions!
 }
+
+
+static void
+mhd_respond_completed (void *cls,
+                       struct MHD_Connection *connection,
+                       void **con_cls,
+                       enum MHD_RequestTerminationCode toe)
+{
+    (void) cls;
+    (void) connection;
+    (void) toe;
+
+    mhd_connection_context *mhd_cc = (mhd_connection_context*) *con_cls;
+
+    if (mhd_cc == 0)
+        return;
+
+    if (mhd_cc->pp != 0)
+        MHD_destroy_post_processor (mhd_cc->pp);
+
+    delete mhd_cc;
+}
+
+
+
 
 static void
 pmweb_dont_start (void)
@@ -477,11 +579,15 @@ main (int argc, char *argv[])
     if (mhd_ipv4)
         d4 = MHD_start_daemon (0, port, NULL, NULL,	/* default accept policy */
                                &mhd_respond, NULL,	/* handler callback */
-                               MHD_OPTION_CONNECTION_TIMEOUT, maxtimeout, MHD_OPTION_END);
+                               MHD_OPTION_CONNECTION_TIMEOUT, maxtimeout, 
+                               MHD_OPTION_NOTIFY_COMPLETED, &mhd_respond_completed, NULL,
+                               MHD_OPTION_END);
     if (mhd_ipv6)
         d6 = MHD_start_daemon (MHD_USE_IPv6, port, NULL, NULL,	/* default accept policy */
                                &mhd_respond, NULL,	/* handler callback */
-                               MHD_OPTION_CONNECTION_TIMEOUT, maxtimeout, MHD_OPTION_END);
+                               MHD_OPTION_CONNECTION_TIMEOUT, maxtimeout,
+                               MHD_OPTION_NOTIFY_COMPLETED, &mhd_respond_completed, NULL,
+                               MHD_OPTION_END);
     if (d4 == NULL && d6 == NULL) {
         timestamp (cerr) << "Error starting microhttpd daemons on port " << port << endl;
         pmweb_dont_start ();
