@@ -39,11 +39,12 @@ extern "C"
 
 /*
  * We need a reversible encoding from arbitrary non-empty strings
- * (such as archive path names, pcp metric names, pcp instance names)
- * to the dot-separated components of graphite metric names.  We try
- * to preserve safe characters and encode the rest.  (The resulting
- * strings may well be url-encoded eventually for transport across GET
- * or POST parameters etc., but that's none of our concern.)
+ * (such as archive path names, pcp metric name components (?), pcp
+ * instance names) to the dot-separated components of graphite metric
+ * names.  We try to preserve safe characters and encode the rest.
+ * (The resulting strings may well be url-encoded eventually for
+ * transport across GET or POST parameters etc., but that's none of
+ * our concern.)
  */
 string
 pmgraphite_metric_encode (const string & foo)
@@ -54,12 +55,12 @@ pmgraphite_metric_encode (const string & foo)
     assert (foo.size () > 0);
     for (unsigned i = 0; i < foo.size (); i++) {
         char c = foo[i];
-        // pass through enough characters to make the metric names relatively
+        // Pass through enough characters to make the metric names relatively
         // human-readable in the javascript guis
-        if (isalnum (c) || (c == '_')) {
+        if (isalnum (c) || (c == '_') || (c == ' ') || (c == '-')) {
             output += c;
         } else {
-            output += "-" + hex[ (c >> 4) & 15] + hex[ (c >> 0) & 15] + string ("-");
+            output += "[" + hex[ (c >> 4) & 15] + hex[ (c >> 0) & 15] + string ("]");
         }
     }
     return output;
@@ -74,11 +75,11 @@ pmgraphite_metric_decode (const string & foo)
     static const char hex[] = "0123456789ABCDEF";
     for (unsigned i = 0; i < foo.size (); i++) {
         char c = foo[i];
-        if (c == '-') {
+        if (c == '[') {
             if (i + 3 >= foo.size ()) {
                 return "";
             }
-            if (foo[i + 3] != '-') {
+            if (foo[i + 3] != ']') {
                 return "";
             }
             const char *p = lower_bound (hex, hex + 16, foo[i + 1]);
@@ -133,7 +134,10 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
     // not leap over an object ctor site.
 
     // XXX: in future, parse graphite functions-of-metrics
+    // http://graphite.readthedocs.org/en/latest/functions.html
+    //
     // XXX: in future, parse target-component wildcards
+    //
     // XXX: in future, cache the pmid/pmdesc/inst# -> pcp-context
 
     vector <string> target_tok = split (target, '.');
@@ -319,7 +323,9 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
 
     if (verbosity > 2) {
         connstamp (clog, connection) << "returned " << entries_good << "/" << entries <<
-                                     " data values, metric " << metric_name << endl;
+                                     " data values, metric " << metric_name
+                                     << ", timespan [" << t_start << "-" << t_end << "] by " << t_step
+                                     << endl;
     }
 
     // Done!
@@ -357,6 +363,7 @@ pmgraphite_parse_timespec (struct MHD_Connection * connection, string value)
     }
     if (value[0] != '-') {
         // nonnegative?  lead __pmParseTime to interpret it as absolute
+        // (this is why we take string value instead of const string& parameter)
         value = string ("@") + value;
     }
 
@@ -372,8 +379,199 @@ pmgraphite_parse_timespec (struct MHD_Connection * connection, string value)
 }
 
 
+/* ------------------------------------------------------------------------ */
+
+
+int
+pmgraphite_respond_render (struct MHD_Connection *connection, const http_params& params, const vector <string> &url)
+{
+    return mhd_notify_error (connection, -EINVAL);
+}
+
 
 /* ------------------------------------------------------------------------ */
+
+
+int
+pmgraphite_respond_rawdata (struct MHD_Connection *connection, const http_params& params, const vector <string> &url)
+{
+    int rc;
+    struct MHD_Response *resp;
+
+    // XXX: multiple &target=FOOBAR possible
+    string target = params["target"]; 
+    if (target == "") {
+        return mhd_notify_error (connection, -EINVAL);
+    }
+    // same defaults as python graphite/graphlot/views.py
+    string from = params["from"];
+    if (from == "") {
+        from = "-24hour";
+    }
+    string until = params["until"];
+    if (until == "") {
+        until = "-0hour";
+    }
+
+    time_t t_start = pmgraphite_parse_timespec (connection, from);
+    time_t t_end = pmgraphite_parse_timespec (connection, until);
+    time_t t_step = 60;	// XXX: hard-coded?
+    vector <timestamped_float> results = pmgraphite_fetch_series (connection, target, t_start,
+                                                                  t_end, t_step);
+
+    stringstream output;
+    output << "[";
+    output << "{";
+    json_key_value (output, "start", t_start, ",");
+    json_key_value (output, "step", t_step, ",");
+    json_key_value (output, "end", t_end, ",");
+    json_key_value (output, "name", string (target), ",");
+    output << " \"data\":[";
+    for (unsigned i = 0; i < results.size (); i++) {
+        if (i > 0) {
+            output << ",";
+        }
+        if (isnan (results[i].what)) {
+            output << "null";
+        } else {
+            output << results[i].what;
+        }
+    }
+    output << "]}]";
+
+    // wrap it up in mhd response ribbons
+    string s = output.str ();
+    resp = MHD_create_response_from_buffer (s.length (), (void *) s.c_str (),
+                                            MHD_RESPMEM_MUST_COPY);
+    if (resp == NULL) {
+        connstamp (cerr, connection) << "MHD_create_response_from_buffer failed" << endl;
+        rc = -ENOMEM;
+        goto out1;
+    }
+#if 0
+    /* https://developer.mozilla.org/en-US/docs/HTTP/Access_control_CORS */
+    rc = MHD_add_response_header (resp, "Access-Control-Allow-Origin", "*");
+    if (rc != MHD_YES) {
+        connstamp (cerr, connection) << "MHD_add_response_header ACAO failed" << endl;
+        rc = -ENOMEM;
+        goto out1;
+    }
+#endif
+    rc = MHD_add_response_header (resp, "Content-Type", "application/json");
+    if (rc != MHD_YES) {
+        connstamp (cerr, connection) << "MHD_add_response_header CT failed" << endl;
+        rc = -ENOMEM;
+        goto out1;
+    }
+    rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
+    if (rc != MHD_YES) {
+        connstamp (cerr, connection) << "MHD_queue_response failed" << endl;
+        rc = -ENOMEM;
+        goto out1;
+    }
+
+    MHD_destroy_response (resp);
+    return MHD_YES;
+
+ out1:
+    return mhd_notify_error (connection, rc);
+}
+
+
+// A close relative to _rawdata, but unfortunately this one formats
+// the output rather differently.
+int
+pmgraphite_respond_render_json (struct MHD_Connection *connection, const http_params& params, const vector <string> &url)
+{
+    int rc;
+    struct MHD_Response *resp;
+
+    vector<string> targets = params.find_all("target");
+    if (targets.size() == 0)
+        return mhd_notify_error (connection, -EINVAL);
+
+    // XXX: maxDataPoints?
+
+    // same defaults as python graphite/graphlot/views.py
+    string from = params["from"];
+    if (from == "") {
+        from = "-24hour";
+    }
+    string until = params["until"];
+    if (until == "") {
+        until = "-0hour";
+    }
+
+    time_t t_start = pmgraphite_parse_timespec (connection, from);
+    time_t t_end = pmgraphite_parse_timespec (connection, until);
+    time_t t_step = 60;	// XXX: hard-coded?
+
+    stringstream output;
+    output << "[";
+    for (unsigned k=0; k<targets.size(); k++) {
+        string target = targets[k];
+        vector <timestamped_float> results = pmgraphite_fetch_series (connection, target, t_start,
+                                                                      t_end, t_step);
+        if (k > 0)
+            output << ",";
+
+        output << "{";
+        json_key_value (output, "target", string (target), ",");
+        output << " \"datapoints\":[";
+        for (unsigned i = 0; i < results.size (); i++) {
+            if (i > 0) {
+                output << ",";
+            }
+            output << "[";
+            if (isnan (results[i].what)) {
+                output << "null";
+            } else {
+                output << results[i].what;
+            }
+            output << ", " << results[i].when.tv_sec << "]";
+        }
+        output << "]}";
+    }
+    output << "]";
+
+    // wrap it up in mhd response ribbons
+    string s = output.str ();
+    resp = MHD_create_response_from_buffer (s.length (), (void *) s.c_str (),
+                                            MHD_RESPMEM_MUST_COPY);
+    if (resp == NULL) {
+        connstamp (cerr, connection) << "MHD_create_response_from_buffer failed" << endl;
+        rc = -ENOMEM;
+        goto out1;
+    }
+#if 0
+    /* https://developer.mozilla.org/en-US/docs/HTTP/Access_control_CORS */
+    rc = MHD_add_response_header (resp, "Access-Control-Allow-Origin", "*");
+    if (rc != MHD_YES) {
+        connstamp (cerr, connection) << "MHD_add_response_header ACAO failed" << endl;
+        rc = -ENOMEM;
+        goto out1;
+    }
+#endif
+    rc = MHD_add_response_header (resp, "Content-Type", "application/json");
+    if (rc != MHD_YES) {
+        connstamp (cerr, connection) << "MHD_add_response_header CT failed" << endl;
+        rc = -ENOMEM;
+        goto out1;
+    }
+    rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
+    if (rc != MHD_YES) {
+        connstamp (cerr, connection) << "MHD_queue_response failed" << endl;
+        rc = -ENOMEM;
+        goto out1;
+    }
+
+    MHD_destroy_response (resp);
+    return MHD_YES;
+
+ out1:
+    return mhd_notify_error (connection, rc);
+}
+
 
 
 
@@ -381,101 +579,31 @@ pmgraphite_parse_timespec (struct MHD_Connection * connection, string value)
 /* ------------------------------------------------------------------------ */
 
 int
-pmgraphite_respond (struct MHD_Connection *connection, const vector <string> &url)
+pmgraphite_respond_metrics_find (struct MHD_Connection *connection, const http_params& params, const vector <string> &url)
 {
-    int rc;
-    struct MHD_Response *resp;
+    return mhd_notify_error (connection, -EINVAL);
+}
 
+
+/* ------------------------------------------------------------------------ */
+
+
+int
+pmgraphite_respond (struct MHD_Connection *connection, const http_params& params, const vector <string> &url)
+{
     string url1 = (url.size () >= 2) ? url[1] : "";
     assert (url1 == "graphite");
     string url2 = (url.size () >= 3) ? url[2] : "";
     string url3 = (url.size () >= 4) ? url[3] : "";
 
-    if (url2 == "rawdata") {
-        // as used by graphlot
+    if (url2 == "rawdata")
+        return pmgraphite_respond_rawdata (connection, params, url);
+    else if (url2 == "render" && params["format"]=="json") // grafana style
+        return pmgraphite_respond_render_json (connection, params, url);
+    else if (url2 == "metrics" && url3 == "find")
+        return pmgraphite_respond_metrics_find (connection, params, url);        
+    else if (url2 == "render")
+        return pmgraphite_respond_render (connection, params, url);
 
-        // XXX: multiple &target=FOOBAR possible
-        const char *target = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND,
-                             "target");
-        if (target == NULL) {
-            goto out1;
-        }
-        // same defaults as python graphite/graphlot/views.py
-        const char *from = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND,
-                           "from");
-        if (from == NULL) {
-            from = "-24hour";
-        }
-        const char *until = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND,
-                            "until");
-        if (until == NULL) {
-            until = "-0hour";
-        }
-
-        time_t t_start = pmgraphite_parse_timespec (connection, from);
-        time_t t_end = pmgraphite_parse_timespec (connection, until);
-        time_t t_step = 60;	// XXX: hard-coded?
-        vector <timestamped_float> results = pmgraphite_fetch_series (connection, target, t_start,
-                                             t_end, t_step);
-
-        stringstream output;
-        output << "[";
-        output << "{";
-        json_key_value (output, "start", t_start, ",");
-        json_key_value (output, "step", t_step, ",");
-        json_key_value (output, "end", t_end, ",");
-        json_key_value (output, "name", string (target), ",");
-        output << " \"data\":[";
-        for (unsigned i = 0; i < results.size (); i++) {
-            if (i > 0) {
-                output << ",";
-            }
-            if (isnan (results[i].what)) {
-                output << "null";
-            } else {
-                output << results[i].what;
-            }
-        }
-        output << "]}]";
-
-        // wrap it up in mhd response ribbons
-        string s = output.str ();
-        resp = MHD_create_response_from_buffer (s.length (), (void *) s.c_str (),
-                                                MHD_RESPMEM_MUST_COPY);
-        if (resp == NULL) {
-            connstamp (cerr, connection) << "MHD_create_response_from_buffer failed" << endl;
-            rc = -ENOMEM;
-            goto out;
-        }
-#if 0
-        /* https://developer.mozilla.org/en-US/docs/HTTP/Access_control_CORS */
-        rc = MHD_add_response_header (resp, "Access-Control-Allow-Origin", "*");
-        if (rc != MHD_YES) {
-            connstamp (cerr, connection) << "MHD_add_response_header ACAO failed" << endl;
-            rc = -ENOMEM;
-            goto out1;
-        }
-#endif
-        rc = MHD_add_response_header (resp, "Content-Type", "application/json");
-        if (rc != MHD_YES) {
-            connstamp (cerr, connection) << "MHD_add_response_header CT failed" << endl;
-            rc = -ENOMEM;
-            goto out1;
-        }
-        rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
-        if (rc != MHD_YES) {
-            connstamp (cerr, connection) << "MHD_queue_response failed" << endl;
-            rc = -ENOMEM;
-            goto out1;
-        }
-
-        MHD_destroy_response (resp);
-        return MHD_YES;
-    }
-
-out1:
-    rc = -EINVAL;
-
-out:
-    return mhd_notify_error (connection, rc);
+    return mhd_notify_error (connection, -EINVAL);
 }

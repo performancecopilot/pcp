@@ -149,10 +149,9 @@ pmwebapi_bind_permanent (int webapi_ctx, int pcp_context)
 
 
 static int
-pmwebapi_respond_new_context (struct MHD_Connection *connection)
+pmwebapi_respond_new_context (struct MHD_Connection *connection, const http_params& params)
 {
     /* Create a context. */
-    const char *val;
     int rc = 0;
     int context = -EINVAL;
     char http_response[30];
@@ -164,18 +163,19 @@ pmwebapi_respond_new_context (struct MHD_Connection *connection)
     string userid;
     string password;
 
-    val = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "hostspec");
-    if (val == NULL) {
+    string val = params["hostspec"];
+    if (val == "") {
         /* backward compatibility alias */
-        val = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "hostname");
+        val = params["hostname"];
     }
-    if (val) {
+    if (val != "") {
         pmHostSpec *hostSpec;
         int hostSpecCount;
         __pmHashCtl hostAttrs;
         char *hostAttrsError;
         __pmHashInit (&hostAttrs);
-        rc = __pmParseHostAttrsSpec (val, &hostSpec, &hostSpecCount, &hostAttrs, &hostAttrsError);
+
+        rc = __pmParseHostAttrsSpec (val.c_str(), &hostSpec, &hostSpecCount, &hostAttrs, &hostAttrsError);
         if (rc == 0) {
             __pmHashNode *node;
             node = __pmHashSearch (PCP_ATTR_USERNAME, &hostAttrs);	/* XXX: PCP_ATTR_AUTHNAME? */
@@ -193,17 +193,13 @@ pmwebapi_respond_new_context (struct MHD_Connection *connection)
             free (hostAttrsError);
         }
 
-        context = pmNewContext (PM_CONTEXT_HOST, val);	/* XXX: limit access */
-        context_description = string ("PM_CONTEXT_HOST ") + string (val);
+        context = pmNewContext (PM_CONTEXT_HOST, val.c_str());	/* XXX: limit access */
+        context_description = string ("PM_CONTEXT_HOST ") + val;
     } else {
-        val = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "archivefile");
-        if (val) {
-            string archivefile;
-
-            if (__pmAbsolutePath ((char *) val)) {
-                archivefile = val;
-            } else {
-                archivefile = archivesdir + (char) __pmPathSeparator () + string (val);
+        string archivefile = params["archivefile"];
+        if (archivefile != "") {
+            if (! __pmAbsolutePath ((char *) archivefile.c_str())) {
+                archivefile = archivesdir + (char) __pmPathSeparator () + archivefile;
             }
 
             if (cursed_path_p (archivesdir, archivefile)) {
@@ -233,12 +229,12 @@ pmwebapi_respond_new_context (struct MHD_Connection *connection)
     }
 
     /* Process optional ?polltimeout=SECONDS field.  If broken/missing, assume maxtimeout. */
-    val = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "polltimeout");
-    if (val) {
+    val = params["polltimeout"];
+    if (val != "") {
         long pt;
         char *endptr;
         errno = 0;
-        pt = strtol (val, &endptr, 0);
+        pt = strtol (val.c_str(), &endptr, 0);
         if (errno != 0 || *endptr != '\0' || pt <= 0 || pt > (long) maxtimeout) {
             polltimeout = maxtimeout;
         } else {
@@ -407,10 +403,10 @@ metric_list_traverse (const char *metric, void *closure)
 
 
 static int
-pmwebapi_respond_metric_list (struct MHD_Connection *connection, struct webcontext *c)
+pmwebapi_respond_metric_list (struct MHD_Connection *connection, const http_params& params, struct webcontext *c)
 {
     struct metric_list_traverse_closure mltc;
-    const char *val;
+    string val;
     struct MHD_Response *resp;
     int rc;
     mltc.connection = connection;
@@ -420,11 +416,8 @@ pmwebapi_respond_metric_list (struct MHD_Connection *connection, struct webconte
 
     *mltc.mhdb << "{ \"metrics\":[\n";
 
-    val = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "prefix");
-    if (val == NULL) {
-        val = "";
-    }
-    (void) pmTraversePMNS_r (val, &metric_list_traverse, &mltc);	/* cannot fail */
+    val = params["prefix"];
+    (void) pmTraversePMNS_r (val.c_str(), &metric_list_traverse, &mltc);	/* cannot fail */
     /* XXX: also handle pmids=... */
     /* XXX: also handle names=... */
 
@@ -614,7 +607,7 @@ pmwebapi_format_value (ostream & output, pmDesc * desc, pmValueSet * pvs, int vs
 
 
 static int
-pmwebapi_respond_metric_fetch (struct MHD_Connection *connection, struct webcontext *c)
+pmwebapi_respond_metric_fetch (struct MHD_Connection *connection, const http_params& params, struct webcontext *c)
 {
     const char *val_pmids;
     const char *val_names;
@@ -806,7 +799,7 @@ out:
 
 
 static int
-pmwebapi_respond_instance_list (struct MHD_Connection *connection, struct webcontext *c)
+pmwebapi_respond_instance_list (struct MHD_Connection *connection, const http_params& params, struct webcontext *c)
 {
     const char *val_indom;
     const char *val_name;
@@ -1018,7 +1011,7 @@ out:
 
 
 int
-pmwebapi_respond (struct MHD_Connection *connection, const vector <string> &url)
+pmwebapi_respond (struct MHD_Connection *connection, const http_params& params, const vector <string> &url)
 {
     /* We emit CORS header for all successful json replies, namely:
        Access-Control-Access-Origin: *
@@ -1038,7 +1031,7 @@ pmwebapi_respond (struct MHD_Connection *connection, const vector <string> &url)
     /* if-multithreaded: write-lock contexts */
     if (new_contexts_p &&		/* permitted */
             (url.size () == 3 && url[2] == "context")) {
-        return pmwebapi_respond_new_context (connection);
+        return pmwebapi_respond_new_context (connection, params);
     }
 
     /* -------------------------------------------------------------------- */
@@ -1144,17 +1137,17 @@ pmwebapi_respond (struct MHD_Connection *connection, const vector <string> &url)
     /* -------------------------------------------------------------------- */
     /* metric enumeration: /context/$ID/_metric */
     if (context_command == "_metric") {
-        return pmwebapi_respond_metric_list (connection, c);
+        return pmwebapi_respond_metric_list (connection, params, c);
     }
     /* -------------------------------------------------------------------- */
     /* metric instance metadata: /context/$ID/_indom */
-    if (context_command == "_indom") {
-        return pmwebapi_respond_instance_list (connection, c);
+    else if (context_command == "_indom") {
+        return pmwebapi_respond_instance_list (connection, params, c);
     }
     /* -------------------------------------------------------------------- */
     /* metric fetch: /context/$ID/_fetch */
-    if (context_command == "_fetch") {
-        return pmwebapi_respond_metric_fetch (connection, c);
+    else if (context_command == "_fetch") {
+        return pmwebapi_respond_metric_fetch (connection, params, c);
     }
 
     connstamp (cerr, connection) << "unknown context command " << context_command << endl;
