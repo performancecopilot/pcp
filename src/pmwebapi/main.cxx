@@ -445,6 +445,8 @@ main (int argc, char *argv[])
     struct MHD_Daemon *d4 = NULL;
     struct MHD_Daemon *d6 = NULL;
 
+    (void) putenv ("TZ=UTC");
+
     umask (022);
     char *username_str;
     __pmGetUsername (&username_str);
