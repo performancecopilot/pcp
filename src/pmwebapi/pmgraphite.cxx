@@ -346,6 +346,11 @@ out0:
 // to the /graphite/rawdata/from=*&until=* parameters.  Negative values are
 // relative to "now"; non-negative values are considered absolute.
 //
+// The exact syntax permitted is tricky.  It's only partially documented 
+// http://graphite.readthedocs.org/en/latest/render_api.html#data-display-formats
+// whereas implementation in graphite/render/attime.py is concrete but too much
+// to duplicate here.
+//
 // Return the absolute seconds value, or "now" in case of error.
 
 time_t
@@ -356,17 +361,32 @@ pmgraphite_parse_timespec (struct MHD_Connection * connection, string value)
     (void) gettimeofday (&now, NULL);
     struct timeval result;
     char *errmsg = NULL;
+    char *end;
+    struct tm parsed;
 
     if (value == "") {
         connstamp (cerr, connection) << "empty graphite timespec" << endl;
         return now.tv_sec;
     }
+
+    // detect the HH:MM_YYYYMMDD absolute-time format emitted by grafana
+    memset (&parsed, 0, sizeof(parsed));
+    end = strptime (value.c_str(), "%H:%M_%Y%m%d", &parsed);
+    if (end != NULL && *end == '\0') // success
+        return mktime(& parsed);
+
+    // likewise YYYYMMDD
+    memset (&parsed, 0, sizeof(parsed));
+    end = strptime (value.c_str(), "%Y%m%d", &parsed);
+    if (end != NULL && *end == '\0') // success
+        return mktime(& parsed);
+
+
     if (value[0] != '-') {
         // nonnegative?  lead __pmParseTime to interpret it as absolute
         // (this is why we take string value instead of const string& parameter)
         value = string ("@") + value;
     }
-
     int sts = __pmParseTime (value.c_str (), &now, &now, &result, &errmsg);
     if (sts != 0) {
         connstamp (cerr, connection) << "unparseable graphite timespec " << value << ": " <<
@@ -504,7 +524,19 @@ pmgraphite_respond_render_json (struct MHD_Connection *connection, const http_pa
 
     time_t t_start = pmgraphite_parse_timespec (connection, from);
     time_t t_end = pmgraphite_parse_timespec (connection, until);
-    time_t t_step = 60;	// XXX: hard-coded?
+
+    // We could hard-code t_step = 60 as in the /rawdata case, since that is the
+    // typical sampling rate for graphite as well as pcp.  But maybe a graphite
+    // webapp (grafana) can't handle as many as that.
+    int maxdatapt = atoi(params["maxDataPoints"].c_str()); // ignore failures
+    if (maxdatapt <= 0)
+        maxdatapt = 1024; // a sensible upper limit?
+
+    time_t t_step = 60;	// a default, but ...
+    if (((t_end - t_start) / t_step) > maxdatapt) // make it larger if needed
+        t_step = (t_end - t_start) / maxdatapt;
+    // NB: We can't make it too small.  libpcp interp.c goes crazy/slow if one
+    // asks for tiny interpolation intervals.
 
     stringstream output;
     output << "[";
