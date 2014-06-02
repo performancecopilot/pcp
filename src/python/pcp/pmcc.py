@@ -129,14 +129,12 @@ class Metric(object):
     def _R_netPrevValues(self):
         if not self._prevvset:
             return None
-        if type(self._netPrevValues) == type(None):
-            self._netPrevValues = self.computeValues(self._prevvset)
+	self._netPrevValues = self.computeValues(self._prevvset)
         return self._netPrevValues
     def _R_netValues(self):
         if not self._vset:
             return None
-        if type(self._netValues) == type(None):
-            self._netValues = self.computeValues(self._vset)
+	self._netValues = self.computeValues(self._vset)
         return self._netValues
 
     def _W_values(self, values):
