@@ -149,7 +149,8 @@ pmwebapi_bind_permanent (int webapi_ctx, int pcp_context)
 
 
 static int
-pmwebapi_respond_new_context (struct MHD_Connection *connection, const http_params& params)
+pmwebapi_respond_new_context (struct MHD_Connection *connection,
+                              const http_params & params)
 {
     /* Create a context. */
     int rc = 0;
@@ -175,7 +176,8 @@ pmwebapi_respond_new_context (struct MHD_Connection *connection, const http_para
         char *hostAttrsError;
         __pmHashInit (&hostAttrs);
 
-        rc = __pmParseHostAttrsSpec (val.c_str(), &hostSpec, &hostSpecCount, &hostAttrs, &hostAttrsError);
+        rc = __pmParseHostAttrsSpec (val.c_str (), &hostSpec, &hostSpecCount, &hostAttrs,
+                                     &hostAttrsError);
         if (rc == 0) {
             __pmHashNode *node;
             node = __pmHashSearch (PCP_ATTR_USERNAME, &hostAttrs);	/* XXX: PCP_ATTR_AUTHNAME? */
@@ -193,12 +195,12 @@ pmwebapi_respond_new_context (struct MHD_Connection *connection, const http_para
             free (hostAttrsError);
         }
 
-        context = pmNewContext (PM_CONTEXT_HOST, val.c_str());	/* XXX: limit access */
+        context = pmNewContext (PM_CONTEXT_HOST, val.c_str ());	/* XXX: limit access */
         context_description = string ("PM_CONTEXT_HOST ") + val;
     } else {
         string archivefile = params["archivefile"];
         if (archivefile != "") {
-            if (! __pmAbsolutePath ((char *) archivefile.c_str())) {
+            if (!__pmAbsolutePath ((char *) archivefile.c_str ())) {
                 archivefile = archivesdir + (char) __pmPathSeparator () + archivefile;
             }
 
@@ -234,7 +236,7 @@ pmwebapi_respond_new_context (struct MHD_Connection *connection, const http_para
         long pt;
         char *endptr;
         errno = 0;
-        pt = strtol (val.c_str(), &endptr, 0);
+        pt = strtol (val.c_str (), &endptr, 0);
         if (errno != 0 || *endptr != '\0' || pt <= 0 || pt > (long) maxtimeout) {
             polltimeout = maxtimeout;
         } else {
@@ -403,7 +405,8 @@ metric_list_traverse (const char *metric, void *closure)
 
 
 static int
-pmwebapi_respond_metric_list (struct MHD_Connection *connection, const http_params& params, struct webcontext *c)
+pmwebapi_respond_metric_list (struct MHD_Connection *connection,
+                              const http_params & params, struct webcontext *c)
 {
     struct metric_list_traverse_closure mltc;
     string val;
@@ -417,7 +420,7 @@ pmwebapi_respond_metric_list (struct MHD_Connection *connection, const http_para
     *mltc.mhdb << "{ \"metrics\":[\n";
 
     val = params["prefix"];
-    (void) pmTraversePMNS_r (val.c_str(), &metric_list_traverse, &mltc);	/* cannot fail */
+    (void) pmTraversePMNS_r (val.c_str (), &metric_list_traverse, &mltc);	/* cannot fail */
     /* XXX: also handle pmids=... */
     /* XXX: also handle names=... */
 
@@ -607,7 +610,8 @@ pmwebapi_format_value (ostream & output, pmDesc * desc, pmValueSet * pvs, int vs
 
 
 static int
-pmwebapi_respond_metric_fetch (struct MHD_Connection *connection, const http_params& params, struct webcontext *c)
+pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
+                               const http_params & params, struct webcontext *c)
 {
     const char *val_pmids;
     const char *val_names;
@@ -799,7 +803,8 @@ out:
 
 
 static int
-pmwebapi_respond_instance_list (struct MHD_Connection *connection, const http_params& params, struct webcontext *c)
+pmwebapi_respond_instance_list (struct MHD_Connection *connection,
+                                const http_params & params, struct webcontext *c)
 {
     const char *val_indom;
     const char *val_name;
@@ -1011,7 +1016,8 @@ out:
 
 
 int
-pmwebapi_respond (struct MHD_Connection *connection, const http_params& params, const vector <string> &url)
+pmwebapi_respond (struct MHD_Connection *connection, const http_params & params,
+                  const vector <string> &url)
 {
     /* We emit CORS header for all successful json replies, namely:
        Access-Control-Access-Origin: *

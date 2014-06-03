@@ -14,6 +14,7 @@
  * for more details.
  */
 
+#define _XOPEN_SOURCE 600
 #include "pmwebapi.h"
 
 #include <string>
@@ -76,12 +77,8 @@ mhd_notify_error (struct MHD_Connection *connection, int rc)
 /* A POST- and GET- processor pair for MHD, allowing GET and POST parameters to be
    interchangeably used within a common http_params output structure. */
 static int
-mhd_post_iterator (void *cls,
-                   enum MHD_ValueKind kind,
-                   const char *key,
-                   const char *filename,
-                   const char *content_type,
-                   const char *transfer_encoding,
+mhd_post_iterator (void *cls, enum MHD_ValueKind kind, const char *key,
+                   const char *filename, const char *content_type, const char *transfer_encoding,
                    const char *data, uint64_t off, size_t size)
 {
     (void) kind;
@@ -90,18 +87,17 @@ mhd_post_iterator (void *cls,
     (void) transfer_encoding;
     http_params *c = (http_params *) cls;
     assert (c);
-    c->insert(make_pair(string(key), string(& data[off], size)));
+    c->insert (make_pair (string (key), string (&data[off], size)));
     return MHD_YES;
 }
 
 static int
-mhd_get_iterator (void *cls, enum MHD_ValueKind kind, const char *key,
-                  const char *value)
+mhd_get_iterator (void *cls, enum MHD_ValueKind kind, const char *key, const char *value)
 {
     (void) kind;
     http_params *c = (http_params *) cls;
     assert (c);
-    c->insert(make_pair(string(key), string(value ? value : "")));
+    c->insert (make_pair (string (key), string (value ? value : "")));
     return MHD_YES;
 }
 
@@ -112,35 +108,38 @@ mhd_get_iterator (void *cls, enum MHD_ValueKind kind, const char *key,
 // during the processing of an http request, and we need to save state
 // between them.
 
-struct mhd_connection_context
-{
-    struct MHD_PostProcessor* pp;
+struct mhd_connection_context {
+    struct MHD_PostProcessor *pp;
     http_params params;
 
-    mhd_connection_context (): pp(0) {}
+    mhd_connection_context ():pp (0) {
+    }
 };
 
 
 // A std::map<>-style operator[] for http_params; we just the value of
 // an arbitrary named parameter.  Return "" if not found.
-string http_params::operator [] (const string& s) const
+string http_params::operator [] (const string & s)
+const
 {
-    http_params::const_iterator x = this->find(s);
-    if (x == this->end())
-        return string("");
-    else
+    http_params::const_iterator
+    x = this->find (s);
+    if (x == this->end ()) {
+        return string ("");
+    } else {
         return (x->second);
+    }
 }
 
 
-vector<string> http_params::find_all (const string& s) const
+vector <string> http_params::find_all (const string & s) const
 {
-    vector<string> all;
-    pair <http_params::const_iterator, http_params::const_iterator> them= this->equal_range(s);
-    for (http_params::const_iterator x = them.first;
-         x != them.second;
-         x++)
+    vector <string> all;
+    pair <http_params::const_iterator, http_params::const_iterator> them = this->equal_range (
+                s);
+    for (http_params::const_iterator x = them.first; x != them.second; x++) {
         all.push_back (x->second);
+    }
 
     return all;
 }
@@ -161,33 +160,38 @@ mhd_respond (void *cls, struct MHD_Connection *connection, const char *url0,
     try {
         (void) cls;			// closure parameter unused
 
-        string url = url0;
-        string method = method0 ? string (method0) : "";
+        string
+        url = url0;
+        string
+        method = method0 ? string (method0) : "";
 
         // First call?  Create a context.
         if (*con_cls == NULL) {
             // create a context
-            mhd_connection_context* mhd_cc = new mhd_connection_context();
-            *con_cls= (void *) mhd_cc; // deleted later
+            mhd_connection_context *
+            mhd_cc = new mhd_connection_context ();
+            *con_cls = (void *) mhd_cc;	// deleted later
             if (method == "POST") {
                 mhd_cc->pp = MHD_create_post_processor (connection, 1024, &mhd_post_iterator,
-                                                        (void*) & mhd_cc->params);
+                                                        (void *) &mhd_cc->params);
                 if (mhd_cc->pp == 0) {
                     connstamp (cerr, connection) << "error setting up POST processor" << endl;
-                    return MHD_NO; // internal error
+                    return MHD_NO;	// internal error
                 }
             }
-            return MHD_YES; // expect another call shortly
+            return MHD_YES;		// expect another call shortly
         }
 
         // Get our context
-        mhd_connection_context* mhd_cc = (mhd_connection_context*) (*con_cls);
+        mhd_connection_context *
+        mhd_cc = (mhd_connection_context *) (*con_cls);
         assert (mhd_cc);
 
         // Intermediate call?  Store away POST parameters, if any.
         if (method == "POST") {
             MHD_post_process (mhd_cc->pp, upload_data, *upload_data_size);
-            if (*upload_data_size != 0) { // intermediate call
+            if (*upload_data_size != 0) {
+                // intermediate call
                 *upload_data_size = 0;
                 return MHD_YES;
             }
@@ -198,25 +202,27 @@ mhd_respond (void *cls, struct MHD_Connection *connection, const char *url0,
             mhd_cc->pp = 0;
         }
 
-        // extract GET arguments 
+        // extract GET arguments
         (void) MHD_get_connection_values (connection, MHD_GET_ARGUMENT_KIND, &mhd_get_iterator,
-                                          (void*) & mhd_cc->params);
+                                          (void *) &mhd_cc->params);
 
         // Trace request
         if (verbosity > 1) {
             connstamp (clog, connection) << version << " " << method << " " << url << endl;
         }
         if (verbosity > 2) {
-            for (http_params::iterator it = mhd_cc->params.begin();
-                 it != mhd_cc->params.end();
-                 it ++)
+            for (http_params::iterator it = mhd_cc->params.begin (); it != mhd_cc->params.end ();
+                    it++) {
                 connstamp (clog, connection) << it->first << "=" << it->second << endl;
+            }
         }
 
         // first component (or the whole remainder)
         vector <string> url_tokens = split (url, '/');
-        string url1 = (url_tokens.size () >= 2) ? url_tokens[1] : "";
-        string url2 = (url_tokens.size () >= 3) ? url_tokens[2] : "";
+        string
+        url1 = (url_tokens.size () >= 2) ? url_tokens[1] : "";
+        string
+        url2 = (url_tokens.size () >= 3) ? url_tokens[2] : "";
 
         /* pmwebapi? */
         if (url1 == uriprefix) {
@@ -254,24 +260,26 @@ handle_signals (int sig)
 
 
 static void
-mhd_respond_completed (void *cls,
-                       struct MHD_Connection *connection,
-                       void **con_cls,
+mhd_respond_completed (void *cls, struct MHD_Connection *connection, void **con_cls,
                        enum MHD_RequestTerminationCode toe)
 {
     (void) cls;
     (void) connection;
     (void) toe;
 
-    mhd_connection_context *mhd_cc = (mhd_connection_context*) *con_cls;
+    mhd_connection_context *
+    mhd_cc = (mhd_connection_context *) * con_cls;
 
-    if (mhd_cc == 0)
+    if (mhd_cc == 0) {
         return;
+    }
 
-    if (mhd_cc->pp != 0)
+    if (mhd_cc->pp != 0) {
         MHD_destroy_post_processor (mhd_cc->pp);
+    }
 
-    delete mhd_cc;
+    delete
+    mhd_cc;
 }
 
 
@@ -282,14 +290,16 @@ pmweb_dont_start (void)
 {
     timestamp (cerr) << "pmwebd not started due to errors!" << endl;
 
-    ofstream tty (fatalfile.c_str ());
+    ofstream
+    tty (fatalfile.c_str ());
     if (tty.good ()) {
         timestamp (tty) << "NOTE: pmwebd not started due to errors!" << endl;
 
         // copy logfile to tty, if it was specified
         if (logfile != "") {
             tty << "Log file \"" << logfile << "\" contains ..." << endl;
-            ifstream log (logfile.c_str ());
+            ifstream
+            log (logfile.c_str ());
             if (log.good ()) {
                 tty << log.rdbuf ();
             } else {
@@ -318,9 +328,12 @@ server_dump_request_ports (int ipv4, int ipv6, int port)
 static void
 server_dump_configuration ()
 {
-    char *cwd;
-    char cwdpath[MAXPATHLEN];
-    char sep = __pmPathSeparator ();
+    char *
+    cwd;
+    char
+    cwdpath[MAXPATHLEN];
+    char
+    sep = __pmPathSeparator ();
 
     // Assume timestamp() already just called, so we
     // don't have to repeat.
@@ -354,7 +367,8 @@ server_dump_configuration ()
 static void
 pmweb_init_random_seed (void)
 {
-    struct timeval tv;
+    struct timeval
+            tv;
 
     /* XXX: PR_GetRandomNoise() */
     gettimeofday (&tv, NULL);
@@ -405,7 +419,8 @@ option_overrides (int opt, pmOptions * opts)
     return 0;
 }
 
-static pmLongOptions longopts[] = {
+static pmLongOptions
+longopts[] = {
     PMAPI_OPTIONS_HEADER ("Network options"),
     {"port", 1, 'p', "NUM", "listen on given TCP port [default 44323]"},
     {"ipv4", 0, '4', 0, "listen on IPv4 only"},
@@ -435,20 +450,20 @@ static pmOptions opts;
 int
 main (int argc, char *argv[])
 {
-    int c;
-    int sts;
-    int ctx;
-    int mhd_ipv4 = 1;
-    int mhd_ipv6 = 1;
-    int port = PMWEBD_PORT;
-    char *endptr;
-    struct MHD_Daemon *d4 = NULL;
-    struct MHD_Daemon *d6 = NULL;
+    int     c;
+    int     sts;
+    int     ctx;
+    int     mhd_ipv4 = 1;
+    int     mhd_ipv6 = 1;
+    int    port = PMWEBD_PORT;
+    char *     endptr;
+    struct MHD_Daemon *             d4 = NULL;
+    struct MHD_Daemon *             d6 = NULL;
 
-    (void) putenv ("TZ=UTC");
+    (void) setenv ("TZ", "UTC", 1);
 
     umask (022);
-    char *username_str;
+    char * username_str;
     __pmGetUsername (&username_str);
 
     opts.short_options = "A:a:c:D:h:Ll:Np:R:Gt:U:vx:46?";
@@ -581,15 +596,13 @@ main (int argc, char *argv[])
     if (mhd_ipv4)
         d4 = MHD_start_daemon (0, port, NULL, NULL,	/* default accept policy */
                                &mhd_respond, NULL,	/* handler callback */
-                               MHD_OPTION_CONNECTION_TIMEOUT, maxtimeout, 
-                               MHD_OPTION_NOTIFY_COMPLETED, &mhd_respond_completed, NULL,
-                               MHD_OPTION_END);
+                               MHD_OPTION_CONNECTION_TIMEOUT, maxtimeout, MHD_OPTION_NOTIFY_COMPLETED,
+                               &mhd_respond_completed, NULL, MHD_OPTION_END);
     if (mhd_ipv6)
         d6 = MHD_start_daemon (MHD_USE_IPv6, port, NULL, NULL,	/* default accept policy */
                                &mhd_respond, NULL,	/* handler callback */
-                               MHD_OPTION_CONNECTION_TIMEOUT, maxtimeout,
-                               MHD_OPTION_NOTIFY_COMPLETED, &mhd_respond_completed, NULL,
-                               MHD_OPTION_END);
+                               MHD_OPTION_CONNECTION_TIMEOUT, maxtimeout, MHD_OPTION_NOTIFY_COMPLETED,
+                               &mhd_respond_completed, NULL, MHD_OPTION_END);
     if (d4 == NULL && d6 == NULL) {
         timestamp (cerr) << "Error starting microhttpd daemons on port " << port << endl;
         pmweb_dont_start ();
@@ -607,13 +620,15 @@ main (int argc, char *argv[])
     // (re)create log file, redirect stdout/stderr
     // NB: must be done after __pmSetProcessIdentity() for proper file permissions
     if (logfile != "") {
-        int fd;
+        int
+        fd;
         (void) unlink (logfile.c_str ());	// in case one's left over from a previous other-uid run
         fd = open (logfile.c_str (), O_WRONLY | O_APPEND | O_CREAT | O_TRUNC, 0666);
         if (fd < 0) {
             timestamp (cerr) << "Cannot re-create logfile " << logfile << endl;
         } else {
-            int rc;
+            int
+            rc;
             // Move the new file descriptors on top of stdout/stderr
             rc = dup2 (fd, STDOUT_FILENO);
             if (rc < 0) {
@@ -652,10 +667,10 @@ main (int argc, char *argv[])
     /* Block indefinitely. */
     while (!exit_p) {
         struct timeval tv;
-        fd_set rs;
-        fd_set ws;
-        fd_set es;
-        int max = 0;
+        fd_set        rs;
+        fd_set        ws;
+        fd_set        es;
+        int        max = 0;
 
         /* Based upon MHD fileserver_example_external_select.c */
         FD_ZERO (&rs);
