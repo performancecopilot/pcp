@@ -108,8 +108,8 @@ attemptConnections(void *arg)
 	PM_UNLOCK(context->addrLock);
 
 	/*
-	 * Create a socket. There is be a limit on open fds, not just from
-	 * the OS, but in the IPC table. If we get EAGAIN,
+	 * Create a socket. There is a limit on open fds, not just from
+	 * the OS, but also in the IPC table. If we get EAGAIN,
 	 * then wait 0.1 seconds and try again.  We must have a limit in case
 	 * something goes wrong. Make it 5 seconds (50 * 100,000 usecs).
 	 */
@@ -246,6 +246,13 @@ probeForServices(
 
 #if PM_MULTI_THREAD
     /*
+     * Set up the concurrrency controls. These locks will be tested
+     * even if we fail to allocate/use the thread table below.
+     */
+    pthread_mutex_init(&context.addrLock, NULL);
+    pthread_mutex_init(&context.urlLock, NULL);
+
+    /*
      * Allocate the thread table. We have a maximum for the number of threads,
      * so that will be the size.
      */
@@ -261,12 +268,8 @@ probeForServices(
 	nThreads = 0;
     }
     else {
-	/* Now set up the concurrrency controls. */
-	pthread_mutex_init(&context.addrLock, NULL);
-	pthread_mutex_init(&context.urlLock, NULL);
-
 	/*
-	 * We want our worker threads to joinable and they don't need much
+	 * We want our worker threads to be joinable and they don't need much
 	 * stack.
 	 */
 	pthread_attr_init(&threadAttr);
@@ -275,14 +278,17 @@ probeForServices(
 
 	/* Dispatch the threads. */
 	for (nThreads = 0; nThreads < maxThreads; ++nThreads) {
-	    sts = pthread_create(&threads[nThreads], &threadAttr, attemptConnections,
-				 &context);
+	    sts = pthread_create(&threads[nThreads], &threadAttr,
+				 attemptConnections, &context);
 	    /*
 	     * If we failed to create a thread, then we've reached the OS limit.
 	     */
 	    if (sts != 0)
 		break;
 	}
+
+	/* We no longer need this. */
+	pthread_attr_destroy(&threadAttr);
     }
 #endif
 
@@ -298,7 +304,6 @@ probeForServices(
 	pthread_join(threads[threadIx], NULL);
 
     /* These must not be destroyed until all of the threads have finished. */
-    pthread_attr_destroy(&threadAttr);
     pthread_mutex_destroy(&context.addrLock);
     pthread_mutex_destroy(&context.urlLock);
 #endif
