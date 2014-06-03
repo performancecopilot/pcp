@@ -62,5 +62,5 @@ default_pcp ::	default
 install_pcp :: install
 
 indent:
-	indent -nhnl -l400 $(CXXFILES) $(HFILES)
+	# indent -nhnl -l400 $(CXXFILES) $(HFILES)
 	astyle  -A10 -n -xd -v -H -U -xy -xC90 $(CXXFILES) $(HFILES)

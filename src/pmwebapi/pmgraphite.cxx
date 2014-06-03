@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <iostream>
 #include <sstream>
+#include <set>
 
 using namespace std;
 
@@ -30,6 +31,8 @@ extern "C"
 {
 #include <ctype.h>
 #include <math.h>
+#include <fts.h>
+#include <fnmatch.h>
 
 #ifdef HAVE_CAIRO
 #include <cairo/cairo.h>
@@ -49,7 +52,7 @@ extern "C"
 string
 pmgraphite_metric_encode (const string & foo)
 {
-    string output;
+    stringstream output;
     static const char hex[] = "0123456789ABCDEF";
 
     assert (foo.size () > 0);
@@ -57,13 +60,13 @@ pmgraphite_metric_encode (const string & foo)
         char c = foo[i];
         // Pass through enough characters to make the metric names relatively
         // human-readable in the javascript guis
-        if (isalnum (c) || (c == '_') || (c == ' ') || (c == '-')) {
-            output += c;
+        if (isalnum (c) || (c == '_') || (c == ' ')) {
+            output << c;
         } else {
-            output += "[" + hex[ (c >> 4) & 15] + hex[ (c >> 0) & 15] + string ("]");
+            output << "-" << hex[ (c >> 4) & 15] << hex[ (c >> 0) & 15] << "-";
         }
     }
-    return output;
+    return output.str ();
 }
 
 // NB: decoding failure is possible (could arise from mischevious URLs
@@ -75,11 +78,8 @@ pmgraphite_metric_decode (const string & foo)
     static const char hex[] = "0123456789ABCDEF";
     for (unsigned i = 0; i < foo.size (); i++) {
         char c = foo[i];
-        if (c == '[') {
+        if (c == '-') {
             if (i + 3 >= foo.size ()) {
-                return "";
-            }
-            if (foo[i + 3] != ']') {
                 return "";
             }
             const char *p = lower_bound (hex, hex + 16, foo[i + 1]);
@@ -90,15 +90,271 @@ pmgraphite_metric_decode (const string & foo)
             if (*q != foo[i + 2]) {
                 return "";
             }
+            if ('-' != foo[i + 3]) {
+                return "";
+            }
             output += (char) (((p - hex) << 4) | (q - hex));
-            i += 3;		// skip over hex bytes too
+            i += 3;		// skip over hex bytes
         } else {
             output += c;
         }
     }
     return output;
-
 }
+
+
+// ------------------------------------------------------------------------
+
+
+struct pmg_enum_context {
+    vector <string> *patterns;
+    vector <string> *output;
+    string archivepart;
+};
+
+
+
+// Callback from pmTraversePMNS_r.  We have a working archive, we just received
+// a working metric name.  All we need now is to enumerate
+void
+pmg_enumerate_pmns (const char *name, void *cls)
+{
+    pmg_enum_context *c = (pmg_enum_context *) cls;
+    string metricpart = name;
+
+    // Filter out mismatches of the metric name components
+    vector <string> metric_parts = split (metricpart, '.');
+    for (unsigned i = 0; i < metric_parts.size (); i++) {
+        if (c->patterns->size () > i + 1) {
+            // patterns[0] was already used for the archive name
+            const string & metricpart = metric_parts[i];
+            const string & pattern = (*c->patterns)[i + 1];
+            if (fnmatch (pattern.c_str (), metricpart.c_str (), FNM_NOESCAPE) != 0) {
+                return;
+            }
+        }
+    }
+
+    // XXX: metrics with indoms too
+    string final_metric_name = c->archivepart + "." + metricpart;
+    c->output->push_back (final_metric_name);
+}
+
+
+
+// Heavy lifter.  Enumerate all archives, all metrics, all instances.
+// This is not unbearably slow, since it involves only a scan of
+// directories & metadata.
+
+vector <string> pmgraphite_enumerate_metrics (struct MHD_Connection * connection,
+        const string & pattern)
+{
+    vector <string> output;
+
+    // The javascript guis may feed us wildcardy partial metric names.  We
+    // apply them (via componentwise fnsearch(3)) as an optimization.
+    vector <string> patterns_tok = split (pattern, '.');
+
+    // We build up our graphite metric namespace from a couple of nested loops.
+
+    // First up, archive name, as identified from an fts(3) search.  (It'd be
+    // mighty handy to have a pmDiscoverServices("archive") kind of thing.)
+
+    if (verbosity > 2) {
+        connstamp (clog, connection) << "Searching for archives under " << archivesdir << endl;
+    }
+
+    char *fts_argv[2];
+    fts_argv[0] = (char *) archivesdir.c_str ();
+    fts_argv[1] = NULL;
+    FTS *f = fts_open (fts_argv, (FTS_NOCHDIR | FTS_LOGICAL /* resolve symlinks */), NULL);
+    if (f == NULL) {
+        connstamp (cerr, connection) << "cannot fts_open " << archivesdir << endl;
+        goto out;
+    }
+    for (FTSENT * ent = fts_read (f); ent != NULL; ent = fts_read (f)) {
+        if (ent->fts_info == FTS_SL) {
+            // follow symlinks (unlikely)
+            (void) fts_set (f, ent, FTS_FOLLOW);
+        }
+
+        if (fnmatch ("*.meta", ent->fts_path, FNM_NOESCAPE) != 0) {
+            continue;
+        }
+        string archive = string (ent->fts_path);
+        if (cursed_path_p (archivesdir, archive)) {
+            continue;
+        }
+
+        // Abbrevate archive to clip off the archivesdir prefix (if
+        // it's there).
+        string archivepart = archive;
+        if (archivepart.substr (0, archivesdir.size () + 1) == (archivesdir +
+                (char) __pmPathSeparator ())) {
+            archivepart = archivepart.substr (archivesdir.size () + 1);
+        }
+        archivepart = pmgraphite_metric_encode (archivepart);
+
+        // Filter out mismatches of the first pattern component.
+        // (note that this applies after _metric_encode().)
+        if (patterns_tok.size () >= 1 &&	// have -some- specification
+                ((patterns_tok[0] != archivepart) &&	// not identical
+                 (fnmatch (patterns_tok[0].c_str (), archivepart.c_str (), FNM_NOESCAPE) != 0))) {
+            // mismatches?
+            continue;
+        }
+
+        int ctx = pmNewContext (PM_CONTEXT_ARCHIVE, archive.c_str ());
+        if (ctx < 0) {
+            continue;
+        }
+
+        // Wondertastic.  We have an archive.  Let's open 'er up and
+        // enumerate them metrics.
+        pmg_enum_context c;
+        c.patterns = &patterns_tok;
+        c.output = &output;
+        c.archivepart = archivepart;
+
+        (void) pmTraversePMNS_r ("", &pmg_enumerate_pmns, &c);
+
+        pmDestroyContext (ctx);
+    }
+    fts_close (f);
+
+out:
+    if (verbosity > 2) {
+        connstamp (clog, connection) << "enumerated " << output.size () << " metrics" << endl;
+    }
+
+    return output;
+}
+
+
+// ------------------------------------------------------------------------
+
+
+// This query traverses the metric tree one level at a time.  Incoming queries
+// look like "foo.*", and we're expected to return "foo.bar", "foo.baz", etc.,
+// differentiating leaf nodes from subtrees.
+
+int
+pmgraphite_respond_metrics_find (struct MHD_Connection *connection,
+                                 const http_params & params, const vector <string> &url)
+{
+    int rc;
+    struct MHD_Response *resp;
+
+    string query = params["query"];
+    if (query == "") {
+        return mhd_notify_error (connection, -EINVAL);
+    }
+
+#if 0				// grafana doesn't bother send this
+    string format = params["format"];
+    if (format != "treejson") {
+        return mhd_notify_error (connection, -EINVAL);
+    }
+#endif
+
+    vector <string> query_tok = split (query, '.');
+    unsigned path_match = query_tok.size () - 1;
+
+    vector <string> metrics = pmgraphite_enumerate_metrics (connection, query);
+
+    // Classify the next piece of each metric name (at the [path_match] position)
+    // as leafs vs. non-leafs.  We do this by slicing the enumerated metrics at
+    // the [path_match]'th part and inserting the pieces into this here multiset.
+    multiset <string> subtrees;
+
+    // We still need the prior pieces though, for "id"="foo" purposes.
+    string common_prefix;
+
+    for (unsigned i = 0; i < metrics.size (); i++) {
+        vector <string> pieces = split (metrics[i], '.');
+
+        // XXX: check that metrics[i] is a proper subtree of query
+        // i.e., check pieces[0..path_match-1] == query_tok[0..path_match-1]
+        if (pieces.size () <= path_match) {
+            continue;		// should not happen
+        }
+
+        if (path_match > 0 && common_prefix == "") {
+            // not yet computed
+            for (unsigned j = 0; j < path_match; j++) {
+                common_prefix += pieces[j] + ".";
+            }
+        }
+
+        string piece = pieces[path_match];
+        subtrees.insert (piece);
+    }
+
+    // OK, time to generate some output.
+
+    stringstream output;
+    unsigned num_subtrees = 0;
+    output << "[";
+    for (multiset <string>::iterator it = subtrees.begin (); it != subtrees.end ();
+            it = subtrees.upper_bound (*it)) {
+        const string & subtree = *it;
+        unsigned count = subtrees.count (subtree);
+
+        if (num_subtrees++ > 0) {
+            output << ",";
+        }
+
+        output << "{";
+        json_key_value (output, "text", (string) subtree, ",");
+        json_key_value (output, "id", (string) (common_prefix + subtree), ",");
+        json_key_value (output, "leaf", (int) (count == 1), ",");
+        json_key_value (output, "expandable", (int) (count > 1), ",");
+        json_key_value (output, "allowChildren", (int) (count > 1));
+        output << "}";
+    }
+    output << "]";
+
+    // wrap it up in mhd response ribbons
+    string s = output.str ();
+    resp = MHD_create_response_from_buffer (s.length (), (void *) s.c_str (),
+                                            MHD_RESPMEM_MUST_COPY);
+    if (resp == NULL) {
+        connstamp (cerr, connection) << "MHD_create_response_from_buffer failed" << endl;
+        rc = -ENOMEM;
+        goto out1;
+    }
+#if 0
+    /* https://developer.mozilla.org/en-US/docs/HTTP/Access_control_CORS */
+    rc = MHD_add_response_header (resp, "Access-Control-Allow-Origin", "*");
+    if (rc != MHD_YES) {
+        connstamp (cerr, connection) << "MHD_add_response_header ACAO failed" << endl;
+        rc = -ENOMEM;
+        goto out1;
+    }
+#endif
+    rc = MHD_add_response_header (resp, "Content-Type", "application/json");
+    if (rc != MHD_YES) {
+        connstamp (cerr, connection) << "MHD_add_response_header CT failed" << endl;
+        rc = -ENOMEM;
+        goto out1;
+    }
+    rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
+    if (rc != MHD_YES) {
+        connstamp (cerr, connection) << "MHD_queue_response failed" << endl;
+        rc = -ENOMEM;
+        goto out1;
+    }
+
+    MHD_destroy_response (resp);
+    return MHD_YES;
+
+out1:
+    return mhd_notify_error (connection, rc);
+}
+
+
+
+// ------------------------------------------------------------------------
 
 
 struct timestamped_float {
@@ -321,11 +577,26 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
         output.push_back (x);
     }
 
+    // Rate conversion for COUNTER semantics values; perhaps should be a libpcp feature.
+    // XXX: make this optional
+    // XXX: how to handle counter overflow?
+    if (pmd.sem == PM_SEM_COUNTER)
+        // go backward, so we can do the calculation in one pass
+        for (unsigned i = output.size () - 1; i > 0; i--) {
+            float this_value = output[i].what;
+            float last_value = output[i - 1].what;
+            float this_time = (float) output[i].when.tv_sec + (output[i].when.tv_usec / 1000000.0);
+            float last_time = (float) output[i - 1].when.tv_sec + (output[i - 1].when.tv_usec /
+                              1000000.0);
+
+            output[i].what = (last_value - this_value) / (last_time - this_time);
+            // by sheer magic, this works even if the values are NaN
+        }
+
     if (verbosity > 2) {
         connstamp (clog, connection) << "returned " << entries_good << "/" << entries <<
-                                     " data values, metric " << metric_name
-                                     << ", timespan [" << t_start << "-" << t_end << "] by " << t_step
-                                     << endl;
+                                     " data values, metric " << metric_name << ", timespan [" << t_start << "-" << t_end <<
+                                     "] by " << t_step << endl;
     }
 
     // Done!
@@ -338,7 +609,6 @@ out0:
 
 
 
-
 /* ------------------------------------------------------------------------ */
 
 
@@ -346,7 +616,7 @@ out0:
 // to the /graphite/rawdata/from=*&until=* parameters.  Negative values are
 // relative to "now"; non-negative values are considered absolute.
 //
-// The exact syntax permitted is tricky.  It's only partially documented 
+// The exact syntax permitted is tricky.  It's only partially documented
 // http://graphite.readthedocs.org/en/latest/render_api.html#data-display-formats
 // whereas implementation in graphite/render/attime.py is concrete but too much
 // to duplicate here.
@@ -370,16 +640,20 @@ pmgraphite_parse_timespec (struct MHD_Connection * connection, string value)
     }
 
     // detect the HH:MM_YYYYMMDD absolute-time format emitted by grafana
-    memset (&parsed, 0, sizeof(parsed));
-    end = strptime (value.c_str(), "%H:%M_%Y%m%d", &parsed);
-    if (end != NULL && *end == '\0') // success
-        return mktime(& parsed);
+    memset (&parsed, 0, sizeof (parsed));
+    end = strptime (value.c_str (), "%H:%M_%Y%m%d", &parsed);
+    if (end != NULL && *end == '\0') {
+        // success
+        return mktime (&parsed);
+    }
 
     // likewise YYYYMMDD
-    memset (&parsed, 0, sizeof(parsed));
-    end = strptime (value.c_str(), "%Y%m%d", &parsed);
-    if (end != NULL && *end == '\0') // success
-        return mktime(& parsed);
+    memset (&parsed, 0, sizeof (parsed));
+    end = strptime (value.c_str (), "%Y%m%d", &parsed);
+    if (end != NULL && *end == '\0') {
+        // success
+        return mktime (&parsed);
+    }
 
 
     if (value[0] != '-') {
@@ -403,7 +677,8 @@ pmgraphite_parse_timespec (struct MHD_Connection * connection, string value)
 
 
 int
-pmgraphite_respond_render (struct MHD_Connection *connection, const http_params& params, const vector <string> &url)
+pmgraphite_respond_render (struct MHD_Connection *connection, const http_params & params,
+                           const vector <string> &url)
 {
     return mhd_notify_error (connection, -EINVAL);
 }
@@ -413,13 +688,14 @@ pmgraphite_respond_render (struct MHD_Connection *connection, const http_params&
 
 
 int
-pmgraphite_respond_rawdata (struct MHD_Connection *connection, const http_params& params, const vector <string> &url)
+pmgraphite_respond_rawdata (struct MHD_Connection *connection, const http_params & params,
+                            const vector <string> &url)
 {
     int rc;
     struct MHD_Response *resp;
 
     // XXX: multiple &target=FOOBAR possible
-    string target = params["target"]; 
+    string target = params["target"];
     if (target == "") {
         return mhd_notify_error (connection, -EINVAL);
     }
@@ -435,9 +711,9 @@ pmgraphite_respond_rawdata (struct MHD_Connection *connection, const http_params
 
     time_t t_start = pmgraphite_parse_timespec (connection, from);
     time_t t_end = pmgraphite_parse_timespec (connection, until);
-    time_t t_step = 60;	// XXX: hard-coded?
+    time_t t_step = 60;		// XXX: hard-coded?
     vector <timestamped_float> results = pmgraphite_fetch_series (connection, target, t_start,
-                                                                  t_end, t_step);
+                                         t_end, t_step);
 
     stringstream output;
     output << "[";
@@ -493,7 +769,7 @@ pmgraphite_respond_rawdata (struct MHD_Connection *connection, const http_params
     MHD_destroy_response (resp);
     return MHD_YES;
 
- out1:
+out1:
     return mhd_notify_error (connection, rc);
 }
 
@@ -501,14 +777,16 @@ pmgraphite_respond_rawdata (struct MHD_Connection *connection, const http_params
 // A close relative to _rawdata, but unfortunately this one formats
 // the output rather differently.
 int
-pmgraphite_respond_render_json (struct MHD_Connection *connection, const http_params& params, const vector <string> &url)
+pmgraphite_respond_render_json (struct MHD_Connection *connection,
+                                const http_params & params, const vector <string> &url)
 {
     int rc;
     struct MHD_Response *resp;
 
-    vector<string> targets = params.find_all("target");
-    if (targets.size() == 0)
+    vector <string> targets = params.find_all ("target");
+    if (targets.size () == 0) {
         return mhd_notify_error (connection, -EINVAL);
+    }
 
     // XXX: maxDataPoints?
 
@@ -528,24 +806,28 @@ pmgraphite_respond_render_json (struct MHD_Connection *connection, const http_pa
     // We could hard-code t_step = 60 as in the /rawdata case, since that is the
     // typical sampling rate for graphite as well as pcp.  But maybe a graphite
     // webapp (grafana) can't handle as many as that.
-    int maxdatapt = atoi(params["maxDataPoints"].c_str()); // ignore failures
-    if (maxdatapt <= 0)
-        maxdatapt = 1024; // a sensible upper limit?
+    int maxdatapt = atoi (params["maxDataPoints"].c_str ());	// ignore failures
+    if (maxdatapt <= 0) {
+        maxdatapt = 1024;		// a sensible upper limit?
+    }
 
-    time_t t_step = 60;	// a default, but ...
-    if (((t_end - t_start) / t_step) > maxdatapt) // make it larger if needed
+    time_t t_step = 60;		// a default, but ...
+    if (((t_end - t_start) / t_step) > maxdatapt) {
+        // make it larger if needed
         t_step = (t_end - t_start) / maxdatapt;
+    }
     // NB: We can't make it too small.  libpcp interp.c goes crazy/slow if one
     // asks for tiny interpolation intervals.
 
     stringstream output;
     output << "[";
-    for (unsigned k=0; k<targets.size(); k++) {
+    for (unsigned k = 0; k < targets.size (); k++) {
         string target = targets[k];
         vector <timestamped_float> results = pmgraphite_fetch_series (connection, target, t_start,
-                                                                      t_end, t_step);
-        if (k > 0)
+                                             t_end, t_step);
+        if (k > 0) {
             output << ",";
+        }
 
         output << "{";
         json_key_value (output, "target", string (target), ",");
@@ -600,42 +882,49 @@ pmgraphite_respond_render_json (struct MHD_Connection *connection, const http_pa
     MHD_destroy_response (resp);
     return MHD_YES;
 
- out1:
+out1:
     return mhd_notify_error (connection, rc);
 }
 
 
 
-
-
 /* ------------------------------------------------------------------------ */
 
-int
-pmgraphite_respond_metrics_find (struct MHD_Connection *connection, const http_params& params, const vector <string> &url)
-{
-    return mhd_notify_error (connection, -EINVAL);
-}
 
 
 /* ------------------------------------------------------------------------ */
 
 
 int
-pmgraphite_respond (struct MHD_Connection *connection, const http_params& params, const vector <string> &url)
+pmgraphite_respond (struct MHD_Connection *connection, const http_params & params,
+                    const vector <string> &url)
 {
     string url1 = (url.size () >= 2) ? url[1] : "";
     assert (url1 == "graphite");
     string url2 = (url.size () >= 3) ? url[2] : "";
     string url3 = (url.size () >= 4) ? url[3] : "";
 
-    if (url2 == "rawdata")
+    if (url2 == "rawdata") {
         return pmgraphite_respond_rawdata (connection, params, url);
-    else if (url2 == "render" && params["format"]=="json") // grafana style
+    } else if (url2 == "render" && params["format"] == "json") {
+        // grafana style
         return pmgraphite_respond_render_json (connection, params, url);
-    else if (url2 == "metrics" && url3 == "find")
-        return pmgraphite_respond_metrics_find (connection, params, url);        
-    else if (url2 == "render")
+    } else if (url2 == "metrics" && url3 == "find") {
+        // grafana, graphite tree & auto-completer
+        return pmgraphite_respond_metrics_find (connection, params, url);
+    }
+#if 0
+    else if (url2 == "graphlot" && url3 == "findmetric") {
+        // graphlot
+        return pmgraphite_respond_metrics_findmetric (connection, params, url);
+    } else if (url2 == "browser" && url3 == "search") {
+        // graphite search
+        return pmgraphite_respond_metrics_findmetric (connection, params, url);
+    }
+#endif
+    else if (url2 == "render") {
         return pmgraphite_respond_render (connection, params, url);
+    }
 
     return mhd_notify_error (connection, -EINVAL);
 }
