@@ -11,7 +11,7 @@
   },
   "rows": [
     {
-      "title": "Welcome to Grafana",
+      "title": "Welcome to PCP+Grafana",
       "height": "150px",
       "editable": true,
       "collapse": false,
@@ -24,9 +24,9 @@
           "type": "text",
           "loadingEditor": false,
           "mode": "markdown",
-          "content": "####Thank you for trying out Grafana! \n\nGeneral documentation is found in the readme and in the wiki section of the [Github Project](https://github.com/torkelo/grafana). If you encounter any problem or have an idea for an improvement do not hesitate to open a github issue. \n\nTips: \n\n- Ctrl+S saves the current dashboard\n- Ctrl+F Opens the dashboard finder (searches elastic search)\n- Ctrl+H Hide/show row controls \n- Click and drag graph title to move panel (only works when row controls are enabled)\n\nIf you do not see a graph in the panel bellow the browser cannot access your graphite installation. Please make sure that the graphiteUrl property in config.js is correctly set and accessible.",
+          "content": "####Thank you for trying out PCP+Grafana! \n\nGeneral documentation is found in the readme and in the wiki section of the [Grafana Project on Github](https://github.com/torkelo/grafana).\n\nTips: \n\n- Ctrl+H Hide/show row controls \n\n- Click and drag graph title to move panel (only works when row controls are enabled).\n\n- Click on graph title, then click edit to enter metric selector/graph editor.  Click again on edit to exit editor.",
           "style": {},
-          "title": "Welcome to Grafana"
+          "title": "Welcome to PCP+Grafana"
         }
       ],
       "notice": false
@@ -60,7 +60,7 @@
           "stack": true,
           "spyable": true,
           "options": false,
-          "legend": true,
+          "legend": false,
           "interactive": true,
           "legend_counts": true,
           "timezone": "browser",
@@ -73,18 +73,12 @@
           },
           "targets": [
             {
-              "target": "randomWalk('random walk')"
-            },
-            {
-              "target": "randomWalk('random walk2')"
-            },
-            {
-              "target": "randomWalk('random walk3')"
+              "target": "*.kernel.all.nusers"
             }
           ],
           "aliasColors": {},
           "aliasYAxis": {},
-          "title": "Graphite test"
+          "title": "all archives kernel.all.load.1 minute"
         }
       ],
       "notice": false
@@ -137,17 +131,17 @@
   ],
   "loader": {
     "save_gist": false,
-    "save_elasticsearch": true,
+    "save_elasticsearch": false,
     "save_local": true,
     "save_default": true,
     "save_temp": true,
     "save_temp_ttl_enable": true,
     "save_temp_ttl": "30d",
     "load_gist": false,
-    "load_elasticsearch": true,
+    "load_elasticsearch": false,
     "load_elasticsearch_size": 20,
-    "load_local": false,
+    "load_local": true,
     "hide": false
   },
-  "refresh": false
+  "refresh": "5m"
 }
