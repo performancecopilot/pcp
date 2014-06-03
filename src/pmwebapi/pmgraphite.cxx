@@ -227,6 +227,9 @@ out:
         connstamp (clog, connection) << "enumerated " << output.size () << " metrics" << endl;
     }
 
+    // As a service to the user, alpha-sort the returned list of metrics.
+    sort (output.begin(), output.end());
+
     return output;
 }
 
@@ -262,10 +265,11 @@ pmgraphite_respond_metrics_find (struct MHD_Connection *connection,
 
     vector <string> metrics = pmgraphite_enumerate_metrics (connection, query);
 
-    // Classify the next piece of each metric name (at the [path_match] position)
-    // as leafs vs. non-leafs.  We do this by slicing the enumerated metrics at
-    // the [path_match]'th part and inserting the pieces into this here multiset.
-    multiset <string> subtrees;
+    // Classify the next piece of each metric name (at the
+    // [path_match] position) as leafs and/or non-leafs.
+    set <string> nodes;
+    set <string> subtrees;
+    set <string> leaves;
 
     // We still need the prior pieces though, for "id"="foo" purposes.
     string common_prefix;
@@ -274,42 +278,56 @@ pmgraphite_respond_metrics_find (struct MHD_Connection *connection,
         vector <string> pieces = split (metrics[i], '.');
 
         // XXX: check that metrics[i] is a proper subtree of query
-        // i.e., check pieces[0..path_match-1] == query_tok[0..path_match-1]
+        // i.e., check pieces[0..path_match-1] -fnmatches- query_tok[0..path_match-1]
         if (pieces.size () <= path_match) {
             continue;		// should not happen
         }
 
         if (path_match > 0 && common_prefix == "") {
             // not yet computed
+            // NB: an early piece can hypothetically include a wildcard; we can
+            // propagate that through to the common_prefix, as graphite does
             for (unsigned j = 0; j < path_match; j++) {
                 common_prefix += pieces[j] + ".";
             }
         }
 
         string piece = pieces[path_match];
-        subtrees.insert (piece);
+
+        // NB: the same piece can be hypothetically listed in both
+        // subtrees and leaves (e.g. "bar", if a pcp
+        // metric.foo.bar.baz as well metric.foo.bar were to exist).
+        if (pieces.size() > path_match+1)
+            subtrees.insert (piece);
+        if (pieces.size() == path_match+1)
+            leaves.insert (piece);
+
+        nodes.insert (piece);
     }
 
     // OK, time to generate some output.
 
     stringstream output;
-    unsigned num_subtrees = 0;
+    unsigned num_nodes = 0;
     output << "[";
-    for (multiset <string>::iterator it = subtrees.begin (); it != subtrees.end ();
-            it = subtrees.upper_bound (*it)) {
-        const string & subtree = *it;
-        unsigned count = subtrees.count (subtree);
+    for (set <string>::iterator it = nodes.begin (); it != nodes.end ();
+         it ++) {
+        const string & node = *it;
 
-        if (num_subtrees++ > 0) {
+        // NB: both of these could be true in principle
+        bool leaved_p = leaves.find(node) != leaves.end();
+        bool subtreed_p = subtrees.find(node) != subtrees.end();
+
+        if (num_nodes++ > 0) {
             output << ",";
         }
 
         output << "{";
-        json_key_value (output, "text", (string) subtree, ",");
-        json_key_value (output, "id", (string) (common_prefix + subtree), ",");
-        json_key_value (output, "leaf", (int) (count == 1), ",");
-        json_key_value (output, "expandable", (int) (count > 1), ",");
-        json_key_value (output, "allowChildren", (int) (count > 1));
+        json_key_value (output, "text", (string) node, ",");
+        json_key_value (output, "id", (string) (common_prefix + node), ",");
+        json_key_value (output, "leaf", leaved_p, ",");
+        json_key_value (output, "expandable", subtreed_p, ",");
+        json_key_value (output, "allowChildren", subtreed_p);
         output << "}";
     }
     output << "]";
@@ -579,17 +597,23 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
 
     // Rate conversion for COUNTER semantics values; perhaps should be a libpcp feature.
     // XXX: make this optional
-    // XXX: how to handle counter overflow?
     if (pmd.sem == PM_SEM_COUNTER && output.size() > 0) {
         // go backward, so we can do the calculation in one pass
         for (unsigned i = output.size () - 1; i > 0; i--) {
             float this_value = output[i].what;
             float last_value = output[i - 1].what;
+
+            if (this_value < last_value) { // suspected counter overflow
+                output[i].what = nanf ("");
+                continue;
+            }
+            
             // truncate time at seconds; we can't accurately subtract two large integers
             // when represented as floating point anyways
             time_t this_time = output[i].when.tv_sec;
             time_t last_time = output[i - 1].when.tv_sec;
             time_t delta = this_time - last_time;
+            if (delta == 0) delta = 1; // some token protection against div-by-zero
 
             if (isnan (last_value) || isnan (this_value))
                 output[i].what = nanf ("");
@@ -613,6 +637,7 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
 out:
     pmDestroyContext (pmc);
 out0:
+
     return output;
 }
 
@@ -695,106 +720,26 @@ pmgraphite_respond_render (struct MHD_Connection *connection, const http_params 
 
 /* ------------------------------------------------------------------------ */
 
-
-int
-pmgraphite_respond_rawdata (struct MHD_Connection *connection, const http_params & params,
-                            const vector <string> &url)
-{
-    int rc;
-    struct MHD_Response *resp;
-
-    // XXX: multiple &target=FOOBAR possible
-    string target = params["target"];
-    if (target == "") {
-        return mhd_notify_error (connection, -EINVAL);
-    }
-    // same defaults as python graphite/graphlot/views.py
-    string from = params["from"];
-    if (from == "") {
-        from = "-24hour";
-    }
-    string until = params["until"];
-    if (until == "") {
-        until = "-0hour";
-    }
-
-    time_t t_start = pmgraphite_parse_timespec (connection, from);
-    time_t t_end = pmgraphite_parse_timespec (connection, until);
-    time_t t_step = 60;		// XXX: hard-coded?
-    vector <timestamped_float> results = pmgraphite_fetch_series (connection, target, t_start,
-                                         t_end, t_step);
-
-    stringstream output;
-    output << "[";
-    output << "{";
-    json_key_value (output, "start", t_start, ",");
-    json_key_value (output, "step", t_step, ",");
-    json_key_value (output, "end", t_end, ",");
-    json_key_value (output, "name", string (target), ",");
-    output << " \"data\":[";
-    for (unsigned i = 0; i < results.size (); i++) {
-        if (i > 0) {
-            output << ",";
-        }
-        if (! isnormal (results[i].what)) {
-            output << "null";
-        } else {
-            output << results[i].what;
-        }
-    }
-    output << "]}]";
-
-    // wrap it up in mhd response ribbons
-    string s = output.str ();
-    resp = MHD_create_response_from_buffer (s.length (), (void *) s.c_str (),
-                                            MHD_RESPMEM_MUST_COPY);
-    if (resp == NULL) {
-        connstamp (cerr, connection) << "MHD_create_response_from_buffer failed" << endl;
-        rc = -ENOMEM;
-        goto out1;
-    }
-#if 0
-    /* https://developer.mozilla.org/en-US/docs/HTTP/Access_control_CORS */
-    rc = MHD_add_response_header (resp, "Access-Control-Allow-Origin", "*");
-    if (rc != MHD_YES) {
-        connstamp (cerr, connection) << "MHD_add_response_header ACAO failed" << endl;
-        rc = -ENOMEM;
-        goto out1;
-    }
-#endif
-    rc = MHD_add_response_header (resp, "Content-Type", "application/json");
-    if (rc != MHD_YES) {
-        connstamp (cerr, connection) << "MHD_add_response_header CT failed" << endl;
-        rc = -ENOMEM;
-        goto out1;
-    }
-    rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
-    if (rc != MHD_YES) {
-        connstamp (cerr, connection) << "MHD_queue_response failed" << endl;
-        rc = -ENOMEM;
-        goto out1;
-    }
-
-    MHD_destroy_response (resp);
-    return MHD_YES;
-
-out1:
-    return mhd_notify_error (connection, rc);
-}
-
-
-// A close relative to _rawdata, but unfortunately this one formats
-// the output rather differently.
+// Render raw archive data in JSON form.
 int
 pmgraphite_respond_render_json (struct MHD_Connection *connection,
-                                const http_params & params, const vector <string> &url)
+                                const http_params & params, const vector <string> &url,
+                                bool rawdata_flavour_p)
 {
     int rc;
     struct MHD_Response *resp;
 
-    vector <string> targets = params.find_all ("target");
-    if (targets.size () == 0) {
+    vector <string> target_patterns = params.find_all ("target");
+    if (target_patterns.size () == 0) {
         return mhd_notify_error (connection, -EINVAL);
+    }
+
+    // The patterns may have wildcards; expand the bad boys.
+    vector <string> targets;
+    for (unsigned i=0; i<target_patterns.size(); i++) {
+        vector <string> metrics = pmgraphite_enumerate_metrics (connection, target_patterns[i]);
+        targets.reserve (targets.size() + metrics.size());
+        targets.insert (targets.end(), metrics.begin(), metrics.end());
     }
 
     // same defaults as python graphite/graphlot/views.py
@@ -836,22 +781,43 @@ pmgraphite_respond_render_json (struct MHD_Connection *connection,
             output << ",";
         }
 
-        output << "{";
-        json_key_value (output, "target", string (target), ",");
-        output << " \"datapoints\":[";
-        for (unsigned i = 0; i < results.size (); i++) {
-            if (i > 0) {
-                output << ",";
+        if (rawdata_flavour_p) {
+            output << "{";
+            json_key_value (output, "start", t_start, ",");
+            json_key_value (output, "step", t_step, ",");
+            json_key_value (output, "end", t_end, ",");
+            json_key_value (output, "name", string (target), ",");
+            output << " \"data\":[";
+            for (unsigned i = 0; i < results.size (); i++) {
+                if (i > 0) {
+                    output << ",";
+                }
+                if (! isnormal (results[i].what)) {
+                    output << "null";
+                } else {
+                    output << results[i].what;
+                }
             }
-            output << "[";
-            if (isnan (results[i].what)) {
-                output << "null";
-            } else {
-                output << results[i].what;
+            output << "]}";
+
+        } else {
+            output << "{";
+            json_key_value (output, "target", string (target), ",");
+            output << " \"datapoints\":[";
+            for (unsigned i = 0; i < results.size (); i++) {
+                if (i > 0) {
+                    output << ",";
+                }
+                output << "[";
+                if (isnan (results[i].what)) {
+                    output << "null";
+                } else {
+                    output << results[i].what;
+                }
+                output << ", " << results[i].when.tv_sec << "]";
             }
-            output << ", " << results[i].when.tv_sec << "]";
+            output << "]}";
         }
-        output << "]}";
     }
     output << "]";
 
@@ -912,10 +878,11 @@ pmgraphite_respond (struct MHD_Connection *connection, const http_params & param
     string url3 = (url.size () >= 4) ? url[3] : "";
 
     if (url2 == "rawdata") {
-        return pmgraphite_respond_rawdata (connection, params, url);
+        // graphlot style
+        return pmgraphite_respond_render_json (connection, params, url, true);
     } else if (url2 == "render" && params["format"] == "json") {
         // grafana style
-        return pmgraphite_respond_render_json (connection, params, url);
+        return pmgraphite_respond_render_json (connection, params, url, false);
     } else if (url2 == "metrics" && url3 == "find") {
         // grafana, graphite tree & auto-completer
         return pmgraphite_respond_metrics_find (connection, params, url);
