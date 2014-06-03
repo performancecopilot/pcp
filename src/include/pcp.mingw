@@ -31,7 +31,7 @@ then
     fi
     export PCP_DIR=/c/MinGW/sys/1.0
     export PCP_CONF=$PCP_DIR/etc/pcp.conf
-    eval export `PATH=/lib:$PATH $PCP_DIR/bin/pmconfig.exe -s`
+    eval export `PATH=/lib:$PATH $PCP_DIR/libexec/pcp/bin/pmconfig.exe -s`
     export PATH="/sbin:/bin:/lib:/etc:${PCP_BIN_DIR}:${PCP_BINADM_DIR}:${PCP_SHARE_DIR}/bin:${PCP_SHARE_DIR}/lib:${PCP_PLATFORM_PATHS}"
     export PCP_ENV_DONE=y
 fi

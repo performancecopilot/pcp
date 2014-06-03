@@ -24,7 +24,7 @@ default:	$(CMDTARGET)
 include $(BUILDRULES)
 
 install:	$(CMDTARGET)
-	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
+	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
 
 default_pcp:	default
 
