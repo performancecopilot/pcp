@@ -7,6 +7,7 @@
     <script type="text/javascript" src="../content/js/jquery.flot.selection.js"></script>
     <script type="text/javascript" src="../content/js/jquery.flot.crosshair.js"></script>
     <script type="text/javascript" src="../content/js/jquery.graphite.js"></script>
+    <script type="text/javascript" src="../content/js/pcp.graphlot.js"></script>
 
     <link rel="stylesheet" type="text/css" href="../content/css/jquery.autocomplete.css" />
     <link rel="stylesheet" type="text/css" href="../content/css/table.css" />
@@ -16,6 +17,7 @@
     var SLASH='/';
 
     $(document).ready(function () {
+        $.graphlot_setup_from_parameters();
         $('#g_wrap').graphiteGraph();
     });
 

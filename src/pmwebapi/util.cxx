@@ -156,3 +156,23 @@ json_quote (ostream & o, const string & value)
     }
     o << '"';
 }
+
+
+
+std::string urlencode (const std::string &foo)
+{
+    stringstream output;
+    static const char hex[] = "0123456789ABCDEF";
+
+    for (unsigned i = 0; i < foo.size (); i++) {
+        char c = foo[i];
+        if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
+            output << c;
+        } else if (c == ' ') {
+            output << '+';
+        } else {
+            output << "%" << hex[ (c >> 4) & 15] << hex[ (c >> 0) & 15];
+        }
+    }
+    return output.str ();
+}

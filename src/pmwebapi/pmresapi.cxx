@@ -84,7 +84,7 @@ create_rfc822_date (time_t t)
    is a mini fileserver, just for small standalone installations of
    pmwebapi-based web front-ends. */
 int
-pmwebres_respond (struct MHD_Connection *connection, const string & url)
+pmwebres_respond (struct MHD_Connection *connection, const http_params& params, const string & url)
 {
     int fd = -1;
     int rc;
@@ -127,6 +127,24 @@ pmwebres_respond (struct MHD_Connection *connection, const string & url)
             new_file += '/';
         }
         new_file += "index.html";
+
+        // Propagate any incoming query-string parameters, since they might include
+        // data that page javascript will look for.
+        if (! params.empty()) {
+            for (http_params::const_iterator it = params.begin();
+                 it != params.end();
+                 it++) {
+                if (it == params.begin())
+                    new_file += "?";
+                else
+                    new_file += "&";
+
+                new_file += it->first;
+                new_file += "=";
+                if (it->second != "")
+                    new_file += urlencode (it->second);
+            }
+        }
 
         static char blank[] = "";
         resp = MHD_create_response_from_buffer (strlen (blank), blank, MHD_RESPMEM_PERSISTENT);
