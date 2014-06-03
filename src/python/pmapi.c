@@ -810,6 +810,15 @@ getOptionStart_usec(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+getOptionFinish_optarg(PyObject *self, PyObject *args)
+{
+    if (options.finish_optarg)
+	return Py_BuildValue("s", options.finish_optarg);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 getOptionFinish_sec(PyObject *self, PyObject *args)
 {
     if (options.finish.tv_sec || options.finish.tv_usec)
@@ -1014,6 +1023,9 @@ static PyMethodDef methods[] = {
         .ml_flags = METH_NOARGS },
     { .ml_name = "pmGetOptionStart_usec",
 	.ml_meth = (PyCFunction) getOptionStart_usec,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmGetOptionFinish_optarg",
+	.ml_meth = (PyCFunction) getOptionFinish_optarg,
         .ml_flags = METH_NOARGS },
     { .ml_name = "pmGetOptionFinish_sec",
 	.ml_meth = (PyCFunction) getOptionFinish_sec,

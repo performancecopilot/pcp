@@ -21,7 +21,7 @@
 
 import sys
 from ctypes import c_int, c_uint, c_char_p, cast, POINTER
-from pcp.pmapi import pmContext, pmErr, pmResult, pmValueSet, pmValue, pmDesc
+from pcp.pmapi import pmContext, pmErr, pmResult, pmValueSet, pmValue, pmDesc, pmOptions, timeval
 from cpmapi import PM_CONTEXT_HOST, PM_CONTEXT_ARCHIVE, PM_INDOM_NULL, PM_IN_NULL, PM_ID_NULL
 
 
@@ -90,7 +90,9 @@ class Metric(object):
         return self.get_vlist(vset, vset_idx, vlist_idx).inst
 
     def computeValues(self, inValues):
-        """  Extract the value for a singleton or list of instances as a triple (inst, name, val) """
+        """ Extract the value for a singleton or list of instances
+            as a triple (inst, name, val)
+        """
         vset = inValues
         ctx = self.ctx
         instD = ctx.mcGetInstD(self.desc.contents.indom)
@@ -187,7 +189,6 @@ class MetricCache(pmContext):
   
     def __init__(self, typed = PM_CONTEXT_HOST, target = "local:"):
         pmContext.__init__(self, typed, target)
-        self._typed = typed
         self._mcIndomD = {}
         self._mcByNameD = {}
         self._mcByPmidD = {}
@@ -206,7 +207,7 @@ class MetricCache(pmContext):
             if c_int(indom).value == c_int(PM_INDOM_NULL).value:
                 instmap = { PM_IN_NULL : "PM_IN_NULL" }
             else:
-                if self._typed == PM_CONTEXT_ARCHIVE:
+                if self._type == PM_CONTEXT_ARCHIVE:
                     instL, nameL = self.pmGetInDomArchive(core.desc)
                 else:
                     instL, nameL = self.pmGetInDom(core.desc)
@@ -324,12 +325,12 @@ class MetricGroup(dict):
     # overloads
 
     def __init__(self, contextCache, inL = []):
+        dict.__init__(self)
         self._ctx = contextCache
         self._pmidArray = None
         self._result = None
         self._prev = None
         self._altD = {}
-        dict.__init__(self)
         self.mgAdd(inL)
 
     ##
@@ -362,6 +363,17 @@ class MetricGroup(dict):
             print "pmFetch: ", error
 
 
+class MetricGroupPrinter(object):
+    """
+    Handles reporting of MetricGroups within a GroupManager.
+    This object is called upon at the end of each fetch when
+    new values are available.  It is also responsible for
+    producing any initial (or on-going) header information
+    that the tool may wish to report.
+    """
+    def report(self, manager):
+	pass
+
 class MetricGroupManager(dict, MetricCache):
     """
     Manages a dictionary of MetricGroups which can be pmFetch'ed
@@ -369,14 +381,137 @@ class MetricGroupManager(dict, MetricCache):
     """
 
     ##
+    # property access methods
+
+    def _R_options(self):	# command line option object
+        return self._options
+
+    def _W_options(self, options):
+        self._options = options
+
+    def _R_default_delta(self):	# default interval unless command line set
+        return self._default_delta
+    def _W_default_delta(self, delta):
+        self._default_delta = delta
+    def _R_default_pause(self):	# default reporting delay (archives only)
+        return self._default_pause
+    def _W_default_pause(self, pause):
+        self._default_pause = pause
+
+    def _W_printer(self, printer): 	# helper class for reporting
+        self._printer = printer
+    def _R_counter(self):	# fetch iteration count, useful for printer
+        return self._counter
+
+    ##
+    # property definitions
+
+    options = property(_R_options, _W_options, None, None)
+    default_delta = property(_R_default_delta, _W_default_delta, None, None)
+    default_pause = property(_R_default_pause, _W_default_pause, None, None)
+
+    printer = property(None, _W_printer, None, None)
+    counter = property(_R_counter, None, None, None)
+
+    ##
     # overloads
 
     def __init__(self, typed = PM_CONTEXT_HOST, target = "local:"):
-        MetricCache.__init__(self, typed, target)
         dict.__init__(self)
+        MetricCache.__init__(self, typed, target)
+        self._options = None
+        self._default_delta = None
+        self._default_pause = None
+        self._printer = None
+        self._counter = 0
 
     def __setitem__(self, attr, value = []):
         if self.has_key(attr):
             raise KeyError, "metric group with that key already exists"
         else:
             dict.__setitem__(self, attr, MetricGroup(self, inL = value))
+
+    @classmethod
+    def builder(build, options, argv):
+        """ Helper interface, simple PCP monitor argument parsing. """
+        manager = build.fromOptions(options, argv)
+        manager._default_delta = timeval(options.delta, 0)
+        manager._options = options
+        return manager
+
+    ##
+    # methods
+
+    def computeSamples(self):
+        """ Calculate the number of samples we are to take.
+            This is based on command line options --samples but also
+            must consider --start, --finish and --interval.  If none
+            of these were presented, a zero return means "infinite".
+        """
+        samples = self._options.pmGetOptionSamples()
+        if samples != None:
+            return samples
+        if self._options.pmGetOptionFinishOptarg() == None:
+            return 0	# loop until interrupted or PM_ERR_EOL
+        origin = self._options.pmGetOptionOrigin()
+        finish = self._options.pmGetOptionFinish()
+        delta = self._options.pmGetOptionInterval()
+        if delta == None:
+            delta = self._default_delta
+        period = (delta.tv_sec * 1.0e6 + delta.tv_usec) / 1e6
+        window = float(finish.tv_sec - origin.tv_sec)
+        window += float((finish.tv_usec - origin.tv_usec) / 1e6)
+        window /= period
+        return int(window + 0.5)    # roundup to positive number
+
+    def computePauseTime(self):
+        """ Figure out how long to sleep between samples.
+            This needs to take into account whether we were explicitly
+            asked for a delay (independent of context type, --pause),
+            whether this is an archive or live context, and the sampling
+            --interval (including the default value, if none requested).
+        """
+        if self._default_pause != None:
+	    return self._default_pause
+        if self.type == PM_CONTEXT_ARCHIVE:
+            self._default_pause = timeval(0, 0)
+        else:
+            pause = self._options.pmGetOptionInterval()
+            if pause != None:
+                self._default_pause = pause
+            else:
+                self._default_pause = self._default_delta
+	return self._default_pause
+
+    def fetch(self):
+        """ Perform fetch operation on all of the groups. """
+        for key in self.keys():
+            self[key].mgFetch()
+
+    def run(self):
+        """ Using options specification, loop fetching and reporting,
+            pausing for the requested time interval between updates.
+            Transparently handles archive/live mode differences.
+            Note that this can be different to the sampling interval
+            in archive mode, but is usually the same as the sampling
+            interval in live mode.
+        """
+        counter = 0
+        samples = self.computeSamples()
+        timer = self.computePauseTime()
+        try:
+            self.fetch()
+            while True:
+                counter += 1
+                if samples == 0 or counter <= samples:
+                    self._printer.report(self)
+                if counter == samples:
+                    break
+                timer.sleep()
+                self.fetch()
+
+        except pmErr, error:
+            print "%s: %s", error.progname(), error.message()
+        except KeyboardInterrupt:
+            pass
+
