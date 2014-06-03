@@ -797,8 +797,6 @@ pmgraphite_respond_render_json (struct MHD_Connection *connection,
         return mhd_notify_error (connection, -EINVAL);
     }
 
-    // XXX: maxDataPoints?
-
     // same defaults as python graphite/graphlot/views.py
     string from = params["from"];
     if (from == "") {
@@ -823,7 +821,7 @@ pmgraphite_respond_render_json (struct MHD_Connection *connection,
     time_t t_step = 60;		// a default, but ...
     if (((t_end - t_start) / t_step) > maxdatapt) {
         // make it larger if needed
-        t_step = (t_end - t_start) / maxdatapt;
+        t_step = ((t_end - t_start) / maxdatapt) + 1;
     }
     // NB: We can't make it too small.  libpcp interp.c goes crazy/slow if one
     // asks for tiny interpolation intervals.
