@@ -275,6 +275,7 @@ out:
 // This query traverses the metric tree one level at a time.  Incoming queries
 // look like "foo.*", and we're expected to return "foo.bar", "foo.baz", etc.,
 // differentiating leaf nodes from subtrees.
+// We also handle the "format=completer" option.
 
 int
 pmgraphite_respond_metrics_find (struct MHD_Connection *connection,
@@ -288,12 +289,8 @@ pmgraphite_respond_metrics_find (struct MHD_Connection *connection,
         return mhd_notify_error (connection, -EINVAL);
     }
 
-#if 0				// grafana doesn't bother send this
     string format = params["format"];
-    if (format != "treejson") {
-        return mhd_notify_error (connection, -EINVAL);
-    }
-#endif
+    if (format == "") format = "treejson"; // as per grafana
 
     vector <string> query_tok = split (query, '.');
     unsigned path_match = query_tok.size () - 1;
@@ -344,6 +341,11 @@ pmgraphite_respond_metrics_find (struct MHD_Connection *connection,
 
     stringstream output;
     unsigned num_nodes = 0;
+
+    if (format == "completer") {
+        output << "{ \"metrics\": ";
+    }
+
     output << "[";
     for (set <string>::iterator it = nodes.begin (); it != nodes.end ();
          it ++) {
@@ -357,15 +359,28 @@ pmgraphite_respond_metrics_find (struct MHD_Connection *connection,
             output << ",";
         }
 
-        output << "{";
-        json_key_value (output, "text", (string) node, ",");
-        json_key_value (output, "id", (string) (common_prefix + node), ",");
-        json_key_value (output, "leaf", leaved_p, ",");
-        json_key_value (output, "expandable", subtreed_p, ",");
-        json_key_value (output, "allowChildren", subtreed_p);
-        output << "}";
+        if (format == "completer") {
+            output << "{";
+            json_key_value (output, "name", (string) node, ",");
+            json_key_value (output, "path", (string) (common_prefix + node), ",");
+            json_key_value (output, "is_leaf", leaved_p);
+            output << "}";
+        } else {
+            output << "{";
+            json_key_value (output, "text", (string) node, ",");
+            json_key_value (output, "id", (string) (common_prefix + node), ",");
+            json_key_value (output, "leaf", leaved_p, ",");
+            json_key_value (output, "expandable", subtreed_p, ",");
+            json_key_value (output, "allowChildren", subtreed_p);
+            output << "}";
+        }
     }
     output << "]";
+
+    if (format == "completer") {
+        output << "}";
+    }
+
 
     // wrap it up in mhd response ribbons
     string s = output.str ();
