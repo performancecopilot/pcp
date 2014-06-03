@@ -580,18 +580,27 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
     // Rate conversion for COUNTER semantics values; perhaps should be a libpcp feature.
     // XXX: make this optional
     // XXX: how to handle counter overflow?
-    if (pmd.sem == PM_SEM_COUNTER)
+    if (pmd.sem == PM_SEM_COUNTER && output.size() > 0) {
         // go backward, so we can do the calculation in one pass
         for (unsigned i = output.size () - 1; i > 0; i--) {
             float this_value = output[i].what;
             float last_value = output[i - 1].what;
-            float this_time = (float) output[i].when.tv_sec + (output[i].when.tv_usec / 1000000.0);
-            float last_time = (float) output[i - 1].when.tv_sec + (output[i - 1].when.tv_usec /
-                              1000000.0);
+            // truncate time at seconds; we can't accurately subtract two large integers
+            // when represented as floating point anyways
+            time_t this_time = output[i].when.tv_sec;
+            time_t last_time = output[i - 1].when.tv_sec;
+            time_t delta = this_time - last_time;
 
-            output[i].what = (last_value - this_value) / (last_time - this_time);
-            // by sheer magic, this works even if the values are NaN
+            if (isnan (last_value) || isnan (this_value))
+                output[i].what = nanf ("");
+            else
+                // avoid loss of significance by dividing then subtracting
+                output[i].what = (this_value / delta) - (last_value / delta);
         }
+
+        // we have nothing to rate-convert the first value to, so we nuke it
+        output[0].what = nanf("");
+    }
 
     if (verbosity > 2) {
         connstamp (clog, connection) << "returned " << entries_good << "/" << entries <<
@@ -727,7 +736,7 @@ pmgraphite_respond_rawdata (struct MHD_Connection *connection, const http_params
         if (i > 0) {
             output << ",";
         }
-        if (isnan (results[i].what)) {
+        if (! isnormal (results[i].what)) {
             output << "null";
         } else {
             output << results[i].what;
