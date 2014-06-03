@@ -18,3 +18,7 @@
 - serialize-to-disk webapi connection state & profile data,
             for possible restoring if pmwebapi is killed/restarted
 
+- wildcardy metrics in grafana
+- figure out why nonoverlapping metric sequences from different sources don't show concurrently
+- instance-domainy metrics
+- png rendering
