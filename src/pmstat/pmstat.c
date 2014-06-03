@@ -512,7 +512,7 @@ main(int argc, char *argv[])
 	}
     }
 
-    for (iteration = 0; opts.samples ==0 || iteration < opts.samples; iteration++) {
+    for (iteration = 0; !opts.samples || iteration < opts.samples; iteration++) {
 	if ((iteration * ctxCount) % rows < ctxCount)
 	    header = 1;
 
