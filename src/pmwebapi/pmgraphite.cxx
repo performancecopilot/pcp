@@ -135,11 +135,46 @@ pmg_enumerate_pmns (const char *name, void *cls)
         }
     }
 
-    // XXX: metrics with indoms too
     string final_metric_name = c->archivepart + "." + metricpart;
-    c->output->push_back (final_metric_name);
-}
 
+    // look up the metric to make sure it exists; fan out to instance domains while at it
+    char *namelist[1];
+    pmID pmidlist[1];
+    namelist[0] = (char *) name;
+    int sts = pmLookupName (1, namelist, pmidlist);
+    if (sts != 1)
+        return;
+
+    pmID pmid = pmidlist[0];
+    pmDesc pmd;
+    sts = pmLookupDesc (pmid, &pmd);
+    if (sts != 0)
+        return; // should not happen
+
+    if (pmd.indom == PM_INDOM_NULL) // no more
+        c->output->push_back (final_metric_name);
+    else { // nesting
+        int *instlist;
+        char **namelist;
+        sts = pmGetInDomArchive (pmd.indom, &instlist, &namelist);
+        if (sts >= 1) {
+            for (unsigned i=0; i<sts; i++) {
+                string instance_part = pmgraphite_metric_encode (namelist[i]);
+                // must filter out mismatches here too!
+                if (c->patterns->size() > metric_parts.size()+1) {
+                    const string & pattern = (*c->patterns)[metric_parts.size()+1];
+                    if (fnmatch (pattern.c_str(), instance_part.c_str(), FNM_NOESCAPE) != 0)
+                        continue;
+                }
+                c->output->push_back (final_metric_name + "." + instance_part);
+            }
+            free (instlist);
+            free (namelist);
+        } else {
+            // should not happen
+        }
+    }
+}
 
 
 // Heavy lifter.  Enumerate all archives, all metrics, all instances.
