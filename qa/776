@@ -39,8 +39,6 @@ _success_filter()
 }
 
 # real QA test starts here
-# Make sure we can use pminfo
-which pminfo >/dev/null 2>&1 || _notrun "can't find pminfo"
 
 # Obtain the ipv6 address of an active network interface
 # We're extracting a metric of the form:

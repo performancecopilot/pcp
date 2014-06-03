@@ -206,6 +206,7 @@ getNewContext(int type, char * host, int quiet)
 	    }
 
 	    s->flip = 0;
+	    s->sname = NULL;
 	    s->res[0] = s->res[1] = NULL;
 	}
     }
@@ -216,14 +217,14 @@ getNewContext(int type, char * host, int quiet)
 static char *
 saveContextHostName(int ctx)
 {
-    const char	*tmp = pmGetContextHostName(ctx);
+    char	hostname[MAXHOSTNAMELEN];
+    char	*name = pmGetContextHostName_r(ctx, hostname, sizeof(hostname));
     size_t	length;
-    char	*name;
 
-    if ((length = strlen(tmp)) == 0)
+    if ((length = strlen(name)) == 0)
 	fprintf(stderr, "%s: Warning: pmGetContextHostName(%d) failed\n",
 		pmProgname, ctx);
-    if ((name = strdup(tmp)) == NULL)
+    if ((name = strdup(name)) == NULL)
 	__pmNoMem("context name", length + 1, PM_FATAL_ERR);
     return name;
 }
@@ -511,7 +512,7 @@ main(int argc, char *argv[])
 	}
     }
 
-    for (iteration = 0; opts.samples ==0 || iteration < opts.samples; iteration++) {
+    for (iteration = 0; !opts.samples || iteration < opts.samples; iteration++) {
 	if ((iteration * ctxCount) % rows < ctxCount)
 	    header = 1;
 
