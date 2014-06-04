@@ -471,7 +471,6 @@ typedef void (*SIG_PF) (int);
 /* thread support options */
 #undef HAVE_PTHREAD_MUTEX_T
 #undef HAVE_PTHREAD_BARRIER_T
-#undef HAVE_SEM_T
 #undef HAVE___THREAD
 
 #undef HAVE_FNDELAY
