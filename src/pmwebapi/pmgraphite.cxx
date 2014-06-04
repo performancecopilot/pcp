@@ -18,6 +18,8 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
+#define _XOPEN_SOURCE 600
+
 #include "pmwebapi.h"
 
 #include <algorithm>
@@ -158,7 +160,7 @@ pmg_enumerate_pmns (const char *name, void *cls)
         char **namelist;
         sts = pmGetInDomArchive (pmd.indom, &instlist, &namelist);
         if (sts >= 1) {
-            for (unsigned i=0; i<sts; i++) {
+            for (int i=0; i<sts; i++) {
                 string instance_part = pmgraphite_metric_encode (namelist[i]);
                 // must filter out mismatches here too!
                 if (c->patterns->size() > metric_parts.size()+1) {
@@ -665,7 +667,7 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
             time_t delta = this_time - last_time;
             if (delta == 0) delta = 1; // some token protection against div-by-zero
 
-            if (isnan (last_value) || isnan (this_value))
+            if (isnanf (last_value) || isnanf (this_value))
                 output[i].what = nanf ("");
             else
                 // avoid loss of significance by dividing then subtracting
@@ -859,7 +861,7 @@ pmgraphite_respond_render_json (struct MHD_Connection *connection,
                     output << ",";
                 }
                 output << "[";
-                if (isnan (results[i].what)) {
+                if (isnanf (results[i].what)) {
                     output << "null";
                 } else {
                     output << results[i].what;
