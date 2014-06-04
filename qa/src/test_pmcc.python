@@ -6,7 +6,7 @@
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -19,18 +19,26 @@ from pcp import pmcc, pmapi
 CPU_METRICS = [ "kernel.all.cpu.sys", "kernel.all.cpu.user",
                 "kernel.all.cpu.nice", "kernel.all.cpu.idle", ]
 MEM_METRICS = [ "mem.physmem", "mem.freemem", ]
-DISK_METRICS = [ "disk.all.read", "disk.all.write", "disk.dev.read", ]  
+DISK_METRICS = [ "disk.all.read", "disk.all.write", "disk.dev.read", ]
 
 class TestPrinter(pmcc.MetricGroupPrinter):
     """ Report latest values from group manager """
-   
+
+    def unavailable(self, metric):
+        """ Determine whether metric has values for rate conversion """
+        if metric.netValues == None or len(metric.netValues) == 0:
+            return 1
+        if metric.netPrevValues == None or len(metric.netPrevValues) == 0:
+            return 1
+        return 0
+
     def cpu_print(self, group):
         """ Report on processor metric group """
         ticks = {}
         total = 0.0
         for name in CPU_METRICS:
             metric = group[name]
-            if metric.netPrevValues == None:
+            if self.unavailable(metric):
                 ticks.update({ name : None })
                 continue
             # metric.value is the result from pmFetch
@@ -38,7 +46,7 @@ class TestPrinter(pmcc.MetricGroupPrinter):
             values = dict(map(lambda x: (x[1], x[2]), metric.netValues))
             prevs = dict(map(lambda x: (x[1], x[2]), metric.netPrevValues))
             inst_val = reduce(lambda x, y: x + y,
-                   map(lambda x: values[x] - prevs[x], values.keys()))
+                        map(lambda x: values[x] - prevs[x], values.keys()))
             ticks.update({ name : inst_val })
             total += inst_val
         for name in CPU_METRICS:
@@ -118,7 +126,7 @@ class TestConvenienceClasses(unittest.TestCase):
         manager["disk"] = DISK_METRICS
 
         # Real QA test starts here ;)
-        manager.run()
+        return manager.run()
 
 
 if __name__ == '__main__':

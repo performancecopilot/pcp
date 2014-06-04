@@ -22,7 +22,7 @@
 import sys
 from ctypes import c_int, c_uint, c_char_p, cast, POINTER
 from pcp.pmapi import pmContext, pmErr, pmResult, pmValueSet, pmValue, pmDesc, pmOptions, timeval
-from cpmapi import PM_CONTEXT_HOST, PM_CONTEXT_ARCHIVE, PM_INDOM_NULL, PM_IN_NULL, PM_ID_NULL
+from cpmapi import PM_CONTEXT_HOST, PM_CONTEXT_ARCHIVE, PM_INDOM_NULL, PM_IN_NULL, PM_ID_NULL, PM_ERR_EOL
 
 
 class MetricCore(object):
@@ -256,7 +256,9 @@ class MetricCache(pmContext):
         try:
             newcore.desc = self.pmLookupDesc(pmid)
         except pmErr, error:
-            print "pmLookupDesc: ", error
+            fail = "%s: pmLookupDesc: %s" % (error.progname(), error.message())
+            print >> sys.stderr, fail
+            raise SystemExit, 1
 
         # insert core into cache
         self._mcAdd(newcore)
@@ -271,9 +273,13 @@ class MetricCache(pmContext):
         try:
             pmidArray = self.pmLookupName(nameA)
             if len(pmidArray) < len(nameA):
-                print "lookup failed: got ", len(pmidArray), " of ", len(nameA)
+                missing = "%d of %d metric names" % (len(pmidArray), len(nameA))
+                print >> sys.stderr, "Cannot resolve", missing
+                raise SystemExit, 1
         except pmErr, error:
-            print "pmLookupName: ", error
+            fail = "%s: pmLookupName: %s" % (error.progname(), error.message())
+            print >> sys.stderr, fail
+            raise SystemExit, 1
 
         return zip(nameA, pmidArray), errL
 
@@ -360,7 +366,11 @@ class MetricGroup(dict):
                 self._altD[pmid]._prevvset = self._altD[pmid]._vset
                 self._altD[pmid]._vset = vset
         except pmErr, error:
-            print "pmFetch: ", error
+            if error.args[0] == PM_ERR_EOL:
+                raise SystemExit, 0
+            fail = "%s: pmFetch: %s" % (error.progname(), error.message())
+            print >> sys.stderr, fail
+            raise SystemExit, 1
 
 
 class MetricGroupPrinter(object):
@@ -372,7 +382,11 @@ class MetricGroupPrinter(object):
     that the tool may wish to report.
     """
     def report(self, manager):
-	pass
+        """ Base implementation, all tools should override """
+        for group in manager.keys():
+            for metric in group.keys():
+                group[metric].metricPrint()
+
 
 class MetricGroupManager(dict, MetricCache):
     """
@@ -442,7 +456,7 @@ class MetricGroupManager(dict, MetricCache):
     ##
     # methods
 
-    def computeSamples(self):
+    def _computeSamples(self):
         """ Calculate the number of samples we are to take.
             This is based on command line options --samples but also
             must consider --start, --finish and --interval.  If none
@@ -464,7 +478,7 @@ class MetricGroupManager(dict, MetricCache):
         window /= period
         return int(window + 0.5)    # roundup to positive number
 
-    def computePauseTime(self):
+    def _computePauseTime(self):
         """ Figure out how long to sleep between samples.
             This needs to take into account whether we were explicitly
             asked for a delay (independent of context type, --pause),
@@ -485,8 +499,8 @@ class MetricGroupManager(dict, MetricCache):
 
     def fetch(self):
         """ Perform fetch operation on all of the groups. """
-        for key in self.keys():
-            self[key].mgFetch()
+        for group in self.keys():
+            self[group].mgFetch()
 
     def run(self):
         """ Using options specification, loop fetching and reporting,
@@ -497,8 +511,8 @@ class MetricGroupManager(dict, MetricCache):
             interval in live mode.
         """
         counter = 0
-        samples = self.computeSamples()
-        timer = self.computePauseTime()
+        samples = self._computeSamples()
+        timer = self._computePauseTime()
         try:
             self.fetch()
             while True:
@@ -509,9 +523,8 @@ class MetricGroupManager(dict, MetricCache):
                     break
                 timer.sleep()
                 self.fetch()
-
-        except pmErr, error:
-            print "%s: %s", error.progname(), error.message()
+        except SystemExit, code:
+            return code
         except KeyboardInterrupt:
             pass
-
+        return 0
