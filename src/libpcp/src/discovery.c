@@ -17,8 +17,6 @@
 #include "avahi.h"
 #include "probe.h"
 
-#if defined(HAVE_SERVICE_DISCOVERY)
-
 /*
  * Advertise the given service using all available means. The implementation
  * must support adding and removing individual service specs on the fly.
@@ -144,30 +142,3 @@ __pmAddDiscoveredService(__pmServiceInfo *info, int numUrls, char ***urls)
     free(url);
     return numUrls;
 }
-
-#else /* !HAVE_SERVICE_DISCOVERY */
-
-__pmServerPresence *
-__pmServerAdvertisePresence(const char *serviceSpec, int port)
-{
-    (void)serviceSpec;
-    (void)port;
-    return NULL;
-}
-
-void
-__pmServerUnadvertisePresence(__pmServerPresence *s)
-{
-    (void)s;
-}
-
-int pmDiscoverServices(const char *service, const char *mechanism, char ***urls)
-{
-    /* No services to discover. */
-    (void)service;
-    (void)mechanism;
-    (void)urls;
-    return -EOPNOTSUPP;
-}
-
-#endif /* !HAVE_SERVICE_DISCOVERY */
