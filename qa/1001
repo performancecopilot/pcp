@@ -4,7 +4,7 @@
 #
 seq=`basename $0`
 echo "QA output created by $seq"
-. ./common.test
+. ./common.qt
 
 _check_display
 rm -rf \$tmp.*

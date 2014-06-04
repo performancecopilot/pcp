@@ -5,7 +5,7 @@
 #
 seq=`basename $0`
 echo "QA output created by $seq"
-. ./common.test
+. ./common.qt
 
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

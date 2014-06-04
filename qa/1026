@@ -4,20 +4,15 @@
 #
 seq=`basename $0`
 echo "QA output created by $seq"
-. ./common.test
+. ./common.qt
 
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-cd "$PCP_VAR_DIR/testsuite" || \
-	_notrun "Cannot find PCP QA testsuite directory"
-[ -x ./getpmcdhosts ] || \
-	_notrun "Cannot find getpmcdhosts script from PCP QA"
 multi=`./getpmcdhosts -p multi -n 1`
-[ $? -eq 0 ] || cd $here && _notrun "Cannot get remote multi-CPU machine"
+[ -z "$multi" ] && _notrun "Cannot get remote multi-CPU machine"
 single=`./getpmcdhosts -p single -n 1`
-[ $? -eq 0 ] || cd $here && _notrun "Cannot get remote single-CPU machine"
-cd $here
+[ -z "$single" ] && _notrun "Cannot get remote single-CPU machine"
 
 _filter()
 {
