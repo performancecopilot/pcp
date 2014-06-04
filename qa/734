@@ -13,8 +13,11 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+# prefer an old host without pmcd.hostname, however the test is still
+# useful even with more recent remotes (exercises different paths).
 oldhost=`./getpmcdhosts -L -n 1 -v 'pcp<3.8.4'`
-[ -z "$oldhost" ] && _notrun "No remote hosts without pmcd.hostname found"
+[ -z "$oldhost" ] && oldhost=`./getpmcdhosts -L -n 1`
+[ -z "$oldhost" ] && _notrun "No remote hosts available"
 short_oldhost=`echo $oldhost | sed -e 's/\..*//'`
 
 status=1	# failure is the default!
