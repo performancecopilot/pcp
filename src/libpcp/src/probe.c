@@ -23,14 +23,12 @@
 static __pmSockAddr    *netAddress;
 static int             maskBits;
 
-#if PM_MULTI_THREAD
 /*
  * Max number of threads to use. FD_SETSIZE is the most open fds that __pmFD*()
  * and __pmSelect() can deal with, so it's a decent default. The main thread
  * also participates, so subtract 1.
  */
 static unsigned	maxThreads = FD_SETSIZE - 1;
-#endif
 
 /* Context for each thread. */
 typedef struct connectionContext {
@@ -47,6 +45,14 @@ typedef struct connectionContext {
     __pmMutex		urlLock;	/* lock for the above results */
 #endif
 } connectionContext;
+
+#if ! PM_MULTI_THREAD
+/* Make these disappear. */
+#undef PM_LOCK
+#undef PM_UNLOCK
+#define PM_LOCK(lock) do { } while (0)
+#define PM_UNLOCK(lock) do { } while (0)
+#endif
 
 /*
  * Attempt connection based on the given context until there are no more
@@ -198,8 +204,8 @@ probeForServices(
     int			nports;
     int			prevNumUrls = numUrls;
     connectionContext	context;
-    int			sts;
 #if PM_MULTI_THREAD
+    int			sts;
     pthread_t		*threads = NULL;
     unsigned		threadIx;
     unsigned		nThreads;

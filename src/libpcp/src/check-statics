@@ -312,9 +312,9 @@ p_pmns.o
 p_profile.o
 p_result.o
 probe.o
-    netAddress			# main thread only
-    maskBits			# main thread only
-    ?maxThreads			# main thread only
+    netAddress			# altered in main thread only
+    maskBits			# altered in main thread only
+    maxThreads			# altered in main thread only
 profile.o
 p_text.o
 rtime.o
