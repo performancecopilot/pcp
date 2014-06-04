@@ -1,10 +1,10 @@
 {
-  "title": "Welcome to Grafana!",
+  "title": "Welcome to PCP+Grafana!",
   "services": {
     "filter": {
       "list": [],
       "time": {
-        "from": "now-6h",
+        "from": "now-7d",
         "to": "now"
       }
     }
@@ -24,7 +24,7 @@
           "type": "text",
           "loadingEditor": false,
           "mode": "markdown",
-          "content": "####Thank you for trying out PCP+Grafana! \n\nGeneral documentation is found in the readme and in the wiki section of the [Grafana Project on Github](https://github.com/torkelo/grafana).\n\nTips: \n\n- Ctrl+H Hide/show row controls \n\n- Click and drag graph title to move panel (only works when row controls are enabled).\n\n- Click on graph title, then click edit to enter metric selector/graph editor.  Click again on edit to exit editor.",
+          "content": "####Thank you for trying out PCP+Grafana! \n\nGeneral documentation is found in the readme and in the wiki section of the [Grafana Project on Github](https://github.com/torkelo/grafana).\n\nTips: \n\n- All times are in UTC\n\n- Ctrl+H Hide/show row controls \n\n- Click and drag graph title to move panel (only works when row controls are enabled).\n\n- Click on graph title, then click edit to enter metric selector/graph editor.  Click again on edit to exit editor.",
           "style": {},
           "title": "Welcome to PCP+Grafana"
         }
@@ -33,7 +33,7 @@
     },
     {
       "title": "demo",
-      "height": "450px",
+      "height": "250px",
       "editable": true,
       "collapse": false,
       "collapsable": true,
@@ -57,7 +57,7 @@
           "points": false,
           "pointradius": 5,
           "bars": false,
-          "stack": true,
+          "stack": false,
           "spyable": true,
           "options": false,
           "legend": false,
@@ -73,12 +73,64 @@
           },
           "targets": [
             {
-              "target": "*.kernel.all.nusers"
+              "target": "*.kernel.all.load.1 minute"
             }
           ],
           "aliasColors": {},
           "aliasYAxis": {},
           "title": "all archives kernel.all.load.1 minute"
+        }
+      ],
+      "notice": false
+    },
+    {
+      "title": "demo2",
+      "height": "250px",
+      "editable": true,
+      "collapse": false,
+      "collapsable": true,
+      "panels": [
+        {
+          "span": 12,
+          "editable": true,
+          "type": "graphite",
+          "x-axis": true,
+          "y-axis": true,
+          "scale": 1,
+          "y_formats": ["short", "short"],
+          "grid": {
+            "max": null,
+            "min": null
+          },
+          "resolution": 100,
+          "lines": true,
+          "fill": 1,
+          "linewidth": 2,
+          "points": false,
+          "pointradius": 5,
+          "bars": false,
+          "stack": false,
+          "spyable": true,
+          "options": false,
+          "legend": false,
+          "interactive": true,
+          "legend_counts": true,
+          "timezone": "browser",
+          "percentage": false,
+          "zerofill": true,
+          "nullPointMode": "connected",
+          "steppedLine": false,
+          "tooltip": {
+            "value_type": "cumulative"
+          },
+          "targets": [
+            {
+              "target": "*.network.interface.*.bytes"
+            }
+          ],
+          "aliasColors": {},
+          "aliasYAxis": {},
+          "title": "all archives network.interface.*.bytes"
         }
       ],
       "notice": false
