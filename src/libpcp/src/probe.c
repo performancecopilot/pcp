@@ -16,116 +16,105 @@
 #include "internal.h"
 #include "probe.h"
 
-#define IS_MULTI_THREAD (PM_MULTI_THREAD && HAVE_SEM_T)
-
 /*
  * Service discovery by active probing. The given subnet is probed for the
  * requested service(s).
  */
-static __pmSockAddr	*addressesProcessed;
-static __pmSockAddr	*netAddress;
-static int		maskBits;
+static __pmSockAddr    *netAddress;
+static int             maskBits;
 
-#if IS_MULTI_THREAD
+#if PM_MULTI_THREAD
 /*
- * Multi thread support. We need to protect the updating of the url list and the
- * unfinished thread counter.
+ * Max number of threads to use. FD_SETSIZE is the most open fds that __pmFD*()
+ * and __pmSelect() can deal with, so it's a decent default. The main thread
+ * also participates, so subtract 1.
  */
-#include <semaphore.h>
-static __pmMutex lock;
-static pthread_attr_t attr;
-static sem_t threadsAvailable;
-static sem_t threadsComplete;
-static unsigned	maxThreads = SEM_VALUE_MAX; /* No fixed limit by default */
-#define LOCK_INIT(lock) pthread_mutex_init(lock, NULL)
-#define LOCK_LOCK(lock) PM_LOCK(*(lock))
-#define LOCK_UNLOCK(lock) PM_UNLOCK((*lock))
-#define LOCK_TERM(lock) pthread_mutex_destroy(lock)
-#define SEM_INIT(sem, value) sem_init(sem, 0, value)
-#define SEM_WAIT(sem) sem_wait(sem)
-#define SEM_POST(sem) sem_post(sem)
-#define SEM_TERM(sem) sem_destroy(sem)
-#define ATTR_INIT(attr) pthread_attr_init(attr)
-#define ATTR_SET_STACKSIZE(attr) pthread_attr_setstacksize(attr, PTHREAD_STACK_MIN)
-#define ATTR_TERM(attr) pthread_attr_destroy(attr)
-#define THREAD_START(thread, attr, func, arg) pthread_create(thread, attr, func, arg)
-#define THREAD_DETACH() pthread_detach(pthread_self())
-#else
-/* No multi thread support. */
-#define LOCK_INIT(lock) /* do nothing */
-#define LOCK_LOCK(lock) /* do nothing */
-#define LOCK_UNLOCK(lock) /* do nothing */
-#define LOCK_TERM(lock) /* do nothing */
-#define SEM_INIT(sem, value) /* do nothing */
-#define SEM_WAIT(sem) /* do nothing */
-#define SEM_POST(sem) /* do nothing */
-#define SEM_TERM(sem) /* do nothing */
-#define ATTR_INIT(attr) /* do nothing */
-#define ATTR_SET_STACKSIZE(attr) /* do nothing */
-#define ATTR_TERM(attr) /* do nothing */
-#define THREAD_START(thread, attr, func, arg) (func(arg), 0)
-#define THREAD_DETACH() /* do nothing */
+static unsigned	maxThreads = FD_SETSIZE - 1;
 #endif
 
-/* The number of connection attempts remaining. */
+/* Context for each thread. */
 typedef struct connectionContext {
-    const char		*service;
-    __pmSockAddr	*address;
-    int			nports;
-    const int		*ports;
-    int			*numUrls;
-    char		***urls;
+    const char		*service;	/* Service spec */
+    __pmSockAddr	*nextAddress;	/* Next available address */
+    int			maskBits;	/* Mask bits for the network address */
+    int			nports;		/* Number of ports per address */
+    int			portIx;		/* Index of next available port */
+    const int		*ports;		/* The actual ports */
+    int			*numUrls;	/* Size of the results */
+    char		***urls;	/* The results */
+#if PM_MULTI_THREAD
+    __pmMutex		addrLock;	/* lock for the above address/port */
+    __pmMutex		urlLock;	/* lock for the above results */
+#endif
 } connectionContext;
 
-static void
-attemptComplete(void)
-{
-    int	isFinalThread;
-    /*
-     * Indicate that this attempt is complete.
-     * Post the threadsComplete semaphore, if this was the final thread.
-     *
-     * CAUTION: Posting the semaphore will release the main thread which
-     * destroys the lock. Therefore make sure we're done with the lock before
-     * posting the semaphore.
-     */
-    LOCK_LOCK(&lock);
-    addressesProcessed = __pmSockAddrNextSubnetAddr(addressesProcessed, maskBits);
-    isFinalThread = (addressesProcessed == NULL);
-    LOCK_UNLOCK(&lock);
-    if (isFinalThread)
-	SEM_POST(&threadsComplete);
-}
-
 /*
- * Attempt a connection on the given address and port. Return 0, if successful.
+ * Attempt connection based on the given context until there are no more
+ * addresses+ports to try.
  */
 static void *
-attemptConnection(void *arg)
+attemptConnections(void *arg)
 {
     int			s;
     int			flags;
     int			sts;
     __pmFdSet		wfds;
     __pmServiceInfo	serviceInfo;
-    int			p;
+    __pmSockAddr*	addr;
+    int			port;
     int			attempt;
     struct timeval	canwait = {0, 100000 * 1000}; /* 0.1 seconds */
     connectionContext	*context = arg;
-	
-    /* If we are on our own thread, then run detached. */
-    THREAD_DETACH();
 
-    /* Attempt a connection on each of the given ports. */
-    for (p = 0; p < context->nports; ++p) {
-	__pmSockAddrSetPort(context->address, context->ports[p]);
+    /*
+     * Keep trying to secure an address+port until there are no more.
+     * NOTE: Eventually we will add a timeout and/or interrupt check here.
+     */
+    for (;;) {
+	/* Obtain the address lock while securing the next address, if any. */
+	PM_LOCK(context->addrLock);
+	if (context->nextAddress == NULL) {
+	    /* No more addresses. */
+	    PM_UNLOCK(context->addrLock);
+	    break;
+	}
+
 	/*
-	 * Create a socket. There may be a limit on open fds. If we get EAGAIN,
+	 * There is an address+port remaining. Secure them. If we cannot
+	 * obtain our own copy of the address, then give up the lock and
+	 * try again. Another thread will try this address+port.
+	 */
+	addr = __pmSockAddrDup(context->nextAddress);
+	if (addr == NULL) {
+	    PM_UNLOCK(context->addrLock);
+	    continue;
+	}
+	port = context->ports[context->portIx];
+	__pmSockAddrSetPort(addr, port);
+
+	/*
+	 * Advance the port index for the next thread. If we took the
+	 * final port, then advance the address and reset the port index.
+	 * The address may become NULL which is the signal for all
+	 * threads to exit.
+	 */
+	++context->portIx;
+	if (context->portIx == context->nports) {
+	    context->portIx = 0;
+	    context->nextAddress =
+		__pmSockAddrNextSubnetAddr(context->nextAddress,
+					   context->maskBits);
+	}
+	PM_UNLOCK(context->addrLock);
+
+	/*
+	 * Create a socket. There is a limit on open fds, not just from
+	 * the OS, but also in the IPC table. If we get EAGAIN,
 	 * then wait 0.1 seconds and try again.  We must have a limit in case
 	 * something goes wrong. Make it 5 seconds (50 * 100,000 usecs).
 	 */
 	for (attempt = 0; attempt < 50; ++attempt) {
-	    if (__pmSockAddrIsInet(context->address))
+	    if (__pmSockAddrIsInet(addr))
 		s = __pmCreateSocket();
 	    else /* address family already checked */
 		s = __pmCreateIPv6Socket();
@@ -140,14 +129,14 @@ attemptConnection(void *arg)
 			      attempt);
 	    }
 	}
-
 	if (s < 0) {
-	    char *addrString = __pmSockAddrToString(context->address);
+	    char *addrString = __pmSockAddrToString(addr);
 	    __pmNotifyErr(LOG_WARNING,
 			  "__pmProbeDiscoverServices: Unable to create socket for address %s",
 			  addrString);
 	    free(addrString);
-	    goto done;
+	    __pmSockAddrFree(addr);
+	    continue;
 	}
 
 	/*
@@ -155,7 +144,7 @@ attemptConnection(void *arg)
 	 * socket has already been closed by __pmConnectTo().
 	 */
 	sts = -1;
-	flags = __pmConnectTo(s, context->address, context->ports[p]);
+	flags = __pmConnectTo(s, addr, port);
 	if (flags >= 0) {
 	    /* FNDELAY and we're in progress - wait on select */
 	    __pmFD_ZERO(&wfds);
@@ -175,7 +164,7 @@ attemptConnection(void *arg)
 	/* If connection was successful, add this service to the list.  */
 	if (sts == 0) {
 	    serviceInfo.spec = context->service;
-	    serviceInfo.address = context->address;
+	    serviceInfo.address = addr;
 	    if (strcmp(context->service, PM_SERVER_SERVICE_SPEC) == 0)
 		serviceInfo.protocol = SERVER_PROTOCOL;
 	    else if (strcmp(context->service, PM_SERVER_PROXY_SPEC) == 0)
@@ -183,106 +172,17 @@ attemptConnection(void *arg)
 	    else if (strcmp(context->service, PM_SERVER_WEBD_SPEC) == 0)
 		serviceInfo.protocol = PMWEBD_PROTOCOL;
 
-	    LOCK_LOCK(&lock);
+	    PM_LOCK(context->urlLock);
 	    *context->numUrls =
 		__pmAddDiscoveredService(&serviceInfo, *context->numUrls,
 					 context->urls);
-	    LOCK_UNLOCK(&lock);
+	    PM_UNLOCK(context->urlLock);
 	}
-    }
 
- done:
-    /*
-     * The context and its address were allocated by the thread dispatcher.
-     * Free them now.
-     */
-    __pmSockAddrFree(context->address);
-    free(context);
-    attemptComplete ();
-
-    /* Always post this semaphore, which enforces the max number of active threads. */
-    SEM_POST(&threadsAvailable);
+	__pmSockAddrFree(addr);
+    } /* Loop over connection attempts. */
 
     return NULL;
-}
-
-/* Dispatch a connection attempt, on its own thread, if supported. */
-static void
-dispatchConnection(
-    const char		*service,
-    const __pmSockAddr	*address,
-    int			nports,
-    const int		*ports,
-    int			*numUrls,
-    char		***urls
-)
-{
-#if IS_MULTI_THREAD
-    pthread_t thread;
-#endif
-    struct timeval	canwait = {0, 100000 * 1000}; /* 0.1 seconds */
-    connectionContext	*context;
-    int			sts;
-    int			attempt;
-
-    /* We need a separate connection context for each potential thread. */
-    context = malloc(sizeof(*context));
-    if (context == NULL) {
-	__pmNoMem("__pmProbeDiscoverServices: unable to allocate connection context",
-		  sizeof(*context), PM_FATAL_ERR);
-    }
-    context->service = service;
-    context->ports = ports;
-    context->nports = nports;
-    context->numUrls = numUrls;
-    context->urls = urls;
-    context->address = __pmSockAddrDup(address);
-    if (context->address == NULL) {
-	char *addrString = __pmSockAddrToString(address);
-	__pmNotifyErr(LOG_ERR,
-		      "__pmProbeDiscoverServices: unable to copy socket address %s",
-		      addrString);
-	free(addrString);
-	attemptComplete();
-	return;
-    }
-
-    /*
-     * Attempt the connection. Since we're not passing in attributes for the
-     * (possible) new thread, the only error that can occur is EAGAIN. Sleep
-     * for 0.1 seconds before trying again. We must have a limit in case
-     * something goes wrong. Make it 5 seconds (50 * 100,000 usecs).
-     *
-     * Respect the requested maximum number of threads.
-     */
-    SEM_WAIT(&threadsAvailable);
-    for (attempt = 0; attempt < 50; ++attempt) {
-	/* Attempt the connection on a new thread. */
-        sts = THREAD_START(&thread, &attr, attemptConnection, context);
-	if (sts != EAGAIN)
-	    break;
-
-	/* Wait before trying again. */
-	__pmtimevalSleep(canwait);
-    }
-
-    /* Check to see that the thread started. */
-    if (sts != 0) {
-	char *addrString = __pmSockAddrToString(address);
-	__pmNotifyErr(LOG_ERR,
-		      "__pmProbeDiscoverServices: unable to start a thread to probe address %s",
-		      addrString);
-	free(addrString);
-	attemptComplete();
-	SEM_POST(&threadsAvailable);
-    }
-    else if (pmDebug & DBG_TRACE_DISCOVERY) {
-	if (attempt > 0) {
-	    __pmNotifyErr(LOG_INFO,
-			  "Waited for %d attempts to create a thread\n",
-			  attempt);
-	}
-    }
 }
 
 static int
@@ -294,12 +194,19 @@ probeForServices(
     char ***urls
 )
 {
-    int			*ports;
+    int			*ports = NULL;
     int			nports;
-    __pmSockAddr	*address;
-    int			prevNumUrls;
+    int			prevNumUrls = numUrls;
+    connectionContext	context;
+    int			sts;
+#if PM_MULTI_THREAD
+    pthread_t		*threads = NULL;
+    unsigned		threadIx;
+    unsigned		nThreads;
+    pthread_attr_t	threadAttr;
+#endif
 
-    /* Determine the port number for this service. */
+    /* Determine the port numbers for this service. */
     ports = NULL;
     nports = 0;
     nports = __pmServiceAddPorts(service, &ports, nports);
@@ -311,52 +218,104 @@ probeForServices(
     }
 
     /*
-     * We have a network address, a subnet mask size and a port. Iterate over
-     * the addresses in the subnet, trying to connect.
-     * Each connection attempt could be on its own thread, so use synchronization
-     * controls.
+     * Initialize the shared probing context. This will be shared among all of
+     * the worked threads.
      */
-    LOCK_INIT(&lock);
-    SEM_INIT(&threadsAvailable, maxThreads);
-    SEM_INIT(&threadsComplete, 0);
-
-    /* We don't need much stack for our worker threads. */
-    ATTR_INIT(&attr);
-    ATTR_SET_STACKSIZE(&attr);
+    context.service = service;
+    context.ports = ports;
+    context.nports = nports;
+    context.numUrls = &numUrls;
+    context.urls = urls;
+    context.portIx = 0;
+    context.maskBits = maskBits;
 
     /*
-     * Since the connection attempts may be on separate threads,
-     * we need a counter to be incremented by each thread as they end so that
-     * we know when all of the threads have ended.
-     * IPv6 has 128 bits, so it is possible that the number of addresses could
-     * exceed the range of the native integer types or of a semaphore. However,
-     * a __pmSockAddr can be used for this purpose, since it can represent all
-     * of the addresses to be probed. Use the subnet iteration API to initialize
-     * and increment this counter. When the last thread has been processed, this
-     * pointer will be freed by the API and become NULL.
-     *
-     * Note that this is separate from the iteration over addresses which is done
-     * in the loop below for the purpose of launching connection attempts.
+     * Initialize the first address of the subnet. This pointer will become
+     * NULL and the mempry freed by __pmSockAddrNextSubnetAddr() when the
+     * final address+port has been probed.
      */
-    addressesProcessed = __pmSockAddrFirstSubnetAddr(netAddress, maskBits);
-
-    /* Dispatch the connection attempts. */
-    prevNumUrls = numUrls;
-    for (address = __pmSockAddrFirstSubnetAddr(netAddress, maskBits);
-	 address != NULL;
-	 address = __pmSockAddrNextSubnetAddr(address, maskBits)) {
-	dispatchConnection(service, address, nports, ports, &numUrls, urls);
+    context.nextAddress = __pmSockAddrFirstSubnetAddr(netAddress, maskBits);
+    if (context.nextAddress == NULL) {
+	char *addrString = __pmSockAddrToString(netAddress);
+	__pmNotifyErr(LOG_ERR,
+		      "__pmProbeDiscoverServices: unable to determine the first address of the subnet: %s/%d",
+		      addrString, maskBits);
+	free(addrString);
+	goto done;
     }
 
+#if PM_MULTI_THREAD
+    /*
+     * Set up the concurrrency controls. These locks will be tested
+     * even if we fail to allocate/use the thread table below.
+     */
+    pthread_mutex_init(&context.addrLock, NULL);
+    pthread_mutex_init(&context.urlLock, NULL);
+
+    /*
+     * Allocate the thread table. We have a maximum for the number of threads,
+     * so that will be the size.
+     */
+    threads = malloc(maxThreads * sizeof(*threads));
+    if (threads == NULL) {
+	/*
+	 * Unable to allocate the thread table, however, We can still do the
+	 * probing on the main thread.
+	 */
+	__pmNotifyErr(LOG_ERR,
+		      "__pmProbeDiscoverServices: unable to allocate %u threads",
+		      maxThreads);
+	nThreads = 0;
+    }
+    else {
+	/*
+	 * We want our worker threads to be joinable and they don't need much
+	 * stack.
+	 */
+	pthread_attr_init(&threadAttr);
+	pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_JOINABLE);
+	pthread_attr_setstacksize(&threadAttr, PTHREAD_STACK_MIN);
+
+	/* Dispatch the threads. */
+	for (nThreads = 0; nThreads < maxThreads; ++nThreads) {
+	    sts = pthread_create(&threads[nThreads], &threadAttr,
+				 attemptConnections, &context);
+	    /*
+	     * If we failed to create a thread, then we've reached the OS limit.
+	     */
+	    if (sts != 0)
+		break;
+	}
+
+	/* We no longer need this. */
+	pthread_attr_destroy(&threadAttr);
+    }
+#endif
+
+    /*
+     * In addition to any threads we've dispatched, this thread can also
+     * participate in the probing.
+     */
+    attemptConnections(&context);
+
+#if PM_MULTI_THREAD
     /* Wait for all the connection attempts to finish. */
-    SEM_WAIT(&threadsComplete);
+    for (threadIx = 0; threadIx < nThreads; ++threadIx)
+	pthread_join(threads[threadIx], NULL);
 
     /* These must not be destroyed until all of the threads have finished. */
+    pthread_mutex_destroy(&context.addrLock);
+    pthread_mutex_destroy(&context.urlLock);
+#endif
+
+ done:
     free(ports);
-    ATTR_TERM(&attr);
-    SEM_TERM(&threadsAvailable);
-    SEM_TERM(&threadsComplete);
-    LOCK_TERM(&lock);
+    if (context.nextAddress)
+	__pmSockAddrFree(context.nextAddress);
+#if PM_MULTI_THREAD
+    if (threads)
+	free(threads);
+#endif
 
     /* Return the number of new urls. */
     return numUrls - prevNumUrls;
@@ -384,7 +343,8 @@ parseOptions(const char *mechanism)
     int			family;
     int			sts;
     long		longVal;
-    long		maxThreads;
+    unsigned		subnetBits;
+    unsigned		subnetSize;
 
     /* Nothing to probe? */
     if (mechanism == NULL)
@@ -458,12 +418,8 @@ parseOptions(const char *mechanism)
     }
 
     /* Parse any remaining options. */
-    option = end;
-    if (*option == '\0')
-	return 0; /* no options */
-
     sts = 0;
-    do {
+    for (option = end; *option != '\0'; /**/) {
 	/*
 	 * All additional options begin with a separating comma.
 	 * Make sure something has been specified.
@@ -473,7 +429,7 @@ parseOptions(const char *mechanism)
 	    __pmNotifyErr(LOG_ERR,
 			  "__pmProbeDiscoverServices: Missing option after ','");
 	    return -1;
-	}
+	    }
 	
 	/* Examine the option. */
 	if (strncmp(option, "maxThreads=", 11) == 0) {
@@ -488,16 +444,13 @@ parseOptions(const char *mechanism)
 	    else {
 		option = end;
 		/*
-		 * Make sure the value is positive. We will set
-		 * a hard limit of FD_SETSIZE, since that's the maximum number
-		 * of open fds that __pmFD_*() can cope with.
+		 * Make sure the value is positive. Make sure that the given
+		 * value does not exceed the existing value which is also the
+		 * hard limit.
 		 */
-		maxThreads = SEM_VALUE_MAX;
-		if (maxThreads > FD_SETSIZE)
-		    maxThreads = FD_SETSIZE;
 		if (longVal > maxThreads) {
 		    __pmNotifyErr(LOG_ERR,
-				  "__pmProbeDiscoverServices: maxThreads value %ld must not exceed %ld",
+				  "__pmProbeDiscoverServices: maxThreads value %ld must not exceed %u",
 				  longVal, maxThreads);
 		    sts = -1;
 		}
@@ -508,7 +461,7 @@ parseOptions(const char *mechanism)
 		    sts = -1;
 		}
 		else {
-#if IS_MULTI_THREAD
+#if PM_MULTI_THREAD
 		    maxThreads = longVal;
 #else
 		    __pmNotifyErr(LOG_WARNING,
@@ -527,7 +480,29 @@ parseOptions(const char *mechanism)
 	    for (++option; *option != '\0' && *option != ','; ++option)
 		;
 	}
-    } while (*option != '\0');
+    } /* Parse additional options */
+
+    /*
+     * We now have a maximum for the number of threads
+     * but there's no point in creating more threads than the number of
+     * addresses in the subnet (less 1 for the main thread).
+     *
+     * We already know that the address is inet or ipv6 and that the
+     * number of mask bits is appropriate.
+     *
+     * Beware of overflow!!! If the calculation would have overflowed,
+     * then it means that the subnet is extremely large and therefore
+     * much larger than maxThreads anyway.
+     */
+    if (__pmSockAddrIsInet(netAddress))
+	subnetBits = 32 - maskBits;
+    else
+	subnetBits = 128 - maskBits;
+    if (subnetBits < sizeof(subnetSize) * 8) {
+	subnetSize = 1 << subnetBits;
+	if (subnetSize - 1 < maxThreads)
+	    maxThreads = subnetSize - 1;
+    }
 
     return sts;
 }
