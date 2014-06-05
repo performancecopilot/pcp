@@ -124,6 +124,8 @@ pmg_enumerate_pmns (const char *name, void *cls)
     pmg_enum_context *c = (pmg_enum_context *) cls;
     string metricpart = name;
 
+    if (exit_p) return;
+
     // Filter out mismatches of the metric name components
     vector <string> metric_parts = split (metricpart, '.');
     for (unsigned i = 0; i < metric_parts.size (); i++) {
@@ -210,6 +212,8 @@ vector <string> pmgraphite_enumerate_metrics (struct MHD_Connection * connection
         goto out;
     }
     for (FTSENT * ent = fts_read (f); ent != NULL; ent = fts_read (f)) {
+        if (exit_p) goto out;
+
         if (ent->fts_info == FTS_SL) {
             // follow symlinks (unlikely)
             (void) fts_set (f, ent, FTS_FOLLOW);
@@ -298,6 +302,7 @@ pmgraphite_respond_metrics_find (struct MHD_Connection *connection,
     unsigned path_match = query_tok.size () - 1;
 
     vector <string> metrics = pmgraphite_enumerate_metrics (connection, query);
+    if (exit_p) return MHD_NO;
 
     // Classify the next piece of each metric name (at the
     // [path_match] position) as leafs and/or non-leafs.
@@ -309,6 +314,8 @@ pmgraphite_respond_metrics_find (struct MHD_Connection *connection,
     string common_prefix;
 
     for (unsigned i = 0; i < metrics.size (); i++) {
+        if (exit_p) return MHD_NO;
+
         vector <string> pieces = split (metrics[i], '.');
 
         // XXX: check that metrics[i] is a proper subtree of query
@@ -622,6 +629,8 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
         pmidlist[0] = pmid;
         pmResult *result;
 
+        if (exit_p) break;
+
         entries++;
 
         timestamped_float x;
@@ -654,6 +663,8 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
         for (unsigned i = output.size () - 1; i > 0; i--) {
             float this_value = output[i].what;
             float last_value = output[i - 1].what;
+
+            if (exit_p) break;
 
             if (this_value < last_value) { // suspected counter overflow
                 output[i].what = nanf ("");
@@ -790,6 +801,7 @@ pmgraphite_respond_render_json (struct MHD_Connection *connection,
     vector <string> targets;
     for (unsigned i=0; i<target_patterns.size(); i++) {
         vector <string> metrics = pmgraphite_enumerate_metrics (connection, target_patterns[i]);
+        if (exit_p) break;
         targets.reserve (targets.size() + metrics.size());
         targets.insert (targets.end(), metrics.begin(), metrics.end());
     }
@@ -827,8 +839,12 @@ pmgraphite_respond_render_json (struct MHD_Connection *connection,
     output << "[";
     for (unsigned k = 0; k < targets.size (); k++) {
         string target = targets[k];
+
+        if (exit_p) break;
+
         vector <timestamped_float> results = pmgraphite_fetch_series (connection, target, t_start,
                                              t_end, t_step);
+
         if (k > 0) {
             output << ",";
         }
