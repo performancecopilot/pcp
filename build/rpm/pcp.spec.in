@@ -82,6 +82,7 @@ Requires: initscripts
 Requires: pcp-libs = @package_version@
 Requires: python-pcp = @package_version@
 Requires: perl-PCP-PMDA = @package_version@
+Obsoletes: pcp-gui-debuginfo
 
 %description
 Performance Co-Pilot (PCP) provides a framework and services to support
@@ -148,6 +149,7 @@ Requires: pcp = @package_version@
 Requires: pcp-libs = @package_version@
 Requires: pcp-libs-devel = @package_version@
 # Suggests: valgrind, nmap
+Obsoletes: pcp-gui-testsuite
 
 %description testsuite
 Quality assurance test suite for Performance Co-Pilot (PCP).

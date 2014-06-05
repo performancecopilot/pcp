@@ -50,6 +50,7 @@ Requires: python-ctypes
 Requires: pcp-libs = %{version}-%{release}
 Requires: python-pcp = %{version}-%{release}
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Obsoletes: pcp-gui-debuginfo
 
 %global tapsetdir      %{_datadir}/systemtap/tapset
 
@@ -150,6 +151,7 @@ URL: http://www.performancecopilot.org
 Requires: pcp = %{version}-%{release}
 Requires: pcp-libs = %{version}-%{release}
 Requires: pcp-libs-devel = %{version}-%{release}
+Obsoletes: pcp-gui-testsuite
 
 %description testsuite
 Quality assurance test suite for Performance Co-Pilot (PCP).
