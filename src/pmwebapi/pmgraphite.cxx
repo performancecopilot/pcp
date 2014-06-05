@@ -393,7 +393,7 @@ pmgraphite_respond_metrics_find (struct MHD_Connection *connection,
         rc = -ENOMEM;
         goto out1;
     }
-#if 0
+
     /* https://developer.mozilla.org/en-US/docs/HTTP/Access_control_CORS */
     rc = MHD_add_response_header (resp, "Access-Control-Allow-Origin", "*");
     if (rc != MHD_YES) {
@@ -401,7 +401,7 @@ pmgraphite_respond_metrics_find (struct MHD_Connection *connection,
         rc = -ENOMEM;
         goto out1;
     }
-#endif
+
     rc = MHD_add_response_header (resp, "Content-Type", "application/json");
     if (rc != MHD_YES) {
         connstamp (cerr, connection) << "MHD_add_response_header CT failed" << endl;
@@ -882,7 +882,7 @@ pmgraphite_respond_render_json (struct MHD_Connection *connection,
         rc = -ENOMEM;
         goto out1;
     }
-#if 0
+
     /* https://developer.mozilla.org/en-US/docs/HTTP/Access_control_CORS */
     rc = MHD_add_response_header (resp, "Access-Control-Allow-Origin", "*");
     if (rc != MHD_YES) {
@@ -890,7 +890,7 @@ pmgraphite_respond_render_json (struct MHD_Connection *connection,
         rc = -ENOMEM;
         goto out1;
     }
-#endif
+
     rc = MHD_add_response_header (resp, "Content-Type", "application/json");
     if (rc != MHD_YES) {
         connstamp (cerr, connection) << "MHD_add_response_header CT failed" << endl;
