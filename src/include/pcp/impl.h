@@ -804,7 +804,7 @@ extern void __pmSetPDUCntBuf(unsigned *, unsigned *);
 /* timeout options for PDU handling */
 #define TIMEOUT_NEVER	 0
 #define TIMEOUT_DEFAULT	-1
-#define TIMEOUT_ASYNC	-2
+/*#define TIMEOUT_ASYNC -2*/
 #define TIMEOUT_CONNECT	-3
 
 /* mode options for __pmGetPDU */

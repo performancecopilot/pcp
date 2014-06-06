@@ -127,9 +127,9 @@ __pmAddDiscoveredService(__pmServiceInfo *info, int numUrls, char ***urls)
 		  size, PM_FATAL_ERR);
     }
     if (isIPv6)
-	snprintf(url, size, "%s://[%s]:%u", protocol, address, (uint16_t)port);
+	snprintf(url, size, "%s://[%s]:%u", protocol, address, port);
     else
-	snprintf(url, size, "%s://%s:%u", protocol, address, (uint16_t)port);
+	snprintf(url, size, "%s://%s:%u", protocol, address, port);
     free(address);
 
     /*

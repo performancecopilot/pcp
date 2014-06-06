@@ -157,11 +157,11 @@ extern "C" {
 #if defined(HAVE_SYSLOG_H)
 #include <syslog.h>
 #endif
-#if defined(HAVE_WINDOWS_H)
-#include <windows.h>
-#endif
 #if defined(HAVE_WINSOCK2_H)
 #include <winsock2.h>
+#endif
+#if defined(HAVE_WINDOWS_H)
+#include <windows.h>
 #endif
 #if defined(HAVE_WS2TCPIP_H)
 #include <ws2tcpip.h>
@@ -235,6 +235,8 @@ extern "C" {
 #undef HAVE_SCANDIR
 #undef HAVE_MKSTEMP
 
+#undef HAVE_GETUID
+#undef HAVE_GETGID
 #undef HAVE_GETGRENT
 #undef HAVE_GETGRENT_R
 #undef HAVE_GETGRNAM
@@ -522,18 +524,7 @@ typedef void (*SIG_PF) (int);
 #ifdef IS_MINGW
 
 #ifdef PCP_VERSION		/* used to reduce namespace pollution */
-#define EINPROGRESS	WSAEINPROGRESS
-#define ENETDOWN	WSAENETDOWN
-#define ENETUNREACH	WSAENETUNREACH
-#define ECONNRESET	WSAECONNRESET
-#define ETIMEDOUT	WSAETIMEDOUT
-#define ECONNREFUSED	WSAECONNREFUSED
 #define EHOSTDOWN	WSAEHOSTDOWN
-#define EHOSTUNREACH	WSAEHOSTUNREACH
-#define EOPNOTSUPP	WSAEOPNOTSUPP
-#define EADDRINUSE	WSAEADDRINUSE
-#define EPROTO		WSAEPROTONOSUPPORT
-#define EMSGSIZE	WSAEMSGSIZE
 #define ENODATA		WSANO_DATA
 extern const char *wsastrerror(int);
 
@@ -549,7 +540,9 @@ extern const char *wsastrerror(int);
 #define SIGUSR1		(NSIG+2)
 #define SIGBUS		(NSIG+3)
 #define S_IRGRP		0
+#define S_IWGRP		0
 #define S_IROTH		0
+#define S_IWOTH		0
 #define S_IRWXG		0
 #define S_IRWXO		0
 #define S_ISVTX		0
@@ -563,6 +556,7 @@ extern const char *wsastrerror(int);
 extern void setlinebuf(FILE *);
 extern char *index(const char *, int);
 extern char *rindex(const char *, int);
+extern char *strcasestr(const char *, const char *);
 extern long int lrand48(void);
 extern void srand48(long int);
 
