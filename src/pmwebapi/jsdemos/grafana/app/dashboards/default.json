@@ -125,12 +125,12 @@
           },
           "targets": [
             {
-              "target": "*.network.interface.*.bytes"
+              "target": "*.network.interface.*.bytes.*"
             }
           ],
           "aliasColors": {},
           "aliasYAxis": {},
-          "title": "all archives network.interface.*.bytes"
+          "title": "all archives network.interface.*.bytes.*"
         }
       ],
       "notice": false

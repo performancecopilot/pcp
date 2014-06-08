@@ -28,6 +28,8 @@ string resourcedir;		/* set by -R option */
 string archivesdir = ".";	/* set by -A option */
 unsigned verbosity;		/* set by -v option */
 unsigned maxtimeout = 300;	/* set by -t option */
+int dumpstats = 300;            /* set by -d option */
+map<string,unsigned> clients_usage;
 unsigned perm_context = 1;	/* set by -c option, changed by -h/-a/-L */
 unsigned new_contexts_p = 1;	/* cleared by -N option */
 unsigned graphite_p;		/* set by -G option */
@@ -159,10 +161,8 @@ mhd_respond (void *cls, struct MHD_Connection *connection, const char *url0,
     try {
         (void) cls;			// closure parameter unused
 
-        string
-        url = url0;
-        string
-        method = method0 ? string (method0) : "";
+        string url = url0;
+        string method = method0 ? string (method0) : "";
 
         // First call?  Create a context.
         if (*con_cls == NULL) {
@@ -181,9 +181,12 @@ mhd_respond (void *cls, struct MHD_Connection *connection, const char *url0,
             return MHD_YES;		// expect another call shortly
         }
 
+        // Collect simple utilization info if desired
+        if (dumpstats > 0)
+            clients_usage[conninfo(connection, false)] ++;
+
         // Get our context
-        mhd_connection_context *
-        mhd_cc = (mhd_connection_context *) (*con_cls);
+        mhd_connection_context * mhd_cc = (mhd_connection_context *) (*con_cls);
         assert (mhd_cc);
 
         // Intermediate call?  Store away POST parameters, if any.
@@ -218,10 +221,8 @@ mhd_respond (void *cls, struct MHD_Connection *connection, const char *url0,
 
         // first component (or the whole remainder)
         vector <string> url_tokens = split (url, '/');
-        string
-        url1 = (url_tokens.size () >= 2) ? url_tokens[1] : "";
-        string
-        url2 = (url_tokens.size () >= 3) ? url_tokens[2] : "";
+        string url1 = (url_tokens.size () >= 2) ? url_tokens[1] : "";
+        string url2 = (url_tokens.size () >= 3) ? url_tokens[2] : "";
 
         /* pmwebapi? */
         if (url1 == uriprefix) {
@@ -317,10 +318,10 @@ static void
 server_dump_request_ports (int ipv4, int ipv6, int port)
 {
     if (ipv4) {
-        clog << "Started daemon on IPv4 TCP port " << port << endl;
+        clog << "\tStarted daemon on IPv4 TCP port " << port << endl;
     }
     if (ipv6) {
-        clog << "Started daemon on IPv6 TCP port " << port << endl;
+        clog << "\tStarted daemon on IPv6 TCP port " << port << endl;
     }
 }
 
@@ -337,12 +338,12 @@ server_dump_configuration ()
     // Assume timestamp() already just called, so we
     // don't have to repeat.
 
-    clog << "Using libmicrohttpd " << MHD_get_version () << endl;
+    clog << "\tUsing libmicrohttpd " << MHD_get_version () << endl;
 
     cwd = getcwd (cwdpath, sizeof (cwdpath));
 
     if (resourcedir != "") {
-        clog << "Serving non-pmwebapi URLs under directory ";
+        clog << "\tServing non-pmwebapi URLs under directory ";
         // (NB: __pmAbsolutePath() should take const args)
         if (__pmAbsolutePath ((char *) resourcedir.c_str ()) || !cwd) {
             clog << resourcedir << endl;
@@ -352,14 +353,15 @@ server_dump_configuration ()
     }
 
     if (new_contexts_p) {
-        clog << "Remote context creation requests enabled" << endl;
-        clog << "Archive base directory: " << archivesdir << endl;
+        clog << "\tRemote context creation requests enabled" << endl;
+        clog << "\tArchive base directory: " << archivesdir << endl;
         /* XXX: network outbound ACL */
     } else {
-        clog << "Remote context creation requests disabled" << endl;
+        clog << "\tRemote context creation requests disabled" << endl;
     }
 
-    clog << "Graphite API " << (graphite_p ? "enabled" : "disabled") << endl;
+    clog << "\tGraphite API " << (graphite_p ? "enabled" : "disabled") << endl;
+    clog << "\tPeriodic client statistics dumping " << (dumpstats > 0 ? "enabled" : "disabled") << endl;
 }
 
 
@@ -412,6 +414,7 @@ option_overrides (int opt, pmOptions * opts)
     case 'L':
     case 'N':
     case 'p':
+    case 'd':
     case 't':
         return 1;
     }
@@ -438,6 +441,7 @@ longopts[] = {
     PMOPT_DEBUG,
     {"log", 1, 'l', "FILE", "redirect diagnostics and trace output"},
     {"verbose", 0, 'v', 0, "increase verbosity"},
+    {"dumpstats", 1, 'd', 0, "dump client stats every N seconds [default 300]"},
     {"username", 1, 'U', "USER", "decrease privilege from root to user [default pcp]"},
     {"", 1, 'x', "PATH", "fatal messages at startup sent to file [default /dev/tty]"},
     PMOPT_HELP,
@@ -455,17 +459,21 @@ main (int argc, char *argv[])
     int     mhd_ipv4 = 1;
     int     mhd_ipv6 = 1;
     int    port = PMWEBD_PORT;
-    char *     endptr;
-    struct MHD_Daemon *             d4 = NULL;
-    struct MHD_Daemon *             d6 = NULL;
+    char *   endptr;
+    struct MHD_Daemon * d4 = NULL;
+    struct MHD_Daemon * d6 = NULL;
+    time_t last_dumpstats = 0;
 
+    // NB: important to standardize on a single default timezone, since
+    // we'll be interacting with web clients from anywhere, and dealing
+    // with pcp servers/archvies from anywhere else.
     (void) setenv ("TZ", "UTC", 1);
 
     umask (022);
     char * username_str;
     __pmGetUsername (&username_str);
 
-    opts.short_options = "A:a:c:D:h:Ll:Np:R:Gt:U:vx:46?";
+    opts.short_options = "A:a:c:D:h:Ll:Np:R:Gt:U:vx:d:46?";
     opts.long_options = longopts;
     opts.override = option_overrides;
 
@@ -511,6 +519,12 @@ main (int argc, char *argv[])
 
         case 'v':
             verbosity++;
+            break;
+
+        case 'd':
+            dumpstats = atoi (opts.optarg);
+            if (dumpstats < 0)
+                dumpstats = 0;
             break;
 
         case 'c':
@@ -663,6 +677,7 @@ main (int argc, char *argv[])
     /* Setup randomness for calls to random() */
     pmweb_init_random_seed ();
 
+    // A place to track utilization
     /* Block indefinitely. */
     while (!exit_p) {
         struct timeval tv;
@@ -689,6 +704,9 @@ main (int argc, char *argv[])
          */
         tv.tv_sec = pmwebapi_gc ();
         tv.tv_usec = 0;
+        // NB: we could clamp tv.tv_sec to dumpstats too, but that's pointless:
+        // it would only fire if there were no clients during the whole interval,
+        // in which case there are no stats to dump.
 
         select (max + 1, &rs, &ws, &es, &tv);
 
@@ -697,6 +715,25 @@ main (int argc, char *argv[])
         }
         if (d6) {
             MHD_run (d6);
+        }
+
+        if (dumpstats > 0) {
+            time_t now = time(NULL);
+
+            if (last_dumpstats == 0) // don't report immediately after startup
+                last_dumpstats = now;
+            else if ((now - last_dumpstats) >= dumpstats) {
+                last_dumpstats = now;
+                if (! clients_usage.empty())
+                    timestamp (clog) << "Client request counts:" << endl;
+                for (map<string,unsigned>::iterator it = clients_usage.begin();
+                     it != clients_usage.end();
+                     it++) {
+                    clog << "\t" << it->first << "\t" << it->second << endl;
+                }
+
+                clients_usage.clear();
+            }
         }
     }
 
