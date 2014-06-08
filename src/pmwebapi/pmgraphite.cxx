@@ -461,7 +461,11 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
     int pmc;
     string archive;
     string archive_part;
+    string instance_name;
     unsigned entries_good, entries;
+    struct timeval start;
+    (void) gettimeofday (&start, NULL);
+
     // ^^^ several of these declarations are here (instead of at
     // point-of-use) only because we jump to an exit point, and may
     // not leap over an object ctor site.
@@ -551,7 +555,7 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
 
             }
             // look up that instance name
-            string instance_name = pmgraphite_metric_decode (last_component);
+            instance_name = pmgraphite_metric_decode (last_component);
             int inst = pmLookupInDomArchive (pmd.indom,
                                              (char *) instance_name.c_str ());	// XXX: why not pmLookupInDom?
             if (inst < 0) {
@@ -690,9 +694,18 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
     }
 
     if (verbosity > 2) {
-        connstamp (clog, connection) << "returned " << entries_good << "/" << entries <<
-                                     " data values, metric " << metric_name << ", timespan [" << t_start << "-" << t_end <<
-                                     "] by " << t_step << endl;
+        struct timeval finish;
+        (void) gettimeofday (&finish, NULL);
+
+        string instance_spec;
+        if (instance_name != "")
+            instance_spec = string("[") + instance_name + string("]");
+        connstamp (clog, connection) << "returned " << entries_good << "/" << entries
+                                     << " data values"
+                                     << " in " << __pmtimevalSub(&finish,&start)*1000 << "ms"
+                                     << ", metric " << metric_name << instance_spec
+                                     << ", timespan [" << t_start << "-" << t_end <<
+            "] by " << t_step << "s" << endl;
     }
 
     // Done!
@@ -800,10 +813,18 @@ pmgraphite_respond_render_json (struct MHD_Connection *connection,
     // The patterns may have wildcards; expand the bad boys.
     vector <string> targets;
     for (unsigned i=0; i<target_patterns.size(); i++) {
+        unsigned pattern_length = count(target_patterns[i].begin(), target_patterns[i].end(), '.');
         vector <string> metrics = pmgraphite_enumerate_metrics (connection, target_patterns[i]);
         if (exit_p) break;
-        targets.reserve (targets.size() + metrics.size());
-        targets.insert (targets.end(), metrics.begin(), metrics.end());
+
+        // NB: the entries in enumerated metrics[] may be wider than
+        // the incoming pattern, for example for a wildcard like *.*
+        // We need to filter out those enumerated ones that are longer
+        // (have more dot-components) than the incoming pattern.
+
+        for (unsigned i=0; i<metrics.size(); i++)
+            if (pattern_length == count(metrics[i].begin(), metrics[i].end(), '.'))
+                targets.push_back (metrics[i]);
     }
 
     // same defaults as python graphite/graphlot/views.py
