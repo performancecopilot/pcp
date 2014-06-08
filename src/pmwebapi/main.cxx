@@ -362,7 +362,7 @@ server_dump_configuration ()
 
     clog << "\tGraphite API " << (graphite_p ? "enabled" : "disabled") << endl;
     if (dumpstats > 0)
-        clog << "\tPeriodic client statistics dumped apprx. every " << dumpstats << "s" << endl;
+        clog << "\tPeriodic client statistics dumped roughly every " << dumpstats << "s" << endl;
     else
         clog << "\tPeriodic client statistics not dumped" << endl;
 }
@@ -444,7 +444,7 @@ longopts[] = {
     PMOPT_DEBUG,
     {"log", 1, 'l', "FILE", "redirect diagnostics and trace output"},
     {"verbose", 0, 'v', 0, "increase verbosity"},
-    {"dumpstats", 1, 'd', 0, "dump client stats every N seconds [default 300]"},
+    {"dumpstats", 1, 'd', 0, "dump client stats roughly every N seconds [default 300]"},
     {"username", 1, 'U', "USER", "decrease privilege from root to user [default pcp]"},
     {"", 1, 'x', "PATH", "fatal messages at startup sent to file [default /dev/tty]"},
     PMOPT_HELP,
@@ -714,7 +714,10 @@ main (int argc, char *argv[])
         // the first N-1 seconds of the dumpstats interval, then nothing for the
         // pmwebapi gc-clamp limit; and those N-1-second clients would not be listed
         // in a timely manner.  So clamp clamp clamp.
-        if (dumpstats > 0 && tv.tv_sec > dumpstats)
+        // NB: we -could- estimate how long till the next dumpstats interval closes
+        // (ie. now - (last_dumpstats + dumpstats)), but that could be negative if
+        // we've fallen behind.  Let's not worry about reporting on an exact schedule.
+        if (dumpstats > 0 && tv.tv_sec > dumpstats && ! clients_usage.empty())
             tv.tv_sec = dumpstats;
 
         select (max + 1, &rs, &ws, &es, &tv);
