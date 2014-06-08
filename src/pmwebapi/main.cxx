@@ -361,7 +361,10 @@ server_dump_configuration ()
     }
 
     clog << "\tGraphite API " << (graphite_p ? "enabled" : "disabled") << endl;
-    clog << "\tPeriodic client statistics dumping " << (dumpstats > 0 ? "enabled" : "disabled") << endl;
+    if (dumpstats > 0)
+        clog << "\tPeriodic client statistics dumped apprx. every " << dumpstats << "s" << endl;
+    else
+        clog << "\tPeriodic client statistics not dumped" << endl;
 }
 
 
@@ -707,6 +710,12 @@ main (int argc, char *argv[])
         // NB: we could clamp tv.tv_sec to dumpstats too, but that's pointless:
         // it would only fire if there were no clients during the whole interval,
         // in which case there are no stats to dump.
+        // NB: this is not actually true; we could have a bunch of clients during
+        // the first N-1 seconds of the dumpstats interval, then nothing for the
+        // pmwebapi gc-clamp limit; and those N-1-second clients would not be listed
+        // in a timely manner.  So clamp clamp clamp.
+        if (dumpstats > 0 && tv.tv_sec > dumpstats)
+            tv.tv_sec = dumpstats;
 
         select (max + 1, &rs, &ws, &es, &tv);
 
