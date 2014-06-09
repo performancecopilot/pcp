@@ -130,19 +130,21 @@ pmwebres_respond (struct MHD_Connection *connection, const http_params& params, 
 
         // Propagate any incoming query-string parameters, since they might include
         // data that page javascript will look for.
-        if (! params.empty()) {
-            for (http_params::const_iterator it = params.begin();
-                 it != params.end();
-                 it++) {
-                if (it == params.begin())
+        if (! params.empty ()) {
+            for (http_params::const_iterator it = params.begin ();
+                    it != params.end ();
+                    it++) {
+                if (it == params.begin ()) {
                     new_file += "?";
-                else
+                } else {
                     new_file += "&";
+                }
 
                 new_file += it->first;
                 new_file += "=";
-                if (it->second != "")
+                if (it->second != "") {
                     new_file += urlencode (it->second);
+                }
             }
         }
 
