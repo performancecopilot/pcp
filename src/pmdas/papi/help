@@ -1,1 +1,53 @@
-#placeholder help
+#
+# Copyright (c) 2014 Red Hat, Inc.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# papi PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help test goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ papi.kernel.total_inst total instruction completed.
+@ papi.enable_counters current metric to enable/disable counters.
+This will change!
+
+@ papi.kernel.L1_DCM Level 1 data cache misses.
+@ papi.kernel.L1_ICM Level 1 instruction cache misses.
+@ papi.kernel.L2_DCM Level 2 data cache misses.
+@ papi.kernel.L2_ICM Level 2 instruction cache misses.
+@ papi.kernel.L3_DCM Level 3 data cache misses.
+@ papi.kernel.L3_ICM Level 3 instruction cache misses.
+@ papi.kernel.L1_TCM Level 1 total cache misses.
+@ papi.kernel.L2_TCM Level 2 total cache misses.
+@ papi.kernel.L3_TCM Level 3 total cache misses.
+@ papi.kernel.TLB_DM Data translation lookaside buffer misses.
+@ papi.kernel.TLB_IM Instruction translation lookaside buffer misses.
+@ papi.kernel.TLB_TL Total translation lookaside buffer misses.
+@ papi.kernel.L1_LDM Level 1 load misses.
+
+@ papi.kernel.L1_STM Level 1 store misses.
+
+@ papi.kernel.L2_LDM Level 2 load misses.
+
+@ papi.kernel.L2_STM Level 2 store misses.
+
