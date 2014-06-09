@@ -52,3 +52,4 @@ Troubleshooting
     ($PCP_LOG_DIR/pmcd/pmcd.log) and the PMDA log file
     ($PCP_LOG_DIR/pmcd/papi.log) should be checked for any warnings
     or errors.
+=======
