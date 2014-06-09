@@ -73,10 +73,11 @@ string conninfo (struct MHD_Connection * conn, bool serv_p)
         hostname[0] = servname[0] = '\0';
     }
 
-    if (serv_p)
-        return string(hostname) + string(":") + string(servname);
-    else
-        return string(hostname);
+    if (serv_p) {
+        return string (hostname) + string (":") + string (servname);
+    } else {
+        return string (hostname);
+    }
 }
 
 
@@ -175,7 +176,7 @@ std::string urlencode (const std::string &foo)
 
     for (unsigned i = 0; i < foo.size (); i++) {
         char c = foo[i];
-        if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
+        if (isalnum (c) || c == '-' || c == '_' || c == '.' || c == '~') {
             output << c;
         } else if (c == ' ') {
             output << '+';
