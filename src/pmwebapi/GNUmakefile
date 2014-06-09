@@ -72,4 +72,4 @@ install_pcp :: $(SUBDIRS)
 
 indent:
 	# indent -nhnl -l400 $(CXXFILES) $(HFILES)
-	astyle  -A10 -n -xd -v -H -U -xy -xC90 $(CXXFILES) $(HFILES)
+	astyle  -A10 -n -xd -v -H -U -xy -xC100 $(CXXFILES) $(HFILES)

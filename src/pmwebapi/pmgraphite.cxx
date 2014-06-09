@@ -124,7 +124,9 @@ pmg_enumerate_pmns (const char *name, void *cls)
     pmg_enum_context *c = (pmg_enum_context *) cls;
     string metricpart = name;
 
-    if (exit_p) return;
+    if (exit_p) {
+        return;
+    }
 
     // Filter out mismatches of the metric name components
     vector <string> metric_parts = split (metricpart, '.');
@@ -146,18 +148,20 @@ pmg_enumerate_pmns (const char *name, void *cls)
     pmID pmidlist[1];
     namelist[0] = (char *) name;
     int sts = pmLookupName (1, namelist, pmidlist);
-    if (sts != 1)
+    if (sts != 1) {
         return;
+    }
 
     pmID pmid = pmidlist[0];
     pmDesc pmd;
     sts = pmLookupDesc (pmid, &pmd);
-    if (sts != 0)
-        return; // should not happen
+    if (sts != 0) {
+        return;    // should not happen
+    }
 
-    if (pmd.indom == PM_INDOM_NULL) // no more
+    if (pmd.indom == PM_INDOM_NULL) { // no more
         c->output->push_back (final_metric_name);
-    else { // nesting
+    } else { // nesting
         int *instlist;
         char **namelist;
         sts = pmGetInDomArchive (pmd.indom, &instlist, &namelist);
@@ -165,10 +169,11 @@ pmg_enumerate_pmns (const char *name, void *cls)
             for (int i=0; i<sts; i++) {
                 string instance_part = pmgraphite_metric_encode (namelist[i]);
                 // must filter out mismatches here too!
-                if (c->patterns->size() > metric_parts.size()+1) {
-                    const string & pattern = (*c->patterns)[metric_parts.size()+1];
-                    if (fnmatch (pattern.c_str(), instance_part.c_str(), FNM_NOESCAPE) != 0)
+                if (c->patterns->size () > metric_parts.size ()+1) {
+                    const string & pattern = (*c->patterns)[metric_parts.size ()+1];
+                    if (fnmatch (pattern.c_str (), instance_part.c_str (), FNM_NOESCAPE) != 0) {
                         continue;
+                    }
                 }
                 c->output->push_back (final_metric_name + "." + instance_part);
             }
@@ -212,7 +217,9 @@ vector <string> pmgraphite_enumerate_metrics (struct MHD_Connection * connection
         goto out;
     }
     for (FTSENT * ent = fts_read (f); ent != NULL; ent = fts_read (f)) {
-        if (exit_p) goto out;
+        if (exit_p) {
+            goto out;
+        }
 
         if (ent->fts_info == FTS_SL) {
             // follow symlinks (unlikely)
@@ -269,7 +276,7 @@ out:
     }
 
     // As a service to the user, alpha-sort the returned list of metrics.
-    sort (output.begin(), output.end());
+    sort (output.begin (), output.end ());
 
     return output;
 }
@@ -296,13 +303,17 @@ pmgraphite_respond_metrics_find (struct MHD_Connection *connection,
     }
 
     string format = params["format"];
-    if (format == "") format = "treejson"; // as per grafana
+    if (format == "") {
+        format = "treejson";    // as per grafana
+    }
 
     vector <string> query_tok = split (query, '.');
     unsigned path_match = query_tok.size () - 1;
 
     vector <string> metrics = pmgraphite_enumerate_metrics (connection, query);
-    if (exit_p) return MHD_NO;
+    if (exit_p) {
+        return MHD_NO;
+    }
 
     // Classify the next piece of each metric name (at the
     // [path_match] position) as leafs and/or non-leafs.
@@ -314,7 +325,9 @@ pmgraphite_respond_metrics_find (struct MHD_Connection *connection,
     string common_prefix;
 
     for (unsigned i = 0; i < metrics.size (); i++) {
-        if (exit_p) return MHD_NO;
+        if (exit_p) {
+            return MHD_NO;
+        }
 
         vector <string> pieces = split (metrics[i], '.');
 
@@ -338,10 +351,12 @@ pmgraphite_respond_metrics_find (struct MHD_Connection *connection,
         // NB: the same piece can be hypothetically listed in both
         // subtrees and leaves (e.g. "bar", if a pcp
         // metric.foo.bar.baz as well metric.foo.bar were to exist).
-        if (pieces.size() > path_match+1)
+        if (pieces.size () > path_match+1) {
             subtrees.insert (piece);
-        if (pieces.size() == path_match+1)
+        }
+        if (pieces.size () == path_match+1) {
             leaves.insert (piece);
+        }
 
         nodes.insert (piece);
     }
@@ -357,12 +372,12 @@ pmgraphite_respond_metrics_find (struct MHD_Connection *connection,
 
     output << "[";
     for (set <string>::iterator it = nodes.begin (); it != nodes.end ();
-         it ++) {
+            it ++) {
         const string & node = *it;
 
         // NB: both of these could be true in principle
-        bool leaved_p = leaves.find(node) != leaves.end();
-        bool subtreed_p = subtrees.find(node) != subtrees.end();
+        bool leaved_p = leaves.find (node) != leaves.end ();
+        bool subtreed_p = subtrees.find (node) != subtrees.end ();
 
         if (num_nodes++ > 0) {
             output << ",";
@@ -633,7 +648,9 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
         pmidlist[0] = pmid;
         pmResult *result;
 
-        if (exit_p) break;
+        if (exit_p) {
+            break;
+        }
 
         entries++;
 
@@ -662,35 +679,41 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
 
     // Rate conversion for COUNTER semantics values; perhaps should be a libpcp feature.
     // XXX: make this optional
-    if (pmd.sem == PM_SEM_COUNTER && output.size() > 0) {
+    if (pmd.sem == PM_SEM_COUNTER && output.size () > 0) {
         // go backward, so we can do the calculation in one pass
         for (unsigned i = output.size () - 1; i > 0; i--) {
             float this_value = output[i].what;
             float last_value = output[i - 1].what;
 
-            if (exit_p) break;
+            if (exit_p) {
+                break;
+            }
 
             if (this_value < last_value) { // suspected counter overflow
                 output[i].what = nanf ("");
                 continue;
             }
-            
+
             // truncate time at seconds; we can't accurately subtract two large integers
             // when represented as floating point anyways
             time_t this_time = output[i].when.tv_sec;
             time_t last_time = output[i - 1].when.tv_sec;
             time_t delta = this_time - last_time;
-            if (delta == 0) delta = 1; // some token protection against div-by-zero
+            if (delta == 0) {
+                delta = 1;    // some token protection against div-by-zero
+            }
 
-            if (isnanf (last_value) || isnanf (this_value))
+            if (isnanf (last_value) || isnanf (this_value)) {
                 output[i].what = nanf ("");
-            else
+            } else
                 // avoid loss of significance by dividing then subtracting
+            {
                 output[i].what = (this_value / delta) - (last_value / delta);
+            }
         }
 
         // we have nothing to rate-convert the first value to, so we nuke it
-        output[0].what = nanf("");
+        output[0].what = nanf ("");
     }
 
     if (verbosity > 2) {
@@ -698,14 +721,15 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
         (void) gettimeofday (&finish, NULL);
 
         string instance_spec;
-        if (instance_name != "")
-            instance_spec = string("[") + instance_name + string("]");
+        if (instance_name != "") {
+            instance_spec = string ("[") + instance_name + string ("]");
+        }
         connstamp (clog, connection) << "returned " << entries_good << "/" << entries
                                      << " data values"
-                                     << " in " << __pmtimevalSub(&finish,&start)*1000 << "ms"
+                                     << " in " << __pmtimevalSub (&finish,&start)*1000 << "ms"
                                      << ", metric " << metric_name << instance_spec
                                      << ", timespan [" << t_start << "-" << t_end <<
-            "] by " << t_step << "s" << endl;
+                                     "] by " << t_step << "s" << endl;
     }
 
     // Done!
@@ -812,19 +836,22 @@ pmgraphite_respond_render_json (struct MHD_Connection *connection,
 
     // The patterns may have wildcards; expand the bad boys.
     vector <string> targets;
-    for (unsigned i=0; i<target_patterns.size(); i++) {
-        unsigned pattern_length = count(target_patterns[i].begin(), target_patterns[i].end(), '.');
+    for (unsigned i=0; i<target_patterns.size (); i++) {
+        unsigned pattern_length = count (target_patterns[i].begin (), target_patterns[i].end (), '.');
         vector <string> metrics = pmgraphite_enumerate_metrics (connection, target_patterns[i]);
-        if (exit_p) break;
+        if (exit_p) {
+            break;
+        }
 
         // NB: the entries in enumerated metrics[] may be wider than
         // the incoming pattern, for example for a wildcard like *.*
         // We need to filter out those enumerated ones that are longer
         // (have more dot-components) than the incoming pattern.
 
-        for (unsigned i=0; i<metrics.size(); i++)
-            if (pattern_length == count(metrics[i].begin(), metrics[i].end(), '.'))
+        for (unsigned i=0; i<metrics.size (); i++)
+            if (pattern_length == count (metrics[i].begin (), metrics[i].end (), '.')) {
                 targets.push_back (metrics[i]);
+            }
     }
 
     // same defaults as python graphite/graphlot/views.py
@@ -861,7 +888,9 @@ pmgraphite_respond_render_json (struct MHD_Connection *connection,
     for (unsigned k = 0; k < targets.size (); k++) {
         string target = targets[k];
 
-        if (exit_p) break;
+        if (exit_p) {
+            break;
+        }
 
         vector <timestamped_float> results = pmgraphite_fetch_series (connection, target, t_start,
                                              t_end, t_step);

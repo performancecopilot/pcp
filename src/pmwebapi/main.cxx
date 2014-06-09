@@ -182,8 +182,9 @@ mhd_respond (void *cls, struct MHD_Connection *connection, const char *url0,
         }
 
         // Collect simple utilization info if desired
-        if (dumpstats > 0)
-            clients_usage[conninfo(connection, false)] ++;
+        if (dumpstats > 0) {
+            clients_usage[conninfo (connection, false)] ++;
+        }
 
         // Get our context
         mhd_connection_context * mhd_cc = (mhd_connection_context *) (*con_cls);
@@ -361,10 +362,11 @@ server_dump_configuration ()
     }
 
     clog << "\tGraphite API " << (graphite_p ? "enabled" : "disabled") << endl;
-    if (dumpstats > 0)
+    if (dumpstats > 0) {
         clog << "\tPeriodic client statistics dumped roughly every " << dumpstats << "s" << endl;
-    else
+    } else {
         clog << "\tPeriodic client statistics not dumped" << endl;
+    }
 }
 
 
@@ -526,8 +528,9 @@ main (int argc, char *argv[])
 
         case 'd':
             dumpstats = atoi (opts.optarg);
-            if (dumpstats < 0)
+            if (dumpstats < 0) {
                 dumpstats = 0;
+            }
             break;
 
         case 'c':
@@ -717,8 +720,9 @@ main (int argc, char *argv[])
         // NB: we -could- estimate how long till the next dumpstats interval closes
         // (ie. now - (last_dumpstats + dumpstats)), but that could be negative if
         // we've fallen behind.  Let's not worry about reporting on an exact schedule.
-        if (dumpstats > 0 && tv.tv_sec > dumpstats && ! clients_usage.empty())
+        if (dumpstats > 0 && tv.tv_sec > dumpstats && ! clients_usage.empty ()) {
             tv.tv_sec = dumpstats;
+        }
 
         select (max + 1, &rs, &ws, &es, &tv);
 
@@ -730,21 +734,22 @@ main (int argc, char *argv[])
         }
 
         if (dumpstats > 0) {
-            time_t now = time(NULL);
+            time_t now = time (NULL);
 
-            if (last_dumpstats == 0) // don't report immediately after startup
+            if (last_dumpstats == 0) { // don't report immediately after startup
                 last_dumpstats = now;
-            else if ((now - last_dumpstats) >= dumpstats) {
+            } else if ((now - last_dumpstats) >= dumpstats) {
                 last_dumpstats = now;
-                if (! clients_usage.empty())
+                if (! clients_usage.empty ()) {
                     timestamp (clog) << "Client request counts:" << endl;
-                for (map<string,unsigned>::iterator it = clients_usage.begin();
-                     it != clients_usage.end();
-                     it++) {
+                }
+                for (map<string,unsigned>::iterator it = clients_usage.begin ();
+                        it != clients_usage.end ();
+                        it++) {
                     clog << "\t" << it->first << "\t" << it->second << endl;
                 }
 
-                clients_usage.clear();
+                clients_usage.clear ();
             }
         }
     }
