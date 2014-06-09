@@ -19,14 +19,27 @@
 #include <pcp/pmda.h>
 #include "domain.h"
 #include <papi.h>
+#include <assert.h>
+#include <grp.h>
+
 
 #define CLUSTER_PAPI 0 //we should define this in a header for when these exand possible values
-static char     *username;
+#define DEFAULT_MAXMEM  (2 * 1024 * 1024)       /* 2 megabytes */
+long maxmem;
+
+static char     *username = "adm";
 static char     mypath[MAXPATHLEN];
 static char     isDSO = 1; /* == 0 if I am a daemon */
 static int      EventSet = PAPI_NULL;
 static long_long values[17] = {(long_long) 0};
 static unsigned int enable_counters = 0;
+struct uid_gid_tuple {
+    char wildcard_p; /* do not filter for this context. */
+    char uid_p; char gid_p; /* uid/gid received flags. */
+    int uid; int gid; }; /* uid/gid received from PCP_ATTR_* */
+static struct uid_gid_tuple *ctxtab = NULL;
+int ctxtab_size = 0;
+static int queue_entries = -1;
 
 /*
  * There will be two domain instances, one for kernel counters
@@ -42,6 +55,20 @@ static pmdaIndom indomtab[] = {
 
 /* XXX not entirely sure what this is */
 static pmInDom *kernel_indom = &indomtab[PAPI_KERNEL].it_indom;
+
+void enlarge_ctxtab(int context)
+{
+    /* Grow the context table if necessary. */
+    if (ctxtab_size /* cardinal */ <= context /* ordinal */) {
+        size_t need = (context + 1) * sizeof(struct uid_gid_tuple);
+        ctxtab = realloc (ctxtab, need);
+        if (ctxtab == NULL)
+            __pmNoMem("systemd ctx table", need, PM_FATAL_ERR);
+        /* Blank out new entries. */
+        while (ctxtab_size <= context)
+            memset (& ctxtab[ctxtab_size++], 0, sizeof(struct uid_gid_tuple));
+    }
+}
 
 /*
  * A list of all the papi metrics we support - 
@@ -134,6 +161,7 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	switch (idp->item) {
 	case 0:
 	    PAPI_read(EventSet, values);
+	    pmdaEventQueueCounter(queue_entries, atom);
 	    atom->ull = values[0]; /* papi.kernel.total_inst */
 	    break;
 
@@ -231,10 +259,38 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	return PMDA_FETCH_STATIC;
 }
 
+void
+papi_event_filter_release(void *rp)
+{
+    __pmNotifyErr(LOG_DEBUG, "papi_event_filter_release.\n");
+    (void) rp;
+}
+
+int
+papi_event_filter(void *rp, void *data, size_t size)
+{
+    struct uid_gid_tuple* ugt = rp;
+    //    if (pmDebug & DBG_TRACE_APPL0)
+    __pmNotifyErr(LOG_DEBUG, "papi_event_filter (%d) uid=%d gid=%d data=%p bytes=%u\n",
+		  pmdaGetContext(), ugt->uid, ugt->gid, data, (unsigned)size);
+    return 0;
+}
+
 static int
 papi_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
-    PAPI_read(EventSet, values);
+    int sts;
+    __pmNotifyErr(LOG_DEBUG, "papi_fetch.\n");
+    (void) pmdaEventNewClient(pmda->e_context);
+    enlarge_ctxtab(pmda->e_context);
+    sts = pmdaEventSetFilter(pmda->e_context, queue_entries,
+ 			     & ctxtab[pmda->e_context],
+			     papi_event_filter,
+			     papi_event_filter_release);
+    __pmNotifyErr(LOG_DEBUG, "papi_fetch after %d %d.\n", sts, pmda->e_context);
+    //    if (sts < 0)
+    //	return sts;
+    //    PAPI_read(EventSet, values);
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
@@ -249,30 +305,40 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	pmValueSet *vsp = result->vset[i];
 	__pmID_int *idp = (__pmID_int *)&(vsp->pmid);
 	pmAtomValue av;
-	if(idp->item == 1) {
+	switch (idp->item){
+	case 1:
+	    //	if(idp->item == 1) {
+
 	    if((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				    PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0){
-		if (av.ul > 1) /* only one or zero allowed */
-		    sts = PM_ERR_CONV;
-		else {
+		switch(av.ul){
+		case 0:
+		case 1:
+		    if (av.ul == 0 && enable_counters == 1){
 		    enable_counters = av.ul;
-		    if (av.ul == 0){
 			if(PAPI_stop(EventSet,values) != PAPI_OK){
-			    __pmNotifyErr(LOG_DEBUG, "init was hit\n");
-			    printf("papi shutdown error\n");
+			    __pmNotifyErr(LOG_DEBUG, "PAPI_stop failed.\n");
 			    return 1; 
 			}
 		    }
-		    else {
+		    else if (av.ul == 1 && enable_counters == 0){
+			enable_counters = av.ul;
 			if (PAPI_start(EventSet) != PAPI_OK){
-			    __pmNotifyErr(LOG_DEBUG, "init was hit\n");
-			    fprintf(stderr, "couldn't start\n");
+			    __pmNotifyErr(LOG_DEBUG, "PAPI_start failed.\n");
 			    return 1; // XXX check return value correct
 			}			
 		    }
-		}
-	    }
-	}
+		    else // no need to change
+			break;
+		default:
+		    sts = PM_ERR_CONV;
+		    break;
+		} // else
+	    } //if sts
+	default:
+	    sts = PM_ERR_PMID;
+	    break;
+	}//switch item
     }
 
     PAPI_read(EventSet, values);
@@ -331,6 +397,74 @@ int papi_internal_init()
     return retval;
 
 }
+
+/* use documented in pmdaAttribute(3) */
+static int
+papi_contextAttributeCallBack(int context, int attr,
+			      const char *value, int length, pmdaExt *pmda)
+{
+    static int rootlike_gids_found = 0;
+    static int adm_gid = -1;
+    static int wheel_gid = -1;
+    int id;
+
+    if (! rootlike_gids_found) {
+        struct group *grp;
+        grp = getgrnam("adm");
+        if (grp) adm_gid = grp->gr_gid;
+        grp = getgrnam("wheel");
+        if (grp) wheel_gid = grp->gr_gid;
+	if (wheel_gid != -1 || adm_gid != -1)
+	    rootlike_gids_found = 1;
+    }
+    __pmNotifyErr(LOG_DEBUG, "adm_gid: %d wheel_gid: %d.\n", adm_gid, wheel_gid);
+    enlarge_ctxtab(context);
+    assert (ctxtab != NULL && context < ctxtab_size);
+
+    /* NB: we maintain separate uid_p and gid_p for filtering
+       purposes; it's possible that a pcp client might send only
+       PCP_ATTR_USERID, leaving gid=0, possibly leading us to
+       misinterpret that as GROUPID=0 (root) and sending back _GID=0
+       records. */
+    switch (attr) {
+    case PCP_ATTR_USERID:
+        ctxtab[context].uid_p = 1;
+        id = atoi(value);
+        ctxtab[context].uid = id;
+        if (id == 0) /* root */
+            ctxtab[context].wildcard_p = 1;
+        break;
+
+    case PCP_ATTR_GROUPID:
+        ctxtab[context].gid_p = 1;
+        id = atoi(value);
+        ctxtab[context].gid = id;
+        if (id == adm_gid ||
+            id == wheel_gid)
+            ctxtab[context].wildcard_p = 1;
+        break;
+    }
+
+    //    if (pmDebug & DBG_TRACE_APPL0)
+        __pmNotifyErr(LOG_DEBUG, "attrib (%d) uid%s%d gid%s%d wildcard=%d\n",
+                      context,
+                      ctxtab[context].uid_p?"=":"?", ctxtab[context].uid,
+                      ctxtab[context].gid_p?"=":"?", ctxtab[context].gid,
+                      ctxtab[context].wildcard_p);
+
+    return 0;
+}
+
+static void
+papi_end_contextCallBack(int context)
+{
+    pmdaEventEndClient(context);
+
+    if (context < ctxtab_size)
+        memset (& ctxtab[context], 0, sizeof(struct uid_gid_tuple));
+
+}
+
 void
 papi_init(pmdaInterface *dp)
 {
@@ -354,23 +488,52 @@ papi_init(pmdaInterface *dp)
 	return;
     }
     
-    dp->version.any.fetch = papi_fetch;
-    dp->version.any.store = papi_store;
+    dp->version.six.fetch = papi_fetch;
+    dp->version.six.store = papi_store;
+    dp->version.six.attribute = papi_contextAttributeCallBack;
     pmdaSetFetchCallBack(dp, papi_fetchCallBack);
-
+    pmdaSetEndContextCallBack(dp, papi_end_contextCallBack);
     pmdaInit(dp, NULL, 0, metrictab, nummetrics);
+    //    queue_entires = pmdaEventNewQueue("papi"
+    /*    if (queue_entries < 0)
+        __pmNotifyErr(LOG_ERR, "pmdaEventNewQueue failure: %s",
+	pmErrStr(queue_entries));*/
 
+}
+
+static void
+convertUnits(char **endnum, long *maxmem)
+{
+    switch ((int) **endnum) {
+        case 'b':
+        case 'B':
+                break;
+        case 'k':
+        case 'K':
+                *maxmem *= 1024;
+                break;
+        case 'm':
+        case 'M':
+                *maxmem *= 1024 * 1024;
+                break;
+        case 'g':
+        case 'G':
+                *maxmem *= 1024 * 1024 * 1024;
+                break;
+    }
+    (*endnum)++;
 }
 
 static void
 usage(void)
 {
-    fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
-    fputs("Options:\n"
-	  "  -d domain  use domain (numeric) for metrics domain of PMDA\n"
-	  "  -l logfile write log into logfile rather than using default log name\n"
-	  "  -U username  user account to run under (default \"pcp\")\n",
-	  stderr);		
+    fprintf(stderr,
+	    "Usage: %s [options]\n\n"
+	    "Options:\n"
+	    "  -d domain  use domain (numeric) for metrics domain of PMDA\n"
+	    "  -l logfile write log into logfile rather than using default log name\n"
+	    "  -m memory  maximum memory used per queue (default %ld bytes)\n",
+	    pmProgname, maxmem);		
     exit(1);
 }
 
@@ -383,24 +546,38 @@ main(int argc, char **argv)
 {
     int sep = __pmPathSeparator();
     int err = 0;
+    char *endnum;
+    long minmem;
     int c;
     pmdaInterface dispatch;
     char helppath[MAXPATHLEN];
+
+    /* get some memory numbers to start */
+    minmem = getpagesize();
+    maxmem = (minmem > DEFAULT_MAXMEM) ? minmem : DEFAULT_MAXMEM;
 
     isDSO = 0;
     __pmSetProgname(argv[0]);
     __pmGetUsername(&username);
 
-    snprintf(helppath, sizeof(helppath), "%s%c" "linux" "%c" "help",
+    snprintf(helppath, sizeof(helppath), "%s%c" "papi" "%c" "help",
 	     pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, PAPI, "papi.log", helppath);    
-    while ((c = pmdaGetOpt(argc, argv, "D:d:l:U:?", &dispatch, &err)) != EOF) {
+    while ((c = pmdaGetOpt(argc, argv, "D:d:l:U:m:?", &dispatch, &err)) != EOF) {
 	switch(c) {
-	case 'U':
-	    username = optarg;
+	case 'm':
+	    maxmem = strtol(optarg, &endnum, 10);
+	    if (*endnum != '\0')
+		convertUnits(&endnum, &maxmem);
+	    if (*endnum != '\0' || maxmem < minmem) {
+		fprintf(stderr, "%s: invalid max memory '%s' (min=%ld)\n",
+			pmProgname, optarg, minmem);
+		err++;
+	    }
 	    break;
 	default:
 	    err++;
+	    break;
 	}
     }
     if (err)
