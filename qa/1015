@@ -4,7 +4,7 @@
 #
 seq=`basename $0`
 echo "QA output created by $seq"
-. ./common.test
+. ./common.qt
 
 qt/qmc_indom/qmc_indom
 exit $?

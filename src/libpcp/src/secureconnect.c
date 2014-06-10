@@ -167,7 +167,7 @@ newNSPRHandle(void)
     PM_UNLOCK(__pmLock_libpcp);
 
     /* No free handles available */
-    return -1;
+    return -EAGAIN;
 }
 
 static void
@@ -2232,7 +2232,7 @@ __pmStringToSockAddr(const char *cp)
 #define PM_NET_ADDR_STRING_SIZE 46 /* from the NSPR API reference */
 
 char *
-__pmSockAddrToString(__pmSockAddr *addr)
+__pmSockAddrToString(const __pmSockAddr *addr)
 {
     PRStatus	prStatus;
     char	*buf;
@@ -2251,4 +2251,81 @@ __pmSockAddrToString(__pmSockAddr *addr)
 	}
     }
     return buf;
+}
+
+__pmSockAddr *
+__pmSockAddrFirstSubnetAddr(const __pmSockAddr *netAddr, int maskBits)
+{
+    __pmSockAddr	*addr;
+    
+    /* Make a copy of the net address for iteration purposes. */
+    addr = __pmSockAddrDup(netAddr);
+    if (addr) {
+	/*
+	 * Construct the first address in the subnet based on the given number
+	 * of mask bits.
+	 */
+	if (addr->sockaddr.raw.family == PR_AF_INET) {
+	    /* An inet address. The ip address is in network byte order. */
+	    PRUint32 ip = ntohl(addr->sockaddr.inet.ip);
+	    ip = __pmFirstInetSubnetAddr (ip, maskBits);
+	    addr->sockaddr.inet.ip = htonl(ip);
+	}
+	else if (addr->sockaddr.raw.family == PR_AF_INET6) {
+	    __pmFirstIpv6SubnetAddr(addr->sockaddr.ipv6.ip._S6_un._S6_u8, maskBits);
+	}
+	else {
+	    /* not applicable to other address families, e.g. PR_AF_LOCAL. */
+	    __pmNotifyErr(LOG_ERR,
+			  "%s:__pmSockAddrFirstSubnetAddr: Unsupported address family: %d\n",
+			  __FILE__, addr->sockaddr.raw.family);
+	    __pmSockAddrFree(addr);
+	    return NULL;
+	}
+    }
+
+    return addr;
+}
+
+__pmSockAddr *
+__pmSockAddrNextSubnetAddr(__pmSockAddr *addr, int maskBits)
+{
+    if (addr) {
+	/*
+	 * Construct the next address in the subnet based on the given the
+	 * previous address and the given number of mask bits.
+	 */
+	if (addr->sockaddr.raw.family == PR_AF_INET) {
+	    /* An inet address. The ip address is in network byte order. */
+	    PRUint32 ip = ntohl(addr->sockaddr.inet.ip);
+	    PRUint32 newIp = __pmNextInetSubnetAddr(ip, maskBits);
+
+	    /* Is this the final address? */
+	    if (newIp == ip) {
+		__pmSockAddrFree(addr);
+		return NULL;
+	    }
+	    addr->sockaddr.inet.ip = htonl(newIp);	    
+	}
+	else if (addr->sockaddr.raw.family == PR_AF_INET6) {
+	    unsigned char *newAddr =
+		__pmNextIpv6SubnetAddr(addr->sockaddr.ipv6.ip._S6_un._S6_u8, maskBits);
+
+	    if (newAddr == NULL) {
+		/* This is the final address. */
+		__pmSockAddrFree(addr);
+		return NULL;
+	    }
+	}
+	else {
+	    /* not applicable to other address families, e.g. PR_AF_LOCAL. */
+	    __pmNotifyErr(LOG_ERR,
+			  "%s:__pmSockAddrFirstSubnetAddr: Unsupported address family: %d\n",
+			  __FILE__, addr->sockaddr.raw.family);
+	    __pmSockAddrFree(addr);
+	    return NULL;
+	}
+    }
+
+    return addr;
 }

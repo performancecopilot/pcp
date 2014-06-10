@@ -4,16 +4,13 @@
 #
 seq=`basename $0`
 echo "QA output created by $seq"
-. ./common.test
-
-cd "$PCP_VAR_DIR/testsuite" || \
-	_notrun "Cannot find PCP QA testsuite directory"
+. ./common.qt
 
 _cleanup()
 {
     if [ ! -f $tmp.done ]
     then
-	cd $PCP_VAR_DIR/testsuite/pmdas/dynamic
+	cd $here/pmdas/dynamic
 	$sudo ./Remove >>$here/src/$seq.full
 	cd $here
 	touch $tmp.done
@@ -58,7 +55,7 @@ _filter2()
 }
 
 # real QA test starts here
-cd $PCP_VAR_DIR/testsuite/pmdas/dynamic
+cd $here/pmdas/dynamic
 $sudo make >$here/$seq.full 2>&1
 $sudo ./Install </dev/null >>$here/$seq.full
 cd $here

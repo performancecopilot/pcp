@@ -13304,7 +13304,8 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if strftime knows about %z" >&5
 $as_echo_n "checking if strftime knows about %z... " >&6; }
 if test "$cross_compiling" = yes; then :
-  0
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
 else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */

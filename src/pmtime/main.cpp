@@ -30,13 +30,16 @@ static pmLongOptions longopts[] = {
 
 static void setupEnvironment(void)
 {
+    char *value;
     QString confirm = pmGetConfig("PCP_BIN_DIR");
     confirm.prepend("PCP_XCONFIRM_PROG=");
     confirm.append(QChar(__pmPathSeparator()));
     confirm.append("pmquery");
-    putenv(strdup((const char *)confirm.toAscii()));
-    if (getenv("PCP_STDERR") == NULL)	// do not overwrite, for QA
-	putenv(strdup("PCP_STDERR=DISPLAY"));
+    if ((value = strdup((const char *)confirm.toAscii())) != NULL)
+	putenv(value);
+    if (getenv("PCP_STDERR") == NULL &&	// do not overwrite, for QA
+	((value = strdup("PCP_STDERR=DISPLAY")) != NULL))
+	putenv(value);
 
     QCoreApplication::setOrganizationName("PCP");
     QCoreApplication::setApplicationName("pmtime");

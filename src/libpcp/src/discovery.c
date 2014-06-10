@@ -15,8 +15,7 @@
 #include "impl.h"
 #include "internal.h"
 #include "avahi.h"
-
-#if defined(HAVE_SERVICE_DISCOVERY)
+#include "probe.h"
 
 /*
  * Advertise the given service using all available means. The implementation
@@ -64,6 +63,9 @@ __pmServerUnadvertisePresence(__pmServerPresence *s)
     free(s);
 }
 
+/*
+ * Service discovery API entry point.
+ */
 int pmDiscoverServices(const char *service,
 		       const char *mechanism,
 		       char ***urls)
@@ -78,8 +80,14 @@ int pmDiscoverServices(const char *service,
      */
     *urls = NULL;
     numUrls = 0;
-    if (mechanism == NULL || strncmp(mechanism, "avahi", 5) == 0)
+    if (mechanism == NULL) {
 	numUrls += __pmAvahiDiscoverServices(service, mechanism, numUrls, urls);
+	numUrls += __pmProbeDiscoverServices(service, mechanism, numUrls, urls);
+    }
+    else if (mechanism == NULL || strncmp(mechanism, "avahi", 5) == 0)
+	numUrls += __pmAvahiDiscoverServices(service, mechanism, numUrls, urls);
+    else if (mechanism == NULL || strncmp(mechanism, "probe", 5) == 0)
+	numUrls += __pmProbeDiscoverServices(service, mechanism, numUrls, urls);
     else
 	return -EOPNOTSUPP;
 
@@ -134,30 +142,3 @@ __pmAddDiscoveredService(__pmServiceInfo *info, int numUrls, char ***urls)
     free(url);
     return numUrls;
 }
-
-#else /* !HAVE_SERVICE_DISCOVERY */
-
-__pmServerPresence *
-__pmServerAdvertisePresence(const char *serviceSpec, int port)
-{
-    (void)serviceSpec;
-    (void)port;
-    return NULL;
-}
-
-void
-__pmServerUnadvertisePresence(__pmServerPresence *s)
-{
-    (void)s;
-}
-
-int pmDiscoverServices(const char *service, const char *mechanism, char ***urls)
-{
-    /* No services to discover. */
-    (void)service;
-    (void)mechanism;
-    (void)urls;
-    return -EOPNOTSUPP;
-}
-
-#endif /* !HAVE_SERVICE_DISCOVERY */

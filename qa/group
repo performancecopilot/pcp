@@ -896,6 +896,7 @@ avahi
 728 libpcp local oss
 729 python local oss
 733 pmie pmval pmdumplog local oss
+734 libpcp pmstat remote oss
 735 pmda.proc local oss
 736 pmlogrewrite local oss
 737 python local oss
@@ -912,8 +913,10 @@ avahi
 752 libpcp local oss
 755 pmda.apache pmda.install local oss
 763 pmda local oss
+766 pmfind local oss
 768 pmlogextract local oss
 775 sanity pmfind local oss
+776 pmfind local oss
 779 pmda local oss
 783 pmda.rpm local oss
 786 context context_local libpcp local oss
