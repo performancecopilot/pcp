@@ -38,14 +38,12 @@ http://www.performancecopilot.org
 
 import os
 import datetime
-import re
 import time
 import sys
 import select
 import signal
 import cpmapi as c_api
 import cpmgui as c_gui
-import re
 from pcp import pmapi, pmgui
 from pcp.pmsubsys import Subsystem
 try:
@@ -303,8 +301,8 @@ class _AtopPrint(object):
                 strvalue = "%*se-%d%s" % (width, prval, exp, suffix)
             else:
                 # E format not needed: reduce precision, remove trailing 0s
-                svalue = "%*s" % (width, str(value * sign).replace("0.",".")[0:width])
-                strvalue = "%*s" % (width, re.sub("0*$", "", svalue))
+                svalue = str(value * sign).replace("0.",".")[0:width]
+                strvalue = "%*s" % (width, svalue.rstrip('0'))
         return strvalue
 
     def memstr (self, value, width=6, pformat=-1, avg_secs=0):
