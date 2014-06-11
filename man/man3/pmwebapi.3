@@ -1,6 +1,6 @@
 '\" t macro stdmacro
 .\"
-.\" Copyright (c) 2013 Red Hat, Inc.  All Rights Reserved.
+.\" Copyright (c) 2013-2014 Red Hat, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -38,6 +38,11 @@ interchangeable), and JSON as response encoding.  A context identifier
 is used as a persistent way to refer to PMAPI contexts across related
 web requests.  These context identifiers expire after a configurable
 period of disuse.  Errors generally result in HTTP-level error responses.
+An
+.nh
+.B Access-Control-Allow-Origin: *
+.hy
+header is added to all JSON responses.
 
 .SH CONTEXT CREATION: pmNewContext
 
