@@ -361,17 +361,15 @@ static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
     }
     rc = MHD_add_response_header (resp, "Content-Type", "application/json");
     if (rc != MHD_YES) {
-        MHD_destroy_response (resp);
-        rc = -ENOMEM;
         pmweb_notify (LOG_ERR, connection, "MHD_add_response_header failed\n");
-        goto out;
+        rc = -ENOMEM;
+        goto out1;
     }
     rc = MHD_add_response_header (resp, "Access-Control-Allow-Origin", "*");
     if (rc != MHD_YES) {
-        MHD_destroy_response (resp);
-        rc = -ENOMEM;
         pmweb_notify (LOG_ERR, connection, "MHD_add_response_header ACAO failed\n");
-        goto out;
+        rc = -ENOMEM;
+        goto out1;
     }
     rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
     MHD_destroy_response (resp);
@@ -383,6 +381,8 @@ static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
 
     return MHD_YES;
 
+ out1:
+    MHD_destroy_response (resp);
  out:
     return pmwebapi_notify_error (connection, rc);
 }
@@ -634,10 +634,9 @@ static int pmwebapi_respond_metric_list (struct MHD_Connection *connection,
     }
     rc = MHD_add_response_header (resp, "Access-Control-Allow-Origin", "*");
     if (rc != MHD_YES) {
-        MHD_destroy_response (resp);
-        rc = -ENOMEM;
         pmweb_notify (LOG_ERR, connection, "MHD_add_response_header ACAO failed\n");
-        goto out;
+        rc = -ENOMEM;
+        goto out1;
     }
     rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
     if (rc != MHD_YES) {
@@ -964,10 +963,9 @@ static int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
     }
     rc = MHD_add_response_header (resp, "Access-Control-Allow-Origin", "*");
     if (rc != MHD_YES) {
-        MHD_destroy_response (resp);
-        rc = -ENOMEM;
         pmweb_notify (LOG_ERR, connection, "MHD_add_response_header ACAO failed\n");
-        goto out;
+        rc = -ENOMEM;
+        goto out1;
     }
     rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
     if (rc != MHD_YES) {
@@ -1161,10 +1159,9 @@ static int pmwebapi_respond_instance_list (struct MHD_Connection *connection,
     }
     rc = MHD_add_response_header (resp, "Access-Control-Allow-Origin", "*");
     if (rc != MHD_YES) {
-        MHD_destroy_response (resp);
-        rc = -ENOMEM;
         pmweb_notify (LOG_ERR, connection, "MHD_add_response_header ACAO failed\n");
-        goto out;
+        rc = -ENOMEM;
+        goto out1;
     }
     rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
     if (rc != MHD_YES) {

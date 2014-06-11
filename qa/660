@@ -2,7 +2,7 @@
 # PCP QA Test No. 660
 # checks basic pmwebd functionality
 #
-# Copyright (c) 2013 Red Hat, Inc.  All Rights Reserved.
+# Copyright (c) 2013-2014 Red Hat, Inc.  All Rights Reserved.
 #
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -12,12 +12,10 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-
-which pmproxy >/dev/null 2>&1 || _notrun "No pmwebd binary installed"
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
 echo curl ok
 # nb: wget dispreferred because of its processing of .. relative links,
-# so it's harder to stress pmwebd's base-directory-escapig logic
+# so it's harder to stress pmwebd's base-directory-escaping logic
 
 pyscript=src/test_webapi.python
 python $pyscript --version 2>/dev/null || _notrun "python/modules missing"
