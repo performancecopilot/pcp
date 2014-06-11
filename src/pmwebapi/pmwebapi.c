@@ -1,7 +1,7 @@
 /*
  * JSON web bridge for PMAPI.
  *
- * Copyright (c) 2011-2013 Red Hat Inc.
+ * Copyright (c) 2011-2014 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -366,7 +366,13 @@ static int pmwebapi_respond_new_context (struct MHD_Connection *connection)
         pmweb_notify (LOG_ERR, connection, "MHD_add_response_header failed\n");
         goto out;
     }
-
+    rc = MHD_add_response_header (resp, "Access-Control-Allow-Origin", "*");
+    if (rc != MHD_YES) {
+        MHD_destroy_response (resp);
+        rc = -ENOMEM;
+        pmweb_notify (LOG_ERR, connection, "MHD_add_response_header ACAO failed\n");
+        goto out;
+    }
     rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
     MHD_destroy_response (resp);
     if (rc != MHD_YES) {
@@ -626,13 +632,19 @@ static int pmwebapi_respond_metric_list (struct MHD_Connection *connection,
         rc = -ENOMEM;
         goto out1;
     }
+    rc = MHD_add_response_header (resp, "Access-Control-Allow-Origin", "*");
+    if (rc != MHD_YES) {
+        MHD_destroy_response (resp);
+        rc = -ENOMEM;
+        pmweb_notify (LOG_ERR, connection, "MHD_add_response_header ACAO failed\n");
+        goto out;
+    }
     rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
     if (rc != MHD_YES) {
         pmweb_notify (LOG_ERR, connection, "MHD_queue_response failed\n");
         rc = -ENOMEM;
         goto out1;
     }
-
     MHD_destroy_response (resp);
     return MHD_YES;
 
@@ -950,6 +962,13 @@ static int pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
         rc = -ENOMEM;
         goto out1;
     }
+    rc = MHD_add_response_header (resp, "Access-Control-Allow-Origin", "*");
+    if (rc != MHD_YES) {
+        MHD_destroy_response (resp);
+        rc = -ENOMEM;
+        pmweb_notify (LOG_ERR, connection, "MHD_add_response_header ACAO failed\n");
+        goto out;
+    }
     rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
     if (rc != MHD_YES) {
         pmweb_notify (LOG_ERR, connection, "MHD_queue_response failed\n");
@@ -1140,6 +1159,13 @@ static int pmwebapi_respond_instance_list (struct MHD_Connection *connection,
         rc = -ENOMEM;
         goto out1;
     }
+    rc = MHD_add_response_header (resp, "Access-Control-Allow-Origin", "*");
+    if (rc != MHD_YES) {
+        MHD_destroy_response (resp);
+        rc = -ENOMEM;
+        pmweb_notify (LOG_ERR, connection, "MHD_add_response_header ACAO failed\n");
+        goto out;
+    }
     rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
     if (rc != MHD_YES) {
         pmweb_notify (LOG_ERR, connection, "MHD_queue_response failed\n");
@@ -1163,7 +1189,8 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
                       const char* url,
                       const char* method, const char* upload_data, size_t *upload_data_size)
 {
-    /* XXX: emit CORS header, e.g.
+    /* We emit CORS header for all successful json replies, namely:
+       Access-Control-Access-Origin: *
        https://developer.mozilla.org/en-US/docs/HTTP/Access_control_CORS */
 
     /* NB: url is already edited to remove the /pmapi/ prefix. */
