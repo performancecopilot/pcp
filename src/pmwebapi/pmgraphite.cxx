@@ -967,8 +967,14 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
     else {
         ymin = nanf("");
         for (unsigned i=0; i<all_results.size(); i++)
-            for (unsigned j=0; j<all_results[i].size(); j++)
-                ymin = isnanf(ymin) ? all_results[i][j].what : min(ymin, all_results[i][j].what);
+            for (unsigned j=0; j<all_results[i].size(); j++) {
+                if (isnanf(all_results[i][j].what))
+                    continue;
+                if (isnanf(ymin))
+                    ymin = all_results[i][j].what;
+                else
+                    ymin = min(ymin, all_results[i][j].what);
+            }
     }
     float ymax;
     if (params["yMax"] != "")
@@ -976,8 +982,14 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
     else {
         ymax = nanf("");
         for (unsigned i=0; i<all_results.size(); i++)
-            for (unsigned j=0; j<all_results[i].size(); j++)
-                ymax = isnanf(ymax) ? all_results[i][j].what : max(ymax, all_results[i][j].what);
+            for (unsigned j=0; j<all_results[i].size(); j++) {
+                if (isnanf(all_results[i][j].what))
+                    continue;
+                if (isnanf(ymax))
+                    ymax = all_results[i][j].what;
+                else
+                    ymax = max(ymax, all_results[i][j].what);
+            }
     }
 
     if (verbosity)
@@ -1025,31 +1037,39 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
         cairo_parse_color (metric_name, r, g, b);
         cairo_set_source_rgb(cr, r, g, b);
 
+        double line_width = 2.0;
+        cairo_set_line_width (cr, line_width);
+
+        // clog << "curve #" << i << ": ";
+
         double lastx = nan("");
         double lasty = nan("");
         for (unsigned j=0; j<f.size(); j++) {
-            double line_width = 2.5;
-            cairo_set_line_width (cr, line_width);
+            float thisx = f[j].when.tv_sec + f[j].when.tv_usec/1000000.0;
+            float thisy = f[j].what;
+
+            // clog << "(" << lastx << "," << lasty << ")";
             
-            if (isnanf(f[j].what)) {
+            if (isnanf(thisy)) {
                 // This data slot is missing, so put a circle at the previous end, if
                 // possible, to indicate the discontinuity
                 if (! isnan(lastx) && ! isnan(lasty)) {
                     cairo_move_to (cr, lastx, lasty);
                     cairo_arc (cr, lastx, lasty, line_width*0.5, 0., 2*M_PI);
                     cairo_stroke(cr);
-                    continue;
                 }
+                continue;
             }
 
             float xdelta = (t_end - t_start);
             float ydelta = (ymax - ymin);
-            double relx = ((double)(f[j].when.tv_sec + f[j].when.tv_usec/1000000.0)/xdelta)  -
-                ((double)t_start/xdelta);
-            double rely = (double)ymax/ydelta - (double)f[j].what/ydelta;
+            double relx = (double)thisx/xdelta - (double)t_start/xdelta;
+            double rely = (double)ymax/ydelta - (double)thisy/ydelta;
 
             double x = width*0.10 + width*0.80*relx; // scaled into graphics grid area
             double y = height*0.10 + height*0.80*rely;
+
+            // clog << "-(" << x << "," << y << ") ";
 
             cairo_move_to (cr, x, y);
             if (! isnan(lastx) && ! isnan(lasty)) {
@@ -1065,6 +1085,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
             lasty = y;
         }
 
+        // clog << endl;
         cairo_restore(cr);
     }
     
