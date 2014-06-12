@@ -27,7 +27,7 @@ LCFLAGS += -Wextra
 LCFLAGS += $(PIECFLAGS)
 LLDFLAGS += $(PIELDFLAGS)
 
-SUBDIRS = jsdemos
+SUBDIRS =
 
 default:	build-me
 
