@@ -47,7 +47,7 @@
         }
         var until = this.QueryStringAny("until");
         if (until != "") {
-            $('#g_wrap').find('.g_until').text(from);
+            $('#g_wrap').find('.g_until').text(until);
         }
 
     };
