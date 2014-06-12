@@ -705,8 +705,7 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
 
             if (isnanf (last_value) || isnanf (this_value)) {
                 output[i].what = nanf ("");
-            } else 
-            {
+            } else {
                 // avoid loss of significance risk of naively calculating
                 // (this_v-last_v)/(this_t-last_t)
                 output[i].what = (this_value / delta) - (last_value / delta);
@@ -878,10 +877,12 @@ pmgraphite_gather_data (struct MHD_Connection *connection, const http_params & p
 /* ------------------------------------------------------------------------ */
 
 
-cairo_status_t cairo_write_to_string(void *cls, const unsigned char* data, unsigned int length)
+#ifdef HAVE_CAIRO
+
+cairo_status_t cairo_write_to_string (void *cls, const unsigned char* data, unsigned int length)
 {
     string* s = (string *) cls;
-    (*s) += string((const char*) data, (size_t) length); // XXX: might throw
+    (*s) += string ((const char*) data, (size_t) length); // XXX: might throw
     return CAIRO_STATUS_SUCCESS;
 }
 
@@ -891,15 +892,16 @@ cairo_status_t cairo_write_to_string(void *cls, const unsigned char* data, unsig
 // The first parameter is an optional graphite/render "colorList"
 // style comma-separated set of names, which may well be shorter than
 // than targets[].
-vector<string> generate_colorlist(const vector<string>& colorList, const vector<string>& targets)
+vector<string> generate_colorlist (const vector<string>& colorList, const vector<string>& targets)
 {
     vector<string> output;
 
-    for (unsigned i=0; i<targets.size(); i++) {
-        if (colorList.size() > 0)
-            output.push_back(colorList[i % colorList.size()]);
-        else
-            output.push_back(targets[i]);
+    for (unsigned i=0; i<targets.size (); i++) {
+        if (colorList.size () > 0) {
+            output.push_back (colorList[i % colorList.size ()]);
+        } else {
+            output.push_back (targets[i]);
+        }
     }
 
     return output;
@@ -918,9 +920,11 @@ vector<string> generate_colorlist(const vector<string>& colorList, const vector<
 // color.
 
 struct rgb {
-    double r; double g; double b;
-    rgb(): r(0), g(0), b(0) {}
-    rgb(short r, short g, short b): r(r/255.0), g(g/255.0), b(b/255.0) {}
+    double r;
+    double g;
+    double b;
+    rgb (): r (0), g (0), b (0) {}
+    rgb (short r, short g, short b): r (r/255.0), g (g/255.0), b (b/255.0) {}
 };
 
 void cairo_parse_color (const string& name, double& r, double& g, double& b)
@@ -928,31 +932,31 @@ void cairo_parse_color (const string& name, double& r, double& g, double& b)
     // try to parse RRGGBB RGB #RRGGBB #RGB forms
     static const char hex[] = "0123456789ABCDEF";
     string name2;
-    if ((name.size() == 4 || name.size() == 7) && (name[0] == '#'))
-        name2 = name.substr(1); // clip off #
-    else
+    if ((name.size () == 4 || name.size () == 7) && (name[0] == '#')) {
+        name2 = name.substr (1);    // clip off #
+    } else {
         name2 = name;
+    }
 
 #define PARSE1(V,I) \
         const char *V = lower_bound (hex, hex+16, toupper(name2[I])); \
         if (*V != toupper(name2[I])) goto try_name;
-        
-    if (name2.size() == 6) { // try RRGGBB
-        PARSE1(r1,0);
-        PARSE1(r2,1);
-        PARSE1(g1,2);
-        PARSE1(g2,3);
-        PARSE1(b1,4);
-        PARSE1(b2,5);
+
+    if (name2.size () == 6) { // try RRGGBB
+        PARSE1 (r1,0);
+        PARSE1 (r2,1);
+        PARSE1 (g1,2);
+        PARSE1 (g2,3);
+        PARSE1 (b1,4);
+        PARSE1 (b2,5);
         r = (r1 - hex) / 16.0 + (r2 - hex) / 16.0 / 15.0;
         g = (g1 - hex) / 16.0 + (g2 - hex) / 16.0 / 15.0;
         b = (b1 - hex) / 16.0 + (b2 - hex) / 16.0 / 15.0;
         return;
-    }
-    else if (name2.size() == 3) { // try RGB
-        PARSE1(r1,0);
-        PARSE1(g1,1);
-        PARSE1(b1,2);
+    } else if (name2.size () == 3) { // try RGB
+        PARSE1 (r1,0);
+        PARSE1 (g1,1);
+        PARSE1 (b1,2);
         r = (r1 - hex) / 15.0;
         g = (g1 - hex) / 15.0;
         b = (b1 - hex) / 15.0;
@@ -961,162 +965,162 @@ void cairo_parse_color (const string& name, double& r, double& g, double& b)
 #undef PARSE1
 
 
- try_name:
+try_name:
     // try to look up the name in the Official(tm) CSS3/SVG color map
     static map<string,rgb> colormap;
-    if (colormap.size() == 0) {
+    if (colormap.size () == 0) {
         // http://www.w3.org/TR/SVG/types.html#ColorKeywords
-        colormap["aliceblue"] = rgb(240, 248, 255);
-        colormap["antiquewhite"] = rgb(250, 235, 215);
-        colormap["aqua"] = rgb( 0, 255, 255);
-        colormap["aquamarine"] = rgb(127, 255, 212);
-        colormap["azure"] = rgb(240, 255, 255);
-        colormap["beige"] = rgb(245, 245, 220);
-        colormap["bisque"] = rgb(255, 228, 196);
-        colormap["black"] = rgb( 0, 0, 0);
-        colormap["blanchedalmond"] = rgb(255, 235, 205);
-        colormap["blue"] = rgb( 0, 0, 255);
-        colormap["blueviolet"] = rgb(138, 43, 226);
-        colormap["brown"] = rgb(165, 42, 42);
-        colormap["burlywood"] = rgb(222, 184, 135);
-        colormap["cadetblue"] = rgb( 95, 158, 160);
-        colormap["chartreuse"] = rgb(127, 255, 0);
-        colormap["chocolate"] = rgb(210, 105, 30);
-        colormap["coral"] = rgb(255, 127, 80);
-        colormap["cornflowerblue"] = rgb(100, 149, 237);
-        colormap["cornsilk"] = rgb(255, 248, 220);
-        colormap["crimson"] = rgb(220, 20, 60);
-        colormap["cyan"] = rgb( 0, 255, 255);
-        colormap["darkblue"] = rgb( 0, 0, 139);
-        colormap["darkcyan"] = rgb( 0, 139, 139);
-        colormap["darkgoldenrod"] = rgb(184, 134, 11);
-        colormap["darkgray"] = rgb(169, 169, 169);
-        colormap["darkgreen"] = rgb( 0, 100, 0);
-        colormap["darkgrey"] = rgb(169, 169, 169);
-        colormap["darkkhaki"] = rgb(189, 183, 107);
-        colormap["darkmagenta"] = rgb(139, 0, 139);
-        colormap["darkolivegreen"] = rgb( 85, 107, 47);
-        colormap["darkorange"] = rgb(255, 140, 0);
-        colormap["darkorchid"] = rgb(153, 50, 204);
-        colormap["darkred"] = rgb(139, 0, 0);
-        colormap["darksalmon"] = rgb(233, 150, 122);
-        colormap["darkseagreen"] = rgb(143, 188, 143);
-        colormap["darkslateblue"] = rgb( 72, 61, 139);
-        colormap["darkslategray"] = rgb( 47, 79, 79);
-        colormap["darkslategrey"] = rgb( 47, 79, 79);
-        colormap["darkturquoise"] = rgb( 0, 206, 209);
-        colormap["darkviolet"] = rgb(148, 0, 211);
-        colormap["deeppink"] = rgb(255, 20, 147);
-        colormap["deepskyblue"] = rgb( 0, 191, 255);
-        colormap["dimgray"] = rgb(105, 105, 105);
-        colormap["dimgrey"] = rgb(105, 105, 105);
-        colormap["dodgerblue"] = rgb( 30, 144, 255);
-        colormap["firebrick"] = rgb(178, 34, 34);
-        colormap["floralwhite"] = rgb(255, 250, 240);
-        colormap["forestgreen"] = rgb( 34, 139, 34);
-        colormap["fuchsia"] = rgb(255, 0, 255);
-        colormap["gainsboro"] = rgb(220, 220, 220);
-        colormap["ghostwhite"] = rgb(248, 248, 255);
-        colormap["gold"] = rgb(255, 215, 0);
-        colormap["goldenrod"] = rgb(218, 165, 32);
-        colormap["gray"] = rgb(128, 128, 128);
-        colormap["grey"] = rgb(128, 128, 128);
-        colormap["green"] = rgb( 0, 128, 0);
-        colormap["greenyellow"] = rgb(173, 255, 47);
-        colormap["honeydew"] = rgb(240, 255, 240);
-        colormap["hotpink"] = rgb(255, 105, 180);
-        colormap["indianred"] = rgb(205, 92, 92);
-        colormap["indigo"] = rgb( 75, 0, 130);
-        colormap["ivory"] = rgb(255, 255, 240);
-        colormap["khaki"] = rgb(240, 230, 140);
-        colormap["lavender"] = rgb(230, 230, 250);
-        colormap["lavenderblush"] = rgb(255, 240, 245);
-        colormap["lawngreen"] = rgb(124, 252, 0);
-        colormap["lemonchiffon"] = rgb(255, 250, 205);
-        colormap["lightblue"] = rgb(173, 216, 230);
-        colormap["lightcoral"] = rgb(240, 128, 128);
-        colormap["lightcyan"] = rgb(224, 255, 255);
-        colormap["lightgoldenrodyellow"] = rgb(250, 250, 210);
-        colormap["lightgray"] = rgb(211, 211, 211);
-        colormap["lightgreen"] = rgb(144, 238, 144);
-        colormap["lightgrey"] = rgb(211, 211, 211);
-        colormap["lightpink"] = rgb(255, 182, 193);
-        colormap["lightsalmon"] = rgb(255, 160, 122);
-        colormap["lightseagreen"] = rgb( 32, 178, 170);
-        colormap["lightskyblue"] = rgb(135, 206, 250);
-        colormap["lightslategray"] = rgb(119, 136, 153);
-        colormap["lightslategrey"] = rgb(119, 136, 153);
-        colormap["lightsteelblue"] = rgb(176, 196, 222);
-        colormap["lightyellow"] = rgb(255, 255, 224);
-        colormap["lime"] = rgb( 0, 255, 0);
-        colormap["limegreen"] = rgb( 50, 205, 50);
-        colormap["linen"] = rgb(250, 240, 230);
-        colormap["magenta"] = rgb(255, 0, 255);
-        colormap["maroon"] = rgb(128, 0, 0);
-        colormap["mediumaquamarine"] = rgb(102, 205, 170);
-        colormap["mediumblue"] = rgb( 0, 0, 205);
-        colormap["mediumorchid"] = rgb(186, 85, 211);
-        colormap["mediumpurple"] = rgb(147, 112, 219);
-        colormap["mediumseagreen"] = rgb( 60, 179, 113);
-        colormap["mediumslateblue"] = rgb(123, 104, 238);
-        colormap["mediumspringgreen"] = rgb( 0, 250, 154);
-        colormap["mediumturquoise"] = rgb( 72, 209, 204);
-        colormap["mediumvioletred"] = rgb(199, 21, 133);
-        colormap["midnightblue"] = rgb( 25, 25, 112);
-        colormap["mintcream"] = rgb(245, 255, 250);
-        colormap["mistyrose"] = rgb(255, 228, 225);
-        colormap["moccasin"] = rgb(255, 228, 181);
-        colormap["navajowhite"] = rgb(255, 222, 173);
-        colormap["navy"] = rgb( 0, 0, 128);
-        colormap["oldlace"] = rgb(253, 245, 230);
-        colormap["olive"] = rgb(128, 128, 0);
-        colormap["olivedrab"] = rgb(107, 142, 35);
-        colormap["orange"] = rgb(255, 165, 0);
-        colormap["orangered"] = rgb(255, 69, 0);
-        colormap["orchid"] = rgb(218, 112, 214);
-        colormap["palegoldenrod"] = rgb(238, 232, 170);
-        colormap["palegreen"] = rgb(152, 251, 152);
-        colormap["paleturquoise"] = rgb(175, 238, 238);
-        colormap["palevioletred"] = rgb(219, 112, 147);
-        colormap["papayawhip"] = rgb(255, 239, 213);
-        colormap["peachpuff"] = rgb(255, 218, 185);
-        colormap["peru"] = rgb(205, 133, 63);
-        colormap["pink"] = rgb(255, 192, 203);
-        colormap["plum"] = rgb(221, 160, 221);
-        colormap["powderblue"] = rgb(176, 224, 230);
-        colormap["purple"] = rgb(128, 0, 128);
-        colormap["red"] = rgb(255, 0, 0);
-        colormap["rosybrown"] = rgb(188, 143, 143);
-        colormap["royalblue"] = rgb( 65, 105, 225);
-        colormap["saddlebrown"] = rgb(139, 69, 19);
-        colormap["salmon"] = rgb(250, 128, 114);
-        colormap["sandybrown"] = rgb(244, 164, 96);
-        colormap["seagreen"] = rgb( 46, 139, 87);
-        colormap["seashell"] = rgb(255, 245, 238);
-        colormap["sienna"] = rgb(160, 82, 45);
-        colormap["silver"] = rgb(192, 192, 192);
-        colormap["skyblue"] = rgb(135, 206, 235);
-        colormap["slateblue"] = rgb(106, 90, 205);
-        colormap["slategray"] = rgb(112, 128, 144);
-        colormap["slategrey"] = rgb(112, 128, 144);
-        colormap["snow"] = rgb(255, 250, 250);
-        colormap["springgreen"] = rgb( 0, 255, 127);
-        colormap["steelblue"] = rgb( 70, 130, 180);
-        colormap["tan"] = rgb(210, 180, 140);
-        colormap["teal"] = rgb( 0, 128, 128);
-        colormap["thistle"] = rgb(216, 191, 216);
-        colormap["tomato"] = rgb(255, 99, 71);
-        colormap["turquoise"] = rgb( 64, 224, 208);
-        colormap["violet"] = rgb(238, 130, 238);
-        colormap["wheat"] = rgb(245, 222, 179);
-        colormap["white"] = rgb(255, 255, 255);
-        colormap["whitesmoke"] = rgb(245, 245, 245);
-        colormap["yellow"] = rgb(255, 255, 0);
-        colormap["yellowgreen"] = rgb(154, 205, 50);
+        colormap["aliceblue"] = rgb (240, 248, 255);
+        colormap["antiquewhite"] = rgb (250, 235, 215);
+        colormap["aqua"] = rgb (0, 255, 255);
+        colormap["aquamarine"] = rgb (127, 255, 212);
+        colormap["azure"] = rgb (240, 255, 255);
+        colormap["beige"] = rgb (245, 245, 220);
+        colormap["bisque"] = rgb (255, 228, 196);
+        colormap["black"] = rgb (0, 0, 0);
+        colormap["blanchedalmond"] = rgb (255, 235, 205);
+        colormap["blue"] = rgb (0, 0, 255);
+        colormap["blueviolet"] = rgb (138, 43, 226);
+        colormap["brown"] = rgb (165, 42, 42);
+        colormap["burlywood"] = rgb (222, 184, 135);
+        colormap["cadetblue"] = rgb (95, 158, 160);
+        colormap["chartreuse"] = rgb (127, 255, 0);
+        colormap["chocolate"] = rgb (210, 105, 30);
+        colormap["coral"] = rgb (255, 127, 80);
+        colormap["cornflowerblue"] = rgb (100, 149, 237);
+        colormap["cornsilk"] = rgb (255, 248, 220);
+        colormap["crimson"] = rgb (220, 20, 60);
+        colormap["cyan"] = rgb (0, 255, 255);
+        colormap["darkblue"] = rgb (0, 0, 139);
+        colormap["darkcyan"] = rgb (0, 139, 139);
+        colormap["darkgoldenrod"] = rgb (184, 134, 11);
+        colormap["darkgray"] = rgb (169, 169, 169);
+        colormap["darkgreen"] = rgb (0, 100, 0);
+        colormap["darkgrey"] = rgb (169, 169, 169);
+        colormap["darkkhaki"] = rgb (189, 183, 107);
+        colormap["darkmagenta"] = rgb (139, 0, 139);
+        colormap["darkolivegreen"] = rgb (85, 107, 47);
+        colormap["darkorange"] = rgb (255, 140, 0);
+        colormap["darkorchid"] = rgb (153, 50, 204);
+        colormap["darkred"] = rgb (139, 0, 0);
+        colormap["darksalmon"] = rgb (233, 150, 122);
+        colormap["darkseagreen"] = rgb (143, 188, 143);
+        colormap["darkslateblue"] = rgb (72, 61, 139);
+        colormap["darkslategray"] = rgb (47, 79, 79);
+        colormap["darkslategrey"] = rgb (47, 79, 79);
+        colormap["darkturquoise"] = rgb (0, 206, 209);
+        colormap["darkviolet"] = rgb (148, 0, 211);
+        colormap["deeppink"] = rgb (255, 20, 147);
+        colormap["deepskyblue"] = rgb (0, 191, 255);
+        colormap["dimgray"] = rgb (105, 105, 105);
+        colormap["dimgrey"] = rgb (105, 105, 105);
+        colormap["dodgerblue"] = rgb (30, 144, 255);
+        colormap["firebrick"] = rgb (178, 34, 34);
+        colormap["floralwhite"] = rgb (255, 250, 240);
+        colormap["forestgreen"] = rgb (34, 139, 34);
+        colormap["fuchsia"] = rgb (255, 0, 255);
+        colormap["gainsboro"] = rgb (220, 220, 220);
+        colormap["ghostwhite"] = rgb (248, 248, 255);
+        colormap["gold"] = rgb (255, 215, 0);
+        colormap["goldenrod"] = rgb (218, 165, 32);
+        colormap["gray"] = rgb (128, 128, 128);
+        colormap["grey"] = rgb (128, 128, 128);
+        colormap["green"] = rgb (0, 128, 0);
+        colormap["greenyellow"] = rgb (173, 255, 47);
+        colormap["honeydew"] = rgb (240, 255, 240);
+        colormap["hotpink"] = rgb (255, 105, 180);
+        colormap["indianred"] = rgb (205, 92, 92);
+        colormap["indigo"] = rgb (75, 0, 130);
+        colormap["ivory"] = rgb (255, 255, 240);
+        colormap["khaki"] = rgb (240, 230, 140);
+        colormap["lavender"] = rgb (230, 230, 250);
+        colormap["lavenderblush"] = rgb (255, 240, 245);
+        colormap["lawngreen"] = rgb (124, 252, 0);
+        colormap["lemonchiffon"] = rgb (255, 250, 205);
+        colormap["lightblue"] = rgb (173, 216, 230);
+        colormap["lightcoral"] = rgb (240, 128, 128);
+        colormap["lightcyan"] = rgb (224, 255, 255);
+        colormap["lightgoldenrodyellow"] = rgb (250, 250, 210);
+        colormap["lightgray"] = rgb (211, 211, 211);
+        colormap["lightgreen"] = rgb (144, 238, 144);
+        colormap["lightgrey"] = rgb (211, 211, 211);
+        colormap["lightpink"] = rgb (255, 182, 193);
+        colormap["lightsalmon"] = rgb (255, 160, 122);
+        colormap["lightseagreen"] = rgb (32, 178, 170);
+        colormap["lightskyblue"] = rgb (135, 206, 250);
+        colormap["lightslategray"] = rgb (119, 136, 153);
+        colormap["lightslategrey"] = rgb (119, 136, 153);
+        colormap["lightsteelblue"] = rgb (176, 196, 222);
+        colormap["lightyellow"] = rgb (255, 255, 224);
+        colormap["lime"] = rgb (0, 255, 0);
+        colormap["limegreen"] = rgb (50, 205, 50);
+        colormap["linen"] = rgb (250, 240, 230);
+        colormap["magenta"] = rgb (255, 0, 255);
+        colormap["maroon"] = rgb (128, 0, 0);
+        colormap["mediumaquamarine"] = rgb (102, 205, 170);
+        colormap["mediumblue"] = rgb (0, 0, 205);
+        colormap["mediumorchid"] = rgb (186, 85, 211);
+        colormap["mediumpurple"] = rgb (147, 112, 219);
+        colormap["mediumseagreen"] = rgb (60, 179, 113);
+        colormap["mediumslateblue"] = rgb (123, 104, 238);
+        colormap["mediumspringgreen"] = rgb (0, 250, 154);
+        colormap["mediumturquoise"] = rgb (72, 209, 204);
+        colormap["mediumvioletred"] = rgb (199, 21, 133);
+        colormap["midnightblue"] = rgb (25, 25, 112);
+        colormap["mintcream"] = rgb (245, 255, 250);
+        colormap["mistyrose"] = rgb (255, 228, 225);
+        colormap["moccasin"] = rgb (255, 228, 181);
+        colormap["navajowhite"] = rgb (255, 222, 173);
+        colormap["navy"] = rgb (0, 0, 128);
+        colormap["oldlace"] = rgb (253, 245, 230);
+        colormap["olive"] = rgb (128, 128, 0);
+        colormap["olivedrab"] = rgb (107, 142, 35);
+        colormap["orange"] = rgb (255, 165, 0);
+        colormap["orangered"] = rgb (255, 69, 0);
+        colormap["orchid"] = rgb (218, 112, 214);
+        colormap["palegoldenrod"] = rgb (238, 232, 170);
+        colormap["palegreen"] = rgb (152, 251, 152);
+        colormap["paleturquoise"] = rgb (175, 238, 238);
+        colormap["palevioletred"] = rgb (219, 112, 147);
+        colormap["papayawhip"] = rgb (255, 239, 213);
+        colormap["peachpuff"] = rgb (255, 218, 185);
+        colormap["peru"] = rgb (205, 133, 63);
+        colormap["pink"] = rgb (255, 192, 203);
+        colormap["plum"] = rgb (221, 160, 221);
+        colormap["powderblue"] = rgb (176, 224, 230);
+        colormap["purple"] = rgb (128, 0, 128);
+        colormap["red"] = rgb (255, 0, 0);
+        colormap["rosybrown"] = rgb (188, 143, 143);
+        colormap["royalblue"] = rgb (65, 105, 225);
+        colormap["saddlebrown"] = rgb (139, 69, 19);
+        colormap["salmon"] = rgb (250, 128, 114);
+        colormap["sandybrown"] = rgb (244, 164, 96);
+        colormap["seagreen"] = rgb (46, 139, 87);
+        colormap["seashell"] = rgb (255, 245, 238);
+        colormap["sienna"] = rgb (160, 82, 45);
+        colormap["silver"] = rgb (192, 192, 192);
+        colormap["skyblue"] = rgb (135, 206, 235);
+        colormap["slateblue"] = rgb (106, 90, 205);
+        colormap["slategray"] = rgb (112, 128, 144);
+        colormap["slategrey"] = rgb (112, 128, 144);
+        colormap["snow"] = rgb (255, 250, 250);
+        colormap["springgreen"] = rgb (0, 255, 127);
+        colormap["steelblue"] = rgb (70, 130, 180);
+        colormap["tan"] = rgb (210, 180, 140);
+        colormap["teal"] = rgb (0, 128, 128);
+        colormap["thistle"] = rgb (216, 191, 216);
+        colormap["tomato"] = rgb (255, 99, 71);
+        colormap["turquoise"] = rgb (64, 224, 208);
+        colormap["violet"] = rgb (238, 130, 238);
+        colormap["wheat"] = rgb (245, 222, 179);
+        colormap["white"] = rgb (255, 255, 255);
+        colormap["whitesmoke"] = rgb (245, 245, 245);
+        colormap["yellow"] = rgb (255, 255, 0);
+        colormap["yellowgreen"] = rgb (154, 205, 50);
     }
 
-    map<string,rgb>::iterator it = colormap.find(name);
-    if (it != colormap.end()) {
+    map<string,rgb>::iterator it = colormap.find (name);
+    if (it != colormap.end ()) {
         r = it->second.r;
         g = it->second.g;
         b = it->second.b;
@@ -1124,9 +1128,9 @@ void cairo_parse_color (const string& name, double& r, double& g, double& b)
     }
 
     // XXX: generate a random color
-    r = (random() % 256) / 255.0;
-    g = (random() % 256) / 255.0;
-    b = (random() % 256) / 255.0;
+    r = (random () % 256) / 255.0;
+    g = (random () % 256) / 255.0;
+    b = (random () % 256) / 255.0;
 }
 
 
@@ -1145,18 +1149,21 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
     cairo_status_t cst;
     cairo_surface_t *sfc;
     cairo_t *cr;
-    vector< vector<timestamped_float> > all_results;
+    vector<vector<timestamped_float>> all_results;
     string colorList;
     vector<string> colors;
     string bgcolor;
+    double graphxlow, graphxhigh, graphylow, graphyhigh;
 
     string format = params["format"];
-    if (format == "")
+    if (format == "") {
         format = "png";
-    
+    }
+
     // SVG? etc?
-    if (format != "png")
-        return mhd_notify_error (connection, -EINVAL);        
+    if (format != "png") {
+        return mhd_notify_error (connection, -EINVAL);
+    }
 
     vector <string> targets;
     time_t t_start, t_end, t_step;
@@ -1165,34 +1172,40 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
         return mhd_notify_error (connection, rc);
     }
 
-    int width = atoi (params["width"].c_str());
-    if (width <= 0) width = 640;
-    int height = atoi (params["height"].c_str()); 
-    if (height <= 0) height = 480;
+    int width = atoi (params["width"].c_str ());
+    if (width <= 0) {
+        width = 640;
+    }
+    int height = atoi (params["height"].c_str ());
+    if (height <= 0) {
+        height = 480;
+    }
 
     sfc = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, width, height);
     if (sfc == NULL) {
         rc = -ENOMEM;
         goto out1;
     }
-        
+
     cr = cairo_create (sfc);
     if (cr == NULL) {
         rc = -ENOMEM;
         goto out2;
     }
 
-    double r, g, b; 
+    double r, g, b;
     bgcolor = params["bgcolor"];
     if (bgcolor == "")
         // as per graphite render/glyph.py defaultGraphOptions
+    {
         bgcolor="white";
+    }
     cairo_parse_color (bgcolor, r, g, b);
-    cairo_save(cr);
+    cairo_save (cr);
     cairo_set_source_rgb (cr, r, g, b);
     cairo_rectangle (cr, 0.0, 0.0, width, height);
-    cairo_fill(cr);
-    cairo_restore(cr);
+    cairo_fill (cr);
+    cairo_restore (cr);
 
     // Gather up all the data.  We need several passes over it, so gather it into a vector<vector<>>.
     for (unsigned k = 0; k < targets.size (); k++) {
@@ -1205,109 +1218,213 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
 
     // Compute vertical bounds.
     float ymin;
-    if (params["yMin"] != "")
-        ymin = atof (params["yMin"].c_str());
-    else {
-        ymin = nanf("");
-        for (unsigned i=0; i<all_results.size(); i++)
-            for (unsigned j=0; j<all_results[i].size(); j++) {
-                if (isnanf(all_results[i][j].what))
+    if (params["yMin"] != "") {
+        ymin = atof (params["yMin"].c_str ());
+    } else {
+        ymin = nanf ("");
+        for (unsigned i=0; i<all_results.size (); i++)
+            for (unsigned j=0; j<all_results[i].size (); j++) {
+                if (isnanf (all_results[i][j].what)) {
                     continue;
-                if (isnanf(ymin))
+                }
+                if (isnanf (ymin)) {
                     ymin = all_results[i][j].what;
-                else
-                    ymin = min(ymin, all_results[i][j].what);
+                } else {
+                    ymin = min (ymin, all_results[i][j].what);
+                }
             }
     }
     float ymax;
-    if (params["yMax"] != "")
-        ymax = atof (params["yMax"].c_str());
-    else {
-        ymax = nanf("");
-        for (unsigned i=0; i<all_results.size(); i++)
-            for (unsigned j=0; j<all_results[i].size(); j++) {
-                if (isnanf(all_results[i][j].what))
+    if (params["yMax"] != "") {
+        ymax = atof (params["yMax"].c_str ());
+    } else {
+        ymax = nanf ("");
+        for (unsigned i=0; i<all_results.size (); i++)
+            for (unsigned j=0; j<all_results[i].size (); j++) {
+                if (isnanf (all_results[i][j].what)) {
                     continue;
-                if (isnanf(ymax))
+                }
+                if (isnanf (ymax)) {
                     ymax = all_results[i][j].what;
-                else
-                    ymax = max(ymax, all_results[i][j].what);
+                } else {
+                    ymax = max (ymax, all_results[i][j].what);
+                }
             }
     }
 
     if (verbosity)
-        connstamp(clog, connection) << "Rendering " << all_results.size() << " metrics" 
-                                    << ", ymin=" << ymin << ", ymax=" << ymax << endl;
+        connstamp (clog, connection) << "Rendering " << all_results.size () << " metrics"
+                                     << ", ymin=" << ymin << ", ymax=" << ymax << endl;
 
 
     // Any data to show?
-    if (isnanf(ymin) || isnanf(ymax) || all_results.empty())
-        {
+    if (isnanf (ymin) || isnanf (ymax) || all_results.empty ()) {
         cairo_text_extents_t ext;
         string message = "no data in range";
-        cairo_select_font_face (cr, "serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+        cairo_save (cr);
+        cairo_select_font_face (cr, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
         cairo_set_font_size (cr, 32.0);
         cairo_set_source_rgb (cr, 0.0, 0.0, 0.0);
-        cairo_text_extents (cr, message.c_str(), &ext);
+        cairo_text_extents (cr, message.c_str (), &ext);
         cairo_move_to (cr,
                        width/2.0 - (ext.width/2 + ext.x_bearing),
                        height/2.0 - (ext.height/2 + ext.y_bearing));
-        cairo_show_text (cr, message.c_str());
+        cairo_show_text (cr, message.c_str ());
+        cairo_restore (cr);
+        goto render_done;
     }
+
 
     // Because we're going for basic acceptable rendering only, for
     // purposes of graphite-builder previews, we hard-code a simple
     // layout scheme:
-    //
-    // outer 10% of area: labels
-    // inner 80% of area: graph lines
-    //
+    graphxlow = width * 0.1;
+    graphxhigh = width * 0.9;
+    graphylow = height * 0.05;
+    graphyhigh = height * 0.95;
+    // ... though these numbers might be adjusted a bit by legend etc. rendering
+
     // As a mnemonic, double typed variables are used to track
     // coordinates in graphics space, and float (with nan) for pcp
     // metric space.
-
-    // Draw the grid
-
-    // Draw the labels
 
     // Fetch curve color list
     colorList = params["colorList"];
     if (colorList == "")
         // as per graphite render/glyph.py defaultGraphOptions
+    {
         colorList = "blue,green,red,purple,brown,yellow,aqua,grey,magenta,pink,gold,rose";
+    }
+    colors = generate_colorlist (split (colorList,','), targets);
+    assert (colors.size () == targets.size ());
 
-    colors = generate_colorlist(split(colorList,','), targets);
-    assert (colors.size() == targets.size());
+    // Draw the title
+    if (params["title"] != "") {
+        const string& title = params["title"];
+        double r, g, b;
+        double spacing = 15.0;
+        double baseline = spacing;
+        cairo_text_extents_t ext;
+
+        // draw text
+        cairo_save (cr);
+        string fgcolor = params["fgcolor"];
+        if (fgcolor == "") {
+            fgcolor = "black";
+        }
+        cairo_parse_color (fgcolor, r, g, b);
+        cairo_set_source_rgb (cr, r, g, b);
+        cairo_select_font_face (cr, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+        cairo_set_font_size (cr, spacing);
+
+        cairo_text_extents (cr, title.c_str (), &ext);
+        cairo_move_to (cr,
+                       width/2.0 - (ext.width/2 + ext.x_bearing),
+                       baseline + ext.height + ext.y_bearing);
+        cairo_show_text (cr, title.c_str ());
+        cairo_restore (cr);
+
+        // allocate space for the graph
+        baseline += spacing*1.2;
+
+        if (graphylow < baseline) {
+            graphylow = baseline;
+        }
+    }
+
+    // Draw the legend
+    if (params["hideLegend"] != "true" &&
+            targets.size () <= 10) { // maximum number of legend entries
+        double spacing = 10.0;
+        double baseline = height - 8.0;
+        double leftedge = 10.0;
+        for (unsigned i=0; i<targets.size (); i++) {
+            const string& name = targets[i];
+            double r, g, b;
+
+            // draw square swatch
+            cairo_save (cr);
+            cairo_parse_color (colors[i], r, g, b);
+            cairo_set_source_rgb (cr, r, g, b);
+            cairo_rectangle (cr, leftedge+1.0, baseline+1.0, spacing-1.0, 0.0-spacing-1.0);
+            cairo_fill (cr);
+            cairo_restore (cr);
+
+            // draw text
+            cairo_save (cr);
+            string fgcolor = params["fgcolor"];
+            if (fgcolor == "") {
+                fgcolor = "black";
+            }
+            cairo_parse_color (fgcolor, r, g, b);
+            cairo_set_source_rgb (cr, r, g, b);
+            cairo_select_font_face (cr, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+            cairo_set_font_size (cr, spacing);
+            cairo_move_to (cr, leftedge + spacing*1.5, baseline);
+            cairo_show_text (cr, name.c_str ());
+            cairo_restore (cr);
+
+            // allocate space for next row up
+            baseline -= spacing * 1.2;
+            if (graphyhigh > baseline) {
+                graphyhigh = baseline - spacing;
+            }
+            if (graphyhigh < height*0.5) { // forget it, too many
+                break;
+            }
+        }
+    }
+
+    if (params["hideGrid"] != "true") {
+        // Draw the frame
+        double r, g, b;
+        double line_width = 1.0;
+        cairo_save (cr);
+        string fgcolor = params["fgcolor"];
+        if (fgcolor == "") {
+            fgcolor = "black";
+        }
+        cairo_parse_color (fgcolor, r, g, b);
+        cairo_set_source_rgba (cr, r, g, b, 0.5);
+        cairo_set_line_width (cr, line_width);
+        cairo_rectangle (cr, graphxlow, graphylow, (graphxhigh-graphxlow), (graphyhigh-graphylow));
+        cairo_stroke (cr);
+        cairo_restore (cr);
+
+        // XXX Draw the grid
+
+        // XXX Draw the axis labels
+    }
 
     // Draw the curves
-    for (unsigned i=0; i<all_results.size(); i++) {
+    for (unsigned i=0; i<all_results.size (); i++) {
         const vector<timestamped_float>& f = all_results[i];
 
         double r,g,b;
-        cairo_save(cr);
+        cairo_save (cr);
         cairo_parse_color (colors[i], r, g, b);
-        cairo_set_source_rgb(cr, r, g, b);
+        cairo_set_source_rgb (cr, r, g, b);
 
-        double line_width = 2.0;
+        double line_width = 1.5;
         cairo_set_line_width (cr, line_width);
 
         // clog << "curve #" << i << ": ";
 
-        double lastx = nan("");
-        double lasty = nan("");
-        for (unsigned j=0; j<f.size(); j++) {
+        double lastx = nan ("");
+        double lasty = nan ("");
+        for (unsigned j=0; j<f.size (); j++) {
             float thisx = f[j].when.tv_sec + f[j].when.tv_usec/1000000.0;
             float thisy = f[j].what;
 
             // clog << "(" << lastx << "," << lasty << ")";
-            
-            if (isnanf(thisy)) {
+
+            if (isnanf (thisy)) {
                 // This data slot is missing, so put a circle at the previous end, if
                 // possible, to indicate the discontinuity
-                if (! isnan(lastx) && ! isnan(lasty)) {
+                if (! isnan (lastx) && ! isnan (lasty)) {
                     cairo_move_to (cr, lastx, lasty);
                     cairo_arc (cr, lastx, lasty, line_width*0.5, 0., 2*M_PI);
-                    cairo_stroke(cr);
+                    cairo_stroke (cr);
                 }
                 continue;
             }
@@ -1317,40 +1434,41 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
             double relx = (double)thisx/xdelta - (double)t_start/xdelta;
             double rely = (double)ymax/ydelta - (double)thisy/ydelta;
 
-            double x = width*0.10 + width*0.80*relx; // scaled into graphics grid area
-            double y = height*0.10 + height*0.80*rely;
+            double x = graphxlow + (graphxhigh-graphxlow)*relx; // scaled into graphics grid area
+            double y = graphylow + (graphyhigh-graphylow)*rely;
 
             // clog << "-(" << x << "," << y << ") ";
 
             cairo_move_to (cr, x, y);
-            if (! isnan(lastx) && ! isnan(lasty)) {
+            if (! isnan (lastx) && ! isnan (lasty)) {
                 // draw it as a line
                 cairo_line_to (cr, lastx, lasty);
             } else {
                 // draw it as a circle
                 cairo_arc (cr, x, y, line_width*0.5, 0., 2*M_PI);
             }
-            cairo_stroke(cr);
+            cairo_stroke (cr);
 
             lastx = x;
             lasty = y;
         }
 
         // clog << endl;
-        cairo_restore(cr);
+        cairo_restore (cr);
     }
-    
-    
+
+
     // Need to get the data out of cairo and into microhttpd.  We use
     // a c++ string as a temporary, which can carry binary data.
-
+render_done:
     cst = cairo_surface_write_to_png_stream (sfc, & cairo_write_to_string, (void *) & imgbuf);
-    if (cst != CAIRO_STATUS_SUCCESS || cairo_status(cr) != CAIRO_STATUS_SUCCESS) {
+    if (cst != CAIRO_STATUS_SUCCESS || cairo_status (cr) != CAIRO_STATUS_SUCCESS) {
         rc = -EIO;
         goto out3;
     }
 
-    resp = MHD_create_response_from_buffer (imgbuf.size(), (void*) imgbuf.c_str(), MHD_RESPMEM_MUST_COPY);
+    resp = MHD_create_response_from_buffer (imgbuf.size (), (void*) imgbuf.c_str (),
+                                            MHD_RESPMEM_MUST_COPY);
     if (resp == NULL) {
         connstamp (cerr, connection) << "MHD_create_response_from_buffer failed" << endl;
         rc = -ENOMEM;
@@ -1380,19 +1498,22 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
 
     rc = 0;
 
- out4:
+out4:
     MHD_destroy_response (resp);
- out3:
+out3:
     cairo_destroy (cr);
- out2:
+out2:
     cairo_surface_destroy (sfc);
- out1:
-    if (rc)
+out1:
+    if (rc) {
         return mhd_notify_error (connection, rc);
-    else
+    } else {
         return MHD_YES;
+    }
 }
 
+
+#endif /* HAVE_CAIRO */
 
 /* ------------------------------------------------------------------------ */
 
@@ -1544,9 +1665,11 @@ pmgraphite_respond (struct MHD_Connection *connection, const http_params & param
         return pmgraphite_respond_metrics_findmetric (connection, params, url);
     }
 #endif
+#ifdef HAVE_CAIRO
     else if (url2 == "render") {
         return pmgraphite_respond_render_gfx (connection, params, url);
     }
+#endif
 
     return mhd_notify_error (connection, -EINVAL);
 }
