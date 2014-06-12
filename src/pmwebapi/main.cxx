@@ -361,7 +361,11 @@ server_dump_configuration ()
         clog << "\tRemote context creation requests disabled" << endl;
     }
 
-    clog << "\tGraphite API " << (graphite_p ? "enabled" : "disabled") << endl;
+    clog << "\tGraphite API " << (graphite_p ? "enabled" : "disabled")
+#ifdef HAVE_CAIRO
+         << " with Cairo graphics"
+#endif
+         << endl;
     if (dumpstats > 0) {
         clog << "\tPeriodic client statistics dumped roughly every " << dumpstats << "s" << endl;
     } else {

@@ -18,6 +18,8 @@
 - serialize-to-disk webapi connection state & profile data,
             for possible restoring if pmwebapi is killed/restarted
 
-- png rendering
 - graphite event support
 - old config.options style detection/support
+- /graphite/browser/search
+- dashboard generator
+
