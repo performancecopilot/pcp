@@ -19,4 +19,5 @@
             for possible restoring if pmwebapi is killed/restarted
 
 - png rendering
+- graphite event support
 - old config.options style detection/support
