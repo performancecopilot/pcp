@@ -705,9 +705,10 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
 
             if (isnanf (last_value) || isnanf (this_value)) {
                 output[i].what = nanf ("");
-            } else
-                // avoid loss of significance by dividing then subtracting
+            } else 
             {
+                // avoid loss of significance risk of naively calculating
+                // (this_v-last_v)/(this_t-last_t)
                 output[i].what = (this_value / delta) - (last_value / delta);
             }
         }
@@ -809,33 +810,22 @@ pmgraphite_parse_timespec (struct MHD_Connection * connection, string value)
 
 /* ------------------------------------------------------------------------ */
 
+// Decode graphite URL pieces toward data gathering: specifically enough
+// to identify validated metrics and time bounds.
 
 int
-pmgraphite_respond_render (struct MHD_Connection *connection, const http_params & params,
-                           const vector <string> &url)
+pmgraphite_gather_data (struct MHD_Connection *connection, const http_params & params,
+                        const vector <string> &url,
+                        vector<string>& targets,
+                        time_t& t_start,
+                        time_t& t_end,
+                        time_t& t_step)
 {
-    return mhd_notify_error (connection, -EINVAL);
-}
-
-
-/* ------------------------------------------------------------------------ */
-
-// Render raw archive data in JSON form.
-int
-pmgraphite_respond_render_json (struct MHD_Connection *connection,
-                                const http_params & params, const vector <string> &url,
-                                bool rawdata_flavour_p)
-{
-    int rc;
-    struct MHD_Response *resp;
+    int rc = 0;
 
     vector <string> target_patterns = params.find_all ("target");
-    if (target_patterns.size () == 0) {
-        return mhd_notify_error (connection, -EINVAL);
-    }
 
     // The patterns may have wildcards; expand the bad boys.
-    vector <string> targets;
     for (unsigned i=0; i<target_patterns.size (); i++) {
         unsigned pattern_length = count (target_patterns[i].begin (), target_patterns[i].end (), '.');
         vector <string> metrics = pmgraphite_enumerate_metrics (connection, target_patterns[i]);
@@ -864,8 +854,8 @@ pmgraphite_respond_render_json (struct MHD_Connection *connection,
         until = "-0hour";
     }
 
-    time_t t_start = pmgraphite_parse_timespec (connection, from);
-    time_t t_end = pmgraphite_parse_timespec (connection, until);
+    t_start = pmgraphite_parse_timespec (connection, from);
+    t_end = pmgraphite_parse_timespec (connection, until);
 
     // We could hard-code t_step = 60 as in the /rawdata case, since that is the
     // typical sampling rate for graphite as well as pcp.  But maybe a graphite
@@ -875,13 +865,281 @@ pmgraphite_respond_render_json (struct MHD_Connection *connection,
         maxdatapt = 1024;		// a sensible upper limit?
     }
 
-    time_t t_step = 60;		// a default, but ...
+    t_step = 60;		// a default, but ...
     if (((t_end - t_start) / t_step) > maxdatapt) {
         // make it larger if needed
         t_step = ((t_end - t_start) / maxdatapt) + 1;
     }
-    // NB: We can't make it too small.  libpcp interp.c goes crazy/slow if one
-    // asks for tiny interpolation intervals.
+
+    return rc;
+}
+
+
+/* ------------------------------------------------------------------------ */
+
+
+cairo_status_t cairo_write_to_string(void *cls, const unsigned char* data, unsigned int length)
+{
+    string* s = (string *) cls;
+    (*s) += string((const char*) data, (size_t) length); // XXX: might throw
+    return CAIRO_STATUS_SUCCESS;
+}
+
+
+void cairo_parse_color (const string& name, double& r, double& g, double& b)
+{
+    r = (random() % 256) / 255.0;
+    g = (random() % 256) / 255.0;
+    b = (random() % 256) / 255.0;
+}
+
+
+
+// Render archive data to an image.  It doesn't need to be as pretty
+// as the version built into the graphite server-side code, just
+// serviceable.
+
+int
+pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
+                               const http_params & params, const vector <string> &url)
+{
+    int rc;
+    struct MHD_Response *resp;
+    string imgbuf;
+    cairo_status_t cst;
+    cairo_surface_t *sfc;
+    cairo_t *cr;
+    vector< vector<timestamped_float> > all_results;
+
+    string format = params["format"];
+    if (format == "")
+        format = "png";
+    
+    // SVG? etc?
+    if (format != "png")
+        return mhd_notify_error (connection, -EINVAL);        
+
+    vector <string> targets;
+    time_t t_start, t_end, t_step;
+    rc = pmgraphite_gather_data (connection, params, url, targets, t_start, t_end, t_step);
+    if (rc) {
+        return mhd_notify_error (connection, rc);
+    }
+
+    int width = atoi (params["width"].c_str());
+    if (width <= 0) width = 640;
+    int height = atoi (params["height"].c_str()); 
+    if (height <= 0) height = 480;
+
+    sfc = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, width, height);
+    if (sfc == NULL) {
+        rc = -ENOMEM;
+        goto out1;
+    }
+        
+    cr = cairo_create (sfc);
+    if (cr == NULL) {
+        rc = -ENOMEM;
+        goto out2;
+    }
+
+    double r, g, b;
+    cairo_parse_color (params["bgcolor"], r, g, b);
+    cairo_save(cr);
+    cairo_set_source_rgb (cr, r, g, b);
+    cairo_rectangle (cr, 0.0, 0.0, width, height);
+    cairo_fill(cr);
+    cairo_restore(cr);
+
+    // Gather up all the data.  We need several passes over it, so gather it into a vector<vector<>>.
+    for (unsigned k = 0; k < targets.size (); k++) {
+        if (exit_p) {
+            break;
+        }
+        all_results.push_back (pmgraphite_fetch_series (connection, targets[k], t_start, t_end, t_step));
+    }
+
+
+    // Compute vertical bounds.
+    float ymin;
+    if (params["yMin"] != "")
+        ymin = atof (params["yMin"].c_str());
+    else {
+        ymin = nanf("");
+        for (unsigned i=0; i<all_results.size(); i++)
+            for (unsigned j=0; j<all_results[i].size(); j++)
+                ymin = isnanf(ymin) ? all_results[i][j].what : min(ymin, all_results[i][j].what);
+    }
+    float ymax;
+    if (params["yMax"] != "")
+        ymax = atof (params["yMax"].c_str());
+    else {
+        ymax = nanf("");
+        for (unsigned i=0; i<all_results.size(); i++)
+            for (unsigned j=0; j<all_results[i].size(); j++)
+                ymax = isnanf(ymax) ? all_results[i][j].what : max(ymax, all_results[i][j].what);
+    }
+
+    if (verbosity)
+        connstamp(clog, connection) << "Rendering " << all_results.size() << " metrics" 
+                                    << ", ymin=" << ymin << ", ymax=" << ymax << endl;
+
+
+    // Any data to show?
+    if (isnanf(ymin) || isnanf(ymax) || all_results.empty())
+        {
+        cairo_text_extents_t ext;
+        string message = "no data in range";
+        cairo_select_font_face (cr, "serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+        cairo_set_font_size (cr, 32.0);
+        cairo_set_source_rgb (cr, 0.0, 0.0, 0.0);
+        cairo_text_extents (cr, message.c_str(), &ext);
+        cairo_move_to (cr,
+                       width/2.0 - (ext.width/2 + ext.x_bearing),
+                       height/2.0 - (ext.height/2 + ext.y_bearing));
+        cairo_show_text (cr, message.c_str());
+    }
+
+    // Because we're going for basic acceptable rendering only, for
+    // purposes of graphite-builder previews, we hard-code a simple
+    // layout scheme:
+    //
+    // outer 10% of area: labels
+    // inner 80% of area: graph lines
+    //
+    // As a mnemonic, double typed variables are used to track
+    // coordinates in graphics space, and float (with nan) for pcp
+    // metric space.
+
+    // Draw the grid
+
+    // Draw the labels
+
+    // Draw the curves
+    for (unsigned i=0; i<all_results.size(); i++) {
+        const vector<timestamped_float>& f = all_results[i];
+        const string& metric_name = targets[i];
+
+        double r,g,b;
+        cairo_save(cr);
+        cairo_parse_color (metric_name, r, g, b);
+        cairo_set_source_rgb(cr, r, g, b);
+
+        double lastx = nan("");
+        double lasty = nan("");
+        for (unsigned j=0; j<f.size(); j++) {
+            double line_width = 2.5;
+            cairo_set_line_width (cr, line_width);
+            
+            if (isnanf(f[j].what)) {
+                // This data slot is missing, so put a circle at the previous end, if
+                // possible, to indicate the discontinuity
+                if (! isnan(lastx) && ! isnan(lasty)) {
+                    cairo_move_to (cr, lastx, lasty);
+                    cairo_arc (cr, lastx, lasty, line_width*0.5, 0., 2*M_PI);
+                    cairo_stroke(cr);
+                    continue;
+                }
+            }
+
+            float xdelta = (t_end - t_start);
+            float ydelta = (ymax - ymin);
+            double relx = ((double)(f[j].when.tv_sec + f[j].when.tv_usec/1000000.0)/xdelta)  -
+                ((double)t_start/xdelta);
+            double rely = (double)ymax/ydelta - (double)f[j].what/ydelta;
+
+            double x = width*0.10 + width*0.80*relx; // scaled into graphics grid area
+            double y = height*0.10 + height*0.80*rely;
+
+            cairo_move_to (cr, x, y);
+            if (! isnan(lastx) && ! isnan(lasty)) {
+                // draw it as a line
+                cairo_line_to (cr, lastx, lasty);
+            } else {
+                // draw it as a circle
+                cairo_arc (cr, x, y, line_width*0.5, 0., 2*M_PI);
+            }
+            cairo_stroke(cr);
+
+            lastx = x;
+            lasty = y;
+        }
+
+        cairo_restore(cr);
+    }
+    
+    
+    // Need to get the data out of cairo and into microhttpd.  We use
+    // a c++ string as a temporary, which can carry binary data.
+
+    cst = cairo_surface_write_to_png_stream (sfc, & cairo_write_to_string, (void *) & imgbuf);
+    if (cst != CAIRO_STATUS_SUCCESS || cairo_status(cr) != CAIRO_STATUS_SUCCESS) {
+        rc = -EIO;
+        goto out3;
+    }
+
+    resp = MHD_create_response_from_buffer (imgbuf.size(), (void*) imgbuf.c_str(), MHD_RESPMEM_MUST_COPY);
+    if (resp == NULL) {
+        connstamp (cerr, connection) << "MHD_create_response_from_buffer failed" << endl;
+        rc = -ENOMEM;
+        goto out3;
+    }
+
+    /* https://developer.mozilla.org/en-US/docs/HTTP/Access_control_CORS */
+    rc = MHD_add_response_header (resp, "Access-Control-Allow-Origin", "*");
+    if (rc != MHD_YES) {
+        connstamp (cerr, connection) << "MHD_add_response_header ACAO failed" << endl;
+        rc = -ENOMEM;
+        goto out4;
+    }
+
+    rc = MHD_add_response_header (resp, "Content-Type", "image/png");
+    if (rc != MHD_YES) {
+        connstamp (cerr, connection) << "MHD_add_response_header CT failed" << endl;
+        rc = -ENOMEM;
+        goto out4;
+    }
+    rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
+    if (rc != MHD_YES) {
+        connstamp (cerr, connection) << "MHD_queue_response failed" << endl;
+        rc = -ENOMEM;
+        goto out4;
+    }
+
+    rc = 0;
+
+ out4:
+    MHD_destroy_response (resp);
+ out3:
+    cairo_destroy (cr);
+ out2:
+    cairo_surface_destroy (sfc);
+ out1:
+    if (rc)
+        return mhd_notify_error (connection, rc);
+    else
+        return MHD_YES;
+}
+
+
+/* ------------------------------------------------------------------------ */
+
+
+// Render raw archive data in JSON form.
+int
+pmgraphite_respond_render_json (struct MHD_Connection *connection,
+                                const http_params & params, const vector <string> &url,
+                                bool rawdata_flavour_p)
+{
+    int rc;
+    struct MHD_Response *resp;
+
+    vector <string> targets;
+    time_t t_start, t_end, t_step;
+    rc = pmgraphite_gather_data (connection, params, url, targets, t_start, t_end, t_step);
+    if (rc) {
+        return mhd_notify_error (connection, rc);
+    }
 
     stringstream output;
     output << "[";
@@ -1015,7 +1273,7 @@ pmgraphite_respond (struct MHD_Connection *connection, const http_params & param
     }
 #endif
     else if (url2 == "render") {
-        return pmgraphite_respond_render (connection, params, url);
+        return pmgraphite_respond_render_gfx (connection, params, url);
     }
 
     return mhd_notify_error (connection, -EINVAL);
