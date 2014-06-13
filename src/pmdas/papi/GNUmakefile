@@ -21,7 +21,8 @@ CMDTARGET = pmdapapi$(EXECSUFFIX)
 LLDLIBS = -lpapi $(PCP_PMDALIB)
 LCFLAGS = -I.
 DFILES	= README help
-LSRCFILES = Install Remove pmns root $(DFILES) papi.conf GNUmakefile.install
+#LSRCFILES = Install Remove pmns root $(DFILES) GNUmakefile.install
+LSRCFILES = Install Remove pmns root $(DFILES)
 
 IAM	= papi
 DOMAIN	= PAPI
@@ -36,8 +37,8 @@ include $(BUILDRULES)
 install_pcp install:	default 
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
-	$(INSTALL) -m 644 root pmns domain.h papi.conf $(PMDADIR)
+#	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
+	$(INSTALL) -m 644 root pmns domain.h $(PMDADIR)
 	$(INSTALL) -m 644 $(CFILES) $(DFILES) $(PMDADIR)
 
 domain.h: ../../pmns/stdpmid
