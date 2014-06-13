@@ -1,7 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2013 Red Hat.
-# Copyright (c) 1997 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2014 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -13,40 +12,15 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# Install the simple PMDA and/or PMNS
+# Install the PAPI PMDA and/or PMNS
 #
 
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=papi
-pmda_interface=2
-forced_restart=false
-
-dso_opt=true
-perl_opt=true
-python_opt=true
-socket_opt=true
-socket_inet_def=2078
-
-# Set up the papi PMDA (domain XXX) InDom cache
-#
-domain=`sed -n <domain.h -e '/define PAPI/{
-s/[ 	]*$//
-s/.*[ 	]//
-p
-}'`
-if [ -z "$domain" ]
-then
-    echo "Arrgh ... cannot extract domain number from domain.h"
-    exit 1
-fi
-if [ -d $PCP_VAR_DIR/config/pmda ]
-then
-    touch $PCP_VAR_DIR/config/pmda/$domain.1
-    chown $PCP_USER:$PCP_GROUP $PCP_VAR_DIR/config/pmda/$domain.1
-    chmod 644 $PCP_VAR_DIR/config/pmda/$domain.1
-fi
+pmda_interface=6
+forced_restart=true
 
 pmdaSetup
 pmdaInstall
