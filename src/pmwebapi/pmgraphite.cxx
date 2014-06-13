@@ -879,7 +879,7 @@ pmgraphite_gather_data (struct MHD_Connection *connection, const http_params & p
 
 #ifdef HAVE_CAIRO
 
-cairo_status_t cairo_write_to_string (void *cls, const unsigned char* data, unsigned int length)
+cairo_status_t notcairo_write_to_string (void *cls, const unsigned char* data, unsigned int length)
 {
     string* s = (string *) cls;
     (*s) += string ((const char*) data, (size_t) length); // XXX: might throw
@@ -927,7 +927,7 @@ struct rgb {
     rgb (short r, short g, short b): r (r/255.0), g (g/255.0), b (b/255.0) {}
 };
 
-void cairo_parse_color (const string& name, double& r, double& g, double& b)
+void notcairo_parse_color (const string& name, double& r, double& g, double& b)
 {
     // try to parse RRGGBB RGB #RRGGBB #RGB forms
     static const char hex[] = "0123456789ABCDEF";
@@ -1090,6 +1090,7 @@ try_name:
         colormap["powderblue"] = rgb (176, 224, 230);
         colormap["purple"] = rgb (128, 0, 128);
         colormap["red"] = rgb (255, 0, 0);
+        colormap["rose"] = rgb (200,150,200); // a graphite-special
         colormap["rosybrown"] = rgb (188, 143, 143);
         colormap["royalblue"] = rgb (65, 105, 225);
         colormap["saddlebrown"] = rgb (139, 69, 19);
@@ -1134,6 +1135,115 @@ try_name:
 }
 
 
+// Heuristically compute some reasonably rounded minimum/maximum
+// values and major tick lines for the vertical scale.  
+//
+// Algorithm based on Label.c / Paul Heckbert / "Graphics Gems",
+// Academic Press, 1990
+//
+// EULA: The Graphics Gems code is copyright-protected. In other
+// words, you cannot claim the text of the code as your own and resell
+// it. Using the code is permitted in any program, product, or
+// library, non-commercial or commercial. Giving credit is not
+// required, though is a nice gesture.
+
+float nicenum(float x, bool round_p)
+{
+    int expv;/* exponent of x */
+    double f;/* fractional part of x */
+    double nf;/* nice, rounded fraction */
+
+    expv = floor(log10f(x));
+    f = x/exp10f(expv);/* between 1 and 10 */
+    if (round_p)
+        if (f<1.5) nf = 1.;
+        else if (f<3.) nf = 2.;
+        else if (f<7.) nf = 5.;
+        else nf = 10.;
+    else
+        if (f<=1.) nf = 1.;
+        else if (f<=2.) nf = 2.;
+        else if (f<=5.) nf = 5.;
+        else nf = 10.;
+    return nf*exp10f(expv);
+}
+
+vector<float> round_linear (float& ymin, float& ymax, unsigned nticks)
+{
+    vector<float> ticks;
+
+    // make some space between min & max
+    float epsilon = 0.5;
+    if ((ymax - ymin) < epsilon) {
+        ymin -= epsilon;
+        ymax += epsilon;
+    }
+
+    if (nticks <= 1)
+        nticks = 3;
+
+    float range = nicenum(ymax-ymin, false);
+    float d = nicenum(range/(nticks-1), true);
+    ymin = floorf(ymin/d)*d;
+    ymax = ceilf(ymax/d)*d;    
+
+    for (float x = ymin; x <= ymax; x+= d)
+        ticks.push_back(x);
+
+    return ticks;
+}
+
+
+
+time_t nicetime(time_t x, bool round_p)
+{
+    static const time_t powers[] = {1, // seconds
+                                    60, 60*5, 60*10, 60*30, 60*60, // minutes
+                                    60*60*2, 60*60*4, 60*60*6, 60*60*12, 60*60*24, // hours
+                                    60*60*24*7, 60*60*24*7*4,  60*60*24*7*52 }; // weeks
+    unsigned npowers = sizeof(powers)/sizeof(powers[0]);
+    time_t ex;
+    for (int i=npowers-1; i>=0; i--) {
+        ex = powers[i];
+        if (ex <= x)
+            break;
+    }
+
+    if (round_p)
+        return ((x + ex - 1) / ex) * ex;
+    else
+        return (x / ex) * ex;
+}
+
+
+
+vector<time_t> round_time (time_t xmin, time_t xmax, unsigned nticks)
+{
+    vector<time_t> ticks;
+
+    // make some space between min & max
+    time_t epsilon = 1;
+    if ((xmax - xmin) < epsilon) {
+        xmin -= epsilon;
+        xmax += epsilon;
+    }
+
+    if (nticks <= 1)
+        nticks = 3;
+
+    time_t range = nicetime(xmax-xmin, false);
+    time_t d = nicetime(range/(nticks+1), true);
+    xmin = ((xmin + d - 1)/ d) * d;
+    xmax = ((xmax + d - 1)/ d) * d;
+
+    for (time_t x = xmin; x < xmax; x += d)
+        ticks.push_back(x);
+
+    return ticks;
+}
+
+
+
 
 // Render archive data to an image.  It doesn't need to be as pretty
 // as the version built into the graphite server-side code, just
@@ -1149,11 +1259,13 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
     cairo_status_t cst;
     cairo_surface_t *sfc;
     cairo_t *cr;
-    vector<vector<timestamped_float>> all_results;
+    vector<vector<timestamped_float> > all_results;
     string colorList;
     vector<string> colors;
     string bgcolor;
     double graphxlow, graphxhigh, graphylow, graphyhigh;
+    vector<float> yticks;
+    vector<time_t> xticks;
 
     string format = params["format"];
     if (format == "") {
@@ -1200,7 +1312,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
     {
         bgcolor="white";
     }
-    cairo_parse_color (bgcolor, r, g, b);
+    notcairo_parse_color (bgcolor, r, g, b);
     cairo_save (cr);
     cairo_set_source_rgb (cr, r, g, b);
     cairo_rectangle (cr, 0.0, 0.0, width, height);
@@ -1252,11 +1364,6 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
             }
     }
 
-    if (verbosity)
-        connstamp (clog, connection) << "Rendering " << all_results.size () << " metrics"
-                                     << ", ymin=" << ymin << ", ymax=" << ymax << endl;
-
-
     // Any data to show?
     if (isnanf (ymin) || isnanf (ymax) || all_results.empty ()) {
         cairo_text_extents_t ext;
@@ -1275,6 +1382,17 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
     }
 
 
+    // What makes us tick?
+    yticks = round_linear (ymin, ymax,
+                           (unsigned)(0.3 * sqrt(height))); // flot heuristic
+    xticks = round_time (t_start, t_end,
+                         (unsigned)(0.25 * sqrt(width))); // fewer due to wide time axis labels
+
+
+    if (verbosity)
+        connstamp (clog, connection) << "Rendering " << all_results.size () << " metrics"
+                                     << ", ymin=" << ymin << ", ymax=" << ymax << endl;
+
     // Because we're going for basic acceptable rendering only, for
     // purposes of graphite-builder previews, we hard-code a simple
     // layout scheme:
@@ -1290,10 +1408,9 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
 
     // Fetch curve color list
     colorList = params["colorList"];
-    if (colorList == "")
+    if (colorList == "") {
         // as per graphite render/glyph.py defaultGraphOptions
-    {
-        colorList = "blue,green,red,purple,brown,yellow,aqua,grey,magenta,pink,gold,rose";
+        colorList = "blue,green,red,purple,brown,yellow,aqua,grey,magenta,pink,gold,mistyrose";
     }
     colors = generate_colorlist (split (colorList,','), targets);
     assert (colors.size () == targets.size ());
@@ -1312,7 +1429,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
         if (fgcolor == "") {
             fgcolor = "black";
         }
-        cairo_parse_color (fgcolor, r, g, b);
+        notcairo_parse_color (fgcolor, r, g, b);
         cairo_set_source_rgb (cr, r, g, b);
         cairo_select_font_face (cr, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
         cairo_set_font_size (cr, spacing);
@@ -1334,7 +1451,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
 
     // Draw the legend
     if (params["hideLegend"] != "true" &&
-            targets.size () <= 10) { // maximum number of legend entries
+        (params["hideLegend"] == "false" || targets.size () <= 10)) { // maximum number of legend entries
         double spacing = 10.0;
         double baseline = height - 8.0;
         double leftedge = 10.0;
@@ -1344,7 +1461,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
 
             // draw square swatch
             cairo_save (cr);
-            cairo_parse_color (colors[i], r, g, b);
+            notcairo_parse_color (colors[i], r, g, b);
             cairo_set_source_rgb (cr, r, g, b);
             cairo_rectangle (cr, leftedge+1.0, baseline+1.0, spacing-1.0, 0.0-spacing-1.0);
             cairo_fill (cr);
@@ -1356,7 +1473,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
             if (fgcolor == "") {
                 fgcolor = "black";
             }
-            cairo_parse_color (fgcolor, r, g, b);
+            notcairo_parse_color (fgcolor, r, g, b);
             cairo_set_source_rgb (cr, r, g, b);
             cairo_select_font_face (cr, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
             cairo_set_font_size (cr, spacing);
@@ -1376,25 +1493,107 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
     }
 
     if (params["hideGrid"] != "true") {
-        // Draw the frame
+        // Shrink the graph to make room for axis labels
+        graphxlow = width * 0.10;
+        graphxhigh = width * 0.95;
+        graphyhigh -= 10.;
+
         double r, g, b;
-        double line_width = 1.0;
+        double line_width = 1.5;
+
+        // Draw the grid
+        cairo_save(cr);
+        string majorGridLineColor = params["majorGridLineColor"];
+        if (majorGridLineColor == "") majorGridLineColor = "pink"; // XXX:
+        notcairo_parse_color (majorGridLineColor, r, g, b);
+        cairo_set_source_rgb (cr, r, g, b);
+        cairo_set_line_width (cr, line_width);
+
+        // Y axis grid & labels
+        for (unsigned i=0; i<yticks.size(); i++) {
+            float thisy = yticks[i];
+            float ydelta = (ymax - ymin);
+            double rely = (double)ymax/ydelta - (double)thisy/ydelta;
+            double y = graphylow + (graphyhigh-graphylow)*rely;
+
+            cairo_move_to (cr, graphxlow, y);
+            cairo_line_to (cr, graphxhigh, y);
+            cairo_stroke (cr);
+
+            stringstream label;
+            label << yticks[i];
+            string lstr = label.str();
+            cairo_text_extents_t ext;
+            cairo_save (cr);
+            cairo_select_font_face (cr, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+            cairo_set_font_size (cr, 8.0);
+            string fgcolor = params["fgcolor"];
+            if (fgcolor == "") {
+                fgcolor = "black";
+            }
+            notcairo_parse_color (fgcolor, r, g, b);
+            cairo_set_source_rgb (cr, r, g, b);
+            cairo_text_extents (cr, lstr.c_str (), &ext);
+            cairo_move_to (cr,
+                           graphxlow - (ext.width + ext.x_bearing) - line_width*3,
+                           y - (ext.height/2 + ext.y_bearing));
+            cairo_show_text (cr, lstr.c_str ());
+            cairo_restore (cr);
+        }
+
+        // X axis grid & labels
+        for (unsigned i=0; i<xticks.size(); i++) {
+            float thisx = xticks[i];
+            float xdelta = (t_end - t_start);
+            double relx = (double)thisx/xdelta - (double)t_start/xdelta;
+            double x = graphxlow + (graphxhigh-graphxlow)*relx;
+
+            cairo_move_to (cr, x, graphylow);
+            cairo_line_to (cr, x, graphyhigh);
+            cairo_stroke (cr);
+
+            // We use gmtime / strftime to make a compact rendering of
+            // the (UTC) time_t.
+            char timestr[100];
+            struct tm *t = gmtime(& xticks[i]);
+            if (t->tm_hour == 0 && t->tm_sec == 0)
+                strftime (timestr, sizeof(timestr), "%Y-%m-%d", t);
+            else
+                strftime (timestr, sizeof(timestr), "%Y-%m-%d %H:%M", t);
+
+            cairo_text_extents_t ext;
+            cairo_save (cr);
+            cairo_select_font_face (cr, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+            cairo_set_font_size (cr, 8.0);
+            string fgcolor = params["fgcolor"];
+            if (fgcolor == "") {
+                fgcolor = "black";
+            }
+            notcairo_parse_color (fgcolor, r, g, b);
+            cairo_set_source_rgb (cr, r, g, b);
+            cairo_text_extents (cr, timestr, &ext);
+            cairo_move_to (cr,
+                           x - (ext.width/2 + ext.x_bearing),
+                           graphyhigh + (ext.height + ext.y_bearing) + 10);
+            cairo_show_text (cr, timestr);
+            cairo_restore (cr);
+        }
+        cairo_restore(cr);
+        
+        // Draw the frame (on top of the funky pink grid)
         cairo_save (cr);
         string fgcolor = params["fgcolor"];
         if (fgcolor == "") {
             fgcolor = "black";
         }
-        cairo_parse_color (fgcolor, r, g, b);
-        cairo_set_source_rgba (cr, r, g, b, 0.5);
-        cairo_set_line_width (cr, line_width);
+        notcairo_parse_color (fgcolor, r, g, b);
+        cairo_set_source_rgb (cr, r, g, b);
+        cairo_set_line_width (cr, line_width*1.5);
         cairo_rectangle (cr, graphxlow, graphylow, (graphxhigh-graphxlow), (graphyhigh-graphylow));
         cairo_stroke (cr);
         cairo_restore (cr);
-
-        // XXX Draw the grid
-
-        // XXX Draw the axis labels
     }
+
 
     // Draw the curves
     for (unsigned i=0; i<all_results.size (); i++) {
@@ -1402,13 +1601,27 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
 
         double r,g,b;
         cairo_save (cr);
-        cairo_parse_color (colors[i], r, g, b);
+        notcairo_parse_color (colors[i], r, g, b);
         cairo_set_source_rgb (cr, r, g, b);
 
-        double line_width = 1.5;
+        string lineWidth = params["lineWidth"];
+        if (lineWidth == "") lineWidth = "1.2";
+        double line_width = atof(lineWidth.c_str());
         cairo_set_line_width (cr, line_width);
+        cairo_set_line_cap (cr, CAIRO_LINE_CAP_ROUND);
+        cairo_set_line_join (cr, CAIRO_LINE_JOIN_ROUND);
 
-        // clog << "curve #" << i << ": ";
+#if 0
+        // transform cairo rendering coordinate system, so we can feed
+        // it raw data timestamp/value pairs and get them drawn onto
+        // the designated graph[xy]{low,high} region.
+        cairo_translate (cr, (double)graphxlow, (double)graphylow);
+        cairo_scale (cr, (double)graphxhigh-graphxlow, (double)graphyhigh-graphylow);
+        cairo_scale (cr, 1./((double)t_end-(double)t_start), 1./((double)ymax-(double)ymin));
+        cairo_translate (cr, -(double)t_start, -(double)ymin);
+
+        // XXX: unfortunately, the order of operations or something else is awry with the above.
+#endif
 
         double lastx = nan ("");
         double lasty = nan ("");
@@ -1433,10 +1646,13 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
             float ydelta = (ymax - ymin);
             double relx = (double)thisx/xdelta - (double)t_start/xdelta;
             double rely = (double)ymax/ydelta - (double)thisy/ydelta;
-
             double x = graphxlow + (graphxhigh-graphxlow)*relx; // scaled into graphics grid area
             double y = graphylow + (graphyhigh-graphylow)*rely;
 
+#if 0 // if only the cairo transform widget worked above
+            double x = thisx;
+            double y = thisy;
+#endif
             // clog << "-(" << x << "," << y << ") ";
 
             cairo_move_to (cr, x, y);
@@ -1461,7 +1677,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
     // Need to get the data out of cairo and into microhttpd.  We use
     // a c++ string as a temporary, which can carry binary data.
 render_done:
-    cst = cairo_surface_write_to_png_stream (sfc, & cairo_write_to_string, (void *) & imgbuf);
+    cst = cairo_surface_write_to_png_stream (sfc, & notcairo_write_to_string, (void *) & imgbuf);
     if (cst != CAIRO_STATUS_SUCCESS || cairo_status (cr) != CAIRO_STATUS_SUCCESS) {
         rc = -EIO;
         goto out3;
