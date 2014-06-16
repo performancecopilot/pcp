@@ -110,6 +110,7 @@ auxserver.o
     localSocketFd		# single-threaded server scope
     server_features		# single-threaded server scope
 discovery.o
+    globalOptionsInfo		# single-threaded scope
 ?avahi.o
     nActiveServices		# single-threaded server scope
     szActiveServices		# single-threaded server scope

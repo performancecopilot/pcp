@@ -402,7 +402,7 @@ pmmgr_job_spec::poll()
       const char *discovery = (target_discovery[i] == "")
         ? NULL
         : target_discovery[i].c_str();
-      int numUrls = pmDiscoverServices (PM_SERVER_SERVICE_SPEC, discovery, &urls);
+      int numUrls = pmDiscoverServices (PM_SERVER_SERVICE_SPEC, discovery, NULL, &urls);
       if (numUrls <= 0)
         continue;
       for (int i=0; i<numUrls; i++)

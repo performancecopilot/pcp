@@ -823,7 +823,11 @@ extern void pmFreeEventResult(pmResult **);
 #define PM_SERVER_PROXY_SPEC	"pmproxy"
 #define PM_SERVER_WEBD_SPEC	"pmwebd"
 
-extern int pmDiscoverServices(const char *, const char *, char ***);
+typedef struct pmDiscoveryGlobalOptions {
+    int	resolve;	/* resolve addresses */
+} pmDiscoveryGlobalOptions;
+
+extern int pmDiscoverServices(const char *, const char *, const char *, char ***);
 
 #ifdef __cplusplus
 }

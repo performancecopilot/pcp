@@ -276,11 +276,12 @@ probeForServices(
     else {
 	/*
 	 * We want our worker threads to be joinable and they don't need much
-	 * stack.
+	 * stack. PTHREAD_STACK_MIN is not enough when resolving addresses,
+	 * but twice that much is.
 	 */
 	pthread_attr_init(&threadAttr);
 	pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_JOINABLE);
-	pthread_attr_setstacksize(&threadAttr, PTHREAD_STACK_MIN);
+	pthread_attr_setstacksize(&threadAttr, 2 * PTHREAD_STACK_MIN);
 
 	/* Dispatch the threads. */
 	for (nThreads = 0; nThreads < maxThreads; ++nThreads) {

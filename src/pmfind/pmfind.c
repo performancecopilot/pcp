@@ -15,8 +15,8 @@
 #include "impl.h"
 
 static int	quiet;
-static char	*service;
 static char	*mechanism;
+static char	*globalOptions;
 
 static int override(int, pmOptions *);
 
@@ -30,6 +30,7 @@ static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Discovery options"),
     PMOPT_DEBUG,
     { "mechanism", 1, 'm', "NAME", "set the discovery method to use [avahi|probe=<subnet>|all]" },
+    { "resolve", 0, 'r', 0, "resolve addresses" },
     { "service", 1, 's', "NAME", "discover services [pmcd|pmproxy|pmwebd|...|all]" },
     PMAPI_OPTIONS_HEADER("Reporting options"),
     { "quiet", 0, 'q', 0, "quiet mode, do not write to stdout" },
@@ -38,7 +39,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "D:m:s:q?",
+    .short_options = "D:m:rs:q?",
     .long_options = longopts,
     .override = override,
 };
@@ -56,7 +57,7 @@ discovery(const char *spec)
     int		i, sts;
     char	**urls;
 
-    sts = pmDiscoverServices(spec, mechanism, &urls);
+    sts = pmDiscoverServices(spec, mechanism, globalOptions, &urls);
     if (sts < 0) {
 	fprintf(stderr, "%s: service %s discovery failure: %s\n",
 		pmProgname, spec, pmErrStr(sts));
@@ -77,13 +78,53 @@ discovery(const char *spec)
     return 0;
 }
 
+static void
+addGlobalOption(const char *option)
+{
+    size_t curLen, optLen, newLen;
+    char *newOptions;
+    /*
+     * Add the new option to the global options string, separated from any
+     * existing options by a comma.
+     */
+    optLen = strlen(option);
+    if (globalOptions == NULL) {
+	curLen = 0;
+	newLen = optLen;
+    }
+    else {
+	curLen = strlen(globalOptions);
+	newLen = curLen + 1 + optLen; /* room for a comma */
+    }
+
+    /* Grow the buffer */
+    newOptions = realloc(globalOptions, newLen + 1); /* room for the nul byte */
+    if (newOptions == NULL) {
+	fprintf(stderr, "%s: unable to allocate space for global option '%s'\n",
+		pmProgname, option);
+	/*
+	 * According to realloc(3), if realloc fails, then the original memory
+	 * block, if any, qis left untouched.
+	 */
+	return;
+    }
+
+    /* Add the new option. */
+    sprintf(newOptions + curLen, "%s%s", curLen == 0 ? "" : ",", option);
+    globalOptions = newOptions;
+}
+
 int
 main(int argc, char **argv)
 {
+    char	*service = NULL;
     int		c, sts, total;
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
+	case 'r':	/* resolve addresses */
+	    addGlobalOption("resolve");
+	    break;
 	case 's':	/* local services */
 	    if (strcmp(opts.optarg, "all") == 0)
 		service = NULL;
