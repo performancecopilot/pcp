@@ -465,15 +465,17 @@ out1:
 
 // This query searches the whole metric list for substring / regexp matches.
 // Unusually, this request returns comma-separated results as text/plain (?!).
+// The graphlot flavour is almost identical.
 
 int
 pmgraphite_respond_metrics_grep (struct MHD_Connection *connection,
-                                 const http_params & params, const vector <string> &url)
+                                 const http_params & params, const vector <string> &url,
+                                 bool graphlot_p)
 {
     int rc;
     struct MHD_Response *resp;
 
-    string query = params["query"];
+    string query = graphlot_p ? params["q"] : params["query"];
     if (query == "") {
         return mhd_notify_error (connection, -EINVAL);
     }
@@ -505,9 +507,13 @@ pmgraphite_respond_metrics_grep (struct MHD_Connection *connection,
                 result = false;
         }
         if (result) {
-            if (count++ > 0)
-                output << ",";
-            output << m;
+            if (graphlot_p)
+                output << m << endl;
+            else {
+                if (count++ > 0)
+                    output << ",";
+                output << m;
+            }
         }
     }
 
@@ -1982,14 +1988,12 @@ pmgraphite_respond (struct MHD_Connection *connection, const http_params & param
     } else if (url2 == "metrics" && url3 == "find") {
         // grafana, graphite tree & auto-completer
         return pmgraphite_respond_metrics_find (connection, params, url);
-#if 0
     } else if (url2 == "graphlot" && url3 == "findmetric") {
         // graphlot
-        return pmgraphite_respond_metrics_findmetric (connection, params, url);
-#endif
+        return pmgraphite_respond_metrics_grep (connection, params, url, true);
     } else if (url2 == "browser" && url3 == "search") {
         // graphite search
-        return pmgraphite_respond_metrics_grep (connection, params, url);
+        return pmgraphite_respond_metrics_grep (connection, params, url, false);
 #ifdef HAVE_CAIRO
     } else if (url2 == "render") {
         return pmgraphite_respond_render_gfx (connection, params, url);
