@@ -159,6 +159,19 @@ pmg_enumerate_pmns (const char *name, void *cls)
         return;    // should not happen
     }
 
+    // Filter out non-numeric metrics
+    switch (pmd.type) {
+    case PM_TYPE_32:
+    case PM_TYPE_U32:
+    case PM_TYPE_64:
+    case PM_TYPE_U64:
+    case PM_TYPE_FLOAT:
+    case PM_TYPE_DOUBLE:
+        break; // fall through
+    default:
+        return;
+    }
+
     if (pmd.indom == PM_INDOM_NULL) { // no more
         c->output->push_back (final_metric_name);
     } else { // nesting
