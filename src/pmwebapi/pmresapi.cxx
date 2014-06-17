@@ -37,28 +37,28 @@ guess_content_type (const char *filename)
     }
 
     /* One could go all out and parse /etc/mime.types, or one can do this ... */
-    if (0 == strcasecmp (extension, "html")) {
+    if (0 == strcasecmp (extension, ".html")) {
         return "text/html";
     }
-    if (0 == strcasecmp (extension, "js")) {
+    if (0 == strcasecmp (extension, ".js")) {
         return "text/javascript";
     }
-    if (0 == strcasecmp (extension, "json")) {
+    if (0 == strcasecmp (extension, ".json")) {
         return "application/json";
     }
-    if (0 == strcasecmp (extension, "txt")) {
+    if (0 == strcasecmp (extension, ".txt")) {
         return "text/plain";
     }
-    if (0 == strcasecmp (extension, "xml")) {
+    if (0 == strcasecmp (extension, ".xml")) {
         return "text/xml";
     }
-    if (0 == strcasecmp (extension, "svg")) {
+    if (0 == strcasecmp (extension, ".svg")) {
         return "image/svg+xml";
     }
-    if (0 == strcasecmp (extension, "png")) {
+    if (0 == strcasecmp (extension, ".png")) {
         return "image/png";
     }
-    if (0 == strcasecmp (extension, "jpg")) {
+    if (0 == strcasecmp (extension, ".jpg")) {
         return "image/jpg";
     }
 
