@@ -625,7 +625,6 @@ if __name__ == '__main__':
                 tokens = line[:-1].split()
                 archive = os.path.join(os.path.dirname(opts.input_file), tokens[2])
         try:
-            print archive
             pm = pmapi.pmContext(c_api.PM_CONTEXT_ARCHIVE, archive)
         except pmapi.pmErr, e:
             print "Cannot open PCP archive: %s" % archive
