@@ -67,7 +67,7 @@ PCP_LIBS = $(PCPLIB_LDFLAGS)
 TARGET_OS = @target_os@
 PCFLAGS = @PCFLAGS@
 PLDFLAGS = @PLDFLAGS@
-ifneq (, $(filter linux kfreebsd, $(TARGET_OS)))
+ifneq (, $(filter linux kfreebsd gnu, $(TARGET_OS)))
 DSOSUFFIX = so
 endif
 ifeq "$(TARGET_OS)" "darwin"

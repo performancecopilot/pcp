@@ -402,7 +402,9 @@ bozo! need to find where MAXNAMELEN is defined for this platform
 #endif
 #endif
 #ifndef MAXPATHLEN
-bozo! need to find where MAXPATHLEN is defined for this platform
+/* bozo! need to find where MAXPATHLEN is defined for this platform */
+#define PATH_MAX 4096
+#define MAXPATHLEN PATH_MAX
 #endif
 
 /*
@@ -430,7 +432,8 @@ bozo! need to find where MAXPATHLEN is defined for this platform
 #endif
 #endif
 #ifndef MAXHOSTNAMELEN
-bozo! need to find where MAXHOSTNAMELEN is defined for this platform
+/* bozo! need to find where MAXHOSTNAMELEN is defined for this platform*/
+#define MAXHOSTNAMELEN 4096
 #endif
 
 #ifndef HAVE_FLOG10
@@ -506,6 +509,9 @@ typedef void (*SIG_PF) (int);
 
 /* Determine if we are on a FreeBSD box */
 #undef IS_FREEBSD
+
+/* Determine if we are on a GNU box */
+#undef IS_GNU
 
 /* Determine if we are on a NetBSD box */
 #undef IS_NETBSD

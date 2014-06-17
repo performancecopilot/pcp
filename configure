@@ -2802,6 +2802,12 @@ then
 
     test -f /etc/debian_version && target_distro=debian
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
+elif test $target_os = gnu
+then
+    $as_echo "#define IS_GNU 1" >>confdefs.h
+
+    test -f /etc/debian_version && target_distro=debian
+    export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
 elif test $target_os = netbsdelf
 then
     target_os=netbsd

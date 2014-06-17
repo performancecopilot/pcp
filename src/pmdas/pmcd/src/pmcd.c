@@ -972,7 +972,7 @@ vset_resize(pmResult *rp, int i, int onumval, int numval)
 static char *
 simabi()
 {
-#if defined(__linux__)
+#if defined(__linux__) || defined(IS_GNU)
 # if defined(__i386__)
     return "ia32";
 # elif defined(__ia64__) || defined(__ia64)

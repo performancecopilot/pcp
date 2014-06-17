@@ -179,6 +179,11 @@ then
     AC_DEFINE(IS_FREEBSD)
     test -f /etc/debian_version && target_distro=debian
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
+elif test $target_os = gnu
+then
+    AC_DEFINE(IS_GNU)
+    test -f /etc/debian_version && target_distro=debian
+    export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
 elif test $target_os = netbsdelf
 then
     target_os=netbsd
