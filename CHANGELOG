@@ -1,5 +1,39 @@
 pcp-3.9.5 (18 June 2014)
-    - Under development.
+    - porting work on the GNU/Hurd platform
+    - porting work on Windows (early MinGW-64 work)
+    - pmdalinux: add in the new mem.util.available metric
+    - pmchart: new vCPU view, resolve guest time reporting
+    - pmwebd: add CORS "Access-Control-Allow-Origin: *" to
+      JSON response headers
+    - pmatop: improvements to value fitting
+    - packaging: gui debuginfo/testsuite correctly replaced
+    - pmconfig: moved install location for Solaris conflict
+    - pmstat: fix hostname reporting when in cluster mode
+    - Coverity scan fixes in libpcp, python, and elsewhere
+    - packaging: pcp-doc now contains all of the tutorial bits
+    - python: timeval/metricspec error handling improvements
+    - pmatop: handle curses problems more gracefully
+    - pmdapostfix: run as postfix user, not the pcp user
+    - python: fix pmParseInterval failure segfault
+    - python: fix segfault when printing empty units
+    - libpcp: functions for collecting server port numbers
+    - pmcd.services metric reflecting PCP daemon usage
+    - libpcp, pmfind: active service probing
+    - pmproxy, pmwebd: support for service discovery
+    - pmcollectl, pmatop: improved log writing support
+    - pmie: long option support
+    - pmquery: neater output formatting
+    - pmchart, pmtime: long option support
+    - pmdasystemd: install the built binary
+    - python: significant work on the pcp.pmcc module, adding
+      long option support, scale conversion, an initial fetch
+      loop method, and entirely new convenience classes
+    - pmlogcheck: fix bad memory access sigsegv on some logs
+    - Fix infinite loop in build scripts without Qt enabled
+    - pmdalinux: add metrics from /proc/net/netstat
+    - pmdumptext: long option support
+    - pmcollectl: support for sub-second sampling intervals
+    - Revive support for RHEL5-era builds, post pcp-gui merge
 
 pcp-3.9.4 (15 May 2014)
     - pmlogger: improved archive I/O features, esp for access to

@@ -830,7 +830,12 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %changelog
 * Wed Jun 18 2014 Dave Brolley <brolley@redhat.com> - 3.9.5-1
-- Under development.
+- Daemon signal handlers no longer use unsafe APIs (BZ 847343)
+- Handle /var/run setups on a temporary filesystem (BZ 656659)
+- Resolve pmlogcheck sigsegv for some archives (BZ 1077432)
+- Ensure pcp-gui-{testsuite,debuginfo} packages get replaced.
+- Revive support for EPEL5 builds, post pcp-gui merge.
+- Update to latest PCP sources.
 
 * Thu May 15 2014 Nathan Scott <nathans@redhat.com> - 3.9.4-1
 - Merged pcp-gui and pcp-doc packages into core PCP.
