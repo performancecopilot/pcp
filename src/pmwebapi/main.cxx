@@ -224,6 +224,7 @@ mhd_respond (void *cls, struct MHD_Connection *connection, const char *url0,
         vector <string> url_tokens = split (url, '/');
         string url1 = (url_tokens.size () >= 2) ? url_tokens[1] : "";
         string url2 = (url_tokens.size () >= 3) ? url_tokens[2] : "";
+        string url3 = (url_tokens.size () >= 4) ? url_tokens[3] : "";
 
         /* pmwebapi? */
         if (url1 == uriprefix) {
@@ -233,7 +234,7 @@ mhd_respond (void *cls, struct MHD_Connection *connection, const char *url0,
         /* graphite? */
         else if (graphite_p && (method == "GET" || method == "POST") && (url1 == "graphite")
                  && ((url2 == "render") || (url2 == "metrics") || (url2 == "rawdata")
-                     || (url2 == "browser"))) {
+                     || (url2 == "browser") || (url2 == "graphlot" && url3 == "findmetric"))) {
             return pmgraphite_respond (connection, mhd_cc->params, url_tokens);
         }
 
