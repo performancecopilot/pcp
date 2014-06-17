@@ -789,12 +789,15 @@ pmgraphite_parse_timespec (struct MHD_Connection * connection, string value)
         return mktime (&parsed);
     }
 
-
     if (value[0] != '-') {
         // nonnegative?  lead __pmParseTime to interpret it as absolute
         // (this is why we take string value instead of const string& parameter)
         value = string ("@") + value;
     }
+    // XXX: graphite permits time units of "weeks", "months", "years",
+    // even though the latter two can't refer to an exact & correct
+    // quantity.  That's OK, heuristics and approximations are
+    // acceptable; __pmParseTime() should probably learn to accept them.
     int sts = __pmParseTime (value.c_str (), &now, &now, &result, &errmsg);
     if (sts != 0) {
         connstamp (cerr, connection) << "unparseable graphite timespec " << value << ": " <<
@@ -1195,9 +1198,9 @@ vector<float> round_linear (float& ymin, float& ymax, unsigned nticks)
 
 
 
-time_t nicetime(time_t x, bool round_p)
+time_t nicetime(time_t x, bool round_p, char const **fmt)
 {
-    static const time_t powers[] = {1, // seconds
+    static const time_t powers[] = {1, 30, // seconds
                                     60, 60*5, 60*10, 60*30, 60*60, // minutes
                                     60*60*2, 60*60*4, 60*60*6, 60*60*12, 60*60*24, // hours
                                     60*60*24*7, 60*60*24*7*4,  60*60*24*7*52 }; // weeks
@@ -1205,8 +1208,19 @@ time_t nicetime(time_t x, bool round_p)
     time_t ex;
     for (int i=npowers-1; i>=0; i--) {
         ex = powers[i];
-        if (ex <= x)
+        if (ex <= x) {
+            if (fmt) { // compute an appropriate date-rendering strftime format
+                if (ex <= 60) // minute
+                    *fmt = "%H:%M:%S";
+                else if (ex <= 2*60*60) // hours
+                    *fmt = "%H:%M";
+                else if (ex <= 2*24*60*60) // days
+                    *fmt = "%m-%d";
+                else // larger than a day interval
+                    *fmt = "%Y-%m-%d";
+            }
             break;
+        }
     }
 
     if (round_p)
@@ -1217,8 +1231,9 @@ time_t nicetime(time_t x, bool round_p)
 
 
 
-vector<time_t> round_time (time_t xmin, time_t xmax, unsigned nticks)
+vector<time_t> round_time (time_t xmin, time_t xmax, unsigned nticks, char const** fmt)
 {
+    (void) fmt;
     vector<time_t> ticks;
 
     // make some space between min & max
@@ -1231,8 +1246,8 @@ vector<time_t> round_time (time_t xmin, time_t xmax, unsigned nticks)
     if (nticks <= 1)
         nticks = 3;
 
-    time_t range = nicetime(xmax-xmin, false);
-    time_t d = nicetime(range/(nticks+1), true);
+    time_t range = nicetime(xmax-xmin, false, NULL);
+    time_t d = nicetime(range/(nticks+1), true, fmt);
     xmin = ((xmin + d - 1)/ d) * d;
     xmax = ((xmax + d - 1)/ d) * d;
 
@@ -1266,6 +1281,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
     double graphxlow, graphxhigh, graphylow, graphyhigh;
     vector<float> yticks;
     vector<time_t> xticks;
+    char const *strf_format = "%s"; // by default, epoch seconds
 
     string format = params["format"];
     if (format == "") {
@@ -1386,7 +1402,8 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
     yticks = round_linear (ymin, ymax,
                            (unsigned)(0.3 * sqrt(height))); // flot heuristic
     xticks = round_time (t_start, t_end,
-                         (unsigned)(0.25 * sqrt(width))); // fewer due to wide time axis labels
+                         (unsigned)(0.3 * sqrt(width)), // flot heuristic
+                         & strf_format);
 
 
     if (verbosity)
@@ -1543,9 +1560,8 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
 
         // X axis grid & labels
         for (unsigned i=0; i<xticks.size(); i++) {
-            float thisx = xticks[i];
             float xdelta = (t_end - t_start);
-            double relx = (double)thisx/xdelta - (double)t_start/xdelta;
+            double relx = (double)(xticks[i]-t_start)/xdelta;
             double x = graphxlow + (graphxhigh-graphxlow)*relx;
 
             cairo_move_to (cr, x, graphylow);
@@ -1556,10 +1572,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
             // the (UTC) time_t.
             char timestr[100];
             struct tm *t = gmtime(& xticks[i]);
-            if (t->tm_hour == 0 && t->tm_sec == 0)
-                strftime (timestr, sizeof(timestr), "%Y-%m-%d", t);
-            else
-                strftime (timestr, sizeof(timestr), "%Y-%m-%d %H:%M", t);
+            strftime (timestr, sizeof(timestr), strf_format, t);
 
             cairo_text_extents_t ext;
             cairo_save (cr);
@@ -1626,7 +1639,6 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
         double lastx = nan ("");
         double lasty = nan ("");
         for (unsigned j=0; j<f.size (); j++) {
-            float thisx = f[j].when.tv_sec + f[j].when.tv_usec/1000000.0;
             float thisy = f[j].what;
 
             // clog << "(" << lastx << "," << lasty << ")";
@@ -1644,7 +1656,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
 
             float xdelta = (t_end - t_start);
             float ydelta = (ymax - ymin);
-            double relx = (double)thisx/xdelta - (double)t_start/xdelta;
+            double relx = (double)(f[j].when.tv_sec - t_start)/xdelta;
             double rely = (double)ymax/ydelta - (double)thisy/ydelta;
             double x = graphxlow + (graphxhigh-graphxlow)*relx; // scaled into graphics grid area
             double y = graphylow + (graphyhigh-graphylow)*rely;
