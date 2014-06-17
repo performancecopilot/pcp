@@ -35,6 +35,7 @@ extern "C"
 #include <math.h>
 #include <fts.h>
 #include <fnmatch.h>
+#include <regex.h>
 
 #ifdef HAVE_CAIRO
 #include <cairo/cairo.h>
@@ -204,7 +205,7 @@ pmg_enumerate_pmns (const char *name, void *cls)
 // directories & metadata.
 
 vector <string> pmgraphite_enumerate_metrics (struct MHD_Connection * connection,
-        const string & pattern)
+                                              const string & pattern)
 {
     vector <string> output;
 
@@ -457,6 +458,96 @@ out1:
     return mhd_notify_error (connection, rc);
 }
 
+
+
+// ------------------------------------------------------------------------
+
+
+// This query searches the whole metric list for substring / regexp matches.
+// Unusually, this request returns comma-separated results as text/plain (?!).
+
+int
+pmgraphite_respond_metrics_grep (struct MHD_Connection *connection,
+                                 const http_params & params, const vector <string> &url)
+{
+    int rc;
+    struct MHD_Response *resp;
+
+    string query = params["query"];
+    if (query == "") {
+        return mhd_notify_error (connection, -EINVAL);
+    }
+
+    vector <string> query_tok = split (query, ' ');
+    vector <regex_t> query_regex;
+
+    for (unsigned i=0; i<query_tok.size(); i++) {
+        regex_t re;
+        rc = regcomp (&re, query_tok[i].c_str(), REG_ICASE | REG_NOSUB);
+        if (rc == 0)
+            query_regex.push_back (re); // copied by value
+    }
+
+    vector <string> metrics = pmgraphite_enumerate_metrics (connection, "");
+    if (exit_p) {
+        return MHD_NO;
+    }
+
+    stringstream output;
+    unsigned count = 0;
+
+    for (unsigned i=0; i<metrics.size(); i++) {
+        const string& m = metrics[i];
+        bool result = true;
+        for (unsigned j=0; j<query_regex.size(); j++) {
+            rc = regexec (& query_regex[j], m.c_str(), 0, NULL, 0);
+            if (rc != 0)
+                result = false;
+        }
+        if (result) {
+            if (count++ > 0)
+                output << ",";
+            output << m;
+        }
+    }
+
+    // wrap it up in mhd response ribbons
+    string s = output.str ();
+    resp = MHD_create_response_from_buffer (s.length (), (void *) s.c_str (),
+                                            MHD_RESPMEM_MUST_COPY);
+    if (resp == NULL) {
+        connstamp (cerr, connection) << "MHD_create_response_from_buffer failed" << endl;
+        rc = -ENOMEM;
+        goto out1;
+    }
+
+    /* https://developer.mozilla.org/en-US/docs/HTTP/Access_control_CORS */
+    rc = MHD_add_response_header (resp, "Access-Control-Allow-Origin", "*");
+    if (rc != MHD_YES) {
+        connstamp (cerr, connection) << "MHD_add_response_header ACAO failed" << endl;
+        rc = -ENOMEM;
+        goto out1;
+    }
+
+    rc = MHD_add_response_header (resp, "Content-Type", "text/plain");
+    if (rc != MHD_YES) {
+        connstamp (cerr, connection) << "MHD_add_response_header CT failed" << endl;
+        rc = -ENOMEM;
+        goto out1;
+    }
+    rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
+    if (rc != MHD_YES) {
+        connstamp (cerr, connection) << "MHD_queue_response failed" << endl;
+        rc = -ENOMEM;
+        goto out1;
+    }
+
+    MHD_destroy_response (resp);
+    return MHD_YES;
+
+out1:
+    return mhd_notify_error (connection, rc);
+}
 
 
 // ------------------------------------------------------------------------
@@ -1870,11 +1961,6 @@ out1:
 }
 
 
-
-/* ------------------------------------------------------------------------ */
-
-
-
 /* ------------------------------------------------------------------------ */
 
 
@@ -1896,21 +1982,21 @@ pmgraphite_respond (struct MHD_Connection *connection, const http_params & param
     } else if (url2 == "metrics" && url3 == "find") {
         // grafana, graphite tree & auto-completer
         return pmgraphite_respond_metrics_find (connection, params, url);
-    }
 #if 0
-    else if (url2 == "graphlot" && url3 == "findmetric") {
+    } else if (url2 == "graphlot" && url3 == "findmetric") {
         // graphlot
         return pmgraphite_respond_metrics_findmetric (connection, params, url);
+#endif
     } else if (url2 == "browser" && url3 == "search") {
         // graphite search
-        return pmgraphite_respond_metrics_findmetric (connection, params, url);
-    }
-#endif
+        return pmgraphite_respond_metrics_grep (connection, params, url);
 #ifdef HAVE_CAIRO
-    else if (url2 == "render") {
+    } else if (url2 == "render") {
         return pmgraphite_respond_render_gfx (connection, params, url);
-    }
+#else
+    // XXX: it would be nice to inform the user why we're failing
 #endif
+    }
 
     return mhd_notify_error (connection, -EINVAL);
 }
