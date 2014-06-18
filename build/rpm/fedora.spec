@@ -9,8 +9,12 @@ URL: http://www.performancecopilot.org
 Group: Applications/System
 Source0: pcp-%{version}.src.tar.gz
 
-%define disable_qt 0
 %define disable_microhttpd 0
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+%define disable_qt 0
+%else
+%define disable_qt 1
+%endif
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: procps autoconf bison flex
