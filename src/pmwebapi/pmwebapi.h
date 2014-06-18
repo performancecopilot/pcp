@@ -45,6 +45,7 @@ extern unsigned verbosity;			/* set by -v option */
 extern unsigned new_contexts_p;		/* cleared by -N option */
 extern unsigned exit_p;			/* counted by SIG* handler */
 extern unsigned maxtimeout;			/* set by -t option */
+extern unsigned multithread;			/* set by -M option */
 
 
 struct http_params: public std::multimap <std::string, std::string> {
