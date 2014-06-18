@@ -1,0 +1,44 @@
+#!/bin/sh
+# PCP QA Test No. 833
+# Memory leak associated with PDU buffers remaining pinned after calling
+# pmDestroyContext().
+# See http://oss.sgi.com/bugzilla/show_bug.cgi?id=1057
+#
+# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter()
+{
+    # free pdubuf[size]: 0xe61000[28672] 0xe5c000[17408]
+    sed \
+	-e '/free pdubuf/s/0x[0-9a-f]*\[[0-9]*\]/addr[size]/g'
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "=== pmNewContext ==="
+src/churnctx -z -s 100 -a src/bug1057 kernel.all.load hinv.ncpu disk.dev.total 2>&1 | _filter
+
+echo
+echo "=== pmDupContext ==="
+src/churnctx -d -z -s 100 -a src/bug1057 kernel.all.load hinv.ncpu disk.dev.total 2>&1 | _filter
+
+echo
+echo "=== host context, and pmNewContext ... just to be sure ==="
+src/churnctx -s 10 -t 0.2sec kernel.all.load hinv.ncpu sample.byte_ctr 2>&1 | _filter
+
+# success, all done
+status=0
+
+exit
