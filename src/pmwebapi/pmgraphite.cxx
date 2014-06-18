@@ -36,7 +36,9 @@ extern "C"
 #include <fts.h>
 #include <fnmatch.h>
 #include <regex.h>
-
+#ifdef HAVE_PTHREAD_H
+#include <pthread.h>
+#endif
 #ifdef HAVE_CAIRO
 #include <cairo/cairo.h>
 #endif
@@ -598,8 +600,6 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
     // XXX: in future, parse graphite functions-of-metrics
     // http://graphite.readthedocs.org/en/latest/functions.html
     //
-    // XXX: in future, parse target-component wildcards
-    //
     // XXX: in future, cache the pmid/pmdesc/inst# -> pcp-context
 
     vector <string> target_tok = split (target, '.');
@@ -630,7 +630,7 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
         goto out0;
     }
     // Open the bad boy.
-    // XXX: if it's a directory, redirect to the newest entry
+    // XXX: if it's a directory, redirect to the newest entry? or wait till libpcp autoglue?
     pmc = pmNewContext (PM_CONTEXT_ARCHIVE, archive.c_str ());
     if (pmc < 0) {
         // error already noted
@@ -853,6 +853,26 @@ out0:
 
 
 
+// A parallelizable version of the above.
+
+vector<vector <timestamped_float> >
+pmgraphite_fetch_all_series (struct MHD_Connection* connection, const vector<string>& targets, 
+                             time_t t_start, time_t t_end, time_t t_step)
+{
+    vector<vector <timestamped_float> > output;
+    for (unsigned i = 0; i < targets.size (); i++) {
+        if (exit_p)
+            output.push_back (vector<timestamped_float>());
+        else
+            output.push_back (pmgraphite_fetch_series (connection, targets[i], t_start, t_end, t_step));
+    }
+
+    assert (output.size() == targets.size());
+    return output;
+}
+
+
+
 /* ------------------------------------------------------------------------ */
 
 
@@ -868,7 +888,7 @@ out0:
 // Return the absolute seconds value, or "now" in case of error.
 
 time_t
-pmgraphite_parse_timespec (struct MHD_Connection * connection, string value)
+pmgraphite_parse_timespec (struct MHD_Connection *connection, string value)
 {
     // just delegate to __pmParseTime()
     struct timeval now;
@@ -1445,14 +1465,8 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
     cairo_fill (cr);
     cairo_restore (cr);
 
-    // Gather up all the data.  We need several passes over it, so gather it into a vector<vector<>>.
-    for (unsigned k = 0; k < targets.size (); k++) {
-        if (exit_p) {
-            break;
-        }
-        all_results.push_back (pmgraphite_fetch_series (connection, targets[k], t_start, t_end, t_step));
-    }
-
+    // Gather up all the data.  We need several passes over it, so gather it into a vector<vector<> >.
+    all_results = pmgraphite_fetch_all_series (connection, targets, t_start, t_end, t_step);
 
     // Compute vertical bounds.
     float ymin;
@@ -1872,17 +1886,14 @@ pmgraphite_respond_render_json (struct MHD_Connection *connection,
         return mhd_notify_error (connection, rc);
     }
 
+    vector <vector <timestamped_float> > all_results = pmgraphite_fetch_all_series (connection, targets, t_start,
+                                                                                    t_end, t_step);
+
     stringstream output;
     output << "[";
     for (unsigned k = 0; k < targets.size (); k++) {
-        string target = targets[k];
-
-        if (exit_p) {
-            break;
-        }
-
-        vector <timestamped_float> results = pmgraphite_fetch_series (connection, target, t_start,
-                                             t_end, t_step);
+        const string& target = targets[k];
+        const vector<timestamped_float>& results = all_results[k];
 
         if (k > 0) {
             output << ",";
