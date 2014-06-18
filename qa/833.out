@@ -462,61 +462,61 @@ churnctx: pmFetch failed: End of PCP archive log
 === host context, and pmNewContext ... just to be sure ===
 __pmFindPDUBuf(DEBUG)
    free pdubuf[size]: addr[size] addr[size]
-Thu Jun 19 08:22:48 2014
+DATE
 60.2.0: 3 values
 60.0.32: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
    free pdubuf[size]: addr[size] addr[size]
-Thu Jun 19 08:22:48 2014
+DATE
 60.2.0: 3 values
 60.0.32: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
    free pdubuf[size]: addr[size] addr[size]
-Thu Jun 19 08:22:48 2014
+DATE
 60.2.0: 3 values
 60.0.32: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
    free pdubuf[size]: addr[size] addr[size]
-Thu Jun 19 08:22:48 2014
+DATE
 60.2.0: 3 values
 60.0.32: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
    free pdubuf[size]: addr[size] addr[size]
-Thu Jun 19 08:22:48 2014
+DATE
 60.2.0: 3 values
 60.0.32: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
    free pdubuf[size]: addr[size] addr[size]
-Thu Jun 19 08:22:49 2014
+DATE
 60.2.0: 3 values
 60.0.32: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
    free pdubuf[size]: addr[size] addr[size]
-Thu Jun 19 08:22:49 2014
+DATE
 60.2.0: 3 values
 60.0.32: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
    free pdubuf[size]: addr[size] addr[size]
-Thu Jun 19 08:22:49 2014
+DATE
 60.2.0: 3 values
 60.0.32: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
    free pdubuf[size]: addr[size] addr[size]
-Thu Jun 19 08:22:49 2014
+DATE
 60.2.0: 3 values
 60.0.32: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
    free pdubuf[size]: addr[size] addr[size]
-Thu Jun 19 08:22:49 2014
+DATE
 60.2.0: 3 values
 60.0.32: 1 values
 29.0.81: 1 values

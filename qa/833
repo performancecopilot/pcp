@@ -36,7 +36,9 @@ src/churnctx -d -z -s 100 -a src/bug1057 kernel.all.load hinv.ncpu disk.dev.tota
 
 echo
 echo "=== host context, and pmNewContext ... just to be sure ==="
-src/churnctx -s 10 -t 0.2sec kernel.all.load hinv.ncpu sample.byte_ctr 2>&1 | _filter
+src/churnctx -s 10 -t 0.2sec kernel.all.load hinv.ncpu sample.byte_ctr 2>&1 \
+| _filter \
+| sed -e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]$/DATE/' \
 
 # success, all done
 status=0
