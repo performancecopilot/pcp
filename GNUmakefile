@@ -29,7 +29,7 @@ LICFILES = COPYING
 DOCFILES = README INSTALL CHANGELOG VERSION.pcp
 CONFFILES = pcp.lsm
 LSRCFILES = aclocal.m4 configure config.guess config.sub \
-	    configure.in pcp.lsm.in Makepkgs install-sh \
+	    configure.ac pcp.lsm.in Makepkgs install-sh \
 	    $(DOCFILES) $(LICFILES)
 LDIRT = config.cache config.status config.log files.rpm pro_files.rpm \
 	autom4te.cache install.manifest install_pro.manifest \

@@ -62,7 +62,7 @@ PCP_LIBS = $(PCPLIB_LDFLAGS)
 #
 # Note:
 # 	Need PCFLAGS setting here to match the CFLAGS settings in
-# 	../../configure.in (likewise for PLDFLAGS and LDFLAGS).
+# 	../../configure.ac (likewise for PLDFLAGS and LDFLAGS).
 #
 TARGET_OS = @target_os@
 PCFLAGS = @PCFLAGS@
