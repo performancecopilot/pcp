@@ -206,59 +206,21 @@ __pmConnectHandshake(int fd, const char *hostname, int ctxflags, __pmHashCtl *at
 
 static int	global_nports;
 static int	*global_portlist;
-static int	default_portlist[] = { SERVER_PORT };
 
 static void
 load_pmcd_ports(void)
 {
-    static int	first_time = 1;
-
-    if (first_time) {
-	char	*envstr;
-	char	*endptr;
-
-	first_time = 0;
-
-	if ((envstr = getenv("PMCD_PORT")) != NULL) {
-	    char	*p = envstr;
-
-	    for ( ; ; ) {
-		int size, port = (int)strtol(p, &endptr, 0);
-		if ((*endptr != '\0' && *endptr != ',') || port < 0) {
-		    __pmNotifyErr(LOG_WARNING,
-				  "ignored bad PMCD_PORT = '%s'", p);
-		}
-		else {
-		    size = ++global_nports * sizeof(int);
-		    global_portlist = (int *)realloc(global_portlist, size);
-		    if (global_portlist == NULL) {
-			__pmNotifyErr(LOG_WARNING,
-				     "__pmConnectPMCD: portlist alloc failed (%d bytes), using default PMCD_PORT (%d)\n", size, SERVER_PORT);
-			global_nports = 0;
-			break;
-		    }
-		    global_portlist[global_nports-1] = port;
-		}
-		if (*endptr == '\0')
-		    break;
-		p = &endptr[1];
-	    }
-	}
-
-	if (global_nports == 0) {
-	    global_portlist = default_portlist;
-	    global_nports = sizeof(default_portlist) / sizeof(default_portlist[0]);
-	}
+    if (global_portlist == NULL) {
+	/* __pmPMCDAddPorts discovers at least one valid port, if it returns. */
+	global_nports = __pmPMCDAddPorts(&global_portlist, global_nports);
     }
 }
 
 static void
 load_proxy_hostspec(pmHostSpec *proxy)
 {
-    static int	proxy_port;
     char	errmsg[PM_MAXERRMSGLEN];
     char	*envstr;
-    char	*endptr;
 
     if ((envstr = getenv("PMPROXY_HOST")) != NULL) {
 	proxy->name = strdup(envstr);
@@ -268,18 +230,11 @@ load_proxy_hostspec(pmHostSpec *proxy)
 			  pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 	}
 	else {
-	    if ((envstr = getenv("PMPROXY_PORT")) != NULL) {
-		proxy_port = (int)strtol(envstr, &endptr, 0);
-		if (*endptr != '\0' || proxy_port < 0) {
-		    __pmNotifyErr(LOG_WARNING,
-			"__pmConnectPMCD: ignored bad PMPROXY_PORT = '%s'\n", envstr);
-		    proxy_port = PROXY_PORT;
-		}
-	    } else {
-		proxy_port = PROXY_PORT;
-	    }
-	    proxy->ports = &proxy_port;
-	    proxy->nports = 1;
+	    /*
+	     *__pmProxyAddPorts discovers at least one valid port, if it
+	     * returns.
+	     */
+	    proxy->nports = __pmProxyAddPorts(&proxy->ports, proxy->nports);
 	}
     }
 }

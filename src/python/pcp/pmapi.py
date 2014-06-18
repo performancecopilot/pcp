@@ -116,6 +116,9 @@ class pmErr(Exception):
             errStr += " " + str(self.args[index])
         return errStr
 
+    def progname(self):
+        return c_char_p.in_dll(LIBPCP, "pmProgname").value
+
 class pmUsageErr(Exception):
     def message(self):
         return c_api.pmUsageMessage()
@@ -886,6 +889,9 @@ class pmOptions(object):
         if sec == None:
             return None
         return timeval(sec, c_api.pmGetOptionStart_usec())
+
+    def pmGetOptionFinishOptarg(self):	# string
+        return c_api.pmGetOptionFinish_optarg()
 
     def pmGetOptionFinish(self):	# timeval
         sec = c_api.pmGetOptionFinish_sec()

@@ -4,7 +4,7 @@
 #
 seq=`basename $0`
 echo "QA output created by $seq"
-. ./common.test
+. ./common.qt
 
 _check_display
 status=0	# success is the default!

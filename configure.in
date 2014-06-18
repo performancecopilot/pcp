@@ -2335,7 +2335,7 @@ int main () {
        return(1);
     return (0);
 }
-], AC_DEFINE(HAVE_STRFTIME_z) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no),  0)
+], AC_DEFINE(HAVE_STRFTIME_z) AC_MSG_RESULT(yes), AC_MSG_RESULT(no), AC_MSG_RESULT(no))
 
 dnl does strerror_r return char * a la GNU
 dnl (as opposed to the int return for XSI-compliant variants)

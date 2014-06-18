@@ -149,6 +149,7 @@ addLongOption(pmLongOptions *opt, int duplicate)
     bytes = (index + 2) * sizeof(pmLongOptions); /* +2 for PMAPI_OPTIONS_END */
     if ((lp = realloc(options.long_options, bytes)) == NULL)
 	return -ENOMEM;
+    options.long_options = lp;
 
     if (!duplicate)
 	goto update;
@@ -174,7 +175,6 @@ update:
     lp[index].argname = opt->argname;
     lp[index].message = opt->message;
     memset(&lp[index+1], 0, sizeof(pmLongOptions));	/* PMAPI_OPTIONS_END */
-    options.long_options = lp;
     longOptionsCount++;
     return 0;
 }
@@ -626,6 +626,7 @@ getOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
 	 * ensure the memory that backs it will be with us forever.
          */
 	if (i == 0 && (string = strdup(string)) == NULL) {
+	    free(argv);
 	    Py_DECREF(pyargv);
 	    return PyErr_NoMemory();
 	}
@@ -804,6 +805,15 @@ getOptionStart_usec(PyObject *self, PyObject *args)
 {
     if (options.start.tv_sec || options.start.tv_usec)
 	return Py_BuildValue("l", options.start.tv_usec);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+getOptionFinish_optarg(PyObject *self, PyObject *args)
+{
+    if (options.finish_optarg)
+	return Py_BuildValue("s", options.finish_optarg);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1013,6 +1023,9 @@ static PyMethodDef methods[] = {
         .ml_flags = METH_NOARGS },
     { .ml_name = "pmGetOptionStart_usec",
 	.ml_meth = (PyCFunction) getOptionStart_usec,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmGetOptionFinish_optarg",
+	.ml_meth = (PyCFunction) getOptionFinish_optarg,
         .ml_flags = METH_NOARGS },
     { .ml_name = "pmGetOptionFinish_sec",
 	.ml_meth = (PyCFunction) getOptionFinish_sec,
