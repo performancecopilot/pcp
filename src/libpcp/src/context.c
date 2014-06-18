@@ -791,6 +791,14 @@ pmDupContext(void)
 	    goto done;
 	}
 	*newcon->c_archctl = *oldcon->c_archctl;	/* struct assignment */
+	/*
+	 * Need to make hash list independent in case oldcon is subsequently
+	 * closed via pmDestroyContext() and don't want __pmFreeInterpData()
+	 * to trash our hash list.
+	 * Start with an empty hash list for the dup'd context.
+	 */
+	newcon->c_archctl->ac_pmid_hc.nodes = 0;
+	newcon->c_archctl->ac_pmid_hc.hsize = 0;
     }
 
     sts = new;
@@ -873,6 +881,8 @@ pmDestroyContext(int handle)
 	}
     }
     if (ctxp->c_archctl != NULL) {
+	if (ctxp->c_archctl->ac_pmid_hc.hsize > 0)
+	    __pmFreeInterpData(ctxp);
 	if (--ctxp->c_archctl->ac_log->l_refcnt == 0) {
 	    __pmLogClose(ctxp->c_archctl->ac_log);
 	    free(ctxp->c_archctl->ac_log);

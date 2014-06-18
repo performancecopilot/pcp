@@ -1047,6 +1047,7 @@ extern int __pmLogFetch(__pmContext *, int, pmID *, pmResult **);
 extern int __pmLogFetchInterp(__pmContext *, int, pmID *, pmResult **);
 extern void __pmLogSetTime(__pmContext *);
 extern void __pmLogResetInterp(__pmContext *);
+extern void __pmFreeInterpData(__pmContext *);
 
 extern int __pmLogChangeVol(__pmLogCtl *, int);
 extern int __pmLogChkLabel(__pmLogCtl *, FILE *, __pmLogLabel *, int);
