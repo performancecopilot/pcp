@@ -561,11 +561,110 @@ out1:
 // ------------------------------------------------------------------------
 
 
+// a POD for graphite
 struct timestamped_float {
-    // a POD for graphite
     struct timeval when;
     float what;
 };
+
+
+// parameters for fetching a series
+struct fetch_series_jobspec {
+    vector<timestamped_float> output;
+    string target;
+    time_t t_start, t_end, t_step;
+    string message;
+};
+
+
+template <class Spec>
+struct fetch_series_jobqueue {
+#ifdef HAVE_PTHREAD_H
+    pthread_mutex_t lock; // protects following field
+#endif
+    unsigned next_job_nr;
+
+    vector<Spec> jobs; // vector itself read-only
+    typedef void (*runner_t) (Spec *);
+    runner_t runner;
+
+    fetch_series_jobqueue(runner_t);
+    ~fetch_series_jobqueue();
+
+    static void* thread_main (void *);
+
+    void run();
+};
+
+
+template <class Spec>
+fetch_series_jobqueue<Spec>::fetch_series_jobqueue(runner_t r)
+{
+#ifdef HAVE_PTHREAD_H
+    pthread_mutex_init (& this->lock, NULL);
+#endif
+    this->runner = r;
+    this->next_job_nr = 0;
+}
+ 
+ 
+template <class Spec>
+    fetch_series_jobqueue<Spec>::~fetch_series_jobqueue()
+{
+#ifdef HAVE_PTHREAD_H
+    pthread_mutex_destroy (& this->lock);
+#endif
+}
+
+
+template <class Spec>
+    void* fetch_series_jobqueue<Spec>::thread_main(void *cls)
+{
+    fetch_series_jobqueue<Spec>* q = (fetch_series_jobqueue<Spec>*) cls;
+    assert (q != 0);
+
+    while (1) {
+#ifdef HAVE_PTHREAD_H
+        pthread_mutex_lock (& q->lock);
+#endif
+        unsigned my_jobid = q->next_job_nr++;
+#ifdef HAVE_PTHREAD_H
+        pthread_mutex_unlock (& q->lock);
+#endif
+
+        if ((my_jobid >= q->jobs.size()) || exit_p)
+            break;
+        
+        (*q->runner)(& q->jobs[my_jobid]);
+    }
+    return 0;
+}
+
+
+
+// simple contention
+template <class Spec>
+void fetch_series_jobqueue<Spec>::run()
+{
+#ifdef HAVE_PTHREAD_H
+    vector<pthread_t> threads;
+    for (unsigned i=0; i<multithread; i++) {
+        pthread_t x;
+        int rc = pthread_create (&x, NULL, & this->thread_main, (void*) this);
+        if (rc == 0)
+            threads.push_back (x);
+    }
+#endif
+    // have main thread also have a go
+    (void)this->thread_main (this);
+
+#ifdef HAVE_PTHREAD_H
+    for (unsigned i=0; i<threads.size(); i++) {
+        (void) pthread_join (threads[i], NULL);
+    }
+#endif
+}
+
 
 
 // Heavy lifter.  Parse graphite "target" name into archive
@@ -578,10 +677,14 @@ struct timestamped_float {
 // an empty vector.  (As a matter of security, we prefer not to give too
 // much information to a remote web user about the exact error.)  Occasional
 // missing metric values are represented as floating-point NaN values.
-vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *connection,
-        const string & target, time_t t_start, time_t t_end, time_t t_step)	// time bounds
+void pmgraphite_fetch_series (fetch_series_jobspec *spec)
 {
-    vector <timestamped_float> output;
+    assert (spec != NULL);
+    vector <timestamped_float>& output = spec->output;
+    time_t t_start = spec->t_start;
+    time_t t_end = spec->t_end;
+    time_t t_step = spec->t_step;
+    const string& target = spec->target;
     int sts;
     string last_component;
     string metric_name;
@@ -590,8 +693,7 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
     string archive_part;
     string instance_name;
     unsigned entries_good, entries;
-    struct timeval start;
-    (void) gettimeofday (&start, NULL);
+    stringstream message;
 
     // ^^^ several of these declarations are here (instead of at
     // point-of-use) only because we jump to an exit point, and may
@@ -604,18 +706,18 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
 
     vector <string> target_tok = split (target, '.');
     if (target_tok.size () < 2) {
-        connstamp (cerr, connection) << "not enough target components" << endl;
+        message << "not enough target components";
         goto out0;
     }
     for (unsigned i = 0; i < target_tok.size (); i++)
         if (target_tok[i] == "") {
-            connstamp (cerr, connection) << "empty target components" << endl;
+            message << "empty target components";
             goto out0;
         }
     // Extract the archive file/directory name
     archive_part = pmgraphite_metric_decode (target_tok[0]);
     if (archive_part == "") {
-        connstamp (cerr, connection) << "undecodeable archive-path " << target_tok[0] << endl;
+        message << "undecodeable archive-path " << target_tok[0];
         goto out0;
     }
     if (__pmAbsolutePath ((char *) archive_part.c_str ())) {
@@ -626,7 +728,7 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
     }
 
     if (cursed_path_p (archivesdir, archive)) {
-        connstamp (cerr, connection) << "invalid archive path " << archive << endl;
+        message << "invalid archive path " << archive;
         goto out0;
     }
     // Open the bad boy.
@@ -637,7 +739,7 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
         goto out0;
     }
     if (verbosity > 2) {
-        connstamp (clog, connection) << "opened archive " << archive << endl;
+        message << "opened archive " << archive << ", ";
     }
 
     // NB: past this point, exit via 'goto out;' to release pmc
@@ -669,13 +771,13 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
             pmid = pmidlist[0];
             sts = pmLookupDesc (pmid, &pmd);
             if (sts != 0) {
-                connstamp (clog, connection) << "cannot find metric descriptor " << metric_name << endl;
+                message << "cannot find metric descriptor " << metric_name;
                 goto out;
             }
             // check that there is an instance domain, in order to use that last component
             if (pmd.indom == PM_INDOM_NULL) {
-                connstamp (clog, connection) << "metric " << metric_name << " lacks expected indom " <<
-                                             last_component << endl;
+                message << "metric " << metric_name << " lacks expected indom " 
+                        << last_component;
                 goto out;
 
             }
@@ -684,16 +786,16 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
             int inst = pmLookupInDomArchive (pmd.indom,
                                              (char *) instance_name.c_str ());	// XXX: why not pmLookupInDom?
             if (inst < 0) {
-                connstamp (clog, connection) << "metric " << metric_name << " lacks recognized indom " <<
-                                             last_component << endl;
+                message << "metric " << metric_name << " lacks recognized indom "
+                        << last_component;
                 goto out;
             }
             // activate only that instance name in the profile
             sts = pmDelProfile (pmd.indom, 0, NULL);
             sts |= pmAddProfile (pmd.indom, 1, &inst);
             if (sts != 0) {
-                connstamp (clog, connection) << "metric " << metric_name <<
-                                             " cannot set unitary instance profile " << inst << endl;
+                message << "metric " << metric_name 
+                        << " cannot set unitary instance profile " << inst;
                 goto out;
             }
         } else {
@@ -703,20 +805,19 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
             int sts = pmLookupName (1, namelist, pmidlist);
             if (sts != 1) {
                 // still not found .. give up
-                connstamp (clog, connection) << "cannot find metric name " << metric_name << endl;
+                message << "cannot find metric name " << metric_name;
                 goto out;
             }
 
             pmid = pmidlist[0];
             sts = pmLookupDesc (pmid, &pmd);
             if (sts != 0) {
-                connstamp (clog, connection) << "cannot find metric descriptor " << metric_name << endl;
+                message << "cannot find metric descriptor " << metric_name;
                 goto out;
             }
             // check that there is no instance domain
             if (pmd.indom != PM_INDOM_NULL) {
-                connstamp (clog, connection) << "metric " << metric_name << " has unexpected indom " <<
-                                             pmd.indom << endl;
+                message << "metric " << metric_name << " has unexpected indom " << pmd.indom;
                 goto out;
             }
         }
@@ -735,8 +836,7 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
     case PM_TYPE_DOUBLE:
         break;
     default:
-        connstamp (clog, connection) << "metric " << metric_name << " has unsupported type " <<
-                                     pmd.type << endl;
+        message << "metric " << metric_name << " has unsupported type " << pmd.type;
         goto out;
     }
 
@@ -747,7 +847,7 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
     start_timeval.tv_usec = 0;
     sts = pmSetMode (PM_MODE_INTERP | PM_XTB_SET (PM_TIME_SEC), &start_timeval, t_step);
     if (sts != 0) {
-        connstamp (clog, connection) << "cannot set time mode origin/delta" << endl;
+        message << "cannot set time mode origin/delta";
         goto out;
     }
 
@@ -827,19 +927,12 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
     }
 
     if (verbosity > 2) {
-        struct timeval finish;
-        (void) gettimeofday (&finish, NULL);
-
         string instance_spec;
         if (instance_name != "") {
-            instance_spec = string ("[") + instance_name + string ("]");
+            instance_spec = string ("[\"") + instance_name + string ("\"]");
         }
-        connstamp (clog, connection) << "returned " << entries_good << "/" << entries
-                                     << " data values"
-                                     << " in " << __pmtimevalSub (&finish,&start)*1000 << "ms"
-                                     << ", metric " << metric_name << instance_spec
-                                     << ", timespan [" << t_start << "-" << t_end <<
-                                     "] by " << t_step << "s" << endl;
+        message << "returned " << entries_good << "/" << entries << " data values"
+                << ", metric " << metric_name << instance_spec;
     }
 
     // Done!
@@ -847,8 +940,9 @@ vector <timestamped_float> pmgraphite_fetch_series (struct MHD_Connection *conne
 out:
     pmDestroyContext (pmc);
 out0:
-
-    return output;
+    // vector output already returned via jobspec pointer
+    // pass back message
+    spec->message = message.str();
 }
 
 
@@ -859,18 +953,46 @@ vector<vector <timestamped_float> >
 pmgraphite_fetch_all_series (struct MHD_Connection* connection, const vector<string>& targets, 
                              time_t t_start, time_t t_end, time_t t_step)
 {
-    vector<vector <timestamped_float> > output;
+    // prepare a jobqueue
+    fetch_series_jobqueue<fetch_series_jobspec> q (& pmgraphite_fetch_series);
+    
     for (unsigned i = 0; i < targets.size (); i++) {
-        if (exit_p)
-            output.push_back (vector<timestamped_float>());
-        else
-            output.push_back (pmgraphite_fetch_series (connection, targets[i], t_start, t_end, t_step));
+        // ensure we have enough output rows
+        fetch_series_jobspec js;
+        js.target = targets[i];
+        js.t_start = t_start;
+        js.t_end = t_end;
+        js.t_step = t_step;
+        q.jobs.push_back (js);
     }
 
-    assert (output.size() == targets.size());
-    return output;
-}
+    // it's ready to go 
+    struct timeval start;
+    (void) gettimeofday (&start, NULL);
+    q.run();
+    struct timeval finish;
+    (void) gettimeofday (&finish, NULL);
 
+    // propagate any output, messages 
+    vector <vector <timestamped_float> > all_outputs;
+    for (unsigned i = 0; i < q.jobs.size (); i++) {
+        all_outputs.push_back (q.jobs[i].output);
+        const string& message = q.jobs[i].message;
+        if (message != "")
+            connstamp (clog, connection) << message << endl;
+    }
+
+    if (verbosity > 1) {
+        connstamp (clog, connection) << "digested " << targets.size() << " metrics"
+                                     << ", timespan [" << t_start << "-" << t_end 
+                                     << " by " << t_step << "]"
+                                     << ", in " << __pmtimevalSub (&finish,&start)*1000 << "ms "
+                                     << endl;
+    }
+    
+    assert (all_outputs.size() == targets.size());
+    return all_outputs;
+}
 
 
 /* ------------------------------------------------------------------------ */
@@ -1339,24 +1461,30 @@ time_t nicetime(time_t x, bool round_p, char const **fmt)
     for (int i=npowers-1; i>=0; i--) {
         ex = powers[i];
         if (ex <= x) {
-            if (fmt) { // compute an appropriate date-rendering strftime format
-                if (ex <= 60) // minute
-                    *fmt = "%H:%M:%S";
-                else if (ex <= 2*60*60) // hours
-                    *fmt = "%H:%M";
-                else if (ex <= 2*24*60*60) // days
-                    *fmt = "%m-%d";
-                else // larger than a day interval
-                    *fmt = "%Y-%m-%d";
-            }
             break;
         }
     }
 
+    time_t result;
     if (round_p)
-        return ((x + ex - 1) / ex) * ex;
+        result = ((x + ex - 1) / ex) * ex;
     else
-        return (x / ex) * ex;
+        result = (x / ex) * ex;
+
+    if (fmt) { // compute an appropriate date-rendering strftime format
+        if (result < 60) // minute
+            *fmt = "%H:%M:%S";
+        else if (result < 60*60) // hour
+            *fmt = "%H:%M";
+        else if (result < 24*60*60) // day
+            *fmt = "%m-%d %H:%M";
+        else if (result < 365*24*60*60) // year
+            *fmt = "%m-%d";
+        else // larger than a year
+            *fmt = "%Y-%m-%d";
+    }
+
+    return result;
 }
 
 
@@ -1530,8 +1658,8 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
                          & strf_format);
 
 
-    if (verbosity)
-        connstamp (clog, connection) << "Rendering " << all_results.size () << " metrics"
+    if (verbosity > 2)
+        connstamp (clog, connection) << "rendering " << all_results.size () << " metrics"
                                      << ", ymin=" << ymin << ", ymax=" << ymax << endl;
 
     // Because we're going for basic acceptable rendering only, for

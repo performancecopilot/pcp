@@ -35,6 +35,7 @@ unsigned new_contexts_p = 1;	/* cleared by -N option */
 unsigned graphite_p;		/* set by -G option */
 unsigned exit_p;		/* counted by SIG* handler */
 static __pmServerPresence *presence;
+unsigned multithread = 0;       /* set by -M option */
 string logfile = "";		/* set by -l option */
 string fatalfile = "/dev/tty";	/* fatal messages at startup go here */
 
@@ -210,7 +211,7 @@ mhd_respond (void *cls, struct MHD_Connection *connection, const char *url0,
                                           (void *) &mhd_cc->params);
 
         // Trace request
-        if (verbosity > 1) {
+        if (verbosity) {
             connstamp (clog, connection) << version << " " << method << " " << url << endl;
         }
         if (verbosity > 2) {
@@ -372,6 +373,9 @@ server_dump_configuration ()
     } else {
         clog << "\tPeriodic client statistics not dumped" << endl;
     }
+#if HAVE_PTHREAD_H
+    clog << "\tUsing up to " << multithread << " auxiliary threads" << endl;
+#endif
 }
 
 
@@ -423,6 +427,7 @@ option_overrides (int opt, pmOptions * opts)
     case 'G':
     case 'L':
     case 'N':
+    case 'M':
     case 'p':
     case 'd':
     case 't':
@@ -451,6 +456,9 @@ longopts[] = {
     PMOPT_DEBUG,
     {"log", 1, 'l', "FILE", "redirect diagnostics and trace output"},
     {"verbose", 0, 'v', 0, "increase verbosity"},
+#ifdef HAVE_PTHREAD_H
+    {"threads", 1, 'M', 0, "allow multiple threads [default 0]"},
+#endif
     {"dumpstats", 1, 'd', 0, "dump client stats roughly every N seconds [default 300]"},
     {"username", 1, 'U', "USER", "decrease privilege from root to user [default pcp]"},
     {"", 1, 'x', "PATH", "fatal messages at startup sent to file [default /dev/tty]"},
@@ -483,7 +491,7 @@ main (int argc, char *argv[])
     char * username_str;
     __pmGetUsername (&username_str);
 
-    opts.short_options = "A:a:c:D:h:Ll:Np:R:Gt:U:vx:d:46?";
+    opts.short_options = "A:a:c:D:h:Ll:NM:p:R:Gt:U:vx:d:46?";
     opts.long_options = longopts;
     opts.override = option_overrides;
 
@@ -587,6 +595,10 @@ main (int argc, char *argv[])
 
         case 'N':
             new_contexts_p = 0;
+            break;
+
+        case 'M':
+            multithread = (unsigned) atoi(opts.optarg);
             break;
 
         case 'l':
