@@ -16,6 +16,10 @@
 #include "internal.h"
 #include "probe.h"
 
+#if defined(IS_SOLARIS) && !defined(PTHREAD_STACK_MIN)
+#define PTHREAD_STACK_MIN       ((size_t)_sysconf(_SC_THREAD_STACK_MIN))
+#endif
+
 /*
  * Service discovery by active probing. The given subnet is probed for the
  * requested service(s).
