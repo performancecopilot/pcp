@@ -1969,6 +1969,17 @@ render_done:
         rc = -ENOMEM;
         goto out4;
     }
+
+    // NB: without emitting some caching-suppression, web browsers
+    // luuuooohh-ve to cache this image file, since e.g. grafana
+    // doesn't send along a varying junk parameter.  So we need to
+    // suppress caching here ... messily too, since different browsers are
+    // inconsistent.
+    (void) MHD_add_response_header (resp, "Cache-Control", "no-cache");
+    (void) MHD_add_response_header (resp, "Cache-Directive", "no-cache");
+    (void) MHD_add_response_header (resp, "Pragma", "no-cache");
+    (void) MHD_add_response_header (resp, "Expires", "0");
+
     rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
     if (rc != MHD_YES) {
         connstamp (cerr, connection) << "MHD_queue_response failed" << endl;
