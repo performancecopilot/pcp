@@ -1,0 +1,46 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014 Red Hat.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMSERVICEDISCOVERYINTERRUPT 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmServiceDiscoveryInterrupt\f1 \- interrupt the discovery of PCP services on
+the network
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.nf
+void pmServiceDiscoveryInterrupt(int \fIsignum\fP);
+.fi
+.sp
+cc ... \-lpcp
+.ft 1
+.SH DESCRIPTION
+.de CW
+.ie t \f(CW\\$1\f1\\$2
+.el \fI\\$1\f1\\$2
+..
+If \fIsignum\fP is non-zero, interrupts the service discovery process which
+was started by \fI__pmDiscoverServices(3)\fP.
+If \fIsignum\fP is zero, this function
+has no effect.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmDiscoverServices (3),
+.BR pmcd (1),
+.BR pmproxy (1),
+.BR pmwebd (1),
+and
+.BR pmfind (1),

@@ -142,6 +142,7 @@ usr/share/man/man3/pmRecordControl.3.gz
 usr/share/man/man3/pmRecordSetup.3.gz
 usr/share/man/man3/pmRegisterDerived.3.gz
 usr/share/man/man3/__pmResetIPC.3.gz
+usr/share/man/man3/pmServiceDiscoveryInterrupt.3.gz
 usr/share/man/man3/pmSetMode.3.gz
 usr/share/man/man3/pmSortInstances.3.gz
 usr/share/man/man3/pmspeclocalpmda.3.gz
