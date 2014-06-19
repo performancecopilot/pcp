@@ -892,6 +892,11 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_MEMINFO,57), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
+/* mem.util.available */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,58), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
 /* mem.numa.util.total */
     { NULL,
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,0), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
@@ -4498,6 +4503,11 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	   if (!VALID_VALUE(proc_meminfo.directMap1G))
 		return 0; /* no values available */
 	   atom->ull = proc_meminfo.directMap1G >> 10;
+	   break;
+	case 58: /* mem.util.available */
+	   if (!VALID_VALUE(proc_meminfo.MemAvailable))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.MemAvailable >> 10;
 	   break;
 	default:
 	    return PM_ERR_PMID;

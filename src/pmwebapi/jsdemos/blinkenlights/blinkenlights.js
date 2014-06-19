@@ -1,5 +1,4 @@
-var pm_host = location.hostname;
-var pm_root = "http://" + pm_host + ":44323/pmapi";
+var pm_root = "http://" + location.hostname + ":" + location.port + "/pmapi";
 var pm_context = -1;
 
 // ----------------------------------------------------------------------

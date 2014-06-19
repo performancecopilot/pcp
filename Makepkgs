@@ -139,8 +139,10 @@ fi
 case "$target"
 in
     mingw)
+	nonrpm=true
 	configure="mingw64-configure"
-	configopts="$configopts --disable-ssp"
+	configopts="$configopts --disable-ssp --without-threads"
+	MAKE="mingw64-make"
 	;;
     linux)
 	ARCH=`uname -m`

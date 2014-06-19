@@ -30,13 +30,8 @@ crack.scott.net.au
 crunch.scott.net.au
 bounce.scott.net.au
 splash.scott.net.au
-
-# Mort Section
-opensuse11-1.bork.org
-fedora11.bork.org
-sles11.bork.org
-ubuntu-smp.bork.org
-deb32.bork.org
+boing.scott.net.au
+splat.scott.net.au
 
 # sort control lines
 # each line here is a specification that includes the keyword #order and
@@ -94,5 +89,3 @@ deb32.bork.org
 #order	vm27			.localdomain
 #order	vm28			.localdomain
 #order	vm29			.localdomain
-# Mort Section
-#order .bork.org .bork.org

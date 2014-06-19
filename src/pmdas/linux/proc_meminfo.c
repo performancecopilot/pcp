@@ -33,6 +33,7 @@ static struct {
 } meminfo_fields[] = {
     { "MemTotal",	&moff.MemTotal },
     { "MemFree",	&moff.MemFree },
+    { "MemAvailable",	&moff.MemAvailable },
     { "MemShared",	&moff.MemShared },
     { "Buffers",	&moff.Buffers },
     { "Cached",		&moff.Cached },

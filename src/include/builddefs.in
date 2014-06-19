@@ -62,12 +62,12 @@ PCP_LIBS = $(PCPLIB_LDFLAGS)
 #
 # Note:
 # 	Need PCFLAGS setting here to match the CFLAGS settings in
-# 	../../configure.in (likewise for PLDFLAGS and LDFLAGS).
+# 	../../configure.ac (likewise for PLDFLAGS and LDFLAGS).
 #
 TARGET_OS = @target_os@
 PCFLAGS = @PCFLAGS@
 PLDFLAGS = @PLDFLAGS@
-ifneq (, $(filter linux kfreebsd, $(TARGET_OS)))
+ifneq (, $(filter linux kfreebsd gnu, $(TARGET_OS)))
 DSOSUFFIX = so
 endif
 ifeq "$(TARGET_OS)" "darwin"
@@ -78,7 +78,7 @@ ifeq "$(TARGET_OS)" "mingw"
 DSOSUFFIX = dll
 EXECSUFFIX = .exe
 SHELLSUFFIX = .sh
-PLDLIBS = -lwsock32 -L$$PCP_DIR/local/bin -L$$PCP_DIR/local/lib -L$$PCP_DIR/lib
+PLDLIBS = -lwsock32
 endif
 ifeq "$(TARGET_OS)" "solaris"
 PLDFLAGS += -fPIC

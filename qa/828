@@ -1,0 +1,228 @@
+#!/bin/sh
+# PCP QA Test No. 828
+# Use valgrind to track down memory leaks associated with
+# # pmDestroyContext().
+# See http://oss.sgi.com/bugzilla/show_bug.cgi?id=1057
+#
+# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+_check_valgrind
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    # free pdubuf[size]: 0xe61000[28672] 0xe5c000[17408]
+    sed \
+	-e '/free pdubuf/s/0x[0-9a-f]*\[[0-9]*\]/addr[size]/g'
+}
+
+cat >$tmp.suppress <<End-of-File
+{
+   <pmid[], name[] realloc from qa main program>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:main
+}
+{
+   <alloc list[] in pmNewContext>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:pmNewContext
+   fun:main
+}
+{
+   <realloc list[] in pmNewContext>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   fun:pmNewContext
+   fun:main
+}
+{
+   <alloc list[] in pmNewContext via pmDupContext>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:pmNewContext
+   fun:pmDupContext
+   fun:main
+}
+{
+   <realloc list[] in pmNewContext via pmDupContext>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   fun:pmNewContext
+   fun:pmDupContext
+   fun:main
+}
+{
+   <strdup TZ in pmNewZone>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:pmNewZone
+   fun:pmNewContextZone
+   fun:main
+}
+{
+   <zone[] alloc in pmNewZone>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:pmNewZone
+   fun:pmNewContextZone
+   fun:main
+}
+{
+   <zone[] realloc in pmNewZone>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:realloc
+   fun:pmNewZone
+   fun:pmNewContextZone
+   fun:main
+}
+{
+   <case 1 - buf hdr in __pmFindPDUBuf from pmGetArchiveEnd>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:__pmFindPDUBuf
+   fun:__pmLogRead
+   fun:__pmGetArchiveEnd
+   fun:pmGetArchiveEnd
+   fun:main
+}
+{
+   <case 2 - buf hdr in __pmFindPDUBuf from pmGetArchiveEnd>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:__pmFindPDUBuf
+   fun:__pmDecodeResult
+   fun:__pmLogRead
+   fun:__pmGetArchiveEnd
+   fun:pmGetArchiveEnd
+   fun:main
+}
+{
+   <case 1 - PDU buf alloc>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:__pmFindPDUBuf
+   fun:__pmDecodeResult
+   fun:__pmLogRead
+   fun:cache_read.isra.0
+   fun:do_roll
+   fun:__pmLogFetchInterp
+   fun:__pmLogFetch
+   fun:pmFetch
+   fun:main
+}
+{
+   <case 2 - PDU buf alloc>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:memalign
+   fun:__pmFindPDUBuf
+   fun:__pmLogRead
+   fun:__pmGetArchiveEnd
+   fun:pmGetArchiveEnd
+   fun:main
+}
+{
+   <case 3 - PDU buf alloc>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:memalign
+   fun:__pmFindPDUBuf
+   fun:__pmDecodeResult
+   fun:__pmLogRead
+   fun:__pmGetArchiveEnd
+   fun:pmGetArchiveEnd
+   fun:main
+}
+{
+   <case 4 - PDU buf alloc>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:memalign
+   fun:__pmFindPDUBuf
+   fun:__pmDecodeResult
+   fun:__pmLogRead
+   fun:cache_read.isra.0
+   fun:do_roll
+   fun:__pmLogFetchInterp
+   fun:__pmLogFetch
+   fun:pmFetch
+   fun:main
+}
+{
+   <ipc[] table resize>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:realloc
+   fun:__pmResizeIPC
+   fun:__pmSetVersionIPC
+   fun:__pmLogChkLabel
+   fun:__pmLogChangeVol
+   fun:__pmLogOpen
+   fun:pmNewContext
+   fun:main
+}
+End-of-File
+
+# real QA test starts here
+
+for arg in "" -d
+do
+    case "$arg"
+    in
+	'')
+	    echo "=== pmNewContext ==="
+	    ;;
+	-d)
+	    echo
+	    echo "=== pmDupContext ==="
+	    ;;
+    esac
+
+    valgrind \
+	--leak-check=full --read-var-info=yes --show-leak-kinds=all \
+	--suppressions=$tmp.suppress --log-file=$tmp.valgrind \
+	--gen-suppressions=all \
+	2>$tmp.valgrind.err >$tmp.valgrind.out \
+	src/churnctx $arg -z -s 10 -a src/bug1057 kernel.all.load hinv.ncpu disk.dev.total
+
+    echo "=== std out ==="
+    cat $tmp.valgrind.out
+    echo "=== std err ==="
+    _filter < $tmp.valgrind.err
+    echo "=== valgrind report ===" >>$seq.full
+    cat $tmp.valgrind >>$seq.full
+    echo "=== filtered valgrind report ==="
+    _filter_valgrind <$tmp.valgrind
+done
+
+# success, all done
+status=0
+
+exit

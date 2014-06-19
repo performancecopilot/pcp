@@ -1616,3 +1616,71 @@ __pmLogResetInterp(__pmContext *ctxp)
 	}
     }
 }
+
+/*
+ * Free interp data when context is closed ...
+ * - pinned PDU buffers holding values used for interpolation
+ * - hash structures for finding metrics and instances
+ * - empty the read cache for the data file associated with the context
+ *
+ * Called with ctxp->c_lock held.
+ */
+void
+__pmFreeInterpData(__pmContext *ctxp)
+{
+    __pmHashCtl		*hcp = &ctxp->c_archctl->ac_pmid_hc;
+    __pmHashNode	*hp;
+    pmidcntl_t		*pcp;
+    instcntl_t		*icp;
+    int			j;
+
+    for (j = 0; j < hcp->hsize; j++) {
+	__pmHashNode	*last_hp = NULL;
+	/*
+	 * Don't free __pmHashNode until hp->next has been traversed, hence
+	 * free lags one node in the chain (last_hp used for free)
+	 * Same for linked list of instcntl_t structs (use last_icp
+	 * for free in this case).
+	 */
+	for (hp = hcp->hash[j]; hp != NULL; hp = hp->next) {
+	    instcntl_t		*last_icp = NULL;
+	    pcp = (pmidcntl_t *)hp->data;
+	    for (icp = pcp->first; icp != NULL; icp = icp->next) {
+		if (pcp->valfmt != PM_VAL_INSITU) {
+		    /*
+		     * Held values may be in PDU buffers, unpin the PDU
+		     * buffers just in case (__pmUnpinPDUBuf is a NOP if
+		     * the value is not in a PDU buffer)
+		     */
+		    if (icp->v_prior.pval != NULL)
+			__pmUnpinPDUBuf((void *)icp->v_prior.pval);
+		    if (icp->v_next.pval != NULL)
+			__pmUnpinPDUBuf((void *)icp->v_next.pval);
+		}
+		if (last_icp != NULL)
+		    free(last_icp);
+		last_icp = icp;
+	    }
+	    if (last_icp != NULL)
+		free(last_icp);
+	    if (last_hp != NULL) {
+		if (last_hp->data != NULL)
+		    free(last_hp->data);
+		free(last_hp);
+	    }
+	    last_hp = hp;
+	}
+	if (last_hp != NULL) {
+	    if (last_hp->data != NULL)
+		free(last_hp->data);
+	    free(last_hp);
+	}
+	free(hcp->hash);
+	/* just being paranoid here */
+	hcp->hash = NULL;
+	hcp->hsize = 0;
+    }
+
+    /* empty the read cache for the data file of the current context  */
+    __pmLogCacheClear(ctxp->c_archctl->ac_log->l_mfp);
+}

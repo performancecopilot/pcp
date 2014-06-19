@@ -972,7 +972,7 @@ vset_resize(pmResult *rp, int i, int onumval, int numval)
 static char *
 simabi()
 {
-#if defined(__linux__)
+#if defined(__linux__) || defined(IS_GNU)
 # if defined(__i386__)
     return "ia32";
 # elif defined(__ia64__) || defined(__ia64)
@@ -992,7 +992,7 @@ simabi()
 #elif defined(IS_DARWIN)
     return "Mach-O " SIM_ABI;
 #elif defined(IS_MINGW)
-    return "i386";	// TODO: need to handle x86_64 too
+    return "x86_64";
 #elif defined(IS_AIX)
     return "powerpc";
 #else

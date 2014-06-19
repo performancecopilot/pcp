@@ -220,15 +220,15 @@ int
 __pmServerAddInterface(const char *address)
 {
     size_t size = (nintf+1) * sizeof(char *);
-    char *interface;
+    char *intf;
 
     /* one (of possibly several) IP addresses for client requests */
     intflist = (char **)realloc(intflist, nintf * sizeof(char *));
     if (intflist == NULL)
 	__pmNoMem("AddInterface: cannot grow interface list", size, PM_FATAL_ERR);
-    if ((interface = strdup(address)) == NULL)
+    if ((intf = strdup(address)) == NULL)
 	__pmNoMem("AddInterface: cannot strdup interface", strlen(address), PM_FATAL_ERR);
-    intflist[nintf++] = interface;
+    intflist[nintf++] = intf;
     return nintf;
 }
 
@@ -672,6 +672,7 @@ __pmServerCloseRequestPorts(void)
 	if ((fd = reqPorts[i].fds[IPV6_FD]) >= 0)
 	    __pmCloseSocket(fd);
     }
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     if (localSocketFd >= 0) {
         __pmCloseSocket(localSocketFd);
 	localSocketFd = -EPROTO;
@@ -684,6 +685,7 @@ __pmServerCloseRequestPorts(void)
 			  osstrerror_r(errmsg, sizeof(errmsg)));
 	}
     }
+#endif
 }
 
 /*

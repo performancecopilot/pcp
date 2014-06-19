@@ -338,6 +338,7 @@ mem.util {
     corrupthardware	60:1:55
     anonhugepages	60:1:56
     directMap1G		60:1:57
+    available		60:1:58
 }
 
 mem.numa {

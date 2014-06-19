@@ -164,10 +164,6 @@ elif test $target_os = mingw
 then
     AC_DEFINE(IS_MINGW)
     CFLAGS="-fno-strict-aliasing"
-    export CPPFLAGS="$CPPFLAGS -I$PCP_DIR/include -I$PCP_DIR/local/include"
-    export CFLAGS="$CFLAGS -I$PCP_DIR/include -I$PCP_DIR/local/include"
-    export LDFLAGS="$LDFLAGS -L$PCP_DIR/lib -L$PCP_DIR/local/lib"
-    export PATH="$PATH:$PCP_DIR/bin:$PCP_DIR/local/bin"
 elif test $target_os = solaris
 then
     AC_DEFINE(IS_SOLARIS)
@@ -181,6 +177,11 @@ then
 elif test $target_os = freebsd || test $target_os = kfreebsd
 then
     AC_DEFINE(IS_FREEBSD)
+    test -f /etc/debian_version && target_distro=debian
+    export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
+elif test $target_os = gnu
+then
+    AC_DEFINE(IS_GNU)
     test -f /etc/debian_version && target_distro=debian
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
 elif test $target_os = netbsdelf
@@ -1165,6 +1166,7 @@ AC_CHECK_FUNCS(brk sbrk posix_memalign memalign valloc)
 AC_CHECK_FUNCS(signal sighold sigrelse tcgetattr)
 AC_CHECK_FUNCS(regex regcmp regexec regcomp)
 AC_CHECK_FUNCS(strtod strtol strtoll strtoull strndup)
+AC_CHECK_FUNCS(getuid getgid)
 AC_CHECK_FUNCS(getgrent getgrent_r getgrnam getgrnam_r getgrgid getgrgid_r)
 AC_CHECK_FUNCS(getpwent getpwent_r getpwnam getpwnam_r getpwuid getpwuid_r)
 AC_CHECK_FUNCS(sysinfo trace_back_stack backtrace)
@@ -2335,7 +2337,7 @@ int main () {
        return(1);
     return (0);
 }
-], AC_DEFINE(HAVE_STRFTIME_z) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no),  0)
+], AC_DEFINE(HAVE_STRFTIME_z) AC_MSG_RESULT(yes), AC_MSG_RESULT(no), AC_MSG_RESULT(no))
 
 dnl does strerror_r return char * a la GNU
 dnl (as opposed to the int return for XSI-compliant variants)
