@@ -20,6 +20,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 using namespace std;
 
@@ -212,13 +213,15 @@ mhd_respond (void *cls, struct MHD_Connection *connection, const char *url0,
 
         // Trace request
         if (verbosity) {
-            connstamp (clog, connection) << version << " " << method << " " << url << endl;
-        }
-        if (verbosity > 1) {
-            for (http_params::iterator it = mhd_cc->params.begin (); it != mhd_cc->params.end ();
-                    it++) {
-                connstamp (clog, connection) << it->first << "=" << it->second << endl;
+            stringstream str;
+            str << version << " " << method << " " << url;
+            if (verbosity > 1) {
+                for (http_params::iterator it = mhd_cc->params.begin (); it != mhd_cc->params.end ();
+                     it++) {
+                    str << " " << it->first << "=" << it->second;
+                }
             }
+            connstamp (clog, connection) << str.str() << endl;
         }
 
         // first component (or the whole remainder)
