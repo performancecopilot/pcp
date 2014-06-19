@@ -11,14 +11,50 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
+#include <signal.h>
 #include "pmapi.h"
 #include "impl.h"
 
 static int	quiet;
+static int	interrupted;
 static char	*mechanism;
 static char	*globalOptions;
 
 static int override(int, pmOptions *);
+
+static void
+handleInterrupt(int sig)
+{
+    interrupted = 1;
+    pmServiceDiscoveryInterrupt(sig);
+}
+
+static void
+setupSignals(sighandler_t handler)
+{
+  struct sigaction sa;
+
+  memset(&sa, 0, sizeof(sa));
+  sa.sa_handler = handler;
+  sigemptyset (&sa.sa_mask);
+  if (handler != SIG_IGN)
+    {
+      sigaddset (&sa.sa_mask, SIGHUP);
+      sigaddset (&sa.sa_mask, SIGPIPE);
+      sigaddset (&sa.sa_mask, SIGINT);
+      sigaddset (&sa.sa_mask, SIGTERM);
+      sigaddset (&sa.sa_mask, SIGXFSZ);
+      sigaddset (&sa.sa_mask, SIGXCPU);
+    }
+  sa.sa_flags = SA_RESTART;
+
+  sigaction (SIGHUP, &sa, NULL);
+  sigaction (SIGPIPE, &sa, NULL);
+  sigaction (SIGINT, &sa, NULL);
+  sigaction (SIGTERM, &sa, NULL);
+  sigaction (SIGXFSZ, &sa, NULL);
+  sigaction (SIGXCPU, &sa, NULL);
+}
 
 static const char *services[] = {
     PM_SERVER_SERVICE_SPEC,
@@ -120,6 +156,12 @@ main(int argc, char **argv)
     char	*service = NULL;
     int		c, sts, total;
 
+    /*
+     * Set up a handler to catch routine signals, to allow for
+     * interruption of the discovery process.
+     */
+    setupSignals(&handleInterrupt);
+
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
 	case 'r':	/* resolve addresses */
@@ -158,6 +200,8 @@ main(int argc, char **argv)
 	return discovery(service);
 
     for (c = sts = total = 0; c < sizeof(services)/sizeof(services[0]); c++) {
+	if (interrupted)
+	    break;
 	sts |= discovery(services[c]);
 	total += (sts != 0);
     }

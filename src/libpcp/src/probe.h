@@ -15,5 +15,6 @@
 #define PROBE_H
 
 int __pmProbeDiscoverServices(const char *, const char *, int, char ***) _PCP_HIDDEN;
+void __pmProbeServiceDiscoveryInterrupt(int) _PCP_HIDDEN;
 
 #endif /* PROBE_H */

@@ -20,15 +20,11 @@
  * Service discovery by active probing. The given subnet is probed for the
  * requested service(s).
  */
-static __pmSockAddr    *netAddress;
-static int             maskBits;
+static __pmSockAddr	*netAddress;
+static int		maskBits;
 
-/*
- * Max number of threads to use. FD_SETSIZE is the most open fds that __pmFD*()
- * and __pmSelect() can deal with, so it's a decent default. The main thread
- * also participates, so subtract 1.
- */
-static unsigned	maxThreads = FD_SETSIZE - 1;
+/* Max number of worker threads to use. */
+static unsigned	maxThreads;
 
 /* Context for each thread. */
 typedef struct connectionContext {
@@ -40,11 +36,14 @@ typedef struct connectionContext {
     const int		*ports;		/* The actual ports */
     int			*numUrls;	/* Size of the results */
     char		***urls;	/* The results */
+    int			interrupted;	/* Discovery interrupted */
 #if PM_MULTI_THREAD
     __pmMutex		addrLock;	/* lock for the above address/port */
     __pmMutex		urlLock;	/* lock for the above results */
 #endif
 } connectionContext;
+
+static connectionContext context;
 
 #if ! PM_MULTI_THREAD
 /* Make these disappear. */
@@ -73,10 +72,10 @@ attemptConnections(void *arg)
     connectionContext	*context = arg;
 
     /*
-     * Keep trying to secure an address+port until there are no more.
-     * NOTE: Eventually we will add a timeout and/or interrupt check here.
+     * Keep trying to secure an address+port until there are no more
+     * or until we are interrupted.
      */
-    for (;;) {
+    while (! context->interrupted) {
 	/* Obtain the address lock while securing the next address, if any. */
 	PM_LOCK(context->addrLock);
 	if (context->nextAddress == NULL) {
@@ -203,7 +202,6 @@ probeForServices(
     int			*ports = NULL;
     int			nports;
     int			prevNumUrls = numUrls;
-    connectionContext	context;
 #if PM_MULTI_THREAD
     int			sts;
     pthread_t		*threads = NULL;
@@ -234,6 +232,7 @@ probeForServices(
     context.urls = urls;
     context.portIx = 0;
     context.maskBits = maskBits;
+    context.interrupted = 0;
 
     /*
      * Initialize the first address of the subnet. This pointer will become
@@ -271,7 +270,6 @@ probeForServices(
 	__pmNotifyErr(LOG_ERR,
 		      "__pmProbeDiscoverServices: unable to allocate %u threads",
 		      maxThreads);
-	nThreads = 0;
     }
     else {
 	/*
@@ -306,13 +304,15 @@ probeForServices(
     attemptConnections(&context);
 
 #if PM_MULTI_THREAD
-    /* Wait for all the connection attempts to finish. */
-    for (threadIx = 0; threadIx < nThreads; ++threadIx)
-	pthread_join(threads[threadIx], NULL);
+    if (threads) {
+	/* Wait for all the connection attempts to finish. */
+	for (threadIx = 0; threadIx < nThreads; ++threadIx)
+	    pthread_join(threads[threadIx], NULL);
 
-    /* These must not be destroyed until all of the threads have finished. */
-    pthread_mutex_destroy(&context.addrLock);
-    pthread_mutex_destroy(&context.urlLock);
+	/* These must not be destroyed until all of the threads have finished. */
+	pthread_mutex_destroy(&context.addrLock);
+	pthread_mutex_destroy(&context.urlLock);
+    }
 #endif
 
  done:
@@ -424,7 +424,16 @@ parseOptions(const char *mechanism)
 	return -1;
     }
 
-    /* Parse any remaining options. */
+    /*
+     * Parse any remaining options.
+     * Reinitialize options, since this API may be re-used.
+     *
+     * FD_SETSIZE is the most open fds that __pmFD*()
+     * and __pmSelect() can deal with, so it's a decent default for maxThreads.
+     * The main thread also participates, so subtract 1.
+     */
+    maxThreads = FD_SETSIZE - 1;
+
     sts = 0;
     for (option = end; *option != '\0'; /**/) {
 	/*
@@ -531,4 +540,14 @@ __pmProbeDiscoverServices(const char *service, const char *mechanism, int numUrl
     __pmSockAddrFree(netAddress);
 
     return numUrls;
+}
+
+void
+__pmProbeServiceDiscoveryInterrupt(int sig)
+{
+    if (pmDebug & DBG_TRACE_DISCOVERY) {
+	__pmNotifyErr(LOG_INFO, "Service discovery via active probing interrupted by signal %d\n",
+		      sig);
+    }
+    context.interrupted = sig;
 }

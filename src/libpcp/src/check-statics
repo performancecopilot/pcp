@@ -110,12 +110,14 @@ auxserver.o
     localSocketFd		# single-threaded server scope
     server_features		# single-threaded server scope
 discovery.o
-    globalOptionsInfo		# single-threaded scope
+    interrupted			# no unsafe side-effects
+    globalOptionsInfo		# no unsafe side-effects
 ?avahi.o
     nActiveServices		# single-threaded server scope
     szActiveServices		# single-threaded server scope
     activeServices		# single-threaded server scope
     threadedPoll		# single-threaded server scope
+    simplePoll			# single-threaded server scope
     client			# single-threaded server scope
     group			# single-threaded server scope
     done_default		# guarded by __pmLock_libpcp mutex
@@ -313,6 +315,7 @@ p_pmns.o
 p_profile.o
 p_result.o
 probe.o
+    context			# no unsafe side-effects.
     netAddress			# altered in main thread only
     maskBits			# altered in main thread only
     maxThreads			# altered in main thread only
