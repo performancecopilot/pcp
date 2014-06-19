@@ -992,7 +992,7 @@ simabi()
 #elif defined(IS_DARWIN)
     return "Mach-O " SIM_ABI;
 #elif defined(IS_MINGW)
-    return "i386";	// TODO: need to handle x86_64 too
+    return "x86_64";
 #elif defined(IS_AIX)
     return "powerpc";
 #else
