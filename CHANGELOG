@@ -1,3 +1,6 @@
+pcp-3.9.7 (16 July 2014)
+    - Under development
+
 pcp-3.9.6 (19 June 2014)
     - Fix pthreads build fallout for Solaris platforms
     - Remove accidental /var/run/pcp install on Debian

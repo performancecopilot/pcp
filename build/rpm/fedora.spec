@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.9.5
+Version: 3.9.7
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -833,6 +833,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root,-)
 
 %changelog
+* Wed Jul 16 2014 Mark Goodwin <mgoodwin@redhat.com> - 3.9.7-1
+- Currently under development
+
 * Wed Jun 18 2014 Dave Brolley <brolley@redhat.com> - 3.9.5-1
 - Daemon signal handlers no longer use unsafe APIs (BZ 847343)
 - Handle /var/run setups on a temporary filesystem (BZ 656659)
