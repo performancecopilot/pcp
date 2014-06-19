@@ -1621,7 +1621,7 @@ __pmLogResetInterp(__pmContext *ctxp)
  * Free interp data when context is closed ...
  * - pinned PDU buffers holding values used for interpolation
  * - hash structures for finding metrics and instances
- * - empty the read cache
+ * - empty the read cache for the data file associated with the context
  *
  * Called with ctxp->c_lock held.
  */
@@ -1632,7 +1632,6 @@ __pmFreeInterpData(__pmContext *ctxp)
     __pmHashNode	*hp;
     pmidcntl_t		*pcp;
     instcntl_t		*icp;
-    cache_t		*cp;
     int			j;
 
     for (j = 0; j < hcp->hsize; j++) {
@@ -1683,12 +1682,5 @@ __pmFreeInterpData(__pmContext *ctxp)
     }
 
     /* empty the read cache for the data file of the current context  */
-    for (cp = cache; cp < &cache[NUMCACHE]; cp++) {
-	if (cp->mfp == ctxp->c_archctl->ac_log->l_mfp) {
-	    if (cp->rp != NULL)
-		pmFreeResult(cp->rp);
-	    cp->rp = NULL;
-	    cp->mfp = NULL;
-	}
-    }
+    __pmLogCacheClear(ctxp->c_archctl->ac_log->l_mfp);
 }
