@@ -214,7 +214,7 @@ mhd_respond (void *cls, struct MHD_Connection *connection, const char *url0,
         if (verbosity) {
             connstamp (clog, connection) << version << " " << method << " " << url << endl;
         }
-        if (verbosity > 2) {
+        if (verbosity > 1) {
             for (http_params::iterator it = mhd_cc->params.begin (); it != mhd_cc->params.end ();
                     it++) {
                 connstamp (clog, connection) << it->first << "=" << it->second << endl;

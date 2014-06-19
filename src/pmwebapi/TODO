@@ -20,6 +20,6 @@
 
 - graphite event support
 - old config.options style detection/support
-- /graphite/browser/search
 - dashboard generator
+- figure out why grafana doubles all RENDER-json requests
 
