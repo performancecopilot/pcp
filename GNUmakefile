@@ -76,7 +76,7 @@ else
 	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)
 endif
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)
-ifneq "$(findstring $(PACKAGE_DISTRIBUTION), debian redhat fedora)" ""
+ifeq "$(findstring $(PACKAGE_DISTRIBUTION), debian redhat fedora)" ""
 	# $PCP_RUN_DIR usually -> /var/run which may be a temporary filesystem
 	# and Debian's lintian complains about packages including /var/run/xxx
 	# artifacts ... $PCP_RUN_DIR is also conditionally created on the

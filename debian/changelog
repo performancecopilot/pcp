@@ -1,10 +1,10 @@
-pcp (3.9.5) unstable; urgency=low
+pcp (3.9.6) unstable; urgency=low
 
   * Resolve FTBFS on build systems using systemd (closes: #746994)
   * Support builds on the GNU/Hurd platform (closes: #751801)
   * New release (full details in CHANGELOG).
 
- -- Nathan Scott <nathans@debian.org>  Tue, 17 Jun 2014 17:23:47 +1000
+ -- Nathan Scott <nathans@debian.org>  Thu, 19 Jun 2014 10:19:23 +1000
 
 pcp (3.9.4) unstable; urgency=low
 

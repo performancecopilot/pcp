@@ -1,3 +1,8 @@
+pcp-3.9.6 (19 June 2014)
+    - Fix pthreads build fallout for Solaris platforms
+    - Remove accidental /var/run/pcp install on Debian
+    - Rename configure.in to configure.ac as autoconf prefers
+
 pcp-3.9.5 (18 June 2014)
     - porting work on the GNU/Hurd platform
     - porting work on Windows (early MinGW-64 work)
