@@ -300,6 +300,7 @@ extern void __pmFreeResultValues(pmResult *);
 extern char *__pmPDUTypeStr_r(int, char *, int);
 extern const char *__pmPDUTypeStr(int);			/* NOT thread-safe */
 extern void __pmDumpNameSpace(FILE *, int);
+extern void __pmDumpNameNode(FILE *, __pmnsNode *, int);
 extern void __pmDumpStack(FILE *);
 EXTERN int __pmLogReads;
 

@@ -451,5 +451,6 @@ PCP_3.5 {
 
 PCP_3.6 {
   global:
+    __pmDumpNameNode;
     __pmFreeInterpData;
 } PCP_3.5;
