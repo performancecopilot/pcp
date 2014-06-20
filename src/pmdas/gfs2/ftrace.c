@@ -32,8 +32,8 @@
 static char *TRACE_PIPE = "/sys/kernel/debug/tracing/trace_pipe";
 static int max_glock_throughput = INITIAL_GLOBAL_MAX_GLOCK_THROUGHPUT;
 
-static struct ftrace_data *ftrace_data;
-static int capacity, num_accepted_entries;
+static struct ftrace_data ftrace_data;
+static int num_accepted_entries;
 
 /*
  * Fetches the value for the given metric item and then assigns to pmAtomValue.
@@ -116,16 +116,9 @@ static int
 gfs2_extract_trace_values(char *buffer)
 {
     struct ftrace_data temp;
+
     unsigned int major, minor;
     char *data;
-
-    /* Allocate memory for our data */
-    if (ftrace_data == NULL) {
-        ftrace_data = malloc(capacity * sizeof(struct ftrace_data));
-        if (ftrace_data == NULL) {
-            return -oserror();
-        }
-    }
 
     /* Interpret data, we work out what tracepoint it belongs to first */
     if ((data = strstr(buffer, "gfs2_glock_state_change: "))) {
@@ -193,25 +186,8 @@ gfs2_extract_trace_values(char *buffer)
     temp.dev_id = makedev(major, minor);
     strncpy(temp.data, data, sizeof(temp.data)-1);
 
-    /* Re-allocate and extend array if we are near capacity */
-    if (num_accepted_entries == capacity) {
-        struct ftrace_data *ftrace_data_realloc = 
-            realloc(ftrace_data, (capacity + FTRACE_ARRAY_CAPACITY) * sizeof(struct ftrace_data)
-        );
-
-        if (ftrace_data_realloc == NULL) {
-            free(ftrace_data);
-            ftrace_data = NULL;
-            return -oserror();
-        } else {
-            ftrace_data = ftrace_data_realloc;
-            ftrace_data_realloc = NULL;
-            capacity += FTRACE_ARRAY_CAPACITY;
-        }
-    }
-
     /* Assign data in the array and update counters */
-    ftrace_data[num_accepted_entries] = temp;
+    ftrace_data = temp;
     num_accepted_entries++;
 
     return 0;
@@ -224,9 +200,9 @@ gfs2_extract_trace_values(char *buffer)
  * cycle.
  */
 static void
-gfs2_assign_ftrace(pmInDom gfs2_fs_indom) 
+gfs2_assign_ftrace(pmInDom gfs2_fs_indom, int reset_flag) 
 {
-    int i, j, k, sts;
+    int i, j, sts;
     struct gfs2_fs *fs;
 
     /* We walk through for each filesystem */
@@ -237,20 +213,20 @@ gfs2_assign_ftrace(pmInDom gfs2_fs_indom)
 	if (sts != PMDA_CACHE_ACTIVE)
 	    continue;   
 
-        for (j = 0; j < NUM_TRACEPOINT_STATS; j++) {
-            /* Reset old metric data for all tracepoints */
-            fs->ftrace.values[j] = 0;
+        if(reset_flag == 1){
+            for (j = 0; j < NUM_TRACEPOINT_STATS; j++) {
+                /* Reset old metric data for all tracepoints */
+                fs->ftrace.values[j] = 0;
+            }
         }      
-
-        for (k = 0; k < num_accepted_entries; k++) {
-            if (fs->dev_id != ftrace_data[k].dev_id)
-                continue;
+       
+        if (fs->dev_id == ftrace_data.dev_id) {
 
             /* Work through the data, increasing metric counters */
-            if (ftrace_data[k].tracepoint == GLOCK_STATE_CHANGE) {
+            if (ftrace_data.tracepoint == GLOCK_STATE_CHANGE) {
                 char state[3], target[3];
 
-                sscanf(ftrace_data[k].data, 
+                sscanf(ftrace_data.data, 
                     "gfs2_glock_state_change: %*d,%*d glock %*d:%*d state %*s to %s tgt:%s dmt:%*s flags:%*s", 
                     state, target
                 );
@@ -276,10 +252,10 @@ gfs2_assign_ftrace(pmInDom gfs2_fs_indom)
                     fs->ftrace.values[FTRACE_GLOCKSTATE_GLOCK_MISSEDTARGET]++;
                 }
 
-            } else if (ftrace_data[k].tracepoint == GLOCK_PUT) {
+            } else if (ftrace_data.tracepoint == GLOCK_PUT) {
                 char state[3];
 
-                sscanf(ftrace_data[k].data, 
+                sscanf(ftrace_data.data, 
                     "gfs2_glock_put: %*d,%*d glock %*d:%*d state %*s => %s flags:%*s", 
                     state
                 );
@@ -299,10 +275,10 @@ gfs2_assign_ftrace(pmInDom gfs2_fs_indom)
                 }
                 fs->ftrace.values[FTRACE_GLOCKPUT_TOTAL]++;
 
-            } else if (ftrace_data[k].tracepoint == DEMOTE_RQ) {
+            } else if (ftrace_data.tracepoint == DEMOTE_RQ) {
                 char state[3], remote[7];
 
-                sscanf(ftrace_data[k].data, 
+                sscanf(ftrace_data.data, 
                     "gfs2_demote_rq: %*d,%*d glock %*d:%*d demote %*s to %s flags:%*s %s", 
                     state, remote
                 );
@@ -328,10 +304,10 @@ gfs2_assign_ftrace(pmInDom gfs2_fs_indom)
                     fs->ftrace.values[FTRACE_DEMOTERQ_REQUESTED_LOCAL]++;
                 } 
 
-            } else if (ftrace_data[k].tracepoint == PROMOTE) {
+            } else if (ftrace_data.tracepoint == PROMOTE) {
                 char state[3], first[6];
 
-                sscanf(ftrace_data[k].data, 
+                sscanf(ftrace_data.data, 
                     "gfs2_promote: %*d,%*d glock %*d:%*d promote %s %s", 
                     first, state
                 );
@@ -367,10 +343,10 @@ gfs2_assign_ftrace(pmInDom gfs2_fs_indom)
                 }
                 fs->ftrace.values[FTRACE_PROMOTE_TOTAL]++;
 
-            } else if (ftrace_data[k].tracepoint == GLOCK_QUEUE) {
+            } else if (ftrace_data.tracepoint == GLOCK_QUEUE) {
                 char state[3], queue[8];
             
-                sscanf(ftrace_data[k].data, 
+                sscanf(ftrace_data.data, 
                     "gfs2_glock_queue: %*d,%*d glock %*d:%*d %s %s", 
                     queue, state
                 );
@@ -409,10 +385,10 @@ gfs2_assign_ftrace(pmInDom gfs2_fs_indom)
                 }
                 fs->ftrace.values[FTRACE_GLOCKQUEUE_TOTAL]++;
 
-            } else if (ftrace_data[k].tracepoint == GLOCK_LOCK_TIME) {
+            } else if (ftrace_data.tracepoint == GLOCK_LOCK_TIME) {
                 uint32_t lock_type;
 
-                sscanf(ftrace_data[k].data, 
+                sscanf(ftrace_data.data, 
                     "gfs2_glock_lock_time: %*d,%*d glock %"SCNu32":%*d status:%*d flags:%*x tdiff:%*d srtt:%*d/%*d srttb:%*d/%*d sirt:%*d/%*d dcnt:%*d qcnt:%*d",
                     &lock_type
                 );
@@ -436,11 +412,11 @@ gfs2_assign_ftrace(pmInDom gfs2_fs_indom)
                 }
                 fs->ftrace.values[FTRACE_GLOCKLOCKTIME_TOTAL]++;
 
-            } else if (ftrace_data[k].tracepoint == PIN) {
+            } else if (ftrace_data.tracepoint == PIN) {
                 char pinned[6];
                 uint32_t length;
 
-                sscanf(ftrace_data[k].data, 
+                sscanf(ftrace_data.data, 
                     "gfs2_pin: %*d,%*d log %s %*d/%"SCNu32" inode: %*d",
                     pinned, &length
                 );                
@@ -455,19 +431,36 @@ gfs2_assign_ftrace(pmInDom gfs2_fs_indom)
                 if(fs->ftrace.values[FTRACE_PIN_LONGESTPINNED] < length)
                     fs->ftrace.values[FTRACE_PIN_LONGESTPINNED] = length;
 
-            } else if (ftrace_data[k].tracepoint == LOG_FLUSH) {
-                fs->ftrace.values[FTRACE_LOGFLUSH_TOTAL]++; 
+            } else if (ftrace_data.tracepoint == LOG_FLUSH) {
+                char end[6];
 
-            } else if (ftrace_data[k].tracepoint == LOG_BLOCKS) {
+                sscanf(ftrace_data.data, 
+                    "gfs2_log_flush: %*d,%*d log flush %s %*u",
+                    end 
+                );
+
+                if (strncmp(end, "end", 6) == 0)
+                    fs->ftrace.values[FTRACE_LOGFLUSH_TOTAL]++; 
+
+            } else if (ftrace_data.tracepoint == LOG_BLOCKS) {
+
                 fs->ftrace.values[FTRACE_LOGBLOCKS_TOTAL]++;
 
-            } else if (ftrace_data[k].tracepoint == AIL_FLUSH) {
-                fs->ftrace.values[FTRACE_AILFLUSH_TOTAL]++;
+            } else if (ftrace_data.tracepoint == AIL_FLUSH) {
+                char end[6];
 
-            } else if (ftrace_data[k].tracepoint == BLOCK_ALLOC) {
+                sscanf(ftrace_data.data, 
+                    "gfs2_ail_flush: %*d,%*d ail flush %s %*s %*u",
+                    end 
+                );
+
+                if (strncmp(end, "end", 6) == 0)
+                    fs->ftrace.values[FTRACE_AILFLUSH_TOTAL]++;
+
+            } else if (ftrace_data.tracepoint == BLOCK_ALLOC) {
                 char type[8];
 
-                sscanf(ftrace_data[k].data, 
+                sscanf(ftrace_data.data, 
                     "gfs2_block_alloc: %*d,%*d bmap %*u alloc %*u/%*u %s rg:%*u rf:%*u rr:%*u",
                     type 
                 );
@@ -483,10 +476,10 @@ gfs2_assign_ftrace(pmInDom gfs2_fs_indom)
             }
             fs->ftrace.values[FTRACE_BLOCKALLOC_TOTAL]++;
 
-            } else if (ftrace_data[k].tracepoint == BMAP) {
+            } else if (ftrace_data.tracepoint == BMAP) {
                 char type[8];
 
-                sscanf(ftrace_data[k].data, 
+                sscanf(ftrace_data.data, 
                     "gfs2_bmap: %*d,%*d bmap %*u map %*u/%*u to %*u flags:%*x %s %*d",
                     type 
                 );
@@ -498,10 +491,10 @@ gfs2_assign_ftrace(pmInDom gfs2_fs_indom)
                 }
                 fs->ftrace.values[FTRACE_BMAP_TOTAL]++;
 
-            } else if (ftrace_data[k].tracepoint == RS) {
+            } else if (ftrace_data.tracepoint == RS) {
                 char type[8];
 
-                sscanf(ftrace_data[k].data, 
+                sscanf(ftrace_data.data, 
                     "gfs2_rs: %*d,%*d bmap %*u resrv %*u rg:%*u rf:%*u rr:%*u %s f:%*u",
                     type 
                 );
@@ -519,14 +512,7 @@ gfs2_assign_ftrace(pmInDom gfs2_fs_indom)
 
             }
         }
-        /* LOGFLUSH & AILFLUSH have start/end operations so we divide the total values */
-        fs ->ftrace.values[FTRACE_LOGFLUSH_TOTAL] /= 2;
-        fs ->ftrace.values[FTRACE_AILFLUSH_TOTAL] /= 2;
     }
-
-    /* Free memory */
-    free(ftrace_data);
-    ftrace_data = NULL;
 }
 
 /* 
@@ -538,12 +524,12 @@ int
 gfs2_refresh_ftrace_stats(pmInDom gfs_fs_indom)
 {
     FILE *fp;
-    int fd, flags;
+    int fd, flags, reset_flag;
     char buffer[8196];
 
     /* Reset the metric types we have found */
     num_accepted_entries = 0;
-    capacity = FTRACE_ARRAY_CAPACITY;
+    reset_flag = 1;
 
     /* We open the pipe in both read-only and non-blocking mode */
     if ((fp = fopen(TRACE_PIPE, "r")) == NULL)
@@ -565,19 +551,20 @@ gfs2_refresh_ftrace_stats(pmInDom gfs_fs_indom)
         /* In the event of an allocation error */
         if (gfs2_extract_trace_values(buffer) != 0)
             break;
+
+        /* Processing here */
+        gfs2_assign_ftrace(gfs_fs_indom, reset_flag);
+        reset_flag = 0; // We only want to reset once for each run through
+
     }
     fclose(fp);
 
     /* Clear the rest of the ring buffer after passing max_glock_throughput */
     ftrace_clear_buffer();
 
-    /* Processing here */
-    if (ftrace_data != NULL)
-        gfs2_assign_ftrace(gfs_fs_indom);
-
     /* Assign worst_glock entries */
     if (worst_glock_get_state() == 1)
-    worst_glock_assign_glocks(gfs_fs_indom);
+        worst_glock_assign_glocks(gfs_fs_indom);
 
     return 0;
 }
