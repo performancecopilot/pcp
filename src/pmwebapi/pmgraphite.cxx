@@ -1142,20 +1142,16 @@ cairo_status_t notcairo_write_to_string (void *cls, const unsigned char* data, u
 }
 
 
-// Generate a color wheel, with entries for each of targets[].
-//
-// The first parameter is an optional graphite/render "colorList"
-// style comma-separated set of names, which may well be shorter than
-// than targets[].
-vector<string> generate_colorlist (const vector<string>& colorList, const vector<string>& targets)
+// Generate a color wheel, with NUM entries, based on a possibly-shorter colorList.
+vector<string> generate_colorlist (const vector<string>& colorList, unsigned num)
 {
     vector<string> output;
 
-    for (unsigned i=0; i<targets.size (); i++) {
-        if (colorList.size () > 0) {
-            output.push_back (colorList[i % colorList.size ()]);
+    for (unsigned i=0; i<num; i++) {
+        if (colorList.size() > 0) {
+            output.push_back (colorList[i % colorList.size()]);
         } else {
-            output.push_back (targets[i]);
+            output.push_back ("random");
         }
     }
 
@@ -1517,6 +1513,19 @@ vector<time_t> round_time (time_t xmin, time_t xmax, unsigned nticks, char const
 
 
 
+// A sorting-comparator object for computing rankings.
+template <typename Type>
+struct ranking_comparator {
+    ranking_comparator(const vector<Type>& d): data(d) {}
+    int operator () (unsigned i, unsigned j) {
+        assert (data.size() > i && data.size() > j);
+        return data[i] > data[j];   // we'd like reverse order
+    }
+private:
+    const vector<Type>& data;
+};
+
+
 
 // Render archive data to an image.  It doesn't need to be as pretty
 // as the version built into the graphite server-side code, just
@@ -1540,6 +1549,8 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
     vector<float> yticks;
     vector<time_t> xticks;
     char const *strf_format = "%s"; // by default, epoch seconds
+    vector<unsigned> total_visibility_score;
+    vector<unsigned> visibility_rank;
 
     string format = params["format"];
     if (format == "") {
@@ -1681,7 +1692,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
         // as per graphite render/glyph.py defaultGraphOptions
         colorList = "blue,green,red,purple,brown,yellow,aqua,grey,magenta,pink,gold,mistyrose";
     }
-    colors = generate_colorlist (split (colorList,','), targets);
+    colors = generate_colorlist (split (colorList,','), targets.size());
     assert (colors.size () == targets.size ());
 
     // Draw the title
@@ -1718,15 +1729,65 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
         }
     }
 
+    // We'd like to draw the legends of those curves that are
+    // largely in view.  In particular, for curves that come from
+    // archives outside the timeline, or for those who are
+    // effectively invisible due to a lot of proximity to other
+    // curves points, we'd like to deemphasize them in the legend.
+    //
+    // It's almost like wanting to put the curves in decreasing
+    // maximum-Frechet-Distance-to-others order, but that takes too
+    // much math.
+    //
+    for (unsigned i=0; i<all_results.size(); i++) {
+        total_visibility_score.push_back(0);
+        const vector<timestamped_float>& f = all_results[i];            
+        for (unsigned j=0; j<f.size(); j++) {
+            if (isnan(f[j].what))
+                continue;
+            total_visibility_score[i] ++;
+            
+            // XXX: give extra points if this data point is far
+            // those from other non-[i] curves.  But that's bound
+            // to be computationally expensive to do it Right(tm).
+            //
+            // So we give a simple estimate of vertical distance only.
+
+            for (unsigned k=0; k<all_results.size(); k++) {
+                const vector<timestamped_float>& f2 = all_results[k];
+                if (i == k) continue;
+                if (isnan(f2[j].what)) continue;
+                assert (f2[j].when.tv_sec == f[j].when.tv_sec);
+                float delta = f2[j].what - f[j].what;
+                float reldelta = fabs(delta / (ymax - ymin)); // compare delta to height of graph
+                assert (reldelta >= 0.0 && reldelta <= 1.0);
+                unsigned points = (reldelta * 10);
+                total_visibility_score[i] += points;
+            }
+
+        }
+    }
+    
+    for (unsigned i=0; i<total_visibility_score.size(); i++) {
+        visibility_rank.push_back(i);
+    }
+    sort(visibility_rank.begin(), visibility_rank.end(), ranking_comparator<unsigned>(total_visibility_score));
+
+
     // Draw the legend
     if (params["hideLegend"] != "true" &&
         (params["hideLegend"] == "false" || targets.size () <= 10)) { // maximum number of legend entries
         double spacing = 10.0;
         double baseline = height - 8.0;
         double leftedge = 10.0;
-        for (unsigned i=0; i<targets.size (); i++) {
-            const string& name = targets[i];
+
+        for (unsigned i=0; i<visibility_rank.size (); i++) {
+            const string& name = targets[visibility_rank[i]];
             double r, g, b;
+
+            // don't even bother put this on the legend if it has zero information
+            if (total_visibility_score[visibility_rank[i]] == 0)
+                continue;
 
             // draw square swatch
             cairo_save (cr);
@@ -1860,13 +1921,18 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
     }
 
 
-    // Draw the curves
-    for (unsigned i=0; i<all_results.size (); i++) {
-        const vector<timestamped_float>& f = all_results[i];
+    // Draw the curves, in *increasing* visibility order, letting
+    // higher-score curves draw on top of the lower ones
+    for (int i=visibility_rank.size()-1; i>=0; i--) {
+        // don't even waste time trying to draw this curve
+        if (total_visibility_score[visibility_rank[i]] == 0)
+            continue;
+
+        const vector<timestamped_float>& f = all_results[visibility_rank[i]];
 
         double r,g,b;
         cairo_save (cr);
-        notcairo_parse_color (colors[i], r, g, b);
+        notcairo_parse_color (colors[i], r, g, b); // NB: match legend!
         cairo_set_source_rgb (cr, r, g, b);
 
         string lineWidth = params["lineWidth"];
