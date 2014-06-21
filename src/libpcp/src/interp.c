@@ -102,7 +102,6 @@ typedef struct {
 } cache_t;
 
 #define NUMCACHE 4
-static cache_t		cache[NUMCACHE];
 
 /*
  * diagnostic counters ... indexed by PM_MODE_FORW (2) and
@@ -111,16 +110,17 @@ static cache_t		cache[NUMCACHE];
 static long	nr_cache[PM_MODE_BACK+1];
 static long	nr[PM_MODE_BACK+1];
 
+/*
+ * called with the context lock held
+ */
 static int
 cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 {
     long	posn;
     cache_t	*cp;
     cache_t	*lfup;
+    cache_t	*cache;
     int		save_curvol;
-    static int	round_robin = -1;
-
-    PM_LOCK(__pmLock_libpcp);
 
     if (acp->ac_vol == acp->ac_log->l_curvol) {
 	posn = ftell(acp->ac_log->l_mfp);
@@ -129,14 +129,18 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
     else
 	posn = 0;
 
-    if (round_robin == -1) {
+    if (acp->ac_cache == NULL) {
 	/* cache initialization */
+	acp->ac_cache = cache = (cache_t *)malloc(NUMCACHE*sizeof(cache_t));
+	// TODO error check
 	for (cp = cache; cp < &cache[NUMCACHE]; cp++) {
 	    cp->rp = NULL;
 	    cp->mfp = NULL;
 	}
-	round_robin = 0;
+	acp->ac_cache_idx = 0;
     }
+    else
+	cache = acp->ac_cache;
 
 #ifdef PCP_DEBUG
     if ((pmDebug & DBG_TRACE_LOG) && (pmDebug & DBG_TRACE_INTERP)) {
@@ -149,8 +153,8 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
     }
 #endif
 
-    round_robin = (round_robin + 1) % NUMCACHE;
-    lfup = &cache[round_robin];
+    acp->ac_cache_idx = (acp->ac_cache_idx + 1) % NUMCACHE;
+    lfup = &cache[acp->ac_cache_idx];
     for (cp = cache; cp < &cache[NUMCACHE]; cp++) {
 	if (cp->mfp == acp->ac_log->l_mfp && cp->vol == acp->ac_vol &&
 	    ((mode == PM_MODE_FORW && cp->head_posn == posn) ||
@@ -176,7 +180,6 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 	    }
 #endif
 	    sts = cp->sts;
-	    PM_UNLOCK(__pmLock_libpcp);
 	    return sts;
 	}
     }
@@ -240,27 +243,14 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 #endif
     }
 
-    PM_UNLOCK(__pmLock_libpcp);
     return lfup->sts;
 }
 
 void
 __pmLogCacheClear(FILE *mfp)
 {
-    cache_t	*cp;
-
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
-    for (cp = cache; cp < &cache[NUMCACHE]; cp++) {
-	if (cp->mfp == mfp) {
-	    if (cp->rp != NULL)
-		pmFreeResult(cp->rp);
-	    cp->rp = NULL;
-	    cp->mfp = NULL;
-	    cp->used = 0;
-	}
-    }
-    PM_UNLOCK(__pmLock_libpcp);
+    /* retired ... functionality moved to __pmFreeInterpData() */
+    return;
 }
 
 #ifdef PCP_DEBUG
@@ -412,8 +402,8 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		if (logrp->vset[k]->vlist[i].inst == icp->inst ||
 		    icp->inst == PM_IN_NULL) {
 		    /* matched on instance */
-#if defined(PCP_DEBUG) && defined(DESPERATE)
-		    if (pmDebug & DBG_TRACE_INTERP) {
+#ifdef PCP_DEBUG
+		    if ((pmDebug & DBG_TRACE_INTERP) && (pmDebug & DBG_TRACE_DESPERATE)) {
 			char	strbuf[20];
 			fprintf(stderr, "update: match pmid %s inst %d t_this=%.6f t_prior=%.6f t_next=%.6f t_first=%.6f t_last=%.6f\n",
 			    pmIDStr_r(logrp->vset[k]->pmid, strbuf, sizeof(strbuf)), icp->inst,
@@ -1621,66 +1611,103 @@ __pmLogResetInterp(__pmContext *ctxp)
  * Free interp data when context is closed ...
  * - pinned PDU buffers holding values used for interpolation
  * - hash structures for finding metrics and instances
- * - empty the read cache for the data file associated with the context
+ * - read_cache contents
  *
  * Called with ctxp->c_lock held.
  */
 void
 __pmFreeInterpData(__pmContext *ctxp)
 {
-    __pmHashCtl		*hcp = &ctxp->c_archctl->ac_pmid_hc;
-    __pmHashNode	*hp;
-    pmidcntl_t		*pcp;
-    instcntl_t		*icp;
-    int			j;
+    if (ctxp->c_archctl->ac_pmid_hc.hsize > 0) {
+	/* we have done some interpolation ... */
+	__pmHashCtl	*hcp = &ctxp->c_archctl->ac_pmid_hc;
+	__pmHashNode	*hp;
+	pmidcntl_t	*pcp;
+	instcntl_t	*icp;
+	int		j;
 
-    for (j = 0; j < hcp->hsize; j++) {
-	__pmHashNode	*last_hp = NULL;
-	/*
-	 * Don't free __pmHashNode until hp->next has been traversed, hence
-	 * free lags one node in the chain (last_hp used for free)
-	 * Same for linked list of instcntl_t structs (use last_icp
-	 * for free in this case).
-	 */
-	for (hp = hcp->hash[j]; hp != NULL; hp = hp->next) {
-	    instcntl_t		*last_icp = NULL;
-	    pcp = (pmidcntl_t *)hp->data;
-	    for (icp = pcp->first; icp != NULL; icp = icp->next) {
-		if (pcp->valfmt != PM_VAL_INSITU) {
-		    /*
-		     * Held values may be in PDU buffers, unpin the PDU
-		     * buffers just in case (__pmUnpinPDUBuf is a NOP if
-		     * the value is not in a PDU buffer)
-		     */
-		    if (icp->v_prior.pval != NULL)
-			__pmUnpinPDUBuf((void *)icp->v_prior.pval);
-		    if (icp->v_next.pval != NULL)
-			__pmUnpinPDUBuf((void *)icp->v_next.pval);
+	for (j = 0; j < hcp->hsize; j++) {
+	    __pmHashNode	*last_hp = NULL;
+	    /*
+	     * Don't free __pmHashNode until hp->next has been traversed,
+	     * hence free lags one node in the chain (last_hp used for free).
+	     * Same for linked list of instcntl_t structs (use last_icp
+	     * for free in this case).
+	     */
+	    for (hp = hcp->hash[j]; hp != NULL; hp = hp->next) {
+		instcntl_t		*last_icp = NULL;
+		pcp = (pmidcntl_t *)hp->data;
+		for (icp = pcp->first; icp != NULL; icp = icp->next) {
+		    if (pcp->valfmt != PM_VAL_INSITU) {
+			/*
+			 * Held values may be in PDU buffers, unpin the PDU
+			 * buffers just in case (__pmUnpinPDUBuf is a NOP if
+			 * the value is not in a PDU buffer)
+			 */
+			if (icp->v_prior.pval != NULL) {
+#ifdef PCP_DEBUG
+			    if ((pmDebug & DBG_TRACE_INTERP) && (pmDebug & DBG_TRACE_DESPERATE)) {
+			    char	strbuf[20];
+			    fprintf(stderr, "release pmid %s inst %d prior\n",
+				pmIDStr_r(pcp->desc.pmid, strbuf, sizeof(strbuf)), icp->inst);
+			    }
+#endif
+			    __pmUnpinPDUBuf((void *)icp->v_prior.pval);
+			}
+			if (icp->v_next.pval != NULL) {
+#ifdef PCP_DEBUG
+			    if ((pmDebug & DBG_TRACE_INTERP) && (pmDebug & DBG_TRACE_DESPERATE)) {
+			    char	strbuf[20];
+			    fprintf(stderr, "release pmid %s inst %d next\n",
+				pmIDStr_r(pcp->desc.pmid, strbuf, sizeof(strbuf)), icp->inst);
+			    }
+#endif
+			    __pmUnpinPDUBuf((void *)icp->v_next.pval);
+			}
+		    }
+		    if (last_icp != NULL)
+			free(last_icp);
+		    last_icp = icp;
 		}
 		if (last_icp != NULL)
 		    free(last_icp);
-		last_icp = icp;
+		if (last_hp != NULL) {
+		    if (last_hp->data != NULL)
+			free(last_hp->data);
+		    free(last_hp);
+		}
+		last_hp = hp;
 	    }
-	    if (last_icp != NULL)
-		free(last_icp);
 	    if (last_hp != NULL) {
 		if (last_hp->data != NULL)
 		    free(last_hp->data);
 		free(last_hp);
 	    }
-	    last_hp = hp;
+	    free(hcp->hash);
+	    /* just being paranoid here */
+	    hcp->hash = NULL;
+	    hcp->hsize = 0;
 	}
-	if (last_hp != NULL) {
-	    if (last_hp->data != NULL)
-		free(last_hp->data);
-	    free(last_hp);
-	}
-	free(hcp->hash);
-	/* just being paranoid here */
-	hcp->hash = NULL;
-	hcp->hsize = 0;
     }
 
-    /* empty the read cache for the data file of the current context  */
-    __pmLogCacheClear(ctxp->c_archctl->ac_log->l_mfp);
+    if (ctxp->c_archctl->ac_cache != NULL) {
+	/* read cache allocated, work to be done */
+	cache_t		*cache = (cache_t *)ctxp->c_archctl->ac_cache;
+	cache_t		*cp;
+
+	for (cp = cache; cp < &cache[NUMCACHE]; cp++) {
+#ifdef PCP_DEBUG
+	    if ((pmDebug & DBG_TRACE_LOG) && (pmDebug & DBG_TRACE_INTERP)) {
+		fprintf(stderr, "read cache entry " PRINTF_P_PFX "%p: mfp=" PRINTF_P_PFX "%p rp=" PRINTF_P_PFX "%p\n", cp, cp->mfp, cp->rp);
+	    }
+#endif
+	    if (cp->mfp == ctxp->c_archctl->ac_log->l_mfp) {
+		if (cp->rp != NULL)
+		    pmFreeResult(cp->rp);
+		cp->rp = NULL;
+		cp->mfp = NULL;
+		cp->used = 0;
+	    }
+	}
+    }
 }

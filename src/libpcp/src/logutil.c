@@ -657,7 +657,6 @@ __pmLogClose(__pmLogCtl *lcp)
 	lcp->l_mdfp = NULL;
     }
     if (lcp->l_mfp != NULL) {
-	__pmLogCacheClear(lcp->l_mfp);
 	__pmResetIPC(fileno(lcp->l_mfp));
 	fclose(lcp->l_mfp);
 	lcp->l_mfp = NULL;
