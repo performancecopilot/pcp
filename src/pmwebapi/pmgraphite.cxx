@@ -870,15 +870,17 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
         x.what = nanf ("");	// initialize to a NaN
 
         int sts = pmFetch (1, pmidlist, &result);
-        if (sts == 0 && result->vset[0]->numval == 1) {
-            pmAtomValue value;
-            sts = pmExtractValue (result->vset[0]->valfmt,
-                                  &result->vset[0]->vlist[0],	// we know: one pmid, one instance
-                                  pmd.type, &value, PM_TYPE_FLOAT);
-            if (sts == 0) {
-                x.when = result->timestamp;	// should generally match iteration_time
-                x.what = value.f;
-                entries_good++;
+        if (sts >= 0) {
+            if (result->vset[0]->numval == 1) {
+                pmAtomValue value;
+                sts = pmExtractValue (result->vset[0]->valfmt,
+                                      &result->vset[0]->vlist[0],	// we know: one pmid, one instance
+                                      pmd.type, &value, PM_TYPE_FLOAT);
+                if (sts == 0) {
+                    x.when = result->timestamp;	// should generally match iteration_time
+                    x.what = value.f;
+                    entries_good++;
+                }
             }
 
             pmFreeResult (result);
