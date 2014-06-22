@@ -650,6 +650,7 @@ void fetch_series_jobqueue<Spec>::run()
     // concurrent threads are processing the same archive.
     // ... but some experimentaton shows harm rather than benefit.
     // random_shuffle (this->jobs.begin(), this->jobs.end());
+    // ... plus we'd have to unshuffle before results are collected.
 
 #ifdef HAVE_PTHREAD_H
     vector<pthread_t> threads;
@@ -989,6 +990,10 @@ vector<vector <timestamped_float> >
 pmgraphite_fetch_all_series (struct MHD_Connection* connection, const vector<string>& targets, 
                              time_t t_start, time_t t_end, time_t t_step)
 {
+    // XXX: peephole optimize: for fetches of different metrics/instances
+    // from the same archive, it could be faster to have one thread fetch
+    // them all in one pmFetch list.
+
     // prepare a jobqueue
     fetch_series_jobqueue<fetch_series_jobspec> q (& pmgraphite_fetch_series);
     
