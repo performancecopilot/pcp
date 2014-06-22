@@ -646,6 +646,11 @@ template <class Spec>
 template <class Spec>
 void fetch_series_jobqueue<Spec>::run()
 {
+    // Permute the job queue randomly, to make it less likely that
+    // concurrent threads are processing the same archive.
+    // ... but some experimentaton shows harm rather than benefit.
+    // random_shuffle (this->jobs.begin(), this->jobs.end());
+
 #ifdef HAVE_PTHREAD_H
     vector<pthread_t> threads;
     for (unsigned i=0; i<multithread; i++) {
@@ -694,6 +699,9 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
     string instance_name;
     unsigned entries_good, entries;
     stringstream message;
+    pmLogLabel archive_label;
+    struct timeval archive_end;
+    int pmSetMode_called_p = 0;
 
     // ^^^ several of these declarations are here (instead of at
     // point-of-use) only because we jump to an exit point, and may
@@ -743,6 +751,22 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
     }
 
     // NB: past this point, exit via 'goto out;' to release pmc
+
+    // Fetch end of archive time boundaries, to avoid having libpcp
+    // iterate across vast regions of void.  This would be especially
+    // bad if libpcp worries the archive might have grown since last
+    // call, go and do an fstat(2)/lseek(2) every point.
+    sts = pmGetArchiveLabel (& archive_label);
+    if (sts < 0) {
+        message << "cannot find archive label";
+        goto out;
+    }
+    
+    sts = pmGetArchiveEnd (& archive_end);
+    if (sts < 0) {
+        message << "cannot find archive end";
+        goto out;
+    }
 
     // We need to decide whether the next dotted components represent
     // a metric name, or whether there is an instance name squished at
@@ -842,17 +866,9 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
 
     // Time to iterate across time and space, and get us some tasty values
 
-    struct timeval start_timeval;
-    start_timeval.tv_sec = t_start;
-    start_timeval.tv_usec = 0;
-    sts = pmSetMode (PM_MODE_INTERP | PM_XTB_SET (PM_TIME_SEC), &start_timeval, t_step);
-    if (sts != 0) {
-        message << "cannot set time mode origin/delta";
-        goto out;
-    }
-
     // inclusive iteration from t_start to t_end
     entries_good = entries = 0;
+    pmSetMode_called_p = 0;
     for (time_t iteration_time = t_start; iteration_time <= t_end; iteration_time += t_step) {
         pmID pmidlist[1];
         pmidlist[0] = pmid;
@@ -869,21 +885,39 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
         x.when.tv_usec = 0;
         x.what = nanf ("");	// initialize to a NaN
 
-        int sts = pmFetch (1, pmidlist, &result);
-        if (sts >= 0) {
-            if (result->vset[0]->numval == 1) {
-                pmAtomValue value;
-                sts = pmExtractValue (result->vset[0]->valfmt,
-                                      &result->vset[0]->vlist[0],	// we know: one pmid, one instance
-                                      pmd.type, &value, PM_TYPE_FLOAT);
-                if (sts == 0) {
-                    x.when = result->timestamp;	// should generally match iteration_time
-                    x.what = value.f;
-                    entries_good++;
+        // We only want to pmFetch within known time boundaries of the archive.
+        if (iteration_time >= archive_label.ll_start.tv_sec &&
+            iteration_time <= archive_end.tv_sec) {
+
+            if (! pmSetMode_called_p) {
+                struct timeval start_timeval;
+                start_timeval.tv_sec = iteration_time;
+                start_timeval.tv_usec = 0;
+                sts = pmSetMode (PM_MODE_INTERP | PM_XTB_SET (PM_TIME_SEC), &start_timeval, t_step);
+                if (sts != 0) {
+                    message << "cannot set time mode origin/delta";
+                    goto out;
                 }
+
+                pmSetMode_called_p = 1;
             }
 
-            pmFreeResult (result);
+            int sts = pmFetch (1, pmidlist, &result);
+            if (sts >= 0) {
+                if (result->vset[0]->numval == 1) {
+                    pmAtomValue value;
+                    sts = pmExtractValue (result->vset[0]->valfmt,
+                                          &result->vset[0]->vlist[0],	// we know: one pmid, one instance
+                                          pmd.type, &value, PM_TYPE_FLOAT);
+                    if (sts == 0) {
+                        x.when = result->timestamp;	// should generally match iteration_time
+                        x.what = value.f;
+                        entries_good++;
+                    }
+                }
+                
+                pmFreeResult (result);
+            }
         }
 
         output.push_back (x);
