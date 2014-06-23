@@ -694,6 +694,8 @@ typedef struct {
     double		ac_end;		/* time at end of archive */
     void		*ac_want;	/* used in interp.c */
     void		*ac_unbound;	/* used in interp.c */
+    void		*ac_cache;	/* used in interp.c */
+    int			ac_cache_idx;	/* used in interp.c */
 } __pmArchCtl;
 
 /*
