@@ -307,14 +307,14 @@ pmwebapi_respond_new_context (struct MHD_Connection *connection,
 
     rc = MHD_add_response_header (resp, "Content-Type", "application/json");
     if (rc != MHD_YES) {
-	connstamp (cerr, connection) << "MHD_add_response_header CT failed" << endl;
+        connstamp (cerr, connection) << "MHD_add_response_header CT failed" << endl;
         rc = -ENOMEM;
         goto out1;
     }
 
     rc = MHD_add_response_header (resp, "Access-Control-Allow-Origin", "*");
     if (rc != MHD_YES) {
-	connstamp (cerr, connection) << "MHD_add_response_header ACAO failed" << endl;
+        connstamp (cerr, connection) << "MHD_add_response_header ACAO failed" << endl;
         rc = -ENOMEM;
         goto out1;
     }
@@ -329,9 +329,9 @@ pmwebapi_respond_new_context (struct MHD_Connection *connection,
 
     return MHD_YES;
 
- out1:
+out1:
     MHD_destroy_response (resp);
- out:
+out:
     return mhd_notify_error (connection, rc);
 }
 
