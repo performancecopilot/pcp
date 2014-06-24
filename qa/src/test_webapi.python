@@ -48,6 +48,9 @@ print('bad archive /dev/null response code ' + str(req.status_code))
 req = requests.get(url=url + 'pmapi/context?archivefile=../etc/passwd')
 print('bad archive ../etc/passwd response code ' + str(req.status_code))
 
+req = requests.get(url=url + 'pmapi/context?archivefile=/etc/passwd')
+print 'bad archive /etc/passwd response code ' + str(req.status_code) 
+
 req = requests.get(url=url + 'pmapi/context?archivefile=../../etc/shadow')
 print('bad archive ../../etc/shadow response code ' + str(req.status_code))
 
@@ -99,8 +102,12 @@ def test_metric_enumeration(ctx, prefix):
 
     req = requests.get(url=ctxurl + '_metric' + \
                            ('?prefix='+prefix if prefix != '' else ''))
-    resp = req.json()
-    print(testprefix + ' enumeration with pmwebinfo #'+str(len(resp['metrics'])))
+    try:
+        resp = req.json()
+    except Exception, e:
+        print "ERROR: %s" % e
+        print testprefix + 'error JSON-decoding ' + req.text
+    print testprefix + ' enumeration with pmwebinfo #'+str(len(resp['metrics']))
 
     # web_metrics = 0
     # f = open('/tmp/webd-' + dbg, 'w')
