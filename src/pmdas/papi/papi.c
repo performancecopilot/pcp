@@ -24,19 +24,24 @@
 
 
 #define CLUSTER_PAPI 0 //we should define this in a header for when these exand possible values
-
+#define NumEvents 17
 static char     *username = "adm";
 static char     mypath[MAXPATHLEN];
 static char     isDSO = 1; /* == 0 if I am a daemon */
 static int      EventSet = PAPI_NULL;
-static long_long values[17] = {(long_long) 0};
+//static int      NumEvents = 17;
+static long_long values[NumEvents] = {(long_long) 0};
+static int enablers[NumEvents] = {0};
 static unsigned int enable_counters = 0;
-//struct uid_gid_tuple {
-//    char wildcard_p; /* do not filter for this context. */
-//    char uid_p; char gid_p; /* uid/gid received flags. */
-//    int uid; int gid; }; /* uid/gid received from PCP_ATTR_* */
-//static struct uid_gid_tuple *ctxtab = NULL;
-//int ctxtab_size = 0;
+struct uid_gid_tuple {
+    char wildcard_p; /* do not filter for this context. */
+    char uid_p; char gid_p; /* uid/gid received flags. */
+    int uid; int gid; /* uid/gid received from PCP_ATTR_* */
+    int trackers[17];
+}; 
+static struct uid_gid_tuple *ctxtab = NULL;
+int ctxtab_size = 0;
+static unsigned int queue;
 
 /*
  * There will be two domain instances, one for kernel counters
@@ -53,19 +58,19 @@ static pmdaIndom indomtab[] = {
 /* XXX not entirely sure what this is */
 static pmInDom *kernel_indom = &indomtab[PAPI_KERNEL].it_indom;
 
-/*void enlarge_ctxtab(int context)
+void enlarge_ctxtab(int context)
 {
     /* Grow the context table if necessary. */
-//    if (ctxtab_size /* cardinal */ <= context /* ordinal */) {
-//        size_t need = (context + 1) * sizeof(struct uid_gid_tuple);
-//        ctxtab = realloc (ctxtab, need);
-//        if (ctxtab == NULL)
-//            __pmNoMem("papi ctx table", need, PM_FATAL_ERR);
+    if (ctxtab_size /* cardinal */ <= context /* ordinal */) {
+        size_t need = (context + 1) * sizeof(struct uid_gid_tuple);
+        ctxtab = realloc (ctxtab, need);
+        if (ctxtab == NULL)
+            __pmNoMem("papi ctx table", need, PM_FATAL_ERR);
         /* Blank out new entries. */
-//        while (ctxtab_size <= context)
-//            memset (& ctxtab[ctxtab_size++], 0, sizeof(struct uid_gid_tuple));
-//    }
-//}
+        while (ctxtab_size <= context)
+            memset (& ctxtab[ctxtab_size++], 0, sizeof(struct uid_gid_tuple));
+    }
+}
 
 /*
  * A list of all the papi metrics we support - 
@@ -146,105 +151,210 @@ static pmdaMetric metrictab[] = {
 
 };
 
+int
+check_eventset(int context, int item)
+{
+    int retval = 0;
+    if(enablers[item] == 0){
+	//	__pmNotifyErr(LOG_DEBUG, "check_eventset first: %d %d %d\n", retval, pmdaGetContext(), item);
+	switch (item){
+	case 0:
+	    retval = PAPI_add_event(EventSet, PAPI_TOT_INS);
+	    //	    __pmNotifyErr(LOG_DEBUG, "check_eventset: %d %d %d\n", retval, pmdaGetContext(), item);
+	    break;
+	case 1:
+	    //	    retval = PAPI_add_event(EventSet, PAPI_TOT_CYC); //XXX add me
+	    break;
+	case 2:
+	    retval = PAPI_add_event(EventSet, PAPI_L1_DCM);
+	    break;
+	case 3:
+	    retval = PAPI_add_event(EventSet, PAPI_L1_ICM);
+	    break;
+	case 4:
+	    retval = PAPI_add_event(EventSet, PAPI_L2_DCM);
+	    break;
+	case 5:
+	    retval = PAPI_add_event(EventSet, PAPI_L2_ICM);
+	    break;
+	case 6:
+	    retval = PAPI_add_event(EventSet, PAPI_L3_DCM);
+	    break;
+	case 7:
+	    retval = PAPI_add_event(EventSet, PAPI_L3_ICM);
+	    break;
+	case 8:
+	    retval = PAPI_add_event(EventSet, PAPI_L1_TCM);
+	    break;
+	case 9:
+	    retval = PAPI_add_event(EventSet, PAPI_L2_TCM);
+	    break;
+	case 10:
+	    retval = PAPI_add_event(EventSet, PAPI_L3_TCM);
+	    break;
+	case 11:
+	    retval = PAPI_add_event(EventSet, PAPI_TLB_DM);
+	    break;
+	case 12:
+	    retval = PAPI_add_event(EventSet, PAPI_TLB_IM);
+	    break;
+	case 13:
+	    retval = PAPI_add_event(EventSet, PAPI_TLB_TL);
+	    break;
+	case 14:
+	    retval = PAPI_add_event(EventSet, PAPI_L1_LDM);
+	    break;
+	case 15:
+	    retval = PAPI_add_event(EventSet, PAPI_L1_STM);
+	    break;
+	case 16:
+	    retval = PAPI_add_event(EventSet, PAPI_L2_LDM);
+	    break;
+	case 17:
+	    retval = PAPI_add_event(EventSet, PAPI_L2_STM);
+	    break;
+
+	default:
+	    break;
+	}
+	if(retval == PAPI_OK || retval == PAPI_EISRUN){
+	    PAPI_start(EventSet); //check this value as well
+	    //	    __pmNotifyErr(LOG_DEBUG, "entered proper retval area\n");    
+	    enablers[item] = 1;
+	    ctxtab[context].trackers[item] = 1;
+	    return PM_ERR_PMDANOTREADY;
+	}
+	else
+	    return PM_ERR_NODATA;
+    }
+    else if(enablers[item] == 1){
+	return 0;
+    }
+    else{
+	return PM_ERR_NODATA;
+    }
+
+}
+
 static int
 papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
-    // XXX is a straight PAPI_read appropriate? what if the values overflow?
-    // should we be using PAPI_accum instead?
-    __pmNotifyErr(LOG_DEBUG, "uid %d\n", getuid());
-    //    assert(getuid() == 0);
+    int sts;
+    /* this will probably need to be expanded to fit the domains as well */
+    sts = check_eventset(pmdaGetContext(), idp->item);
+    if (sts < 0){
+	return sts;
+    }
     switch (idp->cluster) {
     case CLUSTER_PAPI:
 	//switch indom statement will end up being here
 	switch (idp->item) {
 	case 0:
+	    // might not be the first to have this metric being used so set tracker value
+	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[0]; /* papi.kernel.total_inst */
 	    break;
-
+		
 	case 1:
 	    atom->ul = enable_counters;
 	    break;
 
 	case 2:
+	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[1]; /* papi.kernel.L1_DCM */
 	    break;
 
 	case 3:
+	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[2]; /* papi.kernel.L1_ICM */
 	    break;
 
 	case 4:
+	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[3]; /* papi.kernel.L2_DCM */
 	    break;
 
 	case 5:
+	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[4]; /* papi.kernel.L2_ICM */
 	    break;
 
 	case 6:
+	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[5]; /* papi.kernel.L3_DCM */
 	    break;
 
 	case 7:
+	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[6]; /* papi.kernel.L3_ICM */
 	    break;
 
 	case 8:
+	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[7]; /* papi.kernel.L1_TCM */
 	    break;
 
 	case 9:
+	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[8]; /* papi.kernel.L2_TCM */
 	    break;
 
 	case 10:
+	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[9]; /* papi.kernel.L3_TCM */
 	    break;
 
 	case 11:
+	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[10]; /* papi.kernel.TLB_DM */
 	    break;
 
 	case 12:
+	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[11]; /* papi.kernel.TLB_IM */
 	    break;
 
 	case 13:
+	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[12]; /* papi.kernel.TLB_TL */
 	    break;
 
 	case 14:
+	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[13]; /* papi.kernel.L1_LDM */
 	    break;
 
 	case 15:
+	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[14]; /* papi.kernel.L1_STM */
 	    break;
 
 	case 16:
+	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
-	    atom->ull = values[15]; /* papi.kernel.L1_LDM */
+	    atom->ull = values[15]; /* papi.kernel.L2_LDM */
 	    break;
 
 	case 17:
+	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
-	    atom->ull = values[16]; /* papi.kernel.L1_STM */
+	    atom->ull = values[16]; /* papi.kernel.L2_STM */
 	    break;
 
 	default:
@@ -260,13 +370,13 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 static int
 papi_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
-    __pmNotifyErr(LOG_DEBUG, "papi_fetch\n");
-    //    if (sts < 0)
-    //	return sts;
-    //    PAPI_read(EventSet, values);
-    return pmdaFetch(numpmid, pmidlist, resp, pmda);
+    if ( ctxtab[pmda->e_context].uid == 0 || ctxtab[pmda->e_context].gid == 0 )
+	return pmdaFetch(numpmid, pmidlist, resp, pmda);
+    else
+	return PM_ERR_PERMISSION;
 }
 
+#if 0
 static int
 papi_store(pmResult *result, pmdaExt *pmda)
 {
@@ -280,24 +390,28 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	pmAtomValue av;
 	switch (idp->item){
 	case 1:
-	    //	if(idp->item == 1) {
-
 	    if((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				    PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0){
 		switch(av.ul){
 		case 0:
 		case 1:
-		    if (av.ul == 0 && enable_counters == 1){
-		    enable_counters = av.ul;
+		    //		    if (av.ul == 0 && enable_counters == 1){
+		    if (av.ul == 0){
+			enable_counters = av.ul;
 			if(PAPI_stop(EventSet,values) != PAPI_OK){
-			    __pmNotifyErr(LOG_DEBUG, "PAPI_stop failed.\n");
+			    __pmNotifyErr(LOG_DEBUG, "PAPI_stop in pmstore failed.\n");
 			    return 1; 
 			}
+			else{
+			    memset(enablers, 0, NumEvents*sizeof(enablers[0]));
+			    __pmNotifyErr(LOG_DEBUG, "PAPI_stop in pmstore succeeded.\n");
+			}
 		    }
-		    else if (av.ul == 1 && enable_counters == 0){
+		    //		    else if (av.ul == 1 && enable_counters == 0){
+		    else if (av.ul == 1){
 			enable_counters = av.ul;
 			if (PAPI_start(EventSet) != PAPI_OK){
-			    __pmNotifyErr(LOG_DEBUG, "PAPI_start failed.\n");
+			    __pmNotifyErr(LOG_DEBUG, "PAPI_start in pmstore failed.\n");
 			    return 1; // XXX check return value correct
 			}			
 		    }
@@ -317,6 +431,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
     PAPI_read(EventSet, values);
     return 0;
 }
+#endif
 
 int papi_internal_init()
 {
@@ -339,10 +454,11 @@ int papi_internal_init()
 	return retval;
     }
 
+    /*
     if (PAPI_add_event(EventSet, PAPI_TOT_INS) != PAPI_OK){
 	__pmNotifyErr(LOG_DEBUG, "couldn't add PAPI_TOT_INS to event set\n");
 	return retval;
-    }
+	}*/
     /* We can't just assume everything is here, add checks
        all this papi stuff should probably be done in its own function
        The papi_add_event can probably just be done in papi_add_events
@@ -365,7 +481,12 @@ int papi_internal_init()
     PAPI_add_event(EventSet, PAPI_L1_STM);
     PAPI_add_event(EventSet, PAPI_L2_LDM);
     PAPI_add_event(EventSet, PAPI_L2_STM);*/
-    __pmNotifyErr(LOG_DEBUG, "safely made it out of internal init\n");
+
+    /*    if(PAPI_start(EventSet) != PAPI_OK){
+	__pmNotifyErr(LOG_DEBUG, "PAPI_start failed.\n");
+	return 1; 
+	}*/
+
     return retval;
 
 }
@@ -379,34 +500,35 @@ papi_contextAttributeCallBack(int context, int attr,
     static int adm_gid = -1;
     static int wheel_gid = -1;
     int id;
-    __pmNotifyErr(LOG_DEBUG, "CALLLLLBACK!\n");
-    /*    if (! rootlike_gids_found) {
+    /* Look up root-like gids if needed.  A later PCP client that
+       matches any of these group-id's is treated as if root/adm,
+       i.e., journal records are not filtered for them (wildcard_p).
+       XXX: we could  examine group-membership lists and check against
+       uid to also set wildcard_p. */
+    if (! rootlike_gids_found) {
         struct group *grp;
         grp = getgrnam("adm");
         if (grp) adm_gid = grp->gr_gid;
         grp = getgrnam("wheel");
         if (grp) wheel_gid = grp->gr_gid;
-	if (wheel_gid != -1 || adm_gid != -1)
-	    rootlike_gids_found = 1;
-	    }*/
-    if(getuid() != 0)
-	__pmNotifyErr(LOG_DEBUG, "NOT ROOT!!!\n");
-    //    __pmNotifyErr(LOG_DEBUG, "adm_gid: %d wheel_gid: %d.\n", adm_gid, wheel_gid);
-    //    enlarge_ctxtab(context);
-    //    assert (ctxtab != NULL && context < ctxtab_size);
+        rootlike_gids_found = 1;
+    }
+
+    enlarge_ctxtab(context);
+    assert (ctxtab != NULL && context < ctxtab_size);
 
     /* NB: we maintain separate uid_p and gid_p for filtering
        purposes; it's possible that a pcp client might send only
        PCP_ATTR_USERID, leaving gid=0, possibly leading us to
        misinterpret that as GROUPID=0 (root) and sending back _GID=0
        records. */
-    /*    switch (attr) {
+    switch (attr) {
     case PCP_ATTR_USERID:
         ctxtab[context].uid_p = 1;
         id = atoi(value);
         ctxtab[context].uid = id;
         if (id == 0) /* root */
-    /*            ctxtab[context].wildcard_p = 1;
+            ctxtab[context].wildcard_p = 1;
         break;
 
     case PCP_ATTR_GROUPID:
@@ -414,19 +536,42 @@ papi_contextAttributeCallBack(int context, int attr,
         id = atoi(value);
         ctxtab[context].gid = id;
         if (id == adm_gid ||
-            id == wheel_gid)
+            id == wheel_gid )
             ctxtab[context].wildcard_p = 1;
         break;
-    }*/
+    }
 
-    //    if (pmDebug & DBG_TRACE_APPL0)
-    /*  __pmNotifyErr(LOG_DEBUG, "attrib (%d) uid%s%d gid%s%d wildcard=%d\n",
-                      context,
-                      ctxtab[context].uid_p?"=":"?", ctxtab[context].uid,
-                      ctxtab[context].gid_p?"=":"?", ctxtab[context].gid,
-                      ctxtab[context].wildcard_p);*/
-
+    if(atoi(value) != 0)
+	__pmNotifyErr(LOG_DEBUG, "non-root attempted access, uid: %d\n", atoi(value));
+    else
+	__pmNotifyErr(LOG_DEBUG, "root attempted access uid: %d\n", atoi(value));
     return 0;
+}
+
+static void
+papi_end_contextCallBack(int context)
+{
+    int i, j;
+    for(i = 0; i < NumEvents; i++){
+	if (ctxtab[context].trackers[i] == 1){
+	    ctxtab[context].trackers[i] = 0; // turn it off for us
+	    for(j = 0; j < ctxtab_size; j++){
+		if(ctxtab[j].trackers[i] == 1){
+		    return; // this shouldn't be return, but we should skip this metric for now, continue on and check there aren't any other value's we're no longer using, and that nobody else is either.
+		}
+		// if nobody else is using the metric, we can turn it off now
+	    }
+	    enablers[i] = 0;
+	    switch (i) {
+	    case 0:
+		PAPI_remove_event(EventSet, PAPI_TOT_INS);
+		break;
+
+	    default:
+		break;
+	    }//switch i
+	}//if ctxtab[context].trackers
+    }//for
 }
 
 void
@@ -449,15 +594,16 @@ papi_init(pmdaInterface *dp)
 
     dp->comm.flags |= PDU_FLAG_AUTH;
 
-
-    if (papi_internal_init() != 0){
-	__pmNotifyErr(LOG_DEBUG, "No instruction counter? How lame.\n");
+    int internal_init_ret = 0;
+    if (internal_init_ret = papi_internal_init() != 0){
+	__pmNotifyErr(LOG_DEBUG, "papi_internal_init returned %d\n", internal_init_ret);
 	return;
     }
     
     dp->version.six.fetch = papi_fetch;
-    dp->version.six.store = papi_store;
+    //    dp->version.six.store = papi_store;
     dp->version.six.attribute = papi_contextAttributeCallBack;
+    pmdaSetEndContextCallBack(dp, papi_end_contextCallBack);
     pmdaSetFetchCallBack(dp, papi_fetchCallBack);
     pmdaInit(dp, NULL, 0, metrictab, nummetrics);
 
@@ -471,8 +617,7 @@ usage(void)
 	    "Options:\n"
 	    "  -d domain  use domain (numeric) for metrics domain of PMDA\n"
 	    "  -l logfile write log into logfile rather than using default log name\n",
-	    //	    "  -m memory  maximum memory used per queue (default %ld bytes)\n",
-	    pmProgname);//, maxmem);		
+	    pmProgname);
     exit(1);
 }
 
