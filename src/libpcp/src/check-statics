@@ -313,10 +313,6 @@ p_pmns.o
 p_profile.o
 p_result.o
 probe.o
-    context			# no unsafe side-effects.
-    netAddress			# altered in main thread only
-    maskBits			# altered in main thread only
-    maxThreads			# altered in main thread only
 profile.o
 p_text.o
 rtime.o
