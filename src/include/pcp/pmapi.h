@@ -823,8 +823,8 @@ extern void pmFreeEventResult(pmResult **);
 #define PM_SERVER_PROXY_SPEC	"pmproxy"
 #define PM_SERVER_WEBD_SPEC	"pmwebd"
 
-extern int pmDiscoverServices(const char *, const char *, const char *, char ***);
-extern void pmServiceDiscoveryInterrupt(int);
+extern int pmDiscoverServices(const char *, const char *, char ***);
+extern int pmDiscoverServicesAdvanced(const char *, const char *, const char *, int *, char ***);
 
 #ifdef __cplusplus
 }

@@ -40,7 +40,7 @@ typedef struct connectionContext {
     const int		*ports;		/* The actual ports */
     int			*numUrls;	/* Size of the results */
     char		***urls;	/* The results */
-    int			interrupted;	/* Discovery interrupted */
+    int			*interrupted;	/* Discovery interrupted */
 #if PM_MULTI_THREAD
     __pmMutex		addrLock;	/* lock for the above address/port */
     __pmMutex		urlLock;	/* lock for the above results */
@@ -79,7 +79,7 @@ attemptConnections(void *arg)
      * Keep trying to secure an address+port until there are no more
      * or until we are interrupted.
      */
-    while (! context->interrupted) {
+    while (! context->interrupted || ! *context->interrupted) {
 	/* Obtain the address lock while securing the next address, if any. */
 	PM_LOCK(context->addrLock);
 	if (context->nextAddress == NULL) {
@@ -199,6 +199,7 @@ probeForServices(
     const char *service,
     __pmSockAddr *netAddress,
     int maskBits,
+    int *interrupted,
     int numUrls,
     char ***urls
 )
@@ -236,7 +237,7 @@ probeForServices(
     context.urls = urls;
     context.portIx = 0;
     context.maskBits = maskBits;
-    context.interrupted = 0;
+    context.interrupted = interrupted;
 
     /*
      * Initialize the first address of the subnet. This pointer will become
@@ -528,7 +529,11 @@ parseOptions(const char *mechanism)
 }
 
 int
-__pmProbeDiscoverServices(const char *service, const char *mechanism, int numUrls, char ***urls)
+__pmProbeDiscoverServices(const char *service,
+			  const char *mechanism,
+			  int *interrupted,
+			  int numUrls,
+			  char ***urls)
 {
     int	sts;
 
@@ -538,20 +543,10 @@ __pmProbeDiscoverServices(const char *service, const char *mechanism, int numUrl
 	return 0;
 
     /* Everything checks out. Now do the actual probing. */
-    numUrls = probeForServices(service, netAddress, maskBits, numUrls, urls);
+    numUrls = probeForServices(service, netAddress, maskBits, interrupted, numUrls, urls);
 
     /* Clean up */
     __pmSockAddrFree(netAddress);
 
     return numUrls;
-}
-
-void
-__pmProbeServiceDiscoveryInterrupt(int sig)
-{
-    if (pmDebug & DBG_TRACE_DISCOVERY) {
-	__pmNotifyErr(LOG_INFO, "Service discovery via active probing interrupted by signal %d\n",
-		      sig);
-    }
-    context.interrupted = sig;
 }

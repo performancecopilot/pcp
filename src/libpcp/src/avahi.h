@@ -17,21 +17,11 @@
 #ifdef HAVE_AVAHI
 void __pmServerAvahiAdvertisePresence(__pmServerPresence *) _PCP_HIDDEN;
 void __pmServerAvahiUnadvertisePresence(__pmServerPresence *) _PCP_HIDDEN;
-int __pmAvahiDiscoverServices(const char *, const char *, int, char ***) _PCP_HIDDEN;
+int __pmAvahiDiscoverServices(const char *, const char *, int *, int, char ***) _PCP_HIDDEN;
 #else
-#define __pmServerAvahiAdvertisePresence(p)	do { } while (0)
-#define __pmServerAvahiUnadvertisePresence(p)	do { } while (0)
-#define __pmAvahiDiscoverServices(s, m, n, u)	0
+#define __pmServerAvahiAdvertisePresence(p)		do { } while (0)
+#define __pmServerAvahiUnadvertisePresence(p)		do { } while (0)
+#define __pmAvahiDiscoverServices(s, m, i, n, u)	0
 #endif
-
-/*
- * In order to interrupt avahi, we could call avahi_simple_poll_quit, however
- *
- * 1) It is probably not a good idea to call it from within an interrupt handler
- * 2) The poll timeout is already very short (0.5 seconds)
- *
- * For these reasons, let's make this always a no-op.
- */
-#define __pmAvahiServiceDiscoveryInterrupt(s)	do { } while (0)
 
 #endif /* AVAHI_H */

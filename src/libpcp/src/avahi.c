@@ -678,7 +678,11 @@ discoveryTimeout(void)
 }
 
 int
-__pmAvahiDiscoverServices(const char *service, const char *mechanism, int numUrls, char ***urls)
+__pmAvahiDiscoverServices(const char *service,
+			  const char *mechanism,
+			  int *interrupted,
+			  int numUrls,
+			  char ***urls)
 {
     AvahiClient		*client = NULL;
     AvahiServiceBrowser	*sb = NULL;
@@ -690,6 +694,8 @@ __pmAvahiDiscoverServices(const char *service, const char *mechanism, int numUrl
     const char          *timeoutBegin;
     char                *timeoutEnd;
     double              timeout;
+
+    (void)interrupted; /* not used, for now */
 
     /* Allocate the main loop object. */
     if (!(simplePoll = avahi_simple_poll_new()))

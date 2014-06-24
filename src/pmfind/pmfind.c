@@ -25,8 +25,7 @@ static int override(int, pmOptions *);
 static void
 handleInterrupt(int sig)
 {
-    interrupted = 1;
-    pmServiceDiscoveryInterrupt(sig);
+    interrupted = sig;
 }
 
 static void
@@ -93,7 +92,7 @@ discovery(const char *spec)
     int		i, sts;
     char	**urls;
 
-    sts = pmDiscoverServices(spec, mechanism, globalOptions, &urls);
+    sts = pmDiscoverServicesAdvanced(spec, mechanism, globalOptions, &interrupted, &urls);
     if (sts < 0) {
 	fprintf(stderr, "%s: service %s discovery failure: %s\n",
 		pmProgname, spec, pmErrStr(sts));

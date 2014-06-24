@@ -451,6 +451,6 @@ PCP_3.5 {
 
 PCP_3.6 {
   global:
-    pmServiceDiscoveryInterrupt;
+    pmDiscoverServicesAdvanced;
     __pmFreeInterpData;
 } PCP_3.5;

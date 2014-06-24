@@ -18,7 +18,6 @@
 #include "probe.h"
 
 static __pmDiscoveryGlobalOptions	globalOptionsInfo;
-static int				interrupted;
 
 /*
  * Advertise the given service using all available means. The implementation
@@ -108,13 +107,22 @@ parseGlobalOptions(const char *globalOptions)
 }
 
 /*
- * Service discovery API entry point.
+ * Service discovery API entry points.
  */
 int
 pmDiscoverServices(const char *service,
 		   const char *mechanism,
-		   const char *globalOptions,
 		   char ***urls)
+{
+    return pmDiscoverServicesAdvanced(service, mechanism, NULL, NULL, urls);
+}
+
+int
+pmDiscoverServicesAdvanced(const char *service,
+			   const char *mechanism,
+			   const char *globalOptions,
+			   int *interrupted,
+			   char ***urls)
 {
     int numUrls;
     int sts;
@@ -130,36 +138,21 @@ pmDiscoverServices(const char *service,
      * If a particular method is not available or not configured, then the
      * respective call will have no effect.
      */
-    interrupted = 0;
     *urls = NULL;
     numUrls = 0;
     if (mechanism == NULL) {
-	numUrls += __pmAvahiDiscoverServices(service, mechanism, numUrls, urls);
-	if (! interrupted)
-	    numUrls += __pmProbeDiscoverServices(service, mechanism, numUrls, urls);
+	numUrls += __pmAvahiDiscoverServices(service, mechanism, interrupted, numUrls, urls);
+	if (! interrupted || ! *interrupted)
+	    numUrls += __pmProbeDiscoverServices(service, mechanism, interrupted, numUrls, urls);
     }
     else if (strncmp(mechanism, "avahi", 5) == 0)
-	numUrls += __pmAvahiDiscoverServices(service, mechanism, numUrls, urls);
+	numUrls += __pmAvahiDiscoverServices(service, mechanism, interrupted, numUrls, urls);
     else if (strncmp(mechanism, "probe", 5) == 0)
-	numUrls += __pmProbeDiscoverServices(service, mechanism, numUrls, urls);
+	numUrls += __pmProbeDiscoverServices(service, mechanism, interrupted, numUrls, urls);
     else
 	return -EOPNOTSUPP;
 
     return numUrls;
-}
-
-/*
- * Service discovery interrupt handling.
- */
-void
-pmServiceDiscoveryInterrupt(int sig)
-{
-    /*
-     * Interrupt any and all discovery mechanisms. If a given mechanism is not
-     * active, then that interrupt will have no effect.
-     */
-    __pmAvahiServiceDiscoveryInterrupt(sig);
-    __pmProbeServiceDiscoveryInterrupt(sig);
 }
 
 /* For manually adding a service. Also used by pmDiscoverServices(). */
