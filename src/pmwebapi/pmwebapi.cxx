@@ -392,9 +392,9 @@ metric_list_traverse (const char *metric, void *closure)
         json_key_value (*mltc->mhdb, "text-help", string (metric_text), ",");
         free (metric_text);
     }
-    json_key_value (*mltc->mhdb, "pmid", (unsigned long) metric_id);
+    json_key_value (*mltc->mhdb, "pmid", (unsigned long) metric_id, ",");
     if (metric_desc.indom != PM_INDOM_NULL) {
-        json_key_value (*mltc->mhdb, "indom", (unsigned long) metric_desc.indom);
+        json_key_value (*mltc->mhdb, "indom", (unsigned long) metric_desc.indom, ",");
     }
     json_key_value (*mltc->mhdb, "sem",
                     string (metric_desc.sem == PM_SEM_COUNTER ? "counter" : metric_desc.sem == PM_SEM_INSTANT
