@@ -1,13 +1,20 @@
 # command-line options and environment variables for pmwebd(1)
 
 # These defaults expose graphite/resource content and normally placed archives
-#
+
 # (assume pwd=$PCP_LOG_DIR/pmwebd)
+OPTIONS="-l pmwebd.log"
 
-OPTIONS="-R $PCP_SHARE_DIR/jsdemos -A $PCP_LOG_DIR -l pmwebd.log -G"
+#OPTIONS="-p 9999"  # port number
 
-# assume identity of some user other than "pcp"
+# Graphite
+OPTIONS="$OPTIONS -R $PCP_SHARE_DIR/jsdemos -A $PCP_LOG_DIR -G"
+
+# Assume identity of some user other than "pcp"
 # OPTIONS="$OPTIONS -U nobody"
+
+# Add some verbosity
+OPTIONS="$OPTIONS -v"
 
 # Shorten timeouts for interactions with pmcd on behalf of clients,
 # since pmwebd runs single-threaded.

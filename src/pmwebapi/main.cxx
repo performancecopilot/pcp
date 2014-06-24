@@ -217,11 +217,11 @@ mhd_respond (void *cls, struct MHD_Connection *connection, const char *url0,
             str << version << " " << method << " " << url;
             if (verbosity > 1) {
                 for (http_params::iterator it = mhd_cc->params.begin (); it != mhd_cc->params.end ();
-                     it++) {
+                        it++) {
                     str << " " << it->first << "=" << it->second;
                 }
             }
-            connstamp (clog, connection) << str.str() << endl;
+            connstamp (clog, connection) << str.str () << endl;
         }
 
         // first component (or the whole remainder)
@@ -344,10 +344,12 @@ server_dump_configuration ()
     // Assume timestamp() already just called, so we
     // don't have to repeat.
 
+    clog << "\tVerbosity level " << verbosity << endl;
     clog << "\tUsing libmicrohttpd " << MHD_get_version () << endl;
 
     cwd = getcwd (cwdpath, sizeof (cwdpath));
 
+    clog << "\tPMAPI prefix /" << uriprefix << endl;
     if (resourcedir != "") {
         clog << "\tServing non-pmwebapi URLs under directory ";
         // (NB: __pmAbsolutePath() should take const args)
@@ -366,11 +368,15 @@ server_dump_configuration ()
         clog << "\tRemote context creation requests disabled" << endl;
     }
 
-    clog << "\tGraphite API " << (graphite_p ? "enabled" : "disabled")
+    clog << "\tGraphite API " << (graphite_p ? "enabled" : "disabled");
+    clog << "\tGraphite API Cairo graphics rendering "
 #ifdef HAVE_CAIRO
-         << " with Cairo graphics"
+         << "compiled-in"
+#else
+         << "unavailable"
 #endif
          << endl;
+
     if (dumpstats > 0) {
         clog << "\tPeriodic client statistics dumped roughly every " << dumpstats << "s" << endl;
     } else {
@@ -385,8 +391,7 @@ server_dump_configuration ()
 static void
 pmweb_init_random_seed (void)
 {
-    struct timeval
-            tv;
+    struct timeval tv;
 
     /* XXX: PR_GetRandomNoise() */
     gettimeofday (&tv, NULL);
@@ -406,7 +411,7 @@ pmweb_shutdown (struct MHD_Daemon *d4, struct MHD_Daemon *d6)
     }
 
     /* No longer advertise pmwebd presence on the network. */
-    __pmServerUnadvertisePresence(presence);
+    __pmServerUnadvertisePresence (presence);
 
     /*
      * Let's politely clean up all the active contexts.
@@ -601,7 +606,7 @@ main (int argc, char *argv[])
             break;
 
         case 'M':
-            multithread = (unsigned) atoi(opts.optarg);
+            multithread = (unsigned) atoi (opts.optarg);
             break;
 
         case 'l':
@@ -653,8 +658,8 @@ main (int argc, char *argv[])
     }
 
     /* tell the world we have arrived */
-    __pmServerCreatePIDFile(PM_SERVER_WEBD_SPEC, 0);
-    presence = __pmServerAdvertisePresence(PM_SERVER_WEBD_SPEC, port);
+    __pmServerCreatePIDFile (PM_SERVER_WEBD_SPEC, 0);
+    presence = __pmServerAdvertisePresence (PM_SERVER_WEBD_SPEC, port);
 
     // (re)create log file, redirect stdout/stderr
     // NB: must be done after __pmSetProcessIdentity() for proper file permissions
@@ -687,8 +692,7 @@ main (int argc, char *argv[])
         }
     }
 
-    timestamp (clog) << pmProgname << " PID = " << getpid () << " PMAPI URL = " << uriprefix
-                     << endl;
+    timestamp (clog) << pmProgname << endl;
     server_dump_request_ports (d4 != NULL, d6 != NULL, port);
     server_dump_configuration ();
 
