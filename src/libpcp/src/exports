@@ -448,3 +448,10 @@ PCP_3.5 {
     __pmDumpStack;
     __pmServerCreatePIDFile;
 } PCP_3.4;
+
+PCP_3.6 {
+  global:
+    __pmDumpNameNode;
+    __pmFreeInterpData;
+    __pmAddOptArchiveFolio;
+} PCP_3.5;

@@ -23,7 +23,6 @@
 #include <dirent.h>
 #include <ctype.h>
 #include <sys/stat.h>
-#include <sys/utsname.h>
 #include "proc_cpuinfo.h"
 #include "proc_stat.h"
 

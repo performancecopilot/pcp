@@ -32,7 +32,7 @@ prog=`basename $0`
 #
 case "$PCP_PLATFORM"
 in
-    linux|mingw|kfreebsd)
+    linux|mingw|kfreebsd|gnu)
 	SED="sed -u"
 	;;
     freebsd|darwin)

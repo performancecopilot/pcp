@@ -310,6 +310,12 @@ certain ROMs in RAM.
 Used memory is the difference between mem.physmem and mem.freemem.
 @ mem.util.free free memory metric from /proc/meminfo
 Alias for mem.freemem.
+@ mem.util.available available memory from /proc/meminfo
+The amount of memory that is available for a new workload,
+without pushing the system into swap. Estimated from MemFree,
+Active(file), Inactive(file), and SReclaimable, as well as the "low"
+watermarks from /proc/zoneinfo.
+
 @ mem.util.shared shared memory metric from /proc/meminfo
 Shared memory metric. Currently always zero on Linux 2.4 kernels
 and has been removed from 2.6 kernels.

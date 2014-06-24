@@ -1,0 +1,8 @@
+QA output created by 780
+
+Access-Control-Allow-Origin: *
+Content-Length: SIZE
+Content-Type: application/json
+Date: DATE
+HTTP/1.1 200 OK
+{ "context": CTXID }

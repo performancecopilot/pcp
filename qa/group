@@ -102,6 +102,9 @@ fetch
 # archive support in libpcp, includes interp.c
 archive
 
+# getopt support - libpcp, pmgetopt, python
+getopt
+
 # cron.*, pm*log* apps (except pmlogger)
 logutil
 
@@ -893,7 +896,7 @@ avahi
 725 pmda.jbd2 local oss
 726 pmlogger pmdumplog local oss
 727 avahi local oss
-728 libpcp local oss
+728 libpcp getopt local oss
 729 python local oss
 733 pmie pmval pmdumplog local oss
 734 libpcp pmstat remote oss
@@ -901,9 +904,9 @@ avahi
 736 pmlogrewrite local oss
 737 python local oss
 738 logutil local oss
-739 python local oss
+739 python getopt local oss
 740 pmda.sample pmstore secure local oss
-741 python local oss
+741 python getopt local oss
 742 python local oss
 743 python local oss
 748 pmlogrewrite pmda.mysql local oss
@@ -918,6 +921,7 @@ avahi
 775 sanity pmfind local oss
 776 pmfind local oss
 779 pmda local oss
+780 pmwebapi local oss
 783 pmda.rpm local oss
 786 context context_local libpcp local oss
 787:reserved archive local oss pmie pmlogrewrite pmdumplog pmval
@@ -925,9 +929,11 @@ avahi
 815 pmie local oss
 823 pmda.sample pmstore secure local oss
 827 pmlogrewrite pmda.linux local oss
+828 valgrind archive context local oss
 830 other local oss
 831 pmda.sample pmstore secure local oss
 832 pmda.sample pmstore secure local oss
+833 archive context local oss
 840 avahi local oss
 841 pmda local oss
 844 pmda.linux local oss
@@ -935,6 +941,7 @@ avahi
 875 libpcp local oss
 876 pmda.xfs local oss
 897 pmlc pmlogger local oss
+899 libpcp getopt local oss
 900 libpcp sanity local oss
 928 archive local oss
 929 logutil local oss
@@ -948,7 +955,7 @@ avahi
 966 secure local oss
 972 pmda.zswap dbpmda local oss
 973 pmda.zswap pmda.install local oss
-978 libpcp sanity local oss
+978 libpcp getopt sanity local oss
 979 python local oss
 980 python local oss
 991 python local oss

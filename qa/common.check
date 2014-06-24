@@ -555,6 +555,26 @@ _check_valgrind()
     [ $? -eq 0 ] || _notrun "No valgrind binary found"
 }
 
+_filter_valgrind()
+{
+    sed \
+	-e 's/^==*[1-9][0-9]*==* *//' \
+	-e '/^$/d' \
+	-e '/^Copyright (/d' \
+	-e '/^Using Valgrind-/d' \
+	-e '/^Parent PID:/d' \
+	-e '/^HEAP SUMMARY:/d' \
+	-e '/^in use at exit:/d' \
+	-e '/^total heap usage:/d' \
+	-e '/^possibly lost:/d' \
+	-e '/^still reachable:/d' \
+	-e '/^suppressed:/d' \
+	-e '/^Reachable blocks (those to which a pointer was found)/d' \
+	-e '/^To see them, rerun with:/d' \
+	-e '/^For counts of detected and suppressed errors,/d' \
+	-e '/^ERROR SUMMARY:/s/ (suppressed: [^)]*)/ .../'
+}
+
 _run_valgrind()
 {
     __version=`valgrind --version | sed -e 's/valgrind-//'`
@@ -576,22 +596,7 @@ _run_valgrind()
     echo "=== valgrind report ===" >>$seq.full
     cat $tmp._valgrind >>$seq.full
     echo "=== filtered valgrind report ==="
-    sed <$tmp._valgrind \
-	-e 's/^==*[1-9][0-9]*==* *//' \
-	-e '/^$/d' \
-	-e '/^Copyright (/d' \
-	-e '/^Using Valgrind-/d' \
-	-e '/^Parent PID:/d' \
-	-e '/^HEAP SUMMARY:/d' \
-	-e '/^in use at exit:/d' \
-	-e '/^total heap usage:/d' \
-	-e '/^possibly lost:/d' \
-	-e '/^still reachable:/d' \
-	-e '/^suppressed:/d' \
-	-e '/^Reachable blocks (those to which a pointer was found)/d' \
-	-e '/^To see them, rerun with:/d' \
-	-e '/^For counts of detected and suppressed errors,/d' \
-	-e '/^ERROR SUMMARY:/s/ (suppressed: [^)]*)/ .../'
+    _filter_valgrind <$tmp._valgrind
 }
 
 #

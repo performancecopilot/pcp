@@ -21,6 +21,7 @@
 typedef struct {
     int64_t MemTotal;
     int64_t MemFree;
+    int64_t MemAvailable;
     int64_t MemShared;
     int64_t Buffers;
     int64_t Cached;

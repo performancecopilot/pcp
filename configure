@@ -2784,10 +2784,6 @@ then
     $as_echo "#define IS_MINGW 1" >>confdefs.h
 
     CFLAGS="-fno-strict-aliasing"
-    export CPPFLAGS="$CPPFLAGS -I$PCP_DIR/include -I$PCP_DIR/local/include"
-    export CFLAGS="$CFLAGS -I$PCP_DIR/include -I$PCP_DIR/local/include"
-    export LDFLAGS="$LDFLAGS -L$PCP_DIR/lib -L$PCP_DIR/local/lib"
-    export PATH="$PATH:$PCP_DIR/bin:$PCP_DIR/local/bin"
 elif test $target_os = solaris
 then
     $as_echo "#define IS_SOLARIS 1" >>confdefs.h
@@ -2803,6 +2799,12 @@ then
 elif test $target_os = freebsd || test $target_os = kfreebsd
 then
     $as_echo "#define IS_FREEBSD 1" >>confdefs.h
+
+    test -f /etc/debian_version && target_distro=debian
+    export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
+elif test $target_os = gnu
+then
+    $as_echo "#define IS_GNU 1" >>confdefs.h
 
     test -f /etc/debian_version && target_distro=debian
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
@@ -9929,6 +9931,18 @@ fi
 done
 
 for ac_func in strtod strtol strtoll strtoull strndup
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
+for ac_func in getuid getgid
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"

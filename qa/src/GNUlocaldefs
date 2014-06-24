@@ -41,7 +41,7 @@ SRCARCH	= mirage.0 moomba.client.0 \
 	multi-vm00.0 multi-vm01.0 multi-vm02.0 multi-vm03.0 pmatop-log.0 \
 	new_mysql.0 new_snmp.0 old_xfs.0 node_archive.0 count-mark.0 \
 	pyapi.0 pcp-free.0 pcp-uptime.0 pcp-numastat-1-node.0 numa.0 \
-	slow.0
+	slow.0 bug1057.0
 
 SRCARCHPART = ok-noti-bigbin.0 \
 	20130706.0.bz2 20130706.index 20130706.meta
@@ -76,7 +76,8 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	pmdacache.c check_import.c unpack.c aggrstore.c atomstr.c \
 	grind_conv.c getconfig.c err.c torture_logmeta.c keycache.c \
 	keycache2.c pmdaqueue.c drain-server.c template.c anon-sa.c \
-	username.c rtimetest.c getcontexthost.c badpmda.c chkputlogresult.c
+	username.c rtimetest.c getcontexthost.c badpmda.c chkputlogresult.c \
+	churnctx.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig

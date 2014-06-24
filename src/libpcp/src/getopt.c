@@ -336,6 +336,9 @@ __pmAddOptArchiveList(pmOptions *opts, char *arg)
 	    char **archives = opts->archives;
 	    char *archive;
 
+	    if (length == 0)
+		goto next;
+
 	    if ((archives = realloc(archives, size)) != NULL) {
 		if ((archive = strndup(start, length)) != NULL) {
 		    archives[opts->narchives] = archive;
@@ -347,7 +350,8 @@ __pmAddOptArchiveList(pmOptions *opts, char *arg)
 	    } else {
 		__pmNoMem("pmGetOptions(archives)", size, PM_FATAL_ERR);
 	    }
-	    start = end;
+	next:
+	    start = (*end == '\0') ? end : end + 1;
 	}
     }
 }
@@ -371,6 +375,106 @@ __pmAddOptHost(pmOptions *opts, char *arg)
     } else {
 	__pmNoMem("pmGetOptions(host)", size, PM_FATAL_ERR);
     }
+}
+
+static inline char *
+skip_whitespace(char *p)
+{
+    while (*p && isspace((int)*p) && *p != '\n')
+	p++;
+    return p;
+}
+
+static inline char *
+skip_nonwhitespace(char *p)
+{
+    while (*p && !isspace((int)*p))
+	p++;
+    return p;
+}
+
+void
+__pmAddOptArchiveFolio(pmOptions *opts, char *arg)
+{
+    char buffer[MAXPATHLEN];
+    FILE *fp;
+
+#define FOLIO_MAGIC	"PCPFolio"
+#define FOLIO_VERSION	"Version: 1"
+
+    if (opts->nhosts && !(opts->flags & PM_OPTFLAG_MIXED)) {
+	pmprintf("%s: only one of hosts or archives allowed\n", pmProgname);
+	opts->errors++;
+    } else if ((fp = fopen(arg, "r")) == NULL) {
+	pmprintf("%s: cannot open archive folio %s: %s\n", pmProgname,
+		arg, pmErrStr_r(-oserror(), buffer, sizeof(buffer)));
+	opts->flags |= PM_OPTFLAG_RUNTIME_ERR;
+	opts->errors++;
+    } else {
+	size_t length;
+	char *p, *log, *dir;
+	int line, sep = __pmPathSeparator();
+
+	if (fgets(buffer, sizeof(buffer)-1, fp) == NULL) {
+	    pmprintf("%s: archive folio %s has no header\n", pmProgname, arg);
+	    goto badfolio;
+	}
+	if (strncmp(buffer, FOLIO_MAGIC, sizeof(FOLIO_MAGIC)-1) != 0) {
+	    pmprintf("%s: archive folio %s has bad magic\n", pmProgname, arg);
+	    goto badfolio;
+	}
+	if (fgets(buffer, sizeof(buffer)-1, fp) == NULL) {
+	    pmprintf("%s: archive folio %s has no version\n", pmProgname, arg);
+	    goto badfolio;
+	}
+	if (strncmp(buffer, FOLIO_VERSION, sizeof(FOLIO_VERSION)-1) != 0) {
+	    pmprintf("%s: unknown version archive folio %s\n", pmProgname, arg);
+	    goto badfolio;
+	}
+
+	line = 2;
+	dir = dirname(arg);
+
+	while (fgets(buffer, sizeof(buffer)-1, fp) != NULL) {
+	    line++;
+	    p = buffer;
+
+	    if (strncmp(p, "Archive:", sizeof("Archive:")-1) != 0)
+		continue;
+	    p = skip_nonwhitespace(p);
+	    p = skip_whitespace(p);
+	    if (*p == '\n') {
+		pmprintf("%s: missing host on archive folio line %d\n",
+			pmProgname, line);
+		goto badfolio;
+	    }
+	    p = skip_nonwhitespace(p);
+	    p = skip_whitespace(p);
+	    if (*p == '\n') {
+		pmprintf("%s: missing path on archive folio line %d\n",
+			pmProgname, line);
+		goto badfolio;
+	    }
+
+	    log = p;
+	    p = skip_nonwhitespace(p);
+	    *p = '\0';
+
+	    length = strlen(dir) + 1 + strlen(log) + 1;
+	    if ((p = (char *)malloc(length)) == NULL)
+		__pmNoMem("pmGetOptions(archive)", length, PM_FATAL_ERR);
+	    snprintf(p, length, "%s%c%s", dir, sep, log);
+	    __pmAddOptArchive(opts, p);
+	}
+
+	fclose(fp);
+    }
+    return;
+
+badfolio:
+    fclose(fp);
+    opts->flags |= PM_OPTFLAG_RUNTIME_ERR;
+    opts->errors++;
 }
 
 static void
@@ -423,6 +527,7 @@ __pmAddOptHostFile(pmOptions *opts, char *arg)
 
 	    pmprintf("%s: cannot open hosts file %s: %s\n", pmProgname, arg,
 		    osstrerror_r(errmsg, sizeof(errmsg)));
+	    opts->flags |= PM_OPTFLAG_RUNTIME_ERR;
 	    opts->errors++;
 	}
     }
@@ -446,6 +551,9 @@ __pmAddOptHostList(pmOptions *opts, char *arg)
 	    char **hosts = opts->hosts;
 	    char *host;
 
+	    if (length == 0)
+		goto next;
+
 	    if ((hosts = realloc(hosts, size)) != NULL) {
 		if ((host = strndup(start, length)) != NULL) {
 		    hosts[opts->nhosts] = host;
@@ -457,7 +565,8 @@ __pmAddOptHostList(pmOptions *opts, char *arg)
 	    } else {
 		__pmNoMem("pmGetOptions(hosts)", size, PM_FATAL_ERR);
 	    }
-	    start = end;
+	next:
+	    start = (*end == '\0') ? end : end + 1;
 	}
     }
 }
@@ -595,6 +704,8 @@ __pmStartOptions(pmOptions *opts)
 	    __pmAddOptArchiveList(opts, value);
 	else if (strcmp(s, "DEBUG") == 0)
 	    __pmSetDebugFlag(opts, value);
+	else if (strcmp(s, "FOLIO") == 0)
+	    __pmAddOptArchiveFolio(opts, value);
 	else if (strcmp(s, "GUIMODE") == 0)
 	    __pmSetGuiModeFlag(opts);
 	else if (strcmp(s, "HOST") == 0)
@@ -633,6 +744,7 @@ __pmStartOptions(pmOptions *opts)
 int
 pmGetOptions(int argc, char *const *argv, pmOptions *opts)
 {
+    pmLongOptions *opt;
     int flag = 0;
     int c = EOF;
 
@@ -716,6 +828,18 @@ pmGetOptions(int argc, char *const *argv, pmOptions *opts)
 	    break;
 	case '?':
 	    opts->errors++;
+	    break;
+	case 0:
+	    /* long-option-only standard argument handling */
+	    opt = &opts->long_options[opts->index];
+	    if (strcmp(opt->long_opt, PMLONGOPT_HOST_LIST) == 0)
+		__pmAddOptHostList(opts, opts->optarg);
+	    else if (strcmp(opt->long_opt, PMLONGOPT_ARCHIVE_LIST) == 0)
+		__pmAddOptArchiveList(opts, opts->optarg);
+	    else if (strcmp(opt->long_opt, PMLONGOPT_ARCHIVE_FOLIO) == 0)
+		__pmAddOptArchiveFolio(opts, opts->optarg);
+	    else
+		flag = 1;
 	    break;
 	default:	/* pass back out to caller */
 	    flag = 1;
