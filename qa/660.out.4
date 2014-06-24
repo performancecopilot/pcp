@@ -4,13 +4,13 @@ python ok
 
 === 1. pmwebd default startup  ===
 "context":
-"context":
 
 === 2. pmwebd exercise via python ===
 Received PM_CONTEXT_LOCAL ####
 Received PM_CONTEXT_HOST ####
 bad archive /dev/null response code 400
 bad archive ../etc/passwd response code 400
+bad archive /etc/passwd response code 400
 bad archive ../../etc/shadow response code 400
 command NOSUCHAPI response code 400
 context NOSUCHCONTEXT response code 400
@@ -21,7 +21,7 @@ test #### metric .* enumeration with pmwebinfo ####
 test #### metric .* enumeration match count PASS
 test #### metric .* enumeration with pminfo ####
 test #### metric .* enumeration with pmwebinfo ####
-test #### metric .* enumeration match count PASS
+test #### metric .* enumeration match count FAIL
 test #### metric kernel.* enumeration with pminfo ####
 test #### metric kernel.* enumeration with pmwebinfo ####
 test #### metric kernel.* enumeration match count PASS
@@ -31,8 +31,359 @@ test #### metric kernel.* enumeration match count PASS
 context #### response code 400
 
 === 3. pmwebd security constraints, file service ===
-PMWEBAPI error, XXX
-PMWEBAPI error, XXX
-PMWEBAPI error, XXX
-PMRESAPI error
+PMWEBD error, XXX
+PMWEBD error, XXX
+PMWEBD error, XXX
+PMWEBD error, XXX
+PMWEBD error, XXX
 file service ok
+
+=== 4. pmwebd graphite capabilities ===
+the catalog
+HTTP/1.1 302 Moved Temporarily
+Content-Length: 0
+Location: /index.html
+Date: XXX
+
+<html>
+<head><title>Performance Co-Pilot</title></head>
+<body>
+Web applications:
+<ul>
+<li><a href="blinkenlights/">blinkenlights demo</a>
+</li>
+<li><a href="graphite/">graphite</a>
+</li>
+<li><a href="grafana/index.html#/dashboard/file/default.json">grafana (flot js rendering)</a>
+</li>
+<li><a href="grafana/index.html#/dashboard/file/default-png.json">grafana (png rendering)</a>
+</li>
+</ul>
+</body></html>
+metric name breakage
+[]
+[]
+metric tree iteration
+[
+    {
+        "allowChildren": 1,
+        "expandable": 1,
+        "id": "src-2F-naslog-2E-meta.disk",
+        "leaf": 0,
+        "text": "disk"
+    },
+    {
+        "allowChildren": 1,
+        "expandable": 1,
+        "id": "src-2F-naslog-2E-meta.hinv",
+        "leaf": 0,
+        "text": "hinv"
+    },
+    {
+        "allowChildren": 1,
+        "expandable": 1,
+        "id": "src-2F-naslog-2E-meta.kernel",
+        "leaf": 0,
+        "text": "kernel"
+    },
+    {
+        "allowChildren": 1,
+        "expandable": 1,
+        "id": "src-2F-naslog-2E-meta.network",
+        "leaf": 0,
+        "text": "network"
+    },
+    {
+        "allowChildren": 1,
+        "expandable": 1,
+        "id": "src-2F-naslog-2E-meta.pmcd",
+        "leaf": 0,
+        "text": "pmcd"
+    },
+    {
+        "allowChildren": 1,
+        "expandable": 1,
+        "id": "src-2F-naslog-2E-meta.swap",
+        "leaf": 0,
+        "text": "swap"
+    },
+    {
+        "allowChildren": 1,
+        "expandable": 1,
+        "id": "src-2F-naslog-2E-meta.xfs",
+        "leaf": 0,
+        "text": "xfs"
+    }
+]
+metric regex grep 1
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.active.dks131d1
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.active.dks131d2
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.active.dks131d3
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.active.dks131d4
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkread.dks131d1
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkread.dks131d2
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkread.dks131d3
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkread.dks131d4
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blktotal.dks131d1
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blktotal.dks131d2
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blktotal.dks131d3
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blktotal.dks131d4
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkwrite.dks131d1
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkwrite.dks131d2
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkwrite.dks131d3
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkwrite.dks131d4
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.read.dks131d1
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.read.dks131d2
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.read.dks131d3
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.read.dks131d4
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.response.dks131d1
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.response.dks131d2
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.response.dks131d3
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.response.dks131d4
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.total.dks131d1
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.total.dks131d2
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.total.dks131d3
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.total.dks131d4
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.write.dks131d1
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.write.dks131d2
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.write.dks131d3
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.write.dks131d4
+metric regex grep 2
+src-2F-20130706-2E-meta.hinv.ndiskmetric value dump 1
+[
+    {
+        "datapoints": [
+            [
+                null,
+                1385567400
+            ],
+            [
+                1472,
+                1385567460
+            ],
+            [
+                1472,
+                1385567520
+            ],
+            [
+                1472,
+                1385567580
+            ],
+            [
+                1472,
+                1385567640
+            ],
+            [
+                null,
+                1385567700
+            ],
+            [
+                null,
+                1385567760
+            ],
+            [
+                null,
+                1385567820
+            ],
+            [
+                null,
+                1385567880
+            ]
+        ],
+        "target": "src-2F-node_archive-2E-meta.proc.psinfo.pid.001472 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F--2E--2F-wait_launcher-2E-py"
+    },
+    {
+        "datapoints": [
+            [
+                null,
+                1385567400
+            ],
+            [
+                null,
+                1385567460
+            ],
+            [
+                1503,
+                1385567520
+            ],
+            [
+                1503,
+                1385567580
+            ],
+            [
+                1503,
+                1385567640
+            ],
+            [
+                null,
+                1385567700
+            ],
+            [
+                null,
+                1385567760
+            ],
+            [
+                null,
+                1385567820
+            ],
+            [
+                null,
+                1385567880
+            ]
+        ],
+        "target": "src-2F-node_archive-2E-meta.proc.psinfo.pid.001503 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F-wait-2E-py"
+    },
+    {
+        "datapoints": [
+            [
+                null,
+                1385567400
+            ],
+            [
+                null,
+                1385567460
+            ],
+            [
+                null,
+                1385567520
+            ],
+            [
+                1516,
+                1385567580
+            ],
+            [
+                1516,
+                1385567640
+            ],
+            [
+                null,
+                1385567700
+            ],
+            [
+                null,
+                1385567760
+            ],
+            [
+                null,
+                1385567820
+            ],
+            [
+                null,
+                1385567880
+            ]
+        ],
+        "target": "src-2F-node_archive-2E-meta.proc.psinfo.pid.001516 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F-wait-2E-py"
+    },
+    {
+        "datapoints": [
+            [
+                null,
+                1385567400
+            ],
+            [
+                null,
+                1385567460
+            ],
+            [
+                null,
+                1385567520
+            ],
+            [
+                null,
+                1385567580
+            ],
+            [
+                1533,
+                1385567640
+            ],
+            [
+                null,
+                1385567700
+            ],
+            [
+                null,
+                1385567760
+            ],
+            [
+                null,
+                1385567820
+            ],
+            [
+                null,
+                1385567880
+            ]
+        ],
+        "target": "src-2F-node_archive-2E-meta.proc.psinfo.pid.001533 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F-wait-2E-py"
+    }
+]
+metric value dump 2
+[
+    {
+        "data": [
+            null,
+            1472,
+            1472,
+            1472,
+            1472,
+            null,
+            null,
+            null,
+            null
+        ],
+        "end": 1385567880,
+        "name": "src-2F-node_archive-2E-meta.proc.psinfo.pid.001472 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F--2E--2F-wait_launcher-2E-py",
+        "start": 1385567400,
+        "step": 60
+    },
+    {
+        "data": [
+            null,
+            null,
+            1503,
+            1503,
+            1503,
+            null,
+            null,
+            null,
+            null
+        ],
+        "end": 1385567880,
+        "name": "src-2F-node_archive-2E-meta.proc.psinfo.pid.001503 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F-wait-2E-py",
+        "start": 1385567400,
+        "step": 60
+    },
+    {
+        "data": [
+            null,
+            null,
+            null,
+            1516,
+            1516,
+            null,
+            null,
+            null,
+            null
+        ],
+        "end": 1385567880,
+        "name": "src-2F-node_archive-2E-meta.proc.psinfo.pid.001516 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F-wait-2E-py",
+        "start": 1385567400,
+        "step": 60
+    },
+    {
+        "data": [
+            null,
+            null,
+            null,
+            null,
+            1533,
+            null,
+            null,
+            null,
+            null
+        ],
+        "end": 1385567880,
+        "name": "src-2F-node_archive-2E-meta.proc.psinfo.pid.001533 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F-wait-2E-py",
+        "start": 1385567400,
+        "step": 60
+    }
+]
