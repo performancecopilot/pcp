@@ -229,7 +229,7 @@ Error: pmwebd control file "$PCP_PMWEBDCONF_PATH" is missing, cannot start pmweb
 	    $ECHO $PCP_ECHO_N "Starting pmwebd ..." "$PCP_ECHO_C"
 
             # Source options files, allow $var expansions etc.
-            . $PMWEBOPTS
+            . $PMWEBDOPTS
 
 	    $PMWEBD $OPTIONS &
 	    $RC_STATUS -v
