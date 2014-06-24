@@ -207,7 +207,7 @@ pmg_enumerate_pmns (const char *name, void *cls)
 // directories & metadata.
 
 vector <string> pmgraphite_enumerate_metrics (struct MHD_Connection * connection,
-                                              const string & pattern)
+        const string & pattern)
 {
     vector <string> output;
 
@@ -485,11 +485,12 @@ pmgraphite_respond_metrics_grep (struct MHD_Connection *connection,
     vector <string> query_tok = split (query, ' ');
     vector <regex_t> query_regex;
 
-    for (unsigned i=0; i<query_tok.size(); i++) {
+    for (unsigned i=0; i<query_tok.size (); i++) {
         regex_t re;
-        rc = regcomp (&re, query_tok[i].c_str(), REG_ICASE | REG_NOSUB);
-        if (rc == 0)
-            query_regex.push_back (re); // copied by value
+        rc = regcomp (&re, query_tok[i].c_str (), REG_ICASE | REG_NOSUB);
+        if (rc == 0) {
+            query_regex.push_back (re);    // copied by value
+        }
     }
 
     vector <string> metrics = pmgraphite_enumerate_metrics (connection, "");
@@ -500,20 +501,22 @@ pmgraphite_respond_metrics_grep (struct MHD_Connection *connection,
     stringstream output;
     unsigned count = 0;
 
-    for (unsigned i=0; i<metrics.size(); i++) {
+    for (unsigned i=0; i<metrics.size (); i++) {
         const string& m = metrics[i];
         bool result = true;
-        for (unsigned j=0; j<query_regex.size(); j++) {
-            rc = regexec (& query_regex[j], m.c_str(), 0, NULL, 0);
-            if (rc != 0)
+        for (unsigned j=0; j<query_regex.size (); j++) {
+            rc = regexec (& query_regex[j], m.c_str (), 0, NULL, 0);
+            if (rc != 0) {
                 result = false;
+            }
         }
         if (result) {
-            if (graphlot_p)
+            if (graphlot_p) {
                 output << m << endl;
-            else {
-                if (count++ > 0)
+            } else {
+                if (count++ > 0) {
                     output << ",";
+                }
                 output << m;
             }
         }
@@ -588,17 +591,17 @@ struct fetch_series_jobqueue {
     typedef void (*runner_t) (Spec *);
     runner_t runner;
 
-    fetch_series_jobqueue(runner_t);
-    ~fetch_series_jobqueue();
+    fetch_series_jobqueue (runner_t);
+    ~fetch_series_jobqueue ();
 
     static void* thread_main (void *);
 
-    void run();
+    void run ();
 };
 
 
 template <class Spec>
-fetch_series_jobqueue<Spec>::fetch_series_jobqueue(runner_t r)
+fetch_series_jobqueue<Spec>::fetch_series_jobqueue (runner_t r)
 {
 #ifdef HAVE_PTHREAD_H
     pthread_mutex_init (& this->lock, NULL);
@@ -606,10 +609,10 @@ fetch_series_jobqueue<Spec>::fetch_series_jobqueue(runner_t r)
     this->runner = r;
     this->next_job_nr = 0;
 }
- 
- 
+
+
 template <class Spec>
-    fetch_series_jobqueue<Spec>::~fetch_series_jobqueue()
+fetch_series_jobqueue<Spec>::~fetch_series_jobqueue ()
 {
 #ifdef HAVE_PTHREAD_H
     pthread_mutex_destroy (& this->lock);
@@ -618,7 +621,7 @@ template <class Spec>
 
 
 template <class Spec>
-    void* fetch_series_jobqueue<Spec>::thread_main(void *cls)
+void* fetch_series_jobqueue<Spec>::thread_main (void *cls)
 {
     fetch_series_jobqueue<Spec>* q = (fetch_series_jobqueue<Spec>*) cls;
     assert (q != 0);
@@ -632,10 +635,11 @@ template <class Spec>
         pthread_mutex_unlock (& q->lock);
 #endif
 
-        if ((my_jobid >= q->jobs.size()) || exit_p)
+        if ((my_jobid >= q->jobs.size ()) || exit_p) {
             break;
-        
-        (*q->runner)(& q->jobs[my_jobid]);
+        }
+
+        (*q->runner) (& q->jobs[my_jobid]);
     }
     return 0;
 }
@@ -644,7 +648,7 @@ template <class Spec>
 
 // simple contention
 template <class Spec>
-void fetch_series_jobqueue<Spec>::run()
+void fetch_series_jobqueue<Spec>::run ()
 {
     // Permute the job queue randomly, to make it less likely that
     // concurrent threads are processing the same archive.
@@ -657,15 +661,16 @@ void fetch_series_jobqueue<Spec>::run()
     for (unsigned i=0; i<multithread; i++) {
         pthread_t x;
         int rc = pthread_create (&x, NULL, & this->thread_main, (void*) this);
-        if (rc == 0)
+        if (rc == 0) {
             threads.push_back (x);
+        }
     }
 #endif
     // have main thread also have a go
     (void)this->thread_main (this);
 
 #ifdef HAVE_PTHREAD_H
-    for (unsigned i=0; i<threads.size(); i++) {
+    for (unsigned i=0; i<threads.size (); i++) {
         (void) pthread_join (threads[i], NULL);
     }
 #endif
@@ -762,7 +767,7 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
         message << "cannot find archive label";
         goto out;
     }
-    
+
     sts = pmGetArchiveEnd (& archive_end);
     if (sts < 0) {
         message << "cannot find archive end";
@@ -801,7 +806,7 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
             }
             // check that there is an instance domain, in order to use that last component
             if (pmd.indom == PM_INDOM_NULL) {
-                message << "metric " << metric_name << " lacks expected indom " 
+                message << "metric " << metric_name << " lacks expected indom "
                         << last_component;
                 goto out;
 
@@ -819,7 +824,7 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
             sts = pmDelProfile (pmd.indom, 0, NULL);
             sts |= pmAddProfile (pmd.indom, 1, &inst);
             if (sts != 0) {
-                message << "metric " << metric_name 
+                message << "metric " << metric_name
                         << " cannot set unitary instance profile " << inst;
                 goto out;
             }
@@ -888,7 +893,7 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
 
         // We only want to pmFetch within known time boundaries of the archive.
         if (iteration_time >= archive_label.ll_start.tv_sec &&
-            iteration_time <= archive_end.tv_sec) {
+                iteration_time <= archive_end.tv_sec) {
 
             if (! pmSetMode_called_p) {
                 struct timeval start_timeval;
@@ -916,7 +921,7 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
                         entries_good++;
                     }
                 }
-                
+
                 pmFreeResult (result);
             }
         }
@@ -979,7 +984,7 @@ out:
 out0:
     // vector output already returned via jobspec pointer
     // pass back message
-    spec->message = message.str();
+    spec->message = message.str ();
 }
 
 
@@ -987,8 +992,8 @@ out0:
 // A parallelizable version of the above.
 
 vector<vector <timestamped_float> >
-pmgraphite_fetch_all_series (struct MHD_Connection* connection, const vector<string>& targets, 
-                             time_t t_start, time_t t_end, time_t t_step)
+                                pmgraphite_fetch_all_series (struct MHD_Connection* connection, const vector<string>& targets,
+                                        time_t t_start, time_t t_end, time_t t_step)
 {
     // XXX: peephole optimize: for fetches of different metrics/instances
     // from the same archive, it could be faster to have one thread fetch
@@ -996,7 +1001,7 @@ pmgraphite_fetch_all_series (struct MHD_Connection* connection, const vector<str
 
     // prepare a jobqueue
     fetch_series_jobqueue<fetch_series_jobspec> q (& pmgraphite_fetch_series);
-    
+
     for (unsigned i = 0; i < targets.size (); i++) {
         // ensure we have enough output rows
         fetch_series_jobspec js;
@@ -1007,31 +1012,32 @@ pmgraphite_fetch_all_series (struct MHD_Connection* connection, const vector<str
         q.jobs.push_back (js);
     }
 
-    // it's ready to go 
+    // it's ready to go
     struct timeval start;
     (void) gettimeofday (&start, NULL);
-    q.run();
+    q.run ();
     struct timeval finish;
     (void) gettimeofday (&finish, NULL);
 
-    // propagate any output, messages 
+    // propagate any output, messages
     vector <vector <timestamped_float> > all_outputs;
     for (unsigned i = 0; i < q.jobs.size (); i++) {
         all_outputs.push_back (q.jobs[i].output);
         const string& message = q.jobs[i].message;
-        if (message != "")
+        if (message != "") {
             connstamp (clog, connection) << message << endl;
+        }
     }
 
     if (verbosity > 1) {
-        connstamp (clog, connection) << "digested " << targets.size() << " metrics"
-                                     << ", timespan [" << t_start << "-" << t_end 
+        connstamp (clog, connection) << "digested " << targets.size () << " metrics"
+                                     << ", timespan [" << t_start << "-" << t_end
                                      << " by " << t_step << "]"
                                      << ", in " << __pmtimevalSub (&finish,&start)*1000 << "ms "
                                      << endl;
     }
-    
-    assert (all_outputs.size() == targets.size());
+
+    assert (all_outputs.size () == targets.size ());
     return all_outputs;
 }
 
@@ -1189,8 +1195,8 @@ vector<string> generate_colorlist (const vector<string>& colorList, unsigned num
     vector<string> output;
 
     for (unsigned i=0; i<num; i++) {
-        if (colorList.size() > 0) {
-            output.push_back (colorList[i % colorList.size()]);
+        if (colorList.size () > 0) {
+            output.push_back (colorList[i % colorList.size ()]);
         } else {
             output.push_back ("random");
         }
@@ -1428,7 +1434,7 @@ try_name:
 
 
 // Heuristically compute some reasonably rounded minimum/maximum
-// values and major tick lines for the vertical scale.  
+// values and major tick lines for the vertical scale.
 //
 // Algorithm based on Label.c / Paul Heckbert / "Graphics Gems",
 // Academic Press, 1990
@@ -1439,25 +1445,34 @@ try_name:
 // library, non-commercial or commercial. Giving credit is not
 // required, though is a nice gesture.
 
-float nicenum(float x, bool round_p)
+float nicenum (float x, bool round_p)
 {
     int expv;/* exponent of x */
     double f;/* fractional part of x */
     double nf;/* nice, rounded fraction */
 
-    expv = floor(log10f(x));
-    f = x/exp10f(expv);/* between 1 and 10 */
+    expv = floor (log10f (x));
+    f = x/exp10f (expv); /* between 1 and 10 */
     if (round_p)
-        if (f<1.5) nf = 1.;
-        else if (f<3.) nf = 2.;
-        else if (f<7.) nf = 5.;
-        else nf = 10.;
-    else
-        if (f<=1.) nf = 1.;
-        else if (f<=2.) nf = 2.;
-        else if (f<=5.) nf = 5.;
-        else nf = 10.;
-    return nf*exp10f(expv);
+        if (f<1.5) {
+            nf = 1.;
+        } else if (f<3.) {
+            nf = 2.;
+        } else if (f<7.) {
+            nf = 5.;
+        } else {
+            nf = 10.;
+        }
+    else if (f<=1.) {
+        nf = 1.;
+    } else if (f<=2.) {
+        nf = 2.;
+    } else if (f<=5.) {
+        nf = 5.;
+    } else {
+        nf = 10.;
+    }
+    return nf*exp10f (expv);
 }
 
 vector<float> round_linear (float& ymin, float& ymax, unsigned nticks)
@@ -1471,29 +1486,32 @@ vector<float> round_linear (float& ymin, float& ymax, unsigned nticks)
         ymax += epsilon;
     }
 
-    if (nticks <= 1)
+    if (nticks <= 1) {
         nticks = 3;
+    }
 
-    float range = nicenum(ymax-ymin, false);
-    float d = nicenum(range/(nticks-1), true);
-    ymin = floorf(ymin/d)*d;
-    ymax = ceilf(ymax/d)*d;    
+    float range = nicenum (ymax-ymin, false);
+    float d = nicenum (range/ (nticks-1), true);
+    ymin = floorf (ymin/d)*d;
+    ymax = ceilf (ymax/d)*d;
 
-    for (float x = ymin; x <= ymax; x+= d)
-        ticks.push_back(x);
+    for (float x = ymin; x <= ymax; x+= d) {
+        ticks.push_back (x);
+    }
 
     return ticks;
 }
 
 
 
-time_t nicetime(time_t x, bool round_p, char const **fmt)
+time_t nicetime (time_t x, bool round_p, char const **fmt)
 {
     static const time_t powers[] = {1, 30, // seconds
                                     60, 60*5, 60*10, 60*30, 60*60, // minutes
                                     60*60*2, 60*60*4, 60*60*6, 60*60*12, 60*60*24, // hours
-                                    60*60*24*7, 60*60*24*7*4,  60*60*24*7*52 }; // weeks
-    unsigned npowers = sizeof(powers)/sizeof(powers[0]);
+                                    60*60*24*7, 60*60*24*7*4,  60*60*24*7*52
+                                   }; // weeks
+    unsigned npowers = sizeof (powers)/sizeof (powers[0]);
     time_t ex;
     for (int i=npowers-1; i>=0; i--) {
         ex = powers[i];
@@ -1503,22 +1521,24 @@ time_t nicetime(time_t x, bool round_p, char const **fmt)
     }
 
     time_t result;
-    if (round_p)
+    if (round_p) {
         result = ((x + ex - 1) / ex) * ex;
-    else
+    } else {
         result = (x / ex) * ex;
+    }
 
     if (fmt) { // compute an appropriate date-rendering strftime format
-        if (result < 60) // minute
+        if (result < 60) { // minute
             *fmt = "%H:%M:%S";
-        else if (result < 60*60) // hour
+        } else if (result < 60*60) { // hour
             *fmt = "%H:%M";
-        else if (result < 24*60*60) // day
+        } else if (result < 24*60*60) { // day
             *fmt = "%m-%d %H:%M";
-        else if (result < 365*24*60*60) // year
+        } else if (result < 365*24*60*60) { // year
             *fmt = "%m-%d";
-        else // larger than a year
+        } else { // larger than a year
             *fmt = "%Y-%m-%d";
+        }
     }
 
     return result;
@@ -1538,16 +1558,18 @@ vector<time_t> round_time (time_t xmin, time_t xmax, unsigned nticks, char const
         xmax += epsilon;
     }
 
-    if (nticks <= 1)
+    if (nticks <= 1) {
         nticks = 3;
+    }
 
-    time_t range = nicetime(xmax-xmin, false, NULL);
-    time_t d = nicetime(range/(nticks+1), true, fmt);
+    time_t range = nicetime (xmax-xmin, false, NULL);
+    time_t d = nicetime (range/ (nticks+1), true, fmt);
     xmin = ((xmin + d - 1)/ d) * d;
     xmax = ((xmax + d - 1)/ d) * d;
 
-    for (time_t x = xmin; x < xmax; x += d)
-        ticks.push_back(x);
+    for (time_t x = xmin; x < xmax; x += d) {
+        ticks.push_back (x);
+    }
 
     return ticks;
 }
@@ -1557,9 +1579,9 @@ vector<time_t> round_time (time_t xmin, time_t xmax, unsigned nticks, char const
 // A sorting-comparator object for computing rankings.
 template <typename Type>
 struct ranking_comparator {
-    ranking_comparator(const vector<Type>& d): data(d) {}
+    ranking_comparator (const vector<Type>& d): data (d) {}
     int operator () (unsigned i, unsigned j) {
-        assert (data.size() > i && data.size() > j);
+        assert (data.size () > i && data.size () > j);
         return data[i] > data[j];   // we'd like reverse order
     }
 private:
@@ -1704,9 +1726,9 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
 
     // What makes us tick?
     yticks = round_linear (ymin, ymax,
-                           (unsigned)(0.3 * sqrt(height))); // flot heuristic
+                           (unsigned) (0.3 * sqrt (height))); // flot heuristic
     xticks = round_time (t_start, t_end,
-                         (unsigned)(0.3 * sqrt(width)), // flot heuristic
+                         (unsigned) (0.3 * sqrt (width)), // flot heuristic
                          & strf_format);
 
 
@@ -1733,7 +1755,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
         // as per graphite render/glyph.py defaultGraphOptions
         colorList = "blue,green,red,purple,brown,yellow,aqua,grey,magenta,pink,gold,mistyrose";
     }
-    colors = generate_colorlist (split (colorList,','), targets.size());
+    colors = generate_colorlist (split (colorList,','), targets.size ());
     assert (colors.size () == targets.size ());
 
     // Draw the title
@@ -1780,27 +1802,32 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
     // maximum-Frechet-Distance-to-others order, but that takes too
     // much math.
     //
-    for (unsigned i=0; i<all_results.size(); i++) {
-        total_visibility_score.push_back(0);
-        const vector<timestamped_float>& f = all_results[i];            
-        for (unsigned j=0; j<f.size(); j++) {
-            if (isnan(f[j].what))
+    for (unsigned i=0; i<all_results.size (); i++) {
+        total_visibility_score.push_back (0);
+        const vector<timestamped_float>& f = all_results[i];
+        for (unsigned j=0; j<f.size (); j++) {
+            if (isnan (f[j].what)) {
                 continue;
+            }
             total_visibility_score[i] ++;
-            
+
             // XXX: give extra points if this data point is far
             // those from other non-[i] curves.  But that's bound
             // to be computationally expensive to do it Right(tm).
             //
             // So we give a simple estimate of vertical distance only.
 
-            for (unsigned k=0; k<all_results.size(); k++) {
+            for (unsigned k=0; k<all_results.size (); k++) {
                 const vector<timestamped_float>& f2 = all_results[k];
-                if (i == k) continue;
-                if (isnan(f2[j].what)) continue;
+                if (i == k) {
+                    continue;
+                }
+                if (isnan (f2[j].what)) {
+                    continue;
+                }
                 assert (f2[j].when.tv_sec == f[j].when.tv_sec);
                 float delta = f2[j].what - f[j].what;
-                float reldelta = fabs(delta / (ymax - ymin)); // compare delta to height of graph
+                float reldelta = fabs (delta / (ymax - ymin)); // compare delta to height of graph
                 assert (reldelta >= 0.0 && reldelta <= 1.0);
                 unsigned points = (reldelta * 10);
                 total_visibility_score[i] += points;
@@ -1808,16 +1835,17 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
 
         }
     }
-    
-    for (unsigned i=0; i<total_visibility_score.size(); i++) {
-        visibility_rank.push_back(i);
+
+    for (unsigned i=0; i<total_visibility_score.size (); i++) {
+        visibility_rank.push_back (i);
     }
-    sort(visibility_rank.begin(), visibility_rank.end(), ranking_comparator<unsigned>(total_visibility_score));
+    sort (visibility_rank.begin (), visibility_rank.end (),
+          ranking_comparator<unsigned> (total_visibility_score));
 
 
     // Draw the legend
     if (params["hideLegend"] != "true" &&
-        (params["hideLegend"] == "false" || targets.size () <= 10)) { // maximum number of legend entries
+            (params["hideLegend"] == "false" || targets.size () <= 10)) { // maximum number of legend entries
         double spacing = 10.0;
         double baseline = height - 8.0;
         double leftedge = 10.0;
@@ -1827,8 +1855,9 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
             double r, g, b;
 
             // don't even bother put this on the legend if it has zero information
-            if (total_visibility_score[visibility_rank[i]] == 0)
+            if (total_visibility_score[visibility_rank[i]] == 0) {
                 continue;
+            }
 
             // draw square swatch
             cairo_save (cr);
@@ -1873,15 +1902,17 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
         double line_width = 1.5;
 
         // Draw the grid
-        cairo_save(cr);
+        cairo_save (cr);
         string majorGridLineColor = params["majorGridLineColor"];
-        if (majorGridLineColor == "") majorGridLineColor = "pink"; // XXX:
+        if (majorGridLineColor == "") {
+            majorGridLineColor = "pink";    // XXX:
+        }
         notcairo_parse_color (majorGridLineColor, r, g, b);
         cairo_set_source_rgb (cr, r, g, b);
         cairo_set_line_width (cr, line_width);
 
         // Y axis grid & labels
-        for (unsigned i=0; i<yticks.size(); i++) {
+        for (unsigned i=0; i<yticks.size (); i++) {
             float thisy = yticks[i];
             float ydelta = (ymax - ymin);
             double rely = (double)ymax/ydelta - (double)thisy/ydelta;
@@ -1893,7 +1924,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
 
             stringstream label;
             label << yticks[i];
-            string lstr = label.str();
+            string lstr = label.str ();
             cairo_text_extents_t ext;
             cairo_save (cr);
             cairo_select_font_face (cr, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
@@ -1913,9 +1944,9 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
         }
 
         // X axis grid & labels
-        for (unsigned i=0; i<xticks.size(); i++) {
+        for (unsigned i=0; i<xticks.size (); i++) {
             float xdelta = (t_end - t_start);
-            double relx = (double)(xticks[i]-t_start)/xdelta;
+            double relx = (double) (xticks[i]-t_start)/xdelta;
             double x = graphxlow + (graphxhigh-graphxlow)*relx;
 
             cairo_move_to (cr, x, graphylow);
@@ -1925,8 +1956,8 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
             // We use gmtime / strftime to make a compact rendering of
             // the (UTC) time_t.
             char timestr[100];
-            struct tm *t = gmtime(& xticks[i]);
-            strftime (timestr, sizeof(timestr), strf_format, t);
+            struct tm *t = gmtime (& xticks[i]);
+            strftime (timestr, sizeof (timestr), strf_format, t);
 
             cairo_text_extents_t ext;
             cairo_save (cr);
@@ -1945,8 +1976,8 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
             cairo_show_text (cr, timestr);
             cairo_restore (cr);
         }
-        cairo_restore(cr);
-        
+        cairo_restore (cr);
+
         // Draw the frame (on top of the funky pink grid)
         cairo_save (cr);
         string fgcolor = params["fgcolor"];
@@ -1964,10 +1995,11 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
 
     // Draw the curves, in *increasing* visibility order, letting
     // higher-score curves draw on top of the lower ones
-    for (int i=visibility_rank.size()-1; i>=0; i--) {
+    for (int i=visibility_rank.size ()-1; i>=0; i--) {
         // don't even waste time trying to draw this curve
-        if (total_visibility_score[visibility_rank[i]] == 0)
+        if (total_visibility_score[visibility_rank[i]] == 0) {
             continue;
+        }
 
         const vector<timestamped_float>& f = all_results[visibility_rank[i]];
 
@@ -1977,8 +2009,10 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
         cairo_set_source_rgb (cr, r, g, b);
 
         string lineWidth = params["lineWidth"];
-        if (lineWidth == "") lineWidth = "1.2";
-        double line_width = atof(lineWidth.c_str());
+        if (lineWidth == "") {
+            lineWidth = "1.2";
+        }
+        double line_width = atof (lineWidth.c_str ());
         cairo_set_line_width (cr, line_width);
         cairo_set_line_cap (cr, CAIRO_LINE_CAP_ROUND);
         cairo_set_line_join (cr, CAIRO_LINE_JOIN_ROUND);
@@ -1989,8 +2023,8 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
         // the designated graph[xy]{low,high} region.
         cairo_translate (cr, (double)graphxlow, (double)graphylow);
         cairo_scale (cr, (double)graphxhigh-graphxlow, (double)graphyhigh-graphylow);
-        cairo_scale (cr, 1./((double)t_end-(double)t_start), 1./((double)ymax-(double)ymin));
-        cairo_translate (cr, -(double)t_start, -(double)ymin);
+        cairo_scale (cr, 1./ ((double)t_end- (double)t_start), 1./ ((double)ymax- (double)ymin));
+        cairo_translate (cr, - (double)t_start, - (double)ymin);
 
         // XXX: unfortunately, the order of operations or something else is awry with the above.
 #endif
@@ -2015,7 +2049,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
 
             float xdelta = (t_end - t_start);
             float ydelta = (ymax - ymin);
-            double relx = (double)(f[j].when.tv_sec - t_start)/xdelta;
+            double relx = (double) (f[j].when.tv_sec - t_start)/xdelta;
             double rely = (double)ymax/ydelta - (double)thisy/ydelta;
             double x = graphxlow + (graphxhigh-graphxlow)*relx; // scaled into graphics grid area
             double y = graphylow + (graphyhigh-graphylow)*rely;
@@ -2132,8 +2166,9 @@ pmgraphite_respond_render_json (struct MHD_Connection *connection,
         return mhd_notify_error (connection, rc);
     }
 
-    vector <vector <timestamped_float> > all_results = pmgraphite_fetch_all_series (connection, targets, t_start,
-                                                                                    t_end, t_step);
+    vector <vector <timestamped_float> > all_results = pmgraphite_fetch_all_series (connection, targets,
+                                     t_start,
+                                     t_end, t_step);
 
     stringstream output;
     output << "[";
@@ -2255,7 +2290,7 @@ pmgraphite_respond (struct MHD_Connection *connection, const http_params & param
     } else if (url2 == "render") {
         return pmgraphite_respond_render_gfx (connection, params, url);
 #else
-    // XXX: it would be nice to inform the user why we're failing
+        // XXX: it would be nice to inform the user why we're failing
 #endif
     }
 
