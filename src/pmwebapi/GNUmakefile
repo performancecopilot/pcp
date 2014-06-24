@@ -55,6 +55,7 @@ ifeq ($(ENABLE_SYSTEMD),true)
 endif
 	$(INSTALL) -m 755 $(CXXMDTARGET) $(PCP_BINADM_DIR)/$(CXXMDTARGET)
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmwebd
+	find jsdemos -type f -print | xargs "-I{}" $(INSTALL) -m 644 {} $(PCP_SHARE_DIR)/{}
 else
 build-me:
 install:
