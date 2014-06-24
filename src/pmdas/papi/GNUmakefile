@@ -36,7 +36,7 @@ include $(BUILDRULES)
 
 install_pcp install:	default 
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PMDADIR)
+	$(INSTALL) -m 755 Install Remove $(CMDTARGET) $(PMDADIR)
 #	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
 	$(INSTALL) -m 644 root pmns domain.h $(PMDADIR)
 	$(INSTALL) -m 644 $(CFILES) $(DFILES) $(PMDADIR)
