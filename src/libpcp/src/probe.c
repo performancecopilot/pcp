@@ -40,7 +40,7 @@ typedef struct connectionContext {
     const int		*ports;		/* The actual ports */
     int			*numUrls;	/* Size of the results */
     char		***urls;	/* The results */
-    int			*interrupted;	/* Discovery interrupted */
+    const __pmDiscoveryGlobalContext *globalContext;
 #if PM_MULTI_THREAD
     __pmMutex		addrLock;	/* lock for the above address/port */
     __pmMutex		urlLock;	/* lock for the above results */
@@ -79,7 +79,7 @@ attemptConnections(void *arg)
      * Keep trying to secure an address+port until there are no more
      * or until we are interrupted.
      */
-    while (! context->interrupted || ! *context->interrupted) {
+    while (! context->globalContext->interrupted || ! *context->globalContext->interrupted) {
 	/* Obtain the address lock while securing the next address, if any. */
 	PM_LOCK(context->addrLock);
 	if (context->nextAddress == NULL) {
@@ -183,8 +183,8 @@ attemptConnections(void *arg)
 
 	    PM_LOCK(context->urlLock);
 	    *context->numUrls =
-		__pmAddDiscoveredService(&serviceInfo, *context->numUrls,
-					 context->urls);
+		__pmAddDiscoveredService(&serviceInfo, context->globalContext,
+					 *context->numUrls, context->urls);
 	    PM_UNLOCK(context->urlLock);
 	}
 
@@ -199,7 +199,7 @@ probeForServices(
     const char *service,
     __pmSockAddr *netAddress,
     int maskBits,
-    int *interrupted,
+    const __pmDiscoveryGlobalContext *globalContext,
     int numUrls,
     char ***urls
 )
@@ -237,7 +237,7 @@ probeForServices(
     context.urls = urls;
     context.portIx = 0;
     context.maskBits = maskBits;
-    context.interrupted = interrupted;
+    context.globalContext = globalContext;
 
     /*
      * Initialize the first address of the subnet. This pointer will become
@@ -531,7 +531,7 @@ parseOptions(const char *mechanism)
 int
 __pmProbeDiscoverServices(const char *service,
 			  const char *mechanism,
-			  int *interrupted,
+			  const __pmDiscoveryGlobalContext *globalContext,
 			  int numUrls,
 			  char ***urls)
 {
@@ -543,7 +543,7 @@ __pmProbeDiscoverServices(const char *service,
 	return 0;
 
     /* Everything checks out. Now do the actual probing. */
-    numUrls = probeForServices(service, netAddress, maskBits, interrupted, numUrls, urls);
+    numUrls = probeForServices(service, netAddress, maskBits, globalContext, numUrls, urls);
 
     /* Clean up */
     __pmSockAddrFree(netAddress);

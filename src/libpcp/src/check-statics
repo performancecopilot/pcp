@@ -110,7 +110,6 @@ auxserver.o
     localSocketFd		# single-threaded server scope
     server_features		# single-threaded server scope
 discovery.o
-    globalOptionsInfo		# no unsafe side-effects
 ?avahi.o
     nActiveServices		# single-threaded server scope
     szActiveServices		# single-threaded server scope

@@ -494,6 +494,7 @@ __pmServerAvahiUnadvertisePresence(__pmServerPresence *s)
 
 /* Support for clients searching for services. */
 typedef struct browsingContext {
+    const __pmDiscoveryGlobalContext *globalContext;
     AvahiSimplePoll	*simplePoll;
     char		***urls;
     int			numUrls;
@@ -562,7 +563,9 @@ resolveCallback(
 	    }
 	    __pmSockAddrSetPort(serviceInfo.address, port);
 	    __pmSockAddrSetScope(serviceInfo.address, interface);
-	    context->numUrls = __pmAddDiscoveredService(&serviceInfo, numUrls, urls);
+	    context->numUrls = __pmAddDiscoveredService(&serviceInfo,
+							context->globalContext,
+							numUrls, urls);
 	    __pmSockAddrFree(serviceInfo.address);
 	    break;
 
@@ -680,7 +683,7 @@ discoveryTimeout(void)
 int
 __pmAvahiDiscoverServices(const char *service,
 			  const char *mechanism,
-			  int *interrupted,
+			  const __pmDiscoveryGlobalContext *globalContext,
 			  int numUrls,
 			  char ***urls)
 {
@@ -695,12 +698,11 @@ __pmAvahiDiscoverServices(const char *service,
     char                *timeoutEnd;
     double              timeout;
 
-    (void)interrupted; /* not used, for now */
-
     /* Allocate the main loop object. */
     if (!(simplePoll = avahi_simple_poll_new()))
 	return -ENOMEM;
 
+    context.globalContext = globalContext;
     context.error = 0;
     context.simplePoll = simplePoll;
     context.urls = urls;

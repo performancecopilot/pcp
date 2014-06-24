@@ -17,8 +17,6 @@
 #include "avahi.h"
 #include "probe.h"
 
-static __pmDiscoveryGlobalOptions	globalOptionsInfo;
-
 /*
  * Advertise the given service using all available means. The implementation
  * must support adding and removing individual service specs on the fly.
@@ -67,14 +65,14 @@ __pmServerUnadvertisePresence(__pmServerPresence *s)
 
 /* Parse the global options. */
 static int
-parseGlobalOptions(const char *globalOptions)
+parseGlobalOptions(const char *globalOptions, __pmDiscoveryGlobalContext *globalContext)
 {
     const char	*end;
     int		len;
     int		sts = 0;
 
-    /* Clear any results from a previous use of this API. */
-    memset(&globalOptionsInfo, 0, sizeof(globalOptionsInfo));
+    /* Initialize the options. */
+    memset(globalContext, 0, sizeof(*globalContext));
 	   
     /* No options to parse? */
     if (globalOptions == NULL)
@@ -89,7 +87,7 @@ parseGlobalOptions(const char *globalOptions)
 	len = end - globalOptions;
 
 	if (strncmp(globalOptions, "resolve", len) == 0)
-	    globalOptionsInfo.resolve = 1;
+	    globalContext->resolve = 1;
 	else {
 	    __pmNotifyErr(LOG_ERR,
 			  "pmDiscoverServices: unsupported option '%.*s'",
@@ -124,13 +122,15 @@ pmDiscoverServicesAdvanced(const char *service,
 			   int *interrupted,
 			   char ***urls)
 {
+    __pmDiscoveryGlobalContext	globalContext;
     int numUrls;
     int sts;
 
-    /* Parse the global options. */
-    sts = parseGlobalOptions(globalOptions);
+    /* Parse the global options, setting up the global context. */
+    sts = parseGlobalOptions(globalOptions, &globalContext);
     if (sts < 0)
 	return sts;
+    globalContext.interrupted = interrupted;
 
     /*
      * Attempt to discover the requested service(s) using the requested or
@@ -141,14 +141,14 @@ pmDiscoverServicesAdvanced(const char *service,
     *urls = NULL;
     numUrls = 0;
     if (mechanism == NULL) {
-	numUrls += __pmAvahiDiscoverServices(service, mechanism, interrupted, numUrls, urls);
+	numUrls += __pmAvahiDiscoverServices(service, mechanism, &globalContext, numUrls, urls);
 	if (! interrupted || ! *interrupted)
-	    numUrls += __pmProbeDiscoverServices(service, mechanism, interrupted, numUrls, urls);
+	    numUrls += __pmProbeDiscoverServices(service, mechanism, &globalContext, numUrls, urls);
     }
     else if (strncmp(mechanism, "avahi", 5) == 0)
-	numUrls += __pmAvahiDiscoverServices(service, mechanism, interrupted, numUrls, urls);
+	numUrls += __pmAvahiDiscoverServices(service, mechanism, &globalContext, numUrls, urls);
     else if (strncmp(mechanism, "probe", 5) == 0)
-	numUrls += __pmProbeDiscoverServices(service, mechanism, interrupted, numUrls, urls);
+	numUrls += __pmProbeDiscoverServices(service, mechanism, &globalContext, numUrls, urls);
     else
 	return -EOPNOTSUPP;
 
@@ -157,7 +157,10 @@ pmDiscoverServicesAdvanced(const char *service,
 
 /* For manually adding a service. Also used by pmDiscoverServices(). */
 int
-__pmAddDiscoveredService(__pmServiceInfo *info, int numUrls, char ***urls)
+__pmAddDiscoveredService(__pmServiceInfo *info,
+			 const __pmDiscoveryGlobalContext *globalContext,
+			 int numUrls,
+			 char ***urls)
 {
     const char *protocol = info->protocol;
     char *host = NULL;
@@ -167,7 +170,7 @@ __pmAddDiscoveredService(__pmServiceInfo *info, int numUrls, char ***urls)
     int port;
 
     /* If address resolution was requested, then do attempt it. */
-    if (globalOptionsInfo.resolve)
+    if (globalContext->resolve)
 	host = __pmGetNameInfo(info->address);
 
     /*

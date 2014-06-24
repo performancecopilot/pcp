@@ -14,6 +14,6 @@
 #ifndef PROBE_H
 #define PROBE_H
 
-int __pmProbeDiscoverServices(const char *, const char *, int *, int, char ***) _PCP_HIDDEN;
+int __pmProbeDiscoverServices(const char *, const char *, const __pmDiscoveryGlobalContext *, int, char ***) _PCP_HIDDEN;
 
 #endif /* PROBE_H */

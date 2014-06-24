@@ -262,9 +262,13 @@ typedef struct {
 
 typedef struct {
     int	resolve;	/* resolve addresses */
-} __pmDiscoveryGlobalOptions;
+    int *interrupted;	/* process interrupted */
+} __pmDiscoveryGlobalContext;
 
-extern int __pmAddDiscoveredService(__pmServiceInfo *, int, char ***) _PCP_HIDDEN;
+extern int __pmAddDiscoveredService(__pmServiceInfo *,
+				    const __pmDiscoveryGlobalContext *,
+				    int,
+				    char ***) _PCP_HIDDEN;
 
 extern int __pmServiceAddPorts(const char *, int **, int) _PCP_HIDDEN;
 extern int __pmPMCDAddPorts(int **, int) _PCP_HIDDEN;
