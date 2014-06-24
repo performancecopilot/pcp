@@ -1307,6 +1307,7 @@ extern const char *__pmGetAPIConfig(const char *);
 extern void __pmStartOptions(pmOptions *);
 extern void __pmAddOptArchive(pmOptions *, char *);
 extern void __pmAddOptArchiveList(pmOptions *, char *);
+extern void __pmAddOptArchiveFolio(pmOptions *, char *);
 extern void __pmAddOptHost(pmOptions *, char *);
 extern void __pmAddOptHostList(pmOptions *, char *);
 extern void __pmEndOptions(pmOptions *);

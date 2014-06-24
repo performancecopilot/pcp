@@ -61,3 +61,11 @@ Options:
 -- '/a/b/pcp log' '/c/d/foo'\''bar'
 == verify handling of an invalid option
 -? -- '/a/b/pcplog'
+== verify handling of archive folios and host/archive lists
+Usage: pcpqa [options]
+Options:
+  --host-list=HOSTS     comma-separated list of metric source hosts
+  --archive-list=FILES  comma-separated list of metric source archives
+  --archive-folio=FILE  read metric source archives from a folio
+  -?, --help            show this usage message and exit
+--archive-folio '20071023-08-06-36.folio'

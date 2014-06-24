@@ -140,7 +140,16 @@ search_short_options(pmLongOptions *stock, int opt)
 static int
 standard_options(pmOptions *opts, char *start)
 {
-    pmLongOptions stock[] = { PMAPI_GENERAL_OPTIONS, PMAPI_OPTIONS_END };
+    pmLongOptions stock[] = {
+	PMAPI_GENERAL_OPTIONS,
+	PMOPT_SPECLOCAL,
+	PMOPT_LOCALPMDA,
+	PMOPT_HOSTSFILE,
+	PMOPT_HOST_LIST,
+	PMOPT_ARCHIVE_LIST,
+	PMOPT_ARCHIVE_FOLIO,
+	PMAPI_OPTIONS_END
+    };
     pmLongOptions *entry;
 
     entry = (start[1] == '-') ?
