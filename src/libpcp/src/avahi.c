@@ -697,6 +697,7 @@ __pmAvahiDiscoverServices(const char *service,
     const char          *timeoutBegin;
     char                *timeoutEnd;
     double              timeout;
+    int                 sts;
 
     /* Allocate the main loop object. */
     if (!(simplePoll = avahi_simple_poll_new()))
@@ -758,10 +759,22 @@ __pmAvahiDiscoverServices(const char *service,
 	timeoutCallback, &context);
 
     /*
-     * Run the main loop. The discovered services will be added to 'urls'
-     * during the call back to resolveCallback
+     * This loop is based on the one in avahi_simple_poll_loop().
+     *
+     * Run the main loop one iteration at a time until it times out
+     * or until we are interrupted.
+     * The overall timeout within simplePoll will be respected and
+     * avahi_simple_poll_iterate() will return 1 if it occurs.
+     * Otherwise, avahi_simple_poll_iterate() returns -1 on error and
+     * zero on success.
+     * The discovered services will be added to 'urls' during the call back
+     * to resolveCallback
      */
-    avahi_simple_poll_loop(simplePoll);
+    while (! globalContext->interrupted || ! *globalContext->interrupted) {
+	if ((sts = avahi_simple_poll_iterate(simplePoll, -1)) != 0)
+            if (sts > 0 || errno != EINTR)
+		break;
+    }
     numUrls = context.numUrls;
 
  done:
