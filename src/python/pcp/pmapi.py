@@ -869,6 +869,18 @@ class pmOptions(object):
         """ Add support for -?/--help into PMAPI monitor tool """
         return c_api.pmSetLongOptionHelp()
 
+    def pmSetLongOptionArchiveList(self):
+        """ Add support for --archive-list into PMAPI monitor tool """
+        return c_api.pmSetLongOptionArchiveList()
+
+    def pmSetLongOptionArchiveFolio(self):
+        """ Add support for --archive-folio into PMAPI monitor tool """
+        return c_api.pmSetLongOptionArchiveFolio()
+
+    def pmSetLongOptionHostList(self):
+        """ Add support for --host-list into PMAPI monitor tool """
+        return c_api.pmSetLongOptionHostList()
+
     def pmGetOptionContext(self):	# int (typed)
         return c_api.pmGetOptionContext()
 
@@ -916,6 +928,15 @@ class pmOptions(object):
 
     def pmGetOptionTimezone(self):	# str
         return c_api.pmGetOptionTimezone()
+
+    def pmSetOptionArchiveList(self, archives):	# str
+        return c_api.pmSetOptionArchiveList(archives)
+
+    def pmSetOptionArchiveFolio(self, folio):	# str
+        return c_api.pmSetOptionArchiveList(folio)
+
+    def pmSetOptionHostList(self, hosts):	# str
+        return c_api.pmSetOptionHostList(hosts)
 
 
 ##############################################################################

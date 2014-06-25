@@ -300,6 +300,7 @@ extern void __pmFreeResultValues(pmResult *);
 extern char *__pmPDUTypeStr_r(int, char *, int);
 extern const char *__pmPDUTypeStr(int);			/* NOT thread-safe */
 extern void __pmDumpNameSpace(FILE *, int);
+extern void __pmDumpNameNode(FILE *, __pmnsNode *, int);
 extern void __pmDumpStack(FILE *);
 EXTERN int __pmLogReads;
 
@@ -693,6 +694,8 @@ typedef struct {
     double		ac_end;		/* time at end of archive */
     void		*ac_want;	/* used in interp.c */
     void		*ac_unbound;	/* used in interp.c */
+    void		*ac_cache;	/* used in interp.c */
+    int			ac_cache_idx;	/* used in interp.c */
 } __pmArchCtl;
 
 /*
@@ -1304,6 +1307,7 @@ extern const char *__pmGetAPIConfig(const char *);
 extern void __pmStartOptions(pmOptions *);
 extern void __pmAddOptArchive(pmOptions *, char *);
 extern void __pmAddOptArchiveList(pmOptions *, char *);
+extern void __pmAddOptArchiveFolio(pmOptions *, char *);
 extern void __pmAddOptHost(pmOptions *, char *);
 extern void __pmAddOptHostList(pmOptions *, char *);
 extern void __pmEndOptions(pmOptions *);

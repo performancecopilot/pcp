@@ -1,0 +1,97 @@
+#!/bin/sh
+# PCP QA Test No. 899
+# Exercise --host-list, --archive-list, and --archive-folio options.
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+tmpdir=`dirname $tmp`
+good=$here/20071023-08-06-36.folio
+bad=/bin/sh
+
+filter_folios()
+{
+    sed \
+	-e "s,$tmp,TMP,g" \
+	-e "s,$bad,BAD,g" \
+	-e "s,$here,HERE,g" \
+	-e "s,$good,FOLIO,g" \
+	-e "s,$tmpdir,TMPDIR,g" \
+    # end
+}
+
+
+# real QA test starts here
+export PM_OPTFLAG_MULTI=true
+
+echo '== Host list (multi) =='
+$here/src/getoptions --host-list=www.acme.com,foo.bar.org,oss.sgi.com
+echo '== Host list (single) =='
+$here/src/getoptions --host-list=www.acme.com
+
+echo '== Archive list (multi) =='
+$here/src/getoptions --archive-list=log1,log2,log3
+echo '== Archive list (single) =='
+$here/src/getoptions --archive-list=log1
+
+echo '== Archive Folio (single) =='
+$here/src/getoptions --archive-folio=$good 2>&1 | filter_folios
+
+echo '== Archive Folio (multi) =='
+cat << EOF > $tmp.multi
+PCPFolio
+Version: 1
+Archive:     smash	20140624.10.52
+Archive:     verge	20140624.00.10
+EOF
+$here/src/getoptions --archive-folio=$tmp.multi 2>&1 | filter_folios
+
+echo '== Archive Folio (binary) =='
+$here/src/getoptions --archive-folio=$bad 2>&1 | filter_folios
+
+echo '== Archive Folio (badmagic) =='
+cat <<EOF > $tmp.badmagic
+PPCFolio
+Version: 1
+Archive:     smash	20140624.10.52
+EOF
+$here/src/getoptions --archive-folio=$tmp.badmagic 2>&1 | filter_folios
+
+echo '== Archive Folio (version2) =='
+cat <<EOF > $tmp.version2
+PCPFolio
+Version: 2
+Archive:     smash	20140624.10.52
+EOF
+$here/src/getoptions --archive-folio=$tmp.version2 2>&1 | filter_folios
+
+echo '== Archive Folio (nohost) =='
+cat <<EOF > $tmp.nohost
+PCPFolio
+Version: 1
+Archive:     20140624.10.52
+EOF
+$here/src/getoptions --archive-folio=$tmp.nohost 2>&1 | filter_folios
+
+echo '== Archive Folio (empty) =='
+cat <<EOF > $tmp.empty
+PCPFolio
+Version: 1
+EOF
+$here/src/getoptions --archive-folio=$tmp.empty 2>&1 | filter_folios
+
+# success, all done
+status=0
+exit

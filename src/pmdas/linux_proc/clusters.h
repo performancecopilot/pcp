@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 2005,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -37,9 +37,12 @@
 #define CLUSTER_CPUSCHED_GROUPS	43 /* scheduler control groups */
 #define CLUSTER_MEMORY_GROUPS	45 /* memory control groups */
 #define CLUSTER_NET_CLS_GROUPS	47 /* network classification control groups */
+#define CLUSTER_BLKIO_GROUPS	49 /* blkio control groups */
 #define CLUSTER_PID_FD		51 /* /proc/<pid>/fd */
+	/* Note: do not use higher than (1 << CGROUP_SPLIT)-1 as cluster ID */
 
 #define MIN_CLUSTER  8		/* first cluster number we use here */
 #define NUM_CLUSTERS 52		/* one more than highest cluster number used */
+#define MAX_CLUSTER  63		/* last available - fill gaps if more needed */
 
 #endif /* _CLUSTERS_H */

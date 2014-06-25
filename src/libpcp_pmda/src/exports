@@ -97,3 +97,8 @@ PCP_PMDA_3.1 {
     pmdaGetOptions;
     pmdaUsageMessage;
 } PCP_PMDA_3.0;
+
+PCP_PMDA_3.2 {
+  global:
+    pmdaDynamicSetClusterMask;
+} PCP_PMDA_3.1;

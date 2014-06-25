@@ -452,5 +452,7 @@ PCP_3.5 {
 PCP_3.6 {
   global:
     pmDiscoverServicesAdvanced;
+    __pmDumpNameNode;
     __pmFreeInterpData;
+    __pmAddOptArchiveFolio;
 } PCP_3.5;

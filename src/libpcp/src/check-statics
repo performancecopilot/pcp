@@ -215,10 +215,8 @@ help.o
 instance.o
 interp.o
     dowrap			# guarded by __pmLock_libpcp mutex
-    round_robin			# guarded by __pmLock_libpcp mutex
     nr				# diag counters, no atomic updates
     nr_cache			# diag counters, no atomic updates
-    cache			# guarded by __pmLock_libpcp mutex
     statestr			# const
 ipc.o
     __pmIPCTable		# guarded by __pmLock_libpcp mutex

@@ -30,6 +30,11 @@
 # blank lines before the @ line are ignored
 #
 
+@ cgroup.subsys.hierarchy subsystem hierarchy from /proc/cgroups
+@ cgroup.subsys.count count of known subsystems in /proc/cgroups
+@ cgroup.mounts.subsys mount points for each cgroup subsystem
+@ cgroup.mounts.count count of cgroup filesystem mount points
+
 @ proc.nprocs instantaneous number of processes
 @ proc.psinfo.pid process identifier
 @ proc.psinfo.psargs full command string
