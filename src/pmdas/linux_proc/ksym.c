@@ -25,6 +25,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "ksym.h"
+#include "indom.h"
 
 static struct ksym *ksym_a;
 static size_t ksym_a_sz;
@@ -168,10 +169,9 @@ read_ksyms(__psint_t *end_addr)
     int		err;
     FILE	*fp;
     struct ksym	*ksym_tmp;
-    char	*ksyms_path = "/proc/ksyms";
 
     *end_addr = 0;
-    if ((fp = fopen(ksyms_path, "r")) == NULL)
+    if ((fp = proc_statsfile("/proc/ksyms", inbuf, sizeof(inbuf))) == NULL)
 	return -oserror();
 
     while (fgets(inbuf, sizeof(inbuf), fp) != NULL) {
@@ -366,11 +366,11 @@ read_sysmap(const char *release, __psint_t end_addr)
     char	*bestpath = NULL;
     int		ksym_mismatch_count;
     char *sysmap_paths[] = {	/* Paths to check for System.map file */
-	"/boot/System.map-%s",
-	"/boot/System.map",
-	"/lib/modules/%s/System.map",
-	"/usr/src/linux/System.map",
-	"/System.map",
+	"%s/boot/System.map-%s",
+	"%s/boot/System.map",
+	"%s/lib/modules/%s/System.map",
+	"%s/usr/src/linux/System.map",
+	"%s/System.map",
 	NULL
     };
 
@@ -384,7 +384,7 @@ read_sysmap(const char *release, __psint_t end_addr)
      * either _end from /proc/ksyms or the uts version.
      */
     for (fmt = sysmap_paths; *fmt; fmt++) {
-	snprintf(path, MAXPATHLEN, *fmt, release);
+	snprintf(path, MAXPATHLEN, *fmt, proc_statspath, release);
 	if ((fp = fopen(path, "r"))) {
 	    if ((e = validate_sysmap(fp, inbuf, end_addr)) != 0) {
 		if (e == 2) {
@@ -426,7 +426,7 @@ read_sysmap(const char *release, __psint_t end_addr)
     }
 
     /* scan the System map */
-    if ((fp = fopen(bestpath, "r")) == NULL)
+    if ((fp = proc_statsfile(bestpath, path, sizeof(path))) == NULL)
     	return -oserror();
 
     ix = ksym_a_sz;

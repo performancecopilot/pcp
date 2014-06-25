@@ -898,6 +898,8 @@ avahi
 727 avahi local oss
 728 libpcp getopt local oss
 729 python local oss
+730 pmda.proc local oss
+731 pmda.proc local oss
 733 pmie pmval pmdumplog local oss
 734 libpcp pmstat remote oss
 735 pmda.proc local oss
