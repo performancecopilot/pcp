@@ -227,13 +227,15 @@ check_eventset(int context, int item)
 	else
 	    return PM_ERR_NODATA;
     }
-    else if(enablers[item] == 1){
+    else if(enablers[item] == 1 && ctxtab[context].trackers[item] == 0){
+	ctxtab[context].trackers[item] = 1;
 	return 0;
     }
+    else if(enablers[item] == 1 && ctxtab[context].trackers[item] == 1)
+	return 0;
     else{
 	return PM_ERR_NODATA;
     }
-
 }
 
 static int
@@ -252,7 +254,6 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	switch (idp->item) {
 	case 0:
 	    // might not be the first to have this metric being used so set tracker value
-	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[0]; /* papi.kernel.total_inst */
 	    break;
@@ -262,97 +263,81 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 
 	case 2:
-	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[1]; /* papi.kernel.L1_DCM */
 	    break;
 
 	case 3:
-	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[2]; /* papi.kernel.L1_ICM */
 	    break;
 
 	case 4:
-	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[3]; /* papi.kernel.L2_DCM */
 	    break;
 
 	case 5:
-	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[4]; /* papi.kernel.L2_ICM */
 	    break;
 
 	case 6:
-	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[5]; /* papi.kernel.L3_DCM */
 	    break;
 
 	case 7:
-	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[6]; /* papi.kernel.L3_ICM */
 	    break;
 
 	case 8:
-	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[7]; /* papi.kernel.L1_TCM */
 	    break;
 
 	case 9:
-	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[8]; /* papi.kernel.L2_TCM */
 	    break;
 
 	case 10:
-	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[9]; /* papi.kernel.L3_TCM */
 	    break;
 
 	case 11:
-	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[10]; /* papi.kernel.TLB_DM */
 	    break;
 
 	case 12:
-	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[11]; /* papi.kernel.TLB_IM */
 	    break;
 
 	case 13:
-	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[12]; /* papi.kernel.TLB_TL */
 	    break;
 
 	case 14:
-	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[13]; /* papi.kernel.L1_LDM */
 	    break;
 
 	case 15:
-	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[14]; /* papi.kernel.L1_STM */
 	    break;
 
 	case 16:
-	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[15]; /* papi.kernel.L2_LDM */
 	    break;
 
 	case 17:
-	    ctxtab[pmdaGetContext()].trackers[idp->item] = 1;
 	    PAPI_read(EventSet, values);
 	    atom->ull = values[16]; /* papi.kernel.L2_STM */
 	    break;
