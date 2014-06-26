@@ -21,5 +21,4 @@
 - graphite event support
 - old config.options style detection/support
 - dashboard generator
-- figure out why grafana doubles all RENDER-json requests
 - a mechanism to control a nested pmmgr to target hosts & metrics for spontaneous loggitude
