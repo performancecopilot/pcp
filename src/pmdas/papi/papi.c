@@ -213,7 +213,6 @@ check_eventset(int context, int item)
 	case 17:
 	    retval = PAPI_add_event(EventSet, PAPI_L2_STM);
 	    break;
-
 	default:
 	    break;
 	}
@@ -222,7 +221,7 @@ check_eventset(int context, int item)
 	    //	    __pmNotifyErr(LOG_DEBUG, "entered proper retval area\n");    
 	    enablers[item] = 1;
 	    ctxtab[context].trackers[item] = 1;
-	    return PM_ERR_PMDANOTREADY;
+	    return PM_ERR_AGAIN;
 	}
 	else
 	    return PM_ERR_NODATA;
@@ -551,87 +550,54 @@ papi_end_contextCallBack(int context)
 	    case 0:
 		PAPI_remove_event(EventSet, PAPI_TOT_INS);
 		break;
-
 	    case 2:
-		PAPI_remove_event(EventSet, values);
-		atom->ull = values[1]; /* papi.kernel.L1_DCM */
+		PAPI_remove_event(EventSet, PAPI_L1_DCM);
 		break;
-
 	    case 3:
-		PAPI_remove_event(EventSet, values);
-		atom->ull = values[2]; /* papi.kernel.L1_ICM */
+		PAPI_remove_event(EventSet, PAPI_L1_ICM);
 		break;
-
 	    case 4:
-		PAPI_remove_event(EventSet, values);
-		atom->ull = values[3]; /* papi.kernel.L2_DCM */
+		PAPI_remove_event(EventSet, PAPI_L2_DCM);
 		break;
-
 	    case 5:
-		PAPI_remove_event(EventSet, values);
-		atom->ull = values[4]; /* papi.kernel.L2_ICM */
+		PAPI_remove_event(EventSet, PAPI_L2_ICM);
 		break;
-
 	    case 6:
-		PAPI_remove_event(EventSet, values);
-		atom->ull = values[5]; /* papi.kernel.L3_DCM */
+		PAPI_remove_event(EventSet, PAPI_L3_DCM);
 		break;
-
 	    case 7:
-		PAPI_remove_event(EventSet, values);
-		atom->ull = values[6]; /* papi.kernel.L3_ICM */
+		PAPI_remove_event(EventSet, PAPI_L3_ICM);
 		break;
-
 	    case 8:
-		PAPI_remove_event(EventSet, values);
-		atom->ull = values[7]; /* papi.kernel.L1_TCM */
+		PAPI_remove_event(EventSet, PAPI_L1_TCM);
 		break;
-
 	    case 9:
-		PAPI_remove_event(EventSet, values);
-		atom->ull = values[8]; /* papi.kernel.L2_TCM */
+		PAPI_remove_event(EventSet, PAPI_L2_TCM);
 		break;
-
 	    case 10:
-		PAPI_remove_event(EventSet, values);
-		atom->ull = values[9]; /* papi.kernel.L3_TCM */
+		PAPI_remove_event(EventSet, PAPI_L3_TCM);
 		break;
-
 	    case 11:
-		PAPI_remove_event(EventSet, values);
-		atom->ull = values[10]; /* papi.kernel.TLB_DM */
+		PAPI_remove_event(EventSet, PAPI_TLB_DM);
 		break;
-
 	    case 12:
-		PAPI_remove_event(EventSet, values);
-		atom->ull = values[11]; /* papi.kernel.TLB_IM */
+		PAPI_remove_event(EventSet, PAPI_TLB_IM);
 		break;
-
 	    case 13:
-		PAPI_remove_event(EventSet, values);
-		atom->ull = values[12]; /* papi.kernel.TLB_TL */
+		PAPI_remove_event(EventSet, PAPI_TLB_TL);
 		break;
-
 	    case 14:
-		PAPI_remove_event(EventSet, values);
-		atom->ull = values[13]; /* papi.kernel.L1_LDM */
+		PAPI_remove_event(EventSet, PAPI_L1_LDM);
 		break;
-
 	    case 15:
-		PAPI_remove_event(EventSet, values);
-		atom->ull = values[14]; /* papi.kernel.L1_STM */
+		PAPI_remove_event(EventSet, PAPI_L1_STM);
 		break;
-
 	    case 16:
-		PAPI_remove_event(EventSet, values);
-		atom->ull = values[15]; /* papi.kernel.L2_LDM */
+		PAPI_remove_event(EventSet, PAPI_L2_LDM);
 		break;
-
 	    case 17:
-		PAPI_remove_event(EventSet, values);
-		atom->ull = values[16]; /* papi.kernel.L2_STM */
+		PAPI_remove_event(EventSet, PAPI_L2_STM);
 		break;
-
 	    default:
 		break;
 	    }//switch i
