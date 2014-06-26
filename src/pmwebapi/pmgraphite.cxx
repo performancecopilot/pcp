@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <set>
 
@@ -973,8 +974,8 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
         if (instance_name != "") {
             instance_spec = string ("[\"") + instance_name + string ("\"]");
         }
-        message << "returned " << entries_good << "/" << entries << " data values"
-                << ", metric " << metric_name << instance_spec;
+        message << "metric " << metric_name << instance_spec;
+        message << ", " << entries_good << "/" << entries << " values";
     }
 
     // Done!
@@ -1072,6 +1073,14 @@ pmgraphite_parse_timespec (struct MHD_Connection *connection, string value)
         return now.tv_sec;
     }
 
+    // detect the EPOCH absolute-time format emitted by grafana >1.6
+    memset (&parsed, 0, sizeof (parsed));
+    end = strptime (value.c_str (), "%s", &parsed);
+    if (end != NULL && *end == '\0') {
+        // success
+        return mktime (&parsed);
+    }
+
     // detect the HH:MM_YYYYMMDD absolute-time format emitted by grafana
     memset (&parsed, 0, sizeof (parsed));
     end = strptime (value.c_str (), "%H:%M_%Y%m%d", &parsed);
@@ -1094,9 +1103,9 @@ pmgraphite_parse_timespec (struct MHD_Connection *connection, string value)
         value = string ("@") + value;
     }
     // XXX: graphite permits time units of "weeks", "months", "years",
-    // even though the latter two can't refer to an exact & correct
-    // quantity.  That's OK, heuristics and approximations are
-    // acceptable; __pmParseTime() should probably learn to accept them.
+    // even though the latter two can't refer to a fixed number of seconds.
+    // That's OK, heuristics and approximations are acceptable; __pmParseTime()
+    // should probably learn to accept them.
     int sts = __pmParseTime (value.c_str (), &now, &now, &result, &errmsg);
     if (sts != 0) {
         connstamp (cerr, connection) << "unparseable graphite timespec " << value << ": " <<
@@ -1495,7 +1504,10 @@ vector<float> round_linear (float& ymin, float& ymax, unsigned nticks)
     ymin = floorf (ymin/d)*d;
     ymax = ceilf (ymax/d)*d;
 
-    for (float x = ymin; x <= ymax; x+= d) {
+    // NB: just adding d to ymin in a loop accumulates errors
+    // faster than this formulation; esp. for the 0 value
+    float x = ymin;
+    for (unsigned i=0; x <= ymax; x = ymin + (++i) * d) {
         ticks.push_back (x);
     }
 
@@ -1923,7 +1935,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
             cairo_stroke (cr);
 
             stringstream label;
-            label << yticks[i];
+            label << setprecision(5) << yticks[i];
             string lstr = label.str ();
             cairo_text_extents_t ext;
             cairo_save (cr);
