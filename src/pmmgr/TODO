@@ -9,4 +9,5 @@
 - port to cygwin?
 - pmlogger/pmie .log rotation
 - pid->pid_t cleanup
-
+- multithreaded discovery
+- $VAR-capable .options
