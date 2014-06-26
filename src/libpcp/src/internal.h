@@ -261,8 +261,8 @@ typedef struct {
 } __pmServiceInfo;
 
 typedef struct {
-    int	resolve;	/* resolve addresses */
-    int *interrupted;	/* process interrupted */
+    int			resolve;	/* resolve addresses */
+    int			*interrupted;	/* process interrupted */
 } __pmDiscoveryGlobalContext;
 
 extern int __pmAddDiscoveredService(__pmServiceInfo *,

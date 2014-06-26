@@ -739,18 +739,16 @@ __pmAvahiDiscoverServices(const char *service,
     timeout = discoveryTimeout(); /* default */
 
     timeoutBegin = strstr(mechanism ? mechanism : "", ",timeout=");
-    if (timeoutBegin)
-        {
-            timeoutBegin += strlen(",timeout="); /* skip over it */
-            timeout = strtod (timeoutBegin, & timeoutEnd);
-            if ((*timeoutEnd != '\0' && *timeoutEnd != ',') ||
-                (timeout < 0.0)) {
-		__pmNotifyErr(LOG_WARNING,
-			      "ignored bad avahi timeout = '%*s'\n",
-			      (int)(timeoutEnd-timeoutBegin), timeoutBegin);
-                timeout = discoveryTimeout();
-            }
-        }
+    if (timeoutBegin) {
+	timeoutBegin += strlen(",timeout="); /* skip over it */
+	timeout = strtod (timeoutBegin, & timeoutEnd);
+	if ((*timeoutEnd != '\0' && *timeoutEnd != ',') || (timeout < 0.0)) {
+	    __pmNotifyErr(LOG_WARNING,
+			  "ignored bad avahi timeout = '%*s'\n",
+			  (int)(timeoutEnd-timeoutBegin), timeoutBegin);
+	    timeout = discoveryTimeout();
+	}
+    }
 
     /* Set the timeout. */
     avahi_simple_poll_get(simplePoll)->timeout_new(
