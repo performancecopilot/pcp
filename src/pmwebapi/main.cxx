@@ -296,16 +296,14 @@ pmweb_dont_start (void)
 {
     timestamp (cerr) << "pmwebd not started due to errors!" << endl;
 
-    ofstream
-    tty (fatalfile.c_str ());
+    ofstream tty (fatalfile.c_str ());
     if (tty.good ()) {
         timestamp (tty) << "NOTE: pmwebd not started due to errors!" << endl;
 
         // copy logfile to tty, if it was specified
         if (logfile != "") {
             tty << "Log file \"" << logfile << "\" contains ..." << endl;
-            ifstream
-            log (logfile.c_str ());
+            ifstream log (logfile.c_str ());
             if (log.good ()) {
                 tty << log.rdbuf ();
             } else {
@@ -334,12 +332,9 @@ server_dump_request_ports (int ipv4, int ipv6, int port)
 static void
 server_dump_configuration ()
 {
-    char *
-    cwd;
-    char
-    cwdpath[MAXPATHLEN];
-    char
-    sep = __pmPathSeparator ();
+    char *cwd;
+    char cwdpath[MAXPATHLEN];
+    char sep = __pmPathSeparator ();
 
     // Assume timestamp() already just called, so we
     // don't have to repeat.
