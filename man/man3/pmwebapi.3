@@ -1,3 +1,4 @@
+'\"! tbl | nroff \-man
 '\" t macro stdmacro
 .\"
 .\" Copyright (c) 2013-2014 Red Hat, Inc.  All Rights Reserved.
@@ -37,14 +38,14 @@ request/parameter encoding (the GET and POST methods are
 interchangeable), and JSON as response encoding.  A context identifier
 is used as a persistent way to refer to PMAPI contexts across related
 web requests.  These context identifiers expire after a configurable
-period of disuse.  Errors generally result in HTTP-level error responses.
+period of disuse.  
+
+Errors generally result in HTTP-level error responses.
 An
 .nh
-.B Access-Control-Allow-Origin: *
+.I Access-Control-Allow-Origin: *
 .hy
 header is added to all JSON responses.
-
-In addition, pmwebd may serve a subset of the graphite 0.9.2 web-api.
 
 .SH CONTEXT CREATION: pmNewContext
 
@@ -248,6 +249,55 @@ is used to automatically free unused contexts.
 
 .SH GRAPHITE
 
+When enabled, pmwebd can emulate a subset of the graphite web-api to
+allow web applications like graphite and grafana to extract data from
+all archives under the configured \-A directory.  The graphite
+namespace is constructed from the PCP archives using a simple mapping
+that encodes the Cartesian product of archives, metrics, and
+instance-domain instances into dot-separated strings.  Some
+metacharacter-quoting is employed to encode general strings into
+components.
+
+.TS
+box,center;
+c | c | c
+c | c | l.
+position	number	purpose
+_
+1	1	the pathname of the archive .meta file
+2	N	the N components of the pcp metric name
+N+2	1	instance name of the metric (if any)
+.TE
+
+Since glob wildcarding is supported within metric name components,
+using them in the first component (an encoding of the archive name) is
+a good way to identify machines, or to match multiple archives
+spanning times of interest.
+
+We list here only the broadest outline of the supported calls.  pmwebd
+does not support every graphite web-api option, so many querystring
+parameters may be ignored.  Arithmetic/statistical functions on
+metrics are not supported.
+
+.TP
+.B /graphite/render&format=json&target=FOO&from=TIME&until=TIME
+Return a series of values of the given metrics, between the two times, sampled every 60 seconds.
+.TP
+.B /graphite/rawdata&target=FOO.BAR&from=TIME&until=TIME
+Same, with a slightly different result encoding.
+.TP
+.B /graphite/render&format=png&target=FOO&from=TIME&until=TIME&....
+Same, but render the curves into a PNG image file.  Several color- and
+rendering-control-related parameters are supported.
+.TP
+.B /graphite/metrics/find&query=FOO.BAR.*
+Provide incremental metric-tree traversal uwing wildcards.
+.TP
+.B /graphite/graphlot/findmetric&query=FOO+BAR
+Search through metrics with space-separated regular expressions.
+.TP
+.B /graphite/browser/search&q=FOO+BAR
+Same, with a slightly different result encoding.
 
 
 .SH SEE ALSO
@@ -255,5 +305,8 @@ is used to automatically free unused contexts.
 .BR PCPIntro (1),
 .BR PCPIntro (3),
 .BR pmwebd (3),
+.nh
+.BR http://graphite.readthedocs.org/
+.hy
 and
 .BR PMAPI (3)
