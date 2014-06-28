@@ -16,9 +16,12 @@ OPTIONS="$OPTIONS -R $PCP_SHARE_DIR/jsdemos -A $PCP_LOG_DIR -G"
 # Add some verbosity
 OPTIONS="$OPTIONS -v"
 
+# Add any extra derived metrics; see pmLoadDerivedConfig(3) for format.
+# PCP_DERIVED_CONFIG=/path/to/your/file
+# export PCP_DERIVED_CONFIG
+
 # Shorten timeouts for interactions with pmcd on behalf of clients,
 # since pmwebd runs single-threaded.
-
 PMCD_CONNECT_TIMEOUT=3
 PMCD_RECONNECT_TIMEOUT=1,2,3
 PMCD_REQUEST_TIMEOUT=1
