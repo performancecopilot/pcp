@@ -1825,27 +1825,28 @@ proc_init(pmdaInterface *dp)
     pmdaCacheOp(INDOM(CGROUP_MOUNTS_INDOM), PMDA_CACHE_CULL);
 }
 
-static void
-usage(void)
-{
-    fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
-    fputs("Options:\n"
-	  "  -A          no access checks will be performed (insecure, beware!)\n"
-	  "  -d domain   use domain (numeric) for metrics domain of PMDA\n"
-	  "  -l logfile  write log into logfile rather than using default log name\n"
-	  "  -L          include threads in the all-processes instance domain\n"
-	  "  -r cgroup   restrict monitoring to processes in the named cgroup\n"
-	  "  -U username account to run under (default is root)\n",
-	  stderr);		
-    exit(1);
-}
+pmLongOptions	longopts[] = {
+    PMDA_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    { "no-access-checks", 0, 'A', 0, "no access checks will be performed (insecure, beware!)" },
+    PMDAOPT_DOMAIN,
+    PMDAOPT_LOGFILE,
+    { "with-threads", 0, 'L', 0, "include threads in the all-processes instance domain" },
+    { "from-cgroup", 1, 'r', "NAME", "restrict monitoring to processes in the named cgroup" },
+    PMDAOPT_USERNAME,
+    PMOPT_HELP,
+    PMDA_OPTIONS_END
+};
+
+pmdaOptions	opts = {
+    .short_options = "AD:d:l:Lr:U:?",
+    .long_options = longopts,
+};
 
 int
 main(int argc, char **argv)
 {
-    int			sep = __pmPathSeparator();
-    int			err = 0;
-    int			c;
+    int			c, sep = __pmPathSeparator();
     pmdaInterface	dispatch;
     char		helppath[MAXPATHLEN];
     char		*username = "root";
@@ -1856,7 +1857,7 @@ main(int argc, char **argv)
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, PROC, "proc.log", helppath);
 
-    while ((c = pmdaGetOpt(argc, argv, "AD:d:l:Lr:U:?", &dispatch, &err)) != EOF) {
+    while ((c = pmdaGetOptions(argc, argv, &opts, &dispatch)) != EOF) {
 	switch (c) {
 	case 'A':
 	    all_access = 1;
@@ -1865,18 +1866,17 @@ main(int argc, char **argv)
 	    threads = 1;
 	    break;
 	case 'r':
-	    cgroups = optarg;
+	    cgroups = opts.optarg;
 	    break;
-	case 'U':
-	    username = optarg;
-	    break;
-	default:
-    	    err++;
 	}
     }
 
-    if (err)
-    	usage();
+    if (opts.errors) {
+	pmdaUsageMessage(&opts);
+	exit(1);
+    }
+    if (opts.username)
+	username = opts.username;
 
     pmdaOpenLog(&dispatch);
     __pmSetProcessIdentity(username);
