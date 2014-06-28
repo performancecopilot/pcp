@@ -90,6 +90,10 @@ static LexEntry1 optab[] = {
 	{"falling", 	FALL},
 	{"match_inst",	MATCH},
 	{"nomatch_inst",NOMATCH},
+	{"ruleset",	RULESET},
+	{"else",	ELSE},
+	{"otherwise",	OTHERWISE},
+	{"except",	EXCEPT},
         {NULL,      	0}
 };
 
@@ -403,7 +407,8 @@ lexSync(void)
 
     do
 	c = nextc();
-    while ((c != ';') && (c != EOF));
+    while (c != ';' && c != EOF)
+	;
     prevc(c);
 }
 
@@ -758,6 +763,7 @@ yylex(void)
 	/* scan operator */
 	switch (c) {
 	case ';':
+	case '}':
             do
                 d = nextc();
             while (isspace(d));

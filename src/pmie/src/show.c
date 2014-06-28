@@ -76,6 +76,9 @@ static struct {
 	{ CND_OR,	"||" },
 	{ CND_MATCH,	"match_inst" },
 	{ CND_NOMATCH,	"nomatch_inst" },
+	{ CND_RULESET,	"ruleset" },
+	{ CND_OTHERWISE,"otherwise" },
+	{ CND_EXCEPT,	"except" },
 /* quantification */
 	{ CND_ALL_HOST,	"all_host" },
 	{ CND_ALL_INST,	"all_inst" },

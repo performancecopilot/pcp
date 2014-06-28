@@ -345,6 +345,10 @@ findEval(Expr *x)
 	x->eval = rule;
 	break;
 
+    case CND_RULESET:
+	x->eval = ruleset;
+	break;
+
     case CND_FETCH:
 	if (x->metrics->desc.indom == PM_INDOM_NULL ||
 	    x->metrics->conv == 0)

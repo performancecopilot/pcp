@@ -264,6 +264,9 @@ typedef int Op;
 #define CND_OR		44
 #define CND_MATCH	45
 #define CND_NOMATCH	46
+#define CND_RULESET	47
+#define CND_OTHERWISE	48
+#define CND_EXCEPT	49
 /* quantification */
 #define CND_ALL_HOST	50
 #define CND_ALL_INST	51

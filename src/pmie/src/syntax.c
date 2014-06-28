@@ -363,44 +363,42 @@ Expr *
 binaryExpr(int op, Expr *arg1, Expr *arg2)
 {
     Expr	*x;
-    Expr	*arg;
-    int		sts;
+    Expr	*arg = arg1;
+    int		sts = 0;
 
-    /* error guard */
-    if (arg1 == NULL || arg2 == NULL) return NULL;
+    if (arg1 != NULL && arg2 != NULL) {
+	if (op != CND_MATCH && op != CND_NOMATCH) {
+	    /* check domains */
+	    sts = checkDoms(arg1, arg2);
 
-    if (op != CND_MATCH && op != CND_NOMATCH) {
-	/* check domains */
-	sts = checkDoms(arg1, arg2);
-
-	/* decide primary argument for inheritance of Expr attributes */
-	arg = primary(arg1, arg2);
-    }
-    else {
-	regex_t	*pat;
-
-	pat = alloc(sizeof(*pat));
-	if (regcomp(pat, (char *)arg2->ring, REG_EXTENDED|REG_NOSUB) != 0) {
-	    /* bad pattern */
-            fprintf(stderr, "illegal regular expression \"%s\"\n", (char *)arg2->ring);
-	    free(pat);
-	    return NULL;
+	    /* decide primary argument for inheritance of Expr attributes */
+	    arg = primary(arg1, arg2);
 	}
+	else {
+	    regex_t	*pat;
+
+	    pat = alloc(sizeof(*pat));
+	    if (regcomp(pat, (char *)arg2->ring, REG_EXTENDED|REG_NOSUB) != 0) {
+		/* bad pattern */
+		fprintf(stderr, "illegal regular expression \"%s\"\n", (char *)arg2->ring);
+		free(pat);
+		return NULL;
+	    }
 #if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_APPL1) {
-	    fprintf(stderr, "binaryExpr: regex=\"%s\" handle=" PRINTF_P_PFX "%p\n", (char *)arg2->ring, pat);
-	}
+	    if (pmDebug & DBG_TRACE_APPL1) {
+		fprintf(stderr, "binaryExpr: regex=\"%s\" handle=" PRINTF_P_PFX "%p\n", (char *)arg2->ring, pat);
+	    }
 #endif
-	/*
-	 * change operand from the string form of the pattern to the
-	 * compiled regex
-	 */
-	free(arg2->ring);
-	arg2->tspan = 1;
-	arg2->ring = pat;
-	arg2->sem = SEM_REGEX;
-	sts = 1;
-	arg = arg1;
+	    /*
+	     * change operand from the string form of the pattern to the
+	     * compiled regex
+	     */
+	    free(arg2->ring);
+	    arg2->tspan = 1;
+	    arg2->ring = pat;
+	    arg2->sem = SEM_REGEX;
+	    sts = 1;
+	}
     }
 
     /* construct expression node */

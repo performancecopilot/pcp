@@ -20,6 +20,8 @@
  * skeleton: misc.sk
  ***********************************************************************/
 
+#include <assert.h>
+
 /*
  * operator RULE
  */
@@ -47,6 +49,56 @@ rule(Expr *x)
 	perf->eval_unknown++;
 }
 
+/*
+ * operator CND_RULESET
+ */
+
+void
+ruleset(Expr *x)
+{
+    Expr 	*op;	/* operator nodes */
+    Expr	*rp;	/* rule or action nodes */
+    Expr	*save_curr;	/* save-restore curr when calling rule() */
+
+    x->valid = 0;
+    //__dumpTree(1, x);
+    op = x->arg1;
+    while (op != NULL) {
+	if (op->op == RULE)
+	    rp = op;
+	else {
+	    assert(op->op == CND_RULESET || op->op == CND_OR);
+	    rp = op->arg1;
+	}
+	assert(rp->op == RULE);
+	//fprintf(stderr, "doing rp=%p\n", rp);
+	//__dumpTree(1, rp);
+	save_curr = curr;
+	curr = rp;
+	rule(rp);
+	curr = save_curr;
+	if (rp->arg1->valid) {
+	    x->valid = rp->arg1->valid;
+	    *(Truth *)x->ring = *(Truth *)rp->arg1->ring;
+	    if (x->valid > 0 && *(Truth *)x->ring == TRUE) {
+		/* predicate is true, so quit */
+		break;
+	    }
+	}
+	if (op->op == RULE)
+	    break;
+	op = op->arg2;
+    }
+
+    if (x->valid == 0 || *(Truth *)x->ring == FALSE) {
+	/* no predicate true so far, perform the ELSE action, if any */
+	if (x->arg2 != NULL) {
+	    fprintf(stderr, "doing else action ...\n");
+	    __dumpTree(1, x->arg2);
+	    // TODO 
+	}
+    }
+}
 
 /*
  *  operator: cndDelay
