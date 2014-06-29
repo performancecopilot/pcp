@@ -305,7 +305,7 @@ done:
  * expression value
  ***********************************************************************/
 
-#define	TRUTH_SPACE 7
+#define	TRUTH_SPACE 8
 
 static size_t
 showTruth(Expr *x, int nth, size_t length, char **string)
@@ -326,23 +326,23 @@ showTruth(Expr *x, int nth, size_t length, char **string)
 	}
 
 	if (x->valid == 0) {
-	    strncpy(dog, "?", TRUTH_SPACE);
-	    dog++;
+	    strncpy(dog, "unknown", TRUTH_SPACE);
+	    dog += strlen("unknown");
 	    continue;
 	}
 
 	val = *((char *)x->smpls[smpl].ptr + nth);
 	if (val == FALSE) {
 	    strncpy(dog, "false", TRUTH_SPACE);
-	    dog += 5;
+	    dog += strlen("false");
 	}
 	else if (val == TRUE) {
 	    strncpy(dog, "true", TRUTH_SPACE);
-	    dog += 4;
+	    dog += strlen("true");
 	}
 	else if (val == DUNNO) {
-	    strncpy(dog, "?", TRUTH_SPACE);
-	    dog++;
+	    strncpy(dog, "unknown", TRUTH_SPACE);
+	    dog += strlen("unknown");
 	}
 	else {
 	    sprintf(dog, "0x%02x?", val & 0xff);
@@ -399,7 +399,7 @@ showNum(Expr *x, int nth, size_t length, char **string)
 	int	noval = 0;
 	if (smpl > 0) {
 	    strcpy(dog, " ");
-	    dog += 1;
+	    dog++;
 	}
 	if (x->valid <= smpl)
 	    noval = 1;
@@ -413,8 +413,14 @@ showNum(Expr *x, int nth, size_t length, char **string)
 #endif
 	}
 	if (noval) {
-	    strcpy(dog, "?");
-	    dog += 1;
+	    if (x->sem == SEM_TRUTH) {
+		strcpy(dog, "unknown");
+		dog += strlen("unknown");
+	    }
+	    else {
+		strcpy(dog, "?");
+		dog++;
+	    }
 	}
 	else {
 	    v = *((double *)x->smpls[smpl].ptr+nth);
