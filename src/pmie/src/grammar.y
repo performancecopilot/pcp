@@ -318,9 +318,9 @@ bexp	: '(' bexp ')'
 	| quant
 		{   $$ = $1; }
 	| TRU
-		{   $$ = boolConst(TRUE); }
+		{   $$ = boolConst(B_TRUE); }
 	| FALS
-		{   $$ = boolConst(FALSE); }
+		{   $$ = boolConst(B_FALSE); }
 	| NOT bexp
 		{   $$ = unaryExpr(CND_NOT, $2); }
 	| RISE bexp

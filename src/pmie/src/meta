@@ -195,8 +195,8 @@ _merge
 # relational operators
 #
 itype=double
-otype=Truth
-ttype=Truth
+otype=Boolean
+ttype=Boolean
 
 fun=cndEq
 op="OP(x,y) ((x) == (y))"
@@ -225,12 +225,12 @@ _binary
 #
 # boolean connectives
 #
-itype=Truth
-otype=Truth
-ttype=Truth
+itype=Boolean
+otype=Boolean
+ttype=Boolean
 
 fun=cndNot
-op="OP(x) (((x) == TRUE || (x) == FALSE) ? !(x) : DUNNO)"
+op="OP(x) (((x) == B_TRUE || (x) == B_FALSE) ? !(x) : B_UNKNOWN)"
 _unary
 
 fun=cndRise
@@ -248,44 +248,44 @@ _merge
 #
 # quantifiers
 #
-itype=Truth
-otype=Truth
-ttype=Truth
+itype=Boolean
+otype=Boolean
+ttype=Boolean
 
 fun=cndAll
 top="a = *ip;"
-loop="if (*ip == FALSE) a = FALSE;\\
-		else if (*ip == DUNNO \\&\\& a != DUNNO) a = DUNNO;"
+loop="if (*ip == B_FALSE) a = B_FALSE;\\
+		else if (*ip == B_UNKNOWN \\&\\& a != B_UNKNOWN) a = B_UNKNOWN;"
 bot="*op++ = a;"
-notvalid="*op++ = DUNNO; os->stamp = is->stamp; x->valid++;"
+notvalid="*op++ = B_UNKNOWN; os->stamp = is->stamp; x->valid++;"
 _aggr
 
 fun=cndSome
 top="a = *ip;"
-loop="if (*ip == TRUE) a = TRUE;\\
-		else if (*ip == DUNNO \\&\\& a != DUNNO) a = DUNNO;"
+loop="if (*ip == B_TRUE) a = B_TRUE;\\
+		else if (*ip == B_UNKNOWN \\&\\& a != B_UNKNOWN) a = B_UNKNOWN;"
 bot="*op++ = a;"
-notvalid="*op++ = DUNNO; os->stamp = is->stamp; x->valid++;"
+notvalid="*op++ = B_UNKNOWN; os->stamp = is->stamp; x->valid++;"
 _aggr
 
 fun=cndPcnt
 ttype='int	'
 top="a = *ip;"
 loop="a += *ip;"
-bot="*op++ = (a >= (int)(0.5 + *(double *)x->arg2->ring * n)) ? TRUE : FALSE;"
-notvalid="*op++ = DUNNO; os->stamp = is->stamp; x->valid++;"
+bot="*op++ = (a >= (int)(0.5 + *(double *)x->arg2->ring * n)) ? B_TRUE : B_FALSE;"
+notvalid="*op++ = B_UNKNOWN; os->stamp = is->stamp; x->valid++;"
 _aggr
 
 #
 # truth counter
 #
-itype=Truth
+itype=Boolean
 otype=double
 notvalid="x->valid = 0;"
 
 fun=cndCount
-top="a = *ip == TRUE ? 1 : 0;"
-loop="if (*ip == TRUE) a++;"
+top="a = *ip == B_TRUE ? 1 : 0;"
+loop="if (*ip == B_TRUE) a++;"
 bot="*op++ = a;"
 _aggr
 

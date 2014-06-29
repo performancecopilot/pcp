@@ -35,10 +35,10 @@ rule(Expr *x)
 
     EVALARG(arg1)
     if ((x->valid = arg1->valid) > 0) {
-	sts = (*(Truth *)x->ring = *(Truth *)arg1->ring);
-	if (sts == FALSE)
+	sts = (*(Boolean *)x->ring = *(Boolean *)arg1->ring);
+	if (sts == B_FALSE)
 	    perf->eval_false++;
-	else if (sts == TRUE) {
+	else if (sts == B_TRUE) {
 	    perf->eval_true++;
 	    EVALARG(arg2)
 	}
@@ -79,8 +79,8 @@ ruleset(Expr *x)
 	curr = save_curr;
 	if (rp->arg1->valid) {
 	    x->valid = rp->arg1->valid;
-	    *(Truth *)x->ring = *(Truth *)rp->arg1->ring;
-	    if (x->valid > 0 && *(Truth *)x->ring == TRUE) {
+	    *(Boolean *)x->ring = *(Boolean *)rp->arg1->ring;
+	    if (x->valid > 0 && *(Boolean *)x->ring == B_TRUE) {
 		/* predicate is true, so quit */
 		break;
 	    }
@@ -90,7 +90,7 @@ ruleset(Expr *x)
 	op = op->arg2;
     }
 
-    if (x->valid == 0 || *(Truth *)x->ring == FALSE) {
+    if (x->valid == 0 || *(Boolean *)x->ring == B_FALSE) {
 	/* no predicate true so far, perform the ELSE action, if any */
 	if (x->arg2 != NULL) {
 	    fprintf(stderr, "doing else action ...\n");

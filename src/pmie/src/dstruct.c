@@ -1160,11 +1160,11 @@ __dumpExpr(int level, Expr *x)
 		    }
 		    if (x->sem == SEM_TRUTH) {
 			char 	c = *((char *)x->smpls[j].ptr+k);
-			if ((int)c == TRUE)
+			if ((int)c == B_TRUE)
 			    fprintf(stderr, "true");
-			else if ((int)c == FALSE)
+			else if ((int)c == B_FALSE)
 			    fprintf(stderr, "false");
-			else if ((int)c == DUNNO)
+			else if ((int)c == B_UNKNOWN)
 			    fprintf(stderr, "unknown");
 			else
 			    fprintf(stderr, "bogus (0x%x)", c & 0xff);

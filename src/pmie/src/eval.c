@@ -276,9 +276,9 @@ eval(Task *task)
 void
 clobber(Expr *x)
 {
-    int	    i;
-    Truth   *t;
-    double  *d;
+    int		i;
+    Boolean	*t;
+    double	*d;
 
     if (x->op < NOP) {
 	if (x->arg1)
@@ -297,9 +297,9 @@ clobber(Expr *x)
 		*d++ = mynan;
 	}
 	else if (x->sem == SEM_TRUTH) {
-	    t = (Truth *) x->ring;
+	    t = (Boolean *) x->ring;
 	    for (i = 0; i < x->nvals; i++)
-		*t++ = DUNNO;
+		*t++ = B_UNKNOWN;
 	}
     }
 }

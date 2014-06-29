@@ -308,7 +308,7 @@ done:
 #define	TRUTH_SPACE 8
 
 static size_t
-showTruth(Expr *x, int nth, size_t length, char **string)
+showBoolean(Expr *x, int nth, size_t length, char **string)
 {
     int		smpl;
     size_t	tlen;
@@ -332,15 +332,15 @@ showTruth(Expr *x, int nth, size_t length, char **string)
 	}
 
 	val = *((char *)x->smpls[smpl].ptr + nth);
-	if (val == FALSE) {
+	if (val == B_FALSE) {
 	    strncpy(dog, "false", TRUTH_SPACE);
 	    dog += strlen("false");
 	}
-	else if (val == TRUE) {
+	else if (val == B_TRUE) {
 	    strncpy(dog, "true", TRUTH_SPACE);
 	    dog += strlen("true");
 	}
-	else if (val == DUNNO) {
+	else if (val == B_UNKNOWN) {
 	    strncpy(dog, "unknown", TRUTH_SPACE);
 	    dog += strlen("unknown");
 	}
@@ -468,7 +468,7 @@ showConst(Expr *x)
 	    else
 		length = concat(" ", length, &string);
 	    if (x->sem == SEM_TRUTH)
-		length = showTruth(x, i, length, &string);
+		length = showBoolean(x, i, length, &string);
 	    else if (x->sem == SEM_REGEX) {
 		/* regex is compiled, cannot recover original string */
 		length = concat("/<regex>/", length, &string);
@@ -896,7 +896,7 @@ showAnnotatedValue(FILE *f, Expr *x)
 	else
 	    length = concat(": ", length,  &string);
 	if (x->sem == SEM_TRUTH)
-	    length = showTruth(x, i, length, &string);
+	    length = showBoolean(x, i, length, &string);
 	else	/* numeric value */
 	    length = showNum(x, i, length, &string);
     }
@@ -969,7 +969,7 @@ showSatisfyingValue(FILE *f, Expr *x)
 
     /* construct string representation */
     for (i = 0; i < x1->tspan; i++) {
-	if ((x1->sem == SEM_TRUTH && *((char *)x1->smpls[0].ptr + i) == TRUE)
+	if ((x1->sem == SEM_TRUTH && *((char *)x1->smpls[0].ptr + i) == B_TRUE)
 	    || (x1->sem != SEM_TRUTH && x1->sem != SEM_UNKNOWN)) {
 	    length = concat("\n    ", length, &string);
 	    lookupHostInst(x1, i, &host, &inst);
@@ -982,7 +982,7 @@ showSatisfyingValue(FILE *f, Expr *x)
 	    else
 		length = concat(": ", length,  &string);
 	    if (x2->sem == SEM_TRUTH)
-		length = showTruth(x2, i, length, &string);
+		length = showBoolean(x2, i, length, &string);
 	    else	/* numeric value */
 		length = showNum(x2, i, length, &string);
 	}
@@ -1038,7 +1038,7 @@ formatSatisfyingValue(char *format, size_t length, char **string)
 	return concat(format, length, string);
 
     for (i = 0; i < x1->tspan; i++) {
-	if ((x1->sem == SEM_TRUTH && *((char *)x1->smpls[0].ptr + i) == TRUE)
+	if ((x1->sem == SEM_TRUTH && *((char *)x1->smpls[0].ptr + i) == B_TRUE)
 	    || (x1->sem != SEM_TRUTH && x1->sem != SEM_UNKNOWN)) {
 	    prev = format;
 	    next = first;
@@ -1064,7 +1064,7 @@ formatSatisfyingValue(char *format, size_t length, char **string)
 		    break;
 		case 3:
 		    if (x2->sem == SEM_TRUTH)
-			length = showTruth(x2, i, length, string);
+			length = showBoolean(x2, i, length, string);
 		    else	/* numeric value */
 			length = showNum(x2, i, length, string);
 		    break;

@@ -41,13 +41,13 @@ struct task;
 
 
 /***********************************************************************
- * numeric and truth value constants
+ * (Kleene) 3-valued boolean values
  ***********************************************************************/
 
-typedef char Truth;
-#define FALSE	0
-#define TRUE	1
-#define DUNNO	2
+typedef char Boolean;
+#define B_FALSE 0
+#define B_TRUE 1
+#define B_UNKNOWN 2
 
 extern double	mynan;	/* definitely not-a-number */
 

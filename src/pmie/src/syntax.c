@@ -347,7 +347,7 @@ relExpr(int op, Expr *arg1, Expr *arg2)
     newRingBfr(x);
     if (x->tspan > 0) {
 	for (i = 0; i < x->nsmpls; i++)
-	    *((char *)x->ring + i) = DUNNO;
+	    *((char *)x->ring + i) = B_UNKNOWN;
     }
     findEval(x);
 
@@ -709,14 +709,14 @@ strConst(char *s)
 
 /* boolean constant */
 Expr *
-boolConst(Truth v)
+boolConst(Boolean v)
 {
     Expr    *x;
 
     x = newExpr(NOP, NULL, NULL, -1, -1, -1, 1, SEM_TRUTH);
     newRingBfr(x);
     x->valid = 1;
-    *(Truth *) x->ring = v;
+    *(Boolean *) x->ring = v;
     return x;
 }
 
