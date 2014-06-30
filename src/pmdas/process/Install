@@ -21,7 +21,7 @@
 
 iam=process
 pmda_interface=2
-forced_restart=false
+forced_restart=true
 
 pmdaSetup
 pmdaInstall
