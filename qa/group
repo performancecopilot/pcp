@@ -757,7 +757,7 @@ avahi
 498 event pmda local oss
 499 pmlogrewrite local oss
 500 logutil local #636417 folio oss
-501 pmie remote oss
+501 pmie local oss
 502 pmlogrewrite local oss
 503 logutil pmlogrewrite local oss pmlogextract
 504 pmie remote pmsocks oss
