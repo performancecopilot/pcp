@@ -1,7 +1,7 @@
 /*
  * Linux PMDA
  *
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
  * Copyright (c) 2002 International Business Machines Corp.
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
@@ -5660,29 +5660,28 @@ linux_init(pmdaInterface *dp)
     pmdaCacheOp(INDOM(STRINGS_INDOM), PMDA_CACHE_STRINGS);
 }
 
+pmLongOptions	longopts[] = {
+    PMDA_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    PMDAOPT_DOMAIN,
+    PMDAOPT_LOGFILE,
+    PMDAOPT_USERNAME,
+    PMOPT_HELP,
+    PMDA_OPTIONS_END
+};
 
-static void
-usage(void)
-{
-    fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
-    fputs("Options:\n"
-	  "  -d domain  use domain (numeric) for metrics domain of PMDA\n"
-	  "  -l logfile write log into logfile rather than using default log name\n"
-	  "  -U username  user account to run under (default \"pcp\")\n",
-	  stderr);		
-    exit(1);
-}
+pmdaOptions	opts = {
+    .short_options = "D:d:l:U:?",
+    .long_options = longopts,
+};
 
 /*
  * Set up the agent if running as a daemon.
  */
-
 int
 main(int argc, char **argv)
 {
     int			sep = __pmPathSeparator();
-    int			err = 0;
-    int			c;
     pmdaInterface	dispatch;
     char		helppath[MAXPATHLEN];
 
@@ -5694,17 +5693,13 @@ main(int argc, char **argv)
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, LINUX, "linux.log", helppath);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:l:U:?", &dispatch, &err)) != EOF) {
-	switch(c) {
-	case 'U':
-	    username = optarg;
-	    break;
-	default:
-	    err++;
-	}
+    pmdaGetOptions(argc, argv, &opts, &dispatch);
+    if (opts.errors) {
+	pmdaUsageMessage(&opts);
+	exit(1);
     }
-    if (err)
-	usage();
+    if (opts.username)
+	username = opts.username;
 
     pmdaOpenLog(&dispatch);
     linux_init(&dispatch);
