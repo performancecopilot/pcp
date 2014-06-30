@@ -1,6 +1,7 @@
 pcp (3.9.7) unstable; urgency=low
 
-  * Under development.
+  * Add Debian build dependency on autoconf (closes: #752171)
+  * New release (full details in CHANGELOG).
 
  -- Nathan Scott <nathans@debian.org>  Thu, 19 Jun 2014 10:19:23 +1000
 
