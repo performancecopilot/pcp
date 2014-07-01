@@ -92,8 +92,8 @@ static LexEntry1 optab[] = {
 	{"nomatch_inst",NOMATCH},
 	{"ruleset",	RULESET},
 	{"else",	ELSE},
+	{"unknown",	UNKNOWN},
 	{"otherwise",	OTHERWISE},
-	{"except",	EXCEPT},
         {NULL,      	0}
 };
 
@@ -259,8 +259,8 @@ varDeref(char *name)
 	return DEREF_STRING;
     }
 
-    /* truth valued macro */
-    if (x->sem == SEM_TRUTH) {
+    /* boolean valued macro */
+    if (x->sem == SEM_BOOLEAN) {
 	yylval.x = x;
 	return DEREF_BOOL;
     }

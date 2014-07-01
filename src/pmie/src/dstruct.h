@@ -218,7 +218,7 @@ typedef struct task {
 /* value semantics - as in pmDesc plus following */
 #define SEM_UNKNOWN	0	/* semantics not yet available */
 #define SEM_NUMVAR	10	/* numeric variable value */
-#define SEM_TRUTH	11	/* truth value */
+#define SEM_BOOLEAN	11	/* boolean (3-state) value */
 #define SEM_CHAR	12	/* character (string) */
 #define SEM_NUMCONST	13	/* numeric constant value */
 #define SEM_REGEX	14	/* compiled regular expression */
@@ -265,8 +265,7 @@ typedef int Op;
 #define CND_MATCH	45
 #define CND_NOMATCH	46
 #define CND_RULESET	47
-#define CND_OTHERWISE	48
-#define CND_EXCEPT	49
+#define CND_OTHER	48
 /* quantification */
 #define CND_ALL_HOST	50
 #define CND_ALL_INST	51

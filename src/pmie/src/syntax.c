@@ -250,12 +250,12 @@ ruleExpr(Expr *cond, Expr *act)
 
     if (cond->nvals != 1) {
         synerr();
-        fprintf(stderr, "rule condition must have a single truth value\n");
+        fprintf(stderr, "rule condition must have a single boolean value\n");
     }
 
     perf->numrules++;
 
-    x = newExpr(RULE, cond, act, -1, -1, -1, 1, SEM_TRUTH);
+    x = newExpr(RULE, cond, act, -1, -1, -1, 1, SEM_BOOLEAN);
     newRingBfr(x);
     findEval(x);
     return x;
@@ -272,7 +272,7 @@ actExpr(int op, Expr *arg1, Expr *arg2)
     if (arg1 == NULL) return NULL;
 
     /* construct expression node */
-    x = newExpr(op, arg1, arg2, -1, -1, -1, 1, SEM_TRUTH);
+    x = newExpr(op, arg1, arg2, -1, -1, -1, 1, SEM_BOOLEAN);
     newRingBfr(x);
     findEval(x);
 
@@ -337,7 +337,7 @@ relExpr(int op, Expr *arg1, Expr *arg2)
     arg = primary(arg1, arg2);
 
     /* construct expression node */
-    x = newExpr(op, arg1, arg2, arg->hdom, arg->e_idom, arg->tdom, abs(arg->tdom), SEM_TRUTH);
+    x = newExpr(op, arg1, arg2, arg->hdom, arg->e_idom, arg->tdom, abs(arg->tdom), SEM_BOOLEAN);
 #if PCP_DEBUG
     if (sts == 0 && (pmDebug & DBG_TRACE_APPL1)) {
 	fprintf(stderr, "relExpr: checkDoms(" PRINTF_P_PFX "%p, " PRINTF_P_PFX "%p) failed ...\n", arg1, arg2);
@@ -365,6 +365,9 @@ binaryExpr(int op, Expr *arg1, Expr *arg2)
     Expr	*x;
     Expr	*arg = arg1;
     int		sts = 0;
+
+    /* error guard */
+    if (arg1 == NULL) return NULL;
 
     if (arg1 != NULL && arg2 != NULL) {
 	if (op != CND_MATCH && op != CND_NOMATCH) {
@@ -555,7 +558,7 @@ numMergeExpr(int op, Expr *arg)
     if (arg == NULL) return NULL;
 
     /* check argument semantics */
-    if ((arg->sem == SEM_TRUTH) || (arg->sem == SEM_CHAR)) {
+    if ((arg->sem == SEM_BOOLEAN) || (arg->sem == SEM_CHAR)) {
 	synerr();
 	fprintf(stderr, "operator \"%s\" requires numeric valued argument\n", opStrings(op));
 	return NULL;
@@ -573,7 +576,7 @@ boolMergeExpr(int op, Expr *arg)
     if (arg == NULL) return NULL;
 
     /* check argument semantics */
-    if (arg->sem != SEM_TRUTH) {
+    if (arg->sem != SEM_BOOLEAN) {
 	synerr();
 	fprintf(stderr, "operator \"%s\" requires boolean valued argument\n", opStrings(op));
 	return NULL;
@@ -713,7 +716,7 @@ boolConst(Boolean v)
 {
     Expr    *x;
 
-    x = newExpr(NOP, NULL, NULL, -1, -1, -1, 1, SEM_TRUTH);
+    x = newExpr(NOP, NULL, NULL, -1, -1, -1, 1, SEM_BOOLEAN);
     newRingBfr(x);
     x->valid = 1;
     *(Boolean *) x->ring = v;
@@ -725,7 +728,7 @@ boolConst(Boolean v)
 Expr *
 numVar(Expr *x)
 {
-    if (x->sem == SEM_TRUTH || x->sem == SEM_CHAR) {
+    if (x->sem == SEM_BOOLEAN || x->sem == SEM_CHAR) {
 	synerr();
 	fprintf(stderr, "numeric valued variable expected\n");
 	return NULL;

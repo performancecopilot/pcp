@@ -77,8 +77,7 @@ static struct {
 	{ CND_MATCH,	"match_inst" },
 	{ CND_NOMATCH,	"nomatch_inst" },
 	{ CND_RULESET,	"ruleset" },
-	{ CND_OTHERWISE,"otherwise" },
-	{ CND_EXCEPT,	"except" },
+	{ CND_OTHER,	"other" },
 /* quantification */
 	{ CND_ALL_HOST,	"all_host" },
 	{ CND_ALL_INST,	"all_inst" },
@@ -305,7 +304,7 @@ done:
  * expression value
  ***********************************************************************/
 
-#define	TRUTH_SPACE 8
+#define	BOOLEAN_SPACE 8
 
 static size_t
 showBoolean(Expr *x, int nth, size_t length, char **string)
@@ -316,7 +315,7 @@ showBoolean(Expr *x, int nth, size_t length, char **string)
     char	*dog;
     int		val;
 
-    tlen = length + (x->nsmpls * TRUTH_SPACE);
+    tlen = length + (x->nsmpls * BOOLEAN_SPACE);
     cat = (char *)ralloc(*string, tlen + 1);
     dog = cat + length;
     for (smpl = 0; smpl < x->nsmpls; smpl++) {
@@ -326,22 +325,22 @@ showBoolean(Expr *x, int nth, size_t length, char **string)
 	}
 
 	if (x->valid == 0) {
-	    strncpy(dog, "unknown", TRUTH_SPACE);
+	    strncpy(dog, "unknown", BOOLEAN_SPACE);
 	    dog += strlen("unknown");
 	    continue;
 	}
 
 	val = *((char *)x->smpls[smpl].ptr + nth);
 	if (val == B_FALSE) {
-	    strncpy(dog, "false", TRUTH_SPACE);
+	    strncpy(dog, "false", BOOLEAN_SPACE);
 	    dog += strlen("false");
 	}
 	else if (val == B_TRUE) {
-	    strncpy(dog, "true", TRUTH_SPACE);
+	    strncpy(dog, "true", BOOLEAN_SPACE);
 	    dog += strlen("true");
 	}
 	else if (val == B_UNKNOWN) {
-	    strncpy(dog, "unknown", TRUTH_SPACE);
+	    strncpy(dog, "unknown", BOOLEAN_SPACE);
 	    dog += strlen("unknown");
 	}
 	else {
@@ -413,7 +412,7 @@ showNum(Expr *x, int nth, size_t length, char **string)
 #endif
 	}
 	if (noval) {
-	    if (x->sem == SEM_TRUTH) {
+	    if (x->sem == SEM_BOOLEAN) {
 		strcpy(dog, "unknown");
 		dog += strlen("unknown");
 	    }
@@ -467,7 +466,7 @@ showConst(Expr *x)
 		first = 0;
 	    else
 		length = concat(" ", length, &string);
-	    if (x->sem == SEM_TRUTH)
+	    if (x->sem == SEM_BOOLEAN)
 		length = showBoolean(x, i, length, &string);
 	    else if (x->sem == SEM_REGEX) {
 		/* regex is compiled, cannot recover original string */
@@ -757,7 +756,7 @@ findValues(Expr *x)
 	fprintf(stderr, "call findValues(x=" PRINTF_P_PFX "%p)\n", x);
     }
 #endif
-    while (x->sem == SEM_TRUTH && x->metrics) {
+    while (x->sem == SEM_BOOLEAN && x->metrics) {
 	if (x->metrics == x->arg1->metrics) {
 	    x = x->arg1;
 #if PCP_DEBUG
@@ -895,7 +894,7 @@ showAnnotatedValue(FILE *f, Expr *x)
 	}
 	else
 	    length = concat(": ", length,  &string);
-	if (x->sem == SEM_TRUTH)
+	if (x->sem == SEM_BOOLEAN)
 	    length = showBoolean(x, i, length, &string);
 	else	/* numeric value */
 	    length = showNum(x, i, length, &string);
@@ -950,7 +949,7 @@ showSatisfyingValue(FILE *f, Expr *x)
 	return;
     }
 
-    if (x->sem != SEM_TRUTH) {
+    if (x->sem != SEM_BOOLEAN) {
 	showAnnotatedValue(f, x);
 	return;
     }
@@ -969,8 +968,8 @@ showSatisfyingValue(FILE *f, Expr *x)
 
     /* construct string representation */
     for (i = 0; i < x1->tspan; i++) {
-	if ((x1->sem == SEM_TRUTH && *((char *)x1->smpls[0].ptr + i) == B_TRUE)
-	    || (x1->sem != SEM_TRUTH && x1->sem != SEM_UNKNOWN)) {
+	if ((x1->sem == SEM_BOOLEAN && *((char *)x1->smpls[0].ptr + i) == B_TRUE)
+	    || (x1->sem != SEM_BOOLEAN && x1->sem != SEM_UNKNOWN)) {
 	    length = concat("\n    ", length, &string);
 	    lookupHostInst(x1, i, &host, &inst);
 	    length = concat(host, length,  &string);
@@ -981,7 +980,7 @@ showSatisfyingValue(FILE *f, Expr *x)
 	    }
 	    else
 		length = concat(": ", length,  &string);
-	    if (x2->sem == SEM_TRUTH)
+	    if (x2->sem == SEM_BOOLEAN)
 		length = showBoolean(x2, i, length, &string);
 	    else	/* numeric value */
 		length = showNum(x2, i, length, &string);
@@ -1038,8 +1037,8 @@ formatSatisfyingValue(char *format, size_t length, char **string)
 	return concat(format, length, string);
 
     for (i = 0; i < x1->tspan; i++) {
-	if ((x1->sem == SEM_TRUTH && *((char *)x1->smpls[0].ptr + i) == B_TRUE)
-	    || (x1->sem != SEM_TRUTH && x1->sem != SEM_UNKNOWN)) {
+	if ((x1->sem == SEM_BOOLEAN && *((char *)x1->smpls[0].ptr + i) == B_TRUE)
+	    || (x1->sem != SEM_BOOLEAN && x1->sem != SEM_UNKNOWN)) {
 	    prev = format;
 	    next = first;
 	    sts2 = sts1;
@@ -1063,7 +1062,7 @@ formatSatisfyingValue(char *format, size_t length, char **string)
 			length = concat("<%i undefined>", length, string);
 		    break;
 		case 3:
-		    if (x2->sem == SEM_TRUTH)
+		    if (x2->sem == SEM_BOOLEAN)
 			length = showBoolean(x2, i, length, string);
 		    else	/* numeric value */
 			length = showNum(x2, i, length, string);

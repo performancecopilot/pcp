@@ -85,8 +85,8 @@ gramerr(char *phrase, char *pos, char *op)
 %token	    NOMATCH
 %token	    RULESET
 %token      ELSE
+%token      UNKNOWN
 %token      OTHERWISE
-%token      EXCEPT
 %token      MIN_AGGR
 %token      MAX_AGGR
 %token      AVG_AGGR
@@ -221,12 +221,12 @@ rulelist : rule
 		{   $$ = binaryExpr(CND_OR, $1, $3); }
 	;
 
-rulesetopt : OTHERWISE act
-		{    $$ = unaryExpr(CND_OTHERWISE, $2); }
-	| EXCEPT act
-		{    $$ = unaryExpr(CND_OTHERWISE, $2); }
-	| OTHERWISE act EXCEPT act
-		{    $$ = binaryExpr(CND_OTHERWISE, $2, $4); }
+rulesetopt : UNKNOWN ARROW act
+		{    $$ = binaryExpr(CND_OTHER, ruleExpr(boolConst(B_TRUE), $3), boolConst(B_FALSE)); }
+	| OTHERWISE ARROW act
+		{    $$ = binaryExpr(CND_OTHER, boolConst(B_FALSE), ruleExpr(boolConst(B_TRUE), $3)); }
+	| UNKNOWN ARROW act OTHERWISE ARROW act
+		{    $$ = binaryExpr(CND_OTHER, ruleExpr(boolConst(B_TRUE), $3), ruleExpr(boolConst(B_TRUE), $6)); }
 	| /* empty */
 		{    $$ = NULL; }
 	;
