@@ -3,3 +3,4 @@ sample.noinst: No value(s) available
 sample.needprofile: Explicit instance identifier(s) required
 sample.bad.unknown: pmLookupDesc: Unknown or illegal metric identifier
 sample.bad.nosupport: Not Supported
+sample.bad.novalues: No value(s) available
