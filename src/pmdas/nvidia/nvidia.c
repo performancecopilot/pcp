@@ -279,21 +279,23 @@ nvidia_init(pmdaInterface *dp)
 
 }
 
-static void
-usage(void)
-{
-    fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
-    fputs("Options:\n"
-	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
-	  "  -l logfile   write log into logfile rather than using default log name\n",
-	      stderr);		
-    exit(1);
-}
+static pmLongOptions longopts[] = {
+    PMDA_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    PMDAOPT_DOMAIN,
+    PMDAOPT_LOGFILE,
+    PMOPT_HELP,
+    PMDA_OPTIONS_END
+};
+
+static pmdaOptions opts = {
+    .short_options = "D:d:l:?",
+    .long_options = longopts,
+};
 
 int
 main(int argc, char **argv)
 {
-    int			err = 0;
     pmdaInterface	desc;
 
     isDSO = 0;
@@ -303,10 +305,11 @@ main(int argc, char **argv)
     pmdaDaemon(&desc, PMDA_INTERFACE_2, pmProgname, NVML,
 		"nvidia.log", mypath);
 
-    if (pmdaGetOpt(argc, argv, "D:d:l:?", &desc, &err) != EOF)
-    	err++;
-    if (err)
-    	usage();
+    pmdaGetOptions(argc, argv, &opts, &desc);
+    if (opts.errors) {
+	pmdaUsageMessage(&opts);
+	exit(1);
+    }
 
     pmdaOpenLog(&desc);
     nvidia_init(&desc);
