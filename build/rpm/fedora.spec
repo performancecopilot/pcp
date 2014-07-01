@@ -55,6 +55,7 @@ Requires: pcp-libs = %{version}-%{release}
 Requires: python-pcp = %{version}-%{release}
 Requires: perl-PCP-PMDA = %{version}-%{release}
 Obsoletes: pcp-gui-debuginfo
+Obsoletes: pcp-pmda-nvidia
 
 %global tapsetdir      %{_datadir}/systemtap/tapset
 

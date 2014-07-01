@@ -83,6 +83,7 @@ Requires: pcp-libs = @package_version@
 Requires: python-pcp = @package_version@
 Requires: perl-PCP-PMDA = @package_version@
 Obsoletes: pcp-gui-debuginfo
+Obsoletes: pcp-pmda-nvidia
 
 %description
 Performance Co-Pilot (PCP) provides a framework and services to support
