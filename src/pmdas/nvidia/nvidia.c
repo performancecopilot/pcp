@@ -21,7 +21,7 @@
 typedef struct {
 
     int			cardid;
-    int			failed;
+    int			failed[12];
     char		*name;
     char		*busid;
     int			temp;
@@ -29,8 +29,6 @@ typedef struct {
     int			perfstate;
     nvmlUtilization_t	active;
     nvmlMemory_t	memory;
-    unsigned long long	memused;
-    unsigned long long	memtotal;
 
 } nvinfo_t;
 
@@ -167,7 +165,7 @@ setup_gcard_indom(void)
 static int
 refresh(pcp_nvinfo_t *pcp_nvinfo)
 {
-    unsigned int device_count, i;
+    unsigned int device_count, i, j;
     nvmlDevice_t device;
     char name[NVML_DEVICE_NAME_BUFFER_SIZE];
     nvmlPciInfo_t pci;
@@ -196,38 +194,53 @@ refresh(pcp_nvinfo_t *pcp_nvinfo)
 
     for (i = 0; i < device_count && i < pcp_nvinfo->maxcards; i++) {
 	pcp_nvinfo->nvinfo[i].cardid = i;
-	pcp_nvinfo->nvinfo[i].failed = 0;
+	for( j = 0; j < 12 ; j++){
+	    pcp_nvinfo->nvinfo[i].failed[j] = 0;
+	}
 	if ((sts = localNvmlDeviceGetHandleByIndex(i, &device))) {
 	    failfunc = "nvmlDeviceGetHandleByIndex";
+	    for( j = 0; j < 12 ; j++){
+            	pcp_nvinfo->nvinfo[i].failed[j] = 1;
+            }
 	    goto failed;
 	}
 	if ((sts = localNvmlDeviceGetName(device, name, sizeof(name)))) {
-	    failfunc = "nvmlDeviceGetName";
-	    goto failed;
+	    pcp_nvinfo->nvinfo[i].failed[2] = 1;
+	    //failfunc = "nvmlDeviceGetName";
+	    //goto failed;
 	}
         if ((sts = localNvmlDeviceGetPciInfo(device, &pci))) {
-	    failfunc = "nvmlDeviceGetPciInfo";
-	    goto failed;
+	    pcp_nvinfo->nvinfo[i].failed[3] = 1;
+	    //failfunc = "nvmlDeviceGetPciInfo";
+	    //goto failed;
 	}
         if ((sts = localNvmlDeviceGetFanSpeed(device, &fanspeed))) {
-	    failfunc = "nvmlDeviceGetFanSpeed";
-	    goto failed;
+	    pcp_nvinfo->nvinfo[i].failed[5] = 1;
+	    //failfunc = "nvmlDeviceGetFanSpeed";
+	    //goto failed;
 	}
         if ((sts = localNvmlDeviceGetTemperature(device, NVML_TEMPERATURE_GPU, &temperature))) {
-	    failfunc = "nvmlDeviceGetTemperature";
-	    goto failed;
+	    pcp_nvinfo->nvinfo[i].failed[4] = 1;
+	    //failfunc = "nvmlDeviceGetTemperature";
+	    //goto failed;
 	}
         if ((sts = localNvmlDeviceGetUtilizationRates(device, &utilization))) {
-	    failfunc = "nvmlDeviceGetUtilizationRates";
-	    goto failed;
+	    pcp_nvinfo->nvinfo[i].failed[7] = 1;
+	    pcp_nvinfo->nvinfo[i].failed[8] = 1;
+	    //failfunc = "nvmlDeviceGetUtilizationRates";
+	    //goto failed;
 	}
         if ((sts = localNvmlDeviceGetMemoryInfo(device, &memory))) {
-	    failfunc = "nvmlDeviceGetMemoryInfo";
-	    goto failed;
+	    pcp_nvinfo->nvinfo[i].failed[9] = 1;
+	    pcp_nvinfo->nvinfo[i].failed[10] = 1;
+	    pcp_nvinfo->nvinfo[i].failed[11] = 1;
+	    //failfunc = "nvmlDeviceGetMemoryInfo";
+	    //goto failed;
 	}
 	if ((sts = localNvmlDeviceGetPerformanceState(device, &pstate))) {
-	    failfunc = "nvmlDeviceGetPerformanceState";
-	    goto failed;
+	    pcp_nvinfo->nvinfo[i].failed[6] = 1;
+	    //failfunc = "nvmlDeviceGetPerformanceState";
+	    //goto failed;
 	}
 
 	if (pcp_nvinfo->nvinfo[i].name == NULL)
@@ -243,7 +256,7 @@ refresh(pcp_nvinfo_t *pcp_nvinfo)
 
     failed:
 	__pmNotifyErr(LOG_ERR, "%s: %s", failfunc, localNvmlErrStr(sts));
-	pcp_nvinfo->nvinfo[i].failed = 1;
+	//pcp_nvinfo->nvinfo[i].failed = 1;
     }
 
     return 0;
@@ -279,52 +292,52 @@ nvidia_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
             atom->ul = pcp_nvinfo.nvinfo[inst].cardid;
             break;
         case 2:
-	    if (pcp_nvinfo.nvinfo[inst].failed)
+	    if (pcp_nvinfo.nvinfo[inst].failed[2])
 		return PM_ERR_VALUE;
             atom->cp = pcp_nvinfo.nvinfo[inst].name;
             break;
         case 3:
-	    if (pcp_nvinfo.nvinfo[inst].failed)
+	    if (pcp_nvinfo.nvinfo[inst].failed[3])
 		return PM_ERR_VALUE;
             atom->cp = pcp_nvinfo.nvinfo[inst].busid;
             break;
         case 4:
-	    if (pcp_nvinfo.nvinfo[inst].failed)
+	    if (pcp_nvinfo.nvinfo[inst].failed[4])
 		return PM_ERR_VALUE;
             atom->ul = pcp_nvinfo.nvinfo[inst].temp;
             break;
         case 5:
-	    if (pcp_nvinfo.nvinfo[inst].failed)
+	    if (pcp_nvinfo.nvinfo[inst].failed[5])
 		return PM_ERR_VALUE;
             atom->ul = pcp_nvinfo.nvinfo[inst].fanspeed;
             break;
         case 6:
-	    if (pcp_nvinfo.nvinfo[inst].failed)
+	    if (pcp_nvinfo.nvinfo[inst].failed[6])
 		return PM_ERR_VALUE;
             atom->ul = pcp_nvinfo.nvinfo[inst].perfstate;
             break;
         case 7:
-	    if (pcp_nvinfo.nvinfo[inst].failed)
+	    if (pcp_nvinfo.nvinfo[inst].failed[7])
 		return PM_ERR_VALUE;
             atom->ul = pcp_nvinfo.nvinfo[inst].active.gpu;
             break;
         case 8:
-	    if (pcp_nvinfo.nvinfo[inst].failed)
+	    if (pcp_nvinfo.nvinfo[inst].failed[8])
 		return PM_ERR_VALUE;
             atom->ul = pcp_nvinfo.nvinfo[inst].active.memory;
             break;
         case 9:
-	    if (pcp_nvinfo.nvinfo[inst].failed)
+	    if (pcp_nvinfo.nvinfo[inst].failed[9])
 		return PM_ERR_VALUE;
             atom->ull = pcp_nvinfo.nvinfo[inst].memory.used;
             break;
         case 10:
-	    if (pcp_nvinfo.nvinfo[inst].failed)
+	    if (pcp_nvinfo.nvinfo[inst].failed[10])
 		return PM_ERR_VALUE;
             atom->ull = pcp_nvinfo.nvinfo[inst].memory.total;
             break;
         case 11:
-	    if (pcp_nvinfo.nvinfo[inst].failed)
+	    if (pcp_nvinfo.nvinfo[inst].failed[11])
 		return PM_ERR_VALUE;
             atom->ull = pcp_nvinfo.nvinfo[inst].memory.free;
             break;

@@ -36,7 +36,7 @@ MAN_PAGES	= \
 	pmdaapache.1 pmdabash.1 pmdacisco.1 \
 	pmdagfs2.1 pmdagluster.1 \
 	pmdakernel.1 \
-	pmdalogger.1 pmdamailq.1 pmdammv.1 pmdamounts.1 \
+	pmdalogger.1 pmdamailq.1 pmdammv.1 pmdamounts.1 pmdanvidia.1 \
 	pmdasample.1 pmdasendmail.1 pmdashping.1 pmdasimple.1 \
 	pmdasummary.1 \
 	pmdatrace.1 pmdatrivial.1 pmdatxmon.1 pmdaweblog.1 \
