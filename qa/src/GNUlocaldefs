@@ -212,6 +212,12 @@ endif
 LCFLAGS = -DHAVE_TRACE
 LLDLIBS	= $(PCPLIB) $(LDFLAGS)
 
+ifneq ($(NVIDIACFLAGS),)
+MYCFILES += nvidia-ml.c
+LCFLAGS += $(NVIDIACFLAGS)
+TARGETS += nvidia-ml.$(DSOSUFFIX)
+endif
+
 # libpcp_trace is ready
 TRACELIB	= -lpcp_trace $(LLDLIBS)
 
@@ -754,11 +760,11 @@ torture_pmns: torture_pmns.c
 
 # --- miscellaneous
 #
-getpid.so:	getpid.o
-	$(LD) -shared -o getpid.so -nostdlib getpid.o
+qa_timezone.$(DSOSUFFIX):	qa_timezone.o
+	$(LD) -shared -o $@ -nostdlib $<
 
-qa_timezone.so:	qa_timezone.o
-	$(LD) -shared -o qa_timezone.so -nostdlib qa_timezone.o
+nvidia-ml.$(DSOSUFFIX):	nvidia-ml.o
+	$(LD) -shared -o $@ -nostdlib $<
 
 arch_maxfd.o:	localconfig.h
 scale.o:	localconfig.h

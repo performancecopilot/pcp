@@ -1,4 +1,7 @@
 *.o
+*.so
+*.dll
+*.dylib
 *.pl
 *.py
 779246

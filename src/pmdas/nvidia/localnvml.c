@@ -27,7 +27,7 @@ struct {
     const char	*symbol;
     void	*handle;
 } nvml_symtab[] = {
-    { .symbol = "nvmInit" },
+    { .symbol = "nvmlInit" },
     { .symbol = "nvmlShutdown" },
     { .symbol = "nvmlDeviceGetCount" },
     { .symbol = "nvmlDeviceGetHandleByIndex" },
@@ -73,7 +73,7 @@ resolve_symbols(void)
 
     if (nvml_dso != NULL)
 	return 0;
-    if ((nvml_dso = dlopen("nvidia-ml", RTLD_NOW)) == NULL)
+    if ((nvml_dso = dlopen("nvidia-ml.so", RTLD_NOW)) == NULL)
 	return NVML_ERROR_LIBRARY_NOT_FOUND;
     for (i = 0; i < NVML_SYMBOL_COUNT; i++)
 	nvml_symtab[i].handle = dlsym(nvml_dso, nvml_symtab[i].symbol);
@@ -84,12 +84,12 @@ int
 localNvmlInit(void)
 {
     local_init_t init;
-    void *func = nvml_symtab[NVML_INIT].handle;
+    void *func;
     int sts = resolve_symbols();
 
     if (sts != 0)
 	return sts;
-    if (!func)
+    if ((func = nvml_symtab[NVML_INIT].handle) == NULL)
 	return NVML_ERROR_FUNCTION_NOT_FOUND;
     init = (local_init_t)func;
     return init();

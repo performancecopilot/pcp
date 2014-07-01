@@ -58,6 +58,7 @@ typedef struct {
     unsigned int	device;
     unsigned int	pciDeviceId;
     unsigned int	pciSubSystemId;
+    unsigned int	reserved[4];
 } nvmlPciInfo_t;
 
 typedef struct {

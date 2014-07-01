@@ -21,6 +21,7 @@
 typedef struct {
 
     int			cardid;
+    int			failed;
     char		*name;
     char		*busid;
     int			temp;
@@ -107,11 +108,65 @@ static pmdaMetric metrictab[] = {
 
 static char	mypath[MAXPATHLEN];
 static int	isDSO = 1;
+static int	nvmlDSO_loaded;
+
+static int
+setup_gcard_indom(void)
+{
+    unsigned int device_count = 0;
+    pmdaIndom *idp = &indomtab[GCARD_INDOM];
+    char gpuname[32], *name;
+    size_t size;
+    int i, sts;
+
+    /* Initialize instance domain and instances. */
+    if ((sts = localNvmlDeviceGetCount(&device_count)) != NVML_SUCCESS) {
+	__pmNotifyErr(LOG_ERR, "nvmlDeviceGetCount: %s",
+			localNvmlErrStr(sts));
+	return sts;
+    }
+
+    pcp_nvinfo.nvindom = idp;
+    pcp_nvinfo.nvindom->it_numinst = 0;
+
+    size = device_count * sizeof(pmdaInstid);
+    pcp_nvinfo.nvindom->it_set = (pmdaInstid *)malloc(size);
+    if (!pcp_nvinfo.nvindom->it_set) {
+	__pmNoMem("gcard indom", size, PM_RECOV_ERR);
+	return -ENOMEM;
+    }
+
+    size = device_count * sizeof(nvinfo_t);
+    if ((pcp_nvinfo.nvinfo = (nvinfo_t *)malloc(size)) == NULL) {
+	__pmNoMem("gcard values", size, PM_RECOV_ERR);
+	free(pcp_nvinfo.nvindom->it_set);
+	return -ENOMEM;
+    }
+    memset(pcp_nvinfo.nvinfo, 0, size);
+
+    for (i = 0; i < device_count; i++) {
+	pcp_nvinfo.nvindom->it_set[i].i_inst = i;
+	snprintf(gpuname, sizeof(gpuname), "gpu%d", i);
+	if ((name = strdup(gpuname)) == NULL) {
+	    __pmNoMem("gcard instname", strlen(gpuname), PM_RECOV_ERR);
+	    while (--i)
+		free(pcp_nvinfo.nvindom->it_set[i].i_name);
+	    free(pcp_nvinfo.nvindom->it_set);
+	    free(pcp_nvinfo.nvinfo);
+	    return -ENOMEM;
+	}
+	pcp_nvinfo.nvindom->it_set[i].i_name = name;
+    }
+
+    pcp_nvinfo.numcards = 0;
+    pcp_nvinfo.maxcards = device_count;
+    pcp_nvinfo.nvindom->it_numinst = device_count;
+    return 0;
+}
 
 static int
 refresh(pcp_nvinfo_t *pcp_nvinfo)
 {
-    nvmlReturn_t result;
     unsigned int device_count, i;
     nvmlDevice_t device;
     char name[NVML_DEVICE_NAME_BUFFER_SIZE];
@@ -121,44 +176,89 @@ refresh(pcp_nvinfo_t *pcp_nvinfo)
     nvmlUtilization_t utilization;
     nvmlMemory_t memory;
     nvmlPstates_t pstate;
+    char *failfunc = NULL;
+    int sts;
 
-    result = localNvmlInit();
-    result = localNvmlDeviceGetCount(&device_count);
+    if (!nvmlDSO_loaded) {
+	if (localNvmlInit() == NVML_ERROR_LIBRARY_NOT_FOUND)
+	    return 0;
+	setup_gcard_indom();
+	nvmlDSO_loaded = 1;
+    }
+
+    if ((sts = localNvmlDeviceGetCount(&device_count)) != 0) {
+	__pmNotifyErr(LOG_ERR, "nvmlDeviceGetCount: %s",
+			localNvmlErrStr(sts));
+	return sts;
+    }
 
     pcp_nvinfo->numcards = device_count;
 
     for (i = 0; i < device_count && i < pcp_nvinfo->maxcards; i++) {
+	pcp_nvinfo->nvinfo[i].cardid = i;
+	pcp_nvinfo->nvinfo[i].failed = 0;
+	if ((sts = localNvmlDeviceGetHandleByIndex(i, &device))) {
+	    failfunc = "nvmlDeviceGetHandleByIndex";
+	    goto failed;
+	}
+	if ((sts = localNvmlDeviceGetName(device, name, sizeof(name)))) {
+	    failfunc = "nvmlDeviceGetName";
+	    goto failed;
+	}
+        if ((sts = localNvmlDeviceGetPciInfo(device, &pci))) {
+	    failfunc = "nvmlDeviceGetPciInfo";
+	    goto failed;
+	}
+        if ((sts = localNvmlDeviceGetFanSpeed(device, &fanspeed))) {
+	    failfunc = "nvmlDeviceGetFanSpeed";
+	    goto failed;
+	}
+        if ((sts = localNvmlDeviceGetTemperature(device, NVML_TEMPERATURE_GPU, &temperature))) {
+	    failfunc = "nvmlDeviceGetTemperature";
+	    goto failed;
+	}
+        if ((sts = localNvmlDeviceGetUtilizationRates(device, &utilization))) {
+	    failfunc = "nvmlDeviceGetUtilizationRates";
+	    goto failed;
+	}
+        if ((sts = localNvmlDeviceGetMemoryInfo(device, &memory))) {
+	    failfunc = "nvmlDeviceGetMemoryInfo";
+	    goto failed;
+	}
+	if ((sts = localNvmlDeviceGetPerformanceState(device, &pstate))) {
+	    failfunc = "nvmlDeviceGetPerformanceState";
+	    goto failed;
+	}
 
-        result = localNvmlDeviceGetHandleByIndex(i, &device);
+	if (pcp_nvinfo->nvinfo[i].name == NULL)
+	    pcp_nvinfo->nvinfo[i].name = strdup(name);
+	if (pcp_nvinfo->nvinfo[i].busid == NULL)
+	    pcp_nvinfo->nvinfo[i].busid = strdup(pci.busId);
+	pcp_nvinfo->nvinfo[i].temp = temperature;
+	pcp_nvinfo->nvinfo[i].fanspeed = fanspeed;
+	pcp_nvinfo->nvinfo[i].perfstate = pstate;
+	pcp_nvinfo->nvinfo[i].active = utilization;	/* struct copy */
+	pcp_nvinfo->nvinfo[i].memory = memory;		/* struct copy */
+	continue;
 
-        result = localNvmlDeviceGetName(device, name, sizeof(name));
-        
-        result = localNvmlDeviceGetPciInfo(device, &pci);
-
-        result = localNvmlDeviceGetFanSpeed(device, &fanspeed);
-
-        result = localNvmlDeviceGetTemperature(device, NVML_TEMPERATURE_GPU, &temperature);
-
-        result = localNvmlDeviceGetUtilizationRates(device, &utilization);
-
-        result = localNvmlDeviceGetMemoryInfo(device, &memory);
-
-        result = localNvmlDeviceGetPerformanceState(device, &pstate);
-
-        pcp_nvinfo->nvinfo[i].cardid = i;
-        if (pcp_nvinfo->nvinfo[i].name == NULL)
-            pcp_nvinfo->nvinfo[i].name = strdup(name);
-        if (pcp_nvinfo->nvinfo[i].busid == NULL)
-            pcp_nvinfo->nvinfo[i].busid = strdup(pci.busId);
-        pcp_nvinfo->nvinfo[i].temp = temperature;
-        pcp_nvinfo->nvinfo[i].fanspeed = fanspeed;
-        pcp_nvinfo->nvinfo[i].perfstate = pstate;
-        pcp_nvinfo->nvinfo[i].active = utilization;	/* struct copy */
-        pcp_nvinfo->nvinfo[i].memory = memory;		/* struct copy */
+    failed:
+	__pmNotifyErr(LOG_ERR, "%s: %s", failfunc, localNvmlErrStr(sts));
+	pcp_nvinfo->nvinfo[i].failed = 1;
     }
 
-    result = localNvmlShutdown();
     return 0;
+}
+
+/*
+ * Wrapper for pmdaFetch which refresh the set of values once per fetch
+ * PDU.  The fetchCallback is then called once per-metric/instance pair
+ * to perform the actual filling of the pmResult (via each pmAtomValue).
+ */
+static int
+nvidia_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+{
+    refresh(&pcp_nvinfo);
+    return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
 static int
@@ -166,14 +266,12 @@ nvidia_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     __pmID_int	*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
 
-    refresh(&pcp_nvinfo);
-
     if (idp->cluster != 0)
 	return PM_ERR_PMID;
     if (idp->item != 0 && inst > indomtab[GCARD_INDOM].it_numinst)
 	return PM_ERR_INST;
 
-    switch (idp->item){
+    switch (idp->item) {
         case 0:
             atom->ul = pcp_nvinfo.numcards;
             break;
@@ -181,33 +279,53 @@ nvidia_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
             atom->ul = pcp_nvinfo.nvinfo[inst].cardid;
             break;
         case 2:
+	    if (pcp_nvinfo.nvinfo[inst].failed)
+		return PM_ERR_VALUE;
             atom->cp = pcp_nvinfo.nvinfo[inst].name;
             break;
         case 3:
+	    if (pcp_nvinfo.nvinfo[inst].failed)
+		return PM_ERR_VALUE;
             atom->cp = pcp_nvinfo.nvinfo[inst].busid;
             break;
         case 4:
+	    if (pcp_nvinfo.nvinfo[inst].failed)
+		return PM_ERR_VALUE;
             atom->ul = pcp_nvinfo.nvinfo[inst].temp;
             break;
         case 5:
+	    if (pcp_nvinfo.nvinfo[inst].failed)
+		return PM_ERR_VALUE;
             atom->ul = pcp_nvinfo.nvinfo[inst].fanspeed;
             break;
         case 6:
+	    if (pcp_nvinfo.nvinfo[inst].failed)
+		return PM_ERR_VALUE;
             atom->ul = pcp_nvinfo.nvinfo[inst].perfstate;
             break;
         case 7:
+	    if (pcp_nvinfo.nvinfo[inst].failed)
+		return PM_ERR_VALUE;
             atom->ul = pcp_nvinfo.nvinfo[inst].active.gpu;
             break;
         case 8:
+	    if (pcp_nvinfo.nvinfo[inst].failed)
+		return PM_ERR_VALUE;
             atom->ul = pcp_nvinfo.nvinfo[inst].active.memory;
             break;
         case 9:
+	    if (pcp_nvinfo.nvinfo[inst].failed)
+		return PM_ERR_VALUE;
             atom->ull = pcp_nvinfo.nvinfo[inst].memory.used;
             break;
         case 10:
+	    if (pcp_nvinfo.nvinfo[inst].failed)
+		return PM_ERR_VALUE;
             atom->ull = pcp_nvinfo.nvinfo[inst].memory.total;
             break;
         case 11:
+	    if (pcp_nvinfo.nvinfo[inst].failed)
+		return PM_ERR_VALUE;
             atom->ull = pcp_nvinfo.nvinfo[inst].memory.free;
             break;
         default:
@@ -229,11 +347,10 @@ initializeHelpPath()
 }
 
 void 
+__PMDA_INIT_CALL
 nvidia_init(pmdaInterface *dp)
 {
-    unsigned int i, device_count;
-    char gpuname[32];
-    size_t nvsize;
+    int sts;
 
     if (isDSO) {
     	initializeHelpPath();
@@ -243,40 +360,24 @@ nvidia_init(pmdaInterface *dp)
     if (dp->status != 0)
 	return;
 
-    nvmlReturn_t result;
-    result = localNvmlInit();
-    if (NVML_SUCCESS != result) {
-	dp->status = -EIO;
-	return;
+    if ((sts = localNvmlInit()) == NVML_SUCCESS) {
+	setup_gcard_indom();
+	nvmlDSO_loaded = 1;
     }
-
-    // Initialize instance domain and instances.
-    result = localNvmlDeviceGetCount(&device_count);
-
-    pmdaIndom *idp = &indomtab[GCARD_INDOM];
-    pcp_nvinfo.nvindom = idp;
-    pcp_nvinfo.nvindom->it_numinst = device_count;
-    pcp_nvinfo.nvindom->it_set = (pmdaInstid *)malloc(device_count * sizeof(pmdaInstid));
-
-    for (i = 0; i < device_count; i++) {
-	pcp_nvinfo.nvindom->it_set[i].i_inst = i;
-	snprintf(gpuname, sizeof(gpuname), "gpu%d", i);
-	pcp_nvinfo.nvindom->it_set[i].i_name = strdup(gpuname);
+    else {
+	/*
+	 * This is OK, just continue on until it *is* installed;
+	 * until that time, simply report "no values available".
+	 */
+	__pmNotifyErr(LOG_INFO, "NVIDIA NVML library currently unavailable");
     }
-
-    nvsize = pcp_nvinfo.nvindom->it_numinst * sizeof(nvinfo_t);
-    pcp_nvinfo.nvinfo = (nvinfo_t*)malloc(nvsize);
-    memset(pcp_nvinfo.nvinfo, 0, nvsize);
-
-    pcp_nvinfo.numcards = 0;
-    pcp_nvinfo.maxcards = device_count;
 
     // Set fetch callback function.
+    dp->version.any.fetch = nvidia_fetch;
     pmdaSetFetchCallBack(dp, nvidia_fetchCallBack);
 
     pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]), 
 	     metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
-
 }
 
 static pmLongOptions longopts[] = {

@@ -1,6 +1,6 @@
 #!gmake
 #
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012,2014 Red Hat.
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -14,6 +14,8 @@ LLDFLAGS = -L$(TOPDIR)/src/libpcp_trace/$(LIBPCP_ABIDIR) \
 	-L$(TOPDIR)/src/libpcp_mmv/$(LIBPCP_ABIDIR) \
 	-L$(TOPDIR)/src/libpcp_gui/$(LIBPCP_ABIDIR) \
 	-L$(TOPDIR)/src/libpcp_import/$(LIBPCP_ABIDIR)
+
+NVIDIACFLAGS = -I$(TOPDIR)/src/pmdas/nvidia
 
 LSRCFILES = $(MYFILES) $(MYSCRIPTS) $(PSCRIPTS) GNUmakefile.install GNUlocaldefs
 LDIRT += localconfig.h

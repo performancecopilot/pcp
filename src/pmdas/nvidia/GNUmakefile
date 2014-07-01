@@ -19,6 +19,7 @@ IAM	= nvidia
 DOMAIN	= NVML
 
 CMDTARGET = pmdanvidia$(EXECSUFFIX)
+LIBTARGET = pmda_nvidia.$(DSOSUFFIX)
 CFILES	= localnvml.c nvidia.c
 HFILES	= localnvml.h
 DFILES	= README
@@ -28,14 +29,14 @@ LLDLIBS	= $(PCP_PMDALIB)
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
 LDIRT	= domain.h *.log *.dir *.pag so_locations
 
-default:	$(CMDTARGET)
+default:	$(LIBTARGET) $(CMDTARGET)
 
 include $(BUILDRULES)
 
 install:	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 $(CMDTARGET) $(PMDADIR)/$(CMDTARGET)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
+	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) root help pmns domain.h $(PMDADIR)
 
 nvidia.o:	domain.h
