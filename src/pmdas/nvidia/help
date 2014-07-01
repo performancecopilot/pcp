@@ -1,0 +1,12 @@
+@ nvidia.numcards
+@ nvidia.gpuid
+@ nvidia.cardname
+@ nvidia.busid
+@ nvidia.temp
+@ nvidia.fanspeed
+@ nvidia.perfstate
+@ nvidia.gpuactive
+@ nvidia.memactive
+@ nvidia.memused
+@ nvidia.memtotal
+@ nvidia.memfree

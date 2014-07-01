@@ -1,25 +1,35 @@
-#include <pcp/pmapi.h>
-#include <pcp/impl.h>
-#include <pcp/pmda.h>
+/*
+ * Copyright (c) 2014 Red Hat.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
+#include "pmapi.h"
+#include "impl.h"
+#include "pmda.h"
 #include "domain.h"
-
-#include <nvml.h>
-
-#include <stdio.h>
+#include "localnvml.h"
 
 // GCARD_INDOM struct, stats that are per card
 typedef struct {
 
-    int cardid;
-    char *name;
-    char *busid;
-    int temp;
-    int fanspeed;
-    int perfstate;
-    int gpuactive;
-    int memactive;
-    unsigned long long memused;
-    unsigned long long memtotal;
+    int			cardid;
+    char		*name;
+    char		*busid;
+    int			temp;
+    int			fanspeed;
+    int			perfstate;
+    nvmlUtilization_t	active;
+    nvmlMemory_t	memory;
+    unsigned long long	memused;
+    unsigned long long	memtotal;
 
 } nvinfo_t;
 
@@ -27,9 +37,8 @@ typedef struct {
 typedef struct {
 
     int numcards;
-
+    int maxcards;
     nvinfo_t *nvinfo;
-
     pmdaIndom *nvindom;
 
 } pcp_nvinfo_t;
@@ -90,19 +99,20 @@ static pmdaMetric metrictab[] = {
     { NULL, 
       { PMDA_PMID(0,10), PM_TYPE_U64, GCARD_INDOM, PM_SEM_DISCRETE, 
         PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
+/* mem free */
+    { NULL, 
+      { PMDA_PMID(0,11), PM_TYPE_U64, GCARD_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
 };
 
 static char	mypath[MAXPATHLEN];
 static int	isDSO = 1;
 
-int updatenv( pcp_nvinfo_t *pcp_nvinfo ) {
-
+static int
+refresh(pcp_nvinfo_t *pcp_nvinfo)
+{
     nvmlReturn_t result;
     unsigned int device_count, i;
-
-    result = nvmlInit();
-    result = nvmlDeviceGetCount(&device_count);
-
     nvmlDevice_t device;
     char name[NVML_DEVICE_NAME_BUFFER_SIZE];
     nvmlPciInfo_t pci;
@@ -112,68 +122,58 @@ int updatenv( pcp_nvinfo_t *pcp_nvinfo ) {
     nvmlMemory_t memory;
     nvmlPstates_t pstate;
 
+    result = localNvmlInit();
+    result = localNvmlDeviceGetCount(&device_count);
+
     pcp_nvinfo->numcards = device_count;
 
-    for (i = 0; i < device_count; i++){
+    for (i = 0; i < device_count && i < pcp_nvinfo->maxcards; i++) {
+
+        result = localNvmlDeviceGetHandleByIndex(i, &device);
+
+        result = localNvmlDeviceGetName(device, name, sizeof(name));
         
+        result = localNvmlDeviceGetPciInfo(device, &pci);
 
-        result = nvmlDeviceGetHandleByIndex(i, &device);
+        result = localNvmlDeviceGetFanSpeed(device, &fanspeed);
 
-        result = nvmlDeviceGetName(device, name, NVML_DEVICE_NAME_BUFFER_SIZE);
-        
-        result = nvmlDeviceGetPciInfo(device, &pci);
+        result = localNvmlDeviceGetTemperature(device, NVML_TEMPERATURE_GPU, &temperature);
 
-        result = nvmlDeviceGetFanSpeed(device, &fanspeed);
+        result = localNvmlDeviceGetUtilizationRates(device, &utilization);
 
-        result = nvmlDeviceGetTemperature(device, NVML_TEMPERATURE_GPU, &temperature);
+        result = localNvmlDeviceGetMemoryInfo(device, &memory);
 
-        result = nvmlDeviceGetUtilizationRates(device, &utilization);
-
-        result = nvmlDeviceGetMemoryInfo(device, &memory);
-
-        result = nvmlDeviceGetPerformanceState(device, &pstate);
+        result = localNvmlDeviceGetPerformanceState(device, &pstate);
 
         pcp_nvinfo->nvinfo[i].cardid = i;
-        if( pcp_nvinfo->nvinfo[i].name == NULL){
+        if (pcp_nvinfo->nvinfo[i].name == NULL)
             pcp_nvinfo->nvinfo[i].name = strdup(name);
-        }
-        if(pcp_nvinfo->nvinfo[i].busid == NULL){
+        if (pcp_nvinfo->nvinfo[i].busid == NULL)
             pcp_nvinfo->nvinfo[i].busid = strdup(pci.busId);
-        }
         pcp_nvinfo->nvinfo[i].temp = temperature;
         pcp_nvinfo->nvinfo[i].fanspeed = fanspeed;
         pcp_nvinfo->nvinfo[i].perfstate = pstate;
-        pcp_nvinfo->nvinfo[i].gpuactive = utilization.gpu;
-        pcp_nvinfo->nvinfo[i].memactive = utilization.memory;
-        pcp_nvinfo->nvinfo[i].memused = memory.used;
-        pcp_nvinfo->nvinfo[i].memtotal = memory.total;
-
+        pcp_nvinfo->nvinfo[i].active = utilization;	/* struct copy */
+        pcp_nvinfo->nvinfo[i].memory = memory;		/* struct copy */
     }
 
-    result = nvmlShutdown();
-
+    result = localNvmlShutdown();
     return 0;
-
 }
 
-
 static int
-nvidia_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom) {
+nvidia_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
+{
+    __pmID_int	*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
 
-    __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+    refresh(&pcp_nvinfo);
 
-    updatenv( &pcp_nvinfo );
+    if (idp->cluster != 0)
+	return PM_ERR_PMID;
+    if (idp->item != 0 && inst > indomtab[GCARD_INDOM].it_numinst)
+	return PM_ERR_INST;
 
-    if (idp->cluster != 0 || idp->item < 0 || idp->item > 10){
-    	return PM_ERR_PMID;
-    }
-    else if ( (idp->item !=0) && (inst > indomtab[GCARD_INDOM].it_numinst)) {
-	   return PM_ERR_INST;
-    }
-
-    //don't need to check cluster, since we only get here if 0 from above
-
-    switch( idp->item ){
+    switch (idp->item){
         case 0:
             atom->ul = pcp_nvinfo.numcards;
             break;
@@ -196,29 +196,33 @@ nvidia_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom) {
             atom->ul = pcp_nvinfo.nvinfo[inst].perfstate;
             break;
         case 7:
-            atom->ul = pcp_nvinfo.nvinfo[inst].gpuactive;
+            atom->ul = pcp_nvinfo.nvinfo[inst].active.gpu;
             break;
         case 8:
-            atom->ul = pcp_nvinfo.nvinfo[inst].memactive;
+            atom->ul = pcp_nvinfo.nvinfo[inst].active.memory;
             break;
         case 9:
-            atom->ull = pcp_nvinfo.nvinfo[inst].memused;
+            atom->ull = pcp_nvinfo.nvinfo[inst].memory.used;
             break;
         case 10:
-            atom->ull = pcp_nvinfo.nvinfo[inst].memtotal;
+            atom->ull = pcp_nvinfo.nvinfo[inst].memory.total;
+            break;
+        case 11:
+            atom->ull = pcp_nvinfo.nvinfo[inst].memory.free;
             break;
         default:
             return PM_ERR_PMID;
     }
 
-    
     return 0;
 }
 
 /**
  * Initializes the path to the help file for this PMDA.
  */
-static void initializeHelpPath() {
+static void
+initializeHelpPath()
+{
     int sep = __pmPathSeparator();
     snprintf(mypath, sizeof(mypath), "%s%c" "nvidia" "%c" "help",
             pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
@@ -227,6 +231,9 @@ static void initializeHelpPath() {
 void 
 nvidia_init(pmdaInterface *dp)
 {
+    unsigned int i, device_count;
+    char gpuname[32];
+    size_t nvsize;
 
     if (isDSO) {
     	initializeHelpPath();
@@ -237,35 +244,32 @@ nvidia_init(pmdaInterface *dp)
 	return;
 
     nvmlReturn_t result;
-    result = nvmlInit();
-    if (NVML_SUCCESS != result){
-        dp->status = -EIO;
-        return;
+    result = localNvmlInit();
+    if (NVML_SUCCESS != result) {
+	dp->status = -EIO;
+	return;
     }
 
     // Initialize instance domain and instances.
-    unsigned int device_count;
-    result = nvmlDeviceGetCount(&device_count);
+    result = localNvmlDeviceGetCount(&device_count);
 
     pmdaIndom *idp = &indomtab[GCARD_INDOM];
     pcp_nvinfo.nvindom = idp;
     pcp_nvinfo.nvindom->it_numinst = device_count;
     pcp_nvinfo.nvindom->it_set = (pmdaInstid *)malloc(device_count * sizeof(pmdaInstid));
 
-    char gpuname[32];
-    int i;
-
-    for(i=0 ; i<device_count ; i++){
-        pcp_nvinfo.nvindom->it_set[i].i_inst = i;
-        snprintf( gpuname, sizeof(gpuname), "gpu%d", i);
-        pcp_nvinfo.nvindom->it_set[i].i_name = strdup(gpuname);
+    for (i = 0; i < device_count; i++) {
+	pcp_nvinfo.nvindom->it_set[i].i_inst = i;
+	snprintf(gpuname, sizeof(gpuname), "gpu%d", i);
+	pcp_nvinfo.nvindom->it_set[i].i_name = strdup(gpuname);
     }
 
-    int nvsize = pcp_nvinfo.nvindom->it_numinst * sizeof(nvinfo_t);
+    nvsize = pcp_nvinfo.nvindom->it_numinst * sizeof(nvinfo_t);
     pcp_nvinfo.nvinfo = (nvinfo_t*)malloc(nvsize);
     memset(pcp_nvinfo.nvinfo, 0, nvsize);
 
     pcp_nvinfo.numcards = 0;
+    pcp_nvinfo.maxcards = device_count;
 
     // Set fetch callback function.
     pmdaSetFetchCallBack(dp, nvidia_fetchCallBack);

@@ -1,0 +1,30 @@
+/*
+ * Metrics for nvidia GPU PMDA
+ *
+ * Copyright (c) 2014 Red Hat.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
+
+nvidia {
+    numcards			NVML:0:0
+    gpuid			NVML:0:1
+    cardname			NVML:0:2
+    busid			NVML:0:3
+    temp			NVML:0:4
+    fanspeed			NVML:0:5
+    perfstate			NVML:0:6
+    gpuactive			NVML:0:7
+    memactive			NVML:0:8
+    memused			NVML:0:9
+    memtotal			NVML:0:10
+    memfree			NVML:0:11
+}
