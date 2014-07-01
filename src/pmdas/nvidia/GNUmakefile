@@ -21,7 +21,8 @@ DOMAIN	= NVML
 CMDTARGET = pmdanvidia$(EXECSUFFIX)
 CFILES	= localnvml.c nvidia.c
 HFILES	= localnvml.h
-LSRCFILES = Install Remove root help pmns
+DFILES	= README
+LSRCFILES = Install Remove root help pmns $(DFILES)
 LLDLIBS	= $(PCP_PMDALIB)
 
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
@@ -35,7 +36,7 @@ install:	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 $(CMDTARGET) $(PMDADIR)/$(CMDTARGET)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 root help pmns domain.h $(PMDADIR)
+	$(INSTALL) -m 644 $(DFILES) root help pmns domain.h $(PMDADIR)
 
 nvidia.o:	domain.h
 

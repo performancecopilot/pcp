@@ -1,12 +1,64 @@
-@ nvidia.numcards
-@ nvidia.gpuid
-@ nvidia.cardname
-@ nvidia.busid
-@ nvidia.temp
-@ nvidia.fanspeed
-@ nvidia.perfstate
-@ nvidia.gpuactive
-@ nvidia.memactive
-@ nvidia.memused
-@ nvidia.memtotal
-@ nvidia.memfree
+#
+# Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+#
+# trivial PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help test goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ nvidia.numcards Number of Graphics Cards
+The number of NVIDIA Grachics cards installed in this system
+
+@ nvidia.gpuid GPU ID
+Zero indexed id of this NVIDIA card
+
+@ nvidia.cardname GPU Name
+The name of the graphics card
+
+@ nvidia.busid Card Bus ID
+The Bus ID as reported by the NVIDIA tools, not lspci
+
+@ nvidia.temp The temperature of the card
+The Temperature of the GPU on the NVIDIA card
+
+@ nvidia.fanspeed Fanspeed
+Speed of the GPU fan as a percentage of the maximum
+
+@ nvidia.perfstate NVIDIA performance state
+The PX performance state as reported from NVML
+
+@ nvidia.gpuactive Current GPU Utilization
+Percentage utilization of the GPU
+
+@ nvidia.memactive Memory access
+A Metric to show if the memory is actively being accesed, not correlated to storage amount used
+@ nvidia.memused Memory Used
+The amount of GPU Memory currently being used
+
+@ nvidia.memtotal Total Memory
+The total amount of GPU memory available on the card
