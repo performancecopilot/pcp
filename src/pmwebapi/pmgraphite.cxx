@@ -969,7 +969,11 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
         output[0].what = nanf ("");
     }
 
-    if (verbosity > 2) {
+    if ((verbosity) == 3 && (entries_good == 0)) {
+         // drop the "opened archive ...," partial message
+        message.str(string());
+        message.clear();
+    } else if ((verbosity > 3) || (verbosity > 2 && entries_good > 0)) {
         string instance_spec;
         if (instance_name != "") {
             instance_spec = string ("[\"") + instance_name + string ("\"]");
