@@ -32,7 +32,7 @@ actAnd(Expr *x)
 
     EVALARG(arg1)
     EVALARG(arg2)
-    *(Truth *)x->ring = (*(Truth *)arg1->ring == TRUE) && (*(Truth *)arg2->ring == TRUE);
+    *(Boolean *)x->ring = (*(Boolean *)arg1->ring == B_TRUE) && (*(Boolean *)arg2->ring == B_TRUE);
 }
 
 
@@ -46,11 +46,11 @@ actOr(Expr *x)
     Expr    *arg2 = x->arg2;
 
     EVALARG(arg1)
-    if (*(Truth *)arg1->ring == FALSE) {
+    if (*(Boolean *)arg1->ring == B_FALSE) {
 	EVALARG(arg2)
-	*(Truth *)x->ring = *(Truth *)arg2->ring;
+	*(Boolean *)x->ring = *(Boolean *)arg2->ring;
     }
-    else *(Truth *)x->ring = TRUE;
+    else *(Boolean *)x->ring = B_TRUE;
 }
 
 
@@ -80,10 +80,10 @@ actShell(Expr *x)
 	need_wait = 1;
 	if (sts < 0) {
 	    __pmNotifyErr(LOG_ERR, "spawn for shell failed\n");
-	    *(Truth *)x->ring = FALSE;
+	    *(Boolean *)x->ring = B_FALSE;
 	}
 	else {
-	    *(Truth *)x->ring = TRUE;
+	    *(Boolean *)x->ring = B_TRUE;
 	    x->smpls[0].stamp = now;
 	    x->valid = 0;
 	}
@@ -121,14 +121,14 @@ actShell(Expr *x)
 		/* if no exit, then assume non-zero exit, hence failure! */
 		x->valid = 1;
 	    if (sts < 0 || x->valid != 0)
-		*(Truth *)x->ring = FALSE;
+		*(Boolean *)x->ring = B_FALSE;
 	    else
-		*(Truth *)x->ring = TRUE;
+		*(Boolean *)x->ring = B_TRUE;
 	    x->smpls[0].stamp = now;
 	}
 	else {
 	    __pmNotifyErr(LOG_ERR, "fork for shell failed\n");
-	    *(Truth *)x->ring = FALSE;
+	    *(Boolean *)x->ring = B_FALSE;
 	}
 #endif
 	perf->actions++;
@@ -208,10 +208,10 @@ actAlarm(Expr *x)
 	sts = spawnvp(_P_DETACH, alarmv[0], (const char * const *)alarmv);
 	if (sts < 0) {
 	    __pmNotifyErr(LOG_ERR, "spawn for PCP_XCONFIRM_PROG failed\n");
-	    *(Truth *)x->ring = FALSE;
+	    *(Boolean *)x->ring = B_FALSE;
 	}
 	else {
-	    *(Truth *)x->ring = TRUE;
+	    *(Boolean *)x->ring = B_TRUE;
 	    x->smpls[0].stamp = now;
 	    x->valid = 0;
 	}
@@ -238,12 +238,12 @@ actAlarm(Expr *x)
 	    }
 #endif
 	    x->valid = sts;
-	    *(Truth *)x->ring = TRUE;
+	    *(Boolean *)x->ring = B_TRUE;
 	    x->smpls[0].stamp = now;
 	}
 	else {
 	    __pmNotifyErr(LOG_ERR, "fork for alarm failed\n");
-	    *(Truth *)x->ring = FALSE;
+	    *(Boolean *)x->ring = B_FALSE;
 	}
 #endif
 	perf->actions++;
@@ -275,7 +275,7 @@ actSyslog(Expr *x)
 	else
 	    syslog(*pri, "%s", (char *)arg1->ring);
 	closelog();
-	*(Truth *)x->ring = TRUE;
+	*(Boolean *)x->ring = B_TRUE;
 	x->smpls[0].stamp = now;
 	perf->actions++;
     }
@@ -298,7 +298,7 @@ actPrint(Expr *x)
 	(now >= *(RealTime *)arg2->ring + x->smpls[0].stamp))
     {
 	EVALARG(arg1)
-	*(Truth *)x->ring = TRUE;
+	*(Boolean *)x->ring = B_TRUE;
 	x->smpls[0].stamp = now;
 	pmCtime(&clock, bfr);
 	bfr[24] = '\0';
@@ -325,9 +325,9 @@ actStomp(Expr *x)
 	EVALARG(arg1)
 	x->smpls[0].stamp = now;
 	if (stompSend((const char *)arg1->ring) != 0)
-	    *(Truth *)x->ring = FALSE;
+	    *(Boolean *)x->ring = B_FALSE;
 	else
-	    *(Truth *)x->ring = TRUE;
+	    *(Boolean *)x->ring = B_TRUE;
 	perf->actions++;
     }
 }
@@ -366,7 +366,7 @@ actFake(Expr *x)
 	(now >= *(RealTime *)arg2->ring + x->smpls[0].stamp))
     {
 	EVALARG(arg1)
-	*(Truth *)x->ring = TRUE;
+	*(Boolean *)x->ring = B_TRUE;
 	x->smpls[0].stamp = now;
 	pmCtime(&clock, bfr);
 	bfr[24] = '\0';

@@ -17,7 +17,7 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 DFILES	= README help
-LSRCFILES = root pmns $(DFILES) Install Remove Sample.pmchart
+LSRCFILES = root pmns $(DFILES) Install Remove Sample.pmchart get_next_pmid
 LDIRT = *.dir *.pag
 
 SUBDIRS = src

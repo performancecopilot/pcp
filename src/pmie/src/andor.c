@@ -40,8 +40,8 @@
  *  operator: cndOr
  */
 
-#define OR(x,y) (((x) == TRUE || (y) == TRUE) ? TRUE : (((x) == FALSE && (y) == FALSE) ? FALSE : DUNNO))
-#define OR1(x) ((x) == TRUE ? TRUE : DUNNO)
+#define OR(x,y) (((x) == B_TRUE || (y) == B_TRUE) ? B_TRUE : (((x) == B_FALSE && (y) == B_FALSE) ? B_FALSE : B_UNKNOWN))
+#define OR1(x) ((x) == B_TRUE ? B_TRUE : B_UNKNOWN)
 
 void
 cndOr_n_n(Expr *x)
@@ -51,9 +51,9 @@ cndOr_n_n(Expr *x)
     Sample      *is1 = &arg1->smpls[0];
     Sample      *is2 = &arg2->smpls[0];
     Sample      *os = &x->smpls[0];
-    Truth	*ip1;
-    Truth	*ip2;
-    Truth	*op;
+    Boolean	*ip1;
+    Boolean	*ip2;
+    Boolean	*op;
     int         i;
 
     EVALARG(arg1)
@@ -61,9 +61,9 @@ cndOr_n_n(Expr *x)
     ROTATE(x)
 
     if (arg1->valid && arg2->valid && x->tspan > 0) {
-	ip1 = (Truth *)is1->ptr;
-	ip2 = (Truth *)is2->ptr;
-	op = (Truth *)os->ptr;
+	ip1 = (Boolean *)is1->ptr;
+	ip2 = (Boolean *)is2->ptr;
+	op = (Boolean *)os->ptr;
 	for (i = 0; i < x->tspan; i++) {
 	    *op++ = OR(*ip1, *ip2);
 	    ip1++;
@@ -73,8 +73,8 @@ cndOr_n_n(Expr *x)
 	x->valid++;
     }
     else if (arg1->valid && x->tspan > 0) {
-	ip1 = (Truth *)is1->ptr;
-	op = (Truth *)os->ptr;
+	ip1 = (Boolean *)is1->ptr;
+	op = (Boolean *)os->ptr;
 	for (i = 0; i < x->tspan; i++) {
 	    *op++ = OR1(*ip1);
 	    ip1++;
@@ -83,8 +83,8 @@ cndOr_n_n(Expr *x)
 	x->valid++;
     }
     else if (arg2->valid && x->tspan > 0) {
-	ip2 = (Truth *)is2->ptr;
-	op = (Truth *)os->ptr;
+	ip2 = (Boolean *)is2->ptr;
+	op = (Boolean *)os->ptr;
 	for (i = 0; i < x->tspan; i++) {
 	    *op++ = OR1(*ip2);
 	    ip2++;
@@ -110,9 +110,9 @@ cndOr_n_1(Expr *x)
     Sample      *is1 = &arg1->smpls[0];
     Sample      *is2 = &arg2->smpls[0];
     Sample      *os = &x->smpls[0];
-    Truth	*ip1;
-    Truth	iv2;
-    Truth	*op;
+    Boolean	*ip1;
+    Boolean	iv2;
+    Boolean	*op;
     int         i;
 
     EVALARG(arg1)
@@ -120,9 +120,9 @@ cndOr_n_1(Expr *x)
     ROTATE(x)
 
     if (arg1->valid && arg2->valid && x->tspan > 0) {
-	ip1 = (Truth *)is1->ptr;
-	iv2 = *(Truth *)is2->ptr;
-	op = (Truth *)os->ptr;
+	ip1 = (Boolean *)is1->ptr;
+	iv2 = *(Boolean *)is2->ptr;
+	op = (Boolean *)os->ptr;
 	for (i = 0; i < x->tspan; i++) {
 	    *op++ = OR(*ip1, iv2);
 	    ip1++;
@@ -131,8 +131,8 @@ cndOr_n_1(Expr *x)
 	x->valid++;
     }
     else if (arg1->valid && x->tspan > 0) {
-	ip1 = (Truth *)is1->ptr;
-	op = (Truth *)os->ptr;
+	ip1 = (Boolean *)is1->ptr;
+	op = (Boolean *)os->ptr;
 	for (i = 0; i < x->tspan; i++) {
 	    *op++ = OR1(*ip1);
 	    ip1++;
@@ -141,7 +141,7 @@ cndOr_n_1(Expr *x)
 	x->valid++;
     }
     else if (arg2->valid && x->tspan > 0) {
-	*(Truth *)os->ptr = OR1(*(Truth *)is2->ptr);
+	*(Boolean *)os->ptr = OR1(*(Boolean *)is2->ptr);
 	os->stamp = is2->stamp;
 	x->valid++;
     }
@@ -163,9 +163,9 @@ cndOr_1_n(Expr *x)
     Sample      *is1 = &arg1->smpls[0];
     Sample      *is2 = &arg2->smpls[0];
     Sample      *os = &x->smpls[0];
-    Truth	iv1;
-    Truth	*ip2;
-    Truth	*op;
+    Boolean	iv1;
+    Boolean	*ip2;
+    Boolean	*op;
     int         i;
 
     EVALARG(arg1)
@@ -173,9 +173,9 @@ cndOr_1_n(Expr *x)
     ROTATE(x)
 
     if (arg1->valid && arg2->valid && x->tspan > 0) {
-	iv1 = *(Truth *)is1->ptr;
-	ip2 = (Truth *)is2->ptr;
-	op = (Truth *)os->ptr;
+	iv1 = *(Boolean *)is1->ptr;
+	ip2 = (Boolean *)is2->ptr;
+	op = (Boolean *)os->ptr;
 	for (i = 0; i < x->tspan; i++) {
 	    *op++ = OR(iv1, *ip2);
 	    ip2++;
@@ -184,13 +184,13 @@ cndOr_1_n(Expr *x)
 	x->valid++;
     }
     else if (arg1->valid && x->tspan > 0) {
-	*(Truth *)os->ptr = OR1(*(Truth *)is1->ptr);
+	*(Boolean *)os->ptr = OR1(*(Boolean *)is1->ptr);
 	os->stamp = is1->stamp;
 	x->valid++;
     }
     else if (arg2->valid && x->tspan > 0) {
-	ip2 = (Truth *)is2->ptr;
-	op = (Truth *)os->ptr;
+	ip2 = (Boolean *)is2->ptr;
+	op = (Boolean *)os->ptr;
 	for (i = 0; i < x->tspan; i++) {
 	    *op++ = OR1(*ip2);
 	    ip2++;
@@ -222,17 +222,17 @@ cndOr_1_1(Expr *x)
     ROTATE(x)
 
     if (arg1->valid && arg2->valid) {
-	*(Truth *)os->ptr = OR(*(Truth *)is1->ptr, *(Truth *)is2->ptr);
+	*(Boolean *)os->ptr = OR(*(Boolean *)is1->ptr, *(Boolean *)is2->ptr);
 	os->stamp = (is1->stamp > is2->stamp) ? is1->stamp : is2->stamp;
 	x->valid++;
     }
     else if (arg1->valid) {
-	*(Truth *)os->ptr = OR1(*(Truth *)is1->ptr);
+	*(Boolean *)os->ptr = OR1(*(Boolean *)is1->ptr);
 	os->stamp = is1->stamp;
 	x->valid++;
     }
     else if (arg2->valid) {
-	*(Truth *)os->ptr = OR1(*(Truth *)is2->ptr);
+	*(Boolean *)os->ptr = OR1(*(Boolean *)is2->ptr);
 	os->stamp = is2->stamp;
 	x->valid++;
     }
@@ -250,8 +250,8 @@ cndOr_1_1(Expr *x)
  *  operator: cndAnd
  */
 
-#define AND(x,y) (((x) == TRUE && (y) == TRUE) ? TRUE : (((x) == FALSE || (y) == FALSE) ? FALSE : DUNNO))
-#define AND1(x)  (((x) == FALSE) ? FALSE : DUNNO)
+#define AND(x,y) (((x) == B_TRUE && (y) == B_TRUE) ? B_TRUE : (((x) == B_FALSE || (y) == B_FALSE) ? B_FALSE : B_UNKNOWN))
+#define AND1(x)  (((x) == B_FALSE) ? B_FALSE : B_UNKNOWN)
 
 void
 cndAnd_n_n(Expr *x)
@@ -261,9 +261,9 @@ cndAnd_n_n(Expr *x)
     Sample      *is1 = &arg1->smpls[0];
     Sample      *is2 = &arg2->smpls[0];
     Sample      *os = &x->smpls[0];
-    Truth	*ip1;
-    Truth	*ip2;
-    Truth	*op;
+    Boolean	*ip1;
+    Boolean	*ip2;
+    Boolean	*op;
     int         i;
 
     EVALARG(arg1)
@@ -271,9 +271,9 @@ cndAnd_n_n(Expr *x)
     ROTATE(x)
 
     if (arg1->valid && arg2->valid) {
-	ip1 = (Truth *)is1->ptr;
-	ip2 = (Truth *)is2->ptr;
-	op = (Truth *)os->ptr;
+	ip1 = (Boolean *)is1->ptr;
+	ip2 = (Boolean *)is2->ptr;
+	op = (Boolean *)os->ptr;
 	for (i = 0; i < x->tspan; i++) {
 	    *op++ = AND(*ip1, *ip2);
 	    ip1++;
@@ -283,8 +283,8 @@ cndAnd_n_n(Expr *x)
 	x->valid++;
     }
     else if (arg1->valid) {
-	ip1 = (Truth *)is1->ptr;
-	op = (Truth *)os->ptr;
+	ip1 = (Boolean *)is1->ptr;
+	op = (Boolean *)os->ptr;
 	for (i = 0; i < x->tspan; i++) {
 	    *op++ = AND1(*ip1);
 	    ip1++;
@@ -293,8 +293,8 @@ cndAnd_n_n(Expr *x)
 	x->valid++;
     }
     else if (arg2->valid) {
-	ip2 = (Truth *)is2->ptr;
-	op = (Truth *)os->ptr;
+	ip2 = (Boolean *)is2->ptr;
+	op = (Boolean *)os->ptr;
 	for (i = 0; i < x->tspan; i++) {
 	    *op++ = AND1(*ip2);
 	    ip2++;
@@ -320,9 +320,9 @@ cndAnd_n_1(Expr *x)
     Sample      *is1 = &arg1->smpls[0];
     Sample      *is2 = &arg2->smpls[0];
     Sample      *os = &x->smpls[0];
-    Truth	*ip1;
-    Truth	iv2;
-    Truth	*op;
+    Boolean	*ip1;
+    Boolean	iv2;
+    Boolean	*op;
     int         i;
 
     EVALARG(arg1)
@@ -330,9 +330,9 @@ cndAnd_n_1(Expr *x)
     ROTATE(x)
 
     if (arg1->valid && arg2->valid && x->tspan > 0) {
-	ip1 = (Truth *)is1->ptr;
-	iv2 = *(Truth *)is2->ptr;
-	op = (Truth *)os->ptr;
+	ip1 = (Boolean *)is1->ptr;
+	iv2 = *(Boolean *)is2->ptr;
+	op = (Boolean *)os->ptr;
 	for (i = 0; i < x->tspan; i++) {
 	    *op++ = AND(*ip1, iv2);
 	    ip1++;
@@ -341,8 +341,8 @@ cndAnd_n_1(Expr *x)
 	x->valid++;
     }
     else if (arg1->valid && x->tspan > 0) {
-	ip1 = (Truth *)is1->ptr;
-	op = (Truth *)os->ptr;
+	ip1 = (Boolean *)is1->ptr;
+	op = (Boolean *)os->ptr;
 	for (i = 0; i < x->tspan; i++) {
 	    *op++ = AND1(*ip1);
 	    ip1++;
@@ -351,7 +351,7 @@ cndAnd_n_1(Expr *x)
 	x->valid++;
     }
     else if (arg2->valid && x->tspan > 0) {
-	*(Truth *)os->ptr = AND1(*(Truth *)is2->ptr);
+	*(Boolean *)os->ptr = AND1(*(Boolean *)is2->ptr);
 	os->stamp = is2->stamp;
 	x->valid++;
     }
@@ -373,9 +373,9 @@ cndAnd_1_n(Expr *x)
     Sample      *is1 = &arg1->smpls[0];
     Sample      *is2 = &arg2->smpls[0];
     Sample      *os = &x->smpls[0];
-    Truth	iv1;
-    Truth	*ip2;
-    Truth	*op;
+    Boolean	iv1;
+    Boolean	*ip2;
+    Boolean	*op;
     int         i;
 
     EVALARG(arg1)
@@ -383,9 +383,9 @@ cndAnd_1_n(Expr *x)
     ROTATE(x)
 
     if (arg1->valid && arg2->valid && x->tspan > 0) {
-	iv1 = *(Truth *)is1->ptr;
-	ip2 = (Truth *)is2->ptr;
-	op = (Truth *)os->ptr;
+	iv1 = *(Boolean *)is1->ptr;
+	ip2 = (Boolean *)is2->ptr;
+	op = (Boolean *)os->ptr;
 	for (i = 0; i < x->tspan; i++) {
 	    *op++ = AND(iv1, *ip2);
 	    ip2++;
@@ -394,13 +394,13 @@ cndAnd_1_n(Expr *x)
 	x->valid++;
     }
     else if (arg1->valid && x->tspan > 0) {
-	*(Truth *)os->ptr = AND1(*(Truth *)is1->ptr);
+	*(Boolean *)os->ptr = AND1(*(Boolean *)is1->ptr);
 	os->stamp = is1->stamp;
 	x->valid++;
     }
     else if (arg2->valid && x->tspan > 0) {
-	ip2 = (Truth *)is2->ptr;
-	op = (Truth *)os->ptr;
+	ip2 = (Boolean *)is2->ptr;
+	op = (Boolean *)os->ptr;
 	for (i = 0; i < x->tspan; i++) {
 	    *op++ = AND1(*ip2);
 	    ip2++;
@@ -432,17 +432,17 @@ cndAnd_1_1(Expr *x)
     ROTATE(x)
 
     if (arg1->valid && arg2->valid) {
-	*(Truth *)os->ptr = AND(*(Truth *)is1->ptr, *(Truth *)is2->ptr);
+	*(Boolean *)os->ptr = AND(*(Boolean *)is1->ptr, *(Boolean *)is2->ptr);
 	os->stamp = (is1->stamp > is2->stamp) ? is1->stamp : is2->stamp;
 	x->valid++;
     }
     else if (arg1->valid) {
-	*(Truth *)os->ptr = AND1(*(Truth *)is1->ptr);
+	*(Boolean *)os->ptr = AND1(*(Boolean *)is1->ptr);
 	os->stamp = is1->stamp;
 	x->valid++;
     }
     else if (arg2->valid) {
-	*(Truth *)os->ptr = AND1(*(Truth *)is2->ptr);
+	*(Boolean *)os->ptr = AND1(*(Boolean *)is2->ptr);
 	os->stamp = is2->stamp;
 	x->valid++;
     }

@@ -1,8 +1,7 @@
 /*
  * Metrics for sample PMDA
  *
- * Next pmid SAMPLE:0:122
- * (SAMPLE:0:1023 is taken)
+ * Next pmid ... use get_next_pmid
  *
  * Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -170,6 +169,7 @@ sample.hordes {
 sample.bad {
     unknown	SAMPLE:0:54
     nosupport	SAMPLE:0:55
+    novalues	SAMPLE:0:138
 }
 
 sample.wrap {

@@ -9,19 +9,19 @@ product_a: ?
 compound1_a: ?
 compound2_a: ?
 valid_b: true
-alone_b: ?
-sum1_b: ?
-sum2_b: ?
-product_b: ?
-compound1_b: ?
-compound2_b: ?
+alone_b: unknown
+sum1_b: unknown
+sum2_b: unknown
+product_b: unknown
+compound1_b: unknown
+compound2_b: unknown
 valid_s: true
-alone_s: ?
-sum1_s: ?
-sum2_s: ?
-product_s: ?
-compound1_s: ?
-compound2_s: ?
+alone_s: unknown
+sum1_s: unknown
+sum2_s: unknown
+product_s: unknown
+compound1_s: unknown
+compound2_s: unknown
 one: NUMBER
 no1: ?
 no2: ?
@@ -37,19 +37,19 @@ product_a: ?
 compound1_a: ?
 compound2_a: ?
 valid_b: true
-alone_b: ?
-sum1_b: ?
-sum2_b: ?
-product_b: ?
-compound1_b: ?
-compound2_b: ?
+alone_b: unknown
+sum1_b: unknown
+sum2_b: unknown
+product_b: unknown
+compound1_b: unknown
+compound2_b: unknown
 valid_s: true
-alone_s: ?
-sum1_s: ?
-sum2_s: ?
-product_s: ?
-compound1_s: ?
-compound2_s: ?
+alone_s: unknown
+sum1_s: unknown
+sum2_s: unknown
+product_s: unknown
+compound1_s: unknown
+compound2_s: unknown
 one: NUMBER
 no1: ?
 no2: ?
@@ -119,20 +119,20 @@ compound1_a: ?
 compound2_a: ?
 valid_b: 
     HOST: true
-alone_b: ?
-sum1_b: ?
-sum2_b: ?
-product_b: ?
-compound1_b: ?
-compound2_b: ?
+alone_b: unknown
+sum1_b: unknown
+sum2_b: unknown
+product_b: unknown
+compound1_b: unknown
+compound2_b: unknown
 valid_s: 
     HOST: true
-alone_s: ?
-sum1_s: ?
-sum2_s: ?
-product_s: ?
-compound1_s: ?
-compound2_s: ?
+alone_s: unknown
+sum1_s: unknown
+sum2_s: unknown
+product_s: unknown
+compound1_s: unknown
+compound2_s: unknown
 one: 
     HOST: NUMBER
 no1: ?
@@ -152,20 +152,20 @@ compound1_a: ?
 compound2_a: ?
 valid_b: 
     HOST: true
-alone_b: ?
-sum1_b: ?
-sum2_b: ?
-product_b: ?
-compound1_b: ?
-compound2_b: ?
+alone_b: unknown
+sum1_b: unknown
+sum2_b: unknown
+product_b: unknown
+compound1_b: unknown
+compound2_b: unknown
 valid_s: 
     HOST: true
-alone_s: ?
-sum1_s: ?
-sum2_s: ?
-product_s: ?
-compound1_s: ?
-compound2_s: ?
+alone_s: unknown
+sum1_s: unknown
+sum2_s: unknown
+product_s: unknown
+compound1_s: unknown
+compound2_s: unknown
 one: 
     HOST: NUMBER
 no1: ?
@@ -237,23 +237,23 @@ compound1_a: ?
 compound2_a: ?
 valid_b: 
     HOST: NUMBER
-alone_b: ?
-sum1_b: ?
-sum2_b: ?
-product_b: ?
-compound1_b: ?
-compound2_b: ?
+alone_b: unknown
+sum1_b: unknown
+sum2_b: unknown
+product_b: unknown
+compound1_b: unknown
+compound2_b: unknown
 valid_s: 
     HOST: [bin-600] 600
     HOST: [bin-700] 700
     HOST: [bin-800] 800
     HOST: [bin-900] 900
-alone_s: ?
-sum1_s: ?
-sum2_s: ?
-product_s: ?
-compound1_s: ?
-compound2_s: ?
+alone_s: unknown
+sum1_s: unknown
+sum2_s: unknown
+product_s: unknown
+compound1_s: unknown
+compound2_s: unknown
 one: 
     HOST: NUMBER
 no1: ?
@@ -273,23 +273,23 @@ compound1_a: ?
 compound2_a: ?
 valid_b: 
     HOST: NUMBER
-alone_b: ?
-sum1_b: ?
-sum2_b: ?
-product_b: ?
-compound1_b: ?
-compound2_b: ?
+alone_b: unknown
+sum1_b: unknown
+sum2_b: unknown
+product_b: unknown
+compound1_b: unknown
+compound2_b: unknown
 valid_s: 
     HOST: [bin-600] 600
     HOST: [bin-700] 700
     HOST: [bin-800] 800
     HOST: [bin-900] 900
-alone_s: ?
-sum1_s: ?
-sum2_s: ?
-product_s: ?
-compound1_s: ?
-compound2_s: ?
+alone_s: unknown
+sum1_s: unknown
+sum2_s: unknown
+product_s: unknown
+compound1_s: unknown
+compound2_s: unknown
 one: 
     HOST: NUMBER
 no1: ?
