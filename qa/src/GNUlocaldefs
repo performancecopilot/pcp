@@ -213,7 +213,7 @@ LCFLAGS = -DHAVE_TRACE
 LLDLIBS	= $(PCPLIB) $(LDFLAGS)
 
 ifneq ($(NVIDIAQALIB),)
-LIBTARGET += $(NVIDIAQALIB)
+LIBTARGET = true
 MYCFILES += nvidia-ml.c
 LCFLAGS += $(NVIDIACFLAGS)
 TARGETS += $(NVIDIAQALIB)
@@ -766,7 +766,7 @@ qa_timezone.$(DSOSUFFIX):	qa_timezone.o
 
 ifneq ($(NVIDIAQALIB),)
 $(NVIDIAQALIB):	nvidia-ml.o
-	$(CC) $(LDFLAGS) $(_SHAREDOPTS) -o $@ $< $(LDLIBS)
+	$(CC) $(LDFLAGS) $(_SHAREDOPTS) -o $@ $<
 endif
 
 arch_maxfd.o:	localconfig.h
