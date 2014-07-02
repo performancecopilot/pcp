@@ -1,7 +1,7 @@
 /*
  * Dynamic namespace metrics, PMDA helper routines.
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -33,9 +33,32 @@ static struct dynamic {
     pmdaNameSpace	*pmns;
     pmdaMetric		*metrics;	/* original fixed table */
     int			nmetrics;	/* fixed metrics number */
+    unsigned int	clustermask;	/* mask out parts of PMID cluster */
 } *dynamic;
 
 static int dynamic_count;
+
+static inline unsigned int
+dynamic_pmid_cluster(int index, pmID pmid)
+{
+    if (dynamic[index].clustermask)
+	return pmid_cluster(pmid) & dynamic[index].clustermask;
+    return pmid_cluster(pmid);
+}
+
+int
+pmdaDynamicSetClusterMask(const char *prefix, unsigned int mask)
+{
+    int i;
+
+    for (i = 0; i < dynamic_count; i++) {
+	if (strcmp(prefix, dynamic[i].prefix) == 0)
+	    continue;
+	dynamic[i].clustermask = mask;
+	return 0;
+    }
+    return -EINVAL;
+}
 
 void
 pmdaDynamicPMNS(const char *prefix,
@@ -70,6 +93,7 @@ pmdaDynamicPMNS(const char *prefix,
     dynamic[dynamic_count].pmns = NULL;
     dynamic[dynamic_count].metrics = metrics;
     dynamic[dynamic_count].nmetrics = nmetrics;
+    dynamic[dynamic_count].clustermask = 0;
     dynamic_count++;
 }
 
@@ -91,10 +115,10 @@ pmdaDynamicLookupName(pmdaExt *pmda, const char *name)
 pmdaNameSpace *
 pmdaDynamicLookupPMID(pmdaExt *pmda, pmID pmid)
 {
-    int i, j;
-    int cluster = pmid_cluster(pmid);
+    int i, j, cluster;
 
     for (i = 0; i < dynamic_count; i++) {
+	cluster = dynamic_pmid_cluster(i, pmid);
 	for (j = 0; j < dynamic[i].nclusters; j++) {
 	    if (cluster == dynamic[i].clusters[j]) {
 		if (dynamic[i].pmnsupdate(pmda, &dynamic[i].pmns))
@@ -110,9 +134,9 @@ int
 pmdaDynamicLookupText(pmID pmid, int type, char **buf, pmdaExt *pmda)
 {
     int i, j;
-    int cluster = pmid_cluster(pmid);
 
     for (i = 0; i < dynamic_count; i++) {
+	int cluster = dynamic_pmid_cluster(i, pmid);
 	for (j = 0; j < dynamic[i].nclusters; j++)
 	    if (cluster == dynamic[i].clusters[j])
 		return dynamic[i].textupdate(pmda, pmid, type, buf);
@@ -126,18 +150,22 @@ pmdaDynamicLookupText(pmID pmid, int type, char **buf, pmdaExt *pmda)
  * which needs to be filled in.  All a bit obscure, really.
  */
 static pmdaMetric *
-dynamic_metric_table(struct dynamic *dynamic, pmdaMetric *offset)
+dynamic_metric_table(int index, pmdaMetric *offset)
 {
-    int m, tree_count = dynamic->extratrees;
+    struct dynamic *dp = &dynamic[index];
+    int m, tree_count = dp->extratrees;
 
-    for (m = 0; m < dynamic->nmetrics; m++) {
-	int c, id, cluster = pmid_cluster(dynamic->metrics[m].m_desc.pmid);
-	for (c = 0; c < dynamic->nclusters; c++)
-	    if (dynamic->clusters[c] == cluster)
+    for (m = 0; m < dp->nmetrics; m++) {
+	pmdaMetric *mp = &dp->metrics[m];
+	int cluster = dynamic_pmid_cluster(index, mp->m_desc.pmid);
+	int c, gid;
+
+	for (c = 0; c < dp->nclusters; c++)
+	    if (dp->clusters[c] == cluster)
 		break;
-	if (c < dynamic->nclusters)
-	    for (id = 0; id < tree_count; id++)
-		dynamic->mtabupdate(&dynamic->metrics[m], offset++, id+1);
+	if (c < dp->nclusters)
+	    for (gid = 0; gid < tree_count; gid++)
+		dp->mtabupdate(mp, offset++, gid + 1);
     }
     return offset;
 }
@@ -181,7 +209,7 @@ fallback:
 	memcpy(mtab, fixed, total * sizeof(pmdaMetric));
 	offset = mtab + total;
 	for (i = 0; i < dynamic_count; i++)
-	    offset = dynamic_metric_table(&dynamic[i], offset);
+	    offset = dynamic_metric_table(i, offset);
 	if (pmda->e_metrics != fixed)
 	    free(pmda->e_metrics);
 	pmdaRehash(pmda, mtab, resize);

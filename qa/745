@@ -1,0 +1,51 @@
+#!/bin/sh
+# PCP QA Test No. 745
+# Exercise the NVIDIA GPU PMDA using valgrind memory checking.
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+test -f $here/src/libnvidia-ml.$DSO_SUFFIX || \
+	_notrun "No NVIDIA QA wrapper library is available"
+test -f $PCP_LIB_DIR/libnvidia-ml.$DSO_SUFFIX && \
+	_notrun "Conflicting system NVIDIA library found"
+test -f $PCP_LIB32_DIR/libnvidia-ml.$DSO_SUFFIX && \
+	_notrun "Conflicting 32-bit system NVIDIA library found"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s,$PCP_PMDAS_DIR/,,g" \
+	-e "s/\.$DSO_SUFFIX,/.DSO,/g" \
+	-e 's/.* pminfo\(.*\) Info:/pminfo[PID] Info:/g' \
+    # end
+}
+
+pmda=$PCP_PMDAS_DIR/nvidia/pmda_nvidia.$DSO_SUFFIX,nvidia_init
+
+# real QA test starts here
+echo
+echo "Testing behaviour with no nvidia library available"
+_run_valgrind pminfo -L -K clear -K add,120,$pmda -dfmtT nvidia 2>&1 | _filter
+
+echo
+echo "Testing behaviour with QA wrapper nvidia library"
+export LD_LIBRARY_PATH=$here/src
+_run_valgrind pminfo -L -K clear -K add,120,$pmda -dfmtT nvidia 2>&1 | _filter
+
+# success, all done
+status=0
+exit

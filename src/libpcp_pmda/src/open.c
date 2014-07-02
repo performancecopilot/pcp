@@ -475,6 +475,9 @@ pmdaRehash(pmdaExt *pmda, pmdaMetric *metrics, int nmetrics)
     }
     if (m == pmda->e_nmetrics)
 	pmda->e_flags |= PMDA_EXT_FLAG_HASHED;
+	if (pmDebug & DBG_TRACE_LIBPMDA)
+	    __pmNotifyErr(LOG_DEBUG, "pmdaRehash: PMDA %s: successful rebuild\n",
+			pmda->e_name);
     else {
 	pmda->e_flags &= ~PMDA_EXT_FLAG_HASHED;
 	pmdaHashDelete(hashp);

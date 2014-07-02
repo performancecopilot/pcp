@@ -14,7 +14,7 @@ TESTDIR = $(PCP_VAR_DIR)/testsuite
 TESTS	= $(shell sed -n -e '/^[0-9]/s/:\(retired\|reserved\)//' -e '/^[0-9]/s/[        ].*//' -e '/^[0-9]/p' <group)
 
 SUBDIRS = src pmdas cisco gluster pconf sadist collectl secure nfsclient \
-	  archives views qt
+	  archives views qt linux
 LCONFIG = localconfig
 
 # No implicit rules here, thank you

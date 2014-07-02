@@ -46,6 +46,10 @@ int ib_store(pmResult *, pmdaExt *);
 #define IB_PORT_INDOM   1
 #define IB_CNT_INDOM    2
 
+#define IB_PORTINFO_UPDATE	0x1
+#define IB_HCA_PERF_UPDATE	0x2
+#define IB_SWITCH_PERF_UPDATE	0x8
+
 #define ARRAYSZ(a) (sizeof(a)/sizeof(a[0]))
 
 #define METRIC_ib_hca_type		0
@@ -90,6 +94,14 @@ int ib_store(pmResult *, pmdaExt *);
 /* Control metrics */
 #define METRIC_ib_control_query_timeout	0
 #define METRIC_ib_control_hiwat		1
+
+/* Per-port switch performance counters, cluster #3 */
+#define METRIC_ib_port_switch_in_bytes		0
+#define METRIC_ib_port_switch_in_packets	1
+#define METRIC_ib_port_switch_out_bytes		2
+#define METRIC_ib_port_switch_out_packets	3
+#define METRIC_ib_port_switch_total_bytes	4
+#define METRIC_ib_port_switch_total_packets	5
 
 enum ibpmd_cndid {
 	IBPMDA_ERR_SYM = 0,

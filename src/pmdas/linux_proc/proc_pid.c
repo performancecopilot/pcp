@@ -62,7 +62,7 @@ tasklist_append(const char *pid)
     struct dirent *tdp;
     char taskpath[1024];
 
-    sprintf(taskpath, "/proc/%s/task", pid);
+    sprintf(taskpath, "%s/proc/%s/task", proc_statspath, pid);
     if ((taskdirp = opendir(taskpath)) != NULL) {
 	while ((tdp = readdir(taskdirp)) != NULL) {
 	    if (!isdigit((int)tdp->d_name[0]) || strcmp(pid, tdp->d_name) == 0)
@@ -89,9 +89,9 @@ refresh_cgroup_pidlist(int want_threads, const char *cgroup)
      * Note that both these files are already sorted, ascending numeric.
      */
     if (want_threads)
-	snprintf(path, sizeof(path), "%s/tasks", cgroup);
+	snprintf(path, sizeof(path), "%s%s/tasks", proc_statspath, cgroup);
     else
-	snprintf(path, sizeof(path), "%s/cgroup.procs", cgroup);
+	snprintf(path, sizeof(path), "%s%s/cgroup.procs", proc_statspath, cgroup);
 
     if ((fp = fopen(path, "r")) != NULL) {
 	while (fscanf(fp, "%d\n", &pid) == 1)
@@ -106,8 +106,10 @@ refresh_global_pidlist(int want_threads)
 {
     DIR *dirp;
     struct dirent *dp;
+    char path[MAXPATHLEN];
 
-    if ((dirp = opendir("/proc")) == NULL)
+    snprintf(path, sizeof(path), "%s/proc", proc_statspath);
+    if ((dirp = opendir(path)) == NULL)
 	return -oserror();
 
     /* note: readdir on /proc ignores threads */
@@ -130,7 +132,7 @@ refresh_proc_pidlist(proc_pid_t *proc_pid)
     int i;
     int fd;
     char *p;
-    char buf[1024];
+    char buf[MAXPATHLEN];
     __pmHashNode *node, *next, *prev;
     proc_pid_entry_t *ep;
     pmdaIndom *indomp = proc_pid->indom;
@@ -164,7 +166,7 @@ refresh_proc_pidlist(proc_pid_t *proc_pid)
 
 	    ep->id = pids.pids[i];
 
-	    sprintf(buf, "/proc/%d/cmdline", pids.pids[i]);
+	    snprintf(buf, sizeof(buf), "%s/proc/%d/cmdline", proc_statspath, pids.pids[i]);
 	    if ((fd = open(buf, O_RDONLY)) >= 0) {
 		sprintf(buf, "%06d ", pids.pids[i]);
 		if ((k = read(fd, buf+7, sizeof(buf)-8)) > 0) {
@@ -192,7 +194,7 @@ refresh_proc_pidlist(proc_pid_t *proc_pid)
 		 * returns an empty string so we have to get it
 		 * from /proc/<pid>/status or /proc/<pid>/stat
 		 */
-		sprintf(buf, "/proc/%d/status", pids.pids[i]);
+		sprintf(buf, "%s/proc/%d/status", proc_statspath, pids.pids[i]);
 		if ((fd = open(buf, O_RDONLY)) >= 0) {
 		    /* We engage in a bit of a hanky-panky here:
 		     * the string should look like "123456 (name)",
@@ -328,12 +330,12 @@ proc_open(const char *base, proc_pid_entry_t *ep)
     char buf[128];
 
     if (pids.threads) {
-	sprintf(buf, "/proc/%d/task/%d/%s", ep->id, ep->id, base);
+	sprintf(buf, "%s/proc/%d/task/%d/%s", proc_statspath, ep->id, ep->id, base);
 	if ((fd = open(buf, O_RDONLY)) >= 0)
 	    return fd;
 	/* fallback to /proc path if task path open fails */
     }
-    sprintf(buf, "/proc/%d/%s", ep->id, base);
+    sprintf(buf, "%s/proc/%d/%s", proc_statspath, ep->id, base);
     return open(buf, O_RDONLY);
 }
 
@@ -344,12 +346,12 @@ proc_opendir(const char *base, proc_pid_entry_t *ep)
     char buf[128];
 
     if (pids.threads) {
-	sprintf(buf, "/proc/%d/task/%d/%s", ep->id, ep->id, base);
+	sprintf(buf, "%s/proc/%d/task/%d/%s", proc_statspath, ep->id, ep->id, base);
 	if ((dir = opendir(buf)) != NULL)
 	    return dir;
 	/* fallback to /proc path if task path opendir fails */
     }
-    sprintf(buf, "/proc/%d/%s", ep->id, base);
+    sprintf(buf, "%s/proc/%d/%s", proc_statspath, ep->id, base);
     return opendir(buf);
 }
 

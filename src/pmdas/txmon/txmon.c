@@ -234,18 +234,6 @@ txmon_init(pmdaInterface *dp)
     }
 #endif
 }
-static void
-usage(void)
-{
-    fprintf(stderr, "Usage: %s [options] tx_type [...]\n\n", pmProgname);
-    fputs(
-"Options:\n"
-"  -d domain    use domain (numeric) for metrics domain of PMDA\n"
-"  -l logfile   write log into logfile rather than using default log name\n"
-"  -U username  user account to run under (default \"pcp\")\n",
-	stderr);		
-    exit(1);
-}
 
 /*
  * come here on exit()
@@ -258,17 +246,31 @@ done(void)
 	shmctl(shmid, IPC_RMID, NULL);
 }
 
+pmLongOptions	longopts[] = {
+    PMDA_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    PMDAOPT_DOMAIN,
+    PMDAOPT_LOGFILE,
+    PMDAOPT_USERNAME,
+    PMOPT_HELP,
+    PMDA_OPTIONS_END
+};
+
+pmdaOptions	opts = {
+    .short_options = "D:d:l:U:?",
+    .long_options = longopts,
+    .short_usage = "[options] tx_type [...]",
+};
+
 /*
  * Set up the agent.
  */
 int
 main(int argc, char **argv)
 {
-    int			err = 0;
-    int			sep = __pmPathSeparator();
-    pmdaInterface	dispatch;
+    int			n, sep = __pmPathSeparator();
     char		*p;
-    int			n;
+    pmdaInterface	dispatch;
     size_t		index_size;
     size_t		shm_size;
     stat_t		*sp;
@@ -280,25 +282,22 @@ main(int argc, char **argv)
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_2, pmProgname, TXMON,
 		"txmon.log", mypath);
-    pmdaOpenLog(&dispatch);
 
-    while ((n = pmdaGetOpt(argc, argv, "D:d:l:U:?", &dispatch, &err)) != EOF) {
-	switch(n) {
-	case 'U':
-	    username = optarg;
-	    break;
-	default:
-	    err++;
-	}
+    pmdaGetOptions(argc, argv, &opts, &dispatch);
+    if (opts.errors) {
+	pmdaUsageMessage(&opts);
+	exit(1);
     }
-    if (err)
-	usage();
-
-    n = argc - optind;
+    n = argc - opts.optind;
     if (n < 1) {
-	fprintf(stderr, "No transaction types specified?\n");
-	usage();
+	pmprintf("No transaction types specified\n\n");
+	pmdaUsageMessage(&opts);
+	exit(1);
     }
+    if (opts.username)
+	username = opts.username;
+
+    pmdaOpenLog(&dispatch);
 
     /*
      * create the instance domain table ... one entry per transaction type
@@ -354,7 +353,7 @@ main(int argc, char **argv)
 	 */
 	control->index[n] = p - (char *)control;
 	sp = (stat_t *)p;
-	strncpy(sp->type, argv[optind++], MAXNAMESIZE);
+	strncpy(sp->type, argv[opts.optind++], MAXNAMESIZE);
 	sp->type[MAXNAMESIZE-1] = '\0';		/* ensure null terminated */
 	sp->reset_count = 0;
 	sp->count = 0;

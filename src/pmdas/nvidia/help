@@ -1,0 +1,72 @@
+#
+# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# NVIDIA PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help test goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ nvidia.numcards Number of Graphics Cards
+The number of NVIDIA Graphics cards installed in this system
+
+@ nvidia.gpuid GPU ID
+Zero indexed id of this NVIDIA card
+
+@ nvidia.cardname GPU Name
+The name of the graphics card
+
+@ nvidia.busid Card Bus ID
+The Bus ID as reported by the NVIDIA tools, not lspci
+
+@ nvidia.temp The temperature of the card
+The Temperature of the GPU on the NVIDIA card in degrees celcius.
+
+@ nvidia.fanspeed Fanspeed
+Speed of the GPU fan as a percentage of the maximum
+
+@ nvidia.perfstate NVIDIA performance state
+The PX performance state as reported from NVML.  Value is an integer
+which should range from 0 (maximum performance) to 15 (minimum).  If
+the state is unknown the reported value will be 32, however.
+
+@ nvidia.gpuactive Percentage of GPU utilization
+Percentage of time over the past sample period during which one or more
+kernels was executing on the GPU.
+
+@ nvidia.memactive Percentage of time spent accessing memory
+Percent of time over the past sample period during which global (device)
+memory was being read or written.  This metric shows if the memory is
+actively being accesed, and is not correlated to storage amount used.
+
+@ nvidia.memused Allocated FB memory
+Amount of GPU FB memory that has currently been allocated, in bytes.
+Note that the driver/GPU always sets aside a small amount of memory
+for bookkeeping. 
+
+@ nvidia.memtotal Total FB memory available
+The total amount of GPU FB memory available on the card, in bytes.
+
+@ nvidia.memfree Unallocated FB memory
+Amount of GPU FB memory that is not currently allocated, in bytes.

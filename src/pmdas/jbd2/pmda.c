@@ -1,7 +1,7 @@
 /*
  * Journal Block Device v2 PMDA
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -266,19 +266,21 @@ jbd2_init(pmdaInterface *dp)
     pmdaInit(dp, indomtab, nindoms, metrictab, nmetrics);
 }
 
+pmLongOptions   longopts[] = {
+    PMDA_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    PMDAOPT_DOMAIN,
+    PMDAOPT_LOGFILE,
+    { "", 1, 'j', "PATH", "path to stats files (default \"/proc/fs/jbd2\")" },
+    PMDAOPT_USERNAME,
+    PMOPT_HELP,
+    PMDA_OPTIONS_END
+};
 
-static void
-usage(void)
-{
-    fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
-    fputs("Options:\n"
-"  -d domain    use domain (numeric) for metrics domain of PMDA\n"
-"  -l logfile   write log into logfile rather than using default log name\n"
-"  -j path      path to statistics files (default \"/proc/fs/jbd2\")\n"
-"  -U username  user account to run under (default \"pcp\")\n",
-	  stderr);		
-    exit(1);
-}
+pmdaOptions     opts = {
+    .short_options = "D:d:l:j:U:?",
+    .long_options = longopts,
+};
 
 /*
  * Set up the agent if running as a daemon.
@@ -286,9 +288,7 @@ usage(void)
 int
 main(int argc, char **argv)
 {
-    int			sep = __pmPathSeparator();
-    int			err = 0;
-    int			c;
+    int			c, sep = __pmPathSeparator();
     pmdaInterface	dispatch;
     char		help[MAXPATHLEN];
 
@@ -300,20 +300,19 @@ main(int argc, char **argv)
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, JBD2, "jbd2.log", help);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:l:j:U:?", &dispatch, &err)) != EOF) {
+    while ((c = pmdaGetOptions(argc, argv, &opts, &dispatch)) != EOF) {
 	switch(c) {
 	case 'j':
-	    prefix = optarg;
+	    prefix = opts.optarg;
 	    break;
-	case 'U':
-	    username = optarg;
-	    break;
-	default:
-	    err++;
 	}
     }
-    if (err)
-	usage();
+    if (opts.errors) {
+	pmdaUsageMessage(&opts);
+	exit(1);
+    }
+    if (opts.username)
+	username = opts.username;
 
     pmdaOpenLog(&dispatch);
     jbd2_init(&dispatch);

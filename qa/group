@@ -153,6 +153,7 @@ pmda.mailq
 pmda.mmv
 pmda.mpi
 pmda.news
+pmda.nvidia
 pmda.pmcd
 pmda.proc
 pmda.rsyslog
@@ -898,6 +899,8 @@ avahi
 727 avahi local oss
 728 libpcp getopt local oss
 729 python local oss
+730 pmda.proc local oss
+731 pmda.proc local oss
 733 pmie pmval pmdumplog local oss
 734 libpcp pmstat remote oss
 735 pmda.proc local oss
@@ -909,6 +912,8 @@ avahi
 741 python getopt local oss
 742 python local oss
 743 python local oss
+744 pmda.nvidia local oss
+745 pmda.nvidia local oss
 748 pmlogrewrite pmda.mysql local oss
 749 pmcd local oss
 750 pmda.rpm local oss
