@@ -921,6 +921,7 @@ avahi
 752 libpcp local oss
 755 pmda.apache pmda.install local oss
 763 pmda local oss
+764 pmie local oss
 766 pmfind local oss
 768 pmlogextract local oss
 775 sanity pmfind local oss
