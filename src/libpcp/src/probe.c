@@ -27,7 +27,8 @@
 typedef struct connectionOptions {
     __pmSockAddr	*netAddress;	/* Address of the subnet */
     int			maskBits;	/* Number of bits in the subnet */
-    unsigned		maxThreads;	/* Max number of worker threads to use.*/
+    unsigned		maxThreads;	/* Max number of threads to use. */
+    struct timeval	timeout;	/* Connection timeout */
 } connectionOptions;
 
 /* Context for each thread. */
@@ -38,6 +39,7 @@ typedef struct connectionContext {
     int			nports;		/* Number of ports per address */
     int			portIx;		/* Index of next available port */
     const int		*ports;		/* The actual ports */
+    const struct timeval *timeout;	/* Connection timeout */
     int			*numUrls;	/* Size of the results */
     char		***urls;	/* The results */
     const __pmDiscoveryGlobalContext *globalContext;
@@ -70,7 +72,7 @@ attemptConnections(void *arg)
     __pmSockAddr*	addr;
     int			port;
     int			attempt;
-    struct timeval	canwait = {0, 100000 * 1000}; /* 0.1 seconds */
+    struct timeval	againWait = {0, 100000}; /* 0.1 seconds */
     connectionContext	*context = arg;
 
     /*
@@ -127,7 +129,7 @@ attemptConnections(void *arg)
 		s = __pmCreateIPv6Socket();
 	    if (s != -EAGAIN)
 		break;
-	    __pmtimevalSleep(canwait);
+	    __pmtimevalSleep(againWait);
 	}
 	if (pmDebug & DBG_TRACE_DISCOVERY) {
 	    if (attempt > 0) {
@@ -153,11 +155,14 @@ attemptConnections(void *arg)
 	sts = -1;
 	flags = __pmConnectTo(s, addr, port);
 	if (flags >= 0) {
-	    /* FNDELAY and we're in progress - wait on select */
+	    /*
+	     * FNDELAY and we're in progress - wait on __pmSelectWrite.
+	     * __pmSelectWrite may alter the contents of the timeout so make a copy.
+	     */
+	    struct timeval timeout = *context->timeout;
 	    __pmFD_ZERO(&wfds);
 	    __pmFD_SET(s, &wfds);
-	    canwait = *__pmConnectTimeout();
-	    sts = __pmSelectWrite(s+1, &wfds, &canwait);
+	    sts = __pmSelectWrite(s+1, &wfds, &timeout);
 
 	    /* Was the connection successful? */
 	    if (sts == 0)
@@ -235,6 +240,7 @@ probeForServices(
     context.urls = urls;
     context.portIx = 0;
     context.maskBits = options->maskBits;
+    context.timeout = &options->timeout;
     context.globalContext = globalContext;
 
     /*
@@ -261,48 +267,51 @@ probeForServices(
     pthread_mutex_init(&context.addrLock, NULL);
     pthread_mutex_init(&context.urlLock, NULL);
 
-    /*
-     * Allocate the thread table. We have a maximum for the number of threads,
-     * so that will be the size.
-     */
-    threads = malloc(options->maxThreads * sizeof(*threads));
-    if (threads == NULL) {
+    if (options->maxThreads > 0) {
 	/*
-	 * Unable to allocate the thread table, however, We can still do the
-	 * probing on the main thread.
+	 * Allocate the thread table. We have a maximum for the number of
+	 * threads, so that will be the size.
 	 */
-	__pmNotifyErr(LOG_ERR,
-		      "__pmProbeDiscoverServices: unable to allocate %u threads",
-		      options->maxThreads);
-    }
-    else {
-	/* We want our worker threads to be joinable. */
-	pthread_attr_init(&threadAttr);
-	pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_JOINABLE);
-
-	/*
-	 * Our worker threads don't need much stack. PTHREAD_STACK_MIN is
-	 * enough except when resolving addresses, where twice that much is
-	 * sufficient.
-	 */
-	if (globalContext->resolve)
-	    pthread_attr_setstacksize(&threadAttr, 2 * PTHREAD_STACK_MIN);
-	else
-	    pthread_attr_setstacksize(&threadAttr, PTHREAD_STACK_MIN);
-
-	/* Dispatch the threads. */
-	for (nThreads = 0; nThreads < options->maxThreads; ++nThreads) {
-	    sts = pthread_create(&threads[nThreads], &threadAttr,
-				 attemptConnections, &context);
+	threads = malloc(options->maxThreads * sizeof(*threads));
+	if (threads == NULL) {
 	    /*
-	     * If we failed to create a thread, then we've reached the OS limit.
+	     * Unable to allocate the thread table, however, We can still do the
+	     * probing on the main thread.
 	     */
-	    if (sts != 0)
-		break;
+	    __pmNotifyErr(LOG_ERR,
+			  "__pmProbeDiscoverServices: unable to allocate %u threads",
+			  options->maxThreads);
 	}
+	else {
+	    /* We want our worker threads to be joinable. */
+	    pthread_attr_init(&threadAttr);
+	    pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_JOINABLE);
 
-	/* We no longer need this. */
-	pthread_attr_destroy(&threadAttr);
+	    /*
+	     * Our worker threads don't need much stack. PTHREAD_STACK_MIN is
+	     * enough except when resolving addresses, where twice that much is
+	     * sufficient.
+	     */
+	    if (globalContext->resolve)
+		pthread_attr_setstacksize(&threadAttr, 2 * PTHREAD_STACK_MIN);
+	    else
+		pthread_attr_setstacksize(&threadAttr, PTHREAD_STACK_MIN);
+
+	    /* Dispatch the threads. */
+	    for (nThreads = 0; nThreads < options->maxThreads; ++nThreads) {
+		sts = pthread_create(&threads[nThreads], &threadAttr,
+				     attemptConnections, &context);
+		/*
+		 * If we failed to create a thread, then we've reached the OS
+		 * limit.
+		 */
+		if (sts != 0)
+		    break;
+	    }
+
+	    /* We no longer need this. */
+	    pthread_attr_destroy(&threadAttr);
+	}
     }
 #endif
 
@@ -317,11 +326,11 @@ probeForServices(
 	/* Wait for all the connection attempts to finish. */
 	for (threadIx = 0; threadIx < nThreads; ++threadIx)
 	    pthread_join(threads[threadIx], NULL);
-
-	/* These must not be destroyed until all of the threads have finished. */
-	pthread_mutex_destroy(&context.addrLock);
-	pthread_mutex_destroy(&context.urlLock);
     }
+
+    /* These must not be destroyed until all of the threads have finished. */
+    pthread_mutex_destroy(&context.addrLock);
+    pthread_mutex_destroy(&context.urlLock);
 #endif
 
  done:
@@ -443,6 +452,14 @@ parseOptions(const char *mechanism, connectionOptions *options)
      */
     options->maxThreads = FD_SETSIZE - 1;
 
+    /*
+     * Set a default for the connection timeout. 20ms allows us to scan 50
+     * addresses per second per thread.
+     */
+    options->timeout.tv_sec = 0;
+    options->timeout.tv_usec = 20 * 1000;
+
+    /* Now parse the options. */
     sts = 0;
     for (option = end; *option != '\0'; /**/) {
 	/*
@@ -457,7 +474,7 @@ parseOptions(const char *mechanism, connectionOptions *options)
 	    }
 	
 	/* Examine the option. */
-	if (strncmp(option, "maxThreads=", 11) == 0) {
+	if (strncmp(option, "maxThreads=", sizeof("maxThreads=") - 1) == 0) {
 	    option += sizeof("maxThreads");
 	    longVal = strtol(option, &end, 0);
 	    if (*end != '\0' && *end != ',') {
@@ -487,7 +504,8 @@ parseOptions(const char *mechanism, connectionOptions *options)
 		}
 		else {
 #if PM_MULTI_THREAD
-		    options->maxThreads = longVal;
+		    /* The main thread participates, so reduce this by one. */
+		    options->maxThreads = longVal - 1;
 #else
 		    __pmNotifyErr(LOG_WARNING,
 				  "__pmProbeDiscoverServices: no thread support. Ignoring maxThreads value %ld",
@@ -496,15 +514,33 @@ parseOptions(const char *mechanism, connectionOptions *options)
 		}
 	    }
 	}
+	else if (strncmp(option, "timeout=", sizeof("timeout=") - 1) == 0) {
+	    double	timeout;
+	    option += sizeof("timeout");
+	    timeout = strtod(option, &end);
+	    if ((*end != '\0' && *end != ',') || timeout < 0.0) {
+		__pmNotifyErr(LOG_ERR,
+			      "__pmProbeDiscoverServices: timeout value '%s' is not valid",
+			      option);
+	    }
+	    else {
+		option = end;
+		options->timeout.tv_sec = (time_t)timeout;
+		options->timeout.tv_usec =
+		    (int)((timeout - (double)options->timeout.tv_sec) * 1000000);
+	    }
+	}
 	else {
 	    /* An invalid option. Skip it. */
 	    __pmNotifyErr(LOG_ERR,
 			  "__pmProbeDiscoverServices: option '%s' is not valid",
 			  option);
 	    sts = -1;
-	    for (++option; *option != '\0' && *option != ','; ++option)
-		;
+	    ++option;
 	}
+	/* Locate the next option, if any. */
+	for (/**/; *option != '\0' && *option != ','; ++option)
+	    ;
     } /* Parse additional options */
 
     /*
