@@ -25,6 +25,7 @@ HFILES	= localnvml.h
 DFILES	= README
 LSRCFILES = Install Remove root help pmns $(DFILES)
 LLDLIBS	= $(PCP_PMDALIB)
+LCFLAGS += -DDSOSUFFIX=\"$(DSOSUFFIX)\"
 
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)
 LDIRT	= domain.h *.log *.dir *.pag so_locations
