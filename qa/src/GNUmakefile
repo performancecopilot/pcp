@@ -16,6 +16,7 @@ LLDFLAGS = -L$(TOPDIR)/src/libpcp_trace/$(LIBPCP_ABIDIR) \
 	-L$(TOPDIR)/src/libpcp_import/$(LIBPCP_ABIDIR)
 
 NVIDIACFLAGS = -I$(TOPDIR)/src/pmdas/nvidia
+NVIDIAQALIB = libnvidia-ml.$(DSOSUFFIX)
 
 LSRCFILES = $(MYFILES) $(MYSCRIPTS) $(PSCRIPTS) GNUmakefile.install GNUlocaldefs
 LDIRT += localconfig.h
@@ -29,5 +30,6 @@ install install_pcp:
 	$(INSTALL) -m 755 -d $(TESTDIR)
 	$(INSTALL) -m 644 $(CFILES) $(MYFILES) $(PSCRIPTS) $(TESTDIR)
 	$(INSTALL) -m 755 $(MYSCRIPTS) $(TESTDIR)
+	$(INSTALL) -m 755 $(NVIDIAQALIB) $(TESTDIR)/$(NVIDIAQALIB)
 	$(INSTALL) -m 644 GNUlocaldefs $(TESTDIR)/GNUlocaldefs
 	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile

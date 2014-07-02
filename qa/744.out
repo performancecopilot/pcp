@@ -95,6 +95,7 @@ Amount of GPU FB memory that is not currently allocated, in bytes.
 No value(s) available!
 
 == Testing behaviour with QA wrapper nvidia library
+pminfo[PID] Info: Successfully loaded NVIDIA NVML library
 
 nvidia.numcards PMID: 120.0.0 [Number of Graphics Cards]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff

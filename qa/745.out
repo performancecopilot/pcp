@@ -208,6 +208,7 @@ Amount of GPU FB memory that is not currently allocated, in bytes.
     inst [0 or "gpu0"] value 163577856
     inst [1 or "gpu1"] value 2147483648
 === std err ===
+pminfo[PID] Info: Successfully loaded NVIDIA NVML library
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: pminfo -L -K clear -K add,120,nvidia/pmda_nvidia.DSO,nvidia_init -dfmtT nvidia

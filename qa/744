@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-test -f $here/src/nvidia-ml.$DSO_SUFFIX || \
+test -f $here/src/libnvidia-ml.$DSO_SUFFIX || \
 	_notrun "No NVIDIA QA wrapper library is available"
 test -f $PCP_LIB_DIR/libnvidia-ml.$DSO_SUFFIX && \
 	_notrun "Conflicting system NVIDIA library found"
