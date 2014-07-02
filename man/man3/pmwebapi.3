@@ -256,7 +256,8 @@ namespace is constructed from the PCP archives using a simple mapping
 that encodes the Cartesian product of archives, metrics, and
 instance-domain instances into dot-separated strings.  Some
 metacharacter-quoting is employed to encode general strings into
-components.
+components.  Only numeric PCP metrics are exposed; COUNTER semantic
+values are rate-converted.
 
 .TS
 box,center;
