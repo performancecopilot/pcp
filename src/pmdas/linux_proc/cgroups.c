@@ -590,7 +590,7 @@ prepare_block(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys,
     char buf[MAXPATHLEN];
     device_t *dev;
     pmAtomValue *atoms;
-    int delta, count, size, inst, sts, m, i, j;
+    int count, size, inst, sts, m, i, j;
     pmInDom devtindom = INDOM(DEVT_INDOM);
     cgroup_group_t *groups = &subsys->groups[group];
     cgroup_metrics_t *metrics = &subsys->metrics[metric];
@@ -614,7 +614,6 @@ prepare_block(__pmnsTree *pmns, const char *path, cgroup_subsys_t *subsys,
 	count = groups->metric_values[m].atom_count;
 
 	if (inst >= count) {
-	    delta = inst - count;
 	    size = (inst + 1) * sizeof(pmAtomValue);
 	    if ((atoms = realloc(atoms, size)) == NULL)
 		return -oserror();
