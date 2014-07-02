@@ -301,6 +301,7 @@ extern "C" {
 
 /* Infiniband API version information */
 #undef HAVE_PORT_PERFORMANCE_QUERY_VIA
+#undef HAVE_PMA_QUERY_VIA
 
 #ifndef ULONGLONG_MAX 
 #define ULONGLONG_MAX (__uint64_t)18446744073709551615ULL
