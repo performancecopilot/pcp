@@ -383,8 +383,8 @@ main(int argc, char **argv)
     }
 
     pmdaOpenLog(&desc);
-    nvidia_init(&desc);
     pmdaConnect(&desc);
+    nvidia_init(&desc);
     pmdaMain(&desc);
 
     exit(0);
