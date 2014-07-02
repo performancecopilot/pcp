@@ -1,0 +1,5 @@
+domain.h
+pmdanvidia
+pmda_nvidia.so
+pmda_nvidia.dll
+pmda_nvidia.dylib

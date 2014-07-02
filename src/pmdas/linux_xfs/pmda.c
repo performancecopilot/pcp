@@ -913,35 +913,37 @@ xfs_init(pmdaInterface *dp)
     pmdaCacheOp(INDOM(QUOTA_PRJ_INDOM), PMDA_CACHE_CULL);
 }
 
-static void
-usage(void)
-{
-    fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
-    fputs("Options:\n"
-	  "  -d domain   use domain (numeric) for metrics domain of PMDA\n"
-	  "  -l logfile  write log into logfile rather than using default log name\n",
-	  stderr);		
-    exit(1);
-}
+pmLongOptions   longopts[] = {
+    PMDA_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    PMDAOPT_DOMAIN,
+    PMDAOPT_LOGFILE,
+    PMOPT_HELP,
+    PMDA_OPTIONS_END
+};
+
+pmdaOptions     opts = {
+    .short_options = "D:d:l:?",
+    .long_options = longopts,
+};
 
 int
 main(int argc, char **argv)
 {
     int			sep = __pmPathSeparator();
-    int			err = 0;
     pmdaInterface	dispatch;
     char		helppath[MAXPATHLEN];
 
     __pmSetProgname(argv[0]);
-
     snprintf(helppath, sizeof(helppath), "%s%c" "xfs" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmProgname, XFS, "xfs.log", helppath);
 
-    while (pmdaGetOpt(argc, argv, "D:d:l:?", &dispatch, &err) != EOF)
-	err++;
-    if (err)
-	usage();
+    pmdaGetOptions(argc, argv, &opts, &dispatch);
+    if (opts.errors) {
+	pmdaUsageMessage(&opts);
+	exit(1);
+    }
 
     pmdaOpenLog(&dispatch);
     xfs_init(&dispatch);
