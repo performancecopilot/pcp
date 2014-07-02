@@ -1679,11 +1679,21 @@ __pmConnect(int fd, void *addr, __pmSockLen addrlen)
 
     if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
 	PRIntervalTime timer;
-	int msec;
 	PRStatus sts;
 
-	msec = __pmConvertTimeout(TIMEOUT_CONNECT);
-	timer = PR_MillisecondsToInterval(msec);
+	/*
+	 * If the socket has the FNDELAY flag set, then our caller expects
+	 * us to return right away, even if the connection is not complete.
+	 * They are prepared to wait until the connection attempt completes
+	 * and to check for errors. In this case, Specify a timeout of zero.
+	 * Otherwise, use the normal connection timeout setting.
+	 */
+	if ((__pmGetFileStatusFlags(fd) & FNDELAY) != 0)
+	    timer = PR_INTERVAL_NO_WAIT;
+	else {
+	    int msec = __pmConvertTimeout(TIMEOUT_CONNECT);
+	    timer = PR_MillisecondsToInterval(msec);
+	}
 	sts = PR_Connect(socket.nsprFd, (PRNetAddr *)addr, timer);
 #ifdef PCP_DEBUG
 	if ((pmDebug & DBG_TRACE_CONTEXT) && (pmDebug & DBG_TRACE_DESPERATE)) {
