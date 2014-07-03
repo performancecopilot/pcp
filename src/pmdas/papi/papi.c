@@ -25,7 +25,7 @@
 
 #define CLUSTER_PAPI 0 //we should define this in a header for when these exand possible values
 #define NumEvents 17
-static char     *username = "adm";
+static char     *username = "root";
 static char     mypath[MAXPATHLEN];
 static char     isDSO = 1; /* == 0 if I am a daemon */
 static int      EventSet = PAPI_NULL;
@@ -34,7 +34,6 @@ static long_long values[NumEvents] = {(long_long) 0};
 static int enablers[NumEvents] = {0};
 static unsigned int enable_counters = 0;
 struct uid_gid_tuple {
-    char wildcard_p; /* do not filter for this context. */
     char uid_p; char gid_p; /* uid/gid received flags. */
     int uid; int gid; /* uid/gid received from PCP_ATTR_* */
     int trackers[17];
@@ -484,19 +483,6 @@ papi_contextAttributeCallBack(int context, int attr,
     static int adm_gid = -1;
     static int wheel_gid = -1;
     int id;
-    /* Look up root-like gids if needed.  A later PCP client that
-       matches any of these group-id's is treated as if root/adm,
-       i.e., journal records are not filtered for them (wildcard_p).
-       XXX: we could  examine group-membership lists and check against
-       uid to also set wildcard_p. */
-    if (! rootlike_gids_found) {
-        struct group *grp;
-        grp = getgrnam("adm");
-        if (grp) adm_gid = grp->gr_gid;
-        grp = getgrnam("wheel");
-        if (grp) wheel_gid = grp->gr_gid;
-        rootlike_gids_found = 1;
-    }
 
     enlarge_ctxtab(context);
     assert (ctxtab != NULL && context < ctxtab_size);
@@ -511,24 +497,21 @@ papi_contextAttributeCallBack(int context, int attr,
         ctxtab[context].uid_p = 1;
         id = atoi(value);
         ctxtab[context].uid = id;
-        if (id == 0) /* root */
-            ctxtab[context].wildcard_p = 1;
         break;
 
     case PCP_ATTR_GROUPID:
         ctxtab[context].gid_p = 1;
         id = atoi(value);
         ctxtab[context].gid = id;
-        if (id == adm_gid ||
-            id == wheel_gid )
-            ctxtab[context].wildcard_p = 1;
         break;
     }
 
-    if(atoi(value) != 0)
+    if(atoi(value) != 0){
 	__pmNotifyErr(LOG_DEBUG, "non-root attempted access, uid: %d\n", atoi(value));
+	return PM_ERR_PERMISSION;
+    }
     else
-	__pmNotifyErr(LOG_DEBUG, "root attempted access uid: %d\n", atoi(value));
+	__pmNotifyErr(LOG_DEBUG, "root pmdapapi access uid: %d\n", atoi(value));
     return 0;
 }
 
