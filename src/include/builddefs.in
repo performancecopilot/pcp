@@ -300,7 +300,7 @@ DOMAIN_MAKERULE = \
 		    exit(1) \
 		}\
         	exit(0) \
-            }'
+            }' || rm -f $@ && false
 
 DOMAIN_PERLRULE = \
 	@export perldomain=`sed -n \
