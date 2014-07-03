@@ -42,21 +42,6 @@ static struct uid_gid_tuple *ctxtab = NULL;
 int ctxtab_size = 0;
 static unsigned int queue;
 
-/*
- * There will be two domain instances, one for kernel counters
- * and one for process counters.
- */
-
-static pmdaIndom indomtab[] = {
-#define PAPI_KERNEL    0
-    { PAPI_KERNEL, 1, 0 },
-    //#define PAPI_PROC      1
-    //      {},
-};
-
-/* XXX not entirely sure what this is */
-static pmInDom *kernel_indom = &indomtab[PAPI_KERNEL].it_indom;
-
 void enlarge_ctxtab(int context)
 {
     /* Grow the context table if necessary. */

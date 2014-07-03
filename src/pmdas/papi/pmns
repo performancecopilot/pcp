@@ -15,11 +15,11 @@
  */
 
 papi {
-    kernel
+    preset
     enable_counters PAPI:0:1
 }
 
-papi.kernel {
+papi.preset {
     total_inst PAPI:0:0
     L1_DCM PAPI:0:2
     L1_ICM PAPI:0:3
