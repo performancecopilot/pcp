@@ -102,6 +102,7 @@ sampledso.hordes.one [500 instances]
 sampledso.hordes.two [500 instances]
 sampledso.bad.unknown [Not known to the PMDA]
 sampledso.bad.nosupport [Not supported in this version of the PMDA]
+sampledso.bad.novalues [Scalar with no values, ever]
 sampledso.wrap.long [long counter that wraps]
 sampledso.wrap.ulong [unsigned long counter that wraps]
 sampledso.wrap.longlong [long long counter that wraps]
@@ -656,6 +657,10 @@ In the PMNS, but the sampledso agent pretends it does not know about this one.
 sampledso.bad.nosupport
 Help:
 Type is PM_NOSUPPORT, fetch returns PM_ERR_APPVERSION
+
+sampledso.bad.novalues
+Help:
+Scalar with no values, ever
 
 sampledso.wrap.long
 Help:

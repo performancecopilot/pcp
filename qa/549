@@ -25,7 +25,7 @@ pmie -v -t 1sec -T 2sec 2>&1 <<End-of-File \
     -e "s/$LOCALHOST/HOST/g" \
     -e "s/local:/HOST/g" \
     -e '/^pmie: /s/- on line/- near line/'
-unknown = sample.bad.unknown + 1;
+notknown = sample.bad.unknown + 1;
 nosupport = sample.bad.nosupport - sample.long.one;
 noinst = sample.noinst / 1;
 needprofile = 100 * sample.needprofile;

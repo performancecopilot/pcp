@@ -71,7 +71,7 @@ Expr *boolMergeExpr(int, Expr *);
 Expr *fetchExpr(char *, StringArray, StringArray, Interval);
 Expr *numConst(double, pmUnits);
 Expr *strConst(char *);
-Expr *boolConst(Truth);
+Expr *boolConst(Boolean);
 Expr *numVar(Expr *);
 Expr *boolVar(Expr *);
 Expr *actExpr(int, Expr *, Expr *);
