@@ -40,8 +40,14 @@ struct uid_gid_tuple {
 }; 
 static struct uid_gid_tuple *ctxtab = NULL;
 int ctxtab_size = 0;
-static unsigned int queue;
 
+int permission_check(int context)
+{
+    if ( ctxtab[context].uid == 0 || ctxtab[context].gid == 0 )
+	return 1;
+    else
+	return 0;
+}
 void enlarge_ctxtab(int context)
 {
     /* Grow the context table if necessary. */
@@ -338,7 +344,7 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 static int
 papi_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
-    if ( ctxtab[pmda->e_context].uid == 0 || ctxtab[pmda->e_context].gid == 0 )
+    if (permission_check(pmda->e_context))
 	return pmdaFetch(numpmid, pmidlist, resp, pmda);
     else
 	return PM_ERR_PERMISSION;
@@ -350,7 +356,9 @@ papi_store(pmResult *result, pmdaExt *pmda)
 {
     int sts = 0;
     int i = 0;
-    //XXX add check for access
+    //add check for access
+    if (!permission_check(pmda->e_contxt))
+	return PM_ERR_PERMISSION;
     //XXX need to add proper handling of pmstore 0 when it hasn't already been enabled
     for (i = 0; i < result->numpmid; i++){
 	pmValueSet *vsp = result->vset[i];
@@ -395,8 +403,6 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	    break;
 	}//switch item
     }
-
-    PAPI_read(EventSet, values);
     return 0;
 }
 #endif
@@ -464,9 +470,6 @@ static int
 papi_contextAttributeCallBack(int context, int attr,
 			      const char *value, int length, pmdaExt *pmda)
 {
-    static int rootlike_gids_found = 0;
-    static int adm_gid = -1;
-    static int wheel_gid = -1;
     int id;
 
     enlarge_ctxtab(context);
