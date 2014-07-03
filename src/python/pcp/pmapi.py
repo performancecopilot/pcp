@@ -933,7 +933,7 @@ class pmOptions(object):
         return c_api.pmSetOptionArchiveList(archives)
 
     def pmSetOptionArchiveFolio(self, folio):	# str
-        return c_api.pmSetOptionArchiveList(folio)
+        return c_api.pmSetOptionArchiveFolio(folio)
 
     def pmSetOptionHostList(self, hosts):	# str
         return c_api.pmSetOptionHostList(hosts)
