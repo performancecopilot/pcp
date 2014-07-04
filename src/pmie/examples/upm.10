@@ -1,0 +1,11 @@
+delta = 1 minute;
+ruleset
+     kernel.all.load #'1 minute' > 10 * hinv.ncpu ->
+         print "extreme load average %v"
+else kernel.all.load #'1 minute' > 2 * hinv.ncpu ->
+         print "moderate load average %v"
+unknown ->
+         print "load average unavailable"
+otherwise ->
+         print "load average OK"
+;
