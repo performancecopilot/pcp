@@ -627,8 +627,26 @@ pmmgr_daemon::~pmmgr_daemon()
   if (pid != 0)
     {
       int ignored;
+
       (void) kill ((pid_t) pid, SIGTERM);
-      (void) waitpid ((pid_t) pid, &ignored, 0); // collect zombie
+
+      // Unfortunately, some daemons don't always respond to SIGTERM
+      // immediately, so we mustn't simply hang in a waitpid().  This
+      // has been observed with 3.9.6-era pmie.
+
+      for (unsigned c=0; c<10; c++) { // try to kill/reap only a brief while
+        struct timespec killpoll;
+        killpoll.tv_sec = 0;
+        killpoll.tv_nsec = 250*1000*1000; // 250 milliseconds
+        (void) nanosleep (&killpoll, NULL);
+
+        int rc = waitpid ((pid_t) pid, &ignored, WNOHANG); // collect zombie
+        if (rc == pid)
+          break;
+
+        // not dead yet ... try again a little harder
+        (void) kill ((pid_t) pid, SIGKILL);
+      }
       if (pmDebug & DBG_TRACE_APPL0)
         timestamp(cout) << "daemon pid " << pid << " killed" << endl;
     }
