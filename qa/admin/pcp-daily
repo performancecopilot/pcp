@@ -472,10 +472,11 @@ then
     exit 1
 fi
 buildversion=$PACKAGE_MAJOR.$PACKAGE_MINOR.$PACKAGE_REVISION
-# find lsm ... in pcp-$buildversion for most build types, but in . for debian
+# find lsm ... in pcp-$buildversion for most build types, but in 
+# build/deb/pcp-$buildversion for debian
 lsm=''
-[ -f pcp.lsm ] && lsm=pcp.lsm
 [ -f pcp-$buildversion/pcp.lsm ] && lsm=pcp-$buildversion/pcp.lsm
+[ -f build/deb/pcp-$buildversion/pcp.lsm ] && lsm=build/deb/pcp-$buildversion/pcp.lsm
 if [ -z "$lsm" ]
 then
     ls -l pcp.lsm* pcp-$buildversion/pcp.lsm* | tee -a $HOME/daily.log
