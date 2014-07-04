@@ -292,15 +292,17 @@ DOMAIN_MAKERULE = \
 	    END {\
 		if (found == 0) { \
 		    print "Botch: no define for domain $(DOMAIN) in $<"; \
+		    system("rm '$@'"); \
 		    exit(1) \
 		}\
 		if (found > 1) { \
 		    print "Botch: multiple defines for domain $(DOMAIN) in $<";\
 		    print "... see $@ for details"; \
+		    system("rm '$@'"); \
 		    exit(1) \
 		}\
         	exit(0) \
-            }' || rm -f $@ && false
+            }'
 
 DOMAIN_PERLRULE = \
 	@export perldomain=`sed -n \
