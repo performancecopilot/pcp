@@ -15,6 +15,9 @@
  * for more details.
  */
 
+#define MEMINFO_VALID_VALUE(x)          ((x) != (int64_t)-1)
+#define MEMINFO_VALUE_OR_ZERO(x)        (((x) == (int64_t)-1) ? 0 : (x))
+
 /*
  * All fields in /proc/meminfo
  */
