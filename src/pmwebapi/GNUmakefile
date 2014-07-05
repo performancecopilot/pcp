@@ -71,6 +71,22 @@ install_pcp :: install
 install_pcp :: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
+
+clean::
+	rm -f *.gcov *.gcda *.gcno
+
+gcovbuild:
+	$(MAKE) clean
+	$(MAKE) CFLAGS_OPT="-fprofile-arcs -ftest-coverage" PIECFLAGS= PIELDFLAGS=
+	@echo
+	@echo
+	@echo Test now
+	@echo Then run: make gcov
+
+gcov:
+	gcov -r -f *.cxx *.h
+	ls -1 *.gcov
+
 indent:
 	# indent -nhnl -l400 $(CXXFILES) $(HFILES)
 	astyle  -A10 -n -xd -v -H -U -xy -xC100 $(CXXFILES) $(HFILES)
