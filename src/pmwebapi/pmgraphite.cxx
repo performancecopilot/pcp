@@ -1093,13 +1093,7 @@ pmgraphite_parse_timespec (struct MHD_Connection *connection, string value)
         return mktime (&parsed);
     }
 
-    // likewise YYYYMMDD
-    memset (&parsed, 0, sizeof (parsed));
-    end = strptime (value.c_str (), "%Y%m%d", &parsed);
-    if (end != NULL && *end == '\0') {
-        // success
-        return mktime (&parsed);
-    }
+    // don't parse YYYYMMDD, since it's not syntactically separable from EPOCH
 
     if (value[0] != '-') {
         // nonnegative?  lead __pmParseTime to interpret it as absolute
