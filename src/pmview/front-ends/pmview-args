@@ -10,18 +10,12 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-
-# source the PCP configuration environment variables
-. /etc/pcp.env
 
 prog=`basename $0`
 
 PMVIEW=pmview
 PMPROBE=pmprobe
-XCONFIRM=xconfirm
+CONFIRM="$PCP_XCONFIRM_PROG"
 ECHONL="echo -n"
 _multiple_sources=false
 
@@ -389,7 +383,7 @@ _pmview_note()
 	case "$PCP_STDERR"
 	in
 	    DISPLAY)
-		ans=`$XCONFIRM -icon $icon -file $2 -useslider -header "$tag $prog" $button 2>&1`
+		ans=`$CONFIRM -icon $icon -file $2 -useslider -header "$tag $prog" $button 2>&1`
 		;;
 	    '')
 		echo "$tag:" >&2
@@ -406,7 +400,7 @@ _pmview_note()
 	case "$PCP_STDERR"
 	in
 	    DISPLAY)
-		ans=`$XCONFIRM -icon $icon -t "$*" -noframe -header "$tag $prog" $button 2>&1`
+		ans=`$CONFIRM -icon $icon -t "$*" -noframe -header "$tag $prog" $button 2>&1`
 		;;
 	    '')
 		echo "$tag: $*" >&2

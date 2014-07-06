@@ -1,5 +1,6 @@
-/* -*- Yacc -*-
+/*
  * Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2009 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -10,29 +11,24 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- * 
  */
 
 %{
 
-#include <stack>
+#include <QtCore/QStack>
 
-#include "pmview.h"
-#include "GridObj.h"
-#include "StackObj.h"
-#include "BarObj.h"
-#include "LabelObj.h"
-#include "PipeObj.h"
-#include "SceneFileObj.h"
-#include "Link.h"
-#include "Xing.h"
+#include "main.h"
+#include "gridobj.h"
+#include "stackobj.h"
+#include "barobj.h"
+#include "labelobj.h"
+#include "pipeobj.h"
+#include "scenefileobj.h"
+#include "link.h"
+#include "xing.h"
 
-extern void yywarn(char *s);
-extern void yyerror(char *s);
+extern void yywarn(const char *s);
+extern void yyerror(const char *s);
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,11 +39,11 @@ extern int yylex(void);
 #endif
 
 static DefaultObj dobj;
-static stack<ViewObj *> objstack;
+static QStack<ViewObj *> objstack;
 
 ViewObj * rootObj = 0;
 
-OMC_Bool			theColorScaleFlag;
+bool				theColorScaleFlag;
 int				theCol;
 int				theRow;
 int				theNumCols;
@@ -62,7 +58,7 @@ int				theColorListCount = 0;
     char			*y_str;
     int				y_int;
     double			y_real;
-    OMC_Bool			y_bool;
+    bool			y_bool;
     ViewObj::Alignment		y_align;
     ViewObj::Shape		y_shape;
     Text::Direction		y_textDir;
@@ -70,7 +66,7 @@ int				theColorListCount = 0;
     BarMod::Direction		y_instDir;
     BarObj::LabelDir		y_labelDir;
     BarMod::Modulation		y_barMod;
-    INV_StackMod::Height	y_stackMod;
+    StackMod::Height		y_stackMod;
     BarMod::Grouping		y_barGroup;
     ViewObj 			* y_object;
 }
@@ -167,10 +163,11 @@ header 		: pmview arglist
 
 pmview		: PMVIEW
 		{
-		    if ( strcmp ($1, "1.2") < 0 ) {
-			printf ("Version %s is too old - use pmview(1)\n",
-				$1);
-			exit (1);
+		    if (strcmp($1, "1.2") < 0) {
+			pmprintf("Version %s is no longer supported\n",
+				 $1);
+			pmflush();
+			exit(1);
 		    }
 		}
 		;
@@ -326,7 +323,7 @@ base_opts	: MARGIN_WIDTH INT
 		{
 		    float r, g, b;
 		    
-		    if (ColorList::findColor($2, r, g, b) == OMC_true ) {
+		    if (ColorList::findColor($2, r, g, b) == true ) {
 			if ( objstack.empty () )
 			    dobj.baseColor (r,g,b);
 			else if(objstack.top()->objbits()&ViewObj::GRIDOBJ){
@@ -467,7 +464,7 @@ label_opts	: LABEL_MARGIN INT
 		{
 		    float r, g, b;
 
-		    if (ColorList::findColor($2, r, g, b) == OMC_true) {
+		    if (ColorList::findColor($2, r, g, b) == true) {
 			if ( objstack.empty() )
 			    dobj.labelColor(r, g, b);
 			else if (objstack.top()->objbits() & ViewObj::GRIDOBJ){
@@ -507,7 +504,7 @@ symname		: NAME | STRING;
 
 named_color_list: COLORLIST NAME OPENB 
 		{
-		    if (theColorLists.add($2) == OMC_false) {
+		    if (theColorLists.add($2) == false) {
 			sprintf(theBuffer,
 				"Color list \"%s\" is already defined", $2);
 			yywarn(theBuffer);
@@ -521,14 +518,14 @@ colors		: color
 
 color		: symname 
 		{
-		    if (theColorLists.addColor($1) == OMC_false) {
+		    if (theColorLists.addColor($1) == false) {
 			sprintf(theBuffer, "Unable to map color \"%s\"", $1);
 			yywarn(theBuffer);
 		    }
 		}
 		| REAL REAL REAL 
 		{
-		    if (theColorLists.addColor($1, $2, $3) == OMC_false) {
+		    if (theColorLists.addColor($1, $2, $3) == false) {
 			sprintf(theBuffer, 
 				"Unable to map color %f,%f,%f, "
 				"values may be out of range",
@@ -541,36 +538,36 @@ color		: symname
 named_color_scale: COLORSCALE NAME symname OPENB
 		{
 		    if (theColorLists.list($2) == NULL) {
-			if (theColorLists.add($2, $3) == OMC_false) {
+			if (theColorLists.add($2, $3) == false) {
 			    sprintf(theBuffer, 
 				    "Unable to map color \"%s\", "
 				    "defaulting to blue",
 				    $3);
 			}
-			theColorScaleFlag = OMC_true;
+			theColorScaleFlag = true;
 		    } else {
 			sprintf(theBuffer, 
 				"Color scale \"%s\" is already defined",
 				$2);
 			yywarn(theBuffer);
-			theColorScaleFlag = OMC_false;
+			theColorScaleFlag = false;
 		    }
 		} scaled_color_list CLOSEB
 		| COLORSCALE NAME REAL REAL REAL OPENB
 		{
 		    if (theColorLists.list($2) == NULL) {
-			if (theColorLists.add($2, $3, $4, $5) == OMC_false) {
+			if (theColorLists.add($2, $3, $4, $5) == false) {
 			    sprintf(theBuffer, 
 				    "Unable to map color %f,%f,%f, "
 				    "defaulting to blue",
 				    $3, $4, $5);
 			}
-			theColorScaleFlag = OMC_true;
+			theColorScaleFlag = true;
 		    } else {
 			sprintf(theBuffer, 
 				"Color scale \"%s\" is already defined", $2);
 			yywarn(theBuffer);
-			theColorScaleFlag = OMC_false;
+			theColorScaleFlag = false;
 		    }
 		} scaled_color_list CLOSEB
 		;
@@ -581,14 +578,14 @@ scaled_color_list : scaled_color
 
 scaled_color	: symname REAL 
 		{
-		    if (theColorLists.addColor($1, $2) == OMC_false) {
+		    if (theColorLists.addColor($1, $2) == false) {
 			sprintf(theBuffer, "Unable to map color \"%s\"", $1);
 			yywarn(theBuffer);
 		    }
 		}
 		| REAL REAL REAL REAL
 		{
-		    if (theColorLists.addColor($1, $2, $3, $4) == OMC_false) {
+		    if (theColorLists.addColor($1, $2, $3, $4) == false) {
 			sprintf(theBuffer, 
 				"Unable to map color %f,%f,%f, "
 				"values may be out of range",
@@ -671,14 +668,14 @@ baselabelspec	: BASE_LABEL symname
 			yyerror ("Syntax error - no object to label");
 		    } else if(objstack.top()->objbits() & ViewObj::BASEOBJ){
 			BaseObj * bo = static_cast<BaseObj *>(objstack.top());
-			uint_t i;
-			OMC_String str = $2;
+			int i;
+			QString str = $2;
 
-			for (i = 0; i < str.length(); i++) {
+			for (i = 0; i < str.size(); i++) {
 			    if (str[i] == '\n')
 				break;
 			    if (str[i] == '\\' &&
-				i + 1 < str.length() &&
+				i + 1 < str.size() &&
 				str[i + 1] == 'n') {
 				str[i] = '\n';
 				str.remove(i+1, 1);
@@ -687,7 +684,7 @@ baselabelspec	: BASE_LABEL symname
 			}
     
 			if (i == str.length())
-			    str.appendChar('\n');
+			    str.append(QChar('\n'));
     
 			bo->label() = str;
 		    } else {
@@ -891,7 +888,7 @@ griddecl	: GRID pos hide_or_show OPENB
 		;
 
 hide_or_show	: BOOL { $$ = $1; }
-		| { $$ = OMC_false; }
+		| { $$ = false; }
 		;
 
 label		: labeldecl OPENB label_stuff CLOSEB
@@ -1037,7 +1034,7 @@ bardecl		: BAR pos col_or_row show_or_hide bar_type shape_type bar_group history
 		;
 		
 show_or_hide	: BOOL { $$ = $1; }
-		| { $$ = OMC_true; }
+		| { $$ = true; }
 		;
 
 col_or_row	: INST_DIR { $$ = $1; }
@@ -1279,16 +1276,16 @@ stackdecl	: STACK pos show_or_hide stack_type shape_type history OPENB
 		    StackObj * so = 0;
 
 		    if ( objstack.empty () )
-			so = new StackObj(INV_StackMod::unfixed, ViewObj::cube,
-					  OMC_false, dobj,
+			so = new StackObj(StackMod::unfixed, ViewObj::cube,
+					  false, dobj,
 					  theCol, theRow,
 					  theNumCols, theNumRows, 
 					  theAlignment);
 		    else if (objstack.top()->objbits() & ViewObj::GRIDOBJ) {
 			GridObj * go = static_cast<GridObj *>(objstack.top());
 
-			so = new StackObj(INV_StackMod::unfixed, ViewObj::cube,
-					  OMC_false, *go->defs(),
+			so = new StackObj(StackMod::unfixed, ViewObj::cube,
+					  false, *go->defs(),
 					  theCol, theRow,
 					  theNumCols, theNumRows, 
 					  theAlignment);
@@ -1303,7 +1300,7 @@ stackdecl	: STACK pos show_or_hide stack_type shape_type history OPENB
 		;
 
 stack_type	: STACK_TYPE { $$ = $1; }
-		| { $$ = INV_StackMod::unfixed; }
+		| { $$ = StackMod::unfixed; }
 		;
 
 stack_stuff	: stack_item
@@ -1321,15 +1318,15 @@ stack_item	: metric_list
 		    } else if (objstack.top()->objbits() & ViewObj::STACKOBJ) {
 			StackObj * so = static_cast<StackObj*>(objstack.top());
 
-			if (so->height() == INV_StackMod::fixed) {
-			    uint_t i;
+			if (so->height() == StackMod::fixed) {
+			    int i;
 			
-			    OMC_String str = $2;
-			    for (i = 0; i < str.length(); i++) {
+			    QString str = $2;
+			    for (i = 0; i < str.size(); i++) {
 				if (str[i] == '\n')
 				    break;
 				if (str[i] == '\\' &&
-				    i + 1 < str.length() &&
+				    i + 1 < str.size() &&
 				    str[i + 1] == 'n') {
 				    str[i] = '\n';
 				    str.remove(i+1, 1);
@@ -1337,8 +1334,8 @@ stack_item	: metric_list
 				}
 			    }
 			    if (i == str.length())
-				str.appendChar('\n');
-			    so->setFillText(str.ptr());
+				str.append(QChar('\n'));
+			    so->setFillText((const char *)str.toAscii());
 			} else {
 			    yyerror("_stackLabel may only be applied to "
 				    "filled stacks");

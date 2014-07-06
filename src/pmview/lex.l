@@ -49,16 +49,15 @@ void unput(char);
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "Bool.h"
-#include "ViewObj.h"
-#include "BarObj.h"
-#include "Text.h"
-#include "StackObj.h"
-#include "GridObj.h"
+#include "viewobj.h"
+#include "barobj.h"
+#include "text.h"
+#include "stackobj.h"
+#include "gridobj.h"
 #include "gram.h"
 
-extern void yywarn(char*);
-extern void yyerror(char*);
+extern void yywarn(const char *);
+extern void yyerror(const char *);
 extern FILE *theAltConfig;
 
 #ifdef YYLMAX
@@ -176,8 +175,8 @@ _sceneFile		{ RETURN(SCENE_FILE); }
 [_]?medium	{ yylval.y_fontSize = Text::medium; RETURN(SIZ); }
 [_]?large	{ yylval.y_fontSize = Text::large; RETURN(SIZ); }
 
-[_]?show	{ yylval.y_bool = OMC_true; RETURN(BOOL); }
-[_]?hide	{ yylval.y_bool = OMC_false; RETURN(BOOL); }
+[_]?show	{ yylval.y_bool = true; RETURN(BOOL); }
+[_]?hide	{ yylval.y_bool = false; RETURN(BOOL); }
 
 [_]?towards	{ yylval.y_labelDir = BarObj::towards; RETURN(LABEL_DIR); }
 [_]?away	{ yylval.y_labelDir = BarObj::away; RETURN(LABEL_DIR); }
@@ -192,8 +191,8 @@ _[yY]mod	 { yylval.y_barMod = BarMod::yScale; RETURN(BAR_TYPE); }
 _color[mM]od	 { yylval.y_barMod = BarMod::color; RETURN(BAR_TYPE); }
 _color[yY][mM]od { yylval.y_barMod = BarMod::colYScale; RETURN(BAR_TYPE); }
 
-_util[mM]od	{ yylval.y_stackMod = INV_StackMod::util; RETURN(STACK_TYPE); }
-_fill[mM]od	{ yylval.y_stackMod = INV_StackMod::fixed; RETURN(STACK_TYPE); }
+_util[mM]od	{ yylval.y_stackMod = StackMod::util; RETURN(STACK_TYPE); }
+_fill[mM]od	{ yylval.y_stackMod = StackMod::fixed; RETURN(STACK_TYPE); }
 
 _group[bB]y[rR]ow	{ yylval.y_barGroup = BarMod::groupByRow; RETURN(GROUP); }
 _group[bB]y[cC]ol	{ yylval.y_barGroup = BarMod::groupByCol; RETURN(GROUP); }

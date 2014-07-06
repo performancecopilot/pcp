@@ -1,77 +1,83 @@
-#!gmake
-#
-# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
-#
-# This program is free software; you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by the
-# Free Software Foundation; either version 2 of the License, or (at your
-# option) any later version. 
-#
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-# for more details.
-#
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-#
-
 TOPDIR = ../..
-include $(TOPDIR)/src/include/builddefs.pro
+COMMAND = pmview
+PROJECT = $(COMMAND).pro
+include $(TOPDIR)/src/include/builddefs
 
-CXXFILES = pmview.c++ ColorList.c++ \
-	   error.c++ BarMod.c++ BarObj.c++ BaseObj.c++ \
-	   DefaultObj.c++ GridObj.c++ LabelObj.c++ StackObj.c++ \
-	   Text.c++ ViewObj.c++ PipeObj.c++ Link.c++ Xing.c++ \
-	   SceneFileObj.c++
+WRAPPER = $(COMMAND).sh
+QRCFILE = $(COMMAND).qrc
+ICNFILE = $(COMMAND).icns
+XMLFILE = $(COMMAND).info
+DESKTOP = $(COMMAND).desktop
+UIFILES = $(shell echo *.ui)
+HEADERS = main.h pmview.h colorlist.h \
+	  barmod.h barobj.h baseobj.h \
+	  defaultobj.h gridobj.h labelobj.h stackobj.h \
+	  text.h viewobj.h pipeobj.h link.h xing.h \
+	  scenefileobj.h scenegroup.h \
+	  colorscalemod.h colormod.h colorscale.h \
+	  metriclist.h modlist.h modulate.h \
+	  scalemod.h stackmod.h togglemod.h \
+	  view.h yscalemod.h pcpcolor.h
+SOURCES = $(HEADERS:.h=.cpp) error.cpp
+ICONLINKS = $(ICNFILE)
+GENERATED = gram.cpp lex.cpp 
+LFILES = lex.l
+YFILES = gram.y
+LSRCFILES = $(PROJECT).in $(QRCFILE) $(UIFILES) $(HEADERS) $(SOURCES) \
+	  $(DESKTOP) $(WRAPPER).IN
+LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER) $(XMLFILE) $(GENERATED) gram.h y.tab.?
 
-GEN_CXXFILES = theGram.c++ theLex.c++ 
-TARGETS   = pmview noview
+SUBDIRS = front-ends images
 
-LCXXFLAGS = '-DPCP_VERSION="$(PCP_VERSION)"' $(PCP_OMCINV_INC_PATH) \
-	    $(PCP_INC_PATH) $(DEBUG) $(PCP_X11_CFLAGS) $(PCP_ISV_CFLAGS)
+default: iconlinks wrappers $(GENERATED)
+	$(SUBDIRS_MAKERULE)
+	$(QTMAKE)
+	$(LNMAKE)
 
-LLDFLAGS  = $(PCP_LIBS_PATH) -L$(TOPDIR)/src/libpcp_mon/src \
-	    -L$(TOPDIR)/src/libpcp/src $(PCP_X11_LDFLAGS) $(PCP_ISV_LDFLAGS)
+include $(BUILDRULES)
 
-LLDLIBS   = $(PCP_OMCINV_STATIC_LIBS) -lpcp_mon -lpcp \
-	    -lInventorXt -lInventor -ljpeg -lFL -lfreetype -limage \
-	    $(OGL_LIBS) -lvk $(MOTIF_STATIC_LIB) -lXmu \
-	    -lXpm -lICE -lXt -lXp -lXi -lX11 -lm 
-
-LSRCFILES = noview app-defaults pmview_static.gz
-LDIRT     = pmview.inv ii_files $(GEN_CXXFILES) gram.h y.tab.? PmView+ \
-	    theGram.o theLex.o pmview pmview_static
-
-CC	  = $(CXX)
-
-default: $(CXXFILES) $(TARGETS)
-
-include $(TOPDIR)/src/include/buildrules.pro
-
-install: $(TARGETS) PmView+ 
-	$(INSTALL) -m 755 pmview $(PCP_BIN_DIR)/pmview+
-	$(INSTALL) -m 644 PmView+ $(PCP_X11_APPDEFS_DIR)/PmView+ 
-	$(INSTALL) -m 755 noview $(PCP_BIN_DIR)/oview
-
-theLex.c++ : lex.l
+lex.cpp:	lex.l
 	$(LEX) -t lex.l > $@
 
-gram.h y.tab.c : gram.y
+gram.h y.tab.c:	gram.y
 	$(YACC) -d gram.y && cp y.tab.h gram.h
 
-theGram.c++ : y.tab.c
+gram.cpp:	y.tab.c
 	cp y.tab.c $@
 
-theLex.o : gram.h
+lex.o:	gram.h
 
-default_pro : default
+ifeq ($(WINDOW),mac)
+MACBUILD = $(COMMAND).app/Contents
+PKG_MAC_DIR = /Applications/$(COMMAND).app/Contents
+wrappers: $(WRAPPER)
+else
+wrappers:
+endif
 
-install_pro : install
+$(WRAPPER): $(WRAPPER).IN
+	$(SED) -e '/\# .*/b' -e 's;PKG_MAC_DIR;$(PKG_MAC_DIR);g' < $< > $@
 
-PmView+ : app-defaults
-	$(CPP_SIMPLE) -P -D__linux $< > $@
-
-pmview : $(OBJECTS) theGram.o theLex.o ../libpcp_inv/src/libpcp_inv.a
-	$(CXXF) -o $@ $(OBJECTS) theLex.o theGram.o $(LLDFLAGS) $(LLDLIBS)
+install: default
+	$(SUBDIRS_MAKERULE)
+	$(INSTALL) -m 755 -d $(PCP_BIN_DIR)
+ifeq ($(WINDOW),win)
+	$(INSTALL) -m 755 $(BINARY) $(PKG_BIN_DIR)/$(COMMAND)
+endif
+ifeq ($(WINDOW),x11)
+	$(INSTALL) -m 755 $(BINARY) $(PKG_BIN_DIR)/$(COMMAND)
+	$(INSTALL) -m 755 -d $(PKG_DESKTOP_DIR)
+	$(INSTALL) -m 644 $(DESKTOP) $(PKG_DESKTOP_DIR)/$(DESKTOP)
+endif
+ifeq ($(WINDOW),mac)
+	$(INSTALL) -m 755 $(WRAPPER) $(PKG_BIN_DIR)/$(COMMAND)
+	$(INSTALL) -m 755 -d /Applications
+	$(INSTALL) -m 755 -d /Applications/$(COMMAND).app
+	$(INSTALL) -m 755 -d $(PKG_MAC_DIR)
+	$(INSTALL) -m 644 $(MACBUILD)/Info.plist $(PKG_MAC_DIR)/Info.plist
+	$(INSTALL) -m 644 $(MACBUILD)/PkgInfo $(PKG_MAC_DIR)/PkgInfo
+	$(INSTALL) -m 755 -d $(PKG_MAC_DIR)/MacOS
+	$(INSTALL) -m 755 $(BINARY) $(PKG_MAC_DIR)/MacOS/$(COMMAND)
+	$(INSTALL) -m 755 -d $(PKG_MAC_DIR)/Resources
+	$(INSTALL) -m 644 $(MACBUILD)/Resources/$(ICNFILE) $(PKG_MAC_DIR)/Resources/$(ICNFILE)
+endif

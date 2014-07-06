@@ -1,0 +1,23 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>images/aboutpcp.png</file>
+    <file>images/aboutqt.png</file>
+    <file>images/pmview.png</file>
+    <file>images/pmtime.png</file>
+    <file>images/whatsthis.png</file>
+    <file>images/document-print.png</file>
+    <file>images/help-browser.png</file>
+    <file>images/help-contents.png</file>
+    <file>images/play_live.png</file>
+    <file>images/stop_live.png</file>
+    <file>images/play_record.png</file>
+    <file>images/stop_record.png</file>
+    <file>images/play_archive.png</file>
+    <file>images/stop_archive.png</file>
+    <file>images/back_archive.png</file>
+    <file>images/stepfwd_archive.png</file>
+    <file>images/stepback_archive.png</file>
+    <file>images/fastfwd_archive.png</file>
+    <file>images/fastback_archive.png</file>
+</qresource>
+</RCC>

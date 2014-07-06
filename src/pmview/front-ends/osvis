@@ -11,19 +11,13 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-
-#Tag 0x00010D04
-#
-
-# source the PCP configuration environment variables
-. /etc/pcp.env
 
 tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3  15
 rm -f $tmp.*
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmview-args
 
 #
 # scaling parameters
@@ -72,11 +66,6 @@ pmview(1) options:'
 
   _pmview_info -f $tmp.msg
 }
-
-# Parse the command-line options and set the default values
-#
-
-. $PCP_SHARE_DIR/lib/pmview-args
 
 argInterfaces=""
 verbose=false
