@@ -352,6 +352,8 @@ main(int argc, char **argv)
 	}
     }
 
+    a.startconsole();
+
     if (a.my.archives.size() > 0)
 	while (optind < argc)
 	    a.my.archives.append(argv[optind++]);

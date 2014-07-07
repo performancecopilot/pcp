@@ -35,6 +35,7 @@ public:
     App(int &, char **);
     virtual ~App() { }
     int getopts(const char *options);
+    void startconsole(void);
 
     static QFont *globalFont();
     static int globalFontSize();

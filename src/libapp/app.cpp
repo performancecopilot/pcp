@@ -21,10 +21,6 @@
 
 App::App(int &argc, char **argv) : QApplication(argc, argv)
 {
-    struct timeval origin;
-
-    gettimeofday(&origin, NULL);
-
     __pmSetProgname(argv[0]);
     my.argc = argc;
     my.argv = argv;
@@ -47,8 +43,6 @@ App::App(int &argc, char **argv) : QApplication(argc, argv)
     putenv(strdup((const char *)confirm.toAscii()));
     if (getenv("PCP_STDERR") == NULL)   // do not overwrite, for QA
 	putenv(strdup("PCP_STDERR=DISPLAY"));
-
-    console = new Console(origin);
 }
 
 QFont *App::globalFont()
@@ -247,4 +241,15 @@ QPixmap App::cached(const QString &image)
 
     QPixmapCache::insert(image, pm);
     return pm;
+}
+
+// call startconsole() after command line args processed so pmDebug
+// has a chance to be set
+//
+void App::startconsole(void)
+{
+    struct timeval origin;
+
+    gettimeofday(&origin, NULL);
+    console = new Console(origin);
 }
