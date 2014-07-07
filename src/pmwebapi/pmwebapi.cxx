@@ -499,7 +499,7 @@ pmwebapi_format_value (ostream & output, pmDesc * desc, pmValueSet * pvs, int vs
             output << "{" << "\"timestamp\":{";
             json_key_value (output, "s", res[i]->timestamp.tv_sec, ",");
             json_key_value (output, "us", res[i]->timestamp.tv_usec);
-            output << "}" << ", \"fields\":[";
+            output << "}" << ", \"fields\":[\n";
 
             for (j = 0; j < res[i]->numpmid; j++) {
                 pmValueSet *fieldvsp = res[i]->vset[j];
@@ -509,7 +509,7 @@ pmwebapi_format_value (ostream & output, pmDesc * desc, pmValueSet * pvs, int vs
                     output << ",";
                 }
 
-                output << "{";
+                output << "\n\t{";
 
                 /* recurse */
                 rc = pmLookupDesc (fieldvsp->pmid, &fielddesc);
@@ -518,21 +518,22 @@ pmwebapi_format_value (ostream & output, pmDesc * desc, pmValueSet * pvs, int vs
                 }
                 if (rc == 0) {
                     /* printer value: ... etc. ? */
-                    output << ", ";
+                    output << ",";
                 }
                 /* XXX: handle value: for event.flags / event.missed */
                 rc = pmNameID (fieldvsp->pmid, &fieldname);
                 if (rc == 0) {
-                    json_key_value (output, "name", fieldname);
+                    json_key_value (output, "name", string(fieldname));
                     free (fieldname);
                 } else {
-                    json_key_value (output, "name", pmIDStr (fieldvsp->pmid));
+                    json_key_value (output, "name", string(pmIDStr (fieldvsp->pmid)));
                 }
 
-                output << "}";
+                output << "}\n";
             }
-            output << "]}\n";
+            output << "]}\n"; // fields
         }
+        output << "]"; // events
 
         pmFreeEventResult (res);
         return 0;
@@ -562,7 +563,7 @@ pmwebapi_format_value (ostream & output, pmDesc * desc, pmValueSet * pvs, int vs
         json_key_value (output, "value", a.d);
         break;
     case PM_TYPE_STRING:
-        json_key_value (output, "value", a.cp);
+        json_key_value (output, "value", string(a.cp));
         free (a.cp);		// NB: required by pmapi
         break;
     case PM_TYPE_AGGREGATE:
@@ -687,8 +688,7 @@ pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
     /* Loop over pmids= numbers in val_pmids, append them to metrics[]. */
     while (*val_pmids) {
         char *numend;
-        unsigned long pmid = strtoul (val_pmids, &numend,
-                                      10);	/* matches pmid printing above */
+        unsigned long pmid = strtoul (val_pmids, &numend, 0); // accept hex too
         if (numend == val_pmids) {
             break;		/* invalid contents */
         }
@@ -697,9 +697,7 @@ pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
         if (*numend == '\0') {
             break;		/* end of string */
         }
-        if (*numend == ',') {
-            val_pmids = numend + 1;	/* advance to next string */
-        }
+        val_pmids = numend+1; // advance to next string
     }
 
     /* Time to fetch the metric values. */
@@ -750,13 +748,8 @@ pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
             pmValue *val = &pvs->vlist[j];
             int printed_value;
             output << "{";
+            json_key_value (output, "instance", val->inst, ", ");
             printed_value = !pmwebapi_format_value (output, &desc, pvs, j);
-            if (desc.indom != PM_INDOM_NULL) {
-                if (printed_value) {
-                    output << ",";
-                }
-                json_key_value (output, "instance", val->inst);
-            }
             output << "}";
             if (j + 1 < pvs->numval) {
                 output << ",";
@@ -868,7 +861,7 @@ pmwebapi_respond_instance_list (struct MHD_Connection *connection,
         inDom = metric_desc.indom;
     } else {
         char *numend;
-        inDom = strtoul (val_indom, &numend, 10);
+        inDom = strtoul (val_indom, &numend, 0);
         if (numend == val_indom) {
             connstamp (cerr, connection) << "failed to parse indom " << val_indom << endl;
             rc = -EINVAL;
@@ -895,7 +888,7 @@ pmwebapi_respond_instance_list (struct MHD_Connection *connection,
     /* Loop over instance= numbers in val_instance, collect them in instances[]. */
     while (*val_instance != '\0') {
         char *numend;
-        int iid = (int) strtoul (val_instance, &numend, 10);
+        int iid = (int) strtoul (val_instance, &numend, 0);
         if (numend == val_instance) {
             break;		/* invalid contents */
         }
@@ -904,9 +897,7 @@ pmwebapi_respond_instance_list (struct MHD_Connection *connection,
         if (*numend == '\0') {
             break;		/* end of string */
         }
-        if (*numend == ',') {
-            val_instance = numend + 1;	/* advance to next string */
-        }
+        val_instance = numend + 1;	/* advance to next string */
     }
 
     /* Loop over iname= names in val_iname, collect them in instances[]. */
