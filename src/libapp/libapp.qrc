@@ -1,0 +1,48 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>images/archive.png</file>
+    <file>images/folio.png</file>
+    <file>images/view.png</file>
+    <file>images/whatsthis.png</file>
+    <file>images/computer.png</file>
+    <file>images/process-stop.png</file>
+    <file>images/go-previous.png</file>
+    <file>images/system-search.png</file>
+    <file>images/help-browser.png</file>
+    <file>images/help-contents.png</file>
+    <file>images/go-jump.png</file>
+    <file>images/pmchart.png</file>
+    <file>images/filearchive.png</file>
+    <file>images/filegeneric.png</file>
+    <file>images/filehtml.png</file>
+    <file>images/fileimage.png</file>
+    <file>images/filefolder.png</file>
+    <file>images/filepackage.png</file>
+    <file>images/filespreadsheet.png</file>
+    <file>images/fileview.png</file>
+    <file>images/filewordprocessor.png</file>
+    <file>images/settings.png</file>
+    <file>images/filefolio.png</file>
+    <file>images/logfile.png</file>
+    <file>images/view-new.png</file>
+    <file>images/view-edit.png</file>
+    <file>images/view-close.png</file>
+    <file>images/view-rotate.png</file>
+    <file>images/toolarchive.png</file>
+    <file>images/toolusers.png</file>
+    <file>images/toolview.png</file>
+    <file>images/toolforward.png</file>
+    <file>images/toolbackward.png</file>
+    <file>images/play_live.png</file>
+    <file>images/stop_live.png</file>
+    <file>images/play_record.png</file>
+    <file>images/stop_record.png</file>
+    <file>images/play_archive.png</file>
+    <file>images/stop_archive.png</file>
+    <file>images/back_archive.png</file>
+    <file>images/stepfwd_archive.png</file>
+    <file>images/stepback_archive.png</file>
+    <file>images/fastfwd_archive.png</file>
+    <file>images/fastback_archive.png</file>
+</qresource>
+</RCC>
