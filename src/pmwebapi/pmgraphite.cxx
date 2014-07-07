@@ -1220,9 +1220,8 @@ vector<string> generate_colorlist (const vector<string>& colorList, unsigned num
 // help.
 //
 // As a bonus, if the string cannot be parsed the usual way,
-// synthesize a random one based upon a hash of the name.  This way,
-// metric names finding their way down here can get a persistent
-// color.
+// synthesize a random one.  This way, metric names finding their way
+// down here can get a persistent color.
 
 struct rgb {
     double r;
