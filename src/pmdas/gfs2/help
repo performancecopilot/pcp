@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013 - 2014 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -369,50 +369,7 @@ resource group insert calls.
 @ gfs2.tracepoints.rs.clm Number of resource group claims. The total number of 
 resource group claim calls.
 
-@ gfs2.worst_glock.lock_type Glock type number
-The metric contains the value regarding the lock type representing the type of
-lock, this metric requires the gfs2.control.glock_lock_time metric to be set 
-as 1 to be enabled.
-
-@ gfs2.worst_glock.number Inode or resource group number
-This metric points to the inode or resource group on which the glock belongs
-to, this metric requires the gfs2.control.glock_lock_time metric to be set as
-1 to be enabled.
-
-@ gfs2.worst_glock.srtt Non-blocking smoothed round trip time
-The smoothed round trip time for non-blocking dlm requests, this metric
-requires the gfs2.control.glock_lock_time metric to be set as 1 to be
-enabled.
-
-@ gfs2.worst_glock.srttvar Non-blocking smoothed variance
-Variance estimate for the smoothed round trip time, this metric requires
-the gfs2.control.glock_lock_time metric to be set as 1 to be enabled.
-
-@ gfs2.worst_glock.srttb Blocking smoothed round trip time
-Smoothed round trip time for (potentially) blocking dlm requests, this 
-metric requires the gfs2.control.glock_lock_time metric to be set as 1
-to be enabled.
-
-@ gfs2.worst_glock.srttvarb Blocking smoothed variance
-Variance estimate for smoothed round trip time for (potentially) blocking 
-dlm requests, this metric requires the gfs2.control.glock_lock_time metric
-to be set as 1 to be enabled.
-
-@ gfs2.worst_glock.sirt Smoothed Inter-request time
-The smoothed inter-request time (for dlm requests), this metric requires
-the gfs2.control.glock_lock_time metric to be set as 1 to be enabled.
-
-@ gfs2.worst_glock.sirtvar Smoothed Inter-request variance
-Variance estimate for smoothed inter-request time, this metric requires 
-the gfs2.control.glock_lock_time metric to be set as 1 to be enabled.
-
-@ gfs2.worst_glock.dlm Count of dlm requests
-The number of dlm requests made, this metric requires the 
-gfs2.control.glock_lock_time metric to be set as 1 to be enabled.
-
-@ gfs2.worst_glock.queue Count of gfs2_holder queues
-The number of glock requests queued, this metric requires the 
-gfs2.control.glock_lock_time metrics to be set as 1 to be enabled.
+# help text for gfs2.worst_glock.*.* is generated dynamically
 
 @ gfs2.control.tracepoints.all Indication whether all glock statistics are enabled
 The gfs2 tracepoint statistics can be manually controlled using pmstore

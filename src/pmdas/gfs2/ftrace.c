@@ -113,7 +113,7 @@ ftrace_clear_buffer()
  * trace pipe mixed. 
  */
 static int
-gfs2_extract_trace_values(char *buffer)
+gfs2_extract_trace_values(char *buffer, pmInDom gfs_fs_indom)
 {
     struct ftrace_data temp;
 
@@ -150,7 +150,7 @@ gfs2_extract_trace_values(char *buffer)
          * only if the metrics are enabled. 
          */
         if (worst_glock_get_state() == 1)
-            gfs2_extract_worst_glock(data);
+            gfs2_extract_worst_glock(&data, gfs_fs_indom);
 
     } else if ((data = strstr(buffer, "gfs2_pin: "))) {
         temp.tracepoint = PIN;
@@ -549,7 +549,7 @@ gfs2_refresh_ftrace_stats(pmInDom gfs_fs_indom)
             break;
 
         /* In the event of an allocation error */
-        if (gfs2_extract_trace_values(buffer) != 0)
+        if (gfs2_extract_trace_values(buffer, gfs_fs_indom) != 0)
             break;
 
         /* Processing here */
@@ -561,10 +561,6 @@ gfs2_refresh_ftrace_stats(pmInDom gfs_fs_indom)
 
     /* Clear the rest of the ring buffer after passing max_glock_throughput */
     ftrace_clear_buffer();
-
-    /* Assign worst_glock entries */
-    if (worst_glock_get_state() == 1)
-        worst_glock_assign_glocks(gfs_fs_indom);
 
     return 0;
 }

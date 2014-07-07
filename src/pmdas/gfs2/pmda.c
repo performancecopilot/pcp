@@ -1,7 +1,7 @@
 /*
  * Global Filesystem v2 (GFS2) PMDA
  *
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013 - 2014 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -869,6 +869,7 @@ gfs2_init(pmdaInterface *dp)
     pmdaSetFetchCallBack(dp, gfs2_fetchCallBack);
 
     gfs2_sbstats_init(metrictable, nmetrics);
+    gfs2_worst_glock_init(metrictable, nmetrics);
 
     pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
     pmdaInit(dp, indomtable, nindoms, metrictable, nmetrics);
