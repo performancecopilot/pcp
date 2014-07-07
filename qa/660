@@ -125,7 +125,7 @@ $sudo $signal -a pmwebd >/dev/null 2>&1
 sleep 2		# let it shutdown
 
 cat $tmp.out >> $seq.full
-$PCP_BINADM_DIR/pmwebd $webargs -R `pwd` -c 2222 -L -h localhost -N -vvv -l $tmp.out &
+$PCP_BINADM_DIR/pmwebd $webargs -R `pwd` -c 2222 -L -h localhost -N -vv -l $tmp.out &
 sleep 2		# let it start up
 
 # should fail due to -N
@@ -200,10 +200,10 @@ echo # not \n terminated
 
 echo
 echo "metric value dump 1" 
-curl -s -S "http://localhost:44323/graphite/render?format=json&target=*-2F-node_archive-2E-meta.proc.psinfo.pid.*&from=15:50_20131127&until=1385585880" | python_json_pretty
+curl -s -S "http://localhost:44323/graphite/render?format=json&target=*-2F-node_archive-2E-meta.proc.psinfo.pid.*&from=15:50_20131127&until=1385585880&maxDataPoints=100" | python_json_pretty
 echo
 echo "metric value dump 2" 
-curl -s -S "http://localhost:44323/graphite/rawdata?target=*-2F-node_archive-2E-meta.proc.psinfo.pid.*&from=15:50_20131127&until=20131129" | python_json_pretty
+curl -s -S "http://localhost:44323/graphite/rawdata?target=*-2F-node_archive-2E-meta.proc.psinfo.pid.*&from=15:50_20131127&until=20131129&maxDataPoints=300" | python_json_pretty
 
 echo
 echo "metric gfx rendering" 
