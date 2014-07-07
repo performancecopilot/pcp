@@ -208,9 +208,10 @@ gfs2.tracepoints.rs {
 
 gfs2.control {
     tracepoints
-    global_tracing	GFS2:5:14
-    worst_glock		GFS2:5:15
-    glock_threshold	GFS2:5:16
+    buffer_size_kb      GFS2:5:14
+    global_tracing	GFS2:5:15
+    worst_glock		GFS2:5:16
+    glock_threshold	GFS2:5:17
 }
 
 gfs2.control.tracepoints {

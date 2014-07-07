@@ -37,6 +37,7 @@ const char *control_locations[] = {
 	[CONTROL_BLOCK_ALLOC]		= "/sys/kernel/debug/tracing/events/gfs2/gfs2_block_alloc/enable",
 	[CONTROL_BMAP]			= "/sys/kernel/debug/tracing/events/gfs2/gfs2_bmap/enable",
 	[CONTROL_RS]			= "/sys/kernel/debug/tracing/events/gfs2/gfs2_rs/enable",
+        [CONTROL_BUFFER_SIZE_KB]        = "/sys/kernel/debug/tracing/buffer_size_kb",
 	[CONTROL_GLOBAL_TRACING]	= "/sys/kernel/debug/tracing/tracing_on"
 };
 
@@ -49,13 +50,13 @@ int
 gfs2_control_fetch(int item, pmAtomValue *atom)
 {
     if (item >= CONTROL_ALL && item <= CONTROL_GLOBAL_TRACING) {
-        atom->ul = gfs2_control_check_value(control_locations[item]);
+        atom->ull = gfs2_control_check_value(control_locations[item]);
 
     } else if (item == CONTROL_WORSTGLOCK) {
-        atom->ul = worst_glock_get_state();
+        atom->ull = worst_glock_get_state();
 
     } else if (item == CONTROL_FTRACE_GLOCK_THRESHOLD) {
-        atom->ul = ftrace_get_threshold();
+        atom->ull = ftrace_get_threshold();
 
     } else {
        return PM_ERR_PMID;
@@ -76,8 +77,14 @@ gfs2_control_set_value(const char *filename, pmValueSet *vsp)
     int	sts = 0;
 
     int value = vsp->vlist[0].value.lval;
-    if (value < 0 || value > 1)
+
+    if (strncmp(filename, "/sys/kernel/debug/tracing/buffer_size_kb", 40) == 0) { /* Special case for buffer_size_kb */
+        if (value < 0 || value > 131072) /* Allow upto 128mb buffer per CPU */
+            return - oserror();
+
+    } else if (value < 0 || value > 1) {
 	return -oserror();
+    }
 
     fp = fopen(filename, "w");
     if (!fp) {
@@ -98,7 +105,7 @@ int
 gfs2_control_check_value(const char *filename)
 {
     FILE *fp;
-    char buffer[2];
+    char buffer[16];
     int value = 0;
 
     fp = fopen(filename, "r");

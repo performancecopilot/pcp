@@ -456,6 +456,14 @@ gfs2.control.tracepoints.rs 0 [off] or 1 [on]. Setting the value of the metric
 controls the behavior of the PMDA to whether it tries to collect from
 tracepoint metrics or not.
 
+@ gfs2.control.buffer_size_kb Sets the buffer size for trace_pipe (per cpu).
+The size of the trace_pipe buffer can be controlled with this metrics, it
+allows the increase of the trace_pipe buffer to 128MB (131072KB) per cpu
+on the system. It is useful to increase the size of the buffer when there
+is expected to be heavy load on the file system in order to reduce the
+risk of overwritten entries in the trace_pipe before they are read (default
+value is 32MB (32768KB).
+
 @ gfs2.control.global_tracing Indication whether global tracing is enabled.
 The global tracing can be controlled using pmstore gfs2.control.global_tracing
 0 [off] or 1 [on]. This is required to be on for most of the gfs2 metrics to
