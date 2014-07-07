@@ -13,7 +13,7 @@
 # for more details.
 #
 
-import requests, argparse, subprocess, os
+import requests, argparse, subprocess, os, time
 
 parser = argparse.ArgumentParser(description='test_webapi.py pmwebapi check')
 parser.add_argument('--version', action='version', version='1')
@@ -29,12 +29,12 @@ os.unsetenv('HTTP_PROXY')
 # ------------------------------------------------------------------------
 
 # test - create contexts
-req = requests.get(url=url + 'pmapi/context?local=foo')
+req = requests.get(url=url + 'pmapi/context?local=foo&polltimeout=5')
 resp = req.json()
 ctx_local = resp['context']
 print('Received PM_CONTEXT_LOCAL #' + str(ctx_local))
 
-req = requests.get(url=url + 'pmapi/context?hostname=' + args.host)
+req = requests.get(url=url + 'pmapi/context?hostname=' + args.host + '&polltimeout=2')
 resp = req.json()
 ctx_host = resp['context']
 print('Received PM_CONTEXT_HOST #' + str(ctx_host))
@@ -79,6 +79,7 @@ def test_metric_enumeration(ctx, prefix):
     if (prefix != ''):
         procargs.append(prefix)
         dbg = dbg + '-' + prefix
+
     proc = subprocess.Popen(procargs,
                             stdout=subprocess.PIPE, 
                             stderr=devnull)
@@ -91,14 +92,15 @@ def test_metric_enumeration(ctx, prefix):
         if line.strip() == '':
             continue # blank line pminfo sometimes does that
         if line.find('Error: No PMCD agent') == -1 and \
-           line.find('Not known to the PMDA') == -1:
+           line.find('Not known to the PMDA') == -1 and \
+           line.find('Error: Unknown or illegal') == -1:
             num_metrics = num_metrics + 1
             # f.write(line)
     # f.write('Total ' + str(num_metrics) + ' metrics\n')
     # f.close()
 
-    testprefix='test #'+str(ctx)+' metric '+prefix+'.*'
-    print(testprefix + ' enumeration with pminfo #'+str(num_metrics))
+    testprefix='context #'+str(ctx)+' '+dbg+' metric '+prefix+'.*'
+    print testprefix+ ' enumeration with pminfo #'+str(num_metrics)
 
     req = requests.get(url=ctxurl + '_metric' + \
                            ('?prefix='+prefix if prefix != '' else ''))
@@ -130,9 +132,54 @@ test_metric_enumeration(ctx_host,'kernel')
 
 # ------------------------------------------------------------------------
 
+<<<<<<< HEAD
 # empty _fetch should get an error
 req = requests.get(url=url + 'pmapi/'+str(ctx_host)+'/_fetch')
 print('context #'+str(ctx_host)+' response code ' + str(req.status_code))
+=======
+def test_metric_fetch(ctx,metrics):
+# some fetches of real values
+  req = requests.get(url=url + 'pmapi/'+str(ctx)+'/_fetch?'+metrics)
+  print 'context #'+str(ctx_host)+' fetch '+metrics+' response code ' + str(req.status_code) 
+  if (req.status_code != 200):
+      return
+  # print req.content
+  result = req.json()
+  print 'timestamps fields:'+str(len(result['timestamp']))+' len(values[]):'+str(len(result['values']))
+  for metric in result['values']:
+      print '  metric:'+metric['name']
+      if (len(metric['instances']) > 0):
+          print '  with instances'
+      else:
+          print '  no instances'
+      # don't pretty-print instances/values, because they could fluctuate too much from test to test for _filter()
+
+
+# use both contexts so neither times out
+test_metric_fetch(ctx_local,'names=')
+test_metric_fetch(ctx_local,'names=no.such.metric')
+test_metric_fetch(ctx_local,'names=no.such.metric1,pmcd.client.whoami,no.such.metric2')  # ignore the bad metrics; no pmcd.* with -L
+test_metric_fetch(ctx_host,'names=no.such.metric3,pmcd.client.whoami,no.such.metric4')  # ignore the bad metrics
+test_metric_fetch(ctx_host,'names=sample.event.records') # events
+test_metric_fetch(ctx_host,'pmids=121634826,0x740000b') # sample.long.one, sample.long.ten
+test_metric_fetch(ctx_local,'names=keepalive')
+test_metric_fetch(ctx_host,'names=sample.bogus_bin,sample.sysinfo,sample.byte_rate,sample.ulong.bin')
+test_metric_fetch(ctx_host,'names=sample.longlong.bin,sample.ulonglong.million,sample.float.hundred')
+test_metric_fetch(ctx_host,'names=sample.double.bin_ctr,sample.aggregate.null,sample.hordes.one')
+test_metric_fetch(ctx_host,'names=sample.dodgey.value')
+test_metric_fetch(ctx_local,'names=keepalive')
+
+>>>>>>> 67511214be54... pmwebd qa++, now gcov-guided
 
 # ------------------------------------------------------------------------
 
+
+# INDOM 
+
+# ------------------------------------------------------------------------
+
+print 'sleeping briefly to expire contexts' 
+time.sleep(10) # >> polltimeout=2
+
+test_metric_fetch(ctx_local,'names=kernel.all.nprocs')  # expect status 400ish
+test_metric_fetch(ctx_host,'names=kernel.all.nprocs')

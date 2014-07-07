@@ -153,8 +153,8 @@ Fetch current values for given named metrics.
 .B /pmapi/NNNNN/_fetch?pmids=PPPP1,PPPP2
 Fetch current values for given PMIDs.
 .PP
-The response is a JSON document that provides the values for
-all requested metrics, for all their instances.
+If any of the names/pmids are valid, the response is a JSON document that
+provides the values for all requested metrics, for all their instances.
 
 .SAMPLE
 { "timestamp": { "s":SEC, "us":USEC },
