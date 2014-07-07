@@ -15,17 +15,16 @@
 #include "pmapi.h"
 #include "impl.h"
 
-static int	quiet;
-static int	interrupted;
-static char	*mechanism;
-static char	*globalOptions;
+static int			quiet;
+static char			*mechanism;
+static pmDiscoveryOptions	discoveryOptions;
 
 static int override(int, pmOptions *);
 
 static void
 handleInterrupt(int sig)
 {
-    interrupted = sig;
+    discoveryOptions.interrupted = sig;
 }
 
 static void
@@ -92,7 +91,7 @@ discovery(const char *spec)
     int		i, sts;
     char	**urls;
 
-    sts = pmDiscoverServicesAdvanced(spec, mechanism, globalOptions, &interrupted, &urls);
+    sts = pmDiscoverServicesWithOptions(spec, mechanism, &discoveryOptions, &urls);
     if (sts < 0) {
 	fprintf(stderr, "%s: service %s discovery failure: %s\n",
 		pmProgname, spec, pmErrStr(sts));
@@ -113,42 +112,6 @@ discovery(const char *spec)
     return 0;
 }
 
-static void
-addGlobalOption(const char *option)
-{
-    size_t curLen, optLen, newLen;
-    char *newOptions;
-    /*
-     * Add the new option to the global options string, separated from any
-     * existing options by a comma.
-     */
-    optLen = strlen(option);
-    if (globalOptions == NULL) {
-	curLen = 0;
-	newLen = optLen;
-    }
-    else {
-	curLen = strlen(globalOptions);
-	newLen = curLen + 1 + optLen; /* room for a comma */
-    }
-
-    /* Grow the buffer */
-    newOptions = realloc(globalOptions, newLen + 1); /* room for the nul byte */
-    if (newOptions == NULL) {
-	fprintf(stderr, "%s: unable to allocate space for global option '%s'\n",
-		pmProgname, option);
-	/*
-	 * According to realloc(3), if realloc fails, then the original memory
-	 * block, if any, qis left untouched.
-	 */
-	return;
-    }
-
-    /* Add the new option. */
-    sprintf(newOptions + curLen, "%s%s", curLen == 0 ? "" : ",", option);
-    globalOptions = newOptions;
-}
-
 int
 main(int argc, char **argv)
 {
@@ -161,10 +124,12 @@ main(int argc, char **argv)
      */
     setupSignals(&handleInterrupt);
 
+    discoveryOptions.version = PM_DISCOVERY_OPTIONS_VERSION;
+
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
 	case 'r':	/* resolve addresses */
-	    addGlobalOption("resolve");
+	    discoveryOptions.resolve = 1;
 	    break;
 	case 's':	/* local services */
 	    if (strcmp(opts.optarg, "all") == 0)
@@ -199,7 +164,7 @@ main(int argc, char **argv)
 	return discovery(service);
 
     for (c = sts = total = 0; c < sizeof(services)/sizeof(services[0]); c++) {
-	if (interrupted)
+	if (discoveryOptions.interrupted)
 	    break;
 	sts |= discovery(services[c]);
 	total += (sts != 0);

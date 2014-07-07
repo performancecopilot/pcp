@@ -260,13 +260,8 @@ typedef struct {
     const char		*protocol;
 } __pmServiceInfo;
 
-typedef struct {
-    int			resolve;	/* resolve addresses */
-    int			*interrupted;	/* process interrupted */
-} __pmDiscoveryGlobalContext;
-
 extern int __pmAddDiscoveredService(__pmServiceInfo *,
-				    const __pmDiscoveryGlobalContext *,
+				    const pmDiscoveryOptions *,
 				    int,
 				    char ***) _PCP_HIDDEN;
 
