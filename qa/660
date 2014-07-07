@@ -125,23 +125,26 @@ $sudo $signal -a pmwebd >/dev/null 2>&1
 sleep 2		# let it shutdown
 
 cat $tmp.out >> $seq.full
-$PCP_BINADM_DIR/pmwebd $webargs -R `pwd` -c 2222 -L -N -vvv -l $tmp.out &
+$PCP_BINADM_DIR/pmwebd $webargs -R `pwd` -c 2222 -L -h localhost -N -vvv -l $tmp.out &
 sleep 2		# let it start up
 
 # should fail due to -N
 curl -s -S "http://localhost:44323/pmapi/context?local=anything" | _filter
 echo
 # should fail due to nonexistent context#
-curl -s -S "http://localhost:44323/pmapi/2223/_fetch" | _filter
+curl -s -S "http://localhost:44323/pmapi/2225/_fetch" | _filter
 echo
 # should fail with a different error (insufficient elements; ie pmFetch failed) 
-curl -s -S "http://localhost:44323/pmapi/2222/_fetch" | _filter
+curl -s -S "http://localhost:44323/pmapi/2222/_fetch?names=" | _filter
+echo
+# should fail with a different error (insufficient elements; ie pmFetch failed) 
+curl -s -S "http://localhost:44323/pmapi/2223/_fetch?pmids=" | _filter
 echo
 # should fail due to suspicious pmresapi path name
 curl -s -S "http://localhost:44323/../../etc/passwd" | _filter
 echo
 # should fail due to non-enablement of graphite
-curl -s -S "http://localhost:44323/graphite/render?target=foo" | _filter
+curl -s -S "http://localhost:44323/graphite/render?target=*" | _filter
 echo
 # should pass, feed this very script
 curl -s -S "http://localhost:44323/$seq" > $tmp.out2
@@ -153,7 +156,7 @@ $sudo $signal -a pmwebd >/dev/null 2>&1
 sleep 2		# let it shut down
 
 cat $tmp.out >> $seq.full
-$PCP_BINADM_DIR/pmwebd $webargs -G -R $PCP_SHARE_DIR/jsdemos -A `pwd` -N -M0 -x/dev/tty -d5 -vvv -l $tmp.out &
+$PCP_BINADM_DIR/pmwebd $webargs -G -R $PCP_SHARE_DIR/jsdemos -A `pwd` -N -M0 -x/dev/tty -d1 -vvv -l $tmp.out &
 sleep 2		# let it start up
 
 function python_json_pretty() {
@@ -175,7 +178,7 @@ print 'size=%dx%d\n' % (img.size[0], img.size[1])
 
 echo "the catalog"
 curl -s -i "http://localhost:44323/" | sed -e 's,^Date:.*$,Date: XXX,'  # test forwarding
-curl -s -S "http://localhost:44323/index.html"
+curl -s -S "http://localhost:44323/index.html?foo=bar"
 
 echo
 echo "metric name breakage" 
@@ -185,6 +188,7 @@ curl -s -S "http://localhost:44323/graphite/render?format=json&target=foo-XX-bar
 echo
 echo "metric tree iteration" 
 curl -s -S "http://localhost:44323/graphite/metrics/find?query=src*naslog*meta.*" | python_json_pretty
+curl -s -S "http://localhost:44323/graphite/metrics/find?format=completer&query=src*naslog*meta.*" | python_json_pretty
 
 echo
 echo "metric regex grep 1" 
@@ -199,11 +203,11 @@ echo "metric value dump 1"
 curl -s -S "http://localhost:44323/graphite/render?format=json&target=*-2F-node_archive-2E-meta.proc.psinfo.pid.*&from=15:50_20131127&until=1385585880" | python_json_pretty
 echo
 echo "metric value dump 2" 
-curl -s -S "http://localhost:44323/graphite/rawdata?target=*-2F-node_archive-2E-meta.proc.psinfo.pid.*&from=15:50_20131127&until=20131128" | python_json_pretty
+curl -s -S "http://localhost:44323/graphite/rawdata?target=*-2F-node_archive-2E-meta.proc.psinfo.pid.*&from=15:50_20131127&until=20131129" | python_json_pretty
 
 echo
 echo "metric gfx rendering" 
-curl -s -S "http://localhost:44323/graphite/render?width=999&height=999&hideLegend=false&format=png&target=*-chartqa1-2E-meta.sample.*byte*&target=*-chartqa1-2E-meta.*NOSUCH*&target=*-chartqa1-2E-meta.sample.dodgey.value.NOSUCH&from=22:31_20071010&until=22:36_20071010" | tee foo.png | python_img_pretty
+curl -s -S "http://localhost:44323/graphite/render?width=999&height=999&hideLegend=false&bgcolor=%23FF0&title=hello&format=png&target=*-chartqa1-2E-meta.sample.*byte*&target=*-chartqa1-2E-meta.*NOSUCH*&target=*-chartqa1-2E-meta.sample.dodgey.value.NOSUCH&from=22:31_20071010&until=22:36_20071010" | tee 660.png | python_img_pretty
 
 
 # tidy up
