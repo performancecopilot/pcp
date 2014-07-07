@@ -10,7 +10,7 @@ UIFILES = $(shell echo *.ui)
 CONFFILES = $(PROJECT)
 LSRCFILES = $(PROJECT).in $(SOURCES) $(HEADERS) $(UIFILES) $(QRCFILE)
 
-SUBDIRS = views images
+SUBDIRS = images
 
 default: $(PROJECT)
 	$(SUBDIRS_MAKERULE)

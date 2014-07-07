@@ -19,17 +19,17 @@ TimeButton::TimeButton(QWidget *parent) : QToolButton(parent)
     my.state = Timeless;
     setIconSize(QSize(52, 52));
     setFocusPolicy(Qt::NoFocus);
-    my.forwardLiveIcon = QIcon(":/images/play_live.png");
-    my.stoppedLiveIcon = QIcon(":/images/stop_live.png");
-    my.forwardRecordIcon = QIcon(":/images/play_record.png");
-    my.stoppedRecordIcon = QIcon(":/images/stop_record.png");
-    my.forwardArchiveIcon = QIcon(":/images/play_archive.png");
-    my.stoppedArchiveIcon = QIcon(":/images/stop_archive.png");
-    my.backwardArchiveIcon = QIcon(":/images/back_archive.png");
-    my.stepForwardArchiveIcon = QIcon(":/images/stepfwd_archive.png");
-    my.stepBackwardArchiveIcon = QIcon(":/images/stepback_archive.png");
-    my.fastForwardArchiveIcon = QIcon(":/images/fastfwd_archive.png");
-    my.fastBackwardArchiveIcon = QIcon(":/images/fastback_archive.png");
+    my.forwardLiveIcon = QIcon(":/play_live.png");
+    my.stoppedLiveIcon = QIcon(":/stop_live.png");
+    my.forwardRecordIcon = QIcon(":/play_record.png");
+    my.stoppedRecordIcon = QIcon(":/stop_record.png");
+    my.forwardArchiveIcon = QIcon(":/play_archive.png");
+    my.stoppedArchiveIcon = QIcon(":/stop_archive.png");
+    my.backwardArchiveIcon = QIcon(":/back_archive.png");
+    my.stepForwardArchiveIcon = QIcon(":/stepfwd_archive.png");
+    my.stepBackwardArchiveIcon = QIcon(":/stepback_archive.png");
+    my.fastForwardArchiveIcon = QIcon(":/fastfwd_archive.png");
+    my.fastBackwardArchiveIcon = QIcon(":/fastback_archive.png");
     console->post(App::DebugUi, "Time button resources loaded");
 }
 
