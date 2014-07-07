@@ -28,6 +28,7 @@ TimeControl::TimeControl() : QProcess(NULL)
     my.tzData = NULL;
     my.bufferLength = sizeof(PmTime::Packet);
 
+    console->post("TimeControl::TimeControl: created");
     my.buffer = (char *)malloc(my.bufferLength);
     my.livePacket = (PmTime::Packet *)malloc(sizeof(PmTime::Packet));
     my.archivePacket = (PmTime::Packet *)malloc(sizeof(PmTime::Packet));
