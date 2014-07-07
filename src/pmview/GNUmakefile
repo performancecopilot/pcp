@@ -6,10 +6,11 @@ include $(TOPDIR)/src/include/builddefs
 WRAPPER = $(COMMAND).sh
 QRCFILE = $(COMMAND).qrc
 ICNFILE = $(COMMAND).icns
+ICOFILE = $(COMMAND).ico
 XMLFILE = $(COMMAND).info
 DESKTOP = $(COMMAND).desktop
 UIFILES = $(shell echo *.ui)
-HEADERS = main.h pmview.h colorlist.h \
+CLASSES = main.h pmview.h colorlist.h \
 	  barmod.h barobj.h baseobj.h \
 	  defaultobj.h gridobj.h labelobj.h stackobj.h \
 	  text.h viewobj.h pipeobj.h link.h xing.h \
@@ -17,17 +18,24 @@ HEADERS = main.h pmview.h colorlist.h \
 	  colorscalemod.h colormod.h colorscale.h \
 	  metriclist.h modlist.h modulate.h \
 	  scalemod.h stackmod.h togglemod.h \
-	  view.h yscalemod.h pcpcolor.h
-SOURCES = $(HEADERS:.h=.cpp) error.cpp
-ICONLINKS = $(ICNFILE)
+	  yscalemod.h pcpcolor.h launch.h
+SOURCES = $(CLASSES:.h=.cpp) error.cpp
+HEADERS = $(CLASSES) modobj.h
+ICONLINKS = aboutpcp.png aboutqt.png pmview.png pmtime.png whatsthis.png \
+	    document-print.png help-browser.png help-contents.png \
+	    play_live.png stop_live.png play_record.png stop_record.png \
+	    play_archive.png stop_archive.png back_archive.png \
+	    stepfwd_archive.png stepback_archive.png fastfwd_archive.png \
+	    fastback_archive.png \
+	    $(ICNFILE) $(ICOFILE)
 GENERATED = gram.cpp lex.cpp 
 LFILES = lex.l
 YFILES = gram.y
 LSRCFILES = $(PROJECT).in $(QRCFILE) $(UIFILES) $(HEADERS) $(SOURCES) \
-	  $(DESKTOP) $(WRAPPER).IN
+	  $(DESKTOP) $(WRAPPER).IN $(XMLFILE).in
 LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER) $(XMLFILE) $(GENERATED) gram.h y.tab.?
 
-SUBDIRS = front-ends images
+SUBDIRS = front-ends
 
 default: iconlinks wrappers $(GENERATED)
 	$(SUBDIRS_MAKERULE)
@@ -35,6 +43,8 @@ default: iconlinks wrappers $(GENERATED)
 	$(LNMAKE)
 
 include $(BUILDRULES)
+
+$(COMMAND):	../libapp/libapp.a
 
 lex.cpp:	lex.l
 	$(LEX) -t lex.l > $@

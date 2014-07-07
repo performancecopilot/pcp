@@ -26,7 +26,6 @@
 
 class ModList;
 class SceneGroup;
-class QAssistantClient;
 
 class View : public ViewControl
 {
@@ -86,7 +85,6 @@ public:
     virtual void step(bool livemode, PmTime::Packet *pmtime);
     virtual void VCRMode(bool livemode, PmTime::Packet *pmtime, bool drag);
     virtual void timeZone(bool livemode, PmTime::Packet *pmtime, char *tzdata);
-    virtual void setupAssistant();
     virtual void setDateLabel(QString label);
     virtual void setDateLabel(time_t seconds, QString tz);
     virtual void setButtonState(TimeButton::State state);
@@ -114,7 +112,6 @@ public slots:
     virtual void enableUi();
     virtual void filePrint();
     virtual void fileQuit();
-    virtual void assistantError(const QString &);
     virtual void helpManual();
     virtual void helpTutorial();
     virtual void helpAbout();
@@ -148,7 +145,6 @@ private:
 	QList<QAction*> separatorsList;		// separator follow these
 	QList<QAction*> toolbarActionsList;	// all toolbar actions
 	QList<QAction*> enabledActionsList;	// currently visible actions
-	QAssistantClient *assistant;
 
 	QList<View *>viewList;
 	int activeView;

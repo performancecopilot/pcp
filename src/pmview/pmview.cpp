@@ -50,7 +50,6 @@ int		frontend_argc;
 
 PmView::PmView() : QMainWindow(NULL)
 {
-    my.assistant = NULL;
     my.dialogsSetup = false;
 
     setIconSize(QSize(22, 22));
@@ -93,12 +92,11 @@ PmView::PmView() : QMainWindow(NULL)
     my.drawStyle->style.setValue(SoDrawStyle::FILLED);
     my.root->addChild(my.drawStyle);
 
-#if 0	// TODO
     if (outfile)
 	QTimer::singleShot(0, this, SLOT(exportFile()));
     else
 	QTimer::singleShot(PmView::defaultTimeout(), this, SLOT(timeout()));
-#endif
+
 }
 
 void PmView::languageChange()
@@ -225,8 +223,6 @@ QMenu *PmView::createPopupMenu(void)
 void PmView::quit()
 {
     // End any processes we may have started and close any open dialogs
-    if (my.assistant)
-	my.assistant->closeAssistant();
     if (pmtime)
 	pmtime->quit();
 }
@@ -302,37 +298,32 @@ void PmView::fileQuit()
     QApplication::exit(0);
 }
 
-void PmView::assistantError(const QString &msg)
-{
-    QMessageBox::warning(this, pmProgname, msg);
-}
-
-void PmView::setupAssistant()
-{
-    if (my.assistant)
-	return;
-    my.assistant = new QAssistantClient(
-		QLibraryInfo::location(QLibraryInfo::BinariesPath), this);
-    connect(my.assistant, SIGNAL(error(const QString &)),
-    		    this, SLOT(assistantError(const QString &)));
-    QStringList arguments;
-    QString documents = HTMLDIR;
-    arguments << "-profile" << documents.append("/pmview.adp");
-    my.assistant->setArguments(arguments);
-}
-
 void PmView::helpManual()
 {
-    setupAssistant();
-    QString documents = HTMLDIR;
-    my.assistant->showPage(documents.append("/index.html"));
+    bool ok;
+    QString documents("file://" HTMLDIR);
+    QString separator = QString(__pmPathSeparator());
+    documents.append(separator).append("html");
+    documents.append(separator).append("index.html");
+    ok = QDesktopServices::openUrl(QUrl(documents, QUrl::TolerantMode));
+    if (!ok) {
+	documents.prepend("Failed to open:\n");
+	QMessageBox::warning(this, pmProgname, documents);
+    }
 }
 
 void PmView::helpTutorial()
 {
-    setupAssistant();
-    QString documents = HTMLDIR;
-    my.assistant->showPage(documents.append("/tutorial.html"));
+    bool ok;
+    QString documents("file://" HTMLDIR);
+    QString separator = QString(__pmPathSeparator());
+    documents.append(separator).append("html");
+    documents.append(separator).append("tutorial.html");
+    ok = QDesktopServices::openUrl(QUrl(documents, QUrl::TolerantMode));
+    if (!ok) {
+	documents.prepend("Failed to open:\n");
+	QMessageBox::warning(this, pmProgname, documents);
+    }
 }
 
 void PmView::helpAbout()

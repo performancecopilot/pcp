@@ -286,7 +286,6 @@
  <includes>
   <include location="local" >pmtime.h</include>
   <include location="local" >qprinter.h</include>
-  <include location="local" >qassistantclient.h</include>
   <include location="local" >timebutton.h</include>
  </includes>
  <resources>
