@@ -1,6 +1,7 @@
-""" Test creation of a PCP web daemon via the requests module """
+""" Test creation of a PCP web daemon via the requests module -*- python -*- """
+
 #
-# Copyright (C) 2013-2014 Red Hat.
+# Copyright (C) 2013-2014 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -132,12 +133,10 @@ test_metric_enumeration(ctx_host,'kernel')
 
 # ------------------------------------------------------------------------
 
-<<<<<<< HEAD
 # empty _fetch should get an error
 req = requests.get(url=url + 'pmapi/'+str(ctx_host)+'/_fetch')
 print('context #'+str(ctx_host)+' response code ' + str(req.status_code))
-=======
-def test_metric_fetch(ctx,metrics):
+def test_fetch(ctx,metrics):
 # some fetches of real values
   req = requests.get(url=url + 'pmapi/'+str(ctx)+'/_fetch?'+metrics)
   print 'context #'+str(ctx_host)+' fetch '+metrics+' response code ' + str(req.status_code) 
@@ -146,7 +145,7 @@ def test_metric_fetch(ctx,metrics):
   # print req.content
   result = req.json()
   print 'timestamps fields:'+str(len(result['timestamp']))+' len(values[]):'+str(len(result['values']))
-  for metric in result['values']:
+  for metric in sorted(result['values'], key=lambda x: x['name']):
       print '  metric:'+metric['name']
       if (len(metric['instances']) > 0):
           print '  with instances'
@@ -156,30 +155,73 @@ def test_metric_fetch(ctx,metrics):
 
 
 # use both contexts so neither times out
-test_metric_fetch(ctx_local,'names=')
-test_metric_fetch(ctx_local,'names=no.such.metric')
-test_metric_fetch(ctx_local,'names=no.such.metric1,pmcd.client.whoami,no.such.metric2')  # ignore the bad metrics; no pmcd.* with -L
-test_metric_fetch(ctx_host,'names=no.such.metric3,pmcd.client.whoami,no.such.metric4')  # ignore the bad metrics
-test_metric_fetch(ctx_host,'names=sample.event.records') # events
-test_metric_fetch(ctx_host,'pmids=121634826,0x740000b') # sample.long.one, sample.long.ten
-test_metric_fetch(ctx_local,'names=keepalive')
-test_metric_fetch(ctx_host,'names=sample.bogus_bin,sample.sysinfo,sample.byte_rate,sample.ulong.bin')
-test_metric_fetch(ctx_host,'names=sample.longlong.bin,sample.ulonglong.million,sample.float.hundred')
-test_metric_fetch(ctx_host,'names=sample.double.bin_ctr,sample.aggregate.null,sample.hordes.one')
-test_metric_fetch(ctx_host,'names=sample.dodgey.value')
-test_metric_fetch(ctx_local,'names=keepalive')
-
->>>>>>> 67511214be54... pmwebd qa++, now gcov-guided
+test_fetch(ctx_local,'names=')
+test_fetch(ctx_local,'names=no.such.metric')
+test_fetch(ctx_local,'names=no.such.metric1,pmcd.client.whoami,no.such.metric2')  # ignore the bad metrics; no pmcd.* with -L
+test_fetch(ctx_host,'names=no.such.metric3,pmcd.client.whoami,no.such.metric4')  # ignore the bad metrics
+test_fetch(ctx_host,'names=sample.event.records') # events
+test_fetch(ctx_host,'pmids=121634826,0x740000b') # sample.long.one, sample.long.ten
+test_fetch(ctx_local,'names=keepalive')
+test_fetch(ctx_host,'names=sample.bogus_bin,sample.sysinfo,sample.byte_rate,sample.ulong.bin')
+test_fetch(ctx_host,'names=sample.longlong.bin,,,sample.ulonglong.million,sample.float.hundred')
+test_fetch(ctx_host,'names=sample.double.bin_ctr,sample.aggregate.null,sample.hordes.one')
+test_fetch(ctx_host,'names=sample.dodgey.value')
+test_fetch(ctx_local,'pmids=blargh')
 
 # ------------------------------------------------------------------------
 
+def test_metadata(ctx,metrics):
+# some fetches of real values
+  req = requests.get(url=url + 'pmapi/'+str(ctx)+'/_metric?'+metrics)
+  print 'context #'+str(ctx_host)+' metadata '+metrics+' response code ' + str(req.status_code) 
+  if (req.status_code != 200):
+      return
+  # print req.content
+  result = req.json()
+  print 'len(metrics[]):'+str(len(result['metrics']))
+  for metric in sorted(result['metrics'], key=lambda x: x['name']):
+      print '  metric:'+metric['name']+' metadata:'+str(len(metric.keys()))
+      # don't pretty-print metadata contents, because they could fluctuate too much from test to test for _filter()
 
-# INDOM 
+
+# use both contexts so neither times out
+test_metadata(ctx_local,'prefix=no.such.metric')
+test_metadata(ctx_local,'prefix=no.such.metric1,pmcd.client.whoami,no.such.metric2')  # ignore the bad metrics; no pmcd.* with -L
+test_metadata(ctx_host,'prefix=no.such.metric3,pmcd.client.whoami,no.such.metric4')  # ignore the bad metrics
+test_metadata(ctx_host,'prefix=sample') # whole shebang
+test_metadata(ctx_local,'prefix=keepalive')
+
+# ------------------------------------------------------------------------
+
+def test_indom(ctx,dom):
+# some fetches of real values
+  req = requests.get(url=url + 'pmapi/'+str(ctx)+'/_indom?'+dom)
+  print 'context #'+str(ctx_host)+' indom '+dom+' response code ' + str(req.status_code) 
+  if (req.status_code != 200):
+      return
+  # print req.content
+  result = req.json()
+  print 'indom:'+str(result['indom'])
+  if (len(result['instances']) > 0):
+      print '  with instances'
+  else:
+      print '  no instances'
+  # don't pretty-print indom tuples, because they could fluctuate too much from test to test for _filter()
+
+
+# use both contexts so neither times out
+test_indom(ctx_local,'indom=')
+test_indom(ctx_host,'indom=0x7400009') # sample.scramble.bin
+test_indom(ctx_host,'name=sample.many.bin8&instance=1,4,')
+test_indom(ctx_host,'indom=0x7400008&iname=i-2,,,i-3') # sample.many.bin
+test_indom(ctx_host,'name=pmcd.client.whoami')
+test_indom(ctx_local,'names=keepalive')
+
 
 # ------------------------------------------------------------------------
 
 print 'sleeping briefly to expire contexts' 
 time.sleep(10) # >> polltimeout=2
 
-test_metric_fetch(ctx_local,'names=kernel.all.nprocs')  # expect status 400ish
-test_metric_fetch(ctx_host,'names=kernel.all.nprocs')
+test_metadata(ctx_local,'names=kernel.all.nprocs')  # expect status 400ish
+test_indom(ctx_host,'names=kernel.all.nprocs')
