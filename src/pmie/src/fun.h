@@ -29,6 +29,7 @@
 
 /* expression evaluator function prototypes */
 void rule(Expr *);
+void ruleset(Expr *);
 void cndFetch_all(Expr *);
 void cndFetch_n(Expr *);
 void cndFetch_1(Expr *);

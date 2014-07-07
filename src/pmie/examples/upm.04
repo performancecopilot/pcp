@@ -2,6 +2,9 @@
 // Refine the preceding rule further to print the host name and disk name
 // for which the threshold is exceeded
 //
-$hour >= 9 && $hour <= 17 && some_inst 75 %_sample
-    disk.dev.total @0..3 > 40 count/sec
-	-> print "disk %i on host %h busy for 20 sec";
+$hour >= 9 && $hour <= 17 &&
+some_inst (
+    75 %_sample (
+	disk.dev.total @0..3 > 40 count/sec
+    )
+) -> print "disks busy for 20 sec:" " [%h]%i";

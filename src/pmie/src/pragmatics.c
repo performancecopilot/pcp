@@ -458,7 +458,7 @@ sendDesc(Expr *x, pmValueSet *vset)
 
 	case SEM_NUMVAR:
 	case SEM_NUMCONST:
-	case SEM_TRUTH:
+	case SEM_BOOLEAN:
 	    /* map to a numeric value */
 	    d.type = PM_TYPE_DOUBLE;
 	    d.sem = PM_SEM_INSTANT;

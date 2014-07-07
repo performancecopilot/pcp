@@ -26,6 +26,7 @@
 #include "proc_meminfo.h"
 
 static proc_meminfo_t moff;
+extern size_t _pm_system_pagesize;
 
 static struct {
     char	*field;
@@ -132,6 +133,64 @@ refresh_proc_meminfo(proc_meminfo_t *proc_meminfo)
     }
 
     fclose(fp);
+
+    /*
+     * MemAvailable is only in 3.x or later kernels but we can calculate it
+     * using other values, similar to upstream kernel commit 34e431b0ae.
+     * The environment variable is for QA purposes.
+     */
+    if (!MEMINFO_VALID_VALUE(proc_meminfo->MemAvailable) ||
+    	getenv("PCP_QA_ESTIMATE_MEMAVAILABLE") != NULL) {
+	if (MEMINFO_VALID_VALUE(proc_meminfo->MemTotal) &&
+	    MEMINFO_VALID_VALUE(proc_meminfo->MemFree) &&
+	    MEMINFO_VALID_VALUE(proc_meminfo->Active_file) &&
+	    MEMINFO_VALID_VALUE(proc_meminfo->Inactive_file) &&
+	    MEMINFO_VALID_VALUE(proc_meminfo->SlabReclaimable)) {
+
+	    int64_t pagecache;
+	    int64_t wmark_low = 0;
+
+	    /*
+	     * sum for each zone->watermark[WMARK_LOW];
+	     */
+	    if ((fp = fopen("/proc/zoneinfo", "r")) != NULL) {
+		while (fgets(buf, sizeof(buf), fp) != NULL) {
+		    if ((bufp = strstr(buf, "low ")) != NULL) {
+			int64_t low;
+		    	if (sscanf(bufp+4, "%lld", (long long int *)&low) == 1)
+			    wmark_low += low;
+		    }
+		}
+		fclose(fp);
+		wmark_low *= _pm_system_pagesize;
+	    }
+
+	    /*  
+	     * Free memory cannot be taken below the low watermark, before the
+	     * system starts swapping.
+	     */
+	    proc_meminfo->MemAvailable = proc_meminfo->MemFree - wmark_low;
+
+	    /*
+	     * Not all the page cache can be freed, otherwise the system will
+	     * start swapping. Assume at least half of the page cache, or the
+	     * low watermark worth of cache, needs to stay.
+	     */
+	    pagecache = proc_meminfo->Active_file + proc_meminfo->Inactive_file;
+	    pagecache -= MIN(pagecache / 2, wmark_low);
+	    proc_meminfo->MemAvailable += pagecache;
+
+	    /*
+	     * Part of the reclaimable slab consists of items that are in use,
+	     * and cannot be freed. Cap this estimate at the low watermark.
+	     */
+	    proc_meminfo->MemAvailable += proc_meminfo->SlabReclaimable;
+	    proc_meminfo->MemAvailable -= MIN(proc_meminfo->SlabReclaimable / 2, wmark_low);
+
+	    if (proc_meminfo->MemAvailable < 0)
+	    	proc_meminfo->MemAvailable = 0;
+	}
+    }
 
     /* success */
     return 0;

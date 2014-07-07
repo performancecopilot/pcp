@@ -315,7 +315,7 @@ avahi
 052 pmns local ostest oss
 053 other local pmprobe ostest oss
 054 pmlogger archive ostest remote oss pmdumplog
-055 pmie ostest remote oss sanity
+055 pmie ostest local oss sanity
 057 pmns local ostest oss
 058 pmval local ostest oss
 059 archive local ostest oss sanity pmdumplog
@@ -758,7 +758,7 @@ avahi
 498 event pmda local oss
 499 pmlogrewrite local oss
 500 logutil local #636417 folio oss
-501 pmie remote oss
+501 pmie local oss
 502 pmlogrewrite local oss
 503 logutil pmlogrewrite local oss pmlogextract
 504 pmie remote pmsocks oss
@@ -921,6 +921,7 @@ avahi
 752 libpcp local oss
 755 pmda.apache pmda.install local oss
 763 pmda local oss
+764 pmie local oss
 766 pmfind local oss
 768 pmlogextract local oss
 775 sanity pmfind local oss
@@ -939,6 +940,7 @@ avahi
 831 pmda.sample pmstore secure local oss
 832 pmda.sample pmstore secure local oss
 833 archive context local oss
+834 pmie local oss
 840 avahi local oss
 841 pmda local oss
 844 pmda.linux local oss

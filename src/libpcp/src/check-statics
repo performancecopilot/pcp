@@ -375,6 +375,14 @@ End-of-File
 
 for file in *.o
 do
+    case "$file"
+    in
+	'*.o')
+	    echo "Error: no object files!! Need some drive-by make action?"
+	    exit 1
+	    ;;
+    esac
+    
     if grep "^?*$file\$" $tmp/ctl >/dev/null 2>&1
     then
 	:
@@ -389,7 +397,7 @@ skip_file=false
 cat $tmp/ctl \
 | while read line
 do
-    if expr $line : "^.*\.o$" >/dev/null  # .o file
+    if expr $line : '.*\.o$' >/dev/null  # .o file
     then
 	if [ -n "$obj" ]
 	then

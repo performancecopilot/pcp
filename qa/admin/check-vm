@@ -113,6 +113,7 @@ Spreadsheet::ReadSXC		[cpan?]
 sadf				[sysstat]
 # QA
 bc
+curl
 Spreadsheet::XLSX		[libspreadsheet-xlsx-perl(dpkg)]
 dpkg?	Text::CSV_XS		[Text-CSV_XS]
 rpm?	Text::CSV_XS		[perl-Text-CSV_XS]

@@ -642,6 +642,8 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	    case 3: { /* switch performance counters */
 
+#ifdef HAVE_PMA_QUERY_VIA
+
 		// To find the LID of the switch the HCA is connected to,
 		// send an SMP on the directed route 0,1 and ask the port
 		// to identify itself.
@@ -677,7 +679,7 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			    sw_lid, sw_port);
 		    return 0;
 		}
-
+#endif
 		break;
 	    }
 
@@ -885,6 +887,8 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case 3: /* Fetch values from switch response */
 
+#ifdef HAVE_PMA_QUERY_VIA
+
 	// (The values are "swapped" because what the port receives is what the
 	// switch sends, and vice versa.)
 	switch (idp->item) {
@@ -935,6 +939,11 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 	    }
 	}
+#else
+
+	return PM_ERR_VALUE;
+
+#endif
 	break;
 
     default:
