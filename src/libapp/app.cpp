@@ -11,9 +11,10 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
+
+#include "version.h"
 #include "app.h"
 #include "console.h"
-#include "version.h"
 
 #include <math.h>
 #include <pcp/pmapi.h>
@@ -36,7 +37,7 @@ App::App(int &argc, char **argv) : QApplication(argc, argv)
 
     QCoreApplication::setOrganizationName("PCP");
     QCoreApplication::setApplicationName(pmProgname);
-    QCoreApplication::setApplicationVersion(VERSION);
+    QCoreApplication::setApplicationVersion(PCP_VERSION);
     QString confirm = pmGetConfig("PCP_BIN_DIR");
     confirm.prepend("PCP_XCONFIRM_PROG=");
     confirm.append("/pmquery");
@@ -130,7 +131,7 @@ int App::getopts(const char *options)
 	    break;
 
 	case 'V':		/* version */
-	    printf("%s %s\n", pmProgname, VERSION);
+	    printf("%s %s\n", pmProgname, PCP_VERSION);
 	    exit(0);
 
 	case 'z':		/* timezone from host */

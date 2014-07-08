@@ -51,8 +51,8 @@ void RecordDialog::init(ViewControl *view, double userDelta)
 
     my.view = view;
     my.userDelta = userDelta;
-    my.units = PmTime::Seconds;
-    deltaLineEdit->setText(PmTime::deltaString(userDelta, my.units));
+    my.units = QmcTime::Seconds;
+    deltaLineEdit->setText(QmcTime::deltaString(userDelta, my.units));
 
     selectedRadioButton->setChecked(false);
     allGadgetsRadioButton->setChecked(true);
@@ -72,9 +72,9 @@ void RecordDialog::allGadgetsRadioButton_clicked()
 
 void RecordDialog::deltaUnitsComboBox_activated(int value)
 {
-    my.userDelta = PmTime::deltaValue(deltaLineEdit->text(), my.units);
-    my.units = (PmTime::DeltaUnits)value;
-    deltaLineEdit->setText(PmTime::deltaString(my.userDelta, my.units));
+    my.userDelta = QmcTime::deltaValue(deltaLineEdit->text(), my.units);
+    my.units = (QmcTime::DeltaUnits)value;
+    deltaLineEdit->setText(QmcTime::deltaString(my.userDelta, my.units));
 }
 
 void RecordDialog::viewPushButton_clicked()
@@ -199,7 +199,7 @@ void RecordDialog::buttonOk_clicked()
 {
     if (deltaLineEdit->isModified()) {
 	// convert to seconds, make sure its still in range 0.001-INT_MAX
-	double input = PmTime::deltaValue(deltaLineEdit->text(), my.units);
+	double input = QmcTime::deltaValue(deltaLineEdit->text(), my.units);
 	if (input < 0.001 || input > INT_MAX) {
 	    QString msg = tr("Record Sampling Interval is invalid.\n");
 	    msg.append(deltaLineEdit->text());
@@ -244,7 +244,7 @@ void RecordDialog::buttonOk_clicked()
 
     my.viewName = viewName;
     my.folioName = folioName;
-    my.delta.setNum(PmTime::deltaValue(deltaLineEdit->text(), my.units), 'f');
+    my.delta.setNum(QmcTime::deltaValue(deltaLineEdit->text(), my.units), 'f');
 
     my.hosts = my.view->hostList(selectedRadioButton->isChecked());
     for (int h = 0; h < my.hosts.count(); h++) {

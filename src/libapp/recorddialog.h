@@ -17,7 +17,7 @@
 #include "ui_recorddialog.h"
 #include <QtCore/QProcess>
 #include <QtGui/QFileDialog>
-#include "pmtime.h"
+#include "qmc_time.h"
 
 class ViewControl;
 
@@ -50,7 +50,7 @@ private:
 	ViewControl *view;
 	QString delta;
 	double userDelta;
-	PmTime::DeltaUnits units;
+	QmcTime::DeltaUnits units;
 
 	QString viewName;
 	QString folioName;

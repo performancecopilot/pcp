@@ -17,7 +17,7 @@
 
 #include <QtCore/QList>
 #include <qmc_group.h>
-#include <pmtime.h>
+#include <qmc_time.h>
 #include "timebutton.h"
 
 class GroupControl : public QObject, public QmcGroup
@@ -33,11 +33,11 @@ public:
     double timeInterval() const { return my.realDelta; }
     double timePosition() const { return my.realPosition; }
 
-    virtual void step(PmTime::Packet *);
-    virtual void VCRMode(PmTime::Packet *, bool);
-    virtual void setTimezone(PmTime::Packet *, char *);
+    virtual void step(QmcTime::Packet *);
+    virtual void VCRMode(QmcTime::Packet *, bool);
+    virtual void setTimezone(QmcTime::Packet *, char *);
 
-    virtual void adjustStep(PmTime::Packet *) = 0;
+    virtual void adjustStep(QmcTime::Packet *) = 0;
     virtual void updateTimeButton() = 0;
     virtual void updateTimeAxis(void) = 0;
 
@@ -46,8 +46,8 @@ public:
     static bool fuzzyTimeMatch(double, double, double);
 
     TimeButton::State buttonState() { return my.buttonState; }
-    PmTime::State pmtimeState();
-    void newButtonState(PmTime::State, PmTime::Mode, bool);
+    QmcTime::State pmtimeState();
+    void newButtonState(QmcTime::State, QmcTime::Mode, bool);
     bool isStateBackward() { return my.timeState == BackwardState; }
 
 protected:
@@ -63,14 +63,14 @@ protected:
     void setTimeState(State state) { my.timeState = state; }
     virtual void setButtonState(TimeButton::State) = 0;
 
-    virtual bool isActive(PmTime::Packet *) = 0;
-    virtual bool isRecording(PmTime::Packet *) = 0;
-    virtual void adjustWorldView(PmTime::Packet *, bool);
-    virtual void adjustLiveWorldViewForward(PmTime::Packet *);
-    virtual void adjustLiveWorldViewStopped(PmTime::Packet *);
-    virtual void adjustArchiveWorldViewForward(PmTime::Packet *, bool);
-    virtual void adjustArchiveWorldViewStopped(PmTime::Packet *, bool);
-    virtual void adjustArchiveWorldViewBackward(PmTime::Packet *, bool);
+    virtual bool isActive(QmcTime::Packet *) = 0;
+    virtual bool isRecording(QmcTime::Packet *) = 0;
+    virtual void adjustWorldView(QmcTime::Packet *, bool);
+    virtual void adjustLiveWorldViewForward(QmcTime::Packet *);
+    virtual void adjustLiveWorldViewStopped(QmcTime::Packet *);
+    virtual void adjustArchiveWorldViewForward(QmcTime::Packet *, bool);
+    virtual void adjustArchiveWorldViewStopped(QmcTime::Packet *, bool);
+    virtual void adjustArchiveWorldViewBackward(QmcTime::Packet *, bool);
 
     struct {
 	double realDelta;		// current update interval
@@ -79,8 +79,8 @@ protected:
 	struct timeval position;
 
 	TimeButton::State buttonState;
-	PmTime::Source pmtimeSource;	// reliable archive/host test
-	PmTime::State pmtimeState;
+	QmcTime::Source pmtimeSource;	// reliable archive/host test
+	QmcTime::State pmtimeState;
 	State timeState;
     } my;
 };
