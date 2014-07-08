@@ -239,7 +239,9 @@ context #### indom indom= response code 400
 context #### indom indom=0x7400009 response code 200
 indom:121634825
   with instances
-context #### indom name=sample.many.bin8&instance=1,4, response code 400
+context #### indom name=sample.many.int&instance=1,4 response code 200
+indom:121634824
+  with instances
 context #### indom indom=0x7400008&iname=i-2,,,i-3 response code 200
 indom:121634824
   with instances
@@ -264,7 +266,17 @@ file service ok
 the catalog
 HTTP/1.1 302 Moved Temporarily
 Content-Length: 0
-Location: /index.html
+Location: /index.html?phantasm=&zoo=poo
+Date: XXX
+
+HTTP/1.1 302 Moved Temporarily
+Content-Length: 0
+Location: /blinkenlights/index.html
+Date: XXX
+
+HTTP/1.1 302 Moved Temporarily
+Content-Length: 0
+Location: /blinkenlights/index.html
 Date: XXX
 
 <html>
