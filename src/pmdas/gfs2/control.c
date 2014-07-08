@@ -1,7 +1,7 @@
 /*
  * GFS2  trace-point metrics control.
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013 - 2014 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,6 +37,7 @@ const char *control_locations[] = {
 	[CONTROL_BLOCK_ALLOC]		= "/sys/kernel/debug/tracing/events/gfs2/gfs2_block_alloc/enable",
 	[CONTROL_BMAP]			= "/sys/kernel/debug/tracing/events/gfs2/gfs2_bmap/enable",
 	[CONTROL_RS]			= "/sys/kernel/debug/tracing/events/gfs2/gfs2_rs/enable",
+        [CONTROL_BUFFER_SIZE_KB]        = "/sys/kernel/debug/tracing/buffer_size_kb",
 	[CONTROL_GLOBAL_TRACING]	= "/sys/kernel/debug/tracing/tracing_on"
 };
 
@@ -74,10 +75,17 @@ gfs2_control_set_value(const char *filename, pmValueSet *vsp)
 {
     FILE *fp;
     int	sts = 0;
-
     int value = vsp->vlist[0].value.lval;
-    if (value < 0 || value > 1)
+
+    if (strncmp(filename, control_locations[CONTROL_BUFFER_SIZE_KB],
+                   sizeof(control_locations[CONTROL_BUFFER_SIZE_KB])-1) == 0) {
+        /* Special case for buffer_size_kb */
+        if (value < 0 || value > 131072) /* Allow upto 128mb buffer per CPU */
+            return - oserror();
+
+    } else if (value < 0 || value > 1) {
 	return -oserror();
+    }
 
     fp = fopen(filename, "w");
     if (!fp) {
@@ -92,13 +100,13 @@ gfs2_control_set_value(const char *filename, pmValueSet *vsp)
 /*
  * We check the tracepoint enable file given by filename and return the value
  * contained. This should either be 0 for disabled or 1 for enabled. In the
- * event of permissions or file not found we will return error.
+ * event of permissions or file not found we will return zero.
  */
 int 
 gfs2_control_check_value(const char *filename)
 {
     FILE *fp;
-    char buffer[2];
+    char buffer[16];
     int value = 0;
 
     fp = fopen(filename, "r");

@@ -1,7 +1,7 @@
 /*
  * Global Filesystem v2 (GFS2) PMDA
  *
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013 - 2014 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -557,6 +557,10 @@ pmdaMetric metrictable[] = {
         PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
     { NULL, {
+        PMDA_PMID(CLUSTER_CONTROL, CONTROL_BUFFER_SIZE_KB),
+        PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { NULL, {
         PMDA_PMID(CLUSTER_CONTROL, CONTROL_GLOBAL_TRACING),
         PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
@@ -725,7 +729,6 @@ gfs2_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 /*
  * callback provided to pmdaFetch
  */
-
 static int
 gfs2_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
@@ -774,6 +777,40 @@ gfs2_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     return 1;
 }
 
+/*
+ * Enable all tracepoints by default on init
+ */
+static void
+gfs2_tracepoints_init()
+{
+    FILE *fp;
+
+    fp = fopen("/sys/kernel/debug/tracing/events/gfs2/enable", "w");
+    if (!fp) {
+        fprintf(stderr, "Unable to automatically enable GFS2 tracepoints");
+    } else {
+        fprintf(fp, "%d\n", 1);
+        fclose(fp);
+    }
+}
+
+/*
+ * Set default trace_pipe buffer size per cpu on init (32MB)
+ */
+static void
+gfs2_buffer_default_size_set()
+{
+    FILE *fp;
+
+    fp = fopen("/sys/kernel/debug/tracing/buffer_size_kb", "w");
+    if (!fp) {
+        fprintf(stderr, "Unable to set default buffer size");
+    } else {
+        fprintf(fp, "%d\n", 32768); /* Default 32MB per cpu */
+        fclose(fp);
+    }
+}
+
 static int
 gfs2_store(pmResult *result, pmdaExt *pmda)
 {
@@ -786,7 +823,7 @@ gfs2_store(pmResult *result, pmdaExt *pmda)
 	vsp = result->vset[i];
 	pmidp = (__pmID_int *)&vsp->pmid;
 
-	if (pmidp->cluster == CLUSTER_CONTROL && pmidp->item <= CONTROL_RS) {
+	if (pmidp->cluster == CLUSTER_CONTROL && pmidp->item <= CONTROL_BUFFER_SIZE_KB) {
             sts = gfs2_control_set_value(control_locations[pmidp->item], vsp);
         }
 
@@ -855,9 +892,14 @@ gfs2_init(pmdaInterface *dp)
     pmdaSetFetchCallBack(dp, gfs2_fetchCallBack);
 
     gfs2_sbstats_init(metrictable, nmetrics);
+    gfs2_worst_glock_init(metrictable, nmetrics);
 
     pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
     pmdaInit(dp, indomtable, nindoms, metrictable, nmetrics);
+
+    /* Set defaults for both trace_pipe buffer size and enabled tracepoints */
+    gfs2_tracepoints_init();
+    gfs2_buffer_default_size_set();
 }
 
 static pmLongOptions longopts[] = {

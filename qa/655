@@ -4,7 +4,7 @@
 # Requires GFS2 support in the kernel and gfs2_utils installed,
 # else the test will not run.
 #
-# Copyright (c) 2013 Red Hat, Inc. All Rights Reserved.
+# Copyright (c) 2013 - 2014 Red Hat, Inc. All Rights Reserved.
 #
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -54,6 +54,9 @@ echo
 echo "=== Check gfs2.tracepoints metrics for all filesystems ===" | tee -a $here/$seq.full
 pminfo -fdm gfs2.tracepoints | _gfs2_filter_pminfo
 
+echo
+echo "=== Check gfs2.worst_glock metrics for all filesystems ===" | tee -a $here/$seq.full
+pminfo -fdm gfs2.worst_glock | _gfs2_filter_pminfo
 echo
 echo "=== check functionality of pmstore (off) ===" | tee -a $here/$seq.full
 pmstore gfs2.control.tracepoints.all 0 | sed \
