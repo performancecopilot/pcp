@@ -165,11 +165,10 @@ pmwebres_respond (struct MHD_Connection *connection, const http_params& params, 
         return MHD_NO;		// general 500 error
     }
 
-    if (!S_ISREG (fds.st_mode)) {
+    if (!S_ISREG (fds.st_mode)) { // some non-file non-directory
         connstamp (cerr, connection) << "pmwebres non-file " << resourcefile << endl;
         close (fd);
 
-        /* XXX: list directory, or redirect to index.html instead? */
         resp_code = MHD_HTTP_FORBIDDEN;
         goto error_response;
     }
