@@ -846,10 +846,11 @@ extern int pmDiscoverServices(const char *, const char *, char ***);
  */
 #define PM_DISCOVERY_OPTIONS_VERSION 1 /* Latest version */
 typedef struct {
-    int		version;	/* Version of this struct */
-    int		resolve:1;	/* Attempt to resolve network addresses */
-    int		reserved:31;	/* Reserved for future use */
-    int		interrupted;	/* Discovery interruption code */
+    int			version;	/* Version of this struct */
+    int			resolve:1;	/* Attempt to resolve network addresses */
+    int			reserved:31;	/* Reserved for future use */
+    int			interrupted;	/* Discovery interruption code */
+    struct timespec	timeout;	/* Timeout */
 } pmDiscoveryOptions;
 
 extern int pmDiscoverServicesWithOptions(const char *, const char *, pmDiscoveryOptions *, char ***);

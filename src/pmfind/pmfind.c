@@ -43,6 +43,7 @@ setupSignals(sighandler_t handler)
       sigaddset (&sa.sa_mask, SIGTERM);
       sigaddset (&sa.sa_mask, SIGXFSZ);
       sigaddset (&sa.sa_mask, SIGXCPU);
+      sigaddset (&sa.sa_mask, SIGALRM);
     }
   sa.sa_flags = SA_RESTART;
 
@@ -52,6 +53,7 @@ setupSignals(sighandler_t handler)
   sigaction (SIGTERM, &sa, NULL);
   sigaction (SIGXFSZ, &sa, NULL);
   sigaction (SIGXCPU, &sa, NULL);
+  sigaction (SIGALRM, &sa, NULL);
 }
 
 static const char *services[] = {
@@ -66,6 +68,7 @@ static pmLongOptions longopts[] = {
     { "mechanism", 1, 'm', "NAME", "set the discovery method to use [avahi|probe=<subnet>|all]" },
     { "resolve", 0, 'r', 0, "resolve addresses" },
     { "service", 1, 's', "NAME", "discover services [pmcd|pmproxy|pmwebd|...|all]" },
+    { "timeout", 1, 't', "N.N", "timeout in seconds" },
     PMAPI_OPTIONS_HEADER("Reporting options"),
     { "quiet", 0, 'q', 0, "quiet mode, do not write to stdout" },
     PMOPT_HELP,
@@ -73,7 +76,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "D:m:rs:q?",
+    .short_options = "D:m:rs:t:q?",
     .long_options = longopts,
     .override = override,
 };
@@ -82,7 +85,7 @@ static int
 override(int opt, pmOptions *opts)
 {
     (void)opts;
-    return (opt == 's');
+    return (opt == 's' || opt == 't');
 }
 
 static int
@@ -116,6 +119,8 @@ int
 main(int argc, char **argv)
 {
     char	*service = NULL;
+    char	*end;
+    double	timeout;
     int		c, sts, total;
 
     /*
@@ -128,6 +133,15 @@ main(int argc, char **argv)
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
+	case 'm':	/* discovery mechanism */
+	    if (strcmp(opts.optarg, "all") == 0)
+		mechanism = NULL;
+	    else
+		mechanism = opts.optarg;
+	    break;
+	case 'q':	/* no stdout messages */
+	    quiet = 1;
+	    break;
 	case 'r':	/* resolve addresses */
 	    discoveryOptions.resolve = 1;
 	    break;
@@ -137,14 +151,18 @@ main(int argc, char **argv)
 	    else
 		service = opts.optarg;
 	    break;
-	case 'm':	/* discovery mechanism */
-	    if (strcmp(opts.optarg, "all") == 0)
-		mechanism = NULL;
-	    else
-		mechanism = opts.optarg;
-	    break;
-	case 'q':	/* no stdout messages */
-	    quiet = 1;
+	case 't':	/* timeout */
+	    timeout = strtod(opts.optarg, &end);
+	    if (*end != '\0' || timeout < 0.0) {
+		fprintf (stderr, "%s: timeout value '%s' is not valid\n",
+			 pmProgname, opts.optarg);
+	    }
+	    else {
+		discoveryOptions.timeout.tv_sec = (time_t)timeout;
+		discoveryOptions.timeout.tv_nsec =
+		    (long)((timeout - (double)discoveryOptions.timeout.tv_sec) *
+			   1000000000);
+	    }
 	    break;
 	default:
 	    opts.errors++;
