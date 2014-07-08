@@ -50,13 +50,13 @@ int
 gfs2_control_fetch(int item, pmAtomValue *atom)
 {
     if (item >= CONTROL_ALL && item <= CONTROL_GLOBAL_TRACING) {
-        atom->ull = gfs2_control_check_value(control_locations[item]);
+        atom->ul = gfs2_control_check_value(control_locations[item]);
 
     } else if (item == CONTROL_WORSTGLOCK) {
-        atom->ull = worst_glock_get_state();
+        atom->ul = worst_glock_get_state();
 
     } else if (item == CONTROL_FTRACE_GLOCK_THRESHOLD) {
-        atom->ull = ftrace_get_threshold();
+        atom->ul = ftrace_get_threshold();
 
     } else {
        return PM_ERR_PMID;
@@ -75,10 +75,11 @@ gfs2_control_set_value(const char *filename, pmValueSet *vsp)
 {
     FILE *fp;
     int	sts = 0;
-
     int value = vsp->vlist[0].value.lval;
 
-    if (strncmp(filename, "/sys/kernel/debug/tracing/buffer_size_kb", 40) == 0) { /* Special case for buffer_size_kb */
+    if (strncmp(filename, control_locations[CONTROL_BUFFER_SIZE_KB],
+                   sizeof(control_locations[CONTROL_BUFFER_SIZE_KB])-1) == 0) {
+        /* Special case for buffer_size_kb */
         if (value < 0 || value > 131072) /* Allow upto 128mb buffer per CPU */
             return - oserror();
 
@@ -99,7 +100,7 @@ gfs2_control_set_value(const char *filename, pmValueSet *vsp)
 /*
  * We check the tracepoint enable file given by filename and return the value
  * contained. This should either be 0 for disabled or 1 for enabled. In the
- * event of permissions or file not found we will return error.
+ * event of permissions or file not found we will return zero.
  */
 int 
 gfs2_control_check_value(const char *filename)
