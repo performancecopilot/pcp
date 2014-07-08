@@ -212,8 +212,8 @@ def test_indom(ctx,dom):
 # use both contexts so neither times out
 test_indom(ctx_local,'indom=')
 test_indom(ctx_host,'indom=0x7400009') # sample.scramble.bin
-test_indom(ctx_host,'name=sample.many.bin8&instance=1,4,')
-test_indom(ctx_host,'indom=0x7400008&iname=i-2,,,i-3') # sample.many.bin
+test_indom(ctx_host,'name=sample.many.int&instance=1,4')
+test_indom(ctx_host,'indom=0x7400008&iname=i-2,,,i-3') # sample.many.int
 test_indom(ctx_host,'name=pmcd.client.whoami')
 test_indom(ctx_local,'names=keepalive')
 

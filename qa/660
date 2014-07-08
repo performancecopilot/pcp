@@ -177,8 +177,10 @@ print 'size=%dx%d\n' % (img.size[0], img.size[1])
 }
 
 echo "the catalog"
-curl -s -i "http://localhost:44323/" | sed -e 's,^Date:.*$,Date: XXX,'  # test forwarding
-curl -s -S "http://localhost:44323/index.html?foo=bar"
+curl -s -i "http://localhost:44323/?zoo=poo&phantasm" | sed -e 's,^Date:.*$,Date: XXX,'  # test forwarding
+curl -s -i "http://localhost:44323/blinkenlights" | sed -e 's,^Date:.*$,Date: XXX,'  # test forwarding
+curl -s -i "http://localhost:44323/blinkenlights/" | sed -e 's,^Date:.*$,Date: XXX,'  # test forwarding
+curl -s -S "http://localhost:44323/index.html?foo=bar&ectoplasm=egon"
 
 echo
 echo "metric name breakage" 
