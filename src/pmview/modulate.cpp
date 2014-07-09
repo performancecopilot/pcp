@@ -17,6 +17,9 @@
 #include "modulate.h"
 #include "modlist.h"
 
+#include <iostream>
+using namespace std;
+
 double			theNormError = 1.05;
 
 const QString	Modulate::theErrorText = "Metric Unavailable";

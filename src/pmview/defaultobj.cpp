@@ -16,6 +16,9 @@
 #include "colorlist.h"
 #include <QtCore/QSettings>
 
+#include <iostream>
+using namespace std;
+
 DefaultObj	*DefaultObj::theDefaultObj;
 
 DefaultObj::DefaultObj()

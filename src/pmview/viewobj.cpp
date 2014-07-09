@@ -16,9 +16,11 @@
 #include <Inventor/nodes/SoTranslation.h>
 #include <Inventor/nodes/SoCube.h>
 #include <Inventor/nodes/SoCylinder.h>
-
 #include "pmview.h"
 #include "viewobj.h"
+
+#include <iostream>
+using namespace std;
 
 int		ViewObj::theNumModObjects = 0;
 

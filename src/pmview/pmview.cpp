@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2009, Aconex.  All Rights Reserved.
+ * Copyright (c) 2007-2009, Aconex.  All Rights Reserved.
+ * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -11,7 +12,10 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
+#include <QtCore/QUrl>
+#include <QtCore/QTimer>
 #include <QtCore/QLibraryInfo>
+#include <QtGui/QDesktopServices>
 #include <QtGui/QApplication>
 #include <QtGui/QPrintDialog>
 #include <QtGui/QMessageBox>
@@ -22,6 +26,9 @@
 #include <Inventor/nodes/SoTransform.h>
 #include <Inventor/nodes/SoBaseColor.h>
 #include <Inventor/nodes/SoCube.h>
+
+#include <iostream>
+using namespace std;
 
 #include "barobj.h"
 #include "gridobj.h"
@@ -92,9 +99,12 @@ PmView::PmView() : QMainWindow(NULL)
     my.drawStyle->style.setValue(SoDrawStyle::FILLED);
     my.root->addChild(my.drawStyle);
 
+#if 0
+    // TODO is this needed?
     if (outfile)
 	QTimer::singleShot(0, this, SLOT(exportFile()));
     else
+#endif
 	QTimer::singleShot(PmView::defaultTimeout(), this, SLOT(timeout()));
 
 }
@@ -264,7 +274,7 @@ void PmView::setButtonState(TimeButton::State state)
     my.statusBar->timeButton()->setButtonState(state);
 }
 
-void PmView::step(bool live, PmTime::Packet *packet)
+void PmView::step(bool live, QmcTime::Packet *packet)
 {
     if (live)
 	liveGroup->step(packet);
@@ -272,7 +282,7 @@ void PmView::step(bool live, PmTime::Packet *packet)
 	archiveGroup->step(packet);
 }
 
-void PmView::VCRMode(bool live, PmTime::Packet *packet, bool drag)
+void PmView::VCRMode(bool live, QmcTime::Packet *packet, bool drag)
 {
     if (live)
 	liveGroup->VCRMode(packet, drag);
@@ -280,7 +290,7 @@ void PmView::VCRMode(bool live, PmTime::Packet *packet, bool drag)
 	archiveGroup->VCRMode(packet, drag);
 }
 
-void PmView::timeZone(bool live, PmTime::Packet *packet, char *tzdata)
+void PmView::timeZone(bool live, QmcTime::Packet *packet, char *tzdata)
 {
     if (live)
 	liveGroup->setTimezone(packet, tzdata);
@@ -301,9 +311,9 @@ void PmView::fileQuit()
 void PmView::helpManual()
 {
     bool ok;
-    QString documents("file://" HTMLDIR);
+    QString documents("file://");
     QString separator = QString(__pmPathSeparator());
-    documents.append(separator).append("html");
+    documents.append(pmGetConfig("PCP_HTML_DIR"));
     documents.append(separator).append("index.html");
     ok = QDesktopServices::openUrl(QUrl(documents, QUrl::TolerantMode));
     if (!ok) {
@@ -315,9 +325,9 @@ void PmView::helpManual()
 void PmView::helpTutorial()
 {
     bool ok;
-    QString documents("file://" HTMLDIR);
+    QString documents("file://");
     QString separator = QString(__pmPathSeparator());
-    documents.append(separator).append("html");
+    documents.append(pmGetConfig("PCP_HTML_DIR"));
     documents.append(separator).append("tutorial.html");
     ok = QDesktopServices::openUrl(QUrl(documents, QUrl::TolerantMode));
     if (!ok) {
@@ -416,7 +426,7 @@ void PmView::optionsNewPmchart()
     }
     if (Lflag)
 	arguments << "-L";
-    buddy->start("pmchart", arguments);
+    buddy->start("pmview", arguments);
 }
 
 bool PmView::isViewRecording()
@@ -455,7 +465,7 @@ void PmView::setDateLabel(QString label)
 void PmView::setRecordState(bool record)
 {
     liveGroup->newButtonState(liveGroup->pmtimeState(),
-				PmTime::NormalMode, record);
+				QmcTime::NormalMode, record);
     setButtonState(liveGroup->buttonState());
     enableUi();
 }
@@ -576,32 +586,38 @@ QStringList View::hostList(bool)
 
 QString View::pmloggerSyntax(bool)
 {
-    // TODO
-    return QString();
+// TODO
 #if 0
     View *view = pmview->activeView();
     QString configdata;
 
     if (selectedOnly)
-	configdata.append(pmchart->activeGadget()->pmloggerSyntax());
+	configdata.append(pmview->activeGadget()->pmloggerSyntax());
     else
 	for (int c = 0; c < view->gadgetCount(); c++)
 	    configdata.append(gadget(c)->pmloggerSyntax());
     return configdata;
+#else
+    return NULL;
 #endif
 }
 
 bool View::saveConfig(QString filename, bool hostDynamic,
 			bool sizeDynamic, bool allViews, bool allCharts)
 {
-    // TODO
+// TODO
+#if 0
+    return SaveViewDialog::saveView(filename,
+				hostDynamic, sizeDynamic, allViews, allCharts);
+#else
     return false;
-//  return SaveViewDialog::saveView(filename,
-//				hostDynamic, sizeDynamic, allViews, allCharts);
+#endif
 }
 
 bool View::stopRecording()
 {
+// TODO
+#if 0
     QString errmsg;
     bool error = ViewControl::stopRecording(errmsg);
     QStringList archiveList = ViewControl::archiveList();
@@ -628,35 +644,36 @@ bool View::stopRecording()
 	}
     }
 
-#if 0	// TODO
     // If all is well, we can now create the new "Record" View.
     // Order of cleanup and changing Record mode state is different
     // in the error case to non-error case, this is important for
-    // getting the window state correct (i.e. pmchart->enableUi()).
+    // getting the window state correct (i.e. pmview->enableUi()).
 
     if (error) {
 	cleanupRecording();
-	pmchart->setRecordState(false);
+	pmview->setRecordState(false);
 	QMessageBox::warning(NULL, pmProgname, errmsg,
 		QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);
     }
     else {
 	// Make the current View stop recording before changing Views
-	pmchart->setRecordState(false);
+	pmview->setRecordState(false);
 
 	View *view = new View;
 	console->post("View::stopRecording creating view: delta=%.2f pos=%.2f",
 			App::timevalToSeconds(*pmtime->archiveInterval()),
 			App::timevalToSeconds(*pmtime->archivePosition()));
 	// TODO: may need to update archive samples/visible?
-	view->init(archiveGroup, pmchart->viewMenu(), "Record");
-	pmchart->addActiveView(view);
+	view->init(archiveGroup, pmview->viewMenu(), "Record");
+	pmview->addActiveView(view);
 	OpenViewDialog::openView((const char *)ViewControl::view().toAscii());
 	cleanupRecording();
     }
-#endif
     return error;
+#else
+    return false;
+#endif
 }
 
 bool View::queryRecording(void)

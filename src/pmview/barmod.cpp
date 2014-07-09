@@ -22,6 +22,9 @@
 #include "modlist.h"
 #include "launch.h"
 
+#include <iostream>
+using namespace std;
+
 //
 // Use debug flag LIBPMDA to trace Bar refreshes
 //
@@ -337,7 +340,6 @@ void BarMod::infoText(QString &str, bool selected) const
 
 void BarMod::launch(Launch &launch, bool all) const
 {
-#if 0	// TODO
     int		m, i, v;
     bool	needClose;
     bool	always = all;
@@ -415,7 +417,6 @@ void BarMod::launch(Launch &launch, bool all) const
 		launch.endGroup();
 	}
     }
-#endif
 }
 
 void 

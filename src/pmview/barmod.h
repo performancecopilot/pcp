@@ -23,6 +23,7 @@ class SoBaseColor;
 class SoScale;
 class SoNode;
 class SoTranslation;
+class Launch;
 
 struct BarBlock {
     SoSeparator		*_sep;

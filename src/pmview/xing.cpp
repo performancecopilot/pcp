@@ -52,10 +52,10 @@ Xing::finishedAdd ()
 {
     int i;
     float ts[12] = {
-	_cellWidth/2.0, _cellHeight/2.0, _cellDepth/2.0,
-	_width - _cellWidth, 0, 0,
-	0, 0, _depth - _cellDepth,
-	(int)(_cellWidth - _width), 0, 0
+	(float)(_cellWidth/2.0), (float)(_cellHeight/2.0), (float)(_cellDepth/2.0),
+	(float)(_width - _cellWidth), 0, 0,
+	0, 0, (float)(_depth - _cellDepth),
+	(float)(_cellWidth - _width), 0, 0
     };
 
     SoBaseColor * cl = new SoBaseColor;

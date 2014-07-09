@@ -39,15 +39,15 @@ bool SceneGroup::isArchiveSource(void)
     return this == archiveGroup;
 }
 
-bool SceneGroup::isActive(PmTime::Packet *packet)
+bool SceneGroup::isActive(QmcTime::Packet *packet)
 {
     return (((activeGroup == archiveGroup) &&
-	     (packet->source == PmTime::ArchiveSource)) ||
+	     (packet->source == QmcTime::ArchiveSource)) ||
 	    ((activeGroup == liveGroup) && 
-	     (packet->source == PmTime::HostSource)));
+	     (packet->source == QmcTime::HostSource)));
 }
 
-bool SceneGroup::isRecording(PmTime::Packet *packet)
+bool SceneGroup::isRecording(QmcTime::Packet *packet)
 {
     (void)packet;
     return pmview->isViewRecording();
@@ -92,21 +92,21 @@ void SceneGroup::setupWorldView()
 			pmtime->archiveStart(), pmtime->archiveEnd());
 }
 
-void SceneGroup::adjustLiveWorldViewForward(PmTime::Packet *packet)
+void SceneGroup::adjustLiveWorldViewForward(QmcTime::Packet *packet)
 {
     double position = timePosition();
 
     console->post("Fetching data at %s", App::timeString(position));
     fetch();
 
-    setTimeState(packet->state == PmTime::StoppedState ?
+    setTimeState(packet->state == QmcTime::StoppedState ?
 			StandbyState : ForwardState);
 
     GroupControl::adjustLiveWorldViewForward(packet);
     pmview->render(PmView::inventor, 0);
 }
 
-void SceneGroup::adjustArchiveWorldViewForward(PmTime::Packet *packet, bool setup)
+void SceneGroup::adjustArchiveWorldViewForward(QmcTime::Packet *packet, bool setup)
 {
     console->post("SceneGroup::adjustArchiveWorldViewForward");
     setTimeState(ForwardState);
@@ -131,7 +131,7 @@ void SceneGroup::adjustArchiveWorldViewForward(PmTime::Packet *packet, bool setu
     pmview->render(PmView::inventor, 0);
 }
 
-void SceneGroup::adjustArchiveWorldViewBackward(PmTime::Packet *packet, bool setup)
+void SceneGroup::adjustArchiveWorldViewBackward(QmcTime::Packet *packet, bool setup)
 {
     console->post("SceneGroup::adjustArchiveWorldViewBackward");
     setTimeState(BackwardState);
@@ -159,18 +159,18 @@ void SceneGroup::adjustArchiveWorldViewBackward(PmTime::Packet *packet, bool set
 //
 // Fetch all metric values across all scenes, and update the status bar.
 //
-void SceneGroup::adjustStep(PmTime::Packet *packet)
+void SceneGroup::adjustStep(QmcTime::Packet *packet)
 {
     (void)packet;	// no-op in pmview
 }
 
-void SceneGroup::step(PmTime::Packet *packet)
+void SceneGroup::step(QmcTime::Packet *packet)
 {
     GroupControl::step(packet);
     pmview->render(PmView::inventor, 0);
 }
 
-void SceneGroup::setTimezone(PmTime::Packet *packet, char *tz)
+void SceneGroup::setTimezone(QmcTime::Packet *packet, char *tz)
 {
     GroupControl::setTimezone(packet, tz);
     if (isActive(packet))

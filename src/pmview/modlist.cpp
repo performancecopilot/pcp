@@ -21,8 +21,10 @@
 #include <Inventor/nodes/SoIndexedFaceSet.h>
 #include <Inventor/actions/SoBoxHighlightRenderAction.h>
 #include <Inventor/Qt/viewers/SoQtExaminerViewer.h>
-
 #include "modlist.h"
+
+#include <iostream>
+using namespace std;
 
 const QString ModList::theBogusId = "TOP";
 const char ModList::theModListId = 'i';

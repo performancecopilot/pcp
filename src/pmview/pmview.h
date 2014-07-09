@@ -20,7 +20,7 @@
 
 #include "ui_pmview.h"
 
-#include "pmtime.h"
+#include "qmc_time.h"
 #include "statusbar.h"
 #include "viewcontrol.h"
 
@@ -82,9 +82,9 @@ public:
     bool isViewRecording();
     bool isArchiveView();
 
-    virtual void step(bool livemode, PmTime::Packet *pmtime);
-    virtual void VCRMode(bool livemode, PmTime::Packet *pmtime, bool drag);
-    virtual void timeZone(bool livemode, PmTime::Packet *pmtime, char *tzdata);
+    virtual void step(bool livemode, QmcTime::Packet *pmtime);
+    virtual void VCRMode(bool livemode, QmcTime::Packet *pmtime, bool drag);
+    virtual void timeZone(bool livemode, QmcTime::Packet *pmtime, char *tzdata);
     virtual void setDateLabel(QString label);
     virtual void setDateLabel(time_t seconds, QString tz);
     virtual void setButtonState(TimeButton::State state);

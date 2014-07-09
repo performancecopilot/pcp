@@ -284,7 +284,7 @@
   </action>
  </widget>
  <includes>
-  <include location="local" >pmtime.h</include>
+  <include location="local" >qmc_time.h</include>
   <include location="local" >qprinter.h</include>
   <include location="local" >timebutton.h</include>
  </includes>

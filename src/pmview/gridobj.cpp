@@ -18,6 +18,9 @@
 #include "gridobj.h"
 #include "defaultobj.h"
 
+#include <iostream>
+using namespace std;
+
 GridObj::~GridObj()
 {
 }

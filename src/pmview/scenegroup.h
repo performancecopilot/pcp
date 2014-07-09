@@ -22,7 +22,7 @@
 #include "groupcontrol.h"
 #include "qmc_metric.h"
 #include "qmc_group.h"
-#include "pmtime.h"
+#include "qmc_time.h"
 
 class SceneGroup : public GroupControl
 {
@@ -34,22 +34,22 @@ public:
     void init(struct timeval *, struct timeval *);
 
     bool isArchiveSource();
-    bool isActive(PmTime::Packet *);
-    bool isRecording(PmTime::Packet *);
+    bool isActive(QmcTime::Packet *);
+    bool isRecording(QmcTime::Packet *);
 
     void updateTimeAxis();
     void updateTimeButton();
 
     void setupWorldView();
-    void step(PmTime::Packet *);
-    void setTimezone(PmTime::Packet *, char *);
+    void step(QmcTime::Packet *);
+    void setTimezone(QmcTime::Packet *, char *);
 
 protected:
-    void adjustLiveWorldViewForward(PmTime::Packet *);
-    void adjustArchiveWorldViewForward(PmTime::Packet *, bool);
-    void adjustArchiveWorldViewBackward(PmTime::Packet *, bool);
+    void adjustLiveWorldViewForward(QmcTime::Packet *);
+    void adjustArchiveWorldViewForward(QmcTime::Packet *, bool);
+    void adjustArchiveWorldViewBackward(QmcTime::Packet *, bool);
 
-    void adjustStep(PmTime::Packet *);
+    void adjustStep(QmcTime::Packet *);
     void setButtonState(TimeButton::State);
 
 private:

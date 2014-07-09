@@ -19,6 +19,9 @@
 #include "modlist.h"
 #include "launch.h"
 
+#include <iostream>
+using namespace std;
+
 ColorMod::~ColorMod()
 {
 }
@@ -132,11 +135,9 @@ ColorMod::launch(Launch &launch, bool) const
 {
     if (status() < 0)
 	return;
-#if 0 // TODO
     launch.startGroup("point");
     launch.addMetric(_metrics->metric(0), _scale, 0);
     launch.endGroup();
-#endif
 }
 
 int

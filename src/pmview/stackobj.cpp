@@ -17,10 +17,12 @@
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoTranslation.h>
 #include <Inventor/nodes/SoTransform.h>
-
 #include "stackobj.h"
 #include "colorlist.h"
 #include "defaultobj.h"
+
+#include <iostream>
+using namespace std;
 
 StackObj::~StackObj()
 {

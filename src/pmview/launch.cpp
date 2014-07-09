@@ -17,6 +17,9 @@
 #include "colorscale.h"
 #include "metriclist.h"
 
+#include <iostream>
+using namespace std;
+
 #define PM_LAUNCH_VERSION1 1
 #define PM_LAUNCH_VERSION2 2
 
@@ -114,8 +117,8 @@ Launch::addOption(const char *name, const char *value)
 	str.append(name).append("=\n");
     }
     else {
-	str.append(name).appendChar('=').append(value).appendChar('\n');
-	str.appendChar('\n');
+	str.append(name).append('=').append(value).append('\n');
+	str.append('\n');
     }
     _strings.append(str);
 }
@@ -128,12 +131,12 @@ Launch::addOption(const char *name, int value)
     if (name == NULL)
 	return;
 
-    str.append(name).appendChar('=').appendInt(value).appendChar('\n');
+    str.append(name).append('=').setNum(value).append('\n');
     _strings.append(str);
 }
 
 void
-Launch::addMetric(const QMetric &metric, 
+Launch::addMetric(const QmcMetric &metric, 
 		      const SbColor &color,
 		      int instance,
 		      bool useSocks)
@@ -146,14 +149,17 @@ Launch::addMetric(const QMetric &metric,
 	}
 #endif
 
-    addMetric(metric.type(), metric.source(), metric.host(), metric.name(),
-	      (metric.hasInstances() == 0 ? NULL : 
-					    metric.instName(instance).ptr()),
+    QmcSource source = metric.context()->source();
+    QByteArray ba;
+    ba = metric.instName(instance).toLocal8Bit();
+
+    addMetric(metric.context()->handle(), source.source(), source.host(), metric.name(),
+	      metric.hasInstances() == 0 ? NULL : ba.data(),
 	      metric.desc(), color, metric.scale(), useSocks);
 }
 
 void
-Launch::addMetric(const QMetric &metric, 
+Launch::addMetric(const QmcMetric &metric, 
 		      const ColorScale &scale,
 		      int instance,
 		      bool useSocks)
@@ -166,9 +172,12 @@ Launch::addMetric(const QMetric &metric,
 	}
 #endif
 
-    addMetric(metric.type(), metric.source(), metric.host(), metric.name(),
-	      (metric.hasInstances() == 0 ? NULL : 
-					    metric.instName(instance).ptr()),
+    QmcSource source = metric.context()->source();
+    QByteArray ba;
+    ba = metric.instName(instance).toLocal8Bit();
+
+    addMetric(metric.context()->handle(), source.source(), source.host(), metric.name(),
+	      metric.hasInstances() == 0 ? NULL : ba.data(),
 	      metric.desc(), scale, useSocks);
 }
 
@@ -199,7 +208,7 @@ Launch::addMetric(int context,
 
     str.append(" S ");
     MetricList::toString(color, col);
-    str.append(col).appendChar(',').appendReal(scale).appendChar(' ');
+    str.append(col).append(',').setNum(scale).append(' ');
 
     postColor(desc, instance, str);
     _strings.append(str);
@@ -232,13 +241,13 @@ Launch::addMetric(int context,
     str.append(" D ");
 
     MetricList::toString(scale[0].color(), col);
-    str.append(col).appendChar(',').appendReal(scale[0].min());
+    str.append(col).append(',').setNum(scale[0].min());
     for (i = 1; i < scale.numSteps(); i++) {
 	MetricList::toString(scale[i].color(), col);
-	str.appendChar(',').append(col).appendChar(',');
-	str.appendReal(scale[i].min());
+	str.append(',').append(col).append(',');
+	str.setNum(scale[i].min());
     }
-    str.appendChar(' ');
+    str.append(' ');
 
     postColor(desc, instance, str);
     _strings.append(str);
@@ -252,8 +261,8 @@ Launch::preColor(int context,
 		     bool useSocks,
 		     QString &str)
 {
-    str.append("metric ").appendInt(_metricCount++).appendChar(' ');
-    str.appendInt(_groupCount).appendChar(' ').append(_groupHint);
+    str.append("metric ").setNum(_metricCount++).append(' ');
+    str.setNum(_groupCount).append(' ').append(_groupHint);
 
     switch(context) {
     case PM_CONTEXT_LOCAL:
@@ -267,7 +276,7 @@ Launch::preColor(int context,
 	break;
     }
 
-    str.append(source).appendChar(' ');
+    str.append(source).append(' ');
 
     if (context == PM_CONTEXT_ARCHIVE)
 	str.append(host);
@@ -276,7 +285,7 @@ Launch::preColor(int context,
     else
 	str.append("false");
 
-    str.appendChar(' ').append(metric);
+    str.append(' ').append(metric);
 }
 
 void
@@ -287,17 +296,17 @@ Launch::postColor(const QmcDesc &desc,
     const pmDesc d = desc.desc();
 
     if (_version == PM_LAUNCH_VERSION2) {
-	str.appendInt(d.type).appendChar(' ');
-	str.appendInt(d.sem).appendChar(' ');
-	str.appendInt(d.units.scaleSpace).appendChar(' ');
-	str.appendInt(d.units.scaleTime).appendChar(' ');
-	str.appendInt(d.units.scaleCount).appendChar(' ');
+	str.setNum(d.type).append(' ');
+	str.setNum(d.sem).append(' ');
+	str.setNum(d.units.scaleSpace).append(' ');
+	str.setNum(d.units.scaleTime).append(' ');
+	str.setNum(d.units.scaleCount).append(' ');
     }
 
-    str.appendInt(d.units.dimSpace).appendChar(' ');
-    str.appendInt(d.units.dimTime).appendChar(' ');
-    str.appendInt(d.units.dimCount).appendChar(' ');
-    str.appendInt((int)(d.indom)).append(" [");
+    str.setNum(d.units.dimSpace).append(' ');
+    str.setNum(d.units.dimTime).append(' ');
+    str.setNum(d.units.dimCount).append(' ');
+    str.setNum((int)(d.indom)).append(" [");
     if (instance != NULL)
 	str.append(instance);
     str.append("]\n");
@@ -380,14 +389,33 @@ Launch::launchPath()
     return launch_path;
 }
 
+#include <iostream>
+
 void
 Launch::output(int fd) const
 {
-    if (_version == PM_LAUNCH_VERSION2)
-	write(fd, theVersion2Str.ptr(), theVersion2Str.length());
-    else
-	write(fd, theVersion1Str.ptr(), theVersion1Str.length());
+    QByteArray	ba;
+    int		sts;
+    const char	*str;
 
-    for (int i = 0; i < _strings.length(); i++)
-	write(fd, _strings[i].ptr(), _strings[i].length());
+    if (_version == PM_LAUNCH_VERSION2)
+	ba = theVersion2Str.toLocal8Bit();
+    else
+	ba = theVersion1Str.toLocal8Bit();
+
+    str = ba.data();
+    if ((sts = write(fd, str, strlen(str))) != (int)strlen(str)) {
+	cerr << "Launch::output: version write->" << sts
+	     << " not " << strlen(str) << endl;
+    }
+
+    for (int i = 0; i < _strings.length(); i++) {
+	ba = _strings[i].toLocal8Bit();
+	str = ba.data();
+	if ((sts = write(fd, str, strlen(str))) != (int)strlen(str)) {
+	    cerr << "Launch::output: string write->" << sts
+		 << " not " << strlen(str)
+		 << " for " << str << endl;
+	}
+    }
 }

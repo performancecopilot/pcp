@@ -26,6 +26,9 @@
 #include "text.h"
 #include "defaultobj.h"
 
+#include <iostream>
+using namespace std;
+
 BarObj::~BarObj()
 {
 }

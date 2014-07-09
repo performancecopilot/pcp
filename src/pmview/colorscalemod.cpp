@@ -20,6 +20,9 @@
 #include "modlist.h"
 #include "launch.h"
 
+#include <iostream>
+using namespace std;
+
 ColorScaleMod::~ColorScaleMod()
 {
 }
@@ -161,11 +164,9 @@ ColorScaleMod::launch(Launch &launch, bool) const
 {
     if (status() < 0)
 	return;
-#if 0	// TODO
     launch.startGroup("point");
     launch.addMetric(_metrics->metric(0), _colScale, 0);
     launch.endGroup();
-#endif
 }
 
 int

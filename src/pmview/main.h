@@ -14,8 +14,8 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include <pcp/pmapi.h>
-#include <pcp/impl.h>
+#include "pcp/pmapi.h"
+#include "pcp/impl.h"
 
 #include "app.h"
 #include "main.h"

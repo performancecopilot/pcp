@@ -18,6 +18,7 @@
 #include <sys/types.h>
 #include <Inventor/SbColor.h>
 #include "qmc_metric.h"
+#include "qmc_source.h"
 
 typedef QList<QmcMetric *> MetricsList;
 typedef QList<SbColor *> SbColorList;

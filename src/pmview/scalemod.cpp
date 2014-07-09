@@ -20,6 +20,9 @@
 #include "modlist.h"
 #include "launch.h"
 
+#include <iostream>
+using namespace std;
+
 ScaleMod::~ScaleMod()
 {
 }
@@ -154,11 +157,9 @@ ScaleMod::launch(Launch &launch, bool) const
 {
     if (status() < 0)
 	return;
-#if 0  // TODO
     launch.startGroup("point");
     launch.addMetric(_metrics->metric(0), _metrics->color(0), 0);
     launch.endGroup();
-#endif
 }
 
 int

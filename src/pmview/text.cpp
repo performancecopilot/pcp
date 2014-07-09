@@ -12,16 +12,17 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include <sys/types.h>
 #include <Inventor/Qt/viewers/SoQtExaminerViewer.h>
 #include <Inventor/actions/SoGetBoundingBoxAction.h>
 #include <Inventor/nodes/SoPickStyle.h>
 #include <Inventor/nodes/SoTranslation.h>
 #include <Inventor/nodes/SoRotation.h>
 #include <Inventor/nodes/SoCube.h>
-
 #include "main.h"
 #include "text.h"
+
+#include <iostream>
+using namespace std;
 
 const char     		*Text::theHeightStr = "gjpqy|_";
 

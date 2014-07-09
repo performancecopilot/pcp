@@ -27,6 +27,9 @@
 #include "console.h"
 #include "main.h"
 
+#include <iostream>
+using namespace std;
+
 int Cflag;
 int Lflag;
 int Wflag;
@@ -92,7 +95,7 @@ int warningMsg(const char *file, int line, const char *msg, ...)
     return sts;
 }
 
-double PmTime::secondsToUnits(double value, PmTime::DeltaUnits units)
+double QmcTime::secondsToUnits(double value, QmcTime::DeltaUnits units)
 {
     switch (units) {
     case Milliseconds:
@@ -117,16 +120,16 @@ double PmTime::secondsToUnits(double value, PmTime::DeltaUnits units)
     return value;
 }
 
-double PmTime::deltaValue(QString delta, PmTime::DeltaUnits units)
+double QmcTime::deltaValue(QString delta, QmcTime::DeltaUnits units)
 {
-    return PmTime::secondsToUnits(delta.trimmed().toDouble(), units);
+    return QmcTime::secondsToUnits(delta.trimmed().toDouble(), units);
 }
 
-QString PmTime::deltaString(double value, PmTime::DeltaUnits units)
+QString QmcTime::deltaString(double value, QmcTime::DeltaUnits units)
 {
     QString delta;
 
-    value = PmTime::secondsToUnits(value, units);
+    value = QmcTime::secondsToUnits(value, units);
     if ((double)(int)value == value)
 	delta.sprintf("%.2f", value);
     else

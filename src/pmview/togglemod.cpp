@@ -18,6 +18,9 @@
 #include "main.h"
 #include "togglemod.h"
 
+#include <iostream>
+using namespace std;
+
 ToggleMod::~ToggleMod()
 {
 }

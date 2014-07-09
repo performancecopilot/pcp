@@ -23,6 +23,9 @@
 #include "modlist.h"
 #include "launch.h"
 
+#include <iostream>
+using namespace std;
+
 //
 // Use debug flag LIBPMDA to trace stack refreshes
 //
@@ -396,7 +399,6 @@ StackMod::infoText(QString &str, bool selected) const
 void
 StackMod::launch(Launch &launch, bool all) const
 {
-#if 0 // TODO
     int		m, i, v;
     bool	launchAll = all;
 
@@ -428,7 +430,6 @@ StackMod::launch(Launch &launch, bool all) const
     }
 
     launch.endGroup();
-#endif
 }
 
 void

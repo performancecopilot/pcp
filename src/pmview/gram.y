@@ -788,7 +788,7 @@ pipeattr	: metric_list
 pipetag		: PIPETAG symname
 		{
 		    if (objstack.empty () ||
-			(objstack.top()->objbits() & ViewObj::PIPEOBJ == 0)) { 
+			((objstack.top()->objbits() & ViewObj::PIPEOBJ) == 0)) { 
 			yyerror ("No pipe to attach tag to");
 		    } else {
 			PipeObj * p = static_cast<PipeObj*>(objstack.top());
