@@ -21,8 +21,7 @@ ICONLINKS = aboutpcp.png aboutqt.png aboutpmchart.png pmchart.png pmtime.png \
 	    filearchive.png filefolder.png filegeneric.png filehtml.png \
 	    fileimage.png filepackage.png filespreadsheet.png fileview.png \
 	    filewordprocessor.png filefolio.png folio.png view.png logfile.png \
-	    toolarchive.png toolusers.png toolview.png \
-	    toolbackward.png toolforward.png \
+	    toolusers.png \
 	    play_live.png stop_live.png play_record.png stop_record.png \
 	    play_archive.png stop_archive.png back_archive.png \
 	    stepfwd_archive.png stepback_archive.png fastfwd_archive.png \
