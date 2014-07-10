@@ -782,6 +782,9 @@ cflags_abi
 cc_is_gcc
 cc
 CCPATH
+enable_papi
+papi_CFLAGS
+papi_lib
 qmake
 enable_qt
 qt_release
@@ -886,6 +889,7 @@ with_group
 with_discovery
 with_qt
 with_books
+with_papi
 enable_ssp
 enable_pie
 enable_visibility
@@ -1563,6 +1567,7 @@ Optional Packages:
   --with-qt               enable support for tools requiring Qt (default is
                           on)
   --with-books            enable building of the PCP books (default is off)
+  --with-papi             enable performance api counter pmda (default is off)
   --with-configdir        configuration directory [LOCALSTATEDIR/pcp/config]
   --with-perl_installdirs perl installdirs [vendor]
   --with-perl_install_base
@@ -2569,6 +2574,15 @@ if test "${with_books+set}" = set; then :
   withval=$with_books; do_books=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books=$withval"
 else
   do_books=off
+fi
+
+
+
+# Check whether --with-papi was given.
+if test "${with_papi+set}" = set; then :
+  withval=$with_papi; do_papi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-papi=$withval"
+else
+  do_papi=check
 fi
 
 
@@ -6017,6 +6031,79 @@ $as_echo "$QT_MAJOR.$QT_MINOR.$QT_POINT" >&6; }
 fi
 
 
+
+
+if test "x$do_papi" != "xno"; then :
+
+
+    enable_papi=true
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for PAPI_library_init in -lpapi" >&5
+$as_echo_n "checking for PAPI_library_init in -lpapi... " >&6; }
+if ${ac_cv_lib_papi_PAPI_library_init+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lpapi  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char PAPI_library_init ();
+int
+main ()
+{
+return PAPI_library_init ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_papi_PAPI_library_init=yes
+else
+  ac_cv_lib_papi_PAPI_library_init=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_papi_PAPI_library_init" >&5
+$as_echo "$ac_cv_lib_papi_PAPI_library_init" >&6; }
+if test "x$ac_cv_lib_papi_PAPI_library_init" = xyes; then :
+  papi_lib="-lpapi"
+else
+  enable_papi=false
+fi
+
+    for ac_header in papi.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "papi.h" "ac_cv_header_papi_h" "$ac_includes_default"
+if test "x$ac_cv_header_papi_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_PAPI_H 1
+_ACEOF
+
+else
+  enable_papi=false
+fi
+
+done
+
+    if test "$enable_papi" = "true"
+    then
+
+
+	$as_echo "#define enable_papi 1" >>confdefs.h
+
+    fi
+
+
+fi
 
 
 cflags_abi=
@@ -10822,8 +10909,8 @@ $as_echo "no" >&6; }
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for sem_t in semephore.h" >&5
-$as_echo_n "checking for sem_t in semephore.h... " >&6; }
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for sem_t in semaphore.h" >&5
+$as_echo_n "checking for sem_t in semaphore.h... " >&6; }
 	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <semaphore.h>
