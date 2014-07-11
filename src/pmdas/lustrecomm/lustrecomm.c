@@ -165,7 +165,7 @@ lustrecomm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom
                 atom->l = *((long *) vp);
                 break;
             case 4:
-                file_single("/proc/sys/lnet/memused", PM_TYPE_32, &aux, &vp);
+                file_single("/proc/sys/lnet/lnet_memused", PM_TYPE_32, &aux, &vp);
                 atom->l = *((long *) vp);
                 break;
             default:
