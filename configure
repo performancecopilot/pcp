@@ -6036,7 +6036,7 @@ fi
 if test "x$do_papi" != "xno"; then :
 
 
-    enable_papi=true
+    enable_papi=enable_papi
 
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for PAPI_library_init in -lpapi" >&5
 $as_echo_n "checking for PAPI_library_init in -lpapi... " >&6; }
@@ -6094,14 +6094,13 @@ fi
 
 done
 
-    if test "$enable_papi" = "true"
+    if test "$enable_papi" = "enable_papi"
     then
 
 
-	$as_echo "#define enable_papi 1" >>confdefs.h
+	enable_papi=$enable_papi
 
     fi
-
 
 fi
 

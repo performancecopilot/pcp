@@ -451,25 +451,24 @@ AC_SUBST(qmake)
 
 AS_IF([test "x$do_papi" != "xno"], [
 
-    enable_papi=true
+    enable_papi=enable_papi
 
     AC_CHECK_LIB(papi, PAPI_library_init,
 		      [papi_lib="-lpapi"],
 		      [enable_papi=false])
     AC_CHECK_HEADERS([papi.h],, [enable_papi=false])
-    if test "$enable_papi" = "true"
+    if test "$enable_papi" = "enable_papi"
     then
         AC_SUBST(papi_lib)
 	AC_SUBST(papi_CFLAGS)
-	AC_DEFINE(enable_papi)
+	AC_SUBST(enable_papi, $enable_papi)
     fi
-
+])
 dnl    if test "$do_papi" != "check" -a "enable_papi" != "true"
 dnl    then
 dnl	AC_MSG_ERROR(cannot enable papi pmda, papi not found)
 dnl    fi
-])
-AC_SUBST(enable_papi)
+
 
 dnl check if user wants their own C compiler
 cflags_abi=
