@@ -340,7 +340,8 @@ Requires: papi-devel
 BuildRequires: papi-devel
 
 %description pmda-papi
-placeholder
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting hardware counters statistics through PAPI (Perforamance API).
 
 %if !%{disable_infiniband}
 #
@@ -806,6 +807,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %files pmda-papi
 %defattr(-,root,root)
 %{_pmdasdir}/papi
+%{_mandir}/man1/pmdapapi.1.gz
 
 %if !%{disable_infiniband}
 %files pmda-infiniband
