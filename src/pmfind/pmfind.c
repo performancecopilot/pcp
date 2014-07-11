@@ -44,7 +44,6 @@ setupSignals(sighandler_t handler)
       sigaddset (&sa.sa_mask, SIGTERM);
       sigaddset (&sa.sa_mask, SIGXFSZ);
       sigaddset (&sa.sa_mask, SIGXCPU);
-      sigaddset (&sa.sa_mask, SIGALRM);
     }
   sa.sa_flags = SA_RESTART;
 
@@ -54,7 +53,6 @@ setupSignals(sighandler_t handler)
   sigaction (SIGTERM, &sa, NULL);
   sigaction (SIGXFSZ, &sa, NULL);
   sigaction (SIGXCPU, &sa, NULL);
-  sigaction (SIGALRM, &sa, NULL);
 }
 
 static const char *services[] = {
