@@ -186,6 +186,27 @@ local_sock(char *host, int port, scalar_t *callback, int cookie)
 	if (sts == 0)
 	    break; /* Successful connection */
 
+	sts = neterror();
+	if (sts == EINPROGRESS) {
+	    /* We're in progress - wait on select. */
+	    __pmFdSet rfds;
+	    int rc;
+
+	    __pmFD_ZERO(&rfds);
+	    __pmFD_SET(fd, &rfds);
+	    if ((rc = __pmSelectRead(fd+1, &rfds, NULL)) == 1) {
+		sts = __pmConnectCheckError(fd);
+	    }
+	    else if (rc == 0) {
+		sts = ETIMEDOUT;
+	    }
+	    else {
+		sts = (rc < 0) ? neterror() : EINVAL;
+	    }
+	    if (sts == 0) /* good connection */
+		break;
+	}
+
 	/* Try the next address */
         __pmCloseSocket(fd);
 	fd = -1;
@@ -330,6 +351,27 @@ local_reconnector(files_t *file)
 	__pmSockAddrFree(myaddr);
 	if (sts == 0) /* good connection */
 	    break;
+
+	sts = neterror();
+	if (sts == EINPROGRESS) {
+	    /* We're in progress - wait on select. */
+	    __pmFdSet rfds;
+	    int rc;
+
+	    __pmFD_ZERO(&rfds);
+	    __pmFD_SET(fd, &rfds);
+	    if ((rc = __pmSelectRead(fd+1, &rfds, NULL)) == 1) {
+		sts = __pmConnectCheckError(fd);
+	    }
+	    else if (rc == 0) {
+		sts = ETIMEDOUT;
+	    }
+	    else {
+		sts = (rc < 0) ? neterror() : EINVAL;
+	    }
+	    if (sts == 0) /* good connection */
+		break;
+	}
 
 	/* Try the next address */
 	__pmCloseSocket(fd);

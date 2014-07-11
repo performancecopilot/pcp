@@ -1568,6 +1568,27 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	    if (sts == 0)
 	        break; /* good connection */
 
+	    sts = neterror();
+	    if (sts == EINPROGRESS) {
+		/* We're in progress - wait on select. */
+		__pmFdSet rfds;
+		int rc;
+
+		__pmFD_ZERO(&rfds);
+		__pmFD_SET(fd, &rfds);
+		if ((rc = __pmSelectRead(fd+1, &rfds, NULL)) == 1) {
+		    sts = __pmConnectCheckError(fd);
+		}
+		else if (rc == 0) {
+		    sts = ETIMEDOUT;
+		}
+		else {
+		    sts = (rc < 0) ? neterror() : EINVAL;
+		}
+		if (sts == 0)
+		    break; /* good connection */
+	    }
+
 	    /* Unsuccessful connection. */
 	    __pmCloseSocket(fd);
 	    fd = -1;
