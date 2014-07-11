@@ -1,0 +1,120 @@
+#!/bin/sh
+# PCP QA Test No. 835
+# Exercise the memcache PMDA - install, remove and values.
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+port=11211
+echo stats | $PCP_BINADM_DIR/telnet-probe localhost $port || \
+    _notrun "Noones home on the default memcached port $port"
+which nc >/dev/null 2>&1 || _notrun "nc (netcat) not installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+
+pmdamemcache_remove()
+{
+    echo
+    echo "=== remove memcache agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+pmdamemcache_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/memcache
+    $sudo ./Remove >/dev/null 2>&1
+    $sudo $PCP_RC_DIR/pmcd stop
+
+    cat <<EOF >$tmp.config
+@memcache_instances = ( 0 => '127.0.0.1:11211' );
+EOF
+    echo "pmdamemcache config:" >> $here/$seq.full
+    cat $tmp.config >> $here/$seq.full
+
+    [ -f $PCP_PMDAS_DIR/memcache/memcache.conf ] && \
+    $sudo cp $PCP_PMDAS_DIR/memcache/memcache.conf $tmp.backup
+    $sudo cp $tmp.config $PCP_PMDAS_DIR/memcache/memcache.conf
+
+    echo
+    echo "=== memcache agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    # Check metrics have appeared ... X metrics and Y values
+    _filter_pmda_install <$tmp.out \
+    | sed \
+        -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/'
+}
+
+pmdamemcache_cleanup()
+{
+    if [ -f $tmp.backup ]; then
+	$sudo cp $tmp.backup $PCP_PMDAS_DIR/memcache/memcache.conf
+    else
+	$sudo rm -f $PCP_PMDAS_DIR/memcache/memcache.conf
+    fi
+    _cleanup_pmda memcache
+}
+
+_prepare_pmda memcache
+trap "cd $here; rm -fr $tmp.*; exit \$status" 0 1 2 3 15
+trap "pmdamemcache_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pmdamemcache_install
+
+echo
+echo "=== compare metric values ==="
+_filter_nc()
+{
+    sed -e 's/^STAT //g' | tr -d '\r'
+}
+echo "stats" | nc localhost $port       | _filter_nc >  $tmp.nc_stats
+echo "stats slabs" | nc localhost $port | _filter_nc >> $tmp.nc_stats
+echo "stats items" | nc localhost $port | _filter_nc >> $tmp.nc_stats
+
+pmprobe -v memcache > $tmp.pcp_stats
+
+echo "raw netcat values:" >> $here/$seq.full
+cat $tmp.nc_stats >> $here/$seq.full
+echo "raw pmprobe values:" >> $here/$seq.full
+cat $tmp.pcp_stats >> $here/$seq.full
+
+# find comparable names, then compare values (within tolerance limits)
+sed \
+    -e 's/^memcache.//g' \
+    -e 's/^gets /cmd_get /g' \
+    -e 's/^sets /cmd_set /g' \
+    -e 's/^hits /get_hits /g' \
+    -e 's/^misses /get_misses /g' \
+    -e 's/^current_items/curr_items/g' \
+    -e 's/^current_connections/curr_connections/g' \
+    < $tmp.pcp_stats | \
+LC_COLLATE=POSIX sort | \
+tee $tmp.pcp_nstats | \
+while read metric one value
+do
+    grep "^$metric " $tmp.nc_stats > $tmp.nc_value
+    if [ $? -ne 0 ]
+    then
+	echo "Metric $metric from pmprobe not in netcat output?"
+    else
+	# echo raw: `cat $tmp.nc_value`
+	eval `cat $tmp.nc_value | sed -e 's/^.* /ncvalue=/'`
+	_within_tolerance "$metric" "$value" "$ncvalue" 25% -v
+	# echo within_tolerance $metric $value $ncvalue 25% -v
+    fi
+done
+
+pmdamemcache_remove
+status=0
+exit
