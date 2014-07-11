@@ -1,7 +1,7 @@
 /*
  * GFS2 trace-point enable controls.
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013 - 2014 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -32,6 +32,7 @@ enum {
     CONTROL_BLOCK_ALLOC,
     CONTROL_BMAP,
     CONTROL_RS,
+    CONTROL_BUFFER_SIZE_KB,
     CONTROL_GLOBAL_TRACING,
     CONTROL_WORSTGLOCK,
     CONTROL_FTRACE_GLOCK_THRESHOLD,

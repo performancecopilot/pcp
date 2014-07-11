@@ -234,6 +234,7 @@ $pmda->add_timer($memcache_delay, \&memcache_timer_callback, 0);
 $pmda->set_fetch_callback(\&memcache_fetch_callback);
 
 &memcache_connect;
+&memcache_timer_callback;
 
 $pmda->set_user('pcp');
 $pmda->run;

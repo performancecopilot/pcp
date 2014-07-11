@@ -494,6 +494,7 @@ __pmServerAvahiUnadvertisePresence(__pmServerPresence *s)
 
 /* Support for clients searching for services. */
 typedef struct browsingContext {
+    const pmDiscoveryOptions *discoveryOptions;
     AvahiSimplePoll	*simplePoll;
     char		***urls;
     int			numUrls;
@@ -562,7 +563,9 @@ resolveCallback(
 	    }
 	    __pmSockAddrSetPort(serviceInfo.address, port);
 	    __pmSockAddrSetScope(serviceInfo.address, interface);
-	    context->numUrls = __pmAddDiscoveredService(&serviceInfo, numUrls, urls);
+	    context->numUrls = __pmAddDiscoveredService(&serviceInfo,
+							context->discoveryOptions,
+							numUrls, urls);
 	    __pmSockAddrFree(serviceInfo.address);
 	    break;
 
@@ -678,7 +681,11 @@ discoveryTimeout(void)
 }
 
 int
-__pmAvahiDiscoverServices(const char *service, const char *mechanism, int numUrls, char ***urls)
+__pmAvahiDiscoverServices(const char *service,
+			  const char *mechanism,
+			  const pmDiscoveryOptions *discoveryOptions,
+			  int numUrls,
+			  char ***urls)
 {
     AvahiClient		*client = NULL;
     AvahiServiceBrowser	*sb = NULL;
@@ -690,11 +697,13 @@ __pmAvahiDiscoverServices(const char *service, const char *mechanism, int numUrl
     const char          *timeoutBegin;
     char                *timeoutEnd;
     double              timeout;
+    int                 sts;
 
     /* Allocate the main loop object. */
     if (!(simplePoll = avahi_simple_poll_new()))
 	return -ENOMEM;
 
+    context.discoveryOptions = discoveryOptions;
     context.error = 0;
     context.simplePoll = simplePoll;
     context.urls = urls;
@@ -730,18 +739,16 @@ __pmAvahiDiscoverServices(const char *service, const char *mechanism, int numUrl
     timeout = discoveryTimeout(); /* default */
 
     timeoutBegin = strstr(mechanism ? mechanism : "", ",timeout=");
-    if (timeoutBegin)
-        {
-            timeoutBegin += strlen(",timeout="); /* skip over it */
-            timeout = strtod (timeoutBegin, & timeoutEnd);
-            if ((*timeoutEnd != '\0' && *timeoutEnd != ',') ||
-                (timeout < 0.0)) {
-		__pmNotifyErr(LOG_WARNING,
-			      "ignored bad avahi timeout = '%*s'\n",
-			      (int)(timeoutEnd-timeoutBegin), timeoutBegin);
-                timeout = discoveryTimeout();
-            }
-        }
+    if (timeoutBegin) {
+	timeoutBegin += strlen(",timeout="); /* skip over it */
+	timeout = strtod (timeoutBegin, & timeoutEnd);
+	if ((*timeoutEnd != '\0' && *timeoutEnd != ',') || (timeout < 0.0)) {
+	    __pmNotifyErr(LOG_WARNING,
+			  "ignored bad avahi timeout = '%*s'\n",
+			  (int)(timeoutEnd-timeoutBegin), timeoutBegin);
+	    timeout = discoveryTimeout();
+	}
+    }
 
     /* Set the timeout. */
     avahi_simple_poll_get(simplePoll)->timeout_new(
@@ -750,10 +757,22 @@ __pmAvahiDiscoverServices(const char *service, const char *mechanism, int numUrl
 	timeoutCallback, &context);
 
     /*
-     * Run the main loop. The discovered services will be added to 'urls'
-     * during the call back to resolveCallback
+     * This loop is based on the one in avahi_simple_poll_loop().
+     *
+     * Run the main loop one iteration at a time until it times out
+     * or until we are interrupted.
+     * The overall timeout within simplePoll will be respected and
+     * avahi_simple_poll_iterate() will return 1 if it occurs.
+     * Otherwise, avahi_simple_poll_iterate() returns -1 on error and
+     * zero on success.
+     * The discovered services will be added to 'urls' during the call back
+     * to resolveCallback
      */
-    avahi_simple_poll_loop(simplePoll);
+    while (! discoveryOptions->interrupted) {
+	if ((sts = avahi_simple_poll_iterate(simplePoll, -1)) != 0)
+            if (sts > 0 || errno != EINTR)
+		break;
+    }
     numUrls = context.numUrls;
 
  done:

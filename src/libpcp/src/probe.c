@@ -24,26 +24,26 @@
  * Service discovery by active probing. The given subnet is probed for the
  * requested service(s).
  */
-static __pmSockAddr    *netAddress;
-static int             maskBits;
-
-/*
- * Max number of threads to use. FD_SETSIZE is the most open fds that __pmFD*()
- * and __pmSelect() can deal with, so it's a decent default. The main thread
- * also participates, so subtract 1.
- */
-static unsigned	maxThreads = FD_SETSIZE - 1;
+typedef struct connectionOptions {
+    __pmSockAddr		*netAddress;	/* Address of the subnet */
+    int				maskBits;	/* Number of bits in the subnet */
+    unsigned			maxThreads;	/* Max number of threads to use. */
+    struct timeval		timeout;	/* Connection timeout */
+    const pmDiscoveryOptions	*discoveryOptions;
+} connectionOptions;
 
 /* Context for each thread. */
 typedef struct connectionContext {
-    const char		*service;	/* Service spec */
-    __pmSockAddr	*nextAddress;	/* Next available address */
-    int			maskBits;	/* Mask bits for the network address */
-    int			nports;		/* Number of ports per address */
-    int			portIx;		/* Index of next available port */
-    const int		*ports;		/* The actual ports */
-    int			*numUrls;	/* Size of the results */
-    char		***urls;	/* The results */
+    const char			*service;	/* Service spec */
+    __pmSockAddr		*nextAddress;	/* Next available address */
+    int				maskBits;	/* Mask bits for the network address */
+    int				nports;		/* Number of ports per address */
+    int				portIx;		/* Index of next available port */
+    const int			*ports;		/* The actual ports */
+    const struct timeval 	*timeout;	/* Connection timeout */
+    int				*numUrls;	/* Size of the results */
+    char			***urls;	/* The results */
+    const pmDiscoveryOptions	*discoveryOptions;
 #if PM_MULTI_THREAD
     __pmMutex		addrLock;	/* lock for the above address/port */
     __pmMutex		urlLock;	/* lock for the above results */
@@ -73,14 +73,14 @@ attemptConnections(void *arg)
     __pmSockAddr*	addr;
     int			port;
     int			attempt;
-    struct timeval	canwait = {0, 100000 * 1000}; /* 0.1 seconds */
+    struct timeval	againWait = {0, 100000}; /* 0.1 seconds */
     connectionContext	*context = arg;
 
     /*
-     * Keep trying to secure an address+port until there are no more.
-     * NOTE: Eventually we will add a timeout and/or interrupt check here.
+     * Keep trying to secure an address+port until there are no more
+     * or until we are interrupted.
      */
-    for (;;) {
+    while (! context->discoveryOptions->interrupted) {
 	/* Obtain the address lock while securing the next address, if any. */
 	PM_LOCK(context->addrLock);
 	if (context->nextAddress == NULL) {
@@ -130,7 +130,7 @@ attemptConnections(void *arg)
 		s = __pmCreateIPv6Socket();
 	    if (s != -EAGAIN)
 		break;
-	    __pmtimevalSleep(canwait);
+	    __pmtimevalSleep(againWait);
 	}
 	if (pmDebug & DBG_TRACE_DISCOVERY) {
 	    if (attempt > 0) {
@@ -156,11 +156,14 @@ attemptConnections(void *arg)
 	sts = -1;
 	flags = __pmConnectTo(s, addr, port);
 	if (flags >= 0) {
-	    /* FNDELAY and we're in progress - wait on select */
+	    /*
+	     * FNDELAY and we're in progress - wait on __pmSelectWrite.
+	     * __pmSelectWrite may alter the contents of the timeout so make a copy.
+	     */
+	    struct timeval timeout = *context->timeout;
 	    __pmFD_ZERO(&wfds);
 	    __pmFD_SET(s, &wfds);
-	    canwait = *__pmConnectTimeout();
-	    sts = __pmSelectWrite(s+1, &wfds, &canwait);
+	    sts = __pmSelectWrite(s+1, &wfds, &timeout);
 
 	    /* Was the connection successful? */
 	    if (sts == 0)
@@ -184,8 +187,8 @@ attemptConnections(void *arg)
 
 	    PM_LOCK(context->urlLock);
 	    *context->numUrls =
-		__pmAddDiscoveredService(&serviceInfo, *context->numUrls,
-					 context->urls);
+		__pmAddDiscoveredService(&serviceInfo, context->discoveryOptions,
+					 *context->numUrls, context->urls);
 	    PM_UNLOCK(context->urlLock);
 	}
 
@@ -198,8 +201,7 @@ attemptConnections(void *arg)
 static int
 probeForServices(
     const char *service,
-    __pmSockAddr *netAddress,
-    int maskBits,
+    const connectionOptions *options,
     int numUrls,
     char ***urls
 )
@@ -229,7 +231,7 @@ probeForServices(
 
     /*
      * Initialize the shared probing context. This will be shared among all of
-     * the worked threads.
+     * the worker threads.
      */
     context.service = service;
     context.ports = ports;
@@ -237,19 +239,22 @@ probeForServices(
     context.numUrls = &numUrls;
     context.urls = urls;
     context.portIx = 0;
-    context.maskBits = maskBits;
+    context.maskBits = options->maskBits;
+    context.timeout = &options->timeout;
+    context.discoveryOptions = options->discoveryOptions;
 
     /*
      * Initialize the first address of the subnet. This pointer will become
      * NULL and the mempry freed by __pmSockAddrNextSubnetAddr() when the
      * final address+port has been probed.
      */
-    context.nextAddress = __pmSockAddrFirstSubnetAddr(netAddress, maskBits);
+    context.nextAddress =
+	__pmSockAddrFirstSubnetAddr(options->netAddress, options->maskBits);
     if (context.nextAddress == NULL) {
-	char *addrString = __pmSockAddrToString(netAddress);
+	char *addrString = __pmSockAddrToString(options->netAddress);
 	__pmNotifyErr(LOG_ERR,
 		      "__pmProbeDiscoverServices: unable to determine the first address of the subnet: %s/%d",
-		      addrString, maskBits);
+		      addrString, options->maskBits);
 	free(addrString);
 	goto done;
     }
@@ -262,43 +267,51 @@ probeForServices(
     pthread_mutex_init(&context.addrLock, NULL);
     pthread_mutex_init(&context.urlLock, NULL);
 
-    /*
-     * Allocate the thread table. We have a maximum for the number of threads,
-     * so that will be the size.
-     */
-    threads = malloc(maxThreads * sizeof(*threads));
-    if (threads == NULL) {
+    if (options->maxThreads > 0) {
 	/*
-	 * Unable to allocate the thread table, however, We can still do the
-	 * probing on the main thread.
+	 * Allocate the thread table. We have a maximum for the number of
+	 * threads, so that will be the size.
 	 */
-	__pmNotifyErr(LOG_ERR,
-		      "__pmProbeDiscoverServices: unable to allocate %u threads",
-		      maxThreads);
-	nThreads = 0;
-    }
-    else {
-	/*
-	 * We want our worker threads to be joinable and they don't need much
-	 * stack.
-	 */
-	pthread_attr_init(&threadAttr);
-	pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_JOINABLE);
-	pthread_attr_setstacksize(&threadAttr, PTHREAD_STACK_MIN);
-
-	/* Dispatch the threads. */
-	for (nThreads = 0; nThreads < maxThreads; ++nThreads) {
-	    sts = pthread_create(&threads[nThreads], &threadAttr,
-				 attemptConnections, &context);
+	threads = malloc(options->maxThreads * sizeof(*threads));
+	if (threads == NULL) {
 	    /*
-	     * If we failed to create a thread, then we've reached the OS limit.
+	     * Unable to allocate the thread table, however, We can still do the
+	     * probing on the main thread.
 	     */
-	    if (sts != 0)
-		break;
+	    __pmNotifyErr(LOG_ERR,
+			  "__pmProbeDiscoverServices: unable to allocate %u threads",
+			  options->maxThreads);
 	}
+	else {
+	    /* We want our worker threads to be joinable. */
+	    pthread_attr_init(&threadAttr);
+	    pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_JOINABLE);
 
-	/* We no longer need this. */
-	pthread_attr_destroy(&threadAttr);
+	    /*
+	     * Our worker threads don't need much stack. PTHREAD_STACK_MIN is
+	     * enough except when resolving addresses, where twice that much is
+	     * sufficient.
+	     */
+	    if (options->discoveryOptions->resolve)
+		pthread_attr_setstacksize(&threadAttr, 2 * PTHREAD_STACK_MIN);
+	    else
+		pthread_attr_setstacksize(&threadAttr, PTHREAD_STACK_MIN);
+
+	    /* Dispatch the threads. */
+	    for (nThreads = 0; nThreads < options->maxThreads; ++nThreads) {
+		sts = pthread_create(&threads[nThreads], &threadAttr,
+				     attemptConnections, &context);
+		/*
+		 * If we failed to create a thread, then we've reached the OS
+		 * limit.
+		 */
+		if (sts != 0)
+		    break;
+	    }
+
+	    /* We no longer need this. */
+	    pthread_attr_destroy(&threadAttr);
+	}
     }
 #endif
 
@@ -309,9 +322,11 @@ probeForServices(
     attemptConnections(&context);
 
 #if PM_MULTI_THREAD
-    /* Wait for all the connection attempts to finish. */
-    for (threadIx = 0; threadIx < nThreads; ++threadIx)
-	pthread_join(threads[threadIx], NULL);
+    if (threads) {
+	/* Wait for all the connection attempts to finish. */
+	for (threadIx = 0; threadIx < nThreads; ++threadIx)
+	    pthread_join(threads[threadIx], NULL);
+    }
 
     /* These must not be destroyed until all of the threads have finished. */
     pthread_mutex_destroy(&context.addrLock);
@@ -342,7 +357,7 @@ probeForServices(
  *                            threads.
  */
 static int
-parseOptions(const char *mechanism)
+parseOptions(const char *mechanism, connectionOptions *options)
 {
     const char		*addressString;
     const char		*maskString;
@@ -381,8 +396,8 @@ parseOptions(const char *mechanism)
     buf = malloc(len);
     memcpy(buf, addressString, len - 1);
     buf[len - 1] = '\0';
-    netAddress = __pmStringToSockAddr(buf);
-    if (netAddress == NULL) {
+    options->netAddress = __pmStringToSockAddr(buf);
+    if (options->netAddress == NULL) {
 	__pmNotifyErr(LOG_ERR,
 		      "__pmProbeDiscoverServices: Address '%s' is not valid",
 		      buf);
@@ -392,7 +407,7 @@ parseOptions(const char *mechanism)
     free(buf);
 
     /* Convert the mask string to an integer */
-    maskBits = strtol(maskString, &end, 0);
+    options->maskBits = strtol(maskString, &end, 0);
     if (*end != '\0' && *end != ',') {
 	__pmNotifyErr(LOG_ERR, "__pmProbeDiscoverServices: Subnet mask '%s' is not valid",
 		      maskString);
@@ -400,21 +415,21 @@ parseOptions(const char *mechanism)
     }
 
     /* Check the number of bits in the mask against the address family. */
-    if (maskBits < 0) {
+    if (options->maskBits < 0) {
 	__pmNotifyErr(LOG_ERR, "__pmProbeDiscoverServices: Inet subnet mask must be >= 0 bits");
 	return -1;
     }
-    family = __pmSockAddrGetFamily(netAddress);
+    family = __pmSockAddrGetFamily(options->netAddress);
     switch (family) {
     case AF_INET:
-	if (maskBits > 32) {
+	if (options->maskBits > 32) {
 	    __pmNotifyErr(LOG_ERR,
 			  "__pmProbeDiscoverServices: Inet subnet mask must be <= 32 bits");
 	    return -1;
 	}
 	break;
     case AF_INET6:
-	if (maskBits > 128) {
+	if (options->maskBits > 128) {
 	    __pmNotifyErr(LOG_ERR,
 			  "__pmProbeDiscoverServices: Inet subnet mask must be <= 128 bits");
 	    return -1;
@@ -427,7 +442,24 @@ parseOptions(const char *mechanism)
 	return -1;
     }
 
-    /* Parse any remaining options. */
+    /*
+     * Parse any remaining options.
+     * Initialize to defaults first.
+     *
+     * FD_SETSIZE is the most open fds that __pmFD*()
+     * and __pmSelect() can deal with, so it's a decent default for maxThreads.
+     * The main thread also participates, so subtract 1.
+     */
+    options->maxThreads = FD_SETSIZE - 1;
+
+    /*
+     * Set a default for the connection timeout. 20ms allows us to scan 50
+     * addresses per second per thread.
+     */
+    options->timeout.tv_sec = 0;
+    options->timeout.tv_usec = 20 * 1000;
+
+    /* Now parse the options. */
     sts = 0;
     for (option = end; *option != '\0'; /**/) {
 	/*
@@ -442,7 +474,7 @@ parseOptions(const char *mechanism)
 	    }
 	
 	/* Examine the option. */
-	if (strncmp(option, "maxThreads=", 11) == 0) {
+	if (strncmp(option, "maxThreads=", sizeof("maxThreads=") - 1) == 0) {
 	    option += sizeof("maxThreads");
 	    longVal = strtol(option, &end, 0);
 	    if (*end != '\0' && *end != ',') {
@@ -458,10 +490,10 @@ parseOptions(const char *mechanism)
 		 * value does not exceed the existing value which is also the
 		 * hard limit.
 		 */
-		if (longVal > maxThreads) {
+		if (longVal > options->maxThreads) {
 		    __pmNotifyErr(LOG_ERR,
 				  "__pmProbeDiscoverServices: maxThreads value %ld must not exceed %u",
-				  longVal, maxThreads);
+				  longVal, options->maxThreads);
 		    sts = -1;
 		}
 		else if (longVal <= 0) {
@@ -472,7 +504,8 @@ parseOptions(const char *mechanism)
 		}
 		else {
 #if PM_MULTI_THREAD
-		    maxThreads = longVal;
+		    /* The main thread participates, so reduce this by one. */
+		    options->maxThreads = longVal - 1;
 #else
 		    __pmNotifyErr(LOG_WARNING,
 				  "__pmProbeDiscoverServices: no thread support. Ignoring maxThreads value %ld",
@@ -481,15 +514,33 @@ parseOptions(const char *mechanism)
 		}
 	    }
 	}
+	else if (strncmp(option, "timeout=", sizeof("timeout=") - 1) == 0) {
+	    double	timeout;
+	    option += sizeof("timeout");
+	    timeout = strtod(option, &end);
+	    if ((*end != '\0' && *end != ',') || timeout < 0.0) {
+		__pmNotifyErr(LOG_ERR,
+			      "__pmProbeDiscoverServices: timeout value '%s' is not valid",
+			      option);
+	    }
+	    else {
+		option = end;
+		options->timeout.tv_sec = (time_t)timeout;
+		options->timeout.tv_usec =
+		    (int)((timeout - (double)options->timeout.tv_sec) * 1000000);
+	    }
+	}
 	else {
 	    /* An invalid option. Skip it. */
 	    __pmNotifyErr(LOG_ERR,
 			  "__pmProbeDiscoverServices: option '%s' is not valid",
 			  option);
 	    sts = -1;
-	    for (++option; *option != '\0' && *option != ','; ++option)
-		;
+	    ++option;
 	}
+	/* Locate the next option, if any. */
+	for (/**/; *option != '\0' && *option != ','; ++option)
+	    ;
     } /* Parse additional options */
 
     /*
@@ -504,34 +555,40 @@ parseOptions(const char *mechanism)
      * then it means that the subnet is extremely large and therefore
      * much larger than maxThreads anyway.
      */
-    if (__pmSockAddrIsInet(netAddress))
-	subnetBits = 32 - maskBits;
+    if (__pmSockAddrIsInet(options->netAddress))
+	subnetBits = 32 - options->maskBits;
     else
-	subnetBits = 128 - maskBits;
+	subnetBits = 128 - options->maskBits;
     if (subnetBits < sizeof(subnetSize) * 8) {
 	subnetSize = 1 << subnetBits;
-	if (subnetSize - 1 < maxThreads)
-	    maxThreads = subnetSize - 1;
+	if (subnetSize - 1 < options->maxThreads)
+	    options->maxThreads = subnetSize - 1;
     }
 
     return sts;
 }
 
 int
-__pmProbeDiscoverServices(const char *service, const char *mechanism, int numUrls, char ***urls)
+__pmProbeDiscoverServices(const char *service,
+			  const char *mechanism,
+			  const pmDiscoveryOptions *discoveryOptions,
+			  int numUrls,
+			  char ***urls)
 {
+    connectionOptions options;
     int	sts;
 
     /* Interpret the mechanism string. */
-    sts = parseOptions(mechanism);
+    sts = parseOptions(mechanism, &options);
     if (sts != 0)
 	return 0;
+    options.discoveryOptions = discoveryOptions;
 
     /* Everything checks out. Now do the actual probing. */
-    numUrls = probeForServices(service, netAddress, maskBits, numUrls, urls);
+    numUrls = probeForServices(service, &options, numUrls, urls);
 
     /* Clean up */
-    __pmSockAddrFree(netAddress);
+    __pmSockAddrFree(options.netAddress);
 
     return numUrls;
 }

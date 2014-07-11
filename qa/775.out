@@ -4,7 +4,7 @@ Discovered pmcd servers:
 Sought pmproxy servers
 Sought pmwebd servers
 Exit status: 0
--s pmcd
+-s pmcd -r
 Discovered pmcd servers:
 Exit status: 0
 -m all
@@ -12,7 +12,7 @@ Discovered pmcd servers:
 Sought pmproxy servers
 Sought pmwebd servers
 Exit status: 0
--s pmcd -m all
+-s pmcd -m all --resolve
 Discovered pmcd servers:
 Exit status: 0
 -q

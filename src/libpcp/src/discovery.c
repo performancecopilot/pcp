@@ -11,6 +11,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
  */
+#include <time.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "internal.h"
@@ -64,13 +65,85 @@ __pmServerUnadvertisePresence(__pmServerPresence *s)
 }
 
 /*
- * Service discovery API entry point.
+ * Service discovery API entry points.
  */
-int pmDiscoverServices(const char *service,
-		       const char *mechanism,
-		       char ***urls)
+int
+pmDiscoverServices(const char *service,
+		   const char *mechanism,
+		   char ***urls)
 {
-    int numUrls;
+    return pmDiscoverServicesWithOptions(service, mechanism, NULL, urls);
+}
+
+static void
+destroyTimer(timer_t timerid)
+{
+    timer_delete(timerid);
+}
+
+static int
+setTimer(const struct timespec *timeout, timer_t *timerid)
+{
+    struct itimerspec	timer;
+    int			attempt;
+    int			sts;
+
+    /*
+     * First, create the timer. Specifying NULL as the second argument creates
+     * a timer which will generate SIGALRM when ti expires.
+     */
+    for (attempt = 0; attempt < 1000; ++attempt) {
+	sts = timer_create(CLOCK_REALTIME, NULL, timerid);
+	if (sts == 0)
+	    break;
+	if (errno != EAGAIN)
+	    return -errno;
+    }
+    /*
+     * Have all the attempts failed? If so, it's due to lack of memory,
+     * according to timer_create(2).
+     */
+    if (sts != 0)
+	return -ENOMEM;
+
+    /* Now set the timer so that it expires once. */
+    memset(&timer.it_interval, 0, sizeof(timer.it_interval));
+    timer.it_value = *timeout;
+    sts = timer_settime(*timerid, 0, &timer, NULL);
+
+    if (sts < 0) {
+	destroyTimer(*timerid);
+	return -errno;
+    }
+
+    return 0; /* success! */
+}
+
+int
+pmDiscoverServicesWithOptions(const char *service,
+			      const char *mechanism,
+			      pmDiscoveryOptions *options,
+			      char ***urls)
+{
+    timer_t	timerid;
+    int		numUrls;
+    int		sts;
+
+    /*
+     * Make sure that the caller is not expecting a newer API version than ours.
+     */
+    if (options->version > PM_DISCOVERY_OPTIONS_VERSION)
+	return -EOPNOTSUPP;
+
+    /*
+     * If a timeout has been specified, then arm a timer to generate SIGALRM
+     * when the requested time expires
+     */
+    if (options->timeout.tv_sec || options->timeout.tv_nsec) {
+	sts = setTimer(&options->timeout, &timerid);
+	if (sts < 0)
+	    return sts;
+    }
 
     /*
      * Attempt to discover the requested service(s) using the requested or
@@ -81,45 +154,62 @@ int pmDiscoverServices(const char *service,
     *urls = NULL;
     numUrls = 0;
     if (mechanism == NULL) {
-	numUrls += __pmAvahiDiscoverServices(service, mechanism, numUrls, urls);
-	numUrls += __pmProbeDiscoverServices(service, mechanism, numUrls, urls);
+	numUrls += __pmAvahiDiscoverServices(service, mechanism, options, numUrls, urls);
+	if (! options->interrupted)
+	    numUrls += __pmProbeDiscoverServices(service, mechanism, options, numUrls, urls);
     }
-    else if (mechanism == NULL || strncmp(mechanism, "avahi", 5) == 0)
-	numUrls += __pmAvahiDiscoverServices(service, mechanism, numUrls, urls);
-    else if (mechanism == NULL || strncmp(mechanism, "probe", 5) == 0)
-	numUrls += __pmProbeDiscoverServices(service, mechanism, numUrls, urls);
+    else if (strncmp(mechanism, "avahi", 5) == 0)
+	numUrls += __pmAvahiDiscoverServices(service, mechanism, options, numUrls, urls);
+    else if (strncmp(mechanism, "probe", 5) == 0)
+	numUrls += __pmProbeDiscoverServices(service, mechanism, options, numUrls, urls);
     else
-	return -EOPNOTSUPP;
+	numUrls = -EOPNOTSUPP;
+
+    if (options->timeout.tv_sec || options->timeout.tv_nsec)
+	destroyTimer(timerid);
 
     return numUrls;
 }
 
-
 /* For manually adding a service. Also used by pmDiscoverServices(). */
 int
-__pmAddDiscoveredService(__pmServiceInfo *info, int numUrls, char ***urls)
+__pmAddDiscoveredService(__pmServiceInfo *info,
+			 const pmDiscoveryOptions *options,
+			 int numUrls,
+			 char ***urls)
 {
     const char *protocol = info->protocol;
-    char *address;
+    char *host = NULL;
     char *url;
     size_t size;
     int isIPv6;
     int port;
 
+    /* If address resolution was requested, then do attempt it. */
+    if (options->resolve)
+	host = __pmGetNameInfo(info->address);
+
     /*
-     * Allocate the new entry. We need room for the URL prefix, the address
-     * and the port. IPv6 addresses require a set of [] surrounding the
-     * address in order to distinguish the port.
+     * If address resolution was not requested, or if it failed, then
+     * just use the address.
+     */
+    if (host == NULL) {
+	host = __pmSockAddrToString(info->address);
+	if (host == NULL) {
+	    __pmNoMem("__pmAddDiscoveredService: can't allocate host buffer",
+		      0, PM_FATAL_ERR);
+	}
+    }
+
+    /*
+     * Allocate the new entry. We need room for the URL prefix, the
+     * address/host and the port. IPv6 addresses require a set of []
+     * surrounding the address in order to distinguish the port.
      */
     port = __pmSockAddrGetPort(info->address);
-    address = __pmSockAddrToString(info->address);
-    if (address == NULL) {
-	__pmNoMem("__pmAddDiscoveredService: can't allocate address buffer",
-		  0, PM_FATAL_ERR);
-    }
     size = strlen(protocol) + sizeof("://");
-    size += strlen(address) + sizeof(":65535");
-    if ((isIPv6 = (__pmSockAddrGetFamily(info->address) == AF_INET6)))
+    size += strlen(host) + sizeof(":65535");
+    if ((isIPv6 = (strchr(host, ':') != NULL)))
 	size += 2;
     url = malloc(size);
     if (url == NULL) {
@@ -127,10 +217,10 @@ __pmAddDiscoveredService(__pmServiceInfo *info, int numUrls, char ***urls)
 		  size, PM_FATAL_ERR);
     }
     if (isIPv6)
-	snprintf(url, size, "%s://[%s]:%u", protocol, address, port);
+	snprintf(url, size, "%s://[%s]:%u", protocol, host, port);
     else
-	snprintf(url, size, "%s://%s:%u", protocol, address, port);
-    free(address);
+	snprintf(url, size, "%s://%s:%u", protocol, host, port);
+    free(host);
 
     /*
      * Now search the current list for the new entry.

@@ -21,7 +21,7 @@
 #include <pcp/pmapi.h>
 .sp
 .nf
-int pmDiscoverServices(const char *\fIservice\fP, const char *\fImechanism\fP, char ***\fIurls\fP);
+int pmDiscoverServices(const char *\fIservice\fP, const char *\fImechanism\fP, const char *\fIglobalOptions\fP, char ***\fIurls\fP);
 .fi
 .sp
 cc ... \-lpcp
@@ -81,7 +81,16 @@ will be respected.
 .IR mechanism
 may also be NULL, which means to use all available discovery mechanisms.
 .PP 
-Normally,
+.I globalOptions
+is a string containing options to be applied to the entire
+discovery process. Currently, the only supported option is \fB"resolve"\fP.
+Normally the
+results are reported as a list of urls containing the network addresses
+of the discovered servers. The \fB"resolve"\fP option requests
+that an attempt be made to resolve these addresses. If successful, the host
+name will be reported instead. If unsuccessful, then the address will be
+reported.
+.PP 
 .B pmDiscoverServices
 will return the number of services discovered, else a value
 less than zero for an error.
