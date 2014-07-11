@@ -43,7 +43,7 @@ BuildRequires: initscripts man /bin/hostname
 BuildRequires: systemd-devel
 %endif
 
-%if "@enable_papi@" == "true"
+%if "@enable_papi@" == "enable_papi"
 BuildRequires: papi-devel
 %endif
 
@@ -394,7 +394,7 @@ PCP utilities and daemons, and the PCP graphical tools.
 #
 # pcp-pmda-papi
 #
-%if "@enable_papi@" == "true"
+%if "@enable_papi@" == "enable_papi"
 %package pmda-papi
 License: GPLv2+
 Group: Applications/System
@@ -539,7 +539,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'collectl2pcp' >import_collectl2pcp_fil
 %if "@pmda_infiniband@" == "infiniband"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'infiniband|pmdaib|pmdas/ib' >pmda_infiniband_files
 %endif
-%if "@enable_papi@" == "true"
+%if "@enable_papi@" == "enable_papi"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'papi' >pmda_papi_files
 %endif
 touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files
@@ -790,7 +790,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %files testsuite -f testsuite_files.rpm
 %defattr(-,pcpqa,pcpqa)
 
-%if "@enable_papi@" == "true"
+%if "@enable_papi@" == "enable_papi"
 %files pmda-papi -f pmda_papi_files.rpm
 %defattr(-,root,root)
 %endif
