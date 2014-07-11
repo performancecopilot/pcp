@@ -38,6 +38,9 @@ extern int _pm_numdisks;
  * scsi disks are named e.g. sda
  * scsi partitions are named e.g. sda1
  *
+ * device-mapper devices are named dm-[0-9]* and are mapped to their persistent
+ * name using the symlinks in /dev/mapper.
+ *
  * devfs scsi disks are named e.g. scsi/host0/bus0/target1/lun0/disc
  * devfs scsi partitions are named e.g. scsi/host0/bus0/target1/lun0/part1
  *
@@ -70,6 +73,15 @@ _pm_ismmcdisk(char *dname)
      * assume it is a partition - e.g. mmcblk0p6.
      */
     return (strchr(dname + 6, 'p') == NULL);
+}
+
+/*
+ * return true if arg is a device-mapper device
+ */
+static int
+_pm_isdm(char *dname)
+{
+    return strncmp(dname, "dm-", 3) == 0;
 }
 
 /*
@@ -108,7 +120,8 @@ _pm_ispartition(char *dname)
 	return isdigit((int)dname[m]) &&
 		!_pm_isloop(dname) &&
 		!_pm_isramdisk(dname) &&
-		!_pm_ismmcdisk(dname);
+		!_pm_ismmcdisk(dname) &&
+		!_pm_isdm(dname);
     }
 }
 
@@ -127,7 +140,7 @@ _pm_isxvmvol(char *dname)
 static int
 _pm_isdisk(char *dname)
 {
-    return !_pm_isloop(dname) && !_pm_isramdisk(dname) && !_pm_ispartition(dname) && !_pm_isxvmvol(dname);
+    return !_pm_isloop(dname) && !_pm_isramdisk(dname) && !_pm_ispartition(dname) && !_pm_isxvmvol(dname) && !_pm_isdm(dname);
 }
 
 static void
@@ -167,8 +180,34 @@ refresh_udev(pmInDom disk_indom, pmInDom partitions_indom)
     pclose(pfp);
 }
 
+/*
+ * Replace dm-* in namebuf with it's persistent name.
+ * This is a symlink in /dev/mapper/something -> ../dm-X
+ * where dm-X is currently in namebuf. It's also exported
+ * via sysfs, which we use here. If this fails we leave
+ * the argument unaltered.
+ */
+static void
+map_persistent_dm_name(char *namebuf, int namelen)
+{
+    int fd;
+    char *p;
+    char path[MAXPATHLEN];
+
+    snprintf(path, sizeof(path), "/sys/block/%s/dm/name", namebuf);
+    if ((fd = open(path, O_RDONLY)) >= 0) {
+	memset(path, 0, sizeof(path));
+    	if (read(fd, path, sizeof(path)) > 0) {
+	    if ((p = strchr(path, '\n')) != NULL)
+	    	*p = '\0';
+	    strncpy(namebuf, path, MIN(sizeof(path), namelen));
+	}
+    	close(fd);
+    }
+}
+
 int
-refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom)
+refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom, pmInDom dm_indom)
 {
     char buf[1024];
     char namebuf[1024];
@@ -182,12 +221,14 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom)
     unsigned long long blocks;
     partitions_entry_t *p;
     int indom_changes = 0;
+    char *dmname;
     static int first = 1;
 
     if (first) {
 	/* initialize the instance domain caches */
 	pmdaCacheOp(disk_indom, PMDA_CACHE_LOAD);
 	pmdaCacheOp(partitions_indom, PMDA_CACHE_LOAD);
+	pmdaCacheOp(dm_indom, PMDA_CACHE_LOAD);
 
 	first = 0;
 	indom_changes = 1;
@@ -195,6 +236,7 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom)
 
     pmdaCacheOp(disk_indom, PMDA_CACHE_INACTIVE);
     pmdaCacheOp(partitions_indom, PMDA_CACHE_INACTIVE);
+    pmdaCacheOp(dm_indom, PMDA_CACHE_INACTIVE);
 
     if ((fp = fopen("/proc/diskstats", "r")) != (FILE *)NULL)
     	/* 2.6 style disk stats */
@@ -207,6 +249,7 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom)
     }
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {
+	dmname = NULL;
 	if (buf[0] != ' ' || buf[0] == '\n') {
 	    /* skip heading */
 	    continue;
@@ -222,12 +265,20 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom)
 		continue;
 	}
 
-	if (_pm_ispartition(namebuf))
+	if (_pm_isdm(namebuf)) {
+	    indom = dm_indom;
+	    dmname = strdup(namebuf);
+	}
+	else if (_pm_ispartition(namebuf))
 	    indom = partitions_indom;
 	else if (_pm_isdisk(namebuf))
 	    indom = disk_indom;
 	else
 	    continue;
+
+	if (indom == dm_indom)
+	    /* replce dm-[0-9]* with the persistent name from /dev/mapper/* */
+	    map_persistent_dm_name(namebuf, sizeof(namebuf));
 
 	p = NULL;
 	if (pmdaCacheLookupName(indom, namebuf, &inst, (void **)&p) < 0 || !p) {
@@ -236,6 +287,18 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom)
 	    memset(p, 0, sizeof(partitions_entry_t));
 	    indom_changes++;
 	}
+
+	if (p->dmname)
+	    free(p->dmname);
+	p->dmname = dmname; /* NULL if not a dm device */
+
+        if (!p->namebuf)
+            p->namebuf = strdup(namebuf);
+        else
+        if (strcmp(namebuf, p->namebuf) != 0) {
+            free(p->namebuf);
+            p->namebuf = strdup(namebuf);
+        }
 
 	/* activate this entry */
 	if (p->udevnamebuf)
@@ -276,13 +339,6 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom)
 		&p->io_ticks, &p->aveq);
 	}
 
-	if (!p->namebuf)
-	    p->namebuf = strdup(namebuf);
-	else
-	if (strcmp(namebuf, p->namebuf) != 0) {
-	    free(p->namebuf);
-	    p->namebuf = strdup(namebuf);
-	}
     }
 
     /*
@@ -297,6 +353,7 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom)
 	refresh_udev(disk_indom, partitions_indom);
 	pmdaCacheOp(disk_indom, PMDA_CACHE_SAVE);
 	pmdaCacheOp(partitions_indom, PMDA_CACHE_SAVE);
+	pmdaCacheOp(dm_indom, PMDA_CACHE_SAVE);
     }
 
     /*
@@ -356,6 +413,22 @@ static pmID disk_metric_table[] = {
     /* disk.partitions.total_bytes */PMDA_PMID(CLUSTER_PARTITIONS,8),
 
     /* hinv.ndisk */                 PMDA_PMID(CLUSTER_STAT,33),
+
+    /* disk.dm.read */               PMDA_PMID(CLUSTER_DM,0),
+    /* disk.dm.write */		     PMDA_PMID(CLUSTER_DM,1),
+    /* disk.dm.total */		     PMDA_PMID(CLUSTER_DM,2),
+    /* disk.dm.blkread */	     PMDA_PMID(CLUSTER_DM,3),
+    /* disk.dm.blkwrite */	     PMDA_PMID(CLUSTER_DM,4),
+    /* disk.dm.blktotal */	     PMDA_PMID(CLUSTER_DM,5),
+    /* disk.dm.read_bytes */         PMDA_PMID(CLUSTER_DM,6),
+    /* disk.dm.write_bytes */        PMDA_PMID(CLUSTER_DM,7),
+    /* disk.dm.total_bytes */        PMDA_PMID(CLUSTER_DM,8),
+    /* disk.dm.read_merge */	     PMDA_PMID(CLUSTER_DM,9),
+    /* disk.dm.write_merge */	     PMDA_PMID(CLUSTER_DM,10),
+    /* disk.dm.avactive */	     PMDA_PMID(CLUSTER_DM,11),
+    /* disk.dm.aveq */		     PMDA_PMID(CLUSTER_DM,12),
+    /* hinv.map.dmname */	     PMDA_PMID(CLUSTER_DM,13),
+
 };
 
 int
@@ -626,6 +699,57 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			   p->wr_sectors) / 2;
 		break;
 	    default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
+    case CLUSTER_DM:
+	if (p == NULL)
+	    return PM_ERR_INST;
+	switch(idp->item) {
+	case 0: /* disk.dm.read */
+	    atom->ull = p->rd_ios;
+	    break;
+	case 1: /* disk.dm.write */
+	    atom->ull = p->wr_ios;
+	    break;
+	case 2: /* disk.dm.total */
+	    atom->ull = p->rd_ios + p->wr_ios;
+	    break;
+	case 3: /* disk.dm.blkread */
+	    atom->ull = p->rd_sectors;
+	    break;
+	case 4: /* disk.dm.blkwrite */
+	    atom->ull = p->wr_sectors;
+	    break;
+	case 5: /* disk.dm.blktotal */
+	    atom->ull = p->rd_sectors + p->wr_sectors;
+	    break;
+	case 6: /* disk.dm.read_bytes */
+	    atom->ull = p->rd_sectors / 2;
+	    break;
+	case 7: /* disk.dm.write_bytes */
+	    atom->ull = p->wr_sectors / 2;
+	    break;
+	case 8: /* disk.dm.total_bytes */
+	    atom->ull = (p->rd_sectors + p->wr_sectors) / 2;
+	    break;
+	case 9: /* disk.dm.read_merge */
+	    atom->ull = p->rd_merges;
+	    break;
+	case 10: /* disk.dm.write_merge */
+	    atom->ull = p->wr_merges;
+	    break;
+	case 11: /* disk.dm.avactive */
+	    atom->ull = p->io_ticks;
+	    break;
+	case 12: /* disk.dm.aveq */
+	    atom->ull = p->aveq;
+	    break;
+	case 13: /* hinv.map.dmname */
+	    atom->cp = p->dmname;
+	    break;
+	default:
 	    return PM_ERR_PMID;
 	}
 	break;

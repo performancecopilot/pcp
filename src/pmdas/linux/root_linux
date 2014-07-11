@@ -54,6 +54,7 @@ hinv.map {
     cpu_num		60:18:6
     cpu_node		60:18:8
     lvname		60:52:0
+    dmname		60:54:13
 }
 
 hinv.cpu {
@@ -226,6 +227,7 @@ disk {
     dev
     all
     partitions
+    dm
 }
 
 disk.dev {
@@ -263,6 +265,22 @@ disk.all {
     read_rawactive	60:0:74
     write_rawactive	60:0:75
     aveq		60:0:45
+}
+
+disk.dm {
+    read		60:54:0
+    write		60:54:1
+    total		60:54:2
+    blkread		60:54:3
+    blkwrite		60:54:4
+    blktotal		60:54:5
+    read_bytes		60:54:6
+    write_bytes		60:54:7
+    total_bytes		60:54:8
+    read_merge		60:54:9
+    write_merge		60:54:10
+    avactive		60:54:11
+    aveq		60:54:12
 }
 
 disk.partitions {

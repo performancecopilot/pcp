@@ -259,6 +259,7 @@ static pmdaIndom indomtab[] = {
     { PROC_CGROUP_MOUNTS_INDOM, 0, NULL },
     { LV_INDOM, 0, NULL },
     { ICMPMSG_INDOM, NR_ICMPMSG_COUNTERS, _pm_proc_net_snmp_indom_id },
+    { DM_INDOM, 0, NULL }, /* cached */
 };
 
 
@@ -3707,6 +3708,79 @@ static pmdaMetric metrictab[] = {
     { NULL, { PMDA_PMID(CLUSTER_INTERRUPT_OTHER, 0), PM_TYPE_U32,
     CPU_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+/*
+ * disk.dm cluster
+ */
+    /* disk.dm.read */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_DM,0), KERNEL_ULONG, DM_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* disk.dm.write */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_DM,1), KERNEL_ULONG, DM_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* disk.dm.total */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_DM,2), KERNEL_ULONG, DM_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* disk.dm.blkread */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_DM,3), PM_TYPE_U64, DM_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* disk.dm.blkwrite */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_DM,4), PM_TYPE_U64, DM_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* disk.dm.blktotal */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_DM,5), PM_TYPE_U64, DM_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* disk.dm.read_bytes */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_DM,6), PM_TYPE_U32, DM_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+    /* disk.dm.write_bytes */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_DM,7), PM_TYPE_U32, DM_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+    /* disk.dm.total_bytes */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_DM,8), PM_TYPE_U32, DM_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+    /* disk.dm.read_merge */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_DM,9), KERNEL_ULONG, DM_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* disk.dm.write_merge */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_DM,10), KERNEL_ULONG, DM_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* disk.dm.avactive */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_DM,11), PM_TYPE_U32, DM_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+    /* disk.dm.aveq */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_DM,12), PM_TYPE_U32, DM_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+    /* hinv.map.dmname */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_DM,13), PM_TYPE_STRING, DM_INDOM, PM_SEM_DISCRETE,
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 };
 
 static void
@@ -3715,7 +3789,7 @@ linux_refresh(pmdaExt *pmda, int *need_refresh)
     int need_refresh_mtab = 0;
 
     if (need_refresh[CLUSTER_PARTITIONS])
-    	refresh_proc_partitions(INDOM(DISK_INDOM), INDOM(PARTITIONS_INDOM));
+    	refresh_proc_partitions(INDOM(DISK_INDOM), INDOM(PARTITIONS_INDOM), INDOM(DM_INDOM));
 
     if (need_refresh[CLUSTER_STAT])
     	refresh_proc_stat(&proc_cpuinfo, &proc_stat);
@@ -3811,6 +3885,7 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
     switch (indomp->serial) {
     case DISK_INDOM:
     case PARTITIONS_INDOM:
+    case DM_INDOM:
 	need_refresh[CLUSTER_PARTITIONS]++;
 	break;
     case CPU_INDOM:
@@ -5417,6 +5492,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_INST;
 	return interrupts_fetch(idp->cluster, idp->item, inst, atom);
 
+    case CLUSTER_DM:
+	return proc_partitions_fetch(mdesc, inst, atom);
+	break;
+    	
     default: /* unknown cluster */
 	return PM_ERR_PMID;
     }
@@ -5437,7 +5516,7 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	if (idp->cluster < NUM_CLUSTERS) {
 	    need_refresh[idp->cluster]++;
 
-	    if (idp->cluster == CLUSTER_STAT && 
+	    if ((idp->cluster == CLUSTER_STAT || idp->cluster == CLUSTER_DM) && 
 		need_refresh[CLUSTER_PARTITIONS] == 0 &&
 		is_partitions_metric(pmidlist[i]))
 		need_refresh[CLUSTER_PARTITIONS]++;
