@@ -15,16 +15,17 @@
 #include "pmapi.h"
 #include "impl.h"
 
-static int			quiet;
-static char			*mechanism;
-static pmDiscoveryOptions	discoveryOptions;
+static int	quiet;
+static char	*mechanism;
+static char	*options;
+static unsigned	discoveryFlags;
 
 static int override(int, pmOptions *);
 
 static void
 handleInterrupt(int sig)
 {
-    discoveryOptions.interrupted = sig;
+    discoveryFlags |= PM_SERVICE_DISCOVERY_INTERRUPTED;
 }
 
 static void
@@ -68,7 +69,9 @@ static pmLongOptions longopts[] = {
     { "mechanism", 1, 'm', "NAME", "set the discovery method to use [avahi|probe=<subnet>|all]" },
     { "resolve", 0, 'r', 0, "resolve addresses" },
     { "service", 1, 's', "NAME", "discover services [pmcd|pmproxy|pmwebd|...|all]" },
+#if 0 /* disable tempoarily */
     { "timeout", 1, 't', "N.N", "timeout in seconds" },
+#endif
     PMAPI_OPTIONS_HEADER("Reporting options"),
     { "quiet", 0, 'q', 0, "quiet mode, do not write to stdout" },
     PMOPT_HELP,
@@ -76,7 +79,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "D:m:rs:t:q?",
+    .short_options = "D:m:rs:q?",/*"D:m:rs:t:q?",*/
     .long_options = longopts,
     .override = override,
 };
@@ -94,7 +97,7 @@ discovery(const char *spec)
     int		i, sts;
     char	**urls;
 
-    sts = pmDiscoverServicesWithOptions(spec, mechanism, &discoveryOptions, &urls);
+    sts = __pmDiscoverServicesWithOptions(spec, mechanism, options, &discoveryFlags, &urls);
     if (sts < 0) {
 	fprintf(stderr, "%s: service %s discovery failure: %s\n",
 		pmProgname, spec, pmErrStr(sts));
@@ -119,8 +122,10 @@ int
 main(int argc, char **argv)
 {
     char	*service = NULL;
+#if 0 /* disable tempoarily */
     char	*end;
     double	timeout;
+#endif
     int		c, sts, total;
 
     /*
@@ -128,8 +133,6 @@ main(int argc, char **argv)
      * interruption of the discovery process.
      */
     setupSignals(&handleInterrupt);
-
-    discoveryOptions.version = PM_DISCOVERY_OPTIONS_VERSION;
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
@@ -143,7 +146,7 @@ main(int argc, char **argv)
 	    quiet = 1;
 	    break;
 	case 'r':	/* resolve addresses */
-	    discoveryOptions.resolve = 1;
+	    discoveryFlags |= PM_SERVICE_DISCOVERY_RESOLVE;
 	    break;
 	case 's':	/* local services */
 	    if (strcmp(opts.optarg, "all") == 0)
@@ -151,6 +154,7 @@ main(int argc, char **argv)
 	    else
 		service = opts.optarg;
 	    break;
+#if 0 /* disable tempoarily */
 	case 't':	/* timeout */
 	    timeout = strtod(opts.optarg, &end);
 	    if (*end != '\0' || timeout < 0.0) {
@@ -164,6 +168,7 @@ main(int argc, char **argv)
 			   1000000000);
 	    }
 	    break;
+#endif
 	default:
 	    opts.errors++;
 	    break;
@@ -182,7 +187,7 @@ main(int argc, char **argv)
 	return discovery(service);
 
     for (c = sts = total = 0; c < sizeof(services)/sizeof(services[0]); c++) {
-	if (discoveryOptions.interrupted)
+	if ((discoveryFlags & PM_SERVICE_DISCOVERY_INTERRUPTED) != 0)
 	    break;
 	sts |= discovery(services[c]);
 	total += (sts != 0);

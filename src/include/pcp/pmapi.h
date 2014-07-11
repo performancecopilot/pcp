@@ -836,25 +836,6 @@ extern void pmFreeEventResult(pmResult **);
 
 extern int pmDiscoverServices(const char *, const char *, char ***);
 
-/*
- * A versioned type for service discovery options.
- * Callers of pmDiscoverServicesWithOptions should set the 'version' field to
- * PM_DISCOVERY_OPTIONS_VERSION. Other fields should be set as needed.
- * In order to maintain ABI backward compatibility, new options must be added
- * to the end of the struct. New boolean options can be added to the 'reserved'
- * bitfield.
- */
-#define PM_DISCOVERY_OPTIONS_VERSION 1 /* Latest version */
-typedef struct {
-    int			version;	/* Version of this struct */
-    int			resolve:1;	/* Attempt to resolve network addresses */
-    int			reserved:31;	/* Reserved for future use */
-    int			interrupted;	/* Discovery interruption code */
-    struct timespec	timeout;	/* Timeout */
-} pmDiscoveryOptions;
-
-extern int pmDiscoverServicesWithOptions(const char *, const char *, pmDiscoveryOptions *, char ***);
-
 #ifdef __cplusplus
 }
 #endif

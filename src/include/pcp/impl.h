@@ -1466,6 +1466,17 @@ extern pthread_mutex_t	__pmLock_libpcp;	/* big libpcp lock */
 extern void *__pmLock_libpcp;			/* symbol exposure */
 #endif
 
+/*
+ * Service discovery with options.
+ * The 4th argument is a pointer to a mask of flags for boolean options
+ * and status. It is set and tested using the following bits.
+ */
+#define PM_SERVICE_DISCOVERY_INTERRUPTED	0x1
+#define PM_SERVICE_DISCOVERY_RESOLVE		0x2
+
+extern int __pmDiscoverServicesWithOptions(const char *, const char *, const char *, unsigned *, char ***);
+
+
 #ifdef __cplusplus
 }
 #endif

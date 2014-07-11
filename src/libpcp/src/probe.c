@@ -25,11 +25,11 @@
  * requested service(s).
  */
 typedef struct connectionOptions {
-    __pmSockAddr		*netAddress;	/* Address of the subnet */
-    int				maskBits;	/* Number of bits in the subnet */
-    unsigned			maxThreads;	/* Max number of threads to use. */
-    struct timeval		timeout;	/* Connection timeout */
-    const pmDiscoveryOptions	*discoveryOptions;
+    __pmSockAddr	*netAddress;	/* Address of the subnet */
+    int			maskBits;	/* Number of bits in the subnet */
+    unsigned		maxThreads;	/* Max number of threads to use. */
+    struct timeval	timeout;	/* Connection timeout */
+    unsigned		*discoveryFlags;/* Discovery API flags */
 } connectionOptions;
 
 /* Context for each thread. */
@@ -43,7 +43,7 @@ typedef struct connectionContext {
     const struct timeval 	*timeout;	/* Connection timeout */
     int				*numUrls;	/* Size of the results */
     char			***urls;	/* The results */
-    const pmDiscoveryOptions	*discoveryOptions;
+    unsigned			*discoveryFlags;/* Discovery API flags */
 #if PM_MULTI_THREAD
     __pmMutex		addrLock;	/* lock for the above address/port */
     __pmMutex		urlLock;	/* lock for the above results */
@@ -80,7 +80,8 @@ attemptConnections(void *arg)
      * Keep trying to secure an address+port until there are no more
      * or until we are interrupted.
      */
-    while (! context->discoveryOptions->interrupted) {
+    while (! context->discoveryFlags ||
+	   (*context->discoveryFlags & PM_SERVICE_DISCOVERY_INTERRUPTED) == 0) {
 	/* Obtain the address lock while securing the next address, if any. */
 	PM_LOCK(context->addrLock);
 	if (context->nextAddress == NULL) {
@@ -187,7 +188,7 @@ attemptConnections(void *arg)
 
 	    PM_LOCK(context->urlLock);
 	    *context->numUrls =
-		__pmAddDiscoveredService(&serviceInfo, context->discoveryOptions,
+		__pmAddDiscoveredService(&serviceInfo, context->discoveryFlags,
 					 *context->numUrls, context->urls);
 	    PM_UNLOCK(context->urlLock);
 	}
@@ -241,7 +242,7 @@ probeForServices(
     context.portIx = 0;
     context.maskBits = options->maskBits;
     context.timeout = &options->timeout;
-    context.discoveryOptions = options->discoveryOptions;
+    context.discoveryFlags = options->discoveryFlags;
 
     /*
      * Initialize the first address of the subnet. This pointer will become
@@ -292,7 +293,8 @@ probeForServices(
 	     * enough except when resolving addresses, where twice that much is
 	     * sufficient.
 	     */
-	    if (options->discoveryOptions->resolve)
+	    if (options->discoveryFlags &&
+		(*options->discoveryFlags & PM_SERVICE_DISCOVERY_RESOLVE) != 0)
 		pthread_attr_setstacksize(&threadAttr, 2 * PTHREAD_STACK_MIN);
 	    else
 		pthread_attr_setstacksize(&threadAttr, PTHREAD_STACK_MIN);
@@ -571,7 +573,7 @@ parseOptions(const char *mechanism, connectionOptions *options)
 int
 __pmProbeDiscoverServices(const char *service,
 			  const char *mechanism,
-			  const pmDiscoveryOptions *discoveryOptions,
+			  unsigned *discoveryFlags,
 			  int numUrls,
 			  char ***urls)
 {
@@ -582,7 +584,7 @@ __pmProbeDiscoverServices(const char *service,
     sts = parseOptions(mechanism, &options);
     if (sts != 0)
 	return 0;
-    options.discoveryOptions = discoveryOptions;
+    options.discoveryFlags = discoveryFlags;
 
     /* Everything checks out. Now do the actual probing. */
     numUrls = probeForServices(service, &options, numUrls, urls);
