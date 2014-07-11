@@ -405,7 +405,8 @@ Requires: papi-devel
 BuildRequires: papi-devel
 
 %description pmda-papi
-placeholder
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting hardware counters statistics through PAPI (Perforamance API).
 %endif
 
 %if "@pmda_infiniband@" == "infiniband"
