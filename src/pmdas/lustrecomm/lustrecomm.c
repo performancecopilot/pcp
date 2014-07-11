@@ -208,19 +208,19 @@ lustrecomm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom
                 atom->l = *((long *) vp);
 		break;
             case 7:
-		file_indexed(&filestatetab[PROC_SYS_LNET_STATS], PM_TYPE_32,&aux, &vp, 7);
+		file_indexed(&filestatetab[PROC_SYS_LNET_STATS], PM_TYPE_64,&aux, &vp, 7);
                 atom->l = *((long *) vp);
 		break;
             case 8:
-		file_indexed(&filestatetab[PROC_SYS_LNET_STATS], PM_TYPE_32,&aux, &vp, 8);
+		file_indexed(&filestatetab[PROC_SYS_LNET_STATS], PM_TYPE_64,&aux, &vp, 8);
                 atom->l = *((long *) vp);
 		break;
             case 9:
-		file_indexed(&filestatetab[PROC_SYS_LNET_STATS], PM_TYPE_32,&aux, &vp, 9);
+		file_indexed(&filestatetab[PROC_SYS_LNET_STATS], PM_TYPE_64,&aux, &vp, 9);
                 atom->l = *((long *) vp);
 		break;
             case 10:
-		file_indexed(&filestatetab[PROC_SYS_LNET_STATS], PM_TYPE_32,&aux, &vp, 10);
+		file_indexed(&filestatetab[PROC_SYS_LNET_STATS], PM_TYPE_64,&aux, &vp, 10);
                 atom->l = *((long *) vp);
 		break;
              default:
