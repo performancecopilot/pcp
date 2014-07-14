@@ -858,8 +858,10 @@ fetch_proc_pid_cgroup(int id, proc_pid_t *proc_pid)
 	else if ((n = read(fd, buf, sizeof(buf))) < 0)
 	    sts = -oserror();
 	else {
-	    if (n == 0)
+	    if (n == 0) {
+		setoserror(ENODATA);
 		sts = -1;
+	    }
 	    else {
 		/* reformat the buffer to match "ps" output format, then hash */
 		proc_cgroup_reformat(&buf[0], n, &fmt[0]);
@@ -897,9 +899,10 @@ fetch_proc_pid_label(int id, proc_pid_t *proc_pid)
 	else if ((n = read(fd, buf, sizeof(buf))) < 0)
 	    sts = -oserror();
 	else {
-	    if (n == 0)
+	    if (n == 0) {
+		setoserror(ENODATA);
 		sts = -1;
-	    else {
+	    } else {
 		/* buffer matches "ps" output format, direct hash */
 		buf[sizeof(buf)-1] = '\0';
 		ep->label_id = proc_strings_insert(buf);
