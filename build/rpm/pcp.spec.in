@@ -26,6 +26,9 @@ BuildRequires: systemtap-sdt-devel
 %if @have_libmicrohttpd@ == 1
 BuildRequires: libmicrohttpd-devel
 %endif
+%if @have_cairo@ == 1
+BuildRequires: cairo-devel
+%endif
 %if @have_rpmlib@ == 1
 BuildRequires: rpm-devel
 %endif
