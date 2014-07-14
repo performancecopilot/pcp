@@ -136,6 +136,7 @@ jbd2filter()
 {
     sed \
 	-e 's/64-bit unsigned int/NN-bit unsigned int/g' \
+	-e 's/32-bit unsigned int/NN-bit unsigned int/g' \
 	# the end
 }
 
