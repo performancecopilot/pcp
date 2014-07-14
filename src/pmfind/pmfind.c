@@ -22,6 +22,7 @@ static unsigned	discoveryFlags;
 
 static int override(int, pmOptions *);
 
+#ifndef IS_MINGW
 static void
 handleInterrupt(int sig)
 {
@@ -31,29 +32,31 @@ handleInterrupt(int sig)
 static void
 setupSignals(sighandler_t handler)
 {
-  struct sigaction sa;
+    struct sigaction sa;
 
-  memset(&sa, 0, sizeof(sa));
-  sa.sa_handler = handler;
-  sigemptyset (&sa.sa_mask);
-  if (handler != SIG_IGN)
-    {
-      sigaddset (&sa.sa_mask, SIGHUP);
-      sigaddset (&sa.sa_mask, SIGPIPE);
-      sigaddset (&sa.sa_mask, SIGINT);
-      sigaddset (&sa.sa_mask, SIGTERM);
-      sigaddset (&sa.sa_mask, SIGXFSZ);
-      sigaddset (&sa.sa_mask, SIGXCPU);
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = handler;
+    sigemptyset(&sa.sa_mask);
+    if (handler != SIG_IGN) {
+	sigaddset(&sa.sa_mask, SIGHUP);
+	sigaddset(&sa.sa_mask, SIGPIPE);
+	sigaddset(&sa.sa_mask, SIGINT);
+	sigaddset(&sa.sa_mask, SIGTERM);
+	sigaddset(&sa.sa_mask, SIGXFSZ);
+	sigaddset(&sa.sa_mask, SIGXCPU);
     }
-  sa.sa_flags = SA_RESTART;
+    sa.sa_flags = SA_RESTART;
 
-  sigaction (SIGHUP, &sa, NULL);
-  sigaction (SIGPIPE, &sa, NULL);
-  sigaction (SIGINT, &sa, NULL);
-  sigaction (SIGTERM, &sa, NULL);
-  sigaction (SIGXFSZ, &sa, NULL);
-  sigaction (SIGXCPU, &sa, NULL);
+    sigaction(SIGHUP, &sa, NULL);
+    sigaction(SIGPIPE, &sa, NULL);
+    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGTERM, &sa, NULL);
+    sigaction(SIGXFSZ, &sa, NULL);
+    sigaction(SIGXCPU, &sa, NULL);
 }
+#else
+#define setupSignals(x)	do { } while (0)
+#endif
 
 static const char *services[] = {
     PM_SERVER_SERVICE_SPEC,
