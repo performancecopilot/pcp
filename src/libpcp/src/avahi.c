@@ -103,17 +103,18 @@ createServices(AvahiClient *c)
     int ret;
     int i;
 
-    assert (c);
+    assert(c);
 
      /*
       * Create a new entry group, if necessary, or reset the existing one.
       */
     if (group == NULL) {
 	if ((group = avahi_entry_group_new(c, entryGroupCallback, NULL)) == NULL) {
- 	    __pmNotifyErr(LOG_ERR, "avahi_entry_group_new () failed: %s",
- 			  avahi_strerror (avahi_client_errno(c)));
+	    if (pmDebug & DBG_TRACE_DISCOVERY)
+		__pmNotifyErr(LOG_ERR, "avahi_entry_group_new failed: %s",
+			  avahi_strerror(avahi_client_errno(c)));
 	    return;
- 	}
+	}
     }
     else
 	avahi_entry_group_reset(group);
