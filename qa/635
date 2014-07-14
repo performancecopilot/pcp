@@ -192,7 +192,7 @@ do
 	| LC_COLLATE=POSIX sort \
 	> $tmp.vals.$m.2
 
-    join -1 1 -2 1 -o 1.2,2.2,1.1 -t' ' $tmp.vals.$m.1 $tmp.vals.$m.2 >$tmp.vals
+    LC_COLLATE=POSIX join -1 1 -2 1 -o 1.2,2.2,1.1 -t' ' $tmp.vals.$m.1 $tmp.vals.$m.2 >$tmp.vals
     while read v1 v2 inst
     do
 	if [ $v2 -lt $v1 ]
@@ -261,7 +261,7 @@ do
     cat $tmp.vals.$m.2 >>$seq.full
     echo "--- $m netstat ---" >>$seq.full
     cat $tmp.net >>$seq.full
-    join -1 1 -2 1 -o 1.1,2.2,1.2,2.3 $tmp.vals.$m.2 $tmp.net >$tmp.all
+    LC_COLLATE=POSIX join -1 1 -2 1 -o 1.1,2.2,1.2,2.3 $tmp.vals.$m.2 $tmp.net >$tmp.all
 
     while read inst nv1 pcp nv2
     do
