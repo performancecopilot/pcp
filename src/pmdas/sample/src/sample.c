@@ -1154,7 +1154,7 @@ init_tables(int dom)
 
     /* local hacks */
     _string = (char *)malloc(3);
-    strcpy(_string, "13");
+    strncpy(_string, "13", sizeof("13"));
     _aggr33 = (pmValueBlock *)malloc(PM_VAL_HDR_SIZE);
     _aggr33->vlen = PM_VAL_HDR_SIZE + 0;
     _aggr33->vtype = PM_TYPE_AGGREGATE;
