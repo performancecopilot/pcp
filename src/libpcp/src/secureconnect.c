@@ -1679,11 +1679,13 @@ __pmConnect(int fd, void *addr, __pmSockLen addrlen)
 
     if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
 	PRIntervalTime timer;
-	int msec;
 	PRStatus sts;
-
-	msec = __pmConvertTimeout(TIMEOUT_CONNECT);
-	timer = PR_MillisecondsToInterval(msec);
+	if ((__pmGetFileStatusFlags(fd) & FNDELAY) != 0)
+	    timer = PR_INTERVAL_NO_WAIT;
+	else {
+	    int msec = __pmConvertTimeout(TIMEOUT_CONNECT);
+	    timer = PR_MillisecondsToInterval(msec);
+	}
 	sts = PR_Connect(socket.nsprFd, (PRNetAddr *)addr, timer);
 #ifdef PCP_DEBUG
 	if ((pmDebug & DBG_TRACE_CONTEXT) && (pmDebug & DBG_TRACE_DESPERATE)) {

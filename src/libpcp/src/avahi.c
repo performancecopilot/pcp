@@ -103,17 +103,18 @@ createServices(AvahiClient *c)
     int ret;
     int i;
 
-    assert (c);
+    assert(c);
 
      /*
       * Create a new entry group, if necessary, or reset the existing one.
       */
     if (group == NULL) {
 	if ((group = avahi_entry_group_new(c, entryGroupCallback, NULL)) == NULL) {
- 	    __pmNotifyErr(LOG_ERR, "avahi_entry_group_new () failed: %s",
- 			  avahi_strerror (avahi_client_errno(c)));
+	    if (pmDebug & DBG_TRACE_DISCOVERY)
+		__pmNotifyErr(LOG_ERR, "avahi_entry_group_new failed: %s",
+			  avahi_strerror(avahi_client_errno(c)));
 	    return;
- 	}
+	}
     }
     else
 	avahi_entry_group_reset(group);
@@ -494,7 +495,7 @@ __pmServerAvahiUnadvertisePresence(__pmServerPresence *s)
 
 /* Support for clients searching for services. */
 typedef struct browsingContext {
-    const pmDiscoveryOptions *discoveryOptions;
+    unsigned		*discoveryFlags;
     AvahiSimplePoll	*simplePoll;
     char		***urls;
     int			numUrls;
@@ -564,7 +565,7 @@ resolveCallback(
 	    __pmSockAddrSetPort(serviceInfo.address, port);
 	    __pmSockAddrSetScope(serviceInfo.address, interface);
 	    context->numUrls = __pmAddDiscoveredService(&serviceInfo,
-							context->discoveryOptions,
+							context->discoveryFlags,
 							numUrls, urls);
 	    __pmSockAddrFree(serviceInfo.address);
 	    break;
@@ -683,7 +684,7 @@ discoveryTimeout(void)
 int
 __pmAvahiDiscoverServices(const char *service,
 			  const char *mechanism,
-			  const pmDiscoveryOptions *discoveryOptions,
+			  unsigned *discoveryFlags,
 			  int numUrls,
 			  char ***urls)
 {
@@ -703,7 +704,7 @@ __pmAvahiDiscoverServices(const char *service,
     if (!(simplePoll = avahi_simple_poll_new()))
 	return -ENOMEM;
 
-    context.discoveryOptions = discoveryOptions;
+    context.discoveryFlags = discoveryFlags;
     context.error = 0;
     context.simplePoll = simplePoll;
     context.urls = urls;
@@ -768,7 +769,8 @@ __pmAvahiDiscoverServices(const char *service,
      * The discovered services will be added to 'urls' during the call back
      * to resolveCallback
      */
-    while (! discoveryOptions->interrupted) {
+    while (! discoveryFlags || 
+	   (*discoveryFlags & PM_SERVICE_DISCOVERY_INTERRUPTED) == 0) {
 	if ((sts = avahi_simple_poll_iterate(simplePoll, -1)) != 0)
             if (sts > 0 || errno != EINTR)
 		break;

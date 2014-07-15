@@ -11,7 +11,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
  */
-#include <time.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "internal.h"
@@ -72,78 +71,19 @@ pmDiscoverServices(const char *service,
 		   const char *mechanism,
 		   char ***urls)
 {
-    return pmDiscoverServicesWithOptions(service, mechanism, NULL, urls);
-}
-
-static void
-destroyTimer(timer_t timerid)
-{
-    timer_delete(timerid);
-}
-
-static int
-setTimer(const struct timespec *timeout, timer_t *timerid)
-{
-    struct itimerspec	timer;
-    int			attempt;
-    int			sts;
-
-    /*
-     * First, create the timer. Specifying NULL as the second argument creates
-     * a timer which will generate SIGALRM when ti expires.
-     */
-    for (attempt = 0; attempt < 1000; ++attempt) {
-	sts = timer_create(CLOCK_REALTIME, NULL, timerid);
-	if (sts == 0)
-	    break;
-	if (errno != EAGAIN)
-	    return -errno;
-    }
-    /*
-     * Have all the attempts failed? If so, it's due to lack of memory,
-     * according to timer_create(2).
-     */
-    if (sts != 0)
-	return -ENOMEM;
-
-    /* Now set the timer so that it expires once. */
-    memset(&timer.it_interval, 0, sizeof(timer.it_interval));
-    timer.it_value = *timeout;
-    sts = timer_settime(*timerid, 0, &timer, NULL);
-
-    if (sts < 0) {
-	destroyTimer(*timerid);
-	return -errno;
-    }
-
-    return 0; /* success! */
+    return __pmDiscoverServicesWithOptions(service, mechanism, NULL, NULL, urls);
 }
 
 int
-pmDiscoverServicesWithOptions(const char *service,
-			      const char *mechanism,
-			      pmDiscoveryOptions *options,
-			      char ***urls)
+__pmDiscoverServicesWithOptions(const char *service,
+				const char *mechanism,
+				const char *options,
+				unsigned *flags,
+				char ***urls)
 {
-    timer_t	timerid;
     int		numUrls;
-    int		sts;
 
-    /*
-     * Make sure that the caller is not expecting a newer API version than ours.
-     */
-    if (options->version > PM_DISCOVERY_OPTIONS_VERSION)
-	return -EOPNOTSUPP;
-
-    /*
-     * If a timeout has been specified, then arm a timer to generate SIGALRM
-     * when the requested time expires
-     */
-    if (options->timeout.tv_sec || options->timeout.tv_nsec) {
-	sts = setTimer(&options->timeout, &timerid);
-	if (sts < 0)
-	    return sts;
-    }
+    (void)options; /* Temporary */
 
     /*
      * Attempt to discover the requested service(s) using the requested or
@@ -154,19 +94,16 @@ pmDiscoverServicesWithOptions(const char *service,
     *urls = NULL;
     numUrls = 0;
     if (mechanism == NULL) {
-	numUrls += __pmAvahiDiscoverServices(service, mechanism, options, numUrls, urls);
-	if (! options->interrupted)
-	    numUrls += __pmProbeDiscoverServices(service, mechanism, options, numUrls, urls);
+	numUrls += __pmAvahiDiscoverServices(service, mechanism, flags, numUrls, urls);
+	if (! flags || (*flags & PM_SERVICE_DISCOVERY_INTERRUPTED) != 0)
+	    numUrls += __pmProbeDiscoverServices(service, mechanism, flags, numUrls, urls);
     }
     else if (strncmp(mechanism, "avahi", 5) == 0)
-	numUrls += __pmAvahiDiscoverServices(service, mechanism, options, numUrls, urls);
+	numUrls += __pmAvahiDiscoverServices(service, mechanism, flags, numUrls, urls);
     else if (strncmp(mechanism, "probe", 5) == 0)
-	numUrls += __pmProbeDiscoverServices(service, mechanism, options, numUrls, urls);
+	numUrls += __pmProbeDiscoverServices(service, mechanism, flags, numUrls, urls);
     else
 	numUrls = -EOPNOTSUPP;
-
-    if (options->timeout.tv_sec || options->timeout.tv_nsec)
-	destroyTimer(timerid);
 
     return numUrls;
 }
@@ -174,7 +111,7 @@ pmDiscoverServicesWithOptions(const char *service,
 /* For manually adding a service. Also used by pmDiscoverServices(). */
 int
 __pmAddDiscoveredService(__pmServiceInfo *info,
-			 const pmDiscoveryOptions *options,
+			 unsigned *flags,
 			 int numUrls,
 			 char ***urls)
 {
@@ -186,7 +123,7 @@ __pmAddDiscoveredService(__pmServiceInfo *info,
     int port;
 
     /* If address resolution was requested, then do attempt it. */
-    if (options->resolve)
+    if (flags && (*flags & PM_SERVICE_DISCOVERY_RESOLVE) != 0)
 	host = __pmGetNameInfo(info->address);
 
     /*
