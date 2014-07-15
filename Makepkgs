@@ -80,7 +80,10 @@ gnu_tool()
 
 export MAKE=`gnu_tool Error "$MAKE" make gmake`
 export TAR=`gnu_tool Warning "$TAR" tar gtar gnutar`
-[ -z "$TAR" ] && export ZIP=`gnu_tool Error "$ZIP" gzip gnuzip`
+export ZIP=`gnu_tool Error "$ZIP" gzip gnuzip`
+
+# check if tar supports --transform else we must use git-archive later on (e.g. RHEL5)
+[ ! -z "$TAR" ] && $TAR --help | 2>&1 grep -q transform || USE_GIT_ARCHIVE=1
 
 tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 trap "rm -rf $tmp" 0 1 2 3 15
@@ -190,9 +193,9 @@ clean_packaging()
 #
 src_tar_build()
 {
-    if [ -z "$TAR" ]
+    if [ -z "$TAR" -o ! -z "$USE_GIT_ARCHIVE" ]
     then
-	# no GNU tar is available, use git-archive(1) - no local changes
+	# no suitable GNU tar is available, use git-archive(1) - no local changes
 	git archive --format=tar --prefix=$source/ HEAD | $ZIP > $SRCTAR
     else
 	# build git file list and make tarball by hand to pick up any changes
