@@ -65,28 +65,8 @@ pmConnectHandshake(int fd, int port, pmTime *pkt)
 
     __pmSockAddrInit(myaddr, AF_INET, INADDR_LOOPBACK, port);
     if ((sts = __pmConnect(fd, (void *)myaddr, __pmSockAddrSize())) < 0) {
-	sts = neterror();
-	if (sts == EINPROGRESS) {
-	    /* We're in progress - wait on select. */
-	    __pmFdSet rfds;
-	    int rc;
-
-	    __pmFD_ZERO(&rfds);
-	    __pmFD_SET(fd, &rfds);
-	    if ((rc = __pmSelectRead(fd+1, &rfds, NULL)) == 1) {
-		sts = __pmConnectCheckError(fd);
-	    }
-	    else if (rc == 0) {
-		sts = ETIMEDOUT;
-	    }
-	    else {
-		sts = (rc < 0) ? neterror() : EINVAL;
-	    }
-	    if (sts != 0) {
-		setoserror(neterror());
-		goto error;
-	    }
-	}
+	setoserror(neterror());
+	goto error;
     }
     __pmSockAddrFree(myaddr);
     myaddr = NULL;

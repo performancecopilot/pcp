@@ -1,9 +1,9 @@
 pcp (3.9.7) unstable; urgency=low
 
-  * Add Debian build dependency on autoconf (closes: #752171)
+  * Fix some more GNU/Hurd build issues (closes: #752513)
   * New release (full details in CHANGELOG).
 
- -- Nathan Scott <nathans@debian.org>  Thu, 19 Jun 2014 10:19:23 +1000
+ -- Nathan Scott <nathans@debian.org>  Wed, 16 Jul 2014 09:45:18 +1000
 
 pcp (3.9.6) unstable; urgency=low
 

@@ -25,7 +25,7 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=124 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 logputresult: pdubuf=ADDR input len=NNN output len=40 posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -73,7 +73,7 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=124 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_control: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
@@ -117,7 +117,7 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=124 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_control: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
@@ -164,7 +164,7 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=124 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 logputresult: pdubuf=ADDR input len=NNN output len=40 posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -215,7 +215,7 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=124 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 logputresult: pdubuf=ADDR input len=NNN output len=40 posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -263,7 +263,7 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=124 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 logputresult: pdubuf=ADDR input len=NNN output len=40 posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -311,7 +311,7 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=124 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_control: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
@@ -355,7 +355,7 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=124 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_control: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
@@ -399,7 +399,7 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=124 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 logputresult: pdubuf=ADDR input len=NNN output len=40 posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -447,7 +447,7 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=124 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_control: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
@@ -491,7 +491,7 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=124 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 logputresult: pdubuf=ADDR input len=NNN output len=40 posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -539,7 +539,7 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=124 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_control: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
@@ -583,7 +583,7 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=124 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_control: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
@@ -630,7 +630,7 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=124 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_control: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
@@ -677,7 +677,7 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=124 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_control: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
@@ -721,7 +721,7 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=124 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 logputresult: pdubuf=ADDR input len=NNN output len=40 posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -769,7 +769,7 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=124 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_control: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
@@ -813,7 +813,7 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=124 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_control: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
@@ -857,7 +857,7 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=124 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 logputresult: pdubuf=ADDR input len=NNN output len=40 posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -905,7 +905,7 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=124 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_control: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
@@ -949,7 +949,7 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=124 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 logputresult: pdubuf=ADDR input len=NNN output len=40 posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -997,7 +997,7 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=124 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_control: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
@@ -1041,7 +1041,7 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=124 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_control: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1
@@ -1085,7 +1085,7 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=124 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 logputresult: pdubuf=ADDR input len=NNN output len=40 posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
@@ -1133,7 +1133,7 @@ PMIDs: [1] 29.0.5
       instances: [1] 2
 
 Archive basename: ARCHIVE
-logputresult: pdubuf=ADDR input len=NNN output len=124 posn=NNN
+logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN
 do_control: control=13 state=0 delta=5000 request ...
 LogControl dump from ADDR numpmid: 1

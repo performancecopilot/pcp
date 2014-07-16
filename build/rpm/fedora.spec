@@ -839,7 +839,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %changelog
 * Wed Jul 16 2014 Mark Goodwin <mgoodwin@redhat.com> - 3.9.7-1
-- Currently under development
+- Update to latest PCP sources.
 
 * Wed Jun 18 2014 Dave Brolley <brolley@redhat.com> - 3.9.5-1
 - Daemon signal handlers no longer use unsafe APIs (BZ 847343)
