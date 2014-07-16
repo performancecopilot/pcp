@@ -1,3 +1,6 @@
+pcp-3.9.8 (13 August 2014)
+    - Currently under development
+
 pcp-3.9.7 (16 July 2014)
     - pmie: "ruleset" extensions to the pmie(1) language
     - pmdaproc: additional memory and new blkio cgroup metrics
