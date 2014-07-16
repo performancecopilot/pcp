@@ -1,8 +1,8 @@
 pcp (3.9.8) unstable; urgency=low
 
-  * Currently under development.
+  * New release to update package metadata (closes: #754929)
 
- -- Nathan Scott <nathans@debian.org>  Wed, 16 Jul 2014 09:45:18 +1000
+ -- Nathan Scott <nathans@debian.org>  Wed, 16 Jul 2014 15:58:31 +1000
 
 pcp (3.9.7) unstable; urgency=low
 
