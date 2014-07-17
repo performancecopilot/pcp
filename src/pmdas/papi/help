@@ -26,28 +26,47 @@
 #
 # blank lines before the @ line are ignored
 #
+@ papi.preset.TOT_INS total instruction completed
 
-@ papi.preset.total_inst total instruction completed.
-@ papi.enable_counters current metric to enable/disable counters.
-This will change!
+@ papi.preset.TOT_CYC total cycles completed
 
-@ papi.preset.L1_DCM Level 1 data cache misses.
-@ papi.preset.L1_ICM Level 1 instruction cache misses.
-@ papi.preset.L2_DCM Level 2 data cache misses.
-@ papi.preset.L2_ICM Level 2 instruction cache misses.
-@ papi.preset.L3_DCM Level 3 data cache misses.
-@ papi.preset.L3_ICM Level 3 instruction cache misses.
-@ papi.preset.L1_TCM Level 1 total cache misses.
-@ papi.preset.L2_TCM Level 2 total cache misses.
-@ papi.preset.L3_TCM Level 3 total cache misses.
-@ papi.preset.TLB_DM Data translation lookaside buffer misses.
-@ papi.preset.TLB_IM Instruction translation lookaside buffer misses.
-@ papi.preset.TLB_TL Total translation lookaside buffer misses.
-@ papi.preset.L1_LDM Level 1 load misses.
+@ papi.preset.L1_DCM Level 1 data cache misses
 
-@ papi.preset.L1_STM Level 1 store misses.
+@ papi.preset.L1_ICM Level 1 instruction cache misses
 
-@ papi.preset.L2_LDM Level 2 load misses.
+@ papi.preset.L2_DCM Level 2 data cache misses
 
-@ papi.preset.L2_STM Level 2 store misses.
+@ papi.preset.L2_ICM Level 2 instruction cache misses
+
+@ papi.preset.L3_DCM Level 3 data cache misses
+
+@ papi.preset.L3_ICM Level 3 instruction cache misses
+
+@ papi.preset.L1_TCM Level 1 total cache misses
+
+@ papi.preset.L2_TCM Level 2 total cache misses
+
+@ papi.preset.L3_TCM Level 3 total cache misses
+
+@ papi.preset.TLB_DM Data translation lookaside buffer misses
+
+@ papi.preset.TLB_IM Instruction translation lookaside buffer misses
+
+@ papi.preset.TLB_TL Total translation lookaside buffer misses
+
+@ papi.preset.L1_LDM Level 1 load misses
+
+@ papi.preset.L1_STM Level 1 store misses
+
+@ papi.preset.L2_LDM Level 2 load misses
+
+@ papi.preset.L2_STM Level 2 store misses
+
+@ papi.enable A list of metrics to enable and count
+
+@ papi.reset Reset the counter values
+
+@ papi.disable A list of metrics to disable counting
+
+
 
