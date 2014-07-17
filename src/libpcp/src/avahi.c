@@ -495,11 +495,11 @@ __pmServerAvahiUnadvertisePresence(__pmServerPresence *s)
 
 /* Support for clients searching for services. */
 typedef struct browsingContext {
-    unsigned		*discoveryFlags;
-    AvahiSimplePoll	*simplePoll;
-    char		***urls;
-    int			numUrls;
-    int			error;
+    const volatile unsigned	*discoveryFlags;
+    AvahiSimplePoll		*simplePoll;
+    char			***urls;
+    int				numUrls;
+    int				error;
 } browsingContext;
 
 /* Called whenever a service has been resolved successfully or timed out. */
@@ -684,7 +684,7 @@ discoveryTimeout(void)
 int
 __pmAvahiDiscoverServices(const char *service,
 			  const char *mechanism,
-			  unsigned *discoveryFlags,
+			  const volatile unsigned *discoveryFlags,
 			  int numUrls,
 			  char ***urls)
 {
