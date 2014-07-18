@@ -20,6 +20,7 @@ papi {
     reset PAPI:0:19
     disable PAPI:0:20
     status PAPI:0:21
+    num_counters PAPI:0:22
 }
 
 papi.preset {
