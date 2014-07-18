@@ -103,6 +103,37 @@ check_papi_state(int state)
     return state;
 }
 
+char*
+papi_string_status()
+{
+    int state, retval;
+    retval = PAPI_state(EventSet, &state);
+    if (retval != PAPI_OK)
+	return "PAPI_state error.";
+    switch (state) {
+    case 1:
+	return "Papi is stopped.";
+    case 2:
+	return "Papi is running.";
+    case 4:
+	return "Papi is paused";
+    case 8:
+	return "Papi eventset is defined but not initialized.";
+    case 16:
+	return "Papi eventset has overflowing enabled";
+    case 32:
+	return "Papi eventset has profiling enabled";
+    case 64:
+	return "Papi eventset has multiplexing enabled";
+    case 128:
+	return "Papi is attached to another process/thread";
+    case 256:
+	return "Papi is attached to a specific CPU.";
+    default:
+	return "PAPI_state error.";
+    }
+}
+
 /*void size_user_tuple()
 {
     //this will eventually be used in tandom with PAPI_enum_event for
@@ -202,9 +233,9 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_PAPI,20), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.disable */
 
-    /*    { &papi_info,
+    { &papi_info,
       { PMDA_PMID(CLUSTER_PAPI,21), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
-      PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },*/ /* papi.status */
+      PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.status */
 
 };
 
@@ -215,14 +246,20 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     int sts = 0;
     int retval = 0;
     /* this will probably need to be expanded to fit the domains as well */
+    __pmNotifyErr(LOG_DEBUG, "case: %d\n", idp->item);
     sts = check_papi_state(sts);
-    if (sts != PAPI_RUNNING)
-	return PM_ERR_NODATA;
-
-    sts = PAPI_read(EventSet, values);
-    if (sts != PAPI_OK)
-	return PM_ERR_NODATA;
-
+    //    if (sts != PAPI_RUNNING){
+    //	__pmNotifyErr(LOG_DEBUG, "sts: %d\n");
+	//	return PM_ERR_AGAIN;
+    //	return 0;
+    //    }
+    if(sts == PAPI_RUNNING){
+	sts = PAPI_read(EventSet, values);
+	if (sts != PAPI_OK){
+	    __pmNotifyErr(LOG_DEBUG, "sts: %d - %s\n", sts, PAPI_strerror(sts));
+	    return PM_ERR_VALUE;
+	}
+    }
     switch (idp->cluster) {
     case CLUSTER_PAPI:
 	//switch indom statement will end up being here
@@ -303,11 +340,18 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 18:
 	    atom->cp = enable_string; /* papi.enable */
 	    break;
+
 	case 19:
 	    break; /* papi.reset */
+
 	case 20:
 	    atom->cp = disable_string;
 	    break; /* papi.disable */
+
+	case 21:
+	    atom->cp = papi_string_status();
+	    break;
+
 	default:
 	    return 0;
 	} // item switch
@@ -315,8 +359,10 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     default:
 	return 0;
     } // cluster switch
-    return PMDA_FETCH_STATIC;
-    //    return 0;
+    if(sts == PAPI_OK || idp->item == 18 || idp->item == 20 || idp->item == 21)
+	return PMDA_FETCH_STATIC;
+    else
+	return 0;
 }
 
 static int
@@ -356,8 +402,6 @@ remove_metric(unsigned int event)
 	return PM_ERR_VALUE; //we couldn't get the metric, proper err value?
     //should not get here
     return PM_ERR_VALUE;
-    
-
 }
 
 int
@@ -544,7 +588,7 @@ int papi_internal_init()
 	__pmNotifyErr(LOG_DEBUG, "PAPI_start failed.\n");
 	return 1; 
 	}*/
-    return retval;
+    return 0;
 
 }
 
@@ -691,7 +735,7 @@ papi_init(pmdaInterface *dp)
     dp->comm.flags |= PDU_FLAG_AUTH;
 
     int internal_init_ret = 0;
-    if (internal_init_ret = papi_internal_init() != 0){
+    if ((internal_init_ret = papi_internal_init()) != 0){
 	__pmNotifyErr(LOG_DEBUG, "papi_internal_init returned %d\n", internal_init_ret);
 	return;
     }
