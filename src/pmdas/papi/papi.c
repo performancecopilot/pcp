@@ -151,11 +151,11 @@ papi_string_status()
 static pmdaMetric metrictab[] = {
     { &papi_info,
       { PMDA_PMID(CLUSTER_PAPI,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.total_inst */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.TOT_INS */
 
     { &papi_info,
       { PMDA_PMID(CLUSTER_PAPI,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.total_cyc */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.TOT_CYC */
 
     { &papi_info,
       { PMDA_PMID(CLUSTER_PAPI,2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
@@ -274,7 +274,7 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 		
 	case 1:
-	    atom->ul = values[1]; /* papi.preset.TOT_CYC */
+	    atom->ull = values[1]; /* papi.preset.TOT_CYC */
 	    break;
 
 	case 2:
