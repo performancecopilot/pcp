@@ -237,6 +237,10 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_PAPI,21), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
       PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.status */
 
+    { &papi_info,
+      { PMDA_PMID(CLUSTER_PAPI,22), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.num_counters */
+
 };
 
 static int
@@ -350,7 +354,11 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	case 21:
 	    atom->cp = papi_string_status();
-	    break;
+	    break; /* papi.status */
+
+	case 22:
+	    atom->ul = number_of_counters;
+	    break; /* papi.num_counters */
 
 	default:
 	    return 0;
@@ -359,7 +367,7 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     default:
 	return 0;
     } // cluster switch
-    if(sts == PAPI_OK || idp->item == 18 || idp->item == 20 || idp->item == 21)
+    if(sts == PAPI_OK || idp->item == 18 || idp->item == 20 || idp->item == 21 || idp->item == 22)
 	return PMDA_FETCH_STATIC;
     else
 	return 0;
