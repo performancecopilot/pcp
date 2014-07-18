@@ -1,5 +1,31 @@
+pcp-3.9.8 (16 July 2014)
+    - Add overlooked Debian packaging metadata updates.
+
 pcp-3.9.7 (16 July 2014)
-    - Under development
+    - pmie: "ruleset" extensions to the pmie(1) language
+    - pmdaproc: additional memory and new blkio cgroup metrics
+    - pmdanvidia: new Nvidia GPU PMDA using NVML interfaces
+    - pmdainfiniband: add switch counter metrics
+    - pmdalustrecomm: bug fixes in the lnet memory metrics
+    - pmdamemcache: fixed underlying socket code
+    - pmdalinux: mem.util.available for down-rev kernels
+    - pmdagfs2: several fixes and improvements in behaviour
+    - pmdas: support for long form command line options
+      (aix, jbd2, linux, lustre, mounts, processes, sample,
+      sendmail, txmon, xfs)
+    - libpcp: 'timeout' option for 'probe' service discovery
+    - libpcp: secure sockets timeout handling improvements
+    - pmie examples: updates to the pmie tutorial docs
+    - pmchart: new MemAvailable view for mem.util.available
+    - porting: additional GNU/Hurd port updates
+    - packaging: fix Makepkgs script for old tar versions
+    - packaging: fix rpm builds for rpm versions prior to 4.6
+    - libpcp: use minimum required stack for discovery threads
+    - libpcp: archive folio parsing in option handling code
+    - python APIs: archive folio parsing for recording tools
+    - man pages: updates to service discovery APIs and tools
+    - libpcp: archive interpolation thread safety improvements
+    - libpcp: fixed memory leak from pmDestroyContext(3)
 
 pcp-3.9.6 (19 June 2014)
     - Fix pthreads build fallout for Solaris platforms

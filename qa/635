@@ -58,9 +58,8 @@ hdr==1	{ print $iface, $mtu }'
 #eth0       1500   0 12263928      0      0      0 3273749      0      0      0 BMRU
 #lo        16436   0 3489788      0      0      0 3489788      0      0      0 LRU
 #
-# Note: drops metric is really ?-DRP + ?-OVR ... visible in netstat, but
-# 	not /proc/net/dev that the Linux PMDA uses
-# Note: Met may not be there!
+# Note1: fifo metric from /proc/net/dev is ?-OVR visible in netstat
+# Note2: "Met" column may not be there!
 #
 _netstat_i_2()
 {
@@ -92,7 +91,7 @@ hdr==0	{ for (i = 0; i <= NF; i++) {
 	  hdr = 1
 	  next
 	}
-hdr==1	{ print $rx, $rx_err, $rx_drp+$rx_ovr, $tx, $tx_err, $tx_drp+$tx_ovr }' 
+hdr==1	{ print $rx, $rx_err, $rx_drp, $rx_ovr, $tx, $tx_err, $tx_drp, $tx_ovr }'
 }
 
 # real QA test starts here
@@ -134,9 +133,11 @@ cat >$tmp.metrics <<END
 in.errors
 in.packets
 in.drops
+in.fifo
 out.errors
 out.packets
 out.drops
+out.fifo
 END
 
 echo >>$seq.full
@@ -232,9 +233,11 @@ $PCP_AWK_PROG < $tmp.net.1 '
 	    print $1, $3 >"'$tmp.net.in.packets.1'"
 	    print $1, $4 >"'$tmp.net.in.errors.1'"
 	    print $1, $5 >"'$tmp.net.in.drops.1'"
-	    print $1, $6 >"'$tmp.net.out.packets.1'"
-	    print $1, $7 >"'$tmp.net.out.errors.1'"
-	    print $1, $8 >"'$tmp.net.out.drops.1'"
+	    print $1, $6 >"'$tmp.net.in.fifo.1'"
+	    print $1, $7 >"'$tmp.net.out.packets.1'"
+	    print $1, $8 >"'$tmp.net.out.errors.1'"
+	    print $1, $9 >"'$tmp.net.out.drops.1'"
+	    print $1, $10 >"'$tmp.net.out.fifo.1'"
 	}'
 
 $PCP_AWK_PROG < $tmp.net.2 '
@@ -242,9 +245,11 @@ $PCP_AWK_PROG < $tmp.net.2 '
 	    print $3 >"'$tmp.net.in.packets.2'"
 	    print $4 >"'$tmp.net.in.errors.2'"
 	    print $5 >"'$tmp.net.in.drops.2'"
-	    print $6 >"'$tmp.net.out.packets.2'"
-	    print $7 >"'$tmp.net.out.errors.2'"
-	    print $8 >"'$tmp.net.out.drops.2'"
+	    print $6 >"'$tmp.net.in.fifo.2'"
+	    print $7 >"'$tmp.net.out.packets.2'"
+	    print $8 >"'$tmp.net.out.errors.2'"
+	    print $9 >"'$tmp.net.out.drops.2'"
+	    print $10 >"'$tmp.net.out.fifo.2'"
 	}'
 
 # Bring the two netstat snaps together and check the pminfo data falls

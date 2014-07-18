@@ -30,21 +30,19 @@ handleInterrupt(int sig)
 }
 
 static void
-setupSignals(sighandler_t handler)
+setupSignals(void)
 {
     struct sigaction sa;
 
     memset(&sa, 0, sizeof(sa));
-    sa.sa_handler = handler;
+    sa.sa_handler = &handleInterrupt;
     sigemptyset(&sa.sa_mask);
-    if (handler != SIG_IGN) {
-	sigaddset(&sa.sa_mask, SIGHUP);
-	sigaddset(&sa.sa_mask, SIGPIPE);
-	sigaddset(&sa.sa_mask, SIGINT);
-	sigaddset(&sa.sa_mask, SIGTERM);
-	sigaddset(&sa.sa_mask, SIGXFSZ);
-	sigaddset(&sa.sa_mask, SIGXCPU);
-    }
+    sigaddset(&sa.sa_mask, SIGHUP);
+    sigaddset(&sa.sa_mask, SIGPIPE);
+    sigaddset(&sa.sa_mask, SIGINT);
+    sigaddset(&sa.sa_mask, SIGTERM);
+    sigaddset(&sa.sa_mask, SIGXFSZ);
+    sigaddset(&sa.sa_mask, SIGXCPU);
     sa.sa_flags = SA_RESTART;
 
     sigaction(SIGHUP, &sa, NULL);
@@ -55,7 +53,7 @@ setupSignals(sighandler_t handler)
     sigaction(SIGXCPU, &sa, NULL);
 }
 #else
-#define setupSignals(x)	do { } while (0)
+#define setupSignals()	do { } while (0)
 #endif
 
 static const char *services[] = {
@@ -133,7 +131,7 @@ main(int argc, char **argv)
      * Set up a handler to catch routine signals, to allow for
      * interruption of the discovery process.
      */
-    setupSignals(&handleInterrupt);
+    setupSignals();
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {

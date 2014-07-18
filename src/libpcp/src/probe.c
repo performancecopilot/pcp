@@ -16,8 +16,12 @@
 #include "internal.h"
 #include "probe.h"
 
-#if defined(IS_SOLARIS) && !defined(PTHREAD_STACK_MIN)
+#if !defined(PTHREAD_STACK_MIN)
+#if defined(IS_SOLARIS)
 #define PTHREAD_STACK_MIN       ((size_t)_sysconf(_SC_THREAD_STACK_MIN))
+#else
+#define PTHREAD_STACK_MIN       16384
+#endif
 #endif
 
 /*
