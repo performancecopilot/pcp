@@ -71,6 +71,7 @@ struct uid_gid_tuple {
 static struct uid_gid_tuple *ctxtab = NULL;
 int ctxtab_size = 0;
 int number_of_counters = 0;
+unsigned int number_of_active_counters = 0;
 
 int permission_check(int context)
 {
@@ -226,7 +227,7 @@ static pmdaMetric metrictab[] = {
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.enable */
 
     { &papi_info,
-      { PMDA_PMID(CLUSTER_PAPI,19), PM_TYPE_EVENT, PM_INDOM_NULL, PM_SEM_DISCRETE,
+      { PMDA_PMID(CLUSTER_PAPI,19), PM_TYPE_UNKNOWN, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.reset */
 
     { &papi_info,
@@ -343,22 +344,22 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	case 18:
 	    atom->cp = enable_string; /* papi.enable */
-	    break;
+	    return PMDA_FETCH_STATIC;
 
 	case 19:
 	    break; /* papi.reset */
 
 	case 20:
-	    atom->cp = disable_string;
-	    break; /* papi.disable */
+	    atom->cp = disable_string; /* papi.disable */
+	    return PMDA_FETCH_STATIC;
 
 	case 21:
-	    atom->cp = papi_string_status();
-	    break; /* papi.status */
+	    atom->cp = papi_string_status(); /* papi.status */
+	    return PMDA_FETCH_STATIC;
 
 	case 22:
-	    atom->ul = number_of_counters;
-	    break; /* papi.num_counters */
+	    atom->ul = number_of_counters; /* papi.num_counters */
+	    return PMDA_FETCH_STATIC;
 
 	default:
 	    return 0;
@@ -367,10 +368,10 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     default:
 	return 0;
     } // cluster switch
-    if(sts == PAPI_OK || idp->item == 18 || idp->item == 20 || idp->item == 21 || idp->item == 22)
+    if (sts == PAPI_OK ) //otherwise it's simply not running, so no papi-metric returned
 	return PMDA_FETCH_STATIC;
-    else
-	return 0;
+
+    return 0;
 }
 
 static int
@@ -402,7 +403,8 @@ remove_metric(unsigned int event)
 	retval = PAPI_remove_event(EventSet, event); //XXX possibly switch this to remove_events
 	if(retval != PAPI_OK)
 	    return retval;
-	if (restart)
+	number_of_active_counters--;
+	if (restart && (number_of_active_counters > 0))
 	    retval = PAPI_start(EventSet);
 	return retval;
     }
@@ -432,6 +434,7 @@ add_metric(unsigned int event)
 	retval = PAPI_add_event(EventSet, event); //XXX possibly switch this to add_events
 	if(retval != PAPI_OK)
 	    return retval;
+	number_of_active_counters++;
 	retval = PAPI_start(EventSet);
 	return retval;
     }
