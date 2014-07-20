@@ -29,11 +29,11 @@
  * requested service(s).
  */
 typedef struct connectionOptions {
-    __pmSockAddr	*netAddress;	/* Address of the subnet */
-    int			maskBits;	/* Number of bits in the subnet */
-    unsigned		maxThreads;	/* Max number of threads to use. */
-    struct timeval	timeout;	/* Connection timeout */
-    unsigned		*discoveryFlags;/* Discovery API flags */
+    __pmSockAddr		*netAddress;	/* Address of the subnet */
+    int				maskBits;	/* Number of bits in the subnet */
+    unsigned			maxThreads;	/* Max number of threads to use. */
+    struct timeval		timeout;	/* Connection timeout */
+    const volatile unsigned	*discoveryFlags;/* Discovery API flags */
 } connectionOptions;
 
 /* Context for each thread. */
@@ -47,7 +47,7 @@ typedef struct connectionContext {
     const struct timeval 	*timeout;	/* Connection timeout */
     int				*numUrls;	/* Size of the results */
     char			***urls;	/* The results */
-    unsigned			*discoveryFlags;/* Discovery API flags */
+    const volatile unsigned	*discoveryFlags;/* Discovery API flags */
 #if PM_MULTI_THREAD
     __pmMutex		addrLock;	/* lock for the above address/port */
     __pmMutex		urlLock;	/* lock for the above results */
@@ -577,7 +577,7 @@ parseOptions(const char *mechanism, connectionOptions *options)
 int
 __pmProbeDiscoverServices(const char *service,
 			  const char *mechanism,
-			  unsigned *discoveryFlags,
+			  const volatile unsigned *discoveryFlags,
 			  int numUrls,
 			  char ***urls)
 {

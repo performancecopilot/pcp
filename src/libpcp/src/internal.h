@@ -262,7 +262,7 @@ typedef struct {
 } __pmServiceInfo;
 
 extern int __pmAddDiscoveredService(__pmServiceInfo *,
-				    unsigned *,
+				    const volatile unsigned *,
 				    int,
 				    char ***) _PCP_HIDDEN;
 

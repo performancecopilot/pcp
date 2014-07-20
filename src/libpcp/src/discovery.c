@@ -78,7 +78,7 @@ int
 __pmDiscoverServicesWithOptions(const char *service,
 				const char *mechanism,
 				const char *options,
-				unsigned *flags,
+				const volatile unsigned *flags,
 				char ***urls)
 {
     int		numUrls;
@@ -111,7 +111,7 @@ __pmDiscoverServicesWithOptions(const char *service,
 /* For manually adding a service. Also used by pmDiscoverServices(). */
 int
 __pmAddDiscoveredService(__pmServiceInfo *info,
-			 unsigned *flags,
+			 const volatile unsigned *flags,
 			 int numUrls,
 			 char ***urls)
 {
