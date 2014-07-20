@@ -2430,18 +2430,8 @@ AC_SUBST(lib_for_rt)
 LIBS=$savedLIBS
 
 dnl Do you have system microhttpd libraries for pmwebapi?
-savedLIBS=$LIBS
-AC_MSG_CHECKING([for libmicrohttpd > 0.9.9])
-AC_COMPILE_IFELSE(
-   [AC_LANG_PROGRAM([[#include <microhttpd.h>]],
-                    [[(void)MHD_RESPMEM_PERSISTENT;]])],
-   [AC_MSG_RESULT([yes])
-    have_libmicrohttpd=1],
-   [AC_MSG_RESULT([no])
-    have_libmicrohttpd=0])
-dnl AC_CHECK_LIB(microhttpd,MHD_start_daemon,[have_libmicrohttpd=1],[have_libmicrohttpd=0])
+PKG_CHECK_MODULES([libmicrohttpd], [libmicrohttpd > 0.9.9], [have_libmicrohttpd=1], [have_libmicrohttpd=])
 AC_SUBST(HAVE_LIBMICROHTTPD,[$have_libmicrohttpd])
-LIBS=$savedLIBS
 
 dnl Do you have graphics libraries for pmwebapi?
 PKG_CHECK_MODULES([cairo], [cairo >= 1.2, cairo-ft >= 1.2, cairo-png >= 1.2], [have_cairo=1], [have_cairo=0])
