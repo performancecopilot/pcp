@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 2008-2012 Aconex.  All Rights Reserved.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -1100,7 +1100,8 @@ put_sock(self,id,output)
 	int	id
 	char *	output
     CODE:
-	RETVAL = write(local_files_get_descriptor(id), output, strlen(output));
+	size_t	length = strlen(output);
+	RETVAL = __pmWrite(local_files_get_descriptor(id), output, length);
     OUTPUT:
 	RETVAL
 

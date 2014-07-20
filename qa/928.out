@@ -14,8 +14,8 @@ __pmLogPutResult: 5 metrics ...
 __pmLogPutResult: 6 metrics ...
 Log Label (Log Format Version 2)
 Performance metrics from host happycamper
-  commencing Thu Jan  1 10:00:00.000 1970
-  ending     Thu Jan  1 10:00:06.000 1970
+  commencing Thu Jan  1 00:00:00.000 1970
+  ending     Thu Jan  1 00:00:06.000 1970
 
 Descriptions for Metrics in the Log ...
 PMID: 30.0.6 (sampledso.bin)
@@ -39,7 +39,7 @@ PMID: 30.0.10 (sampledso.long.one)
 
 Instance Domains in the Log ...
 InDom: 30.2
-10:00:00.000 9 instances
+00:00:00.000 9 instances
                  100 or "bin-100"
                  200 or "bin-200"
                  300 or "bin-300"
@@ -52,36 +52,36 @@ InDom: 30.2
 
 Temporal Index
              Log Vol    end(meta)     end(log)
-10:00:00.000       0          132          132
-10:00:06.000       0          659          904
+00:00:00.000       0          132          132
+00:00:06.000       0          659          904
 
 [40 bytes]
-10:00:01.000  30.0.10 (sampledso.long.one): value 1
+00:00:01.000  30.0.10 (sampledso.long.one): value 1
 
 [72 bytes]
-10:00:02.000  30.0.10 (sampledso.long.one): value 1
+00:00:02.000  30.0.10 (sampledso.long.one): value 1
               30.0.98 (sampledso.ulonglong.one): value 1
 
 [100 bytes]
-10:00:03.000  30.0.10 (sampledso.long.one): value 1
+00:00:03.000  30.0.10 (sampledso.long.one): value 1
               30.0.98 (sampledso.ulonglong.one): value 1
               30.0.15 (sampledso.float.one): value 1
 
 [132 bytes]
-10:00:04.000  30.0.10 (sampledso.long.one): value 1
+00:00:04.000  30.0.10 (sampledso.long.one): value 1
               30.0.98 (sampledso.ulonglong.one): value 1
               30.0.15 (sampledso.float.one): value 1
               30.0.25 (sampledso.double.one): value 1
 
 [172 bytes]
-10:00:05.000  30.0.10 (sampledso.long.one): value 1
+00:00:05.000  30.0.10 (sampledso.long.one): value 1
               30.0.98 (sampledso.ulonglong.one): value 1
               30.0.15 (sampledso.float.one): value 1
               30.0.25 (sampledso.double.one): value 1
               30.0.31 (sampledso.string.hullo): value "hullo world!"
 
 [256 bytes]
-10:00:06.000  30.0.10 (sampledso.long.one): value 1
+00:00:06.000  30.0.10 (sampledso.long.one): value 1
               30.0.98 (sampledso.ulonglong.one): value 1
               30.0.15 (sampledso.float.one): value 1
               30.0.25 (sampledso.double.one): value 1
@@ -112,8 +112,8 @@ __pmLogPutResult2: 5 metrics ...
 __pmLogPutResult2: 6 metrics ...
 Log Label (Log Format Version 2)
 Performance metrics from host happycamper
-  commencing Thu Jan  1 10:00:00.000 1970
-  ending     Thu Jan  1 10:00:06.000 1970
+  commencing Thu Jan  1 00:00:00.000 1970
+  ending     Thu Jan  1 00:00:06.000 1970
 
 Descriptions for Metrics in the Log ...
 PMID: 30.0.6 (sampledso.bin)
@@ -137,7 +137,7 @@ PMID: 30.0.10 (sampledso.long.one)
 
 Instance Domains in the Log ...
 InDom: 30.2
-10:00:00.000 9 instances
+00:00:00.000 9 instances
                  100 or "bin-100"
                  200 or "bin-200"
                  300 or "bin-300"
@@ -150,36 +150,36 @@ InDom: 30.2
 
 Temporal Index
              Log Vol    end(meta)     end(log)
-10:00:00.000       0          132          132
-10:00:06.000       0          659          904
+00:00:00.000       0          132          132
+00:00:06.000       0          659          904
 
 [40 bytes]
-10:00:01.000  30.0.10 (sampledso.long.one): value 1
+00:00:01.000  30.0.10 (sampledso.long.one): value 1
 
 [72 bytes]
-10:00:02.000  30.0.10 (sampledso.long.one): value 1
+00:00:02.000  30.0.10 (sampledso.long.one): value 1
               30.0.98 (sampledso.ulonglong.one): value 1
 
 [100 bytes]
-10:00:03.000  30.0.10 (sampledso.long.one): value 1
+00:00:03.000  30.0.10 (sampledso.long.one): value 1
               30.0.98 (sampledso.ulonglong.one): value 1
               30.0.15 (sampledso.float.one): value 1
 
 [132 bytes]
-10:00:04.000  30.0.10 (sampledso.long.one): value 1
+00:00:04.000  30.0.10 (sampledso.long.one): value 1
               30.0.98 (sampledso.ulonglong.one): value 1
               30.0.15 (sampledso.float.one): value 1
               30.0.25 (sampledso.double.one): value 1
 
 [172 bytes]
-10:00:05.000  30.0.10 (sampledso.long.one): value 1
+00:00:05.000  30.0.10 (sampledso.long.one): value 1
               30.0.98 (sampledso.ulonglong.one): value 1
               30.0.15 (sampledso.float.one): value 1
               30.0.25 (sampledso.double.one): value 1
               30.0.31 (sampledso.string.hullo): value "hullo world!"
 
 [256 bytes]
-10:00:06.000  30.0.10 (sampledso.long.one): value 1
+00:00:06.000  30.0.10 (sampledso.long.one): value 1
               30.0.98 (sampledso.ulonglong.one): value 1
               30.0.15 (sampledso.float.one): value 1
               30.0.25 (sampledso.double.one): value 1

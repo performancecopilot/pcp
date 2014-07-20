@@ -11,6 +11,7 @@ echo "QA output created by $seq"
 # get standard filters
 . ./common.product
 . ./common.filter
+. ./common.check
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 #debug# tmp=`pwd`/tmp
@@ -74,11 +75,21 @@ log mandatory on 300 msec {
 }
 End-of-File
 
+# find a port for each pmlogger to use, avoiding (small!) race
+# when starting multiple pmlogger processes at the same time.
+port1=`_find_free_port`
+port2=`expr $port1 + 1`
+port2=`_find_free_port $port2`
+port3=`expr $port2 + 1`
+port3=`_find_free_port $port3`
+
 # a and b concurrently
 # a: 25 x 0.6 sec
 # b: 20 x 0.3 sec
 #
+PMLOGGER_PORT=$port1 \
 pmlogger -c $tmp.a.config -l $tmp.a.log -s 25 $tmp.a >$tmp.a.err 2>&1 &
+PMLOGGER_PORT=$port2 \
 pmlogger -c $tmp.b.config -l $tmp.b.log -s 20 $tmp.b >$tmp.b.err 2>&1 &
 
 wait
@@ -90,6 +101,7 @@ cat $tmp.b.err $tmp.b.log | tee -a $seq.full | _filter_pmlogger_log
 
 # c later
 #
+PMLOGGER_PORT=$port3 \
 pmlogger -c $tmp.c.config -l $tmp.c.log -s 10 $tmp.c >$tmp.c.err 2>&1
 echo >>$seq.full
 echo "log for archive 'c' ..." >>$seq.full

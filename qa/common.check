@@ -121,6 +121,46 @@ END             { if (warn) printf "%d warnings, ",warn
     return $sts
 }
 
+#
+# prepare and cleanup pmda routines work together to ensure
+# pmcd+pmda state is left as it was at the start of a test.
+#
+_prepare_pmda()
+{
+    agent=$1
+
+    iam=$agent
+    done_clean=false
+    install_on_cleanup=false
+    pminfo $agent >/dev/null 2>&1 && install_on_cleanup=true
+    # copy the pmcd config file to restore state later.
+    cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+    unset ROOT MAKEFLAGS
+}
+
+_cleanup_pmda()
+{
+    agent=$1
+
+    if $done_clean
+    then
+	:
+    else
+	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	rm -f $tmp.*
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	if $install_on_cleanup
+	then
+	    ( cd $PCP_PMDAS_DIR/$agent; $sudo ./Install </dev/null >/dev/null 2>&1 )
+	else
+	    ( cd $PCP_PMDAS_DIR/$agent; $sudo ./Remove >/dev/null 2>&1 )
+	fi
+	done_clean=true
+    fi
+}
+
 _host_to_ipaddr()
 {
     perl -MSocket -e '

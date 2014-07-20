@@ -86,6 +86,12 @@ occurred.
 .PP
 In the event of an error, a message will be generated on standard error
 that is intended to be self-explanatory.
+.SH SIGNALS
+.B pmfind
+will interrupt the service discovery process when one of the following
+signals is received: SIGHUP, SIGPIPE, SIGINT, SIGTERM, SIGXFSZ, SIGXCPU.
+.B pmfind
+will report any results which were discovered up to point of the interruption.
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),

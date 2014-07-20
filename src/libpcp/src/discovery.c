@@ -64,13 +64,26 @@ __pmServerUnadvertisePresence(__pmServerPresence *s)
 }
 
 /*
- * Service discovery API entry point.
+ * Service discovery API entry points.
  */
-int pmDiscoverServices(const char *service,
-		       const char *mechanism,
-		       char ***urls)
+int
+pmDiscoverServices(const char *service,
+		   const char *mechanism,
+		   char ***urls)
 {
-    int numUrls;
+    return __pmDiscoverServicesWithOptions(service, mechanism, NULL, NULL, urls);
+}
+
+int
+__pmDiscoverServicesWithOptions(const char *service,
+				const char *mechanism,
+				const char *options,
+				unsigned *flags,
+				char ***urls)
+{
+    int		numUrls;
+
+    (void)options; /* Temporary */
 
     /*
      * Attempt to discover the requested service(s) using the requested or
@@ -81,45 +94,59 @@ int pmDiscoverServices(const char *service,
     *urls = NULL;
     numUrls = 0;
     if (mechanism == NULL) {
-	numUrls += __pmAvahiDiscoverServices(service, mechanism, numUrls, urls);
-	numUrls += __pmProbeDiscoverServices(service, mechanism, numUrls, urls);
+	numUrls += __pmAvahiDiscoverServices(service, mechanism, flags, numUrls, urls);
+	if (! flags || (*flags & PM_SERVICE_DISCOVERY_INTERRUPTED) != 0)
+	    numUrls += __pmProbeDiscoverServices(service, mechanism, flags, numUrls, urls);
     }
-    else if (mechanism == NULL || strncmp(mechanism, "avahi", 5) == 0)
-	numUrls += __pmAvahiDiscoverServices(service, mechanism, numUrls, urls);
-    else if (mechanism == NULL || strncmp(mechanism, "probe", 5) == 0)
-	numUrls += __pmProbeDiscoverServices(service, mechanism, numUrls, urls);
+    else if (strncmp(mechanism, "avahi", 5) == 0)
+	numUrls += __pmAvahiDiscoverServices(service, mechanism, flags, numUrls, urls);
+    else if (strncmp(mechanism, "probe", 5) == 0)
+	numUrls += __pmProbeDiscoverServices(service, mechanism, flags, numUrls, urls);
     else
-	return -EOPNOTSUPP;
+	numUrls = -EOPNOTSUPP;
 
     return numUrls;
 }
 
-
 /* For manually adding a service. Also used by pmDiscoverServices(). */
 int
-__pmAddDiscoveredService(__pmServiceInfo *info, int numUrls, char ***urls)
+__pmAddDiscoveredService(__pmServiceInfo *info,
+			 unsigned *flags,
+			 int numUrls,
+			 char ***urls)
 {
     const char *protocol = info->protocol;
-    char *address;
+    char *host = NULL;
     char *url;
     size_t size;
     int isIPv6;
     int port;
 
+    /* If address resolution was requested, then do attempt it. */
+    if (flags && (*flags & PM_SERVICE_DISCOVERY_RESOLVE) != 0)
+	host = __pmGetNameInfo(info->address);
+
     /*
-     * Allocate the new entry. We need room for the URL prefix, the address
-     * and the port. IPv6 addresses require a set of [] surrounding the
-     * address in order to distinguish the port.
+     * If address resolution was not requested, or if it failed, then
+     * just use the address.
+     */
+    if (host == NULL) {
+	host = __pmSockAddrToString(info->address);
+	if (host == NULL) {
+	    __pmNoMem("__pmAddDiscoveredService: can't allocate host buffer",
+		      0, PM_FATAL_ERR);
+	}
+    }
+
+    /*
+     * Allocate the new entry. We need room for the URL prefix, the
+     * address/host and the port. IPv6 addresses require a set of []
+     * surrounding the address in order to distinguish the port.
      */
     port = __pmSockAddrGetPort(info->address);
-    address = __pmSockAddrToString(info->address);
-    if (address == NULL) {
-	__pmNoMem("__pmAddDiscoveredService: can't allocate address buffer",
-		  0, PM_FATAL_ERR);
-    }
     size = strlen(protocol) + sizeof("://");
-    size += strlen(address) + sizeof(":65535");
-    if ((isIPv6 = (__pmSockAddrGetFamily(info->address) == AF_INET6)))
+    size += strlen(host) + sizeof(":65535");
+    if ((isIPv6 = (strchr(host, ':') != NULL)))
 	size += 2;
     url = malloc(size);
     if (url == NULL) {
@@ -127,10 +154,10 @@ __pmAddDiscoveredService(__pmServiceInfo *info, int numUrls, char ***urls)
 		  size, PM_FATAL_ERR);
     }
     if (isIPv6)
-	snprintf(url, size, "%s://[%s]:%u", protocol, address, port);
+	snprintf(url, size, "%s://[%s]:%u", protocol, host, port);
     else
-	snprintf(url, size, "%s://%s:%u", protocol, address, port);
-    free(address);
+	snprintf(url, size, "%s://%s:%u", protocol, host, port);
+    free(host);
 
     /*
      * Now search the current list for the new entry.

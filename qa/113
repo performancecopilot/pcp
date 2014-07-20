@@ -292,7 +292,7 @@ $sudo df -li >>$seq.full 2>&1
 echo "-- df-filtered --" >>$seq.full
 cat $tmp.2 >>$seq.full
 
-join -a2 -1 1 $tmp.1 $tmp.2 \
+LC_COLLATE=POSIX join -a2 -1 1 $tmp.1 $tmp.2 \
 | $PCP_AWK_PROG '{
     a=$2; b=$3; d=a-b;
     if (d<0) d = -d;

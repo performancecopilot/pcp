@@ -142,7 +142,7 @@ __pmConnectTo(int fd, const __pmSockAddr *addr, int port)
 		      __FILE__, fd, fdFlags|FNDELAY , osstrerror_r(errmsg, sizeof(errmsg)));
     }
     
-    if (__pmConnect(fd, &myAddr, sizeof(myAddr)) < 0) {
+    if (__pmConnectWithFNDELAY(fd, &myAddr, sizeof(myAddr)) < 0) {
 	sts = neterror();
 	if (sts != EINPROGRESS) {
 	    __pmCloseSocket(fd);
@@ -907,6 +907,12 @@ __pmConnect(int fd, void *addr, __pmSockLen addrlen)
 		"%s:__pmConnect: Invalid address family: %d\n", __FILE__, sock->sockaddr.raw.sa_family);
     errno = EAFNOSUPPORT;
     return -1; /* failure */
+}
+
+int
+__pmConnectWithFNDELAY(int fd, void *addr, __pmSockLen addrlen)
+{
+    return __pmConnect(fd, addr, addrlen);
 }
 
 int

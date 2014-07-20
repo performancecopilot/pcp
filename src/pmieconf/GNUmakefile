@@ -30,18 +30,18 @@ LSRCFILES = GNUmakefile.rules check-rules pmie_email xtractnames $(RFILES)
 
 LLDLIBS = $(PCPLIB)
 LCFLAGS = -I$(TOPDIR)/src/pmie/src
-LDIRT = rules local $(CMDTARGET) rate-syscalls \
+LDIRT = local $(CMDTARGET) rate-syscalls \
 	pmlogconf.tmp pmlogconf \
 	cpu/GNUmakefile filesys/GNUmakefile memory/GNUmakefile \
 	percpu/GNUmakefile pernetif/GNUmakefile
-LDIRDIRT = .pcp
+LDIRDIRT = rules .pcp
 
-default_pcp: $(CMDTARGET) makefiles rules pmlogconf
+default: $(CMDTARGET) makefiles local pmlogconf
 
 # for src-link-pcp target from buildrules
 $(SUBDIRS):	makefiles
 
-$(CMDTARGET) : $(OBJECTS)
+$(CMDTARGET): $(OBJECTS)
 
 pmieconf.o rules.o:    rules.h
 
@@ -54,8 +54,8 @@ makefiles:
 	    cd ..; \
 	done
 
-rules: $(SUBDIRS)
-	rm -fr rules local; mkdir rules; exit 0
+local: $(SUBDIRS)
+	@rm -fr rules; mkdir rules
 	$(SUBDIRS_MAKERULE)
 	$(RUN_IN_BUILD_ENV) ./$(CMDTARGET) -F -r rules -f local
 
@@ -67,12 +67,15 @@ pmlogconf: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE) | grep -v '===' >pmlogconf.tmp
 	@$(PCP_SORT_PROG) -u pmlogconf.tmp | sed -e 's/^/	/' >>pmlogconf
 
-install_pcp: install
-
-install: default_pcp $(SUBDIRS)
+install: default $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
 	$(INSTALL) -m 755 pmie_email $(PCP_BINADM_DIR)/pmie_email
 	$(INSTALL) -m 644 pmlogconf $(PMLOGCONF_TOOLS)/pmieconf
 
 include $(BUILDRULES)
+
+default_pcp: default
+
+install_pcp: install
+

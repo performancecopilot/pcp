@@ -1,0 +1,6 @@
+#kmchart
+version 1
+
+chart title "Memory Available [%h]" style area
+	optional-plot color #00ff00 metric mem.util.available
+	plot color #3549ff metric mem.physmem

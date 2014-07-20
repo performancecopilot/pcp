@@ -31,6 +31,7 @@
 extern int __pmConvertTimeout(int) _PCP_HIDDEN;
 extern const struct timeval *__pmConnectTimeout(void) _PCP_HIDDEN;
 extern const struct timeval * __pmDefaultRequestTimeout(void) _PCP_HIDDEN;
+extern int __pmConnectWithFNDELAY(int, void *, __pmSockLen) _PCP_HIDDEN;
 
 extern int __pmPtrToHandle(__pmContext *) _PCP_HIDDEN;
 extern int __pmFetchLocal(__pmContext *, int, pmID *, pmResult **) _PCP_HIDDEN;
@@ -260,7 +261,10 @@ typedef struct {
     const char		*protocol;
 } __pmServiceInfo;
 
-extern int  __pmAddDiscoveredService(__pmServiceInfo *, int, char ***) _PCP_HIDDEN;
+extern int __pmAddDiscoveredService(__pmServiceInfo *,
+				    unsigned *,
+				    int,
+				    char ***) _PCP_HIDDEN;
 
 extern int __pmServiceAddPorts(const char *, int **, int) _PCP_HIDDEN;
 extern int __pmPMCDAddPorts(int **, int) _PCP_HIDDEN;

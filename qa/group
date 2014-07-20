@@ -150,6 +150,7 @@ pmda.hotproc
 pmda.kvm
 pmda.logger
 pmda.mailq
+pmda.memcache
 pmda.mmv
 pmda.mpi
 pmda.news
@@ -941,6 +942,7 @@ avahi
 832 pmda.sample pmstore secure local oss
 833 archive context local oss
 834 pmie local oss
+835 pmda.memcache local oss
 840 avahi local oss
 841 pmda local oss
 844 pmda.linux local oss

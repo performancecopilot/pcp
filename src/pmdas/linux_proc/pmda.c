@@ -1570,9 +1570,13 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_PERMISSION;
 	if (idp->item > PROC_PID_CGROUP)
 	    return PM_ERR_PMID;
-	if ((entry = fetch_proc_pid_cgroup(inst, &proc_pid)) == NULL)
-	    return (oserror() == ENOENT) ? PM_ERR_APPVERSION : PM_ERR_INST;
-	atom->cp = proc_strings_lookup(entry->cgroup_id);
+	if ((entry = fetch_proc_pid_cgroup(inst, &proc_pid)) == NULL) {
+	    if (oserror() == ENOENT) return PM_ERR_APPVERSION;
+	    if (oserror() != ENODATA) return PM_ERR_INST;
+	    atom->cp = "";
+	} else {
+	    atom->cp = proc_strings_lookup(entry->cgroup_id);
+	}
 	break;
 
     case CLUSTER_PID_LABEL:
@@ -1580,9 +1584,13 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_PERMISSION;
 	if (idp->item > PROC_PID_LABEL)
 	    return PM_ERR_PMID;
-	if ((entry = fetch_proc_pid_label(inst, &proc_pid)) == NULL)
-	    return (oserror() == ENOENT) ? PM_ERR_APPVERSION : PM_ERR_INST;
-	atom->cp = proc_strings_lookup(entry->label_id);
+	if ((entry = fetch_proc_pid_label(inst, &proc_pid)) == NULL) {
+	    if (oserror() == ENOENT) return PM_ERR_APPVERSION;
+	    if (oserror() != ENODATA) return PM_ERR_INST;
+	    atom->cp = "";
+	} else {
+	    atom->cp = proc_strings_lookup(entry->label_id);
+	}
 	break;
 
     case CLUSTER_CONTROL:
