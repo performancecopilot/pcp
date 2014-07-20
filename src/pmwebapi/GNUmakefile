@@ -20,9 +20,10 @@ HFILES = pmwebapi.h
 CXXFILES = main.cxx pmwebapi.cxx pmresapi.cxx pmgraphite.cxx util.cxx
 LSRCFILES = rc_pmwebd pmwebd.options
 
-LLDLIBS = $(PCPLIB) -lmicrohttpd $(LIB_FOR_PTHREADS) 
+LLDLIBS = $(PCPLIB) $(LIB_FOR_LIBMICROHTTPD) $(LIB_FOR_PTHREADS) 
 LDIRT = pmwebd.log pmwebd.service
 
+LCFLAGS += $(LIBMICROHTTPDCFLAGS)
 LCFLAGS += -Wextra
 LCFLAGS += $(PIECFLAGS)
 LLDFLAGS += $(PIELDFLAGS)
