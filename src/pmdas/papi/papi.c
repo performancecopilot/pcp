@@ -150,75 +150,75 @@ papi_string_status()
  * A list of all the papi metrics we support - 
  */
 static pmdaMetric metrictab[] = {
-    { &papi_info,
+    { &papi_info[1],
       { PMDA_PMID(CLUSTER_PAPI,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.TOT_INS */
 
-    { &papi_info,
+    { &papi_info[2],
       { PMDA_PMID(CLUSTER_PAPI,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.TOT_CYC */
 
-    { &papi_info,
+    { &papi_info[3],
       { PMDA_PMID(CLUSTER_PAPI,2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_DCM */
 
-    { &papi_info,
+    { &papi_info[4],
       { PMDA_PMID(CLUSTER_PAPI,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_ICM */
 
-    { &papi_info,
+    { &papi_info[5],
       { PMDA_PMID(CLUSTER_PAPI,4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_DCM */
 
-    { &papi_info,
+    { &papi_info[6],
       { PMDA_PMID(CLUSTER_PAPI,5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_ICM */
 
-    { &papi_info,
+    { &papi_info[7],
       { PMDA_PMID(CLUSTER_PAPI,6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_DCM */
 
-    { &papi_info,
+    { &papi_info[8],
       { PMDA_PMID(CLUSTER_PAPI,7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_ICM */
 
-    { &papi_info,
+    { &papi_info[9],
       { PMDA_PMID(CLUSTER_PAPI,8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_TCM */
 
-    { &papi_info,
+    { &papi_info[10],
       { PMDA_PMID(CLUSTER_PAPI,9), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_TCM */
 
-    { &papi_info,
+    { &papi_info[11],
       { PMDA_PMID(CLUSTER_PAPI,10), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_TCM */
 
-    { &papi_info,
+    { &papi_info[12],
       { PMDA_PMID(CLUSTER_PAPI,11), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.TLB_DM */
 
-    { &papi_info,
+    { &papi_info[13],
       { PMDA_PMID(CLUSTER_PAPI,12), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.TLB_IM */
 
-    { &papi_info,
+    { &papi_info[14],
       { PMDA_PMID(CLUSTER_PAPI,13), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.TLB_TL */
 
-    { &papi_info,
+    { &papi_info[15],
       { PMDA_PMID(CLUSTER_PAPI,14), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_LDM */
 
-    { &papi_info,
+    { &papi_info[16],
       { PMDA_PMID(CLUSTER_PAPI,15), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_STM */
 
-    { &papi_info,
+    { &papi_info[17],
       { PMDA_PMID(CLUSTER_PAPI,16), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_LDM */
 
-    { &papi_info,
+    { &papi_info[18],
       { PMDA_PMID(CLUSTER_PAPI,17), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_STM */
 
@@ -519,19 +519,23 @@ static int
 papi_text(int ident, int type, char **buffer, pmdaExt *ep)
 {
     int sts;
-    /*    int ec;
+    int ec;
     PAPI_event_info_t info;
-    char* buf = *buffer;
+    int i;
     ec = 0 | PAPI_PRESET_MASK;
     PAPI_enum_event(&ec, PAPI_ENUM_FIRST);
+    __pmID_int *pmidp = (__pmID_int*)&ident;
     do{
 	if(PAPI_get_event_info(ec, &info) == PAPI_OK){
-	    __pmNotifyErr(LOG_ERR, "orig: %s buf: %s descr: (%u - %s - %s)\n", *buffer, buf, info.event_code, info.symbol, info.long_descr);
-	    if(!strcmp(info.long_descr, *buffer) || !strcmp(info.long_descr, buf)){
-		__pmNotifyErr(LOG_DEBUG, "hit\n");
-	    }
+		if(info.event_code == papi_info[pmidp->item].papi_event_code) {
+		    if (type == 5)
+			*buffer = info.short_descr;
+		    else if(type == 6)
+			*buffer = info.long_descr;
+		    return 0;
+		}
 	}
-	} while (PAPI_enum_event(&ec, 0)==PAPI_OK);*/
+    } while (PAPI_enum_event(&ec, 0)==PAPI_OK);
     sts = pmdaText(ident, type, buffer, ep);
     return sts;
 }
