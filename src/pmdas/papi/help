@@ -68,5 +68,9 @@
 
 @ papi.disable A list of metrics to disable counting
 
+@ papi.status A string of current papi's current state
+
+@ papi.num_counters Number of counters available for use on current system
+
 
 
