@@ -249,7 +249,6 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
     int sts = 0;
-    int retval = 0;
     /* this will probably need to be expanded to fit the domains as well */
     __pmNotifyErr(LOG_DEBUG, "case: %d\n", idp->item);
     sts = check_papi_state(sts);
@@ -502,8 +501,8 @@ papi_store(pmResult *result, pmdaExt *pmda)
 			else
 			    __pmNotifyErr(LOG_DEBUG, "Provided metric name: %s, does not match any known metrics\n", substring);
 		    substring = strtok(NULL, delim);
+		    }
 		}
-
 		break;
 	    }
 	default:
@@ -520,7 +519,6 @@ papi_text(int ident, int type, char **buffer, pmdaExt *ep)
     int sts;
     int ec;
     PAPI_event_info_t info;
-    int i;
     ec = 0 | PAPI_PRESET_MASK;
     PAPI_enum_event(&ec, PAPI_ENUM_FIRST);
     __pmID_int *pmidp = (__pmID_int*)&ident;
