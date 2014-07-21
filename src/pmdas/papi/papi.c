@@ -501,7 +501,6 @@ papi_store(pmResult *result, pmdaExt *pmda)
 			}
 			else
 			    __pmNotifyErr(LOG_DEBUG, "Provided metric name: %s, does not match any known metrics\n", substring);
-		    }
 		    substring = strtok(NULL, delim);
 		}
 
