@@ -474,6 +474,8 @@ papi_store(pmResult *result, pmdaExt *pmda)
 			    // add the metric to the set
 			    retval = add_metric(papi_info[j].papi_event_code);
 			}
+			else
+			    __pmNotifyErr(LOG_DEBUG, "Provided metric name: %s, does not match any known metrics\n", substring);
 		    }
 		    substring = strtok(NULL, delim);
 		}
@@ -490,13 +492,15 @@ papi_store(pmResult *result, pmdaExt *pmda)
 				     PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0){
 		free(disable_string);
 		disable_string = av.cp;
-		substring = strtok(enable_string, delim);
+		substring = strtok(disable_string, delim);
 		while(substring != NULL){
 		    for(j = 0; j < (sizeof(papi_info)/sizeof(papi_m_user_tuple)); j++){
 			if(!strcmp(substring, papi_info[j].papi_string_code)){
 			    // remove the metric from the set
 			    retval = remove_metric(papi_info[j].papi_event_code);
 			}
+			else
+			    __pmNotifyErr(LOG_DEBUG, "Provided metric name: %s, does not match any known metrics\n", substring);
 		    }
 		    substring = strtok(NULL, delim);
 		}
