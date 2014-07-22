@@ -261,10 +261,19 @@ typedef struct {
     const char		*protocol;
 } __pmServiceInfo;
 
+typedef struct {
+    const volatile unsigned	*flags;		/* Service discovery flags */
+    struct timeval		timeout;	/* Global timeout period */
+    volatile int		timedOut;	/* Global timeout occurred */
+} __pmServiceDiscoveryOptions;
+
 extern int __pmAddDiscoveredService(__pmServiceInfo *,
-				    const volatile unsigned *,
+				    const __pmServiceDiscoveryOptions *,
 				    int,
 				    char ***) _PCP_HIDDEN;
+extern char *__pmServiceDiscoveryParseTimeout (const char *s,
+					       struct timeval *timeout)
+					       _PCP_HIDDEN;
 
 extern int __pmServiceAddPorts(const char *, int **, int) _PCP_HIDDEN;
 extern int __pmPMCDAddPorts(int **, int) _PCP_HIDDEN;

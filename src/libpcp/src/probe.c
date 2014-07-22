@@ -29,25 +29,23 @@
  * requested service(s).
  */
 typedef struct connectionOptions {
-    __pmSockAddr		*netAddress;	/* Address of the subnet */
-    int				maskBits;	/* Number of bits in the subnet */
-    unsigned			maxThreads;	/* Max number of threads to use. */
-    struct timeval		timeout;	/* Connection timeout */
-    const volatile unsigned	*discoveryFlags;/* Discovery API flags */
+    __pmSockAddr	*netAddress;	/* Address of the subnet */
+    int			maskBits;	/* Number of bits in the subnet */
+    unsigned		maxThreads;	/* Max number of threads to use. */
+    struct timeval	timeout;	/* Connection timeout */
+    const __pmServiceDiscoveryOptions *globalOptions; /* Global discover options */
 } connectionOptions;
 
 /* Context for each thread. */
 typedef struct connectionContext {
-    const char			*service;	/* Service spec */
-    __pmSockAddr		*nextAddress;	/* Next available address */
-    int				maskBits;	/* Mask bits for the network address */
-    int				nports;		/* Number of ports per address */
-    int				portIx;		/* Index of next available port */
-    const int			*ports;		/* The actual ports */
-    const struct timeval 	*timeout;	/* Connection timeout */
-    int				*numUrls;	/* Size of the results */
-    char			***urls;	/* The results */
-    const volatile unsigned	*discoveryFlags;/* Discovery API flags */
+    const char		*service;	/* Service spec */
+    __pmSockAddr	*nextAddress;	/* Next available address */
+    int			nports;		/* Number of ports per address */
+    int			portIx;		/* Index of next available port */
+    const int		*ports;		/* The actual ports */
+    int			*numUrls;	/* Size of the results */
+    char		***urls;	/* The results */
+    const connectionOptions *options;	/* Connection options */
 #if PM_MULTI_THREAD
     __pmMutex		addrLock;	/* lock for the above address/port */
     __pmMutex		urlLock;	/* lock for the above results */
@@ -74,7 +72,8 @@ attemptConnections(void *arg)
     int			sts;
     __pmFdSet		wfds;
     __pmServiceInfo	serviceInfo;
-    __pmSockAddr*	addr;
+    __pmSockAddr	*addr;
+    const __pmServiceDiscoveryOptions *globalOptions;
     int			port;
     int			attempt;
     struct timeval	againWait = {0, 100000}; /* 0.1 seconds */
@@ -84,8 +83,10 @@ attemptConnections(void *arg)
      * Keep trying to secure an address+port until there are no more
      * or until we are interrupted.
      */
-    while (! context->discoveryFlags ||
-	   (*context->discoveryFlags & PM_SERVICE_DISCOVERY_INTERRUPTED) == 0) {
+    globalOptions = context->options->globalOptions;
+    while (! globalOptions->timedOut &&
+	   (! globalOptions->flags ||
+	    (*globalOptions->flags & PM_SERVICE_DISCOVERY_INTERRUPTED) == 0)) {
 	/* Obtain the address lock while securing the next address, if any. */
 	PM_LOCK(context->addrLock);
 	if (context->nextAddress == NULL) {
@@ -118,7 +119,7 @@ attemptConnections(void *arg)
 	    context->portIx = 0;
 	    context->nextAddress =
 		__pmSockAddrNextSubnetAddr(context->nextAddress,
-					   context->maskBits);
+					   context->options->maskBits);
 	}
 	PM_UNLOCK(context->addrLock);
 
@@ -163,9 +164,10 @@ attemptConnections(void *arg)
 	if (flags >= 0) {
 	    /*
 	     * FNDELAY and we're in progress - wait on __pmSelectWrite.
-	     * __pmSelectWrite may alter the contents of the timeout so make a copy.
+	     * __pmSelectWrite may alter the contents of the timeout so make a
+	     * copy.
 	     */
-	    struct timeval timeout = *context->timeout;
+	    struct timeval timeout = context->options->timeout;
 	    __pmFD_ZERO(&wfds);
 	    __pmFD_SET(s, &wfds);
 	    sts = __pmSelectWrite(s+1, &wfds, &timeout);
@@ -192,7 +194,7 @@ attemptConnections(void *arg)
 
 	    PM_LOCK(context->urlLock);
 	    *context->numUrls =
-		__pmAddDiscoveredService(&serviceInfo, context->discoveryFlags,
+		__pmAddDiscoveredService(&serviceInfo, globalOptions,
 					 *context->numUrls, context->urls);
 	    PM_UNLOCK(context->urlLock);
 	}
@@ -244,9 +246,7 @@ probeForServices(
     context.numUrls = &numUrls;
     context.urls = urls;
     context.portIx = 0;
-    context.maskBits = options->maskBits;
-    context.timeout = &options->timeout;
-    context.discoveryFlags = options->discoveryFlags;
+    context.options = options;
 
     /*
      * Initialize the first address of the subnet. This pointer will become
@@ -297,8 +297,9 @@ probeForServices(
 	     * enough except when resolving addresses, where twice that much is
 	     * sufficient.
 	     */
-	    if (options->discoveryFlags &&
-		(*options->discoveryFlags & PM_SERVICE_DISCOVERY_RESOLVE) != 0)
+	    if (options->globalOptions->flags &&
+		(*options->globalOptions->flags & PM_SERVICE_DISCOVERY_RESOLVE)
+		!= 0)
 		pthread_attr_setstacksize(&threadAttr, 2 * PTHREAD_STACK_MIN);
 	    else
 		pthread_attr_setstacksize(&threadAttr, PTHREAD_STACK_MIN);
@@ -481,7 +482,7 @@ parseOptions(const char *mechanism, connectionOptions *options)
 	
 	/* Examine the option. */
 	if (strncmp(option, "maxThreads=", sizeof("maxThreads=") - 1) == 0) {
-	    option += sizeof("maxThreads");
+	    option += sizeof("maxThreads=") - 1;
 	    longVal = strtol(option, &end, 0);
 	    if (*end != '\0' && *end != ',') {
 		__pmNotifyErr(LOG_ERR,
@@ -521,20 +522,8 @@ parseOptions(const char *mechanism, connectionOptions *options)
 	    }
 	}
 	else if (strncmp(option, "timeout=", sizeof("timeout=") - 1) == 0) {
-	    double	timeout;
-	    option += sizeof("timeout");
-	    timeout = strtod(option, &end);
-	    if ((*end != '\0' && *end != ',') || timeout < 0.0) {
-		__pmNotifyErr(LOG_ERR,
-			      "__pmProbeDiscoverServices: timeout value '%s' is not valid",
-			      option);
-	    }
-	    else {
-		option = end;
-		options->timeout.tv_sec = (time_t)timeout;
-		options->timeout.tv_usec =
-		    (int)((timeout - (double)options->timeout.tv_sec) * 1000000);
-	    }
+	    option += sizeof("timeout=") - 1;
+	    option = __pmServiceDiscoveryParseTimeout(option, &options->timeout);
 	}
 	else {
 	    /* An invalid option. Skip it. */
@@ -577,7 +566,7 @@ parseOptions(const char *mechanism, connectionOptions *options)
 int
 __pmProbeDiscoverServices(const char *service,
 			  const char *mechanism,
-			  const volatile unsigned *discoveryFlags,
+			  const __pmServiceDiscoveryOptions *globalOptions,
 			  int numUrls,
 			  char ***urls)
 {
@@ -588,7 +577,7 @@ __pmProbeDiscoverServices(const char *service,
     sts = parseOptions(mechanism, &options);
     if (sts != 0)
 	return 0;
-    options.discoveryFlags = discoveryFlags;
+    options.globalOptions = globalOptions;
 
     /* Everything checks out. Now do the actual probing. */
     numUrls = probeForServices(service, &options, numUrls, urls);

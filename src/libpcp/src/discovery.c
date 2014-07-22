@@ -66,6 +66,82 @@ __pmServerUnadvertisePresence(__pmServerPresence *s)
 /*
  * Service discovery API entry points.
  */
+char *
+__pmServiceDiscoveryParseTimeout (const char *s, struct timeval *timeout)
+{
+    double seconds;
+    char *end;
+
+    /*
+     * The string is a floating point number representing the number of seconds
+     * to wait.
+     */
+    seconds = strtod(s, &end);
+    if (*end != '\0' && *end != ',') {
+	__pmNotifyErr(LOG_ERR, "the timeout argument '%s' is not valid", s);
+	return strchrnul(s, ',');
+    }
+
+    /* Set the specified timeout. */
+    timeout->tv_sec = (long)seconds;
+    timeout->tv_usec = (long)((seconds - timeout->tv_sec) * 1000000);
+
+    return end;
+}
+
+static int
+parseOptions(const char *optionsString, __pmServiceDiscoveryOptions *options)
+{
+    if (optionsString == NULL)
+	return 0; /* no options to parse */
+
+    /* Now interpret the options string. */
+    while (*optionsString != '\0') {
+	if (strncmp(optionsString, "timeout=", sizeof("timeout=") - 1) == 0) {
+	    optionsString += sizeof("timeout=") - 1;
+	    optionsString = __pmServiceDiscoveryParseTimeout(optionsString,
+							     &options->timeout);
+#if ! PM_MULTI_THREAD
+	    __pmNotifyErr(LOG_WARNING, "Service discovery global timeout is not supported");
+#endif
+	    continue;
+	}
+	/* More options to come! */
+    }
+
+    return 0; /* ok */
+}
+
+#if PM_MULTI_THREAD
+static void *
+timeoutSleep(void *arg)
+{
+    __pmServiceDiscoveryOptions *options = arg;
+    int old;
+
+    /*
+     * Make sure that this thread is cancellable.
+     * We don't need the previous state, but pthread_setcancelstate(3) says that
+     * passing in NULL as the second argument is not portable.
+     */
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &old);    
+
+    /*
+     * Sleep for the specified amount of time. Our thread will either be
+     * cancelled by the calling thread or we will wake up on our own.
+     */
+    __pmtimevalSleep(options->timeout);
+
+    /*
+     * Service discovery has timed out. It's ok to set this unconditionally
+     * since the object exists in the calling thread's memory space and it
+     * waits to join with our thread before finishing.
+     */
+    options->timedOut = 1;
+    return NULL;
+}
+#endif
+
 int
 pmDiscoverServices(const char *service,
 		   const char *mechanism,
@@ -77,13 +153,48 @@ pmDiscoverServices(const char *service,
 int
 __pmDiscoverServicesWithOptions(const char *service,
 				const char *mechanism,
-				const char *options,
+				const char *optionsString,
 				const volatile unsigned *flags,
 				char ***urls)
 {
-    int		numUrls;
+    __pmServiceDiscoveryOptions	options;
+    int				numUrls;
+    int				sts;
+#if PM_MULTI_THREAD
+    pthread_t			timeoutThread;
+    pthread_attr_t		threadAttr;
+    int				timeoutSet = 0;
+#endif
 
-    (void)options; /* Temporary */
+    /* Interpret the options string. Initialize first. */
+    memset(&options, 0, sizeof(options));
+    options.flags = flags;
+    sts = parseOptions(optionsString, &options);
+    if (sts < 0)
+	return sts;
+
+#if PM_MULTI_THREAD
+    /*
+     * If a global timeout has been specified, then start a thread which will
+     * sleep for the specified length of time. When it wakes up, it will
+     * interrupt the discovery process. If discovery finishes before the
+     * timeout period, then the thread will be cancelled.
+     * We want the thread to be joinable.
+     */
+    if (options.timeout.tv_sec || options.timeout.tv_usec) {
+	pthread_attr_init(&threadAttr);
+	pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_JOINABLE);
+	sts = pthread_create(&timeoutThread, &threadAttr,
+			     timeoutSleep, &options);
+	pthread_attr_destroy(&threadAttr);
+	if (sts == 0)
+	    timeoutSet = 1;
+	else {
+	    __pmNotifyErr(LOG_WARNING, "Service discovery global timeout could not be set: %s",
+			  strerror(oserror()));
+	}
+    }
+#endif
 
     /*
      * Attempt to discover the requested service(s) using the requested or
@@ -94,16 +205,24 @@ __pmDiscoverServicesWithOptions(const char *service,
     *urls = NULL;
     numUrls = 0;
     if (mechanism == NULL) {
-	numUrls += __pmAvahiDiscoverServices(service, mechanism, flags, numUrls, urls);
+	numUrls += __pmAvahiDiscoverServices(service, mechanism, &options, numUrls, urls);
 	if (! flags || (*flags & PM_SERVICE_DISCOVERY_INTERRUPTED) != 0)
-	    numUrls += __pmProbeDiscoverServices(service, mechanism, flags, numUrls, urls);
+	    numUrls += __pmProbeDiscoverServices(service, mechanism, &options, numUrls, urls);
     }
     else if (strncmp(mechanism, "avahi", 5) == 0)
-	numUrls += __pmAvahiDiscoverServices(service, mechanism, flags, numUrls, urls);
+	numUrls += __pmAvahiDiscoverServices(service, mechanism, &options, numUrls, urls);
     else if (strncmp(mechanism, "probe", 5) == 0)
-	numUrls += __pmProbeDiscoverServices(service, mechanism, flags, numUrls, urls);
+	numUrls += __pmProbeDiscoverServices(service, mechanism, &options, numUrls, urls);
     else
 	numUrls = -EOPNOTSUPP;
+
+#if PM_MULTI_THREAD
+    if (timeoutSet) {
+	/* Cancel the timeout thread and then wait for it to join. */
+	sts = pthread_cancel(timeoutThread);
+	pthread_join(timeoutThread, NULL);
+    }
+#endif
 
     return numUrls;
 }
@@ -111,7 +230,7 @@ __pmDiscoverServicesWithOptions(const char *service,
 /* For manually adding a service. Also used by pmDiscoverServices(). */
 int
 __pmAddDiscoveredService(__pmServiceInfo *info,
-			 const volatile unsigned *flags,
+			 const __pmServiceDiscoveryOptions *options,
 			 int numUrls,
 			 char ***urls)
 {
@@ -123,7 +242,7 @@ __pmAddDiscoveredService(__pmServiceInfo *info,
     int port;
 
     /* If address resolution was requested, then do attempt it. */
-    if (flags && (*flags & PM_SERVICE_DISCOVERY_RESOLVE) != 0)
+    if (options->flags && (*options->flags & PM_SERVICE_DISCOVERY_RESOLVE) != 0)
 	host = __pmGetNameInfo(info->address);
 
     /*
