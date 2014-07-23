@@ -74,7 +74,7 @@ __pmServiceDiscoveryParseTimeout (const char *s, struct timeval *timeout)
 
     /*
      * The string is a floating point number representing the number of seconds
-     * to wait.
+     * to wait. Possibly followed by a comma, to separate the next option.
      */
     seconds = strtod(s, &end);
     if (*end != '\0' && *end != ',') {
@@ -98,15 +98,21 @@ parseOptions(const char *optionsString, __pmServiceDiscoveryOptions *options)
     /* Now interpret the options string. */
     while (*optionsString != '\0') {
 	if (strncmp(optionsString, "timeout=", sizeof("timeout=") - 1) == 0) {
+#if ! PM_MULTI_THREAD
+	    __pmNotifyErr(LOG_ERR, "__pmDiscoverServicesWithOptions: Service discovery global timeout is not supported");
+	    return -EOPNOTSUPP;
+#else
 	    optionsString += sizeof("timeout=") - 1;
 	    optionsString = __pmServiceDiscoveryParseTimeout(optionsString,
 							     &options->timeout);
-#if ! PM_MULTI_THREAD
-	    __pmNotifyErr(LOG_WARNING, "Service discovery global timeout is not supported");
 #endif
-	    continue;
 	}
-	/* More options to come! */
+	else {
+	    __pmNotifyErr(LOG_ERR, "__pmDiscoverServicesWithOptions: unrecognized option at '%s'", optionsString);
+	    return -EINVAL;
+	}
+	/* Locate the start of the next option. */
+	optionsString = strchrnul(optionsString, ',');
     }
 
     return 0; /* ok */
@@ -168,10 +174,10 @@ __pmDiscoverServicesWithOptions(const char *service,
 
     /* Interpret the options string. Initialize first. */
     memset(&options, 0, sizeof(options));
-    options.flags = flags;
     sts = parseOptions(optionsString, &options);
     if (sts < 0)
 	return sts;
+    options.flags = flags;
 
 #if PM_MULTI_THREAD
     /*
@@ -187,12 +193,13 @@ __pmDiscoverServicesWithOptions(const char *service,
 	sts = pthread_create(&timeoutThread, &threadAttr,
 			     timeoutSleep, &options);
 	pthread_attr_destroy(&threadAttr);
-	if (sts == 0)
-	    timeoutSet = 1;
-	else {
-	    __pmNotifyErr(LOG_WARNING, "Service discovery global timeout could not be set: %s",
-			  strerror(oserror()));
+	if (sts != 0) {
+	    sts = oserror();
+	    __pmNotifyErr(LOG_ERR, "Service discovery global timeout could not be set: %s",
+			  strerror(sts));
+	    return -sts;
 	}
+	timeoutSet = 1;
     }
 #endif
 
@@ -219,7 +226,7 @@ __pmDiscoverServicesWithOptions(const char *service,
 #if PM_MULTI_THREAD
     if (timeoutSet) {
 	/* Cancel the timeout thread and then wait for it to join. */
-	sts = pthread_cancel(timeoutThread);
+	pthread_cancel(timeoutThread);
 	pthread_join(timeoutThread, NULL);
     }
 #endif
