@@ -349,8 +349,11 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break; /* papi.reset */
 
 	case 20:
-	    atom->cp = disable_string; /* papi.disable */
-	    return PMDA_FETCH_STATIC;
+	    if ((sts = check_papi_state(sts)) == PAPI_RUNNING) {
+		    atom->cp = disable_string; /* papi.disable */
+		    return PMDA_FETCH_STATIC;
+		} else
+		    return 0;
 
 	case 21:
 	    atom->cp = papi_string_status(); /* papi.status */
@@ -500,8 +503,8 @@ papi_store(pmResult *result, pmdaExt *pmda)
 			}
 			else
 			    __pmNotifyErr(LOG_DEBUG, "Provided metric name: %s, does not match any known metrics\n", substring);
-		    substring = strtok(NULL, delim);
 		    }
+		    substring = strtok(NULL, delim);
 		}
 		break;
 	    }
