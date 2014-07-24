@@ -27,29 +27,30 @@
 typedef struct {
     unsigned int papi_event_code; //the PAPI_ eventcode
     char *papi_string_code;
+    int position;
     //    char *long_descr;
     //    char *short_descr;
 } papi_m_user_tuple;
 
 papi_m_user_tuple papi_info[] = {
-    { PAPI_TOT_INS, "TOT_INS" },
-    { PAPI_TOT_CYC, "TOT_CYC" },
-    { PAPI_L1_DCM, "L1_DCM" },
-    { PAPI_L1_ICM, "L1_ICM" },
-    { PAPI_L2_DCM, "L2_DCM" },
-    { PAPI_L2_ICM, "L2_ICM" },
-    { PAPI_L3_DCM, "L3_DCM" },
-    { PAPI_L3_ICM, "L3_ICM" },
-    { PAPI_L1_TCM, "L1_TCM" },
-    { PAPI_L2_TCM, "L2_TCM" },
-    { PAPI_L3_TCM, "L3_TCM" },
-    { PAPI_TLB_DM, "TLB_DM" },
-    { PAPI_TLB_IM, "TLB_IM" },
-    { PAPI_TLB_TL, "TLB_TL" },
-    { PAPI_L1_LDM, "L1_LDM" },
-    { PAPI_L1_STM, "L1_STM" },
-    { PAPI_L2_LDM, "L2_LDM" },
-    { PAPI_L2_STM, "L2_STM" },
+    { PAPI_TOT_INS, "TOT_INS", -1 },
+    { PAPI_TOT_CYC, "TOT_CYC", -1 },
+    { PAPI_L1_DCM, "L1_DCM", -1 },
+    { PAPI_L1_ICM, "L1_ICM", -1 },
+    { PAPI_L2_DCM, "L2_DCM", -1 },
+    { PAPI_L2_ICM, "L2_ICM", -1 },
+    { PAPI_L3_DCM, "L3_DCM", -1 },
+    { PAPI_L3_ICM, "L3_ICM", -1 },
+    { PAPI_L1_TCM, "L1_TCM", -1 },
+    { PAPI_L2_TCM, "L2_TCM", -1 },
+    { PAPI_L3_TCM, "L3_TCM", -1 },
+    { PAPI_TLB_DM, "TLB_DM", -1 },
+    { PAPI_TLB_IM, "TLB_IM", -1 },
+    { PAPI_TLB_TL, "TLB_TL", -1 },
+    { PAPI_L1_LDM, "L1_LDM", -1 },
+    { PAPI_L1_STM, "L1_STM", -1 },
+    { PAPI_L2_LDM, "L2_LDM", -1 },
+    { PAPI_L2_STM, "L2_STM", -1 },
 };
 #define CLUSTER_PAPI 0 //we should define this in a header for when these exand possible values
 #define NumEvents 20
@@ -250,7 +251,6 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
     int sts = 0;
     /* this will probably need to be expanded to fit the domains as well */
-    __pmNotifyErr(LOG_DEBUG, "case: %d\n", idp->item);
     sts = check_papi_state(sts);
     //    if (sts != PAPI_RUNNING){
     //	__pmNotifyErr(LOG_DEBUG, "sts: %d\n");
@@ -269,76 +269,24 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	//switch indom statement will end up being here
 	switch (idp->item) {
 	case 0:
-	    // might not be the first to have this metric being used so set tracker value
-	    atom->ull = values[0]; /* papi.preset.TOT_INS */
-	    break;
-		
 	case 1:
-	    atom->ull = values[1]; /* papi.preset.TOT_CYC */
-	    break;
-
 	case 2:
-	    atom->ull = values[2]; /* papi.preset.L1_DCM */
-	    break;
-
 	case 3:
-	    atom->ull = values[3]; /* papi.preset.L1_ICM */
-	    break;
-
 	case 4:
-	    atom->ull = values[4]; /* papi.preset.L2_DCM */
-	    break;
-
 	case 5:
-	    atom->ull = values[5]; /* papi.preset.L2_ICM */
-	    break;
-
 	case 6:
-	    atom->ull = values[6]; /* papi.preset.L3_DCM */
-	    break;
-
 	case 7:
-	    atom->ull = values[7]; /* papi.preset.L3_ICM */
-	    break;
-
 	case 8:
-	    atom->ull = values[8]; /* papi.preset.L1_TCM */
-	    break;
-
 	case 9:
-	    atom->ull = values[9]; /* papi.preset.L2_TCM */
-	    break;
-
 	case 10:
-	    atom->ull = values[10]; /* papi.preset.L3_TCM */
-	    break;
-
 	case 11:
-	    atom->ull = values[11]; /* papi.preset.TLB_DM */
-	    break;
-
 	case 12:
-	    atom->ull = values[12]; /* papi.preset.TLB_IM */
-	    break;
-
 	case 13:
-	    atom->ull = values[13]; /* papi.preset.TLB_TL */
-	    break;
-
 	case 14:
-	    atom->ull = values[14]; /* papi.preset.L1_LDM */
-	    break;
-
 	case 15:
-	    atom->ull = values[15]; /* papi.preset.L1_STM */
-	    break;
-
 	case 16:
-	    atom->ull = values[16]; /* papi.preset.L2_LDM */
-	    break;
-
 	case 17:
-	    atom->ull = values[17]; /* papi.preset.L2_STM */
+	    atom->ull = values[papi_info[idp->item].position];
 	    break;
 
 	case 18:
@@ -386,11 +334,13 @@ papi_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 }
 
 int
-remove_metric(unsigned int event)
+remove_metric(unsigned int event, int position)
 {
     int retval = 0;
     int state = 0;
     int restart = 0; // bool to restart running values at the end
+    int i;
+
     /* check to make sure papi is running, otherwise do nothing */
     state = check_papi_state(state);
     if (state == PAPI_RUNNING) {
@@ -401,13 +351,41 @@ remove_metric(unsigned int event)
     }
     state = check_papi_state(state);
     if (state == PAPI_STOPPED) {
-	/* add metric */
-	retval = PAPI_remove_event(EventSet, event); //XXX possibly switch this to remove_events
+
+	/* due to papi bug, we need to fully destroy the eventset and restart it*/
+	memset (values, 0, sizeof(values[0])*NumEvents);
+	retval = PAPI_cleanup_eventset(EventSet);
 	if(retval != PAPI_OK)
 	    return retval;
+
+	retval = PAPI_destroy_eventset(&EventSet);
+	if(retval != PAPI_OK)
+	    return retval;
+
 	number_of_active_counters--;
-	if (restart && (number_of_active_counters > 0))
+	// set event we're removing position to -1
+	papi_info[position].position = -1;
+	retval = PAPI_create_eventset(&EventSet);
+	if(retval != PAPI_OK)
+	    return retval;
+
+	// run through all metrics and adjust position variable as needed
+	for(i = 0; i < (sizeof(papi_info)/sizeof(papi_m_user_tuple)); i++)
+	    {
+		if(papi_info[i].position > position)
+		    papi_info[i].position--;
+
+		if(papi_info[i].position >= 0){
+		    retval = PAPI_add_event(EventSet, papi_info[i].papi_event_code);
+		    if (retval != PAPI_OK)
+			return retval;
+		}
+	    }
+	if (restart && (number_of_active_counters > 0)){
 	    retval = PAPI_start(EventSet);
+	    if (retval != PAPI_OK)
+		return retval;
+	}
 	return retval;
     }
     else
@@ -475,6 +453,8 @@ papi_store(pmResult *result, pmdaExt *pmda)
 			if(!strcmp(substring, papi_info[j].papi_string_code)){
 			    // add the metric to the set
 			    retval = add_metric(papi_info[j].papi_event_code);
+			    if (retval == PAPI_OK)
+				papi_info[j].position = number_of_active_counters-1; //minus one because array's start at 0 (not 1)
 			}
 			else
 			    __pmNotifyErr(LOG_DEBUG, "Provided metric name: %s, does not match any known metrics\n", substring);
@@ -499,7 +479,9 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		    for(j = 0; j < (sizeof(papi_info)/sizeof(papi_m_user_tuple)); j++){
 			if(!strcmp(substring, papi_info[j].papi_string_code)){
 			    // remove the metric from the set
-			    retval = remove_metric(papi_info[j].papi_event_code);
+			    retval = remove_metric(papi_info[j].papi_event_code, j);
+			    if (retval == PAPI_OK)
+				papi_info[j].position = -1;
 			}
 			else
 			    __pmNotifyErr(LOG_DEBUG, "Provided metric name: %s, does not match any known metrics\n", substring);
