@@ -1,0 +1,13 @@
+#
+# pmlogger(1) configuration file suitable creating an archive to be
+# used with mpvis(1)
+#
+
+log advisory on default {
+    kernel.percpu.cpu.idle
+    kernel.percpu.cpu.intr
+    kernel.percpu.cpu.sys
+    kernel.percpu.cpu.sxbrk
+    kernel.percpu.cpu.user
+    kernel.percpu.cpu.wait.total
+}

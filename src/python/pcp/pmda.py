@@ -1,7 +1,7 @@
 # pylint: disable=C0103
 """Wrapper module for libpcp_pmda - Performace Co-Pilot Domain Agent API
 #
-# Copyright (C) 2013 Red Hat.
+# Copyright (C) 2013-2014 Red Hat.
 #
 # This file is part of the "pcp" module, the python interfaces for the
 # Performance Co-Pilot toolkit.
@@ -24,15 +24,15 @@ import os
 
 import cpmapi
 import cpmda
-from pmapi import pmContext as PCP
-from pmapi import pmID, pmInDom, pmDesc, pmUnits, pmResult
+from pcp.pmapi import pmContext as PCP
+from pcp.pmapi import pmInDom, pmDesc, pmUnits
 
-import ctypes
-from ctypes import c_int, c_long, c_char_p, c_void_p, cast, byref
-from ctypes import addressof, sizeof, CDLL, POINTER, Structure, create_string_buffer
+from ctypes.util import find_library
+from ctypes import CDLL, c_int, c_long, c_char_p, c_void_p, cast, byref
+from ctypes import addressof, sizeof, POINTER, Structure, create_string_buffer
 
 ## Performance Co-Pilot PMDA library (C)
-LIBPCP_PMDA = ctypes.CDLL(ctypes.util.find_library("pcp_pmda"))
+LIBPCP_PMDA = CDLL(find_library("pcp_pmda"))
 
 
 ###
@@ -99,6 +99,8 @@ class pmdaIndom(Structure):
 
     def __init__(self, indom, insts):
         Structure.__init__(self)
+        self.it_numinst = 0
+        self.it_set = None
         self.it_indom = indom
         self.set_instances(indom, insts)
 
@@ -130,6 +132,11 @@ class pmdaIndom(Structure):
 
     def __str__(self):
         return "pmdaIndom@%#lx indom=%#lx num=%d" % (addressof(self), self.it_indom, self.it_numinst)
+
+class pmdaUnits(pmUnits):
+    """ Wrapper class for PMDAs defining their metrics (avoids pmapi import) """
+    def __init__(self, dimS, dimT, dimC, scaleS, scaleT, scaleC):
+        pmUnits.__init__(self, dimS, dimT, dimC, scaleS, scaleT, scaleC)
 
 
 ###
@@ -171,7 +178,7 @@ class MetricDispatch(object):
         self._metric_helptext = {}
 
     def reset_metrics(self):
-        clear_metrics()
+        self.clear_metrics()
         cpmda.set_need_refresh()
 
     ##
@@ -181,7 +188,7 @@ class MetricDispatch(object):
         cpmda.pmns_refresh(self._metric_names)
 
     def connect_pmcd(self):
-	cpmda.connect_pmcd()
+        cpmda.connect_pmcd()
 
     def add_metric(self, name, metric, oneline = '', text = ''):
         pmid = metric.m_desc.pmid

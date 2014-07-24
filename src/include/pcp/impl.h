@@ -1474,7 +1474,11 @@ extern void *__pmLock_libpcp;			/* symbol exposure */
 #define PM_SERVICE_DISCOVERY_INTERRUPTED	0x1
 #define PM_SERVICE_DISCOVERY_RESOLVE		0x2
 
-extern int __pmDiscoverServicesWithOptions(const char *, const char *, const char *, unsigned *, char ***);
+extern int __pmDiscoverServicesWithOptions(const char *,
+					   const char *,
+					   const char *,
+					   const volatile unsigned *,
+					   char ***);
 
 
 #ifdef __cplusplus

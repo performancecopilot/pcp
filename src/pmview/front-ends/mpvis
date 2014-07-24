@@ -1,0 +1,452 @@
+#!/bin/sh
+# Copyright (c) 1997-2001 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+tmp=/tmp/$$
+trap "rm -f $tmp.*; exit" 0 1 2 3  15
+rm -f $tmp.*
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmview-args
+
+gridspace=120
+cpuargs=
+
+algorithm="k"
+default_layout=true
+force=false
+maxrowlen=16
+verbose=false
+showinst=false
+version=2
+
+_usage()
+{
+    echo >$tmp.msg 'Usage: mpvis [options] [cpuid...]
+
+options:
+  -b              use row:column ratio of 1:8 (soft limit)
+                  [default, if 64 or more CPUs]
+  -i              show CPU numbers
+  -r rowlen       maximum number of CPUs per row (soft limit)
+  		  [default 16, if less than 64 CPUs]
+  -R rowlen       force this number of CPUs per row
+  -V              verbose/diagnostic output  
+
+pmview(1) options:'
+
+    _pmview_usage >>$tmp.msg
+    echo >>$tmp.msg
+    echo 'Default title is: CPU Utilization for Host' >>$tmp.msg
+    _pmview_info -f $tmp.msg
+}
+
+# generate one row of the scene
+#
+_do_row()
+{
+if [ "$1" = "$2" ]
+then
+    msg="$titleArg\n$1 only"
+else
+    msg="$titleArg\n$1 to $2"
+fi
+
+cat <<End-of-File >>$tmp.conf
+    _grid 0 $3 show (
+	_baseLabel "$msg"
+	_bar $group (
+	    _metrics (
+End-of-File
+$have_idle && echo "                kernel.percpu.cpu.idle[$rowlist]        $max_util \"idle\"" >>$tmp.conf
+$have_wait && echo "                kernel.percpu.cpu.wait.total[$rowlist]        $max_util \"wait\"" >>$tmp.conf
+$have_intr && echo "                kernel.percpu.cpu.intr[$rowlist]        $max_util \"intr\"" >>$tmp.conf
+$have_nice && echo "                kernel.percpu.cpu.nice[$rowlist]  $max_util \"nice\"" >>$tmp.conf
+$have_sys  && echo "                kernel.percpu.cpu.sys[$rowlist]         $max_util \"sys\"" >>$tmp.conf
+$have_user && echo "                kernel.percpu.cpu.user[$rowlist]        $max_util \"user\"" >>$tmp.conf
+cat <<End-of-File >>$tmp.conf
+	    )
+End-of-File
+$showinst && echo "	    _instlabels away ( $labels )" >>$tmp.conf
+cat <<End-of-File >>$tmp.conf
+	    _colorlist cpu
+	    _baseLabel "$msg"
+	)
+    )
+End-of-File
+}
+
+# build WM_COMMAND X(1) property for restart after login/logout
+#
+echo -n "pmview Version 2.1 \"mpvis\"" >$tmp.conf
+for arg
+do
+    echo -n " \"$arg\"" >>$tmp.conf
+done
+
+_pmview_args "$@"
+
+if [ "X$otherArgs" != X ]
+then
+    while getopts "bir:R:v:V?" c $otherArgs
+    do
+	case $c
+	in
+	    b)
+		algorithm="b"
+		default_layout=false
+		;;
+	    i)
+		showinst=true
+		gridspace=60
+		;;
+	    r)
+		_pmview_unsigned $c
+		maxrowlen=$OPTARG
+		default_layout=false
+		;;
+	    R)
+		_pmview_unsigned $c
+		maxrowlen=$OPTARG
+		default_layout=false
+		force=true
+		;;
+
+	    v)
+		version=$OPTARG
+		if [ $version = "1" ]
+		then
+		    _pmview_warning "$prog: pmview version 1 no longer supported, using version 2"
+		    version=2
+		elif [ $version != "2" ]
+		then
+		    _pmview_error "$prog: only version 2 supported for -v"
+		    # NOTREACHED
+		fi
+		;;
+
+	    V)
+		verbose=true
+		;;
+	    ?)
+		_usage
+		exit 1
+		;;
+	esac
+    done
+    set -- $otherArgs
+    shift `expr $OPTIND - 1`
+
+    [ $# -gt 0 ] && cpuargs=$@
+fi
+
+[ -z "$titleArg" ] && titleArg="SGI PCP : CPU Utilization for Host $host"
+
+_pmview_cache_fetch -I kernel.percpu.cpu.user
+_pmview_cache_fetch -v kernel.percpu.cpu.idle \
+    kernel.percpu.cpu.wait.total \
+    kernel.percpu.cpu.intr \
+    kernel.percpu.cpu.nice \
+    kernel.percpu.cpu.sys \
+    kernel.percpu.cpu.user
+
+
+# Check that we can get the metrics
+#
+if _pmview_fetch_indom kernel.percpu.cpu.user
+then
+    if [ ! -s "$tmp.pmview_result" -o "$number" -lt 1 ]
+    then
+	_pmview_fetch_fail "get CPU inventory"
+    fi
+else
+    _pmview_fetch_fail "get CPU inventory"
+    # NOTREACHED
+fi
+
+if [ ! -z "$cpuargs" ]
+then
+    # restrict based on command line args
+    #
+    rm -f $tmp.tmp $tmp.msg
+    ncpu=0
+    for cpu in $cpuargs
+    do
+	if echo "$cpu" | grep '[.[^]' >/dev/null
+	then
+	    # assume egrep(1) regular expression
+	    #
+	    if egrep "$cpu" $tmp.pmview_result >>$tmp.tmp
+	    then
+	        # found some matches
+		#
+		:
+	    else
+		echo "$prog: pattern \"$cpu\" does not match any CPUs ..." >$tmp.msg
+	    fi
+	elif grep "^$cpu\$" $tmp.pmview_result >/dev/null
+	then
+	    echo $cpu >>$tmp.tmp
+	else
+	    echo "$prog: CPU \"$cpu\" not in the CPU inventory" >$tmp.msg
+	fi
+    done
+    if [ -s $tmp.msg ]
+    then
+	echo "CPUs on host \"$host\" are:" >> $tmp.msg
+	tr < $tmp.pmview_result '\012' ' ' | fmt | sed -e "s/^/	/" >> $tmp.msg
+	_pmview_error -f $tmp.msg
+	# NOTREACHED
+    fi
+    sort $tmp.tmp | uniq > $tmp.pmview_result
+    ncpu=`wc -l $tmp.pmview_result | $PCP_AWK_PROG '{print $1}'`
+else
+    ncpu=$number
+fi
+
+if [ "$ncpu" -ge 64 -a "$default_layout" = true ]
+then
+    # >= 64p, no -b, -r or -R options ... make -b the default
+    #
+    algorithm="b"
+fi
+
+# sort list
+#
+if grep cpu: $tmp.pmview_result >/dev/null
+then
+    # Origin series name style
+    sed -e 's/:/./' < $tmp.pmview_result \
+    | sort -t. +1n -2 +2n -3 +3 -4 \
+    | sed -e 's/\./:/' \
+    > $tmp.cpulist
+else
+    # CPU names for older systems
+    sed -e 's/cpu/cpu./' < $tmp.pmview_result \
+    | sort -t. +1n -2 \
+    | sed -e 's/\.//' \
+    > $tmp.cpulist
+fi
+
+scale=''
+have_idle=false
+if _pmview_fetch_values kernel.percpu.cpu.idle
+then
+  have_idle=true
+  [ -z "$scale" ] && scale=`pminfo $namespace $msource -d kernel.percpu.cpu.idle| sed -n '/Semantics:/s/.*Units: //p'`
+fi
+
+have_wait=false
+if _pmview_fetch_values kernel.percpu.cpu.wait.total
+then
+  have_wait=true
+  [ -z "$scale" ] && scale=`pminfo $namespace $msource -d kernel.percpu.cpu.wait.total | sed -n '/Semantics:/s/.*Units: //p'`
+fi
+
+have_intr=false
+if _pmview_fetch_values kernel.percpu.cpu.intr
+then
+# linux 2.6 has wait and intr, but 2.4 does not
+  have_intr=`$PCP_AWK_PROG -v found=false '
+  	$1 > 0 { found="true" }
+	END { print found }' $tmp.pmview_result`
+  have_wait=$have_intr
+  [ -z "$scale" ] && scale=`pminfo $namespace $msource -d kernel.percpu.cpu.intr | sed -n '/Semantics:/s/.*Units: //p'`
+fi
+
+have_nice=false
+if _pmview_fetch_values kernel.percpu.cpu.nice
+then
+  have_nice=true
+  [ -z "$scale" ] && scale=`pminfo $namespace $msource -d kernel.percpu.cpu.nice | sed -n '/Semantics:/s/.*Units: //p'`
+fi
+
+have_sys=false
+if _pmview_fetch_values kernel.percpu.cpu.sys
+then
+  have_sys=true
+  [ -z "$scale" ] && scale=`pminfo $namespace $msource -d kernel.percpu.cpu.sys | sed -n '/Semantics:/s/.*Units: //p'`
+fi
+
+have_user=false
+if _pmview_fetch_values kernel.percpu.cpu.user
+then
+  have_user=true
+  [ -z "$scale" ] && scale=`pminfo $namespace $msource -d kernel.percpu.cpu.user | sed -n '/Semantics:/s/.*Units: //p'`
+fi
+
+case $scale
+in
+    microsec)
+    	max_util=1000000
+	;;
+    millisec)
+    	max_util=1000
+	;;
+    *)
+	_pmview_warning "$prog: cannot determine CPU time units, assuming milliseconds"
+	max_util=1000
+	;;
+esac
+
+# shape the base geometry for the scene
+#
+if [ $ncpu -le "$maxrowlen" ]
+then
+    nrows=1
+    ncols=$ncpu
+elif $force
+then
+    nrows=`echo $ncpu $maxrowlen | $PCP_AWK_PROG ' \
+	{ x = $1 / $2; y = $1 % $2; if (y > 0) ++x; printf "%d\n", x; }'`
+    ncols=$maxrowlen
+else
+    case $algorithm in
+	a)	# this algorithm doesn't work at the moment
+	    # (the exit condition is not robust enough)
+	    nrows=1
+	    ncols=1
+	    bound=1
+	    num=0
+	    while [ $num -gt $ncols -o $num -lt $bound ]
+	    do
+		nrows=`expr $nrows \* 2`
+		ncols=`expr $ncpu / $nrows`
+		bound=`expr $ncols / 2`
+		num=`expr $nrows \* 4`
+	    done
+	    ncols=`echo $ncpu $nrows | $PCP_AWK_PROG ' { x = $1 / $2; y = $1 % $2; \
+			  if (y > 0) ++x; printf "%d\n", x }'`
+	    ;;
+	b)
+	    # use a ratio for rows:columns of 1:8
+	    #
+	    nrows=`echo $ncpu | $PCP_AWK_PROG ' { x = sqrt ($1 / 8.0);
+			    y = int (x); if (y < x) ++y; print y }'`
+	    ncols=`expr $ncpu + $nrows - 1`
+	    ncols=`expr $ncols / $nrows`
+	    ;;
+	k)
+	    nrows=`expr $ncpu + $maxrowlen - 1`
+	    nrows=`expr $nrows / $maxrowlen`
+	    ncols=`expr $ncpu + $nrows - 1`
+	    ncols=`expr $ncols / $nrows`
+    esac
+fi
+
+if [ "$ncols" -gt 6 ]
+then
+    group="_groupByMetric"
+else
+    group="_groupByInst"
+fi
+
+cat <<End-of-File >>$tmp.conf
+
+#
+# mpvis
+#
+# ncpus = $ncpu
+# nrows = $nrows
+# ncols = $ncols
+#
+# List:
+End-of-File
+
+col=0
+rowlist=""
+cat $tmp.cpulist | while read cpu
+do
+    if [ $col -eq 0 ]
+    then
+	echo -n "$cpu " > $tmp.rowlist
+    else
+	echo -n "$cpu " >> $tmp.rowlist
+    fi
+    col=`expr $col + 1`
+    if [ "$col" -eq $ncols ]
+    then
+	echo "# "`cat $tmp.rowlist` >>$tmp.conf
+	col=0
+	rm -f $tmp.rowlist
+    fi
+done
+
+[ -s $tmp.rowlist ] && echo "# "`cat $tmp.rowlist` >>$tmp.conf
+
+echo "_gridSpace $gridspace" >>$tmp.conf
+echo >>$tmp.conf
+
+colorlist="_colorlist cpu ("
+$have_idle && colorlist="$colorlist green2"
+$have_wait && colorlist="$colorlist cyan2"
+$have_intr && colorlist="$colorlist yellow2"
+$have_nice && colorlist="$colorlist rgbi:0.6/1.0/0.7"
+$have_sys  && colorlist="$colorlist red2"
+$have_user && colorlist="$colorlist blue2"
+colorlist="$colorlist )"
+
+echo "$colorlist" >>$tmp.conf
+echo "_grid 0 0 _hide ( # outer grid" >>$tmp.conf
+
+# build rows from front-to-back of scene
+# fill rows with CPUs from left-to-right
+#
+y=`expr $nrows \* 2 - 2`
+col=0
+rowlist=""
+labels=""
+cat $tmp.cpulist | while read cpu
+do
+    if [ $col -eq 0 ]
+    then
+	rowlist=$cpu
+	start=$cpu
+    else
+	rowlist="$rowlist,$cpu"
+    fi
+    $showinst && labels="$labels \"`echo $cpu | sed -e 's/cpu:*//'`\""
+    col=`expr $col + 1`
+    echo "$start $cpu $y $rowlist $labels" > $tmp.rowlist
+    if [ $col -eq $ncols ]
+    then
+	_do_row $start $cpu $y
+	col=0
+	echo -n "" > $tmp.rowlist
+	labels=""
+	y=`expr $y - 2`
+    fi
+done
+
+if [ -s $tmp.rowlist ]
+then
+    read start cpu y rowlist labels < $tmp.rowlist
+    # cat $tmp.rowlist
+    _do_row $start $cpu $y
+fi
+
+echo ")" >>$tmp.conf
+
+if [ $nrows -eq 1 ]
+then
+    # remove unnecessary _grid for a single row
+    #
+    sed -e '/^    _grid/d' -e '/^    )/d' <$tmp.conf >$tmp.tmp
+    mv $tmp.tmp $tmp.conf
+fi
+
+$verbose && cat $tmp.conf
+
+eval $PMVIEW <$tmp.conf $args -title "'$titleArg'" -xrm "'*iconName:mpvis'"
+
+exit

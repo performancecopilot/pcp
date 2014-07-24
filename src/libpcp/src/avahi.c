@@ -495,11 +495,11 @@ __pmServerAvahiUnadvertisePresence(__pmServerPresence *s)
 
 /* Support for clients searching for services. */
 typedef struct browsingContext {
-    unsigned		*discoveryFlags;
-    AvahiSimplePoll	*simplePoll;
-    char		***urls;
-    int			numUrls;
-    int			error;
+    const __pmServiceDiscoveryOptions *discoveryOptions;
+    AvahiSimplePoll		*simplePoll;
+    char			***urls;
+    int				numUrls;
+    int				error;
 } browsingContext;
 
 /* Called whenever a service has been resolved successfully or timed out. */
@@ -565,7 +565,7 @@ resolveCallback(
 	    __pmSockAddrSetPort(serviceInfo.address, port);
 	    __pmSockAddrSetScope(serviceInfo.address, interface);
 	    context->numUrls = __pmAddDiscoveredService(&serviceInfo,
-							context->discoveryFlags,
+							context->discoveryOptions,
 							numUrls, urls);
 	    __pmSockAddrFree(serviceInfo.address);
 	    break;
@@ -684,7 +684,7 @@ discoveryTimeout(void)
 int
 __pmAvahiDiscoverServices(const char *service,
 			  const char *mechanism,
-			  unsigned *discoveryFlags,
+			  const __pmServiceDiscoveryOptions *options,
 			  int numUrls,
 			  char ***urls)
 {
@@ -704,7 +704,7 @@ __pmAvahiDiscoverServices(const char *service,
     if (!(simplePoll = avahi_simple_poll_new()))
 	return -ENOMEM;
 
-    context.discoveryFlags = discoveryFlags;
+    context.discoveryOptions = options;
     context.error = 0;
     context.simplePoll = simplePoll;
     context.urls = urls;
@@ -769,8 +769,9 @@ __pmAvahiDiscoverServices(const char *service,
      * The discovered services will be added to 'urls' during the call back
      * to resolveCallback
      */
-    while (! discoveryFlags || 
-	   (*discoveryFlags & PM_SERVICE_DISCOVERY_INTERRUPTED) == 0) {
+    while (! options->timedOut &&
+	   (! options->flags || 
+	    (*options->flags & PM_SERVICE_DISCOVERY_INTERRUPTED) == 0)) {
 	if ((sts = avahi_simple_poll_iterate(simplePoll, -1)) != 0)
             if (sts > 0 || errno != EINTR)
 		break;

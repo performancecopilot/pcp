@@ -144,9 +144,11 @@ pmda.install
 ## Assorted PMDAs
 pmda.apache
 pmda.cisco
+pmda.dmcache
 pmda.environ
 pmda.gfs2
 pmda.hotproc
+pmda.jbd2
 pmda.kvm
 pmda.logger
 pmda.mailq
@@ -168,6 +170,7 @@ pmda.trivial
 pmda.txmon
 pmda.weblog
 pmda.xfs
+pmda.zswap
 
 # tools which use PCP_COUNTER_WRAP 
 wrap
@@ -967,6 +970,8 @@ avahi
 978 libpcp getopt sanity local oss
 979 python local oss
 980 python local oss
+985 pmda.dmcache dbpmda local oss
+986 pmda.dmcache pmda.install local oss
 991 python local oss
 994 other verify oss
 1001 pmchart local

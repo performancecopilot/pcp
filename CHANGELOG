@@ -1,3 +1,6 @@
+pcp-3.9.8 (16 July 2014)
+    - Add overlooked Debian packaging metadata updates.
+
 pcp-3.9.7 (16 July 2014)
     - pmie: "ruleset" extensions to the pmie(1) language
     - pmdaproc: additional memory and new blkio cgroup metrics

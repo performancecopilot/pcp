@@ -68,9 +68,7 @@ static pmLongOptions longopts[] = {
     { "mechanism", 1, 'm', "NAME", "set the discovery method to use [avahi|probe=<subnet>|all]" },
     { "resolve", 0, 'r', 0, "resolve addresses" },
     { "service", 1, 's', "NAME", "discover services [pmcd|pmproxy|pmwebd|...|all]" },
-#if 0 /* disable tempoarily */
     { "timeout", 1, 't', "N.N", "timeout in seconds" },
-#endif
     PMAPI_OPTIONS_HEADER("Reporting options"),
     { "quiet", 0, 'q', 0, "quiet mode, do not write to stdout" },
     PMOPT_HELP,
@@ -78,7 +76,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "D:m:rs:q?",/*"D:m:rs:t:q?",*/
+    .short_options = "D:m:rs:t:q?",
     .long_options = longopts,
     .override = override,
 };
@@ -91,12 +89,56 @@ override(int opt, pmOptions *opts)
 }
 
 static int
+addOption(const char *option, const char *arg)
+{
+    size_t existingLen, optionLen, argLen;
+    size_t commaLen, equalLen;
+
+    /* The existing length and space for a comma. */
+    if (options == NULL) {
+	existingLen = 0;
+	commaLen = 0;
+    }
+    else {
+	existingLen = strlen(options);
+	commaLen = 1;
+    }
+
+    /*
+     * Additional space needed.
+     * We need space for the new option name and an optional argument,
+     * separated by an '='.
+     */
+    optionLen = strlen(option);
+    if (arg != NULL) {
+	equalLen = 1;
+	argLen = strlen(arg);
+    }
+    else {
+	equalLen = 0;
+	argLen = 0;
+    }
+
+    /* Make room for the existing options plus the new option */
+    options = realloc(options, existingLen + commaLen + optionLen + equalLen + argLen);
+    if (options == NULL)
+	return -ENOMEM;
+
+    /* Add the new option. */
+    sprintf(options + existingLen, "%s%s%s%s",
+	    commaLen != 0 ? "," : "", option,
+	    equalLen != 0 ? "=" : "", arg);
+    return 0;
+}
+
+static int
 discovery(const char *spec)
 {
     int		i, sts;
     char	**urls;
 
-    sts = __pmDiscoverServicesWithOptions(spec, mechanism, options, &discoveryFlags, &urls);
+    sts = __pmDiscoverServicesWithOptions(spec, mechanism, options,
+					  &discoveryFlags, &urls);
     if (sts < 0) {
 	fprintf(stderr, "%s: service %s discovery failure: %s\n",
 		pmProgname, spec, pmErrStr(sts));
@@ -121,10 +163,6 @@ int
 main(int argc, char **argv)
 {
     char	*service = NULL;
-#if 0 /* disable tempoarily */
-    char	*end;
-    double	timeout;
-#endif
     int		c, sts, total;
 
     /*
@@ -153,21 +191,9 @@ main(int argc, char **argv)
 	    else
 		service = opts.optarg;
 	    break;
-#if 0 /* disable tempoarily */
 	case 't':	/* timeout */
-	    timeout = strtod(opts.optarg, &end);
-	    if (*end != '\0' || timeout < 0.0) {
-		fprintf (stderr, "%s: timeout value '%s' is not valid\n",
-			 pmProgname, opts.optarg);
-	    }
-	    else {
-		discoveryOptions.timeout.tv_sec = (time_t)timeout;
-		discoveryOptions.timeout.tv_nsec =
-		    (long)((timeout - (double)discoveryOptions.timeout.tv_sec) *
-			   1000000000);
-	    }
+	    addOption("timeout", opts.optarg);
 	    break;
-#endif
 	default:
 	    opts.errors++;
 	    break;

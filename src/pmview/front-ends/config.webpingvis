@@ -1,0 +1,8 @@
+#
+# pmlogger(1) configuration file suitable creating an archive to be
+# used with webpingvis(1)
+#
+
+log advisory on default {
+    webpingvis
+}

@@ -1,0 +1,14 @@
+#
+# pmlogger(1) configuration file suitable creating an archive to be
+# used with dkvis(1)
+#
+
+log advisory on default {
+    disk.dev.total
+    disk.dev.read
+    disk.dev.write
+    disk.dev.bytes
+    disk.dev.read_bytes
+    disk.dev.write_bytes
+    disk.dev.total_bytes
+}
