@@ -29,6 +29,7 @@ infiniband.port {
 	in
 	out
 	total
+	switch
 }
 
 infiniband.port.in {
@@ -70,6 +71,27 @@ infiniband.port.total.errors {
 	vl15            IB:1:17
 	overrun         IB:1:18
 	symbol          IB:1:19
+}
+
+infiniband.port.switch {
+	in
+	out
+	total
+}
+
+infiniband.port.switch.in {
+	bytes		IB:3:0
+	packets		IB:3:1
+}
+
+infiniband.port.switch.out {
+	bytes		IB:3:2
+	packets		IB:3:3
+}
+
+infiniband.port.switch.total {
+	bytes		IB:3:4
+	packets		IB:3:5
 }
 
 infiniband.control {
