@@ -1,6 +1,8 @@
 /*
  * Linux Partitions (disk and disk partition IO stats) Cluster
  *
+ * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2008,2012 Aconex.  All Rights Reserved.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -199,7 +201,7 @@ map_persistent_dm_name(char *namebuf, int namelen, int devmajor, int devminor)
     struct stat sb;
     char path[MAXPATHLEN];
 
-    snprintf(path, sizeof(path), "/sys/block/%s/dm/name", namebuf);
+    snprintf(path, sizeof(path), "%s/sys/block/%s/dm/name", linux_statspath, namebuf);
     if ((fd = open(path, O_RDONLY)) >= 0) {
 	memset(path, 0, sizeof(path));
     	if (read(fd, path, sizeof(path)) > 0) {
@@ -216,9 +218,11 @@ map_persistent_dm_name(char *namebuf, int namelen, int devmajor, int devminor)
 	 * The sysfs name isn't available, so we'll have to walk /dev/mapper
 	 * and match up dev_t instead [happens on RHEL5 and maybe elsewhere].
 	 */
-	if ((dp = opendir("/dev/mapper")) != NULL) {
+	snprintf(path, sizeof(path), "%s/dev/mapper", linux_statspath);
+	if ((dp = opendir(path)) != NULL) {
 	    while ((dentry = readdir(dp)) != NULL) {
-		snprintf(path, sizeof(path), "/dev/mapper/%s", dentry->d_name);
+		snprintf(path, sizeof(path),
+			"%s/dev/mapper/%s", linux_statspath, dentry->d_name);
 		if (stat(path, &sb) != 0 || !S_ISBLK(sb.st_mode))
 		    continue; /* only interested in block devices */
 		if (devmajor == major(sb.st_rdev) && devminor == minor(sb.st_rdev)) {
@@ -266,11 +270,11 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom, pmInDom dm
     pmdaCacheOp(partitions_indom, PMDA_CACHE_INACTIVE);
     pmdaCacheOp(dm_indom, PMDA_CACHE_INACTIVE);
 
-    if ((fp = fopen("/proc/diskstats", "r")) != (FILE *)NULL)
+    if ((fp = linux_statsfile("/proc/diskstats", buf, sizeof(buf))) != NULL)
     	/* 2.6 style disk stats */
 	have_proc_diskstats = 1;
     else {
-	if ((fp = fopen("/proc/partitions", "r")) != (FILE *)NULL)
+	if ((fp = linux_statsfile("/proc/partitions", buf, sizeof(buf))) != NULL)
 	    have_proc_diskstats = 0;
 	else
 	    return -oserror();
@@ -498,7 +502,7 @@ _pm_ioscheduler(const char *device)
      * intuit the ones we know about (cfq, deadline, as, noop) based
      * on the different status files they create.
      */
-    sprintf(path, "/sys/block/%s/queue/scheduler", device);
+    sprintf(path, "%s/sys/block/%s/queue/scheduler", linux_statspath, device);
     if ((fp = fopen(path, "r")) != NULL) {
 	p = fgets(buf, sizeof(buf), fp);
 	fclose(fp);
@@ -516,21 +520,23 @@ _pm_ioscheduler(const char *device)
 	return q;
     }
     else {
+#define BLKQUEUE	"%s/sys/block/%s/queue/"
 	/* sniff around, maybe we'll get lucky and find something */
-	sprintf(path, "/sys/block/%s/queue/iosched/quantum", device);
+	sprintf(path, BLKQUEUE "iosched/quantum", linux_statspath, device);
 	if (access(path, F_OK) == 0)
 	    return "cfq";
-	sprintf(path, "/sys/block/%s/queue/iosched/fifo_batch", device);
+	sprintf(path, BLKQUEUE "iosched/fifo_batch", linux_statspath, device);
 	if (access(path, F_OK) == 0)
 	    return "deadline";
-	sprintf(path, "/sys/block/%s/queue/iosched/antic_expire", device);
+	sprintf(path, BLKQUEUE "iosched/antic_expire", linux_statspath, device);
 	if (access(path, F_OK) == 0)
 	    return "anticipatory";
 	/* punt.  noop has no files to match on ... */
-	sprintf(path, "/sys/block/%s/queue/iosched", device);
+	sprintf(path, BLKQUEUE "iosched", linux_statspath, device);
 	if (access(path, F_OK) == 0)
 	    return "noop";
 	/* else fall though ... */
+#undef BLKQUEUE
     }
 
 unknown:

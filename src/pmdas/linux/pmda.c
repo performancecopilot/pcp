@@ -3783,6 +3783,16 @@ static pmdaMetric metrictab[] = {
 
 };
 
+char *linux_statspath = "";	/* optional path prefix for all stats files */
+
+FILE *
+linux_statsfile(const char *path, char *buffer, int size)
+{
+    snprintf(buffer, size, "%s%s", linux_statspath, path);
+    buffer[size-1] = '\0';
+    return fopen(buffer, "r");
+}
+
 static void
 linux_refresh(pmdaExt *pmda, int *need_refresh)
 {
@@ -5615,9 +5625,13 @@ linux_init(pmdaInterface *dp)
 {
     int		i, major, minor, point;
     size_t	nmetrics, nindoms;
+    char	*envpath;
     __pmID_int	*idp;
 
     _pm_system_pagesize = getpagesize();
+    if ((envpath = getenv("LINUX_STATSPATH")) != NULL)
+	linux_statspath = envpath;
+
     if (_isDSO) {
 	char helppath[MAXPATHLEN];
 	int sep = __pmPathSeparator();

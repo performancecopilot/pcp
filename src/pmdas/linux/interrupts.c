@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 2011 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,6 +16,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include "indom.h"
 #include "filesys.h"
 #include "clusters.h"
 #include "interrupts.h"
@@ -241,7 +242,7 @@ refresh_interrupt_values(void)
     }
     memset(online_cpumap, 0, cpu_count * sizeof(int));
 
-    if ((fp = fopen("/proc/interrupts", "r")) == NULL)
+    if ((fp = linux_statsfile("/proc/interrupts", buf, sizeof(buf))) == NULL)
 	return -oserror();
 
     /* first parse header, which maps online CPU number to column number */
