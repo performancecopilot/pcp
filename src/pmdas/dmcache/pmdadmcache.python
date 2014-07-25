@@ -181,7 +181,7 @@ class DmCachePMDA(PMDA):
 
         self.add_metric('dmcache.dirty',
                 pmdaMetric(self.pmid(0, 13),
-                PM_TYPE_U64, self.cache_indom, PM_SEM_DISCRETE,
+                PM_TYPE_U64, self.cache_indom, PM_SEM_INSTANT,
                 pmdaUnits(1, 0, 0, PM_SPACE_KBYTE, 0, 0)),
                 'Number of blocks in the cache that differ from the origin')
         self.add_metric('dmcache.io_mode_code',
