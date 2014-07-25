@@ -181,17 +181,22 @@ refresh_udev(pmInDom disk_indom, pmInDom partitions_indom)
 }
 
 /*
- * Replace dm-* in namebuf with it's persistent name.
- * This is a symlink in /dev/mapper/something -> ../dm-X
- * where dm-X is currently in namebuf. It's also exported
- * via sysfs, which we use here. If this fails we leave
- * the argument unaltered.
+ * Replace dm-* in namebuf with it's persistent name. This is a symlink in
+ * /dev/mapper/something -> ../dm-X where dm-X is currently in namebuf. Some
+ * older platforms (e.g. RHEL5) don't have the symlinks, just block devices
+ * in /dev/mapper.  On newer kernels, the persistent name mapping is also
+ * exported via sysfs, which we use in preference. If this fails we leave
+ * the argument namebuf unaltered and return 0.
  */
-static void
-map_persistent_dm_name(char *namebuf, int namelen)
+static int
+map_persistent_dm_name(char *namebuf, int namelen, int devmajor, int devminor)
 {
     int fd;
     char *p;
+    DIR *dp;
+    int found = 0;
+    struct dirent *dentry;
+    struct stat sb;
     char path[MAXPATHLEN];
 
     snprintf(path, sizeof(path), "/sys/block/%s/dm/name", namebuf);
@@ -201,16 +206,37 @@ map_persistent_dm_name(char *namebuf, int namelen)
 	    if ((p = strchr(path, '\n')) != NULL)
 	    	*p = '\0';
 	    strncpy(namebuf, path, MIN(sizeof(path), namelen));
+	    found = 1;
 	}
     	close(fd);
     }
+    
+    if (!found) {
+	/*
+	 * The sysfs name isn't available, so we'll have to walk /dev/mapper
+	 * and match up dev_t instead [happens on RHEL5 and maybe elsewhere].
+	 */
+	if ((dp = opendir("/dev/mapper")) != NULL) {
+	    while ((dentry = readdir(dp)) != NULL) {
+		snprintf(path, sizeof(path), "/dev/mapper/%s", dentry->d_name);
+		if (stat(path, &sb) != 0 || !S_ISBLK(sb.st_mode))
+		    continue; /* only interested in block devices */
+		if (devmajor == major(sb.st_rdev) && devminor == minor(sb.st_rdev)) {
+		    strncpy(namebuf, dentry->d_name, namelen);
+		    found = 1;
+		    break;
+		}
+	    }
+	    closedir(dp);
+	}
+    }
+
+    return found;
 }
 
 int
 refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom, pmInDom dm_indom)
 {
-    char buf[1024];
-    char namebuf[1024];
     FILE *fp;
     int devmin;
     int devmaj;
@@ -222,6 +248,8 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom, pmInDom dm
     partitions_entry_t *p;
     int indom_changes = 0;
     char *dmname;
+    char buf[MAXPATHLEN];
+    char namebuf[MAXPATHLEN];
     static int first = 1;
 
     if (first) {
@@ -276,9 +304,14 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom, pmInDom dm
 	else
 	    continue;
 
-	if (indom == dm_indom)
-	    /* replce dm-[0-9]* with the persistent name from /dev/mapper/* */
-	    map_persistent_dm_name(namebuf, sizeof(namebuf));
+	if (indom == dm_indom) {
+	    /* replace dm-[0-9]* with the persistent name from /dev/mapper */
+	    if (!map_persistent_dm_name(namebuf, sizeof(namebuf), devmaj, devmin)) {
+		/* skip dm devices that have no persistent name mapping */
+		free(dmname);
+		continue;
+	    }
+	}
 
 	p = NULL;
 	if (pmdaCacheLookupName(indom, namebuf, &inst, (void **)&p) < 0 || !p) {
