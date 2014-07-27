@@ -1,6 +1,7 @@
 /*
  * Linux Swap Device Cluster
  *
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,6 +18,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include "indom.h"
 #include "swapdev.h"
 
 int
@@ -33,7 +35,7 @@ refresh_swapdev(pmInDom swapdev_indom)
 
     pmdaCacheOp(swapdev_indom, PMDA_CACHE_INACTIVE);
 
-    if ((fp = fopen("/proc/swaps", "r")) == (FILE *)NULL)
+    if ((fp = linux_statsfile("/proc/swaps", buf, sizeof(buf))) == NULL)
 	return -oserror();
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {

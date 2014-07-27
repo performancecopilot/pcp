@@ -1,6 +1,7 @@
 /*
  * Linux /proc/sys/fs metrics cluster
  *
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,21 +18,23 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include "indom.h"
 #include "proc_sys_fs.h"
 
 int
 refresh_proc_sys_fs(proc_sys_fs_t *proc_sys_fs)
 {
     static int err_reported;
+    char buf[MAXPATHLEN];
     FILE *filesp = NULL;
     FILE *inodep = NULL;
     FILE *dentryp = NULL;
 
     memset(proc_sys_fs, 0, sizeof(proc_sys_fs_t));
 
-    if ( (filesp  = fopen("/proc/sys/fs/file-nr", "r")) == (FILE *)NULL ||
-	 (inodep  = fopen("/proc/sys/fs/inode-state", "r")) == (FILE *)NULL ||
-	 (dentryp = fopen("/proc/sys/fs/dentry-state", "r")) == (FILE *)NULL) {
+    if ((filesp  = linux_statsfile("/proc/sys/fs/file-nr", buf, sizeof(buf))) == NULL ||
+	(inodep  = linux_statsfile("/proc/sys/fs/inode-state", buf, sizeof(buf))) == NULL ||
+	(dentryp = linux_statsfile("/proc/sys/fs/dentry-state", buf, sizeof(buf))) == NULL) {
 	proc_sys_fs->errcode = -oserror();
 	if (err_reported == 0)
 	    fprintf(stderr, "Warning: vfs metrics are not available : %s\n",
