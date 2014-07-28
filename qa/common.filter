@@ -198,6 +198,7 @@ _filter_optional_pmdas()
 	-e '/pmdabrocade/d' \
 	-e '/pmdacisco/d' \
 	-e '/pmdadbping/d' \
+	-e '/pmdadmcache/d' \
 	-e '/pmdadmf/d' \
 	-e '/pmda_environ/d' \
 	-e '/pmdaelasticsearch/d' \
@@ -284,6 +285,7 @@ _filter_top_pmns()
 	-e '/^    cisco /d' \
 	-e '/^    datatape /d' \
 	-e '/^    dbping /d' \
+	-e '/^    dmcache /d' \
 	-e '/^    dmf /d' \
 	-e '/^    elasticsearch /d' \
 	-e '/^    environ /d' \
@@ -651,6 +653,7 @@ _filter_torture_api()
 	-e '/^    cihb /d' \
 	-e '/^    cms /d' \
 	-e '/^    cxfs /d' \
+	-e '/^    dmcache /d' \
 	-e '/^    dynamic /d' \
 	-e '/^    elasticsearch /d' \
 	-e '/^    engr /d' \

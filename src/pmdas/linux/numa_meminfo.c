@@ -116,15 +116,17 @@ int refresh_numa_meminfo(numa_meminfo_t *numa_meminfo, proc_cpuinfo_t *proc_cpui
 
     /* Refresh */
     for (i = 0; i < idp->it_numinst; i++) {
-	char buf[1024];
+	char buf[MAXPATHLEN];
 
-	sprintf(buf, "/sys/devices/system/node/node%d/meminfo", i);
+	snprintf(buf, sizeof(buf), "%s/sys/devices/system/node/node%d/meminfo",
+		linux_statspath, i);
 	if ((fp = fopen(buf, "r")) != NULL) {
 	    linux_table_scan(fp, numa_meminfo->node_info[i].meminfo);
 	    fclose(fp);
 	}
 
-	sprintf(buf, "/sys/devices/system/node/node%d/numastat", i);
+	snprintf(buf, sizeof(buf), "%s/sys/devices/system/node/node%d/numastat",
+		linux_statspath, i);
 	if ((fp = fopen(buf, "r")) != NULL) {
 	    linux_table_scan(fp, numa_meminfo->node_info[i].memstat);
 	    fclose(fp);

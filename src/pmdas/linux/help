@@ -173,6 +173,34 @@ Count of read requests that were merged with an already queued read request.
 @ disk.dev.write_merge per-disk count of merged write requests
 Count of write requests that were merged with an already queued write request.
 
+@ disk.dm.read per-device-mapper device read operations
+
+@ disk.dm.write per-device-mapper device write operations
+
+@ disk.dm.total per-device-mapper device total (read+write) operations
+
+@ disk.dm.blkread per-device-mapper device block read operations
+
+@ disk.dm.blkwrite per-device-mapper device block write operations
+
+@ disk.dm.blktotal per-device-mapper device total (read+write) block operations
+
+@ disk.dm.read_bytes per-device-mapper device count of bytes read
+
+@ disk.dm.write_bytes per-device-mapper device count of bytes written
+
+@ disk.dm.total_bytes per-device-mapper device count of total bytes read and written
+
+@ disk.dm.read_merge per-device-mapper device count of merged read requests
+
+@ disk.dm.write_merge per-device-mapper device count of merged write requests
+
+@ disk.dm.avactive per-device-mapper device count of active time
+
+@ disk.dm.aveq per-device-mapper device time averaged count of request queue length
+
+@ hinv.map.dmname per-device-mapper device persistent name mapping to dm-[0-9]*
+
 @ disk.all.read_merge total count of merged read requests, summed for all disks
 Total count of read requests that were merged with an already queued read request.
 

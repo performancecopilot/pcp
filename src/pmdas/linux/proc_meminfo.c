@@ -1,7 +1,7 @@
 /*
  * Linux /proc/meminfo metrics cluster
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -15,14 +15,11 @@
  * for more details.
  */
 
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <ctype.h>
-#include <string.h>
-#include <fcntl.h>
-#include <stdio.h>
-
 #include "pmapi.h"
+#include "pmda.h"
+#include "indom.h"
+#include <sys/stat.h>
 #include "proc_meminfo.h"
 
 static proc_meminfo_t moff;
@@ -94,24 +91,18 @@ static struct {
 int
 refresh_proc_meminfo(proc_meminfo_t *proc_meminfo)
 {
-    static int	started;
     char	buf[1024];
     char	*bufp;
     int64_t	*p;
     int		i;
     FILE	*fp;
 
-    if (!started) {
-	started = 1;
-	memset(proc_meminfo, 0, sizeof(*proc_meminfo));
-    }
-
-    for (i=0; meminfo_fields[i].field != NULL; i++) {
+    for (i = 0; meminfo_fields[i].field != NULL; i++) {
 	p = MOFFSET(i, proc_meminfo);
 	*p = -1; /* marked as "no value available" */
     }
 
-    if ((fp = fopen("/proc/meminfo", "r")) == (FILE *)0)
+    if ((fp = linux_statsfile("/proc/meminfo", buf, sizeof(buf))) == NULL)
 	return -oserror();
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {
