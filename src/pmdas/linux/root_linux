@@ -281,6 +281,8 @@ disk.dm {
     write_merge		60:54:10
     avactive		60:54:11
     aveq		60:54:12
+    read_rawactive	60:54:14
+    write_rawactive	60:54:15
 }
 
 disk.partitions {
