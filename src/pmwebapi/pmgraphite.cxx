@@ -960,7 +960,7 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
                 output[i].what = nanf ("");
             } else {
                 // avoid loss of significance risk of naively calculating
-                // (this_v-last_v)/(this_t-last_t)
+                // (double)(this_v-last_v)/(double)(this_t-last_t)
                 output[i].what = (this_value / delta) - (last_value / delta);
             }
         }
@@ -2203,6 +2203,9 @@ pmgraphite_respond_render_json (struct MHD_Connection *connection,
                 if (! isnormal (results[i].what)) {
                     output << "null";
                 } else {
+                    // Setting the output.precision() not so necessary here
+                    // as in the pmwebapi case, since the data is already narrowed
+                    // to a float, and default precision of 6 works fine.
                     output << results[i].what;
                 }
             }

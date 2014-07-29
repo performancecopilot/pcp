@@ -23,6 +23,7 @@
 #include <vector>
 #include <iostream>
 #include <map>
+#include <limits>
 
 extern "C"
 {
@@ -100,7 +101,17 @@ template <class Value> void static inline
 json_key_value (std::ostream & o, const std::string & key, const Value & value,
                 const char *suffix = " ")
 {
-    o << '"' << key << '"' << ':' << value << suffix;
+    o << '"' << key << '"' << ':';
+    if (std::numeric_limits<Value>::is_specialized) {
+        // print more bits of precision for larger numeric types
+        std::streamsize ss = o.precision();
+        o.precision (std::numeric_limits<Value>::digits10 + 2 /* for rounding? */);
+        o << value;
+        o.precision (ss);
+    } else {
+        o << value;
+    }
+    o << suffix;
 }
 
 // prevent pointers (including char*) from coming this way
