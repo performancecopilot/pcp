@@ -59,7 +59,7 @@ PMID: 129.0.12
 dbpmda> desc dmcache.dirty
 PMID: 129.0.13
     Data Type: 64-bit unsigned int  InDom: 129.0 0x20400000
-    Semantics: discrete  Units: Kbyte
+    Semantics: instant  Units: Kbyte
 dbpmda> desc dmcache.io_mode_code
 PMID: 129.0.14
     Data Type: 32-bit unsigned int  InDom: 129.0 0x20400000
