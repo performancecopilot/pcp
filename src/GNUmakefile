@@ -97,6 +97,7 @@ OTHER_SUBDIRS = \
 	sar2pcp \
 	sheet2pcp \
 	win32ctl \
+	pmiostat \
 	#
 
 SUBDIRS = \
