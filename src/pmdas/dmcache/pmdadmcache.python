@@ -63,18 +63,18 @@ class DmCacheStats(Structure):
 
         self.size = long(data[2]) - long(data[1])
         self.metadata_block_size = mbsize
-        self.metadata_used  = long(data[5]) * mbsize
-        self.metadata_total = long(data[6]) * mbsize
+        self.metadata_used  = long(data[5]) * mbsize / 1024
+        self.metadata_total = long(data[6]) * mbsize / 1024
         self.cache_block_size = cbsize
-        self.cache_used = long(data[8]) * cbsize
-        self.cache_total = long(data[9]) * cbsize
+        self.cache_used = long(data[8]) * cbsize / 1024
+        self.cache_total = long(data[9]) * cbsize / 1024
         self.read_hits = long(data[10])
         self.read_misses = long(data[11])
         self.write_hits = long(data[12])
         self.write_misses = long(data[13])
         self.demotions = long(data[14])
         self.promotions = long(data[15])
-        self.dirty = long(data[16])
+        self.dirty = long(data[16]) * cbsize / 1024
         self.iomode = IOMODES[data[18]]
 
     def io_mode(self):

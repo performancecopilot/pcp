@@ -1,0 +1,38 @@
+.TH PCP-DMCACHE 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pcp-dmcache\f1 \- report on Device Mapper Cache devices
+.SH SYNOPSIS
+\f3pcp-dmcache\f1
+[\f2device\f1 ...]
+.SH DESCRIPTION
+.B pcp-dmcache
+reports on the activity of any configured Device Mapper Cache targets.
+The reported information includes device IOPs, cache and metadata device
+utilization, as well as hit and miss rates for both reads and writes for
+each cache device.
+.PP
+When invoked via the
+.BR pcp (1)
+command, the
+.BR \-h /\c
+.BR \-\-host ,
+.BR \-a /\c
+.BR \-\-archive ,
+.BR \-O /\c
+.BR \-\-origin ,
+.BR \-s /\c
+.BR \-\-samples ,
+.BR \-t /\c
+.BR \-\-interval ,
+.BR \-Z /\c
+.BR \-\-timezone
+and several other options become indirectly available.
+.PP
+By default,
+.B pcp-dmcache
+reports on all available cache target devices (one line each, per sample),
+but this can be restricted to specific devices by command line arguments.
+.SH "SEE ALSO"
+.BR pcp (1)
+and
+.BR PCPIntro (1).

@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -13,27 +14,22 @@
  */
 
 #include "pmapi.h"
+#include "pmda.h"
+#include "indom.h"
 #include "proc_net_sockstat.h"
 
 int
 refresh_proc_net_sockstat(proc_net_sockstat_t *proc_net_sockstat)
 {
-    static int started;
     char buf[1024];
     char fmt[64];
     FILE *fp;
 
-    if (!started) {
-    	started = 1;
-	memset(proc_net_sockstat, 0, sizeof(*proc_net_sockstat));
-    }
-
-    if ((fp = fopen("/proc/net/sockstat", "r")) == NULL) {
-    	return -oserror();
-    }
+    if ((fp = linux_statsfile("/proc/net/sockstat", buf, sizeof(buf))) == NULL)
+	return -oserror();
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {
-    	if (strncmp(buf, "TCP:", 4) == 0) {
+	if (strncmp(buf, "TCP:", 4) == 0) {
 	    sscanf(buf, "%s %s %d %s %d", fmt, fmt, 
 	    	&proc_net_sockstat->tcp[_PM_SOCKSTAT_INUSE], fmt,
 	    	&proc_net_sockstat->tcp[_PM_SOCKSTAT_HIGHEST]);
@@ -43,7 +39,7 @@ refresh_proc_net_sockstat(proc_net_sockstat_t *proc_net_sockstat)
 	    	proc_net_sockstat->tcp[_PM_SOCKSTAT_HIGHEST] : 0;
 	}
 	else
-    	if (strncmp(buf, "UDP:", 4) == 0) {
+	if (strncmp(buf, "UDP:", 4) == 0) {
 	    sscanf(buf, "%s %s %d %s %d", fmt, fmt, 
 	    	&proc_net_sockstat->udp[_PM_SOCKSTAT_INUSE], fmt,
 	    	&proc_net_sockstat->udp[_PM_SOCKSTAT_HIGHEST]);
@@ -53,7 +49,7 @@ refresh_proc_net_sockstat(proc_net_sockstat_t *proc_net_sockstat)
 	    	proc_net_sockstat->udp[_PM_SOCKSTAT_HIGHEST] : 0;
 	}
 	else
-    	if (strncmp(buf, "RAW:", 4) == 0) {
+	if (strncmp(buf, "RAW:", 4) == 0) {
 	    sscanf(buf, "%s %s %d %s %d", fmt, fmt, 
 	    	&proc_net_sockstat->raw[_PM_SOCKSTAT_INUSE], fmt,
 	    	&proc_net_sockstat->raw[_PM_SOCKSTAT_HIGHEST]);
@@ -65,8 +61,5 @@ refresh_proc_net_sockstat(proc_net_sockstat_t *proc_net_sockstat)
     }
 
     fclose(fp);
-
-    /* success */
     return 0;
 }
-

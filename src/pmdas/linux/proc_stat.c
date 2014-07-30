@@ -30,6 +30,7 @@ int
 refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 {
     pmdaIndom *idp = PMDAINDOM(CPU_INDOM);
+    char buf[MAXPATHLEN];
     char fmt[64];
     static int fd = -1; /* kept open until exit() */
     static int started;
@@ -47,7 +48,8 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 	if (lseek(fd, 0, SEEK_SET) < 0)
 	    return -oserror();
     } else {
-	if ((fd = open("/proc/stat", O_RDONLY)) < 0)
+	snprintf(buf, sizeof(buf), "%s/proc/stat", linux_statspath);
+	if ((fd = open(buf, O_RDONLY)) < 0)
 	    return -oserror();
     }
 

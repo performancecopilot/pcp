@@ -1,6 +1,7 @@
 /*
- * Linux /proc/net_rpc metrics cluster
+ * Linux /proc/net/rpc metrics cluster
  *
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -15,6 +16,8 @@
  */
 
 #include "pmapi.h"
+#include "pmda.h"
+#include "indom.h"
 #include "proc_net_rpc.h"
 
 int
@@ -30,7 +33,7 @@ refresh_proc_net_rpc(proc_net_rpc_t *proc_net_rpc)
     /*
      * client stats
      */
-    if ((fp = fopen("/proc/net/rpc/nfs", "r")) == (FILE *)NULL) {
+    if ((fp = linux_statsfile("/proc/net/rpc/nfs", buf, sizeof(buf))) == NULL) {
     	proc_net_rpc->client.errcode = -oserror();
     }
     else {
@@ -86,7 +89,7 @@ refresh_proc_net_rpc(proc_net_rpc_t *proc_net_rpc)
     /*
      * server stats
      */
-    if ((fp = fopen("/proc/net/rpc/nfsd", "r")) == (FILE *)NULL) {
+    if ((fp = linux_statsfile("/proc/net/rpc/nfsd", buf, sizeof(buf))) == NULL) {
     	proc_net_rpc->server.errcode = -oserror();
     }
     else {
