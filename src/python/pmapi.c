@@ -626,7 +626,6 @@ getNonOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
 
     if (!PyList_Check(pyargv)) {
 	PyErr_SetString(PyExc_TypeError, "pmGetNonOptionsFromList uses a list");
-	Py_DECREF(pyargv);
 	return NULL;
     }
 
@@ -634,16 +633,13 @@ getNonOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
     if ((argc = PyList_GET_SIZE(pyargv)) > 0)
 	length = argc - options.optind;
 
-    if (!length) {
-	Py_DECREF(pyargv);
+    if (length <= 0) {
 	Py_INCREF(Py_None);
 	return Py_None;
     }
 
-    if ((result = PyList_New(length)) == NULL) {
-	Py_DECREF(pyargv);
+    if ((result = PyList_New(length)) == NULL)
 	return PyErr_NoMemory();
-    }
 
     for (i = 0; i < length; i++) {
 	PyObject *pyarg = PyList_GET_ITEM(pyargv, options.optind + i);

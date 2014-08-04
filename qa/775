@@ -12,6 +12,7 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./common.discovery
 
 _get_libpcp_config
 $service_discovery || _notrun "No support for service discovery"
@@ -28,38 +29,22 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
-_success_filter()
-{
-    # Only pmcd is guaranteed to be running, but other services may also be.
-    # Transform two cases - no servers vs found servers - into deterministic
-    # output for the --all invocations
-    sed \
-	-e '/  pcp:/d' \
-	-e '/  proxy:/d' \
-	-e '/  http:/d' \
-	-e 's/No \(pmproxy servers\) discovered/Sought \1/g' \
-	-e 's/No \(pmwebd servers\) discovered/Sought \1/g' \
-	-e 's/Discovered \(pmproxy servers\):/Sought \1/g' \
-	-e 's/Discovered \(pmwebd servers\):/Sought \1/g' \
-    # end
-}
-
 # real QA test starts here
 
 echo "No arguments"
-pmfind | _success_filter
+pmfind | _filter_discovery_unresolved
 echo "Exit status: $?"
 
-echo "-s pmcd"
-pmfind -s pmcd | _success_filter
+echo "-s pmcd -r"
+pmfind -s pmcd -r | _filter_discovery_resolved
 echo "Exit status: $?"
 
 echo "-m all"
-pmfind -m all | _success_filter
+pmfind -m all | _filter_discovery_unresolved
 echo "Exit status: $?"
 
-echo "-s pmcd -m all"
-pmfind -s pmcd -m all | _success_filter
+echo "-s pmcd -m all --resolve"
+pmfind -s pmcd -m all --resolve | _filter_discovery_resolved
 echo "Exit status: $?"
 
 echo "-q"

@@ -1,0 +1,51 @@
+#
+# pmlogger(1) configuration file suitable creating an archive to be
+# used with webvis(1)
+#
+
+# file system and hinv stats
+# (log these once so they _definitely_ exist at start of archive)
+log advisory on once {
+    hinv.ncpu
+    hinv.physmem
+    hinv.ndisk
+    mem.physmem
+    disk.dev.read
+}
+
+log advisory on 60 seconds {
+    # Kernel, disk and swap and paging metrics 
+    disk.all.read
+    disk.all.write
+    disk.all.avg_disk.active
+    kernel.all.cpu.idle
+    kernel.all.cpu.intr
+    kernel.all.cpu.sys
+    kernel.all.cpu.user
+    kernel.all.cpu.wait.total
+    mem.freemem
+    mem.util.kernel
+    mem.util.fs_ctl
+    mem.util.fs_dirty
+    mem.util.fs_clean
+    mem.util.user
+    swap.pagesout
+    network.interface.out.drops
+    network.interface.out.errors
+    network.interface.out.packets
+    network.interface.in.drops
+    network.interface.in.errors
+    network.interface.in.packets
+    network.interface.total.bytes
+    # Network data rates and error conditions
+    network.tcp.drops
+    network.tcp.conndrops
+    network.tcp.timeoutdrop
+    network.tcp.sndrexmitpack
+    network.tcp.rcvbadsum
+    network.tcp.rexmttimeo
+    network.mbuf.failed
+    network.mbuf.waited
+    # Web logs - both frequent and infrequent samples
+    web.allservers
+}

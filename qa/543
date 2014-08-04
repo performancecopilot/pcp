@@ -19,7 +19,10 @@ echo "QA output created by $seq"
 host=`hostname`
 NOTICES=$PCP_LOG_DIR/NOTICES
 MAIL=/var/mail/pcpqa
-FORWARD=/usr/people/pcpqa/.forward
+HOME=`$PCP_AWK_PROG -F: '/^pcpqa/ { print $6 }' /etc/passwd`
+FORWARD="$HOME/.forward"
+
+echo | $PCP_BINADM_DIR/telnet-probe localhost 25 || _notrun "Noone listening on port 25"
 
 _cleanup()
 {

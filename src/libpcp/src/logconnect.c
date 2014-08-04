@@ -111,7 +111,7 @@ __pmLogLocalSocketUser(int pid, char *buf, size_t bufSize)
 #endif
 
 /*
- * Common function for attemmpting connections to pmlogger.
+ * Common function for attempting connections to pmlogger.
  */
 static int
 connectLogger(int fd, __pmSockAddr *myAddr)

@@ -1,0 +1,12 @@
+#
+# pmlogger(1) configuration file suitable creating an archive to be
+# used with nfsvis(1)
+#
+
+log advisory on default {
+    nfs
+}
+
+log advisory on default {
+    nfs3
+}

@@ -20,6 +20,8 @@
  * skeleton: misc.sk
  ***********************************************************************/
 
+#include <assert.h>
+
 /*
  * operator RULE
  */
@@ -33,10 +35,10 @@ rule(Expr *x)
 
     EVALARG(arg1)
     if ((x->valid = arg1->valid) > 0) {
-	sts = (*(Truth *)x->ring = *(Truth *)arg1->ring);
-	if (sts == FALSE)
+	sts = (*(Boolean *)x->ring = *(Boolean *)arg1->ring);
+	if (sts == B_FALSE)
 	    perf->eval_false++;
-	else if (sts == TRUE) {
+	else if (sts == B_TRUE) {
 	    perf->eval_true++;
 	    EVALARG(arg2)
 	}
@@ -47,6 +49,81 @@ rule(Expr *x)
 	perf->eval_unknown++;
 }
 
+/*
+ * operator CND_RULESET
+ */
+
+void
+ruleset(Expr *x)
+{
+    Expr 	*op;		/* operator nodes */
+    Expr	*rp;		/* rule or action nodes */
+    Expr	*save_curr;	/* save-restore curr when calling rule() */
+    Expr	*other;		/* UNKNOWN/OTHERWISE clauses */
+
+    x->valid = 0;
+    op = x->arg1;
+    while (op != NULL) {
+	if (op->op == RULE)
+	    rp = op;
+	else {
+	    assert(op->op == CND_RULESET || op->op == CND_OR);
+	    rp = op->arg1;
+	}
+	assert(rp->op == RULE);
+	save_curr = curr;
+	curr = rp;
+	rule(rp);
+	curr = save_curr;
+	if (rp->arg1->valid) {
+	    x->valid = rp->arg1->valid;
+	    *(Boolean *)x->ring = *(Boolean *)rp->arg1->ring;
+	    if (x->valid > 0 && *(Boolean *)x->ring == B_TRUE) {
+		/* predicate is true, so stop evaluation */
+		return;
+	    }
+	}
+	if (op->op == RULE)
+	    break;
+	op = op->arg2;
+    }
+
+    if (x->arg2 == NULL)
+	/* no OTHERWISE or UNKNOWN clauses */
+	return;
+
+    other = x->arg2;
+    assert(other->op == CND_OTHER);
+
+    if (x->valid == 0) {
+	/*
+	 * all predicates are B_UNKNOWN, so do the UNKNOWN action if any
+	 */
+	if (other->arg1->op != NOP) {
+	    rp = other->arg1;
+	    save_curr = curr;
+	    curr = rp;
+	    rule(rp);
+	    curr = save_curr;
+	    return;
+	}
+    }
+
+    /*
+     * no predicate is B_TRUE and either some predicate is B_FALSE
+     * or they are all B_UNKNOWN and there is no UNKNOWN action ...
+     * so do the OTHERWISE action, if any
+     */
+    if (other->arg2->op != NOP) {
+	rp = other->arg2;
+	save_curr = curr;
+	curr = rp;
+	rule(rp);
+	save_curr = curr;
+	x->valid = rp->arg1->valid;
+	*(Boolean *)x->ring = *(Boolean *)rp->arg1->ring;
+    }
+}
 
 /*
  *  operator: cndDelay

@@ -9,9 +9,6 @@ Logging statement ignored due to error(s)
 Warning [<stdin>, line 4]
 Problem with lookup for metric "sample.bad.nosupport" ...
 Logging statement ignored due to error(s)
-Warning [<stdin>, line 5]
-Problem with lookup for metric "sample.bad" ...
-Logging statement ignored due to error(s)
 Performance Co-Pilot Logger Control (pmlc), Version VERSION
 pmlc commands
   show loggers [@<host>]             display <pid>s of running pmloggers
@@ -31,6 +28,7 @@ pmlc> query no_such_metric
 pmlc> query sample.bad.unknown
 pmlc> query sample.bad.nosupport
 pmlc> query sample.bad
+sample.bad.novalues
 pmlc> query sample
 sample.control
 sample.daemon_pid
@@ -124,6 +122,7 @@ sample.aggregate.hullo
 sample.aggregate.write_me
 sample.hordes.one
 sample.hordes.two
+sample.bad.novalues
 sample.wrap.long
 sample.wrap.ulong
 sample.wrap.longlong

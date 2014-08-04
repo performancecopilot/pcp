@@ -72,7 +72,7 @@ s/ .* value / /p
 }' \
 | LC_COLLATE=POSIX sort >$tmp.2
 
-join $tmp.1 $tmp.2 >$tmp.pcp
+LC_COLLATE=POSIX join $tmp.1 $tmp.2 >$tmp.pcp
 
 if diff $tmp.pcp $tmp.ipc
 then

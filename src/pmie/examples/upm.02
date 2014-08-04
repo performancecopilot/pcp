@@ -6,5 +6,14 @@ delta = 5 sec;		// force evaluation once every 5 seconds from here on
 //
 some_inst all_sample
     disk.dev.total @0..3 > 40 count/sec
-	-> print "disk busy for 20 sec" &
+	-> print "disks busy for 20 sec:" " %i" &
 	   shell 5 min "dkvis";
+
+// If any disk is performing more than 60 I/Os per second, then
+// print a message identifying the busy disk to standard output and
+// launch dkvis(1)
+some_inst (
+    disk.dev.total > 60 count/sec
+) -> print "busy disks:" " %i" &
+     shell 5 min "dkvis";
+

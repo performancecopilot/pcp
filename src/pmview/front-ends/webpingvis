@@ -1,0 +1,372 @@
+#! /bin/sh
+# Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+tmp=/tmp/$$
+trap "rm -f $tmp.*; exit" 0 1 2 3  15
+rm -f $tmp.*
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmview-args
+
+_usage()
+{
+    echo >$tmp.msg 'Usage: '$prog' [options]
+
+options:
+  -i              show URL names
+  -m   max        maximum expected total ping response time (milliseconds)
+  -V              verbose/diagnostic output  
+
+pmview(1) options:'
+
+    _pmview_usage >> $tmp.msg
+    echo >> $tmp.msg
+    echo 'Default title is: SGI PCP: Web PING Performance for Host' >> $tmp.msg
+    echo '
+  The "max" parameter (used with -m) should be set to the maximum
+  expected ping response time for all URLs being monitored. The default
+  is 1000 milliseconds. This governs the height of the bar showing total
+  response time (at the far right of the scene). All bars showing
+  response times use "max" for height normalization.' >> $tmp.msg
+    _pmview_info -f $tmp.msg
+}
+
+#--- build WM_COMMAND X(1) property for restart after login/logout ---
+#
+echo -n "pmview Version 2.1 \"$prog\"" > $tmp.pmview
+for arg
+do
+    echo -n " \"$arg\"" >> $tmp.pmview
+done
+echo >> $tmp.pmview
+
+# --- LOCAL FUNCTIONS : START ------------------------------------------------
+_sort_host_indom()
+{
+    sed <$1 \
+	-e 's/instance\[\([0-9][0-9]*\)]:/\1/' \
+    | $PCP_AWK_PROG '
+BEGIN		{ state = 0 }
+/^samples:/	{ state = 1; next }
+state == 0	{ next }
+/^full label/	{ label[$4] = $NF; next }
+NF == 0		{ state = 2; next }
+state == 2	{ for (i=1; i<=NF; i++) {
+		    if (label[i-1] == "")
+			label[i-1] = $i
+		  }
+		  state = 3
+		  next
+		}
+state == 3	{ for (i=1; i<=NF; i++)
+		    size[i-1] = $i
+		}
+END		{ for (i in label) {
+		    print label[i],size[i]
+		  }
+		}' \
+    | sort +1n -2 +0 -1 >$tmp.tmp
+    mv $tmp.tmp $1
+}
+
+_sort_arch_indom()
+{
+metric=webping.perurl.kbytes
+indom=`pminfo -d -a $arch $metric \
+| sed -n -e '/InDom:/{
+s/.*InDom: //
+s/ .*//p
+}'`
+
+if [ "X$indom" = XPM_INDOM_NULL ]
+then
+    _pmview_error "$prog: $metric is singular"
+    #NOTREACHED
+elif [ -z "$indom" ]
+then
+    _pmview_error "$prog: cannot determine InDom for $metric"
+    #NOTREACHED
+fi
+
+pmdumplog -z -i $arch 2>&1 \
+| $PCP_AWK_PROG '
+/^InDom: '$indom'$/		{ state=1; next }
+/^InDom: /			{ state=0; next }
+state == 1 && /^[^ 	]/	{ print }' \
+| while read stamp junk
+do
+    pminfo -f -a $arch -z -O "@$stamp" -f $metric
+done \
+| sed -n \
+    -e '/ value /{
+s/"] value//
+s/.*"//p
+}' \
+| sort -u >$tmp.known
+
+pmdumplog -z -i $arch 2>&1 \
+| $PCP_AWK_PROG '
+/^InDom: '$indom'$/		{ state=1; next }
+/^InDom: /			{ state=0; next }
+state == 1 && /^[ 	]/	{ print }' \
+| sed -n \
+    -e '/ or /{
+s/.* or "//
+s/".*//p
+}' \
+| sort -u \
+| join -a1 - $tmp.known \
+| sort +2n -3 +1 -2 \
+| $PCP_AWK_PROG '
+NF==1	{ printf("%s ?\n",$0); next }
+	{ print }' > $1
+}
+# --- LOCAL FUNCTIONS : END --------------------------------------------------
+
+verbose=false
+max=1000
+showInst=false
+
+_pmview_args "$@"
+
+if [ -n "$otherArgs" ]
+then
+    while getopts "?im:v:V" c $otherArgs
+    do
+	case $c
+	in
+	    i)
+		showInst=true
+		;;
+	    m)
+		max=$OPTARG
+		# and now the obscure +ve integer checking bit
+		# ...note the creative use of unary - to prevent leading signs
+		if [ "X-$max" != "X`expr 0 + -$max 2>/dev/null`" ]
+		then
+		    _pmview_error "$prog: -m must have a positive integral argument"
+		    #NOTREACHED
+		fi
+		;;
+	    v)
+                if [ $OPTARG = "1" ]
+                then
+                    _pmview_warning "$prog: pmview version 1 no longer supported, using version 2"
+                elif [ $OPTARG != "2" ]
+                then
+                    _pmview_error "$prog: only version 2 supported for -v"
+                    # NOTREACHED
+                fi
+		;;
+	    V)
+		verbose=true
+		;;
+	    '?')
+		_usage
+		exit 1
+		;;
+	esac
+    done
+fi
+[ -z "$titleArg" ] && titleArg="SGI PCP: Web PING Performance for Host $host"
+
+
+# check that webping metrics are available from metrics source
+#
+if pminfo $msource $namespace webping 2>&1 \
+	| grep 'webping: Unknown metric name' >/dev/null
+then
+    _pmview_error "$prog: webping metrics not defined in the name space"
+    #NOTREACHED
+fi
+#
+# do a second check to make sure that we have webping.perurl metrics
+#
+if pminfo -f $msource $namespace webping.perurl.kbytes 2>&1 \
+       | grep 'inst .* value' >/dev/null
+then
+    :
+else
+    if [ "X$arch" != "X" ]
+    then
+	_pmview_error "$prog: webping.perurl metrics not available from $arch"
+	#NOTREACHED
+    else
+	_pmview_error "$prog: webping.perurl metrics not available from $host"
+	#NOTREACHED
+    fi
+fi
+
+
+# if metrics source is an archive, and find out name of host
+# get the instance domain and sort it
+#
+if [ "X$arch" != X ]
+then
+    _sort_arch_indom $tmp.int
+    host=`pmdumplog -l $arch | $PCP_AWK_PROG '/^Performance/ {print $5}' | sed -e 's/,//g'`
+    [ "X$host" = X ] && host="unknown host"
+    host="$host (Archive $arch)"
+else
+    pmval -h $host -s 1 webping.perurl.kbytes >$tmp.int
+    _sort_host_indom $tmp.int
+fi
+
+
+urlcount=`wc -l <$tmp.int | sed -e 's/  *//g'`
+bytesmax=`tail -1 $tmp.int | $PCP_AWK_PROG '{print $2}'`
+
+if [ $urlcount -eq 0 ]
+then
+    if [ "X$arch" != "X" ]
+    then
+	_pmview_error "$prog: there were no URLs monitored in archive \"$arch\""
+	#NOTREACHED
+    else
+	_pmview_error "$prog: there are no URLs monitored on host \"$host\""
+	#NOTREACHED
+    fi
+fi
+
+
+url_list=`$PCP_AWK_PROG <$tmp.int '
+NR>1	{ printf "," }
+	{ printf $1 }
+END	{ print "" }'`
+
+url_list_sp=`$PCP_AWK_PROG <$tmp.int '
+NR>1	{ printf " " }
+/^GET_.*/	{ printf "\"GET %s\"",substr($1,5) }
+/^HEAD_.*/	{ printf "\"HEAD %s\"",substr($1,6) }
+/^POST_.*/	{ printf "\"POST %s\"",substr($1,6) }
+END	{ print "" }'`
+
+
+#
+# strings for base plane labels
+#
+basestr_size="URL size in kbytes\nNormalized to $bytesmax kbytes"
+basestr_urltime="Time to fetch the URL\nNormalized to $max seconds"
+basestr_tottime="Time to fetch all URLs\nNormalized to $max seconds"
+basestr_err="Webing errors by error type\nNormalized to 1"
+
+
+#--- config file has already been created ; continue writing to it ---
+#
+
+cat << end-of-file >> $tmp.pmview
+#
+# $prog
+#
+# Largest URL        = $bytesmax Kbytes
+# Maximum fetch time = $max seconds
+# 
+# URLs = $url_list_sp
+#
+end-of-file
+
+
+#
+# the real config starts here
+# pmview Version 2.1
+#
+cat <<end-of-file >> $tmp.pmview
+
+_scale 1.2
+
+_colorList url_colors (
+	rgbi:1.0/0.5/0.0
+	rgbi:0.9/0.9/0.0
+	rgbi:0.0/0.9/0.9
+	rgbi:0.9/0.0/0.9
+)
+
+_grid _hide (
+
+	_bar 0 0 east _col (
+		_metrics (
+			webping.perurl.kbytes[$url_list]	$bytesmax
+		)
+		_metriclabels ( Size )
+		_baseLabel "$basestr_size"
+end-of-file
+
+if $showInst
+then
+    cat <<end-of-file >>$tmp.pmview
+		_instlabels _towards ( $url_list_sp )
+end-of-file
+fi
+
+cat <<end-of-file >>$tmp.pmview
+		_colorList ( rgbi:0.0/0.9/0.0 )
+	)
+
+	_bar 0 2 ne _col _groupbyinst (
+		_metrics (
+			webping.perurl.time.total[$url_list]	$max
+			webping.perurl.time.body[$url_list]	$max
+			webping.perurl.time.head[$url_list]	$max
+			webping.perurl.time.connect[$url_list]	$max
+		)
+		_metriclabels ( Total Body Head Connect )
+		_baseLabel "$basestr_urltime"
+		_colorList url_colors
+	)
+
+	_bar 0 4 east _row _groupbyrow (
+		_metrics (
+			webping.errors.sockerr			1
+			webping.errors.httperr			1
+			webping.errors.htmlerr			1
+			webping.errors.othererr			1
+		)
+		_instlabels ( Errors )
+		_baseLabel "$basestr_err"
+		_colorList ( red1 red1 red1 red1 )
+	)
+
+end-of-file
+
+#
+# Only show row totals if there is more than one URL being monitored
+#
+if [ $urlcount -gt 1 ]
+then
+    totoff=`expr $urlcount + 1`
+    cat <<end-of-file >> $tmp.pmview
+	_bar 2 2 north _col _groupbycol (
+		_metrics (
+			webping.time.total	$max
+			webping.time.body	$max
+			webping.time.head	$max
+			webping.time.connect	$max
+		)
+		_colorList url_colors
+		_baseLabel "$basestr_tottime"
+	)
+end-of-file
+
+fi
+
+cat <<end-of-file >> $tmp.pmview
+)
+end-of-file
+
+$verbose && cat $tmp.pmview
+
+#eval pmview <$tmp.pmview $args -title "'$titleArg'" -xrm "'*iconName: $prog'" -geometry 560x515
+eval pmview <$tmp.pmview $args -title "'$titleArg'" -xrm "'*iconName: $prog'"
+
+exit

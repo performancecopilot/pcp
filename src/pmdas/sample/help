@@ -275,6 +275,7 @@ Value of the metric is 500 - the instance identifier.
 In the PMNS, but the sample agent pretends it does not know about this one.
 @ sample.bad.nosupport Not supported in this version of the PMDA
 Type is PM_NOSUPPORT, fetch returns PM_ERR_APPVERSION
+@ sample.bad.novalues Scalar with no values, ever
 
 @ sample.not_ready interval (in seconds) during which PMDA does not respond to PDUs
 Store a positive number of seconds as the value of this metric. The

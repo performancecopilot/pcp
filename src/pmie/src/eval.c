@@ -276,9 +276,9 @@ eval(Task *task)
 void
 clobber(Expr *x)
 {
-    int	    i;
-    Truth   *t;
-    double  *d;
+    int		i;
+    Boolean	*t;
+    double	*d;
 
     if (x->op < NOP) {
 	if (x->arg1)
@@ -296,10 +296,10 @@ clobber(Expr *x)
 	    for (i = 0; i < x->nvals; i++)
 		*d++ = mynan;
 	}
-	else if (x->sem == SEM_TRUTH) {
-	    t = (Truth *) x->ring;
+	else if (x->sem == SEM_BOOLEAN) {
+	    t = (Boolean *) x->ring;
 	    for (i = 0; i < x->nvals; i++)
-		*t++ = DUNNO;
+		*t++ = B_UNKNOWN;
 	}
     }
 }
@@ -343,6 +343,10 @@ findEval(Expr *x)
 
     case RULE:
 	x->eval = rule;
+	break;
+
+    case CND_RULESET:
+	x->eval = ruleset;
 	break;
 
     case CND_FETCH:
@@ -710,8 +714,13 @@ findEval(Expr *x)
 	x->eval = cndMatch_inst;
 	break;
 
+    case CND_OTHER:
+	/* OTHER is not really evaluated in this sense, see ruleset() */
+    	x->eval = NULL;
+	break;
+
     default:
-	__pmNotifyErr(LOG_ERR, "findEval: internal error: bad op (%d)\n", x->op);
+	__pmNotifyErr(LOG_ERR, "findEval: internal error: bad op (%d) %s\n", x->op, opStrings(x->op));
 	dumpExpr(x);
 	exit(1);
     }

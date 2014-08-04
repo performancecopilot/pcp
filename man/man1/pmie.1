@@ -309,19 +309,19 @@ delta = 1 sec;
 .fi
 .ft 1
 .P
-If total syscall rate exceeds 5000 per second per CPU,
+If the total context switch rate exceeds 10000 per second per CPU,
 then display an alarm notifier:
 .P
 .ft CW
 .nf
 .in +0.5i
-kernel.all.syscall / hinv.ncpu > 5000 count/sec
--> alarm "high syscall rate";
+kernel.all.pswitch / hinv.ncpu > 10000 count/sec
+-> alarm "high context switch rate %v";
 .in
 .fi
 .ft 1
 .P
-If the high syscall rate is sustained for 10 consecutive samples,
+If the high context switch rate is sustained for 10 consecutive samples,
 then launch
 .BR top (1)
 in an
@@ -332,7 +332,7 @@ window to monitor processes, but do this at most once every 5 minutes:
 .nf
 .in +0.5i
 all_sample (
-    kernel.all.syscall @0..9 > 5000 count/sec * hinv.ncpu
+    kernel.all.pswitch @0..9 > 10 Kcount/sec * hinv.ncpu
 ) -> shell 5 min "xwsh \-e 'top'";
 .in
 .fi
@@ -359,7 +359,7 @@ launch
 .in +0.5i
 some_inst (
     disk.dev.total > 60 count/sec
-) -> print "disk %i busy " &
+) -> print "busy disks:" " %i" &
      shell 5 min "dkvis";
 .in
 .fi
@@ -377,12 +377,12 @@ some_inst (
   75 %_sample (
     disk.dev.total @0..3 > 60 count/sec
   )
-) -> print "disk %i busy ";
+) -> print "disks busy for 20 sec:" " [%h]%i";
 .in
 .fi
 .ft 1
 .P
-The following rules are evaluated once every 10 minutes:
+The following two rules are evaluated once every 10 minutes:
 .P
 .ft CW
 .nf
@@ -424,12 +424,14 @@ environ.temp @0 - environ.temp @1 > 2
 .fi
 .ft 1
 .P
-And last, something interesting if you have performance problems
+And something interesting if you have performance problems
 with your Oracle database:
 .P
 .ft CW
 .nf
 .in +0.5i
+// back to 30sec evaluations
+delta = 30 sec;
 db = "oracle.ptg1";
 host = ":moomba.melbourne.sgi.com";
 lru = "#'cache buffers lru chain'";
@@ -440,6 +442,28 @@ total = "$db.latch.gets $host $lru +
 
 $total > 100 && $gets / $total < 0.2
 -> alarm "high lru latch contention";
+.in
+.fi
+.ft 1
+.P
+The following \f(CBruleset\fR will emit exactly one message
+depending on the availability and value of the 1-minute load
+average.
+.P
+.ft CW
+.nf
+.in +0.5i
+delta = 1 minute;
+ruleset
+     kernel.all.load #'1 minute' > 10 * hinv.ncpu ->
+         print "extreme load average %v"
+else kernel.all.load #'1 minute' > 2 * hinv.ncpu ->
+         print "moderate load average %v"
+unknown ->
+         print "load average unavailable"
+otherwise ->
+         print "load average OK"
+;
 .in
 .fi
 .ft 1
@@ -803,6 +827,97 @@ be used in
 the debugging mode (specify the
 .B \-W
 command line option in particular) during rule development.
+.SH BOOLEAN EXPRESSIONS
+.B pmie
+expressions that have the semantics of a Boolean, e.g.
+\f(CWfoo.bar > 10\fR
+or
+\f(CBsome_inst\f(CW ( my.table < 0 )
+.ft R
+are assigned the values \f(CBtrue\fR or \f(CBfalse\fR or \f(CBunknown\fR.
+A value is \f(CBunknown\fR if one or more of the underlying metric values
+is unavailable, e.g.
+.BR pmcd (1)
+on the host cannot be contacted, the metric is not in the PCP archive,
+no values are currently available, insufficient values have been fetched
+to allow a rate converted value to be computed or insufficient values have
+been fetched to instantiate the required number of samples in the
+temporal domain.
+.PP
+Boolean operators follow the normal rules of Kleene logic (aka 3-valued
+logic) when combining values that include \f(CBunknown\fR:
+.TS
+box,center;
+c s|c s s
+^ s|c s s
+^ s|c|c|c
+c|c|c|c|c
+^|c|c|c|c.
+A \f(CBand\fR B	B
+	_
+	\f(CBtrue\fR	\f(CBfalse\fR	\f(CBunknown\fR
+_
+A	\f(CBtrue\fR	\f(CBtrue\fR	\f(CBfalse\fR	\f(CBunknown\fR
+	_	_	_	_
+	\f(CBfalse\fR	\f(CBfalse\fR	\f(CBfalse\fR	\f(CBfalse\fR
+	_	_	_	_
+	\f(CBunknown\fR	\f(CBunknown\fR	\f(CBfalse\fR	\f(CBunknown\fR
+.TE
+.TS
+box,center;
+c s|c s s
+^ s|c s s
+^ s|c|c|c
+c|c|c|c|c
+^|c|c|c|c.
+A \f(CBor\fR B	B
+	_
+B	\f(CBtrue\fR	\f(CBfalse\fR	\f(CBunknown\fR
+_
+A	\f(CBtrue\fR	\f(CBtrue\fR	\f(CBtrue\fR	\f(CBtrue\fR
+	_	_	_	_
+	\f(CBfalse\fR	\f(CBtrue\fR	\f(CBfalse\fR	\f(CBunknown\fR
+	_	_	_	_
+	\f(CBunknown\fR	\f(CBtrue\fR	\f(CBunknown\fR	\f(CBunknown\fR
+.TE
+.TS
+box,center;
+c|c.
+A	\f(CBnot\fR A
+_
+\f(CBtrue\fR	\f(CBfalse\fR
+_
+\f(CBfalse\fR	\f(CBtrue\fR
+_
+\f(CBunknown\fR	\f(CBunknown\fR
+.TE
+.SH RULESETS
+The \f(CBruleset\fR clause is used to define a set of rules and
+actions that are evaluated in order until some action is executed,
+at which point the remaining rules and actions are skipped until
+the \f(CBruleset\fR is again scheduled for evaluation.
+The keyword \f(CBelse\fR is used to separate rules.
+After one or more regular rules (with a predicate and an action), a
+\f(CBruleset\fR may include an optional
+.br
+.ti +0.5i
+\f(CBunknown\fR -> action
+.br
+clause, optionally followed by a
+.br
+.ti +0.5i
+\f(CBotherwise\fR -> action
+.br
+clause.
+.PP
+If all of the predicates in the rules evaluate to \f(CBunknown\fR and
+an \f(CBunknown\fR clause has been specified then action associated
+with the \f(CBunknown\fR clause will be executed.
+.PP
+If no rule predicate is \f(CBtrue\fR and the \f(CBunknown\fR action
+is either not specified or not
+executed and an \f(CBotherwise\fR clause has been specified,
+then the action associated with the \f(CBotherwise\fR clause will be executed.
 .SH SCALE FACTORS
 Scale factors may be appended to arithmetic expressions and force
 linear scaling of the value to canonical units.  Simple scale factors
@@ -1041,7 +1156,6 @@ language, refer to the
 This is available online from:
 .in +4n
 .nf
-http://techpubs.sgi.com/library/tpl/cgi-bin/getdoc.cgi?\e
-    db=bks&fname=/SGI_Admin/books/PCP_IRIX/sgi_html/ch05.html
+http://www.performancecopilot.org/doc/pcp-users-and-administrators-guide.pdf
 .fi
 .in -4n

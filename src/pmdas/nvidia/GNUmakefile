@@ -24,7 +24,7 @@ CFILES	= localnvml.c nvidia.c
 HFILES	= localnvml.h
 DFILES	= README
 LSRCFILES = Install Remove root help pmns $(DFILES)
-LLDLIBS	= $(PCP_PMDALIB)
+LLDLIBS	= $(PCP_PMDALIB) $(LIB_FOR_DLOPEN)
 LCFLAGS += -DDSOSUFFIX=\"$(DSOSUFFIX)\"
 
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)

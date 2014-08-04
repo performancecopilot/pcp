@@ -160,6 +160,15 @@ class timeval(Structure):
     def __str__(self):
         return "%.3f" % c_api.pmtimevalToReal(self.tv_sec, self.tv_usec)
 
+    def __float__(self):
+        return float(c_api.pmtimevalToReal(self.tv_sec, self.tv_usec))
+
+    def __long__(self):
+        return long(self.tv_sec)
+
+    def __int__(self):
+        return int(self.tv_sec)
+
     def sleep(self):
         """ Delay for the amount of time specified by this timeval. """
         c_api.pmtimevalSleep(self.tv_sec, self.tv_usec)
@@ -253,7 +262,8 @@ class pmUnits(Structure):
         self.pad = 0
 
     def __str__(self):
-        return LIBPCP.pmUnitsStr(self)
+        unitstr = ctypes.create_string_buffer(64)
+        return str(LIBPCP.pmUnitsStr_r(self, unitstr, 64))
 
 
 class pmValueBlock(Structure):
@@ -629,11 +639,11 @@ LIBPCP.pmConvScale.argtypes = [
     c_int, POINTER(pmAtomValue), POINTER(pmUnits), POINTER(pmAtomValue),
     POINTER(pmUnits)]
 
-LIBPCP.pmUnitsStr.restype = c_char_p
-LIBPCP.pmUnitsStr.argtypes = [POINTER(pmUnits)]
-
 LIBPCP.pmUnitsStr_r.restype = c_char_p
 LIBPCP.pmUnitsStr_r.argtypes = [POINTER(pmUnits), c_char_p, c_int]
+
+LIBPCP.pmNumberStr_r.restype = c_char_p
+LIBPCP.pmNumberStr_r.argtypes = [c_double, c_char_p, c_int]
 
 LIBPCP.pmIDStr_r.restype = c_char_p
 LIBPCP.pmIDStr_r.argtypes = [c_uint, c_char_p, c_int]
@@ -933,7 +943,7 @@ class pmOptions(object):
         return c_api.pmSetOptionArchiveList(archives)
 
     def pmSetOptionArchiveFolio(self, folio):	# str
-        return c_api.pmSetOptionArchiveList(folio)
+        return c_api.pmSetOptionArchiveFolio(folio)
 
     def pmSetOptionHostList(self, hosts):	# str
         return c_api.pmSetOptionHostList(hosts)
@@ -1219,14 +1229,13 @@ class pmContext(object):
         if status < 0:
             raise pmErr, status
 
-    def pmDerivedErrStr(self):
+    @staticmethod
+    def pmDerivedErrStr():
         """PMAPI - Return an error message if the pmRegisterDerived metric
         definition cannot be parsed
         pm.pmRegisterDerived()
         """
-        errstr = ctypes.create_string_buffer(c_api.PM_MAXERRMSGLEN)
-        errstr = LIBPCP.pmDerivedErrStr()
-        return str(errstr)
+        return str(LIBPCP.pmDerivedErrStr())
 
     ##
     # PMAPI Metrics Description Services
@@ -1549,7 +1558,7 @@ class pmContext(object):
         if status < 0:
             raise pmErr, status
         result = (tm)()
-        timetp = c_long(int(seconds))
+        timetp = c_long(long(seconds))
         LIBPCP.pmLocaltime(byref(timetp), byref(result))
 	return result
 
@@ -1559,7 +1568,7 @@ class pmContext(object):
         if status < 0:
             raise pmErr, status
         result = ctypes.create_string_buffer(32)
-        timetp = c_long(int(seconds))
+        timetp = c_long(long(seconds))
         LIBPCP.pmCtime(byref(timetp), result)
 	return str(result.value)
 
@@ -1764,6 +1773,12 @@ class pmContext(object):
         """PMAPI - Convert units struct to a readable string """
         unitstr = ctypes.create_string_buffer(64)
         return str(LIBPCP.pmUnitsStr_r(units, unitstr, 64))
+
+    @staticmethod
+    def pmNumberStr(value):
+        """PMAPI - Convert double value to fixed-width string """
+        numstr = ctypes.create_string_buffer(8)
+        return str(LIBPCP.pmNumberStr_r(value, numstr, 8))
 
     @staticmethod
     def pmIDStr(pmid):

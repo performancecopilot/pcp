@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 1999,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * This code contributed by Michal Kara (lemming@arthur.plbohnice.cz)
  * 
@@ -15,6 +16,8 @@
 
 #include <ctype.h>
 #include "pmapi.h"
+#include "pmda.h"
+#include "indom.h"
 #include "proc_net_tcp.h"
 
 #define MYBUFSZ (1<<14) /*16k*/
@@ -32,9 +35,9 @@ refresh_proc_net_tcp(proc_net_tcp_t *proc_net_tcp)
 
     memset(proc_net_tcp, 0, sizeof(*proc_net_tcp));
 
-    if ((fp = fopen("/proc/net/tcp", "r")) == NULL) {
-    	return -oserror();
-    }
+    if ((fp = linux_statsfile("/proc/net/tcp", buf, sizeof(buf))) == NULL)
+	return -oserror();
+
     /* skip header */
     if (fgets(buf, sizeof(buf), fp) == NULL) {
     	/* oops, no header! */
@@ -64,7 +67,5 @@ refresh_proc_net_tcp(proc_net_tcp_t *proc_net_tcp)
     }
 
     fclose(fp);
-
-    /* success */
     return 0;
 }

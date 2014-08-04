@@ -1,6 +1,7 @@
 /*
  * Linux Filesystem Cluster
  *
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,6 +18,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include "indom.h"
 #include "filesys.h"
 
 char *
@@ -51,7 +53,7 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom)
     pmdaCacheOp(tmpfs_indom, PMDA_CACHE_INACTIVE);
     pmdaCacheOp(filesys_indom, PMDA_CACHE_INACTIVE);
 
-    if ((fp = fopen("/proc/mounts", "r")) == (FILE *)NULL)
+    if ((fp = linux_statsfile("/proc/mounts", buf, sizeof(buf))) == NULL)
 	return -oserror();
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {

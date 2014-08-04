@@ -31,14 +31,12 @@ cat >$tmp.suppress <<End-of-File
 {
    <pmid[], name[] realloc from qa main program>
    Memcheck:Leak
-   match-leak-kinds: definite
    fun:realloc
    fun:main
 }
 {
    <alloc list[] in pmNewContext>
    Memcheck:Leak
-   match-leak-kinds: reachable
    fun:malloc
    fun:pmNewContext
    fun:main
@@ -46,7 +44,6 @@ cat >$tmp.suppress <<End-of-File
 {
    <realloc list[] in pmNewContext>
    Memcheck:Leak
-   match-leak-kinds: reachable
    fun:realloc
    fun:pmNewContext
    fun:main
@@ -54,7 +51,6 @@ cat >$tmp.suppress <<End-of-File
 {
    <alloc list[] in pmNewContext via pmDupContext>
    Memcheck:Leak
-   match-leak-kinds: reachable
    fun:malloc
    fun:pmNewContext
    fun:pmDupContext
@@ -63,7 +59,6 @@ cat >$tmp.suppress <<End-of-File
 {
    <realloc list[] in pmNewContext via pmDupContext>
    Memcheck:Leak
-   match-leak-kinds: reachable
    fun:realloc
    fun:pmNewContext
    fun:pmDupContext
@@ -72,7 +67,6 @@ cat >$tmp.suppress <<End-of-File
 {
    <strdup TZ in pmNewZone>
    Memcheck:Leak
-   match-leak-kinds: reachable
    fun:malloc
    fun:strdup
    fun:pmNewZone
@@ -82,7 +76,6 @@ cat >$tmp.suppress <<End-of-File
 {
    <zone[] alloc in pmNewZone>
    Memcheck:Leak
-   match-leak-kinds: reachable
    fun:malloc
    fun:pmNewZone
    fun:pmNewContextZone
@@ -91,7 +84,6 @@ cat >$tmp.suppress <<End-of-File
 {
    <zone[] realloc in pmNewZone>
    Memcheck:Leak
-   match-leak-kinds: reachable
    fun:malloc
    fun:realloc
    fun:pmNewZone
@@ -101,7 +93,6 @@ cat >$tmp.suppress <<End-of-File
 {
    <case 1 - buf hdr in __pmFindPDUBuf from pmGetArchiveEnd>
    Memcheck:Leak
-   match-leak-kinds: reachable
    fun:malloc
    fun:__pmFindPDUBuf
    fun:__pmLogRead
@@ -112,7 +103,6 @@ cat >$tmp.suppress <<End-of-File
 {
    <case 2 - buf hdr in __pmFindPDUBuf from pmGetArchiveEnd>
    Memcheck:Leak
-   match-leak-kinds: reachable
    fun:malloc
    fun:__pmFindPDUBuf
    fun:__pmDecodeResult
@@ -122,15 +112,13 @@ cat >$tmp.suppress <<End-of-File
    fun:main
 }
 {
-   <case 1 - PDU buf alloc>
+   <case 1 - PDU buf alloc - cache_read>
    Memcheck:Leak
-   match-leak-kinds: reachable
    fun:malloc
    fun:__pmFindPDUBuf
    fun:__pmDecodeResult
    fun:__pmLogRead
-   fun:cache_read.isra.0
-   fun:do_roll
+   ...
    fun:__pmLogFetchInterp
    fun:__pmLogFetch
    fun:pmFetch
@@ -139,7 +127,6 @@ cat >$tmp.suppress <<End-of-File
 {
    <case 2 - PDU buf alloc>
    Memcheck:Leak
-   match-leak-kinds: reachable
    fun:memalign
    fun:__pmFindPDUBuf
    fun:__pmLogRead
@@ -150,7 +137,6 @@ cat >$tmp.suppress <<End-of-File
 {
    <case 3 - PDU buf alloc>
    Memcheck:Leak
-   match-leak-kinds: reachable
    fun:memalign
    fun:__pmFindPDUBuf
    fun:__pmDecodeResult
@@ -160,15 +146,13 @@ cat >$tmp.suppress <<End-of-File
    fun:main
 }
 {
-   <case 4 - PDU buf alloc>
+   <case 4 - PDU buf alloc - cache_read>
    Memcheck:Leak
-   match-leak-kinds: reachable
    fun:memalign
    fun:__pmFindPDUBuf
    fun:__pmDecodeResult
    fun:__pmLogRead
-   fun:cache_read.isra.0
-   fun:do_roll
+   ...
    fun:__pmLogFetchInterp
    fun:__pmLogFetch
    fun:pmFetch
@@ -177,10 +161,9 @@ cat >$tmp.suppress <<End-of-File
 {
    <ipc[] table resize>
    Memcheck:Leak
-   match-leak-kinds: reachable
    fun:malloc
    fun:realloc
-   fun:__pmResizeIPC
+   ...
    fun:__pmSetVersionIPC
    fun:__pmLogChkLabel
    fun:__pmLogChangeVol
@@ -205,8 +188,11 @@ do
 	    ;;
     esac
 
+    reachable_opt='--show-leak-kinds=all'
+    reachable_opt='--show-reachable=yes'
+
     valgrind \
-	--leak-check=full --read-var-info=yes --show-leak-kinds=all \
+	--leak-check=full --read-var-info=yes $reachable_opt \
 	--suppressions=$tmp.suppress --log-file=$tmp.valgrind \
 	--gen-suppressions=all \
 	2>$tmp.valgrind.err >$tmp.valgrind.out \

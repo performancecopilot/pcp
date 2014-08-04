@@ -307,7 +307,7 @@ newRingBfr(Expr *x)
     char    *p;
     int     i;
 
-    sz = ((x->sem == SEM_TRUTH) || (x->sem == SEM_CHAR)) ?
+    sz = ((x->sem == SEM_BOOLEAN) || (x->sem == SEM_CHAR)) ?
 	    sizeof(char) * x->tspan :
 	    sizeof(double) * x->tspan;
     if (x->ring) free(x->ring);
@@ -453,7 +453,7 @@ newExpr(int op, Expr *arg1, Expr *arg2,
 	arg = primary(arg1, arg2);
 	x->metrics = arg->metrics;
     }
-    if (sem == SEM_NUMVAR || sem == SEM_NUMCONST || sem == SEM_TRUTH ||
+    if (sem == SEM_NUMVAR || sem == SEM_NUMCONST || sem == SEM_BOOLEAN ||
         sem == SEM_CHAR || sem == SEM_REGEX)
 	x->units = noUnits;
     else {
@@ -1094,7 +1094,7 @@ static struct {
     { SEM_UNKNOWN,	"UNKNOWN" },
     { SEM_NUMVAR,	"NUMVAR" },
     { SEM_NUMCONST,	"NUMCONST" },
-    { SEM_TRUTH,	"TRUTH" },
+    { SEM_BOOLEAN,	"TRUTH" },
     { SEM_CHAR,		"CHAR" },
     { SEM_REGEX,	"REGEX" },
     { PM_SEM_COUNTER,	"COUNTER" },
@@ -1145,7 +1145,7 @@ __dumpExpr(int level, Expr *x)
     else
 	fprintf(stderr, " units=%s\n", pmUnitsStr(&x->units));
     if (x->valid > 0) {
-	if (x->sem == SEM_TRUTH || x->sem == SEM_CHAR ||
+	if (x->sem == SEM_BOOLEAN || x->sem == SEM_CHAR ||
 	    x->sem == SEM_NUMVAR || x->sem == SEM_NUMCONST ||
 	    x->sem == PM_SEM_COUNTER || x->sem == PM_SEM_INSTANT ||
 	    x->sem == PM_SEM_DISCRETE) {
@@ -1158,13 +1158,13 @@ __dumpExpr(int level, Expr *x)
 			    fprintf(stderr, ", ");
 			fprintf(stderr, "{%d} ", k);
 		    }
-		    if (x->sem == SEM_TRUTH) {
+		    if (x->sem == SEM_BOOLEAN) {
 			char 	c = *((char *)x->smpls[j].ptr+k);
-			if ((int)c == TRUE)
+			if ((int)c == B_TRUE)
 			    fprintf(stderr, "true");
-			else if ((int)c == FALSE)
+			else if ((int)c == B_FALSE)
 			    fprintf(stderr, "false");
-			else if ((int)c == DUNNO)
+			else if ((int)c == B_UNKNOWN)
 			    fprintf(stderr, "unknown");
 			else
 			    fprintf(stderr, "bogus (0x%x)", c & 0xff);

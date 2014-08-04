@@ -1,0 +1,386 @@
+<ui version="4.0" >
+ <class>PmView</class>
+ <widget class="QMainWindow" name="PmView" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>470</width>
+    <height>470</height>
+   </rect>
+  </property>
+  <property name="minimumSize" >
+   <size>
+    <width>182</width>
+    <height>196</height>
+   </size>
+  </property>
+  <property name="windowTitle" >
+   <string>PCP Viewer</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="pmview.qrc" >
+    <normaloff>:/images/pmview.png</normaloff>:/images/pmview.png</iconset>
+  </property>
+  <property name="iconSize" >
+   <size>
+    <width>22</width>
+    <height>22</height>
+   </size>
+  </property>
+  <widget class="QWidget" name="widget" >
+   <layout class="QVBoxLayout" >
+    <property name="margin" >
+     <number>0</number>
+    </property>
+    <property name="spacing" >
+     <number>0</number>
+    </property>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="MenuBar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>370</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="Help" >
+    <property name="title" >
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="helpManualAction" />
+    <addaction name="helpTutorialAction" />
+    <addaction name="separator" />
+    <addaction name="helpAboutAction" />
+    <addaction name="helpSeeAlsoAction" />
+    <addaction name="separator" />
+    <addaction name="helpWhatsThisAction" />
+   </widget>
+   <widget class="QMenu" name="Options" >
+    <property name="title" >
+     <string>&amp;Options</string>
+    </property>
+    <addaction name="timeControlAction" />
+    <addaction name="menubarAction" />
+    <addaction name="toolbarAction" />
+    <addaction name="consoleAction" />
+   </widget>
+   <widget class="QMenu" name="Record" >
+    <property name="title" >
+     <string>&amp;Record</string>
+    </property>
+    <addaction name="recordStartAction" />
+    <addaction name="recordQueryAction" />
+    <addaction name="recordStopAction" />
+    <addaction name="separator" />
+    <addaction name="recordDetachAction" />
+   </widget>
+   <widget class="QMenu" name="File" >
+    <property name="title" >
+     <string>&amp;File</string>
+    </property>
+    <addaction name="fileQuitAction" />
+   </widget>
+   <addaction name="File" />
+   <addaction name="Record" />
+   <addaction name="Options" />
+   <addaction name="separator" />
+   <addaction name="Help" />
+  </widget>
+  <widget class="QToolBar" name="toolBar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>24</y>
+     <width>370</width>
+     <height>36</height>
+    </rect>
+   </property>
+   <property name="sizePolicy" >
+    <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding" >
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize" >
+    <size>
+     <width>0</width>
+     <height>0</height>
+    </size>
+   </property>
+   <property name="windowTitle" >
+    <string>Toolbar</string>
+   </property>
+   <property name="whatsThis" >
+    <string>Configurable toolbar, use the Preferences dialog to change its contents</string>
+   </property>
+   <property name="orientation" >
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <attribute name="toolBarArea" >
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak" >
+    <bool>false</bool>
+   </attribute>
+   <addaction name="filePrintAction" />
+  </widget>
+  <action name="filePrintAction" >
+   <property name="icon" >
+    <iconset resource="pmview.qrc" >
+     <normaloff>:/images/document-print.png</normaloff>:/images/document-print.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Print...</string>
+   </property>
+   <property name="iconText" >
+    <string>Print</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="fileQuitAction" >
+   <property name="text" >
+    <string>&amp;Quit</string>
+   </property>
+   <property name="iconText" >
+    <string>Quit</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="timeControlAction" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="pmview.qrc" >
+     <normaloff>:/images/pmtime.png</normaloff>:/images/pmtime.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Time Controls</string>
+   </property>
+  </action>
+  <action name="menubarAction" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="checked" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>Menubar</string>
+   </property>
+  </action>
+  <action name="toolbarAction" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>Toolbar</string>
+   </property>
+  </action>
+  <action name="consoleAction" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>Console</string>
+   </property>
+  </action>
+  <action name="helpManualAction" >
+   <property name="icon" >
+    <iconset resource="pmview.qrc" >
+     <normaloff>:/images/help-contents.png</normaloff>:/images/help-contents.png</iconset>
+   </property>
+   <property name="text" >
+    <string>&amp;Manual</string>
+   </property>
+   <property name="iconText" >
+    <string>Manual</string>
+   </property>
+   <property name="shortcut" >
+    <string>F1</string>
+   </property>
+  </action>
+  <action name="helpTutorialAction" >
+   <property name="text" >
+    <string>Tutorial</string>
+   </property>
+   <property name="iconText" >
+    <string>Tutorial</string>
+   </property>
+  </action>
+  <action name="helpAboutAction" >
+   <property name="icon" >
+    <iconset resource="pmview.qrc" >
+     <normaloff>:/images/pmview.png</normaloff>:/images/pmview.png</iconset>
+   </property>
+   <property name="text" >
+    <string>About</string>
+   </property>
+   <property name="iconText" >
+    <string>About</string>
+   </property>
+   <property name="shortcut" >
+    <string/>
+   </property>
+  </action>
+  <action name="helpSeeAlsoAction" >
+   <property name="text" >
+    <string>See Also</string>
+   </property>
+   <property name="iconText" >
+    <string>See Also</string>
+   </property>
+  </action>
+  <action name="helpWhatsThisAction" >
+   <property name="icon" >
+    <iconset resource="pmview.qrc" >
+     <normaloff>:/images/whatsthis.png</normaloff>:/images/whatsthis.png</iconset>
+   </property>
+   <property name="text" >
+    <string>What's This</string>
+   </property>
+   <property name="iconText" >
+    <string>What's This</string>
+   </property>
+   <property name="shortcut" >
+    <string>Shift+F1</string>
+   </property>
+  </action>
+  <action name="recordStartAction" >
+   <property name="icon" >
+    <iconset resource="pmview.qrc" >
+     <normaloff>:/images/camera-video.png</normaloff>:/images/camera-video.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Start...</string>
+   </property>
+  </action>
+  <action name="recordQueryAction" >
+   <property name="text" >
+    <string>Query</string>
+   </property>
+  </action>
+  <action name="recordStopAction" >
+   <property name="icon" >
+    <iconset resource="pmview.qrc" >
+     <normaloff>:/images/camera-video-close.png</normaloff>:/images/camera-video-close.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Stop</string>
+   </property>
+  </action>
+  <action name="recordDetachAction" >
+   <property name="text" >
+    <string>Detach</string>
+   </property>
+  </action>
+ </widget>
+ <includes>
+  <include location="local" >qmc_time.h</include>
+  <include location="local" >qprinter.h</include>
+  <include location="local" >timebutton.h</include>
+ </includes>
+ <resources>
+  <include location="pmview.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>filePrintAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmView</receiver>
+   <slot>filePrint()</slot>
+  </connection>
+  <connection>
+   <sender>fileQuitAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmView</receiver>
+   <slot>fileQuit()</slot>
+  </connection>
+  <connection>
+   <sender>helpTutorialAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmView</receiver>
+   <slot>helpTutorial()</slot>
+  </connection>
+  <connection>
+   <sender>helpAboutAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmView</receiver>
+   <slot>helpAbout()</slot>
+  </connection>
+  <connection>
+   <sender>helpSeeAlsoAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmView</receiver>
+   <slot>helpSeeAlso()</slot>
+  </connection>
+  <connection>
+   <sender>helpWhatsThisAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmView</receiver>
+   <slot>whatsThis()</slot>
+  </connection>
+  <connection>
+   <sender>timeControlAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmView</receiver>
+   <slot>optionsTimeControl()</slot>
+  </connection>
+  <connection>
+   <sender>menubarAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmView</receiver>
+   <slot>optionsMenubar()</slot>
+  </connection>
+  <connection>
+   <sender>toolbarAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmView</receiver>
+   <slot>optionsToolbar()</slot>
+  </connection>
+  <connection>
+   <sender>consoleAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmView</receiver>
+   <slot>optionsConsole()</slot>
+  </connection>
+  <connection>
+   <sender>helpManualAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmView</receiver>
+   <slot>helpManual()</slot>
+  </connection>
+  <connection>
+   <sender>recordStartAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmView</receiver>
+   <slot>recordStart()</slot>
+  </connection>
+  <connection>
+   <sender>recordQueryAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmView</receiver>
+   <slot>recordQuery()</slot>
+  </connection>
+  <connection>
+   <sender>recordStopAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmView</receiver>
+   <slot>recordStop()</slot>
+  </connection>
+  <connection>
+   <sender>recordDetachAction</sender>
+   <signal>triggered()</signal>
+   <receiver>PmView</receiver>
+   <slot>recordDetach()</slot>
+  </connection>
+ </connections>
+</ui>

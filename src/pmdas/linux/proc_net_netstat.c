@@ -15,6 +15,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include "indom.h"
 #include "proc_net_netstat.h"
 
 extern proc_net_netstat_t	_pm_proc_net_netstat;
@@ -331,21 +332,21 @@ int
 refresh_proc_net_netstat(proc_net_netstat_t *netstat)
 {
     /* Need a sufficiently large value to hold a full line */
+    char	buf[MAXPATHLEN];
     char	header[2048];
-    char	values[2048];
     FILE	*fp;
 
     init_refresh_proc_net_netstat(netstat);
-    if ((fp = fopen("/proc/net/netstat", "r")) == NULL)
+    if ((fp = linux_statsfile("/proc/net/netstat", buf, sizeof(buf))) == NULL)
 	return -oserror();
     while (fgets(header, sizeof(header), fp) != NULL) {
-	if (fgets(values, sizeof(values), fp) != NULL) {
-	    if (strncmp(values, "IpExt:", 6) == 0)
-		get_fields(netstat_ip_fields, header, values);
-	    else if (strncmp(values, "TcpExt:", 7) == 0)
-		get_fields(netstat_tcp_fields, header, values);
+	if (fgets(buf, sizeof(buf), fp) != NULL) {
+	    if (strncmp(buf, "IpExt:", 6) == 0)
+		get_fields(netstat_ip_fields, header, buf);
+	    else if (strncmp(buf, "TcpExt:", 7) == 0)
+		get_fields(netstat_tcp_fields, header, buf);
 	    else
-		__pmNotifyErr(LOG_ERR, "Unrecognised /proc/net/netstat row: %s\n", values);
+		__pmNotifyErr(LOG_ERR, "Unrecognised netstat row: %s\n", buf);
 	}
     }
     fclose(fp);
