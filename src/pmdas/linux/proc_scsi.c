@@ -1,6 +1,7 @@
 /*
  * Linux Scsi Devices Cluster
  *
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,6 +18,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include "indom.h"
 #include "proc_scsi.h"
 
 static char diskname[64];
@@ -24,7 +26,8 @@ static char tapename[64];
 static char cdromname[64];
 
 int
-refresh_proc_scsi(proc_scsi_t *scsi) {
+refresh_proc_scsi(proc_scsi_t *scsi)
+{
     char buf[1024];
     char name[1024];
     int i;
@@ -59,7 +62,7 @@ refresh_proc_scsi(proc_scsi_t *scsi) {
 	}
     }
 
-    if ((fp = fopen("/proc/scsi/scsi", "r")) == (FILE *)NULL)
+    if ((fp = linux_statsfile("/proc/scsi/scsi", buf, sizeof(buf))) == NULL)
     	return -oserror();
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {
@@ -124,7 +127,7 @@ refresh_proc_scsi(proc_scsi_t *scsi) {
 	    	scsi->scsi[i].dev_name = strdup("SCSI Controller");
 	    else
 	    	scsi->scsi[i].dev_name = strdup("Unknown SCSI device");
-	    	
+
 	    sprintf(name, "scsi%d:%d:%d:%d %s", scsi->scsi[i].dev_host,
 	    	scsi->scsi[i].dev_channel, scsi->scsi[i].dev_id, scsi->scsi[i].dev_lun, scsi->scsi[i].dev_type);
 	    scsi->scsi[i].namebuf = strdup(name);
@@ -151,9 +154,6 @@ refresh_proc_scsi(proc_scsi_t *scsi) {
 	scsi->scsi_indom->it_set[i].i_name = scsi->scsi[i].namebuf;
     }
 
-    /*
-     * success
-     */
     fclose(fp);
     return 0;
 }

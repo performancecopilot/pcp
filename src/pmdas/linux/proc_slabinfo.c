@@ -1,6 +1,7 @@
 /*
  * Linux Memory Slab Cluster
  *
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -18,6 +19,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include "indom.h"
 #include "proc_slabinfo.h"
 
 int
@@ -46,12 +48,11 @@ refresh_proc_slabinfo(proc_slabinfo_t *slabinfo)
 	slabinfo->indom->it_set = (pmdaInstid *)malloc(sizeof(pmdaInstid));
     }
 
-    if ((fp = fopen("/proc/slabinfo", "r")) == (FILE *)NULL)
+    if ((fp = linux_statsfile("/proc/slabinfo", buf, sizeof(buf))) == NULL)
 	return -oserror();
 
-    for (i=0; i < slabinfo->ncaches; i++) {
+    for (i=0; i < slabinfo->ncaches; i++)
 	slabinfo->caches[i].seen = 0;
-    }
 
     /* skip header */
     if (fgets(buf, sizeof(buf), fp) == NULL) {
@@ -230,9 +231,6 @@ refresh_proc_slabinfo(proc_slabinfo_t *slabinfo)
         }
     }
 
-    /*
-     * success 
-     */
 out:
     fclose(fp);
     return err;
