@@ -1,0 +1,153 @@
+#!/bin/sh
+# PCP QA Test No. 922
+# exercise rate() function for derived metrics
+#
+# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+export PCP_DERIVED_CONFIG=$tmp.config
+
+# real QA test starts here
+
+cat <<End-of-File >$tmp.config
+delta.cpu.user = delta(kernel.all.cpu.user)
+rate.cpu.user = rate(kernel.all.cpu.user)
+
+delta.milliseconds = delta(sample.milliseconds)
+rate.milliseconds = rate(sample.milliseconds)
+
+delta.seconds = delta(sample.seconds)
+rate.seconds = rate(sample.seconds)
+
+delta.step_counter = delta(sample.step_counter)
+rate.step_counter = rate(sample.step_counter)
+
+delta.kbyte_ctr = delta(sample.kbyte_ctr)
+rate.kbyte_ctr = rate(sample.kbyte_ctr)
+
+End-of-File
+
+echo "--- kernel.all.cpu.user ---"
+
+cat <<End-of-File >$tmp.pmie
+raw = kernel.all.cpu.user;
+delta.cpu = delta.cpu.user;
+rate.cpu = rate.cpu.user;
+ruleset
+    100 * (kernel.all.cpu.user - rate.cpu.user ) / kernel.all.cpu.user > 1 ->
+	print "kernel.all.cpu.user pct error: %v"
+else
+    100 * (kernel.all.cpu.user - rate.cpu.user ) / kernel.all.cpu.user < -1 ->
+	print "kernel.all.cpu.user pct error: %v"
+;
+End-of-File
+
+pminfo -d kernel.all.cpu.user delta.cpu.user rate.cpu.user
+pmval -z -f3 -w12 -t 5min -asrc/960624.08.17_v2 kernel.all.cpu.user
+pmval -z -f3 -w12 -r -t 5min -a src/960624.08.17_v2 kernel.all.cpu.user
+pmie -z -v -c $tmp.pmie -t 5min -a src/960624.08.17_v2 2>&1 \
+| _filter_pmie_log
+
+echo
+echo "--- sample.milliseconds ---"
+
+cat <<End-of-File >$tmp.pmie
+raw = sample.milliseconds;
+delta.milliseconds = delta.milliseconds;
+rate.milliseconds = rate.milliseconds;
+ruleset
+    100 * (sample.milliseconds - rate.milliseconds ) / sample.milliseconds > 1 ->
+	print "sample.milliseconds pct error: %v"
+else
+    100 * (sample.milliseconds - rate.milliseconds ) / sample.milliseconds < -1 ->
+	print "sample.milliseconds pct error: %v"
+;
+End-of-File
+
+pminfo -d sample.milliseconds delta.milliseconds rate.milliseconds
+pmval -z -f3 -w12 -t 3sec -a src/ok-bigbin sample.milliseconds
+pmval -z -f3 -w12 -r -t 3sec -a src/ok-bigbin sample.milliseconds
+pmie -z -v -c $tmp.pmie -t 3sec -a src/ok-bigbin 2>&1 \
+| _filter_pmie_log
+
+echo
+echo "--- sample.seconds ---"
+
+cat <<End-of-File >$tmp.pmie
+raw = sample.seconds;
+delta.seconds = delta.seconds;
+rate.seconds = rate.seconds;
+ruleset
+    100 * (sample.seconds - rate.seconds ) / sample.seconds > 1 ->
+	print "sample.seconds pct error: %v"
+else
+    100 * (sample.seconds - rate.seconds ) / sample.seconds < -1 ->
+	print "sample.seconds pct error: %v"
+;
+End-of-File
+
+pminfo -d sample.seconds delta.seconds rate.seconds
+pmval -z -f3 -w12 -t 2sec -a src/ok-foo sample.seconds
+pmval -z -f3 -w12 -r -t 2sec -a src/ok-foo sample.seconds
+pmie -z -v -c $tmp.pmie -t 2sec -a src/ok-foo 2>&1 \
+| _filter_pmie_log
+
+echo
+echo "--- sample.step_counter ---"
+
+cat <<End-of-File >$tmp.pmie
+raw = sample.step_counter;
+delta.step_counter = delta.step_counter;
+rate.step_counter = rate.step_counter;
+ruleset
+    100 * (sample.step_counter - rate.step_counter ) / sample.step_counter > 1 ->
+	print "sample.step_counter pct error: %v"
+else
+    100 * (sample.step_counter - rate.step_counter ) / sample.step_counter < -1 ->
+	print "sample.step_counter pct error: %v"
+;
+End-of-File
+
+pminfo -d sample.step_counter delta.step_counter rate.step_counter
+pmval -z -f3 -w12 -t 60sec -a src/reduce-gap sample.step_counter
+pmval -z -f3 -w12 -r -t 60sec -a src/reduce-gap sample.step_counter
+pmie -z -v -c $tmp.pmie -t 60sec -a src/reduce-gap 2>&1 \
+| _filter_pmie_log
+
+echo
+echo "--- sample.kbyte_ctr ---"
+
+cat <<End-of-File >$tmp.pmie
+raw = sample.kbyte_ctr;
+delta.kbyte_ctr = delta.kbyte_ctr / 1 Kbyte;
+rate.kbyte_ctr = rate.kbyte_ctr / 1 Kbyte;
+ruleset
+    100 * (sample.kbyte_ctr - rate.kbyte_ctr ) / sample.kbyte_ctr > 1 ->
+	print "sample.kbyte_ctr pct error: %v"
+else
+    100 * (sample.kbyte_ctr - rate.kbyte_ctr ) / sample.kbyte_ctr < -1 ->
+	print "sample.kbyte_ctr pct error: %v"
+;
+End-of-File
+
+pminfo -d sample.kbyte_ctr delta.kbyte_ctr rate.kbyte_ctr
+pmval -z -f3 -w12 -t 1sec -a src/sample_expr sample.kbyte_ctr
+pmval -z -f3 -w12 -r -t 1sec -a src/sample_expr sample.kbyte_ctr
+pmie -z -v -c $tmp.pmie -t 1sec -a src/sample_expr 2>&1 \
+| _filter_pmie_log
+
+# success, all done
+status=0
+
+exit
