@@ -402,15 +402,19 @@ that appear in sample.many.int's instance domain
 @ sample.bigid a metric with item number bigger then 2^9
 
 @ sample.byte_ctr counter byte counter
+value increments randomly in the range (0,1023) bytes per fetch
 
 @ sample.byte_rate instantaneous bytes/second 
-avg rate is 512 bytes per fetch
+random value in the range (0,1023), so avg value is 512 bytes/second
 
 @ sample.kbyte_ctr counter Kbytes/second
+value increments randomly in the range (0,1023) Kbytes per fetch
 
 @ sample.kbyte_rate instantaneous Kbytes/second
+random value in the range (0,1023), so avg value is 512 Kbytes/second
 
 @ sample.byte_rate_perhour instantaneous bytes/hour
+random value in the range (0,1023), so avg value is 512 bytes/hour
 
 @ sample.dynamic.meta.metric metric with modifiable metadata
 See sample.dynamic.meta.pmdesc for the metrics that can be modified to

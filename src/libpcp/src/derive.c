@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 2009,2014 Ken McDonell.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -102,7 +102,7 @@ static char		*derive_errmsg;
 static const char	*type_dbg[] = {
 	"ERROR", "EOF", "UNDEF", "NUMBER", "NAME", "PLUS", "MINUS",
 	"STAR", "SLASH", "LPAREN", "RPAREN", "AVG", "COUNT", "DELTA",
-	"MAX", "MIN", "SUM", "ANON" };
+	"MAX", "MIN", "SUM", "ANON", "RATE" };
 static const char	type_c[] = {
 	'\0', '\0', '\0', '\0', '\0', '+', '-', '*', '/', '(', ')', '\0' };
 
@@ -118,6 +118,7 @@ static const struct {
     { L_MIN,	"min" },
     { L_SUM,	"sum" },
     { L_ANON,	"anon" },
+    { L_RATE,	"rate" },
     { L_UNDEF,	NULL }
 };
 
@@ -453,8 +454,13 @@ bind_expr(int n, node_t *np)
     new->info->numval = 0;
     new->info->mul_scale = new->info->div_scale = 1;
     new->info->ivlist = NULL;
+    new->info->stamp.tv_sec = 0;
+    new->info->stamp.tv_usec = 0;
+    new->info->time_scale = -1;		/* one-trip initialization if needed */
     new->info->last_numval = 0;
     new->info->last_ivlist = NULL;
+    new->info->last_stamp.tv_sec = 0;
+    new->info->last_stamp.tv_usec = 0;
 
     /* need info to be non-null to protect copy of value in free_expr */
     new->value = np->value;
@@ -519,6 +525,7 @@ void report_sem_error(char *name, node_t *np)
 	case L_AVG:
 	case L_COUNT:
 	case L_DELTA:
+	case L_RATE:
 	case L_MAX:
 	case L_MIN:
 	case L_SUM:
@@ -879,11 +886,14 @@ check_expr(int n, node_t *np)
 	np->desc = np->left->desc;	/* struct copy */
 	/*
 	 * special cases for functions ...
-	 * delta	expect numeric operand, result is instantaneous
+	 * delta()	expect numeric operand, result is instantaneous
+	 * rate()	expect numeric operand, dimension of time must be
+	 * 		0 or 1, result is instantaneous
 	 * aggr funcs	most expect numeric operand, result is instantaneous
 	 *		and singular
 	 */
-	if (np->type == L_AVG || np->type == L_COUNT || np->type == L_DELTA
+	if (np->type == L_AVG || np->type == L_COUNT
+	    || np->type == L_DELTA || np->type == L_RATE
 	    || np->type == L_MAX || np->type == L_MIN || np->type == L_SUM) {
 	    if (np->type == L_COUNT) {
 		/* count() has its own type and units */
@@ -909,12 +919,40 @@ check_expr(int n, node_t *np)
 		}
 	    }
 	    np->desc.sem = PM_SEM_INSTANT;
-	    if (np->type != L_DELTA)
+	    if (np->type == L_DELTA || np->type == L_RATE) {
+		/* inherit indom */
+		if (np->type == L_RATE) {
+		    /*
+		     * further restriction for rate() that dimension
+		     * for time must be 0 (->counter/sec) or 1
+		     * (->time utilization)
+		     */
+		    if (np->left->desc.units.dimTime != 0 && np->left->desc.units.dimTime != 1) {
+			PM_TPD(derive_errmsg) = "Incorrect time dimension for operand";
+			report_sem_error(registered.mlist[n].name, np);
+			return -1;
+		    }
+		}
+	    }
+	    else {
 		/* all the others are aggregate funcs with a singular value */
 		np->desc.indom = PM_INDOM_NULL;
+	    }
 	    if (np->type == L_AVG) {
 		/* avg() returns float result */
 		np->desc.type = PM_TYPE_FLOAT;
+	    }
+	    if (np->type == L_RATE) {
+		/* rate() returns double result and time dimension is
+		 * reduced by one ... if time dimension is then 0, set
+		 * the scale to be none (this is time utilization)
+		 */
+		np->desc.type = PM_TYPE_DOUBLE;
+		np->desc.units.dimTime--;
+		if (np->desc.units.dimTime == 0)
+		    np->desc.units.scaleTime = 0;
+		else
+		    np->desc.units.scaleTime = PM_TIME_SEC;
 	    }
 	}
 	else if (np->type == L_ANON) {
@@ -1122,7 +1160,8 @@ parse(int level)
 			return NULL;
 		    state = P_LEAF_PAREN;
 		}
-		else if (type == L_AVG || type == L_COUNT || type == L_DELTA
+		else if (type == L_AVG || type == L_COUNT
+			 || type == L_DELTA || type == L_RATE
 		         || type == L_MAX || type == L_MIN || type == L_SUM 
 			 || type == L_ANON) {
 		    expr = curr = newnode(type);
@@ -1141,9 +1180,9 @@ parse(int level)
 		    if (state == P_LEAF_PAREN ||
 		        curr->type == L_NAME || curr->type == L_NUMBER ||
 			curr->type == L_AVG || curr->type == L_COUNT ||
-			curr->type == L_DELTA || curr->type == L_MAX ||
-			curr->type == L_MIN || curr->type == L_SUM ||
-			curr->type == L_ANON ||
+			curr->type == L_DELTA || curr->type == L_RATE ||
+			curr->type == L_MAX || curr->type == L_MIN ||
+			curr->type == L_SUM || curr->type == L_ANON ||
 		        type == L_PLUS || type == L_MINUS) {
 			/*
 			 * first operator or equal or lower precedence
@@ -1195,7 +1234,8 @@ parse(int level)
 		    curr->right = np;
 		    state = P_LEAF_PAREN;
 		}
-		else if (type == L_AVG || type == L_COUNT || type == L_DELTA
+		else if (type == L_AVG || type == L_COUNT
+			 || type == L_DELTA || type == L_RATE
 		         || type == L_MAX || type == L_MIN || type == L_SUM
 			 || type == L_ANON) {
 		    np = newnode(type);

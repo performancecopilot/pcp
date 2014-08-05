@@ -1,0 +1,105 @@
+QA output created by 753
+
+--- sample.bin ---
+
+metric:    d
+semantics: instantaneous value
+units:     none
+samples:   2
+interval:  0.25 sec
+No values available
+
+    bin-100     bin-200     bin-300     bin-400     bin-500     bin-600     bin-700     bin-800     bin-900 
+          0           0           0           0           0           0           0           0           0 
+
+metric:    r
+semantics: instantaneous value
+units:     / sec
+samples:   2
+interval:  0.25 sec
+No values available
+
+              bin-100               bin-200               bin-300               bin-400               bin-500               bin-600               bin-700               bin-800               bin-900 
+               0.0                   0.0                   0.0                   0.0                   0.0                   0.0                   0.0                   0.0                   0.0    
+
+--- kernel.all.load ---
+
+metric:    d
+semantics: instantaneous value
+units:     none
+samples:   2
+interval:  0.25 sec
+No values available
+
+     1 minute      5 minute     15 minute 
+       0.0           0.0           0.0    
+
+metric:    r
+semantics: instantaneous value
+units:     / sec
+samples:   2
+interval:  0.25 sec
+No values available
+
+             1 minute              5 minute             15 minute 
+               0.0                   0.0                   0.0    
+
+--- sample.datasize ---
+
+metric:    d
+semantics: instantaneous value
+units:     Kbyte
+samples:   2
+interval:  0.25 sec
+No values available
+          0
+
+metric:    r
+semantics: instantaneous value
+units:     Kbyte / sec
+samples:   2
+interval:  0.25 sec
+No values available
+               0.0   
+
+--- hinv.ncpu ---
+
+metric:    d
+semantics: instantaneous value
+units:     none
+samples:   2
+interval:  0.25 sec
+No values available
+          0
+
+metric:    r
+semantics: instantaneous value
+units:     / sec
+samples:   2
+interval:  0.25 sec
+No values available
+               0.0   
+
+--- sample.string.hullo ---
+Semantic error: derived metric d: DELTA(sample.string.hullo): Non-arithmetic operand for function
+Semantic error: derived metric r: RATE(sample.string.hullo): Non-arithmetic operand for function
+pmval: pmLookupDesc: Unknown or illegal metric identifier
+
+Semantic error: derived metric d: DELTA(sample.string.hullo): Non-arithmetic operand for function
+Semantic error: derived metric r: RATE(sample.string.hullo): Non-arithmetic operand for function
+pmval: pmLookupDesc: Unknown or illegal metric identifier
+
+
+--- sample.kbyte_rate ---
+Semantic error: derived metric r: RATE(sample.kbyte_rate): Incorrect time dimension for operand
+
+metric:    d
+semantics: instantaneous value
+units:     Kbyte / sec
+samples:   2
+interval:  0.25 sec
+No values available
+abs(N) < 4096
+Semantic error: derived metric r: RATE(sample.kbyte_rate): Incorrect time dimension for operand
+pmval: pmLookupDesc: Unknown or illegal metric identifier
+
