@@ -1,4 +1,5 @@
 #pmlogconf-setup 2.0
 ident	metrics sampled once by the pcp-free(1) command
 probe	kernel.uname.sysname ~ Linux ? include : exclude
+delta	once
 	mem.physmem
