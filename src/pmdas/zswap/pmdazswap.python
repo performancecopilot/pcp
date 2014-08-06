@@ -21,6 +21,7 @@ from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
 from resource import getpagesize
 from os import getenv, listdir
 
+ZSWAP_PAGESIZE = getpagesize()
 ZSWAP_STATS_PATH = '/sys/kernel/debug/zswap'
 
 class ZswapPMDA(PMDA):
@@ -173,8 +174,8 @@ class ZswapPMDA(PMDA):
         PMDA.__init__(self, name, domain)
         self.patherrors = 0
         self.fileerrors = 0
-        self.pagesize = getpagesize()
-        self.path = getenv('ZSWAP_STATS_PATH', ZSWAP_STATS_PATH)
+        self.pagesize = int(getenv('ZSWAP_PAGESIZE', ZSWAP_PAGESIZE))
+        self.path = str(getenv('ZSWAP_STATS_PATH', ZSWAP_STATS_PATH))
 
         self.values = {}
         self.setup_zswap_metrics(name)

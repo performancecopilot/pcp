@@ -923,6 +923,7 @@ avahi
 750 pmda.rpm local oss
 751 pmda.rpm local oss
 752 libpcp local oss
+753 derive pmie local oss
 755 pmda.apache pmda.install local oss
 763 pmda local oss
 764 pmie local oss
@@ -955,6 +956,7 @@ avahi
 897 pmlc pmlogger local oss
 899 libpcp getopt local oss
 900 libpcp sanity local oss
+922 derive pmie pmval local oss
 928 archive local oss
 929 logutil local oss
 943 pmprobe pmda.proc local oss

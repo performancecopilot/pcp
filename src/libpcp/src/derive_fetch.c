@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009 Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 2009,2014 Ken McDonell.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -154,7 +154,7 @@ __dmprefetch(__pmContext *ctxp, int numpmid, const pmID *pmidlist, pmID **newlis
  * Free the old ivlist[] (if any) ... may need to walk the list because
  * the pmAtomValues may have buffers attached in the type STRING,
  * type AGGREGATE* and type EVENT cases.
- * Includes logic to save one history sample (for delta()).
+ * Includes logic to save one history sample (for delta() and rate()).
  */
 static void
 free_ivlist(node_t *np)
@@ -164,15 +164,20 @@ free_ivlist(node_t *np)
     assert(np->info != NULL);
 
     if (np->save_last) {
+	/*
+	 * saving history for delta() or rate() ... release previous
+	 * sample, and save this sample
+	 */
 	if (np->info->last_ivlist != NULL) {
 	    /*
-	     * no STRING, AGGREGATE or EVENT types for delta(),
+	     * no STRING, AGGREGATE or EVENT types for delta() or rate()
 	     * so simple free()
 	     */
 	    free(np->info->last_ivlist);
 	}
 	np->info->last_numval = np->info->numval;
 	np->info->last_ivlist = np->info->ivlist;
+	np->info->ivlist = NULL;
     }
     else {
 	/* no history */
@@ -193,8 +198,8 @@ free_ivlist(node_t *np)
 	    }
 	}
 	free(np->info->ivlist);
-	np->info->ivlist = NULL;
 	np->info->numval = 0;
+	np->info->ivlist = NULL;
     }
 }
 
@@ -506,19 +511,26 @@ eval_expr(node_t *np, pmResult *rp, int level)
 	    break;
 
 	case L_DELTA:
+	case L_RATE:
 	    /*
 	     * this and the last values are in the left expr
 	     */
+	    np->info->last_stamp = np->info->stamp;
+	    np->info->stamp = rp->timestamp;
 	    free_ivlist(np);
 	    np->info->numval = np->left->info->numval <= np->left->info->last_numval ? np->left->info->numval : np->left->info->last_numval;
 	    if (np->info->numval <= 0)
 		return np->info->numval;
 	    if ((np->info->ivlist = (val_t *)malloc(np->info->numval*sizeof(val_t))) == NULL) {
-		__pmNoMem("eval_expr: delta() ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
+		__pmNoMem("eval_expr: delta()/rate() ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
 	    /*
-	     * ivlist[k] = left-ivlist[i] - left-last-ivlist[j]
+	     * delta()
+	     * ivlist[k] = left->ivlist[i] - left->last_ivlist[j]
+	     * rate()
+	     * ivlist[k] = (left->ivlist[i] - left->last_ivlist[j]) /
+	     *             (timestamp - left->last_stamp)
 	     */
 	    for (i = k = 0; i < np->left->info->numval; i++) {
 		j = i;
@@ -548,31 +560,97 @@ eval_expr(node_t *np, pmResult *rp, int level)
 #endif
 		}
 		np->info->ivlist[k].inst = np->left->info->ivlist[i].inst;
-		switch (np->desc.type) {
-		    case PM_TYPE_32:
-			np->info->ivlist[k].value.l = np->left->info->ivlist[i].value.l - np->left->info->last_ivlist[j].value.l;
-			break;
-		    case PM_TYPE_U32:
-			np->info->ivlist[k].value.ul = np->left->info->ivlist[i].value.ul - np->left->info->last_ivlist[j].value.ul;
-			break;
-		    case PM_TYPE_64:
-			np->info->ivlist[k].value.ll = np->left->info->ivlist[i].value.ll - np->left->info->last_ivlist[j].value.ll;
-			break;
-		    case PM_TYPE_U64:
-			np->info->ivlist[k].value.ull = np->left->info->ivlist[i].value.ull - np->left->info->last_ivlist[j].value.ull;
-			break;
-		    case PM_TYPE_FLOAT:
-			np->info->ivlist[k].value.f = np->left->info->ivlist[i].value.f - np->left->info->last_ivlist[j].value.f;
-			break;
-		    case PM_TYPE_DOUBLE:
-			np->info->ivlist[k].value.d = np->left->info->ivlist[i].value.d - np->left->info->last_ivlist[j].value.d;
-			break;
-		    default:
-			/*
-			 * Nothing should end up here as check_expr() checks
-			 * for numeric data type at bind time
-			 */
-			return PM_ERR_CONV;
+		if (np->type == L_DELTA) {
+		    /* for delta() result type == operand type */
+		    switch (np->left->desc.type) {
+			case PM_TYPE_32:
+			    np->info->ivlist[k].value.l = np->left->info->ivlist[i].value.l - np->left->info->last_ivlist[j].value.l;
+			    break;
+			case PM_TYPE_U32:
+			    np->info->ivlist[k].value.ul = np->left->info->ivlist[i].value.ul - np->left->info->last_ivlist[j].value.ul;
+			    break;
+			case PM_TYPE_64:
+			    np->info->ivlist[k].value.ll = np->left->info->ivlist[i].value.ll - np->left->info->last_ivlist[j].value.ll;
+			    break;
+			case PM_TYPE_U64:
+			    np->info->ivlist[k].value.ull = np->left->info->ivlist[i].value.ull - np->left->info->last_ivlist[j].value.ull;
+			    break;
+			case PM_TYPE_FLOAT:
+			    np->info->ivlist[k].value.f = np->left->info->ivlist[i].value.f - np->left->info->last_ivlist[j].value.f;
+			    break;
+			case PM_TYPE_DOUBLE:
+			    np->info->ivlist[k].value.d = np->left->info->ivlist[i].value.d - np->left->info->last_ivlist[j].value.d;
+			    break;
+			default:
+			    /*
+			     * Nothing should end up here as check_expr() checks
+			     * for numeric data type at bind time
+			     */
+			    return PM_ERR_CONV;
+		    }
+		}
+		else {
+		    /* rate() conversion, type will be DOUBLE */
+		    struct timeval	stampdiff;
+		    stampdiff.tv_sec = np->info->stamp.tv_sec - np->info->last_stamp.tv_sec;
+		    stampdiff.tv_usec = np->info->stamp.tv_usec - np->info->last_stamp.tv_usec;
+		    if (stampdiff.tv_usec < 0) {
+			stampdiff.tv_usec += 1000000;
+			stampdiff.tv_sec--;
+		    }
+		    switch (np->left->desc.type) {
+			case PM_TYPE_32:
+			    np->info->ivlist[k].value.d = (double)(np->left->info->ivlist[i].value.l - np->left->info->last_ivlist[j].value.l);
+			    break;
+			case PM_TYPE_U32:
+			    np->info->ivlist[k].value.d = (double)(np->left->info->ivlist[i].value.ul - np->left->info->last_ivlist[j].value.ul);
+			    break;
+			case PM_TYPE_64:
+			    np->info->ivlist[k].value.d = (double)(np->left->info->ivlist[i].value.ll - np->left->info->last_ivlist[j].value.ll);
+			    break;
+			case PM_TYPE_U64:
+			    np->info->ivlist[k].value.d = (double)(np->left->info->ivlist[i].value.ull - np->left->info->last_ivlist[j].value.ull);
+			    break;
+			case PM_TYPE_FLOAT:
+			    np->info->ivlist[k].value.d = (double)(np->left->info->ivlist[i].value.f - np->left->info->last_ivlist[j].value.f);
+			    break;
+			case PM_TYPE_DOUBLE:
+			    np->info->ivlist[k].value.d = np->left->info->ivlist[i].value.d - np->left->info->last_ivlist[j].value.d;
+			    break;
+			default:
+			    /*
+			     * Nothing should end up here as check_expr() checks
+			     * for numeric data type at bind time
+			     */
+			    return PM_ERR_CONV;
+		    }
+		    np->info->ivlist[k].value.d /= stampdiff.tv_sec + (double)stampdiff.tv_usec/1000000;
+		    /*
+		     * check_expr() ensures dimTime is 0 or 1 at bind time
+		     */
+		    if (np->left->desc.units.dimTime == 1) {
+			/* scale rate(time counter) -> time utilization */
+			if (np->info->time_scale < 0) {
+			    /*
+			     * one trip initialization for time utilization
+			     * scaling factor (to scale metric from counter
+			     * units into seconds)
+			     */
+			    int		i;
+			    np->info->time_scale = 1;
+			    if (np->left->desc.units.scaleTime > PM_TIME_SEC) {
+
+				for (i = PM_TIME_SEC; i < np->left->desc.units.scaleTime; i++)
+
+				    np->info->time_scale *= 60;
+			    }
+			    else {
+				for (i = np->left->desc.units.scaleTime; i < PM_TIME_SEC; i++)
+				    np->info->time_scale /= 1000;
+			    }
+			}
+			np->info->ivlist[k].value.d *= np->info->time_scale;
+		    }
 		}
 		k++;
 	    }

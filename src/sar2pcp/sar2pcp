@@ -110,6 +110,7 @@ my %skipped_tags = (	# XML tags we know about, but have no metric to map yet
 	'active' => 1,		'inactive' => 1,
 	'temperature' => 1,	'temp' => 1,
 	'usb' => 1,
+	'filesystems' => 1,
 );
 
 # Register metrics with a singular value.
@@ -163,6 +164,14 @@ sub register_multi($$)
     elsif ($name eq 'disk.dev.total' || $name eq 'disk.dev.read' ||
            $name eq 'disk.dev.write' || $name =~ /network\.interface\./) {
 	$units = pmiUnits(0,-1,1,0,PM_TIME_SEC,PM_COUNT_ONE);
+    }
+    elsif ($name =~ /filesys\..*files/) {
+	$units = pmiUnits(0,0,1,0,0,PM_COUNT_ONE);
+	$type = PM_TYPE_U64;
+    }
+    elsif ($name =~ /filesys\./) {
+	$units = pmiUnits(1,0,0,PM_SPACE_MBYTE,0,0);
+	$type = PM_TYPE_U32;
     }
     $sts = pmiAddMetric($name, PM_ID_NULL, $type, $indom, PM_SEM_INSTANT, $units);
     die "pmiAddMetric($name, ...): " . pmiErrStr(-1) . "\n" unless ($sts == 0);
@@ -422,6 +431,14 @@ while (defined(my $token = $parser->get_token())) {
 	    $snarf_text = 1;
 	}
 	# pro tem skip <commit>
+	# pro tem skip <commit-percent>
+	# pro tem skip <active>
+	# pro tem skip <inactive>
+	elsif ($token->tag eq 'dirty') {
+	    # <dirty>208</dirty>
+	    $snarf_name = 'mem.util.dirty';
+	    $snarf_text = 1;
+	}
 	elsif ($token->tag eq 'swpfree') {
 	    # <swpfree>1920808</swpfree>
 	    $snarf_name = 'mem.util.swapFree';
@@ -559,6 +576,26 @@ while (defined(my $token = $parser->get_token())) {
 	    # <number-of-cpus>1</number-of-cpus>
 	    $snarf_name = 'hinv.ncpu';
 	    $snarf_text = 2;
+	}
+	elsif ($token->tag eq 'filesystem') {
+	    # <filesystem fsname="/dev/sda8" MBfsfree="429418" MBfsused="39806" fsused-percent="8.48" ufsused-percent="13.57" Ifree="30318480" Iused="204912" Iused-percent="0.67"/>
+	    my $instance = $token->attr->{'fsname'};
+	    my $indom = pmInDom_build(PMI_DOMAIN, 5);
+	    my ($free, $used);
+	    $free = dovalue($token->attr->{'MBfsfree'});
+	    $used = dovalue($token->attr->{'MBfsused'});
+	    if (defined($free) && defined($used)) {
+		putinst('filesys.capacity', $indom, $instance, $used+$free);
+	    }
+	    putinst('filesys.free', $indom, $instance, $free);
+	    putinst('filesys.used', $indom, $instance, $used);
+	    $free = dovalue($token->attr->{'Ifree'});
+	    $used = dovalue($token->attr->{'Iused'});
+	    if (defined($free) && defined($used)) {
+		putinst('filesys.maxfiles', $indom, $instance, $used+$free);
+	    }
+	    putinst('filesys.freefiles', $indom, $instance, $free);
+	    putinst('filesys.usedfiles', $indom, $instance, $used);
 	}
 	elsif (!defined($skipped_tags{$token->tag})) {
 	    $warning_tags{$token->tag} = 1;

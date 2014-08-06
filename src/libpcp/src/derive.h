@@ -25,14 +25,16 @@ typedef struct {		/* one value in the expression tree */
 } val_t;
 
 typedef struct {		/* dynamic information for an expression node */
-    pmID	pmid;
-    int		numval;		/* length of ivlist[] */
-    int		mul_scale;	/* scale multiplier */
-    int		div_scale;	/* scale divisor */
-    val_t	*ivlist;	/* instance-value pairs */
-    int		last_numval;	/* length of last_ivlist[] */
-    val_t	*last_ivlist;	/* values from previous fetch for delta() */
-
+    pmID		pmid;
+    int			numval;		/* length of ivlist[] */
+    int			mul_scale;	/* scale multiplier */
+    int			div_scale;	/* scale divisor */
+    val_t		*ivlist;	/* instance-value pairs */
+    struct timeval	stamp;		/* timestamp from current fetch */
+    double		time_scale;	/* time utilization scaling for rate() */
+    int			last_numval;	/* length of last_ivlist[] */
+    val_t		*last_ivlist;	/* values from previous fetch for delta() or rate() */
+    struct timeval	last_stamp;	/* timestamp from previous fetch for rate() */
 } info_t;
 
 typedef struct node {		/* expression tree node */
@@ -83,6 +85,7 @@ typedef struct {
 #define L_MIN		13
 #define L_SUM		14
 #define L_ANON		15
+#define L_RATE		16
 
 extern int __dmtraverse(const char *, char ***) _PCP_HIDDEN;
 extern int __dmchildren(const char *, char ***, int **) _PCP_HIDDEN;
