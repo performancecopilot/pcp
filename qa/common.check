@@ -595,8 +595,17 @@ _check_valgrind()
     [ $? -eq 0 ] || _notrun "No valgrind binary found"
 }
 
+# Note: because we may be avoiding leaks in system libraries
+# via the suppressions, there is potential indeterminism for
+# the following case:
+# -All heap blocks were freed -- no leaks are possible
+# +LEAK SUMMARY:
+# +definitely lost: 0 bytes in 0 blocks
+# +indirectly lost: 0 bytes in 0 blocks
+# 
 _filter_valgrind()
 {
+   noleak="LEAK SUMMARY:\ndefinitely lost: 0 bytes in 0 blocks\nindirectly lost: 0 bytes in 0 blocks"
     sed \
 	-e 's/^==*[1-9][0-9]*==* *//' \
 	-e '/^$/d' \
@@ -612,7 +621,8 @@ _filter_valgrind()
 	-e '/^Reachable blocks (those to which a pointer was found)/d' \
 	-e '/^To see them, rerun with:/d' \
 	-e '/^For counts of detected and suppressed errors,/d' \
-	-e '/^ERROR SUMMARY:/s/ (suppressed: [^)]*)/ .../'
+	-e '/^ERROR SUMMARY:/s/ (suppressed: [^)]*)/ .../' \
+	-e "/^All heap blocks were freed -- .*/$noleak/"
 }
 
 _run_valgrind()
