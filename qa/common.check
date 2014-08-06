@@ -633,7 +633,7 @@ _filter_valgrind()
 	-e '/^To see them, rerun with:/d' \
 	-e '/^For counts of detected and suppressed errors,/d' \
 	-e '/^ERROR SUMMARY:/s/ (suppressed: [^)]*)/ .../' \
-	-e "/^All heap blocks were freed -- .*/$noleak/"
+	-e "s/^All heap blocks were freed -- .*/$noleak/g"
 }
 
 _run_valgrind()
