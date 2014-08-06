@@ -333,10 +333,10 @@ _wait_for_pmlogger()
 	echo
 
 	#  If pmlc could not connect to pmlogger, report details
-	if [ -s $tmp._wait_for_pmlogger.host ]
+	if [ -s $tmp._wait_for_pmlogger.pmlc ]
 	then
 	    echo "pmlc output ..."
-	    cat $tmp._wait_for_pmlogger.host
+	    cat $tmp._wait_for_pmlogger.pmlc
 	    echo
 	fi
 
@@ -400,6 +400,7 @@ _wait_for_pmlogger()
 	status=2
 	exit $status
     fi
+    rm -f $tmp._wait_for_pmlogger.*
 }
 
 # Start a pmlogger with appropriate privs that it can create
