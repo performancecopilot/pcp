@@ -273,26 +273,26 @@ _wait_for_pmcd()
 #
 _wait_for_pmlogger()
 {
-    # 20 seconds default seems like a reasonble max time to get going
+    # 20 seconds default seems like a reasonable max time to get going
     _maxdelay=20
 
     case $# in
 	0)
 	    _pid="-P"
-	    # logic copied exactly from pmlogger_check
-	    #
-	    LOCALHOSTNAME=`hostname | sed -e 's/\..*//'`
-	    [ -z "$LOCALHOSTNAME" ] && LOCALHOSTNAME=localhost
-	    _logfile="$PCP_LOG_DIR/pmlogger/$LOCALHOSTNAME/pmlogger.log" 
+	    dir_hostname=`hostname || echo localhost`
+	    _logfile="$PCP_LOG_DIR/pmlogger/$dir_hostname/pmlogger.log" 
+            _iam="primary"
 	    ;;
 	2)
 	    _pid=$1
 	    _logfile=$2
+            _iam="pid=$_pid"
 	    ;;
 	3)
 	    _pid=$1
 	    _logfile=$2
 	    _maxdelay=$3
+            _iam="pid=$_pid"
 	    ;;
 	*)
 	    echo "_wait_for_pmlogger(): wrong number of arguments"
@@ -300,15 +300,18 @@ _wait_for_pmlogger()
 	    exit $status
 	    ;;
     esac
-   
+
     #debug# set -x
     _i=0
     _dead=true
+    rm -f $tmp._wait_for_pmlogger.pmlc
     while [ $_i -lt $_maxdelay ]
     do
 	#debug# ps -ef | grep "[^0-9]$_pid[^0-9]"
-	#debug# pmlc $_pid </dev/null
-	if pmlc $_pid </dev/null 2>&1 | egrep "Connection refused|Transport endpoint is not connected" >/dev/null
+	echo "pmlc $_pid" >> $tmp._wait_for_pmlogger.pmlc
+	if pmlc $_pid </dev/null 2>&1 \
+		| tee -a $tmp._wait_for_pmlogger.pmlc \
+		| egrep "Connection refused|Transport endpoint is not connected" >/dev/null
 	then
 	    sleep 1
 	    _i=`expr $_i + 1`
@@ -323,12 +326,20 @@ _wait_for_pmlogger()
     done
     if $_dead
     then
-	echo "Arrgghhh ... pmlogger (pid=$_pid) failed to start after $_maxdelay seconds"
+	echo "Arrgghhh ... pmlogger ($_iam) failed to start after $_maxdelay seconds"
 	echo "at `date`."
 	echo "pmlogger log ($_logfile) ..."
 	cat $_logfile
 	echo
-	
+
+	#  If pmlc could not connect to pmlogger, report details
+	if [ -s $tmp._wait_for_pmlogger.host ]
+	then
+	    echo "pmlc output ..."
+	    cat $tmp._wait_for_pmlogger.host
+	    echo
+	fi
+
 	#  If pmlogger could not connect to PMCD, find which host it was
 	#  connecting to, and get the pmcd.log file from that host.
 	cat $_logfile | $PCP_AWK_PROG '/pmlogger: Cannot connect to PMCD on host/' \
