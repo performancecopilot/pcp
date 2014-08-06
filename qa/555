@@ -29,7 +29,7 @@ in
 	;;
 esac
 
-rm -f $seq.full
+$sudo rm -f $seq.full /tmp/syslog.full /tmp/syslog.out
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
@@ -41,7 +41,7 @@ if [ -f /etc/rsyslog.conf -a -f /var/run/*syslogd.pid ]
 then
     # smells like rsyslogd
     #
-    ( echo "smells like rsyslogd"; ls -l /etc/rsyslog.conf /var/run/*syslogd.pid ) >>$seq.full
+    ( echo "smells like rsyslogd"; ls -l /etc/rsyslog.conf /var/run/*syslogd.pid ) >>/tmp/syslog.full
     daemon=rsyslogd
     config=/etc/rsyslog.d/pcpqa.conf
     update_config=false
@@ -69,14 +69,14 @@ then
 	    exit 1
 	fi
     fi
-    echo "upstart=$upstart" >>$seq.full
-    echo "systemctl=$systemctl" >>$seq.full
-    echo "init=$init" >>$seq.full
+    echo "upstart=$upstart" >>/tmp/syslog.full
+    echo "systemctl=$systemctl" >>/tmp/syslog.full
+    echo "init=$init" >>/tmp/syslog.full
 elif [ -f /etc/syslog.conf ]
 then
     # regular old syslogd
     #
-    ( echo "smells like old syslogd"; ls -l /etc/rsyslog.conf )  >>$seq.full
+    ( echo "smells like old syslogd"; ls -l /etc/rsyslog.conf )  >>/tmp/syslog.full
     daemon=syslogd
     config=/etc/syslog.conf
 else
@@ -101,7 +101,7 @@ cleanup()
 	then
 	    if $upstart
 	    then
-		$sudo service rsyslog restart >>$seq.full 2>&1
+		$sudo service rsyslog restart >>/tmp/syslog.full 2>&1
 	    elif $systemctl
 	    then
 		$sudo systemctl restart rsyslog
@@ -109,14 +109,15 @@ cleanup()
 		# kill should be enough, but restart to be sure
 		#
 		# $sudo kill -HUP `cat /var/run/rsyslogd.pid` || exit
-		$sudo $init restart >>$seq.full 2>&1
+		$sudo $init restart >>/tmp/syslog.full 2>&1
 	    fi
 	else
 	    $sudo $signal -a -s HUP $daemon || exit
 	fi
     fi
+    $sudo mv /tmp/syslog.full $seq.full
+    $sudo rm -f /tmp/syslog.out
     rm -f $tmp.*
-    $sudo rm -f /tmp/syslog
 }
 trap "cleanup; exit \$status" 0 1 2 3 15
 
@@ -128,8 +129,8 @@ setup()
     # let rsyslog create it, to ensure any security labels setup
     if [ $daemon != rsyslogd ]
     then
-	$sudo cp /dev/null /tmp/syslog || exit
-	$sudo chmod 666 /tmp/syslog || exit
+	$sudo cp /dev/null /tmp/syslog.out || exit
+	$sudo chmod 666 /tmp/syslog.out || exit
     fi
     if $update_config
     then
@@ -137,23 +138,23 @@ setup()
     else
 	$sudo touch $config.$seq
     fi
-    echo '*.*  /tmp/syslog' >$tmp.syslog.conf
+    echo '*.*  /tmp/syslog.out' >$tmp.syslog.conf
     $sudo cp $tmp.syslog.conf $config || exit
-    echo "config=$config" >>$seq.full
-    $sudo cat $config >>$seq.full
+    echo "config=$config" >>/tmp/syslog.full
+    $sudo cat $config >>/tmp/syslog.full
     if [ $daemon = rsyslogd ]
     then
 	if $upstart
 	then
-	    $sudo service rsyslog restart >>$seq.full 2>&1
+	    $sudo service rsyslog restart >>/tmp/syslog.full 2>&1
 	elif $systemctl
 	then
-	    $sudo systemctl restart rsyslog >>$seq.full 2>&1
+	    $sudo systemctl restart rsyslog >>/tmp/syslog.full 2>&1
 	else
 	    # kill should be enough, but restart to be sure
 	    #
 	    # $sudo kill -HUP `cat /var/run/rsyslogd.pid` || exit
-	    $sudo $init restart >>$seq.full 2>&1
+	    $sudo $init restart >>/tmp/syslog.full 2>&1
 	fi
     else
 	$sudo $signal -a -s HUP $daemon || exit
@@ -161,11 +162,11 @@ setup()
 }
 
 # real QA test starts here
-echo "ps before setup ..." >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '([P]ID)|([s]yslog)' >>$seq.full
+echo "ps before setup ..." >>/tmp/syslog.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '([P]ID)|([s]yslog)' >>/tmp/syslog.full
 setup
-echo "ps after setup ..." >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '([P]ID)|([s]yslog)' >>$seq.full
+echo "ps after setup ..." >>/tmp/syslog.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '([P]ID)|([s]yslog)' >>/tmp/syslog.full
 
 # syslog	logger -p
 # 5D		daemon.notice		<--- default
@@ -227,23 +228,23 @@ echo
 # note - agetty lines noticed on canary with SLES9 SP1 beta2
 # note - DHCPDISCOVER lines noticed on kenj-laptop with Ubuntu 8.10
 #
-echo "=== all of syslog ===" >>$seq.full
-$sudo cat /tmp/syslog >>$seq.full
-echo >>$seq.full
-echo "=== syslog for pid $! ===" >>$seq.full
+echo "=== all of syslog ===" >>/tmp/syslog.full
+$sudo cat /tmp/syslog.out >>/tmp/syslog.full
+echo >>/tmp/syslog.full
+echo "=== syslog for pid $! ===" >>/tmp/syslog.full
 # More recent syslog format seen on Ubuntu 11.04
 # (high-precision rsyslog timestamps, traditional-mode no longer enabled)
 # 2011-07-09T10:38:40+10:00 HOST pcp-pmie[PID]: 
 #
-$sudo grep '\['$!']:' /tmp/syslog \
-| tee -a $seq.full \
+$sudo grep '\['$!']:' /tmp/syslog.out \
+| tee -a /tmp/syslog.full \
 | sed \
     -e 's/^[A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
     -e 's/^[0-9][0-9][0-9][0-9]-[0-9][0-9]*-[0-9][0-9]*T[0-9][0-9]:[0-9][0-9]:[0-9][0-9][^ ]* /DATE /' \
     -e "s/\\[$!]/[PID]/" \
     -e "s/`hostname | sed -e 's/\..*//'` /HOST /" \
     -e 's/[0-9][A-Z]:HOST/HOST/' \
-    -e '/ sudo: .*syslog$/d' \
+    -e '/ sudo: .*syslog.out$/d' \
     | LC_COLLATE=POSIX sort \
     | uniq
 
