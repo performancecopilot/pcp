@@ -59,6 +59,7 @@ pmdamemcache_cleanup()
 {
     if [ -f $tmp.backup ]; then
 	$sudo cp $tmp.backup $PCP_PMDAS_DIR/memcache/memcache.conf
+	$sudo rm $tmp.backup
     else
 	$sudo rm -f $PCP_PMDAS_DIR/memcache/memcache.conf
     fi
@@ -78,9 +79,9 @@ _filter_nc()
 {
     sed -e 's/^STAT //g' | tr -d '\r'
 }
-echo "stats" | nc localhost $port       | _filter_nc >  $tmp.nc_stats
-echo "stats slabs" | nc localhost $port | _filter_nc >> $tmp.nc_stats
-echo "stats items" | nc localhost $port | _filter_nc >> $tmp.nc_stats
+echo "stats" | nc -q 1 localhost $port       | _filter_nc >  $tmp.nc_stats
+echo "stats slabs" | nc -q 1 localhost $port | _filter_nc >> $tmp.nc_stats
+echo "stats items" | nc -q 1 localhost $port | _filter_nc >> $tmp.nc_stats
 
 pmprobe -v memcache > $tmp.pcp_stats
 
