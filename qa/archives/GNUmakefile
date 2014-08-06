@@ -10,15 +10,11 @@ OTHERS = mk.gap.sh GNUmakefile.install
 
 LSRCFILES = $(SRCARCH) $(SRCEXTRAS) $(OTHERS)
 
-default setup:
+default default_pcp setup:
 
-install:
+install install_pcp:
 	$(INSTALL) -m 755 -d $(TESTDIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
 	$(INSTALL) -m 644 $(SRCARCH) $(SRCEXTRAS) $(TESTDIR)
 
 include $(BUILDRULES)
-
-default_pcp:
-
-install_pcp:
