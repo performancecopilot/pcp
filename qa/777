@@ -1,0 +1,139 @@
+#!/bin/sh
+# PCP QA Test No. 777
+# Install/Remove for memcache pmda
+#
+# Copyright (c) 2008 Aconex.  All Rights Reserved. (based on qa/348)
+# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = linux ] || _notrun "memcached only exists on Linux"
+if netstat -l -t | egrep -q '(\*:memcache)|(localhost:11211)[ 	]'
+then
+	:
+else
+	_notrun "memcached not running"
+fi
+
+status=1
+done_clean=false
+rm -f $seq.full
+
+install_on_cleanup=false
+pminfo memcache >/dev/null 2>&1 && install_on_cleanup=true
+
+_cleanup()
+{
+    if $done_clean
+    then
+	:
+    else
+	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	rm -f $tmp.*
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	if $install_on_cleanup
+	then
+	    ( cd $PCP_PMDAS_DIR/memcache; $sudo ./Install </dev/null >/dev/null 2>&1 )
+	else
+	    ( cd $PCP_PMDAS_DIR/memcache; $sudo ./Remove >/dev/null 2>&1 )
+	fi
+	done_clean=true
+    fi
+    exit $status
+}
+
+trap "_cleanup" 0 1 2 3 15
+
+# real QA test starts here
+home=$PCP_PMDAS_DIR
+iam=memcache
+if [ ! -d $home/$iam ]
+then
+    echo "Where is $home/$iam?"
+    exit 1
+fi
+cd $home/$iam
+unset ROOT MAKEFLAGS
+
+# copy the pmcd config file to restore state later.
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+
+# start from a known starting point
+$sudo ./Remove >/dev/null 2>&1
+$sudo rm -f pmns domain.h
+
+echo
+echo "=== $iam agent installation ==="
+$sudo ./Install </dev/null >$tmp.out 2>&1
+# Check memcache metrics have appeared ... X metrics and Y values
+_filter_pmda_install <$tmp.out \
+| sed \
+	-e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+| $PCP_AWK_PROG '
+/Check memcache metrics have appeared/	{ if ($7 >= 30 && $7 <= 40) $7 = "X"
+					  if ($10 >= 30 && $10 <= 40) $10 = "Y"
+					}
+					{ print }'
+
+if pminfo -v $iam
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+
+echo
+echo "=== validate values ==="
+rm -f $tmp.values $tmp.probe $tmp.diff
+pmprobe -v $iam \
+| sed -e "s/^$iam\.//" \
+| LC_COLLATE=POSIX sort >$tmp.probe
+echo "from pmprobe ..." >>$here/$seq.full
+cat $tmp.probe >>$here/$seq.full
+$here/src/memcachestats.pl \
+| sed -e 's/ / 1 /' \
+| LC_COLLATE=POSIX sort >$tmp.values
+echo "from src/memcachestats.pl ..." >>$here/$seq.full
+cat $tmp.values >>$here/$seq.full
+LC_COLLATE=POSIX join $tmp.probe $tmp.values >$tmp.all
+echo >>$here/$seq.full
+cat $tmp.all >>$here/$seq.full
+
+echo
+echo "=== check values ==="
+cat $tmp.all \
+| while read metric n1 vpcp n2 vmemcache
+do
+    if [ "$n1" = 1 -a "$n2" = 1 ]
+    then
+	case $metric
+	in
+	    total_connections)
+			_within_tolerance $metric $vpcp $vmemcache 2 -v
+			;;
+	    *)
+			_within_tolerance $metric $vpcp $vmemcache 2% -v
+			;;
+	esac
+    else
+	echo "$metric: number of values not 1 as expected: pcp $n1 / memcache $n2"
+    fi
+done | tee -a $here/$seq.full
+
+echo
+echo "=== remove $iam agent ==="
+$sudo ./Remove >$tmp.out 2>&1
+_filter_pmda_remove <$tmp.out
+
+status=0
+exit
