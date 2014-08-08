@@ -193,11 +193,12 @@ MYFILES += $(SRCARCH) \
 	pthread_barrier.h pv.c qa_test.c qa_timezone.c \
 	sa-sysstat-9.0.4 sa-sysstat-9.0.6 sa-sysstat-9.0.6.1 \
 	sa-sysstat-10.0.1 sa-sysstat-10.0.5 sa-sysstat-10.2.0 \
-	permslist memcachestats.pl
+	permslist
 
 MYSCRIPTS = grind-tools ipcs_clear make.dodgey mkarch-all mkbadlen \
 	mkeventrec mkinterpmark mkmirage mkproc mkrewrite mksample_expr \
-	mksa-sysstat mktzchange show-args mkbig1 fixhosts mkpermslist
+	mksa-sysstat mktzchange show-args mkbig1 fixhosts mkpermslist \
+	memcachestats.pl
 
 PSCRIPTS = $(PERLFILES) $(PYTHONFILES)
 
