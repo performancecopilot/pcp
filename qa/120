@@ -85,7 +85,7 @@ fi
 #	 printf("%d\t%s", delta, metric_name)
 #
 echo '#!/bin/sh' >$tmp.sh
-join -j 1 -o 2.2 1.2 1.1 -e ERR $tmp.vals.1 $tmp.vals.2 \
+LC_COLLATE=POSIX join -j 1 -o 2.2 1.2 1.1 -e ERR $tmp.vals.1 $tmp.vals.2 \
     | $PCP_AWK_PROG '{ printf "echo %s `expr %d - %d`\n", $3, $1, $2 }' \
     >> $tmp.sh
 sh $tmp.sh >$tmp.delta
@@ -156,7 +156,7 @@ mv $tmp.filtered $tmp.delta.expect
 #
 echo '#!/bin/sh' >$tmp.delta.sh
 echo 'sts=0' >>$tmp.delta.sh
-join -j 1 -o 1.2 2.2 1.1 $tmp.delta $tmp.delta.expect \
+LC_COLLATE=POSIX join -j 1 -o 1.2 2.2 1.1 $tmp.delta $tmp.delta.expect \
     | tee $tmp.join \
     | $PCP_AWK_PROG '{
 	      printf "[ %d -lt %d ]", $1, $2;

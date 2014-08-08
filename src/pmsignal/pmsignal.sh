@@ -1,5 +1,6 @@
 #!/bin/sh
 # 
+# Copyright (c) 2014 Red Hat.
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -20,7 +21,7 @@
 
 status=1
 tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
-trap "rm -rf $tmp.*; exit \$status" 0
+trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 prog=`basename $0`
 sigs="HUP USR1 TERM KILL"
 

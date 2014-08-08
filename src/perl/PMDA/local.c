@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 2008-2011 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -417,7 +417,7 @@ local_pmdaMain(pmdaInterface *self)
 		continue;
 	    offset = 0;
 multiread:
-	    bytes = read(fd, buffer + offset, sizeof(buffer)-1 - offset);
+	    bytes = __pmRead(fd, buffer + offset, sizeof(buffer)-1 - offset);
 	    if (bytes < 0) {
 		if ((files[i].type == FILE_TAIL) &&
 		    (oserror() == EINTR) ||

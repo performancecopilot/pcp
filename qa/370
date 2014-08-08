@@ -51,6 +51,9 @@ in
 	ln $seq.out.6 $seq.out || exit 1
 	file_version=10.0.5
 	;;
+    10.2.0)
+	ln $seq.out.7 $seq.out || exit 1
+	;;
     *)
 	_notrun "no qualified output for sysstat version $version"
 	;;

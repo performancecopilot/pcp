@@ -111,7 +111,7 @@ done
 LC_COLLATE=POSIX sort $tmp.stats > $tmp.values
 echo "from /sys/kernel/debug/kvm ..." >>$here/$seq.full
 cat $tmp.values >>$here/$seq.full
-join $tmp.probe $tmp.values >$tmp.all
+LC_COLLATE=POSIX join $tmp.probe $tmp.values >$tmp.all
 echo >>$here/$seq.full
 cat $tmp.all >>$here/$seq.full
 

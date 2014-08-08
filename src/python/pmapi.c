@@ -149,6 +149,7 @@ addLongOption(pmLongOptions *opt, int duplicate)
     bytes = (index + 2) * sizeof(pmLongOptions); /* +2 for PMAPI_OPTIONS_END */
     if ((lp = realloc(options.long_options, bytes)) == NULL)
 	return -ENOMEM;
+    options.long_options = lp;
 
     if (!duplicate)
 	goto update;
@@ -174,7 +175,6 @@ update:
     lp[index].argname = opt->argname;
     lp[index].message = opt->message;
     memset(&lp[index+1], 0, sizeof(pmLongOptions));	/* PMAPI_OPTIONS_END */
-    options.long_options = lp;
     longOptionsCount++;
     return 0;
 }
@@ -259,6 +259,27 @@ static PyObject *
 setLongOptionArchive(PyObject *self, PyObject *args)
 {
     pmLongOptions option = PMOPT_ARCHIVE;
+    return addLongOptionObject(&option);
+}
+
+static PyObject *
+setLongOptionHostList(PyObject *self, PyObject *args)
+{
+    pmLongOptions option = PMOPT_HOST_LIST;
+    return addLongOptionObject(&option);
+}
+
+static PyObject *
+setLongOptionArchiveList(PyObject *self, PyObject *args)
+{
+    pmLongOptions option = PMOPT_ARCHIVE_LIST;
+    return addLongOptionObject(&option);
+}
+
+static PyObject *
+setLongOptionArchiveFolio(PyObject *self, PyObject *args)
+{
+    pmLongOptions option = PMOPT_ARCHIVE_FOLIO;
     return addLongOptionObject(&option);
 }
 
@@ -437,6 +458,51 @@ setOptionFlags(PyObject *self, PyObject *args, PyObject *keywords)
 }
 
 static PyObject *
+setOptionArchiveFolio(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    char *folio;
+    char *keyword_list[] = {PMLONGOPT_ARCHIVE_FOLIO, NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+			"s:pmSetOptionArchiveFolio", keyword_list, &folio))
+	return NULL;
+
+    __pmAddOptArchiveFolio(&options, folio);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+setOptionArchiveList(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    char *archives;
+    char *keyword_list[] = {PMLONGOPT_ARCHIVE_LIST, NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+			"s:pmSetOptionArchiveList", keyword_list, &archives))
+	return NULL;
+
+    __pmAddOptArchiveList(&options, archives);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+setOptionHostList(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    char *hosts;
+    char *keyword_list[] = {PMLONGOPT_HOST_LIST, NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+			"s:pmSetOptionHostList", keyword_list, &hosts))
+	return NULL;
+
+    __pmAddOptHostList(&options, hosts);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 setOptionSamples(PyObject *self, PyObject *args, PyObject *keywords)
 {
     char *count, *endnum;
@@ -560,7 +626,6 @@ getNonOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
 
     if (!PyList_Check(pyargv)) {
 	PyErr_SetString(PyExc_TypeError, "pmGetNonOptionsFromList uses a list");
-	Py_DECREF(pyargv);
 	return NULL;
     }
 
@@ -568,16 +633,13 @@ getNonOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
     if ((argc = PyList_GET_SIZE(pyargv)) > 0)
 	length = argc - options.optind;
 
-    if (!length) {
-	Py_DECREF(pyargv);
+    if (length <= 0) {
 	Py_INCREF(Py_None);
 	return Py_None;
     }
 
-    if ((result = PyList_New(length)) == NULL) {
-	Py_DECREF(pyargv);
+    if ((result = PyList_New(length)) == NULL)
 	return PyErr_NoMemory();
-    }
 
     for (i = 0; i < length; i++) {
 	PyObject *pyarg = PyList_GET_ITEM(pyargv, options.optind + i);
@@ -626,6 +688,7 @@ getOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
 	 * ensure the memory that backs it will be with us forever.
          */
 	if (i == 0 && (string = strdup(string)) == NULL) {
+	    free(argv);
 	    Py_DECREF(pyargv);
 	    return PyErr_NoMemory();
 	}
@@ -809,6 +872,15 @@ getOptionStart_usec(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+getOptionFinish_optarg(PyObject *self, PyObject *args)
+{
+    if (options.finish_optarg)
+	return Py_BuildValue("s", options.finish_optarg);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 getOptionFinish_sec(PyObject *self, PyObject *args)
 {
     if (options.finish.tv_sec || options.finish.tv_usec)
@@ -915,6 +987,12 @@ static PyMethodDef methods[] = {
     { .ml_name = "pmSetLongOptionArchive",
 	.ml_meth = (PyCFunction) setLongOptionArchive,
         .ml_flags = METH_NOARGS },
+    { .ml_name = "pmSetLongOptionArchiveList",
+	.ml_meth = (PyCFunction) setLongOptionArchiveList,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmSetLongOptionArchiveFolio",
+	.ml_meth = (PyCFunction) setLongOptionArchiveFolio,
+        .ml_flags = METH_NOARGS },
     { .ml_name = "pmSetLongOptionDebug",
 	.ml_meth = (PyCFunction) setLongOptionDebug,
         .ml_flags = METH_NOARGS },
@@ -923,6 +1001,9 @@ static PyMethodDef methods[] = {
         .ml_flags = METH_NOARGS },
     { .ml_name = "pmSetLongOptionHost",
 	.ml_meth = (PyCFunction) setLongOptionHost,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmSetLongOptionHostList",
+	.ml_meth = (PyCFunction) setLongOptionHostList,
         .ml_flags = METH_NOARGS },
     { .ml_name = "pmSetLongOptionHostsFile",
 	.ml_meth = (PyCFunction) setLongOptionHostsFile,
@@ -1014,6 +1095,9 @@ static PyMethodDef methods[] = {
     { .ml_name = "pmGetOptionStart_usec",
 	.ml_meth = (PyCFunction) getOptionStart_usec,
         .ml_flags = METH_NOARGS },
+    { .ml_name = "pmGetOptionFinish_optarg",
+	.ml_meth = (PyCFunction) getOptionFinish_optarg,
+        .ml_flags = METH_NOARGS },
     { .ml_name = "pmGetOptionFinish_sec",
 	.ml_meth = (PyCFunction) getOptionFinish_sec,
         .ml_flags = METH_NOARGS },
@@ -1044,6 +1128,15 @@ static PyMethodDef methods[] = {
     { .ml_name = "pmGetOptionTimezone",
 	.ml_meth = (PyCFunction) getOptionTimezone,
         .ml_flags = METH_NOARGS },
+    { .ml_name = "pmSetOptionArchiveList",
+	.ml_meth = (PyCFunction) setOptionArchiveList,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmSetOptionArchiveFolio",
+	.ml_meth = (PyCFunction) setOptionArchiveFolio,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmSetOptionHostList",
+	.ml_meth = (PyCFunction) setOptionHostList,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { NULL }
 };
 

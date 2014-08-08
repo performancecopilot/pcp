@@ -645,6 +645,9 @@ pcp_run_dir
 pcp_log_dir
 pcp_sysconfig_dir
 pcp_rc_dir
+pcp_desktop_dir
+pcp_icons_dir
+pcp_books_dir
 pcp_inc_dir
 pcp_sbin_dir
 pcp_bin_dir
@@ -720,6 +723,13 @@ LEXLIB
 LEX_OUTPUT_ROOT
 LEX
 LN_S
+book_toolchain
+xmlto
+XMLTO
+dblatex
+DBLATEX
+publican
+PUBLICAN
 makepkg
 MAKEPKG
 dpkg
@@ -772,6 +782,10 @@ cflags_abi
 cc_is_gcc
 cc
 CCPATH
+qmake
+enable_qt
+qt_release
+QMAKE
 PYTHON
 GIT
 LTLIBOBJS
@@ -870,6 +884,8 @@ with_infiniband
 with_user
 with_group
 with_discovery
+with_qt
+with_books
 enable_ssp
 enable_pie
 enable_visibility
@@ -1544,6 +1560,9 @@ Optional Packages:
                           pcp)
   --with-group            user group under which daemons run (default is pcp)
   --with-discovery        enable support for service discovery (default is on)
+  --with-qt               enable support for tools requiring Qt (default is
+                          on)
+  --with-books            enable building of the PCP books (default is off)
   --with-configdir        configuration directory [LOCALSTATEDIR/pcp/config]
   --with-perl_installdirs perl installdirs [vendor]
   --with-perl_install_base
@@ -2535,6 +2554,24 @@ else
 fi
 
 
+
+# Check whether --with-qt was given.
+if test "${with_qt+set}" = set; then :
+  withval=$with_qt; do_qt=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-qt=$withval"
+else
+  do_qt=check
+fi
+
+
+
+# Check whether --with-books was given.
+if test "${with_books+set}" = set; then :
+  withval=$with_books; do_books=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books=$withval"
+else
+  do_books=off
+fi
+
+
 #
 # Note: the following environment variables may be
 # set to override the defaults.
@@ -2684,7 +2721,6 @@ test -n "$target_alias" &&
 
 if test -z "$target"
 then
-    echo
     echo '
 FATAL ERROR: Cannot guess your target, try explicit specification
              using --target or ask pcp@mail.performancecopilot.org'
@@ -2703,6 +2739,19 @@ fi
 echo Building on $build for $target
 echo "Build: os=$build_os cpu=$build_cpu"
 echo "Target: os=$target_os cpu=$target_cpu"
+
+if test "$cross_compiling" = "yes"; then
+    if test -f ./config.$target_os; then
+	. ./config.$target_os
+    else
+	echo
+	echo "
+FATAL ERROR: Cannot perform cross-compilation without a file to source
+             configuration information from (config.$target_os is missing)"
+	rm -rf conftest conftest.*
+	exit 1
+    fi
+fi
 
 target_distro=$target_os
 if test $target_os = linux
@@ -2735,10 +2784,6 @@ then
     $as_echo "#define IS_MINGW 1" >>confdefs.h
 
     CFLAGS="-fno-strict-aliasing"
-    export CPPFLAGS="$CPPFLAGS -I$PCP_DIR/include -I$PCP_DIR/local/include"
-    export CFLAGS="$CFLAGS -I$PCP_DIR/include -I$PCP_DIR/local/include"
-    export LDFLAGS="$LDFLAGS -L$PCP_DIR/lib -L$PCP_DIR/local/lib"
-    export PATH="$PATH:$PCP_DIR/bin:$PCP_DIR/local/bin"
 elif test $target_os = solaris
 then
     $as_echo "#define IS_SOLARIS 1" >>confdefs.h
@@ -2754,6 +2799,12 @@ then
 elif test $target_os = freebsd || test $target_os = kfreebsd
 then
     $as_echo "#define IS_FREEBSD 1" >>confdefs.h
+
+    test -f /etc/debian_version && target_distro=debian
+    export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
+elif test $target_os = gnu
+then
+    $as_echo "#define IS_GNU 1" >>confdefs.h
 
     test -f /etc/debian_version && target_distro=debian
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
@@ -4492,21 +4543,7 @@ esac
 # targets a build for non-system directories such as /usr/local.
 # AC_PREFIX_DEFAULT([])
 
-if test -f VERSION.pcp
-then
-    . ./VERSION.pcp
-fi
-
-if test -z "$PACKAGE_MAJOR" ; then
-    PACKAGE_MAJOR=1
-fi
-
-for V in MINOR REVISION BUILD; do
-	P=`eval echo \\$PACKAGE_$i`
-	if test -z "$P"; then
-		eval PACKAGE_${i}=0
-	fi
-done
+. ./VERSION.pcp
 PACKAGE_VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
 
 
@@ -5887,6 +5924,100 @@ fi
 
   test -n "$PYTHON" && break
 done
+
+
+
+qmake=$QMAKE
+enable_qt=false
+qt_release=release
+if test "x$do_qt" != "xno"; then :
+
+    enable_qt=true
+
+    if test -z "$QMAKE"
+    then
+	for ac_prog in qmake-qt4 qmake
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_QMAKE+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $QMAKE in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_QMAKE="$QMAKE" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="$QTDIR/bin:/usr/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin"
+for as_dir in $as_dummy
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_QMAKE="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+QMAKE=$ac_cv_path_QMAKE
+if test -n "$QMAKE"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $QMAKE" >&5
+$as_echo "$QMAKE" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test -n "$QMAKE" && break
+done
+
+    fi
+    qmake=$QMAKE
+    if test -z "$QMAKE"
+    then
+	enable_qt=false
+    else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Qt version" >&5
+$as_echo_n "checking Qt version... " >&6; }
+	eval `$qmake --version | awk '/Using Qt version/ { ver=4; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export QT_MAJOR=%d QT_MINOR=%d QT_POINT=%d\n",$major,$minor,$point }'`
+	if test "$QT_MAJOR" -lt 4; then
+	    echo
+	    echo WARNING: Qt version 4.4 or later does not seem to be installed.
+	    echo Cannot proceed with the Qt $QT_MAJOR installation found.
+	    enable_qt=false
+	fi
+	if test "$QT_MAJOR" -eq 4 -a "$QT_MINOR" -lt 4 ; then
+	    echo
+	    echo WARNING: Qt version 4.$QT_MINOR is too old.
+	    echo Qt version 4.4 or later is required for Qt builds.
+	    enable_qt=false
+	fi
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $QT_MAJOR.$QT_MINOR.$QT_POINT" >&5
+$as_echo "$QT_MAJOR.$QT_MINOR.$QT_POINT" >&6; }
+    fi
+
+    if test "$do_qt" != "check" -a "$enable_qt" != "true"
+    then
+	as_fn_error $? "cannot enable Qt - no supported Qt installation found" "$LINENO" 5
+    elif test "$do_qt" = "debug"
+    then
+		qt_release=debug
+	enable_qt=true
+    fi
+
+fi
+
 
 
 
@@ -7721,6 +7852,155 @@ fi
 makepkg=$MAKEPKG
 
 
+test -z "$PUBLICAN" && # Extract the first word of "publican", so it can be a program name with args.
+set dummy publican; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_PUBLICAN+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $PUBLICAN in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_PUBLICAN="$PUBLICAN" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_PUBLICAN="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+PUBLICAN=$ac_cv_path_PUBLICAN
+if test -n "$PUBLICAN"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PUBLICAN" >&5
+$as_echo "$PUBLICAN" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+publican=$PUBLICAN
+
+test -z "$DBLATEX" && # Extract the first word of "dblatex", so it can be a program name with args.
+set dummy dblatex; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_DBLATEX+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $DBLATEX in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_DBLATEX="$DBLATEX" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_DBLATEX="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+DBLATEX=$ac_cv_path_DBLATEX
+if test -n "$DBLATEX"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $DBLATEX" >&5
+$as_echo "$DBLATEX" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+dblatex=$DBLATEX
+
+test -z "$XMLTO" && # Extract the first word of "xmlto", so it can be a program name with args.
+set dummy xmlto; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_XMLTO+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $XMLTO in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_XMLTO="$XMLTO" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_XMLTO="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+XMLTO=$ac_cv_path_XMLTO
+if test -n "$XMLTO"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $XMLTO" >&5
+$as_echo "$XMLTO" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+xmlto=$XMLTO
+
+
+book_toolchain=""
+if test "$do_books" = "check" -o "$do_books" = "yes"
+then
+    if test "$BOOK_TOOLCHAIN" != ""
+    then
+        book_toolchain=$BOOK_TOOLCHAIN
+    elif test "$DBLATEX" != ""
+    then
+        book_toolchain=dblatex
+    elif test "$PUBLICAN" != ""
+    then
+        book_toolchain=publican
+    elif test "$XMLTO" != ""
+    then
+        book_toolchain=xmlto
+    elif test "$do_books" = "yes"
+    then
+	as_fn_error $? "cannot enable books build - no toolchain found" "$LINENO" 5
+    fi
+fi
+
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ln -s works" >&5
 $as_echo_n "checking whether ln -s works... " >&6; }
 LN_S=$as_ln_s
@@ -8189,12 +8469,13 @@ else
 fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for ps style" >&5
+if test "$cross_compiling" != "yes"; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for ps style" >&5
 $as_echo_n "checking for ps style... " >&6; }
-pcp_ps_all_flags=''
-if $pcp_ps_prog -ef >conftest.out 2>/dev/null
-then
-    ans=`$awk <conftest.out '
+    pcp_ps_all_flags=''
+    if $pcp_ps_prog -ef >conftest.out 2>/dev/null
+    then
+	ans=`$awk <conftest.out '
 NR == 1			{ if ($1 != "UID" && $1 != "USER") exit
 			  if ($2 != "PID") exit
 			}
@@ -8206,18 +8487,21 @@ $2 == 1 && / \/sbin\/init/ { print "OK"; exit }
 # Fedora 15
 $2 == 1 && / \/bin\/systemd/ { print "OK"; exit }
 # Fedora 17
-$2 == 1 && / \/usr\/lib\/systemd\/systemd/ { print "OK"; exit }'`
-    if test "$ans" = OK
-    then
-	pcp_ps_have_bsd=false
-	pcp_ps_all_flags=-ef
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: SysV" >&5
+$2 == 1 && / \/usr\/lib\/systemd\/systemd/ { print "OK"; exit }
+# Debian sid
+$2 == 1 && / \/lib\/systemd\/systemd/ { print "OK"; exit }'`
+	if test "$ans" = OK
+	then
+	    pcp_ps_have_bsd=false
+	    pcp_ps_all_flags=-ef
+	    { $as_echo "$as_me:${as_lineno-$LINENO}: result: SysV" >&5
 $as_echo "SysV" >&6; }
+	fi
     fi
-fi
-if test -z "$pcp_ps_all_flags" && $pcp_ps_prog auxww >conftest.out 2>/dev/null
-then
-    ans=`$awk <conftest.out '
+
+    if test -z "$pcp_ps_all_flags" && $pcp_ps_prog auxww >conftest.out 2>/dev/null
+    then
+	ans=`$awk <conftest.out '
 NR == 1			{ if ($1 != "UID" && $1 != "USER") exit
 			  if ($2 != "PID") exit
 			}
@@ -8225,24 +8509,24 @@ $2 == 1 && / init/	{ print "OK"; exit }
 $2 == 1 && / \/sbin\/init/ { print "OK"; exit }
 $2 == 1 && / \/sbin\/launchd/ { print "OK"; exit }
 $2 == 1 && / \/init/	{ print "OK"; exit }'`
-    if test "$ans" = OK
-    then
-	pcp_ps_have_bsd=true
-	pcp_ps_all_flags=auxww
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: BSD" >&5
+	if test "$ans" = OK
+	then
+	    pcp_ps_have_bsd=true
+	    pcp_ps_all_flags=auxww
+	    { $as_echo "$as_me:${as_lineno-$LINENO}: result: BSD" >&5
 $as_echo "BSD" >&6; }
+	fi
     fi
-fi
-if test -z "$pcp_ps_all_flags" && $pcp_ps_prog -eflW >conftest.out 2>/dev/null
-then
-    if test $target_os = mingw
+
+        if $pcp_ps_prog ${pcp_ps_all_flags}w >/dev/null 2>&1
     then
-	pcp_ps_have_bsd=false
-	pcp_ps_all_flags=-eflW
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: MinGW" >&5
-$as_echo "MinGW" >&6; }
+	if test $target_os != solaris
+	then
+	    pcp_ps_all_flags=${pcp_ps_all_flags}w
+	fi
     fi
 fi
+
 if test -z "$pcp_ps_all_flags"
 then
         { $as_echo "$as_me:${as_lineno-$LINENO}: result: unknown" >&5
@@ -8251,13 +8535,6 @@ $as_echo "unknown" >&6; }
     echo "format output from your ps(1)."
     rm -rf conftest conftest.*
     exit 1
-fi
-if $pcp_ps_prog ${pcp_ps_all_flags}w >/dev/null 2>&1
-then
-    if test $target_os != solaris
-    then
-	pcp_ps_all_flags=${pcp_ps_all_flags}w
-    fi
 fi
 
 
@@ -8290,12 +8567,21 @@ fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for /proc " >&5
 $as_echo_n "checking for /proc ... " >&6; }
-if test -d /proc
+if test "$cross_compiling" = "yes"; then
+    ans=$have_procfs
+    echo "cross-compile -> \"$ans\"" >&5
+elif test -d /proc
 then
-    $as_echo "#define HAVE_PROCFS 1" >>confdefs.h
-
+    have_procfs=true
+else
+    have_procfs=false
+fi
+if $have_procfs
+then
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
+    $as_echo "#define HAVE_PROCFS 1" >>confdefs.h
+
 else
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
@@ -9656,6 +9942,18 @@ _ACEOF
 fi
 done
 
+for ac_func in getuid getgid
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
 for ac_func in getgrent getgrent_r getgrnam getgrnam_r getgrgid getgrgid_r
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
@@ -10209,14 +10507,19 @@ rm -f conftest.*
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if printf %p produces 0x prefix" >&5
 $as_echo_n "checking if printf %p produces 0x prefix... " >&6; }
-cat <<End-of-File >conftest.c
+if test "$cross_compiling" = "yes"; then
+    ans=$printf_p_prefix
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
 #include <stdio.h>
 main(int argc,  char **argv) { printf("%p", argv); exit(0); }
 End-of-File
-(eval $ac_compile) 2>&5
-(eval $ac_link) 2>&5
-ans=`./conftest`
-echo "./conftest -> \"$ans\"" >&5
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+fi
 case "$ans"
 in
     0x*)
@@ -10311,6 +10614,9 @@ $2 == "bozo"	{ t = $1
 	;;
     long|'long int')
 	_fmt='"ld"'
+	;;
+    'long long'|'long long int')
+	_fmt='"lld"'
 	;;
     'unsigned long'|'unsigned long int'|'long unsigned int')
 	_fmt='"lu"'
@@ -10534,14 +10840,19 @@ fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking sizeof long" >&5
 $as_echo_n "checking sizeof long... " >&6; }
-cat <<End-of-File >conftest.c
+if test "$cross_compiling" = "yes"; then
+    ans=$sizeof_long
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
 #include <stdio.h>
 main() { printf("%d", (int)sizeof(long)); }
 End-of-File
-(eval $ac_compile) 2>&5
-(eval $ac_link) 2>&5
-ans=`./conftest`
-echo "./conftest -> \"$ans\"" >&5
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
 $as_echo "$ans" >&6; }
 if test "$ans" = 4; then
@@ -10561,14 +10872,19 @@ rm -rf conftest conftest.*
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking sizeof pointer" >&5
 $as_echo_n "checking sizeof pointer... " >&6; }
-cat <<End-of-File >conftest.c
+if test "$cross_compiling" = "yes"; then
+    ans=$sizeof_pointer
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
 #include <stdio.h>
 main() { printf("%d", (int)sizeof(char *)); }
 End-of-File
-(eval $ac_compile) 2>&5
-(eval $ac_link) 2>&5
-ans=`./conftest`
-echo "./conftest -> \"$ans\"" >&5
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
 $as_echo "$ans" >&6; }
 if test "$ans" = 4; then
@@ -10590,14 +10906,19 @@ rm -rf conftest conftest.*
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking sizeof int" >&5
 $as_echo_n "checking sizeof int... " >&6; }
-cat <<End-of-File >conftest.c
+if test "$cross_compiling" = "yes"; then
+    ans=$sizeof_int
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
 #include <stdio.h>
 main() { printf("%d", (int)sizeof(int)); }
 End-of-File
-(eval $ac_compile) 2>&5
-(eval $ac_link) 2>&5
-ans=`./conftest`
-echo "./conftest -> \"$ans\"" >&5
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
 $as_echo "$ans" >&6; }
 if test "$ans" != 4
@@ -10613,14 +10934,19 @@ rm -rf conftest conftest.*
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if bit fields allocated left-to-right" >&5
 $as_echo_n "checking if bit fields allocated left-to-right... " >&6; }
-cat <<End-of-File >conftest.c
+if test "$cross_compiling" = "yes"; then
+    ans=$bit_field_scheme
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
 union { struct { unsigned int b:4; unsigned int c:4; } a; int p; } u;
 main() { u.a.b = 1; u.a.c = 2; printf("%0*x", 2*sizeof(int), u.p); }
 End-of-File
-(eval $ac_compile) 2>&5
-(eval $ac_link) 2>&5
-ans=`./conftest`
-echo "./conftest -> \"$ans\"" >&5
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+fi
 case "$ans"
 in
     1200*|*0012)
@@ -12209,6 +12535,18 @@ pcp_inc_dir=`eval echo $includedir/pcp`
 pcp_inc_dir=`eval echo $pcp_inc_dir`
 
 
+pcp_books_dir=`eval echo $datarootdir/doc/pcp-doc`
+pcp_books_dir=`eval echo $pcp_books_dir`
+
+
+pcp_icons_dir=`eval echo $datarootdir/pcp-gui/pixmaps`
+pcp_icons_dir=`eval echo $pcp_icons_dir`
+
+
+pcp_desktop_dir=`eval echo $datarootdir/applications`
+pcp_desktop_dir=`eval echo $pcp_desktop_dir`
+
+
 
 # Check whether --with-rcdir was given.
 if test "${with_rcdir+set}" = set; then :
@@ -12273,7 +12611,7 @@ pcp_tmp_dir=`eval echo $pcp_var_dir/tmp`
 if test "${with_docdir+set}" = set; then :
   withval=$with_docdir; pcp_doc_dir=$withval
 else
-  pcp_doc_dir=$docdir/pcp-${PACKAGE_VERSION}
+  PACKAGE=pcp-${PACKAGE_VERSION}; pcp_doc_dir=$docdir
 fi
 
 pcp_doc_dir=`eval echo $pcp_doc_dir`
@@ -12980,7 +13318,8 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if strftime knows about %z" >&5
 $as_echo_n "checking if strftime knows about %z... " >&6; }
 if test "$cross_compiling" = yes; then :
-  0
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
 else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */

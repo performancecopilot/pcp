@@ -83,17 +83,19 @@ extern int __pmGetInternalState(void);
  * environment
  */
 #define SERVER_PORT 44321
-
+#define SERVER_PROTOCOL "pcp"
 /*
  * port that clients connect to pmproxy(1) on by default, over-ride with
  * $PMPROXY_PORT in environment
  */
 #define PROXY_PORT 44322
+#define PROXY_PROTOCOL "proxy"
 
 /*
  * port that clients connect to pmwebd(1) by default
  */
 #define PMWEBD_PORT 44323
+#define PMWEBD_PROTOCOL "http"
 
 /*
  * Internally, this is how to decode a PMID!
@@ -147,10 +149,14 @@ pmid_domain(pmID id)
 static inline pmID
 pmid_build(unsigned int domain, unsigned int cluster, unsigned int item)
 {
-    pmID id = 0;
-    __pmid_int(&id)->domain = domain;
-    __pmid_int(&id)->cluster = cluster;
-    __pmid_int(&id)->item = item;
+    pmID id;
+    __pmID_int idint;
+
+    idint.flag = 0;
+    idint.domain = domain;
+    idint.cluster = cluster;
+    idint.item = item;
+    memcpy(&id, &idint, sizeof(id));
     return id;
 }
 
@@ -179,11 +185,13 @@ __pmindom_int(pmInDom *idp)
     /* avoid gcc's warning about dereferencing type-punned pointers */
     return (__pmInDom_int *)idp;
 }
+
 static inline unsigned int 
 pmInDom_domain(pmInDom id)
 {
     return __pmindom_int(&id)->domain;
 }
+
 static inline unsigned int 
 pmInDom_serial(pmInDom id)
 {
@@ -191,13 +199,16 @@ pmInDom_serial(pmInDom id)
 }
 
 static inline pmInDom
-pmInDom_build (unsigned int domain, unsigned int serial)
+pmInDom_build(unsigned int domain, unsigned int serial)
 {
-    pmInDom ind = 0;
+    pmInDom ind;
+    __pmInDom_int indint;
 
-    __pmindom_int(&ind)->domain = domain;
-    __pmindom_int(&ind)->serial = serial;
-    return (ind);
+    indint.flag = 0;
+    indint.domain = domain;
+    indint.serial = serial;
+    memcpy(&ind, &indint, sizeof(ind));
+    return ind;
 }
 
 /*
@@ -289,6 +300,8 @@ extern void __pmFreeResultValues(pmResult *);
 extern char *__pmPDUTypeStr_r(int, char *, int);
 extern const char *__pmPDUTypeStr(int);			/* NOT thread-safe */
 extern void __pmDumpNameSpace(FILE *, int);
+extern void __pmDumpNameNode(FILE *, __pmnsNode *, int);
+extern void __pmDumpStack(FILE *);
 EXTERN int __pmLogReads;
 
 #ifdef PCP_DEBUG
@@ -332,7 +345,7 @@ typedef enum {
 } __pmHashWalkState;
 
 extern void __pmHashInit(__pmHashCtl *);
-typedef __pmHashWalkState (*__pmHashWalkCallback)(const __pmHashNode *, void *);
+typedef __pmHashWalkState(*__pmHashWalkCallback)(const __pmHashNode *, void *);
 extern void __pmHashWalkCB(__pmHashWalkCallback, void *, const __pmHashCtl *);
 extern __pmHashNode *__pmHashWalk(__pmHashCtl *, __pmHashWalkState);
 extern __pmHashNode *__pmHashSearch(unsigned int, __pmHashCtl *);
@@ -606,7 +619,7 @@ extern __pmSockAddr *__pmSockAddrAlloc(void);
 extern void	     __pmSockAddrFree(__pmSockAddr *);
 extern size_t	     __pmSockAddrSize(void);
 extern void	     __pmSockAddrInit(__pmSockAddr *, int, int, int);
-extern int	     __pmSockAddrCompare (const __pmSockAddr *, const __pmSockAddr *);
+extern int	     __pmSockAddrCompare(const __pmSockAddr *, const __pmSockAddr *);
 extern __pmSockAddr *__pmSockAddrDup(const __pmSockAddr *);
 extern __pmSockAddr *__pmSockAddrMask(__pmSockAddr *, const __pmSockAddr *);
 extern void	     __pmSockAddrSetFamily(__pmSockAddr *, int);
@@ -619,9 +632,11 @@ extern int	     __pmSockAddrIsLoopBack(const __pmSockAddr *);
 extern int	     __pmSockAddrIsInet(const __pmSockAddr *);
 extern int	     __pmSockAddrIsIPv6(const __pmSockAddr *);
 extern int	     __pmSockAddrIsUnix(const __pmSockAddr *);
-extern char *	     __pmSockAddrToString(__pmSockAddr *);
+extern char *	     __pmSockAddrToString(const __pmSockAddr *);
 extern __pmSockAddr *__pmStringToSockAddr(const char *);
 extern __pmSockAddr *__pmLoopBackAddress(int);
+extern __pmSockAddr *__pmSockAddrFirstSubnetAddr(const __pmSockAddr *, int);
+extern __pmSockAddr *__pmSockAddrNextSubnetAddr(__pmSockAddr *, int);
 
 extern __pmHostEnt * __pmHostEntAlloc(void);
 extern void	     __pmHostEntFree(__pmHostEnt *);
@@ -648,6 +663,7 @@ typedef enum {
 extern int __pmServerHasFeature(__pmServerFeature);
 extern int __pmServerSetFeature(__pmServerFeature);
 extern int __pmServerClearFeature(__pmServerFeature);
+extern int __pmServerCreatePIDFile(const char *, int);
 extern int __pmServerAddPorts(const char *);
 extern int __pmServerAddInterface(const char *);
 extern void __pmServerSetLocalSocket(const char *);
@@ -678,6 +694,8 @@ typedef struct {
     double		ac_end;		/* time at end of archive */
     void		*ac_want;	/* used in interp.c */
     void		*ac_unbound;	/* used in interp.c */
+    void		*ac_cache;	/* used in interp.c */
+    int			ac_cache_idx;	/* used in interp.c */
 } __pmArchCtl;
 
 /*
@@ -789,7 +807,7 @@ extern void __pmSetPDUCntBuf(unsigned *, unsigned *);
 /* timeout options for PDU handling */
 #define TIMEOUT_NEVER	 0
 #define TIMEOUT_DEFAULT	-1
-#define TIMEOUT_ASYNC	-2
+/*#define TIMEOUT_ASYNC -2*/
 #define TIMEOUT_CONNECT	-3
 
 /* mode options for __pmGetPDU */
@@ -1032,6 +1050,7 @@ extern int __pmLogFetch(__pmContext *, int, pmID *, pmResult **);
 extern int __pmLogFetchInterp(__pmContext *, int, pmID *, pmResult **);
 extern void __pmLogSetTime(__pmContext *);
 extern void __pmLogResetInterp(__pmContext *);
+extern void __pmFreeInterpData(__pmContext *);
 
 extern int __pmLogChangeVol(__pmLogCtl *, int);
 extern int __pmLogChkLabel(__pmLogCtl *, FILE *, __pmLogLabel *, int);
@@ -1288,6 +1307,7 @@ extern const char *__pmGetAPIConfig(const char *);
 extern void __pmStartOptions(pmOptions *);
 extern void __pmAddOptArchive(pmOptions *, char *);
 extern void __pmAddOptArchiveList(pmOptions *, char *);
+extern void __pmAddOptArchiveFolio(pmOptions *, char *);
 extern void __pmAddOptHost(pmOptions *, char *);
 extern void __pmAddOptHostList(pmOptions *, char *);
 extern void __pmEndOptions(pmOptions *);
@@ -1445,6 +1465,21 @@ extern pthread_mutex_t	__pmLock_libpcp;	/* big libpcp lock */
 #else
 extern void *__pmLock_libpcp;			/* symbol exposure */
 #endif
+
+/*
+ * Service discovery with options.
+ * The 4th argument is a pointer to a mask of flags for boolean options
+ * and status. It is set and tested using the following bits.
+ */
+#define PM_SERVICE_DISCOVERY_INTERRUPTED	0x1
+#define PM_SERVICE_DISCOVERY_RESOLVE		0x2
+
+extern int __pmDiscoverServicesWithOptions(const char *,
+					   const char *,
+					   const char *,
+					   const volatile unsigned *,
+					   char ***);
+
 
 #ifdef __cplusplus
 }

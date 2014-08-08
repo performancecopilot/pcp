@@ -1,0 +1,96 @@
+# fio job file - modeling NAS/DB I/O patterns based on a number
+# of PCP disk metrics (iops, throughput, queuelen) from our mel
+# production storage on 2010/07/14.
+#
+# Basic usage:
+# [ args="--latency-log --bandwidth-log" ]
+# fio $args --output=nas_read_analysis.log --section=nas_read_load model.fio &
+# fio $args --output=nas_write_analysis.log --section=nas_write_load model.fio &
+# wait
+# fio $args --output=db_log_analysis.log --section=db_log_analysis model.fio &
+# fio $args --output=db_analysis.log --section=db_load model.fio &
+# wait
+# fio $args --output=bi_log_analysis.log --section=bi_log_analysis model.fio &
+# fio $args --output=bi_analysis.log --section=bi_load model.fio &
+# wait
+# 
+
+[global]
+directory=/iscsi
+size=2G
+numjobs=4
+runtime=300
+time_based
+
+[nas_read_load]
+description=NAS reads workload model
+ioscheduler=deadline
+readwrite=read
+filesize=150M
+rate=2521k
+bssplit=4k/5:8k/5:30k/80:60k/5:64k/5
+ioengine=psync		# make sure we do no seeks, NFS wont be
+direct=1
+iodepth=4
+openfiles=4		# model using number of active nfsd threads
+nrfiles=4
+
+[nas_write_load]
+description=NAS writes workload model
+ioscheduler=deadline
+readwrite=write
+filesize=150M
+rate=1233k
+bssplit=4k/5:8k/5:30k/80:60k/5:64k/5
+fsync_on_close=1	# application doing per-file (rename+)fsync
+ioengine=psync		# make sure we do no seeks, NFS wont be
+direct=1
+iodepth=4
+openfiles=4		# model using number of active nfsd threads
+nrfiles=4
+
+[db_load]
+description=Database (interactive) workload model
+ioscheduler=noop
+overwrite=1
+readwrite=rw		# mixed sequential reads and writes
+rwmixread=64		# 64% read, 36% write ratio based on averages
+direct=1
+iodepth=2		# based on average queuelen
+filesize=150M
+rate_iops=145,82
+bssplit=4k/5,4k/5:8k/90,8k/90:16k/5,16k/5
+ioengine=psync
+iodepth=2
+openfiles=1
+nrfiles=1
+
+[bi_load]
+description=Database (business intelligence) workload model
+ioscheduler=noop
+overwrite=1
+readwrite=rw		# mixed sequential reads and writes
+rwmixread=93		# 93% read, 7% write ratio based on averages
+direct=1
+filesize=150M
+rate_iops=864,67
+bssplit=4k/4,4k/4:48k/90,8k/96:64k/5,:128k/1,
+ioengine=psync
+iodepth=8
+openfiles=1
+nrfiles=1
+
+[log_load]
+description=Database log writes (background) workload model
+ioscheduler=noop
+overwrite=1
+readwrite=write		# only writes in this load
+direct=1
+ioengine=psync
+iodepth=4
+filesize=100M
+bs=64k
+thinktime=10000000
+thinktime_blocks=150
+nrfiles=1
+numjobs=1

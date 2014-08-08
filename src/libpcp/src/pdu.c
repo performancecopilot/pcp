@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 1995-2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -97,7 +97,7 @@ pduread(int fd, char *buf, int len, int part, int timeout)
     struct timeval	dead_hand;
     struct timeval	now;
 
-    if (timeout == TIMEOUT_ASYNC)
+    if (timeout == -2 /*TIMEOUT_ASYNC*/)
 	return -EOPNOTSUPP;
 
     /*

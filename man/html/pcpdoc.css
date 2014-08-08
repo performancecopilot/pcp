@@ -1,0 +1,45 @@
+h1 {
+    color: #000060;
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 28pt;
+    font-style: bold;
+    font-weight: medium;
+    text-align: center;
+    margin-top: 0.48cm;
+    margin-bottom: 0.32cm;
+}
+
+h2 {
+    color: #ffffff;
+    background-color: #081c59;
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 16pt;
+    font-style: bold;
+    font-weight: medium;
+}
+
+p, td  {
+    color: #000060;
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 11pt;
+}
+
+li {
+    color: #000060;
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 11pt;
+    padding-bottom: 5px;
+}
+
+pre {
+    color: #000060;
+    font-size: 10pt;
+}
+
+th  {
+    color: #000060;
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 11pt;
+    font-style: bold;
+    font-weight: medium;
+}

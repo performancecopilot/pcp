@@ -85,7 +85,6 @@ The application that launched pmlogger has asked pmlogger to continue independen
 
 At any time this pmlogger process may be terminated with the following command:
   $ pmsignal -s TERM PID
-pmlogger: Signalled (signal=15), exiting
 
 Log finished DATE
 

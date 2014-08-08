@@ -2,36 +2,21 @@
 # PCP QA Test No. 840
 # Test that pmcd advertises its presence using avahi
 #
-# Copyright (c) 2013 Red Hat.  All Rights Reserved.
+# Copyright (c) 2013-2014 Red Hat.  All Rights Reserved.
 #
 
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
-
-_get_libpcp_config
-$service_discovery || _notrun "No support for service discovery"
-
-# Is avahi-browse installed?
-which avahi-browse >/dev/null 2>&1 || _notrun avahi-browse is not installed
-
-# Is the avahi-daemon installed and running?  (maybe /sbin or /usr/sbin?)
-avahi-daemon --check 2>/dev/null || _notrun avahi-daemon is not available
+. ./common.avahi
+avahi_notrun_checks
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-avahi-browse -rt -d local _pmcd._tcp | tee $seq.full | \
-  grep -m1 "hostname = .`hostname`" | \
-  sed s/`hostname`/HOSTNAME/
-
-# success, all done
+service=pmcd
+avahi_verify
 status=0
-
 exit

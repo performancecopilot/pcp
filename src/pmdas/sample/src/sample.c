@@ -329,6 +329,8 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,136), PM_TYPE_EVENT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* event.no_indom_records */
     { PMDA_PMID(0,137), PM_TYPE_EVENT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* bad.novalues */
+    { PMDA_PMID(0,138), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /*
  * dynamic PMNS ones
@@ -1151,8 +1153,8 @@ init_tables(int dom)
     pmidp->domain = dom;
 
     /* local hacks */
-    _string = (char *)malloc(3);
-    strcpy(_string, "13");
+    _string = (char *)calloc(1, 8);
+    strncpy(_string, "13", sizeof("13"));
     _aggr33 = (pmValueBlock *)malloc(PM_VAL_HDR_SIZE);
     _aggr33->vlen = PM_VAL_HDR_SIZE + 0;
     _aggr33->vtype = PM_TYPE_AGGREGATE;
@@ -1627,6 +1629,8 @@ doit:
 	    else if (pmidp->cluster == 0 && pmidp->item == 54)
 		numval = PM_ERR_PMID;
 	    else if (pmidp->cluster == 0 && pmidp->item == 92)	/* darkness */
+		numval = 0;
+	    else if (pmidp->cluster == 0 && pmidp->item == 138)	/* bad.novalues */
 		numval = 0;
 	    else if (pmidp->cluster == 0 &&
 	             (pmidp->item == 127 ||	/* event.type */

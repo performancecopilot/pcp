@@ -1,0 +1,12 @@
+QA output created by 1001
+=== bad first line ===
+Load View: PCP_VAR_DIR/config/pmchart/Schemes
+Load View: stdin
+Error: stdin[1] Syntax error: expecting "#pmchart" or "#kmchart", found "#bad"
+
+=== lexicon too long ===
+Load View: PCP_VAR_DIR/config/pmchart/Schemes
+Load View: stdin
+Error: stdin[2] Word truncated after 255 characters!
+"aaaaaaaaaaaaaaaaaaaa ... cccccccccccccccccccc"
+Error: stdin[2] Syntax error: expecting "version", found "aaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbcccccccccccccccccccc"

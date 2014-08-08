@@ -27,6 +27,7 @@ unsigned exit_p;	       /* counted by SIG* handler */
 static char *logfile = "pmwebd.log";
 static char *fatalfile = "/dev/tty"; /* fatal messages at startup go here */
 static char *username;
+static __pmServerPresence *presence;
 
 static int
 mhd_log_args(void *connection, enum MHD_ValueKind kind, 
@@ -202,6 +203,9 @@ pmweb_shutdown(struct MHD_Daemon *d4, struct MHD_Daemon *d6)
 	MHD_stop_daemon(d4);
     if (d6)
 	MHD_stop_daemon(d6);
+
+    /* No longer advertise pmwebd presence on the network. */
+    __pmServerUnadvertisePresence(presence);
 
     /*
      * Let's politely clean up all the active contexts.
@@ -427,6 +431,10 @@ main(int argc, char *argv[])
 	__pmNotifyErr(LOG_ERR, "error starting microhttpd daemons\n");
 	pmweb_dont_start();
     }
+
+    /* tell the world we have arrived */
+    __pmServerCreatePIDFile(PM_SERVER_WEBD_SPEC, 0);
+    presence = __pmServerAdvertisePresence(PM_SERVER_WEBD_SPEC, port);
 
     __pmOpenLog(pmProgname, logfile, stderr, &sts);
     /* close old stdout, and force stdout into same stream as stderr */

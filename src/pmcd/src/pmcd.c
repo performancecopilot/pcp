@@ -25,6 +25,7 @@
 #define TO_STRING(s)	STRINGIFY(s)
 
 static char	*FdToString(int);
+static void	ResetBadHosts(void);
 
 int		AgentDied;		/* for updating mapdom[] */
 static int	timeToDie;		/* For SIGINT handling */
@@ -79,24 +80,6 @@ DontStart(void)
     __pmServerCloseRequestPorts();
 
     exit(1);
-}
-
-static int
-CreatePIDfile(void)
-{
-    char	pidpath[MAXPATHLEN];
-    FILE	*pidfile;
-
-    snprintf(pidpath, sizeof(pidpath), "%s%c" "pmcd.pid",
-		pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator());
-    if ((pidfile = fopen(pidpath, "w")) == NULL) {
-	fprintf(stderr, "Error: Cant open PID file %s\n", pidpath);
-	return -1;
-    }
-    fprintf(pidfile, "%" FMT_PID, getpid());
-    fflush(pidfile);
-    fclose(pidfile);
-    return 0;
 }
 
 static pmLongOptions longopts[] = {
@@ -484,7 +467,7 @@ SignalShutdown(void)
     exit(0);
 }
 
-void
+static void
 SignalRestart(void)
 {
     time_t	now;
@@ -497,7 +480,7 @@ SignalRestart(void)
     ParseRestartAgents(configFileName);
 }
 
-void
+static void
 SignalReloadPMNS(void)
 {
     int sts;
@@ -741,7 +724,7 @@ ClientLoop(void)
 }
 
 #ifdef HAVE_SA_SIGINFO
-void
+static void
 SigIntProc(int sig, siginfo_t *sip, void *x)
 {
     killer_sig = sig;
@@ -751,111 +734,53 @@ SigIntProc(int sig, siginfo_t *sip, void *x)
     }
     timeToDie = 1;
 }
+#elif IS_MINGW
+static void
+SigIntProc(int sig)
+{
+    SignalShutdown();
+}
 #else
-void SigIntProc(int sig)
+static void
+SigIntProc(int sig)
 {
     killer_sig = sig;
-#ifndef IS_MINGW
     signal(SIGINT, SigIntProc);
     signal(SIGTERM, SigIntProc);
     timeToDie = 1;
-#else
-    SignalShutdown();
-#endif
 }
 #endif
 
-void SigHupProc(int s)
+#ifdef IS_MINGW
+static void
+SigHupProc(int sig)
 {
-#ifndef IS_MINGW
-    signal(SIGHUP, SigHupProc);
-    restart = 1;
-#else
     SignalRestart();
     SignalReloadPMNS();
-#endif
 }
-
-#if HAVE_TRACE_BACK_STACK
-/*
- * max callback procedure depth (MAX_PCS) and max function name length
- * (MAX_SIZE)
- */
-#define MAX_PCS 30
-#define MAX_SIZE 48
-
-#include <libexc.h>
-
-static void
-do_traceback(FILE *f)
-{
-    __uint64_t	call_addr[MAX_PCS];
-    char	*call_fn[MAX_PCS];
-    char	names[MAX_PCS][MAX_SIZE];
-    int		res;
-    int		i;
-
-    for (i = 0; i < MAX_PCS; i++)
-	call_fn[i] = names[i];
-    res = trace_back_stack(MAX_PCS, call_addr, call_fn, MAX_PCS, MAX_SIZE);
-    for (i = 1; i < res; i++)
-#if defined(HAVE_64BIT_PTR)
-	fprintf(f, "  0x%016llx [%s]\n", call_addr[i], call_fn[i]);
 #else
-	fprintf(f, "  0x%08lx [%s]\n", (__uint32_t)call_addr[i], call_fn[i]);
-#endif
-    return;
+static void
+SigHupProc(int sig)
+{
+    signal(SIGHUP, SigHupProc);
+    restart = 1;
 }
-#endif /* HAVE_TRACE_BACK_STACK */
-
-#if HAVE_BACKTRACE
-#include <execinfo.h>
-
-#define MAX_DEPTH 30
+#endif
 
 static void
-do_traceback(FILE *f)
+SigBad(int sig)
 {
-    int		nframe;
-    void	*buf[MAX_DEPTH];
-    char	**symbols;
-    int		i;
-
-    nframe = backtrace(buf, MAX_DEPTH);
-    if (nframe < 1) {
-	fprintf(f, "backtrace -> %d frames?\n", nframe);
-	return;
-    }
-    symbols = backtrace_symbols(buf, nframe);
-    if (symbols == NULL) {
-	fprintf(f, "backtrace_symbols failed!\n");
-	return;
-
-    }
-    for (i = 1; i < nframe; i++)
-	fprintf(f, "  " PRINTF_P_PFX "%p [%s]\n", buf[i], symbols[i]);
-
-    return;
-}
-#endif /* HAVE_BACKTRACE */
-
-void SigBad(int sig)
-{
-    __pmNotifyErr(LOG_ERR, "Unexpected signal %d ...\n", sig);
     if (pmDebug & DBG_TRACE_DESPERATE) {
+	__pmNotifyErr(LOG_ERR, "Unexpected signal %d ...\n", sig);
+
 	/* -D desperate on the command line to enable traceback,
 	 * if we have platform support for it
 	 */
-#if defined(HAVE_TRACE_BACK_STACK) || defined(HAVE_BACKTRACE)
 	fprintf(stderr, "\nProcedure call traceback ...\n");
-	do_traceback(stderr);
-#else
-	fprintf(stderr, "\nSorry, no procedure call traceback support ...\n");
-#endif
+	__pmDumpStack(stderr);
+	fflush(stderr);
     }
-    fprintf(stderr, "\nDumping to core ...\n");
-    fflush(stderr);
-    abort();
+    _exit(sig);
 }
 
 int
@@ -942,7 +867,7 @@ main(int argc, char *argv[])
     }
 
     if (run_daemon) {
-	if (CreatePIDfile() < 0)
+	if (__pmServerCreatePIDFile(PM_SERVER_SERVICE_SPEC, PM_FATAL_ERR) < 0)
 	    DontStart();
 	if (__pmSetProcessIdentity(username) < 0)
 	    DontStart();
@@ -999,7 +924,7 @@ AddBadHost(struct __pmSockAddr *hostId)
     return 1;
 }
 
-void
+static void
 ResetBadHosts(void)
 {
     if (szBadHosts) {

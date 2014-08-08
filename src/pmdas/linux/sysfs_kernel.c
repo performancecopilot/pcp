@@ -1,7 +1,7 @@
 /*
  * Linux sysfs_kernel cluster
  *
- * Copyright (c) 2009, Red Hat, Inc.  All Rights Reserved.
+ * Copyright (c) 2009,2014 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,14 +15,16 @@
  */
 
 #include "sysfs_kernel.h"
+#include "indom.h"
 
 int
 refresh_sysfs_kernel(sysfs_kernel_t *sk)
 {
-    char buf[64];
+    char buf[MAXPATHLEN];
     int fd, n;
 
-    if ((fd = open("/sys/kernel/uevent_seqnum", O_RDONLY)) < 0) {
+    snprintf(buf, sizeof(buf), "%s/sys/kernel/uevent_seqnum", linux_statspath);
+    if ((fd = open(buf, O_RDONLY)) < 0) {
     	sk->valid_uevent_seqnum = 0;
 	return -oserror();
     }

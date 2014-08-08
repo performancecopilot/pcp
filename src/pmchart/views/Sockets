@@ -1,0 +1,7 @@
+#kmchart
+version 1
+
+chart title "Sockets in Use [%h]" style plot
+	optional-plot legend "TCP" metric network.sockstat.tcp.inuse
+	optional-plot legend "UDP" metric network.sockstat.udp.inuse
+	optional-plot legend "Raw" metric network.sockstat.raw.inuse

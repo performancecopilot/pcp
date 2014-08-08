@@ -341,17 +341,17 @@ QA output created by 366
 > #+ tools/atop-proc:n:120 seconds:
 > ## per-process metrics used by the atop command
 > #----
-> #+ tools/atop-summary:y:default:
+> #+ tools/atop-summary:y:once:
 > ## metrics sampled once by the atop command
-> log advisory on default {
+> log advisory on once {
 > 	hinv.cpu.clock
 > 	hinv.ncpu
 > 	mem.physmem
 > }
 > #----
-> #+ tools/collectl-summary:y:default:
+> #+ tools/collectl-summary:y:once:
 > ## metrics sampled once by the collectl command
-> log advisory on default {
+> log advisory on once {
 > 	hinv.ncpu
 > 	mem.physmem
 > }
@@ -371,9 +371,9 @@ QA output created by 366
 > 	mem.util.swapTotal
 > }
 > #----
-> #+ tools/free-summary:y:default:
+> #+ tools/free-summary:y:once:
 > ## metrics sampled once by the pcp-free(1) command
-> log advisory on default {
+> log advisory on once {
 > 	mem.physmem
 > }
 > #----
@@ -410,6 +410,7 @@ QA output created by 366
 > 	pmda.uname
 > 	pmcd.numagents
 > 	pmcd.numclients
+> 	pmcd.services
 > 	pmcd.version
 > 	pmcd.build
 > 	pmcd.agent.status

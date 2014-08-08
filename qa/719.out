@@ -8,7 +8,9 @@ pmUnparseHostSpec("nas1.servers.com:44321,4321@firewall.servers.com:44322") -> "
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/parsehostspec nas1.servers.com:44321,4321@firewall.servers.com:44322
-All heap blocks were freed -- no leaks are possible
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
 pmParseHostSpec("nas1.servers.com:44321@firewall.servers.com:44322", ...)
@@ -19,7 +21,9 @@ pmUnparseHostSpec("nas1.servers.com:44321@firewall.servers.com:44322") -> "nas1.
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/parsehostspec nas1.servers.com:44321@firewall.servers.com:44322
-All heap blocks were freed -- no leaks are possible
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
 pmParseHostSpec("nas1.servers.com:44321@firewall.servers.com", ...)
@@ -30,7 +34,9 @@ pmUnparseHostSpec("nas1.servers.com:44321@firewall.servers.com") -> "nas1.server
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/parsehostspec nas1.servers.com:44321@firewall.servers.com
-All heap blocks were freed -- no leaks are possible
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
 pmParseHostSpec("nas1.servers.com@firewall.servers.com", ...)
@@ -41,7 +47,9 @@ pmUnparseHostSpec("nas1.servers.com@firewall.servers.com") -> "nas1.servers.com@
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/parsehostspec nas1.servers.com@firewall.servers.com
-All heap blocks were freed -- no leaks are possible
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
 pmParseHostSpec("nas1.servers.com:44321", ...)
@@ -51,5 +59,7 @@ pmUnparseHostSpec("nas1.servers.com:44321") -> "nas1.servers.com:44321"
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/parsehostspec nas1.servers.com:44321
-All heap blocks were freed -- no leaks are possible
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...

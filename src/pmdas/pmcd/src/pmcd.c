@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 1995-2001,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -67,7 +67,8 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,14), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* control.sighup -- push-button, pmStore to SIGHUP pmcd */
     { PMDA_PMID(0,15), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
-/* license -- bit-vector of license capabilities -- removed PMDA_PMID(0,16) */
+/* services -- locally running PCP services */
+    { PMDA_PMID(0,16), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* openfds -- number of open file descriptors */
     { PMDA_PMID(0,17), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* buf.alloc */
@@ -379,6 +380,26 @@ remove_pmie_indom(void)
     npmies = 0;
 }
 
+static int
+stat_time_differs(struct stat *statbuf, struct stat *lastsbuf)
+{
+#if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
+    if (statbuf->st_mtime != lastsbuf->st_mtime)
+	return 1;
+#elif defined(HAVE_ST_MTIME_WITH_SPEC)
+    if ((statbuf->st_mtimespec.tv_sec != lastsbuf->st_mtimespec.tv_sec) ||
+	(statbuf->st_mtimespec.tv_nsec != lastsbuf->st_mtimespec.tv_nsec))
+	return 1;
+#elif defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC) || defined(HAVE_STAT_TIMESPEC_T)
+    if ((statbuf->st_mtim.tv_sec != lastsbuf->st_mtim.tv_sec) ||
+	(statbuf->st_mtim.tv_nsec != lastsbuf->st_mtim.tv_nsec))
+	return 1;
+#else
+!bozo!
+#endif
+    return 0;
+}
+
 /* use a static timestamp, stat PMIE_SUBDIR, if changed update "pmies" */
 static unsigned int
 refresh_pmie_indom(void)
@@ -398,18 +419,8 @@ refresh_pmie_indom(void)
     snprintf(fullpath, sizeof(fullpath), "%s%c%s",
 	     pmGetConfig("PCP_TMP_DIR"), sep, PMIE_SUBDIR);
     if (stat(fullpath, &statbuf) == 0) {
-#if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
-	if (statbuf.st_mtime != lastsbuf.st_mtime)
-#elif defined(HAVE_ST_MTIME_WITH_SPEC)
-	if ((statbuf.st_mtimespec.tv_sec != lastsbuf.st_mtimespec.tv_sec) ||
-	    (statbuf.st_mtimespec.tv_nsec != lastsbuf.st_mtimespec.tv_nsec))
-#elif defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC) || defined(HAVE_STAT_TIMESPEC_T)
-	if ((statbuf.st_mtim.tv_sec != lastsbuf.st_mtim.tv_sec) ||
-	    (statbuf.st_mtim.tv_nsec != lastsbuf.st_mtim.tv_nsec))
-#else
-!bozo!
-#endif
-	{
+	if (stat_time_differs(&statbuf, &lastsbuf)) {
+
 	    lastsbuf = statbuf;
 
 	    /* tear down the old instance domain */
@@ -961,7 +972,7 @@ vset_resize(pmResult *rp, int i, int onumval, int numval)
 static char *
 simabi()
 {
-#if defined(__linux__)
+#if defined(__linux__) || defined(IS_GNU)
 # if defined(__i386__)
     return "ia32";
 # elif defined(__ia64__) || defined(__ia64)
@@ -981,7 +992,7 @@ simabi()
 #elif defined(IS_DARWIN)
     return "Mach-O " SIM_ABI;
 #elif defined(IS_MINGW)
-    return "i386";	// TODO: need to handle x86_64 too
+    return "x86_64";
 #elif defined(IS_AIX)
     return "powerpc";
 #else
@@ -1003,6 +1014,87 @@ tzinfo(void)
     putenv("TZ=");
 #endif
     return __pmTimezone();
+}
+
+static int
+extract_service(const char *path, char *name, pid_t *pid)
+{
+    int		length, sep = __pmPathSeparator();
+    char	fullpath[MAXPATHLEN];
+    char	buffer[64];
+    FILE	*fp;
+
+    /* check basename has a ".pid" suffix */
+    if ((length = strlen(name)) < 5)
+	return 0;
+    length -= 4;
+    if (strcmp(&name[length], ".pid") != 0)
+	return 0;
+
+    /* extract PID lurking within the file */
+    snprintf(fullpath, sizeof(fullpath), "%s%c%s", path, sep, name);
+    if ((fp = fopen(fullpath, "r")) == NULL)
+	return 0;
+    sep = fscanf(fp, "%63s", buffer);
+    fclose(fp);
+    if (sep != 1)
+	return 0;
+    *pid = atoi(buffer);
+
+    /* finally setup service name to return */
+    name[length] = '\0';
+    return length;
+}
+
+char *
+services(void)
+{
+    static char		servicelist[128];
+    static struct stat	lastsbuf;
+    pid_t		pid;
+    struct dirent	*dp;
+    struct stat		statbuf;
+    char		*path;
+    DIR			*rundir;
+    int			length, offset;
+
+    path = pmGetConfig("PCP_RUN_DIR");
+    if (stat(path, &statbuf) == 0) {
+	if (stat_time_differs(&statbuf, &lastsbuf)) {
+	    lastsbuf = statbuf;
+
+	    /* by definition, pmcd is currently running */
+	    strcpy(servicelist, PM_SERVER_SERVICE_SPEC);
+	    offset = sizeof(PM_SERVER_SERVICE_SPEC) - 1;
+
+	    /* iterate through directory, building up services string */
+	    if ((rundir = opendir(path)) == NULL) {
+		__pmNotifyErr(LOG_ERR, "pmcd pmda cannot open %s: %s",
+				path, osstrerror());
+		return servicelist;
+	    }
+	    while ((dp = readdir(rundir)) != NULL) {
+		if (dp->d_name[0] == '.')
+		    continue;
+		length = sizeof(PM_SERVER_SERVICE_SPEC) - 1;
+		if (strncmp(dp->d_name, PM_SERVER_SERVICE_SPEC, length) == 0)
+		    continue;
+		if ((length = extract_service(path, dp->d_name, &pid)) <= 0)
+		    continue;
+		if (!__pmProcessExists(pid))
+		    continue;
+		if (offset + 1 + length + 1 > sizeof(servicelist))
+		    continue;
+		servicelist[offset++] = ' ';
+		strcpy(&servicelist[offset], dp->d_name);
+		offset += length;
+	    }
+	    closedir(rundir);
+	}
+    } else {
+	strcpy(servicelist, PM_SERVER_SERVICE_SPEC);
+    }
+    return servicelist;
 }
 
 static char *
@@ -1221,6 +1313,9 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				break;
 			case 15:	/* sighup ... always 0 */
 				atom.l = 0;
+				break;
+			case 16:	/* services */
+				atom.cp = services();
 				break;
 			case 17:	/* openfds */
 				atom.ul = (unsigned int)pmcd_hi_openfds;

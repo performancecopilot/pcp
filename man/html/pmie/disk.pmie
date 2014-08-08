@@ -1,0 +1,7 @@
+//
+// pmie configuration file starting point for the pmie lab
+//
+
+// show any disk doing more than 40 I/Os per second
+some_inst ( disk.dev.total > 40 ) -> print "busy IOPs:" " %i: %v";
+

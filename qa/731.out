@@ -1,0 +1,706 @@
+QA output created by 731
+== Running valgrind for cgroup fetch - cgroups-root-001.tgz
+=== std out ===
+
+cgroup.groups.blkio.time
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: millisec
+    inst [0 or "sdb"] value 8
+    inst [2 or "sda"] value 8
+    inst [5 or "sr0"] value 11
+
+cgroup.groups.blkio.sectors
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: count
+    inst [0 or "sdb"] value 8
+    inst [2 or "sda"] value 8
+    inst [5 or "sr0"] value 11
+
+cgroup.groups.blkio.io_wait_time.total
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: nanosec
+    inst [0 or "sdb"] value 540740836935
+    inst [2 or "sda"] value 42324806249
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_wait_time.async
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: nanosec
+    inst [0 or "sdb"] value 363393967184
+    inst [2 or "sda"] value 31619553985
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_wait_time.sync
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: nanosec
+    inst [0 or "sdb"] value 177346869751
+    inst [2 or "sda"] value 10705252264
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_wait_time.write
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: nanosec
+    inst [0 or "sdb"] value 366199570097
+    inst [2 or "sda"] value 32138810736
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_wait_time.read
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: nanosec
+    inst [0 or "sdb"] value 174541266838
+    inst [2 or "sda"] value 10185995513
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_service_time.total
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: nanosec
+    inst [0 or "sdb"] value 281209544538
+    inst [2 or "sda"] value 128437836527
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_service_time.async
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: nanosec
+    inst [0 or "sdb"] value 76859594134
+    inst [2 or "sda"] value 42556085462
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_service_time.sync
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: nanosec
+    inst [0 or "sdb"] value 204349950404
+    inst [2 or "sda"] value 85881751065
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_service_time.write
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: nanosec
+    inst [0 or "sdb"] value 81981341934
+    inst [2 or "sda"] value 43069039782
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_service_time.read
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: nanosec
+    inst [0 or "sdb"] value 199228202604
+    inst [2 or "sda"] value 85368796745
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_serviced.total
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: count
+    inst [0 or "sdb"] value 71199
+    inst [2 or "sda"] value 26733
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_serviced.async
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: count
+    inst [0 or "sdb"] value 10805
+    inst [2 or "sda"] value 15021
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_serviced.sync
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: count
+    inst [0 or "sdb"] value 60394
+    inst [2 or "sda"] value 11712
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_serviced.write
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: count
+    inst [0 or "sdb"] value 16519
+    inst [2 or "sda"] value 15567
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_serviced.read
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: count
+    inst [0 or "sdb"] value 54680
+    inst [2 or "sda"] value 11166
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_service_bytes.total
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: Kbyte
+    inst [0 or "sdb"] value 1217747968
+    inst [2 or "sda"] value 375664640
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_service_bytes.async
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: Kbyte
+    inst [0 or "sdb"] value 198193152
+    inst [2 or "sda"] value 210872832
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_service_bytes.sync
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: Kbyte
+    inst [0 or "sdb"] value 1019554816
+    inst [2 or "sda"] value 164791808
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_service_bytes.write
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: Kbyte
+    inst [0 or "sdb"] value 295747584
+    inst [2 or "sda"] value 242914816
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_service_bytes.read
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: Kbyte
+    inst [0 or "sdb"] value 922000384
+    inst [2 or "sda"] value 132749824
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_queued.total
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: count
+    inst [0 or "sdb"] value 0
+    inst [2 or "sda"] value 0
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_queued.async
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: count
+    inst [0 or "sdb"] value 0
+    inst [2 or "sda"] value 0
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_queued.sync
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: count
+    inst [0 or "sdb"] value 0
+    inst [2 or "sda"] value 0
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_queued.write
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: count
+    inst [0 or "sdb"] value 0
+    inst [2 or "sda"] value 0
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_queued.read
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: count
+    inst [0 or "sdb"] value 0
+    inst [2 or "sda"] value 0
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_merged.total
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: count
+    inst [0 or "sdb"] value 73910
+    inst [2 or "sda"] value 1528
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_merged.async
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: count
+    inst [0 or "sdb"] value 33144
+    inst [2 or "sda"] value 1237
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_merged.sync
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: count
+    inst [0 or "sdb"] value 40766
+    inst [2 or "sda"] value 291
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_merged.write
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: count
+    inst [0 or "sdb"] value 49776
+    inst [2 or "sda"] value 1242
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.blkio.io_merged.read
+    Data Type: 64-bit unsigned int  InDom: 3.1 0xc00001
+    Semantics: counter  Units: count
+    inst [0 or "sdb"] value 24134
+    inst [2 or "sda"] value 286
+    inst [5 or "sr0"] value 0
+
+cgroup.groups.net_cls.classid
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.lxc.stat.total_unevictable
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.lxc.stat.total_active_file
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.lxc.stat.total_inactive_file
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.lxc.stat.total_active_anon
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.lxc.stat.total_inactive_anon
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.lxc.stat.total_swap
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.lxc.stat.total_pgpgout
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.lxc.stat.total_pgpgin
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.lxc.stat.total_mapped_file
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.lxc.stat.total_rss
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.lxc.stat.total_cache
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.lxc.stat.unevictable
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.lxc.stat.active_file
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.lxc.stat.inactive_file
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.lxc.stat.active_anon
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.lxc.stat.inactive_anon
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.lxc.stat.swap
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.lxc.stat.pgpgout
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.lxc.stat.pgpgin
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.lxc.stat.mapped_file
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.lxc.stat.rss
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.lxc.stat.cache
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.stat.total_unevictable
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.stat.total_active_file
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.stat.total_inactive_file
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.stat.total_active_anon
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.stat.total_inactive_anon
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.stat.total_swap
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.stat.total_pgpgout
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.stat.total_pgpgin
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.stat.total_mapped_file
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.stat.total_rss
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.stat.total_cache
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.stat.unevictable
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.stat.active_file
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.stat.inactive_file
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.stat.active_anon
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.stat.inactive_anon
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.stat.swap
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.stat.pgpgout
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.stat.pgpgin
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.stat.mapped_file
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.stat.rss
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.libvirt.stat.cache
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.stat.total_unevictable
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 16384
+
+cgroup.groups.memory.stat.total_active_file
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 430522368
+
+cgroup.groups.memory.stat.total_inactive_file
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 470528000
+
+cgroup.groups.memory.stat.total_active_anon
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 480120832
+
+cgroup.groups.memory.stat.total_inactive_anon
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 8019968
+
+cgroup.groups.memory.stat.total_swap
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.stat.total_pgpgout
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 4008706
+
+cgroup.groups.memory.stat.total_pgpgin
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 4313639
+
+cgroup.groups.memory.stat.total_mapped_file
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 106840064
+
+cgroup.groups.memory.stat.total_rss
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 479805440
+
+cgroup.groups.memory.stat.total_cache
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 909434880
+
+cgroup.groups.memory.stat.unevictable
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 16384
+
+cgroup.groups.memory.stat.active_file
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 430522368
+
+cgroup.groups.memory.stat.inactive_file
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 470528000
+
+cgroup.groups.memory.stat.active_anon
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 480120832
+
+cgroup.groups.memory.stat.inactive_anon
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+    value 8019968
+
+cgroup.groups.memory.stat.swap
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 0
+
+cgroup.groups.memory.stat.pgpgout
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 4008706
+
+cgroup.groups.memory.stat.pgpgin
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 4313639
+
+cgroup.groups.memory.stat.mapped_file
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 106840064
+
+cgroup.groups.memory.stat.rss
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 479805440
+
+cgroup.groups.memory.stat.cache
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+    value 909434880
+
+cgroup.groups.cpuacct.libvirt.lxc.usage_percpu
+    Data Type: 64-bit unsigned int  InDom: 3.0 0xc00000
+    Semantics: counter  Units: nanosec
+    inst [0 or "cpu0"] value 0
+    inst [1 or "cpu1"] value 0
+    inst [2 or "cpu2"] value 0
+    inst [3 or "cpu3"] value 0
+    inst [4 or "cpu4"] value 0
+    inst [5 or "cpu5"] value 0
+    inst [6 or "cpu6"] value 0
+    inst [7 or "cpu7"] value 0
+
+cgroup.groups.cpuacct.libvirt.lxc.usage
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: nanosec
+    value 0
+
+cgroup.groups.cpuacct.libvirt.lxc.stat.system
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+    value 0
+
+cgroup.groups.cpuacct.libvirt.lxc.stat.user
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+    value 0
+
+cgroup.groups.cpuacct.libvirt.usage_percpu
+    Data Type: 64-bit unsigned int  InDom: 3.0 0xc00000
+    Semantics: counter  Units: nanosec
+    inst [0 or "cpu0"] value 837880387456
+    inst [1 or "cpu1"] value 791812411026
+    inst [2 or "cpu2"] value 839508086847
+    inst [3 or "cpu3"] value 814371336334
+    inst [4 or "cpu4"] value 735998138072
+    inst [5 or "cpu5"] value 721151202093
+    inst [6 or "cpu6"] value 833638956358
+    inst [7 or "cpu7"] value 872599226711
+
+cgroup.groups.cpuacct.libvirt.usage
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: nanosec
+    value 6446959756151
+
+cgroup.groups.cpuacct.libvirt.stat.system
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+    value 384901
+
+cgroup.groups.cpuacct.libvirt.stat.user
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+    value 43622
+
+cgroup.groups.cpuacct.usage_percpu
+    Data Type: 64-bit unsigned int  InDom: 3.0 0xc00000
+    Semantics: counter  Units: nanosec
+    inst [0 or "cpu0"] value 1627403799055
+    inst [1 or "cpu1"] value 1402796290832
+    inst [2 or "cpu2"] value 1179015192815
+    inst [3 or "cpu3"] value 1191687607792
+    inst [4 or "cpu4"] value 1118986660943
+    inst [5 or "cpu5"] value 1107246126589
+    inst [6 or "cpu6"] value 995495472641
+    inst [7 or "cpu7"] value 999320975984
+
+cgroup.groups.cpuacct.usage
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: nanosec
+    value 9621952148817
+
+cgroup.groups.cpuacct.stat.system
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+    value 582900
+
+cgroup.groups.cpuacct.stat.user
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+    value 142247
+
+cgroup.groups.cpu.libvirt.lxc.shares
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+    value 1024
+
+cgroup.groups.cpu.libvirt.shares
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+    value 1024
+
+cgroup.groups.cpu.shares
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+    value 1024
+
+cgroup.subsys.hierarchy
+    Data Type: 32-bit unsigned int  InDom: 3.20 0xc00014
+    Semantics: instant  Units: none
+    inst [0 or "cpuset"] value 1
+    inst [1 or "ns"] value 0
+    inst [2 or "cpu"] value 2
+    inst [3 or "cpuacct"] value 3
+    inst [4 or "memory"] value 4
+    inst [5 or "devices"] value 5
+    inst [6 or "freezer"] value 6
+    inst [7 or "net_cls"] value 7
+    inst [8 or "blkio"] value 8
+    inst [9 or "perf_event"] value 0
+    inst [10 or "net_prio"] value 0
+
+cgroup.subsys.count
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+    value 11
+
+cgroup.mounts.subsys
+    Data Type: string  InDom: 3.21 0xc00015
+    Semantics: instant  Units: none
+    inst [0 or "/cgroup/cpuset"] value "cpuset"
+    inst [1 or "/cgroup/cpu"] value "cpu"
+    inst [2 or "/cgroup/cpuacct"] value "cpuacct"
+    inst [3 or "/cgroup/memory"] value "memory"
+    inst [4 or "/cgroup/devices"] value "devices"
+    inst [5 or "/cgroup/freezer"] value "freezer"
+    inst [6 or "/cgroup/net_cls"] value "net_cls"
+    inst [7 or "/cgroup/blkio"] value "blkio"
+
+cgroup.mounts.count
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+    value 8
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,3,proc/pmda_proc.so,proc_init -d -f cgroup
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== done
+

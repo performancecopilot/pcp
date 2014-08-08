@@ -1,0 +1,5 @@
+QA output created by 830
+Live mode failure:
+pcp: Cannot connect to PMCD on host "no.such.host": No route to host
+Archive mode failure:
+pcp: Cannot open archive "/no/such/file": No such file or directory

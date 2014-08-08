@@ -75,10 +75,10 @@ static time_t	last_mtim;
  * Curr_pmns will point to either the main_pmns or
  * a pmns from a version 2 archive context.
  */
-static __pmnsTree *curr_pmns = NULL; 
+static __pmnsTree *curr_pmns;
 
 /* The main_pmns points to the loaded PMNS (not from archive). */
-static __pmnsTree *main_pmns = NULL; 
+static __pmnsTree *main_pmns;
 
 
 /* == 1 if PMNS loaded and __pmExportPMNS has been called */
@@ -264,8 +264,8 @@ done:
 /*
  * Our own PMNS locator.  Don't distinguish between ARCHIVE or LOCAL.
  */
-static
-int GetLocation(void)
+static int
+GetLocation(void)
 {
     int	loc = pmGetPMNSLocation();
 
@@ -275,7 +275,7 @@ int GetLocation(void)
 }
 
 /*
- * For debugging, and visible via __pmDumpNameSpace()
+ * For debugging, call via __pmDumpNameSpace() or __pmDumpNameNode()
  *
  * verbosity is 0 (name), 1 (names and pmids) or 2 (names, pmids and
  * linked-list structures)
@@ -2550,4 +2550,10 @@ __pmDumpNameSpace(FILE *f, int verbosity)
     PM_LOCK(__pmLock_libpcp);
     dumptree(f, 0, curr_pmns->root, verbosity);
     PM_UNLOCK(__pmLock_libpcp);
+}
+
+void
+__pmDumpNameNode(FILE *f, __pmnsNode *node, int verbosity)
+{
+    dumptree(f, 0, node, verbosity);
 }

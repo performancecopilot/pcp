@@ -19,10 +19,12 @@
 # for more details.
 #
 
-import sys
-from ctypes import c_uint, c_char_p
-from pcp.pmapi import pmContext, pmErr, pmResult, LIBPCP
-from cpmapi import PM_CONTEXT_HOST, PM_INDOM_NULL, PM_IN_NULL, PM_ID_NULL
+from sys import stderr
+from ctypes import c_int, c_uint, c_char_p, cast, POINTER
+from pcp.pmapi import (pmContext, pmResult, pmValueSet, pmValue, pmDesc,
+        pmErr, pmOptions, timeval)
+from cpmapi import (PM_CONTEXT_HOST, PM_CONTEXT_ARCHIVE, PM_INDOM_NULL,
+        PM_IN_NULL, PM_ID_NULL, PM_SEM_COUNTER, PM_ERR_EOL, PM_TYPE_DOUBLE)
 
 
 class MetricCore(object):
@@ -53,14 +55,17 @@ class Metric(object):
     # constructor
 
     def __init__(self, core):
-        self._core = core
+        self._core = core   # MetricCore
+        self._vset = None   # pmValueSet member
         self._values = None
+        self._prevvset = None
         self._prevValues = None
         self._convType = core.desc.contents.type
-        self._convUnits = core.desc.contents.units
+        self._convUnits = None
         self._errorStatus = None
-        self._netValues = None
-        self._netPrevValues = None
+        self._netValues = None # (instance, name, value)
+        self._netPrevValues = None # (instance, name, value)
+        self._netConvertedValues = None # (instance, name, value)
 
     ##
     # core property read methods
@@ -78,28 +83,90 @@ class Metric(object):
     def _R_help(self):
         return self._core.help
 
-    ## 
-    # instance property read methods
+    def get_vlist(self, vset, vlist_idx):
+        """ Return the vlist[vlist_idx] of vset[vset_idx] """
+        listptr = cast(vset.contents.vlist, POINTER(pmValue))
+        return listptr[vlist_idx]
+
+    def get_inst(self, vset, vlist_idx):
+        """ Return the inst for vlist[vlist_idx] of vset[vset_idx] """
+        return self.get_vlist(vset, vset_idx, vlist_idx).inst
 
     def computeValues(self, inValues):
-        """ compute value """
+        """ Extract the value for a singleton or list of instances
+            as a triple (inst, name, val)
+        """
         vset = inValues
         ctx = self.ctx
-        instD = ctx.mcGetInstD(self.desc.indom)
-        numval = vset.numval
+        instD = ctx.mcGetInstD(self.desc.contents.indom)
         valL = []
-        for i in range(numval):
-            instval = vset.vlist[i].inst
-            name = instD[instval]
+        for i in range(vset.numval):
+            instval = self.get_vlist(vset, i)
+            try:
+                name = instD[instval.inst]
+            except KeyError:
+                name = ""
             outAtom = self.ctx.pmExtractValue(
-                     vset.valfmt, vset.vlist[i],
-                     self.desc.type, self._convType)
+                    vset.valfmt, instval, self.desc.type, self._convType)
             if self._convUnits:
+                desc = (POINTER(pmDesc) * 1)()
+                desc[0] = self.desc
                 outAtom = self.ctx.pmConvScale(
-                     self._convType, outAtom,
-                     self.desc.units, self._convUnits)
+                        self._convType, outAtom, desc, 0, self._convUnits)
             value = outAtom.dref(self._convType)
             valL.append((instval, name, value))
+        return valL
+
+    def _find_previous_instval(self, index, inst, pvset):
+        """ Find a metric instance in the previous resultset """
+        if index <= pvset.numval:
+            pinstval = self.get_vlist(pvset, index)
+            if inst == pinstval.inst:
+                return pinstval
+        for pi in range(pvset.numval):
+            pinstval = self.get_vlist(pvset, pi)
+            if inst == pinstval.inst:
+                return pinstval
+        return None
+
+    def convertValues(self, values, prevValues, delta):
+        """ Extract the value for a singleton or list of instances as a
+            triple (inst, name, val) for COUNTER metrics with the value
+            delta calculation applied (for rate conversion).
+        """
+        if self.desc.sem != PM_SEM_COUNTER:
+            return self.computeValues(values)
+        if prevValues == None:
+            return None
+        pvset = prevValues
+        vset = values
+        ctx = self.ctx
+        instD = ctx.mcGetInstD(self.desc.contents.indom)
+        valL = []
+        for i in range(vset.numval):
+            instval = self.get_vlist(vset, i)
+            pinstval = self._find_previous_instval(i, instval.inst, pvset)
+            if pinstval == None:
+                continue
+            try:
+                name = instD[instval.inst]
+            except KeyError:
+                name = ""
+            outAtom = self.ctx.pmExtractValue(vset.valfmt,
+                    instval, self.desc.type, PM_TYPE_DOUBLE)
+            poutAtom = self.ctx.pmExtractValue(pvset.valfmt,
+                    pinstval, self.desc.type, PM_TYPE_DOUBLE)
+            if self._convUnits:
+                desc = (POINTER(pmDesc) * 1)()
+                desc[0] = self.desc
+                outAtom = self.ctx.pmConvScale(
+                        PM_TYPE_DOUBLE, outAtom, desc, 0, self._convUnits)
+                poutAtom = self.ctx.pmConvScale(
+                        PM_TYPE_DOUBLE, poutAtom, desc, 0, self._convUnits)
+            value = outAtom.dref(PM_TYPE_DOUBLE)
+            pvalue = poutAtom.dref(PM_TYPE_DOUBLE)
+            if (value >= pvalue):
+                valL.append((instval, name, (value - pvalue) / delta))
         return valL
 
     def _R_values(self):
@@ -110,27 +177,31 @@ class Metric(object):
         return self._convType
     def _R_convUnits(self):
         return self._convUnits
+
     def _R_errorStatus(self):
         return self._errorStatus
 
+    def _R_netConvValues(self):
+        return self._netConvValues
+
     def _R_netPrevValues(self):
-        if not self._prevValues:
+        if not self._prevvset:
             return None
-        if type(self._netPrevValues) == type(None):
-            self._netPrevValues = self.computeValues(self._prevValues)
+	self._netPrevValues = self.computeValues(self._prevvset)
         return self._netPrevValues
+
     def _R_netValues(self):
-        if not self._values:
+        if not self._vset:
             return None
-        if type(self._netValues) == type(None):
-            self._netValues = self.computeValues(self._values)
+	self._netValues = self.computeValues(self._vset)
         return self._netValues
 
     def _W_values(self, values):
         self._prev = self._values
-        self._values = value
+        self._values = values
         self._netPrev = self._netValue
         self._netValue = None
+
     def _W_convType(self, value):
         self._convType = value
     def _W_convUnits(self, value):
@@ -152,14 +223,19 @@ class Metric(object):
     errorStatus = property(_R_errorStatus, None, None, None)
     netValues = property(_R_netValues, None, None, None)
     netPrevValues = property(_R_netPrevValues, None, None, None)
+    netConvValues = property(_R_netConvValues, None, None, None)
 
     def metricPrint(self):
-        print self.ctx.pmIDStr(self.pmid), self.name
         indomstr = self.ctx.pmInDomStr(self.desc.indom)
         print "   ", "indom:", indomstr
         instD = self.ctx.mcGetInstD(self.desc.indom)
         for inst, name, val in self.netValues:
             print "   ", name, val
+
+    def metricConvert(self, delta):
+        convertedList = self.convertValues(self._vset, self._prevvset, delta)
+        self._netConvValues = convertedList
+        return self._netConvValues
 
 
 class MetricCache(pmContext):
@@ -185,22 +261,31 @@ class MetricCache(pmContext):
     # methods
   
     def mcGetInstD(self, indom):
+        """ Query the instance : instance_list dictionary """
         return self._mcIndomD[indom]
 
     def _mcAdd(self, core):
+        """ Update the dictionary """
         indom = core.desc.contents.indom
         if not self._mcIndomD.has_key(indom):
-            if indom == PM_INDOM_NULL:
+            if c_int(indom).value == c_int(PM_INDOM_NULL).value:
                 instmap = { PM_IN_NULL : "PM_IN_NULL" }
             else:
-                instL, nameL = self.pmGetInDom(indom)
-                instmap = dict(zip(instL, nameL))
+                if self._type == PM_CONTEXT_ARCHIVE:
+                    instL, nameL = self.pmGetInDomArchive(core.desc)
+                else:
+                    instL, nameL = self.pmGetInDom(core.desc)
+                if instL != None and nameL != None:
+                    instmap = dict(zip(instL, nameL))
+                else:
+                    instmap = {}
             self._mcIndomD.update({indom: instmap})
 
         self._mcByNameD.update({core.name: core})
         self._mcByPmidD.update({core.pmid: core})
 
     def mcGetCoresByName(self, nameL):
+        """ Update the core (metric id, description,...) list """
         coreL = []
         missD = None
         errL = None
@@ -225,7 +310,7 @@ class MetricCache(pmContext):
                         errL = []
                     errL.append(name)
                 else:
-                    # create core
+                    # create core pmDesc
                     newcore = self._mcCreateCore(name, pmid)
                     # update core ref in return list
                     coreL[missD[name]] = newcore
@@ -233,18 +318,21 @@ class MetricCache(pmContext):
         return coreL, errL
     
     def _mcCreateCore(self, name, pmid):
+        """ Update the core description """
         newcore = MetricCore(self, name, pmid)
         try:
             newcore.desc = self.pmLookupDesc(pmid)
         except pmErr, error:
-            print "pmLookupDesc: ", error
+            fail = "%s: pmLookupDesc: %s" % (error.progname(), error.message())
+            print >> stderr, fail
+            raise SystemExit, 1
 
         # insert core into cache
         self._mcAdd(newcore)
         return newcore
 
     def mcFetchPmids(self, nameL):
-        # note: some names have identical pmids
+        """ Update the core metric ids.  note: some names have identical pmids """
         errL = None
         nameA = (c_char_p * len(nameL))()
         for index, name in enumerate(nameL):
@@ -252,9 +340,13 @@ class MetricCache(pmContext):
         try:
             pmidArray = self.pmLookupName(nameA)
             if len(pmidArray) < len(nameA):
-                print "lookup failed: got ", len(pmidArray), " of ", len(nameA)
+                missing = "%d of %d metric names" % (len(pmidArray), len(nameA))
+                print >> stderr, "Cannot resolve", missing
+                raise SystemExit, 1
         except pmErr, error:
-            print "pmLookupName: ", error
+            fail = "%s: pmLookupName: %s" % (error.progname(), error.message())
+            print >> stderr, fail
+            raise SystemExit, 1
 
         return zip(nameA, pmidArray), errL
 
@@ -306,18 +398,19 @@ class MetricGroup(dict):
     # overloads
 
     def __init__(self, contextCache, inL = []):
+        dict.__init__(self)
         self._ctx = contextCache
         self._pmidArray = None
         self._result = None
         self._prev = None
         self._altD = {}
-        dict.__init__(self)
         self.mgAdd(inL)
 
     ##
     # methods
 
     def mgAdd(self, nameL):
+        """ Create the list of Metric(s) """
         coreL, errL = self._ctx.mcGetCoresByName(nameL)
         for core in coreL:
             metric = Metric(core)
@@ -329,17 +422,57 @@ class MetricGroup(dict):
             self._pmidArray[x] = c_uint(self[key].pmid)
 
     def mgFetch(self):
-        # fetch the metric values
+        """ Fetch the list of Metric values.  Save the old value.  """
         try:
             self.result = self._ctx.pmFetch(self._pmidArray)
             # update the result entries in each metric
             result = self.result.contents
-            for i in range(result.numpmid):
-                pmid = result.get_pmid(i)
-                vset = result.get_vset(i)
-                self._altD[pmid].vset = vset
+            for i in range(self.result.contents.numpmid):
+                pmid = self.result.contents.get_pmid(i)
+                vset = self.result.contents.get_vset(i)
+                self._altD[pmid]._prevvset = self._altD[pmid]._vset
+                self._altD[pmid]._vset = vset
         except pmErr, error:
-            print "pmFetch: ", error
+            if error.args[0] == PM_ERR_EOL:
+                raise SystemExit, 0
+            fail = "%s: pmFetch: %s" % (error.progname(), error.message())
+            print >> stderr, fail
+            raise SystemExit, 1
+
+    def mgDelta(self):
+        """
+        Sample delta - used for rate conversion calculations, which
+        requires timestamps from successive samples.
+        """
+        if self._prev != None:
+            prevTimestamp = float(self.prevTimestamp)
+        else:
+            prevTimestamp = 0.0
+        return float(self.timestamp) - prevTimestamp
+
+
+class MetricGroupPrinter(object):
+    """
+    Handles reporting of MetricGroups within a GroupManager.
+    This object is called upon at the end of each fetch when
+    new values are available.  It is also responsible for
+    producing any initial (or on-going) header information
+    that the tool may wish to report.
+    """
+    def report(self, manager):
+        """ Base implementation, all tools should override """
+        for group_name in manager.keys():
+            group = manager[group_name]
+            for metric_name in group.keys():
+                group[metric_name].metricPrint()
+
+    def convert(self, manager):
+        """ Do conversion for all metrics across all groups """
+        for group_name in manager.keys():
+            group = manager[group_name]
+            delta = group.mgDelta()
+            for metric_name in group.keys():
+                group[metric_name].metricConvert(delta)
 
 
 class MetricGroupManager(dict, MetricCache):
@@ -349,16 +482,139 @@ class MetricGroupManager(dict, MetricCache):
     """
 
     ##
+    # property access methods
+
+    def _R_options(self):	# command line option object
+        return self._options
+
+    def _W_options(self, options):
+        self._options = options
+
+    def _R_default_delta(self):	# default interval unless command line set
+        return self._default_delta
+    def _W_default_delta(self, delta):
+        self._default_delta = delta
+    def _R_default_pause(self):	# default reporting delay (archives only)
+        return self._default_pause
+    def _W_default_pause(self, pause):
+        self._default_pause = pause
+
+    def _W_printer(self, printer): 	# helper class for reporting
+        self._printer = printer
+    def _R_counter(self):	# fetch iteration count, useful for printer
+        return self._counter
+
+    ##
+    # property definitions
+
+    options = property(_R_options, _W_options, None, None)
+    default_delta = property(_R_default_delta, _W_default_delta, None, None)
+    default_pause = property(_R_default_pause, _W_default_pause, None, None)
+
+    printer = property(None, _W_printer, None, None)
+    counter = property(_R_counter, None, None, None)
+
+    ##
     # overloads
 
     def __init__(self, typed = PM_CONTEXT_HOST, target = "local:"):
-        MetricCache.__init__(self, typed, target)
         dict.__init__(self)
+        MetricCache.__init__(self, typed, target)
+        self._options = None
+        self._default_delta = timeval(1, 0)
+        self._default_pause = None
+        self._printer = None
+        self._counter = 0
 
     def __setitem__(self, attr, value = []):
         if self.has_key(attr):
             raise KeyError, "metric group with that key already exists"
         else:
             dict.__setitem__(self, attr, MetricGroup(self, inL = value))
-    
 
+    @classmethod
+    def builder(build, options, argv):
+        """ Helper interface, simple PCP monitor argument parsing. """
+        manager = build.fromOptions(options, argv)
+        manager._default_delta = timeval(options.delta, 0)
+        manager._options = options
+        return manager
+
+    ##
+    # methods
+
+    def _computeSamples(self):
+        """ Calculate the number of samples we are to take.
+            This is based on command line options --samples but also
+            must consider --start, --finish and --interval.  If none
+            of these were presented, a zero return means "infinite".
+        """
+        if self._options == None:
+            return 0	# loop until interrupted or PM_ERR_EOL
+        samples = self._options.pmGetOptionSamples()
+        if samples != None:
+            return samples
+        if self._options.pmGetOptionFinishOptarg() == None:
+            return 0	# loop until interrupted or PM_ERR_EOL
+        origin = self._options.pmGetOptionOrigin()
+        finish = self._options.pmGetOptionFinish()
+        delta = self._options.pmGetOptionInterval()
+        if delta == None:
+            delta = self._default_delta
+        period = (delta.tv_sec * 1.0e6 + delta.tv_usec) / 1e6
+        window = float(finish.tv_sec - origin.tv_sec)
+        window += float((finish.tv_usec - origin.tv_usec) / 1e6)
+        window /= period
+        return int(window + 0.5)    # roundup to positive number
+
+    def _computePauseTime(self):
+        """ Figure out how long to sleep between samples.
+            This needs to take into account whether we were explicitly
+            asked for a delay (independent of context type, --pause),
+            whether this is an archive or live context, and the sampling
+            --interval (including the default value, if none requested).
+        """
+        if self._default_pause != None:
+	    return self._default_pause
+        if self.type == PM_CONTEXT_ARCHIVE:
+            self._default_pause = timeval(0, 0)
+        elif self._options != None:
+            pause = self._options.pmGetOptionInterval()
+            if pause != None:
+                self._default_pause = pause
+            else:
+                self._default_pause = self._default_delta
+        else:
+            self._default_pause = self._default_delta
+	return self._default_pause
+
+    def fetch(self):
+        """ Perform fetch operation on all of the groups. """
+        for group in self.keys():
+            self[group].mgFetch()
+
+    def run(self):
+        """ Using options specification, loop fetching and reporting,
+            pausing for the requested time interval between updates.
+            Transparently handles archive/live mode differences.
+            Note that this can be different to the sampling interval
+            in archive mode, but is usually the same as the sampling
+            interval in live mode.
+        """
+        samples = self._computeSamples()
+        timer = self._computePauseTime()
+        try:
+            self.fetch()
+            while True:
+                self._counter += 1
+                if samples == 0 or self._counter <= samples:
+                    self._printer.report(self)
+                if self._counter == samples:
+                    break
+                timer.sleep()
+                self.fetch()
+        except SystemExit, code:
+            return code
+        except KeyboardInterrupt:
+            pass
+        return 0

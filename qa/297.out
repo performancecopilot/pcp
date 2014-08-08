@@ -8,6 +8,8 @@ pmNewContext(1, MY_HOST) -> 0
 Dump Contexts: current context = 0
 Context[N] host MY_HOST: pmcd=CONNECTED profile=NOT_SENT fd=N refcnt=N origin=N.N delta=N
 Dump Instance Profile state=INCLUDE, 0 profiles
+pmGetContextHostName_r context(0) -> 0
+pmGetContextHostName_r reset(0) -> 0
 DATE	N	N	N	N	N	N	N	N	N
 DATE	?	?	?	?	?	?	?	?	?
 __pmConnectPMCD(MY_HOST): proxy connection host=MY_HOST port=N fd=N version=N

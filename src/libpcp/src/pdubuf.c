@@ -54,9 +54,9 @@ pdubufdump(void)
     }
 
     if (buf_pin != NULL) {
-	fprintf(stderr, "   pinned pdubuf[pincnt]:");
+	fprintf(stderr, "   pinned pdubuf[size](pincnt):");
 	for (pcp = buf_pin; pcp != NULL; pcp = pcp->bc_next)
-	    fprintf(stderr, " " PRINTF_P_PFX "%p[%d]", pcp->bc_buf, pcp->bc_pincnt);
+	    fprintf(stderr, " " PRINTF_P_PFX "%p...%p[%d](%d)", pcp->bc_buf, &pcp->bc_buf[pcp->bc_size-1], pcp->bc_size, pcp->bc_pincnt);
 	fputc('\n', stderr);
     }
     PM_UNLOCK(__pmLock_libpcp);
@@ -71,6 +71,15 @@ __pmFindPDUBuf(int need)
 
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
+    if (need < 0) {
+	/* special diagnostic case ... dump buffer state */
+#ifdef PCP_DEBUG
+	fprintf(stderr, "__pmFindPDUBuf(DEBUG)\n");
+	pdubufdump();
+#endif
+	PM_UNLOCK(__pmLock_libpcp);
+	return NULL;
+    }
     for (pcp = buf_free; pcp != NULL; pcp = pcp->bc_next) {
 	if (pcp->bc_size >= need)
 	    break;
@@ -156,7 +165,7 @@ __pmPinPDUBuf(void *handle)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PDUBUF)
-	fprintf(stderr, "__pmPinPDUBuf(" PRINTF_P_PFX "%p) -> pdubuf=" PRINTF_P_PFX "%p, cnt=%d\n",
+	fprintf(stderr, "__pmPinPDUBuf(" PRINTF_P_PFX "%p) -> pdubuf=" PRINTF_P_PFX "%p, pincnt=%d\n",
 	    handle, pcp->bc_buf, pcp->bc_pincnt);
 #endif
 

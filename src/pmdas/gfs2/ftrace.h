@@ -1,7 +1,7 @@
 /*
  * GFS2 ftrace based trace-point metrics.
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013 - 2014 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,6 @@
 #ifndef FTRACE_H
 #define FTRACE_H
 
-#define FTRACE_ARRAY_CAPACITY 2048
 #define INITIAL_GLOBAL_MAX_GLOCK_THROUGHPUT 750000
 
 enum {

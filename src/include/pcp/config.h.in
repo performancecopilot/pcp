@@ -157,11 +157,11 @@ extern "C" {
 #if defined(HAVE_SYSLOG_H)
 #include <syslog.h>
 #endif
-#if defined(HAVE_WINDOWS_H)
-#include <windows.h>
-#endif
 #if defined(HAVE_WINSOCK2_H)
 #include <winsock2.h>
+#endif
+#if defined(HAVE_WINDOWS_H)
+#include <windows.h>
 #endif
 #if defined(HAVE_WS2TCPIP_H)
 #include <ws2tcpip.h>
@@ -235,6 +235,8 @@ extern "C" {
 #undef HAVE_SCANDIR
 #undef HAVE_MKSTEMP
 
+#undef HAVE_GETUID
+#undef HAVE_GETGID
 #undef HAVE_GETGRENT
 #undef HAVE_GETGRENT_R
 #undef HAVE_GETGRNAM
@@ -299,6 +301,7 @@ extern "C" {
 
 /* Infiniband API version information */
 #undef HAVE_PORT_PERFORMANCE_QUERY_VIA
+#undef HAVE_PMA_QUERY_VIA
 
 #ifndef ULONGLONG_MAX 
 #define ULONGLONG_MAX (__uint64_t)18446744073709551615ULL
@@ -400,7 +403,9 @@ bozo! need to find where MAXNAMELEN is defined for this platform
 #endif
 #endif
 #ifndef MAXPATHLEN
-bozo! need to find where MAXPATHLEN is defined for this platform
+/* bozo! need to find where MAXPATHLEN is defined for this platform */
+#define PATH_MAX 4096
+#define MAXPATHLEN PATH_MAX
 #endif
 
 /*
@@ -428,7 +433,8 @@ bozo! need to find where MAXPATHLEN is defined for this platform
 #endif
 #endif
 #ifndef MAXHOSTNAMELEN
-bozo! need to find where MAXHOSTNAMELEN is defined for this platform
+/* bozo! need to find where MAXHOSTNAMELEN is defined for this platform*/
+#define MAXHOSTNAMELEN 4096
 #endif
 
 #ifndef HAVE_FLOG10
@@ -505,6 +511,9 @@ typedef void (*SIG_PF) (int);
 /* Determine if we are on a FreeBSD box */
 #undef IS_FREEBSD
 
+/* Determine if we are on a GNU box */
+#undef IS_GNU
+
 /* Determine if we are on a NetBSD box */
 #undef IS_NETBSD
 
@@ -522,18 +531,7 @@ typedef void (*SIG_PF) (int);
 #ifdef IS_MINGW
 
 #ifdef PCP_VERSION		/* used to reduce namespace pollution */
-#define EINPROGRESS	WSAEINPROGRESS
-#define ENETDOWN	WSAENETDOWN
-#define ENETUNREACH	WSAENETUNREACH
-#define ECONNRESET	WSAECONNRESET
-#define ETIMEDOUT	WSAETIMEDOUT
-#define ECONNREFUSED	WSAECONNREFUSED
 #define EHOSTDOWN	WSAEHOSTDOWN
-#define EHOSTUNREACH	WSAEHOSTUNREACH
-#define EOPNOTSUPP	WSAEOPNOTSUPP
-#define EADDRINUSE	WSAEADDRINUSE
-#define EPROTO		WSAEPROTONOSUPPORT
-#define EMSGSIZE	WSAEMSGSIZE
 #define ENODATA		WSANO_DATA
 extern const char *wsastrerror(int);
 
@@ -549,7 +547,9 @@ extern const char *wsastrerror(int);
 #define SIGUSR1		(NSIG+2)
 #define SIGBUS		(NSIG+3)
 #define S_IRGRP		0
+#define S_IWGRP		0
 #define S_IROTH		0
+#define S_IWOTH		0
 #define S_IRWXG		0
 #define S_IRWXO		0
 #define S_ISVTX		0
@@ -563,6 +563,7 @@ extern const char *wsastrerror(int);
 extern void setlinebuf(FILE *);
 extern char *index(const char *, int);
 extern char *rindex(const char *, int);
+extern char *strcasestr(const char *, const char *);
 extern long int lrand48(void);
 extern void srand48(long int);
 

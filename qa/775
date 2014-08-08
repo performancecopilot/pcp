@@ -12,9 +12,13 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./common.discovery
 
 _get_libpcp_config
 $service_discovery || _notrun "No support for service discovery"
+
+signal=$PCP_BINADM_DIR/pmsignal
+$sudo $signal -a pmproxy pmwebd
 
 # Make sure that at least one of the supported discovery mechanisms is available.
 discovery_available=false
@@ -25,28 +29,22 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
-_success_filter()
-{
-    sed \
-	-e '/  pcp:/d'
-}
-
 # real QA test starts here
 
 echo "No arguments"
-pmfind | _success_filter
+pmfind | _filter_discovery_unresolved
 echo "Exit status: $?"
 
-echo "-s pmcd"
-pmfind -s pmcd | _success_filter
+echo "-s pmcd -r"
+pmfind -s pmcd -r | _filter_discovery_resolved
 echo "Exit status: $?"
 
 echo "-m all"
-pmfind -m all | _success_filter
+pmfind -m all | _filter_discovery_unresolved
 echo "Exit status: $?"
 
-echo "-s pmcd -m all"
-pmfind -s pmcd -m all | _success_filter
+echo "-s pmcd -m all --resolve"
+pmfind -s pmcd -m all --resolve | _filter_discovery_resolved
 echo "Exit status: $?"
 
 echo "-q"

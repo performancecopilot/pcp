@@ -1,0 +1,15 @@
+QA output created by 776
+-m probe=IPV6_ADDR/128
+Discovered pmcd servers:
+Sought pmproxy servers
+Sought pmwebd servers
+Exit status: 0
+-s pmcd -m probe=IPV6_ADDR/127 -r
+Discovered pmcd servers:
+Exit status: 0
+-q -m probe=IPV6_ADDR/126
+Exit status: 0
+-q -s pmcd -m probe=IPV6_ADDR/125 --resolve
+Exit status: 0
+-q -s pmcd -m probe=IPV6_ADDR/124,maxThreads=8
+Exit status: 0

@@ -177,9 +177,12 @@ main(int argc, char *argv[])
     pmLongOptions longopts[] = {
 	PMAPI_GENERAL_OPTIONS,
 	PMAPI_OPTIONS_HEADER("Context options"),
-	PMOPT_HOSTSFILE,
 	PMOPT_SPECLOCAL,
 	PMOPT_LOCALPMDA,
+	PMOPT_HOSTSFILE,
+	PMOPT_HOST_LIST,
+	PMOPT_ARCHIVE_LIST,
+	PMOPT_ARCHIVE_FOLIO,
 	PMAPI_OPTIONS_HEADER("Testing options"),
 	{ "extra", 0, 'x', 0, "an extra option, for testing" },
 	{ "eXtra", 1, 'X', "ARG", "an extra option with an argument" },
@@ -199,7 +202,7 @@ main(int argc, char *argv[])
     opts.version = getversion();
     opts.flags = getflags();
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
-	printf("Got option: %c index=%d [errors=%d]\n", c, opts.index, opts.errors);
+	printf("Got option: %c index=%d [errors=%d]\n", c? c: '-', opts.index, opts.errors);
 	switch(c) {
 	case 'x':
 	    printf(" -> x option has no argument\n");
@@ -235,6 +238,8 @@ main(int argc, char *argv[])
 
     if (opts.flags & PM_OPTFLAG_USAGE_ERR)
 	pmUsageMessage(&opts);
+    if (opts.flags & PM_OPTFLAG_RUNTIME_ERR)
+	pmflush();
 
     if (opts.timezone)	/* ensure we have deterministic output */
 	tz = opts.timezone;

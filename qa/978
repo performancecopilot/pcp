@@ -88,6 +88,20 @@ pmgetopt $opts2 -- "/a/b/pcp log" "/c/d/foo'bar"
 echo == verify handling of an invalid option
 pmgetopt $opts2 -- -x /a/b/pcplog
 
+# verify automatic generation of getopt string and extra long opt combos
+cat > $tmp.config3 <<EOF
+Options:
+  --host-list
+  --archive-list
+  --archive-folio
+  --help
+EOF
+
+echo == verify handling of archive folios and host/archive lists
+opts3="--config=$tmp.config3 --progname=pcpqa"
+pmgetopt $opts3 --usage
+pmgetopt $opts3 -- --archive-folio=20071023-08-06-36.folio
+
 # success, all done
 status=0
 exit

@@ -74,10 +74,10 @@ oldlines=`wc -l < /tmp/$seq/1.good.log.$previous 2>/dev/null || echo 0`
 newlines=`wc -l < /tmp/$seq/1.good.log 2>/dev/null || echo 0`
 # 5 samples / sec x ~6 sec x 2 lines per sample + 6 lines for header and footer
 # so 66
-_within_tolerance "Old logfile line count" "$oldlines" 66 %50 -v
+_within_tolerance "Old logfile line count" "$oldlines" 66 %75 -v
 # 5 samples / sec x ~3 sec x 2 lines per sample + 6 lines for header and footer
 # so 36
-_within_tolerance "New logfile line count" "$newlines" 36 %50 -v
+_within_tolerance "New logfile line count" "$newlines" 36 %75 -v
 
 echo "=== previous log ($oldlines lines) ===" >>$seq.full
 cat /tmp/$seq/1.good.log.$previous >>$seq.full

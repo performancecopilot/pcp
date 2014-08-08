@@ -1,0 +1,76 @@
+QA output created by 1018
+*** Create an archive context ***
+QmcSource::getSource: Creating new source for archives/oview-short
+QmcSource::QmcSource: Created context 0 to archive "archives/oview-short"
+
+*** Create an archive context using the host name ***
+QmcSource::getSource: Matched host HOST to archive archives/oview-short (source 0)
+
+*** Create two live contexts to the local host ***
+QmcSource::getSource: Creating new source for HOST
+QmcSource::QmcSource: Created context 1 to host "HOST"
+QmcSource::getSource: Matched HOST to source 1
+
+*** Create a local context ***
+QmcSource::getSource: Creating new local context
+QmcSource::QmcSource: Created context 2 to Local context
+
+*** List all known sources ***
+3 sources:
+[0] archive "archives/oview-short"
+  sts = 0, type = 2, source = archives/oview-short
+  host = HOST, timezone = TZ, tz hndl = 0
+  start = 8.73961e+08, end = 8.73961e+08, dupFlag = false
+  1 contexts: 0 
+[1] host "HOST"
+  sts = 1, type = 1, source = HOST
+  host = HOST, timezone = TZ, tz hndl = 1
+  start = 0, end = 0, dupFlag = false
+  1 contexts: 1 
+[2] Local context
+  sts = 2, type = 3, source = HOST
+  host = HOST, timezone = TZ, tz hndl = 2
+  start = 0, end = 0, dupFlag = false
+  1 contexts: 2 
+Waiting for pmcd to terminate ...
+*** Create an archive context ***
+QmcSource::getSource: Creating new source for archives/oview-short
+QmcSource::QmcSource: Created context 0 to archive "archives/oview-short"
+
+*** Create an archive context using the host name ***
+QmcSource::getSource: Matched host HOST to archive archives/oview-short (source 0)
+
+*** Create two live contexts to the local host ***
+QmcSource::getSource: Creating new source for HOST
+QmcSource::QmcSource: Context to HOST failed: Connection refused
+QmcSource::getSource: Matched HOST to source 1
+QmcSource::QmcSource: Context to HOST failed: Connection refused
+qmc_source: Error: Unable to create context to "HOST": Connection refused
+qmc_source: Error: Unable to create context to "HOST": Connection refused
+
+*** Create a local context ***
+QmcSource::getSource: Creating new local context
+QmcSource::QmcSource: Created context 1 to Local context
+
+*** List all known sources ***
+4 sources:
+[0] archive "archives/oview-short"
+  sts = 0, type = 2, source = archives/oview-short
+  host = HOST, timezone = TZ, tz hndl = 0
+  start = 8.73961e+08, end = 8.73961e+08, dupFlag = false
+  1 contexts: 0 
+[1] host "HOST"
+  sts = ECONNREFUSED, type = 1, source = HOST
+  host = HOST, timezone = , tz hndl = 0
+
+[2] host "HOST"
+  sts = ECONNREFUSED, type = 1, source = HOST
+  host = HOST, timezone = , tz hndl = 0
+
+[3] Local context
+  sts = 1, type = 3, source = HOST
+  host = HOST, timezone = TZ, tz hndl = 1
+  start = 0, end = 0, dupFlag = false
+  1 contexts: 1 
+Starting pmcd ... 
+Starting pmlogger ... 

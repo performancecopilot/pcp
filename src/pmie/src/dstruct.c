@@ -2,7 +2,7 @@
  * dstruct.c - central data structures and associated operations
  ***********************************************************************
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -68,7 +68,8 @@ int		isdaemon;			/* run as a daemon */
 int		agent;				/* secret agent mode? */
 int		applet;				/* applet mode? */
 int		dowrap;				/* counter wrap? default no */
-int		noDnsFlag;			/* do a default name lookup? */
+int		doexit;				/* time to exit stage left? */
+int		dorotate;			/* is a log rotation pending? */
 pmiestats_t	*perf;				/* live performance data */
 pmiestats_t	instrument;			/* used if no mmap (archive) */
 
@@ -276,6 +277,13 @@ sleepTight(Task *t, int type)
 		    break;
 		}
 		sts = nanosleep(&ts, &tleft);
+		/* deferred signal handling done immediately */
+		if (doexit)
+		    exit(doexit);
+		if (dorotate) {
+		    logRotate();
+		    dorotate = 0;
+		}
 		if (sts == 0 || (sts < 0 && oserror() != EINTR))
 		    break;
 		ts = tleft;
@@ -299,7 +307,7 @@ newRingBfr(Expr *x)
     char    *p;
     int     i;
 
-    sz = ((x->sem == SEM_TRUTH) || (x->sem == SEM_CHAR)) ?
+    sz = ((x->sem == SEM_BOOLEAN) || (x->sem == SEM_CHAR)) ?
 	    sizeof(char) * x->tspan :
 	    sizeof(double) * x->tspan;
     if (x->ring) free(x->ring);
@@ -445,7 +453,7 @@ newExpr(int op, Expr *arg1, Expr *arg2,
 	arg = primary(arg1, arg2);
 	x->metrics = arg->metrics;
     }
-    if (sem == SEM_NUMVAR || sem == SEM_NUMCONST || sem == SEM_TRUTH ||
+    if (sem == SEM_NUMVAR || sem == SEM_NUMCONST || sem == SEM_BOOLEAN ||
         sem == SEM_CHAR || sem == SEM_REGEX)
 	x->units = noUnits;
     else {
@@ -1086,7 +1094,7 @@ static struct {
     { SEM_UNKNOWN,	"UNKNOWN" },
     { SEM_NUMVAR,	"NUMVAR" },
     { SEM_NUMCONST,	"NUMCONST" },
-    { SEM_TRUTH,	"TRUTH" },
+    { SEM_BOOLEAN,	"TRUTH" },
     { SEM_CHAR,		"CHAR" },
     { SEM_REGEX,	"REGEX" },
     { PM_SEM_COUNTER,	"COUNTER" },
@@ -1137,7 +1145,7 @@ __dumpExpr(int level, Expr *x)
     else
 	fprintf(stderr, " units=%s\n", pmUnitsStr(&x->units));
     if (x->valid > 0) {
-	if (x->sem == SEM_TRUTH || x->sem == SEM_CHAR ||
+	if (x->sem == SEM_BOOLEAN || x->sem == SEM_CHAR ||
 	    x->sem == SEM_NUMVAR || x->sem == SEM_NUMCONST ||
 	    x->sem == PM_SEM_COUNTER || x->sem == PM_SEM_INSTANT ||
 	    x->sem == PM_SEM_DISCRETE) {
@@ -1150,13 +1158,13 @@ __dumpExpr(int level, Expr *x)
 			    fprintf(stderr, ", ");
 			fprintf(stderr, "{%d} ", k);
 		    }
-		    if (x->sem == SEM_TRUTH) {
+		    if (x->sem == SEM_BOOLEAN) {
 			char 	c = *((char *)x->smpls[j].ptr+k);
-			if ((int)c == TRUE)
+			if ((int)c == B_TRUE)
 			    fprintf(stderr, "true");
-			else if ((int)c == FALSE)
+			else if ((int)c == B_FALSE)
 			    fprintf(stderr, "false");
-			else if ((int)c == DUNNO)
+			else if ((int)c == B_UNKNOWN)
 			    fprintf(stderr, "unknown");
 			else
 			    fprintf(stderr, "bogus (0x%x)", c & 0xff);

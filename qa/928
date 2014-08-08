@@ -18,6 +18,7 @@ $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
+export TZ=UTC
 
 echo "+++ __pmLogPutresult() +++"
 src/chkputlogresult -b $tmp.1

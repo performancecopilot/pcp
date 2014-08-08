@@ -61,6 +61,7 @@ __pmLoggerTimeout(void)
     return timeout;
 }
 
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
 /*
  * Return the path to the default PMLOGGER local unix domain socket.
  * in the buffer propvided.
@@ -73,12 +74,12 @@ __pmLogLocalSocketDefault(int pid, char *buf, size_t bufSize)
 {
     /* snprintf guarantees a terminating nul, even if the output is truncated. */
     if (pid == PM_LOG_PRIMARY_PID) { /* primary */
-	snprintf(buf, bufSize, "%s%c" "pmlogger.primary.socket",
-		 pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator());
+	snprintf(buf, bufSize, "%s/pmlogger.primary.socket",
+		 pmGetConfig("PCP_RUN_DIR"));
     }
     else {
-	snprintf(buf, bufSize, "%s%c" "pmlogger.%d.socket",
-		 pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator(), pid);
+	snprintf(buf, bufSize, "%s/pmlogger.%d.socket",
+		 pmGetConfig("PCP_RUN_DIR"), pid);
     }
 
     return buf;
@@ -102,15 +103,15 @@ __pmLogLocalSocketUser(int pid, char *buf, size_t bufSize)
 	return NULL;
 
     /* snprintf guarantees a terminating nul, even if the output is truncated. */
-    snprintf(buf, bufSize, "%s%c.pcp%crun%c" "pmlogger.%d.socket",
-	     homeResult, __pmPathSeparator(), __pmPathSeparator(), __pmPathSeparator(),
-	     pid);
+    snprintf(buf, bufSize, "%s/.pcp/run/pmlogger.%d.socket",
+	     homeResult, pid);
 
     return buf;
 }
+#endif
 
 /*
- * Common function for attemmpting connections to pmlogger.
+ * Common function for attempting connections to pmlogger.
  */
 static int
 connectLogger(int fd, __pmSockAddr *myAddr)
@@ -227,7 +228,7 @@ connectLoggerLocal(const char *local_socket)
 int
 __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 {
-    int			n, sts;
+    int			n, sts = 0;
     __pmLogPort		*lpp;
     int			fd;	/* Fd for socket connection to pmcd */
     __pmPDU		*pb;
@@ -270,6 +271,7 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 	    prefix_len = prefix_end - connectionSpec + 1;
 	    if ((wasLocal = (prefix_len == 6 && strncmp(connectionSpec, "local:", prefix_len) == 0)) ||
 		(prefix_len == 5 && strncmp(connectionSpec, "unix:", prefix_len) == 0)) {
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
 		if (connectionSpec[prefix_len] != '\0') {
 		    /* Try the specified local socket directly. */
 		    fd = connectLoggerLocal(connectionSpec + prefix_len);
@@ -285,6 +287,7 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 			    fd = connectLoggerLocal(connectionSpec);
 		    }
 		}
+#endif
 	    }
 	    if (fd >= 0)
 		sts = 0;

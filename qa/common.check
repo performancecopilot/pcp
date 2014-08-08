@@ -121,6 +121,46 @@ END             { if (warn) printf "%d warnings, ",warn
     return $sts
 }
 
+#
+# prepare and cleanup pmda routines work together to ensure
+# pmcd+pmda state is left as it was at the start of a test.
+#
+_prepare_pmda()
+{
+    agent=$1
+
+    iam=$agent
+    done_clean=false
+    install_on_cleanup=false
+    pminfo $agent >/dev/null 2>&1 && install_on_cleanup=true
+    # copy the pmcd config file to restore state later.
+    cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+    unset ROOT MAKEFLAGS
+}
+
+_cleanup_pmda()
+{
+    agent=$1
+
+    if $done_clean
+    then
+	:
+    else
+	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	rm -f $tmp.*
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	if $install_on_cleanup
+	then
+	    ( cd $PCP_PMDAS_DIR/$agent; $sudo ./Install </dev/null >/dev/null 2>&1 )
+	else
+	    ( cd $PCP_PMDAS_DIR/$agent; $sudo ./Remove >/dev/null 2>&1 )
+	fi
+	done_clean=true
+    fi
+}
+
 _host_to_ipaddr()
 {
     perl -MSocket -e '
@@ -233,26 +273,26 @@ _wait_for_pmcd()
 #
 _wait_for_pmlogger()
 {
-    # 20 seconds default seems like a reasonble max time to get going
+    # 20 seconds default seems like a reasonable max time to get going
     _maxdelay=20
 
     case $# in
 	0)
 	    _pid="-P"
-	    # logic copied exactly from pmlogger_check
-	    #
-	    LOCALHOSTNAME=`hostname | sed -e 's/\..*//'`
-	    [ -z "$LOCALHOSTNAME" ] && LOCALHOSTNAME=localhost
-	    _logfile="$PCP_LOG_DIR/pmlogger/$LOCALHOSTNAME/pmlogger.log" 
+	    dir_hostname=`hostname || echo localhost`
+	    _logfile="$PCP_LOG_DIR/pmlogger/$dir_hostname/pmlogger.log" 
+            _iam="primary"
 	    ;;
 	2)
 	    _pid=$1
 	    _logfile=$2
+            _iam="pid=$_pid"
 	    ;;
 	3)
 	    _pid=$1
 	    _logfile=$2
 	    _maxdelay=$3
+            _iam="pid=$_pid"
 	    ;;
 	*)
 	    echo "_wait_for_pmlogger(): wrong number of arguments"
@@ -260,15 +300,18 @@ _wait_for_pmlogger()
 	    exit $status
 	    ;;
     esac
-   
+
     #debug# set -x
     _i=0
     _dead=true
+    rm -f $tmp._wait_for_pmlogger.pmlc
     while [ $_i -lt $_maxdelay ]
     do
 	#debug# ps -ef | grep "[^0-9]$_pid[^0-9]"
-	#debug# pmlc $_pid </dev/null
-	if pmlc $_pid </dev/null 2>&1 | egrep "Connection refused|Transport endpoint is not connected" >/dev/null
+	echo "pmlc $_pid" >> $tmp._wait_for_pmlogger.pmlc
+	if pmlc $_pid </dev/null 2>&1 \
+		| tee -a $tmp._wait_for_pmlogger.pmlc \
+		| egrep "Connection refused|Transport endpoint is not connected" >/dev/null
 	then
 	    sleep 1
 	    _i=`expr $_i + 1`
@@ -283,12 +326,20 @@ _wait_for_pmlogger()
     done
     if $_dead
     then
-	echo "Arrgghhh ... pmlogger (pid=$_pid) failed to start after $_maxdelay seconds"
+	echo "Arrgghhh ... pmlogger ($_iam) failed to start after $_maxdelay seconds"
 	echo "at `date`."
 	echo "pmlogger log ($_logfile) ..."
 	cat $_logfile
 	echo
-	
+
+	#  If pmlc could not connect to pmlogger, report details
+	if [ -s $tmp._wait_for_pmlogger.pmlc ]
+	then
+	    echo "pmlc output ..."
+	    cat $tmp._wait_for_pmlogger.pmlc
+	    echo
+	fi
+
 	#  If pmlogger could not connect to PMCD, find which host it was
 	#  connecting to, and get the pmcd.log file from that host.
 	cat $_logfile | $PCP_AWK_PROG '/pmlogger: Cannot connect to PMCD on host/' \
@@ -349,6 +400,7 @@ _wait_for_pmlogger()
 	status=2
 	exit $status
     fi
+    rm -f $tmp._wait_for_pmlogger.*
 }
 
 # Start a pmlogger with appropriate privs that it can create
@@ -527,6 +579,17 @@ _check_purify()
     [ $? -eq 0 ] || _notrun "No purify binary found"
 }
 
+_check_display()
+{
+    # note: non-X systems (MacOSX, Windows) must pass here unchallenged
+    which xdpyinfo >/dev/null 2>&1
+    if test $? -eq 0
+    then
+	DISPLAY=$PCPQA_CLOSE_X_SERVER xdpyinfo >/dev/null 2>&1 || \
+	    _notrun "Failed sanity check on DISPLAY $PCPQA_CLOSE_X_SERVER"
+    fi
+}
+
 # valgrind support
 #
 # typical usage:
@@ -542,6 +605,36 @@ _check_valgrind()
 {
     which valgrind >/dev/null 2>&1
     [ $? -eq 0 ] || _notrun "No valgrind binary found"
+}
+
+# Note: because we may be avoiding leaks in system libraries
+# via the suppressions, there is potential indeterminism for
+# the following case:
+# -All heap blocks were freed -- no leaks are possible
+# +LEAK SUMMARY:
+# +definitely lost: 0 bytes in 0 blocks
+# +indirectly lost: 0 bytes in 0 blocks
+# 
+_filter_valgrind()
+{
+   noleak="LEAK SUMMARY:\ndefinitely lost: 0 bytes in 0 blocks\nindirectly lost: 0 bytes in 0 blocks"
+    sed \
+	-e 's/^==*[1-9][0-9]*==* *//' \
+	-e '/^$/d' \
+	-e '/^Copyright (/d' \
+	-e '/^Using Valgrind-/d' \
+	-e '/^Parent PID:/d' \
+	-e '/^HEAP SUMMARY:/d' \
+	-e '/^in use at exit:/d' \
+	-e '/^total heap usage:/d' \
+	-e '/^possibly lost:/d' \
+	-e '/^still reachable:/d' \
+	-e '/^suppressed:/d' \
+	-e '/^Reachable blocks (those to which a pointer was found)/d' \
+	-e '/^To see them, rerun with:/d' \
+	-e '/^For counts of detected and suppressed errors,/d' \
+	-e '/^ERROR SUMMARY:/s/ (suppressed: [^)]*)/ .../' \
+	-e "s/^All heap blocks were freed -- .*/$noleak/g"
 }
 
 _run_valgrind()
@@ -565,22 +658,7 @@ _run_valgrind()
     echo "=== valgrind report ===" >>$seq.full
     cat $tmp._valgrind >>$seq.full
     echo "=== filtered valgrind report ==="
-    sed <$tmp._valgrind \
-	-e 's/^==*[1-9][0-9]*==* *//' \
-	-e '/^$/d' \
-	-e '/^Copyright (/d' \
-	-e '/^Using Valgrind-/d' \
-	-e '/^Parent PID:/d' \
-	-e '/^HEAP SUMMARY:/d' \
-	-e '/^in use at exit:/d' \
-	-e '/^total heap usage:/d' \
-	-e '/^possibly lost:/d' \
-	-e '/^still reachable:/d' \
-	-e '/^suppressed:/d' \
-	-e '/^Reachable blocks (those to which a pointer was found)/d' \
-	-e '/^To see them, rerun with:/d' \
-	-e '/^For counts of detected and suppressed errors,/d' \
-	-e '/^ERROR SUMMARY:/s/ (suppressed: [^)]*)/ .../'
+    _filter_valgrind <$tmp._valgrind
 }
 
 #

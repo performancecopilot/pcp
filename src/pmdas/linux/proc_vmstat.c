@@ -1,7 +1,7 @@
 /*
  * Linux /proc/vmstat metrics cluster
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 2007,2011 Aconex.  All Rights Reserved.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -18,6 +18,8 @@
 
 #include <ctype.h>
 #include "pmapi.h"
+#include "pmda.h"
+#include "indom.h"
 #include "proc_vmstat.h"
 
 static struct {
@@ -237,6 +239,8 @@ static struct {
 void
 proc_vmstat_init(void)
 {
+    char	buf[1024];
+
     /*
      * The swap metrics moved from /proc/stat to /proc/vmstat early in 2.6.
      * In addition, the swap operation count was removed; the fetch routine
@@ -247,7 +251,8 @@ proc_vmstat_init(void)
      * that is not a problem.  This routine makes sure any swap.xxx metric
      * fetch without a preceding mem.vmstat fetch has the correct state.
      */
-    _pm_have_proc_vmstat = (access("/proc/vmstat", R_OK) == 0);
+    snprintf(buf, sizeof(buf), "%s/proc/vmstat", linux_statspath);
+    _pm_have_proc_vmstat = (access(buf, R_OK) == 0);
 }
 
 int
@@ -264,7 +269,7 @@ refresh_proc_vmstat(proc_vmstat_t *proc_vmstat)
 	*p = -1; /* marked as "no value available" */
     }
 
-    if ((fp = fopen("/proc/vmstat", "r")) == NULL)
+    if ((fp = linux_statsfile("/proc/vmstat", buf, sizeof(buf))) == NULL)
     	return -oserror();
 
     _pm_have_proc_vmstat = 1;
@@ -290,7 +295,5 @@ refresh_proc_vmstat(proc_vmstat_t *proc_vmstat)
     if (proc_vmstat->nr_slab == -1)	/* split apart in 2.6.18 */
 	proc_vmstat->nr_slab = proc_vmstat->nr_slab_reclaimable +
 				proc_vmstat->nr_slab_unreclaimable;
-
-    /* success */
     return 0;
 }

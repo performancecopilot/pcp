@@ -1,0 +1,240 @@
+pmview Version 2.1 "webvis" 
+
+_stackLength 26
+_marginWidth 8
+_marginDepth 8
+
+_colorList cpu_colors ( blue2 red2 yellow2 cyan2 )
+_colorList disk_colors ( violet yellow )
+_colorList memory_colors (
+ rgbi:1.0/1.0/0.0
+ rgbi:0.0/1.0/1.0
+ rgbi:1.0/0.0/0.0
+ rgbi:1.0/0.0/1.0
+ rgbi:0.0/0.0/1.0
+ rgbi:0.0/1.0/0.0
+)
+_colorList network_colors (
+ rgbi:0.8/0.0/0.0
+ rgbi:1.0/0.5/0.0
+ rgbi:0.0/0.8/0.0 
+)
+_colorList type_colors (
+ rgbi:0.8/0.0/0.0
+ rgbi:1.0/1.0/0.6
+ rgbi:1.0/0.0/1.0
+ rgbi:0.0/1.0/1.0
+ rgbi:1.0/1.0/0.0
+)
+
+_colorList size_colors (
+ rgbi:1.0/0.35/0.0
+ rgbi:0.6/0.0/0.9
+ rgbi:0.0/1.0/0.0
+ rgbi:1.0/0.5/0.0
+ rgbi:0.65/0.3/1.0
+ rgbi:0.3/1.0/0.3
+ rgbi:1.0/0.65/0.3
+ rgbi:0.8/0.6/1.0
+ rgbi:0.6/1.0/0.6
+ rgbi:1.0/0.8/0.6
+)
+
+_grid _hide (
+ _grid 1 0 6 2 south _hide (
+ _bar 0 1 6 1 west _row _groupbyrow (
+ _metrics (
+ network.tcp.drops 7
+ network.tcp.conndrops 7
+ network.tcp.timeoutdrop 7
+ network.tcp.rcvbadsum 7
+ network.tcp.rexmttimeo 7
+ network.tcp.sndrexmitpack 7
+ )
+ _colorList (
+ red1 red1 red1 red1 red1 red1
+ )
+ _baseLabel "TCP metrics which may indicate a problem\nNormalized to 7 events per second"
+ )
+ _bar 0 0 3 1 west _row _groupbyrow (
+ _metrics (
+ swap.pagesout 7
+ network.mbuf.failed 7
+ network.mbuf.waited 7
+ )
+ _colorList (
+ yellow rgbi:1.0/0.5/0.0 rgbi:1.0/0.5/0.0
+ )
+ _baseLabel "Memory metrics which may indicate a problem\nNormalized to 7 events per second"
+ )
+ _label 3 0 west _right _medium "Alarms"
+ )
+
+ _bar 0 1 1 10 south _groupbycol (
+ _metrics (
+ web.allservers.requests.size.unknown 37
+ web.allservers.requests.size.gt3m 37
+ web.allservers.requests.size.le3m 37
+ web.allservers.requests.size.le1m 37
+ web.allservers.requests.size.le300k 37
+ web.allservers.requests.size.le100k 37
+ web.allservers.requests.size.le30k 37
+ web.allservers.requests.size.le10k 37
+ web.allservers.requests.size.le3k 37
+ web.allservers.requests.size.zero 37
+ )
+ _metriclabels _towards (
+ "?" ">3M" "3M" "1M" "300k"
+ "100k" "30k" "10k" "3k" "0k"
+ )
+ _colorList size_colors 
+ _baseLabel "HTTP request rate by response size in bytes\nNormalized to 37 hits per second"
+ )
+
+ _label 0 11 northeast _right _medium "Size"
+
+ _bar 1 6 1 5 south _groupbycol (
+ _metrics (
+ web.allservers.errors 7
+ web.allservers.requests.other 37
+ web.allservers.requests.post 37
+ web.allservers.requests.head 37
+ web.allservers.requests.get 37
+ )
+ _colorList type_colors
+ _baseLabel "HTTP request rate by HTTP method\nNormalized to 37 hits per second"
+ )
+
+ _label 1 11 north _right _medium "Type"
+
+ _grid 1 3 5 3 southwest (
+ _stack 0 0 (
+ _metrics (
+ kernel.all.cpu.user 1000
+ kernel.all.cpu.sys 1000
+ kernel.all.cpu.intr 1000
+ kernel.all.cpu.wait.total 1000
+ )
+ _colorList cpu_colors
+ _baseLabel "CPU Utilization\nSummed over 1 CPU"
+ )
+ _label 0 1 north _right _medium "CPU"
+
+_marginWidth 4
+_marginDepth 4
+_baseHeight 4
+
+ _grid 1 0 2 1 _show (
+_baseColor rgbi:0.30/0.30/0.30
+ _stack 0 0 south _cylinder (
+ _metrics (
+ disk.all.write 100
+ disk.all.read 100
+ )
+ _colorList disk_colors
+ _baseLabel "Read and Write activity for all Disks\nNormalized to 100 I/Os per second"
+ ) 
+ _bar 1 0 _cylinder (
+ _metrics (
+ disk.all.avg_disk.active 300
+ )
+ _colorList ( green2 )
+ _baseLabel "Average Disk Utilization\nNormalized to 30% across 2 disks"
+ )
+_baseColor rgbi:0.15/0.15/0.15
+ ) 
+ _label 1 1 2 1 north _medium "Disk"
+
+ _grid 3 0 2 1 _show (
+_baseColor rgbi:0.30/0.30/0.30
+ _stack 0 0 (
+ _metrics (
+ mem.freemem 98304
+ )
+ _colorList ( rgbi:0.0/0.8/0.0 )
+ _baseLabel "Free memory"
+ )
+
+ _stack 1 0 (
+ _metrics (
+ mem.util.kernel 98304
+ mem.util.fs_ctl 98304
+ mem.util.fs_dirty 98304
+ mem.util.fs_clean 98304
+ mem.util.user 98304
+ )
+ _colorList memory_colors
+ _baseLabel "Physical Memory Utilization\nNormalized to 98304 Kbytes"
+ )
+_baseColor rgbi:0.15/0.15/0.15
+ )
+ _label 3 1 2 1 north _medium "Mem"
+
+_marginWidth 8
+_marginDepth 8
+_baseHeight 2
+ )
+
+ _grid 2 6 4 5 south _hide (
+ _grid 0 0 1 2 west _hide (
+ _label 0 0 east _right _medium "In"
+ _label 0 1 east _right _medium "Out"
+ )
+_marginWidth 4
+_marginDepth 4
+_baseHeight 4
+
+ _grid 1 0 2 2 _show (
+_baseColor rgbi:0.30/0.30/0.30
+
+
+ _stack 0 0 (
+ _metrics (
+ network.interface.in.errors[ec0] 7
+ network.interface.in.drops[ec0] 7
+ network.interface.in.packets[ec0] 750
+ )
+ _colorList network_colors
+ _baseLabel "Input and Output on Network Interfaces\nPackets are normalized to 750 packets per second"
+ )
+ _stack 0 1 (
+ _metrics (
+ network.interface.out.errors[ec0] 7
+ network.interface.out.drops[ec0] 7
+ network.interface.out.packets[ec0] 750
+ )
+ _colorList network_colors
+ _baseLabel "Input and Output on Network Interfaces\nPackets are normalized to 750 packets per second"
+ )
+
+ _stack 1 0 (
+ _metrics (
+ network.interface.in.errors[lo0] 7
+ network.interface.in.drops[lo0] 7
+ network.interface.in.packets[lo0] 750
+ )
+ _colorList network_colors
+ _baseLabel "Input and Output on Network Interfaces\nPackets are normalized to 750 packets per second"
+ )
+ _stack 1 1 (
+ _metrics (
+ network.interface.out.errors[lo0] 7
+ network.interface.out.drops[lo0] 7
+ network.interface.out.packets[lo0] 750
+ )
+ _colorList network_colors
+ _baseLabel "Input and Output on Network Interfaces\nPackets are normalized to 750 packets per second"
+ )
+ _baseLabel "Input and Output on Network Interfaces\nPackets are normalized to 750 packets per second"
+_baseColor rgbi:0.15/0.15/0.15
+ )
+_marginWidth 8
+_marginDepth 8
+_baseHeight 2
+ _grid 1 2 2 2 _hide (
+ _label 0 0 north _down _medium "ec0"
+ _label 1 0 north _down _medium "lo0"
+ )
+ )
+ _label 3 11 northwest _right _medium "Network"
+)

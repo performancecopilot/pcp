@@ -11,7 +11,7 @@ Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Met
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
-Check gfs2 metrics have appeared ... 203 metrics and N values
+Check gfs2 metrics have appeared ... 294 metrics and N values
 creating pseudo device 1
 creating a mount point 1
 creating device file 1
@@ -522,6 +522,508 @@ gfs2.tracepoints.rs.clm PMID: 115.3.81
     Semantics: instant  Units: count
     inst [0 or "loopN"] value NUMBER
     inst [1 or "loopN"] value NUMBER
+
+=== Check gfs2.worst_glock metrics for all filesystems ===
+
+gfs2.worst_glock.tenth.queue PMID: 115.4.99
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.tenth.dlm PMID: 115.4.98
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.tenth.sirtvar PMID: 115.4.97
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.tenth.sirt PMID: 115.4.96
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.tenth.srttvarb PMID: 115.4.95
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.tenth.srttb PMID: 115.4.94
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.tenth.srttvar PMID: 115.4.93
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.tenth.srtt PMID: 115.4.92
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.tenth.number PMID: 115.4.91
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.tenth.lock_type PMID: 115.4.90
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.ninth.queue PMID: 115.4.89
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.ninth.dlm PMID: 115.4.88
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.ninth.sirtvar PMID: 115.4.87
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.ninth.sirt PMID: 115.4.86
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.ninth.srttvarb PMID: 115.4.85
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.ninth.srttb PMID: 115.4.84
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.ninth.srttvar PMID: 115.4.83
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.ninth.srtt PMID: 115.4.82
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.ninth.number PMID: 115.4.81
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.ninth.lock_type PMID: 115.4.80
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.eighth.queue PMID: 115.4.79
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.eighth.dlm PMID: 115.4.78
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.eighth.sirtvar PMID: 115.4.77
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.eighth.sirt PMID: 115.4.76
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.eighth.srttvarb PMID: 115.4.75
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.eighth.srttb PMID: 115.4.74
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.eighth.srttvar PMID: 115.4.73
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.eighth.srtt PMID: 115.4.72
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.eighth.number PMID: 115.4.71
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.eighth.lock_type PMID: 115.4.70
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.seventh.queue PMID: 115.4.69
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.seventh.dlm PMID: 115.4.68
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.seventh.sirtvar PMID: 115.4.67
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.seventh.sirt PMID: 115.4.66
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.seventh.srttvarb PMID: 115.4.65
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.seventh.srttb PMID: 115.4.64
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.seventh.srttvar PMID: 115.4.63
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.seventh.srtt PMID: 115.4.62
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.seventh.number PMID: 115.4.61
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.seventh.lock_type PMID: 115.4.60
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.sixth.queue PMID: 115.4.59
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.sixth.dlm PMID: 115.4.58
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.sixth.sirtvar PMID: 115.4.57
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.sixth.sirt PMID: 115.4.56
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.sixth.srttvarb PMID: 115.4.55
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.sixth.srttb PMID: 115.4.54
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.sixth.srttvar PMID: 115.4.53
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.sixth.srtt PMID: 115.4.52
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.sixth.number PMID: 115.4.51
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.sixth.lock_type PMID: 115.4.50
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.fifth.queue PMID: 115.4.49
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.fifth.dlm PMID: 115.4.48
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.fifth.sirtvar PMID: 115.4.47
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.fifth.sirt PMID: 115.4.46
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.fifth.srttvarb PMID: 115.4.45
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.fifth.srttb PMID: 115.4.44
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.fifth.srttvar PMID: 115.4.43
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.fifth.srtt PMID: 115.4.42
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.fifth.number PMID: 115.4.41
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.fifth.lock_type PMID: 115.4.40
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.fourth.queue PMID: 115.4.39
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.fourth.dlm PMID: 115.4.38
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.fourth.sirtvar PMID: 115.4.37
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.fourth.sirt PMID: 115.4.36
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.fourth.srttvarb PMID: 115.4.35
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.fourth.srttb PMID: 115.4.34
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.fourth.srttvar PMID: 115.4.33
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.fourth.srtt PMID: 115.4.32
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.fourth.number PMID: 115.4.31
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.fourth.lock_type PMID: 115.4.30
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.third.queue PMID: 115.4.29
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.third.dlm PMID: 115.4.28
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.third.sirtvar PMID: 115.4.27
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.third.sirt PMID: 115.4.26
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.third.srttvarb PMID: 115.4.25
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.third.srttb PMID: 115.4.24
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.third.srttvar PMID: 115.4.23
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.third.srtt PMID: 115.4.22
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.third.number PMID: 115.4.21
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.third.lock_type PMID: 115.4.20
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.second.queue PMID: 115.4.19
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.second.dlm PMID: 115.4.18
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.second.sirtvar PMID: 115.4.17
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.second.sirt PMID: 115.4.16
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.second.srttvarb PMID: 115.4.15
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.second.srttb PMID: 115.4.14
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.second.srttvar PMID: 115.4.13
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.second.srtt PMID: 115.4.12
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.second.number PMID: 115.4.11
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.second.lock_type PMID: 115.4.10
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.first.queue PMID: 115.4.9
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.first.dlm PMID: 115.4.8
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.first.sirtvar PMID: 115.4.7
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.first.sirt PMID: 115.4.6
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.first.srttvarb PMID: 115.4.5
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.first.srttb PMID: 115.4.4
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.first.srttvar PMID: 115.4.3
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.first.srtt PMID: 115.4.2
+    Data Type: 64-bit int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.first.number PMID: 115.4.1
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
+
+gfs2.worst_glock.first.lock_type PMID: 115.4.0
+    Data Type: 32-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: count
+No value(s) available!
 
 === check functionality of pmstore (off) ===
 gfs2.control.tracepoints.all OLD VALUE new value=0

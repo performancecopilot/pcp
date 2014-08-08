@@ -53,7 +53,7 @@ _remote_signal()
 \$PCP_BINADM_DIR/pmsignal -s TERM $pid
 sleep 1
 \$PCP_BINADM_DIR/pmsignal -s KILL $pid
-test -k \$PCP_TMP_DIR/pmlogger || /usr/bin/sudo chmod o-w \$PCP_TMP_DIR/pmlogger
+test -k \$PCP_TMP_DIR/pmlogger || /usr/bin/sudo chmod o-w \$PCP_TMP_DIR/pmlogger 2>/dev/null
 rm -f /tmp/$base.*
 end-of-file
     scp -q $tmp.cmd pcpqa@$host:$tmp.cmd
@@ -75,8 +75,8 @@ else
     exit 1
 fi
 rm -f /tmp/$$.*
-test -k $PCP_TMP_DIR/pmlogger || /usr/bin/sudo chmod o+w $PCP_TMP_DIR/pmlogger
-( pmlogger -L -c /dev/null -l /tmp/$$.log /tmp/$$ </dev/null >/dev/null 2>&1 ) &
+test -k $PCP_TMP_DIR/pmlogger || /usr/bin/sudo chmod o+w $PCP_TMP_DIR/pmlogger 2>/dev/null
+( pmlogger -T5min -L -c /dev/null -l /tmp/$$.log /tmp/$$ </dev/null >/dev/null 2>&1 ) &
 echo pid=$! base=$$
 End-of-File
 

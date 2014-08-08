@@ -11,8 +11,24 @@
 #endif
 
 root {
-    cgroup		PROC:*:* /* dynamic */
+    cgroup
     proc
+}
+
+cgroup {
+    subsys
+    mounts
+    groups		PROC:*:*
+}
+
+cgroup.subsys {
+    hierarchy		PROC:37:0
+    count		PROC:37:1
+}
+
+cgroup.mounts {
+    subsys		PROC:38:0
+    count		PROC:38:1
 }
 
 proc {

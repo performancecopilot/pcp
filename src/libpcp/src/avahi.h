@@ -14,9 +14,18 @@
 #ifndef AVAHI_H
 #define AVAHI_H
 
+#ifdef HAVE_AVAHI
 void __pmServerAvahiAdvertisePresence(__pmServerPresence *) _PCP_HIDDEN;
 void __pmServerAvahiUnadvertisePresence(__pmServerPresence *) _PCP_HIDDEN;
-
-int __pmAvahiDiscoverServices(const char *, const char *, int, char ***) _PCP_HIDDEN;
+int __pmAvahiDiscoverServices(const char *,
+			      const char *,
+			      const __pmServiceDiscoveryOptions *,
+			      int,
+			      char ***) _PCP_HIDDEN;
+#else
+#define __pmServerAvahiAdvertisePresence(p)		do { } while (0)
+#define __pmServerAvahiUnadvertisePresence(p)		do { } while (0)
+#define __pmAvahiDiscoverServices(s, m, o, n, u)	0
+#endif
 
 #endif /* AVAHI_H */

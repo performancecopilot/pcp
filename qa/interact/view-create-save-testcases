@@ -1,0 +1,124 @@
+Opening and Saving Views
+========================
+
+Live Open
+
+[ ] Start pmchart, click on Open View in the File Menu Item or Toolbar
+    Verify that the initial view displays the System views (CPU, Disk,
+    Loadavg, NFS, etc).  All View names should be fully visible with a
+    (light blue folder) View icon associated with each.
+[ ] Resize the window, down to its minimum size and up to a larger size
+    than the initial window.  Verify the child widget layout remains as
+    sensible as possible for the window size.
+[ ] Before selecting anything click on the Open push button, and verify
+    that a warning dialog is displayed (No views specified) and that
+    the Open View dialog remains on screen.
+
+[ ] Verify the filesystem traversal functionality - select your home
+    directory from the Path combo box.  The list of displayed files
+    should be updated to match, and the System View toolbutton (top-
+    right corner) should no longer be selected.
+[ ] Click on the Parent toolbutton (arrow icon, just right of the Path
+    combo box), and verify this traverses to the parent directory).
+    Check that the Path combo box is updated each time to show the new
+    full path.  Repeat clicking it until the root directory is reached.
+[ ] Click on the Path combo box, all directories visited should be in
+    the list.
+[ ] Select your home directory from the Path combo box again.  Now walk
+    to the root of the filesystem by entering the parent directory (..)
+    into the File text box.
+
+[ ] Click on the Host combo box.  At this stage it should just show the
+    local QA host name.  Click on the Add Host push button, to the right
+    of the Host combo box.  Enter an invalid name, e.g. no.such.host in
+    the Add Host dialog.  Verify that the error is reported and that the
+    dialog stays on-screen.  Press Cancel.
+[ ] Click the Add Host button once more, and this time enter a valid
+    remote hostname.  Click OK, and then verify that the Host combobox
+    now displays two hosts, with the newly added host first in the list
+    (and selected as the default host now).
+    **Note: the host used next should be the local (not remote) QA host:
+[ ] Switch (back) to the local QA host in the Host combo box.  Click
+    on the CPU and Disk view icons (need Ctrl+Click, for multi-select)
+    then click on the Open button.  Verify that these views are indeed
+    opened in the main pmchart window (should have CPU/Disk metrics,
+    legend on, auto-scale for Disk view, 100% utilisation view for CPU).
+
+Live Save
+
+[ ] Select the Save View option from the File menu.  
+[ ] Resize the window, down to its minimum size and up to a larger size
+    than the initial window.  Verify the child widget layout remains as
+    sensible sensible as possible for the window size.
+[ ] Verify the filesystem traversal functionality - select your home
+    directory from the Path combo box.  The list of displayed files
+    should be updated to match, and the User View toolbutton (top-
+    right corner) should no longer be selected.
+[ ] Click on the Parent toolbutton (arrow icon, just right of the Path
+    combo box), and verify this traverses to the parent directory).
+    Check that the Path combo box is updated each time to show the new
+    full path.  Repeat clicking it until the root directory is reached.
+[ ] Click on the Path combo box, all directories visited should be in
+    the list.
+[ ] Select your home directory from the Path combo box again.  Now walk
+    to the root of the filesystem by entering the parent directory (..)
+    into the File text box.
+
+[ ] Click on the User Views toolbutton (top right corner).  Enter the
+    name "DynamicQA" into the File text box, and click the Save button.
+[ ] Open the Save Views dialog once more.  Enter the name "DynamicQA"
+    into the File text box, and click the Save button.  Verify that a
+    warning message is displayed saying that file exists; press Cancel.
+[ ] Check the "Preserve hostname in View" box.  Enter the view name
+    "LiteralQA" in the file text box, and press the Save button.
+[ ] Create a new tab - click the New Tab tool button on the main window,
+    then enter the Label "Dynamic QA", ensure Live Host radio button is
+    enabled, and press the OK button.  Click on the DynamicQA Tab (if it
+    isn't already visible), and Click the Open View tool button.  Select
+    the remote host name entered earlier on, select our new "DynamicQA"
+    view from the list of views, and press OK.  Verify that the view just
+    created shows metrics from the *remote* host.
+[ ] Create a new tab - click the New Tab tool button on the main window,
+    then enter the Label "Literal QA", ensure Live Host radio button is
+    enabled, and press the OK button.  Click on the LiteralQA Tab (if it
+    isn't already visible), and Click the Open View tool button.  Select
+    the remote host name entered earlier on, select our new "LiteralQA"
+    view from the list of views, and press OK.  Verify that the view just
+    created shows metrics from the *local* host.
+
+Archive Open
+
+[ ] Click on the Archive Tab.  Click on the Open View toolbutton.  Click
+    on the Archive push button, and open up pcp-gui/qa/archives/viewqa1,
+    pcp-gui/qa/archives/viewqa2 and pcp-gui/qa/archives/viewqa3.
+[ ] Verify that the hosts "edge" and "leaf" are displayed alongside each
+    archive in the Archive combo box, and that "edge" is highlighted.
+    Verify also that the Time Axis in the main window has been updated
+    to display a timeframe in September 2007, EST.
+[ ] Navigate to pcp-gui/qa/views/NoSuchHost, and press the Open button.
+    Verify that an error dialog is displayed regarding no.such.host, and
+    that the main pmchart window is unchanged.
+[ ] Click on the User Views tool button, and open up the DynamicQA view.
+    Verify that this view is successfully opened for the host "edge".
+
+Archive Save
+
+[ ] Bring up the Save View dialog, enter "DynamicQA2" into the File text
+    box, and press the Save button.
+[ ] Bring up the Save View dialog, check the "Preserve hostname in View"
+    box, enter the view name "LiteralQA2" in the file text box, and press
+    the Save button.
+[ ] Bring up the Save View dialog, click on the User Views toolbutton
+    (near top right corner).  Enter "LiteralQA2" into the File text box,
+    and press the Save button.
+[ ] Quit out of pmchart.
+    Run:	$ pmchart -c LiteralQA2 -a pcp-gui/qa/archives/viewqa1
+    Verify that this fails and no changes are made to the pmchart window.
+    Run:	$ pcp-gui -c LiteralQA2 -a pcp-gui/qa/archives/viewqa2
+    Verify that this successfully opens up an archive view.
+    Run:	$ pmchart -c DynamicQA2 -h <remote>
+    Verify that this succeeds and opens up a live view.
+    Run:	$ pmchart -c DynamicQA2 -a pcp-gui/qa/archives/viewqa1
+    Verify that this successfully opens up an archive view.
+    Run:	$ pmchart -c DynamicQA2 -a pcp-gui/qa/archives/viewqa2
+    Verify that this successfully opens up an archive view.

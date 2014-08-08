@@ -29,8 +29,8 @@ CFILES = connect.c context.c desc.c err.c fetch.c freeresult.c \
 	stuffvalue.c endian.c config.c auxconnect.c auxserver.c discovery.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
 	connectlocal.c derive.c derive_fetch.c events.c lock.c hash.c \
-	fault.c access.c
-HFILES = derive.h internal.h avahi.h
+	fault.c access.c probe.c
+HFILES = derive.h internal.h avahi.h probe.h
 VERSION_SCRIPT = exports
 
 LSRCFILES = check-statics $(VERSION_SCRIPT)

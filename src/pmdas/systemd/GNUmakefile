@@ -40,6 +40,7 @@ install:	default
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) root help pmns $(PMDADIR)
 	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
+	$(INSTALL) -m 755 $(CMDTARGET) $(PMDADIR)/$(CMDTARGET)
 else
 build-me:
 install:

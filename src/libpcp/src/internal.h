@@ -31,6 +31,7 @@
 extern int __pmConvertTimeout(int) _PCP_HIDDEN;
 extern const struct timeval *__pmConnectTimeout(void) _PCP_HIDDEN;
 extern const struct timeval * __pmDefaultRequestTimeout(void) _PCP_HIDDEN;
+extern int __pmConnectWithFNDELAY(int, void *, __pmSockLen) _PCP_HIDDEN;
 
 extern int __pmPtrToHandle(__pmContext *) _PCP_HIDDEN;
 extern int __pmFetchLocal(__pmContext *, int, pmID *, pmResult **) _PCP_HIDDEN;
@@ -188,6 +189,11 @@ struct __pmHostEnt {
 };
 #endif
 
+extern unsigned __pmFirstInetSubnetAddr(unsigned, int) _PCP_HIDDEN;
+extern unsigned __pmNextInetSubnetAddr(unsigned, int) _PCP_HIDDEN;
+extern unsigned char *__pmFirstIpv6SubnetAddr(unsigned char *, int maskBits) _PCP_HIDDEN;
+extern unsigned char *__pmNextIpv6SubnetAddr(unsigned char *, int maskBits) _PCP_HIDDEN;
+
 extern int __pmInitSecureSockets(void) _PCP_HIDDEN;
 extern int __pmInitCertificates(void) _PCP_HIDDEN;
 extern int __pmInitSocket(int, int) _PCP_HIDDEN;
@@ -252,8 +258,27 @@ struct __pmServerPresence {
 typedef struct {
     const char		*spec;
     __pmSockAddr	*address;
+    const char		*protocol;
 } __pmServiceInfo;
 
-extern int  __pmAddDiscoveredService(__pmServiceInfo *, int, char ***) _PCP_HIDDEN;
+typedef struct {
+    const volatile unsigned	*flags;		/* Service discovery flags */
+    struct timeval		timeout;	/* Global timeout period */
+    volatile int		timedOut;	/* Global timeout occurred */
+} __pmServiceDiscoveryOptions;
+
+extern int __pmAddDiscoveredService(__pmServiceInfo *,
+				    const __pmServiceDiscoveryOptions *,
+				    int,
+				    char ***) _PCP_HIDDEN;
+extern char *__pmServiceDiscoveryParseTimeout (const char *s,
+					       struct timeval *timeout)
+					       _PCP_HIDDEN;
+
+extern int __pmServiceAddPorts(const char *, int **, int) _PCP_HIDDEN;
+extern int __pmPMCDAddPorts(int **, int) _PCP_HIDDEN;
+extern int __pmProxyAddPorts(int **, int) _PCP_HIDDEN;
+extern int __pmWebdAddPorts(int **, int) _PCP_HIDDEN;
+extern int __pmAddPorts(const char *, int **, int) _PCP_HIDDEN;
 
 #endif /* _INTERNAL_H */

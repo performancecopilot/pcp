@@ -1,0 +1,24 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>play_off.png</file>
+    <file>play_on.png</file>
+    <file>fastfwd_off.png</file>
+    <file>fastfwd_on.png</file>
+    <file>fastback_off.png</file>
+    <file>fastback_on.png</file>
+    <file>back_off.png</file>
+    <file>back_on.png</file>
+    <file>stepfwd_off.png</file>
+    <file>stepfwd_on.png</file>
+    <file>stepback_off.png</file>
+    <file>stepback_on.png</file>
+    <file>stop_off.png</file>
+    <file>stop_on.png</file>
+    <file>whatsthis.png</file>
+    <file>edit-clear.png</file>
+    <file>internet-web-browser.png</file>
+    <file>pmtime.png</file>
+    <file>aboutpmtime.png</file>
+    <file>aboutpcp.png</file>
+</qresource>
+</RCC>

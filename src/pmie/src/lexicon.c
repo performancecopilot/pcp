@@ -90,6 +90,10 @@ static LexEntry1 optab[] = {
 	{"falling", 	FALL},
 	{"match_inst",	MATCH},
 	{"nomatch_inst",NOMATCH},
+	{"ruleset",	RULESET},
+	{"else",	ELSE},
+	{"unknown",	UNKNOWN},
+	{"otherwise",	OTHERWISE},
         {NULL,      	0}
 };
 
@@ -255,8 +259,8 @@ varDeref(char *name)
 	return DEREF_STRING;
     }
 
-    /* truth valued macro */
-    if (x->sem == SEM_TRUTH) {
+    /* boolean valued macro */
+    if (x->sem == SEM_BOOLEAN) {
 	yylval.x = x;
 	return DEREF_BOOL;
     }
@@ -403,7 +407,8 @@ lexSync(void)
 
     do
 	c = nextc();
-    while ((c != ';') && (c != EOF));
+    while (c != ';' && c != EOF)
+	;
     prevc(c);
 }
 
@@ -758,6 +763,7 @@ yylex(void)
 	/* scan operator */
 	switch (c) {
 	case ';':
+	case '}':
             do
                 d = nextc();
             while (isspace(d));

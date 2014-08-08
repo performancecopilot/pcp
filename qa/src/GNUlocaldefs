@@ -38,9 +38,10 @@ SRCARCH	= mirage.0 moomba.client.0 \
 	bozo.client_v2.meta.bad.1 bozo.client_v2.meta.bad.2 \
 	rewrite.0 proc.0 section-a.0 section-b.0 section-c.0 section-d.0 \
 	interpmark.0 all-irix-6.5.25.0 all-sles9-sp1.0 naslog.0 \
-	multi-vm00.0 multi-vm01.0 multi-vm02.0 multi-vm03.0 pmatop-722.0 \
+	multi-vm00.0 multi-vm01.0 multi-vm02.0 multi-vm03.0 pmatop-log.0 \
 	new_mysql.0 new_snmp.0 old_xfs.0 node_archive.0 count-mark.0 \
-	pyapi.0 pcp-free.0 pcp-uptime.0 pcp-numastat-1-node.0 numa.0
+	pyapi.0 pcp-free.0 pcp-uptime.0 pcp-numastat-1-node.0 numa.0 \
+	slow.0 bug1057.0
 
 SRCARCHPART = ok-noti-bigbin.0 \
 	20130706.0.bz2 20130706.index 20130706.meta
@@ -75,7 +76,8 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	pmdacache.c check_import.c unpack.c aggrstore.c atomstr.c \
 	grind_conv.c getconfig.c err.c torture_logmeta.c keycache.c \
 	keycache2.c pmdaqueue.c drain-server.c template.c anon-sa.c \
-	username.c rtimetest.c getcontexthost.c badpmda.c chkputlogresult.c
+	username.c rtimetest.c getcontexthost.c badpmda.c chkputlogresult.c \
+	churnctx.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
@@ -188,8 +190,10 @@ MYFILES += $(SRCARCH) \
 	simple.sxc simple.xls simple.xlsx \
 	iostat iostat-c iostat-d iostat-d-k iostat-d-m iostat-p-ALL \
 	iostat-t iostat-t.ISO iostat-x iostat-z iostat-z-p-ALL \
-	pmtimezone.c pthread_barrier.h pv.c qa_test.c \
-	sa-sysstat-10.0.1 sa-sysstat-9.0.6 sa-sysstat-9.1.7 permslist
+	pthread_barrier.h pv.c qa_test.c qa_timezone.c \
+	sa-sysstat-9.0.4 sa-sysstat-9.0.6 sa-sysstat-9.0.6.1 \
+	sa-sysstat-10.0.1 sa-sysstat-10.0.5 sa-sysstat-10.2.0 \
+	permslist memcachestats.pl
 
 MYSCRIPTS = grind-tools ipcs_clear make.dodgey mkarch-all mkbadlen \
 	mkeventrec mkinterpmark mkmirage mkproc mkrewrite mksample_expr \
@@ -209,6 +213,13 @@ endif
 
 LCFLAGS = -DHAVE_TRACE
 LLDLIBS	= $(PCPLIB) $(LDFLAGS)
+
+ifneq ($(NVIDIAQALIB),)
+LIBTARGET = true
+MYCFILES += nvidia-ml.c
+LCFLAGS += $(NVIDIACFLAGS)
+TARGETS += $(NVIDIAQALIB)
+endif
 
 # libpcp_trace is ready
 TRACELIB	= -lpcp_trace $(LLDLIBS)
@@ -240,7 +251,7 @@ LDIRT	+= *.log domain.h help.pag help.dir \
 	dodgey-mixed.0 dodgey-mixed.index dodgey-mixed.meta \
 	reduce-gap.0 reduce-gap.index reduce-gap.meta \
 	chkctx2_lite.c fetchrate_lite.c \
-	localconfig.h gmon.out pmtimzone.so pmtimezone.o \
+	localconfig.h gmon.out \
 	$(TARGETS)
 
 .ORDER:	torture_api \
@@ -752,11 +763,13 @@ torture_pmns: torture_pmns.c
 
 # --- miscellaneous
 #
-getpid.so:	getpid.o
-	$(LD) -shared -o getpid.so -nostdlib getpid.o
+qa_timezone.$(DSOSUFFIX):	qa_timezone.o
+	$(LD) -shared -o $@ -nostdlib $<
 
-pmtimezone.so:	pmtimezone.o
-	$(LD) -shared -o pmtimezone.so -nostdlib pmtimezone.o
+ifneq ($(NVIDIAQALIB),)
+$(NVIDIAQALIB):	nvidia-ml.o
+	$(CC) $(LDFLAGS) $(_SHAREDOPTS) -o $@ $<
+endif
 
 arch_maxfd.o:	localconfig.h
 scale.o:	localconfig.h

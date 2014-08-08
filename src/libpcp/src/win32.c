@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -376,6 +376,12 @@ __pmProcessRunTimes(double *usr, double *sys)
 }
 
 void
+__pmDumpStack(FILE *f)
+{
+   /* TODO: StackWalk64 API */
+}
+
+void
 __pmtimevalNow(struct timeval *tv)
 {
     struct timespec ts;
@@ -455,6 +461,68 @@ rindex(const char *string, int marker)
 	if (*p == marker)
 	    return p;
     return NULL;
+}
+
+char *
+strcasestr(const char *string, const char *substr)
+{
+    int i, j;
+    int sublen = strlen(substr);
+    int length = strlen(string) - sublen + 1;
+
+    for (i = 0; i < length; i++) {
+	for (j = 0; j < sublen; j++)
+	    if (toupper(string[i+j]) != toupper(substr[j]))
+		goto outerloop;
+	return (char *) substr + i;
+    outerloop:
+	continue;
+    }
+    return NULL;
+}
+
+int
+inet_pton(int family, const char *src, void *dest)
+{
+    struct sockaddr_storage ss = { 0 };
+    char src_copy[INET6_ADDRSTRLEN + 1];
+    int size;
+
+    strncpy(src_copy, src, sizeof(src_copy));
+    src_copy[sizeof(src_copy)-1] = '\0';
+    size = sizeof(ss);
+    if (WSAStringToAddress(src_copy, family, NULL, (struct sockaddr *)&ss, &size) != 0)
+	return 0;
+    switch(family) {
+    case AF_INET:
+	*(struct in_addr *)dest = ((struct sockaddr_in *)&ss)->sin_addr;
+	return 1;
+    case AF_INET6:
+	*(struct in6_addr *)dest = ((struct sockaddr_in6 *)&ss)->sin6_addr;
+	return 1;
+    }
+    return 0;
+}
+
+const char *
+inet_ntop(int family, const void *src, char *dest, socklen_t size)
+{
+    struct sockaddr_storage ss = { .ss_family = family };
+    unsigned long sz = size;
+
+    switch(family) {
+    case AF_INET:
+	((struct sockaddr_in *)&ss)->sin_addr = *(struct in_addr *)src;
+	break;
+    case AF_INET6:
+	((struct sockaddr_in6 *)&ss)->sin6_addr = *(struct in6_addr *)src;
+	break;
+    default:
+	return NULL;
+    }
+    if (WSAAddressToString((struct sockaddr *)&ss, sizeof(ss), NULL, dest, &sz) != 0)
+	return NULL;
+    return dest;
 }
 
 void *

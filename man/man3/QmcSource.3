@@ -1,0 +1,120 @@
+'\"macro stdmacro
+.\" Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.TH QMC_SOURCE 3 "SGI" "Performance Co-Pilot"
+.SH NAME
+\f3QmcSource \f1 \- manages contexts created by all groups
+.SH "C++ SYNOPSIS"
+.ft 3
+#include <QmcSource.h>
+.sp
+CC ... \-lqmc \-lpcp 
+.ft 1
+.SH DESCRIPTION
+The
+.B QmcSource
+class maintains a unique list of all metric sources in use to minimize
+the creation of new contexts (see
+.BR pmNewContext (3))
+when the context could have been duplicated (see
+.BR pmDupContext (3)).
+This also reduces the duplication of descriptions of each source.
+.PP
+In general, 
+.B QMC
+users should only need to access
+.B QmcSource
+methods to obtain source descriptions for a
+.BR QmcContext (3)
+object.  All context creation by the user should be handled through
+.BR QmcGroup (3).
+.SH "DESTRUCTOR"
+.TP 4
+.B "~QmcSource();"
+Destructor.
+.SH "CONSTRUCTORS"
+.TP 4
+.B "static QmcSource* getSource(int type, const char* source,"
+.B "bool matchHosts)"
+
+This method will return a 
+.B QmcSource
+object that represents a context of
+.I type
+to
+.IR source .
+The 
+.B QmcSource
+object may be a new object if the
+.I source
+has not been previously requested. Memory management of the
+.B QmcSource
+objects is handled by 
+.BR QmcSource .
+If all
+.BR QmcContext (3)s
+to the 
+.B QmcSource
+have been deleted, the
+.B QmcSource
+object will also be deleted.
+
+The
+.I matchHosts
+flag controls the algorithm that is used to match hosts to archives.
+If 
+.I matchHosts
+is equal to
+.B false
+then no attempt will be made by this method to match a host context to an
+existing source context. A
+.B QmcSource
+object will always be returned in this case, although the
+.B QmcSource::status
+method may indicate that a context to 
+.I source
+failed.
+
+If
+.I matchHosts
+is equal to
+.BR true ,
+host contexts will be matched to a pre-defined archive source collected from
+that
+.IR source .
+If no archive sources for the
+.I source
+have been previous specified,
+.B getSource
+will return a NULL pointer.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR QMC (3),
+.BR QmcContext (3),
+.BR QmcGroup (3),
+.BR pmDupContext (3),
+.BR pmflush (3),
+.BR pmNewContext (3)
+and
+.BR pmprintf (3).
+.SH DIAGNOSTICS
+Error messages are generated using
+.BR pmprintf (3)
+but are not flushed. It is the responsibility of the user to call
+.BR pmflush (3)
+to output any messages.
+.PP
+Additional diagnostics may be activated by adding 
+.B DBG_TRACE_PMC
+to the global
+.IR pmDebug .

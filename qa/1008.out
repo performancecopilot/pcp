@@ -1,0 +1,35 @@
+QA output created by 1008
+--- bogus host ---
+pmdumptext: Error: bogus.host.i.hope: No route to host
+pmdumptext: Error: bogus.host.i.hope: No route to host
+pmdumptext: no valid metrics, exiting.
+--- bogus archive ---
+pmdumptext: Error: bogus_archive_i_hope: No such file or directory
+pmdumptext: Error: bogus_archive_i_hope: No such file or directory
+pmdumptext: no valid metrics, exiting.
+--- bogus metric ---
+pmdumptext: Error: go.faster: Unknown metric name
+pmdumptext: no valid metrics, exiting.
+--- bogus instance ---
+pmdumptext: Error: THIS_HOST:kernel.percpu.cpu.user[cpu999999]: Unknown or illegal instance identifier
+pmdumptext: no valid metrics, exiting.
+--- metric has no instances ---
+pmdumptext: Error: THIS_HOST:hinv.ncpu[cpu0]: Unknown or illegal instance identifier
+pmdumptext: no valid metrics, exiting.
+--- matching instances up to leading space ---
+             Metric	  load	  load	  load
+               Inst	15 min	5 minu	1 minu
+--- two archives from the same host ---
+pmdumptext: Error: Archives "archives/gap" and "archives/gap2" are from the same host "smash"
+pmdumptext: Error: Archives "archives/gap2" and "archives/gap" are from the same host "smash"
+pmdumptext: no valid metrics, exiting.
+--- no matching archive for host ---
+pmdumptext: Error: No archives were specified for host "OTHER_HOST"
+pmdumptext: no valid metrics, exiting.
+--- live and archive contexts ---
+pmdumptext: Error: Archive "archives/gap" requested after live mode was assumed.
+pmdumptext: no valid metrics, exiting.
+--- handle a string or aggregate metric ---
+pmdumptext: Error: THIS_HOST:sample.sysinfo has type "AGGREGATE", which is not a number or a string
+pmdumptext: Warning: Some metrics ignored, continuing with valid metrics
+TIME:	"TZ"

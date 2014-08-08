@@ -275,6 +275,7 @@ Value of the metric is 500 - the instance identifier.
 In the PMNS, but the sample agent pretends it does not know about this one.
 @ sample.bad.nosupport Not supported in this version of the PMDA
 Type is PM_NOSUPPORT, fetch returns PM_ERR_APPVERSION
+@ sample.bad.novalues Scalar with no values, ever
 
 @ sample.not_ready interval (in seconds) during which PMDA does not respond to PDUs
 Store a positive number of seconds as the value of this metric. The
@@ -401,15 +402,19 @@ that appear in sample.many.int's instance domain
 @ sample.bigid a metric with item number bigger then 2^9
 
 @ sample.byte_ctr counter byte counter
+value increments randomly in the range (0,1023) bytes per fetch
 
 @ sample.byte_rate instantaneous bytes/second 
-avg rate is 512 bytes per fetch
+random value in the range (0,1023), so avg value is 512 bytes/second
 
 @ sample.kbyte_ctr counter Kbytes/second
+value increments randomly in the range (0,1023) Kbytes per fetch
 
 @ sample.kbyte_rate instantaneous Kbytes/second
+random value in the range (0,1023), so avg value is 512 Kbytes/second
 
 @ sample.byte_rate_perhour instantaneous bytes/hour
+random value in the range (0,1023), so avg value is 512 bytes/hour
 
 @ sample.dynamic.meta.metric metric with modifiable metadata
 See sample.dynamic.meta.pmdesc for the metrics that can be modified to

@@ -31,6 +31,7 @@ PMID: 29.0.2 (sample.seconds)
 0 sample.aggregate.null
 0 sample.aggregate.write_me
 0 sample.bad.nosupport
+0 sample.bad.novalues
 0 sample.bad.unknown
 0 sample.bin
 0 sample.bogus_bin
@@ -164,6 +165,7 @@ PMID: 29.0.2 (sample.seconds)
 2 sample.aggregate.null
 2 sample.aggregate.write_me
 2 sample.bad.nosupport
+2 sample.bad.novalues
 2 sample.bad.unknown
 2 sample.bin
 2 sample.bogus_bin

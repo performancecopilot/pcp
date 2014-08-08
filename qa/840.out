@@ -1,2 +1,3 @@
 QA output created by 840
+Verify pmcd avahi service advertising
    hostname = [HOSTNAME.local]

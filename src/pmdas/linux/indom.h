@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  * Copyright (c) 2005,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -42,6 +42,7 @@ enum {
 	PROC_CGROUP_MOUNTS_INDOM,	/* 21 - control group mounts -> proc PMDA */
 	LV_INDOM,               /* 22 - lvm devices */
 	ICMPMSG_INDOM,          /* 23 - icmp message types */
+	DM_INDOM,		/* 24 device mapper devices */
 
 	NUM_INDOMS		/* one more than highest numbered cluster */
 };
@@ -51,6 +52,12 @@ extern pmInDom linux_indom(int);
 
 extern pmdaIndom *linux_pmda_indom(int);
 #define PMDAINDOM(i) linux_pmda_indom(i)
+
+/*  
+ * Optional path prefix for all stats files, used for testing.
+ */
+extern char *linux_statspath;
+extern FILE *linux_statsfile(const char *, char *, int);
 
 /*
  * static string dictionary - one copy of oft-repeated strings;

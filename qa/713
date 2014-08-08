@@ -26,6 +26,7 @@ _cleanup()
 
 status=1	# failure is the default!
 username=`id -u -n`
+signal=$PCP_BINADM_DIR/pmsignal
 $sudo rm -rf $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop

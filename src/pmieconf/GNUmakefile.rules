@@ -38,8 +38,8 @@ install: default_pcp
 	    $(INSTALL) -m 644 $$f $(RULESDIR)/$(GROUP)/$$f; \
 	done
 
-rules:
-	@test ! -d ../rules/$(GROUP) && mkdir ../rules/$(GROUP); exit 0
+local:
+	@test ! -d ../rules/$(GROUP) && mkdir -p ../rules/$(GROUP); exit 0
 	@rm -f ../rules/$(GROUP)/*
 	@for f in IGNORE_DUMMY_RULE $(LOCAL_RULES); do \
 	    [ $$f = IGNORE_DUMMY_RULE ] && continue; \

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -41,13 +41,13 @@ struct task;
 
 
 /***********************************************************************
- * numeric and truth value constants
+ * (Kleene) 3-valued boolean values
  ***********************************************************************/
 
-typedef char Truth;
-#define FALSE	0
-#define TRUE	1
-#define DUNNO	2
+typedef char Boolean;
+#define B_FALSE 0
+#define B_TRUE 1
+#define B_UNKNOWN 2
 
 extern double	mynan;	/* definitely not-a-number */
 
@@ -218,7 +218,7 @@ typedef struct task {
 /* value semantics - as in pmDesc plus following */
 #define SEM_UNKNOWN	0	/* semantics not yet available */
 #define SEM_NUMVAR	10	/* numeric variable value */
-#define SEM_TRUTH	11	/* truth value */
+#define SEM_BOOLEAN	11	/* boolean (3-state) value */
 #define SEM_CHAR	12	/* character (string) */
 #define SEM_NUMCONST	13	/* numeric constant value */
 #define SEM_REGEX	14	/* compiled regular expression */
@@ -264,6 +264,8 @@ typedef int Op;
 #define CND_OR		44
 #define CND_MATCH	45
 #define CND_NOMATCH	46
+#define CND_RULESET	47
+#define CND_OTHER	48
 /* quantification */
 #define CND_ALL_HOST	50
 #define CND_ALL_INST	51
@@ -363,6 +365,7 @@ void reflectTime(RealTime);		/* update time vars to reflect now */
 #define SLEEP_EVAL	0
 #define SLEEP_RETRY	1
 void sleepTight(Task *, int);		/* sleep until retry or eval time */
+void logRotate(void);			/* close current, start a new log */
 
 /*
  * diagnostic tracing
@@ -398,10 +401,6 @@ extern RealTime	   last;	/* archive end point */
 extern char	   *dfltHostConn;  /* default PM_CONTEXT_HOST parameter  */
 extern char	   *dfltHostName;  /* pmContextGetHostName of host name */
 extern RealTime	   dfltDelta;	/* default sample interval */
-extern char        *startFlag;  /* start time specified? */
-extern char        *stopFlag;   /* end time specified? */
-extern char        *alignFlag;  /* align time specified? */
-extern char        *offsetFlag; /* offset time specified? */
 extern RealTime    runTime;	/* run time interval */
 extern int	   hostZone;	/* timezone from host? */
 extern char	   *timeZone;	/* timezone from command line */
@@ -411,7 +410,8 @@ extern int	   isdaemon;	/* run as a daemon */
 extern int         agent;	/* secret agent mode? */
 extern int         applet;	/* applet mode? */
 extern int	   dowrap;	/* counter wrap? default no */
-extern int         noDnsFlag;	/* hostname DNS lookup needed? */
+extern int	   doexit;	/* signalled its time to exit */
+extern int	   dorotate;	/* log rotation was requested */
 extern pmiestats_t *perf;	/* pmie performance data ptr */
 extern pmiestats_t instrument;	/* pmie performance data struct */
 
@@ -459,5 +459,3 @@ void agentInit(void);		/* initialize evaluation parameters */
 #define UNITS_UNKNOWN(u) (u.dimCount == -1 && u.scaleCount == 7)
 
 #endif /* DSTRUCT_H */
-
-

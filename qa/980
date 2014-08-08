@@ -1,0 +1,21 @@
+#!/bin/sh
+# PCP QA Test No. 980
+# Basic archive mode validation of the Python pmcc module
+# (pmcc -> Performance Metrics Convenience Classes)
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+python $here/src/test_pmcc.python -a src/pmatop-log.0 >$seq.full 2>&1
+_check_unittest archive $seq.full
+status=$?
+exit

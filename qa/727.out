@@ -1,0 +1,3 @@
+QA output created by 727
+Verify pmwebd avahi service advertising
+   hostname = [HOSTNAME.local]

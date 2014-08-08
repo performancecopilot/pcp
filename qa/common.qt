@@ -1,0 +1,10 @@
+. /etc/pcp.conf
+. ./common.sh
+. ./common.check
+. ./common.filter
+. ./common.config
+
+tmp=/tmp/$$
+here=`pwd`
+sudo=sudo
+host=`hostname`

@@ -1,0 +1,465 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!--
+ (c) Copyright 2000-2004 Silicon Graphics Inc. All rights reserved.
+ Permission is granted to copy, distribute, and/or modify this document
+ under the terms of the Creative Commons Attribution-Share Alike, Version
+ 3.0 or any later version published by the Creative Commons Corp. A copy
+ of the license is available at
+ http://creativecommons.org/licenses/by-sa/3.0/us/ .
+-->
+<HTML>
+<HEAD>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta http-equiv="content-style-type" content="text/css">
+	<link href="pcpdoc.css" rel="stylesheet" type="text/css">
+	<link href="images/pcp.ico" rel="icon" type="image/ico">
+	<TITLE>Integrating PCP into an Enterprise Management Strategy</TITLE>
+</HEAD>
+<BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://oss.sgi.com/projects/pcp/"><IMG SRC="images/pcpicon.png" NAME="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
+	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
+	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	</TR>
+</TABLE>
+<H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Integrating PCP into an Enterprise Management Strategy</FONT></H1>
+<TABLE WIDTH=15% BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
+	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
+pmie
+pmieconf
+pmlogger
+pmlogconf
+</PRE></TD></TR>
+</TABLE>
+<P>
+This chapter of the Performance Co-Pilot tutorial discusses the steps
+required to integrate PCP into the various management frameworks available.
+It takes into consideration the distributed nature of both the management
+frameworks and of the PCP tools, and how best to combine the functionality
+they offer.</P>
+<P>
+For an explanation of Performance Co-Pilot terms and acronyms, consult 
+the <A HREF="glossary.html">PCP glossary</A>.</P>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Points of Integration</B></FONT></P></TD></TR>
+</TABLE>
+<P>
+Following is a brief description on how PCP can be integrated in terms of
+some of the aligned features of PCP and the typical management framework.
+<H4>Data</H4>
+<P>
+The PCP archive logging utility <b>pmlogger</b>(1)
+generates performance data files in the PCP archive format,
+which is specifically designed for optimal fetch latency
+when retrieving data from the archive for replay and when seeking to
+random time points in the archive.&nbsp;&nbsp;
+This format is specific to the PCP tools and the PMAPI, and clearly
+external interfaces are necessary for non-PCP tools to read the data.
+<P>
+The <b>LOGIMPORT</b>(3) APIs provide a mechanism for
+importing data into a PCP archive.  Using these services, tools
+are provided to import common sources of performance data such as
+spreadsheets, binary data from <b>sar</b>(1) and <b>iostat</b>(1) output.
+Other tools can easily be developed in C or Perl, see <b>LOGIMPORT</b>(3),
+<b>pmiStart</b>(3) and <b>PCP::LogImport</b>(3).
+<P>
+There are a number of PCP tools which have specifically been developed with 
+the aim of producing a format which is easily incorporated into an external
+framework, database, or spreadsheet application - for example, the
+<b>pmdumptext</b>(1) and <b>pmlogsummary</b>(1) tools both provide options to
+output data in a time-stamped, tab-delimited or comma-separated form, which
+is easily incorporated into other tools.&nbsp;
+PCP also provides daily log rotation, merging and culling facilities for
+multiple collector hosts from a single monitor host, as well as the
+automated <I>pmchart/cron/pmsnap</I> performance graph image generation
+facility.
+</P>
+<P>
+Due to the unlimited potential consumers of this historical performance data, 
+it is left as an exercise for the reader to figure out how best to incorporate
+this data into their own environment.
+</P>
+<P>
+Note that all of the PCP tools are &quot;timezone-aware&quot; and can switch
+between the timezone of the monitoring machine and the timezone of the
+collector machine for which the archive was generated (this information is
+stored in the archive).&nbsp;&nbsp;Also, PCP archives can be generated on a machine
+of one operating system version, architecture or byte-order, and replayed
+on a completely different machine.
+</P>
+<H4>Events</H4>
+<P>
+Among the more compelling reasons for making use of a management framework
+to administer an enterprise are the distributed monitoring and centralized
+analysis aspects.&nbsp;
+All frameworks provide event monitoring facilities, of varying complexity.&nbsp;
+Some provide simple point to point event generation, others have proxy event
+servers which allow events to be filtered and then potentially passed upstream
+to another event monitor.&nbsp;
+To allow the framework to be extended, the frameworks will typically provide
+a mechanism for external applications to push their own events into the
+framework, and it is this feature which we wish to exploit in our PCP
+integration efforts.&nbsp;
+</P>
+<P>
+Although PCP does provide a powerful inference engine in <b>pmie</b>(1) (as well
+as a far richer set of performance metrics than the more generic frameworks can
+provide, and low latency protocols designed specifically for transporting
+performance data quickly), no attempt is made to provide an event
+&quot;sink&quot; - some application which will display and filter
+performance events for the user.&nbsp;
+From an enterprise management point of view, an event monitoring
+facility specifically for performance events would be exactly the wrong
+thing to do from within PCP - system administrators managing a wide array of
+different machines should expect to see all system-wide events coming to a
+single point for their notification.
+</P>
+<P>
+So, the integration point must be from <b>pmie</b>(1) - when it detects an
+abnormal performance situation, it must pass it on in the most appropriate
+manner possible.&nbsp;Unfortunately, the various event management frameworks
+have widely differing mechanisms for receiving events, so each framework
+must be handled separately in order to make best use of their event viewing
+and filtering capabilities.
+</P>
+<CENTER>
+<IMG SRC="images/rattle.png" ALIGN="MIDDLE" WIDTH="430" HEIGHT="340">
+</CENTER>
+<P>
+The diagram shows a typical <b>pmie</b>(1) setup - <B>rattle.melbourne.sgi.com</B>
+running <b>pmie</b>, fetching performance data from a variety of sources, then
+evaluating its set of performance rules and generating events into whichever
+event &quot;sinks&quot; have been specified.&nbsp;
+Specifying how to generate an event, which rules to use, how frequently to
+evaluate each of the rules, which hosts to monitor, etc, is performed by 
+the <b>pmieconf</b>(1) utility, which can be extended to allow new frameworks
+to be incorporated.
+</P>
+<H4>User Interface</H4>
+<P>
+A number of the enterprise management frameworks have the ability to provide
+closer integration between the tools themselves, for example starting PCP
+tools from a menu option of some of the framework's tools, or by installing
+additional on-line help for the performance events which PCP generates.&nbsp;
+This level of integration is not attempted, and is not seen as providing
+much value in practice.&nbsp;
+The <b>pmieconf</b>(1) utility is the definitive
+source of help text for the performance events generated by <b>pmie</b>(1) -
+it describes the rules and each of the customizable variables affecting
+the rules (including the &quot;global&quot; variables affecting all of the
+rules, such as where to send events when a performance event is generated).
+</P>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>CA/Unicenter TNG (Computer Associates)</B></FONT></P></TD></TR>
+</TABLE>
+<P>
+<B>Step-by-step</B> - how to setup and ensure <b>pmie</b>(1) can talk to the
+Unicenter TNG Framework:
+</P>
+<UL>
+<LI>
+Start CCI services on the monitor node, i.e. the node where <b>pmie</b>
+events should be propagated to (a Windows machine - &quot;hugh&quot; - in
+this example).
+For a Windows monitoring node, refer to the &quot;Services&quot; window
+from the &quot;Control Panel&quot;.
+</P>
+<LI>
+Start CCI services on the monitored node, i.e. the node where <b>pmie</b>
+is running (an IRIX machine - &quot;wobbly&quot; - in this example).
+<PRE>
+wobbly# $CAIGLBL0000/bin/unicntrl start cci
+wobbly# 
+</PRE>
+</P>
+<LI>
+Ensure the connection between the two nodes is active.&nbsp;&nbsp;For UNIX machines:
+<PRE>
+wobbly# $CAIGLBL0000/cci/bin/rmt status
+
+  Sysid  State                 Last Send Time  Last Receive Time
+--------|---------------------|---------------|-----------------
+hugh     ACTIVE                041099 17:54:37 041199 13:42:01
+
+wobbly#
+</PRE>
+For Windows machines:
+<PRE>
+C:\TNGFW\BIN>rmtcntrl status
+SUCCESS: information returned
+Sysid    State                 Last Send Time  Last Receive time
+--------|---------------------|---------------|-----------------
+HUGH     ACTIVE
+WOBBLY   ACTIVE                Apr-10-99 17:58:25 Apr-10-99 17:58:25
+
+C:\TNGFW\BIN>
+</PRE>
+</P>
+<LI>
+Send a test event to the monitoring node from the node where <b>pmie</b>
+will be running
+<PRE>
+wobbly# $CAIGLBL0000/bin/cawto -n hugh -g Performance -s wobbly test event
+</PRE>
+</P>
+<LI>
+To verify that the event is successfully received on a Windows NT monitoring
+host, use the Event Console, which lists events as they arrive.
+</P>
+<P>There are several tools which ship with the TNG Framework for examining
+and verifying the connection between two nodes - such as <b>oprping</b>(1) -
+refer to the Unicenter TNG documentation for full details.
+<LI>
+Once the test event propagates successfully, enable <b>pmie</b> event generation
+into the TNG Framework:
+<PRE>
+wobbly# pmieconf modify global tngfw_action yes
+wobbly# /etc/init.d/pmie start
+</PRE>
+</UL>
+<B>Configuration options</B> - how to customize the setup for different
+environments:
+<UL>
+<LI>
+The node to which events are sent is identified by the tngfw_node
+<b>pmieconf</b> variable, so to setup event propagation from <b>pmie</b>
+on rattle to TNG on hugh as described above:
+<PRE>
+wobbly# pmieconf modify global tngfw_node hugh
+wobbly# /etc/init.d/pmie start
+</PRE>
+<LI>
+Other parameters associated with TNG events can also be specified - these
+include the color and category of each individual event, a group of events,
+or globally for all events:
+<PRE>
+wobbly# pmieconf modify global tngfw_color Yellow
+wobbly# pmieconf modify global tngfw_category "PMIE Events"
+wobbly# pmieconf modify cisco tngfw_color Red
+wobbly# /etc/init.d/pmie start
+</PRE>
+</UL>
+</P>
+<CENTER>
+<IMG SRC="images/tngconsole.png" ALIGN="MIDDLE" WIDTH="699" HEIGHT="444">
+</CENTER>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>HP OpenView (Hewlett-Packard)</B></FONT></P></TD></TR>
+</TABLE>
+<P>
+<B>Step-by-step</B> on how to setup and ensure <b>pmie</b>(1) can talk to OpenView:
+</P>
+<UL>
+<LI>
+Start the <b>pmcd</b>(1) daemon on the node which will receive <b>pmie</b>(1)
+events - &quot;wobbly&quot; in this example.
+<PRE>
+wobbly# /etc/init.d/snmp start
+wobbly# /etc/init.d/ovnnm start
+</PRE>
+</P>
+<LI>
+Send a test event to the monitoring node from the node where <b>pmie</b>(1)
+will be running (OV_BIN is typically /usr/OV/bin):
+<PRE>
+rattle# cd $OV_BIN
+rattle# ./ovevent -c "Status Events" -s Normal \
+.1.3.6.1.4.1.11.2.17.1.0.58916872 \
+.1.3.6.1.4.1.11.2.17.2.1.0 Integer 14 \
+.1.3.6.1.4.1.11.2.17.2.2.0 OctetString "rattle" \
+.1.3.6.1.4.1.11.2.17.2.4.0 OctetString "test event"
+</PRE>
+<LI>
+To verify that the event is successfully received, run the OpenView event
+monitoring program (pictured here):
+<PRE>
+wobbly# cd $OV_BIN
+wobbly# ./xnmevents &amp;
+</PRE>
+<LI>
+If this event propagates successfully, enable <b>pmie</b> event generation
+into OpenView:
+<PRE>
+rattle# pmieconf modify global ov_action yes
+rattle# /etc/init.d/pmie start
+</PRE>
+</UL>
+<P>
+<CENTER>
+<IMG SRC="images/xnmevents.png" ALIGN="RIGHT" WIDTH="247" HEIGHT="210">
+</CENTER>
+The <b>xnmevents</b>(1) GUI connects to the <b>pmcd</b>(1) daemon on the monitoring
+node which supplies any new events which arrive while <b>xnmevents</b> is
+running.
+</P>
+The image to the right shows the <b>xnmevents</b> main window.
+On receipt of a new <b>pmie</b> event, the &quot;Threshold Events&quot;
+toggle button changes
+color according to the event severity, indicating that there are new events
+- clicking on the toggle button brings up the viewer window (shown below).
+</P>
+<P>
+The viewer lets you view, filter, and
+acknowledge events (once all events are acknowledged, the &quot;Threshold
+Events&quot; button becomes white - until the next event arrives).
+</P>
+<B>Configuration options</B> - using <b>pmieconf</b>(1) to customize the setup
+for different environments:
+<UL>
+<LI>
+The node to which events are sent is identified by the ov_node <b>pmieconf</b>
+variable, so to setup event transferral from rattle to wobbly as described
+above, I ran:
+<PRE>
+# pmieconf modify global ov_node wobbly
+# /etc/init.d/pmie start
+</PRE>
+<LI>
+Other parameters associated with OpenView events can also be specified - these
+include the category and severity of each individual event, a group
+of events, or globally for all events:
+<PRE>
+rattle# pmieconf modify filesys.filling ov_severity Critical
+rattle# pmieconf modify filesys.filling ov_category "Status Events"
+rattle# pmieconf modify cisco ov_severity Major
+rattle# /etc/init.d/pmie start
+</PRE>
+</UL>
+<CENTER>
+<IMG SRC="images/ovevents.png" ALIGN="MIDDLE" WIDTH="697" HEIGHT="373">
+</CENTER>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>EnlightenDSM (Enlighten Software Solutions)</B></FONT></P></TD></TR>
+</TABLE>
+<P>
+<B>Step-by-step</B> on how to setup and ensure <b>pmie</b>(1) can talk to
+EnlightenDSM:
+</P>
+<UL>
+<LI>
+Start the <b>EnlightenDSM</b>(1) daemons on the host being monitored by
+<b>pmie</b>(1) - &quot;wobbly&quot; in this example.
+<PRE>
+wobbly# /opt/enlighten/bin/start_enl_daemons -r
+...
+start_emdd: Invoking /opt/emd/bin/emdd...
+start_enl_daemons: Invoking /opt/enlighten/bin/pep...
+start_enl_daemons: Invoking /opt/enlighten/bin/renld...
+start_enl_daemons: Invoking /opt/enlighten/bin/AgentMon...
+</PRE>
+</P>
+<LI>
+Start up the Enlighten GUI to verify that events can be received.
+Go into the "Events" -&gt; "Status Map" window:
+<PRE>
+wobbly# /opt/enlighten/bin/xenln &amp;
+</PRE>
+<LI>
+Send a test event to the Enlighten GUI, and verify that the scrolling event
+list at the bottom of the "Status Map" window updates after the event has
+been sent:
+<PRE>
+wobbly# /opt/enlighten/bin/EventsCli -n Test -u tps -v 12345 -s 5 -q
+</PRE>
+<LI>
+If this event propagates successfully, enable pmie event generation into Enlighten:
+<PRE>
+wobbly# pmieconf modify global enln_action yes
+wobbly# /etc/init.d/pmie start
+</PRE>
+</UL>
+
+<B>Configuration options</B> - using <b>pmieconf</b>(1) to customize the setup:
+<P>
+The only configurable option of note for Enlighten DSM is the ability
+to change the severity setting for individual events, event groups, or
+globally for all events (where severity is a number between a low of 1 and
+a high of 5, and the default severity value for <b>pmie</b>(1) events is 2):
+<PRE>
+wobbly# pmieconf modify filesys.filling enln_severity 4
+wobbly# pmieconf modify cisco enln_severity 5
+wobbly# /etc/init.d/pmie start
+</PRE>
+<P>
+<CENTER>
+<IMG SRC="images/xenln.png" ALIGN="MIDDLE" WIDTH="581" HEIGHT="505">
+</CENTER>
+
+<P><BR></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Extending</A> to Other Frameworks</B></FONT></P></TD></TR>
+</TABLE>
+<P>
+All of the enterprise management frameworks we've come across provide some
+mechanism for generating events from outside the framework.&nbsp;
+This is usually in the form of a stand-alone utility, but could also be an
+API, which packages the attributes associated with an event (these attributes
+are usually things like severity, source host, message text, etc) and sends
+this to the monitoring host.
+</P>
+<P>
+Since <b>pmie</b>(1) supports running an arbitrary command upon detection of
+a performance event (in addition to its other native actions, such as writing
+an entry in the system log file), this is the hook we'll use to add support for
+additional frameworks.
+</P>
+<P>
+Steps involved when integrating other frameworks with PCP:
+</P>
+<UL>
+    <LI>
+    find or create a utility to generate events into the framework;
+    <LI>
+    familiarize yourself with the command line options for this utility,
+    and decide which options are of interest from a performance-event
+    perspective;
+    <LI>
+    test the utility by hand - ensure that you can run the utility from
+    the command line and that the framework's monitoring software
+    successfully receives the event;
+    <LI>
+    using the files in <TT>/var/pcp/config/pmieconf/global</TT> as a
+    guide, create a <b>pmieconf</b>(1) file containing &quot;global&quot;
+    variables for use in <b>pmieconf</b> - one of these is always an
+    &quot;action&quot; variable, which allows the framework utility to
+    be run when <b>pmie</b>(1) generates an event;
+    <LI>
+    using <b>pmieconf</b>, ensure that the syntax of your created file
+    is correct, and that the new variables are visible in the
+    &quot;global&quot; group;
+<PRE>
+	# pmieconf -r newfile list global
+</PRE>
+    <LI>
+    finally, install the new file into the
+    <TT>/var/pcp/config/pmieconf/global</TT> subdirectory
+    and switch on your new framework action for all of the rules;
+<PRE>
+	# pmieconf modify global new_action yes
+	# /etc/init.d/pmie start
+</PRE>
+</UL>
+<P>If the framework is sufficiently common that other people may wish
+to use your new <b>pmieconf</b>(1) &quot;action&quot;, feel free to
+<A HREF="contacts.html">share it</A> and we'll incorporate it into
+future PCP release.</P>
+
+<P><BR></P>
+<HR>
+<CENTER>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=80%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc.</FONT></P></TD>
+	<TD WIDTH=20%><P ALIGN=RIGHT><A HREF="http://oss.sgi.com/projects/pcp/"><FONT COLOR="#000060">PCP</FONT></A></P></TD> </TR>
+</TABLE>
+</CENTER>
+</BODY>
+</HTML>
+</HTML>

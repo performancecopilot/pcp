@@ -391,7 +391,7 @@ _configure_pmie()
 	    cat "$configfile"
 	    echo "=== end pmieconf file ==="
 	else
-	    ( id pcp && chown pcp:pcp "$configfile" ) >/dev/null 2>&1
+            chown $PCP_USER:$PCP_GROUP "$configfile" >/dev/null 2>&1
 	fi
     fi
 }
@@ -515,7 +515,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    cat $tmp/err
 	    _error "cannot create directory ($dir) for pmie log file"
 	fi
-	chown pcp:pcp "$dir" 2>/dev/null
+        chown $PCP_USER:$PCP_GROUP "$dir" >/dev/null 2>&1
     fi
     [ ! -d "$dir" ] && continue
 

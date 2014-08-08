@@ -671,6 +671,17 @@ extern char *pmGetConfig(const char *);
 	PMOPT_VERSION, \
 	PMOPT_HELP
 
+/* long-only standard options */
+#define PMLONGOPT_ARCHIVE_LIST "archive-list"
+#define PMOPT_ARCHIVE_LIST { PMLONGOPT_ARCHIVE_LIST, 1, 0, "FILES", \
+		"comma-separated list of metric source archives" }
+#define PMLONGOPT_ARCHIVE_FOLIO "archive-folio"
+#define PMOPT_ARCHIVE_FOLIO { PMLONGOPT_ARCHIVE_FOLIO, 1, 0, "FILE", \
+		"read metric source archives from a folio" }
+#define PMLONGOPT_HOST_LIST "host-list"
+#define PMOPT_HOST_LIST { PMLONGOPT_HOST_LIST, 1, 0, "HOSTS", \
+		"comma-separated list of metric source hosts" }
+
 /* pmOptions flags */
 #define PM_OPTFLAG_INIT		(1<<0)	/* initialisation done */
 #define PM_OPTFLAG_DONE		(1<<1)	/* parsing is complete */
@@ -819,7 +830,9 @@ extern int pmUnpackEventRecords(pmValueSet *, int, pmResult ***);
 extern void pmFreeEventResult(pmResult **);
 
 /* Service discovery, for clients. */
-#define PM_SERVER_SERVICE_SPEC "pmcd"
+#define PM_SERVER_SERVICE_SPEC	"pmcd"
+#define PM_SERVER_PROXY_SPEC	"pmproxy"
+#define PM_SERVER_WEBD_SPEC	"pmwebd"
 
 extern int pmDiscoverServices(const char *, const char *, char ***);
 

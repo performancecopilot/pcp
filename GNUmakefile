@@ -29,21 +29,19 @@ LICFILES = COPYING
 DOCFILES = README INSTALL CHANGELOG VERSION.pcp
 CONFFILES = pcp.lsm
 LSRCFILES = aclocal.m4 configure config.guess config.sub \
-	    configure.in pcp.lsm.in Makepkgs install-sh \
+	    configure.ac pcp.lsm.in Makepkgs install-sh \
 	    $(DOCFILES) $(LICFILES)
 LDIRT = config.cache config.status config.log files.rpm pro_files.rpm \
-	pcp-$(PACKAGE_MAJOR).$(PACKAGE_MINOR).$(PACKAGE_REVISION) \
-	pcp-*-$(PACKAGE_MAJOR).$(PACKAGE_MINOR).$(PACKAGE_REVISION) \
-	root-*/include root-*/lib root-*/*.rpm root-*/default_pro \
 	autom4te.cache install.manifest install_pro.manifest \
 	debug*.list devel_files libs_files base_files.rpm libs_files.rpm \
 	devel_files.rpm perl-pcp*.list* python-pcp*.list* conf_files
+LDIRDIRT = pcp-?.?.?  pcp-*-?.?.?
 
 SUBDIRS = src
 ifneq ($(TARGET_OS),mingw)
 SUBDIRS += qa
 endif
-SUBDIRS += man build debian
+SUBDIRS += man books images build debian
 
 default :: default_pcp
 
@@ -78,12 +76,12 @@ else
 	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)
 endif
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)
-ifneq "$(PACKAGE_DISTRIBUTION)" "debian"
-	# $PCP_RUN_DIR usually -> /var/run which may be a mounted filesystem
+ifeq "$(findstring $(PACKAGE_DISTRIBUTION), debian redhat fedora)" ""
+	# $PCP_RUN_DIR usually -> /var/run which may be a temporary filesystem
 	# and Debian's lintian complains about packages including /var/run/xxx
 	# artifacts ... $PCP_RUN_DIR is also conditionally created on the
-	# fly in each before use case, so the inclusion in the package
-	# is desirable, but not mandatory
+	# fly in each before use case, so the inclusion in the package is
+	# sometimes desirable, but not mandatory
 	#
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_RUN_DIR)
 endif
@@ -122,6 +120,9 @@ else
 realclean distclean clean clobber:
 	@true
 endif
+
+aclocal.m4:
+	aclocal --acdir=`pwd`/m4 --output=$@
 
 pcp.lsm src/include/builddefs src/include/pcp/platform_defs.h: configure pcp.lsm.in src/include/builddefs.in src/include/pcp/platform_defs.h.in
 	@echo Please run ./configure with the appropriate options to generate $@.

@@ -1,5 +1,5 @@
 # pylint: disable=C0103
-""" Wrapper module for LIBPCP - the core Performace Co-Pilot API
+""" Wrapper module for LIBPCP - the core Performace Co-Pilot API """
 #
 # Copyright (C) 2012-2014 Red Hat
 # Copyright (C) 2009-2012 Michael T. Werner
@@ -27,7 +27,7 @@
 # cf. Chapter 3. PMAPI - The Performance Metrics API
 #
 # EXAMPLE
-
+"""
     from pcp import pmapi
     import cpmapi as c_api
 
@@ -116,6 +116,9 @@ class pmErr(Exception):
             errStr += " " + str(self.args[index])
         return errStr
 
+    def progname(self):
+        return c_char_p.in_dll(LIBPCP, "pmProgname").value
+
 class pmUsageErr(Exception):
     def message(self):
         return c_api.pmUsageMessage()
@@ -144,8 +147,32 @@ class timeval(Structure):
         self.tv_sec = sec
         self.tv_usec = usec
 
+    @classmethod
+    def fromInterval(builder, interval):
+        """ Construct timeval from a string using pmParseInterval """
+        tvp = builder()
+        errmsg = c_char_p()
+        status = LIBPCP.pmParseInterval(interval, byref(tvp), byref(errmsg))
+        if status < 0:
+            raise pmErr, (status, errmsg)
+        return tvp
+
     def __str__(self):
         return "%.3f" % c_api.pmtimevalToReal(self.tv_sec, self.tv_usec)
+
+    def __float__(self):
+        return float(c_api.pmtimevalToReal(self.tv_sec, self.tv_usec))
+
+    def __long__(self):
+        return long(self.tv_sec)
+
+    def __int__(self):
+        return int(self.tv_sec)
+
+    def sleep(self):
+        """ Delay for the amount of time specified by this timeval. """
+        c_api.pmtimevalSleep(self.tv_sec, self.tv_usec)
+        return None
 
 class tm(Structure):
     _fields_ = [("tm_sec", c_int),
@@ -235,7 +262,8 @@ class pmUnits(Structure):
         self.pad = 0
 
     def __str__(self):
-        return LIBPCP.pmUnitsStr(self)
+        unitstr = ctypes.create_string_buffer(64)
+        return str(LIBPCP.pmUnitsStr_r(self, unitstr, 64))
 
 
 class pmValueBlock(Structure):
@@ -377,7 +405,7 @@ pmDescPtr.sem = property(lambda x: x.contents.sem, None, None, None)
 pmDescPtr.type = property(lambda x: x.contents.type, None, None, None)
 
 
-def get_indom( pmdesc ):
+def get_indom(pmdesc):
     """Internal function to extract an indom from a pmdesc
 
        Allow functions requiring an indom to be passed a pmDesc* instead
@@ -398,12 +426,26 @@ class pmMetricSpec(Structure):
     """
     _fields_ = [ ("isarch", c_int),
                  ("source", c_char_p),
-                 ("metric", c_int),
-                 ("ninst", c_char_p),
+                 ("metric", c_char_p),
+                 ("ninst", c_int),
                  ("inst",  POINTER(c_char_p)) ]
+    def __str__(self):
+        insts = map(lambda x: str(self.inst[x]), range(self.ninst))
+        fields = (addressof(self), self.isarch, self.source, insts)
+        return "pmMetricSpec@%#lx src=%s metric=%s insts=" % fields
+
+    @classmethod
+    def fromString(builder, string, isarch = 0, source = ''):
+        result = POINTER(builder)()
+        errmsg = c_char_p()
+        status = LIBPCP.pmParseMetricSpec(string, isarch, source,
+                                        byref(result), byref(errmsg))
+        if status < 0:
+            raise pmErr, (status, errmsg)
+        return result
 
 class pmLogLabel(Structure):
-    """Label Record at the start of every log file - as exported above the PMAPI
+    """Label record at the start of every log file
     """
     _fields_ = [ ("magic", c_int),
                  ("pid_t", c_int),
@@ -599,6 +641,9 @@ LIBPCP.pmConvScale.argtypes = [
 
 LIBPCP.pmUnitsStr_r.restype = c_char_p
 LIBPCP.pmUnitsStr_r.argtypes = [POINTER(pmUnits), c_char_p, c_int]
+
+LIBPCP.pmNumberStr_r.restype = c_char_p
+LIBPCP.pmNumberStr_r.argtypes = [c_double, c_char_p, c_int]
 
 LIBPCP.pmIDStr_r.restype = c_char_p
 LIBPCP.pmIDStr_r.argtypes = [c_uint, c_char_p, c_int]
@@ -834,6 +879,18 @@ class pmOptions(object):
         """ Add support for -?/--help into PMAPI monitor tool """
         return c_api.pmSetLongOptionHelp()
 
+    def pmSetLongOptionArchiveList(self):
+        """ Add support for --archive-list into PMAPI monitor tool """
+        return c_api.pmSetLongOptionArchiveList()
+
+    def pmSetLongOptionArchiveFolio(self):
+        """ Add support for --archive-folio into PMAPI monitor tool """
+        return c_api.pmSetLongOptionArchiveFolio()
+
+    def pmSetLongOptionHostList(self):
+        """ Add support for --host-list into PMAPI monitor tool """
+        return c_api.pmSetLongOptionHostList()
+
     def pmGetOptionContext(self):	# int (typed)
         return c_api.pmGetOptionContext()
 
@@ -854,6 +911,9 @@ class pmOptions(object):
         if sec == None:
             return None
         return timeval(sec, c_api.pmGetOptionStart_usec())
+
+    def pmGetOptionFinishOptarg(self):	# string
+        return c_api.pmGetOptionFinish_optarg()
 
     def pmGetOptionFinish(self):	# timeval
         sec = c_api.pmGetOptionFinish_sec()
@@ -878,6 +938,15 @@ class pmOptions(object):
 
     def pmGetOptionTimezone(self):	# str
         return c_api.pmGetOptionTimezone()
+
+    def pmSetOptionArchiveList(self, archives):	# str
+        return c_api.pmSetOptionArchiveList(archives)
+
+    def pmSetOptionArchiveFolio(self, folio):	# str
+        return c_api.pmSetOptionArchiveFolio(folio)
+
+    def pmSetOptionHostList(self, hosts):	# str
+        return c_api.pmSetOptionHostList(hosts)
 
 
 ##############################################################################
@@ -1160,14 +1229,13 @@ class pmContext(object):
         if status < 0:
             raise pmErr, status
 
-    def pmDerivedErrStr(self):
+    @staticmethod
+    def pmDerivedErrStr():
         """PMAPI - Return an error message if the pmRegisterDerived metric
         definition cannot be parsed
         pm.pmRegisterDerived()
         """
-        errstr = ctypes.create_string_buffer(c_api.PM_MAXERRMSGLEN)
-        errstr = LIBPCP.pmDerivedErrStr()
-        return str(errstr)
+        return str(LIBPCP.pmDerivedErrStr())
 
     ##
     # PMAPI Metrics Description Services
@@ -1490,7 +1558,7 @@ class pmContext(object):
         if status < 0:
             raise pmErr, status
         result = (tm)()
-        timetp = c_long(int(seconds))
+        timetp = c_long(long(seconds))
         LIBPCP.pmLocaltime(byref(timetp), byref(result))
 	return result
 
@@ -1500,7 +1568,7 @@ class pmContext(object):
         if status < 0:
             raise pmErr, status
         result = ctypes.create_string_buffer(32)
-        timetp = c_long(int(seconds))
+        timetp = c_long(long(seconds))
         LIBPCP.pmCtime(byref(timetp), result)
 	return str(result.value)
 
@@ -1707,6 +1775,12 @@ class pmContext(object):
         return str(LIBPCP.pmUnitsStr_r(units, unitstr, 64))
 
     @staticmethod
+    def pmNumberStr(value):
+        """PMAPI - Convert double value to fixed-width string """
+        numstr = ctypes.create_string_buffer(8)
+        return str(LIBPCP.pmNumberStr_r(value, numstr, 8))
+
+    @staticmethod
     def pmIDStr(pmid):
         """PMAPI - Convert a pmID to a readable string """
         pmidstr = ctypes.create_string_buffer(32)
@@ -1771,27 +1845,16 @@ class pmContext(object):
     @staticmethod
     def pmParseInterval(interval):
         """PMAPI - parse a textual time interval into a timeval struct
-        (timeval_ctype, "error message") = pmParseInterval("time string")
+        (timeval_ctype, '') = pmParseInterval("time string")
         """
-        tvp = timeval()
-        errmsg = POINTER(c_char_p)()
-        status = LIBPCP.pmParseInterval(interval, byref(tvp), errmsg)
-        if status < 0:
-            raise pmErr, status
-        return tvp, errmsg
+	return (timeval.fromInterval(interval), '')
 
     @staticmethod
-    def pmParseMetricSpec(string, isarch, source):
+    def pmParseMetricSpec(string, isarch = 0, source = ''):
         """PMAPI - parse a textual metric specification into a struct
-        (result,errormsg) = pmParseMetricSpec("hinv.ncpu", 0, "localhost")
+        (result, '') = pmParseMetricSpec("hinv.ncpu", 0, "localhost")
         """
-        rsltp = POINTER(pmMetricSpec)()
-        errmsg = c_char_p()
-        status = LIBPCP.pmParseMetricSpec(string, isarch, source,
-                                        byref(rsltp), byref(errmsg))
-        if status < 0:
-            raise pmErr, status
-        return rsltp, errmsg
+        return (pmMetricSpec.fromString(string, isarch, source), '')
 
     @staticmethod
     def pmtimevalSleep(tvp):
@@ -1799,6 +1862,5 @@ class pmContext(object):
             Useful for implementing tools that do metric sampling.
             Single arg is timeval in tuple returned from pmParseInterval().
         """
-        c_api.pmtimevalSleep(tvp.tv_sec, tvp.tv_usec)
-        return None
+        return tvp.sleep()
 

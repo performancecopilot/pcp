@@ -120,6 +120,7 @@ _filter_pmlogger_log()
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]$/DATE/' \
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
 	-e 's/pmlogger([1-9][0-9]*) Error:/pmlogger(PID) Error:/' \
+	-e '/^pmlogger: Signalled (signal=[1-9][0-9]*).*/d' \
         -e '/^\(Log for pmlogger on\) [^ ][^ ]*/s//\1 HOST/' \
 	-e '/^Starting logger/s/host ".*/host "HOST"/' \
 	-e '/^Archive basename: /s/:.*/: ARCHIVE/' \
@@ -135,6 +136,7 @@ _filter_pmie_log()
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/TIMESTAMP/' \
 	-e '/^\(Log for pmie on\) [^ ][^ ]*/s//\1 HOST/' \
 	-e 's/^pmie: PID = [0-9][0-9]*, default host = .*/pmie: PID,HOST/g' \
+	-e '/pmie(.*) Info: pmie caught SIGINT or SIGTERM/d' \
 	-e '/pmie([0-9][0-9]*)/s//pmie(PID)/' \
 	-e '/^pmie: /s/- on line/- near line/'
 }
@@ -196,6 +198,7 @@ _filter_optional_pmdas()
 	-e '/pmdabrocade/d' \
 	-e '/pmdacisco/d' \
 	-e '/pmdadbping/d' \
+	-e '/pmdadmcache/d' \
 	-e '/pmdadmf/d' \
 	-e '/pmda_environ/d' \
 	-e '/pmdaelasticsearch/d' \
@@ -228,6 +231,7 @@ _filter_optional_pmdas()
 	-e '/pmdanetprobe/d' \
 	-e '/pmdanews/d' \
 	-e '/pmdanginx/d' \
+	-e '/pmdanvidia/d' \
 	-e '/pmdaoracle/d' \
 	-e '/pmdaoraping/d' \
 	-e '/pmdapdns/d' \
@@ -281,6 +285,7 @@ _filter_top_pmns()
 	-e '/^    cisco /d' \
 	-e '/^    datatape /d' \
 	-e '/^    dbping /d' \
+	-e '/^    dmcache /d' \
 	-e '/^    dmf /d' \
 	-e '/^    elasticsearch /d' \
 	-e '/^    environ /d' \
@@ -308,6 +313,7 @@ _filter_top_pmns()
 	-e '/^    netprobe /d' \
 	-e '/^    news /d' \
 	-e '/^    nginx /d' \
+	-e '/^    nvidia /d' \
 	-e '/^    oracle /d' \
 	-e '/^    oraping /d' \
 	-e '/^    pdns /d' \
@@ -640,12 +646,14 @@ _filter_torture_api()
 	-e '/kernel\.all\.cpu/s/valfmt: [01]/valfmt: 0-or-1/' \
 	-e '/^    hostname /d' \
 	-e '/^    license /d' \
+	-e '/^    services /d' \
 	-e '/^    aconex /d' \
 	-e '/^    apache /d' \
 	-e '/^    bonding /d' \
 	-e '/^    cihb /d' \
 	-e '/^    cms /d' \
 	-e '/^    cxfs /d' \
+	-e '/^    dmcache /d' \
 	-e '/^    dynamic /d' \
 	-e '/^    elasticsearch /d' \
 	-e '/^    engr /d' \
@@ -665,6 +673,7 @@ _filter_torture_api()
 	-e '/^    nasavg /d' \
 	-e '/^    netfilter /d' \
 	-e '/^    numa /d' \
+	-e '/^    nvidia /d' \
 	-e '/^    origin /d' \
 	-e '/^    pdns /d' \
 	-e '/^    p76 /d' \
@@ -696,4 +705,26 @@ _filter_install()
         -e 's/.* \(leaf nodes\)/  NNN \1/' \
         -e 's/.* \(bytes of symbol table\)/  NNN \1/' \
         -e '/Performance Co-Pilot starting/d'
+}
+
+_filter_post()
+{
+    sed \
+	-e 's/^host [^ :]*:/host <host>:/'
+}
+
+_filter_console()
+{
+    sed \
+	-e 's/^ *[0-9]*\.[0-9][0-9]/<timestamp>/' \
+	-e 's/0x0$/(nil)/' \
+	-e 's/0x[0-9a-f]*/<addr>/' \
+	-e 's/src=[^ ]*/src=<host>/' \
+	-e '/Tab::updateTimeAxis:/s/used .*/used .../'
+}
+
+_filter_views()
+{
+    sed \
+	-e "s,^Load View: $PCP_VAR_DIR,Load View: PCP_VAR_DIR,"
 }

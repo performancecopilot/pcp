@@ -1,0 +1,181 @@
+<ui version="4.0" stdsetdef="1" >
+  <class>InfoDialog</class>
+  <widget class="QDialog" name="InfoDialog" >
+    <property name="geometry" >
+      <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>413</width>
+        <height>330</height>
+      </rect>
+    </property>
+    <property name="windowTitle" >
+      <string>Metric Information</string>
+    </property>
+    <property name="windowIcon" >
+      <iconset resource="pmchart.qrc" >:/help-browser.png</iconset>
+    </property>
+    <property name="sizeGripEnabled" >
+      <bool>true</bool>
+    </property>
+    <layout class="QGridLayout" >
+      <item row="0" column="0" >
+        <layout class="QGridLayout" >
+          <property name="margin" >
+            <number>0</number>
+          </property>
+          <item row="1" column="0" >
+            <layout class="QHBoxLayout" >
+              <property name="margin" >
+                <number>0</number>
+              </property>
+              <property name="spacing" >
+                <number>6</number>
+              </property>
+              <item>
+                <spacer name="Horizontal Spacing2" >
+                  <property name="sizeHint" >
+                    <size>
+                      <width>20</width>
+                      <height>20</height>
+                    </size>
+                  </property>
+                  <property name="sizeType" >
+                    <enum>Expanding</enum>
+                  </property>
+                  <property name="orientation" >
+                    <enum>Horizontal</enum>
+                  </property>
+                </spacer>
+              </item>
+              <item>
+                <widget class="QPushButton" name="buttonOk" >
+                  <property name="text" >
+                    <string>&amp;OK</string>
+                  </property>
+                  <property name="shortcut" >
+                    <string/>
+                  </property>
+                  <property name="autoDefault" >
+                    <bool>true</bool>
+                  </property>
+                  <property name="default" >
+                    <bool>true</bool>
+                  </property>
+                </widget>
+              </item>
+            </layout>
+          </item>
+          <item row="0" column="0" >
+            <widget class="QTabWidget" name="infoTab" >
+              <property name="sizePolicy" >
+                <sizepolicy>
+                  <hsizetype>3</hsizetype>
+                  <vsizetype>3</vsizetype>
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                </sizepolicy>
+              </property>
+              <property name="minimumSize" >
+                <size>
+                  <width>250</width>
+                  <height>150</height>
+                </size>
+              </property>
+              <widget class="QWidget" name="pminfoTab" >
+                <attribute name="title" >
+                  <string>pminfo</string>
+                </attribute>
+                <layout class="QGridLayout" >
+                  <property name="margin" >
+                    <number>0</number>
+                  </property>
+                  <item row="0" column="0" >
+                    <widget class="QTextEdit" name="pminfoTextEdit" >
+                      <property name="font" >
+                        <font>
+                          <family>Monospace</family>
+                          <pointsize>9</pointsize>
+                        </font>
+                      </property>
+                      <property name="frameShape" >
+                        <enum>QFrame::Box</enum>
+                      </property>
+                      <property name="frameShadow" >
+                        <enum>QFrame::Sunken</enum>
+                      </property>
+                      <property name="lineWidth" >
+                        <number>1</number>
+                      </property>
+                      <property name="text" >
+                        <string/>
+                      </property>
+                      <property name="undoRedoEnabled" >
+                        <bool>false</bool>
+                      </property>
+                      <property name="readOnly" >
+                        <bool>true</bool>
+                      </property>
+                    </widget>
+                  </item>
+                </layout>
+              </widget>
+              <widget class="QWidget" name="pmvalTab" >
+                <attribute name="title" >
+                  <string>pmval</string>
+                </attribute>
+                <layout class="QGridLayout" >
+                  <property name="margin" >
+                    <number>0</number>
+                  </property>
+                  <item row="0" column="0" >
+                    <widget class="QTextEdit" name="pmvalTextEdit" >
+                      <property name="font" >
+                        <font>
+                          <family>Monospace</family>
+                          <pointsize>9</pointsize>
+                        </font>
+                      </property>
+                      <property name="frameShape" >
+                        <enum>QFrame::Box</enum>
+                      </property>
+                      <property name="frameShadow" >
+                        <enum>QFrame::Sunken</enum>
+                      </property>
+                      <property name="lineWidth" >
+                        <number>1</number>
+                      </property>
+                      <property name="undoRedoEnabled" >
+                        <bool>false</bool>
+                      </property>
+                      <property name="readOnly" >
+                        <bool>true</bool>
+                      </property>
+                    </widget>
+                  </item>
+                </layout>
+              </widget>
+            </widget>
+          </item>
+        </layout>
+      </item>
+    </layout>
+  </widget>
+  <resources>
+   <include location="pmchart.qrc" />
+  </resources>
+  <connections>
+    <connection>
+      <sender>buttonOk</sender>
+      <signal>clicked()</signal>
+      <receiver>InfoDialog</receiver>
+      <slot>accept()</slot>
+    </connection>
+    <connection>
+      <sender>infoTab</sender>
+      <signal>currentChanged(int)</signal>
+      <receiver>InfoDialog</receiver>
+      <slot>infoTabCurrentChanged(int)</slot>
+    </connection>
+  </connections>
+</ui>

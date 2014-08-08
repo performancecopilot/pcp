@@ -1,0 +1,9 @@
+PCPFolio
+Version: 1
+#
+# use pmafm(1) to process this PCP Archive Folio
+#
+Created: on godzilla at Mon Mar 26 17:11:33 2001
+Creator: pmview godzilla.web.view
+#               Host                    Basename
+Archive:        godzilla                godzilla.web

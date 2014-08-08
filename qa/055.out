@@ -584,7 +584,6 @@ time_fetch2: 10
 time_fetch2: 10
 time_fetch2: ?
 time_fetch2: ?
-time_gt1: true ?
 time_gt1: true true
 time_gt1: true true
 time_gt1: true true
@@ -595,7 +594,7 @@ time_gt1: true true
 time_gt1: true true
 time_gt1: true true
 time_gt1: true true
-time_gt2: false ?
+time_gt1: true unknown
 time_gt2: false false
 time_gt2: false false
 time_gt2: false false
@@ -606,8 +605,7 @@ time_gt2: false false
 time_gt2: false false
 time_gt2: false false
 time_gt2: false false
-time_gt3: true ? ?
-time_gt3: true true ?
+time_gt2: false unknown
 time_gt3: true true true
 time_gt3: true true true
 time_gt3: true true true
@@ -617,8 +615,8 @@ time_gt3: true true true
 time_gt3: true true true
 time_gt3: true true true
 time_gt3: true true true
-time_gt4: false ? ?
-time_gt4: false false ?
+time_gt3: true true unknown
+time_gt3: true unknown unknown
 time_gt4: false false false
 time_gt4: false false false
 time_gt4: false false false
@@ -628,6 +626,8 @@ time_gt4: false false false
 time_gt4: false false false
 time_gt4: false false false
 time_gt4: false false false
+time_gt4: false false unknown
+time_gt4: false unknown unknown
 time_max: 10
 time_max: 10
 time_max: 10

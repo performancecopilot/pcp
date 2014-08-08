@@ -1,0 +1,6 @@
+#
+# Standard Performance Co-Pilot pmsnap crontab entry for a PCP site
+# with one or more pmlogger instances running
+#
+# every 30 minutes, generate snapshot images
+30,0	*      *      *      *      PCP_BIN_DIR/pmsnap # -d DISPLAY

@@ -1218,6 +1218,10 @@ int main (int argc, char *argv[])
   if (js.size() == 0)
     js.push_back (new pmmgr_job_spec(default_config_dir));
 
+  // let pmdapmcd know pmmgr is currently running
+  if (__pmServerCreatePIDFile(pmProgname, PM_FATAL_ERR) < 0)
+    exit(1);
+
   // lose root privileges if we have them
   __pmSetProcessIdentity(username.c_str());
 

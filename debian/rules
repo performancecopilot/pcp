@@ -28,6 +28,8 @@ pcp_testsuite = pcp-testsuite
 pcp_manager = pcp-manager
 pcp_webapi = pcp-webapi
 pcp_python = python-pcp
+pcpgui = pcp-gui
+pcpdoc = pcp-doc
 
 dirpcp = debian/$(pcp)
 dirpcpcfg = debian/$(pcpcfg)
@@ -57,6 +59,8 @@ dirpcp_testsuite = debian/$(pcp_testsuite)
 dirpcp_manager = debian/$(pcp_manager)
 dirpcp_webapi = debian/$(pcp_webapi)
 dirpcp_python = debian/$(pcp_python)
+dirgui = debian/$(pcpgui)
+dirdoc = debian/$(pcpdoc)
 allperldir = $(dirlibpcp_pmda_perl) $(dirlibpcp_import_perl) \
 		$(dirpcp_logsummary_perl) $(dirlibpcp_mmv_perl)
 alldir = $(dirpcp) $(dirpcpcfg) \
@@ -73,28 +77,31 @@ alldir = $(dirpcp) $(dirpcpcfg) \
 		$(dirpcp_manager) $(dirpcp_webapi) \
 		$(dirpcp_python)
 
-pkgpcp = export GZIP=-9q NO_CHOWN=true DIST_ROOT=`pwd`/$(dirpcp);
-pkgpcpcfg = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcpcfg);
-pkglibpcp = export GZIP=-9q DIST_ROOT=`pwd`/$(dirlibpcp);
-pkglibpcp_gui = export GZIP=-9q DIST_ROOT=`pwd`/$(dirlibpcp_gui);
-pkglibpcp_mmv = export GZIP=-9q DIST_ROOT=`pwd`/$(dirlibpcp_mmv);
-pkglibpcp_pmda = export GZIP=-9q DIST_ROOT=`pwd`/$(dirlibpcp_pmda);
-pkglibpcp_trace = export GZIP=-9q DIST_ROOT=`pwd`/$(dirlibpcp_trace);
-pkglibpcp_import = export GZIP=-9q DIST_ROOT=`pwd`/$(dirlibpcp_import);
-pkglibpcp_mmv_perl = export GZIP=-9q DIST_ROOT=`pwd`/$(dirlibpcp_mmv_perl);
-pkglibpcp_pmda_perl = export GZIP=-9q DIST_ROOT=`pwd`/$(dirlibpcp_pmda_perl);
-pkglibpcp_import_perl = export GZIP=-9q DIST_ROOT=`pwd`/$(dirlibpcp_import_perl);
-pkgpcp_logsummary_perl = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_logsummary_perl);
-pkgpcp_import_sar = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_import_sar);
-pkgpcp_import_mrtg = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_import_mrtg);
-pkgpcp_import_sheet = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_import_sheet);
-pkgpcp_import_iostat = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_import_iostat);
-pkgpcp_import_collectl = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_import_collectl);
-pkgpcp_pmda_infiniband = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_pmda_infiniband);
-pkgpcp_testsuite = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_testsuite);
-pkgpcp_manager = export GZIP=-9q NO_CHOWN=true DIST_ROOT=`pwd`/$(dirpcp_manager);
-pkgpcp_webapi = export GZIP=-9q NO_CHOWN=true DIST_ROOT=`pwd`/$(dirpcp_webapi);
-pkgpcp_python = export GZIP=-9q DIST_ROOT=`pwd`/$(dirpcp_python);
+zip = export GZIP=-9q
+pkgpcp = $(zip) NO_CHOWN=true DIST_ROOT=`pwd`/$(dirpcp);
+pkgpcpgui = $(zip) DIST_ROOT=`pwd`/$(dirgui);
+pkgpcpdoc = $(zip) DIST_ROOT=`pwd`/$(dirdoc);
+pkgpcpcfg = $(zip) DIST_ROOT=`pwd`/$(dirpcpcfg);
+pkglibpcp = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp);
+pkglibpcp_gui = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_gui);
+pkglibpcp_mmv = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_mmv);
+pkglibpcp_pmda = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_pmda);
+pkglibpcp_trace = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_trace);
+pkglibpcp_import = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_import);
+pkglibpcp_mmv_perl = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_mmv_perl);
+pkglibpcp_pmda_perl = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_pmda_perl);
+pkglibpcp_import_perl = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_import_perl);
+pkgpcp_logsummary_perl = $(zip) DIST_ROOT=`pwd`/$(dirpcp_logsummary_perl);
+pkgpcp_import_sar = $(zip) DIST_ROOT=`pwd`/$(dirpcp_import_sar);
+pkgpcp_import_mrtg = $(zip) DIST_ROOT=`pwd`/$(dirpcp_import_mrtg);
+pkgpcp_import_sheet = $(zip) DIST_ROOT=`pwd`/$(dirpcp_import_sheet);
+pkgpcp_import_iostat = $(zip) DIST_ROOT=`pwd`/$(dirpcp_import_iostat);
+pkgpcp_import_collectl = $(zip) DIST_ROOT=`pwd`/$(dirpcp_import_collectl);
+pkgpcp_pmda_infiniband = $(zip) DIST_ROOT=`pwd`/$(dirpcp_pmda_infiniband);
+pkgpcp_testsuite = $(zip) DIST_ROOT=`pwd`/$(dirpcp_testsuite);
+pkgpcp_manager = $(zip) NO_CHOWN=true DIST_ROOT=`pwd`/$(dirpcp_manager);
+pkgpcp_webapi = $(zip) NO_CHOWN=true DIST_ROOT=`pwd`/$(dirpcp_webapi);
+pkgpcp_python = $(zip) DIST_ROOT=`pwd`/$(dirpcp_python);
 
 configure_tools = export DEBUG=-DNDEBUG;
 configure_paths = --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d
@@ -106,6 +113,7 @@ uninstallpydir = ls -d debian/$(pcp)/usr/lib*/python* | xargs rm -fr
 uninstalltest = cat debian/$(pcp_testsuite).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
 uninstalldirs = rmdir debian/$(pcp)/usr/include/pcp debian/$(pcp)/usr/include debian/$(pcp)/usr/share/man/man3
 uninstallib = cat debian/$(pcp_pmda_infiniband).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
+uninstallgui = cat debian/$(pcpgui).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
 uninstallweb = find debian/$(pcp) -iname \*pmweb\* | xargs rm -fr
 uninstallmgr = find debian/$(pcp) -name \*pmmgr\* | xargs rm -fr
 unrpathperl = find $(allperldir) -name \*.so | xargs chrpath -d
@@ -122,6 +130,7 @@ config: .census
 .census:
 	@echo "== dpkg-buildpackage: configure" 1>&2
 	$(checkdir)
+	autoconf
 	dh_autotools-dev_updateconfig
 	$(configure_tools) ./configure $(configure_paths)
 	touch .census
@@ -150,11 +159,11 @@ binary-arch: checkroot build-stamp
 	$(pkglibpcp_pmda_perl) $(MAKE) -C src/perl/PMDA install_perl
 	$(pkglibpcp_import_perl) $(MAKE) -C src/perl/LogImport install_perl
 	$(pkgpcp_logsummary_perl) $(MAKE) -C src/perl/LogSummary install_perl
-	$(pkgpcp_import_sar) $(MAKE) -C src/pmimport/sar2pcp install
-	$(pkgpcp_import_mrtg) $(MAKE) -C src/pmimport/mrtg2pcp install
-	$(pkgpcp_import_sheet) $(MAKE) -C src/pmimport/sheet2pcp install
-	$(pkgpcp_import_iostat) $(MAKE) -C src/pmimport/iostat2pcp install
-	$(pkgpcp_import_collectl) $(MAKE) -C src/pmimport/collectl2pcp install
+	$(pkgpcp_import_sar) $(MAKE) -C src/sar2pcp install
+	$(pkgpcp_import_mrtg) $(MAKE) -C src/mrtg2pcp install
+	$(pkgpcp_import_sheet) $(MAKE) -C src/sheet2pcp install
+	$(pkgpcp_import_iostat) $(MAKE) -C src/iostat2pcp install
+	$(pkgpcp_import_collectl) $(MAKE) -C src/collectl2pcp install
 	#$(pkgpcp_pmda_infiniband) $(MAKE) -C src/pmdas/infiniband install
 	# need the make clean when more than one version of Python installed
 	# to ensure make install after the first version works
@@ -173,6 +182,7 @@ binary-arch: checkroot build-stamp
 	dh_install --sourcedir=debian/$(pcp)
 	@$(uninstall)
 	@$(uninstallib)
+	@$(uninstallgui)
 	@$(uninstalldirs)
 	@$(uninstalltest)
 	@$(uninstallmgr)
@@ -202,7 +212,7 @@ binary-arch: checkroot build-stamp
 	dh_perl -p $(pcp_import_sheet)
 	dh_perl -p $(pcp_import_iostat)
 	dh_installdeb
-	dh_shlibdeps 2>/dev/null	# squash bogus and harmless warnings
+	dh_shlibdeps 2>/dev/null	# qmake doesn't allow a library list
 	dh_gencontrol 2>/dev/null	# squash the python:Versions warning
 	dh_md5sums
 

@@ -21,7 +21,7 @@
 #include <pcp/pmapi.h>
 .sp
 .nf
-int pmDiscoverServices(const char *\fIservice\fP, const char *\fImechanism\fP, char ***\fIurls\fP);
+int pmDiscoverServices(const char *\fIservice\fP, const char *\fImechanism\fP, const char *\fIglobalOptions\fP, char ***\fIurls\fP);
 .fi
 .sp
 cc ... \-lpcp
@@ -41,28 +41,56 @@ returns, via
 a list of URLs representing the services discovered on the network.
 .PP 
 .I service
-specifies the PCP service to be discovered. Currently, only
-.B PM_SERVER_SERVICE_SPEC
-is supported, which searches for
-.BR pmcd (1)
-servers.
+specifies the PCP service to be discovered. Currently supported services are
+.B PM_SERVER_SERVICE_SPEC,
+.B PM_PROXY_SERVICE_SPEC
+and
+.B PM_WEBD_SERVICE_SPEC,
+which search for
+.BR pmcd (1),
+.BR pmproxy (1),
+and
+.BR pmwebd (1),
+servers respectively.
 .PP 
 .IR mechanism
 specifies the style of discovery to be used.
 .PP
-Currently, only \fB"avahi"\fP
-is supported. This searches for services which are broadcasting using mDNS via
+The currently supported mechanisms are:
+.TP
+.B avahi
+This searches for services which are broadcasting using mDNS via
 .BR avahi-daemon (8).
 An optional suffix \fB",timeout=NNNN"\fP may be added
 to specify the discovery timeout, in floating-point multiples of one
 second.  The default timeout is 0.5 seconds, which may be overridden
 by the \fBAVAHI_DISCOVERY_TIMEOUT\fP environment variable, also
 specified in floating-point multiples of one second.
+.TP
+.B probe=<net-address>/<mask-bits>
+Actively probes the given subnet for the requested PCP service(s).
+<net-address> is an inet or ipv6
+network address and <mask-bits> is the number of bits used to define the
+subnet. For example, 192.168.1.0/24 defines an 8 bit subnet consisting of the
+addresses 192.168.1.0 through 192.168.1.255.
+An optional suffix \fB",maxThreads=N"\fP may be added to limit the number of
+threads used while probing. The default is no fixed limit, which is to say that
+the process' rlimits for the number of threads and open file descriptors
+will be respected.
 .PP
 .IR mechanism
 may also be NULL, which means to use all available discovery mechanisms.
 .PP 
-Normally,
+.I globalOptions
+is a string containing options to be applied to the entire
+discovery process. Currently, the only supported option is \fB"resolve"\fP.
+Normally the
+results are reported as a list of urls containing the network addresses
+of the discovered servers. The \fB"resolve"\fP option requests
+that an attempt be made to resolve these addresses. If successful, the host
+name will be reported instead. If unsuccessful, then the address will be
+reported.
+.PP 
 .B pmDiscoverServices
 will return the number of services discovered, else a value
 less than zero for an error.
@@ -113,6 +141,8 @@ function.
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmcd (1),
+.BR pmproxy (1),
+.BR pmwebd (1),
 .BR pmfind (1),
 .BR pmGetConfig (3),
 .BR pcp.conf (5),

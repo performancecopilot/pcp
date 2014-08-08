@@ -18,6 +18,5 @@ Log for pmie on HOST started DATE
 pmie: PID,HOST
 
 sample.write_me changed 5 != 2
-[TIMESTAMP] pmie(PID) Info: pmie caught SIGINT or SIGTERM
 
 Log finished DATE

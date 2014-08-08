@@ -85,6 +85,28 @@ linux_filter()
 	-e "/network\.interface\.ipv6_addr: $unavailable/d" \
 	-e "/network\.interface\.ipv6_scope: $unavailable/d" \
 	-e "/network\.interface\.hw_addr: $unavailable/d" \
+	-e "/network\.ip\.ce.*: $unavailable/d" \
+	-e "/network\.ip\.csum.*: $unavailable/d" \
+	-e "/network\.ip\.ect.*: $unavailable/d" \
+	-e "/network\.ip\.noect.*: $unavailable/d" \
+	-e "/network\.ip\..*mcast.*: $unavailable/d" \
+	-e "/network\.tcp\.fast.*: $unavailable/d" \
+	-e "/network\.tcp\.from.*: $unavailable/d" \
+	-e "/network\.tcp\.orig.*: $unavailable/d" \
+	-e "/network\.tcp\.loss.*: $unavailable/d" \
+	-e "/network\.tcp\.ofo.*: $unavailable/d" \
+	-e "/network\.tcp\.rcv.*: $unavailable/d" \
+	-e "/network\.tcp\.syn.*: $unavailable/d" \
+	-e "/network\.tcp\..*window.*: $unavailable/d" \
+	-e "/network\.tcp\.timewait.*: $unavailable/d" \
+	-e "/network\.tcp\.spurious.*: $unavailable/d" \
+	-e "/network\.tcp\.autocork.*: $unavailable/d" \
+	-e "/network\.tcp\.busypoll.*: $unavailable/d" \
+	-e "/network\.tcp\.challenge.*: $unavailable/d" \
+	-e "/network\.tcp\.defer.*: $unavailable/d" \
+	-e "/network\.tcp\.iprpfilter.*: $unavailable/d" \
+	-e "/network\.tcp\.reqq.*: $unavailable/d" \
+	-e "/network\.tcp\.retrans.*: $unavailable/d" \
 	-e "/mem\.vmstat\..*: $unavailable/d" \
 	-e "/swapdev\.free: $unavailable/d" \
 	-e "/swapdev\.length: $unavailable/d" \
@@ -100,6 +122,7 @@ sample_filter()
 {
     sed -e "/sample\.bad\.nosupport: $nosupport/d" \
 	-e "/sample\.bad\.unknown: $unknown/d" \
+	-e "/sample\.bad\.novalues: $unavailable/d" \
 	-e "/sample\.needprofile: $explicit/d" \
 	-e "/sample\.noinst: $unavailable/d" \
 	-e "/sample\.dynamic\.counter: $unavailable/d" \
@@ -111,6 +134,7 @@ sample_filter()
 	-e "/sample\.event\.param_.*: $unavailable/d" \
 	-e "/sampledso\.bad\.nosupport: $nosupport/d" \
 	-e "/sampledso\.bad\.unknown: $unknown/d" \
+	-e "/sampledso\.bad\.novalues: $unavailable/d" \
 	-e "/sampledso\.needprofile: $explicit/d" \
 	-e "/sampledso\.noinst: $unavailable/d" \
 	-e "/sampledso\.dynamic\.counter: $unavailable/d" \

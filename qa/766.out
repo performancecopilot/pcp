@@ -1,0 +1,15 @@
+QA output created by 766
+-m probe=INET_ADDR/32
+Discovered pmcd servers:
+Sought pmproxy servers
+Sought pmwebd servers
+Exit status: 0
+-s pmcd -m probe=INET_ADDR/31 -r
+Discovered pmcd servers:
+Exit status: 0
+-q -m probe=INET_ADDR/30
+Exit status: 0
+-q -s pmcd -m probe=INET_ADDR/29 --resolve
+Exit status: 0
+-q -s pmcd -m probe=INET_ADDR/28,maxThreads=8
+Exit status: 0
