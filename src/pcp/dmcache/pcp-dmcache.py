@@ -23,7 +23,6 @@ CACHE_METRICS = ['dmcache.cache.used', 'dmcache.cache.total',
                  'dmcache.read_hits', 'dmcache.read_misses',
                  'dmcache.write_hits', 'dmcache.write_misses',
                  'disk.dm.read', 'disk.dm.write']
-MOUNT_METRICS = ['hinv.map.dmname', 'filesys.mountdir']
 
 HEADING = \
     '---device--- ---%used--- ---------reads--------- --------writes---------'
@@ -115,7 +114,6 @@ if __name__ == '__main__':
         manager = pmcc.MetricGroupManager.fromOptions(options, sys.argv)
         manager.printer = DmCachePrinter(options.pmNonOptionsFromList(sys.argv))
         manager['dmcache'] = CACHE_METRICS
-        manager['devices'] = MOUNT_METRICS
         manager.run()
     except pmapi.pmErr, error:
         print '%s: %s\n' % (error.progname(), error.message())
