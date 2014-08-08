@@ -97,7 +97,9 @@ parseOptions(const char *optionsString, __pmServiceDiscoveryOptions *options)
 
     /* Now interpret the options string. */
     while (*optionsString != '\0') {
-	if (strncmp(optionsString, "timeout=", sizeof("timeout=") - 1) == 0) {
+	if (strncmp(optionsString, "resolve", sizeof("resolve") - 1) == 0)
+	    options->resolve = 1;
+	else if (strncmp(optionsString, "timeout=", sizeof("timeout=") - 1) == 0) {
 #if ! PM_MULTI_THREAD
 	    __pmNotifyErr(LOG_ERR, "__pmDiscoverServicesWithOptions: Service discovery global timeout is not supported");
 	    return -EOPNOTSUPP;
@@ -249,7 +251,8 @@ __pmAddDiscoveredService(__pmServiceInfo *info,
     int port;
 
     /* If address resolution was requested, then do attempt it. */
-    if (options->flags && (*options->flags & PM_SERVICE_DISCOVERY_RESOLVE) != 0)
+    if (options->resolve ||
+	(options->flags && (*options->flags & PM_SERVICE_DISCOVERY_RESOLVE) != 0))
 	host = __pmGetNameInfo(info->address);
 
     /*
