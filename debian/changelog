@@ -1,3 +1,9 @@
+pcp (3.9.9) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 13 Aug 2014 09:15:01 +1000
+
 pcp (3.9.8) unstable; urgency=low
 
   * New release to update package metadata (closes: #754929)
