@@ -356,6 +356,9 @@ QA output created by 366
 > 	mem.physmem
 > }
 > #----
+> #+ tools/dmcache:n:default:
+> ## metrics used by the pcp-dmcache(1) command
+> #----
 > #+ tools/free:y:default:
 > ## metrics used by the pcp-free(1) command
 > log advisory on default {
