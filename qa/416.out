@@ -3,19 +3,19 @@ dbpmda> open pipe PERL PCP_PMDAS_DIR/news/pmdanews.pl
 Start perl PMDA: PERL PCP_PMDAS_DIR/news/pmdanews.pl
 dbpmda> traverse news
 Metric: news
-   news.articles.total
    news.articles.count
    news.articles.last
-   news.readers.xrn
-   news.readers.rn
+   news.articles.total
    news.readers.nnrpd
+   news.readers.rn
    news.readers.trn
    news.readers.vn
+   news.readers.xrn
 dbpmda> children news.articles
 Metric: news.articles
-       leaf total
        leaf count
        leaf last
+       leaf total
 dbpmda> children news.articles.count
 Metric: news.articles.count
 dbpmda> pmid news.articles.total

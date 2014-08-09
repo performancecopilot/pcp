@@ -16,41 +16,41 @@ Check rsyslog metrics have appeared ... some warnings, 12 metrics and 0 values
 
 === validate values ===
 
-rsyslog.interval
-value NUMBER
-
-rsyslog.elasticsearch.failed
-    value 0
-
 rsyslog.elasticsearch.connfail
     value 0
 
-rsyslog.elasticsearch.success
+rsyslog.elasticsearch.failed
     value 0
 
 rsyslog.elasticsearch.submits
     value 0
 
-rsyslog.queues.enqueued
-    inst [0 or "main Q"] value 1183
-
-rsyslog.queues.size
-    inst [0 or "main Q"] value 1
-
-rsyslog.queues.maxsize
-    inst [0 or "main Q"] value 1182
-
-rsyslog.queues.full
-    inst [0 or "main Q"] value 0
-
-rsyslog.imuxsock.submitted
-    value 85
+rsyslog.elasticsearch.success
+    value 0
 
 rsyslog.imuxsock.discarded
     value 0
 
 rsyslog.imuxsock.numratelimiters
     value 24
+
+rsyslog.imuxsock.submitted
+    value 85
+
+rsyslog.interval
+value NUMBER
+
+rsyslog.queues.enqueued
+    inst [0 or "main Q"] value 1183
+
+rsyslog.queues.full
+    inst [0 or "main Q"] value 0
+
+rsyslog.queues.maxsize
+    inst [0 or "main Q"] value 1182
+
+rsyslog.queues.size
+    inst [0 or "main Q"] value 1
 
 === remove rsyslog agent ===
 Culling the Performance Metrics Name Space ...
