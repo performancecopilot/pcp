@@ -74,8 +74,13 @@ delta_f = delta(sample.float.hundred)
 delta_d = delta(sample.double.hundred)
 End-of-File
 
+# Note: use localhost (inet) socket connection here for determinism;
+# if we do not, then there is an additional PDU sent by pmcd to the
+# sample PMDA to inform it of credentials obtained via af_unix, i.e.
+# the attribute PDUs between pmcd and pmdasample muck up the counts!
+# (pmcd.pdu_out.total includes PMDA communications).
 cat <<End-of-File \
-| pmie -v -t 0.2 -T '+2sec' 2>&1 \
+| pmie -h localhost -v -t 0.2 -T '+2sec' 2>&1 \
 | sed \
     -e 's/.*Info: evaluator exiting/pmie: note - evaluator exiting/g'
 r = ratio;

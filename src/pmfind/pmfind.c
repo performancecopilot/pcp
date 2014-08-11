@@ -127,7 +127,9 @@ addOption(const char *option, const char *arg)
     /* Add the new option. */
     sprintf(options + existingLen, "%s%s%s%s",
 	    commaLen != 0 ? "," : "", option,
-	    equalLen != 0 ? "=" : "", arg);
+	    equalLen != 0 ? "=" : "",
+	    argLen != 0 ? arg : "");
+
     return 0;
 }
 

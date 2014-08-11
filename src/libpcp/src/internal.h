@@ -265,6 +265,7 @@ typedef struct {
     const volatile unsigned	*flags;		/* Service discovery flags */
     struct timeval		timeout;	/* Global timeout period */
     volatile int		timedOut;	/* Global timeout occurred */
+    int				resolve;	/* Resolve discovered addresses */
 } __pmServiceDiscoveryOptions;
 
 extern int __pmAddDiscoveredService(__pmServiceInfo *,

@@ -250,7 +250,8 @@ open_socket(int port, int family, const char *protocol)
 
     closepmda();
 
-    sts = __pmConnectTo(fd, addr, port);
+    __pmSockAddrSetPort(addr, port);
+    sts = __pmConnect(fd, addr, __pmSockAddrSize());
     __pmSockAddrFree(addr);
 
     if (sts < 0) {

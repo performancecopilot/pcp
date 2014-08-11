@@ -942,6 +942,7 @@ avahi
 823 pmda.sample pmstore secure local oss
 827 pmlogrewrite pmda.linux local oss
 828 valgrind archive context local oss
+829 python local oss
 830 other local oss
 831 pmda.sample pmstore secure local oss
 832 pmda.sample pmstore secure local oss
@@ -950,6 +951,7 @@ avahi
 835 pmda.memcache local oss
 840 avahi local oss
 841 pmda local oss
+842 python local oss
 844 pmda.linux local oss
 861 pmcd pmda.pmcd local oss
 875 libpcp local oss
