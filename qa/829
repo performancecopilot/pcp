@@ -26,6 +26,14 @@ echo 'One device'
 pcp -z --archive archives/dm-io dmcache dmcache1
 echo
 
+echo 'One device, five samples, ten seconds offset'
+pcp -z --archive archives/dm-io -s 5 -S+10sec dmcache dmcache1
+echo
+
+echo 'One device, IOPS mode, header every 50 lines'
+pcp -z --archive archives/dm-io dmcache -i --repeat 50 dmcache1
+echo
+
 # success, all done
 status=0
 

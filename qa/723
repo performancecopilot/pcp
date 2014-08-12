@@ -29,7 +29,7 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 $sudo rm -f $seq.full
-ls -l /proc/$pid/attr/current
+#debug# ls -l /proc/$pid/attr/current
 syslabel=`cat /proc/$pid/attr/current`
 echo "SYS Label for process $pid is: $syslabel" >> $seq.full
 

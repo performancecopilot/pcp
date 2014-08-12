@@ -81,7 +81,7 @@ static pmLongOptions longopts[] = {
     { "", 0, 'N', 0, "show normalizing factor" },
     { "offset", 0, 'o', 0, "prefix timestamp with offset in seconds" },
     { "precision", 1, 'P', "N", "floating point precision [default 3]" },
-    { "repeat", 1, 'R', "N", "repeat header every N of lines" },
+    { "repeat", 1, 'R', "N", "repeat the header after every N samples" },
     { "raw", 0, 'r', 0, "output raw values, no rate conversion" },
     { "unavailable", 1, 'U', "STR", "unavailable value string [default \"?\"]" },
     { "units", 0, 'u', 0, "show metric units" },
