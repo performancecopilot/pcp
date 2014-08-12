@@ -30,6 +30,23 @@ echo 'Timestamps and no headers'
 pmiostat -z --samples 10 --archive archives/dm-io -x t,h
 echo
 
+for t in $(seq 1 30)
+do
+    for metric_field in read_merge:7 write_merge:8 read:9 write:10 read_bytes:11 write_bytes:12
+    do
+	metric=$(echo $metric_field | sed -e 's/:.*$//')
+	field=$(echo $metric_field | sed -e 's/^.*://') 
+
+	echo -n Checking pmiostat against pmval -t $t disk.dev.$metric ...
+	pmval -t $t -a archives/dm-io -f 1 disk.dev.$metric'[sda]' 2>/dev/null |\
+	  sed -e 's/\.[0-9]*//' | awk '/^[0-9][0-9]:/ {print $1, $2}' >$tmp.pmval
+	pmiostat -t $t -a archives/dm-io -xt,h |\
+	  awk '/^#/ {skip} /sda/ {print $4, $'$field'}' >$tmp.pmiostat
+	if diff -q $tmp.pmval $tmp.pmiostat; then echo OK; else echo FAILED; fi
+    done
+done
+
+
 # success, all done
 status=0
 exit
