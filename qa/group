@@ -931,7 +931,6 @@ avahi
 768 pmlogextract local oss
 775 sanity pmfind local oss
 776 pmfind local oss
-777 pmda.memcache local oss
 779 pmda local oss
 780 pmwebapi local oss
 783 pmda.rpm local oss

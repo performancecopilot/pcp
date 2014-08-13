@@ -15,10 +15,11 @@ Terminate PMDA if already installed ...
 Updating the PMCD control file, and notifying PMCD ...
 Starting pmcd ... 
 Starting pmlogger ... 
-Check memcache metrics have appeared ... 17 metrics and 17 values
+Check memcache metrics have appeared ... X metrics and Y values
 
-=== compare metric values ===
-active_slabs is in range
+=== extract metric values ===
+
+=== check values ===
 bytes is in range
 bytes_read is in range
 bytes_written is in range
@@ -33,7 +34,6 @@ limit_maxbytes is in range
 pid is in range
 total_connections is in range
 total_items is in range
-total_malloced is in range
 uptime is in range
 
 === remove memcache agent ===
