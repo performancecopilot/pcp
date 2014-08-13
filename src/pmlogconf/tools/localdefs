@@ -4,6 +4,7 @@ FILES = \
 	atop-summary \
 	collectl \
 	collectl-summary \
+	dmcache \
 	free \
 	free-summary \
 	iostat \

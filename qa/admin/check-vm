@@ -45,7 +45,7 @@ done
 
 # perl ? apt-get install -qqy --force-yes libxml-tokeparser-perl
 # perl ? apt-get install -qqy --force-yes libspreadsheet-read-perl
-cat <<End-of-File | sed -e 's/#.*//' -e '/^[ 	]*$/d' | while read apps
+cat <<End-of-File >$tmp.control
 # one line per app, alternate items separated by white space
 # first item ending in ? means this item is a guard, if it does not
 # exist silently ignore the rest of the line
@@ -54,6 +54,7 @@ cat <<End-of-File | sed -e 's/#.*//' -e '/^[ 	]*$/d' | while read apps
 #                               (alternates separated by |)
 #	containing ::		test for presence of the associated Perl module
 #	otherwise		test for an executable with which(1)
+#                               (alternates separated by |)
 #
 # text after # is treated as a comment
 # text after [ is treated as annotation
@@ -76,7 +77,6 @@ dpkg?	chrpath			[chrpath]
 dpkg?	sysv-rc-conf		[sysv-rc-conf]
 rpm?	rpmbuild		[rpm-build]
 # other build prerequisites
-rpm?	/usr/share/doc/packages/python-ctypes	[python-ctypes]
 dpkg?	/usr/share/doc/pkg-config	[pkg-config]
 dpkg?	/usr/share/doc/python-all-dev	[python-all-dev]
 dpkg?	/usr/include/microhttpd.h	[libmicrohttpd-dev]
@@ -128,15 +128,14 @@ time				[time(redhat)]
 dpkg?	realpath		[realpath]
 # pcp-gui
 dpkg?	qmake			[qt4-qmake]
-rpm?	qmake			[qt-devel]
+rpm?	qmake|qmake-qt4			[qt-devel]
 dpkg?	/usr/lib/libQtCore.so|/usr/lib/*/libQtCore.so	[libqt4-dev]
 dpkg?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[libsoqt4-dev]
-rpm?	/usr/lib/libQtCore.so	[qt-devel]
+rpm?	/usr/lib/libQtCore.so|/usr/lib*/libQtCore.so	[qt-devel]
 dpkg?	/usr/include/Inventor/Qt/SoQt.h	[libsoqt-dev-common]
 dpkg?	/usr/include/Inventor/SoPath.h	[libcoin60-dev or libcoin80-dev]
 # python
 rpm?	/usr/include/python*/Python.h		[python-devel]
-rpm?	/usr/lib*/python*/site-packages/ctypes|/usr/lib*/python*/ctypes	[python-ctypes]
 dpkg?	/usr/include/python*/Python.h		[python-dev]
 # nss
 dpkg?	/usr/include/nspr/nspr.h	[libnspr4-dev]
@@ -146,6 +145,30 @@ rpm?	/usr/include/nss3/nss.h		[nss-devel]
 dpkg?	certutil			[libnss3-tools]
 rpm?	certutil			[nss-tools]
 End-of-File
+
+if which python >/dev/null 2>&1
+then
+    # For python-ctypes, check for python before 2.5 ... expect something like
+    # Python 2.7.3
+    eval `python --version 2>&1 | sed -e 's/Python //' -e 's/^/maj=/' -e 's/\./ min=/' -e 's/\..*//'`
+    if [ -n "$maj" -a -n "$min" ]
+    then
+	rm -f $tmp.need
+	if [ "$maj" -lt 2 ]
+	then
+	    touch $tmp.need
+	elif [ "$maj" -eq 2 -a "$min" -lt 5 ]
+	then
+	    touch $tmp.need
+	fi
+	[ -f $tmp.need ] && \
+	    echo "rpm?	/usr/share/doc/packages/python-ctypes	[python-ctypes]" >>$tmp.control
+    fi
+fi
+
+cat $tmp.control \
+| sed -e 's/#.*//' -e '/^[ 	]*$/d' \
+| while read apps
 do
     rm -f $tmp.ok
     for app in $apps
@@ -186,7 +209,16 @@ do
 		ok=$?
 		;;
 	    *)
-		which $app >/dev/null 2>&1
+		rm -f $tmp.tmp
+		for exec in `echo "$app" | sed -e 's/|/ /g'`
+		do
+		    if which $exec >/dev/null 2>&1
+		    then
+			touch $tmp.tmp
+			break
+		    fi
+		done
+		[ -f $tmp.tmp ]
 		ok=$?
 		;;
 	esac

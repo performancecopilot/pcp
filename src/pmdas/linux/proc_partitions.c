@@ -465,7 +465,8 @@ static pmID disk_metric_table[] = {
     /* disk.dm.avactive */	     PMDA_PMID(CLUSTER_DM,11),
     /* disk.dm.aveq */		     PMDA_PMID(CLUSTER_DM,12),
     /* hinv.map.dmname */	     PMDA_PMID(CLUSTER_DM,13),
-
+    /* disk.dm.read_rawactive */     PMDA_PMID(CLUSTER_DM,14),
+    /* disk.dm.write_rawactive */    PMDA_PMID(CLUSTER_DM,15),
 };
 
 int
@@ -787,6 +788,12 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 13: /* hinv.map.dmname */
 	    atom->cp = p->dmname;
+	    break;
+	case 14: /* disk.dm.read_rawactive */
+	    atom->ul = p->rd_ticks;
+	    break;
+	case 15: /* disk.dm.write_rawactive */
+	    atom->ul = p->wr_ticks;
 	    break;
 	default:
 	    return PM_ERR_PMID;

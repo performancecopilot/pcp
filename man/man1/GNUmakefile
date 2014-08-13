@@ -40,7 +40,7 @@ MAN_PAGES	= \
 	pmdasample.1 pmdasendmail.1 pmdashping.1 pmdasimple.1 \
 	pmdasummary.1 \
 	pmdatrace.1 pmdatrivial.1 pmdatxmon.1 pmdaweblog.1 \
-	pmdazswap.1
+	pmdazswap.1 pmiostat.1
 
 LINUX_PMDA_PAGES = \
 	pmdalmsensors.1 pmdalustrecomm.1 pmdaproc.1 pmdaxfs.1 pmdajbd2.1

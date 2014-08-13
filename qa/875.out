@@ -8,7 +8,9 @@ pmUnparseHostAttrsSpec("local:where/am/i.sock") -> "local://where/am/i.sock"
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/parsehostattrs local:where/am/i.sock
-All heap blocks were freed -- no leaks are possible
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
 pmParseHostAttrsSpec("local://tmp/holey.sock?user=pcpqa&compress", ...)
@@ -19,7 +21,9 @@ pmUnparseHostAttrsSpec("local://tmp/holey.sock?user=pcpqa&compress") -> "local:/
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/parsehostattrs local://tmp/holey.sock?user=pcpqa&compress
-All heap blocks were freed -- no leaks are possible
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
 pmParseHostAttrsSpec("local:?", ...)
@@ -30,7 +34,9 @@ pmUnparseHostAttrsSpec("local:?") -> "local://?"
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/parsehostattrs local:?
-All heap blocks were freed -- no leaks are possible
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
 pmParseHostAttrsSpec("unix://tmp/holey.sock?compress", ...)
@@ -41,7 +47,9 @@ pmUnparseHostAttrsSpec("unix://tmp/holey.sock?compress") -> "unix://tmp/holey.so
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/parsehostattrs unix://tmp/holey.sock?compress
-All heap blocks were freed -- no leaks are possible
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
 pmParseHostAttrsSpec("unix://?compress", ...)
@@ -52,5 +60,7 @@ pmUnparseHostAttrsSpec("unix://?compress") -> "unix://?compress"
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/parsehostattrs unix://?compress
-All heap blocks were freed -- no leaks are possible
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...

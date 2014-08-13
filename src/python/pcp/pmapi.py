@@ -1,5 +1,5 @@
 # pylint: disable=C0103
-""" Wrapper module for LIBPCP - the core Performace Co-Pilot API
+""" Wrapper module for LIBPCP - the core Performace Co-Pilot API """
 #
 # Copyright (C) 2012-2014 Red Hat
 # Copyright (C) 2009-2012 Michael T. Werner
@@ -27,7 +27,7 @@
 # cf. Chapter 3. PMAPI - The Performance Metrics API
 #
 # EXAMPLE
-
+"""
     from pcp import pmapi
     import cpmapi as c_api
 
