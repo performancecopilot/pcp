@@ -33,6 +33,10 @@ _start_local_pmcd()
 {
     pmcd -f -x $seq.full -l $tmp.log &
     pid=$!
+    # The call pmcd_wait, below, checks for pmcd startup by attempting to
+    # connect to its unix domain socket. However, it takes some time for pmcd
+    # to start and to open the socket. So, wait a few seconds before checking.
+    sleep 3
     pmcd_wait -h unix:$PMCD_SOCKET -v -t 5sec
 }
 
