@@ -239,23 +239,6 @@ load_proxy_hostspec(pmHostSpec *proxy)
     }
 }
 
-static void
-load_secure_runtime(void)
-{
-    /* Ensure correct security lib initialisation order */
-    __pmInitAuthClients();
-    __pmInitSecureSockets();
-
-    /*
-     * If secure sockets functionality available, iterate over the set of
-     * known locations for certificate databases and attempt to initialise
-     * one of them for our use.
-     */
-    if (__pmInitCertificates() < 0)
-	__pmNotifyErr(LOG_WARNING, "__pmConnectPMCD: "
-		"certificate database exists, but failed initialization");
-}
-
 void
 __pmConnectGetPorts(pmHostSpec *host)
 {
@@ -301,7 +284,6 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
 	first_time = 0;
 	load_pmcd_ports();
 	load_proxy_hostspec(&proxy);
-	load_secure_runtime();
     }
 
     if (hosts[0].nports == 0) {

@@ -569,16 +569,7 @@ extern void __pmSecureServerShutdown(void);
 extern int __pmSecureServerHandshake(int, int, __pmHashCtl *);
 extern int __pmSecureClientHandshake(int, int, const char *, __pmHashCtl *);
 
-#ifdef HAVE_SECURE_SOCKETS
-typedef struct {
-    fd_set		native_set;
-    fd_set		nspr_set;
-    int			num_native_fds;
-    int			num_nspr_fds;
-} __pmFdSet;
-#else
 typedef fd_set __pmFdSet;
-#endif
 typedef struct __pmSockAddr __pmSockAddr;
 typedef struct __pmHostEnt __pmHostEnt;
 
