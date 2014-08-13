@@ -31,7 +31,7 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
         disk.all.write                  # total: Total writes completed successfully
         disk.all.write_merge            # merged: grouped writes (resulting in one I/O)
         disk.all.blkwrite               # sectors: Sectors written successfully
-        disk.all.read_rawactive         # ms: milliseconds spent writing
+        disk.all.write_rawactive        # ms: milliseconds spent writing
         disk.all.avactive               # s: seconds spent for I/O
 
         disk.dev.read                   # total: Total reads completed successfully
@@ -48,8 +48,8 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
         disk.dm.write_merge
         disk.dev.blkwrite               # sectors: Sectors written successfully
         disk.dm.blkwrite
-        disk.dev.read_rawactive         # ms: milliseconds spent writing
-        disk.dm.read_rawactive
+        disk.dev.write_rawactive         # ms: milliseconds spent writing
+        disk.dm.write_rawactive
 
 	disk.all.read_merge		# rrqm/s
 	disk.all.write_merge		# wrqm/s
