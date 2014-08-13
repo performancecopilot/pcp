@@ -13,9 +13,9 @@
  * License for more details.
  */
 
-#include <net/if.h>
 #include "pmapi.h"
 #include "impl.h"
+#include <net/if.h>
 #define SOCKET_INTERNAL
 #include "internal.h"
 

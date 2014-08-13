@@ -3,6 +3,8 @@
 # Exercise the memcache PMDA - install, remove and values.
 #
 # Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2008 Aconex.  All Rights Reserved. (based on qa/348)
 #
 
 seq=`basename $0`
@@ -16,7 +18,6 @@ echo "QA output created by $seq"
 port=11211
 echo stats | $PCP_BINADM_DIR/telnet-probe localhost $port || \
     _notrun "Noones home on the default memcached port $port"
-which nc >/dev/null 2>&1 || _notrun "nc (netcat) not installed"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
@@ -52,7 +53,12 @@ EOF
     # Check metrics have appeared ... X metrics and Y values
     _filter_pmda_install <$tmp.out \
     | sed \
-        -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/'
+        -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+    | $PCP_AWK_PROG '
+/Check memcache metrics have appeared/  { if ($7 >= 16 && $7 <= 50) $7 = "X"
+                                          if ($10 >= 16 && $10 <= 50) $10 = "Y"
+                                        }
+                                        { print }'
 }
 
 pmdamemcache_cleanup()
@@ -70,51 +76,60 @@ _prepare_pmda memcache
 trap "cd $here; rm -fr $tmp.*; exit \$status" 0 1 2 3 15
 trap "pmdamemcache_cleanup; exit \$status" 0 1 2 3 15
 
+# make pmprobe output comparable to memcachestats
+rewrite_memcache_metric_names()
+{
+    sed \
+	-e 's/^memcache.//g' \
+	-e 's/^gets /cmd_get /g' \
+	-e 's/^sets /cmd_set /g' \
+	-e 's/^hits /get_hits /g' \
+	-e 's/^misses /get_misses /g' \
+	-e 's/^current_items/curr_items/g' \
+	-e 's/^current_connections/curr_connections/g' \
+    #end#
+}
+
 # real QA test starts here
 pmdamemcache_install
 
 echo
-echo "=== compare metric values ==="
-_filter_nc()
-{
-    sed -e 's/^STAT //g' | tr -d '\r'
-}
-echo "stats" | nc -q 1 localhost $port       | _filter_nc >  $tmp.nc_stats
-echo "stats slabs" | nc -q 1 localhost $port | _filter_nc >> $tmp.nc_stats
-echo "stats items" | nc -q 1 localhost $port | _filter_nc >> $tmp.nc_stats
+echo "=== extract metric values ==="
+pmprobe -v memcache \
+| rewrite_memcache_metric_names \
+| LC_COLLATE=POSIX sort >$tmp.probe
+echo "from pmprobe ..." >>$here/$seq.full
 
-pmprobe -v memcache > $tmp.pcp_stats
+$here/src/memcachestats.pl \
+| sed -e 's/ / 1 /' \
+| LC_COLLATE=POSIX sort >$tmp.values
+echo "from src/memcachestats.pl ..." >>$here/$seq.full
 
-echo "raw netcat values:" >> $here/$seq.full
-cat $tmp.nc_stats >> $here/$seq.full
-echo "raw pmprobe values:" >> $here/$seq.full
-cat $tmp.pcp_stats >> $here/$seq.full
+cat $tmp.values >>$here/$seq.full
+LC_COLLATE=POSIX join $tmp.probe $tmp.values >$tmp.all
+echo >>$here/$seq.full
+cat $tmp.all >>$here/$seq.full
 
-# find comparable names, then compare values (within tolerance limits)
-sed \
-    -e 's/^memcache.//g' \
-    -e 's/^gets /cmd_get /g' \
-    -e 's/^sets /cmd_set /g' \
-    -e 's/^hits /get_hits /g' \
-    -e 's/^misses /get_misses /g' \
-    -e 's/^current_items/curr_items/g' \
-    -e 's/^current_connections/curr_connections/g' \
-    < $tmp.pcp_stats | \
-LC_COLLATE=POSIX sort | \
-tee $tmp.pcp_nstats | \
-while read metric one value
+echo
+echo "=== check values ==="
+cat $tmp.all \
+| while read metric n1 vpcp n2 vmemcache
 do
-    grep "^$metric " $tmp.nc_stats > $tmp.nc_value
-    if [ $? -ne 0 ]
+    if [ "$n1" = 1 -a "$n2" = 1 ]
     then
-	echo "Metric $metric from pmprobe not in netcat output?"
+        case $metric
+        in
+            total_connections)
+                _within_tolerance $metric $vpcp $vmemcache 5 -v
+                ;;
+            *)
+                _within_tolerance $metric $vpcp $vmemcache 10% -v
+                ;;
+        esac
     else
-	# echo raw: `cat $tmp.nc_value`
-	eval `cat $tmp.nc_value | sed -e 's/^.* /ncvalue=/'`
-	_within_tolerance "$metric" "$value" "$ncvalue" 25% -v
-	# echo within_tolerance $metric $value $ncvalue 25% -v
+        echo "$metric: number of values not 1 as expected: pcp $n1 / memcache $n2"
     fi
-done
+done | tee -a $here/$seq.full
 
 pmdamemcache_remove
 status=0
