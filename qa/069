@@ -85,7 +85,20 @@ skip == 1			{ next }
     | _filter_pmcd_log | \
     sed \
 	-e '/UNIX_DOMAIN_SOCKET/d' \
-	-e '/unix:/d'
+	-e '/unix:/d' \
+    | $PCP_AWK_PROG '
+BEGIN					{ seen_my_access = 0 }
+/access violation from host MY_IP/	{ seen_my_access++
+					  if (seen_my_access > 1) skip=2
+					}
+skip > 0				{ skip--; next }
+					{ print }'
+    # Note on last awk component ...
+    # depending on the IPv6 support status, can see multiple lines for
+    # 127.0.0.1 _and_ ::1 ... only need to report one occurrence of
+    # the filtered lines
+    #
+
 }
 
 if [ -d $PCP_LOG_DIR/pmlogger ]
