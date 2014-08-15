@@ -340,6 +340,7 @@ remove_metric(unsigned int event, int position)
     int state = 0;
     int restart = 0; // bool to restart running values at the end
     int i;
+    long_long new_values[NumEvents];
 
     /* check to make sure papi is running, otherwise do nothing */
     state = check_papi_state(state);
@@ -351,6 +352,9 @@ remove_metric(unsigned int event, int position)
     }
     state = check_papi_state(state);
     if (state == PAPI_STOPPED) {
+	/* first, copy the values over to new array */
+	for(i = 0; i < (sizeof(papi_info)/sizeof(papi_m_user_tuple)); i++)
+	    new_values[i] = values[i];
 
 	/* due to papi bug, we need to fully destroy the eventset and restart it*/
 	memset (values, 0, sizeof(values[0])*NumEvents);
@@ -372,8 +376,14 @@ remove_metric(unsigned int event, int position)
 	// run through all metrics and adjust position variable as needed
 	for(i = 0; i < (sizeof(papi_info)/sizeof(papi_m_user_tuple)); i++)
 	    {
-		if(papi_info[i].position > position)
+		__pmNotifyErr(LOG_DEBUG, "metric %s (%d)", papi_info[i].papi_string_code, papi_info[i].position);
+		if(papi_info[i].position < position)
+		    values[i] = new_values[i];
+
+		if(papi_info[i].position > position) {
 		    papi_info[i].position--;
+		    values[i-1] = new_values[i];
+		}
 
 		if(papi_info[i].position >= 0){
 		    retval = PAPI_add_event(EventSet, papi_info[i].papi_event_code);
@@ -399,11 +409,15 @@ add_metric(unsigned int event)
 {
     int retval = 0;
     int state = 0;
+    long_long new_values[NumEvents];
+    int i;
     /* check status of papi */
     state = check_papi_state(state);
     /* add check with number_of_counters */
     /* stop papi if running? */
     if (state == PAPI_RUNNING) {
+	for(i = 0; i < (sizeof(papi_info)/sizeof(papi_m_user_tuple)); i++)
+	    new_values[i] = values[i];
 	retval = PAPI_stop(EventSet, values);
 	if(retval != PAPI_OK)
 	    return retval;
@@ -414,6 +428,8 @@ add_metric(unsigned int event)
 	retval = PAPI_add_event(EventSet, event); //XXX possibly switch this to add_events
 	if(retval != PAPI_OK)
 	    return retval;
+	for(i = 0; i < (sizeof(papi_info)/sizeof(papi_m_user_tuple)); i++)
+	    new_values[i] = values[i];
 	number_of_active_counters++;
 	retval = PAPI_start(EventSet);
 	return retval;
