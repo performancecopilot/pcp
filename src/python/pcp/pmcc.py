@@ -187,13 +187,13 @@ class Metric(object):
     def _R_netPrevValues(self):
         if not self._prevvset:
             return None
-	self._netPrevValues = self.computeValues(self._prevvset)
+        self._netPrevValues = self.computeValues(self._prevvset)
         return self._netPrevValues
 
     def _R_netValues(self):
         if not self._vset:
             return None
-	self._netValues = self.computeValues(self._vset)
+        self._netValues = self.computeValues(self._vset)
         return self._netValues
 
     def _W_values(self, values):
@@ -227,10 +227,10 @@ class Metric(object):
 
     def metricPrint(self):
         indomstr = self.ctx.pmInDomStr(self.desc.indom)
-        print "   ", "indom:", indomstr
+        print("   ", "indom:", indomstr)
         instD = self.ctx.mcGetInstD(self.desc.indom)
         for inst, name, val in self.netValues:
-            print "   ", name, val
+            print("   ", name, val)
 
     def metricConvert(self, delta):
         convertedList = self.convertValues(self._vset, self._prevvset, delta)
@@ -322,10 +322,10 @@ class MetricCache(pmContext):
         newcore = MetricCore(self, name, pmid)
         try:
             newcore.desc = self.pmLookupDesc(pmid)
-        except pmErr, error:
+        except pmErr as error:
             fail = "%s: pmLookupDesc: %s" % (error.progname(), error.message())
             print >> stderr, fail
-            raise SystemExit, 1
+            raise SystemExit(1)
 
         # insert core into cache
         self._mcAdd(newcore)
@@ -342,11 +342,11 @@ class MetricCache(pmContext):
             if len(pmidArray) < len(nameA):
                 missing = "%d of %d metric names" % (len(pmidArray), len(nameA))
                 print >> stderr, "Cannot resolve", missing
-                raise SystemExit, 1
-        except pmErr, error:
+                raise SystemExit(1)
+        except pmErr as error:
             fail = "%s: pmLookupName: %s" % (error.progname(), error.message())
             print >> stderr, fail
-            raise SystemExit, 1
+            raise SystemExit(1)
 
         return zip(nameA, pmidArray), errL
 
@@ -432,12 +432,12 @@ class MetricGroup(dict):
                 vset = self.result.contents.get_vset(i)
                 self._altD[pmid]._prevvset = self._altD[pmid]._vset
                 self._altD[pmid]._vset = vset
-        except pmErr, error:
+        except pmErr as error:
             if error.args[0] == PM_ERR_EOL:
-                raise SystemExit, 0
+                raise SystemExit(0)
             fail = "%s: pmFetch: %s" % (error.progname(), error.message())
             print >> stderr, fail
-            raise SystemExit, 1
+            raise SystemExit(1)
 
     def mgDelta(self):
         """
@@ -528,7 +528,7 @@ class MetricGroupManager(dict, MetricCache):
 
     def __setitem__(self, attr, value = []):
         if self.has_key(attr):
-            raise KeyError, "metric group with that key already exists"
+            raise KeyError("metric group with that key already exists")
         else:
             dict.__setitem__(self, attr, MetricGroup(self, inL = value))
 
@@ -575,7 +575,7 @@ class MetricGroupManager(dict, MetricCache):
             --interval (including the default value, if none requested).
         """
         if self._default_pause != None:
-	    return self._default_pause
+            return self._default_pause
         if self.type == PM_CONTEXT_ARCHIVE:
             self._default_pause = timeval(0, 0)
         elif self._options != None:
@@ -586,7 +586,7 @@ class MetricGroupManager(dict, MetricCache):
                 self._default_pause = self._default_delta
         else:
             self._default_pause = self._default_delta
-	return self._default_pause
+        return self._default_pause
 
     def fetch(self):
         """ Perform fetch operation on all of the groups. """
@@ -613,7 +613,7 @@ class MetricGroupManager(dict, MetricCache):
                     break
                 timer.sleep()
                 self.fetch()
-        except SystemExit, code:
+        except SystemExit as code:
             return code
         except KeyboardInterrupt:
             pass

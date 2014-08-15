@@ -193,9 +193,9 @@ class MetricDispatch(object):
     def add_metric(self, name, metric, oneline = '', text = ''):
         pmid = metric.m_desc.pmid
         if (pmid in self._metric_names):
-            raise KeyError, 'attempt to add_metric with an existing name'
+            raise KeyError('attempt to add_metric with an existing name')
         if (pmid in self._metrics):
-            raise KeyError, 'attempt to add_metric with an existing PMID'
+            raise KeyError('attempt to add_metric with an existing PMID')
 
         self._metrictable.append(metric)
         self._metrics[pmid] = metric
@@ -208,7 +208,7 @@ class MetricDispatch(object):
         indomid = indom.it_indom
         for entry in self._indomtable:
             if (entry.it_indom == indomid):
-                raise KeyError, 'attempt to add_indom with an existing ID'
+                raise KeyError('attempt to add_indom with an existing ID')
         self._indomtable.append(indom)
         self._indoms[indomid] = indom
         self._indom_oneline[indomid] = oneline
@@ -296,7 +296,7 @@ class PMDA(MetricDispatch):
         """
         Write out the domain.h file (used during installation)
         """
-        print '#define %s %d' % (self._name.upper(), self._domain)
+        print('#define %s %d' % (self._name.upper(), self._domain))
 
     def pmns_write(self, root):
         """
@@ -308,11 +308,11 @@ class PMDA(MetricDispatch):
         lead = ''
         if indent:
             lead = '\t'
-            print 'root {'
+            print('root {')
         for prefix in prefixes:
-            print '%s%s\t%d:*:*' % (lead, prefix, self._domain)
+            print('%s%s\t%d:*:*' % (lead, prefix, self._domain))
         if indent:
-            print '}'
+            print('}')
 
     def run(self):
         """
