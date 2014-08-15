@@ -20,6 +20,7 @@ Check memcache metrics have appeared ... X metrics and Y values
 === extract metric values ===
 
 === check values ===
+active_slabs is in range
 bytes is in range
 bytes_read is in range
 bytes_written is in range
@@ -34,6 +35,7 @@ limit_maxbytes is in range
 pid is in range
 total_connections is in range
 total_items is in range
+total_malloced is in range
 uptime is in range
 
 === remove memcache agent ===
