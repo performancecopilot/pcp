@@ -150,7 +150,7 @@ if which python >/dev/null 2>&1
 then
     # For python-ctypes, check for python before 2.5 ... expect something like
     # Python 2.7.3
-    eval `python --version 2>&1 | sed -e 's/Python //' -e 's/^/maj=/' -e 's/\./ min=/' -e 's/\..*//'`
+    eval `python -V 2>&1 | sed -e 's/Python //' -e 's/^/maj=/' -e 's/\./ min=/' -e 's/\..*//'`
     if [ -n "$maj" -a -n "$min" ]
     then
 	rm -f $tmp.need
