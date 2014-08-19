@@ -882,7 +882,7 @@ def main (stdscr_p):
                     stdscr.timeout(-1)
                     # currently it just does "hit any key to continue"
                     char = stdscr.getch()
-                elif cmd == "h":
+                elif cmd == "h" or cmd == "?":
                     stdscr.clear ()
                     stdscr.move (0, 0)
                     stdscr.addstr ('\nOptions shown for active processes:\n')
