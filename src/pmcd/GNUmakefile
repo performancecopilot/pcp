@@ -1,6 +1,5 @@
-#!gmake
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2014 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -14,24 +13,17 @@
 # for more details.
 # 
 
-LLDIRT		= *.log *.dir *.pag so_locations
-
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS = src
-LSRCFILES = pmdaproc.sh rc_pcp rc_pmcd rc_local pmcd.options \
-	    rc-proc.sh rc-proc.sh.minimal sasl2.conf
+LDIRT	= *.log
 
 default : $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
 install :: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
-ifeq ($(TARGET_OS),darwin)
-	$(INSTALL) -m 755 -d $(PCP_RC_DIR)
-	$(INSTALL) -m 755 -d $(PCP_SASLCONF_DIR)
-endif
 	$(INSTALL) -m 755 -d `dirname $(PCP_PMCDOPTIONS_PATH)`
 	$(INSTALL) -m 644 pmcd.options $(PCP_PMCDOPTIONS_PATH)
 	$(INSTALL) -m 755 -d `dirname $(PCP_PMCDRCLOCAL_PATH)`
