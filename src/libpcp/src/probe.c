@@ -297,9 +297,10 @@ probeForServices(
 	     * enough except when resolving addresses, where twice that much is
 	     * sufficient.
 	     */
-	    if (options->globalOptions->flags &&
-		(*options->globalOptions->flags & PM_SERVICE_DISCOVERY_RESOLVE)
-		!= 0)
+	    if (options->globalOptions->resolve ||
+		(options->globalOptions->flags &&
+		 (*options->globalOptions->flags & PM_SERVICE_DISCOVERY_RESOLVE)
+		 != 0))
 		pthread_attr_setstacksize(&threadAttr, 2 * PTHREAD_STACK_MIN);
 	    else
 		pthread_attr_setstacksize(&threadAttr, PTHREAD_STACK_MIN);

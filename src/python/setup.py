@@ -1,7 +1,6 @@
-""" Build script for the PCP python package
-"""
+""" Build script for the PCP python package """
 #
-# Copyright (C) 2012-2013 Red Hat.
+# Copyright (C) 2012-2014 Red Hat.
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of the "pcp" module, the python interfaces for the
@@ -21,11 +20,11 @@
 from distutils.core import setup, Extension
 
 setup(name = 'pcp',
-    version = '0.3',
+    version = '1.0',
     description = 'Python package for Performance Co-Pilot',
     license = 'GPLv2+',
     author = 'Performance Co-Pilot Development Team',
-    author_email = 'pcp@mail.performancecopilot.org',
+    author_email = 'pcp@oss.sgi.com',
     url = 'http://www.performancecopilot.org',
     packages = ['pcp'],
     ext_modules = [
@@ -39,7 +38,7 @@ setup(name = 'pcp',
     long_description =
         'PCP provides services to support system-level performance monitoring',
     classifiers = [
-        'Development Status :: 4 - Beta'
+        'Development Status :: 5 - Production/Stable'
         'Intended Audience :: Developers',
         'Intended Audience :: System Administrators',
         'Intended Audience :: Information Technology',
@@ -49,12 +48,12 @@ setup(name = 'pcp',
         'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX',
         'Operating System :: POSIX :: AIX',
-        'Operating System :: POSIX :: IRIX',
         'Operating System :: POSIX :: Linux',
-        'Operating System :: POSIX :: NetBSD',
-        'Operating System :: POSIX :: FreeBSD',
+        'Operating System :: POSIX :: BSD :: NetBSD',
+        'Operating System :: POSIX :: BSD :: FreeBSD',
         'Operating System :: POSIX :: SunOS/Solaris',
         'Operating System :: Unix',
+        'Topic :: System :: Logging',
         'Topic :: System :: Monitoring',
         'Topic :: System :: Networking :: Monitoring',
         'Topic :: Software Development :: Libraries',

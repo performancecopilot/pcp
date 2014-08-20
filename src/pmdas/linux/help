@@ -199,6 +199,26 @@ Count of write requests that were merged with an already queued write request.
 
 @ disk.dm.aveq per-device-mapper device time averaged count of request queue length
 
+@ disk.dm.read_rawactive per-device-mapper raw count of active read time
+When converted to a rate, this metric represents the raw utilization of
+the device during the sampling interval as a result of reads.  Accounting for
+this metric is only done on I/O completion and can thus result in more than a
+second's worth of IO being accounted for within any one second, leading to
+>100% utilisation.  It is suitable mainly for use in calculations with other
+metrics, e.g. mirroring the results from existing performance tools:
+
+ iostat.dm.r_await = delta(disk.dm.read_rawactive) / delta(disk.dm.read)
+
+@ disk.dm.write_rawactive per-device-mapper raw count of active write time
+When converted to a rate, this metric represents the raw utilization of
+the device during the sampling interval as a result of writes.  Accounting for
+this metric is only done on I/O completion and can thus result in more than a
+second's worth of IO being accounted for within any one second, leading to
+>100% utilisation.  It is suitable mainly for use in calculations with other
+metrics, e.g. mirroring the results from existing performance tools:
+
+ iostat.dm.w_await = delta(disk.dm.write_rawactive) / delta(disk.dm.write)
+
 @ hinv.map.dmname per-device-mapper device persistent name mapping to dm-[0-9]*
 
 @ disk.all.read_merge total count of merged read requests, summed for all disks

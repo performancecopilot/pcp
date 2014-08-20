@@ -3781,6 +3781,15 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_DM,13), PM_TYPE_STRING, DM_INDOM, PM_SEM_DISCRETE,
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
+    /* disk.dm.read_rawactive */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_DM,14), PM_TYPE_U32, DM_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+    /* disk.dm.write_rawactive */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_DM,15), PM_TYPE_U32, DM_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 };
 
 char *linux_statspath = "";	/* optional path prefix for all stats files */

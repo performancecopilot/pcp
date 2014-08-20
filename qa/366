@@ -21,6 +21,10 @@
 # Newly added groups should be handled by adding to the $tmp.cull-list
 # file below, using the pmlogconf "tag", e.g. networking/nfs2-client, and
 # possibly removing the block of related changes in all the *.out files
+#
+# Newly added metrics within a group we care about should be culled
+# in _filter().
+#
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -36,6 +40,8 @@ echo "QA output created by $seq"
 _filter()
 {
     sed \
+	-e '/network.interface.out.fifo/d' \
+	-e '/network.interface.in.fifo/d' \
 	-e "s;$PCP_VAR_DIR;\$PCP_VAR_DIR;g" \
 	-e '/^[0-9]/d'
 }
@@ -53,6 +59,7 @@ networking/nfs4-client
 networking/nfs4-server
 tools/atop
 tools/collectl
+tools/dmcache
 tools/mpstat
 tools/vmstat
 tools/iostat

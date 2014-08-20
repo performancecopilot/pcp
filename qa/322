@@ -105,7 +105,6 @@ End-of-File
 	    if [ $i = 10 ]
 	    then
 		echo "Arrgh ... pmlogger (pid=$pid) on host $host failed to start after 20 seconds"
-		sleep 1000
 		exit 1
 	    fi
 	fi

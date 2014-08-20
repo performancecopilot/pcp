@@ -35,6 +35,31 @@ s/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/
 }'
 }
 
+# Made more compilcated by non-determinism in the output from
+# the PMNS traversal commands "traverse" and "children".
+# Need to slice output horizontally, sort some sections then
+# concatenate sections .. yuk.
+#
+_filter2()
+{
+    rm -f $tmp.0 $tmp.1 $tmp.2 $tmp.3 $tmp.4
+    ${PCP_AWK_PROG} '
+BEGIN		{ part=0 }
+		{ print $0 >"'$tmp.'" part }
+part==0 && /^Metric: news$/			{ part=1; next }
+part==1 && /> children news.articles$/		{ part=2; next }
+part==2 && /^Metric: news.articles$/		{ part=3; next }
+part==3 && /> children news.articles.count$/	{ part=4; next }'
+
+    [ -f $tmp.1 ] && LC_COLLATE=POSIX sort -o $tmp.1 $tmp.1
+    [ -f $tmp.1 ] && LC_COLLATE=POSIX sort -o $tmp.3 $tmp.3
+
+    for i in 0 1 2 3 4
+    do
+	[ -f $tmp.$i ] && cat $tmp.$i
+    done
+}
+
 cat >$tmp.pmns <<End-of-File
 /* need local pmns in case the news PMDA is not installed */
 root {
@@ -91,7 +116,7 @@ quit
 End-of-File
 
 cat $tmp.out >>$here/$seq.full
-_filter <$tmp.out
+_filter <$tmp.out | _filter2
 
 # ensure news pmda is all done ...
 #

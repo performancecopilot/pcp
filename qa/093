@@ -30,7 +30,7 @@ _filter()
 
 # real QA test starts here
 echo "=== src/foo ==="
-src/interp2 -a src/foo | _filter 79 82 5 15
+src/interp2 -a src/foo | _filter 79 82 4 15
 
 echo
 echo "=== src/ok-bigbin ==="

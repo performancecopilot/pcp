@@ -65,6 +65,7 @@ install_pcp :  default_pcp
 ifneq "$(findstring $(TARGET_OS),darwin mingw)" ""
 	# for Linux, this one comes from the chkconfig package
 	$(INSTALL) -m 755 -d $(PCP_RC_DIR)
+	$(INSTALL) -m 755 -d $(PCP_SASLCONF_DIR)
 endif
 ifeq ($(TARGET_OS),mingw)
 	# for Linux, this group comes from the filesystem package

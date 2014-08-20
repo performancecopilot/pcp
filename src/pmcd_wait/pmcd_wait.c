@@ -117,7 +117,7 @@ main(int argc, char **argv)
 	    (void)pmDestroyContext(sts);
 	    exit(EXIT_STS_SUCCESS);
 	}
-	if (sts == -ECONNREFUSED || sts == PM_ERR_IPC) {
+	if (sts == -ECONNREFUSED || sts == -ENOENT || sts == PM_ERR_IPC) {
 	    static const struct timeval onesec = { 1, 0 };
 
 	    delta_count--;

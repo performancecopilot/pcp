@@ -877,17 +877,17 @@ def main(stdscr_p):
                     stdscr.timeout(-1)
                     # currently it just does "hit any key to continue"
                     char = stdscr.getch()
-                elif cmd == "h":
-                    stdscr.clear()
-                    stdscr.move(0, 0)
-                    stdscr.addstr('\nOptions shown for active processes:\n')
-                    stdscr.addstr("'g'  - generic info (default)\n")
-                    stdscr.addstr("'m'  - memory details\n")
-                    stdscr.addstr("Miscellaneous commands:\n")
-                    stdscr.addstr("'z'  - pause-button to freeze current sample (toggle)\n")
-                    stdscr.addstr("^L   - redraw the screen\n")
-                    stdscr.addstr("hit any key to continue\n")
-                    stdscr.timeout(-1)
+                elif cmd == "h" or cmd == "?":
+                    stdscr.clear ()
+                    stdscr.move (0, 0)
+                    stdscr.addstr ('\nOptions shown for active processes:\n')
+                    stdscr.addstr ( "'g'  - generic info (default)\n")
+                    stdscr.addstr ( "'m'  - memory details\n")
+                    stdscr.addstr ( "Miscellaneous commands:\n")
+                    stdscr.addstr ("'z'  - pause-button to freeze current sample (toggle)\n")
+                    stdscr.addstr ("^L   - redraw the screen\n")
+                    stdscr.addstr ("hit any key to continue\n")
+y                    stdscr.timeout(-1)
                     char = stdscr.getch()
                     stdscr.clear()
                 elif cmd in ['g', 'm']:

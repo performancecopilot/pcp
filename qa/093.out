@@ -3,17 +3,17 @@ QA output created by 093
 start: TIMESTAMP
 end: TIMESTAMP
 step: 100 msec
-0% TIMESTAMP N forw + M back = 79-82 5-15 log reads
-10% TIMESTAMP N forw + M back = 79-82 5-15 log reads
-20% TIMESTAMP N forw + M back = 79-82 5-15 log reads
-30% TIMESTAMP N forw + M back = 79-82 5-15 log reads
-40% TIMESTAMP N forw + M back = 79-82 5-15 log reads
-50% TIMESTAMP N forw + M back = 79-82 5-15 log reads
-60% TIMESTAMP N forw + M back = 79-82 5-15 log reads
-70% TIMESTAMP N forw + M back = 79-82 5-15 log reads
-80% TIMESTAMP N forw + M back = 79-82 5-15 log reads
-90% TIMESTAMP N forw + M back = 79-82 5-15 log reads
-100% TIMESTAMP N forw + M back = 79-82 5-15 log reads
+0% TIMESTAMP N forw + M back = 79-82 4-15 log reads
+10% TIMESTAMP N forw + M back = 79-82 4-15 log reads
+20% TIMESTAMP N forw + M back = 79-82 4-15 log reads
+30% TIMESTAMP N forw + M back = 79-82 4-15 log reads
+40% TIMESTAMP N forw + M back = 79-82 4-15 log reads
+50% TIMESTAMP N forw + M back = 79-82 4-15 log reads
+60% TIMESTAMP N forw + M back = 79-82 4-15 log reads
+70% TIMESTAMP N forw + M back = 79-82 4-15 log reads
+80% TIMESTAMP N forw + M back = 79-82 4-15 log reads
+90% TIMESTAMP N forw + M back = 79-82 4-15 log reads
+100% TIMESTAMP N forw + M back = 79-82 4-15 log reads
 
 === src/ok-bigbin ===
 start: TIMESTAMP

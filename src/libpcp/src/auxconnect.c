@@ -15,6 +15,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include <net/if.h>
 #define SOCKET_INTERNAL
 #include "internal.h"
 
@@ -1237,8 +1238,34 @@ __pmStringToSockAddr(const char *cp)
 	    else
 #endif
 	    if (strchr(cp, ':') != NULL) {
-		addr->sockaddr.raw.sa_family = AF_INET6;
-	        sts = inet_pton(AF_INET6, cp, &addr->sockaddr.ipv6.sin6_addr);
+		char *cp1;
+		char *scope;
+		/*
+		 * inet_pton(3) does not support the "%<interface>" extension for specifying the
+		 * scope of a link-local address. If one is present, then strip it out and
+		 * set the scope_id manually.
+		 */
+		if ((scope = strchr(cp, '%')) != NULL) {
+		    size_t size = scope - cp;
+		    ++scope; /* get past the '%' */
+		    if ((cp1 = malloc(size + 1)) == NULL)
+			sts = -1;
+		    else {
+			strncpy(cp1, cp, size);
+			cp1[size] = '\0';
+		    }
+		    cp = cp1;
+		}
+		if (cp != NULL) {
+		    addr->sockaddr.raw.sa_family = AF_INET6;
+		    sts = inet_pton(AF_INET6, cp, &addr->sockaddr.ipv6.sin6_addr);
+		    if (scope != NULL) {
+			free(cp1);
+			/* Manually set the scope_id */
+			if ((addr->sockaddr.ipv6.sin6_scope_id = if_nametoindex(scope)) == 0)
+			    sts = -1;
+		    }
+		}
 	    }
 	    else {
 		addr->sockaddr.raw.sa_family = AF_INET;

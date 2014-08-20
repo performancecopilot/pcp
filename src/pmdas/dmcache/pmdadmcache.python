@@ -58,6 +58,8 @@ class DmCacheStats(Structure):
                 <#demotions> <#promotions> <#dirty> <#features> <features>*
         '''
         data = line.replace('/', ' ').split(' ')
+        if len(data) < 19:
+            raise ValueError(line)
         mbsize = long(data[4]) * 512	# metadata block size (from sectors)
         cbsize = long(data[7]) * 512	# cachedev block size (from sectors)
 
@@ -204,6 +206,8 @@ class DmCachePMDA(PMDA):
 
         self.caches.clear()
         for line in output.splitlines():
+            if 'No devices found' in line:
+                continue
             name = line[:line.find(':')]            # extract cache name
             self.caches[name] = DmCacheStats(line)  # extract stats values
         self.replace_indom(self.cache_indom, self.caches)

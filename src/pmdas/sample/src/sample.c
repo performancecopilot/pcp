@@ -1153,7 +1153,7 @@ init_tables(int dom)
     pmidp->domain = dom;
 
     /* local hacks */
-    _string = (char *)malloc(3);
+    _string = (char *)calloc(1, 8);
     strncpy(_string, "13", sizeof("13"));
     _aggr33 = (pmValueBlock *)malloc(PM_VAL_HDR_SIZE);
     _aggr33->vlen = PM_VAL_HDR_SIZE + 0;

@@ -9,11 +9,13 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	network.interface.out.packets
 	network.interface.out.errors
 	network.interface.out.drops
+	network.interface.out.fifo
 	network.interface.out.carrier
 	network.interface.collisions
 	network.interface.in.bytes
 	network.interface.in.packets
 	network.interface.in.errors
 	network.interface.in.drops
+	network.interface.in.fifo
 	network.interface.total.mcasts
 
