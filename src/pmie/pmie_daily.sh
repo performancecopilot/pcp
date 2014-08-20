@@ -68,7 +68,7 @@ CULLAFTER=14
 #
 COMPRESS=bzip2
 COMPRESSAFTER=""
-COMPRESSREGEX="\.meta$|\.index$|\.Z$|\.gz$|\.bz2$|\.zip$|\.xz$"
+COMPRESSREGEX="\.meta$|\.index$|\.Z$|\.gz$|\.bz2$|\.zip$|\.xz$|\.lzo$"
 
 # mail addresses to send daily logfile summary to
 #
