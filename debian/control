@@ -2,9 +2,9 @@ Source: pcp
 Section: utils
 Priority: extra
 Homepage: http://www.performancecopilot.org
-Maintainer: PCP Development Team <pcp@mail.performancecopilot.org>
+Maintainer: PCP Development Team <pcp@oss.sgi.com>
 Uploaders: Nathan Scott <nathans@debian.org>, Anibal Monsalve Salazar <anibal@debian.org>
-Build-Depends: bison, flex, gawk, procps, pkg-config, debhelper (>= 5), perl (>= 5.6), libreadline-dev | libreadline5-dev | libreadline-gplv2-dev, chrpath, libbsd-dev [kfreebsd-any], libkvm-dev [kfreebsd-any], python-all, python-all-dev, libnspr4-dev, libnss3-dev, libsasl2-dev, libmicrohttpd-dev, libavahi-common-dev, libqt4-dev, autotools-dev
+Build-Depends: bison, flex, gawk, procps, pkg-config, debhelper (>= 5), perl (>= 5.6), libreadline-dev | libreadline5-dev | libreadline-gplv2-dev, chrpath, libbsd-dev [kfreebsd-any], libkvm-dev [kfreebsd-any], python-all, python-all-dev, libnspr4-dev, libnss3-dev, libsasl2-dev, libmicrohttpd-dev, libavahi-common-dev, libqt4-dev, autotools-dev, autoconf
 #Architecture-dependent -- Build-Depends: libibumad-dev, libibmad-dev
 Standards-Version: 3.9.3
 X-Python-Version: >= 2.6

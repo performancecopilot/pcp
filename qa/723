@@ -17,6 +17,11 @@ pid=$$
 test $PCP_VER -ge 3805 || _notrun "No support for new proc label metric"
 test $PCP_PLATFORM = linux || _notrun "Test unsupported on $PCP_PLATFORM"
 test -f /proc/$pid/attr/current || _notrun "No kernel support for labels"
+# for some kernels, /proc/$pid/attr/current exists, but attempts to
+# access the "file" produce and Invalid argument error
+#
+cat /proc/$$/attr/current >/dev/null 2>&1 || _notrun "Incomplete kernel support for labels"
+
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
@@ -24,6 +29,7 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 $sudo rm -f $seq.full
+#debug# ls -l /proc/$pid/attr/current
 syslabel=`cat /proc/$pid/attr/current`
 echo "SYS Label for process $pid is: $syslabel" >> $seq.full
 

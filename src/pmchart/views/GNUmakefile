@@ -4,7 +4,7 @@ include $(TOPDIR)/src/include/builddefs
 VIEWDIR = $(PCP_VAR_DIR)/config/pmchart
 VIEWS	= CPU Disk Diskbytes Loadavg NFS2 NFS3 Filesystem Memory Netbytes \
 	  Netpackets PMCD Syscalls Paging Overview Schemes Sockets Swap \
-	  ApacheServer ElasticsearchServer
+	  ApacheServer ElasticsearchServer vCPU MemAvailable
 
 LSRCFILES = $(VIEWS)
 

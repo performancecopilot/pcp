@@ -1,7 +1,7 @@
 /*
- * Linux /proc/net_dev metrics cluster
+ * Linux /proc/net/dev metrics cluster
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -18,7 +18,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-#include <sys/types.h>
+#include "indom.h"
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <net/if.h>
@@ -127,15 +127,15 @@ read_oneline(const char *path, char *buffer)
 static void
 refresh_net_dev_sysfs(char *name, net_interface_t *netip)
 {
-    char path[256];
+    char path[MAXPATHLEN];
     char line[64];
     char *duplex;
 
-    snprintf(path, sizeof(path), "/sys/class/net/%s/speed", name);
+    snprintf(path, sizeof(path), "%s/sys/class/net/%s/speed", linux_statspath, name);
     path[sizeof(path)-1] = '\0';
     netip->ioc.speed = atoi(read_oneline(path, line));
 
-    snprintf(path, sizeof(path), "/sys/class/net/%s/duplex", name);
+    snprintf(path, sizeof(path), "%s/sys/class/net/%s/duplex", linux_statspath, name);
     path[sizeof(path)-1] = '\0';
     duplex = read_oneline(path, line);
 
@@ -150,11 +150,11 @@ refresh_net_dev_sysfs(char *name, net_interface_t *netip)
 static void
 refresh_net_hw_addr(char *name, net_addr_t *netip)
 {
-    char path[256];
+    char path[MAXPATHLEN];
     char line[64];
     char *value;
 
-    snprintf(path, sizeof(path), "/sys/class/net/%s/address", name);
+    snprintf(path, sizeof(path), "%s/sys/class/net/%s/address", linux_statspath, name);
     path[sizeof(path)-1] = '\0';
 
     value = read_oneline(path, line);
@@ -178,7 +178,7 @@ refresh_proc_net_dev(pmInDom indom)
     static uint64_t	gen;	/* refresh generation number */
     static uint32_t	cache_err;
 
-    if ((fp = fopen("/proc/net/dev", "r")) == (FILE *)0)
+    if ((fp = linux_statsfile("/proc/net/dev", buf, sizeof(buf))) == NULL)
     	return -oserror();
 
     if (gen == 0) {
@@ -340,12 +340,13 @@ refresh_net_dev_ipv6_addr(pmInDom indom)
     char addr6p[8][5];
     char addr6[40], devname[20+1];
     char addr[INET6_ADDRSTRLEN];
+    char buf[MAXPATHLEN];
     struct sockaddr_in6 sin6;
     int sts, plen, scope, dad_status, if_idx;
     net_addr_t *netip;
     static uint32_t cache_err;
 
-    if ((fp = fopen("/proc/net/if_inet6", "r")) == NULL)
+    if ((fp = linux_statsfile("/proc/net/if_inet6", buf, sizeof(buf))) == NULL)
 	return 0;
 
     while (fscanf(fp, "%4s%4s%4s%4s%4s%4s%4s%4s %02x %02x %02x %02x %20s\n",

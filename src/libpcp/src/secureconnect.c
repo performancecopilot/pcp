@@ -1672,19 +1672,13 @@ __pmBind(int fd, void *addr, __pmSockLen addrlen)
     return bind(fd, (struct sockaddr *)addr, addrlen);
 }
 
-int
-__pmConnect(int fd, void *addr, __pmSockLen addrlen)
+static int
+nsprConnect(int fd, void *addr, __pmSockLen addrlen, PRIntervalTime timeout)
 {
     __pmSecureSocket socket;
 
     if (__pmDataIPC(fd, &socket) == 0 && socket.nsprFd) {
-	PRIntervalTime timer;
-	int msec;
-	PRStatus sts;
-
-	msec = __pmConvertTimeout(TIMEOUT_CONNECT);
-	timer = PR_MillisecondsToInterval(msec);
-	sts = PR_Connect(socket.nsprFd, (PRNetAddr *)addr, timer);
+	PRStatus sts = PR_Connect(socket.nsprFd, (PRNetAddr *)addr, timeout);
 #ifdef PCP_DEBUG
 	if ((pmDebug & DBG_TRACE_CONTEXT) && (pmDebug & DBG_TRACE_DESPERATE)) {
 	    PRStatus	prStatus;
@@ -1706,6 +1700,20 @@ __pmConnect(int fd, void *addr, __pmSockLen addrlen)
 	return (sts == PR_SUCCESS) ? 0 : -1;
     }
     return connect(fd, (struct sockaddr *)addr, addrlen);
+}
+
+int
+__pmConnect(int fd, void *addr, __pmSockLen addrlen)
+{
+    /* Connect using the timeout of the underlying OS. */
+    return nsprConnect(fd, addr, addrlen, PR_INTERVAL_NO_TIMEOUT);
+}
+
+int
+__pmConnectWithFNDELAY(int fd, void *addr, __pmSockLen addrlen)
+{
+    /* Connect using no delay. */
+    return nsprConnect(fd, addr, addrlen, PR_INTERVAL_NO_WAIT);
 }
 
 int

@@ -31,7 +31,7 @@ get_pminfo()
             }
         }
         close STATS;
-    ' | LC_COLLATE=POSIX sort
+    '
 }
 
 get_nfsstat()
@@ -49,7 +49,7 @@ get_nfsstat()
 	    # another NFS version.
 	    elsif (m/client nfs v4/i)       { $prefix = ""; }
 	    elsif (m/server nfs v4/i)	    { $prefix = ""; }
-    	    elsif ($prefix == "")	    { next; }
+    	    elsif ($prefix eq "")	    { next; }
 	    elsif (m/((\d+)\s+\d+%)+/g) {
 		@values = split(/\s+/);
 		#print "found - @values, @instances\n";
@@ -63,7 +63,7 @@ get_nfsstat()
 	    }
 	}
 	close STATS;
-    ' | LC_COLLATE=POSIX sort
+    '
 }
 
 # real QA test starts here
@@ -84,11 +84,12 @@ chmod u+x $tmp.workload
 $tmp.workload >/dev/null 2>&1
 sleep 2
 
-rm -f $tmp.info $tmp.stat $tmp.join $seq.full
+rm -f $tmp.info $tmp.stat $tmp.join $seq.full $tmp.info2 $tmp.stat2
 
 echo | tee -a $seq.full
 echo "fetching nfsstat values..." | tee -a $seq.full
 get_nfsstat 2>$tmp.err | tee -a $seq.full >$tmp.stat 
+LC_COLLATE=POSIX sort -d < $tmp.stat > $tmp.stat2
 ( echo "stderr from get_nfsstat ..."; cat $tmp.err ) >>$seq.full
 
 echo | tee -a $seq.full
@@ -101,7 +102,7 @@ LC_COLLATE=POSIX sort -d < $tmp.info > $tmp.info2
 
 echo | tee -a $seq.full
 echo "comparing all values... (details in $seq.full)" | tee -a $seq.full
-join $tmp.info2 $tmp.stat | while read metric nfsvalue pmvalue
+LC_COLLATE=POSIX join $tmp.info2 $tmp.stat2 | while read metric nfsvalue pmvalue
 do
 	_within_tolerance $metric $nfsvalue $pmvalue 2% -v >>$seq.full
 	[ $? -eq 1 ] && echo failed cross check on $metric: $nfsvalue $pmvalue

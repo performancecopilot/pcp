@@ -33,8 +33,8 @@ cndMatch_inst(Expr *x)
 {
     Expr        *arg1 = x->arg1;
     Expr        *arg2 = x->arg2;
-    Truth	*ip1;
-    Truth	*op;
+    Boolean	*ip1;
+    Boolean	*op;
     int		n;
     int         i;
     int		sts;
@@ -64,16 +64,16 @@ cndMatch_inst(Expr *x)
 	mi = 0;
 	m = &arg1->metrics[mi++];
 	i = 0;
-	ip1 = (Truth *)(&arg1->smpls[0])->ptr;
-	op = (Truth *)(&x->smpls[0])->ptr;
+	ip1 = (Boolean *)(&arg1->smpls[0])->ptr;
+	op = (Boolean *)(&x->smpls[0])->ptr;
 
 	for (n = 0; n < arg1->tspan; n++) {
 
 	    if (!arg2->valid || !arg1->valid) {
-		*op++ = DUNNO;
+		*op++ = B_UNKNOWN;
 	    }
 	    else if (x->e_idom <= 0) {
-		*op++ = FALSE;
+		*op++ = B_FALSE;
 	    }
 	    else {
 		while (i >= m->m_idom) {
@@ -85,7 +85,7 @@ cndMatch_inst(Expr *x)
 		}
 
 		if (m->inames == NULL) {
-		    *op++ = FALSE;
+		    *op++ = B_FALSE;
 		}
 		else {
 		    sts = regexec((regex_t *)arg2->ring, m->inames[i], 0, NULL, 0);
@@ -94,25 +94,25 @@ cndMatch_inst(Expr *x)
 			if (x->op == CND_MATCH && sts != REG_NOMATCH) {
 			    fprintf(stderr, "match_inst: inst=\"%s\" match && %s\n",
 				m->inames[i],
-				*ip1 == TRUE ? "true" :
-				    (*ip1 == FALSE ? "false" :
-					(*ip1 == DUNNO ? "unknown" : "bogus" )));
+				*ip1 == B_TRUE ? "true" :
+				    (*ip1 == B_FALSE ? "false" :
+					(*ip1 == B_UNKNOWN ? "unknown" : "bogus" )));
 
 			}
 			else if (x->op == CND_NOMATCH && sts == REG_NOMATCH) {
 			    fprintf(stderr, "match_inst: inst=\"%s\" nomatch && %s\n",
 				m->inames[i],
-				*ip1 == TRUE ? "true" :
-				    (*ip1 == FALSE ? "false" :
-					(*ip1 == DUNNO ? "unknown" : "bogus" )));
+				*ip1 == B_TRUE ? "true" :
+				    (*ip1 == B_FALSE ? "false" :
+					(*ip1 == B_UNKNOWN ? "unknown" : "bogus" )));
 			}
 		    }
 #endif
 		    if ((x->op == CND_MATCH && sts != REG_NOMATCH) ||
 			(x->op == CND_NOMATCH && sts == REG_NOMATCH))
-			*op++ = *ip1 && TRUE;
+			*op++ = *ip1 && B_TRUE;
 		    else
-			*op++ = *ip1 && FALSE;
+			*op++ = *ip1 && B_FALSE;
 		}
 		i++;
 	    }

@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.9.5
+Version: 3.9.10
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -9,8 +9,12 @@ URL: http://www.performancecopilot.org
 Group: Applications/System
 Source0: pcp-%{version}.src.tar.gz
 
-%define disable_qt 0
 %define disable_microhttpd 0
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+%define disable_qt 0
+%else
+%define disable_qt 1
+%endif
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: procps autoconf bison flex
@@ -51,6 +55,7 @@ Requires: pcp-libs = %{version}-%{release}
 Requires: python-pcp = %{version}-%{release}
 Requires: perl-PCP-PMDA = %{version}-%{release}
 Obsoletes: pcp-gui-debuginfo
+Obsoletes: pcp-pmda-nvidia
 
 %global tapsetdir      %{_datadir}/systemtap/tapset
 
@@ -384,7 +389,9 @@ monitoring systems using live and archived Performance Co-Pilot
 #
 %package -n pcp-doc
 Group: Documentation
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
 BuildArch: noarch
+%endif
 Summary: Documentation and tutorial for the Performance Co-Pilot
 URL: http://www.performancecopilot.org
 
@@ -470,10 +477,12 @@ ls -1 $RPM_BUILD_ROOT/%{_booksdir} |\
   sed -e 's#^#'%{_booksdir}'\/#' > pcp-doc.list
 ls -1 $RPM_BUILD_ROOT/%{_datadir}/pcp/demos/tutorials |\
   sed -e 's#^#'%{_datadir}/pcp/demos/tutorials'\/#' >>pcp-doc.list
+%if !%{disable_qt}
 ls -1 $RPM_BUILD_ROOT/%{_pixmapdir} |\
   sed -e 's#^#'%{_pixmapdir}'\/#' > pcp-gui.list
 cat base_bin.list base_exec.list base_man.list |\
   egrep "$PCP_GUI" >> pcp-gui.list
+%endif
 cat base_pmdas.list base_bin.list base_exec.list base_man.list |\
   egrep -v 'pmdaib|pmmgr|pmweb|2pcp' |\
   egrep -v "$PCP_GUI|pixmaps|pcp-doc|tutorials" |\
@@ -829,8 +838,25 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root,-)
 
 %changelog
+* Fri Sep 05 2014 Nathan Scott <nathans@redhat.com> - 3.9.10-1
+- Update to latest PCP sources.
+
+* Wed Aug 13 2014 Nathan Scott <nathans@redhat.com> - 3.9.9-1
+- Update to latest PCP sources.
+
+* Wed Jul 16 2014 Mark Goodwin <mgoodwin@redhat.com> - 3.9.7-1
+- Update to latest PCP sources.
+
 * Wed Jun 18 2014 Dave Brolley <brolley@redhat.com> - 3.9.5-1
-- Under development.
+- Daemon signal handlers no longer use unsafe APIs (BZ 847343)
+- Handle /var/run setups on a temporary filesystem (BZ 656659)
+- Resolve pmlogcheck sigsegv for some archives (BZ 1077432)
+- Ensure pcp-gui-{testsuite,debuginfo} packages get replaced.
+- Revive support for EPEL5 builds, post pcp-gui merge.
+- Update to latest PCP sources.
+
+* Fri Jun 06 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.9.4-1.1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
 
 * Thu May 15 2014 Nathan Scott <nathans@redhat.com> - 3.9.4-1
 - Merged pcp-gui and pcp-doc packages into core PCP.

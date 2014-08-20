@@ -537,3 +537,4 @@ then
 fi
 
 sts=0
+exit

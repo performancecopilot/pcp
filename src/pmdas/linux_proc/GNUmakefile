@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2007-2010 Aconex.  All Rights Reserved.
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2014 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -25,11 +25,11 @@ PMDAINIT	= proc_init
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 CONF_LINE	= "proc	3	pipe	binary		$(PMDADIR)/$(CMDTARGET) -d 3"
 
-CFILES		= pmda.c cgroups.c filesys.c proc_pid.c proc_runq.c \
-		  ksym.c getinfo.c contexts.c
+CFILES		= pmda.c \
+		  cgroups.c proc_pid.c proc_runq.c ksym.c getinfo.c contexts.c
 
-HFILES		= cgroups.h clusters.h proc_pid.h indom.h getinfo.h \
-		  proc_runq.h ksym.h filesys.h contexts.h
+HFILES		= clusters.h indom.h \
+		  cgroups.h proc_pid.h proc_runq.h ksym.h getinfo.h contexts.h
 
 SCRIPTS		= Install Remove
 VERSION_SCRIPT	= exports
@@ -82,9 +82,8 @@ cgroups.o pmda.o: clusters.h
 cgroups.o pmda.o:	cgroups.h
 cgroups.o pmda.o proc_pid.o proc_runq.o:	proc_pid.h
 pmda.o proc_runq.o:	proc_runq.h
-filesys.o:	filesys.h
+indom.o pmda.o:	indom.h
 ksym.o pmda.o:		ksym.h
 pmda.o:	domain.h
-pmda.o:	indom.h
 pmda.o:	getinfo.h
 pmda.o:	$(VERSION_SCRIPT)

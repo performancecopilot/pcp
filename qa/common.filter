@@ -198,6 +198,7 @@ _filter_optional_pmdas()
 	-e '/pmdabrocade/d' \
 	-e '/pmdacisco/d' \
 	-e '/pmdadbping/d' \
+	-e '/pmdadmcache/d' \
 	-e '/pmdadmf/d' \
 	-e '/pmda_environ/d' \
 	-e '/pmdaelasticsearch/d' \
@@ -230,6 +231,7 @@ _filter_optional_pmdas()
 	-e '/pmdanetprobe/d' \
 	-e '/pmdanews/d' \
 	-e '/pmdanginx/d' \
+	-e '/pmdanvidia/d' \
 	-e '/pmdaoracle/d' \
 	-e '/pmdaoraping/d' \
 	-e '/pmdapdns/d' \
@@ -283,6 +285,7 @@ _filter_top_pmns()
 	-e '/^    cisco /d' \
 	-e '/^    datatape /d' \
 	-e '/^    dbping /d' \
+	-e '/^    dmcache /d' \
 	-e '/^    dmf /d' \
 	-e '/^    elasticsearch /d' \
 	-e '/^    environ /d' \
@@ -310,6 +313,7 @@ _filter_top_pmns()
 	-e '/^    netprobe /d' \
 	-e '/^    news /d' \
 	-e '/^    nginx /d' \
+	-e '/^    nvidia /d' \
 	-e '/^    oracle /d' \
 	-e '/^    oraping /d' \
 	-e '/^    pdns /d' \
@@ -649,6 +653,7 @@ _filter_torture_api()
 	-e '/^    cihb /d' \
 	-e '/^    cms /d' \
 	-e '/^    cxfs /d' \
+	-e '/^    dmcache /d' \
 	-e '/^    dynamic /d' \
 	-e '/^    elasticsearch /d' \
 	-e '/^    engr /d' \
@@ -668,6 +673,7 @@ _filter_torture_api()
 	-e '/^    nasavg /d' \
 	-e '/^    netfilter /d' \
 	-e '/^    numa /d' \
+	-e '/^    nvidia /d' \
 	-e '/^    origin /d' \
 	-e '/^    pdns /d' \
 	-e '/^    p76 /d' \

@@ -1,0 +1,66 @@
+#!/bin/sh
+#
+# Convert an rpm(1) --version string into an 7 or more digit number that
+# can be used in %if comparisons in a specfile.
+#
+# The first part of the rpm verson has no leading zero, parts after that
+# (up to 3 more) are fixed width 2 digits with leading zero if needed.
+#
+# rpm --version produces text like
+# 	RPM version 4.4.2.3
+# and this is mapped to 4040203 and .0 is implied for any missing parts
+# of the version string, so 4.7 becomes 4070000 for example.
+#
+# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+
+tmp=/var/tmp/$$
+sts=0
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+# try to get required command pathnames from ../../src/include/builddefs
+#
+if [ -f ../../src/include/builddefs ]
+then
+    rpm=`sed <../../src/include/builddefs -n -e '/^RPM[ 	]*=/s/^RPM[ 	]*=[ 	]*//p'`
+    awk=`sed <../../src/include/builddefs -n -e '/^AWK[ 	]*=/s/^AWK[ 	]*=[ 	]*//p'`
+fi
+
+# otherwise use vanilla defaults
+#
+[ -z "$rpm" ] && rpm=rpm
+[ -z "$awk" ] && awk=awk
+
+if `which $rpm >/dev/null 2>&1`
+then
+    :
+else
+    echo "$0: Arrgh ... $rpm not found, why am I being run?"
+    sts=1
+    exit
+fi
+
+#debug# echo "rpm=$rpm"
+#debug# echo "awk=$awk"
+
+cat <<'End-of-File' >$tmp.awk
+{ for (i = NF+1; i <= 4; i++) $i = 0
+  printf "%d%02d%02d%02d\n",$1,$2,$3,$4
+}
+End-of-File
+
+# translate rpm --version output
+#
+$rpm --version \
+| sed -e 's/.* \([0-9]\)/\1/' \
+| eval $awk -F. -f $tmp.awk

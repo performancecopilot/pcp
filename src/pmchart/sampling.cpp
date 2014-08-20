@@ -566,7 +566,6 @@ void
 SamplingEngine::redoScale(void)
 {
     bool	rescale = false;
-    pmUnits	oldunits = my.units;
 
     // The 1,000 and 0.1 thresholds are just a heuristic guess.
     //

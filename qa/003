@@ -52,9 +52,11 @@ pmie_filter()
 linux_filter()
 {
     sed \
+	-e "/disk\.dm\..*: $unavailable/d" \
 	-e "/filesys\.readonly: $unknown/d" \
 	-e "/hinv\.nlv: $unavailable/d" \
 	-e "/hinv\.cpu\..*: $unavailable/d" \
+	-e "/hinv\.map\.dmname: $unavailable/d" \
 	-e "/kernel\.pernode..*: $unavailable/d" \
 	-e "/mem\.util\.active_anon: $unavailable/d" \
 	-e "/mem\.util\.active_file: $unavailable/d" \
@@ -122,6 +124,7 @@ sample_filter()
 {
     sed -e "/sample\.bad\.nosupport: $nosupport/d" \
 	-e "/sample\.bad\.unknown: $unknown/d" \
+	-e "/sample\.bad\.novalues: $unavailable/d" \
 	-e "/sample\.needprofile: $explicit/d" \
 	-e "/sample\.noinst: $unavailable/d" \
 	-e "/sample\.dynamic\.counter: $unavailable/d" \
@@ -133,6 +136,7 @@ sample_filter()
 	-e "/sample\.event\.param_.*: $unavailable/d" \
 	-e "/sampledso\.bad\.nosupport: $nosupport/d" \
 	-e "/sampledso\.bad\.unknown: $unknown/d" \
+	-e "/sampledso\.bad\.novalues: $unavailable/d" \
 	-e "/sampledso\.needprofile: $explicit/d" \
 	-e "/sampledso\.noinst: $unavailable/d" \
 	-e "/sampledso\.dynamic\.counter: $unavailable/d" \

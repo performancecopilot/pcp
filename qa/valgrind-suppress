@@ -94,3 +94,11 @@
    ...
    fun:NSS*
 }
+
+{
+   NSPR library leak catch-all
+   Memcheck:Leak
+   fun:?alloc
+   ...
+   fun:PR_*
+}

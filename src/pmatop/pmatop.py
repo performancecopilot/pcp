@@ -56,12 +56,12 @@ except ImportError as e:
 ME = "pmatop"
 
 def debug(mssg):
-    fdesc = open("/tmp/,python", mode="a")
+    import logging
+    logging.basicConfig(filename='pmatop.log',level=logging.DEBUG)
     if type(mssg) == type(""):
-        fdesc.write(mssg)
+        logging.debug(mssg)
     else:
-        fdesc.write(str(mssg) + "\n")
-    fdesc.close()
+        logging.debug(str(mssg) + "\n")
 
 
 # scale  -------------------------------------------------------------
@@ -708,6 +708,7 @@ class _Options(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option_callback)
         opts.pmSetOverrideCallback(self.override)
+        # leading - returns args that are not options with leading ^A
         opts.pmSetShortOptions("-gmw:r:L:h:V?")
         opts.pmSetLongOptionHeader("Options")
         opts.pmSetLongOption("generic", 0, 'g', '', "Display generic metrics")
@@ -715,6 +716,7 @@ class _Options(object):
         opts.pmSetLongOption("write", 1, 'w', 'FILENAME', "Write metric data to file")
         opts.pmSetLongOption("read", 1, 'r', 'FILENAME', "Read metric data from file")
         opts.pmSetLongOption("width", 1, 'L', 'WIDTH', "Width of the output")
+        opts.pmSetShortUsage("[options]\nInteractive: [-g|-m] [-L linelen] [-h host] [ interval [ samples ]]\nWrite raw logfile: pmatop -w rawfile [ interval [ samples ]]\nRead raw logfile: pmatop -r [ rawfile ] [-g|-m] [-L linelen] [-h host]")
         opts.pmSetLongOptionHost()
         opts.pmSetLongOptionVersion()
         opts.pmSetLongOptionHelp()
@@ -740,6 +742,7 @@ class _Options(object):
             self.output_file = optarg
             self.create_archive = True
         elif opt == "r":
+            self.opts.pmSetOptionArchiveFolio(optarg)
             self.input_file = optarg
             self.replay_archive = True
         elif opt == "L":
@@ -747,10 +750,8 @@ class _Options(object):
         elif opt == 'h':
             self.host = optarg
         elif opt == "":
-            debug(self.have_interval_arg)
             if self.have_interval_arg == False:
                 self.interval_arg = optarg
-                debug(self.interval_arg)
                 self.have_interval_arg = True
             else:
                 self.n_samples = int(optarg)
@@ -779,35 +780,16 @@ def main(stdscr_p):
     net = _NetPrint(ss, stdscr)
     proc = _ProcPrint(ss, stdscr)
 
-    opts = _Options()
-    try:
-        pmc = pmapi.pmContext.fromOptions(opts.opts, sys.argv)
-    except pmapi.pmUsageErr, usage:
-        usage.message()
-        sys.exit(1)
-
     proc.output_type = opts.output_type
     stdscr.width = opts.width
 
-    if opts.replay_archive:
-        archive = opts.input_file
-        if not os.path.exists(opts.input_file):
-            return opts.input_file + " does not exist"
-        for line in open(opts.input_file):
-            if line[:8] == "Archive:":
-                tokens = line[:-1].split()
-                archive = os.path.join(os.path.dirname(opts.input_file), tokens[2])
-        try:
-            pmc = pmapi.pmContext(c_api.PM_CONTEXT_ARCHIVE, archive)
-        except pmapi.pmErr, e:
-            return "Cannot open PCP archive: " + archive
-    else:
-        try:
-            pmc = pmapi.pmContext(target=opts.host)
-        except pmapi.pmErr, e:
-            return "Cannot connect to pmcd on " + opts.host
+    pmc = pmapi.pmContext.fromOptions(opts.opts, sys.argv)
+    if pmc.type == c_api.PM_CONTEXT_ARCHIVE:
+        pmc.pmSetMode(c_api.PM_MODE_FORW, pmapi.timeval(0, 0), 0)
+
 
     host = pmc.pmGetContextHostName()
+
     (delta, errmsg) = pmc.pmParseInterval(str(opts.interval_arg) + " seconds")
 
     ss.setup_metrics(pmc)
@@ -835,7 +817,6 @@ def main(stdscr_p):
 
     try:
         elapsed = ss.get_metric_value('kernel.all.uptime')
-        debug("before while")
         while (i_samples < opts.n_samples) or (opts.n_samples == 0):
             ss.get_stats(pmc)
             stdscr.move(0, 0)
@@ -877,16 +858,16 @@ def main(stdscr_p):
                     stdscr.timeout(-1)
                     # currently it just does "hit any key to continue"
                     char = stdscr.getch()
-                elif cmd == "h":
-                    stdscr.clear()
-                    stdscr.move(0, 0)
-                    stdscr.addstr('\nOptions shown for active processes:\n')
-                    stdscr.addstr("'g'  - generic info (default)\n")
-                    stdscr.addstr("'m'  - memory details\n")
-                    stdscr.addstr("Miscellaneous commands:\n")
-                    stdscr.addstr("'z'  - pause-button to freeze current sample (toggle)\n")
-                    stdscr.addstr("^L   - redraw the screen\n")
-                    stdscr.addstr("hit any key to continue\n")
+                elif cmd == "h" or cmd == "?":
+                    stdscr.clear ()
+                    stdscr.move (0, 0)
+                    stdscr.addstr ('\nOptions shown for active processes:\n')
+                    stdscr.addstr ( "'g'  - generic info (default)\n")
+                    stdscr.addstr ( "'m'  - memory details\n")
+                    stdscr.addstr ( "Miscellaneous commands:\n")
+                    stdscr.addstr ("'z'  - pause-button to freeze current sample (toggle)\n")
+                    stdscr.addstr ("^L   - redraw the screen\n")
+                    stdscr.addstr ("hit any key to continue\n")
                     stdscr.timeout(-1)
                     char = stdscr.getch()
                     stdscr.clear()
@@ -918,6 +899,12 @@ def sigwinch_handler(n, frame):
             break
 
 if __name__ == '__main__':
+    global opts
+    opts = _Options()
+    if c_api.pmGetOptionsFromList(sys.argv) != 0:
+        c_api.pmUsageMessage()
+        sys.exit(1)
+
     if sys.stdout.isatty():
         signal.signal(signal.SIGWINCH, sigwinch_handler)
         try:

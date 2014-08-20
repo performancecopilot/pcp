@@ -4,7 +4,6 @@ version 1
 chart title "CPU Utilization [%h]" style utilization
 	plot legend "User" color #2d2de2 metric kernel.all.cpu.user
 	plot legend "Kernel" color #e71717 metric kernel.all.cpu.sys
-	optional-plot legend "Guest" color #666666 metric kernel.all.cpu.guest
 	optional-plot legend "Nice" color #c2f3c2 metric kernel.all.cpu.nice
 	optional-plot legend "Intr" color #cdcd00 metric kernel.all.cpu.intr
 	optional-plot legend "Wait" color #00cdcd metric kernel.all.cpu.wait.total

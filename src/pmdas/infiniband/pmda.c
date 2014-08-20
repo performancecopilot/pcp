@@ -246,6 +246,42 @@ pmdaMetric metrictab[] = {
 	{PMDA_PMID(2,METRIC_ib_control_hiwat),
 	 PM_TYPE_U32, IB_CNT_INDOM, PM_SEM_DISCRETE, 
 	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+	/* infiniband.port.switch.in.bytes */
+	{ NULL,
+	{PMDA_PMID(3,METRIC_ib_port_switch_in_bytes),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_COUNTER, 
+	 PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+
+	/* infiniband.port.switch.in.packets */
+    { NULL,
+	{PMDA_PMID(3,METRIC_ib_port_switch_in_packets),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_COUNTER, 
+	 PMDA_PMUNITS(0,0,1,0,0,0) } },
+
+	/* infiniband.port.switch.out.bytes */
+	{ NULL,
+	{PMDA_PMID(3,METRIC_ib_port_switch_out_bytes),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_COUNTER, 
+	 PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+
+	/* infiniband.port.switch.out.packets */
+    { NULL,
+	{PMDA_PMID(3,METRIC_ib_port_switch_out_packets),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_COUNTER, 
+	 PMDA_PMUNITS(0,0,1,0,0,0) } },
+
+	/* infiniband.port.switch.total.bytes */
+	{ NULL,
+	{PMDA_PMID(3,METRIC_ib_port_switch_total_bytes),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_COUNTER, 
+	 PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+
+	/* infiniband.port.switch.total.packets */
+    { NULL,
+	{PMDA_PMID(3,METRIC_ib_port_switch_total_packets),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_COUNTER, 
+	 PMDA_PMUNITS(0,0,1,0,0,0) } },
 };
 
 pmdaIndom indomtab[] = {

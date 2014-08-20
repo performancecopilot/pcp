@@ -1,4 +1,4 @@
-all_sample
-    (kernel.all.syscall @0..4 > 10 Kcount/sec * hinv.ncpu)
-	-> shell 5 min "xwsh -e 'top'";
+all_sample (
+    kernel.all.pswitch @0..9 > 10 Kcount/sec * hinv.ncpu
+) -> shell 5 min "xwsh -e 'top'";
 

@@ -173,6 +173,54 @@ Count of read requests that were merged with an already queued read request.
 @ disk.dev.write_merge per-disk count of merged write requests
 Count of write requests that were merged with an already queued write request.
 
+@ disk.dm.read per-device-mapper device read operations
+
+@ disk.dm.write per-device-mapper device write operations
+
+@ disk.dm.total per-device-mapper device total (read+write) operations
+
+@ disk.dm.blkread per-device-mapper device block read operations
+
+@ disk.dm.blkwrite per-device-mapper device block write operations
+
+@ disk.dm.blktotal per-device-mapper device total (read+write) block operations
+
+@ disk.dm.read_bytes per-device-mapper device count of bytes read
+
+@ disk.dm.write_bytes per-device-mapper device count of bytes written
+
+@ disk.dm.total_bytes per-device-mapper device count of total bytes read and written
+
+@ disk.dm.read_merge per-device-mapper device count of merged read requests
+
+@ disk.dm.write_merge per-device-mapper device count of merged write requests
+
+@ disk.dm.avactive per-device-mapper device count of active time
+
+@ disk.dm.aveq per-device-mapper device time averaged count of request queue length
+
+@ disk.dm.read_rawactive per-device-mapper raw count of active read time
+When converted to a rate, this metric represents the raw utilization of
+the device during the sampling interval as a result of reads.  Accounting for
+this metric is only done on I/O completion and can thus result in more than a
+second's worth of IO being accounted for within any one second, leading to
+>100% utilisation.  It is suitable mainly for use in calculations with other
+metrics, e.g. mirroring the results from existing performance tools:
+
+ iostat.dm.r_await = delta(disk.dm.read_rawactive) / delta(disk.dm.read)
+
+@ disk.dm.write_rawactive per-device-mapper raw count of active write time
+When converted to a rate, this metric represents the raw utilization of
+the device during the sampling interval as a result of writes.  Accounting for
+this metric is only done on I/O completion and can thus result in more than a
+second's worth of IO being accounted for within any one second, leading to
+>100% utilisation.  It is suitable mainly for use in calculations with other
+metrics, e.g. mirroring the results from existing performance tools:
+
+ iostat.dm.w_await = delta(disk.dm.write_rawactive) / delta(disk.dm.write)
+
+@ hinv.map.dmname per-device-mapper device persistent name mapping to dm-[0-9]*
+
 @ disk.all.read_merge total count of merged read requests, summed for all disks
 Total count of read requests that were merged with an already queued read request.
 
@@ -310,6 +358,12 @@ certain ROMs in RAM.
 Used memory is the difference between mem.physmem and mem.freemem.
 @ mem.util.free free memory metric from /proc/meminfo
 Alias for mem.freemem.
+@ mem.util.available available memory from /proc/meminfo
+The amount of memory that is available for a new workload,
+without pushing the system into swap. Estimated from MemFree,
+Active(file), Inactive(file), and SReclaimable, as well as the "low"
+watermarks from /proc/zoneinfo.
+
 @ mem.util.shared shared memory metric from /proc/meminfo
 Shared memory metric. Currently always zero on Linux 2.4 kernels
 and has been removed from 2.6 kernels.

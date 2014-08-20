@@ -29,7 +29,7 @@ LICFILES = COPYING
 DOCFILES = README INSTALL CHANGELOG VERSION.pcp
 CONFFILES = pcp.lsm
 LSRCFILES = aclocal.m4 configure config.guess config.sub \
-	    configure.in pcp.lsm.in Makepkgs install-sh \
+	    configure.ac pcp.lsm.in Makepkgs install-sh \
 	    $(DOCFILES) $(LICFILES)
 LDIRT = config.cache config.status config.log files.rpm pro_files.rpm \
 	autom4te.cache install.manifest install_pro.manifest \
@@ -65,6 +65,7 @@ install_pcp :  default_pcp
 ifneq "$(findstring $(TARGET_OS),darwin mingw)" ""
 	# for Linux, this one comes from the chkconfig package
 	$(INSTALL) -m 755 -d $(PCP_RC_DIR)
+	$(INSTALL) -m 755 -d $(PCP_SASLCONF_DIR)
 endif
 ifeq ($(TARGET_OS),mingw)
 	# for Linux, this group comes from the filesystem package
@@ -76,7 +77,7 @@ else
 	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)
 endif
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)
-ifneq "$(findstring $(PACKAGE_DISTRIBUTION), debian redhat fedora)" ""
+ifeq "$(findstring $(PACKAGE_DISTRIBUTION), debian redhat fedora)" ""
 	# $PCP_RUN_DIR usually -> /var/run which may be a temporary filesystem
 	# and Debian's lintian complains about packages including /var/run/xxx
 	# artifacts ... $PCP_RUN_DIR is also conditionally created on the

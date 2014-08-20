@@ -14,7 +14,7 @@ TESTDIR = $(PCP_VAR_DIR)/testsuite
 TESTS	= $(shell sed -n -e '/^[0-9]/s/:\(retired\|reserved\)//' -e '/^[0-9]/s/[        ].*//' -e '/^[0-9]/p' <group)
 
 SUBDIRS = src pmdas cisco gluster pconf sadist collectl secure nfsclient \
-	  archives views qt
+	  archives views qt linux
 LCONFIG = localconfig
 
 # No implicit rules here, thank you
@@ -49,7 +49,8 @@ COMMON_SCRIPTS = common.install.cisco common.pcpweb
 COMMON = common.check common.config common.filter \
 	 common.product common.rc common.setup \
 	 common.secure common.gfs2 common.rpm \
-	 common.python common.sh common.qt common.avahi
+	 common.python common.sh common.qt common.avahi \
+	 common.discovery
 
 OTHERS = GNUmakefile.install group qa_hosts.master README \
 	 valgrind-suppress sanity.coverage

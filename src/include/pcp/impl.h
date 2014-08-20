@@ -300,6 +300,7 @@ extern void __pmFreeResultValues(pmResult *);
 extern char *__pmPDUTypeStr_r(int, char *, int);
 extern const char *__pmPDUTypeStr(int);			/* NOT thread-safe */
 extern void __pmDumpNameSpace(FILE *, int);
+extern void __pmDumpNameNode(FILE *, __pmnsNode *, int);
 extern void __pmDumpStack(FILE *);
 EXTERN int __pmLogReads;
 
@@ -693,6 +694,8 @@ typedef struct {
     double		ac_end;		/* time at end of archive */
     void		*ac_want;	/* used in interp.c */
     void		*ac_unbound;	/* used in interp.c */
+    void		*ac_cache;	/* used in interp.c */
+    int			ac_cache_idx;	/* used in interp.c */
 } __pmArchCtl;
 
 /*
@@ -804,7 +807,7 @@ extern void __pmSetPDUCntBuf(unsigned *, unsigned *);
 /* timeout options for PDU handling */
 #define TIMEOUT_NEVER	 0
 #define TIMEOUT_DEFAULT	-1
-#define TIMEOUT_ASYNC	-2
+/*#define TIMEOUT_ASYNC -2*/
 #define TIMEOUT_CONNECT	-3
 
 /* mode options for __pmGetPDU */
@@ -1047,6 +1050,7 @@ extern int __pmLogFetch(__pmContext *, int, pmID *, pmResult **);
 extern int __pmLogFetchInterp(__pmContext *, int, pmID *, pmResult **);
 extern void __pmLogSetTime(__pmContext *);
 extern void __pmLogResetInterp(__pmContext *);
+extern void __pmFreeInterpData(__pmContext *);
 
 extern int __pmLogChangeVol(__pmLogCtl *, int);
 extern int __pmLogChkLabel(__pmLogCtl *, FILE *, __pmLogLabel *, int);
@@ -1303,6 +1307,7 @@ extern const char *__pmGetAPIConfig(const char *);
 extern void __pmStartOptions(pmOptions *);
 extern void __pmAddOptArchive(pmOptions *, char *);
 extern void __pmAddOptArchiveList(pmOptions *, char *);
+extern void __pmAddOptArchiveFolio(pmOptions *, char *);
 extern void __pmAddOptHost(pmOptions *, char *);
 extern void __pmAddOptHostList(pmOptions *, char *);
 extern void __pmEndOptions(pmOptions *);
@@ -1460,6 +1465,21 @@ extern pthread_mutex_t	__pmLock_libpcp;	/* big libpcp lock */
 #else
 extern void *__pmLock_libpcp;			/* symbol exposure */
 #endif
+
+/*
+ * Service discovery with options.
+ * The 4th argument is a pointer to a mask of flags for boolean options
+ * and status. It is set and tested using the following bits.
+ */
+#define PM_SERVICE_DISCOVERY_INTERRUPTED	0x1
+#define PM_SERVICE_DISCOVERY_RESOLVE		0x2
+
+extern int __pmDiscoverServicesWithOptions(const char *,
+					   const char *,
+					   const char *,
+					   const volatile unsigned *,
+					   char ***);
+
 
 #ifdef __cplusplus
 }

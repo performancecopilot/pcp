@@ -62,6 +62,9 @@ End-of-File
 
 _wait_pmlogger_end $pid
 
+# write a fixed length hostname into log label (for dumplog determinism)
+$sudo pmloglabel -h qahost $tmp
+
 LC_TIME=POSIX ls -l $tmp.? | _do_ls
 
 echo

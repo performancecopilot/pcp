@@ -1,5 +1,98 @@
+pcp-3.9.10 (5 September 2014)
+    - Currently under development.
+
+pcp-3.9.9 (13 August 2014)
+    - sar2pcp: support for systat version 10.2.0
+    - pmiostat(1): new monitor tool with iostat-alike output
+    - pcp-dmcache(1): new monitor tool for dm-cache devices
+    - pmdalinux: disk.dm.* metric hierarchiy (device mapper)
+    - pmdalinux: refine device mapper naming for old platforms
+    - pmdalinux: allow controlled data injection for QA tests
+    - pmdadmcache: new agent for device mapper cache targets
+    - pmdainfiniband: correctly initialise switch metrics
+    - libpcp: global timeout option for service discovery
+    - libpcp: __pmDiscoverServicesWithOptions() improvements
+    - libpcp: grok '%<interface' for link-local ipv6 addresses
+    - libpcp: derived metrics support for new rate() keyword
+    - python api: many convenience class module extensions
+    - python api: timeval accessor helper interfaces
+    - python api: pmUnitStr now uses thread-safe version
+    - python api: pmNumberStr_r now available from python
+    - python api: fix derived metrics interface exceptions
+    - pmlogconf: mark some log-default metrics as log-once
+    - dbpmda: use the correct (blocking) socket API variants
+    - pmlogger_daily: fix $PCP_RUN_DIR creation checks
+
+pcp-3.9.8 (16 July 2014)
+    - Add overlooked Debian packaging metadata updates.
+
+pcp-3.9.7 (16 July 2014)
+    - pmie: "ruleset" extensions to the pmie(1) language
+    - pmdaproc: additional memory and new blkio cgroup metrics
+    - pmdanvidia: new Nvidia GPU PMDA using NVML interfaces
+    - pmdainfiniband: add switch counter metrics
+    - pmdalustrecomm: bug fixes in the lnet memory metrics
+    - pmdamemcache: fixed underlying socket code
+    - pmdalinux: mem.util.available for down-rev kernels
+    - pmdagfs2: several fixes and improvements in behaviour
+    - pmdas: support for long form command line options
+      (aix, jbd2, linux, lustre, mounts, processes, sample,
+      sendmail, txmon, xfs)
+    - libpcp: 'timeout' option for 'probe' service discovery
+    - libpcp: secure sockets timeout handling improvements
+    - pmie examples: updates to the pmie tutorial docs
+    - pmchart: new MemAvailable view for mem.util.available
+    - porting: additional GNU/Hurd port updates
+    - packaging: fix Makepkgs script for old tar versions
+    - packaging: fix rpm builds for rpm versions prior to 4.6
+    - libpcp: use minimum required stack for discovery threads
+    - libpcp: archive folio parsing in option handling code
+    - python APIs: archive folio parsing for recording tools
+    - man pages: updates to service discovery APIs and tools
+    - libpcp: archive interpolation thread safety improvements
+    - libpcp: fixed memory leak from pmDestroyContext(3)
+
+pcp-3.9.6 (19 June 2014)
+    - Fix pthreads build fallout for Solaris platforms
+    - Remove accidental /var/run/pcp install on Debian
+    - Rename configure.in to configure.ac as autoconf prefers
+
 pcp-3.9.5 (18 June 2014)
-    - Under development.
+    - porting work on the GNU/Hurd platform
+    - porting work on Windows (early MinGW-64 work)
+    - pmdalinux: add in the new mem.util.available metric
+    - pmchart: new vCPU view, resolve guest time reporting
+    - pmwebd: add CORS "Access-Control-Allow-Origin: *" to
+      JSON response headers
+    - pmatop: improvements to value fitting
+    - packaging: gui debuginfo/testsuite correctly replaced
+    - pmconfig: moved install location for Solaris conflict
+    - pmstat: fix hostname reporting when in cluster mode
+    - Coverity scan fixes in libpcp, python, and elsewhere
+    - packaging: pcp-doc now contains all of the tutorial bits
+    - python: timeval/metricspec error handling improvements
+    - pmatop: handle curses problems more gracefully
+    - pmdapostfix: run as postfix user, not the pcp user
+    - python: fix pmParseInterval failure segfault
+    - python: fix segfault when printing empty units
+    - libpcp: functions for collecting server port numbers
+    - pmcd.services metric reflecting PCP daemon usage
+    - libpcp, pmfind: active service probing
+    - pmproxy, pmwebd: support for service discovery
+    - pmcollectl, pmatop: improved log writing support
+    - pmie: long option support
+    - pmquery: neater output formatting
+    - pmchart, pmtime: long option support
+    - pmdasystemd: install the built binary
+    - python: significant work on the pcp.pmcc module, adding
+      long option support, scale conversion, an initial fetch
+      loop method, and entirely new convenience classes
+    - pmlogcheck: fix bad memory access sigsegv on some logs
+    - Fix infinite loop in build scripts without Qt enabled
+    - pmdalinux: add metrics from /proc/net/netstat
+    - pmdumptext: long option support
+    - pmcollectl: support for sub-second sampling intervals
+    - Revive support for RHEL5-era builds, post pcp-gui merge
 
 pcp-3.9.4 (15 May 2014)
     - pmlogger: improved archive I/O features, esp for access to

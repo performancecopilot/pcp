@@ -40,7 +40,7 @@ endif
 .SUFFIXES: .cxx
 
 ifdef LIBTARGET
-ifneq (, $(filter linux freebsd kfreebsd netbsd mingw, $(TARGET_OS)))
+ifneq (, $(filter linux freebsd kfreebsd netbsd mingw gnu, $(TARGET_OS)))
 _SHAREDOPTS	= -shared -Wl,-soname,$(LIBTARGET)
 endif
 ifeq ($(TARGET_OS), solaris)

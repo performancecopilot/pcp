@@ -25,11 +25,18 @@ unset PCP_STDERR
 
 # constant setup
 #
+prog=`basename $0`
 tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 status=0
+
+_cleanup()
+{
+    lockfile=`cat $tmp/lock 2>/dev/null`
+    rm -f "$PCP_RUN_DIR/pmlogger_daily.pid" "$lockfile"
+    rm -rf $tmp
+}
+trap "_cleanup; exit \$status" 0 1 2 3 15
 echo >$tmp/lock
-trap "rm -rf \`[ -f $tmp/lock ] && cat $tmp/lock\` $PCP_RUN_DIR/pmlogger_daily.pid $tmp; exit \$status" 0 1 2 3 15
-prog=`basename $0`
 
 if is_chkconfig_on pmlogger
 then
@@ -51,7 +58,7 @@ CULLAFTER=14
 # 
 COMPRESS=bzip2
 COMPRESSAFTER=""
-COMPRESSREGEX=".meta$|.index$|.Z$|.gz$|.bz2$|.zip$"
+COMPRESSREGEX="\.meta$|\.index$|\.Z$|\.gz$|\.bz2$|\.zip$|\.xz$"
 
 # threshold size to roll $PCP_LOG_DIR/NOTICES
 #
@@ -377,7 +384,7 @@ fi
 # $PCP_RUN_DIR creation is also done in pmcd startup, but pmcd may
 # not be running on this system
 #
-if [ -d "$PCP_RUN_DIR" ]
+if [ ! -d "$PCP_RUN_DIR" ]
 then
     mkdir -p -m 775 "$PCP_RUN_DIR"
     chown $PCP_USER:$PCP_GROUP "$PCP_RUN_DIR"

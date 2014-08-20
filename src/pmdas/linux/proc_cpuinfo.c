@@ -53,8 +53,8 @@ static void
 map_cpu_nodes(proc_cpuinfo_t *proc_cpuinfo)
 {
     int i, j;
-    char *node_path = "/sys/devices/system/node";
-    char path[1024];
+    const char *node_path = "sys/devices/system/node";
+    char path[MAXPATHLEN];
     char cpumap[4096];
     DIR *nodes;
     FILE *f;
@@ -66,7 +66,8 @@ map_cpu_nodes(proc_cpuinfo_t *proc_cpuinfo)
     for (i = 0; i < proc_cpuinfo->cpuindom->it_numinst; i++)
 	proc_cpuinfo->cpuinfo[i].node = -1;
 
-    if ((nodes = opendir(node_path)) == NULL)
+    snprintf(path, sizeof(path), "%s/%s", linux_statspath, node_path);
+    if ((nodes = opendir(path)) == NULL)
 	return;
 
     while ((de = readdir(nodes)) != NULL) {
@@ -76,7 +77,8 @@ map_cpu_nodes(proc_cpuinfo_t *proc_cpuinfo)
 	if (node > max_node)
 	    max_node = node;
 
-	sprintf(path, "%s/%s/cpumap", node_path, de->d_name);
+	snprintf(path, sizeof(path), "%s/%s/%s/cpumap",
+		 linux_statspath, node_path, de->d_name);
 	if ((f = fopen(path, "r")) == NULL)
 	    continue;
 	i = fscanf(f, "%s", cpumap);
@@ -117,7 +119,8 @@ cpu_name(proc_cpuinfo_t *proc_cpuinfo, int c)
 	refresh_proc_cpuinfo(proc_cpuinfo);
 
 	proc_cpuinfo->machine = NULL;
-	if ((f = fopen("/proc/sgi_prominfo/node0/version", "r")) != NULL) {
+	f = linux_statsfile("/proc/sgi_prominfo/node0/version", name, sizeof(name));
+	if (f != NULL) {
 	    while (fgets(name, sizeof(name), f)) {
 		if (strncmp(name, "SGI", 3) == 0) {
 		    if ((p = strstr(name, " IP")) != NULL)
@@ -162,7 +165,7 @@ refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
 	started = 1;
     }
 
-    if ((fp = fopen("/proc/cpuinfo", "r")) == (FILE *)NULL)
+    if ((fp = linux_statsfile("/proc/cpuinfo", buf, sizeof(buf))) == NULL)
     	return -oserror();
 
 #if defined(HAVE_ALPHA_LINUX)
@@ -229,7 +232,7 @@ refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
 
 #if defined(HAVE_ALPHA_LINUX)
     /* all processors are identical, therefore duplicate it to all the instances */
-    for (cpunum=1; cpunum < proc_cpuinfo->cpuindom->it_numinst; cpunum++)
+    for (cpunum = 1; cpunum < proc_cpuinfo->cpuindom->it_numinst; cpunum++)
 	memcpy(&proc_cpuinfo->cpuinfo[cpunum], info, sizeof(cpuinfo_t));
 #endif
 

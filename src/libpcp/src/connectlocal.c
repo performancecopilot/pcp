@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -183,15 +183,19 @@ build_dsoattrs(pmdaInterface *dispatch, __pmHashCtl *attrs)
     char *namep;
     int sts = 0;
 
+#ifdef HAVE_GETUID
     snprintf(name, sizeof(name), "%u", getuid());
     name[sizeof(name)-1] = '\0';
     if ((namep = strdup(name)) != NULL)
 	__pmHashAdd(PCP_ATTR_USERID, namep, attrs);
+#endif
 
+#ifdef HAVE_GETGID
     snprintf(name, sizeof(name), "%u", getgid());
     name[sizeof(name)-1] = '\0';
     if ((namep = strdup(name)) != NULL)
 	__pmHashAdd(PCP_ATTR_GROUPID, namep, attrs);
+#endif
 
     snprintf(name, sizeof(name), "%u", getpid());
     name[sizeof(name)-1] = '\0';

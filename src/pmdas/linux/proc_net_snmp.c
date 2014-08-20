@@ -336,31 +336,30 @@ init_refresh_proc_net_snmp(proc_net_snmp_t *snmp)
 int
 refresh_proc_net_snmp(proc_net_snmp_t *snmp)
 {
+    char	buf[MAXPATHLEN];
     char	header[1024];
-    char	values[1024];
     FILE	*fp;
 
     init_refresh_proc_net_snmp(snmp);
-    if ((fp = fopen("/proc/net/snmp", "r")) == NULL)
+    if ((fp = linux_statsfile("/proc/net/snmp", buf, sizeof(buf))) == NULL)
 	return -oserror();
     while (fgets(header, sizeof(header), fp) != NULL) {
-	if (fgets(values, sizeof(values), fp) != NULL) {
-	    if (strncmp(values, "Ip:", 3) == 0)
-		get_fields(ip_fields, header, values);
-	    else if (strncmp(values, "Icmp:", 5) == 0)
-		get_fields(icmp_fields, header, values);
-	    else if (strncmp(values, "IcmpMsg:", 8) == 0)
-		get_ordinal_fields(icmpmsg_fields, header, values,
+	if (fgets(buf, sizeof(buf), fp) != NULL) {
+	    if (strncmp(buf, "Ip:", 3) == 0)
+		get_fields(ip_fields, header, buf);
+	    else if (strncmp(buf, "Icmp:", 5) == 0)
+		get_fields(icmp_fields, header, buf);
+	    else if (strncmp(buf, "IcmpMsg:", 8) == 0)
+		get_ordinal_fields(icmpmsg_fields, header, buf,
                                    NR_ICMPMSG_COUNTERS);
-	    else if (strncmp(values, "Tcp:", 4) == 0)
-		get_fields(tcp_fields, header, values);
-	    else if (strncmp(values, "Udp:", 4) == 0)
-		get_fields(udp_fields, header, values);
-	    else if (strncmp(values, "UdpLite:", 8) == 0)
-		get_fields(udplite_fields, header, values);
+	    else if (strncmp(buf, "Tcp:", 4) == 0)
+		get_fields(tcp_fields, header, buf);
+	    else if (strncmp(buf, "Udp:", 4) == 0)
+		get_fields(udp_fields, header, buf);
+	    else if (strncmp(buf, "UdpLite:", 8) == 0)
+		get_fields(udplite_fields, header, buf);
 	    else
-	    	fprintf(stderr, "Error: "
-			"Unrecognised /proc/net/snmp row: %s", values);
+	    	fprintf(stderr, "Error: unrecognised snmp row: %s", buf);
 	}
     }
     fclose(fp);

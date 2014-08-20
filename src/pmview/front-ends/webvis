@@ -1,0 +1,707 @@
+#!/bin/sh
+# Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+tmp=/tmp/$$
+trap "rm -f $tmp.*; exit" 0 1 2 3  15
+rm -f $tmp.*
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmview-args
+
+# --- scaling parameters ---
+#
+
+# maximum packets per second
+max=750
+
+# maximum req rate (default: 5% of packet rate)
+maxreq=`expr $max / 20`
+
+# maximum disk io rate (I/O operations per second)
+maxio=100
+
+# maximum average disk business (percent)
+maxbusy=30
+
+# milliseconds per CPU
+maxcpu=1000
+
+# maximum TCP output queue length
+maxq=5
+
+# --- define usage message ---
+#
+_usage()
+{
+    echo >$tmp.msg 'Usage: '$prog' [options] [interface ...]
+
+options:
+  -b maxbusy	maximum average disk active (percent) [default 30]
+  -i maxio	maximum total I/Os per second [default 100]
+  -m max        maximum expected packets sent or received per sec [default 750]
+  -r maxreq     maximum expected Web requests per second [default 35]
+  -V            verbose/diagnostic output  
+
+pmview(1) options:'
+
+    _pmview_usage >> $tmp.msg
+    echo >> $tmp.msg
+    echo >> $tmp.msg 'Default title is: Web Server Activity for Host'
+    echo >> $tmp.msg '
+  By default all network interfaces are shown, with a maximum packet rate
+  of '$max' packets per second.  The maximum request rate is 5% (of the
+  maximum packet rate) and the maximum error rate is 20% of the maximum
+  request rate.
+
+  If given, the [interface ...] regular expressions restrict
+  the network statistics displayed to matching network interface names only.'
+
+    _pmview_info -f $tmp.msg
+}
+
+# --- build WM_COMMAND X(1) property for restart after login/logout ---
+#
+echo -n "pmview Version 2.1 \"$prog\"" > $tmp.pmview
+for arg
+do
+    echo -n " \"$arg\"" >>$tmp.pmview
+done
+echo >> $tmp.pmview
+
+# --- parse command line arguments ---
+#
+verbose=false
+argInterfaces=""
+interfaces=""
+
+_pmview_args "$@"
+
+if [ -n "$otherArgs" ]
+then
+    while getopts "?b:i:m:r:v:V" c $otherArgs
+    do
+	case $c
+	in
+	    b)
+		# and now the obscure +ve integer checking bit
+		# ...note the creative use of unary - to prevent leading signs
+		maxbusy=$OPTARG
+		if [ "X-$maxbusy" != "X`expr 0 + -$maxbusy 2>/dev/null`" ]
+		then
+		    _pmview_error "$prog: -b must have a positive integral argument"
+		    #NOTREACHED
+		fi
+		;;
+
+	    i)
+		maxio=$OPTARG
+		if [ "X-$maxio" != "X`expr 0 + -$maxio 2>/dev/null`" ]
+		then
+		    _pmview_error "$prog: -i must have a positive integral argument"
+		    #NOTREACHED
+		fi
+		;;
+
+	    m)
+		max=$OPTARG
+		if [ "X-$max" != "X`expr 0 + -$max 2>/dev/null`" ]
+		then
+		    _pmview_error "$prog: -m must have a positive integral argument"
+		    #NOTREACHED
+		fi
+		maxreq=`expr $max / 20`
+		;;
+
+	    r)
+		maxreq=$OPTARG
+		if [ "X-$maxreq" != "X`expr 0 + -$maxreq 2>/dev/null`" ]
+		then
+		    _pmview_error "$prog: -r must have a positive integral argument"
+		    #NOTREACHED
+		fi
+		;;
+
+	    v)
+                if [ $OPTARG = "1" ]
+                then
+                    _pmview_warning "$prog: pmview version 1 no longer supported, using version 2"
+                elif [ $OPTARG != "2" ]
+                then
+                    _pmview_error "$prog: only version 2 supported for -v"
+                    # NOTREACHED
+                fi
+		;;
+
+	    V)
+		verbose=true
+		;;
+
+	    '?')
+		_usage
+		exit 1
+		;;
+	esac
+    done
+
+    set - $otherArgs
+    shift `expr $OPTIND - 1`
+    [ $# -gt 0 ] && argInterfaces="$*"
+fi
+
+# maximum average active for disks, percent -> msec/sec
+maxactive=`expr $maxbusy \* 1000 / 100`
+
+
+# maximum req error rate (default: 20% of packet rate)
+maxerr=`expr $maxreq / 5`
+[ "$maxerr" -eq 0 ] && maxerr=1
+
+
+# --- check that web metrics are available from metrics source ---
+#
+if _pmview_fetch web.allservers.errors
+then
+    :
+else
+    _pmview_error "$prog: weblog metrics not defined in the name space"
+    #NOTREACHED
+fi
+
+
+# --- if metrics source is an archive, and find out name of host ---
+#
+if [ "X$arch" != X ]
+then
+    host=`pmdumplog -l $arch | $PCP_AWK_PROG '/^Performance/ {print $5}' | sed -e 's/,//g'`
+    [ "X$host" = X ] && host="unknown host"
+    host="$host (Archive $arch)"
+fi
+
+
+# --- get network interfaces ---
+#
+pminfo -f $msource network.interface.total.bytes >$tmp.int
+sed -e 's/\]//' -e 's/"//g' $tmp.int \
+	| $PCP_AWK_PROG '$1 == "inst" {print $4}' > $tmp.list
+if [ ! -s $tmp.list ]
+then
+    if [ "X$arch" != X ]
+    then
+	_pmview_error "$prog: failed to get network interface list from archive \"$arch\""
+	#NOTREACHED
+    else
+	_pmview_error "$prog: failed to get network interface list from host \"$host\""
+	#NOTREACHED
+    fi
+fi
+
+
+# --- pmview config file has already been created; keep writing to it ---
+#
+
+cat << end-of-file >> $tmp.pmview
+#
+# $prog
+#
+end-of-file
+
+if $verbose
+then
+    echo "# Available Network Interfaces: " `cat $tmp.list` >> $tmp.pmview
+fi
+
+if [ -z "$argInterfaces" ]
+then
+    cp $tmp.list $tmp.chosen
+else
+    touch $tmp.chosen
+    for i in $argInterfaces
+    do
+	egrep $i $tmp.list >> $tmp.chosen
+    done
+fi
+
+interfaces_sp=`cat $tmp.chosen | sort | uniq`
+loflag=false
+for iface in $interfaces_sp
+do
+    if [ "X$iface" = "Xlo0" ]
+    then
+	loflag=true
+    else
+	interfaces="$interfaces $iface"
+    fi
+done
+$loflag && interfaces="$interfaces lo0"
+ninterfaces=`echo $interfaces | wc -w`
+
+if $verbose
+then
+    echo "# Network interfaces Matching \"$argInterfaces\": $interfaces" >> $tmp.pmview
+fi
+
+if [ $ninterfaces = 0 ]
+then
+    echo "$prog: no matching network interfaces"
+    echo "Available interfaces on host \"$host\" are: " `cat $tmp.list`
+    echo ""
+    _usage
+    exit 1
+fi
+
+net_grid1=`expr $ninterfaces + 2`
+
+# --- how many CPUs on this system? ---
+#
+numcpu=`pminfo $msource -f $namespace hinv.ncpu 2>&1 | $PCP_AWK_PROG '
+BEGIN		{ num = 0 }
+$1 == "value"	{ if (NF == 2) num = $2 }
+END		{ print num }'`
+
+if [ $numcpu -lt 1 ]
+then
+    _pmview_fetch_indom kernel.percpu.cpu.user && numcpu=$number
+    if [ $numcpu -lt 1 ]
+    then
+	_pmview_error "$prog: Unable to determine the number of CPUs on host $host"
+	#NOTREACHED
+    fi
+fi
+
+maxcpu=`expr $maxcpu \* $numcpu`
+
+if $verbose
+then
+    if [ $numcpu = 1 ]
+    then
+	echo "# 1 CPU detected" >> $tmp.pmview
+	echo "#" >> $tmp.pmview
+    else
+    	echo "# $numcpu CPUs detected" >> $tmp.pmview
+	echo "#" >> $tmp.pmview
+    fi
+fi
+
+# --- how much memory on this system? ---
+#
+realmem=0
+if pminfo -v $msource $namespace hinv.physmem > /dev/null 2>&1
+then
+    realmem=`pminfo -f $msource $namespace hinv.physmem | $PCP_AWK_PROG '/value/ { print $2 }'`
+    if [ -z "$realmem" ]
+    then
+	realmem=0
+    else
+	realmem=`expr $realmem \* 1024`
+    fi
+fi
+[ $realmem = 0 ] && echo "$prog: Warning: Unable to determine size of real memory for $host"
+
+
+# --- how many disks on this system? ---
+#
+numdisk=`pminfo $msource -f $namespace hinv.ndisk 2>&1 | $PCP_AWK_PROG '
+BEGIN		{ num = 0 }
+$1 == "value"	{ if (NF == 2) num = $2 }
+END		{ print num }'`
+
+if [ $numdisk -lt 0 ]
+then
+    _pmview_fetch_indom disk.dev.read && numdisk=$number
+    [ $numdisk -lt 0 ] && _pmview_warning "$prog: Unable to determine the number of disks for $host"
+fi
+
+if $verbose
+then
+    if [ $numdisk = 1 ]
+    then
+	echo "# 1 disk detected" >> $tmp.pmview
+	echo "#" >> $tmp.pmview
+    else
+    	echo "# $numdisk disks detected" >> $tmp.pmview
+	echo "#" >> $tmp.pmview
+    fi
+fi
+
+
+# --- set the window title ---
+#
+if [ -z "$titleArg" ]
+then
+    titleArg="SGI PCP : Web Server Activity for Host $host"
+fi
+
+
+# --- set base strings for base plane objects ---
+#
+if [ $numcpu = 1 ]
+then
+    basestr_cpu="CPU Utilization\nSummed over 1 CPU"
+else
+    basestr_cpu="CPU Utilization\nSummed over $numcpu CPUs"
+fi
+
+basestr_mem="Physical Memory Utilization\nNormalized to `pminfo -f $msource mem.physmem | grep value | sed -e 's/ *value //'` Kbytes"
+
+basestr_disk="Read and Write activity for all Disks\nNormalized to $maxio I/Os per second"
+basestr_diskact="Average Disk Utilization\nNormalized to $maxbusy% across $numdisk disks"
+
+basestr_net="Input and Output on Network Interfaces\nPackets are normalized to $max packets per second"
+
+basestr_amem="Memory metrics which may indicate a problem\nNormalized to $maxerr events per second"
+basestr_atcp="TCP metrics which may indicate a problem\nNormalized to $maxerr events per second"
+
+basestr_size="HTTP request rate by response size in bytes\nNormalized to $maxreq hits per second"
+basestr_type="HTTP request rate by HTTP method\nNormalized to $maxreq hits per second"
+
+
+# ---- the real config starts here ---
+# pmview Version 2.1
+#
+cat << end-of-file >> $tmp.pmview
+
+_stackLength 26
+_marginWidth 8
+_marginDepth 8
+
+_colorList cpu_colors ( blue2 red2 yellow2 cyan2 )
+_colorList disk_colors ( violet yellow )
+_colorList memory_colors (
+    rgbi:1.0/1.0/0.0
+    rgbi:0.0/1.0/1.0
+    rgbi:1.0/0.0/0.0
+    rgbi:1.0/0.0/1.0
+    rgbi:0.0/0.0/1.0
+    rgbi:0.0/1.0/0.0
+)
+_colorList network_colors (
+        rgbi:0.8/0.0/0.0
+        rgbi:1.0/0.5/0.0
+	rgbi:0.0/0.8/0.0 
+)
+_colorList type_colors (
+	rgbi:0.8/0.0/0.0
+	rgbi:1.0/1.0/0.6
+	rgbi:1.0/0.0/1.0
+	rgbi:0.0/1.0/1.0
+	rgbi:1.0/1.0/0.0
+)
+
+_colorList size_colors (
+	rgbi:1.0/0.35/0.0
+	rgbi:0.6/0.0/0.9
+	rgbi:0.0/1.0/0.0
+	rgbi:1.0/0.5/0.0
+	rgbi:0.65/0.3/1.0
+	rgbi:0.3/1.0/0.3
+	rgbi:1.0/0.65/0.3
+	rgbi:0.8/0.6/1.0
+	rgbi:0.6/1.0/0.6
+	rgbi:1.0/0.8/0.6
+)
+
+_grid _hide (
+
+#
+# Alarms
+#
+	_grid 1 0 6 2 south _hide (
+	    _bar 0 1 6 1 west _row _groupbyrow (
+		_metrics (
+end-of-file
+
+for m in drops conndrops timeoutdrop rcvbadsum rexmttime sndrexmitpack attemptfails inerrs retranssegs
+do
+    if _pmview_fetch network.tcp.$m
+    then
+	echo "			network.tcp.$m	$maxerr" >> $tmp.pmview
+    fi
+done
+
+cat << end-of-file >> $tmp.pmview
+		)
+		_colorList (
+			red1 red1 red1 red1 red1 red1
+		)
+		_baseLabel "$basestr_atcp"
+	    )
+	    _bar 0 0 3 1 west _row _groupbyrow (
+		_metrics (
+end-of-file
+
+for m in swap.pagesout network.mbuf.failed network.mbuf.waited
+do
+    if _pmview_fetch $m
+    then
+	echo "			$m	$maxerr" >> $tmp.pmview
+    fi
+done
+
+cat << end-of-file >> $tmp.pmview
+		)
+		_colorList (
+			yellow rgbi:1.0/0.5/0.0 rgbi:1.0/0.5/0.0
+		)
+		_baseLabel "$basestr_amem"
+	    )
+	    _label 3 0 west _right _medium "Alarms"
+	)
+
+#
+# Size
+#
+	_bar 0 1 1 10 south _groupbycol (
+		_metrics (
+			web.allservers.requests.size.unknown	$maxreq
+			web.allservers.requests.size.gt3m	$maxreq
+			web.allservers.requests.size.le3m	$maxreq
+			web.allservers.requests.size.le1m	$maxreq
+			web.allservers.requests.size.le300k	$maxreq
+			web.allservers.requests.size.le100k	$maxreq
+			web.allservers.requests.size.le30k	$maxreq
+			web.allservers.requests.size.le10k	$maxreq
+			web.allservers.requests.size.le3k	$maxreq
+			web.allservers.requests.size.zero	$maxreq
+		)
+		_metriclabels _towards (
+			"?" ">3M" "3M" "1M" "300k"
+			"100k" "30k" "10k" "3k" "0k"
+		)
+		_colorList size_colors	
+		_baseLabel "$basestr_size"
+	)
+
+	_label 0 11 northeast _right _medium "Size"
+
+#
+# Type
+#
+	_bar 1 6 1 5 south _groupbycol (
+		_metrics (
+			web.allservers.errors		$maxerr
+			web.allservers.requests.other	$maxreq
+			web.allservers.requests.post	$maxreq
+			web.allservers.requests.head	$maxreq
+			web.allservers.requests.get	$maxreq
+		)
+		_colorList type_colors
+		_baseLabel "$basestr_type"
+	)
+
+	_label 1 11 north _right _medium "Type"
+
+#
+# System level stuff
+#
+	_grid 1 3 5 3 southwest (
+            _stack 0 0 (
+               	_metrics (
+                       	kernel.all.cpu.user 	$maxcpu
+                       	kernel.all.cpu.sys 	$maxcpu
+                       	kernel.all.cpu.intr 	$maxcpu
+                       	kernel.all.cpu.wait.total 	$maxcpu
+               	)
+               	_colorList cpu_colors
+		_baseLabel "$basestr_cpu"
+            )
+       	    _label 0 1 north _right _medium "CPU"
+
+# 2 levels of base plane, halve the margin size and increase the height
+# for the inner one
+#
+_marginWidth 4
+_marginDepth 4
+_baseHeight 4
+
+	    _grid 1 0 2 1 _show (
+		_baseColor rgbi:0.30/0.30/0.30
+                _stack 0 0 south _cylinder (
+               	    _metrics (
+                       	disk.all.write		$maxio
+                       	disk.all.read		$maxio
+               	    )
+               	    _colorList disk_colors
+		    _baseLabel "$basestr_disk"
+                ) 
+end-of-file
+
+    # disk.all.avg_disk.active metric is not available from pcp 1.x
+    #
+    if _pmview_fetch disk.all.avg_disk.active
+    then
+	cat << end-of-file >> $tmp.pmview
+		_bar 1 0 _cylinder (
+		    _metrics (
+			disk.all.avg_disk.active	$maxactive
+		    )
+		    _colorList ( green2 )
+		    _baseLabel "$basestr_diskact"
+		)
+end-of-file
+    fi
+
+    cat << end-of-file >> $tmp.pmview
+		_baseColor rgbi:0.15/0.15/0.15
+            ) 
+	    _label 1 1 2 1 north _medium "Disk"
+
+end-of-file
+
+    if [ "X$realmem" != X0 -a "X$realmem" != X ]
+    then
+	xcoord=0
+
+	cat << end-of-file >> $tmp.pmview
+	    _grid 3 0 2 1 _show (
+		_baseColor rgbi:0.30/0.30/0.30
+end-of-file
+
+	if _pmview_fetch mem.freemem 
+	then
+	    cat << end-of-file >> $tmp.pmview
+		_stack $xcoord 0 (
+		    _metrics (
+			mem.freemem		$realmem
+		    )
+		    _colorList ( rgbi:0.0/0.8/0.0 )
+		    _baseLabel "Free memory"
+		)
+end-of-file
+	    xcoord=`expr $xcoord + 1`
+	fi
+
+	if _pmview_fetch mem.util.kernel
+	then
+	    cat << end-of-file >> $tmp.pmview
+
+		_stack $xcoord 0 (
+		    _metrics (
+end-of-file
+	    # Use all the metrics we have
+	    for m in kernel fs_ctl fs_dirty fs_clean user ; do 
+		if _pmview_fetch mem.util.$m
+		then
+	echo "			 mem.util.$m	$realmem" >> $tmp.pmview
+		fi
+	    done
+
+	    cat << end-of-file >> $tmp.pmview
+		    )
+		    _colorList memory_colors
+		    _baseLabel "$basestr_mem"
+		)
+end-of-file
+	    xcoord=`expr $xcoord + 1`
+	fi
+
+	cat << end-of-file >> $tmp.pmview
+		_baseColor rgbi:0.15/0.15/0.15
+	    )
+	    _label 3 1 2 1 north _medium "Mem"
+end-of-file
+    fi
+
+    cat << end-of-file >> $tmp.pmview
+
+# restore defaults
+#
+	    _marginWidth 8
+	    _marginDepth 8
+	    _baseHeight 2
+	)
+
+#
+# Network Stuff
+#
+	_grid 2 6 $net_grid1 5 south _hide (
+		_grid 0 0 1 2 west _hide (
+       			_label 0 0 east _right _medium "In"
+       			_label 0 1 east _right _medium "Out"
+		)
+# 2 levels of base plane, halve the margin size and increase the height
+# for the inner one
+#
+_marginWidth 4
+_marginDepth 4
+_baseHeight 4
+
+		_grid 1 0 $ninterfaces 2 _show (
+		    _baseColor rgbi:0.30/0.30/0.30
+
+end-of-file
+
+    xcoord=0
+    yin=0
+    yout=1
+    for iface in $interfaces
+    do
+	cat << end-of-file >> $tmp.pmview
+
+	    	    _stack $xcoord $yin (
+			_metrics (
+			    network.interface.in.errors[$iface]  $maxerr
+			    network.interface.in.drops[$iface]   $maxerr
+			    network.interface.in.packets[$iface] $max
+			)
+			_colorList network_colors
+			_baseLabel "$basestr_net"
+	    	    )
+	    	    _stack $xcoord $yout (
+		    	_metrics (
+			    network.interface.out.errors[$iface]  $maxerr
+			    network.interface.out.drops[$iface]   $maxerr
+			    network.interface.out.packets[$iface] $max
+		    	)
+		    	_colorList network_colors
+		    	_baseLabel "$basestr_net"
+	    	    )
+end-of-file
+	xcoord=`expr $xcoord + 1`
+    done
+
+    cat << end-of-file >> $tmp.pmview
+		    _baseLabel "$basestr_net"
+_baseColor rgbi:0.15/0.15/0.15
+		)
+# restore defaults
+#
+_marginWidth 8
+_marginDepth 8
+_baseHeight 2
+		_grid 1 2 $ninterfaces 2 _hide (
+end-of-file
+
+    xcoord=0
+    ylabel=0
+    for iface in $interfaces
+    do
+	cat << end-of-file >> $tmp.pmview
+		    _label $xcoord $ylabel north _down _medium "$iface"
+end-of-file
+	xcoord=`expr $xcoord + 1`
+    done
+
+    cat << end-of-file >> $tmp.pmview
+		)
+	)
+       	_label 3 11 northwest _right _medium "Network"
+)
+end-of-file
+
+$verbose && cat $tmp.pmview
+
+eval $PMVIEW <$tmp.pmview $args -title "'$titleArg'" -xrm "'*iconName: $prog'"
+
+exit
+

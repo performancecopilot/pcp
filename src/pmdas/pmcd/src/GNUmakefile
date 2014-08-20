@@ -27,7 +27,7 @@ LDIRT = $(VERSION_SCRIPT)
 LCFLAGS = -I$(TOPDIR)/src
 LCFLAGS += -I$(TOPDIR)/src/pmie/src
 
-ifneq (, $(filter linux kfreebsd, $(TARGET_OS)))
+ifneq (, $(filter linux kfreebsd gnu, $(TARGET_OS)))
 ABI = $(shell ./objstyle)
 LCFLAGS += -DSIM_ABI=\""$(ABI)"\"
 endif

@@ -1,0 +1,442 @@
+QA output created by 922
+--- kernel.all.cpu.user ---
+
+kernel.all.cpu.user
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+
+delta.cpu.user
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: millisec
+
+rate.cpu.user
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Note: timezone set to local timezone of host "brutus.corp" from archive
+
+metric:    kernel.all.cpu.user
+archive:   src/960624.08.17_v2
+host:      brutus.corp
+start:     Sun Jun 23 15:23:46 1996
+end:       Sun Jun 23 15:43:26 1996
+semantics: cumulative counter (converting to rate)
+units:     millisec (converting to time utilization)
+samples:   4
+interval:  300.00 sec
+15:28:46.349       2.849
+15:33:46.349       2.982
+15:38:46.349       2.791
+
+pmval: pmFetch: End of PCP archive log
+Note: timezone set to local timezone of host "brutus.corp" from archive
+
+metric:    kernel.all.cpu.user
+archive:   src/960624.08.17_v2
+host:      brutus.corp
+start:     Sun Jun 23 15:23:46 1996
+end:       Sun Jun 23 15:43:26 1996
+semantics: cumulative counter
+units:     millisec
+samples:   4
+interval:  300.00 sec
+15:23:46.349    14914014
+15:28:46.349    15768745
+15:33:46.349    16663459
+15:38:46.349    17500897
+pmie: timezone set to local timezone of host brutus.corp
+raw (DATE): ?
+delta.cpu (DATE): ?
+rate.cpu (DATE): ?
+expr_1 (DATE): unknown
+
+raw (DATE): 2.85
+delta.cpu (DATE): 855
+rate.cpu (DATE): 2.85
+expr_1 (DATE): false
+
+raw (DATE): 2.98
+delta.cpu (DATE): 895
+rate.cpu (DATE): 2.98
+expr_1 (DATE): false
+
+raw (DATE): 2.79
+delta.cpu (DATE): 837
+rate.cpu (DATE): 2.79
+expr_1 (DATE): false
+
+[TIMESTAMP] pmie(PID) Info: evaluator exiting
+
+--- sample.milliseconds ---
+
+sample.milliseconds
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+
+delta.milliseconds
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: millisec
+
+rate.milliseconds
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Note: timezone set to local timezone of host "ha2" from archive
+
+metric:    sample.milliseconds
+archive:   src/ok-bigbin
+host:      ha2
+start:     Mon May  3 21:52:32 1999
+end:       Mon May  3 21:52:52 1999
+semantics: cumulative counter (converting to rate)
+units:     millisec (converting to time utilization)
+samples:   7
+interval:  3.00 sec
+21:52:32.647  No values available
+21:52:35.647  No values available
+21:52:38.647       1.000
+21:52:41.647       1.000
+21:52:44.647       1.000
+21:52:47.647       1.000
+21:52:50.647       1.000
+
+pmval: pmFetch: End of PCP archive log
+Note: timezone set to local timezone of host "ha2" from archive
+
+metric:    sample.milliseconds
+archive:   src/ok-bigbin
+host:      ha2
+start:     Mon May  3 21:52:32 1999
+end:       Mon May  3 21:52:52 1999
+semantics: cumulative counter
+units:     millisec
+samples:   7
+interval:  3.00 sec
+21:52:32.647  No values available
+21:52:35.647 4121536.610
+21:52:38.647 4124536.605
+21:52:41.647 4127536.607
+21:52:44.647 4130536.612
+21:52:47.647 4133536.589
+21:52:50.647 4136536.609
+pmie: timezone set to local timezone of host ha2
+raw (DATE): ?
+delta.milliseconds (DATE): ?
+rate.milliseconds (DATE): ?
+expr_1 (DATE): unknown
+
+raw (DATE): ?
+delta.milliseconds (DATE): ?
+rate.milliseconds (DATE): ?
+expr_1 (DATE): unknown
+
+raw (DATE): 1.00
+delta.milliseconds (DATE): 3.00
+rate.milliseconds (DATE): 1.00
+expr_1 (DATE): false
+
+raw (DATE): 1.00
+delta.milliseconds (DATE): 3.00
+rate.milliseconds (DATE): 1.00
+expr_1 (DATE): false
+
+raw (DATE): 1.00
+delta.milliseconds (DATE): 3.00
+rate.milliseconds (DATE): 1.00
+expr_1 (DATE): false
+
+raw (DATE): 1.00
+delta.milliseconds (DATE): 3.00
+rate.milliseconds (DATE): 1.00
+expr_1 (DATE): false
+
+raw (DATE): 1.00
+delta.milliseconds (DATE): 3.00
+rate.milliseconds (DATE): 1.00
+expr_1 (DATE): false
+
+[TIMESTAMP] pmie(PID) Info: evaluator exiting
+
+--- sample.seconds ---
+
+sample.seconds
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+
+delta.seconds
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: sec
+
+rate.seconds
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Note: timezone set to local timezone of host "gonzo" from archive
+
+metric:    sample.seconds
+archive:   src/ok-foo
+host:      gonzo
+start:     Fri Aug  7 04:34:32 1998
+end:       Fri Aug  7 04:34:40 1998
+semantics: cumulative counter (converting to rate)
+units:     sec (converting to time utilization)
+samples:   5
+interval:  2.00 sec
+04:34:32.257  No values available
+04:34:34.257  No values available
+04:34:36.257       1.000
+04:34:38.257       1.000
+04:34:40.257       1.000
+
+pmval: pmFetch: End of PCP archive log
+Note: timezone set to local timezone of host "gonzo" from archive
+
+metric:    sample.seconds
+archive:   src/ok-foo
+host:      gonzo
+start:     Fri Aug  7 04:34:32 1998
+end:       Fri Aug  7 04:34:40 1998
+semantics: cumulative counter
+units:     sec
+samples:   5
+interval:  2.00 sec
+04:34:32.257  No values available
+04:34:34.257         891
+04:34:36.257         893
+04:34:38.257         895
+04:34:40.257         897
+pmie: timezone set to local timezone of host gonzo
+raw (DATE): ?
+delta.seconds (DATE): ?
+rate.seconds (DATE): ?
+expr_1 (DATE): unknown
+
+raw (DATE): ?
+delta.seconds (DATE): ?
+rate.seconds (DATE): ?
+expr_1 (DATE): unknown
+
+raw (DATE): 1
+delta.seconds (DATE): 2
+rate.seconds (DATE): 1
+expr_1 (DATE): false
+
+raw (DATE): 1
+delta.seconds (DATE): 2
+rate.seconds (DATE): 1
+expr_1 (DATE): false
+
+raw (DATE): 1
+delta.seconds (DATE): 2
+rate.seconds (DATE): 1
+expr_1 (DATE): false
+
+[TIMESTAMP] pmie(PID) Info: evaluator exiting
+
+--- sample.step_counter ---
+
+sample.step_counter
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+delta.step_counter
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+
+rate.step_counter
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count / sec
+Note: timezone set to local timezone of host "kenj-pc" from archive
+
+metric:    sample.step_counter
+archive:   src/reduce-gap
+host:      kenj-pc
+start:     Wed Jan 19 21:56:48 2005
+end:       Wed Jan 19 22:10:26 2005
+semantics: cumulative counter (converting to rate)
+units:     count (converting to count / sec)
+samples:   14
+interval:  60.00 sec
+21:56:48.422  No values available
+21:57:48.422  No values available
+21:58:48.422       0.667
+21:59:48.422       0.667
+22:00:48.422       0.667
+22:01:48.422       0.667
+22:02:48.422  No values available
+22:03:48.422  No values available
+22:04:48.422  No values available
+22:05:48.422  No values available
+22:06:48.422       0.667
+22:07:48.422       0.667
+22:08:48.422       0.667
+22:09:48.422       0.667
+
+pmval: pmFetch: End of PCP archive log
+Note: timezone set to local timezone of host "kenj-pc" from archive
+
+metric:    sample.step_counter
+archive:   src/reduce-gap
+host:      kenj-pc
+start:     Wed Jan 19 21:56:48 2005
+end:       Wed Jan 19 22:10:26 2005
+semantics: cumulative counter
+units:     count
+samples:   14
+interval:  60.00 sec
+21:56:48.422  No values available
+21:57:48.422        2300
+21:58:48.422        2340
+21:59:48.422        2380
+22:00:48.422        2420
+22:01:48.422        2460
+22:02:48.422  No values available
+22:03:48.422  No values available
+22:04:48.422  No values available
+22:05:48.422        2620
+22:06:48.422        2660
+22:07:48.422        2700
+22:08:48.422        2740
+22:09:48.422        2780
+pmie: timezone set to local timezone of host kenj-pc
+raw (DATE): ?
+delta.step_counter (DATE): ?
+rate.step_counter (DATE): ?
+expr_1 (DATE): unknown
+
+raw (DATE): ?
+delta.step_counter (DATE): ?
+rate.step_counter (DATE): ?
+expr_1 (DATE): unknown
+
+raw (DATE): 0.67
+delta.step_counter (DATE): 40
+rate.step_counter (DATE): 0.67
+expr_1 (DATE): false
+
+raw (DATE): 0.67
+delta.step_counter (DATE): 40
+rate.step_counter (DATE): 0.67
+expr_1 (DATE): false
+
+raw (DATE): 0.67
+delta.step_counter (DATE): 40
+rate.step_counter (DATE): 0.67
+expr_1 (DATE): false
+
+raw (DATE): 0.67
+delta.step_counter (DATE): 40
+rate.step_counter (DATE): 0.67
+expr_1 (DATE): false
+
+raw (DATE): ?
+delta.step_counter (DATE): ?
+rate.step_counter (DATE): ?
+expr_1 (DATE): unknown
+
+raw (DATE): ?
+delta.step_counter (DATE): ?
+rate.step_counter (DATE): ?
+expr_1 (DATE): unknown
+
+raw (DATE): ?
+delta.step_counter (DATE): ?
+rate.step_counter (DATE): ?
+expr_1 (DATE): unknown
+
+raw (DATE): ?
+delta.step_counter (DATE): ?
+rate.step_counter (DATE): ?
+expr_1 (DATE): unknown
+
+raw (DATE): 0.67
+delta.step_counter (DATE): 40
+rate.step_counter (DATE): 0.67
+expr_1 (DATE): false
+
+raw (DATE): 0.67
+delta.step_counter (DATE): 40
+rate.step_counter (DATE): 0.67
+expr_1 (DATE): false
+
+raw (DATE): 0.67
+delta.step_counter (DATE): 40
+rate.step_counter (DATE): 0.67
+expr_1 (DATE): false
+
+raw (DATE): 0.67
+delta.step_counter (DATE): 40
+rate.step_counter (DATE): 0.67
+expr_1 (DATE): false
+
+[TIMESTAMP] pmie(PID) Info: evaluator exiting
+
+--- sample.kbyte_ctr ---
+
+sample.kbyte_ctr
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+
+delta.kbyte_ctr
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte
+
+rate.kbyte_ctr
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte / sec
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    sample.kbyte_ctr
+archive:   src/sample_expr
+host:      bozo
+start:     Wed Dec 30 21:58:59 2009
+end:       Wed Dec 30 21:59:04 2009
+semantics: cumulative counter (converting to rate)
+units:     Kbyte (converting to Kbyte / sec)
+samples:   5
+interval:  1.00 sec
+21:58:59.005  No values available
+21:59:00.005  No values available
+21:59:01.005    2103.000
+21:59:02.005     941.000
+21:59:03.005    1347.000
+Note: timezone set to local timezone of host "bozo" from archive
+
+metric:    sample.kbyte_ctr
+archive:   src/sample_expr
+host:      bozo
+start:     Wed Dec 30 21:58:59 2009
+end:       Wed Dec 30 21:59:04 2009
+semantics: cumulative counter
+units:     Kbyte
+samples:   5
+interval:  1.00 sec
+21:58:59.005  No values available
+21:59:00.005       23979
+21:59:01.005       26082
+21:59:02.005       27023
+21:59:03.005       28370
+pmie: timezone set to local timezone of host bozo
+raw (DATE): ?
+delta.kbyte_ctr (DATE): ?
+rate.kbyte_ctr (DATE): ?
+expr_1 (DATE): unknown
+
+raw (DATE): ?
+delta.kbyte_ctr (DATE): ?
+rate.kbyte_ctr (DATE): ?
+expr_1 (DATE): unknown
+
+raw (DATE): 2153472
+delta.kbyte_ctr (DATE): 2103
+rate.kbyte_ctr (DATE): 2103
+expr_1 (DATE): false
+
+raw (DATE): 963584
+delta.kbyte_ctr (DATE): 941
+rate.kbyte_ctr (DATE): 941
+expr_1 (DATE): false
+
+raw (DATE): 1379328
+delta.kbyte_ctr (DATE): 1347
+rate.kbyte_ctr (DATE): 1347
+expr_1 (DATE): false
+
+[TIMESTAMP] pmie(PID) Info: evaluator exiting

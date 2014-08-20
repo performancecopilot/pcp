@@ -564,6 +564,7 @@ INIT_CONTEXT:
 	new->c_archctl->ac_end = 0.0;
 	new->c_archctl->ac_want = NULL;
 	new->c_archctl->ac_unbound = NULL;
+	new->c_archctl->ac_cache = NULL;
 	new->c_archctl->ac_log->l_refcnt++;
     }
     else {
@@ -791,6 +792,15 @@ pmDupContext(void)
 	    goto done;
 	}
 	*newcon->c_archctl = *oldcon->c_archctl;	/* struct assignment */
+	/*
+	 * Need to make hash list and read cache independent in case oldcon
+	 * is subsequently closed via pmDestroyContext() and don't want
+	 * __pmFreeInterpData() to trash our hash list and read cache.
+	 * Start with an empty hash list and read cache for the dup'd context.
+	 */
+	newcon->c_archctl->ac_pmid_hc.nodes = 0;
+	newcon->c_archctl->ac_pmid_hc.hsize = 0;
+	newcon->c_archctl->ac_cache = NULL;
     }
 
     sts = new;
@@ -873,10 +883,13 @@ pmDestroyContext(int handle)
 	}
     }
     if (ctxp->c_archctl != NULL) {
+	__pmFreeInterpData(ctxp);
 	if (--ctxp->c_archctl->ac_log->l_refcnt == 0) {
 	    __pmLogClose(ctxp->c_archctl->ac_log);
 	    free(ctxp->c_archctl->ac_log);
 	}
+	if (ctxp->c_archctl->ac_cache != NULL)
+	    free(ctxp->c_archctl->ac_cache);
 	free(ctxp->c_archctl);
     }
     ctxp->c_type = PM_CONTEXT_FREE;
@@ -898,8 +911,19 @@ pmDestroyContext(int handle)
 #ifdef PM_MULTI_THREAD
     if ((psts = pthread_mutex_destroy(&ctxp->c_lock)) != 0) {
 	pmErrStr_r(-psts, errmsg, sizeof(errmsg));
-	fprintf(stderr, "pmDestroyContext: context=%d pthread_mutex_destroy failed: %s", handle, errmsg);
-	exit(4);
+	fprintf(stderr, "pmDestroyContext(context=%d): pthread_mutex_destroy failed: %s\n", handle, errmsg);
+	/*
+	 * Most likely cause is the mutex still being locked ... this is a
+	 * a library bug, but potentially recoverable ...
+	 */
+	while (PM_UNLOCK(ctxp->c_lock) >= 0) {
+	    fprintf(stderr, "pmDestroyContext(context=%d): extra unlock?\n", handle);
+	}
+	if ((psts = pthread_mutex_destroy(&ctxp->c_lock)) != 0) {
+	    pmErrStr_r(-psts, errmsg, sizeof(errmsg));
+	    fprintf(stderr, "pmDestroyContext(context=%d): pthread_mutex_destroy failed second try: %s\n", handle, errmsg);
+	}
+	/* keep going, rather than exit ... */
     }
 #endif
 

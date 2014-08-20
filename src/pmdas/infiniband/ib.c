@@ -120,8 +120,9 @@ typedef struct port_state_s {
 	int remport;
 	unsigned char perfdata[IB_MAD_SIZE];
 	unsigned char portinfo[IB_MAD_SIZE];
+	uint8_t switchperfdata[1024];
         mad_counter_t madcnts[ARRAYSZ(mad_cnt_descriptors)]; 
-	char pcap[IB_ALLPORTCAPSTRLEN]; 
+	char pcap[IB_ALLPORTCAPSTRLEN];
 } port_state_t;
 
 static char confpath[MAXPATHLEN];
@@ -556,7 +557,7 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
      * necessary */
     switch (ind->serial) {
     case IB_PORT_INDOM:
-	if (idp->cluster > 2) {
+	if (idp->cluster > 3) {
 	    return PM_ERR_INST;
 	}
 
@@ -638,6 +639,50 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		    return 0; 
 		}
 		break;
+
+	    case 3: { /* switch performance counters */
+
+#ifdef HAVE_PMA_QUERY_VIA
+
+		// To find the LID of the switch the HCA is connected to,
+		// send an SMP on the directed route 0,1 and ask the port
+		// to identify itself.
+		ib_portid_t sw_port_id = {
+		    .drpath = {
+			.cnt = 1,
+			.p = { 0, 1, },
+		    },
+		};
+
+		uint8_t sw_info[64];
+		memset(sw_info, 0, sizeof(sw_info));
+		if (!smp_query_via(sw_info, &sw_port_id, IB_ATTR_PORT_INFO, 0,
+			pst->timeout, lp->hndl)) {
+		    __pmNotifyErr(LOG_ERR, 
+			    "Cannot get switch port info for %s via %s:%d.\n",
+			    name, lp->ump->ca_name, lp->ump->portnum);
+		    return 0;
+		}
+
+		int sw_lid, sw_port;
+		mad_decode_field(sw_info, IB_PORT_LID_F, &sw_lid);
+		mad_decode_field(sw_info, IB_PORT_LOCAL_PORT_F, &sw_port);
+
+		sw_port_id.lid = sw_lid;
+
+		// Query for the switch's performance counters' values.
+		memset(pst->switchperfdata, 0, sizeof(pst->switchperfdata));
+		if (!pma_query_via(pst->switchperfdata, &sw_port_id, sw_port,
+			pst->timeout, IB_GSI_PORT_COUNTERS_EXT, lp->hndl)) {
+		    __pmNotifyErr(LOG_ERR, 
+			    "Cannot query performance counters of switch LID %d, port %d.\n",
+			    sw_lid, sw_port);
+		    return 0;
+		}
+#endif
+		break;
+	    }
+
 	    }
 	    pst->validstate ^= umask;
 	} else if (!(pst->validstate & umask)) {
@@ -840,6 +885,67 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 	break;
 
+    case 3: /* Fetch values from switch response */
+
+#ifdef HAVE_PMA_QUERY_VIA
+
+	// (The values are "swapped" because what the port receives is what the
+	// switch sends, and vice versa.)
+	switch (idp->item) {
+	    case METRIC_ib_port_switch_in_bytes: {
+		mad_decode_field(pst->switchperfdata, 
+		    	IB_PC_EXT_XMT_BYTES_F, &atom->ull);
+    		atom->ull *= 4; // TODO: programmatically determine link width
+		break;
+	    }
+	    case METRIC_ib_port_switch_in_packets: {
+		mad_decode_field(pst->switchperfdata, 
+		    	IB_PC_EXT_XMT_PKTS_F, &atom->ull);
+		break;
+	    }
+	    case METRIC_ib_port_switch_out_bytes: {
+		mad_decode_field(pst->switchperfdata, 
+		    	IB_PC_EXT_RCV_BYTES_F, &atom->ull);
+    		atom->ull *= 4; // TODO: programmatically determine link width
+		break;
+	    }
+	    case METRIC_ib_port_switch_out_packets: {
+		mad_decode_field(pst->switchperfdata, 
+		    	IB_PC_EXT_RCV_PKTS_F, &atom->ull);
+		break;
+	    }
+	    case METRIC_ib_port_switch_total_bytes: {
+	    	uint64_t sw_rx_bytes, sw_tx_bytes;
+	    	int ib_lw;
+		mad_decode_field(pst->switchperfdata, 
+			IB_PC_EXT_RCV_BYTES_F, &sw_rx_bytes);
+		mad_decode_field(pst->switchperfdata, 
+			IB_PC_EXT_XMT_BYTES_F, &sw_tx_bytes);
+		ib_lw = 4; // TODO: programmatically determine link width
+		atom->ull = (sw_rx_bytes * ib_lw) + (sw_tx_bytes * ib_lw);
+	    	break;
+	    }
+	    case METRIC_ib_port_switch_total_packets: {
+	    	uint64_t sw_rx_packets, sw_tx_packets;
+		mad_decode_field(pst->switchperfdata,
+			IB_PC_EXT_RCV_PKTS_F, &sw_rx_packets);
+		mad_decode_field(pst->switchperfdata,
+			IB_PC_EXT_XMT_PKTS_F, &sw_tx_packets);
+		atom->ull = sw_rx_packets + sw_tx_packets;
+	    	break;
+	    }
+	    default: {
+		rv = PM_ERR_PMID;
+		break;
+	    }
+	}
+#else
+
+	return PM_ERR_VALUE;
+
+#endif
+	break;
+
     default:
 	rv = PM_ERR_PMID;
 	break;
@@ -857,7 +963,7 @@ ib_rearm_for_update(void *state)
 
     pst->lport->needsupdate = 1;
 
-    pst->needupdate = 3; /* 0x1 for portinfo, 0x2 for perfdata */
+    pst->needupdate = IB_PORTINFO_UPDATE | IB_HCA_PERF_UPDATE | IB_SWITCH_PERF_UPDATE;
     pst->validstate = 4; /* 0x4 for timeout which is always valid */
 }
 

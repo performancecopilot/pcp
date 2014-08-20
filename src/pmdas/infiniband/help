@@ -164,3 +164,27 @@ Threshold values for each MAD performance counter. Due to saturating
 nature of the counters they're reset when value of a particular counter
 gets above a threshold. Setting threshold to the maximum value disables
 the reset mechanism.
+
+@ infiniband.port.switch.in.bytes Bytes received (using switch counter)
+Counter for the bytes received by a port. This is calculated using the counter
+of the switch the port is attached to.
+
+@ infiniband.port.switch.in.packets Packets received (using switch counter)
+Counter for the packets received by a port. This is calculated using the
+counter of the switch the port is attached to.
+
+@ infiniband.port.switch.out.bytes Bytes transmitted (using switch counter)
+Counter for the bytes transmitted by a port. This is calculated using the
+counter of the switch the port is attached to.
+
+@ infiniband.port.switch.out.packets Packets transmitted (using switch counter)
+Counter for the packets transmitted by a port. This is calculated using the
+counter of the switch the port is attached to.
+
+@ infiniband.port.switch.total.bytes Bytes transmitted and received (using switch counters)
+Cumulative value of infiniband.port.switch.in.bytes and 
+infiniband.port.switch.out.bytes, provided for convenience.
+
+@ infiniband.port.switch.total.packets Packets transmitted and received (using switch counters)
+Cumulative value of infiniband.port.switch.in.packets and 
+infiniband.port.switch.out.packets, provided for convenience.

@@ -1,6 +1,6 @@
 // Busy disk?
 
-delta = 20 sec;		// force evaluation once every 5 seconds from here on
+delta = 20 sec;		// force evaluation once every 20 seconds from here on
 
 // If any disk is performing more than 60 I/Os per second, then
 // print a message to standard output and launch dkvis(1)

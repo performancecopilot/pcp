@@ -83,6 +83,10 @@ gramerr(char *phrase, char *pos, char *op)
 %token	    FALL
 %token	    MATCH
 %token	    NOMATCH
+%token	    RULESET
+%token      ELSE
+%token      UNKNOWN
+%token      OTHERWISE
 %token      MIN_AGGR
 %token      MAX_AGGR
 %token      AVG_AGGR
@@ -105,6 +109,9 @@ gramerr(char *phrase, char *pos, char *op)
 
 %type  <x>  exp
 %type  <x>  rule
+%type  <x>  ruleset
+%type  <x>  rulelist
+%type  <x>  rulesetopt
 %type  <x>  act
 %type  <x>  bexp
 %type  <x>  rexp
@@ -173,6 +180,8 @@ stmnt	: /* empty */
 
 exp	: rule
 		{   $$ = $1; }
+	| ruleset
+		{   $$ = $1; }
 	| bexp
 		{   $$ = $1; }
 	| aexp
@@ -183,7 +192,9 @@ exp	: rule
 		{   $$ = $1; }
 	;
 
-rule	: bexp ARROW act
+rule	: '(' rule ')'
+		{   $$ = $2; }
+	| bexp ARROW act
 		{    $$ = ruleExpr($1, $3); }
 
 	/* error reporting */
@@ -193,6 +204,31 @@ rule	: bexp ARROW act
 	| bexp ARROW error
 		{   gramerr(act_str, follow, opStrings(RULE));
 		    $$ = NULL; }
+	;
+
+ruleset : RULESET rulelist rulesetopt
+		{   $$ = binaryExpr(CND_RULESET, $2, $3); }
+	;
+
+rulelist : rule
+		{   $$ = $1; }
+	| rule ELSE rulelist
+		/*
+		 * use right recursion here so rules appear l-to-r in
+		 * the expression tree to match the required order of
+		 * evaluation
+		 */
+		{   $$ = binaryExpr(CND_OR, $1, $3); }
+	;
+
+rulesetopt : UNKNOWN ARROW act
+		{    $$ = binaryExpr(CND_OTHER, ruleExpr(boolConst(B_TRUE), $3), boolConst(B_FALSE)); }
+	| OTHERWISE ARROW act
+		{    $$ = binaryExpr(CND_OTHER, boolConst(B_FALSE), ruleExpr(boolConst(B_TRUE), $3)); }
+	| UNKNOWN ARROW act OTHERWISE ARROW act
+		{    $$ = binaryExpr(CND_OTHER, ruleExpr(boolConst(B_TRUE), $3), ruleExpr(boolConst(B_TRUE), $6)); }
+	| /* empty */
+		{    $$ = NULL; }
 	;
 
 act	: '(' act ')'
@@ -282,9 +318,9 @@ bexp	: '(' bexp ')'
 	| quant
 		{   $$ = $1; }
 	| TRU
-		{   $$ = boolConst(TRUE); }
+		{   $$ = boolConst(B_TRUE); }
 	| FALS
-		{   $$ = boolConst(FALSE); }
+		{   $$ = boolConst(B_FALSE); }
 	| NOT bexp
 		{   $$ = unaryExpr(CND_NOT, $2); }
 	| RISE bexp

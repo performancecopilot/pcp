@@ -3,7 +3,7 @@
  *
  * Original author: Scott Emery <emery@sgi.com> 
  *
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012,2014 Red Hat.
  * Copyright (c) 2008 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -165,7 +165,7 @@ lustrecomm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom
                 atom->l = *((long *) vp);
                 break;
             case 4:
-                file_single("/proc/sys/lnet/memused", PM_TYPE_32, &aux, &vp);
+                file_single("/proc/sys/lnet/lnet_memused", PM_TYPE_32, &aux, &vp);
                 atom->l = *((long *) vp);
                 break;
             default:
@@ -208,19 +208,19 @@ lustrecomm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom
                 atom->l = *((long *) vp);
 		break;
             case 7:
-		file_indexed(&filestatetab[PROC_SYS_LNET_STATS], PM_TYPE_32,&aux, &vp, 7);
+		file_indexed(&filestatetab[PROC_SYS_LNET_STATS], PM_TYPE_64,&aux, &vp, 7);
                 atom->l = *((long *) vp);
 		break;
             case 8:
-		file_indexed(&filestatetab[PROC_SYS_LNET_STATS], PM_TYPE_32,&aux, &vp, 8);
+		file_indexed(&filestatetab[PROC_SYS_LNET_STATS], PM_TYPE_64,&aux, &vp, 8);
                 atom->l = *((long *) vp);
 		break;
             case 9:
-		file_indexed(&filestatetab[PROC_SYS_LNET_STATS], PM_TYPE_32,&aux, &vp, 9);
+		file_indexed(&filestatetab[PROC_SYS_LNET_STATS], PM_TYPE_64,&aux, &vp, 9);
                 atom->l = *((long *) vp);
 		break;
             case 10:
-		file_indexed(&filestatetab[PROC_SYS_LNET_STATS], PM_TYPE_32,&aux, &vp, 10);
+		file_indexed(&filestatetab[PROC_SYS_LNET_STATS], PM_TYPE_64,&aux, &vp, 10);
                 atom->l = *((long *) vp);
 		break;
              default:
@@ -255,17 +255,20 @@ lustrecomm_init(pmdaInterface *dp)
 	     metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
 }
 
-static void
-usage(void)
-{
-    fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
-    fputs("Options:\n"
-	  "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
-	  "  -l logfile   write log into logfile rather than using default log name\n"
-	  "  -U username  user account to run under (default \"pcp\")\n",
-	      stderr);		
-    exit(1);
-}
+pmLongOptions   longopts[] = {
+    PMDA_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    PMDAOPT_DOMAIN,
+    PMDAOPT_LOGFILE,
+    PMDAOPT_USERNAME,
+    PMOPT_HELP,
+    PMDA_OPTIONS_END
+};
+
+pmdaOptions     opts = {
+    .short_options = "D:d:l:U:?",
+    .long_options = longopts,
+};
 
 /*
  * Set up the agent if running as a daemon.
@@ -273,7 +276,6 @@ usage(void)
 int
 main(int argc, char **argv)
 {
-    int			c, err = 0;
     int			sep = __pmPathSeparator();
     pmdaInterface	desc;
 
@@ -286,17 +288,13 @@ main(int argc, char **argv)
     pmdaDaemon(&desc, PMDA_INTERFACE_2, pmProgname, LUSTRECOMM,
 		"lustrecomm.log", mypath);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:l:U:?", &desc, &err)) != EOF) {
-	switch(c) {
-	case 'U':
-	    username = optarg;
-	    break;
-	default:
-	    err++;
-	}
+    pmdaGetOptions(argc, argv, &opts, &desc);
+    if (opts.errors) {
+	pmdaUsageMessage(&opts);
+	exit(1);
     }
-    if (err)
-	usage();
+    if (opts.username)
+	username = opts.username;
 
     pmdaOpenLog(&desc);
     lustrecomm_init(&desc);

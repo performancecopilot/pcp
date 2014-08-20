@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./localconfig
 
 [ -d $PCP_PMDAS_DIR/logger ] || _notrun "No pmdalogger installed"
-[ $PCP_VER -ge 3610 ] || _notrun "Installed pmdalogger is too old"
 
 _cleanup()
 {

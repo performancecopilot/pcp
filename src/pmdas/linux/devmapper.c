@@ -1,7 +1,7 @@
 /*
  * Linux LVM Devices Cluster
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,9 +18,8 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include "indom.h"
 #include "devmapper.h"
-
-#define	MAPDIR "/dev/mapper"
 
 int
 refresh_dev_mapper(dev_mapper_t *lvs)
@@ -31,8 +30,8 @@ refresh_dev_mapper(dev_mapper_t *lvs)
     struct stat statbuf;
     char path[MAXPATHLEN];
 
-    dirp = opendir(MAPDIR);
-    if (dirp == NULL)
+    snprintf(path, sizeof(path), "%s/dev/mapper", linux_statspath);
+    if ((dirp = opendir(path)) == NULL)
         return 1;
   
     for (i = 0; i < lvs->nlv; i++) {
@@ -45,7 +44,9 @@ refresh_dev_mapper(dev_mapper_t *lvs)
         char linkname[MAXPATHLEN];
         int linkname_len;
 
-        snprintf(path, sizeof(path), "%s/%s", MAPDIR, dentry->d_name);
+        snprintf(path, sizeof(path),
+		 "%s/dev/mapper/%s", linux_statspath, dentry->d_name);
+
         if (stat(path, &statbuf) == -1)
             continue;
         if (!S_ISBLK(statbuf.st_mode))
@@ -77,7 +78,7 @@ refresh_dev_mapper(dev_mapper_t *lvs)
     for (i = 0; i < lvs->nlv; i++) {
         int skip_prefix = 0;
         lvs->lv_indom->it_set[i].i_inst = lvs->lv[i].id;
-        if (strncmp (lvs->lv[i].lv_name, "../", 3) == 0)
+        if (strncmp(lvs->lv[i].lv_name, "../", 3) == 0)
             skip_prefix = 3;
         lvs->lv_indom->it_set[i].i_name = lvs->lv[i].lv_name + skip_prefix;
     }

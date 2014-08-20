@@ -1,9 +1,35 @@
-pcp (3.9.5) unstable; urgency=low
+pcp (3.9.10) unstable; urgency=low
 
-  * Under development.
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 05 Sep 2014 14:08:02 +1000
+
+pcp (3.9.9) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 13 Aug 2014 09:15:01 +1000
+
+pcp (3.9.8) unstable; urgency=low
+
+  * New release to update package metadata (closes: #754929)
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 16 Jul 2014 15:58:31 +1000
+
+pcp (3.9.7) unstable; urgency=low
+
+  * Fix some more GNU/Hurd build issues (closes: #752513)
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 16 Jul 2014 09:45:18 +1000
+
+pcp (3.9.6) unstable; urgency=low
+
   * Resolve FTBFS on build systems using systemd (closes: #746994)
+  * Support builds on the GNU/Hurd platform (closes: #751801)
+  * New release (full details in CHANGELOG).
 
- -- Nathan Scott <nathans@debian.org>  Wed, 18 Jun 2014 14:24:41 +1000
+ -- Nathan Scott <nathans@debian.org>  Thu, 19 Jun 2014 10:19:23 +1000
 
 pcp (3.9.4) unstable; urgency=low
 

@@ -56,7 +56,7 @@ LSRCFILES += win32.c
 else
 CFILES += win32.c
 LSRCFILES += accounts.c
-LLDLIBS	+= -lpsapi
+LLDLIBS	+= -lpsapi -lws2_32
 endif
 
 ifeq "$(TARGET_OS)" "solaris"

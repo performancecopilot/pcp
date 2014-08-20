@@ -528,7 +528,7 @@ extern void pmdaDynamicPMNS(const char *, int *, int,
                             pmdaUpdatePMNS, pmdaUpdateText,
                             pmdaUpdateMetric, pmdaCountMetrics,
                             pmdaMetric *, int);
-
+extern int pmdaDynamicSetClusterMask(const char *, unsigned int);
 extern pmdaNameSpace *pmdaDynamicLookupName(pmdaExt *, const char *);
 extern pmdaNameSpace *pmdaDynamicLookupPMID(pmdaExt *, pmID);
 extern int pmdaDynamicLookupText(pmID, int, char **, pmdaExt *);

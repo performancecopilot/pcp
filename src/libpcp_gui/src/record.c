@@ -72,6 +72,7 @@ pmRecordSetup(const char *folio, const char *creator, int replay)
     int		fd = -1;
     static char	host[MAXHOSTNAMELEN];
     char	foliopath[MAXPATHLEN];
+    char	*temp = NULL;		/* for unlink() */
     record_t	*rp;
     mode_t	cur_umask;
 
@@ -141,6 +142,11 @@ pmRecordSetup(const char *folio, const char *creator, int replay)
     }
     umask(cur_umask);
 #endif
+    /*
+     * file named tbuf is never used, it is the basename for the real
+     * files we create.  remeber it so we can cleanup.
+     */
+    temp = strdup(tbuf);
 
     if (dir == NULL)
 	p = tbuf;
@@ -217,6 +223,7 @@ pmRecordSetup(const char *folio, const char *creator, int replay)
     state = PM_REC_BEGIN;
     _seendefault = 0;
 
+    if (temp) unlink(temp);
     return f_replay;
 
 failed:
@@ -231,6 +238,7 @@ failed:
     if (fd >= 0)
 	close(fd);
     setoserror(sts);
+    if (temp) unlink(temp);
     return NULL;
 }
 
