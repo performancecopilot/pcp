@@ -501,6 +501,7 @@ class _Options(object):
         self.verbosity = "brief"
         self.input_file = ""
         self.output_file = ""
+        self.archive = []
         self.host = "local:"
         self.create_archive = False
         self.replay_archive = False
@@ -514,7 +515,7 @@ class _Options(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option_callback)
         opts.pmSetOverrideCallback(self.override)
-        opts.pmSetShortOptions("vp:c:f:R:i:s:h:")
+        opts.pmSetShortOptions("vp:c:f:R:i:s:h:?")
         opts.pmSetLongOptionHeader("Options")
         opts.pmSetLongOption("verbose", 0, 'v', '', "Produce verbose output")
         opts.pmSetLongOption("playback", 0, 'p', '', "Read sample data from file")
@@ -523,7 +524,8 @@ class _Options(object):
         opts.pmSetLongOption("runtime", 1, 'R', 'N', "How long to take samples")
         opts.pmSetLongOption("interval", 1, 'i', 'N', "The sample time interval")
         opts.pmSetLongOption("subsys", 1, 's', 'SUBSYS', "The subsystem to sample")
-        opts.pmSetLongOption("host", 1, 'h', 'HOST', "The host that is the metric source")
+        opts.pmSetShortUsage("[options]\nInteractive: [-v] [-h host] [-s subsys] [-c N] [-i N] [-R N]\nWrite raw logfile: pmcollectl -f rawfile [-c N] [-i N] [-R N]\nRead raw logfile: pmcollectl -p rawfile")
+        opts.pmSetLongOptionHost()
         opts.pmSetLongOptionVersion()
         opts.pmSetLongOptionHelp()
         return opts
@@ -561,13 +563,12 @@ class _Options(object):
         elif opt == 'R':
             self.duration_arg = optarg
         elif opt == 'p':
+            self.opts.pmSetOptionArchiveFolio(optarg)
             self.input_file = optarg
             self.replay_archive = True
         elif opt == 'f':
             self.output_file = optarg
             self.create_archive = True
-        elif opt == 'c':
-            self.n_samples = int(optarg)
         elif opt == 'v':
             if self.verbosity != "detail":
                 self.verbosity = "verbose"
@@ -576,7 +577,7 @@ class _Options(object):
             self.interval_arg = self.opts.pmGetOptionInterval()
         elif opt == 'c':
             self.opts.pmSetOptionSamples(optarg)
-            self.n_samples = into(self.opts.pmGetOptionSamples())
+            self.n_samples = int(self.opts.pmGetOptionSamples())
         elif opt == 'h':
             self.host = optarg
 
@@ -609,32 +610,9 @@ if __name__ == '__main__':
 
     # Establish a PMAPI context to archive, host or local, via args
     opts = _Options()
-    try:
-        pm = pmapi.pmContext.fromOptions(opts.opts, sys.argv)
-    except pmapi.pmUsageErr, usage:
-        usage.message()
+    if c_api.pmGetOptionsFromList(sys.argv) != 0:
+        c_api.pmUsageMessage()
         sys.exit(1)
-
-    if opts.replay_archive:
-        archive = opts.input_file
-        if not os.path.exists(opts.input_file):
-            print opts.input_file, "does not exist"
-            sys.exit(1)
-        for line in open(opts.input_file):
-            if line[:8] == "Archive:":
-                tokens = line[:-1].split()
-                archive = os.path.join(os.path.dirname(opts.input_file), tokens[2])
-        try:
-            pm = pmapi.pmContext(c_api.PM_CONTEXT_ARCHIVE, archive)
-        except pmapi.pmErr, e:
-            print "Cannot open PCP archive: %s" % archive
-            sys.exit(1)
-    else:
-        try:
-            pm = pmapi.pmContext(target=opts.host)
-        except pmapi.pmErr, e:
-            print "Cannot connect to pmcd on " + opts.host
-            sys.exit(1)
 
     if len(subsys) == 0:
         if opts.create_archive:
@@ -642,15 +620,18 @@ if __name__ == '__main__':
         else:
             map(subsys.append, (cpu, disk, net))
 
-
-    # Find server-side pmcd host-name
-    host = pm.pmGetContextHostName()
-
     if opts.duration_arg != 0:
         (timeval, errmsg) = pm.pmParseInterval(str(opts.duration_arg))
         duration = c_api.pmtimevalToReal(timeval)
 
-    (delta, errmsg) = pm.pmParseInterval(str(opts.interval_arg) + " seconds")
+    pm = pmapi.pmContext.fromOptions(opts.opts, sys.argv)
+    if pm.type == c_api.PM_CONTEXT_ARCHIVE:
+        pm.pmSetMode(c_api.PM_MODE_FORW, pmapi.timeval(0, 0), 0)
+
+    # Find server-side pmcd host-name
+    host = pm.pmGetContextHostName()
+
+    (delta, errmsg) = pmapi.pmContext.pmParseInterval(str(opts.interval_arg) + " seconds")
 
     if opts.create_archive:
         delta_seconds = c_api.pmtimevalToReal(delta.tv_sec, delta.tv_usec)
@@ -674,8 +655,8 @@ if __name__ == '__main__':
         if opts.replay_archive:
             import textwrap
             print "One of the following metrics is required " + \
-                "but absent in " + input_file + "\n" + \
-                textwrap.fill(str(metrics))
+                  "but absent in " + input_file + "\n" + \
+                  textwrap.fill(str(ss.metrics))
         else:
             print "unable to setup metrics"
             sys.exit(1)
@@ -702,25 +683,25 @@ if __name__ == '__main__':
             pm.pmtimevalSleep(delta)
             if opts.verbosity != "brief" and len(subsys) > 1:
                 print "\n### RECORD %d >>> %s <<< %s ###" % \
-                (i_samples+1, host, time.strftime("%a %b %d %H:%M:%S %Y"))
+                      (i_samples+1, host, time.strftime("%a %b %d %H:%M:%S %Y"))
 
             try:
                 ss.get_stats(pm)
                 ss.get_total()
+                for ssx in subsys:
+                    if ssx == 0:
+                        continue
+                    if opts.verbosity != "brief" and (len(subsys) > 1 or i_samples == 0):
+                        print
+                        ssx.print_header1()
+                        ssx.print_header2()
+                    ssx.print_line()
+                if opts.verbosity == "brief":
+                    print
             except pmapi.pmErr, e:
                 if str(e).find("PM_ERR_EOL") != -1:
                     print str(e)
-                    sys.exit(1)
-            for ssx in subsys:
-                if ssx == 0:
-                    continue
-                if opts.verbosity != "brief" and (len(subsys) > 1 or i_samples == 0):
-                    print
-                    ssx.print_header1()
-                    ssx.print_header2()
-                ssx.print_line()
-            if opts.verbosity == "brief":
-                print
+                break
 
             i_samples += 1
     except KeyboardInterrupt:
