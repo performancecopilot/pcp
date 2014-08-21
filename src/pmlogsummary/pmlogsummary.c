@@ -30,7 +30,7 @@ static pmLongOptions longopts[] = {
     { "header", 0, 'H', 0, "print one-line header at start showing each column" },
     { "mintime", 0, 'i', 0, "also print timestamp for minimum value" },
     { "maxtime", 0, 'I', 0, "also print timestamp for maximum value" },
-    { "label", 0, 'l', 0, "also print the archive label" },
+    { "label", 0, 'l', 0, "also print the archive label and time window" },
     { "minimum", 0, 'm', 0, "also print minimum value" },
     { "maximum", 0, 'M', 0, "also print maximum value" },
     PMOPT_NAMESPACE,
@@ -209,11 +209,11 @@ printlabel(void)
     printf("Log Label (Log Format Version %d)\n", label.ll_magic & 0xff);
     printf("Performance metrics from host %s\n", label.ll_hostname);
 
-    ddmm = pmCtime(&label.ll_start.tv_sec, timebuf);
+    ddmm = pmCtime(&opts.start.tv_sec, timebuf);
     ddmm[10] = '\0';
     yr = &ddmm[20];
     printf("  commencing %s ", ddmm);
-    __pmPrintStamp(stdout, &label.ll_start);
+    __pmPrintStamp(stdout, &opts.start);
     printf(" %4.4s\n", yr);
 
     if (opts.finish.tv_sec == INT_MAX) {
