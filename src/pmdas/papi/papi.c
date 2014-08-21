@@ -114,6 +114,276 @@ void set_pmns_position(unsigned int i)
     case PAPI_L2_STM:
 	papi_info[i].pmns_position = 17;
 	break;
+    case PAPI_CA_SNP:
+	papi_info[i].pmns_position = 18;
+	break;
+    case PAPI_CA_SHR:
+	papi_info[i].pmns_position = 19;
+	break;
+    case PAPI_CA_CLN:
+	papi_info[i].pmns_position = 20;
+	break;
+    case PAPI_CA_INV:
+	papi_info[i].pmns_position = 21;
+	break;
+    case PAPI_CA_ITV:
+	papi_info[i].pmns_position = 22;
+	break;
+    case PAPI_L3_LDM:
+	papi_info[i].pmns_position = 23;
+	break;
+    case PAPI_L3_STM:
+	papi_info[i].pmns_position = 24;
+	break;
+    case PAPI_BRU_IDL:
+	papi_info[i].pmns_position = 25;
+	break;
+    case PAPI_FXU_IDL:
+	papi_info[i].pmns_position = 26;
+	break;
+    case PAPI_FPU_IDL:
+	papi_info[i].pmns_position = 27;
+	break;
+    case PAPI_LSU_IDL:
+	papi_info[i].pmns_position = 28;
+	break;
+    case PAPI_BTAC_M:
+	papi_info[i].pmns_position = 29;
+	break;
+    case PAPI_PRF_DM:
+	papi_info[i].pmns_position = 30;
+	break;
+    case PAPI_L3_DCH:
+	papi_info[i].pmns_position = 31;
+	break;
+    case PAPI_TLB_SD:
+	papi_info[i].pmns_position = 32;
+	break;
+    case PAPI_CSR_FAL:
+	papi_info[i].pmns_position = 33;
+	break;
+    case PAPI_CSR_SUC:
+	papi_info[i].pmns_position = 34;
+	break;
+    case PAPI_CSR_TOT:
+	papi_info[i].pmns_position = 35;
+	break;
+    case PAPI_MEM_SCY:
+	papi_info[i].pmns_position = 36;
+	break;
+    case PAPI_MEM_RCY:
+	papi_info[i].pmns_position = 37;
+	break;
+    case PAPI_MEM_WCY:
+	papi_info[i].pmns_position = 38;
+	break;
+    case PAPI_STL_ICY:
+	papi_info[i].pmns_position = 39;
+	break;
+    case PAPI_FUL_ICY:
+	papi_info[i].pmns_position = 40;
+	break;
+    case PAPI_STL_CCY:
+	papi_info[i].pmns_position = 41;
+	break;
+    case PAPI_FUL_CCY:
+	papi_info[i].pmns_position = 42;
+	break;
+    case PAPI_HW_INT:
+	papi_info[i].pmns_position = 43;
+	break;
+    case PAPI_BR_UCN:
+	papi_info[i].pmns_position = 44;
+	break;
+    case PAPI_BR_CN:
+	papi_info[i].pmns_position = 45;
+	break;
+    case PAPI_BR_TKN:
+	papi_info[i].pmns_position = 46;
+	break;
+    case PAPI_BR_NTK:
+	papi_info[i].pmns_position = 47;
+	break;
+    case PAPI_BR_MSP:
+	papi_info[i].pmns_position = 48;
+	break;
+    case PAPI_BR_PRC:
+	papi_info[i].pmns_position = 49;
+	break;
+    case PAPI_FMA_INS:
+	papi_info[i].pmns_position = 50;
+	break;
+    case PAPI_TOT_IIS:
+	papi_info[i].pmns_position = 51;
+	break;
+    case PAPI_INT_INS:
+	papi_info[i].pmns_position = 52;
+	break;
+    case PAPI_FP_INS:
+	papi_info[i].pmns_position = 53;
+	break;
+    case PAPI_LD_INS:
+	papi_info[i].pmns_position = 54;
+	break;
+    case PAPI_SR_INS:
+	papi_info[i].pmns_position = 55;
+	break;
+    case PAPI_BR_INS:
+	papi_info[i].pmns_position = 56;
+	break;
+    case PAPI_VEC_INS:
+	papi_info[i].pmns_position = 57;
+	break;
+    case PAPI_RES_STL:
+	papi_info[i].pmns_position = 58;
+	break;
+    case PAPI_FP_STAL:
+	papi_info[i].pmns_position = 59;
+	break;
+    case PAPI_LST_INS:
+	papi_info[i].pmns_position = 60;
+	break;
+    case PAPI_SYC_INS:
+	papi_info[i].pmns_position = 61;
+	break;
+    case PAPI_L1_DCH:
+	papi_info[i].pmns_position = 62;
+	break;
+    case PAPI_L2_DCH:
+	papi_info[i].pmns_position = 63;
+	break;
+    case PAPI_L1_DCA:
+	papi_info[i].pmns_position = 64;
+	break;
+    case PAPI_L2_DCA:
+	papi_info[i].pmns_position = 65;
+	break;
+    case PAPI_L3_DCA:
+	papi_info[i].pmns_position = 66;
+	break;
+    case PAPI_L1_DCR:
+	papi_info[i].pmns_position = 67;
+	break;
+    case PAPI_L2_DCR:
+	papi_info[i].pmns_position = 68;
+	break;
+    case PAPI_L3_DCR:
+	papi_info[i].pmns_position = 69;
+	break;
+    case PAPI_L1_DCW:
+	papi_info[i].pmns_position = 70;
+	break;
+    case PAPI_L2_DCW:
+	papi_info[i].pmns_position = 71;
+	break;
+    case PAPI_L3_DCW:
+	papi_info[i].pmns_position = 72;
+	break;
+    case PAPI_L1_ICH:
+	papi_info[i].pmns_position = 73;
+	break;
+    case PAPI_L2_ICH:
+	papi_info[i].pmns_position = 74;
+	break;
+    case PAPI_L3_ICH:
+	papi_info[i].pmns_position = 75;
+	break;
+    case PAPI_L1_ICA:
+	papi_info[i].pmns_position = 76;
+	break;
+    case PAPI_L2_ICA:
+	papi_info[i].pmns_position = 77;
+	break;
+    case PAPI_L3_ICA:
+	papi_info[i].pmns_position = 78;
+	break;
+    case PAPI_L1_ICR:
+	papi_info[i].pmns_position = 79;
+	break;
+    case PAPI_L2_ICR:
+	papi_info[i].pmns_position = 80;
+	break;
+    case PAPI_L3_ICR:
+	papi_info[i].pmns_position = 81;
+	break;
+    case PAPI_L1_ICW:
+	papi_info[i].pmns_position = 82;
+	break;
+    case PAPI_L2_ICW:
+	papi_info[i].pmns_position = 83;
+	break;
+    case PAPI_L3_ICW:
+	papi_info[i].pmns_position = 84;
+	break;
+    case PAPI_L1_TCH:
+	papi_info[i].pmns_position = 85;
+	break;
+    case PAPI_L2_TCH:
+	papi_info[i].pmns_position = 86;
+	break;
+    case PAPI_L3_TCH:
+	papi_info[i].pmns_position = 87;
+	break;
+    case PAPI_L1_TCA:
+	papi_info[i].pmns_position = 88;
+	break;
+    case PAPI_L2_TCA:
+	papi_info[i].pmns_position = 89;
+	break;
+    case PAPI_L3_TCA:
+	papi_info[i].pmns_position = 90;
+	break;
+    case PAPI_L1_TCR:
+	papi_info[i].pmns_position = 91;
+	break;
+    case PAPI_L2_TCR:
+	papi_info[i].pmns_position = 92;
+	break;
+    case PAPI_L3_TCR:
+	papi_info[i].pmns_position = 93;
+	break;
+    case PAPI_L1_TCW:
+	papi_info[i].pmns_position = 94;
+	break;
+    case PAPI_L2_TCW:
+	papi_info[i].pmns_position = 95;
+	break;
+    case PAPI_L3_TCW:
+	papi_info[i].pmns_position = 96;
+	break;
+    case PAPI_FML_INS:
+	papi_info[i].pmns_position = 97;
+	break;
+    case PAPI_FAD_INS:
+	papi_info[i].pmns_position = 98;
+	break;
+    case PAPI_FDV_INS:
+	papi_info[i].pmns_position = 99;
+	break;
+    case PAPI_FSQ_INS:
+	papi_info[i].pmns_position = 100;
+	break;
+    case PAPI_FNV_INS:
+	papi_info[i].pmns_position = 101;
+	break;
+    case PAPI_FP_OPS:
+	papi_info[i].pmns_position = 102;
+	break;
+    case PAPI_SP_OPS:
+	papi_info[i].pmns_position = 103;
+	break;
+    case PAPI_DP_OPS:
+	papi_info[i].pmns_position = 104;
+	break;
+    case PAPI_VEC_SP:
+	papi_info[i].pmns_position = 105;
+	break;
+    case PAPI_VEC_DP:
+	papi_info[i].pmns_position = 106;
+	break;
+    case PAPI_REF_CYC:
+	papi_info[i].pmns_position = 107;
+	break;
     default:
 	papi_info[i].pmns_position = -1;
 	break;
@@ -284,23 +554,383 @@ static pmdaMetric metrictab[] = {
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_STM */
 
     { NULL,
-      { PMDA_PMID(CLUSTER_PAPI,18), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
+      { PMDA_PMID(CLUSTER_PAPI,18), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.CA_SNP */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,19), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.CA_SHR */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,20), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.CA_CLN */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,21), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.CA_INV */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,22), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.CA_ITV */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,23), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_LDM */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,24), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_STM */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,25), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.BRU_IDL */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,26), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.FXU_IDL */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,27), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.FPU_IDL */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,28), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.LSU_IDL */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,29), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.BTAC_M */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,30), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.PRF_DM */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,31), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_DCH */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,32), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.TLB_SD */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,33), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.CSR_FAL */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,34), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.CSR_SUC */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,35), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.CSR_TOT */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,36), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.MEM_SCY */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,37), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.MEM_RCY */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,38), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.MEM_WCY */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,39), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.STL_ICY */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,40), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.FUL_ICY */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,41), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.STL_CCY */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,42), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.FUL_CCY */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,43), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.HW_INT */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,44), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.BR_UCN */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,45), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.BR_CN */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,46), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.BR_TKN */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,47), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.BR_NTK */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,48), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.BR_MSP */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,49), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.BR_PRC */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,50), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.FMA_INS */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,51), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.TOT_IIS */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,52), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.INT_INS */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,53), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.FP_INS */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,54), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.LD_INS */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,55), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.SR_INS */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,56), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.BR_INS */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,57), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.VEC_INS */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,58), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.RES_STL */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,59), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.FP_STAL */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,60), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.LST_INS */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,61), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.SYC_INS */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,62), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_DCH */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,63), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_DCH */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,64), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_DCA */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,65), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_DCA */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,66), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_DCA */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,67), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_DCR */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,68), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_DCR */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,69), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_DCR */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,70), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_DCW */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,71), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_DCW */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,72), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_DCW */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,73), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_ICH */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,74), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_ICH */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,75), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_ICH */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,76), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_ICA */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,77), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_ICA */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,78), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_ICA */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,79), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_ICR */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,80), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_ICR */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,81), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_ICR */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,82), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_ICW */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,83), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_ICW */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,84), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_ICW */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,85), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_TCH */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,86), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_TCH */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,87), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_TCH */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,88), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_TCA */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,89), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_TCA */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,90), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_TCA */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,91), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_TCR */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,92), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_TCR */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,93), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_TCR */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,94), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_TCW */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,95), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_TCW */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,96), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_TCW */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,97), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.FML_INS */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,98), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.FAD_INS */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,99), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.FDV_INS */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,100), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.FSQ_INS */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,101), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.FNV_INS */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,102), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.FP_OPS */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,103), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.SP_OPS */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,104), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.DP_OPS */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,105), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.VEC_SP */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,106), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.VEC_DP */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,107), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.REF_CYC */
+
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,1000), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.enable */
 
     { NULL,
-      { PMDA_PMID(CLUSTER_PAPI,19), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
+      { PMDA_PMID(CLUSTER_PAPI,1001), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.reset */
 
     { NULL,
-      { PMDA_PMID(CLUSTER_PAPI,20), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
+      { PMDA_PMID(CLUSTER_PAPI,1002), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.disable */
 
     { NULL,
-      { PMDA_PMID(CLUSTER_PAPI,21), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
+      { PMDA_PMID(CLUSTER_PAPI,1003), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
       PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.status */
 
     { NULL,
-      { PMDA_PMID(CLUSTER_PAPI,22), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      { PMDA_PMID(CLUSTER_PAPI,1004), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
       PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.num_counters */
 
 };
@@ -347,6 +977,97 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 15:
 	case 16:
 	case 17:
+	case 18:
+	case 19:
+	case 20:
+	case 21:
+	case 22:
+	case 23:
+	case 24:
+	case 25:
+	case 26:
+	case 27:
+	case 28:
+	case 29:
+	case 30:
+	case 31:
+	case 32:
+	case 33:
+	case 34:
+	case 35:
+	case 36:
+	case 37:
+	case 38:
+	case 39:
+	case 40:
+	case 41:
+	case 42:
+	case 43:
+	case 44:
+	case 45:
+	case 46:
+	case 47:
+	case 48:
+	case 49:
+	case 50:
+	case 51:
+	case 52:
+	case 53:
+	case 54:
+	case 55:
+	case 56:
+	case 57:
+	case 58:
+	case 59:
+	case 60:
+	case 61:
+	case 62:
+	case 63:
+	case 64:
+	case 65:
+	case 66:
+	case 67:
+	case 68:
+	case 69:
+	case 70:
+	case 71:
+	case 72:
+	case 73:
+	case 74:
+	case 75:
+	case 76:
+	case 77:
+	case 78:
+	case 79:
+	case 80:
+	case 81:
+	case 82:
+	case 83:
+	case 84:
+	case 85:
+	case 86:
+	case 87:
+	case 88:
+	case 89:
+	case 90:
+	case 91:
+	case 92:
+	case 93:
+	case 94:
+	case 95:
+	case 96:
+	case 97:
+	case 98:
+	case 99:
+	case 100:
+	case 101:
+	case 102:
+	case 103:
+	case 104:
+	case 105:
+	case 106:
+	case 107:
+
 	    // the 'case' && 'idp->item' value we get is the pmns_position
 	    for (i = 0; i < number_of_events; i++)
 		{
@@ -359,27 +1080,27 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 
 
-	case 18:
+	case 1000:
 	    atom->cp = enable_string; /* papi.enable */
 	    return PMDA_FETCH_STATIC;
 
-	case 19:
+	case 1001:
 	    //	    break; /* papi.reset */
 	    //	    atom->cp = reset_string;
 	    return PMDA_FETCH_STATIC;
 
-	case 20:
+	case 1002:
 	    if ((sts = check_papi_state(sts)) == PAPI_RUNNING) {
 		    atom->cp = disable_string; /* papi.disable */
 		    return PMDA_FETCH_STATIC;
 		} else
 		    return 0;
 
-	case 21:
+	case 1003:
 	    atom->cp = papi_string_status(); /* papi.status */
 	    return PMDA_FETCH_STATIC;
 
-	case 22:
+	case 1004:
 	    atom->ul = number_of_counters; /* papi.num_counters */
 	    return PMDA_FETCH_STATIC;
 
@@ -530,7 +1251,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	__pmID_int *idp = (__pmID_int *)&(vsp->pmid);
 	pmAtomValue av;
 	switch (idp->item){
-	case 18: //enable
+	case 1000: //papi.enable
 	    if((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				    PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0){
 		free(enable_string);
@@ -549,7 +1270,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		}
 		break;
 	    } //if sts
-	case 19: //reset
+	case 1001: //papi.reset
 	    //	    sts = check_papi_state(sts);
 	    //	    if(sts == PAPI_RUNNING){
 	    //	    if((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
@@ -561,7 +1282,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		    //		else
 		    //		    return PM_ERR_VALUE;
 		    //	    }
-	case 20: //disable
+	case 1002: //papi.disable
 	    if((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				     PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0){
 		free(disable_string);
