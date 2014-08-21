@@ -948,6 +948,7 @@ avahi
 833 archive context local oss
 834 pmie local oss
 835 pmda.memcache local oss
+836 pmlogsummary local oss
 840 avahi local oss
 841 pmda local oss
 842 python local oss
