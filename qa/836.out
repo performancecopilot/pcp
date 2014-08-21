@@ -34,8 +34,8 @@ Excluded metrics:
     ^pmcd.pmlogger.port 
 
 Ratio Threshold: > 2.00 or < 0.500
-      section-a       section-b   Ratio  Metric-Instance
-      start-end       start-end
+        section-a         section-b   Ratio  Metric-Instance
+        start-end         start-end
           0.39996           1.20002   3.00   disk.dev.total_bytes ["sdb"]
           0.09999           0.20000   2.00   disk.dev.total ["sdb"]
           0.00000           0.11594    |+|   disk.dev.read_bytes ["sda"]

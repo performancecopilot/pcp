@@ -145,6 +145,9 @@ else
     arch2="$1"
 fi
 
+[ $precision -lt 3 -o $precision -gt 15 ] && precision=3
+colwidth=`expr 12 + $precision`
+
 echo "Directory: `pwd`"
 if ! $skip_excluded
 then
@@ -235,7 +238,8 @@ a1=`basename "$arch1"`
 a2=`basename "$arch2"`
 echo "$thres" | awk '
     { printf "Ratio Threshold: > %.2f or < %.3f\n",'"$thres"',1/'"$thres"'
-      printf "%15s %15s   Ratio  Metric-Instance\n","'"$a1"'","'"$a2"'" }'
+      printf "%*s %*s   Ratio  Metric-Instance\n",
+             '$colwidth', "'"$a1"'", '$colwidth', "'"$a2"'" }'
 if [ -z "$start1" ] 
 then
     window1="start"
@@ -260,14 +264,12 @@ then
 else
     window2="$window2-$finish2"
 fi
-printf '%15s %15s\n' "$window1" "$window2"
+printf '%*s %*s\n' $colwidth "$window1" $colwidth "$window2"
 join -t\| $tmp/1 $tmp/2 \
 | awk -F\| '
 function doval(v)
 {
     precision='"$precision"'
-    if (precision < 3 || precision > 15)
-	precision=3
     extra=precision-3
     if (v > 99999999)
 	printf "%*.*f%*s",15+extra,0,v,1," "
