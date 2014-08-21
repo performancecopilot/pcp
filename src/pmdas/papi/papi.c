@@ -26,34 +26,16 @@
 
 typedef struct {
     unsigned int papi_event_code; //the PAPI_ eventcode
-    char *papi_string_code;
+    char papi_string_code[8];
     int position;
+    int pmns_position;
     //    char *long_descr;
     //    char *short_descr;
 } papi_m_user_tuple;
 
-papi_m_user_tuple papi_info[] = {
-    { PAPI_TOT_INS, "TOT_INS", -1 },
-    { PAPI_TOT_CYC, "TOT_CYC", -1 },
-    { PAPI_L1_DCM, "L1_DCM", -1 },
-    { PAPI_L1_ICM, "L1_ICM", -1 },
-    { PAPI_L2_DCM, "L2_DCM", -1 },
-    { PAPI_L2_ICM, "L2_ICM", -1 },
-    { PAPI_L3_DCM, "L3_DCM", -1 },
-    { PAPI_L3_ICM, "L3_ICM", -1 },
-    { PAPI_L1_TCM, "L1_TCM", -1 },
-    { PAPI_L2_TCM, "L2_TCM", -1 },
-    { PAPI_L3_TCM, "L3_TCM", -1 },
-    { PAPI_TLB_DM, "TLB_DM", -1 },
-    { PAPI_TLB_IM, "TLB_IM", -1 },
-    { PAPI_TLB_TL, "TLB_TL", -1 },
-    { PAPI_L1_LDM, "L1_LDM", -1 },
-    { PAPI_L1_STM, "L1_STM", -1 },
-    { PAPI_L2_LDM, "L2_LDM", -1 },
-    { PAPI_L2_STM, "L2_STM", -1 },
-};
+static papi_m_user_tuple *papi_info = NULL;
 #define CLUSTER_PAPI 0 //we should define this in a header for when these exand possible values
-#define NumEvents 20
+#define NumEvents 100
 static char     *enable_string;
 static char     *disable_string;
 static char     *username = "root";
@@ -73,6 +55,70 @@ static struct uid_gid_tuple *ctxtab = NULL;
 int ctxtab_size = 0;
 int number_of_counters = 0;
 unsigned int number_of_active_counters = 0;
+unsigned int number_of_events = 0;
+
+void set_pmns_position(unsigned int i)
+{
+    switch (papi_info[i].papi_event_code) {
+    case PAPI_TOT_INS:
+	papi_info[i].pmns_position = 0;
+	break;
+    case PAPI_TOT_CYC:
+	papi_info[i].pmns_position = 1;
+	break;
+    case PAPI_L1_DCM:
+	papi_info[i].pmns_position = 2;
+	break;
+    case PAPI_L1_ICM:
+	papi_info[i].pmns_position = 3;
+	break;
+    case PAPI_L2_DCM:
+	papi_info[i].pmns_position = 4;
+	break;
+    case PAPI_L2_ICM:
+	papi_info[i].pmns_position = 5;
+	break;
+    case PAPI_L3_DCM:
+	papi_info[i].pmns_position = 6;
+	break;
+    case PAPI_L3_ICM:
+	papi_info[i].pmns_position = 7;
+	break;
+    case PAPI_L1_TCM:
+	papi_info[i].pmns_position = 8;
+	break;
+    case PAPI_L2_TCM:
+	papi_info[i].pmns_position = 9;
+	break;
+    case PAPI_L3_TCM:
+	papi_info[i].pmns_position = 10;
+	break;
+    case PAPI_TLB_DM:
+	papi_info[i].pmns_position = 11;
+	break;
+    case PAPI_TLB_IM:
+	papi_info[i].pmns_position = 12;
+	break;
+    case PAPI_TLB_TL:
+	papi_info[i].pmns_position = 13;
+	break;
+    case PAPI_L1_LDM:
+	papi_info[i].pmns_position = 14;
+	break;
+    case PAPI_L1_STM:
+	papi_info[i].pmns_position = 15;
+	break;
+    case PAPI_L2_LDM:
+	papi_info[i].pmns_position = 16;
+	break;
+    case PAPI_L2_STM:
+	papi_info[i].pmns_position = 17;
+	break;
+    default:
+	papi_info[i].pmns_position = -1;
+	break;
+    }
+}
 
 int permission_check(int context)
 {
@@ -81,6 +127,20 @@ int permission_check(int context)
     else
 	return 0;
 }
+
+void expand_papi_info(int size)
+{
+    if (number_of_events <= size)
+	{
+	    size_t new_size = (size + 1) * sizeof(papi_m_user_tuple);
+	    papi_info = realloc(papi_info, new_size);
+	    if (papi_info == NULL)
+		__pmNoMem("papi_info tuple", new_size, PM_FATAL_ERR);
+	    while(number_of_events <= size)
+		memset(&papi_info[number_of_events++], 0, sizeof(papi_m_user_tuple));
+	}
+}
+
 void enlarge_ctxtab(int context)
 {
     /* Grow the context table if necessary. */
@@ -151,95 +211,95 @@ papi_string_status()
  * A list of all the papi metrics we support - 
  */
 static pmdaMetric metrictab[] = {
-    { &papi_info[1],
+    { NULL,
       { PMDA_PMID(CLUSTER_PAPI,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.TOT_INS */
 
-    { &papi_info[2],
+    { NULL,
       { PMDA_PMID(CLUSTER_PAPI,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.TOT_CYC */
 
-    { &papi_info[3],
+    { NULL,
       { PMDA_PMID(CLUSTER_PAPI,2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_DCM */
 
-    { &papi_info[4],
+    { NULL,
       { PMDA_PMID(CLUSTER_PAPI,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_ICM */
 
-    { &papi_info[5],
+    { NULL,
       { PMDA_PMID(CLUSTER_PAPI,4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_DCM */
 
-    { &papi_info[6],
+    { NULL,
       { PMDA_PMID(CLUSTER_PAPI,5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_ICM */
 
-    { &papi_info[7],
+    { NULL,
       { PMDA_PMID(CLUSTER_PAPI,6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_DCM */
 
-    { &papi_info[8],
+    { NULL,
       { PMDA_PMID(CLUSTER_PAPI,7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_ICM */
 
-    { &papi_info[9],
+    { NULL,
       { PMDA_PMID(CLUSTER_PAPI,8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_TCM */
 
-    { &papi_info[10],
+    { NULL,
       { PMDA_PMID(CLUSTER_PAPI,9), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_TCM */
 
-    { &papi_info[11],
+    { NULL,
       { PMDA_PMID(CLUSTER_PAPI,10), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_TCM */
 
-    { &papi_info[12],
+    { NULL,
       { PMDA_PMID(CLUSTER_PAPI,11), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.TLB_DM */
 
-    { &papi_info[13],
+    { NULL,
       { PMDA_PMID(CLUSTER_PAPI,12), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.TLB_IM */
 
-    { &papi_info[14],
+    { NULL,
       { PMDA_PMID(CLUSTER_PAPI,13), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.TLB_TL */
 
-    { &papi_info[15],
+    { NULL,
       { PMDA_PMID(CLUSTER_PAPI,14), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_LDM */
 
-    { &papi_info[16],
+    { NULL,
       { PMDA_PMID(CLUSTER_PAPI,15), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_STM */
 
-    { &papi_info[17],
+    { NULL,
       { PMDA_PMID(CLUSTER_PAPI,16), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_LDM */
 
-    { &papi_info[18],
+    { NULL,
       { PMDA_PMID(CLUSTER_PAPI,17), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_STM */
 
-    { &papi_info,
+    { NULL,
       { PMDA_PMID(CLUSTER_PAPI,18), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.enable */
 
-    { &papi_info,
-      { PMDA_PMID(CLUSTER_PAPI,19), PM_TYPE_UNKNOWN, PM_INDOM_NULL, PM_SEM_DISCRETE,
+    { NULL,
+      { PMDA_PMID(CLUSTER_PAPI,19), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.reset */
 
-    { &papi_info,
+    { NULL,
       { PMDA_PMID(CLUSTER_PAPI,20), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.disable */
 
-    { &papi_info,
+    { NULL,
       { PMDA_PMID(CLUSTER_PAPI,21), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
       PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.status */
 
-    { &papi_info,
+    { NULL,
       { PMDA_PMID(CLUSTER_PAPI,22), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
       PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.num_counters */
 
@@ -250,6 +310,7 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
     int sts = 0;
+    int i;
     /* this will probably need to be expanded to fit the domains as well */
     sts = check_papi_state(sts);
     //    if (sts != PAPI_RUNNING){
@@ -286,15 +347,26 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 15:
 	case 16:
 	case 17:
-	    atom->ull = values[papi_info[idp->item].position];
+	    // the 'case' && 'idp->item' value we get is the pmns_position
+	    for (i = 0; i < number_of_events; i++)
+		{
+		    if (papi_info[i].pmns_position == idp->item){
+			__pmNotifyErr(LOG_DEBUG, "value: %lld (%s)(%d - %d)\n", values[papi_info[i].position], papi_info[i].papi_string_code, idp->item, i);
+			atom->ull = values[papi_info[i].position];
+			break;
+		    }
+		}
 	    break;
+
 
 	case 18:
 	    atom->cp = enable_string; /* papi.enable */
 	    return PMDA_FETCH_STATIC;
 
 	case 19:
-	    break; /* papi.reset */
+	    //	    break; /* papi.reset */
+	    //	    atom->cp = reset_string;
+	    return PMDA_FETCH_STATIC;
 
 	case 20:
 	    if ((sts = check_papi_state(sts)) == PAPI_RUNNING) {
@@ -353,7 +425,7 @@ remove_metric(unsigned int event, int position)
     state = check_papi_state(state);
     if (state == PAPI_STOPPED) {
 	/* first, copy the values over to new array */
-	for(i = 0; i < (sizeof(papi_info)/sizeof(papi_m_user_tuple)); i++)
+	for(i = 0; i < number_of_events; i++)
 	    new_values[i] = values[i];
 
 	/* due to papi bug, we need to fully destroy the eventset and restart it*/
@@ -374,7 +446,7 @@ remove_metric(unsigned int event, int position)
 	    return retval;
 
 	// run through all metrics and adjust position variable as needed
-	for(i = 0; i < (sizeof(papi_info)/sizeof(papi_m_user_tuple)); i++)
+	for(i = 0; i < number_of_events; i++)
 	    {
 		__pmNotifyErr(LOG_DEBUG, "metric %s (%d)", papi_info[i].papi_string_code, papi_info[i].position);
 		if(papi_info[i].position < position)
@@ -416,7 +488,7 @@ add_metric(unsigned int event)
     /* add check with number_of_counters */
     /* stop papi if running? */
     if (state == PAPI_RUNNING) {
-	for(i = 0; i < (sizeof(papi_info)/sizeof(papi_m_user_tuple)); i++)
+	for (i = 0; i < NumEvents; i++)
 	    new_values[i] = values[i];
 	retval = PAPI_stop(EventSet, values);
 	if(retval != PAPI_OK)
@@ -428,8 +500,8 @@ add_metric(unsigned int event)
 	retval = PAPI_add_event(EventSet, event); //XXX possibly switch this to add_events
 	if(retval != PAPI_OK)
 	    return retval;
-	for(i = 0; i < (sizeof(papi_info)/sizeof(papi_m_user_tuple)); i++)
-	    new_values[i] = values[i];
+	for (i = 0; i < NumEvents; i++)
+	    values[i] = new_values[i];
 	number_of_active_counters++;
 	retval = PAPI_start(EventSet);
 	return retval;
@@ -465,26 +537,30 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		enable_string = av.cp;
 		substring = strtok(enable_string, delim);
 		while(substring != NULL){
-		    for(j = 0; j < (sizeof(papi_info)/sizeof(papi_m_user_tuple)); j++){
+		    for(j = 0; j < number_of_events; j++){
 			if(!strcmp(substring, papi_info[j].papi_string_code)){
 			    // add the metric to the set
 			    retval = add_metric(papi_info[j].papi_event_code);
 			    if (retval == PAPI_OK)
 				papi_info[j].position = number_of_active_counters-1; //minus one because array's start at 0 (not 1)
 			}
-			else
-			    __pmNotifyErr(LOG_DEBUG, "Provided metric name: %s, does not match any known metrics\n", substring);
 		    }
 		    substring = strtok(NULL, delim);
 		}
 		break;
 	    } //if sts
 	case 19: //reset
-	    retval = PAPI_reset(EventSet);
-	    if (retval == PAPI_OK)
-		break;
-	    else
-		return PM_ERR_VALUE;
+	    //	    sts = check_papi_state(sts);
+	    //	    if(sts == PAPI_RUNNING){
+	    //	    if((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+	    //				     PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0){
+		retval = PAPI_reset(EventSet);
+		//		__pmNotifyErr(LOG_DEBUG, "reset: %d\n", retval);
+		//		if (retval == PAPI_OK)
+		    return 0;
+		    //		else
+		    //		    return PM_ERR_VALUE;
+		    //	    }
 	case 20: //disable
 	    if((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				     PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0){
@@ -492,7 +568,8 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		disable_string = av.cp;
 		substring = strtok(disable_string, delim);
 		while(substring != NULL){
-		    for(j = 0; j < (sizeof(papi_info)/sizeof(papi_m_user_tuple)); j++){
+		    //		    for(j = 0; j < (sizeof(papi_info)/sizeof(papi_m_user_tuple)); j++){
+		    for(j = 0; j < number_of_events; j++){
 			if(!strcmp(substring, papi_info[j].papi_string_code)){
 			    // remove the metric from the set
 			    retval = remove_metric(papi_info[j].papi_event_code, j);
@@ -519,19 +596,28 @@ papi_text(int ident, int type, char **buffer, pmdaExt *ep)
 {
     int sts;
     int ec;
+    int i;
+    int position = -1;
     PAPI_event_info_t info;
     ec = 0 | PAPI_PRESET_MASK;
     PAPI_enum_event(&ec, PAPI_ENUM_FIRST);
     __pmID_int *pmidp = (__pmID_int*)&ident;
+    for(i = 0; i < number_of_events; i++){
+	if(pmidp->item == papi_info[i].pmns_position){
+	    position = i;
+	    break;
+	}
+    }
+
     do{
 	if(PAPI_get_event_info(ec, &info) == PAPI_OK){
-		if(info.event_code == papi_info[pmidp->item].papi_event_code) {
-		    if (type == 5)
-			*buffer = info.short_descr;
-		    else if(type == 6)
-			*buffer = info.long_descr;
-		    return 0;
-		}
+	    if(info.event_code == papi_info[position].papi_event_code) {
+		if (type == 5)
+		    *buffer = info.short_descr;
+		else if(type == 6)
+		    *buffer = info.long_descr;
+		return 0;
+	    }
 	}
     } while (PAPI_enum_event(&ec, 0)==PAPI_OK);
     sts = pmdaText(ident, type, buffer, ep);
@@ -541,13 +627,17 @@ papi_text(int ident, int type, char **buffer, pmdaExt *ep)
 int papi_internal_init()
 {
     int retval = 0;
+    unsigned int i = 0;
     number_of_counters = PAPI_num_counters();
     if (number_of_counters < 0){
 	__pmNotifyErr(LOG_ERR, "hardware does not support hardware counters\n");
 	return 1;
     }
     int ec;
+    int addunderscore;
     PAPI_event_info_t info;
+    char *substr;
+    char concatstr[10] = {};
     ec = 0 | PAPI_PRESET_MASK;
     retval = PAPI_library_init(PAPI_VER_CURRENT);
     if (retval != PAPI_VER_CURRENT) {
@@ -555,11 +645,37 @@ int papi_internal_init()
 	return retval;
     }
     /* hack similar to sample pmda */
-   enable_string = (char *)malloc(1);
-   strcpy(enable_string, "");
-   disable_string = (char *)malloc(1);
-   strcpy(disable_string, "");
+    enable_string = (char *)malloc(1);
+    strcpy(enable_string, "");
+    disable_string = (char *)malloc(1);
+    strcpy(disable_string, "");
     PAPI_enum_event(&ec, PAPI_ENUM_FIRST);
+    do{
+	if(PAPI_get_event_info(ec, &info) == PAPI_OK){
+	    i++;
+	    expand_papi_info(i);
+	    papi_info[i-1].papi_event_code = info.event_code;
+	    substr = strtok(info.symbol, "_");
+	    while(substr != NULL)
+		{
+		    addunderscore = 0;
+		    if(strcmp("PAPI",substr)){
+			addunderscore = 1;
+			strcat(concatstr, substr);
+		    }
+		    substr = strtok(NULL, "_");
+		    if(substr != NULL && addunderscore){
+			strcat(concatstr, "_");
+		    }
+		}
+	    strcpy(papi_info[i-1].papi_string_code, concatstr);
+	    memset(&concatstr[0], 0, sizeof(concatstr));
+	    papi_info[i-1].position = -1;
+	    set_pmns_position(i-1);
+	    __pmNotifyErr(LOG_DEBUG, "pmns_position: %d - %s\n", papi_info[i-1].pmns_position, papi_info[i-1].papi_string_code);
+	}
+    }while(PAPI_enum_event(&ec, 0) == PAPI_OK);
+
     if(PAPI_create_eventset(&EventSet) != PAPI_OK){
 	__pmNotifyErr(LOG_DEBUG, "create eventset error!\n");
 	return retval;
