@@ -28,14 +28,11 @@ CONFIGURE_GENERATED = pcp.lsm \
 LICFILES = COPYING
 DOCFILES = README INSTALL CHANGELOG VERSION.pcp
 CONFFILES = pcp.lsm
-LSRCFILES = aclocal.m4 configure config.guess config.sub \
-	    configure.ac pcp.lsm.in Makepkgs install-sh \
-	    $(DOCFILES) $(LICFILES)
 LDIRT = config.cache config.status config.log files.rpm pro_files.rpm \
 	autom4te.cache install.manifest install_pro.manifest \
 	debug*.list devel_files libs_files base_files.rpm libs_files.rpm \
 	devel_files.rpm perl-pcp*.list* python-pcp*.list* conf_files
-LDIRDIRT = pcp-?.?.?  pcp-*-?.?.?
+LDIRDIRT = pcp-[0-9]*.[0-9]*.[0-9]*  pcp-*-[0-9]*.[0-9]*.[0-9]*
 
 SUBDIRS = src
 ifneq ($(TARGET_OS),mingw)
@@ -123,7 +120,8 @@ realclean distclean clean clobber:
 endif
 
 aclocal.m4:
-	aclocal --acdir=`pwd`/m4 --output=$@
+	# older aclocal(1) versions use --acdir but not the current versions
+	aclocal --system-acdir=`pwd`/m4 --output=$@
 
 pcp.lsm src/include/builddefs src/include/pcp/platform_defs.h: configure pcp.lsm.in src/include/builddefs.in src/include/pcp/platform_defs.h.in
 	@echo Please run ./configure with the appropriate options to generate $@.

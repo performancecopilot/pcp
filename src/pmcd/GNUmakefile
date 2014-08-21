@@ -19,10 +19,10 @@ include $(TOPDIR)/src/include/builddefs
 SUBDIRS = src
 LDIRT	= *.log
 
-default : $(SUBDIRS)
+default : $(SUBDIRS) pmcd.service
 	$(SUBDIRS_MAKERULE)
 
-install :: $(SUBDIRS)
+install : $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 	$(INSTALL) -m 755 -d `dirname $(PCP_PMCDOPTIONS_PATH)`
 	$(INSTALL) -m 644 pmcd.options $(PCP_PMCDOPTIONS_PATH)
@@ -30,6 +30,9 @@ install :: $(SUBDIRS)
 	$(INSTALL) -m 755 rc_local $(PCP_PMCDRCLOCAL_PATH)
 	$(INSTALL) -m 755 rc_pmcd $(PCP_RC_DIR)/pmcd
 	$(INSTALL) -m 755 rc_pcp $(PCP_RC_DIR)/pcp
+ifeq ($(ENABLE_SYSTEMD),true)
+	$(INSTALL) -m 644 pmcd.service $(PCP_SYSTEMDUNIT_DIR)/pmcd.service
+endif
 	$(INSTALL) -m 644 pmdaproc.sh $(PCP_SHARE_DIR)/lib/pmdaproc.sh
 	$(INSTALL) -m 644 rc-proc.sh $(PCP_SHARE_DIR)/lib/rc-proc.sh
 	$(INSTALL) -m 644 rc-proc.sh.minimal $(PCP_SHARE_DIR)/lib/rc-proc.sh.minimal
@@ -44,3 +47,6 @@ include $(BUILDRULES)
 default_pcp : default
 
 install_pcp : install
+
+pmcd.service: pmcd.service.in
+	$(SED) -e 's;@path@;'$(PCP_RC_DIR)';' $< > $@

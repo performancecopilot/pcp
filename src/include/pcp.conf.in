@@ -202,3 +202,6 @@ PCP_GROUP=@pcp_group@
 # Standard path: /etc/sasl2
 PCP_SASLCONF_DIR=@pcp_saslconf_dir@
 
+# directory for systemd unit files
+# Standard path: /usr/lib/systemd/systemd
+PCP_SYSTEMDUNIT_DIR=@pcp_systemdunit_dir@
