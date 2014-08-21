@@ -460,8 +460,8 @@ rm -rf $RPM_BUILD_ROOT/usr/share/doc/pcp-gui
 desktop-file-validate $RPM_BUILD_ROOT/%{_datadir}/applications/pmchart.desktop
 %endif
 
+%if %{disable_systemd}
 # default chkconfig off for Fedora and RHEL
-%if !%{disable_systemd}
 for f in $RPM_BUILD_ROOT/%{_initddir}/{pcp,pmcd,pmlogger,pmie,pmwebd,pmmgr,pmproxy}; do
 	test -f "$f" || continue
 	sed -i -e '/^# chkconfig/s/:.*$/: - 95 05/' -e '/^# Default-Start:/s/:.*$/:/' $f
@@ -722,7 +722,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %attr(0775,pcp,pcp) %{_logsdir}/pmie
 %attr(0775,pcp,pcp) %{_logsdir}/pmproxy
 %{_localstatedir}/lib/pcp/pmns
-%if !%{disable_systemd}
+%if %{disable_systemd}
 %{_initddir}/pcp
 %{_initddir}/pmcd
 %{_initddir}/pmlogger
@@ -805,7 +805,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %if !%{disable_microhttpd}
 %files webapi
 %defattr(-,root,root)
-%if !%{disable_systemd}
+%if %{disable_systemd}
 %{_initddir}/pmwebd
 %endif
 %{_libexecdir}/pcp/bin/pmwebd
@@ -818,7 +818,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %files manager
 %defattr(-,root,root)
-%if !%{disable_systemd}
+%if %{disable_systemd}
 %{_initddir}/pmmgr
 %endif
 %{_libexecdir}/pcp/bin/pmmgr

@@ -674,11 +674,11 @@ chown -R pcp:pcp "$PCP_LOG_DIR/pmwebd" 2>/dev/null
 if [ "$1" -eq 0 ]
 then
     %if "@enable_systemd@" == "true"
-	/sbin/service pmmgr stop >/dev/null 2>&1
-	/sbin/chkconfig --del pmmgr >/dev/null 2>&1
-    %else
 	systemctl --no-reload disable pmmgr.service >/dev/null 2>&1
 	systemctl stop pmmgr.service >/dev/null 2>&1
+    %else
+	/sbin/service pmmgr stop >/dev/null 2>&1
+	/sbin/chkconfig --del pmmgr >/dev/null 2>&1
     %endif
 fi
 
@@ -697,6 +697,16 @@ if [ "$1" -eq 0 ]
 then
     # stop daemons before erasing the package
     %if "@enable_systemd@" == "true"
+	systemctl --no-reload disable pmlogger.service >/dev/null 2>&1
+	systemctl --no-reload disable pmie.service >/dev/null 2>&1
+	systemctl --no-reload disable pmproxy.service >/dev/null 2>&1
+	systemctl --no-reload disable pmcd.service >/dev/null 2>&1
+
+	systemctl stop pmlogger.service >/dev/null 2>&1
+	systemctl stop pmie.service >/dev/null 2>&1
+	systemctl stop pmproxy.service >/dev/null 2>&1
+	systemctl stop pmcd.service >/dev/null 2>&1
+    %else
 	/sbin/service pmlogger stop >/dev/null 2>&1
 	/sbin/service pmie stop >/dev/null 2>&1
 	/sbin/service pmproxy stop >/dev/null 2>&1
@@ -707,16 +717,6 @@ then
 	/sbin/chkconfig --del pmlogger >/dev/null 2>&1
 	/sbin/chkconfig --del pmie >/dev/null 2>&1
 	/sbin/chkconfig --del pmproxy >/dev/null 2>&1
-    %else
-	systemctl --no-reload disable pmlogger.service >/dev/null 2>&1
-	systemctl --no-reload disable pmie.service >/dev/null 2>&1
-	systemctl --no-reload disable pmproxy.service >/dev/null 2>&1
-	systemctl --no-reload disable pmcd.service >/dev/null 2>&1
-
-	systemctl stop pmlogger.service >/dev/null 2>&1
-	systemctl stop pmie.service >/dev/null 2>&1
-	systemctl stop pmproxy.service >/dev/null 2>&1
-	systemctl stop pmcd.service >/dev/null 2>&1
     %endif
     # cleanup namespace state/flag, may still exist
     PCP_PMNS_DIR=@pcp_var_dir@/pmns
