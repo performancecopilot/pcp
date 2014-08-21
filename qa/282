@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 . ./localconfig
 
 [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ] \
-    _notrun "$PCP_PLATFORM is not yet supported in test $seq"
+    || _notrun "$PCP_PLATFORM is not yet supported in test $seq"
 
 status=1	# failure is the default!
 _needclean=true
@@ -25,7 +25,7 @@ sleepy=false
 LOCALHOST=`hostname`
 LOGGING_DIR=$PCP_LOG_DIR/pmlogger
 CHECK=`which pmlogger_check`
-[ -z "$CHECK" -o ! -x "$CHECK" ] || \
+[ -z "$CHECK" -o ! -x "$CHECK" ] && \
     _notrun "Cannot find an executable pmlogger_check: \"$CHECK\""
 
 _poke_pmcd()

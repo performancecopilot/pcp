@@ -43,7 +43,7 @@ SRCARCH	= mirage.0 moomba.client.0 \
 	pyapi.0 pcp-free.0 pcp-uptime.0 pcp-numastat-1-node.0 numa.0 \
 	slow.0 bug1057.0
 
-SRCARCHPART = ok-noti-bigbin.0 \
+SRCARCHPART = ok-noti-bigbin.0 pmatop-log.folio \
 	20130706.0.bz2 20130706.index 20130706.meta
 
 MKARCH	= foo.0 mv-foo.0 noti-foo.0 bar.0 mv-bar.0 noti-bar.0 \
