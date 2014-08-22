@@ -50,7 +50,7 @@ COMMON = common.check common.config common.filter \
 	 common.product common.rc common.setup \
 	 common.secure common.gfs2 common.rpm \
 	 common.python common.sh common.qt common.avahi \
-	 common.discovery
+	 common.discovery common.compress
 
 OTHERS = GNUmakefile.install group qa_hosts.master README \
 	 valgrind-suppress sanity.coverage

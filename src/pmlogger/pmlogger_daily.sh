@@ -54,11 +54,11 @@ CONTROL=$PCP_PMLOGGERCONTROL_PATH
 #
 CULLAFTER=14
 
-# default compression program
+# default compression program and days until starting compression
 # 
-COMPRESS=bzip2
+COMPRESS=xz
 COMPRESSAFTER=""
-COMPRESSREGEX="\.meta$|\.index$|\.Z$|\.gz$|\.bz2$|\.zip$|\.xz$|\.lzo$"
+COMPRESSREGEX="\.(meta|index|Z|gz|bz2|zip|xz|lzma|lzo|lz4)$"
 
 # threshold size to roll $PCP_LOG_DIR/NOTICES
 #
