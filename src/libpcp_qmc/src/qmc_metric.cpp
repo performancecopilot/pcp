@@ -119,9 +119,9 @@ QmcMetric::setupDesc(QmcGroup* group, pmMetricSpec *metricSpec)
 
     QString source = QString(metricSpec->source);
     my.status = group->use(contextType, source);
-    my.contextIndex = group->contextIndex();
 
     if (my.status >= 0) {
+	my.contextIndex = group->contextIndex();
 	contextType = context()->source().type();
 	my.status = context()->lookupPMID(metricSpec->metric, my.pmid);
 	if (my.status >= 0)
@@ -136,9 +136,11 @@ QmcMetric::setupDesc(QmcGroup* group, pmMetricSpec *metricSpec)
 		     name, pmErrStr(my.status));
 	}
     }
-    else 
-	pmprintf("%s: Error: %s: %s\n", pmProgname,
-		 context()->source().descAscii(), pmErrStr(my.status));
+    else  {
+	// do nothing, error already reported via pmprintf from
+	// QmcGroup::use()
+	;
+    }
 
     if (my.status >= 0) {
 	descType = desc().desc().type;
