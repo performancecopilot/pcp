@@ -497,435 +497,435 @@ papi_string_status()
 static pmdaMetric metrictab[] = {
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.TOT_INS */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.TOT_INS */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.TOT_CYC */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.TOT_CYC */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_DCM */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L1_DCM */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_ICM */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L1_ICM */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_DCM */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L2_DCM */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_ICM */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L2_ICM */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_DCM */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L3_DCM */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_ICM */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L3_ICM */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,8), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_TCM */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L1_TCM */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,9), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_TCM */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L2_TCM */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,10), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_TCM */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L3_TCM */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,11), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.TLB_DM */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.TLB_DM */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,12), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.TLB_IM */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.TLB_IM */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,13), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.TLB_TL */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.TLB_TL */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,14), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_LDM */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L1_LDM */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,15), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_STM */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L1_STM */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,16), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_LDM */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L2_LDM */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,17), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_STM */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L2_STM */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,18), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.CA_SNP */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.CA_SNP */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,19), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.CA_SHR */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.CA_SHR */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,20), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.CA_CLN */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.CA_CLN */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,21), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.CA_INV */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.CA_INV */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,22), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.CA_ITV */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.CA_ITV */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,23), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_LDM */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L3_LDM */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,24), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_STM */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L3_STM */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,25), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.BRU_IDL */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.BRU_IDL */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,26), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.FXU_IDL */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.FXU_IDL */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,27), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.FPU_IDL */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.FPU_IDL */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,28), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.LSU_IDL */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.LSU_IDL */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,29), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.BTAC_M */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.BTAC_M */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,30), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.PRF_DM */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.PRF_DM */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,31), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_DCH */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L3_DCH */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,32), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.TLB_SD */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.TLB_SD */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,33), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.CSR_FAL */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.CSR_FAL */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,34), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.CSR_SUC */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.CSR_SUC */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,35), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.CSR_TOT */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.CSR_TOT */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,36), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.MEM_SCY */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.MEM_SCY */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,37), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.MEM_RCY */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.MEM_RCY */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,38), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.MEM_WCY */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.MEM_WCY */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,39), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.STL_ICY */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.STL_ICY */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,40), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.FUL_ICY */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.FUL_ICY */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,41), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.STL_CCY */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.STL_CCY */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,42), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.FUL_CCY */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.FUL_CCY */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,43), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.HW_INT */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.HW_INT */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,44), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.BR_UCN */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.BR_UCN */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,45), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.BR_CN */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.BR_CN */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,46), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.BR_TKN */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.BR_TKN */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,47), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.BR_NTK */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.BR_NTK */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,48), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.BR_MSP */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.BR_MSP */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,49), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.BR_PRC */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.BR_PRC */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,50), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.FMA_INS */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.FMA_INS */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,51), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.TOT_IIS */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.TOT_IIS */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,52), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.INT_INS */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.INT_INS */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,53), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.FP_INS */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.FP_INS */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,54), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.LD_INS */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.LD_INS */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,55), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.SR_INS */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.SR_INS */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,56), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.BR_INS */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.BR_INS */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,57), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.VEC_INS */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.VEC_INS */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,58), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.RES_STL */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.RES_STL */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,59), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.FP_STAL */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.FP_STAL */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,60), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.LST_INS */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.LST_INS */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,61), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.SYC_INS */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.SYC_INS */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,62), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_DCH */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L1_DCH */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,63), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_DCH */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L2_DCH */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,64), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_DCA */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L1_DCA */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,65), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_DCA */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L2_DCA */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,66), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_DCA */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L3_DCA */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,67), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_DCR */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L1_DCR */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,68), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_DCR */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L2_DCR */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,69), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_DCR */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L3_DCR */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,70), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_DCW */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L1_DCW */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,71), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_DCW */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L2_DCW */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,72), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_DCW */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L3_DCW */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,73), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_ICH */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L1_ICH */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,74), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_ICH */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L2_ICH */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,75), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_ICH */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L3_ICH */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,76), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_ICA */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L1_ICA */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,77), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_ICA */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L2_ICA */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,78), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_ICA */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L3_ICA */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,79), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_ICR */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L1_ICR */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,80), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_ICR */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L2_ICR */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,81), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_ICR */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L3_ICR */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,82), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_ICW */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L1_ICW */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,83), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_ICW */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L2_ICW */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,84), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_ICW */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L3_ICW */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,85), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_TCH */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L1_TCH */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,86), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_TCH */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L2_TCH */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,87), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_TCH */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L3_TCH */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,88), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_TCA */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L1_TCA */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,89), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_TCA */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L2_TCA */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,90), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_TCA */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L3_TCA */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,91), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_TCR */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L1_TCR */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,92), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_TCR */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L2_TCR */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,93), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_TCR */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L3_TCR */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,94), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L1_TCW */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L1_TCW */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,95), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L2_TCW */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L2_TCW */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,96), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.L3_TCW */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.L3_TCW */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,97), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.FML_INS */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.FML_INS */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,98), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.FAD_INS */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.FAD_INS */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,99), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.FDV_INS */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.FDV_INS */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,100), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.FSQ_INS */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.FSQ_INS */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,101), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.FNV_INS */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.FNV_INS */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,102), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.FP_OPS */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.FP_OPS */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,103), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.SP_OPS */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.SP_OPS */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,104), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.DP_OPS */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.DP_OPS */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,105), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.VEC_SP */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.VEC_SP */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,106), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.VEC_DP */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.VEC_DP */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,107), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.preset.REF_CYC */
+	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.REF_CYC */
 
     { NULL,
       { PMDA_PMID(CLUSTER_PAPI,1000), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,

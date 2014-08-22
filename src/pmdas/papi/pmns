@@ -15,15 +15,6 @@
  */
 
 papi {
-    preset
-    enable PAPI:0:1000
-    reset PAPI:0:1001
-    disable PAPI:0:1002
-    status PAPI:0:1003
-    num_counters PAPI:0:1004
-}
-
-papi.preset {
     TOT_INS PAPI:0:0
     TOT_CYC PAPI:0:1
     L1_DCM PAPI:0:2
@@ -132,6 +123,11 @@ papi.preset {
     VEC_SP PAPI:0:105
     VEC_DP PAPI:0:106
     REF_CYC PAPI:0:107
+    enable PAPI:0:1000
+    reset PAPI:0:1001
+    disable PAPI:0:1002
+    status PAPI:0:1003
+    num_counters PAPI:0:1004
 }
 
 
