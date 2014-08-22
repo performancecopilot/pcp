@@ -8,10 +8,3 @@ tmp=/tmp/$$
 here=`pwd`
 sudo=sudo
 host=`hostname`
-
-if [ -f /usr/lib/libpcp_qmc.so ]
-then
-    :
-else
-    _notrun "libpcp_qmc not installed"
-fi

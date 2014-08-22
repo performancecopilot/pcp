@@ -6,6 +6,8 @@ seq=`basename $0`
 echo "QA output created by $seq"
 . ./common.qt
 
+[ -x qt/qmc_hosts/qmc_hosts ] || _notrun "qmc_hosts not built or installed"
+
 # real QA test starts here
 
 qt/qmc_hosts/qmc_hosts -DPMC 2>&1 \

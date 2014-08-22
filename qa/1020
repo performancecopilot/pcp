@@ -6,6 +6,8 @@ seq=`basename $0`
 echo "QA output created by $seq"
 . ./common.qt
 
+[ -x qt/qmc_dynamic/qmc_dynamic ] || _notrun "qmc_dynamic not built or installed"
+
 _cleanup()
 {
     if [ ! -f $tmp.done ]

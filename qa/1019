@@ -6,6 +6,8 @@ seq=`basename $0`
 echo "QA output created by $seq"
 . ./common.qt
 
+[ -x qt/qmc_group/qmc_group ] || _notrun "qmc_group not built or installed"
+
 _cleanup()
 {
     if [ ! -f $tmp.done ]
