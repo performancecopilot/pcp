@@ -54,13 +54,14 @@ linux_filter()
     sed \
 	-e "/disk\.dm\..*: $unavailable/d" \
 	-e "/filesys\.readonly: $unknown/d" \
-	-e "/hinv\.nlv: $unavailable/d" \
 	-e "/hinv\.cpu\..*: $unavailable/d" \
 	-e "/hinv\.map\.dmname: $unavailable/d" \
+	-e "/hinv\.nlv: $unavailable/d" \
 	-e "/kernel\.pernode..*: $unavailable/d" \
 	-e "/mem\.util\.active_anon: $unavailable/d" \
 	-e "/mem\.util\.active_file: $unavailable/d" \
 	-e "/mem\.util\.anonhugepages: $unavailable/d" \
+	-e "/mem\.util\.available: $unavailable/d" \
 	-e "/mem\.util\.corrupthardware: $unavailable/d" \
 	-e "/mem\.util\.directMap1G: $unavailable/d" \
 	-e "/mem\.util\.directMap2M: $unavailable/d" \
@@ -83,33 +84,50 @@ linux_filter()
 	-e "/mem\.util\.slabReclaimable: $unavailable/d" \
 	-e "/mem\.util\.slabUnreclaimable: $unavailable/d" \
 	-e "/mem\.util\.unevictable: $unavailable/d" \
+	-e "/mem\.vmstat\..*: $unavailable/d" \
 	-e "/network\.icmpmsg\..*: $unavailable/d" \
+	-e "/network\.interface\.hw_addr: $unavailable/d" \
 	-e "/network\.interface\.ipv6_addr: $unavailable/d" \
 	-e "/network\.interface\.ipv6_scope: $unavailable/d" \
-	-e "/network\.interface\.hw_addr: $unavailable/d" \
 	-e "/network\.ip\.ce.*: $unavailable/d" \
 	-e "/network\.ip\.csum.*: $unavailable/d" \
 	-e "/network\.ip\.ect.*: $unavailable/d" \
-	-e "/network\.ip\.noect.*: $unavailable/d" \
+	-e "/network\.ip\.inbcastoctets: $unavailable/d" \
+	-e "/network\.ip\.inoctets: $unavailable/d" \
 	-e "/network\.ip\..*mcast.*: $unavailable/d" \
-	-e "/network\.tcp\.fast.*: $unavailable/d" \
-	-e "/network\.tcp\.from.*: $unavailable/d" \
-	-e "/network\.tcp\.orig.*: $unavailable/d" \
-	-e "/network\.tcp\.loss.*: $unavailable/d" \
-	-e "/network\.tcp\.ofo.*: $unavailable/d" \
-	-e "/network\.tcp\.rcv.*: $unavailable/d" \
-	-e "/network\.tcp\.syn.*: $unavailable/d" \
-	-e "/network\.tcp\..*window.*: $unavailable/d" \
-	-e "/network\.tcp\.timewait.*: $unavailable/d" \
-	-e "/network\.tcp\.spurious.*: $unavailable/d" \
+	-e "/network\.ip\.noect.*: $unavailable/d" \
+	-e "/network\.ip\.outbcastoctets: $unavailable/d" \
+	-e "/network\.ip\.outoctets: $unavailable/d" \
 	-e "/network\.tcp\.autocork.*: $unavailable/d" \
+	-e "/network\.tcp\.backlogdrop: $unavailable/d" \
 	-e "/network\.tcp\.busypoll.*: $unavailable/d" \
 	-e "/network\.tcp\.challenge.*: $unavailable/d" \
 	-e "/network\.tcp\.defer.*: $unavailable/d" \
+	-e "/network\.tcp\.dsackignorednoundo: $unavailable/d" \
+	-e "/network\.tcp\.dsackignoredold: $unavailable/d" \
+	-e "/network\.tcp\.fast.*: $unavailable/d" \
+	-e "/network\.tcp\.from.*: $unavailable/d" \
 	-e "/network\.tcp\.iprpfilter.*: $unavailable/d" \
+	-e "/network\.tcp\.loss.*: $unavailable/d" \
+	-e "/network\.tcp\.md5notfound: $unavailable/d" \
+	-e "/network\.tcp\.md5unexpected: $unavailable/d" \
+	-e "/network\.tcp\.minttldrop: $unavailable/d" \
+	-e "/network\.tcp\.ofo.*: $unavailable/d" \
+	-e "/network\.tcp\.orig.*: $unavailable/d" \
+	-e "/network\.tcp\.rcv.*: $unavailable/d" \
 	-e "/network\.tcp\.reqq.*: $unavailable/d" \
 	-e "/network\.tcp\.retrans.*: $unavailable/d" \
-	-e "/mem\.vmstat\..*: $unavailable/d" \
+	-e "/network\.tcp\.sackdiscard: $unavailable/d" \
+	-e "/network\.tcp\.sackmerged: $unavailable/d" \
+	-e "/network\.tcp\.sackshifted: $unavailable/d" \
+	-e "/network\.tcp\.sackshiftfallback: $unavailable/d" \
+	-e "/network\.tcp\.spurious.*: $unavailable/d" \
+	-e "/network\.tcp\.syn.*: $unavailable/d" \
+	-e "/network\.tcp\.timewait.*: $unavailable/d" \
+	-e "/network\.tcp\..*window.*: $unavailable/d" \
+	-e "/network\.udplite\..*: $unavailable/d" \
+	-e "/network\.udp\.recvbuferrors: $unavailable/d" \
+	-e "/network\.udp\.sndbuferrors: $unavailable/d" \
 	-e "/swapdev\.free: $unavailable/d" \
 	-e "/swapdev\.length: $unavailable/d" \
 	-e "/swapdev\.maxswap: $unavailable/d" \
