@@ -35,16 +35,13 @@ typedef struct {
 
 static papi_m_user_tuple *papi_info = NULL;
 #define CLUSTER_PAPI 0 //we should define this in a header for when these exand possible values
-#define NumEvents 100
 static char     *enable_string;
 static char     *disable_string;
 static char     *username = "root";
 static char     mypath[MAXPATHLEN];
 static char     isDSO = 1; /* == 0 if I am a daemon */
 static int      EventSet = PAPI_NULL;
-//static int      NumEvents = 17;
-static long_long values[NumEvents] = {(long_long) 0};
-static int enablers[NumEvents] = {0};
+static long_long *values = NULL;
 static unsigned int enable_counters = 0;
 struct uid_gid_tuple {
     char uid_p; char gid_p; /* uid/gid received flags. */
@@ -55,6 +52,7 @@ static struct uid_gid_tuple *ctxtab = NULL;
 int ctxtab_size = 0;
 int number_of_counters = 0;
 unsigned int number_of_active_counters = 0;
+unsigned int size_of_active_counters = 0;
 unsigned int number_of_events = 0;
 
 void set_pmns_position(unsigned int i)
@@ -408,6 +406,22 @@ void expand_papi_info(int size)
 		__pmNoMem("papi_info tuple", new_size, PM_FATAL_ERR);
 	    while(number_of_events <= size)
 		memset(&papi_info[number_of_events++], 0, sizeof(papi_m_user_tuple));
+	}
+}
+
+void expand_values(int size)
+{
+    if (size_of_active_counters <= size)
+	{
+	    size_t new_size = (size + 1) * sizeof(long_long);
+	    values = realloc(values, new_size);
+	    if (values == NULL)
+		__pmNoMem("values", new_size, PM_FATAL_ERR);
+	    __pmNotifyErr(LOG_DEBUG, "sizeof size_of_active_counters %d\n", size_of_active_counters);
+	    while(size_of_active_counters <= size){
+		memset(&values[size_of_active_counters++], 0, sizeof(long_long));
+		__pmNotifyErr(LOG_DEBUG, "memsetting to zero, %d\n", size_of_active_counters);
+	    }
 	}
 }
 
@@ -1133,7 +1147,7 @@ remove_metric(unsigned int event, int position)
     int state = 0;
     int restart = 0; // bool to restart running values at the end
     int i;
-    long_long new_values[NumEvents];
+    long_long new_values[size_of_active_counters];
 
     /* check to make sure papi is running, otherwise do nothing */
     state = check_papi_state(state);
@@ -1150,7 +1164,7 @@ remove_metric(unsigned int event, int position)
 	    new_values[i] = values[i];
 
 	/* due to papi bug, we need to fully destroy the eventset and restart it*/
-	memset (values, 0, sizeof(values[0])*NumEvents);
+	memset (values, 0, sizeof(values[0])*size_of_active_counters);
 	retval = PAPI_cleanup_eventset(EventSet);
 	if(retval != PAPI_OK)
 	    return retval;
@@ -1202,14 +1216,14 @@ add_metric(unsigned int event)
 {
     int retval = 0;
     int state = 0;
-    long_long new_values[NumEvents];
+    long_long new_values[size_of_active_counters];
     int i;
     /* check status of papi */
     state = check_papi_state(state);
     /* add check with number_of_counters */
     /* stop papi if running? */
     if (state == PAPI_RUNNING) {
-	for (i = 0; i < NumEvents; i++)
+	for (i = 0; i < size_of_active_counters; i++)
 	    new_values[i] = values[i];
 	retval = PAPI_stop(EventSet, values);
 	if(retval != PAPI_OK)
@@ -1221,7 +1235,7 @@ add_metric(unsigned int event)
 	retval = PAPI_add_event(EventSet, event); //XXX possibly switch this to add_events
 	if(retval != PAPI_OK)
 	    return retval;
-	for (i = 0; i < NumEvents; i++)
+	for (i = 0; i < size_of_active_counters; i++)
 	    values[i] = new_values[i];
 	number_of_active_counters++;
 	retval = PAPI_start(EventSet);
@@ -1347,6 +1361,7 @@ papi_text(int ident, int type, char **buffer, pmdaExt *ep)
 
 int papi_internal_init()
 {
+
     int retval = 0;
     unsigned int i = 0;
     number_of_counters = PAPI_num_counters();
@@ -1393,10 +1408,9 @@ int papi_internal_init()
 	    memset(&concatstr[0], 0, sizeof(concatstr));
 	    papi_info[i-1].position = -1;
 	    set_pmns_position(i-1);
-	    __pmNotifyErr(LOG_DEBUG, "pmns_position: %d - %s\n", papi_info[i-1].pmns_position, papi_info[i-1].papi_string_code);
 	}
     }while(PAPI_enum_event(&ec, 0) == PAPI_OK);
-
+    expand_values(i);
     if(PAPI_create_eventset(&EventSet) != PAPI_OK){
 	__pmNotifyErr(LOG_DEBUG, "create eventset error!\n");
 	return retval;
@@ -1476,11 +1490,11 @@ papi_contextAttributeCallBack(int context, int attr,
     }
 
     if(atoi(value) != 0){
-	__pmNotifyErr(LOG_DEBUG, "non-root attempted access, uid: %d\n", atoi(value));
+	//	__pmNotifyErr(LOG_DEBUG, "non-root attempted access, uid: %d\n", atoi(value));
 	return PM_ERR_PERMISSION;
     }
     else
-	__pmNotifyErr(LOG_DEBUG, "root pmdapapi access uid: %d\n", atoi(value));
+	//	__pmNotifyErr(LOG_DEBUG, "root pmdapapi access uid: %d\n", atoi(value));
     return 0;
 }
 
@@ -1650,6 +1664,10 @@ main(int argc, char **argv)
     papi_init(&dispatch);
     pmdaConnect(&dispatch);
     pmdaMain(&dispatch);
+
+    free(ctxtab);
+    free(papi_info);
+    free(values);
 
     exit(0);
 }
