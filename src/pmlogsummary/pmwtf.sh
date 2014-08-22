@@ -31,12 +31,14 @@ Options:
   -d,--keep            debug, keep intermediate files
   -p=N,--precision=N   number of digits to display after the decimal point
   -q=N,--threshold=N   change interesting threshold to be > N or < 1/N [N=2]
+  --skip-missing       do not report metrics missing between the archives
+  --skip-excluded      do not report the list of metrics being excluded
   --start
   --finish
-  -B=TIME,--begin=TIME  start time for second archive (optional)
-  -E=TIME,--end=TIME    end time for second archive (optional)
-  -x=REGEX              egrep(1) pattern of metric(s) to be excluded
-  -X=FILE               file containing egrep(1) patterns to exclude
+  -B=TIME,--begin=TIME start time for second archive (optional)
+  -E=TIME,--end=TIME   end time for second archive (optional)
+  -x=REGEX             egrep(1) pattern of metric(s) to be excluded
+  -X=FILE              file containing egrep(1) patterns to exclude
   --timezone
   --hostzone
   --help
@@ -66,6 +68,8 @@ start2=""
 finish1=""
 finish2=""
 precision=3
+skip_missing=false
+skip_excluded=false
 
 ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
 [ $? != 0 ] && exit 1
@@ -112,6 +116,12 @@ do
 	-Z)	opts="$opts -Z $2"
 		shift
 		;;
+	--skip-missing)
+		skip_missing=true
+		;;
+	--skip-excluded)
+		skip_excluded=true
+		;;
 	--)	shift
 		break
 		;;
@@ -135,9 +145,15 @@ else
     arch2="$1"
 fi
 
+[ $precision -lt 3 -o $precision -gt 15 ] && precision=3
+colwidth=`expr 12 + $precision`
+
 echo "Directory: `pwd`"
-echo "Excluded metrics:"
-sed -e 's/^/    /' <$tmp/exclude
+if ! $skip_excluded
+then
+    echo "Excluded metrics:"
+    sed -e 's/^/    /' <$tmp/exclude
+fi
 echo
 
 options="$opts"
@@ -199,27 +215,31 @@ else
     window2="$window2-$finish2"
 fi
 
-join -t\| -v 2 $tmp/1 $tmp/2 >$tmp/tmp
-if [ -s $tmp/tmp ]
+if ! $skip_missing
 then
-    echo "Missing from $arch1 $window1 (not compared) ..."
-    sed <$tmp/tmp -e 's/|.*//' -e 's/^/    /'
-    echo
-fi
+    join -t\| -v 2 $tmp/1 $tmp/2 >$tmp/tmp
+    if [ -s $tmp/tmp ]
+    then
+	echo "Missing from $arch1 $window1 (not compared) ..."
+	sed <$tmp/tmp -e 's/|.*//' -e 's/^/    /'
+	echo
+    fi
 
-join -t\| -v 1 $tmp/1 $tmp/2 >$tmp/tmp
-if [ -s $tmp/tmp ]
-then
-    echo "Missing from $arch2 $window2 (not compared) ..."
-    sed <$tmp/tmp -e 's/|.*//' -e 's/^/    /'
-    echo
+    join -t\| -v 1 $tmp/1 $tmp/2 >$tmp/tmp
+    if [ -s $tmp/tmp ]
+    then
+	echo "Missing from $arch2 $window2 (not compared) ..."
+	sed <$tmp/tmp -e 's/|.*//' -e 's/^/    /'
+	echo
+    fi
 fi
 
 a1=`basename "$arch1"`
 a2=`basename "$arch2"`
 echo "$thres" | awk '
     { printf "Ratio Threshold: > %.2f or < %.3f\n",'"$thres"',1/'"$thres"'
-      printf "%15s %15s   Ratio  Metric-Instance\n","'"$a1"'","'"$a2"'" }'
+      printf "%*s %*s   Ratio  Metric-Instance\n",
+             '$colwidth', "'"$a1"'", '$colwidth', "'"$a2"'" }'
 if [ -z "$start1" ] 
 then
     window1="start"
@@ -244,14 +264,12 @@ then
 else
     window2="$window2-$finish2"
 fi
-printf '%15s %15s\n' "$window1" "$window2"
+printf '%*s %*s\n' $colwidth "$window1" $colwidth "$window2"
 join -t\| $tmp/1 $tmp/2 \
 | awk -F\| '
 function doval(v)
 {
     precision='"$precision"'
-    if (precision < 3 || precision > 15)
-	precision=3
     extra=precision-3
     if (v > 99999999)
 	printf "%*.*f%*s",15+extra,0,v,1," "

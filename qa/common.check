@@ -1123,38 +1123,30 @@ _change_config()
 {
     if [ $PCP_PLATFORM = linux ]
     then
-	case $1 
-	in
-	    pmcd)	if [ $PCP_VER -lt 3600 ]
-			then
-			    # both the chkconfig options pmlogger and pcp
-			    # map to pcp for Linux and PCP before 3.6 ...
-			    # use pcp here
-			    pat=pcp
-			else
-			    pat=pmcd
-			fi
-			;;
-	    pmlogger)	if [ $PCP_VER -lt 3600 ]
-	    		then
-			    # both the chkconfig options pmlogger and pcp
-			    # map to pcp for Linux and PCP before 3.6 ...
-			    # skip pmlogger here
-			    pat=""
-			else
-			    pat=pmlogger
-			fi
-			;;
-	    pmie)	pat=pmie
-			;;
-	    verbose)	pat=""
-			;;
-	    *)		pat=$1
-			;;
-	esac
-	if which chkconfig >/dev/null 2>&1
+	pat=$1
+	[ "$1" = "verbose" ] && pat=""
+
+	if which systemctl >/dev/null 2>&1
 	then
-	    # Try the RedHat and SuSE way ..
+	    # Run with systemd whenever it is available now
+	    #
+	    case "$2"
+	    in
+		on)	act=enable ;;
+		off)	act=disable ;;
+		*)
+		    echo "_change_config: Error: \$2=$2 not \"on\" or \"off\" as expected"
+		    exit 1
+		    ;;
+	    esac
+	    if [ -n "$pat" ]
+	    then
+		$sudo systemctl $act $pat.service >$tmp._tmp 2>$tmp._err
+		[ $? -eq 0 ] || cat $tmp._tmp
+	    fi
+	elif which chkconfig >/dev/null 2>&1
+	then
+	    # Try the older RedHat and SuSE way ..
 	    #
 	    [ -n "$pat" ] && $sudo chkconfig $pat $2
 	elif [ -x /usr/sbin/sysv-rc-conf ]
@@ -1170,35 +1162,18 @@ _change_config()
 	    then
 		case $2
 		in
-		    on)
-			if [ -z "`$sudo rc-update show default | grep $pat`" ]
-			then
-			    if $sudo rc-update add $pat >$tmp._tmp 2>&1
-			    then
-				:
-			    else
-				cat $tmp._tmp
-			    fi
-			fi
-			;;
-		    off)
-			if [ -z "`$sudo rc-update show default | grep $pat`" ]
-			then
-			    :
-			else
-			    if $sudo rc-update delete $pat >$tmp._tmp 2>&1
-			    then
-				:
-			    else
-				cat $tmp._tmp
-			    fi
-			fi
-			;;
+		    on)		act=add ;;
+		    off)	act=delete ;;
 		    *)
 			echo "_change_config: Error: \$2=$2 not \"on\" or \"off\" as expected"
 			exit 1
 			;;
 		esac
+		if [ -z "`$sudo rc-update show default | grep $pat`" ]
+		then
+		    $sudo rc-update $act $pat >$tmp._tmp 2>&1
+		    [ $? -eq 0 ] || cat $tmp._tmp
+		fi
 	    fi
 	else
 	    # I have no clue!
@@ -1214,30 +1189,10 @@ _change_config()
 	then
 	    case $1 
 	    in
-		pmcd)       if [ $PCP_VER -lt 3600 ]
-			    then
-				# both the chkconfig options pmlogger and pcp
-				# map to pcp for Linux and PCP before 3.6 ...
-				# use pcp here
-				pat=pcp
-			    else
-				pat=pmcd
-			    fi
-			    ;;
-		pmlogger)   if [ $PCP_VER -lt 3600 ]
-			    then
-				# both the chkconfig options pmlogger and pcp
-				# map to pcp for Linux and PCP before 3.6 ...
-				# skip pmlogger here
-				pat=""
-			    else
-				pat=pmlogger
-			    fi
-			    ;;
-		verbose)    pat=""
-			    ;;
-		*)	    pat=$1
-			    ;;
+		pmcd)       pat=pmcd ;;
+		pmlogger)   pat=pmlogger ;;
+		verbose)    pat="" ;;
+		*)	    pat=$1 ;;
 	    esac
 	    if [ -n "$pat" ]
 	    then
@@ -1263,32 +1218,11 @@ _change_config()
     then
 	case $1 
 	in
-	    pmcd)	if [ $PCP_VER -lt 3600 ]
-			then
-			    # both the chkconfig options pmlogger and pcp
-			    # map to pcp for Linux and PCP before 3.6 ...
-			    # use PCP here
-			    pat=PCP
-			else
-			    pat=PMCD
-			fi
-			;;
-	    pmlogger)	if [ $PCP_VER -lt 3600 ]
-	    		then
-			    # both the chkconfig options pmlogger and pcp
-			    # map to pcp for Linux and PCP before 3.6 ...
-			    # skip pmlogger here
-			    pat=""
-			else
-			    pat=PMLOGGER
-			fi
-			;;
-	    pmie)	pat=PMIE
-			;;
-	    verbose)	pat=""
-			;;
-	    *)		pat=$1
-			;;
+	    pmcd)	pat=PMCD ;;
+	    pmlogger)	pat=PMLOGGER ;;
+	    pmie)	pat=PMIE ;;
+	    verbose)	pat="" ;;
+	    *)		pat=$1 ;;
 	esac
 	if [ -n "$pat" ]
 	then
@@ -1321,17 +1255,10 @@ p
 	    fi
 	fi
     else
-	# Try the IRIX way
+	# I have no idea what to do for this platform!
 	#
-	if which chkconfig >/dev/null 2>&1
-	then
-	    $sudo chkconfig $1 $2
-	else
-	    # I have no clue!
-	    #
-	    echo "_change_config: Error: cannot change config \"$1 $2\""
-	    exit 1
-	fi
+	echo "_change_config: Error: cannot \"$1 $2\" for $PCP_PLATFORM"
+	exit 1
     fi 2>&1 \
     | _filter_init_distro
 }
@@ -1342,25 +1269,31 @@ _get_config()
     then
 	case $1 
 	in
-	    pmlogger|pmcd)
-		if [ $PCP_VER -lt 3600 ]
-		then
-		    # both the IRIX chkconfig options pmlogger and pcp
-		    # map to pcp for Linux and PCP before 3.6
-		    pat=pcp
-		else
-		    pat=$1
-		fi
-		;;
-	    verbose)
-		pat=""
-		;;
-	    *)	pat=$1
-	    	;;
+	    pmlogger|pmcd) pat=$1 ;;
+	    verbose) pat="" ;;
+	    *)	pat=$1 ;;
 	esac
-	if which chkconfig >/dev/null 2>&1
+
+	if which systemctl >/dev/null 2>&1
 	then
-	    # Try the RedHat and SuSE way ..
+	    # Run with systemd whenever it is available now
+	    #
+	    if [ -z "$pat" ]
+	    then
+		# unconditionally "on", or no such option
+		#
+		echo on
+	    else
+		if systemctl -q is-enabled $pat.service
+		then
+		    echo on
+		else
+		    echo off
+		fi
+	    fi
+	elif which chkconfig >/dev/null 2>&1
+	then
+	    # Try the older RedHat and SuSE way ..
 	    #
 	    if [ -z "$pat" ]
 	    then
@@ -1436,22 +1369,9 @@ _get_config()
 	then
 	    case $1 
 	    in
-		pmlogger|pmcd)
-				if [ $PCP_VER -lt 3600 ]
-				then
-				    # both the IRIX chkconfig options
-				    # pmlogger and pcp map to pcp for
-				    # Solaris and PCP before 3.6
-				    pat=pcp
-				else
-				    pat=$1
-				fi
-				;;
-		verbose)
-				pat=""
-				;;
-		*)	    	pat=$1
-			    	;;
+		pmlogger|pmcd) pat=$1 ;;
+		verbose) pat="" ;;
+		*) pat=$1 ;;
 	    esac
 	    if [ -z "$pat" ]
 	    then
@@ -1482,32 +1402,11 @@ _get_config()
     then
 	case $1 
 	in
-	    pmcd)	if [ $PCP_VER -lt 3600 ]
-			then
-			    # both the chkconfig options pmlogger and pcp
-			    # map to pcp for Linux and PCP before 3.6 ...
-			    # use pcp here
-			    pat=PCP
-			else
-			    pat=PMCD
-			fi
-			;;
-	    pmlogger)	if [ $PCP_VER -lt 3600 ]
-	    		then
-			    # both the chkconfig options pmlogger and pcp
-			    # map to pcp for Linux and PCP before 3.6 ...
-			    # skip pmlogger here
-			    pat=""
-			else
-			    pat=PMLOGGER
-			fi
-			;;
-	    pmie)	pat=PMIE
-			;;
-	    verbose)	pat=""
-			;;
-	    *)		pat=$1
-			;;
+	    pmcd)	pat=PMCD ;;
+	    pmlogger)	pat=PMLOGGER ;;
+	    pmie)	pat=PMIE ;;
+	    verbose)	pat="" ;;
+	    *)		pat=$1 ;;
 	esac
 	if [ -n "$pat" ]
 	then
@@ -1533,21 +1432,8 @@ p
 		exit 1
 	    fi
 	fi
-   else
-	# Try the IRIX way
-	#
-	if which chkconfig >/dev/null 2>&1
-	then
-	    if chkconfig $1
-	    then
-		echo on
-	    else
-		echo off
-	    fi
-	else
-	    echo "_change_config: Error: cannot find chkconfig for IRIX"
-	    exit 1
-	fi
+    else
+	echo "_change_config: Error: cannot \"$1 $2\" for $PCP_PLATFORM"
     fi
 }
 

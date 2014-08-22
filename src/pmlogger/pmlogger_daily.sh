@@ -58,7 +58,7 @@ CULLAFTER=14
 # 
 COMPRESS=bzip2
 COMPRESSAFTER=""
-COMPRESSREGEX=".meta$|.index$|.Z$|.gz$|.bz2$|.zip$"
+COMPRESSREGEX="\.meta$|\.index$|\.Z$|\.gz$|\.bz2$|\.zip$|\.xz$|\.lzo$"
 
 # threshold size to roll $PCP_LOG_DIR/NOTICES
 #

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2011-2013 Red Hat Inc.
+# Copyright (c) 2011-2014 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -18,10 +18,9 @@ include $(TOPDIR)/src/include/builddefs
 CMDTARGET = pmwebd$(EXECSUFFIX)
 HFILES = pmwebapi.h
 CFILES	= main.c util.c pmwebapi.c pmresapi.c
-LSRCFILES = rc_pmwebd pmwebd.options
 
 LLDLIBS = $(PCPLIB) -lmicrohttpd
-LDIRT = pmwebd.log
+LDIRT = pmwebd.log pmwebd.service
 
 LCFLAGS += -Wextra
 LCFLAGS += $(PIECFLAGS)
@@ -34,12 +33,18 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(HAVE_LIBMICROHTTPD)" "1"
-build-me:	$(CMDTARGET)
+build-me:	$(CMDTARGET) pmwebd.service
+
+pmwebd.service:	pmwebd.service.in
+	$(SED) -e 's;@path@;'$(PCP_RC_DIR)';' $< > $@
 
 install:	default
 	$(INSTALL) -m 755 -d `dirname $(PCP_PMWEBDOPTIONS_PATH)`
 	$(INSTALL) -m 644 pmwebd.options $(PCP_PMWEBDOPTIONS_PATH)
 	$(INSTALL) -m 755 rc_pmwebd $(PCP_RC_DIR)/pmwebd
+ifeq ($(ENABLE_SYSTEMD),true)
+	$(INSTALL) -m 644 pmwebd.service $(PCP_SYSTEMDUNIT_DIR)/pmwebd.service
+endif
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmwebd
 else

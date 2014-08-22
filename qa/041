@@ -15,14 +15,6 @@ echo "QA output created by $seq"
 
 [ $PCP_PLATFORM = mingw ] && _notrun "Process stop signal not available on Win32"
 
-rm -f $seq.out
-if [ $PCP_VER -lt 3611 ]
-then
-    ln $seq.out.1 $seq.out || exit 1
-else
-    ln $seq.out.2 $seq.out || exit 1
-fi
-
 _filter()
 {
     tee -a $seq.full \
@@ -83,8 +75,7 @@ rm -f $seq.full
 
 # real QA test starts here
 
-# disable all pmloggers ... Linux does not have "chkconfig pmlogger off"
-#
+# disable all pmloggers ...
 $sudo cp $PCP_PMLOGGERCONTROL_PATH $tmp.control
 cat <<End-of-File >$tmp.tmp
 # dummy file created by qa/$seq on `date`

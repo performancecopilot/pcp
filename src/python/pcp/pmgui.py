@@ -134,7 +134,7 @@ class GuiClient(object):
         file_result = LIBPCP_GUI.pmRecordSetup(
                                 c_char_p(folio), c_char_p(creator), replay)
         if (file_result == 0):
-            raise pmErr, file_result
+            raise pmErr(file_result)
         return file_result
 
     @staticmethod
@@ -146,11 +146,11 @@ class GuiClient(object):
         status = LIBPCP_GUI.pmRecordAddHost(
                                 c_char_p(host), isdefault, byref(rhp))
         if status < 0:
-            raise pmErr, status
+            raise pmErr(status)
         status = LIBC.fputs(c_char_p(config), c_long(rhp.contents.f_config))
         if (status < 0):
             LIBC.perror(c_char_p(""))
-            raise pmErr, status
+            raise pmErr(status)
         return status, rhp
 
     @staticmethod
@@ -164,7 +164,7 @@ class GuiClient(object):
                                 cast(rhp, POINTER(pmRecordHost)),
                                 request, c_char_p(options))
         if status < 0 and status != PM_ERR_IPC:
-            raise pmErr, status
+            raise pmErr(status)
         return status
 
     ##

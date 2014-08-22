@@ -283,16 +283,22 @@ GetPorts(char *file)
 	    if (ctlix == CFD_INET) {
 		fd = __pmCreateSocket();
 		if (fd < 0) {
-		    fprintf(stderr, "GetPorts: inet socket creation failed: %s\n",
+#ifdef PCP_DEBUG
+		    if (pmDebug & DBG_TRACE_CONTEXT)
+			fprintf(stderr, "GetPorts: inet socket creation failed: %s\n",
 			    netstrerror());
+#endif
 		    continue;
 		}
 	    }
 	    else {
 		fd = __pmCreateIPv6Socket();
 		if (fd < 0) {
-		    fprintf(stderr, "GetPorts: ipv6 socket creation failed: %s\n",
+#ifdef PCP_DEBUG
+		    if (pmDebug & DBG_TRACE_CONTEXT)
+			fprintf(stderr, "GetPorts: ipv6 socket creation failed: %s\n",
 			    netstrerror());
+#endif
 		    continue;
 		}
 	    }
