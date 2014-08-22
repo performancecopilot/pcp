@@ -1,0 +1,14 @@
+[Unit]
+Description=Proxy for Performance Metrics Collector Daemon
+Documentation=man:pmproxy(8)
+Wants=avahi-daemon.service
+After=network.target avahi-daemon.service
+ 
+[Service]
+Type=oneshot
+ExecStart=@path@/pmproxy start
+ExecStop=@path@/pmproxy stop
+RemainAfterExit=yes 
+ 
+[Install]
+WantedBy=multi-user.target

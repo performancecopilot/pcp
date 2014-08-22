@@ -16,6 +16,7 @@ echo "QA output created by $seq"
 which mkfs.xfs >/dev/null 2>&1 || _notrun "XFS utilities not installed"
 pmprobe -I pmcd.agent.type 2>&1 | grep '"xfs"' >/dev/null
 test $? -eq 0 || _notrun "XFS PMDA metrics not available"
+$sudo modprobe xfs
 cat /proc/filesystems | awk '{ print $1 }' | grep '^xfs$' >/dev/null
 test $? -eq 0 || _notrun "XFS kernel support unavailable"
 # check for any loopback devices, cowardly abort this test if any exist

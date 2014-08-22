@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2013 Red Hat.
+.\" Copyright (c) 2013-2014 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -74,7 +74,7 @@ option specifies the number of days after which to compress archive data
 files, and the
 .B \-X
 option specifies the program to use for compression \- by default this is
-.BR bzip2 (1).
+.BR xz (1).
 Use of the
 .B \-Y
 option allows a regular expression to be specified causing files in
@@ -82,7 +82,8 @@ the set of files matched for compression to be omitted \- this allows
 only the data file to be compressed, and also prevents the program from
 attempting to compress it more than once.  The default
 .I regex
-is ".meta$|.index$|.Z$|.gz$|.bz2|.zip$" \- such files are filtered using the
+is "\.(meta|index|Z|gz|bz2|zip|xz|lzma|lzo|lz4)$" \- such files are
+filtered using the
 .B \-v
 option to
 .BR egrep (1).
@@ -326,9 +327,10 @@ configuration file,
 as described in
 .BR pcp.conf (5).
 .SH SEE ALSO
+.BR egrep (1),
 .BR PCPintro (1),
 .BR pmie (1),
 .BR pmieconf (1),
-.BR chkconfig (8)
+.BR xz (1)
 and
-.BR cron (8),
+.BR cron (8).

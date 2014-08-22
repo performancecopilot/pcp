@@ -806,21 +806,20 @@ main(int argc, char **argv)
     }
     else {
 	/*
-	 * try and establish $TZ and hostname from the remote PMCD ...
+	 * try and establish $TZ from the remote PMCD ...
 	 * Note the label record has been set up, but not written yet
 	 */
-	char		*names[2] = {"pmcd.timezone", "pmcd.hostname"};
-	pmID		pmids[2];
+	char		*name = "pmcd.timezone";
+	pmID		pmid;
 	pmResult	*resp;
 
 	__pmtimevalNow(&epoch);
 	sts = pmUseContext(ctx);
 
 	if (sts >= 0)
-	    sts = pmLookupName(2, names, pmids);
-	if (sts >= 0) {
-	    sts = pmFetch(2, pmids, &resp);
-	}
+	    sts = pmLookupName(1, &name, &pmid);
+	if (sts >= 0)
+	    sts = pmFetch(1, &pmid, &resp);
 	if (sts >= 0) {
 	    if (resp->vset[0]->numval > 0) { /* pmcd.timezone present */
 		strcpy(logctl.l_label.ill_tz, resp->vset[0]->vlist[0].value.pval->vbuf);
@@ -833,18 +832,6 @@ main(int argc, char **argv)
 	    else if (pmDebug & DBG_TRACE_LOG) {
 		fprintf(stderr,
 			"main: Could not get timezone from host %s\n",
-			pmcd_host);
-	    }
-#endif
-	    if (resp->vset[1]->numval > 0) { /* pmcd.hostname present */
-		strncpy(logctl.l_label.ill_hostname,
-			resp->vset[1]->vlist[0].value.pval->vbuf, PM_LOG_MAXHOSTLEN-1);
-		logctl.l_label.ill_hostname[PM_LOG_MAXHOSTLEN-1] = '\0';
-	    }
-#ifdef PCP_DEBUG
-	    else if (pmDebug & DBG_TRACE_LOG) {
-		fprintf(stderr,
-			"main: Could not get hostname from host %s\n",
 			pmcd_host);
 	    }
 #endif

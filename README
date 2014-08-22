@@ -1,60 +1,13 @@
-See the file INSTALL (in this directory) for build, installation and
-post-install configuration steps.
+Performance Co-Pilot (PCP) provides a framework and services to support
+system-level performance monitoring and management. It presents a unifying
+abstraction for all of the performance data in a system, and many tools
+for interrogating, retrieving and processing that data.
 
-Performance Co-Pilot (PCP) is a framework and services to support
-system-level performance monitoring and performance management.
+PCP is a feature-rich, mature, extensible, cross-platform toolkit
+supporting both live and retrospective analysis. The distributed PCP
+architecture makes it especially useful for those seeking centralized
+monitoring of distributed processing.
 
-The PCP open source release provides a unifying abstraction for all of
-the interesting performance data in a system, and allows client
-applications to easily retrieve and process any subset of that data
-using a single API.
-
-A client-server architecture allows multiple clients to monitor the
-same host, and a single client to monitor multiple hosts (e.g. in a
-Beowulf cluster).  This enables centralized monitoring of distributed
-processing.
-
-Integrated archive logging and replay so a client application can use
-the same API to process real-time data from a host or historical data
-from an archive.
-
-The framework supports APIs and configuration file formats that enable
-the scope of performance monitoring to be extended at all levels.
-
-The architecture and services of the base PCP infrastructure are
-especially attractive for those tackling the harder system-level
-performance problems.  For example this may involve a transient
-performance degradation, or some complex interaction between resource
-demands on a single system, or those seeking centralized monitoring of
-distributed processing (e.g. in a cluster or webserver farm
-environment), or management of performance on large systems with lots
-of moving parts.
-
-The open source release of PCP includes all of the PCP libraries,
-infrastructure and daemons, along with a Linux agent that exports a
-broad range of performance data from most kernels circa 2.0.36 (RedHat
-5.2) or later. This includes coverage of activity in the areas of:
-
-    CPU 
-    disk 
-    memory 
-    swapping 
-    network 
-    NFS 
-    RPC 
-    filesystems 
-    all the per-process statistics 
-
-Other agents export performance data from: 
-    Apache
-    Web server activity logs 
-    arbitrary application-level tracing (via a PCP trace
-    library) 
-    Cisco routers 
-    sendmail 
-    the mail queue 
-    the PCP infrastructure itself 
-
-For more information and details on how to contribute to the PCP
-project see the web pages at http://www.performancecopilot.org
-
+See the INSTALL file for build, installation and configuration steps.
+For more information and details on how to contribute to the PCP project
+visit http://www.pcp.io

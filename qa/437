@@ -2,16 +2,14 @@
 # PCP QA Test No. 437
 # Exercise compressed archive files - badness in the uncompression
 #
+# Copyright (c) 2014 Red Hat.
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 #
 
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.compress
 
 status=0	# success is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
@@ -21,14 +19,6 @@ export PATH=$tmp:$PATH
 cd $tmp
 touch null.0.bz2 null.index null.meta
 
-_filter()
-{
-    # Mac OS X and Solaris strangeness
-    sed \
-	-e '/: Undefined error: 0/s/Undefined error: 0/Success/' \
-	-e '/: Error 0/s/Error 0/Success/'
-}
-
 # real QA test starts here
 cat <<End-of-File >bzcat
 #!/bin/sh
@@ -37,7 +27,7 @@ End-of-File
 chmod 755 bzcat
 pminfo -Dlog -a null 2>&1 \
 | LC_COLLATE=POSIX sort \
-| _filter
+| _filter_compression
 
 cat <<End-of-File >bzcat
 #!/bin/sh
@@ -46,7 +36,7 @@ End-of-File
 chmod 755 bzcat
 pminfo -Dlog -a null 2>&1 \
 | LC_COLLATE=POSIX sort \
-| _filter
+| _filter_compression
 
 # success, all done
 exit
