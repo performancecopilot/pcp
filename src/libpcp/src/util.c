@@ -2182,6 +2182,12 @@ __pmDumpStack(FILE *f)
     for (i = 1; i < nframe; i++)
 	fprintf(f, "  " PRINTF_P_PFX "%p [%s]\n", buf[i], symbols[i]);
 }
+#else	/* no known mechanism, provide a stub (called unconditionally) */
+void
+__pmDumpStack(FILE *f)
+{
+    (void)f;
+}
 #endif /* HAVE_BACKTRACE */
 
 #endif /* !IS_MINGW */
