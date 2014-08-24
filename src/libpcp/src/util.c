@@ -1551,6 +1551,18 @@ strndup(const char *s, size_t n)
 }
 #endif /* HAVE_STRNDUP */
 
+#ifndef HAVE_STRCHRNUL
+char *
+strchrnul(const char *s, int c)
+{
+    char	*result;
+
+    if ((result = strchr(s, c)) == NULL)
+	result = strchr(s, '\0');
+    return result;
+}
+#endif /* HAVE_STRCHRNUL */
+
 #ifndef HAVE_SCANDIR
 /*
  * Scan the directory dirname, building an array of pointers to
