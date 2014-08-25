@@ -643,7 +643,10 @@ extern char *dirname(char *);
 extern char *basename(char *);
 #endif
 #ifndef HAVE_STRNDUP
-extern char *strndup(const char *, size_t n);
+extern char *strndup(const char *, size_t);
+#endif
+#ifndef HAVE_STRCHRNUL
+extern char *strchrnul(const char *, int);
 #endif
 #ifndef HAVE_STRCHRNUL
 extern char *strchrnul(const char *, int c);

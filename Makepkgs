@@ -35,7 +35,9 @@ fi
 
 # Find where a GNU tool is hiding, look for this line:
 # "Report bugs to <bug-$gnutool@gnu.org>"
-# at the end of the $gnutool --help output
+# or this line:
+# "FreeBSD $gnutool YYYYMMDD"
+# in the $gnutool --help output
 #
 gnu_tool()
 {
@@ -52,10 +54,14 @@ gnu_tool()
     then
 	for command in $oldcmd $@
 	do
-	    if $command --help 2>&1 | grep -q bug-$oldcmd@gnu.org
+	    exec=`which $command 2>/dev/null`
+	    if [ -n "$exec" ]
 	    then
-		which $command 2>/dev/null
-		return 0
+		if $command --help 2>&1 | egrep -q "(bug-$oldcmd@gnu.org)|(FreeBSD $gnutool)"
+		then
+		    echo $exec
+		    return 0
+		fi
 	    fi
 	done
 	echo "$prefix: can't find GNU $oldcmd in the commands $oldcmd or $@"

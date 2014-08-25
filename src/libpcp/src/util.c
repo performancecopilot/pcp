@@ -2186,7 +2186,7 @@ __pmDumpStack(FILE *f)
 void
 __pmDumpStack(FILE *f)
 {
-    (void)f;
+    fprintf(f, "[No backtrace support available]\n");
 }
 #endif /* HAVE_BACKTRACE */
 
