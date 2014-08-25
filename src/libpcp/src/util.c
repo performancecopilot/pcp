@@ -1551,6 +1551,18 @@ strndup(const char *s, size_t n)
 }
 #endif /* HAVE_STRNDUP */
 
+#ifndef HAVE_STRCHRNUL
+/* Not in FreeBSD, for example */
+char *
+strchrnul(const char *s, int c)
+{
+    char	*p = strchr(s, c);
+    if (p == NULL)
+	p = s + strlen(s);
+    return p;
+}
+#endif /* HAVE_STRCHRNUL */
+
 #ifndef HAVE_SCANDIR
 /*
  * Scan the directory dirname, building an array of pointers to
@@ -2169,6 +2181,12 @@ __pmDumpStack(FILE *f)
     }
     for (i = 1; i < nframe; i++)
 	fprintf(f, "  " PRINTF_P_PFX "%p [%s]\n", buf[i], symbols[i]);
+}
+#else
+void
+__pmDumpStack(FILE *f)
+{
+    fprintf(stderr, "Oops, no backtrace support\n");
 }
 #endif /* HAVE_BACKTRACE */
 

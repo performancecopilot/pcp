@@ -275,6 +275,7 @@ extern "C" {
 #undef HAVE_STRTOLL
 #undef HAVE_STRTOULL
 #undef HAVE_STRNDUP
+#undef HAVE_STRCHRNUL
 
 #undef HAVE_DLOPEN
 #undef HAVE_FPCLASSIFY
@@ -645,7 +646,10 @@ extern char *dirname(char *);
 extern char *basename(char *);
 #endif
 #ifndef HAVE_STRNDUP
-extern char *strndup(const char *, size_t n);
+extern char *strndup(const char *, size_t);
+#endif
+#ifndef HAVE_STRCHRNUL
+extern char *strchrnul(const char *, int);
 #endif
 
 #ifdef HAVE_CONST_DIRENT
