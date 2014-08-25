@@ -150,17 +150,16 @@ fi
 
 # permissions ...
 #
-[ -d $PCP_LOG_DIR/pmcd ] || mkdir -m 775 $PCP_LOG_DIR/pmcd
-chown -R pcp:pcp $PCP_LOG_DIR/pmcd
-[ -d $PCP_LOG_DIR/pmie ] || mkdir -m 775 $PCP_LOG_DIR/pmie
-chown -R pcp:pcp $PCP_LOG_DIR/pmie
-[ -d $PCP_LOG_DIR/pmwebd ] || mkdir -m 775 $PCP_LOG_DIR/pmwebd
-chown -R pcp:pcp $PCP_LOG_DIR/pmwebd
-[ -d $PCP_LOG_DIR/pmproxy ] || mkdir -m 775 $PCP_LOG_DIR/pmproxy
-chown -R pcp:pcp $PCP_LOG_DIR/pmproxy
-[ -d $PCP_LOG_DIR/pmlogger ] || mkdir -m 775 $PCP_LOG_DIR/pmlogger
-chown -R pcp:pcp $PCP_LOG_DIR/pmlogger
-[ -d $PCP_VAR_DIR/testsuite ] || mkdir -m 755 $PCP_VAR_DIR/testsuite
+for dir in $PCP_LOG_DIR/pmcd $PCP_LOG_DIR/pmie $PCP_LOG_DIR/pmwebd \
+	   $PCP_LOG_DIR/pmproxy $PCP_LOG_DIR/pmlogger $PCP_RUN_DIR
+do
+    [ -d $dir ] || mkdir $dir
+    chmod 775 $dir
+    chown -R pcp:pcp $dir
+done
+
+[ -d $PCP_VAR_DIR/testsuite ] || mkdir $PCP_VAR_DIR/testsuite
+chmod 775 $PCP_VAR_DIR/testsuite
 chown -R pcpqa:pcpqa $PCP_VAR_DIR/testsuite
 
 # Note: do not start pcp, pmwebd, pmproxy nor pmmgr by default
