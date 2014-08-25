@@ -2,110 +2,23 @@
 # PCP QA Test No. 436
 # Exercise compressed archive files - bzip2 version
 #
+# Copyright (c) 2014 Red Hat.
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 #
 
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.compress
 
 which bzip2 >/dev/null 2>&1 || _notrun No bzip2 binary installed
 
-status=0	# success is the default!
+status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
-mkdir $tmp
-cp src/mv-bigbin* $tmp
-
-_filter()
-{
-    # Mac OS X and Solaris strangeness
-    sed \
-	-e '/: Undefined error: 0/s/Undefined error: 0/Success/' \
-	-e '/: Error 0/s/Error 0/Success/'
-}
-
-_do()
-{
-    base=`echo $1 | sed -e 's/\..*//'`
-    [ $# -eq 1 ] && echo "pmdumplog ..."
-    pmdumplog -a $base
-    [ $# -eq 1 ] && echo "pminfo ..."
-    pminfo -f -a $1 sample.colour
-    [ $# -eq 1 ] && echo "pmprobe in the middle ..."
-    pmprobe -v -O +10sec -a $1 sampledso.milliseconds
-    [ $# -eq 1 ] && echo "pmval & pmval -r ..."
-    pmval -f 4 -t 3sec -a $1 sample.milliseconds 2>&1
-    pmval -f 4 -r -a $1 sample.milliseconds 2>&1
-    [ $# -eq 1 ] && echo "pmie ..."
-    echo 'sample.milliseconds > 0 -> print "%v";' \
-    | pmie -t 4sec -a $1 2>&1 \
-    | grep -v 'Info: evaluator exiting'
-}
 
 # real QA test starts here
-_do src/mv-bigbin n | tee $full >$tmp.orig
-cd $tmp
-
-echo "expect only a few lines of diff output ..."
-
-echo
-echo "--- bzip2 first volume ---" | tee -a $here/$seq.full
-bzip2 mv-bigbin.0 | _filter
-ls -l >>$here/$seq.full
-_do mv-bigbin | tee -a $here/$seq.full >$tmp.new
-diff $tmp.orig $tmp.new | sed -e '/^[0-9]/d'
-bunzip2 mv-bigbin.0.bz2 | _filter
-
-echo
-echo "--- bzip2 last volume and use existing .9.bz2 in -a arg ---" | tee -a $here/$seq.full
-bzip2 mv-bigbin.9 | _filter
-ls -l >>$here/$seq.full
-_do mv-bigbin.9.bz2 | tee -a $here/$seq.full >$tmp.new
-diff $tmp.orig $tmp.new | sed -e '/^[0-9]/d'
-bunzip2 mv-bigbin.9.bz2 | _filter
-
-echo
-echo "--- bzip2 middle volume and used existing .1 in -a arg ---" | tee -a $here/$seq.full
-bzip2 mv-bigbin.5 | _filter
-ls -l >>$here/$seq.full
-_do mv-bigbin.1 | tee -a $here/$seq.full >$tmp.new
-diff $tmp.orig $tmp.new | sed -e '/^[0-9]/d'
-
-echo
-echo "--- bzip2 first, middle and last volume and use .meta in -a arg ---" | tee -a $here/$seq.full
-bzip2 mv-bigbin.0 | _filter
-bzip2 mv-bigbin.9 | _filter
-ls -l >>$here/$seq.full
-_do mv-bigbin.meta | tee -a $here/$seq.full >$tmp.new
-diff $tmp.orig $tmp.new | sed -e '/^[0-9]/d'
-
-echo
-echo "--- bzip2 first few, middle and last few volumes and use existing .7.bz2 in -a arg ---" | tee -a $here/$seq.full
-bzip2 mv-bigbin.1 | _filter
-bzip2 mv-bigbin.7 | _filter
-bzip2 mv-bigbin.8 | _filter
-ls -l >>$here/$seq.full
-_do mv-bigbin.7.bz2 | tee -a $here/$seq.full >$tmp.new
-diff $tmp.orig $tmp.new | sed -e '/^[0-9]/d'
-
-echo
-echo "--- some error cases ---"
-for arch in mv-bigbin.10 mv-bigbin.10.bz2
-do
-    pminfo -a $arch
-    pmprobe -a $arch sample.bin
-    pmval -a $arch sample.milliseconds
-    pmie -a $arch </dev/null
-done
-touch null.0.bz2 null.meta null.index
-pminfo -a null 2>&1 \
-| _filter
-
-# success, all done
+_prepare_compress bzip2 bunzip2 bz2
+_exercise_compression
+status=0	# success, we're all done
 exit
-

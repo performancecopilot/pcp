@@ -9,7 +9,9 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 # kB_read/s
 # kB_wrtn/s
 	disk.dev.read_bytes			# kB_read
+	disk.dm.read_bytes
 	disk.dev.write_bytes			# kB_wrtn
+	disk.dm.write_bytes
 
 # -h --------------------------------------------------
 
@@ -29,19 +31,25 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
         disk.all.write                  # total: Total writes completed successfully
         disk.all.write_merge            # merged: grouped writes (resulting in one I/O)
         disk.all.blkwrite               # sectors: Sectors written successfully
-        disk.all.read_rawactive         # ms: milliseconds spent writing
-                                        # cur: I/O in progress
+        disk.all.write_rawactive        # ms: milliseconds spent writing
         disk.all.avactive               # s: seconds spent for I/O
 
         disk.dev.read                   # total: Total reads completed successfully
+        disk.dm.read
         disk.dev.read_merge             # merged: grouped reads (resulting in one I/O)
+        disk.dm.read_merge
         disk.dev.blkread                # sectors: Sectors read successfully
+        disk.dm.blkread
         disk.dev.read_rawactive         # ms: milliseconds spent reading
+        disk.dm.read_rawactive
         disk.dev.write                  # total: Total writes completed successfully
+        disk.dm.write
         disk.dev.write_merge            # merged: grouped writes (resulting in one I/O)
+        disk.dm.write_merge
         disk.dev.blkwrite               # sectors: Sectors written successfully
-        disk.dev.read_rawactive         # ms: milliseconds spent writing
-                                        # cur: I/O in progress
+        disk.dm.blkwrite
+        disk.dev.write_rawactive         # ms: milliseconds spent writing
+        disk.dm.write_rawactive
 
 	disk.all.read_merge		# rrqm/s
 	disk.all.write_merge		# wrqm/s
@@ -52,6 +60,7 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 					# avgqu-sz
 					# - avgrq-sz 
 	disk.dev.avactive		# await
+	disk.dm.avactive
 	disk.all.read_rawactive		# r_await
 	disk.all.write_rawactive	# w_await
 	# - svctm

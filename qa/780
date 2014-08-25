@@ -41,7 +41,7 @@ unset HTTP_PROXY
 webport=`_find_free_port`
 
 # real QA test starts here
-pmwebd -U $username -f -l $tmp.out -p $webport 2>&1 &
+pmwebd -U $username -f -l $tmp.out -p $webport 2>$tmp.err &
 webpid=$!
 count=0
 while ! $PCP_BINADM_DIR/telnet-probe -c localhost $webport
@@ -51,13 +51,19 @@ do
     then
 	echo "pmwebd failed to start on port $webport"
 	cat $tmp.out
+	cat $tmp.err
 	exit
     fi
     pmsleep 0.1
 done
 
 echo "pmwebd pid=$webpid port=$webport" >>$seq.full
-curl -s -S "http://localhost:$webport/pmapi/context?local=anything" -D- | _filter
+curl -s -S "http://localhost:$webport/pmapi/context?local=anything" -D- 2>&1 | _filter
+
+echo "--- pmwebd log ---" >>$seq.full
+cat $tmp.out >>$seq.full
+echo "--- pmwebd stderr ---" >>$seq.full
+cat $tmp.err >>$seq.full
 
 # success, all done
 status=0

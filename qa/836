@@ -1,0 +1,43 @@
+#!/bin/sh
+# PCP QA Test No. 836
+# Exercise pmwtf(1) script functionality.
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "== simple comparison, defaults"
+pmwtf -z $here/src/section-a $here/src/section-b
+echo
+
+echo "== change the comparison ratio"
+pmwtf -z -q 1.5 $here/src/section-a $here/src/section-b
+echo
+
+echo "== change the report precision"
+pmwtf -z -p 5 $here/src/section-a $here/src/section-b
+echo
+
+echo "== skip the excluded metrics report"
+pmwtf -z --skip-excluded $here/src/section-a $here/src/section-b
+echo
+
+echo "== skip the missing metrics report"
+pmwtf -z --skip-missing $here/src/section-a $here/src/section-c
+
+# success, all done
+status=0
+
+exit

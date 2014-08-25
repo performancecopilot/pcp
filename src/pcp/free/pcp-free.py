@@ -73,25 +73,25 @@ class Free(object):
     def option(self, opt, optarg, index):
 	""" Perform setup for an individual command line option """
 	# pylint: disable=W0613
-	if (opt == 'b'):
+	if opt == 'b':
 	    self.shift = 0
-	elif (opt == 'k'):
+	elif opt == 'k':
 	    self.shift = 10
-	elif (opt == 'm'):
+	elif opt == 'm':
 	    self.shift = 20
-	elif (opt == 'g'):
+	elif opt == 'g':
 	    self.shift = 30
-	elif (opt == 'o'):
+	elif opt == 'o':
 	    self.show_compat = 1
-	elif (opt == 'l'):
+	elif opt == 'l':
 	    self.show_high = 1
-	elif (opt == 't'):
+	elif opt == 't':
 	    self.show_total = 1
-	elif (opt == 's'):
+	elif opt == 's':
 	    self.pause = optarg
 	    self.opts.pmSetOptionInterval(optarg)
 	    self.interval = self.opts.pmGetOptionInterval()
-	elif (opt == 'c'):
+	elif opt == 'c':
 	    self.opts.pmSetOptionSamples(optarg)
 	    self.count = self.opts.pmGetOptionSamples()
 

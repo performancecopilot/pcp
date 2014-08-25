@@ -16,15 +16,6 @@ echo "QA output created by $seq"
 perl -e "use PCP::PMDA" >/dev/null 2>&1
 test $? -eq 0 || _notrun "PCP::PMDA perl module is not installed"
 
-#  Fix where logs are to be created - despite the use of PCP_LOG_DIR,
-#  the logging directories are STILL different!
-if [ -d $PCP_LOG_DIR/pmlogger ]
-then
-    PCP_LOGGING_DIR=$PCP_LOG_DIR/pmlogger
-else
-    PCP_LOGGING_DIR=$PCP_LOG_DIR
-fi
-
 status=1	# failure is the default!
 
 [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
@@ -76,7 +67,7 @@ rm -f $seq.full
 # real QA test starts here
 dov1hosts=true
 
-# disable all pmloggers ... Linux does not have "chkconfig pmlogger off"
+# disable all pmloggers ...
 _chkconfig_pmlogger_on=true
 $sudo cp $PCP_PMLOGGERCONTROL_PATH $tmp.control
 cat <<End-of-File >$tmp.tmp
@@ -84,7 +75,7 @@ cat <<End-of-File >$tmp.tmp
 # the goal here is to have a controlled primary logger that does
 # not make requests to pmcd!
 \$version=1.1
-LOCALHOSTNAME y n $PCP_LOGGING_DIR/LOCALHOSTNAME -c /dev/null
+LOCALHOSTNAME y n $PCP_LOG_DIR/pmlogger/LOCALHOSTNAME -c /dev/null
 End-of-File
 $sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
 #_change_config pmlogger off

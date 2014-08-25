@@ -797,6 +797,9 @@ PACKAGE_REVISION
 PACKAGE_MINOR
 PACKAGE_MAJOR
 pcp_platform_paths
+enable_systemd
+pcp_systemdunit_dir
+SYSTEMD_SYSTEMUNITDIR
 enable_avahi
 enable_discovery
 lib_for_avahi
@@ -884,6 +887,7 @@ with_infiniband
 with_user
 with_group
 with_discovery
+with_systemd
 with_qt
 with_books
 enable_ssp
@@ -917,6 +921,7 @@ PKG_CONFIG_PATH
 PKG_CONFIG_LIBDIR
 avahi_CFLAGS
 avahi_LIBS
+SYSTEMD_SYSTEMUNITDIR
 CXX
 CXXFLAGS
 CCC
@@ -1560,6 +1565,7 @@ Optional Packages:
                           pcp)
   --with-group            user group under which daemons run (default is pcp)
   --with-discovery        enable support for service discovery (default is on)
+  --with-systemd          enable support for systemd services (default is on)
   --with-qt               enable support for tools requiring Qt (default is
                           on)
   --with-books            enable building of the PCP books (default is off)
@@ -1594,6 +1600,8 @@ Some influential environment variables:
   avahi_CFLAGS
               C compiler flags for avahi, overriding pkg-config
   avahi_LIBS  linker flags for avahi, overriding pkg-config
+  SYSTEMD_SYSTEMUNITDIR
+              value of systemdsystemunitdir for systemd, overriding pkg-config
   CXX         C++ compiler command
   CXXFLAGS    C++ compiler flags
   YACC        The `Yet Another Compiler Compiler' implementation to use.
@@ -2551,6 +2559,15 @@ if test "${with_discovery+set}" = set; then :
   withval=$with_discovery; do_discovery=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-discovery=$withval"
 else
   do_discovery=check
+fi
+
+
+
+# Check whether --with-systemd was given.
+if test "${with_systemd+set}" = set; then :
+  withval=$with_systemd; do_systemd=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-systemd=$withval"
+else
+  do_systemd=check
 fi
 
 
@@ -4522,6 +4539,49 @@ done
 
 fi
 
+
+
+enable_systemd=false
+if test "x$do_systemd" != "xno"; then :
+
+    enable_systemd=true
+
+
+if test -n "$SYSTEMD_SYSTEMUNITDIR"; then
+    pkg_cv_SYSTEMD_SYSTEMUNITDIR="$SYSTEMD_SYSTEMUNITDIR"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"systemd\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "systemd") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_SYSTEMD_SYSTEMUNITDIR=`$PKG_CONFIG --variable="systemdsystemunitdir" "systemd" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+SYSTEMD_SYSTEMUNITDIR=$pkg_cv_SYSTEMD_SYSTEMUNITDIR
+
+if test "x$SYSTEMD_SYSTEMUNITDIR" = x""; then :
+  enable_systemd=false
+else
+  pcp_systemdunit_dir=$SYSTEMD_SYSTEMUNITDIR
+fi
+
+    if test -z "$pcp_systemdunit_dir"
+    then
+	if test "$do_systemd" = "yes"
+	then
+	    as_fn_error $? "cannot enable systemd support - no systemunitdir path" "$LINENO" 5
+	fi
+	enable_systemd=false
+    fi
+
+fi
 
 
 # setup additional platform-specific binary search PATH components
@@ -9498,17 +9558,17 @@ fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$SYSTEMD_PKG_ERRORS" >&5
 
-	 pmda_systemd=
+	pmda_systemd=
 elif test $pkg_failed = untried; then
      	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
-	 pmda_systemd=
+	pmda_systemd=
 else
 	SYSTEMD_CFLAGS=$pkg_cv_SYSTEMD_CFLAGS
 	SYSTEMD_LIBS=$pkg_cv_SYSTEMD_LIBS
         { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
-	 pmda_systemd=systemd
+	pmda_systemd=systemd
 fi
 PMDA_SYSTEMD=$pmda_systemd
 
@@ -12552,7 +12612,13 @@ pcp_desktop_dir=`eval echo $pcp_desktop_dir`
 if test "${with_rcdir+set}" = set; then :
   withval=$with_rcdir; pcp_rc_dir=$withval
 else
-  pcp_rc_dir=$pcp_etc_dir/rc.d
+
+if $enable_systemd
+then
+    pcp_rc_dir="$pcp_share_dir/lib"
+else
+    pcp_rc_dir="$pcp_etc_dir/init.d"
+fi
 fi
 
 

@@ -16,10 +16,7 @@
 """ Display disk and device-mapper I/O statistics """
 
 import sys
-import copy
-import time
-from pcp import pmapi
-from pcp import pmcc
+from pcp import pmapi, pmcc
 from cpmapi import PM_TYPE_U64, PM_CONTEXT_ARCHIVE, PM_SPACE_KBYTE
 
 IOSTAT_SD_METRICS = [ "disk.dev.read", "disk.dev.read_bytes",
@@ -65,7 +62,7 @@ class IostatReport(pmcc.MetricGroupPrinter):
 
 	instlist = self.instlist(group, subtree + ".read")
 	dt = self.timeStampDelta(group)
-	timestamp = time.ctime(group.timestamp.tv_sec)
+	timestamp = group.contextCache.pmCtime(long(group.timestamp)).rstrip()
 
 	c_rrqm = self.curVals(group, subtree + ".read_merge")
 	p_rrqm = self.prevVals(group, subtree + ".read_merge")
@@ -192,23 +189,22 @@ class IostatOptions(pmapi.pmOptions):
 	self.pmSetLongOptionText("  -x comma separated extended options: [dm][,t][,h]")
 	self.pmSetLongOptionText("     dm show device-mapper statistics (default is sd devices)")
 	self.pmSetLongOptionText("     t precede every line with a timestamp in ctime format");
-	self.pmSetLongOptionText("     h supress headings");
+	self.pmSetLongOptionText("     h suppress headings");
 
 if __name__ == '__main__':
-    args = copy.deepcopy(sys.argv)
-    opts = IostatOptions()
-
     try:
-	manager = pmcc.MetricGroupManager.builder(opts, args)
+	manager = pmcc.MetricGroupManager.builder(IostatOptions(), sys.argv)
+	if "dm" in IostatOptions.xflag :
+	    manager["iostat"] = IOSTAT_DM_METRICS
+	else:
+	    manager["iostat"] = IOSTAT_SD_METRICS
+	manager.printer = IostatReport()
+        sts = manager.run()
+        sys.exit(sts)
+    except pmapi.pmErr, error:
+	print '%s: %s\n' % (error.progname(), error.message())
     except pmapi.pmUsageErr, usage:
 	print usage.message()
-	sys.exit(1)
-
-    if "dm" in IostatOptions.xflag :
-	manager["iostat"] = IOSTAT_DM_METRICS
-    else:
-	manager["iostat"] = IOSTAT_SD_METRICS
-
-    manager.printer = IostatReport()
-    sts = manager.run()
-    sys.exit(sts)
+        sys.exit(1)
+    except KeyboardInterrupt:
+	pass

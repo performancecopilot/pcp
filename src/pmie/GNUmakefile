@@ -20,7 +20,7 @@ SUBDIRS	= src examples
 OTHERS  = control stomp rc_pmie pmie2col.sh pmie_check.sh pmie_daily.sh
 
 LSRCFILES = $(OTHERS) crontab.in
-LDIRT	= crontab
+LDIRT	= crontab pmie.service
 
 ifeq ($(TARGET_OS),linux)
 CRONTAB_USER = $(PCP_USER)
@@ -30,7 +30,7 @@ CRONTAB_USER =
 CRONTAB_PATH = $(PCP_SYSCONF_DIR)/pmie/crontab
 endif
 
-default:: crontab
+default:: crontab pmie.service
 
 default:: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
@@ -38,13 +38,16 @@ default:: $(SUBDIRS)
 install:: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
-install::	default
+install:: default
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_SYSCONF_DIR)/pmie
 	$(INSTALL) -m 664 -o $(PCP_USER) -g $(PCP_GROUP) control $(PCP_PMIECONTROL_PATH)
-	$(INSTALL) -m 755 pmie_check.sh $(PCP_BINADM_DIR)/pmie_check
-	$(INSTALL) -m 755 pmie_daily.sh $(PCP_BINADM_DIR)/pmie_daily
-	$(INSTALL) -m 755 pmie2col.sh $(PCP_BIN_DIR)/pmie2col
+	$(INSTALL) -m 755 pmie_check.sh $(PCP_BINADM_DIR)/pmie_check$(SHELLSUFFIX)
+	$(INSTALL) -m 755 pmie_daily.sh $(PCP_BINADM_DIR)/pmie_daily$(SHELLSUFFIX)
+	$(INSTALL) -m 755 pmie2col.sh $(PCP_BIN_DIR)/pmie2col$(SHELLSUFFIX)
 	$(INSTALL) -m 755 rc_pmie $(PCP_RC_DIR)/pmie
+ifeq ($(ENABLE_SYSTEMD),true)
+	$(INSTALL) -m 644 pmie.service $(PCP_SYSTEMDUNIT_DIR)/pmie.service
+endif
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmie
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)/pmie
 ifeq ($(TARGET_OS),linux)
@@ -57,6 +60,9 @@ include $(BUILDRULES)
 default_pcp : default
 
 install_pcp : install
+
+pmie.service : pmie.service.in
+	$(SED) -e 's;@path@;'$(PCP_RC_DIR)';' $< > $@
 
 crontab: crontab.in
 	$(SED) -e 's;@user@;'$(CRONTAB_USER)';' -e 's;@path@;'$(PCP_BINADM_DIR)';g' $< > $@

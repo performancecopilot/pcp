@@ -1,7 +1,19 @@
+pcp-3.9.10 (5 September 2014)
+    - Currently under development.
+
 pcp-3.9.9 (13 August 2014)
+    - sar2pcp: support for systat version 10.2.0
     - pmiostat(1): new monitor tool with iostat-alike output
     - pcp-dmcache(1): new monitor tool for dm-cache devices
-    - pmlogger_daily: fix $PCP_RUN_DIR creation checks
+    - pmdalinux: disk.dm.* metric hierarchiy (device mapper)
+    - pmdalinux: refine device mapper naming for old platforms
+    - pmdalinux: allow controlled data injection for QA tests
+    - pmdadmcache: new agent for device mapper cache targets
+    - pmdainfiniband: correctly initialise switch metrics
+    - libpcp: global timeout option for service discovery
+    - libpcp: __pmDiscoverServicesWithOptions() improvements
+    - libpcp: grok '%<interface' for link-local ipv6 addresses
+    - libpcp: derived metrics support for new rate() keyword
     - python api: many convenience class module extensions
     - python api: timeval accessor helper interfaces
     - python api: pmUnitStr now uses thread-safe version
@@ -9,14 +21,7 @@ pcp-3.9.9 (13 August 2014)
     - python api: fix derived metrics interface exceptions
     - pmlogconf: mark some log-default metrics as log-once
     - dbpmda: use the correct (blocking) socket API variants
-    - pmdalinux: disk.dm.* metric hierarchiy (device mapper)
-    - pmdalinux: refine device mapper naming for old platforms
-    - pmdalinux: allow controlled data injection for QA tests
-    - pmdadmcache: an agent for device mapper cache targets
-    - pmdainfiniband: correctly initialise switch metrics
-    - libpcp: global timeout option for service discovery
-    - libpcp: __pmDiscoverServicesWithOptions() improvements
-    - libpcp: grok '%<interface' for link-local ipv6 addresses
+    - pmlogger_daily: fix $PCP_RUN_DIR creation checks
 
 pcp-3.9.8 (16 July 2014)
     - Add overlooked Debian packaging metadata updates.

@@ -718,7 +718,7 @@ avahi
 454 pmcd local oss
 455 pmda.rsyslog local flakey pmda.install oss
 456 logutil local #591459 folio oss pmlogextract
-457 pmda.logger pmda.install event local oss
+457 pmda.logger pmda.install event local flakey oss
 458 pmda.logger pmda.install event local oss
 459 pmlogreduce local oss valgrind
 460 pmlogextract local #598265 oss pmdumplog
@@ -931,7 +931,6 @@ avahi
 768 pmlogextract local oss
 775 sanity pmfind local oss
 776 pmfind local oss
-777 pmda.memcache local oss
 779 pmda local oss
 780 pmwebapi local oss
 783 pmda.rpm local oss
@@ -942,14 +941,17 @@ avahi
 823 pmda.sample pmstore secure local oss
 827 pmlogrewrite pmda.linux local oss
 828 valgrind archive context local oss
+829 python local oss
 830 other local oss
 831 pmda.sample pmstore secure local oss
 832 pmda.sample pmstore secure local oss
 833 archive context local oss
 834 pmie local oss
 835 pmda.memcache local oss
+836 pmlogsummary local oss
 840 avahi local oss
 841 pmda local oss
+842 python local oss
 844 pmda.linux local oss
 861 pmcd pmda.pmcd local oss
 875 libpcp local oss
@@ -966,6 +968,7 @@ avahi
 946 pmfind avahi local oss
 950 avahi local oss
 957 pmda.linux local oss
+958 archive local oss
 962 archive local oss
 966 secure local oss
 972 pmda.zswap dbpmda local oss

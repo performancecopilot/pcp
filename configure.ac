@@ -73,19 +73,25 @@ AC_SUBST(pcp_group)
 
 AC_ARG_WITH([discovery],
     [AC_HELP_STRING([--with-discovery],
-                   [enable support for service discovery (default is on)])],
+                    [enable support for service discovery (default is on)])],
     [do_discovery=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-discovery=$withval"],
     [do_discovery=check])
 
+AC_ARG_WITH([systemd],
+    [AC_HELP_STRING([--with-systemd],
+                    [enable support for systemd services (default is on)])],
+    [do_systemd=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-systemd=$withval"],
+    [do_systemd=check])
+
 AC_ARG_WITH([qt],
     [AC_HELP_STRING([--with-qt],
-                   [enable support for tools requiring Qt (default is on)])],
+                    [enable support for tools requiring Qt (default is on)])],
     [do_qt=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-qt=$withval"],
     [do_qt=check])
 
 AC_ARG_WITH([books],
     [AC_HELP_STRING([--with-books],
-                   [enable building of the PCP books (default is off)])],
+                    [enable building of the PCP books (default is off)])],
     [do_books=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books=$withval"],
     [do_books=off])
 
@@ -350,6 +356,25 @@ AS_IF([test "x$do_discovery" != "xno"], [
 ])
 AC_SUBST(enable_discovery)
 AC_SUBST(enable_avahi)
+
+dnl Check for systemd services
+enable_systemd=false
+AS_IF([test "x$do_systemd" != "xno"], [
+    enable_systemd=true
+
+    PKG_CHECK_VAR([SYSTEMD_SYSTEMUNITDIR], [systemd], [systemdsystemunitdir],
+	[pcp_systemdunit_dir=$SYSTEMD_SYSTEMUNITDIR], [enable_systemd=false])
+    AC_SUBST(pcp_systemdunit_dir)
+    if test -z "$pcp_systemdunit_dir"
+    then
+	if test "$do_systemd" = "yes"
+	then
+	    AC_MSG_ERROR(cannot enable systemd support - no systemunitdir path)
+	fi
+	enable_systemd=false
+    fi
+])
+AC_SUBST(enable_systemd)
 
 # setup additional platform-specific binary search PATH components
 pcp_platform_paths=""
@@ -1108,7 +1133,7 @@ fi
 AC_SUBST(lib_for_regex)
 
 PKG_CHECK_MODULES([SYSTEMD], [libsystemd-journal],
-                             [ pmda_systemd=systemd ], [ pmda_systemd= ])
+                  [pmda_systemd=systemd], [pmda_systemd=])
 AC_SUBST(PMDA_SYSTEMD, $pmda_systemd)
 
 pmda_infiniband=
@@ -2101,8 +2126,13 @@ AC_SUBST(pcp_desktop_dir)
 
 dnl rc/startup files
 AC_ARG_WITH(rcdir,[AC_HELP_STRING([--with-rcdir],[rc directory [SYSCONFDIR/rc.d]])],
-                  [pcp_rc_dir=$withval],
-                  [pcp_rc_dir=$pcp_etc_dir/rc.d])
+                  [pcp_rc_dir=$withval], [
+if $enable_systemd
+then
+    pcp_rc_dir="$pcp_share_dir/lib"
+else
+    pcp_rc_dir="$pcp_etc_dir/init.d"
+fi])
 AC_SUBST(pcp_rc_dir)
 
 dnl rc sysconfig dir
