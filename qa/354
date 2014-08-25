@@ -109,6 +109,7 @@ echo
 $here/src/record foo no-1 1 $host localhost $host localhost 2>&1 >$tmp.out &
 sleep 10
 MKTEMP=`ls -d * | grep -v foo | grep -v '\.'`
+echo MKTEMP is \"$MKTEMP\" >> $here/$seq.full
 _build_sed $tmp.out
 _filter $tmp.out
 cat $tmp.out >>$here/$seq.full
