@@ -30,7 +30,7 @@ CMDTARGET = pmdadynamic
 TARGETS = $(LIBTARGET) $(CMDTARGET)
 LDIRT	= *.log help.dir help.pag
 
-LDLIBS	= -lpcp_pmda -lpcp -lm -ldl -lpthread
+LDLIBS	= -lpcp_pmda -lpcp -lm $(LIB_FOR_DLOPEN) -lpthread
 
 default default_pcp setup:: $(TARGETS)
 
