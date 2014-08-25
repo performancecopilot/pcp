@@ -1551,6 +1551,18 @@ strndup(const char *s, size_t n)
 }
 #endif /* HAVE_STRNDUP */
 
+#ifndef HAVE_STRCHRNUL
+char *
+strchrnul(const char *s, int c)
+{
+    char	*result;
+
+    if ((result = strchr(s, c)) == NULL)
+	result = strchr(s, '\0');
+    return result;
+}
+#endif /* HAVE_STRCHRNUL */
+
 #ifndef HAVE_SCANDIR
 /*
  * Scan the directory dirname, building an array of pointers to
@@ -2169,6 +2181,12 @@ __pmDumpStack(FILE *f)
     }
     for (i = 1; i < nframe; i++)
 	fprintf(f, "  " PRINTF_P_PFX "%p [%s]\n", buf[i], symbols[i]);
+}
+#else	/* no known mechanism, provide a stub (called unconditionally) */
+void
+__pmDumpStack(FILE *f)
+{
+    (void)f;
 }
 #endif /* HAVE_BACKTRACE */
 
