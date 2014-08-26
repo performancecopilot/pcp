@@ -84,7 +84,6 @@ do
     fi
     sed <$tmp.out \
 	-e '/using .* kmem interface/d' \
-	-e '/^sysctl(/d' \
     | _filter_pmcd_log \
     | _filter_dodgey_nfs_indom
     if [ $status != 0 ]
