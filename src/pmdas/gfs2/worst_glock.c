@@ -72,7 +72,7 @@ static const char *topnum[] = {
 };
 
 /*
- * Sets the value of max_glock_state using pmstore, value
+ * Sets the value of worst_glock_state using pmstore, value
  * must be 0 or 1.
  */
 int 
@@ -160,48 +160,6 @@ gfs2_worst_glock_fetch(int item, struct worst_glock *worst_glock, pmAtomValue *a
 }
 
 /*
- * We work out the individual metric values from our buffer input and store
- * them for processing after all of the values have been extracted from the
- * trace pipe.
- */
-int
-gfs2_extract_worst_glock(char **buffer, pmInDom gfs_fs_indom)
-{
-    struct glock temp;
-    unsigned int major, minor;
-
-    /* Assign data */
-    sscanf(*buffer, 
-        "gfs2_glock_lock_time: %"SCNu32",%"SCNu32" glock %"SCNu32":%"SCNu64" status:%*d flags:%*x tdiff:%*d srtt:%"SCNd64"/%"SCNd64" srttb:%"SCNd64"/%"SCNd64" sirt:%"SCNd64"/%"SCNd64" dcnt:%"SCNd64" qcnt:%"SCNd64,
-         &major,
-         &minor, 
-         &temp.lock_type,
-         &temp.number,
-         &temp.srtt, 
-         &temp.srttvar, 
-         &temp.srttb, 
-         &temp.srttvarb, 
-         &temp.sirt, 
-         &temp.sirtvar, 
-         &temp.dlm, 
-         &temp.queue
-    );
-    temp.dev_id = makedev(major, minor);
-
-    /* Filter on required lock types */
-    if ((temp.lock_type == WORSTGLOCK_INODE || temp.lock_type == WORSTGLOCK_RGRP) &&
-        (temp.dlm > COUNT_THRESHOLD || temp.queue > COUNT_THRESHOLD)) {
-          
-        /* Increase counters */
-        glock_data = temp;         
-        ftrace_increase_num_accepted_entries(); 
-    }
-
-    worst_glock_assign_glocks(gfs_fs_indom);
-    return 0;
-}
-
-/*
  * Comparison function we compare the values; we return the lock which 
  * is deemed to be the worst.
  */
@@ -246,7 +204,7 @@ lock_comparison(const void *a, const void *b)
  * esspond to the filesystem. With these locks we find the worst and assign it
  * to the filesystem before returning the metric values.
  */
-void
+static void
 worst_glock_assign_glocks(pmInDom gfs_fs_indom)
 {
     int i, j, sts;
@@ -288,6 +246,48 @@ worst_glock_assign_glocks(pmInDom gfs_fs_indom)
         }
         qsort(fs->worst_glock.glocks, (WORST_GLOCK_TOP + 1), sizeof(struct glock), lock_comparison);             
     }   
+}
+
+/*
+ * We work out the individual metric values from our buffer input and store
+ * them for processing after all of the values have been extracted from the
+ * trace pipe.
+ */
+int
+gfs2_extract_worst_glock(char **buffer, pmInDom gfs_fs_indom)
+{
+    struct glock temp;
+    unsigned int major, minor;
+
+    /* Assign data */
+    sscanf(*buffer, 
+        "gfs2_glock_lock_time: %"SCNu32",%"SCNu32" glock %"SCNu32":%"SCNu64" status:%*d flags:%*x tdiff:%*d srtt:%"SCNd64"/%"SCNd64" srttb:%"SCNd64"/%"SCNd64" sirt:%"SCNd64"/%"SCNd64" dcnt:%"SCNd64" qcnt:%"SCNd64,
+         &major,
+         &minor, 
+         &temp.lock_type,
+         &temp.number,
+         &temp.srtt, 
+         &temp.srttvar, 
+         &temp.srttb, 
+         &temp.srttvarb, 
+         &temp.sirt, 
+         &temp.sirtvar, 
+         &temp.dlm, 
+         &temp.queue
+    );
+    temp.dev_id = makedev(major, minor);
+
+    /* Filter on required lock types */
+    if ((temp.lock_type == WORSTGLOCK_INODE || temp.lock_type == WORSTGLOCK_RGRP) &&
+        (temp.dlm > COUNT_THRESHOLD || temp.queue > COUNT_THRESHOLD)) {
+          
+        /* Increase counters */
+        glock_data = temp;         
+        ftrace_increase_num_accepted_entries(); 
+    }
+
+    worst_glock_assign_glocks(gfs_fs_indom);
+    return 0;
 }
 
 static void

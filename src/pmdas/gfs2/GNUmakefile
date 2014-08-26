@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013 - 2014 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
 TOPDIR = ../../..
 include	$(TOPDIR)/src/include/builddefs
 
-CFILES		= control.c glstats.c worst_glock.c glocks.c sbstats.c ftrace.c pmda.c
-HFILES		= control.h glstats.h worst_glock.h glocks.h sbstats.h ftrace.h pmdagfs2.h
+CFILES		= latency.c control.c glstats.c worst_glock.c glocks.c sbstats.c ftrace.c pmda.c
+HFILES		= latency.c control.h glstats.h worst_glock.h glocks.h sbstats.h ftrace.h pmdagfs2.h
 CMDTARGET	= pmdagfs2
 LLDLIBS		= $(PCP_PMDALIB)
 LSRCFILES	= Install Remove pmns root help README
@@ -50,10 +50,11 @@ install_pcp : install
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
-pmda.o glocks.o:	glocks.h
-pmda.o sbstats.o:	sbstats.h
-pmda.o:			pmdagfs2.h
-pmda.o glstats.o:	glstats.h
-pmda.o worst_glock.o:	worst_glock.h
-pmda.o ftrace.o:	ftrace.h
-pmda.o control.o:       control.h
+pmda.o glocks.o:	       glocks.h
+pmda.o sbstats.o:	       sbstats.h
+pmda.o:			       pmdagfs2.h
+pmda.o glstats.o:	       glstats.h
+pmda.o ftrace.o:	       ftrace.h
+pmda.o ftrace.o worst_glock.o: worst_glock.h
+pmda.o ftrace.o latency.o:     latency.h
+pmda.o control.o:              control.h

@@ -56,7 +56,7 @@ _gfs2_filter_pminfo()
     # but that's ok; we just want to check both are found and have some value
     #
     tee -a $here/$seq.full | sed \
-        -e 's/value [0-9][0-9]*/value NUMBER/' \
+        -e 's/value [-?0-9.e+][-?0-9.e+]*/value NUMBER/' \
         -e 's/"loop[01]"/"loopN"/g'
 }
 

@@ -20,6 +20,7 @@
 #include "control.h"
 #include "ftrace.h"
 #include "worst_glock.h"
+#include "latency.h"
 
 /* Locations of the enable files for the gfs2 tracepoints */
 const char *control_locations[] = {
@@ -54,6 +55,9 @@ gfs2_control_fetch(int item, pmAtomValue *atom)
 
     } else if (item == CONTROL_WORSTGLOCK) {
         atom->ul = worst_glock_get_state();
+
+    } else if (item == CONTROL_LATENCY) {
+        atom->ul = latency_get_state();   
 
     } else if (item == CONTROL_FTRACE_GLOCK_THRESHOLD) {
         atom->ul = ftrace_get_threshold();

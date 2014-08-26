@@ -499,7 +499,92 @@ pmdaMetric metrictable[] = {
         PMDA_PMID(CLUSTER_WORSTGLOCK, WORSTGLOCK_QUEUE),
         PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-    /* GFS2.CONTROL */
+    /* LATENCY */
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LATENCY, LATENCY_GRANT_ALL),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,PM_TIME_MSEC,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LATENCY, LATENCY_GRANT_NL),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,PM_TIME_MSEC,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LATENCY, LATENCY_GRANT_CR),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,PM_TIME_MSEC,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LATENCY, LATENCY_GRANT_CW),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,PM_TIME_MSEC,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LATENCY, LATENCY_GRANT_PR),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,PM_TIME_MSEC,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LATENCY, LATENCY_GRANT_PW),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,PM_TIME_MSEC,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LATENCY, LATENCY_GRANT_EX),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,PM_TIME_MSEC,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LATENCY, LATENCY_DEMOTE_ALL),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,PM_TIME_MSEC,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LATENCY, LATENCY_DEMOTE_NL),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,PM_TIME_MSEC,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LATENCY, LATENCY_DEMOTE_CR),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,PM_TIME_MSEC,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LATENCY, LATENCY_DEMOTE_CW),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,PM_TIME_MSEC,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LATENCY, LATENCY_DEMOTE_PR),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,PM_TIME_MSEC,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LATENCY, LATENCY_DEMOTE_PW),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,PM_TIME_MSEC,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LATENCY, LATENCY_DEMOTE_EX),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,PM_TIME_MSEC,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LATENCY, LATENCY_QUEUE_ALL),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,PM_TIME_MSEC,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LATENCY, LATENCY_QUEUE_NL),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,PM_TIME_MSEC,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LATENCY, LATENCY_QUEUE_CR),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,PM_TIME_MSEC,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LATENCY, LATENCY_QUEUE_CW),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,PM_TIME_MSEC,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LATENCY, LATENCY_QUEUE_PR),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,PM_TIME_MSEC,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LATENCY, LATENCY_QUEUE_PW),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,PM_TIME_MSEC,PM_COUNT_ONE) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_LATENCY, LATENCY_QUEUE_EX),
+        PM_TYPE_64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,1,0,PM_TIME_MSEC,PM_COUNT_ONE) }, },
+    /* CONTROL */
     { NULL, {
         PMDA_PMID(CLUSTER_CONTROL, CONTROL_ALL),
         PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
@@ -566,6 +651,10 @@ pmdaMetric metrictable[] = {
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
     { NULL, {
         PMDA_PMID(CLUSTER_CONTROL, CONTROL_WORSTGLOCK),
+        PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { NULL, {
+        PMDA_PMID(CLUSTER_CONTROL, CONTROL_LATENCY),
         PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
     { NULL, {
@@ -704,7 +793,7 @@ gfs2_fetch_refresh(pmdaExt *pmda, int *need_refresh)
             gfs2_refresh_glstats(gfs2_sysfsdir, name, &fs->glstats);
     }
 
-    if (need_refresh[CLUSTER_TRACEPOINTS] || need_refresh[CLUSTER_WORSTGLOCK])
+    if (need_refresh[CLUSTER_TRACEPOINTS] || need_refresh[CLUSTER_WORSTGLOCK] || need_refresh[CLUSTER_LATENCY])
         gfs2_refresh_ftrace_stats(indom);
 
     return sts;
@@ -766,6 +855,12 @@ gfs2_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
         if (sts < 0)
             return sts;
         return gfs2_worst_glock_fetch(idp->item, &fs->worst_glock, atom);
+
+    case CLUSTER_LATENCY:
+        sts = pmdaCacheLookup(INDOM(GFS_FS_INDOM), inst, NULL, (void**)&fs);
+        if (sts < 0)
+            return sts;
+        return gfs2_latency_fetch(idp->item, &fs->latency, atom);
 
     case CLUSTER_CONTROL:
         return gfs2_control_fetch(idp->item, atom);
@@ -829,7 +924,11 @@ gfs2_store(pmResult *result, pmdaExt *pmda)
 
         if (pmidp->cluster == CLUSTER_CONTROL && pmidp->item == CONTROL_WORSTGLOCK) {
             sts = worst_glock_set_state(vsp);
-        }        
+        }
+
+        if (pmidp->cluster == CLUSTER_CONTROL && pmidp->item == CONTROL_LATENCY) {
+            sts = latency_set_state(vsp);
+        }
 
         if (pmidp->cluster == CLUSTER_CONTROL && pmidp->item == CONTROL_FTRACE_GLOCK_THRESHOLD) {
             sts = ftrace_set_threshold(vsp);
