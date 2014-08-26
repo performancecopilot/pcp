@@ -1,8 +1,4 @@
 QA output created by 437
-
-
-
-
 	Input file = ./null.0.bz2, output file = (stdout)
 	perhaps it is corrupted?  *Possible* reason follows.
 It is possible that the compressed file(s) have become corrupted.
@@ -17,10 +13,6 @@ bzip2: Compressed file ends unexpectedly;
 bzip2: Success
 data from undamaged sections of corrupted files.
 pminfo: Cannot open archive "null": Corrupted record in a PCP archive log
-
-
-
-
 	Input file = ./null.0.bz2, output file = (stdout)
 	perhaps it is corrupted?  *Possible* reason follows.
 It is possible that the compressed file(s) have become corrupted.

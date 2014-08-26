@@ -12,11 +12,12 @@
 
 _filter_compression()
 {
-    # Mac OS X and Solaris strangeness
+    # Mac OS X, FreeBSD and Solaris strangeness
     sed \
-	-e '/: Undefined error: 0/s/Undefined error: 0/Success/' \
-	-e '/: Error 0/s/Error 0/Success/'
-    # end
+	-e '/: Undefined error: 0/s//: Success/' \
+	-e '/: Error 0/s//: Success/' \
+	-e '/: No such file or directory/s//: Success/' \
+	-e '/^[ 	]*$/d'
 }
 
 status=0	# success is the default!
