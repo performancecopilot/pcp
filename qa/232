@@ -63,8 +63,17 @@ do
 		metric=zfs.used.total
 		;;
 	esac
+    elif [ $PCP_PLATFORM = freebsd ]
+    then
+	# some of the metrics just aren't there on FreeBSD
+	case $metric
+	in
+	    filesys.used|swapdev.length|nfs.*|nfs3.*)
+		continue
+		;;
+	esac
     fi
-    if [ $PCP_PLATFORM = solaris ]
+    if [ $PCP_PLATFORM = solaris -o $PCP_PLATFORM = freebsd ]
     then
 	# need to be root to open /dev/kmem
 	$sudo $here/src/torture_indom $metric >$tmp.out 2>&1
@@ -73,7 +82,8 @@ do
 	$here/src/torture_indom $metric >$tmp.out 2>&1
 	status=$?
     fi
-    sed -e '/using .* kmem interface/d' $tmp.out \
+    sed <$tmp.out \
+	-e '/using .* kmem interface/d' \
     | _filter_pmcd_log \
     | _filter_dodgey_nfs_indom
     if [ $status != 0 ]

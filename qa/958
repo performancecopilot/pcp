@@ -19,6 +19,8 @@ trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 _prepare_compress xz unxz xz
-_exercise_compression
+_exercise_compression 2>&1 \
+| sed -e 's/format not recognised/format not recognized/'
+
 status=0	# success, we're all done
 exit

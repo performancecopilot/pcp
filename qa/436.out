@@ -89,16 +89,12 @@ pmprobe: Cannot open archive "mv-bigbin.10.bz2": No such file or directory
 pmval: Cannot open archive "mv-bigbin.10.bz2": No such file or directory
 pmie: cannot open archive mv-bigbin.10.bz2
 pmNewContext failed: No such file or directory
-
 bzip2: Compressed file ends unexpectedly;
 	perhaps it is corrupted?  *Possible* reason follows.
 bzip2: Success
 	Input file = ./null.0.bz2, output file = (stdout)
-
 It is possible that the compressed file(s) have become corrupted.
 You can use the -tvv option to test integrity of such files.
-
 You can use the `bzip2recover' program to attempt to recover
 data from undamaged sections of corrupted files.
-
 pminfo: Cannot open archive "null": Corrupted record in a PCP archive log
