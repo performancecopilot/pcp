@@ -21,7 +21,6 @@
 #define DEFAULT_WORST_GLOCK_STATE 1
 #define WORST_GLOCK_TOP 10
 #define WORST_GLOCK_COUNT (NUM_GLOCKSTATS*NUM_TOPNUM)
-#define FTRACE_ARRAY_CAPACITY 2048
 
 enum {
     WORSTGLOCK_LOCK_TYPE = 0,
@@ -85,7 +84,6 @@ struct worst_glock {
 extern void gfs2_worst_glock_init(pmdaMetric *, int);
 extern int gfs2_worst_glock_fetch(int, struct worst_glock *, pmAtomValue *);
 extern int gfs2_extract_worst_glock(char **, pmInDom);
-extern void worst_glock_assign_glocks(pmInDom);
 
 extern int worst_glock_get_state();
 extern int worst_glock_set_state(pmValueSet *vsp);
