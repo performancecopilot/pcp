@@ -1558,7 +1558,7 @@ strchrnul(const char *s, int c)
 {
     char	*p = strchr(s, c);
     if (p == NULL)
-	p = s + strlen(s);
+	p = (char *)s + strlen(s);
     return p;
 }
 #endif /* HAVE_STRCHRNUL */
@@ -1955,7 +1955,7 @@ pow(double x, double y)
 
 #define PROCFS_ENTRY_SIZE 40	/* encompass any size of entry for pid */
 
-#if defined(IS_DARWIN)	/* No procfs on Mac OS X */
+#if defined(IS_DARWIN) /* No procfs on Mac OS X */
 #include <sys/sysctl.h>
 int
 __pmProcessExists(pid_t pid)
@@ -1971,6 +1971,18 @@ __pmProcessExists(pid_t pid)
     if (sysctl(mib, 4, &kp, &len, NULL, 0) == -1)
        return 0;
     return (len > 0);
+}
+#elif defined(IS_FREEBSD)
+int 
+__pmProcessExists(pid_t pid)
+{
+    /*
+     * kill(.., 0) returns -1 if the process exists.
+     */
+    if (kill(pid, 0) == -1)
+	return 1;
+    else
+	return 0;
 }
 #elif defined(HAVE_PROCFS)
 #define PROCFS			"/proc"
