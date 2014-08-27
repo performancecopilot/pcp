@@ -839,7 +839,20 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
     #
     if [ X"$CULLAFTER" != X"forever" ]
     then
-	find . -type f -mtime +$CULLAFTER \
+	if [ "$PCP_PLATFORM" = freebsd ]
+	then
+	    # FreeBSD semantics for find(1) -mtime +N are "rounded up to
+	    # the next full 24-hour period", compared to GNU/Linux semantics
+	    # "any fractional part is ignored".  So, these are almost always
+	    # off by one day in terms of the files selected.
+	    # For consistency, try to match the GNU/Linux semantics by using
+	    # one MORE day.
+	    #
+	    mtime=`expr $CULLAFTER + 1`
+	else
+	    mtime=$CULLAFTER
+	fi
+	find . -type f -mtime +$mtime \
 	| _filter_filename \
 	| sort >$tmp/list
 	if [ -s $tmp/list ]
@@ -865,7 +878,15 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
     #
     if [ ! -z "$COMPRESSAFTER" ]
     then
-	find . -type f -mtime +$COMPRESSAFTER \
+	if [ "$PCP_PLATFORM" = freebsd ]
+	then
+	    # See note above re. find(1) on FreeBSD
+	    #
+	    mtime=`expr $COMPRESSAFTER - 1`
+	else
+	    mtime=$COMPRESSAFTER
+	fi
+	find . -type f -mtime +$mtime \
 	| _filter_filename \
 	| egrep -v "$COMPRESSREGEX" \
 	| sort >$tmp/list
@@ -891,7 +912,15 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
     #
     if [ "$TRACE" -gt 0 ]
     then
-	find $PCP_LOG_DIR/pmlogger -type f -mtime +$TRACE \
+	if [ "$PCP_PLATFORM" = freebsd ]
+	then
+	    # See note above re. find(1) on FreeBSD
+	    #
+	    mtime=`expr $TRACE - 1`
+	else
+	    mtime=$TRACE
+	fi
+	find $PCP_LOG_DIR/pmlogger -type f -mtime +$mtime \
 	| sed -n -e '/pmlogger\/daily\..*\.trace/p' \
 	| sort >$tmp/list
 	if [ -s $tmp/list ]
