@@ -10,9 +10,9 @@
 #include <pcp/impl.h>
 
 static int type[] = {
-    PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE, PM_TYPE_STRING, PM_TYPE_AGGREGATE, PM_TYPE_EVENT };
+    PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE, PM_TYPE_STRING, PM_TYPE_AGGREGATE, PM_TYPE_EVENT, PM_TYPE_HIGHRES_EVENT };
 static char *name[] = {
-    "long", "ulong", "longlong", "ulonglong", "float", "double", "char *", "pmValueBlock *", "pmEventArray" };
+    "long", "ulong", "longlong", "ulonglong", "float", "double", "char *", "pmValueBlock *", "pmEventArray", "pmHighResEventArray" };
 
 /*
  * ap may point into a vbuf[] and so is not necessarily aligned correctly
@@ -23,7 +23,6 @@ _y(void *ap, int type)
     int			i;
     int			vlen;
     char		*cp;
-    pmEventArray	*eap;
     pmAtomValue		av;
 
     memcpy((void *)&av, (void *)ap, sizeof(av));
@@ -67,15 +66,25 @@ _y(void *ap, int type)
 	    }
 	    if (vlen > 12) printf(" ...");
 	    break;
-	case PM_TYPE_EVENT:
+	case PM_TYPE_EVENT: {
+	    pmEventArray *eap;
 	    /* this seems alignment safe */
 	    eap = (pmEventArray *)ap;
 		printf("[%d event records]", eap->ea_nrecords);
 	    break;
+	}
+	case PM_TYPE_HIGHRES_EVENT: {
+	    pmHighResEventArray *hreap;
+	    /* this seems alignment safe */
+	    hreap = (pmHighResEventArray *)ap;
+		printf("[%d event records]", hreap->ea_nrecords);
+	    break;
+	}
     }
 }
 
 static pmEventArray	ea;
+static pmHighResEventArray	hrea;
 
 int
 main(int argc, char *argv[])
@@ -102,6 +111,11 @@ main(int argc, char *argv[])
     vbp = (pmValueBlock *)&ea;
     vbp->vtype = PM_TYPE_EVENT;
     vbp->vlen = sizeof(ea);	/* not quite correct, but close enough */
+    hrea.ea_nrecords = 1;
+    hrea.ea_record[0].er_nparams = 0;
+    vbp = (pmValueBlock *)&hrea;
+    vbp->vtype = PM_TYPE_HIGHRES_EVENT;
+    vbp->vlen = sizeof(hrea);	/* not quite correct, but close enough */
 
     vbp = (pmValueBlock *)malloc(sizeof(pmValueBlock)+7*sizeof(int));
     if (vbp == NULL) {
@@ -217,6 +231,10 @@ main(int argc, char *argv[])
 		    valfmt = PM_VAL_DPTR;
 		    ap = (void *)&ea;
 		    break;
+		case PM_TYPE_HIGHRES_EVENT:
+		    valfmt = PM_VAL_DPTR;
+		    ap = (void *)&hrea;
+		    break;
 	    }
 	    for (o = 0; o < sizeof(type)/sizeof(type[0]); o++) {
 		if ((e = pmExtractValue(valfmt, &pv, type[i], &av, type[o])) < 0) {
@@ -226,7 +244,8 @@ main(int argc, char *argv[])
 			    (type[i] == PM_TYPE_STRING || type[o] == PM_TYPE_STRING ||
 			     type[i] == PM_TYPE_AGGREGATE || type[o] == PM_TYPE_AGGREGATE))
 			    continue;
-			 if (type[i] == PM_TYPE_EVENT || type[o] == PM_TYPE_EVENT)
+			 if (type[i] == PM_TYPE_EVENT || type[i] == PM_TYPE_HIGHRES_EVENT ||
+			     type[o] == PM_TYPE_EVENT || type[o] == PM_TYPE_HIGHRES_EVENT)
 			    continue;
 		    }
 		    printf("(%s) ", name[i]);
@@ -320,6 +339,7 @@ main(int argc, char *argv[])
 				match = (bv.cp[k] == av.cp[k]);
 			    break;
 			case PM_TYPE_EVENT:
+			case PM_TYPE_HIGHRES_EVENT:
 			default:
 			    /* should never get here */
 			    match = 0;

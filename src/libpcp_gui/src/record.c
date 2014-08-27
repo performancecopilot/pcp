@@ -144,7 +144,7 @@ pmRecordSetup(const char *folio, const char *creator, int replay)
 #endif
     /*
      * file named tbuf is never used, it is the basename for the real
-     * files we create.  remeber it so we can cleanup.
+     * files we create.  remember it so we can cleanup.
      */
     temp = strdup(tbuf);
 
@@ -223,7 +223,10 @@ pmRecordSetup(const char *folio, const char *creator, int replay)
     state = PM_REC_BEGIN;
     _seendefault = 0;
 
-    if (temp) unlink(temp);
+    if (temp) {
+	unlink(temp);
+	free(temp);
+    }
     return f_replay;
 
 failed:
@@ -238,7 +241,10 @@ failed:
     if (fd >= 0)
 	close(fd);
     setoserror(sts);
-    if (temp) unlink(temp);
+    if (temp) {
+	unlink(temp);
+	free(temp);
+    }
     return NULL;
 }
 

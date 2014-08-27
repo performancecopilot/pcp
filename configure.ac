@@ -1073,7 +1073,7 @@ AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS(fcntl.h limits.h malloc.h strings.h syslog.h)
 AC_CHECK_HEADERS(unistd.h stddef.h sched.h dlfcn.h dl.h)
-AC_CHECK_HEADERS(sys/time.h sys/timeb.h sys/times.h)
+AC_CHECK_HEADERS(sys/time.h sys/times.h)
 AC_CHECK_HEADERS(sys/resource.h sys/prctl.h)
 AC_CHECK_HEADERS(sys/sysinfo.h sys/systeminfo.h)
 AC_CHECK_HEADERS(endian.h standards.h sys/byteorder.h)

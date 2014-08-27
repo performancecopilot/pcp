@@ -1,7 +1,7 @@
 /*
  * Global Filesystem v2 (GFS2) PMDA
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013 - 2014 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,6 +22,7 @@
 #include "glstats.h"
 #include "worst_glock.h"
 #include "ftrace.h"
+#include "latency.h"
 #include "control.h"
 
 enum {
@@ -30,7 +31,8 @@ enum {
 	CLUSTER_GLSTATS,	/* 2 - /sys/kernel/debug/gfs2/<fs>/glstats */
         CLUSTER_TRACEPOINTS,	/* 3 - /sys/kernel/debug/tracing/events/gfs2/ */
         CLUSTER_WORSTGLOCK,     /* 4 - Custom metric for worst glock */
-        CLUSTER_CONTROL,        /* 5 - Control for specific tracepoint enabling (for installs without all of the GFS2 tracepoints) */
+	CLUSTER_LATENCY,	/* 5 - Custom metric for working out latency of filesystem operations */
+        CLUSTER_CONTROL,        /* 6 - Control for specific tracepoint enabling (for installs without all of the GFS2 tracepoints) */
 	NUM_CLUSTERS
 };
 
@@ -46,6 +48,7 @@ struct gfs2_fs {
         struct glstats     glstats;
         struct ftrace      ftrace;
         struct worst_glock worst_glock;
+        struct latency     latency;
 };
 
 extern pmdaMetric metrictable[];

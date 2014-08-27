@@ -2,14 +2,14 @@ QA output created by 415
 
 === pmval -s 1 sample.event.records ===
 
-pmval: Cannot display values for PM_TYPE_EVENT metrics
+pmval: Cannot display values for event type metrics
 exit status=1
 
 === pmval -s 1 -a src/eventrec-old sample.event.records ===
 
-pmval: Cannot display values for PM_TYPE_EVENT metrics
+pmval: Cannot display values for event type metrics
 exit status=1
 
 === pmstore sample.event.records 1 ===
-pmstore: Cannot modify values for PM_TYPE_EVENT metrics
+pmstore: Cannot modify values for event type metrics
 exit status=1

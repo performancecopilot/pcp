@@ -22,6 +22,7 @@ gfs2 {
     glstats
     tracepoints
     worst_glock		GFS2:*:*
+    latency
     control
 }
 
@@ -206,27 +207,64 @@ gfs2.tracepoints.rs {
     clm			GFS2:3:81
 }
 
+gfs2.latency {
+    grant
+    demote
+    queue
+}
+
+gfs2.latency.grant {
+    all			GFS2:5:0
+    null_lock		GFS2:5:1
+    concurrent_read	GFS2:5:2
+    concurrent_write	GFS2:5:3
+    protected_read	GFS2:5:4
+    protected_write	GFS2:5:5
+    exclusive		GFS2:5:6
+}
+
+gfs2.latency.demote {
+    all			GFS2:5:7
+    null_lock		GFS2:5:8
+    concurrent_read	GFS2:5:9
+    concurrent_write	GFS2:5:10
+    protected_read	GFS2:5:11
+    protected_write	GFS2:5:12
+    exclusive		GFS2:5:13
+}
+
+gfs2.latency.queue {
+    all			GFS2:5:14
+    null_lock		GFS2:5:15
+    concurrent_read	GFS2:5:16
+    concurrent_write	GFS2:5:17
+    protected_read	GFS2:5:18
+    protected_write	GFS2:5:19
+    exclusive		GFS2:5:20
+}
+
 gfs2.control {
     tracepoints
-    buffer_size_kb      GFS2:5:14
-    global_tracing	GFS2:5:15
-    worst_glock		GFS2:5:16
-    glock_threshold	GFS2:5:17
+    buffer_size_kb      GFS2:6:14
+    global_tracing	GFS2:6:15
+    worst_glock		GFS2:6:16
+    latency		GFS2:6:17
+    glock_threshold	GFS2:6:18
 }
 
 gfs2.control.tracepoints {
-    all			GFS2:5:0
-    glock_state_change	GFS2:5:1
-    glock_put		GFS2:5:2
-    demote_rq		GFS2:5:3
-    promote		GFS2:5:4
-    glock_queue		GFS2:5:5
-    glock_lock_time	GFS2:5:6
-    pin			GFS2:5:7
-    log_flush		GFS2:5:8
-    log_blocks		GFS2:5:9
-    ail_flush		GFS2:5:10
-    block_alloc		GFS2:5:11
-    bmap		GFS2:5:12
-    rs			GFS2:5:13
+    all			GFS2:6:0
+    glock_state_change	GFS2:6:1
+    glock_put		GFS2:6:2
+    demote_rq		GFS2:6:3
+    promote		GFS2:6:4
+    glock_queue		GFS2:6:5
+    glock_lock_time	GFS2:6:6
+    pin			GFS2:6:7
+    log_flush		GFS2:6:8
+    log_blocks		GFS2:6:9
+    ail_flush		GFS2:6:10
+    block_alloc		GFS2:6:11
+    bmap		GFS2:6:12
+    rs			GFS2:6:13
 }

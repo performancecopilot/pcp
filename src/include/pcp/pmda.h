@@ -679,6 +679,17 @@ extern int pmdaEventAddParam(int, pmID, int, pmAtomValue *);
 extern pmEventArray *pmdaEventGetAddr(int);
 
 /*
+ * High Resolution Timer Event Record support
+ */
+extern int pmdaEventNewHighResArray(void);
+extern int pmdaEventResetHighResArray(int);
+extern int pmdaEventReleaseHighResArray(int);
+extern int pmdaEventAddHighResRecord(int, struct timespec *, int);
+extern int pmdaEventAddHighResMissedRecord(int, struct timespec *, int);
+extern int pmdaEventHighResAddParam(int, pmID, int, pmAtomValue *);
+extern pmHighResEventArray *pmdaEventHighResGetAddr(int);
+
+/*
  * Event Queue support
  */
 extern int pmdaEventNewQueue(const char *, size_t);

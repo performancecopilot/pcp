@@ -1,7 +1,9 @@
 /*
  * The "event" records here are all fake.  But the logic does show how
  * a real PMDA could deliver values for metrics of type PM_TYPE_EVENT.
+ * and PM_TYPE_HIGHRES_EVENT.
  *
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -19,8 +21,13 @@
 #define _EVENTS_H
 
 extern void init_events(int);
+
 extern int sample_fetch_events(pmValueBlock **, int);
 extern void event_set_fetch_count(int);
 extern int event_get_fetch_count(void);
+
+extern int sample_fetch_highres_events(pmValueBlock **, int);
+extern void event_set_highres_fetch_count(int);
+extern int event_get_highres_fetch_count(void);
 
 #endif /* _EVENTS_H */

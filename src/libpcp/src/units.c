@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -101,16 +102,24 @@ pmAtomStr_r(const pmAtomValue *avp, int type, char *buf, int buflen)
 		}
 	    }
 	    break;
-	case PM_TYPE_EVENT:
-	    {
-		/* have to assume alignment is OK in this case */
-		pmEventArray	*eap = (pmEventArray *)avp->vbp;
-		if (eap->ea_nrecords == 1)
-		    snprintf(buf, buflen, "[1 event record]");
-		else
-		    snprintf(buf, buflen, "[%d event records]", eap->ea_nrecords);
-	    }
+	case PM_TYPE_EVENT: {
+	    /* have to assume alignment is OK in this case */
+	    pmEventArray	*eap = (pmEventArray *)avp->vbp;
+	    if (eap->ea_nrecords == 1)
+		snprintf(buf, buflen, "[1 event record]");
+	    else
+		snprintf(buf, buflen, "[%d event records]", eap->ea_nrecords);
 	    break;
+	}
+	case PM_TYPE_HIGHRES_EVENT: {
+	    /* have to assume alignment is OK in this case */
+	    pmHighResEventArray	*hreap = (pmHighResEventArray *)avp->vbp;
+	    if (hreap->ea_nrecords == 1)
+		snprintf(buf, buflen, "[1 event record]");
+	    else
+		snprintf(buf, buflen, "[%d event records]", hreap->ea_nrecords);
+	    break;
+	}
 	default:
 	    snprintf(buf, buflen, "Error: unexpected type: %s", pmTypeStr_r(type, strbuf, sizeof(strbuf)));
     }
@@ -133,7 +142,7 @@ pmAtomStr(const pmAtomValue *avp, int type)
  * must be in agreement with ordinal values for PM_TYPE_* #defines
  */
 static const char *typename[] = {
-    "32", "U32", "64", "U64", "FLOAT", "DOUBLE", "STRING", "AGGREGATE", "AGGREGATE_STATIC", "EVENT"
+    "32", "U32", "64", "U64", "FLOAT", "DOUBLE", "STRING", "AGGREGATE", "AGGREGATE_STATIC", "EVENT", "HIGHRES_EVENT"
 };
 
 /* PM_TYPE_* -> string, max length is 20 bytes */
@@ -728,6 +737,7 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 	    case PM_TYPE_STRING:
 	    case PM_TYPE_AGGREGATE:
 	    case PM_TYPE_EVENT:
+	    case PM_TYPE_HIGHRES_EVENT:
 	    default:
 		sts = PM_ERR_CONV;
 	}
@@ -1071,6 +1081,7 @@ pmExtractValue(int valfmt, const pmValue *ival, int itype,
 	    case PM_TYPE_32:
 	    case PM_TYPE_U32:
 	    case PM_TYPE_EVENT:
+	    case PM_TYPE_HIGHRES_EVENT:
 	    default:
 		sts = PM_ERR_CONV;
 	}

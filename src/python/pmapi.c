@@ -1196,6 +1196,7 @@ initcpmapi(void)
     dict_add(dict, "PM_TYPE_AGGREGATE", PM_TYPE_AGGREGATE);
     dict_add(dict, "PM_TYPE_AGGREGATE_STATIC", PM_TYPE_AGGREGATE_STATIC);
     dict_add(dict, "PM_TYPE_EVENT", PM_TYPE_EVENT);
+    dict_add(dict, "PM_TYPE_HIGHRES_EVENT", PM_TYPE_HIGHRES_EVENT);
     dict_add(dict, "PM_TYPE_UNKNOWN", PM_TYPE_UNKNOWN);
 
     dict_add(dict, "PM_SEM_COUNTER", PM_SEM_COUNTER);

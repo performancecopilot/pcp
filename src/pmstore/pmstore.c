@@ -302,8 +302,8 @@ main(int argc, char **argv)
 	    pmProgname);
 	exit(1);
     }
-    if (desc.type == PM_TYPE_EVENT) {
-	fprintf(stderr, "%s: Cannot modify values for PM_TYPE_EVENT metrics\n",
+    if (desc.type == PM_TYPE_EVENT || desc.type == PM_TYPE_HIGHRES_EVENT) {
+	fprintf(stderr, "%s: Cannot modify values for event type metrics\n",
 	    pmProgname);
 	exit(1);
     }

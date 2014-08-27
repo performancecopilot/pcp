@@ -456,3 +456,16 @@ PCP_3.6 {
     __pmFreeInterpData;
     __pmAddOptArchiveFolio;
 } PCP_3.5;
+
+PCP_3.7 {
+  global:
+    pmFreeHighResResult;
+    pmFreeHighResEventResult;
+    pmUnpackHighResEventRecords;
+
+    __pmCheckHighResEventRecords;
+    __pmDumpHighResEventRecords;
+    __pmDumpHighResResult;
+    __pmPrintHighResStamp;
+    __pmPrintTimespec;
+} PCP_3.6;

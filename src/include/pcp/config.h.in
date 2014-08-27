@@ -166,9 +166,6 @@ extern "C" {
 #if defined(HAVE_WS2TCPIP_H)
 #include <ws2tcpip.h>
 #endif
-#if defined(HAVE_SYS_TIMEB_H)
-#include <sys/timeb.h>
-#endif
 
 /* HAVE_NETWORK_BYTEORDER for big endian systems (not Intel) */
 #if defined(HAVE_ENDIAN_H)
@@ -650,6 +647,9 @@ extern char *strndup(const char *, size_t);
 #endif
 #ifndef HAVE_STRCHRNUL
 extern char *strchrnul(const char *, int);
+#endif
+#ifndef HAVE_STRCHRNUL
+extern char *strchrnul(const char *, int c);
 #endif
 
 #ifdef HAVE_CONST_DIRENT

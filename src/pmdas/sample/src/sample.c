@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -331,6 +332,10 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,137), PM_TYPE_EVENT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* bad.novalues */
     { PMDA_PMID(0,138), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* event.highres_records */
+    { PMDA_PMID(0,139), PM_TYPE_HIGHRES_EVENT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* event.reset */
+    { PMDA_PMID(0,140), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /*
  * dynamic PMNS ones
@@ -1130,6 +1135,7 @@ init_tables(int dom)
 		dp->indom = indomtab[SCRAMBLE_INDOM].it_indom;
 		break;
 	    case PMDA_PMID(0,136):		/* event.records */
+	    case PMDA_PMID(0,139):		/* event.highres_records */
 		dp->indom = indomtab[EVENT_INDOM].it_indom;
 		break;
 	}
@@ -2326,9 +2332,15 @@ doit:
 			break;
 		    case 136:	/* event.records */
 		    case 137:	/* event.no_indom_records */
-			sts = sample_fetch_events(&atom.vbp, inst);
-			if (sts < 0)
+			if ((sts = sample_fetch_events(&atom.vbp, inst)) < 0)
 			    return sts;
+			break;
+		    case 139:	/* event.highres_records */
+			if ((sts = sample_fetch_highres_events(&atom.vbp, inst)) < 0)
+			    return sts;
+			break;
+		    case 140:	/* event.reset_highres */
+			atom.l = event_get_highres_fetch_count();
 			break;
 		    case 1000:	/* secret.bar */
 			atom.cp = "foo";
@@ -2521,6 +2533,7 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 90:	/* dynamic.meta.pmdesc.units */
 	    case 97:	/* ulong.write_me */
 	    case 126:	/* event.reset */
+	    case 140:	/* event.reset_highres */
 		if (vsp->numval != 1 || vsp->valfmt != PM_VAL_INSITU)
 		    sts = PM_ERR_CONV;
 		break;
@@ -2655,6 +2668,9 @@ sample_store(pmResult *result, pmdaExt *ep)
 		break;
 	    case 126:	/* event.reset */
 		event_set_fetch_count(av.l);
+		break;
+	    case 140:	/* event.reset_highres */
+		event_set_highres_fetch_count(av.l);
 		break;
 	    default:
 		sts = PM_ERR_PERMISSION;

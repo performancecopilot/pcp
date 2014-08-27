@@ -17,7 +17,7 @@
 #include "impl.h"
 #include <limits.h>
 
-static void myeventdump(pmValueSet *, int);
+static void myeventdump(pmValueSet *, int, int);
 static int  myoverrides(int, pmOptions *);
 
 static pmLongOptions longopts[] = {
@@ -73,6 +73,8 @@ static int	batchsize = 20;
 static int	batchidx;
 static int	verify;		/* Only print error messages */
 static int	events;		/* Decode event metrics */
+static pmID	pmid_flags;
+static pmID	pmid_missed;
 
 /*
  * pminfo has a few options which do not follow the defacto standards
@@ -158,28 +160,18 @@ mydump(pmDesc *dp, pmValueSet *vsp, char *indent)
 	printf(" value ");
 	pmPrintValue(stdout, vsp->valfmt, dp->type, vp, 1);
 	putchar('\n');
-	if (dp->type == PM_TYPE_EVENT && events)
-	    myeventdump(vsp, j);
+	if (!events)
+	    continue;
+	if (dp->type == PM_TYPE_HIGHRES_EVENT)
+	    myeventdump(vsp, j, 1);
+	else if (dp->type == PM_TYPE_EVENT)
+	    myeventdump(vsp, j, 0);
     }
 }
 
 static void
-myeventdump(pmValueSet *vsp, int inst)
+setup_event_derived_metrics(void)
 {
-    int		r;		/* event records */
-    int		p;		/* event parameters */
-    int		nrecords;
-    int		flags;
-    pmResult	**res;
-    static pmID	pmid_flags;
-    static pmID	pmid_missed;
-
-    nrecords = pmUnpackEventRecords(vsp, inst, &res);
-    if (nrecords < 0) {
-	fprintf(stderr, "pmUnpackEventRecords: %s\n", pmErrStr(nrecords));
-	return;
-    }
-
     if (pmid_flags == 0) {
 	/*
 	 * get PMID for event.flags and event.missed
@@ -208,62 +200,109 @@ myeventdump(pmValueSet *vsp, int inst)
 	    __pmid_int(&pmid_missed)->item = 1;
 	}
     }
+}
 
-    for (r = 0; r < nrecords; r++) {
-	printf("    --- event record [%d] timestamp ", r);
-	__pmPrintStamp(stdout, &res[r]->timestamp);
-	if (res[r]->numpmid == 0) {
-	    printf(" ---\n");
-	    printf("	No parameters\n");
-	    continue;
-	}
-	if (res[r]->numpmid < 0) {
-	    printf(" ---\n");
-	    printf("	Error: illegal number of parameters (%d)\n",
-			res[r]->numpmid);
-	    continue;
-	}
-	flags = 0;
-	for (p = 0; p < res[r]->numpmid; p++) {
-	    pmValueSet	*xvsp = res[r]->vset[p];
-	    int		sts;
-	    pmDesc	desc;
-	    char	*name;
+static int
+dump_nparams(int numpmid)
+{
+    if (numpmid == 0) {
+	printf(" ---\n");
+	printf("	No parameters\n");
+	return -1;
+    }
+    if (numpmid < 0) {
+	printf(" ---\n");
+	printf("	Error: illegal number of parameters (%d)\n", numpmid);
+	return -1;
+    }
+    return 0;
+}
 
-	    if (pmNameID(xvsp->pmid, &name) >= 0) {
-		if (p == 0) {
-		    if (xvsp->pmid == pmid_flags) {
-			flags = xvsp->vlist[0].value.lval;
-			printf(" flags 0x%x", flags);
-			printf(" (%s) ---\n", pmEventFlagsStr(flags));
-			free(name);
-			continue;
-		    }
-		    else
-			printf(" ---\n");
-		}
-		if ((flags & PM_EVENT_FLAG_MISSED) &&
-		    (p == 1) &&
-		    (xvsp->pmid == pmid_missed)) {
-		    printf("        ==> %d missed event records\n",
-				xvsp->vlist[0].value.lval);
-		    free(name);
-		    continue;
-		}
-		printf("    %s (%s)\n", name, pmIDStr(xvsp->pmid));
+static void
+dump_parameter(pmValueSet *xvsp, int index, int *flagsp)
+{
+    int		sts, flags = *flagsp;
+    pmDesc	desc;
+    char	*name;
+
+    if (pmNameID(xvsp->pmid, &name) >= 0) {
+	if (index == 0) {
+	    if (xvsp->pmid == pmid_flags) {
+		flags = *flagsp = xvsp->vlist[0].value.lval;
+		printf(" flags 0x%x", flags);
+		printf(" (%s) ---\n", pmEventFlagsStr(flags));
 		free(name);
+		return;
 	    }
 	    else
-		printf("	PMID: %s\n", pmIDStr(xvsp->pmid));
-	    if ((sts = pmLookupDesc(xvsp->pmid, &desc)) < 0) {
-		printf("	pmLookupDesc: %s\n", pmErrStr(sts));
-		continue;
-	    }
-	    mydump(&desc, xvsp, "    ");
+		printf(" ---\n");
 	}
+	if ((flags & PM_EVENT_FLAG_MISSED) &&
+	    (index == 1) &&
+	    (xvsp->pmid == pmid_missed)) {
+	    printf("        ==> %d missed event records\n",
+			xvsp->vlist[0].value.lval);
+	    free(name);
+	    return;
+	}
+	printf("    %s (%s)\n", name, pmIDStr(xvsp->pmid));
+	free(name);
     }
-    if (nrecords >= 0)
+    else
+	printf("	PMID: %s\n", pmIDStr(xvsp->pmid));
+    if ((sts = pmLookupDesc(xvsp->pmid, &desc)) < 0)
+	printf("	pmLookupDesc: %s\n", pmErrStr(sts));
+    else
+	mydump(&desc, xvsp, "    ");
+}
+
+static void
+myeventdump(pmValueSet *vsp, int inst, int highres)
+{
+    int		r;		/* event records */
+    int		p;		/* event parameters */
+    int		nrecords;
+    int		flags;
+
+    if (highres) {
+	pmHighResResult	**hr;
+
+	if ((nrecords = pmUnpackHighResEventRecords(vsp, inst, &hr)) < 0) {
+	    fprintf(stderr, "pmUnpackHighResEventRecords: %s\n",
+		    pmErrStr(nrecords));
+	    return;
+	}
+	setup_event_derived_metrics();
+	for (r = 0; r < nrecords; r++) {
+	    printf("    --- event record [%d] timestamp ", r);
+	    __pmPrintHighResStamp(stdout, &hr[r]->timestamp);
+	    if (dump_nparams(hr[r]->numpmid) < 0)
+		continue;
+	    flags = 0;
+	    for (p = 0; p < hr[r]->numpmid; p++)
+		dump_parameter(hr[r]->vset[p], p, &flags);
+	}
+	pmFreeHighResEventResult(hr);
+    }
+    else {
+	pmResult	**res;
+
+	if ((nrecords = pmUnpackEventRecords(vsp, inst, &res)) < 0) {
+	    fprintf(stderr, "pmUnpackEventRecords: %s\n", pmErrStr(nrecords));
+	    return;
+	}
+	setup_event_derived_metrics();
+	for (r = 0; r < nrecords; r++) {
+	    printf("    --- event record [%d] timestamp ", r);
+	    __pmPrintStamp(stdout, &res[r]->timestamp);
+	    if (dump_nparams(res[r]->numpmid) < 0)
+		continue;
+	    flags = 0;
+	    for (p = 0; p < res[r]->numpmid; p++)
+		dump_parameter(res[r]->vset[p], p, &flags);
+	}
 	pmFreeEventResult(res);
+    }
 }
 
 static void

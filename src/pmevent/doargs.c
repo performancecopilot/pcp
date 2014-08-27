@@ -354,8 +354,9 @@ doargs(int argc, char **argv)
 		fprintf(stderr, "%s: pmLookupDesc: %s: %s\n", pmProgname, mp->name, pmErrStr(sts));
 		exit(EXIT_FAILURE);
 	    }
-	    if (mp->desc.type != PM_TYPE_EVENT) {
-		fprintf(stderr, "%s: %s: metrics must be of type PM_TYPE_EVENT\n", pmProgname, mp->name);
+	    if (mp->desc.type != PM_TYPE_EVENT &&
+		mp->desc.type != PM_TYPE_HIGHRES_EVENT) {
+		fprintf(stderr, "%s: %s: metrics must be of event type\n", pmProgname, mp->name);
 		exit(EXIT_FAILURE);
 	    }
 	    mp->ninst = 0;

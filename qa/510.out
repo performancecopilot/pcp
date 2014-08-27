@@ -29,10 +29,17 @@ sample.event.records
     adv  off nl              [0 or "fungus"]
     adv  off nl              [1 or "bogus"]
 
+sample.event.highres_records
+    adv  off nl              [0 or "fungus"]
+    adv  off nl              [1 or "bogus"]
+
 sample.event.no_indom_records
     adv  off nl             
 
 sample.event.reset
+    adv  off nl             
+
+sample.event.reset_highres
     adv  off nl             
 
 sample.event.type
@@ -68,10 +75,17 @@ sample.event.records
     mand on             once [0 or "fungus"]
     mand on             once [1 or "bogus"]
 
+sample.event.highres_records
+    adv  off nl              [0 or "fungus"]
+    adv  off nl              [1 or "bogus"]
+
 sample.event.no_indom_records
     adv  off nl             
 
 sample.event.reset
+    adv  off nl             
+
+sample.event.reset_highres
     adv  off nl             
 
 sample.event.type
