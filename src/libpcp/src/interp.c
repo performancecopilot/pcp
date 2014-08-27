@@ -1502,6 +1502,7 @@ retry_forw:
 		}
 		else if ((pcp->desc.type == PM_TYPE_AGGREGATE ||
 			  pcp->desc.type == PM_TYPE_EVENT ||
+			  pcp->desc.type == PM_TYPE_HIGHRES_EVENT ||
 			  pcp->desc.type == PM_TYPE_STRING) &&
 			 icp->t_prior >= 0) {
 		    int		need;

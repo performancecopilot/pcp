@@ -366,7 +366,9 @@ Chart::addItem(pmMetricSpec *msp, const QString &legend)
     pmDesc desc = mp->desc().desc();
     if (my.items.size() == 0) {
 	// first plot item, setup a new ChartEngine
-	ChartEngine *engine = (desc.type == PM_TYPE_EVENT) ?
+	ChartEngine *engine =
+		(desc.type == PM_TYPE_EVENT ||
+		 desc.type == PM_TYPE_HIGHRES_EVENT) ?
 			(ChartEngine *) new TracingEngine(this) :
 			(ChartEngine *) new SamplingEngine(this, desc);
 	delete my.engine;

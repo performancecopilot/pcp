@@ -53,6 +53,7 @@ PMID: 29.0.2 (sample.seconds)
 0 sample.drift
 0 sample.error_check
 0 sample.error_code
+0 sample.event.highres_records
 0 sample.event.no_indom_records
 0 sample.event.param_32
 0 sample.event.param_64
@@ -64,6 +65,7 @@ PMID: 29.0.2 (sample.seconds)
 0 sample.event.param_u64
 0 sample.event.records
 0 sample.event.reset
+0 sample.event.reset_highres
 0 sample.event.type
 0 sample.float.bin
 0 sample.float.bin_ctr
@@ -187,6 +189,7 @@ PMID: 29.0.2 (sample.seconds)
 2 sample.drift
 2 sample.error_check
 2 sample.error_code
+2 sample.event.highres_records
 2 sample.event.no_indom_records
 2 sample.event.param_32
 2 sample.event.param_64
@@ -198,6 +201,7 @@ PMID: 29.0.2 (sample.seconds)
 2 sample.event.param_u64
 2 sample.event.records
 2 sample.event.reset
+2 sample.event.reset_highres
 2 sample.event.type
 2 sample.float.bin
 2 sample.float.bin_ctr

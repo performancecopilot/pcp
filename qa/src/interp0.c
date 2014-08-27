@@ -240,6 +240,27 @@ Options\n\
 			    putchar('\n');
 			}
 		    }
+		    else if (type[j] == PM_TYPE_HIGHRES_EVENT) {
+			pmHighResResult **hrecords;
+			int r, param;
+
+			printf("%d highres event records found\n", result->vset[j]->numval);
+			sts = pmUnpackHighResEventRecords(result->vset[j], 0, &hrecords);
+			if (sts < 0) {
+			    printf("highres event decode error: %s\n", pmErrStr(sts));
+			} else {
+			    for (r = 0; r < sts; r++) {
+				tdiff = hrecords[r]->timestamp.tv_sec - prev->timestamp.tv_sec + (double)
+				    (hrecords[r]->timestamp.tv_nsec - prev->timestamp.tv_usec * 1000)
+					/ 1000000000;
+				printf("\nhighres event %d, offset time=%.9f secs, param ids:", j+1, tdiff);
+				for (param = 0; param < hrecords[r]->numpmid; param++)
+				    printf(" %s", pmIDStr(hrecords[r]->vset[param]->pmid));
+			    }
+			    pmFreeHighResEventResult(hrecords);
+			    putchar('\n');
+			}
+		    }
 		    else
 			printf("don't know how to display type %d for PMID %s\n",
 			    type[j], pmIDStr(pmid[j]));
