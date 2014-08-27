@@ -1,0 +1,43 @@
+#!/bin/sh
+# PCP QA Test No. 914
+# Exercise Performance API (papi) pmda
+#
+# Copyright (c) 2014 Red Hat. All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# test for-some-thing || _notrun No support for some-thing
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed -e 's/.* pminfo\(.*\) Info:/pminfo[PID] Info:/g'
+}
+
+# real QA test starts here
+
+pmda=$PCP_PDMAS_DIR/papi/pmdapapi
+
+echo
+echo "== Testing papi library behaviour with papi stub"
+export LD_LIBRARY_PATH=$here/src
+pminfo -L -K clear -K add,120,$pmda papi 2>&1 | _filter
+
+# optional stuff if your test has verbose output to help resolve problems
+#echo
+#echo "If failure, check $seq.full"
+
+# success, all done
+status=0
+
+exit
