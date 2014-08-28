@@ -27,7 +27,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="pmchart.qrc">
-    <normaloff>:/pmchart.png</normaloff>:/pmchart.png</iconset>
+    <normaloff>:/images/pmchart.png</normaloff>:/images/pmchart.png</iconset>
   </property>
   <layout class="QGridLayout">
    <property name="margin">
@@ -75,7 +75,7 @@
             </size>
            </property>
            <property name="pixmap">
-            <pixmap resource="pmchart.qrc">:/aboutpcp.png</pixmap>
+            <pixmap resource="pmchart.qrc">:/images/aboutpcp.png</pixmap>
            </property>
            <property name="scaledContents">
             <bool>false</bool>

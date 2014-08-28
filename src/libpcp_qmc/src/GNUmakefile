@@ -5,7 +5,6 @@ include $(TOPDIR)/src/include/builddefs
 
 HEADERS = $(shell echo *.h)
 SOURCES = $(shell echo *.cpp)
-LSRCFILES = $(SOURCES) $(HEADERS) $(PROJECT)
 
 default: build-me
 

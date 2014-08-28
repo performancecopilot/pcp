@@ -64,17 +64,17 @@ NameSpace::NameSpace(QTreeWidget *list, const QmcContext *context)
     switch (my.context->source().type()) {
     case PM_CONTEXT_ARCHIVE:
 	my.basename = context->source().source();
-	my.icon = QIcon(":/archive.png");
+	my.icon = QIcon(":/images/archive.png");
 	my.type = ArchiveRoot;
 	break;
     case PM_CONTEXT_LOCAL:
 	my.basename = QString("Local context");
-	my.icon = QIcon(":/emblem-system.png");
+	my.icon = QIcon(":/images/emblem-system.png");
 	my.type = LocalRoot;
 	break;
     default:
 	my.basename = context->source().source();
-	my.icon = QIcon(":/computer.png");
+	my.icon = QIcon(":/images/computer.png");
 	my.type = HostRoot;
 	break;
     }

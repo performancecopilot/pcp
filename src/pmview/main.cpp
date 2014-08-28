@@ -18,13 +18,13 @@
 #include <Inventor/nodes/SoBaseColor.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoTranslation.h>
-#include "fileiconprovider.h"
-#include "timecontrol.h"
+#include "qed_fileiconprovider.h"
+#include "qed_timecontrol.h"
+#include "qed_console.h"
 #include "scenegroup.h"
 #include "pcpcolor.h"
 #include "modlist.h"
 #include "viewobj.h"
-#include "console.h"
 #include "main.h"
 
 #include <iostream>
@@ -44,7 +44,7 @@ char theBuffer[theBufferLen];
 SceneGroup *liveGroup;	// one metrics class group for all hosts
 SceneGroup *archiveGroup;	// one metrics class group for all archives
 SceneGroup *activeGroup;	// currently active metric fetchgroup
-TimeControl *pmtime;		// one timecontrol class for pmtime
+QedTimeControl *pmtime;		// one timecontrol class for pmtime
 PmView *pmview;
 
 static const char *options = "A:a:Cc:D:g:h:Ln:O:p:S:T:t:VzZ:?";
@@ -328,7 +328,7 @@ main(int argc, char **argv)
     int			errflg = 0;
     char		*msg;
 
-    App a(argc, argv);
+    QedApp a(argc, argv);
     readSettings();
 
     liveGroup = new SceneGroup();
@@ -454,8 +454,8 @@ main(int argc, char **argv)
     console->post("Timezones and time window setup complete");
 
     pmview = new PmView;
-    pmtime = new TimeControl;
-    fileIconProvider = new FileIconProvider();
+    pmtime = new QedTimeControl;
+    fileIconProvider = new QedFileIconProvider();
     console->post("Phase1 user interface constructors complete");
 
     // Start pmtime process for time management
