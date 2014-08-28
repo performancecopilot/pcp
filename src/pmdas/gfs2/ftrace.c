@@ -237,6 +237,7 @@ gfs2_assign_ftrace(pmInDom gfs2_fs_indom, int reset_flag)
             for (j = 0; j < NUM_TRACEPOINT_STATS; j++) {
                 /* Reset old metric data for all tracepoints */
                 fs->ftrace.values[j] = 0;
+                reset_flag = 0;
             }
         }      
        
@@ -574,8 +575,6 @@ gfs2_refresh_ftrace_stats(pmInDom gfs_fs_indom)
 
         /* Processing here */
         gfs2_assign_ftrace(gfs_fs_indom, reset_flag);
-        reset_flag = 0; // We only want to reset once for each run through
-
     }
 
     fclose(fp);
