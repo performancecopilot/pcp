@@ -51,9 +51,9 @@ class TestPrinter(pmcc.MetricGroupPrinter):
             total += inst_val
         for name in CPU_METRICS:
             if ticks[name] != None:
-                print "   ", name, round(ticks[name] / total * 100, 2), "%"
+                print("   ", name, round(ticks[name] / total * 100, 2), "%")
             else:
-                print "   ", name, "? %"   # no value, first sample usually
+                print("   ", name, "? %")  # no value, first sample usually
 
     def mem_print(self, group):
         """ Report on memory metric group """
@@ -64,7 +64,7 @@ class TestPrinter(pmcc.MetricGroupPrinter):
             for inst_name in values.keys():
                 inst_val = values[inst_name] 
                 unit_str = metric.ctx.pmUnitsStr(metric.desc.contents.units)
-                print "   ", name, inst_val, unit_str
+                print("   ", name, inst_val, unit_str)
 
     def disk_print(self, group):
         """ Report on disk metric group """
@@ -74,13 +74,13 @@ class TestPrinter(pmcc.MetricGroupPrinter):
             for inst_name in values.keys():
                 inst_val = values[inst_name] 
                 unit_str = metric.ctx.pmUnitsStr(metric.desc.contents.units)
-                print "   ", name, inst_name, inst_val, unit_str
+                print("   ", name, inst_name, inst_val, unit_str)
 
     def report(self, manager):
         """ Overrides the base class report, called after each fetch """
-	self.cpu_print(manager["cpu"])
-	self.mem_print(manager["mem"])
-	self.disk_print(manager["disk"])
+        self.cpu_print(manager["cpu"])
+        self.mem_print(manager["mem"])
+        self.disk_print(manager["disk"])
 
 
 class TestOptions(pmapi.pmOptions):
@@ -88,20 +88,20 @@ class TestOptions(pmapi.pmOptions):
 
     def __init__(self):
         pmapi.pmOptions.__init__(self, "A:a:D:h:O:S:s:T:t:VZ:z?")
-	self.pmSetLongOptionHeader("General options")
-	self.pmSetLongOptionAlign()
-	self.pmSetLongOptionArchive()
-	self.pmSetLongOptionDebug()
-	self.pmSetLongOptionHost()
-	self.pmSetLongOptionOrigin()
-	self.pmSetLongOptionStart()
-	self.pmSetLongOptionSamples()
-	self.pmSetLongOptionFinish()
-	self.pmSetLongOptionInterval()
-	self.pmSetLongOptionVersion()
-	self.pmSetLongOptionTimeZone()
-	self.pmSetLongOptionHostZone()
-	self.pmSetLongOptionHelp()
+        self.pmSetLongOptionHeader("General options")
+        self.pmSetLongOptionAlign()
+        self.pmSetLongOptionArchive()
+        self.pmSetLongOptionDebug()
+        self.pmSetLongOptionHost()
+        self.pmSetLongOptionOrigin()
+        self.pmSetLongOptionStart()
+        self.pmSetLongOptionSamples()
+        self.pmSetLongOptionFinish()
+        self.pmSetLongOptionInterval()
+        self.pmSetLongOptionVersion()
+        self.pmSetLongOptionTimeZone()
+        self.pmSetLongOptionHostZone()
+        self.pmSetLongOptionHelp()
 
 class TestConvenienceClasses(unittest.TestCase):
     """
@@ -115,7 +115,7 @@ class TestConvenienceClasses(unittest.TestCase):
         """
         try:
             manager = pmcc.MetricGroupManager.builder(OPTS, ARGS)
-        except pmapi.pmUsageErr, usage:
+        except pmapi.pmUsageErr as usage:
             return usage.message()
         self.assertTrue(manager != None)
         manager.printer = TestPrinter()
