@@ -2,3 +2,7 @@ QA output created by 276
 pmie OK
 pmval OK
 pmlogger skipped, source is an archive
+pmdumptext skipped, no binary installed
+pmchart skipped, no binary installed
+pmview skipped, no binary installed
+pmgadgets skipped, no binary installed

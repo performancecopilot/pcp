@@ -36,7 +36,7 @@
    <string>Record</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="pmchart.qrc" >:/archive.png</iconset>
+   <iconset resource="pmchart.qrc" >:/images/archive.png</iconset>
   </property>
   <property name="toolTip" >
    <string/>
@@ -255,7 +255,7 @@
             <string>...</string>
            </property>
            <property name="icon" >
-            <iconset resource="pmchart.qrc" >:/folio.png</iconset>
+            <iconset resource="pmchart.qrc" >:/images/folio.png</iconset>
            </property>
           </widget>
          </item>
@@ -288,7 +288,7 @@
             <string>...</string>
            </property>
            <property name="icon" >
-            <iconset resource="pmchart.qrc" >:/view.png</iconset>
+            <iconset resource="pmchart.qrc" >:/images/view.png</iconset>
            </property>
           </widget>
          </item>
@@ -321,7 +321,7 @@
             <string>...</string>
            </property>
            <property name="icon" >
-            <iconset resource="pmchart.qrc" >:/archive.png</iconset>
+            <iconset resource="pmchart.qrc" >:/images/archive.png</iconset>
            </property>
           </widget>
          </item>

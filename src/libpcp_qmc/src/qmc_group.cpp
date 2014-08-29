@@ -345,6 +345,10 @@ QmcGroup::createLocalContext()
 		 << localSource->desc() << endl;
 
 	QmcContext *newContext = new QmcContext(localSource);
+	if (newContext->handle() < 0) {
+	    pmprintf("%s: Error: %s: %s\n", pmProgname,
+		     (const char *)localHost.toAscii(), pmErrStr(newContext->handle()));
+	}
 	my.contexts.append(newContext);
 	my.use = my.contexts.size() - 1;
     }

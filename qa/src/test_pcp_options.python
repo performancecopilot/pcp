@@ -21,10 +21,10 @@ def optionsCB(opt, optarg, index):
     if optarg != None:
         arg = arg + " (" + optarg + ")"
     arg = arg + " [index=" + str(index) + "]"
-    print "optionsCB: got option '" + arg
+    print("optionsCB: got option '" + arg)
 
 def overrideCB(opt):
-    print "overrideCB: got option '" + str(opt) + "'"
+    print("overrideCB: got option '" + str(opt) + "'")
     if opt == 'b':
         return 1
     return 0
@@ -71,26 +71,26 @@ if c_api.pmGetOptionsFromList(system.argv) != 0:
 # extract any options we can (many are consumed internally) & dump
 hosts = options.pmGetOptionHosts()
 if hosts != None:
-    print "Host list:", hosts
+    print("Host list: %s" % hosts)
 
 archives = options.pmGetOptionArchives()
 if archives != None:
-    print "Archive list:", archives
+    print("Archive list: %s" % archives)
 
 timezone = options.pmGetOptionTimezone()
 if timezone != None:
-    print "Timezone:", timezone
+    print("Timezone: %s" % timezone)
 
 samples = options.pmGetOptionSamples()
 if samples != None:
-    print "Samples:", samples
+    print("Samples: %d" % samples)
 
 interval = options.pmGetOptionInterval()
 if interval != None:
-    print "Interval:", interval
+    print("Interval: %s" % interval)
 
 nonoptions = options.pmNonOptionsFromList(system.argv)
 if nonoptions != None:
-    print "Non-option arguments:", nonoptions
+    print("Non-option arguments: %s" % nonoptions)
 
-print "Done!"
+print("Done!")

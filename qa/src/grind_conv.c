@@ -118,6 +118,13 @@ main(int argc, char **argv)
 	    memset((void *)iv.vbp->vbuf, 0, sizeof(int));
 	    q = "";
 	    break;
+	case PM_TYPE_HIGHRES_EVENT:	// ignore the value, force 0 event records
+	    iv.vbp = (pmValueBlock *)malloc(sizeof(pmHighResEventArray)-sizeof(pmHighResEventRecord));
+	    iv.vbp->vlen = sizeof(pmHighResEventArray)-sizeof(pmHighResEventRecord);
+	    iv.vbp->vtype = type;
+	    memset((void *)iv.vbp->vbuf, 0, sizeof(int));
+	    q = "";
+	    break;
     }
     optind++;
 

@@ -2,7 +2,7 @@
  * pragmatics.c - inference engine pragmatics analysis
  * 
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2013 Red Hat, Inc.
+ * Copyright (c) 2013-2014 Red Hat, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -689,6 +689,7 @@ initMetric(Metric *m)
 	m->desc.type == PM_TYPE_AGGREGATE ||
 	m->desc.type == PM_TYPE_AGGREGATE_STATIC ||
 	m->desc.type == PM_TYPE_EVENT ||
+	m->desc.type == PM_TYPE_HIGHRES_EVENT ||
 	m->desc.type == PM_TYPE_UNKNOWN) {
 	fprintf(stderr, "%s: metric %s has non-numeric type\n", pmProgname, mname);
 	ret = -1;
@@ -863,6 +864,7 @@ reinitMetric(Metric *m)
 	m->desc.type == PM_TYPE_AGGREGATE ||
 	m->desc.type == PM_TYPE_AGGREGATE_STATIC ||
 	m->desc.type == PM_TYPE_EVENT ||
+	m->desc.type == PM_TYPE_HIGHRES_EVENT ||
 	m->desc.type == PM_TYPE_UNKNOWN) {
 	fprintf(stderr, "%s: metric %s has non-numeric type\n", pmProgname, mname);
 	ret = -1;

@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -17,68 +18,67 @@
 
 /* Free result buffer routines */
 
-void
-__pmFreeResultValues(pmResult *result)
+static void
+__pmFreeResultValueSets(pmValueSet **ppvstart, pmValueSet **ppvsend)
 {
-    register pmValueSet *pvs;
-    register pmValueSet **ppvs;
-    register pmValueSet **ppvsend;
-
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PDUBUF) {
-	fprintf(stderr, "__pmFreeResultValues(" PRINTF_P_PFX "%p) numpmid=%d\n",
-	    result, result->numpmid);
-    }
-#endif
-
-    if (result->numpmid == 0)
-	return;
-
-    ppvsend = &result->vset[result->numpmid];
+    pmValueSet *pvs;
+    pmValueSet **ppvs;
+    char	strbuf[20];
+    int		j;
 
     /* if _any_ vset[] -> an address within a pdubuf, we are done */
-    for (ppvs = result->vset; ppvs < ppvsend; ppvs++) {
+    for (ppvs = ppvstart; ppvs < ppvsend; ppvs++) {
 	if (__pmUnpinPDUBuf((void *)*ppvs))
 	    return;
     }
 
     /* not created from a pdubuf, really free the memory */
-    for (ppvs = result->vset; ppvs < ppvsend; ppvs++) {
+    for (ppvs = ppvstart; ppvs < ppvsend; ppvs++) {
 	pvs = *ppvs;
 	if (pvs->numval > 0 && pvs->valfmt == PM_VAL_DPTR) {
 	    /* pmValueBlocks may be malloc'd as well */
-	    int		j;
 	    for (j = 0; j < pvs->numval; j++) {
-#ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_PDUBUF) {
-		    char	strbuf[20];
-		    fprintf(stderr, "free(" PRINTF_P_PFX "%p) pmValueBlock pmid=%s inst=%d\n",
-			pvs->vlist[j].value.pval, pmIDStr_r(pvs->pmid, strbuf, sizeof(strbuf)),
+		if (pmDebug & DBG_TRACE_PDUBUF)
+		    fprintf(stderr, "free"
+			"(" PRINTF_P_PFX "%p) pmValueBlock pmid=%s inst=%d\n",
+			pvs->vlist[j].value.pval,
+			pmIDStr_r(pvs->pmid, strbuf, sizeof(strbuf)),
 			pvs->vlist[j].inst);
-		}
-#endif
 		free(pvs->vlist[j].value.pval);
 	    }
 	}
-#ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_PDUBUF) {
-	    char	strbuf[20];
+	if (pmDebug & DBG_TRACE_PDUBUF)
 	    fprintf(stderr, "free(" PRINTF_P_PFX "%p) vset pmid=%s\n",
 		pvs, pmIDStr_r(pvs->pmid, strbuf, sizeof(strbuf)));
-	}
-#endif
 	free(pvs);
     }
 }
 
 void
+__pmFreeResultValues(pmResult *result)
+{
+    if (pmDebug & DBG_TRACE_PDUBUF)
+	fprintf(stderr, "__pmFreeResultValues(" PRINTF_P_PFX "%p) numpmid=%d\n",
+	    result, result->numpmid);
+    if (result->numpmid)
+	__pmFreeResultValueSets(result->vset, &result->vset[result->numpmid]);
+}
+
+void
 pmFreeResult(pmResult *result)
 {
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PDUBUF) {
+    if (pmDebug & DBG_TRACE_PDUBUF)
 	fprintf(stderr, "pmFreeResult(" PRINTF_P_PFX "%p)\n", result);
-    }
-#endif
     __pmFreeResultValues(result);
+    free(result);
+}
+
+void
+pmFreeHighResResult(pmHighResResult *result)
+{
+    if (pmDebug & DBG_TRACE_PDUBUF)
+	fprintf(stderr, "pmFreeHighResResult(" PRINTF_P_PFX "%p)\n", result);
+    if (result->numpmid)
+	__pmFreeResultValueSets(result->vset, &result->vset[result->numpmid]);
     free(result);
 }

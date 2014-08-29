@@ -33,7 +33,7 @@
    <string>PCP Live Time Control</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="pmtime.qrc" >:/pmtime.png</iconset>
+   <iconset resource="pmtime.qrc" >:/images/pmtime.png</iconset>
   </property>
   <property name="windowIconText" >
    <string/>
@@ -436,7 +436,7 @@ can be displayed in the current time interval.</string>
     </widget>
     <widget class="QMenu" name="optionsTimezoneAction" >
      <property name="windowIcon" >
-      <iconset resource="pmtime.qrc" >:/internet-web-browser.png</iconset>
+      <iconset resource="pmtime.qrc" >:/images/internet-web-browser.png</iconset>
      </property>
      <property name="whatsThis" >
       <string>&lt;b>Options|Timezone&lt;/b>&lt;br>
@@ -450,7 +450,7 @@ and also in the Time Control program itself.</string>
       <string>&amp;Timezone</string>
      </property>
      <property name="icon" >
-      <iconset resource="pmtime.qrc" >:/internet-web-browser.png</iconset>
+      <iconset resource="pmtime.qrc" >:/images/internet-web-browser.png</iconset>
      </property>
     </widget>
     <addaction name="optionsTimezoneAction" />
@@ -464,7 +464,7 @@ and also in the Time Control program itself.</string>
   </widget>
   <action name="helpAboutAction" >
    <property name="icon" >
-    <iconset resource="pmtime.qrc" >:/pmtime.png</iconset>
+    <iconset resource="pmtime.qrc" >:/images/pmtime.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;About</string>
@@ -482,7 +482,7 @@ Click this menu option to bring up the About &lt;i>pmtime&lt;/i> dialog with ver
   </action>
   <action name="fileHideAction" >
    <property name="icon" >
-    <iconset resource="pmtime.qrc" >:/edit-clear.png</iconset>
+    <iconset resource="pmtime.qrc" >:/images/edit-clear.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Hide</string>
@@ -588,7 +588,7 @@ Click on this menu option to bring up the See Also dialog, with author and websi
   </action>
   <action name="helpWhats_ThisAction" >
    <property name="icon" >
-    <iconset resource="pmtime.qrc" >:/whatsthis.png</iconset>
+    <iconset resource="pmtime.qrc" >:/images/whatsthis.png</iconset>
    </property>
    <property name="text" >
     <string>What's This?</string>

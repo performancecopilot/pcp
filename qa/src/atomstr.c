@@ -24,6 +24,7 @@ main(int argc, char **argv)
     			 };
     int		hdl;
     struct timeval	stamp = { 123, 456 };
+    struct timespec	hrstamp = { 123456, 78901234 };
 
     __pmSetProgname(argv[0]);
 
@@ -97,6 +98,20 @@ main(int argc, char **argv)
     pmdaEventAddParam(hdl, PM_ID_NULL, PM_TYPE_STRING, &atom);
     atom.vbp = (pmValueBlock *)pmdaEventGetAddr(hdl);
     printf("??? -> %s\n", pmAtomStr(&atom, PM_TYPE_EVENT));
+
+    hdl = pmdaEventNewHighResArray();
+    atom.vbp = (pmValueBlock *)pmdaEventGetAddr(hdl);
+    printf("??? -> %s\n", pmAtomStr(&atom, PM_TYPE_HIGHRES_EVENT));
+    pmdaEventAddHighResRecord(hdl, &hrstamp, 0);
+    atom.l = -42;
+    pmdaEventAddParam(hdl, PM_ID_NULL, PM_TYPE_32, &atom);
+    atom.vbp = (pmValueBlock *)pmdaEventGetAddr(hdl);
+    printf("??? -> %s\n", pmAtomStr(&atom, PM_TYPE_HIGHRES_EVENT));
+    pmdaEventAddHighResRecord(hdl, &hrstamp, 0);
+    atom.cp = "hullo world";
+    pmdaEventAddParam(hdl, PM_ID_NULL, PM_TYPE_STRING, &atom);
+    atom.vbp = (pmValueBlock *)pmdaEventGetAddr(hdl);
+    printf("??? -> %s\n", pmAtomStr(&atom, PM_TYPE_HIGHRES_EVENT));
 
     atom.vbp = (pmValueBlock *)malloc(PM_VAL_HDR_SIZE + sizeof(aggr));
     atom.vbp->vlen = PM_VAL_HDR_SIZE + sizeof(aggr);

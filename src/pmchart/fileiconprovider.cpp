@@ -21,21 +21,21 @@ FileIconProvider *fileIconProvider;
 FileIconProvider::FileIconProvider() : QFileIconProvider()
 {
     // generic Qt QFileIconProvider types
-    my.file = QIcon(":/filegeneric.png");
-    my.folder = QIcon(":/filefolder.png");
-    my.computer = QIcon(":/computer.png");
+    my.file = QIcon(":/images/filegeneric.png");
+    my.folder = QIcon(":/images/filefolder.png");
+    my.computer = QIcon(":/images/computer.png");
 
     // PCP GUI specific images
-    my.fileView = QIcon(":/fileview.png");
-    my.fileFolio = QIcon(":/filefolio.png");
-    my.fileArchive = QIcon(":/filearchive.png");
+    my.fileView = QIcon(":/images/fileview.png");
+    my.fileFolio = QIcon(":/images/filefolio.png");
+    my.fileArchive = QIcon(":/images/filearchive.png");
 
     // images for several other common file types
-    my.fileHtml = QIcon(":/filehtml.png");
-    my.fileImage = QIcon(":/fileimage.png");
-    my.filePackage = QIcon(":/filepackage.png");
-    my.fileSpreadSheet = QIcon(":/filespreadsheet.png");
-    my.fileWordProcessor = QIcon(":/filewordprocessor.png");
+    my.fileHtml = QIcon(":/images/filehtml.png");
+    my.fileImage = QIcon(":/images/fileimage.png");
+    my.filePackage = QIcon(":/images/filepackage.png");
+    my.fileSpreadSheet = QIcon(":/images/filespreadsheet.png");
+    my.fileWordProcessor = QIcon(":/images/filewordprocessor.png");
 }
 
 QIcon FileIconProvider::icon(FileIconType type) const

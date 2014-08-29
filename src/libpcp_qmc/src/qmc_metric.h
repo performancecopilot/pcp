@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat, Inc.
+ * Copyright (c) 2012-2014 Red Hat, Inc.
  * Copyright (c) 2007 Aconex.  All Rights Reserved.
  * Copyright (c) 1998-2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -218,7 +218,8 @@ public:
 
     // Metric has event records (as opposed to real/string/aggregate values)
     bool event() const { return event(desc().desc().type); }
-    static bool event(int type) { return type == PM_TYPE_EVENT; }
+    static bool event(int type)
+	{ return type == PM_TYPE_EVENT || type == PM_TYPE_HIGHRES_EVENT; }
 
     bool aggregate() const { return aggregate(desc().desc().type); }
     static void aggregateAsString(pmValue const *, char *, int);

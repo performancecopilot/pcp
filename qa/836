@@ -17,27 +17,31 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
+_filter()
+{
+    sed -e "s,$here,PATH,g"
+}
+
 # real QA test starts here
 echo "== simple comparison, defaults"
-pmwtf -z $here/src/section-a $here/src/section-b
+pmwtf -z $here/src/section-a $here/src/section-b | _filter
 echo
 
 echo "== change the comparison ratio"
-pmwtf -z -q 1.5 $here/src/section-a $here/src/section-b
+pmwtf -z -q 1.5 $here/src/section-a $here/src/section-b | _filter
 echo
 
 echo "== change the report precision"
-pmwtf -z -p 5 $here/src/section-a $here/src/section-b
+pmwtf -z -p 5 $here/src/section-a $here/src/section-b | _filter
 echo
 
 echo "== skip the excluded metrics report"
-pmwtf -z --skip-excluded $here/src/section-a $here/src/section-b
+pmwtf -z --skip-excluded $here/src/section-a $here/src/section-b | _filter
 echo
 
 echo "== skip the missing metrics report"
-pmwtf -z --skip-missing $here/src/section-a $here/src/section-c
+pmwtf -z --skip-missing $here/src/section-a $here/src/section-c | _filter
 
 # success, all done
 status=0
-
 exit

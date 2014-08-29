@@ -35,6 +35,21 @@
 static int isDSO = 1;
 static char *username;
 
+/* command line option handling - both short and long options */
+static pmLongOptions longopts[] = {
+    PMDA_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    PMDAOPT_DOMAIN,
+    PMDAOPT_LOGFILE,
+    PMDAOPT_USERNAME,
+    PMOPT_HELP,
+    PMDA_OPTIONS_END
+};
+static pmdaOptions opts = {
+    .short_options = "D:d:l:U:?",
+    .long_options = longopts,
+};
+
 static pmdaMetric * metrics;
 static int mcnt;
 static pmdaIndom * indoms;
@@ -869,22 +884,9 @@ mmv_init(pmdaInterface *dp)
     }
 }
 
-static void
-usage(void)
-{
-    fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
-    fputs("Options:\n"
-"  -d domain    use domain (numeric) for metrics domain of PMDA\n"
-"  -l logfile   write log into logfile rather than using default log name\n"
-"  -U username  user account to run under (default \"pcp\")\n",
-	  stderr);		
-    exit(1);
-}
-
 int
 main(int argc, char **argv)
 {
-    int		c, err = 0;
     char	logfile[32];
     pmdaInterface dispatch = { 0 };
 
@@ -897,17 +899,13 @@ main(int argc, char **argv)
     snprintf(logfile, sizeof(logfile), "%s.log", prefix);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, MMV, logfile, NULL);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:l:U:?", &dispatch, &err)) != EOF) {
-	switch(c) {
-	case 'U':
-	    username = optarg;
-	    break;
-	default:
-	    err++;
-	}
+    pmdaGetOptions(argc, argv, &opts, &dispatch);
+    if (opts.errors) {
+	pmdaUsageMessage(&opts);
+	exit(1);
     }
-    if (err)
-	usage();
+    if (opts.username)
+	username = opts.username;
 
     pmdaOpenLog(&dispatch);
     mmv_init(&dispatch);

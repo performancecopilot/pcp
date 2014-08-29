@@ -14,23 +14,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if grep -q 'pmRegisterDerived' $PCP_DIR/usr/include/pcp/pmapi.h
-then
-    :
-else
-    echo "No derived metric support" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
-
-rm -f $seq.out
-if test $PCP_EOE_VER -ge 3013
-then
-    ln $seq.out.2 $seq.out || exit 1
-else
-    ln $seq.out.1 $seq.out || exit 1
-fi
-
 unset PCP_DERIVED_CONFIG
 
 status=0	# success is the default!

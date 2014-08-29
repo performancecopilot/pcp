@@ -1,6 +1,6 @@
 QA output created by 836
 == simple comparison, defaults
-Directory: /source/git/nathans-pcp/qa
+Directory: PATH
 Excluded metrics:
     ^pmcd.pmlogger.port 
 
@@ -14,7 +14,7 @@ Ratio Threshold: > 2.00 or < 0.500
           0.000           0.029    |+|   disk.all.read
 
 == change the comparison ratio
-Directory: /source/git/nathans-pcp/qa
+Directory: PATH
 Excluded metrics:
     ^pmcd.pmlogger.port 
 
@@ -29,7 +29,7 @@ Ratio Threshold: > 1.50 or < 0.667
           0.000           0.029    |+|   disk.all.read
 
 == change the report precision
-Directory: /source/git/nathans-pcp/qa
+Directory: PATH
 Excluded metrics:
     ^pmcd.pmlogger.port 
 
@@ -44,7 +44,7 @@ Ratio Threshold: > 2.00 or < 0.500
           0.00000           0.02899    |+|   disk.all.read
 
 == skip the excluded metrics report
-Directory: /source/git/nathans-pcp/qa
+Directory: PATH
 
 Ratio Threshold: > 2.00 or < 0.500
       section-a       section-b   Ratio  Metric-Instance
@@ -56,7 +56,7 @@ Ratio Threshold: > 2.00 or < 0.500
           0.000           0.029    |+|   disk.all.read
 
 == skip the missing metrics report
-Directory: /source/git/nathans-pcp/qa
+Directory: PATH
 Excluded metrics:
     ^pmcd.pmlogger.port 
 

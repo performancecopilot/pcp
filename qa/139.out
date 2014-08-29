@@ -148,8 +148,10 @@ sample.percontext.control.active
 sample.percontext.control.start
 sample.percontext.control.end
 sample.event.records
+sample.event.highres_records
 sample.event.no_indom_records
 sample.event.reset
+sample.event.reset_highres
 sample.event.type
 sample.event.param_32
 sample.event.param_u32

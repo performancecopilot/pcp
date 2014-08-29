@@ -1,0 +1,120 @@
+#
+# Common shell routines for testing archive (de)compression
+#
+# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_filter_compression()
+{
+    # Mac OS X, FreeBSD and Solaris strangeness
+    sed \
+	-e '/: Undefined error: 0/s//: Success/' \
+	-e '/: Error 0/s//: Success/' \
+	-e '/: No such file or directory/s//: Success/' \
+	-e '/^[ 	]*$/d'
+}
+
+status=0	# success is the default!
+deflate=none	# default compression mode (e.g. bzip2)
+inflate=none	# default compression mode (e.g. unbzip2)
+suffix=.huh	# default compression file suffix (e.g. bz2)
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+_prepare_compress()
+{
+    deflate="$1"
+    inflate="$2"
+    suffix="$3"
+
+    mkdir $tmp
+    cp src/mv-bigbin* $tmp
+}
+
+_run_tools()
+{
+    base=`echo $1 | sed -e 's/\..*//'`
+    [ $# -eq 1 ] && echo "pmdumplog ..."
+    pmdumplog -a $base
+    [ $# -eq 1 ] && echo "pminfo ..."
+    pminfo -f -a $1 sample.colour
+    [ $# -eq 1 ] && echo "pmprobe in the middle ..."
+    pmprobe -v -O +10sec -a $1 sampledso.milliseconds
+    [ $# -eq 1 ] && echo "pmval & pmval -r ..."
+    pmval -f 4 -t 3sec -a $1 sample.milliseconds 2>&1
+    pmval -f 4 -r -a $1 sample.milliseconds 2>&1
+    [ $# -eq 1 ] && echo "pmie ..."
+    echo 'sample.milliseconds > 0 -> print "%v";' \
+    | pmie -t 4sec -a $1 2>&1 \
+    | grep -v 'Info: evaluator exiting'
+}
+
+_exercise_compression()
+{
+    _run_tools src/mv-bigbin n | tee $full >$tmp.orig
+
+    cd $tmp
+    echo "expect only a few lines of diff output ..."
+    echo
+    echo "--- $deflate first volume ---" | tee -a $here/$seq.full
+    eval $deflate mv-bigbin.0 | _filter_compression
+    ls -l >>$here/$seq.full
+    _run_tools mv-bigbin | tee -a $here/$seq.full >$tmp.new
+    diff $tmp.orig $tmp.new | sed -e '/^[0-9]/d'
+    eval $inflate mv-bigbin.0.$suffix | _filter_compression
+
+    echo
+    echo "--- $deflate last volume and use existing .9.$suffix in -a arg ---" \
+	| tee -a $here/$seq.full
+    eval $deflate mv-bigbin.9 | _filter_compression
+    ls -l >>$here/$seq.full
+    _run_tools mv-bigbin.9.$suffix | tee -a $here/$seq.full >$tmp.new
+    diff $tmp.orig $tmp.new | sed -e '/^[0-9]/d'
+    eval $inflate mv-bigbin.9.$suffix | _filter_compression
+
+    echo
+    echo "--- $deflate middle volume and used existing .1 in -a arg ---" \
+	| tee -a $here/$seq.full
+    eval $deflate mv-bigbin.5 | _filter_compression
+    ls -l >>$here/$seq.full
+    _run_tools mv-bigbin.1 | tee -a $here/$seq.full >$tmp.new
+    diff $tmp.orig $tmp.new | sed -e '/^[0-9]/d'
+
+    echo
+    echo "--- $deflate first, middle and last volume and use .meta in -a arg ---" \
+	| tee -a $here/$seq.full
+    eval $deflate mv-bigbin.0 | _filter_compression
+    eval $deflate mv-bigbin.9 | _filter_compression
+    ls -l >>$here/$seq.full
+    _run_tools mv-bigbin.meta | tee -a $here/$seq.full >$tmp.new
+    diff $tmp.orig $tmp.new | sed -e '/^[0-9]/d'
+
+    echo
+    echo "--- $deflate first few, middle and last few volumes and use existing .7.$suffix in -a arg ---" \
+	| tee -a $here/$seq.full
+    eval $deflate mv-bigbin.1 | _filter_compression
+    eval $deflate mv-bigbin.7 | _filter_compression
+    eval $deflate mv-bigbin.8 | _filter_compression
+    ls -l >>$here/$seq.full
+    _run_tools mv-bigbin.7.$suffix | tee -a $here/$seq.full >$tmp.new
+    diff $tmp.orig $tmp.new | sed -e '/^[0-9]/d'
+
+    echo
+    echo "--- some error cases ---"
+    for arch in mv-bigbin.10 mv-bigbin.10.$suffix
+    do
+	pminfo -a $arch
+	pmprobe -a $arch sample.bin
+	pmval -a $arch sample.milliseconds
+	pmie -a $arch </dev/null
+    done
+    touch null.0.$suffix null.meta null.index
+    pminfo -a null 2>&1 | _filter_compression
+}

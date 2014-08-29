@@ -32,7 +32,7 @@ MYFILES = domain.h help pmns root
 MYSCRIPTS = Install Remove
 LDIRT = help.pag help.dir
 
-LLDLIBS = -lpcp_pmda -lpcp -lm -ldl -lpthread
+LLDLIBS = -lpcp_pmda -lpcp $(LIB_FOR_MATH) $(LIB_FOR_DLOPEN) $(LIB_FOR_PTHREADS)
 
 default default_pcp setup: $(TARGETS)
 

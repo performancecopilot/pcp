@@ -86,7 +86,13 @@ s/ NUMBER/ 1/
 s/ [0-9][0-9.]*.*/ NUMBER .../g
 }' \
 	-e '/sample\.event\.records/s/\[.*/[RECORDS]/' \
+	-e '/sample\.event\.highres_records/s/\[.*/[RECORDS]/' \
 	-e '/sample\.event\.no_indom_records/s/\[.*/[RECORDS]/' \
+	-e '/sample\.event\.reset_highres/{
+s/ \([0-9]\)/ X\1/
+s/ [0-9][0-9.]*/ NUMBER/g
+s/ X/ /
+}' \
 	-e '/sample\.event\.reset/{
 s/ \([0-9]\)/ X\1/
 s/ [0-9][0-9.]*/ NUMBER/g

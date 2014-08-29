@@ -318,11 +318,11 @@ in
 	    echo "Info: clone $pcp_tree git tree" | tee -a \$HOME/daily.log
 	fi
 	;;
-    secure-pcp)
-	if [ ! -d src/secure-pcp ]
+    *)
+	if [ ! -d src/$pcp_tree ]
 	then
-	    git clone ssh://bozo/home/kenj/git/${pcp_tree}.git src/secure-pcp
-	    echo "Info: clone $pcp_tree-pcp git tree" | tee -a \$HOME/daily.log
+	    git clone ssh://bozo/home/kenj/src/${pcp_tree} src/$pcp_tree
+	    echo "Info: clone $pcp_tree git tree" | tee -a \$HOME/daily.log
 	fi
 	;;
 esac

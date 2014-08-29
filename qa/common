@@ -273,6 +273,21 @@ _setenvironment
 check=${check-true}
 quick=${quick-false}
 
+# Try and guess what "make" is called ... configure leaves a comment
+# like this
+#NB: don't override $(MAKE); gnumake sets it well, propagating -j etc.
+#MAKE	= /usr/local/bin/gmake
+# in builddefs, so try there ...
+#
+if [ -f $PCP_INC_DIR/builddefs ]
+then
+    make=`sed <$PCP_INC_DIR/builddefs -n -e '/^#NB: don.t override \$(MAKE);/{
+N
+s/.*MAKE[ 	]*=[ 	]*//p
+}'`
+    [ -n "$make" ] && export MAKE=$make
+fi
+
 if $check
 then
     if $quick

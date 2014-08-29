@@ -13,7 +13,7 @@
    <string>pmchart Console</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="pmchart.qrc" >:/pmchart.png</iconset>
+   <iconset resource="pmchart.qrc" >:/images/pmchart.png</iconset>
   </property>
   <property name="sizeGripEnabled" >
    <bool>true</bool>

@@ -93,7 +93,7 @@ def record(context, config, duration, path, host):
         # Note: pmlogger has a deadhand timer that will make it stop of its
         # own accord once -T limit is reached; but we send an OFF-recording
         # message anyway for cleanliness, just prior to pmcollectl exiting.
-    except pmapi.pmErr, e:
+    except pmapi.pmErr as e:
         return "Cannot create PCP archive: " + path + " " + str(e)
     return ""
 
@@ -225,7 +225,7 @@ class _AtopPrint(object):
         self.p_stdscr.addstr('\n')
     def next_line(self):
         if self.p_stdscr.stdout:
-            print
+            print('')
             return
         line = self.p_stdscr.getyx()
         apy = line[0]
@@ -440,7 +440,7 @@ class _DiskPrint(_AtopPrint):
     def disk(self, context):
         try:
             (inst, iname) = context.pmGetInDom(self.ss.metric_descs[self.ss.metrics_dict['disk.partitions.read']])
-        except pmapi.pmErr, e:
+        except pmapi.pmErr as e:
             iname = iname = "X"
 
 # Missing: LVM avq (average queue depth)
@@ -478,7 +478,7 @@ class _DiskPrint(_AtopPrint):
 
         try:
             (inst, iname) = context.pmGetInDom(self.ss.metric_descs[self.ss.metrics_dict['disk.dev.read']])
-        except pmapi.pmErr, e:
+        except pmapi.pmErr as e:
             iname = iname = "X"
 
         for j in xrange(self.ss.get_len(self.ss.get_metric_value('disk.dev.read_bytes'))):
@@ -573,7 +573,7 @@ class _NetPrint(_AtopPrint):
 
         try:
             (inst, iname) = context.pmGetInDom(self.ss.metric_descs[self.ss.metrics_dict['network.interface.in.bytes']])
-        except pmapi.pmErr, e:
+        except pmapi.pmErr as e:
             iname = iname = "X"
         net_metric = self.ss.get_metric_value('network.interface.in.bytes')
         if type(net_metric) == type([]):
@@ -724,11 +724,11 @@ class _Options(object):
 
 
     def override(self, opt):
-	""" Override a few standard PCP options to match free(1) """
-	# pylint: disable=R0201
+        """ Override a few standard PCP options to match free(1) """
+        # pylint: disable=R0201
         if opt == 'g':
-	    return 1
-	return 0
+            return 1
+        return 0
 
     def option_callback(self, opt, optarg, index):
         """ Perform setup for an individual command line option """
@@ -834,9 +834,9 @@ def main(stdscr_p):
                 net.net(pmc)
                 proc.set_line()
                 proc.proc()
-            except pmapi.pmErr, e:
+            except pmapi.pmErr as e:
                 return str(e) + " while processing " + str(ssx[0])
-            except Exception, e: # catch all errors, pcp or python or otherwise
+            except Exception as e: # catch all errors, pcp or python or other
                 pass
             stdscr.move(proc.command_line, 0)
             stdscr.refresh()
@@ -909,9 +909,9 @@ if __name__ == '__main__':
         signal.signal(signal.SIGWINCH, sigwinch_handler)
         try:
             status = curses.wrapper(main)   # pylint: disable-msg=C0103
-        except curses.error, e:
+        except curses.error as e:
             status = "Error in the curses module.  Try running " + ME + " in a larger window."
     else:                       # Output is piped or redirected
         status = main(sys.stdout)
     if status != "":
-        print status
+        print(status)

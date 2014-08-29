@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2014 Red Hat.
 .\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -15,12 +16,15 @@
 .\"
 .TH PMFREEEVENTRESULT 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmFreeEventResult\f1 \- release storage allocated for unpacked event records
+\f3pmFreeEventResult\f1,
+\f3pmFreeHighResEventResult\f1 \- release storage allocated for unpacked event records
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
 void pmFreeEventResult(pmResult **\fIrset\fP);
+.br
+void pmFreeHighResEventResult(pmHighResResult **\fIhrset\fP);
 .sp
 cc ... \-lpcp
 .ft 1
@@ -46,6 +50,16 @@ is a convenience method that frees all of the
 .I pmResult
 structures and the array of pointers (\c
 .IR rset ).
+.PP
+Similarly,
+.B pmFreeHighResEventResult
+may be used to free the
+.I pmHighResResult
+structures and array returned from the
+.BR pmUnpackHighResEventRecords
+routine when using
+.BR PM_TYPE_HIGHRES_EVENT
+metrics.
 .SH SEE ALSO
 .BR PMAPI (3)
 and

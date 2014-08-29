@@ -32,7 +32,8 @@ TARGETS = $(subst broken_pmda,,$(basename $(CFILES_TARGETS))) \
 	broken_pmda_2_0 broken_v2.dir broken_pmda_2_1 broken_pmda_2_2 \
 	broken_pmda_2_3 broken_pmda_2_4 broken_pmda_2_5 
 
-LLDLIBS	= -lpcp -lm -ldl -lpthread
+LLDLIBS = -lpcp $(LIB_FOR_MATH) $(LIB_FOR_DLOPEN) $(LIB_FOR_PTHREADS)
+
 
 # all archives, except the ones checked into the source tree,
 # then add executables beyond $(TARGETS)

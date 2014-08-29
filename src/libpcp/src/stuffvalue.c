@@ -58,6 +58,7 @@ __pmStuffValue(const pmAtomValue *avp, pmValue *vp, int type)
 
 	case PM_TYPE_AGGREGATE_STATIC:
 	case PM_TYPE_EVENT:
+	case PM_TYPE_HIGHRES_EVENT:
 	    /*
 	     * vbp field of pmAtomValue points to a statically allocated
 	     * pmValueBlock ... the vlen and vtype fields MUST have been

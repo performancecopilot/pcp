@@ -24,10 +24,10 @@ context.pmNewZone("UTC")
 sample_time_i = 1391402779	# integer
 sample_time_f = 1391402779.0	# float
 
-print "pmLocaltime from int: ", context.pmLocaltime(sample_time_i)
-print "pmLocaltime from float: ", context.pmLocaltime(sample_time_f)
+print("pmLocaltime from int:  %s" % str(context.pmLocaltime(sample_time_i)))
+print("pmLocaltime from float:  %s" % context.pmLocaltime(sample_time_f))
 
-print "pmCtime from int: ", context.pmCtime(sample_time_i),
-print "pmCtime from float: ", context.pmCtime(sample_time_f),
+print("pmCtime from int:  %s" % str(context.pmCtime(sample_time_i)).rstrip())
+print("pmCtime from float:  %s" % str(context.pmCtime(sample_time_f)).rstrip())
 
-print "pmWhichZone: ", context.pmWhichZone()
+print("pmWhichZone:  %s" % str(context.pmWhichZone()))

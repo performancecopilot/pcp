@@ -162,17 +162,17 @@ PmQuery::PmQuery(bool inputflag, bool printflag, bool noframeflag,
 
     QString filename;
     if (iconic == HOST_ICON)
-	filename = tr(":dialog-host.png");
+	filename = tr(":images/dialog-host.png");
     else if (iconic == ERROR_ICON)
-	filename = tr(":dialog-error.png");
+	filename = tr(":images/dialog-error.png");
     else if (iconic == WARNING_ICON)
-	filename = tr(":dialog-warning.png");
+	filename = tr(":images/dialog-warning.png");
     else if (iconic == ARCHIVE_ICON)
-	filename = tr(":dialog-archive.png");
+	filename = tr(":images/dialog-archive.png");
     else if (iconic == QUESTION_ICON)
-	filename = tr(":dialog-question.png");
+	filename = tr(":images/dialog-question.png");
     else // (iconic == INFO_ICON)
-	filename = tr(":dialog-information.png");
+	filename = tr(":images/dialog-information.png");
 
     QIcon	icon(filename);
     QPixmap	pixmap(filename);

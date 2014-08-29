@@ -890,6 +890,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %changelog
 * Fri Sep 05 2014 Nathan Scott <nathans@redhat.com> - 3.9.10-1
 - Convert PCP init scripts to systemd services (BZ 996438)
+- Resolve pmdumptext segfault with invalid host (BZ 1131779)
 - Update to latest PCP sources.
 
 * Wed Aug 13 2014 Nathan Scott <nathans@redhat.com> - 3.9.9-1

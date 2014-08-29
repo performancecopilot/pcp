@@ -384,7 +384,11 @@ do_sysctl(mib_t *mp, size_t xpect)
     for ( ; mp->m_fetched == 0; ) {
 	int	sts;
 	sts = sysctl(mp->m_mib, (u_int)mp->m_miblen, mp->m_data, &mp->m_datalen, NULL, 0);
-	fprintf(stderr, "sysctl(%s%s) -> %d (datalen=%d)\n", mp->m_name, mp->m_data == NULL ? " firstcall" : "", sts, (int)mp->m_datalen);
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_APPL0) {
+	    fprintf(stderr, "sysctl(%s%s) -> %d (datalen=%d)\n", mp->m_name, mp->m_data == NULL ? " firstcall" : "", sts, (int)mp->m_datalen);
+	}
+#endif
 	if (sts == 0 && mp->m_data != NULL) {
 	    mp->m_fetched = 1;
 	    break;

@@ -244,8 +244,10 @@ sample.percontext.control {
 
 sample.event {
     records		SAMPLE:0:136
+    highres_records	SAMPLE:0:139
     no_indom_records	SAMPLE:0:137
     reset		SAMPLE:0:126
+    reset_highres	SAMPLE:0:140
     type		SAMPLE:0:127
     param_32		SAMPLE:0:128
     param_u32		SAMPLE:0:129
