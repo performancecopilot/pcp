@@ -8,7 +8,7 @@ HEADERS		= pmchart.h main.h \
 		  tab.h tabdialog.h \
 		  chart.h colorbutton.h colorscheme.h statusbar.h \
 		  namespace.h \
-		  tabwidget.h timeaxis.h timebutton.h timecontrol.h \
+		  tabwidget.h timeaxis.h timecontrol.h \
 		  groupcontrol.h gadget.h sampling.h tracing.h
 SOURCES		= pmchart.cpp main.cpp \
 		  aboutdialog.cpp chartdialog.cpp exportdialog.cpp \
@@ -18,7 +18,7 @@ SOURCES		= pmchart.cpp main.cpp \
 		  tab.cpp tabdialog.cpp \
 		  chart.cpp colorbutton.cpp colorscheme.cpp statusbar.cpp \
 		  namespace.cpp \
-		  tabwidget.cpp timeaxis.cpp timebutton.cpp timecontrol.cpp \
+		  tabwidget.cpp timeaxis.cpp timecontrol.cpp \
 		  groupcontrol.cpp gadget.cpp sampling.cpp tracing.cpp \
 		  view.cpp
 FORMS		= aboutdialog.ui chartdialog.ui exportdialog.ui \

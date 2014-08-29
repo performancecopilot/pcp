@@ -21,7 +21,7 @@ StatusBar::StatusBar()
     setFixedHeight(buttonSize());
     setSizeGripEnabled(false);
 
-    my.timeButton = new TimeButton(this);
+    my.timeButton = new QedTimeButton(this);
     my.timeButton->setFixedSize(QSize(buttonSize(), buttonSize()));
     my.timeButton->setWhatsThis(QApplication::translate("PmChart",
 	"VCR state button, also used to display the time control window.",

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013, Red Hat.
+ * Copyright (c) 2012-2014, Red Hat.
  * Copyright (c) 2007-2008, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -80,7 +80,7 @@ public:
     virtual void setValueText(QString &text);
     virtual void setDateLabel(QString label);
     virtual void setDateLabel(time_t seconds, QString tz);
-    virtual void setButtonState(TimeButton::State state);
+    virtual void setButtonState(QedTimeButton::State state);
     virtual void setRecordState(bool recording);
 
     virtual void updateToolbarContents();

@@ -26,7 +26,7 @@ GroupControl::GroupControl()
     my.realPosition = 0;
     my.timeData = NULL;
     my.timeState = StartState;
-    my.buttonState = TimeButton::Timeless;
+    my.buttonState = QedTimeButton::Timeless;
     my.pmtimeState = QmcTime::StoppedState;
     memset(&my.delta, 0, sizeof(struct timeval));
     memset(&my.position, 0, sizeof(struct timeval));
@@ -41,11 +41,11 @@ GroupControl::init(int samples, int visible,
 
     if (isArchiveSource()) {
 	my.pmtimeState = QmcTime::StoppedState;
-	my.buttonState = TimeButton::StoppedArchive;
+	my.buttonState = QedTimeButton::StoppedArchive;
     }
     else {
 	my.pmtimeState = QmcTime::ForwardState;
-	my.buttonState = TimeButton::ForwardLive;
+	my.buttonState = QedTimeButton::ForwardLive;
     }
     my.delta = *interval;
     my.position = *position;
@@ -633,7 +633,7 @@ GroupControl::timeAxisData(void)
     return my.timeData;
 }
 
-TimeButton::State
+QedTimeButton::State
 GroupControl::buttonState(void)
 {
     return my.buttonState;
@@ -645,31 +645,31 @@ GroupControl::newButtonState(QmcTime::State s, QmcTime::Mode m, bool record)
     if (isArchiveSource() == false) {
 	if (s == QmcTime::StoppedState)
 	    my.buttonState = record ?
-			TimeButton::StoppedRecord : TimeButton::StoppedLive;
+		QedTimeButton::StoppedRecord : QedTimeButton::StoppedLive;
 	else
 	    my.buttonState = record ?
-			TimeButton::ForwardRecord : TimeButton::ForwardLive;
+		QedTimeButton::ForwardRecord : QedTimeButton::ForwardLive;
     }
     else if (m == QmcTime::StepMode) {
 	if (s == QmcTime::ForwardState)
-	    my.buttonState = TimeButton::StepForwardArchive;
+	    my.buttonState = QedTimeButton::StepForwardArchive;
 	else if (s == QmcTime::BackwardState)
-	    my.buttonState = TimeButton::StepBackwardArchive;
+	    my.buttonState = QedTimeButton::StepBackwardArchive;
 	else
-	    my.buttonState = TimeButton::StoppedArchive;
+	    my.buttonState = QedTimeButton::StoppedArchive;
     }
     else if (m == QmcTime::FastMode) {
 	if (s == QmcTime::ForwardState)
-	    my.buttonState = TimeButton::FastForwardArchive;
+	    my.buttonState = QedTimeButton::FastForwardArchive;
 	else if (s == QmcTime::BackwardState)
-	    my.buttonState = TimeButton::FastBackwardArchive;
+	    my.buttonState = QedTimeButton::FastBackwardArchive;
 	else
-	    my.buttonState = TimeButton::StoppedArchive;
+	    my.buttonState = QedTimeButton::StoppedArchive;
     }
     else if (s == QmcTime::ForwardState)
-	my.buttonState = TimeButton::ForwardArchive;
+	my.buttonState = QedTimeButton::ForwardArchive;
     else if (s == QmcTime::BackwardState)
-	my.buttonState = TimeButton::BackwardArchive;
+	my.buttonState = QedTimeButton::BackwardArchive;
     else
-	my.buttonState = TimeButton::StoppedArchive;
+	my.buttonState = QedTimeButton::StoppedArchive;
 }
