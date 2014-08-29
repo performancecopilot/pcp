@@ -21,16 +21,15 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    sed -e 's/.* pminfo\(.*\) Info:/pminfo[PID] Info:/g'
+	egrep 'papi\.enable|papi\.disable|papi\.reset|papi\.num_counters|papi\.status|papi\.TOT_INS|papi\.TOT_CYC'
 }
 
 # real QA test starts here
 
-pmda=$PCP_PDMAS_DIR/papi/pmdapapi
+pmda=$PCP_PDMAS_DIR/papi/pmdapapi,papi_init
 
 echo
-echo "== Testing papi library behaviour with papi stub"
-export LD_LIBRARY_PATH=$here/src
+echo "== Testing basic papi library behaviour without papi stub"
 pminfo -L -K clear -K add,120,$pmda papi 2>&1 | _filter
 
 # optional stuff if your test has verbose output to help resolve problems

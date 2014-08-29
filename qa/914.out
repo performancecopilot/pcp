@@ -1,0 +1,10 @@
+QA output created by 914
+
+== Testing papi library behaviour with papi stub
+papi.TOT_INS
+papi.TOT_CYC
+papi.enable
+papi.reset
+papi.disable
+papi.status
+papi.num_counters
