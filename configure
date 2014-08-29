@@ -647,6 +647,7 @@ pcp_sysconfig_dir
 pcp_rc_dir
 pcp_desktop_dir
 pcp_icons_dir
+pcp_html_dir
 pcp_books_dir
 pcp_inc_dir
 pcp_sbin_dir
@@ -12597,6 +12598,8 @@ pcp_inc_dir=`eval echo $pcp_inc_dir`
 
 pcp_books_dir=`eval echo $datarootdir/doc/pcp-doc`
 pcp_books_dir=`eval echo $pcp_books_dir`
+pcp_html_dir=`eval echo $pcp_books_dir/html`
+
 
 
 pcp_icons_dir=`eval echo $datarootdir/pcp-gui/pixmaps`

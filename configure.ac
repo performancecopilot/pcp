@@ -2112,7 +2112,9 @@ AC_SUBST(pcp_inc_dir)
 dnl books - pdfs, html
 pcp_books_dir=`eval echo $datarootdir/doc/pcp-doc`
 pcp_books_dir=`eval echo $pcp_books_dir`
+pcp_html_dir=`eval echo $pcp_books_dir/html`
 AC_SUBST(pcp_books_dir)
+AC_SUBST(pcp_html_dir)
 
 dnl icon pixmap files
 pcp_icons_dir=`eval echo $datarootdir/pcp-gui/pixmaps`
