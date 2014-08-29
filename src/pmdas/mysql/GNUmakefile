@@ -17,7 +17,7 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM = mysql
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
-LSRCFILES = Install Remove pmda$(IAM).pl pmlogconf.summary migrate.conf
+LSRCFILES = Install Remove pmda$(IAM).pl pmlogconf.summary migrate.conf README
 
 ifneq ($(POD2MAN),)
 MAN_SECTION = 1
@@ -37,6 +37,7 @@ include $(BUILDRULES)
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
+	$(INSTALL) -m 644 README $(PMDADIR)/README
 	$(INSTALL) -m 644 pmda$(IAM).pl $(PMDADIR)/pmda$(IAM).pl
 	@$(INSTALL_MAN)
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)

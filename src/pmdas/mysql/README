@@ -1,0 +1,79 @@
+Performance Co-Pilot PMDA for Monitoring MySQL Databases
+========================================================
+
+This PMDA exports activity and performance metrics from a MySQL
+database server on the local system.
+
+The PMDA collects its data from the SQL commands:
+    show variables;
+    show global status;
+    show processlist;
+    show slave status;
+
+Metrics
+=======
+
+Once the PMDA has been installed, the following command will list all of
+the available metrics:
+
+    + # $ pminfo -f mysql
+
+Database Setup
+==============
+
+The PMDA needs access to the mysql database.  If you use the PMDA
+as shipped, this implies a MySQL user 'dbmonitor' with password
+'dbmonitor' has been created and has access to the mysql database.
+
+Specifically, this means the following has been done:
+
+    + # mysql -uroot -p...
+      mysql> create user 'dbmonitor'@'localhost' identified by 'dbmonitor';
+      mysql> grant select on mysql.* to 'dbmonitor'@'localhost';
+      mysql> grant replication client on *.* to 'dbmonitor'@'localhost';
+
+If this username and password combination does not suit, choose
+some other, but you'll have to change these intializations in
+pmdamysql.pl:
+
+    my $username = 'dbmonitor';
+    my $password = 'dbmonitor';
+
+Installation
+============
+
+    + # cd $PCP_PMDAS_DIR/mysql
+
+    + Check that there is no clash in the Performance Metrics Domain
+      defined in ./domain.h and the other PMDA's currently in use (see
+      $PCP_PMCDCONF_PATH). If there is, edit ./domain.h to choose another
+      domain number (This should only be an issue on installations with
+      third party PMDA's installed as the domain number given has been
+      reserved for the mysql PMDA with base PCP installations).
+
+    + Then simply use
+
+        # ./Install
+
+ 	and choose both the “collector” and “monitor” installation
+        configuration options.
+
+De-Installation
+===============
+
+    + Simply use
+
+        # cd $PCP_PMDAS_DIR/mysql
+        #./Remove
+
+Troubleshooting
+===============
+
+    + After installing or restarting the agent, the PMCD log file
+      ($PCP_LOG_DIR/pmcd/pmcd.log) and the PMDA log file
+      ($PCP_LOG_DIR/PMCD/mysql.log) should be checked for any warnings or
+      errors.
+
+    + In an event where no values are being returned for most of the 
+      metrics check ensure that the username and password in pmdamysql.pl
+      match the local MySQL setup.

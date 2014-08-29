@@ -1,13 +1,31 @@
 QA output created by 748
 old -> new changes
-@@ -9,7 +9,7 @@
-     Semantics: counter  Units: count
+@@ -93,7 +93,7 @@
+     Semantics: instant  Units: none
  PMID: 66.0.110 (mysql.status.connections)
      Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
 -    Semantics: instant  Units: none
 +    Semantics: counter  Units: count
- PMID: 66.0.184 (mysql.status.max_used_connections)
-     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+ PMID: 66.1.47 (mysql.variables.have_geometry)
+     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: instant  Units: none
+@@ -1107,7 +1107,7 @@
+     Semantics: instant  Units: none
+ PMID: 66.0.251 (mysql.status.uptime)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+-    Semantics: counter  Units: sec
++    Semantics: instant  Units: sec
+ PMID: 66.0.12 (mysql.status.com_call_procedure)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+@@ -1116,7 +1116,7 @@
+     Semantics: instant  Units: none
+ PMID: 66.0.252 (mysql.status.uptime_since_flush_status)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+-    Semantics: counter  Units: sec
++    Semantics: instant  Units: sec
+ PMID: 66.0.13 (mysql.status.com_change_db)
+     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
 
 new -> ref changes ... expect none
