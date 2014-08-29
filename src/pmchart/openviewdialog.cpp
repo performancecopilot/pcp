@@ -194,7 +194,7 @@ void OpenViewDialog::dirListView_activated(const QModelIndex &index)
 
 int OpenViewDialog::setupArchiveComboBoxes()
 {
-    QIcon archiveIcon = fileIconProvider->icon(FileIconProvider::Archive);
+    QIcon archiveIcon = fileIconProvider->icon(QedFileIconProvider::Archive);
     QIcon hostIcon = fileIconProvider->icon(QFileIconProvider::Computer);
     int index = 0;
 
