@@ -30,6 +30,7 @@ Specifically, this means the following has been done:
     + # mysql -uroot -p...
       mysql> create user 'dbmonitor'@'localhost' identified by 'dbmonitor';
       mysql> grant select on mysql.* to 'dbmonitor'@'localhost';
+      mysql> grant replication client on *.* to 'dbmonitor'@'localhost';
 
 If this username and password combination does not suit, choose
 some other, but you'll have to change these intializations in
