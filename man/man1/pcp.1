@@ -150,28 +150,7 @@ The complete set of
 required by
 .B pcp
 to produce its output is contained in
-.BR $PCP_SYSCONF_DIR/pmlogger/config.pcp .
-.PP
-When displaying running
-.B pmlogger
-instances, as a space-saving measure
-.B pcp
-will display a relative path to the archive being created if that archive
-is located below a
-.I pcplog
-subdirectory, otherwise the full pathname is displayed
-(the PCP log rotation and periodic
-.B pmlogger
-checking facilities support the
-creation of archives below
-.BR $PCP_LOG_DIR/pmlogger/ <hostname>).
-.PP
-A similar convention is used for trimming the amount of information
-displayed for running
-.B pmie
-instances, where configuration files below
-.B $PCP_VAR_DIR/config
-will be displayed in truncated form.
+.BR $PCP_VAR_DIR/config/pmlogconf/tools/pcp-summary .
 .SH FILES
 .PD 0
 .TP 10
