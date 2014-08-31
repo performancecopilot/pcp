@@ -20,5 +20,9 @@ QedLabel::QedLabel(QWidget *parent) : QedGadget(parent)
 
 QedLabel::QedLabel(QWidget *parent, int x, int y, const char *t, const char *font) : QedGadget(parent)
 {
+    (void)x;
+    (void)y;
+    (void)t;
+    (void)font;
 }
 

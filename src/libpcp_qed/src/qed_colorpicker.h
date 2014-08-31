@@ -1,4 +1,5 @@
 /*
+** Copyright (C) 2014 Red Hat.
 ** Copyright (C) 1999-2007 Trolltech AS.  All rights reserved.
 **
 ** This file is derived from part of the QtGui module of the Qt Toolkit.
@@ -18,8 +19,8 @@
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **/
-#ifndef QCOLORPICKER_H
-#define QCOLORPICKER_H
+#ifndef QED_COLORPICKER_H
+#define QED_COLORPICKER_H
 
 #include <QFrame>
 #include <QLabel>
@@ -39,12 +40,12 @@ static inline void rgb2hsv(QRgb rgb, int &h, int &s, int &v)
     c.getHsv(&h, &s, &v);
 }
 
-class QColorPicker : public QFrame
+class QedColorPicker : public QFrame
 {
     Q_OBJECT
 public:
-    QColorPicker(QWidget* parent);
-    ~QColorPicker();
+    QedColorPicker(QWidget* parent);
+    ~QedColorPicker();
 
 public slots:
     void setCol(int h, int s);
@@ -70,12 +71,12 @@ private:
     QPixmap *pix;
 };
 
-class QColorLuminancePicker : public QWidget
+class QedColorLuminancePicker : public QWidget
 {
     Q_OBJECT
 public:
-    QColorLuminancePicker(QWidget* parent);
-    ~QColorLuminancePicker();
+    QedColorLuminancePicker(QWidget* parent);
+    ~QedColorLuminancePicker();
 
 public slots:
     void setCol(int h, int s, int v);
@@ -102,10 +103,10 @@ private:
     QPixmap *pix;
 };
 
-class QColSpinBox : public QSpinBox
+class QedColSpinBox : public QSpinBox
 {
 public:
-    QColSpinBox(QWidget *parent)
+    QedColSpinBox(QWidget *parent)
 	: QSpinBox(parent) { setRange(0, 255); }
     void setValue(int i) {
 	bool block = signalsBlocked();
@@ -115,12 +116,12 @@ public:
     }
 };
 
-class QColLineEdit : public QLineEdit
+class QedColLineEdit : public QLineEdit
 {
     Q_OBJECT
 
 public:
-    QColLineEdit(QWidget *parent);
+    QedColLineEdit(QWidget *parent);
 
 public slots:
     void setColor(QColor c);
@@ -134,12 +135,12 @@ private:
     QColor col;
 };
 
-class QColorShowLabel : public QFrame
+class QedColorShowLabel : public QFrame
 {
     Q_OBJECT
 
 public:
-    QColorShowLabel(QWidget *parent) : QFrame(parent) {
+    QedColorShowLabel(QWidget *parent) : QFrame(parent) {
 	setFrameStyle(QFrame::Panel|QFrame::Sunken);
 	setAcceptDrops(true);
 	mousePressed = false;
@@ -166,4 +167,4 @@ private:
     QPoint pressPos;
 };
 
-#endif	/* QCOLORPICKER_H */
+#endif	/* QED_COLORPICKER_H */

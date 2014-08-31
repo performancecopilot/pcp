@@ -528,7 +528,7 @@
   <include location="local" >qprinter.h</include>
   <include location="local" >qfiledialog.h</include>
   <include location="local" >timeaxis.h</include>
-  <include location="local" >timebutton.h</include>
+  <include location="local" >qed_timebutton.h</include>
   <include location="local" >timeaxis.h</include>
  </includes>
  <resources>

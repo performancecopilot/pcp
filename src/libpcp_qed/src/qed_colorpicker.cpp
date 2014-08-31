@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2014 Red Hat.
  * Copyright (C) 1999-2005 Trolltech AS.  All rights reserved.
  *
  * This file was derived from the QT QColorDialog class
@@ -22,24 +23,24 @@
 
 #include <QApplication>
 #include <QPainter>
-#include "qcolorpicker.h"
+#include "qed_colorpicker.h"
 
 static int pWidth = 172;
 static int pHeight = 172;
 
-int QColorLuminancePicker::y2val(int y)
+int QedColorLuminancePicker::y2val(int y)
 {
     int d = height() - 2*coff - 1;
     return 255 - (y - coff)*255/d;
 }
 
-int QColorLuminancePicker::val2y(int v)
+int QedColorLuminancePicker::val2y(int v)
 {
     int d = height() - 2*coff - 1;
     return coff + (255-v)*d/255;
 }
 
-QColorLuminancePicker::QColorLuminancePicker(QWidget* parent)
+QedColorLuminancePicker::QedColorLuminancePicker(QWidget* parent)
     :QWidget(parent)
 {
     hue = 100; val = 100; sat = 100;
@@ -47,21 +48,21 @@ QColorLuminancePicker::QColorLuminancePicker(QWidget* parent)
     //    setAtribute(QA_NoErase, true);
 }
 
-QColorLuminancePicker::~QColorLuminancePicker()
+QedColorLuminancePicker::~QedColorLuminancePicker()
 {
     delete pix;
 }
 
-void QColorLuminancePicker::mouseMoveEvent(QMouseEvent *m)
+void QedColorLuminancePicker::mouseMoveEvent(QMouseEvent *m)
 {
     setVal(y2val(m->y()));
 }
-void QColorLuminancePicker::mousePressEvent( QMouseEvent *m )
+void QedColorLuminancePicker::mousePressEvent( QMouseEvent *m )
 {
     setVal(y2val(m->y()));
 }
 
-void QColorLuminancePicker::setVal(int v)
+void QedColorLuminancePicker::setVal(int v)
 {
     if (val == v)
 	return;
@@ -72,13 +73,13 @@ void QColorLuminancePicker::setVal(int v)
 }
 
 //receives from a hue,sat chooser and relays.
-void QColorLuminancePicker::setCol(int h, int s)
+void QedColorLuminancePicker::setCol(int h, int s)
 {
     setCol(h, s, val);
     Q_EMIT newHsv(h, s, val);
 }
 
-void QColorLuminancePicker::paintEvent(QPaintEvent *)
+void QedColorLuminancePicker::paintEvent(QPaintEvent *)
 {
     int w = width() - 5;
 
@@ -112,7 +113,7 @@ void QColorLuminancePicker::paintEvent(QPaintEvent *)
     p.drawPolygon(a);
 }
 
-void QColorLuminancePicker::setCol( int h, int s , int v )
+void QedColorLuminancePicker::setCol( int h, int s , int v )
 {
     val = v;
     hue = h;
@@ -121,16 +122,19 @@ void QColorLuminancePicker::setCol( int h, int s , int v )
     repaint();
 }
 
-QPoint QColorPicker::colPt()
+QPoint QedColorPicker::colPt()
 { return QPoint((360-hue)*(pWidth-1)/360, (255-sat)*(pHeight-1)/255); }
-int QColorPicker::huePt(const QPoint &pt)
+
+int QedColorPicker::huePt(const QPoint &pt)
 { return 360 - pt.x()*360/(pWidth-1); }
-int QColorPicker::satPt(const QPoint &pt)
+
+int QedColorPicker::satPt(const QPoint &pt)
 { return 255 - pt.y()*255/(pHeight-1) ; }
-void QColorPicker::setCol(const QPoint &pt)
+
+void QedColorPicker::setCol(const QPoint &pt)
 { setCol(huePt(pt), satPt(pt)); }
 
-QColorPicker::QColorPicker(QWidget* parent)
+QedColorPicker::QedColorPicker(QWidget* parent)
     : QFrame(parent)
 {
     hue = 0; sat = 0;
@@ -150,17 +154,17 @@ QColorPicker::QColorPicker(QWidget* parent)
     setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed) );
 }
 
-QColorPicker::~QColorPicker()
+QedColorPicker::~QedColorPicker()
 {
     delete pix;
 }
 
-QSize QColorPicker::sizeHint() const
+QSize QedColorPicker::sizeHint() const
 {
     return QSize(pWidth + 2*frameWidth(), pHeight + 2*frameWidth());
 }
 
-void QColorPicker::setCol(int h, int s)
+void QedColorPicker::setCol(int h, int s)
 {
     int nhue = qMin(qMax(0,h), 359);
     int nsat = qMin(qMax(0,s), 255);
@@ -174,21 +178,21 @@ void QColorPicker::setCol(int h, int s)
     repaint(r);
 }
 
-void QColorPicker::mouseMoveEvent(QMouseEvent *m)
+void QedColorPicker::mouseMoveEvent(QMouseEvent *m)
 {
     QPoint p = m->pos() - contentsRect().topLeft();
     setCol(p);
     Q_EMIT newCol(hue, sat);
 }
 
-void QColorPicker::mousePressEvent(QMouseEvent *m)
+void QedColorPicker::mousePressEvent(QMouseEvent *m)
 {
     QPoint p = m->pos() - contentsRect().topLeft();
     setCol(p);
     Q_EMIT newCol(hue, sat);
 }
 
-void QColorPicker::paintEvent(QPaintEvent *e)
+void QedColorPicker::paintEvent(QPaintEvent *e)
 {
     QFrame::paintEvent(e);
     QPainter p(this);
@@ -202,20 +206,20 @@ void QColorPicker::paintEvent(QPaintEvent *e)
     p.fillRect(pt.x(), pt.y()-9, 2, 20, Qt::black);
 }
 
-void QColorShowLabel::paintEvent(QPaintEvent *e)
+void QedColorShowLabel::paintEvent(QPaintEvent *e)
 {
     QFrame::paintEvent(e);
     QPainter p(this);
     p.fillRect(contentsRect()&e->rect(), col);
 }
 
-void QColorShowLabel::mousePressEvent(QMouseEvent *e)
+void QedColorShowLabel::mousePressEvent(QMouseEvent *e)
 {
     mousePressed = true;
     pressPos = e->pos();
 }
 
-void QColorShowLabel::mouseMoveEvent(QMouseEvent *e)
+void QedColorShowLabel::mouseMoveEvent(QMouseEvent *e)
 {
 #ifdef QT_NO_DRAGANDDROP
     Q_UNUSED(e);
@@ -240,7 +244,7 @@ void QColorShowLabel::mouseMoveEvent(QMouseEvent *e)
 }
 
 #ifndef QT_NO_DRAGANDDROP
-void QColorShowLabel::dragEnterEvent(QDragEnterEvent *e)
+void QedColorShowLabel::dragEnterEvent(QDragEnterEvent *e)
 {
     if (qvariant_cast<QColor>(e->mimeData()->colorData()).isValid())
 	e->accept();
@@ -248,11 +252,11 @@ void QColorShowLabel::dragEnterEvent(QDragEnterEvent *e)
 	e->ignore();
 }
 
-void QColorShowLabel::dragLeaveEvent(QDragLeaveEvent *)
+void QedColorShowLabel::dragLeaveEvent(QDragLeaveEvent *)
 {
 }
 
-void QColorShowLabel::dropEvent(QDropEvent *e)
+void QedColorShowLabel::dropEvent(QDropEvent *e)
 {
     QColor color = qvariant_cast<QColor>(e->mimeData()->colorData());
     if (color.isValid()) {
@@ -266,20 +270,20 @@ void QColorShowLabel::dropEvent(QDropEvent *e)
 }
 #endif // QT_NO_DRAGANDDROP
 
-void QColorShowLabel::mouseReleaseEvent( QMouseEvent * )
+void QedColorShowLabel::mouseReleaseEvent( QMouseEvent * )
 {
     if (!mousePressed)
 	return;
     mousePressed = false;
 }
 
-QColLineEdit::QColLineEdit(QWidget *parent) : QLineEdit(parent)
+QedColLineEdit::QedColLineEdit(QWidget *parent) : QLineEdit(parent)
 {
     connect(this, SIGNAL(textEdited(const QString&)),
 	    this, SLOT(textEdited(const QString&)));
 }
 
-void QColLineEdit::textEdited(const QString &text)
+void QedColLineEdit::textEdited(const QString &text)
 {
     QColor c;
     c.setNamedColor(text);
@@ -289,13 +293,13 @@ void QColLineEdit::textEdited(const QString &text)
     }
 }
 
-void QColLineEdit::setColor(QColor c)
+void QedColLineEdit::setColor(QColor c)
 {
     col = c;
     setText(col.name());
 }
 
-void QColLineEdit::setCol(int h, int s, int v)
+void QedColLineEdit::setCol(int h, int s, int v)
 {
     col.setHsv(h, s, v);
     setText(col.name());

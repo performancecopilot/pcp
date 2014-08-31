@@ -17,8 +17,7 @@ HEADERS = aboutdialog.h chartdialog.h exportdialog.h hostdialog.h \
 	  samplesdialog.h tabdialog.h tab.h tabwidget.h \
 	  chart.h console.h main.h namespace.h \
 	  colorbutton.h colorscheme.h qcolorpicker.h \
-	  fileiconprovider.h statusbar.h \
-	  timeaxis.h timebutton.h timecontrol.h \
+	  statusbar.h timeaxis.h timecontrol.h \
 	  groupcontrol.h gadget.h sampling.h tracing.h
 SOURCES = $(HEADERS:.h=.cpp) view.cpp
 LSRCFILES = $(QRCFILE) $(RCFILE) $(UIFILES) $(HEADERS) $(SOURCES) \

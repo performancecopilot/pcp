@@ -28,8 +28,10 @@ LIBS_SUBDIRS = \
 	libpcp_gui \
 	libpcp_mmv \
 	libpcp_import \
+	libpcp_qed \
 	libpcp_qmc \
-	libpcp_qwt
+	libpcp_qwt \
+	#
 
 OTHER_SUBDIRS = \
 	pminfo \

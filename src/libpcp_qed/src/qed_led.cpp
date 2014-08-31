@@ -29,6 +29,11 @@ QedLED::QedLED(QWidget *parent, QColor color) : QedGadget(parent)
 QedLED::QedLED(QWidget *parent, int x, int y, int w, int h, QedLegend *color) : QedGadget(parent)
 {
     // TODO
+    (void)x;
+    (void)y;
+    (void)w;
+    (void)h;
+    (void)color;
 }
 
 void QedLED::resizeEvent(QResizeEvent *event)

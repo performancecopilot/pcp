@@ -21,10 +21,10 @@
 #include <pcp/impl.h>
 
 #include "tab.h"
-#include "console.h"
 #include "colorscheme.h"
+#include "qed_console.h"
 #include "timecontrol.h"
-#include "fileiconprovider.h"
+#include "qed_fileiconprovider.h"
 #include "pmchart.h"
 
 typedef struct {

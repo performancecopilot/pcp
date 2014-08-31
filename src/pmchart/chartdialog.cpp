@@ -16,7 +16,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 #include "chartdialog.h"
-#include "qcolorpicker.h"
+#include "qed_colorpicker.h"
 #include "hostdialog.h"
 #include "chart.h"
 #include "tab.h"

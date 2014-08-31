@@ -223,7 +223,7 @@ void PmChart::updateToolbarOrientation(Qt::Orientation orientation)
 		orientation == Qt::Vertical ? my.timeAxisRightAlign : 0);
 }
 
-void PmChart::setButtonState(TimeButton::State state)
+void PmChart::setButtonState(QedTimeButton::State state)
 {
     my.statusBar->timeButton()->setButtonState(state);
 }
