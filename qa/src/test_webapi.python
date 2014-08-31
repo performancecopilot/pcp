@@ -1,6 +1,6 @@
 """ Test creation of a PCP web daemon via the requests module """
 #
-# Copyright (C) 2013 Red Hat Inc.
+# Copyright (C) 2013-2014 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -32,36 +32,36 @@ os.unsetenv('HTTP_PROXY')
 req = requests.get(url=url + 'pmapi/context?local=foo')
 resp = req.json()
 ctx_local = resp['context']
-print 'Received PM_CONTEXT_LOCAL #'+str(ctx_local)
+print('Received PM_CONTEXT_LOCAL #' + str(ctx_local))
 
 req = requests.get(url=url + 'pmapi/context?hostname=' + args.host)
 resp = req.json()
 ctx_host = resp['context']
-print 'Received PM_CONTEXT_HOST #'+str(ctx_host)
+print('Received PM_CONTEXT_HOST #' + str(ctx_host))
 
 # ------------------------------------------------------------------------
 
 # all these should get an error
 req = requests.get(url=url + 'pmapi/context?archivefile=/dev/null')
-print 'bad archive /dev/null response code ' + str(req.status_code) 
+print('bad archive /dev/null response code ' + str(req.status_code))
 
 req = requests.get(url=url + 'pmapi/context?archivefile=../etc/passwd')
-print 'bad archive ../etc/passwd response code ' + str(req.status_code) 
+print('bad archive ../etc/passwd response code ' + str(req.status_code))
 
 req = requests.get(url=url + 'pmapi/context?archivefile=../../etc/shadow')
-print 'bad archive ../../etc/shadow response code ' + str(req.status_code) 
+print('bad archive ../../etc/shadow response code ' + str(req.status_code))
 
 req = requests.get(url=url + 'pmapi/NOSUCHAPI')
-print 'command NOSUCHAPI response code ' + str(req.status_code) 
+print('command NOSUCHAPI response code ' + str(req.status_code))
 
 req = requests.get(url=url + 'pmapi/NOSUCHCONTEXT/_metric')
-print 'context NOSUCHCONTEXT response code ' + str(req.status_code) 
+print('context NOSUCHCONTEXT response code ' + str(req.status_code))
 
 req = requests.get(url=url + 'pmapi/0/_metric')
-print 'context 0 response code ' + str(req.status_code) 
+print('context 0 response code ' + str(req.status_code))
 
 req = requests.get(url=url + 'random_nonpmwebapi_url')
-print 'non-pmwebapi response code ' + str(req.status_code) 
+print('non-pmwebapi response code ' + str(req.status_code))
 
 # ------------------------------------------------------------------------
 
@@ -95,12 +95,12 @@ def test_metric_enumeration(ctx, prefix):
     # f.close()
 
     testprefix='test #'+str(ctx)+' metric '+prefix+'.*'
-    print testprefix+ ' enumeration with pminfo #'+str(num_metrics)
+    print(testprefix + ' enumeration with pminfo #'+str(num_metrics))
 
     req = requests.get(url=ctxurl + '_metric' + \
                            ('?prefix='+prefix if prefix != '' else ''))
     resp = req.json()
-    print testprefix + ' enumeration with pmwebinfo #'+str(len(resp['metrics']))
+    print(testprefix + ' enumeration with pmwebinfo #'+str(len(resp['metrics'])))
 
     # web_metrics = 0
     # f = open('/tmp/webd-' + dbg, 'w')
@@ -111,9 +111,9 @@ def test_metric_enumeration(ctx, prefix):
     # f.close()
 
     if (abs(len(resp['metrics']) - num_metrics) < 10): # allow some variation
-        print testprefix + ' enumeration match count PASS'
+        print(testprefix + ' enumeration match count PASS')
     else:
-        print testprefix + ' enumeration match count FAIL'
+        print(testprefix + ' enumeration match count FAIL')
 
 
 test_metric_enumeration(ctx_local,'')
@@ -125,7 +125,7 @@ test_metric_enumeration(ctx_host,'kernel')
 
 # empty _fetch should get an error
 req = requests.get(url=url + 'pmapi/'+str(ctx_host)+'/_fetch')
-print 'context #'+str(ctx_host)+' response code ' + str(req.status_code) 
+print('context #'+str(ctx_host)+' response code ' + str(req.status_code))
 
 # ------------------------------------------------------------------------
 

@@ -16,7 +16,7 @@
    <string>Open View</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="pmchart.qrc" >:/view.png</iconset>
+   <iconset resource="pmchart.qrc" >:/images/view.png</iconset>
   </property>
   <property name="sizeGripEnabled" >
    <bool>true</bool>
@@ -117,7 +117,7 @@
         <string>...</string>
        </property>
        <property name="icon" >
-        <iconset resource="pmchart.qrc" >:/computer.png</iconset>
+        <iconset resource="pmchart.qrc" >:/images/computer.png</iconset>
        </property>
        <property name="iconSize" >
         <size>
@@ -239,7 +239,7 @@
         <string/>
        </property>
        <property name="icon" >
-        <iconset resource="pmchart.qrc" >:/go-previous.png</iconset>
+        <iconset resource="pmchart.qrc" >:/images/go-previous.png</iconset>
        </property>
        <property name="iconSize" >
         <size>
@@ -292,7 +292,7 @@
         <string/>
        </property>
        <property name="icon" >
-        <iconset resource="pmchart.qrc" >:/toolusers.png</iconset>
+        <iconset resource="pmchart.qrc" >:/images/toolusers.png</iconset>
        </property>
        <property name="iconSize" >
         <size>
@@ -329,7 +329,7 @@
         <string/>
        </property>
        <property name="icon" >
-        <iconset resource="pmchart.qrc" >:/view.png</iconset>
+        <iconset resource="pmchart.qrc" >:/images/view.png</iconset>
        </property>
        <property name="iconSize" >
         <size>

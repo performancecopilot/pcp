@@ -19,12 +19,12 @@
 #include <QtGui/QPainter>
 #include <QtGui/QDockWidget>
 #include <QtGui/QAbstractButton>
-#include "groupcontrol.h"
+#include "qed_groupcontrol.h"
 #include "qmc_metric.h"
 #include "qmc_group.h"
 #include "qmc_time.h"
 
-class SceneGroup : public GroupControl
+class SceneGroup : public QedGroupControl
 {
     Q_OBJECT
 
@@ -50,7 +50,7 @@ protected:
     void adjustArchiveWorldViewBackward(QmcTime::Packet *, bool);
 
     void adjustStep(QmcTime::Packet *);
-    void setButtonState(TimeButton::State);
+    void setButtonState(QedTimeButton::State);
 
 private:
     void refreshScenes(bool);

@@ -27,15 +27,15 @@ def test_pmi(self, path = OUTFILE, inherit = 0):
     hostname = "fu.bar.com"
     timezone = "UTC"
 
-    print "Writing to new PCP archive:", path
+    print("Writing to new PCP archive:", path)
     log = pmi.pmiLogImport(path, inherit)
 
     code = log.pmiSetHostname(hostname)
-    print "pmiSetHostname:", hostname
+    print("pmiSetHostname:", hostname)
     self.assertTrue(code >= 0)
 
     code = log.pmiSetTimezone(timezone)
-    print "pmiSetTimezone:", timezone
+    print("pmiSetTimezone:", timezone)
     self.assertTrue(code >= 0)
 
     pmid = log.pmiID(60, 2, 0)
@@ -46,39 +46,39 @@ def test_pmi(self, path = OUTFILE, inherit = 0):
     code = log.pmiAddMetric("hinv.ncpu", cpmapi.PM_ID_NULL,
                             cpmapi.PM_TYPE_U32, cpmapi.PM_INDOM_NULL,
                             cpmapi.PM_SEM_DISCRETE, units)
-    print "pmiAddMetric: hinv.ncpu"
+    print("pmiAddMetric: hinv.ncpu")
     self.assertTrue(code >= 0)
 
     # give it a value
     code = log.pmiPutValue("hinv.ncpu", "", "42")
-    print "pmiPutValue: hinv.ncpu"
+    print("pmiPutValue: hinv.ncpu")
     self.assertTrue(code >= 0)
 
     # create a metric with instances (kernel.all.load)
     code = log.pmiAddMetric("kernel.all.load", pmid,
                             cpmapi.PM_TYPE_FLOAT, indom,
                             cpmapi.PM_SEM_DISCRETE, units)
-    print "pmiAddMetric: kernel.all.load"
+    print("pmiAddMetric: kernel.all.load")
     self.assertTrue(code >= 0)
     code = log.pmiAddInstance(indom, "1 minute", 1)
-    print "pmiAddInstance: kernel.all.load[1 minute]"
+    print("pmiAddInstance: kernel.all.load[1 minute]")
     self.assertTrue(code >= 0)
     code = log.pmiAddInstance(indom, "5 minute", 5)
-    print "pmiAddMetric: kernel.all.load[5 minute]"
+    print("pmiAddMetric: kernel.all.load[5 minute]")
     self.assertTrue(code >= 0)
     code = log.pmiAddInstance(indom, "15 minute", 15)
-    print "pmiAddMetric: kernel.all.load[15 minute]"
+    print("pmiAddMetric: kernel.all.load[15 minute]")
     self.assertTrue(code >= 0)
 
     # give them values
     code = log.pmiPutValue("kernel.all.load", "1 minute", "42.01")
-    print "pmiPutValue: kernel.all.load[1 minute]"
+    print("pmiPutValue: kernel.all.load[1 minute]")
     self.assertTrue(code >= 0)
     code = log.pmiPutValue("kernel.all.load", "5 minute", "42.05")
-    print "pmiPutValue: kernel.all.load[5 minute]"
+    print("pmiPutValue: kernel.all.load[5 minute]")
     self.assertTrue(code >= 0)
     code = log.pmiPutValue("kernel.all.load", "15 minute", "42.15")
-    print "pmiPutValue: kernel.all.load[15 minute]"
+    print("pmiPutValue: kernel.all.load[15 minute]")
     self.assertTrue(code >= 0)
 
     del log
@@ -98,7 +98,7 @@ if __name__ == '__main__':
     if (len(sys.argv) == 2):
         OUTFILE = sys.argv[1]
     else:
-        print "Usage: " + sys.argv[0] + " OutFile"
+        print("Usage: " + sys.argv[0] + " OutFile")
         sys.exit(1)
 
     sys.argv[1:] = ()

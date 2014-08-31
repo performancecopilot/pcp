@@ -906,6 +906,24 @@ gfs2_buffer_default_size_set()
     }
 }
 
+/*
+ * Some version of ftrace are missing the irq-info option which alters the
+ * trace-pipe output, because of this we check for the option and if exists
+ * we switch off irq info output in trace_pipe
+ */
+static void
+gfs2_ftrace_irq_info_set()
+{
+    FILE *fp;
+
+    fp = fopen("/sys/kernel/debug/tracing/options/irq-info", "w");
+    if (fp) {
+        /* We only need to set value if irq-info exists */
+        fprintf(fp, "0"); /* Switch off irq-info in trace_pipe */
+        fclose(fp);
+    }
+}
+
 static int
 gfs2_store(pmResult *result, pmdaExt *pmda)
 {
@@ -996,9 +1014,10 @@ gfs2_init(pmdaInterface *dp)
     pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
     pmdaInit(dp, indomtable, nindoms, metrictable, nmetrics);
 
-    /* Set defaults for both trace_pipe buffer size and enabled tracepoints */
-    gfs2_tracepoints_init();
-    gfs2_buffer_default_size_set();
+    /* Set defaults */
+    gfs2_tracepoints_init(); /* Enables gfs2 tracepoints */
+    gfs2_buffer_default_size_set(); /* Sets default buffer size */
+    gfs2_ftrace_irq_info_set(); /* Disables irq-info output with trace_pipe */
 }
 
 static pmLongOptions longopts[] = {

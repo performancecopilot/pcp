@@ -238,7 +238,7 @@ gfs2_extract_latency(unsigned int major, unsigned int minor, int tracepoint, cha
             char queue[8], state[3];
 
             sscanf(latency_data.data, 
-                "%*s  [%*d] %*s %"SCNd64".%"SCNd64": gfs2_glock_queue: %*d,%*d glock %"SCNu32":%"SCNu64" %s %s",
+                "%*s [%*d] %"SCNd64".%"SCNd64": gfs2_glock_queue: %*d,%*d glock %"SCNu32":%"SCNu64" %s %s",
                 &time_major, &time_minor, &data.lock_type, &data.number, queue, state
             );
             data.usecs = concatenate(time_major, time_minor);
@@ -294,7 +294,7 @@ gfs2_extract_latency(unsigned int major, unsigned int minor, int tracepoint, cha
             int state_decimal, to_decimal;
 
             sscanf(latency_data.data, 
-                "%*s  [%*d] %*s %"SCNd64".%"SCNd64": gfs2_glock_state_change: %*d,%*d glock %"SCNu32":%"SCNu64" state %s to %s tgt:%s dmt:%*s flags:%*s", 
+                "%*s [%*d] %"SCNd64".%"SCNd64": gfs2_glock_state_change: %*d,%*d glock %"SCNu32":%"SCNu64" state %s to %s tgt:%s dmt:%*s flags:%*s", 
                 &time_major, &time_minor, &data.lock_type, &data.number, state, to, target
             );
             data.usecs = concatenate(time_major, time_minor);
@@ -344,7 +344,7 @@ gfs2_extract_latency(unsigned int major, unsigned int minor, int tracepoint, cha
             char state[3];
 
             sscanf(latency_data.data, 
-                "%*s  [%*d] %*s %"SCNd64".%"SCNd64": gfs2_demote_rq: %*d,%*d glock %"SCNu32":%"SCNu64" demote %s to %*s flags:%*s %*s", 
+                "%*s [%*d] %"SCNd64".%"SCNd64": gfs2_demote_rq: %*d,%*d glock %"SCNu32":%"SCNu64" demote %s to %*s flags:%*s %*s", 
                 &time_major, &time_minor, &data.lock_type, &data.number, state
             );
             data.usecs = concatenate(time_major, time_minor);

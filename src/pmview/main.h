@@ -17,14 +17,13 @@
 #include "pcp/pmapi.h"
 #include "pcp/impl.h"
 
-#include "app.h"
+#include "qed_app.h"
 #include "main.h"
 #include "viewobj.h"
 #include "colorlist.h"
 #include "pmview.h"
-#include "version.h"
 
-class App;
+class QedApp;
 class View;
 class ModList;
 class SoQtExaminerViewer;
@@ -119,8 +118,8 @@ extern SceneGroup *activeGroup;
 class PmView;
 extern PmView *pmview;
 
-class TimeControl;
-extern TimeControl *pmtime;
+class QedTimeControl;
+extern QedTimeControl *pmtime;
 
 extern int genInventor();
 extern char lastinput();
@@ -136,7 +135,7 @@ extern FILE *yyin;
 extern float			theScale;	// The scale controls multiplier
 extern ModList			*theModList;	// List of modulated objects
 extern View			*theView;	// Viewer coordinator
-extern App			*theApp;	// Our application object
+extern QedApp			*theApp;	// Our application object
 extern const int		theBufferLen;	// Length of theBuffer
 extern char			theBuffer[];	// String buffer for anything
 extern const QString		theDefaultFlags;

@@ -15,8 +15,6 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.gfs2
 
-_check_valgrind
-
 # Attempt to set up the gfs2 pmda test enviroment
 _gfs2_filesystem_support_tests
 _debugfs_mount_tests
@@ -48,8 +46,24 @@ echo "=== Check for successful install of pmda ===" | tee -a $here/$seq.full
 pminfo -v gfs2 > /dev/null || _fail "install failed?"
 
 echo
-echo "=== Check gfs2 metrics for all filesystems with Valgrind ===" | tee -a $here/$seq.full
-pminfo -dfmtT gfs2 | _gfs2_filter_pminfo
+echo "=== Check gfs2 metrics for all filesystems ===" | tee -a $here/$seq.full
+pminfo -dfmtT gfs2.glocks | _gfs2_filter_pminfo
+
+echo
+echo "=== Check gfs2 metrics for all filesystems ===" | tee -a $here/$seq.full
+pminfo -dfmtT gfs2.glstats | _gfs2_filter_pminfo
+
+echo
+echo "=== Check gfs2 metrics for all filesystems ===" | tee -a $here/$seq.full
+pminfo -dfmtT gfs2.tracepoints | _gfs2_filter_pminfo
+
+echo
+echo "=== Check gfs2 metrics for all filesystems ===" | tee -a $here/$seq.full
+pminfo -dfmtT gfs2.worst_glock | _gfs2_filter_pminfo
+
+echo
+echo "=== Check gfs2 metrics for all filesystems ===" | tee -a $here/$seq.full
+pminfo -dfmtT gfs2.control | _gfs2_filter_pminfo
 
 echo
 echo "=== check functionality of pmstore (off) ===" | tee -a $here/$seq.full

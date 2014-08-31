@@ -1,24 +1,24 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
-    <file>play_off.png</file>
-    <file>play_on.png</file>
-    <file>fastfwd_off.png</file>
-    <file>fastfwd_on.png</file>
-    <file>fastback_off.png</file>
-    <file>fastback_on.png</file>
-    <file>back_off.png</file>
-    <file>back_on.png</file>
-    <file>stepfwd_off.png</file>
-    <file>stepfwd_on.png</file>
-    <file>stepback_off.png</file>
-    <file>stepback_on.png</file>
-    <file>stop_off.png</file>
-    <file>stop_on.png</file>
-    <file>whatsthis.png</file>
-    <file>edit-clear.png</file>
-    <file>internet-web-browser.png</file>
-    <file>pmtime.png</file>
-    <file>aboutpmtime.png</file>
-    <file>aboutpcp.png</file>
+    <file>images/play_off.png</file>
+    <file>images/play_on.png</file>
+    <file>images/fastfwd_off.png</file>
+    <file>images/fastfwd_on.png</file>
+    <file>images/fastback_off.png</file>
+    <file>images/fastback_on.png</file>
+    <file>images/back_off.png</file>
+    <file>images/back_on.png</file>
+    <file>images/stepfwd_off.png</file>
+    <file>images/stepfwd_on.png</file>
+    <file>images/stepback_off.png</file>
+    <file>images/stepback_on.png</file>
+    <file>images/stop_off.png</file>
+    <file>images/stop_on.png</file>
+    <file>images/whatsthis.png</file>
+    <file>images/edit-clear.png</file>
+    <file>images/internet-web-browser.png</file>
+    <file>images/pmtime.png</file>
+    <file>images/aboutpmtime.png</file>
+    <file>images/aboutpcp.png</file>
 </qresource>
 </RCC>

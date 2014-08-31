@@ -36,7 +36,7 @@
    <string>Export</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="pmchart.qrc" >:/document-export.png</iconset>
+   <iconset resource="pmchart.qrc" >:/images/document-export.png</iconset>
   </property>
   <property name="toolTip" >
    <string/>
@@ -264,7 +264,7 @@
         <string>...</string>
        </property>
        <property name="icon" >
-        <iconset resource="pmchart.qrc" >:/document-export.png</iconset>
+        <iconset resource="pmchart.qrc" >:/images/document-export.png</iconset>
        </property>
       </widget>
      </item>

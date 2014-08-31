@@ -140,11 +140,11 @@ void ChartDialog::resetCompletely()
 {
     if ((my.archiveSource = pmchart->isArchiveTab()) == true) {
 	sourceButton->setToolTip(tr("Add archives"));
-	sourceButton->setIcon(QIcon(":/archive.png"));
+	sourceButton->setIcon(QIcon(":/images/archive.png"));
     }
     else {
 	sourceButton->setToolTip(tr("Add a host"));
-	sourceButton->setIcon(QIcon(":/computer.png"));
+	sourceButton->setIcon(QIcon(":/images/computer.png"));
     }
     setupAvailableMetricsTree(my.archiveSource == true);
     my.yMin = yAxisMinimum->value();

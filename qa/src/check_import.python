@@ -1,7 +1,7 @@
 """ Python test case for Log Import API wrapper module
 """
 #
-# Copyright (C) 2012-2013 Red Hat Inc.
+# Copyright (C) 2012-2014 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -62,7 +62,7 @@ def check_import(archive, hostname, timezone):
 if __name__ == '__main__':
 
     if (len(sys.argv) != 2):
-        print "Usage: " + sys.argv[0] + " <path>"
+        print("Usage: " + sys.argv[0] + " <path>")
         sys.exit(1)
 
     check_import(sys.argv[1], "www.abc.com", "EST-10")

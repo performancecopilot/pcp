@@ -16,7 +16,7 @@
    <string>New Chart</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="pmchart.qrc" >:/pmchart.png</iconset>
+   <iconset resource="pmchart.qrc" >:/images/pmchart.png</iconset>
   </property>
   <property name="sizeGripEnabled" >
    <bool>true</bool>
@@ -863,7 +863,7 @@
             <string/>
            </property>
            <property name="icon" >
-            <iconset resource="pmchart.qrc" >:/help-browser.png</iconset>
+            <iconset resource="pmchart.qrc" >:/images/help-browser.png</iconset>
            </property>
           </widget>
          </item>
@@ -912,7 +912,7 @@
             <string/>
            </property>
            <property name="icon" >
-            <iconset resource="pmchart.qrc" >:/system-search.png</iconset>
+            <iconset resource="pmchart.qrc" >:/images/system-search.png</iconset>
            </property>
           </widget>
          </item>
@@ -961,7 +961,7 @@
             <string/>
            </property>
            <property name="icon" >
-            <iconset resource="pmchart.qrc" >:/process-stop.png</iconset>
+            <iconset resource="pmchart.qrc" >:/images/process-stop.png</iconset>
            </property>
           </widget>
          </item>
@@ -1013,7 +1013,7 @@
             <string/>
            </property>
            <property name="icon" >
-            <iconset resource="pmchart.qrc" >:/go-previous.png</iconset>
+            <iconset resource="pmchart.qrc" >:/images/go-previous.png</iconset>
            </property>
           </widget>
          </item>
@@ -1142,7 +1142,7 @@
               <string/>
              </property>
              <property name="icon" >
-              <iconset resource="pmchart.qrc" >:/go-jump.png</iconset>
+              <iconset resource="pmchart.qrc" >:/images/go-jump.png</iconset>
              </property>
             </widget>
            </item>
@@ -1260,7 +1260,7 @@
               <string/>
              </property>
              <property name="icon" >
-              <iconset resource="pmchart.qrc" >:/go-previous.png</iconset>
+              <iconset resource="pmchart.qrc" >:/images/go-previous.png</iconset>
              </property>
             </widget>
            </item>

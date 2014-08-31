@@ -13,11 +13,11 @@
  */
 #include "main.h"
 #include "pmview.h"
-#include "console.h"
 #include "scenegroup.h"
-#include "timecontrol.h"
+#include "qed_console.h"
+#include "qed_timecontrol.h"
 
-SceneGroup::SceneGroup() : GroupControl()
+SceneGroup::SceneGroup() : QedGroupControl()
 {
 }
 
@@ -27,7 +27,7 @@ SceneGroup::~SceneGroup()
 
 void SceneGroup::init(struct timeval *interval, struct timeval *position)
 {
-    GroupControl::init(interval, position);
+    QedGroupControl::init(interval, position);
 }
 
 bool SceneGroup::isArchiveSource(void)
@@ -53,7 +53,7 @@ bool SceneGroup::isRecording(QmcTime::Packet *packet)
     return pmview->isViewRecording();
 }
 
-void SceneGroup::setButtonState(TimeButton::State state)
+void SceneGroup::setButtonState(QedTimeButton::State state)
 {
     pmview->setButtonState(state);
 }
@@ -73,8 +73,8 @@ void SceneGroup::updateTimeAxis(void)
 	pmview->setDateLabel(tr("[No open archives]"));
     }
 
-    if (console->logLevel(App::DebugProtocol)) {
-	console->post(App::DebugProtocol,
+    if (console->logLevel(QedApp::DebugProtocol)) {
+	console->post(QedApp::DebugProtocol,
 		"SceneGroup::updateTimeAxis: tz=%s",
 		(const char *)tz.toAscii());
     }
@@ -87,7 +87,7 @@ void SceneGroup::updateTimeButton(void)
 
 void SceneGroup::setupWorldView()
 {
-    activeGroup->GroupControl::setupWorldView(
+    activeGroup->QedGroupControl::setupWorldView(
 			pmtime->archiveInterval(), pmtime->archivePosition(),
 			pmtime->archiveStart(), pmtime->archiveEnd());
 }
@@ -96,13 +96,13 @@ void SceneGroup::adjustLiveWorldViewForward(QmcTime::Packet *packet)
 {
     double position = timePosition();
 
-    console->post("Fetching data at %s", App::timeString(position));
+    console->post("Fetching data at %s", QedApp::timeString(position));
     fetch();
 
     setTimeState(packet->state == QmcTime::StoppedState ?
 			StandbyState : ForwardState);
 
-    GroupControl::adjustLiveWorldViewForward(packet);
+    QedGroupControl::adjustLiveWorldViewForward(packet);
     pmview->render(PmView::inventor, 0);
 }
 
@@ -122,12 +122,12 @@ void SceneGroup::adjustArchiveWorldViewForward(QmcTime::Packet *packet, bool set
 
     struct timeval timeval;
     double position = timePosition();
-    App::timevalFromSeconds(timePosition(), &timeval);
+    QedApp::timevalFromSeconds(timePosition(), &timeval);
     setArchiveMode(setmode, &timeval, delta);
-    console->post("Fetching data at %s", App::timeString(position));
+    console->post("Fetching data at %s", QedApp::timeString(position));
     fetch();
 
-    GroupControl::adjustArchiveWorldViewForward(packet, setup);
+    QedGroupControl::adjustArchiveWorldViewForward(packet, setup);
     pmview->render(PmView::inventor, 0);
 }
 
@@ -147,12 +147,12 @@ void SceneGroup::adjustArchiveWorldViewBackward(QmcTime::Packet *packet, bool se
 
     struct timeval timeval;
     double position = timePosition();
-    App::timevalFromSeconds(timePosition(), &timeval);
+    QedApp::timevalFromSeconds(timePosition(), &timeval);
     setArchiveMode(setmode, &timeval, delta);
-    console->post("Fetching data at %s", App::timeString(position));
+    console->post("Fetching data at %s", QedApp::timeString(position));
     fetch();
 
-    GroupControl::adjustArchiveWorldViewBackward(packet, setup);
+    QedGroupControl::adjustArchiveWorldViewBackward(packet, setup);
     pmview->render(PmView::inventor, 0);
 }
 
@@ -166,13 +166,13 @@ void SceneGroup::adjustStep(QmcTime::Packet *packet)
 
 void SceneGroup::step(QmcTime::Packet *packet)
 {
-    GroupControl::step(packet);
+    QedGroupControl::step(packet);
     pmview->render(PmView::inventor, 0);
 }
 
 void SceneGroup::setTimezone(QmcTime::Packet *packet, char *tz)
 {
-    GroupControl::setTimezone(packet, tz);
+    QedGroupControl::setTimezone(packet, tz);
     if (isActive(packet))
 	updateTimeAxis();
 }

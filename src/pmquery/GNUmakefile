@@ -12,17 +12,14 @@ SOURCES = $(HEADERS:.h=.cpp) main.cpp
 SCRIPTS = pmconfirm.sh pmmessage.sh
 LSRCFILES = $(PROJECT) $(QRCFILE) $(SCRIPTS) $(HEADERS) $(SOURCES) \
 	  $(WRAPPER).in pmconfirm.sh.in pmmessage.sh.in $(XMLFILE).in
-LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER) $(SCRIPTS) $(XMLFILE)
-
-ICONLINKS = $(ICNFILE) dialog-archive.png dialog-error.png dialog-host.png \
-	  dialog-information.png dialog-question.png dialog-warning.png
+LDIRT = $(COMMAND) $(ICNFILE) $(WRAPPER) $(SCRIPTS) $(XMLFILE) images
 
 default: build-me
 
 include $(BUILDRULES)
 
 ifeq "$(ENABLE_QT)" "true"
-build-me: iconlinks wrappers
+build-me:: images wrappers
 	$(QTMAKE)
 	$(LNMAKE)
 
@@ -71,3 +68,6 @@ endif
 default_pcp:	default
 
 install_pcp:	install
+
+images:
+	$(LN_S) $(TOPDIR)/images images
