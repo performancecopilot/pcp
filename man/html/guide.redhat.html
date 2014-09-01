@@ -48,16 +48,16 @@
 <a name="intro"></a>
 <H1>Introduction</H1>
 
-<P>Performance Co-Pilot (PCP) is an open source framework and toolkit for monitoring, analyzing, and responding to details of live and historical system performance. PCP has a fully distributed, plug-in based architecture making it particularly well suited to centralized analysis of complex environments and systems. Custom performance metrics can be added using the C, C++, Perl, and Python interfaces.
+<P><A HREF="http://www.pcp.io/>Performance Co-Pilot</A> (PCP) is an open source framework and toolkit for monitoring, analyzing, and responding to details of live and historical system performance. PCP has a fully distributed, plug-in based architecture making it particularly well suited to centralized analysis of complex environments and systems. Custom performance metrics can be added using the C, C++, Perl, and Python interfaces.
 
 <P>This page provides quick instructions how to install and use PCP on a set of RHEL hosts of which one (a monitor host) will be used for monitoring and analyzing itself and other hosts (collector hosts).
 
 <a name="install"></a>
 <H1>Installation</H1>
 
-<P>PCP is supported on RHEL 6.6+ and RHEL 7+ and is available from the EPEL repositories for earlier versions.
+<P>PCP is supported on RHEL 6.6+ and RHEL 7+ and is available from the <A HREF="http://fedoraproject.org/wiki/EPEL">EPEL</A> repositories for earlier versions.
 
-<P>For older releases, either enable EPEL with Yum (see this page for details - but be careful not to overwrite any RHEL packages with EPEL packages) or you can grab the latest PCP packages manually from the <A HREF="http://dl.fedoraproject.org/pub/epel/">EPEL repositories</A>.
+<P>For older releases, either enable EPEL with Yum (see <A HREF="http://fedoraproject.org/wiki/EPEL/FAQ#How_can_I_install_the_packages_from_the_EPEL_software_repository.3F">this page</A> for details - but be careful not to overwrite any RHEL packages with EPEL packages) or you can grab the latest PCP packages manually from the <A HREF="http://dl.fedoraproject.org/pub/epel/">EPEL repositories</A>.
 
 <a name="collectors"></a>
 <H3>Installing Collector Hosts</H3>
@@ -79,7 +79,7 @@
 </B></TD></TR>
 </TABLE>
 
-<P>This will enable the Performance Metrics Collector Daemon (pmcd) on the host which then in turn will control and request metrics on behalf of clients from various Performance Metrics Domain Agents (PMDAs). The PMDAs provide the actual data from different components (domains) in the system, for example from the Linux Kernel PMDA or the NFS Client PMDA. The default configuration includes over 1000 metrics with negligible overall overhead. Local PCP archive logs will also be enabled on the host for convenience with pmlogger (RHKB 1146283 contains some additional logging related considerations).
+<P>This will enable the Performance Metrics Collector Daemon (pmcd) on the host which then in turn will control and request metrics on behalf of clients from various Performance Metrics Domain Agents (PMDAs). The PMDAs provide the actual data from different components (domains) in the system, for example from the Linux Kernel PMDA or the NFS Client PMDA. The default configuration includes over 1000 metrics with negligible overall overhead. Local PCP archive logs will also be enabled on the host for convenience with pmlogger (<A HREF="https://access.redhat.com/articles/1146283">RHKB 1146283</A> contains some additional logging related considerations).
 
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To enable PMDAs which are not enabled by default, for example the NFS Client PMDA, run the corresponding Install script:<br><B>
@@ -405,11 +405,11 @@ Display the number of running processes on 2014-08-20 14:00:<BR><B>
 
 <P>Applications can be instrumented in the PCP world by using Memory Mapped Values (MMVs). pmdammv is a PMDA which exports application level performance metrics using memory mapped files. It offers an extremely low overhead instrumentation facility that is well-suited to long running, mission critical applications where it is desirable to have performance metrics and availability information permanently enabled.
 
-<P>Application to be instrumented with MMV need to be PCP MMV aware, APIs are available for several languages including C, C++, Perl, and Python. Java applications may use the separate Parfait class library for enabling MMV.
+<P>Application to be instrumented with MMV need to be PCP MMV aware, APIs are available for several languages including C, C++, Perl, and Python. Java applications may use the separate <A HREF="https://code.google.com/p/parfait/">Parfait</A> class library for enabling MMV.
 
 <P>Instrumentation of unaltered Java applications is a known feature request and is planned for a not-too-distant release.
 
-<P>See the Performance Co-Pilot Programmer's Guide for more information about application instrumentation.
+<P>See the <A HREF="http://www.pcp.io/doc/pcp-programmers-guide.pdf">Performance Co-Pilot Programmer's Guide PDF</A> for more information about application instrumentation.
 
 <a name="pmie"></a>
 <H1>Performance Metrics Inference</H1>
@@ -512,10 +512,10 @@ This example shows a PMIE script, checks its syntax, runs it against an archive,
 <H1>Additional Information</H1>
 
 <UL>
-<LI><A HREF="http://pcp.io">http://pcp.io</A> - PCP home page
+<LI><A HREF="http://pcp.io/">http://pcp.io/</A> - PCP home page
 <LI><A HREF="http://pcp.io/presentations.html">http://pcp.io/presentations.html</A> - PCP Presentations
-<LI><A HREF="http://pcp.io/doc/pcp-users-and-administrators-guide.pdf">http://pcp.io/doc/pcp-users-and-administrators-guide.pdf</A> - Performance Co-Pilot User's and Administrator's Guide
-<LI><A HREF="http://pcp.io/doc/pcp-programmers-guide.pdf">http://pcp.io/doc/pcp-programmers-guide.pdf</A> - Performance Co-Pilot Programmer's Guide
+<LI><A HREF="http://pcp.io/doc/pcp-users-and-administrators-guide.pdf">http://pcp.io/doc/pcp-users-and-administrators-guide.pdf</A> - Performance Co-Pilot User's and Administrator's Guide PDF
+<LI><A HREF="http://pcp.io/doc/pcp-programmers-guide.pdf">http://pcp.io/doc/pcp-programmers-guide.pdf</A> - Performance Co-Pilot Programmer's Guide PDF
 </UL>
 
 <P><BR></P>

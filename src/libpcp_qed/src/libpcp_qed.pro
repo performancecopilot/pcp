@@ -10,6 +10,7 @@ HEADERS	= qed.h \
 	  qed_app.h \
 	  qed_bar.h \
 	  qed_colorlist.h \
+	  qed_colorpicker.h \
 	  qed_console.h \
 	  qed_fileiconprovider.h \
 	  qed_gadget.h \
@@ -29,6 +30,7 @@ SOURCES = \
 	  qed_app.cpp \
 	  qed_bar.cpp \
 	  qed_colorlist.cpp \
+	  qed_colorpicker.cpp \
 	  qed_console.cpp \
 	  qed_fileiconprovider.cpp \
 	  qed_gadget.cpp \

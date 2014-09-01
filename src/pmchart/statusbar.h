@@ -17,7 +17,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QStatusBar>
 #include <QtGui/QGridLayout>
-#include "timebutton.h"
+#include "qed_timebutton.h"
 #include "timeaxis.h"
 
 class StatusBar : public QStatusBar
@@ -35,7 +35,7 @@ public:
     QLabel *dateLabel() { return my.dateLabel; }
     TimeAxis *timeAxis() { return my.timeAxis; }
     QToolButton *timeFrame() { return my.timeFrame; }
-    TimeButton *timeButton() { return my.timeButton; }
+    QedTimeButton *timeButton() { return my.timeButton; }
 
     QString dateText() { return my.dateLabel->text(); }
     void setDateText(QString &s) { my.dateLabel->setText(s); }
@@ -55,7 +55,7 @@ private:
 	QSpacerItem *labelSpacer;	// spacer between date/value labels
 	QSpacerItem *rightSpacer;	// spacer at right edge for toolbar
 	QToolButton *timeFrame;
-	TimeButton *timeButton;
+	QedTimeButton *timeButton;
 	TimeAxis *timeAxis;
 	QLabel *gadgetLabel;
 	QLabel *valueLabel;
