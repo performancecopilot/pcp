@@ -103,6 +103,7 @@ then
 fi
 eval $PWDCMND -P >/dev/null 2>&1
 [ $? -eq 0 ] && PWDCMND="$PWDCMND -P"
+here=`$PWDCMND`
 
 echo > $tmp/usage
 cat >> $tmp/usage <<EOF
@@ -405,16 +406,18 @@ cat $CONTROL \
 | sed -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" \
 | while read host primary socks dir args
 do
+    # start in one place for each iteration (beware relative paths)
+    cd "$here"
+    line=`expr $line + 1`
+
     # NB: FQDN cleanup: substitute the LOCALHOSTNAME marker in the config line
     # differently for the directory and the pcp -h HOST arguments.
     dir_hostname=`hostname || echo localhost`
     dir=`echo $dir | sed -e "s;LOCALHOSTNAME;$dir_hostname;"`
-    if [ "x$host" = "xLOCALHOSTNAME" ]
-    then
-        host=local:
-    fi
-    line=`expr $line + 1`
+    [ "x$host" = "xLOCALHOSTNAME" ] && host=local:
+
     $VERY_VERBOSE && echo "[control:$line] host=\"$host\" primary=\"$primary\" socks=\"$socks\" dir=\"$dir\" args=\"$args\""
+
     case "$host"
     in
 	\#*|'')	# comment or empty

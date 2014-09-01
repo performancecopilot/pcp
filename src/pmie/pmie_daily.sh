@@ -107,6 +107,7 @@ then
 fi
 eval $PWDCMND -P >/dev/null 2>&1
 [ $? -eq 0 ] && PWDCMND="$PWDCMND -P"
+here=`$PWDCMND`
 
 echo > $tmp/usage
 cat >> $tmp/usage <<EOF
@@ -280,18 +281,19 @@ cat $CONTROL \
 | sed -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" \
 | while read host socks logfile args
 do
+    # start in one place for each iteration (beware relative paths)
+    cd "$here"
+    line=`expr $line + 1`
+
     # NB: FQDN cleanup: substitute the LOCALHOSTNAME marker in the config line
     # differently for the directory and the pcp -h HOST arguments.
     logfile_hostname=`hostname || echo localhost`
     logfile=`echo $logfile | sed -e "s;LOCALHOSTNAME;$logfile_hostname;"`
     logfile=`_unsymlink_path $logfile`
-    if [ "x$host" = "xLOCALHOSTNAME" ]
-    then
-        host=local:
-    fi
+    [ "x$host" = "xLOCALHOSTNAME" ] && host=local:
 
-    line=`expr $line + 1`
     $VERY_VERBOSE && echo "[control:$line] host=\"$host\" socks=\"$socks\" log=\"$logfile\" args=\"$args\""
+
     case "$host"
     in
 	\#*|'')	# comment or empty
@@ -339,10 +341,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
     fi
 
     dir=`dirname $logfile`
-    if $VERY_VERBOSE
-    then
-	echo "Check pmie -h $host ... in $dir ..."
-    fi
+    $VERY_VERBOSE && echo "Check pmie -h $host ... in $dir ..."
 
     if [ ! -d "$dir" ]
     then
