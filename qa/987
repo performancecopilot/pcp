@@ -1,0 +1,22 @@
+#!/bin/sh
+# PCP QA Test No. 987
+# test XFS PMDA works in DSO mode
+#
+# Copyright (c) 2014 Red Hat Inc.,  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+pmprobe -L -K add,11,xfs/pmda_xfs,xfs_init -f xfs.control.reset
+status=$?
+
+exit
