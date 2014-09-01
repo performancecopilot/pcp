@@ -24,6 +24,7 @@
 #include "filesys.h"
 #include "proc_fs_xfs.h"
 
+static int		_isDSO = 1; /* for local contexts */
 static proc_fs_xfs_t	proc_fs_xfs;
 
 /*
@@ -895,6 +896,14 @@ void
 __PMDA_INIT_CALL
 xfs_init(pmdaInterface *dp)
 {
+    if (_isDSO) {
+	char helppath[MAXPATHLEN];
+	int sep = __pmPathSeparator();
+	snprintf(helppath, sizeof(helppath), "%s%c" "xfs" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
+	pmdaDSO(dp, PMDA_INTERFACE_3, "XFS DSO", helppath);
+    }
+
     if (dp->status != 0)
 	return;
 
@@ -934,6 +943,7 @@ main(int argc, char **argv)
     pmdaInterface	dispatch;
     char		helppath[MAXPATHLEN];
 
+    _isDSO = 0;
     __pmSetProgname(argv[0]);
     snprintf(helppath, sizeof(helppath), "%s%c" "xfs" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
