@@ -71,6 +71,7 @@ BEGIN	    	{ i = 0 }
 [ -z "$PWDCMND" ] && PWDCMND=/bin/pwd
 eval $PWDCMND -P >/dev/null 2>&1
 [ $? -eq 0 ] && PWDCMND="$PWDCMND -P"
+here=`$PWDCMND`
 
 # determine whether we can automatically enable any events sinks
 CONFARGS="-cF"
@@ -446,17 +447,17 @@ cat "$CONTROL" \
     | sed -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" \
     | while read host socks logfile args
 do
+    # start in one place for each iteration (beware relative paths)
+    cd "$here"
+    line=`expr $line + 1`
+
     # NB: FQDN cleanup: substitute the LOCALHOSTNAME marker in the config line
     # differently for the directory and the pcp -h HOST arguments.
     logfile_hostname=`hostname || echo localhost`
     logfile=`echo $logfile | sed -e "s;LOCALHOSTNAME;$logfile_hostname;"`
     logfile=`_unsymlink_path $logfile`
-    if [ "x$host" = "xLOCALHOSTNAME" ]
-    then
-        host=local:
-    fi
+    [ "x$host" = "xLOCALHOSTNAME" ] && host=local:
 
-    line=`expr $line + 1`
     case "$host"
     in
 	\#*|'')	# comment or empty
@@ -509,20 +510,23 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
     dir=`dirname $logfile`
     if [ ! -d "$dir" ]
     then
-	mkdir -p "$dir" >$tmp/err 2>&1
+	mkdir -p -m 755 "$dir" >$tmp/err 2>&1
 	if [ ! -d "$dir" ]
 	then
 	    cat $tmp/err
 	    _error "cannot create directory ($dir) for pmie log file"
+	    continue
 	fi
         chown $PCP_USER:$PCP_GROUP "$dir" >/dev/null 2>&1
     fi
-    [ ! -d "$dir" ] && continue
 
     cd "$dir"
     dir=`$PWDCMND`
     $SHOWME && echo "+ cd $dir"
 
+    # ensure pcp user will be able to write there
+    #
+    chown -R $PCP_USER:$PCP_GROUP "$dir" >/dev/null 2>&1
     if [ ! -w "$dir" ]
     then
 	_warning "no write access in $dir, skip lock file processing"

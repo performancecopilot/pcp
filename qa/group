@@ -935,6 +935,7 @@ avahi
 776 pmfind local oss
 779 pmda local oss
 780 pmwebapi local oss
+781 logutil local oss
 783 pmda.rpm local oss
 786 context context_local libpcp local oss
 787:reserved archive local oss pmie pmlogrewrite pmdumplog pmval

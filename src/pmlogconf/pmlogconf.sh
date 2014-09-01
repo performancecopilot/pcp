@@ -73,6 +73,7 @@ do
     in
 	-c)	# automated, non-interactive file creation
 		autocreate=true
+		prompt=false
 		;;
 
 	-d)	# base directory for the group files
@@ -663,3 +664,4 @@ else
 fi
 
 status=0
+exit

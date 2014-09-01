@@ -1,0 +1,64 @@
+#!/bin/sh
+# PCP QA Test No. 781
+# Exercise pmlogconf and pmlogger_check interactions.
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    # should be none running, but just in case...
+    $signal -a -s TERM pmlogger >/dev/null 2>&1
+    cd $here
+    $sudo rm -rf $tmp
+}
+
+status=1	# failure is the default!
+today=`date +%Y%m%d`
+host=`hostname`
+$sudo rm -rf $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    # make verbose show-me mode pmlogger_check output deterministic
+    sed \
+	-e "s,$tmp,LOGDIR,g" \
+	-e "s,$host,HOSTNAME,g" \
+	-e "s,$today\.[0-9][0-9]\.[0-9][0-9],ARCHIVE,g" \
+    # end
+}
+
+rm -rf $tmp
+mkdir $tmp
+chmod ugo+w $tmp
+cd $tmp
+
+echo >control '# PCP archive logging configuration/control - for qa/'$seq'
+#
+$version=1.1
+LOCALHOSTNAME   n   n   logs/LOCALHOSTNAME -c ./config
+no.such.host    n   n   logs/no.such.host  -c ./config
+another.host    n   n   logs/another.host  -c ./config'
+
+# real QA test starts here
+echo Using control file: > $here/$seq.full
+cat control >> $here/$seq.full
+echo pmlogger_check out: >> $here/$seq.full
+$PCP_BINADM_DIR/pmlogger_check -V -N -c control 2>&1 \
+	| tee -a $here/$seq.full \
+	| _filter
+echo pmlogger_check end: >> $here/$seq.full
+find . >> $here/$seq.full
+
+# success, all done
+status=0
+exit
