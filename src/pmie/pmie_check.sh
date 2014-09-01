@@ -503,7 +503,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	continue
     fi
 
-    [ $VERY_VERBOSE = "true" ] && echo "Check pmie -h $host -l $logfile ..."
+    $VERY_VERBOSE && echo "Check pmie -h $host -l $logfile ..."
 
     # make sure output directory exists
     #

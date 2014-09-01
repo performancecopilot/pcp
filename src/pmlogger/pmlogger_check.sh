@@ -419,14 +419,14 @@ do
     # start in one place for each iteration (beware relative paths)
     cd "$here"
     line=`expr $line + 1`
-    $VERY_VERBOSE && echo "[control:$line] host=\"$host\" primary=\"$primary\" socks=\"$socks\" dir=\"$dir\" args=\"$args\""
-
 
     # NB: FQDN cleanup: substitute the LOCALHOSTNAME marker in the config line
     # differently for the directory and the pcp -h HOST arguments.
     dir_hostname=`hostname || echo localhost`
     dir=`echo $dir | sed -e "s;LOCALHOSTNAME;$dir_hostname;"`
     [ "x$host" = "xLOCALHOSTNAME" ] && host=local:
+
+    $VERY_VERBOSE && echo "[control:$line] host=\"$host\" primary=\"$primary\" socks=\"$socks\" dir=\"$dir\" args=\"$args\""
 
     case "$host"
     in
