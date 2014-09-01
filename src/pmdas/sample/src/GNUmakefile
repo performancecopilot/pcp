@@ -35,7 +35,7 @@ VERSION_SCRIPT = exports
 
 LDIRT = domain.h sample.log $(TARGETS) $(VERSION_SCRIPT)
 LCFLAGS += $(INVISIBILITY)
-LLDLIBS = $(PCP_PMDALIB)
+LLDLIBS = $(PCP_PMDALIB) $(LIB_FOR_RT)
 LSRCFILES = GNUmakefile.install
 
 default:	domain.h $(TARGETS)

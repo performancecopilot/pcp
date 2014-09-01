@@ -33,6 +33,6 @@ Performance Co-Pilot configuration on wobbly:
  timezone: EST-11EST-10,87/2:00,297/2:00
      pmcd: Version 2.1 beta-1, 8 agents, 3 clients
      pmda: irix pmcd proc cisco trace summary sample sampledso
- pmlogger: primary logger: wobbly/19981006.00.35
+ pmlogger: primary logger: /var/adm/pcplog/wobbly/19981006.00.35
            wobbly.melbourne.sgi.com: /tmp/foo
      pmie: 0: 0

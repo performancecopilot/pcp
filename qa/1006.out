@@ -12,17 +12,6 @@ exit=0
 <timestamp>: Global settings setup complete
 <timestamp>: Metric group setup complete (0 hosts, 0 archives)
 <timestamp>: Timezones and time window setup complete
-<timestamp>: Loading resource :/play_live.png
-<timestamp>: Loading resource :/stop_live.png
-<timestamp>: Loading resource :/play_record.png
-<timestamp>: Loading resource :/stop_record.png
-<timestamp>: Loading resource :/play_archive.png
-<timestamp>: Loading resource :/stop_archive.png
-<timestamp>: Loading resource :/back_archive.png
-<timestamp>: Loading resource :/stepfwd_archive.png
-<timestamp>: Loading resource :/stepback_archive.png
-<timestamp>: Loading resource :/fastfwd_archive.png
-<timestamp>: Loading resource :/fastback_archive.png
 <timestamp>: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
 <timestamp>: PmChart::setActiveTab index=0 r=1
@@ -51,17 +40,6 @@ exit=0
 <timestamp>: Global settings setup complete
 <timestamp>: Metric group setup complete (0 hosts, 0 archives)
 <timestamp>: Timezones and time window setup complete
-<timestamp>: Loading resource :/play_live.png
-<timestamp>: Loading resource :/stop_live.png
-<timestamp>: Loading resource :/play_record.png
-<timestamp>: Loading resource :/stop_record.png
-<timestamp>: Loading resource :/play_archive.png
-<timestamp>: Loading resource :/stop_archive.png
-<timestamp>: Loading resource :/back_archive.png
-<timestamp>: Loading resource :/stepfwd_archive.png
-<timestamp>: Loading resource :/stepback_archive.png
-<timestamp>: Loading resource :/fastfwd_archive.png
-<timestamp>: Loading resource :/fastback_archive.png
 <timestamp>: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
 <timestamp>: PmChart::setActiveTab index=0 r=1
@@ -90,17 +68,6 @@ exit=1
 <timestamp>: Global settings setup complete
 <timestamp>: Metric group setup complete (0 hosts, 0 archives)
 <timestamp>: Timezones and time window setup complete
-<timestamp>: Loading resource :/play_live.png
-<timestamp>: Loading resource :/stop_live.png
-<timestamp>: Loading resource :/play_record.png
-<timestamp>: Loading resource :/stop_record.png
-<timestamp>: Loading resource :/play_archive.png
-<timestamp>: Loading resource :/stop_archive.png
-<timestamp>: Loading resource :/back_archive.png
-<timestamp>: Loading resource :/stepfwd_archive.png
-<timestamp>: Loading resource :/stepback_archive.png
-<timestamp>: Loading resource :/fastfwd_archive.png
-<timestamp>: Loading resource :/fastback_archive.png
 <timestamp>: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
 <timestamp>: PmChart::setActiveTab index=0 r=1
@@ -143,17 +110,6 @@ exit=0
 <timestamp>: Global settings setup complete
 <timestamp>: Metric group setup complete (0 hosts, 0 archives)
 <timestamp>: Timezones and time window setup complete
-<timestamp>: Loading resource :/play_live.png
-<timestamp>: Loading resource :/stop_live.png
-<timestamp>: Loading resource :/play_record.png
-<timestamp>: Loading resource :/stop_record.png
-<timestamp>: Loading resource :/play_archive.png
-<timestamp>: Loading resource :/stop_archive.png
-<timestamp>: Loading resource :/back_archive.png
-<timestamp>: Loading resource :/stepfwd_archive.png
-<timestamp>: Loading resource :/stepback_archive.png
-<timestamp>: Loading resource :/fastfwd_archive.png
-<timestamp>: Loading resource :/fastback_archive.png
 <timestamp>: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
 <timestamp>: PmChart::setActiveTab index=0 r=1
@@ -210,17 +166,6 @@ exit=1
 <timestamp>: Global settings setup complete
 <timestamp>: Metric group setup complete (0 hosts, 0 archives)
 <timestamp>: Timezones and time window setup complete
-<timestamp>: Loading resource :/play_live.png
-<timestamp>: Loading resource :/stop_live.png
-<timestamp>: Loading resource :/play_record.png
-<timestamp>: Loading resource :/stop_record.png
-<timestamp>: Loading resource :/play_archive.png
-<timestamp>: Loading resource :/stop_archive.png
-<timestamp>: Loading resource :/back_archive.png
-<timestamp>: Loading resource :/stepfwd_archive.png
-<timestamp>: Loading resource :/stepback_archive.png
-<timestamp>: Loading resource :/fastfwd_archive.png
-<timestamp>: Loading resource :/fastback_archive.png
 <timestamp>: Time button resources loaded
 <timestamp>: Phase1 user interface constructors complete
 <timestamp>: PmChart::setActiveTab index=0 r=1
