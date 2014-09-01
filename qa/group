@@ -982,6 +982,7 @@ avahi
 980 python local oss
 985 pmda.dmcache dbpmda local oss
 986 pmda.dmcache pmda.install local oss
+987 pmda.xfs local oss
 991 python local oss
 994 other verify oss
 1000 pmdumptext local sgi
