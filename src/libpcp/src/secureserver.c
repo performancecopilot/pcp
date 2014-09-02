@@ -315,7 +315,7 @@ __pmSecureServerInit(void)
     } while (0);
 
     /* Configure SSL session cache for multi-process server, using defaults */
-    secsts = SSL_ConfigMPServerSIDCache(0, 0, 0, NULL);
+    secsts = SSL_ConfigMPServerSIDCache(1, 0, 0, NULL);
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "Unable to configure SSL session ID cache: %s",
 		pmErrStr(__pmSecureSocketsError(PR_GetError())));
