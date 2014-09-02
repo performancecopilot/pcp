@@ -46,7 +46,11 @@
 static void
 dict_add(PyObject *dict, char *symbol, long value)
 {
+#if PY_MAJOR_VERSION >= 3
     PyObject *pyvalue = PyLong_FromLong(value);
+#else
+    PyObject *pyvalue = PyInt_FromLong(value);
+#endif
     PyDict_SetItemString(dict, symbol, pyvalue);
     Py_XDECREF(pyvalue);
 }
