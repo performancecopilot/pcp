@@ -33,7 +33,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="pmchart.qrc">
-    <normaloff>:/settings.png</normaloff>:/settings.png</iconset>
+    <normaloff>:/images/settings.png</normaloff>:/images/settings.png</iconset>
   </property>
   <property name="sizeGripEnabled">
    <bool>false</bool>
@@ -1243,7 +1243,7 @@
       <string>...</string>
      </property>
      <property name="icon" >
-      <iconset resource="pmchart.qrc" >:/computer.png</iconset>
+      <iconset resource="pmchart.qrc" >:/images/computer.png</iconset>
      </property>
      <property name="iconSize" >
       <size>

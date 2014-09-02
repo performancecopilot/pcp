@@ -697,7 +697,7 @@ TracingEngine::redoScale(void)
 bool
 TracingEngine::isCompatible(pmDesc &desc)
 {
-    return (desc.type == PM_TYPE_EVENT);
+    return (desc.type == PM_TYPE_EVENT || desc.type == PM_TYPE_HIGHRES_EVENT);
 }
 
 void

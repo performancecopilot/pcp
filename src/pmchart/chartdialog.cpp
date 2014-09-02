@@ -16,7 +16,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 #include "chartdialog.h"
-#include "qcolorpicker.h"
+#include "qed_colorpicker.h"
 #include "hostdialog.h"
 #include "chart.h"
 #include "tab.h"
@@ -140,11 +140,11 @@ void ChartDialog::resetCompletely()
 {
     if ((my.archiveSource = pmchart->isArchiveTab()) == true) {
 	sourceButton->setToolTip(tr("Add archives"));
-	sourceButton->setIcon(QIcon(":/archive.png"));
+	sourceButton->setIcon(QIcon(":/images/archive.png"));
     }
     else {
 	sourceButton->setToolTip(tr("Add a host"));
-	sourceButton->setIcon(QIcon(":/computer.png"));
+	sourceButton->setIcon(QIcon(":/images/computer.png"));
     }
     setupAvailableMetricsTree(my.archiveSource == true);
     my.yMin = yAxisMinimum->value();

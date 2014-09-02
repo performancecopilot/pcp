@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2013 Red Hat.
+ * Copyright (C) 2012-2014 Red Hat.
  *
  * This file is part of the "pcp" module, the python interfaces for the
  * Performance Co-Pilot toolkit.
@@ -27,11 +27,30 @@
 #include <pcp/pmafm.h>
 #include <pcp/pmtime.h>
 
+#if PY_MAJOR_VERSION >= 3
+#define MOD_ERROR_VAL NULL
+#define MOD_SUCCESS_VAL(val) val
+#define MOD_INIT(name) PyMODINIT_FUNC PyInit_##name(void)
+#define MOD_DEF(ob, name, doc, methods) \
+        static struct PyModuleDef moduledef = { \
+          PyModuleDef_HEAD_INIT, name, doc, -1, methods, }; \
+        ob = PyModule_Create(&moduledef);
+#else
+#define MOD_ERROR_VAL
+#define MOD_SUCCESS_VAL(val)
+#define MOD_INIT(name) void init##name(void)
+#define MOD_DEF(ob, name, doc, methods) \
+        ob = Py_InitModule3(name, methods, doc);
+#endif
+
 static void
 pmgui_dict_add(PyObject *dict, char *sym, long val)
 {
+#if PY_MAJOR_VERSION >= 3
+    PyObject *pyVal = PyLong_FromLong(val);
+#else
     PyObject *pyVal = PyInt_FromLong(val);
-
+#endif
     PyDict_SetItemString(dict, sym, pyVal);
     Py_XDECREF(pyVal);
 } 
@@ -39,12 +58,14 @@ pmgui_dict_add(PyObject *dict, char *sym, long val)
 static PyMethodDef methods[] = { { NULL } };
 
 /* called when the module is initialized. */ 
-void
-initcpmgui(void)
+MOD_INIT(cpmgui)
 {
     PyObject *module, *dict;
 
-    module = Py_InitModule("cpmgui", methods);
+    MOD_DEF(module, "cpmgui", NULL, methods);
+    if (module == NULL)
+	return MOD_ERROR_VAL;
+
     dict = PyModule_GetDict(module);
 
     /* pmafm.h */
@@ -56,4 +77,5 @@ initcpmgui(void)
 
     /* TODO: pmtime.h */
 
+    return MOD_SUCCESS_VAL(module);
 }

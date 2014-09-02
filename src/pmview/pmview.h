@@ -21,16 +21,16 @@
 #include "ui_pmview.h"
 
 #include "qmc_time.h"
-#include "statusbar.h"
-#include "viewcontrol.h"
+#include "qed_statusbar.h"
+#include "qed_viewcontrol.h"
 
 class ModList;
 class SceneGroup;
 
-class View : public ViewControl
+class View : public QedViewControl
 {
 public:
-    View() : ViewControl() { };
+    View() : QedViewControl() { };
     virtual ~View() { };
 
     void init(SceneGroup *, QMenu *, QString);
@@ -87,7 +87,7 @@ public:
     virtual void timeZone(bool livemode, QmcTime::Packet *pmtime, char *tzdata);
     virtual void setDateLabel(QString label);
     virtual void setDateLabel(time_t seconds, QString tz);
-    virtual void setButtonState(TimeButton::State state);
+    virtual void setButtonState(QedTimeButton::State state);
     virtual void setRecordState(bool recording);
 
     virtual QMenu *createPopupMenu();
@@ -155,7 +155,7 @@ private:
 
 	QString text;
 	QString prevText;
-	StatusBar *statusBar;
+	QedStatusBar *statusBar;
     } my;
 };
 

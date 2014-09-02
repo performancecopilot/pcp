@@ -144,12 +144,11 @@ PCP_TMPFILE_DIR=@pcp_tmpfile_dir@
 
 # directory for PCP documentation
 # Standard path: /usr/share/doc/pcp
-# Subdirectories: Tutorial pcpweb ...
 PCP_DOC_DIR=@pcp_doc_dir@
+PCP_HTML_DIR=@pcp_html_dir@
 
 # directory for PCP demos and examples
 # Standard path: /usr/share/pcp/demos
-# Subdirectories: assorted
 PCP_DEMOS_DIR=@pcp_demos_dir@
 
 # awk
@@ -202,3 +201,6 @@ PCP_GROUP=@pcp_group@
 # Standard path: /etc/sasl2
 PCP_SASLCONF_DIR=@pcp_saslconf_dir@
 
+# directory for systemd unit files
+# Standard path: /usr/lib/systemd/systemd
+PCP_SYSTEMDUNIT_DIR=@pcp_systemdunit_dir@

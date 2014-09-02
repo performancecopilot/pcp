@@ -53,6 +53,8 @@ pmchart
 pmdumptext
 # pmdumplog app
 pmdumplog
+# pmloglabel app
+pmloglabel
 # pmlogger app (not control scripts)
 pmlogger
 # pmie app, sample rules and friends
@@ -397,7 +399,7 @@ avahi
 133 pmlc pmlogger local oss pmdumplog
 134 pmlc pmlogger local oss pmdumplog
 135 pmlc archive local oss pmdumplog
-136 pmlogger local oss pmdumplog
+136 pmlogger local oss pmdumplog pmloglabel
 137 dbpmda local pmda.simple oss sanity
 138 pmns local oss
 139 pmlc local oss
@@ -588,7 +590,7 @@ avahi
 324 pmda.txmon pmda.proc local pmda.install oss
 325 libpcp local oss
 326 pmlogger pmval libpcp pmcd local pmda.install folio oss pmdumplog
-327 archive oss local pmdumplog
+327 archive oss local pmdumplog pmloglabel
 328 logutil local pmlogextract oss pmdumplog
 329:retired archive mem_leak local purify oss
 330:retired archive mem_leak local purify oss
@@ -718,7 +720,7 @@ avahi
 454 pmcd local oss
 455 pmda.rsyslog local flakey pmda.install oss
 456 logutil local #591459 folio oss pmlogextract
-457 pmda.logger pmda.install event local oss
+457 pmda.logger pmda.install event local flakey oss
 458 pmda.logger pmda.install event local oss
 459 pmlogreduce local oss valgrind
 460 pmlogextract local #598265 oss pmdumplog
@@ -933,12 +935,14 @@ avahi
 776 pmfind local oss
 779 pmda local oss
 780 pmwebapi local oss
+781 logutil local oss
 783 pmda.rpm local oss
 786 context context_local libpcp local oss
 787:reserved archive local oss pmie pmlogrewrite pmdumplog pmval
 798 pmda.nfsclient local oss
 815 pmie local oss
 823 pmda.sample pmstore secure local oss
+824 pmlogsummary local oss #1132476
 827 pmlogrewrite pmda.linux local oss
 828 valgrind archive context local oss
 829 python local oss
@@ -948,6 +952,7 @@ avahi
 833 archive context local oss
 834 pmie local oss
 835 pmda.memcache local oss
+836 pmlogsummary local oss
 840 avahi local oss
 841 pmda local oss
 842 python local oss
@@ -967,6 +972,7 @@ avahi
 946 pmfind avahi local oss
 950 avahi local oss
 957 pmda.linux local oss
+958 archive local oss
 962 archive local oss
 966 secure local oss
 972 pmda.zswap dbpmda local oss
@@ -976,8 +982,11 @@ avahi
 980 python local oss
 985 pmda.dmcache dbpmda local oss
 986 pmda.dmcache pmda.install local oss
+987 pmda.xfs local oss
+988 pmda.xfs local oss valgrind
 991 python local oss
 994 other verify oss
+1000 pmdumptext local sgi
 1001 pmchart local
 1002 pmchart local
 1003 pmchart local
@@ -985,11 +994,11 @@ avahi
 1005 pmchart local
 1006 pmchart local
 1007 pmchart local
-1008 libqmc local
-1009 libqmc local
-1010 libqmc local
-1011 libqmc local
-1012 libqmc local
+1008 pmdumptext libqmc local
+1009 pmdumptext libqmc local
+1010 pmdumptext pmlogger libqmc local
+1011 pmdumptext pmval libqmc local
+1012 pmdumptext libqmc local
 1013 libqmc local
 1014 libqmc local
 1015 libqmc local
@@ -1001,11 +1010,11 @@ avahi
 1021 libqmc local
 1022 pmdumptext local
 1023 pmdumptext local
-1025 pmdumptext local
+1025 pmdumptext pmlogger pmdumplog pmloglabel local
 1026 pmdumptext remote
-1027 pmdumptext local
+1027 pmdumptext local pmstore
 1028 pmdumptext local
-1029 libqmc local
+1029 libqmc local pmstore
 1044 pmie local pmieconf sgi sanity
 1045 pmie local pmieconf sgi
 1046 pmie local pmieconf sgi

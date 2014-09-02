@@ -2,43 +2,27 @@ Begin4
 Title:          Performance Co-Pilot
 Version:        @PACKAGE_VERSION@
 Entered-date:   @PACKAGE_BUILD_DATE@
-Description:    A system performance monitoring infrastructure that is
-		distributed and extensible.
+Description:    Performance Co-Pilot (PCP) provides a framework and
+		services to support system-level performance monitoring
+		and management.  It presents a unifying abstraction for
+		all of the performance data in a system, and many tools
+		for interrogating, retrieving and processing that data.
 
-		Performance Co-Pilot (PCP) is a framework and services
-		to support system-level performance monitoring and
-		performance management.
+		PCP is a feature-rich, mature, extensible, cross-platform
+		toolkit supporting both live and retrospective analysis.
+		The distributed PCP architecture makes it especially
+		useful for those seeking centralized monitoring of
+		distributed processing.
 
-		The PCP open source release provides a unifying
-		abstraction for all of the interesting performance data
-		in a system, and allows client applications to easily
-		retrieve and process any subset of that data using a
-		single API.
-
-		A client-server architecture allows multiple clients to
-		monitor the same host, and a single client to monitor
-		multiple hosts (e.g. in a Beowulf cluster).  This
-		enables centralized monitoring of distributed
-		processing.
-
-		Archive logging and replay is integrated so a client
-		application can use the same API to process real-time
-		data from a host or historical data from an archive.
-
-		The framework supports APIs and configuration file
-		formats that enable the scope of performance monitoring
-		to be extended at all levels.
-
-		The architecture and services of the base PCP
-		infrastructure are especially attractive for those
-		tackling the harder system-level performance problems.
+		For more information and details on how to contribute to
+		the PCP project visit http://www.pcp.io
 
 Keywords:       performance, monitoring, system, status, distributed
-Author:         pcp@mail.performancecopilot.org (PCP Development Team)
-Maintained-by:  pcp@mail.performancecopilot.org (PCP Development Team)
-Primary-site:   ftp://ftp.performancecopilot.org/download/
+Author:         pcp@oss.sgi.com (PCP Development Team)
+Maintained-by:  pcp@oss.sgi.com (PCP Development Team)
+Primary-site:   ftp://ftp.pcp.io/download/
 Alternate-site:
-Original-site:  ftp://ftp.performancecopilot.org/download/
+Original-site:  ftp://ftp.pcp.io/download/
 Platforms:      Linux, MacOSX, Solaris, AIX, FreeBSD, Windows
 Copying-policy: GPL (libraries are LGPL)
 End

@@ -17,31 +17,12 @@ HEADERS = aboutdialog.h chartdialog.h exportdialog.h hostdialog.h \
 	  samplesdialog.h tabdialog.h tab.h tabwidget.h \
 	  chart.h console.h main.h namespace.h \
 	  colorbutton.h colorscheme.h qcolorpicker.h \
-	  fileiconprovider.h statusbar.h \
-	  timeaxis.h timebutton.h timecontrol.h \
+	  statusbar.h timeaxis.h timecontrol.h \
 	  groupcontrol.h gadget.h sampling.h tracing.h
 SOURCES = $(HEADERS:.h=.cpp) view.cpp
 LSRCFILES = $(QRCFILE) $(RCFILE) $(UIFILES) $(HEADERS) $(SOURCES) \
 	  $(PROJECT) $(DESKTOP) $(WRAPPER).in $(XMLFILE).in
-LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER) $(XMLFILE)
-
-ICONLINKS = aboutpcp.png aboutpmchart.png pmchart.png pmtime.png \
-	    document-close.png document-new.png document-open.png \
-	    document-print.png document-export.png document-properties.png \
-	    document-save.png emblem-system.png pmtime-close.png \
-	    edit-clear.png settings.png camera-video-close.png \
-	    archive.png computer.png camera-video.png system-search.png \
-	    process-stop.png go-jump.png go-previous.png toolusers.png \
-	    tab-close.png tab-new.png tab-edit.png zoom-in.png zoom-out.png \
-	    help-contents.png help-browser.png whatsthis.png \
-	    filearchive.png filefolder.png filegeneric.png filehtml.png \
-	    fileimage.png filepackage.png filespreadsheet.png fileview.png \
-	    filewordprocessor.png filefolio.png folio.png view.png logfile.png \
-	    play_live.png stop_live.png play_record.png stop_record.png \
-	    play_archive.png stop_archive.png back_archive.png \
-	    stepfwd_archive.png stepback_archive.png fastfwd_archive.png \
-	    fastback_archive.png \
-	    $(ICNFILE) $(ICOFILE)
+LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER) $(XMLFILE) images
 
 SUBDIRS = views
 
@@ -50,10 +31,12 @@ default: build-me
 include $(BUILDRULES)
 
 ifeq "$(ENABLE_QT)" "true"
-build-me: iconlinks wrappers $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
+build-me:: images wrappers
 	$(QTMAKE)
 	$(LNMAKE)
+
+build-me:: $(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
 
 ifeq ($(WINDOW),mac)
 PKG_MAC_DIR = /Applications/$(COMMAND).app/Contents
@@ -90,6 +73,7 @@ ifeq ($(WINDOW),mac)
 	$(INSTALL) -m 644 $(ICNFILE) $(PKG_MAC_DIR)/Resources/$(ICNFILE)
 	$(call INSTALL_QT_RESOURCES,$(PKG_MAC_DIR)/Resources)
 endif
+
 else
 build-me:
 install:
@@ -98,3 +82,6 @@ endif
 default_pcp:	default
 
 install_pcp:	install
+
+images:
+	$(LN_S) $(TOPDIR)/images images

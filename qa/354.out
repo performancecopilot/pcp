@@ -72,7 +72,6 @@ pmlogger processes:
 ps: pmlogger-pid-2 pmlogger -x 6 -h localhost
 
 files:
-MKTEMP
 MKTEMP.HOST.0
 MKTEMP.HOST.config
 MKTEMP.HOST.index
@@ -260,7 +259,6 @@ pmlogger processes:
 ps: pmlogger-pid-2 pmlogger -x 7 -h localhost
 
 files:
-MKTEMP
 MKTEMP.HOST.0
 MKTEMP.HOST.config
 MKTEMP.HOST.index

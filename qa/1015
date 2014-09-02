@@ -6,5 +6,7 @@ seq=`basename $0`
 echo "QA output created by $seq"
 . ./common.qt
 
+[ -x qt/qmc_indom/qmc_indom ] || _notrun "qmc_indom not built or installed"
+
 qt/qmc_indom/qmc_indom
 exit $?

@@ -16,7 +16,7 @@
    <string>New Chart</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="pmchart.qrc" >:/pmchart.png</iconset>
+   <iconset resource="pmchart.qrc" >:/images/pmchart.png</iconset>
   </property>
   <property name="sizeGripEnabled" >
    <bool>true</bool>
@@ -863,7 +863,7 @@
             <string/>
            </property>
            <property name="icon" >
-            <iconset resource="pmchart.qrc" >:/help-browser.png</iconset>
+            <iconset resource="pmchart.qrc" >:/images/help-browser.png</iconset>
            </property>
           </widget>
          </item>
@@ -912,7 +912,7 @@
             <string/>
            </property>
            <property name="icon" >
-            <iconset resource="pmchart.qrc" >:/system-search.png</iconset>
+            <iconset resource="pmchart.qrc" >:/images/system-search.png</iconset>
            </property>
           </widget>
          </item>
@@ -961,7 +961,7 @@
             <string/>
            </property>
            <property name="icon" >
-            <iconset resource="pmchart.qrc" >:/process-stop.png</iconset>
+            <iconset resource="pmchart.qrc" >:/images/process-stop.png</iconset>
            </property>
           </widget>
          </item>
@@ -1013,7 +1013,7 @@
             <string/>
            </property>
            <property name="icon" >
-            <iconset resource="pmchart.qrc" >:/go-previous.png</iconset>
+            <iconset resource="pmchart.qrc" >:/images/go-previous.png</iconset>
            </property>
           </widget>
          </item>
@@ -1142,12 +1142,12 @@
               <string/>
              </property>
              <property name="icon" >
-              <iconset resource="pmchart.qrc" >:/go-jump.png</iconset>
+              <iconset resource="pmchart.qrc" >:/images/go-jump.png</iconset>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QColorShowLabel" name="revertColorLabel" >
+            <widget class="QedColorShowLabel" name="revertColorLabel" >
              <property name="sizePolicy" >
               <sizepolicy>
                <hsizetype>0</hsizetype>
@@ -1196,7 +1196,7 @@
             </spacer>
            </item>
            <item>
-            <widget class="QColorShowLabel" name="applyColorLabel" >
+            <widget class="QedColorShowLabel" name="applyColorLabel" >
              <property name="sizePolicy" >
               <sizepolicy>
                <hsizetype>0</hsizetype>
@@ -1260,7 +1260,7 @@
               <string/>
              </property>
              <property name="icon" >
-              <iconset resource="pmchart.qrc" >:/go-previous.png</iconset>
+              <iconset resource="pmchart.qrc" >:/images/go-previous.png</iconset>
              </property>
             </widget>
            </item>
@@ -1275,7 +1275,7 @@
             <number>6</number>
            </property>
            <item>
-            <widget class="QColorPicker" name="colorPicker" >
+            <widget class="QedColorPicker" name="colorPicker" >
              <property name="sizePolicy" >
               <sizepolicy>
                <hsizetype>0</hsizetype>
@@ -1308,7 +1308,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QColorLuminancePicker" native="1" name="luminancePicker" >
+            <widget class="QedColorLuminancePicker" native="1" name="luminancePicker" >
              <property name="sizePolicy" >
               <sizepolicy>
                <hsizetype>0</hsizetype>
@@ -1415,7 +1415,7 @@
               </widget>
              </item>
              <item row="1" column="1" >
-              <widget class="QColSpinBox" name="rEd" >
+              <widget class="QedColSpinBox" name="rEd" >
                <property name="toolTip" >
                 <string>Red</string>
                </property>
@@ -1425,7 +1425,7 @@
               </widget>
              </item>
              <item row="1" column="5" >
-              <widget class="QColSpinBox" name="bEd" >
+              <widget class="QedColSpinBox" name="bEd" >
                <property name="toolTip" >
                 <string>Blue</string>
                </property>
@@ -1456,7 +1456,7 @@
               </widget>
              </item>
              <item row="1" column="3" >
-              <widget class="QColSpinBox" name="gEd" >
+              <widget class="QedColSpinBox" name="gEd" >
                <property name="toolTip" >
                 <string>Green</string>
                </property>
@@ -1508,7 +1508,7 @@
               </widget>
              </item>
              <item row="0" column="3" >
-              <widget class="QColSpinBox" name="sEd" >
+              <widget class="QedColSpinBox" name="sEd" >
                <property name="toolTip" >
                 <string>Saturation</string>
                </property>
@@ -1518,7 +1518,7 @@
               </widget>
              </item>
              <item row="0" column="1" >
-              <widget class="QColSpinBox" name="hEd" >
+              <widget class="QedColSpinBox" name="hEd" >
                <property name="toolTip" >
                 <string>Hue</string>
                </property>
@@ -1531,7 +1531,7 @@
               </widget>
              </item>
              <item row="0" column="5" >
-              <widget class="QColSpinBox" name="vEd" >
+              <widget class="QedColSpinBox" name="vEd" >
                <property name="toolTip" >
                 <string>Value</string>
                </property>
@@ -1600,7 +1600,7 @@
             </widget>
            </item>
            <item row="0" column="1" >
-            <widget class="QColLineEdit" name="colorLineEdit" >
+            <widget class="QedColLineEdit" name="colorLineEdit" >
              <property name="sizePolicy" >
               <sizepolicy>
                <hsizetype>0</hsizetype>
@@ -1843,35 +1843,35 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QColorShowLabel</class>
+   <class>QedColorShowLabel</class>
    <extends>QFrame</extends>
-   <header>qcolorpicker.h</header>
+   <header>qed_colorpicker.h</header>
   </customwidget>
   <customwidget>
-   <class>QColLineEdit</class>
+   <class>QedColLineEdit</class>
    <extends>QLineEdit</extends>
-   <header>qcolorpicker.h</header>
+   <header>qed_colorpicker.h</header>
   </customwidget>
   <customwidget>
-   <class>QColSpinBox</class>
+   <class>QedColSpinBox</class>
    <extends>QSpinBox</extends>
-   <header>qcolorpicker.h</header>
+   <header>qed_colorpicker.h</header>
   </customwidget>
   <customwidget>
-   <class>QColorLuminancePicker</class>
+   <class>QedColorLuminancePicker</class>
    <extends>QWidget</extends>
-   <header>qcolorpicker.h</header>
+   <header>qed_colorpicker.h</header>
   </customwidget>
   <customwidget>
-   <class>QColorPicker</class>
+   <class>QedColorPicker</class>
    <extends>QFrame</extends>
-   <header>qcolorpicker.h</header>
+   <header>qed_colorpicker.h</header>
   </customwidget>
  </customwidgets>
  <includes>
   <include location="local" >chart.h</include>
   <include location="local" >namespace.h</include>
-  <include location="local" >qcolorpicker.h</include>
+  <include location="local" >qed_colorpicker.h</include>
  </includes>
  <resources>
   <include location="pmchart.qrc" />

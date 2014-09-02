@@ -40,12 +40,11 @@ using namespace std;
 
 #include "main.h"
 #include "pmview.h"
-#include "console.h"
-#include "version.h"
-#include "statusbar.h"
 #include "scenegroup.h"
-#include "timecontrol.h"
-#include "recorddialog.h"
+#include "qed_console.h"
+#include "qed_statusbar.h"
+#include "qed_timecontrol.h"
+#include "qed_recorddialog.h"
 
 QString		theConfigName;
 QString		theAltConfigName;
@@ -65,7 +64,7 @@ PmView::PmView() : QMainWindow(NULL)
     SoQt::init(widget);
     my.viewer = new SoQtExaminerViewer(widget);
 
-    my.statusBar = new StatusBar;
+    my.statusBar = new QedStatusBar;
     setStatusBar(my.statusBar);
 
     toolBar->setAllowedAreas(Qt::RightToolBarArea | Qt::TopToolBarArea);
@@ -269,7 +268,7 @@ void PmView::updateToolbarOrientation(Qt::Orientation orientation)
 	// TODO
 }
 
-void PmView::setButtonState(TimeButton::State state)
+void PmView::setButtonState(QedTimeButton::State state)
 {
     my.statusBar->timeButton()->setButtonState(state);
 }
@@ -575,7 +574,7 @@ void PmView::setEnabledActionsList(QStringList tools, bool redisplay)
 void View::init(SceneGroup *group, QMenu *menu, QString title)
 {
     my.group = group;
-    ViewControl::init(group, menu, title, globalSettings.loggerDelta);
+    QedViewControl::init(group, menu, title, globalSettings.loggerDelta);
 }
 
 QStringList View::hostList(bool)
@@ -679,7 +678,7 @@ bool View::stopRecording()
 bool View::queryRecording(void)
 {
     QString errmsg;
-    bool error = ViewControl::queryRecording(errmsg);
+    bool error = QedViewControl::queryRecording(errmsg);
 
     if (error) {
 	pmview->setRecordState(false);
@@ -693,7 +692,7 @@ bool View::queryRecording(void)
 bool View::detachLoggers(void)
 {
     QString errmsg;
-    bool error = ViewControl::detachLoggers(errmsg);
+    bool error = QedViewControl::detachLoggers(errmsg);
 
     if (error) {
 	pmview->setRecordState(false);

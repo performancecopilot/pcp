@@ -1,0 +1,45 @@
+#!/bin/sh
+# PCP QA Test No. 988
+# Test XFS PMDA with valgrind for many PDU types.
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+[ $PCP_PLATFORM = linux ] || _notrun "XFS PMDA is Linux-specific (uses procfs)"
+
+status=1
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+root=$tmp.root
+export XFS_STATSPATH=$root
+pmda=$PCP_PMDAS_DIR/xfs/pmda_xfs,xfs_init
+
+for tgz in $here/linux/xfs-*.tgz
+do
+    [ $tgz = "linux/xfs-*" ] && continue
+
+    $sudo rm -fr $root
+    mkdir $root || _fail "root in use when processing $tgz"
+    cd $root
+    tar xzf $tgz
+    base=`basename $tgz`
+
+    echo "== Valgrind checking metric descriptors and values - $base"
+    _run_valgrind pminfo -L -K clear -K add,11,$pmda -dfmtT xfs 2>&1
+    echo && echo "== done" && echo
+    cd $here
+done
+
+# success, all done
+status=0
+exit

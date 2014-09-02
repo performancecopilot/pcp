@@ -17,18 +17,25 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
+# archive with the latest and greatest mysql pmda installed ...
+# see archives/mk-mysql.sh for a recipe to recreate
+#
+NEWARCHIVE=archives/mysql-1
+
 # real QA test starts here
 cat >$tmp.config <<End-of-File
 metric mysql.status.connections { sem -> instant units -> 0,0,0,0,0,0 }
+metric mysql.status.uptime_since_flush_status { sem -> counter }
+metric mysql.status.uptime { sem -> counter }
 End-of-File
 
-pmlogrewrite -c $tmp.config -w src/new_mysql $tmp.old
+pmlogrewrite -c $tmp.config -w $NEWARCHIVE $tmp.old
 
 pmlogrewrite -c $PCP_VAR_DIR/config/pmlogrewrite/mysql_migrate.conf -w $tmp.old $tmp.new
 
 pmdumplog -a $tmp.old >$tmp.old.dump
 pmdumplog -a $tmp.new >$tmp.new.dump
-pmdumplog -a src/new_mysql >$tmp.ref.dump
+pmdumplog -a $NEWARCHIVE >$tmp.ref.dump
 
 echo "old -> new changes"
 diff -u $tmp.old.dump $tmp.new.dump | sed -e '/^---/d' -e '/^+++/d'

@@ -72,6 +72,12 @@ Obsoletes: pcp-pmda-nvidia
 %if 0%{?fedora} >= 20
 %define _with_doc --with-docdir=%{_docdir}/%{name}
 %endif
+%if 0%{?fedora} >= 19 || 0%{?rhel} >= 7}
+%define _with_initd --with-rcdir=%{_initddir}
+%define disable_systemd 0
+%else
+%define disable_systemd 1
+%endif
 
 # we never want Infiniband on s390 platforms
 %ifarch s390 s390x
@@ -413,7 +419,7 @@ PCP utilities and daemons, and the PCP graphical tools.
 rm -Rf $RPM_BUILD_ROOT
 
 %build
-%configure --with-rcdir=%{_initddir} %{?_with_doc} %{?_with_ib} %{?_with_qt}
+%configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_qt}
 make default_pcp
 
 %install
@@ -454,11 +460,13 @@ rm -rf $RPM_BUILD_ROOT/usr/share/doc/pcp-gui
 desktop-file-validate $RPM_BUILD_ROOT/%{_datadir}/applications/pmchart.desktop
 %endif
 
+%if %{disable_systemd}
 # default chkconfig off for Fedora and RHEL
 for f in $RPM_BUILD_ROOT/%{_initddir}/{pcp,pmcd,pmlogger,pmie,pmwebd,pmmgr,pmproxy}; do
 	test -f "$f" || continue
 	sed -i -e '/^# chkconfig/s/:.*$/: - 95 05/' -e '/^# Default-Start:/s/:.*$/:/' $f
 done
+%endif
 
 # list of PMDAs in the base pkg
 ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
@@ -559,33 +567,54 @@ exit 0
 %preun webapi
 if [ "$1" -eq 0 ]
 then
+%if !%{disable_systemd}
+    systemctl --no-reload disable pmwebd.service >/dev/null 2>&1
+    systemctl stop pmwebd.service >/dev/null 2>&1
+%else
     /sbin/service pmwebd stop >/dev/null 2>&1
     /sbin/chkconfig --del pmwebd >/dev/null 2>&1
+%endif
 fi
 %endif
 
 %preun manager
 if [ "$1" -eq 0 ]
 then
+%if !%{disable_systemd}
+    systemctl --no-reload disable pmmgr.service >/dev/null 2>&1
+    systemctl stop pmmgr.service >/dev/null 2>&1
+%else
     /sbin/service pmmgr stop >/dev/null 2>&1
     /sbin/chkconfig --del pmmgr >/dev/null 2>&1
+%endif
 fi
 
 %preun
 if [ "$1" -eq 0 ]
 then
     # stop daemons before erasing the package
-    /sbin/service pmlogger stop >/dev/null 2>&1
-    /sbin/service pmie stop >/dev/null 2>&1
-    /sbin/service pmproxy stop >/dev/null 2>&1
-    /sbin/service pmcd stop >/dev/null 2>&1
+    %if !%{disable_systemd}
+	systemctl --no-reload disable pmlogger.service >/dev/null 2>&1
+	systemctl --no-reload disable pmie.service >/dev/null 2>&1
+	systemctl --no-reload disable pmproxy.service >/dev/null 2>&1
+	systemctl --no-reload disable pmcd.service >/dev/null 2>&1
 
-    /sbin/chkconfig --del pcp >/dev/null 2>&1
-    /sbin/chkconfig --del pmcd >/dev/null 2>&1
-    /sbin/chkconfig --del pmlogger >/dev/null 2>&1
-    /sbin/chkconfig --del pmie >/dev/null 2>&1
-    /sbin/chkconfig --del pmproxy >/dev/null 2>&1
+	systemctl stop pmlogger.service >/dev/null 2>&1
+	systemctl stop pmie.service >/dev/null 2>&1
+	systemctl stop pmproxy.service >/dev/null 2>&1
+	systemctl stop pmcd.service >/dev/null 2>&1
+    %else
+	/sbin/service pmlogger stop >/dev/null 2>&1
+	/sbin/service pmie stop >/dev/null 2>&1
+	/sbin/service pmproxy stop >/dev/null 2>&1
+	/sbin/service pmcd stop >/dev/null 2>&1
 
+	/sbin/chkconfig --del pcp >/dev/null 2>&1
+	/sbin/chkconfig --del pmcd >/dev/null 2>&1
+	/sbin/chkconfig --del pmlogger >/dev/null 2>&1
+	/sbin/chkconfig --del pmie >/dev/null 2>&1
+	/sbin/chkconfig --del pmproxy >/dev/null 2>&1
+    %endif
     # cleanup namespace state/flag, may still exist
     PCP_PMNS_DIR=%{_pmnsdir}
     rm -f "$PCP_PMNS_DIR/.NeedRebuild" >/dev/null 2>&1
@@ -594,14 +623,22 @@ fi
 %if !%{disable_microhttpd}
 %post webapi
 chown -R pcp:pcp %{_logsdir}/pmwebd 2>/dev/null
-/sbin/chkconfig --add pmwebd >/dev/null 2>&1
-/sbin/service pmwebd condrestart
+%if !%{disable_systemd}
+    systemctl condrestart pmwebd.service >/dev/null 2>&1
+%else
+    /sbin/chkconfig --add pmwebd >/dev/null 2>&1
+    /sbin/service pmwebd condrestart
+%endif
 %endif
 
 %post manager
 chown -R pcp:pcp %{_logsdir}/pmmgr 2>/dev/null
-/sbin/chkconfig --add pmmgr >/dev/null 2>&1
-/sbin/service pmmgr condrestart
+%if !%{disable_systemd}
+    systemctl condrestart pmmgr.service >/dev/null 2>&1
+%else
+    /sbin/chkconfig --add pmmgr >/dev/null 2>&1
+    /sbin/service pmmgr condrestart
+%endif
 
 %post
 PCP_LOG_DIR=%{_logsdir}
@@ -640,14 +677,21 @@ chown -R pcp:pcp %{_logsdir}/pmie 2>/dev/null
 chown -R pcp:pcp %{_logsdir}/pmproxy 2>/dev/null
 touch "$PCP_PMNS_DIR/.NeedRebuild"
 chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
-/sbin/chkconfig --add pmcd >/dev/null 2>&1
-/sbin/service pmcd condrestart
-/sbin/chkconfig --add pmlogger >/dev/null 2>&1
-/sbin/service pmlogger condrestart
-/sbin/chkconfig --add pmie >/dev/null 2>&1
-/sbin/service pmie condrestart
-/sbin/chkconfig --add pmproxy >/dev/null 2>&1
-/sbin/service pmproxy condrestart
+%if !%{disable_systemd}
+    systemctl condrestart pmcd.service >/dev/null 2>&1
+    systemctl condrestart pmlogger.service >/dev/null 2>&1
+    systemctl condrestart pmie.service >/dev/null 2>&1
+    systemctl condrestart pmproxy.service >/dev/null 2>&1
+%else
+    /sbin/chkconfig --add pmcd >/dev/null 2>&1
+    /sbin/service pmcd condrestart
+    /sbin/chkconfig --add pmlogger >/dev/null 2>&1
+    /sbin/service pmlogger condrestart
+    /sbin/chkconfig --add pmie >/dev/null 2>&1
+    /sbin/service pmie condrestart
+    /sbin/chkconfig --add pmproxy >/dev/null 2>&1
+    /sbin/service pmproxy condrestart
+%endif
 
 %post libs -p /sbin/ldconfig
 %postun libs -p /sbin/ldconfig
@@ -678,18 +722,20 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %attr(0775,pcp,pcp) %{_logsdir}/pmie
 %attr(0775,pcp,pcp) %{_logsdir}/pmproxy
 %{_localstatedir}/lib/pcp/pmns
+%if %{disable_systemd}
 %{_initddir}/pcp
 %{_initddir}/pmcd
 %{_initddir}/pmlogger
 %{_initddir}/pmie
 %{_initddir}/pmproxy
+%endif
 %{_mandir}/man5/*
 %config(noreplace) %{_sysconfdir}/sasl2/pmcd.conf
 %config(noreplace) %{_sysconfdir}/cron.d/pcp-pmlogger
 %config(noreplace) %{_sysconfdir}/cron.d/pcp-pmie
 %config %{_sysconfdir}/bash_completion.d/pcp
 %config %{_sysconfdir}/pcp.env
-%{_sysconfdir}/pcp.sh
+%config %{_sysconfdir}/pcp.sh
 %dir %{_confdir}/pmcd
 %config(noreplace) %{_confdir}/pmcd/pmcd.conf
 %config(noreplace) %{_confdir}/pmcd/pmcd.options
@@ -759,7 +805,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %if !%{disable_microhttpd}
 %files webapi
 %defattr(-,root,root)
+%if %{disable_systemd}
 %{_initddir}/pmwebd
+%endif
 %{_libexecdir}/pcp/bin/pmwebd
 %attr(0775,pcp,pcp) %{_logsdir}/pmwebd
 %{_confdir}/pmwebd
@@ -770,7 +818,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %files manager
 %defattr(-,root,root)
+%if %{disable_systemd}
 %{_initddir}/pmmgr
+%endif
 %{_libexecdir}/pcp/bin/pmmgr
 %attr(0775,pcp,pcp) %{_logsdir}/pmmgr
 %{_confdir}/pmmgr
@@ -839,6 +889,8 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %changelog
 * Fri Sep 05 2014 Nathan Scott <nathans@redhat.com> - 3.9.10-1
+- Convert PCP init scripts to systemd services (BZ 996438)
+- Resolve pmdumptext segfault with invalid host (BZ 1131779)
 - Update to latest PCP sources.
 
 * Wed Aug 13 2014 Nathan Scott <nathans@redhat.com> - 3.9.9-1

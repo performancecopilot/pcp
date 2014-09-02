@@ -22,9 +22,6 @@ SPEC = pcp.spec
 LDIRT += *-[0-9]*.*.rpm $(SPEC) rpmmacros
 
 PERLFILES = pcp-pmda-perl.desc pcp-logsummary-perl.desc pcp-mmv-perl.desc
-LSRCFILES = macros.template fedora.spec pcp.spec.in $(PERLFILES) \
-	    filter-requires get_rpm_version
-
 RPM_VERSION=$(shell ./get_rpm_version)
 
 default install install_pcp default_pcp :
@@ -71,6 +68,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@enable_probes@|$(ENABLE_PROBES)|g' \
 	    -e's|@enable_avahi@|$(ENABLE_AVAHI)|g' \
 	    -e's|@enable_qt@|$(ENABLE_QT)|g' \
+	    -e's|@enable_systemd@|$(ENABLE_SYSTEMD)|g' \
 	    -e"s|@build_root@|$${DIST_ROOT}|g" \
 	    -e's|@pcp_sysconf_dir@|$(PCP_SYSCONF_DIR)|g' \
 	    -e's|@pcp_log_dir@|$(PCP_LOG_DIR)|g' \

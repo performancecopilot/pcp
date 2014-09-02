@@ -81,15 +81,6 @@ else
 endif
 endif
 
-ifdef ICONLINKS
-iconlinks:
-	@for l in $(ICONLINKS) ; do \
-	    if [ ! -L $$l -a ! -f $$l ] ; then \
-		$(LN_S) $(TOPDIR)/images/$$l $$l ; \
-	    fi \
-	done
-endif
-
 ifdef WINDOWLINKS
 windowlinks:
 	@for l in $(WINDOWLINKS) ; do \

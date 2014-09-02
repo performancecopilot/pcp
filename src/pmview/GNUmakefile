@@ -21,30 +21,24 @@ CLASSES = main.h pmview.h colorlist.h \
 	  yscalemod.h pcpcolor.h launch.h
 SOURCES = $(CLASSES:.h=.cpp) error.cpp
 HEADERS = $(CLASSES) modobj.h
-ICONLINKS = aboutpcp.png aboutqt.png pmview.png pmtime.png whatsthis.png \
-	    document-print.png help-browser.png help-contents.png \
-	    play_live.png stop_live.png play_record.png stop_record.png \
-	    play_archive.png stop_archive.png back_archive.png \
-	    stepfwd_archive.png stepback_archive.png fastfwd_archive.png \
-	    fastback_archive.png \
-	    $(ICNFILE) $(ICOFILE)
 GENERATED = gram.cpp lex.cpp 
 LFILES = lex.l
 YFILES = gram.y
-LSRCFILES = $(PROJECT).in $(QRCFILE) $(UIFILES) $(HEADERS) $(SOURCES) \
-	  $(DESKTOP) $(WRAPPER).IN $(XMLFILE).in
-LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER) $(XMLFILE) $(GENERATED) gram.h y.tab.?
+LDIRT = $(COMMAND) $(WRAPPER) $(XMLFILE) $(GENERATED) gram.h y.tab.? images
 
 SUBDIRS = front-ends
 
-default: iconlinks wrappers $(GENERATED)
-	$(SUBDIRS_MAKERULE)
-	$(QTMAKE)
-	$(LNMAKE)
+default: build-me
 
 include $(BUILDRULES)
 
-$(COMMAND):	../libapp/libapp.a
+ifeq "$(ENABLE_QT)" "true"
+build-me:: images wrappers $(GENERATED)
+	$(QTMAKE)
+	$(LNMAKE)
+
+build-me:: $(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
 
 lex.cpp:	lex.l
 	$(LEX) -t lex.l > $@
@@ -91,3 +85,15 @@ ifeq ($(WINDOW),mac)
 	$(INSTALL) -m 755 -d $(PKG_MAC_DIR)/Resources
 	$(INSTALL) -m 644 $(MACBUILD)/Resources/$(ICNFILE) $(PKG_MAC_DIR)/Resources/$(ICNFILE)
 endif
+
+else
+build-me:
+install:
+endif
+
+default_pcp:	default
+
+install_pcp:	install
+
+images:
+	$(LN_S) $(TOPDIR)/images images

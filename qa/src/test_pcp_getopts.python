@@ -49,65 +49,65 @@ options.pmSetLongOptionHelp()
 ctx = c_api.PM_ERR_NOCONTEXT
 try:
     ctx = pmapi.pmContext.fromOptions(options, system.argv)
-except pmapi.pmUsageErr, usage:
+except pmapi.pmUsageErr as usage:
     usage.message()
     system.exit(1)
-except pmapi.pmErr, error:
-    print error
+except pmapi.pmErr as error:
+    print(error)
 
 nonoptions = options.pmNonOptionsFromList(system.argv)
 if nonoptions != None:
-    print "Non-option arguments:", nonoptions
+    print("Non-option arguments: %s" % nonoptions)
 
 # for host and archive lists exercise the creation of multiple contexts
 hosts = options.pmGetOptionHosts()
 if hosts != None:
-    print "Host list:", hosts
-    print "Host", hosts[0], "pmcd.hostname:", ctx.pmGetContextHostName()
+    print("Host list: %s" % hosts)
+    print("Host %s pmcd.hostname: %s" % (hosts[0], ctx.pmGetContextHostName()))
     if len(hosts) > 1:
         typed = c_api.PM_CONTEXT_HOST
         for index in range(1, len(hosts)):
             try:
                 ctx = pmapi.pmContext.fromOptions(options, system.argv, typed, index)
-                print "Host", hosts[index], "pmcd.hostname:", ctx.pmGetContextHostName()
-            except pmapi.pmErr, error:
-                print "pmContext failed for host", hosts[index], "-", error
+                print("Host %s pmcd.hostname: %s" % (hosts[index], ctx.pmGetContextHostName()))
+            except pmapi.pmErr as error:
+                print("pmContext failed for host %s - %s" %s (hosts[index], error))
 
 archives = options.pmGetOptionArchives()
 if archives != None:
-    print "Archive list:", archives
-    print "Archive", archives[0], "hostname:", ctx.pmGetContextHostName()
+    print("Archive list: %s" % archives)
+    print("Archive %s hostname: %s" % (archives[0], ctx.pmGetContextHostName()))
     if len(archives) > 1:
         typed = c_api.PM_CONTEXT_ARCHIVE
         for index in range(1, len(archives)):
             try:
                 ctx = pmapi.pmContext.fromOptions(options, system.argv, typed, index)
-                print "Archive", archives[index], "hostname:", ctx.pmGetContextHostName()
-            except pmapi.pmErr, error:
-                print "pmContext failed for archive", archives[index], "-", error
+                print("Archive %s hostname: %s" % (archives[index], ctx.pmGetContextHostName()))
+            except pmapi.pmErr as error:
+                print("pmContext failed for archive %s - %s" % (archives[index], error))
 
 timezone = options.pmGetOptionTimezone()
 if timezone != None:
-    print "Timezone:", timezone
+    print("Timezone: %s" % timezone)
 
 samples = options.pmGetOptionSamples()
 if samples != None:
-    print "Samples:", samples
+    print("Samples: %d" % samples)
 
 interval = options.pmGetOptionInterval()
 if interval != None:
-    print "Interval:", interval
+    print("Interval: %s" % interval)
 
 start = options.pmGetOptionStart()
 if start != None:
-    print "Start:", start
+    print("Start: %s" % start)
 
 finish = options.pmGetOptionFinish()
 if finish != None:
-    print "Finish:", finish
+    print("Finish: %s" % finish)
 
 origin = options.pmGetOptionOrigin()
 if origin != None:
-    print "Origin:", origin
+    print("Origin: %s" % origin)
 
-print "Done!"
+print("Done!")

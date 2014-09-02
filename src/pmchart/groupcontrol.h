@@ -24,7 +24,7 @@
 #include <qmc_group.h>
 #include <qmc_time.h>
 #include "gadget.h"
-#include "timebutton.h"
+#include "qed_timebutton.h"
 
 class GroupControl : public QObject, public QmcGroup
 {
@@ -57,7 +57,7 @@ public:
     void updateTimeAxis(void);
     void updateTimeAxis(time_t secs);
 
-    TimeButton::State buttonState();
+    QedTimeButton::State buttonState();
     QmcTime::State pmtimeState();
     void newButtonState(QmcTime::State, QmcTime::Mode, bool);
 
@@ -97,7 +97,7 @@ private:
 	int samples;			// -s total number of samples
 	double *timeData;		// time array (intervals)
 
-	TimeButton::State buttonState;
+	QedTimeButton::State buttonState;
 	QmcTime::Source pmtimeSource;	// reliable archive/host test
 	QmcTime::State pmtimeState;
 	State timeState;

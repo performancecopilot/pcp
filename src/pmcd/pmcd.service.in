@@ -1,0 +1,14 @@
+[Unit]
+Description=Performance Metrics Collector Daemon
+Documentation=man:pmcd(8)
+Wants=avahi-daemon.service
+After=local-fs.target network.target avahi-daemon.service
+ 
+[Service]
+Type=oneshot
+ExecStart=@path@/pmcd start
+ExecStop=@path@/pmcd stop
+RemainAfterExit=yes 
+ 
+[Install]
+WantedBy=multi-user.target

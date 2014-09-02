@@ -165,8 +165,10 @@ fi
 
 # pmdumptext - simple with -a or -h
 #
-sed -e 's/]//' -e 's/\[/ /' <$tmp.all \
-	| $PCP_AWK_PROG '
+if which pmdumptext >/dev/null 2>&1
+then
+    sed -e 's/]//' -e 's/\[/ /' <$tmp.all \
+	    | $PCP_AWK_PROG '
 BEGIN		{ printf "pmdumptext -s 2 -t 1sec '"$src"'" }
 $1 != metric	{ if (NR > 1) {
 		    print "]"
@@ -184,33 +186,38 @@ $1 != metric	{ if (NR > 1) {
 		    printf ",%s",$2
 		}
 END		{ print "]"
-		}' >$tmp.config
-$very_verbose && echo "pmdumptext cmd ..." && cat $tmp.config
-cat $tmp.config | sh >$tmp.out 2>&1
-ok=`grep '^[A-Z][a-z][a-z] [A-Z][a-z][a-z]' $tmp.out | wc -l | sed -e 's/ //g'`
-if [ "$ok" -eq 2 ]
-then
-	$verbose && echo "pmdumptext (simple) OK"
+		    }' >$tmp.config
+    $very_verbose && echo "pmdumptext cmd ..." && cat $tmp.config
+    cat $tmp.config | sh >$tmp.out 2>&1
+    ok=`grep '^[A-Z][a-z][a-z] [A-Z][a-z][a-z]' $tmp.out | wc -l | sed -e 's/ //g'`
+    if [ "$ok" -eq 2 ]
+    then
+	    $verbose && echo "pmdumptext (simple) OK"
+    else
+	    echo "pmdumptext (simple) FAILED"
+	    echo "pmdumptext cmd:"
+	    cat $tmp.config
+	    cat $tmp.out
+	    status=1
+    fi
 else
-	echo "pmdumptext (simple) FAILED"
-	echo "pmdumptext cmd:"
-	cat $tmp.config
-	cat $tmp.out
-	status=1
+    echo "pmdumptext skipped, no binary installed"
 fi
 
 # pmdumptext - extended notation ...
 # myhost:kernel.all.cpu.idle[cpu0,cpu3]
 # /path/to/myarchive/kernel.all.cpu.idle[cpu1]
 #
-if [ -n "$host" ]
+if which pmdumptext >/dev/null 2>&1
 then
-	pfx="$host:"
-else
-	pfx="$archive/"
-fi
-sed -e 's/]//' -e 's/\[/ /' <$tmp.all \
-	| $PCP_AWK_PROG '
+    if [ -n "$host" ]
+    then
+	    pfx="$host:"
+    else
+	    pfx="$archive/"
+    fi
+    sed -e 's/]//' -e 's/\[/ /' <$tmp.all \
+	    | $PCP_AWK_PROG '
 BEGIN		{ printf "pmdumptext -s 2 -t 1sec" }
 $1 != metric	{ metric = $1
 		  first = 1
@@ -224,38 +231,44 @@ $1 != metric	{ metric = $1
 		    printf ",%s",$2
 		}
 END		{ print "]" }' >$tmp.config
-$very_verbose && echo "pmdumptext cmd ..." && cat $tmp.config
-cat $tmp.config | sh >$tmp.out 2>&1
-ok=`grep '^[A-Z][a-z][a-z] [A-Z][a-z][a-z]' $tmp.out | wc -l | sed -e 's/ //g'`
-if [ "$ok" -eq 2 ]
-then
-	$verbose && echo "pmdumptext (extended) OK"
-else
-	echo "pmdumptext (extended) FAILED"
-	echo "pmdumptext cmd:"
-	cat $tmp.config
-	cat $tmp.out
-	status=1
+    $very_verbose && echo "pmdumptext cmd ..." && cat $tmp.config
+    cat $tmp.config | sh >$tmp.out 2>&1
+    ok=`grep '^[A-Z][a-z][a-z] [A-Z][a-z][a-z]' $tmp.out | wc -l | sed -e 's/ //g'`
+    if [ "$ok" -eq 2 ]
+    then
+	    $verbose && echo "pmdumptext (extended) OK"
+    else
+	    echo "pmdumptext (extended) FAILED"
+	    echo "pmdumptext cmd:"
+	    cat $tmp.config
+	    cat $tmp.out
+	    status=1
+    fi
 fi
 
 # pmchart
 #
-echo "#pmchart" >$tmp.config
-echo "Version 2.0 host dynamic" >>$tmp.config
-echo "Chart Title "test" Style line" >>$tmp.config
-sed <$tmp.all >>$tmp.config \
-	-e 's/]//' \
-	-e 's/\[/ Instance /' \
-	-e 's/^/  Plot Color #-cycle Host * Metric /'
-$very_verbose && echo "pmchart config ..." && cat $tmp.config
-if pmchart -C -c $tmp.config $src
+if which pmchart >/dev/null 2>&1
 then
-	$verbose && echo "pmchart OK"
+    echo "#pmchart" >$tmp.config
+    echo "Version 2.0 host dynamic" >>$tmp.config
+    echo "Chart Title "test" Style line" >>$tmp.config
+    sed <$tmp.all >>$tmp.config \
+	    -e 's/]//' \
+	    -e 's/\[/ Instance /' \
+	    -e 's/^/  Plot Color #-cycle Host * Metric /'
+    $very_verbose && echo "pmchart config ..." && cat $tmp.config
+    if pmchart -C -c $tmp.config $src
+    then
+	    $verbose && echo "pmchart OK"
+    else
+	    echo "pmchart FAILED"
+	    echo "pmchart config:"
+	    cat $tmp.config
+	    status=1
+    fi
 else
-	echo "pmchart FAILED"
-	echo "pmchart config:"
-	cat $tmp.config
-	status=1
+    echo "pmchart skipped, no binary installed"
 fi
 
 # pmview

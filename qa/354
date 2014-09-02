@@ -108,7 +108,20 @@ echo
 
 $here/src/record foo no-1 1 $host localhost $host localhost 2>&1 >$tmp.out &
 sleep 10
-MKTEMP=`ls -d * | grep -v foo | grep -v '\.'`
+
+# We used to have the temp basename created and left over (this was a bug).
+# In fixing the bug we've made this test much harder ...
+# typical output from ls looks like
+# lZYiOHa.localhost.0
+# lZYiOH.localhost.0
+# and we need to extract lZYiOH not lZYiOHa
+#
+MKTEMP=`ls *.localhost.0 \
+        | tee -a $here/$seq.full \
+	| awk '{ print length($0),$0 }' \
+	| sort -n \
+	| sed -e 's/^[0-9][0-9]* //' -e 's/\.localhost\.0//' -e 1q`
+echo "MKTEMP=$MKTEMP" >>$here/$seq.full
 _build_sed $tmp.out
 _filter $tmp.out
 cat $tmp.out >>$here/$seq.full
@@ -185,7 +198,13 @@ echo
 
 $here/src/record `pwd`/foo no-2 0 $host localhost $host localhost 2>&1 >$tmp.out &
 sleep 10
-MKTEMP=`ls -d * | grep -v foo | grep -v '\.'`
+# see note above
+MKTEMP=`ls *.localhost.0 \
+        | tee -a $here/$seq.full \
+	| awk '{ print length($0),$0 }' \
+	| sort -n \
+	| sed -e 's/^[0-9][0-9]* //' -e 's/\.localhost\.0//' -e 1q`
+echo "MKTEMP=$MKTEMP" >>$here/$seq.full
 _build_sed $tmp.out
 cat $tmp.out >>$here/$seq.full
 _filter $tmp.out

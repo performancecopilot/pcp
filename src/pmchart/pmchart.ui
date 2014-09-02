@@ -20,7 +20,7 @@
   </property>
   <property name="windowIcon" >
    <iconset resource="pmchart.qrc" >
-    <normaloff>:/pmchart.png</normaloff>:/pmchart.png</iconset>
+    <normaloff>:/images/pmchart.png</normaloff>:/images/pmchart.png</iconset>
   </property>
   <property name="iconSize" >
    <size>
@@ -188,7 +188,7 @@
   <action name="fileOpenViewAction" >
    <property name="icon" >
     <iconset resource="pmchart.qrc" >
-     <normaloff>:/view.png</normaloff>:/view.png</iconset>
+     <normaloff>:/images/view.png</normaloff>:/images/view.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Open View...</string>
@@ -203,7 +203,7 @@
   <action name="fileSaveViewAction" >
    <property name="icon" >
     <iconset resource="pmchart.qrc" >
-     <normaloff>:/document-save.png</normaloff>:/document-save.png</iconset>
+     <normaloff>:/images/document-save.png</normaloff>:/images/document-save.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Save View ...</string>
@@ -218,7 +218,7 @@
   <action name="fileExportAction" >
    <property name="icon" >
     <iconset resource="pmchart.qrc" >
-     <normaloff>:/document-export.png</normaloff>:/document-export.png</iconset>
+     <normaloff>:/images/document-export.png</normaloff>:/images/document-export.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Export...</string>
@@ -233,7 +233,7 @@
   <action name="filePrintAction" >
    <property name="icon" >
     <iconset resource="pmchart.qrc" >
-     <normaloff>:/document-print.png</normaloff>:/document-print.png</iconset>
+     <normaloff>:/images/document-print.png</normaloff>:/images/document-print.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Print...</string>
@@ -259,7 +259,7 @@
   <action name="newPmchartAction" >
    <property name="icon" >
     <iconset resource="pmchart.qrc" >
-     <normaloff>:/pmchart.png</normaloff>:/pmchart.png</iconset>
+     <normaloff>:/images/pmchart.png</normaloff>:/images/pmchart.png</iconset>
    </property>
    <property name="text" >
     <string>New &amp;pmchart</string>
@@ -271,7 +271,7 @@
   <action name="showTimeControlAction" >
    <property name="icon" >
     <iconset resource="pmchart.qrc" >
-     <normaloff>:/pmtime.png</normaloff>:/pmtime.png</iconset>
+     <normaloff>:/images/pmtime.png</normaloff>:/images/pmtime.png</iconset>
    </property>
    <property name="text" >
     <string>Show Time</string>
@@ -280,7 +280,7 @@
   <action name="hideTimeControlAction" >
    <property name="icon" >
     <iconset resource="pmchart.qrc" >
-     <normaloff>:/pmtime-close.png</normaloff>:/pmtime-close.png</iconset>
+     <normaloff>:/images/pmtime-close.png</normaloff>:/images/pmtime-close.png</iconset>
    </property>
    <property name="text" >
     <string>Hide Time</string>
@@ -305,7 +305,7 @@
   <action name="editChartAction" >
    <property name="icon" >
     <iconset resource="pmchart.qrc" >
-     <normaloff>:/document-properties.png</normaloff>:/document-properties.png</iconset>
+     <normaloff>:/images/document-properties.png</normaloff>:/images/document-properties.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Chart...</string>
@@ -317,7 +317,7 @@
   <action name="editTabAction" >
    <property name="icon" >
     <iconset resource="pmchart.qrc" >
-     <normaloff>:/tab-edit.png</normaloff>:/tab-edit.png</iconset>
+     <normaloff>:/images/tab-edit.png</normaloff>:/images/tab-edit.png</iconset>
    </property>
    <property name="text" >
     <string>Tab...</string>
@@ -337,7 +337,7 @@
   <action name="editSettingsAction" >
    <property name="icon" >
     <iconset resource="pmchart.qrc" >
-     <normaloff>:/settings.png</normaloff>:/settings.png</iconset>
+     <normaloff>:/images/settings.png</normaloff>:/images/settings.png</iconset>
    </property>
    <property name="text" >
     <string>Preferences...</string>
@@ -349,7 +349,7 @@
   <action name="closeTabAction" >
    <property name="icon" >
     <iconset resource="pmchart.qrc" >
-     <normaloff>:/tab-close.png</normaloff>:/tab-close.png</iconset>
+     <normaloff>:/images/tab-close.png</normaloff>:/images/tab-close.png</iconset>
    </property>
    <property name="text" >
     <string>Close Tab</string>
@@ -364,7 +364,7 @@
   <action name="fileNewChartAction" >
    <property name="icon" >
     <iconset resource="pmchart.qrc" >
-     <normaloff>:/document-new.png</normaloff>:/document-new.png</iconset>
+     <normaloff>:/images/document-new.png</normaloff>:/images/document-new.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;New Chart...</string>
@@ -376,7 +376,7 @@
   <action name="addTabAction" >
    <property name="icon" >
     <iconset resource="pmchart.qrc" >
-     <normaloff>:/tab-new.png</normaloff>:/tab-new.png</iconset>
+     <normaloff>:/images/tab-new.png</normaloff>:/images/tab-new.png</iconset>
    </property>
    <property name="text" >
     <string>Add Tab...</string>
@@ -391,7 +391,7 @@
   <action name="closeChartAction" >
    <property name="icon" >
     <iconset resource="pmchart.qrc" >
-     <normaloff>:/document-close.png</normaloff>:/document-close.png</iconset>
+     <normaloff>:/images/document-close.png</normaloff>:/images/document-close.png</iconset>
    </property>
    <property name="text" >
     <string>Close Chart</string>
@@ -406,7 +406,7 @@
   <action name="zoomInAction" >
    <property name="icon" >
     <iconset resource="pmchart.qrc" >
-     <normaloff>:/zoom-in.png</normaloff>:/zoom-in.png</iconset>
+     <normaloff>:/images/zoom-in.png</normaloff>:/images/zoom-in.png</iconset>
    </property>
    <property name="text" >
     <string>Zoom &amp;In</string>
@@ -418,7 +418,7 @@
   <action name="zoomOutAction" >
    <property name="icon" >
     <iconset resource="pmchart.qrc" >
-     <normaloff>:/zoom-out.png</normaloff>:/zoom-out.png</iconset>
+     <normaloff>:/images/zoom-out.png</normaloff>:/images/zoom-out.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Zoom Out</string>
@@ -430,7 +430,7 @@
   <action name="helpManualAction" >
    <property name="icon" >
     <iconset resource="pmchart.qrc" >
-     <normaloff>:/help-contents.png</normaloff>:/help-contents.png</iconset>
+     <normaloff>:/images/help-contents.png</normaloff>:/images/help-contents.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Manual</string>
@@ -445,7 +445,7 @@
   <action name="helpAboutAction" >
    <property name="icon" >
     <iconset resource="pmchart.qrc" >
-     <normaloff>:/pmchart.png</normaloff>:/pmchart.png</iconset>
+     <normaloff>:/images/pmchart.png</normaloff>:/images/pmchart.png</iconset>
    </property>
    <property name="text" >
     <string>About</string>
@@ -476,7 +476,7 @@
   <action name="helpWhatsThisAction" >
    <property name="icon" >
     <iconset resource="pmchart.qrc" >
-     <normaloff>:/whatsthis.png</normaloff>:/whatsthis.png</iconset>
+     <normaloff>:/images/whatsthis.png</normaloff>:/images/whatsthis.png</iconset>
    </property>
    <property name="text" >
     <string>What's This</string>
@@ -491,7 +491,7 @@
   <action name="recordStartAction" >
    <property name="icon" >
     <iconset resource="pmchart.qrc" >
-     <normaloff>:/camera-video.png</normaloff>:/camera-video.png</iconset>
+     <normaloff>:/images/camera-video.png</normaloff>:/images/camera-video.png</iconset>
    </property>
    <property name="text" >
     <string>Start...</string>
@@ -505,7 +505,7 @@
   <action name="recordStopAction" >
    <property name="icon" >
     <iconset resource="pmchart.qrc" >
-     <normaloff>:/camera-video-close.png</normaloff>:/camera-video-close.png</iconset>
+     <normaloff>:/images/camera-video-close.png</normaloff>:/images/camera-video-close.png</iconset>
    </property>
    <property name="text" >
     <string>Stop</string>
@@ -528,7 +528,7 @@
   <include location="local" >qprinter.h</include>
   <include location="local" >qfiledialog.h</include>
   <include location="local" >timeaxis.h</include>
-  <include location="local" >timebutton.h</include>
+  <include location="local" >qed_timebutton.h</include>
   <include location="local" >timeaxis.h</include>
  </includes>
  <resources>

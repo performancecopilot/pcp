@@ -432,30 +432,14 @@ END		{ print count }'`
     $PCP_AWK_PROG < $tmp/log > $tmp/loggers '
 BEGIN		{ primary=0 }
 $1 == "0"	{ primary=$3; next }
-$3 == primary	{ offset = match($3, "/pmlogger/")
-		  if (offset != 0) {
-		    $3=substr($3, offset+10, length($3))
-		  } else {
-		    offset = match($3, "/pcplog/")
-		    if (offset != 0)
-		      $3=substr($3, offset+8, length($3))
-		  }
-		  printf "primary logger: %s\n\n",$3; exit }'
+$3 == primary	{ printf "primary logger: %s\n\n",$3; exit }'
 
     $PCP_AWK_PROG < $tmp/log >> $tmp/loggers '
 BEGIN		{ primary=0 }
 $1 == "0"	{ primary=$3; next }
 $1 == "1"	{ next }
 $3 == primary	{ next }
-	{ offset = match($3, "/pmlogger/")
-		  if (offset != 0) {
-		    $3=substr($3, offset+10, length($3))
-		  } else {
-		    offset = match($3, "/pcplog/")
-		    if (offset != 0)
-		      $3=substr($3, offset+8, length($3))
-		  }
-		  printf "%s: %s\n\n",$2,$3 }'
+		{ printf "%s: %s\n\n",$2,$3 }'
 else
     numloggers=0
 fi
@@ -490,9 +474,6 @@ then
 
     $PCP_AWK_PROG -v Pflag=$Pflag < $tmp/pmie '{
 	if (Pflag == "true") {
-	    offset = match($3, "/pmie/")
-	    if (offset != 0)
-		$3=substr($3, offset+6, length($3))
 	    printf "%s: %s (%u rules)\n\n",$2,$3,$4
 	    printf "evaluations true=%u false=%u unknown=%u (actions=%u)\n\n",$5,$6,$7,$8
 	    printf "expected evaluation rate=%.2f rules/sec\n\n",$9

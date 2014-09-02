@@ -9,7 +9,12 @@ ICONLINKS = pcpicon.png pmcharticon.png pmtimeicon.png stepfwd_on.png system-sea
 INSTFILES = $(shell echo $(ICONLINKS) $(ICOFILES) $(PNGFILES) | tr ' ' '\n' | sort -u)
 LDIRT = $(ICONLINKS)
 
-default: iconlinks
+default:
+	@for l in $(ICONLINKS) ; do \
+	    if [ ! -L $$l -a ! -f $$l ] ; then \
+		$(LN_S) $(TOPDIR)/images/$$l $$l ; \
+	    fi \
+	done
 
 include $(BUILDRULES)
 

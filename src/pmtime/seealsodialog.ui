@@ -27,7 +27,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="pmtime.qrc">
-    <normaloff>:/pmtime.png</normaloff>:/pmtime.png</iconset>
+    <normaloff>:/images/pmtime.png</normaloff>:/images/pmtime.png</iconset>
   </property>
   <layout class="QGridLayout">
    <property name="margin">
@@ -75,7 +75,7 @@
             </size>
            </property>
            <property name="pixmap">
-            <pixmap resource="pmtime.qrc">:/aboutpcp.png</pixmap>
+            <pixmap resource="pmtime.qrc">:/images/aboutpcp.png</pixmap>
            </property>
            <property name="scaledContents">
             <bool>false</bool>

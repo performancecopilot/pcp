@@ -32,7 +32,7 @@ TARGETS = $(CMDTARGET)
 
 LDOPTS	=
 LSRCFILES = Install Remove README help pmns root
-LLDLIBS	= $(PCP_PMDALIB) -lrt
+LLDLIBS = $(PCP_PMDALIB) $(LIB_FOR_RT)
 LCFLAGS = -I.
 
 LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so

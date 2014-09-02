@@ -144,6 +144,12 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
     }
 
     nf = scandir(dir, &files, scanfn, alphasort);
+#ifdef PCP_DEBUG
+    if (nf < 1 && (pmDebug & DBG_TRACE_LOG)) {
+	fprintf(stderr, "__pmLogFindLocalPorts: scandir() -> %d %s\n",
+		    nf, pmErrStr(oserror()));
+    }
+#endif
     if (nf == -1 && oserror() == ENOENT)
 	nf = 0;
     else if (nf == -1) {

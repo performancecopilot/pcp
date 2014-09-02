@@ -12,7 +12,7 @@ LOGGERS	= config.dkvis config.mpvis config.nfsvis config.osvis \
 
 LSRCFILES = $(VIEWS) $(LOGGERS) pmview-args
 
-default:
+default build-me:
 
 include $(BUILDRULES)
 

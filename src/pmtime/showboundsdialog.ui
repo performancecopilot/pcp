@@ -16,7 +16,7 @@
    <string>Archive Time Bounds</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="pmtime.qrc" >:/pmtime.png</iconset>
+   <iconset resource="pmtime.qrc" >:/images/pmtime.png</iconset>
   </property>
   <property name="whatsThis" >
    <string>The Archive Bounds dialog displays and allows modifications

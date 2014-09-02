@@ -21,7 +21,7 @@
 typedef struct {
     char		*baddr;	/* base address of the buffer */
     char		*bptr;	/* next location to be filled in the buffer */
-    pmEventRecord	*berp;	/* current record in buffer */
+    void		*berp;	/* current pmEvent[HighRes]Record in buffer */
     int			blen;	/* buffer size */
     int			bstate;
 } bufctl_t;
@@ -47,13 +47,13 @@ check_buf(bufctl_t *bp, int need)
 	if ((bp->baddr = (char *)realloc(bp->baddr, bp->blen)) == NULL)
 	    return -oserror();
 	bp->bptr = &bp->baddr[offset];
-	bp->berp = (pmEventRecord *)&bp->baddr[er_offset];
+	bp->berp = (void *)&bp->baddr[er_offset];
     }
     return 0;
 }
 
-int
-pmdaEventNewArray(void)
+static int
+event_array(void)
 {
     int		i;
 
@@ -74,8 +74,27 @@ pmdaEventNewArray(void)
     bufs[i].bptr = bufs[i].baddr = NULL;
     bufs[i].blen = 0;
     bufs[i].bstate = B_INUSE;
-    pmdaEventResetArray(i);
     return i;
+}
+
+int
+pmdaEventNewArray(void)
+{
+    int		sts = event_array();
+
+    if (sts >= 0)
+	pmdaEventResetArray(sts);
+    return sts;
+}
+
+int
+pmdaEventNewHighResArray(void)
+{
+    int		sts = event_array();
+
+    if (sts >= 0)
+	pmdaEventResetHighResArray(sts);
+    return sts;
 }
 
 /* prepare to reuse an array */
@@ -98,6 +117,25 @@ pmdaEventResetArray(int idx)
     return 0;
 }
 
+int
+pmdaEventResetHighResArray(int idx)
+{
+    bufctl_t		*bp;
+    pmHighResEventArray	*hreap;
+    int			sts;
+
+    if (idx < 0 || idx >= nbuf || bufs[idx].bstate == B_FREE)
+	return PM_ERR_NOCONTEXT;
+    bp = &bufs[idx];
+    if ((sts = check_buf(bp, sizeof(*hreap) - sizeof(pmHighResEventRecord))) < 0)
+	return sts;
+
+    hreap = (pmHighResEventArray *)bp->baddr;
+    hreap->ea_nrecords = 0;
+    bp->bptr = bp->baddr + sizeof(*hreap) - sizeof(pmHighResEventRecord);
+    return 0;
+}
+
 /* release buffer space associated with a packed event array */
 int
 pmdaEventReleaseArray(int idx)
@@ -111,11 +149,18 @@ pmdaEventReleaseArray(int idx)
 }
 
 int
+pmdaEventReleaseHighResArray(int idx)
+{
+    return pmdaEventReleaseArray(idx);
+}
+
+int
 pmdaEventAddRecord(int idx, struct timeval *tp, int flags)
 {
     int			sts;
     bufctl_t		*bp;
     pmEventArray	*eap;
+    pmEventRecord	*erp;
 
     if (idx < 0 || idx >= nbuf || bufs[idx].bstate == B_FREE)
 	return PM_ERR_NOCONTEXT;
@@ -125,16 +170,47 @@ pmdaEventAddRecord(int idx, struct timeval *tp, int flags)
     if (flags & PM_EVENT_FLAG_MISSED)
 	return PM_ERR_CONV;
 
-    if ((sts = check_buf(bp, sizeof(pmEventRecord) - sizeof(pmEventParameter))) < 0)
+    if ((sts = check_buf(bp, sizeof(*erp) - sizeof(pmEventParameter))) < 0)
 	return sts;
     eap = (pmEventArray *)bp->baddr;
     eap->ea_nrecords++;
-    bp->berp = (pmEventRecord *)bp->bptr;
-    bp->berp->er_timestamp.tv_sec = (__int32_t)tp->tv_sec;
-    bp->berp->er_timestamp.tv_usec = (__int32_t)tp->tv_usec;
-    bp->berp->er_nparams = 0;
-    bp->berp->er_flags = flags;
+    erp = (pmEventRecord *)bp->bptr;
+    erp->er_timestamp.tv_sec = (__int32_t)tp->tv_sec;
+    erp->er_timestamp.tv_usec = (__int32_t)tp->tv_usec;
+    erp->er_nparams = 0;
+    erp->er_flags = flags;
+    bp->berp = (void *)erp;
     bp->bptr += sizeof(pmEventRecord) - sizeof(pmEventParameter);
+    return 0;
+}
+
+int
+pmdaEventAddHighResRecord(int idx, struct timespec *ts, int flags)
+{
+    int			sts;
+    bufctl_t		*bp;
+    pmHighResEventArray	*hreap;
+    pmHighResEventRecord *hrerp;
+
+    if (idx < 0 || idx >= nbuf || bufs[idx].bstate == B_FREE)
+	return PM_ERR_NOCONTEXT;
+    bp = &bufs[idx];
+
+    /* use pmdaEventAddMissedRecord for missed records ... */
+    if (flags & PM_EVENT_FLAG_MISSED)
+	return PM_ERR_CONV;
+
+    if ((sts = check_buf(bp, sizeof(*hrerp) - sizeof(pmEventParameter))) < 0)
+	return sts;
+    hreap = (pmHighResEventArray *)bp->baddr;
+    hreap->ea_nrecords++;
+    hrerp = (pmHighResEventRecord *)bp->bptr;
+    hrerp->er_timestamp.tv_sec = (__int64_t)ts->tv_sec;
+    hrerp->er_timestamp.tv_nsec = (__int64_t)ts->tv_nsec;
+    hrerp->er_nparams = 0;
+    hrerp->er_flags = flags;
+    bp->berp = (void *)hrerp;
+    bp->bptr += sizeof(pmHighResEventRecord) - sizeof(pmEventParameter);
     return 0;
 }
 
@@ -144,26 +220,54 @@ pmdaEventAddMissedRecord(int idx, struct timeval *tp, int missed)
     int			sts;
     bufctl_t		*bp;
     pmEventArray	*eap;
+    pmEventRecord	*erp;
 
     if (idx < 0 || idx >= nbuf || bufs[idx].bstate == B_FREE)
 	return PM_ERR_NOCONTEXT;
     bp = &bufs[idx];
 
-    if ((sts = check_buf(bp, sizeof(pmEventRecord) - sizeof(pmEventParameter))) < 0)
+    if ((sts = check_buf(bp, sizeof(*erp) - sizeof(pmEventParameter))) < 0)
 	return sts;
     eap = (pmEventArray *)bp->baddr;
     eap->ea_nrecords++;
-    bp->berp = (pmEventRecord *)bp->bptr;
-    bp->berp->er_timestamp.tv_sec = (__int32_t)tp->tv_sec;
-    bp->berp->er_timestamp.tv_usec = (__int32_t)tp->tv_usec;
-    bp->berp->er_nparams = missed;
-    bp->berp->er_flags = PM_EVENT_FLAG_MISSED;
+    erp = (pmEventRecord *)bp->bptr;
+    erp->er_timestamp.tv_sec = (__int32_t)tp->tv_sec;
+    erp->er_timestamp.tv_usec = (__int32_t)tp->tv_usec;
+    erp->er_nparams = missed;
+    erp->er_flags = PM_EVENT_FLAG_MISSED;
+    bp->berp = (void *)erp;
     bp->bptr += sizeof(pmEventRecord) - sizeof(pmEventParameter);
     return 0;
 }
 
 int
-pmdaEventAddParam(int idx, pmID pmid, int type, pmAtomValue *avp)
+pmdaEventAddHighResMissedRecord(int idx, struct timespec *ts, int missed)
+{
+    int			sts;
+    bufctl_t		*bp;
+    pmHighResEventArray	*hreap;
+    pmHighResEventRecord *hrerp;
+
+    if (idx < 0 || idx >= nbuf || bufs[idx].bstate == B_FREE)
+	return PM_ERR_NOCONTEXT;
+    bp = &bufs[idx];
+
+    if ((sts = check_buf(bp, sizeof(*hrerp) - sizeof(pmEventParameter))) < 0)
+	return sts;
+    hreap = (pmHighResEventArray *)bp->baddr;
+    hreap->ea_nrecords++;
+    hrerp = (pmHighResEventRecord *)bp->bptr;
+    hrerp->er_timestamp.tv_sec = (__int32_t)ts->tv_sec;
+    hrerp->er_timestamp.tv_nsec = (__int32_t)ts->tv_nsec;
+    hrerp->er_nparams = missed;
+    hrerp->er_flags = PM_EVENT_FLAG_MISSED;
+    bp->berp = (void *)hrerp;
+    bp->bptr += sizeof(pmHighResEventRecord) - sizeof(pmEventParameter);
+    return 0;
+}
+
+int
+add_param(int idx, pmID pmid, int type, pmAtomValue *avp, bufctl_t **bpp)
 {
     int			sts;
     int			need;	/* bytes in the buffer */
@@ -222,8 +326,36 @@ pmdaEventAddParam(int idx, pmID pmid, int type, pmAtomValue *avp)
     epp->ep_type = type;
     memcpy((void *)(bp->bptr + sizeof(pmEventParameter)), src, vlen);
     bp->bptr += need;
-    bp->berp->er_nparams++;
+    *bpp = bp;
     return 0;
+}
+
+int
+pmdaEventAddParam(int idx, pmID pmid, int type, pmAtomValue *avp)
+{
+    int			sts;
+    bufctl_t		*bp;
+    pmEventRecord	*erp;
+
+    if ((sts = add_param(idx, pmid, type, avp, &bp)) >= 0) {
+	erp = (pmEventRecord *)bp->berp;
+	erp->er_nparams++;
+    }
+    return sts;
+}
+
+int
+pmdaEventHighResAddParam(int idx, pmID pmid, int type, pmAtomValue *avp)
+{
+    int			sts;
+    bufctl_t		*bp;
+    pmHighResEventRecord *hrerp;
+
+    if ((sts = add_param(idx, pmid, type, avp, &bp)) >= 0) {
+	hrerp = (pmHighResEventRecord *)bp->berp;
+	hrerp->er_nparams++;
+    }
+    return sts;
 }
 
 /*
@@ -241,6 +373,19 @@ pmdaEventGetAddr(int idx)
     eap = (pmEventArray *)bufs[idx].baddr;
     eap->ea_type = PM_TYPE_EVENT;
     eap->ea_len = bufs[idx].bptr - bufs[idx].baddr;
-
     return eap;
+}
+
+pmHighResEventArray *
+pmdaEventHighResGetAddr(int idx)
+{
+    pmHighResEventArray	*hreap;
+
+    if (idx < 0 || idx >= nbuf || bufs[idx].bstate == B_FREE)
+	return NULL;
+
+    hreap = (pmHighResEventArray *)bufs[idx].baddr;
+    hreap->ea_type = PM_TYPE_HIGHRES_EVENT;
+    hreap->ea_len = bufs[idx].bptr - bufs[idx].baddr;
+    return hreap;
 }

@@ -476,7 +476,8 @@ pmEventFlagsStr(int flags)
 
 /* Add the given item to the list, which may be empty. */
 int
-__pmStringListAdd(char *item, int numElements, char ***list) {
+__pmStringListAdd(char *item, int numElements, char ***list)
+{
     size_t	ptrSize;
     size_t	dataSize;
     size_t	newSize;
@@ -531,7 +532,8 @@ __pmStringListAdd(char *item, int numElements, char ***list) {
 
 /* Search for the given string in the given string list. */
 char *
-__pmStringListFind(const char *item, int numElements, char **list) {
+__pmStringListFind(const char *item, int numElements, char **list)
+{
     int e;
 
     if (list == NULL)
@@ -546,113 +548,177 @@ __pmStringListFind(const char *item, int numElements, char **list) {
     return NULL;
 }
 
-void
-__pmDumpResult(FILE *f, const pmResult *resp)
+/*
+ * Save/restore global debugging flag, without locking.
+ * Needed since tracing PDUs really messes __pmDump*() routines
+ * up when pmNameInDom is called internally.
+ */
+static int
+save_debug(void)
 {
-    int		i;
-    int		j;
-    int		n;
-    int		saveDebug;
-    char	*p;
-    pmDesc	desc;
-    int		have_desc;
-
-    /* tracing PDUs really messes this up when pmNameInDom is called below */
-    saveDebug = pmDebug;
+    int saved = pmDebug;
     pmDebug = 0;
-
-    fprintf(f,"pmResult dump from " PRINTF_P_PFX "%p timestamp: %d.%06d ",
-        resp, (int)resp->timestamp.tv_sec, (int)resp->timestamp.tv_usec);
-    __pmPrintStamp(f, &resp->timestamp);
-    fprintf(f, " numpmid: %d\n", resp->numpmid);
-    for (i = 0; i < resp->numpmid; i++) {
-	pmValueSet	*vsp = resp->vset[i];
-	char		strbuf[20];
-	n = pmNameID(vsp->pmid, &p);
-	if (n < 0)
-	    fprintf(f,"  %s (%s):", pmIDStr_r(vsp->pmid, strbuf, sizeof(strbuf)), "<noname>");
-	else {
-	    fprintf(f,"  %s (%s):", pmIDStr_r(vsp->pmid, strbuf, sizeof(strbuf)), p);
-	    free(p);
-	}
-	if (vsp->numval == 0) {
-	    fprintf(f, " No values returned!\n");
-	    continue;
-	}
-	else if (vsp->numval < 0) {
-	    char	errmsg[PM_MAXERRMSGLEN];
-	    fprintf(f, " %s\n", pmErrStr_r(vsp->numval, errmsg, sizeof(errmsg)));
-	    continue;
-	}
-	if (__pmGetInternalState() == PM_STATE_PMCS || pmLookupDesc(vsp->pmid, &desc) < 0) {
-	    /* don't know, so punt on the most common cases */
-	    desc.indom = PM_INDOM_NULL;
-	    have_desc = 0;
-	}
-	else
-	    have_desc = 1;
-	fprintf(f, " numval: %d", vsp->numval);
-	fprintf(f, " valfmt: %d vlist[]:\n", vsp->valfmt);
-	for (j = 0; j < vsp->numval; j++) {
-	    pmValue	*vp = &vsp->vlist[j];
-	    if (vsp->numval > 1 || vp->inst != PM_INDOM_NULL) {
-		fprintf(f,"    inst [%d", vp->inst);
-		if (have_desc &&
-		    pmNameInDom(desc.indom, vp->inst, &p) >= 0) {
-		    fprintf(f, " or \"%s\"]", p);
-		    free(p);
-		}
-		else {
-		    fprintf(f, " or ???]");
-		}
-		fputc(' ', f);
-	    }
-	    else
-		fprintf(f, "   ");
-	    fprintf(f, "value ");
-	    if (have_desc)
-		pmPrintValue(f, vsp->valfmt, desc.type, vp, 1);
-	    else {
-		if (vsp->valfmt == PM_VAL_INSITU)
-		    pmPrintValue(f, vsp->valfmt, PM_TYPE_UNKNOWN, vp, 1); 
-		else
-		    pmPrintValue(f, vsp->valfmt, (int)vp->value.pval->vtype, vp, 1); 
-	    }
-	    fputc('\n', f);
-	}
-    }
-    pmDebug = saveDebug;
+    return saved;
 }
 
 static void
-print_event_summary(FILE *f, const pmValue *val)
+restore_debug(int saved)
 {
-    pmEventArray	*eap = (pmEventArray *)val->value.pval;
+    pmDebug = saved;
+}
+
+static void
+dump_valueset(FILE *f, pmValueSet *vsp)
+{
+    pmDesc	desc;
+    char	errmsg[PM_MAXERRMSGLEN];
+    char	strbuf[20];
+    char	*pmid, *p;
+    int		have_desc = 1;
+    int		n, j;
+
+    pmid = pmIDStr_r(vsp->pmid, strbuf, sizeof(strbuf));
+    if ((n = pmNameID(vsp->pmid, &p)) < 0)
+	fprintf(f,"  %s (%s):", pmid, "<noname>");
+    else {
+	fprintf(f,"  %s (%s):", pmid, p);
+	free(p);
+    }
+    if (vsp->numval == 0) {
+	fprintf(f, " No values returned!\n");
+	return;
+    }
+    if (vsp->numval < 0) {
+	fprintf(f, " %s\n", pmErrStr_r(vsp->numval, errmsg, sizeof(errmsg)));
+	return;
+    }
+    if (__pmGetInternalState() == PM_STATE_PMCS ||
+	pmLookupDesc(vsp->pmid, &desc) < 0) {
+	/* don't know, so punt on the most common cases */
+	desc.indom = PM_INDOM_NULL;
+	have_desc = 0;
+    }
+
+    fprintf(f, " numval: %d", vsp->numval);
+    fprintf(f, " valfmt: %d vlist[]:\n", vsp->valfmt);
+    for (j = 0; j < vsp->numval; j++) {
+	pmValue	*vp = &vsp->vlist[j];
+	if (vsp->numval > 1 || vp->inst != PM_INDOM_NULL) {
+	    fprintf(f,"    inst [%d", vp->inst);
+	    if (have_desc &&
+		pmNameInDom(desc.indom, vp->inst, &p) >= 0) {
+		fprintf(f, " or \"%s\"]", p);
+		free(p);
+	    }
+	    else {
+		fprintf(f, " or ???]");
+	    }
+	    fputc(' ', f);
+	}
+	else
+	    fprintf(f, "   ");
+	fprintf(f, "value ");
+
+	if (have_desc)
+	    pmPrintValue(f, vsp->valfmt, desc.type, vp, 1);
+	else {
+	    if (vsp->valfmt == PM_VAL_INSITU)
+		pmPrintValue(f, vsp->valfmt, PM_TYPE_UNKNOWN, vp, 1); 
+	    else
+		pmPrintValue(f, vsp->valfmt, (int)vp->value.pval->vtype, vp, 1); 
+	}
+	fputc('\n', f);
+    }
+}
+
+void
+__pmDumpResult(FILE *f, const pmResult *resp)
+{
+    int		i, saved;
+
+    saved = save_debug();
+    fprintf(f, "pmResult dump from " PRINTF_P_PFX "%p timestamp: %d.%06d ",
+	resp, (int)resp->timestamp.tv_sec, (int)resp->timestamp.tv_usec);
+    __pmPrintStamp(f, &resp->timestamp);
+    fprintf(f, " numpmid: %d\n", resp->numpmid);
+    for (i = 0; i < resp->numpmid; i++)
+	dump_valueset(f, resp->vset[i]);
+    restore_debug(saved);
+}
+
+void
+__pmDumpHighResResult(FILE *f, const pmHighResResult *hresp)
+{
+    int		i, saved;
+
+    saved = save_debug();
+    fprintf(f, "pmHighResResult dump from " PRINTF_P_PFX "%p timestamp: %d.%09d ",
+	hresp, (int)hresp->timestamp.tv_sec, (int)hresp->timestamp.tv_nsec);
+    __pmPrintHighResStamp(f, &hresp->timestamp);
+    fprintf(f, " numpmid: %d\n", hresp->numpmid);
+    for (i = 0; i < hresp->numpmid; i++)
+	dump_valueset(f, hresp->vset[i]);
+    restore_debug(saved);
+}
+
+static void
+print_event_summary(FILE *f, const pmValue *val, int highres)
+{
+    struct timespec	tsstamp;
+    struct timeval	tvstamp;
+    __pmTimespec 	*tsp;
+    __pmTimeval 	*tvp;
+    unsigned int	flags;
+    size_t		size;
     char		*base;
-    struct timeval	stamp;
-    __pmTimeval		*tvp;
+    int			nparams;
     int			nrecords;
     int			nmissed = 0;
     int			r;	/* records */
     int			p;	/* parameters in a record ... */
-    pmEventRecord	*erp;
-    pmEventParameter	*epp;
 
-    nrecords = eap->ea_nrecords;
-    base = (char *)&eap->ea_record[0];
-    tvp = (__pmTimeval *)base;
-    stamp.tv_sec = tvp->tv_sec;
-    stamp.tv_usec = tvp->tv_usec;
+    if (highres) {
+	pmHighResEventArray *hreap = (pmHighResEventArray *)val->value.pval;
+	nrecords = hreap->ea_nrecords;
+	base = (char *)&hreap->ea_record[0];
+	tsp = (__pmTimespec *)base;
+	tsstamp.tv_sec = tsp->tv_sec;
+	tsstamp.tv_nsec = tsp->tv_nsec;
+    }
+    else {
+	pmEventArray *eap = (pmEventArray *)val->value.pval;
+	nrecords = eap->ea_nrecords;
+	base = (char *)&eap->ea_record[0];
+	tvp = (__pmTimeval *)base;
+	tvstamp.tv_sec = tvp->tv_sec;
+	tvstamp.tv_usec = tvp->tv_usec;
+    }
+
     /* walk packed event record array */
-    for (r = 0; r < eap->ea_nrecords-1; r++) {
-	erp = (pmEventRecord *)base;
-	base += sizeof(erp->er_timestamp) + sizeof(erp->er_flags) + sizeof(erp->er_nparams);
-	if (erp->er_flags & PM_EVENT_FLAG_MISSED) {
-	    nmissed += erp->er_nparams;
+    for (r = 0; r < nrecords-1; r++) {
+	if (highres) {
+	    pmHighResEventRecord *hrerp = (pmHighResEventRecord *)base;
+	    size = sizeof(hrerp->er_timestamp) + sizeof(hrerp->er_flags) +
+		    sizeof(hrerp->er_nparams);
+	    flags = hrerp->er_flags;
+	    nparams = hrerp->er_nparams;
+	}
+	else {
+	    pmEventRecord *erp = (pmEventRecord *)base;
+	    size = sizeof(erp->er_timestamp) + sizeof(erp->er_flags) +
+		    sizeof(erp->er_nparams);
+	    flags = erp->er_flags;
+	    nparams = erp->er_nparams;
+	}
+
+	if (flags & PM_EVENT_FLAG_MISSED) {
+	    nmissed += nparams;
 	    continue;
 	}
-	for (p = 0; p < erp->er_nparams; p++) {
-	    epp = (pmEventParameter *)base;
+
+	base += size;
+	for (p = 0; p < nparams; p++) {
+	    pmEventParameter *epp = (pmEventParameter *)base;
 	    base += sizeof(epp->ep_pmid) + PM_PDU_SIZE_BYTES(epp->ep_len);
 	}
     }
@@ -666,13 +732,26 @@ print_event_summary(FILE *f, const pmValue *val)
 	if (nrecords > 1)
 	    fputc('s', f);
 	fputc(' ', f);
-	__pmPrintStamp(f, &stamp);
-	if (eap->ea_nrecords > 1) {
+
+	if (highres)
+	    __pmPrintHighResStamp(f, &tsstamp);
+	else
+	    __pmPrintStamp(f, &tvstamp);
+
+	if (nrecords > 1) {
 	    fprintf(f, "...");
-	    tvp = (__pmTimeval *)base;
-	    stamp.tv_sec = tvp->tv_sec;
-	    stamp.tv_usec = tvp->tv_usec;
-	    __pmPrintStamp(f, &stamp);
+	    if (highres) {
+		tsp = (__pmTimespec *)base;
+		tsstamp.tv_sec = tsp->tv_sec;
+		tsstamp.tv_nsec = tsp->tv_nsec;
+		__pmPrintHighResStamp(f, &tsstamp);
+	    }
+	    else {
+		tvp = (__pmTimeval *)base;
+		tvstamp.tv_sec = tvp->tv_sec;
+		tvstamp.tv_usec = tvp->tv_usec;
+		__pmPrintStamp(f, &tvstamp);
+	    }
 	}
     }
     fputc(']', f);
@@ -692,7 +771,9 @@ pmPrintValue(FILE *f,			/* output stream */
     char        *p;
     int		sts;
 
-    if (type != PM_TYPE_UNKNOWN && type != PM_TYPE_EVENT) {
+    if (type != PM_TYPE_UNKNOWN &&
+	type != PM_TYPE_EVENT &&
+	type != PM_TYPE_HIGHRES_EVENT) {
 	sts = pmExtractValue(valfmt, val, type, &a, type);
 	if (sts < 0)
 	    type = PM_TYPE_UNKNOWN;
@@ -838,6 +919,7 @@ pmPrintValue(FILE *f,			/* output stream */
 	break;
 
     case PM_TYPE_EVENT:		/* not much we can do about minwidth */
+    case PM_TYPE_HIGHRES_EVENT:
 	if (valfmt == PM_VAL_INSITU) {
 	    /*
 	     * Special case for pmlc/pmlogger where PMLC_SET_*() macros
@@ -855,7 +937,7 @@ pmPrintValue(FILE *f,			/* output stream */
 	    fprintf(f, "%d]", PMLC_GET_DELTA(val->value.lval));
 	}
 	else
-	    print_event_summary(f, val);
+	    print_event_summary(f, val, type != PM_TYPE_EVENT);
 	break;
 
     case PM_TYPE_NOSUPPORT:
@@ -918,6 +1000,20 @@ __pmPrintStamp(FILE *f, const struct timeval *tp)
 }
 
 /*
+ * print high resolution timestamp in HH:MM:SS.XXXXXXXXX format
+ */
+void
+__pmPrintHighResStamp(FILE *f, const struct timespec *tp)
+{
+    struct tm	tmp;
+    time_t	now;
+
+    now = (time_t)tp->tv_sec;
+    pmLocaltime(&now, &tmp);
+    fprintf(f, "%02d:%02d:%02d.%09d", tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)(tp->tv_nsec));
+}
+
+/*
  * print __pmTimeval timestamp in HH:MM:SS.XXX format
  * (__pmTimeval variant used in PDUs, archives and internally)
  */
@@ -930,6 +1026,21 @@ __pmPrintTimeval(FILE *f, const __pmTimeval *tp)
     now = (time_t)tp->tv_sec;
     pmLocaltime(&now, &tmp);
     fprintf(f, "%02d:%02d:%02d.%03d", tmp.tm_hour, tmp.tm_min, tmp.tm_sec, tp->tv_usec/1000);
+}
+
+/*
+ * print __pmTimespec timestamp in HH:MM:SS.XXXXXXXXX format
+ * (__pmTimespec variant used in events, archives and internally)
+ */
+void
+__pmPrintTimespec(FILE *f, const __pmTimespec *tp)
+{
+    struct tm	tmp;
+    time_t	now;
+
+    now = (time_t)tp->tv_sec;
+    pmLocaltime(&now, &tmp);
+    fprintf(f, "%02d:%02d:%02d.%09ld", tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (long)tp->tv_nsec);
 }
 
 /*
@@ -979,6 +1090,9 @@ __pmPrintDesc(FILE *f, const pmDesc *desc)
 	    break;
 	case PM_TYPE_EVENT:
 	    type = "event record array";
+	    break;
+	case PM_TYPE_HIGHRES_EVENT:
+	    type = "highres event record array";
 	    break;
 	default:
 	    type = unknownVal;
@@ -1551,6 +1665,18 @@ strndup(const char *s, size_t n)
 }
 #endif /* HAVE_STRNDUP */
 
+#ifndef HAVE_STRCHRNUL
+char *
+strchrnul(const char *s, int c)
+{
+    char	*result;
+
+    if ((result = strchr(s, c)) == NULL)
+	result = strchr(s, '\0');
+    return result;
+}
+#endif /* HAVE_STRCHRNUL */
+
 #ifndef HAVE_SCANDIR
 /*
  * Scan the directory dirname, building an array of pointers to
@@ -1943,7 +2069,7 @@ pow(double x, double y)
 
 #define PROCFS_ENTRY_SIZE 40	/* encompass any size of entry for pid */
 
-#if defined(IS_DARWIN)	/* No procfs on Mac OS X */
+#if defined(IS_DARWIN) /* No procfs on Mac OS X */
 #include <sys/sysctl.h>
 int
 __pmProcessExists(pid_t pid)
@@ -1959,6 +2085,18 @@ __pmProcessExists(pid_t pid)
     if (sysctl(mib, 4, &kp, &len, NULL, 0) == -1)
        return 0;
     return (len > 0);
+}
+#elif defined(IS_FREEBSD)
+int 
+__pmProcessExists(pid_t pid)
+{
+    /*
+     * kill(.., 0) returns -1 if the process exists.
+     */
+    if (kill(pid, 0) == -1)
+	return 1;
+    else
+	return 0;
 }
 #elif defined(HAVE_PROCFS)
 #define PROCFS			"/proc"
@@ -2169,6 +2307,12 @@ __pmDumpStack(FILE *f)
     }
     for (i = 1; i < nframe; i++)
 	fprintf(f, "  " PRINTF_P_PFX "%p [%s]\n", buf[i], symbols[i]);
+}
+#else	/* no known mechanism, provide a stub (called unconditionally) */
+void
+__pmDumpStack(FILE *f)
+{
+    fprintf(f, "[No backtrace support available]\n");
 }
 #endif /* HAVE_BACKTRACE */
 

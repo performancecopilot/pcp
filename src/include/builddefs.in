@@ -40,10 +40,7 @@ SGI_ISSP_BUILD ?= 0
 
 BUILDRULES = $(TOPDIR)/src/include/buildrules
 
-# LCFLAGS, LLDFLAGS, LLDLIBS, LSRCFILES and LDIRT may be specified in
-# user Makefiles. Note: LSRCFILES is anything other than Makefile,
-# $(CXXFILES), $(CFILES), or $(HFILES) and is used to construct the
-# manifest list during the "dist" phase (packaging).
+# LCFLAGS, LLDFLAGS, LLDLIBS, LDIRT may be specified in local makefiles.
 
 # turn on all warnings by default
 ifeq "@cc_is_gcc@" "yes"
@@ -221,8 +218,9 @@ QT_RELEASE = @qt_release@
 ENABLE_SHARED = @enable_shared@
 ENABLE_SECURE = @enable_secure@
 ENABLE_PROBES = @enable_probes@
-ENABLE_AVAHI  = @enable_avahi@
-ENABLE_QT     = @enable_qt@
+ENABLE_AVAHI = @enable_avahi@
+ENABLE_QT = @enable_qt@
+ENABLE_SYSTEMD = @enable_systemd@
 
 # additional libraries needed for particular functions
 LIB_FOR_BASENAME = @lib_for_basename@
@@ -686,7 +684,7 @@ ifneq "$(PCPLIB)" "$(LIB_FOR_BASENAME)"
 PCPLIB += $(LIB_FOR_BASENAME)
 endif
 ifeq "$(ENABLE_SHARED)" "no"
-PCPLIB += $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS) $(LIB_FOR_DLOPEN)
+PCPLIB += $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS) $(LIB_FOR_DLOPEN) $(LIB_FOR_RT)
 endif
 PCP_GUILIB = -lpcp_gui $(PCPLIB)
 PCP_PMDALIB = -lpcp_pmda $(PCPLIB)

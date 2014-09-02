@@ -102,3 +102,14 @@ PCP_PMDA_3.2 {
   global:
     pmdaDynamicSetClusterMask;
 } PCP_PMDA_3.1;
+
+PCP_PMDA_3.3 {
+  global:
+    pmdaEventNewHighResArray;
+    pmdaEventResetHighResArray;
+    pmdaEventReleaseHighResArray;
+    pmdaEventAddHighResRecord;
+    pmdaEventAddHighResMissedRecord;
+    pmdaEventHighResAddParam;
+    pmdaEventHighResGetAddr;
+} PCP_PMDA_3.2;

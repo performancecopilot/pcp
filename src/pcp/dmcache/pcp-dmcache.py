@@ -98,7 +98,7 @@ class DmCachePrinter(pmcc.MetricGroupPrinter):
         if not devicelist:
             devicelist = cache_used.keys()
         if not devicelist:
-            print 'No values available'
+            print('No values available')
         for name in sorted(devicelist):
             if RATIO:
                 read_column = cache_percent(name, 7, read_hits, read_ops)
@@ -106,7 +106,7 @@ class DmCachePrinter(pmcc.MetricGroupPrinter):
             else:
                 read_column = cache_value(group, name, 7, read_ops)
                 write_column = cache_value(group, name, 7, write_ops)
-            print '%s %s %s %s %s %s %s %s %s' % (name.ljust(12),
+            print('%s %s %s %s %s %s %s %s %s' % (name.ljust(12),
                     cache_percent(name, 5, meta_used, meta_total),
                     cache_percent(name, 5, cache_used, cache_total),
                     cache_value(group, name, 7, read_hits),
@@ -114,7 +114,7 @@ class DmCachePrinter(pmcc.MetricGroupPrinter):
                     read_column,
                     cache_value(group, name, 7, write_hits),
                     cache_value(group, name, 7, write_misses),
-                    write_column)
+                    write_column))
 
     def report(self, groups):
         """ Report driver routine - headings, sub-headings and values """
@@ -129,7 +129,7 @@ class DmCachePrinter(pmcc.MetricGroupPrinter):
                 style = SUBHEAD_RATIO
             else:
                 style = SUBHEAD_IOPS
-            print '%s\n%s\n%s' % (title, HEADING, style)
+            print('%s\n%s\n%s' % (title, HEADING, style))
         self.report_values(group)
 
 if __name__ == '__main__':
@@ -146,9 +146,9 @@ if __name__ == '__main__':
         manager.printer = DmCachePrinter(options.pmNonOptionsFromList(sys.argv))
         manager['dmcache'] = CACHE_METRICS
         manager.run()
-    except pmapi.pmErr, error:
-        print '%s: %s\n' % (error.progname(), error.message())
-    except pmapi.pmUsageErr, usage:
+    except pmapi.pmErr as error:
+        print('%s: %s\n' % (error.progname(), error.message()))
+    except pmapi.pmUsageErr as usage:
         usage.message()
     except KeyboardInterrupt:
         pass

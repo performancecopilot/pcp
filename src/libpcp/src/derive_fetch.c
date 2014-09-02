@@ -190,7 +190,8 @@ free_ivlist(node_t *np)
 	    }
 	    else if (np->desc.type == PM_TYPE_AGGREGATE ||
 		     np->desc.type == PM_TYPE_AGGREGATE_STATIC ||
-		     np->desc.type == PM_TYPE_EVENT) {
+		     np->desc.type == PM_TYPE_EVENT ||
+		     np->desc.type == PM_TYPE_HIGHRES_EVENT) {
 		for (i = 0; i < np->info->numval; i++) {
 		    if (np->info->ivlist[i].value.vbp != NULL)
 			free(np->info->ivlist[i].value.vbp);
@@ -909,6 +910,7 @@ eval_expr(node_t *np, pmResult *rp, int level)
 			    case PM_TYPE_AGGREGATE:
 			    case PM_TYPE_AGGREGATE_STATIC:
 			    case PM_TYPE_EVENT:
+			    case PM_TYPE_HIGHRES_EVENT:
 				if ((np->info->ivlist[i].value.vbp = (pmValueBlock *)malloc(rp->vset[j]->vlist[i].value.pval->vlen)) == NULL) {
 				    __pmNoMem("eval_expr: aggregate value", rp->vset[j]->vlist[i].value.pval->vlen, PM_FATAL_ERR);
 				    /*NOTREACHED*/
@@ -1278,6 +1280,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
 		case PM_TYPE_AGGREGATE:
 		case PM_TYPE_AGGREGATE_STATIC:
 		case PM_TYPE_EVENT:
+		case PM_TYPE_HIGHRES_EVENT:
 		    need = cp->mlist[m].expr->info->ivlist[i].vlen;
 		    vp = (pmValueBlock *)malloc(need);
 		    if (vp == NULL) {

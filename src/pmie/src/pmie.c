@@ -681,17 +681,17 @@ getargs(int argc, char *argv[])
 			!strcmp(dfltHostConn, "unix:")))
 	    sts = pmNewContext(PM_CONTEXT_LOCAL, NULL);
 	if (sts < 0) {
-	    __pmNotifyErr(LOG_ERR, "%s: cannot find host name for %s\n"
-			"pmNewContext failed: %s\n",
-			pmProgname, dfltHostConn, pmErrStr(sts));
-	    dfltHostName = "?";
+	    fprintf(stderr, "%s: cannot find host name for %s\n"
+		    "pmNewContext failed: %s\n",
+		    pmProgname, dfltHostConn, pmErrStr(sts));
+	    exit(1);
 	} else {
-	    const char	*tmp;
-	    tmp = pmGetContextHostName(sts);
+	    const char	*tmp = pmGetContextHostName(sts);
+
 	    if (strlen(tmp) == 0) {
 		fprintf(stderr, "%s: pmGetContextHostName(%d) failed\n",
-		    pmProgname, sts);
-		exit(EXIT_FAILURE);
+			pmProgname, sts);
+		exit(1);
 	    }
 	    if ((dfltHostName = strdup(tmp)) == NULL)
 		__pmNoMem("host name copy", strlen(tmp)+1, PM_FATAL_ERR);

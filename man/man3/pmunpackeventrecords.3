@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2014 Red Hat.
 .\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -22,6 +23,8 @@
 .sp
 int pmUnpackEventRecords(pmValueSet *\fIvsp\fP, int \fIidx\fP, pmResult ***\fIrap\fP);
 .sp
+int pmUnpackHighResEventRecords(pmValueSet *\fIvsp\fP, int \fIidx\fP, pmHighResResult ***\fIhrap\fP);
+.sp
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
@@ -32,9 +35,15 @@ cc ... \-lpcp
 Event records are encoded as a packed array of records within a
 .I pmResult
 using a container metric with a value of type
-.BR PM_TYPE_EVENT .
+.B PM_TYPE_EVENT ,
+and a
+.I pmHighResResult
+when using a metric of type
+.BR PM_TYPE_HIGHRES_EVENT .
 .PP
 .B pmUnpackEventRecords
+and
+.B pmUnpackHighResEventRecords
 may be used to unpack event records from a metric value
 identified by
 .I vsp
@@ -45,21 +54,28 @@ If the metric has a singular value,
 should be 0, else the ordinal instance value identified by
 .I idx
 will be unpacked, i.e. vsp->vlist[idx].
-The unpacked records are turned into
+The unpacked records are turned into either
 .I pmResult
+or
+.I pmHighResResult
 structures, one per event record and one metric per event parameter, and
 .I rap
 is returned as a pointer to an array (NULL pointer terminated) of
-pointers to the
+pointers to the result structures.
+.PP
+The only difference between the two result types is the timestamp scale;
+the
+.I pmHighResResult
+allows for nanosecond precision, whereas
 .I pmResult
-structures.
+allows for microsecond resolution.
 .PP
 Some control information from the packed event records is unpacked
 into additional ``anonymous'' metrics as follows:
 .TP 4n
 1.
 If the event record has a non-zero flags value, then the corresponding
-.I pmResult
+.IR pmResult / pmHighResResult
 will have the flags value encoded with the additional metric
 .B event.flags
 that is inserted ahead of all other event parameters.
@@ -68,7 +84,7 @@ that is inserted ahead of all other event parameters.
 If the event record flag is set to
 .BR PM_EVENT_FLAG_MISSED ,
 then the corresponding
-.I pmResult
+.IR pmResult / pmHighResResult
 will have one metric
 .B event.missed
 with a value that equals the number of event records ``missed'' because
@@ -79,12 +95,24 @@ the event records fast enough.
 returns the number of
 .I pmResult
 structures as the return value, which is >= 0 for success.
+Similarly,
+.B pmUnpackHighResEventRecords
+returns the number of
+.I pmHighResResult
+structures as the return value, which is >= 0 for success.
 .PP
-.I rset
+.I rap
 and the associated
 .I pmResult
 structures may be freed using the convenience function
 .BR pmFreeEventResult (3).
+.PP
+Similarly, the
+.I hrap
+and the associated
+.I pmHighResResult
+structures may be freed using the convenience function
+.BR pmFreeHighResEventResult .
 .SH "RETURN VALUE"
 The following errors are possible:
 .TP 10n
@@ -109,9 +137,8 @@ The value identified by
 .I vbp
 is not legal because the value length is less than the minimum size,
 or the number of event records encoded in the (value header)
-.I pmEventArray
+.IR pmEventArray / pmEventHighResArray
 structure is negative, or the number of missed event records in the
-.I pmEventArray
 array is negative.
 .TP 10n
 PM_ERR_TOOBIG

@@ -1,0 +1,1164 @@
+QA output created by 987
+== Checking metric descriptors and values - xfs-root-001.tgz
+
+xfs.write PMID: 11.16.51 [number of XFS file system write operations]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+This is the number of write(2) system calls made to files in
+XFS file systems.
+    value 0
+
+xfs.write_bytes PMID: 11.16.52 [number of bytes written in XFS file system write operations]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+Help:
+This is the number of bytes written via write(2) system calls to files
+in XFS file systems. It can be used in conjunction with the write_calls
+count to calculate the average size of the write operations to files in
+XFS file systems.
+    value 0
+
+xfs.read PMID: 11.16.53 [number of XFS file system read operations]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+This is the number of read(2) system calls made to files in XFS file
+systems.
+    value 0
+
+xfs.read_bytes PMID: 11.16.54 [number of bytes read in XFS file system read operations]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+Help:
+This is the number of bytes read via read(2) system calls to files in
+XFS file systems. It can be used in conjunction with the read_calls
+count to calculate the average size of the read operations to files in
+XFS file systems.
+    value 0
+
+xfs.iflush_count PMID: 11.16.67 [the number of calls to xfs_iflush]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+This is the number of calls to xfs_iflush which gets called when an
+inode is being flushed (such as by bdflush or tail pushing).
+xfs_iflush searches for other inodes in the same cluster which are
+dirty and flushable.
+    value 0
+
+xfs.icluster_flushcnt PMID: 11.16.68 [value from xs_icluster_flushcnt field of struct xfsstats]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+value from xs_icluster_flushcnt field of struct xfsstats
+    value 0
+
+xfs.icluster_flushinode PMID: 11.16.69 [number of flushes of only one inode in cluster]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+This is the number of times that the inode clustering was not able to
+flush anything but the one inode it was called with.
+    value 0
+
+xfs.allocs.alloc_extent PMID: 11.16.0 [XFS extents allocated]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of file system extents allocated over all XFS filesystems
+    value 0
+
+xfs.allocs.alloc_block PMID: 11.16.1 [XFS blocks allocated]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of file system blocks allocated over all XFS filesystems
+    value 0
+
+xfs.allocs.free_extent PMID: 11.16.2 [XFS extents freed]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of file system extents freed over all XFS filesystems
+    value 0
+
+xfs.allocs.free_block PMID: 11.16.3 [XFS blocks freed]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of file system blocks freed over all XFS filesystems
+    value 0
+
+xfs.alloc_btree.lookup PMID: 11.16.4 [lookups in XFS alloc btrees]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of lookup operations in XFS filesystem allocation btrees
+    value 0
+
+xfs.alloc_btree.compare PMID: 11.16.5 [compares in XFS alloc btrees]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of compares in XFS filesystem allocation btree lookups
+    value 0
+
+xfs.alloc_btree.insrec PMID: 11.16.6 [insertions in XFS alloc btrees]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of extent records inserted into XFS filesystem allocation btrees
+    value 0
+
+xfs.alloc_btree.delrec PMID: 11.16.7 [deletions in XFS alloc btrees]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of extent records deleted from XFS filesystem allocation btrees
+    value 0
+
+xfs.block_map.read_ops PMID: 11.16.8 [block map read ops in XFS]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of block map for read operations performed on XFS files
+    value 0
+
+xfs.block_map.write_ops PMID: 11.16.9 [block map write ops in XFS]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of block map for write operations performed on XFS files
+    value 0
+
+xfs.block_map.unmap PMID: 11.16.10 [block unmap ops in XFS]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of block unmap (delete) operations performed on XFS files
+    value 0
+
+xfs.block_map.add_exlist PMID: 11.16.11 [extent list add ops in XFS]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of extent list insertion operations for XFS files
+    value 0
+
+xfs.block_map.del_exlist PMID: 11.16.12 [extent list delete ops in XFS]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of extent list deletion operations for XFS files
+    value 0
+
+xfs.block_map.look_exlist PMID: 11.16.13 [extent list lookup ops in XFS]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of extent list lookup operations for XFS files
+    value 0
+
+xfs.block_map.cmp_exlist PMID: 11.16.14 [extent list compare ops in XFS]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of extent list comparisons in XFS extent list lookups
+    value 0
+
+xfs.bmap_btree.lookup PMID: 11.16.15 [block map btree lookup ops in XFS]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of block map btree lookup operations on XFS files
+    value 0
+
+xfs.bmap_btree.compare PMID: 11.16.16 [block map btree compare ops in XFS]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of block map btree compare operations in XFS block map lookups
+    value 0
+
+xfs.bmap_btree.insrec PMID: 11.16.17 [block map btree insert ops in XFS]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of block map btree records inserted for XFS files
+    value 0
+
+xfs.bmap_btree.delrec PMID: 11.16.18 [block map btree delete ops in XFS]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of block map btree records deleted for XFS files
+    value 0
+
+xfs.dir_ops.lookup PMID: 11.16.19 [number of file name directory lookups]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+This is a count of the number of file name directory lookups in XFS
+filesystems. It counts only those lookups which miss in the operating
+system's directory name lookup cache and must search the real directory
+structure for the name in question.  The count is incremented once for
+each level of a pathname search that results in a directory lookup.
+    value 0
+
+xfs.dir_ops.create PMID: 11.16.20 [number of directory entry creation operations]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+This is the number of times a new directory entry was created in XFS
+filesystems. Each time that a new file, directory, link, symbolic link,
+or special file is created in the directory hierarchy the count is
+incremented.
+    value 0
+
+xfs.dir_ops.remove PMID: 11.16.21 [number of directory entry remove operations]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+This is the number of times an existing directory entry was removed in
+XFS filesystems. Each time that a file, directory, link, symbolic link,
+or special file is removed from the directory hierarchy the count is
+incremented.
+    value 0
+
+xfs.dir_ops.getdents PMID: 11.16.22 [number of times the getdents operation is performed]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+This is the number of times the XFS directory getdents operation was
+performed. The getdents operation is used by programs to read the
+contents of directories in a file system independent fashion.  This
+count corresponds exactly to the number of times the getdents(2) system
+call was successfully used on an XFS directory.
+    value 0
+
+xfs.transactions.sync PMID: 11.16.23 [number of synchronous meta-data transactions performed]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+This is the number of meta-data transactions which waited to be
+committed to the on-disk log before allowing the process performing the
+transaction to continue. These transactions are slower and more
+expensive than asynchronous transactions, because they force the in
+memory log buffers to be forced to disk more often and they wait for
+the completion of the log buffer writes.
+    value 0
+
+xfs.transactions.async PMID: 11.16.24 [number of asynchronous meta-data transactions performed]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+This is the number of meta-data transactions which did not wait to be
+committed to the on-disk log before allowing the process performing the
+transaction to continue. These transactions are faster and more
+efficient than synchronous transactions, because they commit their data
+to the in memory log buffers without forcing those buffers to be
+written to disk. This allows multiple asynchronous transactions to be
+committed to disk in a single log buffer write. Most transactions used
+in XFS file systems are asynchronous.
+    value 0
+
+xfs.transactions.empty PMID: 11.16.25 [number of meta-data transactions which committed without changing anything]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+This is the number of meta-data transactions which did not actually
+change anything. These are transactions which were started for some
+purpose, but in the end it turned out that no change was necessary.
+    value 0
+
+xfs.inode_ops.ig_attempts PMID: 11.16.26 [number of in memory inode lookup operations]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+This is the number of times the operating system looked for an XFS
+inode in the inode cache. Whether the inode was found in the cache or
+needed to be read in from the disk is not indicated here, but this can
+be computed from the ig_found and ig_missed counts.
+    value 0
+
+xfs.inode_ops.ig_found PMID: 11.16.27 [number of successful in memory inode lookup operations]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+This is the number of times the operating system looked for an XFS
+inode in the inode cache and found it. The closer this count is to the
+ig_attempts count the better the inode cache is performing.
+    value 0
+
+xfs.inode_ops.ig_frecycle PMID: 11.16.28 [number of just missed in memory inode lookup operations]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+This is the number of times the operating system looked for an XFS
+inode in the inode cache and saw that it was there but was unable to
+use the in memory inode because it was being recycled by another
+process.
+    value 0
+
+xfs.inode_ops.ig_missed PMID: 11.16.29 [number of failed in memory inode lookup operations]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+This is the number of times the operating system looked for an XFS
+inode in the inode cache and the inode was not there. The further this
+count is from the ig_attempts count the better.
+    value 0
+
+xfs.inode_ops.ig_dup PMID: 11.16.30 [number of inode cache insertions that fail because the inode is there]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+This is the number of times the operating system looked for an XFS
+inode in the inode cache and found that it was not there but upon
+attempting to add the inode to the cache found that another process had
+already inserted it.
+    value 0
+
+xfs.inode_ops.ig_reclaims PMID: 11.16.31 [number of in memory inode recycle operations]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+This is the number of times the operating system recycled an XFS inode
+from the inode cache in order to use the memory for that inode for
+another purpose. Inodes are recycled in order to keep the inode cache
+from growing without bound. If the reclaim rate is high it may be
+beneficial to raise the vnode_free_ratio kernel tunable variable to
+increase the size of inode cache.
+    value 0
+
+xfs.inode_ops.ig_attrchg PMID: 11.16.32 [number of inode attribute change operations]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+This is the number of times the operating system explicitly changed the
+attributes of an XFS inode. For example, this could be to change the
+inode's owner, the inode's size, or the inode's timestamps.
+    value 0
+
+xfs.log.writes PMID: 11.16.33 [number of buffer writes going to the disk from the log]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+This variable counts the number of log buffer writes going to the
+physical log partitions of all XFS filesystems. Log data traffic is
+proportional to the level of meta-data updating. Log buffer writes get
+generated when they fill up or external syncs occur.
+    value 0
+
+xfs.log.blocks PMID: 11.16.34 [write throughput to the physical XFS log]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+Help:
+This variable counts the number of Kbytes of information being written
+to the physical log partitions of all XFS filesystems. Log data traffic
+is proportional to the level of meta-data updating. The rate with which
+log data gets written depends on the size of internal log buffers and
+disk write speed. Therefore, filesystems with very high meta-data
+updating may need to stripe the log partition or put the log partition
+on a separate drive.
+    value 0
+
+xfs.log.write_ratio PMID: 11.16.78 [ratio of count of XFS log blocks written to log writes]
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+The ratio of log blocks written to log writes.  If block count isn't a
+"reasonable" multiple of writes, then many small log writes are being
+performed - this is suboptimal.  Perfection is 64.  Fine-grain control
+can be obtained when this metric is used in conjuntion with pmstore(1)
+and the xfs.control.reset metric.
+    value 0
+
+xfs.log.noiclogs PMID: 11.16.35 [count of failures for immediate get of buffered/internal]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+This variable keeps track of times when a logged transaction can not
+get any log buffer space. When this occurs, all of the internal log
+buffers are busy flushing their data to the physical on-disk log.
+    value 0
+
+xfs.log.force PMID: 11.16.36 [value from xs_log_force field of struct xfsstats]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+The number of times the in-core log is forced to disk.  It is
+equivalent to the number of successful calls to the function
+xfs_log_force().
+    value 0
+
+xfs.log.force_sleep PMID: 11.16.37 [value from xs_log_force_sleep field of struct xfsstats]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+This metric is exported from the xs_log_force_sleep field of struct xfsstats
+    value 0
+
+xfs.log_tail.try_logspace PMID: 11.16.38 [value from xs_try_logspace field of struct xfsstats]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+This metric is exported from the xs_try_logspace field of struct xfsstats
+    value 0
+
+xfs.log_tail.sleep_logspace PMID: 11.16.39 [value from xs_sleep_logspace field of struct xfsstats]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+This metric is exported from the xs_sleep_logspace field of struct xfsstats
+    value 0
+
+xfs.log_tail.push_ail.pushes PMID: 11.16.40 [number of times the AIL tail is moved forward]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+The number of times the tail of the AIL is moved forward.  It is
+equivalent to the number of successful calls to the function
+xfs_trans_push_ail().
+    value 0
+
+xfs.log_tail.push_ail.success PMID: 11.16.41 [value from xs_push_ail_success field of struct xfsstats]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+value from xs_push_ail_success field of struct xfsstats
+    value 0
+
+xfs.log_tail.push_ail.pushbuf PMID: 11.16.42 [value from xs_push_ail_pushbuf field of struct xfsstats]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+value from xs_push_ail_pushbuf field of struct xfsstats
+    value 0
+
+xfs.log_tail.push_ail.pinned PMID: 11.16.43 [value from xs_push_ail_pinned field of struct xfsstats]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+value from xs_push_ail_pinned field of struct xfsstats
+    value 0
+
+xfs.log_tail.push_ail.locked PMID: 11.16.44 [value from xs_push_ail_locked field of struct xfsstats]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+value from xs_push_ail_locked field of struct xfsstats
+    value 0
+
+xfs.log_tail.push_ail.flushing PMID: 11.16.45 [value from xs_push_ail_flushing field of struct xfsstats]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+value from xs_push_ail_flushing field of struct xfsstats
+    value 0
+
+xfs.log_tail.push_ail.restarts PMID: 11.16.46 [value from xs_push_ail_restarts field of struct xfsstats]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+value from xs_push_ail_restarts field of struct xfsstats
+    value 0
+
+xfs.log_tail.push_ail.flush PMID: 11.16.47 [value from xs_push_ail_flush field of struct xfsstats]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+value from xs_push_ail_flush field of struct xfsstats
+    value 0
+
+xfs.xstrat.bytes PMID: 11.16.48 [number of bytes of data processed by the XFS daemons]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+Help:
+This is the number of bytes of file data flushed out by the XFS
+flushing daemons.
+    value 0
+
+xfs.xstrat.quick PMID: 11.16.49 [number of buffers processed by the XFS daemons written to contiguous space on disk]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+This is the number of buffers flushed out by the XFS flushing daemons
+which are written to contiguous space on disk. The buffers handled by
+the XFS daemons are delayed allocation buffers, so this count gives an
+indication of the success of the XFS daemons in allocating contiguous
+disk space for the data being flushed to disk.
+    value 0
+
+xfs.xstrat.split PMID: 11.16.50 [number of buffers processed by the XFS daemons written to non-contiguous space on disk]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+This is the number of buffers flushed out by the XFS flushing daemons
+which are written to non-contiguous space on disk. The buffers handled
+by the XFS daemons are delayed allocation buffers, so this count gives
+an indication of the failure of the XFS daemons in allocating
+contiguous disk space for the data being flushed to disk. Large values
+in this counter indicate that the file system has become fragmented.
+    value 0
+
+xfs.attr.get PMID: 11.16.55 [number of "get" operations on XFS extended file attributes]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+The number of "get" operations performed on extended file attributes
+within XFS filesystems.  The "get" operation retrieves the value of an
+extended attribute.
+    value 0
+
+xfs.attr.set PMID: 11.16.56 [number of "set" operations on XFS extended file attributes]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+The number of "set" operations performed on extended file attributes
+within XFS filesystems.  The "set" operation creates and sets the value
+of an extended attribute.
+    value 0
+
+xfs.attr.remove PMID: 11.16.57 [number of "remove" operations on XFS extended file attributes]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+The number of "remove" operations performed on extended file attributes
+within XFS filesystems.  The "remove" operation deletes an extended
+attribute.
+    value 0
+
+xfs.attr.list PMID: 11.16.58 [number of "list" operations on XFS extended file attributes]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+The number of "list" operations performed on extended file attributes
+within XFS filesystems.  The "list" operation retrieves the set of
+extended attributes associated with a file.
+    value 0
+
+xfs.quota.reclaims PMID: 11.16.59 [value from xs_qm_dqreclaims field of struct xfsstats]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+value from xs_qm_dqreclaims field of struct xfsstats
+    value 0
+
+xfs.quota.reclaim_misses PMID: 11.16.60 [value from xs_qm_dqreclaim_misses field of struct xfsstats]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+value from xs_qm_dqreclaim_misses field of struct xfsstats
+    value 0
+
+xfs.quota.dquot_dups PMID: 11.16.61 [value from xs_qm_dquot_dups field of struct xfsstats]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+value from xs_qm_dquot_dups field of struct xfsstats
+    value 0
+
+xfs.quota.cachemisses PMID: 11.16.62 [value from xs_qm_dqcachemisses field of struct xfsstats]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+value from xs_qm_dqcachemisses field of struct xfsstats
+    value 0
+
+xfs.quota.cachehits PMID: 11.16.63 [value from xs_qm_dqcachehits field of struct xfsstats]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+value from xs_qm_dqcachehits field of struct xfsstats
+    value 0
+
+xfs.quota.wants PMID: 11.16.64 [value from xs_qm_dqwants field of struct xfsstats]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+value from xs_qm_dqwants field of struct xfsstats
+    value 0
+
+xfs.quota.shake_reclaims PMID: 11.16.65 [value from xs_qm_dqshake_reclaims field of struct xfsstats]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+value from xs_qm_dqshake_reclaims field of struct xfsstats
+    value 0
+
+xfs.quota.inact_reclaims PMID: 11.16.66 [value from xs_qm_dqinact_reclaims field of struct xfsstats]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+value from xs_qm_dqinact_reclaims field of struct xfsstats
+    value 0
+
+xfs.buffer.get PMID: 11.17.0 [number of request buffer calls]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+number of request buffer calls
+    value 0
+
+xfs.buffer.create PMID: 11.17.1 [number of buffers created]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+number of buffers created
+    value 0
+
+xfs.buffer.get_locked PMID: 11.17.2 [number of requests for a locked buffer which succeeded]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+number of requests for a locked buffer which succeeded
+    value 0
+
+xfs.buffer.get_locked_waited PMID: 11.17.3 [number of requests for a locked buffer which waited]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+number of requests for a locked buffer which waited
+    value 0
+
+xfs.buffer.busy_locked PMID: 11.17.4 [number of non-blocking requests for a locked buffer which failed]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+number of non-blocking requests for a locked buffer which failed
+    value 0
+
+xfs.buffer.miss_locked PMID: 11.17.5 [number of requests for a locked buffer which failed due to no buffer]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+number of requests for a locked buffer which failed due to no buffer
+    value 0
+
+xfs.buffer.page_retries PMID: 11.17.6 [number of retry attempts when allocating a page for insertion in a buffer]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+number of retry attempts when allocating a page for insertion in a buffer
+    value 0
+
+xfs.buffer.page_found PMID: 11.17.7 [number of hits in the page cache when looking for a page]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+number of hits in the page cache when looking for a page
+    value 0
+
+xfs.buffer.get_read PMID: 11.17.8 [number of buffer get calls requiring immediate device reads]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+number of buffer get calls requiring immediate device reads
+    value 0
+
+xfs.vnodes.active PMID: 11.16.70 [number of vnodes not on free lists]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+number of vnodes not on free lists
+    value 0
+
+xfs.vnodes.alloc PMID: 11.16.71 [number of times vn_alloc called]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+number of times vn_alloc called
+    value 0
+
+xfs.vnodes.get PMID: 11.16.72 [number of times vn_get called]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+number of times vn_get called
+    value 0
+
+xfs.vnodes.hold PMID: 11.16.73 [number of times vn_hold called]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+number of times vn_hold called
+    value 0
+
+xfs.vnodes.rele PMID: 11.16.74 [number of times vn_rele called]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+number of times vn_rele called
+    value 0
+
+xfs.vnodes.reclaim PMID: 11.16.75 [number of times vn_reclaim called]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+number of times vn_reclaim called
+    value 0
+
+xfs.vnodes.remove PMID: 11.16.76 [number of times vn_remove called]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+number of times vn_remove called
+    value 0
+
+xfs.vnodes.free PMID: 11.16.77 [number of times vn_free called]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+number of times vn_free called
+    value 0
+
+xfs.control.reset PMID: 11.16.79 [reset the values of all XFS metrics to zero]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+reset the values of all XFS metrics to zero
+    value 0
+
+xfs.btree.alloc_blocks.lookup PMID: 11.16.80 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of free-space-by-block-number btree record lookups
+    value 0
+
+xfs.btree.alloc_blocks.compare PMID: 11.16.81 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of free-space-by-block-number btree record compares
+    value 0
+
+xfs.btree.alloc_blocks.insrec PMID: 11.16.82 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of free-space-by-block-number btree insert record operations executed
+    value 0
+
+xfs.btree.alloc_blocks.delrec PMID: 11.16.83 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of free-space-by-block-number btree delete record operations executed
+    value 0
+
+xfs.btree.alloc_blocks.newroot PMID: 11.16.84 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of times a new level is added to a free-space-by-block-number btree
+    value 0
+
+xfs.btree.alloc_blocks.killroot PMID: 11.16.85 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of times a level is removed from a free-space-by-block-number btree
+    value 0
+
+xfs.btree.alloc_blocks.increment PMID: 11.16.86 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of times a cursor has been moved forward one free-space-by-block-number
+btree record
+    value 0
+
+xfs.btree.alloc_blocks.decrement PMID: 11.16.87 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of times a cursor has been moved backward one free-space-by-block-number
+btree record
+    value 0
+
+xfs.btree.alloc_blocks.lshift PMID: 11.16.88 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Left shift block operations to make space for a new free-space-by-block-number
+btree record
+    value 0
+
+xfs.btree.alloc_blocks.rshift PMID: 11.16.89 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Right shift block operations to make space for a new free-space-by-block-number
+btree record
+    value 0
+
+xfs.btree.alloc_blocks.split PMID: 11.16.90 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Split block operations to make space for a new free-space-by-block-number
+btree record
+    value 0
+
+xfs.btree.alloc_blocks.join PMID: 11.16.91 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Merge block operations when deleting free-space-by-block-number btree records
+    value 0
+
+xfs.btree.alloc_blocks.alloc PMID: 11.16.92 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Btree block allocations during free-space-by-block-number btree operations
+    value 0
+
+xfs.btree.alloc_blocks.free PMID: 11.16.93 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Btree blocks freed during free-space-by-block-number btree operations
+    value 0
+
+xfs.btree.alloc_blocks.moves PMID: 11.16.94 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Records moved inside blocks during free-space-by-block-number btree operations
+    value 0
+
+xfs.btree.alloc_contig.lookup PMID: 11.16.95 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of free-space-by-size btree record lookups
+    value 0
+
+xfs.btree.alloc_contig.compare PMID: 11.16.96 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of free-space-by-size btree btree record compares
+    value 0
+
+xfs.btree.alloc_contig.insrec PMID: 11.16.97 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of free-space-by-size btree insert record operations executed
+    value 0
+
+xfs.btree.alloc_contig.delrec PMID: 11.16.98 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of free-space-by-size btree delete record operations executed
+    value 0
+
+xfs.btree.alloc_contig.newroot PMID: 11.16.99 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of times a new level is added to a free-space-by-size btree tree
+    value 0
+
+xfs.btree.alloc_contig.killroot PMID: 11.16.100 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of times a level is removed from a free-space-by-size btree tree
+    value 0
+
+xfs.btree.alloc_contig.increment PMID: 11.16.101 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of times a free-space-by-size btree cursor has been moved forward
+one record
+    value 0
+
+xfs.btree.alloc_contig.decrement PMID: 11.16.102 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of times a free-space-by-size btree cursor has been moved backward
+one record
+    value 0
+
+xfs.btree.alloc_contig.lshift PMID: 11.16.103 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Left shift block operations to make space for a new free-space-by-size
+btree record
+    value 0
+
+xfs.btree.alloc_contig.rshift PMID: 11.16.104 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Right shift block operations to make space for a new free-space-by-size
+btree record
+    value 0
+
+xfs.btree.alloc_contig.split PMID: 11.16.105 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Split block operations to make space for a new free-space-by-size btree
+record
+    value 0
+
+xfs.btree.alloc_contig.join PMID: 11.16.106 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Merge block operations when deleting free-space-by-size btree records
+    value 0
+
+xfs.btree.alloc_contig.alloc PMID: 11.16.107 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Btree block allocations during free-space-by-size btree operations
+    value 0
+
+xfs.btree.alloc_contig.free PMID: 11.16.108 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Btree blocks freed during free-space-by-size btree operations
+    value 0
+
+xfs.btree.alloc_contig.moves PMID: 11.16.109 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Records moved inside blocks during free-space-by-size btree operations
+    value 0
+
+xfs.btree.block_map.lookup PMID: 11.16.110 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of inode-block-map/extent btree record lookups
+    value 0
+
+xfs.btree.block_map.compare PMID: 11.16.111 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of inode-block-map/extent btree record compares
+    value 0
+
+xfs.btree.block_map.insrec PMID: 11.16.112 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of inode-block-map/extent btree insert record operations executed
+    value 0
+
+xfs.btree.block_map.delrec PMID: 11.16.113 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of inode-block-map/extent btree delete record operations executed
+    value 0
+
+xfs.btree.block_map.newroot PMID: 11.16.114 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of times a new level is added to an inode-block-map/extent btree
+    value 0
+
+xfs.btree.block_map.killroot PMID: 11.16.115 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of times a level is removed from an inode-block-map/extent btree
+    value 0
+
+xfs.btree.block_map.increment PMID: 11.16.116 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of times an inode-block-map/extent btree cursor has been moved
+forward one record
+    value 0
+
+xfs.btree.block_map.decrement PMID: 11.16.117 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of times an inode-block-map/extent btree cursor has been moved
+backward one record
+    value 0
+
+xfs.btree.block_map.lshift PMID: 11.16.118 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Left shift block operations to make space for a new inode-block-map/extent
+btree record
+    value 0
+
+xfs.btree.block_map.rshift PMID: 11.16.119 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Right shift block operations to make space for a new inode-block-map/extent
+btree record
+    value 0
+
+xfs.btree.block_map.split PMID: 11.16.120 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Split block operations to make space for a new inode-block-map/extent
+btree record
+    value 0
+
+xfs.btree.block_map.join PMID: 11.16.121 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Merge block operations when deleting inode-block-map/extent btree records
+    value 0
+
+xfs.btree.block_map.alloc PMID: 11.16.122 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Btree block allocations during inode-block-map/extent btree operations
+    value 0
+
+xfs.btree.block_map.free PMID: 11.16.123 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Btree blocks freed during inode-block-map/extent btree operations
+    value 0
+
+xfs.btree.block_map.moves PMID: 11.16.124 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Records moved inside blocks during inode-block-map/extent btree operations
+    value 0
+
+xfs.btree.inode.lookup PMID: 11.16.125 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of inode-allocation btree record lookups
+    value 0
+
+xfs.btree.inode.compare PMID: 11.16.126 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of inode-allocation btree record compares
+    value 0
+
+xfs.btree.inode.insrec PMID: 11.16.127 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of inode-allocation btree insert record operations executed
+    value 0
+
+xfs.btree.inode.delrec PMID: 11.16.128 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of inode-allocation btree delete record operations executed
+    value 0
+
+xfs.btree.inode.newroot PMID: 11.16.129 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of times a new level is added to an inode-allocation btree
+    value 0
+
+xfs.btree.inode.killroot PMID: 11.16.130 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of times a level is removed from an inode-allocation btree
+    value 0
+
+xfs.btree.inode.increment PMID: 11.16.131 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of times a cursor has been moved forward one inode-allocation
+btree record
+    value 0
+
+xfs.btree.inode.decrement PMID: 11.16.132 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of times a cursor has been moved backward one inode-allocation
+btree record
+    value 0
+
+xfs.btree.inode.lshift PMID: 11.16.133 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Left shift block operations to make space for a new inode-allocation
+btree record
+    value 0
+
+xfs.btree.inode.rshift PMID: 11.16.134 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Right shift block operations to make space for a new inode-allocation
+btree record
+    value 0
+
+xfs.btree.inode.split PMID: 11.16.135 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Split block operations to make space for a new inode-allocation btree record
+    value 0
+
+xfs.btree.inode.join PMID: 11.16.136 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Merge block operations when deleting inode-allocation btree records
+    value 0
+
+xfs.btree.inode.alloc PMID: 11.16.137 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Btree block allocations during inode-allocation btree operations
+    value 0
+
+xfs.btree.inode.free PMID: 11.16.138 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Btree blocks freed during inode-allocation btree operations
+    value 0
+
+xfs.btree.inode.moves PMID: 11.16.139 []
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Records moved inside blocks during inode-allocation btree operations
+    value 0
+
+== done
+

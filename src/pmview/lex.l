@@ -10,11 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- * 
  */
 
 %{
@@ -248,9 +243,9 @@ _group[bB]y[iI]nst	{ yylval.y_barGroup = BarMod::groupByInst; RETURN(GROUP); }
 	}
 %%
 
-static char     *line = (char *)0;
-static int      linepos = 0;
-static int      linelen = 0;
+static char     *line;
+static int      linepos;
+static int      linelen;
 static int      mark = -1;
 
 extern int lineNum;
@@ -264,9 +259,9 @@ int yywrap(void)
 }
 
 int
-pmviewFlexInput (char * buf, int ms)
+pmviewFlexInput(char *buf, int ms)
 {
-    if ( in == '\n' ) {
+    if (in == '\n') {
 	lineNum++;
 	linepos=0;
     }
@@ -276,11 +271,11 @@ pmviewFlexInput (char * buf, int ms)
             linelen = 128;
         else
             linelen *= 2;
-        line = (char*)realloc(line, linelen * sizeof(char)); 
+        line = (char *)realloc(line, linelen * sizeof(char)); 
     }
 
-    if (ms > 0 ) {
-	if ( (in = fgetc (yyin)) != EOF ) {
+    if (ms > 0) {
+	if ((in = fgetc(yyin)) != EOF) {
 	    line[linepos++] = buf[0] = in & 0xFFU;
 	    ms = 1;
 	} else {
@@ -288,27 +283,25 @@ pmviewFlexInput (char * buf, int ms)
 	}
     }
 
-    return (ms);
+    return ms;
 }
 
 void
-skipAhead (void) 
+skipAhead(void) 
 {
-    while ( (in != '\n') && (in != EOF) ) {
+    while ((in != '\n') && (in != EOF)) {
 	char c;
-	pmviewFlexInput (&c, 1);
+	pmviewFlexInput(&c, 1);
     }
 }
 
 char
-input (void)
+input(void)
 {
     char c;
-    if ( pmviewFlexInput (&c, 1) ) {
-	return (c);
-    } else {
-	return (0);
-    }
+    if (pmviewFlexInput(&c, 1))
+	return c;
+    return 0;
 }
 
 char
@@ -357,17 +350,15 @@ input(void)
             linelen = 128;
         else
             linelen *= 2;
-        line = (char*)realloc(line, linelen * sizeof(char)); 
+        line = (char *)realloc(line, linelen * sizeof(char)); 
     }
 
     get = fgetc(yyin);
 
-    if (get == EOF) {
+    if (get == EOF)
         lastc = '\0';
-    }
-    else {
+    else
         lastc = get;
-    }
 
     line[linepos++] = (char)get;
 
@@ -435,16 +426,15 @@ locateError(void)
  * in lexer, i.e those, where we've got no reasonable chance to do any
  * recovery. */
 static void
-lexerror (const char * msg, const char * yytext)
+lexerror(const char * msg, const char * yytext)
 {
-    char * pos;
+    char *pos;
 
-    if ( (pos = strstr (line, yytext)) != NULL ) {
+    if ((pos = strstr(line, yytext)) != NULL) {
 	int i;
 
-	for (i = 0; (line[i] != '\n') && (line[i] != '\0'); i++) {
+	for (i = 0; (line[i] != '\n') && (line[i] != '\0'); i++)
             pmprintf("%c", line[i]);
-	}
 	pmprintf("\n");
 
 	for (i = 0; line+i != pos; i++) {
@@ -458,9 +448,9 @@ lexerror (const char * msg, const char * yytext)
 	pmprintf("^ at or near here\n");
     }
 
-    pmprintf ("%s: Fatal error in configuration file at line %d:\n\t%s\n", 
-	      pmProgname, lineNum + 1, msg);
+    pmprintf("%s: Fatal error in configuration file at line %d:\n\t%s\n", 
+	     pmProgname, lineNum + 1, msg);
 
     pmflush();
-    exit (1);
+    exit(1);
 }

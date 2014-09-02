@@ -1,0 +1,26 @@
+#!/bin/sh
+# PCP QA Test No. 958
+# Exercise compressed archive files - xz version
+#
+# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.compress
+
+which xz >/dev/null 2>&1 || _notrun "No xz binary installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+_prepare_compress xz unxz xz
+_exercise_compression 2>&1 \
+| sed -e 's/format not recognised/format not recognized/'
+
+status=0	# success, we're all done
+exit

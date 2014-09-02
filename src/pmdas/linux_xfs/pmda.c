@@ -1,7 +1,7 @@
 /*
  * XFS PMDA
  *
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -24,7 +24,9 @@
 #include "filesys.h"
 #include "proc_fs_xfs.h"
 
+static int		_isDSO = 1; /* for local contexts */
 static proc_fs_xfs_t	proc_fs_xfs;
+static char * 		xfs_statspath = "";
 
 /*
  * The XFS instance domain table is direct lookup and sparse.
@@ -694,6 +696,16 @@ static pmdaMetric xfs_metrictab[] = {
       PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) }, },
 };
 
+FILE *
+xfs_statsfile(const char *path, const char *mode)
+{
+    char buffer[MAXPATHLEN];
+
+    snprintf(buffer, sizeof(buffer), "%s%s", xfs_statspath, path);
+    buffer[MAXPATHLEN-1] = '\0';
+    return fopen(buffer, mode);
+}
+
 static void
 xfs_refresh(pmdaExt *pmda, int *need_refresh)
 {
@@ -858,7 +870,7 @@ procfs_zero(const char *filename, pmValueSet *vsp)
     if (value < 0)
 	return PM_ERR_SIGN;
 
-    fp = fopen(filename, "w");
+    fp = xfs_statsfile(filename, "w");
     if (!fp) {
 	sts = PM_ERR_PERMISSION;
     } else {
@@ -895,6 +907,19 @@ void
 __PMDA_INIT_CALL
 xfs_init(pmdaInterface *dp)
 {
+    char *envpath;
+
+    if ((envpath = getenv("XFS_STATSPATH")) != NULL)
+	xfs_statspath = envpath;
+
+    if (_isDSO) {
+	char helppath[MAXPATHLEN];
+	int sep = __pmPathSeparator();
+	snprintf(helppath, sizeof(helppath), "%s%c" "xfs" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
+	pmdaDSO(dp, PMDA_INTERFACE_3, "XFS DSO", helppath);
+    }
+
     if (dp->status != 0)
 	return;
 
@@ -934,6 +959,7 @@ main(int argc, char **argv)
     pmdaInterface	dispatch;
     char		helppath[MAXPATHLEN];
 
+    _isDSO = 0;
     __pmSetProgname(argv[0]);
     snprintf(helppath, sizeof(helppath), "%s%c" "xfs" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

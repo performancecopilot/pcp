@@ -6,6 +6,8 @@ seq=`basename $0`
 echo "QA output created by $seq"
 . ./common.qt
 
+[ -x qt/qmc_context/qmc_context ] || _notrun "qmc_context not built or installed"
+
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

@@ -39,7 +39,7 @@
    <string>Add Tab</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="pmchart.qrc" >:/tab-edit.png</iconset>
+   <iconset resource="pmchart.qrc" >:/images/tab-edit.png</iconset>
   </property>
   <property name="sizeGripEnabled" >
    <bool>false</bool>
@@ -111,7 +111,7 @@
        </property>
        <property name="icon" >
         <iconset resource="pmchart.qrc" >
-         <normaloff>:/computer.png</normaloff>:/computer.png</iconset>
+         <normaloff>:/images/computer.png</normaloff>:/images/computer.png</iconset>
        </property>
        <property name="checked" >
         <bool>true</bool>
@@ -128,7 +128,7 @@
        </property>
        <property name="icon" >
         <iconset resource="pmchart.qrc" >
-         <normaloff>:/archive.png</normaloff>:/archive.png</iconset>
+         <normaloff>:/images/archive.png</normaloff>:/images/archive.png</iconset>
        </property>
        <property name="autoExclusive" >
         <bool>false</bool>

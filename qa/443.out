@@ -87,9 +87,9 @@ pmevent: Cannot open archive "/no/such/archive": No such file or directory
 === -L sample.event.records ===
 pmevent: pmLookupDesc: sample.event.records: No PMCD agent for domain of request
 === sample.event.records sample.colour ===
-pmevent: sample.colour: metrics must be of type PM_TYPE_EVENT
+pmevent: sample.colour: metrics must be of event type
 === -Dappl0 sample.colour[red] ===
-pmevent: sample.colour: metrics must be of type PM_TYPE_EVENT
+pmevent: sample.colour: metrics must be of event type
 === -Dappl0 sample.event.no_indom_records[red] ===
 pmevent: sample.event.no_indom_records[red]: singular metrics do not have instances
 

@@ -21,6 +21,7 @@
 #include "pmdagfs2.h"
 #include "ftrace.h"
 #include "worst_glock.h"
+#include "latency.h"
 
 #include <fcntl.h>
 #include <string.h>
@@ -125,6 +126,13 @@ gfs2_extract_trace_values(char *buffer, pmInDom gfs_fs_indom)
         temp.tracepoint = GLOCK_STATE_CHANGE;
         sscanf(data, "gfs2_glock_state_change: %"SCNu32",%"SCNu32"", &major, &minor);
 
+        /*
+         * Pass tracepoint data over for latency metrics for processing,
+         * only if the metrics are enabled. 
+         */
+        if (latency_get_state() == 1)
+            gfs2_extract_latency(major, minor, temp.tracepoint, buffer, gfs_fs_indom);
+
     } else if ((data = strstr(buffer, "gfs2_glock_put: "))) {
         temp.tracepoint = GLOCK_PUT;
         sscanf(data, "gfs2_glock_put: %"SCNu32",%"SCNu32"", &major, &minor);
@@ -133,6 +141,13 @@ gfs2_extract_trace_values(char *buffer, pmInDom gfs_fs_indom)
         temp.tracepoint = DEMOTE_RQ;
         sscanf(data, "gfs2_demote_rq: %"SCNu32",%"SCNu32"", &major, &minor);
 
+        /*
+         * Pass tracepoint data over for latency metrics for processing,
+         * only if the metrics are enabled. 
+         */
+        if (latency_get_state() == 1)
+            gfs2_extract_latency(major, minor, temp.tracepoint, buffer, gfs_fs_indom);
+
     } else if ((data = strstr(buffer, "gfs2_promote: "))) {
         temp.tracepoint = PROMOTE;
         sscanf(data, "gfs2_promote: %"SCNu32",%"SCNu32"", &major, &minor);
@@ -140,6 +155,13 @@ gfs2_extract_trace_values(char *buffer, pmInDom gfs_fs_indom)
     } else if ((data = strstr(buffer, "gfs2_glock_queue: "))) {
         temp.tracepoint = GLOCK_QUEUE;
         sscanf(data, "gfs2_glock_queue: %"SCNu32",%"SCNu32"", &major, &minor);
+
+        /*
+         * Pass tracepoint data over for latency metrics for processing,
+         * only if the metrics are enabled. 
+         */
+        if (latency_get_state() == 1)
+            gfs2_extract_latency(major, minor, temp.tracepoint, buffer, gfs_fs_indom);
 
     } else if ((data = strstr(buffer, "gfs2_glock_lock_time: "))) {
         temp.tracepoint = GLOCK_LOCK_TIME;
@@ -196,8 +218,6 @@ gfs2_extract_trace_values(char *buffer, pmInDom gfs_fs_indom)
 /*
  * We work though each mounted filesystem and update the metric data based
  * off what tracepoint information we have collected from the trace pipe.
- * Data is consumed and the ftrace_data array is deallocated on each refresh
- * cycle.
  */
 static void
 gfs2_assign_ftrace(pmInDom gfs2_fs_indom, int reset_flag) 
@@ -217,6 +237,7 @@ gfs2_assign_ftrace(pmInDom gfs2_fs_indom, int reset_flag)
             for (j = 0; j < NUM_TRACEPOINT_STATS; j++) {
                 /* Reset old metric data for all tracepoints */
                 fs->ftrace.values[j] = 0;
+                reset_flag = 0;
             }
         }      
        
@@ -554,9 +575,8 @@ gfs2_refresh_ftrace_stats(pmInDom gfs_fs_indom)
 
         /* Processing here */
         gfs2_assign_ftrace(gfs_fs_indom, reset_flag);
-        reset_flag = 0; // We only want to reset once for each run through
-
     }
+
     fclose(fp);
 
     /* Clear the rest of the ring buffer after passing max_glock_throughput */

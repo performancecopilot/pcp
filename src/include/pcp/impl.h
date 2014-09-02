@@ -293,7 +293,10 @@ EXTERN int	pmDebug;
 
 extern int __pmParseDebug(const char *);
 extern void __pmDumpResult(FILE *, const pmResult *);
+extern void __pmDumpHighResResult(FILE *, const pmHighResResult *);
 extern void __pmPrintStamp(FILE *, const struct timeval *);
+extern void __pmPrintHighResStamp(FILE *, const struct timespec *);
+extern void __pmPrintTimespec(FILE *, const __pmTimespec *);
 extern void __pmPrintTimeval(FILE *, const __pmTimeval *);
 extern void __pmPrintDesc(FILE *, const pmDesc *);
 extern void __pmFreeResultValues(pmResult *);
@@ -1420,19 +1423,20 @@ extern int __pmLocalPMDA(int, int, const char *, const char *);
 extern char *__pmSpecLocalPMDA(const char *);
 
 /*
- * helper methods for packed arrays of event records (PM_TYPE_EVENT)
+ * Helper methods for packed arrays of event records
  */
 extern int __pmCheckEventRecords(pmValueSet *, int);
+extern int __pmCheckHighResEventRecords(pmValueSet *, int);
 extern void __pmDumpEventRecords(FILE *, pmValueSet *, int);
+extern void __pmDumpHighResEventRecords(FILE *, pmValueSet *, int);
 
-/* anonymous metric registration (uses derived metrics support) */
+/* Anonymous metric registration (uses derived metrics support) */
 extern int __pmRegisterAnon(const char *, int);
 
 /*
  * Multi-thread support
  * Use PM_MULTI_THREAD_DEBUG for lock debugging with -Dlock[,appl?...]
  */
-
 extern void __pmInitLocks(void);
 extern int __pmLock(void *, const char *, int);
 extern int __pmUnlock(void *, const char *, int);

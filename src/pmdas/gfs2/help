@@ -188,56 +188,56 @@ the cluster.
 The total number of demote requests which were requested by a local node of
 the cluster
 
-@ gfs2.tracepoints.promote.total Total number of lock grants. The total number
-of lock grants.
+@ gfs2.tracepoints.promote.total Total number of lock state. The total number
+of lock state.
 
-@ gfs2.tracepoints.promote.first.null_lock Number of lock grants to null_lock.
-The total number of successful first time lock grants to the null_lock state.
+@ gfs2.tracepoints.promote.first.null_lock Number of lock state to null_lock.
+The total number of successful first time lock state to the null_lock state.
 
-@ gfs2.tracepoints.promote.first.concurrent_read Number of lock grants to 
-concurrent_read. The total number of successful first time lock grants to the 
+@ gfs2.tracepoints.promote.first.concurrent_read Number of lock state to 
+concurrent_read. The total number of successful first time lock state to the 
 concurrent_read state.
 
-@ gfs2.tracepoints.promote.first.concurrent_write Number of lock grants to 
-concurrent_write. The total number of successful first time lock grants to the 
+@ gfs2.tracepoints.promote.first.concurrent_write Number of lock state to 
+concurrent_write. The total number of successful first time lock state to the 
 concurrent_write state.
 
-@ gfs2.tracepoints.promote.first.protected_read Number of lock grants to 
-protected_read. The total number of successful first time lock grants to the 
+@ gfs2.tracepoints.promote.first.protected_read Number of lock state to 
+protected_read. The total number of successful first time lock state to the 
 protected_read state.
 
-@ gfs2.tracepoints.promote.first.protected_write Number of lock grants to 
-protected_write. The total number of successful first time lock grants to the 
+@ gfs2.tracepoints.promote.first.protected_write Number of lock state to 
+protected_write. The total number of successful first time lock state to the 
 protected_write state.
 
-@ gfs2.tracepoints.promote.first.exclusive Number of lock grants to 
-exclusive. The total number of successful first time lock grants to the 
+@ gfs2.tracepoints.promote.first.exclusive Number of lock state to 
+exclusive. The total number of successful first time lock state to the 
 exclusive state.
 
-@gfs2.tracepoints.promote.other.null_lock Number of lock grants to null_lock.
-The total number of successful other time lock grants to the null_lock state.
+@ gfs2.tracepoints.promote.other.null_lock Number of lock state to null_lock.
+The total number of successful other time lock state to the null_lock state.
 
-@gfs2.tracepoints.promote.other.concurrent_read Number of lock grants to 
-concurrent_read. The total number of successful other time lock grants to the 
+@ gfs2.tracepoints.promote.other.concurrent_read Number of lock state to 
+concurrent_read. The total number of successful other time lock state to the 
 concurrent_read state.
 
-@gfs2.tracepoints.promote.other.concurrent_write Number of lock grants to 
-concurrent_write. The total number of successful other time lock grants to the 
+@ gfs2.tracepoints.promote.other.concurrent_write Number of lock state to 
+concurrent_write. The total number of successful other time lock state to the 
 concurrent_write state.
 
-@gfs2.tracepoints.promote.other.protected_read Number of lock grants to 
-protected_read. The total number of successful other time lock grants to the 
+@ gfs2.tracepoints.promote.other.protected_read Number of lock state to 
+protected_read. The total number of successful other time lock state to the 
 protected_read state.
 
-@gfs2.tracepoints.promote.other.protected_write Number of lock grants to 
-protected_write. The total number of successful other time lock grants to the 
+@ gfs2.tracepoints.promote.other.protected_write Number of lock state to 
+protected_write. The total number of successful other time lock state to the 
 protected_write state.
 
-@gfs2.tracepoints.promote.other.exclusive Number of lock grants to 
-exclusive. The total number of successful other time lock grants to the 
+@ gfs2.tracepoints.promote.other.exclusive Number of lock state to 
+exclusive. The total number of successful other time lock state to the 
 exclusive state.
 
-@gfs2.tracepoints.glock_queue.total Total numbe rof queued and dequeued
+@ gfs2.tracepoints.glock_queue.total Total numbe rof queued and dequeued
 requests. The total number of both queued and dequeued requests.
 
 @ gfs2.tracepoints.glock_queue.queue.total Total number of queued lock requests.
@@ -371,6 +371,83 @@ resource group claim calls.
 
 # help text for gfs2.worst_glock.*.* is generated dynamically
 
+@ gfs2.latency.grant.all Average time in ms for all states. The total average
+latency time in ms for all lock states for grants.
+
+@ gfs2.latency.grant.null_lock Average time in ms to null lock state. The
+total average latency time in ms to change to null lock state for grants.
+
+@ gfs2.latency.grant.concurrent_read Average time in ms to concurrent read
+lock state. The total average latency time in ms to change to concurrent read
+lock state for grants.
+
+@ gfs2.latency.grant.concurrent_write Average time in ms to concurrent write
+lock state. The total average latency time in ms to change to concurrent write
+lock state for grants.
+
+@ gfs2.latency.grant.protected_read Average time in ms to protected read
+lock state. The total average latency time in ms to change to protected read
+lock state for grants.
+
+@ gfs2.latency.grant.protected_write Average time in ms to protected write
+lock state. The total average latency time in ms to change to protected write
+lock state for grants.
+
+@ gfs2.latency.grant.exclusive Average time in ms to exclusive lock state. The
+total average latency time in ms to change to exclusive lock state for grants.
+
+@ gfs2.latency.demote.all Average time in ms for all states. The total average
+latency time in ms for all lock states for demotes.
+
+@ gfs2.latency.demote.null_lock Average time in ms to null lock state. The
+total average latency time in ms to change to null lock state for demotes.
+
+@ gfs2.latency.demote.concurrent_read Average time in ms to concurrent read
+lock state. The total average latency time in ms to change to concurrent read
+lock state for demotes.
+
+@ gfs2.latency.demote.concurrent_write Average time in ms to concurrent write
+lock state. The total average latency time in ms to change to concurrent write
+lock state for demotes.
+
+@ gfs2.latency.demote.protected_read Average time in ms to protected read
+lock state. The total average latency time in ms to change to protected read
+lock state for demotes.
+
+@ gfs2.latency.demote.protected_write Average time in ms to protected write
+lock state. The total average latency time in ms to change to protected write
+lock state for demotes.
+
+@ gfs2.latency.demote.exclusive Average time in ms to exclusive lock state. 
+The total average latency time in ms to change to exclusive lock state for
+demotes.
+
+@ gfs2.latency.queue.all Average time in ms for all states. The total average
+latency time in ms for all lock states for queues.
+
+@ gfs2.latency.queue.null_lock Average time in ms to null lock state. The
+total average latency time in ms to change to null lock state for queues.
+
+@ gfs2.latency.queue.concurrent_read Average time in ms to concurrent read
+lock state. The total average latency time in ms to change to concurrent read
+lock state for queues.
+
+@ gfs2.latency.queue.concurrent_write Average time in ms to concurrent write
+lock state. The total average latency time in ms to change to concurrent write
+lock state for queues.
+
+@ gfs2.latency.queue.protected_read Average time in ms to protected read
+lock state. The total average latency time in ms to change to protected read
+lock state for queues.
+
+@ gfs2.latency.queue.protected_write Average time in ms to protected write
+lock state. The total average latency time in ms to change to protected write
+lock state for queues.
+
+@ gfs2.latency.queue.exclusive Average time in ms to exclusive lock state.
+The total average latency time in ms to change to exclusive lock state for 
+queues.
+
 @ gfs2.control.tracepoints.all Indication whether glock statistics are enabled
 The gfs2 tracepoint statistics can be manually controlled using pmstore
 gfs2.control.tracepoints.all 0 [off] or 1 [on]. Setting the value of the metric
@@ -475,6 +552,13 @@ using pmstore gfs2.control.glock_lock_time 0 [off] or 1 [on]. Setting the value
 of the metric controls the behavior of the PMDA to whether it tries to collect
 the lock_time metrics or not. The machine must have the gfs2 trace-points
 available for the glock_lock_time based metrics to function.
+
+@ gfs2.control.latency Indication whether gfs2.latency statistics are enabled.
+The gfs2.latency statistics can be manually controlled using pmstore
+gfs2.control.latency 0 [off] or 1 [on]. Setting the value of the metric
+controls the behaviour of the PMDA to whether it tries to collect the latency
+metrics or not. The machice must have the gfs2 trace-points available for the
+latency metrics to function.
 
 @ gfs2.control.glock_threshold Threshold for maximum number of glocks accepted
 per fetch. The number of glocks that will be processed and accepted over all

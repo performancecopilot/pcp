@@ -576,7 +576,7 @@ main(int argc, char ** argv)
     if (opts.interval.tv_sec == 0 && opts.interval.tv_usec == 0)
 	fromsec(globalSettings.chartDelta, &opts.interval);
 
-    console = new Console(opts.origin);
+    console = new QedConsole(opts.origin);
 
     //
     // Deal with user requested sample/visible points globalSettings.  These
@@ -690,7 +690,7 @@ main(int argc, char ** argv)
 	globalFont->setBold(true);
 
     tab = new Tab;
-    fileIconProvider = new FileIconProvider();
+    fileIconProvider = new QedFileIconProvider();
 
     pmchart = new PmChart;
     pmtime = new TimeControl;

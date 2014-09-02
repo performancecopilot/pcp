@@ -1,0 +1,43 @@
+#!/bin/sh
+# PCP QA Test No. 824
+# https://bugzilla.redhat.com/show_bug.cgi?id=1132476
+# with -S pmlogsummary reports incorrect commencing time
+#
+# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pmdumplog -zL src/20041125
+
+echo
+echo "=== no -S or -T ==="
+pmlogsummary -zHlfiImMy src/20041125 mem.freemem disk.partitions.write | head -10
+
+echo
+echo "=== with -S @00:15 ==="
+pmlogsummary -zHlfiImMy -S @00:15 src/20041125 mem.freemem disk.partitions.write | head -10
+
+echo
+echo "=== with -T @00:45 ==="
+pmlogsummary -zHlfiImMy -T @00:45 src/20041125 mem.freemem disk.partitions.write | head -10
+
+echo
+echo "=== with -S @00:15 and -T @00:45 ==="
+pmlogsummary -zHlfiImMy -S @00:15 -T @00:45 src/20041125 mem.freemem disk.partitions.write | head -10
+
+# success, all done
+status=0
+
+exit

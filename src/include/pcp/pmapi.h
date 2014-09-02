@@ -122,6 +122,7 @@ typedef struct {
 #define PM_TYPE_AGGREGATE	7	/* arbitrary binary data (aggregate) */
 #define PM_TYPE_AGGREGATE_STATIC 8	/* static pointer to aggregate */
 #define PM_TYPE_EVENT		9	/* packed pmEventArray */
+#define PM_TYPE_HIGHRES_EVENT	10	/* packed pmHighResEventArray */
 #define PM_TYPE_UNKNOWN		255	/* used in pmValueBlock, not pmDesc */
 
 /* pmDesc.sem -- semantics/interpretation of metric values */
@@ -418,9 +419,16 @@ typedef struct {
 /* Result returned by pmFetch() */
 typedef struct {
     struct timeval	timestamp;	/* time stamped by collector */
-    int		numpmid;		/* number of PMIDs */
-    pmValueSet	*vset[1];		/* set of value sets, one per PMID */
+    int			numpmid;	/* number of PMIDs */
+    pmValueSet		*vset[1];	/* set of value sets, one per PMID */
 } pmResult;
+
+/* High resolution event timer result from pmUnpackHighResEventRecords() */
+typedef struct {
+    struct timespec	timestamp;	/* time stamped by collector */
+    int			numpmid;	/* number of PMIDs */
+    pmValueSet		*vset[1];	/* set of value sets, one per PMID */
+} pmHighResResult;
 
 /* Generic Union for Value-Type conversions */
 typedef union {
@@ -468,6 +476,11 @@ typedef struct {
     __int32_t	tv_usec;	/* and microseconds */
 } __pmTimeval;
 
+typedef struct {
+    __int64_t	tv_sec;		/* seconds since Jan. 1, 1970 */
+    __int64_t	tv_nsec;	/* and nanoseconds */
+} __pmTimespec;
+
 /*
  * Label Record at the start of every log file - as exported above
  * the PMAPI ...
@@ -500,6 +513,7 @@ extern int pmGetArchiveEnd(struct timeval *);
 
 /* Free result buffer */
 extern void pmFreeResult(pmResult *);
+extern void pmFreeHighResResult(pmHighResResult *);
 
 /* Value extract from pmValue and type conversion */
 extern int pmExtractValue(int, const pmValue *, int, pmAtomValue *, int);
@@ -801,6 +815,13 @@ typedef struct {
     pmEventParameter	er_param[1];
 } pmEventRecord;
 
+typedef struct {
+    __pmTimespec	er_timestamp;	/* must be 2 x 64-bit format */
+    unsigned int	er_flags;	/* event record characteristics */
+    int			er_nparams;	/* number of er_param[] entries */
+    pmEventParameter	er_param[1];
+} pmHighResEventRecord;
+
 /* Potential flags bits set in er_flags (above) */
 #define PM_EVENT_FLAG_POINT	(1U<<0)	/* an observation, default type */
 #define PM_EVENT_FLAG_START	(1U<<1)	/* marking start of a new event */
@@ -823,11 +844,31 @@ typedef struct {
     pmEventRecord	ea_record[1];
 } pmEventArray;
 
+typedef struct {
+		/* align initial declarations with start of pmValueBlock */
+#ifdef HAVE_BITFIELDS_LTOR
+    unsigned int	ea_type : 8;	/* value type */
+    unsigned int	ea_len : 24;	/* bytes for type/len + vbuf */
+#else
+    unsigned int	ea_len : 24;	/* bytes for type/len + vbuf */
+    unsigned int	ea_type : 8;	/* value type */
+#endif
+		/* real event records start here */
+    int			ea_nrecords;    /* number of ea_record[] entries */
+    pmHighResEventRecord ea_record[1];
+} pmHighResEventArray;
+
 /* Unpack a PM_TYPE_EVENT value into a set on pmResults */
 extern int pmUnpackEventRecords(pmValueSet *, int, pmResult ***);
 
 /* Free set of pmResults from pmUnpackEventRecords */
 extern void pmFreeEventResult(pmResult **);
+
+/* Unpack a PM_TYPE_HIGHRES_EVENT value into a set on pmHighResResults */
+extern int pmUnpackHighResEventRecords(pmValueSet *, int, pmHighResResult ***);
+
+/* Free set of pmHighResResults from pmUnpackEventRecords */
+extern void pmFreeHighResEventResult(pmHighResResult **);
 
 /* Service discovery, for clients. */
 #define PM_SERVER_SERVICE_SPEC	"pmcd"

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Red Hat.
+ * Copyright (C) 2013-2014 Red Hat.
  *
  * This file is part of the "pcp" module, the python interfaces for the
  * Performance Co-Pilot toolkit.
@@ -27,12 +27,32 @@
 #include <pcp/pmapi.h>
 #include <pcp/import.h>
 
+#if PY_MAJOR_VERSION >= 3
+#define MOD_ERROR_VAL NULL
+#define MOD_SUCCESS_VAL(val) val
+#define MOD_INIT(name) PyMODINIT_FUNC PyInit_##name(void)
+#define MOD_DEF(ob, name, doc, methods) \
+        static struct PyModuleDef moduledef = { \
+          PyModuleDef_HEAD_INIT, name, doc, -1, methods, }; \
+        ob = PyModule_Create(&moduledef);
+#else
+#define MOD_ERROR_VAL
+#define MOD_SUCCESS_VAL(val)
+#define MOD_INIT(name) void init##name(void)
+#define MOD_DEF(ob, name, doc, methods) \
+        ob = Py_InitModule3(name, methods, doc);
+#endif
+
 static PyMethodDef methods[] = { { NULL } };
 
 static void
 pmi_dict_add(PyObject *dict, char *sym, long val)
 {
+#if PY_MAJOR_VERSION >= 3
+    PyObject *pyVal = PyLong_FromLong(val);
+#else
     PyObject *pyVal = PyInt_FromLong(val);
+#endif
 
     PyDict_SetItemString(dict, sym, pyVal);
     Py_XDECREF(pyVal);
@@ -42,22 +62,32 @@ static void
 pmi_edict_add(PyObject *dict, PyObject *edict, char *sym, long val)
 {
     PyObject *pySym;
+#if PY_MAJOR_VERSION >= 3
+    PyObject *pyVal = PyLong_FromLong(val);
+#else
     PyObject *pyVal = PyInt_FromLong(val);
+#endif
 
     PyDict_SetItemString(dict, sym, pyVal);
+#if PY_MAJOR_VERSION >= 3
+    pySym = PyUnicode_FromString(sym);
+#else
     pySym = PyString_FromString(sym);
+#endif
     PyDict_SetItem(edict, pyVal, pySym);
     Py_XDECREF(pySym);
     Py_XDECREF(pyVal);
 }
 
 /* This function is called when the module is initialized. */ 
-void
-initcpmi(void)
+MOD_INIT(cpmi)
 {
     PyObject *module, *dict, *edict;
 
-    module = Py_InitModule("cpmi", methods);
+    MOD_DEF(module, "cpmi", NULL, methods);
+    if (module == NULL)
+	return MOD_ERROR_VAL;
+
     dict = PyModule_GetDict(module);
     edict = PyDict_New();
     Py_INCREF(edict); 
@@ -80,4 +110,6 @@ initcpmi(void)
     pmi_edict_add(dict, edict, "PMI_ERR_NODATA", PMI_ERR_NODATA);
     pmi_edict_add(dict, edict, "PMI_ERR_BADMETRICNAME", PMI_ERR_BADMETRICNAME);
     pmi_edict_add(dict, edict, "PMI_ERR_BADTIMESTAMP", PMI_ERR_BADTIMESTAMP);
+
+    return MOD_SUCCESS_VAL(module);
 }

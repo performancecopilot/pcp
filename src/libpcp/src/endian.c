@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -54,35 +55,65 @@ __ntohpmUnits(pmUnits units)
 
 #ifndef __htonpmValueBlock
 static void
-htonEventArray(pmValueBlock * const vb)
+htonEventArray(pmValueBlock * const vb, int highres)
 {
-    pmEventArray	*eap = (pmEventArray *)vb;
-    pmEventRecord	*erp;
-    pmEventParameter	*epp;
+    size_t		size;
     char		*base;
     int			r;	/* records */
     int			p;	/* parameters in a record ... */
+    int			nrecords;
     int			nparams;
     int			vtype;
     int			vlen;
     __uint32_t		*tp;	/* points to int holding vtype/vlen */
 
     /* ea_type and ea_len handled via *ip below */
-    base = (char *)&eap->ea_record[0];
+    if (highres) {
+	pmHighResEventArray *hreap = (pmHighResEventArray *)vb;
+	base = (char *)&hreap->ea_record[0];
+	nrecords = hreap->ea_nrecords;
+	hreap->ea_nrecords = htonl(nrecords);
+    }
+    else {
+	pmEventArray *eap = (pmEventArray *)vb;
+	base = (char *)&eap->ea_record[0];
+	nrecords = eap->ea_nrecords;
+	eap->ea_nrecords = htonl(nrecords);
+    }
+
     /* walk packed event record array */
-    for (r = 0; r < eap->ea_nrecords; r++) {
-	erp = (pmEventRecord *)base;
-	base += sizeof(erp->er_timestamp) + sizeof(erp->er_flags) + sizeof(erp->er_nparams);
-	erp->er_timestamp.tv_sec = htonl(erp->er_timestamp.tv_sec);
-	erp->er_timestamp.tv_usec = htonl(erp->er_timestamp.tv_usec);
-	if (erp->er_flags & PM_EVENT_FLAG_MISSED)
-	    nparams = 0;
-	else
-	    nparams = erp->er_nparams;
-	erp->er_flags = htonl(erp->er_flags);
-	erp->er_nparams = htonl(erp->er_nparams);
+    for (r = 0; r < nrecords; r++) {
+	if (highres) {
+	    pmHighResEventRecord *hrerp = (pmHighResEventRecord *)base;
+	    size = sizeof(hrerp->er_timestamp) + sizeof(hrerp->er_flags) +
+		    sizeof(hrerp->er_nparams);
+	    if (hrerp->er_flags & PM_EVENT_FLAG_MISSED)
+		nparams = 0;
+	    else
+		nparams = hrerp->er_nparams;
+	    hrerp->er_nparams = htonl(nparams);
+	    hrerp->er_flags = htonl(hrerp->er_flags);
+	    hrerp->er_timestamp.tv_sec = htonl(hrerp->er_timestamp.tv_sec);
+	    hrerp->er_timestamp.tv_nsec = htonl(hrerp->er_timestamp.tv_nsec);
+	}
+	else {
+	    pmEventRecord *erp = (pmEventRecord *)base;
+	    size = sizeof(erp->er_timestamp) + sizeof(erp->er_flags) +
+		    sizeof(erp->er_nparams);
+	    if (erp->er_flags & PM_EVENT_FLAG_MISSED)
+		nparams = 0;
+	    else
+		nparams = erp->er_nparams;
+	    erp->er_nparams = htonl(erp->er_nparams);
+	    erp->er_flags = htonl(erp->er_flags);
+	    erp->er_timestamp.tv_sec = htonl(erp->er_timestamp.tv_sec);
+	    erp->er_timestamp.tv_usec = htonl(erp->er_timestamp.tv_usec);
+	}
+	base += size;
+
 	for (p = 0; p < nparams; p++) {
-	    epp = (pmEventParameter *)base;
+	    pmEventParameter *epp = (pmEventParameter *)base;
+
 	    epp->ep_pmid = __htonpmID(epp->ep_pmid);
 	    vtype = epp->ep_type;
 	    vlen = epp->ep_len;
@@ -110,7 +141,6 @@ htonEventArray(pmValueBlock * const vb)
 	    base += sizeof(epp->ep_pmid) + PM_PDU_SIZE_BYTES(vlen);
 	}
     }
-    eap->ea_nrecords = htonl(eap->ea_nrecords);
 }
 
 void
@@ -125,7 +155,9 @@ __htonpmValueBlock(pmValueBlock * const vb)
     else if (vb->vtype == PM_TYPE_FLOAT)
 	__htonf(vb->vbuf);
     else if (vb->vtype == PM_TYPE_EVENT)
-	htonEventArray(vb);
+	htonEventArray(vb, 0);
+    else if (vb->vtype == PM_TYPE_HIGHRES_EVENT)
+	htonEventArray(vb, 1);
 
     *ip = htonl(*ip);	/* vtype/vlen */
 }
@@ -133,34 +165,58 @@ __htonpmValueBlock(pmValueBlock * const vb)
 
 #ifndef __ntohpmValueBlock
 static void
-ntohEventArray(pmValueBlock * const vb)
+ntohEventArray(pmValueBlock * const vb, int highres)
 {
-    pmEventArray	*eap = (pmEventArray *)vb;
-    pmEventRecord	*erp;
-    pmEventParameter	*epp;
     char		*base;
     int			r;	/* records */
     int			p;	/* parameters in a record ... */
+    int			nrecords;
     int			nparams;
-    __uint32_t		*tp;	/* points to int holding vtype/vlen */
 
     /* ea_type and ea_len handled via *ip above */
-    base = (char *)&eap->ea_record[0];
-    eap->ea_nrecords = ntohl(eap->ea_nrecords);
+    if (highres) {
+	pmHighResEventArray *hreap = (pmHighResEventArray *)vb;
+	base = (char *)&hreap->ea_record[0];
+	nrecords = hreap->ea_nrecords = ntohl(hreap->ea_nrecords);
+    }
+    else {
+	pmEventArray *eap = (pmEventArray *)vb;
+	base = (char *)&eap->ea_record[0];
+	nrecords = eap->ea_nrecords = ntohl(eap->ea_nrecords);
+    }
+
     /* walk packed event record array */
-    for (r = 0; r < eap->ea_nrecords; r++) {
-	erp = (pmEventRecord *)base;
-	base += sizeof(erp->er_timestamp) + sizeof(erp->er_flags) + sizeof(erp->er_nparams);
-	erp->er_timestamp.tv_sec = ntohl(erp->er_timestamp.tv_sec);
-	erp->er_timestamp.tv_usec = ntohl(erp->er_timestamp.tv_usec);
-	erp->er_flags = ntohl(erp->er_flags);
-	erp->er_nparams = ntohl(erp->er_nparams);
-	if (erp->er_flags & PM_EVENT_FLAG_MISSED)
+    for (r = 0; r < nrecords; r++) {
+	unsigned int flags;
+	size_t size;
+
+	if (highres) {
+	    pmHighResEventRecord *hrerp = (pmHighResEventRecord *)base;
+	    size = sizeof(hrerp->er_timestamp) + sizeof(hrerp->er_flags) +
+		    sizeof(hrerp->er_nparams);
+	    hrerp->er_timestamp.tv_sec = ntohl(hrerp->er_timestamp.tv_sec);
+	    hrerp->er_timestamp.tv_nsec = ntohl(hrerp->er_timestamp.tv_nsec);
+	    nparams = hrerp->er_nparams = ntohl(hrerp->er_nparams);
+	    flags = hrerp->er_flags = ntohl(hrerp->er_flags);
+	}
+	else {
+	    pmEventRecord *erp = (pmEventRecord *)base;
+	    size = sizeof(erp->er_timestamp) + sizeof(erp->er_flags) +
+		    sizeof(erp->er_nparams);
+	    erp->er_timestamp.tv_sec = ntohl(erp->er_timestamp.tv_sec);
+	    erp->er_timestamp.tv_usec = ntohl(erp->er_timestamp.tv_usec);
+	    nparams = erp->er_nparams = ntohl(erp->er_nparams);
+	    flags = erp->er_flags = ntohl(erp->er_flags);
+	}
+
+	if (flags & PM_EVENT_FLAG_MISSED)
 	    nparams = 0;
-	else
-	    nparams = erp->er_nparams;
+
+	base += size;
 	for (p = 0; p < nparams; p++) {
-	    epp = (pmEventParameter *)base;
+	    __uint32_t		*tp;	/* points to int holding vtype/vlen */
+	    pmEventParameter	*epp = (pmEventParameter *)base;
+
 	    epp->ep_pmid = __ntohpmID(epp->ep_pmid);
 	    tp = (__uint32_t *)&epp->ep_pmid;
 	    tp++;		/* now points to ep_type/ep_len */
@@ -211,9 +267,12 @@ __ntohpmValueBlock(pmValueBlock * const vb)
 	break;
 
     case PM_TYPE_EVENT:
-	ntohEventArray(vb);
+	ntohEventArray(vb, 0);
 	break;
 
+    case PM_TYPE_HIGHRES_EVENT:
+	ntohEventArray(vb, 1);
+	break;
     }
 }
 #endif

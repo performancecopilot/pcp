@@ -42,21 +42,29 @@ cd $here
 _setup_gfs2_tracepoints true
 
 echo
-echo "=== Turning off worst_glock metrics ===" | tee -a $here/$seq.full
-echo pmstore gfs2.control.worst_glock 0 | sed \
-    -e 's/old value=[0-9]/OLD VALUE/'
-
-echo
 echo "=== Check for successful install of pmda ===" | tee -a $here/$seq.full
 pminfo -v gfs2 > /dev/null || _fail "install failed?"
 
 echo
-echo "=== Check gfs2.tracepoints metrics for all filesystems ===" | tee -a $here/$seq.full
-pminfo -fdm gfs2.tracepoints | _gfs2_filter_pminfo
+echo "=== Check gfs2 metrics for all filesystems ===" | tee -a $here/$seq.full
+pminfo -dfmtT gfs2.glocks | _gfs2_filter_pminfo
 
 echo
-echo "=== Check gfs2.worst_glock metrics for all filesystems ===" | tee -a $here/$seq.full
-pminfo -fdm gfs2.worst_glock | _gfs2_filter_pminfo
+echo "=== Check gfs2 metrics for all filesystems ===" | tee -a $here/$seq.full
+pminfo -dfmtT gfs2.glstats | _gfs2_filter_pminfo
+
+echo
+echo "=== Check gfs2 metrics for all filesystems ===" | tee -a $here/$seq.full
+pminfo -dfmtT gfs2.tracepoints | _gfs2_filter_pminfo
+
+echo
+echo "=== Check gfs2 metrics for all filesystems ===" | tee -a $here/$seq.full
+pminfo -dfmtT gfs2.worst_glock | _gfs2_filter_pminfo
+
+echo
+echo "=== Check gfs2 metrics for all filesystems ===" | tee -a $here/$seq.full
+pminfo -dfmtT gfs2.control | _gfs2_filter_pminfo
+
 echo
 echo "=== check functionality of pmstore (off) ===" | tee -a $here/$seq.full
 pmstore gfs2.control.tracepoints.all 0 | sed \

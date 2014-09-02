@@ -72,6 +72,9 @@ echo "=== check generated config.pmie is good pmie syntax"
 # Solaris issue ... some filesys.* metrics and swap.pagesout not
 # supported, so similar problem there
 #
+# FreeBSD issue ... some filesys.* metrics not supported
+# pmie: metric filesys.used not in namespace for host vm06.localdomain
+#
 pmie -C $seq.full >$tmp.out 2>&1
 sts=$?
 
@@ -89,6 +92,14 @@ BEGIN						{ skip = 0 }
 /pmie: metric filesys.used not in namespace/	{ skip = 2 }
 /pmie: metric filesys.capacity not in namespace/{ skip = 2 }
 /pmie: metric swap.pagesout not in namespace/	{ skip = 2 }
+skip > 0					{ skip--; next }
+						{ print }'
+elif [ $PCP_PLATFORM = freebsd ]
+then
+    $PCP_AWK_PROG <$tmp.out '
+BEGIN						{ skip = 0 }
+/pmie: metric filesys.used not in namespace/	{ skip = 2 }
+/pmie: metric filesys.capacity not in namespace/{ skip = 2 }
 skip > 0					{ skip--; next }
 						{ print }'
 else

@@ -43,7 +43,7 @@ LIBTARGET = pmda_$(IAM).$(DSOSUFFIX)
 CMDTARGET = pmda$(IAM)
 TARGETS = $(LIBTARGET) $(CMDTARGET)
 
-LLDLIBS	= -lpcp_pmda -lpcp -lm -ldl -lpthread
+LLDLIBS	= -lpcp_pmda -lpcp $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS) $(LIB_FOR_RT)
 LDIRT	= *.log help.dir help.pag
 
 default: $(TARGETS)

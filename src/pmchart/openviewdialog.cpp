@@ -84,10 +84,10 @@ void OpenViewDialog::reset()
 {
     if ((my.archiveSource = pmchart->isArchiveTab())) {
 	sourceLabel->setText(tr("Archive:"));
-	sourcePushButton->setIcon(QIcon(":/archive.png"));
+	sourcePushButton->setIcon(QIcon(":/images/archive.png"));
     } else {
 	sourceLabel->setText(tr("Host:"));
-	sourcePushButton->setIcon(QIcon(":/computer.png"));
+	sourcePushButton->setIcon(QIcon(":/images/computer.png"));
     }
     setupComboBoxes(my.archiveSource);
     setPath(my.systemDir);
@@ -194,7 +194,7 @@ void OpenViewDialog::dirListView_activated(const QModelIndex &index)
 
 int OpenViewDialog::setupArchiveComboBoxes()
 {
-    QIcon archiveIcon = fileIconProvider->icon(FileIconProvider::Archive);
+    QIcon archiveIcon = fileIconProvider->icon(QedFileIconProvider::Archive);
     QIcon hostIcon = fileIconProvider->icon(QFileIconProvider::Computer);
     int index = 0;
 

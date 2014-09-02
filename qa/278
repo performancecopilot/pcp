@@ -85,9 +85,9 @@ then
 	vlist="1 2"
 	rm -f $seq.out && ln $seq.irix $seq.out
     fi
-elif [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
+elif [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris -o $PCP_PLATFORM = freebsd ]
 then
-    # same output for Linux and Mac OS X and Solaris
+    # same output for Linux and Mac OS X and Solaris and FreeBSD
     #
     vlist="2"
     rm -f $seq.out && ln $seq.linux $seq.out

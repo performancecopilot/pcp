@@ -31,7 +31,7 @@
    <string>Add Samples</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="pmchart.qrc" >:/zoom-out.png</iconset>
+   <iconset resource="pmchart.qrc" >:/images/zoom-out.png</iconset>
   </property>
   <property name="sizeGripEnabled" >
    <bool>false</bool>

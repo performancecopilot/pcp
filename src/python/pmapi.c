@@ -28,6 +28,22 @@
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
+#if PY_MAJOR_VERSION >= 3
+#define MOD_ERROR_VAL NULL
+#define MOD_SUCCESS_VAL(val) val
+#define MOD_INIT(name) PyMODINIT_FUNC PyInit_##name(void)
+#define MOD_DEF(ob, name, doc, methods) \
+        static struct PyModuleDef moduledef = { \
+          PyModuleDef_HEAD_INIT, name, doc, -1, methods, }; \
+        ob = PyModule_Create(&moduledef);
+#else
+#define MOD_ERROR_VAL
+#define MOD_SUCCESS_VAL(val)
+#define MOD_INIT(name) void init##name(void)
+#define MOD_DEF(ob, name, doc, methods) \
+        ob = Py_InitModule3(name, methods, doc);
+#endif
+
 static pmOptions options;
 static int longOptionsCount;
 static PyObject *optionCallback;
@@ -44,7 +60,11 @@ dict_add_unsigned(PyObject *dict, char *symbol, unsigned long value)
 static void
 dict_add(PyObject *dict, char *symbol, long value)
 {
+#if PY_MAJOR_VERSION >= 3
+    PyObject *pyvalue = PyLong_FromLong(value);
+#else
     PyObject *pyvalue = PyInt_FromLong(value);
+#endif
     PyDict_SetItemString(dict, symbol, pyvalue);
     Py_XDECREF(pyvalue);
 }
@@ -52,8 +72,13 @@ dict_add(PyObject *dict, char *symbol, long value)
 static void
 edict_add(PyObject *dict, PyObject *edict, char *symbol, long value)
 {
+#if PY_MAJOR_VERSION >= 3
+    PyObject *pyvalue = PyLong_FromLong(value);
+    PyObject *pysymbol = PyUnicode_FromString(symbol);
+#else
     PyObject *pyvalue = PyInt_FromLong(value);
     PyObject *pysymbol = PyString_FromString(symbol);
+#endif
 
     PyDict_SetItemString(dict, symbol, pyvalue);
     PyDict_SetItem(edict, pyvalue, pysymbol);
@@ -582,7 +607,7 @@ override_callback(int opt, pmOptions *opts)
 	PyErr_Print();
 	return -EAGAIN; /* exception thrown */
     }
-    sts = PyInt_AsLong(result);
+    sts = PyLong_AsLong(result);
     Py_DECREF(result);
     return sts;
 }
@@ -682,7 +707,11 @@ getOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
 
     for (i = 0; i < argc; i++) {
 	PyObject *pyarg = PyList_GET_ITEM(pyargv, i);
+#if PY_MAJOR_VERSION >= 3
+	char *string = PyUnicode_AsUTF8(pyarg);
+#else
 	char *string = PyString_AsString(pyarg);
+#endif
 
 	/* argv[0] parameter will be used for pmProgname, so need to
 	 * ensure the memory that backs it will be with us forever.
@@ -823,7 +852,11 @@ getOptionHosts(PyObject *self, PyObject *args)
 	if ((result = PyList_New(options.nhosts)) == NULL)
 	    return PyErr_NoMemory();
 	for (i = 0; i < options.nhosts; i++) {
+#if PY_MAJOR_VERSION >= 3
+	    PyObject *pyent = PyUnicode_FromString(options.hosts[i]);
+#else
 	    PyObject *pyent = PyString_FromString(options.hosts[i]);
+#endif
 	    PyList_SET_ITEM(result, i, pyent);
 	}
 	Py_INCREF(result);
@@ -843,7 +876,11 @@ getOptionArchives(PyObject *self, PyObject *args)
 	if ((result = PyList_New(options.narchives)) == NULL)
 	    return PyErr_NoMemory();
 	for (i = 0; i < options.narchives; i++) {
+#if PY_MAJOR_VERSION >= 3
+	    PyObject *pyent = PyUnicode_FromString(options.archives[i]);
+#else
 	    PyObject *pyent = PyString_FromString(options.archives[i]);
+#endif
 	    PyList_SET_ITEM(result, i, pyent);
 	}
 	Py_INCREF(result);
@@ -1141,12 +1178,14 @@ static PyMethodDef methods[] = {
 };
 
 /* called when the module is initialized. */
-void
-initcpmapi(void)
+MOD_INIT(cpmapi)
 {
     PyObject *module, *dict, *edict;
 
-    module = Py_InitModule("cpmapi", methods);
+    MOD_DEF(module, "cpmapi", NULL, methods);
+    if (module == NULL)
+	return MOD_ERROR_VAL;
+
     dict = PyModule_GetDict(module);
     edict = PyDict_New();
     Py_INCREF(edict);
@@ -1196,6 +1235,7 @@ initcpmapi(void)
     dict_add(dict, "PM_TYPE_AGGREGATE", PM_TYPE_AGGREGATE);
     dict_add(dict, "PM_TYPE_AGGREGATE_STATIC", PM_TYPE_AGGREGATE_STATIC);
     dict_add(dict, "PM_TYPE_EVENT", PM_TYPE_EVENT);
+    dict_add(dict, "PM_TYPE_HIGHRES_EVENT", PM_TYPE_HIGHRES_EVENT);
     dict_add(dict, "PM_TYPE_UNKNOWN", PM_TYPE_UNKNOWN);
 
     dict_add(dict, "PM_SEM_COUNTER", PM_SEM_COUNTER);
@@ -1319,4 +1359,6 @@ initcpmapi(void)
     edict_add(dict, edict, "PM_ERR_PMDAREADY", PM_ERR_PMDAREADY);
     edict_add(dict, edict, "PM_ERR_PMDANOTREADY", PM_ERR_PMDANOTREADY);
     edict_add(dict, edict, "PM_ERR_NYI", PM_ERR_NYI);
+
+    return MOD_SUCCESS_VAL(module);
 }

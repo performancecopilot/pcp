@@ -570,6 +570,19 @@ Used for QA, should take one of the values 0, 1, 2 or 3
 to determine which of the dummy event record setups will
 be returned for the next fetch of event.records.
 
+@ sample.event.highres_records Dummy highres timestamp event records
+Dummy high resolution event records generated in a fixed pattern to help QA.
+
+Once all setups have been returned, the cycle is repeated.
+
+See event.reset_highres to exert explicit control over the next batch of event
+records to be returned.
+
+@ sample.event.reset_highres reset highres event record state
+Used for QA, should take one of the values 0, 1, 2 or 3
+to determine which of the dummy event record setups will
+be returned for the next fetch of event.highres_records.
+
 @ sample.event.type event type parameter for event records
 
 @ sample.event.param_32 32 parameter for event records

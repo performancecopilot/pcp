@@ -961,10 +961,10 @@ $pmda->add_metric(pmda_pmid(0,250), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'mysql.status.threads_running', '', '');
 $pmda->add_metric(pmda_pmid(0,251), PM_TYPE_U32, PM_INDOM_NULL,
-		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_SEC,0),
+		  PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0),
 		  'mysql.status.uptime', '', '');
 $pmda->add_metric(pmda_pmid(0,252), PM_TYPE_U32, PM_INDOM_NULL,
-		  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_SEC,0),
+		  PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0),
 		  'mysql.status.uptime_since_flush_status', '', '');
 $pmda->add_metric(pmda_pmid(0,253), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
