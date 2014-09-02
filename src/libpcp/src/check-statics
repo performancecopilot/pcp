@@ -251,8 +251,8 @@ logutil.o
 secureserver.o
     secure_server		# guarded by __pmLock_libpcp mutex
 secureconnect.o
-    ?nsprFds			# guarded by __pmLock_libpcp mutex
     common_callbacks		# const
+    initialized			# single-threaded
 optfetch.o
     optcost			# guarded by __pmLock_libpcp mutex
 p_auth.o

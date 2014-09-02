@@ -607,7 +607,7 @@ CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 	    cp->pduInfo.version = PDU_VERSION;
 	    cp->pduInfo.licensed = 1;
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_SECURE))
-		cp->pduInfo.features |= PDU_FLAG_SECURE;
+		cp->pduInfo.features |= (PDU_FLAG_SECURE | PDU_FLAG_SECURE_ACK);
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_COMPRESS))
 		cp->pduInfo.features |= PDU_FLAG_COMPRESS;
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_AUTH))     /* optionally */

@@ -122,7 +122,7 @@ $1 == "value" && step == 2 {
 	    printf("=== Info: After remove, openfds has stayed the same as expected ===\n");
 	else {
 	    printf("=== Error: After remove, openfds has unexpectedly changed ===\n") 
-	    printf("\t previous value %d, current value %d\n", fst_fds, sec_fds);
+	    printf("\t previous value %d, current value %d\n", sec_fds, thr_fds);
 	    }
 	next;
 	}
