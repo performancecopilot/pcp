@@ -1,8 +1,9 @@
 /*
  * Linux /proc/fs/xfs metrics cluster
  *
- * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
+ * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,9 +27,8 @@ refresh_proc_fs_xfs(proc_fs_xfs_t *proc_fs_xfs)
 
     memset(proc_fs_xfs, 0, sizeof(proc_fs_xfs_t));
 
-    if ((fp = fopen("/proc/fs/xfs/stat", "r")) == (FILE *)NULL) {
+    if ((fp = xfs_statsfile("/proc/fs/xfs/stat", "r")) == NULL)
     	proc_fs_xfs->errcode = -oserror();
-    }
     else {
     	proc_fs_xfs->errcode = 0;
 	while (fgets(buf, sizeof(buf), fp) != NULL) {
@@ -254,7 +254,7 @@ refresh_proc_fs_xfs(proc_fs_xfs_t *proc_fs_xfs)
 	 */
 	proc_fs_xfs->xs_log_blocks >>= 1;
 
-	fp = fopen("/proc/fs/xfs/xqmstat", "r");
+	fp = xfs_statsfile("/proc/fs/xfs/xqmstat", "r");
 	if (fp != (FILE *)NULL) {
 	    if (fgets(buf, sizeof(buf), fp) != NULL) {
 		if (strncmp(buf, "qm", 2) == 0)

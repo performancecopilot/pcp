@@ -60,7 +60,11 @@ dict_add_unsigned(PyObject *dict, char *symbol, unsigned long value)
 static void
 dict_add(PyObject *dict, char *symbol, long value)
 {
+#if PY_MAJOR_VERSION >= 3
     PyObject *pyvalue = PyLong_FromLong(value);
+#else
+    PyObject *pyvalue = PyInt_FromLong(value);
+#endif
     PyDict_SetItemString(dict, symbol, pyvalue);
     Py_XDECREF(pyvalue);
 }
@@ -68,10 +72,11 @@ dict_add(PyObject *dict, char *symbol, long value)
 static void
 edict_add(PyObject *dict, PyObject *edict, char *symbol, long value)
 {
-    PyObject *pyvalue = PyLong_FromLong(value);
 #if PY_MAJOR_VERSION >= 3
+    PyObject *pyvalue = PyLong_FromLong(value);
     PyObject *pysymbol = PyUnicode_FromString(symbol);
 #else
+    PyObject *pyvalue = PyInt_FromLong(value);
     PyObject *pysymbol = PyString_FromString(symbol);
 #endif
 

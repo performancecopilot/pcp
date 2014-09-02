@@ -46,8 +46,11 @@
 static void
 pmgui_dict_add(PyObject *dict, char *sym, long val)
 {
+#if PY_MAJOR_VERSION >= 3
     PyObject *pyVal = PyLong_FromLong(val);
-
+#else
+    PyObject *pyVal = PyInt_FromLong(val);
+#endif
     PyDict_SetItemString(dict, sym, pyVal);
     Py_XDECREF(pyVal);
 } 

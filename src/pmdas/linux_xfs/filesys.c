@@ -19,6 +19,7 @@
 #include "impl.h"
 #include "pmda.h"
 #include "filesys.h"
+#include "proc_fs_xfs.h"
 
 static void 
 refresh_filesys_projects(pmInDom qindom, filesys_t *fs)
@@ -44,8 +45,7 @@ refresh_filesys_projects(pmInDom qindom, filesys_t *fs)
     else
 	return;
 
-    projects = fopen("/etc/projects", "r");
-    if (projects == NULL)
+    if ((projects = xfs_statsfile("/etc/projects", "r")) == NULL)
 	return; 
 
     qcmd = QCMD(Q_XQUOTASYNC, XQM_PRJQUOTA);
@@ -127,7 +127,7 @@ refresh_filesys(pmInDom filesys_indom, pmInDom quota_indom)
     pmdaCacheOp(quota_indom, PMDA_CACHE_INACTIVE);
     pmdaCacheOp(filesys_indom, PMDA_CACHE_INACTIVE);
 
-    if ((fp = fopen("/proc/mounts", "r")) == (FILE *)NULL)
+    if ((fp = xfs_statsfile("/proc/mounts", "r")) == NULL)
 	return -oserror();
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {

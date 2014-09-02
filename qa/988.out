@@ -1,5 +1,6 @@
-QA output created by 987
-== Checking metric descriptors and values - xfs-root-001.tgz
+QA output created by 988
+== Valgrind checking metric descriptors and values - xfs-root-001.tgz
+=== std out ===
 
 xfs.write PMID: 11.16.51 [number of XFS file system write operations]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -1159,6 +1160,14 @@ xfs.btree.inode.moves PMID: 11.16.139 []
 Help:
 Records moved inside blocks during inode-allocation btree operations
     value 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,11,/var/lib/pcp/pmdas/xfs/pmda_xfs,xfs_init -dfmtT xfs
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
 
 == done
 
