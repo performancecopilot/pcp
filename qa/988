@@ -1,6 +1,6 @@
 #!/bin/sh
-# PCP QA Test No. 987
-# Test XFS PMDA works in DSO mode for many PDU types.
+# PCP QA Test No. 988
+# Test XFS PMDA with valgrind for many PDU types.
 #
 # Copyright (c) 2014 Red Hat.
 #
@@ -13,16 +13,16 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+_check_valgrind
 [ $PCP_PLATFORM = linux ] || _notrun "XFS PMDA is Linux-specific (uses procfs)"
 
 status=1
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
-# real QA test starts here
 root=$tmp.root
 export XFS_STATSPATH=$root
-pmda=$PCP_PMDAS_DIR/xfs/pmda_xfs.so,xfs_init
+pmda=$PCP_PMDAS_DIR/xfs/pmda_xfs,xfs_init
 
 for tgz in $here/linux/xfs-*.tgz
 do
@@ -34,8 +34,8 @@ do
     tar xzf $tgz
     base=`basename $tgz`
 
-    echo "== Checking metric descriptors and values - $base"
-    pminfo -L -K clear -K add,11,$pmda -dfmtT xfs
+    echo "== Valgrind checking metric descriptors and values - $base"
+    _run_valgrind pminfo -L -K clear -K add,11,$pmda -dfmtT xfs 2>&1
     echo && echo "== done" && echo
     cd $here
 done

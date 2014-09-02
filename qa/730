@@ -24,13 +24,14 @@ root=$tmp.root
 export PROC_STATSPATH=$root
 pmda=$PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init
 
-for tgz in $here/linux/*.tgz
+for tgz in $here/linux/cgroups-*.tgz
 do
     rm -fr $root
     mkdir $root || _fail "root in use when processing $tgz"
     cd $root
     tar xzf $tgz
     base=`basename $tgz`
+
     echo "== Checking namespace and metric numbering - $base"
     pminfo -L -K clear -K add,3,$pmda cgroup
     echo "== Checking metric descriptors and values - $base"

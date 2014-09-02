@@ -1,8 +1,9 @@
 /* 
  * Linux /proc/fs/xfs metrics cluster
  *
- * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
+ * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -184,4 +185,5 @@ typedef struct {
     } xpc;
 } proc_fs_xfs_t;
 
+extern FILE *xfs_statsfile(const char *, const char *);
 extern int refresh_proc_fs_xfs(proc_fs_xfs_t *);
