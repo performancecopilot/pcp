@@ -43,6 +43,7 @@ pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 End-of-File
 pmcd -H nosuchhost.com -f -x $seq.full -l $tmp.log &
 pid=$!
+pmcd_wait
 
 echo "Checking custom pmcd.hostname setting from client side:"
 pminfo -dfm pmcd.hostname
