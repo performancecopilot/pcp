@@ -38,6 +38,7 @@ pmdamemcache_install()
     $sudo $PCP_RC_DIR/pmcd stop
 
     cat <<EOF >$tmp.config
+$memcache_delay = 1;
 @memcache_instances = ( 0 => '127.0.0.1:11211' );
 EOF
     echo "pmdamemcache config:" >> $here/$seq.full
