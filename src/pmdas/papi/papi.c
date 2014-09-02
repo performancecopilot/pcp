@@ -29,8 +29,6 @@ typedef struct {
     char papi_string_code[8];
     int position;
     int pmns_position;
-    //    char *long_descr;
-    //    char *short_descr;
 } papi_m_user_tuple;
 
 static papi_m_user_tuple *papi_info = NULL;
@@ -46,7 +44,6 @@ static unsigned int enable_counters = 0;
 struct uid_gid_tuple {
     char uid_p; char gid_p; /* uid/gid received flags. */
     int uid; int gid; /* uid/gid received from PCP_ATTR_* */
-    int trackers[20];
 }; 
 static struct uid_gid_tuple *ctxtab = NULL;
 int ctxtab_size = 0;
@@ -457,39 +454,28 @@ papi_string_status()
     if (retval != PAPI_OK)
 	return "PAPI_state error.";
     switch (state) {
-    case 1:
+    case PAPI_STOPPED:
 	return "Papi is stopped.";
-    case 2:
+    case PAPI_RUNNING:
 	return "Papi is running.";
-    case 4:
+    case PAPI_PAUSED:
 	return "Papi is paused";
-    case 8:
+    case PAPI_NOT_INIT:
 	return "Papi eventset is defined but not initialized.";
-    case 16:
+    case PAPI_OVERFLOWING:
 	return "Papi eventset has overflowing enabled";
-    case 32:
+    case PAPI_PROFILING:
 	return "Papi eventset has profiling enabled";
-    case 64:
+    case PAPI_MULTIPLEXING:
 	return "Papi eventset has multiplexing enabled";
-    case 128:
+    case PAPI_ATTACHED:
 	return "Papi is attached to another process/thread";
-    case 256:
+    case PAPI_CPU_ATTACHED:
 	return "Papi is attached to a specific CPU.";
     default:
 	return "PAPI_state error.";
     }
 }
-
-/*void size_user_tuple()
-{
-    //this will eventually be used in tandom with PAPI_enum_event for
-    // 'dynamic' growth of pmsn
-    int i;
-    size_t result = NumEvents * sizeof(struct papi_m_user_tuple);
-    papi_info = realloc(papi_info, result);
-    if (papi_info == NULL)
-	__pmNoMem("papi_info struct", result, PM_FATAL_ERR);
-	}*/
 
 /*
  * A list of all the papi metrics we support - 
@@ -1415,47 +1401,6 @@ int papi_internal_init()
 	__pmNotifyErr(LOG_DEBUG, "create eventset error!\n");
 	return retval;
     }
-    /* will be used for when we dynamically create the pmns */
-    /*    do{
-	if (PAPI_get_event_info(ec, &info) == PAPI_OK) {
-	    if ( (info.count && PAPI_PRESET_ENUM_AVAIL) ){
-		retval = PAPI_add_event(EventSet, info.event_code);
-		retval = PAPI_remove_event(EventSet, info.event_code);
-	    }
-	}
-	} while (PAPI_enum_event(&ec, 0) == PAPI_OK);*/
-    /*
-    if (PAPI_add_event(EventSet, PAPI_TOT_INS) != PAPI_OK){
-	__pmNotifyErr(LOG_DEBUG, "couldn't add PAPI_TOT_INS to event set\n");
-	return retval;
-	}*/
-    /* We can't just assume everything is here, add checks
-       all this papi stuff should probably be done in its own function
-       The papi_add_event can probably just be done in papi_add_events
-       I need to think of a better, more maliable way to specify what
-       event counts we want to enable, having a 'enable ALL the counters'
-       approach isn't proper */
-    /*    PAPI_add_event(EventSet, PAPI_L1_DCM);
-    PAPI_add_event(EventSet, PAPI_L1_ICM);
-    PAPI_add_event(EventSet, PAPI_L2_DCM);
-    PAPI_add_event(EventSet, PAPI_L2_ICM);
-    PAPI_add_event(EventSet, PAPI_L3_DCM);
-    PAPI_add_event(EventSet, PAPI_L3_ICM);
-    PAPI_add_event(EventSet, PAPI_L1_TCM);
-    PAPI_add_event(EventSet, PAPI_L2_TCM);
-    PAPI_add_event(EventSet, PAPI_L3_TCM);
-    PAPI_add_event(EventSet, PAPI_TLB_DM);
-    PAPI_add_event(EventSet, PAPI_TLB_IM);
-    PAPI_add_event(EventSet, PAPI_TLB_TL);
-    PAPI_add_event(EventSet, PAPI_L1_LDM);
-    PAPI_add_event(EventSet, PAPI_L1_STM);
-    PAPI_add_event(EventSet, PAPI_L2_LDM);
-    PAPI_add_event(EventSet, PAPI_L2_STM);*/
-
-    /*    if(PAPI_start(EventSet) != PAPI_OK){
-	__pmNotifyErr(LOG_DEBUG, "PAPI_start failed.\n");
-	return 1; 
-	}*/
     return 0;
 
 }
@@ -1498,90 +1443,6 @@ papi_contextAttributeCallBack(int context, int attr,
     return 0;
 }
 
-#if 0
-static void
-papi_end_contextCallBack(int context)
-{
-    /*    int i, j;
-    for(i = 0; i < NumEvents; i++){
-	if (ctxtab[context].trackers[i] == 1){
-	    ctxtab[context].trackers[i] = 0; // turn it off for us
-	    for(j = 0; j < ctxtab_size; j++){
-		if(ctxtab[j].trackers[i] == 1){
-		    return; // this shouldn't be return, but we should skip this metric for now, continue on and check there aren't any other value's we're no longer using, and that nobody else is either.
-		}
-		// if nobody else is using the metric, we can turn it off now
-	    }
-	    enablers[i] = 0;
-	    switch (i) {
-	    case 0:
-		PAPI_remove_event(EventSet, PAPI_TOT_INS);
-		break;
-	    case 2:
-		PAPI_remove_event(EventSet, PAPI_L1_DCM);
-		break;
-	    case 3:
-		PAPI_remove_event(EventSet, PAPI_L1_ICM);
-		break;
-	    case 4:
-		PAPI_remove_event(EventSet, PAPI_L2_DCM);
-		break;
-	    case 5:
-		PAPI_remove_event(EventSet, PAPI_L2_ICM);
-		break;
-	    case 6:
-		PAPI_remove_event(EventSet, PAPI_L3_DCM);
-		break;
-	    case 7:
-		PAPI_remove_event(EventSet, PAPI_L3_ICM);
-		break;
-	    case 8:
-		PAPI_remove_event(EventSet, PAPI_L1_TCM);
-		break;
-	    case 9:
-		PAPI_remove_event(EventSet, PAPI_L2_TCM);
-		break;
-	    case 10:
-		PAPI_remove_event(EventSet, PAPI_L3_TCM);
-		break;
-	    case 11:
-		PAPI_remove_event(EventSet, PAPI_TLB_DM);
-		break;
-	    case 12:
-		PAPI_remove_event(EventSet, PAPI_TLB_IM);
-		break;
-	    case 13:
-		PAPI_remove_event(EventSet, PAPI_TLB_TL);
-		break;
-	    case 14:
-		PAPI_remove_event(EventSet, PAPI_L1_LDM);
-		break;
-	    case 15:
-		PAPI_remove_event(EventSet, PAPI_L1_STM);
-		break;
-	    case 16:
-		PAPI_remove_event(EventSet, PAPI_L2_LDM);
-		break;
-	    case 17:
-		PAPI_remove_event(EventSet, PAPI_L2_STM);
-		break;
-	    default:
-		break;
-	    }//switch i
-	}//if ctxtab[context].trackers
-    }//for
-    for(i = 0; i < NumEvents; i++)
-	{
-	    if(enablers[i] != 0)
-		break;
-	    if(i++ == NumEvents) //we're at the end
-		PAPI_stop(EventSet, values);
-	}
-    */
-    //    __pmNotifyErr(LOG_DEBUG, "hit papi_end_contextcallback\n");
-}
-#endif
-
 void
 papi_init(pmdaInterface *dp)
 {
@@ -1612,7 +1473,6 @@ papi_init(pmdaInterface *dp)
     dp->version.six.store = papi_store;
     dp->version.six.attribute = papi_contextAttributeCallBack;
     dp->version.any.text = papi_text;
-    //    pmdaSetEndContextCallBack(dp, papi_end_contextCallBack);
     pmdaSetFetchCallBack(dp, papi_fetchCallBack);
     pmdaInit(dp, NULL, 0, metrictab, nummetrics);
 
