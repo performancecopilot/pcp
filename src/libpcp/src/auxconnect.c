@@ -1292,6 +1292,8 @@ __pmSecureClientHandshake(int fd, int flags, const char *hostname, __pmHashCtl *
     /*
      * We cannot handle many flags here (no support), in particular:
      * PDU_FLAG_SECURE (NSS)
+     * PDU_FLAG_SECURE_ACK (NSS)
+     * PDU_FLAG_NO_NSS_INIT (NSS)
      * PDU_FLAG_COMPRESS (NSS)
      * PDU_FLAG_AUTH (SASL2)
      *

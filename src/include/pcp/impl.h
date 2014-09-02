@@ -772,6 +772,8 @@ typedef struct {
 #define PDU_FLAG_COMPRESS	(1U<<1)
 #define PDU_FLAG_AUTH		(1U<<2)
 #define PDU_FLAG_CREDS_REQD	(1U<<3)
+#define PDU_FLAG_SECURE_ACK	(1U<<4)
+#define PDU_FLAG_NO_NSS_INIT	(1U<<5)
 
 /* Credential CVERSION PDU elements look like this */
 typedef struct {

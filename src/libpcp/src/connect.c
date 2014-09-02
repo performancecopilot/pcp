@@ -145,6 +145,14 @@ __pmConnectHandshake(int fd, const char *hostname, int ctxflags, __pmHashCtl *at
 		if (ctxflags & (PM_CTXFLAG_SECURE|PM_CTXFLAG_RELAXED)) {
 		    if (pduinfo.features & PDU_FLAG_SECURE) {
 			pduflags |= PDU_FLAG_SECURE;
+			/*
+			 * Determine whether the server can send an ACK for a
+			 * secure connection request. We can still connect
+			 * whether it does or not, but we need to know the
+			 * protocol.
+			 */
+			if (pduinfo.features & PDU_FLAG_SECURE_ACK)
+			    pduflags |= PDU_FLAG_SECURE_ACK;
 		    } else if (ctxflags & PM_CTXFLAG_SECURE) {
 			__pmUnpinPDUBuf(pb);
 			return -EOPNOTSUPP;

@@ -272,7 +272,6 @@ __pmSecureServerInit(void)
      * If command line db specified, pass it directly through - allowing
      * any old database format, at the users discretion.
      */
-    sts = -EINVAL;
     if (!secure_server.database_path[0]) {
 	const char *path;
 	pathSpecified = 0;
@@ -284,7 +283,7 @@ __pmSecureServerInit(void)
 		__pmNotifyErr(LOG_INFO,
 			      "Cannot access system security database: %s",
 			      secure_server.database_path);
-	    sts = 0;	/* not fatal - just no secure connections */
+	    sts = -EOPNOTSUPP;	/* not fatal - just no secure connections */
 	    secure_server.init_failed = 1;
 	    goto done;
 	}
@@ -303,7 +302,7 @@ __pmSecureServerInit(void)
 	__pmNotifyErr(LOG_ERR, "Cannot setup certificate DB (%s): %s",
 			secure_server.database_path,
 			pmErrStr(__pmSecureSocketsError(PR_GetError())));
-	sts = 0;	/* not fatal - just no secure connections */
+	sts = -EOPNOTSUPP;	/* not fatal - just no secure connections */
 	secure_server.init_failed = 1;
 	goto done;
     }
@@ -320,7 +319,7 @@ __pmSecureServerInit(void)
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "Unable to configure SSL session ID cache: %s",
 		pmErrStr(__pmSecureSocketsError(PR_GetError())));
-	sts = 0;	/* not fatal - just no secure connections */
+	sts = -EOPNOTSUPP;	/* not fatal - just no secure connections */
 	secure_server.init_failed = 1;
 	goto done;
     } else {
@@ -364,27 +363,32 @@ __pmSecureServerInit(void)
 				nickname);
 		CERT_DestroyCertificate(dbcert);
 		secure_server.certificate_verified = 0;
-		sts = 0;	/* not fatal - just no secure connections */
+		sts = -EOPNOTSUPP;	/* not fatal - just no secure connections */
 		secure_server.init_failed = 1;
 		goto done;
 	    }
 	} else {
 	    __pmNotifyErr(LOG_ERR, "Unable to find a valid %s", nickname);
 	    CERT_DestroyCertificate(dbcert);
-	    sts = 0;	/* not fatal - just no secure connections */
+	    sts = -EOPNOTSUPP;	/* not fatal - just no secure connections */
 	    secure_server.init_failed = 1;
 	    goto done;
 	}
     }
 
-    if (secure_server.certificate_verified) {
-	secure_server.certificate = dbcert;
-    } else if (pmDebug & DBG_TRACE_CONTEXT) {
-	__pmNotifyErr(LOG_INFO, "No valid %s in security database: %s",
-		nickname, secure_server.database_path);
+    if (! secure_server.certificate_verified) {
+	if (pmDebug & DBG_TRACE_CONTEXT) {
+	    __pmNotifyErr(LOG_INFO, "No valid %s in security database: %s",
+			  nickname, secure_server.database_path);
+	}
+	sts = -EOPNOTSUPP;	/* not fatal - just no secure connections */
+	secure_server.init_failed = 1;
+	goto done;
     }
-    sts = 0;
+
+    secure_server.certificate = dbcert;
     secure_server.init_failed = 0;
+    sts = 0;
 
 done:
     PM_UNLOCK(__pmLock_libpcp);
@@ -692,7 +696,7 @@ __pmSecureServerHandshake(int fd, int flags, __pmHashCtl *attrs)
     int sts, ssf = DEFAULT_SECURITY_STRENGTH;
 
     /* protect from unsupported requests from future/oddball clients */
-    if ((flags & ~(PDU_FLAG_SECURE | PDU_FLAG_COMPRESS
+    if ((flags & ~(PDU_FLAG_SECURE | PDU_FLAG_SECURE_ACK | PDU_FLAG_COMPRESS
 		   | PDU_FLAG_AUTH | PDU_FLAG_CREDS_REQD)) != 0)
 	return PM_ERR_IPC;
 

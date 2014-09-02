@@ -226,9 +226,14 @@ VerifyClient(ClientInfo *cp, __pmPDU *pb)
     if (sts >= 0)
 	sts = __pmXmitPDU(cp->pmcd_fd, pb);
 
-    /* finally perform any additional handshaking needed with pmcd */
+    /*
+     * finally perform any additional handshaking needed with pmcd.
+     * Do not initialize NSS again.
+     */
     if (sts >= 0 && flags)
-	sts = __pmSecureClientHandshake(cp->pmcd_fd, flags, hostname, &attrs);
+	sts = __pmSecureClientHandshake(cp->pmcd_fd,
+					flags | PDU_FLAG_NO_NSS_INIT,
+					hostname, &attrs);
    
     return sts;
 }

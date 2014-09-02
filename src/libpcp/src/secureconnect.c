@@ -811,7 +811,7 @@ __pmAuthPromptCB(void *context, int id, const char *challenge, const char *promp
 }
 
 static int
-__pmSecureClientInit(void)
+__pmSecureClientInit(int flags)
 {
     int sts;
 
@@ -823,10 +823,13 @@ __pmSecureClientInit(void)
      * known locations for certificate databases and attempt to initialise
      * one of them for our use.
      */
-    sts = __pmInitCertificates();
-    if (sts < 0)
-	__pmNotifyErr(LOG_WARNING, "__pmConnectPMCD: "
-		"certificate database exists, but failed initialization");
+    sts = 0;
+    if ((flags & PDU_FLAG_NO_NSS_INIT) == 0) {
+	sts = __pmInitCertificates();
+	if (sts < 0)
+	    __pmNotifyErr(LOG_WARNING, "__pmConnectPMCD: "
+			  "certificate database exists, but failed initialization");
+    }
     return sts;
 }
 
@@ -842,7 +845,7 @@ __pmSecureClientIPCFlags(int fd, int flags, const char *hostname, __pmHashCtl *a
 	return -EOPNOTSUPP;
 
     if ((flags & PDU_FLAG_SECURE) != 0) {
-	sts = __pmSecureClientInit();
+	sts = __pmSecureClientInit(flags);
 	if (sts < 0)
 	    return sts;
 	sts = __pmSetupSecureSocket(fd, &socket);
@@ -1166,6 +1169,30 @@ __pmSecureClientHandshake(int fd, int flags, const char *hostname, __pmHashCtl *
 {
     int sts, ssf = DEFAULT_SECURITY_STRENGTH;
 
+    /*
+     * If the server uses the secure-ack protocol, then expect an error
+     * pdu here containing the server's secure status. If the status is zero,
+     * then all is ok, otherwise, return the status to the caller.
+     */
+    if (flags & PDU_FLAG_SECURE_ACK) {
+	__pmPDU *rpdu;
+	int pinpdu;
+	int serverSts;
+	pinpdu = sts = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &rpdu);
+	if (sts != PDU_ERROR) {
+	    if (pinpdu)
+		__pmUnpinPDUBuf(&rpdu);
+	    return -PM_ERR_IPC;
+	}
+	sts = __pmDecodeError (rpdu, &serverSts);
+	if (pinpdu)
+	    __pmUnpinPDUBuf(&rpdu);
+	if (sts < 0)
+	    return sts;
+	if (serverSts < 0)
+	    return serverSts;
+    }
+
     if (flags & PDU_FLAG_CREDS_REQD) {
 	if (__pmHashSearch(PCP_ATTR_UNIXSOCK, attrs) != NULL)
 	    return 0;
@@ -1202,6 +1229,18 @@ __pmGetUserAuthData(int fd)
     return (void *)socket.saslConn;
 }
 
+static void
+sendSecureAck(int fd, int flags, int sts) {
+    /*
+     * At this point we've attempted some required initialization for secure
+     * sockets. If the client wants a secure-ack then send an error pdu
+     * containing our status. The client will then know whether or not to
+     * proceed with the secure handshake.
+     */
+    if (flags & PDU_FLAG_SECURE_ACK)
+	__pmSendError (fd, FROM_ANON, sts);
+}
+
 int
 __pmSecureServerIPCFlags(int fd, int flags)
 {
@@ -1215,30 +1254,54 @@ __pmSecureServerIPCFlags(int fd, int flags)
 
     if ((flags & PDU_FLAG_SECURE) != 0) {
 	sts = __pmSecureServerInit();
-	if (sts < 0)
+	if (sts < 0) {
+	    sendSecureAck(fd, flags, sts);
 	    return sts;
+	}
 	sts = __pmSetupSecureSocket(fd, &socket);
-	if (sts < 0)
-	    return __pmSecureSocketsError(PR_GetError());
-	if ((socket.sslFd = SSL_ImportFD(NULL, socket.nsprFd)) == NULL)
-	    return __pmSecureSocketsError(PR_GetError());
+	if (sts < 0) {
+	    sts = __pmSecureSocketsError(PR_GetError());
+	    sendSecureAck(fd, flags, sts);
+	    return sts;
+	}
+	if ((socket.sslFd = SSL_ImportFD(NULL, socket.nsprFd)) == NULL) {
+	    sts = __pmSecureSocketsError(PR_GetError());
+	    sendSecureAck(fd, flags, sts);
+	    return sts;
+	}
 	socket.nsprFd = socket.sslFd;
 
 	secsts = SSL_OptionSet(socket.sslFd, SSL_NO_LOCKS, PR_TRUE);
-	if (secsts != SECSuccess)
-	    return __pmSecureSocketsError(PR_GetError());
+	if (secsts != SECSuccess) {
+	    sts = __pmSecureSocketsError(PR_GetError());
+	    sendSecureAck(fd, flags, sts);
+	    return sts;
+	}
 	secsts = SSL_OptionSet(socket.sslFd, SSL_SECURITY, PR_TRUE);
-	if (secsts != SECSuccess)
-	    return __pmSecureSocketsError(PR_GetError());
+	if (secsts != SECSuccess) {
+	    sts = __pmSecureSocketsError(PR_GetError());
+	    sendSecureAck(fd, flags, sts);
+	    return sts;
+	}
 	secsts = SSL_OptionSet(socket.sslFd, SSL_HANDSHAKE_AS_SERVER, PR_TRUE);
-	if (secsts != SECSuccess)
-	    return __pmSecureSocketsError(PR_GetError());
+	if (secsts != SECSuccess) {
+	    sts = __pmSecureSocketsError(PR_GetError());
+	    sendSecureAck(fd, flags, sts);
+	    return sts;
+	}
 	secsts = SSL_OptionSet(socket.sslFd, SSL_REQUEST_CERTIFICATE, PR_FALSE);
-	if (secsts != SECSuccess)
-	    return __pmSecureSocketsError(PR_GetError());
+	if (secsts != SECSuccess) {
+	    sts = __pmSecureSocketsError(PR_GetError());
+	    sendSecureAck(fd, flags, sts);
+	    return sts;
+	}
 	secsts = SSL_OptionSet(socket.sslFd, SSL_REQUIRE_CERTIFICATE, PR_FALSE);
-	if (secsts != SECSuccess)
-	    return __pmSecureSocketsError(PR_GetError());
+	if (secsts != SECSuccess) {
+	    sts = __pmSecureSocketsError(PR_GetError());
+	    sendSecureAck(fd, flags, sts);
+	    return sts;
+	}
+	sendSecureAck(fd, flags, sts);
     }
 
     if ((flags & PDU_FLAG_COMPRESS) != 0) {
