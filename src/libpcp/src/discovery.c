@@ -214,17 +214,40 @@ __pmDiscoverServicesWithOptions(const char *service,
     *urls = NULL;
     numUrls = 0;
     if (mechanism == NULL) {
-	numUrls += __pmAvahiDiscoverServices(service, mechanism, &options, numUrls, urls);
-	if (! flags || (*flags & PM_SERVICE_DISCOVERY_INTERRUPTED) == 0)
-	    numUrls += __pmProbeDiscoverServices(service, mechanism, &options, numUrls, urls);
+	/*
+	 * Accumulate discovered services using all available mechanisms.
+	 * Ensure that the return value from each mechanism is not an error
+	 * code before adding it to numUrls.
+	 */
+	sts = __pmAvahiDiscoverServices(service, mechanism, &options,
+					numUrls, urls);
+	if (sts < 0) {
+	    numUrls = sts;
+	    goto done;
+	}
+	numUrls += sts;
+	if (! flags || (*flags & PM_SERVICE_DISCOVERY_INTERRUPTED) == 0) {
+	    sts = __pmProbeDiscoverServices(service, mechanism, &options,
+					    numUrls, urls);
+	    if (sts < 0) {
+		numUrls = sts;
+		goto done;
+	    }
+	    numUrls += sts;
+	}
     }
-    else if (strncmp(mechanism, "avahi", 5) == 0)
-	numUrls += __pmAvahiDiscoverServices(service, mechanism, &options, numUrls, urls);
-    else if (strncmp(mechanism, "probe", 5) == 0)
-	numUrls += __pmProbeDiscoverServices(service, mechanism, &options, numUrls, urls);
+    else if (strncmp(mechanism, "avahi", 5) == 0) {
+	numUrls = __pmAvahiDiscoverServices(service, mechanism, &options,
+					    numUrls, urls);
+    }
+    else if (strncmp(mechanism, "probe", 5) == 0) {
+	numUrls = __pmProbeDiscoverServices(service, mechanism, &options,
+					    numUrls, urls);
+    }
     else
 	numUrls = -EOPNOTSUPP;
 
+ done:
 #if PM_MULTI_THREAD
     if (timeoutSet) {
 	/* Cancel the timeout thread and then wait for it to join. */
