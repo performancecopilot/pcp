@@ -16,28 +16,43 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES	= papi.c
-CMDTARGET = pmdapapi$(EXECSUFFIX)
-LLDLIBS = -lpapi $(PCP_PMDALIB)
-LCFLAGS = -I.
-DFILES	= README help
-LSRCFILES = Install Remove pmns root $(DFILES)
-
 IAM	= papi
 DOMAIN	= PAPI
+CMDTARGET = pmda$(IAM)$(EXECSUFFIX)
+LIBTARGET = pmda_$(IAM).$(DSOSUFFIX)
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
+PMDAINIT = $(IAM)_init
 
-LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so
+LLDLIBS = -lpapi $(PCP_PMDALIB)
+LCFLAGS = $(INVISIBILITY) -I.
 
-default_pcp default:	domain.h $(CMDTARGET)
+CFILES	= papi.c
+DFILES	= README help
+
+LDIRT	= domain.h *.o $(IAM).log $(CMDTARGET) $(LIBTARGET)
+
+default:	build-me
 
 include $(BUILDRULES)
 
-install_pcp install:	default 
+ifeq "$(ENABLE_PAPI)" "enable_papi"
+
+build-me:	domain.h $(CMDTARGET) $(LIBTARGET)
+
+install:	default 
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(CMDTARGET) $(PMDADIR)
-	$(INSTALL) -m 644 root pmns domain.h $(PMDADIR)
-	$(INSTALL) -m 644 $(CFILES) $(DFILES) $(PMDADIR)
+	$(INSTALL) -m 755 Install Remove $(CMDTARGET) $(LIBTARGET) $(PMDADIR)
+	$(INSTALL) -m 644 root pmns domain.h $(DFILES) $(PMDADIR)
+else
+build-me:
+install:
+endif
+
+$(VERSION_SCRIPT):
+	$(VERSION_SCRIPT_MAKERULE)
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
+
+papi.o: domain.h
+papi.o: $(VERSION_SCRIPT)

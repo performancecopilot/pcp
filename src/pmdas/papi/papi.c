@@ -40,7 +40,6 @@ static char     mypath[MAXPATHLEN];
 static char     isDSO = 1; /* == 0 if I am a daemon */
 static int      EventSet = PAPI_NULL;
 static long_long *values = NULL;
-static unsigned int enable_counters = 0;
 struct uid_gid_tuple {
     char uid_p; char gid_p; /* uid/gid received flags. */
     int uid; int gid; /* uid/gid received from PCP_ATTR_* */
@@ -376,9 +375,11 @@ void set_pmns_position(unsigned int i)
     case PAPI_VEC_DP:
 	papi_info[i].pmns_position = 106;
 	break;
+#ifdef PAPI_REF_CYC
     case PAPI_REF_CYC:
 	papi_info[i].pmns_position = 107;
 	break;
+#endif
     default:
 	papi_info[i].pmns_position = -1;
 	break;
@@ -1444,12 +1445,12 @@ papi_contextAttributeCallBack(int context, int attr,
 }
 
 void
+__PMDA_INIT_CALL
 papi_init(pmdaInterface *dp)
 {
-    
     int nummetrics = sizeof(metrictab)/sizeof(metrictab[0]);
     //    size_user_tuple();
-    if (isDSO){
+    if (isDSO) {
 	int sep = __pmPathSeparator();
 	snprintf(mypath, sizeof(mypath), "%s%c" "papi" "%c" "help",
 		 pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
