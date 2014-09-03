@@ -1148,7 +1148,7 @@ remove_metric(unsigned int event, int position)
     if (state == PAPI_STOPPED) {
 	/* first, copy the values over to new array */
 	for(i = 0; i < number_of_events; i++)
-	    new_values[i] = values[i];
+	    new_values[papi_info[i].position] = values[papi_info[i].position];
 
 	/* due to papi bug, we need to fully destroy the eventset and restart it*/
 	memset (values, 0, sizeof(values[0])*size_of_active_counters);
@@ -1161,8 +1161,6 @@ remove_metric(unsigned int event, int position)
 	    return retval;
 
 	number_of_active_counters--;
-	// set event we're removing position to -1
-	papi_info[position].position = -1;
 	retval = PAPI_create_eventset(&EventSet);
 	if(retval != PAPI_OK)
 	    return retval;
@@ -1170,15 +1168,18 @@ remove_metric(unsigned int event, int position)
 	// run through all metrics and adjust position variable as needed
 	for(i = 0; i < number_of_events; i++)
 	    {
-		__pmNotifyErr(LOG_DEBUG, "metric %s (%d)", papi_info[i].papi_string_code, papi_info[i].position);
+		// set event we're removing position to -1
+		if(papi_info[i].position == position){
+		    new_values[papi_info[i].position] = 0;
+		    papi_info[i].position = -1;
+		}
 		if(papi_info[i].position < position)
-		    values[i] = new_values[i];
+		    values[papi_info[i].position] = new_values[papi_info[i].position];
 
 		if(papi_info[i].position > position) {
 		    papi_info[i].position--;
-		    values[i-1] = new_values[i];
+		    values[papi_info[i].position] = new_values[papi_info[i].position+1];
 		}
-
 		if(papi_info[i].position >= 0){
 		    retval = PAPI_add_event(EventSet, papi_info[i].papi_event_code);
 		    if (retval != PAPI_OK)
@@ -1290,11 +1291,10 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		disable_string = av.cp;
 		substring = strtok(disable_string, delim);
 		while(substring != NULL){
-		    //		    for(j = 0; j < (sizeof(papi_info)/sizeof(papi_m_user_tuple)); j++){
-		    for(j = 0; j < number_of_events; j++){
+		    for(j = 0; j < size_of_active_counters; j++){
 			if(!strcmp(substring, papi_info[j].papi_string_code)){
 			    // remove the metric from the set
-			    retval = remove_metric(papi_info[j].papi_event_code, j);
+			    retval = remove_metric(papi_info[j].papi_event_code, papi_info[j].position);
 			    if (retval == PAPI_OK)
 				papi_info[j].position = -1;
 			}
