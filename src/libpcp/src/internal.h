@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -153,16 +153,9 @@ extern void __pmCheckAcceptedAddress(__pmSockAddr *) _PCP_HIDDEN;
 #define SECURE_SERVER_CERTIFICATE "PCP Collector certificate"
 #define SECURE_USERDB_DEFAULT_KEY "\n"
 
-struct __pmSockAddr {
-    PRNetAddr		sockaddr;
-};
-
-typedef PRAddrInfo __pmAddrInfo;
-
 /* internal NSS/NSPR/SSL/SASL implementation details */
 extern int __pmSecureSocketsError(int) _PCP_HIDDEN;
-
-#else /* native sockets only */
+#endif
 
 #if defined(HAVE_SYS_UN_H)
 #include <sys/un.h>
@@ -181,8 +174,6 @@ struct __pmSockAddr {
 
 typedef struct addrinfo __pmAddrInfo;
 
-#endif
-
 struct __pmHostEnt {
     char		*name;
     __pmAddrInfo	*addresses;
@@ -200,6 +191,7 @@ extern int __pmInitSocket(int, int) _PCP_HIDDEN;
 extern int __pmSocketReady(int, struct timeval *) _PCP_HIDDEN;
 extern void *__pmGetSecureSocket(int) _PCP_HIDDEN;
 extern void *__pmGetUserAuthData(int) _PCP_HIDDEN;
+extern int __pmSecureServerInit(void) _PCP_HIDDEN;
 extern int __pmSecureServerIPCFlags(int, int) _PCP_HIDDEN;
 extern int __pmSecureServerHasFeature(__pmServerFeature) _PCP_HIDDEN;
 extern int __pmSecureServerSetFeature(__pmServerFeature) _PCP_HIDDEN;

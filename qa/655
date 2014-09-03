@@ -37,6 +37,7 @@ touch $here/$seq.full
 _prepare_pmda_install $iam
 _install_pmda | _filter_gfs2
 _setup_gfs2_mounts
+_gfs2_sysfs_support_tests
 
 cd $here
 _setup_gfs2_tracepoints true
@@ -44,10 +45,6 @@ _setup_gfs2_tracepoints true
 echo
 echo "=== Check for successful install of pmda ===" | tee -a $here/$seq.full
 pminfo -v gfs2 > /dev/null || _fail "install failed?"
-
-echo
-echo "=== Check gfs2 metrics for all filesystems ===" | tee -a $here/$seq.full
-pminfo -dfmtT gfs2.glocks | _gfs2_filter_pminfo
 
 echo
 echo "=== Check gfs2 metrics for all filesystems ===" | tee -a $here/$seq.full

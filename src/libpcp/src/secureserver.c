@@ -35,6 +35,8 @@ static struct {
     char		database_path[MAXPATHLEN];
 
     /* status flags (bitfields) */
+    unsigned int	initialized : 1;
+    unsigned int	init_failed : 1;
     unsigned int	certificate_verified : 1;	/* NSS */
     unsigned int	ssl_session_cache_setup : 1;	/* NSS */
 } secure_server;
@@ -60,8 +62,7 @@ __pmSecureServerHasFeature(__pmServerFeature query)
 
     switch (query) {
     case PM_SERVER_FEATURE_SECURE:
-	sts = secure_server.certificate_verified;
-	break;
+	return ! secure_server.init_failed;
     case PM_SERVER_FEATURE_COMPRESS:
     case PM_SERVER_FEATURE_AUTH:
 	sts = 1;
@@ -222,23 +223,47 @@ serverdb(char *path, size_t size, char *db_method)
 int
 __pmSecureServerSetup(const char *db, const char *passwd)
 {
-    const char *nickname = SECURE_SERVER_CERTIFICATE;
-    SECStatus secsts;
-    int sts;
-
-    sts = __pmInitAuthServer();
-    if (sts < 0) {
-	__pmNotifyErr(LOG_ERR, "Failed to start authenticating server");
-	return sts;
-    }
-
-    PR_Init(PR_SYSTEM_THREAD, PR_PRIORITY_NORMAL, 1);
-
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
 
     /* Configure optional (cmdline) password file in case DB locked */
     secure_server.password_file = passwd;
+
+    /*
+     * Configure location of the NSS database with a sane default.
+     * For servers, we default to the shared (sql) system-wide database.
+     * If command line db specified, pass it directly through - allowing
+     * any old database format, at the users discretion.
+     */
+    if (db) {
+	/* shortened-buffer-size (-2) guarantees null-termination */
+	strncpy(secure_server.database_path, db, MAXPATHLEN-2);
+    }
+
+    PM_UNLOCK(__pmLock_libpcp);
+    return 0;
+}
+
+int
+__pmSecureServerInit(void)
+{
+    const char *nickname = SECURE_SERVER_CERTIFICATE;
+    SECStatus secsts;
+    int pathSpecified;
+    int sts = 0;
+
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+
+    /* Only attempt this once. */
+    if (secure_server.initialized)
+	goto done;
+    secure_server.initialized = 1;
+
+    if (PR_Initialized() != PR_TRUE)
+	PR_Init(PR_SYSTEM_THREAD, PR_PRIORITY_NORMAL, 1);
+
+    /* Configure optional (cmdline) password file in case DB locked */
     PK11_SetPasswordFunc(certificate_database_password);
 
     /*
@@ -247,26 +272,27 @@ __pmSecureServerSetup(const char *db, const char *passwd)
      * If command line db specified, pass it directly through - allowing
      * any old database format, at the users discretion.
      */
-    sts = -EINVAL;
-    if (!db) {
-	char *path = serverdb(secure_server.database_path, MAXPATHLEN, "sql:");
+    if (!secure_server.database_path[0]) {
+	const char *path;
+	pathSpecified = 0;
+	path = serverdb(secure_server.database_path, MAXPATHLEN, "sql:");
 
 	/* this is the default case on some platforms, so no log spam */
 	if (access(path, R_OK|X_OK) < 0) {
 	    if (pmDebug & DBG_TRACE_CONTEXT)
 		__pmNotifyErr(LOG_INFO,
-			"Cannot access system security database: %s",
-			secure_server.database_path);
-	    sts = 0;	/* not fatal - just no secure connections */
+			      "Cannot access system security database: %s",
+			      secure_server.database_path);
+	    sts = -EOPNOTSUPP;	/* not fatal - just no secure connections */
+	    secure_server.init_failed = 1;
 	    goto done;
 	}
-    } else {
-	/* shortened-buffer-size (-2) guarantees null-termination */
-	strncpy(secure_server.database_path, db, MAXPATHLEN-2);
     }
+    else
+	pathSpecified = 1;
 
     secsts = NSS_Init(secure_server.database_path);
-    if (secsts != SECSuccess && !db) {
+    if (secsts != SECSuccess && !pathSpecified) {
 	/* fallback, older versions of NSS do not support sql: */
 	serverdb(secure_server.database_path, MAXPATHLEN, "");
 	secsts = NSS_Init(secure_server.database_path);
@@ -276,7 +302,8 @@ __pmSecureServerSetup(const char *db, const char *passwd)
 	__pmNotifyErr(LOG_ERR, "Cannot setup certificate DB (%s): %s",
 			secure_server.database_path,
 			pmErrStr(__pmSecureSocketsError(PR_GetError())));
-	sts = 0;	/* not fatal - just no secure connections */
+	sts = -EOPNOTSUPP;	/* not fatal - just no secure connections */
+	secure_server.init_failed = 1;
 	goto done;
     }
 
@@ -288,11 +315,12 @@ __pmSecureServerSetup(const char *db, const char *passwd)
     } while (0);
 
     /* Configure SSL session cache for multi-process server, using defaults */
-    secsts = SSL_ConfigMPServerSIDCache(0, 0, 0, NULL);
+    secsts = SSL_ConfigMPServerSIDCache(1, 0, 0, NULL);
     if (secsts != SECSuccess) {
 	__pmNotifyErr(LOG_ERR, "Unable to configure SSL session ID cache: %s",
 		pmErrStr(__pmSecureSocketsError(PR_GetError())));
-	sts = 0;	/* not fatal - just no secure connections */
+	sts = -EOPNOTSUPP;	/* not fatal - just no secure connections */
+	secure_server.init_failed = 1;
 	goto done;
     } else {
 	secure_server.ssl_session_cache_setup = 1;
@@ -335,23 +363,31 @@ __pmSecureServerSetup(const char *db, const char *passwd)
 				nickname);
 		CERT_DestroyCertificate(dbcert);
 		secure_server.certificate_verified = 0;
-		sts = 0;	/* not fatal - just no secure connections */
+		sts = -EOPNOTSUPP;	/* not fatal - just no secure connections */
+		secure_server.init_failed = 1;
 		goto done;
 	    }
 	} else {
 	    __pmNotifyErr(LOG_ERR, "Unable to find a valid %s", nickname);
 	    CERT_DestroyCertificate(dbcert);
-	    sts = 0;	/* not fatal - just no secure connections */
+	    sts = -EOPNOTSUPP;	/* not fatal - just no secure connections */
+	    secure_server.init_failed = 1;
 	    goto done;
 	}
     }
 
-    if (secure_server.certificate_verified) {
-	secure_server.certificate = dbcert;
-    } else if (pmDebug & DBG_TRACE_CONTEXT) {
-	__pmNotifyErr(LOG_INFO, "No valid %s in security database: %s",
-		nickname, secure_server.database_path);
+    if (! secure_server.certificate_verified) {
+	if (pmDebug & DBG_TRACE_CONTEXT) {
+	    __pmNotifyErr(LOG_INFO, "No valid %s in security database: %s",
+			  nickname, secure_server.database_path);
+	}
+	sts = -EOPNOTSUPP;	/* not fatal - just no secure connections */
+	secure_server.init_failed = 1;
+	goto done;
     }
+
+    secure_server.certificate = dbcert;
+    secure_server.init_failed = 0;
     sts = 0;
 
 done:
@@ -376,8 +412,11 @@ __pmSecureServerShutdown(void)
 	SSL_ShutdownServerSessionIDCache();
 	secure_server.ssl_session_cache_setup = 0;
     }    
+    if (secure_server.initialized) {
+	NSS_Shutdown();
+	secure_server.initialized = 0;
+    }
     PM_UNLOCK(__pmLock_libpcp);
-    NSS_Shutdown();
 }
 
 static int
@@ -657,7 +696,7 @@ __pmSecureServerHandshake(int fd, int flags, __pmHashCtl *attrs)
     int sts, ssf = DEFAULT_SECURITY_STRENGTH;
 
     /* protect from unsupported requests from future/oddball clients */
-    if ((flags & ~(PDU_FLAG_SECURE | PDU_FLAG_COMPRESS
+    if ((flags & ~(PDU_FLAG_SECURE | PDU_FLAG_SECURE_ACK | PDU_FLAG_COMPRESS
 		   | PDU_FLAG_AUTH | PDU_FLAG_CREDS_REQD)) != 0)
 	return PM_ERR_IPC;
 
