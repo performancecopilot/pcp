@@ -787,9 +787,14 @@ __pmAvahiDiscoverServices(const char *service,
     if (simplePoll)
         avahi_simple_poll_free(simplePoll);
 
-    /* Check to see if there was an error. */
-    if (context.error)
+    /*
+     * Check to see if there was an error. Make sure that the returned error
+     * code is negative.
+     */
+    if (context.error > 0)
 	return -context.error;
+    if (context.error < 0)
+	return context.error;
 
     return numUrls;
 }
