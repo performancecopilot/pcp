@@ -49,6 +49,7 @@ SYSTEMD_PMDA_PAGES = pmdasystemd.1
 RPM_PMDA_PAGES = pmdarpm.1
 IB_PMDA_PAGES = pmdaib.1
 WEBD_PAGES = pmwebd.1
+PAPI_PMDA_PAGES = pmdapapi.1
 
 ifeq "$(TARGET_OS)" "linux"
 MAN_PAGES	+= $(LINUX_PMDA_PAGES)
@@ -80,6 +81,12 @@ MAN_PAGES	+= $(WEBD_PAGES)
 else
 OTHER_PAGES	+= $(WEBD_PAGES)
 endif
+ifneq "$(ENABLE_PAPI)" ""
+MAN_PAGES += $(PAPI_PMDA_PAGES)
+else
+OTHER_PAGES += $(PAPI_PMDA_PAGES)
+endif
+
 
 MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
 LSRCFILES	= $(MAN_PAGES) $(OTHER_PAGES)

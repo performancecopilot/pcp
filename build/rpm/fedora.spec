@@ -25,6 +25,7 @@ BuildRequires: python-devel
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
 BuildRequires: cyrus-sasl-devel
+BuildRequires: papi-devel
 %if !%{disable_microhttpd}
 BuildRequires: libmicrohttpd-devel
 %endif
@@ -339,6 +340,22 @@ Requires: pcp-libs = %{version}-%{release}
 Performance Co-Pilot (PCP) front-end tools for importing collectl data
 into standard PCP archive logs for replay with any PCP monitoring tool.
 
+#
+# pcp-pmda-papi
+#
+%package pmda-papi
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for Performance API and hardware counters
+URL: http://www.performancecopilot.org
+Requires: pcp-libs = %{version}-%{release}
+Requires: papi-devel
+BuildRequires: papi-devel
+
+%description pmda-papi
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting hardware counters statistics through PAPI (Perforamance API).
+
 %if !%{disable_infiniband}
 #
 # pcp-pmda-infiniband
@@ -472,6 +489,7 @@ done
 ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   egrep -v 'simple|sample|trivial|txmon' |\
   egrep -v '^ib$|infiniband' |\
+  egrep -v 'papi' |\
   sed -e 's#^#'%{_pmdasdir}'\/#' >base_pmdas.list
 
 # all base pcp package files except those split out into sub packages
@@ -846,6 +864,11 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root)
 %{_bindir}/collectl2pcp
 %{_mandir}/man1/collectl2pcp.1.gz
+
+%files pmda-papi
+%defattr(-,root,root)
+%{_pmdasdir}/papi
+%{_mandir}/man1/pmdapapi.1.gz
 
 %if !%{disable_infiniband}
 %files pmda-infiniband
