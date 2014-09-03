@@ -13,8 +13,5 @@ host=`hostname`
 #
 if which dbus-launch >/dev/null 2>&1
 then
-    eval `dbus-launch | sed -n -e '/BUS_ADDRESS=/{
-s/^/export /
-p
-}'`
+    eval `dbus-launch | grep 'BUS_ADDRESS='`
 fi
