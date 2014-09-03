@@ -17,6 +17,7 @@ _usage()
     echo >&2 "  -a          all except shutdown VM [implies -pmiqh]"
     echo >&2 "  -b branch   pcp branch to checkout [default $pcp_branch]"
     echo >&2 "  -c          check git repositories"
+    echo >&2 "  -d          output debugging diagnostics"
     echo >&2 "  -e file     prerun script"
     echo >&2 "  -f          force shutdown"
     echo >&2 "  -g what     QA tests or groups to run, e.g. -g \"123 -g sanity -x remote\""
@@ -59,7 +60,8 @@ Sflag=false
 options=false
 work=false
 efile=''
-while getopts "ab:B:ce:fg:himpqrsSt:T:?" c
+debug=false
+while getopts "ab:B:cde:fg:himpqrsSt:T:?" c
 do
     case $c
     in
@@ -79,6 +81,9 @@ do
 	    options=true
 	    work=true
 	    cflag=true
+	    ;;
+	d)
+	    debug=true
 	    ;;
 	e)
 	    efile="$OPTARG"
@@ -270,13 +275,12 @@ do
 	    # then
 		if ssh $host true
 		then
-		    #debug# echo host up
+		    $debug && echo host up
 		    touch $tmp.up
 		    break
 		fi
 	    # else
-		#debug# echo host down
-		# :
+		$debug && echo host down
 	    # fi
 	    sleep $delta
 	    wait=`expr $wait + $delta`
@@ -288,7 +292,7 @@ do
 	fi
 	
 	check=`ssh -t $host uname -sr 2>/dev/null`
-	echo "check=$check"
+	$debug && echo "check=$check"
 	case "$check"
 	in
 	    FreeBSD\ *)
@@ -298,6 +302,7 @@ do
 	    	osname=unknown
 		;;
 	esac
+	$debug && echo "osname=$osname"
 
 	# per-host settings
 	# MAKE=gmake for *BSD hosts
@@ -309,7 +314,7 @@ do
 		MAKE=gmake
 		;;
 	esac
-	echo "MAKE=$MAKE"
+	$debug && echo "MAKE=$MAKE"
 
 	cat >$tmp.script <<End-of-File
 #!/bin/sh
@@ -318,8 +323,12 @@ do
 #
 
 [ -f \$HOME/.dailyrc ] && . \$HOME/.dailyrc
-#debug# echo PATH=\$PATH
-#debug# which ${MAKE:-make}
+if [ $debug = true ]
+then
+    echo PATH=\$PATH
+    echo MAKE=\$MAKE
+    which ${MAKE:-make}
+fi
 
 tmp=/var/tmp/\$\$
 trap "rm -f \$tmp.*; exit 0" 0 1 2 3 15
