@@ -10,7 +10,7 @@ _usage()
     echo "Usage: $0 [options] [vm ...]"
     echo "Options:"
     echo "  -d      debug"
-    echo "  -m N    minimum number of tests run to be reported [default 67]"
+    echo "  -m N    minimum number of tests run to be reported [default 60]"
     echo '  -n      report not run tests (reported as "-")'
     echo "  -r      only most recent results date [default report all dates]"
     exit 1
@@ -18,9 +18,9 @@ _usage()
 
 
 # must have tried to run at least this number to qualify
-# 67 = > -g sanity
+# 60 = > -g sanity [minus a few not runs]
 #
-minrun=67
+minrun=60
 
 debug=false
 recent=false

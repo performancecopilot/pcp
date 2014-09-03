@@ -8,3 +8,10 @@ tmp=/tmp/$$
 here=`pwd`
 sudo=sudo
 host=`hostname`
+
+# hackery for dbus-based environments
+#
+if which dbus-launch >/dev/null 2>&1
+then
+    eval `dbus-launch | grep 'BUS_ADDRESS='`
+fi

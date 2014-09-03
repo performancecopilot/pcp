@@ -17,6 +17,7 @@ _usage()
     echo >&2 "  -a          all except shutdown VM [implies -pmiqh]"
     echo >&2 "  -b branch   pcp branch to checkout [default $pcp_branch]"
     echo >&2 "  -c          check git repositories"
+    echo >&2 "  -d          output debugging diagnostics"
     echo >&2 "  -e file     prerun script"
     echo >&2 "  -f          force shutdown"
     echo >&2 "  -g what     QA tests or groups to run, e.g. -g \"123 -g sanity -x remote\""
@@ -59,7 +60,8 @@ Sflag=false
 options=false
 work=false
 efile=''
-while getopts "ab:B:ce:fg:himpqrsSt:T:?" c
+debug=false
+while getopts "ab:B:cde:fg:himpqrsSt:T:?" c
 do
     case $c
     in
@@ -79,6 +81,9 @@ do
 	    options=true
 	    work=true
 	    cflag=true
+	    ;;
+	d)
+	    debug=true
 	    ;;
 	e)
 	    efile="$OPTARG"
@@ -213,18 +218,11 @@ do
 	continue
     fi
     domain=`cat $tmp.domain`
+    # used to be vmNN-osname&version, but now just vmMM ...
+    # old sed now does nothing
+    #
     host=`echo $domain | sed -e '/^vm/s/-.*//'`
     echo "::: $domain :::"
-    # per-host settings
-    # MAKE=gmake for *BSD hosts
-    #
-    MAKE=make
-    case "$domain"
-    in
-	*freebsd*|*netbsd*)
-	    MAKE=gmake
-	    ;;
-    esac
 
     if which virsh >/dev/null 2>&1
     then
@@ -277,13 +275,12 @@ do
 	    # then
 		if ssh $host true
 		then
-		    #debug# echo host up
+		    $debug && echo host up
 		    touch $tmp.up
 		    break
 		fi
 	    # else
-		#debug# echo host down
-		# :
+		$debug && echo host down
 	    # fi
 	    sleep $delta
 	    wait=`expr $wait + $delta`
@@ -293,6 +290,31 @@ do
 	    echo "Failed to start VM domain $domain after $max_wait secs ... giving up"
 	    continue
 	fi
+	
+	check=`ssh -t $host uname -sr 2>/dev/null`
+	$debug && echo "check=$check"
+	case "$check"
+	in
+	    FreeBSD\ *)
+	    	osname=freebsd
+		;;
+	    *)
+	    	osname=unknown
+		;;
+	esac
+	$debug && echo "osname=$osname"
+
+	# per-host settings
+	# MAKE=gmake for *BSD hosts
+	#
+	MAKE=make
+	case "$osname"
+	in
+	    freebsd|netbsd)
+		MAKE=gmake
+		;;
+	esac
+	$debug && echo "MAKE=$MAKE"
 
 	cat >$tmp.script <<End-of-File
 #!/bin/sh
@@ -301,8 +323,12 @@ do
 #
 
 [ -f \$HOME/.dailyrc ] && . \$HOME/.dailyrc
-#debug# echo PATH=\$PATH
-#debug# which ${MAKE:-make}
+if [ $debug = true ]
+then
+    echo PATH=\$PATH
+    echo MAKE=\$MAKE
+    which ${MAKE:-make}
+fi
 
 tmp=/var/tmp/\$\$
 trap "rm -f \$tmp.*; exit 0" 0 1 2 3 15
@@ -630,13 +656,18 @@ End-of-File
 
 	check_what="$what"
 	[ X"$what" = Xall ] && check_what=''
-	# Need to add
-	# -x remote default for grundy.sgi.com if running all tests
-	#
 	case "$domain"
 	in
 	    *grundy*)
+		# Need to add
+		# -x remote default for grundy.sgi.com if running all tests
+		#
 		[ X"$what" = Xall ] && check_what='$check_what -x remote'
+		;;
+	    vm06)
+		# Only -g sanity at this stage for FreeBSD
+		#
+		[ X"$what" = Xall ] && check_what='-g sanity'
 		;;
 	esac
 

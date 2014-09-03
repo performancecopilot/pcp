@@ -24,7 +24,7 @@ do
     echo "--- out ---"
     cat $tmp.out
     echo "--- err ---"
-    _filter_console <$tmp.err
+    _filter_console <$tmp.err | _filter_views
     echo "--- post ---"
     if [ -f $tmp.post ]
     then

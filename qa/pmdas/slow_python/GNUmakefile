@@ -24,7 +24,7 @@ LSRCFILES = Install Remove $(PYSCRIPT) GNUmakefile.install
 #
 DOMAIN	= SLOW
 
-LDIRT	= domain.h $(IAM).log
+LDIRT	= domain.h $(IAM).log pmns.python
 
 default default_pcp setup: check_domain
 
