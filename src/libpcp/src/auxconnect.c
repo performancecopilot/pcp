@@ -780,12 +780,13 @@ __pmSelectWrite(int nfds, __pmFdSet *writefds, struct timeval *timeout)
 }
 
 /*
- * This interface is private to libpcp (although exposed in impl.h) and
- * deprecated (replaced by __pmAuxConnectPMCDPort()).
- * The implementation here is retained for IRIX and any 3rd party apps
+ * This interface is old and mouldy (exposed via impl.h many years ago)
+ * and very much deprecated.  It was replaced by __pmAuxConnectPMCDPort.
+ *
+ * The implementation here is retained for any (out-of-tree) application
  * that might have called this interface directly ... the implementation
- * is correct when $PMCD_PORT is unset, or set to a single numeric
- * port number, i.e. the old semantics
+ * is correct when $PMCD_PORT is unset, or set to a single numeric port
+ * number, i.e. the old semantics
  */
 int
 __pmAuxConnectPMCD(const char *hostname)

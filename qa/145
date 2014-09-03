@@ -13,6 +13,14 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+rm -f $seq.out
+_get_libpcp_config
+if $secure_sockets ; then
+    ln $seq.out.sec $seq.out || exit 1
+else
+    ln $seq.out.nonsec $seq.out || exit 1
+fi
+
 trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
 
 _filter_load()
@@ -45,7 +53,7 @@ s/\(000:..............7001......... \)........ ......../\1    DATE    STAMP/
 	-e 's/  [0-9][0-9][0-9][0-9]102/  2010000/' \
 	-e 's/      201/  1020000/' \
 	-e 's/      102/  2010000/' \
-
+    # end
 }
 
 # real QA test starts here
