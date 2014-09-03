@@ -31,7 +31,8 @@ DFILES	= README help
 
 LDIRT	= domain.h *.o $(IAM).log $(CMDTARGET) $(LIBTARGET)
 
-default:	build-me
+
+default_pcp default:	build-me
 
 include $(BUILDRULES)
 
@@ -39,13 +40,13 @@ ifeq "$(ENABLE_PAPI)" "enable_papi"
 
 build-me:	domain.h $(CMDTARGET) $(LIBTARGET)
 
-install:	default 
+install_pcp install:	default 
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(CMDTARGET) $(LIBTARGET) $(PMDADIR)
 	$(INSTALL) -m 644 root pmns domain.h $(DFILES) $(PMDADIR)
 else
 build-me:
-install:
+install_pcp install:
 endif
 
 $(VERSION_SCRIPT):
