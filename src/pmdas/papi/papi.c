@@ -415,7 +415,6 @@ void expand_values(int size)
 	    values = realloc(values, new_size);
 	    if (values == NULL)
 		__pmNoMem("values", new_size, PM_FATAL_ERR);
-	    __pmNotifyErr(LOG_DEBUG, "sizeof size_of_active_counters %d\n", size_of_active_counters);
 	    while(size_of_active_counters <= size){
 		memset(&values[size_of_active_counters++], 0, sizeof(long_long));
 		__pmNotifyErr(LOG_DEBUG, "memsetting to zero, %d\n", size_of_active_counters);
@@ -1365,6 +1364,12 @@ int papi_internal_init()
     retval = PAPI_library_init(PAPI_VER_CURRENT);
     if (retval != PAPI_VER_CURRENT) {
 	__pmNotifyErr(LOG_DEBUG, "PAPI library init error!\n");
+	return retval;
+    }
+
+    retval = PAPI_set_domain(PAPI_DOM_ALL);
+    if (retval != PAPI_OK){
+	__pmNotifyErr(LOG_DEBUG, "Cannot set the domain to PAPI_DOM_ALL.\n");
 	return retval;
     }
     /* hack similar to sample pmda */
