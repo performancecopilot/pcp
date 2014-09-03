@@ -215,7 +215,7 @@ __pmDiscoverServicesWithOptions(const char *service,
     numUrls = 0;
     if (mechanism == NULL) {
 	numUrls += __pmAvahiDiscoverServices(service, mechanism, &options, numUrls, urls);
-	if (! flags || (*flags & PM_SERVICE_DISCOVERY_INTERRUPTED) != 0)
+	if (! flags || (*flags & PM_SERVICE_DISCOVERY_INTERRUPTED) == 0)
 	    numUrls += __pmProbeDiscoverServices(service, mechanism, &options, numUrls, urls);
     }
     else if (strncmp(mechanism, "avahi", 5) == 0)
