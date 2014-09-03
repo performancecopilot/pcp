@@ -73,7 +73,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	matchInstanceName.c torture_pmns.c \
 	mmv_genstats.c mmv_instances.c mmv_poke.c mmv_noinit.c mmv_nostats.c \
 	record.c record-setarg.c clientid.c killparent.c grind_ctx.c \
-	pmdacache.c check_import.c unpack.c aggrstore.c atomstr.c \
+	pmdacache.c check_import.c unpack.c hrunpack.c aggrstore.c atomstr.c \
 	grind_conv.c getconfig.c err.c torture_logmeta.c keycache.c \
 	keycache2.c pmdaqueue.c drain-server.c template.c anon-sa.c \
 	username.c rtimetest.c getcontexthost.c badpmda.c chkputlogresult.c \

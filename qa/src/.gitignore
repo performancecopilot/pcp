@@ -94,6 +94,7 @@ grind_ctx
 hashwalk
 hex2nbo
 hp-mib
+hrunpack
 import_limit_test.pl
 indom
 interp0

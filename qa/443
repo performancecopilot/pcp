@@ -128,6 +128,9 @@ _run_arch -z src/eventrec-old/sample.event.records
 _run_arch -z -S@15:26:11.073 -s 2 -a src/eventrec-old sample.event.records
 _run_arch -z -O+2.5 -T+4.5 -a src/eventrec-old sample.event.records
 
+echo
+echo "--- highres events ---"
+_run_arch -z src/eventrec/sample.event.highres_records
 
 # success, all done
 exit
