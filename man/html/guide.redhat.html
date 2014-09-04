@@ -288,7 +288,7 @@ Dump past CPU load, memory usage, and disk write operations per partition in an 
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Summarize differences in past performance metrics between two archives, comparing 2 AM / 3 AM in the first archive to 9 AM / 10 AM in the second archive (grep for '+' to quickly see values which were zero during the first period):<BR><B>
-<BR> $ pmwtf -S @02:00 -T @03:00 -B @09:00 -E @10:00 <FONT COLOR="#cc0000">acme.com</FONT>/20140902 <FONT COLOR="#cc0000">acme.com</FONT>/20140901</B>
+<BR> $ pmdiff -S @02:00 -T @03:00 -B @09:00 -E @10:00 <FONT COLOR="#cc0000">acme.com</FONT>/20140902 <FONT COLOR="#cc0000">acme.com</FONT>/20140901</B>
 </TD></TR>
 </TABLE>
 
