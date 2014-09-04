@@ -43,6 +43,9 @@ Usage: pmstore [options] metricname value
 
 General options:
   -h HOST, --host=HOST  metrics source is PMCD on host
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
   -?, --help            show this usage message and exit
@@ -60,6 +63,9 @@ Usage: pmstore [options] metricname value
 
 General options:
   -h HOST, --host=HOST  metrics source is PMCD on host
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
   -?, --help            show this usage message and exit
