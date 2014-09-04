@@ -24,7 +24,7 @@ then
     exit 1
 fi
 
-echo -n "Are you sure you want to uninstall PCP? [y/n] "
+@echo@ @echo_n@ "Are you sure you want to uninstall PCP? [y/n] @echo_c@"
 read answer
 
 if [ "X$answer" != "Xy" -a "X$answer" != "XY" ]
@@ -34,18 +34,19 @@ then
 fi
 
 here=`pwd`
+BINADM_DIR="@pcp_binadm_dir@"
 
-if [ "$here" = "/usr/share/pcp/bin" -o "$here" = "/usr/share/pcp" ]
+if [ "$here" = "$BINADM_DIR" -o "$here" = `dirname $BINADM_DIR` ]
 then
-    echo "Do not run $0 from /usr/share/pcp, uninstall cancelled."
+    echo "Do not run $0 from $BINADM_DIR, uninstall cancelled."
     exit 1
 fi
 
 echo "Stopping PCP..."
-/Library/StartupItems/pcp/pcp stop
+/Library/StartupItems/pcp/pmcd stop
 sleep 5
 
-if [ -x /usr/share/pcp/bin/install-pcp -a -r /usr/share/pcp/bin/idb ]
+if [ -x $BINADM_DIR/install-pcp -a -r $BINADM_DIR/idb ]
 then
     echo "Removing Receipts"
     if [ -d /Library/Receipts/pcp-*.pkg ]; then
@@ -53,7 +54,7 @@ then
     fi
     echo "Uninstall in background to remove all running scripts"
     # Copy to /tmp since inst will remove itself and this script
-    cp /usr/share/pcp/bin/install-pcp /usr/share/pcp/bin/idb /tmp
+    cp $BINADMR_DIR/install-pcp $BINDAMD_DIR/idb /tmp
     # create tidy up script
     echo '#!/bin/sh' > /tmp/_pcp_tidy.sh
     echo '/tmp/install-pcp -v -r -l /var/log/pcp_inst.log /tmp/idb && /bin/rm -rf /Library/Receipts/pcp-*' >> /tmp/_pcp_tidy.sh
@@ -63,7 +64,7 @@ then
     # Run remove, overriding this shell
     exec /tmp/_pcp_tidy.sh
 else
-    echo "Unable to find /usr/share/pcp/bin/install-pcp. Remove failed"
+    echo "Unable to find $BINADM_DIR/install-pcp. Remove failed"
     exit 1
 fi
 
