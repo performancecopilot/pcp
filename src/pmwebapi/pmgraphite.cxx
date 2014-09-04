@@ -309,7 +309,7 @@ out:
 
 int
 pmgraphite_respond_metrics_find (struct MHD_Connection *connection,
-                                 const http_params & params, const vector <string> &url)
+                                 const http_params & params, const vector <string> &/*url*/)
 {
     int rc;
     struct MHD_Response *resp;
@@ -472,7 +472,8 @@ out1:
 
 int
 pmgraphite_respond_metrics_grep (struct MHD_Connection *connection,
-                                 const http_params & params, const vector <string> &url,
+                                 const http_params & params, 
+                                 const vector <string> &/*url*/,
                                  bool graphlot_p)
 {
     int rc;
@@ -1122,8 +1123,9 @@ pmgraphite_parse_timespec (struct MHD_Connection *connection, string value)
 // to identify validated metrics and time bounds.
 
 int
-pmgraphite_gather_data (struct MHD_Connection *connection, const http_params & params,
-                        const vector <string> &url,
+pmgraphite_gather_data (struct MHD_Connection *connection,
+                        const http_params & params,
+                        const vector <string> &/*url*/,
                         vector<string>& targets,
                         time_t& t_start,
                         time_t& t_end,
