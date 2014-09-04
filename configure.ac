@@ -2491,6 +2491,7 @@ dnl   Preamble for tar install scripts
     build/tar/postinstall.head
 dnl   Build definitions for use in packaging
     build/GNUlocaldefs
+    build/mac/uninstall-pcp
 )
 
 dnl verbose diagnostics
