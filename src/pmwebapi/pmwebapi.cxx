@@ -618,7 +618,7 @@ pmwebapi_format_value (ostream & output, pmDesc * desc, pmValueSet * pvs, int vs
 
 static int
 pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
-                               const http_params & params, struct webcontext *c)
+                               const http_params & /*params*/, struct webcontext *c)
 {
     const char *val_pmids;
     const char *val_names;
@@ -746,10 +746,9 @@ pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
         output << "\"instances\":[\n";
         for (j = 0; j < pvs->numval; j++) {
             pmValue *val = &pvs->vlist[j];
-            int printed_value;
             output << "{";
             json_key_value (output, "instance", val->inst, ", ");
-            printed_value = !pmwebapi_format_value (output, &desc, pvs, j);
+            pmwebapi_format_value (output, &desc, pvs, j);
             output << "}";
             if (j + 1 < pvs->numval) {
                 output << ",";
@@ -806,7 +805,8 @@ out:
 
 static int
 pmwebapi_respond_instance_list (struct MHD_Connection *connection,
-                                const http_params & params, struct webcontext *c)
+                                const http_params & /*params*/,
+                                struct webcontext *c)
 {
     const char *val_indom;
     const char *val_name;
