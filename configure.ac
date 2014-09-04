@@ -93,13 +93,13 @@ AC_ARG_WITH([books],
     [AC_HELP_STRING([--with-books],
                     [enable building of the PCP books (default is off)])],
     [do_books=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books=$withval"],
-    [do_books=off])
+    [do_books=no])
 
 AC_ARG_WITH([papi],
     [AC_HELP_STRING([--with-papi],
 		   [enable performance api counter pmda (default is off)])],
     [do_papi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-papi=$withval"],
-    [do_papi=check])
+    [do_papi=no])
 
 #
 # Note: the following environment variables may be
