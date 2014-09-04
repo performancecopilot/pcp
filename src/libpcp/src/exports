@@ -468,4 +468,5 @@ PCP_3.7 {
     __pmDumpHighResResult;
     __pmPrintHighResStamp;
     __pmPrintTimespec;
+    __pmGetTimespec;
 } PCP_3.6;

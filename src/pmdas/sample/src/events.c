@@ -307,7 +307,7 @@ sample_fetch_highres_events(pmValueBlock **vbpp, int inst)
 	inst = 1;
 
     pmdaEventResetHighResArray(hrarray[inst]);
-    clock_gettime(CLOCK_REALTIME, &stamp);
+    __pmGetTimespec(&stamp);
 
     if (inst == 0) {
 	/* original instance ... */

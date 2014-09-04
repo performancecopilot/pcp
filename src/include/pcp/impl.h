@@ -1430,6 +1430,9 @@ extern int __pmCheckHighResEventRecords(pmValueSet *, int);
 extern void __pmDumpEventRecords(FILE *, pmValueSet *, int);
 extern void __pmDumpHighResEventRecords(FILE *, pmValueSet *, int);
 
+/* Get nanosecond precision timestamp from system clocks */
+extern int __pmGetTimespec(struct timespec *);
+
 /* Anonymous metric registration (uses derived metrics support) */
 extern int __pmRegisterAnon(const char *, int);
 

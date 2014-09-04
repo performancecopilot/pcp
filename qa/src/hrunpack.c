@@ -288,7 +288,7 @@ main(int argc, char **argv)
     }
 
     reset();
-    clock_gettime(CLOCK_REALTIME, &stamp);
+    __pmGetTimespec(&stamp);
     /* rebase event records 10 secs in past, add 1 sec for each new record */
     stamp.tv_sec -= 10;
 

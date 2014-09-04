@@ -49,6 +49,11 @@
 #if defined(HAVE_MATH_H)
 #include <math.h>
 #endif
+#if defined(IS_DARWIN)
+#include <sys/sysctl.h>
+#include <mach/clock.h>
+#include <mach/mach.h>
+#endif
 
 static FILE	**filelog;
 static int	nfilelog;
@@ -974,6 +979,34 @@ __pmMapErrno(int sts)
 	sts = PM_ERR_IPC;
 #endif
     return sts;
+}
+
+int
+__pmGetTimespec(struct timespec *ts)
+{
+#if defined(IS_DARWIN)
+    clock_serv_t cclock;
+    mach_timespec_t mts;
+
+    host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+    clock_get_time(cclock, &mts);
+    mach_port_deallocate(mach_task_self(), cclock);
+    ts->tv_sec = mts.tv_sec;
+    ts->tv_nsec = mts.tv_nsec;
+    return 0;
+#elif defined(HAVE_CLOCK_GETTIME)
+    return clock_gettime(CLOCK_REALTIME, ts);
+#else
+#warning "No high resolution timestamp support on this platform"
+    struct timeval tv;
+    int sts;
+
+    if ((sts = gettimeofday(&tv, NULL)) == 0) {
+	ts->tv_sec = tv.tv_sec;
+	ts->tv_nsec = tv.tv_usec * 1000;
+    }
+    return sts;
+#endif
 }
 
 /*
@@ -2070,7 +2103,6 @@ pow(double x, double y)
 #define PROCFS_ENTRY_SIZE 40	/* encompass any size of entry for pid */
 
 #if defined(IS_DARWIN) /* No procfs on Mac OS X */
-#include <sys/sysctl.h>
 int
 __pmProcessExists(pid_t pid)
 {

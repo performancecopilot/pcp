@@ -1093,10 +1093,7 @@ __pmGlibGetDate(struct timespec *result, char const *p,
     int ok = 0;
 
     if (!now) {
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	gettime_buffer.tv_sec = tv.tv_sec;
-	gettime_buffer.tv_nsec = tv.tv_usec * 1000;
+	__pmGetTimespec(&gettime_buffer);
 	now = &gettime_buffer;
     }
 
