@@ -9,6 +9,7 @@ URL: http://www.performancecopilot.org
 Group: Applications/System
 Source0: pcp-%{version}.src.tar.gz
 
+%define disable_papi 0
 %define disable_microhttpd 0
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %define disable_qt 0
@@ -25,7 +26,9 @@ BuildRequires: python-devel
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
 BuildRequires: cyrus-sasl-devel
+%if !%{disable_papi}
 BuildRequires: papi-devel
+%endif
 %if !%{disable_microhttpd}
 BuildRequires: libmicrohttpd-devel
 %endif
@@ -73,7 +76,7 @@ Obsoletes: pcp-pmda-nvidia
 %if 0%{?fedora} >= 20
 %define _with_doc --with-docdir=%{_docdir}/%{name}
 %endif
-%if 0%{?fedora} >= 19 || 0%{?rhel} >= 7}
+%if 0%{?fedora} >= 19 || 0%{?rhel} >= 7
 %define _with_initd --with-rcdir=%{_initddir}
 %define disable_systemd 0
 %else
@@ -96,6 +99,10 @@ Obsoletes: pcp-pmda-nvidia
 
 %if %{disable_infiniband}
 %define _with_ib --with-infiniband=no
+%endif
+
+%if !%{disable_papi}
+%define _with_papi --with-papi=yes
 %endif
 
 %if %{disable_qt}
@@ -261,7 +268,7 @@ The PCP::LogImport module contains the Perl language bindings for
 importing data in various 3rd party formats into PCP archives so
 they can be replayed with standard PCP monitoring tools.
 
- #
+#
 # perl-PCP-LogSummary
 #
 %package -n perl-PCP-LogSummary
@@ -340,6 +347,7 @@ Requires: pcp-libs = %{version}-%{release}
 Performance Co-Pilot (PCP) front-end tools for importing collectl data
 into standard PCP archive logs for replay with any PCP monitoring tool.
 
+%if !%{disable_papi}
 #
 # pcp-pmda-papi
 #
@@ -354,7 +362,8 @@ BuildRequires: papi-devel
 
 %description pmda-papi
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting hardware counters statistics through PAPI (Perforamance API).
+collecting hardware counters statistics through PAPI (Performance API).
+%endif
 
 %if !%{disable_infiniband}
 #
@@ -436,7 +445,7 @@ PCP utilities and daemons, and the PCP graphical tools.
 rm -Rf $RPM_BUILD_ROOT
 
 %build
-%configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_qt}
+%configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_qt}
 make default_pcp
 
 %install
@@ -865,10 +874,12 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %{_bindir}/collectl2pcp
 %{_mandir}/man1/collectl2pcp.1.gz
 
+%if !%{disable_papi}
 %files pmda-papi
 %defattr(-,root,root)
 %{_pmdasdir}/papi
 %{_mandir}/man1/pmdapapi.1.gz
+%endif
 
 %if !%{disable_infiniband}
 %files pmda-infiniband
@@ -916,6 +927,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 - Fix pmlogsummary -S/-T time window reporting (BZ 1132476)
 - Resolve pmdumptext segfault with invalid host (BZ 1131779)
 - Fix signedness in some service discovery codes (BZ 1136166)
+- New conditionally-built pcp-pmda-papi sub-package.
 - Update to latest PCP sources.
 
 * Wed Aug 13 2014 Nathan Scott <nathans@redhat.com> - 3.9.9-1
