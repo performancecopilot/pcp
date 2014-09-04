@@ -32,6 +32,6 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 export DISPLAY=$PCPQA_CLOSE_X_SERVER
-src/grind-tools -v -a src/fcsw_indom fcsw.port.bytes_out
+src/grind-tools -v -a src/fcsw_indom fcsw.port.bytes_out 2>&1 | _filter_views
 status=$?
 exit
