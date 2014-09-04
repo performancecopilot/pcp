@@ -34,17 +34,18 @@ _filter()
     # end
 }
 
+pmns=$PCP_PMDAS_DIR/nvidia/root
 pmda=$PCP_PMDAS_DIR/nvidia/pmda_nvidia.$DSO_SUFFIX,nvidia_init
 
 # real QA test starts here
 echo
 echo "Testing behaviour with no nvidia library available"
-_run_valgrind pminfo -L -K clear -K add,120,$pmda -dfmtT nvidia 2>&1 | _filter
+_run_valgrind pminfo -L -K clear -K add,120,$pmda -dfmtT -n $pmns nvidia 2>&1 | _filter
 
 echo
 echo "Testing behaviour with QA wrapper nvidia library"
 export LD_LIBRARY_PATH=$here/src
-_run_valgrind pminfo -L -K clear -K add,120,$pmda -dfmtT nvidia 2>&1 | _filter
+_run_valgrind pminfo -L -K clear -K add,120,$pmda -dfmtT -n $pmns nvidia 2>&1 | _filter
 
 # success, all done
 status=0
