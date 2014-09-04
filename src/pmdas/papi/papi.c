@@ -1057,6 +1057,13 @@ remove_metric(unsigned int event, int position)
     int i;
     long_long new_values[size_of_active_counters];
 
+    retval = PAPI_query_event(event);
+    if (retval != PAPI_OK){
+	if (pmDebug & DBG_TRACE_APPL0)
+	    __pmNotifyErr(LOG_DEBUG, "event not found on this hardware, skipping\n");
+	return retval;
+    }
+
     /* check to make sure papi is running, otherwise do nothing */
     state = check_papi_state(state);
     if (state == PAPI_RUNNING) {
@@ -1127,13 +1134,21 @@ add_metric(unsigned int event)
     long_long new_values[size_of_active_counters];
     int i;
 
+    retval = PAPI_query_event(event);
+    if (retval != PAPI_OK){
+	if (pmDebug & DBG_TRACE_APPL0)
+	    __pmNotifyErr(LOG_DEBUG, "event not found on this hardware, skipping\n");
+	return retval;
+    }
     /* check status of papi */
     state = check_papi_state(state);
     /* add check with number_of_counters */
     /* stop papi if running? */
     if (state == PAPI_RUNNING) {
-	for (i = 0; i < size_of_active_counters; i++)
-	    new_values[i] = values[i];
+	for (i = 0; i < size_of_active_counters; i++){
+	    if(papi_info[i].position >= 0 && papi_info[i].papi_event_code)
+		new_values[papi_info[i].position] = values[papi_info[i].position];
+	}
 	retval = PAPI_stop(EventSet, values);
 	if (retval != PAPI_OK)
 	    return retval;
@@ -1144,8 +1159,11 @@ add_metric(unsigned int event)
 	retval = PAPI_add_event(EventSet, event); //XXX possibly switch this to add_events
 	if (retval != PAPI_OK)
 	    return retval;
-	for (i = 0; i < size_of_active_counters; i++)
-	    values[i] = new_values[i];
+
+	for (i = 0; i < size_of_active_counters; i++){
+	    if(papi_info[i].position >= 0 && papi_info[i].papi_event_code)
+		values[papi_info[i].position] = new_values[papi_info[i].position];
+	}
 	number_of_active_counters++;
 	retval = PAPI_start(EventSet);
 	return retval;
@@ -1181,8 +1199,8 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	    substring = strtok(enable_string, delim);
 	    while (substring != NULL) {
 		for (j = 0; j < number_of_events; j++) {
-		    if (!strcmp(substring, papi_info[j].papi_string_code)) {
-			// add the metric to the set
+		    if (!strcmp(substring, papi_info[j].papi_string_code) && papi_info[j].position < 0) {
+			// add the metric to the set if it's not already there
 			sts = add_metric(papi_info[j].papi_event_code);
 			if (sts == PAPI_OK)
 			    papi_info[j].position = number_of_active_counters-1; //minus one because array's start at 0 (not 1)
@@ -1207,7 +1225,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		return PM_ERR_VALUE;
 	    break;
 #else
-	    return PM_ERR_NYI;
+           return PM_ERR_NYI;
 #endif
 
 	case 2: //papi.disable
