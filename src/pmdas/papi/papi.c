@@ -33,6 +33,7 @@ typedef struct {
 
 static papi_m_user_tuple *papi_info = NULL;
 #define CLUSTER_PAPI 0 //we should define this in a header for when these exand possible values
+#define CLUSTER_CONTROL 1 // used for the control variables
 static char     *enable_string;
 static char     *disable_string;
 static char     *username = "root";
@@ -914,23 +915,23 @@ static pmdaMetric metrictab[] = {
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.REF_CYC */
 
     { NULL,
-      { PMDA_PMID(CLUSTER_PAPI,1000), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
+      { PMDA_PMID(CLUSTER_CONTROL,0), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.enable */
 
     { NULL,
-      { PMDA_PMID(CLUSTER_PAPI,1001), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
+      { PMDA_PMID(CLUSTER_CONTROL,1), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.reset */
 
     { NULL,
-      { PMDA_PMID(CLUSTER_PAPI,1002), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
+      { PMDA_PMID(CLUSTER_CONTROL,2), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.disable */
 
     { NULL,
-      { PMDA_PMID(CLUSTER_PAPI,1003), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
+      { PMDA_PMID(CLUSTER_CONTROL,3), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
       PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.status */
 
     { NULL,
-      { PMDA_PMID(CLUSTER_PAPI,1004), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      { PMDA_PMID(CLUSTER_CONTROL,4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
       PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } }, /* papi.num_counters */
 
 };
@@ -943,11 +944,6 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     int i;
     /* this will probably need to be expanded to fit the domains as well */
     sts = check_papi_state(sts);
-    //    if (sts != PAPI_RUNNING){
-    //	__pmNotifyErr(LOG_DEBUG, "sts: %d\n");
-	//	return PM_ERR_AGAIN;
-    //	return 0;
-    //    }
     if(sts == PAPI_RUNNING){
 	sts = PAPI_read(EventSet, values);
 	if (sts != PAPI_OK){
@@ -958,158 +954,47 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     switch (idp->cluster) {
     case CLUSTER_PAPI:
 	//switch indom statement will end up being here
-	switch (idp->item) {
-	case 0:
-	case 1:
-	case 2:
-	case 3:
-	case 4:
-	case 5:
-	case 6:
-	case 7:
-	case 8:
-	case 9:
-	case 10:
-	case 11:
-	case 12:
-	case 13:
-	case 14:
-	case 15:
-	case 16:
-	case 17:
-	case 18:
-	case 19:
-	case 20:
-	case 21:
-	case 22:
-	case 23:
-	case 24:
-	case 25:
-	case 26:
-	case 27:
-	case 28:
-	case 29:
-	case 30:
-	case 31:
-	case 32:
-	case 33:
-	case 34:
-	case 35:
-	case 36:
-	case 37:
-	case 38:
-	case 39:
-	case 40:
-	case 41:
-	case 42:
-	case 43:
-	case 44:
-	case 45:
-	case 46:
-	case 47:
-	case 48:
-	case 49:
-	case 50:
-	case 51:
-	case 52:
-	case 53:
-	case 54:
-	case 55:
-	case 56:
-	case 57:
-	case 58:
-	case 59:
-	case 60:
-	case 61:
-	case 62:
-	case 63:
-	case 64:
-	case 65:
-	case 66:
-	case 67:
-	case 68:
-	case 69:
-	case 70:
-	case 71:
-	case 72:
-	case 73:
-	case 74:
-	case 75:
-	case 76:
-	case 77:
-	case 78:
-	case 79:
-	case 80:
-	case 81:
-	case 82:
-	case 83:
-	case 84:
-	case 85:
-	case 86:
-	case 87:
-	case 88:
-	case 89:
-	case 90:
-	case 91:
-	case 92:
-	case 93:
-	case 94:
-	case 95:
-	case 96:
-	case 97:
-	case 98:
-	case 99:
-	case 100:
-	case 101:
-	case 102:
-	case 103:
-	case 104:
-	case 105:
-	case 106:
-	case 107:
-
+	if (idp->item >= 0 && idp->item <= 107) {
 	    // the 'case' && 'idp->item' value we get is the pmns_position
 	    for (i = 0; i < number_of_events; i++)
 		{
 		    if (papi_info[i].pmns_position == idp->item){
-			__pmNotifyErr(LOG_DEBUG, "value: %lld (%s)(%d - %d)\n", values[papi_info[i].position], papi_info[i].papi_string_code, idp->item, i);
 			atom->ull = values[papi_info[i].position];
 			break;
 		    }
 		}
 	    break;
+	}
+	return 0;
 
-
-	case 1000:
+    case CLUSTER_CONTROL:
+	switch (idp->item){
+	case 0:
 	    atom->cp = enable_string; /* papi.enable */
 	    return PMDA_FETCH_STATIC;
 
-	case 1001:
+	case 1:
 	    //	    break; /* papi.reset */
 	    //	    atom->cp = reset_string;
 	    return PMDA_FETCH_STATIC;
 
-	case 1002:
+	case 2:
 	    if ((sts = check_papi_state(sts)) == PAPI_RUNNING) {
 		    atom->cp = disable_string; /* papi.disable */
 		    return PMDA_FETCH_STATIC;
 		} else
 		    return 0;
 
-	case 1003:
+	case 3:
 	    atom->cp = papi_string_status(); /* papi.status */
 	    return PMDA_FETCH_STATIC;
 
-	case 1004:
+	case 4:
 	    atom->ul = number_of_counters; /* papi.num_counters */
 	    return PMDA_FETCH_STATIC;
-
 	default:
 	    return 0;
-	} // item switch
-	break;
-    default:
-	return 0;
+	}
     } // cluster switch
     if (sts == PAPI_OK ) //otherwise it's simply not running, so no papi-metric returned
 	return PMDA_FETCH_STATIC;
@@ -1246,68 +1131,75 @@ papi_store(pmResult *result, pmdaExt *pmda)
 
     if (!permission_check(pmda->e_context))
 	return PM_ERR_PERMISSION;
-
     for (i = 0; i < result->numpmid; i++){
 	pmValueSet *vsp = result->vset[i];
 	__pmID_int *idp = (__pmID_int *)&(vsp->pmid);
 	pmAtomValue av;
-	switch (idp->item){
-	case 1000: //papi.enable
-	    if((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
-				    PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0){
-		free(enable_string);
-		enable_string = av.cp;
-		substring = strtok(enable_string, delim);
-		while(substring != NULL){
-		    for(j = 0; j < number_of_events; j++){
-			if(!strcmp(substring, papi_info[j].papi_string_code)){
-			    // add the metric to the set
-			    retval = add_metric(papi_info[j].papi_event_code);
-			    if (retval == PAPI_OK)
-				papi_info[j].position = number_of_active_counters-1; //minus one because array's start at 0 (not 1)
+	switch (idp->cluster){
+	case CLUSTER_PAPI:
+	    break;
+	case CLUSTER_CONTROL:
+	    switch (idp->item){
+	    case 0: //papi.enable
+		if((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+					 PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0){
+		    free(enable_string);
+		    enable_string = av.cp;
+		    substring = strtok(enable_string, delim);
+		    while(substring != NULL){
+			for(j = 0; j < number_of_events; j++){
+			    if(!strcmp(substring, papi_info[j].papi_string_code)){
+				// add the metric to the set
+				retval = add_metric(papi_info[j].papi_event_code);
+				if (retval == PAPI_OK)
+				    papi_info[j].position = number_of_active_counters-1; //minus one because array's start at 0 (not 1)
+			    }
 			}
+			substring = strtok(NULL, delim);
 		    }
-		    substring = strtok(NULL, delim);
-		}
-		break;
-	    } //if sts
-	case 1001: //papi.reset
-	    //	    sts = check_papi_state(sts);
-	    //	    if(sts == PAPI_RUNNING){
-	    //	    if((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
-	    //				     PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0){
+		    break;
+		} //if sts
+	    case 1: //papi.reset
+		//	    sts = check_papi_state(sts);
+		//	    if(sts == PAPI_RUNNING){
+		//	    if((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+		//				     PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0){
 		retval = PAPI_reset(EventSet);
 		//		__pmNotifyErr(LOG_DEBUG, "reset: %d\n", retval);
 		//		if (retval == PAPI_OK)
-		    return 0;
-		    //		else
-		    //		    return PM_ERR_VALUE;
-		    //	    }
-	case 1002: //papi.disable
-	    if((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
-				     PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0){
-		free(disable_string);
-		disable_string = av.cp;
-		substring = strtok(disable_string, delim);
-		while(substring != NULL){
-		    for(j = 0; j < size_of_active_counters; j++){
-			if(!strcmp(substring, papi_info[j].papi_string_code)){
-			    // remove the metric from the set
-			    retval = remove_metric(papi_info[j].papi_event_code, papi_info[j].position);
-			    if (retval == PAPI_OK)
-				papi_info[j].position = -1;
+		return 0;
+		//		else
+		//		    return PM_ERR_VALUE;
+		//	    }
+	    case 2: //papi.disable
+		if((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+					 PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0){
+		    free(disable_string);
+		    disable_string = av.cp;
+		    substring = strtok(disable_string, delim);
+		    while(substring != NULL){
+			for(j = 0; j < size_of_active_counters; j++){
+			    if(!strcmp(substring, papi_info[j].papi_string_code)){
+				// remove the metric from the set
+				retval = remove_metric(papi_info[j].papi_event_code, papi_info[j].position);
+				if (retval == PAPI_OK)
+				    papi_info[j].position = -1;
+			    }
+			    else
+				__pmNotifyErr(LOG_DEBUG, "Provided metric name: %s, does not match any known metrics\n", substring);
 			}
-			else
-			    __pmNotifyErr(LOG_DEBUG, "Provided metric name: %s, does not match any known metrics\n", substring);
+			substring = strtok(NULL, delim);
 		    }
-		    substring = strtok(NULL, delim);
+		    break;
 		}
+	    default:
+		sts = PM_ERR_PMID;
 		break;
-	    }
+	    }//switch item
 	default:
 	    sts = PM_ERR_PMID;
 	    break;
-	}//switch item
+	}//switch cluster
     }
     return 0;
 }

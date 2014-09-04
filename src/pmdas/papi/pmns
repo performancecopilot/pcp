@@ -123,11 +123,11 @@ papi {
     VEC_SP PAPI:0:105
     VEC_DP PAPI:0:106
     REF_CYC PAPI:0:107
-    enable PAPI:0:1000
-    reset PAPI:0:1001
-    disable PAPI:0:1002
-    status PAPI:0:1003
-    num_counters PAPI:0:1004
+    enable PAPI:1:0
+    reset PAPI:1:1
+    disable PAPI:1:2
+    status PAPI:1:3
+    num_counters PAPI:1:4
 }
 
 
