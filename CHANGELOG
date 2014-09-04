@@ -1,5 +1,25 @@
 pcp-3.9.10 (5 September 2014)
-    - Currently under development.
+    - Support for native systemd service files for daemons
+    - Support for nanosecond resolution event timestamps
+    - Changes to the FreeBSD build to bring it up to date
+    - libpcp: reduce daemon memory usage with secure sockets
+    - libpcp: add auto-deflate support for xz compression
+    - pmie/pmlogger scripts: xz compression support enabled
+    - pmie/pmlogger scripts: lzo compression support added
+    - pmlogconf: fix slow pmlogger_daily remote host startup
+    - pmcd_wait: fixed to handle af_unix sockets correctly
+    - pmatop: fix help keys
+    - pmatop: parse standard pcp options (including archives)
+    - pmwtf: additional reporting options, added to /usr/bin
+    - pmwtf: fix column layout with custom precision setting
+    - pmlogsummary: fix time window reporting with -S and -T
+    - pmdapapi: new agent for PAPI hardware event counters
+    - pmdagfs2: latency metrics for glock grant/demote/queue
+    - pmdamysql: change metric semantics for "uptime"
+    - pmdaxfs: fix DSO mode and allow test data injection
+    - pmdammv: long option support
+    - docs: numerous updates to the online documentation
+    - docs: added a quick reference guide for Red Hat users
 
 pcp-3.9.9 (13 August 2014)
     - sar2pcp: support for systat version 10.2.0
