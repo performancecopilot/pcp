@@ -647,6 +647,8 @@ then
     echo "Error: version mismatch src=$src_version running=$running_version" | tee -a $HOME/daily.log
     exit 1
 fi
+# sample PMDA may have an updated PMNS, so re-install just in case
+( cd $PCP_VAR_DIR/pmdas/sample; sudo ./Install </dev/null ) >>$HOME/daily.log
 End-of-File
 
 	cat >>$tmp.script <<End-of-File

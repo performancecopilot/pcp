@@ -36,7 +36,8 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 #	allocated over and over ... we're arbitrarily picking a pool of
 #	up to the first 40 unique addresses we encounter (see the variable
 #	PICK in the awk below) and this works for glibc 2.10.1 ... this
-#	number may need to be increased for other malloc implementations
+#	number may need to be increased for other malloc implementations.
+#	4 Sep 2014 Increased PICK to 50 for glibc-2.14.1 on openSuSE 12.1.
 #
 _filter()
 {
@@ -50,7 +51,7 @@ _filter()
 	-e 's/(->ctx [0-9][0-9]*)//' \
 	-e 's/->/ /' \
     | awk >$tmp.sed '
-BEGIN				{ n = 0; PICK = 40 }
+BEGIN				{ n = 0; PICK = 50 }
 $1 == "__dmclosecontext"	{ if (map[$4] != "") next
 				  if (n >= PICK) next
 				  print "s/" $4 "/<addr>/"

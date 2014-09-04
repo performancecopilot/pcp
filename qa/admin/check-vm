@@ -338,3 +338,24 @@ then
 	_check_host $pmhost
     fi
 fi
+
+if [ -f /etc/pcp.conf ]
+then
+    . /etc/pcp.conf
+
+    # need QA access to pmlogger via pmlc
+    #
+    if [ -f $PCP_SYSCONF_DIR/pmlogger/config.default ]
+    then
+	if grep -q 'allow 192\.168\.1\.\*' $PCP_SYSCONF_DIR/pmlogger/config.default
+	then
+	    :
+	else
+	    echo "Missing: \"allow 192.168.1.* : all;\" [access] in $PCP_SYSCONF_DIR/pmlogger/config.default"
+	fi
+    else
+	echo "Warning: \"$PCP_SYSCONF_DIR/pcp/pmlogger/config.default\" is missing"
+    fi
+else
+    echo "Warning: \"/etc/pcp.conf\" is missing"
+fi
