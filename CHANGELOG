@@ -10,8 +10,9 @@ pcp-3.9.10 (5 September 2014)
     - pmcd_wait: fixed to handle af_unix sockets correctly
     - pmatop: fix help keys
     - pmatop: parse standard pcp options (including archives)
-    - pmwtf: additional reporting options, added to /usr/bin
-    - pmwtf: fix column layout with custom precision setting
+    - pmstore: support for local-context mode of operation
+    - pmdiff: additional reporting options, added to /usr/bin
+    - pmdiff: fix column layout with custom precision setting
     - pmlogsummary: fix time window reporting with -S and -T
     - pmdapapi: new agent for PAPI hardware event counters
     - pmdagfs2: latency metrics for glock grant/demote/queue
