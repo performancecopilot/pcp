@@ -213,11 +213,11 @@ do
     count=`wc -l <$tmp.domain | sed -e 's/ //g'`
     if [ $count != 1 ]
     then
-	echo "More than one domain matches \"$target\" ... the matches I have are ..."
+	echo "Warning: More than one domain matches \"$target\" ... the matches I have are ..."
 	cat $tmp.domain
-	continue
+	echo "... using the first one."
     fi
-    domain=`cat $tmp.domain`
+    domain=`sed -e 1q $tmp.domain`
     # used to be vmNN-osname&version, but now just vmMM ...
     # old sed now does nothing
     #
