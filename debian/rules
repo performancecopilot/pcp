@@ -114,7 +114,7 @@ uninstalltest = cat debian/$(pcp_testsuite).dirs | sed -e "s,^,debian/$(pcp)/," 
 uninstalldirs = rmdir debian/$(pcp)/usr/include/pcp debian/$(pcp)/usr/include debian/$(pcp)/usr/share/man/man3
 uninstallib = cat debian/$(pcp_pmda_infiniband).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
 uninstallgui = cat debian/$(pcpgui).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
-uninstallweb = find debian/$(pcp) -iname \*pmweb\* | xargs rm -fr
+uninstallweb = find debian/$(pcp) -iname \*pmweb\* -o -iname \*jsdemos\* | xargs rm -fr
 uninstallmgr = find debian/$(pcp) -name \*pmmgr\* | xargs rm -fr
 unrpathperl = find $(allperldir) -name \*.so | xargs chrpath -d
 
