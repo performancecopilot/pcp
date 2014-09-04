@@ -307,3 +307,63 @@ samples:   all
   15:26:04.073 --- event record [1] flags 0x1 (point) ---
     sample.event.type 2
     sample.event.param_64 -3
+
+--- highres events ---
+=== -z src/eventrec/sample.event.highres_records ===
+Note: timezone set to local timezone of host "slick" from archive
+
+archive:   src/eventrec
+host:      slick
+start:     Wed Sep  3 13:42:53 2014
+end:       Wed Sep  3 13:42:58 2014
+samples:   all
+13:42:54.146  sample.event.highres_records[fungus]: 1 event records
+  13:42:44.146207109 --- event record [0] flags 0x1 (point) ---
+sample.event.highres_records[bogus]: 1 event records
+  13:42:54.146208753 --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #1"
+13:42:55.146  sample.event.highres_records[fungus]: 2 event records
+  13:42:45.146290917 --- event record [0] flags 0x1 (point) ---
+    sample.event.type 1
+  13:42:46.146290917 --- event record [1] flags 0x1 (point) ---
+    sample.event.type 2
+    sample.event.param_64 -3
+sample.event.highres_records[bogus]: 1 event records
+  13:42:55.146293674 --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #2"
+13:42:56.146  sample.event.highres_records[fungus]: 5 event records
+  13:42:46.146187279 --- event record [0] flags 0x1a (start,id,parent) ---
+    sample.event.type 4
+    sample.event.param_u64 5
+    sample.event.param_string "6"
+  13:42:47.146187279 --- event record [1] flags 0x1 (point) ---
+    sample.event.type 7
+    sample.event.param_double 8
+    sample.event.param_double -9
+  13:42:48.146187279 --- event record [2] flags 0x4 (end) ---
+    sample.event.type 10
+    sample.event.param_u64 11
+    sample.event.param_string "twelve"
+    sample.event.param_string "thirteen"
+    sample.event.param_32 -14
+    sample.event.param_u32 15
+  13:42:49.146187279 --- event record [3] flags 0x80000000 (missed) ---
+    ==> 0 missed event records
+  13:42:50.146187279 --- event record [4] flags 0x1 (point) ---
+    sample.event.type 16
+    sample.event.param_float -17
+    sample.event.param_aggregate [0103070f1f3f7fff]
+sample.event.highres_records[bogus]: 2 event records
+  13:42:56.146194604 --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #3"
+  13:42:56.146194604 --- event record [1] flags 0x1 (point) ---
+    sample.event.param_string "bingo!"
+13:42:57.146  sample.event.highres_records[fungus]: 0 event records
+sample.event.highres_records[bogus]: 1 event records
+  13:42:57.146218425 --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #4"
+13:42:58.146  sample.event.highres_records[fungus]: 1 event records
+  13:42:48.146230678 --- event record [0] flags 0x1 (point) ---
+sample.event.highres_records[bogus]: 1 event records
+  13:42:58.146232332 --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #5"

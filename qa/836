@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 836
-# Exercise pmwtf(1) script functionality.
+# Exercise pmdiff(1) script functionality.
 #
 # Copyright (c) 2014 Red Hat.
 #
@@ -24,23 +24,23 @@ _filter()
 
 # real QA test starts here
 echo "== simple comparison, defaults"
-pmwtf -z $here/src/section-a $here/src/section-b | _filter
+pmdiff -z $here/src/section-a $here/src/section-b | _filter
 echo
 
 echo "== change the comparison ratio"
-pmwtf -z -q 1.5 $here/src/section-a $here/src/section-b | _filter
+pmdiff -z -q 1.5 $here/src/section-a $here/src/section-b | _filter
 echo
 
 echo "== change the report precision"
-pmwtf -z -p 5 $here/src/section-a $here/src/section-b | _filter
+pmdiff -z -p 5 $here/src/section-a $here/src/section-b | _filter
 echo
 
 echo "== skip the excluded metrics report"
-pmwtf -z --skip-excluded $here/src/section-a $here/src/section-b | _filter
+pmdiff -z --skip-excluded $here/src/section-a $here/src/section-b | _filter
 echo
 
 echo "== skip the missing metrics report"
-pmwtf -z --skip-missing $here/src/section-a $here/src/section-c | _filter
+pmdiff -z --skip-missing $here/src/section-a $here/src/section-c | _filter
 
 # success, all done
 status=0

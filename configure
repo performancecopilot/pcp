@@ -623,7 +623,6 @@ ac_subst_vars='PACKAGE_CONFIGURE
 BUILD_PMMGR
 HAVE_RPMLIB
 HAVE_LIBMICROHTTPD
-lib_for_rt
 lib_for_curses
 lib_for_readline
 pcp_mpi_dirs
@@ -690,6 +689,7 @@ pcp_saslconf_dir
 pcp_etc_dir
 lib_for_math
 lib_for_dlopen
+lib_for_rt
 lib_for_basename
 fmt_pthread
 lib_for_pthreads
@@ -9602,6 +9602,7 @@ fi
 
 done
 
+    savedLIBS=$LIBS
     IB_LIBS=""
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for madrpc_init in -libmad" >&5
 $as_echo_n "checking for madrpc_init in -libmad... " >&6; }
@@ -9696,7 +9697,6 @@ fi
     if test $ac_cv_lib_ibmad_madrpc_init = yes -a $ac_cv_lib_ibumad_umad_init = yes
     then
 	IB_LIBS="-libmad -libumad"
-	savedLIBS=$LIBS
 	LIBS="$IB_LIBS"
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for port_performance_query_via" >&5
 $as_echo_n "checking for port_performance_query_via... " >&6; }
@@ -9774,6 +9774,7 @@ rm -f core conftest.err conftest.$ac_objext \
     else
 	pmda_infiniband=
     fi
+    LIBS=$savedLIBS
     PMDA_INFINIBAND=$pmda_infiniband
 
 
@@ -9895,7 +9896,7 @@ fi
 done
 
 
-for ac_func in mktime nanosleep unsetenv
+for ac_func in mktime nanosleep usleep unsetenv
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -11131,6 +11132,74 @@ fi
 	lib_for_basename="-lgen"
     else
 	lib_for_basename="-lpcp"
+    fi
+fi
+
+
+lib_for_clock_gettime=
+for ac_func in clock_gettime
+do :
+  ac_fn_c_check_func "$LINENO" "clock_gettime" "ac_cv_func_clock_gettime"
+if test "x$ac_cv_func_clock_gettime" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_CLOCK_GETTIME 1
+_ACEOF
+
+fi
+done
+
+if test $ac_cv_func_clock_gettime = no
+then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for clock_gettime in -lrt" >&5
+$as_echo_n "checking for clock_gettime in -lrt... " >&6; }
+if ${ac_cv_lib_rt_clock_gettime+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lrt  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char clock_gettime ();
+int
+main ()
+{
+return clock_gettime ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_rt_clock_gettime=yes
+else
+  ac_cv_lib_rt_clock_gettime=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_rt_clock_gettime" >&5
+$as_echo "$ac_cv_lib_rt_clock_gettime" >&6; }
+if test "x$ac_cv_lib_rt_clock_gettime" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBRT 1
+_ACEOF
+
+  LIBS="-lrt $LIBS"
+
+fi
+
+    if test $ac_cv_lib_rt_clock_gettime = yes
+    then
+	$as_echo "#define HAVE_CLOCK_GETTIME 1" >>confdefs.h
+
+	lib_for_rt=-lrt
     fi
 fi
 
@@ -13593,60 +13662,6 @@ else
 $as_echo "no" >&6; }
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
-savedLIBS=$LIBS
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for timer_gettime in -lrt" >&5
-$as_echo_n "checking for timer_gettime in -lrt... " >&6; }
-if ${ac_cv_lib_rt_timer_gettime+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lrt  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char timer_gettime ();
-int
-main ()
-{
-return timer_gettime ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_rt_timer_gettime=yes
-else
-  ac_cv_lib_rt_timer_gettime=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_rt_timer_gettime" >&5
-$as_echo "$ac_cv_lib_rt_timer_gettime" >&6; }
-if test "x$ac_cv_lib_rt_timer_gettime" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBRT 1
-_ACEOF
-
-  LIBS="-lrt $LIBS"
-
-fi
-
-lib_for_rt=""
-if test $ac_cv_lib_rt_timer_gettime = yes
-then
-    lib_for_rt="-lrt"
-fi
-
-LIBS=$savedLIBS
 
 savedLIBS=$LIBS
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for libmicrohttpd > 0.9.9" >&5

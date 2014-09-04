@@ -1142,13 +1142,13 @@ then
     AC_CHECK_HEADERS([infiniband/umad.h], [
 	AC_CHECK_HEADERS([infiniband/mad.h], [pmda_infiniband=infiniband], [])
     ], [])
+    savedLIBS=$LIBS
     IB_LIBS=""
     AC_CHECK_LIB(ibmad, madrpc_init)
     AC_CHECK_LIB(ibumad, umad_init)
     if test $ac_cv_lib_ibmad_madrpc_init = yes -a $ac_cv_lib_ibumad_umad_init = yes
     then
 	IB_LIBS="-libmad -libumad"
-	savedLIBS=$LIBS
 	LIBS="$IB_LIBS"
 	AC_MSG_CHECKING([for port_performance_query_via])
 	AC_TRY_LINK_FUNC(port_performance_query_via,
@@ -1174,6 +1174,7 @@ then
     else
 	pmda_infiniband=
     fi
+    LIBS=$savedLIBS
     AC_SUBST(PMDA_INFINIBAND, $pmda_infiniband)
     AC_SUBST(IB_LIBS)
 fi
@@ -1182,7 +1183,7 @@ dnl Checks for library functions.
 AC_TYPE_SIGNAL
 AC_FUNC_WAIT3
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS(mktime nanosleep unsetenv)
+AC_CHECK_FUNCS(mktime nanosleep usleep unsetenv)
 AC_CHECK_FUNCS(select socket gethostname getpeerucred getpeereid)
 AC_CHECK_FUNCS(uname syslog __clone pipe2 fcntl ioctl)
 AC_CHECK_FUNCS(prctl setlinebuf waitpid atexit kill)
@@ -1757,6 +1758,20 @@ else
     fi
 fi
 AC_SUBST(lib_for_basename)
+
+dnl check if clock_gettime needs -lrt to work
+lib_for_clock_gettime=
+AC_CHECK_FUNCS(clock_gettime)
+if test $ac_cv_func_clock_gettime = no
+then
+    AC_CHECK_LIB(rt, clock_gettime)
+    if test $ac_cv_lib_rt_clock_gettime = yes
+    then
+	AC_DEFINE(HAVE_CLOCK_GETTIME)
+	lib_for_rt=-lrt
+    fi
+fi
+AC_SUBST(lib_for_rt)
 
 dnl check if dlopen et al need -ldl to work
 lib_for_dlopen=
@@ -2418,16 +2433,6 @@ AC_TRY_COMPILE(
 ],
 [
 ], AC_DEFINE(HAVE_AI_ADDRCONFIG) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
-
-savedLIBS=$LIBS
-AC_CHECK_LIB(rt, timer_gettime)
-lib_for_rt=""
-if test $ac_cv_lib_rt_timer_gettime = yes
-then
-    lib_for_rt="-lrt"
-fi
-AC_SUBST(lib_for_rt)
-LIBS=$savedLIBS
 
 dnl Do you have system microhttpd libraries for pmwebapi?
 savedLIBS=$LIBS

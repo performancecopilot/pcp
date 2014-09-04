@@ -30,7 +30,7 @@ MAN_PAGES	= \
 	pmloglabel.1 genpmda.1 pmproxy.1 pmlogreduce.1 \
 	autofsd-probe.1 pmie2col.1 telnet-probe.1 pmsleep.1 pmsignal.1 \
 	pmieconf.1 pmiestatus.1 pmevent.1 pmcpp.1 pmlogrewrite.1 \
-	pmatop.1 pmcollectl.1 pmwtf.1 collectl2pcp.1 pmmgr.1 pmfind.1 \
+	pmatop.1 pmcollectl.1 pmdiff.1 collectl2pcp.1 pmmgr.1 pmfind.1 \
 	pmchart.1 pmdumptext.1 pmquery.1 pmsnap.1 pmtime.1 \
 	\
 	pmdaapache.1 pmdabash.1 pmdacisco.1 \

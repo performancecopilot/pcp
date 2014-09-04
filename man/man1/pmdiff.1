@@ -15,9 +15,9 @@
 .\" 
 .TH PMWTF 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmwtf\f1 \- compares archives and report significant differences
+\f3pmdiff\f1 \- compares archives and report significant differences
 .SH SYNOPSIS
-\f3pmwtf\f1
+\f3pmdiff\f1
 [\f3\-d\f1/\f3--keep\f1]
 [\f3\-z\f1/\f3--hostzone\f1]
 [\f3\-p\f1/\f3--precision\f1 \f2precision\f1]
@@ -34,7 +34,7 @@
 \f2archive1\f1
 [\f2archive2\f1]
 .SH DESCRIPTION
-.B pmwtf
+.B pmdiff
 compares the average values for every metric in either one
 or two archives, in a given time window, for changes that are
 likely to be of interest when searching for performance regressions.
@@ -75,7 +75,7 @@ two separate archives), or a time window on the same day of different
 weeks.
 .PP
 In either case,
-.B pmwtf
+.B pmdiff
 produces a sorted summary of those metrics in the specified window
 whose values have deviated the most from a minimal threshold.
 The level of deviation is calculated by dividing the average value
@@ -105,7 +105,7 @@ Cull the list of names of metrics being excluded from the output.
 .TP
 .B \-\-skip-missing
 By default,
-.B pmwtf
+.B pmdiff
 will report the names of any metrics that are in one archive but not
 the other.
 This option suppresses that reporting.

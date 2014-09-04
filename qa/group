@@ -963,6 +963,8 @@ avahi
 897 pmlc pmlogger local oss
 899 libpcp getopt local oss
 900 libpcp sanity local oss
+901 libpcp event local oss
+902 libpcp mem_leak valgrind event local oss
 922 derive pmie pmval local oss
 928 archive local oss
 929 logutil local oss
