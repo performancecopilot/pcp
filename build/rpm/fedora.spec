@@ -196,8 +196,6 @@ needs (which are particularly complex in the case of pmlogger).
 The base PCP package provides comparable functionality through cron
 scripts which predate this daemon but do still provide effective and
 efficient log management services.
-The pcp-manager package aims to aggressively enable new PCP features
-and as a result may not be suited to all production environments.
 
 %if !%{disable_microhttpd}
 #
