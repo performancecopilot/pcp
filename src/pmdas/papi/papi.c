@@ -988,7 +988,7 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    // the 'case' && 'idp->item' value we get is the pmns_position
 	    for (i = 0; i < number_of_events; i++) {
 		if (papi_info[i].pmns_position == idp->item) {
-		    if(papi_info[i].position >= 0){
+		    if(papi_info[i].position >= 0 && papi_info[i].papi_event_code){
 			atom->ull = values[papi_info[i].position];
 			return PMDA_FETCH_STATIC;
 		    }
@@ -1093,6 +1093,9 @@ remove_metric(unsigned int event, int position)
 		new_values[papi_info[i].position] = 0;
 		papi_info[i].position = -1;
 	    }
+	}
+
+	for (i = 0; i < number_of_events; i++) {
 	    if (papi_info[i].position < position)
 		values[papi_info[i].position] = new_values[papi_info[i].position];
 
@@ -1100,7 +1103,7 @@ remove_metric(unsigned int event, int position)
 		papi_info[i].position--;
 		values[papi_info[i].position] = new_values[papi_info[i].position+1];
 	    }
-	    if (papi_info[i].position >= 0) {
+	    if (papi_info[i].position >= 0 && papi_info[i].papi_event_code) {
 		retval = PAPI_add_event(EventSet, papi_info[i].papi_event_code);
 		if (retval != PAPI_OK)
 		    return retval;
@@ -1221,9 +1224,10 @@ papi_store(pmResult *result, pmdaExt *pmda)
 			sts = remove_metric(papi_info[j].papi_event_code, papi_info[j].position);
 			if (sts == PAPI_OK)
 			    papi_info[j].position = -1;
+			break; //we've found the correct metric, break;
 		    }
 		    else {
-			if (pmDebug & DBG_TRACE_APPL0)
+			if (pmDebug & DBG_TRACE_APPL0 && (j+1) == size_of_active_counters)
 			    __pmNotifyErr(LOG_DEBUG, "metric name %s does not match any known metrics\n", substring);
 		    }
 		}
