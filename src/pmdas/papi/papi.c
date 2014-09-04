@@ -988,8 +988,12 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    // the 'case' && 'idp->item' value we get is the pmns_position
 	    for (i = 0; i < number_of_events; i++) {
 		if (papi_info[i].pmns_position == idp->item) {
-		    atom->ull = values[papi_info[i].position];
-		    return PMDA_FETCH_STATIC;
+		    if(papi_info[i].position >= 0){
+			atom->ull = values[papi_info[i].position];
+			return PMDA_FETCH_STATIC;
+		    }
+		    else
+			return PMDA_FETCH_NOVALUES;
 		}
 	    }
 	}
