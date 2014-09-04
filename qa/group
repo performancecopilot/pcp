@@ -966,6 +966,7 @@ avahi
 900 libpcp sanity local oss
 901 libpcp event local oss
 902 libpcp mem_leak valgrind event local oss
+903 pmda.papi local oss
 914 pmda.papi local oss
 922 derive pmie pmval local oss
 928 archive local oss

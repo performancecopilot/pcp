@@ -62,15 +62,13 @@
 
 @ papi.L2_STM Level 2 store misses
 
-@ papi.enable A list of metrics to enable and count
+@ papi.control.enable A list of metrics to enable and count
 
-@ papi.reset Reset the counter values
+@ papi.control.reset Reset the counter values
 
-@ papi.disable A list of metrics to disable counting
+@ papi.control.disable A list of metrics to disable counting
 
-@ papi.status A string of current papi's current state
+@ papi.control.status A string of papi counters current state
 
-@ papi.num_counters Number of counters available for use on current system
-
-
+@ papi.available.num_counters Number of hardware counters available for use
 

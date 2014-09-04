@@ -675,6 +675,7 @@ _filter_torture_api()
 	-e '/^    numa /d' \
 	-e '/^    nvidia /d' \
 	-e '/^    origin /d' \
+	-e '/^    papi /d' \
 	-e '/^    pdns /d' \
 	-e '/^    p76 /d' \
 	-e '/^    process /d' \

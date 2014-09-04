@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 914
-# Exercise Performance API (papi) pmda
+# Exercise Performance API (PAPI) pmda
 #
 # Copyright (c) 2014 Red Hat. All Rights Reserved.
 #
@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-# test for-some-thing || _notrun No support for some-thing
+[ -d $PCP_PMDAS_DIR/papi ] || _notrun "PAPI PMDA is not installed"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
@@ -21,22 +21,46 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-	egrep 'papi\.enable|papi\.disable|papi\.reset|papi\.num_counters|papi\.status|papi\.TOT_INS|papi\.TOT_CYC'
+    sed \
+	-e 's/value [0-9][0-9]*/value NUMBER/'
+	-e 's/value \".*\"/value STRING/'
 }
 
 # real QA test starts here
-
-pmda=$PCP_PDMAS_DIR/papi/pmdapapi,papi_init
+pmda=$PCP_PMDAS_DIR/papi/pmda_papi.$DSO_SUFFIX,papi_init
 
 echo
-echo "== Testing basic papi library behaviour without papi stub"
-pminfo -L -K clear -K add,120,$pmda papi 2>&1 | _filter
+echo "== PAPI library behaviour, total instructions/cycles, non-root"
+pminfo -L -K clear -K add,126,$pmda -f papi.TOT_INS papi.TOT_CYC
 
-# optional stuff if your test has verbose output to help resolve problems
+echo
+echo "== PAPI library behaviour, available hardware metrics, non-root"
+pminfo -L -K clear -K add,126,$pmda -f papi.available
+
+echo
+echo "== PAPI library behaviour, control metric fetches, non-root"
+pminfo -L -K clear -K add,126,$pmda -f papi.control
+
 #echo
-#echo "If failure, check $seq.full"
+#echo "== Testing local PAPI library behaviour, control metric stores"
+#pmstore -L -K clear -K add,126,$pmda -f papi.control.enable TOT_INS
+
+echo
+echo "== PAPI library behaviour, total instructions/cycles, as root"
+$sudo pminfo -L -K clear -K add,126,$pmda -f papi.TOT_INS papi.TOT_CYC | _filter
+
+echo
+echo "== PAPI library behaviour, available hardware metrics, as root"
+$sudo pminfo -L -K clear -K add,126,$pmda -f papi.available | _filter
+
+echo
+echo "== PAPI library behaviour, control metric fetches, as root"
+$sudo pminfo -L -K clear -K add,126,$pmda -f papi.control | _filter
+
+#echo
+#echo "== Testing local PAPI library behaviour, control metric store as root"
+#pmstore -L -K clear -K add,126,$pmda -f papi.control.enable TOT_INS
 
 # success, all done
 status=0
-
 exit

@@ -1,10 +1,56 @@
 QA output created by 914
 
-== Testing papi library behaviour with papi stub
+== PAPI library behaviour, total instructions/cycles, non-root
+pminfo -L -K clear -K add,126,$pmda -f papi.TOT_INS papi.TOT_CYC | _filter
+
 papi.TOT_INS
+Error: No permission to perform requested operation
+
 papi.TOT_CYC
-papi.enable
-papi.reset
-papi.disable
-papi.status
-papi.num_counters
+Error: No permission to perform requested operation
+
+== PAPI library behaviour, available hardware metrics, non-root
+
+papi.available.num_counters
+Error: No permission to perform requested operation
+
+== PAPI library behaviour, control metric fetches, non-root
+
+papi.control.enable
+Error: No permission to perform requested operation
+
+papi.control.reset
+Error: No permission to perform requested operation
+
+papi.control.disable
+Error: No permission to perform requested operation
+
+papi.control.status
+Error: No permission to perform requested operation
+
+== PAPI library behaviour, total instructions/cycles, as root
+
+papi.TOT_INS
+	value NUMBER
+
+papi.TOT_CYC
+	value NUMBER
+
+== PAPI library behaviour, available hardware metrics, as root
+
+papi.available.num_counters
+	value NUMBER
+
+== PAPI library behaviour, control metric fetches, as root
+
+papi.control.enable
+	value STRING
+
+papi.control.reset
+	value STRING
+
+papi.control.disable
+	value STRING
+
+papi.control.status
+	value STRING
