@@ -48,7 +48,7 @@ dump_dt(char *str, struct tm *atm)
 }
 
 int
-main(argc, argv)
+main(int argc, char *argv[])
 {
     struct timeval tvstart;	// .tv_sec .tv_usec
     struct timeval tvend;
