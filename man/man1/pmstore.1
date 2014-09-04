@@ -20,8 +20,10 @@
 .\" arguments use .I or \f2
 .SH SYNOPSIS
 \f3pmstore\f1
+[\f3\-L\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-i\f1 \f2instances\f1]
+[\f3\-K\f1 \f2spec\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 \f2metricname\f1 \f2value\f1
 .SH DESCRIPTION
@@ -59,6 +61,18 @@ option,
 .B pmstore
 will interact with the Performance Metric Collector Daemon (PMCD)
 on the local host.
+.PP
+The
+.B \-L
+option causes
+.B pmstore
+to use a local context to store to metrics from PMDAs on the local host
+without PMCD.  Only some metrics are available in this mode.
+The
+.BR \-h
+and
+.B \-L
+options are mutually exclusive.
 .PP
 The interpretation of
 .I value
@@ -99,6 +113,19 @@ be modified with
 .PP
 The output reports the old value and the new value for each updated
 instance of the requested metric.
+.PP
+When using the
+.B \-L
+option to fetch metrics from a local context, the
+.B \-K
+option may be used to control the DSO PMDAs that should be
+made accessible.  The
+.I spec
+argument conforms to the syntax described in
+.BR __pmSpecLocalPMDA (3).
+More than one
+.B \-K
+option may be used.
 .SH FILES
 .PD 0
 .TP 10
@@ -123,9 +150,10 @@ as described in
 .BR pmcd (1),
 .BR pminfo (1),
 .BR pmval (1),
-.BR strtod (3C)
+.BR __pmSpecLocalPMDA (3),
+.BR strtod (3)
 and
-.BR strtol (3C).
+.BR strtol (3).
 .SH DIAGNOSTICS
 Two messages indicate a mismatch between the internal data type for
 .I metricname
