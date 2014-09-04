@@ -970,9 +970,10 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     /* this will probably need to be expanded to fit the domains as well */
     sts = check_papi_state(sts);
-    if (sts != PAPI_RUNNING)
+    if (sts != PAPI_RUNNING && idp->cluster == CLUSTER_PAPI){
 	return PMDA_FETCH_NOVALUES;
-    else {
+    }
+    else if(sts == PAPI_RUNNING){
 	sts = PAPI_read(EventSet, values);
 	if (sts != PAPI_OK) {
 	    __pmNotifyErr(LOG_ERR, "PAPI_read: %s\n", PAPI_strerror(sts));
@@ -1220,7 +1221,6 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		    else {
 			if (pmDebug & DBG_TRACE_APPL0)
 			    __pmNotifyErr(LOG_DEBUG, "metric name %s does not match any known metrics\n", substring);
-			return PM_ERR_CONV;
 		    }
 		}
 		substring = strtok(NULL, delim);
