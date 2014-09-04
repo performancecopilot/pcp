@@ -10,6 +10,7 @@ Group: Applications/System
 Source0: pcp-%{version}.src.tar.gz
 
 %define disable_microhttpd 0
+%define disable_cairo 0
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %define disable_qt 0
 %else
@@ -27,6 +28,9 @@ BuildRequires: readline-devel
 BuildRequires: cyrus-sasl-devel
 %if !%{disable_microhttpd}
 BuildRequires: libmicrohttpd-devel
+%endif
+%if !%{disable_cairo}
+BuildRequires: cairo-devel
 %endif
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 BuildRequires: systemtap-sdt-devel
