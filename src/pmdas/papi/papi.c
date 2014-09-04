@@ -396,7 +396,8 @@ set_pmns_position(unsigned int i)
 static int
 permission_check(int context)
 {
-    if (ctxtab[context].uid == 0 || ctxtab[context].gid == 0)
+    if ((ctxtab[context].uid_p && ctxtab[context].uid == 0) ||
+	(ctxtab[context].gid_p && ctxtab[context].gid == 0))
 	return 1;
     return 0;
 }
@@ -438,12 +439,12 @@ enlarge_ctxtab(int context)
     /* Grow the context table if necessary. */
     if (ctxtab_size /* cardinal */ <= context /* ordinal */) {
         size_t need = (context + 1) * sizeof(struct uid_gid_tuple);
-        ctxtab = realloc (ctxtab, need);
+        ctxtab = realloc(ctxtab, need);
         if (ctxtab == NULL)
             __pmNoMem("papi ctx table", need, PM_FATAL_ERR);
         /* Blank out new entries. */
         while (ctxtab_size <= context)
-            memset (& ctxtab[ctxtab_size++], 0, sizeof(struct uid_gid_tuple));
+            memset(&ctxtab[ctxtab_size++], 0, sizeof(struct uid_gid_tuple));
     }
 }
 
@@ -947,6 +948,19 @@ static pmdaMetric metrictab[] = {
 
 };
 
+static void
+papi_endContextCallBack(int context)
+{
+    if (pmDebug & DBG_TRACE_APPL0)
+	__pmNotifyErr(LOG_DEBUG, "end context %d received\n", context);
+
+    /* ensure clients re-using this slot re-authenticate */
+    if (context >= 0 && context < ctxtab_size) {
+	ctxtab[context].uid_p = 0;
+	ctxtab[context].gid_p = 0;
+    }
+}
+
 static int
 papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
@@ -1330,13 +1344,8 @@ papi_contextAttributeCallBack(int context, int attr,
     int id = -1;
 
     enlarge_ctxtab(context);
-    assert (ctxtab != NULL && context < ctxtab_size);
+    assert(ctxtab != NULL && context < ctxtab_size);
 
-    /* NB: we maintain separate uid_p and gid_p for filtering
-       purposes; it's possible that a pcp client might send only
-       PCP_ATTR_USERID, leaving gid=0, possibly leading us to
-       misinterpret that as GROUPID=0 (root) and sending back _GID=0
-       records. */
     switch (attr) {
     case PCP_ATTR_USERID:
         ctxtab[context].uid_p = 1;
@@ -1397,6 +1406,7 @@ papi_init(pmdaInterface *dp)
     dp->version.six.attribute = papi_contextAttributeCallBack;
     dp->version.any.text = papi_text;
     pmdaSetFetchCallBack(dp, papi_fetchCallBack);
+    pmdaSetEndContextCallBack(dp, papi_endContextCallBack);
     pmdaInit(dp, NULL, 0, metrictab, nummetrics);
 }
 
