@@ -95,6 +95,12 @@ AC_ARG_WITH([books],
     [do_books=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books=$withval"],
     [do_books=off])
 
+AC_ARG_WITH([papi],
+    [AC_HELP_STRING([--with-papi],
+		   [enable performance api counter pmda (default is off)])],
+    [do_papi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-papi=$withval"],
+    [do_papi=check])
+
 #
 # Note: the following environment variables may be
 # set to override the defaults.
@@ -468,6 +474,27 @@ AS_IF([test "x$do_qt" != "xno"], [
 AC_SUBST(qt_release)
 AC_SUBST(enable_qt)
 AC_SUBST(qmake)
+
+AS_IF([test "x$do_papi" != "xno"], [
+
+    enable_papi=enable_papi
+
+    AC_CHECK_LIB(papi, PAPI_library_init,
+		      [papi_lib="-lpapi"],
+		      [enable_papi=false])
+    AC_CHECK_HEADERS([papi.h],, [enable_papi=false])
+    if test "$enable_papi" = "enable_papi"
+    then
+        AC_SUBST(papi_lib)
+	AC_SUBST(papi_CFLAGS)
+	AC_SUBST(enable_papi, $enable_papi)
+    fi
+])
+dnl    if test "$do_papi" != "check" -a "enable_papi" != "true"
+dnl    then
+dnl	AC_MSG_ERROR(cannot enable papi pmda, papi not found)
+dnl    fi
+
 
 dnl check if user wants their own C compiler
 cflags_abi=

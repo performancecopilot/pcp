@@ -64,11 +64,12 @@ pcp.spec: pcp.spec.in
 	    -e's|@have_libmicrohttpd@|$(HAVE_LIBMICROHTTPD)|g' \
 	    -e's|@have_rpmlib@|$(HAVE_RPMLIB)|g' \
 	    -e's|@pmda_infiniband@|$(PMDA_INFINIBAND)|g' \
+	    -e's|@enable_systemd@|$(ENABLE_SYSTEMD)|g' \
+	    -e's|@enable_papi@|$(ENABLE_PAPI)|g' \
 	    -e's|@enable_secure@|$(ENABLE_SECURE)|g' \
 	    -e's|@enable_probes@|$(ENABLE_PROBES)|g' \
 	    -e's|@enable_avahi@|$(ENABLE_AVAHI)|g' \
 	    -e's|@enable_qt@|$(ENABLE_QT)|g' \
-	    -e's|@enable_systemd@|$(ENABLE_SYSTEMD)|g' \
 	    -e"s|@build_root@|$${DIST_ROOT}|g" \
 	    -e's|@pcp_sysconf_dir@|$(PCP_SYSCONF_DIR)|g' \
 	    -e's|@pcp_log_dir@|$(PCP_LOG_DIR)|g' \
