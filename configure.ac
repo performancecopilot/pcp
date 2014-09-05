@@ -917,6 +917,11 @@ if test -z "$ECHO"; then
 fi
 echo=$ECHO
 AC_SUBST(echo)
+if test -z "$WHICH"; then
+    AC_PATH_PROG(WHICH, which, /usr/bin/which)
+fi
+which=$WHICH
+AC_SUBST(which)
 
 dnl check we don't get the Windows sort ...
 AC_MSG_CHECKING([where unix-like sort(1) lives])
@@ -1063,17 +1068,6 @@ then
     test -f /usr/xpg4/bin/grep && grep=/usr/xpg4/bin/grep
 fi
 AC_SUBST(grep)
-
-if test -n "$WHICH"
-then
-    which=$WHICH
-elif sh -c 'type -p sh' >/dev/null 2>&1 
-then
-    which=type
-else
-    which=which
-fi
-AC_SUBST(which)
 
 dnl checks for /proc pseudo file system
 AC_MSG_CHECKING([for /proc ])
