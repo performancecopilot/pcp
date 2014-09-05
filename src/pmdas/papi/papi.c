@@ -851,9 +851,17 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	    substring = strtok(av.cp, delim);
 	    while (substring != NULL) {
 		for (j = 0; j < number_of_events; j++) {
-		    if (!strcmp(substring, papi_info[j].papi_string_code)) {
-                        papi_info[j].metric_enabled = (idp->item == 0 /* papi.enable */);
+		    if (!strcmp(substring, papi_info[j].papi_string_code) && papi_info[j].position < 0) {
+			// add the metric to the set if it's not already there
+			sts = add_metric(papi_info[j].papi_event_code);
+			if (sts == PAPI_OK)
+			    papi_info[j].position = number_of_active_counters-1;
 			break;
+		    }
+		    if (j == size_of_active_counters) {
+			if (pmDebug & DBG_TRACE_APPL0)
+			    __pmNotifyErr(LOG_DEBUG, "metric name %s does not match any known metrics and will not be added\n", substring);
+			sts = 1;
 		    }
                 }
                 if (j == number_of_events) {
@@ -864,15 +872,12 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		}
 		substring = strtok(NULL, delim);
 	    }
-            if (retval) { /* any unknown metric name encountered? */
-                retval = refresh_metrics(); /* still enable those that we can */
-                if (retval == 0)
-                    retval = PM_ERR_CONV; /* but return overall error */
-            } else {
-                retval = refresh_metrics();
-            }
-            return retval;
-
+	    for (j = 0; j < len-1; j++) { // recover from tokenisation
+		if (enable_string[j] == '\0')
+		    enable_string[j] = delim[0];
+	    }
+	    if (sts)
+		return PM_ERR_CONV;
 	    break;
 
 	case 1: //papi.reset
