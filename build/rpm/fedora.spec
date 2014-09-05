@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.9.10
+Version: 3.10.0
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -77,9 +77,9 @@ Obsoletes: pcp-pmda-nvidia
 %define _with_doc --with-docdir=%{_docdir}/%{name}
 %endif
 %if 0%{?fedora} >= 19 || 0%{?rhel} >= 7
-%define _with_initd --with-rcdir=%{_initddir}
 %define disable_systemd 0
 %else
+%define _with_initd --with-rcdir=%{_initddir}
 %define disable_systemd 1
 %endif
 
@@ -468,6 +468,7 @@ rm -f $RPM_BUILD_ROOT/%{_mandir}/man1/pmwebd.*
 rm -f $RPM_BUILD_ROOT/%{_mandir}/man3/PMWEBAPI.*
 rm -fr $RPM_BUILD_ROOT/%{_confdir}/pmwebd
 rm -fr $RPM_BUILD_ROOT/%{_initddir}/pmwebd
+rm -fr $RPM_BUILD_ROOT/%{_unitdir}/pmwebd.service
 rm -f $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin/pmwebd
 %endif
 
@@ -486,13 +487,11 @@ rm -rf $RPM_BUILD_ROOT/usr/share/doc/pcp-gui
 desktop-file-validate $RPM_BUILD_ROOT/%{_datadir}/applications/pmchart.desktop
 %endif
 
-%if %{disable_systemd}
 # default chkconfig off for Fedora and RHEL
 for f in $RPM_BUILD_ROOT/%{_initddir}/{pcp,pmcd,pmlogger,pmie,pmwebd,pmmgr,pmproxy}; do
 	test -f "$f" || continue
 	sed -i -e '/^# chkconfig/s/:.*$/: - 95 05/' -e '/^# Default-Start:/s/:.*$/:/' $f
 done
-%endif
 
 # list of PMDAs in the base pkg
 ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
@@ -755,6 +754,11 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %{_initddir}/pmlogger
 %{_initddir}/pmie
 %{_initddir}/pmproxy
+%else
+%{_unitdir}/pmcd.service
+%{_unitdir}/pmlogger.service
+%{_unitdir}/pmie.service
+%{_unitdir}/pmproxy.service
 %endif
 %{_mandir}/man5/*
 %config(noreplace) %{_sysconfdir}/sasl2/pmcd.conf
@@ -834,6 +838,8 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root)
 %if %{disable_systemd}
 %{_initddir}/pmwebd
+%else
+%{_unitdir}/pmwebd.service
 %endif
 %{_libexecdir}/pcp/bin/pmwebd
 %attr(0775,pcp,pcp) %{_logsdir}/pmwebd
@@ -847,6 +853,8 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root)
 %if %{disable_systemd}
 %{_initddir}/pmmgr
+%else
+%{_unitdir}/pmmgr.service
 %endif
 %{_libexecdir}/pcp/bin/pmmgr
 %attr(0775,pcp,pcp) %{_logsdir}/pmmgr
@@ -922,6 +930,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root,-)
 
 %changelog
+* Wed Oct 15 2014 Nathan Scott <nathans@redhat.com> - 3.10.0-1
+- Currently under development.
+
 * Fri Sep 05 2014 Nathan Scott <nathans@redhat.com> - 3.9.10-1
 - Convert PCP init scripts to systemd services (BZ 996438)
 - Fix pmlogsummary -S/-T time window reporting (BZ 1132476)
@@ -929,6 +940,12 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 - Fix signedness in some service discovery codes (BZ 1136166)
 - New conditionally-built pcp-pmda-papi sub-package.
 - Update to latest PCP sources.
+
+* Tue Aug 26 2014 Jitka Plesnikova <jplesnik@redhat.com> - 3.9.9-1.2
+- Perl 5.20 rebuild
+
+* Sun Aug 17 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.9.9-1.1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
 
 * Wed Aug 13 2014 Nathan Scott <nathans@redhat.com> - 3.9.9-1
 - Update to latest PCP sources.
