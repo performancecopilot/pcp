@@ -1244,13 +1244,16 @@ papi_store(pmResult *result, pmdaExt *pmda)
 			    papi_info[j].position = -1;
 			break; //we've found the correct metric, break;
 		    }
-		    else {
-			if (pmDebug & DBG_TRACE_APPL0 && (j+1) == size_of_active_counters)
-			    __pmNotifyErr(LOG_DEBUG, "metric name %s does not match any known metrics\n", substring);
-		    }
+		}
+		if (j == size_of_active_counters) {
+		    if (pmDebug & DBG_TRACE_APPL0)
+			__pmNotifyErr(LOG_DEBUG, "metric name %s does not match any known metrics\n", substring);
+		    sts = 1;
 		}
 		substring = strtok(NULL, delim);
 	    }
+	    if (sts)
+		return PM_ERR_CONV;
 	    break;
 
 	default:
