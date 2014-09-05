@@ -970,9 +970,10 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     /* this will probably need to be expanded to fit the domains as well */
     sts = check_papi_state(sts);
-    if (sts != PAPI_RUNNING)
+    if (sts != PAPI_RUNNING && idp->cluster == CLUSTER_PAPI){
 	return PMDA_FETCH_NOVALUES;
-    else {
+    }
+    else if(sts == PAPI_RUNNING){
 	sts = PAPI_read(EventSet, values);
 	if (sts != PAPI_OK) {
 	    __pmNotifyErr(LOG_ERR, "PAPI_read: %s\n", PAPI_strerror(sts));
@@ -987,8 +988,12 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    // the 'case' && 'idp->item' value we get is the pmns_position
 	    for (i = 0; i < number_of_events; i++) {
 		if (papi_info[i].pmns_position == idp->item) {
-		    atom->ull = values[papi_info[i].position];
-		    return PMDA_FETCH_STATIC;
+		    if(papi_info[i].position >= 0 && papi_info[i].papi_event_code){
+			atom->ull = values[papi_info[i].position];
+			return PMDA_FETCH_STATIC;
+		    }
+		    else
+			return PMDA_FETCH_NOVALUES;
 		}
 	    }
 	}
@@ -1052,6 +1057,13 @@ remove_metric(unsigned int event, int position)
     int i;
     long_long new_values[size_of_active_counters];
 
+    retval = PAPI_query_event(event);
+    if (retval != PAPI_OK){
+	if (pmDebug & DBG_TRACE_APPL0)
+	    __pmNotifyErr(LOG_DEBUG, "event not found on this hardware, skipping\n");
+	return retval;
+    }
+
     /* check to make sure papi is running, otherwise do nothing */
     state = check_papi_state(state);
     if (state == PAPI_RUNNING) {
@@ -1088,6 +1100,9 @@ remove_metric(unsigned int event, int position)
 		new_values[papi_info[i].position] = 0;
 		papi_info[i].position = -1;
 	    }
+	}
+
+	for (i = 0; i < number_of_events; i++) {
 	    if (papi_info[i].position < position)
 		values[papi_info[i].position] = new_values[papi_info[i].position];
 
@@ -1095,7 +1110,7 @@ remove_metric(unsigned int event, int position)
 		papi_info[i].position--;
 		values[papi_info[i].position] = new_values[papi_info[i].position+1];
 	    }
-	    if (papi_info[i].position >= 0) {
+	    if (papi_info[i].position >= 0 && papi_info[i].papi_event_code) {
 		retval = PAPI_add_event(EventSet, papi_info[i].papi_event_code);
 		if (retval != PAPI_OK)
 		    return retval;
@@ -1119,13 +1134,21 @@ add_metric(unsigned int event)
     long_long new_values[size_of_active_counters];
     int i;
 
+    retval = PAPI_query_event(event);
+    if (retval != PAPI_OK){
+	if (pmDebug & DBG_TRACE_APPL0)
+	    __pmNotifyErr(LOG_DEBUG, "event not found on this hardware, skipping\n");
+	return retval;
+    }
     /* check status of papi */
     state = check_papi_state(state);
     /* add check with number_of_counters */
     /* stop papi if running? */
     if (state == PAPI_RUNNING) {
-	for (i = 0; i < size_of_active_counters; i++)
-	    new_values[i] = values[i];
+	for (i = 0; i < size_of_active_counters; i++){
+	    if(papi_info[i].position >= 0 && papi_info[i].papi_event_code)
+		new_values[papi_info[i].position] = values[papi_info[i].position];
+	}
 	retval = PAPI_stop(EventSet, values);
 	if (retval != PAPI_OK)
 	    return retval;
@@ -1136,8 +1159,11 @@ add_metric(unsigned int event)
 	retval = PAPI_add_event(EventSet, event); //XXX possibly switch this to add_events
 	if (retval != PAPI_OK)
 	    return retval;
-	for (i = 0; i < size_of_active_counters; i++)
-	    values[i] = new_values[i];
+
+	for (i = 0; i < size_of_active_counters; i++){
+	    if(papi_info[i].position >= 0 && papi_info[i].papi_event_code)
+		values[papi_info[i].position] = new_values[papi_info[i].position];
+	}
 	number_of_active_counters++;
 	retval = PAPI_start(EventSet);
 	return retval;
@@ -1173,8 +1199,8 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	    substring = strtok(enable_string, delim);
 	    while (substring != NULL) {
 		for (j = 0; j < number_of_events; j++) {
-		    if (!strcmp(substring, papi_info[j].papi_string_code)) {
-			// add the metric to the set
+		    if (!strcmp(substring, papi_info[j].papi_string_code) && papi_info[j].position < 0) {
+			// add the metric to the set if it's not already there
 			sts = add_metric(papi_info[j].papi_event_code);
 			if (sts == PAPI_OK)
 			    papi_info[j].position = number_of_active_counters-1; //minus one because array's start at 0 (not 1)
@@ -1199,7 +1225,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		return PM_ERR_VALUE;
 	    break;
 #else
-	    return PM_ERR_NYI;
+           return PM_ERR_NYI;
 #endif
 
 	case 2: //papi.disable
@@ -1216,15 +1242,18 @@ papi_store(pmResult *result, pmdaExt *pmda)
 			sts = remove_metric(papi_info[j].papi_event_code, papi_info[j].position);
 			if (sts == PAPI_OK)
 			    papi_info[j].position = -1;
+			break; //we've found the correct metric, break;
 		    }
-		    else {
-			if (pmDebug & DBG_TRACE_APPL0)
-			    __pmNotifyErr(LOG_DEBUG, "metric name %s does not match any known metrics\n", substring);
-			return PM_ERR_CONV;
-		    }
+		}
+		if (j == size_of_active_counters) {
+		    if (pmDebug & DBG_TRACE_APPL0)
+			__pmNotifyErr(LOG_DEBUG, "metric name %s does not match any known metrics\n", substring);
+		    sts = 1;
 		}
 		substring = strtok(NULL, delim);
 	    }
+	    if (sts)
+		return PM_ERR_CONV;
 	    break;
 
 	default:
