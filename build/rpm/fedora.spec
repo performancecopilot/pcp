@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.10.0
+Version: 3.9.10
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -932,9 +932,6 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root,-)
 
 %changelog
-* Wed Oct 15 2014 Nathan Scott <nathans@redhat.com> - 3.10.0-1
-- Currently under development.
-
 * Fri Sep 05 2014 Nathan Scott <nathans@redhat.com> - 3.9.10-1
 - Convert PCP init scripts to systemd services (BZ 996438)
 - Fix pmlogsummary -S/-T time window reporting (BZ 1132476)
