@@ -965,25 +965,24 @@ static int
 papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     __pmID_int *idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+    int running = 0;
     int sts = 0;
     int i;
 
-    /* this will probably need to be expanded to fit the domains as well */
     sts = check_papi_state(sts);
-    if (sts != PAPI_RUNNING && idp->cluster == CLUSTER_PAPI){
-	return PMDA_FETCH_NOVALUES;
-    }
-    else if(sts == PAPI_RUNNING){
+    if (sts == PAPI_RUNNING && idp->cluster == CLUSTER_PAPI) {
 	sts = PAPI_read(EventSet, values);
 	if (sts != PAPI_OK) {
 	    __pmNotifyErr(LOG_ERR, "PAPI_read: %s\n", PAPI_strerror(sts));
 	    return PM_ERR_VALUE;
 	}
+	running = 1;
     }
 
     switch (idp->cluster) {
     case CLUSTER_PAPI:
-	//switch indom statement will end up being here
+	if (!running)
+	    return PMDA_FETCH_NOVALUES;
 	if (idp->item >= 0 && idp->item <= 107) {
 	    // the 'case' && 'idp->item' value we get is the pmns_position
 	    for (i = 0; i < number_of_events; i++) {
@@ -1175,7 +1174,7 @@ static int
 papi_store(pmResult *result, pmdaExt *pmda)
 {
     int sts;
-    int i, j;
+    int i, j, len;
     const char *delim = " ,";
     char *substring;
 
@@ -1196,6 +1195,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		return sts;
 	    free(enable_string);
 	    enable_string = av.cp;
+	    len = strlen(enable_string);
 	    substring = strtok(enable_string, delim);
 	    while (substring != NULL) {
 		for (j = 0; j < number_of_events; j++) {
@@ -1203,10 +1203,14 @@ papi_store(pmResult *result, pmdaExt *pmda)
 			// add the metric to the set if it's not already there
 			sts = add_metric(papi_info[j].papi_event_code);
 			if (sts == PAPI_OK)
-			    papi_info[j].position = number_of_active_counters-1; //minus one because array's start at 0 (not 1)
+			    papi_info[j].position = number_of_active_counters-1;
 		    }
 		}
 		substring = strtok(NULL, delim);
+	    }
+	    for (j = 0; j < len-1; j++) { // recover from tokenisation
+		if (enable_string[j] == '\0')
+		    enable_string[j] = delim[0];
 	    }
 	    break;
 
@@ -1234,6 +1238,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		return sts;
 	    free(disable_string);
 	    disable_string = av.cp;
+	    len = strlen(disable_string);
 	    substring = strtok(disable_string, delim);
 	    while (substring != NULL) {
 		for (j = 0; j < size_of_active_counters; j++) {
@@ -1251,6 +1256,10 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		    sts = 1;
 		}
 		substring = strtok(NULL, delim);
+	    }
+	    for (j = 0; j < len-1; j++) { // recover from tokenisation
+		if (disable_string[j] == '\0')
+		    disable_string[j] = delim[0];
 	    }
 	    if (sts)
 		return PM_ERR_CONV;

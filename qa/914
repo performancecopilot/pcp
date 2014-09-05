@@ -19,50 +19,63 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
-_filter()
+_filter_papi_errors()
 {
     sed \
-	-e 's/value [0-9][0-9]*/value NUMBER/' \
-	-e 's/value \".*\"/value STRING/' \
 	-e '/pfm_find_full_event(.*): event not found./d' \
 	-e '/events in papi_events.csv were not valid./d' \
     # end
 }
 
+_filter()
+{
+    sed \
+	-e 's/value [0-9][0-9]*/value NUMBER/' \
+	-e 's/value \".*\"/value STRING/' \
+    | _filter_papi_errors
+}
+
 # real QA test starts here
+pmns=$PCP_PMDAS_DIR/papi/root
 pmda=$PCP_PMDAS_DIR/papi/pmda_papi.$DSO_SUFFIX,papi_init
 
 echo
 echo "== PAPI library behaviour, total instructions/cycles, non-root"
-pminfo -L -K clear -K add,126,$pmda -f papi.TOT_INS papi.TOT_CYC 2>&1 | _filter
+pminfo -L -K clear -K add,126,$pmda -f -n $pmns papi.TOT_INS papi.TOT_CYC 2>&1 | _filter
 
 echo
 echo "== PAPI library behaviour, available hardware metrics, non-root"
-pminfo -L -K clear -K add,126,$pmda -f papi.available 2>&1 | _filter
+pminfo -L -K clear -K add,126,$pmda -f -n $pmns papi.available 2>&1 | _filter
 
 echo
 echo "== PAPI library behaviour, control metric fetches, non-root"
-pminfo -L -K clear -K add,126,$pmda -f papi.control 2>&1 | _filter
+pminfo -L -K clear -K add,126,$pmda -f -n $pmns papi.control 2>&1 | _filter
 
-#echo
-#echo "== Testing local PAPI library behaviour, control metric stores"
-#pmstore -L -K clear -K add,126,$pmda -f papi.control.enable TOT_INS
+echo
+echo "== PAPI library behaviour, control metric stores, non-root"
+pmstore -L -K clear -K add,126,$pmda -f -n $pmns papi.control.enable TOT_INS 2>&1 | _filter_papi_errors
+pmstore -L -K clear -K add,126,$pmda -f -n $pmns papi.control.disable TOT_INS 2>&1 | _filter_papi_errors
+pmstore -L -K clear -K add,126,$pmda -f -n $pmns papi.control.reset TOT_INS 2>&1 | _filter_papi_errors
 
 echo
 echo "== PAPI library behaviour, total instructions/cycles, as root"
-$sudo pminfo -L -K clear -K add,126,$pmda -f papi.TOT_INS papi.TOT_CYC 2>&1 | _filter
+$sudo pminfo -L -K clear -K add,126,$pmda -f -n $pmns papi.TOT_INS papi.TOT_CYC 2>&1 | _filter
 
 echo
 echo "== PAPI library behaviour, available hardware metrics, as root"
-$sudo pminfo -L -K clear -K add,126,$pmda -f papi.available 2>&1 | _filter
+$sudo pminfo -L -K clear -K add,126,$pmda -f -n $pmns papi.available 2>&1 | _filter
 
 echo
 echo "== PAPI library behaviour, control metric fetches, as root"
-$sudo pminfo -L -K clear -K add,126,$pmda -f papi.control 2>&1 | _filter
+$sudo pminfo -L -K clear -K add,126,$pmda -f -n $pmns papi.control 2>&1 | _filter_papi_errors
 
-#echo
-#echo "== Testing local PAPI library behaviour, control metric store as root"
-#pmstore -L -K clear -K add,126,$pmda -f papi.control.enable TOT_INS
+echo
+echo "== Testing local PAPI library behaviour, control metric stores as root"
+$sudo pmstore -L -K clear -K add,126,$pmda -f -n $pmns papi.control.enable TOT_INS 2>&1 | _filter_papi_errors
+$sudo pmstore -L -K clear -K add,126,$pmda -f -n $pmns papi.control.disable TOT_INS 2>&1 | _filter_papi_errors
+
+# This will see an (expected) error... NYI.
+$sudo pmstore -L -K clear -K add,126,$pmda -f -n $pmns papi.control.reset TOT_INS 2>&1 | _filter_papi_errors
 
 # success, all done
 status=0

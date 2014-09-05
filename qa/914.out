@@ -27,29 +27,39 @@ Error: No permission to perform requested operation
 papi.control.status
 Error: No permission to perform requested operation
 
+== PAPI library behaviour, control metric stores, non-root
+papi.control.enable: Error: No permission to perform requested operation
+papi.control.disable: Error: No permission to perform requested operation
+papi.control.reset: Error: No permission to perform requested operation
+
 == PAPI library behaviour, total instructions/cycles, as root
 
 papi.TOT_INS
-	value NUMBER
+No value(s) available!
 
 papi.TOT_CYC
-	value NUMBER
+No value(s) available!
 
 == PAPI library behaviour, available hardware metrics, as root
 
 papi.available.num_counters
-	value NUMBER
+    value NUMBER
 
 == PAPI library behaviour, control metric fetches, as root
 
 papi.control.enable
-	value STRING
+    value ""
 
 papi.control.reset
-	value STRING
+Error: Functionality not yet implemented
 
 papi.control.disable
-	value STRING
+No value(s) available!
 
 papi.control.status
-	value STRING
+    value "Papi is stopped."
+
+== Testing local PAPI library behaviour, control metric stores as root
+papi.control.enable old value="" new value="TOT_INS"
+papi.control.disable old value="(none)" new value="TOT_INS"
+papi.control.reset: Error: Functionality not yet implemented
