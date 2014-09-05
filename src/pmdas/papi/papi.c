@@ -1204,6 +1204,12 @@ papi_store(pmResult *result, pmdaExt *pmda)
 			sts = add_metric(papi_info[j].papi_event_code);
 			if (sts == PAPI_OK)
 			    papi_info[j].position = number_of_active_counters-1;
+			break;
+		    }
+		    if (j == size_of_active_counters) {
+			if (pmDebug & DBG_TRACE_APPL0)
+			    __pmNotifyErr(LOG_DEBUG, "metric name %s does not match any known metrics and will not be added\n", substring);
+			sts = 1;
 		    }
 		}
 		substring = strtok(NULL, delim);
@@ -1212,6 +1218,8 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		if (enable_string[j] == '\0')
 		    enable_string[j] = delim[0];
 	    }
+	    if (sts)
+		return PM_ERR_CONV;
 	    break;
 
 	case 1: //papi.reset
