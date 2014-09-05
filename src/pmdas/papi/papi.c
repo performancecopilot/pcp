@@ -873,7 +873,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		    if (j == size_of_active_counters) {
 			if (pmDebug & DBG_TRACE_APPL0)
 			    __pmNotifyErr(LOG_DEBUG, "metric name %s does not match any known metrics and will not be added\n", substring);
-			retval = 1;
+			sts = 1;
 		    }
                 }
                 if (j == number_of_events) {
@@ -884,7 +884,11 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		}
 		substring = strtok(NULL, delim);
 	    }
-	    if (retval)
+	    for (j = 0; j < len-1; j++) { // recover from tokenisation
+		if (enable_string[j] == '\0')
+		    enable_string[j] = delim[0];
+	    }
+	    if (sts)
 		return PM_ERR_CONV;
 	    break;
 
