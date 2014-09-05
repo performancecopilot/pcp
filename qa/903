@@ -22,7 +22,8 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 _filter_papi()
 {
     # cull message resulting from no papi metrics
-    grep -v 'No value(s) available'
+    grep -v 'No value(s) available' | \
+    grep -v 'papi.control.reset: .* not yet .*'
 }
 
 pmdapapi_remove()
