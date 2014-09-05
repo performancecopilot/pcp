@@ -43,7 +43,7 @@ then
 fi
 
 echo "Stopping PCP..."
-/Library/StartupItems/pcp/pmcd stop
+/Library/StartupItems/pcp/pcp stop
 sleep 5
 
 if [ -x $BINADM_DIR/install-pcp -a -r $BINADM_DIR/idb ]
@@ -54,7 +54,7 @@ then
     fi
     echo "Uninstall in background to remove all running scripts"
     # Copy to /tmp since inst will remove itself and this script
-    cp $BINADMR_DIR/install-pcp $BINDAMD_DIR/idb /tmp
+    cp $BINADM_DIR/install-pcp $BINADM_DIR/idb /tmp
     # create tidy up script
     echo '#!/bin/sh' > /tmp/_pcp_tidy.sh
     echo '/tmp/install-pcp -v -r -l /var/log/pcp_inst.log /tmp/idb && /bin/rm -rf /Library/Receipts/pcp-*' >> /tmp/_pcp_tidy.sh
