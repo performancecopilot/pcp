@@ -1,0 +1,4 @@
+/*! grafana - v1.5.4 - 2014-05-13
+ * Copyright (c) 2014 Torkel Ödegaard; Licensed Apache License */
+
+define(["kbn"],function(a){function b(b){this.string=b;var c=a.describe_interval(b);this.type=c.type,this.ms=1e3*c.sec*c.count,"y"===this.type||"M"===this.type?(this.get=this.get_complex,this.date=new Date(0)):this.get=this.get_simple}return b.prototype={toString:function(){return this.string},after:function(a){return this.get(a,1)},before:function(a){return this.get(a,-1)},get_complex:function(a,b){switch(this.date.setTime(a),this.type){case"M":this.date.setUTCMonth(this.date.getUTCMonth()+b);break;case"y":this.date.setUTCFullYear(this.date.getUTCFullYear()+b)}return this.date.getTime()},get_simple:function(a,b){return a+b*this.ms}},b});

@@ -2,7 +2,7 @@ Summary: System-level performance monitoring and performance management
 Name: @package_name@
 Version: @package_version@
 Release: @package_release@@package_sgirelease@
-License: GPLv2+ and LGPLv2.1+
+License: GPLv2+ and LGPLv2.1+ and ASL2.0 and MIT and CC-BY
 URL: http://www.performancecopilot.org
 Group: Applications/System
 Source: @package_name@-@package_version@.src.tar.gz
@@ -25,6 +25,9 @@ BuildRequires: systemtap-sdt-devel
 %endif
 %if @have_libmicrohttpd@ == 1
 BuildRequires: libmicrohttpd-devel
+%endif
+%if @have_cairo@ == 1
+BuildRequires: cairo-devel
 %endif
 %if @have_rpmlib@ == 1
 BuildRequires: rpm-devel
@@ -534,7 +537,7 @@ PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
 awk '{print $NF}' $DIST_MANIFEST | egrep "$PCP_GUI|pixmaps" > gui_files
 %endif
 %if @have_libmicrohttpd@ == 1
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pmweb|PMWEBAPI' >webapi_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pmweb|PMWEBAPI|jsdemos' >webapi_files
 %endif
 %if "@BUILD_PMMGR@" == "yes"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pmmgr' >manager_files

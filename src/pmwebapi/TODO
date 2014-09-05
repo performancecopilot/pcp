@@ -1,5 +1,7 @@
 - incoming & outgoing ACL
 - ssl
+- -A generalization (multiple options?  search subdirectories?)
+- discovery API for hosts, archives
 - pmStore ?
 - missing APIs
   - time control
@@ -16,3 +18,7 @@
 - serialize-to-disk webapi connection state & profile data,
             for possible restoring if pmwebapi is killed/restarted
 
+- graphite event support
+- old config.options style detection/support
+- dashboard generator
+- a mechanism to control a nested pmmgr to target hosts & metrics for spontaneous loggitude

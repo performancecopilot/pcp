@@ -1,0 +1,90 @@
+<html>
+  <head>
+    <title>PCP+Graphlot</title>
+    <script type="text/javascript" src="../content/js/jquery.js"></script>
+    <script type="text/javascript" src="../content/js/jquery.flot.js"></script>
+    <script type="text/javascript" src="../content/js/jquery.autocomplete.js"></script>
+    <script type="text/javascript" src="../content/js/jquery.flot.selection.js"></script>
+    <script type="text/javascript" src="../content/js/jquery.flot.crosshair.js"></script>
+    <script type="text/javascript" src="../content/js/jquery.graphite.js"></script>
+    <script type="text/javascript" src="../content/js/pcp.graphlot.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="../content/css/jquery.autocomplete.css" />
+    <link rel="stylesheet" type="text/css" href="../content/css/table.css" />
+    
+    <script type="text/javascript">
+
+    var SLASH='/';
+
+    $(document).ready(function () {
+        $.graphlot_setup_from_parameters();
+        $('#g_wrap').graphiteGraph();
+    });
+
+    </script>
+
+
+    <style type="text/css">
+    body {
+        font-family: sans-serif;
+        font-size: 16px;
+        margin: 50px;
+        max-width: 1200px;
+    }
+
+    .ajaxerror {
+        background: #ff0000;
+    }
+    .ajaxworking {
+        background: #0000ff;
+    }
+    </style>
+
+
+    </head>
+    <body>
+        <div id="title" style="text-align:center">
+            <h1>pcp+graphlot</h1>
+        </div>
+        <div id="g_wrap">
+            <div id="main" >
+                <div class="g_canvas" style="padding:15px">
+                    <div class="g_container" style=float:left;">
+                        <div class="g_graph" style="width:600px;height:300px"></div>
+                        <div class="g_overview" style="width:600px;height:66px"></div>
+                    </div>
+                    <div class="g_side" style="float:left">
+                        <p class="g_legend" style="margin-left:10px"></p>
+                    </div>
+                    <p style="clear:left">&nbsp</p>
+                </div>
+                <br/>
+
+                <table class="g_rowlist styledtable"  style="float:left">
+                <tr><th  style="width:750px">metric</th><th>y-axis</th></tr>
+                
+                
+                <tr class="g_newmetricrow"><td><input style="width:600px" type="text" class="g_newmetric"/></td></tr>
+                </table>
+
+                 <table class="g_bounds styledtable"  style="float:right">
+                    <tr><th>From</th><th>To</th></tr>
+                    <tr>
+                        <td><a href=#><span class="g_from">-24hour</span></a></td>
+                        <td><a href=#><span class="g_until">-0hour</span></a></td>
+                    </tr>
+                    <tr> <td colspan="2" style="text-align:center">
+                        <a href=#><span class="g_update">update</span></a>
+                    </td></tr>
+                    <tr> <td colspan="2" style="text-align:center">
+                        <a href=#><span class="g_clearzoom">clear zoom</span></a>
+                    </td></tr>
+                    <tr> <td colspan="2" style="text-align:center">
+                        <a href=# class="g_graphurl">link to graph</a>
+                    </td></tr>
+                </table>
+            </div>
+
+        </div>
+    </body>
+</html>
