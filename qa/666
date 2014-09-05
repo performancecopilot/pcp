@@ -1,0 +1,179 @@
+#! /bin/sh
+# PCP QA Test No. 666
+# checks basic pmmgr functionality
+#
+# Copyright (c) 2014 Red Hat, Inc.  All Rights Reserved.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+
+which pmmgr >/dev/null 2>&1 || _notrun "No pmmgr binary installed"
+echo pmmgr ok
+
+$sudo rm -fr $tmp.dir
+$sudo rm -f $tmp.*
+rm -f $seq.full
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+username=`id -u -n`
+trap "_cleanup" 0 1 2 3 15
+
+
+# Shorten timeouts because of the rapid-fire pmcd/pmmgr-daemon livespan tests
+PMCD_WAIT_TIMEOUT=1
+PMCD_CONNECT_TIMEOUT=1
+PMCD_RECONNECT_TIMEOUT=1
+
+
+_cleanup()
+{
+    if [ -n "$pid" ]; then kill $pid; fi
+    $sudo rm -fr $tmp.dir
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+_filter()
+{
+    tee -a $seq.full |
+    sed -e 's,^\[.*\],TIMESTAMP,' \
+        -e 's,pmmgr.[0-9]*/[0-9]*.,pmmgr(PID/TID),' \
+        -e 's,hostid [a-zA-Z0-9_-.]*,hostid HOSTID,' \
+        -e 's,at [a-zA-Z0-9_-.:]*,at LOCAL,' \
+        -e 's,'$tmp.dir',TMPDIR,'
+}
+
+_filter2()
+{
+    tee -a $seq.full |
+    sed -e 's,'`hostname`',HOSTNAME,' \
+        -e 's,[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]\.[0-9][0-9][0-9][0-9][0-9][0-9],YYYYMMDD-HHMMSS,'
+}
+
+# This test prereqs only pmcd running locally.
+# In the future, remote, avahi
+
+date >> $seq.full
+echo "=== 1. prepare blank pmmgr config directory  ===" | tee -a $seq.full
+$sudo rm -rf $tmp.dir
+mkdir $tmp.dir
+
+date >> $seq.full
+echo "=== 2. pmmgr barenaked startup  ===" | tee -a $seq.full
+echo 'local:' > $tmp.dir/target-host
+echo 'localhost' > $tmp.dir/target-host
+echo 'localhost6' > $tmp.dir/target-host
+$PCP_BINADM_DIR/pmmgr -U $username -v -p 4 -l $tmp.out -c $tmp.dir &
+pid=$!
+echo "pid=$!" >>$seq.full
+
+date >> $seq.full
+echo "=== 3. look for pmmgr starting no daemons ===" | tee -a $seq.full
+sleep 30
+ls -1 $tmp.dir # should be almost empty
+
+date >> $seq.full
+echo "=== 4. add control files to start pmlogger and pmie ===" | tee -a $seq.full
+echo '-t 10' > $tmp.dir/pmlogger
+touch $tmp.dir/pmie
+touch $tmp.dir/pmlogconf
+touch $tmp.dir/pmieconf
+echo $tmp.dir > $tmp.dir/log-directory  # same dir
+
+date >> $seq.full
+echo "=== 5. restart pmcd a few times to get a bunch of pmlogger archives ===" | tee -a $seq.full
+for x in `seq 4`
+do
+echo $x
+$sudo $PCP_RC_DIR/pmcd restart >/dev/null 2>&1
+sleep 30 # give time for pmlogconf/pmieconf to run
+done
+
+date >> $seq.full
+echo "=== 6. check the directories ===" | tee -a $seq.full
+ls -1 $tmp.dir/`hostname` | _filter2
+ls -lR $tmp.dir >> $seq.full # for reference
+for f in $tmp.dir/`hostname`/*.meta; do
+    echo == $f ==>> $seq.full
+    pmloglabel -L $f >> $seq.full
+done
+
+date >> $seq.full
+echo "=== 7. add log-merging/rewriting, stop pmFOOconf and kill pmcd once more ===" | tee -a $seq.full
+$sudo $PCP_RC_DIR/pmcd stop >/dev/null 2>&1
+touch $tmp.dir/pmlogrewrite
+touch $tmp.dir/pmlogmerge
+echo '-t 1 -c '$tmp.dir/`hostname`/config.pmlogger > $tmp.dir/pmlogger
+echo '-c '$tmp.dir/`hostname`/config.pmie > $tmp.dir/pmie
+rm $tmp.dir/pmlogconf
+rm $tmp.dir/pmieconf
+# ^^^ so pmmgr will react to pmcd restarts rather quickly
+echo 6min > $tmp.dir/pmlogmerge-retain
+sleep 10
+$sudo $PCP_RC_DIR/pmcd restart >/dev/null 2>&1
+sleep 30 # enough time to get new daemons started up 
+
+date >> $seq.full
+echo "=== 8. recheck the directories past retain/merge ===" | tee -a $seq.full
+ls -1 $tmp.dir/`hostname` | _filter2
+ls -lR $tmp.dir >> $seq.full # for reference
+for f in $tmp.dir/`hostname`/*.meta; do
+    echo == $f == >> $seq.full
+    pmloglabel -L $f >> $seq.full
+done
+
+date >> $seq.full
+echo "=== 9. how about some granular mode ===" | tee -a $seq.full
+$sudo $PCP_RC_DIR/pmcd stop >/dev/null 2>&1
+echo 30sec > $tmp.dir/pmlogmerge
+rm $tmp.dir/pmlogrewrite # separately tested
+touch $tmp.dir/pmlogmerge-granular
+echo 90sec > $tmp.dir/pmlogmerge-retain
+sleep 20  # ensure pmmgr has killed all the daemons
+$sudo $PCP_RC_DIR/pmcd restart >/dev/null 2>&1
+
+date >> $seq.full
+echo "=== 10. wait a bit ===" | tee -a $seq.full
+# long enough for all the old archives to age out, only new granular stuff to survive
+# not an exact multiple of the pmlogmerge period, to avoid testing the edge moments
+for x in `seq 9`
+do
+    echo $x
+    sleep 15
+done
+$sudo $PCP_RC_DIR/pmcd stop >/dev/null 2>&1  # ensure daemons stop & no new ones are started
+
+date >> $seq.full
+echo "=== 11. admire grained / retained data ===" | tee -a $seq.full
+ls -1 $tmp.dir/`hostname` | _filter2
+ls -lR $tmp.dir >> $seq.full # for reference
+for f in $tmp.dir/`hostname`/*.meta; do
+    echo == $f ==>> $seq.full
+    pmloglabel -L $f >> $seq.full
+done
+
+date >> $seq.full
+echo "=== ZZZ kill pmmgr ===" | tee -a $seq.full
+kill $pid
+pid=
+sleep 2
+
+echo "== full pmmgr logs:" >> $seq.full
+cat $tmp.out >> $seq.full
+
+echo "== recent daemon logs:" >> $seq.full
+grep . $tmp.dir/`hostname`/*.log >> $seq.full
+
+# restart pmcd
+$sudo $PCP_RC_DIR/pmcd restart >/dev/null 2>&1
+
+status=0
+sleep 2
+exit
