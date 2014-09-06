@@ -45,25 +45,25 @@ Tue Jun 10 00:54:07 2014
 60.0.28: 10 values
 === std err ===
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: addr[size] addr[size]
+   free pdubuf[size]: ... <= 7 buffers ...
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: addr[size] addr[size] addr[size]
+   free pdubuf[size]: ... <= 7 buffers ...
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: addr[size] addr[size] addr[size] addr[size]
+   free pdubuf[size]: ... <= 7 buffers ...
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: addr[size] addr[size] addr[size] addr[size] addr[size]
+   free pdubuf[size]: ... <= 7 buffers ...
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: addr[size] addr[size] addr[size] addr[size] addr[size]
+   free pdubuf[size]: ... <= 7 buffers ...
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: addr[size] addr[size] addr[size] addr[size] addr[size]
+   free pdubuf[size]: ... <= 7 buffers ...
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: addr[size] addr[size] addr[size] addr[size] addr[size] addr[size]
+   free pdubuf[size]: ... <= 7 buffers ...
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: addr[size] addr[size] addr[size] addr[size] addr[size] addr[size]
+   free pdubuf[size]: ... <= 7 buffers ...
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: addr[size] addr[size] addr[size] addr[size] addr[size] addr[size]
+   free pdubuf[size]: ... <= 7 buffers ...
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: addr[size] addr[size] addr[size] addr[size] addr[size] addr[size] addr[size]
+   free pdubuf[size]: ... <= 7 buffers ...
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/churnctx -z -s 10 -a src/bug1057 kernel.all.load hinv.ncpu disk.dev.total
@@ -118,25 +118,25 @@ Tue Jun 10 00:54:07 2014
 60.0.28: 10 values
 === std err ===
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: addr[size] addr[size]
+   free pdubuf[size]: ... <= 7 buffers ...
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: addr[size] addr[size] addr[size]
+   free pdubuf[size]: ... <= 7 buffers ...
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: addr[size] addr[size] addr[size] addr[size]
+   free pdubuf[size]: ... <= 7 buffers ...
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: addr[size] addr[size] addr[size] addr[size] addr[size]
+   free pdubuf[size]: ... <= 7 buffers ...
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: addr[size] addr[size] addr[size] addr[size] addr[size]
+   free pdubuf[size]: ... <= 7 buffers ...
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: addr[size] addr[size] addr[size] addr[size] addr[size]
+   free pdubuf[size]: ... <= 7 buffers ...
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: addr[size] addr[size] addr[size] addr[size] addr[size] addr[size]
+   free pdubuf[size]: ... <= 7 buffers ...
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: addr[size] addr[size] addr[size] addr[size] addr[size] addr[size]
+   free pdubuf[size]: ... <= 7 buffers ...
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: addr[size] addr[size] addr[size] addr[size] addr[size] addr[size]
+   free pdubuf[size]: ... <= 7 buffers ...
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: addr[size] addr[size] addr[size] addr[size] addr[size] addr[size] addr[size]
+   free pdubuf[size]: ... <= 7 buffers ...
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/churnctx -d -z -s 10 -a src/bug1057 kernel.all.load hinv.ncpu disk.dev.total
