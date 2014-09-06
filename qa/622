@@ -22,6 +22,14 @@ echo "QA output created by $seq"
 
 [ -z "$PCPQA_HYPHEN_HOST" -o "$PCPQA_HYPHEN_HOST" = "some-host" ] && \
     _notrun 'PCPQA_HYPHEN_HOST is not set in ./common.config'
+if ping -w 2 $PCPQA_HYPHEN_HOST >$tmp.tmp 2>&1
+then
+    # seems to be alive
+    :
+else
+    cat $tmp.tmp >$seq.full
+    _notrun "host $PCPQA_HYPHEN_HOST is not responding"
+fi
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
