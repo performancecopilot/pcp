@@ -370,7 +370,9 @@ Options:\n\
 	check = (char *)sbrk(0);
 	if (highwater != NULL) {
 	    if (check - highwater > 4096) {
-		printf("Memory growth (iteration %d): %ld\n", iter, (long)(check - highwater));
+		/* use first 2 iterations to get stable */
+		if (iter > 2)
+		    printf("Memory growth (iteration %d): %ld\n", iter, (long)(check - highwater));
 		highwater = check;
 	    }
 	}

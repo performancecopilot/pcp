@@ -19,7 +19,14 @@ _filter()
 {
     # free pdubuf[size]: 0xe61000[28672] 0xe5c000[17408]
     sed \
-	-e '/free pdubuf/s/0x[0-9a-f]*\[[0-9]*\]/addr[size]/g'
+	-e '/free pdubuf/s/0x[0-9a-f]*\[[0-9]*\]/addr[size]/g' \
+    | $PCP_AWK_PROG '
+/free pdubuf/	{ if (NF <= 9) {
+		    print "   free pdubuf[size]: ... <= 7 buffers ..."
+		    next
+		  }
+		}
+		{ print }'
 }
 
 status=1	# failure is the default!
