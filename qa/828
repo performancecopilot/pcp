@@ -42,7 +42,7 @@ cat >$tmp.suppress <<End-of-File
    fun:main
 }
 {
-   <vm20 (SuSE 13.1, i586) version of above>
+   <vm24 (SuSE 13.1, i586) version of above>
    Memcheck:Leak
    fun:realloc
    fun:(below main)
@@ -169,11 +169,15 @@ s/ .*//
 p
 }'`
 valgrind_ver=`valgrind --version | sed -e 's/^valgrind-//'`
+machine=`uname -m`
 echo "gcc_ver=$gcc_ver" >>$seq.full
 echo "valgrind_ver=$valgrind_ver" >>$seq.full
-if [ "$gcc_ver" = 4.8.1 -a "$valgrind_ver" = 3.8.1 ]
+echo "machine=$machine" >>$seq.full
+
+if [ "$machine" = i586 -o "$machine" = i686 ]
 then
-    # oddness on vm20 (SuSE 13.1, i586)
+    # oddness on vm24 SuSE 13.1, i586 gcc 4.8.1, valgrind 3.8.1
+    #            vm21 Debian 7.4, i686, gcc 4.7.2, valgrind 3.7.0
     #
     cat >>$tmp.suppress <<End-of-File
 {
