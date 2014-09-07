@@ -102,6 +102,7 @@ cat >$tmp.suppress <<End-of-File
    fun:malloc
    fun:__pmFindPDUBuf
    fun:__pmLogRead
+   ...
    fun:__pmGetArchiveEnd
    fun:pmGetArchiveEnd
 }
@@ -112,6 +113,7 @@ cat >$tmp.suppress <<End-of-File
    fun:__pmFindPDUBuf
    fun:__pmDecodeResult
    fun:__pmLogRead
+   ...
    fun:__pmGetArchiveEnd
    fun:pmGetArchiveEnd
 }
@@ -133,6 +135,7 @@ cat >$tmp.suppress <<End-of-File
    ...
    fun:__pmFindPDUBuf
    fun:__pmLogRead
+   ...
    fun:__pmGetArchiveEnd
    fun:pmGetArchiveEnd
 }
@@ -143,6 +146,7 @@ cat >$tmp.suppress <<End-of-File
    fun:__pmFindPDUBuf
    fun:__pmDecodeResult
    fun:__pmLogRead
+   ...
    fun:__pmGetArchiveEnd
    fun:pmGetArchiveEnd
 }
