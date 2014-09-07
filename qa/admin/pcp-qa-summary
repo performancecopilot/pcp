@@ -8,11 +8,13 @@
 _usage()
 {
     echo "Usage: $0 [options] [vm ...]"
-    echo "Options:"
-    echo "  -d      debug"
-    echo "  -m N    minimum number of tests run to be reported [default 60]"
+    echo 'Options:'
+    echo '  -d      debug'
+    echo '  -f      sort failure map on %bad [default sort of Test #]'
     echo '  -n      report not run tests (reported as "-")'
-    echo "  -r      only most recent results date [default report all dates]"
+    echo '  -m N    minimum number of tests run to be reported [default 60]'
+    echo '  -n      report not run tests (reported as "-")'
+    echo '  -r      only most recent results date [default report all dates]'
     exit 1
 }
 
@@ -25,11 +27,14 @@ minrun=60
 debug=false
 recent=false
 nflag=false
-while getopts 'dm:nr?' p
+failsort=false
+while getopts 'dfm:nr?' p
 do
     case "$p"
     in
 	d)	debug=true
+		;;
+	f)	failsort=true
 		;;
 	m)	minrun=$OPTARG
 		;;
@@ -269,6 +274,7 @@ then
     | awk '
 function heading() {
     printf "%4.4s","Host"
+    printf " %4.4s",""
     for (i = 0; i < nh; i++) {
 	if (host[i] ~ /^vm/)
 	    printf " %2.2s",substr(host[i],length(host[i])-1)
@@ -283,9 +289,10 @@ function heading() {
 }
 BEGIN	{ nh = 0; state = 0 }
 $1 == "---"	{ heading()
-		  printf "%4.4s","QA"
+		  printf "%4.4s","Test"
+		  printf " %4.4s","%bad"
 		  for (i = 0; i < nh; i++) printf " %2.2s"," "
-                  printf " %4.4s QA groups\n","QA"
+                  printf " %4.4s QA groups\n","Test"
 		  state = 1
 		  last = $1
 		  next
@@ -293,7 +300,14 @@ $1 == "---"	{ heading()
 state == 0	{ host[nh] = $1; nh++; next }
 $1 != last	{ if (last != "---") {
 		      printf "%4.4s",last
-		      for (i = 0; i < nh; i++) printf " %2.2s",fail[i]
+		      pct = 0
+		      for (i = 0; i < nh; i++) {
+			  if (fail[i] != " ") pct++
+		      }
+		      printf " %3d%%",int(0.5+100*pct/nh)
+		      for (i = 0; i < nh; i++) {
+			  printf " %2.2s",fail[i]
+		      }
 		      printf " %4.4s ",last
 		      cmd = "grep \"^" last " \" $HOME/src/pcp/qa/group | sed -e \"s/^[0-9]* //\""
 		      system(cmd)
@@ -307,14 +321,22 @@ $1 == last	{ for (i = 0; i < nh; i++) {
 			break
 		    }
 		  }
-		}
-END		{ heading() }' \
+		}' \
     | sed \
 	-e 's/ remote//' \
 	-e 's/ sanity//' \
 	-e 's/ ostest//' \
 	-e 's/ local//' \
 	-e 's/ oss//' \
-	-e 's/ #[0-9][0-9]*//g'
+	-e 's/ #[0-9][0-9]*//g' >$tmp.mapout
+    if $failsort
+    then
+	sed -e 2q <$tmp.mapout
+	sed -e 1,2d <$tmp.mapout \
+	| sort --key=2,2n --key=1,1n
+    else
+	cat $tmp.mapout
+    fi
+    sed -n -e 1p -e 1q <$tmp.mapout
 fi
 
