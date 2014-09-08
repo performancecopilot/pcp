@@ -1293,28 +1293,31 @@ papi_text(int ident, int type, char **buffer, pmdaExt *ep)
     if ((type & PM_TEXT_PMID) != PM_TEXT_PMID)
 	return PM_ERR_TEXT;
 
-    ec = 0 | PAPI_PRESET_MASK;
-    PAPI_enum_event(&ec, PAPI_ENUM_FIRST);
-    for (i = 0; i < number_of_events; i++) {
-	if (pmidp->item == papi_info[i].pmns_position) {
-	    position = i;
-	    break;
-	}
-    }
-
-    do {
-	if (PAPI_get_event_info(ec, &info) == PAPI_OK) {
-	    if (info.event_code == papi_info[position].papi_event_code) {
-		if (type & PM_TEXT_ONELINE)
-		    *buffer = info.short_descr;
-		else
-		    *buffer = info.long_descr;
-		return 0;
+    if(pmidp->cluster == CLUSTER_PAPI){
+	ec = 0 | PAPI_PRESET_MASK;
+	PAPI_enum_event(&ec, PAPI_ENUM_FIRST);
+	for (i = 0; i < number_of_events; i++) {
+	    if (pmidp->item == papi_info[i].pmns_position) {
+		position = i;
+		break;
 	    }
 	}
-    } while (PAPI_enum_event(&ec, 0) == PAPI_OK);
 
-    return pmdaText(ident, type, buffer, ep);
+	do {
+	    if (PAPI_get_event_info(ec, &info) == PAPI_OK) {
+		if (info.event_code == papi_info[position].papi_event_code) {
+		    if (type & PM_TEXT_ONELINE)
+			*buffer = info.short_descr;
+		    else
+			*buffer = info.long_descr;
+		    return 0;
+		}
+	    }
+	} while (PAPI_enum_event(&ec, 0) == PAPI_OK);
+	return pmdaText(ident, type, buffer, ep);
+    }
+    else
+	return pmdaText(ident, type, buffer, ep);
 }
 
 static int
