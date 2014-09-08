@@ -903,28 +903,30 @@ papi_text(int ident, int type, char **buffer, pmdaExt *ep)
 	return PM_ERR_TEXT;
 
     if(pmidp->cluster == CLUSTER_PAPI){
-	if(pmidp->item < number_of_events){
-	    if (type & PM_TEXT_ONELINE)
-		*buffer = papi_info[pmidp->item].info.short_descr;
-	    else
-		*buffer = papi_info[pmidp->item].info.long_descr;
-	    return 0;
+	ec = 0 | PAPI_PRESET_MASK;
+	PAPI_enum_event(&ec, PAPI_ENUM_FIRST);
+	for (i = 0; i < number_of_events; i++) {
+	    if (pmidp->item == papi_info[i].pmns_position) {
+		position = i;
+		break;
+	    }
 	}
+
+	do {
+	    if (PAPI_get_event_info(ec, &info) == PAPI_OK) {
+		if (info.event_code == papi_info[position].papi_event_code) {
+		    if (type & PM_TEXT_ONELINE)
+			*buffer = info.short_descr;
+		    else
+			*buffer = info.long_descr;
+		    return 0;
+		}
+	    }
+	} while (PAPI_enum_event(&ec, 0) == PAPI_OK);
+	return pmdaText(ident, type, buffer, ep);
     }
     else
 	return pmdaText(ident, type, buffer, ep);
-}
-
-static int
-papi_name_lookup(const char *name, pmID *pmid, pmdaExt *pmda)
-{
-    return pmdaTreePMID(papi_tree, name, pmid);
-}
-
-static int
-papi_children(const char *name, int traverse, char ***offspring, int **status, pmdaExt *pmda)
-{
-    return pmdaTreeChildren(papi_tree, name, traverse, offspring, status);
 }
 
 static int
