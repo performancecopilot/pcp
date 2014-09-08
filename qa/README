@@ -87,6 +87,12 @@ Basic getting started
     these are distributed PMDAs, you should send patches back to
     pcp@mail.performancecopilot.org.
 
+    Firewalls can get in the way.  In addition to the standard pmcd
+    port(s), one needs to open ports to allow incoming connections and
+    outgoing connections on a range of ports for pmdatrace, pmlogger
+    connections via pmlc, and some QA tests.  Opening the tcp range
+    4320 to 4350 (inclusive) should suffice.
+
 
 Doing the Real Work
 -------------------
