@@ -953,10 +953,9 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     int running = 0;
     int retval = 0;
     int i;
-    int state;
-    char local_string[32];
-    retval = check_papi_state();
-    if (retval & PAPI_RUNNING && idp->cluster == CLUSTER_PAPI) {
+
+    retval = check_papi_state(retval);
+    if (retval == PAPI_RUNNING && idp->cluster == CLUSTER_PAPI) {
 	retval = PAPI_read(EventSet, values);
 	if (retval != PAPI_OK) {
 	    __pmNotifyErr(LOG_ERR, "PAPI_read: %s\n", PAPI_strerror(retval));
@@ -992,7 +991,8 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PMDA_FETCH_STATIC;
 
 	case 2:
-	    if ((retval = check_papi_state()) & PAPI_RUNNING)
+	    if ((retval = check_papi_state(retval)) == PAPI_RUNNING) {
+		atom->cp = disable_string; /* papi.control.disable */
 		return PMDA_FETCH_STATIC;
 	    return 0;
 
@@ -1196,8 +1196,10 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	    if ((retval = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				 PM_TYPE_STRING, &av, PM_TYPE_STRING)) < 0)
 		return retval;
-	    len = strlen(av.cp);
-	    substring = strtok(av.cp, delim);
+	    free(enable_string);
+	    enable_string = av.cp;
+	    len = strlen(enable_string);
+	    substring = strtok(enable_string, delim);
 	    while (substring != NULL) {
 		for (j = 0; j < number_of_events; j++) {
 		    if (!strcmp(substring, papi_info[j].papi_string_code) && papi_info[j].position < 0) {
@@ -1210,7 +1212,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		    if (j == size_of_active_counters) {
 			if (pmDebug & DBG_TRACE_APPL0)
 			    __pmNotifyErr(LOG_DEBUG, "metric name %s does not match any known metrics and will not be added\n", substring);
-			sts = 1;
+			retval = 1;
 		    }
 		}
 		substring = strtok(NULL, delim);
@@ -1219,11 +1221,18 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		if (enable_string[j] == '\0')
 		    enable_string[j] = delim[0];
 	    }
-	    if (sts)
+	    if (retval)
 		return PM_ERR_CONV;
 	    break;
 
 	case 1: //papi.reset
+#if 0 /* not yet implemented */
+	    retval = check_papi_state(retval);
+	    if (retval == PAPI_RUNNING) {
+		if ((retval = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+			PM_TYPE_STRING, &av, PM_TYPE_STRING)) < 0)
+		    return retval;
+	    }
 	    retval = PAPI_reset(EventSet);
 	    if (pmDebug & DBG_TRACE_APPL0)
 		__pmNotifyErr(LOG_DEBUG, "reset: %d\n", retval);
@@ -1237,13 +1246,15 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	    if ((retval = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				PM_TYPE_STRING, &av, PM_TYPE_STRING)) < 0)
 		return retval;
-	    len = strlen(av.cp);
-	    substring = strtok(av.cp, delim);
+	    free(disable_string);
+	    disable_string = av.cp;
+	    len = strlen(disable_string);
+	    substring = strtok(disable_string, delim);
 	    while (substring != NULL) {
 		for (j = 0; j < size_of_active_counters; j++) {
 		    if (!strcmp(substring, papi_info[j].papi_string_code)) {
 			// remove the metric from the set
-			retval = remove_metric(j);
+			retval = remove_metric(papi_info[j].papi_event_code, papi_info[j].position);
 			if (retval == PAPI_OK)
 			    papi_info[j].position = -1;
 			break; //we've found the correct metric, break;
@@ -1255,6 +1266,10 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		    retval = 1;
 		}
 		substring = strtok(NULL, delim);
+	    }
+	    for (j = 0; j < len-1; j++) { // recover from tokenisation
+		if (disable_string[j] == '\0')
+		    disable_string[j] = delim[0];
 	    }
 	    if (retval)
 		return PM_ERR_CONV;
@@ -1415,7 +1430,6 @@ papi_init(pmdaInterface *dp)
 {
     int nummetrics = sizeof(metrictab)/sizeof(metrictab[0]);
     int retval;
-    int i;
 
     if (isDSO) {
 	int	sep = __pmPathSeparator();
