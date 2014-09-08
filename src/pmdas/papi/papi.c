@@ -37,6 +37,7 @@ typedef struct {
     char papi_string_code[8];
     int position;
     int pmns_position;
+    long_long prev_value;
 } papi_m_user_tuple;
 
 static papi_m_user_tuple *papi_info;
@@ -988,7 +989,7 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    for (i = 0; i < number_of_events; i++) {
 		if (papi_info[i].pmns_position == idp->item) {
 		    if(papi_info[i].position >= 0 && papi_info[i].papi_event_code){
-			atom->ull = values[papi_info[i].position];
+			atom->ull = papi_info[i].prev_value + values[papi_info[i].position];
 			return PMDA_FETCH_STATIC;
 		    }
 		    else
@@ -1054,7 +1055,6 @@ remove_metric(unsigned int event, int position)
     int state = 0;
     int restart = 0; // bool to restart running values at the end
     int i;
-    long_long new_values[size_of_active_counters];
 
     retval = PAPI_query_event(event);
     if (retval != PAPI_OK){
@@ -1075,7 +1075,7 @@ remove_metric(unsigned int event, int position)
     if (state == PAPI_STOPPED) {
 	/* first, copy the values over to new array */
 	for (i = 0; i < number_of_events; i++)
-	    new_values[papi_info[i].position] = values[papi_info[i].position];
+	    papi_info[i].prev_value += values[papi_info[i].position];
 
 	/* workaround a papi bug: fully destroy the eventset and restart it */
 	memset(values, 0, sizeof(values[0])*size_of_active_counters);
@@ -1096,19 +1096,16 @@ remove_metric(unsigned int event, int position)
 	for (i = 0; i < number_of_events; i++) {
 	    // set event we're removing position to -1
 	    if (papi_info[i].position == position) {
-		new_values[papi_info[i].position] = 0;
+		papi_info[i].prev_value = 0;
 		papi_info[i].position = -1;
 	    }
 	}
 
 	for (i = 0; i < number_of_events; i++) {
-	    if (papi_info[i].position < position)
-		values[papi_info[i].position] = new_values[papi_info[i].position];
 
-	    if (papi_info[i].position > position) {
+	    if (papi_info[i].position > position)
 		papi_info[i].position--;
-		values[papi_info[i].position] = new_values[papi_info[i].position+1];
-	    }
+
 	    if (papi_info[i].position >= 0 && papi_info[i].papi_event_code) {
 		retval = PAPI_add_event(EventSet, papi_info[i].papi_event_code);
 		if (retval != PAPI_OK)
@@ -1130,7 +1127,6 @@ add_metric(unsigned int event)
 {
     int retval = 0;
     int state = 0;
-    long_long new_values[size_of_active_counters];
     int i;
 
     retval = PAPI_query_event(event);
@@ -1144,11 +1140,14 @@ add_metric(unsigned int event)
     /* add check with number_of_counters */
     /* stop papi if running? */
     if (state == PAPI_RUNNING) {
+	retval = PAPI_stop(EventSet, values);
+	/* PAPI_stop copies values in values array, so by
+	   copying values into prev_value after the fact, we get
+	   the most recent values possible */
 	for (i = 0; i < size_of_active_counters; i++){
 	    if(papi_info[i].position >= 0 && papi_info[i].papi_event_code)
-		new_values[papi_info[i].position] = values[papi_info[i].position];
+		papi_info[i].prev_value += values[papi_info[i].position];
 	}
-	retval = PAPI_stop(EventSet, values);
 	if (retval != PAPI_OK)
 	    return retval;
     }
@@ -1159,10 +1158,6 @@ add_metric(unsigned int event)
 	if (retval != PAPI_OK)
 	    return retval;
 
-	for (i = 0; i < size_of_active_counters; i++){
-	    if(papi_info[i].position >= 0 && papi_info[i].papi_event_code)
-		values[papi_info[i].position] = new_values[papi_info[i].position];
-	}
 	number_of_active_counters++;
 	retval = PAPI_start(EventSet);
 	return retval;
