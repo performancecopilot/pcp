@@ -602,12 +602,9 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     int running = 0;
     int retval = 0;
     int i;
-    int state;
-    char local_string[32];
-    static char status_string[4096];
-    int first_metric = 0;
-    retval = check_papi_state();
-    if (retval & PAPI_RUNNING && idp->cluster == CLUSTER_PAPI) {
+
+    retval = check_papi_state(retval);
+    if (retval == PAPI_RUNNING && idp->cluster == CLUSTER_PAPI) {
 	retval = PAPI_read(EventSet, values);
 	if (retval != PAPI_OK) {
 	    __pmNotifyErr(LOG_ERR, "PAPI_read: %s\n", PAPI_strerror(retval));
@@ -644,9 +641,8 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PMDA_FETCH_STATIC;
 
 	case 2:
-	    /* papi.control.disable */
-	    atom->cp = "";
-	    if ((retval = check_papi_state()) & PAPI_RUNNING)
+	    if ((retval = check_papi_state(retval)) == PAPI_RUNNING) {
+		atom->cp = disable_string; /* papi.control.disable */
 		return PMDA_FETCH_STATIC;
 	    return 0;
 
@@ -829,7 +825,7 @@ static int
 papi_store(pmResult *result, pmdaExt *pmda)
 {
     int retval;
-    int i, j;
+    int i, j, len;
     const char *delim = " ,";
     char *substring;
 
@@ -844,24 +840,26 @@ papi_store(pmResult *result, pmdaExt *pmda)
 
 	switch (idp->item) {
 	case 0: //papi.enable
-	case 2: //papi.disable // NB: almost identical handling!
 	    if ((retval = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				 PM_TYPE_STRING, &av, PM_TYPE_STRING)) < 0)
 		return retval;
-	    substring = strtok(av.cp, delim);
+	    free(enable_string);
+	    enable_string = av.cp;
+	    len = strlen(enable_string);
+	    substring = strtok(enable_string, delim);
 	    while (substring != NULL) {
 		for (j = 0; j < number_of_events; j++) {
 		    if (!strcmp(substring, papi_info[j].papi_string_code) && papi_info[j].position < 0) {
 			// add the metric to the set if it's not already there
-			sts = add_metric(papi_info[j].papi_event_code);
-			if (sts == PAPI_OK)
+			retval = add_metric(papi_info[j].papi_event_code);
+			if (retval == PAPI_OK)
 			    papi_info[j].position = number_of_active_counters-1;
 			break;
 		    }
 		    if (j == size_of_active_counters) {
 			if (pmDebug & DBG_TRACE_APPL0)
 			    __pmNotifyErr(LOG_DEBUG, "metric name %s does not match any known metrics and will not be added\n", substring);
-			sts = 1;
+			retval = 1;
 		    }
                 }
                 if (j == number_of_events) {
@@ -876,15 +874,60 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		if (enable_string[j] == '\0')
 		    enable_string[j] = delim[0];
 	    }
-	    if (sts)
+	    if (retval)
 		return PM_ERR_CONV;
 	    break;
 
 	case 1: //papi.reset
-            for (j = 0; j < number_of_events; j++)
-                papi_info[j].metric_enabled = 0;
-            retval = refresh_metrics();
-            return retval;
+#if 0 /* not yet implemented */
+	    retval = check_papi_state(retval);
+	    if (retval == PAPI_RUNNING) {
+		if ((retval = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+			PM_TYPE_STRING, &av, PM_TYPE_STRING)) < 0)
+		    return retval;
+	    }
+	    retval = PAPI_reset(EventSet);
+	    if (pmDebug & DBG_TRACE_APPL0)
+		__pmNotifyErr(LOG_DEBUG, "reset: %d\n", retval);
+	    if (retval != PAPI_OK)
+		return PM_ERR_VALUE;
+	    break;
+#else
+           return PM_ERR_NYI;
+#endif
+
+	case 2: //papi.disable
+	    if ((retval = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+				PM_TYPE_STRING, &av, PM_TYPE_STRING)) < 0)
+		return retval;
+	    free(disable_string);
+	    disable_string = av.cp;
+	    len = strlen(disable_string);
+	    substring = strtok(disable_string, delim);
+	    while (substring != NULL) {
+		for (j = 0; j < size_of_active_counters; j++) {
+		    if (!strcmp(substring, papi_info[j].papi_string_code)) {
+			// remove the metric from the set
+			retval = remove_metric(papi_info[j].papi_event_code, papi_info[j].position);
+			if (retval == PAPI_OK)
+			    papi_info[j].position = -1;
+			break; //we've found the correct metric, break;
+		    }
+		}
+		if (j == size_of_active_counters) {
+		    if (pmDebug & DBG_TRACE_APPL0)
+			__pmNotifyErr(LOG_DEBUG, "metric name %s does not match any known metrics\n", substring);
+		    retval = 1;
+		}
+		substring = strtok(NULL, delim);
+	    }
+	    for (j = 0; j < len-1; j++) { // recover from tokenisation
+		if (disable_string[j] == '\0')
+		    disable_string[j] = delim[0];
+	    }
+	    if (retval)
+		return PM_ERR_CONV;
+	    break;
 
 	default:
 	    return PM_ERR_PMID;
@@ -934,6 +977,7 @@ papi_internal_init(pmdaInterface *dp)
 {
     int ec;
     int retval;
+    int addunderscore;
     PAPI_event_info_t info;
     char entry[PAPI_HUGE_STR_LEN]; // the length papi uses for the symbol name
     unsigned int i = 0;
@@ -959,6 +1003,14 @@ papi_internal_init(pmdaInterface *dp)
 	return PM_ERR_GENERIC;
     }
 
+    retval = PAPI_set_domain(PAPI_DOM_ALL);
+    if (retval != PAPI_OK) {
+	__pmNotifyErr(LOG_DEBUG, "Cannot set the domain to PAPI_DOM_ALL.\n");
+	return PM_ERR_GENERIC;
+    }
+
+    enable_string = (char *)calloc(1, 1);
+    disable_string = (char *)calloc(1, 1);
     PAPI_enum_event(&ec, PAPI_ENUM_FIRST);
     do {
 	if (PAPI_get_event_info(ec, &info) == PAPI_OK) {
@@ -1055,7 +1107,7 @@ papi_init(pmdaInterface *dp)
 
     dp->comm.flags |= PDU_FLAG_AUTH;
 
-    if ((retval = papi_internal_init(dp)) != 0) {
+    if ((retval = papi_internal_init()) != 0) {
 	__pmNotifyErr(LOG_ERR, "papi_internal_init returned %d\n", retval);
 	dp->status = PM_ERR_GENERIC;
 	return;
