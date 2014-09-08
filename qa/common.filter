@@ -729,6 +729,6 @@ _filter_views()
 	-e "s,^Load View: $PCP_VAR_DIR,Load View: PCP_VAR_DIR," \
 	-e '/QGtkStyle was unable to detect the current GTK+ theme\./d' \
 	-e '/GConf-WARNING \*\*: Client failed to connect to the D-BUS/d' \
-	-e '/Failed to connect to socket .*dbus.*: Connection refused'd/ \
+	-e '/Failed to connect to socket .*dbus.*: Connection refused/d' \
 	-e '/^$/d'
 }
