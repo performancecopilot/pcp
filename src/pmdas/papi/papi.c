@@ -966,14 +966,14 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     __pmID_int *idp = (__pmID_int *)&(mdesc->m_desc.pmid);
     int running = 0;
-    int sts = 0;
+    int retval = 0;
     int i;
 
-    sts = check_papi_state(sts);
-    if (sts == PAPI_RUNNING && idp->cluster == CLUSTER_PAPI) {
-	sts = PAPI_read(EventSet, values);
-	if (sts != PAPI_OK) {
-	    __pmNotifyErr(LOG_ERR, "PAPI_read: %s\n", PAPI_strerror(sts));
+    retval = check_papi_state(retval);
+    if (retval == PAPI_RUNNING && idp->cluster == CLUSTER_PAPI) {
+	retval = PAPI_read(EventSet, values);
+	if (retval != PAPI_OK) {
+	    __pmNotifyErr(LOG_ERR, "PAPI_read: %s\n", PAPI_strerror(retval));
 	    return PM_ERR_VALUE;
 	}
 	running = 1;
@@ -1010,7 +1010,7 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_NYI;
 
 	case 2:
-	    if ((sts = check_papi_state(sts)) == PAPI_RUNNING) {
+	    if ((retval = check_papi_state(retval)) == PAPI_RUNNING) {
 		atom->cp = disable_string; /* papi.control.disable */
 		return PMDA_FETCH_STATIC;
 	    }
@@ -1173,7 +1173,7 @@ add_metric(unsigned int event)
 static int
 papi_store(pmResult *result, pmdaExt *pmda)
 {
-    int sts;
+    int retval;
     int i, j, len;
     const char *delim = " ,";
     char *substring;
@@ -1190,9 +1190,9 @@ papi_store(pmResult *result, pmdaExt *pmda)
 
 	switch (idp->item) {
 	case 0: //papi.enable
-	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+	    if ((retval = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				 PM_TYPE_STRING, &av, PM_TYPE_STRING)) < 0)
-		return sts;
+		return retval;
 	    free(enable_string);
 	    enable_string = av.cp;
 	    len = strlen(enable_string);
@@ -1201,15 +1201,15 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		for (j = 0; j < number_of_events; j++) {
 		    if (!strcmp(substring, papi_info[j].papi_string_code) && papi_info[j].position < 0) {
 			// add the metric to the set if it's not already there
-			sts = add_metric(papi_info[j].papi_event_code);
-			if (sts == PAPI_OK)
+			retval = add_metric(papi_info[j].papi_event_code);
+			if (retval == PAPI_OK)
 			    papi_info[j].position = number_of_active_counters-1;
 			break;
 		    }
 		    if (j == size_of_active_counters) {
 			if (pmDebug & DBG_TRACE_APPL0)
 			    __pmNotifyErr(LOG_DEBUG, "metric name %s does not match any known metrics and will not be added\n", substring);
-			sts = 1;
+			retval = 1;
 		    }
 		}
 		substring = strtok(NULL, delim);
@@ -1218,22 +1218,22 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		if (enable_string[j] == '\0')
 		    enable_string[j] = delim[0];
 	    }
-	    if (sts)
+	    if (retval)
 		return PM_ERR_CONV;
 	    break;
 
 	case 1: //papi.reset
 #if 0 /* not yet implemented */
-	    sts = check_papi_state(sts);
-	    if (sts == PAPI_RUNNING) {
-		if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+	    retval = check_papi_state(retval);
+	    if (retval == PAPI_RUNNING) {
+		if ((retval = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 			PM_TYPE_STRING, &av, PM_TYPE_STRING)) < 0)
-		    return sts;
+		    return retval;
 	    }
-	    sts = PAPI_reset(EventSet);
+	    retval = PAPI_reset(EventSet);
 	    if (pmDebug & DBG_TRACE_APPL0)
-		__pmNotifyErr(LOG_DEBUG, "reset: %d\n", sts);
-	    if (sts != PAPI_OK)
+		__pmNotifyErr(LOG_DEBUG, "reset: %d\n", retval);
+	    if (retval != PAPI_OK)
 		return PM_ERR_VALUE;
 	    break;
 #else
@@ -1241,9 +1241,9 @@ papi_store(pmResult *result, pmdaExt *pmda)
 #endif
 
 	case 2: //papi.disable
-	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+	    if ((retval = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				PM_TYPE_STRING, &av, PM_TYPE_STRING)) < 0)
-		return sts;
+		return retval;
 	    free(disable_string);
 	    disable_string = av.cp;
 	    len = strlen(disable_string);
@@ -1252,8 +1252,8 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		for (j = 0; j < size_of_active_counters; j++) {
 		    if (!strcmp(substring, papi_info[j].papi_string_code)) {
 			// remove the metric from the set
-			sts = remove_metric(papi_info[j].papi_event_code, papi_info[j].position);
-			if (sts == PAPI_OK)
+			retval = remove_metric(papi_info[j].papi_event_code, papi_info[j].position);
+			if (retval == PAPI_OK)
 			    papi_info[j].position = -1;
 			break; //we've found the correct metric, break;
 		    }
@@ -1261,7 +1261,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		if (j == size_of_active_counters) {
 		    if (pmDebug & DBG_TRACE_APPL0)
 			__pmNotifyErr(LOG_DEBUG, "metric name %s does not match any known metrics\n", substring);
-		    sts = 1;
+		    retval = 1;
 		}
 		substring = strtok(NULL, delim);
 	    }
@@ -1269,7 +1269,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		if (disable_string[j] == '\0')
 		    disable_string[j] = delim[0];
 	    }
-	    if (sts)
+	    if (retval)
 		return PM_ERR_CONV;
 	    break;
 
@@ -1324,7 +1324,7 @@ static int
 papi_internal_init(void)
 {
     int ec;
-    int sts;
+    int retval;
     int addunderscore;
     PAPI_event_info_t info;
     char *substr;
@@ -1338,14 +1338,14 @@ papi_internal_init(void)
     }
 
     ec = 0 | PAPI_PRESET_MASK;
-    sts = PAPI_library_init(PAPI_VER_CURRENT);
-    if (sts != PAPI_VER_CURRENT) {
+    retval = PAPI_library_init(PAPI_VER_CURRENT);
+    if (retval != PAPI_VER_CURRENT) {
 	__pmNotifyErr(LOG_DEBUG, "PAPI_library_init error!\n");
 	return PM_ERR_GENERIC;
     }
 
-    sts = PAPI_set_domain(PAPI_DOM_ALL);
-    if (sts != PAPI_OK) {
+    retval = PAPI_set_domain(PAPI_DOM_ALL);
+    if (retval != PAPI_OK) {
 	__pmNotifyErr(LOG_DEBUG, "Cannot set the domain to PAPI_DOM_ALL.\n");
 	return PM_ERR_GENERIC;
     }
@@ -1428,7 +1428,7 @@ __PMDA_INIT_CALL
 papi_init(pmdaInterface *dp)
 {
     int nummetrics = sizeof(metrictab)/sizeof(metrictab[0]);
-    int sts;
+    int retval;
 
     if (isDSO) {
 	char     mypath[MAXPATHLEN];
@@ -1444,8 +1444,8 @@ papi_init(pmdaInterface *dp)
 
     dp->comm.flags |= PDU_FLAG_AUTH;
 
-    if ((sts = papi_internal_init()) != 0) {
-	__pmNotifyErr(LOG_ERR, "papi_internal_init returned %d\n", sts);
+    if ((retval = papi_internal_init()) != 0) {
+	__pmNotifyErr(LOG_ERR, "papi_internal_init returned %d\n", retval);
 	dp->status = PM_ERR_GENERIC;
 	return;
     }
