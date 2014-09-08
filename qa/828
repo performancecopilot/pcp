@@ -107,9 +107,32 @@ cat >$tmp.suppress <<End-of-File
    fun:pmGetArchiveEnd
 }
 {
+   <case 1 - buf hdr in __pmFindPDUBuf from pmGetArchiveEnd - valloc variant>
+   Memcheck:Leak
+   fun:memalign
+   fun:valloc
+   fun:__pmFindPDUBuf
+   fun:__pmLogRead
+   ...
+   fun:__pmGetArchiveEnd
+   fun:pmGetArchiveEnd
+}
+{
    <case 2 - buf hdr in __pmFindPDUBuf from pmGetArchiveEnd>
    Memcheck:Leak
    fun:malloc
+   fun:__pmFindPDUBuf
+   fun:__pmDecodeResult
+   fun:__pmLogRead
+   ...
+   fun:__pmGetArchiveEnd
+   fun:pmGetArchiveEnd
+}
+{
+   <case 2 - buf hdr in __pmFindPDUBuf from pmGetArchiveEnd - valloc variant>
+   Memcheck:Leak
+   fun:memalign
+   fun:valloc
    fun:__pmFindPDUBuf
    fun:__pmDecodeResult
    fun:__pmLogRead
