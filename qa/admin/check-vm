@@ -28,6 +28,58 @@ shift `expr $OPTIND - 1`
 tmp=/var/tmp/$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
+# same function is in allow-pmlc-access ... need to track changes
+#
+_getnetworkaddr()
+{
+    if `which ifconfig >/dev/null 2>&1`
+    then
+	# expecting ifconfig lines like ...
+        # inet 192.168.1.222  netmask 255.255.255.0  broadcast 192.168.1.255
+	# inet addr:192.168.1.100  Bcast:192.168.1.255  Mask:255.255.255.0
+	#
+	ifconfig \
+	| grep -v '[ :]127\.0\.0' \
+	| sed -n >$tmp.addr \
+	    -e '/^[ 	]*inet /{
+s/^[ 	]*inet[ 	]//
+s/^addr://
+s/[ 	][ 	]*broadcast[ 	][^ 	]*//
+s/:Bcast:[^ ]*//
+s/[ 	][ 	]*netmask[ 	]/ /
+s/[ 	][ 	]*Mask:/ /
+p
+}'
+	#debug# cat $tmp.addr >&2
+	num=`wc -l <$tmp.addr | sed -e 's/ //g'`
+	case "$num"
+	in
+	    1)	# good
+		addr=`cat $tmp.addr | sed -e 's/ .*//'`
+		mask=`cat $tmp.addr | sed -e 's/.* //'`
+		case "$mask"
+		in
+		    255.255.255.0)	# /24 network
+			echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
+			;;
+		    *)
+			echo >&2 "_getnetworkaddr: cannot handle network mask: $mask"
+			;;
+		esac
+		;;
+	    0)	# none?
+		echo >&2 "_getnetworkaddr: cannot get network address"
+		;;
+	    *)	# multiple?
+		echo >&2 "_getnetworkaddr: cannot handle multiple network addresss:"
+		cat >&2 $tmp.addr
+		;;
+	esac
+    else
+	echo >&2 '_getnetworkaddr: no ifconfig?'
+    fi
+}
+
 # add additional and optional directories
 for dir in /sbin /usr/sbin
 do
@@ -343,18 +395,22 @@ if [ -f /etc/pcp.conf ]
 then
     . /etc/pcp.conf
 
-    # need QA access to pmlogger via pmlc
+    # need QA access to pmlogger via pmlc from local subnet
     #
-    if [ -f $PCP_SYSCONF_DIR/pmlogger/config.default ]
+    network=`_getnetworkaddr`
+    if [ -n "$network" ]
     then
-	if grep -q 'allow 192\.168\.1\.\*' $PCP_SYSCONF_DIR/pmlogger/config.default
+	if [ -f $PCP_SYSCONF_DIR/pmlogger/config.default ]
 	then
-	    :
+	    if grep -q "allow $network" $PCP_SYSCONF_DIR/pmlogger/config.default
+	    then
+		:
+	    else
+		echo "Missing: \"allow $network : all;\" [access] in $PCP_SYSCONF_DIR/pmlogger/config.default"
+	    fi
 	else
-	    echo "Missing: \"allow 192.168.1.* : all;\" [access] in $PCP_SYSCONF_DIR/pmlogger/config.default"
+	    echo "Warning: \"$PCP_SYSCONF_DIR/pcp/pmlogger/config.default\" is missing"
 	fi
-    else
-	echo "Warning: \"$PCP_SYSCONF_DIR/pcp/pmlogger/config.default\" is missing"
     fi
 else
     echo "Warning: \"/etc/pcp.conf\" is missing"
