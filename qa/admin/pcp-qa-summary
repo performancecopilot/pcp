@@ -329,6 +329,7 @@ $1 == last	{ for (i = 0; i < nh; i++) {
 	-e 's/ local//' \
 	-e 's/ oss//' \
 	-e 's/ #[0-9][0-9]*//g' >$tmp.mapout
+    num=0
     if $failsort
     then
 	sed -e 2q <$tmp.mapout
@@ -336,7 +337,18 @@ $1 == last	{ for (i = 0; i < nh; i++) {
 	| sort --key=2,2n --key=1,1n
     else
 	cat $tmp.mapout
-    fi
+    fi \
+    | while read line
+    do
+	if [ "$num" -eq 20 ]
+	then
+	    sed -n -e 1p -e 1q <$tmp.mapout
+	    num=0
+	else
+	    num=`expr $num + 1`
+	fi
+	echo "$line"
+    done
     sed -n -e 1p -e 1q <$tmp.mapout
 fi
 
