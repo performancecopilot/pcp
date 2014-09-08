@@ -37,8 +37,8 @@ typedef struct {
     char papi_string_code[8];
     pmID pmid;
     int position;
+    int pmns_position;
     long_long prev_value;
-    PAPI_event_info_t info;
 } papi_m_user_tuple;
 
 static papi_m_user_tuple *papi_info;
@@ -632,9 +632,15 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PMDA_FETCH_NOVALUES;
 	if (idp->item >= 0 && idp->item <= number_of_events) {
 	    // the 'case' && 'idp->item' value we get is the pmns_position
-	    if (papi_info[idp->item].position >= 0) {
-		atom->ull = papi_info[idp->item].prev_value + values[papi_info[idp->item].position];
-		return PMDA_FETCH_STATIC;
+	    for (i = 0; i < number_of_events; i++) {
+		if (papi_info[i].pmns_position == idp->item) {
+		    if(papi_info[i].position >= 0 && papi_info[i].papi_event_code){
+			atom->ull = papi_info[i].prev_value + values[papi_info[i].position];
+			return PMDA_FETCH_STATIC;
+		    }
+		    else
+			return PMDA_FETCH_NOVALUES;
+		}
 	    }
 	    else
 		return PMDA_FETCH_NOVALUES;
@@ -736,7 +742,6 @@ remove_metric(int event)
     int state = 0;
     int restart = 0; // bool to restart running values at the end
     int i;
-    int position = papi_info[event].position;
 
     retval = check_event_exists(papi_info[event].papi_event_code);
     if (retval != PAPI_OK)
@@ -771,8 +776,14 @@ remove_metric(int event)
 	if (retval != PAPI_OK)
 	    return retval;
 
-	papi_info[event].prev_value = 0;
-	papi_info[event].position = -1;
+	// run through all metrics and adjust position variable as needed
+	for (i = 0; i < number_of_events; i++) {
+	    // set event we're removing position to -1
+	    if (papi_info[i].position == position) {
+		papi_info[i].prev_value = 0;
+		papi_info[i].position = -1;
+	    }
+	}
 
 	for (i = 0; i < number_of_events; i++) {
 
@@ -810,7 +821,7 @@ add_metric(unsigned int event)
     state = check_papi_state();
     /* add check with number_of_counters */
     /* stop papi if running? */
-    if (state & PAPI_RUNNING) {
+    if (state == PAPI_RUNNING) {
 	retval = PAPI_stop(EventSet, values);
 	/* PAPI_stop copies values in values array, so by
 	   copying values into prev_value after the fact, we get
