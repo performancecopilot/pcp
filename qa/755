@@ -60,6 +60,10 @@ trap "_cleanup_pmda apache; exit \$status" 0 1 2 3 15
 # real QA test starts here
 pmdaapache_install
 
+# there may be a race if the pmda has a bit of a slow start ... pause
+# 
+sleep 3
+
 # pmcd should have been started by the Install process - check
 if pminfo -v apache > $tmp.info 2> $tmp.err
 then
