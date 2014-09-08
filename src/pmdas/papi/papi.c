@@ -1277,69 +1277,30 @@ papi_text(int ident, int type, char **buffer, pmdaExt *ep)
 	return PM_ERR_TEXT;
 
     if(pmidp->cluster == CLUSTER_PAPI){
-	if(pmidp->item < number_of_events){
-	    if (type & PM_TEXT_ONELINE)
-		*buffer = papi_info[pmidp->item].info.short_descr;
-	    else
-		*buffer = papi_info[pmidp->item].info.long_descr;
-	    return 0;
+	ec = 0 | PAPI_PRESET_MASK;
+	PAPI_enum_event(&ec, PAPI_ENUM_FIRST);
+	for (i = 0; i < number_of_events; i++) {
+	    if (pmidp->item == papi_info[i].pmns_position) {
+		position = i;
+		break;
+	    }
 	}
+
+	do {
+	    if (PAPI_get_event_info(ec, &info) == PAPI_OK) {
+		if (info.event_code == papi_info[position].papi_event_code) {
+		    if (type & PM_TEXT_ONELINE)
+			*buffer = info.short_descr;
+		    else
+			*buffer = info.long_descr;
+		    return 0;
+		}
+	    }
+	} while (PAPI_enum_event(&ec, 0) == PAPI_OK);
 	return pmdaText(ident, type, buffer, ep);
     }
     else
 	return pmdaText(ident, type, buffer, ep);
-}
-
-static int
-papi_name_lookup(const char *name, pmID *pmid, pmdaExt *pmda)
-{
-
-    int i;
-    char *substr;
-
-    substr = strtok(name, ".");
-    while (substr != NULL) {
-	for (i = 0; i < number_of_events; i++) {
-	    if (strcmp(substr, papi_info[i].papi_string_code) == 0) {
-		*pmid = papi_info[i].pmid;
-		return 0;
-	    }
-	}
-	substr = strtok(NULL, ".");
-    }
-    return PM_ERR_NAME;
-}
-
-static int
-papi_children(const char *name, int traverse, char ***offspring, int **status, pmdaExt *pmda)
-{
-
-    int i;
-    char **metric_chain = NULL;
-    int  *metric_stats = NULL;
-    char *metric_name = name;
-    int retval;
-    metric_chain = (char **)realloc(metric_chain, number_of_events*sizeof(metric_chain[0]));
-    if (metric_chain == NULL)
-	__pmNoMem("metric_chain realloc failure", number_of_events*sizeof(metric_chain[0]), PM_FATAL_ERR);
-    metric_stats = (int *)realloc(metric_stats, number_of_events*sizeof(metric_stats[0]));
-    if (metric_stats == NULL)
-	__pmNoMem("metric_stats realloc failure", number_of_events*sizeof(metric_stats[0]), PM_FATAL_ERR);
-
-    for (i = 0; i < number_of_events; i++) {
-	metric_chain[i] = malloc(strlen(papi_info[i].papi_string_code)+strlen(metric_name)+2);
-	strcpy(metric_chain[i], metric_name);
-	metric_chain[i][strlen(metric_name)] = '.';
-	metric_chain[i][strlen(metric_name)+1] = '\0';
-	strcat(metric_chain[i], papi_info[i].papi_string_code);
-	retval = i;
-	metric_stats[i] = PMNS_LEAF_STATUS;
-    }
-
-    *offspring = metric_chain;
-    *status = metric_stats;
-
-    return retval;
 }
 
 static int
