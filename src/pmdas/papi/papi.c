@@ -37,7 +37,6 @@ typedef struct {
     char papi_string_code[8];
     pmID pmid;
     int position;
-    int pmns_position;
     long_long prev_value;
 } papi_m_user_tuple;
 
@@ -57,6 +56,8 @@ static int ctxtab_size;
 static int number_of_counters; // XXX: collapse into number_of_events
 static unsigned int size_of_active_counters; // XXX: eliminate
 static __pmnsTree *papi_tree;
+
+static char helppath[MAXPATHLEN];
 
 static int
 permission_check(int context)
@@ -614,7 +615,6 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     int running = 0;
     int retval = 0;
     int i;
-
     retval = check_papi_state(retval);
     if (retval == PAPI_RUNNING && idp->cluster == CLUSTER_PAPI) {
 	retval = PAPI_read(EventSet, values);
@@ -632,12 +632,13 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (idp->item >= 0 && idp->item <= number_of_events) {
 	    // the 'case' && 'idp->item' value we get is the pmns_position
 	    for (i = 0; i < number_of_events; i++) {
-		if (papi_info[i].pmns_position == idp->item) {
+		if (((__pmID_int *)&papi_info[i].pmid)->item == idp->item) {
 		    if(papi_info[i].position >= 0 && papi_info[i].papi_event_code){
 			atom->ull = papi_info[i].prev_value + values[papi_info[i].position];
 			return PMDA_FETCH_STATIC;
 		    }
 		    else
+
 			return PMDA_FETCH_NOVALUES;
 		}
 	    }
@@ -975,7 +976,7 @@ papi_text(int ident, int type, char **buffer, pmdaExt *ep)
 	ec = 0 | PAPI_PRESET_MASK;
 	PAPI_enum_event(&ec, PAPI_ENUM_FIRST);
 	for (i = 0; i < number_of_events; i++) {
-	    if (pmidp->item == papi_info[i].pmns_position) {
+	    if (((__pmID_int *)&papi_info[i].pmid)->item == pmidp->item) {
 		position = i;
 		break;
 	    }
@@ -983,12 +984,14 @@ papi_text(int ident, int type, char **buffer, pmdaExt *ep)
 
 	do {
 	    if (PAPI_get_event_info(ec, &info) == PAPI_OK) {
-		if (info.event_code == papi_info[position].papi_event_code) {
-		    if (type & PM_TEXT_ONELINE)
-			*buffer = info.short_descr;
-		    else
-			*buffer = info.long_descr;
-		    return 0;
+		if (info.count && PAPI_PRESET_ENUM_AVAIL){
+		    if (info.event_code == papi_info[position].papi_event_code) {
+			if (type & PM_TEXT_ONELINE)
+			    *buffer = info.short_descr;
+			else
+			    *buffer = info.long_descr;
+			return 0;
+		    }
 		}
 	    }
 	} while (PAPI_enum_event(&ec, 0) == PAPI_OK);
@@ -999,55 +1002,23 @@ papi_text(int ident, int type, char **buffer, pmdaExt *ep)
 }
 
 static int
-papi_name_lookup(const char *name, pmID *pmid, pmdaExt *pmda)
+papi_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
 {
 
     int i;
-    char *substr;
+    const char *p;
 
-    substr = strtok(name, ".");
-    while (substr != NULL) {
-	for (i = 0; i < number_of_events; i++) {
-	    if (strcmp(substr, papi_info[i].papi_string_code) == 0) {
-		*pmid = papi_info[i].pmid;
-		return 0;
-	    }
-	}
-	substr = strtok(NULL, ".");
-    }
-    return PM_ERR_NAME;
-}
-
-static int
-papi_children(const char *name, int traverse, char ***offspring, int **status, pmdaExt *pmda)
-{
-
-    int i;
-    char **metric_chain = NULL;
-    int  *metric_stats = NULL;
-    char *metric_name = name;
-    int retval;
-    metric_chain = (char **)realloc(metric_chain, number_of_events*sizeof(metric_chain[0]));
-    if (metric_chain == NULL)
-	__pmNoMem("metric_chain realloc failure", number_of_events*sizeof(metric_chain[0]), PM_FATAL_ERR);
-    metric_stats = (int *)realloc(metric_stats, number_of_events*sizeof(metric_stats[0]));
-    if (metric_stats == NULL)
-	__pmNoMem("metric_stats realloc failure", number_of_events*sizeof(metric_stats[0]), PM_FATAL_ERR);
+    for (p = name; *p != '.' && *p; p++)
+	;
+    if (*p == '.') p++;
 
     for (i = 0; i < number_of_events; i++) {
-	metric_chain[i] = malloc(strlen(papi_info[i].papi_string_code)+strlen(metric_name)+2);
-	strcpy(metric_chain[i], metric_name);
-	metric_chain[i][strlen(metric_name)] = '.';
-	metric_chain[i][strlen(metric_name)+1] = '\0';
-	strcat(metric_chain[i], papi_info[i].papi_string_code);
-	retval = i;
-	metric_stats[i] = PMNS_LEAF_STATUS;
+	if (strcmp(p, papi_info[i].papi_string_code) == 0) {
+	    *pmid = papi_info[i].pmid;
+	    return 0;
+	}
     }
-
-    *offspring = metric_chain;
-    *status = metric_stats;
-
-    return retval;
+    return PM_ERR_NAME;
 }
 
 static int
@@ -1092,8 +1063,9 @@ papi_internal_init(void)
     do {
 	if (PAPI_get_event_info(ec, &info) == PAPI_OK) {
 	    if (info.count && PAPI_PRESET_ENUM_AVAIL){
+		i++;
 		expand_papi_info(i);
-		papi_info[i].papi_event_code = info.event_code;
+		papi_info[i-1].papi_event_code = info.event_code;
 		substr = strtok(info.symbol, "_");
 		while (substr != NULL) {
 		    addunderscore = 0;
@@ -1106,14 +1078,10 @@ papi_internal_init(void)
 			strcat(concatstr, "_");
 		    }
 		}
-		strcpy(papi_info[i].papi_string_code, concatstr);
+		strcpy(papi_info[i-1].papi_string_code, concatstr);
 		memset(&concatstr[0], 0, sizeof(concatstr));
-		papi_info[i].position = -1;
-		papi_info[i].pmid = i;
-		strcpy(papi_info[i].info.short_descr,info.short_descr);
-		strcpy(papi_info[i].info.long_descr, info.long_descr);
-		expand_values(i);
-		i++;
+		papi_info[i-1].position = -1;
+		papi_info[i-1].pmid = i-1;
 	    }
 	}
     } while(PAPI_enum_event(&ec, 0) == PAPI_OK);
@@ -1177,6 +1145,7 @@ papi_init(pmdaInterface *dp)
 {
     int nummetrics = sizeof(metrictab)/sizeof(metrictab[0]);
     int retval;
+    int i;
 
     if (isDSO) {
 	int	sep = __pmPathSeparator();
@@ -1201,8 +1170,7 @@ papi_init(pmdaInterface *dp)
     dp->version.six.store = papi_store;
     dp->version.six.attribute = papi_contextAttributeCallBack;
     dp->version.any.text = papi_text;
-    dp->version.four.pmid = papi_name_lookup;
-    dp->version.four.children = papi_children;
+    dp->version.four.pmid = papi_pmid;
     pmdaSetFetchCallBack(dp, papi_fetchCallBack);
     pmdaSetEndContextCallBack(dp, papi_endContextCallBack);
     pmdaInit(dp, NULL, 0, metrictab, nummetrics);
