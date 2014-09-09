@@ -35,8 +35,8 @@ enum {
 typedef struct {
     unsigned int papi_event_code; //the PAPI_ eventcode
     char papi_string_code[8];
+    pmID pmid;
     int position;
-    int pmns_position;
     long_long prev_value;
 } papi_m_user_tuple;
 
@@ -57,342 +57,6 @@ static int number_of_counters;
 static unsigned int number_of_active_counters;
 static unsigned int size_of_active_counters;
 static unsigned int number_of_events;
-
-static void
-set_pmns_position(unsigned int i)
-{
-    switch (papi_info[i].papi_event_code) {
-    case PAPI_TOT_INS:
-	papi_info[i].pmns_position = 0;
-	break;
-    case PAPI_TOT_CYC:
-	papi_info[i].pmns_position = 1;
-	break;
-    case PAPI_L1_DCM:
-	papi_info[i].pmns_position = 2;
-	break;
-    case PAPI_L1_ICM:
-	papi_info[i].pmns_position = 3;
-	break;
-    case PAPI_L2_DCM:
-	papi_info[i].pmns_position = 4;
-	break;
-    case PAPI_L2_ICM:
-	papi_info[i].pmns_position = 5;
-	break;
-    case PAPI_L3_DCM:
-	papi_info[i].pmns_position = 6;
-	break;
-    case PAPI_L3_ICM:
-	papi_info[i].pmns_position = 7;
-	break;
-    case PAPI_L1_TCM:
-	papi_info[i].pmns_position = 8;
-	break;
-    case PAPI_L2_TCM:
-	papi_info[i].pmns_position = 9;
-	break;
-    case PAPI_L3_TCM:
-	papi_info[i].pmns_position = 10;
-	break;
-    case PAPI_TLB_DM:
-	papi_info[i].pmns_position = 11;
-	break;
-    case PAPI_TLB_IM:
-	papi_info[i].pmns_position = 12;
-	break;
-    case PAPI_TLB_TL:
-	papi_info[i].pmns_position = 13;
-	break;
-    case PAPI_L1_LDM:
-	papi_info[i].pmns_position = 14;
-	break;
-    case PAPI_L1_STM:
-	papi_info[i].pmns_position = 15;
-	break;
-    case PAPI_L2_LDM:
-	papi_info[i].pmns_position = 16;
-	break;
-    case PAPI_L2_STM:
-	papi_info[i].pmns_position = 17;
-	break;
-    case PAPI_CA_SNP:
-	papi_info[i].pmns_position = 18;
-	break;
-    case PAPI_CA_SHR:
-	papi_info[i].pmns_position = 19;
-	break;
-    case PAPI_CA_CLN:
-	papi_info[i].pmns_position = 20;
-	break;
-    case PAPI_CA_INV:
-	papi_info[i].pmns_position = 21;
-	break;
-    case PAPI_CA_ITV:
-	papi_info[i].pmns_position = 22;
-	break;
-    case PAPI_L3_LDM:
-	papi_info[i].pmns_position = 23;
-	break;
-    case PAPI_L3_STM:
-	papi_info[i].pmns_position = 24;
-	break;
-    case PAPI_BRU_IDL:
-	papi_info[i].pmns_position = 25;
-	break;
-    case PAPI_FXU_IDL:
-	papi_info[i].pmns_position = 26;
-	break;
-    case PAPI_FPU_IDL:
-	papi_info[i].pmns_position = 27;
-	break;
-    case PAPI_LSU_IDL:
-	papi_info[i].pmns_position = 28;
-	break;
-    case PAPI_BTAC_M:
-	papi_info[i].pmns_position = 29;
-	break;
-    case PAPI_PRF_DM:
-	papi_info[i].pmns_position = 30;
-	break;
-    case PAPI_L3_DCH:
-	papi_info[i].pmns_position = 31;
-	break;
-    case PAPI_TLB_SD:
-	papi_info[i].pmns_position = 32;
-	break;
-    case PAPI_CSR_FAL:
-	papi_info[i].pmns_position = 33;
-	break;
-    case PAPI_CSR_SUC:
-	papi_info[i].pmns_position = 34;
-	break;
-    case PAPI_CSR_TOT:
-	papi_info[i].pmns_position = 35;
-	break;
-    case PAPI_MEM_SCY:
-	papi_info[i].pmns_position = 36;
-	break;
-    case PAPI_MEM_RCY:
-	papi_info[i].pmns_position = 37;
-	break;
-    case PAPI_MEM_WCY:
-	papi_info[i].pmns_position = 38;
-	break;
-    case PAPI_STL_ICY:
-	papi_info[i].pmns_position = 39;
-	break;
-    case PAPI_FUL_ICY:
-	papi_info[i].pmns_position = 40;
-	break;
-    case PAPI_STL_CCY:
-	papi_info[i].pmns_position = 41;
-	break;
-    case PAPI_FUL_CCY:
-	papi_info[i].pmns_position = 42;
-	break;
-    case PAPI_HW_INT:
-	papi_info[i].pmns_position = 43;
-	break;
-    case PAPI_BR_UCN:
-	papi_info[i].pmns_position = 44;
-	break;
-    case PAPI_BR_CN:
-	papi_info[i].pmns_position = 45;
-	break;
-    case PAPI_BR_TKN:
-	papi_info[i].pmns_position = 46;
-	break;
-    case PAPI_BR_NTK:
-	papi_info[i].pmns_position = 47;
-	break;
-    case PAPI_BR_MSP:
-	papi_info[i].pmns_position = 48;
-	break;
-    case PAPI_BR_PRC:
-	papi_info[i].pmns_position = 49;
-	break;
-    case PAPI_FMA_INS:
-	papi_info[i].pmns_position = 50;
-	break;
-    case PAPI_TOT_IIS:
-	papi_info[i].pmns_position = 51;
-	break;
-    case PAPI_INT_INS:
-	papi_info[i].pmns_position = 52;
-	break;
-    case PAPI_FP_INS:
-	papi_info[i].pmns_position = 53;
-	break;
-    case PAPI_LD_INS:
-	papi_info[i].pmns_position = 54;
-	break;
-    case PAPI_SR_INS:
-	papi_info[i].pmns_position = 55;
-	break;
-    case PAPI_BR_INS:
-	papi_info[i].pmns_position = 56;
-	break;
-    case PAPI_VEC_INS:
-	papi_info[i].pmns_position = 57;
-	break;
-    case PAPI_RES_STL:
-	papi_info[i].pmns_position = 58;
-	break;
-    case PAPI_FP_STAL:
-	papi_info[i].pmns_position = 59;
-	break;
-    case PAPI_LST_INS:
-	papi_info[i].pmns_position = 60;
-	break;
-    case PAPI_SYC_INS:
-	papi_info[i].pmns_position = 61;
-	break;
-    case PAPI_L1_DCH:
-	papi_info[i].pmns_position = 62;
-	break;
-    case PAPI_L2_DCH:
-	papi_info[i].pmns_position = 63;
-	break;
-    case PAPI_L1_DCA:
-	papi_info[i].pmns_position = 64;
-	break;
-    case PAPI_L2_DCA:
-	papi_info[i].pmns_position = 65;
-	break;
-    case PAPI_L3_DCA:
-	papi_info[i].pmns_position = 66;
-	break;
-    case PAPI_L1_DCR:
-	papi_info[i].pmns_position = 67;
-	break;
-    case PAPI_L2_DCR:
-	papi_info[i].pmns_position = 68;
-	break;
-    case PAPI_L3_DCR:
-	papi_info[i].pmns_position = 69;
-	break;
-    case PAPI_L1_DCW:
-	papi_info[i].pmns_position = 70;
-	break;
-    case PAPI_L2_DCW:
-	papi_info[i].pmns_position = 71;
-	break;
-    case PAPI_L3_DCW:
-	papi_info[i].pmns_position = 72;
-	break;
-    case PAPI_L1_ICH:
-	papi_info[i].pmns_position = 73;
-	break;
-    case PAPI_L2_ICH:
-	papi_info[i].pmns_position = 74;
-	break;
-    case PAPI_L3_ICH:
-	papi_info[i].pmns_position = 75;
-	break;
-    case PAPI_L1_ICA:
-	papi_info[i].pmns_position = 76;
-	break;
-    case PAPI_L2_ICA:
-	papi_info[i].pmns_position = 77;
-	break;
-    case PAPI_L3_ICA:
-	papi_info[i].pmns_position = 78;
-	break;
-    case PAPI_L1_ICR:
-	papi_info[i].pmns_position = 79;
-	break;
-    case PAPI_L2_ICR:
-	papi_info[i].pmns_position = 80;
-	break;
-    case PAPI_L3_ICR:
-	papi_info[i].pmns_position = 81;
-	break;
-    case PAPI_L1_ICW:
-	papi_info[i].pmns_position = 82;
-	break;
-    case PAPI_L2_ICW:
-	papi_info[i].pmns_position = 83;
-	break;
-    case PAPI_L3_ICW:
-	papi_info[i].pmns_position = 84;
-	break;
-    case PAPI_L1_TCH:
-	papi_info[i].pmns_position = 85;
-	break;
-    case PAPI_L2_TCH:
-	papi_info[i].pmns_position = 86;
-	break;
-    case PAPI_L3_TCH:
-	papi_info[i].pmns_position = 87;
-	break;
-    case PAPI_L1_TCA:
-	papi_info[i].pmns_position = 88;
-	break;
-    case PAPI_L2_TCA:
-	papi_info[i].pmns_position = 89;
-	break;
-    case PAPI_L3_TCA:
-	papi_info[i].pmns_position = 90;
-	break;
-    case PAPI_L1_TCR:
-	papi_info[i].pmns_position = 91;
-	break;
-    case PAPI_L2_TCR:
-	papi_info[i].pmns_position = 92;
-	break;
-    case PAPI_L3_TCR:
-	papi_info[i].pmns_position = 93;
-	break;
-    case PAPI_L1_TCW:
-	papi_info[i].pmns_position = 94;
-	break;
-    case PAPI_L2_TCW:
-	papi_info[i].pmns_position = 95;
-	break;
-    case PAPI_L3_TCW:
-	papi_info[i].pmns_position = 96;
-	break;
-    case PAPI_FML_INS:
-	papi_info[i].pmns_position = 97;
-	break;
-    case PAPI_FAD_INS:
-	papi_info[i].pmns_position = 98;
-	break;
-    case PAPI_FDV_INS:
-	papi_info[i].pmns_position = 99;
-	break;
-    case PAPI_FSQ_INS:
-	papi_info[i].pmns_position = 100;
-	break;
-    case PAPI_FNV_INS:
-	papi_info[i].pmns_position = 101;
-	break;
-    case PAPI_FP_OPS:
-	papi_info[i].pmns_position = 102;
-	break;
-    case PAPI_SP_OPS:
-	papi_info[i].pmns_position = 103;
-	break;
-    case PAPI_DP_OPS:
-	papi_info[i].pmns_position = 104;
-	break;
-    case PAPI_VEC_SP:
-	papi_info[i].pmns_position = 105;
-	break;
-    case PAPI_VEC_DP:
-	papi_info[i].pmns_position = 106;
-	break;
-#ifdef PAPI_REF_CYC
-    case PAPI_REF_CYC:
-	papi_info[i].pmns_position = 107;
-	break;
-#endif
-    default:
-	papi_info[i].pmns_position = -1;
-	break;
-    }
-}
 
 static int
 permission_check(int context)
@@ -969,7 +633,6 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     int running = 0;
     int retval = 0;
     int i;
-
     retval = check_papi_state(retval);
     if (retval == PAPI_RUNNING && idp->cluster == CLUSTER_PAPI) {
 	retval = PAPI_read(EventSet, values);
@@ -987,12 +650,13 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (idp->item >= 0 && idp->item <= 107) {
 	    // the 'case' && 'idp->item' value we get is the pmns_position
 	    for (i = 0; i < number_of_events; i++) {
-		if (papi_info[i].pmns_position == idp->item) {
+		if (((__pmID_int *)&papi_info[i].pmid)->item == idp->item) {
 		    if(papi_info[i].position >= 0 && papi_info[i].papi_event_code){
 			atom->ull = papi_info[i].prev_value + values[papi_info[i].position];
 			return PMDA_FETCH_STATIC;
 		    }
 		    else
+
 			return PMDA_FETCH_NOVALUES;
 		}
 	    }
@@ -1292,7 +956,7 @@ papi_text(int ident, int type, char **buffer, pmdaExt *ep)
 	ec = 0 | PAPI_PRESET_MASK;
 	PAPI_enum_event(&ec, PAPI_ENUM_FIRST);
 	for (i = 0; i < number_of_events; i++) {
-	    if (pmidp->item == papi_info[i].pmns_position) {
+	    if (((__pmID_int *)&papi_info[i].pmid)->item == pmidp->item) {
 		position = i;
 		break;
 	    }
@@ -1300,12 +964,14 @@ papi_text(int ident, int type, char **buffer, pmdaExt *ep)
 
 	do {
 	    if (PAPI_get_event_info(ec, &info) == PAPI_OK) {
-		if (info.event_code == papi_info[position].papi_event_code) {
-		    if (type & PM_TEXT_ONELINE)
-			*buffer = info.short_descr;
-		    else
-			*buffer = info.long_descr;
-		    return 0;
+		if (info.count && PAPI_PRESET_ENUM_AVAIL){
+		    if (info.event_code == papi_info[position].papi_event_code) {
+			if (type & PM_TEXT_ONELINE)
+			    *buffer = info.short_descr;
+			else
+			    *buffer = info.long_descr;
+			return 0;
+		    }
 		}
 	    }
 	} while (PAPI_enum_event(&ec, 0) == PAPI_OK);
@@ -1313,6 +979,26 @@ papi_text(int ident, int type, char **buffer, pmdaExt *ep)
     }
     else
 	return pmdaText(ident, type, buffer, ep);
+}
+
+static int
+papi_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
+{
+
+    int i;
+    const char *p;
+
+    for (p = name; *p != '.' && *p; p++)
+	;
+    if (*p == '.') p++;
+
+    for (i = 0; i < number_of_events; i++) {
+	if (strcmp(p, papi_info[i].papi_string_code) == 0) {
+	    *pmid = papi_info[i].pmid;
+	    return 0;
+	}
+    }
+    return PM_ERR_NAME;
 }
 
 static int
@@ -1350,25 +1036,27 @@ papi_internal_init(void)
     PAPI_enum_event(&ec, PAPI_ENUM_FIRST);
     do {
 	if (PAPI_get_event_info(ec, &info) == PAPI_OK) {
-	    i++;
-	    expand_papi_info(i);
-	    papi_info[i-1].papi_event_code = info.event_code;
-	    substr = strtok(info.symbol, "_");
-	    while (substr != NULL) {
-		addunderscore = 0;
-		if (strcmp("PAPI",substr)) {
-		    addunderscore = 1;
-		    strcat(concatstr, substr);
+	    if (info.count && PAPI_PRESET_ENUM_AVAIL){
+		i++;
+		expand_papi_info(i);
+		papi_info[i-1].papi_event_code = info.event_code;
+		substr = strtok(info.symbol, "_");
+		while (substr != NULL) {
+		    addunderscore = 0;
+		    if (strcmp("PAPI",substr)) {
+			addunderscore = 1;
+			strcat(concatstr, substr);
+		    }
+		    substr = strtok(NULL, "_");
+		    if (substr != NULL && addunderscore) {
+			strcat(concatstr, "_");
+		    }
 		}
-		substr = strtok(NULL, "_");
-		if (substr != NULL && addunderscore) {
-		    strcat(concatstr, "_");
-		}
+		strcpy(papi_info[i-1].papi_string_code, concatstr);
+		memset(&concatstr[0], 0, sizeof(concatstr));
+		papi_info[i-1].position = -1;
+		papi_info[i-1].pmid = i-1;
 	    }
-	    strcpy(papi_info[i-1].papi_string_code, concatstr);
-	    memset(&concatstr[0], 0, sizeof(concatstr));
-	    papi_info[i-1].position = -1;
-	    set_pmns_position(i-1);
 	}
     } while(PAPI_enum_event(&ec, 0) == PAPI_OK);
     expand_values(i);
@@ -1424,6 +1112,7 @@ papi_init(pmdaInterface *dp)
 {
     int nummetrics = sizeof(metrictab)/sizeof(metrictab[0]);
     int retval;
+    int i;
 
     if (isDSO) {
 	char     mypath[MAXPATHLEN];
@@ -1444,14 +1133,19 @@ papi_init(pmdaInterface *dp)
 	dp->status = PM_ERR_GENERIC;
 	return;
     }
-    
+
     dp->version.six.fetch = papi_fetch;
     dp->version.six.store = papi_store;
     dp->version.six.attribute = papi_contextAttributeCallBack;
     dp->version.any.text = papi_text;
+    dp->version.four.pmid = papi_pmid;
     pmdaSetFetchCallBack(dp, papi_fetchCallBack);
     pmdaSetEndContextCallBack(dp, papi_endContextCallBack);
     pmdaInit(dp, NULL, 0, metrictab, nummetrics);
+
+    for ( i=0; i < number_of_events; i++)
+	((__pmID_int *)&papi_info[i].pmid)->domain = dp->domain;
+
 }
 
 static pmLongOptions longopts[] = {
