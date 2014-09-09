@@ -38,6 +38,7 @@ typedef struct {
     pmID pmid;
     int position;
     long_long prev_value;
+    PAPI_event_info_t info;
 } papi_m_user_tuple;
 
 static papi_m_user_tuple *papi_info;
@@ -945,7 +946,6 @@ papi_text(int ident, int type, char **buffer, pmdaExt *ep)
     int ec;
     int i;
     int position = -1;
-    PAPI_event_info_t info;
     __pmID_int *pmidp = (__pmID_int*)&ident;
 
     /* no indoms - we only deal with metric help text */
@@ -963,13 +963,13 @@ papi_text(int ident, int type, char **buffer, pmdaExt *ep)
 	}
 
 	do {
-	    if (PAPI_get_event_info(ec, &info) == PAPI_OK) {
-		if (info.count && PAPI_PRESET_ENUM_AVAIL){
-		    if (info.event_code == papi_info[position].papi_event_code) {
+	    if (PAPI_get_event_info(ec, &papi_info[position].info) == PAPI_OK) {
+		if (papi_info[position].info.count && PAPI_PRESET_ENUM_AVAIL){
+		    if (papi_info[position].info.event_code == papi_info[position].papi_event_code) {
 			if (type & PM_TEXT_ONELINE)
-			    *buffer = info.short_descr;
+			    *buffer = papi_info[position].info.short_descr;
 			else
-			    *buffer = info.long_descr;
+			    *buffer = papi_info[position].info.long_descr;
 			return 0;
 		    }
 		}
