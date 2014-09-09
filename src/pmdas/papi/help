@@ -26,42 +26,6 @@
 #
 # blank lines before the @ line are ignored
 #
-@ papi.TOT_INS total instruction completed
-
-@ papi.TOT_CYC total cycles completed
-
-@ papi.L1_DCM Level 1 data cache misses
-
-@ papi.L1_ICM Level 1 instruction cache misses
-
-@ papi.L2_DCM Level 2 data cache misses
-
-@ papi.L2_ICM Level 2 instruction cache misses
-
-@ papi.L3_DCM Level 3 data cache misses
-
-@ papi.L3_ICM Level 3 instruction cache misses
-
-@ papi.L1_TCM Level 1 total cache misses
-
-@ papi.L2_TCM Level 2 total cache misses
-
-@ papi.L3_TCM Level 3 total cache misses
-
-@ papi.TLB_DM Data translation lookaside buffer misses
-
-@ papi.TLB_IM Instruction translation lookaside buffer misses
-
-@ papi.TLB_TL Total translation lookaside buffer misses
-
-@ papi.L1_LDM Level 1 load misses
-
-@ papi.L1_STM Level 1 store misses
-
-@ papi.L2_LDM Level 2 load misses
-
-@ papi.L2_STM Level 2 store misses
-
 @ papi.control.enable A list of metrics to enable and count
 
 @ papi.control.reset Reset the counter values
