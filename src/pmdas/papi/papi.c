@@ -657,7 +657,6 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			return PMDA_FETCH_STATIC;
 		    }
 		    else
-
 			return PMDA_FETCH_NOVALUES;
 		}
 	    }
@@ -986,17 +985,17 @@ papi_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
 {
 
     int i;
-    const char *p;
+    char *substr;
 
-    for (p = name; *p != '.' && *p; p++)
-	;
-    if (*p == '.') p++;
-
-    for (i = 0; i < number_of_events; i++) {
-	if (strcmp(p, papi_info[i].papi_string_code) == 0) {
-	    *pmid = papi_info[i].pmid;
-	    return 0;
+    substr = strtok(name, ".");
+    while (substr != NULL) {
+	for (i = 0; i < number_of_events; i++) {
+	    if (strcmp(substr, papi_info[i].papi_string_code) == 0) {
+		*pmid = papi_info[i].pmid;
+		return 0;
+	    }
 	}
+	substr = strtok(NULL, ".");
     }
     return PM_ERR_NAME;
 }
