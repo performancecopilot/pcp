@@ -1508,5 +1508,7 @@ main(int argc, char **argv)
 	__pmCloseSocket(fd[1]);
     }
 
+    pmUnloadNameSpace();
+
     exit(0);
 }
