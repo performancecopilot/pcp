@@ -4,12 +4,12 @@ No errors here ...
 # instantaneous
 derived.inst = delta(sample.longlong.million)
 # counter
-derived.ctr = delta(pmcd.pdu_in.total)
+derived.ctr = delta(sampledso.recv_pdu)
 
 Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: register metric[0] derived.inst = delta(sample.longlong.million)
-pmRegisterDerived: register metric[1] derived.ctr = delta(pmcd.pdu_in.total)
+pmRegisterDerived: register metric[1] derived.ctr = delta(sampledso.recv_pdu)
 __dmopencontext: bind metric[0] derived.inst
 __dmopencontext: bind metric[1] derived.ctr
 pmFetch returns ...
@@ -95,7 +95,7 @@ TIMESTAMP ... numpmid: 1
 Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: register metric[0] derived.inst = delta(sample.longlong.million)
-pmRegisterDerived: register metric[1] derived.ctr = delta(pmcd.pdu_in.total)
+pmRegisterDerived: register metric[1] derived.ctr = delta(sampledso.recv_pdu)
 __dmopencontext: bind metric[0] derived.inst
 __dmopencontext: bind metric[1] derived.ctr
 pmFetch returns ...
@@ -111,14 +111,14 @@ semantics: instantaneous value
 units:     count
 samples:   4
 interval:  0.25 sec
-derived metrics prefetch added 1 metrics: 2.1.16
+derived metrics prefetch added 1 metrics: 30.0.41
 __dmpostfetch: [0] root node 511.0.2: numval=0
 expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.2 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
-expr node <addr> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_in.total] master=0
-    PMID: 2.1.16 (2.1.16 from pmDesc) numval: 1
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=1 [sampledso.recv_pdu] master=0
+    PMID: 30.0.41 (30.0.41 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 [0] inst=-1, val=<number>
@@ -126,57 +126,57 @@ pmFetch returns ...
 TIMESTAMP ... numpmid: 1
   511.0.2 (derived.ctr): No values returned!
 No values available
-derived metrics prefetch added 1 metrics: 2.1.16
-__dmpostfetch: [0] root node 511.0.2: numval=1 vset[0]: inst=-1 u=2
+derived metrics prefetch added 1 metrics: 30.0.41
+__dmpostfetch: [0] root node 511.0.2: numval=1 vset[0]: inst=-1 u=1
 expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.2 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 [0] inst=-1, val=<number>
-expr node <addr> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_in.total] master=0
-    PMID: 2.1.16 (2.1.16 from pmDesc) numval: 1
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=1 [sampledso.recv_pdu] master=0
+    PMID: 30.0.41 (30.0.41 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 [0] inst=-1, val=<number> (last inst=-1, val=<number>)
 pmFetch returns ...
 TIMESTAMP ... numpmid: 1
   511.0.2 (derived.ctr): numval: 1 valfmt: 0 vlist[]:
-   value 2
-          2
-derived metrics prefetch added 1 metrics: 2.1.16
-__dmpostfetch: [0] root node 511.0.2: numval=1 vset[0]: inst=-1 u=3
+   value 1
+          1
+derived metrics prefetch added 1 metrics: 30.0.41
+__dmpostfetch: [0] root node 511.0.2: numval=1 vset[0]: inst=-1 u=1
 expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.2 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 [0] inst=-1, val=<number>
-expr node <addr> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_in.total] master=0
-    PMID: 2.1.16 (2.1.16 from pmDesc) numval: 1
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=1 [sampledso.recv_pdu] master=0
+    PMID: 30.0.41 (30.0.41 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 [0] inst=-1, val=<number> (last inst=-1, val=<number>)
 pmFetch returns ...
 TIMESTAMP ... numpmid: 1
   511.0.2 (derived.ctr): numval: 1 valfmt: 0 vlist[]:
-   value 3
-          3
-derived metrics prefetch added 1 metrics: 2.1.16
-__dmpostfetch: [0] root node 511.0.2: numval=1 vset[0]: inst=-1 u=3
+   value 1
+          1
+derived metrics prefetch added 1 metrics: 30.0.41
+__dmpostfetch: [0] root node 511.0.2: numval=1 vset[0]: inst=-1 u=1
 expr node <addr> type=DELTA left=<addr> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.2 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 [0] inst=-1, val=<number>
-expr node <addr> type=NAME left=(nil) right=(nil) save_last=1 [pmcd.pdu_in.total] master=0
-    PMID: 2.1.16 (2.1.16 from pmDesc) numval: 1
+expr node <addr> type=NAME left=(nil) right=(nil) save_last=1 [sampledso.recv_pdu] master=0
+    PMID: 30.0.41 (30.0.41 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 [0] inst=-1, val=<number> (last inst=-1, val=<number>)
 pmFetch returns ...
 TIMESTAMP ... numpmid: 1
   511.0.2 (derived.ctr): numval: 1 valfmt: 0 vlist[]:
-   value 3
-          3
+   value 1
+          1
 
 Errors and empty results here ...
 

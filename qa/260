@@ -44,12 +44,12 @@ $1 == "expr" && $2 == "node" && $3 ~ /^0x/	{ print "s/" $3 "/<addr-" n ">/"; n++
 
 echo "=== expression trees and pmDesc propagation ==="
 cat <<End-of-File >$tmp.config
-delta.m1 = delta(pmcd.pdu_in.total)
-delta.m2 = delta(pmcd.pdu_out.total) + sample.bigid
-delta.m3 = sample.bigid - delta(pmcd.pdu_out.total)
-delta.m4 = sample.bigid - 3 * delta(pmcd.pdu_out.total) / sample.long.ten
-delta.m5 =  delta(pmcd.pdu_in.total) / ( delta(pmcd.pdu_in.total) + delta(pmcd.pdu_out.total) )
-delta.m6 =  delta(pmcd.pdu_in.total) / delta(pmcd.pdu_in.total) - delta(pmcd.pdu_out.total) / delta(pmcd.pdu_in.total)
+delta.m1 = delta(sample.recv_pdu)
+delta.m2 = delta(sample.xmit_pdu) + sample.bigid
+delta.m3 = sample.bigid - delta(sample.xmit_pdu)
+delta.m4 = sample.bigid - 3 * delta(sample.xmit_pdu) / sample.long.ten
+delta.m5 =  delta(sample.recv_pdu) / ( delta(sample.recv_pdu) + delta(sample.xmit_pdu) )
+delta.m6 =  delta(sample.recv_pdu) / delta(sample.recv_pdu) - delta(sample.xmit_pdu) / delta(sample.recv_pdu)
 End-of-File
 echo
 cat $tmp.config

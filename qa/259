@@ -43,7 +43,7 @@ cat <<End-of-File >$tmp.config
 # instantaneous
 derived.inst = delta(sample.longlong.million)
 # counter
-derived.ctr = delta(pmcd.pdu_in.total)
+derived.ctr = delta(sampledso.recv_pdu)
 End-of-File
 echo
 cat $tmp.config
