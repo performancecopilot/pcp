@@ -195,7 +195,7 @@ rpm?	/usr/include/nspr4/nspr.h	[nspr-devel]
 dpkg?	/usr/include/nss/nss.h		[libnss3-dev]
 rpm?	/usr/include/nss3/nss.h		[nss-devel]
 dpkg?	certutil			[libnss3-tools]
-rpm?	certutil			[nss-tools]
+rpm?	certutil			[nss-tools or mozilla-nss-tools]
 End-of-File
 
 if which python >/dev/null 2>&1
