@@ -19,7 +19,12 @@ import cpmapi as c_api
 from pcp.pmapi import pmUnits
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
 from ctypes import c_int, c_long, c_float, POINTER, cast, Structure
-import xml.etree.cElementTree as xmltree
+
+try:
+    from xml.etree import cElementTree as xmltree
+except ImportError:
+    import cElementTree as xmltree
+
 from os import getenv
 import subprocess
 
