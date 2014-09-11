@@ -13,3 +13,6 @@
 - $VAR-capable .options
 - chmod-000 for to-be-absent config files (to prevent rpm reactivation)
 - put a time limit on non-daemon child processes
+- outgoing authentication
+- per-host persistent customized configuration (FOO-conf-once?)
+- a runtime control mechanism for inferior pmloggers (pmlc sockets under pmmgr/HOST/foo?)
