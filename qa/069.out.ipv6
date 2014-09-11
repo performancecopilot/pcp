@@ -4,7 +4,7 @@ Starting pmlogger ...
 should be OK
 
 pmcd.numclients
-    value 2
+value 2..4
 
 expect two access control errors:
 pminfo: Cannot connect to PMCD on host "LOCALHOST": No permission to perform requested operation
