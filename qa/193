@@ -23,6 +23,9 @@ $sudo $PCP_RC_DIR/pcp restart >/dev/null 2>&1
 # real QA test starts here
 src/crashpmcd
 
+# give pmcd a chance to deal with PDUs from crashpmcd
+sleep 2
+
 cat $PCP_PMCDLOG_PATH >$seq.full
 _filter_pmcd_log <$PCP_PMCDLOG_PATH \
 | sed \
