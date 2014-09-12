@@ -429,6 +429,20 @@ AC_SUBST(GIT)
 AC_CHECK_PROGS(PYTHON, python)
 AC_SUBST(PYTHON)
 
+AC_MSG_CHECKING([python version])
+eval `$PYTHON -V 2>&1 | sed -n -e '/^Python /s///p' | awk -F. '{ printf "PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$1,$2,$3 }'`
+case "$PY_MAJOR.$PY_MINOR"
+in
+    0.*|1.*|2.0|2.1|2.3|2.4)
+	SETUP_PY_PRE_2_5=true
+	;;
+    *)
+	SETUP_PY_PRE_2_5=false
+	;;
+esac
+AC_SUBST(SETUP_PY_PRE_2_5)
+AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
+
 qmake=$QMAKE
 enable_qt=false
 qt_release=release
@@ -444,8 +458,23 @@ AS_IF([test "x$do_qt" != "xno"], [
     then
 	enable_qt=false
     else
+	dnl newer qmake versions report
+	dnl QMake version 2.01a
+	dnl Using Qt version 4.8.6 in /usr/lib/x86_64-linux-gnu
+	dnl
+	dnl older qmake versions report
+	dnl Qmake version: 1.07a (Qt 3.3.6)
+	dnl
 	AC_MSG_CHECKING([Qt version])
-	eval `$qmake --version | awk '/Using Qt version/ { ver=4; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export QT_MAJOR=%d QT_MINOR=%d QT_POINT=%d\n",$major,$minor,$point }'`
+	eval `$qmake --version 2>&1 | sed -n -e '/Using Qt version/{
+s/Using Qt version //
+s/ .*//
+p
+}' -e '/Qmake .*(Qt /{
+s/Qmake .* (Qt //
+s/)//
+p
+}' | awk -F. '{ printf "QT_MAJOR=%d QT_MINOR=%d QT_POINT=%d\n",$1,$2,$3 }'`
 	if test "$QT_MAJOR" -lt 4; then
 	    echo
 	    echo WARNING: Qt version 4.4 or later does not seem to be installed.
