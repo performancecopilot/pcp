@@ -41,7 +41,7 @@ if [ -f /etc/rsyslog.conf -a -f /var/run/*syslogd.pid ]
 then
     # smells like rsyslogd
     #
-    ( echo "smells like rsyslogd"; ls -l /etc/rsyslog.conf /var/run/*syslogd.pid ) >>/tmp/syslog.full
+    ( echo "smells like rsyslogd"; ls -l /etc/rsyslog.conf /var/run/*syslogd.pid ) >>/tmp/syslog.full 2>&1
     daemon=rsyslogd
     config=/etc/rsyslog.d/pcpqa.conf
     update_config=false
@@ -76,7 +76,7 @@ elif [ -f /etc/syslog.conf ]
 then
     # regular old syslogd
     #
-    ( echo "smells like old syslogd"; ls -l /etc/rsyslog.conf )  >>/tmp/syslog.full
+    ( echo "smells like old syslogd"; ls -l /etc/rsyslog.conf ) >>/tmp/syslog.full 2>&1
     daemon=syslogd
     config=/etc/syslog.conf
 else
