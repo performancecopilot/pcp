@@ -550,6 +550,7 @@ endif
 else
 SETUP_PY_INSTALL_OPTIONS += --prefix=$(PYTHON_PREFIX)
 endif
+SETUP_PY_PRE_2_5 = @SETUP_PY_PRE_2_5@
 # RPM byte-compiles and installs results in our DIST_ROOT, cater for this:
 ifeq "$(shell [ '$(TARGET_OS)' = linux -a '$(PACKAGE_DISTRIBUTION)' != gentoo \
 	      ] && echo 1)" "1"

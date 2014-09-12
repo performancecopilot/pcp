@@ -104,6 +104,16 @@ endif
 %.pl: %.perl
 	$(LN_S) $< $@
 
+# Perl pre-2.5 "except .. as ..." -> "except .., ..."
+#
+%.py:	%.pyin
+ifeq ($(SETUP_PY_PRE_2_5),true)
+	sed -e 's/\(except  *[^ ]*\)  *as /\1, /' <$< >$@
+else
+	cp $< $@
+endif
+
+
 # Suffix rule to support transition for XML to PDF (books)
 %.pdf:	%.xml
 ifeq ($(BOOK_TOOLCHAIN),publican)
