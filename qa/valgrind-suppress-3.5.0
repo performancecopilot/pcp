@@ -1,0 +1,8 @@
+{
+   for qa/459
+   Memcheck:Leak
+   fun:malloc
+   fun:__pmLogFetchInterp
+   fun:__pmLogFetch
+   fun:pmFetch
+}
