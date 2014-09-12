@@ -14,7 +14,7 @@ $sudo rm -f $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-python $here/src/test_pcp.python src/pyapi.0 >$seq.full 2>&1
+python $here/src/test_pcp.py src/pyapi.0 >$seq.full 2>&1
 _check_unittest archive $seq.full
 status=$?
 exit
