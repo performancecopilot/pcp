@@ -24,7 +24,7 @@ filter_dump()
 }
 
 # real QA test starts here
-python $here/src/check_import.python $tmp.pcplog >$tmp.out 2>&1
+python $here/src/check_import.py $tmp.pcplog >$tmp.out 2>&1
 if [ $? -eq 0 ]
 then
     pmdumplog -a $tmp.pcplog 2>&1 | filter_dump

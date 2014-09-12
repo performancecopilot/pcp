@@ -26,7 +26,7 @@ _filter_utc()
 }
 
 # real QA test starts here
-python src/test_pcp_time.python | _filter_utc
+python src/test_pcp_time.py | _filter_utc
 
 # success, all done
 status=0

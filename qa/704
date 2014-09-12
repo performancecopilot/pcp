@@ -44,7 +44,7 @@ chmod 1777 "$MMV_STATS_DIR"
 _check_agent mmv >/dev/null || _notrun "MMV agent should be setup but is not"
 
 echo "Running python test program"
-python $here/src/test_mmv.python
+python $here/src/test_mmv.py
 echo "Checking pmdammv metrics"
 pminfo -fmdtT mmv | _filter_pminfo
 

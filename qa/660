@@ -17,7 +17,7 @@ echo curl ok
 # nb: wget dispreferred because of its processing of .. relative links,
 # so it's harder to stress pmwebd's base-directory-escaping logic
 
-pyscript=src/test_webapi.python
+pyscript=src/test_webapi.py
 python $pyscript --version 2>/dev/null || _notrun "python/modules missing"
 echo python ok
 
