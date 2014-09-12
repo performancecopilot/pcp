@@ -567,7 +567,8 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		}
 		else if (sts == PM_ERR_APPVERSION ||
 			 sts == PM_ERR_PERMISSION ||
-			 sts == PM_ERR_AGAIN) {
+			 sts == PM_ERR_AGAIN ||
+			 sts == PM_ERR_NYI) {
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_LIBPMDA) {
 			__pmNotifyErr(LOG_ERR,

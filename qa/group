@@ -159,6 +159,7 @@ pmda.mmv
 pmda.mpi
 pmda.news
 pmda.nvidia
+pmda.papi
 pmda.pmcd
 pmda.proc
 pmda.rsyslog
@@ -965,6 +966,8 @@ avahi
 900 libpcp sanity local oss
 901 libpcp event local oss
 902 libpcp mem_leak valgrind event local oss
+903 pmda.papi local oss
+914 pmda.papi local oss
 922 derive pmie pmval local oss
 928 archive local oss
 929 logutil local oss
@@ -975,6 +978,7 @@ avahi
 950 avahi local oss
 957 pmda.linux local oss
 958 archive local oss
+959 pmda.sample pmstore local oss
 962 archive local oss
 966 secure local oss
 972 pmda.zswap dbpmda local oss

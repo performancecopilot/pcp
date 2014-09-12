@@ -43,6 +43,10 @@ BuildRequires: initscripts man /bin/hostname
 BuildRequires: systemd-devel
 %endif
 
+%if "@enable_papi@" == "enable_papi"
+BuildRequires: papi-devel
+%endif
+
 Conflicts: pcp-pro < 2.2
 
 # Utilities used indirectly e.g. by scripts we install
@@ -399,6 +403,24 @@ level performance management.  It includes tutorials, HOWTOs,
 and other detailed documentation about the internals of core
 PCP utilities and daemons, and the PCP graphical tools.
 
+#
+# pcp-pmda-papi
+#
+%if "@enable_papi@" == "enable_papi"
+%package pmda-papi
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for Performance API and hardware counters
+URL: http://www.performancecopilot.org
+Requires: pcp-libs = %{version}-%{release}
+Requires: papi-devel
+BuildRequires: papi-devel
+
+%description pmda-papi
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting hardware counters statistics through PAPI (Perforamance API).
+%endif
+
 %if "@pmda_infiniband@" == "infiniband"
 #
 # pcp-pmda-infiniband
@@ -528,7 +550,10 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'collectl2pcp' >import_collectl2pcp_fil
 %if "@pmda_infiniband@" == "infiniband"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'infiniband|pmdaib|pmdas/ib' >pmda_infiniband_files
 %endif
-touch gui_files webapi_files manager_files pmda_infiniband_files
+%if "@enable_papi@" == "enable_papi"
+awk '{print $NF}' $DIST_MANIFEST | egrep 'papi' >pmda_papi_files
+%endif
+touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files
 
 rm -f *_files.rpm
 sort -u $DIST_MANIFEST | $PCP_AWK_PROG ' 
@@ -542,6 +567,7 @@ BEGIN {
     while( getline < "manager_files") manager[$0]=1;
     while( getline < "testsuite_files") testsuite[$0]=1;
     while( getline < "pmda_infiniband_files") pmda_infiniband[$0]=1;
+    while( getline < "pmda_papi_files") pmda_papi[$0]=1;
     while( getline < "import_sar2pcp_files") import_sar2pcp[$0]=1;
     while( getline < "import_iostat2pcp_files") import_iostat2pcp[$0]=1;
     while( getline < "import_sheet2pcp_files") import_sheet2pcp[$0]=1;
@@ -560,6 +586,7 @@ BEGIN {
     else if (manager[$NF]) f="manager_files.rpm";
     else if (testsuite[$NF]) f="testsuite_files.rpm";
     else if (pmda_infiniband[$NF]) f="pmda_infiniband_files.rpm";
+    else if (pmda_papi[$NF]) f="pmda_papi_files.rpm";
     else if (import_sar2pcp[$NF]) f="import_sar2pcp_files.rpm";
     else if (import_iostat2pcp[$NF]) f="import_iostat2pcp_files.rpm";
     else if (import_sheet2pcp[$NF]) f="import_sheet2pcp_files.rpm";
@@ -811,6 +838,11 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %files testsuite -f testsuite_files.rpm
 %defattr(-,pcpqa,pcpqa)
+
+%if "@enable_papi@" == "enable_papi"
+%files pmda-papi -f pmda_papi_files.rpm
+%defattr(-,root,root)
+%endif
 
 %if "@pmda_infiniband@" == "infiniband"
 %files pmda-infiniband -f pmda_infiniband_files.rpm

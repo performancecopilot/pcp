@@ -69,5 +69,8 @@ default_pcp:	default
 
 install_pcp:	install
 
-images:
+images: $(ICNFILE)
 	$(LN_S) $(TOPDIR)/images images
+
+$(ICNFILE):
+	$(LN_S) $(TOPDIR)/images/$(ICNFILE) $(ICNFILE)

@@ -97,7 +97,7 @@ No value(s) available!
 pminfo[PID] Info: NVIDIA NVML library currently unavailable
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -K clear -K add,120,nvidia/pmda_nvidia.DSO,nvidia_init -dfmtT nvidia
+Command: pminfo -L -K clear -K add,120,nvidia/pmda_nvidia.DSO,nvidia_init -dfmtT -n nvidia/root nvidia
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -211,7 +211,7 @@ Amount of GPU FB memory that is not currently allocated, in bytes.
 pminfo[PID] Info: Successfully loaded NVIDIA NVML library
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -K clear -K add,120,nvidia/pmda_nvidia.DSO,nvidia_init -dfmtT nvidia
+Command: pminfo -L -K clear -K add,120,nvidia/pmda_nvidia.DSO,nvidia_init -dfmtT -n nvidia/root nvidia
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

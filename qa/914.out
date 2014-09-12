@@ -1,0 +1,65 @@
+QA output created by 914
+
+== PAPI library behaviour, total instructions/cycles, non-root
+
+papi.TOT_INS
+Error: No permission to perform requested operation
+
+papi.TOT_CYC
+Error: No permission to perform requested operation
+
+== PAPI library behaviour, available hardware metrics, non-root
+
+papi.available.num_counters
+Error: No permission to perform requested operation
+
+== PAPI library behaviour, control metric fetches, non-root
+
+papi.control.enable
+Error: No permission to perform requested operation
+
+papi.control.reset
+Error: No permission to perform requested operation
+
+papi.control.disable
+Error: No permission to perform requested operation
+
+papi.control.status
+Error: No permission to perform requested operation
+
+== PAPI library behaviour, control metric stores, non-root
+papi.control.enable: Error: No permission to perform requested operation
+papi.control.disable: Error: No permission to perform requested operation
+papi.control.reset: Error: No permission to perform requested operation
+
+== PAPI library behaviour, total instructions/cycles, as root
+
+papi.TOT_INS
+No value(s) available!
+
+papi.TOT_CYC
+No value(s) available!
+
+== PAPI library behaviour, available hardware metrics, as root
+
+papi.available.num_counters
+    value NUMBER
+
+== PAPI library behaviour, control metric fetches, as root
+
+papi.control.enable
+    value ""
+
+papi.control.reset
+Error: Functionality not yet implemented
+
+papi.control.disable
+No value(s) available!
+
+papi.control.status
+    value "Papi is stopped."
+
+== Testing local PAPI library behaviour, control metric stores as root
+papi.control.enable old value="" new value="TOT_INS"
+papi.control.disable old value="(none)" new value="TOT_INS"
+papi.control.reset: Error: Functionality not yet implemented

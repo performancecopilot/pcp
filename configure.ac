@@ -93,7 +93,13 @@ AC_ARG_WITH([books],
     [AC_HELP_STRING([--with-books],
                     [enable building of the PCP books (default is off)])],
     [do_books=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books=$withval"],
-    [do_books=off])
+    [do_books=no])
+
+AC_ARG_WITH([papi],
+    [AC_HELP_STRING([--with-papi],
+		   [enable performance api counter pmda (default is off)])],
+    [do_papi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-papi=$withval"],
+    [do_papi=no])
 
 #
 # Note: the following environment variables may be
@@ -497,6 +503,27 @@ p
 AC_SUBST(qt_release)
 AC_SUBST(enable_qt)
 AC_SUBST(qmake)
+
+AS_IF([test "x$do_papi" != "xno"], [
+
+    enable_papi=enable_papi
+
+    AC_CHECK_LIB(papi, PAPI_library_init,
+		      [papi_lib="-lpapi"],
+		      [enable_papi=false])
+    AC_CHECK_HEADERS([papi.h],, [enable_papi=false])
+    if test "$enable_papi" = "enable_papi"
+    then
+        AC_SUBST(papi_lib)
+	AC_SUBST(papi_CFLAGS)
+	AC_SUBST(enable_papi, $enable_papi)
+    fi
+])
+dnl    if test "$do_papi" != "check" -a "enable_papi" != "true"
+dnl    then
+dnl	AC_MSG_ERROR(cannot enable papi pmda, papi not found)
+dnl    fi
+
 
 dnl check if user wants their own C compiler
 cflags_abi=
@@ -919,6 +946,11 @@ if test -z "$ECHO"; then
 fi
 echo=$ECHO
 AC_SUBST(echo)
+if test -z "$WHICH"; then
+    AC_PATH_PROG(WHICH, which, /usr/bin/which)
+fi
+which=$WHICH
+AC_SUBST(which)
 
 dnl check we don't get the Windows sort ...
 AC_MSG_CHECKING([where unix-like sort(1) lives])
@@ -1065,17 +1097,6 @@ then
     test -f /usr/xpg4/bin/grep && grep=/usr/xpg4/bin/grep
 fi
 AC_SUBST(grep)
-
-if test -n "$WHICH"
-then
-    which=$WHICH
-elif sh -c 'type -p sh' >/dev/null 2>&1 
-then
-    which=type
-else
-    which=which
-fi
-AC_SUBST(which)
 
 dnl checks for /proc pseudo file system
 AC_MSG_CHECKING([for /proc ])
@@ -2525,6 +2546,7 @@ dnl   Preamble for tar install scripts
     build/tar/postinstall.head
 dnl   Build definitions for use in packaging
     build/GNUlocaldefs
+    build/mac/uninstall-pcp
 )
 
 dnl verbose diagnostics

@@ -1,0 +1,139 @@
+/*
+ * Metrics for papi PMDA
+ *
+ * Copyright (c) 2014 Red Hat, Inc.  All Rights Reserved.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
+
+papi {
+    TOT_INS	PAPI:0:0
+    TOT_CYC	PAPI:0:1
+    L1_DCM	PAPI:0:2
+    L1_ICM	PAPI:0:3
+    L2_DCM	PAPI:0:4
+    L2_ICM	PAPI:0:5
+    L3_DCM	PAPI:0:6
+    L3_ICM	PAPI:0:7
+    L1_TCM	PAPI:0:8
+    L2_TCM	PAPI:0:9
+    L3_TCM	PAPI:0:10
+    TLB_DM	PAPI:0:11
+    TLB_IM	PAPI:0:12
+    TLB_TL	PAPI:0:13
+    L1_LDM	PAPI:0:14
+    L1_STM	PAPI:0:15
+    L2_LDM	PAPI:0:16
+    L2_STM	PAPI:0:17
+    CA_SNP	PAPI:0:18
+    CA_SHR	PAPI:0:19
+    CA_CLN	PAPI:0:20
+    CA_INV	PAPI:0:21
+    CA_ITV	PAPI:0:22
+    L3_LDM	PAPI:0:23
+    L3_STM	PAPI:0:24
+    BRU_IDL	PAPI:0:25
+    FXU_IDL	PAPI:0:26
+    FPU_IDL	PAPI:0:27
+    LSU_IDL	PAPI:0:28
+    BTAC_M	PAPI:0:29
+    PRF_DM	PAPI:0:30
+    L3_DCH	PAPI:0:31
+    TLB_SD	PAPI:0:32
+    CSR_FAL	PAPI:0:33
+    CSR_SUC	PAPI:0:34
+    CSR_TOT	PAPI:0:35
+    MEM_SCY	PAPI:0:36
+    MEM_RCY	PAPI:0:37
+    MEM_WCY	PAPI:0:38
+    STL_ICY	PAPI:0:39
+    FUL_ICY	PAPI:0:40
+    STL_CCY	PAPI:0:41
+    FUL_CCY	PAPI:0:42
+    HW_INT	PAPI:0:43
+    BR_UCN	PAPI:0:44
+    BR_CN	PAPI:0:45
+    BR_TKN	PAPI:0:46
+    BR_NTK	PAPI:0:47
+    BR_MSP	PAPI:0:48
+    BR_PRC	PAPI:0:49
+    FMA_INS	PAPI:0:50
+    TOT_IIS	PAPI:0:51
+    INT_INS	PAPI:0:52
+    FP_INS	PAPI:0:53
+    LD_INS	PAPI:0:54
+    SR_INS	PAPI:0:55
+    BR_INS	PAPI:0:56
+    VEC_INS	PAPI:0:57
+    RES_STL	PAPI:0:58
+    FP_STAL	PAPI:0:59
+    LST_INS	PAPI:0:60
+    SYC_INS	PAPI:0:61
+    L1_DCH	PAPI:0:62
+    L2_DCH	PAPI:0:63
+    L1_DCA	PAPI:0:64
+    L2_DCA	PAPI:0:65
+    L3_DCA	PAPI:0:66
+    L1_DCR	PAPI:0:67
+    L2_DCR	PAPI:0:68
+    L3_DCR	PAPI:0:69
+    L1_DCW	PAPI:0:70
+    L2_DCW	PAPI:0:71
+    L3_DCW	PAPI:0:72
+    L1_ICH	PAPI:0:73
+    L2_ICH	PAPI:0:74
+    L3_ICH	PAPI:0:75
+    L1_ICA	PAPI:0:76
+    L2_ICA	PAPI:0:77
+    L3_ICA	PAPI:0:78
+    L1_ICR	PAPI:0:79
+    L2_ICR	PAPI:0:80
+    L3_ICR	PAPI:0:81
+    L1_ICW	PAPI:0:82
+    L2_ICW	PAPI:0:83
+    L3_ICW	PAPI:0:84
+    L1_TCH	PAPI:0:85
+    L2_TCH	PAPI:0:86
+    L3_TCH	PAPI:0:87
+    L1_TCA	PAPI:0:88
+    L2_TCA	PAPI:0:89
+    L3_TCA	PAPI:0:90
+    L1_TCR	PAPI:0:91
+    L2_TCR	PAPI:0:92
+    L3_TCR	PAPI:0:93
+    L1_TCW	PAPI:0:94
+    L2_TCW	PAPI:0:95
+    L3_TCW	PAPI:0:96
+    FML_INS	PAPI:0:97
+    FAD_INS	PAPI:0:98
+    FDV_INS	PAPI:0:99
+    FSQ_INS	PAPI:0:100
+    FNV_INS	PAPI:0:101
+    FP_OPS	PAPI:0:102
+    SP_OPS	PAPI:0:103
+    DP_OPS	PAPI:0:104
+    VEC_SP	PAPI:0:105
+    VEC_DP	PAPI:0:106
+    REF_CYC	PAPI:0:107
+    control
+    available
+}
+
+papi.control {
+    enable	PAPI:1:0
+    reset	PAPI:1:1
+    disable	PAPI:1:2
+    status	PAPI:1:3
+}
+
+papi.available {
+    num_counters PAPI:2:0
+}

@@ -29,17 +29,18 @@ _filter()
     sed -e 's/.* pminfo\(.*\) Info:/pminfo[PID] Info:/g'
 }
 
+pmns=$PCP_PMDAS_DIR/nvidia/root
 pmda=$PCP_PMDAS_DIR/nvidia/pmda_nvidia,nvidia_init
 
 # real QA test starts here
 echo
 echo "== Testing behaviour with no nvidia library available"
-pminfo -L -K clear -K add,120,$pmda -dfmtT nvidia 2>&1 | _filter
+pminfo -L -K clear -K add,120,$pmda -dfmtT -n $pmns nvidia 2>&1 | _filter
 
 echo
 echo "== Testing behaviour with QA wrapper nvidia library"
 export LD_LIBRARY_PATH=$here/src
-pminfo -L -K clear -K add,120,$pmda -dfmtT nvidia 2>&1 | _filter
+pminfo -L -K clear -K add,120,$pmda -dfmtT -n $pmns nvidia 2>&1 | _filter
 
 # success, all done
 status=0

@@ -1,0 +1,54 @@
+Papi PMDA
+=========
+
+This PMDA exports Performance API (PAPI) eventsets related to memory
+usage and instruction statistics.
+
+Metrics
+=======
+
+The file ./help contains descriptions for all the metrics exported
+by this PMDA.
+
+Once the PMDA has been installed, the following command will list
+all the available metrics and their explanatory "help" text:
+
+    $ pminfo -fT papi
+
+Installation
+============
+
+ +  # cd $PCP_PMDAS_DIR/papi
+
+ +  Check that there is no clash in the Performance Metrics Domain
+    defined in ./domain.h and the other PMDAs currently in use (see
+    $PCP_PMCDCONF_PATH).  If there is, edit ./domain.h to choose another
+    domain number.
+
+ +  Then simply use
+
+        # ./Install
+
+    and choose both the "collector" and "monitor" installation
+    configuration options.
+
+    If you choose the "default" installation, appropriate values will
+    be assigned to those parameters that control the customiztion of
+    the PMDA.  Otherwise consult the pmdapapi(1) man page for a
+    descript of the customiztion parameters.
+
+Removal
+=======
+
+ +  Simply use
+
+        # cd $PCP_PMDAS_DIR/papi
+	# ./Remove
+
+Troubleshooting
+===============
+
+ +  After installing or restarting the agent, the PMCD log file
+    ($PCP_LOG_DIR/pmcd/pmcd.log) and the PMDA log file
+    ($PCP_LOG_DIR/pmcd/papi.log) should be checked for any warnings
+    or errors.

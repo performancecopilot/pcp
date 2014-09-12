@@ -35,6 +35,8 @@ static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("General options"),
     PMOPT_DEBUG,
     PMOPT_HOST,
+    PMOPT_LOCALPMDA,
+    PMOPT_SPECLOCAL,
     PMOPT_NAMESPACE,
     PMOPT_HELP,
     PMAPI_OPTIONS_HEADER("Value options"),
@@ -45,7 +47,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_POSIX,
-    .short_options = "D:fh:i:n:?",
+    .short_options = "D:fh:K:Li:n:?",
     .long_options = longopts,
     .short_usage = "[options] metricname value",
 };
@@ -250,13 +252,12 @@ main(int argc, char **argv)
 	    subopt = strtok(opts.optarg, WHITESPACE);
 	    while (subopt != NULL) {
 		numinst++;
-		instnames =
-		    (char **)realloc(instnames, numinst * sizeof(char *));
-		if (instnames == NULL) {
-		    __pmNoMem("pmstore.instnames", numinst * sizeof(char *), PM_FATAL_ERR);
-		}
-	       instnames[numinst-1] = subopt;
-	       subopt = strtok(NULL, WHITESPACE);
+		n = numinst * sizeof(char *);
+		instnames = (char **)realloc(instnames, n);
+		if (instnames == NULL)
+		    __pmNoMem("pmstore.instnames", n, PM_FATAL_ERR);
+		instnames[numinst-1] = subopt;
+		subopt = strtok(NULL, WHITESPACE);
 	    }
 #undef WHITESPACE
 	    break;
@@ -274,13 +275,19 @@ main(int argc, char **argv)
 
     if (opts.context == PM_CONTEXT_HOST)
 	source = opts.hosts[0];
+    else if (opts.context == PM_CONTEXT_LOCAL)
+	source = NULL;
     else {
 	opts.context = PM_CONTEXT_HOST;
 	source = "local:";
     }
     if ((sts = pmNewContext(opts.context, source)) < 0) {
-	fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
-		pmProgname, source, pmErrStr(sts));
+	if (opts.context == PM_CONTEXT_LOCAL)
+	    fprintf(stderr, "%s: Cannot make standalone local connection: %s\n",
+		    pmProgname, pmErrStr(sts));
+	else
+	    fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
+		    pmProgname, source, pmErrStr(sts));
 	exit(1);
     }
 

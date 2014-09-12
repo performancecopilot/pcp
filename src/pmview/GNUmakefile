@@ -83,7 +83,7 @@ ifeq ($(WINDOW),mac)
 	$(INSTALL) -m 755 -d $(PKG_MAC_DIR)/MacOS
 	$(INSTALL) -m 755 $(BINARY) $(PKG_MAC_DIR)/MacOS/$(COMMAND)
 	$(INSTALL) -m 755 -d $(PKG_MAC_DIR)/Resources
-	$(INSTALL) -m 644 $(MACBUILD)/Resources/$(ICNFILE) $(PKG_MAC_DIR)/Resources/$(ICNFILE)
+	$(INSTALL) -m 644 $(ICNFILE) $(PKG_MAC_DIR)/Resources/$(ICNFILE)
 endif
 
 else
@@ -95,5 +95,8 @@ default_pcp:	default
 
 install_pcp:	install
 
-images:
+images: $(ICNFILE)
 	$(LN_S) $(TOPDIR)/images images
+
+$(ICNFILE):
+	$(LN_S) $(TOPDIR)/images/$(ICNFILE) $(ICNFILE)

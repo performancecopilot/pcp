@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.9.10
+Version: 3.10.0
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -9,6 +9,7 @@ URL: http://www.performancecopilot.org
 Group: Applications/System
 Source0: pcp-%{version}.src.tar.gz
 
+%define disable_papi 0
 %define disable_microhttpd 0
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %define disable_qt 0
@@ -25,6 +26,9 @@ BuildRequires: python-devel
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
 BuildRequires: cyrus-sasl-devel
+%if !%{disable_papi}
+BuildRequires: papi-devel
+%endif
 %if !%{disable_microhttpd}
 BuildRequires: libmicrohttpd-devel
 %endif
@@ -72,10 +76,10 @@ Obsoletes: pcp-pmda-nvidia
 %if 0%{?fedora} >= 20
 %define _with_doc --with-docdir=%{_docdir}/%{name}
 %endif
-%if 0%{?fedora} >= 19 || 0%{?rhel} >= 7}
-%define _with_initd --with-rcdir=%{_initddir}
+%if 0%{?fedora} >= 19 || 0%{?rhel} >= 7
 %define disable_systemd 0
 %else
+%define _with_initd --with-rcdir=%{_initddir}
 %define disable_systemd 1
 %endif
 
@@ -95,6 +99,10 @@ Obsoletes: pcp-pmda-nvidia
 
 %if %{disable_infiniband}
 %define _with_ib --with-infiniband=no
+%endif
+
+%if !%{disable_papi}
+%define _with_papi --with-papi=yes
 %endif
 
 %if %{disable_qt}
@@ -260,7 +268,7 @@ The PCP::LogImport module contains the Perl language bindings for
 importing data in various 3rd party formats into PCP archives so
 they can be replayed with standard PCP monitoring tools.
 
- #
+#
 # perl-PCP-LogSummary
 #
 %package -n perl-PCP-LogSummary
@@ -338,6 +346,24 @@ Requires: pcp-libs = %{version}-%{release}
 %description import-collectl2pcp
 Performance Co-Pilot (PCP) front-end tools for importing collectl data
 into standard PCP archive logs for replay with any PCP monitoring tool.
+
+%if !%{disable_papi}
+#
+# pcp-pmda-papi
+#
+%package pmda-papi
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for Performance API and hardware counters
+URL: http://www.performancecopilot.org
+Requires: pcp-libs = %{version}-%{release}
+Requires: papi-devel
+BuildRequires: papi-devel
+
+%description pmda-papi
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting hardware counters statistics through PAPI (Performance API).
+%endif
 
 %if !%{disable_infiniband}
 #
@@ -419,7 +445,7 @@ PCP utilities and daemons, and the PCP graphical tools.
 rm -Rf $RPM_BUILD_ROOT
 
 %build
-%configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_qt}
+%configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_qt}
 make default_pcp
 
 %install
@@ -442,6 +468,7 @@ rm -f $RPM_BUILD_ROOT/%{_mandir}/man1/pmwebd.*
 rm -f $RPM_BUILD_ROOT/%{_mandir}/man3/PMWEBAPI.*
 rm -fr $RPM_BUILD_ROOT/%{_confdir}/pmwebd
 rm -fr $RPM_BUILD_ROOT/%{_initddir}/pmwebd
+rm -fr $RPM_BUILD_ROOT/%{_unitdir}/pmwebd.service
 rm -f $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin/pmwebd
 %endif
 
@@ -460,18 +487,17 @@ rm -rf $RPM_BUILD_ROOT/usr/share/doc/pcp-gui
 desktop-file-validate $RPM_BUILD_ROOT/%{_datadir}/applications/pmchart.desktop
 %endif
 
-%if %{disable_systemd}
 # default chkconfig off for Fedora and RHEL
 for f in $RPM_BUILD_ROOT/%{_initddir}/{pcp,pmcd,pmlogger,pmie,pmwebd,pmmgr,pmproxy}; do
 	test -f "$f" || continue
 	sed -i -e '/^# chkconfig/s/:.*$/: - 95 05/' -e '/^# Default-Start:/s/:.*$/:/' $f
 done
-%endif
 
 # list of PMDAs in the base pkg
 ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   egrep -v 'simple|sample|trivial|txmon' |\
   egrep -v '^ib$|infiniband' |\
+  egrep -v 'papi' |\
   sed -e 's#^#'%{_pmdasdir}'\/#' >base_pmdas.list
 
 # all base pcp package files except those split out into sub packages
@@ -728,6 +754,11 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %{_initddir}/pmlogger
 %{_initddir}/pmie
 %{_initddir}/pmproxy
+%else
+%{_unitdir}/pmcd.service
+%{_unitdir}/pmlogger.service
+%{_unitdir}/pmie.service
+%{_unitdir}/pmproxy.service
 %endif
 %{_mandir}/man5/*
 %config(noreplace) %{_sysconfdir}/sasl2/pmcd.conf
@@ -807,6 +838,8 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root)
 %if %{disable_systemd}
 %{_initddir}/pmwebd
+%else
+%{_unitdir}/pmwebd.service
 %endif
 %{_libexecdir}/pcp/bin/pmwebd
 %attr(0775,pcp,pcp) %{_logsdir}/pmwebd
@@ -820,6 +853,8 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root)
 %if %{disable_systemd}
 %{_initddir}/pmmgr
+%else
+%{_unitdir}/pmmgr.service
 %endif
 %{_libexecdir}/pcp/bin/pmmgr
 %attr(0775,pcp,pcp) %{_logsdir}/pmmgr
@@ -846,6 +881,13 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root)
 %{_bindir}/collectl2pcp
 %{_mandir}/man1/collectl2pcp.1.gz
+
+%if !%{disable_papi}
+%files pmda-papi
+%defattr(-,root,root)
+%{_pmdasdir}/papi
+%{_mandir}/man1/pmdapapi.1.gz
+%endif
 
 %if !%{disable_infiniband}
 %files pmda-infiniband
@@ -888,12 +930,22 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root,-)
 
 %changelog
+* Wed Oct 15 2014 Nathan Scott <nathans@redhat.com> - 3.10.0-1
+- Currently under development.
+
 * Fri Sep 05 2014 Nathan Scott <nathans@redhat.com> - 3.9.10-1
 - Convert PCP init scripts to systemd services (BZ 996438)
 - Fix pmlogsummary -S/-T time window reporting (BZ 1132476)
 - Resolve pmdumptext segfault with invalid host (BZ 1131779)
 - Fix signedness in some service discovery codes (BZ 1136166)
+- New conditionally-built pcp-pmda-papi sub-package.
 - Update to latest PCP sources.
+
+* Tue Aug 26 2014 Jitka Plesnikova <jplesnik@redhat.com> - 3.9.9-1.2
+- Perl 5.20 rebuild
+
+* Sun Aug 17 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.9.9-1.1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
 
 * Wed Aug 13 2014 Nathan Scott <nathans@redhat.com> - 3.9.9-1
 - Update to latest PCP sources.

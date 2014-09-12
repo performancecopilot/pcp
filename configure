@@ -701,7 +701,6 @@ PMDA_SYSTEMD
 SYSTEMD_LIBS
 SYSTEMD_CFLAGS
 lib_for_regex
-which
 grep
 pcp_syslog_prog
 pcp_ps_all_flags
@@ -710,6 +709,8 @@ pcp_ps_prog
 echo_c
 echo_n
 sort
+which
+WHICH
 echo
 ECHO
 sed
@@ -783,6 +784,9 @@ cflags_abi
 cc_is_gcc
 cc
 CCPATH
+enable_papi
+papi_CFLAGS
+papi_lib
 qmake
 enable_qt
 qt_release
@@ -892,6 +896,7 @@ with_discovery
 with_systemd
 with_qt
 with_books
+with_papi
 enable_ssp
 enable_pie
 enable_visibility
@@ -1571,6 +1576,7 @@ Optional Packages:
   --with-qt               enable support for tools requiring Qt (default is
                           on)
   --with-books            enable building of the PCP books (default is off)
+  --with-papi             enable performance api counter pmda (default is off)
   --with-configdir        configuration directory [LOCALSTATEDIR/pcp/config]
   --with-perl_installdirs perl installdirs [vendor]
   --with-perl_install_base
@@ -2587,7 +2593,16 @@ fi
 if test "${with_books+set}" = set; then :
   withval=$with_books; do_books=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books=$withval"
 else
-  do_books=off
+  do_books=no
+fi
+
+
+
+# Check whether --with-papi was given.
+if test "${with_papi+set}" = set; then :
+  withval=$with_papi; do_papi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-papi=$withval"
+else
+  do_papi=no
 fi
 
 
@@ -6107,6 +6122,78 @@ fi
 
 
 
+if test "x$do_papi" != "xno"; then :
+
+
+    enable_papi=enable_papi
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for PAPI_library_init in -lpapi" >&5
+$as_echo_n "checking for PAPI_library_init in -lpapi... " >&6; }
+if ${ac_cv_lib_papi_PAPI_library_init+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lpapi  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char PAPI_library_init ();
+int
+main ()
+{
+return PAPI_library_init ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_papi_PAPI_library_init=yes
+else
+  ac_cv_lib_papi_PAPI_library_init=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_papi_PAPI_library_init" >&5
+$as_echo "$ac_cv_lib_papi_PAPI_library_init" >&6; }
+if test "x$ac_cv_lib_papi_PAPI_library_init" = xyes; then :
+  papi_lib="-lpapi"
+else
+  enable_papi=false
+fi
+
+    for ac_header in papi.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "papi.h" "ac_cv_header_papi_h" "$ac_includes_default"
+if test "x$ac_cv_header_papi_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_PAPI_H 1
+_ACEOF
+
+else
+  enable_papi=false
+fi
+
+done
+
+    if test "$enable_papi" = "enable_papi"
+    then
+
+
+	enable_papi=$enable_papi
+
+    fi
+
+fi
+
+
 cflags_abi=
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
@@ -8494,6 +8581,51 @@ fi
 fi
 echo=$ECHO
 
+if test -z "$WHICH"; then
+    # Extract the first word of "which", so it can be a program name with args.
+set dummy which; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_WHICH+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $WHICH in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_WHICH="$WHICH" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_WHICH="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  test -z "$ac_cv_path_WHICH" && ac_cv_path_WHICH="/usr/bin/which"
+  ;;
+esac
+fi
+WHICH=$ac_cv_path_WHICH
+if test -n "$WHICH"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $WHICH" >&5
+$as_echo "$WHICH" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+fi
+which=$WHICH
+
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking where unix-like sort(1) lives" >&5
 $as_echo_n "checking where unix-like sort(1) lives... " >&6; }
@@ -8637,17 +8769,6 @@ grep=grep
 if test $target_os = solaris
 then
     test -f /usr/xpg4/bin/grep && grep=/usr/xpg4/bin/grep
-fi
-
-
-if test -n "$WHICH"
-then
-    which=$WHICH
-elif sh -c 'type -p sh' >/dev/null 2>&1
-then
-    which=type
-else
-    which=which
 fi
 
 
@@ -13763,7 +13884,7 @@ BUILD_PMMGR=$build_pmmgr
 
 
 
-ac_config_files="$ac_config_files src/include/builddefs src/include/pcp.conf pcp.lsm debian/pcp.preinst.head debian/pcp.postinst.head build/tar/preinstall.head build/tar/postinstall.head build/GNUlocaldefs"
+ac_config_files="$ac_config_files src/include/builddefs src/include/pcp.conf pcp.lsm debian/pcp.preinst.head debian/pcp.postinst.head build/tar/preinstall.head build/tar/postinstall.head build/GNUlocaldefs build/mac/uninstall-pcp"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -14465,6 +14586,7 @@ do
     "build/tar/preinstall.head") CONFIG_FILES="$CONFIG_FILES build/tar/preinstall.head" ;;
     "build/tar/postinstall.head") CONFIG_FILES="$CONFIG_FILES build/tar/postinstall.head" ;;
     "build/GNUlocaldefs") CONFIG_FILES="$CONFIG_FILES build/GNUlocaldefs" ;;
+    "build/mac/uninstall-pcp") CONFIG_FILES="$CONFIG_FILES build/mac/uninstall-pcp" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

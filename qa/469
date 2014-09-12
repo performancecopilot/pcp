@@ -33,23 +33,18 @@ maxlen=84
 # assumes metric length (i.e. line with metric name) is less than $maxlen
 pminfo -T \
 | $PCP_AWK_PROG -v maxlen=$maxlen '
-function is_irix(m)
-{
-    return (m ~/^irix\./ || m ~/^hinv\./ || m ~/^hw\./)
-}
 function skip_me(m)
 {
-    return (m == "kernel.percpu.interrupts.line21")
+    return (m == "kernel.percpu.interrupts.line21" || m ~ "^papi")
 }
 /Help:/ { metric = line; next }
 { 
-  if (skip_me(metric)) next
-  line = $0
-  if (length(line) > maxlen && metric != lastone) {
-	if (!is_irix(metric))
-	    printf "%s, full help text is too long: %d\n", metric, length(line)
+    if (skip_me(metric)) next
+    line = $0
+    if (length(line) > maxlen && metric != lastone) {
+	printf "%s, full help text is too long: %d\n", metric, length(line)
 	lastone = metric
-  }
+    }
 }
 '
 
