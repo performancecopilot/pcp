@@ -14,6 +14,8 @@
  */
 #include <QtGui/QIcon>
 #include "qmc_time.h"
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
 
 //
 // Map icon type name to QIcon
@@ -56,12 +58,7 @@ int QmcTime::timevalNonZero(struct timeval *a)
 //
 void QmcTime::timevalAdd(struct timeval *a, struct timeval *b)
 {
-    a->tv_usec += b->tv_usec;
-    if (a->tv_usec > 1000000) {
-	a->tv_usec -= 1000000;
-	a->tv_sec++;
-    }
-    a->tv_sec += b->tv_sec;
+    __pmtimevalInc(a, b);
 }
 
 //
@@ -69,12 +66,7 @@ void QmcTime::timevalAdd(struct timeval *a, struct timeval *b)
 //
 void QmcTime::timevalSub(struct timeval *a, struct timeval *b)
 {
-    a->tv_usec -= b->tv_usec;
-    if (a->tv_usec < 0) {
-	a->tv_usec += 1000000;
-	a->tv_sec--;
-    }
-    a->tv_sec -= b->tv_sec;
+    __pmtimevalDec(a, b);
     if (a->tv_sec < 0) {
 	/* clip negative values at zero */
 	a->tv_sec = 0;
@@ -98,8 +90,7 @@ int QmcTime::timevalCompare(struct timeval *a, struct timeval *b)
 //
 void QmcTime::secondsToTimeval(double value, struct timeval *tv)
 {
-    tv->tv_sec = (time_t)value;
-    tv->tv_usec = (long)(((value - (double)tv->tv_sec) * 1000000.0));
+    __pmtimevalFromReal(value, tv);
 }
 
 //
@@ -107,7 +98,7 @@ void QmcTime::secondsToTimeval(double value, struct timeval *tv)
 //
 double QmcTime::secondsFromTimeval(struct timeval *tv)
 {
-    return (double)tv->tv_sec + ((double)tv->tv_usec / 1000000.0);
+    return __pmtimevalToReal(tv);
 }
 
 //
