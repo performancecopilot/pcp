@@ -385,11 +385,11 @@ pmNumberStr_r(double value, char *buf, int buflen)
 	if (value >= 999995000000000.0)
 	    snprintf(buf, buflen, " inf?  ");
 	else if (value >= 999995000000.0)
-	    snprintf(buf, buflen, "%6.2fT", value / 1000000000000.0);
+	    snprintf(buf, buflen, "%6.2fT", (double)((long double)value / (long double)1000000000000));
 	else if (value >= 999995000.0)
-	    snprintf(buf, buflen, "%6.2fG", value / 1000000000.0);
+	    snprintf(buf, buflen, "%6.2fG", (double)((long double)value / (long double)1000000000));
 	else if (value >= 999995.0)
-	    snprintf(buf, buflen, "%6.2fM", value / 1000000.0);
+	    snprintf(buf, buflen, "%6.2fM", (double)((long double)value / (long double)1000000));
 	else if (value >= 999.995)
 	    snprintf(buf, buflen, "%6.2fK", value / 1000.0);
 	else if (value >= 0.005)
@@ -401,11 +401,11 @@ pmNumberStr_r(double value, char *buf, int buflen)
 	if (value <= -99995000000000.0)
 	    snprintf(buf, buflen, "-inf?  ");
 	else if (value <= -99995000000.0)
-	    snprintf(buf, buflen, "%6.2fT", value / 1000000000000.0);
+	    snprintf(buf, buflen, "%6.2fT", (double)((long double)value / (long double)1000000000000));
 	else if (value <= -99995000.0)
-	    snprintf(buf, buflen, "%6.2fG", value / 1000000000.0);
+	    snprintf(buf, buflen, "%6.2fG", (double)((long double)value / (long double)1000000000));
 	else if (value <= -99995.0)
-	    snprintf(buf, buflen, "%6.2fM", value / 1000000.0);
+	    snprintf(buf, buflen, "%6.2fM", (double)((long double)value / (long double)1000000));
 	else if (value <= -99.995)
 	    snprintf(buf, buflen, "%6.2fK", value / 1000.0);
 	else if (value <= -0.005)
@@ -1010,12 +1010,14 @@ __pmGetTimespec(struct timespec *ts)
 }
 
 /*
- * difference for two on the internal timestamps
+ * Difference for two of the internal timestamps ...
+ * Same as __pmtimevalSub() in tv.c, just with __pmTimeval args
+ * rather than struct timeval args.
  */
 double
 __pmTimevalSub(const __pmTimeval *ap, const __pmTimeval *bp)
 {
-     return ap->tv_sec - bp->tv_sec + (double)(ap->tv_usec - bp->tv_usec)/1000000.0;
+     return (double)(ap->tv_sec - bp->tv_sec + (long double)(ap->tv_usec - bp->tv_usec) / (long double)1000000);
 }
 
 /*
@@ -1175,7 +1177,7 @@ __pmEventTrace_r(const char *event, int *first, double *sum, double *last)
     double now;
 
     __pmtimevalNow(&tv);
-    now = (double)tv.tv_sec + (double)tv.tv_usec / 1000000.0;
+    now = __pmtimevalToReal(&tv);
     if (*first) {
 	*first = 0;
 	*sum = 0;

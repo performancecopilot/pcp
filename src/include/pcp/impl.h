@@ -1101,7 +1101,9 @@ extern int __pmIsLocalhost(const char *);
  * struct timeval manipulations
  */
 extern double __pmtimevalAdd(const struct timeval *, const struct timeval *);
+extern void __pmtimevalInc(struct timeval *, const struct timeval *);
 extern double __pmtimevalSub(const struct timeval *, const struct timeval *);
+extern void __pmtimevalDec(struct timeval *, const struct timeval *);
 extern double __pmtimevalToReal(const struct timeval *);
 extern void __pmtimevalFromReal(double, struct timeval *);
 extern void __pmtimevalSleep(struct timeval);

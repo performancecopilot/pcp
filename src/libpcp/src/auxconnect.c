@@ -721,9 +721,7 @@ __pmConnectTimeout(void)
 			      "ignored bad PMCD_CONNECT_TIMEOUT = '%s'\n",
 			      __FILE__, env_str);
 	    else {
-		canwait.tv_sec = (time_t)timeout;
-		canwait.tv_usec = (int)((timeout - 
-					 (double)canwait.tv_sec) * 1000000);
+		__pmtimevalFromReal(timeout, &canwait);
 	    }
 	}
     }

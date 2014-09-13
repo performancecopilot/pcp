@@ -115,13 +115,8 @@ tv_sub(const struct timeval *a, const struct timeval *b)
 {
     struct timeval t;
 
-    t.tv_sec = a->tv_sec - b->tv_sec;
-    if (a->tv_usec >= b->tv_usec) {
-	t.tv_usec = a->tv_usec - b->tv_usec;
-    } else {
-	t.tv_sec--;
-	t.tv_usec = 1000000 + a->tv_usec - b->tv_usec;
-    }
+    t = a;
+    __pmtimevalDec(&t, &b);
     return (t.tv_sec * 1000 + t.tv_usec / 1000);
 }
 

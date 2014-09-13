@@ -22,7 +22,21 @@
 double
 __pmtimevalAdd(const struct timeval *ap, const struct timeval *bp)
 {
-     return (double)(ap->tv_sec + bp->tv_sec) + (double)(ap->tv_usec + bp->tv_usec)/1000000.0;
+     return (double)(ap->tv_sec + bp->tv_sec) + (long double)(ap->tv_usec + bp->tv_usec) / (long double)1000000;
+}
+
+/*
+ * struct additive time, *ap = *ap + *bp
+ */
+void
+__pmtimevalInc(struct timeval *ap, const struct timeval *bp)
+{
+     ap->tv_sec += bp->tv_sec;
+     ap->tv_usec += bp->tv_usec;
+     if (ap->tv_usec >= 1000000) {
+	ap->tv_usec -= 1000000;
+	ap->tv_sec++;
+    }
 }
 
 /*
@@ -31,7 +45,21 @@ __pmtimevalAdd(const struct timeval *ap, const struct timeval *bp)
 double
 __pmtimevalSub(const struct timeval *ap, const struct timeval *bp)
 {
-     return (double)(ap->tv_sec - bp->tv_sec) + (double)(ap->tv_usec - bp->tv_usec)/1000000.0;
+     return (double)(ap->tv_sec - bp->tv_sec) + (long double)(ap->tv_usec - bp->tv_usec) / (long double)1000000;
+}
+
+/*
+ * struct subtractive time, *ap = *ap - *bp
+ */
+void
+__pmtimevalDec(struct timeval *ap, const struct timeval *bp)
+{
+     ap->tv_sec -= bp->tv_sec;
+     ap->tv_usec -= bp->tv_usec;
+     if (ap->tv_usec < 0) {
+	ap->tv_usec += 1000000;
+	ap->tv_sec--;
+    }
 }
 
 /*
@@ -40,19 +68,17 @@ __pmtimevalSub(const struct timeval *ap, const struct timeval *bp)
 double
 __pmtimevalToReal(const struct timeval *val)
 {
-    double dbl = (double)(val->tv_sec);
-    dbl += (double)val->tv_usec / 1000000.0;
-    return dbl;
+    return val->tv_sec + ((long double)val->tv_usec / (long double)1000000);
 }
 
 /*
- * convert double to a timeval
+ * convert double (units == seconds) to a timeval
  */
 void
-__pmtimevalFromReal(double dbl, struct timeval *val)
+__pmtimevalFromReal(double secs, struct timeval *val)
 {
-    val->tv_sec = (time_t)dbl;
-    val->tv_usec = (long)(((dbl - (double)val->tv_sec) * 1000000.0));
+    val->tv_sec = (time_t)secs;
+    val->tv_usec = (long)((long double)(secs - val->tv_sec) * (long double)1000000 + 0.5);
 }
 
 /*
