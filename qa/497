@@ -18,7 +18,7 @@ echo "QA output created by $seq"
     _notrun "pmlogconf version 2.0 not installed"
 
 rm -f $seq.out
-if [ $PCP_VER -ge 3901 ]
+if [ $PCP_VER -ge 30901 ]
 then
     suffix=2
 else

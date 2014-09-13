@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 . ./localconfig
 
 [ $PCP_PLATFORM = linux ] || _notrun "Depends on Linux logical volume manager"
-[ $PCP_VER -ge 3801 ] || _notrun "Requires more recent Linux kernel PMDA"
+[ $PCP_VER -ge 30801 ] || _notrun "Requires more recent Linux kernel PMDA"
 [ -d /dev/mapper ] || _notrun "Requires kernel support for Device Mapper"
 
 status=1	# failure is the default!

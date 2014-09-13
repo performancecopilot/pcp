@@ -14,15 +14,15 @@ echo "QA output created by $seq"
 . ./localconfig
 
 rm -f $seq.out
-if [ $PCP_EOE_VER -ge 6512 -o \
-     \( $PCP_EOE_VER -ge 2200 -a $PCP_EOE_VER -lt 6500 \) ]
+if [ $PCP_EOE_VER -ge 60512 -o \
+     \( $PCP_EOE_VER -ge 20200 -a $PCP_EOE_VER -lt 60500 \) ]
 then
     ln $seq.out.1 $seq.out
 else
     ln $seq.out.2 $seq.out
 fi
 
-if [ $PCP_VER -lt 3600 ]
+if [ $PCP_VER -lt 30600 ]
 then
     # V1 archives supported
     arch=src/bigace

@@ -18,7 +18,7 @@ $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 rm -f $seq.out
-if test $PCP_VER -ge 3609
+if test $PCP_VER -ge 30609
 then
     message=events
     ln $seq.out.2 $seq.out

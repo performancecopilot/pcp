@@ -14,7 +14,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 . ./localconfig
-if [ $PCP_EOE_VER -lt 2100 -o $PCP_EOE_VER -ge 6500 ]
+if [ $PCP_EOE_VER -lt 20100 -o $PCP_EOE_VER -ge 60500 ]
 then
     echo "Requires PCP >= 2.1 or IRIX < 6.5" >$seq.notrun
     echo "$seq: [not run] `cat $seq.notrun`"

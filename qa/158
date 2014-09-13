@@ -20,7 +20,7 @@ echo "QA output created by $seq"
 # output depends on fix for pv 928021
 #
 rm -f $seq.out
-if [ $PCP_VER -gt 2400 ]
+if [ $PCP_VER -gt 20400 ]
 then
     # fix is in pcp-2.4.1-1
     ln $seq.out.2 $seq.out

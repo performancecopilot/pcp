@@ -12,7 +12,7 @@
 
 _gfs2_filesystem_support_tests()
 {
-    [ $PCP_VER -ge 3611 ] || _notrun "Installed pcp version is too old"
+    [ $PCP_VER -ge 30611 ] || _notrun "Installed pcp version is too old"
     [ $PCP_PLATFORM = linux ] || _notrun "GFS2 test, only works with Linux"
 
     grep gfs2 /proc/filesystems >/dev/null

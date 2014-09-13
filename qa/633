@@ -14,14 +14,14 @@ echo "QA output created by $seq"
 . ./common.check
 
 rm -f $seq.out
-if [ $PCP_VER -ge 3804 ]
+if [ $PCP_VER -ge 30804 ]
 then
     ln $seq.out.2 $seq.out || exit 1
 else
     ln $seq.out.1 $seq.out || exit 1
 fi
 nsamples=2
-[ $PCP_VER -ge 3811 ] && nsamples=1	# improved pmlogger fetching
+[ $PCP_VER -ge 30811 ] && nsamples=1	# improved pmlogger fetching
 
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

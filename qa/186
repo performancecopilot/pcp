@@ -12,7 +12,7 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-if [ $PCP_VER -lt 3600 ]
+if [ $PCP_VER -lt 30600 ]
 then
     arch=src/951127.23.01
 else

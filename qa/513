@@ -12,7 +12,7 @@ echo "QA output created by $seq"
 
 _check_valgrind
 rm -f $seq.out $seq.full
-if [ $PCP_VER -ge 3800 ]; then
+if [ $PCP_VER -ge 30800 ]; then
     ln $seq.out.2 $seq.out
 else
     ln $seq.out.1 $seq.out

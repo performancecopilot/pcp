@@ -10,13 +10,13 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 . ./localconfig
-if [ $PCP_PLATFORM != irix -a $PCP_VER -ge 2200 ]
+if [ $PCP_PLATFORM != irix -a $PCP_VER -ge 20200 ]
 then
     : PCP 2.2 or later
-elif [ $PCP_PLATFORM = irix -a $PCP_EOE_VER -ge 6512 ]
+elif [ $PCP_PLATFORM = irix -a $PCP_EOE_VER -ge 60512 ]
 then
     : IRIX 6.5.12 or later
-elif [ $PCP_PLATFORM = irix -a $PCP_EOE_VER -lt 6500 -a $PCP_EOE_VER -ge 2200 ]
+elif [ $PCP_PLATFORM = irix -a $PCP_EOE_VER -lt 60500 -a $PCP_EOE_VER -ge 20200 ]
 then
     : IRIX 6.2 and PCP 2.2
 else

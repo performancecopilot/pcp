@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ $PCP_VER -ge 3801 ] || _notrun libpcp_import fix is in PCP 3.8.1
+[ $PCP_VER -ge 30801 ] || _notrun libpcp_import fix is in PCP 3.8.1
 
 _filter()
 {

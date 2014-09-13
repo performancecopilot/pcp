@@ -20,10 +20,10 @@ then
 fi
 
 # New cisco metrics in pcp2.2 
-if [ $PCP_VER -ge 2300 ]
+if [ $PCP_VER -ge 20300 ]
 then
     rm -f $seq.out && ln $seq.out.3 $seq.out
-elif [ $PCP_VER -ge 2200 ]
+elif [ $PCP_VER -ge 20200 ]
 then
     rm -f $seq.out && ln $seq.out.2 $seq.out
 else
@@ -137,7 +137,7 @@ both
 $PCP_CISCO_ROUTER
 
 End-of-File
-if [ $PCP_VER -gt 2200 ]
+if [ $PCP_VER -gt 20200 ]
 then
     echo >>$tmp.in
 fi
@@ -148,7 +148,7 @@ quit
 $PCP_CISCO_ROUTER
 
 End-of-File
-if [ $PCP_VER -gt 2200 ]
+if [ $PCP_VER -gt 20200 ]
 then
     echo >>$tmp.in
 fi

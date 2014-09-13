@@ -139,7 +139,7 @@ done
 echo
 echo "=== all leaves ==="
 cp foo mypmns
-if [ $PCP_VER -lt 3600 ]
+if [ $PCP_VER -lt 30600 ]
 then
     pmnscomp -f -n mypmns mypmns.bin
 fi

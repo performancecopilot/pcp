@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 rm -f $seq.out
 if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a posi*tive numeric argument' >/dev/null
 then
-    if test $PCP_EOE_VER -ge 2704
+    if test $PCP_EOE_VER -ge 20704
     then
 	ln $seq.out.2 $seq.out
     else

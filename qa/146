@@ -33,7 +33,7 @@ yet.another {
 }
 End-of-File
 
-if [ $PCP_VER -lt 3600 ]
+if [ $PCP_VER -lt 30600 ]
 then
     pmnscomp -df -n $tmp $tmp.bin > $tmp.out 2>&1
     src/nameall -n $tmp "" >> $tmp.out 2>&1

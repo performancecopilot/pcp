@@ -85,10 +85,10 @@ strip == 1			{ print >"'$tmp.tmp'"; next }
 rm -f $seq.out
 if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a posi*tive numeric argument' >/dev/null
 then
-    if test $PCP_EOE_VER -ge 3013
+    if test $PCP_EOE_VER -ge 30013
     then
 	ln $seq.out.4 $seq.out
-    elif test $PCP_EOE_VER -ge 2704
+    elif test $PCP_EOE_VER -ge 20704
     then
 	ln $seq.out.3 $seq.out
     else

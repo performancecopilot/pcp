@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 
 pid=$$
 
-test $PCP_VER -ge 3805 || _notrun "No support for new proc cgroup metric"
+test $PCP_VER -ge 30805 || _notrun "No support for new proc cgroup metric"
 test $PCP_PLATFORM = linux || _notrun "Test unsupported on $PCP_PLATFORM"
 test -f /proc/$pid/cgroup || _notrun "No per-process support for cgroups"
 

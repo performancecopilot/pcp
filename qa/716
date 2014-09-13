@@ -17,7 +17,7 @@ perl -e "use PCP::PMDA" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
 
 rm -f $seq.out
-if [ $PCP_VER -lt 3800 ]
+if [ $PCP_VER -lt 30800 ]
 then
     ln $seq.out.1 $seq.out || exit 1
 else

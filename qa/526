@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ $PCP_VER -ge 3800 ] || _notrun "Installed libpcp_import lacks name checks"
+[ $PCP_VER -ge 30800 ] || _notrun "Installed libpcp_import lacks name checks"
 _check_valgrind
 
 status=1	# failure is the default!

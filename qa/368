@@ -18,10 +18,10 @@ echo "QA output created by $seq"
 [ -f $PCP_BINADM_DIR/pmlogconf-setup ] || _notrun "pmlogconf v2.0 is not installed"
 
 rm -f $seq.out
-if [ $PCP_VER -ge 3901 ]
+if [ $PCP_VER -ge 30901 ]
 then
     suffix=3
-elif [ $PCP_VER -ge 3802 ]
+elif [ $PCP_VER -ge 30802 ]
 then
     suffix=2
 else

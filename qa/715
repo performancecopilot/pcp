@@ -14,7 +14,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 rm -f $seq.out $seq.full
-if [ $PCP_VER -ge 3801 ]
+if [ $PCP_VER -ge 30801 ]
 then
     ln $seq.out.2 $seq.out || exit 1
 else

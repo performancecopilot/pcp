@@ -65,7 +65,7 @@ both
 $PCP_QA_CISCOROUTER
 
 End-of-File
-	if [ "$PCP_VER" -gt 2200 ]
+	if [ "$PCP_VER" -gt 20200 ]
 	then
 	    echo >>$tmp
 	fi

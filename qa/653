@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.check
 . ./localconfig
 
-[ $PCP_VER -ge 3611 ] || _notrun "Needs a more recent libpcp version"
+[ $PCP_VER -ge 30611 ] || _notrun "Needs a more recent libpcp version"
 
 _cleanup()
 {

@@ -14,7 +14,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-test $PCP_VER -ge 3811 || _notrun Need newer pmlogger version
+test $PCP_VER -ge 30811 || _notrun Need newer pmlogger version
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full

@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-if [ $PCP_VER -lt 3600 ]
+if [ $PCP_VER -lt 30600 ]
 then
     # V1 archives supported
     arch=src/babylon.pmview

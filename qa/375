@@ -21,9 +21,9 @@ rm -f $seq.out
 case $PCP_PLATFORM
 in
     linux|darwin|solaris)
-	if [ $PCP_VER -lt 3600 ]; then
+	if [ $PCP_VER -lt 30600 ]; then
 	    ln $seq.$PCP_PLATFORM $seq.out || exit 1
-	elif [ $PCP_VER -lt 3800 ]; then
+	elif [ $PCP_VER -lt 30800 ]; then
 	    ln $seq.$PCP_PLATFORM.2 $seq.out || exit 1
 	else
 	    ln $seq.$PCP_PLATFORM.3 $seq.out || exit 1

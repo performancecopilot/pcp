@@ -45,7 +45,7 @@ c {
 End-of-File
 
 pminfo -m -n $tmp
-if [ $PCP_VER -lt 3600 ]
+if [ $PCP_VER -lt 30600 ]
 then
     pmnscomp -f -n $tmp $tmp.bin
     pminfo -m -n $tmp

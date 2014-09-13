@@ -14,7 +14,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 # New cisco metrics in pcp2.2 
-if [ $PCP_VER -ge 2200 ]
+if [ $PCP_VER -ge 20200 ]
 then
     rm -f $seq.out && ln $seq.out.2 $seq.out
 else

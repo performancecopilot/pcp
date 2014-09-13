@@ -10,10 +10,10 @@ echo "QA output created by $seq"
 
 rm -f $seq.out
 . ./localconfig
-if [ $PCP_PLATFORM = irix -a $PCP_EOE_VER -le 6510 ]
+if [ $PCP_PLATFORM = irix -a $PCP_EOE_VER -le 60510 ]
 then
 	ln $seq.out.1 $seq.out
-elif [ $PCP_EOE_VER -lt 2704 ]
+elif [ $PCP_EOE_VER -lt 20704 ]
 then
 	ln $seq.out.2 $seq.out
 else
