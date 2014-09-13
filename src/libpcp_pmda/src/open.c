@@ -568,13 +568,13 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
     }
     if ((nmetrics == 0 && metrics != NULL) ||
         (nmetrics != 0 && metrics == NULL)){
-	__pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA %s: metrics not consistent with nmetrics", pmda->e_name);
+	__pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA %s: metrics (" PRINTF_P_PFX "%p) not consistent with nmetrics (%d)", pmda->e_name, metrics, nmetrics);
 	dispatch->status = PM_ERR_GENERIC;
 	return;
     }
     if ((nindoms == 0 && indoms != NULL) ||
         (nindoms != 0 && indoms == NULL)){
-	__pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA %s: indoms not consistent with nindoms", pmda->e_name);
+	__pmNotifyErr(LOG_CRIT, "pmdaInit: PMDA %s: indoms (" PRINTF_P_PFX "%p) not consistent with nindoms (%d)", pmda->e_name, indoms, nindoms);
 	dispatch->status = PM_ERR_GENERIC;
 	return;
     }
