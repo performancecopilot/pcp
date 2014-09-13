@@ -44,13 +44,6 @@ static __uint64_t _pmtraceid(void);
 
 int	__pmstate = PMTRACE_STATE_NONE;
 
-
-static double
-__pmtracetvsub(const struct timeval *a, const struct timeval *b)
-{
-    return (double)(a->tv_sec - b->tv_sec + (double)(a->tv_usec - b->tv_usec)/1000000.0);
-}
-
 /* transaction data unit */
 typedef struct {
     __uint64_t		id;
@@ -237,7 +230,7 @@ pmtraceend(const char *tag)
 			"(id=0x%" PRIx64 ")\n", tag, hash.id);
 #endif
 	hptr->inprogress = 0;
-	hptr->data = __pmtracetvsub(&now, &hptr->start);
+	hptr->data = __pmtimevalSub(&now, &hptr->start);
 
 	if (sts >= 0 && _pmtimedout) {
 	    sts = _pmtracereconnect();
@@ -734,8 +727,7 @@ _pmauxtraceconnect(void)
 	if (*endptr != '\0' || timesec < 0.0)
 	    fprintf(stderr, "trace warning: bogus PCP_TRACE_TIMEOUT.");
 	else {
-	    timeout.tv_sec = (time_t)timesec;
-	    timeout.tv_usec = (int)((timesec - (double)timeout.tv_sec)*1000000);
+	    __pmtimevalFromReal(timesec, &timeout);
 	}
     }
     if (getenv(TRACE_ENV_NOAGENT) != NULL)

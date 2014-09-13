@@ -164,12 +164,7 @@ int QedApp::getopts(const char *options)
 // a := a + b for struct timevals
 void QedApp::timevalAdd(struct timeval *a, struct timeval *b)
 {
-    a->tv_usec += b->tv_usec;
-    if (a->tv_usec > 1000000) {
-	a->tv_usec -= 1000000;
-	a->tv_sec++;
-    }
-    a->tv_sec += b->tv_sec;
+    __pmtimevalInc(a, b);
 }
 
 //
@@ -186,14 +181,13 @@ int QedApp::timevalCmp(struct timeval *a, struct timeval *b)
 // convert timeval to seconds
 double QedApp::timevalToSeconds(struct timeval t)
 {
-    return t.tv_sec + (t.tv_usec / 1000000.0);
+    return __pmtimevalToReal(&t);
 }
 
 // conversion from seconds (double precision) to struct timeval
 void QedApp::timevalFromSeconds(double value, struct timeval *tv)
 {
-    tv->tv_sec = (time_t)value;
-    tv->tv_usec = (long)(((value - (double)tv->tv_sec) * 1000000.0));
+    __pmtimevalFromReal(value, tv);
 }
 
 // debugging, display seconds-since-epoch in human readable format
