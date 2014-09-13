@@ -13,7 +13,7 @@
 seq=`basename $0`
 
 rm -f $seq.out
-if [ $PCP_VER -lt 3809 ]
+if [ $PCP_VER -lt 30809 ]
 then
     ln $seq.out.1 $seq.out || exit 1
 else

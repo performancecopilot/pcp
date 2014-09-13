@@ -27,7 +27,7 @@ else
     _notrun journalctl too old "$journal_version"
 fi
 
-[ $PCP_VER -ge 3805 ] || _notrun "Installed pmdasystemd is too old"
+[ $PCP_VER -ge 30805 ] || _notrun "Installed pmdasystemd is too old"
 
 _cleanup()
 {

@@ -20,7 +20,7 @@ trap "pmstore sample.long.write_me 13 >/dev/null; rm -f $tmp.*; exit" 0 1 2 3 15
 # goal of this test).
 target=""
 hostname=`hostname`
-test $PCP_VER -ge 3803 && target="-h $hostname"
+test $PCP_VER -ge 30803 && target="-h $hostname"
 
 pmstore sample.not_ready 5
 

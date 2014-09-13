@@ -20,7 +20,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 rm -f $seq.out
-if [ $PCP_VER -lt 3600 ]
+if [ $PCP_VER -lt 30600 ]
 then
     ln $seq.out.1 $seq.out || exit 1
 else
@@ -108,7 +108,7 @@ $sudo ./Rebuild 2>&1 \
     -e 's;/private/;/;' \
     -e "s;$tmp;.;" \
 | _filter
-if [ $PCP_VER -lt 3600 ]
+if [ $PCP_VER -lt 30600 ]
 then
     [ -f root.bin ] && echo "root.bin created"
     pminfo -m -n root
@@ -121,7 +121,7 @@ echo "=== Rebuild -d ==="
 rm -f root root.bin
 cp root.start root
 $sudo ./Rebuild -d | _filter
-if [ $PCP_VER -lt 3600 ]
+if [ $PCP_VER -lt 30600 ]
 then
     [ -f root.bin ] && echo "root.bin created"
     pminfo -m -n root
@@ -134,7 +134,7 @@ echo "=== Rebuild -du ==="
 rm -f root root.bin
 cp root.start root
 $sudo ./Rebuild -du | _filter
-if [ $PCP_VER -lt 3600 ]
+if [ $PCP_VER -lt 30600 ]
 then
     [ -f root.bin ] && echo "root.bin created"
     pminfo -m -n root

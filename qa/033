@@ -25,7 +25,7 @@ then
 else
     # assume linux-like
     #
-    if [ $PCP_EOE_VER -ge 2300 ]
+    if [ $PCP_EOE_VER -ge 20300 ]
     then
 	if pmprobe filesys.readonly >/dev/null
 	then

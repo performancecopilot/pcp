@@ -14,7 +14,7 @@
 seq=`basename $0`
 
 rm -f $seq.out
-if [ $PCP_VER -lt 3810 ]
+if [ $PCP_VER -lt 30810 ]
 then
     ln $seq.out.1 $seq.out || exit 1
 else
@@ -37,7 +37,7 @@ fi
 . ./common.config
 
 #  Requires common.product:
-if [ "$PCP_VER" -lt 2200 ]
+if [ "$PCP_VER" -lt 20200 ]
 then
     echo "test aborted; known problem with pmsocks (#816862)" >$seq.notrun
     echo "$seq: [not run] `cat $seq.notrun`"

@@ -18,7 +18,7 @@ then
     ln $seq.out.irix $seq.out
 elif [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
 then
-    if [ $PCP_VER -lt 3600 ]
+    if [ $PCP_VER -lt 30600 ]
     then
 	ln $seq.out.linux $seq.out
     else
@@ -134,7 +134,7 @@ diff before after
 echo "PMNS differences ..."
 pminfo -m -n root | LC_COLLATE=POSIX sort | diff ref -
 
-if [ $PCP_VER -lt 3600 ]
+if [ $PCP_VER -lt 30600 ]
 then
     echo
     echo "With root.bin ..."

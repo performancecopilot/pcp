@@ -20,7 +20,7 @@ kvm_stats_path=/sys/kernel/debug/kvm
 $sudo [ -d $kvm_stats_path ] || _notrun "KVM sysfs interface not available"
 
 rm -f $seq.out
-if [ $PCP_VER -lt 3600 ]
+if [ $PCP_VER -lt 30600 ]
 then
     ln $seq.out.1 $seq.out || exit 1
 else

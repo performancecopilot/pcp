@@ -11,7 +11,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 _check_valgrind
-[ $PCP_VER -ge 3800 ] || _notrun "Installed libpcp lacks host parse APIs"
+[ $PCP_VER -ge 30800 ] || _notrun "Installed libpcp lacks host parse APIs"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full

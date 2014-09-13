@@ -23,7 +23,7 @@ hostname=`_get_fqdn`
 # for newer versions, we default to local sockets with different
 # access controls.  dodge that, and test the usual pmproxy path.
 target=""
-test $PCP_VER -ge 3803 && target="-h $hostname"
+test $PCP_VER -ge 30803 && target="-h $hostname"
 
 _filter()
 {

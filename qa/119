@@ -15,11 +15,11 @@ echo "QA output created by $seq"
 . ./common.check
 
 # need fix for pv 877570
-if [ $PCP_PLATFORM != irix -a $PCP_VER -ge 2300 ]
+if [ $PCP_PLATFORM != irix -a $PCP_VER -ge 20300 ]
 then
     # fix is in pcp-2.3.0-11
     :
-elif [ $PCP_PLATFORM = irix -a $PCP_VER -ge 2400 ]
+elif [ $PCP_PLATFORM = irix -a $PCP_VER -ge 20400 ]
 then
     # PCP 2.4 or later
     :
@@ -52,7 +52,7 @@ _needclean=true
 LOGGING_DIR=$PCP_LOG_DIR/pmlogger_qa
 
 myhost=`hostname`
-[ $PCP_VER -lt 3806 ] && myhost=`echo $myhost | sed -e 's/\..*//'`
+[ $PCP_VER -lt 30806 ] && myhost=`echo $myhost | sed -e 's/\..*//'`
 
 trap "_cleanup" 0 1 2 3 15
 

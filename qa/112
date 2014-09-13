@@ -14,7 +14,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 rm -f $seq.out
-if [ $PCP_VER -lt 3600 ]
+if [ $PCP_VER -lt 30600 ]
 then
     ln $seq.out.1 $seq.out || exit 1
 else
@@ -51,13 +51,13 @@ rm -f $tmp.*
 
 # test out compilation stat values
 # use a fixed namespace
-if [ $PCP_VER -lt 3600 ]
+if [ $PCP_VER -lt 30600 ]
 then
     pmnscomp -n src/root_pmns $tmp.bin.fixed
 fi
 
 cp $PCP_VAR_DIR/pmns/root $tmp.ascii
-if [ $PCP_VER -lt 3600 ]
+if [ $PCP_VER -lt 30600 ]
 then
     pmnscomp -n $tmp.ascii $tmp.bin >/dev/null 2>&1
 fi
@@ -66,7 +66,7 @@ echo "=== pmapi v2, ascii format pmns ==="
 src/torture_api -v -n $tmp.ascii 2>&1 | _filter >$tmp.out
 _cmp $tmp.out
 
-if [ $PCP_VER -lt 3600 ]
+if [ $PCP_VER -lt 30600 ]
 then
     echo ""
     echo "=== pmapi v2, binary format pmns ==="

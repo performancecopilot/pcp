@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 . ./localconfig
 
 rm -f $seq.out
-if [ $PCP_VER -lt 2200 ]; then
+if [ $PCP_VER -lt 20200 ]; then
     cat $seq.in >>$seq.out
 else
     # tweak output for PCP 2.2...
