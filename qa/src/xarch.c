@@ -100,6 +100,7 @@ main(int argc, char **argv)
     int		resnum = 0;
     struct timeval	when;
     int		done;
+    static struct timeval microsec = { 0, 1 };
 
     __pmSetProgname(argv[0]);
 
@@ -313,11 +314,7 @@ main(int argc, char **argv)
 	    }
 	    else {
 		when = resvec[resnum - 1]->timestamp;
-		when.tv_usec++;
-		if (when.tv_usec >= 1000000) {
-		    when.tv_usec = 0;
-		    when.tv_sec++;
-		}
+		__pmtimevalInc(&when, &microsec);
 	    }
 	    if ((sts = pmSetMode(PM_MODE_FORW, &when, 0)) < 0) {
 		printf("%s: pmSetMode: %s\n", pmProgname, pmErrStr(sts));
@@ -352,11 +349,7 @@ main(int argc, char **argv)
 		i = 0;
 	    if (i > 0) {
 		when = resvec[i]->timestamp;
-		when.tv_usec++;
-		if (when.tv_usec >= 1000000) {
-		    when.tv_usec = 0;
-		    when.tv_sec++;
-		}
+		__pmtimevalInc(&when, &microsec);
 	    }
 	    else {
 		when = resvec[0]->timestamp;

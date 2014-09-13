@@ -180,8 +180,7 @@ Options\n\
 	    break;
 	}
 	if (prev) {
-	    tdiff = result->timestamp.tv_sec - prev->timestamp.tv_sec +
-		    (double)(result->timestamp.tv_usec - prev->timestamp.tv_usec) / 1000000;
+	    tdiff = __pmtimevalSub(&result->timestamp, &prev->timestamp);
 	    printf("\nsample %d, delta time=%.3f secs\n", i, tdiff);
 	    for (j = 0; j < numpmid; j++) {
 		printf("%s: ", name[j]);
