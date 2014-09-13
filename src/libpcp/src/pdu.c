@@ -74,11 +74,7 @@ __pmDefaultRequestTimeout(void)
 			      timeout_str);
 	    }
 	    else {
-		def_wait.tv_sec = (int)def_timeout;		/* truncate -> secs */
-		if (def_timeout > (double)def_wait.tv_sec)
-		    def_wait.tv_usec = (long)((def_timeout - (double)def_wait.tv_sec) * 1000000);
-		else
-		    def_wait.tv_usec = 0;
+		__pmtimevalFromReal(def_timeout, &def_wait);
 	    }
 	}
 	done_default = 1;

@@ -83,8 +83,7 @@ __pmServiceDiscoveryParseTimeout (const char *s, struct timeval *timeout)
     }
 
     /* Set the specified timeout. */
-    timeout->tv_sec = (long)seconds;
-    timeout->tv_usec = (long)((seconds - timeout->tv_sec) * 1000000);
+    __pmtimevalFromReal(seconds, timeout);
 
     return end;
 }
