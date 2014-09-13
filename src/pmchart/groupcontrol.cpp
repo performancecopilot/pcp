@@ -49,8 +49,8 @@ GroupControl::init(int samples, int visible,
     }
     my.delta = *interval;
     my.position = *position;
-    my.realDelta = tosec(*interval);
-    my.realPosition = tosec(*position);
+    my.realDelta = __pmtimevalToReal(interval);
+    my.realPosition = __pmtimevalToReal(position);
 
     my.timeData = (double *)malloc(samples * sizeof(double));
     for (int i = 0; i < samples; i++)
@@ -265,8 +265,8 @@ GroupControl::adjustWorldView(QmcTime::Packet *packet, bool vcrMode)
 {
     my.delta = packet->delta;
     my.position = packet->position;
-    my.realDelta = tosec(packet->delta);
-    my.realPosition = tosec(packet->position);
+    my.realDelta = __pmtimevalToReal(&packet->delta);
+    my.realPosition = __pmtimevalToReal(&packet->position);
 
     console->post("GroupControl::adjustWorldView: "
 		  "sh=%d vh=%d delta=%.2f position=%.2f (%s) state=%s",
@@ -412,7 +412,7 @@ GroupControl::adjustArchiveWorldViewForward(QmcTime::Packet *packet, bool setup)
 	my.timeData[i] = position;
 
 	struct timeval timeval;
-	fromsec(position, &timeval);
+	__pmtimevalFromReal(position, &timeval);
 	setArchiveMode(setmode, &timeval, delta);
 	console->post("Fetching data[%d] at %s", i, timeString(position));
 	fetch();
@@ -473,7 +473,7 @@ GroupControl::adjustArchiveWorldViewBackward(QmcTime::Packet *packet, bool setup
 	my.timeData[i] = position;
 
 	struct timeval timeval;
-	fromsec(position, &timeval);
+	__pmtimevalFromReal(position, &timeval);
 	setArchiveMode(setmode, &timeval, -delta);
 	console->post("Fetching data[%d] at %s", i, timeString(position));
 	fetch();
@@ -530,7 +530,7 @@ sideStep(double n, double o, double interval)
 void
 GroupControl::step(QmcTime::Packet *packet)
 {
-    double stepPosition = tosec(packet->position);
+    double stepPosition = __pmtimevalToReal(&packet->position);
 
     console->post(PmChart::DebugProtocol,
 	"GroupControl::step: stepping to time %.2f, delta=%.2f, state=%s",

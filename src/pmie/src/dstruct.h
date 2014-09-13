@@ -356,10 +356,6 @@ void instFetchExpr(Expr *);
  * time methods
  ***********************************************************************/
 
-/* convert timeval to RealTime */
-#define realize(t) (1.0e-6 * (RealTime)(t).tv_usec + (RealTime)(t).tv_sec)
-/* convert RealTime to timeval */
-void unrealize(RealTime, struct timeval *);
 RealTime getReal(void);			/* return current time */
 void reflectTime(RealTime);		/* update time vars to reflect now */
 #define SLEEP_EVAL	0

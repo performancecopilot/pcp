@@ -620,7 +620,7 @@ getargs(int argc, char *argv[])
     hostZone = opts.tzflag;
     timeZone = opts.timezone;
     if (opts.interval.tv_sec || opts.interval.tv_usec)
-	dfltDelta = realize(opts.interval);
+	dfltDelta = __pmtimevalToReal(&opts.interval);
 
     if (archives || interactive)
 	perf = &instrument;
@@ -712,9 +712,9 @@ getargs(int argc, char *argv[])
     reflectTime(dfltDelta);
 
     /* parse time window - just to check argument syntax */
-    unrealize(now, &tv1);
+    __pmtimevalFromReal(now, &tv1);
     if (archives) {
-	unrealize(last, &tv2);
+	__pmtimevalFromReal(last, &tv2);
     } else {
 	tv2.tv_sec = INT_MAX;		/* sizeof(time_t) == sizeof(int) */
 	tv2.tv_usec = 0;
@@ -727,8 +727,8 @@ getargs(int argc, char *argv[])
 	fputs(msg, stderr);
         exit(1);
     }
-    start = realize(tv1);
-    stop = realize(tv2);
+    start = __pmtimevalToReal(&tv1);
+    stop = __pmtimevalToReal(&tv2);
     runTime = stop - start;
 
     /* when not in secret agent mode, register client id with pmcd */
@@ -778,9 +778,9 @@ getargs(int argc, char *argv[])
 	now = getReal() + 1.0;
 	reflectTime(dfltDelta);
     }
-    unrealize(now, &tv1);
+    __pmtimevalFromReal(now, &tv1);
     if (archives) {
-	unrealize(last, &tv2);
+	__pmtimevalFromReal(last, &tv2);
     } else {
 	tv2.tv_sec = INT_MAX;
 	tv2.tv_usec = 0;
@@ -795,8 +795,8 @@ getargs(int argc, char *argv[])
     }
 
     /* set run timing window */
-    start = realize(tv1);
-    stop = realize(tv2);
+    start = __pmtimevalToReal(&tv1);
+    stop = __pmtimevalToReal(&tv2);
     runTime = stop - start;
 }
 
@@ -841,7 +841,7 @@ interact(void)
 		token = scanArg(finger);
 		if (token) {
 		    if (pmParseInterval(token, &tv1, &msg) == 0)
-			runTime = realize(tv1);
+			runTime = __pmtimevalToReal(&tv1);
 		    else {
 			fputs(msg, stderr);
 			free(msg);
@@ -865,9 +865,9 @@ interact(void)
 		    fprintf(stderr, "%s: error - argument required\n", pmProgname);
 		    break;
 		}
-		unrealize(start, &tv1);
+		__pmtimevalFromReal(start, &tv1);
 		if (archives) {
-		    unrealize(last, &tv2);
+		    __pmtimevalFromReal(last, &tv2);
 		} else {
 		    tv2.tv_sec = INT_MAX;
 		    tv2.tv_usec = 0;
@@ -877,7 +877,7 @@ interact(void)
 		    free(msg);
 		    break;
 		}
-		start = realize(tv1);
+		start = __pmtimevalToReal(&tv1);
 		if (archives)
 		    invalidate();
 		break;
@@ -893,7 +893,7 @@ interact(void)
 		    free(msg);
 		    break;
 		}
-		runTime = realize(tv1);
+		runTime = __pmtimevalToReal(&tv1);
 		break;
 	    case 'q':
 		quit = 1;
