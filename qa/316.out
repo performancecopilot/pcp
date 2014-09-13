@@ -65,20 +65,20 @@ seconds ...
 "8.SECS" Time: 8.000000 sec
 "8.s" Time: 8.000000 sec
 "8.S" Time: 8.000000 sec
-"   9.123   second" Time: 9.122999 sec
-"   9.123   SECOND" Time: 9.122999 sec
-"   9.123   seconds" Time: 9.122999 sec
-"   9.123   SECONDS" Time: 9.122999 sec
-"   9.123   sec" Time: 9.122999 sec
-"   9.123   SEC" Time: 9.122999 sec
-"   9.123   secs" Time: 9.122999 sec
-"   9.123   SECS" Time: 9.122999 sec
-"   9.123   s" Time: 9.122999 sec
-"   9.123   S" Time: 9.122999 sec
+"   9.123   second" Time: 9.123000 sec
+"   9.123   SECOND" Time: 9.123000 sec
+"   9.123   seconds" Time: 9.123000 sec
+"   9.123   SECONDS" Time: 9.123000 sec
+"   9.123   sec" Time: 9.123000 sec
+"   9.123   SEC" Time: 9.123000 sec
+"   9.123   secs" Time: 9.123000 sec
+"   9.123   SECS" Time: 9.123000 sec
+"   9.123   s" Time: 9.123000 sec
+"   9.123   S" Time: 9.123000 sec
 "123" Time: 123.000000 sec
 "45.67" Time: 45.670000 sec
 "8." Time: 8.000000 sec
-"   9.123   " Time: 9.122999 sec
+"   9.123   " Time: 9.123000 sec
 
 minutes ...
 "60minute" Time: 3600.000000 sec
@@ -153,16 +153,16 @@ hours ...
 "10.HRS" Time: 36000.000000 sec
 "10.h" Time: 36000.000000 sec
 "10.H" Time: 36000.000000 sec
-"   0.333333333333  hour" Time: 1199.999999 sec
-"   0.333333333333  HOUR" Time: 1199.999999 sec
-"   0.333333333333  hours" Time: 1199.999999 sec
-"   0.333333333333  HOURS" Time: 1199.999999 sec
-"   0.333333333333  hr" Time: 1199.999999 sec
-"   0.333333333333  HR" Time: 1199.999999 sec
-"   0.333333333333  hrs" Time: 1199.999999 sec
-"   0.333333333333  HRS" Time: 1199.999999 sec
-"   0.333333333333  h" Time: 1199.999999 sec
-"   0.333333333333  H" Time: 1199.999999 sec
+"   0.333333333333  hour" Time: 1199.1000000 sec
+"   0.333333333333  HOUR" Time: 1199.1000000 sec
+"   0.333333333333  hours" Time: 1199.1000000 sec
+"   0.333333333333  HOURS" Time: 1199.1000000 sec
+"   0.333333333333  hr" Time: 1199.1000000 sec
+"   0.333333333333  HR" Time: 1199.1000000 sec
+"   0.333333333333  hrs" Time: 1199.1000000 sec
+"   0.333333333333  HRS" Time: 1199.1000000 sec
+"   0.333333333333  h" Time: 1199.1000000 sec
+"   0.333333333333  H" Time: 1199.1000000 sec
 
 days ...
 "1day" Time: 86400.000000 sec
@@ -177,10 +177,10 @@ days ...
 "10.DAY" Time: 864000.000000 sec
 "10.d" Time: 864000.000000 sec
 "10.D" Time: 864000.000000 sec
-"   0.083333333333  day" Time: 7199.999999 sec
-"   0.083333333333  DAY" Time: 7199.999999 sec
-"   0.083333333333  d" Time: 7199.999999 sec
-"   0.083333333333  D" Time: 7199.999999 sec
+"   0.083333333333  day" Time: 7199.1000000 sec
+"   0.083333333333  DAY" Time: 7199.1000000 sec
+"   0.083333333333  d" Time: 7199.1000000 sec
+"   0.083333333333  D" Time: 7199.1000000 sec
 
 some hybrids ...
 "1min30sec" Time: 90.000000 sec
