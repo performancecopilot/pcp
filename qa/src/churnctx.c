@@ -388,12 +388,7 @@ Options:\n\
 		    exit(1);
 		}
 	    }
-	    appStart.tv_sec += delta.tv_sec;
-	    appStart.tv_usec += delta.tv_usec;
-	    if (appStart.tv_usec > 1000000) {
-		appStart.tv_usec -= 1000000;
-		appStart.tv_sec++;
-	    }
+	    __pmtimevalInc(&appStart, &delta);
 	}
 
 	if (nmetric > 0) {

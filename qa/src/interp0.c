@@ -185,8 +185,9 @@ Options\n\
 	    exit(1);
 	}
 	if (prev) {
-	    tdiff = result->timestamp.tv_sec - prev->timestamp.tv_sec +
-		    (double)(result->timestamp.tv_usec - prev->timestamp.tv_usec) / 1000000;
+	    struct timeval tmp = result->timestamp;
+	    __pmtimevalDec(&tmp, &prev->timestamp);
+	    tdiff = __pmtimevalToReal(&tmp);
 	    printf("\nsample %d, delta time=%.3f secs\n", i, tdiff);
 	    for (j = 0; j < numpmid; j++) {
 		printf("%s: ", name[j]);
@@ -230,8 +231,9 @@ Options\n\
 			    printf("event decode error: %s\n", pmErrStr(sts));
 			} else {
 			    for (r = 0; r < sts; r++) {
-				tdiff = records[r]->timestamp.tv_sec - prev->timestamp.tv_sec + (double)
-				    (records[r]->timestamp.tv_usec - prev->timestamp.tv_usec) / 1000000;
+				struct timeval tmp = records[r]->timestamp;
+				__pmtimevalDec(&tmp, &prev->timestamp);
+				tdiff = __pmtimevalToReal(&tmp);
 				printf("\nevent %d, offset time=%.3f secs, param ids:", j+1, tdiff);
 				for (param = 0; param < records[r]->numpmid; param++)
 				    printf(" %s", pmIDStr(records[r]->vset[param]->pmid));
@@ -250,9 +252,9 @@ Options\n\
 			    printf("highres event decode error: %s\n", pmErrStr(sts));
 			} else {
 			    for (r = 0; r < sts; r++) {
-				tdiff = hrecords[r]->timestamp.tv_sec - prev->timestamp.tv_sec + (double)
-				    (hrecords[r]->timestamp.tv_nsec - prev->timestamp.tv_usec * 1000)
-					/ 1000000000;
+				tdiff = hrecords[r]->timestamp.tv_sec - prev->timestamp.tv_sec +
+				(long double)(hrecords[r]->timestamp.tv_nsec - prev->timestamp.tv_usec * 1000)
+					/ (long double)1000000000;
 				printf("\nhighres event %d, offset time=%.9f secs, param ids:", j+1, tdiff);
 				for (param = 0; param < hrecords[r]->numpmid; param++)
 				    printf(" %s", pmIDStr(hrecords[r]->vset[param]->pmid));
