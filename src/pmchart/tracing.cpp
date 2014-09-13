@@ -25,12 +25,16 @@ TracingItem::TracingItem(Chart *chart,
 	QmcMetric *mp, pmMetricSpec *msp, pmDesc *dp, const QString &legend)
 	: ChartItem(mp, msp, dp, legend)
 {
+    struct timeval	limit;
     my.chart = chart;
     my.minSpanID = 0;
     my.maxSpanID = 1;
-    my.minSpanTime = tosec(mp->context()->source().start());
-    if (mp->context()->source().isArchive())
-	my.maxSpanTime = tosec(mp->context()->source().end());
+    limit = mp->context()->source().start();
+    my.minSpanTime = __pmtimevalToReal(&limit);
+    if (mp->context()->source().isArchive()) {
+	limit = mp->context()->source().end();
+	my.maxSpanTime = __pmtimevalToReal(&limit);
+    }
     else
 	my.maxSpanTime = my.minSpanTime * 1.1;
 
@@ -95,7 +99,7 @@ TracingItem::curve(void)
 
 TracingEvent::TracingEvent(QmcEventRecord const &record, pmID pmid, int inst)
 {
-    my.timestamp = tosec(*record.timestamp());
+    my.timestamp = __pmtimevalToReal(record.timestamp());
     my.missed = record.missed();
     my.flags = record.flags();
     my.pmid = pmid;

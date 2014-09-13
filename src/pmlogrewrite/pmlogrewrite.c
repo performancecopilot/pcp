@@ -594,16 +594,14 @@ fixstamp(struct timeval *tvp)
 {
     if (global.flags & GLOBAL_CHANGE_TIME) {
 	if (global.time.tv_sec > 0) {
-	    tvp->tv_sec += global.time.tv_sec;
-	    tvp->tv_usec += global.time.tv_usec;
-	    if (tvp->tv_usec > 1000000) {
-		tvp->tv_sec++;
-		tvp->tv_usec -= 1000000;
-	    }
+	    __pmtimevalInc(tvp, &global.time);
 	    return 1;
 	}
 	else if (global.time.tv_sec < 0) {
-	    /* parser makes tv_sec < 0 and tv_usec >= 0 */
+	    /*
+	     * parser makes tv_sec < 0 and tv_usec >= 0 ...
+	     * so cannot use __pmtimevalDec() here
+	     */
 	    tvp->tv_sec += global.time.tv_sec;
 	    tvp->tv_usec -= global.time.tv_usec;
 	    if (tvp->tv_usec < 0) {

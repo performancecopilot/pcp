@@ -698,11 +698,11 @@ log_callback(int afid, void *data)
 		    (int)tp->t_delta.tv_sec, pdu_bytes);
 	    }
 	    else
-		fprintf(stderr, "every %d.%03d sec: %d bytes ",
-		    (int)tp->t_delta.tv_sec, (int)tp->t_delta.tv_usec / 1000, pdu_bytes);
+		fprintf(stderr, "every %.3f sec: %d bytes ",
+		    __pmtimevalToReal(&tp->t_delta), pdu_bytes);
 	    fprintf(stderr, "or %.2f Mbytes/day\n",
 		((double)pdu_bytes * 24 * 60 * 60) /
-		(1024 * 1024 * (tp->t_delta.tv_sec + (double)tp->t_delta.tv_usec / 1000000)));
+		(1024 * 1024 * __pmtimevalToReal(&tp->t_delta)));
 	}
     }
 

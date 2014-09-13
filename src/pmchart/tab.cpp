@@ -236,8 +236,8 @@ void Tab::stopRecording(void)
 
 	Tab *tab = new Tab;
 	console->post("Tab::stopRecording creating tab: delta=%.2f pos=%.2f",
-			tosec(*pmtime->archiveInterval()),
-			tosec(*pmtime->archivePosition()));
+			__pmtimevalToReal(pmtime->archiveInterval()),
+			__pmtimevalToReal(pmtime->archivePosition()));
 	// TODO: may need to update archive samples/visible?
 	tab->init(pmchart->tabWidget(), archiveGroup, "Record");
 	pmchart->addActiveTab(tab);

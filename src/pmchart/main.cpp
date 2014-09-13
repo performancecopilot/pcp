@@ -71,17 +71,6 @@ static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_END
 };
 
-// a := a + b for struct timevals
-void tadd(struct timeval *a, struct timeval *b)
-{
-    a->tv_usec += b->tv_usec;
-    if (a->tv_usec > 1000000) {
-	a->tv_usec -= 1000000;
-	a->tv_sec++;
-    }
-    a->tv_sec += b->tv_sec;
-}
-
 //
 // a : b for struct timevals ... <0 for a<b, ==0 for a==b, >0 for a>b
 //
@@ -93,23 +82,10 @@ int tcmp(struct timeval *a, struct timeval *b)
     return res;
 }
 
-// convert timeval to seconds
-double tosec(struct timeval t)
-{
-    return t.tv_sec + (t.tv_usec / 1000000.0);
-}
-
 // create a time range in seconds from (delta x points)
 double torange(struct timeval t, int points)
 {
-    return tosec(t) * points;
-}
-
-// conversion from seconds (double precision) to struct timeval
-void fromsec(double value, struct timeval *tv)
-{
-    tv->tv_sec = (time_t)value;
-    tv->tv_usec = (long)(((value - (double)tv->tv_sec) * 1000000.0));
+    return __pmtimevalToReal(&t) * points;
 }
 
 // debugging, display seconds-since-epoch in human readable format
@@ -574,7 +550,7 @@ main(int argc, char ** argv)
 
     /* set initial sampling interval from command line, else global setting */
     if (opts.interval.tv_sec == 0 && opts.interval.tv_usec == 0)
-	fromsec(globalSettings.chartDelta, &opts.interval);
+	__pmtimevalFromReal(globalSettings.chartDelta, &opts.interval);
 
     console = new QedConsole(opts.origin);
 
@@ -663,7 +639,7 @@ main(int argc, char ** argv)
 	// move position to account for initial visible points
 	if (tcmp(&opts.origin, &opts.start) <= 0)
 	    for (c = 0; c < globalSettings.visibleHistory - 2; c++)
-		tadd(&opts.origin, &opts.interval);
+		__pmtimevalAdd(&opts.origin, &opts.interval);
 	if (tcmp(&opts.origin, &opts.finish) > 0)
 	    opts.origin = opts.finish;
     }

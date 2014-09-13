@@ -372,7 +372,7 @@ void TimeControl::protocolMessage(bool live,
 #if DESPERATE
     console->post(PmChart::DebugProtocol,
 		  "TimeControl::protocolMessage: recv pos=%s state=%d",
-		  timeString(tosec(packet->position)), *state);
+		  timeString(__pmtimevalToReal(&packet->position)), *state);
 #endif
 
     switch (*state) {

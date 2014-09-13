@@ -617,7 +617,7 @@ dumpHeader()
 static int
 getXTBintervalFromTimeval(int *mode, struct timeval *tval)
 {
-    double tmp_ival = tval->tv_sec + tval->tv_usec / 1000000.0;
+    double tmp_ival = __pmtimevalToReal(tval);
 
     if (tmp_ival > SECS_IN_24_DAYS) {
 	*mode = (*mode & 0x0000ffff) | PM_XTB_SET(PM_TIME_SEC);
@@ -632,24 +632,14 @@ getXTBintervalFromTimeval(int *mode, struct timeval *tval)
 static struct timeval
 tadd(struct timeval t1, struct timeval t2)
 {
-    t1.tv_sec += t2.tv_sec;
-    t1.tv_usec += t2.tv_usec;
-    if (t1.tv_usec > 1000000) {
-	(t1.tv_sec)++;
-	t1.tv_usec -= 1000000;
-    }
+    __pmtimevalInc(&t1, &t2);
     return t1;
 }
 
 static struct timeval
 tsub(struct timeval t1, struct timeval t2)
 {
-    t1.tv_usec -= t2.tv_usec;
-    if (t1.tv_usec < 0) {
-	t1.tv_usec += 1000000;
-	t1.tv_sec--;
-    }
-    t1.tv_sec -= t2.tv_sec;
+    __pmtimevalDec(&t1, &t2);
     return t1;
 }
 

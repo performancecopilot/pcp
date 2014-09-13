@@ -124,7 +124,7 @@ getReal(void)
     struct timeval t;
 
     __pmtimevalNow(&t);
-    return realize(t);
+    return __pmtimevalToReal(&t);
 }
 
 
@@ -170,18 +170,8 @@ reflectTime(RealTime d)
     weekday = (double) tm.tm_wday;
 }
 
-
-/* convert RealTime to timeval */
-void
-unrealize(RealTime rt, struct timeval *tv)
-{
-    tv->tv_sec = (time_t)rt;
-    tv->tv_usec = (int)(1000000 * (rt - tv->tv_sec));
-}
-
-
 /* convert RealTime to timespec */
-void
+static void
 unrealizenano(RealTime rt, struct timespec *ts)
 {
     ts->tv_sec = (time_t)rt;

@@ -94,13 +94,7 @@ refresh_uptime(unsigned int *uptime)
     }
 
     __pmtimevalNow(&timediff);
-    timediff.tv_usec -= boottime.tv_usec;
-    if (timediff.tv_usec < 0) {
-	timediff.tv_usec += 1000000;
-	timediff.tv_sec--;
-    }
-    timediff.tv_sec -= boottime.tv_sec;
-
+    __pmtimevalDec(&timediff, &boottime);
     *uptime = timediff.tv_sec;
     return 0;
 }

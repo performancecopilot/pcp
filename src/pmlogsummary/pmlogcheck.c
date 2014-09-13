@@ -61,19 +61,8 @@ tsub(struct timeval *a, struct timeval *b)
 {
     if ((a == NULL) || (b == NULL))
 	return -1;
-    a->tv_usec -= b->tv_usec;
-    if (a->tv_usec < 0) {
-	a->tv_usec += 1000000;
-	a->tv_sec--;
-    }
-    a->tv_sec -= b->tv_sec;
+    __pmtimevalDec(a, b);
     return 0;
-}
-
-static double
-tosec(struct timeval t)
-{
-    return t.tv_sec + (t.tv_usec / 1000000.0);
 }
 
 static char *
@@ -368,7 +357,7 @@ docheck(pmResult *result)
 		    timediff.tv_sec = 0;
 		    timediff.tv_usec = 0;
 		}
-		diff = tosec(timediff);
+		diff = __pmtimevalToReal(&timediff);
 		if ((sts = pmExtractValue(vsp->valfmt, vp, checkdata->desc.type, &av, PM_TYPE_DOUBLE)) < 0) {
 		    printf("[");
 		    print_stamp(stdout, &result->timestamp);
@@ -519,8 +508,7 @@ main(int argc, char *argv[])
 		else
 		    cnt_err++;
 	    }
-	    printf("] delta(stamp)=%d.%03fsec",
-		(int)delta_stamp.tv_sec, (double)(delta_stamp.tv_usec)/1000000);
+	    printf("] delta(stamp)=%.3fsec", __pmtimevalToReal(&delta_stamp));
 	    printf(" numpmid=%d sum(numval)=%d", result->numpmid, sum_val);
 	    if (cnt_noval > 0)
 		printf(" count(numval=0)=%d", cnt_noval);

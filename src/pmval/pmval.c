@@ -279,8 +279,7 @@ getvals(Context *x,		/* in - full pm description */
     if (opts.guiflag)
 	pmTimeStateAck(&controls, pmtime);
 
-    if ((double)r->timestamp.tv_sec + (double)r->timestamp.tv_usec/1000000 >
-	(double)opts.finish.tv_sec + (double)opts.finish.tv_usec/1000000) {
+    if (__pmtimevalToReal(&r->timestamp) > __pmtimevalToReal(&opts.finish)) {
 	pmFreeResult(r);
 	return -2;
     }

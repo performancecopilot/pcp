@@ -221,12 +221,7 @@ ParseSize(char *size_arg, int *sample_counter, __int64_t *byte_size,
 static void
 tsub(struct timeval *a, struct timeval *b)
 {
-    a->tv_usec -= b->tv_usec;
-    if (a->tv_usec < 0) {
-        a->tv_usec += 1000000;
-        a->tv_sec--;
-    }
-    a->tv_sec -= b->tv_sec;
+    __pmtimevalDec(a, b);
     if (a->tv_sec < 0) {
         /* clip negative values at zero */
         a->tv_sec = 0;

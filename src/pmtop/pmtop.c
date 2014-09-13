@@ -456,7 +456,6 @@ void
 doit(void)
 {
     int i, r, m, v, sts;
-    static double now = 0, then = 0;
     double delta_d;
     static unsigned long num_times = 0;
     static pmResult *result[2];
@@ -485,9 +484,7 @@ doit(void)
 
 
     if (num_times > 1) {
-        then = result[0]->timestamp.tv_sec + result[0]->timestamp.tv_usec/1000000;
-        now = result[1]->timestamp.tv_sec + result[1]->timestamp.tv_usec/1000000;
-	delta_d = now - then;
+	delta_d = __pmtimevalSub(&result[1]->timestamp, &result[0]->timestamp);
 
         if (result[1]->numpmid != num_pmid) {
 	    fprintf(stderr, "%s: Failed to fetch all metrics (%d out of %d)\n", 

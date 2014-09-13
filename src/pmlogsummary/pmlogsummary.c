@@ -118,12 +118,7 @@ tsub(struct timeval *a, struct timeval *b)
 {
     if ((a == NULL) || (b == NULL))
 	return -1;
-    a->tv_usec -= b->tv_usec;
-    if (a->tv_usec < 0) {
-	a->tv_usec += 1000000;
-	a->tv_sec--;
-    }
-    a->tv_sec -= b->tv_sec;
+    __pmtimevalDec(a, b);
     if (a->tv_sec < 0) {
 	/* clip negative values at zero */
 	a->tv_sec = 0;
@@ -137,19 +132,8 @@ tadd(struct timeval *a, struct timeval *b)
 {
     if ((a == NULL) || (b == NULL))
 	return -1;
-    a->tv_usec += b->tv_usec;
-    if (a->tv_usec > 1000000) {
-	a->tv_usec -= 1000000;
-	a->tv_sec++;
-    }
-    a->tv_sec += b->tv_sec;
+    __pmtimevalInc(a, b);
     return 0;
-}
-
-static double
-tosec(struct timeval t)
-{
-    return t.tv_sec + (t.tv_usec / 1000000.0);
 }
 
 static void
@@ -292,13 +276,13 @@ printsummary(const char *name)
 		tsub(&timediff, &instdata->lasttime);
 		val = instdata->lastval;
 		instdata->stocave += val;
-		instdata->timeave += val*tosec(timediff);
+		instdata->timeave += val*__pmtimevalToReal(&timediff);
 		instdata->lasttime = opts.finish;
 		instdata->count++;
 	    }
 	    metrictimespan = instdata->lasttime;
 	    tsub(&metrictimespan, &instdata->firsttime);
-	    metricspan = tosec(metrictimespan);
+	    metricspan = __pmtimevalToReal(&metrictimespan);
 	    /* counter metric doesn't cover 90% of log */
 	    star = (avedata->desc.sem == PM_SEM_COUNTER && metricspan / logspan <= 0.1);
 
@@ -585,7 +569,7 @@ markrecord(pmResult *result)
 		    tsub(&timediff, &instdata->lasttime);
 		    val = instdata->lastval;
 		    instdata->stocave += val;
-		    instdata->timeave += val*tosec(timediff);
+		    instdata->timeave += val*__pmtimevalToReal(&timediff);
 		    instdata->lasttime = result->timestamp;
 		    instdata->count++;
 		}
@@ -683,7 +667,7 @@ calcbinning(pmResult *result)
 
 		timediff = result->timestamp;
 		tsub(&timediff, &instdata->lasttime);
-		diff = tosec(timediff);
+		diff = __pmtimevalToReal(&timediff);
 		wrap = 0;
 		if (avedata->desc.sem == PM_SEM_COUNTER) {
 		    diff *= avedata->scale;
@@ -820,7 +804,7 @@ calcaverage(pmResult *result)
 		    continue;
 		timediff = result->timestamp;
 		tsub(&timediff, &instdata->lasttime);
-		diff = tosec(timediff);
+		diff = __pmtimevalToReal(&timediff);
 		wrap = 0;
 		if (avedata->desc.sem == PM_SEM_COUNTER) {
 		    diff *= avedata->scale;
@@ -941,7 +925,7 @@ calcaverage(pmResult *result)
 
 			metrictimespan = result->timestamp;
 			tsub(&metrictimespan, &instdata->firsttime);
-			metricspan = tosec(metrictimespan);
+			metricspan = __pmtimevalToReal(&metrictimespan);
 			pmNameID(avedata->desc.pmid, &name);
 
 			if (avedata->desc.sem == PM_SEM_COUNTER) {
@@ -1119,7 +1103,7 @@ main(int argc, char *argv[])
     if (lflag)
 	printlabel();
 
-    logspan = tosec(opts.finish) - tosec(opts.start);
+    logspan = __pmtimevalToReal(&opts.finish) - __pmtimevalToReal(&opts.start);
 
     /* check which timestamp print format we should be using */
     timespan = opts.finish;
