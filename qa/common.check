@@ -432,12 +432,48 @@ End-of-File
 #
 _wait_pmlogger_end()
 {
+    #debug# set -x
     pid=$1
 
+    i=0
     while true
     do
-        test -f "$PCP_TMP_DIR/pmlogger/$pid" || return
-	pmsleep 0.1
+        if [ -f "$PCP_TMP_DIR/pmlogger/$pid" ]
+	then
+	    i=`expr $i + 1`
+	    if [ "$i" -ge 100 ]
+	    then
+		echo "_wait_pmlogger_end: failed to see $PCP_TMP_DIR/pmlogger/$pid removed after 100 iterations"
+		return
+	    fi
+	    pmsleep 0.1
+	else
+	    # now there is an ugly race condition at the end of pmloger
+	    # ... once the control file has been removed (as per the test
+	    # above) the pmlogger log file is not complete until the atexit()
+	    # code is run ... so hang around waiting for the process to
+	    # go away
+	    #
+	    i=0
+	    while true
+	    do
+		if sudo kill -s 0 $pid 2>/dev/null
+		then
+		    # process still exists
+		    i=`expr $i + 1`
+		    if [ "$i" -ge 100 ]
+		    then
+			echo "_wait_pmlogger_end: failed to see pid $pid exit after 100 iterations"
+			return
+		    fi
+		    pmsleep 0.1
+		else
+		    # process has really exited
+		    #debug# set +x
+		    return
+		fi
+	    done
+	fi
     done
 }
 
