@@ -53,10 +53,10 @@ pmResult ... numpmid: 1
     inst [3 or ???] value STRING
 dbpmda> instance 62.0
 pmInDom: 62.0
-[  0] inst: 0 name: "/mnt/nfsv4"
-[  1] inst: 1 name: "/mnt/nfs41"
-[  2] inst: 2 name: "/ifs"
-[  3] inst: 3 name: "/ifsfoo"
+[  X] inst: X name: "/ifs"
+[X+1] inst: X+1 name: "/ifsfoo"
+[X+2] inst: X+2 name: "/mnt/nfs41"
+[X+3] inst: X+3 name: "/mnt/nfsv4"
 dbpmda> 
 === Test case: nonfsmounts.qa
 dbpmda> open pipe /usr/bin/perl pmdanfsclient.pl

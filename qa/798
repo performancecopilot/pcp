@@ -27,6 +27,33 @@ _filter()
     | _filter_dumpresult
 }
 
+_filter_indom()
+{
+    # for indom 62.0 the order of the instances (and hence internal
+    # instance number depends on the version of perl and the phase
+    # of the moon ...
+    # pmInDom: 62.0
+    # [  0] inst: 0 name: "/mnt/nfsv4"
+    # [  1] inst: 1 name: "/mnt/nfs41"
+    # [  2] inst: 2 name: "/ifs"
+    # [  3] inst: 3 name: "/ifsfoo"
+    # dbpmda> 
+    #
+    rm -f $tmp.1 $tmp.2 $tmp.3
+    $PCP_AWK_PROG '
+BEGIN						{ part = 1 }
+part == 2 && $1 == "dbpmda>"			{ part = 3 }
+						{ print >"'$tmp'." part }
+part == 1 && $1 == "pmInDom:" && $2 == "62.0"	{ part = 2 }'
+
+    [ -f $tmp.1 ] && cat $tmp.1
+    [ -f $tmp.2 ] && LC_COLLATE=posix sort --key 6 $tmp.2 \
+    | $PCP_AWK_PROG '
+NR == 1	{ printf "[  X] inst: X name: %s\n",$6 }
+NR > 1	{ printf "[X+%d] inst: X+%d name: %s\n", NR-1, NR-1, $6 }'
+    [ -f $tmp.3 ] && cat $tmp.3
+}
+
 # real QA test starts here
 domain=62
 script=pmdanfsclient.pl
@@ -56,7 +83,7 @@ for file in $test/*.qa
 do
     export NFSCLIENT_MOUNTSTATS_PATH="$file"
     echo === Test case: `basename $file`
-    $sudo dbpmda -n $tmp.root -ie < $tmp.cmds 2>&1 | _filter
+    $sudo dbpmda -n $tmp.root -ie < $tmp.cmds 2>&1 | _filter | _filter_indom
 done
 
 status=0
