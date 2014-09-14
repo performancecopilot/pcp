@@ -102,19 +102,6 @@ __pmtimevalSleep(struct timeval interval)
     }
 }
 
-/* subtract timevals */
-static struct timeval
-tsub(struct timeval t1, struct timeval t2)
-{
-    t1.tv_usec -= t2.tv_usec;
-    if (t1.tv_usec < 0) {
-	t1.tv_usec += 1000000;
-	t1.tv_sec--;
-    }
-    t1.tv_sec -= t2.tv_sec;
-    return t1;
-}
-
 /* convert timeval to timespec */
 static struct timespec *
 tospec(struct timeval tv, struct timespec *ts)
@@ -142,7 +129,7 @@ __pmtimevalPause(struct timeval sched)
     struct timespec left;	/* remaining sleep time */
 
     __pmtimevalNow(&curr);
-    tospec(tsub(sched, curr), &delay);
+    tospec(__pmtimevalDec(&sched, &curr), &delay);
     for (;;) {		/* loop to catch early wakeup by nanosleep */
 	sts = nanosleep(&delay, &left);
 	if (sts == 0 || (sts < 0 && oserror() != EINTR))
