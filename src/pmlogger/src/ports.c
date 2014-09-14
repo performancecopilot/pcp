@@ -45,6 +45,13 @@ int		ctlport;	/* pmlogger control port number */
 static void
 cleanup(void)
 {
+    /*
+     * flush all stdio buffers, _then_ remove the control files ...
+     * we have QA than camps on the control file(s) and assumes the
+     * log file is complete once the control file(s) is removed.
+     */
+    fflush(NULL);
+
     if (linkfile != NULL)
 	unlink(linkfile);
     if (ctlfile != NULL)
