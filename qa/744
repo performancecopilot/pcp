@@ -32,6 +32,25 @@ _filter()
 pmns=$PCP_PMDAS_DIR/nvidia/root
 pmda=$PCP_PMDAS_DIR/nvidia/pmda_nvidia,nvidia_init
 
+if [ -f $PCP_PMDAS_DIR/nvidia/help.dir ]
+then
+    # ./Install already run, or QA stumbled past to run newhelp
+    :
+else
+    cd $PCP_PMDAS_DIR/nvidia
+    sudo newhelp -n root help >$tmp.out 2>&1
+    if [ -f $PCP_PMDAS_DIR/nvidia/help.dir ]
+    then
+	:
+    else
+	cat $tmp.out
+	echo "Arrgh ... failed to create help.dir"
+	sts=1
+	exit
+    fi
+    cd $here
+fi
+
 # real QA test starts here
 echo
 echo "== Testing behaviour with no nvidia library available"
