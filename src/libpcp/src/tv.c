@@ -103,12 +103,11 @@ __pmtimevalSleep(struct timeval interval)
 }
 
 /* convert timeval to timespec */
-static struct timespec *
-tospec(struct timeval tv, struct timespec *ts)
+static void
+tospec(struct timeval *tv, struct timespec *ts)
 {
-    ts->tv_nsec = tv.tv_usec * 1000;
-    ts->tv_sec = tv.tv_sec;
-    return ts;
+    ts->tv_nsec = tv->tv_usec * 1000;
+    ts->tv_sec = tv->tv_sec;
 }
 
 #if !defined(IS_MINGW)
@@ -129,7 +128,8 @@ __pmtimevalPause(struct timeval sched)
     struct timespec left;	/* remaining sleep time */
 
     __pmtimevalNow(&curr);
-    tospec(__pmtimevalDec(&sched, &curr), &delay);
+    __pmtimevalDec(&sched, &curr);
+    tospec(&sched, &delay);
     for (;;) {		/* loop to catch early wakeup by nanosleep */
 	sts = nanosleep(&delay, &left);
 	if (sts == 0 || (sts < 0 && oserror() != EINTR))
