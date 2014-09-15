@@ -16,6 +16,13 @@ echo "QA output created by $seq"
 status=1	# failure is the default!
 $sudo rm -f $tmp.* $seq.full
 
+case `python -V 2>&1 | sed -e 's/Python //'`
+in
+    0.*.*|1.*.*|2.0.*|2.1.*|2.3.*|2.4.*)
+	_notrun "need python 2.5 or later"
+	;;
+esac
+
 _filter_dmcache()
 {
     # cull message resulting from no dmcache devices
