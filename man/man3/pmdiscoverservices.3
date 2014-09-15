@@ -21,7 +21,7 @@
 #include <pcp/pmapi.h>
 .sp
 .nf
-int pmDiscoverServices(const char *\fIservice\fP, const char *\fImechanism\fP, const char *\fIglobalOptions\fP, char ***\fIurls\fP);
+int pmDiscoverServices(const char *\fIservice\fP, const char *\fImechanism\fP, char ***\fIurls\fP);
 .fi
 .sp
 cc ... \-lpcp
@@ -62,7 +62,7 @@ The currently supported mechanisms are:
 This searches for services which are broadcasting using mDNS via
 .BR avahi-daemon (8).
 An optional suffix \fB",timeout=NNNN"\fP may be added
-to specify the discovery timeout, in floating-point multiples of one
+to specify the discovery timeout in floating-point multiples of one
 second.  The default timeout is 0.5 seconds, which may be overridden
 by the \fBAVAHI_DISCOVERY_TIMEOUT\fP environment variable, also
 specified in floating-point multiples of one second.
@@ -76,20 +76,12 @@ addresses 192.168.1.0 through 192.168.1.255.
 An optional suffix \fB",maxThreads=N"\fP may be added to limit the number of
 threads used while probing. The default is no fixed limit, which is to say that
 the process' rlimits for the number of threads and open file descriptors
-will be respected.
+will be respected. An optional suffix \fB",timeout=NNNN"\fP may be added
+to specify the timeout for each connection attempt in floating-point multiples
+of one second.  The default timeout is 20 milliseconds.
 .PP
 .IR mechanism
 may also be NULL, which means to use all available discovery mechanisms.
-.PP 
-.I globalOptions
-is a string containing options to be applied to the entire
-discovery process. Currently, the only supported option is \fB"resolve"\fP.
-Normally the
-results are reported as a list of urls containing the network addresses
-of the discovered servers. The \fB"resolve"\fP option requests
-that an attempt be made to resolve these addresses. If successful, the host
-name will be reported instead. If unsuccessful, then the address will be
-reported.
 .PP 
 .B pmDiscoverServices
 will return the number of services discovered, else a value
@@ -150,5 +142,9 @@ function.
 and
 .BR avahi-daemon (8).
 .SH DIAGNOSTICS
-.IP \f3EOPNOTSUPP\f1
+.IP \f3-EINVAL\f1
+An invalid argument has been specified.
+.IP \f3-ENOMEM\f1
+Unable to allocate memory required to process the request.
+.IP \f3-EOPNOTSUPP\f1
 The specified \fImechanism\fP is not supported.
