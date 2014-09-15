@@ -13,7 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ $PCP_VER -ge 30802 ] || _notrun "No support for local:/unix: hostspecs"
+[ $PCP_VER -ge 3802 ] || _notrun "No support for local:/unix: hostspecs"
+_check_valgrind
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
