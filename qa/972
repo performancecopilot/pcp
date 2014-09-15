@@ -18,6 +18,12 @@ pmda_script="$pmda_path/pmdazswap.python"
 test -f "$pmda_script" || _notrun "pmdazswap not supported"
 python -c "from pcp import pmda" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
+case `python -V 2>&1 | sed -e 's/Python //'`
+in
+    0.*.*|1.*.*|2.0.*|2.1.*|2.3.*|2.4.*)
+	_notrun "need python 2.5 or later"
+	;;
+esac
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
