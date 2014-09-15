@@ -120,10 +120,19 @@ do
     then
         case $metric
         in
+	    bytes_written)
+		# unstable, skip these ones
+		;;
+	    curr_connections|connection_structures)
+		# +/- 2
+                _within_tolerance $metric $vpcp $vmemcache 2 -v
+                ;;
             total_connections)
+		# +/- 5
                 _within_tolerance $metric $vpcp $vmemcache 5 -v
                 ;;
             *)
+		# +/- 10%
                 _within_tolerance $metric $vpcp $vmemcache 10% -v
                 ;;
         esac
