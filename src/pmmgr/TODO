@@ -16,3 +16,4 @@
 - outgoing authentication
 - per-host persistent customized configuration (FOO-conf-once?)
 - a runtime control mechanism for inferior pmloggers (pmlc sockets under pmmgr/HOST/foo?)
+- handle host suddenly changing ip address (no downtime)
