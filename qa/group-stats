@@ -6,7 +6,7 @@
 # # log rewriting app
 # pmlogrewrite
 #
-# 015 pdu local ostest oss sanity pmstore
+# 015 pdu local ostest sanity pmstore
 #
 
 awk <group '
@@ -15,7 +15,7 @@ NF == 0		{ next }
 /^[0-9]/	{ for (i = 2; i <= NF; i++) {
 		    if (f[$i] == "") {
 			if ($i == "remote" || $i == "local" || $i == "sanity" ||
-			    $i == "oss" || $i == "ostest" ||
+			    $i == "ostest" ||
 			    $i ~ /^\#/ || $i ~ /patch/) {
 			    # control "groups" or sgi bug numbers
 			    continue
@@ -28,7 +28,7 @@ NF == 0		{ next }
 		  next
 		}
 		{ if ($i == "remote" || $i == "local" || $i == "sanity" ||
-		      $i == "oss" || $i == "ostest")
+		      $i == "ostest")
 		    next
 		  f[$1] = 0
 		}
