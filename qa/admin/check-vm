@@ -187,8 +187,9 @@ rpm?	/usr/lib/libQtCore.so|/usr/lib*/libQtCore.so	[qt-devel]
 dpkg?	/usr/include/Inventor/Qt/SoQt.h	[libsoqt-dev-common]
 dpkg?	/usr/include/Inventor/SoPath.h	[libcoin60-dev or libcoin80-dev]
 # python
-rpm?	/usr/include/python*/Python.h		[python-devel]
-dpkg?	/usr/include/python*/Python.h		[python-dev]
+rpm?	/usr/include/python*/Python.h	[python-devel]
+dpkg?	/usr/include/python*/Python.h	[python-dev]
+rpm?	/usr/lib/python*/curses		[python-curses]
 # nss
 dpkg?	/usr/include/nspr/nspr.h	[libnspr4-dev]
 rpm?	/usr/include/nspr4/nspr.h	[nspr-devel]
