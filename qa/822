@@ -1,0 +1,34 @@
+#!/bin/sh
+# PCP QA Test No. 822
+# pmlogrewrite culling unused indom
+# see http://oss.sgi.com/bugzilla/show_bug.cgi?id=978
+#
+# Copyright (c) 2013 Ken McDonell.  All Rights Reserved.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+seq=`basename $0`
+
+echo "QA output created by $seq"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+# if error
+exit
+
+# optional stuff if your test has verbose output to help resolve problems
+#echo
+#echo "If failure, check $seq.full"
+
+# success, all done
+status=0
+
+exit

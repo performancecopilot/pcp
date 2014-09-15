@@ -911,7 +911,7 @@ avahi
 735 pmda.proc local
 736 pmlogrewrite local
 737 python local
-738 logutil local
+738 logutil local pmlogmv
 739 python getopt local
 740 pmda.sample pmstore secure local
 741 python getopt local
@@ -940,6 +940,7 @@ avahi
 787:reserved archive local pmie pmlogrewrite pmdumplog pmval
 798 pmda.nfsclient local
 815 pmie local
+822:reserved pmlogrewrite
 823 pmda.sample pmstore secure local
 824 pmlogsummary local #1132476
 827 pmlogrewrite pmda.linux local
