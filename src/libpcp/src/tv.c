@@ -78,7 +78,7 @@ void
 __pmtimevalFromReal(double secs, struct timeval *val)
 {
     val->tv_sec = (time_t)secs;
-    val->tv_usec = (long)((long double)(secs - val->tv_sec) * (long double)1000000 + 0.5);
+    val->tv_usec = (long)((long double)(secs - val->tv_sec) * (long double)1000000 + (long double)0.5);
 }
 
 /*
