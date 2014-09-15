@@ -535,7 +535,7 @@ resolveCallback(
 
     switch (event) {
 	case AVAHI_RESOLVER_FAILURE:
-	    context->error = avahi_client_errno(avahi_service_resolver_get_client(r));
+	    context->error = EOPNOTSUPP;
 	    break;
 
 	case AVAHI_RESOLVER_FOUND:
@@ -604,7 +604,7 @@ browseCallback(
     
     switch (event) {
         case AVAHI_BROWSER_FAILURE:
-	    context->error = avahi_client_errno(c);
+	    context->error = EOPNOTSUPP;
 	    avahi_simple_poll_quit(simplePoll);
 	    break;
 
@@ -619,7 +619,7 @@ browseCallback(
 					     name, type, domain,
 					     AVAHI_PROTO_UNSPEC, (AvahiLookupFlags)0,
 					     resolveCallback, context))) {
-		context->error = avahi_client_errno(c);
+		context->error = EOPNOTSUPP;
 	    }
             break;
 
@@ -638,7 +638,7 @@ browsingClientCallback(AvahiClient *c, AvahiClientState state, void *userdata)
     if (state == AVAHI_CLIENT_FAILURE) {
 	browsingContext *context = (browsingContext *)userdata;
 	AvahiSimplePoll *simplePoll = context->simplePoll;
-	context->error = avahi_client_errno(c);
+	context->error = EOPNOTSUPP;
         avahi_simple_poll_quit(simplePoll);
     }
 }
@@ -716,8 +716,12 @@ __pmAvahiDiscoverServices(const char *service,
 			      browsingClientCallback, &context, &context.error);
 
     /* Check whether creating the client object succeeded. */
-    if (! client)
+    if (! client) {
+	/* Avahi error codes are negative, and are of no use to the caller. */
+	if (context.error < 0)
+	    context.error = EOPNOTSUPP;
 	goto done;
+    }
     
     /* Create the service browser. */
     size = sizeof("_._tcp") + strlen(service); /* includes room for the nul */
@@ -791,10 +795,8 @@ __pmAvahiDiscoverServices(const char *service,
      * Check to see if there was an error. Make sure that the returned error
      * code is negative.
      */
-    if (context.error > 0)
+    if (context.error)
 	return -context.error;
-    if (context.error < 0)
-	return context.error;
 
     return numUrls;
 }
