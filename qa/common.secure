@@ -73,7 +73,9 @@ nss_filter_pminfo()
 	-e "s/$qahost/QAHOST/g" \
 	-e "s/$hostname/HOST/g" \
 	-e "/^SHA1 fingerprint is .*/d" \
-	-e 's/value [0-9][0-9]*/value NUMBER/'
+	-e 's/value [0-9][0-9]*/value NUMBER/' \
+	-e "/Cannot connect to PMCD on host/s/Unknown code ___f 13/Peer's Certificate issuer is not recognized./" \
+	-e "/Cannot connect to PMCD on host/s/Unknown code ___f 10/Peer's certificate has an invalid signature./"
 }
 
 nss_setup_randomness()
