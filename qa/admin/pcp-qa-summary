@@ -334,7 +334,7 @@ $1 == last	{ for (i = 0; i < nh; i++) {
     then
 	sed -e 2q <$tmp.mapout
 	sed -e 1,2d <$tmp.mapout \
-	| sort --key=2,2n --key=1,1n
+	| sort --key=2,2nr --key=1,1n
     else
 	cat $tmp.mapout
     fi \
