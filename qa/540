@@ -37,28 +37,33 @@ echo >$seq.full
 # Need to dodge this one
 # lrwxrwxrwx 1 root root 16 2014-08-23 16:24 control -> ../device-mapper
 #
-echo "== /dev/mapper" >> $seq.full
+echo "== /dev/mapper" >>$seq.full
 ls -l /dev/mapper | tee -a $seq.full >$tmp.tmp
-if grep -q '/^total [0-9]/' $tmp.tmp
+if grep '^total [0-9]' $tmp.tmp >/dev/null 2>&1
 then
     sed <$tmp.tmp -n -e '/->/{
-s/.*\([^ ][^ ]*\) -> \([^ ][^ ]*\)/\2 \1/
+s/\([^ ][^ ]*\) -> \([^ ][^ ]*\)/|\2 \1/
+s/.*|//
 s/^\.\.\///
 p
 }' \
-    | LC_COLLATE=POSIX sort > $tmp.dev.mapper
+    | LC_COLLATE=POSIX sort >$tmp.dev.mapper
 else
     touch $tmp.dev.mapper
 fi
+echo "--- map ---" >>$seq.full
+cat $tmp.dev.mapper >>$seq.full
 
 # Get the device mapper names from pmdalinux
 #
-echo "== pmdalinux" >> $seq.full
+echo "== pmdalinux" >>$seq.full
 pminfo -f hinv.map.lvname | tee -a $seq.full \
     | $PCP_AWK_PROG '/inst/ { print $4, $6 }' \
     | tr -d '"]' \
     | LC_COLLATE=POSIX sort \
-    > $tmp.pcp.indom
+    >$tmp.pcp.indom
+echo "--- map ---" >>$seq.full
+cat $tmp.pcp.indom >>$seq.full
 
 if diff $tmp.pcp.indom $tmp.dev.mapper >$tmp.indom.diff
 then
