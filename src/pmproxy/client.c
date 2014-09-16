@@ -93,6 +93,7 @@ AcceptNewClient(int reqfd)
     client[i].fd = fd;
     client[i].pmcd_fd = -1;
     client[i].status.connected = 1;
+    client[i].status.allowed = 0;
     client[i].pmcd_hostname = NULL;
 
     /*
