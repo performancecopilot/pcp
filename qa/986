@@ -23,6 +23,10 @@ in
 	;;
 esac
 
+# borrowed from dmcache PMDA Install ...
+#
+which dmsetup >/dev/null 2>&1 || _notrun "Device Mapper 'dmsetup' binary not found"
+
 _filter_dmcache()
 {
     # cull message resulting from no dmcache devices
