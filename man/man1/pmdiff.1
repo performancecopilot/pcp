@@ -13,7 +13,7 @@
 .\" for more details.
 .\" 
 .\" 
-.TH PMWTF 1 "PCP" "Performance Co-Pilot"
+.TH PMDIFF 1 "PCP" "Performance Co-Pilot"
 .SH NAME
 \f3pmdiff\f1 \- compares archives and report significant differences
 .SH SYNOPSIS
@@ -86,6 +86,13 @@ This ratio can be adjusted using the
 option, and by default it is 2 (i.e. report all metrics with average
 values that have more than doubled in the two time windows or more
 than halved in the two time windows).
+.PP
+If the baseline value is zero and the comparison value is non-zero,
+the ratio is reported as ``|+|'' (infinitely large).
+If the comparison value is zero and the baseline value is non-zero,
+the ratio is reported as ``|-|'' (infinitely small).
+.PP
+Reported metrics are sorted in ascending ratio order.
 .PP
 Should any metrics be present in one window but missing from the
 other, a diagnostic will be displayed listing each missing metric

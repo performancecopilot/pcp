@@ -19,6 +19,11 @@
 # Get standard environment
 . $PCP_DIR/etc/pcp.env
 
+# default to POSIX Locale to make output deterministic for sort(1),
+# join(1) and comm(1)
+#
+export LC_COLLATE=${LC_COLLATE:-POSIX}
+
 tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
 status=1
 trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
@@ -237,7 +242,7 @@ fi
 a1=`basename "$arch1"`
 a2=`basename "$arch2"`
 echo "$thres" | awk '
-    { printf "Ratio Threshold: > %.2f or < %.3f\n",'"$thres"',1/'"$thres"'
+    { printf "Ratio Threshold: >= %.2f or <= %.3f\n",'"$thres"',1/'"$thres"'
       printf "%*s %*s   Ratio  Metric-Instance\n",
              '$colwidth', "'"$a1"'", '$colwidth', "'"$a2"'" }'
 if [ -z "$start1" ] 
@@ -294,7 +299,7 @@ $3+0 == 0 || $2+0 == 0 {
 		    printf "|+|   %s\n",$1
 		next
 }
-$2 / $3 > '"$thres"' || $3 / $2 > '"$thres"'	{
+$2 / $3 >= '"$thres"' || $3 / $2 >= '"$thres"'	{
 		doval($2)
 		doval($3)
 		printf " "
@@ -309,8 +314,16 @@ $2 / $3 > '"$thres"' || $3 / $2 > '"$thres"'	{
 		    printf "%5.2f  ",r
 		printf " %s\n",$1
 	}' \
-| sort -nr -k 3,3 \
-| sed -e 's/100+/>100/' -e 's/ 0.001-/<0.001 /'
+| sort -k 3,3nr -k 4 \
+| sed -e 's/100+/>100/' -e 's/ 0.001-/<0.001 /' >$tmp/out
+
+# sort in ratio order
+#
+$PCP_AWK_PROG '$3 == "|+|" {print}' <$tmp/out
+$PCP_AWK_PROG '$3 == ">100" {print}' <$tmp/out
+$PCP_AWK_PROG '$3 ~/^[0-9]/ {print}' <$tmp/out
+$PCP_AWK_PROG '$3 == "<0.001" {print}' <$tmp/out
+$PCP_AWK_PROG '$3 == "|-|" {print}' <$tmp/out
 
 status=0
 exit
