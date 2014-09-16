@@ -57,6 +57,28 @@ is started, i.e.
 .BR $PCP_LOG_DIR/pmcd .
 If the log file cannot
 be created or is not writable, output is written to the standard error instead.
+.P
+The
+.BR pmstore (1)
+command can be used to enable and disable tracking of particular metrics.
+Using the papi.control.enable and papi.control.disable metrics, one may set
+the metrics you wish to track using a space or comma seperated list.
+.P
+.ft CW
+.nf
+.in +0.5i
+# pmstore papi.control.enable "TOT_CYC TOT_INS"
+papi.control.enable old value="" new value="TOT_CYC TOT_INS"
+
+# pmval papi.system.TOT_CYC
+            8.371E+04
+# pmval papi.system.TOT_INS
+            2.712E+04
+# pmstore papi.control.disable "TOT_CYC,TOT_INS"
+papi.control.disable old value="" new value="TOT_CYC,TOT_INS"
+.in
+.fi
+.PP
 .SH INSTALLATION
 If you want access to the names, help text and values for the \*(ia
 performance metrics, do the following as root:
