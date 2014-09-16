@@ -117,6 +117,8 @@ pmlogreduce
 pmlogmv
 # log summary app
 pmlogsummary
+# log comparison app
+pmdiff
 # pmlogger configuration app
 pmlogconf
 
@@ -952,7 +954,7 @@ avahi
 833 archive context local
 834 pmie local
 835 pmda.memcache local
-836 pmlogsummary local
+836 pmlogsummary local pmdiff
 840 avahi local
 841 pmda local
 842 python local
@@ -992,6 +994,7 @@ avahi
 988 pmda.xfs local valgrind
 991 python local
 994 other verify
+996 pmdiff local
 1000 pmdumptext local
 1001 pmchart local
 1002 pmchart local
