@@ -27,7 +27,7 @@ _filter()
 
 # real QA test starts here
 cat <<'End-of-File' | pmie -t 1sec -T 4sec >$tmp.out 2>&1
-test1 = (kernel.all.load #'1 minute') < sum_inst(kernel.all.load)
+test1 = (kernel.all.load #'1 minute') <= sum_inst(kernel.all.load)
 -> print "TEST1: Left-most single value: v=%v";
 test2 = sum_inst(kernel.all.load) >= (kernel.all.load #'1 minute')
 -> print "TEST2: Left-most sum_inst: v=%v";
