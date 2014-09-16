@@ -94,5 +94,7 @@ pmevent -T 10 systemd.journal.records_raw | tee -a $here/$seq.full | _filter_eve
 # remove PMDA to ensure proper cleanup (in case it wasnt already installed beforehand)
 $sudo ./Remove < /dev/null >/dev/null 2>&1
 
+cat $PCP_LOG_DIR/pmcd/systemd.log >>$here/$seq.full
+
 status=0
 exit
