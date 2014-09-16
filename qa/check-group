@@ -16,6 +16,7 @@ then
     exit 1
 fi
 
+touch $tmp.tmp
 for seq in [0-9][0-9][0-9] [0-9][0-9][0-9][0-9]
 do
     if grep -q "^$seq[: 	]" group
