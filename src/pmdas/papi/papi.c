@@ -843,7 +843,6 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	pmValueSet *vsp = result->vset[i];
 	__pmID_int *idp = (__pmID_int *)&(vsp->pmid);
 	pmAtomValue av;
-
 	if (idp->cluster != CLUSTER_CONTROL)
 	    return PM_ERR_PERMISSION;
 
@@ -1001,6 +1000,33 @@ papi_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
 }
 
 static int
+papi_children(const char *name, int traverse, char ***offspring, int **status, pmdaExt *pmda)
+{
+
+    int i;
+    char **metric_chain = NULL;
+    int  *metric_stats = NULL;
+    char *metric_name = name;
+    int retval;
+    metric_chain = (char **)realloc(metric_chain, number_of_events*sizeof(metric_chain[0]));
+    metric_stats = (int *)realloc(metric_stats, number_of_events*sizeof(metric_stats[0]));
+    for (i = 0; i < number_of_events; i++) {
+	metric_chain[i] = malloc(strlen(papi_info[i].papi_string_code)+strlen(metric_name)+2);
+	strcpy(metric_chain[i], metric_name);
+	metric_chain[i][strlen(metric_name)] = '.';
+	metric_chain[i][strlen(metric_name)+1] = '\0';
+	strcat(metric_chain[i], papi_info[i].papi_string_code);
+	retval = i;
+	metric_stats[i] = PMNS_LEAF_STATUS;
+    }
+
+    *offspring = metric_chain;
+    *status = metric_stats;
+
+    return retval;
+}
+
+static int
 papi_internal_init(void)
 {
     int ec;
@@ -1138,6 +1164,7 @@ papi_init(pmdaInterface *dp)
     dp->version.six.attribute = papi_contextAttributeCallBack;
     dp->version.any.text = papi_text;
     dp->version.four.pmid = papi_pmid;
+    dp->version.four.children = papi_children;
     pmdaSetFetchCallBack(dp, papi_fetchCallBack);
     pmdaSetEndContextCallBack(dp, papi_endContextCallBack);
     pmdaInit(dp, NULL, 0, metrictab, nummetrics);
