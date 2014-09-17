@@ -977,7 +977,7 @@ papi_text(int ident, int type, char **buffer, pmdaExt *ep)
 }
 
 static int
-papi_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
+papi_name_lookup(const char *name, pmID *pmid, pmdaExt *pmda)
 {
 
     int i;
@@ -1160,7 +1160,7 @@ papi_init(pmdaInterface *dp)
     dp->version.six.store = papi_store;
     dp->version.six.attribute = papi_contextAttributeCallBack;
     dp->version.any.text = papi_text;
-    dp->version.four.pmid = papi_pmid;
+    dp->version.four.pmid = papi_name_lookup;
     dp->version.four.children = papi_children;
     pmdaSetFetchCallBack(dp, papi_fetchCallBack);
     pmdaSetEndContextCallBack(dp, papi_endContextCallBack);
