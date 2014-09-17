@@ -13,6 +13,7 @@
 root {
     cgroup
     proc
+    hotproc
 }
 
 cgroup {
@@ -184,5 +185,159 @@ proc.control.perclient {
     threads		PROC:10:2
     cgroups		PROC:10:3
 }
+
+hotproc {
+    nprocs		PROC:52:99
+    psinfo
+    memory
+    id
+    io
+    schedstat
+    fd
+    control
+    total
+    predicate
+}
+
+hotproc.psinfo {
+    pid			PROC:52:0
+    cmd			PROC:52:1
+    sname		PROC:52:2
+    ppid		PROC:52:3
+    pgrp		PROC:52:4
+    session		PROC:52:5
+    tty			PROC:52:6
+    tty_pgrp		PROC:52:7
+    flags		PROC:52:8
+    minflt		PROC:52:9
+    cmin_flt		PROC:52:10
+    maj_flt		PROC:52:11
+    cmaj_flt		PROC:52:12
+    utime		PROC:52:13
+    stime		PROC:52:14
+    cutime		PROC:52:15
+    cstime		PROC:52:16
+    priority		PROC:52:17
+    nice		PROC:52:18
+    /* not valid in 2.2.1 PROC:52:19 */
+    it_real_value	PROC:52:20
+    start_time		PROC:52:21
+    vsize		PROC:52:22
+    rss			PROC:52:23
+    rss_rlim		PROC:52:24
+    start_code		PROC:52:25
+    end_code		PROC:52:26
+    start_stack		PROC:52:27
+    esp			PROC:52:28
+    eip			PROC:52:29
+    signal		PROC:52:30
+    blocked		PROC:52:31
+    sigignore		PROC:52:32
+    sigcatch		PROC:52:33
+    wchan		PROC:52:34
+    nswap		PROC:52:35
+    cnswap		PROC:52:36
+    exit_signal		PROC:52:37
+    processor           PROC:52:38
+    ttyname		PROC:52:39
+    wchan_s             PROC:52:40
+    psargs		PROC:52:41
+    signal_s            PROC:56:16
+    blocked_s           PROC:56:17
+    sigignore_s         PROC:56:18
+    sigcatch_s          PROC:56:19
+    threads		PROC:56:28
+    cgroups		PROC:54:0
+    labels		PROC:55:0
+}
+
+hotproc.id {
+    uid                 PROC:56:0
+    euid                PROC:56:1
+    suid                PROC:56:2
+    fsuid               PROC:56:3
+    gid                 PROC:56:4
+    egid                PROC:56:5
+    sgid                PROC:56:6
+    fsgid               PROC:56:7
+    uid_nm              PROC:56:8
+    euid_nm             PROC:56:9
+    suid_nm             PROC:56:10
+    fsuid_nm            PROC:56:11
+    gid_nm              PROC:56:12
+    egid_nm             PROC:56:13
+    sgid_nm             PROC:56:14
+    fsgid_nm            PROC:56:15
+}
+
+hotproc.memory {
+    size		PROC:53:0
+    rss			PROC:53:1
+    share		PROC:53:2
+    textrss		PROC:53:3
+    librss		PROC:53:4
+    datrss		PROC:53:5
+    dirty		PROC:53:6
+    maps                PROC:53:7
+    vmsize      	PROC:56:20
+    vmlock      	PROC:56:21
+    vmrss      		PROC:56:22
+    vmdata      	PROC:56:23
+    vmstack      	PROC:56:24
+    vmexe      		PROC:56:25
+    vmlib           	PROC:56:26
+    vmswap		PROC:56:27
+}
+
+hotproc.io {
+    rchar		PROC:58:0
+    wchar		PROC:58:1
+    syscr		PROC:58:2
+    syscw		PROC:58:3
+    read_bytes		PROC:58:4
+    write_bytes		PROC:58:5
+    cancelled_write_bytes PROC:58:6
+}
+
+hotproc.schedstat {
+    cpu_time		PROC:57:0
+    run_delay		PROC:57:1
+    pcount		PROC:57:2
+}
+
+hotproc.fd {
+    count		PROC:59:0
+}
+
+hotproc.control {
+    refresh	PROC:60:1
+    config	PROC:60:8
+    config_gen  PROC:60:9
+}
+
+hotproc.total {
+    cpuidle	PROC:60:2
+    cpuburn	PROC:60:3
+    cpuother
+}
+
+hotproc.total.cpuother {
+    transient   PROC:60:4
+    not_cpuburn PROC:60:5
+    total       PROC:60:6
+    percent     PROC:60:7
+}
+
+hotproc.predicate {
+    syscalls       PROC:61:0
+    ctxswitch      PROC:61:1
+    virtualsize    PROC:61:2
+    residentsize   PROC:61:3
+    iodemand       PROC:61:4
+    iowait         PROC:61:5
+    schedwait      PROC:61:6
+    cpuburn        PROC:61:7
+}
+
 
 #undef PROC
