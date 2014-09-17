@@ -7,6 +7,8 @@
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
+int verbose;
+
 int
 result_instlist(pmResult *r, int **list)
 {
@@ -40,6 +42,26 @@ cmp_list(int n, int *list1, int *list2)
     /* success */
     return 0;
 }
+
+static void
+dump_inst(pmInDom indom, char *what, int n, int *list)
+{
+    int		i;
+    int		sts;
+    char	*name;
+
+    fprintf(stderr, "%s:\n", what);
+
+    for (i = 0; i < n; i++) {
+        if ((sts = pmNameInDom(indom, list[i], &name)) < 0) {
+	    fprintf(stderr, "pmNameInDom failed for inst %d: %s\n", list[i], pmErrStr(sts));
+	    name = NULL;
+        }
+	fprintf(stderr, "[%d] %d %s\n", i, list[i], name == NULL ? "???" : name);
+	if (name != NULL) free(name);
+    }
+}
+
 
 int
 do_test(char *name)
@@ -139,30 +161,58 @@ do_test(char *name)
 
     /* now do the checking */
     n_r1 = result_instlist(r1, &r1_instlist);
+    if (n_r1 < 0) {
+	fprintf(stderr, "unprofiled fetch error: %s\n", pmErrStr(n_r1));
+	return n_r1;
+    }
     n_r2 = result_instlist(r2, &r2_instlist);
+    if (n_r2 < 0) {
+	fprintf(stderr, "profiled fetch error: %s\n", pmErrStr(n_r2));
+	return n_r2;
+    }
 
     if (n_r1 != n_r2) {
 	fprintf(stderr, "number of instances for unprofiled fetch (%d) != that for the profiled fetch (%d)\n", n_r1, n_r2);
+	if (verbose) {
+	    dump_inst(desc.indom, "unprofiled fetch", n_r1, r1_instlist);
+	    dump_inst(desc.indom, "profiled fetch", n_r2, r2_instlist);
+	}
 	return PM_ERR_INDOM;
     }
 
     if (n_r1 != n_instlist) {
 	fprintf(stderr, "number of instances from unprofiled fetch (%d) != that for pmGetInDom (%d)\n", n_r1, n_instlist);
+	if (verbose) {
+	    dump_inst(desc.indom, "unprofiled fetch", n_r1, r1_instlist);
+	    dump_inst(desc.indom, "pmGetInDom", n_instlist, instlist);
+	}
 	return PM_ERR_INDOM;
     }
     
     if (cmp_list(n_instlist, instlist, r1_instlist) != 0) {
 	fprintf(stderr, "instances from pmGetIndom do not match those from unprofiled fetch\n");
+	if (verbose) {
+	    dump_inst(desc.indom, "pmGetInDom", n_instlist, instlist);
+	    dump_inst(desc.indom, "unprofiled fetch", n_instlist, r1_instlist);
+	}
 	return PM_ERR_INDOM;
     }
 
     if (cmp_list(n_instlist, instlist, r2_instlist) != 0) {
 	fprintf(stderr, "instances from pmGetIndom do not match those from profiled fetch\n");
+	if (verbose) {
+	    dump_inst(desc.indom, "pmGetInDom", n_instlist, instlist);
+	    dump_inst(desc.indom, "profiled fetch", n_instlist, r2_instlist);
+	}
 	return PM_ERR_INDOM;
     }
 
     if (cmp_list(n_instlist, r1_instlist, r2_instlist) != 0) {
-	fprintf(stderr, "instances from unprofiled fetch do not match those from unprofiled fetch\n");
+	fprintf(stderr, "instances from unprofiled fetch do not match those from profiled fetch\n");
+	if (verbose) {
+	    dump_inst(desc.indom, "unprofiled fetch", n_instlist, r1_instlist);
+	    dump_inst(desc.indom, "profiled fetch", n_instlist, r2_instlist);
+	}
 	return PM_ERR_INDOM;
     }
 
@@ -198,30 +248,58 @@ do_test(char *name)
     }
 
     n_r1 = result_instlist(r1, &r1_instlist);
+    if (n_r1 < 0) {
+	fprintf(stderr, "first half-profile fetch error: %s\n", pmErrStr(n_r1));
+	return n_r1;
+    }
     n_r2 = result_instlist(r2, &r2_instlist);
+    if (n_r2 < 0) {
+	fprintf(stderr, "second half-profile fetch error: %s\n", pmErrStr(n_r2));
+	return n_r2;
+    }
 
     if (n_r1 != n_r2) {
 	fprintf(stderr, "number of instances for first half-profile fetch (%d) != that for the second half-profile fetch (%d)\n", n_r1, n_r2);
+	if (verbose) {
+	    dump_inst(desc.indom, "first half-profile fetch", n_r1, r1_instlist);
+	    dump_inst(desc.indom, "second half-profile fetch", n_r2, r2_instlist);
+	}
 	return PM_ERR_INDOM;
     }
 
     if (n_r1 != n_half_instlist) {
 	fprintf(stderr, "number of instances from first half-profile fetch (%d) != that for the half-profile list (%d)\n", n_r1, n_instlist);
+	if (verbose) {
+	    dump_inst(desc.indom, "first half-profile fetch", n_r1, r1_instlist);
+	    dump_inst(desc.indom, "half-profile list", n_instlist, instlist);
+	}
 	return PM_ERR_INDOM;
     }
     
     if (cmp_list(n_half_instlist, half_instlist, r1_instlist) != 0) {
-	fprintf(stderr, "instances from half-profile list do not match those from half-profile fetch\n");
+	fprintf(stderr, "instances from half-profile list do not match those from first half-profile fetch\n");
+	if (verbose) {
+	    dump_inst(desc.indom, "half-profile list", n_half_instlist, half_instlist);
+	    dump_inst(desc.indom, "first half-profile fetch", n_half_instlist, r1_instlist);
+	}
 	return PM_ERR_INDOM;
     }
 
     if (cmp_list(n_half_instlist, half_instlist, r2_instlist) != 0) {
-	fprintf(stderr, "instances from half-profile list do not match those from half-profile fetch\n");
+	fprintf(stderr, "instances from half-profile list do not match those from second half-profile fetch\n");
+	if (verbose) {
+	    dump_inst(desc.indom, "half-profile list", n_half_instlist, half_instlist);
+	    dump_inst(desc.indom, "second half-profile fetch", n_half_instlist, r2_instlist);
+	}
 	return PM_ERR_INDOM;
     }
 
     if (cmp_list(n_half_instlist, r1_instlist, r2_instlist) != 0) {
 	fprintf(stderr, "instances from first half-profile fetch do not match those from second half-profile fetch\n");
+	if (verbose) {
+	    dump_inst(desc.indom, "first half-profile fetch", n_half_instlist, r1_instlist);
+	    dump_inst(desc.indom, "second half-profile fetch", n_half_instlist, r2_instlist);
+	}
 	return PM_ERR_INDOM;
     }
 
@@ -245,7 +323,7 @@ main(int argc, char **argv)
 
     __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "a:D:h:K:Ln:?")) != EOF) {
+    while ((c = getopt(argc, argv, "a:D:h:K:Ln:v?")) != EOF) {
 	switch (c) {
 
 	case 'a':	/* archive name */
@@ -301,6 +379,10 @@ main(int argc, char **argv)
 	    namespace = optarg;
 	    break;
 
+	case 'v':	/* verbose */
+	    verbose++;
+	    break;
+
 	case '?':
 	default:
 	    errflag++;
@@ -330,7 +412,8 @@ Options\n\
   -L            metrics source is local connection to PMDA, no PMCD\n\
   -K spec       optional additional PMDA spec for local connection\n\
                 spec is of the form op,domain,dso-path,init-routine\n\
-  -n namespace  use an alternative PMNS\n",
+  -n namespace  use an alternative PMNS\n\
+  -v            verbose\n",
 		pmProgname);
 	exit(1);
     }
