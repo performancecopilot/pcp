@@ -648,19 +648,16 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_PAPI:
 	if (!running)
 	    return PMDA_FETCH_NOVALUES;
-	if (idp->item >= 0 && idp->item <= 107) {
+	if (idp->item >= 0 && idp->item <= number_of_events) {
 	    // the 'case' && 'idp->item' value we get is the pmns_position
-	    for (i = 0; i < number_of_events; i++) {
-		if (((__pmID_int *)&papi_info[i].pmid)->item == idp->item) {
-		    if(papi_info[i].position >= 0 && papi_info[i].papi_event_code){
-			atom->ull = papi_info[i].prev_value + values[papi_info[i].position];
-			return PMDA_FETCH_STATIC;
-		    }
-		    else
-			return PMDA_FETCH_NOVALUES;
-		}
+	    if (papi_info[idp->item].position >= 0) {
+		atom->ull = papi_info[idp->item].prev_value + values[papi_info[idp->item].position];
+		return PMDA_FETCH_STATIC;
 	    }
+	    else
+		return PMDA_FETCH_NOVALUES;
 	}
+
 	return PM_ERR_PMID;
 
     case CLUSTER_CONTROL:
