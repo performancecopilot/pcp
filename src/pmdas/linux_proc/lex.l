@@ -14,7 +14,7 @@
 
 %{
 #include "./gram_node.h"
-#include "./gram.h"
+#include "./gram.tab.h"
 #include "pmapi.h"
 
 #define _REGEX_RE_COMP

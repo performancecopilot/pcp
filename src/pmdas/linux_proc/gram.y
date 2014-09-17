@@ -24,6 +24,9 @@ void yyerror(char *s);
 int yylex(void);
 int yyparse(void);
 
+extern int yy_scan_string(const char *);
+#define YYDEBUG 0
+
 int need_psusage = 0;
 int need_accounting = 0;
 static bool_node *pred_tree = NULL;
@@ -141,6 +144,8 @@ pattern_compar:
 
 %%
 
+extern char *conf_buffer;
+
 int
 parse_predicate(bool_node **tree)
 {
@@ -150,6 +155,7 @@ parse_predicate(bool_node **tree)
     yylineno=1;
 
     start_tree();
+    yy_scan_string( conf_buffer );
     sts = yyparse();
 
     /* free any partial trees */

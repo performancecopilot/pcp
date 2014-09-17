@@ -855,7 +855,7 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 
 	    snprintf(buf, sizeof(buf), "%s/proc/%d/cmdline", proc_statspath, pids->pids[i]);
 	    if ((fd = open(buf, O_RDONLY)) >= 0) {
-		sprintf(buf, "%06d ", pids.pids[i]);
+		sprintf(buf, "%06d ", pids->pids[i]);
 		if ((k = read(fd, buf+7, sizeof(buf)-8)) > 0) {
 		    p = buf + k +7;
 		    *p-- = '\0';

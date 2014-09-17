@@ -34,7 +34,6 @@
 #include <grp.h>
 
 #include "../linux/convert.h"
-#include "filesys.h"
 #include "clusters.h"
 #include "indom.h"
 #include "hotproc.h"
@@ -64,7 +63,6 @@ char *proc_statspath = "";	/* optional path prefix for all stats files */
  * It is initialized in proc_init(), see below.
  */
 static pmdaIndom indomtab[NUM_INDOMS];
-#define INDOM(x) (indomtab[x].it_indom)
 
 /*
  * Real metric tab that will be used after we add in hotprocs
@@ -2074,7 +2072,7 @@ int getHotCluster( int cluster ){
 		return CLUSTER_HOTPROC_PID_IO;
 	case CLUSTER_PID_FD:
 		return CLUSTER_HOTPROC_PID_FD;
-	default
+	default:
 		return -1;
 	}
 }

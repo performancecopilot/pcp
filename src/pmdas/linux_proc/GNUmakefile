@@ -77,7 +77,7 @@ endif
 .NOTPARALLEL:
 gram.tab.h gram.tab.c:	gram.y
 
-lex.o gram.tab.o:		gram.tab.h
+config.o lex.o gram.tab.o:		gram.tab.h
 
 default_pcp : default
 
