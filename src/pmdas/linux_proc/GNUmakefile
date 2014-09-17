@@ -26,15 +26,19 @@ PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 CONF_LINE	= "proc	3	pipe	binary		$(PMDADIR)/$(CMDTARGET) -d 3"
 
 CFILES		= pmda.c cgroups.c proc_pid.c proc_runq.c \
-		  ksym.c getinfo.c contexts.c gram_node.c gram.c config.c lex.yy.c error.c
+		  ksym.c getinfo.c contexts.c gram_node.c config.c error.c
 
 HFILES		= clusters.h indom.h \
-		  cgroups.h proc_pid.h proc_runq.h ksym.h getinfo.h contexts.h
+		  cgroups.h proc_pid.h proc_runq.h ksym.h getinfo.h contexts.h hotproc.h gram_node.h config.h
+
+LFILES = lex.l
+YFILES = gram.y
 
 SCRIPTS		= Install Remove
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
-LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT)
+LSRCFILES 	= help root root_proc linux_proc_migrate.conf $(SCRIPTS)
+LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) $(YFILES:%.y=%.tab.?)
 
 LLDLIBS		= $(PCP_PMDALIB)
 LCFLAGS		= $(INVISIBILITY)
@@ -70,6 +74,11 @@ build-me:
 install:
 endif
 
+.NOTPARALLEL:
+gram.tab.h gram.tab.c:	gram.y
+
+lex.o gram.tab.o:		gram.tab.h
+
 default_pcp : default
 
 install_pcp : install
@@ -83,6 +92,8 @@ $(VERSION_SCRIPT):
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
+gram.tab.o:	hotproc.h
+lex.o:	hotproc.h
 cgroups.o pmda.o: clusters.h
 cgroups.o pmda.o:	cgroups.h
 cgroups.o pmda.o proc_pid.o proc_runq.o:	proc_pid.h
