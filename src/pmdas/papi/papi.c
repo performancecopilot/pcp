@@ -115,12 +115,13 @@ enlarge_ctxtab(int context)
 }
 
 static int
-check_papi_state(int state)
+check_papi_state()
 {
-    int retval;
+    int state = 0;
+    int retval = 0;
     retval = PAPI_state(EventSet, &state);
     if (retval != PAPI_OK)
-	return PM_ERR_NODATA;
+	return retval;
     return state;
 }
 
@@ -634,7 +635,7 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     int running = 0;
     int retval = 0;
     int i;
-    retval = check_papi_state(retval);
+    retval = check_papi_state();
     if (retval == PAPI_RUNNING && idp->cluster == CLUSTER_PAPI) {
 	retval = PAPI_read(EventSet, values);
 	if (retval != PAPI_OK) {
@@ -672,7 +673,7 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_NYI;
 
 	case 2:
-	    if ((retval = check_papi_state(retval)) == PAPI_RUNNING) {
+	    if ((retval = check_papi_state()) == PAPI_RUNNING) {
 		atom->cp = disable_string; /* papi.control.disable */
 		return PMDA_FETCH_STATIC;
 	    }
@@ -725,14 +726,14 @@ remove_metric(unsigned int event, int position)
     }
 
     /* check to make sure papi is running, otherwise do nothing */
-    state = check_papi_state(state);
+    state = check_papi_state();
     if (state == PAPI_RUNNING) {
 	restart = 1;
 	retval = PAPI_stop(EventSet, values);
 	if(retval != PAPI_OK)
 	    return retval;
     }
-    state = check_papi_state(state);
+    state = check_papi_state();
     if (state == PAPI_STOPPED) {
 	/* first, copy the values over to new array */
 	for (i = 0; i < number_of_events; i++)
@@ -797,7 +798,7 @@ add_metric(unsigned int event)
 	return retval;
     }
     /* check status of papi */
-    state = check_papi_state(state);
+    state = check_papi_state();
     /* add check with number_of_counters */
     /* stop papi if running? */
     if (state == PAPI_RUNNING) {
@@ -812,7 +813,7 @@ add_metric(unsigned int event)
 	if (retval != PAPI_OK)
 	    return retval;
     }
-    state = check_papi_state(state);
+    state = check_papi_state();
     if (state == PAPI_STOPPED) {
 	/* add metric */
 	retval = PAPI_add_event(EventSet, event); //XXX possibly switch this to add_events
@@ -879,7 +880,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
 
 	case 1: //papi.reset
 #if 0 /* not yet implemented */
-	    retval = check_papi_state(retval);
+	    retval = check_papi_state();
 	    if (retval == PAPI_RUNNING) {
 		if ((retval = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 			PM_TYPE_STRING, &av, PM_TYPE_STRING)) < 0)
