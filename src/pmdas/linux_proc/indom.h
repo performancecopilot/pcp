@@ -27,6 +27,7 @@
 #define DEVT_INDOM		 2 /* - disks (major:minor names) */
 #define PROC_INDOM		 9 /* - processes */
 #define STRINGS_INDOM		10 /* - fake indom, string hash */
+#define HOTPROC_INDOM		11 /* - hot procs */
 #define CGROUP_SUBSYS_INDOM	20 /* - control group subsystems */
 #define CGROUP_MOUNTS_INDOM	21 /* - control group mounts */
 
