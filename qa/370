@@ -29,8 +29,21 @@ file_version=$version
 case "$version"
 in
     9.0.4*)	# RHEL6
-	ln $seq.out.4 $seq.out || exit 1
-	file_version=9.0.4
+	case `get_osname`
+	in
+	    *6.5*)
+		# special case for systat in RHEL 6.5 ... see --legacy
+		# note in sar(1) on these systems for the way the sar
+		# data format and versioning was broken
+		#
+		ln $seq.out.8 $seq.out || exit 1
+		file_version=9.0.4_rh6.5
+		;;
+	    *)
+		ln $seq.out.4 $seq.out || exit 1
+		file_version=9.0.4
+		;;
+	esac
 	;;
     9.0.6.1)
 	ln $seq.out.5 $seq.out || exit 1
@@ -77,7 +90,7 @@ sar2pcp src/sa-sysstat-$file_version $tmp
 # 04:50:52 PM     CPU     %user     %nice   %system   %iowait    %steal     %idle
 # 04:50:57 PM     all      0.31      0.00      0.31      0.00      0.00     99.38
 #
-sar -f src/sa-sysstat-$file_version -u \
+sar $sar_opt -f src/sa-sysstat-$file_version -u \
 | tee -a $seq.full \
 | sed -n '/^[0-2][0-9]:/{
 s/^00\(:..:..\) PM/12\1/
