@@ -1257,17 +1257,10 @@ sample_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmda
     else if (name == NULL) {
 	/* given an inst, return the name */
 	for (i = 0; i < idp->it_numinst; i++) {
-	    char	*p;
 	    if (inst == idp->it_set[i].i_inst) {
 		if ((res->namelist[0] = strdup(idp->it_set[i].i_name)) == NULL) {
 		    __pmFreeInResult(res);
 		    return -oserror();
-		}
-		for (p = res->namelist[0]; *p; p++) {
-		    if (*p == ' ') {
-			*p = '\0';
-			break;
-		    }
 		}
 		break;
 	    }
