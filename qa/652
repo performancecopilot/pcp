@@ -20,6 +20,13 @@ else
     _notrun no journalctl
 fi
 
+if which logger >/dev/null 2>&1
+then
+    echo Found logger
+else
+    _notrun no logger
+fi
+
 journal_version=`journalctl --version | grep ^systemd | awk '{print $2}'`
 if [ "$journal_version" -ge 193 ]; then
     echo Found recent enough journalctl
@@ -62,6 +69,14 @@ _filter_events_raw()
     fgrep '4d4553534147453d796f'
 }
 
+_filter_pmda_warning()
+{
+    # drop the adm-user-doesn't-exist warnings, optional blank line
+    fgrep -v 'Warning:' | grep . | 
+    grep -v "Starting pm.*"  # don't fuss about what pcp daemons are default-on 
+}
+
+
 iam=systemd
 status=1	# failure is the default!
 trap "_cleanup" 0 1 2 3 15
@@ -69,31 +84,35 @@ trap "_cleanup" 0 1 2 3 15
 $sudo rm -fr $tmp.dir
 $sudo rm -f $tmp.* $seq.full
 
+exec 2>$seq.full
+set -x # trace this test case
+
 # real QA test starts here
 _prepare_pmda_install $iam
 
 # install PMDA accepting the defaults (esp config file)
 $sudo ./Remove < /dev/null >/dev/null 2>&1
 $sudo ./Install < /dev/null >$tmp.out 2>&1
-cat $tmp.out | _filter_pmda_install | _filter
+cat $tmp.out | _filter_pmda_install | _filter_pmda_warning | _filter
 
 echo
-echo "=== 1. scalar metrics  ===" | tee -a $here/$seq.full
+echo "=== 1. scalar metrics  ==="
 pmprobe -v systemd | tee -a $here/$seq.full | _filter_probe
 
-echo | tee -a $here/$seq.full
-echo "=== 2. journald.records  ===" | tee -a $here/$seq.full
+echo
+echo "=== 2. journald.records  ==="
 (sleep 3; logger yo) &
 pmevent -T 10 systemd.journal.records | tee -a $here/$seq.full | _filter_events
 
-echo | tee -a $here/$seq.full
-echo "=== 3. journald.records  ===" | tee -a $here/$seq.full
+echo
+echo "=== 3. journald.records  ==="
 (sleep 3; logger yo) &
 pmevent -T 10 systemd.journal.records_raw | tee -a $here/$seq.full | _filter_events_raw
 
 # remove PMDA to ensure proper cleanup (in case it wasnt already installed beforehand)
 $sudo ./Remove < /dev/null >/dev/null 2>&1
 
+journalctl MESSAGE=yo >> $here/$seq.full
 cat $PCP_LOG_DIR/pmcd/systemd.log >>$here/$seq.full
 
 status=0
