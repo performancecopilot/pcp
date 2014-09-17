@@ -3919,6 +3919,9 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
     case NET_DEV_INDOM:
     	need_refresh[CLUSTER_NET_DEV]++;
 	break;
+    case NET_ADDR_INDOM:
+    	need_refresh[CLUSTER_NET_ADDR]++;
+	break;
     case FILESYS_INDOM:
     	need_refresh[CLUSTER_FILESYS]++;
 	break;
