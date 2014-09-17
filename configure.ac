@@ -97,9 +97,9 @@ AC_ARG_WITH([books],
 
 AC_ARG_WITH([papi],
     [AC_HELP_STRING([--with-papi],
-		   [enable performance api counter pmda (default is off)])],
+		   [enable performance api counter pmda (default is on)])],
     [do_papi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-papi=$withval"],
-    [do_papi=no])
+    [do_papi=check])
 
 #
 # Note: the following environment variables may be
