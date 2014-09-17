@@ -1,1 +1,32 @@
 QA output created by 232
+hinv.map.cpu_num:
+kernel.percpu.cpu.idle:
+disk.dev.read:
+kernel.all.load:
+network.interface.in.bytes:
+swapdev.length:
+nfs.client.reqs:
+nfs.server.reqs:
+nfs3.client.reqs:
+nfs3.server.reqs:
+disk.partitions.total:
+hinv.map.scsi:
+mem.slabinfo.objects.total:
+nfs4.client.reqs:
+nfs4.server.reqs:
+network.interface.total.bytes:
+tmpfs.capacity:
+kernel.pernode.cpu.nice:
+hinv.nlv:
+hinv.map.dmname:
+sampledso.colour:
+sampledso.bucket:
+sampledso.mirage:
+sampledso.needprofile:
+unprofiled fetch error: Explicit instance identifier(s) required
+torture_indom failed for sampledso.needprofile
+sampledso.hordes.one:
+sampledso.dodgey.value:
+sampledso.dynamic.counter:
+sampledso.many.int:
+sampledso.event.records:
