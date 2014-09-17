@@ -23,6 +23,19 @@ iam=systemd
 pmda_interface=6
 pipe_opt=true
 daemon_opt=true
+
+# On some platforms, the 'adm' user does not exist, so the pmda needs
+# to run as root, to get full access to the systemd journal
+whoami=`which whoami 2>/dev/null`
+haveadm="`su adm -s $whoami 2>/dev/null`"
+if [ "x$haveadm" != "xadm" ]; then
+    args="-Uroot"
+    echo "Warning: user adm not found, running pmda as root"
+    echo
+else
+    args=
+fi
+
 pmdaSetup
 pmdaInstall
 
