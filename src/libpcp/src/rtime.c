@@ -280,8 +280,7 @@ pmParseInterval(
     }
 
     /* convert into seconds and microseconds */
-    rslt->tv_sec = (time_t)sec;
-    rslt->tv_usec = (int)(1000000.0 * (sec - (double)rslt->tv_sec));
+    __pmtimevalFromReal(sec, rslt);
     return 0;
 }
 
@@ -321,7 +320,7 @@ __pmParseCtime(
 	if (parseChar(&scan, ':')) {
 	    if (parseDouble(&scan, 0.0, 61.0, &d)) {
 		tm.tm_sec = (time_t)d;
-		tm.tm_yday = (int)(1000000.0 * (d - tm.tm_sec));
+		tm.tm_yday = (int)((long double)1000000 * (long double)(d - tm.tm_sec));
 	    }
 	}
     }

@@ -566,11 +566,11 @@ QmcMetric::formatNumber(double value)
 	if (value > 99950000000000.0)
 	    strcpy(buf, "  inf?");
 	else if (value > 99950000000.0)
-	    sprintf(buf, "%5.2fT", value / 1000000000000.0);
+	    sprintf(buf, "%5.2fT", (double)((long double)value / (long double)1000000000000));
 	else if (value > 99950000.0)
-	    sprintf(buf, "%5.2fG", value / 1000000000.0);
+	    sprintf(buf, "%5.2fG", (double)((long double)value / (long double)1000000000));
 	else if (value > 99950.0)
-	    sprintf(buf, "%5.2fM", value / 1000000.0);
+	    sprintf(buf, "%5.2fM", (double)((long double)value / (long double)1000000));
 	else if (value > 99.95)
 	    sprintf(buf, "%5.2fK", value / 1000.0);
 	else if (value > 0.005)
@@ -582,11 +582,11 @@ QmcMetric::formatNumber(double value)
 	if (value < -9995000000000.0)
 	    strcpy(buf, " -inf?");
 	else if (value < -9995000000.0)
-	    sprintf(buf, "%.2fT", value / 1000000000000.0);
+	    sprintf(buf, "%.2fT", (double)((long double)value / (long double)1000000000000));
 	else if (value < -9995000.0)
-	    sprintf(buf, "%.2fG", value / 1000000000.0);
+	    sprintf(buf, "%.2fG", (double)((long double)value / (long double)1000000000));
 	else if (value < -9995.0)
-	    sprintf(buf, "%.2fM", value / 1000000.0);
+	    sprintf(buf, "%.2fM", (double)((long double)value / (long double)1000000));
 	else if (value < -9.995)
 	    sprintf(buf, "%.2fK", value / 1000.0);
 	else if (value < -0.005)

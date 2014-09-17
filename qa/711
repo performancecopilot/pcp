@@ -14,7 +14,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 which sadf >/dev/null 2>&1 || _notrun "sadf not installed (sysstat package)"
-[ $PCP_VER -ge 3611 ] || _notrun "Installed sar2pcp is too old"
+[ $PCP_VER -ge 30611 ] || _notrun "Installed sar2pcp is too old"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full

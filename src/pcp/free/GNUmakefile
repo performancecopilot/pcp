@@ -20,6 +20,8 @@ TARGET = pcp-free
 MAN_SECTION = 1
 MAN_PAGES = $(TARGET).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
+LSRCFILES += $(TARGET).pyin
+LDIRT += $(TARGET).py
 
 default: $(TARGET).py $(MAN_PAGES)
 
@@ -32,3 +34,5 @@ install: default
 default_pcp : default
 
 install_pcp : install
+
+$(TARGET).py:   $(TARGET).pyin

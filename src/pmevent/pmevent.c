@@ -457,8 +457,7 @@ main(int argc, char **argv)
 	    exit(EXIT_FAILURE);
 	}
 
-	if ((double)rp->timestamp.tv_sec + (double)rp->timestamp.tv_usec/1000000 >
-	    (double)last.tv_sec + (double)last.tv_usec/1000000)
+	if (__pmtimevalToReal(&rp->timestamp) > __pmtimevalToReal(&last))
 	    break;
 
 	for (j = 0; j < rp->numpmid; j++) {

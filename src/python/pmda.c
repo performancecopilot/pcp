@@ -807,7 +807,7 @@ pmda_dispatch(PyObject *self, PyObject *args)
     PyBuffer_Type.tp_as_buffer->bf_getreadbuffer(mv, 0, (void *)&metrics);
     if (pmDebug & DBG_TRACE_LIBPMDA)
 	fprintf(stderr, "pmda_dispatch pmdaInit for metrics/indoms\n");
-    pmdaInit(&dispatch, indoms, nindoms, metrics, nmetrics);
+    pmdaInit(&dispatch, nindoms > 0 ? indoms : NULL, nindoms, nmetrics > 0 ? metrics : NULL, nmetrics);
     if ((dispatch.version.any.ext->e_flags & PMDA_EXT_CONNECTED) != PMDA_EXT_CONNECTED) {
 	/*
 	 * connect_pmcd() not called before, so need pmdaConnect()

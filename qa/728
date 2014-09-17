@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-test $PCP_VER -ge 3901 || _notrun "No support for pmGetOptions"
+test $PCP_VER -ge 30901 || _notrun "No support for pmGetOptions"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full

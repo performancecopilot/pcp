@@ -21,7 +21,7 @@ in
 	;;
     linux|darwin|solaris)
 	# same output for Linux, Mac OS X and OpenSolaris
-	if [ $PCP_VER -lt 3600 ]
+	if [ $PCP_VER -lt 30600 ]
 	then
 	    ln $seq.linux $seq.out || exit 1
 	else

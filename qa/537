@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ $PCP_VER -ge 3801 ] || _notrun "Too-old libpcp_import version"
+[ $PCP_VER -ge 30801 ] || _notrun "Too-old libpcp_import version"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full

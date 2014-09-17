@@ -16,14 +16,18 @@ echo "QA output created by $seq"
 [ -x $PCP_BINADM_DIR/pmproxy ] || \
     _notrun "need $PCP_BINADM_DIR/pmproxy"
 
+rm -f $seq.full
+
 hostname=`_get_fqdn`
 [ "$hostname" = "localhost" -o "$hostname" = "localhost.localdomain" ] && \
     _notrun "need sensible setup, not simply hostname => localhost"
 
+echo "hostname=$hostname" >>$seq.full
+
 # for newer versions, we default to local sockets with different
 # access controls.  dodge that, and test the usual pmproxy path.
 target=""
-test $PCP_VER -ge 3803 && target="-h $hostname"
+test $PCP_VER -ge 30803 && target="-h $hostname"
 
 _filter()
 {

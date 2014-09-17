@@ -24,7 +24,14 @@ _filter()
 {
     # free pdubuf[size]: 0xe61000[28672] 0xe5c000[17408]
     sed \
-	-e '/free pdubuf/s/0x[0-9a-f]*\[[0-9]*\]/addr[size]/g'
+	-e '/free pdubuf/s/0x[0-9a-f]*\[[0-9]*\]/addr[size]/g' \
+    | $PCP_AWK_PROG '
+/free pdubuf/	{ if (NF <= 9) {
+		    print "   free pdubuf[size]: ... <= 7 buffers ..."
+		    next
+		  }
+		}
+		{ print }'
 }
 
 cat >$tmp.suppress <<End-of-File
@@ -35,18 +42,22 @@ cat >$tmp.suppress <<End-of-File
    fun:main
 }
 {
+   <vm24 (SuSE 13.1, i586) version of above>
+   Memcheck:Leak
+   fun:realloc
+   fun:(below main)
+}
+{
    <alloc list[] in pmNewContext>
    Memcheck:Leak
    fun:malloc
    fun:pmNewContext
-   fun:main
 }
 {
    <realloc list[] in pmNewContext>
    Memcheck:Leak
    fun:realloc
    fun:pmNewContext
-   fun:main
 }
 {
    <alloc list[] in pmNewContext via pmDupContext>
@@ -54,7 +65,6 @@ cat >$tmp.suppress <<End-of-File
    fun:malloc
    fun:pmNewContext
    fun:pmDupContext
-   fun:main
 }
 {
    <realloc list[] in pmNewContext via pmDupContext>
@@ -62,7 +72,6 @@ cat >$tmp.suppress <<End-of-File
    fun:realloc
    fun:pmNewContext
    fun:pmDupContext
-   fun:main
 }
 {
    <strdup TZ in pmNewZone>
@@ -71,7 +80,6 @@ cat >$tmp.suppress <<End-of-File
    fun:strdup
    fun:pmNewZone
    fun:pmNewContextZone
-   fun:main
 }
 {
    <zone[] alloc in pmNewZone>
@@ -79,7 +87,6 @@ cat >$tmp.suppress <<End-of-File
    fun:malloc
    fun:pmNewZone
    fun:pmNewContextZone
-   fun:main
 }
 {
    <zone[] realloc in pmNewZone>
@@ -88,7 +95,6 @@ cat >$tmp.suppress <<End-of-File
    fun:realloc
    fun:pmNewZone
    fun:pmNewContextZone
-   fun:main
 }
 {
    <case 1 - buf hdr in __pmFindPDUBuf from pmGetArchiveEnd>
@@ -96,9 +102,20 @@ cat >$tmp.suppress <<End-of-File
    fun:malloc
    fun:__pmFindPDUBuf
    fun:__pmLogRead
+   ...
    fun:__pmGetArchiveEnd
    fun:pmGetArchiveEnd
-   fun:main
+}
+{
+   <case 1 - buf hdr in __pmFindPDUBuf from pmGetArchiveEnd - valloc variant>
+   Memcheck:Leak
+   fun:memalign
+   fun:valloc
+   fun:__pmFindPDUBuf
+   fun:__pmLogRead
+   ...
+   fun:__pmGetArchiveEnd
+   fun:pmGetArchiveEnd
 }
 {
    <case 2 - buf hdr in __pmFindPDUBuf from pmGetArchiveEnd>
@@ -107,32 +124,43 @@ cat >$tmp.suppress <<End-of-File
    fun:__pmFindPDUBuf
    fun:__pmDecodeResult
    fun:__pmLogRead
+   ...
    fun:__pmGetArchiveEnd
    fun:pmGetArchiveEnd
-   fun:main
+}
+{
+   <case 2 - buf hdr in __pmFindPDUBuf from pmGetArchiveEnd - valloc variant>
+   Memcheck:Leak
+   fun:memalign
+   fun:valloc
+   fun:__pmFindPDUBuf
+   fun:__pmDecodeResult
+   fun:__pmLogRead
+   ...
+   fun:__pmGetArchiveEnd
+   fun:pmGetArchiveEnd
 }
 {
    <case 1 - PDU buf alloc - cache_read>
    Memcheck:Leak
-   fun:malloc
+   ...
    fun:__pmFindPDUBuf
-   fun:__pmDecodeResult
+   ...
    fun:__pmLogRead
    ...
    fun:__pmLogFetchInterp
    fun:__pmLogFetch
    fun:pmFetch
-   fun:main
 }
 {
    <case 2 - PDU buf alloc>
    Memcheck:Leak
-   fun:memalign
+   ...
    fun:__pmFindPDUBuf
    fun:__pmLogRead
+   ...
    fun:__pmGetArchiveEnd
    fun:pmGetArchiveEnd
-   fun:main
 }
 {
    <case 3 - PDU buf alloc>
@@ -141,22 +169,9 @@ cat >$tmp.suppress <<End-of-File
    fun:__pmFindPDUBuf
    fun:__pmDecodeResult
    fun:__pmLogRead
+   ...
    fun:__pmGetArchiveEnd
    fun:pmGetArchiveEnd
-   fun:main
-}
-{
-   <case 4 - PDU buf alloc - cache_read>
-   Memcheck:Leak
-   fun:memalign
-   fun:__pmFindPDUBuf
-   fun:__pmDecodeResult
-   fun:__pmLogRead
-   ...
-   fun:__pmLogFetchInterp
-   fun:__pmLogFetch
-   fun:pmFetch
-   fun:main
 }
 {
    <ipc[] table resize>
@@ -167,11 +182,46 @@ cat >$tmp.suppress <<End-of-File
    fun:__pmSetVersionIPC
    fun:__pmLogChkLabel
    fun:__pmLogChangeVol
-   fun:__pmLogOpen
-   fun:pmNewContext
-   fun:main
 }
 End-of-File
+
+gcc_ver=`gcc --version | sed -n -e '/^gcc/{
+s/^gcc //
+s/^([^)]*) //
+s/ .*//
+p
+}'`
+valgrind_ver=`valgrind --version | sed -e 's/^valgrind-//'`
+machine=`uname -m`
+echo "gcc_ver=$gcc_ver" >>$seq.full
+echo "valgrind_ver=$valgrind_ver" >>$seq.full
+echo "machine=$machine" >>$seq.full
+
+if [ "$machine" = i586 -o "$machine" = i686 ]
+then
+    # oddness on vm24 SuSE 13.1, i586 gcc 4.8.1, valgrind 3.8.1
+    #            vm21 Debian 7.4, i686, gcc 4.7.2, valgrind 3.7.0
+    #
+    cat >>$tmp.suppress <<End-of-File
+{
+   Bad valgrind - bogus Conditional jump or move depends on uninitialised value(s)
+   Memcheck:Cond
+   fun:__pmLogFetchInterp
+   fun:__pmLogFetch
+   fun:pmFetch
+}
+{
+   <malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)>
+   Memcheck:Leak
+   fun:malloc
+   fun:(below main)
+}
+End-of-File
+fi
+
+echo >>$seq.full
+cat $tmp.suppress >>$seq.full
+echo >>$seq.full
 
 # real QA test starts here
 
@@ -200,7 +250,8 @@ do
 
     echo "=== std out ==="
     cat $tmp.valgrind.out
-    echo "=== std err ==="
+    echo "=== std err ===" | tee -a $seq.full
+    cat $tmp.valgrind.err >>$seq.full
     _filter < $tmp.valgrind.err
     echo "=== valgrind report ===" >>$seq.full
     cat $tmp.valgrind >>$seq.full

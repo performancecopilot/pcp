@@ -35,6 +35,8 @@ _filter()
 	-e 's;/usr/var;/var;g' \
 	-e "s;$tmp;TMP;g" \
 	-e '/Duplicate/d' \
+	-e '/Roll [^ ]*\/NOTICES /d' \
+	-e '/Start new [^ ]*\/NOTICES$/d' \
     | _filter_cron_scripts
 }
 

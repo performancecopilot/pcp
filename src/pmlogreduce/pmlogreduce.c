@@ -102,12 +102,6 @@ static pmOptions opts = {
     .short_usage = "[options] input-archive output-archive",
 };
 
-static double
-tv2double(struct timeval *tv)
-{
-    return tv->tv_sec + (double)tv->tv_usec / 1000000.0;
-}
-
 static int
 parseargs(int argc, char *argv[])
 {
@@ -159,7 +153,7 @@ parseargs(int argc, char *argv[])
 		opts.errors++;
 	    }
 	    else
-		targ = tv2double(&interval);
+		targ = __pmtimevalToReal(&interval);
 	    break;
 
 	case 'v':	/* number of samples per volume */

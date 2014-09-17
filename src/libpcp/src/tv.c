@@ -22,7 +22,21 @@
 double
 __pmtimevalAdd(const struct timeval *ap, const struct timeval *bp)
 {
-     return (double)(ap->tv_sec + bp->tv_sec) + (double)(ap->tv_usec + bp->tv_usec)/1000000.0;
+     return (double)(ap->tv_sec + bp->tv_sec) + (long double)(ap->tv_usec + bp->tv_usec) / (long double)1000000;
+}
+
+/*
+ * struct additive time, *ap = *ap + *bp
+ */
+void
+__pmtimevalInc(struct timeval *ap, const struct timeval *bp)
+{
+     ap->tv_sec += bp->tv_sec;
+     ap->tv_usec += bp->tv_usec;
+     if (ap->tv_usec >= 1000000) {
+	ap->tv_usec -= 1000000;
+	ap->tv_sec++;
+    }
 }
 
 /*
@@ -31,7 +45,21 @@ __pmtimevalAdd(const struct timeval *ap, const struct timeval *bp)
 double
 __pmtimevalSub(const struct timeval *ap, const struct timeval *bp)
 {
-     return (double)(ap->tv_sec - bp->tv_sec) + (double)(ap->tv_usec - bp->tv_usec)/1000000.0;
+     return (double)(ap->tv_sec - bp->tv_sec) + (long double)(ap->tv_usec - bp->tv_usec) / (long double)1000000;
+}
+
+/*
+ * struct subtractive time, *ap = *ap - *bp
+ */
+void
+__pmtimevalDec(struct timeval *ap, const struct timeval *bp)
+{
+     ap->tv_sec -= bp->tv_sec;
+     ap->tv_usec -= bp->tv_usec;
+     if (ap->tv_usec < 0) {
+	ap->tv_usec += 1000000;
+	ap->tv_sec--;
+    }
 }
 
 /*
@@ -40,19 +68,17 @@ __pmtimevalSub(const struct timeval *ap, const struct timeval *bp)
 double
 __pmtimevalToReal(const struct timeval *val)
 {
-    double dbl = (double)(val->tv_sec);
-    dbl += (double)val->tv_usec / 1000000.0;
-    return dbl;
+    return val->tv_sec + ((long double)val->tv_usec / (long double)1000000);
 }
 
 /*
- * convert double to a timeval
+ * convert double (units == seconds) to a timeval
  */
 void
-__pmtimevalFromReal(double dbl, struct timeval *val)
+__pmtimevalFromReal(double secs, struct timeval *val)
 {
-    val->tv_sec = (time_t)dbl;
-    val->tv_usec = (long)(((dbl - (double)val->tv_sec) * 1000000.0));
+    val->tv_sec = (time_t)secs;
+    val->tv_usec = (long)((long double)(secs - val->tv_sec) * (long double)1000000 + (long double)0.5);
 }
 
 /*
@@ -76,26 +102,12 @@ __pmtimevalSleep(struct timeval interval)
     }
 }
 
-/* subtract timevals */
-static struct timeval
-tsub(struct timeval t1, struct timeval t2)
-{
-    t1.tv_usec -= t2.tv_usec;
-    if (t1.tv_usec < 0) {
-	t1.tv_usec += 1000000;
-	t1.tv_sec--;
-    }
-    t1.tv_sec -= t2.tv_sec;
-    return t1;
-}
-
 /* convert timeval to timespec */
-static struct timespec *
-tospec(struct timeval tv, struct timespec *ts)
+static void
+tospec(struct timeval *tv, struct timespec *ts)
 {
-    ts->tv_nsec = tv.tv_usec * 1000;
-    ts->tv_sec = tv.tv_sec;
-    return ts;
+    ts->tv_nsec = tv->tv_usec * 1000;
+    ts->tv_sec = tv->tv_sec;
 }
 
 #if !defined(IS_MINGW)
@@ -116,7 +128,8 @@ __pmtimevalPause(struct timeval sched)
     struct timespec left;	/* remaining sleep time */
 
     __pmtimevalNow(&curr);
-    tospec(tsub(sched, curr), &delay);
+    __pmtimevalDec(&sched, &curr);
+    tospec(&sched, &delay);
     for (;;) {		/* loop to catch early wakeup by nanosleep */
 	sts = nanosleep(&delay, &left);
 	if (sts == 0 || (sts < 0 && oserror() != EINTR))

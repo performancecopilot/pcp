@@ -70,8 +70,8 @@ if [ $? -ne 0 ]; then
 fi
 
 # real QA test starts here
-$PMATOP -r $here/src/pmatop-log.folio -m 1 1 | redact_header | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PMATOP -r $here/src/pmatop-log.folio -g 1 1 | redact_header | remove_extra_whitespace | tee -a $tmp.out 2>&1
+$PMATOP -r $here/src/pmatop-log.folio -m 1 1 2>&1 | tee -a $tmp.out | redact_header | remove_extra_whitespace
+$PMATOP -r $here/src/pmatop-log.folio -g 1 1 2>&1 | tee -a $tmp.out | redact_header | remove_extra_whitespace
 
 $PMATOP -w test.pmatop 0.2 10
 if pmafm test.pmatop  check | grep -q OK

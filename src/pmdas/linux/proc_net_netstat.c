@@ -59,7 +59,9 @@ netstat_fields_t netstat_ip_fields[] = {
     { .field = "InECT0Pkts",
      .offset = &_pm_proc_net_netstat.ip[_PM_NETSTAT_IPEXT_ECT0PKTS] },
     { .field = "InCEPkts",
-     .offset = &_pm_proc_net_netstat.ip[_PM_NETSTAT_IPEXT_CEPKTS] }
+     .offset = &_pm_proc_net_netstat.ip[_PM_NETSTAT_IPEXT_CEPKTS] },
+
+    { .field = NULL, .offset = NULL }
 };
 
 
@@ -265,7 +267,9 @@ netstat_fields_t netstat_tcp_fields[] = {
     { .field = "TCPSynRetrans",
      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPSYNRETRANS] },
     { .field = "TCPOrigDataSent",
-     .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPORIGDATASENT] }
+     .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPORIGDATASENT] },
+
+    { .field = NULL, .offset = NULL }
 };
 
 static void

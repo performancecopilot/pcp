@@ -48,7 +48,7 @@ _filter()
 status=1	# failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 LOCALHOST=`hostname`
-[ $PCP_VER -lt 3806 ] && LOCALHOST=`echo $LOCALHOST | sed -e 's/\..*//'`
+[ $PCP_VER -lt 30806 ] && LOCALHOST=`echo $LOCALHOST | sed -e 's/\..*//'`
 trap "rm -f $tmp.* $LOGGING_DIR/$LOCALHOST/lock; exit \$status" 0 1 2 3 15
 
 rm -f $seq.full

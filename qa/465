@@ -16,20 +16,20 @@ echo "QA output created by $seq"
 . ./localconfig
 
 rm -f $seq.out
-if [ $PCP_VER -ge 3811 ]
+if [ $PCP_VER -ge 30811 ]
 then
     ln $seq.out.4 $seq.out
     echo "[Version for PCP 3.8.11 or later]"
-elif [ $PCP_VER -ge 3810 ]
+elif [ $PCP_VER -ge 30810 ]
 then
     ln $seq.out.3 $seq.out
     echo "[Version for PCP 3.8.10 or later]"
-elif [ $PCP_VER -gt 2100 -o $PCP_EOE_VER -ge 6510 ]
+elif [ $PCP_VER -gt 20100 -o $PCP_EOE_VER -ge 60510 ]
 then
     echo "[Version for PCP 2.2 or later or IRIX >= 6.5.10]"
     ln $seq.out.2 $seq.out
-elif [ $PCP_VER -le 2100 -o \
-     \( $PCP_EOE_VER -ge 6500 -a $PCP_EOE_VER -le 6509 \) ]
+elif [ $PCP_VER -le 20100 -o \
+     \( $PCP_EOE_VER -ge 60500 -a $PCP_EOE_VER -le 60509 \) ]
 then
     echo "[Version for PCP prior to 2.2 or IRIX <= 6.5.9]"
     ln $seq.out.1 $seq.out

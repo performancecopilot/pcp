@@ -56,8 +56,7 @@ local_timer(double timeout, scalar_t *callback, int cookie)
     int size = sizeof(*timers) * (ntimers + 1);
     delta_t delta;
 
-    delta.tv_sec = (time_t)timeout;
-    delta.tv_usec = (long)((timeout - (double)delta.tv_sec) * 1000000.0);
+    __pmtimevalFromReal(timeout, &delta);
 
     if ((timers = realloc(timers, size)) == NULL)
 	__pmNoMem("timers resize", size, PM_FATAL_ERR);

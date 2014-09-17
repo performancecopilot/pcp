@@ -46,8 +46,7 @@ main()
     for (i = 0; i < n; i++)
 	getpid();
     __pmtimevalNow(&now);
-    delta = now.tv_sec - then.tv_sec +
-		(double)(now.tv_usec - then.tv_usec) / 1000000;
+    delta = __pmtimevalSub(&now, &then);
     printf("getpid()\t\t\t- %9d syscalls/sec [%.2f sec]\n",
 	(int)(0.5 + n / delta), delta);
 
@@ -56,8 +55,7 @@ main()
     for (i = 0; i < n; i++)
 	__pmtimevalNow(&eek);
     __pmtimevalNow(&now);
-    delta = now.tv_sec - then.tv_sec +
-		(double)(now.tv_usec - then.tv_usec) / 1000000;
+    delta = __pmtimevalSub(&now, &then);
     printf("gettimeofday()\t\t\t- %9d syscalls/sec [%.2f sec]\n",
 	(int)(0.5 + n / delta), delta);
 
@@ -69,8 +67,7 @@ main()
 	read(fd, &c, 1);
     }
     __pmtimevalNow(&now);
-    delta = now.tv_sec - then.tv_sec +
-		(double)(now.tv_usec - then.tv_usec) / 1000000;
+    delta = __pmtimevalSub(&now, &then);
     printf("read() at end of file\t\t- %9d syscalls/sec [%.2f sec]\n",
 	(int)(0.5 + n / delta), delta);
     close(fd);
@@ -82,8 +79,7 @@ main()
 	lseek(fd, 0L, 0);
     }
     __pmtimevalNow(&now);
-    delta = now.tv_sec - then.tv_sec +
-		(double)(now.tv_usec - then.tv_usec) / 1000000;
+    delta = __pmtimevalSub(&now, &then);
     printf("lseek() to start of file\t- %9d syscalls/sec [%.2f sec]\n",
 	(int)(0.5 + n / delta), delta);
     close(fd);
@@ -99,8 +95,7 @@ main()
 	close(fd);
     }
     __pmtimevalNow(&now);
-    delta = now.tv_sec - then.tv_sec +
-		(double)(now.tv_usec - then.tv_usec) / 1000000;
+    delta = __pmtimevalSub(&now, &then);
     printf("file creat() and close()\t- %9d syscalls/sec [%.2f sec]\n",
 	(int)(0.5 + 2*n / delta), delta);
     unlink("/tmp/creat-clo");
@@ -131,8 +126,7 @@ main()
 	close(s);
     }
     __pmtimevalNow(&now);
-    delta = now.tv_sec - then.tv_sec +
-		(double)(now.tv_usec - then.tv_usec) / 1000000;
+    delta = __pmtimevalSub(&now, &then);
     printf("socket(), connect() and close()\t- %9d syscalls/sec [%.2f sec]\n",
 	(int)(0.5 + 3*n / delta), delta);
 

@@ -163,6 +163,19 @@ _get_hex_addr()
     fi
 }
 
+# Number of clients is platform/config dependent ...
+# 1. pmie
+# 2. primary pmlogger
+# 3. pmie (maybe)
+# 4. pmlogger for pmmgr (maybe)
+#
+_filter_numclients()
+{
+    $PCP_AWK_PROG '
+$1 == "value"	{ if ($2 == 2 || $2 == 3 || $2 == 4) $2 = "2..4" }
+		{ print }'
+}
+
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 && $sudo sh $tmp.cmd
 
@@ -211,7 +224,7 @@ _wait_for_pmcd
 _wait_for_pmlogger
 
 echo "should be OK"
-pminfo -f pmcd.numclients # should be controlled now - determinate
+pminfo -f pmcd.numclients | _filter_numclients
 
 cat <<End-of-File >>$nconfig
 

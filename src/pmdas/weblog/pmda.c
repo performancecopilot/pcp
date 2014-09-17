@@ -1189,8 +1189,7 @@ main(int argc, char **argv)
 
 #ifdef PCP_DEBUG
     __pmtimevalNow(&end);
-    startTime = (end.tv_sec - start.tv_sec) + 
-	        ((end.tv_usec - start.tv_usec) / 1000000.0);
+    startTime = __pmtimevalSub(&end, &start);
     if (pmDebug & DBG_TRACE_APPL0)
 	logmessage(LOG_DEBUG, "Agent started in %f seconds", startTime);
 #endif

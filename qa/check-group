@@ -16,10 +16,24 @@ then
     exit 1
 fi
 
-for seq in [0-9][0-9]*[0-9]
+touch $tmp.tmp
+for seq in [0-9][0-9][0-9] [0-9][0-9][0-9][0-9]
 do
+    if grep -q "^$seq[: 	]" group
+    then
+	:
+    else
+	echo "$seq: Error: file exists but missing from group"
+    fi
     ( grep -v '^#' $seq \
        | egrep -q "(^$1([ \'\"]|$))|([ /\'\"_]$1([ \'\"_]|$))" ) && echo $seq >>$tmp.tmp
+done
+
+sed <group -e '/^$/d' -e '/^[^0-9]/d' -e 's/[: 	].*//' \
+| while read seq
+do
+    [ -f "$seq" ] && continue
+    echo "$seq: Error: in group but file not found"
 done
 
 sort -o $tmp.scripts $tmp.tmp

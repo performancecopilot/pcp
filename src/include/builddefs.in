@@ -551,6 +551,7 @@ endif
 else
 SETUP_PY_INSTALL_OPTIONS += --prefix=$(PYTHON_PREFIX)
 endif
+SETUP_PY_PRE_2_5 = @SETUP_PY_PRE_2_5@
 # RPM byte-compiles and installs results in our DIST_ROOT, cater for this:
 ifeq "$(shell [ '$(TARGET_OS)' = linux -a '$(PACKAGE_DISTRIBUTION)' != gentoo \
 	      ] && echo 1)" "1"
@@ -593,22 +594,33 @@ PYTHON_INSTALL =
 endif
 endif
 
+# qmake botches the order of the -L arguments in the generated $(LIBS)
+# in the Makefile ... need to get the Qt libraries dir (begins with a /)
+# out from the head of the list and insert it before the first -l argument
+# (or the end of the list).
+# So, for example
+# LIBS = $(SUBLIBS) -L/usr/lib -L../libpcp/src -L../libpcp_qmc/src ... -lpcp_qmc ...
+# becomes
+# LIBS = $(SUBLIBS) -L../libpcp/src -L../libpcp_qmc/src ... -L/usr/lib -lpcp_qmc ...
+#
+QTFIX = $(AWK) '$$1 == "LIBS" { printf $$1; for (i=2;i<=NF;i++) { if ($$i~/^-L\//) { save=save " " $$i; continue } else if (save!="" && $$i~/^-l/) { printf " %s",save; save="" } printf " %s",$$i } if (save!="") printf " %s",save; print ""; next } { print }'
+
 # Qt magic for build/installs across all the supported platforms
 ifeq ($(PCP_PLATFORM),darwin)
-QTMAKE = $(QMAKE) -spec macx-g++ CONFIG+=$(QT_RELEASE) && make -f Makefile
+QTMAKE = $(QMAKE) -spec macx-g++ CONFIG+=$(QT_RELEASE) && $(QTFIX) <Makefile >Makefile.fix && mv Makefile.fix Makefile && make -f Makefile
 MACBUILD = build/$(QT_RELEASE)/$(COMMAND).app/Contents
 BINARY = $(MACBUILD)/MacOS/$(COMMAND)
 LNMAKE = test ! -f $(BINARY) -o -L $(COMMAND) || $(LN_S) $(BINARY) $(COMMAND)
 WINDOW = mac
 endif
 ifeq ($(PCP_PLATFORM),mingw)
-QTMAKE = $(QMAKE) CONFIG+=$(QT_RELEASE) && $(MAKE) -f Makefile
+QTMAKE = $(QMAKE) CONFIG+=$(QT_RELEASE) && $(QTFIX) <Makefile >Makefile.fix && mv Makefile.fix Makefile && $(MAKE) -f Makefile
 BINARY = $(QT_RELEASE)/$(COMMAND)
 LNMAKE =
 WINDOW = win
 endif
 ifeq "$(findstring $(PCP_PLATFORM),darwin mingw)" ""
-QTMAKE = $(QMAKE) CONFIG+=$(QT_RELEASE) && $(MAKE) $(MAKEOPTS) -f Makefile
+QTMAKE = $(QMAKE) CONFIG+=$(QT_RELEASE) && $(QTFIX) <Makefile >Makefile.fix && mv Makefile.fix Makefile && $(MAKE) $(MAKEOPTS) -f Makefile
 BINARY = build/$(QT_RELEASE)/$(COMMAND)
 LNMAKE = test ! -f $(BINARY) -o -L $(COMMAND) || $(LN_S) $(BINARY) $(COMMAND)
 WINDOW = x11

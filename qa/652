@@ -27,7 +27,7 @@ else
     _notrun journalctl too old "$journal_version"
 fi
 
-[ $PCP_VER -ge 3805 ] || _notrun "Installed pmdasystemd is too old"
+[ $PCP_VER -ge 30805 ] || _notrun "Installed pmdasystemd is too old"
 
 _cleanup()
 {
@@ -93,6 +93,8 @@ pmevent -T 10 systemd.journal.records_raw | tee -a $here/$seq.full | _filter_eve
 
 # remove PMDA to ensure proper cleanup (in case it wasnt already installed beforehand)
 $sudo ./Remove < /dev/null >/dev/null 2>&1
+
+cat $PCP_LOG_DIR/pmcd/systemd.log >>$here/$seq.full
 
 status=0
 exit

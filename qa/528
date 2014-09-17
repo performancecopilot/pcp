@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-test $PCP_VER -ge 3801 || _notrun "No support for log import batching"
+test $PCP_VER -ge 30801 || _notrun "No support for log import batching"
 [ -f ${PCP_LIB_DIR}/libpcp_import.${DSO_SUFFIX} ] || \
 	_notrun "No support for libpcp_import"
 perl -e "use PCP::LogImport" 2>/dev/null || \

@@ -20,13 +20,13 @@ perl -e "use PCP::LogImport" 2>/dev/null || \
 	_notrun "Perl PCP::LogImport module is not installed"
 
 rm -f $seq.out
-if [ $PCP_VER -ge 3801 ]
+if [ $PCP_VER -ge 30801 ]
 then
     ln $seq.out.4 $seq.out || exit 1
-elif [ $PCP_VER -ge 3800 ]
+elif [ $PCP_VER -ge 30800 ]
 then
     ln $seq.out.3 $seq.out || exit 1
-elif [ $PCP_VER -ge 3609 ]
+elif [ $PCP_VER -ge 30609 ]
 then
     ln $seq.out.2 $seq.out || exit 1
 else

@@ -14,7 +14,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 rm -f $seq.out
-if [ $PCP_VER -lt 3600 ]
+if [ $PCP_VER -lt 30600 ]
 then
     # V1 archives supported
     LIST="src/951127.23.01.0 src/960624.08.17.0 src/ace.0 src/bar.0 src/bigace.0 src/bigbin.0 src/bug.0 src/dodgey-all.0 src/dodgey-mixed.0 src/dodgey-some.0 src/foo.0 src/interp.0 src/mirage.0 src/mv-bar.0 src/mv-bigbin.0 src/mv-foo.0 src/mv-interp.0 src/truncbin.0"

@@ -44,12 +44,12 @@ optionsCB: got option ''b' [index=0]
 Done!
 
 check version message generation
-test_pcp_options.python version X.Y.Z
+test_pcp_options.py version X.Y.Z
 overrideCB: got option 'V'
 
 check unknown option and usage message
-test_pcp_options.python: unrecognized option '--munchies'
-Usage: test_pcp_options.python [options] parameters ...
+test_pcp_options.py: unrecognized option '--munchies'
+Usage: test_pcp_options.py [options] parameters ...
 
 General Options:
   -A TIME, --align=TIME align sample times on natural boundaries
@@ -84,7 +84,7 @@ The parameter parameter is not optional.
 overrideCB: got option '?'
 
 check help option and usage message
-Usage: test_pcp_options.python [options] parameters ...
+Usage: test_pcp_options.py [options] parameters ...
 
 General Options:
   -A TIME, --align=TIME align sample times on natural boundaries

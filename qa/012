@@ -19,7 +19,7 @@ then
     ln $seq.irix $seq.out || exit 1
 elif [ $PCP_PLATFORM = linux ]
 then
-    if [ $PCP_VER -lt 3702 ]
+    if [ $PCP_VER -lt 30702 ]
     then
 	ln $seq.linux $seq.out || exit 1
     else

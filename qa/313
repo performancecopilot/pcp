@@ -18,8 +18,8 @@ echo "QA output created by $seq"
 . ./localconfig
 
 rm -f $seq.out
-if [ $PCP_PLATFORM = irix -a \( $PCP_EOE_VER -ge 6512 -o \
-                                $PCP_EOE_VER = 6200 \) ]
+if [ $PCP_PLATFORM = irix -a \( $PCP_EOE_VER -ge 60512 -o \
+                                $PCP_EOE_VER = 60200 \) ]
 then
     ln $seq.62_6512plus $seq.out || exit 1
 elif [ $PCP_PLATFORM = irix ]

@@ -17,7 +17,7 @@ signal=$PCP_BINADM_DIR/pmsignal
 status=1
 done_clean=false
 LOCALHOST=`hostname`
-[ $PCP_VER -lt 3806 ] && LOCALHOST=`echo $LOCALHOST | sed -e 's/\..*//'`
+[ $PCP_VER -lt 30806 ] && LOCALHOST=`echo $LOCALHOST | sed -e 's/\..*//'`
 
 _cleanup()
 {

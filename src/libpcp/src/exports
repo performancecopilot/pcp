@@ -470,3 +470,9 @@ PCP_3.7 {
     __pmPrintTimespec;
     __pmGetTimespec;
 } PCP_3.6;
+
+PCP_3.8 {
+  global:
+    __pmtimevalInc;
+    __pmtimevalDec;
+} PCP_3.7;

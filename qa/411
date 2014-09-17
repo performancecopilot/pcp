@@ -20,7 +20,7 @@ then
     ln $seq.out.0 $seq.out || exit 1
 else
     # new simple with indom 0, 1, 2
-    if [ $PCP_VER -lt 3600 ]
+    if [ $PCP_VER -lt 30600 ]
     then
 	ln $seq.out.1 $seq.out || exit 1
     else

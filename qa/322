@@ -206,9 +206,10 @@ fi
 #
 rm -f $seq.out
 REMOTE_VER=`pmprobe -v -h $host pmcd.version \
-    | sed -e 's/"$//' -e 's/.*"//' -e 's/\.//g' -e 's/^\(..\)\(.\)$/\10\2/'`
+    | sed -e 's/"$//' -e 's/.*"//' \
+    | $PCP_AWK_PROG -F. '{printf "%02d%02d%02d\n",$1,$2,$3}'`
 echo "host=$host REMOTE_VER=$REMOTE_VER" >>$seq.full
-if [ $REMOTE_VER -lt 3800 ]
+if [ $REMOTE_VER -lt 30800 ]
 then
     ln $seq.out.1 $seq.out || exit 1
 else

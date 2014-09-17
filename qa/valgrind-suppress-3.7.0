@@ -1,0 +1,23 @@
+# Broken valgrind 3.7.0 seen on i686 Debian 7.4 (vm21)
+#
+# Conditional jump or move depends on uninitialised value(s)
+# at 0x407D7B5: __pmLogFetchInterp (interp.c:1258)
+# by 0x4078D0D: __pmLogFetch (logutil.c:1749)
+# by 0x405D8B6: pmFetch (fetch.c:151)
+# by 0x8049E43: main (pmlogreduce.c:361)
+# Conditional jump or move depends on uninitialised value(s)
+# at 0x407D809: __pmLogFetchInterp (interp.c:1260)
+# by 0x4078D0D: __pmLogFetch (logutil.c:1749)
+# by 0x405D8B6: pmFetch (fetch.c:151)
+# by 0x8049E43: main (pmlogreduce.c:361)
+#
+# which is bogus
+#
+{
+   Valgrind 3.8.1 botch
+   Memcheck:Cond
+   fun:__pmLogFetchInterp
+   fun:__pmLogFetch
+   obj:*
+}
+

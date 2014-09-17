@@ -13,9 +13,9 @@ echo "QA output created by $seq"
 . ./common.filter
 
 rm -f $seq.out
-if [ $PCP_EOE_VER -ge 6514 -o \( $PCP_EOE_VER -ge 2201 -a $PCP_EOE_VER -lt 6500 \) ]
+if [ $PCP_EOE_VER -ge 60514 -o \( $PCP_EOE_VER -ge 20201 -a $PCP_EOE_VER -lt 60500 \) ]
 then
-    if [ $PCP_VER -lt 3600 ]
+    if [ $PCP_VER -lt 30600 ]
     then
 	# IRIX 6.5.14 or later, else pcp 2.2.1 or later (Linux or IRIX 6.2)
 	#
@@ -55,7 +55,7 @@ root {
 }
 End-of-File
 
-if [ $PCP_VER -lt 3600 ]
+if [ $PCP_VER -lt 30600 ]
 then
     pmnscomp -n root root.bin
 fi

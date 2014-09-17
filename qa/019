@@ -12,7 +12,7 @@ rm -f $seq.out
 rm -f $seq.out
 if [ $PCP_PLATFORM = linux ]
 then
-    if [ $PCP_VER -lt 3103 ]
+    if [ $PCP_VER -lt 30103 ]
     then
 	ln $seq.linux.1 $seq.out || exit 1
     else

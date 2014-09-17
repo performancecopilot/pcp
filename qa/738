@@ -28,7 +28,15 @@ _filter()
 	-e 's/`'"/'/g" \
 	-e 's/‘'"/'/g" \
 	-e 's/’'"/'/g" \
-	-e 's/ln: creating hard link/ln: failed to create hard link/'
+	-e 's/ln: creating hard link/ln: failed to create hard link/' \
+	-e "/ln: failed /s/' to '/' => '/" \
+    | _filter_ls
+}
+
+# ls(1) does not have the same format for error messages, sigh.
+_filter_ls()
+{
+    sed -e '/ls: [^ ]*\*: No such/s/ls: /ls: cannot access /'
 }
 
 # real QA test starts here
@@ -65,7 +73,7 @@ pmlogmv -V foo bar >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out
 [ $sts -eq 0 ] || echo exit status $sts
-ls foo* bar*
+ls foo* bar* 2>&1 | _filter_ls
 rm -f foo.* bar.*
 cp $here/src/foo.* .
 for i in 0 index meta
@@ -76,7 +84,7 @@ do
     sts=$?
     _filter <$tmp.out
     [ $sts -eq 0 ] || echo exit status $sts
-    ls foo* bar*
+    ls foo* bar* 2>&1 | _filter_ls
     rm bar.$i
 done
 rm -f foo.* bar.*
@@ -102,7 +110,7 @@ do
 	ls -l $here/src/foo.$part bar.$part
     fi
 done
-ls foo* bar*
+ls foo* bar* 2>&1 | _filter_ls
 rm -f foo.* bar.*
 
 echo
@@ -125,7 +133,7 @@ do
 	    ls -l $here/src/foo.$part bar.$part
 	fi
     done
-    ls foo* bar*
+    ls foo* bar* 2>&1 | _filter_ls
     rm -f foo.* bar.*
 done
 
@@ -149,7 +157,7 @@ do
 	ls -l $here/src/mv-foo.$opart bar.$npart
     fi
 done
-ls foo* bar*
+ls foo* bar* 2>&1 | _filter_ls
 rm -f foo.* bar.*
 
 echo
@@ -170,7 +178,7 @@ do
 	ls -l $here/src/mv-foo.$part new/mv-foo.$part
     fi
 done
-ls foo* new/*
+ls foo* new/* 2>&1 | _filter_ls
 rm -rf foo.* new
 
 echo
@@ -182,7 +190,7 @@ pmlogmv -V mv-foo new/mv-foo >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out
 [ $sts -eq 0 ] || echo exit status $sts
-ls mv-foo* new/*
+ls mv-foo* new/* 2>&1 | _filter_ls
 rm -rf foo.* new
 
 echo
@@ -194,7 +202,7 @@ pmlogmv -V mv-foo new/mv-foo >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out
 [ $sts -eq 0 ] || echo exit status $sts
-ls mv-foo* new/*
+ls mv-foo* new/* 2>&1 | _filter_ls
 chmod u+w,g+w,o+w .
 rm -rf mv-foo.* new
 
@@ -206,7 +214,7 @@ pmlogmv -V mv-foo mv-bar >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out
 [ $sts -eq 0 ] || echo exit status $sts
-ls mv-foo* mv-bar*
+ls mv-foo* mv-bar* 2>&1 | _filter_ls
 rm -rf mv-foo.* mv-bar.*
 
 # success, all done

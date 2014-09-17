@@ -37,7 +37,7 @@ pmdaapache_install()
     # start from known starting points
     cd $PCP_PMDAS_DIR/apache
     $sudo ./Remove >/dev/null 2>&1
-    $sudo $PCP_RC_DIR/pmcd stop
+    $sudo $PCP_RC_DIR/pmcd stop 2>&1 | _filter_pcp_stop
 
     echo
     echo "=== apache agent installation ==="
@@ -59,6 +59,10 @@ trap "_cleanup_pmda apache; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 pmdaapache_install
+
+# there may be a race if the pmda has a bit of a slow start ... pause
+# 
+sleep 3
 
 # pmcd should have been started by the Install process - check
 if pminfo -v apache > $tmp.info 2> $tmp.err

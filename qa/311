@@ -17,7 +17,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if [ $PCP_VER -lt 3600 ]
+if [ $PCP_VER -lt 30600 ]
 then
     # V1 archives supported
     :

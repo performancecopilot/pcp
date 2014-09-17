@@ -219,9 +219,7 @@ else
 fi
 
 $PCP_ECHO_PROG $PCP_ECHO_N "Adding $id to group index ...""$PCP_ECHO_C"
-dist=oss
-[ "$id" -ge 1000 ] && dist=sgi
-echo "$id $ans $dist" >>group
+echo "$id $ans" >>group
 echo " done."
 
 # sort the tests numerically

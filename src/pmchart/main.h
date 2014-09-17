@@ -96,9 +96,7 @@ extern PmChart *pmchart;
 class TimeControl;
 extern TimeControl *pmtime;
 
-extern double tosec(struct timeval);
 extern double torange(struct timeval, int);
-extern void fromsec(double, struct timeval *);
 extern char *timeString(double);
 extern char *timeHiResString(double);
 extern void nomem(void);
