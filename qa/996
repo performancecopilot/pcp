@@ -17,13 +17,18 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
+_filter()
+{
+    sed -e "s,$here,HERE,g"
+}
+
 # real QA test starts here
 echo "=== tolerance 1 ==="
-pmdiff -z -q 1 archives/diff1 archives/diff2
+pmdiff -z -q 1 archives/diff1 archives/diff2 | _filter
 
 echo
 echo "=== default tolerance ==="
-pmdiff -z archives/diff1 archives/diff2
+pmdiff -z archives/diff1 archives/diff2 | _filter
 
 # success, all done
 status=0
