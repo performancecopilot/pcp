@@ -65,6 +65,13 @@ p
 		    255.255.255.0)	# /24 network
 			echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
 			;;
+		    # pmcd's [access] is not smart enough to handle other
+		    # than /24 networks, so map the other likely options
+		    # to the broader /24 network
+		    #
+		    255.255.255.128|255.255.255.192|255.255.255.224|255.255.255.240|255.255.255.248|255.255.255.252|255.255.255.254)
+			echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
+			;;
 		    *)
 			echo >&2 "_getnetworkaddr: cannot handle network mask: $mask"
 			;;
