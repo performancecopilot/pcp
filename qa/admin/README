@@ -30,11 +30,7 @@ myconfigure
     To build the PCP QA apps, for example, in the source tree requires:
 	$ cd $HOME/src/pcp # or wherever the base of the git tree is
 	$ qa/admin/myconfigure
-	$ cd src/include
-	$ make
-	$ cd ../pmns
-	$ make
-	$ cd ../qa/src
+	$ cd qa/src
 	$ make
 
 pcp-daily

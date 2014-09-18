@@ -25,3 +25,8 @@ in
 esac
 
 ./configure $configure_options
+
+cd src/include
+make
+cd ../pmns
+make
