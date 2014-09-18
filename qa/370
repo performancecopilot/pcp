@@ -29,7 +29,7 @@ file_version=$version
 case "$version"
 in
     9.0.4*)	# RHEL6
-	case `get_osname`
+	case `admin/get_osname`
 	in
 	    *6.5*)
 		# special case for systat in RHEL 6.5 ... see --legacy
