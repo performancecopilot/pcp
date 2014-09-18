@@ -25,13 +25,6 @@
 void yyerror(char *s);
 
 static char emsg[256]; /* error message */
-static char yy_ichar;  /* input char from conf_buffer */
-extern char *conf_buffer_ptr;
-
-#undef input
-#undef unput
-#define input() ( (yy_ichar = *conf_buffer_ptr++) == '\n' ? (yylineno++, yy_ichar) : yy_ichar)
-#define unput(c) { if ((*--conf_buffer_ptr = c) == '\n') yylineno--; }
 
 %}
 

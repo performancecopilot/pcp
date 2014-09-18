@@ -27,11 +27,10 @@
 
 #include "gram_node.h"
 #include "gram.tab.h"
-//#include "nameinfo.h"
 #include "config.h"
 
 char *conf_buffer = NULL; /* contains config text */
-char *conf_buffer_ptr = NULL;
+//char *conf_buffer_ptr = NULL;
 char *pred_buffer = NULL; /* contains parsed predicate */
 
 static bool_node *the_tree = NULL;
@@ -49,18 +48,29 @@ static void eval_error(char *);
 
 extern int parse_predicate(bool_node **);
 extern char *pmProgname;
-extern char *configfile;
+char *hotproc_configfile;
 extern FILE *yyin;
 
+void
+set_conf_buffer( char * buf){
+    conf_buffer = strdup(buf);
+}
 
+char *
+get_conf_buffer(){
+	return conf_buffer;
+}
 
 FILE *
-open_config(void)
+open_config(char configfile[])
 {
+
+    hotproc_configfile = strdup(configfile);
+
     FILE *conf;
-    if ((conf = fopen(configfile, "r")) == NULL) {
+    if ((conf = fopen(hotproc_configfile, "r")) == NULL) {
 	(void)fprintf(stderr, "%s: Unable to open configuration file \"%s\": %s\n",
-	    pmProgname, configfile, osstrerror());
+	    pmProgname, hotproc_configfile, osstrerror());
 	exit(1);
     }
     return conf;
@@ -152,7 +162,7 @@ read_config(FILE *conf)
     sts = fstat(fileno(conf), &stat_buf);
     if (sts < 0) {
 	(void)fprintf(stderr, "%s: Failure to stat configuration file \"%s\": %s\n",
-	    pmProgname, configfile, osstrerror());
+	    pmProgname, hotproc_configfile, osstrerror());
 	exit(1);
     }
     size = (long)stat_buf.st_size;
@@ -161,17 +171,17 @@ read_config(FILE *conf)
     conf_buffer = (char*)malloc(size+1*sizeof(char));
     if (conf_buffer == NULL) {
 	(void)fprintf(stderr, "%s: Failure to create buffer for configuration file \"%s\"\n",
-	    pmProgname, configfile);
+	    pmProgname, hotproc_configfile);
 	exit(1);
     }
 
-    conf_buffer_ptr = conf_buffer;
+    //conf_buffer_ptr = conf_buffer;
 
     /* read whole file into buffer */
     nread = fread(conf_buffer, sizeof(char), size, conf);
     if (nread != size) {
 	(void)fprintf(stderr, "%s: Failure to read configuration file \"%s\" into buffer\n",
-	    pmProgname, configfile);
+	    pmProgname, hotproc_configfile);
 	exit(1);
     }
     conf_buffer[size] = '\0'; /* terminate the buffer */
@@ -379,41 +389,6 @@ read_test_values(FILE *file, config_vars *vars)
 	    return 0;
     }
 }
-
-
-
-void 
-do_pred_testing(void)
-{
-    int sts;
-    config_vars vars;
-    FILE *conf = NULL;
-
-    conf = open_config();
-    read_config(conf);
-    (void)fclose(conf);
-
-    dump_tree(stdout);
-
-    for (;;) {
-        sts = read_test_values(stdin, &vars);
-        if (sts == EOF)
-            break;
-        if (sts == 0) {
-	    (void)fprintf(stderr, "Bad input line\n");
-            continue;
-	}
-
-        if (eval_tree(&vars)) {
-            (void)fprintf(stdout, "true\n");
-        }
-        else {
-            (void)fprintf(stdout, "false\n");
-        }
-    }
-}
-
-
 
 static void 
 eval_error(char *msg)

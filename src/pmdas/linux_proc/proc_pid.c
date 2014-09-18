@@ -368,6 +368,13 @@ if ((afid = __pmAFregister(&interval, NULL, hotproc_timer)) < 0) {
     }
 }
 
+void reset_hotproc_timer(){
+
+	__pmAFunregister(afid);
+	afid = __pmAFregister(&interval, NULL, hotproc_timer);
+
+}
+
 static int
 compar_pids(const void *n1, const void *n2)
 {

@@ -30,6 +30,7 @@ extern int yy_scan_string(const char *);
 int need_psusage = 0;
 int need_accounting = 0;
 static bool_node *pred_tree = NULL;
+extern char *conf_buffer;
 
 %}
 
@@ -143,8 +144,6 @@ pattern_compar:
 
 
 %%
-
-extern char *conf_buffer;
 
 int
 parse_predicate(bool_node **tree)

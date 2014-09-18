@@ -55,6 +55,9 @@ static int			have_access;	/* =1 recvd uid/gid */
 static size_t			_pm_system_pagesize;
 static unsigned int		threads;	/* control.all.threads */
 static char *			cgroups;	/* control.all.cgroups */
+static int 			conf_gen = 1;	/* hotproc config version */
+
+extern struct timeval   interval;
 
 char *proc_statspath = "";	/* optional path prefix for all stats files */
 
@@ -70,9 +73,9 @@ static pmdaIndom indomtab[NUM_INDOMS];
 static pmdaMetric *fullmetrictab;
 
 /*
- * hotproc configfile should rename
+ * hotproc configfile 
  */
-char    *configfile = NULL;
+//char    *hotproc_configfile;
 
 /*
  * all metrics supported in this PMDA - one table entry for each
@@ -1267,13 +1270,13 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	switch(idp->item) {
 
 		case 1: //refresh
-			return PM_ERR_PMID;
+			atom->ul = interval.tv_sec;
 			break;
 		case 8: //config
-			return PM_ERR_PMID;
+			atom->cp = get_conf_buffer();
 			break;
 		case 9: //config_gen
-			return PM_ERR_PMID;
+			atom->ul = conf_gen;
 			break;
 		case 2: //cpuidle
 			return PM_ERR_PMID;
@@ -1335,7 +1338,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
                 case 6: //schedwait
                         return PM_ERR_PMID;
                         break;
-                case 7: //cpuburn.  not in orig hotproc, why?
+                case 7: //cpuburn.  not in orig hotproc
 			atom->f = hotnode->r_cpuburn;
                         break;
 
@@ -1908,44 +1911,92 @@ proc_store(pmResult *result, pmdaExt *pmda)
 {
     int i, sts = 0;
 
+    fprintf( stderr, "in store\n");
+
     have_access = proc_ctx_access(pmda->e_context) || all_access;
 
+    fprintf( stderr, "post access\n");
+ 
     for (i = 0; i < result->numpmid; i++) {
 	pmValueSet *vsp = result->vset[i];
 	__pmID_int *idp = (__pmID_int *)&(vsp->pmid);
 	pmAtomValue av;
 
-	if (idp->cluster != CLUSTER_CONTROL)
-	    sts = PM_ERR_PERMISSION;
-	else if (vsp->numval != 1)
-	    sts = PM_ERR_INST;
-	else switch (idp->item) {
-	case 1: /* proc.control.all.threads */
-	    if (!have_access)
-		sts = PM_ERR_PERMISSION;
-	    else if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+	switch (idp->cluster){
+	    
+	case CLUSTER_CONTROL:
+	    if (vsp->numval != 1)
+	        sts = PM_ERR_INST;
+	    else switch (idp->item) {
+		case 1: /* proc.control.all.threads */
+		    if (!have_access)
+			sts = PM_ERR_PERMISSION;
+		    else if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				 PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
-	        if (av.ul > 1)	/* only zero or one allowed */
-		    sts = PM_ERR_CONV;
-		else
-		    threads = av.ul;
-	    }
-	    break;
-	case 2: /* proc.control.perclient.threads */
-	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+		        if (av.ul > 1)	/* only zero or one allowed */
+			    sts = PM_ERR_CONV;
+			else
+			    threads = av.ul;
+		    }
+		    break;
+		case 2: /* proc.control.perclient.threads */
+		    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				 PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
-		sts = proc_ctx_set_threads(pmda->e_context, av.ul);
-	    }
-	    break;
-	case 3:	/* proc.control.perclient.cgroups */
-	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+			sts = proc_ctx_set_threads(pmda->e_context, av.ul);
+		    }
+		    break;
+		case 3:	/* proc.control.perclient.cgroups */
+		    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				 PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0) {
-		if ((sts = proc_ctx_set_cgroups(pmda->e_context, av.cp)) < 0)
-		    free(av.cp);
-	    }
-	    break;
+			if ((sts = proc_ctx_set_cgroups(pmda->e_context, av.cp)) < 0)
+			    free(av.cp);
+		    }
+		    break;
+		default:
+		    sts = PM_ERR_PERMISSION;
+		    break;
+	    } //else switch (idp->item)
+	case CLUSTER_HOTPROC_GLOBAL:
+		switch(idp->item){
+		case 1: //update interval
+			if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+				 PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
+				interval.tv_sec = av.ul;
+				reset_hotproc_timer();
+		    	}
+			break;
+		case 8: // CONFIG
+		    {
+		    	fprintf( stderr, "in case\n");
+			bool_node *tree = NULL;
+			char *savebuffer;
+			if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+				 PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0) {
+				fprintf(stderr, "New config: %s", av.cp);
+				savebuffer = strdup(get_conf_buffer());
+				set_conf_buffer( av.cp );
+				if(parse_config(&tree) !=0 ){
+					set_conf_buffer( savebuffer );
+					free(savebuffer);
+				}
+				else{
+					conf_gen++;
+					new_tree(tree);
+					// let things just catch up for now
+					//restart_refresh();
+				}
+			    	free(av.cp);
+		    	}
+		    }
+			break;
+		default:
+			sts = PM_ERR_PERMISSION;
+			break;
+		}
+		break;
 	default:
-	    sts = PM_ERR_PERMISSION;
+		sts = PM_ERR_PERMISSION;
+		break;
 	}
 	if (sts < 0)
 	    break;
@@ -2140,9 +2191,10 @@ proc_init(pmdaInterface *dp)
 {
 
     FILE *conf;
-char	*envpath;
+    char	*envpath;
 
     int		nindoms = sizeof(indomtab)/sizeof(indomtab[0]);
+    int   sep = __pmPathSeparator();
     //int		nmetrics = sizeof(metrictab)/sizeof(metrictab[0]);
 
     proc_init_hotproc();
@@ -2190,11 +2242,22 @@ char	*envpath;
     indomtab[HOTPROC_INDOM].it_indom = HOTPROC_INDOM;
     hotproc_pid.indom = &indomtab[HOTPROC_INDOM];
 
-    configfile = strdup("/tmp/hotproc.conf");
+    char    h_configfile[MAXPATHLEN];
 
-    fprintf(stderr, "Loading coonfigfile: %s\n", configfile);
+    snprintf(h_configfile, sizeof(h_configfile), "%s%c" "proc" "%c" "hotproc.conf",
+                    pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 
-    conf = open_config();
+    fprintf(stderr, "Loading h_configfile: %s|\n", h_configfile);
+
+    //hotproc_configfile = strdup(h_configfile);
+
+    //fprintf(stderr, "Loading hotproc_configfile: %s|\n", hotproc_configfile);
+
+    // Just call a load config call
+    //conf = open_config(hotproc_configfile);
+
+    //Send this all to a hotproc init config function. TODO
+    conf = open_config(h_configfile);
     read_config(conf);
     (void)fclose(conf);
 

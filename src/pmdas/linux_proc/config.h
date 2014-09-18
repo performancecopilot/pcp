@@ -67,7 +67,9 @@ typedef struct {
 
 #include "gram_node.h"
 
-FILE *open_config(void);
+void set_conf_buffer( char * );
+char *get_conf_buffer();
+FILE *open_config(char []);
 void read_config(FILE *);
 int parse_config(bool_node **tree);
 void new_tree(bool_node *tree);

@@ -273,6 +273,8 @@ extern int get_hot_totals(double * ta, double * ti );
 
 extern int get_hotproc_node( pid_t pid, process_t **getnode );
 
+extern void reset_hotproc_timer();
+
 /* fetch a proc/<pid>/stat entry for pid */
 extern proc_pid_entry_t *fetch_proc_pid_stat(int, proc_pid_t *, int *);
 
