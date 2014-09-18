@@ -939,9 +939,6 @@ papi_store(pmResult *result, pmdaExt *pmda)
 static int
 papi_text(int ident, int type, char **buffer, pmdaExt *ep)
 {
-    int ec;
-    int i;
-    int position = -1;
     __pmID_int *pmidp = (__pmID_int*)&ident;
 
     /* no indoms - we only deal with metric help text */
@@ -949,28 +946,13 @@ papi_text(int ident, int type, char **buffer, pmdaExt *ep)
 	return PM_ERR_TEXT;
 
     if(pmidp->cluster == CLUSTER_PAPI){
-	ec = 0 | PAPI_PRESET_MASK;
-	PAPI_enum_event(&ec, PAPI_ENUM_FIRST);
-	for (i = 0; i < number_of_events; i++) {
-	    if (((__pmID_int *)&papi_info[i].pmid)->item == pmidp->item) {
-		position = i;
-		break;
-	    }
+	if(pmidp->item < number_of_events){
+	    if (type & PM_TEXT_ONELINE)
+		*buffer = papi_info[pmidp->item].info.short_descr;
+	    else
+		*buffer = papi_info[pmidp->item].info.long_descr;
+	    return 0;
 	}
-
-	do {
-	    if (PAPI_get_event_info(ec, &papi_info[position].info) == PAPI_OK) {
-		if (papi_info[position].info.count && PAPI_PRESET_ENUM_AVAIL){
-		    if (papi_info[position].info.event_code == papi_info[position].papi_event_code) {
-			if (type & PM_TEXT_ONELINE)
-			    *buffer = papi_info[position].info.short_descr;
-			else
-			    *buffer = papi_info[position].info.long_descr;
-			return 0;
-		    }
-		}
-	    }
-	} while (PAPI_enum_event(&ec, 0) == PAPI_OK);
 	return pmdaText(ident, type, buffer, ep);
     }
     else
@@ -1060,9 +1042,8 @@ papi_internal_init(void)
     do {
 	if (PAPI_get_event_info(ec, &info) == PAPI_OK) {
 	    if (info.count && PAPI_PRESET_ENUM_AVAIL){
-		i++;
 		expand_papi_info(i);
-		papi_info[i-1].papi_event_code = info.event_code;
+		papi_info[i].papi_event_code = info.event_code;
 		substr = strtok(info.symbol, "_");
 		while (substr != NULL) {
 		    addunderscore = 0;
@@ -1075,14 +1056,17 @@ papi_internal_init(void)
 			strcat(concatstr, "_");
 		    }
 		}
-		strcpy(papi_info[i-1].papi_string_code, concatstr);
+		strcpy(papi_info[i].papi_string_code, concatstr);
 		memset(&concatstr[0], 0, sizeof(concatstr));
-		papi_info[i-1].position = -1;
-		papi_info[i-1].pmid = i-1;
+		papi_info[i].position = -1;
+		papi_info[i].pmid = i;
+		strcpy(papi_info[i].info.short_descr,info.short_descr);
+		strcpy(papi_info[i].info.long_descr, info.long_descr);
+		expand_values(i);
+		i++;
 	    }
 	}
     } while(PAPI_enum_event(&ec, 0) == PAPI_OK);
-    expand_values(i);
     if (PAPI_create_eventset(&EventSet) != PAPI_OK) {
 	__pmNotifyErr(LOG_ERR, "PAPI_create_eventset error!\n");
 	return PM_ERR_GENERIC;
