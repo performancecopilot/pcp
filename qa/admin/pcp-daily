@@ -737,6 +737,17 @@ End-of-File
 	cat $tmp.out >>$log
 	echo "=== END ===" >>$log
 
+	if $iflag
+	then
+	    if which whatami >/dev/null 2>&1
+	    then
+		if [ -f $HOME/whatami.out ]
+		then
+		    whatami $host
+		fi
+	    fi
+	fi
+
 	if $hflag
 	then
 	    # harvest failures by pulling from QA host

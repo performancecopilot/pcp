@@ -16,7 +16,9 @@ _filter_dodgey_nfs_indom()
 {
     sed \
 	-e '/number of instances .* (0) != that for pmGetInDom (18)/d' \
-	-e '/number of instances .* (0) != that for pmGetInDom (22)/d'
+	-e '/number of instances .* (0) != that for pmGetInDom (22)/d' \
+	-e '/number of instances .* (0) != that for pmGetInDom (35)/d' \
+	-e '/number of instances .* (0) != that for pmGetInDom (41)/d'
 }
 
 status=0
@@ -26,20 +28,54 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 PMDA_LOCAL_SAMPLE=yes
 export PMDA_LOCAL_SAMPLE
 
-for metric in \
-    kernel.percpu.cpu.idle \
-    disk.dev.read \
-    sampledso.colour \
-    kernel.all.load \
-    network.interface.in.bytes \
-    sampledso.bucket \
-    filesys.used \
-    swapdev.length \
-    nfs.client.reqs \
-    nfs.server.reqs \
-    nfs3.client.reqs \
-    nfs3.server.reqs \
-    sampledso.hordes.one
+cat <<End-of-File >$tmp.metrics
+#InDom	Name
+ 60.00	hinv.map.cpu_num
+ 60.00	kernel.percpu.cpu.idle
+ 60.01	disk.dev.read
+ 60.02	kernel.all.load
+ 60.03	network.interface.in.bytes
+# may fail due to removeable device like DVD or CD-ROM ... in instance
+# domain, but not until probed in fetch method do we discover there are
+# no filesys.* metrics for that instance
+#fail ok 60.05	filesys.used
+ 60.06	swapdev.length
+ 60.07	nfs.client.reqs
+ 60.07	nfs.server.reqs
+ 60.08	nfs3.client.reqs
+ 60.08	nfs3.server.reqs
+ 60.10	disk.partitions.total
+ 60.11	hinv.map.scsi
+ 60.12	mem.slabinfo.objects.total
+ 60.14	nfs4.client.reqs
+ 60.15	nfs4.server.reqs
+# don't use network.interface.inet_addr as this may fail because indom
+# comes from /proc/net/dev but some of these are skipped in the fetch if
+# we can't get the inet addr
+ 60.17	network.interface.total.bytes
+ 60.18	tmpfs.capacity
+ 60.19	kernel.pernode.cpu.nice
+ 60.22	hinv.nlv
+# will fail because indom is hard-wired at 256 elements, but fetch may
+# return a subset of these
+#fail ok 60.23	network.icmpmsg.intype
+ 60.24	hinv.map.dmname
+ 30.01	sampledso.colour
+ 30.02	sampledso.bucket
+ 30.03	sampledso.mirage
+ 30.04	sampledso.needprofile
+ 30.05	sampledso.hordes.one
+ 30.06	sampledso.dodgey.value
+ 30.07	sampledso.dynamic.counter
+ 30.08	sampledso.many.int
+# the indom is re-evaluated for each pdu request ...
+#fail ok 30.09	sampledso.scramble.bin
+ 30.10	sampledso.event.records
+# this will always end in tears ...
+#fail ok 02.03	sampledso.secret.foo.bar.max.redirect
+End-of-File
+
+sed -e '/^#/d' <$tmp.metrics | while read indom metric
 do
     if [ $PCP_PLATFORM = darwin ]
     then
@@ -73,6 +109,7 @@ do
 		;;
 	esac
     fi
+    echo $metric:
     if [ $PCP_PLATFORM = solaris -o $PCP_PLATFORM = freebsd ]
     then
 	# need to be root to open /dev/kmem
