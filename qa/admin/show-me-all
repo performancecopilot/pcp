@@ -37,23 +37,38 @@ cd $HOME
 
 for seq
 do
+    base=''
+    echo >$tmp.sum
     find $HOME/Logs/by-vm -name "$seq.out.bad" \
     | sort \
     | while read bad
     do
-	cd `dirname $bad`
-	for qabits in localconfig
-	do
-	    if [ -L $qabits ]
-	    then
-		:
-	    else
-		rm -f $qabits
-		ln -s $HOME/src/pcp/qa/$qabits $qabits
-	    fi
-	done
-	echo -n `echo "$bad" | sed -e "s;^$HOME/Logs/by-vm/;;" -e 's/[-/].*/-/'`
-	show-me $seq
-	$full && [ -f $seq.full ] && less $seq.full </dev/tty
+	sum=`shasum <$bad | sed -e 's/ .*//'`
+	host=`echo "$bad" | sed -e "s;^$HOME/Logs/by-vm/;;" -e 's/[-/].*//'`
+	if grep " $sum" <$tmp.sum >/dev/null 2>&1
+	then
+	    match_host=`grep " $sum" <$tmp.sum | sed -e 's/ .*//' -e 1q`
+	    echo "$host: same $seq.out.bad as $match_host"
+	else
+	    cd `dirname $bad`
+	    for qabits in \
+		common common.check common.config common.filter common.install.cisco \
+		common.pcpweb common.product common.rc common.setup localconfig \
+		group show-me
+	    do
+		if [ -L $qabits ]
+		then
+		    :
+		else
+		    rm -f $qabits
+		    ln -s $HOME/src/pcp/qa/$qabits $qabits
+		fi
+	    done
+	    echo -n "$host-"
+	    show-me $seq
+	    $full && [ -f $seq.full ] && less $seq.full </dev/tty
+	fi
+	echo $host $sum >>$tmp.sum
+	#debug# cat $tmp.sum
     done
 done
