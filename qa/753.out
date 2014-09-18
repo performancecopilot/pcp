@@ -6,7 +6,7 @@ metric:    d
 semantics: instantaneous value
 units:     none
 samples:   2
-interval:  0.25 sec
+interval:  0.50 sec
 No values available
 
     bin-100     bin-200     bin-300     bin-400     bin-500     bin-600     bin-700     bin-800     bin-900 
@@ -16,7 +16,7 @@ metric:    r
 semantics: instantaneous value
 units:     / sec
 samples:   2
-interval:  0.25 sec
+interval:  0.50 sec
 No values available
 
               bin-100               bin-200               bin-300               bin-400               bin-500               bin-600               bin-700               bin-800               bin-900 
@@ -28,7 +28,7 @@ metric:    d
 semantics: instantaneous value
 units:     none
 samples:   2
-interval:  0.25 sec
+interval:  0.50 sec
 No values available
 
      1 minute      5 minute     15 minute 
@@ -38,7 +38,7 @@ metric:    r
 semantics: instantaneous value
 units:     / sec
 samples:   2
-interval:  0.25 sec
+interval:  0.50 sec
 No values available
 
              1 minute              5 minute             15 minute 
@@ -50,7 +50,7 @@ metric:    d
 semantics: instantaneous value
 units:     Kbyte
 samples:   2
-interval:  0.25 sec
+interval:  0.50 sec
 No values available
           0
 
@@ -58,7 +58,7 @@ metric:    r
 semantics: instantaneous value
 units:     Kbyte / sec
 samples:   2
-interval:  0.25 sec
+interval:  0.50 sec
 No values available
                0.0   
 
@@ -68,7 +68,7 @@ metric:    d
 semantics: instantaneous value
 units:     none
 samples:   2
-interval:  0.25 sec
+interval:  0.50 sec
 No values available
           0
 
@@ -76,7 +76,7 @@ metric:    r
 semantics: instantaneous value
 units:     / sec
 samples:   2
-interval:  0.25 sec
+interval:  0.50 sec
 No values available
                0.0   
 
@@ -97,7 +97,7 @@ metric:    d
 semantics: instantaneous value
 units:     Kbyte / sec
 samples:   2
-interval:  0.25 sec
+interval:  0.50 sec
 No values available
 abs(N) < 4096
 Semantic error: derived metric r: RATE(sample.kbyte_rate): Incorrect time dimension for operand

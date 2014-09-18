@@ -54,8 +54,8 @@ End-of-File
     echo "--- $metric ---"
     echo "d=delta($metric)" >$tmp.config
     echo "r=rate($metric)" >>$tmp.config
-    pmval -t 0.25 -s 2 d | _filter $metric
-    pmval -t 0.25 -s 2 r | _filter $metric
+    pmval -t 0.5 -s 2 d | _filter $metric
+    pmval -t 0.5 -s 2 r | _filter $metric
 done
 
 # success, all done
