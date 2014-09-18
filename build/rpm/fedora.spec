@@ -5,11 +5,17 @@ Version: 3.10.0
 
 Release: %{buildversion}%{?dist}
 License: GPLv2+ and LGPLv2.1+
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Group: Applications/System
 Source0: pcp-%{version}.src.tar.gz
 
-%define disable_papi 0
+# There is no papi-devel package for s390 or prior to rhel6, disable it
+%ifarch s390 s390x
+%{!?disable_papi: %global disable_papi 1}
+%else
+%{!?disable_papi: %global disable_papi 0%{?rhel} < 6}
+%endif
+
 %define disable_microhttpd 0
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %define disable_qt 0
@@ -124,7 +130,7 @@ applications to easily retrieve and process any subset of that data.
 License: LGPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot run-time configuration
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 
 # http://fedoraproject.org/wiki/Packaging:Conflicts "Splitting Packages"
 Conflicts: pcp-libs < 3.9
@@ -139,7 +145,7 @@ Performance Co-Pilot (PCP) run-time configuration
 License: LGPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot run-time libraries
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 
 Requires: pcp-conf = %{version}-%{release}
 
@@ -153,7 +159,7 @@ Performance Co-Pilot (PCP) run-time libraries
 License: GPLv2+ and LGPLv2.1+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) development headers and documentation
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 
 %description libs-devel
@@ -166,7 +172,7 @@ Performance Co-Pilot (PCP) headers, documentation and tools for development.
 License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) test suite
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp = %{version}-%{release}
 Requires: pcp-libs = %{version}-%{release}
 Requires: pcp-libs-devel = %{version}-%{release}
@@ -182,7 +188,7 @@ Quality assurance test suite for Performance Co-Pilot (PCP).
 License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) manager daemon
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 
 Requires: pcp = %{version}-%{release}
 Requires: pcp-libs = %{version}-%{release}
@@ -207,7 +213,7 @@ and as a result may not be suited to all production environments.
 License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) web API service
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 
 Requires: pcp = %{version}-%{release}
 Requires: pcp-libs = %{version}-%{release}
@@ -225,7 +231,7 @@ HTTP (PMWEBAPI) protocol.
 License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings and documentation
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 
 %description -n perl-PCP-PMDA
@@ -242,7 +248,7 @@ an application, etc.
 License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for PCP Memory Mapped Values
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 
 %description -n perl-PCP-MMV
@@ -260,7 +266,7 @@ and analysis with pmchart, pmie, pmlogger and other PCP tools.
 License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for importing external data into PCP archives
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 
 %description -n perl-PCP-LogImport
@@ -275,7 +281,7 @@ they can be replayed with standard PCP monitoring tools.
 License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for post-processing output of pmlogsummary
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 
 %description -n perl-PCP-LogSummary
@@ -293,7 +299,7 @@ exporting this data into third-party tools (e.g. spreadsheets).
 License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing sar data into PCP archive logs
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 Requires: perl-PCP-LogImport = %{version}-%{release}
 Requires: sysstat
@@ -309,7 +315,7 @@ into standard PCP archive logs for replay with any PCP monitoring tool.
 License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing iostat data into PCP archive logs
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 Requires: perl-PCP-LogImport = %{version}-%{release}
 Requires: sysstat
@@ -325,7 +331,7 @@ into standard PCP archive logs for replay with any PCP monitoring tool.
 License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing MTRG data into PCP archive logs
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 Requires: perl-PCP-LogImport = %{version}-%{release}
 
@@ -340,7 +346,7 @@ into standard PCP archive logs for replay with any PCP monitoring tool.
 License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing collectl log files into PCP archive logs
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 
 %description import-collectl2pcp
@@ -355,7 +361,7 @@ into standard PCP archive logs for replay with any PCP monitoring tool.
 License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for Performance API and hardware counters
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 Requires: papi-devel
 BuildRequires: papi-devel
@@ -373,7 +379,7 @@ collecting hardware counters statistics through PAPI (Performance API).
 License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for Infiniband HCAs and switches
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 Requires: libibmad >= 1.3.7 libibumad >= 1.3.7
 BuildRequires: libibmad-devel >= 1.3.7 libibumad-devel >= 1.3.7
@@ -391,7 +397,7 @@ but can also be configured to monitor remote GUIDs such as IB switches.
 License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python bindings and documentation
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 
 %description -n python-pcp
@@ -406,7 +412,7 @@ building Performance Metric API (PMAPI) tools using Python.
 License: GPLv2+ and LGPLv2+ and LGPLv2+ with exceptions
 Group: Applications/System
 Summary: Visualization tools for the Performance Co-Pilot toolkit
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 
 %description -n pcp-gui
@@ -425,7 +431,7 @@ Group: Documentation
 BuildArch: noarch
 %endif
 Summary: Documentation and tutorial for the Performance Co-Pilot
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 
 %description -n pcp-doc
 Documentation and tutorial for the Performance Co-Pilot

@@ -1,6 +1,6 @@
 QA output created by 996
 === tolerance 1 ===
-Directory: /home/kenj/src/pcp/qa
+Directory: HERE
 Excluded metrics:
     ^pmcd.pmlogger.port 
 
@@ -35,7 +35,7 @@ Ratio Threshold: >= 1.00 or <= 1.000
          10.00            0.000    |-|   sampledso.long.write_me
 
 === default tolerance ===
-Directory: /home/kenj/src/pcp/qa
+Directory: HERE
 Excluded metrics:
     ^pmcd.pmlogger.port 
 
