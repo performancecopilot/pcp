@@ -94,7 +94,10 @@ pmwebres_respond (struct MHD_Connection *connection, const http_params& params, 
     const char *ctype = NULL;
 
     assert (resourcedir != "");	/* facility is enabled at all */
-    assert (url[0] == '/');
+    /* NB: formerly, we asserted (url[0] == '/'), and this is proper for normal HTTP requests.
+       But deliberately standards-violating HTTP requests could come with other guck, or
+       even an empty string, which we need to tolerate  ... at least until we determine them
+       to be cursed & reject them. */
 
     string resourcefile = resourcedir + url;	// pass through / path separators
 

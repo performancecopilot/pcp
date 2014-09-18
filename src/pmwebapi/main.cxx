@@ -65,6 +65,10 @@ mhd_notify_error (struct MHD_Connection *connection, int rc)
 
     (void) MHD_add_response_header (resp, "Content-Type", "text/plain");
 
+    // ACAO here is desirable so that a browser can permit a webapp to
+    // process the detailed error message.
+    (void) MHD_add_response_header (resp, "Access-Control-Allow-Origin", "*");
+
     rc = MHD_queue_response (connection, MHD_HTTP_BAD_REQUEST, resp);
     MHD_destroy_response (resp);
 
