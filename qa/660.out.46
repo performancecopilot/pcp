@@ -29,6 +29,7 @@ context #### local-kernel metric kernel.* enumeration match count PASS
 context #### host-kernel metric kernel.* enumeration with pminfo ####
 context #### host-kernel metric kernel.* enumeration with pmwebinfo ####
 context #### host-kernel metric kernel.* enumeration match count PASS
+context #### response code 400
 context #### fetch names= response code 400
 context #### fetch names=no.such.metric response code 400
 context #### fetch names=no.such.metric1,pmcd.client.whoami,no.such.metric2 response code 200
@@ -86,11 +87,12 @@ len(metrics[]):0
 context #### metadata prefix=no.such.metric3,pmcd.client.whoami,no.such.metric4 response code 200
 len(metrics[]):0
 context #### metadata prefix=sample response code 200
-len(metrics[]):147
+len(metrics[]):150
   metric:sample.aggregate.hullo metadata:7
   metric:sample.aggregate.null metadata:7
   metric:sample.aggregate.write_me metadata:7
   metric:sample.bad.nosupport metadata:7
+  metric:sample.bad.novalues metadata:7
   metric:sample.bigid metadata:7
   metric:sample.bin metadata:8
   metric:sample.bogus_bin metadata:8
@@ -125,6 +127,7 @@ len(metrics[]):147
   metric:sample.dynamic.meta.pmdesc.units metadata:7
   metric:sample.error_check metadata:7
   metric:sample.error_code metadata:7
+  metric:sample.event.highres_records metadata:8
   metric:sample.event.no_indom_records metadata:7
   metric:sample.event.param_32 metadata:7
   metric:sample.event.param_64 metadata:7
@@ -136,6 +139,7 @@ len(metrics[]):147
   metric:sample.event.param_u64 metadata:7
   metric:sample.event.records metadata:8
   metric:sample.event.reset metadata:7
+  metric:sample.event.reset_highres metadata:7
   metric:sample.event.type metadata:7
   metric:sample.float.bin metadata:8
   metric:sample.float.bin_ctr metadata:8
@@ -275,6 +279,7 @@ context #### local-kernel metric kernel.* enumeration match count PASS
 context #### host-kernel metric kernel.* enumeration with pminfo ####
 context #### host-kernel metric kernel.* enumeration with pmwebinfo ####
 context #### host-kernel metric kernel.* enumeration match count PASS
+context #### response code 400
 context #### fetch names= response code 400
 context #### fetch names=no.such.metric response code 400
 context #### fetch names=no.such.metric1,pmcd.client.whoami,no.such.metric2 response code 200
@@ -332,11 +337,12 @@ len(metrics[]):0
 context #### metadata prefix=no.such.metric3,pmcd.client.whoami,no.such.metric4 response code 200
 len(metrics[]):0
 context #### metadata prefix=sample response code 200
-len(metrics[]):147
+len(metrics[]):150
   metric:sample.aggregate.hullo metadata:7
   metric:sample.aggregate.null metadata:7
   metric:sample.aggregate.write_me metadata:7
   metric:sample.bad.nosupport metadata:7
+  metric:sample.bad.novalues metadata:7
   metric:sample.bigid metadata:7
   metric:sample.bin metadata:8
   metric:sample.bogus_bin metadata:8
@@ -371,6 +377,7 @@ len(metrics[]):147
   metric:sample.dynamic.meta.pmdesc.units metadata:7
   metric:sample.error_check metadata:7
   metric:sample.error_code metadata:7
+  metric:sample.event.highres_records metadata:8
   metric:sample.event.no_indom_records metadata:7
   metric:sample.event.param_32 metadata:7
   metric:sample.event.param_64 metadata:7
@@ -382,6 +389,7 @@ len(metrics[]):147
   metric:sample.event.param_u64 metadata:7
   metric:sample.event.records metadata:8
   metric:sample.event.reset metadata:7
+  metric:sample.event.reset_highres metadata:7
   metric:sample.event.type metadata:7
   metric:sample.float.bin metadata:8
   metric:sample.float.bin_ctr metadata:8
@@ -503,13 +511,62 @@ context #### indom names=kernel.all.nprocs response code 400
 === 3. pmwebd security constraints, file service ===
 PMWEBD error, XXX
 PMWEBD error, XXX
+* About to connect() to LOCALHOST port 44323 (####)
+*   Trying 127.0.0.1...
+* Connected to LOCALHOST (127.0.0.1) port 44323 (####)
+> GET /pmapi/2222/_fetch?names= HTTP/1.1
+> User-Agent: FOO
+> Host: LOCALHOST:44323
+> Accept: */*
+> 
+< HTTP/1.1 400 Bad Request
+< Content-Length: 56
+< Access-Control-Allow-Origin: *
+< Content-Type: text/plain
+< Date: DATE
+< 
+{ [data not shown]
+* Connection #### to host LOCALHOST left intact
 PMWEBD error, XXX
 PMWEBD error, XXX
+* About to connect() to LOCALHOST port 44323 (####)
+*   Trying 127.0.0.1...
+* Connected to LOCALHOST (127.0.0.1) port 44323 (####)
+> GET /../../etc/passwd HTTP/1.1
+> User-Agent: FOO
+> Host: LOCALHOST:44323
+> Accept: */*
+> 
+< HTTP/1.1 400 Bad Request
+< Content-Length: 40
+< Access-Control-Allow-Origin: *
+< Content-Type: text/plain
+< Date: DATE
+< 
+{ [data not shown]
+* Connection #### to host LOCALHOST left intact
 PMWEBD error, XXX
+* About to connect() to LOCALHOST port 44323 (####)
+*   Trying 127.0.0.1...
+* Connected to LOCALHOST (127.0.0.1) port 44323 (####)
+> GET /graphite/render?target=* HTTP/1.1
+> User-Agent: FOO
+> Host: LOCALHOST:44323
+> Accept: */*
+> 
+< HTTP/1.1 400 Bad Request
+< Content-Length: 40
+< Access-Control-Allow-Origin: *
+< Content-Type: text/plain
+< Date: DATE
+< 
+{ [data not shown]
+* Connection #### to host LOCALHOST left intact
 PMWEBD error, XXX
 file service ok
 
 === 4. pmwebd graphite capabilities ===
+crashers
 the catalog
 HTTP/1.1 302 Moved Temporarily
 Content-Length: 0
