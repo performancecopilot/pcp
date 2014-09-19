@@ -5,7 +5,7 @@
 	<meta http-equiv="content-style-type" content="text/css">
 	<link href="pcpdoc.css" rel="stylesheet" type="text/css">
 	<link href="images/pcp.ico" rel="icon" type="image/ico">
-	<TITLE>Red Hat Quick Reference Guide</TITLE>
+        <TITLE>PCP Quick Reference Guide</TITLE>
 </HEAD>
 <BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
@@ -14,7 +14,7 @@
 	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
 	</TR>
 </TABLE>
-<H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Red Hat Quick Reference Guide</FONT></H1>
+<H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>PCP Quick Reference Guide</FONT></H1>
 <UL>
   <LI><A HREF="#intro">Introduction</A>
   <LI><A HREF="#install">Installation</A>
@@ -50,33 +50,38 @@
 
 <P><A HREF="http://www.pcp.io/">Performance Co-Pilot</A> (PCP) is an open source framework and toolkit for monitoring, analyzing, and responding to details of live and historical system performance. PCP has a fully distributed, plug-in based architecture making it particularly well suited to centralized analysis of complex environments and systems. Custom performance metrics can be added using the C, C++, Perl, and Python interfaces.
 
-<P>This page provides quick instructions how to install and use PCP on a set of RHEL hosts of which one (a monitor host) will be used for monitoring and analyzing itself and other hosts (collector hosts).
+<P>This page provides quick instructions how to install and use PCP on a set of hosts of which one (a monitor host) will be used for monitoring and analyzing itself and other hosts (collector hosts).
 
 <a name="install"></a>
 <H1>Installation</H1>
 
-<P>PCP is supported on RHEL 6.6+ and RHEL 7+ and is available from the <A HREF="http://fedoraproject.org/wiki/EPEL">EPEL</A> repositories for earlier versions.
-
-<P>For older releases, either enable EPEL with Yum (see <A HREF="http://fedoraproject.org/wiki/EPEL/FAQ#How_can_I_install_the_packages_from_the_EPEL_software_repository.3F">this page</A> for details - but be careful not to overwrite any RHEL packages with EPEL packages) or you can grab the latest PCP packages manually from the <A HREF="http://dl.fedoraproject.org/pub/epel/">EPEL repositories</A>.
+<P>PCP is available on all recent distribution releases, include Debian/Fedora/RHEL/Ubuntu. For earlier releases and other distributions you might want to consider installation <A HREF="http://www.pcp.io/source.html">from sources</A> or checking auxiliary package repositories, like <A HREF="http://fedoraproject.org/wiki/EPEL">EPEL</A>.
 
 <a name="collectors"></a>
 <H3>Installing Collector Hosts</H3>
 
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install basic PCP tools and services and enable collecting performance data, simply run:<br><B>
+       <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install basic PCP tools and services and enable collecting performance data on Fedora/RHEL, run:<br><B>
 <br> # yum install pcp
 <br> # chkconfig pmcd on
 <br> # service pmcd start
 <br> # chkconfig pmlogger on
 <br> # service pmlogger start
 </B></TD></TR>
+       <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install basic PCP tools and services and enable collecting performance data on Debian/Ubuntu, run:<br><B>
+<br> $ sudo apt-get install pcp
+<br> $ sudo update-rc.d pmcd defaults
+<br> $ sudo update-rc.d pmlogger defaults
+<br> $ sudo service pmcd restart
+<br> $ sudo service pmlogger restart
+</B></TD></TR>
 </TABLE>
 
-<P>This will enable the Performance Metrics Collector Daemon (<a href="http://man7.org/linux/man-pages/man1/pmcd.1.html">pmcd(1)</a>) on the host which then in turn will control and request metrics on behalf of clients from various Performance Metrics Domain Agents (PMDAs). The PMDAs provide the actual data from different components (domains) in the system, for example from the Linux Kernel PMDA or the NFS Client PMDA. The default configuration includes over 1000 metrics with negligible overall overhead. Local PCP archive logs will also be enabled on the host for convenience with <a href="http://man7.org/linux/man-pages/man1/pmlogger.1.html">pmlogger(1)</a> (<A HREF="https://access.redhat.com/articles/1146283">RHKB 1146283</A> contains some additional logging related considerations).
+<P>This will enable the Performance Metrics Collector Daemon (<a href="http://man7.org/linux/man-pages/man1/pmcd.1.html">pmcd(1)</a>) on the host which then in turn will control and request metrics on behalf of clients from various Performance Metrics Domain Agents (PMDAs). The PMDAs provide the actual data from different components (domains) in the system, for example from the Linux Kernel PMDA or the NFS Client PMDA. The default configuration includes over 1000 metrics with negligible overall overhead. Local PCP archive logs will also be enabled on the host for convenience with <a href="http://man7.org/linux/man-pages/man1/pmlogger.1.html">pmlogger(1)</a>.
 
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To enable PMDAs which are not enabled by default, for example the NFS Client PMDA, run the corresponding Install script:<br><B>
-<br> # cd /var/lib/pcp/pmdas/nfsclient
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To enable PMDAs which are not enabled by default, for example the Postfix PMDA, run the corresponding Install script:<br><B>
+<br> # cd /var/lib/pcp/pmdas/postfix
 <BR> # ./Install
 </B></TD></TR>
 </TABLE>
@@ -90,8 +95,11 @@
 <P>The following additional packages can be optionally installed on the monitoring host to extend the set of monitoring tools from the base pcp package.
 
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Install graphical analysis tools and documentation:<BR><B>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Install graphical analysis tools and documentation on Fedora/RHEL:<BR><B>
 <BR># yum install pcp-doc pcp-gui
+</B></TD></TR>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Install graphical analysis tools and documentation on Debian/Ubuntu:<BR><B>
+<BR>$ sudo apt-get install pcp-doc pcp-gui
 </B></TD></TR>
 </TABLE>
 
@@ -105,23 +113,28 @@
 </B></TD></TR>
 </TABLE>
 
-<P>Checks for remote log collection will be done every half an hour. You may also wish to run /usr/libexec/pcp/bin/pmlogger_check -V -C manually (the service restart above issues this command internally).
+<P>Checks for remote log collection will be done every half an hour. You may also wish to run /usr/libexec/pcp/bin/pmlogger_check -V -C (on Fedora/RHEL) or /usr/lib/pcp/bin/pmlogger_check -V -C (on Debian/Ubuntu) manually (service restart above issues this command internally).
 
 <P>Note that a default configuration file (config.acme.com above) will be generated if it does not exist already. This process is optional (a custom configuration for each host can be provided instead), see the <a href="http://man7.org/linux/man-pages/man1/pmlogconf.1.html">pmlogconf(1) manual page</a> for details on this.
 
 <a name="discovery"></a>
 <H3>Dynamic Host Discovery</H3>
 
-<P>In dynamic environments manually configuring every host is not feasible, perhaps even impossible. PCP Manager (<a href="http://man7.org/linux/man-pages/man1/pmmgr.1.html">pmmgr(1)</a>, from the pcp-manager RPM package) can be used instead of directly invoking PMLOGGER and PMIE to auto-discover and auto-configure new collector hosts.
+<P>In dynamic environments manually configuring every host is not feasible, perhaps even impossible. PCP Manager (<a href="http://man7.org/linux/man-pages/man1/pmmgr.1.html">pmmgr(1)</a>, from the pcp-manager package) can be used instead of directly invoking pmlogger and pmie to auto-discover and auto-configure new collector hosts.
 
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install the PMMGR daemon and begin monitoring either statically or dynamically configured hosts, run:<br><B>
+<br> ## Fedora/RHEL:
 <br> # yum install pcp-manager
+<br> # chkconfig pmmgr on
+<br> ## Debian/Ubuntu:
+<br> $ sudo apt-get install pcp-manager
+<br> $ sudo update-rc.d pmmgr defaults
+<br> # Common:
 <br> # echo <FONT COLOR="#cc0000">acme.com</FONT> >> /etc/pcp/pmmgr/target-host
 <br> # echo avahi >> /etc/pcp/pmmgr/target-discover
 <br> # echo probe=<FONT COLOR="#cc0000">ip.addr.tup.le/netmask</FONT> >> /etc/pcp/pmmgr/target-discover
-<br> # chkconfig pmmgr on
-<br> # service pmmgr start
+<br> # service pmmgr restart
 <br> # find /var/log/pcp/pmmgr
 </B></TD></TR>
 </TABLE>
@@ -353,7 +366,7 @@ Import iostat data to a new PCP archive and visualize it:<BR><B>
 
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
-Import sar data from an existing sar archive to a new PCP archive and visualize it:<BR><B>
+Import sar data from an existing sar archive to a new PCP archive and visualize it (sar logs are under /var/log/sysstat on Debian/Ubuntu):<BR><B>
 <BR> $ sar2pcp /var/log/sa/sa15 sar.pcp
 <BR> $ pmchart -2 2sec -a sar.pcp </B>
 </TD></TR>
@@ -420,9 +433,13 @@ Display the number of running processes on 2014-08-20 14:00:<BR><B>
 <P>Performance Metrics Inference Engine (<a href="http://man7.org/linux/man-pages/man1/pmie.1.html">pmie(1)</a>) can evaluate rules and generate alarms, run scripts, or automate system management tasks based on live or past performance metrics.
 
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To enable PMIE, just enable and start the service:<br><B>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To enable and start PMIE on Fedora/RHEL:<br><B>
 <br> # chkconfig pmie on
 <br> # service pmie start
+</B></TD></TR>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To make sure PMIE is running on Debian/Ubuntu:<br><B>
+<br> $ sudo update-rc.d pmie defaults
+<br> $ sudo service pmie restart
 </B></TD></TR>
 </TABLE>
 
@@ -447,9 +464,7 @@ Display the number of running processes on 2014-08-20 14:00:<BR><B>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 This example shows a PMIE script, checks its syntax, runs it against an archive, and prints a simple message if more than 5 GB of memory was in use between 9 AM and 10 AM using one minute sampling interval:<BR><B>
 <BR> $ cat pmie.ex
-<PRE>
-    bloated = (  mem.util.used > 5 Gbyte )
-
+<PRE>bloated = (  mem.util.used > 5 Gbyte )
       -> print "%v memory used on %h!"</PRE>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmie.1.html">pmie</a> -C pmie.ex
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmie.1.html">pmie</a> -t 1min -c pmie.ex -S @09:00 -T @10:00 -a <FONT COLOR="#cc0000">acme.com</FONT>/20140820</B>
@@ -463,10 +478,15 @@ This example shows a PMIE script, checks its syntax, runs it against an archive,
 <P>A daemon for exporting PCP metrics using a REST web service (over HTTP/JSON) is also available.  Use this for viewing or monitoring PCP metrics in a web browser - several web interfaces are becoming available (also via the pcp-webapi package) to make this a reality.
 
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install the PCP web service, simply run:<br><B>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install the PCP web service on Fedora/RHEL:<br><B>
 <br> # yum install pcp-webapi
 <br> # chkconfig pmwebd on
 <br> # service pmwebd start
+</B></TD></TR>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install the PCP web service on Debian/Ubuntu:<br><B>
+<br> $ sudo apt-get install pcp-webapi
+<br> $ sudo update-rc.d pmwebd defaults
+<br> $ sudo service pmwebd restart
 </B></TD></TR>
 </TABLE>
 
@@ -493,7 +513,7 @@ This example shows a PMIE script, checks its syntax, runs it against an archive,
     <LI>The simple PMDA provides implementations in C, Perl and Python.</LI>
   </UL>
 <LI>A simple command line monitor tool is /usr/share/pcp/demos/pmclient (C language).</LI>
-<LI>Good initial Python monitor examples are /usr/libexec/pcp/bin/pcp/pcp-*.</LI>
+<LI>Good initial Python monitor examples are /usr/libexec/pcp/bin/pcp/pcp-* (Fedora/RHEL) or /usr/lib/pcp/bin/pcp-* (Debian/Ubuntu).</LI>
   <UL>
     <LI>Slightly more complex examples are the pmiostat, pmatop, pmcollectl commands.</LI>
   </UL>
