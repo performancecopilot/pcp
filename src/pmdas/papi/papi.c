@@ -709,30 +709,15 @@ papi_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     return PM_ERR_PERMISSION;
 }
 
-static void
-handle_papi_error(int error)
-{
-    if (pmDebug & DBG_TRACE_APPL0)
-	__pmNotifyErr(LOG_ERR, "Papi error: %s\n", PAPI_strerror(error));
-}
-
-
-/*
- * Iterate across all papi_info[].  Some of them are presumed to have
- * changed metric_enabled states (we don't care which way).  Shut down
- * the PAPI eventset and collect the then-current values; create a new
- * PAPI eventset with the survivors; restart.  (These steps are
- * necessary because PAPI doesn't let one modify a PAPI_RUNNING
- * EventSet, nor (due to a bug) subtract even from a PAPI_STOPPED one.)
- */
-static int /* PM_* code */
-refresh_metrics()
+static int
+remove_metric(int event)
 {
     int retval = 0;
     int state = 0;
     int i;
+    int position = papi_info[event].position;
 
-    retval = PAPI_query_event(event);
+    retval = PAPI_query_event(papi_info[event].papi_event_code);
     if (retval != PAPI_OK){
 	if (pmDebug & DBG_TRACE_APPL0)
 	    __pmNotifyErr(LOG_DEBUG, "event not found on this hardware, skipping\n");
@@ -954,7 +939,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		for (j = 0; j < size_of_active_counters; j++) {
 		    if (!strcmp(substring, papi_info[j].papi_string_code)) {
 			// remove the metric from the set
-			retval = remove_metric(papi_info[j].papi_event_code, papi_info[j].position);
+			retval = remove_metric(j);
 			if (retval == PAPI_OK)
 			    papi_info[j].position = -1;
 			break; //we've found the correct metric, break;
