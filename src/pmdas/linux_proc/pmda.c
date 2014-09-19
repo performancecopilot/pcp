@@ -446,6 +446,16 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_PID_STATUS,28), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
+/* proc.psinfo.vctxsw */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS,29), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* proc.psinfo.nvctxsw */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS,30), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
 /* proc.psinfo.cgroups */
   { NULL,
     { PMDA_PMID(CLUSTER_PID_CGROUP,0), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
@@ -1503,6 +1513,20 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	case PROC_PID_STATUS_THREADS:
 	if ((f = _pm_getfield(entry->status_lines.threads, 1)) == NULL)
+	    atom->ul = 0;
+	else
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+	break;
+
+	case PROC_PID_STATUS_VCTXSW:
+	if ((f = _pm_getfield(entry->status_lines.vctxsw, 1)) == NULL)
+	    atom->ul = 0;
+	else
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+	break;
+
+	case PROC_PID_STATUS_NVCTXSW:
+	if ((f = _pm_getfield(entry->status_lines.nvctxsw, 1)) == NULL)
 	    atom->ul = 0;
 	else
 	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);

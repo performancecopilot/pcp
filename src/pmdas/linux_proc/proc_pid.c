@@ -549,6 +549,10 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid)
 		    ep->status_lines.sigblk = strsep(&curline, "\n");
 		    ep->status_lines.sigign = strsep(&curline, "\n");
 		    ep->status_lines.sigcgt = strsep(&curline, "\n");
+		} else
+		if (strncmp(curline, "voluntary_ctxt_switches:", 24) == 0){
+		    ep->status_lines.vctxsw = strsep(&curline, "\n");
+		    ep->status_lines.nvctxsw = strsep(&curline, "\n");
 		    break; /* we're done */
 		} else {
 		    curline = index(curline, '\n') + 1;
