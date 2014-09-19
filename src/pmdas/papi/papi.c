@@ -44,7 +44,6 @@ typedef struct {
 static papi_m_user_tuple *papi_info;
 static unsigned int number_of_events; /* cardinality of papi_info[] */
 
-static char     *status_string;
 static char     isDSO = 1; /* == 0 if I am a daemon */
 static int      EventSet = PAPI_NULL;
 static long_long *values;
@@ -653,8 +652,7 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PMDA_FETCH_STATIC;
 
 	case 2:
-	    if ((retval = check_papi_state()) == PAPI_RUNNING) {
-		atom->cp = disable_string; /* papi.control.disable */
+	    if ((retval = check_papi_state()) == PAPI_RUNNING)
 		return PMDA_FETCH_STATIC;
 	    return 0;
 
@@ -858,10 +856,8 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	    if ((retval = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				 PM_TYPE_STRING, &av, PM_TYPE_STRING)) < 0)
 		return retval;
-	    free(enable_string);
-	    enable_string = av.cp;
-	    len = strlen(enable_string);
-	    substring = strtok(enable_string, delim);
+	    len = strlen(av.cp);
+	    substring = strtok(av.cp, delim);
 	    while (substring != NULL) {
 		for (j = 0; j < number_of_events; j++) {
 		    if (!strcmp(substring, papi_info[j].papi_string_code) && papi_info[j].position < 0) {
@@ -885,10 +881,6 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		}
 		substring = strtok(NULL, delim);
 	    }
-	    for (j = 0; j < len-1; j++) { // recover from tokenisation
-		if (enable_string[j] == '\0')
-		    enable_string[j] = delim[0];
-	    }
 	    if (retval)
 		return PM_ERR_CONV;
 	    break;
@@ -907,10 +899,8 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	    if ((retval = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				PM_TYPE_STRING, &av, PM_TYPE_STRING)) < 0)
 		return retval;
-	    free(disable_string);
-	    disable_string = av.cp;
-	    len = strlen(disable_string);
-	    substring = strtok(disable_string, delim);
+	    len = strlen(av.cp);
+	    substring = strtok(av.cp, delim);
 	    while (substring != NULL) {
 		for (j = 0; j < size_of_active_counters; j++) {
 		    if (!strcmp(substring, papi_info[j].papi_string_code)) {
@@ -927,10 +917,6 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		    retval = 1;
 		}
 		substring = strtok(NULL, delim);
-	    }
-	    for (j = 0; j < len-1; j++) { // recover from tokenisation
-		if (disable_string[j] == '\0')
-		    disable_string[j] = delim[0];
 	    }
 	    if (retval)
 		return PM_ERR_CONV;
@@ -1050,7 +1036,6 @@ papi_internal_init(void)
 	return PM_ERR_GENERIC;
     }
 
-    status_string = (char *) calloc(1, 1);
     PAPI_enum_event(&ec, PAPI_ENUM_FIRST);
     do {
 	if (PAPI_get_event_info(ec, &info) == PAPI_OK) {
