@@ -367,7 +367,7 @@ server_dump_configuration ()
         clog << "\tRemote context creation requests disabled" << endl;
     }
 
-    clog << "\tGraphite API " << (graphite_p ? "enabled" : "disabled");
+    clog << "\tGraphite API " << (graphite_p ? "enabled" : "disabled") << endl;
     clog << "\tGraphite API Cairo graphics rendering "
 #ifdef HAVE_CAIRO
          << "compiled-in"
