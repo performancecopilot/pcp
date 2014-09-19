@@ -836,6 +836,10 @@ tools running on IRIX.
 @ rpc.server.io_write cumulative count of bytes passed into write requests
 @ rpc.server.th_cnt available nfsd threads
 @ rpc.server.th_fullcnt number of times the last free nfsd thread was used
+@ rpc.server.th_usage seconds when N percentiles of available threads were in use
+@ rpc.server.ra_size size of read-ahead cache
+@ rpc.server.ra_depth depth where an entry was found in the read-ahead cache
+@ rpc.server.ra_nfound entry not found in the read-ahead cache
 
 @ network.ip.forwarding count of ip forwarding
 @ network.ip.defaultttl count of ip defaultttl

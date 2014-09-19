@@ -804,6 +804,10 @@ rpc.server {
     io_write		60:7:55
     th_cnt		60:7:56
     th_fullcnt		60:7:57
+    th_usage		60:7:58
+    ra_size		60:7:59
+    ra_depth		60:7:68
+    ra_nfound		60:7:69
 }
 
 nfs3 {

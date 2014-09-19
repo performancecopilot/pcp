@@ -120,10 +120,33 @@ refresh_proc_net_rpc(proc_net_rpc_t *proc_net_rpc)
 		    &proc_net_rpc->server.io_read,
 		    &proc_net_rpc->server.io_write);
 	    else
-	    if (strncmp(buf, "th", 2) == 0)
+            if (strncmp(buf, "th", 2) == 0) {
 		sscanf(buf, "th %u %u",
 		    &proc_net_rpc->server.th_cnt,
 		    &proc_net_rpc->server.th_fullcnt);
+                p = strtok(buf, " ");
+                for (i=-2; p && i < 10; i++) {
+                    p = strtok(NULL, " ");
+                    if (i < 0)
+                        continue;
+                    if (p != NULL)
+                        proc_net_rpc->server.th_usage[i] = strtof(p, NULL);
+                }
+            }
+            else
+            if (strncmp(buf, "ra", 2) == 0) {
+                sscanf(buf, "ra %u %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %u",
+                    &proc_net_rpc->server.ra_size,
+                    &proc_net_rpc->server.ra_nfound);
+                p = strtok(buf, " ");
+                for (i=-1; p && i < 10; i++) {
+                    p = strtok(NULL, " ");
+                    if (i < 0)
+                        continue;
+                    if (p != NULL)
+                        proc_net_rpc->server.ra_depth[i] = strtoul(p, (char **)NULL, 10);
+                }
+            }
 	    else
 	    if (strncmp(buf, "net", 3) == 0)
 		sscanf(buf, "net %u %u %u %u", 
@@ -133,10 +156,12 @@ refresh_proc_net_rpc(proc_net_rpc_t *proc_net_rpc)
 		    &proc_net_rpc->server.nettcpconn);
 	    else
 	    if (strncmp(buf, "rpc", 3) == 0)
-		sscanf(buf, "rpc %u %u %u", 
+                sscanf(buf, "rpc %u %u %u %u %u",
 		    &proc_net_rpc->server.rpccnt,
 		    &proc_net_rpc->server.rpcerr, /* always the sum of the following three fields */
-		    &proc_net_rpc->server.rpcbadfmt);
+                    &proc_net_rpc->server.rpcbadfmt,
+                    &proc_net_rpc->server.rpcbadauth,
+                    &proc_net_rpc->server.rpcbadclnt);
 	    else
 	    if (strncmp(buf, "proc2", 5) == 0) {
 		if ((p = strtok(buf, " ")) != NULL)

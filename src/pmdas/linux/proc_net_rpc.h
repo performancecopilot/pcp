@@ -21,7 +21,7 @@
 #define NR_RPC_COUNTERS		18
 #define NR_RPC3_COUNTERS	22
 #define NR_RPC4_CLI_COUNTERS	35
-#define NR_RPC4_SVR_COUNTERS	41
+#define NR_RPC4_SVR_COUNTERS        61
 
 typedef struct {
     struct {
@@ -70,6 +70,12 @@ typedef struct {
 	/* /proc/net/rpc/nfsd "th" */
 	unsigned int	th_cnt;		/* available nfsd threads */
 	unsigned int	th_fullcnt;	/* times last free thread used */
+        float                th_usage[10];        /* % of threads in use in secs */
+
+        /* /proc/net/rpc/nfsd "ra" */
+        unsigned int        ra_size;        /* cache size */
+        unsigned int        ra_depth[10];        /* entry found in this depth */
+        unsigned int        ra_nfound;        /* not found in read-ahead cache */
 
 	/* /proc/net/rpc/nfsd "net" */
 	unsigned int	netcnt;
