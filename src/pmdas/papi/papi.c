@@ -668,9 +668,8 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PMDA_FETCH_STATIC;
 
 	case 1:
-	    //	    break; /* papi.control.reset */
-	    //	    atom->cp = reset_string;
-	    return PM_ERR_NYI;
+	    /* papi.control.reset */
+	    return PMDA_FETCH_STATIC;
 
 	case 2:
 	    if ((retval = check_papi_state()) == PAPI_RUNNING) {
@@ -880,22 +879,14 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	    break;
 
 	case 1: //papi.reset
-#if 0 /* not yet implemented */
-	    retval = check_papi_state();
-	    if (retval == PAPI_RUNNING) {
-		if ((retval = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
-			PM_TYPE_STRING, &av, PM_TYPE_STRING)) < 0)
-		    return retval;
-	    }
 	    retval = PAPI_reset(EventSet);
 	    if (pmDebug & DBG_TRACE_APPL0)
 		__pmNotifyErr(LOG_DEBUG, "reset: %d\n", retval);
 	    if (retval != PAPI_OK)
 		return PM_ERR_VALUE;
-	    break;
-#else
-           return PM_ERR_NYI;
-#endif
+	    for (i = 0; i < number_of_events; i++)
+		papi_info[i].prev_value = 0;
+	    return 0;
 
 	case 2: //papi.disable
 	    if ((retval = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
