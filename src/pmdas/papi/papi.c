@@ -711,14 +711,15 @@ papi_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 }
 
 static int
-remove_metric(unsigned int event, int position)
+remove_metric(int event)
 {
     int retval = 0;
     int state = 0;
     int restart = 0; // bool to restart running values at the end
     int i;
+    int position = papi_info[event].position;
 
-    retval = PAPI_query_event(event);
+    retval = PAPI_query_event(papi_info[event].papi_event_code);
     if (retval != PAPI_OK){
 	if (pmDebug & DBG_TRACE_APPL0)
 	    __pmNotifyErr(LOG_DEBUG, "event not found on this hardware, skipping\n");
@@ -908,7 +909,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		for (j = 0; j < size_of_active_counters; j++) {
 		    if (!strcmp(substring, papi_info[j].papi_string_code)) {
 			// remove the metric from the set
-			retval = remove_metric(papi_info[j].papi_event_code, papi_info[j].position);
+			retval = remove_metric(j);
 			if (retval == PAPI_OK)
 			    papi_info[j].position = -1;
 			break; //we've found the correct metric, break;
