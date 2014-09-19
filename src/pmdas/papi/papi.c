@@ -894,13 +894,6 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	    break;
 
 	case 1: //papi.reset
-#if 0 /* not yet implemented */
-	    retval = check_papi_state();
-	    if (retval == PAPI_RUNNING) {
-		if ((retval = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
-			PM_TYPE_STRING, &av, PM_TYPE_STRING)) < 0)
-		    return retval;
-	    }
 	    retval = PAPI_reset(EventSet);
 	    if (pmDebug & DBG_TRACE_APPL0)
 		__pmNotifyErr(LOG_DEBUG, "reset: %d\n", retval);
