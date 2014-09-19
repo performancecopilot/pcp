@@ -1,5 +1,6 @@
 #! /bin/sh
 #
+# Copyright (c) 2014 Red Hat.
 # Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -11,10 +12,6 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 # 
 # Start or Stop the Performance Co-Pilot (PCP) proxy daemon for pmcd
 #
@@ -212,10 +209,10 @@ case "$1" in
 
 	if [ -x $PMPROXY ]
 	then
-	    if [ ! -f $PCP_PMPROXYCONF_PATH ]
+	    if [ ! -f "$PMPROXYOPTS" ]
 	    then
 		echo "$prog:"'
-Error: pmproxy control file "$PCP_PMPROXYCONF_PATH" is missing, cannot start pmproxy.'
+Error: pmproxy options file "$PMPROXYOPTS" is missing, cannot start pmproxy.'
 		exit
 	    fi
 	    if [ ! -d "$RUNDIR" ]
@@ -223,7 +220,7 @@ Error: pmproxy control file "$PCP_PMPROXYCONF_PATH" is missing, cannot start pmp
 		mkdir -p -m 775 "$RUNDIR"
 		chown $PCP_USER:$PCP_GROUP "$RUNDIR"
 	    fi
-	    cd $RUNDIR
+	    cd "$RUNDIR"
 
 	    # salvage the previous versions of any pmproxy
 	    #
@@ -239,7 +236,7 @@ Error: pmproxy control file "$PCP_PMPROXYCONF_PATH" is missing, cannot start pmp
 	    # only consider lines which start with a hyphen
 	    # get rid of the -f option
 	    # ensure multiple lines concat onto 1 line
-	    OPTS=`sed <$PMPROXYOPTS 2>/dev/null \
+	    OPTS=`sed < "$PMPROXYOPTS" 2>/dev/null \
 			    -e '/^[^-]/d' \
 			    -e 's/^/ /' \
 			    -e 's/$/ /' \
@@ -250,7 +247,7 @@ Error: pmproxy control file "$PCP_PMPROXYCONF_PATH" is missing, cannot start pmp
 
 	    # environment stuff
 	    #
-	    eval `sed -e 's/"/\\"/g' $PMPROXYOPTS \
+	    eval `sed -e 's/"/\\"/g' "$PMPROXYOPTS" \
 	    | awk -F= '
 BEGIN			{ exports="" }
 /^[A-Z]/ && NF == 2	{ exports=exports" "$1
