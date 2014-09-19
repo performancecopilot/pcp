@@ -100,9 +100,11 @@
 #define PROC_PID_STATUS_VMLIB        26
 #define PROC_PID_STATUS_VMSWAP	     27
 #define PROC_PID_STATUS_THREADS	     28
+#define PROC_PID_STATUS_VCTXSW       29
+#define PROC_PID_STATUS_NVCTXSW      30
 
 /* number of metrics from /proc/<pid>/status */
-#define NR_PROC_PID_STATUS           27
+#define NR_PROC_PID_STATUS           31
 
 /*
  * metrics in /proc/<pid>/statm & /proc/<pid>/maps
@@ -170,6 +172,8 @@ typedef struct {	/* /proc/<pid>/status */
     char *vmlib;
     char *vmswap;
     char *threads;
+    char *vctxsw;
+    char *nvctxsw;
 } status_lines_t;
 
 typedef struct {	/* /proc/<pid>/io */
