@@ -57,7 +57,7 @@ static unsigned int		threads;	/* control.all.threads */
 static char *			cgroups;	/* control.all.cgroups */
 static int 			conf_gen = 1;	/* hotproc config version */
 
-extern struct timeval   interval;
+extern struct timeval   hotproc_update_interval;
 
 char *proc_statspath = "";	/* optional path prefix for all stats files */
 
@@ -71,11 +71,6 @@ static pmdaIndom indomtab[NUM_INDOMS];
  * Real metric tab that will be used after we add in hotprocs
  */
 static pmdaMetric *fullmetrictab;
-
-/*
- * hotproc configfile 
- */
-//char    *hotproc_configfile;
 
 /*
  * all metrics supported in this PMDA - one table entry for each
@@ -1270,7 +1265,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	switch(idp->item) {
 
 		case 1: //refresh
-			atom->ul = interval.tv_sec;
+			atom->ul = hotproc_update_interval.tv_sec;
 			break;
 		case 8: //config
 			atom->cp = get_conf_buffer();
@@ -1911,11 +1906,7 @@ proc_store(pmResult *result, pmdaExt *pmda)
 {
     int i, sts = 0;
 
-    fprintf( stderr, "in store\n");
-
     have_access = proc_ctx_access(pmda->e_context) || all_access;
-
-    fprintf( stderr, "post access\n");
  
     for (i = 0; i < result->numpmid; i++) {
 	pmValueSet *vsp = result->vset[i];
@@ -1958,21 +1949,19 @@ proc_store(pmResult *result, pmdaExt *pmda)
 	    } //else switch (idp->item)
 	case CLUSTER_HOTPROC_GLOBAL:
 		switch(idp->item){
-		case 1: //update interval
+		case 1: /* Update interval */
 			if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
-				 PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
-				interval.tv_sec = av.ul;
+				PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
+				hotproc_update_interval.tv_sec = av.ul;
 				reset_hotproc_timer();
 		    	}
 			break;
-		case 8: // CONFIG
+		case 8: /* CONFIG */
 		    {
-		    	fprintf( stderr, "in case\n");
 			bool_node *tree = NULL;
 			char *savebuffer;
 			if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
-				 PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0) {
-				fprintf(stderr, "New config: %s", av.cp);
+				PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0) {
 				savebuffer = strdup(get_conf_buffer());
 				set_conf_buffer( av.cp );
 				if(parse_config(&tree) !=0 ){
@@ -1982,7 +1971,7 @@ proc_store(pmResult *result, pmdaExt *pmda)
 				else{
 					conf_gen++;
 					new_tree(tree);
-					// let things just catch up for now
+					/* let things just catch up for now */
 					//restart_refresh();
 				}
 			    	free(av.cp);
@@ -2137,7 +2126,7 @@ void createHotprocMetric( pmdaMetric *procmetric, pmdaMetric *hotmetric){
 	hotmetric->m_user = NULL;
 	hotmetric->m_desc = procmetric->m_desc;
 
-	int hcluster = getHotCluster(cluster); //need to error out on badness
+	int hcluster = getHotCluster(cluster); /* If the 2 fcns above are in sync, this should not error */
 
 	hotmetric->m_desc.pmid = PMDA_PMID( hcluster , item );
 	if( procmetric->m_desc.indom == PM_INDOM_NULL ){
@@ -2157,11 +2146,9 @@ proc_init_hotproc(){
 
 	fullmetrictab = (pmdaMetric *) malloc(nmetrics * 2 * sizeof(pmdaMetric));
 
-	// memcopy, then add hotproc, then set nmetrics for use below, then update all to use fullmetrictab
+	/* memcopy, then add hotproc, then set nmetrics for use below, then update all to use fullmetrictab */
 	
 	memcpy( fullmetrictab, metrictab, sizeof(metrictab) );
-
-	//memcpy( fullmetrictab[nmetrics], metrictab, sizeof(metrictab) );
 
 	int numhotproc = 0;
 	int i;
@@ -2178,7 +2165,7 @@ proc_init_hotproc(){
 
 	}
 
-	//can do 2 pasess and just alloc once
+	/* Could do 2 pasess and just alloc once */
 	fullmetrictab = realloc( fullmetrictab, (nmetrics+numhotproc) *  sizeof(pmdaMetric) );
 
 	nmetrics += numhotproc;
@@ -2195,7 +2182,6 @@ proc_init(pmdaInterface *dp)
 
     int		nindoms = sizeof(indomtab)/sizeof(indomtab[0]);
     int   sep = __pmPathSeparator();
-    //int		nmetrics = sizeof(metrictab)/sizeof(metrictab[0]);
 
     proc_init_hotproc();
 
@@ -2247,16 +2233,7 @@ proc_init(pmdaInterface *dp)
     snprintf(h_configfile, sizeof(h_configfile), "%s%c" "proc" "%c" "hotproc.conf",
                     pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 
-    fprintf(stderr, "Loading h_configfile: %s|\n", h_configfile);
-
-    //hotproc_configfile = strdup(h_configfile);
-
-    //fprintf(stderr, "Loading hotproc_configfile: %s|\n", hotproc_configfile);
-
-    // Just call a load config call
-    //conf = open_config(hotproc_configfile);
-
-    //Send this all to a hotproc init config function. TODO
+    //Send this all to a hotproc init config function? TODO
     conf = open_config(h_configfile);
     read_config(conf);
     (void)fclose(conf);

@@ -267,6 +267,7 @@ typedef struct {
 
 /* refresh the proc indom, reset all "fetched" flags */
 extern int refresh_proc_pid(proc_pid_t *, int, const char *);
+
 extern int refresh_hotproc_pid(proc_pid_t *, int, const char *);
 
 extern int get_hot_totals(double * ta, double * ti );

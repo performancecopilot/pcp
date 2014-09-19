@@ -30,7 +30,6 @@
 #include "config.h"
 
 char *conf_buffer = NULL; /* contains config text */
-//char *conf_buffer_ptr = NULL;
 char *pred_buffer = NULL; /* contains parsed predicate */
 
 static bool_node *the_tree = NULL;
@@ -174,8 +173,6 @@ read_config(FILE *conf)
 	    pmProgname, hotproc_configfile);
 	exit(1);
     }
-
-    //conf_buffer_ptr = conf_buffer;
 
     /* read whole file into buffer */
     nread = fread(conf_buffer, sizeof(char), size, conf);
