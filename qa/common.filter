@@ -470,6 +470,7 @@ _filter_pmie_start()
 	-e '/\/usr\/sbin\/sysv-rc-conf pmie on/d' \
         -e '/update-rc.d -f pmie defaults/d' \
 	-e '/ln -sf \.\.\/init.d\/pmie \/etc\/rc\.d\//d' \
+	-e '/systemctl enable pmie.service/d' \
 	-e "s;$PCP_PMIECONTROL_PATH;\$PCP_PMIECONTROL_PATH;" \
         -e '/^\.\.*done$/d' \
 	-e "s;/private/tmp;/tmp;g" \
