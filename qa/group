@@ -995,6 +995,7 @@ avahi
 991 python local
 994 other verify
 996 pmdiff local
+999 pmns local
 1000 pmdumptext local
 1001 pmchart local
 1002 pmchart local
