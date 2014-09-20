@@ -1,0 +1,46 @@
+#!/bin/sh
+# PCP QA Test No. 999
+# Check PMNS integrity after all the PMDA Install/Removes
+#
+# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# there are some expected failures and "bad" entries for QA
+#
+_filter()
+{
+    grep -v 'No value(s)' \
+    | grep -v 'Metric not supported by this version' \
+    | sed \
+	-e '/sample.*needprofile/d' \
+	-e '/sample\.bad\./d' \
+	-e '/sampledso\.bad\./d'
+}
+
+# real QA test starts here
+pminfo -v 2>&1 | _filter >$tmp.out
+
+if [ -s $tmp.out ]
+then
+    echo PMNS is BAD
+    cat $tmp.out
+else
+    echo PMNS is GOOD
+fi
+
+# success, all done
+status=0
+
+exit
