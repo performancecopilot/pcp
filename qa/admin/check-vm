@@ -418,7 +418,7 @@ then
 		:
 	    else
 		echo "Missing: \"allow $network : all;\" [access] in $PCP_SYSCONF_DIR/pmlogger/config.default"
-		echo "Use \"$ sudo .../qa/admin/allow-pmlc-access\" to fix this."
+		echo "Use \"$ sudo -E .../qa/admin/allow-pmlc-access\" to fix this."
 	    fi
 	else
 	    echo "Warning: \"$PCP_SYSCONF_DIR/pcp/pmlogger/config.default\" is missing"
