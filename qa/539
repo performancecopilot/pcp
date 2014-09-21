@@ -39,8 +39,14 @@ $sudo touch -t 199701020304.00 $PCP_LOG_DIR/NOTICES
 # real QA test starts here
 for i in 1 2 3 4 5
 do
-    $sudo $PCP_BINADM_DIR/pmpost qa-$seq & $sudo $PCP_BINADM_DIR/pmpost qa-$seq &
-    $sudo $PCP_BINADM_DIR/pmpost qa-$seq & $sudo $PCP_BINADM_DIR/pmpost qa-$seq &
+    $sudo $PCP_BINADM_DIR/pmpost qa-$seq &
+    pmsleep 0.1
+    $sudo $PCP_BINADM_DIR/pmpost qa-$seq &
+    pmsleep 0.1
+    $sudo $PCP_BINADM_DIR/pmpost qa-$seq &
+    pmsleep 0.1
+    $sudo $PCP_BINADM_DIR/pmpost qa-$seq &
+    pmsleep 0.1
 done
 
 wait
