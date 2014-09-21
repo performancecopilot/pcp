@@ -9,6 +9,8 @@ here=`pwd`
 sudo=sudo
 host=`hostname`
 
+export DISPLAY=$PCPQA_CLOSE_X_SERVER
+
 # hackery for dbus-based environments
 #
 if which dbus-launch >/dev/null 2>&1
