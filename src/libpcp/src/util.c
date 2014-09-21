@@ -385,11 +385,11 @@ pmNumberStr_r(double value, char *buf, int buflen)
 	if (value >= 999995000000000.0)
 	    snprintf(buf, buflen, " inf?  ");
 	else if (value >= 999995000000.0)
-	    snprintf(buf, buflen, "%6.2fT", (double)((long double)value / (long double)1000000000000));
+	    snprintf(buf, buflen, "%6.2fT", (double)((long double)value / (long double)1000000000000.0));
 	else if (value >= 999995000.0)
-	    snprintf(buf, buflen, "%6.2fG", (double)((long double)value / (long double)1000000000));
+	    snprintf(buf, buflen, "%6.2fG", (double)((long double)value / (long double)1000000000.0));
 	else if (value >= 999995.0)
-	    snprintf(buf, buflen, "%6.2fM", (double)((long double)value / (long double)1000000));
+	    snprintf(buf, buflen, "%6.2fM", (double)((long double)value / (long double)1000000.0));
 	else if (value >= 999.995)
 	    snprintf(buf, buflen, "%6.2fK", value / 1000.0);
 	else if (value >= 0.005)
@@ -401,11 +401,11 @@ pmNumberStr_r(double value, char *buf, int buflen)
 	if (value <= -99995000000000.0)
 	    snprintf(buf, buflen, "-inf?  ");
 	else if (value <= -99995000000.0)
-	    snprintf(buf, buflen, "%6.2fT", (double)((long double)value / (long double)1000000000000));
+	    snprintf(buf, buflen, "%6.2fT", (double)((long double)value / (long double)1000000000000.0));
 	else if (value <= -99995000.0)
-	    snprintf(buf, buflen, "%6.2fG", (double)((long double)value / (long double)1000000000));
+	    snprintf(buf, buflen, "%6.2fG", (double)((long double)value / (long double)1000000000.0));
 	else if (value <= -99995.0)
-	    snprintf(buf, buflen, "%6.2fM", (double)((long double)value / (long double)1000000));
+	    snprintf(buf, buflen, "%6.2fM", (double)((long double)value / (long double)1000000.0));
 	else if (value <= -99.995)
 	    snprintf(buf, buflen, "%6.2fK", value / 1000.0);
 	else if (value <= -0.005)
