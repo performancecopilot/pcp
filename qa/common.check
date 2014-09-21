@@ -672,6 +672,7 @@ _check_display()
     then
 	DISPLAY=$PCPQA_CLOSE_X_SERVER xdpyinfo >/dev/null 2>&1 || \
 	    _notrun "Failed sanity check on DISPLAY $PCPQA_CLOSE_X_SERVER"
+	export DISPLAY=$PCPQA_CLOSE_X_SERVER
     fi
 }
 
