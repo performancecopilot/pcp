@@ -19,11 +19,6 @@
 # Get standard environment
 . $PCP_DIR/etc/pcp.env
 
-# default to POSIX Locale to make output deterministic for sort(1),
-# join(1) and comm(1)
-#
-export LC_COLLATE=${LC_COLLATE:-POSIX}
-
 tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
 status=1
 trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
@@ -55,11 +50,22 @@ _usage()
     exit $status
 }
 
+# filter the pmlogsummary output getting ready for join(1) ...
+# - add | field separator between metric name and value
+# - dodge chatter about metrics with insufficient data
+# - dodge chatter from -z
+# - exclude metrics we don't want
+# - sort
+#
 _fix()
 {
-    sed -e 's/  *\([0-9][0-9.]*\)\([^"]*\)$/|\1/' \
+    sed \
+	-e 's/  *\([0-9][0-9.]*\)\([^"]*\)$/|\1/' \
+	-e '/^\*.* - insufficient archive data.$/'d \
+	-e '/^Note: timezone set to local timezone of host/d' \
+	-e '/^[ 	]*$/d' \
     | egrep -v -f $tmp/exclude \
-    | sort -t\| -k1,1
+    | sort -t\| -k 1,1 -k 2
 }
 
 cat <<'End-of-File' >$tmp/exclude
@@ -314,7 +320,7 @@ $2 / $3 >= '"$thres"' || $3 / $2 >= '"$thres"'	{
 		    printf "%5.2f  ",r
 		printf " %s\n",$1
 	}' \
-| sort -k 3,3nr -k 4 \
+| LC_COLLATE=${LC_COLLATE:-POSIX} sort -k 3,3nr -k 4 \
 | sed -e 's/100+/>100/' -e 's/ 0.001-/<0.001 /' >$tmp/out
 
 # sort in ratio order
