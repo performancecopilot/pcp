@@ -44,6 +44,7 @@ typedef struct {
 static papi_m_user_tuple *papi_info;
 static unsigned int number_of_events; /* cardinality of papi_info[] */
 
+static char     *status_string;
 static char     isDSO = 1; /* == 0 if I am a daemon */
 static int      EventSet = PAPI_NULL;
 static long_long *values;
@@ -615,6 +616,8 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     int running = 0;
     int retval = 0;
     int i;
+    int state;
+    char local_string[32];
     retval = check_papi_state();
     if (retval == PAPI_RUNNING && idp->cluster == CLUSTER_PAPI) {
 	retval = PAPI_read(EventSet, values);
@@ -1041,6 +1044,7 @@ papi_internal_init(void)
 	return PM_ERR_GENERIC;
     }
 
+    status_string = (char *) calloc(1, 1);
     PAPI_enum_event(&ec, PAPI_ENUM_FIRST);
     do {
 	if (PAPI_get_event_info(ec, &info) == PAPI_OK) {
