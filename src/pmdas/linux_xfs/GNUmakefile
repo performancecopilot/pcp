@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2014 Red Hat.
 # Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -36,6 +36,10 @@ LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT)
 LLDLIBS		= $(PCP_PMDALIB)
 LCFLAGS		= $(INVISIBILITY)
 
+MAN_SECTION	= 1
+MAN_PAGES	= pmda$(IAM).$(MAN_SECTION)
+MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
+
 default:	build-me
 
 include $(BUILDRULES)
@@ -52,6 +56,7 @@ install: default
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 root_xfs $(PCP_VAR_DIR)/pmns/root_xfs
 	$(INSTALL) -m 644 linux_xfs_migrate.conf $(PCP_VAR_DIR)/config/pmlogrewrite/linux_xfs_migrate.conf
+	@$(INSTALL_MAN)
 else
 build-me:
 install:

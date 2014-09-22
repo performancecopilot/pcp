@@ -24,13 +24,16 @@ CFILES	= lmsensors.c
 HFILES	= lmsensors.h
 SCRIPTS	= Install Remove
 DFILES	= README
-LSRCFILES = $(SCRIPTS) pmns help root $(DFILES)
 
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
 LDIRT	= domain.h $(IAM).log pmda$(IAM) pmda_$(IAM).so $(TARGETS) \
 	help.pag help.dir
 LLDLIBS	= $(PCP_PMDALIB)
+
+MAN_SECTION = 1
+MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
+MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
 default: build-me
 
@@ -44,6 +47,7 @@ install : default
 	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM)
 	$(INSTALL) -m 755 $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) pmns help root domain.h $(PMDADIR)
+	@$(INSTALL_MAN)
 else
 build-me:
 install:

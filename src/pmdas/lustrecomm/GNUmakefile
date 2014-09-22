@@ -31,11 +31,14 @@ TARGETS = $(CMDTARGET)
 #TARGETS = $(LIBTARGET) 
 
 LDOPTS	=
-LSRCFILES = Install Remove README help pmns root
 LLDLIBS = $(PCP_PMDALIB) $(LIB_FOR_RT)
 LCFLAGS = -I.
 
 LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so
+
+MAN_SECTION = 1
+MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
+MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
 default: build-me
 
@@ -50,6 +53,7 @@ install:	default
 	#$(INSTALL) -m 755 $(LIBTARGET) $(PMDADIR)/$(LIBTARGET)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) root pmns domain.h help $(PMDADIR)
+	@$(INSTALL_MAN)
 else
 build-me:
 install:

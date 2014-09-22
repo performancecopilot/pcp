@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2014 Red Hat.
 # Copyright (c) 2007-2009 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -19,14 +19,16 @@ include $(TOPDIR)/src/include/builddefs
 CMDTARGET = pmdaib$(EXECSUFFIX)
 CFILES	= ib.c pmda.c
 HFILES  = ibpmda.h
-
-LSRCFILES = help root pmns Install Remove 
 LLDLIBS	= $(IB_LIBS) $(PCP_LIBS) -lpcp_pmda -lpcp
 
 IAM	= ib
 DOMAIN  = IB
 PMDADIR = $(PCP_PMDAS_DIR)/infiniband
 LDIRT	= domain.h *.o $(IAM).log $(CMDTARGET)
+
+MAN_SECTION = 1
+MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
+MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
 default: build-me
 
@@ -40,6 +42,7 @@ install: default
 	$(INSTALL) -S $(PMDADIR) $(PCP_PMDAS_DIR)/$(IAM)
 	$(INSTALL) -m 755 Install Remove $(CMDTARGET) $(PMDADIR)
 	$(INSTALL) -m 644 pmns root help domain.h $(PMDADIR)
+	@$(INSTALL_MAN)
 else
 build-me:
 install:

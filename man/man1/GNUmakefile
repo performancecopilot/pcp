@@ -34,7 +34,7 @@ MAN_PAGES	= \
 	pmchart.1 pmdumptext.1 pmquery.1 pmsnap.1 pmtime.1 \
 	\
 	pmdaapache.1 pmdabash.1 pmdacisco.1 \
-	pmdadmcache.1 pmdagfs2.1 pmdagluster.1 \
+	pmdadmcache.1 pmdagluster.1 \
 	pmdakernel.1 \
 	pmdalogger.1 pmdamailq.1 pmdammv.1 pmdamounts.1 pmdanvidia.1 \
 	pmdasample.1 pmdasendmail.1 pmdashping.1 pmdasimple.1 \
@@ -42,54 +42,12 @@ MAN_PAGES	= \
 	pmdatrace.1 pmdatrivial.1 pmdatxmon.1 pmdaweblog.1 \
 	pmdazswap.1 pmiostat.1
 
-LINUX_PMDA_PAGES = \
-	pmdalmsensors.1 pmdalustrecomm.1 pmdaproc.1 pmdaxfs.1 pmdajbd2.1
-ROOMTEMP_PMDA_PAGES = pmdaroomtemp.1
-SYSTEMD_PMDA_PAGES = pmdasystemd.1
-RPM_PMDA_PAGES = pmdarpm.1
-IB_PMDA_PAGES = pmdaib.1
 WEBD_PAGES = pmwebd.1
-PAPI_PMDA_PAGES = pmdapapi.1
-
-ifeq "$(TARGET_OS)" "linux"
-MAN_PAGES	+= $(LINUX_PMDA_PAGES)
-else
-OTHER_PAGES	+= $(LINUX_PMDA_PAGES)
-endif
-ifneq "$(findstring $(TARGET_OS),solaris linux)" ""
-MAN_PAGES	+= $(ROOMTEMP_PMDA_PAGES)
-else
-OTHER_PAGES	+= $(ROOMTEMP_PMDA_PAGES)
-endif
-ifeq "$(HAVE_RPMLIB)" "1"
-MAN_PAGES	+= $(RPM_PMDA_PAGES)
-else
-OTHER_PAGES	+= $(RPM_PMDA_PAGES)
-endif
-ifneq "$(PMDA_SYSTEMD)" ""
-MAN_PAGES	+= $(SYSTEMD_PMDA_PAGES)
-else
-OTHER_PAGES	+= $(SYSTEMD_PMDA_PAGES)
-endif
-ifneq "$(PMDA_INFINIBAND)" ""
-MAN_PAGES	+= $(IB_PMDA_PAGES)
-else
-OTHER_PAGES	+= $(IB_PMDA_PAGES)
-endif
 ifeq "$(HAVE_LIBMICROHTTPD)" "1"
 MAN_PAGES	+= $(WEBD_PAGES)
-else
-OTHER_PAGES	+= $(WEBD_PAGES)
 endif
-ifneq "$(ENABLE_PAPI)" ""
-MAN_PAGES += $(PAPI_PMDA_PAGES)
-else
-OTHER_PAGES += $(PAPI_PMDA_PAGES)
-endif
-
 
 MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
-LSRCFILES	= $(MAN_PAGES) $(OTHER_PAGES)
 
 default :: default_pcp 
 

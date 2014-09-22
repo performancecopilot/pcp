@@ -20,13 +20,16 @@ DFILES 	= README
 CFILES	= systemd.c
 LCFLAGS = $(SYSTEMD_CFLAGS)
 LLDLIBS = $(PCP_PMDALIB) $(SYSTEMD_LIBS)
-LSRCFILES = Install Remove pmns help $(DFILES) root
 
 IAM	= systemd
 DOMAIN	= SYSTEMD
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
 LDIRT	= domain.h *.o $(IAM).log $(CMDTARGET)
+
+MAN_SECTION = 1
+MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
+MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
 default:	build-me
 
@@ -41,6 +44,7 @@ install:	default
 	$(INSTALL) -m 644 $(DFILES) root help pmns $(PMDADIR)
 	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
 	$(INSTALL) -m 755 $(CMDTARGET) $(PMDADIR)/$(CMDTARGET)
+	@$(INSTALL_MAN)
 else
 build-me:
 install:
