@@ -63,9 +63,14 @@
 #define PROC_PID_STAT_TTYNAME        39
 #define PROC_PID_STAT_WCHAN_SYMBOL   40
 #define PROC_PID_STAT_PSARGS         41
+#define PROC_PID_STAT_RTPRIORITY     42
+#define PROC_PID_STAT_POLICY         43
+#define PROC_PID_STAT_DELAYACCT_BLKIO_TICKS    44
+#define PROC_PID_STAT_GUEST_TIME     45
+#define PROC_PID_STAT_CGUEST_TIME    46
 
 /* number of fields in proc_pid_stat_entry_t */
-#define NR_PROC_PID_STAT             42
+#define NR_PROC_PID_STAT             47
 
 /*
  * metrics in /proc/<pid>/status
