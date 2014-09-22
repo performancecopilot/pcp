@@ -1314,8 +1314,19 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_PID_IO:
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
-	if ((entry = fetch_proc_pid_io(inst, &proc_pid)) == NULL)
-	    return (oserror() == ENOENT) ? PM_ERR_APPVERSION : PM_ERR_INST;
+	if ((entry = fetch_proc_pid_io(inst, &proc_pid)) == NULL) {
+	    sts = oserror();
+	    /*
+	     * map errors from open() via fetch_proc_pid_io()
+	     * ENOENT => PM_ERR_APPVERSION
+	     * EACCES => no values
+	     * otherwise return oserror()
+	     */
+	    if (sts == ENOENT) sts = PM_ERR_APPVERSION;
+	    else if (sts == EACCES) sts = 0;
+	    else sts = -sts;
+	    return sts;
+	}
 
 	switch (idp->item) {
 
