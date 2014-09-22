@@ -132,6 +132,7 @@ bison
 gdb
 mktemp
 gawk
+cpan
 # optional executables
 dpkg?	dpkg-buildpackage	[dpkg-dev]
 dpkg?	dh			[debhelper]

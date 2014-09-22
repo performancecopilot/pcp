@@ -1,6 +1,6 @@
 QA output created by 434
-pmval: Cannot connect to PMCD on host "no.such.host": No route to host
-no.such.host - exit status 1
+pmval: Cannot connect to PMCD on host "no.such.host.pcp.io": No route to host
+no.such.host.pcp.io - exit status 1
 pmval: Cannot open archive "no.such.archive": No such file or directory
 no.such.archive - exit status 1
 
