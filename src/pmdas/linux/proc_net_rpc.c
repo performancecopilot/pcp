@@ -120,33 +120,22 @@ refresh_proc_net_rpc(proc_net_rpc_t *proc_net_rpc)
 		    &proc_net_rpc->server.io_read,
 		    &proc_net_rpc->server.io_write);
 	    else
-            if (strncmp(buf, "th", 2) == 0) {
+	    if (strncmp(buf, "th", 2) == 0)
 		sscanf(buf, "th %u %u",
 		    &proc_net_rpc->server.th_cnt,
 		    &proc_net_rpc->server.th_fullcnt);
-                p = strtok(buf, " ");
-                for (i=-2; p && i < 10; i++) {
-                    p = strtok(NULL, " ");
-                    if (i < 0)
-                        continue;
-                    if (p != NULL)
-                        proc_net_rpc->server.th_usage[i] = strtof(p, NULL);
-                }
-            }
-            else
-            if (strncmp(buf, "ra", 2) == 0) {
-                sscanf(buf, "ra %u %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %u",
-                    &proc_net_rpc->server.ra_size,
-                    &proc_net_rpc->server.ra_nfound);
-                p = strtok(buf, " ");
-                for (i=-1; p && i < 10; i++) {
-                    p = strtok(NULL, " ");
-                    if (i < 0)
-                        continue;
-                    if (p != NULL)
-                        proc_net_rpc->server.ra_depth[i] = strtoul(p, (char **)NULL, 10);
-                }
-            }
+	    else
+	    if (strncmp(buf, "ra", 2) == 0) {
+		unsigned int ra_depth[10];
+		sscanf(buf, "ra %u %u %u %u %u %u %u %u %u %u %u %u",
+		    &proc_net_rpc->server.ra_size, &ra_depth[0],
+		    &ra_depth[1], &ra_depth[2], &ra_depth[3],
+		    &ra_depth[4], &ra_depth[5], &ra_depth[6],
+		    &ra_depth[7], &ra_depth[8], &ra_depth[9],
+		    &proc_net_rpc->server.ra_misses);
+		for (i = 0; i < 10; i++)
+		    proc_net_rpc->server.ra_hits += ra_depth[i];
+	    }
 	    else
 	    if (strncmp(buf, "net", 3) == 0)
 		sscanf(buf, "net %u %u %u %u", 

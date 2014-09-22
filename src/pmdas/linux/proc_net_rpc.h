@@ -1,4 +1,4 @@
-/* 
+/*
  * Linux /proc/net/rpc metrics cluster
  *
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
@@ -12,16 +12,12 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #define NR_RPC_COUNTERS		18
 #define NR_RPC3_COUNTERS	22
 #define NR_RPC4_CLI_COUNTERS	35
-#define NR_RPC4_SVR_COUNTERS        61
+#define NR_RPC4_SVR_COUNTERS	41
 
 typedef struct {
     struct {
@@ -70,12 +66,14 @@ typedef struct {
 	/* /proc/net/rpc/nfsd "th" */
 	unsigned int	th_cnt;		/* available nfsd threads */
 	unsigned int	th_fullcnt;	/* times last free thread used */
-        float                th_usage[10];        /* % of threads in use in secs */
+	/* float	th_usage[10];   -- always zero in modern kernels */
 
         /* /proc/net/rpc/nfsd "ra" */
-        unsigned int        ra_size;        /* cache size */
-        unsigned int        ra_depth[10];        /* entry found in this depth */
-        unsigned int        ra_nfound;        /* not found in read-ahead cache */
+	unsigned int	ra_size;	/* cache size */
+	unsigned int	ra_hits;	/* sum of individual ra_depth counts */
+	/* unsigned int	ra_depth[10];	- entry found at hash bucket depth */
+	/* could create an indom for this, but setting aside at this stage */
+	unsigned int	ra_misses;	/* not found in read-ahead cache */
 
 	/* /proc/net/rpc/nfsd "net" */
 	unsigned int	netcnt;

@@ -42,7 +42,7 @@ enum {
 	PROC_CGROUP_MOUNTS_INDOM,	/* 21 - control group mounts -> proc PMDA */
 	LV_INDOM,               /* 22 - lvm devices */
 	ICMPMSG_INDOM,          /* 23 - icmp message types */
-	DM_INDOM,		/* 24 device mapper devices */
+	DM_INDOM,		/* 24 - device mapper devices */
 
 	NUM_INDOMS		/* one more than highest numbered cluster */
 };

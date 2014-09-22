@@ -1763,12 +1763,17 @@ static pmdaMetric metrictab[] = {
 
 /* rpc.server.ra_size */
   { &proc_net_rpc.server.ra_size,
-    { PMDA_PMID(CLUSTER_NET_NFS,59), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    { PMDA_PMID(CLUSTER_NET_NFS,68), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
-/* rpc.server.ra_nfound */
-  { &proc_net_rpc.server.ra_nfound,
+/* rpc.server.ra_hits */
+  { &proc_net_rpc.server.ra_hits,
     { PMDA_PMID(CLUSTER_NET_NFS,69), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* rpc.server.ra_misses */
+  { &proc_net_rpc.server.ra_misses,
+    { PMDA_PMID(CLUSTER_NET_NFS,70), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /*
