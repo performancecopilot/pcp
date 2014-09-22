@@ -23,7 +23,6 @@ LLDFLAGS = -L.
 LLDLIBS = -lmlan $(PCP_PMDALIB)
 LCFLAGS = -I.
 DFILES	= README help
-LSRCFILES = Install Remove pmns $(DFILES) root
 
 SUBDIRS = mlan
 
@@ -32,6 +31,10 @@ DOMAIN	= ROOMTEMP
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
 LDIRT	= domain.h $(IAM).log pmda$(IAM) pmda_$(IAM).so libmlan.a
+
+MAN_SECTION = 1
+MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
+MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
 default: build-me
 
@@ -51,6 +54,7 @@ install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(CMDTARGET) $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) root pmns domain.h $(PMDADIR)
+	@$(INSTALL_MAN)
 endif
 
 domain.h: ../../pmns/stdpmid

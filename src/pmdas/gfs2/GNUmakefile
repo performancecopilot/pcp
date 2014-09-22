@@ -19,13 +19,16 @@ CFILES		= latency.c control.c glstats.c worst_glock.c glocks.c sbstats.c ftrace.
 HFILES		= latency.c control.h glstats.h worst_glock.h glocks.h sbstats.h ftrace.h pmdagfs2.h
 CMDTARGET	= pmdagfs2
 LLDLIBS		= $(PCP_PMDALIB)
-LSRCFILES	= Install Remove pmns root help README
 
 IAM		= gfs2
 DOMAIN		= GFS2
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 
 LDIRT		= domain.h $(IAM).log
+
+MAN_SECTION	= 1
+MAN_PAGES	= pmda$(IAM).$(MAN_SECTION)
+MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
 default:	build-me
 
@@ -38,6 +41,7 @@ install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(CMDTARGET) $(PMDADIR)
 	$(INSTALL) -m 644 root pmns domain.h help $(PMDADIR)
+	@$(INSTALL_MAN)
 else
 build-me:
 install:
