@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 port=11211
-echo stats | $PCP_BINADM_DIR/telnet-probe localhost $port || \
+$PCP_BINADM_DIR/telnet-probe -c localhost $port || \
     _notrun "Noones home on the default memcached port $port"
 
 status=1	# failure is the default!
