@@ -149,7 +149,7 @@ main(int argc, char *argv[])
 	/* NB: copy only the payload byte, not the whole int */
 	cc = (char) c;
 	if (vflag) {
-	    fputc(cc, stderr);
+	    fputc((int)cc, stderr);
 	    fflush(stderr);
 	}
 	if (__pmWrite(s, &cc, sizeof(cc)) != sizeof(cc)) {
@@ -161,10 +161,10 @@ main(int argc, char *argv[])
 
     if (vflag)
 	fprintf(stderr, "recv ...\n");
-    /* NB: read one char, not int, at a type */
+    /* NB: read one char, not int, at a time */
     while ((bytes = __pmRead(s, &cc, sizeof(cc))) == sizeof(cc)) {
 	if (vflag) {
-	    fputc(cc, stderr);
+	    fputc((int)cc, stderr);
 	    fflush(stderr);
 	}
     }
