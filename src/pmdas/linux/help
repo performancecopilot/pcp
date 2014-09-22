@@ -2,7 +2,7 @@
 # Copyright (c) 2000,2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Portions Copyright (c) International Business Machines Corp., 2002
 # Portions Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
-# Portions Copyright (c) 2013 Red Hat.
+# Portions Copyright (c) 2013-2014 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -836,10 +836,9 @@ tools running on IRIX.
 @ rpc.server.io_write cumulative count of bytes passed into write requests
 @ rpc.server.th_cnt available nfsd threads
 @ rpc.server.th_fullcnt number of times the last free nfsd thread was used
-@ rpc.server.th_usage seconds when N percentiles of available threads were in use
-@ rpc.server.ra_size size of read-ahead cache
-@ rpc.server.ra_depth depth where an entry was found in the read-ahead cache
-@ rpc.server.ra_nfound entry not found in the read-ahead cache
+@ rpc.server.ra_size size of read-ahead params cache
+@ rpc.server.ra_hits count of read-ahead params cache hits
+@ rpc.server.ra_misses count of read-ahead params cache misses
 
 @ network.ip.forwarding count of ip forwarding
 @ network.ip.defaultttl count of ip defaultttl
