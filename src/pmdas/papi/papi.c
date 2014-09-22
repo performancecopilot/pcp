@@ -965,7 +965,12 @@ papi_children(const char *name, int traverse, char ***offspring, int **status, p
     char *metric_name = name;
     int retval;
     metric_chain = (char **)realloc(metric_chain, number_of_events*sizeof(metric_chain[0]));
+    if (metric_chain == NULL)
+	__pmNoMem("metric_chain realloc failure", number_of_events*sizeof(metric_chain[0]), PM_FATAL_ERR);
     metric_stats = (int *)realloc(metric_stats, number_of_events*sizeof(metric_stats[0]));
+    if (metric_stats == NULL)
+	__pmNoMem("metric_stats realloc failure", number_of_events*sizeof(metric_stats[0]), PM_FATAL_ERR);
+
     for (i = 0; i < number_of_events; i++) {
 	metric_chain[i] = malloc(strlen(papi_info[i].papi_string_code)+strlen(metric_name)+2);
 	strcpy(metric_chain[i], metric_name);
