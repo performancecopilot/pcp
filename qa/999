@@ -26,7 +26,8 @@ _filter()
     | sed \
 	-e '/sample.*needprofile/d' \
 	-e '/sample\.bad\./d' \
-	-e '/sampledso\.bad\./d'
+	-e '/sampledso\.bad\./d' \
+	-e '/cgroup.groups: pmLookupName: Unknown metric name/d'
 }
 
 # real QA test starts here
