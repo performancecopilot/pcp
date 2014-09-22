@@ -1,0 +1,58 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2011 SGI.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDANFSCLIENT 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdanfsclient\f1 \- NFS client statistics performance metrics domain agent (PMDA)
+.SH DESCRIPTION
+\f3pmdanfsclient\f1 is a Performance Metrics Domain Agent (\s-1PMDA\s0) which
+exports metric values from the
+.I /proc/self/mountstats
+interface to provide information on NFS mounts.
+.SH INSTALLATION
+Install the nfsclient PMDA by using the Install script as root:
+.PP
+      # cd $PCP_PMDAS_DIR/nfsclient
+.br
+      # ./Install
+.PP
+To uninstall, do the following as root:
+.PP
+      # cd $PCP_PMDAS_DIR/nfsclient
+.br
+      # ./Remove
+.PP
+\fBpmdanfsclient\fR is launched by \fIpmcd\fR(1) and should never be executed 
+directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the 
+agent is installed or removed.
+.SH FILES
+.IP "\fB$PCP_PMDAS_DIR/nfsclient/Install\fR" 4 
+installation script for the \fBpmdanfsclient\fR agent 
+.IP "\fB$PCP_PMDAS_DIR/nfsclient/Remove\fR" 4 
+undo installation script for the \fBpmdanfsclient\fR agent 
+.IP "\fB$PCP_LOG_DIR/pmcd/nfsclient.log\fR" 4 
+default log file for error messages from \fBpmdanfsclient\fR 
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fR are used to parameterize
+the file and directory names used by \fBPCP\fR. On each installation, the
+file \fB/etc/pcp.conf\fR contains the local values for these variables. 
+The \fB$PCP_CONF\fR variable may be used to specify an alternative 
+configuration file, as described in \fIpcp.conf\fR(5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR nfs (5)
+and
+.BR mountstats (8).

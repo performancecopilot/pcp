@@ -1,6 +1,5 @@
 #
-# Copyright (c) 2011 SGI.
-# All rights reserved.
+# Copyright (c) 2011 SGI.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -1127,55 +1126,3 @@ $pmda->set_fetch(\&nfsclient_fetch);
 $pmda->set_fetch_callback(\&nfsclient_fetch_callback);
 
 $pmda->run;
-
-=pod
-
-=head1 NAME
-
-pmdanfsclient - nfs client statistics performance metrics domain agent (PMDA)
-
-=head1 DESCRIPTION
-
-B<pmdanfsclient> is a Performance Metrics Domain Agent (PMDA) which exports
-metric values from the /proc/self/mountstats interface to provide information
-on nfs mounts.
-
-=head1 INSTALLATION
-
-If you want access to the names and values for the nfsclient performance
-metrics, do the following as root:
-
-        # cd $PCP_PMDAS_DIR/nfsclient
-        # ./Install
-
-If you want to undo the installation, do the following as root:
-
-        # cd $PCP_PMDAS_DIR/nfsclient
-        # ./Remove
-
-B<pmdanfsclient> is launched by pmcd(1) and should never be executed
-directly.  The Install and Remove scripts notify pmcd(1) when
-the agent is installed or removed.
-
-=head1 FILES
-
-=over
-
-=item $PCP_PMDAS_DIR/nfsclient/Install
-
-installation script for the B<pmdanfsclient> agent
-
-=item $PCP_PMDAS_DIR/nfsclient/Remove
-
-undo installation script for the B<pmdanfsclient> agent
-
-=item $PCP_LOG_DIR/pmcd/nfsclient.log
-
-default log file for error messages from B<pmdanfsclient>
-
-=back
-
-=head1 SEE ALSO
-
-pmcd(1) and nfs(5) and mountstats(8).
-
