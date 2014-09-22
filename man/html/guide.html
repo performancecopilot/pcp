@@ -339,7 +339,7 @@ Dump past system metrics in a <a href="http://man7.org/linux/man-pages/man1/free
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Replay performance metrics with a GUI application with two second default interval in an archive between 9 AM and 10 AM. Use File-&gt;New Chart to select metrics to be included in a new view and use File-&gt;Open View to use a predefined view:<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmchart.1.html">pmchart</a> -t 2sec -S @09:00 -T @10:00 -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902 -O @10:02 free</B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmchart.1.html">pmchart</a> -t 2sec -S @09:00 -T @10:00 -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
 </TD></TR>
 </TABLE>
 
@@ -368,7 +368,7 @@ Import iostat data to a new PCP archive and visualize it:<BR><B>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Import sar data from an existing sar archive to a new PCP archive and visualize it (sar logs are under /var/log/sysstat on Debian/Ubuntu):<BR><B>
 <BR> $ sar2pcp /var/log/sa/sa15 sar.pcp
-<BR> $ pmchart -2 2sec -a sar.pcp </B>
+<BR> $ pmchart -t 2sec -a sar.pcp </B>
 </TD></TR>
 </TABLE>
 
@@ -397,7 +397,7 @@ Monitor the number of open file descriptors of the process 1234:<BR><B>
 
 <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
-Monitor the CPU time, memory usage (RSS), and the number of threads of the process 1234 (-host local: is a workaround needed for the time being):<BR><B>
+Monitor the CPU time, memory usage (RSS), and the number of threads of the process 1234 (-h local: is a workaround needed for the time being):<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmdumptext.1.html">pmdumptext</a> -h local: -t 2sec 'proc.psinfo.utime[1234]' 'proc.memory.rss[1234]' 'proc.psinfo.threads[1234]'</B>
 </TD></TR>
 </TABLE>
