@@ -28,7 +28,7 @@ _filter()
 }
 
 # real QA test starts here
-for host in nosuchhost no-such-host
+for host in nosuchhost no.such.host.pcp.io
 do
     cat <<End-of-File | pmlogger -l $tmp.log $tmp
 log mandatory on once { hinv.ncpu }

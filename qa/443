@@ -109,7 +109,7 @@ _run_sudo @:sampledso.event.records foo:bar
 
 echo
 echo "--- problems at source of metrics ---"
-_run -h no.such.host sample.event.records
+_run -h no.such.host.pcp.io sample.event.records
 _run -a /no/such/archive sample.event.records
 _run_sudo -L sample.event.records
 _run sample.event.records sample.colour

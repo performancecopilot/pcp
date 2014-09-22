@@ -68,7 +68,7 @@ src/logcontrol -Dcontext,log -p$$ enquire sample.long.write_me 2>&1 \
 | _filter
 cat <<End-of-File >$tmp.ctl
 123456
-no-such-host
+no.such.host.pcp.io
 End-of-File
 $sudo cp $tmp.ctl $PCP_TMP_DIR/pmlogger/$$
 src/logcontrol -Dcontext,log -p$$ enquire sample.long.write_me 2>&1 \
@@ -76,7 +76,7 @@ src/logcontrol -Dcontext,log -p$$ enquire sample.long.write_me 2>&1 \
 | _filter
 cat <<End-of-File >$tmp.ctl
 123456
-no-such-host
+no.such.host.pcp.io
 /no/such/file
 End-of-File
 $sudo cp $tmp.ctl $PCP_TMP_DIR/pmlogger/$$

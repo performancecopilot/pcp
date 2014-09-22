@@ -30,7 +30,7 @@ unknown -> print "[2] no value for first two fetches"
 ;
 
 ruleset
-    some_inst sample.bin:no.such.host > 100 -> print "[3] BOTCH: unexpected value %v"
+    some_inst sample.bin:no.such.host.pcp.io > 100 -> print "[3] BOTCH: unexpected value %v"
 unknown -> print "[3] unknown as expected"
 ;
 

@@ -3,15 +3,15 @@ QA output created by 1000
 DATE NUMBER
 
 === expect No route to host, no valid metrics ===
-pmdumptext: Error: nosuchhost: No route to host
+pmdumptext: Error: no.such.host.pcp.io: No route to host
 pmdumptext: no valid metrics, exiting.
 
 === expect No route to host, no valid metrics [instance case] ===
-pmdumptext: Error: nosuchhost: No route to host
+pmdumptext: Error: no.such.host.pcp.io: No route to host
 pmdumptext: no valid metrics, exiting.
 
 === expect No route to host, no valid metrics -h [instance case] ===
-pmdumptext: Error: nosuchhost: No route to host
+pmdumptext: Error: no.such.host.pcp.io: No route to host
 
 === pmcd not running, default case ===
 pmdumptext: Error: MYHOSTNAME: Connection refused

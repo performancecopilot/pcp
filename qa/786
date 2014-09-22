@@ -27,7 +27,7 @@ _filter()
 # real QA test starts here
 for arg in "" "-h $host" -L "-a src/babylon.percpu_v2" "-h localhost" \
 	"-h local:" "-h unix:" \
-	"-h no.such.host" "-a /no/such/archive"
+	"-h no.such.host.pcp.io" "-a /no/such/archive"
 do
     echo
     echo "=== $arg ==="

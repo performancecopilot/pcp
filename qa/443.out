@@ -80,8 +80,8 @@ pmevent: foo:bar: only one metric source allowed, found hosts localhost and foo
 pmevent: foo:bar: only one type of metric source allowed
 
 --- problems at source of metrics ---
-=== -h no.such.host sample.event.records ===
-pmevent: Cannot connect to PMCD on host "no.such.host": No route to host
+=== -h no.such.host.pcp.io sample.event.records ===
+pmevent: Cannot connect to PMCD on host "no.such.host.pcp.io": No route to host
 === -a /no/such/archive sample.event.records ===
 pmevent: Cannot open archive "/no/such/archive": No such file or directory
 === -L sample.event.records ===

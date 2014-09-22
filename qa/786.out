@@ -63,8 +63,8 @@ dup ctx pmGetContextHostName_r(1, ...) => "HOSTNAME"
 original ctx pmGetContextHostName(0)="HOSTNAME"
 original ctx pmGetContextHostName_r(0, ...) => "HOSTNAME"
 
-=== -h no.such.host ===
-getcontexthost: Cannot connect to PMCD on host "no.such.host": No route to host
+=== -h no.such.host.pcp.io ===
+getcontexthost: Cannot connect to PMCD on host "no.such.host.pcp.io": No route to host
 pmGetContextHostName(-113)=""
 pmGetContextHostName_r(-113, ...) => ""
 pmDupContext()=-12376 - Attempt to use an illegal context

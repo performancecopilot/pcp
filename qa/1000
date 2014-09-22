@@ -43,15 +43,15 @@ pmdumptext -s 1 'localhost:mem.util.used' | _filter1
 
 echo
 echo "=== expect No route to host, no valid metrics ==="
-pmdumptext -s 1 'nosuchhost:mem.util.used'
+pmdumptext -s 1 'no.such.host.pcp.io:mem.util.used'
 
 echo
 echo "=== expect No route to host, no valid metrics [instance case] ==="
-pmdumptext -s 1 'nosuchhost:proc.psinfo.utime[12345]'
+pmdumptext -s 1 'no.such.host.pcp.io:proc.psinfo.utime[12345]'
 
 echo
 echo "=== expect No route to host, no valid metrics -h [instance case] ==="
-pmdumptext -s 1 -h nosuchhost 'proc.psinfo.utime[12345]'
+pmdumptext -s 1 -h no.such.host.pcp.io 'proc.psinfo.utime[12345]'
 
 $sudo $PCP_RC_DIR/pcp stop >/dev/null
 echo

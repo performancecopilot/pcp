@@ -47,7 +47,7 @@ echo >control '# PCP archive logging configuration/control - for qa/'$seq'
 #
 $version=1.1
 LOCALHOSTNAME   n   n   logs/LOCALHOSTNAME -c ./config
-no.such.host    n   n   logs/no.such.host  -c ./config
+no.such.host.pcp.io    n   n   logs/no.such.host.pcp.io  -c ./config
 another.host    n   n   logs/another.host  -c ./config'
 
 # real QA test starts here

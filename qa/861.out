@@ -4,5 +4,5 @@ Checking custom pmcd.hostname setting from client side:
 pmcd.hostname PMID: 2.0.21
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-    value "nosuchhost.com"
+    value "no.such.host.pcp.io"
 Terminating local pmcd process

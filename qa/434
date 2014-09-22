@@ -25,9 +25,9 @@ _filter()
 }
 
 # real QA test starts here
-pmval -h no.such.host any.old.metric
+pmval -h no.such.host.pcp.io any.old.metric
 sts=$?
-echo "no.such.host - exit status $sts"
+echo "no.such.host.pcp.io - exit status $sts"
 pmval -a no.such.archive any.old.metric
 sts=$?
 echo "no.such.archive - exit status $sts"
