@@ -71,6 +71,14 @@ tasklist_append(const char *pid)
 	}
 	closedir(taskdirp);
     }
+#if PCP_DEBUG
+    else {
+	if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	    char ebuf[1024];
+	    fprintf(stderr, "tasklist_append: opendir(\"%s\") failed: %s\n", taskpath, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
+	}
+    }
+#endif
 }
 
 static int
@@ -98,6 +106,14 @@ refresh_cgroup_pidlist(int want_threads, const char *cgroup)
 	    pidlist_append_pid(pid);
 	fclose(fp);
     }
+#if PCP_DEBUG
+    else {
+	if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	    char ebuf[1024];
+	    fprintf(stderr, "refresh_cgroup_pidlist: fopen(\"%s\", \"r\") failed: %s\n", path, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
+	}
+    }
+#endif
     return 0;
 }
 
@@ -109,8 +125,15 @@ refresh_global_pidlist(int want_threads)
     char path[MAXPATHLEN];
 
     snprintf(path, sizeof(path), "%s/proc", proc_statspath);
-    if ((dirp = opendir(path)) == NULL)
+    if ((dirp = opendir(path)) == NULL) {
+#if PCP_DEBUG
+	if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	    char ebuf[1024];
+	    fprintf(stderr, "refresh_global_pidlist: opendir(\"%s\") failed: %s\n", path, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
+	}
+#endif
 	return -oserror();
+    }
 
     /* note: readdir on /proc ignores threads */
     while ((dp = readdir(dirp)) != NULL) {
@@ -187,7 +210,14 @@ refresh_proc_pidlist(proc_pid_t *proc_pid)
 		}
 		close(fd);
 	    }
-
+#if PCP_DEBUG
+	    else {
+		if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+		    char ebuf[1024];
+		    fprintf(stderr, "refresh_proc_pidlist: open(\"%s\", O_RDONLY) failed: %s\n", buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
+		}
+	    }
+#endif
 	    if (k == 0) {
 		/*
 		 * If a process is swapped out, /proc/<pid>/cmdline
@@ -221,6 +251,14 @@ refresh_proc_pidlist(proc_pid_t *proc_pid)
 		    }
 		    close(fd);
 		}
+#if PCP_DEBUG
+		else {
+		    if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+			char ebuf[1024];
+			fprintf(stderr, "refresh_proc_pidlist: open(\"%s\", O_RDONLY) failed: %s\n", buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
+		    }
+		}
+#endif
 	    }
 
 	    if (k <= 0) {
@@ -331,12 +369,30 @@ proc_open(const char *base, proc_pid_entry_t *ep)
 
     if (pids.threads) {
 	sprintf(buf, "%s/proc/%d/task/%d/%s", proc_statspath, ep->id, ep->id, base);
-	if ((fd = open(buf, O_RDONLY)) >= 0)
+	if ((fd = open(buf, O_RDONLY)) >= 0) {
 	    return fd;
+	}
+#if PCP_DEBUG
+	else {
+	    if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+		char ebuf[1024];
+		fprintf(stderr, "proc_open: open(\"%s\", O_RDONLY) failed: %s\n", buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
+	    }
+	}
+#endif
 	/* fallback to /proc path if task path open fails */
     }
     sprintf(buf, "%s/proc/%d/%s", proc_statspath, ep->id, base);
-    return open(buf, O_RDONLY);
+    fd =  open(buf, O_RDONLY);
+#if PCP_DEBUG
+    if (fd < 0) {
+	if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	    char ebuf[1024];
+	    fprintf(stderr, "proc_open: open(\"%s\", O_RDONLY) failed: %s\n", buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
+	}
+    }
+#endif
+    return fd;
 }
 
 static DIR *
@@ -347,12 +403,30 @@ proc_opendir(const char *base, proc_pid_entry_t *ep)
 
     if (pids.threads) {
 	sprintf(buf, "%s/proc/%d/task/%d/%s", proc_statspath, ep->id, ep->id, base);
-	if ((dir = opendir(buf)) != NULL)
+	if ((dir = opendir(buf)) != NULL) {
 	    return dir;
+	}
+#if PCP_DEBUG
+	else {
+	    if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+		char ebuf[1024];
+		fprintf(stderr, "proc_opendir: opendir(\"%s\") failed: %s\n", buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
+	    }
+	}
+#endif
 	/* fallback to /proc path if task path opendir fails */
     }
     sprintf(buf, "%s/proc/%d/%s", proc_statspath, ep->id, base);
-    return opendir(buf);
+    dir = opendir(buf);
+#if PCP_DEBUG
+    if (dir == NULL) {
+	if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+	    char ebuf[1024];
+	    fprintf(stderr, "proc_opendir: opendir(\"%s\") failed: %s\n", buf, pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
+	}
+    }
+#endif
+    return dir;
 }
 
 /*
