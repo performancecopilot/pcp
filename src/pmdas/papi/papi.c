@@ -618,7 +618,7 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     int state;
     char local_string[32];
     retval = check_papi_state();
-    if (retval == PAPI_RUNNING && idp->cluster == CLUSTER_PAPI) {
+    if (retval & PAPI_RUNNING && idp->cluster == CLUSTER_PAPI) {
 	retval = PAPI_read(EventSet, values);
 	if (retval != PAPI_OK) {
 	    __pmNotifyErr(LOG_ERR, "PAPI_read: %s\n", PAPI_strerror(retval));
@@ -654,7 +654,7 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PMDA_FETCH_STATIC;
 
 	case 2:
-	    if ((retval = check_papi_state()) == PAPI_RUNNING)
+	    if ((retval = check_papi_state()) & PAPI_RUNNING)
 		return PMDA_FETCH_STATIC;
 	    return 0;
 
@@ -737,14 +737,14 @@ remove_metric(int event)
 
     /* check to make sure papi is running, otherwise do nothing */
     state = check_papi_state();
-    if (state == PAPI_RUNNING) {
+    if (state & PAPI_RUNNING) {
 	restart = 1;
 	retval = PAPI_stop(EventSet, values);
 	if(retval != PAPI_OK)
 	    return retval;
     }
     state = check_papi_state();
-    if (state == PAPI_STOPPED) {
+    if (state & PAPI_STOPPED) {
 	/* first, copy the values over to new array */
 	for (i = 0; i < number_of_events; i++)
 	    papi_info[i].prev_value += values[papi_info[i].position];
@@ -811,7 +811,7 @@ add_metric(unsigned int event)
     state = check_papi_state();
     /* add check with number_of_counters */
     /* stop papi if running? */
-    if (state == PAPI_RUNNING) {
+    if (state & PAPI_RUNNING) {
 	retval = PAPI_stop(EventSet, values);
 	/* PAPI_stop copies values in values array, so by
 	   copying values into prev_value after the fact, we get
@@ -824,7 +824,7 @@ add_metric(unsigned int event)
 	    return retval;
     }
     state = check_papi_state();
-    if (state == PAPI_STOPPED) {
+    if (state & PAPI_STOPPED) {
 	/* add metric */
 	retval = PAPI_add_event(EventSet, event); //XXX possibly switch this to add_events
 	if (retval != PAPI_OK)
