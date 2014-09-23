@@ -40,6 +40,11 @@ proc.psinfo.processor
 proc.psinfo.ttyname
 proc.psinfo.wchan_s
 proc.psinfo.psargs
+proc.psinfo.rt_priority
+proc.psinfo.policy
+proc.psinfo.delayacct_blkio_time
+proc.psinfo.guest_time
+proc.psinfo.cguest_time
 proc.psinfo.signal_s
 proc.psinfo.blocked_s
 proc.psinfo.sigignore_s
@@ -47,6 +52,8 @@ proc.psinfo.sigcatch_s
 proc.psinfo.threads
 proc.psinfo.cgroups
 proc.psinfo.labels
+proc.psinfo.vctxsw
+proc.psinfo.nvctxsw
 proc.memory.size
 proc.memory.rss
 proc.memory.share
