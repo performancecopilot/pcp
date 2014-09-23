@@ -6,11 +6,11 @@ pmGetInDom:
 proc.psinfo.pid:
 Error: Unknown metric name
 sample.needprofile:
-pm*InDom: inst=[4] iname=<fat> reverse lookup: inst=[4]
+pm*InDom: inst=[4] iname=<fat bald bastard> reverse lookup: inst=[4]
 pmGetInDom:
    [4] <fat bald bastard>
 sampledso.needprofile:
-pm*InDom: inst=[4] iname=<fat> reverse lookup: inst=[4]
+pm*InDom: inst=[4] iname=<fat bald bastard> reverse lookup: inst=[4]
 pmGetInDom:
    [4] <fat bald bastard>
 sample.bin:

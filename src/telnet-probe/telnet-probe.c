@@ -35,6 +35,7 @@ main(int argc, char *argv[])
     struct timeval	stv;
     struct timeval	*pstv;
     int			c;
+    char		cc;
 
     while ((c = getopt(argc, argv, "cv?")) != EOF) {
         switch (c) {
@@ -145,11 +146,13 @@ main(int argc, char *argv[])
     if (vflag)
 	fprintf(stderr, "send ...\n");
     while ((c = getc(stdin)) != EOF) {
+	/* NB: copy only the payload byte, not the whole int */
+	cc = (char) c;
 	if (vflag) {
-	    fputc(c, stderr);
+	    fputc((int)cc, stderr);
 	    fflush(stderr);
 	}
-	if (__pmWrite(s, &c, sizeof(c)) != sizeof(c)) {
+	if (__pmWrite(s, &cc, sizeof(cc)) != sizeof(cc)) {
 	    if (vflag)
 		fprintf(stderr, "telnet write: %s\n", osstrerror());
 	    goto done;
@@ -158,9 +161,10 @@ main(int argc, char *argv[])
 
     if (vflag)
 	fprintf(stderr, "recv ...\n");
-    while ((bytes = __pmRead(s, &c, sizeof(c))) == sizeof(c)) {
+    /* NB: read one char, not int, at a time */
+    while ((bytes = __pmRead(s, &cc, sizeof(cc))) == sizeof(cc)) {
 	if (vflag) {
-	    fputc(c, stderr);
+	    fputc((int)cc, stderr);
 	    fflush(stderr);
 	}
     }

@@ -13,7 +13,9 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.check
 
+rm -f $seq.full
 qahost=`_get_fqdn`
+echo "qahost=$qahost" >>$seq.full
 if [ -z "$qahost" ]
 then
     echo "$seq: Arrgh: cannot determine fully qualified domain name for local host"
@@ -79,11 +81,12 @@ End-of-File
 # 
 # real QA test starts here
 _config > $tmp.config.pcp
-pmlogger -T 3sec -c $tmp.config.pcp $tmp.archive
-echo pmlogger status=$?
+pmlogger -T 3sec -c $tmp.config.pcp -l $tmp.log $tmp.archive
+echo pmlogger status=$? | tee -a $seq.full
+cat $tmp.log >>$seq.full
 
 pcp -a $tmp.archive | _filter >$tmp.arch
-echo status=$?
+echo status=$? | tee -a $seq.full
 
 #  This loop deals with cases when pcp(1) reports that some condition has
 #  changed between the three invokations of pcp(1).  If a difference has
@@ -94,12 +97,15 @@ until [ $isdiff = FALSE -o $itns = 0 ]
 do
     rm -f $tmp.noargs $tmp.local $tmp.localnoh \
       $tmp.diffnoargslocal $tmp.noargslocalnoh
-    pcp | _filter > $tmp.noargs
+    echo "=== no args ===" >>$seq.full
+    pcp 2>&1 | tee -a $seq.full | _filter > $tmp.noargs
     statusna=$?
-    pcp -h $qahost | _filter > $tmp.local
+    echo "=== -h $qahost args ===" >>$seq.full
+    pcp -h $qahost 2>&1 | tee -a $seq.full | _filter > $tmp.local
     statusll=$?
     export PMCD_HOST=$qahost
-    pcp | _filter > $tmp.localnoh
+    echo "=== \$PMCD_HOST=$PMCD_HOST args ===" >>$seq.full
+    pcp 2>&1 | tee -a $seq.full | _filter > $tmp.localnoh
     statusln=$?
     unset PMCD_HOST
     

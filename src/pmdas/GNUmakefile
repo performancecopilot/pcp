@@ -28,7 +28,8 @@ CPMDAS = pmcd linux darwin freebsd solaris aix windows \
 PLPMDAS = bonding netfilter zimbra postgresql \
 	dbping memcache systemtap mysql vmware kvm \
 	named news pdns samba dtsrun postfix gpsd \
-	rsyslog elasticsearch snmp nginx nfsclient
+	rsyslog elasticsearch snmp nginx nfsclient \
+	ds389
 
 PYPMDAS = gluster zswap dmcache
 

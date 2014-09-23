@@ -22,7 +22,9 @@ MAIL=/var/mail/pcpqa
 HOME=`$PCP_AWK_PROG -F: '/^pcpqa/ { print $6 }' /etc/passwd`
 FORWARD="$HOME/.forward"
 
-echo | $PCP_BINADM_DIR/telnet-probe localhost 25 || _notrun "Noone listening on port 25"
+smtp_port=25
+echo quit | $PCP_BINADM_DIR/telnet-probe localhost $smtp_port \
+	|| _notrun "Noone listening on smtp port $smtp_port"
 
 _cleanup()
 {

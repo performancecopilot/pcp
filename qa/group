@@ -908,6 +908,7 @@ avahi
 729 python local
 730 pmda.proc local
 731 pmda.proc local valgrind
+732 pmda.linux local
 733 pmie pmval pmdumplog local
 734 libpcp pmstat remote
 735 pmda.proc local
@@ -995,6 +996,7 @@ avahi
 991 python local
 994 other verify
 996 pmdiff local
+999 pmns local
 1000 pmdumptext local
 1001 pmchart local
 1002 pmchart local

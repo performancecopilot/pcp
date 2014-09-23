@@ -35,6 +35,7 @@ echo >$seq.full
 # lrwxrwxrwx. 1 root root       7 Sep  3 16:32 fedora-swap -> ../dm-0
 #
 # Need to dodge this one
+# total 0
 # lrwxrwxrwx 1 root root 16 2014-08-23 16:24 control -> ../device-mapper
 #
 echo "== /dev/mapper" >>$seq.full
@@ -45,6 +46,7 @@ then
 s/\([^ ][^ ]*\) -> \([^ ][^ ]*\)/|\2 \1/
 s/.*|//
 s/^\.\.\///
+/device-mapper control/d
 p
 }' \
     | LC_COLLATE=POSIX sort >$tmp.dev.mapper

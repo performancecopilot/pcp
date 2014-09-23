@@ -63,9 +63,14 @@
 #define PROC_PID_STAT_TTYNAME        39
 #define PROC_PID_STAT_WCHAN_SYMBOL   40
 #define PROC_PID_STAT_PSARGS         41
+#define PROC_PID_STAT_RTPRIORITY     42
+#define PROC_PID_STAT_POLICY         43
+#define PROC_PID_STAT_DELAYACCT_BLKIO_TICKS    44
+#define PROC_PID_STAT_GUEST_TIME     45
+#define PROC_PID_STAT_CGUEST_TIME    46
 
 /* number of fields in proc_pid_stat_entry_t */
-#define NR_PROC_PID_STAT             42
+#define NR_PROC_PID_STAT             47
 
 /*
  * metrics in /proc/<pid>/status
@@ -100,9 +105,11 @@
 #define PROC_PID_STATUS_VMLIB        26
 #define PROC_PID_STATUS_VMSWAP	     27
 #define PROC_PID_STATUS_THREADS	     28
+#define PROC_PID_STATUS_VCTXSW       29
+#define PROC_PID_STATUS_NVCTXSW      30
 
 /* number of metrics from /proc/<pid>/status */
-#define NR_PROC_PID_STATUS           27
+#define NR_PROC_PID_STATUS           31
 
 /*
  * metrics in /proc/<pid>/statm & /proc/<pid>/maps
@@ -170,6 +177,8 @@ typedef struct {	/* /proc/<pid>/status */
     char *vmlib;
     char *vmswap;
     char *threads;
+    char *vctxsw;
+    char *nvctxsw;
 } status_lines_t;
 
 typedef struct {	/* /proc/<pid>/io */
@@ -257,31 +266,31 @@ typedef struct {
 extern int refresh_proc_pid(proc_pid_t *, int, const char *);
 
 /* fetch a proc/<pid>/stat entry for pid */
-extern proc_pid_entry_t *fetch_proc_pid_stat(int, proc_pid_t *);
+extern proc_pid_entry_t *fetch_proc_pid_stat(int, proc_pid_t *, int *);
 
 /* fetch a proc/<pid>/statm entry for pid */
-extern proc_pid_entry_t *fetch_proc_pid_statm(int, proc_pid_t *);
+extern proc_pid_entry_t *fetch_proc_pid_statm(int, proc_pid_t *, int *);
 
 /* fetch a proc/<pid>/status entry for pid */
-extern proc_pid_entry_t *fetch_proc_pid_status(int, proc_pid_t *);
+extern proc_pid_entry_t *fetch_proc_pid_status(int, proc_pid_t *, int *);
 
 /* fetch a proc/<pid>/maps entry for pid */
-extern proc_pid_entry_t *fetch_proc_pid_maps(int, proc_pid_t *);
+extern proc_pid_entry_t *fetch_proc_pid_maps(int, proc_pid_t *, int *);
 
 /* fetch a proc/<pid>/schedstat entry for pid */
-extern proc_pid_entry_t *fetch_proc_pid_schedstat(int, proc_pid_t *);
+extern proc_pid_entry_t *fetch_proc_pid_schedstat(int, proc_pid_t *, int *);
 
 /* fetch a proc/<pid>/io entry for pid */
-extern proc_pid_entry_t *fetch_proc_pid_io(int, proc_pid_t *);
+extern proc_pid_entry_t *fetch_proc_pid_io(int, proc_pid_t *, int *);
 
 /* fetch a proc/<pid>/fd entry for pid */
-extern proc_pid_entry_t *fetch_proc_pid_fd(int, proc_pid_t *);
+extern proc_pid_entry_t *fetch_proc_pid_fd(int, proc_pid_t *, int *);
 
 /* fetch a proc/<pid>/cgroup entry for pid */
-extern proc_pid_entry_t *fetch_proc_pid_cgroup(int, proc_pid_t *);
+extern proc_pid_entry_t *fetch_proc_pid_cgroup(int, proc_pid_t *, int *);
 
 /* fetch a proc/<pid>/attr/current entry for pid */
-extern proc_pid_entry_t *fetch_proc_pid_label(int, proc_pid_t *);
+extern proc_pid_entry_t *fetch_proc_pid_label(int, proc_pid_t *, int *);
 
 /* extract the ith space separated field from a buffer */
 extern char *_pm_getfield(char *, int);

@@ -34,7 +34,6 @@ HFILES		= clusters.h indom.h \
 SCRIPTS		= Install Remove
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
-LSRCFILES 	= help root root_proc linux_proc_migrate.conf $(SCRIPTS)
 LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT)
 
 LLDLIBS		= $(PCP_PMDALIB)
@@ -43,6 +42,10 @@ LCFLAGS		= $(INVISIBILITY)
 # Uncomment these flags for profiling
 # LCFLAGS	+= -pg
 # LLDFLAGS	+= -pg
+
+MAN_SECTION	= 1
+MAN_PAGES	= pmda$(IAM).$(MAN_SECTION)
+MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
 default:	build-me
 
@@ -60,6 +63,7 @@ install: default
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 root_proc $(PCP_VAR_DIR)/pmns/root_proc
 	$(INSTALL) -m 644 linux_proc_migrate.conf $(PCP_VAR_DIR)/config/pmlogrewrite/linux_proc_migrate.conf
+	@$(INSTALL_MAN)
 else
 build-me:
 install:

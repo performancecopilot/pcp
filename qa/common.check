@@ -433,17 +433,18 @@ End-of-File
 _wait_pmlogger_end()
 {
     #debug# set -x
-    pid=$1
+    _pid=$1
 
-    i=0
+    _i=0
     while true
     do
-        if [ -f "$PCP_TMP_DIR/pmlogger/$pid" ]
+        if [ -f "$PCP_TMP_DIR/pmlogger/$_pid" ]
 	then
-	    i=`expr $i + 1`
-	    if [ "$i" -ge 100 ]
+	    _i=`expr $_i + 1`
+	    if [ "$_i" -ge 100 ]
 	    then
-		echo "_wait_pmlogger_end: failed to see $PCP_TMP_DIR/pmlogger/$pid removed after 100 iterations"
+		echo "_wait_pmlogger_end: failed to see $PCP_TMP_DIR/pmlogger/$_pid removed after 100 iterations"
+		#debug# set +x
 		return
 	    fi
 	    pmsleep 0.1
@@ -454,16 +455,17 @@ _wait_pmlogger_end()
 	    # code is run ... so hang around waiting for the process to
 	    # go away
 	    #
-	    i=0
+	    _i=0
 	    while true
 	    do
-		if sudo kill -s 0 $pid 2>/dev/null
+		if sudo kill -s 0 $_pid 2>/dev/null
 		then
 		    # process still exists
-		    i=`expr $i + 1`
-		    if [ "$i" -ge 100 ]
+		    _i=`expr $_i + 1`
+		    if [ "$_i" -ge 100 ]
 		    then
-			echo "_wait_pmlogger_end: failed to see pid $pid exit after 100 iterations"
+			echo "_wait_pmlogger_end: failed to see pid $_pid exit after 100 iterations"
+			#debug# set +x
 			return
 		    fi
 		    pmsleep 0.1
@@ -477,42 +479,89 @@ _wait_pmlogger_end()
     done
 }
 
+# Wait for pmcd to end
+#
+_wait_pmcd_end()
+{
+    #debug# set -x
+
+    _pid=`cat $PCP_RUN_DIR/pmcd.pid 2>/dev/null`
+    if [ -z "$_pid" ]
+    then
+	# no $PCP_RUN_DIR/pmcd.pid file, try ps(1) the hard way
+	#
+	_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+	| sed -n -e '/\[p]mcd /{
+s/^[^ 	]*//
+s/^[ 	]*//
+s/[ 	].*//
+p
+}'`
+    fi
+    if [ -z "$_pid" ]
+    then
+	#debug# set +x
+	return
+    fi
+
+    _i=0
+    while true
+    do
+	if sudo kill -s 0 $_pid 2>/dev/null
+	then
+	    # process still exists
+	    _i=`expr $_i + 1`
+	    if [ "$_i" -ge 100 ]
+	    then
+		echo "_wait_pmcd_end: failed to see pid $_pid exit after 100 iterations"
+		#debug# set +x
+		return
+	    fi
+	    pmsleep 0.1
+	else
+	    # process has really exited
+	    #debug# set +x
+	    return
+	fi
+    done
+}
+
 # ensure primary logger allows pmlc state changes
 #
 _writable_primary_logger()
 {
-    configfile="$PCP_SYSCONF_DIR/pmlogger/config.default"
+    _configfile="$PCP_SYSCONF_DIR/pmlogger/config.default"
 
-    echo "_open_primary_logger checking config file: $configfile" >>$seq.full
+    echo "_open_primary_logger checking config file: $_configfile" >>$seq.full
 
     # first, move aside the default configuration file
-    $sudo mv "$configfile" "$configfile.$seq"
+    $sudo mv "$_configfile" "$_configfile.$seq"
 
     # next, create a new default configuration file
     PMLOGCONF="$PCP_BINADM_DIR/pmlogconf"
-    test -f "$configfile" || \
-	$sudo $PMLOGCONF -q -h localhost "$configfile" >>$seq.full 2>&1
+    test -f "$_configfile" || \
+	$sudo $PMLOGCONF -q -h localhost "$_configfile" >>$seq.full 2>&1
 
     # finally, open it up to local access from pmlc
     $sudo sed -i -e 's/^allow localhost.*$/allow localhost : all;/g' \
-                 -e 's/^allow local:.*$/allow local:* : all;/g' "$configfile"
+                 -e 's/^allow local:.*$/allow local:* : all;/g' "$_configfile"
 }
 
 # restore primary logger pmlc access restrictions
 #
 _restore_primary_logger()
 {
-    configfile="$PCP_SYSCONF_DIR/pmlogger/config.default"
+    _configfile="$PCP_SYSCONF_DIR/pmlogger/config.default"
 
     # close out access from local pmlc once more
-    test -f "$configfile" && \
+    test -f "$_configfile" && \
         $sudo sed -i -e 's/^allow localhost.*$/allow localhost : enquire;/g' \
 	             -e 's/^allow local:.*$/allow local:* : enquire;/g' \
-            "$configfile"
+            "$_configfile"
 
     # if there was an initial configuration, put it back
-    test -f "$configfile.$seq" && $sudo mv "$configfile.$seq" "$configfile"
-    ( id pcp && $sudo chown pcp:pcp "$configfile" ) >/dev/null 2>&1
+    test -f "$_configfile.$seq" && $sudo mv "$_configfile.$seq" "$_configfile"
+    ( id pcp && $sudo chown pcp:pcp "$_configfile" ) >/dev/null 2>&1
 }
 
 # purify support
@@ -623,6 +672,7 @@ _check_display()
     then
 	DISPLAY=$PCPQA_CLOSE_X_SERVER xdpyinfo >/dev/null 2>&1 || \
 	    _notrun "Failed sanity check on DISPLAY $PCPQA_CLOSE_X_SERVER"
+	export DISPLAY=$PCPQA_CLOSE_X_SERVER
     fi
 }
 

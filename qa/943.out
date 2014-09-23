@@ -51,6 +51,11 @@ proc.psinfo.processor -12387 No permission to perform requested operation
 proc.psinfo.ttyname -12387 No permission to perform requested operation
 proc.psinfo.wchan_s -12387 No permission to perform requested operation
 proc.psinfo.psargs -12387 No permission to perform requested operation
+proc.psinfo.rt_priority -12387 No permission to perform requested operation
+proc.psinfo.policy -12387 No permission to perform requested operation
+proc.psinfo.delayacct_blkio_time -12387 No permission to perform requested operation
+proc.psinfo.guest_time -12387 No permission to perform requested operation
+proc.psinfo.cguest_time -12387 No permission to perform requested operation
 proc.psinfo.signal_s -12387 No permission to perform requested operation
 proc.psinfo.blocked_s -12387 No permission to perform requested operation
 proc.psinfo.sigignore_s -12387 No permission to perform requested operation
@@ -58,6 +63,8 @@ proc.psinfo.sigcatch_s -12387 No permission to perform requested operation
 proc.psinfo.threads -12387 No permission to perform requested operation
 proc.psinfo.cgroups -12387 No permission to perform requested operation
 proc.psinfo.labels -12387 No permission to perform requested operation
+proc.psinfo.vctxsw -12387 No permission to perform requested operation
+proc.psinfo.nvctxsw -12387 No permission to perform requested operation
 proc.memory.size -12387 No permission to perform requested operation
 proc.memory.rss -12387 No permission to perform requested operation
 proc.memory.share -12387 No permission to perform requested operation
@@ -133,6 +140,11 @@ proc.psinfo.processor COUNT
 proc.psinfo.ttyname COUNT
 proc.psinfo.wchan_s COUNT
 proc.psinfo.psargs COUNT
+proc.psinfo.rt_priority COUNT
+proc.psinfo.policy COUNT
+proc.psinfo.delayacct_blkio_time COUNT
+proc.psinfo.guest_time COUNT
+proc.psinfo.cguest_time COUNT
 proc.psinfo.signal_s COUNT
 proc.psinfo.blocked_s COUNT
 proc.psinfo.sigignore_s COUNT
@@ -140,6 +152,8 @@ proc.psinfo.sigcatch_s COUNT
 proc.psinfo.threads COUNT
 proc.psinfo.cgroups COUNT
 proc.psinfo.labels COUNT
+proc.psinfo.vctxsw COUNT
+proc.psinfo.nvctxsw COUNT
 proc.memory.size COUNT
 proc.memory.rss COUNT
 proc.memory.share COUNT

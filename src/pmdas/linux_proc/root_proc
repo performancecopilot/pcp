@@ -86,6 +86,11 @@ proc.psinfo {
     ttyname		PROC:8:39
     wchan_s             PROC:8:40
     psargs		PROC:8:41
+    rt_priority		PROC:8:42
+    policy		PROC:8:43
+    delayacct_blkio_time PROC:8:44
+    guest_time		PROC:8:45
+    cguest_time		PROC:8:46
     signal_s            PROC:24:16
     blocked_s           PROC:24:17
     sigignore_s         PROC:24:18
@@ -93,6 +98,8 @@ proc.psinfo {
     threads		PROC:24:28
     cgroups		PROC:11:0
     labels		PROC:12:0
+    vctxsw		PROC:24:29
+    nvctxsw		PROC:24:30
 }
 
 proc.id {

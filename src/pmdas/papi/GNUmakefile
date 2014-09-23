@@ -31,6 +31,9 @@ DFILES	= README help
 
 LDIRT	= domain.h *.o $(IAM).log $(CMDTARGET) $(LIBTARGET)
 
+MAN_SECTION = 1
+MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
+MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
 default_pcp default:	build-me
 
@@ -44,6 +47,7 @@ install_pcp install:	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(CMDTARGET) $(LIBTARGET) $(PMDADIR)
 	$(INSTALL) -m 644 root pmns domain.h $(DFILES) $(PMDADIR)
+	@$(INSTALL_MAN)
 else
 build-me:
 install_pcp install:

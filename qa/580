@@ -61,7 +61,7 @@ then
 s,/etc/init ,init,g;
 s,/etc/init,init,g;
 s,/sbin/init,init,g;
-s, /usr/lib/systemd/systemd\([ "]\), init\1,;
+s, /usr/lib/systemd/systemd\([ ">]\), init\1,;
 s,init[^>]*,init,g;'
    # Irix 6.2 has a space after the init, linux may have extra arguments
    # And on some Linux systems (e.g. Fedora 18), pid 1 is not init, but

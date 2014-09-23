@@ -201,122 +201,9 @@ then
         -e '/^$/d'
 fi
 
-for target
-do
-    grep "^$target" <$tmp.domains >$tmp.domain
-    if [ ! -s $tmp.domain ]
-    then
-	echo "No domain matches \"$target\" ... the domains I have are ..."
-	cat $tmp.domains
-	continue
-    fi
-    count=`wc -l <$tmp.domain | sed -e 's/ //g'`
-    if [ $count != 1 ]
-    then
-	echo "Warning: More than one domain matches \"$target\" ... the matches I have are ..."
-	cat $tmp.domain
-	echo "... using the first one."
-    fi
-    domain=`sed -e 1q $tmp.domain`
-    # used to be vmNN-osname&version, but now just vmMM ...
-    # old sed now does nothing
-    #
-    host=`echo $domain | sed -e '/^vm/s/-.*//'`
-    echo "::: $domain :::"
-
-    if which virsh >/dev/null 2>&1
-    then
-	state=`virsh list --all | grep "$domain" | awk '{print $3}'`
-	case "$state"
-	in
-	    shut)
-		if $work
-		then
-		    sudo virsh start $domain
-		    state=running
-		fi
-		;;
-	    running)
-		;;
-	    paused)
-		if $work
-		then
-		    sudo virsh resume $domain
-		    state=running
-		fi
-		;;
-	    '')
-		# probably not a VM, like "fuji"
-		;;
-	    *)
-		echo "No clue what do with virsh state \"$state\""
-		continue
-		;;
-	esac
-    fi
-
-    if $work
-    then
-	log=$HOME/Logs/by-date/$today/$domain
-	touch $log
-	mkdir -p $HOME/Logs/by-vm/$domain
-	if [ ! -L $HOME/Logs/by-vm/$domain/$today ]
-	then
-	    ( cd $HOME/Logs/by-vm/$domain; ln -s ../../by-date/$today/$domain $today )
-	fi
-
-	rm -f $tmp.up
-	wait=0
-	delta=5
-	max_wait=300
-	while [ $wait -lt $max_wait ]
-	do
-	    # if ping -c 1 $host >/dev/null 2>&1
-	    # then
-		if ssh $host true
-		then
-		    $debug && echo host up
-		    touch $tmp.up
-		    break
-		fi
-	    # else
-		$debug && echo host down
-	    # fi
-	    sleep $delta
-	    wait=`expr $wait + $delta`
-	done
-	if [ ! -f $tmp.up ]
-	then
-	    echo "Failed to start VM domain $domain after $max_wait secs ... giving up"
-	    continue
-	fi
-	
-	check=`ssh -t $host uname -sr 2>/dev/null`
-	$debug && echo "check=$check"
-	case "$check"
-	in
-	    FreeBSD\ *)
-	    	osname=freebsd
-		;;
-	    *)
-	    	osname=unknown
-		;;
-	esac
-	$debug && echo "osname=$osname"
-
-	# per-host settings
-	# MAKE=gmake for *BSD hosts
-	#
-	MAKE=make
-	case "$osname"
-	in
-	    freebsd|netbsd)
-		MAKE=gmake
-		;;
-	esac
-	$debug && echo "MAKE=$MAKE"
-
-	cat >$tmp.script <<End-of-File
+_script_header()
+{
+    cat <<End-of-File
 #!/bin/sh
 #
 # PCP Build Script from pcp-daily on `date`
@@ -355,11 +242,11 @@ esac
 
 cd src/$pcp_tree
 End-of-File
-	if [ -n "$efile" ]
-	then
-	    cat $efile >>$tmp.script
-	fi
-	cat >>$tmp.script <<End-of-File
+}
+
+_script_git()
+{
+    cat <<End-of-File
 git branch -a >\$tmp.branch
 if grep " $pcp_branch\$" <\$tmp.branch >/dev/null
 then
@@ -375,8 +262,11 @@ else
     fi
 fi
 End-of-File
+}
 
-	$cflag && cat >>$tmp.script <<End-of-File
+_script_git_check()
+{
+    cat <<End-of-File
 git status -s | grep 'M ' >\$tmp.status
 if [ -s \$tmp.status ]
 then
@@ -386,8 +276,11 @@ else
     echo "Info: No modified pcp files" | tee -a \$HOME/daily.log
 fi
 End-of-File
+}
 
-	$pflag && cat >>$tmp.script <<End-of-File
+_script_git_pull()
+{
+    cat <<End-of-File
 # need to clean before pulling in case unwanted files no longer removed,
 # e.g. in PCP 3.x -> PCP 4.0 migration of source base
 # not needed any longer - 26 Mar 2013
@@ -409,11 +302,12 @@ else
     exit 1
 fi
 End-of-File
+}
 
-	if $mflag
-	then
-	    echo "${MAKE:-make} clean >>\$HOME/daily.log 2>&1" >>$tmp.script
-	    cat >>$tmp.script <<'End-of-File'
+_script_make()
+{
+    echo "${MAKE:-make} clean >>\$HOME/daily.log 2>&1"
+    cat <<'End-of-File'
 ok=false
 # if needed, bump build number for pcp-daily
 if [ ! -f VERSION.pcp.daily ]
@@ -442,8 +336,8 @@ sudo rm -f /usr/lib*/libpcp[_.]*
 # clean up any build turds
 rm -f qa/qa_outfiles
 End-of-File
-	    echo "if MAKE=$MAKE ./Makepkgs --clean >>\$HOME/daily.log 2>&1" >>$tmp.script
-	    cat >>$tmp.script <<'End-of-File'
+    echo "if MAKE=$MAKE ./Makepkgs --clean >>\$HOME/daily.log 2>&1"
+    cat <<'End-of-File'
 then
     ok=true
 else
@@ -485,9 +379,11 @@ then
 fi
 $ok && echo "Info: Makepkgs" | tee -a $HOME/daily.log
 End-of-File
-	fi
+}
 
-	$iflag && cat >>$tmp.script <<'End-of-File'
+_script_install()
+{
+    cat <<'End-of-File'
 # extract buildversion
 . ./VERSION.pcp
 if [ -z "$PACKAGE_MAJOR" -o -z "$PACKAGE_MINOR" -o -z "$PACKAGE_REVISION" ]
@@ -650,6 +546,196 @@ fi
 # sample PMDA may have an updated PMNS, so re-install just in case
 ( cd $PCP_VAR_DIR/pmdas/sample; sudo ./Install </dev/null ) >>$HOME/daily.log
 End-of-File
+}
+
+_script_qa()
+{
+    cat <<End-of-File
+rm -f *.out.bad
+./changeversion >/dev/null 2>&1
+if ./check -l $check_what >>\$HOME/daily.log 2>&1
+then
+    echo "Info: QA $what" | tee -a \$HOME/daily.log
+else
+    echo "Error: QA $what failed!" | tee -a \$HOME/daily.log
+    sed -e '/^    [0-9 ]*\$/d' <check.log \
+    | awk '
+NF == 0	{ txt = ""; next }
+	{ if (txt == "") txt = \$0
+	  else txt = txt "\n" \$0
+	}
+END	{ print txt }' | tee -a \$HOME/daily.log
+fi
+End-of-File
+}
+
+_script_qa_rerun()
+{
+    cat <<End-of-File
+if ./recheck >>\$HOME/daily.log 2>&1
+then
+    echo "Info: QA recheck" | tee -a \$HOME/daily.log
+else
+    echo "Error: QA recheck failed!" | tee -a \$HOME/daily.log
+fi
+End-of-File
+}
+
+_script_harvest()
+{
+    cat <<End-of-File
+rm -f \$HOME/daily.harvest
+touch \$HOME/daily.harvest
+nbad=0
+nfull=0
+for bad in *.out.bad
+do
+    [ "\$bad" = '*.out.bad' ] && continue
+    echo \$bad >>\$HOME/daily.harvest
+    nbad=\`expr \$nbad + 1\`
+    seq=\`echo \$bad | sed -e 's/\.out\.bad//'\`
+    [ -f \$seq.out ] && echo \$seq.out >>\$HOME/daily.harvest
+    if [ -f \$seq.full ]
+    then
+	echo \$seq.full >>\$HOME/daily.harvest
+	nfull=\`expr \$nfull + 1\`
+    fi
+done
+[ -s \$HOME/daily.harvest ] && cat \$HOME/daily.harvest >>\$HOME/daily.log
+echo "Info: harvest \$nbad *.bad files, \$nfull *.full files" | tee -a \$HOME/daily.log
+End-of-File
+}
+
+for target
+do
+    grep "^$target" <$tmp.domains >$tmp.domain
+    if [ ! -s $tmp.domain ]
+    then
+	echo "No domain matches \"$target\" ... the domains I have are ..."
+	cat $tmp.domains
+	continue
+    fi
+    count=`wc -l <$tmp.domain | sed -e 's/ //g'`
+    if [ $count != 1 ]
+    then
+	echo "Warning: More than one domain matches \"$target\" ... the matches I have are ..."
+	cat $tmp.domain
+	echo "... using the first one."
+    fi
+    domain=`sed -e 1q $tmp.domain`
+    # used to be vmNN-osname&version, but now just vmMM ...
+    # old sed now does nothing
+    #
+    host=`echo $domain | sed -e '/^vm/s/-.*//'`
+    echo "::: $domain :::"
+
+    if which virsh >/dev/null 2>&1
+    then
+	state=`virsh list --all | grep "$domain" | awk '{print $3}'`
+	case "$state"
+	in
+	    shut)
+		if $work
+		then
+		    sudo virsh start $domain
+		    state=running
+		fi
+		;;
+	    running)
+		;;
+	    paused)
+		if $work
+		then
+		    sudo virsh resume $domain
+		    state=running
+		fi
+		;;
+	    '')
+		# probably not a VM, like "fuji"
+		;;
+	    *)
+		echo "No clue what do with virsh state \"$state\""
+		continue
+		;;
+	esac
+    fi
+
+    if $work
+    then
+	log=$HOME/Logs/by-date/$today/$domain
+	touch $log
+	mkdir -p $HOME/Logs/by-vm/$domain
+	if [ ! -L $HOME/Logs/by-vm/$domain/$today ]
+	then
+	    ( cd $HOME/Logs/by-vm/$domain; ln -s ../../by-date/$today/$domain $today )
+	fi
+
+	rm -f $tmp.up
+	wait=0
+	delta=5
+	max_wait=300
+	while [ $wait -lt $max_wait ]
+	do
+	    # if ping -c 1 $host >/dev/null 2>&1
+	    # then
+		if ssh $host true
+		then
+		    $debug && echo host up
+		    touch $tmp.up
+		    break
+		fi
+	    # else
+		$debug && echo host down
+	    # fi
+	    sleep $delta
+	    wait=`expr $wait + $delta`
+	done
+	if [ ! -f $tmp.up ]
+	then
+	    echo "Failed to start VM domain $domain after $max_wait secs ... giving up"
+	    continue
+	fi
+	
+	check=`ssh -t $host uname -sr 2>/dev/null`
+	$debug && echo "check=$check"
+	case "$check"
+	in
+	    FreeBSD\ *)
+	    	osname=freebsd
+		;;
+	    *)
+	    	osname=unknown
+		;;
+	esac
+	$debug && echo "osname=$osname"
+
+	# per-host settings
+	# MAKE=gmake for *BSD hosts
+	#
+	MAKE=make
+	case "$osname"
+	in
+	    freebsd|netbsd)
+		MAKE=gmake
+		;;
+	esac
+	$debug && echo "MAKE=$MAKE"
+
+	_script_header >$tmp.script
+	if [ -n "$efile" ]
+	then
+	    cat $efile >>$tmp.script
+	fi
+	_script_git >>$tmp.script
+	$cflag && _script_git_check >>$tmp.script
+	$pflag && _script_git_pull >>$tmp.script
+
+	if $mflag
+	then
+	    _script_make >>$tmp.script
+	fi
+
+	$iflag && _script_install >>$tmp.script
 
 	cat >>$tmp.script <<End-of-File
 
@@ -673,54 +759,9 @@ End-of-File
 		;;
 	esac
 
-	$qflag && cat >>$tmp.script <<End-of-File
-rm -f *.out.bad
-./changeversion >/dev/null 2>&1
-if ./check -l $check_what >>\$HOME/daily.log 2>&1
-then
-    echo "Info: QA $what" | tee -a \$HOME/daily.log
-else
-    echo "Error: QA $what failed!" | tee -a \$HOME/daily.log
-    sed -e '/^    [0-9 ]*\$/d' <check.log \
-    | awk '
-NF == 0	{ txt = ""; next }
-	{ if (txt == "") txt = \$0
-	  else txt = txt "\n" \$0
-	}
-END	{ print txt }' | tee -a \$HOME/daily.log
-fi
-End-of-File
-
-	$rflag && cat >>$tmp.script <<End-of-File
-if ./recheck >>\$HOME/daily.log 2>&1
-then
-    echo "Info: QA recheck" | tee -a \$HOME/daily.log
-else
-    echo "Error: QA recheck failed!" | tee -a \$HOME/daily.log
-fi
-End-of-File
-
-	$hflag && cat >>$tmp.script <<End-of-File
-rm -f \$HOME/daily.harvest
-touch \$HOME/daily.harvest
-nbad=0
-nfull=0
-for bad in *.out.bad
-do
-    [ "\$bad" = '*.out.bad' ] && continue
-    echo \$bad >>\$HOME/daily.harvest
-    nbad=\`expr \$nbad + 1\`
-    seq=\`echo \$bad | sed -e 's/\.out\.bad//'\`
-    [ -f \$seq.out ] && echo \$seq.out >>\$HOME/daily.harvest
-    if [ -f \$seq.full ]
-    then
-	echo \$seq.full >>\$HOME/daily.harvest
-	nfull=\`expr \$nfull + 1\`
-    fi
-done
-[ -s \$HOME/daily.harvest ] && cat \$HOME/daily.harvest >>\$HOME/daily.log
-echo "Info: harvest \$nbad *.bad files, \$nfull *.full files" | tee -a \$HOME/daily.log
-End-of-File
+	$qflag && _script_qa >>$tmp.script
+	$rflag && _script_qa_rerun >>$tmp.script
+	$hflag && _script_harvest >>$tmp.script
 
 	chmod 755 $tmp.script
 	if scp $tmp.script $host:daily.script >$tmp.out 2>&1
@@ -731,11 +772,21 @@ End-of-File
 	    echo "Error: scp failed!"
 	    continue
 	fi
+
+	# actually do the remote work here
+	#
 	ssh -t $host sh -c ./daily.script
+
 	scp -q $host:daily.log $tmp.out
 	echo "=== `date` ===" >>$log
 	cat $tmp.out >>$log
 	echo "=== END ===" >>$log
+
+	if $iflag
+	then
+	    # run whatami on QA host
+	    ssh -t $host src/pcp/qa/admin/whatami >$HOME/Logs/by-vm/$domain/whatami
+	fi
 
 	if $hflag
 	then

@@ -38,10 +38,13 @@ _getnetworkaddr()
         # inet 192.168.1.222  netmask 255.255.255.0  broadcast 192.168.1.255
 	# inet addr:192.168.1.100  Bcast:192.168.1.255  Mask:255.255.255.0
 	#
+	# skip ip tunnels/vpns like
+	# inet addr:10.8.3.138  P-t-P:10.8.3.137  Mask:255.255.255.255
+	#
 	ifconfig \
 	| grep -v '[ :]127\.0\.0' \
 	| sed -n >$tmp.addr \
-	    -e '/^[ 	]*inet /{
+	    -e '/^[ 	]*inet .*cast[ :]/{
 s/^[ 	]*inet[ 	]//
 s/^addr://
 s/[ 	][ 	]*broadcast[ 	][^ 	]*//
@@ -60,6 +63,13 @@ p
 		case "$mask"
 		in
 		    255.255.255.0)	# /24 network
+			echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
+			;;
+		    # pmcd's [access] is not smart enough to handle other
+		    # than /24 networks, so map the other likely options
+		    # to the broader /24 network
+		    #
+		    255.255.255.128|255.255.255.192|255.255.255.224|255.255.255.240|255.255.255.248|255.255.255.252|255.255.255.254)
 			echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
 			;;
 		    *)
@@ -122,6 +132,7 @@ bison
 gdb
 mktemp
 gawk
+cpan
 # optional executables
 dpkg?	dpkg-buildpackage	[dpkg-dev]
 dpkg?	dh			[debhelper]
@@ -131,17 +142,17 @@ rpm?	rpmbuild		[rpm-build]
 # other build prerequisites
 dpkg?	/usr/share/doc/pkg-config	[pkg-config]
 dpkg?	/usr/share/doc/python-all-dev	[python-all-dev]
-dpkg?	/usr/include/microhttpd.h	[libmicrohttpd-dev]
-rpm?	/usr/include/microhttpd.h	[libmicrohttpd-devel]
-dpkg?	/usr/include/sasl/sasl.h	[libsasl2-dev]
-rpm?	/usr/include/sasl/sasl.h	[cyrus-sasl-devel]
-rpm?	/usr/include/systemd/sd-daemon.h	[systemd-devel but not for CentOS 5.8]
-dpkg?	/usr/include/infiniband/umad.h	[libibumad-dev]
-rpm?	/usr/include/infiniband/umad.h	[libibumad-devel]
-dpkg?	/usr/include/infiniband/mad.h	[libibmad-dev]
-rpm?	/usr/include/infiniband/mad.h	[libibmad-devel]
-dpkg?	/usr/include/avahi-common	[libavahi-common-dev]
-rpm?	/usr/include/avahi-common	[avahi-devel]
+dpkg?	/usr/include/microhttpd.h	[optional][libmicrohttpd-dev]
+rpm?	/usr/include/microhttpd.h	[optional][libmicrohttpd-devel]
+dpkg?	/usr/include/sasl/sasl.h	[optional][libsasl2-dev]
+rpm?	/usr/include/sasl/sasl.h	[optional][cyrus-sasl-devel]
+rpm?	/usr/include/systemd/sd-daemon.h	[optional][systemd-devel but not for CentOS 5.8]
+dpkg?	/usr/include/infiniband/umad.h	[optional][libibumad-dev]
+rpm?	/usr/include/infiniband/umad.h	[optional][libibumad-devel]
+dpkg?	/usr/include/infiniband/mad.h	[optional][libibmad-dev]
+rpm?	/usr/include/infiniband/mad.h	[optional][libibmad-devel]
+dpkg?	/usr/include/avahi-common	[optional][libavahi-common-dev]
+rpm?	/usr/include/avahi-common	[optional][avahi-devel]
 dpkg?	g++				[g++]
 rpm?	g++				[gcc-c++]
 # files
@@ -157,16 +168,18 @@ dpkg?	ExtUtils::MakeMaker	[libextutils-autoinstall-perl]
 rpm?	ExtUtils::MakeMaker	[perl-ExtUtils-MakeMaker]
 dpkg?	XML::TokeParser		[libxml-tokeparser-perl]
 rpm?	XML::TokeParser		[perl-XML-TokeParser]
-Spreadsheet::Read		[libspreadsheet-read-perl(dpkg)]
+dpkg?	Spreadsheet::Read	[libspreadsheet-read-perl]
+rpm?	Spreadsheet::Read	[cpan]
 dpkg?	Spreadsheet::WriteExcel	[libspreadsheet-writeexcel-perl]
-rpm?	Spreadsheet::WriteExcel	[perl-Spreadsheet-WriteExcel]
-Spreadsheet::ReadSXC		[cpan?]
+rpm?	Spreadsheet::WriteExcel	[perl-Spreadsheet-WriteExcel or cpan]
+Spreadsheet::ReadSXC		[cpan]
 # other run-time
 sadf				[sysstat]
 # QA
 bc
 curl
-Spreadsheet::XLSX		[libspreadsheet-xlsx-perl(dpkg)]
+dpkg?	Spreadsheet::XLSX	[libspreadsheet-xlsx-perl]
+rpm?	Spreadsheet::XLSX	[cpan]
 dpkg?	Text::CSV_XS		[Text-CSV_XS]
 rpm?	Text::CSV_XS		[perl-Text-CSV_XS]
 crontab				[from vixie-cron?]
@@ -182,21 +195,21 @@ dpkg?	realpath		[realpath]
 dpkg?	qmake			[qt4-qmake]
 rpm?	qmake|qmake-qt4			[qt-devel]
 dpkg?	/usr/lib/libQtCore.so|/usr/lib/*/libQtCore.so	[libqt4-dev]
-dpkg?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[libsoqt4-dev]
-rpm?	/usr/lib/libQtCore.so|/usr/lib*/libQtCore.so	[qt-devel]
-dpkg?	/usr/include/Inventor/Qt/SoQt.h	[libsoqt-dev-common]
-dpkg?	/usr/include/Inventor/SoPath.h	[libcoin60-dev or libcoin80-dev]
+dpkg?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[optional][libsoqt4-dev]
+rpm?	/usr/lib/libQtCore.so|/usr/lib*/libQtCore.so	[optional][qt-devel]
+dpkg?	/usr/include/Inventor/Qt/SoQt.h	[optional][libsoqt-dev-common]
+dpkg?	/usr/include/Inventor/SoPath.h	[optional][libcoin60-dev or libcoin80-dev]
 # python
 rpm?	/usr/include/python*/Python.h	[python-devel]
 dpkg?	/usr/include/python*/Python.h	[python-dev]
 rpm?	/usr/lib/python*/curses		[python-curses]
 # nss
-dpkg?	/usr/include/nspr/nspr.h	[libnspr4-dev]
-rpm?	/usr/include/nspr4/nspr.h	[nspr-devel]
-dpkg?	/usr/include/nss/nss.h		[libnss3-dev]
-rpm?	/usr/include/nss3/nss.h		[nss-devel]
-dpkg?	certutil			[libnss3-tools]
-rpm?	certutil			[nss-tools or mozilla-nss-tools]
+dpkg?	/usr/include/nspr/nspr.h	[optional][libnspr4-dev]
+rpm?	/usr/include/nspr4/nspr.h	[optional][nspr-devel]
+dpkg?	/usr/include/nss/nss.h		[optional][libnss3-dev]
+rpm?	/usr/include/nss3/nss.h		[optional][nss-devel]
+dpkg?	certutil			[optional][libnss3-tools]
+rpm?	certutil			[optional][nss-tools or mozilla-nss-tools]
 End-of-File
 
 if which python >/dev/null 2>&1
@@ -408,6 +421,7 @@ then
 		:
 	    else
 		echo "Missing: \"allow $network : all;\" [access] in $PCP_SYSCONF_DIR/pmlogger/config.default"
+		echo "Use \"$ sudo -E .../qa/admin/allow-pmlc-access\" to fix this."
 	    fi
 	else
 	    echo "Warning: \"$PCP_SYSCONF_DIR/pcp/pmlogger/config.default\" is missing"

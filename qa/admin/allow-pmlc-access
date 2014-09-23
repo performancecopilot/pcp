@@ -20,10 +20,13 @@ _getnetworkaddr()
         # inet 192.168.1.222  netmask 255.255.255.0  broadcast 192.168.1.255
 	# inet addr:192.168.1.100  Bcast:192.168.1.255  Mask:255.255.255.0
 	#
+	# skip ip tunnels/vpns like
+	# inet addr:10.8.3.138  P-t-P:10.8.3.137  Mask:255.255.255.255
+	#
 	ifconfig \
 	| grep -v '[ :]127\.0\.0' \
 	| sed -n >$tmp.addr \
-	    -e '/^[ 	]*inet /{
+	    -e '/^[ 	]*inet .*cast[ :]/{
 s/^[ 	]*inet[ 	]//
 s/^addr://
 s/[ 	][ 	]*broadcast[ 	][^ 	]*//
@@ -42,6 +45,13 @@ p
 		case "$mask"
 		in
 		    255.255.255.0)	# /24 network
+			echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
+			;;
+		    # pmcd's [access] is not smart enough to handle other
+		    # than /24 networks, so map the other likely options
+		    # to the broader /24 network
+		    #
+		    255.255.255.128|255.255.255.192|255.255.255.224|255.255.255.240|255.255.255.248|255.255.255.252|255.255.255.254)
 			echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
 			;;
 		    *)

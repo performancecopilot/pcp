@@ -37,7 +37,7 @@ nss_setup_randomness
 nss_setup_collector true $qahost $hostname
 nss_setup_empty_userdb
 nss_import_cert_userdb
-nss_setup_collector true no.such.host no
+nss_setup_collector true no.such.host.pcp.io no
 
 echo "checking client, bad server certificate.  should fail DNS check..." | tee -a $seq.full
 export PCP_SECURE_SOCKETS=1

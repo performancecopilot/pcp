@@ -70,7 +70,7 @@ _cleanup()
     $sudo rm -f $tmp.*
     $sudo rm -rf $LOGGING_DIR/${myhost}-one
     $sudo rm -rf $LOGGING_DIR/${myhost}-two
-    $sudo rm -rf $LOGGING_DIR/no.such.host
+    $sudo rm -rf $LOGGING_DIR/no.such.host.pcp.io
     exit $status
 }
 
@@ -103,7 +103,7 @@ cat <<End-of-File >$tmp.tmp
 \$version=1.1
 LOCALHOSTNAME	y n $LOGGING_DIR/LOCALHOSTNAME-one -c /dev/null
 LOCALHOSTNAME	n n $LOGGING_DIR/LOCALHOSTNAME-two -c /dev/null -L
-no.such.host	n n $LOGGING_DIR/no.such.host -c /dev/null
+no.such.host.pcp.io	n n $LOGGING_DIR/no.such.host.pcp.io -c /dev/null
 End-of-File
 $sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
 
@@ -113,7 +113,7 @@ $sudo $PCP_RC_DIR/pcp stop >$tmp.out 2>&1
 cat $tmp.out >$seq.full
 $sudo mkdir -p $LOGGING_DIR/${myhost}-one >/dev/null 2>&1
 $sudo mkdir -p $LOGGING_DIR/${myhost}-two >/dev/null 2>&1
-$sudo mkdir -p $LOGGING_DIR/no.such.host >/dev/null 2>&1
+$sudo mkdir -p $LOGGING_DIR/no.such.host.pcp.io >/dev/null 2>&1
 id pcp >/dev/null 2>&1 && $sudo chown -R pcp:pcp $LOGGING_DIR
 echo "+++ before pmcd start ..." >>$seq.full
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger' >>$seq.full

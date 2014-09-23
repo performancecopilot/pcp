@@ -1576,7 +1576,7 @@ Optional Packages:
   --with-qt               enable support for tools requiring Qt (default is
                           on)
   --with-books            enable building of the PCP books (default is off)
-  --with-papi             enable performance api counter pmda (default is off)
+  --with-papi             enable performance api counter pmda (default is on)
   --with-configdir        configuration directory [LOCALSTATEDIR/pcp/config]
   --with-perl_installdirs perl installdirs [vendor]
   --with-perl_install_base
@@ -2602,7 +2602,7 @@ fi
 if test "${with_papi+set}" = set; then :
   withval=$with_papi; do_papi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-papi=$withval"
 else
-  do_papi=no
+  do_papi=check
 fi
 
 

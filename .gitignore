@@ -30,3 +30,4 @@ qrc_*.cpp
 debug
 release
 Makefile
+VERSION.pcp.daily
