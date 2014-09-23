@@ -1162,8 +1162,8 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	    if (!have_access)
 		return PM_ERR_PERMISSION;
-	    if ((entry = fetch_proc_pid_stat(inst, &proc_pid)) == NULL)
-	    	return PM_ERR_INST;
+	    if ((entry = fetch_proc_pid_stat(inst, &proc_pid, &sts)) == NULL)
+	    	return sts;
 
 	    switch (idp->item) {
 
@@ -1325,12 +1325,12 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
 	if (idp->item == PROC_PID_STATM_MAPS) {	/* proc.memory.maps */
-	    if ((entry = fetch_proc_pid_maps(inst, &proc_pid)) == NULL)
-		return PM_ERR_INST;
+	    if ((entry = fetch_proc_pid_maps(inst, &proc_pid, &sts)) == NULL)
+		return sts;
 	    atom->cp = entry->maps_buf;
 	} else {
-	    if ((entry = fetch_proc_pid_statm(inst, &proc_pid)) == NULL)
-		return PM_ERR_INST;
+	    if ((entry = fetch_proc_pid_statm(inst, &proc_pid, &sts)) == NULL)
+		return sts;
 
 	    if (idp->item <= PROC_PID_STATM_DIRTY) {
 		/* unsigned int */
@@ -1347,8 +1347,8 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_PID_SCHEDSTAT:
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
-	if ((entry = fetch_proc_pid_schedstat(inst, &proc_pid)) == NULL)
-	    return (oserror() == ENOENT) ? PM_ERR_APPVERSION : PM_ERR_INST;
+	if ((entry = fetch_proc_pid_schedstat(inst, &proc_pid, &sts)) == NULL)
+	    return sts;
 
 	if (idp->item < NR_PROC_PID_SCHED) {
 	    if ((f = _pm_getfield(entry->schedstat_buf, idp->item)) == NULL)
@@ -1370,19 +1370,8 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_PID_IO:
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
-	if ((entry = fetch_proc_pid_io(inst, &proc_pid)) == NULL) {
-	    sts = oserror();
-	    /*
-	     * map errors from open() via fetch_proc_pid_io()
-	     * ENOENT => PM_ERR_APPVERSION
-	     * EACCES => no values
-	     * otherwise return oserror()
-	     */
-	    if (sts == ENOENT) sts = PM_ERR_APPVERSION;
-	    else if (sts == EACCES) sts = 0;
-	    else sts = -sts;
+	if ((entry = fetch_proc_pid_io(inst, &proc_pid, &sts)) == NULL)
 	    return sts;
-	}
 
 	switch (idp->item) {
 
@@ -1440,8 +1429,8 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_PID_STATUS:
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
-	if ((entry = fetch_proc_pid_status(inst, &proc_pid)) == NULL)
-		return PM_ERR_INST;
+	if ((entry = fetch_proc_pid_status(inst, &proc_pid, &sts)) == NULL)
+		return sts;
 
 	switch (idp->item) {
 
@@ -1641,8 +1630,8 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_PERMISSION;
 	if (idp->item > PROC_PID_FD_COUNT)
 	    return PM_ERR_PMID;
-	if ((entry = fetch_proc_pid_fd(inst, &proc_pid)) == NULL)
-	    return PM_ERR_INST;
+	if ((entry = fetch_proc_pid_fd(inst, &proc_pid, &sts)) == NULL)
+	    return sts;
 	atom->ul = entry->fd_count;
 	break;
 
@@ -1651,13 +1640,9 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_PERMISSION;
 	if (idp->item > PROC_PID_CGROUP)
 	    return PM_ERR_PMID;
-	if ((entry = fetch_proc_pid_cgroup(inst, &proc_pid)) == NULL) {
-	    if (oserror() == ENOENT) return PM_ERR_APPVERSION;
-	    if (oserror() != ENODATA) return PM_ERR_INST;
-	    atom->cp = "";
-	} else {
-	    atom->cp = proc_strings_lookup(entry->cgroup_id);
-	}
+	if ((entry = fetch_proc_pid_cgroup(inst, &proc_pid, &sts)) == NULL)
+	    return sts;
+	atom->cp = proc_strings_lookup(entry->cgroup_id);
 	break;
 
     case CLUSTER_PID_LABEL:
@@ -1665,13 +1650,9 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_PERMISSION;
 	if (idp->item > PROC_PID_LABEL)
 	    return PM_ERR_PMID;
-	if ((entry = fetch_proc_pid_label(inst, &proc_pid)) == NULL) {
-	    if (oserror() == ENOENT) return PM_ERR_APPVERSION;
-	    if (oserror() != ENODATA) return PM_ERR_INST;
-	    atom->cp = "";
-	} else {
-	    atom->cp = proc_strings_lookup(entry->label_id);
-	}
+	if ((entry = fetch_proc_pid_label(inst, &proc_pid, &sts)) == NULL)
+	    return sts;
+	atom->cp = proc_strings_lookup(entry->label_id);
 	break;
 
     case CLUSTER_CONTROL:
