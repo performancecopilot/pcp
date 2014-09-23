@@ -168,16 +168,18 @@ dpkg?	ExtUtils::MakeMaker	[libextutils-autoinstall-perl]
 rpm?	ExtUtils::MakeMaker	[perl-ExtUtils-MakeMaker]
 dpkg?	XML::TokeParser		[libxml-tokeparser-perl]
 rpm?	XML::TokeParser		[perl-XML-TokeParser]
-Spreadsheet::Read		[libspreadsheet-read-perl(dpkg)]
+dpkg?	Spreadsheet::Read	[libspreadsheet-read-perl]
+rpm?	Spreadsheet::Read	[cpan]
 dpkg?	Spreadsheet::WriteExcel	[libspreadsheet-writeexcel-perl]
-rpm?	Spreadsheet::WriteExcel	[perl-Spreadsheet-WriteExcel]
-Spreadsheet::ReadSXC		[cpan?]
+rpm?	Spreadsheet::WriteExcel	[perl-Spreadsheet-WriteExcel or cpan]
+Spreadsheet::ReadSXC		[cpan]
 # other run-time
 sadf				[sysstat]
 # QA
 bc
 curl
-Spreadsheet::XLSX		[libspreadsheet-xlsx-perl(dpkg)]
+dpkg?	Spreadsheet::XLSX	[libspreadsheet-xlsx-perl]
+rpm?	Spreadsheet::XLSX	[cpan]
 dpkg?	Text::CSV_XS		[Text-CSV_XS]
 rpm?	Text::CSV_XS		[perl-Text-CSV_XS]
 crontab				[from vixie-cron?]

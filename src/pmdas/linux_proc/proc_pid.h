@@ -266,31 +266,31 @@ typedef struct {
 extern int refresh_proc_pid(proc_pid_t *, int, const char *);
 
 /* fetch a proc/<pid>/stat entry for pid */
-extern proc_pid_entry_t *fetch_proc_pid_stat(int, proc_pid_t *);
+extern proc_pid_entry_t *fetch_proc_pid_stat(int, proc_pid_t *, int *);
 
 /* fetch a proc/<pid>/statm entry for pid */
-extern proc_pid_entry_t *fetch_proc_pid_statm(int, proc_pid_t *);
+extern proc_pid_entry_t *fetch_proc_pid_statm(int, proc_pid_t *, int *);
 
 /* fetch a proc/<pid>/status entry for pid */
-extern proc_pid_entry_t *fetch_proc_pid_status(int, proc_pid_t *);
+extern proc_pid_entry_t *fetch_proc_pid_status(int, proc_pid_t *, int *);
 
 /* fetch a proc/<pid>/maps entry for pid */
-extern proc_pid_entry_t *fetch_proc_pid_maps(int, proc_pid_t *);
+extern proc_pid_entry_t *fetch_proc_pid_maps(int, proc_pid_t *, int *);
 
 /* fetch a proc/<pid>/schedstat entry for pid */
-extern proc_pid_entry_t *fetch_proc_pid_schedstat(int, proc_pid_t *);
+extern proc_pid_entry_t *fetch_proc_pid_schedstat(int, proc_pid_t *, int *);
 
 /* fetch a proc/<pid>/io entry for pid */
-extern proc_pid_entry_t *fetch_proc_pid_io(int, proc_pid_t *);
+extern proc_pid_entry_t *fetch_proc_pid_io(int, proc_pid_t *, int *);
 
 /* fetch a proc/<pid>/fd entry for pid */
-extern proc_pid_entry_t *fetch_proc_pid_fd(int, proc_pid_t *);
+extern proc_pid_entry_t *fetch_proc_pid_fd(int, proc_pid_t *, int *);
 
 /* fetch a proc/<pid>/cgroup entry for pid */
-extern proc_pid_entry_t *fetch_proc_pid_cgroup(int, proc_pid_t *);
+extern proc_pid_entry_t *fetch_proc_pid_cgroup(int, proc_pid_t *, int *);
 
 /* fetch a proc/<pid>/attr/current entry for pid */
-extern proc_pid_entry_t *fetch_proc_pid_label(int, proc_pid_t *);
+extern proc_pid_entry_t *fetch_proc_pid_label(int, proc_pid_t *, int *);
 
 /* extract the ith space separated field from a buffer */
 extern char *_pm_getfield(char *, int);
