@@ -1209,10 +1209,10 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     char 		*tail;
     proc_pid_t		*active_proc_pid;
 
-	int have_totals;
-	double ta, ti;
+    int have_totals;
+    double ta, ti, tt, tci;
 
-	process_t *hotnode;
+    process_t *hotnode;
 
     active_proc_pid = &proc_pid;
 
@@ -1260,7 +1260,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_HOTPROC_GLOBAL:
 
 	
-	have_totals = get_hot_totals(&ta, &ti);
+	have_totals = get_hot_totals(&ta, &ti, &tt, &tci);
 
 	switch(idp->item) {
 
@@ -1274,7 +1274,10 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			atom->ul = conf_gen;
 			break;
 		case 2: //cpuidle
-			return PM_ERR_PMID;
+			if (!have_totals)
+                	    atom->f = 0;
+	                else
+                	    atom->f = tci;
 			break;
 		case 3: //cpuburn
 			if (!have_totals)
@@ -1282,20 +1285,42 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	                else
                 	    atom->f = ta;
                 	break;
-		case 4: //transient
-			return PM_ERR_PMID;
+		case 4: //other transient
+			if (!have_totals)
+                	    atom->f = 0;
+	                else
+                	    atom->f = tt;
 			break;
-		case 5: //not_cpuburn
+		case 5: //other not_cpuburn
 			if (!have_totals)
                 	    atom->f = 0;
 	                else
                 	    atom->f = ti;
                 	break;
-		case 6: //total
-			return PM_ERR_PMID;
+		case 6: //other total
+			if (!have_totals)
+                	    atom->f = 0;
+	                else
+                	    atom->f = ti + tt;
 			break;
-		case 7: //percent
-			return PM_ERR_PMID;
+		case 7: //other percent
+		    {
+                    	double other = tt + ti;
+                    	double non_idle = other + ta;
+
+                    	/* if non_idle = 0, very unlikely,
+                     	* then the value here is meaningless
+                     	*/
+
+                     	/* Also if all the numbers are very small
+                     	 * this is not accurate
+                     	 */
+                    	
+                    	if (!have_totals || non_idle == 0)
+                      		atom->f = 0;
+                    	else
+                     		atom->f = other / non_idle * 100;
+                    }
 			break;
 
 		default:

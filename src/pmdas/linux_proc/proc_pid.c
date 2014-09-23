@@ -63,18 +63,20 @@ static int hot_numprocs[2] = {0, 0};
 static process_t *hotproc_list[2] = {NULL, NULL};
 
 /* various cpu time totals  */
-//static int num_cpus = 0;
+static int num_cpus = 0;
 static int hot_have_totals = 0;
-//static double transient;
-//static double cpuidle;
+static double hot_total_transient;
+static double hot_total_cpuidle;
 static double hot_total_active;
 static double hot_total_inactive;
 
-int get_hot_totals(double * ta, double * ti ){
+int get_hot_totals(double * ta, double * ti, double * tt, double * tci ){
 
 	if( hot_have_totals ){
 		(*ta) = hot_total_active;
 		(*ti) = hot_total_inactive;
+		(*tt) = hot_total_transient;
+		(*tci) = hot_total_cpuidle;
 		return 1;
 	}
 	else{
@@ -391,6 +393,39 @@ get_hotproc_node( pid_t pid, process_t **getnode ){
 
 }
 
+/* The idea of this is copied from linux/proc_stat.c */
+static unsigned long long
+get_idle_time(){
+
+	FILE * fp = NULL; /* kept open until exit() */
+	char *linux_statspath = "";
+
+	char fmt[64];
+	unsigned long long idle_time;
+	int n;
+	char        *envpath;
+	char buf[MAXPATHLEN];
+
+    	if ((envpath = getenv("LINUX_STATSPATH")) != NULL)
+        	linux_statspath = envpath;
+	snprintf(buf, sizeof(buf), "%s/proc/stat", linux_statspath);
+	if ((fp = fopen(buf, "r")) < 0)
+		return -oserror();
+
+    	strcpy(fmt, "cpu %*llu %*llu %*llu %llu %*llu %*llu %*llu %*llu %*llu");
+    	n = fscanf( fp, fmt, &idle_time);
+
+    	if( n != 1){
+    		idle_time = 0;
+    	}
+
+    	fprintf(stderr, "Idle time: %llu\n", idle_time);
+
+    	fclose( fp );
+
+    	return idle_time;
+}
+
 static void
 refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids);
 
@@ -421,10 +456,10 @@ hotproc_eval_procs(){
 
     /* Still need to compute some of these */
     static double refresh_time[2];  /* timestamp after refresh */
-    //static time_t sysidle[2];       /* sys idle from sysmp */
-    //double sysidle_delta;           /* system idle delta time since last refresh */
+    static time_t sysidle[2];       /* sys idle from /proc/stat */
+    double sysidle_delta;           /* system idle delta time since last refresh */
     double actual_delta;            /* actual delta time since last refresh */
-    //double transient_delta;         /* calculated delta time of transient procs */
+    double transient_delta;         /* calculated delta time of transient procs */
     double cputime_delta;           /* delta cpu time for a process */
     //double syscalls_delta;          /* delta num of syscalls for a process */
     //double vctx_delta;              /* delta num of valid ctx switches for a process */
@@ -444,9 +479,10 @@ hotproc_eval_procs(){
 
     static long         hz = -1;
 
-    if (hz == -1)
+    if (hz == -1){
         hz = sysconf(_SC_CLK_TCK);
-
+        num_cpus = sysconf(_SC_NPROCESSORS_ONLN);
+    }
 
     if (current == 0) {
         current = 1; previous = 0;
@@ -528,8 +564,6 @@ hotproc_eval_procs(){
 	newnode->r_cputime      += (double)ul / (double)hz;
 
         newnode->r_cputimestamp = p_timestamp.tv_sec + p_timestamp.tv_usec / 1000000;
-
-
 
 	//Context Switches : vol and invol Not in PMDA yet
 		
@@ -697,22 +731,24 @@ hotproc_eval_procs(){
 
     //fprintf(stderr, "Hotproc Update took %f time\n", hptime);
 
+    /* Idle */
+    sysidle[current] = get_idle_time();
+
     //Handle rollover
     hot_refresh_count++;
     if (hot_refresh_count == 0)
         hot_refresh_count = 2;
 
     if (hot_refresh_count > 1 ) {
-        // Don''t have this yet.  Need it from linux pmda or /proc/stat 4th value
-        //sysidle_delta = DiffCounter(sysidle[current], sysidle[previous], SYSIDLE_PMTYPE) / (double)HZ;
+        sysidle_delta = DiffCounter(sysidle[current], sysidle[previous], PM_TYPE_64) / (double)HZ;
         actual_delta = DiffCounter(refresh_time[current], refresh_time[previous], PM_TYPE_64);
-        //transient_delta = num_cpus * actual_delta - (total_cputime + sysidle_delta);
-        //if (transient_delta < 0) /* sysidle is only accurate to 0.01 second */
-         //   transient_delta = 0;
+        transient_delta = num_cpus * actual_delta - (total_cputime + sysidle_delta);
+        if (transient_delta < 0) /* sanity check */
+            transient_delta = 0;
 
         hot_have_totals = 1;
-        //transient = transient_delta / actual_delta;
-        //cpuidle = sysidle_delta / actual_delta;
+        hot_total_transient = transient_delta / actual_delta;
+        hot_total_cpuidle = sysidle_delta / actual_delta;
         hot_total_active = total_activetime / actual_delta;
         hot_total_inactive = total_inactivetime / actual_delta;
     }

@@ -270,7 +270,7 @@ extern int refresh_proc_pid(proc_pid_t *, int, const char *);
 
 extern int refresh_hotproc_pid(proc_pid_t *, int, const char *);
 
-extern int get_hot_totals(double * ta, double * ti );
+extern int get_hot_totals(double * ta, double * ti, double * tt, double * tci );
 
 extern int get_hotproc_node( pid_t pid, process_t **getnode );
 
