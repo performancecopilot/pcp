@@ -721,6 +721,16 @@ papi_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 }
 
 static int
+check_event_exists(unsigned int event)
+{
+    int retval = 0;
+    retval = PAPI_query_event(event);
+    if (retval != PAPI_OK && pmDebug & DBG_TRACE_APPL0)
+	__pmNotifyErr(LOG_DEBUG, "event not found on this hardware, skipping\n");
+    return retval;
+}
+
+static int
 remove_metric(int event)
 {
     int retval = 0;
@@ -728,10 +738,8 @@ remove_metric(int event)
     int i;
     int position = papi_info[event].position;
 
-    retval = PAPI_query_event(papi_info[event].papi_event_code);
-    if (retval != PAPI_OK){
-	if (pmDebug & DBG_TRACE_APPL0)
-	    __pmNotifyErr(LOG_DEBUG, "event not found on this hardware, skipping\n");
+    retval = check_event_exists(papi_info[event].papi_event_code);
+    if (retval != PAPI_OK)
 	return retval;
 
     /* check to make sure papi is running, otherwise do nothing */
@@ -763,14 +771,8 @@ remove_metric(int event)
 	if (retval != PAPI_OK)
 	    return retval;
 
-	// run through all metrics and adjust position variable as needed
-	for (i = 0; i < number_of_events; i++) {
-	    // set event we're removing position to -1
-	    if (papi_info[i].position == position) {
-		papi_info[i].prev_value = 0;
-		papi_info[i].position = -1;
-	    }
-	}
+	papi_info[event].prev_value = 0;
+	papi_info[event].position = -1;
 
 	for (i = 0; i < number_of_events; i++) {
 
