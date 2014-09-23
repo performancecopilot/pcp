@@ -1341,7 +1341,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
                         return PM_ERR_PMID;
                         break;
                 case 1: //ctxswitch
-                        return PM_ERR_PMID;
+                        atom->f = hotnode->preds.ctxswitch;
                         break;
                 case 2: //virtualsize
 			atom->ul = hotnode->preds.virtualsize;
@@ -1353,7 +1353,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			atom->f = hotnode->preds.iodemand;
                         break;
                 case 5: //iowait
-                        return PM_ERR_PMID;
+                        atom->f = hotnode->preds.iowait;
                         break;
                 case 6: //schedwait
                         return PM_ERR_PMID;

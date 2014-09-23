@@ -23,7 +23,7 @@
 
 typedef struct {
 	//double  syscalls;
-	//double  ctxswitch;
+	double  ctxswitch;
 	double  virtualsize;
 	double  residentsize;
 	double  iodemand;

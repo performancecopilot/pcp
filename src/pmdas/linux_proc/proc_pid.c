@@ -462,13 +462,13 @@ hotproc_eval_procs(){
     double transient_delta;         /* calculated delta time of transient procs */
     double cputime_delta;           /* delta cpu time for a process */
     //double syscalls_delta;          /* delta num of syscalls for a process */
-    //double vctx_delta;              /* delta num of valid ctx switches for a process */
-    //double ictx_delta;              /* delta num of invalid ctx switches for a process */
+    double vctx_delta;              /* delta num of valid ctx switches for a process */
+    double ictx_delta;              /* delta num of invalid ctx switches for a process */
     double bread_delta;             /* delta num of bytes read */
     //double gbread_delta;            /* delta num of gigabytes read */
     double bwrit_delta;             /* delta num of bytes written */
     //double gbwrit_delta;            /* delta num of gigabytes written */
-    //double bwtime_delta;            /* delta num of nanosesc for waiting for blocked io */
+    double bwtime_delta;            /* delta num of nanosesc for waiting for blocked io */
     //double rwtime_delta;            /* delta num of nanosesc for waiting for raw io */
     //double qwtime_delta;            /* delta num of nanosesc waiting on run queue */
     double timestamp_delta;         /* real time delta b/w refreshes for process */
@@ -565,12 +565,17 @@ hotproc_eval_procs(){
 
         newnode->r_cputimestamp = p_timestamp.tv_sec + p_timestamp.tv_usec / 1000000;
 
-	//Context Switches : vol and invol Not in PMDA yet
-		
-	//newnode->r_vctx = ;
-        //newnode->r_ictx = ;
+	/* Context Switches : vol and invol */
+	
+        if ((f = _pm_getfield(statusentry->status_lines.vctxsw, 1)) == NULL)
+	    newnode->r_vctx = 0;
+	else
+	    newnode->r_vctx = (__uint32_t)strtoul(f, &tail, 0);
 
-
+	if ((f = _pm_getfield(statusentry->status_lines.nvctxsw, 1)) == NULL)
+	    newnode->r_ictx = 0;
+	else
+	    newnode->r_ictx = (__uint32_t)strtoul(f, &tail, 0);
 
 	/* IO demand */
 	/* Read */
@@ -591,11 +596,15 @@ hotproc_eval_procs(){
 		
 	newnode->r_bwrit = ull;
 	
+	/* Block IO wait (delayacct_blkio_ticks) */
 
+	if ((f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_DELAYACCT_BLKIO_TICKS - 3)) == NULL)  /* Note the offset */
+		ul = 0;
+	else
+		ul = (__uint32_t)strtoul(f, &tail, 0);
+		
+	newnode->r_bwtime = (double)ul / hz;
 
-	// IO wait, not in pmda yet , use delayacct_blkio_ticks?
-
-	
 	/* This is not the first time through, so we can generate rate stats */
 	if ((oldnode = lookup_node(previous, pid)) != NULL) {
 
@@ -617,14 +626,29 @@ hotproc_eval_procs(){
                                  (double)bread_delta  +
                                  (double)bwrit_delta ) /
                                 timestamp_delta;
+
+                /* ctx switches */
+                vctx_delta = DiffCounter((double)newnode->r_vctx,
+                                    (double)oldnode->r_vctx, PM_TYPE_64);
+                ictx_delta = DiffCounter((double)newnode->r_ictx,
+                                    (double)oldnode->r_ictx, PM_TYPE_64);
+                vars.preds.ctxswitch = (vctx_delta + ictx_delta) / timestamp_delta;
+
+                /* IO wait */
+                bwtime_delta = DiffCounter((double)newnode->r_bwtime,
+                                    (double)oldnode->r_bwtime, PM_TYPE_64);
+                
+                vars.preds.iowait = bwtime_delta / timestamp_delta;
+
+
 	}
         else {
         	newnode->r_cpuburn = 0;
         	bzero(&newnode->preds, sizeof(newnode->preds));
         	vars.cpuburn = 0;
         	//vars.preds.syscalls = 0;
-        	//vars.preds.ctxswitch = 0;
-        	//vars.preds.iowait = 0;
+        	vars.preds.ctxswitch = 0;
+        	vars.preds.iowait = 0;
         	//vars.preds.schedwait = 0;
         	vars.preds.iodemand = 0;
         	cputime_delta = 0;

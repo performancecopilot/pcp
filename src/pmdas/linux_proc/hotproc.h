@@ -26,8 +26,8 @@ typedef struct process_t {
     pid_t pid;
 
     /* refreshed data */
-    //ulong_t r_vctx;
-    //ulong_t r_ictx;
+    unsigned long r_vctx;
+    unsigned long r_ictx;
     //ulong_t r_syscalls;
     unsigned long long r_bread;
     //ulong_t r_gbread;
@@ -38,7 +38,7 @@ typedef struct process_t {
     double r_cputimestamp;
     double r_cputime;
 
-    //accum_t r_bwtime;
+    unsigned long long r_bwtime;
     //accum_t r_rwtime;
     //accum_t r_qwtime;
 
