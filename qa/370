@@ -29,7 +29,7 @@ file_version=$version
 case "$version"
 in
     9.0.4*)	# RHEL6
-	eval `pmprobe -v kernel.uname.distro | sed -e 's/ 1 /distro=/g'`
+	eval `pmprobe -v kernel.uname.distro | sed -e 's/.*distro 1 /distro=/g'`
 	case "$distro"
 	in
 	    *6.5*)
