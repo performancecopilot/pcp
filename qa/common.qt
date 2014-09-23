@@ -15,5 +15,5 @@ export DISPLAY=$PCPQA_CLOSE_X_SERVER
 #
 if which dbus-launch >/dev/null 2>&1
 then
-    eval `dbus-launch | grep 'BUS_ADDRESS='`
+    eval `dbus-launch 2>/dev/null | grep 'BUS_ADDRESS='`
 fi
