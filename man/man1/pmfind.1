@@ -20,6 +20,8 @@
 [\f3\-q\f1]
 [\f3\-m\f1 \f2mechanism\f1]
 [\f3\-s\f1 \f2service\f1]
+[\f3\-r\f1]
+[\f3\-t\f1 \f2timeout\f1]
 .SH DESCRIPTION
 .B pmfind
 searches for instances of the specified PCP service being advertised on the
@@ -58,9 +60,22 @@ network address and <mask-bits> is the number of bits used to define the
 subnet. For example, 192.168.1.0/24 defines an 8 bit subnet consisting of the
 addresses 192.168.1.0 through 192.168.1.255.
 An optional suffix \fB",maxThreads=N"\fP may be added to limit the number of
-threads used while probing. The default is no fixed limit, which is to say that
-the process' rlimits for the number of threads and open file descriptors
-will be respected.
+threads used while probing. The default is the value of FD_SETSIZE or the
+number of addresses in the subnet, whichever is less.
+.PP
+The
+.B \-r
+option requests that DNS name resolution be attempted for the addresses of any
+discovered services. The default is to display the network addresses of any
+discovered services.
+.PP
+The
+.B \-t
+option sets the maximum amount of time that
+.B pmfind
+will take before interrupting the service discovery. The argument is a floating
+point number representing the number of seconds before timing out. The default
+is to take as much time as is needed to complete the process.
 .PP
 The
 .B \-q

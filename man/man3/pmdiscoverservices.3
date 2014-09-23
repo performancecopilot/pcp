@@ -24,6 +24,12 @@
 int pmDiscoverServices(const char *\fIservice\fP, const char *\fImechanism\fP, char ***\fIurls\fP);
 .fi
 .sp
+#include <pcp/impl.h>
+.sp
+.nf
+int __pmDiscoverServicesWithOptions(const char *\fIservice\fP, const char *\fImechanism\fP, const char *\fIoptionsString\fP, const volatile unsigned *\fIflags\fP, char ***\fIurls\fP);
+.fi
+.sp
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
@@ -39,6 +45,23 @@ and using the type of discovery optionally specified in
 returns, via
 .IR urls ,
 a list of URLs representing the services discovered on the network.
+.PP 
+The internal function
+.B __pmDiscoverServicesWithOptions
+performs the same function and adds arguments for global options and a mechanism
+for interrupting the discovery process.
+.PP
+The
+.BR pmfind (1)
+utility provides command line access to both of these interfaces.
+.PP
+Calling
+.sp
+pmDiscoverServices(\fIservice\fP, \fImechanism\fP, \fIurls\fP)
+.sp
+is equivalent to calling
+.sp
+__pmDiscoverServicesWithOptions(\fIservice\fP, \fImechanism\fP, NULL, NULL, \fIurls\fP);
 .PP 
 .I service
 specifies the PCP service to be discovered. Currently supported services are
@@ -61,7 +84,7 @@ The currently supported mechanisms are:
 .B avahi
 This searches for services which are broadcasting using mDNS via
 .BR avahi-daemon (8).
-An optional suffix \fB",timeout=NNNN"\fP may be added
+An optional suffix \fB",timeout=N"\fP may be added
 to specify the discovery timeout in floating-point multiples of one
 second.  The default timeout is 0.5 seconds, which may be overridden
 by the \fBAVAHI_DISCOVERY_TIMEOUT\fP environment variable, also
@@ -76,14 +99,54 @@ addresses 192.168.1.0 through 192.168.1.255.
 An optional suffix \fB",maxThreads=N"\fP may be added to limit the number of
 threads used while probing. The default is no fixed limit, which is to say that
 the process' rlimits for the number of threads and open file descriptors
-will be respected. An optional suffix \fB",timeout=NNNN"\fP may be added
+will be respected. An optional suffix \fB",timeout=N"\fP may be added
 to specify the timeout for each connection attempt in floating-point multiples
 of one second.  The default timeout is 20 milliseconds.
 .PP
 .IR mechanism
 may also be NULL, which means to use all available discovery mechanisms.
 .PP 
+For
+.B __pmDiscoverServicesWithOptions,
+.IR optionsString
+specifies global options to be applied to the discover process. Options are
+comma-separated and may be one or more of the following:
+.TP
+.B resolve
+This requests that DNS name resolution be attempted for the addresses of any
+discovered services.
+.TP
+.B timeout=N
+This specifies a timeout period after which the discover process will be
+interrupted. N is a floating point number representing the number of seconds
+before timing out.
+.PP
+.IR optionsString
+may also be NULL, which means that no global options are specified.
+.PP 
+For
+.B __pmDiscoverServicesWithOptions,
+.IR flags
+specifies a pointer to an object of type \fIunsigned\fR which is a bit mask of
+options/status flags for the discovery process. The only current supported
+flags are:
+.TP
+.B PM_SERVICE_DISCOVERY_RESOLVE
+Specifying this flag is equivalent to specifying \fIresolve\fR in the
+\fIoptionsString\fR
+.TP
+.B PM_SERVICE_DISCOVERY_INTERRUPTED
+This flag must be unset when calling
+.B __pmDiscoverServicesWithOptions
+but may be set asynchronously (by an interrupt handler, for example) in order
+to interrupt the service discovery process.
+.PP
+.IR flags
+may also be NULL, which indicates that no flags are set.
+.PP 
 .B pmDiscoverServices
+and
+.B __pmDiscoverServicesWithOptions
 will return the number of services discovered, else a value
 less than zero for an error.
 The value zero indicates that no services were discovered.
@@ -95,11 +158,15 @@ the values
 (the URLs) that the pointers reference will have been
 allocated by
 .B pmDiscoverServices
+or
+.B __pmDiscoverServicesWithOptions
 with a single call to
 .BR malloc (3C),
 and it is the
 responsibility of the
 .B pmDiscoverServices
+or
+.B __pmDiscoverServicesWithOptions
 caller to
 .BR free (\c
 .IR urls )
