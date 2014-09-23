@@ -134,7 +134,7 @@ sub ds389_fetch_callback {
 	return ($value->[1], 1);
 }
 
-$pmda = PCP::PMDA->new('ds389', 137);
+$pmda = PCP::PMDA->new('ds389', 130);
 
 # Metrics available on 389 DS 1.3.2.23
 
