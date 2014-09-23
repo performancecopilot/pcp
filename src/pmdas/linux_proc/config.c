@@ -80,7 +80,8 @@ parse_config(bool_node **tree)
 {
     int sts;
     FILE *file = NULL;
-    char *fname;
+    char tmpname[] = "/var/tmp/pcp.XXXXXX";
+    int fid = -1;
     struct stat stat_buf;
     long size;
     char *ptr;
@@ -91,17 +92,17 @@ parse_config(bool_node **tree)
     }
 
     /* --- dump to tmp file & read to buffer --- */
-    if ((fname = tmpnam(NULL)) == NULL ||
-	(file = fopen(fname, "w+")) == NULL) {
+    if ((fid = mkstemp(tmpname)) == -1 ||
+	(file = fdopen(fid, "w+")) == NULL) {
 	sts = -oserror();
 	fprintf(stderr, "%s: parse_config: failed to create \"%s\": %s\n",
-	    pmProgname, fname, strerror(-sts));
+	    pmProgname, tmpname, strerror(-sts));
 	goto error;
     }
-    if (unlink(fname) == -1) {
+    if (unlink(tmpname) == -1) {
 	sts = -oserror();
 	fprintf(stderr, "%s: parse_config: failed to unlink \"%s\": %s\n",
-	    pmProgname, fname, strerror(-sts));
+	    pmProgname, tmpname, strerror(-sts));
 	goto error;
     }
     dump_predicate(file, *tree);
@@ -109,7 +110,7 @@ parse_config(bool_node **tree)
     if (fstat(fileno(file), &stat_buf) < 0) {
 	sts = -oserror();
 	fprintf(stderr, "%s: parse_config: failed to stat \"%s\": %s\n",
-	    pmProgname, fname, strerror(-sts));
+	    pmProgname, tmpname, strerror(-sts));
 	goto error;
     }
     size = (long)stat_buf.st_size;
@@ -124,7 +125,7 @@ parse_config(bool_node **tree)
     if (fread(ptr, size, 1, file) != 1) {
 	clearerr(file);
 	fprintf(stderr, "%s: parse_config: failed to fread \"%s\"\n",
-	    pmProgname, fname);
+	    pmProgname, tmpname);
 	sts = -1;
 	goto error;
     }
