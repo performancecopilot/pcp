@@ -520,9 +520,9 @@ hotproc_eval_procs(){
 
 	/* (Ab)use existing functions */
 
-	statentry = fetch_proc_pid_stat(pid, &hotproc_poss_pid);
-	statusentry = fetch_proc_pid_status(pid, &hotproc_poss_pid);
-	ioentry = fetch_proc_pid_io(pid, &hotproc_poss_pid);
+	statentry = fetch_proc_pid_stat(pid, &hotproc_poss_pid, &sts);
+	statusentry = fetch_proc_pid_status(pid, &hotproc_poss_pid, &sts);
+	ioentry = fetch_proc_pid_io(pid, &hotproc_poss_pid, &sts);
 
 	if( statentry == NULL || statusentry == NULL || ioentry == NULL){
 		/* Can happen if the process was exiting during refresh_proc_pidlist
