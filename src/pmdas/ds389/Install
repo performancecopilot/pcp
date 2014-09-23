@@ -17,11 +17,15 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=ds389
-pmda_interface=2
-dso_opt=false
-daemon_opt=false
 perl_opt=true
-socket_opt=false
+daemon_opt=false
+forced_restart=false
+
+perl -e "use Net::LDAP" 2>/dev/null
+if test $? -ne 0; then
+    echo "Net::LDAP Perl module is not installed"
+    exit 1
+fi
 
 pmdaSetup
 pmdaInstall
