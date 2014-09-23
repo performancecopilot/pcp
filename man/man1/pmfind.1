@@ -52,6 +52,13 @@ mechanism will be used (iteratively). Supported mechanisms are:
 .B avahi
 Searches for services which are broadcasting using mDNS via
 .BR avahi-daemon(8).
+An optional suffix \fB",timeout=N"\fP may be added to limit the amount of
+time waiting for the avahi-daemon. N is a floating point number
+specifying the number of seconds to wait. The default is 0.5 seconds.
+This timeout may also be specified by setting the environment variable
+.B AVAHI_DISCOVERY_TIMEOUT
+to the desired number of seconds. If both are specified, then
+the value specified in the environment variable takes precedence.
 .TP
 .B probe=<net-address>/<mask-bits>
 Actively probes the given subnet for the requested PCP service(s).
@@ -62,6 +69,9 @@ addresses 192.168.1.0 through 192.168.1.255.
 An optional suffix \fB",maxThreads=N"\fP may be added to limit the number of
 threads used while probing. The default is the value of FD_SETSIZE or the
 number of addresses in the subnet, whichever is less.
+An optional suffix \fB",timeout=N"\fP may be added to limit the amount of
+time waiting for each connection attempt. N is a floating point number
+specifying the number of seconds to wait. The default is 20ms.
 .PP
 The
 .B \-r
