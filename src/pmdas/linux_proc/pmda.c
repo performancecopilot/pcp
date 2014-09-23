@@ -296,6 +296,31 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_PID_STAT,41), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
+/* proc.psinfo.rt_priority */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STAT,42), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* proc.psinfo.policy */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STAT,43), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* proc.psinfo.delayacct_blkio_ticks */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STAT,44), PM_TYPE_U32, PROC_INDOM, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
+
+/* proc.psinfo.guest_time */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STAT,45), PM_TYPE_U32, PROC_INDOM, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
+
+/* proc.psinfo.cguest_time */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STAT,46), PM_TYPE_U32, PROC_INDOM, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
+
 /*
  * proc/<pid>/status cluster
  * Cluster added by Mike Mason <mmlnx@us.ibm.com>
@@ -444,6 +469,16 @@ static pmdaMetric metrictab[] = {
 /* proc.psinfo.threads */
   { NULL,
     { PMDA_PMID(CLUSTER_PID_STATUS,28), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* proc.psinfo.vctxsw */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS,29), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* proc.psinfo.nvctxsw */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS,30), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.psinfo.cgroups */
@@ -1249,6 +1284,27 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		}
 		break;
 
+	    /* The following 2 case groups need to be here since the #defines don't match the index into the buffer */
+	    case PROC_PID_STAT_RTPRIORITY:
+	    case PROC_PID_STAT_POLICY:
+	    	if ((f = _pm_getfield(entry->stat_buf, idp->item - 3)) == NULL) /* Note the offset */
+		    	return PM_ERR_INST;
+		    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+	    	break;
+
+	    case PROC_PID_STAT_DELAYACCT_BLKIO_TICKS:
+	    case PROC_PID_STAT_GUEST_TIME:
+	    case PROC_PID_STAT_CGUEST_TIME:
+	    	/*
+		 * unsigned jiffies converted to unsigned milliseconds
+		 */
+		if ((f = _pm_getfield(entry->stat_buf, idp->item - 3)) == NULL)  /* Note the offset */
+		    return PM_ERR_INST;
+
+		ul = (__uint32_t)strtoul(f, &tail, 0);
+		_pm_assign_ulong(atom, 1000 * (double)ul / hz);
+	    	break;
+
 	    default:
 		/*
 		 * unsigned decimal int
@@ -1514,6 +1570,20 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	case PROC_PID_STATUS_THREADS:
 	if ((f = _pm_getfield(entry->status_lines.threads, 1)) == NULL)
+	    atom->ul = 0;
+	else
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+	break;
+
+	case PROC_PID_STATUS_VCTXSW:
+	if ((f = _pm_getfield(entry->status_lines.vctxsw, 1)) == NULL)
+	    atom->ul = 0;
+	else
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+	break;
+
+	case PROC_PID_STATUS_NVCTXSW:
+	if ((f = _pm_getfield(entry->status_lines.nvctxsw, 1)) == NULL)
 	    atom->ul = 0;
 	else
 	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);

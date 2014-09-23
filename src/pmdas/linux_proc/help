@@ -76,6 +76,11 @@
 @ proc.psinfo.exit_signal the value in the exit_signal field of struct task_struct for the process
 @ proc.psinfo.ttyname name of controlling tty device, or "?" if none. See also proc.psinfo.tty.
 @ proc.psinfo.processor last CPU the process was running on
+@ proc.psinfo.rt_priority Real-time  scheduling  priority, a number in the range 1 to 99
+@ proc.psinfo.policy Scheduling policy
+@ proc.psinfo.delayacct_blkio_ticks Aggregated block I/O delays
+@ proc.psinfo.guest_time Guest time of the process (time spent running a virtual CPU for a guest operating system)
+@ proc.psinfo.cguest_time Guest time of the process’s children
 @ proc.psinfo.wchan_s name of an event for which the process is sleeping (if blank, the process is running).
 This field needs access to a namelist file for proper 
 address-to-symbol name translation. If no namelist file
@@ -92,6 +97,8 @@ The search path for the namelist file is as follows:
 @ proc.psinfo.sigignore_s ignored signals mask in string form (from /proc/<pid>/status)
 @ proc.psinfo.sigcatch_s caught signals mask in string form (from /proc/<pid>/status)
 @ proc.psinfo.threads number of threads (from /proc/<pid>/status)
+@ proc.psinfo.vctxsw number of voluntary context switches (from /proc/<pid>/status)
+@ proc.psinfo.nvctxsw number of non-voluntary context switches (from /proc/<pid>/status)
 @ proc.psinfo.cgroups list of processes cgroups (from /proc/<pid>/cgroup)
 @ proc.psinfo.labels list of processes security labels (from /proc/<pid>/attr/current)
 @ proc.memory.size instantaneous virtual size of process, excluding page table and task structure.
