@@ -306,7 +306,7 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_PID_STAT,43), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
-/* proc.psinfo.delayacct_blkio_ticks */
+/* proc.psinfo.delayacct_blkio_time */
   { NULL,
     { PMDA_PMID(CLUSTER_PID_STAT,44), PM_TYPE_U32, PROC_INDOM, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
