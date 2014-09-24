@@ -57,6 +57,8 @@ static unsigned int number_of_active_counters;
 static unsigned int size_of_active_counters;
 static unsigned int number_of_events;
 
+static char helppath[MAXPATHLEN];
+
 static void
 set_pmns_position(unsigned int i)
 {
@@ -1420,12 +1422,11 @@ papi_init(pmdaInterface *dp)
     int sts;
 
     if (isDSO) {
-	char     mypath[MAXPATHLEN];
 	int	sep = __pmPathSeparator();
 
-	snprintf(mypath, sizeof(mypath), "%s%c" "papi" "%c" "help",
+	snprintf(helppath, sizeof(helppath), "%s%c" "papi" "%c" "help",
 		 pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-	pmdaDSO(dp, PMDA_INTERFACE_6, "papi DSO", mypath);
+	pmdaDSO(dp, PMDA_INTERFACE_6, "papi DSO", helppath);
     }
 
     if (dp->status != 0)
@@ -1470,7 +1471,6 @@ main(int argc, char **argv)
 {
     int sep = __pmPathSeparator();
     pmdaInterface dispatch;
-    char helppath[MAXPATHLEN];
 
     isDSO = 0;
     __pmSetProgname(argv[0]);
