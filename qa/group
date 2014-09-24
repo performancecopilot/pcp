@@ -147,6 +147,7 @@ pmda.install
 pmda.apache
 pmda.cisco
 pmda.dmcache
+pmda.ds389
 pmda.environ
 pmda.gfs2
 pmda.hotproc
@@ -946,6 +947,7 @@ avahi
 822:reserved pmlogrewrite
 823 pmda.sample pmstore secure local
 824 pmlogsummary local #1132476
+825 pmda.ds389 local
 827 pmlogrewrite pmda.linux local
 828 valgrind archive context local
 829 python local

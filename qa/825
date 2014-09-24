@@ -1,0 +1,106 @@
+#!/bin/sh
+# PCP QA Test No. 825
+# Exercise the DS389 PMDA - install, remove and values.
+#
+# Setup: install 389-ds-base and perl-LDAP packages, then
+# run setup-ds.pl and follow the prompts.  Currently this
+# test assumes local ds389 server with default everything
+# and bind password as set in $passwd below.
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+$PCP_BINADM_DIR/telnet-probe -c localhost 389 || \
+    _notrun "Noones home on the default DS 389 port"
+
+server=localhost
+passwd=password
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+
+pmdads389_remove()
+{
+    echo
+    echo "=== remove ds389 agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+pmdads389_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/ds389
+    $sudo ./Remove >/dev/null 2>&1
+    $sudo $PCP_RC_DIR/pmcd stop
+
+    cat <<EOF >$tmp.config
+\$server = '$server';
+\$bindpw = '$passwd';
+EOF
+    echo "pmdads389 config:" >> $here/$seq.full
+    cat $tmp.config >> $here/$seq.full
+
+    [ -f $PCP_PMDAS_DIR/ds389/ds389.conf ] && \
+    $sudo cp $PCP_PMDAS_DIR/ds389/ds389.conf $tmp.backup
+    $sudo cp $tmp.config $PCP_PMDAS_DIR/ds389/ds389.conf
+
+    echo
+    echo "=== ds389 agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    # Check metrics have appeared ... W warnings, N metrics and V values
+    # (expecting warnings from the not-supported-in-this-version metrics)
+    _filter_pmda_install <$tmp.out \
+    | sed \
+        -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+    | $PCP_AWK_PROG '
+/Check ds389 metrics have appeared/  { if ($7 >= 0 && $7 <= 20) $7 = "W"
+                                       if ($9 >= 25 && $9 <= 75) $9 = "N"
+                                       if ($12 >= 25 && $12 <= 75) $12 = "V"
+                                     }
+                                     { print }'
+}
+
+pmdads389_cleanup()
+{
+    if [ -f $tmp.backup ]; then
+        $sudo cp $tmp.backup $PCP_PMDAS_DIR/ds389/ds389.conf
+        $sudo rm $tmp.backup
+    else
+        $sudo rm -f $PCP_PMDAS_DIR/ds389/ds389.conf
+    fi
+    _cleanup_pmda ds389
+}
+
+_prepare_pmda ds389
+trap "pmdads389_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    # squash "not supported" warnings, turn values into VALUE
+    LC_COLLATE=POSIX sort -n | \
+    sed \
+	-e 's/ -12350 .*$/ 1 VALUE/g' \
+	-e 's/ 1 [0-9][0-9]*$/ 1 VALUE/g' \
+	-e 's/ 1 -1/ 1 VALUE/g' \
+    # end
+}
+
+# real QA test starts here
+pmdads389_install
+
+echo
+echo "=== extract metric values ==="
+pmprobe -v ds389 2>&1 | $sudo tee -a $seq.full | _filter
+
+pmdads389_remove
+# success, all done
+status=0
+exit
