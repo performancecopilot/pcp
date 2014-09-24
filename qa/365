@@ -103,9 +103,9 @@ fi
 cat <<End-of-File >>$tmp.tmp
 
 [access]
-allow not.a.real.host.pcp.io : all;
+allow no.such.host.pcp.io : all;
 allow nohost.engr.sgi.com, $qahost : all;
-allow $other1, not.a.real.host.pcp.io, localhost : fetch;
+allow $other1, no.such.host.pcp.io, localhost : fetch;
 allow localhost, $other2, nohost.melbourne.sgi.com : store;
 allow "local:" , "unix:" : all;
 End-of-File
