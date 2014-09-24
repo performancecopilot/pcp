@@ -3,6 +3,10 @@
 # Copyright (c) 2014 Red Hat.
 #
 
+. ./common.product
+. ./common.filter
+. ./common.check
+
 _filter_discovery_sought()
 {
     # Only pmcd is guaranteed to be running, but other services may also be.
@@ -61,4 +65,13 @@ _filter_discovery_unresolvable()
 	# Keep this line
 	echo $line
     done
+}
+
+_control_service_discovery()
+{
+    # Stop any peripheral long-running PCP services (anything not pmcd)
+    # that might be advertising on the network, potentially interfering
+    # with a test.  List of services here should match PM_SERVER_*_SPEC
+    # from <pcp/pmapi.h> (all except PM_SERVER_SERVICE_SPEC)
+    $sudo $PCP_BINADM_DIR/pmsignal -a pmproxy pmwebd
 }

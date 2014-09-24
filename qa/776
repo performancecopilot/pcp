@@ -10,15 +10,10 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.discovery
 
 _get_libpcp_config
 $service_discovery || _notrun "No support for service discovery"
-
-signal=$PCP_BINADM_DIR/pmsignal
-$sudo $signal -a pmproxy pmwebd
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
@@ -58,6 +53,7 @@ _resolved_filter()
 }
 
 # real QA test starts here
+_control_service_discovery
 
 # Obtain the ipv6 address of an active network interface
 # We're extracting a metric of the form:
