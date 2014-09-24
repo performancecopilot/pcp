@@ -38,7 +38,7 @@ then
     :
 else
     cd $PCP_PMDAS_DIR/nvidia
-    sudo newhelp -n root help >$tmp.out 2>&1
+    $sudo $PCP_BINADM_DIR/newhelp -n root help >$tmp.out 2>&1
     if [ -f $PCP_PMDAS_DIR/nvidia/help.dir ]
     then
 	:
