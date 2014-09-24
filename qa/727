@@ -10,6 +10,7 @@ echo "QA output created by $seq"
 
 . ./common.avahi
 avahi_notrun_checks
+[ -x $PCP_RC_DIR/pmwebd ] || _notrun "PCP web services not installed"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
