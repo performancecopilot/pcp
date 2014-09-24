@@ -64,7 +64,7 @@ build-me: domain.h $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 domain.h help help.dir help.pag root root_proc $(PMDADIR)
+	$(INSTALL) -m 644 domain.h help help.dir help.pag root root_proc hotproc.conf $(PMDADIR)
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 root_proc $(PCP_VAR_DIR)/pmns/root_proc
 	$(INSTALL) -m 644 linux_proc_migrate.conf $(PCP_VAR_DIR)/config/pmlogrewrite/linux_proc_migrate.conf
