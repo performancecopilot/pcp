@@ -1,0 +1,57 @@
+QA output created by 825
+Waiting for pmcd to terminate ...
+
+=== ds389 agent installation ===
+You will need to choose an appropriate configuration for installation of
+the "ds389" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Starting pmcd ... 
+Starting pmlogger ... 
+Check ds389 metrics have appeared ... W warnings, N metrics and V values
+
+=== extract metric values ===
+ds389.cn.bytessent 1 VALUE
+ds389.cn.currentconnections 1 VALUE
+ds389.cn.currentconnectionsatmaxthreads 1 VALUE
+ds389.cn.dtablesize 1 VALUE
+ds389.cn.entriessent 1 VALUE
+ds389.cn.maxthreadsperconnhits 1 VALUE
+ds389.cn.opscompleted 1 VALUE
+ds389.cn.opsinitiated 1 VALUE
+ds389.cn.readwaiters 1 VALUE
+ds389.cn.threads 1 VALUE
+ds389.cn.totalconnections 1 VALUE
+ds389.cn.uptime 1 VALUE
+ds389.userroot.currentdncachecount 1 VALUE
+ds389.userroot.currentdncachesize 1 VALUE
+ds389.userroot.currententrycachecount 1 VALUE
+ds389.userroot.currententrycachesize 1 VALUE
+ds389.userroot.dncachehitratio 1 VALUE
+ds389.userroot.dncachehits 1 VALUE
+ds389.userroot.dncachetries 1 VALUE
+ds389.userroot.entrycachehitratio 1 VALUE
+ds389.userroot.entrycachehits 1 VALUE
+ds389.userroot.entrycachetries 1 VALUE
+ds389.userroot.maxdncachecount 1 VALUE
+ds389.userroot.maxdncachesize 1 VALUE
+ds389.userroot.maxentrycachecount 1 VALUE
+ds389.userroot.maxentrycachesize 1 VALUE
+ds389.userroot.readonly 1 VALUE
+
+=== remove ds389 agent ===
+Culling the Performance Metrics Name Space ...
+ds389 ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check ds389 metrics have gone away ... OK
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
