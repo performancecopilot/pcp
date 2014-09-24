@@ -1183,7 +1183,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	    case PROC_PID_STAT_CMD:
 		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
-		    return PM_ERR_INST;
+		    return 0;
 		atom->cp = f + 1;
 		atom->cp[strlen(atom->cp)-1] = '\0';
 		break;
@@ -1197,7 +1197,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		 * string
 		 */
 		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
-		    return PM_ERR_INST;
+		    return 0;
 	    	atom->cp = f;
 		break;
 
@@ -1207,7 +1207,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		 * bytes converted to kbytes
 		 */
 		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
-		    return PM_ERR_INST;
+		    return 0;
 		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 		atom->ul /= 1024;
 		break;
@@ -1217,7 +1217,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		 * pages converted to kbytes
 		 */
 		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
-		    return PM_ERR_INST;
+		    return 0;
 		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 		atom->ul *= _pm_system_pagesize / 1024;
 		break;
@@ -1230,7 +1230,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		 * unsigned jiffies converted to unsigned milliseconds
 		 */
 		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
-		    return PM_ERR_INST;
+		    return 0;
 
 		ul = (__uint32_t)strtoul(f, &tail, 0);
 		_pm_assign_ulong(atom, 1000 * (double)ul / hz);
@@ -1242,13 +1242,13 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		 * signed decimal int
 		 */
 		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
-		    return PM_ERR_INST;
+		    return 0;
 		atom->l = (__int32_t)strtol(f, &tail, 0);
 		break;
 
 	    case PROC_PID_STAT_WCHAN:
 		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
-			return PM_ERR_INST;
+			return 0;
 #if defined(HAVE_64BIT_PTR)
 		atom->ull = (__uint64_t)strtoull(f, &tail, 0);
 #else
@@ -1267,7 +1267,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		     */
 		    f = _pm_getfield(entry->stat_buf, PROC_PID_STAT_WCHAN);
 		    if (f == NULL)
-			return PM_ERR_INST;
+			return 0;
 #if defined(HAVE_64BIT_PTR)
 		    atom->ull = (__uint64_t)strtoull(f, &tail, 0);
 		    if ((wc = wchan(atom->ull)))
@@ -1288,7 +1288,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    case PROC_PID_STAT_RTPRIORITY:
 	    case PROC_PID_STAT_POLICY:
 	    	if ((f = _pm_getfield(entry->stat_buf, idp->item - 3)) == NULL) /* Note the offset */
-		    	return PM_ERR_INST;
+		    	return 0;
 		    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	    	break;
 
@@ -1299,7 +1299,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		 * unsigned jiffies converted to unsigned milliseconds
 		 */
 		if ((f = _pm_getfield(entry->stat_buf, idp->item - 3)) == NULL)  /* Note the offset */
-		    return PM_ERR_INST;
+		    return 0;
 
 		ul = (__uint32_t)strtoul(f, &tail, 0);
 		_pm_assign_ulong(atom, 1000 * (double)ul / hz);
@@ -1311,7 +1311,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		 */
 		if (idp->item < NR_PROC_PID_STAT) {
 		    if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
-		    	return PM_ERR_INST;
+		    	return 0;
 		    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 		}
 		else
@@ -1335,7 +1335,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (idp->item <= PROC_PID_STATM_DIRTY) {
 		/* unsigned int */
 		if ((f = _pm_getfield(entry->statm_buf, idp->item)) == NULL)
-		    return PM_ERR_INST;
+		    return 0;
 		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 		atom->ul *= _pm_system_pagesize / 1024;
 	    }
@@ -1352,7 +1352,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	if (idp->item < NR_PROC_PID_SCHED) {
 	    if ((f = _pm_getfield(entry->schedstat_buf, idp->item)) == NULL)
-		return PM_ERR_INST;
+		return 0;
 	    if (idp->item == PROC_PID_SCHED_PCOUNT &&
 		mdesc->m_desc.type == PM_TYPE_U32)
 		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
@@ -1446,7 +1446,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    struct passwd *pwe;
 
 	    if ((f = _pm_getfield(entry->status_lines.uid, (idp->item % 4) + 1)) == NULL)
-		return PM_ERR_INST;
+		return 0;
 	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	    if (idp->item > PROC_PID_STATUS_FSUID) {
 		if ((pwe = getpwuid((uid_t)atom->ul)) != NULL)
@@ -1469,7 +1469,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    struct group *gre;
 
 	    if ((f = _pm_getfield(entry->status_lines.gid, (idp->item % 4) + 1)) == NULL)
-		return PM_ERR_INST;
+		return 0;
 	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	    if (idp->item > PROC_PID_STATUS_FSGID) {
 		if ((gre = getgrgid((gid_t)atom->ul)) != NULL) {
@@ -1483,22 +1483,22 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	case PROC_PID_STATUS_SIGNAL:
 	if ((atom->cp = _pm_getfield(entry->status_lines.sigpnd, 1)) == NULL)
-	    return PM_ERR_INST;
+	    return 0;
 	break;
 
 	case PROC_PID_STATUS_BLOCKED:
 	if ((atom->cp = _pm_getfield(entry->status_lines.sigblk, 1)) == NULL)
-	    return PM_ERR_INST;
+	    return 0;
 	break;
 
 	case PROC_PID_STATUS_SIGCATCH:
 	if ((atom->cp = _pm_getfield(entry->status_lines.sigcgt, 1)) == NULL)
-	    return PM_ERR_INST;
+	    return 0;
 	break;
 
 	case PROC_PID_STATUS_SIGIGNORE:
 	if ((atom->cp = _pm_getfield(entry->status_lines.sigign, 1)) == NULL)
-	    return PM_ERR_INST;
+	    return 0;
 	break;
 
 	case PROC_PID_STATUS_VMSIZE:
@@ -1590,7 +1590,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (sts < 0)
 		return sts;
 	    if (sts != PMDA_CACHE_ACTIVE)
-	    	return PM_ERR_INST;
+	    	return 0;
 	    atom->ul = *ip;
 	    break;
 
@@ -1607,7 +1607,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (sts < 0)
 		return sts;
 	    if (sts != PMDA_CACHE_ACTIVE)
-	    	return PM_ERR_INST;
+	    	return 0;
 	    atom->cp = cgroup_find_subsys(INDOM(CGROUP_SUBSYS_INDOM), fsp);
 	    break;
 
