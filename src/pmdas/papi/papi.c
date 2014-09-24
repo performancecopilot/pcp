@@ -58,6 +58,344 @@ static unsigned int number_of_active_counters;
 static unsigned int size_of_active_counters;
 static unsigned int number_of_events;
 
+static char helppath[MAXPATHLEN];
+
+static void
+set_pmns_position(unsigned int i)
+{
+    switch (papi_info[i].papi_event_code) {
+    case PAPI_TOT_INS:
+	papi_info[i].pmns_position = 0;
+	break;
+    case PAPI_TOT_CYC:
+	papi_info[i].pmns_position = 1;
+	break;
+    case PAPI_L1_DCM:
+	papi_info[i].pmns_position = 2;
+	break;
+    case PAPI_L1_ICM:
+	papi_info[i].pmns_position = 3;
+	break;
+    case PAPI_L2_DCM:
+	papi_info[i].pmns_position = 4;
+	break;
+    case PAPI_L2_ICM:
+	papi_info[i].pmns_position = 5;
+	break;
+    case PAPI_L3_DCM:
+	papi_info[i].pmns_position = 6;
+	break;
+    case PAPI_L3_ICM:
+	papi_info[i].pmns_position = 7;
+	break;
+    case PAPI_L1_TCM:
+	papi_info[i].pmns_position = 8;
+	break;
+    case PAPI_L2_TCM:
+	papi_info[i].pmns_position = 9;
+	break;
+    case PAPI_L3_TCM:
+	papi_info[i].pmns_position = 10;
+	break;
+    case PAPI_TLB_DM:
+	papi_info[i].pmns_position = 11;
+	break;
+    case PAPI_TLB_IM:
+	papi_info[i].pmns_position = 12;
+	break;
+    case PAPI_TLB_TL:
+	papi_info[i].pmns_position = 13;
+	break;
+    case PAPI_L1_LDM:
+	papi_info[i].pmns_position = 14;
+	break;
+    case PAPI_L1_STM:
+	papi_info[i].pmns_position = 15;
+	break;
+    case PAPI_L2_LDM:
+	papi_info[i].pmns_position = 16;
+	break;
+    case PAPI_L2_STM:
+	papi_info[i].pmns_position = 17;
+	break;
+    case PAPI_CA_SNP:
+	papi_info[i].pmns_position = 18;
+	break;
+    case PAPI_CA_SHR:
+	papi_info[i].pmns_position = 19;
+	break;
+    case PAPI_CA_CLN:
+	papi_info[i].pmns_position = 20;
+	break;
+    case PAPI_CA_INV:
+	papi_info[i].pmns_position = 21;
+	break;
+    case PAPI_CA_ITV:
+	papi_info[i].pmns_position = 22;
+	break;
+    case PAPI_L3_LDM:
+	papi_info[i].pmns_position = 23;
+	break;
+    case PAPI_L3_STM:
+	papi_info[i].pmns_position = 24;
+	break;
+    case PAPI_BRU_IDL:
+	papi_info[i].pmns_position = 25;
+	break;
+    case PAPI_FXU_IDL:
+	papi_info[i].pmns_position = 26;
+	break;
+    case PAPI_FPU_IDL:
+	papi_info[i].pmns_position = 27;
+	break;
+    case PAPI_LSU_IDL:
+	papi_info[i].pmns_position = 28;
+	break;
+    case PAPI_BTAC_M:
+	papi_info[i].pmns_position = 29;
+	break;
+    case PAPI_PRF_DM:
+	papi_info[i].pmns_position = 30;
+	break;
+    case PAPI_L3_DCH:
+	papi_info[i].pmns_position = 31;
+	break;
+    case PAPI_TLB_SD:
+	papi_info[i].pmns_position = 32;
+	break;
+    case PAPI_CSR_FAL:
+	papi_info[i].pmns_position = 33;
+	break;
+    case PAPI_CSR_SUC:
+	papi_info[i].pmns_position = 34;
+	break;
+    case PAPI_CSR_TOT:
+	papi_info[i].pmns_position = 35;
+	break;
+    case PAPI_MEM_SCY:
+	papi_info[i].pmns_position = 36;
+	break;
+    case PAPI_MEM_RCY:
+	papi_info[i].pmns_position = 37;
+	break;
+    case PAPI_MEM_WCY:
+	papi_info[i].pmns_position = 38;
+	break;
+    case PAPI_STL_ICY:
+	papi_info[i].pmns_position = 39;
+	break;
+    case PAPI_FUL_ICY:
+	papi_info[i].pmns_position = 40;
+	break;
+    case PAPI_STL_CCY:
+	papi_info[i].pmns_position = 41;
+	break;
+    case PAPI_FUL_CCY:
+	papi_info[i].pmns_position = 42;
+	break;
+    case PAPI_HW_INT:
+	papi_info[i].pmns_position = 43;
+	break;
+    case PAPI_BR_UCN:
+	papi_info[i].pmns_position = 44;
+	break;
+    case PAPI_BR_CN:
+	papi_info[i].pmns_position = 45;
+	break;
+    case PAPI_BR_TKN:
+	papi_info[i].pmns_position = 46;
+	break;
+    case PAPI_BR_NTK:
+	papi_info[i].pmns_position = 47;
+	break;
+    case PAPI_BR_MSP:
+	papi_info[i].pmns_position = 48;
+	break;
+    case PAPI_BR_PRC:
+	papi_info[i].pmns_position = 49;
+	break;
+    case PAPI_FMA_INS:
+	papi_info[i].pmns_position = 50;
+	break;
+    case PAPI_TOT_IIS:
+	papi_info[i].pmns_position = 51;
+	break;
+    case PAPI_INT_INS:
+	papi_info[i].pmns_position = 52;
+	break;
+    case PAPI_FP_INS:
+	papi_info[i].pmns_position = 53;
+	break;
+    case PAPI_LD_INS:
+	papi_info[i].pmns_position = 54;
+	break;
+    case PAPI_SR_INS:
+	papi_info[i].pmns_position = 55;
+	break;
+    case PAPI_BR_INS:
+	papi_info[i].pmns_position = 56;
+	break;
+    case PAPI_VEC_INS:
+	papi_info[i].pmns_position = 57;
+	break;
+    case PAPI_RES_STL:
+	papi_info[i].pmns_position = 58;
+	break;
+    case PAPI_FP_STAL:
+	papi_info[i].pmns_position = 59;
+	break;
+    case PAPI_LST_INS:
+	papi_info[i].pmns_position = 60;
+	break;
+    case PAPI_SYC_INS:
+	papi_info[i].pmns_position = 61;
+	break;
+    case PAPI_L1_DCH:
+	papi_info[i].pmns_position = 62;
+	break;
+    case PAPI_L2_DCH:
+	papi_info[i].pmns_position = 63;
+	break;
+    case PAPI_L1_DCA:
+	papi_info[i].pmns_position = 64;
+	break;
+    case PAPI_L2_DCA:
+	papi_info[i].pmns_position = 65;
+	break;
+    case PAPI_L3_DCA:
+	papi_info[i].pmns_position = 66;
+	break;
+    case PAPI_L1_DCR:
+	papi_info[i].pmns_position = 67;
+	break;
+    case PAPI_L2_DCR:
+	papi_info[i].pmns_position = 68;
+	break;
+    case PAPI_L3_DCR:
+	papi_info[i].pmns_position = 69;
+	break;
+    case PAPI_L1_DCW:
+	papi_info[i].pmns_position = 70;
+	break;
+    case PAPI_L2_DCW:
+	papi_info[i].pmns_position = 71;
+	break;
+    case PAPI_L3_DCW:
+	papi_info[i].pmns_position = 72;
+	break;
+    case PAPI_L1_ICH:
+	papi_info[i].pmns_position = 73;
+	break;
+    case PAPI_L2_ICH:
+	papi_info[i].pmns_position = 74;
+	break;
+    case PAPI_L3_ICH:
+	papi_info[i].pmns_position = 75;
+	break;
+    case PAPI_L1_ICA:
+	papi_info[i].pmns_position = 76;
+	break;
+    case PAPI_L2_ICA:
+	papi_info[i].pmns_position = 77;
+	break;
+    case PAPI_L3_ICA:
+	papi_info[i].pmns_position = 78;
+	break;
+    case PAPI_L1_ICR:
+	papi_info[i].pmns_position = 79;
+	break;
+    case PAPI_L2_ICR:
+	papi_info[i].pmns_position = 80;
+	break;
+    case PAPI_L3_ICR:
+	papi_info[i].pmns_position = 81;
+	break;
+    case PAPI_L1_ICW:
+	papi_info[i].pmns_position = 82;
+	break;
+    case PAPI_L2_ICW:
+	papi_info[i].pmns_position = 83;
+	break;
+    case PAPI_L3_ICW:
+	papi_info[i].pmns_position = 84;
+	break;
+    case PAPI_L1_TCH:
+	papi_info[i].pmns_position = 85;
+	break;
+    case PAPI_L2_TCH:
+	papi_info[i].pmns_position = 86;
+	break;
+    case PAPI_L3_TCH:
+	papi_info[i].pmns_position = 87;
+	break;
+    case PAPI_L1_TCA:
+	papi_info[i].pmns_position = 88;
+	break;
+    case PAPI_L2_TCA:
+	papi_info[i].pmns_position = 89;
+	break;
+    case PAPI_L3_TCA:
+	papi_info[i].pmns_position = 90;
+	break;
+    case PAPI_L1_TCR:
+	papi_info[i].pmns_position = 91;
+	break;
+    case PAPI_L2_TCR:
+	papi_info[i].pmns_position = 92;
+	break;
+    case PAPI_L3_TCR:
+	papi_info[i].pmns_position = 93;
+	break;
+    case PAPI_L1_TCW:
+	papi_info[i].pmns_position = 94;
+	break;
+    case PAPI_L2_TCW:
+	papi_info[i].pmns_position = 95;
+	break;
+    case PAPI_L3_TCW:
+	papi_info[i].pmns_position = 96;
+	break;
+    case PAPI_FML_INS:
+	papi_info[i].pmns_position = 97;
+	break;
+    case PAPI_FAD_INS:
+	papi_info[i].pmns_position = 98;
+	break;
+    case PAPI_FDV_INS:
+	papi_info[i].pmns_position = 99;
+	break;
+    case PAPI_FSQ_INS:
+	papi_info[i].pmns_position = 100;
+	break;
+    case PAPI_FNV_INS:
+	papi_info[i].pmns_position = 101;
+	break;
+    case PAPI_FP_OPS:
+	papi_info[i].pmns_position = 102;
+	break;
+    case PAPI_SP_OPS:
+	papi_info[i].pmns_position = 103;
+	break;
+    case PAPI_DP_OPS:
+	papi_info[i].pmns_position = 104;
+	break;
+    case PAPI_VEC_SP:
+	papi_info[i].pmns_position = 105;
+	break;
+    case PAPI_VEC_DP:
+	papi_info[i].pmns_position = 106;
+	break;
+#ifdef PAPI_REF_CYC
+    case PAPI_REF_CYC:
+	papi_info[i].pmns_position = 107;
+	break;
+#endif
+    default:
+	papi_info[i].pmns_position = -1;
+	break;
+    }
+}
+
 static int
 permission_check(int context)
 {
@@ -1115,12 +1453,11 @@ papi_init(pmdaInterface *dp)
     int i;
 
     if (isDSO) {
-	char     mypath[MAXPATHLEN];
 	int	sep = __pmPathSeparator();
 
-	snprintf(mypath, sizeof(mypath), "%s%c" "papi" "%c" "help",
+	snprintf(helppath, sizeof(helppath), "%s%c" "papi" "%c" "help",
 		 pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-	pmdaDSO(dp, PMDA_INTERFACE_6, "papi DSO", mypath);
+	pmdaDSO(dp, PMDA_INTERFACE_6, "papi DSO", helppath);
     }
 
     if (dp->status != 0)
@@ -1171,7 +1508,6 @@ main(int argc, char **argv)
 {
     int sep = __pmPathSeparator();
     pmdaInterface dispatch;
-    char helppath[MAXPATHLEN];
 
     isDSO = 0;
     __pmSetProgname(argv[0]);
