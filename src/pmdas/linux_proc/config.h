@@ -19,8 +19,6 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-//#include <sys/procfs.h>
-
 typedef struct {
 	//double  syscalls;
 	double  ctxswitch;

@@ -1264,46 +1264,46 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	switch(idp->item) {
 
-		case 1: //refresh
+		case 1: /* refresh */
 			atom->ul = hotproc_update_interval.tv_sec;
 			break;
-		case 8: //config
+		case 8: /* config */
 			atom->cp = get_conf_buffer();
 			break;
-		case 9: //config_gen
+		case 9: /* config_gen */
 			atom->ul = conf_gen;
 			break;
-		case 2: //cpuidle
+		case 2: /* cpuidle */
 			if (!have_totals)
                 	    atom->f = 0;
 	                else
                 	    atom->f = tci;
 			break;
-		case 3: //cpuburn
+		case 3: /* cpuburn */
 			if (!have_totals)
                 	    atom->f = 0;
 	                else
                 	    atom->f = ta;
                 	break;
-		case 4: //other transient
+		case 4: /* other transient */
 			if (!have_totals)
                 	    atom->f = 0;
 	                else
                 	    atom->f = tt;
 			break;
-		case 5: //other not_cpuburn
+		case 5: /* other not_cpuburn */
 			if (!have_totals)
                 	    atom->f = 0;
 	                else
                 	    atom->f = ti;
                 	break;
-		case 6: //other total
+		case 6: /* other total */
 			if (!have_totals)
                 	    atom->f = 0;
 	                else
                 	    atom->f = ti + tt;
 			break;
-		case 7: //other percent
+		case 7: /* other percent */
 		    {
                     	double other = tt + ti;
                     	double non_idle = other + ta;
@@ -1337,28 +1337,28 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	switch(idp->item) {
 
-                case 0: //syscalls
+                case 0: /* syscalls */
                         return PM_ERR_PMID;
                         break;
-                case 1: //ctxswitch
+                case 1: /* ctxswitch */
                         atom->f = hotnode->preds.ctxswitch;
                         break;
-                case 2: //virtualsize
+                case 2: /* virtualsize */
 			atom->ul = hotnode->preds.virtualsize;
                         break;
-                case 3: //residentsize
+                case 3: /* residentsize */
 			atom->ul = hotnode->preds.residentsize;
                         break;
-                case 4: //iodemand
+                case 4: /* iodemand */
 			atom->f = hotnode->preds.iodemand;
                         break;
-                case 5: //iowait
+                case 5: /* iowait */
                         atom->f = hotnode->preds.iowait;
                         break;
-                case 6: //schedwait
+                case 6: /* schedwait */
                         return PM_ERR_PMID;
                         break;
-                case 7: //cpuburn.  not in orig hotproc
+                case 7: /* cpuburn.  not in orig hotproc */
 			atom->f = hotnode->r_cpuburn;
                         break;
 

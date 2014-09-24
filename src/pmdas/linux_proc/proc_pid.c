@@ -551,17 +551,20 @@ hotproc_eval_procs(){
 	/* CPU Time is sum of U & S time */
 	/* How do we deal with errors here??? */
 	
-	f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_UTIME);
+	if( (f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_UTIME)) == NULL )
+		newnode->r_cputime = 0;
+	else{
+		ul = (__uint32_t)strtoul(f, &tail, 0);
+        	newnode->r_cputime      = (double)ul / (double)hz;
+	}
 
-	ul = (__uint32_t)strtoul(f, &tail, 0);
-
-        newnode->r_cputime      = (double)ul / (double)hz;
-
-	f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_STIME);
-
-        ul = (__uint32_t)strtoul(f, &tail, 0);
-
-	newnode->r_cputime      += (double)ul / (double)hz;
+	if( (f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_STIME)) == NULL){
+		/* Nothing */
+	}
+	else{
+        	ul = (__uint32_t)strtoul(f, &tail, 0);
+		newnode->r_cputime      += (double)ul / (double)hz;
+	}
 
         newnode->r_cputimestamp = p_timestamp.tv_sec + p_timestamp.tv_usec / 1000000;
 
@@ -637,7 +640,7 @@ hotproc_eval_procs(){
                 /* IO wait */
                 bwtime_delta = DiffCounter((double)newnode->r_bwtime,
                                     (double)oldnode->r_bwtime, PM_TYPE_64);
-                
+
                 vars.preds.iowait = bwtime_delta / timestamp_delta;
 
 
@@ -758,7 +761,7 @@ hotproc_eval_procs(){
     /* Idle */
     sysidle[current] = get_idle_time();
 
-    //Handle rollover
+    /* Handle rollover */
     hot_refresh_count++;
     if (hot_refresh_count == 0)
         hot_refresh_count = 2;
@@ -1018,10 +1021,6 @@ refresh_proc_pid(proc_pid_t *proc_pid, int threads, const char *cgroups)
 int
 refresh_hotproc_pid(proc_pid_t *proc_pid, int threads, const char *cgroups)
 {
-
-    // Not sure exaclty what to do here.  REcalc all the stats or just get the most recent list and go from there 
-    // with what we have? Yeah, I think so.
-
 
     int sts;
 
