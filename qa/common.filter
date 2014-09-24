@@ -200,6 +200,7 @@ _filter_optional_pmdas()
 	-e '/pmdadbping/d' \
 	-e '/pmdadmcache/d' \
 	-e '/pmdadmf/d' \
+	-e '/pmdads389/d' \
 	-e '/pmda_environ/d' \
 	-e '/pmdaelasticsearch/d' \
 	-e '/pmdaespping/d' \
@@ -289,6 +290,7 @@ _filter_top_pmns()
 	-e '/^    dbping /d' \
 	-e '/^    dmcache /d' \
 	-e '/^    dmf /d' \
+	-e '/^    ds389 /d' \
 	-e '/^    elasticsearch /d' \
 	-e '/^    environ /d' \
 	-e '/^    gfs2 /d' \
@@ -657,6 +659,7 @@ _filter_torture_api()
 	-e '/^    cms /d' \
 	-e '/^    cxfs /d' \
 	-e '/^    dmcache /d' \
+	-e '/^    ds389 /d' \
 	-e '/^    dynamic /d' \
 	-e '/^    elasticsearch /d' \
 	-e '/^    engr /d' \
