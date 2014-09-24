@@ -38,7 +38,7 @@ pmdamemcache_install()
     $sudo $PCP_RC_DIR/pmcd stop
 
     cat <<EOF >$tmp.config
-$memcache_delay = 1;
+\$memcache_delay = 1;
 @memcache_instances = ( 0 => '127.0.0.1:11211' );
 EOF
     echo "pmdamemcache config:" >> $here/$seq.full
@@ -74,7 +74,6 @@ pmdamemcache_cleanup()
 }
 
 _prepare_pmda memcache
-trap "cd $here; rm -fr $tmp.*; exit \$status" 0 1 2 3 15
 trap "pmdamemcache_cleanup; exit \$status" 0 1 2 3 15
 
 # make pmprobe output comparable to memcachestats
