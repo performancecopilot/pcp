@@ -4,13 +4,12 @@ GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_TMP_DIR)
 GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_VAR_DIR)/config/pmda
 src/libpcp_pmcd/src/GNUmakefile|444|root|root|$(PCP_SHARE_DIR)/../systemtap/tapset/pmcd.stp|optional
 src/pmcd/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_LOG_DIR)/pmcd
-src/pmie/GNUmakefile|664|$(PCP_USER)|$(PCP_GROUP)|$(PCP_PMIECONTROL_PATH)
 src/pmie/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_LOG_DIR)/pmie
-src/pmie/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_SYSCONF_DIR)/pmie
 src/pmie/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_TMP_DIR)/pmie|optional
-src/pmlogger/GNUmakefile|664|$(PCP_USER)|$(PCP_GROUP)|$(PCP_PMLOGGERCONTROL_PATH)
+src/pmie/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_VAR_DIR)/config/pmie
 src/pmlogger/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_LOG_DIR)/pmlogger
-src/pmlogger/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_SYSCONF_DIR)/pmlogger
 src/pmlogger/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_TMP_DIR)/pmlogger|optional
+src/pmlogger/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_VAR_DIR)/config/pmlogger
+src/pmmgr/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_LOG_DIR)/pmmgr
 src/pmproxy/GNUmakefile|775|$(PCP_USER)|$(PCP_USER)|$(PCP_LOG_DIR)/pmproxy
 src/pmwebapi/GNUmakefile|775|$(PCP_USER)|$(PCP_GROUP)|$(PCP_LOG_DIR)/pmwebd|optional
