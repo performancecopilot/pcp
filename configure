@@ -620,9 +620,7 @@ ac_includes_default="\
 #endif"
 
 ac_subst_vars='PACKAGE_CONFIGURE
-BUILD_PMMGR
 HAVE_RPMLIB
-HAVE_LIBMICROHTTPD
 lib_for_curses
 lib_for_readline
 pcp_mpi_dirs
@@ -679,8 +677,6 @@ pcp_pmloggercontrol_path
 pcp_pmsnapcontrol_path
 pcp_pmiecontrol_path
 pcp_pmproxyoptions_path
-pcp_pmmgroptions_path
-pcp_pmwebdoptions_path
 pcp_pmcdrclocal_path
 pcp_pmcdoptions_path
 pcp_pmcdconf_path
@@ -11976,14 +11972,10 @@ pcp_sysconf_dir=`eval echo $pcp_sysconf_dir`
 pcp_pmcdconf_path=$pcp_sysconf_dir/pmcd/pmcd.conf
 pcp_pmcdrclocal_path=$pcp_sysconf_dir/pmcd/rc.local
 pcp_pmcdoptions_path=$pcp_sysconf_dir/pmcd/pmcd.options
-pcp_pmwebdoptions_path=$pcp_sysconf_dir/pmwebd/pmwebd.options
-pcp_pmmgroptions_path=$pcp_sysconf_dir/pmmgr/pmmgr.options
 pcp_pmproxyoptions_path=$pcp_sysconf_dir/pmproxy/pmproxy.options
 pcp_pmiecontrol_path=$pcp_sysconf_dir/pmie/control
 pcp_pmsnapcontrol_path=$pcp_sysconf_dir/pmsnap/control
 pcp_pmloggercontrol_path=$pcp_sysconf_dir/pmlogger/control
-
-
 
 
 
@@ -13810,34 +13802,6 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
 savedLIBS=$LIBS
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for libmicrohttpd > 0.9.9" >&5
-$as_echo_n "checking for libmicrohttpd > 0.9.9... " >&6; }
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <microhttpd.h>
-int
-main ()
-{
-(void)MHD_RESPMEM_PERSISTENT;
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-    have_libmicrohttpd=1
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-    have_libmicrohttpd=0
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-HAVE_LIBMICROHTTPD=$have_libmicrohttpd
-
-LIBS=$savedLIBS
-
-savedLIBS=$LIBS
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for rpmlib > 4.4.2" >&5
 $as_echo_n "checking for rpmlib > 4.4.2... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -13864,22 +13828,6 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 HAVE_RPMLIB=$have_rpmlib
 
 LIBS=$savedLIBS
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for pmmgr prerequisites" >&5
-$as_echo_n "checking for pmmgr prerequisites... " >&6; }
-if test $target_os != mingw -a "$cxx" != ""
-then
-        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-        build_pmmgr=yes
-else
-        { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-        build_pmmgr=no
-fi
-BUILD_PMMGR=$build_pmmgr
-
-
 
 
 

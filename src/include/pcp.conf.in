@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2014 Red Hat.
 # Copyright (c) 2000-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -98,14 +98,6 @@ PCP_PMCDRCLOCAL_PATH=@pcp_pmcdrclocal_path@
 # path to pmproxy options file
 # Standard path: $PCP_SYSCONF_DIR/pmproxy/pmproxy.options
 PCP_PMPROXYOPTIONS_PATH=@pcp_pmproxyoptions_path@
-
-# path to pmwebd options file
-# Standard path: $PCP_SYSCONF_DIR/pmwebd/pmwebd.options
-PCP_PMWEBDOPTIONS_PATH=@pcp_pmwebdoptions_path@
-
-# path to pmmgr options file
-# Standard path: $PCP_SYSCONF_DIR/pmmgr/pmmgr.options
-PCP_PMMGROPTIONS_PATH=@pcp_pmmgroptions_path@
 
 # path to pmie control file
 # Standard path: $PCP_SYSCONF_DIR/pmie/control

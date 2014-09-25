@@ -877,7 +877,8 @@ avahi
 653 libpcp local
 654 pmda.gfs2 local
 655 pmda.gfs2 local
-660 pmwebapi local
+660:retired local
+666:retired local
 701 pmlogcheck local
 702 python libpcp local
 703 pmda.weblog local
@@ -937,7 +938,7 @@ avahi
 775 sanity pmfind local
 776 pmfind local
 779 pmda local
-780 pmwebapi local
+780:retired local
 781 logutil local
 783 pmda.rpm local valgrind
 786 context context_local libpcp local
