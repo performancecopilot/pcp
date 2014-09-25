@@ -973,6 +973,7 @@ avahi
 902 libpcp mem_leak valgrind event local
 903 pmda.papi local
 914 pmda.papi local
+919 pmlogger pmstat local
 922 derive pmie pmval local
 928 archive local
 929 logutil local
