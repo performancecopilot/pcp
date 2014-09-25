@@ -38,8 +38,11 @@ install:: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
 install:: default
-	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_SYSCONF_DIR)/pmlogger
-	$(INSTALL) -m 664 -o $(PCP_USER) -g $(PCP_GROUP) control $(PCP_PMLOGGERCONTROL_PATH)
+	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_VAR_DIR)/config/pmlogger
+ifneq ($(PACKAGE_DISTRIBUTION),debian)
+	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/pmlogger
+endif
+	$(INSTALL) -m 644 control $(PCP_PMLOGGERCONTROL_PATH)
 	$(INSTALL) -m 755 pmnewlog.sh $(PCP_BINADM_DIR)/pmnewlog$(SHELLSUFFIX)
 	$(INSTALL) -m 755 pmlogger_daily.sh $(PCP_BINADM_DIR)/pmlogger_daily$(SHELLSUFFIX)
 	$(INSTALL) -m 755 pmlogger_check.sh $(PCP_BINADM_DIR)/pmlogger_check$(SHELLSUFFIX)

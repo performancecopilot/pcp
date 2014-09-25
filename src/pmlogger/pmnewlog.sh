@@ -251,9 +251,9 @@ do
 		shift
 		if [ ! -f "$config" ]
 		then
-		    if [ -f "$PCP_SYSCONF_DIR/pmlogger/$config" ]
+		    if [ -f "$PCP_VAR_DIR/config/pmlogger/$config" ]
 		    then
-			config="$PCP_SYSCONF_DIR/pmlogger/$config"
+			config="$PCP_VAR_DIR/config/pmlogger/$config"
 		    else
 			echo "$prog: Error: cannot find configfile ($config)"
 			_abandon
