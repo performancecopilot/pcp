@@ -106,7 +106,7 @@ static pmdaInstid loadavg_indom_id[] = {
     { 1, "1 minute" }, { 5, "5 minute" }, { 15, "15 minute" }
 };
 
-static pmdaInstid nfs_indom_id[] = {
+static pmdaInstid nfs_indom_id[NR_RPC_COUNTERS] = {
 	{ 0, "null" },
 	{ 1, "getattr" },
 	{ 2, "setattr" },
@@ -127,7 +127,7 @@ static pmdaInstid nfs_indom_id[] = {
 	{ 17, "statfs" }
 };
 
-static pmdaInstid nfs3_indom_id[] = {
+static pmdaInstid nfs3_indom_id[NR_RPC3_COUNTERS] = {
 	{ 0, "null" },
 	{ 1, "getattr" },
 	{ 2, "setattr" },
@@ -152,7 +152,7 @@ static pmdaInstid nfs3_indom_id[] = {
 	{ 21, "commit" }
 };
 
-static pmdaInstid nfs4_cli_indom_id[] = {
+static pmdaInstid nfs4_cli_indom_id[NR_RPC4_CLI_COUNTERS] = {
 	{ 0,  "null" },
 	{ 1,  "read" },
 	{ 2,  "write" },
@@ -187,14 +187,38 @@ static pmdaInstid nfs4_cli_indom_id[] = {
 	{ 31, "delegreturn" },
 	{ 32, "getacl" },
 	{ 33, "setacl" },
-	{ 34, "fs_locatns" },
+	{ 34, "fs_locations" },
+	{ 35, "rel_lkowner" },
+	{ 36, "secinfo" },
+	{ 37, "fsid_present" },
+	/* nfsv4.1 client ops */
+	{ 38, "exchange_id" },
+	{ 39, "create_ses" },
+	{ 40, "destroy_ses" },
+	{ 41, "sequence" },
+	{ 42, "get_lease_t" },
+	{ 43, "reclaim_comp" },
+	{ 44, "layoutget" },
+	{ 45, "getdevinfo" },
+	{ 46, "layoutcommit" },
+	{ 47, "secinfononam" },
+	{ 48, "test_stateid" },
+	{ 49, "free_stateid" },
+	{ 50, "getdevlist" },
+	{ 51, "bind_ses" },
+	{ 52, "destroy_clntid" },
 };
 
-static pmdaInstid nfs4_svr_indom_id[] = {
-	{ 0,  "null" },
+static pmdaInstid nfs4_svr_indom_id[NR_RPC4_SVR_COUNTERS] = {
+	/*
+	 * { 0,  "null" } - the kernel actually only exports from "access"
+	 * The first three values in the net/rpc/nfsd file are always zero
+	 * In particular, see the nfs_opnum4 enum in <linux/nfs4.h>, these
+	 * values are used as array indices in the kernel.
+	 */
 	{ 1,  "op0-unused" },
 	{ 2,  "op1-unused"},
-	{ 3,  "minorversion"},	/* future use */
+	{ 3,  "op2-future"}, /* name matching the nfsstat convention */
 	{ 4,  "access" },
 	{ 5,  "close" },
 	{ 6,  "commit" },
@@ -232,6 +256,26 @@ static pmdaInstid nfs4_svr_indom_id[] = {
 	{ 38, "verify" },
 	{ 39, "write" },
 	{ 40, "rellockowner" },
+	/* nfsv4.1 server ops */
+	{ 41, "bc_ctl" },
+	{ 42, "bind_conn" },
+	{ 43, "exchange_id" },
+	{ 44, "create_ses" },
+	{ 45, "destroy_ses" },
+	{ 46, "free_stateid" },
+	{ 47, "getdirdeleg" },
+	{ 48, "getdevinfo" },
+	{ 49, "getdevlist" },
+	{ 50, "layoutcommit" },
+	{ 51, "layoutget" },
+	{ 52, "layoutreturn" },
+	{ 53, "secinfononam" },
+	{ 54, "sequence" },
+	{ 55, "set_ssv" },
+	{ 56, "test_stateid" },
+	{ 57, "want_deleg" },
+	{ 58, "destroy_clid" },
+	{ 59, "reclaim_comp" },
 };
 
 static pmdaIndom indomtab[] = {

@@ -244,16 +244,33 @@ nfs4.client.reqs
     inst [31 or "delegreturn"] value 0
     inst [32 or "getacl"] value 0
     inst [33 or "setacl"] value 0
-    inst [34 or "fs_locatns"] value 0
+    inst [34 or "fs_locations"] value 0
+    inst [35 or "rel_lkowner"] value 0
+    inst [36 or "secinfo"] value 0
+    inst [37 or "fsid_present"] value 0
+    inst [38 or "exchange_id"] value 0
+    inst [39 or "create_ses"] value 0
+    inst [40 or "destroy_ses"] value 0
+    inst [41 or "sequence"] value 0
+    inst [42 or "get_lease_t"] value 0
+    inst [43 or "reclaim_comp"] value 0
+    inst [44 or "layoutget"] value 0
+    inst [45 or "getdevinfo"] value 0
+    inst [46 or "layoutcommit"] value 0
+    inst [47 or "secinfononam"] value 0
+    inst [48 or "test_stateid"] value 0
+    inst [49 or "free_stateid"] value 0
+    inst [50 or "getdevlist"] value 0
+    inst [51 or "bind_ses"] value 0
+    inst [52 or "destroy_clntid"] value 0
 
 nfs4.server.calls
     value 120
 
 nfs4.server.reqs
-    inst [0 or "null"] value 1
     inst [1 or "op0-unused"] value 0
     inst [2 or "op1-unused"] value 0
-    inst [3 or "minorversion"] value 0
+    inst [3 or "op2-future"] value 0
     inst [4 or "access"] value 5
     inst [5 or "close"] value 0
     inst [6 or "commit"] value 0
@@ -291,6 +308,24 @@ nfs4.server.reqs
     inst [38 or "verify"] value 0
     inst [39 or "write"] value 0
     inst [40 or "rellockowner"] value 0
+    inst [41 or "bc_ctl"] value 0
+    inst [42 or "bind_conn"] value 0
+    inst [43 or "exchange_id"] value 0
+    inst [44 or "create_ses"] value 0
+    inst [45 or "destroy_ses"] value 0
+    inst [46 or "free_stateid"] value 0
+    inst [47 or "getdirdeleg"] value 0
+    inst [48 or "getdevinfo"] value 0
+    inst [49 or "getdevlist"] value 0
+    inst [50 or "layoutcommit"] value 0
+    inst [51 or "layoutget"] value 0
+    inst [52 or "layoutreturn"] value 0
+    inst [53 or "secinfononam"] value 0
+    inst [54 or "sequence"] value 0
+    inst [55 or "set_ssv"] value 0
+    inst [56 or "test_stateid"] value 0
+    inst [57 or "want_deleg"] value 0
+    inst [58 or "destroy_clid"] value 0
 
 == done
 
