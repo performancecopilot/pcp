@@ -922,12 +922,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %files -n pcp-gui -f pcp-gui.list
 %defattr(-,root,root,-)
 
-%{_sysconfdir}/pcp/pmsnap
 %config(noreplace) %{_sysconfdir}/pcp/pmsnap
 %{_localstatedir}/lib/pcp/config/pmsnap
-%dir %{_localstatedir}/lib/pcp/config/pmsnap
 %{_localstatedir}/lib/pcp/config/pmchart
-%dir %{_localstatedir}/lib/pcp/config/pmchart
 %{_localstatedir}/lib/pcp/config/pmafm/pcp-gui
 %{_datadir}/applications/pmchart.desktop
 %endif
