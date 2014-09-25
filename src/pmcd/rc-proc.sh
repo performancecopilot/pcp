@@ -131,7 +131,6 @@ is_chkconfig_on()
 	pmlogger) [ "`. /etc/hostconfig; echo $PMLOGGER`" = "-YES-" ] && _ret=0 ;;
 	pmie)     [ "`. /etc/hostconfig; echo $PMIE`" = "-YES-" ] && _ret=0 ;;
 	pmproxy)  [ "`. /etc/hostconfig; echo $PMPROXY`" = "-YES-" ] && _ret=0 ;;
-	pmwebd)   [ "`. /etc/hostconfig; echo $PMWEBD`" = "-YES-" ] && _ret=0 ;;
 	esac
     elif $_have_systemctl
     then
@@ -190,7 +189,6 @@ chkconfig_on()
 	pmlogger) echo "PMLOGGER=-YES-" ;;
 	pmie) echo "PMIE=-YES-" ;;
 	pmproxy) echo "PMPROXY=-YES-" ;;
-	pmwebd) echo "PMWEBD=-YES-" ;;
 	esac
     elif $_have_systemctl
     then

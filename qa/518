@@ -40,7 +40,7 @@ sleep 2	# let stats accumulate via rule firings
 #     pmie: bozo-vm: /tmp/518-28812.pmie (2 rules)
 #           evaluations true=2 false=2 unknown=0 (actions=2)
 #           expected evaluation rate=2.00 rules/sec
-#           bozo-vm: /var/log/pcp/pmmgr/bozo-vm/config.pmie (12 rules)
+#           bozo-vm: /var/log/pcp/pmlogger/bozo-vm/config.pmie (12 rules)
 #           evaluations true=0 false=3 unknown=9 (actions=0)
 #           expected evaluation rate=0.10 rules/sec
 #

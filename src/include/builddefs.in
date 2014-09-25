@@ -239,7 +239,6 @@ LIB_FOR_SSL = @lib_for_ssl@
 LIB_FOR_AVAHI = @lib_for_avahi@
 LIB_FOR_ATOMIC = @lib_for_atomic@
 
-HAVE_LIBMICROHTTPD = @HAVE_LIBMICROHTTPD@
 HAVE_RPMLIB = @HAVE_RPMLIB@
 
 SHELL = /bin/sh
@@ -714,7 +713,5 @@ PCP_ALTLIBS =
 endif
 endif
 endif
-
-BUILD_PMMGR=@BUILD_PMMGR@
 
 endif # _BUILDDEFS_INCLUDED_

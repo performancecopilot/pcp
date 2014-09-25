@@ -153,8 +153,8 @@ fi
 # pcp:pcp and mode 775 directories
 #
 for dir in $PCP_LOG_DIR \
-	   $PCP_LOG_DIR/pmcd $PCP_LOG_DIR/pmie $PCP_LOG_DIR/pmwebd \
-	   $PCP_LOG_DIR/pmproxy $PCP_LOG_DIR/pmlogger $PCP_LOG_DIR/pmmgr \
+	   $PCP_LOG_DIR/pmcd $PCP_LOG_DIR/pmie \
+	   $PCP_LOG_DIR/pmproxy $PCP_LOG_DIR/pmlogger \
 	   $PCP_RUN_DIR \
 	   $PCP_VAR_DIR/tmp $PCP_VAR_DIR/tmp/pmie $PCP_VAR_DIR/tmp/pmlogger \
 	   $PCP_VAR_DIR/config/pmda \
@@ -180,7 +180,7 @@ done
 chmod 775 $PCP_VAR_DIR/testsuite
 chown -R pcpqa:pcpqa $PCP_VAR_DIR/testsuite
 
-# Note: do not start pcp, pmwebd, pmproxy nor pmmgr by default
+# Note: do not start any daemons by default
 #
 if which svcs >/dev/null 2>&1
 then
@@ -193,7 +193,7 @@ then
 	svccfg import ../sun/pcp.xml
     fi
 else
-    for svc in pcp pmcd pmlogger pmproxy pmwebd pmmgr
+    for svc in pmcd pmlogger pmie pmproxy
     do
 	if which rc-update >/dev/null 2>&1
 	then
@@ -209,7 +209,7 @@ else
 	# disable or enable and start as required by default policy
 	case $svc
 	in
-	    pmcd|pmlogger|pmie)
+	    pmcd|pmlogger|pmie|pmproxy)
 		if which rc-update >/dev/null 2>&1
 		then
 		    : TODO?

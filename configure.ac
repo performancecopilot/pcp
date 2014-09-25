@@ -2031,8 +2031,6 @@ AC_SUBST(pcp_sysconf_dir)
 pcp_pmcdconf_path=$pcp_sysconf_dir/pmcd/pmcd.conf
 pcp_pmcdrclocal_path=$pcp_sysconf_dir/pmcd/rc.local
 pcp_pmcdoptions_path=$pcp_sysconf_dir/pmcd/pmcd.options
-pcp_pmwebdoptions_path=$pcp_sysconf_dir/pmwebd/pmwebd.options
-pcp_pmmgroptions_path=$pcp_sysconf_dir/pmmgr/pmmgr.options
 pcp_pmproxyoptions_path=$pcp_sysconf_dir/pmproxy/pmproxy.options
 pcp_pmiecontrol_path=$pcp_sysconf_dir/pmie/control
 pcp_pmsnapcontrol_path=$pcp_sysconf_dir/pmsnap/control
@@ -2040,8 +2038,6 @@ pcp_pmloggercontrol_path=$pcp_sysconf_dir/pmlogger/control
 AC_SUBST(pcp_pmcdconf_path)
 AC_SUBST(pcp_pmcdoptions_path)
 AC_SUBST(pcp_pmcdrclocal_path)
-AC_SUBST(pcp_pmwebdoptions_path)
-AC_SUBST(pcp_pmmgroptions_path)
 AC_SUBST(pcp_pmproxyoptions_path)
 AC_SUBST(pcp_pmiecontrol_path)
 AC_SUBST(pcp_pmsnapcontrol_path)
@@ -2484,20 +2480,6 @@ AC_TRY_COMPILE(
 [
 ], AC_DEFINE(HAVE_AI_ADDRCONFIG) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
 
-dnl Do you have system microhttpd libraries for pmwebapi?
-savedLIBS=$LIBS
-AC_MSG_CHECKING([for libmicrohttpd > 0.9.9])
-AC_COMPILE_IFELSE(
-   [AC_LANG_PROGRAM([[#include <microhttpd.h>]],
-                    [[(void)MHD_RESPMEM_PERSISTENT;]])],
-   [AC_MSG_RESULT([yes])
-    have_libmicrohttpd=1],
-   [AC_MSG_RESULT([no])
-    have_libmicrohttpd=0])
-dnl AC_CHECK_LIB(microhttpd,MHD_start_daemon,[have_libmicrohttpd=1],[have_libmicrohttpd=0])
-AC_SUBST(HAVE_LIBMICROHTTPD,[$have_libmicrohttpd])
-LIBS=$savedLIBS
-
 dnl Do you have RPM Package Manager libraries for pmdarpm?
 savedLIBS=$LIBS
 AC_MSG_CHECKING([for rpmlib > 4.4.2])
@@ -2510,19 +2492,6 @@ AC_COMPILE_IFELSE(
     have_rpmlib=0])
 AC_SUBST(HAVE_RPMLIB,[$have_rpmlib])
 LIBS=$savedLIBS
-
-dnl Do we have the prerequisites for pmmgr?
-AC_MSG_CHECKING([for pmmgr prerequisites])
-if test $target_os != mingw -a "$cxx" != ""
-then
-        AC_MSG_RESULT([yes])
-        build_pmmgr=yes
-else
-        AC_MSG_RESULT([no])
-        build_pmmgr=no
-fi
-AC_SUBST(BUILD_PMMGR,[$build_pmmgr])
-
 
 dnl Capture special options passed to configure
 AC_SUBST(PACKAGE_CONFIGURE)

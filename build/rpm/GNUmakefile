@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2013 Red Hat.
+# Copyright (c) 2012-2014 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -61,7 +61,6 @@ pcp.spec: pcp.spec.in
 	    -e's|@package_release@|$(PACKAGE_BUILD)|g' \
 	    -e's|@package_configure@|$(PACKAGE_CONFIGURE)|g' \
 	    -e's|@package_distribution@|$(PACKAGE_DISTRIBUTION)|g' \
-	    -e's|@have_libmicrohttpd@|$(HAVE_LIBMICROHTTPD)|g' \
 	    -e's|@have_rpmlib@|$(HAVE_RPMLIB)|g' \
 	    -e's|@pmda_infiniband@|$(PMDA_INFINIBAND)|g' \
 	    -e's|@enable_systemd@|$(ENABLE_SYSTEMD)|g' \
@@ -75,7 +74,6 @@ pcp.spec: pcp.spec.in
 	    -e's|@pcp_log_dir@|$(PCP_LOG_DIR)|g' \
 	    -e's|@pcp_var_dir@|$(PCP_VAR_DIR)|g' \
 	    -e's|@pcp_etc_dir@|$(PCP_ETC_DIR)|g' \
-	    -e's|@BUILD_PMMGR@|$(BUILD_PMMGR)|g' \
 	    -e's|@rpm_version@|$(RPM_VERSION)|g' \
 	    -e's|@make@|$(PCP_MAKE_PROG)|g' <$? >$@
 
