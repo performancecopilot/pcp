@@ -493,13 +493,12 @@ do
 	    fi
 	    if [ ! -f $seq.out ]
 	    then
-		echo " - no qualified output"
+		$PCP_ECHO_PROG $PCP_ECHO_N " - no qualified output""$PCP_ECHO_C"
 		mv $tmp.out $seq.out.bad
 		err=true
 	    else
 		if diff $seq.out $tmp.out >/dev/null 2>&1
 		then
-		    echo ""
 		    if $err
 		    then
 			:
@@ -508,13 +507,36 @@ do
 		    fi
 		else
 		    [ $color = true ] && tput bold && tput setaf 1 # red
-		    echo " - output mismatch (see $seq.out.bad)"
+		    $PCP_ECHO_PROG $PCP_ECHO_N " - output mismatch (see $seq.out.bad)""$PCP_ECHO_C"
 		    [ $color = true ] && tput sgr0 # reset
 		    mv $tmp.out $seq.out.bad
 		    $diff $seq.out $seq.out.bad
 		    err=true
 		fi
 	    fi
+
+	    # make sure this test did not muck up the permissions or
+	    # ownership of key installed files and directories
+	    #
+	    sh 994 --fix >$tmp.out
+	    if [ -s $tmp.out ]
+	    then
+		$PCP_ECHO_PROG $PCP_ECHO_N " - failed permissions check""$PCP_ECHO_C"
+		echo >$tmp.head
+		echo "*** Failed permissions/ownership checks ***" >>$tmp.head
+		if [ -f $seq.out.bad ]
+		then
+		    cat $tmp.head $tmp.out >>$seq.out.bad
+		elif [ -f $seq.out ]
+		then
+		    cp $seq.out $seq.out.bad
+		    cat $tmp.head $tmp.out >>$seq.out.bad
+		else
+		    cat $tmp.head $tmp.out >$seq.out.bad
+		fi
+		err=true
+	    fi
+	    $PCP_ECHO_PROG ""
 
 	    # really tried to run the test, update the state
 	    #

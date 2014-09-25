@@ -2,13 +2,19 @@
 # PCP QA Test No. 994
 # Try to check permissions of package artifacts.
 #
+# With a single --fix option, is silent except if there is a problem
+# and repairs any damage (this is used from check).
+#
 # See src/mkpermslist and src/permslist.
 #
 # Copyright (c) 2013 Ken McDonell.  All Rights Reserved.
 #
 
+fix=false
+[ $# -eq 1 -a "$1" = "--fix" ] && fix=true
+
 seq=`basename $0`
-echo "QA output created by $seq"
+$fix || echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
@@ -77,17 +83,30 @@ p
 	if [ "$_mode" != "$mode" ]
 	then
 	    echo "$target: wrong mode: expected $mode (from $makefile), found $_mode"
+	    $fix && ( $sudo chmod $mode $target ; echo "Fixed." )
 	fi
 	if [ "$_owner" != "$owner" ]
 	then
 	    echo "$target: wrong owner: expected $owner (from $makefile), found $_owner"
+	    $fix && ( $sudo chown $owner $target ; echo "Fixed." )
 	fi
 	if [ "$_group" != "$group" ]
 	then
 	    echo "$target: wrong group: expected $group (from $makefile), found $_group"
+	    $fix && ( $sudo chgrp $group $target ; echo "Fixed." )
 	fi
     fi
 done
+
+# Now expect only root owned things below $PCP_SYSCONF_DIR
+#
+find $PCP_SYSCONF_DIR ! -user root >$tmp.out
+if [ -s $tmp.out ]
+then
+    echo "Arrgh ... these files should be owned by root"
+    cat $tmp.out | xargs ls -ld
+    $fix && ( ( cat $tmp.out | xargs $sudo chown root:root ) ; echo "Fixed." )
+fi
 
 # success, all done
 status=0
