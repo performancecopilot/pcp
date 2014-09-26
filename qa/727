@@ -11,6 +11,7 @@ echo "QA output created by $seq"
 . ./common.avahi
 avahi_notrun_checks
 [ -x $PCP_RC_DIR/pmwebd ] || _notrun "PCP web services not installed"
+PCP_PMWEBDOPTIONS_PATH=$PCP_SYSCONF_DIR/pmwebd/pmwebd.options
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
