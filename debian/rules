@@ -25,8 +25,6 @@ pcp_import_iostat = pcp-import-iostat2pcp
 pcp_import_collectl = pcp-import-collectl2pcp
 pcp_pmda_infiniband = pcp-pmda-infiniband
 pcp_testsuite = pcp-testsuite
-pcp_manager = pcp-manager
-pcp_webapi = pcp-webapi
 pcp_python = python-pcp
 pcpgui = pcp-gui
 pcpdoc = pcp-doc
@@ -56,8 +54,6 @@ dirpcp_import_iostat = debian/$(pcp_import_iostat)
 dirpcp_import_collectl = debian/$(pcp_import_collectl)
 dirpcp_pmda_infiniband = debian/$(pcp_pmda_infiniband)
 dirpcp_testsuite = debian/$(pcp_testsuite)
-dirpcp_manager = debian/$(pcp_manager)
-dirpcp_webapi = debian/$(pcp_webapi)
 dirpcp_python = debian/$(pcp_python)
 dirgui = debian/$(pcpgui)
 dirdoc = debian/$(pcpdoc)
@@ -74,7 +70,6 @@ alldir = $(dirpcp) $(dirpcpcfg) \
 		$(dirpcp_import_sheet) $(dirpcp_import_iostat) \
 		$(dirpcp_import_collectl) $(dirpcp_testsuite) \
 		$(dirpcp_pmda_infiniband) $(allperldir) \
-		$(dirpcp_manager) $(dirpcp_webapi) \
 		$(dirpcp_python)
 
 zip = export GZIP=-9q
@@ -99,8 +94,6 @@ pkgpcp_import_iostat = $(zip) DIST_ROOT=`pwd`/$(dirpcp_import_iostat);
 pkgpcp_import_collectl = $(zip) DIST_ROOT=`pwd`/$(dirpcp_import_collectl);
 pkgpcp_pmda_infiniband = $(zip) DIST_ROOT=`pwd`/$(dirpcp_pmda_infiniband);
 pkgpcp_testsuite = $(zip) DIST_ROOT=`pwd`/$(dirpcp_testsuite);
-pkgpcp_manager = $(zip) NO_CHOWN=true DIST_ROOT=`pwd`/$(dirpcp_manager);
-pkgpcp_webapi = $(zip) NO_CHOWN=true DIST_ROOT=`pwd`/$(dirpcp_webapi);
 pkgpcp_python = $(zip) DIST_ROOT=`pwd`/$(dirpcp_python);
 
 configure_tools = export DEBUG=-DNDEBUG;
@@ -114,8 +107,6 @@ uninstalltest = cat debian/$(pcp_testsuite).dirs | sed -e "s,^,debian/$(pcp)/," 
 uninstalldirs = rmdir debian/$(pcp)/usr/include/pcp debian/$(pcp)/usr/include debian/$(pcp)/usr/share/man/man3
 uninstallib = cat debian/$(pcp_pmda_infiniband).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
 uninstallgui = cat debian/$(pcpgui).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
-uninstallweb = find debian/$(pcp) -iname \*pmweb\* | xargs rm -fr
-uninstallmgr = find debian/$(pcp) -name \*pmmgr\* | xargs rm -fr
 unrpathperl = find $(allperldir) -name \*.so | xargs chrpath -d
 
 build: build-arch build-indep
@@ -153,8 +144,6 @@ binary-arch: checkroot build-stamp
 	-rm -rf $(alldir)
 	$(pkgpcp) $(MAKE) -C . install
 	$(pkgpcp_testsuite) $(MAKE) -C qa install
-	$(pkgpcp_manager) $(MAKE) -C src/pmmgr install
-	$(pkgpcp_webapi) $(MAKE) -C src/pmwebapi install
 	$(pkglibpcp_mmv_perl) $(MAKE) -C src/perl/MMV install_perl
 	$(pkglibpcp_pmda_perl) $(MAKE) -C src/perl/PMDA install_perl
 	$(pkglibpcp_import_perl) $(MAKE) -C src/perl/LogImport install_perl
@@ -185,8 +174,6 @@ binary-arch: checkroot build-stamp
 	@$(uninstallgui)
 	@$(uninstalldirs)
 	@$(uninstalltest)
-	@$(uninstallmgr)
-	@$(uninstallweb)
 	@$(uninstallpydir)
 	@$(uninstallpy)
 	@$(unrpathperl)
