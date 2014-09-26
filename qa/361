@@ -15,23 +15,6 @@ echo "QA output created by $seq"
 
 [ $PCP_PLATFORM = linux ] || _notrun "tests pmdalinux functionality on Linux only"
 
-rm -f $seq.out
-# cgroup metrics may not be available
-#
-if pminfo cgroup >/dev/null 2>&1
-then
-    prefix=cgroup
-    ln $seq.out.2 $seq.out
-else
-    if pminfo proc.cgroup >/dev/null 2>&1
-    then
-	prefix=proc.cgroup
-	ln $seq.out.1 $seq.out
-    else
-	_notrun cgroup metrics not available
-    fi
-fi
-
 _cleanup()
 {
     rm -f $tmp.*

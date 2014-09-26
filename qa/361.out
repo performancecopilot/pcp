@@ -3,8 +3,7 @@ initial fetch, starting with a clean slate
 cgroup.mounts.count 1 0
 cgroup.mounts.subsys 0
 cpuset metrics fetch, no user groups defined, single controller
-cgroup.groups.cpuset.cpus PMID: 3.39.0
-cgroup.groups.cpuset.mems PMID: 3.39.1
+Error: cgroup.groups: Unknown metric name
 cgroup.mounts.count PMID: 3.38.1
 cgroup.mounts.subsys PMID: 3.38.0
 cpuacct and cpuset fetch, no user groups defined, dual controllers
@@ -12,25 +11,23 @@ cgroup.groups.cpuacct.stat.system PMID: 3.41.1
 cgroup.groups.cpuacct.stat.user PMID: 3.41.0
 cgroup.groups.cpuacct.usage PMID: 3.41.2
 cgroup.groups.cpuacct.usage_percpu PMID: 3.41.3
-cgroup.groups.cpuset.cpus PMID: 3.39.0
-cgroup.groups.cpuset.mems PMID: 3.39.1
 cgroup.mounts.count PMID: 3.38.1
 cgroup.mounts.subsys PMID: 3.38.0
 cpuacct and cpuset fetch, one user group defined, dual controllers
 
-cgroup.groups.cpuacct.pcpqa.stat.system PMID: 3.41.33
+cgroup.groups.cpuacct.pcpqa.stat.system PMID: 3.105.1
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: millisec
 
-cgroup.groups.cpuacct.pcpqa.stat.user PMID: 3.41.32
+cgroup.groups.cpuacct.pcpqa.stat.user PMID: 3.105.0
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: millisec
 
-cgroup.groups.cpuacct.pcpqa.usage PMID: 3.41.34
+cgroup.groups.cpuacct.pcpqa.usage PMID: 3.105.2
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: nanosec
 
-cgroup.groups.cpuacct.pcpqa.usage_percpu PMID: 3.41.35
+cgroup.groups.cpuacct.pcpqa.usage_percpu PMID: 3.105.3
     Data Type: 64-bit unsigned int  InDom: 3.0 0xc00000
     Semantics: counter  Units: nanosec
 
@@ -49,22 +46,6 @@ cgroup.groups.cpuacct.usage PMID: 3.41.2
 cgroup.groups.cpuacct.usage_percpu PMID: 3.41.3
     Data Type: 64-bit unsigned int  InDom: 3.0 0xc00000
     Semantics: counter  Units: nanosec
-
-cgroup.groups.cpuset.cpus PMID: 3.39.0
-    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-
-cgroup.groups.cpuset.mems PMID: 3.39.1
-    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-
-cgroup.groups.cpuset.pcpqa.cpus PMID: 3.39.32
-    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-
-cgroup.groups.cpuset.pcpqa.mems PMID: 3.39.33
-    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
 
 cgroup.mounts.count PMID: 3.38.1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -90,14 +71,6 @@ cgroup.groups.cpuacct.usage PMID: 3.41.2
 cgroup.groups.cpuacct.usage_percpu PMID: 3.41.3
     Data Type: 64-bit unsigned int  InDom: 3.0 0xc00000
     Semantics: counter  Units: nanosec
-
-cgroup.groups.cpuset.cpus PMID: 3.39.0
-    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-
-cgroup.groups.cpuset.mems PMID: 3.39.1
-    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
 
 cgroup.mounts.count PMID: 3.38.1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
