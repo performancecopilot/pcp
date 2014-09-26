@@ -17,8 +17,8 @@ _filter_dodgey_nfs_indom()
     sed \
 	-e '/number of instances .* (0) != that for pmGetInDom (18)/d' \
 	-e '/number of instances .* (0) != that for pmGetInDom (22)/d' \
-	-e '/number of instances .* (0) != that for pmGetInDom (35)/d' \
-	-e '/number of instances .* (0) != that for pmGetInDom (41)/d'
+	-e '/number of instances .* (0) != that for pmGetInDom (53)/d' \
+	-e '/number of instances .* (0) != that for pmGetInDom (59)/d'
 }
 
 status=0
