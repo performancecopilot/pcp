@@ -669,7 +669,7 @@ rm -f "$PCP_LOG_DIR/configs.sh"
 for daemon in pmcd pmie pmlogger pmproxy
 do
     save_configs_script >> "$PCP_LOG_DIR/configs.sh" "$PCP_SYSCONF_DIR/$daemon" \
-        /var/lib/pcp/config/$daemon /etc/$daemon /etc/pcp/$daemon /etc/sysconfig/$daemon
+        /var/lib/pcp/config/$daemon/control /etc/$daemon /etc/pcp/$daemon /etc/sysconfig/$daemon
 done
 exit 0
 
