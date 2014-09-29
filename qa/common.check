@@ -589,14 +589,17 @@ _restore_primary_logger()
 {
     _configfile="$PCP_VAR_DIR/config/pmlogger/config.default"
 
-    # close out access from local pmlc once more
-    test -f "$_configfile" && \
-        $sudo sed -i -e 's/^allow localhost.*$/allow localhost : enquire;/g' \
-	             -e 's/^allow local:.*$/allow local:* : enquire;/g' \
-            "$_configfile"
-
     # if there was an initial configuration, put it back
-    test -f "$_configfile.$seq" && _restore_config "$_configfile"
+    if test -f "$_configfile.$seq"
+    then
+	_restore_config "$_configfile"
+    else
+	# otherwise, close out access from local pmlc once more
+	test -f "$_configfile" && \
+	    $sudo sed -i -e 's/^allow localhost.*$/allow localhost : enquire;/g' \
+			 -e 's/^allow local:.*$/allow local:* : enquire;/g' \
+		"$_configfile"
+    fi
 }
 
 # purify support
