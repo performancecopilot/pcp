@@ -87,20 +87,20 @@ then
 
     # TODO ... check in pmlogger for config file name ... other than
     # assuming config.default
-    if [ -f $PCP_SYSCONF_DIR/pmlogger/config.default ]
+    if [ -f $PCP_VAR_DIR/config/pmlogger/config.default ]
     then
-	if grep -q "allow $network" $PCP_SYSCONF_DIR/pmlogger/config.default
+	if grep -q "allow $network" $PCP_VAR_DIR/config/pmlogger/config.default
 	then
 	    echo "Already done."
 	else
-	    cp $PCP_SYSCONF_DIR/pmlogger/config.default $tmp.conf
+	    cp $PCP_VAR_DIR/config/pmlogger/config.default $tmp.conf
 	    # TODO check for [access] at the end already?
 	    echo "allow $network : all;" >>$tmp.conf
-	    diff -u $PCP_SYSCONF_DIR/pmlogger/config.default $tmp.conf
-	    sudo cp $tmp.conf $PCP_SYSCONF_DIR/pmlogger/config.default
+	    diff -u $PCP_VAR_DIR/config/pmlogger/config.default $tmp.conf
+	    sudo cp $tmp.conf $PCP_VAR_DIR/config/pmlogger/config.default
 	fi
     else
-	echo "Warning: \"$PCP_SYSCONF_DIR/pcp/pmlogger/config.default\" is missing"
+	echo "Warning: \"$PCP_VAR_DIR/config/pcp/pmlogger/config.default\" is missing"
     fi
 else
     echo "Warning: \"/etc/pcp.conf\" is missing"
