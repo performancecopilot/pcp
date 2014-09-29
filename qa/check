@@ -232,7 +232,7 @@ _make_checkfiles()
 		PCP_PMIECONTROL_PATH="$PCP_SYSCONF_DIR/pmie/control"
 	_checkfiles="$PCP_PMCDCONF_PATH \
 		$PCP_PMLOGGERCONTROL_PATH \
-		$PCP_SYSCONF_DIR/pmlogger/config.default \
+		$PCP_VAR_DIR/config/pmlogger/config.default \
 		$PCP_PMLOGGERCONTROL_PATH \
 		$PCP_PMCDOPTIONS_PATH \
 		$PCP_DIR/etc/init.d/pcp \
