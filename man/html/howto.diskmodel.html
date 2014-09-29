@@ -8,15 +8,15 @@
 	<TITLE>Comparing Storage Performance</TITLE>
 </HEAD>
 <BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
-	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://pcp.io/"><IMG SRC="images/pcpicon.png" NAME="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://pcp.io/"><IMG SRC="images/pcpicon.png" ALT="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
 	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
-	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	<TD WIDTH=500><P ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
 	</TR>
 </TABLE>
 <H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Comparing storage performance</FONT></H1>
-<TABLE WIDTH=15% BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
-	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
+<TABLE WIDTH="15%" BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
+	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
 pmlogger
 pmlogsummary
 PCP::LogSummary
@@ -32,13 +32,13 @@ fio
 </P>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Step 1 - Gathering Baseline Data</B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Step 1 - Gathering Baseline Data</B></FONT></P></TD></TR>
 </TABLE>
 <P>For this example we will be using data gathered from two production systems - a NAS machine and a database.</P>
 <P>These are extracts from production logs that showed a typical load for those two machines during business hours.&nbsp;&nbsp;The data was gathered using <i>pmlogger</i> and the archive management scripts <i>pmlogger_daily</i>.&nbsp;&nbsp;It was reduced to only the metrics of interest for our evaluation using <i>pmlogextract</i>.&nbsp;&nbsp;Setting up and managing logging of performance data in this way is demonstrated <A HREF="lab.pmlogger.html">elsewhere</A>.</P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;If you have the tutorial installed, in a command shell enter:<BR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;If you have the tutorial installed, in a command shell enter:<BR>
 <PRE><B>
 $ source /etc/pcp.conf
 <BR>
@@ -57,13 +57,13 @@ $ pmafm model.folio run pmchart -t 15 -c model.view
 </B></PRE>
 This command will provide the interactive charts seen here...
 </TD>
-<TD><P VALIGN=MIDDLE ALIGN=RIGHT><CENTER><BR><IMG ALIGN=RIGHT SRC="images/model_dbload.png" BORDER=0></CENTER></P></TD>
+<TD><P VALIGN=MIDDLE ALIGN=RIGHT><CENTER><BR><IMG ALIGN=RIGHT SRC="images/model_dbload.png" ALT="" BORDER=0></CENTER></TD>
 </TR>
 </TABLE>
 <P>As an aside, the NAS is a Redhat Enterprise Linux 5 machine serving NFS, the database is running Windows Server 2008 and SQL Server 2008 - but this does not really matter for our modelling purposes.</P>
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Step 2 - Baseline Summary</B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Step 2 - Baseline Summary</B></FONT></P></TD></TR>
 </TABLE>
 <P>Next we use the <i><b>pmlogsummary</b></i> utility to extract a statistical summary of key disk metrics.&nbsp;&nbsp;We do this indirectly, in this example, using the <i>PCP::LogSummary</i> Perl module and a custom wrapper script (<A HREF="diskmodel/model.pl">model.pl</A>).&nbsp;&nbsp;This generates a spreadsheet with all of the key aspects of performance that our model must aim to reproduce.
 </P>
@@ -73,9 +73,9 @@ using information we know about the modelled environment.&nbsp;&nbsp;This
 level of breakdown is useful, as it lets us make informed statements later
 about how well the model simulates each component.
 </P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=10>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=10>
 <TR>
-<TD><P VALIGN=MIDDLE ALIGN=LEFT><CENTER><BR><IMG ALIGN=LEFT SRC="images/model_nasload.png" BORDER=0></CENTER></P></TD>
+<TD><P VALIGN=MIDDLE ALIGN=LEFT><CENTER><BR><IMG ALIGN=LEFT SRC="images/model_nasload.png" ALT="" BORDER=0></CENTER></TD>
 <TD><P> In this example we have a fairly simple NAS workload where files are
 only ever written once (and never updated), and subsequently read many
 times over, and never deleted.&nbsp;&nbsp;We identify typical file sizes through
@@ -97,10 +97,10 @@ activity does proceed during this time, so our model will cater for this
 characteristic by generating the log write traffic separately and then
 using that in both loads. </P>
 </TD>
-<TD><P VALIGN=MIDDLE ALIGN=RIGHT><CENTER><BR><IMG ALIGN=RIGHT SRC="images/model_biload.png" BORDER=0></CENTER></P></TD>
+<TD><P VALIGN=MIDDLE ALIGN=RIGHT><CENTER><BR><IMG ALIGN=RIGHT SRC="images/model_biload.png" ALT="" BORDER=0></CENTER></P></TD>
 </TABLE>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Examine the (trivial) <A HREF="diskmodel/model.pl">model.pl</A> Perl script and note its basic control flow:<BR><PRE>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Examine the (trivial) <A HREF="diskmodel/model.pl">model.pl</A> Perl script and note its basic control flow:<BR><PRE>
 <B>$ cat model.pl</B>
 # Setup some spreadsheet metadata - fonts, colors, etc
 # Create a worksheet, configure a few columns
@@ -112,18 +112,18 @@ If you have the PCP::LogSummary and SpreadSheet::WriteExcel Perl modules install
 </PRE>
 </TD></TR>
 </TABLE>
-<CENTER><IMG SRC="images/model_spreadsheet.png" WIDTH=912 HEIGHT=552 BORDER=1></CENTER>
+<CENTER><IMG SRC="images/model_spreadsheet.png" ALT="" WIDTH=912 HEIGHT=552 BORDER=1></CENTER>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Step 3 - Simulation</B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Step 3 - Simulation</B></FONT></P></TD></TR>
 </TABLE>
-<P>Armed with our workload summary, we will begin to produce a model.&nbsp;&nbsp;To generate I/O we will use the Linux <i><b>fio</i></b> utility.&nbsp;&nbsp;This reads a workload description from a configuration file, preallocates files in a test directory, then runs the defined workload, and produces a statistical summary of the I/O characteristics observed.&nbsp;&nbsp;In our case, where we are planning to compare different vendors storage, we are particular interested in the I/O latency characteristics while running our different workloads, and to a lesser extent the throughput and IOPS numbers - these should be constant thanks to our workload generator and as long as they are achieved, its the latency statistics that concern us (maximum, average, standard deviation).
+<P>Armed with our workload summary, we will begin to produce a model.&nbsp;&nbsp;To generate I/O we will use the Linux <i><b>fio</b></i> utility.&nbsp;&nbsp;This reads a workload description from a configuration file, preallocates files in a test directory, then runs the defined workload, and produces a statistical summary of the I/O characteristics observed.&nbsp;&nbsp;In our case, where we are planning to compare different vendors storage, we are particular interested in the I/O latency characteristics while running our different workloads, and to a lesser extent the throughput and IOPS numbers - these should be constant thanks to our workload generator and as long as they are achieved, its the latency statistics that concern us (maximum, average, standard deviation).
 </P>
 <P>The <i><b>fio</b></i> configuration file which generates our workloads is <A HREF="diskmodel/model.fio">model.fio</A>.&nbsp;&nbsp;While testing the model, the I/O submission patterns have been monitored using the same techniques as before to ensure the generated load matches as closely as possible with production - this was an iterative process, fiddling <B>fio</B> knobs until good matches were achieved. </P>
 <P>Below are an extract of the results, highlighting some of the statistics that are of particular interest in our scenario.&nbsp;&nbsp;These numbers suggest we have matched up with our production load from the spreadsheet (IOPs and throughput) and the latency numbers give good points of comparison when we run the model against other configurations.
 </P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
 	<TR><TD BGCOLOR="#e2e2e2">Extracts from <A HREF="diskmodel/nasread.out">nasread.out</A> and <A HREF="diskmodel/nasread.out">naswrite.out</A><BR>
 <PRE>
   Description  : [NAS reads workload model]
@@ -141,8 +141,8 @@ If you have the PCP::LogSummary and SpreadSheet::WriteExcel Perl modules install
 </TABLE>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Step 4 - Profit!</B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Step 4 - Profit!</B></FONT></P></TD></TR>
 </TABLE>
 <P>Now that we have an easily reproducible workload, we can throw it at any number of different devices (different vendors), configurations (different RAID configurations, with snapshots) and have a reasonable level of confidence that observations will resemble what would happen in production.
 </P>
@@ -154,9 +154,9 @@ of the device utilisation PCP metrics (<i>disk.dev.avactive</i> or
 <P><BR></P>
 <HR>
 <CENTER>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
-	<TR> <TD WIDTH=50%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc</FONT></P></TD>
-	<TD WIDTH=50%><P ALIGN=RIGHT><A HREF="http://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2014 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></P></TD> </TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH="50%"><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc</FONT></A></P></TD>
+	<TD WIDTH="50%"><P ALIGN=RIGHT><A HREF="http://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2014 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></A></P></TD> </TR>
 </TABLE>
 </CENTER>
 </BODY>
