@@ -6,6 +6,8 @@ seq=`basename $0`
 echo "QA output created by $seq"
 . ./common.qt
 
+rm -f $seq.full
+
 which pmdumptext >/dev/null 2>&1 || _notrun "pmdumptext not installed"
 
 status=1	# failure is the default!

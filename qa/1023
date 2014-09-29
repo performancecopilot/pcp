@@ -16,7 +16,7 @@ pminfo proc.nprocs >/dev/null 2>&1 || _notrun "proc PMDA not installed"
 
 # see if unix domain sockets are available (permissions)
 unix_domain_sockets=false
-eval `pmconfig -L 2>/dev/null`
+eval `pmconfig -L 2>/dev/null | grep unix_domain_sockets`
 target="-h localhost"
 $unix_domain_sockets && target="-h unix:"
 
