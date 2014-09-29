@@ -14,9 +14,8 @@
 .\"
 .TH PERFALLOC 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3perfalloc\f1 \- notify 
-.BR
-pmdaperfevent (1)
+\f3perfalloc\f1 \- notify
+.BR pmdaperfevent (1)
 to disable hardware counter allocation.
 .SH SYNOPSIS
 \f3$PCP_PMDAS_DIR/perfevent/perfalloc\f1
@@ -25,191 +24,45 @@ to disable hardware counter allocation.
 [\f3\-f\f1 \f2lockfile\f1]
 [\f3\-h\f1]
 [\f3\-v\f1]
+[\f3COMMAND\f1]
 .SH DESCRIPTION
 .B perfalloc
 is a command that notifies the 
-.BR
-pmdaperfevent (1)
+.BR pmdaperfevent (1)
 to disable hardware counter event collection. This allow unpriviledged processes
 to use the hardware counters.
 
-           "Request use of the hardware performance counters. If the reservation\n"
-           "request fails the process exits immediately with exit code %d.\n"
-           "If successful, the process will run until a kill signal is received. The\n"
-           "reservation request persists while the process is running.\n"
-           "\n"
-and reads the hardware performance counters using the Linux kernel
-perf_event API. 
+If the reservation request fails, then perfalloc exits immediately with exit code EXIT_FAILURE.
+If successful, the perfalloc will run until a kill signal is received. The
+reservation request persists while perfalloc is running.
+
+If a commandline is given, this is executed as a subprocess of the agent. When the command dies, so does the agent.
 .PP
-The
-.B perfevent
-PMDA exports metrics for hardware performance counters that are configurable
-from the Linux kernel perf_event API.  The PMDA uses the libpfm4 library to
-access the hardware performance counters so any counters that are supported in
-libpfm4 should be available. Also included is the ability to read the Intel
-RAPL counters via direct MSR access.
-The PMDA supports automatically loading different counters for each hardware
-architecture. A single configuration file is used to specify the desired
-counters for each hardware performance monitoring unit (PMU). The configuration
-file allows different counters to be programmed on different CPUs and supports
-round-robin assignment of uncore counters needed for some AMD chips. 
-
-The PMDA configures the counters to count events in both user and kernel mode.
-This means that the hardware counters are unavailable to use by normal
-unprivileged user applications when they are in use by the PMDA. The
-PMDA provides a mechanism to temporarily disable the system-wide
-counters in order to allow normal users to be able to use the counters
-if they wish. See
-.BR perfalloc (1)
-for details.
-
-.PP
-A brief description of the
-.B pmdaperfevent
-           "  -D       run in the foreground (the default)\n"
-           "  -d       run in the background\n"
-           "  -f FILE  Use FILE as the lock file (default " PERF_ALLOC_LOCKFILE ")\n"
-           "  -h       display this help message and exit\n"
-           "  -v       output version number and exit\n"
-           "\n"
-           "If a commandline is given, this is executed as a subprocess of the agent."
-           "When the command dies, so does the agent."
-           , name, EXIT_FAILURE);
-
-command line options follows:
+A brief description of the command line options follows:
 .TP 5
+.B \-D
+run in the foreground (the default)
+.TP
 .B \-d
-It is absolutely crucial that the performance metrics
-.I domain
-number specified here is unique and consistent.
-That is,
-.I domain
-should be different for every PMDA on the one host, and the same
-.I domain
-number should be used for the same PMDA on all hosts.
+run in the background
 .TP
-.B \-l
-Location of the log file.  By default, a log file named
-.I perfevent.log
-is written in the current directory of
-.BR pmcd (1)
-when
-.B pmdaperfevent
-is started, i.e.
-.BR $PCP_LOG_DIR/pmcd .
-If the log file cannot
-be created or is not writable, output is written to the standard error instead.
+.B \-f FILE
+use FILE as the lock file (default $PCP_PMDAS_DIR/perfevent/perflock)
 .TP
-.B \-U
-User account under which to run the agent.
-The default is the privileged "root" account.
+.B \-h
+display a help message and exit
 .TP
-.B \-i
-listen on given port number for connection from 
-.BR pmcd (1)
-.TP
-.B \-p
-communicate with 
-.BR pmcd (1)
-via stdin/stdout
-.TP
-.B \-u
-expect 
-.BR pmcd (1)
-to connect on given unix domain socket
-.TP
-.B \-6
-expect
-.BR pmcd (1)
-to connect on given ipv6 port (number or name)
-.SH INSTALLATION
-The
-.B perfevent
-PMDA is not activated by default. 
-To install the PMDA, do the following as root:
-.PP
-.ft CW
-.nf
-.in +0.5i
-# cd $PCP_PMDAS_DIR/perfevent
-# ./Install
-.in
-.fi
-.ft 1
-.PP
-If you want to undo the installation, do the following as root:
-.PP
-.ft CW
-.nf
-.in +0.5i
-# cd $PCP_PMDAS_DIR/perfevent
-# ./Remove
-.in
-.fi
-.ft 1
-.PP
-.B pmdaperfevent
-is launched by
-.BR pmcd (1)
-and should never be executed directly.
-The Install and Remove scripts notify
-.BR pmcd (1)
-when the agent is installed or removed.
-.SH FILES
-.PD 0
-.TP 10
-.B $PCP_PMCDCONF_PATH
-command line options used to launch
-.B pmdaperfevent
-.TP 10
-.B $PCP_PMDAS_DIR/perfevent/perfevent.conf
-default configuration file for the PMDA. See
-.BR perfevent.conf (3)
-for detailed information.
-.TP 
-.B $PCP_PMDAS_DIR/perfevent/help
-default help text file for the perfevent metrics
-.TP
-.B $PCP_PMDAS_DIR/perfevent/Install
-installation script for the
-.B pmdaperfevent
-agent
-.TP
-.B $PCP_PMDAS_DIR/perfevent/Remove
-undo installation script for the 
-.B pmdaperfevent
-agent
-.TP
-.B $PCP_LOG_DIR/pmcd/perfevent.log
-default log file for error messages and other information from
-.B pmdaperfevent
+.B \-v
+output version number and exit
+
 .PD
 .SH BUGS
-Each event is placed in its own group and there is no way to group related
-events together so they are guaranteed to be simultaneously active.
-A workaround for this is to ensure that there number of configured events is
-less than or equal to the number of available hardware counters. This means that
-the events will not be time-multiplexed by the kernel and will be simultaneously active.
-.SH "PCP ENVIRONMENT"
-Environment variables with the prefix
-.B PCP_
-are used to parameterize the file and directory names
-used by PCP.
-On each installation, the file
-.I /etc/pcp.conf
-contains the local values for these variables.
-The
-.B $PCP_CONF
-variable may be used to specify an alternative
-configuration file,
-as described in
-.BR pcp.conf (5).
+There may be a delay of up to 100 miliseconds between perfalloc requesting the
+hardware counter disabling and the perfevent pmda processing the request.
+
+The perfalloc process does not check the status of the request and therefore is not able to
+provide a positive confirmation that the request succeeded and the hardware counters are disabled.
 .SH SEE ALSO
-.BR perfalloc (1),
-.BR perfevent.conf (3),
-.BR PCPIntro (1),
-.BR pmcd (1),
-.BR PMAPI (3),
-.BR pcp.conf (5)
+.BR pmdaperfevent (1),
 and
-.BR pcp.env (5).
+.BR perfevent.conf (3),

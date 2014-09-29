@@ -26,7 +26,7 @@
 #include <sys/prctl.h>
 #include <errno.h>
 
-#include "perfmanager.h" /* For lock filename */
+#include "perflock.h" /* For lock filename */
 
 sig_atomic_t running = 1;
 
@@ -45,7 +45,7 @@ void usage(const char *name)
            "\n"
            "  -D       run in the foreground (the default)\n"
            "  -d       run in the background\n"
-           "  -f FILE  Use FILE as the lock file (default " PERF_ALLOC_LOCKFILE ")\n"
+           "  -f FILE  Use FILE as the lock file (default $PCP_PMDA_DIR/perfevent/perflock)\n"
            "  -h       display this help message and exit\n"
            "  -v       output version number and exit\n"
            "\n"
@@ -69,7 +69,7 @@ int main(int argc, char **argv)
     int runmode, opt;
     const char *lockfile;
 
-    lockfile = PERF_ALLOC_LOCKFILE;
+    lockfile = get_perf_alloc_lockfile();
     runmode = RUN_FOREGROUND;
     while ((opt = getopt(argc, argv, "dDf:hv")) != -1) {
         switch (opt) {
@@ -181,6 +181,7 @@ int main(int argc, char **argv)
 	fl.l_type = F_UNLCK;
 	(void) fcntl(fp, F_SETLK, &fl);
 	(void) close(fp);
+    free_perf_alloc_lockfile();
 
 	return 0;
 }

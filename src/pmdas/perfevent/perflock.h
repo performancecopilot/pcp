@@ -1,7 +1,7 @@
 /*
- * perfmanager interface
+ * perfevent interface
  *
- * Copyright (c) 2013 Joe White
+ * Copyright (c) 2014 Joe White
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,21 +13,14 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
+#ifndef PERFLOCK_H_
+#define PERFLOCK_H_
 
-#ifndef PERFMANAGER_H_
-#define PERFMANAGER_H_
+/* Get the pathname to the lock file
+ * Note this function is not thread safe.
+ */
+const char *get_perf_alloc_lockfile();
 
-#include <stdint.h>
-#include "perfinterface.h"
+void free_perf_alloc_lockfile();
 
-typedef intptr_t perfmanagerhandle_t;
-
-perfmanagerhandle_t *manager_init(const char *configfilename);
-
-void manager_destroy(perfmanagerhandle_t *mgr);
-
-int perf_get_r(perfmanagerhandle_t *inst, perf_counter **data, int *size);
-
-int perf_enabled(perfmanagerhandle_t *inst);
-
-#endif // PERFMANAGER_H_
+#endif

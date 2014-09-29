@@ -27,10 +27,7 @@
 #include <stdlib.h>
 
 #include "perfinterface.h"
-
-/* REMOVE */
-#include <string.h>
-/* REMOVE */
+#include "perflock.h"
 
 #define WAIT_TIME_NS (100 * 1000 * 1000 )
 
@@ -229,7 +226,7 @@ perfmanagerhandle_t *manager_init(const char *configfilename)
         return 0;
     }
 
-	fp = open(PERF_ALLOC_LOCKFILE, O_CREAT | O_RDWR, S_IRWXU |  S_IRGRP | S_IROTH );
+	fp = open(get_perf_alloc_lockfile(), O_CREAT | O_RDWR, S_IRWXU |  S_IRGRP | S_IROTH );
 
 	if( fp < 0 ) {
         free(mgr);
@@ -275,4 +272,6 @@ void manager_destroy(perfmanagerhandle_t *m)
 
     monitor_destroy(mgr->monitor);
     free(mgr); 
+
+    free_perf_alloc_lockfile();
 }

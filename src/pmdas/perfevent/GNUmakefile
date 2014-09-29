@@ -25,10 +25,10 @@ LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 
 CFILES	= pmda.c perfmanager.c perfinterface.c architecture.c \
-		  rapl-interface.c configparser.yy.c
+		  rapl-interface.c configparser.yy.c perflock.c
 
 HFILES  = architecture.h configparser.h perfinterface.h perfmanager.h \
-		  rapl-interface.h
+		  rapl-interface.h perflock.h
 
 SCRIPTS		= Install Remove
 
@@ -72,5 +72,8 @@ domain.h: ../../pmns/stdpmid
 configparser.yy.c: configparser.l configparser.h
 	flex -o $@ $<
 
-perfalloc: perfalloc.o
+perfalloc: perfalloc.o perflock.o
+
+clean clobber::
+	$(RM) configparser.yy.c perfalloc
 
