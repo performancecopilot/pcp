@@ -37,8 +37,8 @@ YFILES = gram.y
 SCRIPTS		= Install Remove
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
-LSRCFILES 	= help root root_proc linux_proc_migrate.conf $(SCRIPTS)
-LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) $(YFILES:%.y=%.tab.?)
+LSRCFILES 	= help root linux_proc_migrate.conf $(SCRIPTS)
+LDIRT		= $(HELPTARGETS) domain.h root_proc $(VERSION_SCRIPT) $(YFILES:%.y=%.tab.?)
 
 LLDLIBS		= $(PCP_PMDALIB)
 LCFLAGS		= $(INVISIBILITY)
@@ -57,7 +57,7 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: domain.h $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
+build-me: domain.h root_proc $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
 	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
 	fi
@@ -91,6 +91,10 @@ $(VERSION_SCRIPT):
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
+
+root_proc: root_proc.in root_hotproc.in
+	./build_root_proc.sh
+	
 
 gram.tab.o:	hotproc.h
 lex.o:	hotproc.h

@@ -1,0 +1,31 @@
+hotproc.control {
+    refresh	PROC:60:1
+    config	PROC:60:8
+    config_gen  PROC:60:9
+}
+
+hotproc.total {
+    cpuidle	PROC:60:2
+    cpuburn	PROC:60:3
+    cpuother
+}
+
+hotproc.total.cpuother {
+    transient   PROC:60:4
+    not_cpuburn PROC:60:5
+    total       PROC:60:6
+    percent     PROC:60:7
+}
+
+hotproc.predicate {
+    syscalls       PROC:61:0
+    ctxswitch      PROC:61:1
+    virtualsize    PROC:61:2
+    residentsize   PROC:61:3
+    iodemand       PROC:61:4
+    iowait         PROC:61:5
+    schedwait      PROC:61:6
+    cpuburn        PROC:61:7
+}
+
+#undef PROC
