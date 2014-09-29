@@ -16,12 +16,15 @@ pminfo proc.nprocs >/dev/null 2>&1 || _notrun "proc PMDA not installed"
 
 # see if unix domain sockets are available (permissions)
 unix_domain_sockets=false
-eval `pmconfig -L 2>/dev/null`
+eval `pmconfig -L 2>/dev/null | grep unix_domain_sockets`
 target="-h localhost"
 $unix_domain_sockets && target="-h unix:"
+echo "unix_domain_sockets=$unix_domain_sockets" >>$seq.full
+echo "target=$target" >>$seq.full
 
 # real QA test starts here
 inst=`pminfo $target -F proc.psinfo.pid \
+      | tee -a $seq.full \
       | sed -n -e '/inst \[1 /{
 s/^[^"]*"//
 s/ .*//
