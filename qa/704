@@ -22,11 +22,7 @@ MMV_STATS_FILE=pymmv
 
 _cleanup()
 {
-    if [ -d "$tmp.mmv.dir" ]
-    then
-        rm -fr "$MMV_STATS_DIR"
-        mv "$tmp.mmv.dir" "$MMV_STATS_DIR"
-    fi
+    [ -d $MMV_STATS_DIR.$seq ] && _restore_config $MMV_STATS_DIR
 }
 
 _filter_pminfo()
@@ -38,9 +34,10 @@ _filter_pminfo()
 trap "_cleanup" 0 1 2 3 15
 
 # real QA starts here
-[ -d $MMV_STATS_DIR ] && $sudo mv -f $MMV_STATS_DIR $tmp.mmv.dir
-mkdir "$MMV_STATS_DIR"
-chmod 1777 "$MMV_STATS_DIR"
+[ -d $MMV_STATS_DIR ] && _save_config $MMV_STATS_DIR
+$sudo rm -rf $MMV_STATS_DIR
+$sudo mkdir $MMV_STATS_DIR
+$sudo chmod 1777 $MMV_STATS_DIR
 _check_agent mmv >/dev/null || _notrun "MMV agent should be setup but is not"
 
 echo "Running python test program"

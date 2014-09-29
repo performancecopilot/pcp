@@ -20,10 +20,10 @@ PMDA_LOG_PATH=`echo $PCP_PMCDLOG_PATH | sed -e 's/pmcd.log/simple.log/'`
 
 _cleanup()
 {
-	[ -f $tmp.conf.bak ] && $sudo cp $tmp.conf.bak $home/$iam/$iam.conf
-	if diff $tmp.pmcd.conf $PCP_PMCDCONF_PATH > /dev/null 2>&1
+	[ -f $home/$iam/$iam.conf.$seq ] && _restore_config $home/$iam/$iam.conf
+	if diff $PCP_PMCDCONF_PATH.$seq $PCP_PMCDCONF_PATH > /dev/null 2>&1
 	then
-	    :
+	    _restore_config $PCP_PMCDCONF_PATH
 	else
 
 # do a default install which ensures the pmns and any views are installed
@@ -33,11 +33,11 @@ _cleanup()
 # PMDA may have been installed differently to default. As everything is
 # installed we can use the old pmcd.conf file to restore state.
 
-	    if diff $tmp.pmcd.conf $PCP_PMCDCONF_PATH > /dev/null 2>&1
+	    if diff $PCP_PMCDCONF_PATH.$seq $PCP_PMCDCONF_PATH > /dev/null 2>&1
 	    then
-		:
+	    	_restore_config $PCP_PMCDCONF_PATH
 	    else
-	    	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	    	_restore_config $PCP_PMCDCONF_PATH
 		$sudo $signal -a -s HUP pmcd
 	    fi
 	fi
@@ -101,7 +101,9 @@ cd $home/$iam
 unset ROOT MAKEFLAGS
 
 # copy the pmcd config file to restore state later.
-cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+_save_config $PCP_PMCDCONF_PATH
+# ditto for simple pmda config
+[ -f $home/$iam/$iam.conf ] && _save_config $home/$iam/$iam.conf
 
 if $sudo make clobber >$tmp.out 2>&1
 then

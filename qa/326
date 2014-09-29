@@ -27,7 +27,11 @@ _cleanup()
     else
 	echo
 	echo "Restore pmcd.conf and restart PMCD ..."
-	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	if [ -f $tmp.pmcd.conf ]
+	then
+	    $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	    rm -f $tmp.pmcd.conf
+	fi
 	_restore_primary_logger
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	rm -f $tmp.*

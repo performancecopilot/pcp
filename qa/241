@@ -29,7 +29,6 @@ fi
 status=0	# success is the default!
 done_clean=false
 MMV_STATS_DIR="$PCP_TMP_DIR/mmv"
-SAVE_MMV_STATS_DIR="$PCP_TMP_DIR/mmv.$seq"
 
 $sudo rm -rf $tmp.*
 
@@ -46,9 +45,8 @@ _cleanup()
     then
 	:
     else
-	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
-	[ -d $SAVE_MMV_STATS_DIR ] && $sudo rm -fr "$MMV_STATS_DIR"
-	[ -d $SAVE_MMV_STATS_DIR ] && $sudo mv $SAVE_MMV_STATS_DIR $MMV_STATS_DIR
+	_restore_config $PCP_PMCDCONF_PATH
+	[ -d $MMV_STATS_DIR.$seq ] && _restore_config $MMV_STATS_DIR
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -80,15 +78,16 @@ cd "$home/$iam"
 unset ROOT MAKEFLAGS
 
 # copy the pmcd config file to restore state later.
-cp $PCP_PMCDCONF_PATH "$tmp.pmcd.conf"
+_save_config $PCP_PMCDCONF_PATH
 # move the MMV directory to restore contents later.
-[ -d $MMV_STATS_DIR ] && $sudo mv -f $MMV_STATS_DIR $SAVE_MMV_STATS_DIR
+[ -d $MMV_STATS_DIR ] && _save_config $MMV_STATS_DIR
 
 # start from a known starting point
 $sudo ./Remove >/dev/null 2>&1
 
-$sudo mkdir "$MMV_STATS_DIR" 2>/dev/null
-$sudo chmod 1777 "$MMV_STATS_DIR" 2>/dev/null
+$sudo rm -rf $MMV_STATS_DIR
+$sudo mkdir $MMV_STATS_DIR 2>/dev/null
+$sudo chmod 1777 $MMV_STATS_DIR 2>/dev/null
 
 cat <<'End-of-File' >$tmp.perl
 use strict;

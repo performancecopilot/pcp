@@ -45,8 +45,7 @@ _cleanup()
     if [ -f $PCP_PMCDCONF_PATH.$seq ]
     then
 	echo
-	$sudo rm -f $PCP_PMCDCONF_PATH
-	$sudo mv $PCP_PMCDCONF_PATH.$seq $PCP_PMCDCONF_PATH
+	_restore_config $PCP_PMCDCONF_PATH
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
     else
@@ -104,7 +103,7 @@ EOF
     exit 1
 esac
 
-$sudo mv $PCP_PMCDCONF_PATH $PCP_PMCDCONF_PATH.$seq
+_save_config $PCP_PMCDCONF_PATH
 $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
 $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd

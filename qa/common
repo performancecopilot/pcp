@@ -260,6 +260,7 @@ _havepmcdtrace()
 -T 3
 End-of-File
 	$sudo cp $tmp.tmp $PCPQA_PMCDOPTIONS
+	$sudo chown root:root $PCPQA_PMCDOPTIONS
 	$sudo $PCP_RC_DIR/pcp restart
 	_wait_for_pmlogger
     fi

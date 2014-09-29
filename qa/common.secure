@@ -43,18 +43,15 @@ nss_cleanup()
     unset PCP_SECURE_SOCKETS
 
     # restore any modified pmcd configuration file
-    cf=$PCP_PMCDOPTIONS_PATH
-    if test -f $cf.$seq
+    if test -f $PCP_PMCDOPTIONS_PATH.$seq
     then
-	$sudo rm -f $cf
-	$sudo mv $cf.$seq $cf
+	_restore_config $PCP_PMCDOPTIONS_PATH
     fi
 
     # restore user certificate DB from existing installation
     if test -d $usersdb.$seq
     then
-	$sudo rm -fr $usersdb
-	$sudo mv $usersdb.$seq $usersdb
+	_restore_config $usersdb
     fi
 }
 
@@ -63,7 +60,7 @@ nss_backup()
 {
     for f in $PCP_PMCDOPTIONS_PATH $usersdb
     do
-	[ -e $f ] && $sudo mv $f $f.$seq
+	[ -e $f ] && _save_config $f
     done
 }
 
@@ -149,6 +146,7 @@ nss_setup_collector()
 -P $collectorpw
 End-Of-File
     $sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
+    $sudo chown root:root $PCP_PMCDOPTIONS_PATH
     echo "Start pmcd, modified \$PCP_PMCDOPTIONS_PATH (pmcd.options):" | tee -a $seq.full
     $sudo $PCP_RC_DIR/pcp restart | tee -a $seq.full >$tmp.out
     _wait_for_pmcd

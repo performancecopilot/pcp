@@ -39,15 +39,8 @@ _cleanup()
     then
 	:
     else
-	if [ -f $tmp.pmcd.conf ]
-	then
-	    $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
-	fi
-	if [ -d $tmp.mmv.dir ]
-	then
-	    $sudo rm -fr "$MMV_STATS_DIR"
-	    $sudo mv $tmp.mmv.dir $MMV_STATS_DIR
-	fi
+	_restore_config $PCP_PMCDCONF_PATH
+	[ -d $MMV_STATS_DIR.$seq ] && _restore_config $MMV_STATS_DIR
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -75,14 +68,15 @@ cd "$home/$iam"
 unset ROOT MAKEFLAGS
 
 # copy the pmcd config file to restore state later.
-cp $PCP_PMCDCONF_PATH "$tmp.pmcd.conf"
+_save_config $PCP_PMCDCONF_PATH
 # move the MMV directory to restore contents later.
-[ -d $MMV_STATS_DIR ] && $sudo mv -f $MMV_STATS_DIR $tmp.mmv.dir
+[ -d $MMV_STATS_DIR ] && _save_config $MMV_STATS_DIR
 
 # start from a known starting point
 $sudo ./Remove >/dev/null 2>&1
 
 # create a directory we can write and pcp group can read
+$sudo rm -rf "$MMV_STATS_DIR"
 $sudo mkdir -m 755 "$MMV_STATS_DIR"
 $sudo chown $username "$MMV_STATS_DIR"
 $sudo chgrp pcp "$MMV_STATS_DIR"

@@ -46,7 +46,7 @@ _cleanup_agent()
 {
     cd $home/$iam
 
-    [ -f $tmp_configfile ] && $sudo mv $tmp_configfile $configfile
+    [ -f $configfile.$seq ] && _restore_config $configfile
 
     if grep $iam $tmp.pmcd.conf > /dev/null
     then
@@ -55,7 +55,7 @@ _cleanup_agent()
 	$sudo ./Remove < /dev/null > /dev/null 2>&1
     fi
 
-    [ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+    _restore_config $PCP_PMCDCONF_PATH
     $sudo $signal -a -s HUP pmcd
 
     cd $here
@@ -105,10 +105,10 @@ then
 fi
 
 # copy the pmcd config file to restore state later
-cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+_save_config $PCP_PMCDCONF_PATH
 
 # copy the agent config file to restore state later
-[ -f $configfile ] && $sudo mv $configfile $tmp_configfile
+[ -f $configfile ] && _save_config $configfile
 
 echo
 echo "=== remove agent ==="

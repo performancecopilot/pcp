@@ -16,7 +16,7 @@ status=0
 
 _cleanup()
 {
-    [ -f $tmp.save ] && $sudo mv $tmp.save $PCP_PMCDOPTIONS_PATH
+    _restore_config $PCP_PMCDOPTIONS_PATH
     $sudo rm -f $tmp.*
     $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
     _wait_for_pmcd
@@ -45,7 +45,7 @@ else
 fi
 echo ""
 
-cp $PCP_PMCDOPTIONS_PATH $tmp.save
+_save_config $PCP_PMCDOPTIONS_PATH
 cp $PCP_PMCDOPTIONS_PATH $tmp.options
 cat <<End-Of-File >>$tmp.options
 # Dummy lines added by PCP QA test 170

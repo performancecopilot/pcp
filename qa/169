@@ -34,7 +34,7 @@ _cleanup()
 {
     $sudo $PCP_RC_DIR/pcp stop >$tmp.stop
     _filter_pcp_stop <$tmp.stop | sed -e 's/\.\.\.\.\.*/[dots]/'
-    [ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+    _restore_config $PCP_PMCDCONF_PATH
     pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
     && $sudo sh $tmp.cmd
     $sudo $PCP_RC_DIR/pcp restart >$tmp.start 
@@ -114,7 +114,7 @@ EOF
 # The pmcd PMDA is required so that pmcd.control.timeout can be modified.
 # Save the current pmcd.conf so it can be restored afterwards.
 
-cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+_save_config $PCP_PMCDCONF_PATH
 cat >$tmp.tmp <<End-Of-File
 # QA test 169 dummy pmcd.conf (blame Jonathan if you find this!)
 #
@@ -130,7 +130,7 @@ $PCP_AWK_PROG <$PCP_PMCDCONF_PATH >>$tmp.tmp '
 
 pmcdlog=$PCP_PMCDLOG_PATH
 
-$sudo mv $tmp.tmp $PCP_PMCDCONF_PATH
+$sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
 $sudo $PCP_RC_DIR/pcp start >$tmp.start
 _filter_pcp_start <$tmp.start | sed -e 's/\.\.\.\.\.*/[dots]/'
 _wait_for_pmcd

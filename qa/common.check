@@ -78,6 +78,42 @@ _check_freespace()
     fi
 }
 
+# save and restore configuration files in a way that labels which test
+# was responsible in the event of a test abort, but also preserves the
+# mode and ownership of the configuration file
+#
+_save_config()
+{
+    if [ -f "$1" ]
+    then
+	$sudo rm -f "$1.$seq"
+	$sudo mv "$1" "$1.$seq"
+	$sudo cp "$1.$seq" "$1"
+    elif [ -d "$1" ]
+    then
+	$sudo rm -rf "$1.$seq"
+	$sudo mv "$1" "$1.$seq"
+	$sudo cp -r "$1.$seq" "$1"
+    else
+	echo "Botch: _save_config: $1 does not exist"
+    fi
+}
+
+_restore_config()
+{
+    if [ -f "$1.$seq" ]
+    then
+	$sudo rm -f "$1"
+	$sudo mv "$1.$seq" "$1"
+    elif [ -d "$1.$seq" ]
+    then
+	$sudo rm -rf "$1"
+	$sudo mv "$1.$seq" "$1"
+    else
+	echo "Warning: _restore_config: $1.$seq does not exist"
+    fi
+}
+
 # check that a given agent (argument 1) is up and running;
 # indicated by return status and agent warnings to stdout.
 #
@@ -134,7 +170,7 @@ _prepare_pmda()
     install_on_cleanup=false
     pminfo $agent >/dev/null 2>&1 && install_on_cleanup=true
     # copy the pmcd config file to restore state later.
-    cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+    _save_config $PCP_PMCDCONF_PATH
     unset ROOT MAKEFLAGS
 }
 
@@ -146,7 +182,7 @@ _cleanup_pmda()
     then
 	:
     else
-	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	_restore_config $PCP_PMCDCONF_PATH
 	rm -f $tmp.*
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
@@ -530,12 +566,12 @@ p
 #
 _writable_primary_logger()
 {
-    _configfile="$PCP_SYSCONF_DIR/pmlogger/config.default"
+    _configfile="$PCP_VAR_DIR/config/pmlogger/config.default"
 
     echo "_open_primary_logger checking config file: $_configfile" >>$seq.full
 
     # first, move aside the default configuration file
-    $sudo mv "$_configfile" "$_configfile.$seq"
+    _save_config "$_configfile"
 
     # next, create a new default configuration file
     PMLOGCONF="$PCP_BINADM_DIR/pmlogconf"
@@ -551,7 +587,7 @@ _writable_primary_logger()
 #
 _restore_primary_logger()
 {
-    _configfile="$PCP_SYSCONF_DIR/pmlogger/config.default"
+    _configfile="$PCP_VAR_DIR/config/pmlogger/config.default"
 
     # close out access from local pmlc once more
     test -f "$_configfile" && \
@@ -560,8 +596,7 @@ _restore_primary_logger()
             "$_configfile"
 
     # if there was an initial configuration, put it back
-    test -f "$_configfile.$seq" && $sudo mv "$_configfile.$seq" "$_configfile"
-    ( id pcp && $sudo chown pcp:pcp "$_configfile" ) >/dev/null 2>&1
+    test -f "$_configfile.$seq" && _restore_config "$_configfile"
 }
 
 # purify support
@@ -1594,7 +1629,7 @@ _prepare_pmda_install()
     iam=$1
 
     # copy the pmcd config file to restore state later.
-    cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+    _save_config $PCP_PMCDCONF_PATH
 
     cd $PCP_PMDAS_DIR/$iam
     if [ -f Makefile -o -f GNUmakefile ] ; then
@@ -1621,12 +1656,12 @@ _restore_pmda_install()
     iam=$1
     signal=$PCP_BINADM_DIR/pmsignal
 
-    [ -f $tmp.$iam.conf ] && \
-	$sudo mv $tmp.$iam.conf $PCP_VAR_DIR/config/$iam/$iam.conf
+    [ -f $PCP_VAR_DIR/config/$iam/$iam.conf.$seq ] \
+	&& $sudo mv $PCP_VAR_DIR/config/$iam/$iam.conf.$seq $PCP_VAR_DIR/config/$iam/$iam.conf
 
-    if diff $tmp.pmcd.conf $PCP_PMCDCONF_PATH > /dev/null 2>&1
+    if diff $PCP_PMCDCONF_PATH.$seq $PCP_PMCDCONF_PATH > /dev/null 2>&1
     then
-        :
+	_restore_config $PCP_PMCDCONF_PATH
     else
 # do a default install which ensures the pmns and any views are installed
 
@@ -1636,11 +1671,11 @@ _restore_pmda_install()
 # PMDA may have been installed differently to default. As everything is
 # installed we can use the old pmcd.conf file to restore state.
 
-        if diff $tmp.pmcd.conf $PCP_PMCDCONF_PATH > /dev/null 2>&1
+        if diff $PCP_PMCDCONF_PATH.$seq $PCP_PMCDCONF_PATH > /dev/null 2>&1
         then
-            :
+	    _restore_config $PCP_PMCDCONF_PATH
         else
-            [ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	    _restore_config $PCP_PMCDCONF_PATH
             $sudo $signal -a -s HUP pmcd
         fi
     fi

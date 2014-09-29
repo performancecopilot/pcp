@@ -30,16 +30,11 @@ _cleanup()
 	exit
     fi
 
-    if diff $tmp.root $PCP_VAR_DIR/pmns/root >/dev/null 2>&1
-    then
-	:
-    else
-	[ -f $tmp.root ] && $sudo mv $tmp.root $PCP_VAR_DIR/pmns/root
-    fi
+    _restore_config $PCP_VAR_DIR/pmns/root
 
-    if diff $tmp.pmcd.conf $PCP_PMCDCONF_PATH > /dev/null 2>&1
+    if diff $PCP_PMCDCONF_PATH.$seq $PCP_PMCDCONF_PATH > /dev/null 2>&1
     then
-	:
+	_restore_config $PCP_PMCDCONF_PATH
     else
 
 
@@ -55,11 +50,11 @@ _cleanup()
 # PMDA may have been installed differently to default. As everything is
 # installed we can use the old pmcd.conf file to restore state.
 
-	if diff $tmp.pmcd.conf $PCP_PMCDCONF_PATH > /dev/null 2>&1
+	if diff $PCP_PMCDCONF_PATH.$seq $PCP_PMCDCONF_PATH > /dev/null 2>&1
 	then
-	    :
+	    _restore_config $PCP_PMCDCONF_PATH
 	else
-	    [ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	    _restore_config $PCP_PMCDCONF_PATH
 	    $sudo $signal -a -s HUP pmcd
 	fi
     fi
@@ -87,8 +82,8 @@ cd $home/$iam
 unset ROOT MAKEFLAGS
 
 # copy some config file to restore state later.
-cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
-cp $PCP_VAR_DIR/pmns/root $tmp.root
+_save_config $PCP_PMCDCONF_PATH
+_save_config $PCP_VAR_DIR/pmns/root
 
 if $sudo make clobber >$tmp.out 2>&1
 then

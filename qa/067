@@ -27,8 +27,6 @@ trap "rm -f $tmp.*; exit" 0 1 2 3 15
 # real QA test starts here
 
 signal=$PCP_BINADM_DIR/pmsignal
-config=$PCP_PMCDCONF_PATH
-oconfig=$tmp.pmcd.config
 log=$PCP_PMCDLOG_PATH
 LOCALHOST=`hostname`
 
@@ -76,10 +74,7 @@ fi
 
 cleanup()
 {
-    if [ -f $oconfig ]
-    then
-	$sudo mv $oconfig $config
-    fi
+    _restore_config $PCP_PMCDCONF_PATH
     pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
     && $sudo sh $tmp.cmd
     echo "Restarting pmcd"
@@ -148,8 +143,8 @@ netstat -an \
     -e 's/.*\(\*.2222\).*\(LISTEN\).*/... \1 ... \2/'
 echo
 
-cp $config $oconfig
-$sudo mv $tmp $config
+_save_config $PCP_PMCDCONF_PATH
+$sudo cp $tmp $PCP_PMCDCONF_PATH
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 && $sudo sh $tmp.cmd
 $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start

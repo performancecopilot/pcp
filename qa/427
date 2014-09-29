@@ -33,12 +33,8 @@ _cleanup()
 {
     if $needclean
     then
-	if [ -s $tmp.pmcd.conf ]
-	then
-	    $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
-	fi
-        [ -f $tmp.control ] && \
-            $sudo cp $tmp.control $PCP_PMLOGGERCONTROL_PATH
+	_restore_config $PCP_PMCDCONF_PATH
+	_restore_config $PCP_PMLOGGERCONTROL_PATH
 	needclean=false
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
@@ -56,7 +52,7 @@ _cleanup()
 # real QA test starts here
 
 # disable all pmloggers ...
-$sudo cp $PCP_PMLOGGERCONTROL_PATH $tmp.control
+_save_config $PCP_PMLOGGERCONTROL_PATH
 cat <<End-of-File >$tmp.tmp
 # dummy file created by qa/$seq on `date`
 # the goal here is to have a controlled primary logger that does
@@ -67,7 +63,7 @@ End-of-File
 $sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
 
 # backup $PCP_PMCDCONF_PATH
-$sudo cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+_save_config $PCP_PMCDCONF_PATH
 
 # add bogus entry
 $PCP_AWK_PROG < $PCP_PMCDCONF_PATH > $tmp.pmcd.new -v seq="$seq" -v path="$tmp.bogus.pmda" '
