@@ -17,16 +17,16 @@
 	<TITLE>Automated reasoning with pmie</TITLE>
 </HEAD>
 <BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
-	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://pcp.io/"><IMG SRC="images/pcpicon.png" NAME="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://pcp.io/"><IMG SRC="images/pcpicon.png" ALT="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
 	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
-	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	<TD WIDTH=500><P ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
 	</TR>
 </TABLE>
 <H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>
 Automated reasoning with <I>pmie</I></FONT></H1>
-<TABLE WIDTH=15% BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
-	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
+<TABLE WIDTH="15%" BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
+	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
 pmie
 dkvis
 pminfo
@@ -82,11 +82,11 @@ arbitrary programs.</P>
     <LI> hypothesis evaluation for capacity planning 
     <LI> as part of the <I>post mortem</I> analysis following a system failure 
 </UL>
-</P>
+
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="basics"><I>pmie</I> basics</A></B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="basics"><I>pmie</I> basics</A></B></FONT></P></TD></TR>
 </TABLE>
 <P>The simplest rules test thresholds and are formed from expressions
 involving performance metrics and constants.&nbsp;&nbsp;For example, the following
@@ -96,17 +96,17 @@ statement:</P>
 <I>    then activate an alarm notifier</I>
 </PRE>
 <P>may be translated into the following <I>pmie</I> rule:</P>
-<CENTER><P ALIGN="CENTER"><IMG SRC="images/pmie_rule1.png" WIDTH="495" HEIGHT="200"></P>
+<CENTER><P ALIGN="CENTER"><IMG SRC="images/pmie_rule1.png" ALT="" WIDTH="495" HEIGHT="200"></P>
 </CENTER>
 <P>where the &quot;alarm&quot; action launches an information dialog with
 the specified message.</P>
 <P>Other <I>pmie</I> actions are discussed later in the
 <A HREF="#actions">Actions and parameter substitution of predicate context</A> section.</P>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0>
 <TR><TD>
-  <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=50%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;Generate alot of context switches, and watch 'em:<BR>
+  <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="50%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;Generate alot of context switches, and watch 'em:<BR>
 <PRE><B>
 $ . /etc/pcp.env
 $ pmie -v -c $PCP_DEMOS_DIR/pmie/pswitch.pmie &amp;
@@ -129,31 +129,31 @@ $ fg %3
 </TD></TR>
 </TABLE>
 </TD>
-<TD><IMG ALIGN=RIGHT SRC="images/cpu_pswitch.png" BORDER=0></TD>
+<TD><IMG ALIGN=RIGHT SRC="images/cpu_pswitch.png" ALT="" BORDER=0></TD>
 </TR>
 </TABLE>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="repeat">Action repetition and launching arbitrary actions</A></B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="repeat">Action repetition and launching arbitrary actions</A></B></FONT></P></TD></TR>
 </TABLE>
 <P>Sometimes it is useful for an action not to be repeated for a time.
 For example, the English statement:</P>
-<PRE></I>
+<PRE><I>
     If the context switch rate exceeds 2000 switches per second
     then launch <B>top</B> in an <B>xterm</B> window
     but hold off repetition of the action for 5 minutes
 </I></PRE>
 <P>may be translated into the following <I>pmie</I> rule:</P>
-<CENTER><P ALIGN="CENTER"><IMG SRC="images/pmie_rule2.png" WIDTH="495" HEIGHT="200"></P>
+<CENTER><P ALIGN="CENTER"><IMG SRC="images/pmie_rule2.png" ALT="" WIDTH="495" HEIGHT="200"></P>
 </CENTER>
 <P>
 Note the <B><TT><FONT COLOR="#ff0000">shell</FONT></TT></B> keyword
 introduces an arbitrary action in which any program can be launched.</P>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="value-sets">Rule evaluation over sets of values</A></B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="value-sets">Rule evaluation over sets of values</A></B></FONT></P></TD></TR>
 </TABLE>
 <P>Each <I>pmie</I> rule may be evaluated over a set of performance metric values.</P>
 <P>Conceptually these sets of values are constructed for a single performance
@@ -181,7 +181,7 @@ For example <B><TT>filesys.free</TT></B> is the most recent set of
 values for the amount of free space on every mounted file system on the
 default host, and may be represented by the shaded rectangle in the
 following figure:</P>
-<CENTER><P ALIGN="CENTER"><IMG SRC="images/pmie_axis1.png" WIDTH="396" HEIGHT="226"></P>
+<CENTER><P ALIGN="CENTER"><IMG SRC="images/pmie_axis1.png" ALT="" WIDTH="396" HEIGHT="226"></P>
 </CENTER>
 <P>
 One or more suffix of the form <B><TT>#<I>instance</I></TT></B>
@@ -194,7 +194,7 @@ should be enclosed in single quotes.</P>
 For example <B><TT>filesys.free #'/usr'</TT></B> is the most recent
 value for the amount of free space on the <I>/usr</I> file system on the
 default host, and may be represented as follows:</P>
-<CENTER><P ALIGN="CENTER"><IMG SRC="images/pmie_axis2.png" WIDTH="396" HEIGHT="226"></P>
+<CENTER><P ALIGN="CENTER"><IMG SRC="images/pmie_axis2.png" ALT="" WIDTH="396" HEIGHT="226"></P>
 </CENTER>
 <P>
 One or more suffix of the form <B><TT>:<I>hostname</I></TT></B> after
@@ -204,7 +204,7 @@ on the <B>nominated</B> hosts, at the current time.</P>
 For example <B><TT>filesys.free :otherhost</TT></B> is the most
 recent set of values for the amount of free space on every mounted file
 system on the host <B>otherhost</B>, and may be represented as follows:</P>
-<CENTER><P ALIGN="CENTER"><IMG SRC="images/pmie_axis3.png" WIDTH="396" HEIGHT="226"></P>
+<CENTER><P ALIGN="CENTER"><IMG SRC="images/pmie_axis3.png" ALT="" WIDTH="396" HEIGHT="226"></P>
 </CENTER>
 <P>
 A suffix of the form <B><TT>@<I>N..M</I></TT></B> after a metric name
@@ -219,12 +219,12 @@ in each of the three axis directions.</P>
 For example <B><TT>filesys.free #'/usr' @0..3</TT></B> refers to
 the default host, restricts the instances and enumerates the time.
 This may be represented as follows:</P>
-<CENTER><P ALIGN="CENTER"><IMG SRC="images/pmie_axis4.png" WIDTH="396" HEIGHT="226"></P>
+<CENTER><P ALIGN="CENTER"><IMG SRC="images/pmie_axis4.png" ALT="" WIDTH="396" HEIGHT="226"></P>
 </CENTER>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="predicates">Forms of <I>pmie</I> predicate</A></B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="predicates">Forms of <I>pmie</I> predicate</A></B></FONT></P></TD></TR>
 </TABLE>
 <H3><A NAME="exist">Existential quantification</A></H3>
 <P>
@@ -244,7 +244,7 @@ For example, the English statement:</P>
 <I>    then launch a visible alarm</I>
 </PRE>
 <P>may be translated into the following <I>pmie</I> rule:</P>
-<CENTER><P ALIGN="CENTER"><IMG SRC="images/pmie_rule3.png" WIDTH="495" HEIGHT="120"></P>
+<CENTER><P ALIGN="CENTER"><IMG SRC="images/pmie_rule3.png" ALT="" WIDTH="495" HEIGHT="120"></P>
 </CENTER>
 <BR>
 <H3><A NAME="universal">Universal quantification</A></H3>
@@ -268,7 +268,7 @@ For example, the English statement:</P>
 <I>    then launch a visible alarm</I>
 </PRE>
 <P>may be translated into the following <I>pmie</I> rule:</P>
-<CENTER><P ALIGN="CENTER"><IMG SRC="images/pmie_rule4.png" WIDTH="540" HEIGHT="140"></P>
+<CENTER><P ALIGN="CENTER"><IMG SRC="images/pmie_rule4.png" ALT="" WIDTH="540" HEIGHT="140"></P>
 </CENTER>
 <P>Note that reversing the nesting of the universal and existential predicates produces
 a rule which has slightly different English semantics, namely:</P>
@@ -277,7 +277,7 @@ a rule which has slightly different English semantics, namely:</P>
 <I>    for every one of the last 5 samples,</I>
 <I>    then launch a visible alarm</I>
 </PRE>
-<CENTER><P ALIGN="CENTER"><IMG SRC="images/pmie_rule5.png" WIDTH="540" HEIGHT="140"></P>
+<CENTER><P ALIGN="CENTER"><IMG SRC="images/pmie_rule5.png" ALT="" WIDTH="540" HEIGHT="140"></P>
 </CENTER>
 <BR>
 <H3><A NAME="percentile">Percentile quantification</A></H3>
@@ -299,7 +299,7 @@ For example, the English phrase:</P>
 </PRE>
 <P>
 may be translated into the following <I>pmie</I> expression:</P>
-<CENTER><P ALIGN="CENTER"><IMG SRC="images/pmie_rule3.png" WIDTH="495" HEIGHT="120"></P>
+<CENTER><P ALIGN="CENTER"><IMG SRC="images/pmie_rule3.png" ALT="" WIDTH="495" HEIGHT="120"></P>
 </CENTER>
 <BR>
 <H3><A NAME="others">Other predicates</A></H3>
@@ -337,8 +337,8 @@ Trends:
 
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><I><A NAME="expr">pmie</I> expressions</A></B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="expr"><I>pmie</I> expressions</A></B></FONT></P></TD></TR>
 </TABLE>
 <P><I>pmie</I> expressions are very similar to the C programming language;
 especially with regard to arithmetic, relational and Boolean operators,
@@ -383,8 +383,8 @@ would have the value <B>1000</B> and the units of
 <B><TT>bytes/second</TT></B>.</P>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="actions">Actions and parameter substitution of predicate context</A></B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="actions">Actions and parameter substitution of predicate context</A></B></FONT></P></TD></TR>
 </TABLE>
 <P> The available <I>pmie</I> actions are:</P>
 <UL>
@@ -406,16 +406,16 @@ expression in the expression tree that represents the parsed condition
 </UL>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="audit">Performance audit using archives</A></B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="audit">Performance audit using archives</A></B></FONT></P></TD></TR>
 </TABLE>
 <P> In this exercise, we shall use <I>pmie</I> to investigate performance from 
 a PCP archive.</P>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0>
 <TR><TD>
-    <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=10>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=50%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;Use <I>pmdumplog</I> to report the details of when the archive was created and from which host the archive was created:<BR>
+    <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=10>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="50%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;Use <I>pmdumplog</I> to report the details of when the archive was created and from which host the archive was created:<BR>
 <PRE><B>
 $ . /etc/pcp.env
 $ tar xzf $PCP_DEMOS_DIR/tutorials/pmie.tar.gz
@@ -434,7 +434,7 @@ $ dkvis -a pmie/babylon.perdisk &amp;
 </B></PRE>
 we can visually determine which disks and which controllers are active.
 </TD>
-<TD><IMG ALIGN=RIGHT SRC="images/dkvis.png" BORDER=0></TD>
+<TD><IMG ALIGN=RIGHT SRC="images/dkvis.png" ALT="" BORDER=0></TD>
 </TR>
 </TABLE>
 <P>This is easy, which is good.
@@ -444,8 +444,8 @@ different disk configurations.&nbsp;&nbsp;We'd like to be able to quickly proces
 these archives, and filter out the extraneous information, to focus on 
 those times at which the disks were busy, how busy they were, etc.</P>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=50%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;Using the <I>pmie</I> configuration file in <A HREF="pmie/disk.pmie">pmie/disk.pmie</A> as a starting point, run this against the archive:<BR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="50%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;Using the <I>pmie</I> configuration file in <A HREF="pmie/disk.pmie">pmie/disk.pmie</A> as a starting point, run this against the archive:<BR>
 <PRE><B>
 $ pmie -t 5min -a pmie/babylon.perdisk < pmie/disk.pmie
 </B></PRE>
@@ -463,7 +463,7 @@ minute load average is greater than 5 (make use of the &quot;1
 minute&quot; instance for the <B><TT>kernel.all.load</TT></B> metric).
 </OL>
 <P>Use the <I>pmie/babylon.perdisk</I> archive extracted earlier to cross check your rules as you add each one.</P>
-</OL>
+
 </TD></TR>
 </TABLE>
 
@@ -479,7 +479,7 @@ Notice there are three values corresponding to the 1, 5 and 15 minute load avera
 <BR>
 For <I>pmie</I> the metric <TT><B>kernel.all.load</B></TT>
 is a set of <B>three</B> values, one for each instance at each point
-of time.&nbsp;&nbsp;To choose <B>one</B> instance append the <B><TT>#</B></TT>
+of time.&nbsp;&nbsp;To choose <B>one</B> instance append the <TT><B>#</B></TT>
 qualifier to the name of the metric and the name of a particular instance,
 e.g. <TT><B>kernel.all.load #'1 minute'</B></TT>.
     <LI> The <I>pmie(1)</I> man page describes the <I>pmie</I> language in detail.
@@ -492,14 +492,14 @@ is reporting interesting activity.
 When all else fails, the solution is at <A HREF="pmie/answer.pmie">pmie/answer.pmie</A>.</P>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="interval">Influence of the update interval </A></B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="interval">Influence of the update interval </A></B></FONT></P></TD></TR>
 </TABLE>
 <P>As a final exercise, investigate the effects of using different update 
 intervals on the <I>pmie</I> command line (the <B>-t</B> option) with 
 the initial configuration file and archive from the previous exercise.</P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=50%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;Try each of the following:<BR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="50%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;Try each of the following:<BR>
 <PRE><B>
 $ pmie -t 5min -a pmie/babylon.perdisk &lt; pmie/disk.pmie
 $ pmie -t 6min -a pmie/babylon.perdisk &lt; pmie/disk.pmie
@@ -508,8 +508,8 @@ $ pmie -t 10min -a pmie/babylon.perdisk &lt; pmie/disk.pmie
 </TD></TR>
 </TABLE>
 <P>Why does the number of reported incidents decline as the rule evaluation interval increases?</P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=50%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;Repeat the exercise but use <I>pmchart</I>:<BR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="50%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;Repeat the exercise but use <I>pmchart</I>:<BR>
 <PRE><B>
 $ pmchart -t 5min -a pmie/babylon.perdisk &amp;
 </B></PRE>
@@ -521,7 +521,7 @@ the <B><TT>disk.dev.total</TT></B> metric for the disk <B>jag3d5</B>:<P>
 	<LI> There should be 54 instances of the metric listed.
 	Find the instance <B>jag3d5</B>, select it, and press OK.
     </UL>
-</B></PRE>
+
 </TD></TR>
 </TABLE>
 
@@ -541,9 +541,9 @@ when the data for a particular metric was collected using the command:
 <P><BR></P>
 <HR>
 <CENTER>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
-	<TR> <TD WIDTH=50%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc</FONT></P></TD>
-	<TD WIDTH=50%><P ALIGN=RIGHT><A HREF="http://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2014 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></P></TD> </TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH="50%"><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc</FONT></A></P></TD>
+	<TD WIDTH="50%"><P ALIGN=RIGHT><A HREF="http://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2014 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></A></P></TD> </TR>
 </TABLE>
 </CENTER>
 </BODY>
