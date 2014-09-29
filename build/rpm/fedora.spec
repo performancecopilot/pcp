@@ -71,7 +71,6 @@ Obsoletes: pcp-pmda-nvidia
 %global tapsetdir      %{_datadir}/systemtap/tapset
 
 %define _confdir  %{_sysconfdir}/pcp
-%define _initddir %{_sysconfdir}/rc.d/init.d
 %define _logsdir  %{_localstatedir}/log/pcp
 %define _pmnsdir  %{_localstatedir}/lib/pcp/pmns
 %define _tempsdir %{_localstatedir}/lib/pcp/tmp
@@ -84,8 +83,10 @@ Obsoletes: pcp-pmda-nvidia
 %define _with_doc --with-docdir=%{_docdir}/%{name}
 %endif
 %if 0%{?fedora} >= 19 || 0%{?rhel} >= 7
+%define _initddir %{_datadir}/pcp/lib
 %define disable_systemd 0
 %else
+%define _initddir %{_sysconfdir}/rc.d/init.d
 %define _with_initd --with-rcdir=%{_initddir}
 %define disable_systemd 1
 %endif
@@ -851,9 +852,8 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %if !%{disable_microhttpd}
 %files webapi
 %defattr(-,root,root)
-%if %{disable_systemd}
 %{_initddir}/pmwebd
-%else
+%if !%{disable_systemd}
 %{_unitdir}/pmwebd.service
 %endif
 %{_libexecdir}/pcp/bin/pmwebd
@@ -867,9 +867,8 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %files manager
 %defattr(-,root,root)
-%if %{disable_systemd}
 %{_initddir}/pmmgr
-%else
+%if !%{disable_systemd}
 %{_unitdir}/pmmgr.service
 %endif
 %{_libexecdir}/pcp/bin/pmmgr
