@@ -90,6 +90,7 @@ pminfo $target -F proc \
 | _inst_value_filter \
 | sed -e '/value/d' \
     -e '/not supported/d' \
+    -e '/No data available/d' \
     -e '/instance identifier/d' \
     -e '/^[ \t]*$/d' \
     -e '/DISAPPEARED/d' \
