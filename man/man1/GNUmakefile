@@ -43,7 +43,8 @@ MAN_PAGES	= \
 	pmdazswap.1 pmiostat.1
 
 LINUX_PMDA_PAGES = \
-	pmdalmsensors.1 pmdalustrecomm.1 pmdaproc.1 pmdaxfs.1 pmdajbd2.1
+	pmdalmsensors.1 pmdalustrecomm.1 pmdaproc.1 pmdaxfs.1 pmdajbd2.1 \
+	pmdaperfevent.1 perfalloc.1
 ROOMTEMP_PMDA_PAGES = pmdaroomtemp.1
 SYSTEMD_PMDA_PAGES = pmdasystemd.1
 RPM_PMDA_PAGES = pmdarpm.1
