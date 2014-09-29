@@ -16,15 +16,15 @@
 	<TITLE>How to understand disk performance</TITLE>
 </HEAD>
 <BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
-	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://pcp.io/"><IMG SRC="images/pcpicon.png" NAME="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://pcp.io/"><IMG SRC="images/pcpicon.png" ALT="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
 	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
-	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	<TD WIDTH=500><P ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
 	</TR>
 </TABLE>
 <H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>How to understand measures of disk performance</FONT></H1>
-<TABLE WIDTH=15% BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
-	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
+<TABLE WIDTH="15%" BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
+	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
 pmchart
 sar
 </PRE></TD></TR>
@@ -36,8 +36,8 @@ performance.</P>
 the <A HREF="glossary.html">PCP glossary</A>.</P>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Reconciling sar -d and PCP disk performance metrics</B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Reconciling sar -d and PCP disk performance metrics</B></FONT></P></TD></TR>
 </TABLE>
 <P>
 Both <I>sar</I> and Performance Co-Pilot (PCP) use a common collection 
@@ -236,7 +236,7 @@ simplified to be a multiple of 10 milliseconds for each I/O operation
 over a 100 millisecond sample interval (this is an unlikely 
 simplification, but makes the arithmetic easier).</P>
 <CENTER><P ALIGN="CENTER">
-<IMG SRC="images/sar-d.png" WIDTH="529" HEIGHT="152"></P>
+<IMG SRC="images/sar-d.png" ALT="" WIDTH="529" HEIGHT="152"></P>
 </CENTER><P>
 Each green block represents a 4 Kbyte read. Each red block represents a 
 16Kbyte write.</P>
@@ -610,8 +610,8 @@ directly.</P>
 </UL>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>A real example</B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>A real example</B></FONT></P></TD></TR>
 </TABLE>
 <P>
 Consider this data from<B> sar -d</B> with a <B>10 minute</B> update 
@@ -688,8 +688,8 @@ asynchronous writes. In the example above, a read could have the
 misfortune of being queued behind 300 writes (or delayed for 3 seconds).</P>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Beware of Wait I/O</B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Beware of Wait I/O</B></FONT></P></TD></TR>
 </TABLE>
 <P>
 PCP (and <I>sar</I> and <I>osview</I> and ...) all report CPU 
@@ -720,8 +720,8 @@ these CPUs. And if that one process is doing asynchronous I/O and not
 blocking, then additional I/O bandwidth will not make it run faster 
 either.</P>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Using <I>pmchart</I> to display concurrent disk and CPU activity (aggregated over all CPUs and all disks respectively).<BR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Using <I>pmchart</I> to display concurrent disk and CPU activity (aggregated over all CPUs and all disks respectively).<BR>
 <PRE><B>
 $ source /etc/pcp.conf
 $ tar xzf $PCP_DEMOS_DIR/tutorials/diskperf.tgz
@@ -745,9 +745,9 @@ $ pmchart -t 2sec -O -0sec -a diskperf/waitio -c diskperf/waitio.view
 <P><BR></P>
 <HR>
 <CENTER>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
-	<TR> <TD WIDTH=50%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc</FONT></P></TD>
-	<TD WIDTH=50%><P ALIGN=RIGHT><A HREF="http://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2014 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></P></TD> </TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH="50%"><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc</FONT></A></P></TD>
+	<TD WIDTH="50%"><P ALIGN=RIGHT><A HREF="http://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2014 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></A></P></TD> </TR>
 </TABLE>
 </CENTER>
 </BODY>

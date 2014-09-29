@@ -71,7 +71,6 @@ Obsoletes: pcp-pmda-nvidia
 %global tapsetdir      %{_datadir}/systemtap/tapset
 
 %define _confdir  %{_sysconfdir}/pcp
-%define _initddir %{_sysconfdir}/rc.d/init.d
 %define _logsdir  %{_localstatedir}/log/pcp
 %define _pmnsdir  %{_localstatedir}/lib/pcp/pmns
 %define _tempsdir %{_localstatedir}/lib/pcp/tmp
@@ -84,8 +83,10 @@ Obsoletes: pcp-pmda-nvidia
 %define _with_doc --with-docdir=%{_docdir}/%{name}
 %endif
 %if 0%{?fedora} >= 19 || 0%{?rhel} >= 7
+%define _initddir %{_datadir}/pcp/lib
 %define disable_systemd 0
 %else
+%define _initddir %{_sysconfdir}/rc.d/init.d
 %define _with_initd --with-rcdir=%{_initddir}
 %define disable_systemd 1
 %endif
@@ -755,21 +756,29 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %dir %attr(0775,pcp,pcp) %{_tempsdir}
 %dir %attr(0775,pcp,pcp) %{_tempsdir}/pmie
 %dir %attr(0775,pcp,pcp) %{_tempsdir}/pmlogger
-%dir %attr(0775,pcp,pcp) %{_logsdir}
 
-%{_datadir}/pcp/lib
+%dir %{_datadir}/pcp/lib
+%{_datadir}/pcp/lib/ReplacePmnsSubtree
+%{_datadir}/pcp/lib/bashproc.sh
+%{_datadir}/pcp/lib/lockpmns
+%{_datadir}/pcp/lib/pmcd
+%{_datadir}/pcp/lib/pmdaproc.sh
+%{_datadir}/pcp/lib/rc-proc.sh
+%{_datadir}/pcp/lib/rc-proc.sh.minimal
+%{_datadir}/pcp/lib/unlockpmns
+
+%dir %attr(0775,pcp,pcp) %{_logsdir}
 %attr(0775,pcp,pcp) %{_logsdir}/pmcd
 %attr(0775,pcp,pcp) %{_logsdir}/pmlogger
 %attr(0775,pcp,pcp) %{_logsdir}/pmie
 %attr(0775,pcp,pcp) %{_logsdir}/pmproxy
 %{_localstatedir}/lib/pcp/pmns
-%if %{disable_systemd}
 %{_initddir}/pcp
 %{_initddir}/pmcd
 %{_initddir}/pmlogger
 %{_initddir}/pmie
 %{_initddir}/pmproxy
-%else
+%if !%{disable_systemd}
 %{_unitdir}/pmcd.service
 %{_unitdir}/pmlogger.service
 %{_unitdir}/pmie.service
@@ -851,9 +860,8 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %if !%{disable_microhttpd}
 %files webapi
 %defattr(-,root,root)
-%if %{disable_systemd}
 %{_initddir}/pmwebd
-%else
+%if !%{disable_systemd}
 %{_unitdir}/pmwebd.service
 %endif
 %{_libexecdir}/pcp/bin/pmwebd
@@ -867,9 +875,8 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %files manager
 %defattr(-,root,root)
-%if %{disable_systemd}
 %{_initddir}/pmmgr
-%else
+%if !%{disable_systemd}
 %{_unitdir}/pmmgr.service
 %endif
 %{_libexecdir}/pcp/bin/pmmgr

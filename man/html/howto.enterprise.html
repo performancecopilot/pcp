@@ -16,15 +16,15 @@
 	<TITLE>Integrating PCP into an Enterprise Management Strategy</TITLE>
 </HEAD>
 <BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
-	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://pcp.io/"><IMG SRC="images/pcpicon.png" NAME="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://pcp.io/"><IMG SRC="images/pcpicon.png" ALT="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
 	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
-	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	<TD WIDTH=500><P ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
 	</TR>
 </TABLE>
 <H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Integrating PCP into an Enterprise Management Strategy</FONT></H1>
-<TABLE WIDTH=15% BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
-	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
+<TABLE WIDTH="15%" BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
+	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
 pmie
 pmieconf
 pmlogger
@@ -42,8 +42,8 @@ For an explanation of Performance Co-Pilot terms and acronyms, consult
 the <A HREF="glossary.html">PCP glossary</A>.</P>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Points of Integration</B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Points of Integration</B></FONT></P></TD></TR>
 </TABLE>
 <P>
 Following is a brief description on how PCP can be integrated in terms of
@@ -125,7 +125,7 @@ must be handled separately in order to make best use of their event viewing
 and filtering capabilities.
 </P>
 <CENTER>
-<IMG SRC="images/rattle.png" ALIGN="MIDDLE" WIDTH="430" HEIGHT="340">
+<IMG SRC="images/rattle.png" ALT="" ALIGN="MIDDLE" WIDTH="430" HEIGHT="340">
 </CENTER>
 <P>
 The diagram shows a typical <b>pmie</b>(1) setup - <B>rattle.melbourne.sgi.com</B>
@@ -153,8 +153,8 @@ rules, such as where to send events when a performance event is generated).
 </P>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>CA/Unicenter TNG (Computer Associates)</B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>CA/Unicenter TNG (Computer Associates)</B></FONT></P></TD></TR>
 </TABLE>
 <P>
 <B>Step-by-step</B> - how to setup and ensure <b>pmie</b>(1) can talk to the
@@ -167,7 +167,7 @@ events should be propagated to (a Windows machine - &quot;hugh&quot; - in
 this example).
 For a Windows monitoring node, refer to the &quot;Services&quot; window
 from the &quot;Control Panel&quot;.
-</P>
+
 <LI>
 Start CCI services on the monitored node, i.e. the node where <b>pmie</b>
 is running (an IRIX machine - &quot;wobbly&quot; - in this example).
@@ -175,7 +175,7 @@ is running (an IRIX machine - &quot;wobbly&quot; - in this example).
 wobbly# $CAIGLBL0000/bin/unicntrl start cci
 wobbly# 
 </PRE>
-</P>
+
 <LI>
 Ensure the connection between the two nodes is active.&nbsp;&nbsp;For UNIX machines:
 <PRE>
@@ -198,18 +198,18 @@ WOBBLY   ACTIVE                Apr-10-99 17:58:25 Apr-10-99 17:58:25
 
 C:\TNGFW\BIN>
 </PRE>
-</P>
+
 <LI>
 Send a test event to the monitoring node from the node where <b>pmie</b>
 will be running
 <PRE>
 wobbly# $CAIGLBL0000/bin/cawto -n hugh -g Performance -s wobbly test event
 </PRE>
-</P>
+
 <LI>
 To verify that the event is successfully received on a Windows NT monitoring
 host, use the Event Console, which lists events as they arrive.
-</P>
+
 <P>There are several tools which ship with the TNG Framework for examining
 and verifying the connection between two nodes - such as <b>oprping</b>(1) -
 refer to the Unicenter TNG documentation for full details.
@@ -243,14 +243,14 @@ wobbly# pmieconf modify cisco tngfw_color Red
 wobbly# /etc/init.d/pmie start
 </PRE>
 </UL>
-</P>
+
 <CENTER>
-<IMG SRC="images/tngconsole.png" ALIGN="MIDDLE" WIDTH="699" HEIGHT="444">
+<IMG SRC="images/tngconsole.png" ALT="" ALIGN="MIDDLE" WIDTH="699" HEIGHT="444">
 </CENTER>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>HP OpenView (Hewlett-Packard)</B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>HP OpenView (Hewlett-Packard)</B></FONT></P></TD></TR>
 </TABLE>
 <P>
 <B>Step-by-step</B> on how to setup and ensure <b>pmie</b>(1) can talk to OpenView:
@@ -263,7 +263,7 @@ events - &quot;wobbly&quot; in this example.
 wobbly# /etc/init.d/snmp start
 wobbly# /etc/init.d/ovnnm start
 </PRE>
-</P>
+
 <LI>
 Send a test event to the monitoring node from the node where <b>pmie</b>(1)
 will be running (OV_BIN is typically /usr/OV/bin):
@@ -292,18 +292,18 @@ rattle# /etc/init.d/pmie start
 </UL>
 <P>
 <CENTER>
-<IMG SRC="images/xnmevents.png" ALIGN="RIGHT" WIDTH="247" HEIGHT="210">
+<IMG SRC="images/xnmevents.png" ALT="" ALIGN="RIGHT" WIDTH="247" HEIGHT="210">
 </CENTER>
 The <b>xnmevents</b>(1) GUI connects to the <b>pmcd</b>(1) daemon on the monitoring
 node which supplies any new events which arrive while <b>xnmevents</b> is
 running.
-</P>
+
 The image to the right shows the <b>xnmevents</b> main window.
 On receipt of a new <b>pmie</b> event, the &quot;Threshold Events&quot;
 toggle button changes
 color according to the event severity, indicating that there are new events
 - clicking on the toggle button brings up the viewer window (shown below).
-</P>
+
 <P>
 The viewer lets you view, filter, and
 acknowledge events (once all events are acknowledged, the &quot;Threshold
@@ -332,12 +332,12 @@ rattle# /etc/init.d/pmie start
 </PRE>
 </UL>
 <CENTER>
-<IMG SRC="images/ovevents.png" ALIGN="MIDDLE" WIDTH="697" HEIGHT="373">
+<IMG SRC="images/ovevents.png" ALT="" ALIGN="MIDDLE" WIDTH="697" HEIGHT="373">
 </CENTER>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>EnlightenDSM (Enlighten Software Solutions)</B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>EnlightenDSM (Enlighten Software Solutions)</B></FONT></P></TD></TR>
 </TABLE>
 <P>
 <B>Step-by-step</B> on how to setup and ensure <b>pmie</b>(1) can talk to
@@ -355,7 +355,7 @@ start_enl_daemons: Invoking /opt/enlighten/bin/pep...
 start_enl_daemons: Invoking /opt/enlighten/bin/renld...
 start_enl_daemons: Invoking /opt/enlighten/bin/AgentMon...
 </PRE>
-</P>
+
 <LI>
 Start up the Enlighten GUI to verify that events can be received.
 Go into the "Events" -&gt; "Status Map" window:
@@ -390,12 +390,12 @@ wobbly# /etc/init.d/pmie start
 </PRE>
 <P>
 <CENTER>
-<IMG SRC="images/xenln.png" ALIGN="MIDDLE" WIDTH="581" HEIGHT="505">
+<IMG SRC="images/xenln.png" ALT="" ALIGN="MIDDLE" WIDTH="581" HEIGHT="505">
 </CENTER>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Extending</A> to Other Frameworks</B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Extending</A> to Other Frameworks</B></FONT></P></TD></TR>
 </TABLE>
 <P>
 All of the enterprise management frameworks we've come across provide some
@@ -455,9 +455,9 @@ future PCP release.</P>
 <P><BR></P>
 <HR>
 <CENTER>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
-	<TR> <TD WIDTH=50%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc</FONT></P></TD>
-	<TD WIDTH=50%><P ALIGN=RIGHT><A HREF="http://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2014 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></P></TD> </TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH=50%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc</FONT></A></P></TD>
+	<TD WIDTH="50%"><P ALIGN=RIGHT><A HREF="http://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2014 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></A></P></TD> </TR>
 </TABLE>
 </CENTER>
 </BODY>

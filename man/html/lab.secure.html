@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
  (c) Copyright 2013-2014 Red Hat.
  Permission is granted to copy, distribute, and/or modify this document
@@ -16,15 +16,15 @@
 	<TITLE>Secure Connections</TITLE>
 </HEAD>
 <BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
-	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://pcp.io/"><IMG SRC="images/pcpicon.png" NAME="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://pcp.io/"><IMG SRC="images/pcpicon.png" ALT="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
 	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
-	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	<TD WIDTH=500><P ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
 	</TR>
 </TABLE>
 <H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Secure Connections</FONT></H1>
-<TABLE WIDTH=15% BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
-	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
+<TABLE WIDTH="15%" BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
+	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
 certutil
 pmcd
 pminfo
@@ -50,8 +50,8 @@ the <A HREF="glossary.html">PCP glossary</A>.</P>
 </UL>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="overview">Overview</I></A></B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="overview">Overview</I></A></B></FONT></P></TD></TR>
 </TABLE>
 <P>The Performance Co-Pilot includes facilities for establishing secure
 connections between remote collector and monitoring components.</P>
@@ -72,8 +72,8 @@ between TLS/SSL or non-SSL communications for your PCP Collector systems; both
 can be used at the same time.</P>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="recipe">Enabling TLS/SSL: Steps Involved</A></B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="recipe">Enabling TLS/SSL: Steps Involved</A></B></FONT></P></TD></TR>
 </TABLE>
 <P>Before the PCP Collector system can be requested to communicate with TLS/SSL,
 certificates must be properly configured on the Collector Server host.</P>
@@ -106,8 +106,8 @@ Once this certificate has been received install it in the system-wide
 certificate database as described below.</P>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="collector">Collector Setup</A></B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="collector">Collector Setup</A></B></FONT></P></TD></TR>
 </TABLE>
 <P>All PCP Collector systems must have a valid certificate in order to
 participate in secure PCP protocol exchanges.
@@ -127,8 +127,8 @@ By default this is the <I>&quot;pcp&quot;</I> user.
 It must be set as read-only for this user and allow no access to others
 (mode 0400).</P>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Create a system-wide NSS database in a privileged (root) shell, <B><I>only if it does not exist already</I></B>:<BR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Create a system-wide NSS database in a privileged (root) shell, <B><I>only if it does not exist already</I></B>:<BR>
 <PRE><B>
 # ls /etc/pki/nssdb
 ls: cannot access /etc/pki/nssdb: No such file or directory
@@ -149,8 +149,8 @@ project.
 certificate.  A list of all installed certificates can be obtained using the <B>-L</B>
 option to <I>certutil</I>, as follows.
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;List certificates in system-wide NSS database:<BR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;List certificates in system-wide NSS database:<BR>
 <PRE><B>
 $ certutil -d sql:/etc/pki/nssdb -L
 
@@ -166,8 +166,8 @@ Certificate Nickname                                         Trust Attributes
 Alternatively, it is possible to generate a &quot;self-signed&quot; certificate as follows,
 using the <B>-x</B> option to <I>certutil</I>.
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;After customising the certificate subject names (<B>-s</B> and <B>-8</B> options below), in a privileged shell enter:<BR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;After customising the certificate subject names (<B>-s</B> and <B>-8</B> options below), in a privileged shell enter:<BR>
 <PRE><B>
 # certutil -d sql:/etc/pki/nssdb -S -x \
 	-n &quot;<FONT COLOR=#000000">Local CA certificate</FONT>&quot; -s &quot;cn=<FONT COLOR="#000000">Local PCP Installation</FONT>, dc=<FONT COLOR="#cc0000">YOUR</FONT>,dc=<FONT COLOR="#cc0000">DOMAIN</FONT>,dc=<FONT COLOR="#cc0000">NAME</FONT>&quot; \
@@ -201,8 +201,8 @@ located below <I>$PCP_LOG_DIR</I>.
 </P>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="monitor">Monitor Setup</A></B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="monitor">Monitor Setup</A></B></FONT></P></TD></TR>
 </TABLE>
 <P>PCP Monitoring (client) tools require a trusted certificate to validate
 the server in a TLS/SSL connection.
@@ -224,8 +224,8 @@ collector systems that are configured, fallback to insecure connections if not&q
 
 <P>Using the approach of certificate delivery via the TLS/SSL protocol, the database
 and certificate will be automatically setup in the correct location on your behalf.
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To establish a secure connection, in a shell enter:<BR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To establish a secure connection, in a shell enter:<BR>
 <PRE><B>
 $ export PCP_SECURE_SOCKETS=enforce
 $ pminfo -h <FONT COLOR="#cc0000">YOUR.HOST.NAME</FONT> -f kernel.all.load
@@ -243,8 +243,8 @@ kernel.all.load
 </P>
 <P>At any time, you can query the certificates you have installed locally
 for remote collector hosts.
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To list the locally installed server certificates, in a shell enter:<BR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To list the locally installed server certificates, in a shell enter:<BR>
 <PRE><B>
 $ certutil -d sql:$HOME/.pki/nssdb -L
 
@@ -268,8 +268,8 @@ output filter as shown above can be handy to report only the hostnames.
 a user database exists, then export either the CA or the collector certificate
 in ASCII format for the PCP Collector system we wish to monitor and
 finally import it into the user database.
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Step 1: Create a local user NSS database in a command shell, <B><I>only if it does not exist already</I></B>:<BR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Step 1: Create a local user NSS database in a command shell, <B><I>only if it does not exist already</I></B>:<BR>
 <PRE><B>
 $ ls $HOME/.pki/nssdb
 ls: cannot access .pki/nssdb: No such file or directory
@@ -278,12 +278,12 @@ $ test -f /tmp/empty || echo > /tmp/empty
 $ certutil -d sql:$HOME/.pki/nssdb -N -f /tmp/empty
 </B></PRE>
 </TD></TR>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Step 2: To export the <I>collector</I> system CA certificate as ASCII, in a shell enter:<BR>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Step 2: To export the <I>collector</I> system CA certificate as ASCII, in a shell enter:<BR>
 <PRE><B>
 $ certutil -d sql:/etc/pki/nssdb -L -n "Local CA certificate" -a > /tmp/ca-certificate.asc
 </B></PRE>
 </TD></TR>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Step 3: To import the certificate as ASCII on a <I>monitor</I> system, in a shell enter:<BR>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Step 3: To import the certificate as ASCII on a <I>monitor</I> system, in a shell enter:<BR>
 <PRE><B>
 $ certutil -d sql:$HOME/.pki/nssdb -A -n "Local CA certificate" -t "CT,," -a -i /tmp/ca-certificate.asc
 </B></PRE>
@@ -296,8 +296,8 @@ on a monitor system allowing access to a group of hosts.
 </P>
 <BR>
 <P ALIGN=LEFT><FONT SIZE=4><B>Graphical Monitor Tools</B></FONT>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
-        <TR><TD WIDTH=500><P VALIGN=MIDDLE ALIGN=><CENTER><BR><IMG ALIGN=MIDDLE SRC="images/pmchart_add_host_secure.png" BORDER=0></CENTER></P></TD>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+        <TR><TD WIDTH=500><P VALIGN=MIDDLE ALIGN=><CENTER><BR><IMG ALIGN=MIDDLE SRC="images/pmchart_add_host_secure.png" ALT="" BORDER=0></CENTER></P></TD>
         <TD><P>In the PCP strip chart utility <I>pmchart</I> from version 1.5.7 onward, secure connections can be established using the "Add Host" dialog.  This can be accessed via the "New Chart" or "Open View" menu entries.<UL>
         <LI>Specify the name of the PCP Collector system where <I>pmcd</I> is running.
         <LI>Select the "Secure" check box.
@@ -311,9 +311,9 @@ on a monitor system allowing access to a group of hosts.
 <P><BR></P>
 <HR>
 <CENTER>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
-	<TR> <TD WIDTH=50%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc</FONT></P></TD>
-	<TD WIDTH=50%><P ALIGN=RIGHT><A HREF="http://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2014 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></P></TD> </TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH="50%"><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc</FONT></A></P></TD>
+	<TD WIDTH="50%"><P ALIGN=RIGHT><A HREF="http://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2014 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></A></P></TD></TR>
 </TABLE>
 </CENTER>
 </BODY>
