@@ -286,7 +286,7 @@ _script_git_pull()
 # not needed any longer - 26 Mar 2013
 #${MAKE:-make} clean >>\$HOME/daily.log 2>&1
 # only VERSION.pcp is expected to be modified, sometimes!
-git checkout -f VERSION.pcp
+git checkout -- VERSION.pcp
 if git checkout $pcp_branch >>\$HOME/daily.log 2>&1
 then
     echo "Info: pcp git checkout $pcp_branch" | tee -a \$HOME/daily.log
