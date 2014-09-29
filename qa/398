@@ -18,7 +18,7 @@ status=1	# failure is the default!
 
 _cleanup()
 {
-    [ -f $tmp.conf ] && $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
+    _restore_config $PCP_PMCDCONF_PATH
     $sudo rm -f $tmp.*
     $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
     _wait_for_pmcd
@@ -57,7 +57,7 @@ $sudo rm -f $PCP_LOG_DIR/core* $PCP_LOG_DIR/pmcd/core* $PCP_PMCDLOG_PATH
 _check
 
 # empty pmcd.conf
-$sudo cp $PCP_PMCDCONF_PATH $tmp.conf
+_save_config $PCP_PMCDCONF_PATH
 $sudo cp /dev/null $PCP_PMCDCONF_PATH
 
 # should be empty

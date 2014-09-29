@@ -17,12 +17,9 @@ host=`hostname`
 
 _cleanup()
 {
-    if [ -f $tmp.bak ]
-    then
-	$sudo cp $tmp.bak $PCP_PMCDCONF_PATH
-	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
-	_wait_for_pmcd
-    fi
+    _restore_config $PCP_PMCDCONF_PATH
+    $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+    _wait_for_pmcd
     $sudo rm -f $tmp.*
 }
 
@@ -82,8 +79,8 @@ EOF
 esac
 
 # real QA test starts here
-$sudo rm -f $tmp.bak ${TRACELOG}? $seq.full
-$sudo cp $PCP_PMCDCONF_PATH $tmp.bak
+$sudo rm -f ${TRACELOG}? $seq.full
+_save_config $PCP_PMCDCONF_PATH
 $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
 $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd

@@ -29,8 +29,7 @@ _cleanup()
     then
 	echo
 	echo 'Restoring real pmcd.conf ...'
-	[ -f $tmp.pmcd.conf.save ] && \
-	    $sudo mv $tmp.pmcd.conf.save $PCP_PMCDCONF_PATH
+	_restore_config $PCP_PMCDCONF_PATH
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -40,7 +39,7 @@ _cleanup()
     exit $status
 }
 
-cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf.save
+_save_config $PCP_PMCDCONF_PATH
 
 trap "_cleanup" 0
 trap "_interrupt; _cleanup" 1 2 3 15

@@ -32,10 +32,7 @@ _cleanup()
     then
 	:
     else
-	if [ -f $tmp.pmcd.conf ]
-	then
-	    $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
-	fi
+	_restore_config $PCP_PMCDCONF_PATH
 	if [ -d $tmp.mmv.dir ]
 	then
 	    $sudo rm -fr "$MMV_STATS_DIR"
@@ -83,7 +80,7 @@ cd "$home/$iam"
 unset ROOT MAKEFLAGS
 
 # copy the pmcd config file to restore state later.
-cp $PCP_PMCDCONF_PATH "$tmp.pmcd.conf"
+_save_config $PCP_PMCDCONF_PATH
 # move the MMV directory to restore contents later.
 [ -d $MMV_STATS_DIR ] && $sudo mv -f $MMV_STATS_DIR $tmp.mmv.dir
 

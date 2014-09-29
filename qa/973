@@ -28,7 +28,7 @@ _cleanup()
     then
 	:
     else
-	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	_restore_config $PCP_PMCDCONF_PATH
 	rm -f $tmp.*
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
@@ -59,7 +59,7 @@ cd $home/$iam
 unset ROOT MAKEFLAGS
 
 # copy the pmcd config file to restore state later.
-cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+_save_config $PCP_PMCDCONF_PATH
 
 # start from a known starting point
 $sudo ./Remove >/dev/null 2>&1

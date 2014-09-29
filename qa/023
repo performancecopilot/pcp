@@ -80,9 +80,7 @@ $1 == "y" && $2 = "y" && $8 == "localhost" {
     | sed -e '/^pmcd 2 A_PID /s/ A_PID .*/ A_PID .../'
 }
 
-CONFIG=$PCP_PMCDCONF_PATH
 TMP_CONFIG=$tmp/conf.tmp
-SAVE_CONFIG=$tmp/pmcd.conf.save
 [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
 	PCP_PMLOGGERCONTROL_PATH="$PCP_SYSCONF_DIR/pmlogger/control"
 LOGCONTROL="$PCP_PMLOGGERCONTROL_PATH"
@@ -109,9 +107,9 @@ cleanup()
 	_needclean=false
 	$sudo $signal -a -s TERM pmcd
 
-        [ -f $SAVE_CONFIG ] && $sudo mv $SAVE_CONFIG $CONFIG
-	echo "=== restored $CONFIG ===" >>$here/$seq.full
-	cat $CONFIG >>$here/$seq.full
+        _restore_config $PCP_PMCDCONF_PATH
+	echo "=== restored $PCP_PMCDCONF_PATH ===" >>$here/$seq.full
+	cat $PCP_PMCDCONF_PATH >>$here/$seq.full
 	[ -f $SAVE_LOGCONTROL ] && $sudo mv $SAVE_LOGCONTROL $LOGCONTROL
 	echo "=== restored $LOGCONTROL ===" >>$here/$seq.full
 	cat $LOGCONTROL >>$here/$seq.full
@@ -174,7 +172,7 @@ fake_proc 3 pipe binary $here/src/dumb_pmda -d 3 fake_proc
 fake_cisco 5 pipe binary $here/src/dumb_pmda -d 5 fake_cisco
 fake_six 6 pipe binary $here/src/dumb_pmda -d 6 fake_six
 EOF
-sed -n <$CONFIG >>$TMP_CONFIG \
+sed -n <$PCP_PMCDCONF_PATH >>$TMP_CONFIG \
     -e '/^#/d' \
     -e '/pmda_pmcd/s/[ 	][ 	]*/ /gp' \
     -e '/pmdapmcd/s/[ 	][ 	]*/ /gp'
@@ -184,8 +182,8 @@ allow localhost : all;
 disallow * : all;
 EOF
 
-$sudo mv $CONFIG $SAVE_CONFIG
-$sudo mv $TMP_CONFIG $CONFIG
+_save_config $PCP_PMCDCONF_PATH
+$sudo cp $TMP_CONFIG $PCP_PMCDCONF_PATH
 
 # very odd inode update problem on kenj-pc with one variant of the Linux
 # 2.6.11 kernel ... this should be 100% benign for everyone else
@@ -194,7 +192,7 @@ sync
 
 echo '$PCP_PMCDCONF_PATH contains:' | sed -e "s;$PCP_VAR_DIR;\$PCP_VAR_DIR;"
 echo '<BEGIN>'
-sed <$CONFIG \
+sed <$PCP_PMCDCONF_PATH \
     -e '/^pmcd 2 /s/2 .*/2 .../' \
     -e "s;$here/src/;;"
 echo '<END>'
