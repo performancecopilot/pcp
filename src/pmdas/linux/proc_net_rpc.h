@@ -1,6 +1,7 @@
 /*
  * Linux /proc/net/rpc metrics cluster
  *
+ * Copyright (c) 2014 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -16,8 +17,8 @@
 
 #define NR_RPC_COUNTERS		18
 #define NR_RPC3_COUNTERS	22
-#define NR_RPC4_CLI_COUNTERS	35
-#define NR_RPC4_SVR_COUNTERS	41
+#define NR_RPC4_CLI_COUNTERS	53
+#define NR_RPC4_SVR_COUNTERS	59
 
 typedef struct {
     struct {

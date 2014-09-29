@@ -23,9 +23,6 @@ BuildRequires: cyrus-sasl-devel
 %if "@enable_probes@" == "true"
 BuildRequires: systemtap-sdt-devel
 %endif
-%if @have_libmicrohttpd@ == 1
-BuildRequires: libmicrohttpd-devel
-%endif
 %if @have_rpmlib@ == 1
 BuildRequires: rpm-devel
 %endif
@@ -163,51 +160,6 @@ Obsoletes: pcp-gui-testsuite
 
 %description testsuite
 Quality assurance test suite for Performance Co-Pilot (PCP).
-
-%if "@BUILD_PMMGR@" == "yes"
-#
-# pcp-manager
-#
-%package manager
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) manager daemon
-URL: http://www.performancecopilot.org
-
-Requires: pcp = @package_version@
-Requires: pcp-libs = @package_version@
-
-%description manager
-An optional daemon (pmmgr) that manages a collection of pmlogger and
-pmie daemons, for a set of discovered local and remote hosts running
-the performance metrics collection daemon (pmcd).  It ensures these
-daemons are running when appropriate, and manages their log rotation
-needs (which are particularly complex in the case of pmlogger).
-The base PCP package provides comparable functionality through cron
-scripts which predate this daemon but do still provide effective and
-efficient log management services.
-The pcp-manager package aims to aggressively enable new PCP features
-and as a result may not be suited to all production environments.
-%endif
-
-%if @have_libmicrohttpd@ == 1
-#
-# pcp-webapi
-#
-%package webapi
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) web API service
-URL: http://www.performancecopilot.org
-
-Requires: pcp = @package_version@
-Requires: pcp-libs = @package_version@
-
-%description webapi
-Provides a daemon (pmwebd) that binds a large subset of the Performance
-Co-Pilot (PCP) client API (PMAPI) to RESTful web applications using the
-HTTP (PMWEBAPI) protocol.
-%endif
 
 #
 # perl-PCP-PMDA. This is the PCP agent perl binding.
@@ -469,7 +421,7 @@ LIBFILELIST=`ls -1 $BACKDIR/debian/lib*.{install,dirs} | fgrep -v -- -dev.`
 DEVFILELIST=`ls -1 $BACKDIR/debian/lib*-dev.{install,dirs}`
 
 #
-# Package split: pcp{-conf,-libs,-libs-devel,-webapi,-manager,-testsuite,
+# Package split: pcp{-conf,-libs,-libs-devel,-testsuite,
 # -import-*,-export-*} ...
 # The above list is ordered by file selection; files for each package are
 # removed from a global set, then the base package catches all remaining.
@@ -508,16 +460,6 @@ pmlogger/control
 pmproxy/pmproxy.options
 bash_completion.d/pcp
 EOF
-%if "@BUILD_PMMGR@" == "yes"
-cat >>conf_files <<MGREOF
-etc/pcp/pmmgr
-MGREOF
-%endif
-%if @have_libmicrohttpd@ == 1
-cat >>conf_files <<WEBEOF
-pmwebd/pmwebd.options
-WEBEOF
-%endif
 %if "@enable_qt@" == "true"
 cat >>conf_files <<GUIEOF
 pmsnap/control
@@ -535,12 +477,6 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'tutorials' >>docs_files
 PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
 awk '{print $NF}' $DIST_MANIFEST | egrep "$PCP_GUI|pixmaps" > gui_files
 %endif
-%if @have_libmicrohttpd@ == 1
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pmweb|PMWEBAPI' >webapi_files
-%endif
-%if "@BUILD_PMMGR@" == "yes"
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pmmgr' >manager_files
-%endif
 awk '{print $NF}' $DIST_MANIFEST | egrep 'testsuite' >testsuite_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'sar2pcp' >import_sar2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'iostat2pcp' >import_iostat2pcp_files
@@ -553,7 +489,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'infiniband|pmdaib|pmdas/ib' >pmda_infi
 %if "@enable_papi@" == "enable_papi"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'papi' >pmda_papi_files
 %endif
-touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files
+touch gui_files pmda_infiniband_files pmda_papi_files
 
 rm -f *_files.rpm
 sort -u $DIST_MANIFEST | $PCP_AWK_PROG ' 
@@ -563,8 +499,6 @@ BEGIN {
     while( getline < "docs_files") doc[$0]=1;
     while( getline < "libs_files") lib[$0]=1;
     while( getline < "devel_files") dev[$0]=1;
-    while( getline < "webapi_files") webapi[$0]=1;
-    while( getline < "manager_files") manager[$0]=1;
     while( getline < "testsuite_files") testsuite[$0]=1;
     while( getline < "pmda_infiniband_files") pmda_infiniband[$0]=1;
     while( getline < "pmda_papi_files") pmda_papi[$0]=1;
@@ -582,8 +516,6 @@ BEGIN {
     else if (doc[$NF]) f="docs_files.rpm";
     else if (lib[$NF]) f="libs_files.rpm";
     else if (dev[$NF]) f="devel_files.rpm";
-    else if (webapi[$NF]) f="webapi_files.rpm";
-    else if (manager[$NF]) f="manager_files.rpm";
     else if (testsuite[$NF]) f="testsuite_files.rpm";
     else if (pmda_infiniband[$NF]) f="pmda_infiniband_files.rpm";
     else if (pmda_papi[$NF]) f="pmda_papi_files.rpm";
@@ -672,52 +604,6 @@ do
         /var/lib/pcp/config/$daemon/control /etc/$daemon /etc/pcp/$daemon /etc/sysconfig/$daemon
 done
 exit 0
-
-%if @have_libmicrohttpd@ == 1
-%preun webapi
-if [ "$1" -eq 0 ]
-then
-    %if "@enable_systemd@" == "true"
-	systemctl --no-reload disable pmwebd.service >/dev/null 2>&1
-	systemctl stop pmwebd.service >/dev/null 2>&1
-    %else
-	/sbin/service pmwebd stop >/dev/null 2>&1
-	/sbin/chkconfig --del pmwebd >/dev/null 2>&1
-    %endif
-fi
-
-%post webapi
-chown -R pcp:pcp "$PCP_LOG_DIR/pmwebd" 2>/dev/null
-%if "@enable_systemd@" == "true"
-    systemctl condrestart pmwebd.service >/dev/null 2>&1
-%else
-    /sbin/chkconfig --add pmwebd >/dev/null 2>&1 && \
-    /sbin/service pmwebd condrestart
-%endif
-%endif
-
-%if "@BUILD_PMMGR@" == "yes"
-%preun manager
-if [ "$1" -eq 0 ]
-then
-    %if "@enable_systemd@" == "true"
-	systemctl --no-reload disable pmmgr.service >/dev/null 2>&1
-	systemctl stop pmmgr.service >/dev/null 2>&1
-    %else
-	/sbin/service pmmgr stop >/dev/null 2>&1
-	/sbin/chkconfig --del pmmgr >/dev/null 2>&1
-    %endif
-fi
-
-%post manager
-chown -R pcp:pcp "$PCP_LOG_DIR/pmmgr" 2>/dev/null
-%if "@enable_systemd@" == "true"
-    systemctl condrestart pmmgr.service >/dev/null 2>&1
-%else
-    /sbin/chkconfig --add pmmgr >/dev/null 2>&1
-    /sbin/service pmmgr condrestart
-%endif
-%endif
 
 %preun
 if [ "$1" -eq 0 ]
@@ -823,16 +709,6 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %if "@enable_qt@" == "true"
 %files gui -f gui_files.rpm
-%defattr(-,root,root)
-%endif
-
-%if @have_libmicrohttpd@ == 1
-%files webapi -f webapi_files.rpm
-%defattr(-,root,root)
-%endif
-
-%if "@BUILD_PMMGR@" == "yes"
-%files manager -f manager_files.rpm
 %defattr(-,root,root)
 %endif
 

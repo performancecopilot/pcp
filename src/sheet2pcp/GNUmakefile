@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 # Copyright (c) 2009 Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
@@ -18,25 +17,13 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 SCRIPT	= sheet2pcp
-LDIRT	= $(MAN_PAGES) $(MAN_PAGES).tmp
-LSRCFILES	= $(SCRIPT)
 
-ifneq ($(POD2MAN),)
-MAN_SECTION = 1
-MAN_PAGES = $(SCRIPT).$(MAN_SECTION)
-MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
-endif
-
-default: $(MAN_PAGES)
-
-$(SCRIPT).$(MAN_SECTION): $(SCRIPT)
-	$(POD_MAKERULE)
+default:
 
 include $(BUILDRULES)
 
 install: default
-	$(INSTALL) -m 755 $(SCRIPT) $(PCP_BIN_DIR)/$(SCRIPT)
-	@$(INSTALL_MAN)
+	$(INSTALL) -m 755 sheet2pcp $(PCP_BIN_DIR)/sheet2pcp
 
 default_pcp : default
 

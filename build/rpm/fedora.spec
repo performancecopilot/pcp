@@ -8,6 +8,7 @@ License: GPLv2+ and LGPLv2.1+
 URL: http://www.pcp.io
 Group: Applications/System
 Source0: pcp-%{version}.src.tar.gz
+Source1: pcp-web-manager-%{version}.src.tar.gz
 
 # There is no papi-devel package for s390 or prior to rhel6, disable it
 %ifarch s390 s390x
@@ -446,6 +447,7 @@ PCP utilities and daemons, and the PCP graphical tools.
 
 %prep
 %setup -q
+%setup -q -T -D -a 1
 
 %clean
 rm -Rf $RPM_BUILD_ROOT
@@ -453,11 +455,18 @@ rm -Rf $RPM_BUILD_ROOT
 %build
 %configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_qt}
 make default_pcp
+pushd pcp-web-manager-%{version}
+    make default
+popd
 
 %install
 rm -Rf $RPM_BUILD_ROOT
 export NO_CHOWN=true DIST_ROOT=$RPM_BUILD_ROOT
 make install_pcp
+pushd pcp-web-manager-%{version}
+    make install
+popd
+
 PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
 
 # Fix stuff we do/don't want to ship
@@ -524,7 +533,7 @@ cat base_bin.list base_exec.list base_man.list |\
   egrep "$PCP_GUI" >> pcp-gui.list
 %endif
 cat base_pmdas.list base_bin.list base_exec.list base_man.list |\
-  egrep -v 'pmdaib|pmmgr|pmweb|2pcp' |\
+  egrep -v 'pmdaib|pmmgr|pmweb|jsdemos|2pcp' |\
   egrep -v "$PCP_GUI|pixmaps|pcp-doc|tutorials" |\
   egrep -v %{_confdir} | egrep -v %{_logsdir} > base.list
 
@@ -851,6 +860,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %attr(0775,pcp,pcp) %{_logsdir}/pmwebd
 %{_confdir}/pmwebd
 %config(noreplace) %{_confdir}/pmwebd/pmwebd.options
+%{_datadir}/pcp/jsdemos
 %{_mandir}/man1/pmwebd.1.gz
 %{_mandir}/man3/PMWEBAPI.3.gz
 %endif
@@ -922,12 +932,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %files -n pcp-gui -f pcp-gui.list
 %defattr(-,root,root,-)
 
-%{_sysconfdir}/pcp/pmsnap
 %config(noreplace) %{_sysconfdir}/pcp/pmsnap
 %{_localstatedir}/lib/pcp/config/pmsnap
-%dir %{_localstatedir}/lib/pcp/config/pmsnap
 %{_localstatedir}/lib/pcp/config/pmchart
-%dir %{_localstatedir}/lib/pcp/config/pmchart
 %{_localstatedir}/lib/pcp/config/pmafm/pcp-gui
 %{_datadir}/applications/pmchart.desktop
 %endif

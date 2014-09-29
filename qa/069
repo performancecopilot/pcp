@@ -167,7 +167,7 @@ _get_hex_addr()
 # 1. pmie
 # 2. primary pmlogger
 # 3. pmie (maybe)
-# 4. pmlogger for pmmgr (maybe)
+# 4. secondart pmlogger (maybe)
 #
 _filter_numclients()
 {
