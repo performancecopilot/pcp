@@ -184,7 +184,7 @@ read_config(FILE *conf)
     }
     conf_buffer[size] = '\0'; /* terminate the buffer */
 
-    fprintf(stderr, "Buffer: %s\n", conf_buffer);
+    //fprintf(stderr, "Buffer: %s\n", conf_buffer);
 
     if (parse_config(&the_tree) != 0)
         exit(1);

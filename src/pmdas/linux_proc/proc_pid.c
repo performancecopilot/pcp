@@ -419,7 +419,7 @@ get_idle_time(){
     		idle_time = 0;
     	}
 
-    	fprintf(stderr, "Idle time: %llu\n", idle_time);
+    	//fprintf(stderr, "Idle time: %llu\n", idle_time);
 
     	fclose( fp );
 
@@ -936,7 +936,7 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 	    ep->name = strdup(buf);
 
 	    __pmHashAdd(pids->pids[i], (void *)ep, &proc_pid->pidhash);
-	    fprintf(stderr, "key %d : ADDED \"%s\" to hash table\n", pids->pids[i], buf);
+	    //fprintf(stderr, "key %d : ADDED \"%s\" to hash table\n", pids->pids[i], buf);
 	}
 	else
 	    ep = (proc_pid_entry_t *)node->data;
@@ -959,7 +959,7 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 	    // fprintf(stderr, "CHECKING key=%d node=" PRINTF_P_PFX "%p prev=" PRINTF_P_PFX "%p next=" PRINTF_P_PFX "%p ep=" PRINTF_P_PFX "%p valid=%d\n",
 	    	// ep->id, node, prev, node->next, ep, ep->valid);
 	    if (!(ep->flags & PROC_PID_FLAG_VALID)) {
-	        fprintf(stderr, "DELETED key=%d name=\"%s\"\n", ep->id, ep->name);
+	        //fprintf(stderr, "DELETED key=%d name=\"%s\"\n", ep->id, ep->name);
 		if (ep->name != NULL)
 		    free(ep->name);
 		if (ep->stat_buf != NULL)
