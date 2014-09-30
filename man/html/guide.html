@@ -353,22 +353,22 @@ Merge several archives as a new combined archive (see the manual page how to wri
 <a name="visual"></a>
 <H3>Visualizing iostat and sar Data</H3>
 
-<P><a href="http://man7.org/linux/man-pages/man1/iostat.1.html">iostat</a> and <a href="http://man7.org/linux/man-pages/man1/sar.1.html">sar</a> data can be imported as PCP archives which then allows inspecting and visualizing the data with PCP tools. The iostat2pcp importer is in the pcp-import-iostat2pcp package and the sar2pcp importer is in the pcp-import-sar2pcp package.
+<P><a href="http://man7.org/linux/man-pages/man1/iostat.1.html">iostat</a> and <a href="http://man7.org/linux/man-pages/man1/sar.1.html">sar</a> data can be imported as PCP archives which then allows inspecting and visualizing the data with PCP tools. The <a href="http://man7.org/linux/man-pages/man1/iostat2pcp.1.html">iostat2pcp(1)</a> importer is in the pcp-import-iostat2pcp package and the <a href="http://man7.org/linux/man-pages/man1/sar2pcp.1.html">sar2pcp(1)</a> importer is in the pcp-import-sar2pcp package.
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Import iostat data to a new PCP archive and visualize it:<BR><B>
-<BR> $ iostat -t -x 2 > iostat.out
-<BR> $ iostat2pcp iostat.out iostat.pcp
-<BR> $ pmchart -t 2sec -a iostat.pcp </B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/iostat.1.html">iostat</a> -t -x 2 > iostat.out
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/iostat2pcp.1.html">iostat2pcp</a> iostat.out iostat.pcp
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmchart.1.html">pmchart</a> -t 2sec -a iostat.pcp </B>
 </TD></TR>
 </TABLE>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Import sar data from an existing sar archive to a new PCP archive and visualize it (sar logs are under /var/log/sysstat on Debian/Ubuntu):<BR><B>
-<BR> $ sar2pcp /var/log/sa/sa15 sar.pcp
-<BR> $ pmchart -t 2sec -a sar.pcp </B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/sar2pcp.1.html">sar2pcp</a> /var/log/sa/sa15 sar.pcp
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmchart.1.html">pmchart</a> -t 2sec -a sar.pcp </B>
 </TD></TR>
 </TABLE>
 
