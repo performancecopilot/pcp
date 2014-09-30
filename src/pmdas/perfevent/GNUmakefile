@@ -20,7 +20,6 @@ include	$(TOPDIR)/src/include/builddefs
 IAM		= perfevent
 DOMAIN		= PERFEVENT
 CMDTARGET	= pmda$(IAM)
-LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
 
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 
@@ -44,12 +43,12 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: domain.h $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) perfalloc
+build-me: domain.h $(CMDTARGET) $(HELPTARGETS) perfalloc
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 644 domain.h help root pmns perfevent.conf $(PMDADIR)
-	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) perfalloc $(PMDADIR)
+	$(INSTALL) -m 755 $(CMDTARGET) $(SCRIPTS) perfalloc $(PMDADIR)
 else
 build-me:
 install:
@@ -59,7 +58,7 @@ default_pcp : default
 
 install_pcp : install
 
-TARGETS = $(LIBTARGET) $(CMDTARGET) perfalloc
+TARGETS = $(CMDTARGET) perfalloc
 
 LLDLIBS = $(PCP_PMDALIB) -lpfm -lrt
 LCFLAGS = -I.

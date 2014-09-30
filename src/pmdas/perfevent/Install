@@ -23,7 +23,7 @@ iam=perfevent
 forced_restart=true
 pmda_interface=5
 
-dso_opt=true
+dso_opt=false
 perl_opt=false
 python_opt=false
 socket_opt=true
@@ -31,9 +31,5 @@ socket_inet_def=2078
 
 pmdaSetup
 pmdaInstall
-
-# Umask settings ensure the perflock file is world readable
-umask 022
-touch ${PCP_PMDAS_DIR}/${iam}/perflock
 
 exit 0
