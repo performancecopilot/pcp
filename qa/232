@@ -77,6 +77,7 @@ End-of-File
 
 sed -e '/^#/d' <$tmp.metrics | while read indom metric
 do
+    echo $metric:
     if [ $PCP_PLATFORM = darwin ]
     then
 	# some of the metrics just aren't there on Mac OS X
@@ -104,12 +105,11 @@ do
 	# some of the metrics just aren't there on FreeBSD
 	case $metric
 	in
-	    filesys.used|swapdev.length|nfs.*|nfs3.*)
+	    hinv.map.cpu_num|hinv.nlv|hinv.map.dmname|disk.partitions.total|hinv.map.scsi|mem.slabinfo.objects.total|filesys.used|swapdev.length|nfs.*|nfs3.*|nfs4.*|tmpfs.capacity|kernel.pernode.cpu.nice)
 		continue
 		;;
 	esac
     fi
-    echo $metric:
     if [ $PCP_PLATFORM = solaris -o $PCP_PLATFORM = freebsd ]
     then
 	# need to be root to open /dev/kmem

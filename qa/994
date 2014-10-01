@@ -56,13 +56,15 @@ do
 	[ -z "$optional" ] && \
 	    echo "Error: $target: not found, should have been installed from $makefile"
     else
-	# stat line of interest ...
-	# Access: (1777/drwxrwxrwt)  Uid: (  0/  root)   Gid: (  0/  root)
-	#
 	_mode=""
 	_owner=""
 	_group=""
-	eval `stat $target | sed -n -e '/^Access:.*Uid:.*Gid:/{
+	if [ $PCP_PLATFORM = linux ]
+	then
+	    # stat line of interest ...
+	    # Access: (1777/drwxrwxrwt)  Uid: (  0/  root)   Gid: (  0/  root)
+	    #
+	    eval `stat $target | sed -n -e '/^Access:.*Uid:.*Gid:/{
 s/Access: *(/_mode=/
 s/\/.*) *Uid: *( *[0-9][0-9]*\/ */ _owner=/
 s/) *Gid: *( *[0-9][0-9]*\/ */ _group=/
@@ -70,6 +72,17 @@ s/).*//
 s/=0*/=/g
 p
 }'`
+	elif [ $PCP_PLATFORM = freebsd ]
+	then
+	    # stat line of interest ...
+	    # _mode=-rw-r--r-- _user=kenj _group=kenj
+	    eval `stat -f '_mode=%Sp _owner=%Su _group=%Sg' $target`
+	    _mode=`echo $_mode | sed -e 's/.//' -e 's/---/0/g' -e 's/r--/4/g' -e 's/r-x/5/g' -e 's/rw-/6/g' -e 's/rwx/7/g'`
+	else
+	    echo "Arrgh, need stat(1) handling for $PCP_PLATFORM"
+	    status=1
+	    break
+	fi
 	if [ -z "$_mode" -o -z "$_owner" -o -z "$_group" ]
 	then
 	    echo "Arrgh, failed to extract mode, owner and group from stat(1) output ..."
@@ -100,12 +113,19 @@ done
 
 # Now expect only root owned things below $PCP_SYSCONF_DIR
 #
+grp=root
+case $PCP_PLATFORM
+in
+    freebsd)
+	    grp=wheel
+	    ;;
+esac
 find $PCP_SYSCONF_DIR ! -user root >$tmp.out
 if [ -s $tmp.out ]
 then
     echo "Arrgh ... these files should be owned by root"
     cat $tmp.out | xargs ls -ld
-    $fix && ( ( cat $tmp.out | xargs $sudo chown root:root ) ; echo "Fixed." )
+    $fix && ( ( cat $tmp.out | xargs $sudo chown root:$grp ) ; echo "Fixed." )
 fi
 
 # success, all done
