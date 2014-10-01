@@ -1160,6 +1160,8 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
     }
     proc_pid_entry_t *ep;
     char buf[1024];
+    char *p;
+    ssize_t nread;
 
     *sts = 0;
     if (node == NULL) {

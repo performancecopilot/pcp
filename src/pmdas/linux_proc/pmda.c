@@ -1726,6 +1726,10 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 #endif
 		break;
+ 
+	    case PROC_PID_STAT_ENVIRON:
+		atom->cp = entry->environ_buf ? entry->environ_buf : "";
+		break;
 
 	    case PROC_PID_STAT_WCHAN_SYMBOL:
 		if (entry->wchan_buf)	/* 2.6 kernel, /proc/<pid>/wchan */
