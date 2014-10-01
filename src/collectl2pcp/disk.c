@@ -33,11 +33,11 @@ disk_handler(handler_t *h, fields_t *f)
     put_str_value("disk.dev.read", indom, inst, f->fields[4]);
     put_str_value("disk.dev.read_merge", indom, inst, f->fields[5]);
     put_str_value("disk.dev.blkread", indom, inst, f->fields[6]);
-    /* skip read_ticks at f->fields[7] */
+    put_str_value("disk.dev.read_rawactive", indom, inst, f->fields[7]);
     put_str_value("disk.dev.write", indom, inst, f->fields[8]);
     put_str_value("disk.dev.write_merge", indom, inst, f->fields[9]);
     put_str_value("disk.dev.blkwrite", indom, inst, f->fields[10]);
-    /* skip write_ticks at f->fields[11] */
+    put_str_value("disk.dev.write_rawactive", indom, inst, f->fields[11]);
     /* skip in_flight at f->fields[12] */
     put_str_value("disk.dev.avactive", indom, inst, f->fields[13]);
     put_str_value("disk.dev.aveq", indom, inst, f->fields[14]);
