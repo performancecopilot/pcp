@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2014 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -17,12 +17,14 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM	= gluster
 PYSCRIPT = pmda$(IAM).python
-LSRCFILES = Install Remove $(PYSCRIPT)
+LDIRT	= domain.h root pmns $(IAM).log
 
 DOMAIN	= GLUSTER
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
-LDIRT	= domain.h $(IAM).log
+MAN_SECTION = 1
+MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
+MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
 default_pcp default:	check_domain
 
@@ -32,6 +34,7 @@ install_pcp install:	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 $(PYSCRIPT) $(PMDADIR)/$(PYSCRIPT)
+	@$(INSTALL_MAN)
 
 check_domain:	../../pmns/stdpmid
 	$(DOMAIN_PYTHONRULE)
