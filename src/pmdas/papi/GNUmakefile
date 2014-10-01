@@ -23,7 +23,7 @@ LIBTARGET = pmda_$(IAM).$(DSOSUFFIX)
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMDAINIT = $(IAM)_init
 
-LLDLIBS = -lpapi $(PCP_PMDALIB)
+LLDLIBS = $(PAPI_LIBS) $(PCP_PMDALIB)
 LCFLAGS = $(INVISIBILITY) -I.
 
 CFILES	= papi.c
@@ -39,8 +39,7 @@ default_pcp default:	build-me
 
 include $(BUILDRULES)
 
-ifeq "$(ENABLE_PAPI)" "enable_papi"
-
+ifeq "$(PMDA_PAPI)" "true"
 build-me:	domain.h $(CMDTARGET) $(LIBTARGET)
 
 install_pcp install:	default 

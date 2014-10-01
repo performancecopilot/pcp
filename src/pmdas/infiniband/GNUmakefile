@@ -34,7 +34,7 @@ default: build-me
 
 include $(BUILDRULES)
 
-ifneq "$(PMDA_INFINIBAND)" ""
+ifeq "$(PMDA_INFINIBAND)" "true"
 build-me: domain.h $(CMDTARGET)
 
 install: default

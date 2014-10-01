@@ -35,7 +35,7 @@ default:	build-me
 
 include $(BUILDRULES)
 
-ifneq "$(PMDA_SYSTEMD)" ""
+ifeq "$(PMDA_SYSTEMD)" "true"
 build-me: domain.h $(CMDTARGET)
 
 install:	default
