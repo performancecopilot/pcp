@@ -787,7 +787,6 @@ qmake
 enable_qt
 qt_release
 QMAKE
-SETUP_PY_PRE_2_5
 PYTHON
 GIT
 LTLIBOBJS
@@ -6000,22 +5999,6 @@ done
 
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking python version" >&5
-$as_echo_n "checking python version... " >&6; }
-eval `$PYTHON -V 2>&1 | sed -n -e '/^Python /s///p' | awk -F. '{ printf "PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$1,$2,$3 }'`
-case "$PY_MAJOR.$PY_MINOR"
-in
-    0.*|1.*|2.0|2.1|2.3|2.4)
-	SETUP_PY_PRE_2_5=true
-	;;
-    *)
-	SETUP_PY_PRE_2_5=false
-	;;
-esac
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $PY_MAJOR.$PY_MINOR.$PY_POINT" >&5
-$as_echo "$PY_MAJOR.$PY_MINOR.$PY_POINT" >&6; }
-
 qmake=$QMAKE
 enable_qt=false
 qt_release=release
@@ -6077,17 +6060,9 @@ done
     then
 	enable_qt=false
     else
-								{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Qt version" >&5
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Qt version" >&5
 $as_echo_n "checking Qt version... " >&6; }
-	eval `$qmake --version 2>&1 | sed -n -e '/Using Qt version/{
-s/Using Qt version //
-s/ .*//
-p
-}' -e '/Qmake .*(Qt /{
-s/Qmake .* (Qt //
-s/)//
-p
-}' | awk -F. '{ printf "QT_MAJOR=%d QT_MINOR=%d QT_POINT=%d\n",$1,$2,$3 }'`
+	eval `$qmake --version | awk '/Using Qt version/ { ver=4; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export QT_MAJOR=%d QT_MINOR=%d QT_POINT=%d\n",$major,$minor,$point }'`
 	if test "$QT_MAJOR" -lt 4; then
 	    echo
 	    echo WARNING: Qt version 4.4 or later does not seem to be installed.
