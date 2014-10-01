@@ -41,6 +41,9 @@ signal=$PCP_BINADM_DIR/pmsignal
 
 # real QA test starts here
 _writable_primary_logger
+ls -l $PCP_VAR_DIR/config/pmlogger/config.default >>$seq.full
+cat $PCP_VAR_DIR/config/pmlogger/config.default >>$seq.full
+pmlc -P </dev/null 2>&1 >>$seq.full
 $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
