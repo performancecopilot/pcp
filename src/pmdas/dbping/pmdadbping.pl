@@ -12,10 +12,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-# 
 
 use strict;
 use warnings;
@@ -104,89 +100,3 @@ $pmda->set_store_callback( \&dbping_store_callback );
 $pmda->add_pipe( $dbprobe, \&dbping_probe_callback, 0 );
 $pmda->set_user('pcp');
 $pmda->run;
-
-=pod
-
-=head1 NAME
-
-pmdadbping - database response time and availability PMDA
-
-=head1 DESCRIPTION
-
-Simple database response time measurement PMDA.  dbprobe.pl(1)
-should be configured to use the type of DBI appropriate
-for your database, which includes: RDBMS flavour, user/password,
-delay between "ping" requests, and the SQL statement to use.
-B<pmdadbping> runs dbprobe.pl(1), and exports the performance
-measurements it makes available as PCP metrics.
-
-=head1 INSTALLATION
-
-Configure dbprobe.pl(1) - it uses a configuration file from
-(in this order):
-
-=over
-
-=item * /etc/pcpdbi.conf
-
-=item * $PCP_PMDAS_DIR/dbping/dbprobe.conf
-
-=back
-
-This file can contain overridden values (Perl code) for the settings
-listed at the start of dbprobe.pl, namely:
-
-=over
-
-=item * database name (see DBI(3) for details)
-
-=item * database user name
-
-=item * database pass word
-
-=item * SQL statement to measure (probe)
-
-=item * delay between probes
-
-=back
-
-Once this is setup, you can access the names and values for the
-dbping performance metrics by doing the following as root:
-
-	# cd $PCP_PMDAS_DIR/dbping
-	# ./Install
-
-If you want to undo the installation, do the following as root:
-
-	# cd $PCP_PMDAS_DIR/dbping
-	# ./Remove
-
-B<pmdadbping> is launched by pmcd(1) and should never be executed
-directly.  The Install and Remove scripts notify pmcd(1) when
-the agent is installed or removed.
-
-=head1 FILES
-
-=over
-
-=item $PCP_PMDAS_DIR/dbping/probes.stp
-
-probe configuration file for stap(1), run by B<pmdadbping>
-
-=item $PCP_PMDAS_DIR/dbping/Install
-
-installation script for the B<pmdadbping> agent
-
-=item $PCP_PMDAS_DIR/dbping/Remove
-
-undo installation script for the B<pmdadbping> agent
-
-=item $PCP_LOG_DIR/pmcd/dbping.log
-
-default log file for error messages from B<pmdadbping>
-
-=back
-
-=head1 SEE ALSO
-
-pmcd(1), dbprobe.pl(1) and DBI(3).
