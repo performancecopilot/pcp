@@ -26,7 +26,15 @@ esac
 
 ./configure $configure_options
 
+if [ ! -f src/include/pcp.conf ]
+then
+    echo "Arrgh, src/include/pcp.conf not found"
+    exit 1
+fi
+
+. src/include/pcp.conf
+
 cd src/include
-make
+$PCP_MAKE_PROG
 cd ../pmns
-make
+$PCP_MAKE_PROG

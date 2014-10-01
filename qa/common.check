@@ -1379,6 +1379,10 @@ p
 		sudo cp $tmp._state /etc/hostconfig
 	    fi
 	fi
+    elif [ $PCP_PLATFORM = freebsd ]
+    then
+	# no control for FreeBSD
+	:
     else
 	# I have no idea what to do for this platform!
 	#
