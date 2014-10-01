@@ -215,13 +215,13 @@ NEED_OLD_TBL_HEADER = @need_old_tbl_header@
 RDYNAMIC_FLAG = @rdynamic_flag@
 QT_RELEASE = @qt_release@
 
+# configuration state affecting the entire build
 ENABLE_SHARED = @enable_shared@
 ENABLE_SECURE = @enable_secure@
 ENABLE_PROBES = @enable_probes@
 ENABLE_AVAHI = @enable_avahi@
 ENABLE_QT = @enable_qt@
 ENABLE_SYSTEMD = @enable_systemd@
-ENABLE_PAPI = @enable_papi@
 
 # additional libraries needed for particular functions
 LIB_FOR_BASENAME = @lib_for_basename@
@@ -239,7 +239,15 @@ LIB_FOR_SSL = @lib_for_ssl@
 LIB_FOR_AVAHI = @lib_for_avahi@
 LIB_FOR_ATOMIC = @lib_for_atomic@
 
-HAVE_RPMLIB = @HAVE_RPMLIB@
+# configuration state for optional performance domains
+SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
+SYSTEMD_LIBS = @SYSTEMD_LIBS@
+PAPI_LIBS = @PAPI_LIBS@
+IB_LIBS = @IB_LIBS@
+PMDA_RPM = @PMDA_RPM@
+PMDA_PAPI = @PMDA_PAPI@
+PMDA_SYSTEMD = @PMDA_SYSTEMD@
+PMDA_INFINIBAND = @PMDA_INFINIBAND@
 
 SHELL = /bin/sh
 IMAGES_DIR = $(TOPDIR)/all-images
@@ -528,14 +536,6 @@ PERL_INSTALL = \
 else
 PERL_INSTALL =
 endif
-
-SYSTEMD_CFLAGS=@SYSTEMD_CFLAGS@
-SYSTEMD_LIBS=@SYSTEMD_LIBS@
-PMDA_SYSTEMD=@PMDA_SYSTEMD@
-
-IB_LIBS=@IB_LIBS@
-PMDA_INFINIBAND=@PMDA_INFINIBAND@
-
 
 #
 # Python platform-specific installation quirks

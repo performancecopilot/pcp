@@ -23,9 +23,6 @@ BuildRequires: cyrus-sasl-devel
 %if "@enable_probes@" == "true"
 BuildRequires: systemtap-sdt-devel
 %endif
-%if @have_rpmlib@ == 1
-BuildRequires: rpm-devel
-%endif
 %if "@enable_qt@" == "true"
 %if "%{_vendor}" == "suse"
 BuildRequires: qt-devel >= 4.4
@@ -39,8 +36,10 @@ BuildRequires: initscripts man /bin/hostname
 %if 0%{?fedora} >= 18 || 0%{?rhel} >= 7
 BuildRequires: systemd-devel
 %endif
-
-%if "@enable_papi@" == "enable_papi"
+%if "@pmda_rpm@" == "true"
+BuildRequires: rpm-devel
+%endif
+%if "@pmda_papi@" == "true"
 BuildRequires: papi-devel
 %endif
 
@@ -358,7 +357,7 @@ PCP utilities and daemons, and the PCP graphical tools.
 #
 # pcp-pmda-papi
 #
-%if "@enable_papi@" == "enable_papi"
+%if "@pmda_papi@" == "true"
 %package pmda-papi
 License: GPLv2+
 Group: Applications/System
@@ -373,7 +372,7 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting hardware counters statistics through PAPI (Perforamance API).
 %endif
 
-%if "@pmda_infiniband@" == "infiniband"
+%if "@pmda_infiniband@" == "true"
 #
 # pcp-pmda-infiniband
 #
@@ -483,11 +482,11 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'iostat2pcp' >import_iostat2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'sheet2pcp' >import_sheet2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'mrtg2pcp' >import_mrtg2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'collectl2pcp' >import_collectl2pcp_files
-%if "@pmda_infiniband@" == "infiniband"
+%if "@pmda_infiniband@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'infiniband|pmdaib|pmdas/ib' >pmda_infiniband_files
 %endif
-%if "@enable_papi@" == "enable_papi"
-awk '{print $NF}' $DIST_MANIFEST | egrep 'papi' >pmda_papi_files
+%if "@pmda_papi@" == "true"
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdapapi|pmdas/papi' >pmda_papi_files
 %endif
 touch gui_files pmda_infiniband_files pmda_papi_files
 
@@ -715,12 +714,12 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %files testsuite -f testsuite_files.rpm
 %defattr(-,pcpqa,pcpqa)
 
-%if "@enable_papi@" == "enable_papi"
+%if "@pmda_papi@" == "true"
 %files pmda-papi -f pmda_papi_files.rpm
 %defattr(-,root,root)
 %endif
 
-%if "@pmda_infiniband@" == "infiniband"
+%if "@pmda_infiniband@" == "true"
 %files pmda-infiniband -f pmda_infiniband_files.rpm
 %defattr(-,root,root)
 %endif

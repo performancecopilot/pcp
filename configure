@@ -620,7 +620,6 @@ ac_includes_default="\
 #endif"
 
 ac_subst_vars='PACKAGE_CONFIGURE
-HAVE_RPMLIB
 lib_for_curses
 lib_for_readline
 pcp_mpi_dirs
@@ -691,8 +690,11 @@ fmt_pthread
 lib_for_pthreads
 fmt_pid
 rdynamic_flag
-IB_LIBS
+PMDA_RPM
+PMDA_PAPI
+PAPI_LIBS
 PMDA_INFINIBAND
+IB_LIBS
 PMDA_SYSTEMD
 SYSTEMD_LIBS
 SYSTEMD_CFLAGS
@@ -780,9 +782,6 @@ cflags_abi
 cc_is_gcc
 cc
 CCPATH
-enable_papi
-papi_CFLAGS
-papi_lib
 qmake
 enable_qt
 qt_release
@@ -6093,78 +6092,6 @@ fi
 
 
 
-if test "x$do_papi" != "xno"; then :
-
-
-    enable_papi=enable_papi
-
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for PAPI_library_init in -lpapi" >&5
-$as_echo_n "checking for PAPI_library_init in -lpapi... " >&6; }
-if ${ac_cv_lib_papi_PAPI_library_init+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lpapi  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char PAPI_library_init ();
-int
-main ()
-{
-return PAPI_library_init ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_papi_PAPI_library_init=yes
-else
-  ac_cv_lib_papi_PAPI_library_init=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_papi_PAPI_library_init" >&5
-$as_echo "$ac_cv_lib_papi_PAPI_library_init" >&6; }
-if test "x$ac_cv_lib_papi_PAPI_library_init" = xyes; then :
-  papi_lib="-lpapi"
-else
-  enable_papi=false
-fi
-
-    for ac_header in papi.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "papi.h" "ac_cv_header_papi_h" "$ac_includes_default"
-if test "x$ac_cv_header_papi_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_PAPI_H 1
-_ACEOF
-
-else
-  enable_papi=false
-fi
-
-done
-
-    if test "$enable_papi" = "enable_papi"
-    then
-
-
-	enable_papi=$enable_papi
-
-    fi
-
-fi
-
-
 cflags_abi=
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
@@ -9676,24 +9603,24 @@ fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$SYSTEMD_PKG_ERRORS" >&5
 
-	pmda_systemd=
+	pmda_systemd=false
 elif test $pkg_failed = untried; then
      	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
-	pmda_systemd=
+	pmda_systemd=false
 else
 	SYSTEMD_CFLAGS=$pkg_cv_SYSTEMD_CFLAGS
 	SYSTEMD_LIBS=$pkg_cv_SYSTEMD_LIBS
         { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
-	pmda_systemd=systemd
+	pmda_systemd=true
 fi
 PMDA_SYSTEMD=$pmda_systemd
 
 
-pmda_infiniband=
-if test "$do_infiniband" = "check" -o "$do_infiniband" = "yes"
-then
+pmda_infiniband=false
+if test "x$do_infiniband" != "xno"; then :
+
     for ac_header in infiniband/umad.h
 do :
   ac_fn_c_check_header_mongrel "$LINENO" "infiniband/umad.h" "ac_cv_header_infiniband_umad_h" "$ac_includes_default"
@@ -9709,7 +9636,7 @@ if test "x$ac_cv_header_infiniband_mad_h" = xyes; then :
   cat >>confdefs.h <<_ACEOF
 #define HAVE_INFINIBAND_MAD_H 1
 _ACEOF
- pmda_infiniband=infiniband
+ pmda_infiniband=true
 fi
 
 done
@@ -9886,16 +9813,121 @@ rm -f core conftest.err conftest.$ac_objext \
 	then
 	    :
 	else
-	    pmda_infiniband=
+	    pmda_infiniband=false
 	fi
     else
-	pmda_infiniband=
+	pmda_infiniband=false
     fi
     LIBS=$savedLIBS
-    PMDA_INFINIBAND=$pmda_infiniband
 
 
 fi
+PMDA_INFINIBAND=$pmda_infiniband
+
+
+pmda_papi=false
+if test "x$do_papi" != "xno"; then :
+
+    enable_papi=true
+
+    savedLIBS=$LIBS
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for PAPI_library_init in -lpapi" >&5
+$as_echo_n "checking for PAPI_library_init in -lpapi... " >&6; }
+if ${ac_cv_lib_papi_PAPI_library_init+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lpapi  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char PAPI_library_init ();
+int
+main ()
+{
+return PAPI_library_init ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_papi_PAPI_library_init=yes
+else
+  ac_cv_lib_papi_PAPI_library_init=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_papi_PAPI_library_init" >&5
+$as_echo "$ac_cv_lib_papi_PAPI_library_init" >&6; }
+if test "x$ac_cv_lib_papi_PAPI_library_init" = xyes; then :
+  papi_libs="-lpapi"
+else
+  enable_papi=false
+fi
+
+    for ac_header in papi.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "papi.h" "ac_cv_header_papi_h" "$ac_includes_default"
+if test "x$ac_cv_header_papi_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_PAPI_H 1
+_ACEOF
+
+else
+  enable_papi=false
+fi
+
+done
+
+    if test "$do_papi" != "check";
+    then
+	as_fn_error cannot enable the PAPI PMDA "PAPI is not installed" "$LINENO" 5
+    else
+	pmda_papi=$enable_papi
+    fi
+    LIBS=$savedLIBS
+    PAPI_LIBS=$papi_libs
+
+
+fi
+PMDA_PAPI=$pmda_papi
+
+
+pmda_rpm=false
+savedLIBS=$LIBS
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for rpmlib > 4.4.2" >&5
+$as_echo_n "checking for rpmlib > 4.4.2... " >&6; }
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <rpm/header.h>
+int
+main ()
+{
+(void)HEADERGET_EXT;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+    pmda_rpm=true
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+PMDA_RPM=$pmda_rpm
+
+LIBS=$savedLIBS
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking return type of signal handlers" >&5
 $as_echo_n "checking return type of signal handlers... " >&6; }
@@ -13775,34 +13807,6 @@ else
 $as_echo "no" >&6; }
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
-savedLIBS=$LIBS
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for rpmlib > 4.4.2" >&5
-$as_echo_n "checking for rpmlib > 4.4.2... " >&6; }
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <rpm/header.h>
-int
-main ()
-{
-(void)HEADERGET_EXT;
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-    have_rpmlib=1
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-    have_rpmlib=0
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-HAVE_RPMLIB=$have_rpmlib
-
-LIBS=$savedLIBS
 
 
 

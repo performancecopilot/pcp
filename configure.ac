@@ -475,27 +475,6 @@ AC_SUBST(qt_release)
 AC_SUBST(enable_qt)
 AC_SUBST(qmake)
 
-AS_IF([test "x$do_papi" != "xno"], [
-
-    enable_papi=enable_papi
-
-    AC_CHECK_LIB(papi, PAPI_library_init,
-		      [papi_lib="-lpapi"],
-		      [enable_papi=false])
-    AC_CHECK_HEADERS([papi.h],, [enable_papi=false])
-    if test "$enable_papi" = "enable_papi"
-    then
-        AC_SUBST(papi_lib)
-	AC_SUBST(papi_CFLAGS)
-	AC_SUBST(enable_papi, $enable_papi)
-    fi
-])
-dnl    if test "$do_papi" != "check" -a "enable_papi" != "true"
-dnl    then
-dnl	AC_MSG_ERROR(cannot enable papi pmda, papi not found)
-dnl    fi
-
-
 dnl check if user wants their own C compiler
 cflags_abi=
 AC_PROG_CC(suncc gcc cc)
@@ -1154,14 +1133,13 @@ fi
 AC_SUBST(lib_for_regex)
 
 PKG_CHECK_MODULES([SYSTEMD], [libsystemd-journal],
-                  [pmda_systemd=systemd], [pmda_systemd=])
+                  [pmda_systemd=true], [pmda_systemd=false])
 AC_SUBST(PMDA_SYSTEMD, $pmda_systemd)
 
-pmda_infiniband=
-if test "$do_infiniband" = "check" -o "$do_infiniband" = "yes"
-then
+pmda_infiniband=false
+AS_IF([test "x$do_infiniband" != "xno"], [
     AC_CHECK_HEADERS([infiniband/umad.h], [
-	AC_CHECK_HEADERS([infiniband/mad.h], [pmda_infiniband=infiniband], [])
+	AC_CHECK_HEADERS([infiniband/mad.h], [pmda_infiniband=true], [])
     ], [])
     savedLIBS=$LIBS
     IB_LIBS=""
@@ -1190,15 +1168,48 @@ then
 	then
 	    :
 	else
-	    pmda_infiniband=
+	    pmda_infiniband=false
 	fi
     else
-	pmda_infiniband=
+	pmda_infiniband=false
     fi
     LIBS=$savedLIBS
-    AC_SUBST(PMDA_INFINIBAND, $pmda_infiniband)
     AC_SUBST(IB_LIBS)
-fi
+])
+AC_SUBST(PMDA_INFINIBAND, $pmda_infiniband)
+
+pmda_papi=false
+AS_IF([test "x$do_papi" != "xno"], [
+    enable_papi=true
+
+    savedLIBS=$LIBS
+    AC_CHECK_LIB([papi], [PAPI_library_init],
+		 [papi_libs="-lpapi"],
+		 [enable_papi=false])
+    AC_CHECK_HEADERS([papi.h], [], [enable_papi=false])
+    if test "$do_papi" != "check" -a "$enable_papi" != "true"
+    then
+	AC_MSG_ERROR(PAPI is not installed, cannot enable the PAPI PMDA)
+    else
+	pmda_papi=$enable_papi
+    fi
+    LIBS=$savedLIBS
+    AC_SUBST(PAPI_LIBS, $papi_libs)
+])
+AC_SUBST(PMDA_PAPI, $pmda_papi)
+
+dnl Do you have RPM Package Manager libraries for pmdarpm?
+pmda_rpm=false
+savedLIBS=$LIBS
+AC_MSG_CHECKING([for rpmlib > 4.4.2])
+AC_COMPILE_IFELSE(
+   [AC_LANG_PROGRAM([[#include <rpm/header.h>]],
+                    [[(void)HEADERGET_EXT;]])],
+   [AC_MSG_RESULT([yes])
+    pmda_rpm=true],
+   [AC_MSG_RESULT([no])])
+AC_SUBST(PMDA_RPM,[$pmda_rpm])
+LIBS=$savedLIBS
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
@@ -2450,19 +2461,6 @@ AC_TRY_COMPILE(
 ],
 [
 ], AC_DEFINE(HAVE_AI_ADDRCONFIG) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
-
-dnl Do you have RPM Package Manager libraries for pmdarpm?
-savedLIBS=$LIBS
-AC_MSG_CHECKING([for rpmlib > 4.4.2])
-AC_COMPILE_IFELSE(
-   [AC_LANG_PROGRAM([[#include <rpm/header.h>]],
-                    [[(void)HEADERGET_EXT;]])],
-   [AC_MSG_RESULT([yes])
-    have_rpmlib=1],
-   [AC_MSG_RESULT([no])
-    have_rpmlib=0])
-AC_SUBST(HAVE_RPMLIB,[$have_rpmlib])
-LIBS=$savedLIBS
 
 dnl Capture special options passed to configure
 AC_SUBST(PACKAGE_CONFIGURE)

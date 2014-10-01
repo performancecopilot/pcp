@@ -61,10 +61,11 @@ pcp.spec: pcp.spec.in
 	    -e's|@package_release@|$(PACKAGE_BUILD)|g' \
 	    -e's|@package_configure@|$(PACKAGE_CONFIGURE)|g' \
 	    -e's|@package_distribution@|$(PACKAGE_DISTRIBUTION)|g' \
-	    -e's|@have_rpmlib@|$(HAVE_RPMLIB)|g' \
+	    -e's|@pmda_rpm@|$(PMDA_RPM)|g' \
+	    -e's|@pmda_papi@|$(PMDA_PAPI)|g' \
+	    -e's|@pmda_systemd@|$(PMDA_SYSTEMD)|g' \
 	    -e's|@pmda_infiniband@|$(PMDA_INFINIBAND)|g' \
 	    -e's|@enable_systemd@|$(ENABLE_SYSTEMD)|g' \
-	    -e's|@enable_papi@|$(ENABLE_PAPI)|g' \
 	    -e's|@enable_secure@|$(ENABLE_SECURE)|g' \
 	    -e's|@enable_probes@|$(ENABLE_PROBES)|g' \
 	    -e's|@enable_avahi@|$(ENABLE_AVAHI)|g' \
