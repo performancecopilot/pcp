@@ -9,7 +9,9 @@ Source: @package_name@-@package_version@.src.tar.gz
 BuildRoot: @build_root@ 
 Distribution: @package_distribution@
 BuildRequires: procps bison flex
+%if "@enable_python@" == "true"
 BuildRequires: python-devel
+%endif
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
@@ -47,9 +49,11 @@ Conflicts: pcp-pro < 2.2
 
 # Utilities used indirectly e.g. by scripts we install
 Requires: bash gawk sed grep fileutils findutils perl
-Requires: python
+%if "@enable_python@" == "true"
 %if "%{_vendor}" == "redhat" && 0%{?rhel} <= 5
 Requires: python-ctypes
+%endif
+Requires: python
 %endif
 %if "%{_vendor}" == "suse"
 Requires: sysconfig
@@ -85,7 +89,9 @@ Requires: initscripts
 %define __find_requires %{_builddir}/%{?buildsubdir}/build/rpm/filter-requires -v %{_vendor} -f 0%{?fedora} -r 0%{?rhel} %{__find_requires_save}
 
 Requires: pcp-libs = @package_version@
+%if "@enable_python@" == "true"
 Requires: python-pcp = @package_version@
+%endif
 Requires: perl-PCP-PMDA = @package_version@
 Obsoletes: pcp-gui-debuginfo
 Obsoletes: pcp-pmda-nvidia
@@ -298,6 +304,7 @@ Requires: pcp-libs >= %{version}-%{release}
 Performance Co-Pilot (PCP) front-end tools for importing collectl data
 into standard PCP archive logs for replay with any PCP monitoring tool.
 
+%if "@enable_python@" == "true"
 #
 # python-pcp. This is the PCP library bindings for python.
 #
@@ -311,6 +318,7 @@ Requires: pcp-libs = @package_version@
 %description -n python-pcp
 The python PCP module contains the language bindings for
 building Performance Metric API (PMAPI) tools using Python.
+%endif
 
 %if "@enable_qt@" == "true"
 #
@@ -751,6 +759,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %files -n perl-PCP-LogSummary -f perl-pcp-logsummary.list
 %defattr(-,root,root)
 
+%if "@enable_python@" == "true"
 %files -n python-pcp -f python-pcp.list.rpm
 %defattr(-,root,root)
-
+%endif

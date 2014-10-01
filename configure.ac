@@ -89,6 +89,12 @@ AC_ARG_WITH([qt],
     [do_qt=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-qt=$withval"],
     [do_qt=check])
 
+AC_ARG_WITH([python],
+    [AC_HELP_STRING([--with-python],
+                    [enable support for tools requiring Python (default is on)])],
+    [do_python=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-python=$withval"],
+    [do_python=check])
+
 AC_ARG_WITH([books],
     [AC_HELP_STRING([--with-books],
                     [enable building of the PCP books (default is off)])],
@@ -426,8 +432,47 @@ AC_OUTPUT(src/include/pcp/platform_defs.h)
 AC_CHECK_PROGS(GIT, git)
 AC_SUBST(GIT)
 
+dnl check if python available for the build
 AC_CHECK_PROGS(PYTHON, python)
 AC_SUBST(PYTHON)
+
+dnl check if python tools/packages wanted (need python >= 2.6)
+enable_python=false
+AS_IF([test "x$do_python" != "xno"], [
+    enable_python=true
+    if test -z "$PYTHON"
+    then
+	enable_python=false
+    else
+	AC_MSG_CHECKING([Python version])
+	eval `$PYTHON -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
+	if test "$PY_MAJOR" -lt 2; then
+	    echo
+	    echo WARNING: Python version 2.6 or later does not seem to be installed.
+	    echo Cannot proceed with the Python $PY_MAJOR installation found.
+	    enable_python=false
+	fi
+	if test "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -lt 6 ; then
+	    echo
+	    echo WARNING: Python version 2.$PY_MINOR is too old.
+	    echo Python version 2.6 or later is required for Python builds.
+	    enable_python=false
+	fi
+	if test "$PY_MAJOR" -ge 3 ; then
+	    echo
+	    echo WARNING: Python version 3.$PY_MINOR is not yet supported.
+	    echo Currently Python version 2 is required for Python builds.
+	    enable_python=false
+	fi
+	AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
+    fi
+
+    if test "$do_python" != "check" -a "$enable_python" != "true"
+    then
+	AC_MSG_ERROR(cannot enable Python - no supported version found)
+    fi
+])
+AC_SUBST(enable_python)
 
 qmake=$QMAKE
 enable_qt=false

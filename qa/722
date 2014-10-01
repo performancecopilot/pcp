@@ -62,10 +62,10 @@ redact_header()
 	{print $0}'
 }
 
-PMATOP=pmatop.py		# local version, wont be there on installed system
+PMATOP=pmatop.py		# developer version
 which $PMATOP >/dev/null 2>&1
 if [ $? -ne 0 ]; then
-    PMATOP=pmatop
+    PMATOP=pmatop		# installed version
     which $PMATOP >/dev/null 2>&1 || _notrun "pmatop not installed"
 fi
 

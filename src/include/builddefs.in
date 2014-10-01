@@ -221,6 +221,7 @@ ENABLE_SECURE = @enable_secure@
 ENABLE_PROBES = @enable_probes@
 ENABLE_AVAHI = @enable_avahi@
 ENABLE_QT = @enable_qt@
+ENABLE_PYTHON = @enable_python@
 ENABLE_SYSTEMD = @enable_systemd@
 
 # additional libraries needed for particular functions

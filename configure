@@ -786,6 +786,7 @@ qmake
 enable_qt
 qt_release
 QMAKE
+enable_python
 PYTHON
 GIT
 LTLIBOBJS
@@ -889,6 +890,7 @@ with_group
 with_discovery
 with_systemd
 with_qt
+with_python
 with_books
 with_papi
 enable_ssp
@@ -1569,6 +1571,8 @@ Optional Packages:
   --with-systemd          enable support for systemd services (default is on)
   --with-qt               enable support for tools requiring Qt (default is
                           on)
+  --with-python           enable support for tools requiring Python (default
+                          is on)
   --with-books            enable building of the PCP books (default is off)
   --with-papi             enable performance api counter pmda (default is on)
   --with-configdir        configuration directory [LOCALSTATEDIR/pcp/config]
@@ -2579,6 +2583,15 @@ if test "${with_qt+set}" = set; then :
   withval=$with_qt; do_qt=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-qt=$withval"
 else
   do_qt=check
+fi
+
+
+
+# Check whether --with-python was given.
+if test "${with_python+set}" = set; then :
+  withval=$with_python; do_python=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-python=$withval"
+else
+  do_python=check
 fi
 
 
@@ -5996,6 +6009,47 @@ fi
   test -n "$PYTHON" && break
 done
 
+
+
+enable_python=false
+if test "x$do_python" != "xno"; then :
+
+    enable_python=true
+    if test -z "$PYTHON"
+    then
+	enable_python=false
+    else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Python version" >&5
+$as_echo_n "checking Python version... " >&6; }
+	eval `$PYTHON -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
+	if test "$PY_MAJOR" -lt 2; then
+	    echo
+	    echo WARNING: Python version 2.6 or later does not seem to be installed.
+	    echo Cannot proceed with the Python $PY_MAJOR installation found.
+	    enable_python=false
+	fi
+	if test "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -lt 6 ; then
+	    echo
+	    echo WARNING: Python version 2.$PY_MINOR is too old.
+	    echo Python version 2.6 or later is required for Python builds.
+	    enable_python=false
+	fi
+	if test "$PY_MAJOR" -ge 3 ; then
+	    echo
+	    echo WARNING: Python version 3.$PY_MINOR is not yet supported.
+	    echo Currently Python version 2 is required for Python builds.
+	    enable_python=false
+	fi
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $PY_MAJOR.$PY_MINOR.$PY_POINT" >&5
+$as_echo "$PY_MAJOR.$PY_MINOR.$PY_POINT" >&6; }
+    fi
+
+    if test "$do_python" != "check" -a "$enable_python" != "true"
+    then
+	as_fn_error $? "cannot enable Python - no supported version found" "$LINENO" 5
+    fi
+
+fi
 
 
 qmake=$QMAKE
@@ -9887,7 +9941,7 @@ fi
 
 done
 
-    if test "$do_papi" != "check";
+    if test "$do_papi" != "check" -a "$enable_papi" != "true"
     then
 	as_fn_error cannot enable the PAPI PMDA "PAPI is not installed" "$LINENO" 5
     else
