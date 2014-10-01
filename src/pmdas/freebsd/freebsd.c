@@ -492,12 +492,20 @@ freebsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 
 	    /* 64-bit integer values */
-	    case 1:		/* hinv.physmem */
 	    case 25:		/* swap.length */
 	    case 26:		/* swap.used */
 		sts = do_sysctl(mp, sizeof(atom->ull));
 		if (sts > 0) {
 		    atom->ull = *((__uint64_t *)mp->m_data);
+		    sts = 1;
+		}
+		break;
+
+	    /* long integer value */
+	    case 1:		/* hinv.physmem */
+		sts = do_sysctl(mp, sizeof(long));
+		if (sts > 0) {
+		    atom->ull = *((long *)mp->m_data);
 		    sts = 1;
 		}
 		break;
@@ -515,7 +523,7 @@ freebsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	    /* structs and aggregates */
 	    case 2:		/* kernel.all.load */
-		sts = do_sysctl(mp, 3*sizeof(atom->d));
+		sts = do_sysctl(mp, sizeof(struct loadavg));
 		if (sts > 0) {
 		    int			i;
 		    struct loadavg	*lp = (struct loadavg *)mp->m_data;
@@ -537,7 +545,12 @@ freebsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    case 5:		/* kernel.all.cpu.sys */
 	    case 6:		/* kernel.all.cpu.intr */
 	    case 7:		/* kernel.all.cpu.idle */
-		sts = do_sysctl(mp, CPUSTATES*sizeof(atom->ull));
+		/*
+		 * assume this declaration is correct ...
+		 * long pc_cp_time[CPUSTATES];	...
+		 * from /usr/include/sys/pcpu.h
+		 */
+		sts = do_sysctl(mp, CPUSTATES*sizeof(long));
 		if (sts > 0) {
 		    /*
 		     * PMID assignment is important in the "-3" below so
@@ -546,7 +559,7 @@ freebsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		     * i.e. CP_USER, CP_NICE, CP_SYS, CP_INTR and
 		     * CP_IDLE
 		     */
-		    atom->ull = 1000*((__uint64_t *)mp->m_data)[idp->item-3]/cpuhz;
+		    atom->ull = 1000*((__uint64_t)((long *)mp->m_data)[idp->item-3])/cpuhz;
 		    sts = 1;
 		}
 		break;
