@@ -42,7 +42,7 @@ default:	build-me
 
 include $(BUILDRULES)
 
-ifeq "$(TARGET_OS)" "linux"
+ifeq "$(ENABLE_PERFEVENT)" "true"
 build-me: domain.h $(CMDTARGET) $(HELPTARGETS) perfalloc
 
 install: default
@@ -74,5 +74,5 @@ configparser.yy.c: configparser.l configparser.h
 perfalloc: perfalloc.o perflock.o
 
 clean clobber::
-	$(RM) configparser.yy.c perfalloc
+	$(RM) configparser.yy.c perfalloc perfalloc.o
 

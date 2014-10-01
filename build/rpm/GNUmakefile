@@ -64,6 +64,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@have_libmicrohttpd@|$(HAVE_LIBMICROHTTPD)|g' \
 	    -e's|@have_rpmlib@|$(HAVE_RPMLIB)|g' \
 	    -e's|@pmda_infiniband@|$(PMDA_INFINIBAND)|g' \
+	    -e's|@enable_perfevent@|$(ENABLE_PERFEVENT)|g' \
 	    -e's|@enable_systemd@|$(ENABLE_SYSTEMD)|g' \
 	    -e's|@enable_papi@|$(ENABLE_PAPI)|g' \
 	    -e's|@enable_secure@|$(ENABLE_SECURE)|g' \
