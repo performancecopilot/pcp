@@ -71,6 +71,7 @@
 @ proc.psinfo.sigignore the value in the sigignore field of struct task_struct for the process
 @ proc.psinfo.sigcatch the value in the sigcatch field of struct task_struct for the process
 @ proc.psinfo.wchan wait channel, kernel address this process is blocked or sleeping on
+@ proc.psinfo.environ the process environment read from /proc/<pid>/environ with the null bytes replaced with ascii space.
 @ proc.psinfo.nswap count of page swap operations
 @ proc.psinfo.cnswap count of page swap operations of all exited children
 @ proc.psinfo.exit_signal the value in the exit_signal field of struct task_struct for the process

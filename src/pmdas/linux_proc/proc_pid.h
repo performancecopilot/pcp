@@ -63,9 +63,11 @@
 #define PROC_PID_STAT_TTYNAME        39
 #define PROC_PID_STAT_WCHAN_SYMBOL   40
 #define PROC_PID_STAT_PSARGS         41
+#define PROC_PID_STAT_ENVIRON        42
+
 
 /* number of fields in proc_pid_stat_entry_t */
-#define NR_PROC_PID_STAT             42
+#define NR_PROC_PID_STAT             43
 
 /*
  * metrics in /proc/<pid>/status
@@ -194,6 +196,7 @@ enum {
     PROC_PID_FLAG_FD_FETCHED		= 1<<8,
     PROC_PID_FLAG_CGROUP_FETCHED	= 1<<9,
     PROC_PID_FLAG_LABEL_FETCHED		= 1<<10,
+    PROC_PID_FLAG_ENVIRON_FETCHED	= 1<<11,
 };
 
 typedef struct {
@@ -228,6 +231,10 @@ typedef struct {
     /* /proc/<pid>/wchan cluster */
     int			wchan_buflen;
     char		*wchan_buf;
+
+    /* /proc/<pid>/environ cluster */
+    int 		environ_buflen;
+    char		*environ_buf;
 
     /* /proc/<pid>/fd cluster */
     int			fd_buflen;

@@ -296,6 +296,11 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_PID_STAT,41), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
+/* proc.psinfo.environ */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STAT,42), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
 /*
  * proc/<pid>/status cluster
  * Cluster added by Mike Mason <mmlnx@us.ibm.com>
@@ -1049,12 +1054,12 @@ proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
     }
 
     sts = PM_ERR_PERMISSION;
-    have_access = proc_ctx_access(pmda->e_context) || all_access;
+    have_access = all_access || proc_ctx_access(pmda->e_context);
     if (have_access || indomp->serial != PROC_INDOM) {
 	proc_refresh(pmda, need_refresh);
 	sts = pmdaInstance(indom, inst, name, result, pmda);
     }
-    have_access = proc_ctx_revert(pmda->e_context);
+    have_access = all_access || proc_ctx_revert(pmda->e_context);
 
     return sts;
 }
@@ -1219,6 +1224,10 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 #else
 		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 #endif
+		break;
+ 
+	    case PROC_PID_STAT_ENVIRON:
+		atom->cp = entry->environ_buf ? entry->environ_buf : "";
 		break;
 
 	    case PROC_PID_STAT_WCHAN_SYMBOL:
@@ -1627,10 +1636,10 @@ proc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    need_refresh[cluster]++;
     }
 
-    have_access = proc_ctx_access(pmda->e_context) || all_access;
+    have_access = all_access || proc_ctx_access(pmda->e_context);
     proc_refresh(pmda, need_refresh);
     sts = pmdaFetch(numpmid, pmidlist, resp, pmda);
-    have_access = proc_ctx_revert(pmda->e_context);
+    have_access = all_access || proc_ctx_revert(pmda->e_context);
     return sts;
 }
 
@@ -1639,7 +1648,7 @@ proc_store(pmResult *result, pmdaExt *pmda)
 {
     int i, sts = 0;
 
-    have_access = proc_ctx_access(pmda->e_context) || all_access;
+    have_access = all_access || proc_ctx_access(pmda->e_context);
 
     for (i = 0; i < result->numpmid; i++) {
 	pmValueSet *vsp = result->vset[i];
@@ -1682,7 +1691,7 @@ proc_store(pmResult *result, pmdaExt *pmda)
 	    break;
     }
 
-    have_access = proc_ctx_revert(pmda->e_context);
+    have_access = all_access || proc_ctx_revert(pmda->e_context);
     return sts;
 }
 

@@ -86,6 +86,7 @@ proc.psinfo {
     ttyname		PROC:8:39
     wchan_s             PROC:8:40
     psargs		PROC:8:41
+    environ             PROC:8:42
     signal_s            PROC:24:16
     blocked_s           PROC:24:17
     sigignore_s         PROC:24:18
