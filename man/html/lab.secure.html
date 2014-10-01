@@ -51,7 +51,7 @@ the <A HREF="glossary.html">PCP glossary</A>.</P>
 
 <P><BR></P>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="overview">Overview</I></A></B></FONT></P></TD></TR>
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="overview">Overview</A></B></FONT></P></TD></TR>
 </TABLE>
 <P>The Performance Co-Pilot includes facilities for establishing secure
 connections between remote collector and monitoring components.</P>
@@ -170,17 +170,17 @@ using the <B>-x</B> option to <I>certutil</I>.
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;After customising the certificate subject names (<B>-s</B> and <B>-8</B> options below), in a privileged shell enter:<BR>
 <PRE><B>
 # certutil -d sql:/etc/pki/nssdb -S -x \
-	-n &quot;<FONT COLOR=#000000">Local CA certificate</FONT>&quot; -s &quot;cn=<FONT COLOR="#000000">Local PCP Installation</FONT>, dc=<FONT COLOR="#cc0000">YOUR</FONT>,dc=<FONT COLOR="#cc0000">DOMAIN</FONT>,dc=<FONT COLOR="#cc0000">NAME</FONT>&quot; \
+	-n &quot;<FONT COLOR="#000000">Local CA certificate</FONT>&quot; -s &quot;cn=<FONT COLOR="#000000">Local PCP Installation</FONT>, dc=<FONT COLOR="#cc0000">YOUR</FONT>,dc=<FONT COLOR="#cc0000">DOMAIN</FONT>,dc=<FONT COLOR="#cc0000">NAME</FONT>&quot; \
 	-t &quot;CT,,&quot; -v 120
 
 # certutil -d sql:/etc/pki/nssdb -S \
-	-c &quot;<FONT COLOR=#000000">Local CA certificate</FONT>&quot; \
+	-c &quot;<FONT COLOR="#000000">Local CA certificate</FONT>&quot; \
 	-n &quot;PCP Collector certificate&quot; -s &quot;cn=PCP Collector&quot; -8 &quot;<FONT COLOR="#cc0000">YOUR.HOST.NAME,ALT.DNS.NAME,...</FONT>" \
 	-t &quot;P,,&quot; -v 120
 </B></PRE>
 </TD></TR>
 </TABLE>
-</P>
+
 <P>Note: You <B>must</B> customise the red parameters above in upper-case.
 If you are not using self-signed certificates, you will also need to
 customise the black parameters above to match certificate details provided
@@ -240,7 +240,7 @@ kernel.all.load
 </B></PRE>
 </TD></TR>
 </TABLE>
-</P>
+
 <P>At any time, you can query the certificates you have installed locally
 for remote collector hosts.
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
@@ -260,7 +260,7 @@ $ certutil -d sql:$HOME/.pki/nssdb -L -n 'PCP Collector certificate' | grep 'DNS
 </B></PRE>
 </TD></TR>
 </TABLE>
-When listing by nickname, this provides a detailed certificate list, so using an
+<P>When listing by nickname, this provides a detailed certificate list, so using an
 output filter as shown above can be handy to report only the hostnames.
 </P>
 <BR>
@@ -293,21 +293,21 @@ Note: Cunning use of this trusted certificate could be used as the root certific
 for many hosts in an environment, and a single certificate could then be installed
 on a monitor system allowing access to a group of hosts.
 <BR>
-</P>
+
 <BR>
 <P ALIGN=LEFT><FONT SIZE=4><B>Graphical Monitor Tools</B></FONT>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
-        <TR><TD WIDTH=500><P VALIGN=MIDDLE ALIGN=><CENTER><BR><IMG ALIGN=MIDDLE SRC="images/pmchart_add_host_secure.png" ALT="" BORDER=0></CENTER></P></TD>
+        <TR><TD WIDTH=500><P ALIGN=><CENTER><BR><IMG ALIGN=MIDDLE SRC="images/pmchart_add_host_secure.png" ALT="" BORDER=0></CENTER></P></TD>
         <TD><P>In the PCP strip chart utility <I>pmchart</I> from version 1.5.7 onward, secure connections can be established using the "Add Host" dialog.  This can be accessed via the "New Chart" or "Open View" menu entries.<UL>
         <LI>Specify the name of the PCP Collector system where <I>pmcd</I> is running.
         <LI>Select the "Secure" check box.
         <LI>Press "OK" to establish a new secure connection to the host.
 	</UL>
 	Note that it is not necessary to use the PCP_SECURE_SOCKETS environment variable described above with <I>pmchart</I>.  However, if it is used, secure connections will become the default mode for all connections established by <I>pmchart</I> too.
-	</P></TD>
+	</TD>
         </TR>
 </TABLE>
-</P>
+
 <P><BR></P>
 <HR>
 <CENTER>
