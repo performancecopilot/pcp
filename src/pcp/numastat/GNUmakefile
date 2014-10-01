@@ -26,8 +26,10 @@ default: $(TARGET).py $(MAN_PAGES)
 include $(BUILDRULES)
 
 install: default
+ifeq "$(ENABLE_PYTHON)" "true"
 	$(INSTALL) -m 755 $(TARGET).py $(PCP_BINADM_DIR)/$(TARGET)
 	@$(INSTALL_MAN)
+endif
 
 default_pcp : default
 

@@ -23,6 +23,6 @@ default default_pcp: $(PYFILES)
 include $(BUILDRULES)
 
 install install_pcp: $(PYFILES)
-ifneq "$(PYTHON)" ""
+ifeq "$(ENABLE_PYTHON)" "true"
 	$(INSTALL) -m 755 $(PYFILES) $(PCP_BIN_DIR)/$(TARGET)
 endif
