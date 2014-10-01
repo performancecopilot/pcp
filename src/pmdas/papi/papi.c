@@ -35,7 +35,6 @@ enum {
 typedef struct {
     unsigned int papi_event_code; //the PAPI_ eventcode
     char papi_string_code[8];
-    pmID pmid;
     int position;
     long_long prev_value;
     PAPI_event_info_t info;
@@ -54,8 +53,10 @@ struct uid_gid_tuple {
 }; 
 static struct uid_gid_tuple *ctxtab;
 static int ctxtab_size;
-static int number_of_counters; // XXX: collapse into number_of_events
-static unsigned int size_of_active_counters; // XXX: eliminate
+static int number_of_counters;
+static unsigned int number_of_active_counters;
+static unsigned int size_of_active_counters;
+static unsigned int number_of_events;
 static __pmnsTree *papi_tree;
 
 static char helppath[MAXPATHLEN];
@@ -652,9 +653,12 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	case 1:
 	    /* papi.control.reset */
+	    atom->cp = "";
 	    return PMDA_FETCH_STATIC;
 
 	case 2:
+	    /* papi.control.disable */
+	    atom->cp = "";
 	    if ((retval = check_papi_state()) & PAPI_RUNNING)
 		return PMDA_FETCH_STATIC;
 	    return 0;
@@ -665,23 +669,23 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return PM_ERR_VALUE;
 	    strcpy(status_string, "");
 	    if(state & PAPI_STOPPED)
-		expand_status_string("papi is stopped");
+		expand_status_string("Papi is stopped");
 	    if (state & PAPI_RUNNING)
-		expand_status_string("papi is running");
+		expand_status_string("Papi is running");
 	    if (state & PAPI_PAUSED)
-		expand_status_string("papi is paused");
+		expand_status_string("Papi is paused");
 	    if (state & PAPI_NOT_INIT)
-		expand_status_string("papi is defined but not initialized");
+		expand_status_string("Papi is defined but not initialized");
 	    if (state & PAPI_OVERFLOWING)
-		expand_status_string("papi has overflowing enabled");
+		expand_status_string("Papi has overflowing enabled");
 	    if (state & PAPI_PROFILING)
-		expand_status_string("papi eventset has profiling enabled");
+		expand_status_string("Papi eventset has profiling enabled");
 	    if (state & PAPI_MULTIPLEXING)
-		expand_status_string("papi has multiplexing enabled");
+		expand_status_string("Papi has multiplexing enabled");
 	    if (state & PAPI_ATTACHED)
-		expand_status_string("papi is attached to another process/thread");
+		expand_status_string("Papi is attached to another process/thread");
 	    if (state & PAPI_CPU_ATTACHED)
-		expand_status_string("papi is attached to a specific CPU");
+		expand_status_string("Papi is attached to a specific CPU");
 
 	    for(i = 0; i < number_of_events; i++){
 		strcpy(local_string, "");
@@ -951,7 +955,6 @@ papi_text(int ident, int type, char **buffer, pmdaExt *ep)
 		*buffer = papi_info[pmidp->item].info.long_descr;
 	    return 0;
 	}
-	return pmdaText(ident, type, buffer, ep);
     }
     else
 	return pmdaText(ident, type, buffer, ep);
@@ -960,63 +963,25 @@ papi_text(int ident, int type, char **buffer, pmdaExt *ep)
 static int
 papi_name_lookup(const char *name, pmID *pmid, pmdaExt *pmda)
 {
-
-    int i;
-    char *substr;
-
-    substr = strtok(name, ".");
-    while (substr != NULL) {
-	for (i = 0; i < number_of_events; i++) {
-	    if (strcmp(substr, papi_info[i].papi_string_code) == 0) {
-		*pmid = papi_info[i].pmid;
-		return 0;
-	    }
-	}
-	substr = strtok(NULL, ".");
-    }
-    return PM_ERR_NAME;
+    return pmdaTreePMID(papi_tree, name, pmid);
 }
 
 static int
 papi_children(const char *name, int traverse, char ***offspring, int **status, pmdaExt *pmda)
 {
-
-    int i;
-    char **metric_chain = NULL;
-    int  *metric_stats = NULL;
-    char *metric_name = name;
-    int retval;
-    metric_chain = (char **)realloc(metric_chain, number_of_events*sizeof(metric_chain[0]));
-    if (metric_chain == NULL)
-	__pmNoMem("metric_chain realloc failure", number_of_events*sizeof(metric_chain[0]), PM_FATAL_ERR);
-    metric_stats = (int *)realloc(metric_stats, number_of_events*sizeof(metric_stats[0]));
-    if (metric_stats == NULL)
-	__pmNoMem("metric_stats realloc failure", number_of_events*sizeof(metric_stats[0]), PM_FATAL_ERR);
-
-    for (i = 0; i < number_of_events; i++) {
-	metric_chain[i] = malloc(strlen(papi_info[i].papi_string_code)+strlen(metric_name)+2);
-	strcpy(metric_chain[i], metric_name);
-	metric_chain[i][strlen(metric_name)] = '.';
-	metric_chain[i][strlen(metric_name)+1] = '\0';
-	strcat(metric_chain[i], papi_info[i].papi_string_code);
-	retval = i;
-	metric_stats[i] = PMNS_LEAF_STATUS;
-    }
-
-    *offspring = metric_chain;
-    *status = metric_stats;
-
-    return retval;
+    return pmdaTreeChildren(papi_tree, name, traverse, offspring, status);
 }
 
 static int
-papi_internal_init(void)
+papi_internal_init(pmdaInterface *dp)
 {
     int ec;
     int retval;
     int addunderscore;
     PAPI_event_info_t info;
-    char entry[PAPI_HUGE_STR_LEN]; // the length papi uses for the symbol name
+    char *substr;
+    char concatstr[10] = {};
+    char entry[22];
     unsigned int i = 0;
     pmID pmid;
 
@@ -1065,10 +1030,14 @@ papi_internal_init(void)
 			strcat(concatstr, "_");
 		    }
 		}
+
+		snprintf(entry, sizeof(entry),"papi.system.%s", concatstr);
+		pmid = pmid_build(dp->domain, CLUSTER_PAPI, i);
 		strcpy(papi_info[i].papi_string_code, concatstr);
+		__pmAddPMNSNode(papi_tree, pmid, entry);
 		memset(&concatstr[0], 0, sizeof(concatstr));
+		memset(&entry[0], 0, sizeof(entry));
 		papi_info[i].position = -1;
-		papi_info[i].pmid = i;
 		strcpy(papi_info[i].info.short_descr,info.short_descr);
 		strcpy(papi_info[i].info.long_descr, info.long_descr);
 		expand_values(i);
@@ -1076,6 +1045,7 @@ papi_internal_init(void)
 	    }
 	}
     } while(PAPI_enum_event(&ec, 0) == PAPI_OK);
+    pmdaTreeRebuildHash(papi_tree, number_of_events);
     if (PAPI_create_eventset(&EventSet) != PAPI_OK) {
 	__pmNotifyErr(LOG_ERR, "PAPI_create_eventset error!\n");
 	return PM_ERR_GENERIC;
@@ -1151,7 +1121,7 @@ papi_init(pmdaInterface *dp)
 
     dp->comm.flags |= PDU_FLAG_AUTH;
 
-    if ((retval = papi_internal_init()) != 0) {
+    if ((retval = papi_internal_init(dp)) != 0) {
 	__pmNotifyErr(LOG_ERR, "papi_internal_init returned %d\n", retval);
 	dp->status = PM_ERR_GENERIC;
 	return;
@@ -1166,9 +1136,6 @@ papi_init(pmdaInterface *dp)
     pmdaSetFetchCallBack(dp, papi_fetchCallBack);
     pmdaSetEndContextCallBack(dp, papi_endContextCallBack);
     pmdaInit(dp, NULL, 0, metrictab, nummetrics);
-
-    for ( i=0; i < number_of_events; i++)
-	((__pmID_int *)&papi_info[i].pmid)->domain = dp->domain;
 
 }
 
