@@ -35,6 +35,7 @@ enum {
 typedef struct {
     unsigned int papi_event_code; //the PAPI_ eventcode
     char papi_string_code[8];
+    pmID pmid;
     int position;
     long_long prev_value;
     PAPI_event_info_t info;
@@ -947,6 +948,7 @@ papi_text(int ident, int type, char **buffer, pmdaExt *ep)
 		*buffer = papi_info[pmidp->item].info.long_descr;
 	    return 0;
 	}
+	return pmdaText(ident, type, buffer, ep);
     }
     else
 	return pmdaText(ident, type, buffer, ep);
