@@ -587,6 +587,9 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid)
 		    ep->status_lines.sigblk = strsep(&curline, "\n");
 		    ep->status_lines.sigign = strsep(&curline, "\n");
 		    ep->status_lines.sigcgt = strsep(&curline, "\n");
+		} else
+		if (strncmp(curline, "Cpus_allowed_list:", 18) == 0) {
+		    ep->status_lines.cpusallowed = strsep(&curline, "\n");
 		    break; /* we're done */
 		} else {
 		    curline = index(curline, '\n') + 1;

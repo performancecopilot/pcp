@@ -95,6 +95,7 @@ The search path for the namelist file is as follows:
 @ proc.psinfo.threads number of threads (from /proc/<pid>/status)
 @ proc.psinfo.cgroups list of processes cgroups (from /proc/<pid>/cgroup)
 @ proc.psinfo.labels list of processes security labels (from /proc/<pid>/attr/current)
+@ proc.psinfo.cpusallowed the cpus allowed list (from /proc/<pid>/status)
 @ proc.memory.size instantaneous virtual size of process, excluding page table and task structure.
 @ proc.memory.rss instantaneous resident size of process, excluding page table and task structure.
 @ proc.memory.share instantaneous amount of memory shared by this process with other processes 

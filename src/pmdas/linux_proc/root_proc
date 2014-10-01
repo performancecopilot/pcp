@@ -92,6 +92,7 @@ proc.psinfo {
     sigignore_s         PROC:24:18
     sigcatch_s          PROC:24:19
     threads		PROC:24:28
+    cpusallowed PROC:24:29
     cgroups		PROC:11:0
     labels		PROC:12:0
 }
