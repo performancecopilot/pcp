@@ -24,7 +24,7 @@
 </TABLE>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
         <TR><TD><P><BR><I>pmtime</I> operates in either live or archive mode, depending on the data source.&nbsp;&nbsp;In archive mode, there is additional functionality available, as both forward and backward movement is possible, and it is can speed up or slow down the time updates relative to real time.&nbsp;&nbsp;Some functionality is common between the two modes, however.&nbsp;&nbsp;The sample interval (and units) can always be set using the <I>Interval</I>.&nbsp;&nbsp;The current time position is always displayed in the <I>Position</I> text box (this equates to the rightmost time point in the <I>pmchart</I> window).&nbsp;&nbsp;And when hosts or archives from different timezones to the monitoring host are used, a drop-down list of available timezones is available from the options menu, which allows you to change the reporting timezone in the monitoring tools (this always defaults to localtime on the monitoring host - <B>not</B> the monitored host).</P>
-	<TD WIDTH=456><P VALIGN=MIDDLE ALIGN=RIGHT><CENTER><BR><IMG ALIGN=RIGHT SRC="images/pmtime_clients.png" ALT="pmtime clients" BORDER=0></CENTER></TD>
+	<TD WIDTH=456><P ALIGN=RIGHT><CENTER><BR><IMG ALIGN=RIGHT SRC="images/pmtime_clients.png" ALT="pmtime clients" BORDER=0></CENTER></TD>
 </TABLE>
 <P><I>pmtime</I> can actually coordinate the flow of time to multiple client programs.&nbsp;&nbsp;For example, if a second <I>pmchart</I> is started via the <I>Options</I> menu, it will share the time control process with the original <I>pmchart</I> and both will be updated in lock-step.&nbsp;&nbsp;This is true for both Live and Archive monitoring, and there is even support for controlling time for other PCP clients (like <I>pmval</I>) as well.</P>
 <BR>
@@ -35,7 +35,7 @@
 	<TR><TD WIDTH=350><P VALIGN=MIDDLE ALIGN=LEFT><CENTER><BR><IMG ALIGN=LEFT SRC="images/pmtime_live.png" ALT="pmtime live" BORDER=0></CENTER></TD>
 	<TD><BR><P>There are just two states available in live mode:<UL><LI>Playing, where time updates are sent to the client at a continuous rate in real time.
 	<LI>Stopped, where time is frozen at a particular point in time.
-</UL></P>
+</UL>
 	</TR>
 </TABLE>
 
@@ -47,7 +47,7 @@
 	<TD><BR><P>There are several modes of playback available in archive mode:<UL><LI>Normal mode, where time updates are sent to the client at a continuous rate (usually not too different to the original live recording), as determined by the "Speed" wheel setting.
 	<LI>Step mode, where time is only advanced/retreated (by clicking on the Step button) one sample at a time.
 	<LI>Fast mode, where time is moved quickly in either a fast forward or fast rewind direction, and the visible charts are updated as quickly as possible.
-</UL></P><P>The Speed setting can be changed by directly editing the text entry box, or more simply by selecting and rotating the wheel either left or right.&nbsp;&nbsp;Speed is only relevent in Normal mode.</TD>
+</UL><P>The Speed setting can be changed by directly editing the text entry box, or more simply by selecting and rotating the wheel either left or right.&nbsp;&nbsp;Speed is only relevent in Normal mode.</TD>
 	</TR>
 </TABLE>
 <P>In archive mode, the <I>Position</I> text box is editable, and any valid PCP timestamp can be entered here.&nbsp;&nbsp;Alternatively, and more simply, the archive mode provides a slider beneath the <I>Position</I> text box allowing the time position to be set directly using the pointing device (click, drag, and release at the desired time position).
@@ -62,7 +62,7 @@
 <CENTER>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH="50%"><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc</FONT></A></P></TD>
-	<TD WIDTH="50%"><P ALIGN=RIGHT><A HREF="http://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2014 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></P></A></TD> </TR>
+	<TD WIDTH="50%"><P ALIGN=RIGHT><A HREF="http://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2014 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></A></P></TD> </TR>
 </TABLE>
 </CENTER>
 </BODY>

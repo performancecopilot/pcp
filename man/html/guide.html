@@ -185,7 +185,7 @@ Performance Co-Pilot configuration on smash:
 <H3>Monitoring Live Performance Metrics</H3>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Display all the enabled performance metrics on a host (use with -t to include a short description for each):<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pminfo.1.html">pminfo</a> -h <FONT COLOR="#cc0000">acme.com</FONT></B>
 </TD></TR>
@@ -463,9 +463,9 @@ Display the number of running processes on 2014-08-20 14:00:<BR><B>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 This example shows a PMIE script, checks its syntax, runs it against an archive, and prints a simple message if more than 5 GB of memory was in use between 9 AM and 10 AM using one minute sampling interval:<BR><B>
-<BR> $ cat pmie.ex
-<PRE>bloated = (  mem.util.used > 5 Gbyte )
-      -> print "%v memory used on %h!"</PRE>
+<BR> $ cat pmie.ex</B>
+<PRE><B>bloated = (  mem.util.used > 5 Gbyte )
+      -> print "%v memory used on %h!"</B></PRE><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmie.1.html">pmie</a> -C pmie.ex
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmie.1.html">pmie</a> -t 1min -c pmie.ex -S @09:00 -T @10:00 -a <FONT COLOR="#cc0000">acme.com</FONT>/20140820</B>
 </TD></TR>

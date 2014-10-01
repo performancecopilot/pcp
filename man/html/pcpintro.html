@@ -94,8 +94,8 @@ where <I>number</I> is an integer or floating point constant (parsed using <B>st
 <P>In the absence of the <B>-O</B> and <B>-A</B> options to specify an initial sample time origin and time alignment (see above), the PCP application will retrieve the first sample at the start of the time window.
 <P>The following options may be used to specify a time window of interest.
 <P>&nbsp;</P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-	<TR><TD WIDTH=25%><P><B>-S starttime</B></P></TD>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+	<TR><TD WIDTH="25%"><P><B>-S starttime</B></P></TD>
 	    <TD><P>By default the time window commences immediately in real time mode, or coincides with time at the start of the PCP archive log in archive mode.  The <B>-S</B> option may be used to specify a later time for the start of the time window.
 <P>The <B>starttime</B> parameter may be given in one of three forms (<B>interval</B> is the same as for the <B>-t</B> option as described above, <B>ctime</B> is described below):
 <P><B>interval</B>  To specify an offset from the current time (in real time mode) or the beginning of a PCP archive (in archive mode) simply specify the interval of time as the argument.  For example <I>-S 30min</I> will set the start of the time window to be  exactly 30 minutes from now in real time mode, or exactly 30 minutes from the start of a PCP archive.
@@ -161,7 +161,7 @@ where <I>number</I> is an integer or floating point constant (parsed using <B>st
 	    <TD><P>Many PCP tools support the environment variable <B>PCP_STDERR</B>, which can be used to control where error messages are sent.  When unset, the default behavior is that ‘‘usage’’ messages and option parsing errors are reported on standard error, other messages after initial startup are sent to the default destination for the tool, i.e. standard error for ASCII tools, or a dialog for GUI tools.
 <P>If <B>PCP_STDERR</B> is set to the literal value <B>DISPLAY</B> then all messages will be displayed in a dialog.  This is used for any tools launched from a Desktop environment.
 <P>If <B>PCP_STDERR</B> is set to any other value, the value is assumed to be a filename, and all messages will be written there.</P></TD></TR>
-	<TR><TD WIDTH=25%><P><B>PMCD_CONNECT_TIMEOUT</B></P></TD>
+	<TR><TD WIDTH="25%"><P><B>PMCD_CONNECT_TIMEOUT</B></P></TD>
 	    <TD><P>When attempting to connect to a remote <B>pmcd</B>(1) on a machine that is booting, the connection attempt could potentially block for a long time until the remote machine finishes its initialization.
 <P>Most PCP applications and some of the PCP library routines will abort and return an error if the connection has not been established after some specified interval has elapsed.   The  default interval is 5 seconds.  This may be modified by setting <B>PMCD_CONNECT_TIMEOUT</B> in the environment to a real number of seconds for the desired timeout.  This is most useful in cases where the remote host is at the end of a slow network, requiring longer latencies to establish the connection correctly.</P></TD></TR>
 	<TR><TD WIDTH="25%"><P><B>PMCD_RECONNECT_TIMEOUT</B></P></TD>
@@ -197,7 +197,7 @@ where <I>number</I> is an integer or floating point constant (parsed using <B>st
 </TABLE>
 <P>&nbsp;</P>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Files</B></FONT></P></TD></TR>
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Files</B></FONT></P></TD></TR>
 </TABLE>
 <P>&nbsp;</P>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
