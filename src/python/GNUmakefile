@@ -26,10 +26,7 @@ else
 ENV =
 endif
 
-default: default_pcp build_python
-
-default_pcp: $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
+default default_pcp: build_python
 
 ifneq "$(PYTHON)" ""
 build_python: setup.py $(CFILES)

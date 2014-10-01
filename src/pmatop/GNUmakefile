@@ -16,16 +16,13 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 TARGET = pmatop
-LSRCFILES += $(TARGET).pyin
-LDIRT += $(TARGET).py
+PYFILES	= $(TARGET).py
 
-default default_pcp: $(TARGET).py
+default default_pcp: $(PYFILES)
 
 include $(BUILDRULES)
 
-install install_pcp: default
+install install_pcp: $(PYFILES)
 ifneq "$(PYTHON)" ""
-	$(INSTALL) -m 755 $(TARGET).py $(PCP_BIN_DIR)/$(TARGET)
+	$(INSTALL) -m 755 $(PYFILES) $(PCP_BIN_DIR)/$(TARGET)
 endif
-
-$(TARGET).py:	$(TARGET).pyin
