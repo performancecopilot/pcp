@@ -16,16 +16,10 @@ echo "QA output created by $seq"
 status=1	# failure is the default!
 $sudo rm -f $tmp.* $seq.full
 
-case `python -V 2>&1 | sed -e 's/Python //'`
-in
-    0.*.*|1.*.*|2.0.*|2.1.*|2.3.*|2.4.*)
-	_notrun "need python 2.5 or later"
-	;;
-esac
-
-# borrowed from dmcache PMDA Install ...
-#
-which dmsetup >/dev/null 2>&1 || _notrun "Device Mapper 'dmsetup' binary not found"
+which dmsetup >/dev/null 2>&1
+test $? -eq 0 || _notrun "Device Mapper 'dmsetup' binary not found"
+python -c 'from pcp import pmda' 2>/dev/null
+test $? -eq 0 || _notrun 'Python pcp pmda module is not installed'
 
 _filter_dmcache()
 {
