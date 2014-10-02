@@ -1,3 +1,4 @@
+#
 # Copyright (c) 2014 Red Hat, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -22,7 +23,9 @@ default:
 include $(BUILDRULES)
 
 install: default
+ifeq "$(ENABLE_PYTHON)" "true"
 	$(INSTALL) -m 755 $(CMDTARGET).py $(PCP_BIN_DIR)/$(CMDTARGET)
+endif
 
 default_pcp: default
 
