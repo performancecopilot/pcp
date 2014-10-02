@@ -81,7 +81,7 @@ p
 		echo >&2 "_getnetworkaddr: cannot get network address"
 		;;
 	    *)	# multiple?
-		echo >&2 "_getnetworkaddr: cannot handle multiple network addresss:"
+		echo >&2 "_getnetworkaddr: cannot handle multiple network addresses:"
 		cat >&2 $tmp.addr
 		;;
 	esac
