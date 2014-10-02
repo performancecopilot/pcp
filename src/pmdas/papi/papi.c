@@ -804,6 +804,7 @@ add_metric(unsigned int event)
     int retval = 0;
     int state = 0;
     int i;
+    char eventname[PAPI_MAX_STR_LEN];
 
     retval = check_event_exists(event);
     if (retval != PAPI_OK)
@@ -829,9 +830,15 @@ add_metric(unsigned int event)
     if (state & PAPI_STOPPED) {
 	/* add metric */
 	retval = PAPI_add_event(EventSet, event); //XXX possibly switch this to add_events
-	if (retval != PAPI_OK)
+	if (retval != PAPI_OK) {
+	    if (pmDebug & DBG_TRACE_APPL0) {
+		PAPI_event_code_to_name(event, &eventname);
+		__pmNotifyErr(LOG_DEBUG, "Unable to add: %s due to error: %s\n", eventname, PAPI_strerror(retval));
+	    }
+	    if (number_of_active_counters > 0)
+		retval = PAPI_start(EventSet);
 	    return retval;
-
+	}
 	number_of_active_counters++;
 	retval = PAPI_start(EventSet);
 	if (retval != PAPI_OK) {
