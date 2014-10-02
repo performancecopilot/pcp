@@ -39,7 +39,11 @@ _cleanup()
     then
 	:
     else
-	[ -f $tmp.pmcd.conf ] && $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	if [ -f $tmp.pmcd.conf ]
+	then
+	    $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	    rm -f $tmp.pmcd.conf
+	fi
 	if [ -d $tmp.mmv.dir ]
 	then
 	    $sudo rm -fr "$MMV_STATS_DIR"

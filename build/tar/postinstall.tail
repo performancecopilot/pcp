@@ -150,27 +150,54 @@ fi
 
 # permissions ...
 #
+
+# fix up some ones that used to be pcp:pcp and/or in a different place
+#
+grp=root
+case $PCP_PLATFORM
+in
+    freebsd)
+	    grp=wheel
+	    ;;
+esac
+for daemon in pmlogger pmie
+do
+    chown root:$grp $PCP_SYSCONF_DIR/$daemon
+    chmod 755 $PCP_SYSCONF_DIR/$daemon
+    if [ -f $PCP_SYSCONF_DIR/$daemon/config.default ]
+    then
+	if [ -f $PCP_VAR_DIR/config/$daemon/config.default
+	then
+	    mv $PCP_SYSCONF_DIR/$daemon/config.default $PCP_VAR_DIR/config/$daemon/config.default.old
+	else
+	    mv $PCP_SYSCONF_DIR/$daemon/config.default $PCP_VAR_DIR/config/$daemon/config.default
+	fi
+    fi
+done
+chown root:$grp $PCP_SYSCONF_DIR/pmcd/pmcd.conf
+chmod 644 $PCP_SYSCONF_DIR/pmcd/pmcd.conf
+
 # pcp:pcp and mode 775 directories
 #
 for dir in $PCP_LOG_DIR \
-	   $PCP_LOG_DIR/pmcd $PCP_LOG_DIR/pmie \
-	   $PCP_LOG_DIR/pmproxy $PCP_LOG_DIR/pmlogger \
+	   $PCP_LOG_DIR/pmcd $PCP_LOG_DIR/pmie $PCP_LOG_DIR/pmwebd \
+	   $PCP_LOG_DIR/pmproxy $PCP_LOG_DIR/pmlogger $PCP_LOG_DIR/pmmgr \
 	   $PCP_RUN_DIR \
 	   $PCP_VAR_DIR/tmp $PCP_VAR_DIR/tmp/pmie $PCP_VAR_DIR/tmp/pmlogger \
 	   $PCP_VAR_DIR/config/pmda \
-	   $PCP_SYSCONF_DIR/pmie $PCP_SYSCONF_DIR/pmlogger
+	   $PCP_VAR_DIR/config/pmie $PCP_VAR_DIR/config/pmlogger
 do
     [ -d $dir ] || mkdir $dir
     chmod 775 $dir
     chown pcp:pcp $dir
 done
 
-# pcp:pcp and mode 664 files
+# pcp:pcp and mode 644 files
 #
-for file in $PCP_SYSCONF_DIR/pmie/control $PCP_SYSCONF_DIR/pmlogger/control
+for file in $PCP_VAR_DIR/config/pmie/config.default $PCP_VAR_DIR/config/pmlogger/config.default
 do
     [ -f $file ] || continue
-    chmod 664 $file
+    chmod 644 $file
     chown pcp:pcp $file
 done
 
@@ -180,7 +207,7 @@ done
 chmod 775 $PCP_VAR_DIR/testsuite
 chown -R pcpqa:pcpqa $PCP_VAR_DIR/testsuite
 
-# Note: do not start any daemons by default
+# Note: do not start daemons other than: pmcd, pmlogger, pmie and pmproxy
 #
 if which svcs >/dev/null 2>&1
 then

@@ -513,13 +513,13 @@ main(int argc, char **argv)
 		configfile = opts.optarg;
 	    else {
 		/* does not exist as given, try the standard place */
-		char *sysconf = pmGetConfig("PCP_SYSCONF_DIR");
-		int sz = strlen(sysconf)+strlen("/pmlogger/")+strlen(opts.optarg)+1;
+		char *sysconf = pmGetConfig("PCP_VAR_DIR");
+		int sz = strlen(sysconf)+strlen("/config/pmlogger/")+strlen(opts.optarg)+1;
 		if ((configfile = (char *)malloc(sz)) == NULL)
 		    __pmNoMem("config file name", sz, PM_FATAL_ERR);
 		snprintf(configfile, sz,
-			"%s%c" "pmlogger" "%c%s",
-			sysconf, sep, sep, opts.optarg);
+			"%s%c" "config%c" "pmlogger%c" "%s",
+			sysconf, sep, sep, sep, opts.optarg);
 		if (access(configfile, F_OK) != 0) {
 		    /* still no good, error handling happens below */
 		    free(configfile);

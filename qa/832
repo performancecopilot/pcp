@@ -27,12 +27,8 @@ export PCP_CONSOLE=none
 cleanup()
 {
     # restore any modified pmcd configuration files
-    for file in $PCP_PMCDOPTIONS_PATH $PCP_SASLCONF_DIR/pmcd.conf
-    do
-	test -f $file.$seq || continue
-	$sudo rm -f $file
-	$sudo mv $file.$seq $file
-    done
+    _restore_config $PCP_PMCDOPTIONS_PATH
+    _restore_config $PCP_SASLCONF_DIR/pmcd.conf
 
     $sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
     _wait_for_pmcd
@@ -51,17 +47,17 @@ _filter()
 }
 
 # real QA test starts here
-$sudo mv $PCP_SASLCONF_DIR/pmcd.conf $PCP_SASLCONF_DIR/pmcd.conf.$seq
+_save_config $PCP_SASLCONF_DIR/pmcd.conf
 echo 'mech_list: plain' > $tmp.sasl
-$sudo mv $tmp.sasl $PCP_SASLCONF_DIR/pmcd.conf
+$sudo cp $tmp.sasl $PCP_SASLCONF_DIR/pmcd.conf
 
-$sudo mv $PCP_PMCDOPTIONS_PATH $PCP_PMCDOPTIONS_PATH.$seq
+_save_config $PCP_PMCDOPTIONS_PATH
 cat <<End-Of-File >$tmp.options
 # Dummy lines added by PCP QA test $seq
 #
 -S
 End-Of-File
-$sudo mv $tmp.options $PCP_PMCDOPTIONS_PATH
+$sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
 
 echo "Start pmcd with modified \$PCP_PMCDOPTIONS_PATH (pmcd.options)" | tee -a $seq.full
 $sudo $PCP_RC_DIR/pcp restart | tee -a $seq.full >$tmp.out

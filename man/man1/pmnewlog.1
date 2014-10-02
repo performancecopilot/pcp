@@ -124,17 +124,17 @@ will be lost, unless these have also been reflected in changes to
 If
 .I configfile
 does not exist, then a search is made in the directory
-.I $PCP_SYSCONF_DIR/pmlogger
+.I $PCP_VAR_DIR/config/pmlogger
 for a file of the same name, and if found that file is used,
 e.g. if 
 .I config.mumble
 does not exist in the current directory and
 the file
-.I $PCP_SYSCONF_DIR/pmlogger/config.mumble
+.I $PCP_VAR_DIR/config/pmlogger/config.mumble
 does exist, then
 .B "\-c config.mumble"
 and
-.B "\-c $PCP_SYSCONF_DIR/pmlogger/config.mumble"
+.B "\-c $PCP_VAR_DIR/config/pmlogger/config.mumble"
 are equivalent.
 .PP
 Access controls specifications for the new

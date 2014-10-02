@@ -18,15 +18,15 @@ install: default
 	$(INSTALL) -idb '$(IDBTAG) removeop("rm -f $$rbase$(PMDADIR)/help.*")' -m 755 -dir $(PMDADIR)
 	$(INSTALL) -F /usr/pcp/pmdas -idb "$(IDBTAG)" -lns ../../..$(PMDADIR) $(IAM)
 #if $(BEFORE_IRIX6_5)
-	$(I_32) $(INSTALL) -f $(PMDADIR) -idb "$(IDBTAG) $(MODE32) $(STRIPBIN)" -m 555 -src 32/pmda$(IAM) pmda$(IAM)
-	$(I_64) $(INSTALL) -f $(PMDADIR) -idb "$(IDBTAG) $(MODE64) $(STRIPBIN)" -m 555 -src 64/pmda$(IAM) pmda$(IAM)
+	$(I_32) $(INSTALL) -f $(PMDADIR) -idb "$(IDBTAG) $(MODE32) $(STRIPBIN)" -m 755 -src 32/pmda$(IAM) pmda$(IAM)
+	$(I_64) $(INSTALL) -f $(PMDADIR) -idb "$(IDBTAG) $(MODE64) $(STRIPBIN)" -m 755 -src 64/pmda$(IAM) pmda$(IAM)
 #else
-	$(I_N32) $(INSTALL) -f $(PMDADIR) -idb "$(IDBTAG) $(MODE32) $(STRIPBIN)" -m 555 -src N32/pmda$(IAM) pmda$(IAM)
-	$(I_64) $(INSTALL) -f $(PMDADIR) -idb "$(IDBTAG) $(MODE64) $(STRIPBIN)" -m 555 -src 64/pmda$(IAM) pmda$(IAM)
+	$(I_N32) $(INSTALL) -f $(PMDADIR) -idb "$(IDBTAG) $(MODE32) $(STRIPBIN)" -m 755 -src N32/pmda$(IAM) pmda$(IAM)
+	$(I_64) $(INSTALL) -f $(PMDADIR) -idb "$(IDBTAG) $(MODE64) $(STRIPBIN)" -m 755 -src 64/pmda$(IAM) pmda$(IAM)
 #endif
-	$(INSTALL) -f $(PMDADIR) -idb "$(IDBTAG)" -m 555 Install Remove
-	$(INSTALL) -f $(PMDADIR) -idb "$(IDBTAG)" -m 444 README root help pmns domain.h sample.conf general.conf general.pmie
-	$(INSTALL) -f $(PMDADIR) -idb "$(IDBTAG)" -m 444 -src Makefile.install Makefile
+	$(INSTALL) -f $(PMDADIR) -idb "$(IDBTAG)" -m 755 Install Remove
+	$(INSTALL) -f $(PMDADIR) -idb "$(IDBTAG)" -m 644 README root help pmns domain.h sample.conf general.conf general.pmie
+	$(INSTALL) -f $(PMDADIR) -idb "$(IDBTAG)" -m 644 -src Makefile.install Makefile
 
 help: $(PROC_DIR)/help help.hotproc pmns
 	sed < $(PROC_DIR)/help -e 's/proc\./hotproc./g' \

@@ -36,10 +36,8 @@ _cleanup()
 {
     if $needclean
     then
-	$sudo cp $tmp.control.bak $PCP_PMIECONTROL_PATH
-	$sudo chown pcp:pcp $PCP_PMIECONTROL_PATH
-	$sudo chmod 664 $PCP_PMIECONTROL_PATH
-	$sudo cp $tmp.pmcd.bak $PCP_PMCDCONF_PATH
+	_restore_config $PCP_PMIECONTROL_PATH
+	_restore_config $PCP_PMCDCONF_PATH
     fi
     $sudo rm -f $tmp.*
 }
@@ -108,8 +106,8 @@ LOCALHOSTNAME   n $tmp.log0 $tmp.conf
 EOF
 
 # real QA test starts here
-cp $PCP_PMIECONTROL_PATH $tmp.control.bak
-cp $PCP_PMCDCONF_PATH $tmp.pmcd.bak
+_save_config $PCP_PMIECONTROL_PATH
+_save_config $PCP_PMCDCONF_PATH
 needclean=true
 $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH 
 

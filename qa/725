@@ -32,13 +32,11 @@ _cleanup()
     then
 	:
     else
-	if [ -f $tmp.pmcd.conf ]
-	then
-	    $sudo mv $tmp.pmcd.conf $PCP_PMCDCONF_PATH
-	fi
+	_restore_config $PCP_PMCDCONF_PATH
 	if [ -f $tmp.cache ]
 	then
-	    $sudo mv $tmp.cache $cache
+	    $sudo cp $tmp.cache $cache
+	    $sudo rm -f $tmp.cache
 	fi
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
@@ -50,7 +48,7 @@ _cleanup()
 	    ( cd $PCP_PMDAS_DIR/jbd2; $sudo ./Remove </dev/null >/dev/null 2>&1 )
 	fi
 	rm -fr ${tmp}.jbd2.dir
-	rm -f $tmp.*
+	$sudo rm -f $tmp.*
 	done_clean=true
     fi
     exit $status
@@ -107,9 +105,13 @@ cd "$home/$iam"
 unset ROOT MAKEFLAGS
 
 # copy the pmcd config file to restore state later.
-cp $PCP_PMCDCONF_PATH "$tmp.pmcd.conf"
+_save_config $PCP_PMCDCONF_PATH
 cache=$PCP_VAR_DIR/config/pmda/${domain}.0
-[ -f $cache ] && $sudo mv $cache $tmp.cache
+if [ -f $cache ]
+then
+    $sudo cp $cache $tmp.cache
+    $sudo rm -f $tmp.cache
+fi
 
 # start from a known starting point
 $sudo ./Remove >/dev/null 2>&1

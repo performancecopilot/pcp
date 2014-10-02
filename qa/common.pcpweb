@@ -69,8 +69,11 @@ _restore_state()
         done
 
         # copy back saved configuration files
-        [ -f $PCP_PMCDCONF_PATH.$seq ] \
-            && $sudo mv $PCP_PMCDCONF_PATH.$seq $PCP_PMCDCONF_PATH
+        if [ -f $PCP_PMCDCONF_PATH.$seq ]
+	then
+            $sudo cp $PCP_PMCDCONF_PATH.$seq $PCP_PMCDCONF_PATH
+	    $sudo rm $PCP_PMCDCONF_PATH.$seq
+	fi
             
         [ -f $PCP_VAR_DIR/config/web/webping.conf.$seq ] \
             && $sudo mv $PCP_VAR_DIR/config/web/webping.conf.$seq $PCP_VAR_DIR/config/web/webping.conf

@@ -50,16 +50,13 @@ _start_client()
 #
 _cleanup()
 {
-    [ -f $PCP_PMDAS_DIR/simple/simple.conf.$seq ] && $sudo mv -f $PCP_PMDAS_DIR/simple/simple.conf.$seq $PCP_PMDAS_DIR/simple/simple.conf
+    [ -f $PCP_PMDAS_DIR/simple/simple.conf.$seq ] && _restore_config $PCP_PMDAS_DIR/simple/simple.conf
 
-    if [ -f $tmp.conf ]
+    if [ -f $PCP_PMCDCONF_PATH.$seq ]
     then
 	echo "=== Resetting pmcd.conf back to original state ==="
-	$sudo cp $tmp.conf $PCP_PMCDCONF_PATH
-        $sudo cp $tmp.root $PCP_VAR_DIR/pmns/root
-    fi
-    if [ -f $tmp.conf ]
-    then
+	_restore_config $PCP_PMCDCONF_PATH
+        _restore_config $PCP_VAR_DIR/pmns/root
     	echo "=== Restart PMCD ==="
 	unset PMCD_PORT
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
@@ -148,7 +145,7 @@ unset ROOT TOOLROOT MAKEFLAGS
 cd $PCP_PMDAS_DIR/simple
 
 # get rid of warnings from simple if no config exists
-[ -f simple.conf ] && $sudo mv simple.conf simple.conf.$seq
+[ -f simple.conf ] && _save_config simple.conf
 echo "sec,min,hour" >$tmp.simple.conf
 $sudo cp $tmp.simple.conf simple.conf
 
@@ -246,8 +243,8 @@ _agent_remove()
 
 # Copy and replace pmcd.conf
 #
-cp $PCP_PMCDCONF_PATH $tmp.conf
-cp $PCP_VAR_DIR/pmns/root $tmp.root
+_save_config $PCP_PMCDCONF_PATH
+_save_config $PCP_VAR_DIR/pmns/root
 
 if [ $PCP_PLATFORM = linux ] 
 then

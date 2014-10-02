@@ -33,7 +33,7 @@ $version=1.0
 # Note:	- if multiple pmie instances for the same host, then they MUST use
 #	  different log files;
 #	- any occurence of LOCALHOSTNAME will be replaced by local hostname;
-#	- pmie's configuration file search path is "./:$PCP_SYSCONF_DIR/pmie/",
+#	- pmie's configuration file search path is "./:$PCP_VAR_DIR/config/pmie/",
 #	  and the working directory ('.') is the dirname of the Log File.
 # 
 #Host           S?  Log File                                  Arguments

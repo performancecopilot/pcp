@@ -431,7 +431,7 @@ proc_opendir(const char *base, proc_pid_entry_t *ep)
 
 /*
  * error mapping for fetch routines ...
- * EACCESS => no values (don't disclose anything else)
+ * EACCESS, EINVAL => no values (don't disclose anything else)
  * ENOENT => PM_ERR_APPVERSION
  */
 static int
@@ -439,7 +439,7 @@ maperr(void)
 {
     int		sts = -oserror();
 
-    if (sts == -EACCES) sts = 0;
+    if (sts == -EACCES || sts == -EINVAL) sts = 0;
     else if (sts == -ENOENT) sts = PM_ERR_APPVERSION;
     
     return sts;
@@ -478,7 +478,7 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
 	    if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
 		char ibuf[1024];
 		char ebuf[1024];
-		fprintf(stderr, "fetch_proc_pid_stat: read failed: id=%d, indom=%s, sts=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)), pmErrStr_r(*sts, ebuf, sizeof(ebuf)));
+		fprintf(stderr, "fetch_proc_pid_stat: read failed: id=%d, indom=%s, sts=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)), pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	    }
 #endif
 	}
@@ -585,7 +585,7 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
 	    if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
 		char ibuf[1024];
 		char ebuf[1024];
-		fprintf(stderr, "fetch_proc_pid_status: read failed: id=%d, indom=%s, sts=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)), pmErrStr_r(*sts, ebuf, sizeof(ebuf)));
+		fprintf(stderr, "fetch_proc_pid_status: read failed: id=%d, indom=%s, sts=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)), pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	    }
 #endif
 	}
@@ -624,52 +624,134 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
 	if (*sts == 0) {
 	    /* assign pointers to individual lines in buffer */
 	    curline = ep->status_buf;
-
-	    while (strncmp(curline, "Uid:", 4)) {
-		curline = index(curline, '\n') + 1;
-	    }
-
-	    /* user & group IDs */
-	    ep->status_lines.uid = strsep(&curline, "\n");
-	    ep->status_lines.gid = strsep(&curline, "\n");
-
+	    /*
+	     * Expecting something like ...
+	     *
+	     * Name:	bash
+	     * State:	S (sleeping)
+	     * Tgid:	21374
+	     * Pid:	21374
+	     * PPid:	21373
+	     * TracerPid:	0
+	     * Uid:	1000	1000	1000	1000
+	     * Gid:	1000	1000	1000	1000
+	     * FDSize:	256
+	     * Groups:	24 25 27 29 30 44 46 105 110 112 1000 
+	     * VmPeak:	   22388 kB
+	     * VmSize:	   22324 kB
+	     * VmLck:	       0 kB
+	     * VmPin:	       0 kB
+	     * VmHWM:	    5200 kB
+	     * VmRSS:	    5200 kB
+	     * VmData:	    3280 kB
+	     * VmStk:	     136 kB
+	     * VmExe:	     916 kB
+	     * VmLib:	    2024 kB
+	     * VmPTE:	      60 kB
+	     * VmSwap:	       0 kB
+	     * Threads:	1
+	     * SigQ:	0/47779
+	     * SigPnd:	0000000000000000
+	     * ShdPnd:	0000000000000000
+	     * SigBlk:	0000000000010000
+	     * SigIgn:	0000000000384004
+	     * SigCgt:	000000004b813efb
+	     * CapInh:	0000000000000000
+	     * CapPrm:	0000000000000000
+	     * CapEff:	0000000000000000
+	     * CapBnd:	ffffffffffffffff
+	     * Cpus_allowed:	3
+	     * Cpus_allowed_list:	0-1
+	     * Mems_allowed:	00000000,00000001
+	     * Mems_allowed_list:	0
+	     * voluntary_ctxt_switches:	225
+	     * nonvoluntary_ctxt_switches:	56
+	     */
 	    while (curline) {
-		if (strncmp(curline, "VmSize:", 7) == 0) {
-		    /* memory info - these lines don't exist for kernel threads */
-		    ep->status_lines.vmsize = strsep(&curline, "\n");
-		    ep->status_lines.vmlck = strsep(&curline, "\n");
-		    if (strncmp(curline, "VmRSS:", 6) != 0)
-			curline = index(curline, '\n') + 1; // Have VmPin: ?
-		    if (strncmp(curline, "VmRSS:", 6) != 0)
-			curline = index(curline, '\n') + 1; // Have VmHWM: ?
-		    ep->status_lines.vmrss = strsep(&curline, "\n");
-		    ep->status_lines.vmdata = strsep(&curline, "\n");
-		    ep->status_lines.vmstk = strsep(&curline, "\n");
-		    ep->status_lines.vmexe = strsep(&curline, "\n");
-		    ep->status_lines.vmlib = strsep(&curline, "\n");
-		    curline = index(curline, '\n') + 1; // skip VmPTE
-		    ep->status_lines.vmswap = strsep(&curline, "\n");
-		    ep->status_lines.threads = strsep(&curline, "\n");
-		} else
-		if (strncmp(curline, "SigPnd:", 7) == 0) {
-		    /* signal masks */
-		    ep->status_lines.sigpnd = strsep(&curline, "\n");
-		    ep->status_lines.sigblk = strsep(&curline, "\n");
-		    ep->status_lines.sigign = strsep(&curline, "\n");
-		    ep->status_lines.sigcgt = strsep(&curline, "\n");
-		} else
-		if (strncmp(curline, "voluntary_ctxt_switches:", 24) == 0){
-		    ep->status_lines.vctxsw = strsep(&curline, "\n");
-		    ep->status_lines.nvctxsw = strsep(&curline, "\n");
-		    break; /* we're done */
-		} else {
-		    curline = index(curline, '\n') + 1;
+		/* TODO VmPeak: VmPin: VmHWM: VmPTE: ... */
+		/* small optimization ... peek at first character */
+		switch (*curline) {
+		    case 'U':
+			if (strncmp(curline, "Uid:", 4) == 0)
+			    ep->status_lines.uid = strsep(&curline, "\n");
+			else
+			    goto nomatch;
+			break;
+		    case 'G':
+			if (strncmp(curline, "Gid:", 4) == 0)
+			    ep->status_lines.gid = strsep(&curline, "\n");
+			else
+			    goto nomatch;
+			break;
+		    case 'V':
+			if (strncmp(curline, "VmSize:", 7) == 0)
+			    ep->status_lines.vmsize = strsep(&curline, "\n");
+			else if (strncmp(curline, "VmLck:", 6) == 0)
+			    ep->status_lines.vmlck = strsep(&curline, "\n");
+			else if (strncmp(curline, "VmRSS:", 6) == 0)
+			    ep->status_lines.vmrss = strsep(&curline, "\n");
+			else if (strncmp(curline, "VmData:", 7) == 0)
+			    ep->status_lines.vmdata = strsep(&curline, "\n");
+			else if (strncmp(curline, "VmStk:", 6) == 0)
+			    ep->status_lines.vmstk = strsep(&curline, "\n");
+			else if (strncmp(curline, "VmExe:", 6) == 0)
+			    ep->status_lines.vmexe = strsep(&curline, "\n");
+			else if (strncmp(curline, "VmLib:", 6) == 0)
+			    ep->status_lines.vmlib = strsep(&curline, "\n");
+			else if (strncmp(curline, "VmSwap:", 7) == 0)
+			    ep->status_lines.vmswap = strsep(&curline, "\n");
+			else
+			    goto nomatch;
+			break;
+		    case 'T':
+			if (strncmp(curline, "Threads:", 8) == 0)
+			    ep->status_lines.threads = strsep(&curline, "\n");
+			else
+			    goto nomatch;
+			break;
+		    case 'S':
+			if (strncmp(curline, "SigPnd:", 7) == 0)
+			    ep->status_lines.sigpnd = strsep(&curline, "\n");
+			else if (strncmp(curline, "SigBlk:", 7) == 0)
+			    ep->status_lines.sigblk = strsep(&curline, "\n");
+			else if (strncmp(curline, "SigIgn:", 7) == 0)
+			    ep->status_lines.sigign = strsep(&curline, "\n");
+			else if (strncmp(curline, "SigCgt:", 7) == 0)
+			    ep->status_lines.sigcgt = strsep(&curline, "\n");
+			else
+			    goto nomatch;
+			break;
+		    case 'v':
+			if (strncmp(curline, "voluntary_ctxt_switches:", 24) == 0)
+			    ep->status_lines.vctxsw = strsep(&curline, "\n");
+			else
+			    goto nomatch;
+			break;
+		    case 'n':
+			if (strncmp(curline, "nonvoluntary_ctxt_switches:", 27) == 0)
+			    ep->status_lines.nvctxsw = strsep(&curline, "\n");
+			else
+			    goto nomatch;
+			break;
+		    default:
+nomatch:
+#if PCP_DEBUG
+			if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+			    char	*p;
+			    fprintf(stderr, "fetch_proc_pid_status: skip ");
+			    for (p = curline; *p && *p != '\n'; p++)
+				fputc(*p, stderr);
+			    fputc('\n', stderr);
+			}
+#endif
+			curline = index(curline, '\n');
+			if (curline != NULL) curline++;
 		}
 	    }
+	    ep->flags |= PROC_PID_FLAG_STATUS_FETCHED;
 	}
 	if (fd >= 0)
 	    close(fd);
-	ep->flags |= PROC_PID_FLAG_STATUS_FETCHED;
     }
 
     return (*sts < 0) ? NULL : ep;
@@ -708,7 +790,7 @@ fetch_proc_pid_statm(int id, proc_pid_t *proc_pid, int *sts)
 	    if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
 		char ibuf[1024];
 		char ebuf[1024];
-		fprintf(stderr, "fetch_proc_pid_statm: read failed: id=%d, indom=%s, sts=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)), pmErrStr_r(*sts, ebuf, sizeof(ebuf)));
+		fprintf(stderr, "fetch_proc_pid_statm: read failed: id=%d, indom=%s, sts=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)), pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	    }
 #endif
 	}
@@ -831,7 +913,7 @@ fetch_proc_pid_schedstat(int id, proc_pid_t *proc_pid, int *sts)
 	    if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
 		char ibuf[1024];
 		char ebuf[1024];
-		fprintf(stderr, "fetch_proc_pid_schedstat: read failed: id=%d, indom=%s, sts=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)), pmErrStr_r(*sts, ebuf, sizeof(ebuf)));
+		fprintf(stderr, "fetch_proc_pid_schedstat: read failed: id=%d, indom=%s, sts=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)), pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	    }
 #endif
 	}
@@ -905,7 +987,7 @@ fetch_proc_pid_io(int id, proc_pid_t *proc_pid, int *sts)
 	    if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
 		char ibuf[1024];
 		char ebuf[1024];
-		fprintf(stderr, "fetch_proc_pid_io: read failed: id=%d, indom=%s, sts=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)), pmErrStr_r(*sts, ebuf, sizeof(ebuf)));
+		fprintf(stderr, "fetch_proc_pid_io: read failed: id=%d, indom=%s, sts=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)), pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	    }
 #endif
 	}
@@ -944,13 +1026,45 @@ fetch_proc_pid_io(int id, proc_pid_t *proc_pid, int *sts)
 	if (*sts == 0) {
 	    /* assign pointers to individual lines in buffer */
 	    curline = ep->io_buf;
-	    ep->io_lines.rchar = strsep(&curline, "\n");
-	    ep->io_lines.wchar = strsep(&curline, "\n");
-	    ep->io_lines.syscr = strsep(&curline, "\n");
-	    ep->io_lines.syscw = strsep(&curline, "\n");
-	    ep->io_lines.readb = strsep(&curline, "\n");
-	    ep->io_lines.writeb = strsep(&curline, "\n");
-	    ep->io_lines.cancel = strsep(&curline, "\n");
+	    /*
+	     * expecting 
+	     * rchar: 714415843
+	     * wchar: 101078796
+	     * syscr: 780339
+	     * syscw: 493583
+	     * read_bytes: 209099776
+	     * write_bytes: 118263808
+	     * cancelled_write_bytes: 102301696
+	    */
+	    while (curline) {
+		if (strncmp(curline, "rchar:", 6) == 0)
+		    ep->io_lines.rchar = strsep(&curline, "\n");
+		else if (strncmp(curline, "wchar:", 6) == 0)
+		    ep->io_lines.wchar = strsep(&curline, "\n");
+		else if (strncmp(curline, "syscr:", 6) == 0)
+		    ep->io_lines.syscr = strsep(&curline, "\n");
+		else if (strncmp(curline, "syscw:", 6) == 0)
+		    ep->io_lines.syscw = strsep(&curline, "\n");
+		else if (strncmp(curline, "read_bytes:", 11) == 0)
+		    ep->io_lines.readb = strsep(&curline, "\n");
+		else if (strncmp(curline, "write_bytes:", 12) == 0)
+		    ep->io_lines.writeb = strsep(&curline, "\n");
+		else if (strncmp(curline, "cancelled_write_bytes:", 22) == 0)
+		    ep->io_lines.cancel = strsep(&curline, "\n");
+		else {
+#if PCP_DEBUG
+		    if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
+			char	*p;
+			fprintf(stderr, "fetch_proc_pid_io: skip ");
+			for (p = curline; *p && *p != '\n'; p++)
+			    fputc(*p, stderr);
+			fputc('\n', stderr);
+		    }
+#endif
+		    curline = index(curline, '\n');
+		    if (curline != NULL) curline++;
+		}
+	    }
 	    ep->flags |= PROC_PID_FLAG_IO_FETCHED;
 	}
 	if (fd >= 0)
@@ -1063,7 +1177,7 @@ fetch_proc_pid_cgroup(int id, proc_pid_t *proc_pid, int *sts)
 	    if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
 		char ibuf[1024];
 		char ebuf[1024];
-		fprintf(stderr, "fetch_proc_pid_cgroup: read failed: id=%d, indom=%s, sts=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)), pmErrStr_r(*sts, ebuf, sizeof(ebuf)));
+		fprintf(stderr, "fetch_proc_pid_cgroup: read failed: id=%d, indom=%s, sts=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)), pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	    }
 #endif
 	}
@@ -1124,7 +1238,7 @@ fetch_proc_pid_label(int id, proc_pid_t *proc_pid, int *sts)
 	    if ((pmDebug & (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) == (DBG_TRACE_LIBPMDA|DBG_TRACE_DESPERATE)) {
 		char ibuf[1024];
 		char ebuf[1024];
-		fprintf(stderr, "fetch_proc_pid_label: read failed: id=%d, indom=%s, sts=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)), pmErrStr_r(*sts, ebuf, sizeof(ebuf)));
+		fprintf(stderr, "fetch_proc_pid_label: read failed: id=%d, indom=%s, sts=%s\n", id, pmInDomStr_r(proc_pid->indom->it_indom, ibuf, sizeof(ibuf)), pmErrStr_r(-oserror(), ebuf, sizeof(ebuf)));
 	    }
 #endif
 	}
