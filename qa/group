@@ -986,6 +986,7 @@ avahi
 957 pmda.linux local valgrind
 958 archive local
 959 pmda.sample pmstore local
+960 pmda.ds389 local
 962 archive local
 966 secure local
 972 pmda.zswap dbpmda local

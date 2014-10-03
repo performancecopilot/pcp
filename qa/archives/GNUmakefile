@@ -7,7 +7,7 @@ SRCARCH = chartqa1.0 viewqa1.0 viewqa2.0 viewqa3.0 rattle.0 oview-short.0 \
 	  20071023-08-06-36.0 dm-io.0 mysql-1.0 diff1.0 diff2.0
 SRCEXTRAS = $(subst .0,.meta,$(SRCARCH)) $(subst .0,.index,$(SRCARCH))
 SCRIPTS = mk.gap.sh mk.mysql.sh
-OTHERS = GNUmakefile.install
+OTHERS = GNUmakefile.install ds390-access.gz
 
 default default_pcp setup:
 

@@ -158,7 +158,7 @@ sub ds389log_fetch_callback {
         return ($value->[1], 1);
 }
 
-$pmda = PCP:MDA->new('ds389log', 131);
+$pmda = PCP::PMDA->new('ds389log', 131);
 
 # Add and zero metrics
 foreach my $key (keys %data) {
@@ -176,88 +176,3 @@ $pmda->set_fetch_callback(\&ds389log_fetch_callback);
 # NB: needs to run as root or as a user having read access to the logs
 $pmda->set_user($ds_user) if $ds_user ne '';
 $pmda->run;
-
-=pod
-
-=head1 NAME
-
-pmdads389log - 389 Directory Server Access Log PMDA
-
-=head1 DESCRIPTION
-
-B<pmdads389log> is a Performance Metrics Domain Agent (PMDA) which
-extracts statistics from 389 Directory Server access log by using
-the B<logconv.pl>(1) utility.
-
-=head1 INSTALLATION
-
-B<pmdads389log> uses configuration file:
-
-=over
-
-=item * $PCP_PMDAS_DIR/ds389log/ds389log.conf
-
-=back
-
-This file can contain overridden values (Perl code) for the settings
-listed at the start of pmdads389log.pl, namely:
-
-=over
-
-=item * logconv.pl parameters
-
-=item * minimal query interval
-
-=item * 389 DS access log to use
-
-=item * 389 DS log directory to use (used if no file specified)
-
-=item * non-root user having read access to the access log file
-
-=back
-
-Once this is setup, you can access the names and values for the
-ds389log access log metrics by doing the following as root:
-
-        # cd $PCP_PMDAS_DIR/ds389log
-        # ./Install
-
-If you want to undo the installation, do the following as root:
-
-        # cd $PCP_PMDAS_DIR/ds389log
-        # ./Remove
-
-B<pmdads389log> is launched by pmcd(1) and should never be executed
-directly.  The Install and Remove scripts notify pmcd(1) when the agent
-is installed or removed.
-
-=head1 FILES
-
-=over
-
-=item $PCP_PMDAS_DIR/ds389log/ds389log.conf
-
-configuration file for B<pmdads389log>
-
-=item $PCP_PMDAS_DIR/ds389log/Install
-
-installation script for the B<pmdads389log> agent
-
-=item $PCP_PMDAS_DIR/ds389log/Remove
-
-undo installation script for the B<pmdads389log> agent
-
-=item $PCP_LOG_DIR/pmcd/ds389log.log
-
-default log file for messages from B<pmdads389log>
-
-=item /var/log/dirsrv/slapd-.../access
-
-389 Directory Server access log parsed by B<logconv.pl>
-
-=back
-
-=head1 SEE ALSO
-
-logconv.pl(1), pmcd(1), pmdads389(1).
-
