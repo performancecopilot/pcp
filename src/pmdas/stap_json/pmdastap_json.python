@@ -1,0 +1,373 @@
+#!/usr/bin/python
+import json
+import jsonschema
+import collections
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
+import cpmapi as c_api
+from pcp.pmapi import pmUnits, pmContext as PCP
+from ctypes import c_int, POINTER, cast
+
+class Metric(object):
+    def __init__(self, name):
+        self.name = name
+        self.desc = ''
+        self.type = c_api.PM_TYPE_UNKNOWN
+        self.sem = c_api.PM_SEM_INSTANT
+        self.pmid = None
+        self.obj = None
+        self.indom = c_api.PM_INDOM_NULL
+
+class Indom(object):
+    def __init__(self):
+        self.obj = None
+        self.values = {}
+
+    def add_value(self, name, value):
+        # PMDA.replace_indom() wants a dictionary, indexed by
+        # indom string value. PMDA.replace_indom() doesn't really
+        # care what is stored at that string value. We're storing the
+        # array index there.
+        self.values[name] = c_int(value)
+
+class STAP_JSON_PMDA(PMDA):
+    def __init__(self, pmda_name, domain):
+        self.pmda_name = pmda_name
+        PMDA.__init__(self, self.pmda_name, domain)
+
+        # Load the schema and data.
+        self.metrics = {}
+        self.load_json_schema()
+        self.load_json_data()
+
+        # Make sure the data fits the schema.
+        jsonschema.validate(self.json_data, self.schema)
+
+        # Update the indom list.
+        self.indoms = {}
+        self.refresh()
+
+        # Parse the schema header, looking for the 'root' name of the
+        # data (all metrics get created under this name) and create
+        # the metrics as needed.
+        #
+        # FIXME: later this will be the module name. For now, hardcode
+        # it to 'json'.
+        self.root_name = "json"
+        self._parse_schema()
+
+        self.set_fetch(self._fetch)
+        self.set_fetch_callback(self._fetch_callback)
+        self.set_store_callback(self._store_callback)
+
+    def load_json_schema(self):
+        # Load schema
+        f = open("/proc/systemtap/json/schema")
+        try:
+            self.schema = json.load(f, object_pairs_hook=collections.OrderedDict)
+        except:
+            self.schema = {}
+        f.close()
+
+    def load_json_data(self):
+        # Load data
+        f = open("/proc/systemtap/json/data")
+        try :
+            self.json_data = json.load(f,
+                                       object_pairs_hook=collections.OrderedDict)
+        except:
+            self.json_data = {}
+        f.close()
+
+    def refresh(self):
+        # Notice we never delete indoms, we just keep adding.
+        for array_name in self.indoms.keys():
+            index = 0
+            try:
+                # json_data['data'][array_name] is a list of
+                # dictionaries.
+                for item in self.json_data['data'][array_name]:
+                    self.indoms[array_name].add_value(item['__id'], index)
+                    index += 1
+            except:
+                pass
+            self.replace_indom(self.indoms[array_name].obj,
+                               self.indoms[array_name].values)
+
+    def _add_metric(self, metric_info):
+        metric_info.pmid = self.pmid(0, self.metric_idx)
+        # FIXME: we'll need to handle units/scale at some point...
+        metric_info.obj = pmdaMetric(metric_info.pmid, metric_info.type,
+                                     metric_info.indom, metric_info.sem,
+                                     pmUnits(0, 0, 0, 0, 0, 0))
+
+        self.add_metric("%s.%s.%s" % (self.pmda_name, self.root_name,
+                                           metric_info.name),
+                        metric_info.obj, metric_info.desc)
+        self.metrics[self.metric_idx] = metric_info
+        self.metric_idx += 1
+
+    def _parse_array_schema(self, array_name, properties):
+        # First process the array schema "header" information.
+        array_properties = None
+        for (key, value) in properties.items():
+            # 'type' (required): Sanity check it.
+            if key == 'type':
+                if not isinstance(value, unicode):
+                    raise TypeError
+                    if value != 'object':
+                        raise TypeError, \
+                            ("Type attribute has unknown value '%s'" % value)
+            # 'additionalProperties' (optional): Ignore it.
+            elif key == "additionalProperties":
+                # Do nothing.
+                pass
+            # 'properties' (required): Type check it and save for later.
+            elif key == "properties":
+                if not isinstance(value, dict):
+                    raise TypeError
+                array_properties = value
+            # For everything else, raise an error.
+            else:
+                raise RuntimeError, "Unknown attribute '%s'" % key
+        if not array_properties:
+            raise RuntimeError, "Schema has no 'properties' attribute"
+
+        if not self.indoms.has_key(array_name):
+            # Note that we're creating an indom here, but we don't
+            # know any values for it yet. We'll get those on a data
+            # read.
+            self.indoms[array_name] = Indom()
+            self.indoms[array_name].obj = self.indom(self.indom_idx)
+            self.indom_idx += 1
+
+        # If we're here, we know the array "header" was
+        # reasonable. Now process "properties", which is the real data
+        # description.
+        for (name, attributes) in array_properties.items():
+            metric_info = Metric("%s.%s" % (array_name, name))
+            metric_info.indom = self.indoms[array_name].obj
+
+            for (key, value) in attributes.items():
+                # 'type' (required): Sanity check it and save it.
+                if key == 'type':
+                    if not isinstance(value, unicode):
+                        raise TypeError
+                    if value == 'string':
+                        metric_info.type = c_api.PM_TYPE_STRING
+                        metric_info.sem = c_api.PM_SEM_INSTANT
+                    elif value == 'integer':
+                        metric_info.type = c_api.PM_TYPE_64
+                        metric_info.sem = c_api.PM_SEM_COUNTER
+                    else:
+                        raise TypeError, \
+                            ("Type attribute has unknown value '%s'" % value)
+                # 'description' (optional): Type check it and save it.
+        	elif key == 'description':
+                    if not isinstance(value, unicode):
+                        raise TypeError
+                    metric_info.desc = value
+                # 'additionalProperties' (optional): Ignore it.
+            	elif key == "additionalProperties":
+                    # Do nothing.
+                    pass
+                # For everything else, raise an error.
+            	else:
+                    raise RuntimeError, \
+                        ("Schema for '%s' has an unknown attribute '%s'"
+                         % (name, key)) 
+                
+            # Make sure we have everything we need.
+            if metric_info.type == c_api.PM_TYPE_UNKNOWN:
+                raise RuntimeError, ("Schema for '%s' has no 'type' attribute"
+                                     % name)
+
+            # Add the metric (if it isn't our special '__id' metric).
+            if name != '__id':
+                self._add_metric(metric_info)
+
+    def _parse_schema(self):
+        '''
+        Go through the schema, looking for information we can use to create
+        the pcp representation of the schema. Note that we don't support
+        every possible JSON schema, we're looking for certain items.
+
+        Refer to the following link for details of JSON schemas:
+
+        <http://tools.ietf.org/html/draft-zyp-json-schema-03>
+        '''
+
+        # First process the schema "header" information.
+        data_header = None
+        for (key, value) in self.schema.items():
+            # 'type' (required): Just sanity check it.
+            if key == "type":
+                if not isinstance(value, unicode) or value != "object":
+                    raise TypeError
+            # 'title' (optional): Type check it.
+            elif key == "title":
+                if not isinstance(value, unicode):
+                    raise TypeError
+            # 'description' (optional): Type check it.
+            elif key == "description":
+                if not isinstance(value, unicode):
+                    raise TypeError
+            # 'additionalProperties' (optional): Ignore it.
+            elif key == "additionalProperties":
+                # Do nothing.
+                pass
+            # 'properties' (required): Type check it and save for later.
+            elif key == "properties":
+                if not isinstance(value, dict):
+                    raise TypeError
+                data_header = value
+            # For everything else, raise an error.
+            else:
+                raise RuntimeError, "Unknown attribute '%s'" % key
+        
+        # Pick the right field for the root of the namespace - prefer
+        # "title" over "description".
+        #if self.schema.has_key("title"):
+        #    self.root_name = self.schema["title"]
+        #elif self.schema.has_key("description"):
+        #    self.root_name = self.schema["description"]
+        #else:
+        #    raise RuntimeError, "No 'title' or 'description' field in schema header"
+    
+        # If we're here, we know the "header" was reasonable. Now process
+        # "properties", which is the data "header".
+        if not data_header:
+            raise RuntimeError, "Schema has no 'properties' attribute"
+        data_properties = None
+        for (key, value) in data_header.items():
+            # 'generation' (required): Just sanity check it.
+            if key == "generation":
+                if not isinstance(value, dict):
+                    raise TypeError
+            # 'data' (required): Type check it.
+            elif key == "data":
+                if not isinstance(value, dict) \
+                   or not value.has_key("properties") \
+                   or not isinstance(value["properties"], dict):
+                    raise TypeError
+                data_properties = value["properties"]
+            # For everything else, raise an error.
+            else:
+                raise RuntimeError, "Unknown attribute '%s'" % key
+        
+        # If we're here, we know the data "header" was reasonable. Now process
+        # "properties.data.properties", which is the real data description.
+        if not data_properties:
+            raise RuntimeError, "Schema has no 'properties.data.properties' attribute"
+        self.metric_idx = 0
+        self.indom_idx = 0
+        for (name, attributes) in data_properties.items():
+            metric_info = Metric(name)
+            for (key, value) in attributes.items():
+                # 'type' (required): Sanity check it and save it.
+                if key == 'type':
+                    if not isinstance(value, unicode):
+                        raise TypeError
+                    if value == 'string':
+                        metric_info.type = c_api.PM_TYPE_STRING
+                        metric_info.sem = c_api.PM_SEM_INSTANT
+                    elif value == 'integer':
+                        metric_info.type = c_api.PM_TYPE_64
+                        metric_info.sem = c_api.PM_SEM_COUNTER
+                    elif value == 'array':
+                        # For arrays, we have to create metrics for
+                        # each subitem in the array, using the same
+                        # indom. This happens in the 'items' handling
+                        # below.
+                        metric_info.type = c_api.PM_TYPE_NOSUPPORT
+                    else:
+                        raise TypeError, \
+                            ("Type attribute has unknown value '%s'" % value)
+                # 'description' (optional): Type check it and save it.
+        	elif key == 'description':
+                    if not isinstance(value, unicode):
+                        raise TypeError
+                    metric_info.desc = value
+                # 'additionalProperties' (optional): Ignore it.
+            	elif key == "additionalProperties":
+                    # Do nothing.
+                    pass
+                # 'default' (optional): Ignore it (for now).
+            	elif key == "default":
+                    # Do nothing for now.
+                    pass
+                elif key == "items":
+                    if metric_info.type != c_api.PM_TYPE_NOSUPPORT: 
+                        raise RuntimeError, \
+                            ("Schema has an 'items' item for non-array '%s'"
+                             % name)
+
+                    # If we're here, we're processing an array's
+                    # schema. For arrays, we have to create metrics for
+                    # each subitem in the array, using the same
+                    # indom.
+                    self._parse_array_schema(name, value)
+                # For everything else, raise an error.
+            	else:
+                    raise RuntimeError, \
+                        ("Schema for '%s' has an unknown attribute '%s'"
+                         % (name, key)) 
+
+            # Make sure we have everything we need.
+            if metric_info.type == c_api.PM_TYPE_UNKNOWN:
+                raise RuntimeError, ("Schema for '%s' has no 'type' attribute"
+                                     % name)
+
+            # Add the metric.
+            if metric_info.type != c_api.PM_TYPE_NOSUPPORT:
+                self._add_metric(metric_info)
+
+    def _fetch(self):
+        ''' Called once per "fetch" PDU, before callbacks '''
+        self.load_json_data()
+        self.refresh()
+
+    def _fetch_callback(self, cluster, item, inst):
+        '''
+        Main fetch callback. Returns a list of value,status (single
+        pair) for requested pmid/inst.
+        '''
+        if cluster != 0:
+            return [c_api.PM_ERR_PMID, 0]
+        try:
+            metric_info = self.metrics[item]
+        except:
+            return [c_api.PM_ERR_PMID, 0]
+
+        # Handle array metrics.
+        if metric_info.indom != c_api.PM_INDOM_NULL:
+            # Get the array index from the indom.
+            voidp = self.inst_lookup(metric_info.indom, inst)
+            if voidp == None:
+                return [c_api.PM_ERR_INST, 0]
+            array_indexp = cast(voidp, POINTER(c_int))
+            array_index = array_indexp.contents.value
+
+            # Split the full name into the array name and metric
+            (array, metric) = metric_info.name.split('.', 2)
+            try:
+                return [self.json_data['data'][array][array_index][metric], 1]
+            except:
+                pass
+        # Handle single-valued metrics.
+        else:
+            try:
+                return [self.json_data['data'][metric_info.name], 1]
+            except:
+                pass
+        return [c_api.PM_ERR_TYPE, 0]
+
+    def _store_callback(self, cluster, item, inst, val):
+        '''
+        Store callback, executed when a request to write to a metric
+        happens. Returns a single value.
+        '''
+        # Since we don't support storing values, always fail.
+        return c_api.PM_ERR_PERMISSION
+
+if __name__ == '__main__':
+    STAP_JSON_PMDA('stap_json', 132).run()

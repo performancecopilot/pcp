@@ -31,7 +31,7 @@ PLPMDAS = bonding netfilter zimbra postgresql \
 	rsyslog elasticsearch snmp nginx nfsclient \
 	ds389 ds389log
 
-PYPMDAS = gluster zswap dmcache
+PYPMDAS = gluster zswap dmcache stap_json
 
 SUBDIRS = $(CPMDAS) $(PLPMDAS) $(PYPMDAS)
 LDIRT = pmcd.conf
