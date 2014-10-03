@@ -29,7 +29,7 @@ PLPMDAS = bonding netfilter zimbra postgresql \
 	dbping memcache systemtap mysql vmware kvm \
 	named news pdns samba dtsrun postfix gpsd \
 	rsyslog elasticsearch snmp nginx nfsclient \
-	ds389
+	ds389 ds389log
 
 PYPMDAS = gluster zswap dmcache
 
