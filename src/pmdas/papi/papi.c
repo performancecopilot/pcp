@@ -63,8 +63,7 @@ static char helppath[MAXPATHLEN];
 static int
 permission_check(int context)
 {
-    if ((ctxtab[context].uid_p && ctxtab[context].uid == 0) ||
-	(ctxtab[context].gid_p && ctxtab[context].gid == 0))
+    if (ctxtab[context].uid_p && ctxtab[context].uid == 0)
 	return 1;
     return 0;
 }
