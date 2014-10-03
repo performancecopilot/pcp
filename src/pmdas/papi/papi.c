@@ -725,16 +725,6 @@ papi_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 }
 
 static int
-check_event_exists(unsigned int event)
-{
-    int retval = 0;
-    retval = PAPI_query_event(event);
-    if (retval != PAPI_OK && pmDebug & DBG_TRACE_APPL0)
-	__pmNotifyErr(LOG_DEBUG, "event not found on this hardware, skipping\n");
-    return retval;
-}
-
-static int
 remove_metric(int event)
 {
     int retval = 0;
@@ -742,10 +732,6 @@ remove_metric(int event)
     int restart = 0; // bool to restart running values at the end
     int i;
     int position = papi_info[event].position;
-
-    retval = check_event_exists(papi_info[event].info.event_code);
-    if (retval != PAPI_OK)
-	return retval;
 
     /* check to make sure papi is running, otherwise do nothing */
     state = check_papi_state();
@@ -807,10 +793,6 @@ add_metric(unsigned int event)
     int state = 0;
     int i;
     char eventname[PAPI_MAX_STR_LEN];
-
-    retval = check_event_exists(event);
-    if (retval != PAPI_OK)
-	return retval;
 
     /* check status of papi */
     state = check_papi_state();
