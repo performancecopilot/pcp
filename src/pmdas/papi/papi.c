@@ -33,8 +33,8 @@ enum {
 };
 
 typedef struct {
-    unsigned int papi_event_code; //the PAPI_ eventcode
-    char papi_string_code[8];
+    char papi_string_code[PAPI_MAX_STR_LEN];
+    pmID pmid;
     int position;
     long_long prev_value;
     PAPI_event_info_t info;
@@ -689,7 +689,7 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	    for(i = 0; i < number_of_events; i++){
 		strcpy(local_string, "");
-		if(papi_info[i].position >= 0 && papi_info[i].papi_event_code){
+		if(papi_info[i].position >= 0 && papi_info[i].info.event_code){
 		    sprintf(local_string, ", %s: %lld", papi_info[i].papi_string_code, (papi_info[i].prev_value + values[papi_info[i].position]));
 		    expand_status_string(local_string);
 		}
@@ -742,7 +742,7 @@ remove_metric(int event)
     int i;
     int position = papi_info[event].position;
 
-    retval = check_event_exists(papi_info[event].papi_event_code);
+    retval = check_event_exists(papi_info[event].info.event_code);
     if (retval != PAPI_OK)
 	return retval;
 
@@ -783,8 +783,8 @@ remove_metric(int event)
 	    if (papi_info[i].position > position)
 		papi_info[i].position--;
 
-	    if (papi_info[i].position >= 0 && papi_info[i].papi_event_code) {
-		retval = PAPI_add_event(EventSet, papi_info[i].papi_event_code);
+	    if (papi_info[i].position >= 0 && papi_info[i].info.event_code) {
+		retval = PAPI_add_event(EventSet, papi_info[i].info.event_code);
 		if (retval != PAPI_OK)
 		    return retval;
 	    }
@@ -820,7 +820,7 @@ add_metric(unsigned int event)
 	   copying values into prev_value after the fact, we get
 	   the most recent values possible */
 	for (i = 0; i < size_of_active_counters; i++){
-	    if(papi_info[i].position >= 0 && papi_info[i].papi_event_code)
+	    if(papi_info[i].position >= 0 && papi_info[i].info.event_code)
 		papi_info[i].prev_value += values[papi_info[i].position];
 	}
 	if (retval != PAPI_OK)
@@ -878,7 +878,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		for (j = 0; j < number_of_events; j++) {
 		    if (!strcmp(substring, papi_info[j].papi_string_code) && papi_info[j].position < 0) {
 			// add the metric to the set if it's not already there
-			retval = add_metric(papi_info[j].papi_event_code);
+			retval = add_metric(papi_info[j].info.event_code);
 			if (retval == PAPI_OK)
 			    papi_info[j].position = number_of_active_counters-1;
 			break;
@@ -1024,7 +1024,7 @@ papi_internal_init(pmdaInterface *dp)
 	if (PAPI_get_event_info(ec, &info) == PAPI_OK) {
 	    if (info.count && PAPI_PRESET_ENUM_AVAIL){
 		expand_papi_info(i);
-		papi_info[i].papi_event_code = info.event_code;
+		papi_info[i].info.event_code = info.event_code;
 		substr = strtok(info.symbol, "_");
 		while (substr != NULL) {
 		    addunderscore = 0;
