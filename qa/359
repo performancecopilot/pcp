@@ -24,6 +24,7 @@ _filter()
 	-e '/No value(s) available/d' \
 	-e '/Metric not supported by this version of monitored application/d' \
 	-e '/cgroup.groups: pmLookupName: Unknown metric name/d' \
+	-e '/proc.psinfo.cgroups: No data available/d' \
 	-e '/^sample.needprofile:/d' \
 	-e '/^sample.bad.unknown:/d' \
 	-e '/^sample.bad.nosupport:/d' \
