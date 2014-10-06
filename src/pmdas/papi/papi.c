@@ -986,6 +986,11 @@ papi_internal_init(pmdaInterface *dp)
 	return PM_ERR_GENERIC;
     }
 
+    if (retval = PAPI_multiplex_init() != PAPI_OK) {
+	__pmNotifyErr(LOG_ERR, "Could not init multiplexing (%s)\n", PAPI_strerror(retval));
+	return PM_ERR_GENERIC;
+    }
+
     retval = PAPI_set_domain(PAPI_DOM_ALL);
     if (retval != PAPI_OK) {
 	__pmNotifyErr(LOG_DEBUG, "Cannot set the domain to PAPI_DOM_ALL.\n");
@@ -1027,8 +1032,17 @@ papi_internal_init(pmdaInterface *dp)
 	}
     } while(PAPI_enum_event(&ec, 0) == PAPI_OK);
     pmdaTreeRebuildHash(papi_tree, number_of_events);
+
     if (PAPI_create_eventset(&EventSet) != PAPI_OK) {
 	__pmNotifyErr(LOG_ERR, "PAPI_create_eventset error!\n");
+	return PM_ERR_GENERIC;
+    }
+    if ((retval = PAPI_assign_eventset_component(EventSet, 0))) {
+	__pmNotifyErr(LOG_ERR, "Could not assign eventset component. %s\n", PAPI_strerror(retval));
+	return PM_ERR_GENERIC;
+    }
+    if ((retval = PAPI_set_multiplex(EventSet)) != PAPI_OK) {
+	__pmNotifyErr(LOG_ERR, "Could not turn on eventset multiplexing. %s %d", PAPI_strerror(retval), retval);
 	return PM_ERR_GENERIC;
     }
     return 0;
