@@ -430,3 +430,5 @@ then
 else
     echo "Warning: \"/etc/pcp.conf\" is missing"
 fi
+
+sudo -u pcp [ -x $HOME ] || echo "Error: $HOME is not searchable by user \"pcp\""
