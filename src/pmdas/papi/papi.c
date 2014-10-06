@@ -43,7 +43,6 @@ typedef struct {
 static papi_m_user_tuple *papi_info;
 static unsigned int number_of_events; /* cardinality of papi_info[] */
 
-static char     *status_string;
 static char     isDSO = 1; /* == 0 if I am a daemon */
 static int      EventSet = PAPI_NULL;
 static long_long *values;
@@ -67,19 +66,6 @@ permission_check(int context)
     if (ctxtab[context].uid_p && ctxtab[context].uid == 0)
 	return 1;
     return 0;
-}
-
-static void
-expand_status_string(char* string)
-{
-    size_t size = strlen(status_string);
-    size_t new_size = size + strlen(string);
-    if (new_size > strlen(status_string)){
-	status_string = realloc(status_string, new_size);
-	if (string == NULL)
-	    __pmNoMem("status_string", new_size, PM_FATAL_ERR);
-    }
-    strcat(status_string, string);
 }
 
 static void
@@ -619,6 +605,8 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     int i;
     int state;
     char local_string[32];
+    char status_string[4096];
+    int first_metric = 0;
     retval = check_papi_state();
     if (retval & PAPI_RUNNING && idp->cluster == CLUSTER_PAPI) {
 	retval = PAPI_read(EventSet, values);
@@ -667,31 +655,36 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    retval = PAPI_state(EventSet, &state);
 	    if (retval != PAPI_OK)
 		return PM_ERR_VALUE;
-	    strcpy(status_string, "");
+	    strcpy(status_string, "Papi ");
 	    if(state & PAPI_STOPPED)
-		expand_status_string("Papi is stopped");
+		strcat(status_string, "is stopped");
 	    if (state & PAPI_RUNNING)
-		expand_status_string("Papi is running");
+		strcat(status_string, "is running, ");
 	    if (state & PAPI_PAUSED)
-		expand_status_string("Papi is paused");
+		strcat(status_string,"is paused, ");
 	    if (state & PAPI_NOT_INIT)
-		expand_status_string("Papi is defined but not initialized");
+		strcat(status_string, "is defined but not initialized, ");
 	    if (state & PAPI_OVERFLOWING)
-		expand_status_string("Papi has overflowing enabled");
+		strcat(status_string, "has overflowing enabled, ");
 	    if (state & PAPI_PROFILING)
-		expand_status_string("Papi eventset has profiling enabled");
+		strcat(status_string, "eventset has profiling enabled, ");
 	    if (state & PAPI_MULTIPLEXING)
-		expand_status_string("Papi has multiplexing enabled");
+		strcat(status_string,"has multiplexing enabled, ");
 	    if (state & PAPI_ATTACHED)
-		expand_status_string("Papi is attached to another process/thread");
+	        strcat(status_string, "is attached to another process/thread, ");
 	    if (state & PAPI_CPU_ATTACHED)
-		expand_status_string("Papi is attached to a specific CPU");
+		strcat(status_string, "is attached to a specific CPU, ");
 
 	    for(i = 0; i < number_of_events; i++){
 		strcpy(local_string, "");
-		if(papi_info[i].position >= 0 && papi_info[i].info.event_code){
+		if(papi_info[i].position >= 0 && papi_info[i].info.event_code && first_metric == 1){
 		    sprintf(local_string, ", %s: %lld", papi_info[i].papi_string_code, (papi_info[i].prev_value + values[papi_info[i].position]));
-		    expand_status_string(local_string);
+		    strcat(status_string, local_string);
+		}
+		if(papi_info[i].position >= 0 && papi_info[i].info.event_code && first_metric == 0){
+		    sprintf(local_string, "%s: %lld", papi_info[i].papi_string_code, (papi_info[i].prev_value + values[papi_info[i].position]));
+		    first_metric = 1;
+		    strcat(status_string, local_string);
 		}
 	    }
 	    atom->cp = status_string;
@@ -1005,7 +998,6 @@ papi_internal_init(pmdaInterface *dp)
 	return PM_ERR_GENERIC;
     }
 
-    status_string = (char *) calloc(1, 1);
     PAPI_enum_event(&ec, PAPI_ENUM_FIRST);
     do {
 	if (PAPI_get_event_info(ec, &info) == PAPI_OK) {
