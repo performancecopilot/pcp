@@ -1,0 +1,5 @@
+default default_pcp setup:
+
+clobber clean:
+	rm -f domain.h domain.h.python domain.h.save
+	rm -f pmns pmns.python pmns.save
