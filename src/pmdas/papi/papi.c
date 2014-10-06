@@ -33,7 +33,7 @@ enum {
 };
 
 typedef struct {
-    char papi_string_code[PAPI_MAX_STR_LEN];
+    char papi_string_code[PAPI_HUGE_STR_LEN]; //same length as the papi 'symbol' or name of the event
     pmID pmid;
     int position;
     long_long prev_value;
@@ -951,11 +951,8 @@ papi_internal_init(pmdaInterface *dp)
 {
     int ec;
     int retval;
-    int addunderscore;
     PAPI_event_info_t info;
-    char *substr;
-    char concatstr[10] = {};
-    char entry[22];
+    char entry[PAPI_HUGE_STR_LEN]; // the length papi uses for the symbol name
     unsigned int i = 0;
     pmID pmid;
 
@@ -979,7 +976,7 @@ papi_internal_init(pmdaInterface *dp)
 	return PM_ERR_GENERIC;
     }
 
-    if (retval = PAPI_multiplex_init() != PAPI_OK) {
+    if ((retval = PAPI_multiplex_init()) != PAPI_OK) {
 	__pmNotifyErr(LOG_ERR, "Could not init multiplexing (%s)\n", PAPI_strerror(retval));
 	return PM_ERR_GENERIC;
     }
@@ -995,29 +992,14 @@ papi_internal_init(pmdaInterface *dp)
 	if (PAPI_get_event_info(ec, &info) == PAPI_OK) {
 	    if (info.count && PAPI_PRESET_ENUM_AVAIL){
 		expand_papi_info(i);
-		papi_info[i].info.event_code = info.event_code;
-		substr = strtok(info.symbol, "_");
-		while (substr != NULL) {
-		    addunderscore = 0;
-		    if (strcmp("PAPI",substr)) {
-			addunderscore = 1;
-			strcat(concatstr, substr);
-		    }
-		    substr = strtok(NULL, "_");
-		    if (substr != NULL && addunderscore) {
-			strcat(concatstr, "_");
-		    }
-		}
-
-		snprintf(entry, sizeof(entry),"papi.system.%s", concatstr);
+		memcpy(&papi_info[i].info, &info, sizeof(PAPI_event_info_t));
+		memcpy(&papi_info[i].papi_string_code, info.symbol + 5, strlen(info.symbol)-5);
+		snprintf(entry, sizeof(entry),"papi.system.%s", papi_info[i].papi_string_code);
 		pmid = pmid_build(dp->domain, CLUSTER_PAPI, i);
-		strcpy(papi_info[i].papi_string_code, concatstr);
 		__pmAddPMNSNode(papi_tree, pmid, entry);
-		memset(&concatstr[0], 0, sizeof(concatstr));
 		memset(&entry[0], 0, sizeof(entry));
 		papi_info[i].position = -1;
-		strcpy(papi_info[i].info.short_descr,info.short_descr);
-		strcpy(papi_info[i].info.long_descr, info.long_descr);
+
 		expand_values(i);
 		i++;
 	    }
@@ -1085,7 +1067,6 @@ papi_init(pmdaInterface *dp)
 {
     int nummetrics = sizeof(metrictab)/sizeof(metrictab[0]);
     int retval;
-    int i;
 
     if (isDSO) {
 	int	sep = __pmPathSeparator();
