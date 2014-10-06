@@ -682,6 +682,9 @@ getOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
     PyObject *pyargv = NULL;
     char *keyword_list[] = {"argv", NULL};
 
+    // Note that PyArg_ParseTupleAndKeywords() returns a "borrowed"
+    // reference, so there is no need to decrement a reference to
+    // pyargv.
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
 			"O:pmGetOptionsFromList", keyword_list, &pyargv))
 	return NULL;
@@ -691,17 +694,14 @@ getOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
 
     if (!PyList_Check(pyargv)) {
 	PyErr_SetString(PyExc_TypeError, "pmGetOptionsFromList uses a list");
-	Py_DECREF(pyargv);
 	return NULL;
     }
 
     if ((argc = PyList_GET_SIZE(pyargv)) <= 0) {
-	Py_DECREF(pyargv);
 	return Py_BuildValue("i", 0);
     }
 
     if ((argv = malloc(argc * sizeof(char *))) == NULL) {
-	Py_DECREF(pyargv);
 	return PyErr_NoMemory();
     }
 
@@ -718,7 +718,6 @@ getOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
          */
 	if (i == 0 && (string = strdup(string)) == NULL) {
 	    free(argv);
-	    Py_DECREF(pyargv);
 	    return PyErr_NoMemory();
 	}
 	argv[i] = string;
