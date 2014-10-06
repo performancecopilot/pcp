@@ -124,6 +124,11 @@ namespace_refresh(PyObject *self, PyObject *args, PyObject *keywords)
                         "O:namespace_refresh", keyword_list, &pmns_dict))
         return NULL;
     if (pmns_dict) {
+	// PyArg_ParseTupleAndKeywords() returns a "borrowed"
+	// reference. Since we're going to keep this object around for
+	// use later, increase its reference count.
+	Py_INCREF(pmns_dict);
+
         if (!PyDict_Check(pmns_dict)) {
             __pmNotifyErr(LOG_ERR,
                 "attempted to refresh namespace with non-dict type");
@@ -153,6 +158,11 @@ pmid_oneline_refresh(PyObject *self, PyObject *args, PyObject *keywords)
         return NULL;
 
     if (pmid_oneline_dict) {
+	// PyArg_ParseTupleAndKeywords() returns a "borrowed"
+	// reference. Since we're going to keep this object around for
+	// use later, increase its reference count.
+	Py_INCREF(pmid_oneline_dict);
+
         if (!PyDict_Check(pmid_oneline_dict)) {
             __pmNotifyErr(LOG_ERR,
                 "attempted to refresh pmid oneline help with non-dict type");
@@ -180,6 +190,11 @@ pmid_longtext_refresh(PyObject *self, PyObject *args, PyObject *keywords)
         return NULL;
 
     if (pmid_longtext_dict) {
+	// PyArg_ParseTupleAndKeywords() returns a "borrowed"
+	// reference. Since we're going to keep this object around for
+	// use later, increase its reference count.
+	Py_INCREF(pmid_longtext_dict);
+
         if (!PyDict_Check(pmid_longtext_dict)) {
             __pmNotifyErr(LOG_ERR,
                 "attempted to refresh pmid long help with non-dict type");
@@ -207,6 +222,11 @@ indom_oneline_refresh(PyObject *self, PyObject *args, PyObject *keywords)
         return NULL;
 
     if (indom_oneline_dict) {
+	// PyArg_ParseTupleAndKeywords() returns a "borrowed"
+	// reference. Since we're going to keep this object around for
+	// use later, increase its reference count.
+	Py_INCREF(indom_oneline_dict);
+
         if (!PyDict_Check(indom_oneline_dict)) {
             __pmNotifyErr(LOG_ERR,
                 "attempted to refresh indom oneline help with non-dict type");
@@ -234,6 +254,11 @@ indom_longtext_refresh(PyObject *self, PyObject *args, PyObject *keywords)
         return NULL;
 
     if (indom_longtext_dict) {
+	// PyArg_ParseTupleAndKeywords() returns a "borrowed"
+	// reference. Since we're going to keep this object around for
+	// use later, increase its reference count.
+	Py_INCREF(indom_longtext_dict);
+
         if (!PyDict_Check(indom_longtext_dict)) {
             __pmNotifyErr(LOG_ERR,
                 "attempted to refresh indom long help with non-dict type");
