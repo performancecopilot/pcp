@@ -963,7 +963,7 @@ avahi
 840 avahi local
 841 pmda local
 842 python local
-843 pmda local
+843 pmda local python
 844 pmda.linux local
 861 pmcd pmda.pmcd local
 875 libpcp local valgrind
