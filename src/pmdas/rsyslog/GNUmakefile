@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 2011 Aconex.  All Rights Reserved.
 # 
@@ -19,18 +18,13 @@ include $(TOPDIR)/src/include/builddefs
 IAM	= rsyslog
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 LSRCFILES = Install Remove pmda$(IAM).pl
-LDIRT	= domain.h root pmns *.log $(MAN_PAGES)
+LDIRT	= domain.h root pmns *.log
 
-ifneq ($(POD2MAN),)
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
-endif
 
-default: check_domain $(MAN_PAGES)
-
-pmda$(IAM).1: pmda$(IAM).pl
-	$(POD_MAKERULE)
+default: check_domain
 
 include $(BUILDRULES)
 
