@@ -37,6 +37,15 @@ cd $HOME
 
 for seq
 do
+    case "$seq"
+    in
+	[0-9])
+		seq=00$seq
+		;;
+	[0-9][0-9])
+		seq=0$seq
+		;;
+    esac
     base=''
     echo >$tmp.sum
     find $HOME/Logs/by-vm -name "$seq.out.bad" \
