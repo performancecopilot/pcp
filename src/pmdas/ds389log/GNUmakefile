@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2011 Aconex.  All Rights Reserved.
+# Copyright (c) 2014 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -15,14 +15,13 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-IAM	= elasticsearch
-DOMAIN	= ELASTICSEARCH
+IAM	= ds389log
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 LDIRT	= domain.h root pmns *.log
 
-MAN_SECTION	= 1
-MAN_PAGES	= pmda$(IAM).$(MAN_SECTION)
-MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
+MAN_SECTION = 1
+MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
+MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
 default: check_domain
 
