@@ -400,7 +400,6 @@ get_idle_time(){
 	FILE * fp = NULL; /* kept open until exit() */
 	char *linux_statspath = "";
 
-	char fmt[64];
 	unsigned long long idle_time;
 	int n;
 	char        *envpath;
@@ -412,8 +411,7 @@ get_idle_time(){
 	if ((fp = fopen(buf, "r")) < 0)
 		return -oserror();
 
-    	strcpy(fmt, "cpu %*llu %*llu %*llu %llu %*llu %*llu %*llu %*llu %*llu");
-    	n = fscanf( fp, fmt, &idle_time);
+    	n = fscanf( fp, "cpu %*llu %*llu %*llu %llu %*llu %*llu %*llu %*llu %*llu", &idle_time);
 
     	if( n != 1){
     		idle_time = 0;
@@ -668,12 +666,14 @@ hotproc_eval_procs(){
 		char *cmd = malloc( strlen(f+1) );
 		strcpy(cmd, f+1);
 		cmd[strlen(f+1)-1] = '\0';
-               	strcpy(vars.fname, cmd);
+               	strncpy(vars.fname, cmd, sizeof(vars.fname));
+               	vars.fname[sizeof(vars.fname)-1]='\0';
 		free(cmd);
 	}
 
 	/* PS Args */
-	strcpy(vars.psargs, statentry->name+7);
+	strncpy(vars.psargs, statentry->name+7, sizeof(vars.psargs));
+	vars.psargs[sizeof(vars.psargs)-1]='\0';
 
 	/* UID and GID */
 	if ((f = _pm_getfield(statusentry->status_lines.uid, 1)) == NULL){
@@ -698,16 +698,20 @@ hotproc_eval_procs(){
 
 	struct passwd *pwe;		
 
-	if ((pwe = getpwuid((uid_t)vars.uid)) != NULL)
-                strcpy(vars.uname, pwe->pw_name);
+	if ((pwe = getpwuid((uid_t)vars.uid)) != NULL){
+                strncpy(vars.uname, pwe->pw_name, sizeof(vars.uname));
+                vars.uname[sizeof(vars.uname)-1] = '\0';
+	}
         else
                 strcpy(vars.uname, "UNKNOWN");
 
 	struct group *gre;
 
 	if ((gre = getgrgid((gid_t)vars.gid)) != NULL) {
-                strcpy(vars.gname, gre->gr_name);
-        } else {
+                strncpy(vars.gname, gre->gr_name, sizeof(vars.gname));
+                vars.gname[sizeof(vars.gname)-1] = '\0';
+        } 
+        else {
                 strcpy(vars.gname, "UNKNOWN");
         }
 
