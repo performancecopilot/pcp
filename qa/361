@@ -22,6 +22,7 @@ _cleanup()
     rmdir $grp 2>/dev/null
 }
 
+prefix=cgroup
 grp=/tmp/cgroup_$seq
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
