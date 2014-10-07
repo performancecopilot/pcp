@@ -173,11 +173,20 @@ refresh_proc_net_rpc(proc_net_rpc_t *proc_net_rpc)
 	    }
 	    else
 	    if (strncmp(buf, "proc4ops", 8) == 0) {
-		if ((p = strtok(buf, " ")) != NULL)
+		int		nval;
+		static int	onetrip = 1;
+		if ((p = strtok(buf, " ")) != NULL) {
+		    nval = strtoul(p, (char **)NULL, 10);
+		    if (nval != NR_RPC4_SVR_COUNTERS) {
+			if (onetrip) {
+			    fprintf(stderr, "refresh_proc_net_rpc: Warning: proc4ops count %d, not %d as expected\n", nval, NR_RPC4_SVR_COUNTERS);
+			    onetrip = 0;
+			}
+		    }
 		    p = strtok(NULL, " ");
+		}
 
-		/* Inst 0 is NULL count (below) */
-		for (i=1; p && i < NR_RPC4_SVR_COUNTERS; i++) {
+		for (i=0; p && i < NR_RPC4_SVR_COUNTERS; i++) {
 		    if ((p = strtok(NULL, " ")) == NULL)
 			break;
 		    proc_net_rpc->server.reqcounts4[i] = strtoul(p, (char **)NULL, 10);
