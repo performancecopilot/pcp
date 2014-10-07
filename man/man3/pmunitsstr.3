@@ -51,6 +51,15 @@ function does the same, but stores the result in a user-supplied buffer
 of length
 .IR buflen ,
 which should have room for at least 60 bytes.
+If
+.I buflen
+is less than 60 then
+.B pmUnitsStr_r
+returns
+.B NULL
+and
+.I buf
+is not changed.
 .PP
 For example
 .CW "{1, -2, 0, PM_SPACE_MBYTE, PM_TIME_SEC, 0}" , 

@@ -1,0 +1,14 @@
+QA output created by 746
+=== std out ===
+good one: count x 10^7 / Tbyte microsec
+buffer: count x 10^7 / Tbyte microsec
+bad one: return NULL
+buffer: {
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/badUnitsStr_r
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
