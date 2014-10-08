@@ -28,6 +28,10 @@ endif
 default default_pcp: build_python
 
 ifeq "$(ENABLE_PYTHON)" "true"
+ifeq ($(PCP_PLATFORM),darwin)
+# No binaries for PPC, thanks
+ENV += ARCHFLAGS='-arch i386 -arch x86_64'
+endif
 build_python: setup.py $(CFILES)
 	$(ENV) $(PYTHON) setup.py build_ext $(SETUP_PY_BUILD_OPTIONS)
 	$(ENV) $(PYTHON) setup.py build
