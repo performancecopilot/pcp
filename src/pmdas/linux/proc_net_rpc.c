@@ -176,8 +176,8 @@ refresh_proc_net_rpc(proc_net_rpc_t *proc_net_rpc)
 		if ((p = strtok(buf, " ")) != NULL)
 		    p = strtok(NULL, " ");
 
-		/* Inst 0 is NULL count (below) */
-		for (i=1; p && i < NR_RPC4_SVR_COUNTERS; i++) {
+		/* Inst 0 is a NULL count (below) - not from the kernel! */
+		for (i=1; p && i <= NR_RPC4_SVR_COUNTERS; i++) {
 		    if ((p = strtok(NULL, " ")) == NULL)
 			break;
 		    proc_net_rpc->server.reqcounts4[i] = strtoul(p, (char **)NULL, 10);
