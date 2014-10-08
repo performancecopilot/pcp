@@ -21,7 +21,8 @@ export PCP_DERIVED_CONFIG=$tmp.config
 
 _filter()
 {
-    sed \
+    tee -a $seq.full \
+    | sed \
 	-e '/^host:/d' \
     | case "$1"
       in
@@ -42,20 +43,23 @@ want == 1		{ if (-4096 < $1 && $1 < 4096) print "abs(N) < 4096"
 }
 
 # real QA test starts here
+pmstore sample.colour 0 >>$seq.full 2>&1
 cat <<End-of-File | while read metric min max ; do
 sample.bin
-kernel.all.load
+sample.colour
 sample.datasize
 hinv.ncpu
 sample.string.hullo
 sample.kbyte_rate
 End-of-File
-    echo
-    echo "--- $metric ---"
+    echo | tee -a $seq.full
+    echo "--- $metric ---" | tee -a $seq.full
     echo "d=delta($metric)" >$tmp.config
     echo "r=rate($metric)" >>$tmp.config
-    pmval -t 0.5 -s 2 d | _filter $metric
-    pmval -t 0.5 -s 2 r | _filter $metric
+    echo "+++ delta +++" >>$seq.full
+    pmval -t 0.5 -f 1 -s 2 d | _filter $metric
+    echo "+++ rate +++" >>$seq.full
+    pmval -t 0.5 -f 1 -s 2 r | _filter $metric
 done
 
 # success, all done
