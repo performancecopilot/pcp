@@ -95,6 +95,12 @@ AC_ARG_WITH([python],
     [do_python=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-python=$withval"],
     [do_python=check])
 
+AC_ARG_WITH([python3],
+    [AC_HELP_STRING([--with-python3],
+                    [enable support for tools requiring Python3 (default is on)])],
+    [do_python3=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-python3=$withval"],
+    [do_python3=check])
+
 AC_ARG_WITH([books],
     [AC_HELP_STRING([--with-books],
                     [enable building of the PCP books (default is off)])],
@@ -436,6 +442,10 @@ dnl check if python available for the build
 AC_CHECK_PROGS(PYTHON, python)
 AC_SUBST(PYTHON)
 
+dnl check if python3 available for the build
+AC_CHECK_PROGS(PYTHON3, python3)
+AC_SUBST(PYTHON3)
+
 dnl check if python tools/packages wanted (need python >= 2.6)
 enable_python=false
 AS_IF([test "x$do_python" != "xno"], [
@@ -458,12 +468,6 @@ AS_IF([test "x$do_python" != "xno"], [
 	    echo Python version 2.6 or later is required for Python builds.
 	    enable_python=false
 	fi
-	if test "$PY_MAJOR" -ge 3 ; then
-	    echo
-	    echo WARNING: Python version 3.$PY_MINOR is not yet supported.
-	    echo Currently Python version 2 is required for Python builds.
-	    enable_python=false
-	fi
 	AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
     fi
 
@@ -473,6 +477,38 @@ AS_IF([test "x$do_python" != "xno"], [
     fi
 ])
 AC_SUBST(enable_python)
+
+dnl check if python3 tools/packages wanted (need python >= 3.3)
+enable_python3=false
+AS_IF([test "x$do_python3" != "xno"], [
+    enable_python3=true
+    if test -z "$PYTHON3"
+    then
+	enable_python3=false
+    else
+	AC_MSG_CHECKING([Python3 version])
+	eval `$PYTHON3 -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
+	if test "$PY_MAJOR" -lt 3; then
+	    echo
+	    echo WARNING: Python version 3.3 or later does not seem to be installed.
+	    echo Cannot proceed with the Python $PY_MAJOR installation found.
+	    enable_python3=false
+	fi
+	if test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -lt 3 ; then
+	    echo
+	    echo WARNING: Python version 3.$PY_MINOR is too old.
+	    echo Python version 3.3 or later is required for Python builds.
+	    enable_python3=false
+	fi
+	AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
+    fi
+
+    if test "$do_python3" != "check" -a "$enable_python3" != "true"
+    then
+	AC_MSG_ERROR(cannot enable Python3 - no supported version found)
+    fi
+])
+AC_SUBST(enable_python3)
 
 qmake=$QMAKE
 enable_qt=false

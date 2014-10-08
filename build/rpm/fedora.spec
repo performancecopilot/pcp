@@ -16,7 +16,7 @@ Source1: pcp-web-manager-%{version}.src.tar.gz
 %else
 %{!?disable_papi: %global disable_papi 0%{?rhel} < 6}
 %endif
-
+%define disable_python3 0
 %define disable_microhttpd 0
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %define disable_qt 0
@@ -30,6 +30,9 @@ BuildRequires: nss-devel
 BuildRequires: rpm-devel
 BuildRequires: avahi-devel
 BuildRequires: python-devel
+%if !%{disable_python3}
+BuildRequires: python3-devel
+%endif
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
 BuildRequires: cyrus-sasl-devel
@@ -403,8 +406,26 @@ URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 
 %description -n python-pcp
-The python PCP module contains the language bindings for
-building Performance Metric API (PMAPI) tools using Python.
+This python PCP module contains the language bindings for
+Performance Metric API (PMAPI) monitor tools and Performance
+Metric Domain Agent (PMDA) collector tools written in Python.
+
+%if !%{disable_python3}
+#
+# python3-pcp. This is the PCP library bindings for python3.
+#
+%package -n python3-pcp
+License: GPLv2+
+Group: Development/Libraries
+Summary: Performance Co-Pilot (PCP) Python3 bindings and documentation
+URL: http://www.pcp.io
+Requires: pcp-libs = %{version}-%{release}
+
+%description -n python3-pcp
+This python PCP module contains the language bindings for
+Performance Metric API (PMAPI) monitor tools and Performance
+Metric Domain Agent (PMDA) collector tools written in Python3.
+%endif
 
 %if !%{disable_qt}
 #
@@ -934,6 +955,11 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %files -n python-pcp -f python-pcp.list.rpm
 %defattr(-,root,root)
+
+%if !%{disable_python3}
+%files -n python3-pcp -f python3-pcp.list.rpm
+%defattr(-,root,root)
+%endif
 
 %if !%{disable_qt}
 %files -n pcp-gui -f pcp-gui.list

@@ -316,8 +316,26 @@ URL: http://www.performancecopilot.org
 Requires: pcp-libs = @package_version@
 
 %description -n python-pcp
-The python PCP module contains the language bindings for
-building Performance Metric API (PMAPI) tools using Python.
+This python PCP module contains the language bindings for
+Performance Metric API (PMAPI) monitor tools and Performance
+Metric Domain Agents (PMDA) collector tools written in Python.
+%endif
+
+%if "@enable_python3@" == "true"
+#
+# python3-pcp. This is the PCP library bindings for python.
+#
+%package -n python3-pcp
+License: GPLv2+
+Group: Development/Libraries
+Summary: Performance Co-Pilot (PCP) Python3 bindings and documentation
+URL: http://www.performancecopilot.org
+Requires: pcp-libs = @package_version@
+
+%description -n python3-pcp
+This python PCP module contains the language bindings for
+Performance Metric API (PMAPI) monitor tools and Performance
+Metric Domain Agent (PMDA) collector tools written in Python3.
 %endif
 
 %if "@enable_qt@" == "true"
@@ -761,5 +779,10 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %if "@enable_python@" == "true"
 %files -n python-pcp -f python-pcp.list.rpm
+%defattr(-,root,root)
+%endif
+
+%if "@enable_python3@" == "true"
+%files -n python3-pcp -f python3-pcp.list.rpm
 %defattr(-,root,root)
 %endif
