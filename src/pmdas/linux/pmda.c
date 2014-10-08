@@ -5029,10 +5029,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 
 	case 67: /* nfs4.server.reqs */
-	    if (proc_net_rpc.server.errcode != 0)
+	    if (inst == 0 || proc_net_rpc.server.errcode != 0)
 	    	return 0; /* no values available */
-	    if (inst < NR_RPC4_SVR_COUNTERS)
-		atom->ul = proc_net_rpc.server.reqcounts4[inst];
+	    if (inst <= NR_RPC4_SVR_COUNTERS)
+		atom->ul = proc_net_rpc.server.reqcounts4[inst-1];
 	    else
 	    	return PM_ERR_INST;
 	    break;

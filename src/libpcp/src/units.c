@@ -181,6 +181,13 @@ pmUnitsStr_r(const pmUnits *pu, char *buf, int buflen)
     char	tbuf[20];
     char	cbuf[20];
 
+    /*
+     * must be at least 60 bytes, then we don't need to pollute the code
+     * below with a check every time we call snprintf() or increment p
+     */
+    if (buflen < 60)
+	return NULL;
+
     buf[0] = '\0';
 
     if (pu->dimSpace) {
