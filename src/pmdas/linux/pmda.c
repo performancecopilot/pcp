@@ -5015,7 +5015,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (proc_net_rpc.server.errcode != 0)
 	    	return 0; /* no values available */
 	    for (atom->ul=0, i=0; i < NR_RPC4_SVR_COUNTERS; i++) {
-		atom->ul += proc_net_rpc.server.reqcounts4[i];
+		atom->ul += proc_net_rpc.server.reqcounts4[i+1];
 	    }
 	    break;
 
@@ -5031,7 +5031,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 67: /* nfs4.server.reqs */
 	    if (proc_net_rpc.server.errcode != 0)
 	    	return 0; /* no values available */
-	    if (inst < NR_RPC4_SVR_COUNTERS)
+	    if (inst && inst <= NR_RPC4_SVR_COUNTERS)
 		atom->ul = proc_net_rpc.server.reqcounts4[inst];
 	    else
 	    	return PM_ERR_INST;

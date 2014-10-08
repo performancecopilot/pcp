@@ -96,7 +96,9 @@ typedef struct {
 	unsigned int reqcounts3[NR_RPC3_COUNTERS];
 
 	/* /proc/net/rpc/nfsd  "proc4" & "proc4ops" */
-	unsigned int reqcounts4[NR_RPC4_SVR_COUNTERS];
+	unsigned int reqcounts4[NR_RPC4_SVR_COUNTERS+1];
+	/* Note: the +1 is to deal with a quirk of the kernel code */
+
     } server;
 
 } proc_net_rpc_t;
