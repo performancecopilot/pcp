@@ -30,8 +30,9 @@ DOCFILES = README INSTALL CHANGELOG VERSION.pcp
 CONFFILES = pcp.lsm
 LDIRT = config.cache config.status config.log files.rpm pro_files.rpm \
 	autom4te.cache install.manifest install_pro.manifest \
-	debug*.list devel_files libs_files base_files.rpm libs_files.rpm \
-	devel_files.rpm perl-pcp*.list* python-pcp*.list* conf_files
+	debug*.list devel_files libs_files conf_files \
+	base_files.rpm libs_files.rpm devel_files.rpm \
+	perl-pcp*.list* python-pcp*.list* python3-pcp*.list*
 LDIRDIRT = pcp-[0-9]*.[0-9]*.[0-9]*  pcp-*-[0-9]*.[0-9]*.[0-9]*
 
 SUBDIRS = src

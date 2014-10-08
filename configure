@@ -786,7 +786,9 @@ qmake
 enable_qt
 qt_release
 QMAKE
+enable_python3
 enable_python
+PYTHON3
 PYTHON
 GIT
 LTLIBOBJS
@@ -891,6 +893,7 @@ with_discovery
 with_systemd
 with_qt
 with_python
+with_python3
 with_books
 with_papi
 enable_ssp
@@ -1572,6 +1575,8 @@ Optional Packages:
   --with-qt               enable support for tools requiring Qt (default is
                           on)
   --with-python           enable support for tools requiring Python (default
+                          is on)
+  --with-python3          enable support for tools requiring Python3 (default
                           is on)
   --with-books            enable building of the PCP books (default is off)
   --with-papi             enable performance api counter pmda (default is on)
@@ -2592,6 +2597,15 @@ if test "${with_python+set}" = set; then :
   withval=$with_python; do_python=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-python=$withval"
 else
   do_python=check
+fi
+
+
+
+# Check whether --with-python3 was given.
+if test "${with_python3+set}" = set; then :
+  withval=$with_python3; do_python3=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-python3=$withval"
+else
+  do_python3=check
 fi
 
 
@@ -6011,6 +6025,50 @@ done
 
 
 
+for ac_prog in python3
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_PYTHON3+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$PYTHON3"; then
+  ac_cv_prog_PYTHON3="$PYTHON3" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_PYTHON3="$ac_prog"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+PYTHON3=$ac_cv_prog_PYTHON3
+if test -n "$PYTHON3"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PYTHON3" >&5
+$as_echo "$PYTHON3" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test -n "$PYTHON3" && break
+done
+
+
+
 enable_python=false
 if test "x$do_python" != "xno"; then :
 
@@ -6034,12 +6092,6 @@ $as_echo_n "checking Python version... " >&6; }
 	    echo Python version 2.6 or later is required for Python builds.
 	    enable_python=false
 	fi
-	if test "$PY_MAJOR" -ge 3 ; then
-	    echo
-	    echo WARNING: Python version 3.$PY_MINOR is not yet supported.
-	    echo Currently Python version 2 is required for Python builds.
-	    enable_python=false
-	fi
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $PY_MAJOR.$PY_MINOR.$PY_POINT" >&5
 $as_echo "$PY_MAJOR.$PY_MINOR.$PY_POINT" >&6; }
     fi
@@ -6047,6 +6099,41 @@ $as_echo "$PY_MAJOR.$PY_MINOR.$PY_POINT" >&6; }
     if test "$do_python" != "check" -a "$enable_python" != "true"
     then
 	as_fn_error $? "cannot enable Python - no supported version found" "$LINENO" 5
+    fi
+
+fi
+
+
+enable_python3=false
+if test "x$do_python3" != "xno"; then :
+
+    enable_python3=true
+    if test -z "$PYTHON3"
+    then
+	enable_python3=false
+    else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Python3 version" >&5
+$as_echo_n "checking Python3 version... " >&6; }
+	eval `$PYTHON3 -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
+	if test "$PY_MAJOR" -lt 3; then
+	    echo
+	    echo WARNING: Python version 3.3 or later does not seem to be installed.
+	    echo Cannot proceed with the Python $PY_MAJOR installation found.
+	    enable_python3=false
+	fi
+	if test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -lt 3 ; then
+	    echo
+	    echo WARNING: Python version 3.$PY_MINOR is too old.
+	    echo Python version 3.3 or later is required for Python builds.
+	    enable_python3=false
+	fi
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $PY_MAJOR.$PY_MINOR.$PY_POINT" >&5
+$as_echo "$PY_MAJOR.$PY_MINOR.$PY_POINT" >&6; }
+    fi
+
+    if test "$do_python3" != "check" -a "$enable_python3" != "true"
+    then
+	as_fn_error $? "cannot enable Python3 - no supported version found" "$LINENO" 5
     fi
 
 fi
