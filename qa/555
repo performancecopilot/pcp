@@ -229,6 +229,7 @@ echo
 # note - DHCPDISCOVER lines noticed on kenj-laptop with Ubuntu 8.10
 #
 echo "=== all of syslog ===" >>/tmp/syslog.full
+ls -l /tmp/syslog.full >>/tmp/syslog.full
 $sudo cat /tmp/syslog.out >>/tmp/syslog.full
 echo >>/tmp/syslog.full
 echo "=== syslog for pid $! ===" >>/tmp/syslog.full

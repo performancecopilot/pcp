@@ -20,9 +20,9 @@ interval:  0.50 sec
 No values available
 
               bin-100               bin-200               bin-300               bin-400               bin-500               bin-600               bin-700               bin-800               bin-900 
-               0.0                   0.0                   0.0                   0.0                   0.0                   0.0                   0.0                   0.0                   0.0    
+                  0.0                   0.0                   0.0                   0.0                   0.0                   0.0                   0.0                   0.0                   0.0 
 
---- kernel.all.load ---
+--- sample.colour ---
 
 metric:    d
 semantics: instantaneous value
@@ -31,8 +31,8 @@ samples:   2
 interval:  0.50 sec
 No values available
 
-     1 minute      5 minute     15 minute 
-       0.0           0.0           0.0    
+        red       green        blue 
+          3           3           3 
 
 metric:    r
 semantics: instantaneous value
@@ -41,8 +41,8 @@ samples:   2
 interval:  0.50 sec
 No values available
 
-             1 minute              5 minute             15 minute 
-               0.0                   0.0                   0.0    
+                  red                 green                  blue 
+                  6.0                   6.0                   6.0 
 
 --- sample.datasize ---
 
@@ -60,7 +60,7 @@ units:     Kbyte / sec
 samples:   2
 interval:  0.50 sec
 No values available
-               0.0   
+                  0.0
 
 --- hinv.ncpu ---
 
@@ -78,7 +78,7 @@ units:     / sec
 samples:   2
 interval:  0.50 sec
 No values available
-               0.0   
+                  0.0
 
 --- sample.string.hullo ---
 Semantic error: derived metric d: DELTA(sample.string.hullo): Non-arithmetic operand for function

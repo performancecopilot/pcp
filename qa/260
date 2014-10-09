@@ -65,22 +65,17 @@ done
 echo
 echo "=== fetch values exercises ==="
 cat <<End-of-File >$tmp.config
-d1 = delta(pmcd.pdu_in.total)
-d2 = delta(pmcd.pdu_out.total)
-ratio =  delta(pmcd.pdu_in.total) / ( delta(pmcd.pdu_in.total) + delta(pmcd.pdu_out.total) )
+d1 = delta(pmcd.pdu_in.fetch)
+d2 = delta(pmcd.pdu_out.result)
+ratio =  delta(pmcd.pdu_in.fetch) / ( delta(pmcd.pdu_in.fetch) + delta(pmcd.pdu_out.result) )
 delta_l = delta(sample.long.hundred)
 delta_ull = delta(sample.ulonglong.hundred)
 delta_f = delta(sample.float.hundred)
 delta_d = delta(sample.double.hundred)
 End-of-File
 
-# Note: use localhost (inet) socket connection here for determinism;
-# if we do not, then there is an additional PDU sent by pmcd to the
-# sample PMDA to inform it of credentials obtained via af_unix, i.e.
-# the attribute PDUs between pmcd and pmdasample muck up the counts!
-# (pmcd.pdu_out.total includes PMDA communications).
 cat <<End-of-File \
-| pmie -h localhost -v -t 0.2 -T '+2sec' 2>&1 \
+| pmie -h localhost -v -t 0.5 -T '+5sec' 2>&1 \
 | sed \
     -e 's/.*Info: evaluator exiting/pmie: note - evaluator exiting/g'
 r = ratio;
@@ -88,8 +83,10 @@ l = delta_l;
 ull = delta_ull;
 f = delta_f;
 d = delta_d;
-// in = pmcd.pdu_in.total;
-// out = pmcd.pdu_out.total;
+in_derived = pmcd.pdu_in.fetch;
+in_pmie = d1;
+out_derived = pmcd.pdu_out.result;
+out_pmie = d2;
 End-of-File
 
 # success, all done
