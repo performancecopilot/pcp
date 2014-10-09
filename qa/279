@@ -32,7 +32,8 @@ _cleanup()
     then
 	echo
 	echo "Restoring real \$PCP_PMCDCONF_PATH ..."
-	[ -f $tmp.pmcd.conf.save ] && $sudo mv $tmp.pmcd.conf.save $PCP_PMCDCONF_PATH
+	_restore_config $PCP_PMCDCONF_PATH
+	$sudo rm -f $PCP_PMCDCONF_PATH.prev
 	_restore_loggers
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
@@ -64,7 +65,7 @@ else
     LOGGING_DIR=$PCP_LOG_DIR
 fi
 
-cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf.save
+_save_config $PCP_PMCDCONF_PATH
 _disable_loggers
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 && $sudo sh $tmp.cmd

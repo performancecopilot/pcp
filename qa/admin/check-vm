@@ -81,7 +81,7 @@ p
 		echo >&2 "_getnetworkaddr: cannot get network address"
 		;;
 	    *)	# multiple?
-		echo >&2 "_getnetworkaddr: cannot handle multiple network addresss:"
+		echo >&2 "_getnetworkaddr: cannot handle multiple network addresses:"
 		cat >&2 $tmp.addr
 		;;
 	esac
@@ -414,19 +414,21 @@ then
     network=`_getnetworkaddr`
     if [ -n "$network" ]
     then
-	if [ -f $PCP_SYSCONF_DIR/pmlogger/config.default ]
+	if [ -f $PCP_VAR_DIR/config/pmlogger/config.default ]
 	then
-	    if grep -q "allow $network" $PCP_SYSCONF_DIR/pmlogger/config.default
+	    if grep -q "allow $network" $PCP_VAR_DIR/config/pmlogger/config.default
 	    then
 		:
 	    else
-		echo "Missing: \"allow $network : all;\" [access] in $PCP_SYSCONF_DIR/pmlogger/config.default"
+		echo "Missing: \"allow $network : all;\" [access] in $PCP_VAR_DIR/config/pmlogger/config.default"
 		echo "Use \"$ sudo -E .../qa/admin/allow-pmlc-access\" to fix this."
 	    fi
 	else
-	    echo "Warning: \"$PCP_SYSCONF_DIR/pcp/pmlogger/config.default\" is missing"
+	    echo "Warning: \"$PCP_VAR_DIR/config/pcp/pmlogger/config.default\" is missing"
 	fi
     fi
 else
     echo "Warning: \"/etc/pcp.conf\" is missing"
 fi
+
+sudo -u pcp [ -x $HOME ] || echo "Error: $HOME is not searchable by user \"pcp\""

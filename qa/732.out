@@ -265,7 +265,7 @@ nfs4.client.reqs
     inst [52 or "destroy_clntid"] value 0
 
 nfs4.server.calls
-    value 120
+    value 250
 
 nfs4.server.reqs
     inst [1 or "op0-unused"] value 0
@@ -320,12 +320,13 @@ nfs4.server.reqs
     inst [50 or "layoutcommit"] value 0
     inst [51 or "layoutget"] value 0
     inst [52 or "layoutreturn"] value 0
-    inst [53 or "secinfononam"] value 0
+    inst [53 or "secinfononam"] value 32
     inst [54 or "sequence"] value 0
     inst [55 or "set_ssv"] value 0
     inst [56 or "test_stateid"] value 0
     inst [57 or "want_deleg"] value 0
     inst [58 or "destroy_clid"] value 0
+    inst [59 or "reclaim_comp"] value 99
 
 == done
 

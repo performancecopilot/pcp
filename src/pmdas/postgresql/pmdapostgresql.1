@@ -1,0 +1,74 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2009 Aconex.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDAPOSTGRESQL 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdapostgresql\f1 \- PostgreSQL database PMDA
+.SH DESCRIPTION
+\f3pmdapostgresql\f1 is a Performance Co-Pilot \s-1PMDA\s0 which extracts
+live performance data from a running PostgreSQL database.
+.SH INSTALLATION
+\f3pmdapostgresql\f1 uses a configuration file from (in this order):
+.IP "\(bu" 4
+/etc/pcpdbi.conf
+.IP "\(bu" 4
+\&\f(CW$PCP_PMDAS_DIR\fR/postgresql/postgresql.conf
+.PP
+This file can contain overridden values (Perl code) for the settings
+listed at the start of pmdapostgresql.pl, namely:
+.IP "\(bu" 4
+database name (see \s-1\fIDBI\s0\fR\|(3) for details)
+.IP "\(bu" 4
+database username
+.PP
+Once this is setup, you can access the names and values for the
+postgresql performance metrics by doing the following as root:
+.PP
+      # cd $PCP_PMDAS_DIR/postgresql
+.br
+      # ./Install
+.PP
+To uninstall, do the following as root:
+.PP
+      # cd $PCP_PMDAS_DIR/postgresql
+.br
+      # ./Remove
+.PP
+\fBpmdapostgresql\fR is launched by \fIpmcd\fR(1) and should never be executed 
+directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the 
+agent is installed or removed.
+.SH FILES
+.IP "\fB/etc/pcpdbi.conf\fR" 4
+configuration file for all \s-1PCP\s0 database monitors
+.ie n .IP "\fB$PCP_PMDAS_DIR/postgresql/postgresql.conf\f1" 4
+.el .IP "\f(CW$PCP_PMDAS_DIR\fR/postgresql/postgresql.conf\f1" 4
+configuration file for \fBpmdapostgresql\fR
+.IP "\fB$PCP_PMDAS_DIR/postgresql/Install\fR" 4 
+installation script for the \fBpmdapostgresql\fR agent 
+.IP "\fB$PCP_PMDAS_DIR/postgresql/Remove\fR" 4 
+undo installation script for the \fBpmdapostgresql\fR agent 
+.IP "\fB$PCP_LOG_DIR/pmcd/postgresql.log\fR" 4 
+default log file for error messages from \fBpmdapostgresql\fR 
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fR are used to parameterize
+the file and directory names used by \fBPCP\fR. On each installation, the
+file \fB/etc/pcp.conf\fR contains the local values for these variables. 
+The \fB$PCP_CONF\fR variable may be used to specify an alternative 
+configuration file, as described in \fIpcp.conf\fR(5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmdadbping (1)
+and
+.BR DBI (3).

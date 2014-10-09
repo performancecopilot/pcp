@@ -29,8 +29,6 @@ _filter_pminfo()
 
 # real QA test starts here
 
-config=$PCP_PMCDCONF_PATH
-oconfig=$tmp.oconfig
 me=`_get_fqdn`
 _needclean=true
 
@@ -39,7 +37,7 @@ cleanup()
     if $_needclean
     then
         _needclean=false
-	[ -f $oconfig ] && $sudo cp $oconfig $config
+	_restore_config $PCP_PMCDCONF_PATH
 	_change_config pmlogger on
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
@@ -80,7 +78,7 @@ End-of-File
 $sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
 #_change_config pmlogger off
 
-$sudo cp $config $oconfig
+_save_config $PCP_PMCDCONF_PATH
 
 other1=bogus
 other2=bogus
@@ -147,14 +145,14 @@ disallow $list2 : all;
 allow * :	   all;
 End-Of-File
 fi
-sed -e '/\[access]/q' $oconfig  \
+sed -e '/\[access]/q' $PCP_PMCDCONF_PATH.$seq  \
 | sed -e '/\[access]/d' >$tmp.config
 cat $tmp.access >>$tmp.config
-$sudo cp $tmp.config $config
+$sudo cp $tmp.config $PCP_PMCDCONF_PATH
 
 echo >>$seq.full
 echo "---- start pmcd.conf ----" >>$seq.full
-cat $config >>$seq.full
+cat $PCP_PMCDCONF_PATH >>$seq.full
 echo "---- end pmcd.conf ----" >>$seq.full
 
 $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
@@ -227,14 +225,14 @@ allow * :	   all;
 End-Of-File
 fi
 
-sed -e '/\[access]/q' $oconfig  \
+sed -e '/\[access]/q' $PCP_PMCDCONF_PATH.$seq  \
 | sed -e '/\[access]/d' >$tmp.config
 cat $tmp.access >>$tmp.config
-$sudo cp $tmp.config $config
+$sudo cp $tmp.config $PCP_PMCDCONF_PATH
 
 echo >>$seq.full
 echo "---- start pmcd.conf ----" >>$seq.full
-cat $config >>$seq.full
+cat $PCP_PMCDCONF_PATH >>$seq.full
 echo "---- end pmcd.conf ----" >>$seq.full
 
 $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start

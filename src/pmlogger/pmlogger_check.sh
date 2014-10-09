@@ -746,7 +746,7 @@ END				{ print m }'`
 	    #
 	    if [ ! -f "$configfile" -a "`basename $configfile`" = "$configfile" ]
 	    then
-		configfile="$PCP_SYSCONF_DIR/pmlogger/$configfile"
+		configfile="$PCP_VAR_DIR/config/pmlogger/$configfile"
 	    fi
 
 	    # check configuration file exists and is up to date

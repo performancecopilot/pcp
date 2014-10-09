@@ -15,11 +15,7 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-LSRCFILES = __init__.py pmapi.py pmcc.pyin pmda.py pmgui.py pmi.py mmv.py \
-	pmsubsys.pyin
-LDIRT	= pmcc.py pmsubsys.py
-
-default default_pcp: pmcc.py pmsubsys.py
+default default_pcp:
 
 include $(BUILDRULES)
 

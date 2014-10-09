@@ -39,8 +39,11 @@ install:: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
 install:: default
-	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_SYSCONF_DIR)/pmie
-	$(INSTALL) -m 664 -o $(PCP_USER) -g $(PCP_GROUP) control $(PCP_PMIECONTROL_PATH)
+	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_VAR_DIR)/config/pmie
+ifneq ($(PACKAGE_DISTRIBUTION),debian)
+	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/pmie
+endif
+	$(INSTALL) -m 644 control $(PCP_PMIECONTROL_PATH)
 	$(INSTALL) -m 755 pmie_check.sh $(PCP_BINADM_DIR)/pmie_check$(SHELLSUFFIX)
 	$(INSTALL) -m 755 pmie_daily.sh $(PCP_BINADM_DIR)/pmie_daily$(SHELLSUFFIX)
 	$(INSTALL) -m 755 pmie2col.sh $(PCP_BIN_DIR)/pmie2col$(SHELLSUFFIX)

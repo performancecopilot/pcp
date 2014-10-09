@@ -37,8 +37,8 @@ pcp-daily
     Heavy lifter to run full git pull, build, install, QA (or parts
     thereof) across a number of QA machines.
 
-    Strongy suggest installing dailrc from this directory into
-    $HOME/.dailrc
+    Strongy suggest installing dailyrc from this directory into
+    $HOME/.dailyrc
 
 pcp-qa-summary
     Trawl the pcp-daily log directories and reporting statistical summaries.

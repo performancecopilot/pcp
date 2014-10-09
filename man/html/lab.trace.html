@@ -17,15 +17,15 @@
 	<TITLE>Trace Agent</TITLE>
 </HEAD>
 <BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
-	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://pcp.io/"><IMG SRC="images/pcpicon.png" NAME="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://pcp.io/"><IMG SRC="images/pcpicon.png" ALT="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
 	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
-	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	<TD WIDTH=500><P ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
 	</TR>
 </TABLE>
 <H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Trace Agent</FONT></H1>
-<TABLE WIDTH=15% BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
-	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
+<TABLE WIDTH="15%" BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
+	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
 pmdatrace
 pmtrace
 pminfo
@@ -72,8 +72,8 @@ the <A HREF="glossary.html">PCP glossary</A>.</P>
 </UL>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="overview">Overview</A></B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="overview">Overview</A></B></FONT></P></TD></TR>
 </TABLE>
 <P> This document provides an introduction to the design of the <B>trace</B>
 agent, in an effort to explain how to configure the agent optimally for 
@@ -83,24 +83,24 @@ agent and the library interfaces.</P>
 <P> Details of the use of the <B>trace</B> agent, and the associated
 library (<I>libpcp_trace</I>) for instrumenting applications, are also 
 discussed.</P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;In a command shell enter:<BR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;In a command shell enter:<BR>
 <PRE><B>
 # . /etc/pcp.conf
 # cd $PCP_PMDAS_DIR/trace
 # ./Install
-</PRE></B>
+</B></PRE>
 Export a value, from the shell using:
 <PRE><B>
 $ pmtrace -v 100 "database-users"
 $ pminfo -f trace
-</PRE></B>
+</B></PRE>
 </TD></TR>
 </TABLE>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="design">Trace Agent Design</A></B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="design">Trace Agent Design</A></B></FONT></P></TD></TR>
 </TABLE>
 <H4>Application Interaction</H4>
 <P> The diagram below describes the general state maintained within the <B>trace</B>
@@ -121,7 +121,7 @@ arrived since the previous time interval elapsed, and is discussed in
 greater detail in the <B>Rolling Window Sampling Technique</B> section 
 below.</P>
 <CENTER><P ALIGN="CENTER">
-<IMG SRC="images/trace_1.png" ALIGN="MIDDLE" WIDTH="511" HEIGHT="332"></P>
+<IMG SRC="images/trace_1.png" ALT="" ALIGN="MIDDLE" WIDTH="511" HEIGHT="332"></P>
 </CENTER><P>
 <BR>
 </P>
@@ -187,7 +187,7 @@ point where data is actually exported, the data which is exported has a
 higher probability of reflecting a more recent sampling period than the 
 data exported using simple periodic sampling.</P>
 <CENTER><P ALIGN="CENTER">
-<IMG SRC="images/trace_buffer.png" ALIGN="MIDDLE" WIDTH="425"
+<IMG SRC="images/trace_buffer.png" ALT="" ALIGN="MIDDLE" WIDTH="425"
  HEIGHT="391"></P>
 </CENTER><P>
 <BR>
@@ -225,7 +225,7 @@ Every 2 seconds it will do the metrics calculations on the last 10
 seconds at that time.&nbsp;&nbsp;It does this for efficiency and so it is not 
 driven each time to do a calculation for a fetch request.</P>
 <CENTER><P ALIGN="CENTER">
-<IMG SRC="images/trace_example.png" ALIGN="MIDDLE"></P>
+<IMG SRC="images/trace_example.png" ALT="" ALIGN="MIDDLE"></P>
 </CENTER><P>
 <BR>
 </P>
@@ -277,8 +277,8 @@ Options: </H5>
 </DL>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="traceapi">The Trace API</A></B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="traceapi">The Trace API</A></B></FONT></P></TD></TR>
 </TABLE>
 <P>The <I>libpcp_trace</I> Applications Programmer Interface (API) may be 
 called from C, C++, Fortran, and Java.&nbsp;&nbsp;Each language has access to the 
@@ -472,8 +472,8 @@ call, and can be set either individually or together.</P>
 </DL>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="export">Instrumenting Applications to Export Performance Data</A></B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="export">Instrumenting Applications to Export Performance Data</A></B></FONT></P></TD></TR>
 </TABLE>
 <P>The <I>libpcp_trace</I> library is designed to encourage application 
 developers (Independent Software Vendors and end-user customers) to 
@@ -540,15 +540,15 @@ The relationship between the application, the <I>libpcp_trace</I>
  library, the <B>trace</B> agent and the rest of the PCP infrastructure 
 is shown below:</P>
 <CENTER><P ALIGN="CENTER">
-<IMG SRC="images/trace_libpcp.png" WIDTH="288" HEIGHT="183"></P>
+<IMG SRC="images/trace_libpcp.png" ALT="" WIDTH="288" HEIGHT="183"></P>
 </CENTER>
 
 <P><BR></P>
 <HR>
 <CENTER>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
-	<TR> <TD WIDTH=50%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc</FONT></P></TD>
-	<TD WIDTH=50%><P ALIGN=RIGHT><A HREF="http://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2014 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></P></TD> </TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH="50%"><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc</FONT></A></P></TD>
+	<TD WIDTH="50%"><P ALIGN=RIGHT><A HREF="http://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2014 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></A></P></TD></TR>
 </TABLE>
 </CENTER>
 </BODY>

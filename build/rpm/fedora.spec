@@ -16,7 +16,7 @@ Source1: pcp-web-manager-%{version}.src.tar.gz
 %else
 %{!?disable_papi: %global disable_papi 0%{?rhel} < 6}
 %endif
-
+%define disable_python3 0
 %define disable_microhttpd 0
 %define disable_cairo 0
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
@@ -31,6 +31,9 @@ BuildRequires: nss-devel
 BuildRequires: rpm-devel
 BuildRequires: avahi-devel
 BuildRequires: python-devel
+%if !%{disable_python3}
+BuildRequires: python3-devel
+%endif
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
 BuildRequires: cyrus-sasl-devel
@@ -75,7 +78,6 @@ Obsoletes: pcp-pmda-nvidia
 %global tapsetdir      %{_datadir}/systemtap/tapset
 
 %define _confdir  %{_sysconfdir}/pcp
-%define _initddir %{_sysconfdir}/rc.d/init.d
 %define _logsdir  %{_localstatedir}/log/pcp
 %define _pmnsdir  %{_localstatedir}/lib/pcp/pmns
 %define _tempsdir %{_localstatedir}/lib/pcp/tmp
@@ -88,8 +90,10 @@ Obsoletes: pcp-pmda-nvidia
 %define _with_doc --with-docdir=%{_docdir}/%{name}
 %endif
 %if 0%{?fedora} >= 19 || 0%{?rhel} >= 7
+%define _initddir %{_datadir}/pcp/lib
 %define disable_systemd 0
 %else
+%define _initddir %{_sysconfdir}/rc.d/init.d
 %define _with_initd --with-rcdir=%{_initddir}
 %define disable_systemd 1
 %endif
@@ -404,8 +408,26 @@ URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 
 %description -n python-pcp
-The python PCP module contains the language bindings for
-building Performance Metric API (PMAPI) tools using Python.
+This python PCP module contains the language bindings for
+Performance Metric API (PMAPI) monitor tools and Performance
+Metric Domain Agent (PMDA) collector tools written in Python.
+
+%if !%{disable_python3}
+#
+# python3-pcp. This is the PCP library bindings for python3.
+#
+%package -n python3-pcp
+License: GPLv2+
+Group: Development/Libraries
+Summary: Performance Co-Pilot (PCP) Python3 bindings and documentation
+URL: http://www.pcp.io
+Requires: pcp-libs = %{version}-%{release}
+
+%description -n python3-pcp
+This python PCP module contains the language bindings for
+Performance Metric API (PMAPI) monitor tools and Performance
+Metric Domain Agent (PMDA) collector tools written in Python3.
+%endif
 
 %if !%{disable_qt}
 #
@@ -757,21 +779,29 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %dir %attr(0775,pcp,pcp) %{_tempsdir}
 %dir %attr(0775,pcp,pcp) %{_tempsdir}/pmie
 %dir %attr(0775,pcp,pcp) %{_tempsdir}/pmlogger
-%dir %attr(0775,pcp,pcp) %{_logsdir}
 
-%{_datadir}/pcp/lib
+%dir %{_datadir}/pcp/lib
+%{_datadir}/pcp/lib/ReplacePmnsSubtree
+%{_datadir}/pcp/lib/bashproc.sh
+%{_datadir}/pcp/lib/lockpmns
+%{_datadir}/pcp/lib/pmcd
+%{_datadir}/pcp/lib/pmdaproc.sh
+%{_datadir}/pcp/lib/rc-proc.sh
+%{_datadir}/pcp/lib/rc-proc.sh.minimal
+%{_datadir}/pcp/lib/unlockpmns
+
+%dir %attr(0775,pcp,pcp) %{_logsdir}
 %attr(0775,pcp,pcp) %{_logsdir}/pmcd
 %attr(0775,pcp,pcp) %{_logsdir}/pmlogger
 %attr(0775,pcp,pcp) %{_logsdir}/pmie
 %attr(0775,pcp,pcp) %{_logsdir}/pmproxy
 %{_localstatedir}/lib/pcp/pmns
-%if %{disable_systemd}
 %{_initddir}/pcp
 %{_initddir}/pmcd
 %{_initddir}/pmlogger
 %{_initddir}/pmie
 %{_initddir}/pmproxy
-%else
+%if !%{disable_systemd}
 %{_unitdir}/pmcd.service
 %{_unitdir}/pmlogger.service
 %{_unitdir}/pmie.service
@@ -853,9 +883,8 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %if !%{disable_microhttpd}
 %files webapi
 %defattr(-,root,root)
-%if %{disable_systemd}
 %{_initddir}/pmwebd
-%else
+%if !%{disable_systemd}
 %{_unitdir}/pmwebd.service
 %endif
 %{_libexecdir}/pcp/bin/pmwebd
@@ -869,9 +898,8 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %files manager
 %defattr(-,root,root)
-%if %{disable_systemd}
 %{_initddir}/pmmgr
-%else
+%if !%{disable_systemd}
 %{_unitdir}/pmmgr.service
 %endif
 %{_libexecdir}/pcp/bin/pmmgr
@@ -929,6 +957,11 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %files -n python-pcp -f python-pcp.list.rpm
 %defattr(-,root,root)
+
+%if !%{disable_python3}
+%files -n python3-pcp -f python3-pcp.list.rpm
+%defattr(-,root,root)
+%endif
 
 %if !%{disable_qt}
 %files -n pcp-gui -f pcp-gui.list

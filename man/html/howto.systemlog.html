@@ -8,15 +8,15 @@
 	<TITLE>System Event Log Instrumentation</TITLE>
 </HEAD>
 <BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
-	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://pcp.io/"><IMG SRC="images/pcpicon.png" NAME="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://pcp.io/"><IMG SRC="images/pcpicon.png" ALT="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
 	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
-	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	<TD WIDTH=500><P ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
 	</TR>
 </TABLE>
 <H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>System Event Log Instrumentation</FONT></H1>
-<TABLE WIDTH=15% BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
-	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
+<TABLE WIDTH="15%" BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
+	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
 pmval
 pmevent
 pmchart
@@ -45,12 +45,12 @@ be managed by a single, reliable event shipping system for application
 logs.
 This case study documents the design and deployment of one such system,
 and focuses on the performance instrumentation used for monitoring and
-problem diagnosis in the event management service itself.</P>
+problem diagnosis in the event management service itself.
 </P>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>&nbsp;Technology Choices</B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>&nbsp;Technology Choices</B></FONT></P></TD></TR>
 </TABLE>
 <P>A brief overview of the technologies used, and why they
 were selected from the many alternatives available, follows.
@@ -72,8 +72,8 @@ are used as the mechanisms for indexing event messages as they arrive, and
 providing event search functionality.</P>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>&nbsp;High-level Design</B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>&nbsp;High-level Design</B></FONT></P></TD></TR>
 </TABLE>
 <P>The design caters for a fairly typical medium-sized web application
 deployment.
@@ -84,9 +84,9 @@ Individual racks are populated with closely cooperating machines, each
 generating their own system and application logs.
 <P>
 <CENTER>
-<IMG SRC="images/systemlogs.png" ALIGN="MIDDLE" WIDTH="576" HEIGHT="370">
+<IMG SRC="images/systemlogs.png" ALT="" ALIGN="MIDDLE" WIDTH="576" HEIGHT="370">
 </CENTER>
-</P>
+
 <P>Initially, all logs are streamed directly to a central machine in the
 local deployment (typically, within the same rack).
 On those machines where application logs are being generated the logs
@@ -119,8 +119,8 @@ separately indexed.
 </P>
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>&nbsp;Deployment and Instrumentation: rsyslog</B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>&nbsp;Deployment and Instrumentation: rsyslog</B></FONT></P></TD></TR>
 </TABLE>
 <P>It was highly desirable to gain insight into many levels of the event
 transfer process.
@@ -156,11 +156,11 @@ the following additions to the <I>rsyslog</I> configuration:
 <P>This instructs <I>rsyslog</I> to load the statistics module, and to
 export the current state of its statistics on a 5 second interval.
 We can then capture those statistics to an arbitrary output channel,
-again using a configuration addition.</P>
+again using a configuration addition.
 </P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0>
 <TR><TD>
-  <IMG ALIGN=RIGHT SRC="images/systemlog-arrival.png" HEIGHT="506" WIDTH="398" BORDER=0>
+  <IMG ALIGN=RIGHT SRC="images/systemlog-arrival.png" ALT="" HEIGHT="506" WIDTH="398" BORDER=0>
 </TD>
 <TD>
   <TABLE BORDER=0 CELLPADDING=0 CELLSPACING=15>
@@ -169,8 +169,8 @@ again using a configuration addition.</P>
   (giving insight into arrival rates and queueing behaviour) into our
   overall performance management strategy - tracking them alongside all 
   of our other metrics for comparison, graphing, alarming, etc.  This is
-  acheived by a PMDA - <I>pmdarsyslog</I> - which exports these metrics:
-<I><PRE>
+  acheived by a PMDA - <I>pmdarsyslog</I> - which exports these metrics:</P>
+<PRE><I>
 &#09;rsyslog.interval
 &#09;rsyslog.queues.size
 &#09;rsyslog.queues.maxsize
@@ -182,11 +182,11 @@ again using a configuration addition.</P>
 &#09;rsyslog.elasticsearch.connfail
 &#09;rsyslog.elasticsearch.submits
 &#09;rsyslog.elasticsearch.success
-&#09;rsyslog.elasticsearch.failed </PRE></I>
+&#09;rsyslog.elasticsearch.failed </I></PRE>
   </TD></TR>
   <TR><TD>
-    <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-    <TR><TD BGCOLOR="#e2e2e2" WIDTH=50%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Install <I>pmdarsyslog</I>:
+    <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+    <TR><TD BGCOLOR="#e2e2e2" WIDTH="50%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Install <I>pmdarsyslog</I>:
     <PRE><B># source /etc/pcp.env
 # cd $PCP_PMDAS_DIR/rsyslog
 # ./Install </B></PRE>
@@ -259,7 +259,7 @@ before <I>rsyslog</I> starts up, and <I>pmdalogger</I> needs to be
 configured (at PMDA install time) to be listening for data on these
 files.</P>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0>
 <TR>
 <TD>
   <TABLE BORDER=0 CELLPADDING=0 CELLSPACING=15>
@@ -267,15 +267,15 @@ files.</P>
   <P>Once that is done, new metrics are then available that give
   insight into the number of events being seen for each class of log,
   as well as the total event traffic throughput for each:</P>
-  <I><PRE>
+  <PRE><I>
 &#09;logger.perfile.applog.bytes
 &#09;logger.perfile.applog.count
 &#09;logger.perfile.syslog.bytes
-&#09;logger.perfile.syslog.count </PRE></I>
+&#09;logger.perfile.syslog.count </I></PRE>
   </TD></TR>
   <TR><TD>
-    <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-    <TR><TD BGCOLOR="#e2e2e2" WIDTH=50%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Install <I>pmdalogger</I>:
+    <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+    <TR><TD BGCOLOR="#e2e2e2" WIDTH="50%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Install <I>pmdalogger</I>:
     <PRE><B># source /etc/pcp.env
 # cd $PCP_PMDAS_DIR/logger
 # ./Install </B></PRE>
@@ -288,7 +288,7 @@ files.</P>
   </TABLE>
 </TD>
 <TD>
-  <IMG ALIGN=RIGHT SRC="images/systemlog-throughput.png" HEIGHT="418" WIDTH="370" BORDER=0>
+  <IMG ALIGN=RIGHT SRC="images/systemlog-throughput.png" ALT="" HEIGHT="418" WIDTH="370" BORDER=0>
 </TD>
 </TR>
 </TABLE>
@@ -301,10 +301,10 @@ traffic also had visibility to all event traffic, and has been used to
 inspect log contents (for checking event arrival, and for verifying JSON
 validity, etc) in what proved a much more convenient way than snooping
 the raw network traffic.</P>
-<I><PRE>
+<PRE><I>
 &#09;&#09;logger.perfile.applog.records
 &#09;&#09;logger.perfile.syslog.records
-</PRE></I>
+</I></PRE>
 <P>This was done with the command line utility <I>pmevent</I>, which is the
 first and most simple of event tracing tools - but even in this basic
 &quot;text dump&quot; form, insight was gained by being able to see the
@@ -313,14 +313,14 @@ problems were diagnosed and resolved through its use.
 </P>
 <P>
 <CENTER>
-<IMG SRC="images/systemlog-events.png" ALIGN="MIDDLE" WIDTH="826" HEIGHT="455">
+<IMG SRC="images/systemlog-events.png" ALT="" ALIGN="MIDDLE" WIDTH="826" HEIGHT="455">
 </CENTER>
-</P>
+
 
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>&nbsp;A Quick Aside: Buffer Sizes</B></FONT></P></TD></TR>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=100%>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>&nbsp;A Quick Aside: Buffer Sizes</B></FONT></P></TD></TR>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="100%">
 <BR>
 <P>If there is a chance of sending extremely large messages through
 <I>rsyslog</I> in your environment, such as JVM stack traces or the
@@ -351,8 +351,8 @@ to <TT>fs/pipe.c</TT> in the Linux kernel source.</P>
 </TD></TR>
 </TABLE>
 <P><BR></P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>&nbsp;Deployment and Instrumentation: elasticsearch</B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>&nbsp;Deployment and Instrumentation: elasticsearch</B></FONT></P></TD></TR>
 </TABLE>
 <P><B>Instrumenting elasticsearch</B>
 <P>We come to the final stage of our deployment.
@@ -395,7 +395,7 @@ facility has already prepared messages in a rich JSON format already,
 so we just use a basic <I>rsyslog</I> template that effectively passes
 any &quot;local0&quot; messages straight through to the keeper.</P>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0>
 <TR>
 <TD>
   <TABLE BORDER=0 CELLPADDING=0 CELLSPACING=15>
@@ -407,17 +407,18 @@ any &quot;local0&quot; messages straight through to the keeper.</P>
   cluster and node status, document indexing rates, etc.</P>
   </TD></TR>
   <TR><TD>
-    <TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-    <TR><TD BGCOLOR="#e2e2e2" WIDTH=50%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Install <I>pmdaelasticsearch</I>:
+    <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+    <TR><TD BGCOLOR="#e2e2e2" WIDTH="50%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Install <I>pmdaelasticsearch</I>:
     <PRE><B># source /etc/pcp.env
 # cd $PCP_PMDAS_DIR/elasticsearch
 # ./Install </B></PRE>
 <BR>
     </TD></TR>
+    </TABLE>
   </TD></TR>
   <TR><TD>
 <P>And the following metrics become available:</P>
-<I><PRE>
+<PRE><I>
 elasticsearch.cluster.active_shards
 elasticsearch.cluster.relocating_shards
 elasticsearch.cluster.timed_out
@@ -429,14 +430,12 @@ elasticsearch.cluster.unassigned_shards
 elasticsearch.cluster.initializing_shards
 elasticsearch.cluster.status.code
 elasticsearch.cluster.status.colour
-</PRE></I>
-  </TD></TR>
-    </TABLE>
+</I></PRE>
   </TD></TR>
   </TABLE>
 </TD>
 <TD>
-<I><PRE>
+<PRE><I>
 &#09;elasticsearch.nodes.indices.size
 &#09;elasticsearch.nodes.cache.field_size
 &#09;elasticsearch.nodes.cache.field_evictions
@@ -472,7 +471,7 @@ elasticsearch.cluster.status.colour
 &#09;elasticsearch.nodes.jvm.mem.heap_used
 &#09;elasticsearch.nodes.docs.count
 &#09;elasticsearch.nodes.docs.num_docs
-</PRE></I>
+</I></PRE>
 </TD>
 </TR>
 </TABLE>
@@ -484,16 +483,15 @@ like this:</P>
 
 <P>
 <CENTER>
-<IMG SRC="images/elasticsearch.png" ALIGN="MIDDLE" WIDTH="1356" HEIGHT="490">
+<IMG SRC="images/elasticsearch.png" ALT="" ALIGN="MIDDLE" WIDTH="1356" HEIGHT="490">
 </CENTER>
-</P>
 
 <P><BR></P>
 <HR>
 <CENTER>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
-	<TR> <TD WIDTH=50%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc</FONT></P></TD>
-	<TD WIDTH=50%><P ALIGN=RIGHT><A HREF="http://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2014 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></P></TD> </TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH="50%"><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc</FONT></A></P></TD>
+	<TD WIDTH="50%"><P ALIGN=RIGHT><A HREF="http://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2014 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></A></P></TD> </TR>
 </TABLE>
 </CENTER>
 </BODY>

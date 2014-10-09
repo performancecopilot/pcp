@@ -8,10 +8,10 @@
 	<TITLE>Chart Views</TITLE>
 </HEAD>
 <BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
-	<TR> <TD WIDTH=64 HEIGHT=64><A HREF="http://pcp.io/"><IMG SRC="images/pmcharticon.png" NAME="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></TD>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><A HREF="http://pcp.io/"><IMG SRC="images/pmcharticon.png" ALT="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></TD>
 	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
-	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	<TD WIDTH=500><P ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
 	</TR>
 </TABLE>
 <H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Views</FONT></H1>
@@ -22,10 +22,10 @@
 <P>&nbsp;</P>
 <P>The current pmchart configuration file syntax has <A HREF="pmchart.html">evolved</A> from the original SGI pmchart syntax.
 <P>&nbsp;</P>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
-        <TR><TD WIDTH=100% BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Configuration File Syntax</B></FONT></P></TD></TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Configuration File Syntax</B></FONT></P></TD></TR>
 </TABLE>
-<P>pmchart loads predefined chart configurations (or "views") from external files that conform to the following rules.  In the descriptions below keywords (shown in bold) may appear in upper, lower or mixed case, elements shown as [stuff] are optional, and user-supplied elements are shown as <other stuff>.  A vertical bar (|) is used where syntactic elements are alternatives.  Quotes (") may be used to enclose lexical elements that may contain white space, such as titles, labels and instance names.
+<P>pmchart loads predefined chart configurations (or "views") from external files that conform to the following rules.  In the descriptions below keywords (shown in bold) may appear in upper, lower or mixed case, elements shown as [stuff] are optional, and user-supplied elements are shown as &lt;other stuff&gt;.  A vertical bar (|) is used where syntactic elements are alternatives.  Quotes (") may be used to enclose lexical elements that may contain white space, such as titles, labels and instance names.
 <P><OL>
        <LI>The first line defines the configuration file type and should be
 <PRE>    #kmchart</PRE>
@@ -33,7 +33,7 @@ although pmchart provides backwards compatibility for original SGI pmchart forma
 <PRE>    #pmchart</PRE>
        <LI>After the first line, lines beginning with "#" as the first non-whitespace character are treated as comments and skipped.  Similarly blank lines are skipped.<PRE></PRE>
        <LI>The next line should be
-<PRE>    version &lt;n&gt; <host-clause></PRE>
+<PRE>    version &lt;n&gt; &lt;host-clause&gt;</PRE>
 where &lt;n&gt; depends on the configuration file type, and is 1 for kmchart else 1.1, 1.2 or 2.0 for pmchart.
 <BR>The &lt;host-clause&gt; part is optional (and ignored) for pmchart configuration files, but required for the older pmchart configuration files, and is of the form
 <PRE>    host literal</PRE>
@@ -68,7 +68,7 @@ where each of r, g and b are hexidecimal digits (0-9 and A-F) representing respe
 <BR>The &lt;hostspec&gt; in the <B>host</B> clause may be a hostname, an IP address or an asterisk (*); the latter is used to mean the default source of performance metrics.  For pmchart configuration files, the <B>host</B> clause must be present, for new pmchart configuration files it is optional, and if missing the default source of performance metrics will be used.
 <BR>The optional <B>instance</B> specification,
 	<OL><LI>is omitted in which case one plot will be created for every instance of the &lt;metricname&gt; metric
-	<LI>starts with <B>instance</B>, in which case only the instance named <inst> will be plotted
+	<LI>starts with <B>instance</B>, in which case only the instance named &lt;inst&gt; will be plotted
 	<LI>starts with <B>matching</B>, in which case all instances whose names match the pattern &lt;pat&gt; will be plotted; the pattern uses extended regular expression notation in the style of <B>egrep</B>(1) (refer to the <I>PMCD</I> view for an example)
 	<LI>starts with <B>not-matching</B>, in which case all instances whose names do not match the pattern &lt;pat&gt; will be plotted; the pattern uses extended regular expression notation in the style of <B>egrep</B>(1) (refer to the <I>Netbytes</I> view for an example)
 <BR>The original pmchart syntax uses a bizarre notation where &lt;inst&gt; and &lt;pat&gt; extend from the first non-white space character to the end of the input line.  For modern pmchart configuration files these elements are either delimited by white space, or enclosed in quotes (").
@@ -80,9 +80,9 @@ where each of r, g and b are hexidecimal digits (0-9 and A-F) representing respe
 <P>&nbsp;</P>
 <HR>
 <CENTER>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
-	<TR> <TD WIDTH=50%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc</FONT></P></TD>
-	<TD WIDTH=50%><P ALIGN=RIGHT><A HREF="http://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2014 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></P></TD> </TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH="50%"><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc</FONT></A></P></TD>
+	<TD WIDTH="50%"><P ALIGN=RIGHT><A HREF="http://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2014 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></A></P></TD> </TR>
 </TABLE>
 </CENTER>
 </BODY>

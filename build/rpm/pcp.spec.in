@@ -2,14 +2,16 @@ Summary: System-level performance monitoring and performance management
 Name: @package_name@
 Version: @package_version@
 Release: @package_release@@package_sgirelease@
-License: GPLv2+ and LGPLv2.1+ and ASL2.0 and MIT and CC-BY
-URL: http://www.performancecopilot.org
+License: GPLv2+ and LGPLv2.1+
+URL: http://www.pcp.io
 Group: Applications/System
 Source: @package_name@-@package_version@.src.tar.gz
 BuildRoot: @build_root@ 
 Distribution: @package_distribution@
 BuildRequires: procps bison flex
+%if "@enable_python@" == "true"
 BuildRequires: python-devel
+%endif
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
 BuildRequires: perl(ExtUtils::MakeMaker)
@@ -29,9 +31,6 @@ BuildRequires: libmicrohttpd-devel
 %if @have_cairo@ == 1
 BuildRequires: cairo-devel
 %endif
-%if @have_rpmlib@ == 1
-BuildRequires: rpm-devel
-%endif
 %if "@enable_qt@" == "true"
 %if "%{_vendor}" == "suse"
 BuildRequires: qt-devel >= 4.4
@@ -45,8 +44,10 @@ BuildRequires: initscripts man /bin/hostname
 %if 0%{?fedora} >= 18 || 0%{?rhel} >= 7
 BuildRequires: systemd-devel
 %endif
-
-%if "@enable_papi@" == "enable_papi"
+%if "@pmda_rpm@" == "true"
+BuildRequires: rpm-devel
+%endif
+%if "@pmda_papi@" == "true"
 BuildRequires: papi-devel
 %endif
 
@@ -54,9 +55,11 @@ Conflicts: pcp-pro < 2.2
 
 # Utilities used indirectly e.g. by scripts we install
 Requires: bash gawk sed grep fileutils findutils perl
-Requires: python
+%if "@enable_python@" == "true"
 %if "%{_vendor}" == "redhat" && 0%{?rhel} <= 5
 Requires: python-ctypes
+%endif
+Requires: python
 %endif
 %if "%{_vendor}" == "suse"
 Requires: sysconfig
@@ -92,7 +95,9 @@ Requires: initscripts
 %define __find_requires %{_builddir}/%{?buildsubdir}/build/rpm/filter-requires -v %{_vendor} -f 0%{?fedora} -r 0%{?rhel} %{__find_requires_save}
 
 Requires: pcp-libs = @package_version@
+%if "@enable_python@" == "true"
 Requires: python-pcp = @package_version@
+%endif
 Requires: perl-PCP-PMDA = @package_version@
 Obsoletes: pcp-gui-debuginfo
 Obsoletes: pcp-pmda-nvidia
@@ -112,7 +117,7 @@ applications to easily retrieve and process any subset of that data.
 License: LGPLv2.1+
 Group: Development/Libraries
 Summary: Performance Co-Pilot run-time configuration
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 
 # http://fedoraproject.org/wiki/Packaging:Conflicts "Splitting Packages"
 Conflicts: pcp-libs < 3.9
@@ -127,7 +132,7 @@ Performance Co-Pilot (PCP) run-time configuration
 License: LGPLv2.1+
 Group: Development/Libraries
 Summary: Performance Co-Pilot run-time libraries
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 
 Requires: pcp-conf = @package_version@
 Obsoletes: pcp < 3.0
@@ -142,7 +147,7 @@ Performance Co-Pilot (PCP) run-time libraries
 License: GPLv2+ and LGPLv2.1+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) development headers and documentation
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 
 Requires: pcp-libs = @package_version@
 
@@ -156,7 +161,7 @@ Performance Co-Pilot (PCP) headers, documentation and tools for development.
 License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) test suite
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 
 Requires: pcp = @package_version@
 Requires: pcp-libs = @package_version@
@@ -217,7 +222,7 @@ HTTP (PMWEBAPI) protocol.
 License: GPLv2+
 Group: Development/Languages
 Summary: Performance Co-Pilot (PCP) Perl bindings and documentation
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp-libs = @package_version@
 
 %description -n perl-PCP-PMDA
@@ -234,7 +239,7 @@ an application, etc.
 License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for PCP Memory Mapped Values
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp >= @package_version@
 
 %description -n perl-PCP-MMV
@@ -252,7 +257,7 @@ and analysis with pmchart, pmie, pmlogger and other PCP tools.
 License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for importing external data into PCP archives
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp >= @package_version@
 
 %description -n perl-PCP-LogImport
@@ -267,7 +272,7 @@ they can be replayed with standard PCP monitoring tools.
 License: GPLv2+
 Group: Development/Languages
 Summary: Performance Co-Pilot (PCP) Perl bindings for post-processing output of pmlogsummary
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp >= @package_version@
 
 %description -n perl-PCP-LogSummary
@@ -285,7 +290,7 @@ exporting this data into third-party tools (e.g. spreadsheets).
 License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing sar data into PCP archive logs
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp-libs >= @package_version@ perl-PCP-LogImport >= @package_version@ sysstat
 
 %description import-sar2pcp
@@ -299,7 +304,7 @@ into standard PCP archive logs for replay with any PCP monitoring tool.
 License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing iostat data into PCP archive logs
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp-libs >= @package_version@ perl-PCP-LogImport >= @package_version@ sysstat
 
 %description import-iostat2pcp
@@ -313,7 +318,7 @@ into standard PCP archive logs for replay with any PCP monitoring tool.
 License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing spreadsheet data into PCP archive logs
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp-libs >= @package_version@ perl-PCP-LogImport >= @package_version@
 
 %description import-sheet2pcp
@@ -327,7 +332,7 @@ into standard PCP archive logs for replay with any PCP monitoring tool.
 License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing MTRG data into PCP archive logs
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp-libs >= @package_version@ perl-PCP-LogImport >= @package_version@
 
 %description import-mrtg2pcp
@@ -341,13 +346,14 @@ into standard PCP archive logs for replay with any PCP monitoring tool.
 License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing collectl log files into PCP archive logs
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp-libs >= %{version}-%{release}
 
 %description import-collectl2pcp
 Performance Co-Pilot (PCP) front-end tools for importing collectl data
 into standard PCP archive logs for replay with any PCP monitoring tool.
 
+%if "@enable_python@" == "true"
 #
 # python-pcp. This is the PCP library bindings for python.
 #
@@ -355,12 +361,31 @@ into standard PCP archive logs for replay with any PCP monitoring tool.
 License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python bindings and documentation
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp-libs = @package_version@
 
 %description -n python-pcp
-The python PCP module contains the language bindings for
-building Performance Metric API (PMAPI) tools using Python.
+This python PCP module contains the language bindings for
+Performance Metric API (PMAPI) monitor tools and Performance
+Metric Domain Agents (PMDA) collector tools written in Python.
+%endif
+
+%if "@enable_python3@" == "true"
+#
+# python3-pcp. This is the PCP library bindings for python.
+#
+%package -n python3-pcp
+License: GPLv2+
+Group: Development/Libraries
+Summary: Performance Co-Pilot (PCP) Python3 bindings and documentation
+URL: http://www.pcp.io
+Requires: pcp-libs = @package_version@
+
+%description -n python3-pcp
+This python PCP module contains the language bindings for
+Performance Metric API (PMAPI) monitor tools and Performance
+Metric Domain Agent (PMDA) collector tools written in Python3.
+%endif
 
 %if "@enable_qt@" == "true"
 #
@@ -370,7 +395,7 @@ building Performance Metric API (PMAPI) tools using Python.
 License: GPLv2+ and LGPLv2+ and LGPLv2+ with exceptions
 Group: Applications/System
 Summary: Visualization tools for the Performance Co-Pilot toolkit
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 
 %description -n pcp-gui
@@ -391,7 +416,7 @@ Group: Documentation
 BuildArch: noarch
 %endif
 Summary: Documentation and tutorial for the Performance Co-Pilot
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 
 %description -n pcp-doc
 Documentation and tutorial for the Performance Co-Pilot
@@ -407,12 +432,12 @@ PCP utilities and daemons, and the PCP graphical tools.
 #
 # pcp-pmda-papi
 #
-%if "@enable_papi@" == "enable_papi"
+%if "@pmda_papi@" == "true"
 %package pmda-papi
 License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for Performance API and hardware counters
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 Requires: papi-devel
 BuildRequires: papi-devel
@@ -422,7 +447,7 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting hardware counters statistics through PAPI (Perforamance API).
 %endif
 
-%if "@pmda_infiniband@" == "infiniband"
+%if "@pmda_infiniband@" == "true"
 #
 # pcp-pmda-infiniband
 #
@@ -430,7 +455,7 @@ collecting hardware counters statistics through PAPI (Perforamance API).
 License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for Infiniband HCAs and switches
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp-libs = @package_version@
 Requires: libibmad >= 1.1.7 libibumad >= 1.1.7
 BuildRequires: libibmad-devel >= 1.1.7 libibumad-devel >= 1.1.7
@@ -548,11 +573,11 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'iostat2pcp' >import_iostat2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'sheet2pcp' >import_sheet2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'mrtg2pcp' >import_mrtg2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'collectl2pcp' >import_collectl2pcp_files
-%if "@pmda_infiniband@" == "infiniband"
+%if "@pmda_infiniband@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'infiniband|pmdaib|pmdas/ib' >pmda_infiniband_files
 %endif
-%if "@enable_papi@" == "enable_papi"
-awk '{print $NF}' $DIST_MANIFEST | egrep 'papi' >pmda_papi_files
+%if "@pmda_papi@" == "true"
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdapapi|pmdas/papi' >pmda_papi_files
 %endif
 touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files
 
@@ -670,7 +695,7 @@ rm -f "$PCP_LOG_DIR/configs.sh"
 for daemon in pmcd pmie pmlogger pmproxy
 do
     save_configs_script >> "$PCP_LOG_DIR/configs.sh" "$PCP_SYSCONF_DIR/$daemon" \
-        /var/lib/pcp/config/$daemon /etc/$daemon /etc/pcp/$daemon /etc/sysconfig/$daemon
+        /var/lib/pcp/config/$daemon/control /etc/$daemon /etc/pcp/$daemon /etc/sysconfig/$daemon
 done
 exit 0
 
@@ -840,12 +865,12 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %files testsuite -f testsuite_files.rpm
 %defattr(-,pcpqa,pcpqa)
 
-%if "@enable_papi@" == "enable_papi"
+%if "@pmda_papi@" == "true"
 %files pmda-papi -f pmda_papi_files.rpm
 %defattr(-,root,root)
 %endif
 
-%if "@pmda_infiniband@" == "infiniband"
+%if "@pmda_infiniband@" == "true"
 %files pmda-infiniband -f pmda_infiniband_files.rpm
 %defattr(-,root,root)
 %endif
@@ -877,6 +902,12 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %files -n perl-PCP-LogSummary -f perl-pcp-logsummary.list
 %defattr(-,root,root)
 
+%if "@enable_python@" == "true"
 %files -n python-pcp -f python-pcp.list.rpm
 %defattr(-,root,root)
+%endif
 
+%if "@enable_python3@" == "true"
+%files -n python3-pcp -f python3-pcp.list.rpm
+%defattr(-,root,root)
+%endif

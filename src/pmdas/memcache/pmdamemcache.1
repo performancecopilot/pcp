@@ -1,0 +1,69 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2008 Aconex.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDAMEMCACHE 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdamemcache\f1 \- memcached performance metrics domain agent (PMDA)
+.SH DESCRIPTION
+This \s-1PMDA\s0 extracts performance data from memcached, a distributed
+memory caching daemon commonly used to improve web serving performance.
+A farm of memcached processes over multiple servers can be utilised by a single
+web application, increasing the total available object cache size, and
+decreasing the database load associated with smaller cache sizes.  This
+system is described in detail at http://www.danga.com/memcached.
+.SH INSTALLATION
+Configure \fBpmdamemcache\fR to extract the values from set of hosts
+used in the memcache farm.  These hosts can be listed in the
+\&\f(CW$PCP_PMDAS_DIR\fR/memcache/memcache.conf file, in the format (i.e.
+Perl array) described at the top of pmdamemcache.pl.  A custom
+refresh rate can also be configured using this mechanism.
+.PP
+      # cd $PCP_PMDAS_DIR/memcache
+.br
+      # [ edit memcache.conf ]
+.PP
+Once this is setup, you can access the names and values for the
+memcache performance metrics by doing the following as root:
+.PP
+      # cd $PCP_PMDAS_DIR/memcache
+.br
+      # ./Install
+.PP
+To uninstall, do the following as root:
+.PP
+      # cd $PCP_PMDAS_DIR/memcache
+.br
+      # ./Remove
+.PP
+\fBpmdamemcache\fR is launched by \fIpmcd\fR(1) and should never be executed 
+directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the 
+agent is installed or removed.
+.SH FILES
+.IP "\fB$PCP_PMDAS_DIR/memcache/memcache.conf\fR" 4
+optional configuration file listing monitored memcache instances
+.IP "\fB$PCP_PMDAS_DIR/memcache/Install\fR" 4 
+installation script for the \fBpmdamemcache\fR agent 
+.IP "\fB$PCP_PMDAS_DIR/memcache/Remove\fR" 4 
+undo installation script for the \fBpmdamemcache\fR agent 
+.IP "\fB$PCP_LOG_DIR/pmcd/memcache.log\fR" 4 
+default log file for error messages from \fBpmdamemcache\fR 
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fR are used to parameterize
+the file and directory names used by \fBPCP\fR. On each installation, the
+file \fB/etc/pcp.conf\fR contains the local values for these variables. 
+The \fB$PCP_CONF\fR variable may be used to specify an alternative 
+configuration file, as described in \fIpcp.conf\fR(5).
+.SH SEE ALSO
+.BR pmcd (1).

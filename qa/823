@@ -23,12 +23,7 @@ test $? -eq 0 || _notrun 'No server support for plain authentication'
 cleanup()
 {
     # restore any modified pmcd configuration files
-    for file in $PCP_SASLCONF_DIR/pmcd.conf
-    do
-        test -f $file.$seq || continue
-        $sudo rm -f $file
-        $sudo mv $file.$seq $file
-    done
+    _restore_config $PCP_SASLCONF_DIR/pmcd.conf
 
     $sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
     _wait_for_pmcd
@@ -50,10 +45,10 @@ _filter_listusers2()
 }
 
 # real QA test starts here
-$sudo mv $PCP_SASLCONF_DIR/pmcd.conf $PCP_SASLCONF_DIR/pmcd.conf.$seq
+_save_config $PCP_SASLCONF_DIR/pmcd.conf
 echo 'mech_list: plain' > $tmp.sasl
 echo "sasldb_path: $tmp.passwd.db" >> $tmp.sasl
-$sudo mv $tmp.sasl $PCP_SASLCONF_DIR/pmcd.conf
+$sudo cp $tmp.sasl $PCP_SASLCONF_DIR/pmcd.conf
 id pcp >/dev/null 2>&1 && $sudo chown pcp:pcp $PCP_SASLCONF_DIR/pmcd.conf
 
 echo "Creating temporary sasldb, add user running QA to it"

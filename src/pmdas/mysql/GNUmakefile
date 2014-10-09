@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2014 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,20 +18,13 @@ include $(TOPDIR)/src/include/builddefs
 
 IAM = mysql
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
-LSRCFILES = Install Remove pmda$(IAM).pl pmlogconf.summary migrate.conf README
+LDIRT = domain.h root pmns *.log
 
-ifneq ($(POD2MAN),)
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
-endif
-
-LDIRT = domain.h root pmns *.log $(MAN_PAGES)
 
 default: check_domain $(MAN_PAGES)
-
-pmda$(IAM).1: pmda$(IAM).pl
-	$(POD_MAKERULE)  
 
 include $(BUILDRULES)
 

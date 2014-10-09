@@ -67,8 +67,13 @@ check_instances()
 mkdir $tmp.$seq
 cd $tmp.$seq
 
-#PYCOLLECTL=pmcollectl.py	# developer version
-PYCOLLECTL=pmcollectl		# installed version
+PYCOLLECTL=pmcollectl.py	# developer version
+which $PYCOLLECTL >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+    PYCOLLECTL=pmcollectl	# installed version
+    which $PYCOLLECTL >/dev/null 2>&1 || _notrun "pmcollectl not installed"
+fi
+
 args="-c 2 -i 0.1"
 $PYCOLLECTL $args -sc | remove_extra_whitespace | tee -a $tmp.out 2>&1
 $PYCOLLECTL $args -sd | remove_extra_whitespace | tee -a $tmp.out 2>&1

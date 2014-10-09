@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2013 Red Hat.
+# Copyright (c) 2012-2014 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -17,34 +17,48 @@ include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS = pcp
 CFILES = pmapi.c pmda.c pmgui.c pmi.c mmv.c
-LSRCFILES = setup.py
 LDIRDIRT = build dist
-LDIRT = build_python
+LDIRT = build_python build_python3
 ifneq ($(CFLAGS_ABI),)
 ENV = CFLAGS=$(CFLAGS_ABI)
 else
 ENV =
 endif
 
-default: default_pcp build_python
+default default_pcp: build_python build_python3
 
-default_pcp: $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
-
-ifneq "$(PYTHON)" ""
+ifeq "$(ENABLE_PYTHON)" "true"
+PY_BUILD_OPTS = $(SETUP_PY_BUILD_OPTIONS)
+PY_INSTALL_OPTS = $(SETUP_PY_INSTALL_OPTIONS) --record=$(TOPDIR)/python-pcp.list
 build_python: setup.py $(CFILES)
-	$(ENV) $(PYTHON) setup.py build_ext $(SETUP_PY_BUILD_OPTIONS)
+	$(ENV) $(PYTHON) setup.py build_ext $(PY_BUILD_OPTS)
 	$(ENV) $(PYTHON) setup.py build
 	touch build_python
 
 install_python: default
-	$(PYTHON) setup.py install $(SETUP_PY_INSTALL_OPTIONS)
+	$(PYTHON) setup.py install $(PY_INSTALL_OPTS)
 	$(PYTHON_INSTALL)
 else
 build_python: 
 install_python: 
 endif
 
+ifeq "$(ENABLE_PYTHON3)" "true"
+PY3_BUILD_OPTS = $(SETUP_PY_BUILD_OPTIONS)
+PY3_INSTALL_OPTS = $(SETUP_PY_INSTALL_OPTIONS) --record=$(TOPDIR)/python3-pcp.list
+build_python3: setup.py $(CFILES)
+	$(ENV) $(PYTHON3) setup.py build_ext $(PY3_BUILD_OPTS)
+	$(ENV) $(PYTHON3) setup.py build
+	touch build_python3
+
+install_python3: default
+	$(PYTHON3) setup.py install $(PY3_INSTALL_OPTS)
+	$(PYTHON3_INSTALL)
+else
+build_python3:
+install_python3: 
+endif
+
 include $(BUILDRULES)
 
-install_pcp install: install_python
+install_pcp install: install_python install_python3

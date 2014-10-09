@@ -89,6 +89,18 @@ AC_ARG_WITH([qt],
     [do_qt=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-qt=$withval"],
     [do_qt=check])
 
+AC_ARG_WITH([python],
+    [AC_HELP_STRING([--with-python],
+                    [enable support for tools requiring Python (default is on)])],
+    [do_python=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-python=$withval"],
+    [do_python=check])
+
+AC_ARG_WITH([python3],
+    [AC_HELP_STRING([--with-python3],
+                    [enable support for tools requiring Python3 (default is on)])],
+    [do_python3=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-python3=$withval"],
+    [do_python3=check])
+
 AC_ARG_WITH([books],
     [AC_HELP_STRING([--with-books],
                     [enable building of the PCP books (default is off)])],
@@ -426,22 +438,77 @@ AC_OUTPUT(src/include/pcp/platform_defs.h)
 AC_CHECK_PROGS(GIT, git)
 AC_SUBST(GIT)
 
+dnl check if python available for the build
 AC_CHECK_PROGS(PYTHON, python)
 AC_SUBST(PYTHON)
 
-AC_MSG_CHECKING([python version])
-eval `$PYTHON -V 2>&1 | sed -n -e '/^Python /s///p' | awk -F. '{ printf "PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$1,$2,$3 }'`
-case "$PY_MAJOR.$PY_MINOR"
-in
-    0.*|1.*|2.0|2.1|2.3|2.4)
-	SETUP_PY_PRE_2_5=true
-	;;
-    *)
-	SETUP_PY_PRE_2_5=false
-	;;
-esac
-AC_SUBST(SETUP_PY_PRE_2_5)
-AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
+dnl check if python3 available for the build
+AC_CHECK_PROGS(PYTHON3, python3)
+AC_SUBST(PYTHON3)
+
+dnl check if python tools/packages wanted (need python >= 2.6)
+enable_python=false
+AS_IF([test "x$do_python" != "xno"], [
+    enable_python=true
+    if test -z "$PYTHON"
+    then
+	enable_python=false
+    else
+	AC_MSG_CHECKING([Python version])
+	eval `$PYTHON -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
+	if test "$PY_MAJOR" -lt 2; then
+	    echo
+	    echo WARNING: Python version 2.6 or later does not seem to be installed.
+	    echo Cannot proceed with the Python $PY_MAJOR installation found.
+	    enable_python=false
+	fi
+	if test "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -lt 6 ; then
+	    echo
+	    echo WARNING: Python version 2.$PY_MINOR is too old.
+	    echo Python version 2.6 or later is required for Python builds.
+	    enable_python=false
+	fi
+	AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
+    fi
+
+    if test "$do_python" != "check" -a "$enable_python" != "true"
+    then
+	AC_MSG_ERROR(cannot enable Python - no supported version found)
+    fi
+])
+AC_SUBST(enable_python)
+
+dnl check if python3 tools/packages wanted (need python >= 3.3)
+enable_python3=false
+AS_IF([test "x$do_python3" != "xno"], [
+    enable_python3=true
+    if test -z "$PYTHON3"
+    then
+	enable_python3=false
+    else
+	AC_MSG_CHECKING([Python3 version])
+	eval `$PYTHON3 -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
+	if test "$PY_MAJOR" -lt 3; then
+	    echo
+	    echo WARNING: Python version 3.3 or later does not seem to be installed.
+	    echo Cannot proceed with the Python $PY_MAJOR installation found.
+	    enable_python3=false
+	fi
+	if test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -lt 3 ; then
+	    echo
+	    echo WARNING: Python version 3.$PY_MINOR is too old.
+	    echo Python version 3.3 or later is required for Python builds.
+	    enable_python3=false
+	fi
+	AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
+    fi
+
+    if test "$do_python3" != "check" -a "$enable_python3" != "true"
+    then
+	AC_MSG_ERROR(cannot enable Python3 - no supported version found)
+    fi
+])
+AC_SUBST(enable_python3)
 
 qmake=$QMAKE
 enable_qt=false
@@ -458,23 +525,8 @@ AS_IF([test "x$do_qt" != "xno"], [
     then
 	enable_qt=false
     else
-	dnl newer qmake versions report
-	dnl QMake version 2.01a
-	dnl Using Qt version 4.8.6 in /usr/lib/x86_64-linux-gnu
-	dnl
-	dnl older qmake versions report
-	dnl Qmake version: 1.07a (Qt 3.3.6)
-	dnl
 	AC_MSG_CHECKING([Qt version])
-	eval `$qmake --version 2>&1 | sed -n -e '/Using Qt version/{
-s/Using Qt version //
-s/ .*//
-p
-}' -e '/Qmake .*(Qt /{
-s/Qmake .* (Qt //
-s/)//
-p
-}' | awk -F. '{ printf "QT_MAJOR=%d QT_MINOR=%d QT_POINT=%d\n",$1,$2,$3 }'`
+	eval `$qmake --version | awk '/Using Qt version/ { ver=4; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export QT_MAJOR=%d QT_MINOR=%d QT_POINT=%d\n",$major,$minor,$point }'`
 	if test "$QT_MAJOR" -lt 4; then
 	    echo
 	    echo WARNING: Qt version 4.4 or later does not seem to be installed.
@@ -503,27 +555,6 @@ p
 AC_SUBST(qt_release)
 AC_SUBST(enable_qt)
 AC_SUBST(qmake)
-
-AS_IF([test "x$do_papi" != "xno"], [
-
-    enable_papi=enable_papi
-
-    AC_CHECK_LIB(papi, PAPI_library_init,
-		      [papi_lib="-lpapi"],
-		      [enable_papi=false])
-    AC_CHECK_HEADERS([papi.h],, [enable_papi=false])
-    if test "$enable_papi" = "enable_papi"
-    then
-        AC_SUBST(papi_lib)
-	AC_SUBST(papi_CFLAGS)
-	AC_SUBST(enable_papi, $enable_papi)
-    fi
-])
-dnl    if test "$do_papi" != "check" -a "enable_papi" != "true"
-dnl    then
-dnl	AC_MSG_ERROR(cannot enable papi pmda, papi not found)
-dnl    fi
-
 
 dnl check if user wants their own C compiler
 cflags_abi=
@@ -1183,14 +1214,13 @@ fi
 AC_SUBST(lib_for_regex)
 
 PKG_CHECK_MODULES([SYSTEMD], [libsystemd-journal],
-                  [pmda_systemd=systemd], [pmda_systemd=])
+                  [pmda_systemd=true], [pmda_systemd=false])
 AC_SUBST(PMDA_SYSTEMD, $pmda_systemd)
 
-pmda_infiniband=
-if test "$do_infiniband" = "check" -o "$do_infiniband" = "yes"
-then
+pmda_infiniband=false
+AS_IF([test "x$do_infiniband" != "xno"], [
     AC_CHECK_HEADERS([infiniband/umad.h], [
-	AC_CHECK_HEADERS([infiniband/mad.h], [pmda_infiniband=infiniband], [])
+	AC_CHECK_HEADERS([infiniband/mad.h], [pmda_infiniband=true], [])
     ], [])
     savedLIBS=$LIBS
     IB_LIBS=""
@@ -1219,15 +1249,48 @@ then
 	then
 	    :
 	else
-	    pmda_infiniband=
+	    pmda_infiniband=false
 	fi
     else
-	pmda_infiniband=
+	pmda_infiniband=false
     fi
     LIBS=$savedLIBS
-    AC_SUBST(PMDA_INFINIBAND, $pmda_infiniband)
     AC_SUBST(IB_LIBS)
-fi
+])
+AC_SUBST(PMDA_INFINIBAND, $pmda_infiniband)
+
+pmda_papi=false
+AS_IF([test "x$do_papi" != "xno"], [
+    enable_papi=true
+
+    savedLIBS=$LIBS
+    AC_CHECK_LIB([papi], [PAPI_library_init],
+		 [papi_libs="-lpapi"],
+		 [enable_papi=false])
+    AC_CHECK_HEADERS([papi.h], [], [enable_papi=false])
+    if test "$do_papi" != "check" -a "$enable_papi" != "true"
+    then
+	AC_MSG_ERROR(PAPI is not installed, cannot enable the PAPI PMDA)
+    else
+	pmda_papi=$enable_papi
+    fi
+    LIBS=$savedLIBS
+    AC_SUBST(PAPI_LIBS, $papi_libs)
+])
+AC_SUBST(PMDA_PAPI, $pmda_papi)
+
+dnl Do you have RPM Package Manager libraries for pmdarpm?
+pmda_rpm=false
+savedLIBS=$LIBS
+AC_MSG_CHECKING([for rpmlib > 4.4.2])
+AC_COMPILE_IFELSE(
+   [AC_LANG_PROGRAM([[#include <rpm/header.h>]],
+                    [[(void)HEADERGET_EXT;]])],
+   [AC_MSG_RESULT([yes])
+    pmda_rpm=true],
+   [AC_MSG_RESULT([no])])
+AC_SUBST(PMDA_RPM,[$pmda_rpm])
+LIBS=$savedLIBS
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
@@ -2491,19 +2554,6 @@ AC_SUBST(HAVE_LIBMICROHTTPD,[$have_libmicrohttpd])
 dnl Do you have graphics libraries for pmwebapi?
 PKG_CHECK_MODULES([cairo], [cairo >= 1.2, cairo-ft >= 1.2, cairo-png >= 1.2], [have_cairo=1], [have_cairo=0])
 AC_SUBST(HAVE_CAIRO,[$have_cairo])
-
-dnl Do you have RPM Package Manager libraries for pmdarpm?
-savedLIBS=$LIBS
-AC_MSG_CHECKING([for rpmlib > 4.4.2])
-AC_COMPILE_IFELSE(
-   [AC_LANG_PROGRAM([[#include <rpm/header.h>]],
-                    [[(void)HEADERGET_EXT;]])],
-   [AC_MSG_RESULT([yes])
-    have_rpmlib=1],
-   [AC_MSG_RESULT([no])
-    have_rpmlib=0])
-AC_SUBST(HAVE_RPMLIB,[$have_rpmlib])
-LIBS=$savedLIBS
 
 dnl Do we have the prerequisites for pmmgr?
 AC_MSG_CHECKING([for pmmgr prerequisites])

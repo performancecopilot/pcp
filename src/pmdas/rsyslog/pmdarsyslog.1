@@ -1,0 +1,75 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2011 Aconex.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDARSYSLOG 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdarsyslog\f1 \- rsyslog (reliable and extended syslog) PMDA
+.SH DESCRIPTION
+\f3pmdarsyslog\f1 is a Performance Metrics Domain Agent (\s-1PMDA\s0)
+which exports metric values from the \fBrsyslogd\fR\|(8) server.
+Further details about rsyslog can be found at http://www.rsyslog.com/.
+.SH INSTALLATION
+If you want access to the names and values for the rsyslog performance
+metrics, do the following as root:
+.PP
+      # cd $PCP_PMDAS_DIR/rsyslog
+.br
+      # ./Install
+.PP
+To uninstall, do the following as root:
+.PP
+      # cd $PCP_PMDAS_DIR/rsyslog
+.br
+      # ./Remove
+.PP
+\fBpmdarsyslog\fR is launched by \fBpmcd\fR(1) and should never be executed 
+directly. The Install and Remove scripts notify \fBpmcd\fR(1) when the 
+agent is installed or removed.
+.PP
+In order to use this agent, rsyslog stats gathering must be enabled.
+This is done by adding the lines:
+.PP
+      $ModLoad impstats
+.br
+      $PStatsInterval 5       # log every 5 seconds
+.br
+      syslog.info             |/var/log/pcp/rsyslog/stats
+.PP
+to your \fIrsyslog.conf\fR\|(5) configuration file after installing the \s-1PMDA\s0.
+Take care to ensure the syslog.info messages do not get logged in any
+other file, as this could unexpectedly fill your filesystem.  Syntax
+useful for this is syslog.!=info for explicitly excluding these.
+.SH FILES
+.IP "\fB$PCP_LOG_DIR/rsyslog/stats\fR" 4
+named pipe containing statistics exported from rsyslog,
+usually created by the \s-1PMDA\s0 Install script.
+.IP "\fB$PCP_PMDAS_DIR/rsyslog/rsyslog.conf\fR" 4
+optional configuration file for \fBpmdarsyslog\fR
+.IP "\fB$PCP_PMDAS_DIR/rsyslog/Install\fR" 4 
+installation script for the \fBpmdarsyslog\fR agent 
+.IP "\fB$PCP_PMDAS_DIR/rsyslog/Remove\fR" 4 
+undo installation script for the \fBpmdarsyslog\fR agent 
+.IP "\fB$PCP_LOG_DIR/pmcd/rsyslog.log\fR" 4 
+default log file for error messages from \fBpmdarsyslog\fR 
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fR are used to parameterize
+the file and directory names used by \fBPCP\fR. On each installation, the
+file \fB/etc/pcp.conf\fR contains the local values for these variables. 
+The \fB$PCP_CONF\fR variable may be used to specify an alternative 
+configuration file, as described in \fIpcp.conf\fR(5).
+.SH SEE ALSO
+.BR pmcd (1)
+and
+.BR rsyslogd (1).

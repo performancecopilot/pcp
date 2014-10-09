@@ -17,6 +17,8 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
+test -x $PCP_BIN_DIR/pmiostat || _notrun "No pmiostat(1) installed"
+
 # real QA test starts here
 echo 'All devices'
 pmiostat -z --samples 5 --archive archives/dm-io

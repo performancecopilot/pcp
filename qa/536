@@ -17,6 +17,7 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf testarchive.* $tmp.*; exit \$status" 0 1 2 3 15
 
+which pmiostat >$seq.full 2>&1 || _notrun pmiostat not installed
 which collectl2pcp >$seq.full 2>&1 || _notrun collectl2pcp not installed
 
 C=./collectl
@@ -70,6 +71,9 @@ echo '## Testing per-CPU metrics'
 collectl2pcp -F $C/some_host.raw $TA
 pmval -z -r -t 10 -a $TA kernel.percpu.cpu.user'[cpu0]'
 awk '/cpu0/ {print "cpu0 raw msec value", $2 * 1000 / 100}' $C/some_host.raw
+
+echo '## Testing pmiostat'
+pmiostat -t 10 -a $TA
 
 # success, all done
 status=0

@@ -928,6 +928,7 @@ pmwebapi
 743 python local
 744 pmda.nvidia local
 745 pmda.nvidia local valgrind
+746 valgrind libpcp local
 748 pmlogrewrite pmda.mysql local
 749 pmcd local
 750 pmda.rpm local
@@ -966,6 +967,7 @@ pmwebapi
 840 avahi local
 841 pmda local
 842 python local
+843 pmda local python
 844 pmda.linux local
 861 pmcd pmda.pmcd local
 875 libpcp local valgrind
@@ -978,6 +980,7 @@ pmwebapi
 902 libpcp mem_leak valgrind event local
 903 pmda.papi local
 914 pmda.papi local
+919 pmlogger pmstat local
 922 derive pmie pmval local
 928 archive local
 929 logutil local
@@ -989,6 +992,7 @@ pmwebapi
 957 pmda.linux local valgrind
 958 archive local
 959 pmda.sample pmstore local
+960 pmda.ds389 local
 962 archive local
 966 secure local
 972 pmda.zswap dbpmda local

@@ -1,0 +1,48 @@
+QA output created by 960
+Waiting for pmcd to terminate ...
+
+=== ds389log agent installation ===
+You will need to choose an appropriate configuration for installation of
+the "ds389log" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Starting pmcd ... 
+Starting pmlogger ... 
+Check ds389log metrics have appeared ... N metrics and X values
+
+=== extract metric values ===
+ds389log.conns.badclose 1 VALUE
+ds389log.conns.cleanclose 1 VALUE
+ds389log.conns.peakconns 1 VALUE
+ds389log.conns.totalconns 1 VALUE
+ds389log.errors.error 1 VALUE
+ds389log.errors.noerror 1 VALUE
+ds389log.fd.fdhigh 1 VALUE
+ds389log.ops.adds 1 VALUE
+ds389log.ops.binds 1 VALUE
+ds389log.ops.comps 1 VALUE
+ds389log.ops.dels 1 VALUE
+ds389log.ops.modrdns 1 VALUE
+ds389log.ops.mods 1 VALUE
+ds389log.ops.searches 1 VALUE
+ds389log.ops.totalops 1 VALUE
+ds389log.ops.totalres 1 VALUE
+ds389log.searches.pagedsearches 1 VALUE
+ds389log.searches.unindexedsearches 1 VALUE
+
+=== remove ds389log agent ===
+Culling the Performance Metrics Name Space ...
+ds389log ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check ds389log metrics have gone away ... OK
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

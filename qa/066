@@ -28,8 +28,6 @@ rm -f $seq.full
 # real QA test starts here
 
 signal=$PCP_BINADM_DIR/pmsignal
-config=$PCP_PMCDCONF_PATH
-oconfig=$tmp.pmcd.config
 log=$PCP_PMCDLOG_PATH
 _needclean=true
 LOCALHOST=`hostname`
@@ -83,10 +81,7 @@ cleanup()
     if [ $_needclean ]
     then
 	$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
-	if [ -f $oconfig ]
-	then
-	    $sudo mv $oconfig $config
-	fi
+	_restore_config $PCP_PMCDCONF_PATH
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 	    && $sudo sh $tmp.cmd
 	echo "Restarting pmcd"
@@ -175,17 +170,17 @@ then
     exit
 fi
 
-cp $config $oconfig
+_save_config $PCP_PMCDCONF_PATH
 echo "+++ stopping pmcd +++" >>$seq.full
 $sudo $PCP_RC_DIR/pcp stop | tee -a $seq.full | _filter_pcp_stop
 $sudo $signal -a pmgadgets pmchart pmview >/dev/null 2>&1
-$sudo cp $tmp $config
+$sudo cp $tmp $PCP_PMCDCONF_PATH
 # try to dodge bind: Address already in use
 [ $PCP_PLATFORM = solaris ] && sleep 10
 echo "+++ starting pmcd +++" >>$seq.full
 $sudo $PCP_RC_DIR/pcp start | tee -a $seq.full | _filter_pcp_start
 echo "first config:"
-_myfilter_config  <$config
+_myfilter_config  <$PCP_PMCDCONF_PATH
 echo
 
 cat >>$tmp  <<End-of-File
@@ -196,9 +191,9 @@ allow $other2: all;
 ddiissallow misspelt: all;
 End-of-File
 
-$sudo cp $tmp $config
+$sudo cp $tmp $PCP_PMCDCONF_PATH
 echo "second config:"
-_myfilter_config <$config
+_myfilter_config <$PCP_PMCDCONF_PATH
 
 echo
 $sudo $signal -a -s HUP pmcd

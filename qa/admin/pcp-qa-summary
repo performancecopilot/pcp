@@ -299,7 +299,7 @@ $1 == "---"	{ heading()
 		}
 state == 0	{ host[nh] = $1; nh++; next }
 $1 != last	{ if (last != "---") {
-		      printf "%4.4s",last
+		      printf "%04d",last
 		      pct = 0
 		      for (i = 0; i < nh; i++) {
 			  if (fail[i] != " ") pct++
@@ -334,7 +334,7 @@ $1 == last	{ for (i = 0; i < nh; i++) {
     then
 	sed -e 2q <$tmp.mapout
 	sed -e 1,2d <$tmp.mapout \
-	| sort --key=2,2nr --key=1,1n
+	| sort --key=2,2nr --key=1,1n 
     else
 	cat $tmp.mapout
     fi \
@@ -348,7 +348,8 @@ $1 == last	{ for (i = 0; i < nh; i++) {
 	    num=`expr $num + 1`
 	fi
 	echo "$line"
-    done
+    done \
+    | sed -e 's/^0/ /'
     sed -n -e 1p -e 1q <$tmp.mapout
 fi
 
