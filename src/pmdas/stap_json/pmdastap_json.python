@@ -1,15 +1,20 @@
-#!/usr/bin/python
+# pylint: disable=too-many-public-methods, too-many-instance-attributes
+# pylint: disable=too-many-arguments
+'''
+Performance Metrics Domain Agent exporting systemtap JSON metrics.
+'''
 import json
 import jsonschema
+from jsonschema.exceptions import ValidationError
 import collections
 from pcp.pmda import PMDA, pmdaMetric
 import cpmapi as c_api
 from pcp.pmapi import pmUnits
 from ctypes import c_int, POINTER, cast
 import os
-import traceback
 
 class Metric(object):
+    ''' Metric information class '''
     def __init__(self, name_prefix, name, cluster, idx, pmda):
         self.name = name
         self.full_name = "%s.%s" % (name_prefix, name)
@@ -24,6 +29,10 @@ class Metric(object):
         self.indom = None
 
     def create(self):
+        '''
+        Create the metric. Note that the metric will still need to be
+        added to the PMDA.
+        '''
         self.pmid = self.__pmda.pmid(self.cluster, self.idx)
         # FIXME: we'll need to handle units/scale at some point...
         if self.indom != None:
@@ -37,6 +46,7 @@ class Metric(object):
     # pmda.{clear,reset}_metrics() functions clear out *all* metrics.
 
 class Indom(object):
+    ''' Indom (instance domain) information class '''
     def __init__(self, idx, pmda):
         self.__pmda = pmda
         self.idx = idx
@@ -44,6 +54,7 @@ class Indom(object):
         self.values = {}
 
     def add_value(self, name, value):
+        ''' Add a value to the indom '''
         # PMDA.replace_indom() wants a dictionary, indexed by
         # indom string value. PMDA.replace_indom() doesn't really
         # care what is stored at that string value. We're storing the
@@ -51,6 +62,7 @@ class Indom(object):
         self.values[name] = c_int(value)
 
     def lookup_inst(self, inst):
+        ''' Lookup an array index based on the instance ID '''
         voidp = self.__pmda.inst_lookup(self.obj, inst)
         if voidp == None:
             return None
@@ -58,6 +70,10 @@ class Indom(object):
         return valuep.contents.value
 
 class SystemtapModule(object):
+    '''
+    Systemtap Module class. Contains all metrics and data needed by a
+    single systemtap module.
+    '''
     def __init__(self, path, cluster, pmda):
         self.__path = path
         self.cluster = cluster
@@ -72,41 +88,48 @@ class SystemtapModule(object):
         self.__indoms = {}
 
     def __load_json_schema(self):
-        # Load JSON schema
+        ''' Load the JSON schema file for this systemtap module. '''
         self.__schema = {}
         try:
             fobj = open(self.__schema_path)
-        except:
-            self.__pmda.log("Couldn't open JSON schema")
-            self.__pmda.log(traceback.format_exc())
+        except IOError as error:
+            self.__pmda.log("Couldn't open JSON schema file: %s"
+                            % self.__schema_path)
+            self.__pmda.log(error)
             return
-        #except Exception, e:
-        #    self.__pmda.log("Couldn't open file: %s" % e)
-        #    return
         try:
             self.__schema = json.load(fobj,
-                                     object_pairs_hook=collections.OrderedDict)
-        except Exception, e:
-            self.__pmda.log("Couldn't parse JSON schema: %s" % e)
+                                      object_pairs_hook=collections.OrderedDict)
+        except ValueError as error:
+            self.__pmda.log("Couldn't parse JSON schema from %s"
+                            % self.__schema_path)
+            self.__pmda.log(error)
         fobj.close()
 
     def __load_json_data(self):
-        # Load JSON data
+        ''' Load the JSON data file for this systemtap module. '''
         self.__json_data = {}
         try:
             fobj = open(self.__data_path)
-        except Exception, e:
-            self.__pmda.log("Couldn't open file: %s" % e)
+        except IOError as error:
+            self.__pmda.log("Couldn't open JSON data file: %s"
+                            % self.__schema_path)
+            self.__pmda.log(error)
             return
         try:
             self.__json_data \
                 = json.load(fobj, object_pairs_hook=collections.OrderedDict)
-        except Exception, e:
-            self.__pmda.log("Couldn't parse JSON data: %s" % e)
+        except ValueError as error:
+            self.__pmda.log("Couldn't parse JSON data from %s"
+                            % self.__schema_path)
+            self.__pmda.log(error)
         fobj.close()
 
     def load(self):
-        # Try loading the JSON schema/data.
+        '''
+        Load the JSON schema and data files for this systemtap module,
+        then create metrics based on the JSON.
+        '''
         self.__pmda.log("Loading module %s" % self.__root_name)
         self.__load_json_schema()
         self.__load_json_data()
@@ -114,24 +137,23 @@ class SystemtapModule(object):
         # Make sure the data fits the schema.
         try:
             jsonschema.validate(self.__json_data, self.__schema)
-        except Exception, e:
-            self.__pmda.log("JSON schema/data don't match: %s" % e)
+        except ValidationError as error:
+            self.__pmda.log("JSON schema/data don't match")
+            self.__pmda.log(error)
             self.cleanup()
             return
 
         # Update the indom list.
-        try:
-            self.__refresh_indoms()
-        except Exception, e:
-            self.__pmda.log("Couldn't refresh indoms: %s" % e)
+        self.__refresh_indoms()
 
         # Parse the schema header, creating metrics as needed.
         try:
             self.__parse_schema()
-        except Exception, e:
-            self.__pmda.log("Couldn't parse JSON schema: %s" % e)
+        except TypeError as error:
+            self.__pmda.log("Couldn't parse JSON schema: %s" % error)
 
     def refresh_json_data(self):
+        ''' Reload the JSON data and update indoms. '''
         # Just loading the JSON data.
         self.__load_json_data()
 
@@ -139,11 +161,13 @@ class SystemtapModule(object):
         self.__refresh_indoms()
 
     def cleanup(self):
+        ''' Cleanup module data. '''
         self.__schema = {}
         self.__json_data = {}
         self.__metrics = {}
 
     def __refresh_indoms(self):
+        ''' Refresh the list of indoms. '''
         # Notice we never delete indoms, we just keep adding.
         for array_name in self.__indoms.keys():
             index = 0
@@ -153,18 +177,20 @@ class SystemtapModule(object):
                 for item in self.__json_data['data'][array_name]:
                     self.__indoms[array_name].add_value(item['__id'], index)
                     index += 1
-            except:
+            except KeyError:
                 continue
             self.__pmda.replace_indom(self.__indoms[array_name].obj,
                                       self.__indoms[array_name].values)
 
     def __add_metric(self, metric_info):
+        ''' Create and add a metric to the pmda. '''
         metric_info.create()
         self.__pmda.add_metric(metric_info.full_name, metric_info.obj,
                                metric_info.desc)
         self.__metrics[metric_info.idx] = metric_info
 
     def __parse_array_schema(self, array_name, properties):
+        ''' Parse a JSON array schema.  '''
         # First process the array schema "header" information.
         array_properties = None
         for (key, value) in properties.items():
@@ -236,8 +262,8 @@ class SystemtapModule(object):
                 # For everything else, raise an error.
                 else:
                     raise \
-                        RuntimeError("Schema for '%s' has an unknown attribute '%s'"
-                                     % (name, key))
+                        RuntimeError("Schema for '%s' has an unknown"
+                                     " attribute '%s'" % (name, key))
 
             # Make sure we have everything we need.
             if metric_info.type == c_api.PM_TYPE_UNKNOWN:
@@ -265,15 +291,15 @@ class SystemtapModule(object):
             # 'type' (required): Just sanity check it.
             if key == "type":
                 if not isinstance(value, unicode) or value != "object":
-                    raise TypeError
+                    raise TypeError("Invalid schema header 'type' value")
             # 'title' (optional): Type check it.
             elif key == "title":
                 if not isinstance(value, unicode):
-                    raise TypeError
+                    raise TypeError("Invalid schema 'title' value")
             # 'description' (optional): Type check it.
             elif key == "description":
                 if not isinstance(value, unicode):
-                    raise TypeError
+                    raise TypeError("Invalid schema 'description' value")
             # 'additionalProperties' (optional): Ignore it.
             elif key == "additionalProperties":
                 # Do nothing.
@@ -281,37 +307,38 @@ class SystemtapModule(object):
             # 'properties' (required): Type check it and save for later.
             elif key == "properties":
                 if not isinstance(value, dict):
-                    raise TypeError
+                    raise TypeError("Invalid schema 'properties' value")
                 data_header = value
             # For everything else, raise an error.
             else:
-                raise RuntimeError("Unknown attribute '%s'" % key)
+                raise TypeError("Unknown attribute '%s'" % key)
 
         # If we're here, we know the "header" was reasonable. Now process
         # "properties", which is the data "header".
         if not data_header:
-            raise RuntimeError("Schema has no 'properties' attribute")
+            raise TypeError("Schema has no 'properties' attribute")
         data_properties = None
         for (key, value) in data_header.items():
             # 'generation' (required): Just sanity check it.
             if key == "generation":
                 if not isinstance(value, dict):
-                    raise TypeError
+                    raise TypeError("Invalid schema 'generation' value")
             # 'data' (required): Type check it.
             elif key == "data":
                 if not isinstance(value, dict) \
                    or not value.has_key("properties") \
                    or not isinstance(value["properties"], dict):
-                    raise TypeError
+                    raise TypeError("Invalid schema 'data' value")
                 data_properties = value["properties"]
             # For everything else, raise an error.
             else:
-                raise RuntimeError("Unknown attribute '%s'" % key)
+                raise TypeError("Unknown attribute '%s'" % key)
 
         # If we're here, we know the data "header" was reasonable. Now process
         # "properties.data.properties", which is the real data description.
         if not data_properties:
-            raise RuntimeError("Schema has no 'properties.data.properties' attribute")
+            raise TypeError("Schema has no 'properties.data.properties'"
+                            " attribute")
         for (name, attributes) in data_properties.items():
             metric_info = Metric("%s.%s" % (self.__pmda.pmda_name,
                                             self.__root_name),
@@ -323,7 +350,7 @@ class SystemtapModule(object):
                 # 'type' (required): Sanity check it and save it.
                 if key == 'type':
                     if not isinstance(value, unicode):
-                        raise TypeError
+                        raise TypeError("Invalid schema 'type' value")
                     if value == 'string':
                         metric_info.type = c_api.PM_TYPE_STRING
                         metric_info.sem = c_api.PM_SEM_INSTANT
@@ -343,7 +370,7 @@ class SystemtapModule(object):
                 # 'description' (optional): Type check it and save it.
                 elif key == 'description':
                     if not isinstance(value, unicode):
-                        raise TypeError
+                        raise TypeError("Invalid schema 'description' value")
                     metric_info.desc = value
                 # 'additionalProperties' (optional): Ignore it.
                 elif key == "additionalProperties":
@@ -355,8 +382,8 @@ class SystemtapModule(object):
                     pass
                 elif key == "items":
                     if metric_info.type != c_api.PM_TYPE_NOSUPPORT:
-                        raise RuntimeError("Schema has an 'items' item for non-array '%s'"
-                                           % name)
+                        raise TypeError("Schema has an 'items' item"
+                                        " for non-array '%s'" % name)
 
                     # If we're here, we're processing an array's
                     # schema. For arrays, we have to create metrics for
@@ -365,19 +392,20 @@ class SystemtapModule(object):
                     self.__parse_array_schema(name, value)
                 # For everything else, raise an error.
                 else:
-                    raise RuntimeError("Schema for '%s' has an unknown attribute '%s'"
-                                       % (name, key))
+                    raise TypeError("Schema for '%s' has an unknown"
+                                    " attribute '%s'" % (name, key))
 
             # Make sure we have everything we need.
             if metric_info.type == c_api.PM_TYPE_UNKNOWN:
-                raise RuntimeError("Schema for '%s' has no 'type' attribute"
-                                   % name)
+                raise TypeError("Schema for '%s' has no 'type' attribute"
+                                % name)
 
             # Add the metric.
             if metric_info.type != c_api.PM_TYPE_NOSUPPORT:
                 self.__add_metric(metric_info)
 
     def fetch(self, item, inst):
+        ''' Fetch value for this item and instance.  '''
         if not self.__metrics.has_key(item):
             self.__pmda.log("Module %s has no item %d instance %d"
                             % (self.__root_name, item, inst))
@@ -397,23 +425,28 @@ class SystemtapModule(object):
             (array, metric) = metric_info.name.split('.', 2)
             try:
                 return [self.__json_data['data'][array][array_index][metric], 1]
-            except:
+            except KeyError:
                 pass
         # Handle single-valued metrics.
         else:
             try:
                 return [self.__json_data['data'][metric_info.name], 1]
-            except:
+            except KeyError:
                 pass
         self.__pmda.log("Module %s couldn't fetch value for item %d instance %d"
                         % (self.__root_name, item, inst))
         return [c_api.PM_ERR_TYPE, 0]
 
     def refresh_metrics(self):
-        for (idx, metric) in self.__metrics.items():
+        '''
+        Refresh metrics by re-adding all metrics for this module to
+        the PMDA.
+        '''
+        for (dummy, metric) in self.__metrics.items():
             self.__pmda.add_metric(metric.full_name, metric.obj, metric.desc)
 
-class Stap_json_PMDA(PMDA):
+class StapJsonPMDA(PMDA):
+    ''' systemtap JSON PMDA class '''
     def __init__(self, pmda_name, domain):
         self.pmda_name = pmda_name
         PMDA.__init__(self, self.pmda_name, domain)
@@ -431,17 +464,19 @@ class Stap_json_PMDA(PMDA):
         # Load all the schemas and data.
         self.modules_by_root = {}
         self.modules_by_cluster = {}
-        self.load_all_json()
+        self.__load_all_json()
 
         self.set_fetch(self.__fetch)
         self.set_fetch_callback(self.__fetch_callback)
-        self.set_store_callback(self.__store_callback)
         if self.debug:
             self.log("__init__ finished")
 
     def __add_static_metrics(self):
+        '''
+        Create all the static metrics (not from a systemtap module).
+        '''
         # Create our 'nmodules' metric.
-        metric_info = Metric(self.pmda_name, 'nmodules', 0, 0, self) 
+        metric_info = Metric(self.pmda_name, 'nmodules', 0, 0, self)
         metric_info.type = c_api.PM_TYPE_64
         metric_info.sem = c_api.PM_SEM_COUNTER
         metric_info.desc = 'Number of modules'
@@ -451,7 +486,7 @@ class Stap_json_PMDA(PMDA):
         self.__metrics[metric_info.idx] = metric_info
 
         # Create out 'debug' metric.
-        metric_info = Metric(self.pmda_name, 'debug', 0, 1, self) 
+        metric_info = Metric(self.pmda_name, 'debug', 0, 1, self)
         metric_info.type = c_api.PM_TYPE_64
         metric_info.sem = c_api.PM_SEM_INSTANT
         metric_info.desc = 'Debug logging state'
@@ -460,7 +495,11 @@ class Stap_json_PMDA(PMDA):
                         metric_info.desc)
         self.__metrics[metric_info.idx] = metric_info
 
-    def load_all_json(self):
+    def __load_all_json(self):
+        '''
+        Walk the filesystem and load the JSON schema/data for every
+        module found.
+        '''
         if self.debug:
             self.log("load_all_json entry")
         modules_seen = {}
@@ -479,9 +518,13 @@ class Stap_json_PMDA(PMDA):
         if self.debug:
             self.log("load_all_json exit")
 
-    def load_all_json_data(self):
+    def __load_all_json_data(self):
+        '''
+        Walk the filesystem and refresh the JSON data for every module
+        found.
+        '''
+        # FIXME: why do we need 'load_all_json()' and 'load_all_json_data()'?
         modules_seen = {}
-        refresh_metrics = 0
         for root, dummy, files in os.walk('/proc/systemtap'):
             # Make sure we have both of the files we're looking for
             if 'schema' in files and 'data' in files:
@@ -492,7 +535,6 @@ class Stap_json_PMDA(PMDA):
                         = self.modules_by_root[root]
                     self.cluster_idx += 1
                     self.modules_by_root[root].load()
-                    refresh_metrics = 1
                 else:
                     self.modules_by_root[root].refresh_json_data()
                 modules_seen[root] = 1
@@ -501,7 +543,7 @@ class Stap_json_PMDA(PMDA):
         ''' Called once per "fetch" PDU, before callbacks '''
         if self.debug:
             self.log("**** fetch *****")
-        self.load_all_json_data()
+        self.__load_all_json_data()
         if self.debug:
             self.log("**** fetch exit ****")
 
@@ -526,14 +568,6 @@ class Stap_json_PMDA(PMDA):
         module = self.modules_by_cluster[cluster]
         return module.fetch(item, inst)
 
-    def __store_callback(self, cluster, item, inst, val):
-        '''
-        Store callback, executed when a request to write to a metric
-        happens. Returns a single value.
-        '''
-        # Since we don't support storing values, always fail.
-        return c_api.PM_ERR_PERMISSION
-
 if __name__ == '__main__':
     #os.environ["PCP_PYTHON_DEBUG"] = "ALL"
-    Stap_json_PMDA('stap_json', 132).run()
+    StapJsonPMDA('stap_json', 132).run()
