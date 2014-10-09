@@ -728,24 +728,23 @@ setup_eventset()
 {
     int retval = 0;
     if ((retval = PAPI_multiplex_init()) != PAPI_OK) {
-	__pmNotifyErr(LOG_ERR, "Could not init multiplexing (%s)\n", PAPI_strerror(retval));
+	handle_papi_error(retval);
 	return PM_ERR_GENERIC;
     }
-    retval = PAPI_set_domain(PAPI_DOM_ALL);
-    if (retval != PAPI_OK) {
-	__pmNotifyErr(LOG_DEBUG, "Cannot set the domain to PAPI_DOM_ALL.\n");
+    if ((retval = PAPI_set_domain(PAPI_DOM_ALL)) != PAPI_OK) {
+	handle_papi_error(retval);
 	return PM_ERR_GENERIC;
     }
-    if (PAPI_create_eventset(&EventSet) != PAPI_OK) {
-	__pmNotifyErr(LOG_ERR, "PAPI_create_eventset error!\n");
+    if ((retval = PAPI_create_eventset(&EventSet)) != PAPI_OK) {
+	handle_papi_error(retval);
 	return PM_ERR_GENERIC;
     }
-    if ((retval = PAPI_assign_eventset_component(EventSet, 0))) {
-	__pmNotifyErr(LOG_ERR, "Could not assign eventset component. %s\n", PAPI_strerror(retval));
+    if ((retval = PAPI_assign_eventset_component(EventSet, 0)) != PAPI_OK) {
+	handle_papi_error(retval);
 	return PM_ERR_GENERIC;
     }
     if ((retval = PAPI_set_multiplex(EventSet)) != PAPI_OK) {
-	__pmNotifyErr(LOG_ERR, "Could not turn on eventset multiplexing. %s %d", PAPI_strerror(retval), retval);
+	handle_papi_error(retval);
 	return PM_ERR_GENERIC;
     }
     return 0;
