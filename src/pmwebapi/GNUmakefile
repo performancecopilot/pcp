@@ -15,25 +15,34 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-CMDTARGET = pmwebd$(EXECSUFFIX)
+CXXMDTARGET = pmwebd$(EXECSUFFIX)
 HFILES = pmwebapi.h
-CFILES	= main.c util.c pmwebapi.c pmresapi.c
+CXXFILES = main.cxx pmwebapi.cxx pmresapi.cxx pmgraphite.cxx util.cxx
+LSRCFILES = rc_pmwebd pmwebd.options
 
-LLDLIBS = $(PCPLIB) -lmicrohttpd
+LLDLIBS = $(PCPLIB) $(LIB_FOR_LIBMICROHTTPD) $(LIB_FOR_PTHREADS) 
 LDIRT = pmwebd.log pmwebd.service
 
+LCFLAGS += $(LIBMICROHTTPDCFLAGS)
 LCFLAGS += -Wextra
 LCFLAGS += $(PIECFLAGS)
 LLDFLAGS += $(PIELDFLAGS)
 
-SUBDIRS = jsdemos
+SUBDIRS =
 
 default:	build-me
 
+$(OBJECTS): $(HFILES)
+
 include $(BUILDRULES)
 
+ifeq "$(HAVE_CAIRO)" "1"
+LLDLIBS += $(LIB_FOR_CAIRO)
+LCFLAGS += -DHAVE_CAIRO
+endif
+
 ifeq "$(HAVE_LIBMICROHTTPD)" "1"
-build-me:	$(CMDTARGET) pmwebd.service
+build-me:	$(CXXMDTARGET) pmwebd.service
 
 pmwebd.service:	pmwebd.service.in
 	$(SED) -e 's;@path@;'$(PCP_RC_DIR)';' $< > $@
@@ -45,8 +54,9 @@ install:	default
 ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmwebd.service $(PCP_SYSTEMDUNIT_DIR)/pmwebd.service
 endif
-	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
+	$(INSTALL) -m 755 $(CXXMDTARGET) $(PCP_BINADM_DIR)/$(CXXMDTARGET)
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmwebd
+	find jsdemos -type f -print | xargs "-I{}" $(INSTALL) -m 644 {} $(PCP_SHARE_DIR)/{}
 else
 build-me:
 install:
@@ -61,3 +71,22 @@ install_pcp :: install
 
 install_pcp :: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
+
+
+clean::
+	rm -f *.gcov *.gcda *.gcno
+
+gcovbuild:
+	$(MAKE) clean
+	$(MAKE) CFLAGS_OPT="-fprofile-arcs -ftest-coverage -g" PIECFLAGS= PIELDFLAGS=
+	@echo
+	@echo
+	@echo Test now
+	@echo Then run: make gcov
+
+gcov:
+	gcov -r -f *.cxx *.h
+
+indent:
+	# indent -nhnl -l400 $(CXXFILES) $(HFILES)
+	astyle  -A10 -n -xd -v -H -U -xy -xC100 $(CXXFILES) $(HFILES)

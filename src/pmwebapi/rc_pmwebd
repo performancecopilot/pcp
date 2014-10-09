@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2014 Red Hat.
 # Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -228,30 +228,40 @@ Error: pmwebd control file "$PCP_PMWEBDCONF_PATH" is missing, cannot start pmweb
 
 	    $ECHO $PCP_ECHO_N "Starting pmwebd ..." "$PCP_ECHO_C"
 
-	    # options file processing ...
-	    # only consider lines which start with a hyphen
-	    # get rid of the -f option
-	    # ensure multiple lines concat onto 1 line
-	    OPTS=`sed <$PMWEBDOPTS 2>/dev/null \
-			    -e '/^[^-]/d' \
-			    -e 's/^/ /' \
-			    -e 's/$/ /' \
-			    -e 's/ -f / /g' \
-			    -e 's/^ //' \
-			    -e 's/ $//' \
-		    | tr '\012' ' ' `
+            # Decide whether this is an old- or new-style configuration
+            # file, judging by the presence of the OPTIONS= string.
+            if grep -q OPTIONS= $PMWEBDOPTS; then
+                # Source options files, allow $var expansions etc.
+                . $PMWEBDOPTS
+            else
+                # old options file processing ...
+                # only consider lines which start with a hyphen
+                # get rid of the -f option
+                # ensure multiple lines concat onto 1 line
+                OPTIONS=`sed <$PMWEBDOPTS 2>/dev/null \
+                                -e '/^[^-]/d' \
+                                -e 's/^/ /' \
+                                -e 's/$/ /' \
+                                -e 's/ -f / /g' \
+                                -e 's/^ //' \
+                                -e 's/ $//' \
+                        | tr '\012' ' ' `
 
-	    # environment stuff
-	    #
-	    eval `sed -e 's/"/\\"/g' $PMWEBDOPTS \
-	    | awk -F= '
-BEGIN			{ exports="" }
-/^[A-Z]/ && NF == 2	{ exports=exports" "$1
-			  printf "%s=${%s:-\"%s\"}\n", $1, $1, $2
-			}
-END			{ if (exports != "") print "export", exports }'`
+                # formerly implicit
+                OPTIONS="$OPTIONS -l pmwebd.log"
 
-	    $PMWEBD $OPTS
+                # environment stuff
+                #
+                eval `sed -e 's/"/\\"/g' $PMWEBDOPTS \
+                | awk -F= '
+     BEGIN                  { exports="" }
+     /^[A-Z]/ && NF == 2    { exports=exports" "$1
+                              printf "%s=${%s:-\"%s\"}\n", $1, $1, $2
+                            }
+     END                    { if (exports != "") print "export", exports }'`
+            fi
+
+	    $PMWEBD $OPTIONS &
 	    $RC_STATUS -v
 
 	    $PCP_BINADM_DIR/pmpost "start pmwebd from $pmprog"

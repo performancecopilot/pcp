@@ -1,0 +1,254 @@
+{
+    "title": "",
+    "services": {
+        "filter": {
+            "list": [],
+            "time": {
+                "from": "now-2d",
+                "to": "now"
+            }
+        }
+    },
+    "rows": [
+        {
+            "title": "",
+            "height": "150px",
+            "editable": true,
+            "collapse": false,
+            "collapsable": true,
+            "panels": [
+                {
+                    "error": false,
+                    "span": 12,
+                    "editable": true,
+                    "type": "text",
+                    "loadingEditor": false,
+                    "mode": "markdown",
+                    "content": "####Thank you for trying out [PCP](http://www.performancecopilot.org/)+[Grafana](https://github.com/torkelo/grafana)!\n\n- All times are in UTC\n\n- Click on graph title, then click edit to enter metric selector/graph editor.  Click again on edit to exit editor.",
+                    "style": {},
+                    "title": " "
+                }
+            ],
+            "notice": false
+        },
+        {
+            "title": "demo",
+            "height": "200px",
+            "editable": true,
+            "collapse": false,
+            "collapsable": true,
+            "panels": [
+                {
+                    "span": 12,
+                    "editable": true,
+                    "type": "graphite",
+                    "x-axis": true,
+                    "y-axis": true,
+                    "scale": 1,
+                    "y_formats": ["short", "short"],
+                    "grid": {
+                        "max": null,
+                        "min": null
+                    },
+                    "resolution": 100,
+                    "lines": true,
+                    "fill": 1,
+                    "linewidth": 2,
+                    "points": false,
+                    "pointradius": 5,
+                    "bars": false,
+                    "stack": false,
+                    "spyable": true,
+                    "options": false,
+                    "legend": false,
+                    "interactive": true,
+                    "legend_counts": true,
+                    "timezone": "browser",
+                    "percentage": false,
+                    "zerofill": true,
+                    "nullPointMode": "connected",
+                    "steppedLine": false,
+                    "tooltip": {
+                        "value_type": "cumulative"
+                    },
+                    "targets": [
+                        {
+                            "target": "*.kernel.all.load.1 minute"
+                        }
+                    ],
+                    "aliasColors": {},
+                    "aliasYAxis": {},
+                    "title": "all archives kernel.all.load.1 minute"
+                }
+            ],
+            "notice": false
+        },
+        {
+            "title": "demo2",
+            "height": "200px",
+            "editable": true,
+            "collapse": false,
+            "collapsable": true,
+            "panels": [
+                {
+                    "span": 12,
+                    "editable": true,
+                    "type": "graphite",
+                    "x-axis": true,
+                    "y-axis": true,
+                    "scale": 1,
+                    "y_formats": ["short", "short"],
+                    "grid": {
+                        "max": null,
+                        "min": null
+                    },
+                    "resolution": 100,
+                    "lines": true,
+                    "fill": 1,
+                    "linewidth": 2,
+                    "points": false,
+                    "pointradius": 5,
+                    "bars": false,
+                    "stack": false,
+                    "spyable": true,
+                    "options": false,
+                    "legend": false,
+                    "interactive": true,
+                    "legend_counts": true,
+                    "timezone": "browser",
+                    "percentage": false,
+                    "zerofill": true,
+                    "nullPointMode": "connected",
+                    "steppedLine": false,
+                    "tooltip": {
+                        "value_type": "cumulative"
+                    },
+                    "targets": [
+                        {
+                            "target": "*.network.interface.*.bytes.*"
+                        }
+                    ],
+                    "aliasColors": {},
+                    "aliasYAxis": {},
+                    "title": "all archives network.interface.*.bytes.*"
+                }
+            ],
+            "notice": false
+        },
+        {
+            "title": "demo3",
+            "height": "200px",
+            "editable": true,
+            "collapse": false,
+            "collapsable": true,
+            "panels": [
+                {
+                    "span": 12,
+                    "editable": true,
+                    "type": "graphite",
+                    "x-axis": true,
+                    "y-axis": true,
+                    "scale": 1,
+                    "y_formats": ["short", "short"],
+                    "grid": {
+                        "max": null,
+                        "min": null
+                    },
+                    "resolution": 100,
+                    "lines": true,
+                    "fill": 1,
+                    "linewidth": 2,
+                    "points": false,
+                    "pointradius": 5,
+                    "bars": false,
+                    "stack": false,
+                    "spyable": true,
+                    "options": false,
+                    "legend": false,
+                    "interactive": true,
+                    "legend_counts": true,
+                    "timezone": "browser",
+                    "percentage": false,
+                    "zerofill": true,
+                    "nullPointMode": "connected",
+                    "steppedLine": false,
+                    "tooltip": {
+                        "value_type": "cumulative"
+                    },
+                    "targets": [
+                        {
+                            "target": "*.disk.all.read_bytes"
+                        },
+                        {
+                            "target": "*.disk.all.write_bytes"
+                        }
+                    ],
+                    "aliasColors": {},
+                    "aliasYAxis": {},
+                    "title": "all archives disk.all kbytes"
+                }
+            ],
+            "notice": false
+        }
+    ],
+    "editable": true,
+    "failover": false,
+    "panel_hints": true,
+    "style": "dark",
+    "pulldowns": [
+        {
+            "type": "filtering",
+            "collapse": false,
+            "notice": false,
+            "enable": false
+        }
+    ],
+    "nav": [
+        {
+            "type": "timepicker",
+            "collapse": false,
+            "notice": false,
+            "enable": true,
+            "status": "Stable",
+            "time_options": [
+                "5m",
+                "15m",
+                "1h",
+                "6h",
+                "12h",
+                "24h",
+                "2d",
+                "7d",
+                "30d"
+            ],
+            "refresh_intervals": [
+                "5s",
+                "10s",
+                "30s",
+                "1m",
+                "5m",
+                "15m",
+                "30m",
+                "1h",
+                "2h",
+                "1d"
+            ],
+            "now": true
+        }
+    ],
+    "loader": {
+        "save_gist": false,
+        "save_elasticsearch": false,
+        "save_local": true,
+        "save_default": false,
+        "save_temp": false,
+        "save_temp_ttl_enable": true,
+        "save_temp_ttl": "30d",
+        "load_gist": false,
+        "load_elasticsearch": false,
+        "load_elasticsearch_size": 20,
+        "load_local": true,
+        "hide": false
+    },
+    "refresh": "5m"
+}
