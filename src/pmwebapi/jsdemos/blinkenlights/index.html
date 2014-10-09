@@ -1,0 +1,129 @@
+<html>
+  <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+  <head>
+    <link rel="stylesheet" href="../jquery-ui-themes-1.10.2/themes/humanity/jquery-ui.css">
+    <script type="text/javascript" src="../jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../jquery-ui-1.10.2.js"></script>
+    <script type="text/javascript" src="blinkenlights.js"></script>
+    <script type="text/javascript">
+      /* Query string handling */
+      var qs = (function(a) {
+        if (a == "") return {};
+        var b = {};
+        for (var i = 0; i < a.length; ++i)
+        {
+          var p=a[i].split('=');
+          if (p.length != 2) continue;
+          b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
+        }
+        return b;
+      })(window.location.search.substr(1).split('&'));
+
+      if ("predicates" in qs) {
+        raw_predicates = qs["predicates"].split('@');
+        for (var i = 0; i < raw_predicates.length; i++) {
+          if (raw_predicates[i] == "") continue;
+          p = parsePredicate(raw_predicates[i]);
+          if (p == null) { alert("cannot parse " + predicates[i]); }
+          else { predicates.push(p); }
+        }
+      } else {
+        p = parsePredicate("kernel.all.load[*] > 0.2");
+        if (p == null) { alert("cannot parse " + predicates[i]); }
+        else { predicates.push(p); }
+      }
+
+      if ("contexttype" in qs) {
+          pm_context_type=qs["contexttype"];
+      }
+
+      if ("contextspec" in qs) {
+          pm_context_spec=qs["contextspec"];
+      }
+
+      if ("updateInterval" in qs) {
+        updateInterval = qs["updateInterval"];
+      }
+
+      function saveQueryString() {
+        raw_predicates = [];
+        for (var i = 0; i < predicates.length; i++)
+          raw_predicates.push(predicates[i].to_string());
+        str = $.param({
+          predicates: raw_predicates.join('@'),
+          updateInterval: updateInterval,
+          contexttype: pm_context_type,
+          contextspec: pm_context_spec
+        });
+        str = location.protocol + "//" + location.hostname + ":" + location.port + location.pathname + "?" + str; // TODOXXX
+        $("#permalink_uri").html(str);
+        $("#permalink_uri").attr("href", str);
+      }
+
+      /* Set up document */
+      $(document).ready(function() {
+        $("#predicate_form").submit(function() {
+          pstr = $("#predicate_input").val();
+          p = parsePredicate(pstr);
+          if (p == null) { alert("cannot parse " + pstr); } else { predicates.push(p); }
+          saveQueryString();
+          return false; // stay on this page
+        });
+        $("#predicate_clear_form").submit(function() {
+          predicates = [];
+          saveQueryString();
+          return false; // stay on this page
+        });
+        $("#interval").val(updateInterval);
+        $("#interval-slider").slider({
+          value: updateInterval, min: 1000, max: 10000,
+          slide: function (event, ui) {
+              setUpdateInterval(ui.value);
+              saveQueryString();
+              $("#interval").val(updateInterval);
+          }
+        });
+        $("#contexttype").val(pm_context_type);
+        $("#contextspec").val(pm_context_spec);
+        $("#contextspec_form").submit(function() {
+            setPMContextType($("#contexttype").val());
+            setPMContextSpec($("#contextspec").val());
+            saveQueryString();
+            return false; // stay on this page
+        });
+        $("#predicate_input").val("kernel.all.load[*] > 0.2");
+        saveQueryString(); // set up initial permalink
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="blinkenlights.css" />
+    <title>pcp blinkenlights demo</title>
+  </head>
+  <body>
+    <h1 id="header"></h1>
+    <form id="contextspec_form">
+      <select id="contexttype">
+      <option>hostspec</option>
+      <option>archivefile</option>
+      <option>local</option>
+      </select>
+      <input type="text" size="50" id="contextspec" />
+      <input value="Connect" type="submit" />
+    </form>
+    <form id="predicate_form">
+      <input id="predicate_input" size="50" type="text" />
+      <input value="Add Predicate" type="submit" />
+    </form>
+    <form id="predicate_clear_form">
+      <input value="Clear Predicates" type="submit" />
+    </form>
+    <span id="interval-slider-label"><label for="interval">Refresh interval (ms):</label><input type="text" size="5" id="interval" readonly /></span>
+    <div id="interval-slider"></div>
+    <p id="status"></p>
+    <div id="content"></div>
+    <p id="permalink">permalink: <a href="#" id="permalink_uri"></a></p>
+    <!--<footer>
+      <p id="permalink">permalink: <span></span> (<a>copy</a>)</p>
+      <p id="editlink"></p>
+    </footer>-->
+  </body>
+</html>

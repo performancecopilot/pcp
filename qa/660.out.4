@@ -1,0 +1,38 @@
+QA output created by 660
+curl ok
+python ok
+
+=== 1. pmwebd default startup  ===
+"context":
+"context":
+
+=== 2. pmwebd exercise via python ===
+Received PM_CONTEXT_LOCAL ####
+Received PM_CONTEXT_HOST ####
+bad archive /dev/null response code 400
+bad archive ../etc/passwd response code 400
+bad archive ../../etc/shadow response code 400
+command NOSUCHAPI response code 400
+context NOSUCHCONTEXT response code 400
+context 0 response code 400
+non-pmwebapi response code 400
+test #### metric .* enumeration with pminfo ####
+test #### metric .* enumeration with pmwebinfo ####
+test #### metric .* enumeration match count PASS
+test #### metric .* enumeration with pminfo ####
+test #### metric .* enumeration with pmwebinfo ####
+test #### metric .* enumeration match count PASS
+test #### metric kernel.* enumeration with pminfo ####
+test #### metric kernel.* enumeration with pmwebinfo ####
+test #### metric kernel.* enumeration match count PASS
+test #### metric kernel.* enumeration with pminfo ####
+test #### metric kernel.* enumeration with pmwebinfo ####
+test #### metric kernel.* enumeration match count PASS
+context #### response code 400
+
+=== 3. pmwebd security constraints, file service ===
+PMWEBAPI error, XXX
+PMWEBAPI error, XXX
+PMWEBAPI error, XXX
+PMRESAPI error
+file service ok

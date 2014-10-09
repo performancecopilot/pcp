@@ -1,0 +1,19 @@
+#interval-slider-label { margin: 0px; }
+#interval-slider  { width: 300px; margin: 0px; display: inline-block; }
+
+#blinkenlights { font-family: monospace; font-size: 130%; }
+#blinkenlights li {
+    list-style: none; line-height: 25px;
+    background-repeat: no-repeat;
+    background-size: 25px 25px;
+    padding-left: 32px; margin-top: 5px;
+}
+
+/* public domain images courtesy of
+   - http://www.clker.com/clipart-led-off.html
+   - http://www.clker.com/clipart-6514.html
+   XXX and related images from the same site
+ */
+#blinkenlights li.on { background-image: url(blinken_on.png); }
+#blinkenlights li.off { background-image: url(blinken_off.png); }
+#blinkenlights li.error { background-image: url(blinken_error.png); }

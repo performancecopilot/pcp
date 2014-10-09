@@ -1,0 +1,18 @@
+- incoming & outgoing ACL
+- ssl
+- pmStore ?
+- missing APIs
+  - time control
+  - or _metric&intervals=STARTTIME&count=COUNT
+- consider having blinkenlights call /pmapi/NNNNN/destroy ... but DoS unless authenticated
+<script type="text/javascript">
+  window.onbeforeunload = function(){
+    return "Did you save your stuff?"
+  }
+</script>
+
+- load control / attack detection (tarpot invalid webapi# brute-forcers)
+- pmReconnectContext() if pmUseContext etc. return PM_ERR_IPC || PM_ERR_TIMEOUT
+- serialize-to-disk webapi connection state & profile data,
+            for possible restoring if pmwebapi is killed/restarted
+
