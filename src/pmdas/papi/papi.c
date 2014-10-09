@@ -717,6 +717,33 @@ papi_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     return PM_ERR_PERMISSION;
 }
 
+static void
+handle_papi_error(int error)
+{
+    if (pmDebug & DBG_TRACE_APPL0)
+	__pmNotifyErr(LOG_ERR, "Papi error: %s\n", PAPI_strerror(error));
+}
+
+static int
+stop_papi()
+{
+    int retval = 0;
+    int state = 0;
+    int i;
+    state = check_papi_state();
+    if (state & PAPI_RUNNING)
+	retval = PAPI_stop(EventSet, values);
+    if (retval == PAPI_OK) {
+	for (i = 0; i < size_of_active_counters; i++){
+	    if(papi_info[i].position >= 0 && papi_info[i].info.event_code)
+		papi_info[i].prev_value += values[papi_info[i].position];
+	}
+    }
+    else if (retval != PAPI_OK)
+	handle_papi_error(retval);
+    return retval;
+}
+
 static int
 remove_metric(int event)
 {
@@ -726,95 +753,47 @@ remove_metric(int event)
     int position = papi_info[event].position;
 
     /* check to make sure papi is running, otherwise do nothing */
-    state = check_papi_state();
-    if (state & PAPI_RUNNING) {
-	restart = 1;
-	retval = PAPI_stop(EventSet, values);
-	if (retval != PAPI_OK)
-	    return retval;
+    retval = stop_papi();
+    if (retval != PAPI_OK)
+	return PM_ERR_VALUE;
+    /* workaround a papi bug: fully destroy the eventset and restart it */
+    memset(values, 0, sizeof(values[0])*size_of_active_counters);
+    retval = PAPI_cleanup_eventset(EventSet);
+    if (retval != PAPI_OK) {
+	handle_papi_error(retval);
+	return PM_ERR_VALUE;
     }
-    state = check_papi_state();
-    if (state & PAPI_STOPPED) {
-	/* first, copy the values over to new array */
-	for (i = 0; i < number_of_events; i++)
-	    papi_info[i].prev_value += values[papi_info[i].position];
 
-	/* workaround a papi bug: fully destroy the eventset and restart it */
-	memset(values, 0, sizeof(values[0])*size_of_active_counters);
-	retval = PAPI_cleanup_eventset(EventSet);
-	if (retval != PAPI_OK)
-	    return retval;
+    retval = PAPI_destroy_eventset(&EventSet);
+    if (retval != PAPI_OK) {
+	handle_papi_error(retval);
+	return PM_ERR_VALUE;
+    }
 
-	retval = PAPI_destroy_eventset(&EventSet);
-	if (retval != PAPI_OK)
-	    return retval;
+    number_of_active_counters--;
+    retval = PAPI_create_eventset(&EventSet);
+    if (retval != PAPI_OK) {
+	handle_papi_error(retval);
+	return PM_ERR_VALUE;
+    }
 
-	number_of_active_counters--;
-	retval = PAPI_create_eventset(&EventSet);
-	if (retval != PAPI_OK)
-	    return retval;
+    papi_info[event].prev_value = 0;
+    papi_info[event].position = -1;
 
-	papi_info[event].prev_value = 0;
-	papi_info[event].position = -1;
+    for (i = 0; i < number_of_events; i++) {
 
-	for (i = 0; i < number_of_events; i++) {
+	if (papi_info[i].position > position)
+	    papi_info[i].position--;
 
-	    if (papi_info[i].position > position)
-		papi_info[i].position--;
-
-	    if (papi_info[i].position >= 0 && papi_info[i].info.event_code) {
-		retval = PAPI_add_event(EventSet, papi_info[i].info.event_code);
-		if (retval != PAPI_OK)
-		    return retval;
+	if (papi_info[i].position >= 0 && papi_info[i].info.event_code) {
+	    retval = PAPI_add_event(EventSet, papi_info[i].info.event_code);
+	    if (retval != PAPI_OK) {
+		handle_papi_error(retval);
+		return PM_ERR_VALUE;
 	    }
 	}
-	if (restart && (number_of_active_counters > 0)) {
-	    retval = PAPI_start(EventSet);
-	    if (retval != PAPI_OK)
-		return retval;
-	}
     }
-    return PM_ERR_VALUE;
-}
-
-static int
-add_metric(unsigned int event)
-{
-    int retval = 0;
-    int state = 0;
-    int i;
-    char eventname[PAPI_MAX_STR_LEN];
-
-    /* check status of papi */
-    state = check_papi_state();
-    /* add check with number_of_counters */
-    /* stop papi if running? */
-    if (state & PAPI_RUNNING) {
-	retval = PAPI_stop(EventSet, values);
-	/* PAPI_stop copies values in values array, so by
-	   copying values into prev_value after the fact, we get
-	   the most recent values possible */
-	for (i = 0; i < size_of_active_counters; i++){
-	    if(papi_info[i].position >= 0 && papi_info[i].info.event_code)
-		papi_info[i].prev_value += values[papi_info[i].position];
-	}
-	if (retval != PAPI_OK)
-	    return retval;
-    }
-    state = check_papi_state();
-    if (state & PAPI_STOPPED) {
-	/* add metric */
-	retval = PAPI_add_event(EventSet, event); //XXX possibly switch this to add_events
-	if (retval != PAPI_OK) {
-	    if (pmDebug & DBG_TRACE_APPL0) {
-		PAPI_event_code_to_name(event, &eventname);
-		__pmNotifyErr(LOG_DEBUG, "Unable to add: %s due to error: %s\n", eventname, PAPI_strerror(retval));
-	    }
-	    if (number_of_active_counters > 0)
-		retval = PAPI_start(EventSet);
-	    return retval;
-	}
-	number_of_active_counters++;
+    if (number_of_active_counters > 0) {
 	retval = PAPI_start(EventSet);
 	if (retval != PAPI_OK) {
 	    handle_papi_error(retval);
@@ -822,6 +801,39 @@ add_metric(unsigned int event)
 	}
     }
     return 0;
+}
+
+static int
+add_metric(unsigned int event)
+{
+    int retval = 0;
+    int state = 0;
+    char eventname[PAPI_MAX_STR_LEN];
+
+    retval = stop_papi();
+    if (retval != PAPI_OK)
+	return PM_ERR_VALUE;
+	/* add metric */
+    retval = PAPI_add_event(EventSet, event); //XXX possibly switch this to add_events
+    if (retval != PAPI_OK) {
+	if (pmDebug & DBG_TRACE_APPL0) {
+	    PAPI_event_code_to_name(event, &eventname);
+	    __pmNotifyErr(LOG_DEBUG, "Unable to add: %s due to error: %s\n", eventname, PAPI_strerror(retval));
+	}
+	if (number_of_active_counters > 0){
+	    retval = PAPI_start(EventSet);
+	    if (retval != PAPI_OK)
+		handle_papi_error(retval);
+	}
+	return PM_ERR_VALUE;
+    }
+    number_of_active_counters++;
+    retval = PAPI_start(EventSet);
+    if (retval != PAPI_OK) {
+	handle_papi_error(retval);
+	return PM_ERR_VALUE;
+    }
+    return 0; //PAPI_OK is equal to zero, so we can compare against that for returns
 }
 
 
