@@ -8,10 +8,10 @@
         <TITLE>PCP Quick Reference Guide</TITLE>
 </HEAD>
 <BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
-	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://pcp.io/"><IMG SRC="images/pcpicon.png" NAME="pcpicon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://pcp.io/"><IMG SRC="images/pcpicon.png" ALT="pcpicon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
 	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
-	<TD WIDTH=500><P VALIGN=MIDDLE ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	<TD WIDTH=500><P ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
 	</TR>
 </TABLE>
 <H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>PCP Quick Reference Guide</FONT></H1>
@@ -60,15 +60,15 @@
 <a name="collectors"></a>
 <H3>Installing Collector Hosts</H3>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-       <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install basic PCP tools and services and enable collecting performance data on Fedora/RHEL, run:<br><B>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+       <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install basic PCP tools and services and enable collecting performance data on Fedora/RHEL, run:<br><B>
 <br> # yum install pcp
 <br> # chkconfig pmcd on
 <br> # service pmcd start
 <br> # chkconfig pmlogger on
 <br> # service pmlogger start
 </B></TD></TR>
-       <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install basic PCP tools and services and enable collecting performance data on Debian/Ubuntu, run:<br><B>
+       <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install basic PCP tools and services and enable collecting performance data on Debian/Ubuntu, run:<br><B>
 <br> $ sudo apt-get install pcp
 <br> $ sudo update-rc.d pmcd defaults
 <br> $ sudo update-rc.d pmlogger defaults
@@ -79,8 +79,8 @@
 
 <P>This will enable the Performance Metrics Collector Daemon (<a href="http://man7.org/linux/man-pages/man1/pmcd.1.html">pmcd(1)</a>) on the host which then in turn will control and request metrics on behalf of clients from various Performance Metrics Domain Agents (PMDAs). The PMDAs provide the actual data from different components (domains) in the system, for example from the Linux Kernel PMDA or the NFS Client PMDA. The default configuration includes over 1000 metrics with negligible overall overhead. Local PCP archive logs will also be enabled on the host for convenience with <a href="http://man7.org/linux/man-pages/man1/pmlogger.1.html">pmlogger(1)</a>.
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To enable PMDAs which are not enabled by default, for example the Postfix PMDA, run the corresponding Install script:<br><B>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To enable PMDAs which are not enabled by default, for example the Postfix PMDA, run the corresponding Install script:<br><B>
 <br> # cd /var/lib/pcp/pmdas/postfix
 <BR> # ./Install
 </B></TD></TR>
@@ -94,19 +94,19 @@
 
 <P>The following additional packages can be optionally installed on the monitoring host to extend the set of monitoring tools from the base pcp package.
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Install graphical analysis tools and documentation on Fedora/RHEL:<BR><B>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Install graphical analysis tools and documentation on Fedora/RHEL:<BR><B>
 <BR># yum install pcp-doc pcp-gui
 </B></TD></TR>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Install graphical analysis tools and documentation on Debian/Ubuntu:<BR><B>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Install graphical analysis tools and documentation on Debian/Ubuntu:<BR><B>
 <BR>$ sudo apt-get install pcp-doc pcp-gui
 </B></TD></TR>
 </TABLE>
 
 <P>To enable centralized archive log collection on the monitoring host, its pmlogger is configured to fetch performance metrics from collector hosts. Add each collector host to the pmlogger configuration file /etc/pcp/pmlogger/control and then restart the pmlogger service on the monitoring host.
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Enable recording of metrics from remote host <B><FONT COLOR="#cc0000">acme.com</FONT></B>:<B><BR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Enable recording of metrics from remote host <B><FONT COLOR="#cc0000">acme.com</FONT></B>:<B><BR>
 <BR> # echo <FONT COLOR="#cc0000">acme.com</FONT> n n PCP_LOG_DIR/pmlogger/<FONT COLOR="#cc0000">acme.com</FONT> -r -T24h10m -c config.<FONT COLOR="#cc0000">acme.com</FONT> &gt;&gt; /etc/pcp/pmlogger/control
 <BR>
 <BR> # service pmlogger restart
@@ -122,8 +122,8 @@
 
 <P>In dynamic environments manually configuring every host is not feasible, perhaps even impossible. PCP Manager (<a href="http://man7.org/linux/man-pages/man1/pmmgr.1.html">pmmgr(1)</a>, from the pcp-manager package) can be used instead of directly invoking pmlogger and pmie to auto-discover and auto-configure new collector hosts.
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install the PMMGR daemon and begin monitoring either statically or dynamically configured hosts, run:<br><B>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install the PMMGR daemon and begin monitoring either statically or dynamically configured hosts, run:<br><B>
 <br> ## Fedora/RHEL:
 <br> # yum install pcp-manager
 <br> # chkconfig pmmgr on
@@ -139,8 +139,8 @@
 </B></TD></TR>
 </TABLE>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Discover use of the PCP pmcd service on the local network:<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmfind.1.html">pmfind</a> -s pmcd</B>
 </TD></TR>
@@ -151,8 +151,8 @@ Discover use of the PCP pmcd service on the local network:<BR><B>
 
 <P>Basic installation health check for running services, network connectivity between hosts, and enabled PMDAs can be done simply as follows.
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Check PCP services on remote host <B><FONT COLOR="#cc0000">munch</FONT></B> and historically, from a local archive for host <B><FONT COLOR="#cc0000">smash</FONT></B>:<BR><B>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Check PCP services on remote host <B><FONT COLOR="#cc0000">munch</FONT></B> and historically, from a local archive for host <B><FONT COLOR="#cc0000">smash</FONT></B>:<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pcp.1.html">pcp</a> -h <FONT COLOR="#cc0000">munch</FONT></B><PRE>
 Performance Co-Pilot configuration on munch:
   platform: SunOS munch 5.11 oi_151a8 i86pc
@@ -179,62 +179,62 @@ Performance Co-Pilot configuration on smash:
 <a name="systemlevel"></a>
 <H1>System Level Performance Monitoring</H1>
 
-<P>PCP comes with a wide range of command line utilities for accessing live performance metrics via PMCDs or historical data using archive logs. The following examples illustrate some of the most useful use cases, please see the corresponding manual pages for each command for additional information. In the below examples -h <host> is always optional, the default is the local host.
+<P>PCP comes with a wide range of command line utilities for accessing live performance metrics via PMCDs or historical data using archive logs. The following examples illustrate some of the most useful use cases, please see the corresponding manual pages for each command for additional information. In the examples below <B>-h &lt;host&gt;</B> is always optional, the default is the local host.
 
 <a name="live"></a>
 <H3>Monitoring Live Performance Metrics</H3>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Display all the enabled performance metrics on a host (use with -t to include a short description for each):<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pminfo.1.html">pminfo</a> -h <FONT COLOR="#cc0000">acme.com</FONT></B>
 </TD></TR>
 </TABLE>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Display detailed information about a performance metric and its current values:<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pminfo.1.html">pminfo</a> -dfmtT disk.partitions.read -h <FONT COLOR="#cc0000">acme.com</FONT></B>
 </TD></TR>
 </TABLE>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Monitor live disk write operations per partition with two second interval using fixed point notation (use -i instance to list only certain metrics and -r for raw values):<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -t 2sec -f 3 disk.partitions.write -h <FONT COLOR="#cc0000">acme.com</FONT></B>
 </TD></TR>
 </TABLE>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Monitor live CPU load, memory usage, and disk write operations per partition with two second interval using fixed width columns:<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmdumptext.1.html">pmdumptext</a> -i -l 'kernel.all.load[1]' mem.util.used disk.partitions.write -h <FONT COLOR="#cc0000">acme.com</FONT></B>
 </TD></TR>
 </TABLE>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Monitor system metrics in a top like window (this needs a large terminal):<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmatop.1.html">pmatop</a> -h <FONT COLOR="#cc0000">acme.com</FONT></B>
 </TD></TR>
 </TABLE>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20> 
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20> 
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Monitor system metrics in a sar like fashion with two second interval from two different hosts:<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmstat.1.html">pmstat</a> -t 2sec -h <FONT COLOR="#cc0000">acme1.com</FONT> -h <FONT COLOR="#cc0000">acme2.com</FONT></B>
 </TD></TR>
 </TABLE>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Monitor system metrics in an iostat like fashion with two second interval:<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmiostat.1.html">pmiostat</a> -t 2sec -h <FONT COLOR="#cc0000">acme.com</FONT></B>
 </TD></TR>
 </TABLE>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20> 
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20> 
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Monitor performance metrics with a GUI application with two second default interval from two different hosts. Use File-&gt;New Chart to select metrics to be included in a new view and use File-&gt;Open View to use a predefined view:<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmchart.1.html">pmchart</a> -t 2sec -h <FONT COLOR="#cc0000">acme1.com</FONT> -h <FONT COLOR="#cc0000">acme2.com</FONT></B>
 </TD></TR>
@@ -245,106 +245,106 @@ Monitor performance metrics with a GUI application with two second default inter
 
 <P>PCP archive logs are located under /var/log/pcp/pmlogger/<B><FONT COLOR="#cc0000">hostname</FONT></B>, and the archive names indicate the date they cover. Archives are self-contained, and machine-independent so can be transfered to any machine for offline analysis.
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Check the host and the time period an archive covers:<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmdumplog.1.html">pmdumplog</a> -l <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
 </TD></TR>
 </TABLE>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Check PCP configuration at the time when an archive was created:<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pcp.1.html">pcp</a> -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
 </TD></TR>
 </TABLE>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Display all enabled performance metrics at the time when an archive was created:<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pminfo.1.html">pminfo</a> -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
 </TD></TR>
 </TABLE>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Display detailed information about a performance metric at the time when an archive was created:<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pminfo.1.html">pminfo</a> -df mem.freemem -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
 </TD></TR>
 </TABLE>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Dump past disk write operations per partition in an archive using fixed point notation (use -i instance to list only certain metrics and -r for raw values):<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -f 3 disk.partitions.write -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
 </TD></TR>
 </TABLE>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Replay past disk write operations per partition in an archive with two second interval using fixed point notation between 9 AM and 10 AM (use full dates with syntax like @"2014-08-20 14:00:00"):<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -d -t 2sec -f 3 disk.partitions.write -S @09:00 -T @10:00 -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
 </TD></TR>
 </TABLE>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Calculate average values of performance metrics in an archive between 9 AM / 10 AM using table like formatting including the time of minimum/maximum value and the actual minimum/maximum value:<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmlogsummary.1.html">pmlogsummary</a> -HlfiImM -S @09:00 -T @10:00 <FONT COLOR="#cc0000">acme.com</FONT>/20140902 disk.partitions.write mem.freemem</B>
 </TD></TR>
 </TABLE>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Dump past CPU load, memory usage, and disk write operations per partition in an archive averaged over 10 minute interval with fixed columns between 9 AM and 10 AM:<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmdumptext.1.html">pmdumptext</a> -t 10m -i -l -S @09:00 -T @10:00 'kernel.all.load[1]' 'mem.util.used' 'disk.partitions.write' -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
 </TD></TR>
 </TABLE>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Summarize differences in past performance metrics between two archives, comparing 2 AM / 3 AM in the first archive to 9 AM / 10 AM in the second archive (grep for '+' to quickly see values which were zero during the first period):<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmdiff.1.html">pmdiff</a> -S @02:00 -T @03:00 -B @09:00 -E @10:00 <FONT COLOR="#cc0000">acme.com</FONT>/20140902 <FONT COLOR="#cc0000">acme.com</FONT>/20140901</B>
 </TD></TR>
 </TABLE>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Replay past system metrics in an archive in a top like window starting 9 AM (this needs a large window):<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmatop.1.html">pmatop</a> -S @09:00 -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
 </TD></TR>
 </TABLE>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Dump past system metrics in a sar like fashion averaged over 10 minute interval in an archive between 9 AM and 10 AM:<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmstat.1.html">pmstat</a> -t 10m -S @09:00 -T @10:00 -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
 </TD></TR>
 </TABLE>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Dump past system metrics in an <a href="http://man7.org/linux/man-pages/man1/iostat.1.html">iostat(1)</a> like fashion averaged over one hour interval in an archive:<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmiostat.1.html">pmiostat</a> -t 1h -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
 </TD></TR>
 </TABLE>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Dump past system metrics in a <a href="http://man7.org/linux/man-pages/man1/free.1.html">free(1)</a> like fashion at a specific historical time offset:<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pcp.1.html">pcp</a> -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902 -O @10:02 free</B>
 </TD></TR>
 </TABLE>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Replay performance metrics with a GUI application with two second default interval in an archive between 9 AM and 10 AM. Use File-&gt;New Chart to select metrics to be included in a new view and use File-&gt;Open View to use a predefined view:<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmchart.1.html">pmchart</a> -t 2sec -S @09:00 -T @10:00 -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
 </TD></TR>
 </TABLE>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Merge several archives as a new combined archive (see the manual page how to write configuration file to collect only certain metrics):<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmlogextract.1.html">pmlogextract</a> &lt;archive1&gt; &lt;archive2&gt; &lt;newarchive&gt;</B>
 </TD></TR>
@@ -355,8 +355,8 @@ Merge several archives as a new combined archive (see the manual page how to wri
 
 <P><a href="http://man7.org/linux/man-pages/man1/iostat.1.html">iostat</a> and <a href="http://man7.org/linux/man-pages/man1/sar.1.html">sar</a> data can be imported as PCP archives which then allows inspecting and visualizing the data with PCP tools. The iostat2pcp importer is in the pcp-import-iostat2pcp package and the sar2pcp importer is in the pcp-import-sar2pcp package.
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Import iostat data to a new PCP archive and visualize it:<BR><B>
 <BR> $ iostat -t -x 2 > iostat.out
 <BR> $ iostat2pcp iostat.out iostat.pcp
@@ -364,8 +364,8 @@ Import iostat data to a new PCP archive and visualize it:<BR><B>
 </TD></TR>
 </TABLE>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Import sar data from an existing sar archive to a new PCP archive and visualize it (sar logs are under /var/log/sysstat on Debian/Ubuntu):<BR><B>
 <BR> $ sar2pcp /var/log/sa/sa15 sar.pcp
 <BR> $ pmchart -t 2sec -a sar.pcp </B>
@@ -381,36 +381,36 @@ Import sar data from an existing sar archive to a new PCP archive and visualize 
 <a name="processmon"></a>
 <H3>Live and Retrospective Process Monitoring</H3>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Display all the available process related metrics:<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pminfo.1.html">pminfo</a> proc</B>
 </TD></TR>
 </TABLE>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Monitor the number of open file descriptors of the process 1234:<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -t 2sec 'proc.fd.count[1234]'</B>
 </TD></TR>
 </TABLE>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Monitor the CPU time, memory usage (RSS), and the number of threads of the process 1234 (-h local: is a workaround needed for the time being):<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmdumptext.1.html">pmdumptext</a> -h local: -t 2sec 'proc.psinfo.utime[1234]' 'proc.memory.rss[1234]' 'proc.psinfo.threads[1234]'</B>
 </TD></TR>
 </TABLE>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Display all the available process related metrics in an archive:<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pminfo.1.html">pminfo</a> proc -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
 </TD></TR>
 </TABLE>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Display the number of running processes on 2014-08-20 14:00:<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -s 1 -S @"2014-08-20 14:00" proc.nprocs -a <FONT COLOR="#cc0000">acme.com</FONT>/20140820</B>
 </TD></TR>
@@ -432,12 +432,12 @@ Display the number of running processes on 2014-08-20 14:00:<BR><B>
 
 <P>Performance Metrics Inference Engine (<a href="http://man7.org/linux/man-pages/man1/pmie.1.html">pmie(1)</a>) can evaluate rules and generate alarms, run scripts, or automate system management tasks based on live or past performance metrics.
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To enable and start PMIE on Fedora/RHEL:<br><B>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To enable and start PMIE on Fedora/RHEL:<br><B>
 <br> # chkconfig pmie on
 <br> # service pmie start
 </B></TD></TR>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To make sure PMIE is running on Debian/Ubuntu:<br><B>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To make sure PMIE is running on Debian/Ubuntu:<br><B>
 <br> $ sudo update-rc.d pmie defaults
 <br> $ sudo service pmie restart
 </B></TD></TR>
@@ -445,8 +445,8 @@ Display the number of running processes on 2014-08-20 14:00:<BR><B>
 
 <P>To enable the monitoring host to run PMIE for collector hosts, add each host to the /etc/pcp/pmie/control configuration file.
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Enable monitoring of metrics from remote host <B>acme.com</B>:<B>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Enable monitoring of metrics from remote host <B>acme.com</B>:<B>
 <BR> # echo <FONT COLOR="#cc0000">acme.com</FONT> n PCP_LOG_DIR/pmie/<FONT COLOR="#cc0000">acme.com</FONT> -c config.<FONT COLOR="#cc0000">acme.com</FONT>
 <BR>
 <BR> # service pmie restart
@@ -460,8 +460,8 @@ Display the number of running processes on 2014-08-20 14:00:<BR><B>
 <LI>If all hosts in a group have CPU load over a threshold for more than 10 minutes or they have more application processes running than a threshold limit generate an alarm and run a script to tune the application
 </UL>
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 This example shows a PMIE script, checks its syntax, runs it against an archive, and prints a simple message if more than 5 GB of memory was in use between 9 AM and 10 AM using one minute sampling interval:<BR><B>
 <BR> $ cat pmie.ex
 <PRE>bloated = (  mem.util.used > 5 Gbyte )
@@ -477,13 +477,13 @@ This example shows a PMIE script, checks its syntax, runs it against an archive,
 
 <P>A daemon for exporting PCP metrics using a REST web service (over HTTP/JSON) is also available.  Use this for viewing or monitoring PCP metrics in a web browser - several web interfaces are becoming available (also via the pcp-webapi package) to make this a reality.
 
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install the PCP web service on Fedora/RHEL:<br><B>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install the PCP web service on Fedora/RHEL:<br><B>
 <br> # yum install pcp-webapi
 <br> # chkconfig pmwebd on
 <br> # service pmwebd start
 </B></TD></TR>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH=70%><BR><IMG SRC="images/stepfwd_on.png" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install the PCP web service on Debian/Ubuntu:<br><B>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To install the PCP web service on Debian/Ubuntu:<br><B>
 <br> $ sudo apt-get install pcp-webapi
 <br> $ sudo update-rc.d pmwebd defaults
 <br> $ sudo service pmwebd restart
@@ -508,15 +508,15 @@ This example shows a PMIE script, checks its syntax, runs it against an archive,
 <P>PCP PMDAs offer a way for administrators and developers to customize and extend the default PCP installation. The pcp-libs-devel package contains all the needed development related examples, headers, and libraries. New PMDAs can easily be added, below is a quick list of references for starting development:
 
 <UL>
-<LI>Some examples exist below /var/lib/pcp/pmdas/ - the simple, sample, and txmon PMDAs are easy to read PMDAs.</LI>
+<LI>Some examples exist below /var/lib/pcp/pmdas/ - the simple, sample, and txmon PMDAs are easy to read PMDAs.
   <UL>
     <LI>The simple PMDA provides implementations in C, Perl and Python.</LI>
-  </UL>
+  </UL></LI>
 <LI>A simple command line monitor tool is /usr/share/pcp/demos/pmclient (C language).</LI>
-<LI>Good initial Python monitor examples are /usr/libexec/pcp/bin/pcp/pcp-* (Fedora/RHEL) or /usr/lib/pcp/bin/pcp-* (Debian/Ubuntu).</LI>
+<LI>Good initial Python monitor examples are /usr/libexec/pcp/bin/pcp/pcp-* (Fedora/RHEL) or /usr/lib/pcp/bin/pcp-* (Debian/Ubuntu).
   <UL>
     <LI>Slightly more complex examples are the pmiostat, pmatop, pmcollectl commands.</LI>
-  </UL>
+  </UL></LI>
 <LI>The examples in the source tree under src/pmwebapi/jsdemos are helpful when developing a web application.</LI>
 </UL>
 
@@ -533,9 +533,9 @@ This example shows a PMIE script, checks its syntax, runs it against an archive,
 <P><BR></P>
 <HR>
 <CENTER>
-<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
-	<TR> <TD WIDTH=50%><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc</FONT></P></TD>
-	<TD WIDTH=50%><P ALIGN=RIGHT><A HREF="http://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2014 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></P></TD> </TR>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH="50%"><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc</FONT></A></P></TD>
+	<TD WIDTH="50%"><P ALIGN=RIGHT><A HREF="http://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2014 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></A></P></TD> </TR>
 </TABLE>
 </CENTER>
 </BODY>

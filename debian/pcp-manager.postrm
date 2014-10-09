@@ -1,6 +1,0 @@
-#!/bin/sh -e
-#DEBHELPER#
-
-if [ "$1" = purge ]; then
-    update-rc.d pmmgr remove >/dev/null
-fi
