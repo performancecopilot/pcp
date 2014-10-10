@@ -100,7 +100,7 @@ class mmv_indom(Structure):
         """ Update the instances and counts fields for this indom """
         self.count = len(instances)
         instance_array = (mmv_instance * self.count)()
-        for i in xrange(self.count):
+        for i in range(self.count):
             instance_array[i].internal = instances[i].internal
             instance_array[i].external = instances[i].external
         self.instances = instance_array
@@ -198,11 +198,11 @@ class MemoryMappedValues(object):
         """
         count_metrics = len(self._metrics)
         metrics = (mmv_metric * count_metrics)()
-        for i in xrange(count_metrics):
+        for i in range(count_metrics):
             metrics[i] = self._metrics[i]
         count_indoms = len(self._indoms)
         indoms = (mmv_indom * count_indoms)()
-        for i in xrange(count_indoms):
+        for i in range(count_indoms):
             indoms[i] = self._indoms[i]
         self._handle = LIBPCP_MMV.mmv_stats_init(
                                 self._name,
