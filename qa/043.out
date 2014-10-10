@@ -10,7 +10,7 @@ pmResult ... numpmid: 3
     inst [2 or "blue"] value INTEGER
 
 base store test (failures not unexpected) ...
-pmStore: No permission to perform requested operation
+pmStore: OK
 
 numpmid == 0 tests (failures expected) ...
 pmResult ... numpmid: 0
