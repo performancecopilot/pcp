@@ -25,7 +25,7 @@
 #
 
 # constants adapted from C header file <pcp/pmapi.h>
-from pmapi import pmErr
+from pcp.pmapi import pmErr
 from cpmapi import PM_ERR_IPC
 
 # for interfacing with libpcp - the client-side C API
