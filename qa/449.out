@@ -29,7 +29,7 @@ pmNameInDom: 0 -> red
 pmNameInDom: Operation not supported for multi-threaded applications
 pmNewContext: -> 0
 pmNewContext: Operation not supported for multi-threaded applications
-pmStore: No permission to perform requested operation
+pmStore: -> OK
 pmStore: Operation not supported for multi-threaded applications
 pmUseContext(0) -> 0
 pmUseContext(0) -> 0
