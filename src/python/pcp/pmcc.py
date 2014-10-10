@@ -105,7 +105,7 @@ class Metric(object):
             try:
                 name = instD[instval.inst]
             except KeyError:
-                name = ""
+                name = b''
             outAtom = self.ctx.pmExtractValue(
                     vset.valfmt, instval, self.desc.type, self._convType)
             if self._convUnits:
@@ -151,7 +151,7 @@ class Metric(object):
             try:
                 name = instD[instval.inst]
             except KeyError:
-                name = ""
+                name = b''
             outAtom = self.ctx.pmExtractValue(vset.valfmt,
                     instval, self.desc.type, PM_TYPE_DOUBLE)
             poutAtom = self.ctx.pmExtractValue(pvset.valfmt,
@@ -267,9 +267,9 @@ class MetricCache(pmContext):
     def _mcAdd(self, core):
         """ Update the dictionary """
         indom = core.desc.contents.indom
-        if not self._mcIndomD.has_key(indom):
+        if indom not in self._mcIndomD:
             if c_int(indom).value == c_int(PM_INDOM_NULL).value:
-                instmap = { PM_IN_NULL : "PM_IN_NULL" }
+                instmap = { PM_IN_NULL : b'PM_IN_NULL' }
             else:
                 if self._type == PM_CONTEXT_ARCHIVE:
                     instL, nameL = self.pmGetInDomArchive(core.desc)
@@ -291,6 +291,8 @@ class MetricCache(pmContext):
         errL = None
         # lookup names in cache
         for index, name in enumerate(nameL):
+            if type(name) != type(b''):
+                name = name.encode('utf-8')
             # lookup metric core in cache
             core = self._mcByNameD.get(name)
             if not core:
@@ -304,6 +306,8 @@ class MetricCache(pmContext):
         if missD:
             idL, errL = self.mcFetchPmids(missD.keys())
             for name, pmid in idL:
+                if type(name) != type(b''):
+                    name = name.encode('utf-8')
                 if pmid == PM_ID_NULL:
                     # fetch failed for the given metric name
                     if not errL:
@@ -336,6 +340,8 @@ class MetricCache(pmContext):
         errL = None
         nameA = (c_char_p * len(nameL))()
         for index, name in enumerate(nameL):
+            if type(name) != type(b''):
+                name = name.encode('utf-8')
             nameA[index] = c_char_p(name)
         try:
             pmidArray = self.pmLookupName(nameA)
@@ -527,7 +533,7 @@ class MetricGroupManager(dict, MetricCache):
         self._counter = 0
 
     def __setitem__(self, attr, value = []):
-        if self.has_key(attr):
+        if attr in self:
             raise KeyError("metric group with that key already exists")
         else:
             dict.__setitem__(self, attr, MetricGroup(self, inL = value))

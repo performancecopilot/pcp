@@ -109,7 +109,7 @@ class pmdaIndom(Structure):
         if (instance_count == 0):
             return
         instance_array = (pmdaInstid * instance_count)()
-        for i in xrange(instance_count):
+        for i in range(instance_count):
             instance_array[i].i_inst = insts[i].i_inst
             instance_array[i].i_name = insts[i].i_name
         self.it_set = instance_array
@@ -336,12 +336,12 @@ class PMDA(MetricDispatch):
             numindoms = len(self._indomtable)
             ibuf = create_string_buffer(numindoms * sizeof(pmdaIndom))
             indoms = cast(ibuf, POINTER(pmdaIndom))
-            for i in xrange(numindoms):
+            for i in range(numindoms):
                 indoms[i] = self._indomtable[i]
             nummetrics = len(self._metrictable)
             mbuf = create_string_buffer(nummetrics * sizeof(pmdaMetric))
             metrics = cast(mbuf, POINTER(pmdaMetric))
-            for i in xrange(nummetrics):
+            for i in range(nummetrics):
                 metrics[i] = self._metrictable[i]
             cpmda.pmda_dispatch(ibuf.raw, numindoms, mbuf.raw, nummetrics)
 
