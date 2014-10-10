@@ -320,65 +320,109 @@ l: ?
 ull: ?
 f: ?
 d: ?
-
-r: 0.4
-l: 0
-ull: 0
-f: 0
-d: 0
+in_derived: ?
+in_pmie: ?
+out_derived: ?
+out_pmie: ?
 
 r: 0.50
 l: 0
 ull: 0
 f: 0
 d: 0
+in_derived: 2.00
+in_pmie: 1
+out_derived: 2.00
+out_pmie: 1
 
 r: 0.50
 l: 0
 ull: 0
 f: 0
 d: 0
+in_derived: 2.00
+in_pmie: 1
+out_derived: 2.00
+out_pmie: 1
 
 r: 0.50
 l: 0
 ull: 0
 f: 0
 d: 0
+in_derived: 2.00
+in_pmie: 1
+out_derived: 2.00
+out_pmie: 1
 
 r: 0.50
 l: 0
 ull: 0
 f: 0
 d: 0
+in_derived: 2.00
+in_pmie: 1
+out_derived: 2.00
+out_pmie: 1
 
 r: 0.50
 l: 0
 ull: 0
 f: 0
 d: 0
+in_derived: 2.00
+in_pmie: 1
+out_derived: 2.00
+out_pmie: 1
 
 r: 0.50
 l: 0
 ull: 0
 f: 0
 d: 0
+in_derived: 2.00
+in_pmie: 1
+out_derived: 2.00
+out_pmie: 1
 
 r: 0.50
 l: 0
 ull: 0
 f: 0
 d: 0
+in_derived: 2.00
+in_pmie: 1
+out_derived: 2.00
+out_pmie: 1
 
 r: 0.50
 l: 0
 ull: 0
 f: 0
 d: 0
+in_derived: 2.00
+in_pmie: 1
+out_derived: 2.00
+out_pmie: 1
 
 r: 0.50
 l: 0
 ull: 0
 f: 0
 d: 0
+in_derived: 2.00
+in_pmie: 1
+out_derived: 2.00
+out_pmie: 1
+
+r: 0.50
+l: 0
+ull: 0
+f: 0
+d: 0
+in_derived: 2.00
+in_pmie: 1
+out_derived: 2.00
+out_pmie: 1
 
 pmie: note - evaluator exiting
