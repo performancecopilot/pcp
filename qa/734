@@ -23,11 +23,15 @@ oldhost=`./getpmcdhosts -L -n 1 -v 'pcp<3.8.4' 2>$seq.full`
 [ -z "$oldhost" ] && oldhost=`./getpmcdhosts -L -n 1`
 [ -z "$oldhost" ] && _notrun "No remote hosts available"
 short_oldhost=`echo $oldhost | sed -e 's/\..*//'`
+# match pmstat(1) truncation
+short_oldhost=`printf "%-7.7s" "$short_oldhost" | sed -e 's/  *$//'`
 
 # real QA test starts here
 set -- `pmprobe -h localhost -v pmcd.hostname`
 eval newhost=$3
 short_newhost=`echo $newhost | sed -e 's/\..*//'`
+# match pmstat(1) truncation
+short_newhost=`printf "%-7.7s" "$short_newhost" | sed -e 's/  *$//'`
 
 echo "using oldhost $oldhost ($short_oldhost)" >> $seq.full
 echo "using newhost $newhost ($short_newhost)" >> $seq.full
