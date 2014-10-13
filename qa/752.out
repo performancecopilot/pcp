@@ -89,32 +89,32 @@ These time terms are relative to the start/end time.
 "next day"                     2014-01-19 15:08:50
 "next day"                     2014-01-27 11:28:50
 These time terms for a specific day are relative to the current time.
-"now"                          01/01/2000 00:00:00
-"now"                          01/01/2000 00:00:00
+"now"                          TODAY
+"now"                          TODAY
 "now"                          2014-01-27 11:28:50
-"today"                        01/01/2000 00:00:00
-"today"                        01/01/2000 00:00:00
+"today"                        TODAY
+"today"                        TODAY
 "today"                        2014-01-27 11:28:50
-"@yesterday"                   01/01/2000 00:00:00
-"@yesterday"                   01/01/2000 00:00:00
+"@yesterday"                   YESTERDAY
+"@yesterday"                   YESTERDAY
 "@yesterday"                   2014-01-27 11:28:50
-"yesterday"                    01/01/2000 00:00:00
-"yesterday"                    01/01/2000 00:00:00
+"yesterday"                    YESTERDAY
+"yesterday"                    YESTERDAY
 "yesterday"                    2014-01-27 11:28:50
-"tomorrow"                     01/01/2000 00:00:00
-"tomorrow"                     01/01/2000 00:00:00
+"tomorrow"                     TOMORROW
+"tomorrow"                     TOMORROW
 "tomorrow"                     2014-01-27 11:28:50
-"sunday"                       01/01/2000 00:00:00
-"sunday"                       01/01/2000 00:00:00
+"sunday"                       SUNDAY
+"sunday"                       SUNDAY
 "sunday"                       2014-01-27 11:28:50
-"first sunday"                 01/01/2000 00:00:00
-"first sunday"                 01/01/2000 00:00:00
+"first sunday"                 SUNDAY
+"first sunday"                 SUNDAY
 "first sunday"                 2014-01-27 11:28:50
-"last monday"                  01/01/2000 00:00:00
-"last monday"                  01/01/2000 00:00:00
+"last monday"                  LAST MONDAY
+"last monday"                  LAST MONDAY
 "last monday"                  2014-01-27 11:28:50
-"next tuesday"                 01/01/2000 00:00:00
-"next tuesday"                 01/01/2000 00:00:00
+"next tuesday"                 NEXT TUESDAY
+"next tuesday"                 NEXT TUESDAY
 "next tuesday"                 2014-01-27 11:28:50
 Note: timezone set to "TZ=America/Los_Angeles"
 
