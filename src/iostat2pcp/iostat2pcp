@@ -70,19 +70,30 @@ my %inst_map = ();	# key=indom value=last_inst_assigned, and
 
 sub dodate($)
 {
-    # convert datetime formats 27/07/10 12:47:34 or
-    # 2013-07-05 09:17:28 or 2010-07-27T12:46:07+1000
+    # convert datetime formats "27/07/10 12:47:34" or
+    # "2013-07-05 09:17:28" or "2010-07-27T12:46:07+1000"
+    # or "Time: 03:49:57 PM"
     # into ISO-8601 dates that Date::Parse
     # seems to be able to parse correctly ... this would appear to
     # have to be YYYY-MM-DDTHH:MM:SS.000000 and then pass the timezone
     # as the second parameter to str2time()
     #
     my ($datetime) = @_;
+    my ($mm, $yy, $dd, $hh, $ss, $time, $pm);
+    my @timefields;
     my @fields;
-    my $mm;
-    my $yy;
-    my $dd;
-    my $time;
+
+    $pm = 0;
+    if ($datetime =~ '^Time:') {
+	# Time: HH:MM:SS PM format
+	$datetime =~ s/^Time:/$basedate/;
+	if ($datetime =~ ' PM$') {
+	    $pm = 12;
+	}
+	$datetime =~ s/ [AP]M$//;
+	# converted into alternate form (almost - need to cater for am/pm still)
+    }
+
     @fields = split(/T/, $datetime);
     if ($#fields == 1) {
 	# ISO format - YYYY-MM-DDTHH:MM:SS[timezone]
@@ -100,7 +111,12 @@ sub dodate($)
 	    # DD/MM/YY HH:MM:SS format
 	    @fields = split(/ /, $datetime);
 	    $#fields == 1 or die "dodate: bad datetime format 1: \"$datetime\"\n";
-	    $time = $fields[1];
+	    @timefields = split(/:/, $fields[1]);
+	    $#timefields == 2 or die "dodate: bad time format 1: \"$datetime\"\n";
+	    $hh = $timefields[0] + $pm;
+	    $mm = $timefields[1];
+	    $ss = $timefields[2];
+	    $time = $hh . ':' . $mm . ':' . $ss;
 	    @fields = split(/\//, $fields[0]);
 	    $#fields == 2 or die "dodate: bad date format 1: \"$datetime\"\n";
 	    $dd = $fields[0];
@@ -113,7 +129,12 @@ sub dodate($)
 		# YYYY-MM-DD HH:MM:SS format
 		@fields = split(/ /, $datetime);
 		$#fields == 1 or die "dodate: bad datetime format 3: \"$datetime\"\n";
-		$time = $fields[1];
+		@timefields = split(/:/, $fields[1]);
+		$#timefields == 2 or die "dodate: bad time format 3: \"$datetime\"\n";
+		$hh = $timefields[0] + $pm;
+		$mm = $timefields[1];
+		$ss = $timefields[2];
+		$time = $hh . ':' . $mm . ':' . $ss;
 		@fields = split(/-/, $fields[0]);
 		$#fields == 2 or die "dodate: bad date format 3: \"$datetime\"\n";
 		$yy = $fields[0];
@@ -136,7 +157,7 @@ sub dodate($)
     return $yy . "-" . $mm . "-" . $dd . "T" . $time;
 }
 
-# for stamp_style 1 or 2 or 3, -S and -t options ignored
+# for stamp_style 1 or 2 or 3 or 4, -S and -t options ignored
 # for stamp_style 2, -Z option ignored
 #
 sub check_opts()
@@ -407,6 +428,16 @@ while (<INFILE>) {
 	check_opts();
 	next;
     }
+    elsif ($line == 3 && /Time: [0-2][0-9]:[0-5][0-9]:[0-5][0-9] [AP]M/) {
+
+	# -t option timestamp and ??? not sure ... but visible in
+	# http://www.pcp.io/pipermail/pcp/2014-October/005777.html
+	# Time: 03:49:57 PM
+	#
+	$stamp_style = 4;
+	check_opts();
+	next;
+    }
     elsif ($line == 3) {
 	# first group tag
 	$first_tag = $_;
@@ -444,6 +475,13 @@ while (<INFILE>) {
     }
     elsif ($stamp_style == 3) {
 	if (/[1-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]/) {
+	    $next_stamp = dodate($_);
+	    $next_now = str2time($next_stamp, $zone);
+	    $end_sample = 1;
+	}
+    }
+    elsif ($stamp_style == 4) {
+	if (/Time: [0-2][0-9]:[0-5][0-9]:[0-5][0-9]/) {
 	    $next_stamp = dodate($_);
 	    $next_now = str2time($next_stamp, $zone);
 	    $end_sample = 1;
@@ -514,7 +552,7 @@ while (<INFILE>) {
 
 	# if timestamp, get onto real data in following lines
 	#
-	($stamp_style == 1 || $stamp_style == 2 || $stamp_style == 3) and next;
+	($stamp_style >= 1 && $stamp_style <= 4) and next;
     }
 
     if (/^Device:/) {
@@ -551,6 +589,7 @@ while (<INFILE>) {
 		# Device:            tps    kB_read/s    kB_wrtn/s    kB_read    kB_wrtn
 		# Device:            tps    MB_read/s    MB_wrtn/s    MB_read    MB_wrtn
 		# Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util
+		# Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
 		if (/tps/) {
 		    $dev_style = "d";	# -d option
 		    if (/Blk_read/) { $dev_thru_scale = 0.5; }
@@ -574,6 +613,8 @@ while (<INFILE>) {
 		    def_multi("disk.dev.read_bytes", $dev_indom);
 		    def_multi("disk.dev.write_bytes", $dev_indom);
 		    def_multi("disk.dev.avactive", $dev_indom);
+		    def_multi("disk.dev.read_rawactive", $dev_indom);
+		    def_multi("disk.dev.write_rawactive", $dev_indom);
 		}
 	    }
 	    # Note: instances are populated as they are found _after_ the
@@ -625,6 +666,10 @@ while (<INFILE>) {
 	    # or
 	    # Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util
 	    # sda               0.03     0.76    0.32    0.21     8.90     7.79    31.61     0.01   13.37   2.11   0.11
+	    # or
+	    # Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
+	    # sda               0.33     1.32    1.26    2.65    33.94    25.02    30.17     0.09   24.10   24.35   23.98   5.81   2.27
+
 	    my @part = split(/\s+/, $_);
 	    my @thisval;
 	    my $instance;
@@ -647,9 +692,9 @@ while (<INFILE>) {
 		$instance = $part[0];
 	    }
 	    else {
-		if ($#part != 11) {
+		if ($#part != 11 and $#part != 13) {
 		    print "[$line] $_\n";
-		    die "Device: number of values? expected 12, found " . ($#part+1) . "\n";
+		    die "Device: number of values? expected 12 or 14, found " . ($#part+1) . "\n";
 		}
 		$instance = $part[0];
 	    }
@@ -674,6 +719,10 @@ while (<INFILE>) {
 		    def_metric_inst("disk.dev.read_bytes", $dev_indom, $instance);
 		    def_metric_inst("disk.dev.write_bytes", $dev_indom, $instance);
 		    def_metric_inst("disk.dev.avactive", $dev_indom, $instance);
+		    if ($#part == 13) {
+			def_metric_inst("disk.dev.read_rawactive", $dev_indom, $instance);
+			def_metric_inst("disk.dev.write_rawactive", $dev_indom, $instance);
+		    }
 		}
 		# populate dev_seen for each instance
 		$dev_seen{$instance} = 0;
@@ -710,6 +759,8 @@ while (<INFILE>) {
 		# disk.dev.read_bytes
 		# disk.dev.write_bytes
 		# disk.dev.avactive
+		# disk.dev.read_rawactive
+		# disk.dev.write_rawactive
 		@thisval = ($part[1], $part[2], $part[3], $part[4], $part[5] * $dev_thru_scale, $part[6] * $dev_thru_scale, $part[11]);
 		if (!exists($dev_prev{$instance})) {
 		    # first time seen for this instance
