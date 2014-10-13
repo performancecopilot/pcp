@@ -51,12 +51,6 @@ header is added to all JSON responses.
 
 To create a new web context identifier, a web client invokes:
 .TP
-.B /pmapi/context?local=ANYTHING
-Creates a PM_CONTEXT_LOCAL PMAPI context. Note that when using this context the range of accessible performance metrics
-is constrained to those from the operating system. See
-.BR pmNewContext (3)
-for more information.
-.TP
 .B /pmapi/context?hostname=STRING
 .TP
 .B /pmapi/context?hostspec=STRING
@@ -64,9 +58,21 @@ Creates a PM_CONTEXT_HOST PMAPI context with the given host name and/or extended
 specification.  If the host specification contains a userid/password combination,
 then the corresponding pmapi context operations will require HTTP Basic authentication
 credentials with matching userid/password.
+
+Note that most command line pcp tools default to
+.BR "-h local:" ,
+which maps to
+.B /pmapi/context?hostname=local: 
+in the pmwebapi.
+.TP
+.B /pmapi/context?local=ANYTHING
+Creates a PM_CONTEXT_LOCAL PMAPI context, corresponding to \f3-L\fR for 
+most command line pcp tools.  Fewer metrics are normally available this way.
+
 .TP
 .B /pmapi/context?archivefile=ARCHIVE
-Creates a PM_CONTEXT_ARCHIVE PMAPI context with the given file name.
+Creates a PM_CONTEXT_ARCHIVE PMAPI context with the given file name.  Only
+metrics from the given archive are available.
 .PP
 In addition, the web client may add the parameter
 .B &polltimeout=MMMM
@@ -74,7 +80,7 @@ for a maximum interval (in seconds) between expected accesses to the
 given context.  This value is limited by pmwebd configuration, and is
 a courtesy to allow pmwebd to free up memory earlier in case of sudden
 web application shutdown.
-
+.PP
 If successful, the response from these requests is a JSON document of the form:
 
 .SAMPLE
