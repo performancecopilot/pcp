@@ -30,7 +30,8 @@ for infile in \
     src/iostat src/iostat-z \
     src/iostat-d-k src/iostat-d-m src/iostat-x \
     src/iostat-p-ALL \
-    src/iostat-z-p-ALL
+    src/iostat-z-p-ALL \
+    src/iostat-t-x-bud
 do
     echo
     echo "=== $infile ==="
