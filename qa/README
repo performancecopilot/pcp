@@ -90,8 +90,11 @@ Basic getting started
     Firewalls can get in the way.  In addition to the standard pmcd
     port(s), one needs to open ports to allow incoming connections and
     outgoing connections on a range of ports for pmdatrace, pmlogger
-    connections via pmlc, and some QA tests.  Opening the tcp range
+    connections via pmlc, and some QA tests.  Opening the TCP range
     4320 to 4350 (inclusive) should suffice.
+
+    If the avahi services are to be tested, then the firewall also needs
+    to allow mDNS traffic (UDP, port 5353).
 
 
 Doing the Real Work
