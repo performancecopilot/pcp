@@ -4,6 +4,11 @@
 #
 # Copyright (c) 2013 Red Hat.
 #
+# NOTE
+#	This test is likely to fail unless hostname(1) returns
+#	some sort of FQDN.  For example, when hostname was vm23 it
+#	failed, but when hostname was set (via /etc/hostname in
+#	this case) to vm23.localdomain the test passes.
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -46,39 +51,49 @@ _filter_listusers2()
 
 # real QA test starts here
 _save_config $PCP_SASLCONF_DIR/pmcd.conf
-echo 'mech_list: plain' > $tmp.sasl
-echo "sasldb_path: $tmp.passwd.db" >> $tmp.sasl
+echo 'mech_list: plain' >$tmp.sasl
+echo "sasldb_path: $tmp.passwd.db" >>$tmp.sasl
 $sudo cp $tmp.sasl $PCP_SASLCONF_DIR/pmcd.conf
-id pcp >/dev/null 2>&1 && $sudo chown pcp:pcp $PCP_SASLCONF_DIR/pmcd.conf
+$sudo chown pcp:pcp $PCP_SASLCONF_DIR/pmcd.conf
+ls -l $PCP_SASLCONF_DIR/pmcd.conf >>$seq.full
+$sudo -u pcp cat $PCP_SASLCONF_DIR/pmcd.conf >>$seq.full
 
-echo "Creating temporary sasldb, add user running QA to it"
+echo "Creating temporary sasldb, add user running QA to it" | tee -a $seq.full
 echo y | saslpasswd2 -p -a pmcd -f $tmp.passwd.db $username
 
-echo "Verify saslpasswd2 has successfully added a new user"
-sasldblistusers2 -f $tmp.passwd.db | _filter_listusers2
+echo "Verify saslpasswd2 has successfully added a new user" | tee -a $seq.full
+sasldblistusers2 -f $tmp.passwd.db \
+| tee -a $seq.full \
+| _filter_listusers2
 
-echo "Ensure pmcd can read the password file"
-id pcp >/dev/null 2>&1 && $sudo chown pcp:pcp $tmp.passwd.db
+echo "Ensure pmcd can read the password file" | tee -a $seq.full
+$sudo chown pcp:pcp $tmp.passwd.db
+ls -l $tmp.passwd.db >>$seq.full
+$sudo -u pcp cat $tmp.passwd.db >>$seq.full
 
 echo "Start pmcd with this shiny new sasldb"
 $sudo $PCP_RC_DIR/pcp restart | tee -a $seq.full >$tmp.out
 _wait_for_pmcd
 
-echo "Enabling sample PMDA tracing"
+echo "Enabling sample PMDA tracing" | tee -a $seq.full
 authdbg=`pmdbg -l | grep DBG_TRACE_AUTH | awk '{ print $2 }'`
-pmstore sample.control $authdbg
+echo "authdbg=$authdbg" >>$seq.full
+echo "username=$username" >>$seq.full
+pmstore sample.control "$authdbg"
 
-echo "Verifying SASL authentication for new client (FAIL)"
+echo "Verifying SASL authentication for new client (FAIL)" | tee -a $seq.full
 pmprobe -v -h "pcp://localhost?username=${username}&password=n" sample.control
+cat $PCP_LOG_DIR/pmcd/sample.log >>$seq.full
 filter_sample_log_credentials
-echo "pmcd.log (from expected FAIL)" >> $seq.full
-cat $PCP_LOG_DIR/pmcd/pmcd.log >> $seq.full
+echo "pmcd.log (from expected FAIL)" >>$seq.full | tee -a $seq.full
+cat $PCP_LOG_DIR/pmcd/pmcd.log >>$seq.full
 
-echo "Verifying SASL authentication for new client (PASS)"
+echo "Verifying SASL authentication for new client (PASS)" | tee -a $seq.full
 pmprobe -v -h "pcp://localhost?username=${username}&password=y" sample.control
+cat $PCP_LOG_DIR/pmcd/sample.log >>$seq.full
 filter_sample_log_credentials
-echo "pmcd.log (from expected PASS)" >> $seq.full
-cat $PCP_LOG_DIR/pmcd/pmcd.log >> $seq.full
+echo "pmcd.log (from expected PASS)" >>$seq.full
+cat $PCP_LOG_DIR/pmcd/pmcd.log >>$seq.full
 
 # success, all done
 status=0
