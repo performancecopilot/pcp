@@ -29,11 +29,12 @@ echo "next tuesday: $(date '+%Y-%m-%d' -d 'next tuesday')" >>$seq.full
 #
 src/rtimetest \
 | tee -a $seq.full \
-| sed -e "s/$(date '+%Y-%m-%d' -d 'yesterday') ..:..:../YESTERDAY/" \
-    -e "s/$(date '+%Y-%m-%d' -d 'tomorrow') ..:..:../TOMORROW/" \
+| sed \
     -e "/sunday/s/$(date '+%Y-%m-%d' -d 'sunday') ..:..:../SUNDAY/" \
     -e "/monday/s/$(date '+%Y-%m-%d' -d 'last monday') ..:..:../LAST MONDAY/" \
     -e "/tuesday/s/$(date '+%Y-%m-%d' -d 'next tuesday') ..:..:../NEXT TUESDAY/" \
+    -e "s/$(date '+%Y-%m-%d' -d 'yesterday') ..:..:../YESTERDAY/" \
+    -e "s/$(date '+%Y-%m-%d' -d 'tomorrow') ..:..:../TOMORROW/" \
     -e "s/$(date '+%Y-%m-%d') ..:..:../TODAY/"
 
 unset TZ
