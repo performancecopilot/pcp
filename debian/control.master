@@ -13,7 +13,7 @@ Package: pcp
 Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, libpcp-pmda-perl, python-pcp, python
 Suggests: tsocks
 Conflicts: pgpool2
-Recommends: pcp-gui, libpcp-import-perl
+Suggests: pcp-gui, libpcp-import-perl
 Architecture: any
 Description: System level performance monitoring and performance management
  Performance Co-Pilot (PCP) is a framework and services to
@@ -334,7 +334,7 @@ Section: doc
 Depends: ${misc:Depends}
 Breaks: pcp-gui (<< 1.5.13)
 Replaces: pcp-gui (<< 1.5.13)
-Recommends: pcp, pcp-gui
+Suggests: pcp, pcp-gui
 Architecture: all
 Description: Documentation and tutorial for the Performance Co-Pilot
  The pcp-doc package provides useful information on using and
