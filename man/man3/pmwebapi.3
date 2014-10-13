@@ -51,7 +51,10 @@ In addition, pmwebd may serve a subset of the graphite 0.9.2 web-api.
 To create a new web context identifier, a web client invokes:
 .TP
 .B /pmapi/context?local=ANYTHING
-Creates a PM_CONTEXT_LOCAL PMAPI context.
+Creates a PM_CONTEXT_LOCAL PMAPI context. Note that when using this context the range of accessible performance metrics
+is constrained to those from the operating system. See
+.BR pmNewContext (3)
+for more information.
 .TP
 .B /pmapi/context?hostname=STRING
 .TP
