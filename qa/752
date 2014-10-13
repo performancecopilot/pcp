@@ -14,13 +14,28 @@ status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-TZ=gmt src/rtimetest |
-sed -e "s/$(date '+%Y-%m-%d' -d 'yesterday') ..:..:../01\/01\/2000 00:00:00/" \
-    -e "s/$(date '+%Y-%m-%d' -d 'tomorrow') ..:..:../01\/01\/2000 00:00:00/" \
-    -e "s/$(date '+%Y-%m-%d' -d 'sunday') ..:..:../01\/01\/2000 00:00:00/" \
-    -e "s/$(date '+%Y-%m-%d' -d 'last monday') ..:..:../01\/01\/2000 00:00:00/" \
-    -e "s/$(date '+%Y-%m-%d' -d 'next tuesday') ..:..:../01\/01\/2000 00:00:00/" \
-    -e "s/$(date '+%Y-%m-%d') ..:..:../01\/01\/2000 00:00:00/" 
+export TZ=gmt
+echo "now: $(date '+%Y-%m-%d')" >>$seq.full
+echo "yesterday: $(date '+%Y-%m-%d' -d 'yesterday')" >>$seq.full
+echo "tomorrow: $(date '+%Y-%m-%d' -d 'tomorrow')" >>$seq.full
+echo "sunday: $(date '+%Y-%m-%d' -d 'sunday')" >>$seq.full
+echo "first sunday: $(date '+%Y-%m-%d' -d 'first sunday')" >>$seq.full
+echo "last monday: $(date '+%Y-%m-%d' -d 'last monday')" >>$seq.full
+echo "next tuesday: $(date '+%Y-%m-%d' -d 'next tuesday')" >>$seq.full
 
+# Be careful, sunday, first sunday, next sunday and today could all be
+# the same date.
+# Ditto for monday and tuesday.
+#
+src/rtimetest \
+| tee -a $seq.full \
+| sed -e "s/$(date '+%Y-%m-%d' -d 'yesterday') ..:..:../YESTERDAY/" \
+    -e "s/$(date '+%Y-%m-%d' -d 'tomorrow') ..:..:../TOMORROW/" \
+    -e "/sunday/s/$(date '+%Y-%m-%d' -d 'sunday') ..:..:../SUNDAY/" \
+    -e "/monday/s/$(date '+%Y-%m-%d' -d 'last monday') ..:..:../LAST MONDAY/" \
+    -e "/tuesday/s/$(date '+%Y-%m-%d' -d 'next tuesday') ..:..:../NEXT TUESDAY/" \
+    -e "s/$(date '+%Y-%m-%d') ..:..:../TODAY/"
+
+unset TZ
 pmval -Z 'America/Los_Angeles' -S '1998-8-6 02:00:00' sample.bin -a src/ok-foo
 pmval -Z 'America/New_York' -S '1998-8-6 02:00:00' sample.bin -a src/ok-foo
