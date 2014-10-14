@@ -605,7 +605,7 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     int i;
     int state;
     char local_string[32];
-    char status_string[4096];
+    static char status_string[4096];
     int first_metric = 0;
     retval = check_papi_state();
     if (retval & PAPI_RUNNING && idp->cluster == CLUSTER_PAPI) {
