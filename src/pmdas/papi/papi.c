@@ -36,6 +36,7 @@ typedef struct {
     char papi_string_code[PAPI_HUGE_STR_LEN]; //same length as the papi 'symbol' or name of the event
     pmID pmid;
     int position;
+    int metric_enabled;
     long_long prev_value;
     PAPI_event_info_t info;
 } papi_m_user_tuple;
@@ -776,7 +777,7 @@ remove_metric(int event)
     int retval = 0;
     int state = 0;
     int i;
-    int position = papi_info[event].position;
+    int local_metric_position = 0;
 
     /* check to make sure papi is running, otherwise do nothing */
     retval = stop_papi();
@@ -803,14 +804,14 @@ remove_metric(int event)
 
     papi_info[event].prev_value = 0;
     papi_info[event].position = -1;
+    papi_info[event].metric_enabled = 0;
 
     for (i = 0; i < number_of_events; i++) {
 
-	if (papi_info[i].position > position)
-	    papi_info[i].position--;
-
-	if (papi_info[i].position >= 0 && papi_info[i].info.event_code) {
+	if (papi_info[i].metric_enabled == 1 && papi_info[i].info.event_code) {
 	    retval = PAPI_add_event(EventSet, papi_info[i].info.event_code);
+	    papi_info[i].position = local_metric_position;
+	    local_metric_position++;
 	    if (retval != PAPI_OK) {
 		handle_papi_error(retval);
 		return PM_ERR_VALUE;
@@ -889,8 +890,10 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		    if (!strcmp(substring, papi_info[j].papi_string_code) && papi_info[j].position < 0) {
 			// add the metric to the set if it's not already there
 			retval = add_metric(papi_info[j].info.event_code);
-			if (retval == PAPI_OK)
+			if (retval == PAPI_OK) {
 			    papi_info[j].position = number_of_active_counters-1;
+			    papi_info[j].metric_enabled = 1;
+			}
 			break;
 		    }
 		    if (j == size_of_active_counters) {
@@ -1026,6 +1029,7 @@ papi_internal_init(pmdaInterface *dp)
 		__pmAddPMNSNode(papi_tree, pmid, entry);
 		memset(&entry[0], 0, sizeof(entry));
 		papi_info[i].position = -1;
+		papi_info[i].metric_enabled = 0;
 
 		expand_values(i);
 		i++;
