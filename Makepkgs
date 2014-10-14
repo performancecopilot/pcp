@@ -102,6 +102,15 @@ configure=./configure
 configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
 target=`uname -s | cut -c-5 | tr 'A-Z' 'a-z'`
 
+# On Red Hat (and other ?) platforms, rpm macros provide an even
+# better set of defaults.  This one's based on F22's %configure
+# macro from /usr/lib/rpm/macros, and works as far back as RHEL5.
+if [ -f /etc/redhat-release ]
+then
+    configopts=`rpm --eval '--program-prefix=%{?_program_prefix} --disable-dependency-tracking --prefix=%{_prefix} --exec-prefix=%{_exec_prefix} --bindir=%{_bindir} --sbindir=%{_sbindir} --sysconfdir=%{_sysconfdir} --datadir=%{_datadir} --includedir=%{_includedir} --libdir=%{_libdir} --libexecdir=%{_libexecdir} --localstatedir=%{_localstatedir} --sharedstatedir=%{_sharedstatedir} --mandir=%{_mandir} --infodir=%{_infodir}'`
+fi
+
+
 for opt in $*
 do
     case "$opt" in
