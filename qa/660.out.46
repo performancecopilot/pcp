@@ -511,9 +511,8 @@ context #### indom names=kernel.all.nprocs response code 400
 === 3. pmwebd security constraints, file service ===
 PMWEBD error, XXX
 PMWEBD error, XXX
-* About to connect() to LOCALHOST port 44323 (####)
-*   Trying 127.0.0.1...
-* Connected to LOCALHOST (127.0.0.1) port 44323 (####)
+*   Trying LOCALHOST...
+* Connected to LOCALHOST (LOCALHOST) port 44323 (####)
 > GET /pmapi/2222/_fetch?names= HTTP/1.1
 > User-Agent: FOO
 > Host: LOCALHOST:44323
@@ -526,29 +525,10 @@ PMWEBD error, XXX
 < Date: DATE
 < 
 { [data not shown]
-* Connection #### to host LOCALHOST left intact
 PMWEBD error, XXX
 PMWEBD error, XXX
-* About to connect() to LOCALHOST port 44323 (####)
-*   Trying 127.0.0.1...
-* Connected to LOCALHOST (127.0.0.1) port 44323 (####)
-> GET /../../etc/passwd HTTP/1.1
-> User-Agent: FOO
-> Host: LOCALHOST:44323
-> Accept: */*
-> 
-< HTTP/1.1 400 Bad Request
-< Content-Length: 40
-< Access-Control-Allow-Origin: *
-< Content-Type: text/plain
-< Date: DATE
-< 
-{ [data not shown]
-* Connection #### to host LOCALHOST left intact
-PMWEBD error, XXX
-* About to connect() to LOCALHOST port 44323 (####)
-*   Trying 127.0.0.1...
-* Connected to LOCALHOST (127.0.0.1) port 44323 (####)
+*   Trying LOCALHOST...
+* Connected to LOCALHOST (LOCALHOST) port 44323 (####)
 > GET /graphite/render?target=* HTTP/1.1
 > User-Agent: FOO
 > Host: LOCALHOST:44323
@@ -561,9 +541,7 @@ PMWEBD error, XXX
 < Date: DATE
 < 
 { [data not shown]
-* Connection #### to host LOCALHOST left intact
 PMWEBD error, XXX
-file service ok
 
 === 4. pmwebd graphite capabilities ===
 crashers
@@ -571,17 +549,17 @@ the catalog
 HTTP/1.1 302 Moved Temporarily
 Content-Length: 0
 Location: /index.html?phantasm=&zoo=poo
-Date: XXX
+Date: DATE
 
 HTTP/1.1 302 Moved Temporarily
 Content-Length: 0
 Location: /blinkenlights/index.html
-Date: XXX
+Date: DATE
 
 HTTP/1.1 302 Moved Temporarily
 Content-Length: 0
 Location: /blinkenlights/index.html
-Date: XXX
+Date: DATE
 
 <html>
 <head><title>Performance Co-Pilot</title></head>
