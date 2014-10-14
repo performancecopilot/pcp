@@ -288,8 +288,8 @@ mhd_respond_completed (void *cls, struct MHD_Connection *connection, void **con_
         MHD_destroy_post_processor (mhd_cc->pp);
     }
 
-    delete
-    mhd_cc;
+    delete mhd_cc;
+    * con_cls = 0; // Don't re-delete if we're called again
 }
 
 
