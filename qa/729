@@ -8,16 +8,12 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
-
+. ./common.python
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
-python -c 'from pcp import pmapi' 2>/dev/null
+$python -c 'from pcp import pmapi' 2>/dev/null
 test $? -eq 0 || _notrun 'Python pcp pmapi module is not installed'
 
 cat > $tmp.units <<EOF
@@ -42,9 +38,9 @@ EOF
 
 # real QA test starts here
 echo Exercising units string
-python $tmp.units
+$python $tmp.units
 echo Exercising interval parsing
-python $tmp.parse
+$python $tmp.parse
 
 # success, all done
 status=0
