@@ -13,7 +13,7 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
-python -c "from pcp import pmapi" >/dev/null 2>&1
+$python -c "from pcp import pmapi" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
 
 _filter_version()
@@ -23,37 +23,37 @@ _filter_version()
 
 # real QA test starts here
 echo && echo check no arguments
-python $here/src/test_pcp_options.py
+$python $here/src/test_pcp_options.py
 
 echo && echo check non arguments
-python $here/src/test_pcp_options.py param1 param2
+$python $here/src/test_pcp_options.py param1 param2
 
 echo && echo check archive option and non arguments
-python $here/src/test_pcp_options.py -a file param
+$python $here/src/test_pcp_options.py -a file param
 
 echo && echo check host option and hostzone
-python $here/src/test_pcp_options.py -h qa.r.us -z
+$python $here/src/test_pcp_options.py -h qa.r.us -z
 
 echo && echo check timezone
-python $here/src/test_pcp_options.py --timezone UTC
+$python $here/src/test_pcp_options.py --timezone UTC
 
 echo && echo check option samples and interval
-python $here/src/test_pcp_options.py --samples=5 -t1
+$python $here/src/test_pcp_options.py --samples=5 -t1
 
 echo && echo check custom local long options
-python $here/src/test_pcp_options.py --list /tmp --force
+$python $here/src/test_pcp_options.py --list /tmp --force
 
 echo && echo check custom local short options
-python $here/src/test_pcp_options.py -b
+$python $here/src/test_pcp_options.py -b
 
 echo && echo check version message generation
-python $here/src/test_pcp_options.py -V 2>&1 | _filter_version
+$python $here/src/test_pcp_options.py -V 2>&1 | _filter_version
 
 echo && echo check unknown option and usage message
-python $here/src/test_pcp_options.py --munchies
+$python $here/src/test_pcp_options.py --munchies
 
 echo && echo check help option and usage message
-python $here/src/test_pcp_options.py --help
+$python $here/src/test_pcp_options.py --help
 
 # success, all done
 status=0

@@ -321,7 +321,7 @@ sub sample_done()
 	if (defined($now) && defined($stamp)) { print " @ $now $stamp"; }
 	print "\n";
     }
-    if (pmiWrite($now, 0) < 0) {
+    if (defined($now) && pmiWrite($now, 0) < 0) {
 	pmiDump();
 	die "pmiWrite: @ $stamp: " . pmiErrStr(-1) . "\n";
     }
@@ -761,7 +761,11 @@ while (<INFILE>) {
 		# disk.dev.avactive
 		# disk.dev.read_rawactive
 		# disk.dev.write_rawactive
-		@thisval = ($part[1], $part[2], $part[3], $part[4], $part[5] * $dev_thru_scale, $part[6] * $dev_thru_scale, $part[11]);
+		@thisval = ($part[1], $part[2], $part[3], $part[4], $part[5] * $dev_thru_scale, $part[6] * $dev_thru_scale, $part[9]);
+		if ($#part == 13) {
+		    push @thisval, $part[11];
+		    push @thisval, $part[12];
+		}
 		if (!exists($dev_prev{$instance})) {
 		    # first time seen for this instance
 		    $dev_prev{$instance} = [0,0,0,0,0,0,0];
