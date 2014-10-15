@@ -1,0 +1,149 @@
+#!/bin/sh
+# PCP QA Test No. 975
+# Exercise iostat2pcp with locally installed iostat.
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which iostat >/dev/null || _notrun "No local iostat binary found"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+extract_iostat()
+{
+    echo "== Raw iostat:" >> $seq.full
+    cat $1 >> $seq.full
+
+    f="$2.unsorted"
+    $PCP_AWK_PROG < $1 '
+BEGIN		{ cpucount=0; devcount=0 }
+/^avg-cpu:/   	{ cpumode=1; cpucount++; next }
+/^Device: *tps/	{ tpsmode=1; devcount++; next }
+/^Device:/   	{ devices=1; devcount++; next }
+/^$/   		{ cpumode=0; tpsmode=0; devices=0; next }
+		{ #print name-prefixed, and name-sorted output
+		  if (cpumode == 1 && cpucount > 1) {
+		    sample="'$f.'"cpucount-1
+		    printf "cpu.user %f\n", $1/100.0			>> sample
+		    printf "cpu.nice %f\n", $2/100.0			>> sample
+		    printf "cpu.sys %f\n", $3/100.0			>> sample
+		    printf "cpu.wait.total %f\n", $4/100.0		>> sample
+		    printf "cpu.steal %f\n", $5/100.0			>> sample
+		    printf "cpu.idle %f\n", $6/100.0			>> sample
+		  }
+		  if (tpsmode == 1 && devcount > 1) {
+		    sample="'$f.'"devcount-1
+		    instance=$1
+		    s=0.5	# size scale - sectors vs kilobytes
+		    printf "dev.total::%s %f\n", instance, $2		>> sample
+		    printf "dev.read_bytes::%s %f\n", instance, $3*s	>> sample
+		    printf "dev.write_bytes::%s %f\n", instance, $4*s	>> sample
+		  }
+		  if (devices == 1 && devcount > 1) {
+		    sample="'$f.'"devcount-1
+		    instance=$1
+		    s=0.5	# size scale - sectors vs kilobytes
+		    printf "dev.read_merge::%s %f\n", instance, $2	>> sample
+		    printf "dev.write_merge::%s %f\n", instance, $3	>> sample
+		    printf "dev.read::%s %f\n", instance, $4		>> sample
+		    printf "dev.write::%s %f\n", instance, $5		>> sample
+		    printf "dev.read_bytes::%s %f\n", instance, $6*s	>> sample
+		    printf "dev.write_bytes::%s %f\n", instance, $7*s	>> sample
+		    printf "dev.avactive::%s %f\n", instance, $10	>> sample
+		    if (NF == 14) {
+			printf "dev.read_rawactive::%s %f\n", instance, $11  >> sample
+			printf "dev.write_rawactive::%s %f\n", instance, $12 >> sample
+		    }
+		} }'
+    for sample in 1 2
+    do
+	result=`echo $f.$sample | sed -e 's/.unsorted//g'`
+	sort -u < $f.$sample > $result
+
+	echo "== Extracted iostat sample $sample" >> $seq.full
+	cat $result >> $seq.full
+    done
+}
+
+extract_pcp()
+{
+    archive=$1
+
+    # extract two samples - just disk and cpu metrics, sorted
+    pminfo -f -O+.0 -a $1 kernel disk > $tmp.pminfo.1
+    pminfo -f -O-.1 -a $1 kernel disk > $tmp.pminfo.2
+    for sample in 1 2
+    do
+	echo "== Raw pminfo sample $sample:" >> $seq.full
+	cat $tmp.pminfo.$sample >> $seq.full
+
+	sed < $tmp.pminfo.$sample \
+	    -e 's/^disk.//g' \
+	    -e 's/^kernel.all.//g' \
+	    -e 's/"//g' -e 's/]//g' | \
+	$PCP_AWK_PROG '
+/^[a-z]/        { metric=$1; next }
+/^$/            { metric=""; next }
+/ value /       { if (NF  > 2) { printf "%s::%s %f\n", metric, $4, $6 }
+                  if (NF == 2) { printf "%s %f\n", metric, $2 }
+                }' \
+	| sort -u > $2.$sample
+
+	echo "== Extracted pcp sample $sample:" >> $seq.full
+	cat $tmp.pcp.values.$sample >> $seq.full
+    done
+}
+
+compare_samples()
+{
+    for sample in 1 2
+    do
+	paste $1.$sample $2.$sample >$tmp.both
+	echo "== Merged $1.$sample and $2.$sample:" >> $seq.full
+	cat $tmp.both >> $seq.full
+
+	echo Verifying sample $sample
+	$PCP_AWK_PROG <$tmp.both '
+		{ if (($2-$4) > 0.000001 || ($2-$4) < -0.000001)
+		    print "[",NR,"] mismatch:",$1,$2,$4
+		}'
+    done
+}
+
+# real QA test starts here
+export S_TIME_FORMAT=ISO
+
+# three samples, one second apart (ignore first though)
+iostat -t 1 3 > $tmp.iostat
+extract_iostat $tmp.iostat $tmp.iostat.values
+
+echo "== Run iostat2pcp:" >> $seq.full
+iostat2pcp -v $tmp.iostat $tmp.iostat2pcp >> $seq.full
+extract_pcp $tmp.iostat2pcp $tmp.pcp.values
+
+echo "Comparing stock iostat output to PCP archive"
+compare_samples $tmp.iostat.values $tmp.pcp.values
+
+# compare the extended device stats next
+iostat -x -t 1 3 > $tmp.iostatx
+extract_iostat $tmp.iostatx $tmp.iostatx.values
+
+iostat2pcp $tmp.iostatx $tmp.iostatx2pcp
+extract_pcp $tmp.iostatx2pcp $tmp.pcpx.values
+
+echo "Comparing extended iostat output to PCP archive"
+compare_samples $tmp.iostatx.values $tmp.pcpx.values
+
+# success, all done
+status=0
+exit
