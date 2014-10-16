@@ -715,8 +715,8 @@ Temporal Index
                 inst [1 or "sdb"] value 377.41
                 inst [2 or "scd0"] value 0
               245.0.13 (disk.dev.avactive):
-                inst [0 or "sda"] value 0.13
-                inst [1 or "sdb"] value 0.93000001
+                inst [0 or "sda"] value 0.31
+                inst [1 or "sdb"] value 4.3600001
                 inst [2 or "scd0"] value 0
 
 [608 bytes]
