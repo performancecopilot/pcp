@@ -187,6 +187,7 @@ MYFILES += $(SRCARCH) \
 	simple.sxc simple.xls simple.xlsx \
 	iostat iostat-c iostat-d iostat-d-k iostat-d-m iostat-p-ALL \
 	iostat-t iostat-t.ISO iostat-x iostat-z iostat-z-p-ALL \
+	iostat-t-x-bud \
 	pthread_barrier.h pv.c qa_test.c qa_timezone.c \
 	sa-sysstat-9.0.4 sa-sysstat-9.0.6 sa-sysstat-9.0.6.1 \
 	sa-sysstat-10.0.1 sa-sysstat-10.0.5 sa-sysstat-10.2.0 \
