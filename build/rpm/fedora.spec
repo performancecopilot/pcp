@@ -16,8 +16,12 @@ Source1: pcp-web-manager-%{version}.src.tar.gz
 %else
 %{!?disable_papi: %global disable_papi 0%{?rhel} < 6}
 %endif
-%define disable_python3 0
 %define disable_microhttpd 0
+%if 0%{?rhel} == 0 || 0%{?rhel} > 6
+%define disable_python3 0
+%else
+%define disable_python3 1
+%endif
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %define disable_qt 0
 %else
@@ -518,6 +522,7 @@ rm -fr $RPM_BUILD_ROOT/%{_pmdasdir}/infiniband
 
 %if %{disable_qt}
 rm -fr $RPM_BUILD_ROOT/%{_pixmapdir}
+rm -fr $RPM_BUILD_ROOT/%{_confdir}/pmsnap
 rm -f `find $RPM_BUILD_ROOT/%{_mandir}/man1 | egrep "$PCP_GUI"`
 %else
 rm -rf $RPM_BUILD_ROOT/usr/share/doc/pcp-gui
@@ -555,7 +560,7 @@ cat base_bin.list base_exec.list base_man.list |\
   egrep "$PCP_GUI" >> pcp-gui.list
 %endif
 cat base_pmdas.list base_bin.list base_exec.list base_man.list |\
-  egrep -v 'pmdaib|pmmgr|pmweb|jsdemos|2pcp' |\
+  egrep -v 'pmdaib|pmmgr|pmweb|pmsnap|jsdemos|2pcp' |\
   egrep -v "$PCP_GUI|pixmaps|pcp-doc|tutorials" |\
   egrep -v %{_confdir} | egrep -v %{_logsdir} > base.list
 
@@ -773,7 +778,6 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %dir %{_datadir}/pcp
 %dir %{_localstatedir}/lib/pcp
 %dir %{_localstatedir}/lib/pcp/config
-%dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmda
 %dir %attr(0775,pcp,pcp) %{_tempsdir}
 %dir %attr(0775,pcp,pcp) %{_tempsdir}/pmie
 %dir %attr(0775,pcp,pcp) %{_tempsdir}/pmlogger
@@ -782,7 +786,6 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %{_datadir}/pcp/lib/ReplacePmnsSubtree
 %{_datadir}/pcp/lib/bashproc.sh
 %{_datadir}/pcp/lib/lockpmns
-%{_datadir}/pcp/lib/pmcd
 %{_datadir}/pcp/lib/pmdaproc.sh
 %{_datadir}/pcp/lib/rc-proc.sh
 %{_datadir}/pcp/lib/rc-proc.sh.minimal
@@ -822,7 +825,12 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %attr(0664,pcp,pcp) %config(noreplace) %{_confdir}/pmie/control
 %dir %attr(0775,pcp,pcp) %{_confdir}/pmlogger
 %attr(0664,pcp,pcp) %config(noreplace) %{_confdir}/pmlogger/control
-%{_localstatedir}/lib/pcp/config/*
+
+%{_localstatedir}/lib/pcp/config/pmafm
+%{_localstatedir}/lib/pcp/config/pmieconf
+%{_localstatedir}/lib/pcp/config/pmlogconf
+%{_localstatedir}/lib/pcp/config/pmlogrewrite
+%dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmda
 
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %{tapsetdir}/pmcd.stp
@@ -965,7 +973,8 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %files -n pcp-gui -f pcp-gui.list
 %defattr(-,root,root,-)
 
-%config(noreplace) %{_sysconfdir}/pcp/pmsnap
+%{_confdir}/pmsnap
+%config(noreplace) %{_confdir}/pmsnap/control
 %{_localstatedir}/lib/pcp/config/pmsnap
 %{_localstatedir}/lib/pcp/config/pmchart
 %{_localstatedir}/lib/pcp/config/pmafm/pcp-gui
