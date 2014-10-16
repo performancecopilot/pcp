@@ -59,6 +59,7 @@ echo "== Testing dmcache metrics" | tee -a $seq.full
 $sudo dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
 open pipe /usr/bin/python $pmda_script
 getdesc on
+instance $domain.0
 desc dmcache.size
 desc dmcache.metadata.block_size
 desc dmcache.metadata.used

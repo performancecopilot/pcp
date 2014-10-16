@@ -4,6 +4,10 @@ QA output created by 985
 dbpmda> open pipe /usr/bin/python $PCP_PMDAS_DIR/dmcache/pmdadmcache.python
 Start python PMDA: /usr/bin/python $PCP_PMDAS_DIR/dmcache/pmdadmcache.python
 dbpmda> getdesc on
+dbpmda> instance 129.0
+pmInDom: 129.0
+[  0] inst: 0 name: "dmcache2"
+[  1] inst: 1 name: "dmcache1"
 dbpmda> desc dmcache.size
 PMID: 129.0.0
     Data Type: 64-bit unsigned int  InDom: 129.0 0x20400000
