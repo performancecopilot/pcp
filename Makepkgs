@@ -102,15 +102,6 @@ configure=./configure
 configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
 target=`uname -s | cut -c-5 | tr 'A-Z' 'a-z'`
 
-# On Red Hat (and other ?) platforms, rpm macros provide an even
-# better set of defaults.  This one's based on F22's %configure
-# macro from /usr/lib/rpm/macros, and works as far back as RHEL5.
-if [ -f /etc/redhat-release ]
-then
-    configopts=`rpm --eval '--program-prefix=%{?_program_prefix} --disable-dependency-tracking --prefix=%{_prefix} --exec-prefix=%{_exec_prefix} --bindir=%{_bindir} --sbindir=%{_sbindir} --sysconfdir=%{_sysconfdir} --datadir=%{_datadir} --includedir=%{_includedir} --libdir=%{_libdir} --libexecdir=%{_libexecdir} --localstatedir=%{_localstatedir} --sharedstatedir=%{_sharedstatedir} --mandir=%{_mandir} --infodir=%{_infodir}'`
-fi
-
-
 for opt in $*
 do
     case "$opt" in
@@ -298,11 +289,16 @@ debian_buildpackage()
     echo "== Building deb packages using dpkg-buildpackage"
 
     SUDO=${SUDO:-fakeroot}
+    # Don't try to sign packages unless you're Nathan Scott!
+    # Otherwise we risk Makepkgs exiting with a non-zero status.
+    #
+    sign=''
+    [ "`id -un`" != "nathans" ] && sign='-us -uc'
     rm -f $tmp/failed
     if $verbose ; then
-	(dpkg-buildpackage -r$SUDO || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
+	(dpkg-buildpackage $sign -r$SUDO || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
     else
-	(dpkg-buildpackage -r$SUDO || touch $tmp/failed) >>$LOGDIR/pcp 2>&1
+	(dpkg-buildpackage $sign -r$SUDO || touch $tmp/failed) >>$LOGDIR/pcp 2>&1
     fi
     [ -f $tmp/failed ] && build_failure debian buildpackage
 }
