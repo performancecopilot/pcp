@@ -97,19 +97,6 @@ trap "rm -rf $tmp" 0 1 2 3 15
 configure=./configure
 target=`uname -s | cut -c-5 | tr 'A-Z' 'a-z'`
 
-if [ ! -x /usr/bin/rpmbuild ]
-then
-    # Bog-standard options suitable for a package on any platform.
-    # Command line can be used to extend this set, and any unusual
-    # platform-specific requirements are also appended later on.
-    configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
-else
-    # On RPM-based platforms, rpm macros provide an excellent set of defaults.
-    # This set is based on Fedora 22 %configure macro from /usr/lib/rpm/macros,
-    # and is known to work as far back as RHEL5.
-    configopts=`rpmbuild --eval '--prefix=%{_prefix} --exec-prefix=%{_exec_prefix} --bindir=%{_bindir} --sbindir=%{_sbindir} --sysconfdir=%{_sysconfdir} --datadir=%{_datadir} --includedir=%{_includedir} --libdir=%{_libdir} --libexecdir=%{_libexecdir} --localstatedir=%{_localstatedir} --sharedstatedir=%{_sharedstatedir} --mandir=%{_mandir}' 2>/dev/null`
-fi
-
 for opt in $*
 do
     case "$opt" in
@@ -297,11 +284,16 @@ debian_buildpackage()
     echo "== Building deb packages using dpkg-buildpackage"
 
     SUDO=${SUDO:-fakeroot}
+    # Don't try to sign packages unless you're Nathan Scott!
+    # Otherwise we risk Makepkgs exiting with a non-zero status.
+    #
+    sign=''
+    [ "`id -un`" != "nathans" ] && sign='-us -uc'
     rm -f $tmp/failed
     if $verbose ; then
-	(dpkg-buildpackage -r$SUDO || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
+	(dpkg-buildpackage $sign -r$SUDO || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
     else
-	(dpkg-buildpackage -r$SUDO || touch $tmp/failed) >>$LOGDIR/pcp 2>&1
+	(dpkg-buildpackage $sign -r$SUDO || touch $tmp/failed) >>$LOGDIR/pcp 2>&1
     fi
     [ -f $tmp/failed ] && build_failure debian buildpackage
 }
