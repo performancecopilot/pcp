@@ -274,7 +274,7 @@ echo >$tmp.pminfo
 for i in 1 2 3 4 5 6 7 8 9 10
 do
     ssh -q pcpqa@$other1 $cmd2 >$tmp.tmp 2>&1
-    echo "--- attempt $i ---" >>$tmp.pminfo
+    echo "--- attempt $i from $other1 ---" >>$tmp.pminfo
     cat $tmp.tmp >>$tmp.pminfo
     if grep 'connection limit' $tmp.tmp >/dev/null
     then
@@ -308,7 +308,7 @@ echo >$tmp.pminfo
 for i in 1 2 3 4 5 6 7 8 9 10
 do
     ssh -q pcpqa@$other2 $cmd2 >$tmp.tmp 2>&1
-    echo "--- attempt $i ---" >>$tmp.pminfo
+    echo "--- attempt $i from $other2 ---" >>$tmp.pminfo
     cat $tmp.tmp >>$tmp.pminfo
     if grep 'connection limit' $tmp.tmp >/dev/null
     then
@@ -335,7 +335,7 @@ echo >$tmp.pmstore
 for i in 1 2 3 4 5 6 7 8 9 10
 do
     ssh -q pcpqa@$other2 $cmd3 >$tmp.tmp 2>&1
-    echo "--- attempt $i ---" >>$tmp.pminfo
+    echo "--- attempt $i from $other2 ---" >>$tmp.pminfo
     cat $tmp.tmp >>$tmp.pmstore
     if grep 'connection limit' $tmp.tmp >/dev/null
     then
