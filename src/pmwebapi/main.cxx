@@ -135,8 +135,7 @@ const
 vector <string> http_params::find_all (const string & s) const
 {
     vector <string> all;
-    pair <http_params::const_iterator, http_params::const_iterator> them = this->equal_range (
-                s);
+    pair <http_params::const_iterator, http_params::const_iterator> them = this->equal_range (s);
     for (http_params::const_iterator x = them.first; x != them.second; x++) {
         all.push_back (x->second);
     }
@@ -238,7 +237,7 @@ mhd_respond (void *cls, struct MHD_Connection *connection, const char *url0,
 
         /* pmresapi? */
         else if ((resourcedir != "") && (method == "GET")) {
-            return pmwebres_respond (connection, url);
+            return pmwebres_respond (connection, mhd_cc->params, url);
         }
 
         /* fall through */
