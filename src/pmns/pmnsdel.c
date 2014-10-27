@@ -112,11 +112,14 @@ main(int argc, char **argv)
     char	outfname[MAXPATHLEN];
     struct stat	sbuf;
 
-    if ((p = getenv("PMNS_DEFAULT")) != NULL)
-	strcpy(pmnsfile, p);
-    else
+    if ((p = getenv("PMNS_DEFAULT")) != NULL) {
+	strncpy(pmnsfile, p, MAXPATHLEN);
+        pmnsfile[MAXPATHLEN-1]= '\0';
+
+    } else {
 	snprintf(pmnsfile, sizeof(pmnsfile), "%s%c" "pmns" "%c" "root",
 		pmGetConfig("PCP_VAR_DIR"), sep, sep);
+    }
 
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
@@ -136,7 +139,8 @@ main(int argc, char **argv)
 	    break;
 
 	case 'n':	/* alternative name space file */
-	    strcpy(pmnsfile, opts.optarg);
+	    strncpy(pmnsfile, opts.optarg, MAXPATHLEN);
+	    pmnsfile[MAXPATHLEN-1]= '\0';
 	    break;
 
 	case '?':
