@@ -50,8 +50,8 @@ ostream & timestamp (ostream & o)
 }
 
 
-// Print connection-specific string
-ostream & connstamp (ostream & o, struct MHD_Connection * conn)
+
+string conninfo (struct MHD_Connection * conn, bool serv_p)
 {
     char hostname[128];
     char servname[128];
@@ -73,8 +73,17 @@ ostream & connstamp (ostream & o, struct MHD_Connection * conn)
         hostname[0] = servname[0] = '\0';
     }
 
-    timestamp (o) << "[" << hostname << ":" << servname << "] ";
+    if (serv_p)
+        return string(hostname) + string(":") + string(servname);
+    else
+        return string(hostname);
+}
 
+
+// Print connection-specific string
+ostream & connstamp (ostream & o, struct MHD_Connection * conn)
+{
+    timestamp (o) << "[" << conninfo (conn, true) << "] ";
     return o;
 }
 

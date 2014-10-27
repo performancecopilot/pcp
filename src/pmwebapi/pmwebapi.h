@@ -82,6 +82,7 @@ pmgraphite_respond (struct MHD_Connection *connection, const http_params &,
 
 // util.cxx
 extern std::ostream & timestamp (std::ostream & o);
+extern std::string conninfo (MHD_Connection *, bool serv_p);
 extern std::ostream & connstamp (std::ostream & o, MHD_Connection *);
 extern std::string urlencode (const std::string &);
 extern std::vector <std::string > split (const std::string & s, char delim);
