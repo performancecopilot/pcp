@@ -619,8 +619,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='PACKAGE_CONFIGURE
-lib_for_curses
+ac_subst_vars='lib_for_curses
 lib_for_readline
 pcp_mpi_dirs
 lib_for_atomic
@@ -676,6 +675,8 @@ pcp_pmloggercontrol_path
 pcp_pmsnapcontrol_path
 pcp_pmiecontrol_path
 pcp_pmproxyoptions_path
+pcp_pmmgroptions_path
+pcp_pmwebdoptions_path
 pcp_pmcdrclocal_path
 pcp_pmcdoptions_path
 pcp_pmcdconf_path
@@ -690,6 +691,15 @@ fmt_pthread
 lib_for_pthreads
 fmt_pid
 rdynamic_flag
+PACKAGE_CONFIGURE
+enable_manager
+enable_webapi
+HAVE_CAIRO
+cairo_LIBS
+cairo_CFLAGS
+HAVE_LIBMICROHTTPD
+libmicrohttpd_LIBS
+libmicrohttpd_CFLAGS
 PMDA_RPM
 PMDA_PAPI
 PAPI_LIBS
@@ -896,6 +906,8 @@ with_python
 with_python3
 with_books
 with_papi
+with_manager
+with_webapi
 enable_ssp
 enable_pie
 enable_visibility
@@ -935,6 +947,10 @@ YACC
 YFLAGS
 SYSTEMD_CFLAGS
 SYSTEMD_LIBS
+libmicrohttpd_CFLAGS
+libmicrohttpd_LIBS
+cairo_CFLAGS
+cairo_LIBS
 XMKMF'
 
 
@@ -1580,6 +1596,8 @@ Optional Packages:
                           is on)
   --with-books            enable building of the PCP books (default is off)
   --with-papi             enable performance api counter pmda (default is on)
+  --with-manager          enable daemon manager (default is on)
+  --with-webapi           enable REST API daemon (default is on)
   --with-configdir        configuration directory [LOCALSTATEDIR/pcp/config]
   --with-perl_installdirs perl installdirs [vendor]
   --with-perl_install_base
@@ -1625,6 +1643,13 @@ Some influential environment variables:
               C compiler flags for SYSTEMD, overriding pkg-config
   SYSTEMD_LIBS
               linker flags for SYSTEMD, overriding pkg-config
+  libmicrohttpd_CFLAGS
+              C compiler flags for libmicrohttpd, overriding pkg-config
+  libmicrohttpd_LIBS
+              linker flags for libmicrohttpd, overriding pkg-config
+  cairo_CFLAGS
+              C compiler flags for cairo, overriding pkg-config
+  cairo_LIBS  linker flags for cairo, overriding pkg-config
   XMKMF       Path to xmkmf, Makefile generator for X Window System
 
 Use these variables to override the choices made by `configure' or to help
@@ -2624,6 +2649,24 @@ if test "${with_papi+set}" = set; then :
   withval=$with_papi; do_papi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-papi=$withval"
 else
   do_papi=check
+fi
+
+
+
+# Check whether --with-manager was given.
+if test "${with_manager+set}" = set; then :
+  withval=$with_manager; do_manager=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-manager=$withval"
+else
+  do_manager=check
+fi
+
+
+
+# Check whether --with-webapi was given.
+if test "${with_webapi+set}" = set; then :
+  withval=$with_webapi; do_webapi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webapi=$withval"
+else
+  do_webapi=check
 fi
 
 
@@ -10102,6 +10145,190 @@ PMDA_RPM=$pmda_rpm
 
 LIBS=$savedLIBS
 
+
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for libmicrohttpd" >&5
+$as_echo_n "checking for libmicrohttpd... " >&6; }
+
+if test -n "$libmicrohttpd_CFLAGS"; then
+    pkg_cv_libmicrohttpd_CFLAGS="$libmicrohttpd_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libmicrohttpd > 0.9.9\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libmicrohttpd > 0.9.9") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_libmicrohttpd_CFLAGS=`$PKG_CONFIG --cflags "libmicrohttpd > 0.9.9" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$libmicrohttpd_LIBS"; then
+    pkg_cv_libmicrohttpd_LIBS="$libmicrohttpd_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libmicrohttpd > 0.9.9\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libmicrohttpd > 0.9.9") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_libmicrohttpd_LIBS=`$PKG_CONFIG --libs "libmicrohttpd > 0.9.9" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        libmicrohttpd_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libmicrohttpd > 0.9.9" 2>&1`
+        else
+	        libmicrohttpd_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libmicrohttpd > 0.9.9" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$libmicrohttpd_PKG_ERRORS" >&5
+
+	have_libmicrohttpd=false
+elif test $pkg_failed = untried; then
+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	have_libmicrohttpd=false
+else
+	libmicrohttpd_CFLAGS=$pkg_cv_libmicrohttpd_CFLAGS
+	libmicrohttpd_LIBS=$pkg_cv_libmicrohttpd_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	have_libmicrohttpd=true
+fi
+HAVE_LIBMICROHTTPD=$have_libmicrohttpd
+
+
+
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for cairo" >&5
+$as_echo_n "checking for cairo... " >&6; }
+
+if test -n "$cairo_CFLAGS"; then
+    pkg_cv_cairo_CFLAGS="$cairo_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"cairo >= 1.2, cairo-ft >= 1.2, cairo-png >= 1.2\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "cairo >= 1.2, cairo-ft >= 1.2, cairo-png >= 1.2") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_cairo_CFLAGS=`$PKG_CONFIG --cflags "cairo >= 1.2, cairo-ft >= 1.2, cairo-png >= 1.2" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$cairo_LIBS"; then
+    pkg_cv_cairo_LIBS="$cairo_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"cairo >= 1.2, cairo-ft >= 1.2, cairo-png >= 1.2\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "cairo >= 1.2, cairo-ft >= 1.2, cairo-png >= 1.2") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_cairo_LIBS=`$PKG_CONFIG --libs "cairo >= 1.2, cairo-ft >= 1.2, cairo-png >= 1.2" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        cairo_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "cairo >= 1.2, cairo-ft >= 1.2, cairo-png >= 1.2" 2>&1`
+        else
+	        cairo_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "cairo >= 1.2, cairo-ft >= 1.2, cairo-png >= 1.2" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$cairo_PKG_ERRORS" >&5
+
+	have_cairo=false
+elif test $pkg_failed = untried; then
+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	have_cairo=false
+else
+	cairo_CFLAGS=$pkg_cv_cairo_CFLAGS
+	cairo_LIBS=$pkg_cv_cairo_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	have_cairo=true
+fi
+HAVE_CAIRO=$have_cairo
+
+
+enable_webapi=false
+if test "x$do_webapi" != "xno"; then :
+
+    enable_webapi=true
+
+    if test "$do_webapi" != "check" -a "$have_libmicrohttpd" != "true"
+    then
+	as_fn_error cannot enable the web API "libmicrohttpd is not installed" "$LINENO" 5
+    elif test "$do_webapi" != "check" -a "x$cxx" = "x"
+    then
+	as_fn_error cannot enable the web API "C++ compiler unavailable" "$LINENO" 5
+    else
+	enable_webapi=$have_libmicrohttpd
+    fi
+
+fi
+
+
+enable_manager=false
+if test "x$do_manager" != "xno"; then :
+
+    enable_manager=true
+
+    if test "$do_manager" != "check" -a $target_os = mingw
+    then
+	as_fn_error cannot enable daemon manager "Target platform is MinGW" "$LINENO" 5
+    elif test "$do_manager" != "check" -a "x$cxx" = "x"
+    then
+	as_fn_error cannot enable daemon manager "C++ compiler unavailable" "$LINENO" 5
+    fi
+
+fi
+
+
+
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking return type of signal handlers" >&5
 $as_echo_n "checking return type of signal handlers... " >&6; }
 if ${ac_cv_type_signal+:} false; then :
@@ -12152,10 +12379,14 @@ pcp_sysconf_dir=`eval echo $pcp_sysconf_dir`
 pcp_pmcdconf_path=$pcp_sysconf_dir/pmcd/pmcd.conf
 pcp_pmcdrclocal_path=$pcp_sysconf_dir/pmcd/rc.local
 pcp_pmcdoptions_path=$pcp_sysconf_dir/pmcd/pmcd.options
+pcp_pmwebdoptions_path=$pcp_sysconf_dir/pmwebd/pmwebd.options
+pcp_pmmgroptions_path=$pcp_sysconf_dir/pmmgr/pmmgr.options
 pcp_pmproxyoptions_path=$pcp_sysconf_dir/pmproxy/pmproxy.options
 pcp_pmiecontrol_path=$pcp_sysconf_dir/pmie/control
 pcp_pmsnapcontrol_path=$pcp_sysconf_dir/pmsnap/control
 pcp_pmloggercontrol_path=$pcp_sysconf_dir/pmlogger/control
+
+
 
 
 

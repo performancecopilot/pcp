@@ -16,6 +16,16 @@ PCPGUI = pcp-gui
 PCPGUI_FILES = pcp-gui.dirs pcp-gui.install
 PCPGUI_DOC_DIR = $(PCP_DOC_DIR)/../pcp-gui
 
+PCPWEBAPI = pcp-webapi
+PCPWEBAPI_FILES = pcp-webapi.dirs pcp-webapi.install pcp-webapi.prerm \
+		  pcp-webapi.postinst pcp-webapi.postrm
+PCPWEBAPI_DOC_DIR = $(PCP_DOC_DIR)/../pcp-webapi
+
+PCPMANAGER = pcp-manager
+PCPMANAGER_FILES = pcp-manager.dirs pcp-manager.install pcp-manager.prerm \
+		   pcp-manager.postinst pcp-manager.postrm
+PCPMANAGER_DOC_DIR = $(PCP_DOC_DIR)/../pcp-manager
+
 PCPTESTSUITE = pcp-testsuite
 PCPTESTSUITE_FILES = pcp-testsuite.dirs pcp-testsuite.postinst
 PCPTESTSUITE_DOC_DIR = $(PCP_DOC_DIR)/../pcp-testsuite
@@ -109,11 +119,29 @@ default_pcp : default
 install_pcp : install
 
 install-pcpgui:
-ifeq ($(HAVE_QT), 1)
+ifeq ($(ENABLE_QT), true)
 ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 755 -d $(PCPGUI_DOC_DIR)
 	$(INSTALL) -m 644 copyright $(PCPGUI_DOC_DIR)
 	$(INSTALL) -m 644 changelog $(PCPGUI_DOC_DIR)/changelog.Debian
+endif
+endif
+
+install-webapi:
+ifeq ($(ENABLE_WEBAPI), true)
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(PCPWEBAPI_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(PCPWEBAPI_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(PCPWEBAPI_DOC_DIR)/changelog.Debian
+endif
+endif
+
+install-manager: default
+ifeq ($(ENABLE_MANAGER), true)
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(PCPMANAGER_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(PCPMANAGER_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(PCPMANAGER_DOC_DIR)/changelog.Debian
 endif
 endif
 
@@ -269,8 +297,11 @@ pcp.postrm:	pcp.postrm.head configversions pcp.postrm.tail
 	rm -f $@
 	cat pcp.postrm.head configversions pcp.postrm.tail > $@
 
-control:	control.master control.pcpgui
+control:	control.master control.webapi control.pcpgui
 	cat control.master >control
+ifeq ($(ENABLE_WEBAPI), true)
+	cat control.webapi >>control
+endif
 ifeq ($(ENABLE_QT), true)
 	cat control.pcpgui >>control
 endif
