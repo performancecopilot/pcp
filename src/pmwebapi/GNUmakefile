@@ -16,7 +16,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 CXXMDTARGET = pmwebd$(EXECSUFFIX)
-HFILES = pmwebapi.h util.h
+HFILES = pmwebapi.h
 CXXFILES = main.cxx pmwebapi.cxx pmresapi.cxx pmgraphite.cxx util.cxx
 LSRCFILES = rc_pmwebd pmwebd.options
 

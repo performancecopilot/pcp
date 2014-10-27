@@ -18,13 +18,11 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
-#define __STDC_FORMAT_MACROS
-
 #include "pmwebapi.h"
-#include "util.h"
 
 #include <map>
-#include <inttypes.h>
+#include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -186,21 +184,23 @@ static int pmwebapi_respond_new_context (struct MHD_Connection
 	    MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND,
 					 "archivefile");
 	if (val) {
-	    char archive_fullpath[PATH_MAX];
-	    snprintf (archive_fullpath, sizeof (archive_fullpath),
-		      "%s%c%s", archivesdir.c_str (), __pmPathSeparator (), val);
-	    /* Block some basic ways of escaping archive_dir */
-	    // XXX: realpath(3) instead
-	    if (NULL != strstr (archive_fullpath, "/../")) {
+	    string archivefile;
+
+	    if (__pmAbsolutePath ((char *) val))
+		archivefile = val;
+	    else
+		archivefile = archivesdir + (char) __pmPathSeparator () + string (val);
+
+	    if (cursed_path_p (archivesdir, archivefile)) {
 		connstamp (cerr,
-			   connection) << "pmwebres suspicious path " << archive_fullpath
+			   connection) << "suspicious archive path " << archivefile
 		    << endl;
 		rc = -EINVAL;
 		goto out;
 	    }
 
-	    context = pmNewContext (PM_CONTEXT_ARCHIVE, archive_fullpath);
-	    context_description = string ("PM_CONTEXT_ARCHIVE ") + string (val);
+	    context = pmNewContext (PM_CONTEXT_ARCHIVE, archivefile.c_str ());
+	    context_description = string ("PM_CONTEXT_ARCHIVE ") + archivefile;
 	} else
 	    if (MHD_lookup_connection_value
 		(connection, MHD_GET_ARGUMENT_KIND, "local")) {
@@ -357,15 +357,14 @@ static void json_quote (ostream & o, const string & value)
 /* A convenience function to print a vanilla-ascii key and an
    unknown ancestry value as a JSON pair.  Add given suffix,
    which is likely to be a comma or a \n. */
-template < class Value >
-    void json_key_value (ostream & o, const string & key,
-			 const Value & value, const char *suffix = " ")
+template <class Value >void json_key_value (ostream & o, const string & key,
+					    const Value & value, const char *suffix = " ")
 {
     o << '"' << key << '"' << ':' << value << suffix;
 }
 
 // prevent pointers (including char*) from coming this way
-template < class Value > void json_key_value (ostream &, const string &, const Value *, const char *);	// link-time error
+template <class Value >void json_key_value (ostream &, const string &, const Value *, const char *);	// link-time error
 
 template <>			// <-- NB: important for proper overloading/specialization of the template
 void json_key_value (ostream & o, const string & key,
@@ -1027,10 +1026,7 @@ static int pmwebapi_respond_instance_list (struct MHD_Connection
 /* ------------------------------------------------------------------------ */
 
 
-int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
-		      const vector < string > &url,
-		      const string & method, const char *upload_data,
-		      size_t * upload_data_size)
+int pmwebapi_respond (struct MHD_Connection *connection, const vector < string > &url)
 {
     /* We emit CORS header for all successful json replies, namely:
        Access-Control-Access-Origin: *
@@ -1043,16 +1039,6 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
     string context_command;
     int rc = 0;
     context_map::iterator it;
-
-    (void) cls;
-    (void) upload_data;
-    (void) upload_data_size;
-
-    if (method != "POST" && method != "GET") {
-	connstamp (cerr, connection) << "unrecognized method " << method << endl;
-	rc = -EINVAL;
-	goto out;
-    }
 
     /* Decode the calls to the web API. */
     /* -------------------------------------------------------------------- */
@@ -1075,9 +1061,7 @@ int pmwebapi_respond (void *cls, struct MHD_Connection *connection,
     if (errno != 0 || webapi_ctx <= 0	/* range check, plus string-nonemptyness check */
 	|| webapi_ctx > INT_MAX	/* matches random() loop above */
 	|| *context_end != '\0') {	/* fully parsed */
-	connstamp (cerr,
-		   connection) << "unrecognized " << method << " context " << url[2] <<
-	    endl;
+	connstamp (cerr, connection) << "unrecognized web context #" << url[2] << endl;
 	rc = -EINVAL;
 	goto out;
     }
