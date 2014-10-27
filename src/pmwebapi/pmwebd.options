@@ -1,32 +1,18 @@
-# command-line options and environment variables for pmwebd
-# uncomment/edit lines as required
-# note: environment variables are *not* expanded - use full path
+# command-line options and environment variables for pmwebd(1)
 
-# expose resources for non PMAPI requests, e.g.
-# -R $(PCP_VAR_DIR)/pmwebd/resources
+# These defaults expose graphite/resource content and normally placed archives
+#
+# (assume pwd=$PCP_LOG_DIR/pmwebd)
 
-# expose archives from local pmloggers, e.g.
-# -A $(PCP_LOG_DIR)/pmlogger
-# default is pmwebd's private log directory: $(PCP_LOG_DIR)/pmwebd
-
-# run in the foreground
-# -f
-
-# make log go someplace else
-# -l /some/place/else
+OPTIONS="-R $PCP_SHARE_DIR/jsdemos -A $PCP_LOG_DIR -l pmwebd.log -G"
 
 # assume identity of some user other than "pcp"
-# -U nobody
+# OPTIONS="$OPTIONS -U nobody"
 
-# emergency messages before logfile created
-# -x /tmp/desperate.log
+# Shorten timeouts for interactions with pmcd on behalf of clients,
+# since pmwebd runs single-threaded.
 
-# port for incoming connections from PCP monitoring clients
-# -p 44323
-
-# setting of environment variables for pmwebd
-
-# timeouts for interactions with pmcd on behalf of clients
-# PMCD_CONNECT_TIMEOUT=10
-# PMCD_RECONNECT_TIMEOUT=10,20,30
-# PMCD_REQUEST_TIMEOUT=10
+PMCD_CONNECT_TIMEOUT=3
+PMCD_RECONNECT_TIMEOUT=1,2,3
+PMCD_REQUEST_TIMEOUT=1
+export PMCD_CONNECT_TIMEOUT PMCD_RECONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
