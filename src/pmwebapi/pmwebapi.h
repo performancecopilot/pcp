@@ -21,8 +21,10 @@
 #include <string>
 #include <ios>
 #include <vector>
+#include <iostream>
 
-extern "C" {
+extern "C"
+{
 #include "pmapi.h"
 #include "impl.h"
 #include <assert.h>
@@ -35,35 +37,85 @@ extern "C" {
 /* ------------------------------------------------------------------------ */
 
 /* a subset of option flags that needs to be read by the other modules */
-extern std::string uriprefix;   /* hard-coded */
-extern std::string archivesdir;	/* set by -A option */
-extern std::string resourcedir;	/* set by -R option */
-extern unsigned verbosity;	/* set by -v option */
-extern unsigned new_contexts_p;	/* cleared by -N option */
-extern unsigned exit_p;		/* counted by SIG* handler */
-extern unsigned maxtimeout;	/* set by -t option */
+extern
+std::string
+uriprefix;			/* hard-coded */
+extern
+std::string
+archivesdir;			/* set by -A option */
+extern
+std::string
+resourcedir;			/* set by -R option */
+extern unsigned
+verbosity;			/* set by -v option */
+extern unsigned
+new_contexts_p;		/* cleared by -N option */
+extern unsigned
+exit_p;			/* counted by SIG* handler */
+extern unsigned
+maxtimeout;			/* set by -t option */
 
 /* ------------------------------------------------------------------------ */
 
 // main.cxx
-extern int mhd_notify_error (struct MHD_Connection *connection, int rc);
+extern int
+mhd_notify_error (struct MHD_Connection *connection, int rc);
 
 // pmwebapi.cxx
-extern int pmwebapi_bind_permanent (int webapi_ctx, int pcp_context);
-extern int pmwebapi_respond (struct MHD_Connection *connection,
-                             const std::vector < std::string > &url);
-extern unsigned pmwebapi_gc (void);
-extern void pmwebapi_deallocate_all (void);
+extern int
+pmwebapi_bind_permanent (int webapi_ctx, int pcp_context);
+extern int
+pmwebapi_respond (struct MHD_Connection *connection,
+                  const std::vector <std::string> &url);
+extern unsigned
+pmwebapi_gc (void);
+extern void
+pmwebapi_deallocate_all (void);
 
 // pmresapi.cxx
-extern int pmwebres_respond (struct MHD_Connection *connection, const std::string & url);
+extern int
+pmwebres_respond (struct MHD_Connection *connection, const std::string & url);
 
 // pmgraphite.cxx
-extern int pmgraphite_respond (struct MHD_Connection *connection,
-                               const std::vector < std::string > &url);
+extern int
+pmgraphite_respond (struct MHD_Connection *connection,
+                    const std::vector <std::string> &url);
 
 // util.cxx
-extern std::ostream & timestamp (std::ostream & o);
-extern std::ostream & connstamp (std::ostream & o, MHD_Connection *);
-extern std::vector < std::string > split (const std::string & s, char delim);
+extern
+std::ostream &
+timestamp (std::ostream & o);
+extern
+std::ostream &
+connstamp (std::ostream & o, MHD_Connection *);
+extern
+std::vector <
+std::string >
+split (const std::string & s, char delim);
 extern bool cursed_path_p (const std::string & blessed, const std::string & questionable);
+
+extern void json_quote (std::ostream & o, const std::string & value);
+
+/* A convenience function to print a vanilla-ascii key and an
+   unknown ancestry value as a JSON pair.  Add given suffix,
+   which is likely to be a comma or a \n. */
+template <class Value> void static inline
+json_key_value (std::ostream & o, const std::string & key, const Value & value,
+                const char *suffix = " ")
+{
+    o << '"' << key << '"' << ':' << value << suffix;
+}
+
+// prevent pointers (including char*) from coming this way
+template <class Value> void json_key_value (std::ostream &, const std::string &,
+        const Value *, const char *);	// link-time error
+
+template <>			// <-- NB: important for proper overloading/specialization of the template
+void
+json_key_value (std::ostream & o, const std::string & key, const std::string & value,
+                const char *suffix)
+{
+    o << '"' << key << '"' << ':';
+    json_quote (o, value);
+    o << suffix;
+}

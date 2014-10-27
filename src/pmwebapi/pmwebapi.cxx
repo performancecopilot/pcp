@@ -35,13 +35,13 @@ struct webcontext {
     string password;		/* "" or password */
     unsigned mypolltimeout;
     time_t expires;		/* poll timeout, 0 if never expires */
-    int context;		/* PMAPI context handle; owned */
+    int context;			/* PMAPI context handle; owned */
 
     ~webcontext ();
 };
 
 
-typedef map < int, webcontext * >context_map;
+typedef map <int, webcontext *>context_map;
 static context_map contexts;	// map from webcontext#
 
 
@@ -51,31 +51,36 @@ static context_map contexts;	// map from webcontext#
    should be considered abandoned.  If so, close 'em, free 'em, yak
    'em, smack 'em.  Return the number of seconds to the next good time
    to check for garbage. */
-unsigned pmwebapi_gc ()
+unsigned
+pmwebapi_gc ()
 {
     time_t now;
     (void) time (&now);
     time_t soonest = 0;
 
-    for (context_map::iterator it = contexts.begin (); it != contexts.end (); /* null */ ) {
+    for (context_map::iterator it = contexts.begin (); it != contexts.end (); /* null */) {
 
-        if (it->second->expires == 0) {	// permanent
+        if (it->second->expires == 0) {
+            // permanent
             it++;
             continue;
         }
 
         if (it->second->expires < now) {
-            if (verbosity)
-                timestamp (clog) << "context (web" << it->first
-                                 << "=pm" << it->second->context << ") expired." << endl;
+            if (verbosity) {
+                timestamp (clog) << "context (web" << it->first << "=pm" << it->second->context <<
+                                 ") expired." << endl;
+            }
 
             delete it->second;
             context_map::iterator it2 = it++;
             contexts.erase (it2);
         } else {
-            if (soonest == 0) {	// first
+            if (soonest == 0) {
+                // first
                 soonest = it->second->expires;
-            } else if (soonest > it->second->expires) {	// not earliest
+            } else if (soonest > it->second->expires) {
+                // not earliest
                 soonest = it->second->expires;
             }
             it++;
@@ -90,14 +95,16 @@ webcontext::~webcontext ()
 {
     if (this->context >= 0) {
         int sts = pmDestroyContext (this->context);
-        if (sts)
-            timestamp (cerr) << "pmDestroyContext pm" << this->context << "failed, rc=" <<
-                             sts << endl;
+        if (sts) {
+            timestamp (cerr) << "pmDestroyContext pm" << this->context << "failed, rc=" << sts <<
+                             endl;
+        }
     }
 }
 
 
-void pmwebapi_deallocate_all ()
+void
+pmwebapi_deallocate_all ()
 {
     for (context_map::iterator it = contexts.begin (); it != contexts.end (); it++) {
         if (verbosity) {
@@ -111,7 +118,8 @@ void pmwebapi_deallocate_all ()
 
 /* Allocate an zeroed webcontext structure, and enroll it in the
    hash table with the given context#. */
-static int webcontext_allocate (int webapi_ctx, struct webcontext **wc)
+static int
+webcontext_allocate (int webapi_ctx, struct webcontext **wc)
 {
     if (contexts.find (webapi_ctx) != contexts.end ()) {
         return -EEXIST;
@@ -123,7 +131,8 @@ static int webcontext_allocate (int webapi_ctx, struct webcontext **wc)
 }
 
 
-int pmwebapi_bind_permanent (int webapi_ctx, int pcp_context)
+int
+pmwebapi_bind_permanent (int webapi_ctx, int pcp_context)
 {
     struct webcontext *c;
     int rc = webcontext_allocate (webapi_ctx, &c);
@@ -139,8 +148,8 @@ int pmwebapi_bind_permanent (int webapi_ctx, int pcp_context)
 }
 
 
-static int pmwebapi_respond_new_context (struct MHD_Connection
-        *connection)
+static int
+pmwebapi_respond_new_context (struct MHD_Connection *connection)
 {
     /* Create a context. */
     const char *val;
@@ -156,7 +165,8 @@ static int pmwebapi_respond_new_context (struct MHD_Connection
     string password;
 
     val = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "hostspec");
-    if (val == NULL) {	/* backward compatibility alias */
+    if (val == NULL) {
+        /* backward compatibility alias */
         val = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "hostname");
     }
     if (val) {
@@ -165,8 +175,7 @@ static int pmwebapi_respond_new_context (struct MHD_Connection
         __pmHashCtl hostAttrs;
         char *hostAttrsError;
         __pmHashInit (&hostAttrs);
-        rc = __pmParseHostAttrsSpec (val, &hostSpec, &hostSpecCount, &hostAttrs,
-                                     &hostAttrsError);
+        rc = __pmParseHostAttrsSpec (val, &hostSpec, &hostSpecCount, &hostAttrs, &hostAttrsError);
         if (rc == 0) {
             __pmHashNode *node;
             node = __pmHashSearch (PCP_ATTR_USERNAME, &hostAttrs);	/* XXX: PCP_ATTR_AUTHNAME? */
@@ -187,9 +196,7 @@ static int pmwebapi_respond_new_context (struct MHD_Connection
         context = pmNewContext (PM_CONTEXT_HOST, val);	/* XXX: limit access */
         context_description = string ("PM_CONTEXT_HOST ") + string (val);
     } else {
-        val =
-            MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND,
-                                         "archivefile");
+        val = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "archivefile");
         if (val) {
             string archivefile;
 
@@ -200,17 +207,14 @@ static int pmwebapi_respond_new_context (struct MHD_Connection
             }
 
             if (cursed_path_p (archivesdir, archivefile)) {
-                connstamp (cerr,
-                           connection) << "suspicious archive path " << archivefile
-                                       << endl;
+                connstamp (cerr, connection) << "suspicious archive path " << archivefile << endl;
                 rc = -EINVAL;
                 goto out;
             }
 
             context = pmNewContext (PM_CONTEXT_ARCHIVE, archivefile.c_str ());
             context_description = string ("PM_CONTEXT_ARCHIVE ") + archivefile;
-        } else if (MHD_lookup_connection_value
-                   (connection, MHD_GET_ARGUMENT_KIND, "local")) {
+        } else if (MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "local")) {
             /* Note we need to use a dummy parameter to local=FOO,
                since the MHD_lookup* API does not differentiate
                between an absent argument vs. an argument given
@@ -223,8 +227,7 @@ static int pmwebapi_respond_new_context (struct MHD_Connection
     }
 
     if (context < 0) {
-        connstamp (cerr,
-                   connection) << "new context failed: " << pmErrStr (context) << endl;
+        connstamp (cerr, connection) << "new context failed: " << pmErrStr (context) << endl;
         rc = context;
         goto out;
     }
@@ -278,7 +281,7 @@ static int pmwebapi_respond_new_context (struct MHD_Connection
         time (&c->expires);
         c->mypolltimeout = polltimeout;
         c->expires += c->mypolltimeout;
-        c->userid = userid;	/* may be empty */
+        c->userid = userid;		/* may be empty */
         c->password = password;	/* ditto */
         /* Errors beyond this point don't require instant cleanup; the
            periodic context GC will do it all. */
@@ -287,23 +290,17 @@ static int pmwebapi_respond_new_context (struct MHD_Connection
     if (verbosity) {
         const char *context_hostname = pmGetContextHostName (context);
 
-        timestamp (clog) << "context "
-                         << context_description << (context_hostname ? " (" : "")
-                         << (context_hostname ? context_hostname : "")
-                         << (context_hostname ? ")" : "")
-                         << " (web" << webapi_ctx << "=pm" << context << ") "
-                         << (userid != "" ? " (user=" : "")
-                         << (userid != "" ? userid : "")
-                         << (userid != "" ? ")" : "")
-                         << "created, expires after " << polltimeout << "s" << endl;
+        timestamp (clog) << "context " << context_description << (context_hostname ? " (" : "")
+                         << (context_hostname ? context_hostname : "") << (context_hostname ? ")" : "") << " (web"
+                         << webapi_ctx << "=pm" << context << ") " << (userid != "" ? " (user=" : "") <<
+                         (userid != "" ? userid : "") << (userid != "" ? ")" : "") << "created, expires after " <<
+                         polltimeout << "s" << endl;
     }
 
-    rc = snprintf (http_response, sizeof (http_response), "{ \"context\": %d }",
-                   webapi_ctx);
+    rc = snprintf (http_response, sizeof (http_response), "{ \"context\": %d }", webapi_ctx);
     assert (rc >= 0 && rc < (int) sizeof (http_response));
-    resp =
-        MHD_create_response_from_buffer (strlen (http_response), http_response,
-                                         MHD_RESPMEM_MUST_COPY);
+    resp = MHD_create_response_from_buffer (strlen (http_response), http_response,
+                                            MHD_RESPMEM_MUST_COPY);
     if (resp == NULL) {
         connstamp (cerr, connection) << "MHD_create_response_from_buffer failed" << endl;
         rc = -ENOMEM;
@@ -341,52 +338,6 @@ static int pmwebapi_respond_new_context (struct MHD_Connection
 /* ------------------------------------------------------------------------ */
 
 
-/* Print a string with JSON quoting.  Replace non-ASCII characters
-   with \uFFFD "REPLACEMENT CHARACTER". */
-static void json_quote (ostream & o, const string & value)
-{
-    const char hex[] = "0123456789ABCDEF";
-    o << '"';
-    for (unsigned i = 0; i < value.length (); i++) {
-        char c = value[i];
-        if (!isascii (c)) {
-            o << "\\uFFFD";
-        } else if (isalnum (c)) {
-            o << c;
-        } else if (ispunct (c) && !iscntrl (c) && (c != '\\' && c != '\"')) {
-            o << c;
-        } else if (c == ' ') {
-            o << c;
-        } else {
-            o << "\\u00" << hex[(c >> 4) & 0xf] << hex[(c >> 0) & 0xf];
-        }
-    }
-    o << '"';
-}
-
-
-/* A convenience function to print a vanilla-ascii key and an
-   unknown ancestry value as a JSON pair.  Add given suffix,
-   which is likely to be a comma or a \n. */
-template <class Value >void json_key_value (ostream & o, const string & key,
-        const Value & value, const char *suffix = " ")
-{
-    o << '"' << key << '"' << ':' << value << suffix;
-}
-
-// prevent pointers (including char*) from coming this way
-template <class Value >void json_key_value (ostream &, const string &, const Value *, const char *);	// link-time error
-
-template <>			// <-- NB: important for proper overloading/specialization of the template
-void json_key_value (ostream & o, const string & key,
-                     const string & value, const char *suffix)
-{
-    o << '"' << key << '"' << ':';
-    json_quote (o, value);
-    o << suffix;
-}
-
-
 
 /* ------------------------------------------------------------------------ */
 
@@ -398,10 +349,11 @@ struct metric_list_traverse_closure {
 };
 
 
-static void metric_list_traverse (const char *metric, void *closure)
+static void
+metric_list_traverse (const char *metric, void *closure)
 {
-    struct metric_list_traverse_closure *mltc =
-        (struct metric_list_traverse_closure *) closure;
+    struct metric_list_traverse_closure *mltc = (struct metric_list_traverse_closure *)
+            closure;
     pmID metric_id;
     pmDesc metric_desc;
     int rc;
@@ -444,10 +396,8 @@ static void metric_list_traverse (const char *metric, void *closure)
         json_key_value (*mltc->mhdb, "indom", (unsigned long) metric_desc.indom);
     }
     json_key_value (*mltc->mhdb, "sem",
-                    string (metric_desc.sem ==
-                            PM_SEM_COUNTER ? "counter" : metric_desc.sem ==
-                            PM_SEM_INSTANT ? "instant" : metric_desc.sem ==
-                            PM_SEM_DISCRETE ? "discrete" : "unknown"), ",");
+                    string (metric_desc.sem == PM_SEM_COUNTER ? "counter" : metric_desc.sem == PM_SEM_INSTANT
+                            ? "instant" : metric_desc.sem == PM_SEM_DISCRETE ? "discrete" : "unknown"), ",");
     json_key_value (*mltc->mhdb, "units", string (pmUnitsStr (&metric_desc.units)), ",");
     json_key_value (*mltc->mhdb, "type", string (pmTypeStr (metric_desc.type)), "");
 
@@ -456,8 +406,8 @@ static void metric_list_traverse (const char *metric, void *closure)
 }
 
 
-static int pmwebapi_respond_metric_list (struct MHD_Connection
-        *connection, struct webcontext *c)
+static int
+pmwebapi_respond_metric_list (struct MHD_Connection *connection, struct webcontext *c)
 {
     struct metric_list_traverse_closure mltc;
     const char *val;
@@ -483,9 +433,8 @@ static int pmwebapi_respond_metric_list (struct MHD_Connection
     string s = mltc.mhdb->str ();
     delete mltc.mhdb;
     mltc.mhdb = 0;
-    resp =
-        MHD_create_response_from_buffer (s.length (), (void *) s.c_str (),
-                                         MHD_RESPMEM_MUST_COPY);
+    resp = MHD_create_response_from_buffer (s.length (), (void *) s.c_str (),
+                                            MHD_RESPMEM_MUST_COPY);
     if (resp == NULL) {
         connstamp (cerr, connection) << "MHD_create_response_from_buffer failed" << endl;
         rc = -ENOMEM;
@@ -523,8 +472,8 @@ out:
 /* Print "value":<RENDERING>, possibly nested for PM_TYPE_EVENT.
    Upon failure to decode, print less and return non-0. */
 
-static int pmwebapi_format_value (ostream & output,
-                                  pmDesc * desc, pmValueSet * pvs, int vsidx)
+static int
+pmwebapi_format_value (ostream & output, pmDesc * desc, pmValueSet * pvs, int vsidx)
 {
     pmValue *value = &pvs->vlist[vsidx];
     pmAtomValue a;
@@ -565,7 +514,8 @@ static int pmwebapi_format_value (ostream & output,
                 if (rc == 0) {
                     rc = pmwebapi_format_value (output, &fielddesc, fieldvsp, 0);
                 }
-                if (rc == 0) {	/* printer value: ... etc. ? */
+                if (rc == 0) {
+                    /* printer value: ... etc. ? */
                     output << ", ";
                 }
                 /* XXX: handle value: for event.flags / event.missed */
@@ -611,7 +561,7 @@ static int pmwebapi_format_value (ostream & output,
         break;
     case PM_TYPE_STRING:
         json_key_value (output, "value", a.cp);
-        free (a.cp);	// NB: required by pmapi
+        free (a.cp);		// NB: required by pmapi
         break;
     case PM_TYPE_AGGREGATE:
     case PM_TYPE_AGGREGATE_STATIC: {
@@ -621,22 +571,23 @@ static int pmwebapi_format_value (ostream & output,
         unsigned i;
         const char base64_encoding_table[] =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-        if (value->value.pval->vlen < PM_VAL_HDR_SIZE) {	/* less than zero size? */
+        if (value->value.pval->vlen < PM_VAL_HDR_SIZE) {
+            /* less than zero size? */
             return -EINVAL;
         }
         output << "\"value\":\"";
-        for (i = 0; i < p_size; /* */ ) {
+        for (i = 0; i < p_size; /* */) {
             unsigned char byte_0 = i < p_size ? p_bytes[i++] : 0;
             unsigned char byte_1 = i < p_size ? p_bytes[i++] : 0;
             unsigned char byte_2 = i < p_size ? p_bytes[i++] : 0;
             unsigned int triple = (byte_0 << 16) | (byte_1 << 8) | byte_2;
-            output << base64_encoding_table[(triple >> 3 * 6) & 63];
-            output << base64_encoding_table[(triple >> 2 * 6) & 63];
-            output << base64_encoding_table[(triple >> 1 * 6) & 63];
-            output << base64_encoding_table[(triple >> 0 * 6) & 63];
+            output << base64_encoding_table[ (triple >> 3 * 6) & 63];
+            output << base64_encoding_table[ (triple >> 2 * 6) & 63];
+            output << base64_encoding_table[ (triple >> 1 * 6) & 63];
+            output << base64_encoding_table[ (triple >> 0 * 6) & 63];
         }
         switch (p_size % 3) {
-        case 0:	/*mhdb_printf (output, ""); */
+        case 0:		/*mhdb_printf (output, ""); */
             break;
         case 1:
             output << "==";
@@ -646,8 +597,9 @@ static int pmwebapi_format_value (ostream & output,
             break;
         }
         output << "\"";
-        if (desc->type != PM_TYPE_AGGREGATE_STATIC) {	/* XXX: correct? */
-            free (a.vbp);    // NB: required by pmapi
+        if (desc->type != PM_TYPE_AGGREGATE_STATIC) {
+            /* XXX: correct? */
+            free (a.vbp);	// NB: required by pmapi
         }
         break;
     }
@@ -661,8 +613,8 @@ static int pmwebapi_format_value (ostream & output,
 
 
 
-static int pmwebapi_respond_metric_fetch (struct MHD_Connection
-        *connection, struct webcontext *c)
+static int
+pmwebapi_respond_metric_fetch (struct MHD_Connection *connection, struct webcontext *c)
 {
     const char *val_pmids;
     const char *val_names;
@@ -671,7 +623,7 @@ static int pmwebapi_respond_metric_fetch (struct MHD_Connection
     int max_num_metrics;
     int num_metrics;
     ostringstream output;
-    int printed_metrics;	/* exclude skipped ones */
+    int printed_metrics;		/* exclude skipped ones */
     pmID *metrics;
     pmResult *results;
     int i;
@@ -694,9 +646,7 @@ static int pmwebapi_respond_metric_fetch (struct MHD_Connection
     num_metrics = 0;
     metrics = (pmID *) calloc ((size_t) max_num_metrics, sizeof (pmID));
     if (metrics == NULL) {
-        connstamp (cerr,
-                   connection) << "calloc pmIDs[" << max_num_metrics << "] failed" <<
-                               endl;
+        connstamp (cerr, connection) << "calloc pmIDs[" << max_num_metrics << "] failed" << endl;
         rc = -ENOMEM;
         goto out;
     }
@@ -734,17 +684,18 @@ static int pmwebapi_respond_metric_fetch (struct MHD_Connection
     /* Loop over pmids= numbers in val_pmids, append them to metrics[]. */
     while (*val_pmids) {
         char *numend;
-        unsigned long pmid = strtoul (val_pmids, &numend, 10);	/* matches pmid printing above */
+        unsigned long pmid = strtoul (val_pmids, &numend,
+                                      10);	/* matches pmid printing above */
         if (numend == val_pmids) {
-            break;    /* invalid contents */
+            break;		/* invalid contents */
         }
         assert (num_metrics < max_num_metrics);
         metrics[num_metrics++] = pmid;
         if (*numend == '\0') {
-            break;    /* end of string */
+            break;		/* end of string */
         }
         if (*numend == ',') {
-            val_pmids = numend + 1;    /* advance to next string */
+            val_pmids = numend + 1;	/* advance to next string */
         }
     }
 
@@ -772,11 +723,11 @@ static int pmwebapi_respond_metric_fetch (struct MHD_Connection
         char *metric_name;
         pmDesc desc;
         if (pvs->numval <= 0) {
-            continue;    /* error code; skip metric */
+            continue;		/* error code; skip metric */
         }
         rc = pmLookupDesc (pvs->pmid, &desc);	/* need to find desc.type only */
         if (rc < 0) {
-            continue;    /* quietly skip it */
+            continue;		/* quietly skip it */
         }
         if (printed_metrics >= 1) {
             output << ",\n";
@@ -854,8 +805,8 @@ out:
 /* ------------------------------------------------------------------------ */
 
 
-static int pmwebapi_respond_instance_list (struct MHD_Connection
-        *connection, struct webcontext *c)
+static int
+pmwebapi_respond_instance_list (struct MHD_Connection *connection, struct webcontext *c)
 {
     const char *val_indom;
     const char *val_name;
@@ -884,8 +835,8 @@ static int pmwebapi_respond_instance_list (struct MHD_Connection
     if (val_name == NULL) {
         val_name = "";
     }
-    val_instance =
-        MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "instance");
+    val_instance = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND,
+                   "instance");
     if (val_instance == NULL) {
         val_instance = "";
     }
@@ -897,8 +848,7 @@ static int pmwebapi_respond_instance_list (struct MHD_Connection
     if (0 == strcmp (val_indom, "")) {
         rc = pmLookupName (1, (char **) &val_name, &metric_id);
         if (rc != 1) {
-            connstamp (cerr,
-                       connection) << "failed to lookup metric " << val_name << endl;
+            connstamp (cerr, connection) << "failed to lookup metric " << val_name << endl;
             goto out;
         }
         assert (metric_id != PM_ID_NULL);
@@ -924,9 +874,8 @@ static int pmwebapi_respond_instance_list (struct MHD_Connection
     num_instances = 0;
     instances = (int *) calloc ((size_t) max_num_instances, sizeof (int));
     if (instances == NULL) {
-        connstamp (cerr,
-                   connection) << "calloc instances[" << max_num_instances << "] oom" <<
-                               endl;
+        connstamp (cerr, connection) << "calloc instances[" << max_num_instances << "] oom" <<
+                                     endl;
         rc = -ENOMEM;
         goto out;
     }
@@ -941,15 +890,15 @@ static int pmwebapi_respond_instance_list (struct MHD_Connection
         char *numend;
         int iid = (int) strtoul (val_instance, &numend, 10);
         if (numend == val_instance) {
-            break;    /* invalid contents */
+            break;		/* invalid contents */
         }
         assert (num_instances < max_num_instances);
         instances[num_instances++] = iid;
         if (*numend == '\0') {
-            break;    /* end of string */
+            break;		/* end of string */
         }
         if (*numend == ',') {
-            val_instance = numend + 1;    /* advance to next string */
+            val_instance = numend + 1;	/* advance to next string */
         }
     }
 
@@ -1004,7 +953,7 @@ static int pmwebapi_respond_instance_list (struct MHD_Connection
         } else {
             rc = pmNameInDom (inDom, instlist[i], &instance_name);
             if (rc != 0) {
-                continue;    /* skip this instance quietly */
+                continue;		/* skip this instance quietly */
             }
         }
 
@@ -1068,7 +1017,8 @@ out:
 /* ------------------------------------------------------------------------ */
 
 
-int pmwebapi_respond (struct MHD_Connection *connection, const vector < string > &url)
+int
+pmwebapi_respond (struct MHD_Connection *connection, const vector <string> &url)
 {
     /* We emit CORS header for all successful json replies, namely:
        Access-Control-Access-Origin: *
@@ -1086,7 +1036,7 @@ int pmwebapi_respond (struct MHD_Connection *connection, const vector < string >
     /* -------------------------------------------------------------------- */
     /* context creation */
     /* if-multithreaded: write-lock contexts */
-    if (new_contexts_p &&	/* permitted */
+    if (new_contexts_p &&		/* permitted */
             (url.size () == 3 && url[2] == "context")) {
         return pmwebapi_respond_new_context (connection);
     }
@@ -1103,7 +1053,8 @@ int pmwebapi_respond (struct MHD_Connection *connection, const vector < string >
     webapi_ctx = strtol (url[2].c_str (), &context_end, 10);	/* matches %d above */
     if (errno != 0 || webapi_ctx <= 0	/* range check, plus string-nonemptyness check */
             || webapi_ctx > INT_MAX	/* matches random() loop above */
-            || *context_end != '\0') {	/* fully parsed */
+            || *context_end != '\0') {
+        /* fully parsed */
         connstamp (cerr, connection) << "unrecognized web context #" << url[2] << endl;
         rc = -EINVAL;
         goto out;
@@ -1121,7 +1072,8 @@ int pmwebapi_respond (struct MHD_Connection *connection, const vector < string >
     assert (c != NULL);
     /* Process HTTP Basic userid/password, if supplied.  Both returned strings
        need to be free(3)'d later.  */
-    if (c->userid != "") {	/* Did this context requires userid/password auth? */
+    if (c->userid != "") {
+        /* Did this context requires userid/password auth? */
         char *userid = NULL;
         char *password = NULL;
         userid = MHD_basic_auth_get_username_password (connection, &password);
@@ -1132,8 +1084,8 @@ int pmwebapi_respond (struct MHD_Connection *connection, const vector < string >
             char auth_realm[40];
             free (userid);
             free (password);
-            resp = MHD_create_response_from_buffer (strlen (auth_req_msg),
-                                                    auth_req_msg, MHD_RESPMEM_PERSISTENT);
+            resp = MHD_create_response_from_buffer (strlen (auth_req_msg), auth_req_msg,
+                                                    MHD_RESPMEM_PERSISTENT);
             if (!resp) {
                 rc = -ENOMEM;
                 goto out;
@@ -1142,8 +1094,7 @@ int pmwebapi_respond (struct MHD_Connection *connection, const vector < string >
             /* We need the user to resubmit this with http
                authentication info, with a custom HTTP authentication
                realm for this context. */
-            snprintf (auth_realm, sizeof (auth_realm), "%s/%ld", uriprefix.c_str (),
-                      webapi_ctx);
+            snprintf (auth_realm, sizeof (auth_realm), "%s/%ld", uriprefix.c_str (), webapi_ctx);
             rc = MHD_queue_basic_auth_fail_response (connection, auth_realm, resp);
             MHD_destroy_response (resp);
             if (rc != MHD_YES) {
@@ -1153,15 +1104,13 @@ int pmwebapi_respond (struct MHD_Connection *connection, const vector < string >
             return MHD_YES;
         }
         /* 403 */
-        if ((userid != c->userid)
-                || (c->password != "" && (password != c->password))) {
+        if ((userid != c->userid) || (c->password != "" && (password != c->password))) {
             static char auth_failed_msg[] = "authentication failed";
             struct MHD_Response *resp;
             free (userid);
             free (password);
-            resp =
-                MHD_create_response_from_buffer (strlen (auth_failed_msg),
-                                                 auth_failed_msg, MHD_RESPMEM_PERSISTENT);
+            resp = MHD_create_response_from_buffer (strlen (auth_failed_msg), auth_failed_msg,
+                                                    MHD_RESPMEM_PERSISTENT);
             if (!resp) {
                 rc = -ENOMEM;
                 goto out;
