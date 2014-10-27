@@ -8,7 +8,7 @@ License: GPLv2+ and LGPLv2.1+
 URL: http://www.pcp.io
 Group: Applications/System
 Source0: pcp-%{version}.src.tar.gz
-Source1: pcp-web-manager-%{version}.src.tar.gz
+Source1: pcp-webjs.src.tar.gz
 
 # There is no papi-devel package for s390 or prior to rhel6, disable it
 %ifarch s390 s390x
@@ -231,6 +231,27 @@ Requires: pcp-libs = %{version}-%{release}
 Provides a daemon (pmwebd) that binds a large subset of the Performance
 Co-Pilot (PCP) client API (PMAPI) to RESTful web applications using the
 HTTP (PMWEBAPI) protocol.
+%endif
+
+%if !%{disable_microhttpd}
+#
+# pcp-webjs
+#
+%package webjs
+License: ASL2.0 and MIT and CC-BY
+Group: Applications/System
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+BuildArch: noarch
+%endif
+Summary: Performance Co-Pilot (PCP) web applications
+URL: http://www.pcp.io
+
+Requires: pcp-libs = %{version}-%{release}
+Requires: pcp-webapi = %{version}-%{release}
+
+%description webjs
+Javascript web application content for the Performance Co-Pilot (PCP)
+web service.
 %endif
 
 #
@@ -481,17 +502,11 @@ rm -Rf $RPM_BUILD_ROOT
 %build
 %configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_qt}
 make default_pcp
-pushd pcp-web-manager-%{version}
-    make default
-popd
 
 %install
 rm -Rf $RPM_BUILD_ROOT
 export NO_CHOWN=true DIST_ROOT=$RPM_BUILD_ROOT
 make install_pcp
-pushd pcp-web-manager-%{version}
-    make install
-popd
 
 PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
 
@@ -511,6 +526,8 @@ rm -fr $RPM_BUILD_ROOT/%{_confdir}/pmwebd
 rm -fr $RPM_BUILD_ROOT/%{_initddir}/pmwebd
 rm -fr $RPM_BUILD_ROOT/%{_unitdir}/pmwebd.service
 rm -f $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin/pmwebd
+%else
+mv pcp-webjs $RPM_BUILD_ROOT/%{_datadir}/pcp/jsdemos
 %endif
 
 %if %{disable_infiniband}
@@ -560,7 +577,7 @@ cat base_bin.list base_exec.list base_man.list |\
   egrep "$PCP_GUI" >> pcp-gui.list
 %endif
 cat base_pmdas.list base_bin.list base_exec.list base_man.list |\
-  egrep -v 'pmdaib|pmmgr|pmweb|pmsnap|jsdemos|2pcp' |\
+  egrep -v 'pmdaib|pmmgr|pmweb|pmsnap|2pcp' |\
   egrep -v "$PCP_GUI|pixmaps|pcp-doc|tutorials" |\
   egrep -v %{_confdir} | egrep -v %{_logsdir} > base.list
 
@@ -829,6 +846,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %{_localstatedir}/lib/pcp/config/pmafm
 %{_localstatedir}/lib/pcp/config/pmieconf
 %{_localstatedir}/lib/pcp/config/pmlogconf
+%{_localstatedir}/lib/pcp/config/pmlogger
 %{_localstatedir}/lib/pcp/config/pmlogrewrite
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmda
 
@@ -897,9 +915,14 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %attr(0775,pcp,pcp) %{_logsdir}/pmwebd
 %{_confdir}/pmwebd
 %config(noreplace) %{_confdir}/pmwebd/pmwebd.options
-%{_datadir}/pcp/jsdemos
 %{_mandir}/man1/pmwebd.1.gz
 %{_mandir}/man3/PMWEBAPI.3.gz
+%endif
+
+%if !%{disable_microhttpd}
+%files webjs
+%defattr(-,root,root)
+%{_datadir}/pcp/jsdemos
 %endif
 
 %files manager
@@ -985,8 +1008,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root,-)
 
 %changelog
-* Wed Oct 15 2014 Nathan Scott <nathans@redhat.com> - 3.10.0-1
-- Currently under development.
+* Fri Oct 31 2014 Nathan Scott <nathans@redhat.com> - 3.10.0-1
+- Create new sub-packages for pcp-webjs and python3-pcp.
+- Update to latest PCP sources.
 
 * Fri Sep 05 2014 Nathan Scott <nathans@redhat.com> - 3.9.10-1
 - Convert PCP init scripts to systemd services (BZ 996438)
