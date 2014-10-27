@@ -35,9 +35,12 @@ avahi_service()
 avahi_verify()
 {
     echo "Verify $service avahi service advertising"
-    hostname=`hostname`
+    # strip any domain part ... e.g. if hostname is vm08.localdomain,
+    # avahi reports this as vm08.local
+    #
+    hostname=`hostname | sed -e 's/\..*//'`
     avahi-browse -rt -d local "_$service._tcp" | \
 	tee -a $seq.full | \
-	grep -m1 "hostname = .$hostname" | \
+	grep -m1 "hostname = .$hostname.local]" | \
 	sed -e "s/$hostname/HOSTNAME/g"
 }
