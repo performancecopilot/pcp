@@ -258,7 +258,7 @@ bool OpenViewDialog::openView(const char *path)
     char		*w;
     int			state = S_BEGIN;
     int			mode = M_UNKNOWN;
-    int			h_mode;
+//  int			h_mode;
     int			version;
     QString		errmsg;
     QRegExp		regex;
@@ -391,7 +391,7 @@ bool OpenViewDialog::openView(const char *path)
 	    if (w == NULL || w[0] == '\n') {
 		if (mode == M_KMCHART) {
 		    // host [literal|dynamic] is optional for new pmchart
-		    h_mode = H_DYNAMIC;
+//		    h_mode = H_DYNAMIC;
 		    state = S_TOP;
 		    continue;
 		}
@@ -406,10 +406,10 @@ bool OpenViewDialog::openView(const char *path)
 	    }
 	    w = getwd(f);
 	    if (w != NULL && strcasecmp(w, "literal") == 0) {
-		h_mode = H_LITERAL;
+// NYI:		h_mode = H_LITERAL;
 	    }
 	    else if (w != NULL && strcasecmp(w, "dynamic") == 0) {
-		h_mode = H_DYNAMIC;
+// NYI:		h_mode = H_DYNAMIC;
 	    }
 	    else {
 		xpect("literal\" or \"dynamic", w);
