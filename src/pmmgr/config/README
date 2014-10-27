@@ -1,0 +1,13 @@
+This is the default built-in configuration directory for pmmgr.
+See man pmmgr(1) for details of the individual files that are
+read to extract configuration lines.  Other files in this directory
+are for documentation / examples.
+
+The default built-in configuration items for pmmgr are almost sufficient
+to act as a system's primary pmlogger and pmie.  The exceptions are the
+actual enablement of pmlogger & pmie, and their auto-generated configuration,
+which are enabled by some empty files here.
+
+Additional possible but non-default configurations are given in .example*
+files here.  Rename them to drop the .example* filename extension to 
+activate them.

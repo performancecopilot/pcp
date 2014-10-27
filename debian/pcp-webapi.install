@@ -1,0 +1,5 @@
+etc/init.d/pmwebd
+etc/pcp/pmwebd/pmwebd.options
+usr/lib/pcp/bin/pmwebd
+usr/share/man/man1/pmwebd.1.gz
+usr/share/man/man3/PMWEBAPI.3.gz
