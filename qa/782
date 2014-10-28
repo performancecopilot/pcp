@@ -1,0 +1,56 @@
+#!/bin/sh
+# PCP QA Test No. 782
+# Test backwards compatibility for pmwebd options configuration.
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.webapi
+which pmwebd >/dev/null 2>&1 || _notrun "pmwebd not installed"
+which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
+
+_cleanup()
+{
+    cd $here
+    [ -f $tmp.backup ] && \
+    $sudo cp $tmp.backup $PCP_PMWEBDOPTIONS_PATH
+    $sudo rm -rf $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+unset http_proxy
+unset HTTP_PROXY
+webport=`_find_free_port`
+
+# real QA test starts here
+$sudo $PCP_RC_DIR/pmwebd stop >/dev/null 2>&1
+$sudo cp $PCP_PMWEBDOPTIONS_PATH $tmp.backup
+
+# create an old-format configuration file
+cat <<EOF >$tmp.config
+-p $webport
+EOF
+$sudo cp $tmp.config $PCP_PMWEBDOPTIONS_PATH
+
+$sudo $PCP_RC_DIR/pmwebd start
+_wait_for_pmwebd $webport
+
+echo
+echo "Verifying pmwebd started with old configuration:"
+curl -s -S "http://localhost:$webport/pmapi/context?local=anything" -D- 2>&1 | _webapi_header_filter
+
+# new-format configuration file via _cleanup
+$sudo cp $tmp.backup $PCP_PMWEBDOPTIONS_PATH
+$sudo rm -f $tmp.backup
+$sudo $PCP_RC_DIR/pmwebd restart
+_wait_for_pmwebd
+
+# success, all done
+status=0
+exit
