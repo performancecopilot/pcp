@@ -16,6 +16,7 @@ ROOTFILES =     config/syntax_error.txt \
 TESTHARNESS = perfevent_test perfevent_coverage
 LSRCFILES = $(ROOTFILES) GNUmakefile.install
 
+ifeq "$(ENABLE_PERFEVENT)" "true"
 default setup default_pcp: $(TESTHARNESS)
 
 install install_pcp: $(ROOTFILES)
@@ -24,6 +25,10 @@ install install_pcp: $(ROOTFILES)
 	$(INSTALL) -m 644 $(ROOTFILES) $(TESTDIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
 	$(INSTALL) -m 755 $(TESTHARNESS) $(TESTDIR)
+else
+default setup default_pcp:
+install install_pcp:
+endif
 
 include $(BUILDRULES)
 
