@@ -8,11 +8,7 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
-
+. ./common.webapi
 which pmwebd >/dev/null 2>&1 || _notrun "pmwebd not installed"
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
 
@@ -29,16 +25,6 @@ _cleanup()
     $sudo rm -f $tmp.*
 }
 
-_filter()
-{
-    sed \
-	-e 's/^\(Content-Length:\) [0-9][0-9]*/\1 SIZE/g' \
-	-e 's/^\(Date:\).*/\1 DATE/g' \
-	-e 's/\(\"context\":\) [0-9][0-9]*/\1 CTXID/g' \
-    | LC_COLLATE=POSIX sort \
-    | col -b	# remove DOS line endings
-}
-
 unset http_proxy
 unset HTTP_PROXY
 webport=`_find_free_port`
@@ -46,22 +32,10 @@ webport=`_find_free_port`
 # real QA test starts here
 pmwebd -U $username -l $tmp.out -p $webport 2>$tmp.err &
 webpid=$!
-count=0
-while ! $PCP_BINADM_DIR/telnet-probe -c localhost $webport
-do
-    count=`expr $count + 1`
-    if [ $count -ge 20 ]
-    then
-	echo "pmwebd failed to start on port $webport"
-	cat $tmp.out
-	cat $tmp.err
-	exit
-    fi
-    pmsleep 0.1
-done
+_wait_for_pmwebd $webport
 
 echo "pmwebd pid=$webpid port=$webport" >>$seq.full
-curl -s -S "http://localhost:$webport/pmapi/context?local=anything" -D- 2>&1 | _filter
+curl -s -S "http://localhost:$webport/pmapi/context?local=anything" -D- 2>&1 | _webapi_header_filter
 
 echo "--- pmwebd log ---" >>$seq.full
 cat $tmp.out >>$seq.full

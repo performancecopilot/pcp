@@ -941,6 +941,7 @@ avahi
 779 pmda local
 780 pmwebapi local
 781 logutil local
+782 pmwebapi local
 783 pmda.rpm local valgrind
 786 context context_local libpcp local
 787:reserved archive local pmie pmlogrewrite pmdumplog pmval
