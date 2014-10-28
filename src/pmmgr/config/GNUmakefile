@@ -15,6 +15,10 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
+CONFIGS = pmie pmieconf pmlogconf pmlogger \
+	pmlogmerge pmlogmerge-rewrite pmlogmerge-granular \
+	README target-discovery.example-avahi 
+
 PMMGR_SYSCONF_DIR=$(PCP_SYSCONF_DIR)/pmmgr
 
 default:
@@ -25,7 +29,7 @@ include $(BUILDRULES)
 
 install:
 	$(INSTALL) -m 755 -d $(PMMGR_SYSCONF_DIR)
-	for file in $(LSRCFILES); do \
+	for file in $(CONFIGS); do \
 		$(INSTALL) -m 644 $$file $(PMMGR_SYSCONF_DIR)/$$file; \
 	done
 
