@@ -75,7 +75,14 @@ echo
 echo "=== $iam agent installation ==="
 $sudo ./Install </dev/null >$tmp.out 2>&1
 # Check perfevent metrics have appeared ... X metrics and Y values
-_filter_pmda_install <$tmp.out | sed -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/'
+_filter_pmda_install <$tmp.out | sed \
+        -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+        -e 's/[0-9][0-9]* warnings, //' \
+| $PCP_AWK_PROG '
+/Check perfevent metrics have appeared/    { 
+                                         if ($10 >= 8) $10 = "Y"
+                                       }
+                                       { print }'
 
 # pmcd should have been started by the Install process - check
 if pminfo -v $iam > $tmp.info 2> $tmp.err

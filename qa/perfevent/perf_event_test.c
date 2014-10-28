@@ -131,6 +131,9 @@ void test_fail_init()
 
 void test_lots_of_counters()
 {
+    wrap_sysconf_override = 1;
+    wrap_sysconf_retcode = 1;
+
     printf( " ===== %s ==== \n", __FUNCTION__) ;
 
     const char *eventlist = "config/test_lots_of_counters.txt";
@@ -161,6 +164,7 @@ void test_lots_of_counters()
 
     perf_event_destroy(h);
     perf_counter_destroy(data, size);
+    wrap_sysconf_override = 0;
 }
 
 void test_node_rr()
@@ -381,6 +385,9 @@ void test_architechure_fail()
 
 void test_rapl()
 {
+    wrap_sysconf_override = 1;
+    wrap_sysconf_retcode = 1;
+
     setenv("SYSFS_MOUNT_POINT", "./fakefs/sys", 1);
 
     printf( " ===== %s ==== \n", __FUNCTION__) ;
@@ -413,6 +420,7 @@ void test_rapl()
 
     perf_event_destroy(h);
     perf_counter_destroy(data, size);
+    wrap_sysconf_override = 0;
 }
 
 /* Note this test requires a pseudo sysfs filesystem setup by an init shell script */
