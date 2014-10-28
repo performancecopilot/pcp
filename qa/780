@@ -44,7 +44,7 @@ unset HTTP_PROXY
 webport=`_find_free_port`
 
 # real QA test starts here
-pmwebd -U $username -f -l $tmp.out -p $webport 2>$tmp.err &
+pmwebd -U $username -l $tmp.out -p $webport 2>$tmp.err &
 webpid=$!
 count=0
 while ! $PCP_BINADM_DIR/telnet-probe -c localhost $webport
