@@ -932,6 +932,8 @@ avahi
 752 libpcp local
 753 derive pmie local
 755 pmda.apache pmda.install local
+756 pmda.perfevent local
+757 pmda.perfevent local
 763 pmda local
 764 pmie local
 766 pmfind local

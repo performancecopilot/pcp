@@ -24,9 +24,7 @@ void test_init()
     perf_counter *data = NULL;
     int nevents = 0;
 
-    printf("before perf_get nevents is %d data is %p\n", nevents, data); fflush(stdout);
     int i = perf_get(h, &data, &nevents);
-    printf("after perf_get nevents is %d data is %p\n", nevents, data); fflush(stdout);
 
     assert(i > 0 );
     assert(nevents == 2);
@@ -74,9 +72,7 @@ void test_event_programming_fail()
     perf_counter *data = NULL;
     int nevents = 0;
 
-    printf("before perf_get nevents is %d data is %p\n", nevents, data); fflush(stdout);
     int i = perf_get(h, &data, &nevents);
-    printf("after perf_get nevents is %d data is %p\n", nevents, data); fflush(stdout);
 
     assert(i > 0 );
     assert(nevents == 2);
@@ -171,7 +167,7 @@ void test_node_rr()
 {
     printf( " ===== %s ==== \n", __FUNCTION__) ;
 
-    setenv("SYSFS_MOUNT_POINT", "./target/sysrr", 1);
+    setenv("SYSFS_MOUNT_POINT", "./fakefs/sysrr", 1);
     wrap_sysconf_override = 1;
     wrap_sysconf_retcode = 32;
 
@@ -422,7 +418,7 @@ void test_rapl()
 /* Note this test requires a pseudo sysfs filesystem setup by an init shell script */
 void test_numa_parser()
 {
-    setenv("SYSFS_MOUNT_POINT", "./target/sys", 1);
+    setenv("SYSFS_MOUNT_POINT", "./fakefs/sys1", 1);
     
     archinfo_t *inst = get_architecture();
 
@@ -475,7 +471,7 @@ void test_numa_parser()
 /* Note this test requires a pseudo sysfs filesystem setup by an init shell script */
 void test_numa_parser_fail()
 {
-    setenv("SYSFS_MOUNT_POINT", "./target/sysfail", 1);
+    setenv("SYSFS_MOUNT_POINT", "./fakefs/sysfail", 1);
     
     archinfo_t *inst = get_architecture();
 

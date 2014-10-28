@@ -60,7 +60,7 @@ install_pcp : install
 
 TARGETS = $(CMDTARGET) perfalloc
 
-LLDLIBS = $(PCP_PMDALIB) -lpfm -lrt
+LLDLIBS = $(PCP_PMDALIB) -lpfm -lrt -lm -lpthread
 LCFLAGS = -I.
 CFLAGS += -DVERSION=\"$(VERSION)\"
 
