@@ -74,6 +74,7 @@ OTHER_SUBDIRS = \
 	pmloglabel \
 	pmlogrewrite \
 	pmlogsummary \
+	pmmgr \
 	pmpost \
 	pmproxy \
 	pmquery \
@@ -87,6 +88,7 @@ OTHER_SUBDIRS = \
 	pmtop \
 	pmtime \
 	pmval \
+	pmwebapi \
 	perl \
 	python \
 	procmemstat \

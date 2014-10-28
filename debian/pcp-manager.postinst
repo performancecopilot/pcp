@@ -1,0 +1,14 @@
+#!/bin/sh -e
+#DEBHELPER#
+
+# must match src/pmmgr/GNUmakefile
+chown pcp:pcp /var/log/pcp/pmmgr
+chmod 775 /var/log/pcp/pmmgr
+
+update-rc.d pmmgr defaults >/dev/null
+
+if which invoke-rc.d >/dev/null 2>&1; then
+    invoke-rc.d pmmgr start
+else
+    /etc/init.d/pmmgr start
+fi

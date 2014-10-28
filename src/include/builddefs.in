@@ -116,6 +116,7 @@ NSSCFLAGS = @NSSCFLAGS@
 NSPRCFLAGS = @NSPRCFLAGS@
 SASLCFLAGS = @SASLCFLAGS@
 AVAHICFLAGS = @avahi_CFLAGS@
+LIBMICROHTTPDCFLAGS = @libmicrohttpd_CFLAGS@
 
 LDFLAGS += $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
 
@@ -225,6 +226,8 @@ ENABLE_QT = @enable_qt@
 ENABLE_PYTHON = @enable_python@
 ENABLE_PYTHON3 = @enable_python3@
 ENABLE_SYSTEMD = @enable_systemd@
+ENABLE_MANAGER = @enable_manager@
+ENABLE_WEBAPI = @enable_webapi@
 
 # additional libraries needed for particular functions
 LIB_FOR_BASENAME = @lib_for_basename@
@@ -241,6 +244,11 @@ LIB_FOR_SASL = @lib_for_sasl@
 LIB_FOR_SSL = @lib_for_ssl@
 LIB_FOR_AVAHI = @lib_for_avahi@
 LIB_FOR_ATOMIC = @lib_for_atomic@
+
+HAVE_CAIRO = @HAVE_CAIRO@
+LIB_FOR_CAIRO = @cairo_LIBS@
+HAVE_LIBMICROHTTPD = @HAVE_LIBMICROHTTPD@
+LIB_FOR_MICROHTTPD = @libmicrohttpd_LIBS@
 
 # configuration state for optional performance domains
 SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@

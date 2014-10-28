@@ -1,0 +1,285 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2013 Red Hat, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMWEBD 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmwebd\f1 \- bridge client PMAPI to HTTP
+.SH SYNOPSIS
+\f3pmwebd\f1
+[\f3\-p\f1 \f2port\f1]
+[\f3\-4\f1]
+[\f3\-6\f1]
+[\f3\-t\f1 \f2timeout\f1]
+[\f3\-R\f1 \f2resdir\f1]
+[\f3\-c\f1 \f2number\f1]
+[\f3\-h\f1 \f2hostname\f1]
+[\f3\-a\f1 \f2archive\f1]
+[\f3\-L\f1]
+[\f3\-N\f1]
+[\f3\-K\f1 \f2spec\f1]
+[\f3\-A\f1 \f2archdir\f1]
+[\f3\-f\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-U\f1 \f2username\f1]
+[\f3\-x\f1 \f2file\f1]
+[\f3\-v\f1]
+[\f3\-?\f1]
+.\" see also ../../src/pmwebapi/main.c options[] et al.
+
+.SH DESCRIPTION
+.B pmwebd
+is a long-running network daemon.  It binds a subset of the
+Performance Co-Pilot (PCP) client API (PMAPI) to RESTful web
+applications using the HTTP (PMWEBAPI) protocol.  Web
+clients request a URI with the prefix
+.B /pmapi
+to access the bindings.  pmwebd creates dynamic PCP contexts as requested
+by a dynamic pool of remote clients, and maintains them as long as the
+clients regularly reconnect to request PMAPI operations.  Otherwise,
+PCP contexts are closed after a timeout.  Permanent contexts may be
+requested on the command line. 
+.PP
+In addition to the API binding, pmwebd may be optionally configured as a
+simple HTTP file server, in order to feed the web application itself
+to a web browser.  URIs not matching the 
+.B /pmapi
+prefix are mapped to files under the configured resource directory, if
+the \f3\-R\f1 option was given.
+.PP
+The options to
+.B pmwebd
+are as follows.
+.TP
+\f3\-p\f1 \f2port\f1
+Set the TCP port number on which pmwebd will listen for HTTP requests.
+The default is 44323.
+.TP
+\f3\-4\f1 or \f3\-6\f1
+Listen only on IPv4 or IPv6.  By default, pmwebd will listen on both
+protocols, if possible.
+.TP
+\f3\-R\f1 \f2resdir\f1
+Activate file serving beneath the given resource directory.  All regular
+files there may be read & transcribed to remote clients.  By default,
+file serving is disabled.
+.TP
+\f3\-t\f1 \f2timeout\f1
+Set the maximum timeout (in seconds) after the last operation on a web
+context, before it is closed by pwmebd.  A smaller timeout may be requested
+by the web client.
+.TP
+\f3\-c\f1 \f2number\f1
+Reset the next PMWEBAPI permanent context identifier as given.
+The default is 1.
+.TP
+\f3\-h\f1 \f2hostname\f1 or \f3\-a\f1 \f2archive\f1 or \f3\-L\f1
+Assign the next permanent PMWEBAPI context identifier to a PMAPI connection
+to the given host (with an extended syntax as given in 
+.BR PCPIntro (1)),
+or archive file, or the PM_CONTEXT_LOCAL.
+.TP
+\f3\-A\f1 \f2archdir\f1
+Limit remote new-context requests for archives to beneath the given
+directory.  By default, only files beneath the initial working directory
+may be accessed.
+.TP
+\f3\-N\f1
+Disable creation of new PMWEBAPI contexts via HTTP requests, leaving only
+permanent ones accessible.
+.TP
+\f3\-K\f1 \f2spec\f1
+When
+fetching metrics from a local context, the
+.B \-K
+option may be used to control the DSO PMDAs that should be
+made accessible.  The
+.I spec
+argument conforms to the syntax described in
+.BR __pmSpecLocalPMDA (3).
+More than one
+.B \-K
+option may be used.
+.TP
+\f3\-f\f1
+By default
+.B pmwebd
+is started as a daemon.
+The
+.B \-f
+option indicates that it should run in the foreground.
+This is most useful when trying to diagnose problems with establishing
+connections.
+.TP
+\f3\-l\f1 \f2logfile\f1
+By default a log file named
+.I pmwebd.log
+is written in the current directory.
+The
+.B \-l
+option causes the log file to be written to
+.I logfile
+instead of the default.
+If the log file cannot be created or is not writable, output is
+written to the standard error instead.
+.TP
+\f3\-U\f1 \f2username\f1
+Assume the identity of
+.I username
+before starting to accept incoming requests from web clients.
+.TP
+\f3\-x\f1 \f2file\f1
+Before the
+.B pmwebd
+.I logfile
+can be opened,
+.B pmwebd
+may encounter a fatal error which prevents it from starting.  By default, the
+output describing this error is sent to
+.B /dev/tty
+but it may redirected to
+.IR file .
+.TP
+\f3\-v\f1
+Increase the verbosity of the
+.B pmwebd
+program as it logs to its standard error.
+.TP
+\f3\-?\f1
+Show pmwebd invocation help and exit.
+
+.SH SECURITY
+.PP
+The current release of pmwebd is suitable for direct exposure to
+trusted networks only, due to several security limitations.  Most or
+all of these limitations may be worked around by use of a web
+application firewall (for example, an Apache HTTPD proxy), which would
+add the constraints and capabilities absent within pmwebd.  Such
+configuration is beyond the scope of this document.
+.TP
+encryption/confidentiality
+The pmwebd program is does not currently support HTTPS (SSL/TLS), so
+the HTTP traffic is not protected against network-level attacks.
+.TP
+authentication
+The PMAPI layer does not possess a mandatory authentication mechanism,
+so any remote connection can access any metric exposed by suchly connected
+PMAPI contexts.  However, a new host-context string may use
+authentication clauses of the longer host URLs, for example
+.IR pcps://hostname?method=plain&user=userid&pass=password .
+.TP
+inbound admission control
+The pmwebd program does not impose ACLs on the origin or rate of its
+incoming requests.  It may be possible for some clients to starve others.
+.TP
+outbound admission control
+The pmwebd program does not impose ACLs on outbound connections 
+when a new PMAPI context is created for a remote third-party PMCD.
+For an archive type context, the files must be located under the
+pmwebd current directory, or another directory specified by 
+.BR \-A .
+One may entirely disable remotely specified PMAPI context creation using the 
+.B \-N
+option; in this case, specify a static set of contexts using the
+.B \-h ", " \-a ", and/or " \-L " options."
+You may assign them arbitrary context numbers with the
+.B \-c
+option.
+.TP
+context ownership 
+Authenticated PCP contexts are protected by requiring the same HTTP
+PLAIN/simple userid/password credentials for related /pmapi requests.
+However, unauthenticated contexts for different web clients are kept
+distinct only by the assignment of large pseudorandom identifiers.  It
+may be possible to find these by brute-force search or other
+techniques, thereby letting a web client impersonate another.  For
+more privacy of the permanent contexts, use the
+.B \-c
+option to reset their starting web context identifiers to a number
+much different from 1.  On the other hand, context ownership is not
+that precious, since there exist no state-destructive operations for
+them, except perhaps instance profile settings.
+
+.SH "STARTING AND STOPPING PMWEBD"
+Normally,
+.B pmwebd
+is started automatically at boot time and stopped when the
+system is being brought down.
+Under certain circumstances it is necessary to start or stop
+.B pmwebd
+manually.
+To do this one must become superuser and type
+.PP
+.ft CS
+# $PCP_RC_DIR/pmwebd start
+.ft
+.PP
+to start
+.BR pmwebd ,
+or
+.PP
+.ft CS
+# $PCP_RC_DIR/pmwebd stop
+.ft
+.PP
+to stop
+.BR pmwebd .
+Starting
+.B pmwebd
+when it is already running is the same as stopping
+it and then starting it again.
+
+.SH FILES
+.PD 0
+.TP
+.B PCP_PMWEBDOPTIONS_PATH
+command line options
+and environment variable settings for
+.B pmwebd
+when launched from
+.B $PCP_RC_DIR/pmwebd
+All the command line option lines should start with a hyphen as
+the first character.
+This file can also contain environment variable settings of
+the form "VARIABLE=value".
+.TP
+.B \&./pmwebd.log
+(or
+.B $PCP_LOG_DIR/pmwebd/pmwebd.log
+when started automatically)
+.br
+All messages and diagnostics are directed here
+
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR PMAPI (3),
+.BR PMWEBAPI (3),
+.BR pcp.conf (5),
+.BR pcp.env (5)
+and
+.BR pmns (5).

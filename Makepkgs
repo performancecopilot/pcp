@@ -94,19 +94,27 @@ export ZIP=`gnu_tool Error "$ZIP" gzip gnuzip`
 tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 trap "rm -rf $tmp" 0 1 2 3 15
 
-# Bog-standard options suitable for a package on any platform.
-# Command line can be used to extend this set, and any whacko
-# platform-specific requirements are also appended later on.
-#
 configure=./configure
-configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
 target=`uname -s | cut -c-5 | tr 'A-Z' 'a-z'`
+
+if [ ! -x /usr/bin/rpmbuild ]
+then
+    # Bog-standard options suitable for a package on any platform.
+    # Command line can be used to extend this set, and any unusual
+    # platform-specific requirements are also appended later on.
+    configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
+else
+    # On RPM-based platforms, rpm macros provide an excellent set of defaults.
+    # This set is based on Fedora 22 %configure macro from /usr/lib/rpm/macros,
+    # and is known to work as far back as RHEL5.
+    configopts=`rpmbuild --eval '--prefix=%{_prefix} --exec-prefix=%{_exec_prefix} --bindir=%{_bindir} --sbindir=%{_sbindir} --sysconfdir=%{_sysconfdir} --datadir=%{_datadir} --includedir=%{_includedir} --libdir=%{_libdir} --libexecdir=%{_libexecdir} --localstatedir=%{_localstatedir} --sharedstatedir=%{_sharedstatedir} --mandir=%{_mandir}' 2>/dev/null`
+fi
 
 for opt in $*
 do
     case "$opt" in
     -clean|--clean)
-	# we always clean nowadays
+	# we always clean nowadays, so silently ignore
 	shift
 	;;
     -verbose|--verbose)
@@ -137,12 +145,12 @@ done
 if [ "$nonrpm" = "unknown" ]
 then
     nonrpm=true
-    test -f /usr/bin/rpmbuild && nonrpm=false
+    test -x /usr/bin/rpmbuild && nonrpm=false
 fi
 if [ "$nondeb" = "unknown" ]
 then
     nondeb=true
-    test -f /usr/bin/dpkg-buildpackage && nondeb=false
+    test -x /usr/bin/dpkg-buildpackage && nondeb=false
 fi
 
 case "$target"

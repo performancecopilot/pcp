@@ -220,7 +220,7 @@ refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
 	    info->cache_align = atoi(val);
 	else if (info->bogomips == 0.0 && strncasecmp(buf, "bogo", 4) == 0)
 	    info->bogomips = atof(val);
-	else if (info->clock == 0.0 && strncasecmp(buf, "cpu MHz", 7) == 0)
+	else if (strncasecmp(buf, "cpu MHz", 7) == 0) /* cpu MHz can change */
 	    info->clock = atof(val);
 	else if (info->clock == 0.0 && strncasecmp(buf, "cycle frequency", 15) == 0) {
 	    if ((p = strchr(val, ' ')) != NULL)

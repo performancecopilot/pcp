@@ -1,0 +1,13 @@
+QA output created by 782
+Starting pmwebd ... 
+
+Verifying pmwebd started with old configuration:
+
+Access-Control-Allow-Origin: *
+Content-Length: SIZE
+Content-Type: application/json
+Date: DATE
+HTTP/1.1 200 OK
+{ "context": CTXID }
+Waiting for pmwebd to terminate ...
+Starting pmwebd ... 

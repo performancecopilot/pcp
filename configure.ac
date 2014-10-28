@@ -113,6 +113,18 @@ AC_ARG_WITH([papi],
     [do_papi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-papi=$withval"],
     [do_papi=check])
 
+AC_ARG_WITH([manager],
+    [AC_HELP_STRING([--with-manager],
+		   [enable daemon manager (default is on)])],
+    [do_manager=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-manager=$withval"],
+    [do_manager=check])
+
+AC_ARG_WITH([webapi],
+    [AC_HELP_STRING([--with-webapi],
+		   [enable REST API daemon (default is on)])],
+    [do_webapi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webapi=$withval"],
+    [do_webapi=check])
+
 #
 # Note: the following environment variables may be
 # set to override the defaults.
@@ -1296,6 +1308,47 @@ AC_COMPILE_IFELSE(
 AC_SUBST(PMDA_RPM,[$pmda_rpm])
 LIBS=$savedLIBS
 
+dnl Do you have system microhttpd libraries for pmwebapi?
+PKG_CHECK_MODULES([libmicrohttpd], [libmicrohttpd > 0.9.9], [have_libmicrohttpd=true], [have_libmicrohttpd=false])
+AC_SUBST(HAVE_LIBMICROHTTPD, [$have_libmicrohttpd])
+
+dnl Do you have graphics libraries for pmwebapi?
+PKG_CHECK_MODULES([cairo], [cairo >= 1.2, cairo-ft >= 1.2, cairo-png >= 1.2], [have_cairo=true], [have_cairo=false])
+AC_SUBST(HAVE_CAIRO, [$have_cairo])
+
+enable_webapi=false
+AS_IF([test "x$do_webapi" != "xno"], [
+    enable_webapi=true
+
+    if test "$do_webapi" != "check" -a "$have_libmicrohttpd" != "true"
+    then
+	AC_MSG_ERROR(libmicrohttpd is not installed, cannot enable the web API)
+    elif test "$do_webapi" != "check" -a "x$cxx" = "x"
+    then
+	AC_MSG_ERROR(C++ compiler unavailable, cannot enable the web API)
+    else
+	enable_webapi=$have_libmicrohttpd
+    fi
+])
+AC_SUBST(enable_webapi)
+
+enable_manager=false
+AS_IF([test "x$do_manager" != "xno"], [
+    enable_manager=true
+
+    if test "$do_manager" != "check" -a $target_os = mingw
+    then
+	AC_MSG_ERROR(Target platform is MinGW, cannot enable daemon manager)
+    elif test "$do_manager" != "check" -a "x$cxx" = "x"
+    then
+	AC_MSG_ERROR(C++ compiler unavailable, cannot enable daemon manager)
+    fi
+])
+AC_SUBST(enable_manager)
+
+dnl Capture special options passed to configure
+AC_SUBST(PACKAGE_CONFIGURE)
+
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
 AC_FUNC_WAIT3
@@ -2098,6 +2151,8 @@ AC_SUBST(pcp_sysconf_dir)
 pcp_pmcdconf_path=$pcp_sysconf_dir/pmcd/pmcd.conf
 pcp_pmcdrclocal_path=$pcp_sysconf_dir/pmcd/rc.local
 pcp_pmcdoptions_path=$pcp_sysconf_dir/pmcd/pmcd.options
+pcp_pmwebdoptions_path=$pcp_sysconf_dir/pmwebd/pmwebd.options
+pcp_pmmgroptions_path=$pcp_sysconf_dir/pmmgr/pmmgr.options
 pcp_pmproxyoptions_path=$pcp_sysconf_dir/pmproxy/pmproxy.options
 pcp_pmiecontrol_path=$pcp_sysconf_dir/pmie/control
 pcp_pmsnapcontrol_path=$pcp_sysconf_dir/pmsnap/control
@@ -2105,6 +2160,8 @@ pcp_pmloggercontrol_path=$pcp_sysconf_dir/pmlogger/control
 AC_SUBST(pcp_pmcdconf_path)
 AC_SUBST(pcp_pmcdoptions_path)
 AC_SUBST(pcp_pmcdrclocal_path)
+AC_SUBST(pcp_pmwebdoptions_path)
+AC_SUBST(pcp_pmmgroptions_path)
 AC_SUBST(pcp_pmproxyoptions_path)
 AC_SUBST(pcp_pmiecontrol_path)
 AC_SUBST(pcp_pmsnapcontrol_path)
