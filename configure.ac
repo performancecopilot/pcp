@@ -125,6 +125,11 @@ AC_ARG_WITH([webapi],
     [do_webapi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webapi=$withval"],
     [do_webapi=check])
 
+AC_ARG_WITH([perfevent],
+    [AC_HELP_STRING([--with-perfevent],
+		   [enable perfevent pmda (default is check)])],
+    [do_perfevent=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perfevent=$withval"],
+    [do_perfevent=check])
 #
 # Note: the following environment variables may be
 # set to override the defaults.
@@ -1348,6 +1353,14 @@ AC_SUBST(enable_manager)
 
 dnl Capture special options passed to configure
 AC_SUBST(PACKAGE_CONFIGURE)
+
+if test "$do_perfevent" = "check" -o "$do_perfevent" = "yes"
+then
+    enable_perfevent=true
+    AC_CHECK_HEADERS([perfmon/pfmlib_perf_event.h], [], [ enable_perfevent=false ])
+    AC_CHECK_LIB(pfm, pfm_get_os_event_encoding, [], [ enable_perfevent=false ] )
+    AC_SUBST(enable_perfevent)
+fi
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL

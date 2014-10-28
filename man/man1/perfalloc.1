@@ -1,0 +1,68 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014 Joseph White
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PERFALLOC 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3perfalloc\f1 \- notify
+.BR pmdaperfevent (1)
+to disable hardware counter allocation.
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/perfevent/perfalloc\f1
+[\f3\-D\f1]
+[\f3\-d\f1]
+[\f3\-f\f1 \f2lockfile\f1]
+[\f3\-h\f1]
+[\f3\-v\f1]
+[\f3COMMAND\f1]
+.SH DESCRIPTION
+.B perfalloc
+is a command that notifies the 
+.BR pmdaperfevent (1)
+to disable hardware counter event collection. This allow unpriviledged processes
+to use the hardware counters.
+
+If the reservation request fails, then perfalloc exits immediately with exit code EXIT_FAILURE.
+If successful, the perfalloc will run until a kill signal is received. The
+reservation request persists while perfalloc is running.
+
+If a commandline is given, this is executed as a subprocess of the agent. When the command dies, so does the agent.
+.PP
+A brief description of the command line options follows:
+.TP 5
+.B \-D
+run in the foreground (the default)
+.TP
+.B \-d
+run in the background
+.TP
+.B \-f FILE
+use FILE as the lock file (default $PCP_PMDAS_DIR/perfevent/perflock)
+.TP
+.B \-h
+display a help message and exit
+.TP
+.B \-v
+output version number and exit
+
+.PD
+.SH BUGS
+There may be a delay of up to 100 miliseconds between perfalloc requesting the
+hardware counter disabling and the perfevent pmda processing the request.
+
+The perfalloc process does not check the status of the request and therefore is not able to
+provide a positive confirmation that the request succeeded and the hardware counters are disabled.
+.SH SEE ALSO
+.BR pmdaperfevent (1),
+and
+.BR perfevent.conf (3),
