@@ -12,6 +12,9 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+# TODO: split this test up - only some parts rely on these demos
+test -d "$PCP_SHARE_DIR/jsdemos" || _notrun "jsdemos not installed"
+
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
 echo curl ok
 # nb: wget dispreferred because of its processing of .. relative links,
