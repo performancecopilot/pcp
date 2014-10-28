@@ -34,6 +34,13 @@ import cpmapi as c_api
 from pcp.pmapi import pmErr
 from ctypes import c_char_p
 
+# python version information and compatibility
+import sys
+if sys.version > '3':
+    integer_types = (int,)
+else:
+    integer_types = (int, long,)
+
 
 # Subsystem  ---------------------------------------------------------------
 
@@ -67,7 +74,7 @@ class Subsystem(object):
 
     def dump_metrics(self):
         metrics_string = ""
-        for i in xrange(len(self.metrics)):
+        for i in range(len(self.metrics)):
             metrics_string += self.metrics[i]
             metrics_string += " "
         return metrics_string
@@ -77,7 +84,7 @@ class Subsystem(object):
             value = self.get_metric_value(var)
         else:
             value = self.metric_values[var]
-        if type(value) != type(int()) and type(value) != type(long()):
+        if not isinstance(value, integer_types):
             return value[idx]
         else:
             return value
@@ -96,13 +103,13 @@ class Subsystem(object):
         else:
             return 0
         val = self.get_atom_value(aval[idx], None, self.metric_descs[aidx], False)
-        if type(val) == type(int()) or type(val) == type(long()):
+        if isinstance(val, integer_types):
             return val
         else:
             return val[idx]
 
     def get_len(self, var):
-        if type(var) != type(int()) and type(var) != type(long()):
+        if not isinstance(var, integer_types):
             return len(var)
         else:
             return 1
@@ -162,21 +169,21 @@ class Subsystem(object):
             first = False
 
         # list of metric names
-        for i in xrange(len(self.metrics)):
+        for i in range(len(self.metrics)):
             # list of metric results, one per metric name
-            for j in xrange(metric_result.contents.numpmid):
+            for j in range(metric_result.contents.numpmid):
                 if (metric_result.contents.get_pmid(j) != self.metric_pmids[i]):
                     continue
                 atomlist = []
                 # list of instances, one or more per metric.  e.g. there are many 
                 # instances for network metrics, one per network interface
-                for k in xrange(metric_result.contents.get_numval(j)):
+                for k in range(metric_result.contents.get_numval(j)):
                     atom = pcp.pmExtractValue(metric_result.contents.get_valfmt(j), metric_result.contents.get_vlist(j, k), self.metric_descs[j].type, self.metric_descs[j].type)
                     atomlist.append(atom)
 
                 value = []
                 # metric may require a diff to get a per interval value
-                for k in xrange(metric_result.contents.get_numval(j)):
+                for k in range(metric_result.contents.get_numval(j)):
                     if type(self.old_metric_values[j]) == list_type:
                         try:
                             old_val = self.old_metric_values[j][k]

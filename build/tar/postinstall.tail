@@ -220,7 +220,7 @@ then
 	svccfg import ../sun/pcp.xml
     fi
 else
-    for svc in pmcd pmlogger pmie pmproxy
+    for svc in pcp pmcd pmie pmlogger pmproxy pmmgr pmwebd
     do
 	if which rc-update >/dev/null 2>&1
 	then
@@ -236,7 +236,7 @@ else
 	# disable or enable and start as required by default policy
 	case $svc
 	in
-	    pmcd|pmlogger|pmie|pmproxy)
+	    pmcd|pmlogger|pmproxy|pmie|pmmgr|pmwebd)
 		if which rc-update >/dev/null 2>&1
 		then
 		    : TODO?

@@ -1,5 +1,0 @@
-#!/bin/sh
-# PCP QA Test No. 666
-# Retired test - moved to pcp-web-manager tree.
-
-exit 0

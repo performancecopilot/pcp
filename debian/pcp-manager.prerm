@@ -1,0 +1,8 @@
+#!/bin/sh -e
+#DEBHELPER#
+
+if which invoke-rc.d >/dev/null 2>&1; then
+    invoke-rc.d pmmgr stop
+else
+    /etc/init.d/pmmgr stop
+fi

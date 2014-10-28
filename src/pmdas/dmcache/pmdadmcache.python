@@ -107,6 +107,7 @@ class DmCachePMDA(PMDA):
 
         self.cache_indom = self.indom(0)
         self.add_indom(pmdaIndom(self.cache_indom, self.caches))
+        self.set_instance(self.dmcache_instance)
 
         self.set_fetch(self.dmcache_refresh)
         self.set_fetch_callback(self.dmcache_fetch_callback)
@@ -211,6 +212,11 @@ class DmCachePMDA(PMDA):
             name = line[:line.find(':')]            # extract cache name
             self.caches[name] = DmCacheStats(line)  # extract stats values
         self.replace_indom(self.cache_indom, self.caches)
+
+    def dmcache_instance(self, serial):
+        ''' Called once per "instance request" PDU '''
+        if (serial == 0):
+            self.dmcache_refresh()
 
     def dmcache_fetch_callback(self, cluster, item, inst):
         '''

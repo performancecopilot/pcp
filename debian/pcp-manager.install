@@ -1,0 +1,11 @@
+etc/init.d/pmmgr
+etc/pcp/pmmgr/pmie
+etc/pcp/pmmgr/pmieconf
+etc/pcp/pmmgr/pmlogconf
+etc/pcp/pmmgr/pmlogger
+etc/pcp/pmmgr/pmlogmerge
+etc/pcp/pmmgr/README
+etc/pcp/pmmgr/target-discovery.example-avahi
+etc/pcp/pmmgr/pmmgr.options
+usr/lib/pcp/bin/pmmgr
+usr/share/man/man1/pmmgr.1.gz

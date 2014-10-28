@@ -2495,9 +2495,36 @@ sample_store(pmResult *result, pmdaExt *ep)
 	/*
 	 * for this PMD, the metrics that support modification
 	 * via pmStore() mostly demand a single value, encoded in
-	 * the result structure as PM_VAL_INSITU format
+	 * the result structure as PM_VAL_INSITU format for 32-bit
+	 * ints, else a single value, encoded in the result structure
+	 * as NOT PM_VAL_INSITU for 64-bit ints.
 	 */
 	switch (pmidp->item) {
+
+	    case 0:	/* control */
+	    case 7:	/* drift */
+	    case 8:	/* step */
+	    case 14:	/* long.write_me */
+	    case 36:	/* write_me */
+	    case 41:	/* recv_pdu */
+	    case 42:	/* xmit_pdu */
+	    case 56:	/* not_ready */
+	    case 61:	/* dodgey.control */
+	    case 72:    /* const_rate.value */
+	    case 73:    /* const_rate.gradient */
+	    case 74:    /* error_code */
+	    case 79:    /* many.count */
+	    case 87:	/* dynamic.meta.pmdesc.type */
+	    case 88:	/* dynamic.meta.pmdesc.indom */
+	    case 89:	/* dynamic.meta.pmdesc.sem */
+	    case 90:	/* dynamic.meta.pmdesc.units */
+	    case 97:	/* ulong.write_me */
+	    case 126:	/* event.reset */
+	    case 140:	/* event.reset_highres */
+		if (vsp->numval != 1 || vsp->valfmt != PM_VAL_INSITU)
+		    sts = PM_ERR_CONV;
+		break;
+
 	    case 24:	/* longlong.write_me */
 	    case 29:	/* double.write_me */
 	    case 32:	/* string.write_me */
@@ -2508,26 +2535,21 @@ sample_store(pmResult *result, pmdaExt *ep)
 		    sts = PM_ERR_CONV;
 		break;
 
-	    case 74:    /* error_code */
-	    case 73:    /* const_rate.gradient */
-	    case 61:	/* dodgey.control */
-	    case 56:	/* not_ready */
-	    case 36:
-	    case 42:
-	    case 41:
-	    case 14:	/* long.write_me */
-	    case 8:	/* step */
-	    case 7:	/* drift */
-	    case 0:	/* control */
-	    case 79:    /* many.count */
-	    case 87:	/* dynamic.meta.pmdesc.type */
-	    case 88:	/* dynamic.meta.pmdesc.indom */
-	    case 89:	/* dynamic.meta.pmdesc.sem */
-	    case 90:	/* dynamic.meta.pmdesc.units */
-	    case 97:	/* ulong.write_me */
-	    case 126:	/* event.reset */
-	    case 140:	/* event.reset_highres */
-		if (vsp->numval != 1 || vsp->valfmt != PM_VAL_INSITU)
+	    case 5:	/* colour */
+	    case 37:	/* mirage */
+		/*
+		 * number of values/instances does not matter ... reset
+		 * counter _x for a pmStore on _any_ instance
+		 */
+		if (vsp->valfmt != PM_VAL_INSITU)
+		    sts = PM_ERR_CONV;
+		break;
+	    case 38:	/* mirage_longlong */
+		/*
+		 * number of values/instances does not matter ... reset
+		 * counter _x for a pmStore on _any_ instance
+		 */
+		if (vsp->valfmt == PM_VAL_INSITU)
 		    sts = PM_ERR_CONV;
 		break;
 
@@ -2570,6 +2592,17 @@ sample_store(pmResult *result, pmdaExt *ep)
 			pmDebug = _control;
 			break;
 		}
+		break;
+	    /*
+	     * note: all 3 metrics below share the same underlying
+	     * global counter, _x
+	     */
+	    case 5:	/* colour */
+	    case 37:	/* mirage */
+		_x = av.l;
+		break;
+	    case 38:	/* mirage_longlong */
+		_x = av.ll;
 		break;
 	    case 7:	/* drift */
 		_drift = av.l;
@@ -2620,6 +2653,9 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 61:	/* dodgey.control */
 		dodgey = av.l;
 		redo_dodgey();
+		break;
+	    case 72:	/* const_rate.value */
+		const_rate_value = av.ul;
 		break;
 	    case 73:	/* const_rate.gradient */
 		const_rate_gradient = av.ul;

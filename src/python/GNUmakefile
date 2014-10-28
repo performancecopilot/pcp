@@ -24,6 +24,10 @@ ENV = CFLAGS=$(CFLAGS_ABI)
 else
 ENV =
 endif
+ifeq ($(PCP_PLATFORM),darwin)
+# Universal binaries for PPC, thanks
+ENV += ARCHFLAGS='-arch i386 -arch x86_64'
+endif
 
 default default_pcp: build_python build_python3
 

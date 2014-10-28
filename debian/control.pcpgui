@@ -1,8 +1,7 @@
 
 Package: pcp-gui
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Suggests: xvfb, qt4-dev-tools
-Recommends: pcp, pcp-doc
+Suggests: pcp, pcp-doc, xvfb, qt4-dev-tools
 Architecture: any
 Description: Visualisation tools for the Performance Co-Pilot toolkit
  The PCP GUI package primarily includes visualisation tools for

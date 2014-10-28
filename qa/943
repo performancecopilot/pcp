@@ -24,7 +24,12 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter_counts()
 {
-    $PCP_AWK_PROG '$2 > 0 { $2 = "COUNT" } { print }'
+    # special case this one ...
+    # proc.psinfo.cgroups -61 No data available
+    # then map any number of values to COUNT
+    #
+    sed -e '/proc.psinfo.cgroups/s/-61 No data available/1/' \
+    | $PCP_AWK_PROG '$2 > 0 { $2 = "COUNT" } { print }'
 }
 
 # lists of metrics

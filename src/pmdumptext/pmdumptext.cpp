@@ -344,7 +344,7 @@ dumpTime(struct timeval const &curPos)
 		 (const char *)(timeFormat.toAscii()), localtime(&curTime));
     else {
 	// Use ctime as we have put the timezone into the environment
-	strcpy(p, ctime(&curTime));
+	strncpy(p, ctime(&curTime), 20);
 	p[19] = '\0';
     }
     return buffer;

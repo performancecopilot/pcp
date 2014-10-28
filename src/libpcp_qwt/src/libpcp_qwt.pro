@@ -2,6 +2,8 @@ TARGET		= pcp_qwt
 TEMPLATE	= lib
 VERSION		= 6.0.2
 CONFIG		+= qt staticlib warn_on
+release:DESTDIR = build/debug
+debug:DESTDIR   = build/release
 QT		= core gui network svg
 
 HEADERS	+= \
