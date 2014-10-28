@@ -2510,6 +2510,7 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 42:	/* xmit_pdu */
 	    case 56:	/* not_ready */
 	    case 61:	/* dodgey.control */
+	    case 72:    /* const_rate.value */
 	    case 73:    /* const_rate.gradient */
 	    case 74:    /* error_code */
 	    case 79:    /* many.count */
@@ -2652,6 +2653,9 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 61:	/* dodgey.control */
 		dodgey = av.l;
 		redo_dodgey();
+		break;
+	    case 72:	/* const_rate.value */
+		const_rate_value = av.ul;
 		break;
 	    case 73:	/* const_rate.gradient */
 		const_rate_gradient = av.ul;
