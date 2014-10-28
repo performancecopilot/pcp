@@ -18,13 +18,13 @@ echo "QA output created by $seq"
 
 test -e perfevent/perfevent_test || _notrun "Optional perfevent PMDA not present"
 
-pushd perfevent > /dev/null
+cd perfevent
 
 if ./perfevent_test all 2>/dev/null;
 then
 	echo "Unit tests Passed"
 fi
 
-popd > /dev/null
+cd - > /dev/null
 
 exit $status
