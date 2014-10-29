@@ -877,8 +877,8 @@ avahi
 653 libpcp local
 654 pmda.gfs2 local
 655 pmda.gfs2 local
-660:retired local
-666:retired local
+660 pmwebapi local
+660:reserved pmmgr local
 701 pmlogcheck local
 702 python libpcp local
 703 pmda.weblog local
@@ -924,6 +924,7 @@ avahi
 743 python local
 744 pmda.nvidia local
 745 pmda.nvidia local valgrind
+746 valgrind libpcp local
 748 pmlogrewrite pmda.mysql local
 749 pmcd local
 750 pmda.rpm local
@@ -938,8 +939,9 @@ avahi
 775 sanity pmfind local
 776 pmfind local
 779 pmda local
-780:retired local
+780 pmwebapi local
 781 logutil local
+782 pmwebapi local
 783 pmda.rpm local valgrind
 786 context context_local libpcp local
 787:reserved archive local pmie pmlogrewrite pmdumplog pmval
@@ -962,7 +964,7 @@ avahi
 840 avahi local
 841 pmda local
 842 python local
-843 pmda local
+843 pmda local python
 844 pmda.linux local
 861 pmcd pmda.pmcd local
 875 libpcp local valgrind

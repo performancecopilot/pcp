@@ -510,6 +510,7 @@ do
 		    $PCP_ECHO_PROG $PCP_ECHO_N " - output mismatch (see $seq.out.bad)""$PCP_ECHO_C"
 		    [ $color = true ] && tput sgr0 # reset
 		    mv $tmp.out $seq.out.bad
+		    $PCP_ECHO_PROG
 		    $diff $seq.out $seq.out.bad
 		    err=true
 		fi

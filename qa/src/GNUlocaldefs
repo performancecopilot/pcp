@@ -4,9 +4,6 @@
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
-PMLOGGER	= $(PCP_BINADM_DIR)/pmlogger
-PMLOGEXTRACT	= $(PCP_BINADM_DIR)/pmlogextract
-
 #DBG    = -DPCP_DEBUG -DDEBUG -DMALLOC_AUDIT -g
 DBG     = -DPCP_DEBUG -DDEBUG -g
 
@@ -77,7 +74,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	grind_conv.c getconfig.c err.c torture_logmeta.c keycache.c \
 	keycache2.c pmdaqueue.c drain-server.c template.c anon-sa.c \
 	username.c rtimetest.c getcontexthost.c badpmda.c chkputlogresult.c \
-	churnctx.c
+	churnctx.c badUnitsStr_r.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
@@ -190,6 +187,7 @@ MYFILES += $(SRCARCH) \
 	simple.sxc simple.xls simple.xlsx \
 	iostat iostat-c iostat-d iostat-d-k iostat-d-m iostat-p-ALL \
 	iostat-t iostat-t.ISO iostat-x iostat-z iostat-z-p-ALL \
+	iostat-t-x-bud \
 	pthread_barrier.h pv.c qa_test.c qa_timezone.c \
 	sa-sysstat-9.0.4 sa-sysstat-9.0.6 sa-sysstat-9.0.6.1 \
 	sa-sysstat-10.0.1 sa-sysstat-10.0.5 sa-sysstat-10.2.0 \
@@ -617,11 +615,11 @@ endif
 
 foo.0:	config.foo
 	rm -f foo.index foo.meta foo.0
-	$(PMLOGGER) -c config.foo -s 8 foo
+	pmlogger -c config.foo -s 8 foo
 
 mv-foo.0:	config.foo
 	rm -f mv-foo.index mv-foo.meta mv-foo.?
-	$(PMLOGGER) -c config.foo -s 8 -v 3 mv-foo
+	pmlogger -c config.foo -s 8 -v 3 mv-foo
 
 noti-foo.0:	foo.0
 	cp foo.0 noti-foo.0
@@ -633,11 +631,11 @@ noti-ok-foo.0:	ok-foo.0
 
 bar.0:	config.bar
 	rm -f bar.index bar.meta bar.0
-	$(PMLOGGER) -c config.bar -s 70 bar
+	pmlogger -c config.bar -s 70 bar
 
 mv-bar.0:	config.bar
 	rm -f mv-bar.index mv-bar.meta mv-bar.?
-	$(PMLOGGER) -c config.bar -s 70 -v 20 mv-bar
+	pmlogger -c config.bar -s 70 -v 20 mv-bar
 
 noti-bar.0:	bar.0
 	cp bar.0 noti-bar.0
@@ -645,7 +643,7 @@ noti-bar.0:	bar.0
 
 mirage.0:
 	rm -f mirage.index mirage.meta mirage.0
-	$(PMLOGGER) -c config.mirage -s 20 mirage
+	pmlogger -c config.mirage -s 20 mirage
 
 dodgey-some.0:	make.dodgey config.dodgey-some
 	./make.dodgey some 50
@@ -660,13 +658,13 @@ bigbin.0:	config.bigbin
 	rm -f bigbin.index bigbin.meta bigbin.0
 	sync
 	sleep 3
-	$(PMLOGGER) -c config.bigbin -s 1000 bigbin
+	pmlogger -c config.bigbin -s 1000 bigbin
 
 mv-bigbin.0:	config.bigbin
 	rm -f mv-bigbin.index mv-bigbin.meta mv-bigbin.?
 	sync
 	sleep 3
-	$(PMLOGGER) -c config.bigbin -s 1000 -v 101 mv-bigbin
+	pmlogger -c config.bigbin -s 1000 -v 101 mv-bigbin
 
 noti-bigbin.0:	bigbin.0
 	cp bigbin.0 noti-bigbin.0
@@ -674,11 +672,11 @@ noti-bigbin.0:	bigbin.0
 
 interp.0:	$(CONFIG_INTERP)
 	rm -f interp.index interp.meta interp.0
-	$(PMLOGGER) -c $(CONFIG_INTERP) -s 30 interp
+	pmlogger -c $(CONFIG_INTERP) -s 30 interp
 
 mv-interp.0:	$(CONFIG_INTERP)
 	rm -f mv-interp.index mv-interp.meta mv-interp.?
-	$(PMLOGGER) -c $(CONFIG_INTERP) -s 30 -v 10 mv-interp
+	pmlogger -c $(CONFIG_INTERP) -s 30 -v 10 mv-interp
 
 noti-interp.0:	interp.0
 	cp interp.0 noti-interp.0
@@ -720,13 +718,13 @@ changeinst.0:
 	echo '  sample.seconds,sample.bin["bin-200","bin-300","bin-400","bin-500"]' >>tmp/C.config
 	echo '  irix.network.interface.total.packets["ec2","lo0"]' >>tmp/C.config
 	echo '}' >>tmp/C.config
-	$(PMLOGGER) -s 5 -c tmp/A.config tmp/A
+	pmlogger -s 5 -c tmp/A.config tmp/A
 	sleep 3
-	$(PMLOGGER) -s 5 -c tmp/B.config tmp/B
+	pmlogger -s 5 -c tmp/B.config tmp/B
 	sleep 3
-	$(PMLOGGER) -s 5 -c tmp/C.config tmp/C
+	pmlogger -s 5 -c tmp/C.config tmp/C
 	rm -f changeinst.index changeinst.meta changeinst.0
-	$(PMLOGEXTRACT) tmp/A tmp/B tmp/C changeinst
+	pmlogextract tmp/A tmp/B tmp/C changeinst
 	rm -rf tmp
 
 # gap: 10 sec data, 5 sec gap, 10 sec data
@@ -739,20 +737,20 @@ gap.0 gap2.0:
 	echo 'log mandatory on 1sec { pmcd.pdu_in,pmcd.numagents,hinv.ncpu,sample.bin["bin-100","bin-200","bin-400"] }' >tmp/A.config
 	echo 'log mandatory on 1sec { pmcd.pdu_in,pmcd.numagents,hinv.ncpu,sample.bin["bin-100","bin-300","bin-400"] }' >tmp/B.config
 	echo 'log mandatory on 1sec { pmcd.pdu_in,pmcd.numagents,hinv.ncpu,sample.bin["bin-100","bin-400"] }' >tmp/C.config
-	$(PMLOGGER) -s 10 -c tmp/A.config tmp/A
+	pmlogger -s 10 -c tmp/A.config tmp/A
 	sleep 5
-	$(PMLOGGER) -s 10 -c tmp/B.config tmp/B
+	pmlogger -s 10 -c tmp/B.config tmp/B
 	sleep 5
-	$(PMLOGGER) -s 10 -c tmp/C.config tmp/C
+	pmlogger -s 10 -c tmp/C.config tmp/C
 	rm -f gap.index gap.meta gap.0
-	$(PMLOGEXTRACT) tmp/A tmp/B gap
+	pmlogextract tmp/A tmp/B gap
 	rm -f gap2.index gap2.meta gap2.0
-	$(PMLOGEXTRACT) tmp/A tmp/B tmp/C gap2
+	pmlogextract tmp/A tmp/B tmp/C gap2
 	rm -rf tmp
 
 reduce-gap.0:	reduce-1.0 reduce-2.0
 	rm -f reduce-gap.*
-	$(PMLOGEXTRACT) reduce-1 reduce-2 reduce-gap
+	pmlogextract reduce-1 reduce-2 reduce-gap
 
 torture_indom: torture_indom.c
 	rm -f $@

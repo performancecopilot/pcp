@@ -45,6 +45,7 @@ _proc_filter()
     eval `grep '^pid=' $input`
     eval `grep '^cpid=' $input`
 
+    echo "+++ start proc_filter $1 +++" >>$seq.full
     sed < $input \
 	-e '/proc.memory.*.txt/s/valfmt: [01]/valfmt: 0-or-1/' \
 	-e '/proc\.psinfo\.[us]time/s/valfmt: [01]/valfmt: 0-or-1/' \
@@ -61,22 +62,26 @@ _proc_filter()
 	-e 's/fd=[0-9][0-9]*/fd=N/g' \
 	-e 's/refcnt=[0-9]/refcnt=N/g' \
 	-e 's/inst \[.*\] value/inst [NNN] value/' \
+	-e 's/inst \[[0-9][0-9]* or ".*/inst [NNN]/' \
 	-e '/value /{
-    s/value [0-9][0-9]*/value INTEGER/
-    s/value ".*"/value STRING/
-    s/value \[.*\]/value BINARYDATA/
-    }' \
+s/value [0-9][0-9]*/value INTEGER/
+s/value ".*"/value STRING/
+s/value \[.*\]/value BINARYDATA/
+}' \
 	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
     \
+    | tee -a $seq.full \
     | $PCP_AWK_PROG '
     /End Fetch Over Entire Instance Domain/	{ all = 0; print; next; }
     /Fetch Over Entire Instance Domain/	{ all = 1 }
-    all == 1 && / inst \[/		{ next }
-    all == 1 && /] value /		{ next }
+    all == 1 && / [i]nst \[/		{ skip = 1 }
+    all == 1 && /] [v]alue /		{ skip = 0; next }
+    all == 1 && skip == 1		{ next }
     all == 1 && $3 == "numval:"		{ $4 = "LOTS" }
 					{ print }' \
     | _filter_pmids
 
+    echo "+++ end proc_filter $1 +++" >>$seq.full
 }
 
 # real QA test starts here
@@ -123,25 +128,27 @@ fi
 #
 echo ""
 echo "All instances for selected metrics ..."
-pminfo $target -F 2>$tmp.err \
-	proc.nprocs \
-	proc.psinfo.sname \
-	proc.memory.textrss \
-	proc.runq.sleeping \
-| sed \
-    -e '/Error: proc_instance: unknown pid:/d' \
-    -e '/^  *value /d' \
-    -e '/^  *inst /d' \
-    -e '/^"] value/d'
+for metric in proc.nprocs proc.psinfo.sname proc.memory.textrss proc.runq.sleeping
+do
+    pminfo $target -F 2>$tmp.err $metric \
+    | sed \
+	-e '/Error: proc_instance: unknown pid:/d' \
+	-e '/^  *value /d' \
+    | $PCP_AWK_PROG '
+/ [i]nst \[/	{ skip = 1 }
+/"] [v]alue/	{ skip = 0; next }
+skip == 1	{ next }
+		{ print }'
 
-sed -e '/unknown pid/d' $tmp.err > $tmp.err1
+    sed -e '/unknown pid/d' $tmp.err > $tmp.err1
 
-if [ -s $tmp.err1 ]
-then
-	echo Following is unexpected stderr output from pminfo \| sed
-	echo "--------"
-	cat $tmp.err1
-	echo "--------"
-fi
+    if [ -s $tmp.err1 ]
+    then
+	    echo "Following is unexpected stderr output from pminfo"
+	    echo "--------"
+	    cat $tmp.err1
+	    echo "--------"
+    fi
+done
 
 exit 0

@@ -116,6 +116,7 @@ NSSCFLAGS = @NSSCFLAGS@
 NSPRCFLAGS = @NSPRCFLAGS@
 SASLCFLAGS = @SASLCFLAGS@
 AVAHICFLAGS = @avahi_CFLAGS@
+LIBMICROHTTPDCFLAGS = @libmicrohttpd_CFLAGS@
 
 LDFLAGS += $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
 
@@ -158,6 +159,7 @@ LN_S	= @LN_S@
 GREP    = @grep@
 GIT	= @GIT@
 PYTHON	= @PYTHON@
+PYTHON3	= @PYTHON3@
 DTRACE  = @DTRACE@
 QMAKE	= @qmake@
 
@@ -222,7 +224,10 @@ ENABLE_PROBES = @enable_probes@
 ENABLE_AVAHI = @enable_avahi@
 ENABLE_QT = @enable_qt@
 ENABLE_PYTHON = @enable_python@
+ENABLE_PYTHON3 = @enable_python3@
 ENABLE_SYSTEMD = @enable_systemd@
+ENABLE_MANAGER = @enable_manager@
+ENABLE_WEBAPI = @enable_webapi@
 
 # additional libraries needed for particular functions
 LIB_FOR_BASENAME = @lib_for_basename@
@@ -239,6 +244,11 @@ LIB_FOR_SASL = @lib_for_sasl@
 LIB_FOR_SSL = @lib_for_ssl@
 LIB_FOR_AVAHI = @lib_for_avahi@
 LIB_FOR_ATOMIC = @lib_for_atomic@
+
+HAVE_CAIRO = @HAVE_CAIRO@
+LIB_FOR_CAIRO = @cairo_LIBS@
+HAVE_LIBMICROHTTPD = @HAVE_LIBMICROHTTPD@
+LIB_FOR_MICROHTTPD = @libmicrohttpd_LIBS@
 
 # configuration state for optional performance domains
 SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
@@ -545,7 +555,6 @@ SETUP_PY_BUILD_OPTIONS = --include-dirs=$(TOPDIR)/src/include
 SETUP_PY_BUILD_OPTIONS += --library-dirs=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$(TOPDIR)/src/libpcp_gui/src:$(TOPDIR)/src/libpcp_import/src:$(TOPDIR)/src/libpcp_mmv/src
 SETUP_PY_INSTALL_OPTIONS = --skip-build
 SETUP_PY_INSTALL_OPTIONS += --root=$${DIST_ROOT-/}
-SETUP_PY_INSTALL_OPTIONS += --record=$(TOPDIR)/python-pcp.list
 ifeq "$(PYTHON_PREFIX)" "/usr"
 ifeq "$(PACKAGE_DISTRIBUTION)" "debian"
 SETUP_PY_INSTALL_OPTIONS += --install-layout=deb
@@ -561,6 +570,12 @@ PYTHON_INSTALL = \
 	$(AWK) '{print} /.pyc$$/ {sub(/.pyc$$/,".pyo"); print}' \
 		< $(TOPDIR)/python-pcp.list > $(TOPDIR)/python-pcp.list.rpm; \
 	cat $(TOPDIR)/python-pcp.list.rpm | while read f; do \
+	    touch $${DIST_ROOT-/}$$f; \
+	done
+PYTHON3_INSTALL = \
+	$(AWK) '{print} /.pyc$$/ {sub(/.pyc$$/,".pyo"); print}' \
+		< $(TOPDIR)/python3-pcp.list > $(TOPDIR)/python3-pcp.list.rpm; \
+	cat $(TOPDIR)/python3-pcp.list.rpm | while read f; do \
 	    touch $${DIST_ROOT-/}$$f; \
 	done
 else
@@ -582,6 +597,17 @@ ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = cocoa \
 PYTHON_INSTALL = \
 	if [ -n "$(DIST_MANIFEST)" ]; then \
 	    cat $(TOPDIR)/python-pcp.list \
+	    | while read f; do \
+		bn=`basename $$f`; \
+		dn=`dirname $$f`; \
+		$(INSTALL) -d $$dn || exit 1; \
+		src=`find $(TOPDIR)/src/python/build -name $$bn`; \
+		$(INSTALL) $$src $$f || exit 1; \
+	    done; \
+	fi
+PYTHON3_INSTALL = \
+	if [ -n "$(DIST_MANIFEST)" ]; then \
+	    cat $(TOPDIR)/python3-pcp.list \
 	    | while read f; do \
 		bn=`basename $$f`; \
 		dn=`dirname $$f`; \

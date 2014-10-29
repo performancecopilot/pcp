@@ -8,11 +8,7 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
-
+. ./common.python
 status=0	# success is the default!
 $sudo rm -fr $tmp.* $seq.full
 trap "cd $here; rm -fr $tmp.*; exit \$status" 0 1 2 3 15
@@ -68,10 +64,12 @@ mkdir $tmp.$seq
 cd $tmp.$seq
 
 PYCOLLECTL=pmcollectl.py	# developer version
-which $PMCOLLECTL >/dev/null 2>&1
+which $PYCOLLECTL >/dev/null 2>&1
 if [ $? -ne 0 ]; then
     PYCOLLECTL=pmcollectl	# installed version
-    which $PMCOLLECTL >/dev/null 2>&1 || _notrun "pmcollectl not installed"
+    which $PYCOLLECTL >$tmp.cmd 2>&1 || _notrun "pmcollectl not installed"
+    PYCOLLECTL=`cat $tmp.cmd`
+    PYCOLLECTL="$python $PYCOLLECTL"
 fi
 
 args="-c 2 -i 0.1"

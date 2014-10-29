@@ -1,0 +1,296 @@
+#! /bin/sh
+#
+# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# Start or Stop the Performance Co-Pilot (PCP) daemon manager
+#
+# The following is for chkconfig on RedHat based systems
+# chkconfig: 2345 95 05
+# description: pmmgr is a daemon manager for the Performance Co-Pilot (PCP)
+#
+# The following is for insserv(1) based systems,
+# e.g. SuSE, where chkconfig is a perl script.
+### BEGIN INIT INFO
+# Provides:       pmmgr
+# Required-Start: $remote_fs
+# Should-Start: $local_fs $network $syslog $time $pmcd
+# Required-Stop: $remote_fs
+# Should-Stop:  $local_fs $network $syslog $pmcd
+# Default-Start:  2 3 4 5
+# Default-Stop:   0 1 6
+# Short-Description: Control pmmgr (daemon manager for PCP)
+# Description:       Configure and control pmmgr (a daemon manager for the Performance Co-Pilot)
+### END INIT INFO
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/rc-proc.sh
+
+PMMGR=$PCP_BINADM_DIR/pmmgr
+PMMGROPTS=$PCP_PMMGROPTIONS_PATH
+RUNDIR=$PCP_LOG_DIR/pmmgr
+pmprog=$PCP_RC_DIR/pmmgr
+prog=$PCP_RC_DIR/`basename $0`
+
+tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
+status=1
+trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
+
+if [ $pmprog = $prog ]
+then
+    VERBOSE_CTL=on
+else
+    VERBOSE_CTL=off
+fi
+
+case "$PCP_PLATFORM"
+in
+    mingw)
+	# nothing we can usefully do here, skip the test
+	#
+	;;
+
+    *)
+	# standard Unix/Linux style test
+	#
+	ID=id
+	test -f /usr/xpg4/bin/id && ID=/usr/xpg4/bin/id
+
+	IAM=`$ID -u 2>/dev/null`
+	if [ -z "$IAM" ]
+	then
+	    # do it the hardway
+	    #
+	    IAM=`$ID | sed -e 's/.*uid=//' -e 's/(.*//'`
+	fi
+	;;
+esac
+
+_shutdown()
+{
+    # Is pmmgr running?
+    #
+    _get_pids_by_name pmmgr >$tmp/tmp
+    if [ ! -s $tmp/tmp ]
+    then
+	[ "$1" = verbose ] && echo "$pmprog: pmmgr not running"
+	return 0
+    fi
+
+    # Send pmmgr a SIGTERM, which is noted as a pending shutdown.
+    # When finished the currently active request, pmmgr will close any
+    # connections and then exit.
+    # Wait for pmmgr to terminate.
+    #
+    pmsignal -a -s TERM pmmgr > /dev/null 2>&1
+    $ECHO $PCP_ECHO_N "Waiting for pmmgr to terminate ...""$PCP_ECHO_C"
+    gone=0
+    for i in 1 2 3 4 5 6
+    do
+	sleep 3
+	_get_pids_by_name pmmgr >$tmp/tmp
+	if [ ! -s $tmp/tmp ]
+	then
+	    gone=1
+	    break
+	fi
+
+	# If pmmgr doesn't go in 15 seconds, SIGKILL and sleep 1 more time
+	# to allow any clients reading from pmmgr sockets to fail so that
+	# socket doesn't end up in TIME_WAIT or somesuch.
+	#
+	if [ $i = 5 ]
+	then
+	    $ECHO
+	    echo "Process ..."
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS >$tmp/ps
+	    sed 1q $tmp/ps
+	    for pid in `cat $tmp/tmp`
+	    do
+		$PCP_AWK_PROG <$tmp/ps "\$2 == $pid { print }"
+	    done
+	    echo "$prog: Warning: Forcing pmmgr to terminate!"
+	    pmsignal -a -s KILL pmmgr > /dev/null 2>&1
+	else
+	    $ECHO $PCP_ECHO_N ".""$PCP_ECHO_C"
+	fi
+    done
+    if [ $gone != 1 ]	# It just WON'T DIE, give up.
+    then
+	echo "Process ..."
+	cat $tmp/tmp
+	echo "$prog: Warning: pmmgr won't die!"
+	exit
+    fi
+    $RC_STATUS -v 
+    pmpost "stop pmmgr from $pmprog"
+}
+
+_usage()
+{
+    echo "Usage: $pmprog [-v] {start|restart|condrestart|stop|status|reload|force-reload}"
+}
+
+while getopts v c
+do
+    case $c
+    in
+	v)  # force verbose
+	    VERBOSE_CTL=on
+	    ;;
+	
+	*)
+	    _usage
+	    exit 1
+	    ;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+if [ $VERBOSE_CTL = on ]
+then				# For a verbose startup and shutdown
+    ECHO=$PCP_ECHO_PROG
+else				# For a quiet startup and shutdown
+    ECHO=:
+fi
+
+if [ "$IAM" != 0 -a "$1" != "status" ]
+then
+    if [ -n "$PCP_DIR" ]
+    then
+	: running in a non-default installation, do not need to be root
+    else
+	echo "$prog:"'
+Error: You must be root (uid 0) to start or stop the PCP pmmgr daemon.'
+	exit
+    fi
+fi
+
+# First reset status of this service
+$RC_RESET
+ 
+# Return values acc. to LSB for all commands but status:
+# 0 - success
+# 1 - misc error
+# 2 - invalid or excess args
+# 3 - unimplemented feature (e.g. reload)
+# 4 - insufficient privilege
+# 5 - program not installed
+# 6 - program not configured
+#
+# Note that starting an already running service, stopping
+# or restarting a not-running service as well as the restart
+# with force-reload (in case signalling is not supported) are
+# considered a success.
+case "$1" in
+
+  'start'|'restart'|'condrestart'|'reload'|'force-reload')
+	if [ "$1" = "condrestart" ] && ! is_chkconfig_on pmmgr
+	then
+	    status=0
+	    exit
+	fi
+
+	_shutdown quietly
+
+	# pmmgr messages should go to stderr, not the GUI notifiers
+	#
+	unset PCP_STDERR
+
+	if [ -x $PMMGR ]
+	then
+	    if [ ! -f $PMMGROPTS ]
+	    then
+		echo "$prog:"'
+Error: pmmgr control file "$PMMGROPTS" is missing, cannot start pmmgr.'
+		exit
+	    fi
+	    if [ ! -d "$RUNDIR" ]
+	    then
+		mkdir -p -m 775 "$RUNDIR"
+		chown $PCP_USER:$PCP_GROUP "$RUNDIR"
+	    fi
+	    cd $RUNDIR
+
+	    # salvage the previous versions of any pmmgr
+	    #
+	    if [ -f pmmgr.log ]
+	    then
+		rm -f pmmgr.log.prev
+		mv pmmgr.log pmmgr.log.prev
+	    fi
+
+	    $ECHO $PCP_ECHO_N "Starting pmmgr ..." "$PCP_ECHO_C"
+	    # options file processing ...
+	    # only consider lines which start with a hyphen
+	    # get rid of the -f option
+	    # ensure multiple lines concat onto 1 line
+	    OPTS=`sed <$PMMGROPTS 2>/dev/null \
+			    -e '/^[^-]/d' \
+			    -e 's/^/ /' \
+			    -e 's/$/ /' \
+			    -e 's/ -f / /g' \
+			    -e 's/^ //' \
+			    -e 's/ $//' \
+		    | tr '\012' ' ' `
+ 
+	    # environment stuff
+	    #
+	    eval `sed -e 's/"/\\"/g' $PMMGROPTS \
+	    | awk -F= '
+BEGIN			{ exports="" }
+/^[A-Z]/ && NF == 2	{ exports=exports" "$1
+			  printf "%s=${%s:-\"%s\"}\n", $1, $1, $2
+			}
+END			{ if (exports != "") print "export", exports }'`
+
+	    $PMMGR -l pmmgr.log $OPTS &
+	    $RC_STATUS -v
+
+	    pmpost "start pmmgr from $pmprog"
+	fi
+	status=0
+        ;;
+
+  'stop')
+	_shutdown
+	status=0
+        ;;
+
+  'status')
+	# NOTE: $RC_CHECKPROC returns LSB compliant status values.
+	$ECHO $PCP_ECHO_N "Checking for pmmgr:" "$PCP_ECHO_C"
+        if [ -r /etc/rc.status ]
+        then
+            # SuSE
+            $RC_CHECKPROC $PMMGR
+            $RC_STATUS -v
+            status=$?
+        else
+            # not SuSE
+            $RC_CHECKPROC $PMMGR
+            status=$?
+            if [ $status -eq 0 ]
+            then
+                $ECHO running
+            else
+                $ECHO stopped
+            fi
+        fi
+	;;
+
+  *)
+	_usage
+        ;;
+esac
+

@@ -1,5 +1,6 @@
 build
 build_python
+build_python3
 dist
 s-setup
 MANIFEST

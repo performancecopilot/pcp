@@ -417,7 +417,7 @@ __pmLogPutDesc(__pmLogCtl *lcp, const pmDesc *dp, int numnames, char **names)
             len += LENSIZE + (int)strlen(names[i]);
     }
 PM_FAULT_POINT("libpcp/" __FILE__ ":10", PM_FAULT_ALLOC);
-    if ((out = (ext_t *)malloc(len)) == NULL)
+    if ((out = (ext_t *)calloc(1, len)) == NULL)
 	return -oserror();
 
     out->hdr.len = htonl(len);

@@ -95,6 +95,12 @@ AC_ARG_WITH([python],
     [do_python=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-python=$withval"],
     [do_python=check])
 
+AC_ARG_WITH([python3],
+    [AC_HELP_STRING([--with-python3],
+                    [enable support for tools requiring Python3 (default is on)])],
+    [do_python3=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-python3=$withval"],
+    [do_python3=check])
+
 AC_ARG_WITH([books],
     [AC_HELP_STRING([--with-books],
                     [enable building of the PCP books (default is off)])],
@@ -106,6 +112,18 @@ AC_ARG_WITH([papi],
 		   [enable performance api counter pmda (default is on)])],
     [do_papi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-papi=$withval"],
     [do_papi=check])
+
+AC_ARG_WITH([manager],
+    [AC_HELP_STRING([--with-manager],
+		   [enable daemon manager (default is on)])],
+    [do_manager=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-manager=$withval"],
+    [do_manager=check])
+
+AC_ARG_WITH([webapi],
+    [AC_HELP_STRING([--with-webapi],
+		   [enable REST API daemon (default is on)])],
+    [do_webapi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webapi=$withval"],
+    [do_webapi=check])
 
 #
 # Note: the following environment variables may be
@@ -436,6 +454,10 @@ dnl check if python available for the build
 AC_CHECK_PROGS(PYTHON, python)
 AC_SUBST(PYTHON)
 
+dnl check if python3 available for the build
+AC_CHECK_PROGS(PYTHON3, python3)
+AC_SUBST(PYTHON3)
+
 dnl check if python tools/packages wanted (need python >= 2.6)
 enable_python=false
 AS_IF([test "x$do_python" != "xno"], [
@@ -446,25 +468,22 @@ AS_IF([test "x$do_python" != "xno"], [
     else
 	AC_MSG_CHECKING([Python version])
 	eval `$PYTHON -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
+	AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
 	if test "$PY_MAJOR" -lt 2; then
-	    echo
 	    echo WARNING: Python version 2.6 or later does not seem to be installed.
 	    echo Cannot proceed with the Python $PY_MAJOR installation found.
 	    enable_python=false
 	fi
 	if test "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -lt 6 ; then
-	    echo
 	    echo WARNING: Python version 2.$PY_MINOR is too old.
 	    echo Python version 2.6 or later is required for Python builds.
 	    enable_python=false
 	fi
-	if test "$PY_MAJOR" -ge 3 ; then
-	    echo
-	    echo WARNING: Python version 3.$PY_MINOR is not yet supported.
-	    echo Currently Python version 2 is required for Python builds.
+	AC_CHECK_HEADERS([python${PY_MAJOR}.${PY_MINOR}/Python.h], [], [
+	    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
+	    echo Cannot proceed with the Python $PY_MAJOR installation found.
 	    enable_python=false
-	fi
-	AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
+	])
     fi
 
     if test "$do_python" != "check" -a "$enable_python" != "true"
@@ -473,6 +492,41 @@ AS_IF([test "x$do_python" != "xno"], [
     fi
 ])
 AC_SUBST(enable_python)
+
+dnl check if python3 tools/packages wanted (need python >= 3.3)
+enable_python3=false
+AS_IF([test "x$do_python3" != "xno"], [
+    enable_python3=true
+    if test -z "$PYTHON3"
+    then
+	enable_python3=false
+    else
+	AC_MSG_CHECKING([Python3 version])
+	eval `$PYTHON3 -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
+	AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
+	if test "$PY_MAJOR" -lt 3; then
+	    echo WARNING: Python version 3.3 or later does not seem to be installed.
+	    echo Cannot proceed with the Python $PY_MAJOR installation found.
+	    enable_python3=false
+	fi
+	if test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -lt 3 ; then
+	    echo WARNING: Python version 3.$PY_MINOR is too old.
+	    echo Python version 3.3 or later is required for Python builds.
+	    enable_python3=false
+	fi
+	AC_CHECK_HEADERS([python${PY_MAJOR}.${PY_MINOR}m/Python.h], [], [
+	    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
+	    echo Cannot proceed with the Python $PY_MAJOR installation found.
+	    enable_python=false
+	])
+    fi
+
+    if test "$do_python3" != "check" -a "$enable_python3" != "true"
+    then
+	AC_MSG_ERROR(cannot enable Python3 - no supported version found)
+    fi
+])
+AC_SUBST(enable_python3)
 
 qmake=$QMAKE
 enable_qt=false
@@ -491,19 +545,17 @@ AS_IF([test "x$do_qt" != "xno"], [
     else
 	AC_MSG_CHECKING([Qt version])
 	eval `$qmake --version | awk '/Using Qt version/ { ver=4; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export QT_MAJOR=%d QT_MINOR=%d QT_POINT=%d\n",$major,$minor,$point }'`
+	AC_MSG_RESULT([$QT_MAJOR.$QT_MINOR.$QT_POINT])
 	if test "$QT_MAJOR" -lt 4; then
-	    echo
 	    echo WARNING: Qt version 4.4 or later does not seem to be installed.
 	    echo Cannot proceed with the Qt $QT_MAJOR installation found.
 	    enable_qt=false
 	fi
 	if test "$QT_MAJOR" -eq 4 -a "$QT_MINOR" -lt 4 ; then
-	    echo
 	    echo WARNING: Qt version 4.$QT_MINOR is too old.
 	    echo Qt version 4.4 or later is required for Qt builds.
 	    enable_qt=false
 	fi
-	AC_MSG_RESULT([$QT_MAJOR.$QT_MINOR.$QT_POINT])
     fi
 
     if test "$do_qt" != "check" -a "$enable_qt" != "true"
@@ -1255,6 +1307,47 @@ AC_COMPILE_IFELSE(
    [AC_MSG_RESULT([no])])
 AC_SUBST(PMDA_RPM,[$pmda_rpm])
 LIBS=$savedLIBS
+
+dnl Do you have system microhttpd libraries for pmwebapi?
+PKG_CHECK_MODULES([libmicrohttpd], [libmicrohttpd > 0.9.9], [have_libmicrohttpd=true], [have_libmicrohttpd=false])
+AC_SUBST(HAVE_LIBMICROHTTPD, [$have_libmicrohttpd])
+
+dnl Do you have graphics libraries for pmwebapi?
+PKG_CHECK_MODULES([cairo], [cairo >= 1.2, cairo-ft >= 1.2, cairo-png >= 1.2], [have_cairo=true], [have_cairo=false])
+AC_SUBST(HAVE_CAIRO, [$have_cairo])
+
+enable_webapi=false
+AS_IF([test "x$do_webapi" != "xno"], [
+    enable_webapi=true
+
+    if test "$do_webapi" != "check" -a "$have_libmicrohttpd" != "true"
+    then
+	AC_MSG_ERROR(libmicrohttpd is not installed, cannot enable the web API)
+    elif test "$do_webapi" != "check" -a "x$cxx" = "x"
+    then
+	AC_MSG_ERROR(C++ compiler unavailable, cannot enable the web API)
+    else
+	enable_webapi=$have_libmicrohttpd
+    fi
+])
+AC_SUBST(enable_webapi)
+
+enable_manager=false
+AS_IF([test "x$do_manager" != "xno"], [
+    enable_manager=true
+
+    if test "$do_manager" != "check" -a $target_os = mingw
+    then
+	AC_MSG_ERROR(Target platform is MinGW, cannot enable daemon manager)
+    elif test "$do_manager" != "check" -a "x$cxx" = "x"
+    then
+	AC_MSG_ERROR(C++ compiler unavailable, cannot enable daemon manager)
+    fi
+])
+AC_SUBST(enable_manager)
+
+dnl Capture special options passed to configure
+AC_SUBST(PACKAGE_CONFIGURE)
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
@@ -2058,6 +2151,8 @@ AC_SUBST(pcp_sysconf_dir)
 pcp_pmcdconf_path=$pcp_sysconf_dir/pmcd/pmcd.conf
 pcp_pmcdrclocal_path=$pcp_sysconf_dir/pmcd/rc.local
 pcp_pmcdoptions_path=$pcp_sysconf_dir/pmcd/pmcd.options
+pcp_pmwebdoptions_path=$pcp_sysconf_dir/pmwebd/pmwebd.options
+pcp_pmmgroptions_path=$pcp_sysconf_dir/pmmgr/pmmgr.options
 pcp_pmproxyoptions_path=$pcp_sysconf_dir/pmproxy/pmproxy.options
 pcp_pmiecontrol_path=$pcp_sysconf_dir/pmie/control
 pcp_pmsnapcontrol_path=$pcp_sysconf_dir/pmsnap/control
@@ -2065,6 +2160,8 @@ pcp_pmloggercontrol_path=$pcp_sysconf_dir/pmlogger/control
 AC_SUBST(pcp_pmcdconf_path)
 AC_SUBST(pcp_pmcdoptions_path)
 AC_SUBST(pcp_pmcdrclocal_path)
+AC_SUBST(pcp_pmwebdoptions_path)
+AC_SUBST(pcp_pmmgroptions_path)
 AC_SUBST(pcp_pmproxyoptions_path)
 AC_SUBST(pcp_pmiecontrol_path)
 AC_SUBST(pcp_pmsnapcontrol_path)

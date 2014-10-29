@@ -52,12 +52,12 @@
     inst5 = context.pmLookupInDom(descs[1], "5 minute")
 
     # Loop through the metric ids
-    for i in xrange(results.contents.numpmid):
+    for i in range(results.contents.numpmid):
         # Is this the kernel.all.load id?
         if (results.contents.get_pmid(i) != metric_ids[1]):
             continue
         # Extract the kernel.all.load instance
-        for j in xrange(results.contents.get_numval(i) - 1):
+        for j in range(results.contents.get_numval(i) - 1):
             atom = context.pmExtractValue(results.contents.get_valfmt(i),
                                           results.contents.get_vlist(i, j),
                                           descs[i].contents.type,
@@ -84,6 +84,7 @@ from ctypes import addressof, pointer, sizeof, cast, byref
 from ctypes import create_string_buffer, memmove
 from ctypes.util import find_library
 
+
 ##############################################################################
 #
 # dynamic library loads
@@ -91,6 +92,30 @@ from ctypes.util import find_library
 
 LIBPCP = CDLL(find_library("pcp"))
 LIBC = CDLL(find_library("c"))
+
+
+##############################################################################
+#
+# python version information and compatibility
+#
+import sys
+
+if sys.version > '3':
+    integer_types = (int,)
+    long = int
+else:
+    integer_types = (int, long,)
+
+def pyFileToCFile(fileObj):
+    if sys.version > '3':
+        from os import fdopen
+        ctypes.pythonapi.PyObject_AsFileDescriptor.restype = ctypes.c_int
+        ctypes.pythonapi.PyObject_AsFileDescriptor.argtypes = [ctypes.py_object]
+        return fdopen(ctypes.pythonapi.PyObject_AsFileDescriptor(pyfile), "r")
+    else:
+        ctypes.pythonapi.PyFile_AsFile.restype = ctypes.c_void_p
+        ctypes.pythonapi.PyFile_AsFile.argtypes = [ctypes.py_object]
+        return ctypes.pythonapi.PyFile_AsFile(fileObj)
 
 
 ##############################################################################
@@ -317,7 +342,7 @@ class pmValueSet(Structure):
 
     def __str__(self):
         if self.valfmt == 0:
-            vals =  xrange(self.numval)
+            vals = range(self.numval)
             vstr = str([" %s" % str(self.vlist[i]) for i in vals])
             vset = (addressof(self), self.pmid, self.numval, self.valfmt)
             return "pmValueSet@%#lx id=%#lx numval=%d valfmt=%d" % vset + vstr
@@ -352,7 +377,7 @@ class pmResult(Structure):
         self.numpmid = 0
 
     def __str__(self):
-        vals = xrange(self.numpmid)
+        vals = range(self.numpmid)
         vstr = str([" %s" % str(self.vset[i].contents) for i in vals])
         return "pmResult@%#lx id#=%d " % (addressof(self), self.numpmid) + vstr
 
@@ -438,6 +463,8 @@ class pmMetricSpec(Structure):
     def fromString(builder, string, isarch = 0, source = ''):
         result = POINTER(builder)()
         errmsg = c_char_p()
+        if type(source) != type(b''):
+            source = source.encode('utf-8')
         status = LIBPCP.pmParseMetricSpec(string, isarch, source,
                                         byref(result), byref(errmsg))
         if status < 0:
@@ -676,9 +703,6 @@ LIBPCP.pmprintf.argtypes = [c_char_p]
 
 LIBPCP.pmSortInstances.restype = None
 LIBPCP.pmSortInstances.argtypes = [POINTER(pmResult)]
-
-ctypes.pythonapi.PyFile_AsFile.restype = ctypes.c_void_p
-ctypes.pythonapi.PyFile_AsFile.argtypes = [ctypes.py_object]
 
 
 ##############################################################################
@@ -1004,7 +1028,11 @@ class pmContext(object):
         self._type = typed                              # the context type
         self._target = target                            # the context target
         self._ctx = c_api.PM_ERR_NOCONTEXT                # init'd pre-connect
-        self._ctx = LIBPCP.pmNewContext(typed, target)     # the context handle
+        if type(target) != type(b''):
+            source = target.encode('utf-8')
+        else:
+            source = target
+        self._ctx = LIBPCP.pmNewContext(typed, source)     # the context handle
         if self._ctx < 0:
             raise pmErr(self._ctx, [target])
 
@@ -1137,7 +1165,7 @@ class pmContext(object):
         if type(nameA) == type(""):
             names[0] = c_char_p(nameA)
         else:
-            for i in xrange(len(nameA)):
+            for i in range(len(nameA)):
                 names[i] = c_char_p(nameA[i])
 
         pmidA = (c_uint * n)()
@@ -1265,7 +1293,7 @@ class pmContext(object):
         (pmDesc* pmdesc)[] = pmLookupDesc(c_uint pmid[N])
         (pmDesc* pmdesc)[] = pmLookupDesc(c_uint pmid)
         """
-        if type(pmids_p) == type(int(0)) or type(pmids_p) == type(long(0)):
+        if isinstance(pmids_p, integer_types):
             n = 1
         else:
             n = len(pmids_p)
@@ -1276,10 +1304,10 @@ class pmContext(object):
 
         desc = (POINTER(pmDesc) * n)()
 
-        for i in xrange(n):
+        for i in range(n):
             descbuf = create_string_buffer(sizeof(pmDesc))
             desc[i] = cast(descbuf, POINTER(pmDesc))
-            if type(pmids_p) == type(int()) or type(pmids_p) == type(long()):
+            if isinstance(pmids_p, integer_types):
                 pmids = c_uint(pmids_p)
             else:
                 pmids = c_uint(pmids_p[i])
@@ -1815,7 +1843,7 @@ class pmContext(object):
         """PMAPI - Print the value of a metric
         pmPrintValue(file, value, pmdesc, vset_index, vlist_index, min_width)
         """
-        LIBPCP.pmPrintValue(ctypes.pythonapi.PyFile_AsFile(fileObj),
+        LIBPCP.pmPrintValue(pyFileToCFile(fileObj),
                 c_int(result.contents.vset[vset_idx].contents.valfmt),
                 c_int(ptype.contents.type),
                 byref(result.contents.vset[vset_idx].contents.vlist[vlist_idx]),

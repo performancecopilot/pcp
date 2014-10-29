@@ -1,0 +1,39 @@
+#
+# Common shell routines for testing the REST API daemon
+# Copyright (c) 2014 Red Hat.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_webapi_header_filter()
+{
+    sed \
+	-e 's/^\(Content-Length:\) [0-9][0-9]*/\1 SIZE/g' \
+	-e 's/^\(Date:\).*/\1 DATE/g' \
+	-e 's/\(\"context\":\) [0-9][0-9]*/\1 CTXID/g' \
+    | LC_COLLATE=POSIX sort \
+    | col -b	# remove DOS line endings
+}
+
+_wait_for_pmwebd()
+{
+    webport=$1
+
+    [ -z "$webport" ] && webport=44323
+
+    count=0
+    while ! $PCP_BINADM_DIR/telnet-probe -c localhost $webport
+    do
+	count=`expr $count + 1`
+	if [ $count -ge 20 ]
+	then
+	    echo "pmwebd failed to start on port $webport"
+	    status=1
+	    exit
+	fi
+	pmsleep 0.1
+    done
+}

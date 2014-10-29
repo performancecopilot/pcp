@@ -8,12 +8,8 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
-
-python -c "from pcp import pmapi" >/dev/null 2>&1
+. ./common.python
+$python -c "from pcp import pmapi" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
 
 status=1	# failure is the default!
@@ -26,9 +22,8 @@ _filter_utc()
 }
 
 # real QA test starts here
-python src/test_pcp_time.py | _filter_utc
+$python src/test_pcp_time.py | _filter_utc
 
 # success, all done
 status=0
-
 exit

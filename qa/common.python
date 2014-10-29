@@ -8,6 +8,9 @@
 . ./common.filter
 . ./common.check
 
+# allow alternate versions of python to be used
+python=${PYTHON:-/usr/bin/python}
+
 # verify output from unittest indicates successful testing
 _check_unittest()
 {

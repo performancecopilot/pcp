@@ -1,0 +1,14 @@
+#!/bin/sh -e
+#DEBHELPER#
+
+# must match src/pmwebapi/GNUmakefile
+chown pcp:pcp /var/log/pcp/pmwebd
+chmod 775 /var/log/pcp/pmwebd
+
+update-rc.d pmwebd defaults >/dev/null
+
+if which invoke-rc.d >/dev/null 2>&1; then
+    invoke-rc.d pmwebd start
+else
+    /etc/init.d/pmwebd start
+fi
