@@ -47,6 +47,8 @@
 static pmdaInterface dispatch;
 static __pmnsTree *pmns;
 static int need_refresh;
+static PyObject *indom_list;	  	/* indom list */
+static PyObject *metric_list;	  	/* metric list */
 static PyObject *pmns_dict;		/* metric pmid:names dictionary */
 static PyObject *pmid_oneline_dict;	/* metric pmid:short text */
 static PyObject *pmid_longtext_dict;	/* metric pmid:long help */
@@ -58,10 +60,36 @@ static PyObject *refresh_func;
 static PyObject *instance_func;
 static PyObject *store_cb_func;
 static PyObject *fetch_cb_func;
+static PyObject *refresh_metrics_func;
 
 #if PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION <= 5
 typedef int Py_ssize_t;
 #endif
+
+static void pmns_refresh(void);
+static void pmda_refresh_metrics(void);
+
+static void
+maybe_refresh_all(void)
+{
+    // Call the refresh metrics hook (if it exists).
+    if (refresh_metrics_func) {
+	PyObject *arglist, *result;
+
+	arglist = Py_BuildValue("()");
+	if (arglist == NULL)
+	    return;
+	result = PyEval_CallObject(refresh_metrics_func, arglist);
+	Py_DECREF(arglist);
+	// Just ignore the result.
+	Py_DECREF(result);
+    }
+
+    if (need_refresh) {
+	pmns_refresh();
+	pmda_refresh_metrics();
+    }
+}
 
 static void
 pmns_refresh(void)
@@ -72,6 +100,12 @@ pmns_refresh(void)
 
     if (pmDebug & DBG_TRACE_LIBPMDA)
         fprintf(stderr, "pmns_refresh: rebuilding namespace\n");
+
+    // If there is nothing to do, just exit.
+    if (pmns_dict == NULL) {
+	need_refresh = 0;
+	return;
+    }
 
     if (pmns)
         __pmFreePMNS(pmns);
@@ -106,8 +140,8 @@ pmns_refresh(void)
 
     pmdaTreeRebuildHash(pmns, count); /* for reverse (pmid->name) lookups */
     Py_DECREF(pmns_dict);
-    need_refresh = 0;
     pmns_dict = NULL;
+    need_refresh = 0;
 }
 
 static PyObject *
@@ -273,32 +307,28 @@ indom_longtext_refresh(PyObject *self, PyObject *args, PyObject *keywords)
 int
 pmns_desc(pmID pmid, pmDesc *desc, pmdaExt *ep)
 {
-    if (need_refresh)
-        pmns_refresh();
+    maybe_refresh_all();
     return pmdaDesc(pmid, desc, ep);
 }
 
 int
 pmns_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
 {
-    if (need_refresh)
-        pmns_refresh();
+    maybe_refresh_all();
     return pmdaTreePMID(pmns, name, pmid);
 }
 
 int
 pmns_name(pmID pmid, char ***nameset, pmdaExt *pmda)
 {
-    if (need_refresh)
-        pmns_refresh();
+    maybe_refresh_all();
     return pmdaTreeName(pmns, pmid, nameset);
 }
 
 int
 pmns_children(const char *name, int traverse, char ***kids, int **sts, pmdaExt *pmda)
 {
-    if (need_refresh)
-        pmns_refresh();
+    maybe_refresh_all();
     return pmdaTreeChildren(pmns, name, traverse, kids, sts);
 }
 
@@ -375,8 +405,7 @@ fetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
 {
     int sts;
 
-    if (need_refresh)
-        pmns_refresh();
+    maybe_refresh_all();
     if (fetch_func && (sts = prefetch()) < 0)
         return sts;
     if (refresh_func && (sts = refresh(numpmid, pmidlist)) < 0)
@@ -407,8 +436,7 @@ instance(pmInDom indom, int a, char *b, __pmInResult **rp, pmdaExt *pmda)
 {
     int sts;
 
-    if (need_refresh)
-        pmns_refresh();
+    maybe_refresh_all();
     if (instance_func && (sts = preinstance(indom)) < 0)
         return sts;
     return pmdaInstance(indom, a, b, rp, pmda);
@@ -565,8 +593,7 @@ store(pmResult *result, pmdaExt *pmda)
     pmValueSet  *vsp;
     __pmID_int  *pmid;
 
-    if (need_refresh)
-        pmns_refresh();
+    maybe_refresh_all();
 
     if (store_cb_func == NULL)
 	return PM_ERR_PERMISSION;
@@ -597,8 +624,7 @@ text(int ident, int type, char **buffer, pmdaExt *pmda)
 {
     PyObject *dict, *value, *key;
 
-    if (need_refresh)
-        pmns_refresh();
+    maybe_refresh_all();
 
     if ((type & PM_TEXT_PMID) != 0) {
 	if ((type & PM_TEXT_ONELINE) != 0)
@@ -723,7 +749,167 @@ connect_pmcd(void)
     return Py_None;
 }
 
+static PyObject *
+pmda_rehash(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    char *keyword_list[] = {"indoms", "metrics", NULL};
+
+    if (indom_list) {
+	Py_DECREF(indom_list);
+	indom_list = NULL;
+    }
+    if (metric_list) {
+	Py_DECREF(metric_list);
+	metric_list = NULL;
+    }
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords, "OO", keyword_list,
+				     &indom_list, &metric_list))
+        return NULL;
+
+    if (indom_list && metric_list) {
+	// PyArg_ParseTupleAndKeywords() returns "borrowed"
+	// references. Since we're going to keep these objects around
+	// for use later, increase their reference counts.
+	Py_INCREF(indom_list);
+	Py_INCREF(metric_list);
+
+        if (!PyList_Check(indom_list) || !PyList_Check(metric_list)) {
+            __pmNotifyErr(LOG_ERR,
+                "attempted to refresh metrics with non-list type");
+            Py_DECREF(indom_list);
+            indom_list = NULL;
+            Py_DECREF(metric_list);
+            metric_list = NULL;
+	}
+	else
+	    pmda_refresh_metrics();
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 #ifdef PyBUF_SIMPLE
+static void
+pmda_refresh_metrics(void)
+{
+    Py_ssize_t i, nindoms, nmetrics;
+    PyObject *item;
+    Py_buffer buffer;
+    int error = 0;
+    static pmdaIndom *indom_buffer = NULL;
+    static pmdaMetric *metric_buffer = NULL;
+
+    if (indom_list == NULL || metric_list == NULL)
+	return;
+
+    // If we have old data, free it up. We have to keep it around
+    // since pmdaRehash() doesn't copy data, it just points to it.
+    if (indom_buffer) {
+	free(indom_buffer);
+	indom_buffer = NULL;
+    }
+    if (metric_buffer) {
+	free(metric_buffer);
+	metric_buffer = NULL;
+    }
+
+    // Figure out how many indoms/metrics we've got.
+    nindoms = PyList_Size(indom_list);
+    nmetrics = PyList_Size(metric_list);
+    if (nmetrics == 0) {
+	dispatch.version.any.ext->e_indoms = NULL;
+	dispatch.version.any.ext->e_nindoms = 0;
+	pmdaRehash(dispatch.version.any.ext, NULL, 0);
+
+	Py_DECREF(indom_list);
+	indom_list = NULL;
+	Py_DECREF(metric_list);
+	metric_list = NULL;
+	return;
+    }
+
+
+    // Allocate buffers to hold all the indoms/metrics.
+    indom_buffer = calloc(nindoms, sizeof(pmdaIndom));
+    metric_buffer = calloc(nmetrics, sizeof(pmdaMetric));
+    if ((nindoms > 0 && indom_buffer == NULL) || metric_buffer == NULL) {
+	PyErr_SetString(PyExc_TypeError, "Unable to allocate memory");
+	return;
+    }
+
+    // Copy the indoms.
+    for (i = 0; i < nindoms; i++) {
+	item = PyList_GetItem(indom_list, i);
+	if (item) {
+	    // Attempt to extract buffer information from it.
+	    if (PyObject_GetBuffer(item, &buffer, PyBUF_ANY_CONTIGUOUS)
+		== -1) {
+		PyErr_SetString(PyExc_TypeError,
+				"Unable to get indom item buffer");
+		error = 1;
+		break;
+	    }
+
+	    // The indom table is supposed to be composed of
+	    // 'pmdaIndom(Structure)' items, which should be laid out
+	    // like a 'pmdaIndom' structure in memory.
+	    if (buffer.len != sizeof(pmdaIndom)) {
+		PyErr_SetString(PyExc_TypeError, "Invalid indom item size");
+		PyBuffer_Release(&buffer);
+		error = 1;
+		break;
+	    }
+	    indom_buffer[i] = *(pmdaIndom *)buffer.buf;
+	    PyBuffer_Release(&buffer);
+	}
+    }
+
+    // Copy the metrics.
+    for (i = 0; !error && i < nmetrics; i++) {
+	item = PyList_GetItem(metric_list, i);
+	if (item) {
+	    // Attempt to extract buffer information from it.
+	    if (PyObject_GetBuffer(item, &buffer, PyBUF_ANY_CONTIGUOUS)
+		== -1) {
+		PyErr_SetString(PyExc_TypeError,
+				"Unable to get metric item buffer");
+		error = 1;
+		break;
+	    }
+
+	    // The metric table is supposed to be composed of
+	    // 'pmdaMetric(Structure)' items, which should be laid out
+	    // like a 'pmdaMetric' structure in memory.
+	    if (buffer.len != sizeof(pmdaMetric)) {
+		PyErr_SetString(PyExc_TypeError, "Invalid metric item size");
+		PyBuffer_Release(&buffer);
+		error = 1;
+		break;
+	    }
+	    metric_buffer[i] = *(pmdaMetric *)buffer.buf;
+	    PyBuffer_Release(&buffer);
+	}
+    }
+
+    // Update the indoms/metrics.
+    if (! error) {
+	if (pmDebug & DBG_TRACE_LIBPMDA)
+	    fprintf(stderr,
+		    "pmda_refresh_metrics: rehash %ld indoms, %ld metrics\n",
+		    (long)nindoms, (long)nmetrics);
+	dispatch.version.any.ext->e_indoms = indom_buffer;
+	dispatch.version.any.ext->e_nindoms = nindoms;
+	pmdaRehash(dispatch.version.any.ext, metric_buffer, nmetrics);
+    }
+
+    Py_DECREF(indom_list);
+    indom_list = NULL;
+    Py_DECREF(metric_list);
+    metric_list = NULL;
+    return;  
+}
+
 static PyObject *
 pmda_dispatch(PyObject *self, PyObject *args)
 {
@@ -973,6 +1159,12 @@ set_need_refresh(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+get_need_refresh(PyObject *self, PyObject *args)
+{
+    return Py_BuildValue("i", need_refresh);
+}
+
+static PyObject *
 set_callback(PyObject *self, PyObject *args, char *params, PyObject **callback)
 {
     PyObject *func;
@@ -1020,6 +1212,12 @@ set_fetch_callback(PyObject *self, PyObject *args)
     return set_callback(self, args, "O:set_fetch_callback", &fetch_cb_func);
 }
 
+static PyObject *
+set_refresh_metrics(PyObject *self, PyObject *args)
+{
+    return set_callback(self, args, "O:set_refresh_metrics",
+			&refresh_metrics_func);
+}
 
 static PyMethodDef methods[] = {
     { .ml_name = "pmda_pmid", .ml_meth = (PyCFunction)pmda_pmid,
@@ -1033,6 +1231,8 @@ static PyMethodDef methods[] = {
     { .ml_name = "init_dispatch", .ml_meth = (PyCFunction)init_dispatch,
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "pmda_dispatch", .ml_meth = (PyCFunction)pmda_dispatch,
+        .ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "pmda_rehash", .ml_meth = (PyCFunction)pmda_rehash,
         .ml_flags = METH_VARARGS },
     { .ml_name = "connect_pmcd", .ml_meth = (PyCFunction)connect_pmcd,
         .ml_flags = METH_NOARGS },
@@ -1052,6 +1252,8 @@ static PyMethodDef methods[] = {
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "set_need_refresh", .ml_meth = (PyCFunction)set_need_refresh,
         .ml_flags = METH_NOARGS },
+    { .ml_name = "get_need_refresh", .ml_meth = (PyCFunction)get_need_refresh,
+        .ml_flags = METH_NOARGS },
     { .ml_name = "set_fetch", .ml_meth = (PyCFunction)set_fetch,
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "set_refresh", .ml_meth = (PyCFunction)set_refresh,
@@ -1062,6 +1264,9 @@ static PyMethodDef methods[] = {
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "set_fetch_callback", .ml_meth = (PyCFunction)set_fetch_callback,
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
+    { .ml_name = "set_refresh_metrics",
+      .ml_meth = (PyCFunction)set_refresh_metrics,
+      .ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "pmda_log", .ml_meth = (PyCFunction)pmda_log,
         .ml_flags = METH_VARARGS|METH_KEYWORDS },
     { .ml_name = "pmda_err", .ml_meth = (PyCFunction)pmda_err,
