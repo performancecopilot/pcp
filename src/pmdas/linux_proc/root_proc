@@ -38,7 +38,7 @@ proc {
     runq
     id
     io
-    schedstat
+    schedstat		PROC:*:*
     fd
     control
 }
@@ -159,12 +159,6 @@ proc.io {
     read_bytes		PROC:32:4
     write_bytes		PROC:32:5
     cancelled_write_bytes PROC:32:6
-}
-
-proc.schedstat {
-    cpu_time		PROC:31:0
-    run_delay		PROC:31:1
-    pcount		PROC:31:2
 }
 
 proc.fd {
