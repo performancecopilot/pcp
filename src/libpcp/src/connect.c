@@ -315,6 +315,11 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
 	/* Try connecting via the local unix domain socket, if requested and supported. */
 	if (nports == PM_HOST_SPEC_NPORTS_LOCAL || nports == PM_HOST_SPEC_NPORTS_UNIX) {
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
+#ifdef PCP_DEBUG
+	    if ((pmDebug & DBG_TRACE_CONTEXT) && (pmDebug & DBG_TRACE_DESPERATE)) {
+		fprintf(stderr, "__pmConnectPMCD: trying __pmAuxConnectPMCDUnixSocket(%s) ...\n", name);
+	    }
+#endif
 	    if ((fd = __pmAuxConnectPMCDUnixSocket(name)) >= 0) {
 		if ((sts = __pmConnectHandshake(fd, name, ctxflags, attrs)) < 0) {
 		    __pmCloseSocket(fd);
@@ -343,6 +348,11 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
 	/* If still not connected, try via the given host name and ports, if requested. */
 	if (sts == -1) {
 	    for (portIx = 0; portIx < nports; portIx++) {
+#ifdef PCP_DEBUG
+		if ((pmDebug & DBG_TRACE_CONTEXT) && (pmDebug & DBG_TRACE_DESPERATE)) {
+		    fprintf(stderr, "__pmConnectPMCD: trying __pmAuxConnectPMCDPort(%s, %d) ...\n", name, ports[portIx]);
+		}
+#endif
 		if ((fd = __pmAuxConnectPMCDPort(name, ports[portIx])) >= 0) {
 		    if ((sts = __pmConnectHandshake(fd, name, ctxflags, attrs)) < 0) {
 			__pmCloseSocket(fd);
@@ -397,6 +407,11 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
     proxyport = (proxyhost->nports > 0) ? proxyhost->ports[0] : PROXY_PORT;
 
     for (portIx = 0; portIx < nports; portIx++) {
+#ifdef PCP_DEBUG
+	if ((pmDebug & DBG_TRACE_CONTEXT) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	    fprintf(stderr, "__pmConnectPMCD: trying __pmAuxConnectPMCDPort(%s, %d) ...\n", proxyhost->name, proxyport);
+	}
+#endif
 	fd = __pmAuxConnectPMCDPort(proxyhost->name, proxyport);
 	if (fd < 0) {
 #ifdef PCP_DEBUG
