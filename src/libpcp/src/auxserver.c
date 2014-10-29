@@ -865,15 +865,47 @@ int
 __pmSecureServerHandshake(int fd, int flags, __pmHashCtl *attrs)
 {
     (void)fd;
-    (void)flags;
-    (void)attrs;
-    return -EOPNOTSUPP;
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_AUTH)
+	fprintf(stderr, "%s:__pmSecureServerHandshake: flags=%d: ", __FILE__, flags);
+#endif
+
+    /* for things that require a secure server, return -EOPNOTSUPP */
+    if ((flags & (PDU_FLAG_SECURE | PDU_FLAG_SECURE_ACK | PDU_FLAG_COMPRESS
+		   | PDU_FLAG_AUTH)) != 0) {
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_AUTH)
+	    fprintf(stderr, "not allowed\n");
+#endif
+	return -EOPNOTSUPP;
+    }
+
+    /*
+     * CREDS_REQD is a special case that does not need a secure server
+     * provided we've connected on a unix domain socket
+     * */
+    if ((flags & PDU_FLAG_CREDS_REQD) != 0 && __pmHashSearch(PCP_ATTR_USERID, attrs) != NULL) {
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_AUTH)
+	    fprintf(stderr, "ok\n");
+#endif
+	return 0;
+    }
+    /* otherwise the flags are not expected */
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_AUTH)
+	fprintf(stderr, "bad\n");
+#endif
+    return PM_ERR_IPC;
 }
 
 int
 __pmSecureServerHasFeature(__pmServerFeature query)
 {
-    (void)query;
+    /* CREDS_REQD is a special case that does not need a secure server */
+    if ((query & PDU_FLAG_CREDS_REQD) != 0)
+	return 1;
     return 0;
 }
 
