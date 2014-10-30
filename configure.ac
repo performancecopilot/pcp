@@ -517,7 +517,7 @@ AS_IF([test "x$do_python3" != "xno"], [
 	AC_CHECK_HEADERS([python${PY_MAJOR}.${PY_MINOR}m/Python.h], [], [
 	    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
 	    echo Cannot proceed with the Python $PY_MAJOR installation found.
-	    enable_python=false
+	    enable_python3=false
 	])
     fi
 
