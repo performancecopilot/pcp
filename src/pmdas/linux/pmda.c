@@ -3069,6 +3069,20 @@ static pmdaMetric metrictab[] = {
     PMDA_PMUNITS(0,0,0,PM_SPACE_BYTE,0,0) } },
 
 /*
+ * sysfs device state cluster
+ */
+
+/* hinv.cpu.online */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SYSFS_DEVICES, 0), PM_TYPE_U32, CPU_INDOM, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+/* hinv.node.online */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SYSFS_DEVICES, 1), PM_TYPE_U32, NODE_INDOM, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+/*
  * semaphore limits cluster
  * Cluster added by Mike Mason <mmlnx@us.ibm.com>
  */
@@ -5232,6 +5246,25 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return 0;
 	    atom->ul = proc_cpuinfo.cpuinfo[inst].cache_align;
 	    break;
+
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
+    case CLUSTER_SYSFS_DEVICES:
+	switch (idp->item) {
+	case 0: /* hinv.cpu.online */
+	    if (inst >= proc_cpuinfo.cpuindom->it_numinst)
+		return PM_ERR_INST;
+	    atom->ul = refresh_sysfs_online(inst, "cpu");
+	    break;
+	case 1: /* hinv.node.online */
+	    if (inst >= proc_cpuinfo.node_indom->it_numinst)
+		return PM_ERR_INST;
+	    atom->ul = refresh_sysfs_online(inst, "node");
+	    break;
+
 	default:
 	    return PM_ERR_PMID;
 	}
@@ -5603,6 +5636,7 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		need_refresh[CLUSTER_PARTITIONS]++;
 
 	    if (idp->cluster == CLUSTER_CPUINFO ||
+		idp->cluster == CLUSTER_SYSFS_DEVICES ||
 		idp->cluster == CLUSTER_INTERRUPT_LINES ||
 		idp->cluster == CLUSTER_INTERRUPT_OTHER ||
 		idp->cluster == CLUSTER_INTERRUPTS)

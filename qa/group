@@ -925,6 +925,7 @@ avahi
 744 pmda.nvidia local
 745 pmda.nvidia local valgrind
 746 valgrind libpcp local
+747 pmda.linux local
 748 pmlogrewrite pmda.mysql local
 749 pmcd local
 750 pmda.rpm local

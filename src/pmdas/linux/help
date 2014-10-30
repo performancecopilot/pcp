@@ -1070,12 +1070,16 @@ See also the kernel.uname.* metrics
 @ hinv.map.cpu_node logical CPU to NUMA node mapping for each CPU
 @ hinv.machine machine name, IP35 if SGI SNIA, else simply linux
 @ hinv.cpu.clock clock rate in Mhz for each CPU as reported by /proc/cpuinfo
-@ hinv.cpu.vendor manafacturer of each CPU as reported by /proc/cpuinfo
+@ hinv.cpu.vendor manufacturer of each CPU as reported by /proc/cpuinfo
 @ hinv.cpu.model model number of each CPU as reported by /proc/cpuinfo
 @ hinv.cpu.model_name model name of each CPU as reported by /proc/cpuinfo
 @ hinv.cpu.stepping stepping of each CPU as reported by /proc/cpuinfo
 @ hinv.cpu.cache primary cache size of each CPU as reported by /proc/cpuinfo
 @ hinv.cpu.bogomips bogo mips rating for each CPU as reported by /proc/cpuinfo
+@ hinv.cpu.flags Hardware capability flags for each CPU as reported by /proc/cpuinfo
+@ hinv.cpu.cache_alignment Cache alignment for each CPU as reported by /proc/cpuinfo
+@ hinv.cpu.online CPU online state from /sys/devices/system/cpu/*/online
+@ hinv.node.online NUMA node online state from /sys/devices/system/node/*/online
 @ kernel.all.hz value of HZ (jiffies/second) for the currently running kernel
 @ kernel.all.uptime time the current kernel has been running
 @ kernel.all.idletime time the current kernel has been idle since boot
