@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 2005,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -75,6 +75,7 @@ enum {
 	CLUSTER_LV,		/* 52 /dev/mapper */
 	CLUSTER_NET_NETSTAT,    /* 53 /proc/net/netstat */
 	CLUSTER_DM,		/* 54 disk.dm.* */
+	CLUSTER_SYSFS_DEVICES,	/* 55 /sys/devices metrics */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };

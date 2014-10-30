@@ -108,7 +108,7 @@ map_cpu_nodes(proc_cpuinfo_t *proc_cpuinfo)
 }
 
 char *
-cpu_name(proc_cpuinfo_t *proc_cpuinfo, int c)
+cpu_name(proc_cpuinfo_t *proc_cpuinfo, unsigned int cpu_num)
 {
     char name[1024];
     char *p;
@@ -136,8 +136,32 @@ cpu_name(proc_cpuinfo_t *proc_cpuinfo, int c)
 	started = 1;
     }
 
-    snprintf(name, sizeof(name), "cpu%d", c);
+    snprintf(name, sizeof(name), "cpu%u", cpu_num);
     return strdup(name);
+}
+
+/*
+ * Refresh state of NUMA node and CPU online state for one
+ * CPU or NUMA node ("node" parameter).
+ */
+int
+refresh_sysfs_online(unsigned int node_num, const char *node)
+{
+    const char *sysfs_path = "sys/devices/system";
+    char path[MAXPATHLEN];
+    unsigned int online;
+    FILE *fp;
+    int n;
+
+    snprintf(path, sizeof(path), "%s/%s/%s/%s%u/online",
+		linux_statspath, sysfs_path, node, node, node_num);
+    if ((fp = fopen(path, "r")) == NULL)
+	return 1;
+    n = fscanf(fp, "%u", &online);
+    fclose(fp);
+    if (n != 1)
+	return 1;
+    return online;
 }
 
 int
