@@ -1597,6 +1597,13 @@ __pmAccAddAccount(const char *userid, const char *groupid, unsigned int *denyOps
     __pmUserID	uid;
     __pmGroupID	gid;
 
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_AUTH) {
+	fprintf(stderr, "__pmAccAddAccount: userid=%s (%d users in list) groupid=%s (%d groups in list)\n",
+	    userid, nusers, groupid, ngroups);
+    }
+#endif
+
     if (PM_MULTIPLE_THREADS(PM_SCOPE_ACL))
 	return PM_ERR_THREAD;
 

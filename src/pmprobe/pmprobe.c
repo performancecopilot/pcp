@@ -202,7 +202,7 @@ main(int argc, char **argv)
      * Cull out names that were unsuccessfully looked up.
      * However, it is unlikely to fail because names come from a traverse PMNS.
      */
-    if ((sts = pmLookupName(numpmid, namelist, pmidlist)) < 0) {
+    if (numpmid > 0 && (sts = pmLookupName(numpmid, namelist, pmidlist)) < 0) {
 	for (i = j = 0; i < numpmid; i++) {
 	    if (pmidlist[i] == PM_ID_NULL) {
 		printf("%s %d %s\n", namelist[i], sts, pmErrStr(sts));
