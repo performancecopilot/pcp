@@ -4,7 +4,7 @@ Version: 3.10.0
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
-License: GPLv2+ and LGPLv2.1+
+License: GPLv2+ and LGPLv2.1+ and CC-BY
 URL: http://www.pcp.io
 Group: Applications/System
 Source0: pcp-%{version}.src.tar.gz
@@ -17,6 +17,7 @@ Source1: pcp-webjs.src.tar.gz
 %{!?disable_papi: %global disable_papi 0%{?rhel} < 6}
 %endif
 %define disable_microhttpd 0
+%define disable_cairo 0
 %if 0%{?rhel} == 0 || 0%{?rhel} > 6
 %define disable_python3 0
 %else
@@ -45,6 +46,9 @@ BuildRequires: papi-devel
 %endif
 %if !%{disable_microhttpd}
 BuildRequires: libmicrohttpd-devel
+%endif
+%if !%{disable_cairo}
+BuildRequires: cairo-devel
 %endif
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 BuildRequires: systemtap-sdt-devel
