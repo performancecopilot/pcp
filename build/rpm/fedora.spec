@@ -474,6 +474,7 @@ monitoring systems using live and archived Performance Co-Pilot
 # pcp-doc package
 #
 %package -n pcp-doc
+License: GPLv2+ and CC-BY
 Group: Documentation
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 BuildArch: noarch

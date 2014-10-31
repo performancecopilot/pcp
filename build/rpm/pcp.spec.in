@@ -411,6 +411,7 @@ monitoring systems using live and archived Performance Co-Pilot
 # pcp-doc package
 #
 %package -n pcp-doc
+License: GPLv2+ and CC-BY
 Group: Documentation
 # BuildArch: requires rpm 4.6 or later ... ./get_rpm_vesion maps version
 # 4.6.2.3 to the 7-digit "number" 4060203
