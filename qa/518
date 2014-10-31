@@ -62,6 +62,9 @@ s/.*:/HOST:/
 }'
 
 $sudo $signal $pid
+# try killing it harder, targeting not just the sudo process but the child pmie
+sleep 2
+$sudo $signal -a pmie >/dev/null 2>&1
 wait
 
 cat $tmp.out >>$seq.full
