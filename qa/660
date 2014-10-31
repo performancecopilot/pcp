@@ -169,7 +169,8 @@ sleep 2		# let it start up
 function python_json_pretty() {
   # python 2.6+:  python -mjson.tool
   # python 2.5-:
-  python -c 'from simplejson.tool import main; main()'
+  python -c 'from simplejson.tool import main; main()' \
+  | sed -e 's/, $/,/g'
 }
 
 function python_img_pretty() {
