@@ -8,14 +8,53 @@
 . ./common.filter
 . ./common.check
 
+unset http_proxy
+unset HTTP_PROXY
+
 _webapi_header_filter()
 {
-    sed \
+    tee -a $seq.full \
+    | sed \
 	-e 's/^\(Content-Length:\) [0-9][0-9]*/\1 SIZE/g' \
 	-e 's/^\(Date:\).*/\1 DATE/g' \
 	-e 's/\(\"context\":\) [0-9][0-9]*/\1 CTXID/g' \
     | LC_COLLATE=POSIX sort \
     | col -b	# remove DOS line endings
+}
+
+_webapi_response_filter()
+{
+    tee -a $seq.full | \
+    sed -e 's,#[0-9]*,####,g' \
+        -e 's/ connected$//g' \
+        -e '/\* Closing connection ####/d' \
+        -e 's/::1/LOCALADDR/g' \
+        -e 's/127\.0\.0\.1/LOCALADDR/g' \
+        -e 's/PMWEBD error, .*/PMWEBD error, XXX/g' \
+        -e 's/localhost[\.a-zA-Z0-9]*/LOCALHOST/g' \
+        -e 's/Date:.*/Date: DATE/' \
+        -e 's/User-Agent:.*/User-Agent: FOO/' \
+    # end
+}
+
+_webapi_json_pretty()
+{
+    # python 2.6+:  python -mjson.tool
+    # python 2.5-:
+    python -c 'from simplejson.tool import main; main()' \
+    | sed -e 's/, $/,/g'
+}
+
+_webapi_img_pretty()
+{
+    python -c "
+import sys
+from PIL import Image
+from StringIO import StringIO
+data = sys.stdin.read()
+img = Image.open(StringIO(data))
+print 'size=%dx%d\n' % (img.size[0], img.size[1])
+"
 }
 
 _wait_for_pmwebd()
