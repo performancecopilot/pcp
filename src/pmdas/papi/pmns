@@ -25,6 +25,7 @@ papi.control {
     reset	PAPI:1:1
     disable	PAPI:1:2
     status	PAPI:1:3
+    auto_enable	PAPI:1:4
 }
 
 papi.available {
