@@ -34,5 +34,7 @@
 
 @ papi.control.status A string of papi counters current state
 
+@ papi.control.auto_enable Timeout for future auto-enabled counters.
+
 @ papi.available.num_counters Number of hardware counters available for use
 
