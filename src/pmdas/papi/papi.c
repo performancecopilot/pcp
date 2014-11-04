@@ -44,7 +44,7 @@ typedef struct {
 
 #define METRIC_ENABLED_FOREVER ((time_t)-1)
 static __uint32_t auto_enable_time = 120; /* seconds; 0:disabled */
-int auto_afid = -1;
+int auto_enable_afid = -1; /* pmaf(3) identifier for periodic callback */
 
 static papi_m_user_tuple *papi_info;
 static unsigned int number_of_events; /* cardinality of papi_info[] */
@@ -899,15 +899,15 @@ setup_auto_af ()
      * http://oss.sgi.com/bugzilla/show_bug.cgi?id=1069
      */
 
-    if (auto_afid >= 0)
-        __pmAFunregister(auto_afid);
-    auto_afid = -1;
+    if (auto_enable_afid >= 0)
+        __pmAFunregister(auto_enable_afid);
+    auto_enable_afid = -1;
     if (auto_enable_time) {
         struct timeval t;
         t.tv_sec = (time_t) auto_enable_time;
         t.tv_usec = 0;
-        auto_afid = __pmAFregister(& t, NULL, auto_enable_expiry_cb);
-        return auto_afid < 0 ? auto_afid : 0;
+        auto_enable_afid = __pmAFregister(& t, NULL, auto_enable_expiry_cb);
+        return auto_enable_afid < 0 ? auto_enable_afid : 0;
     }
     return 0;
 }
