@@ -66,7 +66,10 @@ or
 This automatic activation is temporary, and lasts only a number of seconds
 governed by the
 .B papi.control.auto_enable
-control value (default 120).
+control value (default 120).  In the case automatic activation is undesirable, one may
+disable it by setting the
+.B papi.control.auto_enable
+metric to 0.
 .P
 Alternately, the
 .BR pmstore (1)
