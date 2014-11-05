@@ -1018,15 +1018,39 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
 		flags = vcp->c_flags;
 		version = vcp->c_version;
 #ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_CONTEXT)
-		    fprintf(stderr, "pmcd: version cred (%u) flags=%x\n", vcp->c_version, vcp->c_flags);
+		if (pmDebug & DBG_TRACE_AUTH) {
+		    static const struct {
+			int	flag;
+			char	*name;
+		    } flag_dbg[] = {
+			{ PDU_FLAG_SECURE, 	"SECURE" },
+			{ PDU_FLAG_COMPRESS,	"COMPRESS" },
+			{ PDU_FLAG_AUTH,	"AUTH" },
+			{ PDU_FLAG_CREDS_REQD,	"CREDS_REQD" },
+			{ PDU_FLAG_SECURE_ACK,	"SECURE_ACK" },
+			{ PDU_FLAG_NO_NSS_INIT,	"NO_NSS_INIT" }
+		    };
+		    int	i;
+		    int	first = 1;
+		    fprintf(stderr, "DoCreds: version cred (%u) flags=%x (", vcp->c_version, vcp->c_flags);
+		    for (i = 0; i < sizeof(flag_dbg)/sizeof(flag_dbg[0]); i++) {
+			if (flags & flag_dbg[i].flag) {
+			    if (first)
+				first = 0;
+			    else
+				fputc('|', stderr);
+			    fprintf(stderr, "%s", flag_dbg[i].name);
+			}
+		    }
+		    fprintf(stderr, ")\n");
+		}
 #endif
 		break;
 
 	    default:
 #ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_CONTEXT)
-		    fprintf(stderr, "pmcd: Error: bogus cred type %d\n", credlist[i].c_type);
+		if (pmDebug & DBG_TRACE_AUTH)
+		    fprintf(stderr, "DoCreds: Error: bogus cred type %d\n", credlist[i].c_type);
 #endif
 		sts = PM_ERR_IPC;
 		break;
@@ -1044,13 +1068,29 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
 	 * on to check access is allowed for the authenticated persona, and
 	 * finally notify any interested PMDAs
 	 */
-	if ((sts = __pmSecureServerHandshake(cp->fd, flags, &cp->attrs)) < 0)
+	if ((sts = __pmSecureServerHandshake(cp->fd, flags, &cp->attrs)) < 0) {
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_AUTH)
+		fprintf(stderr, "DoCreds: __pmSecureServerHandshake returns %d: %s\n", sts, pmErrStr(sts));
+#endif
 	    return sts;
+	}
     }
-    if ((sts = CheckAccountAccess(cp)) < 0)	/* host access done already */
+    if ((sts = CheckAccountAccess(cp)) < 0) {	/* host access done already */
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_AUTH)
+	    fprintf(stderr, "DoCreds: CheckAccountAccess returns %d: %s\n", sts, pmErrStr(sts));
+#endif
 	return sts;
-    else if (sts > 0)	/* account authentication successful - inform PMDAs */
+    }
+    else if (sts > 0)	/* account authentication successful - inform PMDAs */ {
 	sts = AgentsAuthentication(cp - client);
+#ifdef PCP_DEBUG
+	if (sts < 0 && (pmDebug & DBG_TRACE_AUTH))
+	    fprintf(stderr, "DoCreds: AgentsAuthentication returns %d: %s\n", sts, pmErrStr(sts));
+#endif
+    }
+
     /* else: no account-based authentication needed, so finish successfully */
 
     return sts;
