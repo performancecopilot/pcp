@@ -16,6 +16,7 @@ _cleanup()
     then
 	cd $here/pmdas/memory_python
 	$sudo ./Remove >>$here/$seq.full 2>&1
+	$sudo rm -f pmns
 	cd $here
     fi
 }
