@@ -906,6 +906,7 @@ papi_text(int ident, int type, char **buffer, pmdaExt *ep)
 		*buffer = papi_info[pmidp->item].info.long_descr;
 	    return 0;
 	}
+	return pmdaText(ident, type, buffer, ep);
     }
     else
 	return pmdaText(ident, type, buffer, ep);
