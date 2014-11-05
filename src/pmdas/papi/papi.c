@@ -65,6 +65,8 @@ static __pmnsTree *papi_tree;
 static int refresh_metrics();
 static void auto_enable_expiry_cb (int, void *);
 
+static char helppath[MAXPATHLEN];
+
 static int
 permission_check(int context)
 {
@@ -1165,7 +1167,6 @@ papi_init(pmdaInterface *dp)
     pmdaSetFetchCallBack(dp, papi_fetchCallBack);
     pmdaSetEndContextCallBack(dp, papi_endContextCallBack);
     pmdaInit(dp, NULL, 0, metrictab, nummetrics);
-
 }
 
 static pmLongOptions longopts[] = {
