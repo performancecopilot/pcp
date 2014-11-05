@@ -65,7 +65,6 @@ static __pmnsTree *papi_tree;
 static int refresh_metrics();
 static void auto_enable_expiry_cb (int, void *);
 
-
 static char helppath[MAXPATHLEN];
 
 static int
