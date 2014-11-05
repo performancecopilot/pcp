@@ -50,7 +50,7 @@ pmdapapi_install()
         -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
         -e 's/[0-9][0-9]* warnings, //' \
     | $PCP_AWK_PROG '
-/Check papi metrics have appeared/   { if ($7 >= 100 && $7 <= 500) $7 = "X"
+/Check papi metrics have appeared/   { if ($7 >= 20 && $7 <= 500) $7 = "X"
                                        if ($10 >= 0 && $10 <= 500) $10 = "Y"
                                      }
                                      { print }'
