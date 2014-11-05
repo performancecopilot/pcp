@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.10.0
+Version: 3.10.1
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -159,7 +159,6 @@ License: LGPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot run-time libraries
 URL: http://www.pcp.io
-
 Requires: pcp-conf = %{version}-%{release}
 
 %description libs
@@ -202,7 +201,6 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) manager daemon
 URL: http://www.pcp.io
-
 Requires: pcp = %{version}-%{release}
 Requires: pcp-libs = %{version}-%{release}
 
@@ -227,8 +225,6 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) web API service
 URL: http://www.pcp.io
-
-Requires: pcp = %{version}-%{release}
 Requires: pcp-libs = %{version}-%{release}
 
 %description webapi
@@ -249,9 +245,6 @@ BuildArch: noarch
 %endif
 Summary: Performance Co-Pilot (PCP) web applications
 URL: http://www.pcp.io
-
-Requires: pcp-libs = %{version}-%{release}
-Requires: pcp-webapi = %{version}-%{release}
 
 %description webjs
 Javascript web application content for the Performance Co-Pilot (PCP)
@@ -397,7 +390,6 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for Performance API and hardware counters
 URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
-Requires: papi-devel
 BuildRequires: papi-devel
 
 %description pmda-papi
@@ -1013,6 +1005,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root,-)
 
 %changelog
+* Mon Dec 01 2014 Dave Brolley <brolley@redhat.com> - 3.10.1-1
+- Currently under development.
+
 * Fri Oct 31 2014 Nathan Scott <nathans@redhat.com> - 3.10.0-1
 - Create new sub-packages for pcp-webjs and python3-pcp.
 - Fix __pmDiscoverServicesWithOptions(1) codes (BZ 1139529)
