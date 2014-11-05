@@ -949,10 +949,7 @@ avahi
 787:reserved archive local pmie pmlogrewrite pmdumplog pmval
 798 pmda.nfsclient local
 799 papi local
-<<<<<<< HEAD
 813 pmda.papi local
-=======
->>>>>>> Add skeleton of new pmdapapi qa test - qa/799
 815 pmie local
 822:reserved pmlogrewrite
 823 pmda.sample pmstore secure local
