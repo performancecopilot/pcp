@@ -16,6 +16,14 @@ Source1: pcp-webjs.src.tar.gz
 %else
 %{!?disable_papi: %global disable_papi 0%{?rhel} < 6}
 %endif
+
+# There is no papi-devel package for s390 or prior to rhel6, disable it
+%ifarch s390 s390x
+%{!?disable_papi: %global disable_papi 1}
+%else
+%{!?disable_papi: %global disable_papi 0%{?rhel} < 6}
+%endif
+
 %define disable_microhttpd 0
 %define disable_cairo 0
 %if 0%{?rhel} == 0 || 0%{?rhel} > 6
