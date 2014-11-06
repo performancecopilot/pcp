@@ -1,0 +1,86 @@
+#!/bin/sh
+# PCP QA Test No. 967
+# Testing auto enabling pmdapapi metrics
+#
+# Copyright (c) 2014 Red Hat Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# test for papi dir || _notrun No support for papi dir
+[ -d $PCP_PMDAS_DIR/papi ] || _notrun "PAPI PMDA is not installed"
+
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter_papi_errors()
+{
+    sed \
+	-e '/pfm_find_full_event(.*): event not found./d' \
+	-e '/events in papi_events.csv were not valid./d' \
+    # end
+}
+
+_filter()
+{
+    sed \
+	-e 's/value [0-9][0-9]*/value NUMBER/' \
+	-e 's/TOT_INS(5): [0-9][0-9]*/TOT_INS(5) NUMBER/' \
+	-e 's/0x[0-9a-f]*/ADDR/g' \
+	-e 's/[0-2][0-9]:00:00.000/TIME/' \
+    | _filter_papi_errors
+}
+
+# vars and checks
+papirootpmns=$PCP_PMDAS_DIR/papi/root
+pipepmda=$PCP_PMDAS_DIR/papi/pmdapapi
+[ ! -f $papirootpmns ] && echo "FATAL ERROR Could not find \"$papirootpmns\"" && exit 1
+[ ! -f $pipepmda ] && echo "FATAL ERROR Could not find \"$pipepmda\"" && exit 1
+
+# real QA test starts here
+
+# we want to first existing functionality is not effected if
+# 'auto_enabled' is disabled (aka, set to zero)
+# directly fetching the metric should not return a number
+
+echo "=== Daemon PMDA papi auto_enable disabled test ==="
+$sudo dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _filter
+open pipe $pipepmda -d 126
+getdesc on
+attr "username" "root"
+attr 11 "0"
+desc papi.system.TOT_INS
+desc papi.control.status
+desc papi.control.auto_enable
+store papi.control.auto_enable "0"
+fetch papi.system.TOT_INS
+store papi.control.enable "TOT_INS"
+fetch papi.system.TOT_INS
+store papi.control.disable "TOT_INS"
+fetch papi.system.TOT_INS
+EOF
+
+# now that we know existing functionality is working, lets test
+# the timeout of auto_enable, lets set to 5 seconds and test
+echo "=== Daemon PMDA papi auto_enable test ==="
+$sudo dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _filter
+open pipe $pipepmda -d 126
+getdesc on
+attr "username" "root"
+attr 11 "0"
+desc papi.system.TOT_INS
+store papi.control.auto_enable "5"
+fetch papi.system.TOT_INS
+fetch papi.control.status
+wait 7
+fetch papi.control.status
+EOF
+
+
+
