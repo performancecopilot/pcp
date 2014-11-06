@@ -306,8 +306,6 @@ refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int id)
 
     memcpy(dest, source, sizeof(pmdaMetric));
 
-    /* Instead of this do the cluster num change */
-    /* dest->m_desc.pmid = pmid_build(domain, cluster, id); */
 
     /*
 
@@ -408,33 +406,12 @@ dynamic_proc_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
     *buf = dummy_text;
     return 0;
 
-    /*
-    switch (cluster) {
-        case CLUSTER_INTERRUPT_LINES:
-            if (item > lines_count)
-                return PM_ERR_PMID;
-            if (interrupt_lines[item].text == NULL)
-                return PM_ERR_TEXT;
-            *buf = interrupt_lines[item].text;
-            return 0;
-        case CLUSTER_INTERRUPT_OTHER:
-            if (item > other_count)
-                return PM_ERR_PMID;
-            if (interrupt_other[item].text == NULL)
-                return PM_ERR_TEXT;
-            *buf = interrupt_other[item].text;
-            return 0;
-    }
-    return PM_ERR_PMID;
-    */
 }
 
 
 /*
- * Build up the dynamic infrastructure. Call pmdaDynamicPMNS for each unique [hot]proc.foo<CLUSTER>
+ * Build up the dynamic infrastructure. Call pmdaDynamicPMNS for each unique [hot]proc.foo
  * grouping.
- *
- * i.e - psinfo will have 8 calls.
  *
  * But share everything else as much as possible.
  *
@@ -452,21 +429,6 @@ proc_dynamic_init(pmdaMetric *metrics, int nmetrics)
 
     fprintf(stderr, "proc_dynamic_init\n");
 
-    // Loop over dynproc_groups ??? instead
-    // inner loop of clusters in each group.  indexd by group into table of clusters?
-    // index of group gives you pointer to a group that holds clusters for that group
-
-    
-    /*
-    pmdaDynamicPMNS("proc.schedstat",
-                    set, sizeof(set)/sizeof(int),
-                    refresh_dynamic_proc, dynamic_proc_text,
-                    refresh_metrictable, size_metrictable,
-                    metrics, nmetrics);
-    
-    */
-///*
-
     int i,j;
     int num_dyngroups = sizeof(dynproc_groups)/sizeof(dynproc_group_t);
     int num_dyntrees = sizeof(dynproc_members)/sizeof(char*);
@@ -479,7 +441,6 @@ proc_dynamic_init(pmdaMetric *metrics, int nmetrics)
 
 	    sprintf(treename, "%s.%s", dynproc_members[j], dynproc_groups[i].name);
 	    fprintf(stderr, "Adding tree: %s, with %d clusters\n", treename,nclusters);
-	    fprintf(stderr, "Cluster: %d\n", clusters[0]);
 
 	    // Should the strdup/memcpy be inside pmdaDynamicPMNS? currently it just assignes the pointer, assuming a string literal or other static type.
 	    pmdaDynamicPMNS(strdup(treename),
@@ -489,6 +450,5 @@ proc_dynamic_init(pmdaMetric *metrics, int nmetrics)
                     metrics, nmetrics);
 	}
     }
-//*/
 }
 
