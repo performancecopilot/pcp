@@ -996,6 +996,7 @@ avahi
 960 pmda.ds389 local
 962 archive local
 966 secure local
+967 pmda.papi local
 972 pmda.zswap dbpmda local
 973 pmda.zswap pmda.install local
 978 libpcp getopt sanity local
