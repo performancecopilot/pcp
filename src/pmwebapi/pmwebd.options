@@ -8,7 +8,7 @@ OPTIONS="-l pmwebd.log"
 #OPTIONS="-p 9999"  # port number
 
 # Graphite
-OPTIONS="$OPTIONS -R $PCP_SHARE_DIR/jsdemos -A $PCP_LOG_DIR -G"
+OPTIONS="$OPTIONS -R $PCP_SHARE_DIR/webapps -A $PCP_LOG_DIR -G"
 
 # Assume identity of some user other than "pcp"
 # OPTIONS="$OPTIONS -U nobody"

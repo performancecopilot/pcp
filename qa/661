@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 661
-# checks pmwebd graphite (jsdemos) functionality
+# checks pmwebd graphite (web application) functionality
 #
 # Copyright (c) 2014 Red Hat.
 #
@@ -9,7 +9,10 @@ echo "QA output created by $seq"
 
 . ./common.webapi
 
-test -d "$PCP_SHARE_DIR/jsdemos" || _notrun "jsdemos not installed"
+test -d "$PCP_SHARE_DIR/webapps/graphite" || \
+	_notrun "graphite webapp is not installed"
+test -d "$PCP_SHARE_DIR/webapps/blinkenlights" || \
+	_notrun "blinkenlights webapp is not installed"
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
 
 $sudo rm -fr $tmp.dir
@@ -36,7 +39,7 @@ echo "=== pmwebd graphite capabilities ===" | tee -a $seq.full
 $sudo $signal -a pmwebd >/dev/null 2>&1
 sleep 2		# let it shut down
 
-$PCP_BINADM_DIR/pmwebd $webargs -G -R $PCP_SHARE_DIR/jsdemos -A `pwd` -N -M0 -x/dev/tty -d1 -vvv -l $tmp.out &
+$PCP_BINADM_DIR/pmwebd $webargs -G -R $PCP_SHARE_DIR/webapps -A `pwd` -N -M0 -x/dev/tty -d1 -vvv -l $tmp.out &
 sleep 2		# let it start up
 
 echo "crashers"

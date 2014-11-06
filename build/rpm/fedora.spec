@@ -524,7 +524,8 @@ rm -fr $RPM_BUILD_ROOT/%{_initddir}/pmwebd
 rm -fr $RPM_BUILD_ROOT/%{_unitdir}/pmwebd.service
 rm -f $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin/pmwebd
 %else
-mv pcp-webjs $RPM_BUILD_ROOT/%{_datadir}/pcp/jsdemos
+mv pcp-webjs/* $RPM_BUILD_ROOT/%{_datadir}/pcp/webapps
+rmdir pcp-webjs
 %endif
 
 %if %{disable_infiniband}
@@ -912,6 +913,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %attr(0775,pcp,pcp) %{_logsdir}/pmwebd
 %{_confdir}/pmwebd
 %config(noreplace) %{_confdir}/pmwebd/pmwebd.options
+%dir %{_datadir}/pcp/webapps
 %{_mandir}/man1/pmwebd.1.gz
 %{_mandir}/man3/PMWEBAPI.3.gz
 %endif
@@ -919,7 +921,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %if !%{disable_microhttpd}
 %files webjs
 %defattr(-,root,root)
-%{_datadir}/pcp/jsdemos
+%{_datadir}/pcp/webapps/*
 %endif
 
 %files manager
