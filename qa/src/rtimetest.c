@@ -40,7 +40,7 @@ dump_dt(char *str, struct tm *atm)
 {
     int pfx;
     printf("\"%s\"%n", str, &pfx);
-    printf("%*s", 31 - pfx, " ");
+    printf("%*s", 33 - pfx, " ");
     printf("%d-%.2d-%.2d %.2d:%.2d:%.2d\n",
 	   atm->tm_year + 1900,
 	   atm->tm_mon + 1,
@@ -62,6 +62,7 @@ main(int argc, char *argv[])
     char buffer[256];
     char *errmsg;
     char *tmtmp_str;
+    char *tz;
 
     ttstart = 1392649730;	// time(&ttstart) => time_t
     ttstart = 1390057730;
@@ -69,8 +70,15 @@ main(int argc, char *argv[])
     tvstart.tv_usec = 0;
     localtime_r(&ttstart, &tmstart);	// time_t => tm
     set_tm(&tvend, &tmend, &tmstart, 0, 27, 11, 28);
+    printf("   ");
     dump_dt("start ", &tmstart);
+    printf("   ");
     dump_dt("end   ", &tmend);
+
+    tz = getenv("TZ");
+    if (tz != NULL) {
+	pmNewZone(tz);
+    }
 
     printf("These time terms are relative to the start/end time.\n"
 	   "#1 __pmParseTime #2 pmParseTimeWindow/Start #3 pmParseTimeWindow/End.\n");
@@ -83,6 +91,7 @@ main(int argc, char *argv[])
     }
     
     localtime_r(&tvrslt.tv_sec, &tmrslt);	// time_t => tm
+    printf("   ");
     dump_dt(tmtmp_str, &tmrslt);
 
     // See strftime for a description of the % formats
@@ -127,6 +136,8 @@ main(int argc, char *argv[])
 	"next tuesday"
     };
 
+
+
     int sfx;
     for (sfx = 0; sfx < (sizeof(strftime_fmt) / sizeof(void *)); sfx++) {
 	int len = strftime(buffer, sizeof(buffer), strftime_fmt[sfx], &tmtmp);
@@ -141,13 +152,16 @@ main(int argc, char *argv[])
 		printf ("%s: %s\n", errmsg, tmtmp_str);
 	    }
 	    localtime_r(&tvrslt.tv_sec, &tmrslt);	// time_t => tm
+	    printf("#1 ");
 	    dump_dt(buffer, &tmrslt);
 	    if (pmParseTimeWindow(buffer, NULL, NULL, NULL, &tvstart, &tvend, &rsltStart, &rsltEnd, &rsltOffset, &errmsg) < 0) {
 		printf ("%s: %s\n", errmsg, tmtmp_str);
 	    }
 	    localtime_r(&rsltStart.tv_sec, &tmrslt);	// time_t => tm
+	    printf("#2 ");
 	    dump_dt(buffer, &tmrslt);
 	    localtime_r(&rsltEnd.tv_sec, &tmrslt);	// time_t => tm
+	    printf("#3 ");
 	    dump_dt(buffer, &tmrslt);
 	}
 	else
