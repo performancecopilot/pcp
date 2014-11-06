@@ -20,6 +20,7 @@ _cleanup()
     then
 	cd $here/pmdas/slow
 	$sudo ./Remove >>$here/$seq.full 2>&1
+	$sudo rm -f domain.h.perl pmns.perl
 	cd $here
     fi
 }
