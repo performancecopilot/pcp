@@ -6,6 +6,8 @@
 
 #include <ctype.h>
 
+#define MAX_CLUSTERS 64
+
 typedef struct {
     int	    item;
     int	    cluster;
@@ -15,7 +17,12 @@ typedef struct {
 static __pmnsTree *dynamic_proc_tree;
 
 enum {
-    DYNPROC_GROUP_SCHEDSTAT = 0,
+    DYNPROC_GROUP_PSINFO = 0,
+    DYNPROC_GROUP_FD = 1,
+    DYNPROC_GROUP_ID = 2,
+    DYNPROC_GROUP_MEMORY = 3,
+    DYNPROC_GROUP_IO = 4,
+    DYNPROC_GROUP_SCHEDSTAT = 5,
     NUM_DYNPROC_GROUPS
 };
 
@@ -36,23 +43,162 @@ static const char *dynproc_members[] = {
 	//[DYNPROC_HOTPROC]   = "hotproc",
 };
 
-//static dynproc_metric_t psinfo_metrics[] = {
-//    {	.name = "pid",		.cluster = 8,	    .item = 0	},
+static dynproc_metric_t psinfo_metrics[] = {
+	{ .name = "pid",	    .cluster = CLUSTER_PID_STAT,	.item=0 },
+	{ .name = "cmd",	    .cluster = CLUSTER_PID_STAT,	.item=1 },
+	{ .name = "sname",	    .cluster = CLUSTER_PID_STAT,	.item=2 },
+	{ .name = "ppid",	    .cluster = CLUSTER_PID_STAT,	.item=3 },
+	{ .name = "pgrp",	    .cluster = CLUSTER_PID_STAT,	.item=4 },
+	{ .name = "session",	    .cluster = CLUSTER_PID_STAT,	.item=5 },
+	{ .name = "tty",	    .cluster = CLUSTER_PID_STAT,	.item=6 },
+	{ .name = "tty_pgrp",	    .cluster = CLUSTER_PID_STAT,	.item=7 },
+	{ .name = "flags",	    .cluster = CLUSTER_PID_STAT,	.item=8 },
+	{ .name = "minflt",	    .cluster = CLUSTER_PID_STAT,	.item=9 },
+	{ .name = "cmin_flt",	    .cluster = CLUSTER_PID_STAT,	.item=10 },
+	{ .name = "maj_flt",	    .cluster = CLUSTER_PID_STAT,	.item=11 },
+	{ .name = "cmaj_flt",	    .cluster = CLUSTER_PID_STAT,	.item=12 },
+	{ .name = "utime",	    .cluster = CLUSTER_PID_STAT,	.item=13 },
+	{ .name = "stime",	    .cluster = CLUSTER_PID_STAT,	.item=14 },
+	{ .name = "cutime",	    .cluster = CLUSTER_PID_STAT,	.item=15 },
+	{ .name = "cstime",	    .cluster = CLUSTER_PID_STAT,	.item=16 },
+	{ .name = "priority",	    .cluster = CLUSTER_PID_STAT,	.item=17 },
+	{ .name = "nice",	    .cluster = CLUSTER_PID_STAT,	.item=18 },
+	{ .name = "it_real_value",  .cluster = CLUSTER_PID_STAT,	.item=20 },
+	{ .name = "start_time",	    .cluster = CLUSTER_PID_STAT,	.item=21 },
+	{ .name = "vsize",	    .cluster = CLUSTER_PID_STAT,	.item=22 },
+	{ .name = "rss",	    .cluster = CLUSTER_PID_STAT,	.item=23 },
+	{ .name = "rss_rlim",	    .cluster = CLUSTER_PID_STAT,	.item=24 },
+	{ .name = "start_code",	    .cluster = CLUSTER_PID_STAT,	.item=25 },
+	{ .name = "end_code",	    .cluster = CLUSTER_PID_STAT,	.item=26 },
+	{ .name = "start_stack",    .cluster = CLUSTER_PID_STAT,	.item=27 },
+	{ .name = "esp",	    .cluster = CLUSTER_PID_STAT,	.item=28 },
+	{ .name = "eip",	    .cluster = CLUSTER_PID_STAT,	.item=29 },
+	{ .name = "signal",	    .cluster = CLUSTER_PID_STAT,	.item=30 },
+	{ .name = "blocked",	    .cluster = CLUSTER_PID_STAT,	.item=31 },
+	{ .name = "sigignore",	    .cluster = CLUSTER_PID_STAT,	.item=32 },
+	{ .name = "sigcatch",	    .cluster = CLUSTER_PID_STAT,	.item=33 },
+	{ .name = "wchan",	    .cluster = CLUSTER_PID_STAT,	.item=34 },
+	{ .name = "nswap",	    .cluster = CLUSTER_PID_STAT,	.item=35 },
+	{ .name = "cnswap",	    .cluster = CLUSTER_PID_STAT,	.item=36 },
+	{ .name = "exit_signal",    .cluster = CLUSTER_PID_STAT,	.item=37 },
+	{ .name = "processor",	    .cluster = CLUSTER_PID_STAT,	.item=38 },
+	{ .name = "ttyname",	    .cluster = CLUSTER_PID_STAT,	.item=39 },
+	{ .name = "wchan_s",	    .cluster = CLUSTER_PID_STAT,	.item=40 },
+	{ .name = "psargs",	    .cluster = CLUSTER_PID_STAT,	.item=41 },
+	{ .name = "rt_priority",    .cluster = CLUSTER_PID_STAT,	.item=42 },
+	{ .name = "policy",	    .cluster = CLUSTER_PID_STAT,	.item=43 },
+	{ .name = "delayacct_blkio_time",   .cluster = CLUSTER_PID_STAT,.item=44 },
+	{ .name = "guest_time",	    .cluster = CLUSTER_PID_STAT,	.item=45 },
+	{ .name = "cguest_time",    .cluster = CLUSTER_PID_STAT,	.item=46 },
+	{ .name = "signal_s",	    .cluster = CLUSTER_PID_STATUS,	.item=16 },
+	{ .name = "blocked_s",	    .cluster = CLUSTER_PID_STATUS,	.item=17 },
+	{ .name = "sigignore_s",    .cluster = CLUSTER_PID_STATUS,	.item=18 },
+	{ .name = "sigcatch_s",	    .cluster = CLUSTER_PID_STATUS,	.item=19 },
+	{ .name = "threads",	    .cluster = CLUSTER_PID_STATUS,	.item=28 },
+	{ .name = "cgroups",	    .cluster = CLUSTER_PID_CGROUP,	.item=0 },
+	{ .name = "labels",	    .cluster = CLUSTER_PID_LABEL,	.item=0 },
+	{ .name = "vctxsw",	    .cluster = CLUSTER_PID_STATUS,	.item=29 },
+	{ .name = "nvctxsw",	    .cluster = CLUSTER_PID_STATUS,	.item=30 },
+};
+
+static dynproc_metric_t id_metrics[] = {
+        { .name = "uid",	.cluster = CLUSTER_PID_STATUS,  .item=0 },
+        { .name = "euid",	.cluster = CLUSTER_PID_STATUS,  .item=1 },
+        { .name = "suid",	.cluster = CLUSTER_PID_STATUS,  .item=2 },
+        { .name = "fsuid",	.cluster = CLUSTER_PID_STATUS,  .item=3 },
+        { .name = "gid",	.cluster = CLUSTER_PID_STATUS,  .item=4 },
+        { .name = "egid",	.cluster = CLUSTER_PID_STATUS,  .item=5 },
+        { .name = "sgid",	.cluster = CLUSTER_PID_STATUS,  .item=6 },
+        { .name = "fsgid",	.cluster = CLUSTER_PID_STATUS,  .item=7 },
+        { .name = "uid_nm",	.cluster = CLUSTER_PID_STATUS,  .item=8 },
+        { .name = "euid_nm",	.cluster = CLUSTER_PID_STATUS,  .item=9 },
+        { .name = "suid_nm",	.cluster = CLUSTER_PID_STATUS,  .item=10 },
+        { .name = "fsuid_nm",   .cluster = CLUSTER_PID_STATUS,  .item=11 },
+        { .name = "gid_nm",	.cluster = CLUSTER_PID_STATUS,  .item=12 },
+        { .name = "egid_nm",	.cluster = CLUSTER_PID_STATUS,  .item=13 },
+        { .name = "sgid_nm",	.cluster = CLUSTER_PID_STATUS,  .item=14 },
+        { .name = "fsgid_nm",   .cluster = CLUSTER_PID_STATUS,  .item=15 },
+};
+
+static dynproc_metric_t memory_metrics[] = {
+        { .name = "size",   .cluster = CLUSTER_PID_STATM,  .item=0 },
+        { .name = "rss",    .cluster = CLUSTER_PID_STATM,  .item=1 },
+        { .name = "share",  .cluster = CLUSTER_PID_STATM,  .item=2 },
+        { .name = "textrss",.cluster = CLUSTER_PID_STATM,  .item=3 },
+        { .name = "librss", .cluster = CLUSTER_PID_STATM,  .item=4 },
+        { .name = "datrss", .cluster = CLUSTER_PID_STATM,  .item=5 },
+        { .name = "dirty",  .cluster = CLUSTER_PID_STATM,  .item=6 },
+        { .name = "maps",   .cluster = CLUSTER_PID_STATM,  .item=7 },
+        { .name = "vmsize", .cluster = CLUSTER_PID_STATUS,  .item=20 },
+        { .name = "vmlock", .cluster = CLUSTER_PID_STATUS,  .item=21 },
+        { .name = "vmrss",  .cluster = CLUSTER_PID_STATUS,  .item=22 },
+        { .name = "vmdata", .cluster = CLUSTER_PID_STATUS,  .item=23 },
+        { .name = "vmstack",.cluster = CLUSTER_PID_STATUS,  .item=24 },
+        { .name = "vmexe",  .cluster = CLUSTER_PID_STATUS,  .item=25 },
+        { .name = "vmlib",  .cluster = CLUSTER_PID_STATUS,  .item=26 },
+        { .name = "vmswap", .cluster = CLUSTER_PID_STATUS,  .item=27 },
+};
+
+static dynproc_metric_t io_metrics[] = {
+        { .name = "rchar",		    .cluster = CLUSTER_PID_IO,  .item=0 },
+        { .name = "wchar",		    .cluster = CLUSTER_PID_IO,  .item=1 },
+        { .name = "syscr",		    .cluster = CLUSTER_PID_IO,  .item=2 },
+        { .name = "syscw",		    .cluster = CLUSTER_PID_IO,  .item=3 },
+        { .name = "read_bytes",		    .cluster = CLUSTER_PID_IO,  .item=4 },
+        { .name = "write_bytes",	    .cluster = CLUSTER_PID_IO,  .item=5 },
+        { .name = "cancelled_write_bytes",  .cluster = CLUSTER_PID_IO,  .item=6 },
+};
+
+static dynproc_metric_t fd_metrics[] = {
+        { .name = "count",   .cluster = 51,  .item=0 },
+};
 
 static dynproc_metric_t schedstat_metrics[] = {
-	{ .name = "cpu_time",	.cluster = 31,	.item=0 },
-	{ .name = "run_delay",	.cluster = 31,	.item=1 },
-	{ .name = "pcount",	.cluster = 31,  .item=2 },
+	{ .name = "cpu_time",	.cluster = CLUSTER_PID_SCHEDSTAT,	.item=0 },
+	{ .name = "run_delay",	.cluster = CLUSTER_PID_SCHEDSTAT,	.item=1 },
+	{ .name = "pcount",	.cluster = CLUSTER_PID_SCHEDSTAT,	.item=2 },
 };
 
 static dynproc_group_t dynproc_groups[] = {
-//	[DYNPROC_GROUP_PSINFO]    = "psinfo",
-//	[DYNPROC_GROUP_ID]	  = "id",
-//	[DYNPROC_GROUP_MEMORY]    = "memory",
-//	[DYNPROC_GROUP_IO]	  = "io",
-//	[DYNPROC_GROUP_FD]	  = "fd",
-	[DYNPROC_GROUP_SCHEDSTAT] = { .name = "schedstat",   .metrics = schedstat_metrics,  .nmetrics = sizeof(schedstat_metrics)/sizeof(dynproc_metric_t) },
+	[DYNPROC_GROUP_PSINFO]    = { .name = "psinfo",	    .metrics = psinfo_metrics,	    .nmetrics = sizeof(psinfo_metrics)/sizeof(dynproc_metric_t)},
+	[DYNPROC_GROUP_ID]	  = { .name = "id",	    .metrics = id_metrics,	    .nmetrics = sizeof(id_metrics)/sizeof(dynproc_metric_t)},
+	[DYNPROC_GROUP_MEMORY]    = { .name = "memory",	    .metrics = memory_metrics,	    .nmetrics = sizeof(memory_metrics)/sizeof(dynproc_metric_t)},
+	[DYNPROC_GROUP_IO]	  = { .name = "io",	    .metrics = io_metrics,	    .nmetrics = sizeof(io_metrics)/sizeof(dynproc_metric_t)},
+	[DYNPROC_GROUP_FD]	  = { .name = "fd",	    .metrics = fd_metrics,	    .nmetrics = sizeof(fd_metrics)/sizeof(dynproc_metric_t)},
+	[DYNPROC_GROUP_SCHEDSTAT] = { .name = "schedstat",  .metrics = schedstat_metrics,   .nmetrics = sizeof(schedstat_metrics)/sizeof(dynproc_metric_t) },
 };
+
+/*
+ * Utility function to give a set of clusters used by a dynproc_metric_t array
+ */
+
+int
+get_clusters_used( dynproc_group_t dyngroup, int *clusters ){
+
+    int numclusters = 0;
+    int j, i;
+
+    for(i=0; i< dyngroup.nmetrics; i++){
+	int curcluster = dyngroup.metrics[i].cluster;
+	int skip = 0;
+	for(j=0; j<numclusters;j++){
+	    if( clusters[j] == curcluster ){
+		skip = 1;
+		break; //already collected this one
+	    }
+	}  
+	if( !skip ){
+	    clusters[numclusters] = curcluster;
+	    numclusters++;
+	    if( numclusters == MAX_CLUSTERS ){
+		fprintf(stderr, "Increase MAX_CLUSTERS in proc_dynamic.  Data is missing\n");
+		return numclusters;
+	    }
+	} 
+
+    }
+    return numclusters;
+}
 
 /*
  * Map proc cluster id's to new hotproc varients that don't conflict
@@ -226,11 +372,19 @@ size_metrictable(int *total, int *trees)
 
     fprintf(stderr, "proc_dynamic_size\n");
 
-    *total = 3; /* will be calc based on all the structs above.  Total number of leaf nodes right ??? */
-    *trees = 1; /* will be 2 for proc and hotproc */
+    int i, num_leaf_nodes = 0;
+
+    int num_dyn_groups =  sizeof(dynproc_groups)/sizeof(dynproc_group_t);
+
+    for( i = 0; i < num_dyn_groups; i++){
+	num_leaf_nodes += dynproc_groups[i].nmetrics;
+    }
+
+    *total = num_leaf_nodes; /* calc based on all the structs above.  Total number of leaf nodes right ??? */
+    *trees = sizeof(dynproc_members)/sizeof(char*); /* will be 2 for proc and hotproc */
 
     if (pmDebug & DBG_TRACE_LIBPMDA)
-        fprintf(stderr, "interrupts size_metrictable: %d total x %d trees\n",
+        printf(stderr, "interrupts size_metrictable: %d total x %d trees\n",
                 *total, *trees);
 }
 
@@ -289,17 +443,52 @@ dynamic_proc_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 void
 proc_dynamic_init(pmdaMetric *metrics, int nmetrics)
 {
-    int set[] = { CLUSTER_PID_SCHEDSTAT };
+    //int set[] = { CLUSTER_PID_SCHEDSTAT };
+
+    int clusters[MAX_CLUSTERS];
+    int nclusters;
+
+    char treename[128];
 
     fprintf(stderr, "proc_dynamic_init\n");
 
     // Loop over dynproc_groups ??? instead
     // inner loop of clusters in each group.  indexd by group into table of clusters?
     // index of group gives you pointer to a group that holds clusters for that group
+
+    
+    /*
     pmdaDynamicPMNS("proc.schedstat",
                     set, sizeof(set)/sizeof(int),
                     refresh_dynamic_proc, dynamic_proc_text,
                     refresh_metrictable, size_metrictable,
                     metrics, nmetrics);
+    
+    */
+///*
+
+    int i,j;
+    int num_dyngroups = sizeof(dynproc_groups)/sizeof(dynproc_group_t);
+    int num_dyntrees = sizeof(dynproc_members)/sizeof(char*);
+
+    for(i=0; i< num_dyngroups; i++){
+
+	nclusters = get_clusters_used( dynproc_groups[i], clusters );
+
+	for(j=0; j< num_dyntrees; j++){
+
+	    sprintf(treename, "%s.%s", dynproc_members[j], dynproc_groups[i].name);
+	    fprintf(stderr, "Adding tree: %s, with %d clusters\n", treename,nclusters);
+	    fprintf(stderr, "Cluster: %d\n", clusters[0]);
+
+	    // Should the strdup/memcpy be inside pmdaDynamicPMNS? currently it just assignes the pointer, assuming a string literal or other static type.
+	    pmdaDynamicPMNS(strdup(treename),
+                    clusters, nclusters,
+                    refresh_dynamic_proc, dynamic_proc_text,
+                    refresh_metrictable, size_metrictable,
+                    metrics, nmetrics);
+	}
+    }
+//*/
 }
 
