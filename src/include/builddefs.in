@@ -228,7 +228,6 @@ ENABLE_PYTHON3 = @enable_python3@
 ENABLE_SYSTEMD = @enable_systemd@
 ENABLE_MANAGER = @enable_manager@
 ENABLE_WEBAPI = @enable_webapi@
-ENABLE_PERFEVENT = @enable_perfevent@
 
 # additional libraries needed for particular functions
 LIB_FOR_BASENAME = @lib_for_basename@
@@ -255,10 +254,12 @@ LIB_FOR_MICROHTTPD = @libmicrohttpd_LIBS@
 SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
 SYSTEMD_LIBS = @SYSTEMD_LIBS@
 PAPI_LIBS = @PAPI_LIBS@
+PFM_LIBS = @PFM_LIBS@
 IB_LIBS = @IB_LIBS@
 PMDA_RPM = @PMDA_RPM@
 PMDA_PAPI = @PMDA_PAPI@
 PMDA_SYSTEMD = @PMDA_SYSTEMD@
+PMDA_PERFEVENT = @PMDA_PERFEVENT@
 PMDA_INFINIBAND = @PMDA_INFINIBAND@
 
 SHELL = /bin/sh

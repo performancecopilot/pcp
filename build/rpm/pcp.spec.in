@@ -44,15 +44,14 @@ BuildRequires: rpm-devel
 %if "@pmda_papi@" == "true"
 BuildRequires: papi-devel
 %endif
+%if "@pmda_perfevent@" == "true"
+BuildRequires: libpfm-devel >= 4.4
+%endif
 %if "@have_cairo@" == "true"
 BuildRequires: cairo-devel
 %endif
 %if "@have_libmicrohttpd@" == "true"
 BuildRequires: libmicrohttpd-devel
-%endif
-
-%if "@enable_perfevent@" == "true"
-BuildRequires: libpfm-devel >= 4.4
 %endif
 
 Conflicts: pcp-pro < 2.2
@@ -180,7 +179,7 @@ Quality assurance test suite for Performance Co-Pilot (PCP).
 License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) manager daemon
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp = @package_version@
 Requires: pcp-libs = @package_version@
 
@@ -205,7 +204,7 @@ and as a result may not be suited to all production environments.
 License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) web API service
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: pcp-libs = @package_version@
 
 %description webapi
@@ -465,15 +464,15 @@ collecting Infiniband statistics.  By default, it monitors the local HCAs
 but can also be configured to monitor remote GUIDs such as IB switches.
 %endif
 
+%if "@pmda_perfevent@" == "true"
 #
 # pcp-pmda-perfevent
 #
-%if "@enable_perfevent@" == "true"
 %package pmda-perfevent
 License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for hardware counters
-URL: http://www.performancecopilot.org
+URL: http://www.pcp.io
 Requires: libpfm >= 4.4
 BuildRequires: libpfm-devel >= 4.4
 
@@ -566,6 +565,11 @@ pmsnap/control
 pmsnap/crontab
 GUIEOF
 %endif
+%if "@pmda_perfevent@" == "true"
+cat >>conf_files <<PFMEOF
+perfevent/perfevent.conf
+PFMEOF
+%endif
 
 #
 # Files for the various subpackages.  We use these subpackages
@@ -595,7 +599,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'infiniband|pmdaib|pmdas/ib' >pmda_infi
 %if "@pmda_papi@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdapapi|pmdas/papi' >pmda_papi_files
 %endif
-%if "@enable_perfevent@" == "true"
+%if "@pmda_perfevent@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | fgrep -e 'perfevent' -e 'perfalloc.1' > pmda_perfevent_files
 %endif
 touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files pmda_perfevent_files
@@ -896,7 +900,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root)
 %endif
 
-%if "@enable_perfevent@" == "true"
+%if "@pmda_perfevent@" == "true"
 %files pmda-perfevent -f pmda_perfevent_files.rpm
 %defattr(-,root,root)
 %endif

@@ -1,12 +1,26 @@
+/*
+ * Copyright (C) 2013  Joe White
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 #include "perflock.h"
-#include <string.h>
-
-#include <stdlib.h>
-#include <string.h>
+#include <pcp/pmapi.h>
 
 #define PERF_LOCK_PATH "/perfevent/perflock"
 
-static char *perflock_filename = NULL;
+static char *perflock_filename;
 
 /* Utility function to get the filename of the lock file
  * This function is in its own translation unit so that it can
@@ -20,12 +34,7 @@ const char *get_perf_alloc_lockfile()
         return perflock_filename;
     }
 
-    pcppmdasdir = getenv("PCP_PMDAS_DIR");
-
-    if( !pcppmdasdir ) {
-        pcppmdasdir = "/var/lib/pcp/pmdas";
-    }
-
+    pcppmdasdir = pmGetConfig("PCP_PMDAS_DIR");
     perflock_filename = malloc( strlen(pcppmdasdir) + strlen( PERF_LOCK_PATH ) + 1);
 
     memcpy(perflock_filename, pcppmdasdir, strlen(pcppmdasdir));

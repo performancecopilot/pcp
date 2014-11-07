@@ -17,12 +17,13 @@ echo "QA output created by $seq"
 . ./common.check
 
 test -e perfevent/perfevent_test || _notrun "Optional perfevent PMDA not present"
-
+status=1	# failure is the default
 cd perfevent
 
 if ./perfevent_test all 2>/dev/null;
 then
 	echo "Unit tests Passed"
+	status=0
 fi
 
 cd - > /dev/null

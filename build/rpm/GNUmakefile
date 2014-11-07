@@ -65,7 +65,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@pmda_papi@|$(PMDA_PAPI)|g' \
 	    -e's|@pmda_systemd@|$(PMDA_SYSTEMD)|g' \
 	    -e's|@pmda_infiniband@|$(PMDA_INFINIBAND)|g' \
-	    -e's|@enable_perfevent@|$(ENABLE_PERFEVENT)|g' \
+	    -e's|@pmda_perfevent@|$(PMDA_PERFEVENT)|g' \
 	    -e's|@enable_systemd@|$(ENABLE_SYSTEMD)|g' \
 	    -e's|@enable_secure@|$(ENABLE_SECURE)|g' \
 	    -e's|@enable_probes@|$(ENABLE_PROBES)|g' \

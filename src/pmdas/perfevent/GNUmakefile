@@ -33,16 +33,13 @@ SCRIPTS		= Install Remove
 
 DFILES	= README help
 
-LSRCFILES = pmns root $(DFILES) $(SCRIPTS) \
-	perfevent.conf perfinterface.h
-
 VERSION := $(shell head -n 1 ChangeLog | cut -d ":" -f 1)
 
 default:	build-me
 
 include $(BUILDRULES)
 
-ifeq "$(ENABLE_PERFEVENT)" "true"
+ifeq "$(PMDA_PERFEVENT)" "true"
 build-me: domain.h $(CMDTARGET) $(HELPTARGETS) perfalloc
 
 install: default
@@ -60,7 +57,8 @@ install_pcp : install
 
 TARGETS = $(CMDTARGET) perfalloc
 
-LLDLIBS = $(PCP_PMDALIB) -lpfm -lrt -lm -lpthread
+LLDLIBS = $(PCP_PMDALIB) $(PFM_LIBS)
+LLDLIBS += $(LIB_FOR_RT) $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS)
 LCFLAGS = -I.
 CFLAGS += -DVERSION=\"$(VERSION)\"
 
@@ -69,7 +67,7 @@ domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
 configparser.yy.c: configparser.l configparser.h
-	flex -o $@ $<
+	$(LEX) -o $@ $<
 
 perfalloc: perfalloc.o perflock.o
 
