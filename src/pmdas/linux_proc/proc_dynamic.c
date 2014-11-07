@@ -191,6 +191,7 @@ get_clusters_used( dynproc_group_t dyngroup, int *clusters ){
 	    clusters[numclusters] = curcluster;
 	    numclusters++;
 	    if( numclusters == MAX_CLUSTERS ){
+		// Not sure what to do here. MAX_CLUSTERS is much bigger than any # in use right now
 		fprintf(stderr, "Increase MAX_CLUSTERS in proc_dynamic.  Data is missing\n");
 		return numclusters;
 	    }
@@ -420,7 +421,6 @@ dynamic_proc_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 void
 proc_dynamic_init(pmdaMetric *metrics, int nmetrics)
 {
-    //int set[] = { CLUSTER_PID_SCHEDSTAT };
 
     int clusters[MAX_CLUSTERS];
     int nclusters;
