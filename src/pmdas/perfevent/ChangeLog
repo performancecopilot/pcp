@@ -1,0 +1,28 @@
+1.0.1:
+	Added support for RAPL counters on Intel architectures.
+1.0.0:
+	Updated to compile against 3.8.9
+0.5.0:
+	Updated to compile against 3.8.6
+0.4.0:
+	Added code to disable the counters if another process has a control file
+	lock.
+0.3.8:
+	Changed performance counter configuration on nhm and wsm archs to
+	exactly match the tacc_stats 1.0.2 settings.
+	Fixed typo in AMD64 10h settings.
+	Added support for AMD64 15h.
+	Added support for Nehalem EX.
+	Added support for Westmere EX.
+	Added support for 6 core Sandybridge sockets.
+	Added support for Sandybridge systems with inactive memory controllers.
+	Fixed duty cycle calculation to match documentation.
+0.3.7:
+	Multiplexing support
+0.3.6:
+	Only switch user after the perf_event counters are setup.
+0.3.5:
+	Added fixed counters for nehalem and westmere systems.
+
+0.3.4:
+	Added support for nehalem uncore events.

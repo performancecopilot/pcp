@@ -691,6 +691,7 @@ fmt_pthread
 lib_for_pthreads
 fmt_pid
 rdynamic_flag
+enable_perfevent
 PACKAGE_CONFIGURE
 enable_manager
 enable_webapi
@@ -908,6 +909,7 @@ with_books
 with_papi
 with_manager
 with_webapi
+with_perfevent
 enable_ssp
 enable_pie
 enable_visibility
@@ -1598,6 +1600,7 @@ Optional Packages:
   --with-papi             enable performance api counter pmda (default is on)
   --with-manager          enable daemon manager (default is on)
   --with-webapi           enable REST API daemon (default is on)
+  --with-perfevent        enable perfevent pmda (default is check)
   --with-configdir        configuration directory [LOCALSTATEDIR/pcp/config]
   --with-perl_installdirs perl installdirs [vendor]
   --with-perl_install_base
@@ -2669,6 +2672,14 @@ else
   do_webapi=check
 fi
 
+
+
+# Check whether --with-perfevent was given.
+if test "${with_perfevent+set}" = set; then :
+  withval=$with_perfevent; do_perfevent=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perfevent=$withval"
+else
+  do_perfevent=check
+fi
 
 #
 # Note: the following environment variables may be
@@ -10328,6 +10339,73 @@ fi
 
 
 
+
+if test "$do_perfevent" = "check" -o "$do_perfevent" = "yes"
+then
+    enable_perfevent=true
+    for ac_header in perfmon/pfmlib_perf_event.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "perfmon/pfmlib_perf_event.h" "ac_cv_header_perfmon_pfmlib_perf_event_h" "$ac_includes_default"
+if test "x$ac_cv_header_perfmon_pfmlib_perf_event_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_PERFMON_PFMLIB_PERF_EVENT_H 1
+_ACEOF
+
+else
+   enable_perfevent=false
+fi
+
+done
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pfm_get_os_event_encoding in -lpfm" >&5
+$as_echo_n "checking for pfm_get_os_event_encoding in -lpfm... " >&6; }
+if ${ac_cv_lib_pfm_pfm_get_os_event_encoding+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lpfm  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char pfm_get_os_event_encoding ();
+int
+main ()
+{
+return pfm_get_os_event_encoding ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_pfm_pfm_get_os_event_encoding=yes
+else
+  ac_cv_lib_pfm_pfm_get_os_event_encoding=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pfm_pfm_get_os_event_encoding" >&5
+$as_echo "$ac_cv_lib_pfm_pfm_get_os_event_encoding" >&6; }
+if test "x$ac_cv_lib_pfm_pfm_get_os_event_encoding" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBPFM 1
+_ACEOF
+
+  LIBS="-lpfm $LIBS"
+
+else
+   enable_perfevent=false
+fi
+
+
+fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking return type of signal handlers" >&5
 $as_echo_n "checking return type of signal handlers... " >&6; }

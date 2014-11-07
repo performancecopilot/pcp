@@ -1,0 +1,30 @@
+#!/bin/sh
+# PCP QA Test No. 746
+# Run the test harness for perfevent code.
+#
+# The test harness is designed to check the correct function of the
+# internal perfevent function calls.
+#
+# Copyright (c) 2014 Joe White
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+test -e perfevent/perfevent_test || _notrun "Optional perfevent PMDA not present"
+
+cd perfevent
+
+if ./perfevent_test all 2>/dev/null;
+then
+	echo "Unit tests Passed"
+fi
+
+cd - > /dev/null
+
+exit $status

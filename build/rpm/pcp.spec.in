@@ -51,6 +51,10 @@ BuildRequires: cairo-devel
 BuildRequires: libmicrohttpd-devel
 %endif
 
+%if "@enable_perfevent@" == "true"
+BuildRequires: libpfm-devel >= 4.4
+%endif
+
 Conflicts: pcp-pro < 2.2
 
 # Utilities used indirectly e.g. by scripts we install
@@ -461,6 +465,23 @@ collecting Infiniband statistics.  By default, it monitors the local HCAs
 but can also be configured to monitor remote GUIDs such as IB switches.
 %endif
 
+#
+# pcp-pmda-perfevent
+#
+%if "@enable_perfevent@" == "true"
+%package pmda-perfevent
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for hardware counters
+URL: http://www.performancecopilot.org
+Requires: libpfm >= 4.4
+BuildRequires: libpfm-devel >= 4.4
+
+%description pmda-perfevent
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting hardware counters statistics through libpfm.
+%endif
+
 %prep
 %setup -q
 
@@ -574,7 +595,10 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'infiniband|pmdaib|pmdas/ib' >pmda_infi
 %if "@pmda_papi@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdapapi|pmdas/papi' >pmda_papi_files
 %endif
-touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files
+%if "@enable_perfevent@" == "true"
+awk '{print $NF}' $DIST_MANIFEST | fgrep -e 'perfevent' -e 'perfalloc.1' > pmda_perfevent_files
+%endif
+touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files pmda_perfevent_files
 
 rm -f *_files.rpm
 sort -u $DIST_MANIFEST | $PCP_AWK_PROG ' 
@@ -589,6 +613,7 @@ BEGIN {
     while( getline < "testsuite_files") testsuite[$0]=1;
     while( getline < "pmda_infiniband_files") pmda_infiniband[$0]=1;
     while( getline < "pmda_papi_files") pmda_papi[$0]=1;
+    while( getline < "pmda_perfevent_files") pmda_perfevent[$0]=1;
     while( getline < "import_sar2pcp_files") import_sar2pcp[$0]=1;
     while( getline < "import_iostat2pcp_files") import_iostat2pcp[$0]=1;
     while( getline < "import_sheet2pcp_files") import_sheet2pcp[$0]=1;
@@ -608,6 +633,7 @@ BEGIN {
     else if (testsuite[$NF]) f="testsuite_files.rpm";
     else if (pmda_infiniband[$NF]) f="pmda_infiniband_files.rpm";
     else if (pmda_papi[$NF]) f="pmda_papi_files.rpm";
+    else if (pmda_perfevent[$NF]) f="pmda_perfevent_files.rpm";
     else if (import_sar2pcp[$NF]) f="import_sar2pcp_files.rpm";
     else if (import_iostat2pcp[$NF]) f="import_iostat2pcp_files.rpm";
     else if (import_sheet2pcp[$NF]) f="import_sheet2pcp_files.rpm";
@@ -867,6 +893,11 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %if "@pmda_infiniband@" == "true"
 %files pmda-infiniband -f pmda_infiniband_files.rpm
+%defattr(-,root,root)
+%endif
+
+%if "@enable_perfevent@" == "true"
+%files pmda-perfevent -f pmda_perfevent_files.rpm
 %defattr(-,root,root)
 %endif
 

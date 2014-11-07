@@ -1,0 +1,14 @@
+# This is a comment
+
+[ pmu1 ]
+
+counter0 node # This is also a comment
+counter1 
+counter2	 cpu_rr 
+counter3 node_rr
+counter4 cpu
+
+[ pmu2a pmu2b "pmu2 c" ]
+
+counter1
+counter3
