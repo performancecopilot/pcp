@@ -1030,8 +1030,6 @@ proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
     char		newname[16];		/* see Note below */
     int			sts;
 
-    fprintf(stderr, "proc_instance\n");
-
     switch (indomp->serial) {
     case CPU_INDOM:
 	/*
@@ -1685,8 +1683,6 @@ proc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     int		i, sts, cluster;
     int		need_refresh[NUM_CLUSTERS] = { 0 };
 
-    fprintf(stderr, "proc_fetch\n");
-
     for (i = 0; i < numpmid; i++) {
 	cluster = proc_pmid_cluster(pmidlist[i]);
 	if (cluster >= MIN_CLUSTER && cluster < NUM_CLUSTERS)
@@ -1767,8 +1763,6 @@ static int
 proc_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
 {
 
-    fprintf(stderr, "proc_pmid\n");
-
 
     pmdaNameSpace *tree = pmdaDynamicLookupName(pmda, name);
     if (tree == NULL)
@@ -1783,8 +1777,6 @@ proc_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
 static int
 proc_name(pmID pmid, char ***nameset, pmdaExt *pmda)
 {
-    fprintf(stderr, "proc_name\n");
-
     pmdaNameSpace *tree = pmdaDynamicLookupPMID(pmda, pmid);
     if (tree == NULL)
 	return PM_ERR_PMID;
@@ -1799,17 +1791,13 @@ static int
 proc_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda)
 {
 
-    fprintf(stderr, "proc_children\n");
-
     pmdaNameSpace *tree = pmdaDynamicLookupName(pmda, name);
-    fprintf(stderr, "proc_children2\n");
     if (tree == NULL)
 	return PM_ERR_NAME;
-    //if (pmDebug & DBG_TRACE_APPL2) {
+    if (pmDebug & DBG_TRACE_APPL2) {
 	fprintf(stderr, "proc_children: name=%s flag=%d tree:\n", name, flag);
 	__pmDumpNameNode(stderr, tree->root, 1);
-    //}
-    fprintf(stderr, "proc_children3\n");
+    }
     return pmdaTreeChildren(tree, name, flag, kids, sts);
 }
 

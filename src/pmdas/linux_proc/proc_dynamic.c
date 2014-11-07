@@ -169,8 +169,40 @@ static dynproc_group_t dynproc_groups[] = {
 };
 
 /*
+ * Given a cluster/item return the name
+ */
+
+int
+get_name( int cluster, int item, char *name ){
+
+    unsigned int tree, group, metric;
+
+    int num_dynproc_trees = sizeof(dynproc_members)/sizeof(char*);
+    int num_dynproc_groups = sizeof(dynproc_groups)/sizeof(dynproc_group_t);
+
+    for( tree = 0; tree < num_dynproc_trees; tree++){
+        for( group = 0; group < num_dynproc_groups; group++ ){
+
+            dynproc_metric_t * cur_metrics = dynproc_groups[group].metrics;
+            int num_cur_metrics = dynproc_groups[group].nmetrics;
+
+            for( metric = 0; metric < num_cur_metrics; metric++){
+		int _cluster =  cur_metrics[metric].cluster;
+                int _item =  cur_metrics[metric].item;
+		if( _cluster == cluster && _item == item ){
+		    sprintf( name, "%s.%s", dynproc_groups[group].name, cur_metrics[metric].name); 
+		    return 1;
+		}
+	    }
+	}
+    }
+    return 0;
+}
+
+/*
  * Utility function to give a set of clusters used by a dynproc_metric_t array
  */
+
 
 int
 get_clusters_used( dynproc_group_t dyngroup, int *clusters ){
@@ -235,18 +267,17 @@ static void
 build_dynamic_proc_tree( int domain )
 {
 
-    fprintf(stderr, "proc_dynamic_buildtree\n");
-
     char entry[128];
     pmID pmid;
     //int hotcluster = -1;
+
+    unsigned int num_hash_entries=0;
 
     unsigned int tree, group, metric;
 
     int num_dynproc_trees = sizeof(dynproc_members)/sizeof(char*);
     int num_dynproc_groups = sizeof(dynproc_groups)/sizeof(dynproc_group_t);
 
-    fprintf(stderr, "trees, groups: %d, %d\n", num_dynproc_trees, num_dynproc_groups);
 
     for( tree = 0; tree < num_dynproc_trees; tree++){
 	for( group = 0; group < num_dynproc_groups; group++ ){
@@ -254,19 +285,17 @@ build_dynamic_proc_tree( int domain )
 	    dynproc_metric_t * cur_metrics = dynproc_groups[group].metrics;
 	    int num_cur_metrics = dynproc_groups[group].nmetrics;
 
-	    fprintf(stderr, "metrics: %d\n", num_cur_metrics);
-
 	    for( metric = 0; metric < num_cur_metrics; metric++){
 
 		snprintf(entry, sizeof(entry), "%s.%s.%s", dynproc_members[tree], dynproc_groups[group].name, cur_metrics[metric].name);
-
-		fprintf(stderr, "Adding: %s\n", entry);
 
 		int cluster =  cur_metrics[metric].cluster;
 		int item =  cur_metrics[metric].item;
 
 		pmid = pmid_build(domain, cluster, item);
 		__pmAddPMNSNode(dynamic_proc_tree, pmid, entry);
+
+		num_hash_entries++;
 
 		/* This should always be true */
 		//if( (hotcluster = get_hotproc_cluster( cluster )) != -1  ){
@@ -280,7 +309,7 @@ build_dynamic_proc_tree( int domain )
 	}
     }
 
-    fprintf(stderr, "build tree end\n");
+    pmdaTreeRebuildHash( dynamic_proc_tree, num_hash_entries );
 
 }
 
@@ -299,10 +328,8 @@ static void
 refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int id)
 {
 
-    fprintf(stderr, "proc_dynamic_refresh_metrictable\n");
-
-    int domain = pmid_domain(source->m_desc.pmid);
-    int cluster = pmid_cluster(source->m_desc.pmid);
+    //int domain = pmid_domain(source->m_desc.pmid);
+    //int cluster = pmid_cluster(source->m_desc.pmid);
     //int hotcluster = -1;
 
     memcpy(dest, source, sizeof(pmdaMetric));
@@ -322,11 +349,6 @@ refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int id)
 
     */
 
-        fprintf(stderr, "dynamic_proc refresh_metrictable: (%p -> %p) "
-                        "metric ID dup: %d.%d.%d -> %d.%d.%d\n",
-                source, dest, domain, cluster,
-                pmid_item(source->m_desc.pmid), domain, cluster, id);
-
 }
 
 
@@ -339,8 +361,6 @@ refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int id)
 static int
 refresh_dynamic_proc(pmdaExt *pmda, __pmnsTree **tree)
 {
-
-    fprintf(stderr, "proc_dynamic_refresh\n");
 
     int sts, dom = pmda->e_domain;
 
@@ -369,8 +389,6 @@ static void
 size_metrictable(int *total, int *trees)
 {
 
-    fprintf(stderr, "proc_dynamic_size\n");
-
     int i, num_leaf_nodes = 0;
 
     int num_dyn_groups =  sizeof(dynproc_groups)/sizeof(dynproc_group_t);
@@ -387,26 +405,34 @@ size_metrictable(int *total, int *trees)
                 *total, *trees);
 }
 
-char *dummy_text;
+#include "help_text.h"
 
 static int
 dynamic_proc_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 {
-    fprintf(stderr, "proc_dynamic_text\n");
+    int item = pmid_item(pmid);
+    int cluster = pmid_cluster(pmid);
 
-    //int item = pmid_item(pmid);
-    //int cluster = pmid_cluster(pmid);
+    char name[128];
 
-    static int started = 0;
-
-    if (!started){
-	dummy_text = strdup("dummy help text");
-	started = 1;
+    if( get_name( cluster, item, name )){
+    
+        int i=0;
+        int num_help_entries = sizeof(help_text)/sizeof(help_text_t);
+        for(i=0; i < num_help_entries; i++){
+	    if( strcmp(name, help_text[i].name) == 0 ){
+		if( (type & PM_TEXT_ONELINE) || help_text[i].longhelp[0] =='\0' ){
+		    *buf = help_text[i].shorthelp;
+		}
+		else{
+		    *buf = help_text[i].longhelp;
+		}
+		return 0;
+	    }
+	}
     }
-
-    *buf = dummy_text;
+    *buf = "";
     return 0;
-
 }
 
 
@@ -427,8 +453,6 @@ proc_dynamic_init(pmdaMetric *metrics, int nmetrics)
 
     char treename[128];
 
-    fprintf(stderr, "proc_dynamic_init\n");
-
     int i,j;
     int num_dyngroups = sizeof(dynproc_groups)/sizeof(dynproc_group_t);
     int num_dyntrees = sizeof(dynproc_members)/sizeof(char*);
@@ -440,7 +464,6 @@ proc_dynamic_init(pmdaMetric *metrics, int nmetrics)
 	for(j=0; j< num_dyntrees; j++){
 
 	    sprintf(treename, "%s.%s", dynproc_members[j], dynproc_groups[i].name);
-	    fprintf(stderr, "Adding tree: %s, with %d clusters\n", treename,nclusters);
 
 	    // Should the strdup/memcpy be inside pmdaDynamicPMNS? currently it just assignes the pointer, assuming a string literal or other static type.
 	    pmdaDynamicPMNS(strdup(treename),
