@@ -99,9 +99,11 @@ endif
 
 # Dealing with quirks of the various packaging mechanisms
 %.py: %.python
+	rm -f $@
 	$(LN_S) $< $@
 
 %.pl: %.perl
+	rm -f $@
 	$(LN_S) $< $@
 
 # Suffix rule to support transition for XML to PDF (books)
