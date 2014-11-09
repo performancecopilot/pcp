@@ -115,22 +115,40 @@ cat $tmp.err >> $seq.full
 # should fail due to -N
 curl -s -S "http://localhost:44323/pmapi/context?local=anything" | _webapi_response_filter
 echo
+
 # should fail due to nonexistent context#
 curl -s -S "http://localhost:44323/pmapi/2225/_fetch" | _webapi_response_filter
 echo
+
 # should fail with a different error (insufficient elements; ie pmFetch failed) 
 # NB: the curl -v part reports http headers too, for ACAO presence assertion
 curl -s -v -S "http://localhost:44323/pmapi/2222/_fetch?names=" 2>&1 | _webapi_response_filter
 echo
+
 # should fail with a different error (insufficient elements; ie pmFetch failed) 
 curl -s -S "http://localhost:44323/pmapi/2223/_fetch?pmids=" | _webapi_response_filter
 echo
+
+# filter for responses from newer microhttpd libraries, where
+# symlink paths are rewritten (with verbose diagnostics that
+# indicate this, also).
+# Note: the request below must still generate a 400 response.
+_symlink_response_filter()
+{
+    sed \
+	-e 's,/../../etc/passwd,/etc/passwd,g' \
+	-e '/Rebuilt URL to:.*\/etc\/passwd/d' \
+    #end
+}
+
 # should fail due to suspicious pmresapi path name
-curl -s -v -S "http://localhost:44323/../../etc/passwd" 2>&1 | _webapi_response_filter
+curl -s -v -S "http://localhost:44323/../../etc/passwd" 2>&1 | _webapi_response_filter | _symlink_response_filter
+
 echo
 # should fail due to non-enablement of graphite
 curl -s -v -S "http://localhost:44323/graphite/render?target=*" 2>&1 | _webapi_response_filter
 echo
+
 # should pass, feed this very script
 curl -s -S "http://localhost:44323/$seq" > $tmp.out2
 diff $tmp.out2 $0 && echo file service ok
