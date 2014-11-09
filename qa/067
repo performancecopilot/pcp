@@ -90,21 +90,21 @@ trap cleanup 0
 domain=246
 if [ $PCP_PLATFORM = linux ]
 then
-    cat >$tmp  <<End-of-file
+    cat >$tmp.config <<End-of-file
 linux	60	dso	linux_init	$PCP_PMDAS_DIR/linux/pmda_linux.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 test	$domain	socket	inet 2222
 End-of-file
 elif [ $PCP_PLATFORM = darwin ]
 then
-    cat >$tmp  <<End-of-file
+    cat >$tmp.config <<End-of-file
 darwin	78	dso	darwin_init	$PCP_PMDAS_DIR/darwin/pmda_darwin.dylib
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.dylib
 test	$domain	socket	inet 2222
 End-of-file
 elif [ $PCP_PLATFORM = solaris ]
 then
-    cat >>$tmp  <<End-of-File
+    cat >>$tmp.config <<End-of-File
 solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 test	$domain	socket	inet 2222
@@ -144,7 +144,7 @@ netstat -an \
 echo
 
 _save_config $PCP_PMCDCONF_PATH
-$sudo cp $tmp $PCP_PMCDCONF_PATH
+$sudo cp $tmp.config $PCP_PMCDCONF_PATH
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 && $sudo sh $tmp.cmd
 $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start

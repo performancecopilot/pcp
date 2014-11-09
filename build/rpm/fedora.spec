@@ -1,10 +1,10 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.10.0
+Version: 3.10.1
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
-License: GPLv2+ and LGPLv2.1+
+License: GPLv2+ and LGPLv2.1+ and CC-BY
 URL: http://www.pcp.io
 Group: Applications/System
 Source0: pcp-%{version}.src.tar.gz
@@ -17,6 +17,7 @@ Source1: pcp-webjs.src.tar.gz
 %{!?disable_papi: %global disable_papi 0%{?rhel} < 6}
 %endif
 %define disable_microhttpd 0
+%define disable_cairo 0
 %if 0%{?rhel} == 0 || 0%{?rhel} > 6
 %define disable_python3 0
 %else
@@ -45,6 +46,9 @@ BuildRequires: papi-devel
 %endif
 %if !%{disable_microhttpd}
 BuildRequires: libmicrohttpd-devel
+%endif
+%if !%{disable_cairo}
+BuildRequires: cairo-devel
 %endif
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 BuildRequires: systemtap-sdt-devel
@@ -155,7 +159,6 @@ License: LGPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot run-time libraries
 URL: http://www.pcp.io
-
 Requires: pcp-conf = %{version}-%{release}
 
 %description libs
@@ -198,7 +201,6 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) manager daemon
 URL: http://www.pcp.io
-
 Requires: pcp = %{version}-%{release}
 Requires: pcp-libs = %{version}-%{release}
 
@@ -223,8 +225,6 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) web API service
 URL: http://www.pcp.io
-
-Requires: pcp = %{version}-%{release}
 Requires: pcp-libs = %{version}-%{release}
 
 %description webapi
@@ -245,9 +245,6 @@ BuildArch: noarch
 %endif
 Summary: Performance Co-Pilot (PCP) web applications
 URL: http://www.pcp.io
-
-Requires: pcp-libs = %{version}-%{release}
-Requires: pcp-webapi = %{version}-%{release}
 
 %description webjs
 Javascript web application content for the Performance Co-Pilot (PCP)
@@ -393,7 +390,6 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for Performance API and hardware counters
 URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
-Requires: papi-devel
 BuildRequires: papi-devel
 
 %description pmda-papi
@@ -474,6 +470,7 @@ monitoring systems using live and archived Performance Co-Pilot
 # pcp-doc package
 #
 %package -n pcp-doc
+License: GPLv2+ and CC-BY
 Group: Documentation
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 BuildArch: noarch
@@ -527,7 +524,8 @@ rm -fr $RPM_BUILD_ROOT/%{_initddir}/pmwebd
 rm -fr $RPM_BUILD_ROOT/%{_unitdir}/pmwebd.service
 rm -f $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin/pmwebd
 %else
-mv pcp-webjs $RPM_BUILD_ROOT/%{_datadir}/pcp/jsdemos
+mv pcp-webjs/* $RPM_BUILD_ROOT/%{_datadir}/pcp/webapps
+rmdir pcp-webjs
 %endif
 
 %if %{disable_infiniband}
@@ -915,6 +913,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %attr(0775,pcp,pcp) %{_logsdir}/pmwebd
 %{_confdir}/pmwebd
 %config(noreplace) %{_confdir}/pmwebd/pmwebd.options
+%dir %{_datadir}/pcp/webapps
 %{_mandir}/man1/pmwebd.1.gz
 %{_mandir}/man3/PMWEBAPI.3.gz
 %endif
@@ -922,7 +921,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %if !%{disable_microhttpd}
 %files webjs
 %defattr(-,root,root)
-%{_datadir}/pcp/jsdemos
+%{_datadir}/pcp/webapps/*
 %endif
 
 %files manager
@@ -1008,8 +1007,12 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root,-)
 
 %changelog
+* Mon Dec 01 2014 Dave Brolley <brolley@redhat.com> - 3.10.1-1
+- Currently under development.
+
 * Fri Oct 31 2014 Nathan Scott <nathans@redhat.com> - 3.10.0-1
 - Create new sub-packages for pcp-webjs and python3-pcp.
+- Fix __pmDiscoverServicesWithOptions(1) codes (BZ 1139529)
 - Update to latest PCP sources.
 
 * Fri Sep 05 2014 Nathan Scott <nathans@redhat.com> - 3.9.10-1

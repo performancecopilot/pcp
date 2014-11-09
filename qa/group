@@ -878,7 +878,8 @@ avahi
 654 pmda.gfs2 local
 655 pmda.gfs2 local
 660 pmwebapi local
-660:reserved pmmgr local
+661 pmwebapi local
+666:reserved pmmgr local
 701 pmlogcheck local
 702 python libpcp local
 703 pmda.weblog local
@@ -1005,6 +1006,7 @@ avahi
 991 python local
 994 other verify
 996 pmdiff local
+997 pmlogextract local
 999 pmns local
 1000 pmdumptext local
 1001 pmchart local

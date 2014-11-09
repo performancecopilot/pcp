@@ -2,7 +2,7 @@ Summary: System-level performance monitoring and performance management
 Name: @package_name@
 Version: @package_version@
 Release: @package_release@@package_sgirelease@
-License: GPLv2+ and LGPLv2.1+
+License: GPLv2+ and LGPLv2.1+ and CC-BY
 URL: http://www.pcp.io
 Group: Applications/System
 Source: @package_name@-@package_version@.src.tar.gz
@@ -133,7 +133,6 @@ License: LGPLv2.1+
 Group: Development/Libraries
 Summary: Performance Co-Pilot run-time libraries
 URL: http://www.pcp.io
-
 Requires: pcp-conf = @package_version@
 Obsoletes: pcp < 3.0
 
@@ -148,7 +147,6 @@ License: GPLv2+ and LGPLv2.1+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) development headers and documentation
 URL: http://www.pcp.io
-
 Requires: pcp-libs = @package_version@
 
 %description libs-devel
@@ -162,11 +160,9 @@ License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) test suite
 URL: http://www.pcp.io
-
 Requires: pcp = @package_version@
 Requires: pcp-libs = @package_version@
 Requires: pcp-libs-devel = @package_version@
-# Suggests: valgrind, nmap
 Obsoletes: pcp-gui-testsuite
 
 %description testsuite
@@ -181,7 +177,6 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) manager daemon
 URL: http://www.performancecopilot.org
-
 Requires: pcp = @package_version@
 Requires: pcp-libs = @package_version@
 
@@ -207,8 +202,6 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) web API service
 URL: http://www.performancecopilot.org
-
-Requires: pcp = @package_version@
 Requires: pcp-libs = @package_version@
 
 %description webapi
@@ -411,6 +404,7 @@ monitoring systems using live and archived Performance Co-Pilot
 # pcp-doc package
 #
 %package -n pcp-doc
+License: GPLv2+ and CC-BY
 Group: Documentation
 # BuildArch: requires rpm 4.6 or later ... ./get_rpm_vesion maps version
 # 4.6.2.3 to the 7-digit "number" 4060203
@@ -441,7 +435,6 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for Performance API and hardware counters
 URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
-Requires: papi-devel
 BuildRequires: papi-devel
 
 %description pmda-papi
