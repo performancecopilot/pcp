@@ -14,26 +14,31 @@ unset HTTP_PROXY
 _webapi_header_filter()
 {
     tee -a $seq.full \
+    | col -b \
     | sed \
 	-e 's/^\(Content-Length:\) [0-9][0-9]*/\1 SIZE/g' \
 	-e 's/^\(Date:\).*/\1 DATE/g' \
 	-e 's/\(\"context\":\) [0-9][0-9]*/\1 CTXID/g' \
-    | LC_COLLATE=POSIX sort \
-    | col -b	# remove DOS line endings
+	-e '/^Connection: Keep-Alive/d' \
+    | LC_COLLATE=POSIX sort
 }
 
 _webapi_response_filter()
 {
-    tee -a $seq.full | \
-    sed -e 's,#[0-9]*,####,g' \
+    tee -a $seq.full \
+    | sed -e 's,#[0-9]*,####,g' \
         -e 's/ connected$//g' \
-        -e '/\* Closing connection ####/d' \
+        -e '/^\* Adding handle: /d' \
+        -e '/^\* Closing connection ####/d' \
+        -e '/- Conn .*_pipe.*_pipe/d' \
+        -e '/Curl_[\.a-zA-Z0-9]*:/d' \
         -e 's/::1/LOCALADDR/g' \
         -e 's/127\.0\.0\.1/LOCALADDR/g' \
         -e 's/PMWEBD error, .*/PMWEBD error, XXX/g' \
         -e 's/localhost[\.a-zA-Z0-9]*/LOCALHOST/g' \
         -e 's/Date:.*/Date: DATE/' \
         -e 's/User-Agent:.*/User-Agent: FOO/' \
+	-e '/Connection: Keep-Alive/d' \
     # end
 }
 
