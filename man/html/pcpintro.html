@@ -149,7 +149,7 @@ where <I>number</I> is an integer or floating point constant (parsed using <B>st
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>PMCD and Archive Versions</B></FONT></P></TD></TR>
 </TABLE>
-<P>Since PCP version 2, version information has been associated with <B>pmcd</B>(1) and PCP archives.  The version number is used in a number of ways, but most noticeably for the distributed pmns(4).  In PCP version 1, the client applications would load the PMNS from the default PMNS file but in PCP version 2, the client applications extract the PMNS information from <B>pmcd</B> or a PCP archive.  Thus in PCP version 2, the version number is used to determine if the PMNS to use is from the default local file or from the actual current source of the metrics.
+<P>Since PCP version 2, version information has been associated with <B>pmcd</B>(1) and PCP archives.  The version number is used in a number of ways, but most noticeably for the distributed pmns(5).  In PCP version 1, the client applications would load the PMNS from the default PMNS file but in PCP version 2, the client applications extract the PMNS information from <B>pmcd</B> or a PCP archive.  Thus in PCP version 2, the version number is used to determine if the PMNS to use is from the default local file or from the actual current source of the metrics.
 <P>&nbsp;</P>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>Environment</B></FONT></P></TD></TR>
@@ -193,7 +193,7 @@ where <I>number</I> is an integer or floating point constant (parsed using <B>st
 	<TR><TD WIDTH="25%"><P><B>PMDA_LOCAL_SAMPLE</B></P></TD>
 	    <TD><P>If set, then a context established with the type of PM_CONTEXT_LOCAL will have access to the ‘‘sample’’ PMDA if this optional PMDA has been installed locally.</P></TD></TR>
 	<TR><TD WIDTH="25%"><P><B>PMIECONF_PATH</B></P></TD>
-	    <TD><P>If set, <B>pmieconf</B>(1) will form its <B>pmieconf</B>(4) specification (set of parameterized <B>pmie</B>(1) rules) using all valid <B>pmieconf</B> files found below each subdirectory in this colon-separated list of subdirectories.  If not set, the default is $PCP_VAR_DIR/config/pmieconf.</P></TD></TR>
+            <TD><P>If set, <B>pmieconf</B>(1) will form its <B>pmieconf</B>(5) specification (set of parameterized <B>pmie</B>(1) rules) using all valid <B>pmieconf</B> files found below each subdirectory in this colon-separated list of subdirectories.  If not set, the default is $PCP_VAR_DIR/config/pmieconf.</P></TD></TR>
 </TABLE>
 <P>&nbsp;</P>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
@@ -202,7 +202,7 @@ where <I>number</I> is an integer or floating point constant (parsed using <B>st
 <P>&nbsp;</P>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
 	<TR><TD WIDTH="25%"><P><B>/etc/pcp.conf</B></P></TD>
-	    <TD><P>Configuration file for the PCP runtime environment, see <B>pcp.conf</B>(4).</P></TD></TR>
+            <TD><P>Configuration file for the PCP runtime environment, see <B>pcp.conf</B>(5).</P></TD></TR>
 	<TR><TD WIDTH="25%"><P><B>$PCP_RC_DIR/pcp</B></P></TD>
 	    <TD><P>Script for starting and stopping <B>pmcd</B>(1).</P></TD></TR>
 	<TR><TD WIDTH="25%"><P><B>$PCP_PMCDCONF_PATH</B></P></TD>
@@ -229,7 +229,7 @@ where <I>number</I> is an integer or floating point constant (parsed using <B>st
 	<TR><TD WIDTH="25%"><P><B>$PCP_VAR_DIR/config/pmcd/rc.local</B></P></TD>
 	    <TD><P>Local script for controlling PCP boot, shutdown and restart actions.</P></TD></TR>
 	<TR><TD WIDTH="25%"><P><B>$PCP_VAR_DIR/pmns/root</B></P></TD>
-	    <TD><P>The ASCII <B>$PCP_LOG_DIR/NOTICES/pmns</B>(4) exported by <B>pmcd</B>(1) by default.  This PMNS is be the super set of all other PMNS files installed in <B>$PCP_VAR_DIR/pmns</B>.</P></TD></TR>
+            <TD><P>The ASCII <B>$PCP_LOG_DIR/NOTICES/pmns</B>(5) exported by <B>pmcd</B>(1) by default.  This PMNS is be the super set of all other PMNS files installed in <B>$PCP_VAR_DIR/pmns</B>.</P></TD></TR>
 	<TR><TD WIDTH="25%"><P><B>$PCP_LOG_DIR/NOTICES</B></P></TD>
 	    <TD><P>In addition to the <B>pmcd</B>(1) and PMDA activity, may be used to log alarms and notices from <B>pmie</B>(1) via <B>pmpost</B>(1). </P></TD></TR>
 	<TR><TD WIDTH="25%"><P><B>$PCP_VAR_DIR/config/pmlogger/control</B></P></TD>
@@ -239,7 +239,7 @@ where <I>number</I> is an integer or floating point constant (parsed using <B>st
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B>PCP Environment</B></FONT></P></TD></TR>
 </TABLE>
-<P>Environment variables with the prefix PCP_ are used to parameterize the file and directory names used by PCP.  On each installation, the file <B>/etc/pcp.conf</B> contains the local values for these variables.  The <B>$PCP_CONF</B> variable may be used to specify an alternative configuration file, as described in <B>pcp.conf</B>(4).
+<P>Environment variables with the prefix PCP_ are used to parameterize the file and directory names used by PCP.  On each installation, the file <B>/etc/pcp.conf</B> contains the local values for these variables.  The <B>$PCP_CONF</B> variable may be used to specify an alternative configuration file, as described in <B>pcp.conf</B>(5).
 <HR>
 <CENTER>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0>
