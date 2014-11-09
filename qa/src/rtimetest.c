@@ -63,6 +63,37 @@ main(int argc, char *argv[])
     char *errmsg;
     char *tmtmp_str;
     char *tz;
+    int errflag = 0;
+    char c;
+    int sts;
+
+    __pmSetProgname(argv[0]);
+
+    while ((c = getopt(argc, argv, "D:?")) != EOF) {
+	switch (c) {
+
+	case 'D':	/* debug flag */
+	    sts = __pmParseDebug(optarg);
+	    if (sts < 0) {
+		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		    pmProgname, optarg);
+		errflag++;
+	    }
+	    else
+		pmDebug |= sts;
+	    break;
+
+	case '?':
+	default:
+	    errflag++;
+	    break;
+	}
+    }
+
+    if (errflag) {
+	fprintf(stderr, "Usage: %s [-D debug] [strftime_fmt ...]\n", pmProgname);
+	exit(1);
+    }
 
     ttstart = 1392649730;	// time(&ttstart) => time_t
     ttstart = 1390057730;
@@ -140,33 +171,68 @@ main(int argc, char *argv[])
 
     int sfx;
     for (sfx = 0; sfx < (sizeof(strftime_fmt) / sizeof(void *)); sfx++) {
-	int len = strftime(buffer, sizeof(buffer), strftime_fmt[sfx], &tmtmp);
+	char *fmt = strftime_fmt[sfx];
+	int len;
+
+	if (argc > 1) {
+	    /* over-ride from command line */
+	    if (sfx+1 >= argc) return 0;
+	    fmt = argv[sfx+1];
+	}
+
+	if (pmDebug & DBG_TRACE_APPL0)
+	    fprintf(stderr, "tmtmp: sec=%d min=%d hour=%d mday=%d mon=%d year=%d wday=%d yday=%d isdst=%d\n",
+		tmtmp.tm_sec, tmtmp.tm_min, tmtmp.tm_hour, tmtmp.tm_mday,
+		tmtmp.tm_mon, tmtmp.tm_year, tmtmp.tm_wday, tmtmp.tm_yday,
+		tmtmp.tm_isdst);
+
+	len = strftime(buffer, sizeof(buffer), fmt, &tmtmp);
 	if (len != 0) {
 	    struct timeval  rsltStart;
 	    struct timeval  rsltEnd;
 	    struct timeval  rsltOffset;
-	    if (strcmp(strftime_fmt[sfx], "now") == 0)
+	    if (strcmp(fmt, "now") == 0)
 		printf
 		    ("These time terms for a specific day are relative to the current time.\n");
 	    if (__pmParseTime(buffer, &tvstart, &tvend, &tvrslt, &errmsg) != 0) {
 		printf ("%s: %s\n", errmsg, tmtmp_str);
 	    }
 	    localtime_r(&tvrslt.tv_sec, &tmrslt);	// time_t => tm
+
+	    if (pmDebug & DBG_TRACE_APPL0)
+		fprintf(stderr, "tmrslt: sec=%d min=%d hour=%d mday=%d mon=%d year=%d wday=%d yday=%d isdst=%d\n",
+		    tmrslt.tm_sec, tmrslt.tm_min, tmrslt.tm_hour, tmrslt.tm_mday,
+		    tmrslt.tm_mon, tmrslt.tm_year, tmrslt.tm_wday, tmrslt.tm_yday,
+		    tmrslt.tm_isdst);
+
 	    printf("#1 ");
 	    dump_dt(buffer, &tmrslt);
 	    if (pmParseTimeWindow(buffer, NULL, NULL, NULL, &tvstart, &tvend, &rsltStart, &rsltEnd, &rsltOffset, &errmsg) < 0) {
 		printf ("%s: %s\n", errmsg, tmtmp_str);
 	    }
 	    localtime_r(&rsltStart.tv_sec, &tmrslt);	// time_t => tm
+
+	    if (pmDebug & DBG_TRACE_APPL0)
+		fprintf(stderr, "tmrslt: sec=%d min=%d hour=%d mday=%d mon=%d year=%d wday=%d yday=%d isdst=%d\n",
+		    tmrslt.tm_sec, tmrslt.tm_min, tmrslt.tm_hour, tmrslt.tm_mday,
+		    tmrslt.tm_mon, tmrslt.tm_year, tmrslt.tm_wday, tmrslt.tm_yday,
+		    tmrslt.tm_isdst);
+
 	    printf("#2 ");
 	    dump_dt(buffer, &tmrslt);
 	    localtime_r(&rsltEnd.tv_sec, &tmrslt);	// time_t => tm
+
+	    if (pmDebug & DBG_TRACE_APPL0)
+		fprintf(stderr, "tmrslt: sec=%d min=%d hour=%d mday=%d mon=%d year=%d wday=%d yday=%d isdst=%d\n",
+		    tmrslt.tm_sec, tmrslt.tm_min, tmrslt.tm_hour, tmrslt.tm_mday,
+		    tmrslt.tm_mon, tmrslt.tm_year, tmrslt.tm_wday, tmrslt.tm_yday,
+		    tmrslt.tm_isdst);
+
 	    printf("#3 ");
 	    dump_dt(buffer, &tmrslt);
 	}
 	else
-	    printf("strftime format \"%s\" not recognized\n",
-		   strftime_fmt[sfx]);
+	    printf("strftime format \"%s\" not recognized\n", fmt);
     }
 
     return 0;
