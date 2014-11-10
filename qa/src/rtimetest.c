@@ -174,10 +174,11 @@ main(int argc, char *argv[])
 	char *fmt = strftime_fmt[sfx];
 	int len;
 
-	if (argc > 1) {
+	/* non-flag args are argv[optind] ... argv[argc-1] */
+	if (optind < argc) {
 	    /* over-ride from command line */
-	    if (sfx+1 >= argc) return 0;
-	    fmt = argv[sfx+1];
+	    if (sfx+optind >= argc) return 0;
+	    fmt = argv[sfx+optind];
 	}
 
 	if (pmDebug & DBG_TRACE_APPL0)
