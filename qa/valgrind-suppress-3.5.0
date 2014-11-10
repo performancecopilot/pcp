@@ -6,3 +6,13 @@
    fun:__pmLogFetch
    fun:pmFetch
 }
+{
+    vm04: for qa/400, qa/731 and qa/957
+    Memcheck:Leak
+    fun:malloc
+    fun:load
+    fun:pmGetPMNSLocation
+    fun:GetLocation
+    fun:TraversePMNS
+}
+
