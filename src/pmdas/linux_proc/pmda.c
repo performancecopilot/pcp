@@ -1002,9 +1002,6 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
 	need_refresh_mtab |= refresh_cgroups(pmda, NULL);
     }
 
-    if (need_refresh_mtab)
-	pmdaDynamicMetricTable(pmda);
-
     if (need_refresh[CLUSTER_PID_STAT] ||
 	need_refresh[CLUSTER_PID_STATM] || 
 	need_refresh[CLUSTER_PID_STATUS] ||
@@ -1013,10 +1010,13 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
 	need_refresh[CLUSTER_PID_CGROUP] ||
 	need_refresh[CLUSTER_PID_SCHEDSTAT] ||
 	need_refresh[CLUSTER_PID_FD]) {
-	refresh_proc_pid(&proc_pid,
+	need_refresh_mtab |= refresh_proc_pid(&proc_pid,
 			proc_ctx_threads(pmda->e_context, threads),
 			proc_ctx_cgroups(pmda->e_context, cgroups));
     }
+
+    if (need_refresh_mtab)
+	pmdaDynamicMetricTable(pmda);
 
     if (need_refresh[CLUSTER_PROC_RUNQ])
 	refresh_proc_runq(&proc_runq);
@@ -1762,6 +1762,8 @@ proc_text(int ident, int type, char **buf, pmdaExt *pmda)
 static int
 proc_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
 {
+
+
     pmdaNameSpace *tree = pmdaDynamicLookupName(pmda, name);
     if (tree == NULL)
 	return PM_ERR_NAME;
@@ -1788,6 +1790,7 @@ proc_name(pmID pmid, char ***nameset, pmdaExt *pmda)
 static int
 proc_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda)
 {
+
     pmdaNameSpace *tree = pmdaDynamicLookupName(pmda, name);
     if (tree == NULL)
 	return PM_ERR_NAME;
@@ -1881,6 +1884,8 @@ proc_init(pmdaInterface *dp)
 
     cgroup_init(metrictab, nmetrics);
     proc_ctx_init();
+
+    proc_dynamic_init(metrictab, nmetrics);
 
     pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
     pmdaInit(dp, indomtab, nindoms, metrictab, nmetrics);
