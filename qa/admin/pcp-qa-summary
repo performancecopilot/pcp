@@ -101,6 +101,7 @@ _what()
 echo "==== QA Summary ===="
 echo
 echo "Date        Run Pass Fail Nrun Host"
+numqahosts=0
 for vm
 do
     cd $HOME/Logs/by-vm
@@ -237,6 +238,7 @@ END		{ print NR,": END state=" state >"'$tmp.dbg'"
     then
 	sort $tmp.found
 	cat $tmp.found >>$tmp.counts
+	numqahosts=`expr $numqahosts + 1`
     else
 	if [ -f $tmp.seen ]
 	then
@@ -255,6 +257,8 @@ then
 	{ nrun += $2; nfail += $4 }
 END	{ printf "Summary: %d run, %d failed (%.2f%%)\n", nrun, nfail, 100*nfail/nrun }'
 fi
+
+echo numqahosts=$numqahosts
 
 if [ -f $tmp.map ]
 then
@@ -304,7 +308,7 @@ $1 != last	{ if (last != "---") {
 		      for (i = 0; i < nh; i++) {
 			  if (fail[i] != " ") pct++
 		      }
-		      printf " %3d%%",int(0.5+100*pct/nh)
+		      printf " %3d%%",int(0.5+100*pct/'$numqahosts')
 		      for (i = 0; i < nh; i++) {
 			  printf " %2.2s",fail[i]
 		      }
