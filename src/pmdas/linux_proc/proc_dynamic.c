@@ -28,8 +28,24 @@ enum {
 
 enum {
     DYNPROC_PROC = 0,
+    DYNPROC_HOTPROC = 1,
     NUM_DYNPROC_TREES
 };
+
+/*
+ * Map proc cluster id's to new hotproc varients that don't conflict
+ */
+
+static int proc_hotproc_cluster_list[][2] = {
+	{ CLUSTER_PID_STAT,	    CLUSTER_HOTPROC_PID_STAT },
+	{ CLUSTER_PID_STATM,	    CLUSTER_HOTPROC_PID_STATM },
+	{ CLUSTER_PID_CGROUP,	    CLUSTER_HOTPROC_PID_CGROUP },
+	{ CLUSTER_PID_LABEL,	    CLUSTER_HOTPROC_PID_LABEL },
+	{ CLUSTER_PID_STATUS,	    CLUSTER_HOTPROC_PID_STATUS },
+	{ CLUSTER_PID_SCHEDSTAT,    CLUSTER_HOTPROC_PID_SCHEDSTAT },
+	{ CLUSTER_PID_IO,	    CLUSTER_HOTPROC_PID_IO },
+	{ CLUSTER_PID_FD,	    CLUSTER_HOTPROC_PID_FD } };
+
 
 typedef struct {
     char		*name;
@@ -40,7 +56,7 @@ typedef struct {
 
 static const char *dynproc_members[] = {
 	[DYNPROC_PROC]	    = "proc",
-	//[DYNPROC_HOTPROC]   = "hotproc",
+	[DYNPROC_HOTPROC]   = "hotproc",
 };
 
 static dynproc_metric_t psinfo_metrics[] = {
@@ -169,6 +185,24 @@ static dynproc_group_t dynproc_groups[] = {
 };
 
 /*
+ * Get the hotproc cluster that corresponds to this proc cluster
+ */
+
+int
+get_hot_cluster( int proc_cluster ){
+    int i;
+
+    int num_mapings = sizeof(proc_hotproc_cluster_list)/(sizeof(int)*2);
+
+    for(i=0; i<num_mapings; i++){
+	if( proc_hotproc_cluster_list[i][0] == proc_cluster ){
+	    return proc_hotproc_cluster_list[i][1];
+	}
+    }
+    return -1;
+}
+
+/*
  * Given a cluster/item return the name
  */
 
@@ -188,6 +222,9 @@ get_name( int cluster, int item, char *name ){
 
             for( metric = 0; metric < num_cur_metrics; metric++){
 		int _cluster =  cur_metrics[metric].cluster;
+		if( tree == DYNPROC_HOTPROC ){
+		    _cluster = get_hot_cluster( _cluster );
+		}
                 int _item =  cur_metrics[metric].item;
 		if( _cluster == cluster && _item == item ){
 		    sprintf( name, "%s.%s", dynproc_groups[group].name, cur_metrics[metric].name); 
@@ -233,35 +270,6 @@ get_clusters_used( dynproc_group_t dyngroup, int *clusters ){
     return numclusters;
 }
 
-/*
- * Map proc cluster id's to new hotproc varients that don't conflict
- */
-/*
-static int
-get_hotproc_cluster( int cluster )
-{
-    switch(cluster){
-        case CLUSTER_PID_STAT:
-                return CLUSTER_HOTPROC_PID_STAT;
-        case CLUSTER_PID_STATM:
-                return CLUSTER_HOTPROC_PID_STATM;
-        case CLUSTER_PID_CGROUP:
-                return CLUSTER_HOTPROC_PID_CGROUP;
-        case CLUSTER_PID_LABEL:
-                return CLUSTER_HOTPROC_PID_LABEL;
-        case CLUSTER_PID_STATUS:
-                return CLUSTER_HOTPROC_PID_STATUS;
-        case CLUSTER_PID_SCHEDSTAT:
-                return CLUSTER_HOTPROC_PID_SCHEDSTAT;
-        case CLUSTER_PID_IO:
-                return CLUSTER_HOTPROC_PID_IO;
-        case CLUSTER_PID_FD:
-                return CLUSTER_HOTPROC_PID_FD;
-        default:
-                return -1;
-        }
-}
-*/
 
 static void
 build_dynamic_proc_tree( int domain )
@@ -269,7 +277,6 @@ build_dynamic_proc_tree( int domain )
 
     char entry[128];
     pmID pmid;
-    //int hotcluster = -1;
 
     unsigned int num_hash_entries=0;
 
@@ -292,19 +299,14 @@ build_dynamic_proc_tree( int domain )
 		int cluster =  cur_metrics[metric].cluster;
 		int item =  cur_metrics[metric].item;
 
+		if( tree == DYNPROC_HOTPROC ){
+		    cluster = get_hot_cluster( cluster );
+		}
+
 		pmid = pmid_build(domain, cluster, item);
 		__pmAddPMNSNode(dynamic_proc_tree, pmid, entry);
 
 		num_hash_entries++;
-
-		/* This should always be true */
-		//if( (hotcluster = get_hotproc_cluster( cluster )) != -1  ){
-		    //pmid = pmid_build(domain, hotcluster, item);
-		    //__pmAddPMNSNode(dynamic_proc_tree, pmid, entry);
-		 //   }
-		//else{
-		 //   fprintf(stderr, "Got non hotproc member while building tree: %d %d %d\n", domain, cluster, item);
-		//}
 	    }
 	}
     }
@@ -318,7 +320,7 @@ build_dynamic_proc_tree( int domain )
  * Will use the templates we have in pmda.c, modifying cluster values
  * In this case we assume the only 2 metric groups are proc and hotproc
  *
- * I assume id=0 is proc and id=1 is hotproc.
+ * I assume id=1 is proc and id=2 is hotproc.
  *
  * This should be pretty simple.  Only metrics that are supposed to
  * be dynamic should flow thorugh here (correct?) so we don't do any checking
@@ -328,27 +330,22 @@ static void
 refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int id)
 {
 
-    //int domain = pmid_domain(source->m_desc.pmid);
-    //int cluster = pmid_cluster(source->m_desc.pmid);
-    //int hotcluster = -1;
+    int domain = pmid_domain(source->m_desc.pmid);
+    int cluster = pmid_cluster(source->m_desc.pmid);
+    int item = pmid_item(source->m_desc.pmid);
+    int hotcluster = -1;
 
     memcpy(dest, source, sizeof(pmdaMetric));
 
-
-    /*
-
-    if( id == 1 ){
-	hotcluster = get_hotproc_cluster(cluster);
+    if( id == 2 ){
+	hotcluster = get_hot_cluster(cluster);
 	if( hotcluster != -1 ){
-	    dest->m_desc.pmid = pmid_build(domain, hotcluster, id);
+	    dest->m_desc.pmid = pmid_build(domain, hotcluster, item);
 	}
 	else{
-	    fprintf(stderr, "Got bad hotproc cluster for %d %d %d\n", domain, cluster, id);
+	    fprintf(stderr, "Got bad hotproc cluster for %d:%d:%d id=%d\n", domain, cluster, item, id);
 	}
     }
-
-    */
-
 }
 
 
@@ -453,7 +450,7 @@ proc_dynamic_init(pmdaMetric *metrics, int nmetrics)
 
     char treename[128];
 
-    int i,j;
+    int i,j,k;
     int num_dyngroups = sizeof(dynproc_groups)/sizeof(dynproc_group_t);
     int num_dyntrees = sizeof(dynproc_members)/sizeof(char*);
 
@@ -462,6 +459,12 @@ proc_dynamic_init(pmdaMetric *metrics, int nmetrics)
 	nclusters = get_clusters_used( dynproc_groups[i], clusters );
 
 	for(j=0; j< num_dyntrees; j++){
+
+	    if( j == DYNPROC_HOTPROC ){
+		for(k=0; k<nclusters; k++){
+		    clusters[k] = get_hot_cluster( clusters[k] );
+		}
+	    }
 
 	    sprintf(treename, "%s.%s", dynproc_members[j], dynproc_groups[i].name);
 
@@ -474,4 +477,3 @@ proc_dynamic_init(pmdaMetric *metrics, int nmetrics)
 	}
     }
 }
-

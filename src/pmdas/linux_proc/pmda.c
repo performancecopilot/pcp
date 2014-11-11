@@ -1092,7 +1092,7 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
         need_refresh[CLUSTER_HOTPROC_PID_FD] ||
         need_refresh[CLUSTER_HOTPROC_GLOBAL] ||
         need_refresh[CLUSTER_HOTPROC_PRED]){
-        refresh_hotproc_pid(&hotproc_pid,
+        need_refresh_mtab |= refresh_hotproc_pid(&hotproc_pid,
                         proc_ctx_threads(pmda->e_context, threads),
                         proc_ctx_cgroups(pmda->e_context, cgroups));
     }

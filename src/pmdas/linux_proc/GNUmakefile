@@ -38,7 +38,7 @@ SCRIPTS		= Install Remove
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
 LSRCFILES 	= help root linux_proc_migrate.conf $(SCRIPTS)
-LDIRT		= $(HELPTARGETS) domain.h root_proc $(VERSION_SCRIPT) $(YFILES:%.y=%.tab.?)
+LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) $(YFILES:%.y=%.tab.?)
 
 LLDLIBS		= $(PCP_PMDALIB)
 LCFLAGS		= $(INVISIBILITY)
@@ -91,10 +91,6 @@ $(VERSION_SCRIPT):
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
-
-root_proc: root_proc.in root_hotproc.in
-	./build_root_proc.sh
-	
 
 gram.tab.o:	hotproc.h
 lex.o:	hotproc.h
