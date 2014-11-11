@@ -18,6 +18,9 @@
 #ifndef _PROC_PID_H
 #define _PROC_PID_H
 
+#include "hotproc.h"
+
+
 /*
  * /proc/<pid>/stat metrics
  */
@@ -265,6 +268,14 @@ typedef struct {
 /* refresh the proc indom, reset all "fetched" flags */
 extern int refresh_proc_pid(proc_pid_t *, int, const char *);
 
+extern int refresh_hotproc_pid(proc_pid_t *, int, const char *);
+
+extern int get_hot_totals(double * ta, double * ti, double * tt, double * tci );
+
+extern int get_hotproc_node( pid_t pid, process_t **getnode );
+
+extern void reset_hotproc_timer();
+
 /* fetch a proc/<pid>/stat entry for pid */
 extern proc_pid_entry_t *fetch_proc_pid_stat(int, proc_pid_t *, int *);
 
@@ -294,5 +305,7 @@ extern proc_pid_entry_t *fetch_proc_pid_label(int, proc_pid_t *, int *);
 
 /* extract the ith space separated field from a buffer */
 extern char *_pm_getfield(char *, int);
+
+extern void init_hotproc_pid( pmdaIndom * );
 
 #endif /* _PROC_PID_H */
