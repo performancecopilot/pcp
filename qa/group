@@ -878,7 +878,8 @@ avahi
 654 pmda.gfs2 local
 655 pmda.gfs2 local
 660 pmwebapi local
-660:reserved pmmgr local
+661 pmwebapi local
+666:reserved pmmgr local
 701 pmlogcheck local
 702 python libpcp local
 703 pmda.weblog local
@@ -925,6 +926,7 @@ avahi
 744 pmda.nvidia local
 745 pmda.nvidia local valgrind
 746 valgrind libpcp local
+747 pmda.linux local
 748 pmlogrewrite pmda.mysql local
 749 pmcd local
 750 pmda.rpm local
@@ -932,6 +934,8 @@ avahi
 752 libpcp local
 753 derive pmie local
 755 pmda.apache pmda.install local
+756 pmda.perfevent local
+757 pmda.perfevent local
 763 pmda local
 764 pmie local
 766 pmfind local
@@ -1004,6 +1008,7 @@ avahi
 991 python local
 994 other verify
 996 pmdiff local
+997 pmlogextract local
 999 pmns local
 1000 pmdumptext local
 1001 pmchart local

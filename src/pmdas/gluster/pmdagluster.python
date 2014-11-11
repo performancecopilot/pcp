@@ -28,6 +28,8 @@ except ImportError:
 from os import getenv
 import subprocess
 
+import threading
+
 VOL_INFO_COMMAND = 'gluster --xml volume info'
 VOL_STOP_COMMAND = 'gluster --xml volume profile %s stop'
 VOL_START_COMMAND = 'gluster --xml volume profile %s start'
@@ -45,6 +47,42 @@ FILEOPS = [    # append only, do not change the order (changes PMID)
     'FORGET'
 ]
 FILEOPS_INDICES = {}
+
+CMD_TIMEOUT = 1.00
+
+class Command(object):
+    ''' Command class that uses a thread with a timeout to force terminate
+        if the command takes too long
+    '''
+    
+    def __init__(self, cmd, pmdaObject=None, timeout=CMD_TIMEOUT):
+        self.cmd = cmd
+        self.pmda = pmdaObject
+        self.process = None
+        self.timeout = timeout
+        self.stdout = None
+        self.stderr = ''
+        self.RC = 0
+        
+    def run(self):
+    
+        def cmdThread():
+            self.process = subprocess.Popen(self.cmd, 
+                                            shell=True,
+                                            stdout = subprocess.PIPE, 
+                                            stderr = subprocess.PIPE)
+            self.stdout, self.stderr = self.process.communicate()
+            
+        thread = threading.Thread(target=cmdThread)
+        thread.start()
+        thread.join(self.timeout)
+        if thread.is_alive():
+            self.process.terminate()
+            thread.join()
+            if self.pmda:
+                self.pmda.log('Gluster command (%s) took too long to respond, triggering timeout'%(self.cmd))
+        self.RC = self.process.returncode    
+
 
 class GlusterVolume(Structure):
     ''' Statistic values per-gluster-volume (volume indom cache lookup) '''
@@ -78,20 +116,24 @@ class GlusterPMDA(PMDA):
 
     def runVolumeInfo(self):
         ''' Execute the gluster volume info command to extract volume names '''
-        process = subprocess.Popen(self.vol_info, shell = True,
-                        stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-        out, err = process.communicate()
-        # self.log('Info command %s output: %s' % (self.vol_info, out))
-        return xmltree.fromstring(out)
+        
+        cmd = Command(self.vol_info, self)
+        cmd.run()
+
+        #self.log('Info command %s output: %s' % (self.vol_info, cmd.stdout))
+        
+        xml = xmltree.fromstring(cmd.stdout) if cmd.RC == 0 else None
+        return xml
 
     def runVolumeProfileInfo(self, volume):
         ''' Execute gluster volume profile info command for a given volume '''
-        command = self.vol_stats % volume
-        process = subprocess.Popen(command, shell = True,
-                        stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-        out, err = process.communicate()
-        # self.log('Profile command %s output: %s' % (command, out))
-        return xmltree.fromstring(out)
+        cmd = Command((self.vol_stats % volume), self)
+        cmd.run()
+        
+        #self.log('Profile command for %s output: %s' % (volume, cmd.stdout))
+        
+        xml = xmltree.fromstring(cmd.stdout) if cmd.RC == 0 else None
+        return xml
 
     def parseVolumeInfo(self, xml):
         ''' Extract the set of volume names from given gluster XML string '''
@@ -251,12 +293,12 @@ class GlusterPMDA(PMDA):
             sts = c_api.PM_ERR_SIGN
         elif (val == 0):
             command = self.vol_stop % name
-            # self.log("Running disable command: %s" % command)
+            self.log("Running disable command: %s" % command)
             subprocess.call(command, shell =True,
                         stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         else:
             command = self.vol_start % name
-            # self.log("Running enable command: %s" % command)
+            self.log("Running enable command: %s" % command)
             subprocess.call(command, shell =True,
                         stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         return sts

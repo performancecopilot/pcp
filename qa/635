@@ -26,6 +26,12 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 #eth0   1500   0     5212      0      0      0     3080      2      0      0 BRU
 #lo     3924   0   164293      0      0      0   164293      0      0      0 LRU
 #
+# vm24 i686 openSUSE 13.1
+#Kernel Interface table
+#Iface   MTU Met    RX-OK RX-ERR RX-DRP RX-OVR    TX-OK TX-ERR TX-DRP TX-OVR Flg
+#ens3   1500   0     5174      0      0      1     2731      0      0      0 BMRU
+#lo    65536   0     2524      0      0      0     2524      0      0      0 LRU
+#
 #
 # Grab the netstat statistics.  Get name and mtu:
 #
@@ -259,6 +265,11 @@ for m in `cat $tmp.metrics`
 do
     [ ! -f $tmp.net.$m.1 ] && continue
 
+    echo "--- $tmp.net.$m.1 ---" >>$seq.full
+    cat $tmp.net.$m.1 >>$seq.full
+    echo "--- $tmp.net.$m.2 ---" >>$seq.full
+    cat $tmp.net.$m.2 >>$seq.full
+    echo "---" >>$seq.full
     paste $tmp.net.$m.1 $tmp.net.$m.2 > $tmp.net
 
     echo '' >>$seq.full

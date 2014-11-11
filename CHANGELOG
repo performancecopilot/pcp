@@ -1,5 +1,47 @@
-pcp-3.10.0 (15 October 2014)
+pcp-3.10.1 (1 December 2014)
     - Currently under development.
+
+pcp-3.10.0 (31 October 2014)
+    - pmlogextract: improve handling of corrupt archives
+    - linux pmda: add hinv.{cpu,node}.online metrics
+    - gluster pmda: thread-based timeout for long queries
+    - linux pmda: fix hinv.cpu.clock refresh logic
+    - dmcache pmda: add missing instance request handler
+    - iostat2pcp: cater for iostat output format changes
+    - packaging: fix debian suggests vs recommends usage
+    - sample pmda: add pmStore support for some metrics
+    - python: pmda module object refcounts improvements
+    - pmiostat: support archives converted from collectl
+    - FreeBSD pmda: changes for 32-bit platforms
+    - docs: html validation fixes for the tutorial
+    - pmie: rework control and config files
+    - pmlogger: rework control and config files
+    - pmstat: add pmlogger config as per man page
+    - proc pmda: parser rework to improve robustness
+    - proc pmda: per-proc context switch & other metrics
+    - man pages: pmdiscoverservices(3) and pmfind(1)
+    - ds389 pmda: 389 Directory Server PMDA
+    - ds389log pmda: 389 Directory Server log processing PMDA
+    - linux pmda: add rpc.server and nfs v4.1 ops metrics
+    - telnet-probe: fix byte-by-byte copying
+    - papi pmda: default enable when possible
+    - docs: improve quick reference guide, use man7.org
+    - pmproxy: fix new client init for secure connections
+    - pmdiff: minor output formatting improvements
+    - linux pmda: fix initialization for netstat metrics
+    - pmlogger: fix small race on exit condition
+    - timeval refactoring for improved double arithmetic
+    - python: drop support for versions older than 2.6
+    - python3: add pcp module support for 3.3 and newer
+    - build: workaround qmake handling of library paths
+    - Mac OSX build/install improvements
+    - pmwebd: support for more javascript demos (including
+      graphite/grafana - via separate pcp-webjs package)
+    - pmwebd: extend precision for floating point outputs
+    - pmwebd: Access-Control-Allow-Origin header additions
+    - pmwebd: experimental pthread support
+    - pmwebd: new options file configuration format
+    - pmmgr: avoid some granularity-edge races
 
 pcp-3.9.10 (5 September 2014)
     - Support for native systemd service files for daemons

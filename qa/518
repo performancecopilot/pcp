@@ -14,7 +14,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1	# failure is the default!
-signal=$PCP_BINADM_DIR/pmsignal
 $sudo rm -rf $tmp.* $seq.full
 trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
@@ -24,36 +23,53 @@ hinv.ncpu < 0 -> print "whoa ... no cpus!";
 End-of-File
 
 # real QA test starts here
-$sudo $signal -a pmie >/dev/null 2>&1
 
 # prefer to run as "pcp", must ensure we can write stats files
 # to PCP_TMP_DIR which is no longer a world-writable directory
 #
 user=pcp
 id pcp >/dev/null 2>/dev/null || user=root
-$sudo -u $user pmie -t 1 -c $tmp.pmie 2>$tmp.err >$tmp.out &
+$sudo -u $user pmie -t 0.25sec -T 3sec -c $tmp.pmie 2>$tmp.err >$tmp.out &
 pid=$!
 
-sleep 2	# let stats accumulate via rule firings
+# let stats accumulate via rule firings
+sleep 2
+
+# NB: For a naive exact match, there is a race condition here, as
+# 518.out expects exactly three evaluation rounds to be complete by the
+# time the following operation is invoked.  If sudo/pmie is too slow,
+# it'll lose the race (actions<5).  If this thread is too slow, pmie
+# will go ahead (actions>5).  So we tolerate values in the range 4,5,6
+# for the true, false and action counts, but the counts for each must
+# be equal.
 
 # pcp -P output ...
 #     pmie: bozo-vm: /tmp/518-28812.pmie (2 rules)
-#           evaluations true=2 false=2 unknown=0 (actions=2)
-#           expected evaluation rate=2.00 rules/sec
+#           evaluations true=5 false=5 unknown=0 (actions=2)
+#           expected evaluation rate=8.00 rules/sec
 #           bozo-vm: /var/log/pcp/pmmgr/bozo-vm/config.pmie (12 rules)
 #           evaluations true=0 false=3 unknown=9 (actions=0)
 #           expected evaluation rate=0.10 rules/sec
 #
-# want the our pmie, not any other pmie processes
+# want our pmie, not any other pmie processes
 #
 pcp -P \
 | tee -a $seq.full \
+| sed -e 's/=/= /g' -e 's/)$/ )/' \
 | $PCP_AWK_PROG '
 /pmie:/		{ state=1 }
-state==1 && /'`echo $tmp.pmie | sed -e s@/@\\\\\\\\/@g`' \(2 rules\)/	{ print; want = 1; next }
+state==1 && /'`echo $tmp.pmie | sed -e s@/@\\\\\\\\/@g`' \(2 rules \)/	{ print; want = 1; next }
+state==1 && / \(actions=/	{ if ($3 == $5 && $5 == $9) {
+				      if ($3 >= 4 && $3 <= 6) $3 = "OK"
+				      if ($5 >= 4 && $5 <= 6) $5 = "OK"
+				      if ($9 >= 4 && $9 <= 6) $9 = "OK"
+				  }
+				}
 state==1 && / rules\)/		{ want = 0 }
 want==1		{ print }' \
 | sed \
+    -e 's/= /=/g' \
+    -e 's/ )$/)/' \
     -e "s;$tmp;TMP;" \
     -e "s;/privateTMP;TMP;g" \
     -e '/TMP/{
@@ -61,7 +77,6 @@ s/ (.*//
 s/.*:/HOST:/
 }'
 
-$sudo $signal $pid
 wait
 
 cat $tmp.out >>$seq.full

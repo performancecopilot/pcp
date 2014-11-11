@@ -113,6 +113,12 @@ AC_ARG_WITH([papi],
     [do_papi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-papi=$withval"],
     [do_papi=check])
 
+AC_ARG_WITH([perfevent],
+    [AC_HELP_STRING([--with-perfevent],
+		   [enable perfevent pmda (default is on)])],
+    [do_perfevent=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perfevent=$withval"],
+    [do_perfevent=check])
+
 AC_ARG_WITH([manager],
     [AC_HELP_STRING([--with-manager],
 		   [enable daemon manager (default is on)])],
@@ -517,7 +523,7 @@ AS_IF([test "x$do_python3" != "xno"], [
 	AC_CHECK_HEADERS([python${PY_MAJOR}.${PY_MINOR}m/Python.h], [], [
 	    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
 	    echo Cannot proceed with the Python $PY_MAJOR installation found.
-	    enable_python=false
+	    enable_python3=false
 	])
     fi
 
@@ -1294,6 +1300,26 @@ AS_IF([test "x$do_papi" != "xno"], [
     AC_SUBST(PAPI_LIBS, $papi_libs)
 ])
 AC_SUBST(PMDA_PAPI, $pmda_papi)
+
+pmda_perfevent=false
+AS_IF([test "x$do_perfevent" != "xno" ], [
+    enable_perfevent=true
+
+    savedLIBS=$LIBS
+    AC_CHECK_LIB([pfm], [pfm_get_os_event_encoding],
+		 [pfm_libs="-lpfm"],
+		 [enable_perfevent=false])
+    AC_CHECK_HEADERS([perfmon/pfmlib_perf_event.h], [], [enable_perfevent=false])
+    if test "$do_perfevent" != "check" -a "$enable_papi" != "true"
+    then
+	AC_MSG_ERROR(libpfm is not installed, cannot enable the perfevent PMDA)
+    else
+	pmda_perfevent=$enable_perfevent
+    fi
+    LIBS=$savedLIBS
+    AC_SUBST(PFM_LIBS, $pfm_libs)
+])
+AC_SUBST(PMDA_PERFEVENT, $pmda_perfevent)
 
 dnl Do you have RPM Package Manager libraries for pmdarpm?
 pmda_rpm=false

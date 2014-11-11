@@ -1,0 +1,14 @@
+QA output created by 747
+== Checking metric values - sysdev-root-001.tgz
+
+hinv.cpu.online
+    inst [0 or "cpu0"] value 1
+    inst [1 or "cpu1"] value 1
+    inst [2 or "cpu2"] value 0
+    inst [3 or "cpu3"] value 1
+
+hinv.node.online
+    inst [0 or "node0"] value 1
+
+== done
+

@@ -47,6 +47,7 @@ hinv {
     machine		60:18:7
     map		
     cpu
+    node
 }
 
 hinv.map {
@@ -67,6 +68,11 @@ hinv.cpu {
     model_name		60:18:9
     flags		60:18:10
     cache_alignment	60:18:11
+    online		60:55:0
+}
+
+hinv.node {
+    online		60:55:1
 }
 
 kernel {

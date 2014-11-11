@@ -240,7 +240,6 @@ _report(FILE *fp)
     else
 	fprintf(stderr, " %ld bytes.\n", (long int)sbuf.st_size);
     fprintf(stderr, "The last record, and the remainder of this file will not be extracted.\n");
-    abandon();
 }
 
 
@@ -992,6 +991,7 @@ againmeta:
 		fprintf(stderr, "%s: Error: _pmLogGet[meta %s]: %s\n",
 			pmProgname, iap->name, pmErrStr(sts));
 		_report(lcp->l_mdfp);
+		abandon();
 	    }
 	    PM_UNLOCK(ctxp->c_lock);
 	    continue;
@@ -1131,6 +1131,8 @@ againlog:
 		fprintf(stderr, "%s: Error: __pmLogRead[log %s]: %s\n",
 			pmProgname, iap->name, pmErrStr(sts));
 		_report(lcp->l_mfp);
+		if (sts != PM_ERR_LOGREC)
+		    abandon();
 	    }
 	    /* if the first data record has not been written out, then
 	     * do not generate a mark record, and you may as well ignore

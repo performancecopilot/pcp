@@ -107,6 +107,15 @@ cat >$tmp.suppress <<End-of-File
    fun:pmGetArchiveEnd
 }
 {
+   <vm02 - openSUSE 12.1 version of above>
+   Memcheck:Leak
+   fun:malloc
+   fun:__pmFindPDUBuf
+   fun:__pmLogRead
+   fun:__pmGetArchiveEnd
+   obj:*
+}
+{
    <case 1 - buf hdr in __pmFindPDUBuf from pmGetArchiveEnd - valloc variant>
    Memcheck:Leak
    fun:memalign
@@ -116,6 +125,16 @@ cat >$tmp.suppress <<End-of-File
    ...
    fun:__pmGetArchiveEnd
    fun:pmGetArchiveEnd
+}
+{
+   <vm02 - openSUSE 12.1 version of above>
+   Memcheck:Leak
+   fun:memalign
+   fun:valloc
+   fun:__pmFindPDUBuf
+   fun:__pmLogRead
+   fun:__pmGetArchiveEnd
+   obj:*
 }
 {
    <case 2 - buf hdr in __pmFindPDUBuf from pmGetArchiveEnd>
@@ -153,6 +172,27 @@ cat >$tmp.suppress <<End-of-File
    fun:pmFetch
 }
 {
+   <vm02 - openSUSE 12.1 version of above>
+   Memcheck:Leak
+   fun:memalign
+   fun:valloc
+   fun:__pmFindPDUBuf
+   fun:__pmLogRead
+   fun:cache_read
+   fun:do_roll
+   obj:*
+}
+{
+   <vm02 - openSUSE 12.1 version of above>
+   Memcheck:Leak
+   fun:malloc
+   fun:__pmFindPDUBuf
+   fun:__pmLogRead
+   fun:cache_read
+   fun:do_roll
+   obj:*
+}
+{
    <case 2 - PDU buf alloc>
    Memcheck:Leak
    ...
@@ -182,6 +222,12 @@ cat >$tmp.suppress <<End-of-File
    fun:__pmSetVersionIPC
    fun:__pmLogChkLabel
    fun:__pmLogChangeVol
+}
+{
+    <vm02 - openSUSE 12.1 valgrind snarfoo>
+    Memcheck:Cond
+    fun:strlen
+    obj:* 
 }
 End-of-File
 

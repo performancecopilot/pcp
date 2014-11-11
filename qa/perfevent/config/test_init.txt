@@ -1,0 +1,5 @@
+# Test config file
+
+[ pmuname ]
+counter1 node
+counter2 cpu

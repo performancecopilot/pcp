@@ -1,0 +1,7 @@
+# Example file with a syntax error in it
+
+["
+
+[ testpmu1 ]
+
+foo

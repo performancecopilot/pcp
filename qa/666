@@ -1,0 +1,5 @@
+#! /bin/sh
+# PCP QA Test No. 666
+# Placeholder for anticipated pmmgr test (needed for build).
+#
+exit 0

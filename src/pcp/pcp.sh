@@ -466,6 +466,7 @@ then
 	sort $tmp/ie_false -o $tmp/ie_false
 	sort $tmp/ie_unknown -o $tmp/ie_unknown
 	sort $tmp/ie_expected -o $tmp/ie_expected
+	sort $tmp/pmie -o $tmp/pmie
 	join $tmp/pmie $tmp/ie_true | join - $tmp/ie_false \
 		| join - $tmp/ie_unknown | join - $tmp/ie_actions \
 		| join - $tmp/ie_expected > $tmp/tmp
