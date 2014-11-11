@@ -789,7 +789,6 @@ pmda_rehash(PyObject *self, PyObject *args, PyObject *keywords)
     return Py_None;
 }
 
-#ifdef PyBUF_SIMPLE
 static void
 pmda_refresh_metrics(void)
 {
@@ -979,67 +978,6 @@ pmda_dispatch(PyObject *self, PyObject *args)
     Py_INCREF(Py_None);
     return Py_None;
 }
-
-#else	/* old-school python */
-static PyObject *
-pmda_dispatch(PyObject *self, PyObject *args)
-{
-    int nindoms, nmetrics, size;
-    PyObject *ibuf, *mbuf, *iv, *mv;
-    pmdaMetric *metrics = NULL;
-    pmdaIndom *indoms = NULL;
-
-    if (!PyArg_ParseTuple(args, "OiOi", &ibuf, &nindoms, &mbuf, &nmetrics))
-        return NULL;
-
-    size = nindoms * sizeof(pmdaIndom);
-    if ((iv = PyBuffer_FromObject(ibuf, 0, size)) == NULL) {
-        PyErr_SetString(PyExc_TypeError, "pmda_dispatch indom extraction");
-        return NULL;
-    }
-    if (!PyBuffer_Check(iv)) {
-        PyErr_SetString(PyExc_TypeError, "pmda_dispatch wants buffer 1st arg");
-        return NULL;
-    }
-    size = nmetrics * sizeof(pmdaMetric);
-    if ((mv = PyBuffer_FromObject(mbuf, 0, size)) == NULL) {
-        PyErr_SetString(PyExc_TypeError, "pmda_dispatch metric extraction");
-        return NULL;
-    }
-    if (!PyBuffer_Check(mv)) {
-        PyErr_SetString(PyExc_TypeError, "pmda_dispatch wants buffer 3rd arg");
-        return NULL;
-    }
-
-    if (pmDebug & DBG_TRACE_LIBPMDA)
-        fprintf(stderr, "pmda_dispatch pmdaInit for metrics/indoms\n");
-
-    PyBuffer_Type.tp_as_buffer->bf_getreadbuffer(iv, 0, (void *)&indoms);
-    PyBuffer_Type.tp_as_buffer->bf_getreadbuffer(mv, 0, (void *)&metrics);
-    if (pmDebug & DBG_TRACE_LIBPMDA)
-	fprintf(stderr, "pmda_dispatch pmdaInit for metrics/indoms\n");
-    pmdaInit(&dispatch, nindoms > 0 ? indoms : NULL, nindoms, nmetrics > 0 ? metrics : NULL, nmetrics);
-    if ((dispatch.version.any.ext->e_flags & PMDA_EXT_CONNECTED) != PMDA_EXT_CONNECTED) {
-	/*
-	 * connect_pmcd() not called before, so need pmdaConnect()
-	 * here before falling into the PDU-driven pmdaMain() loop.
-	 */
-	if (pmDebug & DBG_TRACE_LIBPMDA)
-	    fprintf(stderr, "pmda_dispatch connect to pmcd\n");
-	pmdaConnect(&dispatch);
-    }
-
-    Py_DECREF(ibuf);
-    Py_DECREF(mbuf);
-
-    if (pmDebug & DBG_TRACE_LIBPMDA)
-        fprintf(stderr, "pmda_dispatch entering PDU loop\n");
-
-    pmdaMain(&dispatch);
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-#endif
 
 static PyObject *
 pmda_log(PyObject *self, PyObject *args, PyObject *keywords)
