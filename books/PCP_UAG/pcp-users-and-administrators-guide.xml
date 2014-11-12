@@ -49,11 +49,6 @@ Linux is a registered trademark of Linus Torvalds, used with permission.
 UNIX is a registered trademark of The Open Group.</para>
 </legalnotice>
 
-<revhistory>
-<revision><revnumber>002</revnumber><date>August 2013</date><revremark>Revised to support the Performance Co-Pilot 3.8 release.</revremark></revision>
-<revision><revnumber>001</revnumber><date>December 2002</date><revremark>Original publication. Supports the Performance Co-Pilot 2.3 release.</revremark></revision>
-</revhistory>
-
 </bookinfo>
 <toc/>
 
