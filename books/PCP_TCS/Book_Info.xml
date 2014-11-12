@@ -9,6 +9,12 @@
 	<productname>PCP</productname>
 	<productnumber>3</productnumber>
         <pubsnumber>1</pubsnumber>
+	<abstract>
+		<para>
+			This guide contains tutorials and case-studies for the
+			Performance Co-Pilot (PCP) performance analysis toolkit
+		</para>
+	</abstract>
  	<xi:include href="Legal_Notice.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
 <!-- <xi:include href="Common_Content/Legal_Notice.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>-->
 	<xi:include href="Author_Group.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
