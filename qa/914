@@ -24,6 +24,9 @@ _filter_papi_errors()
     sed \
 	-e '/pfm_find_full_event(.*): event not found./d' \
 	-e '/events in papi_events.csv were not valid./d' \
+	-e '/PAPI Error: papi_preset: Error finding event MEM_LOAD_UOPS_RETIRED:L1_HIT:L1_MISS./d' \
+	-e '/ibwarn:/d' \
+
     # end
 }
 
