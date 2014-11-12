@@ -1,0 +1,9 @@
+QA output created by 769
+=== pmie off ===
+is_chkconfig_on pmie returns false
+=== pmie on ===
+is_chkconfig_on pmie returns true
+=== pmlogger off ===
+is_chkconfig_on pmlogger returns false
+=== pmlogger on ===
+is_chkconfig_on pmlogger returns true

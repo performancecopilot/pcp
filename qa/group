@@ -938,6 +938,7 @@ avahi
 764 pmie local
 766 pmfind local
 768 pmlogextract local
+769 other local
 775 sanity pmfind local
 776 pmfind local
 779 pmda local
