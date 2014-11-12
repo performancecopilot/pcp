@@ -32,6 +32,7 @@ _filter()
     sed \
 	-e 's/value [0-9][0-9]*/value NUMBER/' \
 	-e 's/TOT_INS(5): [0-9][0-9]*/TOT_INS(5) NUMBER/' \
+	-e 's/TOT_INS(-1): [0-9][0-9]*/TOT_INS(-1) NUMBER/' \
 	-e 's/0x[0-9a-f]*/ADDR/g' \
 	-e 's/[0-2][0-9]:00:00.000/TIME/' \
     | _filter_papi_errors
@@ -82,5 +83,23 @@ wait 7
 fetch papi.control.status
 EOF
 
+# even with a timeout (for our case it will be a small one)
+# the existing control.{enable,disable} metrics will override the
+# timeout value and the counters will continue counting
 
-
+echo "=== Daemon PMDA papi auto_enable with papi.control.enable test ==="
+$sudo dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _filter
+open pipe $pipepmda -d 126
+getdesc on
+attr "username" "root"
+attr 11 "0"
+desc papi.system.TOT_INS
+store papi.control.auto_enable "5"
+store papi.control.enable "TOT_INS"
+fetch papi.system.TOT_INS
+fetch papi.control.status
+wait 7
+fetch papi.control.status
+store papi.control.disable "TOT_INS"
+fetch papi.control.status
+EOF
