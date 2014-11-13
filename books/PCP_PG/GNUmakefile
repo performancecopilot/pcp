@@ -30,7 +30,8 @@ built.$(BOOK_TOOLCHAIN):	$(XML)
 	$(CP) $(CWD)/$(AUT) en-US/
 	$(CP) $(CWD)/$(XML) en-US/
 	$(CP) $(CWD)/$(TOPDIR)/images en-US/
-	$(PUBLICAN) build --langs=en-US --formats=pdf,html
+	$(PUBLICAN) build --langs=en-US --formats=pdf
+	$(PUBLICAN) build --langs=en-US --formats=html --publish
 	$(LN_S) $(CWD)/en-US/pdf/*.pdf pdf/$(IAM).pdf
 endif
 
