@@ -34,6 +34,7 @@ _filter()
 	-e 's/value \".*\"/value STRING/' \
 	-e 's/0x[0-9a-f]*/ADDR/g' \
 	-e 's/[0-2][0-9]:00:00.000/TIME/' \
+	-e 's/126.0.[0-9][0-9]*/126.0.NUMBER/' \
     | _filter_papi_errors
 }
 
