@@ -42,6 +42,7 @@ pmdaapache_install()
     echo
     echo "=== apache agent installation ==="
     $sudo ./Install </dev/null >$tmp.out 2>&1
+    cat $tmp.out >>$here/$seq.full
     # Check apache metrics have appeared ... X metrics and Y values
     _filter_pmda_install <$tmp.out \
     | sed \
