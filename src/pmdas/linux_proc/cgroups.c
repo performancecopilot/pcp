@@ -340,16 +340,14 @@ refresh_cgroup_subsys(pmInDom indom)
 	return;
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {
-	unsigned int numcgroups, enabled;
+	unsigned int hierarchy, numcgroups, enabled, *data;
 	char name[MAXPATHLEN];
-	long hierarchy;
-	long *data;
 	int sts;
 
 	/* skip lines starting with hash (header) */
 	if (buf[0] == '#')
 	    continue;
-	if (sscanf(buf, "%s %ld %u %u", &name[0],
+	if (sscanf(buf, "%s %u %u %u", &name[0],
 			&hierarchy, &numcgroups, &enabled) != 4)
 	    continue;
 	sts = pmdaCacheLookupName(indom, name, NULL, (void **)&data);
@@ -360,12 +358,12 @@ refresh_cgroup_subsys(pmInDom indom)
 		 * hierarchy ... we cannot support more than one hierarchy
 		 * yet
 		 */
-		fprintf(stderr, "refresh_cgroup_subsys: \"%s\": entries for hierarchy %ld ignored (hierarchy %ld seen first)\n", name, hierarchy, *data);
+		fprintf(stderr, "refresh_cgroup_subsys: \"%s\": entries for hierarchy %u ignored (hierarchy %u seen first)\n", name, hierarchy, *data);
 	    }
 	    continue;
 	}
 	else if (sts != PMDA_CACHE_INACTIVE) {
-	    if ((data = (long *)malloc(sizeof(long))) == NULL) {
+	    if ((data = (unsigned int *)malloc(sizeof(unsigned int))) == NULL) {
 #if PCP_DEBUG
 		if (pmDebug & DBG_TRACE_APPL0)
 		    fprintf(stderr, "refresh_cgroup_subsys: \"%s\": malloc failed\n", name);
@@ -377,7 +375,7 @@ refresh_cgroup_subsys(pmInDom indom)
 	pmdaCacheStore(indom, PMDA_CACHE_ADD, name, (void *)data);
 #if PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL0)
-	    fprintf(stderr, "refresh_cgroup_subsys: add \"%s\" [hierarchy %ld]\n", name, hierarchy);
+	    fprintf(stderr, "refresh_cgroup_subsys: add \"%s\" [hierarchy %u]\n", name, hierarchy);
 #endif
     }
     fclose(fp);
