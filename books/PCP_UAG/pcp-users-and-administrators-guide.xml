@@ -2288,7 +2288,7 @@ presented here in a single place for convenience.</para>
 <primary>file locations</primary></indexterm>The following files and directories
 are used by the PCP tools as repositories for option and configuration
 files and for binaries:</para>
-<variablelist condition="sgi_termlength:wide">
+<variablelist>
 <varlistentry>
 <term><filename>${PCP_DIR}/etc/pcp.env</filename></term>
 <listitem><para><indexterm id="IG31371888121"><primary>${PCP_DIR}/etc/pcp.env file</primary></indexterm>Script
@@ -2565,7 +2565,7 @@ serve only as installation defaults. For additional information, see the <comman
 man pages.</para>
 <para>The following environment variables are recognized by PCP (these
 definitions are also available on the <command>PCPIntro(1)</command> man page):</para>
-<variablelist condition="sgi_termlength:nextline">
+<variablelist>
 <varlistentry>
 <term><literal>PCP_COUNTER_WRAP</literal></term>
 <listitem><para><indexterm id="ITch03-15"><primary>PCP_COUNTER_WRAP variable
