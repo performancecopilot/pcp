@@ -1,0 +1,194 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014 Joseph White
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMDAPERFEVENT 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaperfevent\f1 \- hardware performance counter performance metrics domain agent (PMDA)
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/perfevent/pmdaperfevent\f1
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-U\f1 \f2username\f1]
+[\f3\-i\f1 \f2port\f1]
+[\f3\-p\f1]
+[\f3\-u\f1 \f2socket\f1]
+[\f3\-6\f1]
+.SH DESCRIPTION
+.B pmdaperfevent
+is a Performance Metrics Domain Agent (PMDA) that configures
+and reads the hardware performance counters using the Linux kernel
+perf_event API. 
+.PP
+The
+.B perfevent
+PMDA exports metrics for hardware performance counters that are configurable
+from the Linux kernel perf_event API.  The PMDA uses the libpfm4 library to
+access the hardware performance counters so any counters that are supported in
+libpfm4 should be available. Also included is the ability to read the Intel
+RAPL counters via direct MSR access.
+The PMDA supports automatically loading different counters for each hardware
+architecture. A single configuration file is used to specify the desired
+counters for each hardware performance monitoring unit (PMU). The configuration
+file allows different counters to be programmed on different CPUs and supports
+round-robin assignment of uncore counters needed for some AMD chips. 
+
+The PMDA configures the counters to count events in both user and kernel mode.
+This means that the hardware counters are unavailable to use by normal
+unprivileged user applications when they are in use by the PMDA. The
+PMDA provides a mechanism to temporarily disable the system-wide
+counters in order to allow normal users to be able to use the counters
+if they wish. See
+.BR perfalloc (1)
+for details.
+
+.PP
+A brief description of the
+.B pmdaperfevent
+command line options follows:
+.TP 5
+.B \-d
+It is absolutely crucial that the performance metrics
+.I domain
+number specified here is unique and consistent.
+That is,
+.I domain
+should be different for every PMDA on the one host, and the same
+.I domain
+number should be used for the same PMDA on all hosts.
+.TP
+.B \-l
+Location of the log file.  By default, a log file named
+.I perfevent.log
+is written in the current directory of
+.BR pmcd (1)
+when
+.B pmdaperfevent
+is started, i.e.
+.BR $PCP_LOG_DIR/pmcd .
+If the log file cannot
+be created or is not writable, output is written to the standard error instead.
+.TP
+.B \-U
+User account under which to run the agent.
+The default is the privileged "root" account.
+.TP
+.B \-i
+listen on given port number for connection from 
+.BR pmcd (1)
+.TP
+.B \-p
+communicate with 
+.BR pmcd (1)
+via stdin/stdout
+.TP
+.B \-u
+expect 
+.BR pmcd (1)
+to connect on given unix domain socket
+.TP
+.B \-6
+expect
+.BR pmcd (1)
+to connect on given ipv6 port (number or name)
+.SH INSTALLATION
+The
+.B perfevent
+PMDA is not activated by default. 
+To install the PMDA, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/perfevent
+# ./Install
+.in
+.fi
+.ft 1
+.PP
+If you want to undo the installation, do the following as root:
+.PP
+.ft CW
+.nf
+.in +0.5i
+# cd $PCP_PMDAS_DIR/perfevent
+# ./Remove
+.in
+.fi
+.ft 1
+.PP
+.B pmdaperfevent
+is launched by
+.BR pmcd (1)
+and should never be executed directly.
+The Install and Remove scripts notify
+.BR pmcd (1)
+when the agent is installed or removed.
+.SH FILES
+.PD 0
+.TP 10
+.B $PCP_PMCDCONF_PATH
+command line options used to launch
+.B pmdaperfevent
+.TP 10
+.B $PCP_PMDAS_DIR/perfevent/perfevent.conf
+default configuration file for the PMDA. See
+.BR perfevent.conf (3)
+for detailed information.
+.TP 
+.B $PCP_PMDAS_DIR/perfevent/help
+default help text file for the perfevent metrics
+.TP
+.B $PCP_PMDAS_DIR/perfevent/Install
+installation script for the
+.B pmdaperfevent
+agent
+.TP
+.B $PCP_PMDAS_DIR/perfevent/Remove
+undo installation script for the 
+.B pmdaperfevent
+agent
+.TP
+.B $PCP_LOG_DIR/pmcd/perfevent.log
+default log file for error messages and other information from
+.B pmdaperfevent
+.PD
+.SH BUGS
+Each event is placed in its own group and there is no way to group related
+events together so they are guaranteed to be simultaneously active.
+A workaround for this is to ensure that the number of configured events is
+less than or equal to the number of available hardware counters. This means that
+the events will not be time-multiplexed by the kernel and will be simultaneously active.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR perfalloc (1),
+.BR perfevent.conf (3),
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR PMAPI (3),
+.BR pcp.conf (5)
+and
+.BR pcp.env (5).

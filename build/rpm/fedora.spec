@@ -10,11 +10,13 @@ Group: Applications/System
 Source0: pcp-%{version}.src.tar.gz
 Source1: pcp-webjs.src.tar.gz
 
-# There is no papi-devel package for s390 or prior to rhel6, disable it
+# There are no papi/libpfm devel packages for s390 nor for some rhels, disable
 %ifarch s390 s390x
 %{!?disable_papi: %global disable_papi 1}
+%{!?disable_perfevent: %global disable_perfevent 1}
 %else
 %{!?disable_papi: %global disable_papi 0%{?rhel} < 6}
+%{!?disable_perfevent: %global disable_perfevent 0%{?rhel} < 7}
 %endif
 %define disable_microhttpd 0
 %define disable_cairo 0
@@ -43,6 +45,9 @@ BuildRequires: readline-devel
 BuildRequires: cyrus-sasl-devel
 %if !%{disable_papi}
 BuildRequires: papi-devel
+%endif
+%if !%{disable_perfevent}
+BuildRequires: libpfm-devel >= 4.4
 %endif
 %if !%{disable_microhttpd}
 BuildRequires: libmicrohttpd-devel
@@ -122,6 +127,10 @@ Obsoletes: pcp-pmda-nvidia
 
 %if !%{disable_papi}
 %define _with_papi --with-papi=yes
+%endif
+
+%if !%{disable_perfevent}
+%define _with_perfevent --with-perfevent=yes
 %endif
 
 %if %{disable_qt}
@@ -397,6 +406,24 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting hardware counters statistics through PAPI (Performance API).
 %endif
 
+%if !%{disable_perfevent}
+#
+# pcp-pmda-perfevent
+#
+%package pmda-perfevent
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for hardware counters
+URL: http://www.pcp.io
+Requires: pcp-libs = %{version}-%{release}
+Requires: libpfm >= 4.4
+BuildRequires: libpfm-devel >= 4.4
+
+%description pmda-perfevent
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting hardware counters statistics through libpfm.
+%endif
+
 %if !%{disable_infiniband}
 #
 # pcp-pmda-infiniband
@@ -497,7 +524,7 @@ PCP utilities and daemons, and the PCP graphical tools.
 rm -Rf $RPM_BUILD_ROOT
 
 %build
-%configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_qt}
+%configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_perfevent} %{?_with_qt}
 make default_pcp
 
 %install
@@ -553,6 +580,7 @@ done
 # list of PMDAs in the base pkg
 ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   egrep -v 'simple|sample|trivial|txmon' |\
+  egrep -v 'perfevent|perfalloc.1' |\
   egrep -v '^ib$|infiniband' |\
   egrep -v 'papi' |\
   sed -e 's#^#'%{_pmdasdir}'\/#' >base_pmdas.list
@@ -963,6 +991,16 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %{_mandir}/man1/pmdapapi.1.gz
 %endif
 
+%if !%{disable_perfevent}
+%files pmda-perfevent
+%defattr(-,root,root)
+%{_pmdasdir}/perfevent
+%config(noreplace) %{_pmdasdir}/perfevent/perfevent.conf
+%{_mandir}/man1/perfalloc.1.gz
+%{_mandir}/man1/pmdaperfevent.1.gz
+%{_mandir}/man5/perfevent.conf.5.gz
+%endif
+
 %if !%{disable_infiniband}
 %files pmda-infiniband
 %defattr(-,root,root)
@@ -1008,6 +1046,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %changelog
 * Mon Dec 01 2014 Dave Brolley <brolley@redhat.com> - 3.10.1-1
+- New conditionally-built pcp-pmda-perfevent sub-package.
 - Currently under development.
 
 * Fri Oct 31 2014 Nathan Scott <nathans@redhat.com> - 3.10.0-1

@@ -13,11 +13,10 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+which logconv.pl >/dev/null 2>&1 || _notrun "No logconv.pl script installed"
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
-
-which logconv.pl >/dev/null 2>&1 || _notrun "No logconv.pl script installed"
 
 pmdads389log_remove()
 {

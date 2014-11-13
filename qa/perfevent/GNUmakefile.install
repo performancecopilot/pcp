@@ -1,0 +1,21 @@
+#!/usr/bin/env make
+#
+# Copyright (c) 2014 Joseph White.
+#
+
+FAKEFS=fakefs.tar.gz
+
+ifdef PCP_CONF
+include $(PCP_CONF)
+else
+include $(PCP_DIR)/etc/pcp.conf
+endif
+PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
+include $(PCP_INC_DIR)/builddefs
+
+default default_pcp setup: $(FAKEFS)
+	tar xf $(FAKEFS)
+
+install install_pcp:
+
+include $(BUILDRULES)

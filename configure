@@ -701,6 +701,8 @@ HAVE_LIBMICROHTTPD
 libmicrohttpd_LIBS
 libmicrohttpd_CFLAGS
 PMDA_RPM
+PMDA_PERFEVENT
+PFM_LIBS
 PMDA_PAPI
 PAPI_LIBS
 PMDA_INFINIBAND
@@ -906,6 +908,7 @@ with_python
 with_python3
 with_books
 with_papi
+with_perfevent
 with_manager
 with_webapi
 enable_ssp
@@ -1596,6 +1599,7 @@ Optional Packages:
                           is on)
   --with-books            enable building of the PCP books (default is off)
   --with-papi             enable performance api counter pmda (default is on)
+  --with-perfevent        enable perfevent pmda (default is on)
   --with-manager          enable daemon manager (default is on)
   --with-webapi           enable REST API daemon (default is on)
   --with-configdir        configuration directory [LOCALSTATEDIR/pcp/config]
@@ -2649,6 +2653,15 @@ if test "${with_papi+set}" = set; then :
   withval=$with_papi; do_papi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-papi=$withval"
 else
   do_papi=check
+fi
+
+
+
+# Check whether --with-perfevent was given.
+if test "${with_perfevent+set}" = set; then :
+  withval=$with_perfevent; do_perfevent=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perfevent=$withval"
+else
+  do_perfevent=check
 fi
 
 
@@ -10115,6 +10128,82 @@ done
 
 fi
 PMDA_PAPI=$pmda_papi
+
+
+pmda_perfevent=false
+if test "x$do_perfevent" != "xno" ; then :
+
+    enable_perfevent=true
+
+    savedLIBS=$LIBS
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pfm_get_os_event_encoding in -lpfm" >&5
+$as_echo_n "checking for pfm_get_os_event_encoding in -lpfm... " >&6; }
+if ${ac_cv_lib_pfm_pfm_get_os_event_encoding+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lpfm  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char pfm_get_os_event_encoding ();
+int
+main ()
+{
+return pfm_get_os_event_encoding ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_pfm_pfm_get_os_event_encoding=yes
+else
+  ac_cv_lib_pfm_pfm_get_os_event_encoding=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pfm_pfm_get_os_event_encoding" >&5
+$as_echo "$ac_cv_lib_pfm_pfm_get_os_event_encoding" >&6; }
+if test "x$ac_cv_lib_pfm_pfm_get_os_event_encoding" = xyes; then :
+  pfm_libs="-lpfm"
+else
+  enable_perfevent=false
+fi
+
+    for ac_header in perfmon/pfmlib_perf_event.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "perfmon/pfmlib_perf_event.h" "ac_cv_header_perfmon_pfmlib_perf_event_h" "$ac_includes_default"
+if test "x$ac_cv_header_perfmon_pfmlib_perf_event_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_PERFMON_PFMLIB_PERF_EVENT_H 1
+_ACEOF
+
+else
+  enable_perfevent=false
+fi
+
+done
+
+    if test "$do_perfevent" != "check" -a "$enable_papi" != "true"
+    then
+	as_fn_error cannot enable the perfevent PMDA "libpfm is not installed" "$LINENO" 5
+    else
+	pmda_perfevent=$enable_perfevent
+    fi
+    LIBS=$savedLIBS
+    PFM_LIBS=$pfm_libs
+
+
+fi
+PMDA_PERFEVENT=$pmda_perfevent
 
 
 pmda_rpm=false

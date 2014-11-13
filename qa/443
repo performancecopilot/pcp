@@ -13,7 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ $PCP_VER -ge 30805 ] || _notrun "PCP version is too old"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full

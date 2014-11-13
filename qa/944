@@ -22,7 +22,7 @@ id -u nobody >/dev/null 2>&1 || _notrun "User nobody unavailable"
 id -g nobody >/dev/null 2>&1 || _notrun "Group nobody unavailable"
 
 rm -f $seq.out
-eval `pmconfig -L secure_sockets`
+eval `pmconfig -L -s secure_sockets`
 if $secure_sockets
 then
     # secure_sockets is true, which means HAVE_SECURE_SOCKETS is defined,
