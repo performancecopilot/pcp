@@ -123,44 +123,7 @@ echo "pmie count at start of QA testing: $?"
 echo
 
 echo === check default install operation ===
-# copied logic from _change_config in common.check
-#
-config_works=true
-if [ $PCP_PLATFORM = linux ]
-then
-    if which systemctl >/dev/null 2>&1
-    then
-	:
-    elif which chkconfig >/dev/null 2>&1
-    then
-	:
-    elif [ -x /usr/sbin/sysv-rc-conf ]
-    then
-	:
-    else
-	config_works=false
-    fi
-elif [ $PCP_PLATFORM = solaris ]
-then
-    if which svcadm >/dev/null 2>&1
-    then
-	:
-    else
-	config_works=false
-    fi
-elif [ $PCP_PLATFORM = darwin ]
-then
-    :
-elif [ $PCP_PLATFORM = freebsd ]
-then
-    config_works=false
-else
-    config_works=false
-fi
-if $config_works
-then
-    $sudo $PCP_RC_DIR/pmie restart 2>&1 | _filter_pmie_start
-fi
+$sudo $PCP_RC_DIR/pmie restart 2>&1 | _filter_pmie_start
 _count_pmies
 echo "pmie count after chkconfig pmie off: $?"
 echo
