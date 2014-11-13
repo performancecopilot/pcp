@@ -18,6 +18,8 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
+VERBOSE_CONFIG=false
+
 . $PCP_SHARE_DIR/lib/rc-proc.sh
 
 _check_chk()
@@ -32,14 +34,22 @@ _check_chk()
 
 # real QA test starts here
 
-for svc in pmie pmlogger
+VERBOSE_CONFIG=true
+is_chkconfig_on pmie >>$seq.full
+VERBOSE_CONFIG=false
+
+for svc in pmcd pmie pmlogger pmmgr pmproxy pmwebd
 do
+    save=off
+    is_chkconfig_on $svc && save=on
+    echo "initial state for $svc: $save" >>$seq.full
     for state in off on
     do
 	echo "=== $svc $state ==="
 	_change_config $svc $state
 	_check_chk $svc
     done
+    _change_config $svc $save
 done
 
 # success, all done
