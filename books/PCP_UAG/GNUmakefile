@@ -6,9 +6,9 @@ REV = Revision_History.xml
 AUT = Author_Group.xml
 XML = $(IAM).xml
 PDF = $(IAM).pdf
+ENT = $(IAM).ent
 PUB = Book_Info.xml
 CFG = publican.cfg
-ENT = $(IAM).ent
 
 CP = cp -rdp
 LSRCFILES = $(XML) $(PUB) $(CFG) $(PDF)
