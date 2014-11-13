@@ -22,7 +22,7 @@ include $(BUILDRULES)
 
 ifeq "$(BOOK_TOOLCHAIN)" "publican"
 built.$(BOOK_TOOLCHAIN):	$(XML)
-	@rm -fr pdf html en-US
+	@rm -fr pdf html en-US tmp
 	@mkdir -p pdf html en-US tmp
 	$(CP) $(CWD)/$(PUB) en-US/
 	$(CP) $(CWD)/$(ENT) en-US/
@@ -30,8 +30,7 @@ built.$(BOOK_TOOLCHAIN):	$(XML)
 	$(CP) $(CWD)/$(AUT) en-US/
 	$(CP) $(CWD)/$(XML) en-US/
 	$(CP) $(CWD)/$(TOPDIR)/images en-US/
-	$(PUBLICAN) build --langs=en-US --formats=pdf
-	@# $(PUBLICAN) build --langs=en-US --formats=pdf,html
+	$(PUBLICAN) build --langs=en-US --formats=pdf,html
 	$(LN_S) $(CWD)/en-US/pdf/*.pdf pdf/$(IAM).pdf
 endif
 
