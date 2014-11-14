@@ -178,7 +178,13 @@ _shutdown()
 	    fi
 	fi
     done
-    $RC_STATUS -v
+    if [ "$1" = quietly ]
+    then
+	$RC_STATUS
+    else
+	true
+	$RC_STATUS -v
+    fi
     $PCP_BINADM_DIR/pmpost "stop pmlogger from $prog"
 }
 

@@ -258,8 +258,6 @@ then
 END	{ printf "Summary: %d run, %d failed (%.2f%%)\n", nrun, nfail, 100*nfail/nrun }'
 fi
 
-echo numqahosts=$numqahosts
-
 if [ -f $tmp.map ]
 then
     echo

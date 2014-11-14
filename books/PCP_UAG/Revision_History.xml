@@ -1,0 +1,19 @@
+<!DOCTYPE appendix PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+]>
+<appendix>
+	<title>Revision History</title>
+	 <simpara>
+		<revhistory>
+			<revision>
+				<revnumber>2.0-1</revnumber>
+				<date>August 2013</date>
+				<revremark>Revised to support the Performance Co-Pilot 3.8 release.</revremark>
+			</revision>
+			<revision>
+				<revnumber>1.0-1</revnumber>
+				<date>December 2002</date>
+				<revremark>Original publication. Supports the Performance Co-Pilot 2.3 release.</revremark>
+			</revision>
+		</revhistory>
+	</simpara>
+</appendix>
