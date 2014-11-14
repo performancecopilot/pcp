@@ -950,7 +950,7 @@ avahi
 786 context context_local libpcp local
 787:reserved archive local pmie pmlogrewrite pmdumplog pmval
 798 pmda.nfsclient local
-799 papi local
+799 pmda.papi local
 813 pmda.papi local
 815 pmie local
 822:reserved pmlogrewrite

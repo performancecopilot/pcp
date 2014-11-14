@@ -1,7 +1,7 @@
 QA output created by 967
 === Daemon PMDA papi auto_enable disabled test ===
-dbpmda> open pipe /var/lib/pcp/pmdas/papi/pmdapapi -d 126
-Start pmdapapi PMDA: /var/lib/pcp/pmdas/papi/pmdapapi -d 126
+dbpmda> open pipe PCP_PMDAS_DIR/papi/pmdapapi -d 126
+Start pmdapapi PMDA: PCP_PMDAS_DIR/papi/pmdapapi -d 126
 dbpmda> getdesc on
 dbpmda> attr "username" "root"
 Attribute: username=root
@@ -55,8 +55,8 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
   126.0.NUMBER (<noname>): No values returned!
 dbpmda> 
 === Daemon PMDA papi auto_enable test ===
-dbpmda> open pipe /var/lib/pcp/pmdas/papi/pmdapapi -d 126
-Start pmdapapi PMDA: /var/lib/pcp/pmdas/papi/pmdapapi -d 126
+dbpmda> open pipe PCP_PMDAS_DIR/papi/pmdapapi -d 126
+Start pmdapapi PMDA: PCP_PMDAS_DIR/papi/pmdapapi -d 126
 dbpmda> getdesc on
 dbpmda> attr "username" "root"
 Attribute: username=root
@@ -92,8 +92,8 @@ pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
    value "Papi is stopped, has multiplexing enabled, "
 dbpmda> 
 === Daemon PMDA papi auto_enable with papi.control.enable test ===
-dbpmda> open pipe /var/lib/pcp/pmdas/papi/pmdapapi -d 126
-Start pmdapapi PMDA: /var/lib/pcp/pmdas/papi/pmdapapi -d 126
+dbpmda> open pipe PCP_PMDAS_DIR/papi/pmdapapi -d 126
+Start pmdapapi PMDA: PCP_PMDAS_DIR/papi/pmdapapi -d 126
 dbpmda> getdesc on
 dbpmda> attr "username" "root"
 Attribute: username=root
