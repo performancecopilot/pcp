@@ -35,6 +35,7 @@ _filter()
 	-e 's/TOT_INS(-1): [0-9][0-9]*/TOT_INS(-1) NUMBER/' \
 	-e 's/0x[0-9a-f]*/ADDR/g' \
 	-e 's/[0-2][0-9]:00:00.000/TIME/' \
+	-e 's/126.0.[0-9][0-9]*/126.0.NUMBER/' \
     | _filter_papi_errors
 }
 
