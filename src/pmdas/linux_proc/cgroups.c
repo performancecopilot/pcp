@@ -796,6 +796,9 @@ namespace(__pmnsTree *pmns, cgroup_subsys_t *subsys,
 	cgroup_metrics_t *metrics = &subsys->metrics[i];
 	metrics->prepare(pmns, cgrouppath, subsys, group, i, id, domain);
     }
+
+   pmdaTreeRebuildHash( pmns, size ); 
+
     return 1;
 }
 

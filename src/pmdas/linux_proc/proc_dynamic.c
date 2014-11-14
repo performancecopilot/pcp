@@ -3,6 +3,7 @@
 #include "pmda.h"
 
 #include "clusters.h"
+#include "indom.h"
 
 #include <ctype.h>
 
@@ -285,6 +286,8 @@ build_dynamic_proc_tree( int domain )
     int num_dynproc_trees = sizeof(dynproc_members)/sizeof(char*);
     int num_dynproc_groups = sizeof(dynproc_groups)/sizeof(dynproc_group_t);
 
+    fprintf(stderr, "Rebuilding the Tree\n");
+
 
     for( tree = 0; tree < num_dynproc_trees; tree++){
 	for( group = 0; group < num_dynproc_groups; group++ ){
@@ -313,6 +316,9 @@ build_dynamic_proc_tree( int domain )
 
     pmdaTreeRebuildHash( dynamic_proc_tree, num_hash_entries );
 
+    __pmDumpNameNode(stderr, dynamic_proc_tree->root, 1);
+
+    fprintf(stderr, "Done Rebuilding the Tree\n");
 }
 
 /*
@@ -320,7 +326,8 @@ build_dynamic_proc_tree( int domain )
  * Will use the templates we have in pmda.c, modifying cluster values
  * In this case we assume the only 2 metric groups are proc and hotproc
  *
- * I assume id=1 is proc and id=2 is hotproc.
+ * I assume id=0 is proc and id=1 is hotproc.
+ * Not even called for 0 here
  *
  * This should be pretty simple.  Only metrics that are supposed to
  * be dynamic should flow thorugh here (correct?) so we don't do any checking
@@ -337,15 +344,33 @@ refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int id)
 
     memcpy(dest, source, sizeof(pmdaMetric));
 
-    if( id == 2 ){
+
+
+    if( id == 1 ){
 	hotcluster = get_hot_cluster(cluster);
 	if( hotcluster != -1 ){
 	    dest->m_desc.pmid = pmid_build(domain, hotcluster, item);
+	    if( source->m_desc.indom == PM_INDOM_NULL){
+		dest->m_desc.indom = PM_INDOM_NULL;
+	    }
+	    else{
+		dest->m_desc.indom = pmInDom_build(domain, HOTPROC_INDOM);
+	    }
 	}
 	else{
 	    fprintf(stderr, "Got bad hotproc cluster for %d:%d:%d id=%d\n", domain, cluster, item, id);
 	}
     }
+
+	/*
+
+            fprintf(stderr, "dynamic_proc refresh_metrictable: (%p -> %p) "
+                        "metric ID dup: %d.%d.%d -> %d.%d.%d\n",
+                source, dest, 
+		domain, cluster, item, 
+		domain, pmid_cluster(dest->m_desc.pmid), item);
+	*/
+
 }
 
 
@@ -395,7 +420,7 @@ size_metrictable(int *total, int *trees)
     }
 
     *total = num_leaf_nodes; /* calc based on all the structs above.  Total number of leaf nodes right ??? */
-    *trees = sizeof(dynproc_members)/sizeof(char*); /* will be 2 for proc and hotproc */
+    *trees = sizeof(dynproc_members)/sizeof(char*) -1 ; /* will be 1 hotproc */
 
     if (pmDebug & DBG_TRACE_LIBPMDA)
         printf(stderr, "interrupts size_metrictable: %d total x %d trees\n",
@@ -446,6 +471,18 @@ proc_dynamic_init(pmdaMetric *metrics, int nmetrics)
 {
 
     int clusters[MAX_CLUSTERS];
+    int nclusters = 0;
+
+    pmdaDynamicPMNS("foobar",
+                    clusters, nclusters,
+                    refresh_dynamic_proc, dynamic_proc_text,
+                    refresh_metrictable, size_metrictable,
+                    metrics, nmetrics);
+
+
+    /*
+
+    int clusters[MAX_CLUSTERS];
     int nclusters;
 
     char treename[128];
@@ -468,6 +505,12 @@ proc_dynamic_init(pmdaMetric *metrics, int nmetrics)
 
 	    sprintf(treename, "%s.%s", dynproc_members[j], dynproc_groups[i].name);
 
+	    fprintf(stderr, "Adding tree: %s, with %d clusters\n", treename,nclusters);
+	    for( k=0;k<nclusters;k++){
+		fprintf(stderr, "%d ", clusters[k]);
+	    }
+	    fprintf(stderr, "\n");
+
 	    // Should the strdup/memcpy be inside pmdaDynamicPMNS? currently it just assignes the pointer, assuming a string literal or other static type.
 	    pmdaDynamicPMNS(strdup(treename),
                     clusters, nclusters,
@@ -476,4 +519,5 @@ proc_dynamic_init(pmdaMetric *metrics, int nmetrics)
                     metrics, nmetrics);
 	}
     }
+*/
 }

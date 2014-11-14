@@ -90,7 +90,7 @@ pmdaTreeSize(__pmnsTree *pmns)
     return 0;
 }
 
-static __pmnsNode *
+__pmnsNode *
 __pmdaNodeLookup(__pmnsNode *node, const char *name)
 {
     while (node != NULL) {

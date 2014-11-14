@@ -44,6 +44,8 @@
 #include "ksym.h"
 #include "cgroups.h"
 
+#include "proc_dynamic.h"
+
 /* globals */
 static int			_isDSO = 1;	/* for local contexts */
 static proc_pid_t		proc_pid;
@@ -66,11 +68,6 @@ char *proc_statspath = "";	/* optional path prefix for all stats files */
  * It is initialized in proc_init(), see below.
  */
 static pmdaIndom indomtab[NUM_INDOMS];
-
-/*
- * Real metric tab that will be used after we add in hotprocs
- */
-static pmdaMetric *fullmetrictab;
 
 /*
  * all metrics supported in this PMDA - one table entry for each
@@ -1078,7 +1075,7 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
 	need_refresh[CLUSTER_PID_CGROUP] ||
 	need_refresh[CLUSTER_PID_SCHEDSTAT] ||
 	need_refresh[CLUSTER_PID_FD]) {
-	need_refresh_mtab |= refresh_proc_pid(&proc_pid,
+	refresh_proc_pid(&proc_pid,
 			proc_ctx_threads(pmda->e_context, threads),
 			proc_ctx_cgroups(pmda->e_context, cgroups));
     }
@@ -1092,7 +1089,7 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
         need_refresh[CLUSTER_HOTPROC_PID_FD] ||
         need_refresh[CLUSTER_HOTPROC_GLOBAL] ||
         need_refresh[CLUSTER_HOTPROC_PRED]){
-        need_refresh_mtab |= refresh_hotproc_pid(&hotproc_pid,
+        refresh_hotproc_pid(&hotproc_pid,
                         proc_ctx_threads(pmda->e_context, threads),
                         proc_ctx_cgroups(pmda->e_context, cgroups));
     }
@@ -1179,12 +1176,14 @@ proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
     }
 
     sts = PM_ERR_PERMISSION;
-    have_access = proc_ctx_access(pmda->e_context) || all_access;
+    have_access = all_access || proc_ctx_access(pmda->e_context);
     if (have_access || ( (indomp->serial != PROC_INDOM) && (indomp->serial != HOTPROC_INDOM) )) {
 	proc_refresh(pmda, need_refresh);
+	char ibuf[1024];
+	fprintf(stderr, "pmdaInstance on: %s Name: %s inst: %d\n", pmInDomStr_r(indom, ibuf, sizeof(ibuf)), name, inst);
 	sts = pmdaInstance(indom, inst, name, result, pmda);
     }
-    have_access = proc_ctx_revert(pmda->e_context);
+    have_access = all_access || proc_ctx_revert(pmda->e_context);
 
     return sts;
 }
@@ -2165,41 +2164,6 @@ void createHotprocMetric( pmdaMetric *procmetric, pmdaMetric *hotmetric){
 	}
 }
 
-int nmetrics = 0;
-
-void
-proc_init_hotproc(){
-
-	nmetrics = sizeof(metrictab)/sizeof(metrictab[0]);
-
-	fullmetrictab = (pmdaMetric *) malloc(nmetrics * 2 * sizeof(pmdaMetric));
-
-	/* memcopy, then add hotproc, then set nmetrics for use below, then update all to use fullmetrictab */
-	
-	memcpy( fullmetrictab, metrictab, sizeof(metrictab) );
-
-	int numhotproc = 0;
-	int i;
-
-	for( i=0; i < nmetrics; i++ ){
-
-		pmdaMetric * procmetric = &fullmetrictab[i];
-
-		if( isHotprocMetric( procmetric ) ){
-			pmdaMetric * hotmetric = &fullmetrictab[nmetrics+numhotproc];
-			createHotprocMetric( procmetric, hotmetric);
-			numhotproc++;
-		}
-
-	}
-
-	/* Could do 2 pasess and just alloc once */
-	fullmetrictab = realloc( fullmetrictab, (nmetrics+numhotproc) *  sizeof(pmdaMetric) );
-
-	nmetrics += numhotproc;
-
-}
-
 void 
 __PMDA_INIT_CALL
 proc_init(pmdaInterface *dp)
@@ -2210,8 +2174,6 @@ proc_init(pmdaInterface *dp)
 
     int		nindoms = sizeof(indomtab)/sizeof(indomtab[0]);
     int   sep = __pmPathSeparator();
-
-    proc_init_hotproc();
 
     _pm_system_pagesize = getpagesize();
     if ((envpath = getenv("PROC_STATSPATH")) != NULL)
@@ -2275,13 +2237,22 @@ proc_init(pmdaInterface *dp)
      */
     read_ksym_sources(kernel_uname.release);
 
-    cgroup_init(fullmetrictab, nmetrics);
+    int nmetrics = sizeof(metrictab)/sizeof(pmdaMetric);
+
+    int q = 0;
+    __pmID_int          *pmidp = NULL;
+    for(q=0;q<nmetrics;q++){
+	pmidp = (__pmID_int *)&metrictab[q].m_desc.pmid;
+	fprintf(stderr, "Metrics: %d.%d.%d\n", pmidp->domain, pmidp->cluster, pmidp->item);
+    }
+
+    cgroup_init(metrictab, nmetrics);
     proc_ctx_init();
 
     proc_dynamic_init(metrictab, nmetrics);
 
     pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
-    pmdaInit(dp, indomtab, nindoms, fullmetrictab, nmetrics);
+    pmdaInit(dp, indomtab, nindoms, metrictab, nmetrics);
 
     /* string metrics use the pmdaCache API for value indexing */
     pmdaCacheOp(INDOM(STRINGS_INDOM), PMDA_CACHE_STRINGS);
