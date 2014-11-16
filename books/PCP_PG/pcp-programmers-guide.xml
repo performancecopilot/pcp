@@ -126,7 +126,7 @@ For a complete list of manual sections on a platform enter the command:</para>
 
 <title>Web Site</title>
 <para>The following web site is accessible to everyone:</para>
-<variablelist condition="sgi_termlength:wide">
+<variablelist>
 <varlistentry>
 <term><emphasis role="bold">URL</emphasis></term><listitem><para><emphasis role="bold">Description</emphasis></para></listitem></varlistentry>
 <varlistentry>
@@ -579,7 +579,7 @@ simple  253     pipe    binary          ${PCP_PMDAS_DIR}/simple/pmdasimple -d 25
     pmUnits     units;          /* dimension and units */ 
 } pmDesc;</programlisting>
 <para>This structure contains the following fields:</para>
-<variablelist condition="sgi_termlength:narrow">
+<variablelist>
 <varlistentry>
 <term><literal>pmid</literal></term>
 <listitem><para>A unique identifier, Performance Metric Identifier (PMID), that differentiates this metric from other metrics across the union of all PMDAs</para>
