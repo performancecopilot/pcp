@@ -113,7 +113,7 @@ pmgraphite_metric_decode (const string & foo)
 
 
 struct pmg_enum_context {
-    vector <string> *patterns;
+    const vector <string> *patterns;
     vector <string> *output;
     string archivepart;
 };
@@ -202,19 +202,17 @@ pmg_enumerate_pmns (const char *name, void *cls)
     }
 }
 
-
 // Heavy lifter.  Enumerate all archives, all metrics, all instances.
 // This is not unbearably slow, since it involves only a scan of
 // directories & metadata.
 
 vector <string> pmgraphite_enumerate_metrics (struct MHD_Connection * connection,
-        const string & pattern)
+                                              const vector<string> & patterns_tok)
 {
     vector <string> output;
 
     // The javascript guis may feed us wildcardy partial metric names.  We
     // apply them (via componentwise fnsearch(3)) as an optimization.
-    vector <string> patterns_tok = split (pattern, '.');
 
     // We build up our graphite metric namespace from a couple of nested loops.
 
@@ -299,6 +297,16 @@ out:
 }
 
 
+vector <string> pmgraphite_enumerate_metrics (struct MHD_Connection * connection,
+                                              const string & pattern)
+{
+    vector<string> pattern_tok = split(pattern, '.');
+    return pmgraphite_enumerate_metrics (connection, pattern_tok);
+}
+
+
+
+
 // ------------------------------------------------------------------------
 
 
@@ -315,71 +323,58 @@ pmgraphite_respond_metrics_find (struct MHD_Connection *connection,
     struct MHD_Response *resp;
 
     string query = params["query"];
-    if (query == "") {
-        return mhd_notify_error (connection, -EINVAL);
-    }
-
     string format = params["format"];
     if (format == "") {
         format = "treejson";    // as per grafana
     }
 
     vector <string> query_tok = split (query, '.');
-    unsigned path_match = query_tok.size () - 1;
+    assert (query_tok.size() >= 1);
+    // suffix last query component with '*'
+    query_tok[query_tok.size()-1] += string("*");
 
-    vector <string> metrics = pmgraphite_enumerate_metrics (connection, query);
-    if (exit_p) {
+    vector <string> metrics = pmgraphite_enumerate_metrics (connection, query_tok);
+    if (exit_p)
         return MHD_NO;
-    }
 
-    // Classify the next piece of each metric name (at the
-    // [path_match] position) as leafs and/or non-leafs.
-    set <string> nodes;
-    set <string> subtrees;
-    set <string> leaves;
+    // The metrics<> vector contains all possible full metric strings
+    // for the query_tok prefix.   We need to transform this into a one-step 
+    // expansion - just those components that match the query_tok<> prefix,
+    // stripping the suffixes.
 
-    // We still need the prior pieces though, for "id"="foo" purposes.
-    string common_prefix;
 
+    unsigned prefix_size = query_tok.size ();
+
+    // these sets are used for duplicate-elimination
+    map <string,bool> metric_leaf;   // foo.bar -> true (leaf) or false (has .baz/.zoo descendants)
+    map <string,string> metric_last; // foo.bar -> bar (for response JSON name field)
     for (unsigned i = 0; i < metrics.size (); i++) {
-        if (exit_p) {
+        if (exit_p)
             return MHD_NO;
-        }
 
         vector <string> pieces = split (metrics[i], '.');
-
-        // XXX: check that metrics[i] is a proper subtree of query
-        // i.e., check pieces[0..path_match-1] -fnmatches- query_tok[0..path_match-1]
-        if (pieces.size () <= path_match) {
+        if (pieces.size () < prefix_size)
             continue;		// should not happen
+
+        string prefix;
+        for (unsigned j=0; j<prefix_size; j++) {
+            if (j>0)
+                prefix += string(".");
+            prefix += pieces[j];
         }
 
-        if (path_match > 0 && common_prefix == "") {
-            // not yet computed
-            // NB: an early piece can hypothetically include a wildcard; we can
-            // propagate that through to the common_prefix, as graphite does
-            for (unsigned j = 0; j < path_match; j++) {
-                common_prefix += pieces[j] + ".";
-            }
-        }
+        // NB: due to properties of the PMNS, we won't have a metric
+        // prefix be both a leaf and non-leaf, because we can't have a
+        // PCP metrics named foo.bar AND foo.bar.baz.
+        if (pieces.size () > prefix_size)
+            metric_leaf [prefix] = false;
+        if (pieces.size() == prefix_size)
+            metric_leaf [prefix] = true;
 
-        string piece = pieces[path_match];
-
-        // NB: the same piece can be hypothetically listed in both
-        // subtrees and leaves (e.g. "bar", if a pcp
-        // metric.foo.bar.baz as well metric.foo.bar were to exist).
-        if (pieces.size () > path_match+1) {
-            subtrees.insert (piece);
-        }
-        if (pieces.size () == path_match+1) {
-            leaves.insert (piece);
-        }
-
-        nodes.insert (piece);
+        metric_last[prefix] = pieces[prefix_size-1];
     }
 
     // OK, time to generate some output.
-
     stringstream output;
     unsigned num_nodes = 0;
 
@@ -388,13 +383,11 @@ pmgraphite_respond_metrics_find (struct MHD_Connection *connection,
     }
 
     output << "[";
-    for (set <string>::iterator it = nodes.begin (); it != nodes.end ();
+    for (map <string,bool>::iterator it = metric_leaf.begin (); it != metric_leaf.end ();
             it ++) {
-        const string & node = *it;
-
-        // NB: both of these could be true in principle
-        bool leaved_p = leaves.find (node) != leaves.end ();
-        bool subtreed_p = subtrees.find (node) != subtrees.end ();
+        const string & prefix = it->first;
+        bool leaf_p = it->second;
+        const string & name = metric_last[prefix];
 
         if (num_nodes++ > 0) {
             output << ",";
@@ -402,17 +395,20 @@ pmgraphite_respond_metrics_find (struct MHD_Connection *connection,
 
         if (format == "completer") {
             output << "{";
-            json_key_value (output, "name", (string) node, ",");
-            json_key_value (output, "path", (string) (common_prefix + node), ",");
-            json_key_value (output, "is_leaf", leaved_p);
+            json_key_value (output, "name", name, ",");
+            if (leaf_p)
+                json_key_value (output, "path", prefix, ",");
+            else
+                json_key_value (output, "path", (string) (prefix + string(".")), ",");
+            json_key_value (output, "is_leaf", leaf_p);
             output << "}";
         } else {
             output << "{";
-            json_key_value (output, "text", (string) node, ",");
-            json_key_value (output, "id", (string) (common_prefix + node), ",");
-            json_key_value (output, "leaf", leaved_p, ",");
-            json_key_value (output, "expandable", subtreed_p, ",");
-            json_key_value (output, "allowChildren", subtreed_p);
+            json_key_value (output, "text", name, ",");
+            json_key_value (output, "id", prefix, ",");
+            json_key_value (output, "leaf", leaf_p, ",");
+            json_key_value (output, "expandable", !leaf_p, ",");
+            json_key_value (output, "allowChildren", !leaf_p);
             output << "}";
         }
     }
@@ -495,7 +491,7 @@ pmgraphite_respond_metrics_grep (struct MHD_Connection *connection,
         }
     }
 
-    vector <string> metrics = pmgraphite_enumerate_metrics (connection, "");
+    vector <string> metrics = pmgraphite_enumerate_metrics (connection, "*");
     if (exit_p) {
         return MHD_NO;
     }

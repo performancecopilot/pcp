@@ -87,7 +87,7 @@ extern std::ostream & timestamp (std::ostream & o);
 extern std::string conninfo (MHD_Connection *, bool serv_p);
 extern std::ostream & connstamp (std::ostream & o, MHD_Connection *);
 extern std::string urlencode (const std::string &);
-extern std::vector <std::string> split (const std::string & s, char delim);
+extern std::vector <std::string> split (const std::string & s, char sep);
 extern bool cursed_path_p (const std::string & blessed, const std::string & questionable);
 extern void json_quote (std::ostream & o, const std::string & value);
 
