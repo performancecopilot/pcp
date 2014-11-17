@@ -118,7 +118,7 @@ _reboot_setup()
     #
     if [ ! -d "$PCP_TMP_DIR/pmlogger" ]
     then
-	mkdir -p -m 777 "$PCP_TMP_DIR/pmlogger"
+	mkdir -p -m 775 "$PCP_TMP_DIR/pmlogger"
 	chown $PCP_USER:$PCP_GROUP "$PCP_TMP_DIR/pmlogger"
     else
 	rm -rf $tmp/ent $tmp/pid
