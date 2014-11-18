@@ -1,5 +1,4 @@
 /*
- * Copyright (c) 2014 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -12,20 +11,9 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#ifndef _PROC_RUNQ_H
-#define _PROC_RUNQ_H
+#ifndef _PROC_DYNAMIC_H
+#define _PROC_DYNAMIC_H
 
-typedef struct {
-    int runnable;
-    int blocked;
-    int sleeping;
-    int stopped;
-    int swapped;
-    int kernel;
-    int defunct;
-    int unknown;
-} proc_runq_t;
+extern int proc_dynamic_init(pmdaMetric *, int);
 
-extern int proc_runq_append(const char *, proc_runq_t *);
-
-#endif /* _PROC_RUNQ_H */
+#endif /* _PROC_DYNAMIC_H */

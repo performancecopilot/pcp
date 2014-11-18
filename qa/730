@@ -37,7 +37,7 @@ do
     echo "== Checking metric descriptors and values - $base"
     pminfo -L -K clear -K add,3,$pmda -d -f cgroup
     echo "== Checking on an individual metric fetch - $base"
-    pminfo -L -K clear -K add,3,$pmda -f cgroup.groups.blkio.time
+    pminfo -L -K clear -K add,3,$pmda -f cgroup.blkio.dev.time
     echo && echo "== done" && echo
     cd $here
 done

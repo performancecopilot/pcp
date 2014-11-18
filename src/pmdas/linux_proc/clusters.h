@@ -36,13 +36,11 @@
 #define CLUSTER_CPUACCT_GROUPS	41 /* cpu accounting control groups */
 #define CLUSTER_CPUSCHED_GROUPS	43 /* scheduler control groups */
 #define CLUSTER_MEMORY_GROUPS	45 /* memory control groups */
-#define CLUSTER_NET_CLS_GROUPS	47 /* network classification control groups */
-#define CLUSTER_BLKIO_GROUPS	49 /* blkio control groups */
+#define CLUSTER_NETCLS_GROUPS	47 /* network classification control groups */
+#define CLUSTER_BLKIO_GROUPS	49 /* block layer I/O control groups */
 #define CLUSTER_PID_FD		51 /* /proc/<pid>/fd */
-	/* Note: do not use higher than (1 << CGROUP_SPLIT)-1 as cluster ID */
 
 #define MIN_CLUSTER  8		/* first cluster number we use here */
 #define NUM_CLUSTERS 52		/* one more than highest cluster number used */
-#define MAX_CLUSTER  63		/* last available - fill gaps if more needed */
 
 #endif /* _CLUSTERS_H */

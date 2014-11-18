@@ -1,7 +1,7 @@
 /*
  * Linux proc/<pid>/{stat,statm,status,...} Clusters
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 2000,2004,2006 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  * 
@@ -23,6 +23,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include "proc_pid.h"
+#include "proc_runq.h"
 #include "indom.h"
 
 static proc_pid_list_t pids;
@@ -88,6 +89,9 @@ refresh_cgroup_pidlist(int want_threads, const char *cgroup)
     FILE *fp;
     int pid;
 
+    pids.count = 0;
+    pids.threads = want_threads;
+
     /*
      * We're running in cgroups mode where a subset of the processes is
      * going to be returned based on the cgroup specified earlier via a
@@ -118,11 +122,14 @@ refresh_cgroup_pidlist(int want_threads, const char *cgroup)
 }
 
 static int
-refresh_global_pidlist(int want_threads)
+refresh_global_pidlist(int want_threads, proc_runq_t *runq_stats)
 {
     DIR *dirp;
     struct dirent *dp;
     char path[MAXPATHLEN];
+
+    pids.count = 0;
+    pids.threads = want_threads;
 
     snprintf(path, sizeof(path), "%s/proc", proc_statspath);
     if ((dirp = opendir(path)) == NULL) {
@@ -141,6 +148,8 @@ refresh_global_pidlist(int want_threads)
 	    pidlist_append(dp->d_name);
 	    if (want_threads)
 		tasklist_append(dp->d_name);
+	    if (runq_stats)
+		proc_runq_append(dp->d_name, runq_stats);
 	}
     }
     closedir(dirp);
@@ -327,16 +336,23 @@ refresh_proc_pidlist(proc_pid_t *proc_pid)
 }
 
 int
-refresh_proc_pid(proc_pid_t *proc_pid, int threads, const char *cgroups)
+refresh_proc_pid(proc_pid_t *proc_pid, proc_runq_t *proc_runq,
+		 int threads, const char *cgroups)
 {
-    int sts;
+    int sts, want_cgroups = (cgroups && cgroups[0] != '\0');
 
-    pids.count = 0;
-    pids.threads = threads;
+    /* For the run queue stats, we cannot avoid the global /proc refresh.
+     * However, we can ensure we scan it once only (either here or below).
+     */
+    if (proc_runq) {
+	memset(proc_runq, 0, sizeof(proc_runq_t));
+	if (!want_cgroups)
+	    refresh_global_pidlist(threads, proc_runq);
+    }
 
-    sts = (cgroups && cgroups[0] != '\0') ?
-		refresh_cgroup_pidlist(threads, cgroups) :
-		refresh_global_pidlist(threads);
+    sts = want_cgroups ?
+	refresh_cgroup_pidlist(threads, cgroups) :
+	refresh_global_pidlist(threads, proc_runq);
     if (sts < 0)
 	return sts;
 
