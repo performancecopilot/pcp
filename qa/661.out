@@ -95,37 +95,119 @@ metric tree iteration
         {
             "is_leaf": 0,
             "name": "disk",
-            "path": "src-2F-naslog-2E-meta.disk"
+            "path": "src-2F-naslog-2E-meta.disk."
         },
         {
             "is_leaf": 0,
             "name": "hinv",
-            "path": "src-2F-naslog-2E-meta.hinv"
+            "path": "src-2F-naslog-2E-meta.hinv."
         },
         {
             "is_leaf": 0,
             "name": "kernel",
-            "path": "src-2F-naslog-2E-meta.kernel"
+            "path": "src-2F-naslog-2E-meta.kernel."
         },
         {
             "is_leaf": 0,
             "name": "network",
-            "path": "src-2F-naslog-2E-meta.network"
+            "path": "src-2F-naslog-2E-meta.network."
         },
         {
             "is_leaf": 0,
             "name": "pmcd",
-            "path": "src-2F-naslog-2E-meta.pmcd"
+            "path": "src-2F-naslog-2E-meta.pmcd."
         },
         {
             "is_leaf": 0,
             "name": "swap",
-            "path": "src-2F-naslog-2E-meta.swap"
+            "path": "src-2F-naslog-2E-meta.swap."
         },
         {
             "is_leaf": 0,
             "name": "xfs",
-            "path": "src-2F-naslog-2E-meta.xfs"
+            "path": "src-2F-naslog-2E-meta.xfs."
+        }
+    ]
+}
+{
+    "metrics": [
+        {
+            "is_leaf": 0,
+            "name": "all",
+            "path": "src-2F-naslog-2E-meta.kernel.all."
+        }
+    ]
+}
+{
+    "metrics": [
+        {
+            "is_leaf": 0,
+            "name": "all",
+            "path": "src-2F-naslog-2E-meta.kernel.all."
+        }
+    ]
+}
+{
+    "metrics": [
+        {
+            "is_leaf": 0,
+            "name": "cpu",
+            "path": "src-2F-naslog-2E-meta.kernel.all.cpu."
+        },
+        {
+            "is_leaf": 1,
+            "name": "kpreempt",
+            "path": "src-2F-naslog-2E-meta.kernel.all.kpreempt"
+        },
+        {
+            "is_leaf": 1,
+            "name": "kswitch",
+            "path": "src-2F-naslog-2E-meta.kernel.all.kswitch"
+        },
+        {
+            "is_leaf": 0,
+            "name": "load",
+            "path": "src-2F-naslog-2E-meta.kernel.all.load."
+        },
+        {
+            "is_leaf": 1,
+            "name": "pswitch",
+            "path": "src-2F-naslog-2E-meta.kernel.all.pswitch"
+        },
+        {
+            "is_leaf": 1,
+            "name": "syscall",
+            "path": "src-2F-naslog-2E-meta.kernel.all.syscall"
+        },
+        {
+            "is_leaf": 1,
+            "name": "sysexec",
+            "path": "src-2F-naslog-2E-meta.kernel.all.sysexec"
+        },
+        {
+            "is_leaf": 1,
+            "name": "sysfork",
+            "path": "src-2F-naslog-2E-meta.kernel.all.sysfork"
+        },
+        {
+            "is_leaf": 1,
+            "name": "sysioctl",
+            "path": "src-2F-naslog-2E-meta.kernel.all.sysioctl"
+        },
+        {
+            "is_leaf": 1,
+            "name": "sysread",
+            "path": "src-2F-naslog-2E-meta.kernel.all.sysread"
+        },
+        {
+            "is_leaf": 1,
+            "name": "syswrite",
+            "path": "src-2F-naslog-2E-meta.kernel.all.syswrite"
+        },
+        {
+            "is_leaf": 1,
+            "name": "users",
+            "path": "src-2F-naslog-2E-meta.kernel.all.users"
         }
     ]
 }
