@@ -645,7 +645,9 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
                 if (auto_enable_time) {
                     // auto-enable this metric for a while
                     papi_info[idp->item].metric_enabled = now + auto_enable_time;
-                    refresh_metrics();
+                    sts = refresh_metrics();
+                    if (sts < 0)
+                        return sts;
                 }
 		return PMDA_FETCH_NOVALUES;
             }
