@@ -26,6 +26,7 @@ get_pminfo()
     perl -e '
         open STATS, "pminfo -f '$1' |" || die "pminfo: $!";
         while (<STATS>) {
+            s/readdir\+/readdirplus/g;
             if (m/.*"(\S+)"] value (\d+)/) {
                 printf("'$2'_%s %d\n", $1, $2);
             }

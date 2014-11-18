@@ -940,6 +940,7 @@ avahi
 764 pmie local
 766 pmfind local
 768 pmlogextract local
+769 other local
 775 sanity pmfind local
 776 pmfind local
 779 pmda local
@@ -950,6 +951,8 @@ avahi
 786 context context_local libpcp local
 787:reserved archive local pmie pmlogrewrite pmdumplog pmval
 798 pmda.nfsclient local
+799:retired pmda.papi local
+813 pmda.papi local
 815 pmie local
 822:reserved pmlogrewrite
 823 pmda.sample pmstore secure local
@@ -996,6 +999,7 @@ avahi
 960 pmda.ds389 local
 962 archive local
 966 secure local
+967 pmda.papi local
 972 pmda.zswap dbpmda local
 973 pmda.zswap pmda.install local
 978 libpcp getopt sanity local

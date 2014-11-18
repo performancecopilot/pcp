@@ -1,5 +1,7 @@
 <?xml version='1.0'?>
 <!DOCTYPE bookinfo PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "pcp-users-and-administrators-guide.ent">
+%BOOK_ENTITIES;
 ]>
 <bookinfo id="pcp-users-and-administrators-guide">
 	<title>pcp-users-and-administrators-guide</title>
@@ -8,6 +10,13 @@
 	<productname>PCP</productname>
 	<productnumber>3</productnumber>
         <pubsnumber>1</pubsnumber>
+	<abstract>
+		<para>
+			This guide describes the Performance Co-Pilot (PCP) performance analysis toolkit
+			from a user's and administrator's point of view. It covers introduction, installation,
+			deployment and customization of PCP.
+		</para>
+	</abstract>
  	<xi:include href="Legal_Notice.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
 <!-- <xi:include href="Common_Content/Legal_Notice.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>-->
 	<xi:include href="Author_Group.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />

@@ -63,12 +63,21 @@ do
     sar2pcp $safile $pcplog > $tmp.out 2>&1
     sts=$?
 
-    # this seems to be a common sadf fail message;
-    # happens when the installed sysutils is old:
-    grep 'Invalid system activity file' $tmp.out >/dev/null
-    if [ $? -eq 0 ]
+    if grep 'Invalid system activity file' $tmp.out >/dev/null
     then
+	# this seems to be a common sadf fail message;
+	# happens when the installed sysutils is old:
+	#
 	echo "$safile is not parsable by the installed sysutils" >>$seq.full
+	silence $safile
+    elif grep 'mismatched tag at line .*/TokeParser.pm' $tmp.out >/dev/null
+    then
+	# for sadf 10.0.2 on Gentoo 2.0.3 (vm05) the generate xml
+	# is bad as it containts <timestamp .../> ... </timestamp>
+	# instead of <timestamp ...> ... </timestamp>
+	#
+	echo "sadf generates bad XML for $safile" >>$seq.full
+	sadf -x $safile -- -A | nl -ba | grep timestamp >>$seq.full
 	silence $safile
     else
 	if [ $sts -eq 0 ]

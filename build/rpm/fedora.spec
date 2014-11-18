@@ -18,6 +18,7 @@ Source1: pcp-webjs.src.tar.gz
 %{!?disable_papi: %global disable_papi 0%{?rhel} < 6}
 %{!?disable_perfevent: %global disable_perfevent 0%{?rhel} < 7}
 %endif
+
 %define disable_microhttpd 0
 %define disable_cairo 0
 %if 0%{?rhel} == 0 || 0%{?rhel} > 6
