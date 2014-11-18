@@ -1050,6 +1050,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 - New conditionally-built pcp-pmda-perfevent sub-package.
 - Currently under development.
 
+* Tue Nov 18 2014 Dave Brolley <brolley@redhat.com> - 3.10.0-2
+- papi 5.4.0 rebuild
+
 * Fri Oct 31 2014 Nathan Scott <nathans@redhat.com> - 3.10.0-1
 - Create new sub-packages for pcp-webjs and python3-pcp.
 - Fix __pmDiscoverServicesWithOptions(1) codes (BZ 1139529)
