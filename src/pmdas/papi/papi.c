@@ -274,7 +274,7 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
             return PMDA_FETCH_STATIC;
 
 	case 5:
-	    /* papi.control.enable_multiplexing */
+	    /* papi.control.multiplex */
 	    atom->ul = enable_multiplexing;
             return PMDA_FETCH_STATIC;
 
@@ -540,7 +540,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
             retval = setup_auto_af ();
             return retval;
 	case 5:
-	    /* papi.control.enable_multiplexing */
+	    /* papi.control.multiplex */
 	    if ((retval = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				 PM_TYPE_U32, &av, PM_TYPE_U32)) < 0)
 		return retval;
