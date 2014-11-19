@@ -52,11 +52,11 @@ static unsigned int number_of_events; /* cardinality of papi_info[] */
 static char     isDSO = 1; /* == 0 if I am a daemon */
 static int      EventSet = PAPI_NULL;
 static long_long *values;
-struct uid_gid_tuple {
-    char uid_p; char gid_p; /* uid/gid received flags. */
-    int uid; int gid; /* uid/gid received from PCP_ATTR_* */
+struct uid_tuple {
+    char uid_p; /* uid received flags. */
+    int uid; /* uid received from PCP_ATTR_* */
 }; 
-static struct uid_gid_tuple *ctxtab;
+static struct uid_tuple *ctxtab;
 static int ctxtab_size;
 static int number_of_counters; // XXX: collapse into number_of_events
 static unsigned int size_of_active_counters; // XXX: eliminate
@@ -113,13 +113,13 @@ enlarge_ctxtab(int context)
 {
     /* Grow the context table if necessary. */
     if (ctxtab_size /* cardinal */ <= context /* ordinal */) {
-        size_t need = (context + 1) * sizeof(struct uid_gid_tuple);
+        size_t need = (context + 1) * sizeof(struct uid_tuple);
         ctxtab = realloc(ctxtab, need);
         if (ctxtab == NULL)
             __pmNoMem("papi ctx table", need, PM_FATAL_ERR);
         /* Blank out new entries. */
         while (ctxtab_size <= context)
-            memset(&ctxtab[ctxtab_size++], 0, sizeof(struct uid_gid_tuple));
+            memset(&ctxtab[ctxtab_size++], 0, sizeof(struct uid_tuple));
     }
 }
 
@@ -157,10 +157,8 @@ papi_endContextCallBack(int context)
 	__pmNotifyErr(LOG_DEBUG, "end context %d received\n", context);
 
     /* ensure clients re-using this slot re-authenticate */
-    if (context >= 0 && context < ctxtab_size) {
+    if (context >= 0 && context < ctxtab_size)
 	ctxtab[context].uid_p = 0;
-	ctxtab[context].gid_p = 0;
-    }
 }
 
 static int
@@ -668,12 +666,6 @@ papi_contextAttributeCallBack(int context, int attr,
         ctxtab[context].uid_p = 1;
         id = atoi(value);
         ctxtab[context].uid = id;
-        break;
-
-    case PCP_ATTR_GROUPID:
-        ctxtab[context].gid_p = 1;
-        id = atoi(value);
-        ctxtab[context].gid = id;
         break;
 
     default:
