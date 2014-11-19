@@ -128,17 +128,16 @@ enlarge_ctxtab(int context)
 static void
 expand_metric_tab(int size)
 {
-    pmUnits units = PMDA_PMUNITS(0,0,0,0, PM_TIME_NSEC, 0);
     size_t need = sizeof(pmdaMetric)*(nummetrics+1);
     metrictab = realloc(metrictab, need);
     if (metrictab == NULL)
 	__pmNoMem("metrictab expansion", need, PM_FATAL_ERR);
 
     metrictab[nummetrics-1].m_desc.pmid = papi_info[size].pmid;
-    metrictab[nummetrics-1].m_desc.type = PM_TYPE_U64;
+    metrictab[nummetrics-1].m_desc.type = PM_TYPE_64;
     metrictab[nummetrics-1].m_desc.indom = PM_INDOM_NULL;
     metrictab[nummetrics-1].m_desc.sem = PM_SEM_COUNTER;
-    metrictab[nummetrics-1].m_desc.units = units;
+    metrictab[nummetrics-1].m_desc.units = (pmUnits) PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE);
 }
 
 static int
@@ -190,7 +189,7 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (idp->item >= 0 && idp->item <= number_of_events) {
 	    // the 'case' && 'idp->item' value we get is the pmns_position
 	    if (papi_info[idp->item].position >= 0) {
-		atom->ull = papi_info[idp->item].prev_value + values[papi_info[idp->item].position];
+		atom->ll = papi_info[idp->item].prev_value + values[papi_info[idp->item].position];
                 // if previously auto-enabled, extend the timeout
                 if (papi_info[idp->item].metric_enabled != METRIC_ENABLED_FOREVER &&
                     auto_enable_time)
@@ -704,8 +703,6 @@ papi_init(pmdaInterface *dp)
 {
     int i;
     int retval;
-    pmUnits auto_enable_units = PMDA_PMUNITS(0,1,0,0, PM_TIME_SEC, 0);
-    pmUnits other_units = PMDA_PMUNITS(0,0,0,0, PM_TIME_NSEC, 0);
     enable_multiplexing = 1;
     nummetrics = 7;
     metrictab = malloc(nummetrics*sizeof(pmdaMetric));
@@ -713,27 +710,27 @@ papi_init(pmdaInterface *dp)
 	__pmNoMem("initial metrictab allocation", (nummetrics*sizeof(pmdaMetric)), PM_FATAL_ERR);
     for(i = 0; i < nummetrics; i++) {
 	switch (i) {
-	case 4:
+	case 4: // papi.control.auto_enable
 	case 5:
 	    metrictab[i].m_desc.pmid = pmid_build(dp->domain, CLUSTER_CONTROL, i);
 	    metrictab[i].m_desc.type = PM_TYPE_U32;
 	    metrictab[i].m_desc.indom = PM_INDOM_NULL;
 	    metrictab[i].m_desc.sem = PM_SEM_DISCRETE;
-	    metrictab[i].m_desc.units = auto_enable_units;
+	    metrictab[i].m_desc.units = (pmUnits) PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0);
 	    break;
-	case 6:
+	case 6: // papi.available.num_counters
 	    metrictab[i].m_desc.pmid = pmid_build(dp->domain, CLUSTER_AVAILABLE, 0);
 	    metrictab[i].m_desc.type = PM_TYPE_U32;
 	    metrictab[i].m_desc.indom = PM_INDOM_NULL;
 	    metrictab[i].m_desc.sem = PM_SEM_DISCRETE;
-	    metrictab[i].m_desc.units = other_units;
+	    metrictab[i].m_desc.units = (pmUnits) PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE);
 	    break;
-	default:
+	default: // papi.control.{enable,reset,disable,status}
 	    metrictab[i].m_desc.pmid = pmid_build(dp->domain, CLUSTER_CONTROL, i);
 	    metrictab[i].m_desc.type = PM_TYPE_STRING;
 	    metrictab[i].m_desc.indom = PM_INDOM_NULL;
 	    metrictab[i].m_desc.sem = PM_SEM_INSTANT;
-	    metrictab[i].m_desc.units = other_units;
+	    metrictab[i].m_desc.units = (pmUnits) PMDA_PMUNITS(0,0,0,0,0,0);
 	    break;
 	}
     }
