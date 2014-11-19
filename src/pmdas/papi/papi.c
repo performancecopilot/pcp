@@ -69,6 +69,8 @@ static char helppath[MAXPATHLEN];
 static pmdaMetric *metrictab;
 static int nummetrics;
 
+static int enable_multiplexing;
+
 static int
 permission_check(int context)
 {
@@ -271,6 +273,11 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->ul = auto_enable_time;
             return PMDA_FETCH_STATIC;
 
+	case 5:
+	    /* papi.control.enable_multiplexing */
+	    atom->ul = enable_multiplexing;
+            return PMDA_FETCH_STATIC;
+
 	default:
 	    return PM_ERR_PMID;
 	}
@@ -372,7 +379,7 @@ refresh_metrics()
 	handle_papi_error(retval);
 	return PM_ERR_GENERIC;
     }
-    if ((retval = PAPI_set_multiplex(EventSet)) != PAPI_OK) {
+    if (enable_multiplexing && (retval = PAPI_set_multiplex(EventSet)) != PAPI_OK) {
 	handle_papi_error(retval);
         /* not fatal - FALLTHROUGH */
     }
@@ -532,6 +539,14 @@ papi_store(pmResult *result, pmdaExt *pmda)
             auto_enable_time = av.ul;
             retval = setup_auto_af ();
             return retval;
+	case 5:
+	    /* papi.control.enable_multiplexing */
+	    if ((retval = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+				 PM_TYPE_U32, &av, PM_TYPE_U32)) < 0)
+		return retval;
+	    enable_multiplexing = av.ul;
+	    retval = refresh_metrics();
+	    return retval;
 
 	default:
 	    return PM_ERR_PMID;
@@ -691,20 +706,22 @@ papi_init(pmdaInterface *dp)
     int retval;
     pmUnits auto_enable_units = PMDA_PMUNITS(0,1,0,0, PM_TIME_SEC, 0);
     pmUnits other_units = PMDA_PMUNITS(0,0,0,0, PM_TIME_NSEC, 0);
-    nummetrics = 6;
+    enable_multiplexing = 1;
+    nummetrics = 7;
     metrictab = malloc(nummetrics*sizeof(pmdaMetric));
     if (metrictab == NULL)
 	__pmNoMem("initial metrictab allocation", (nummetrics*sizeof(pmdaMetric)), PM_FATAL_ERR);
-    for(i = 0; i < 6; i++) {
+    for(i = 0; i < nummetrics; i++) {
 	switch (i) {
 	case 4:
+	case 5:
 	    metrictab[i].m_desc.pmid = pmid_build(dp->domain, CLUSTER_CONTROL, i);
 	    metrictab[i].m_desc.type = PM_TYPE_U32;
 	    metrictab[i].m_desc.indom = PM_INDOM_NULL;
 	    metrictab[i].m_desc.sem = PM_SEM_DISCRETE;
 	    metrictab[i].m_desc.units = auto_enable_units;
 	    break;
-	case 5:
+	case 6:
 	    metrictab[i].m_desc.pmid = pmid_build(dp->domain, CLUSTER_AVAILABLE, 0);
 	    metrictab[i].m_desc.type = PM_TYPE_U32;
 	    metrictab[i].m_desc.indom = PM_INDOM_NULL;

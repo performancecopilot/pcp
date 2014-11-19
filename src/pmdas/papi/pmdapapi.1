@@ -102,6 +102,11 @@ papi.control.disable old value="" new value="TOT_CYC,TOT_INS"
 Fetching the
 .BR papi.control.status
 metric provides an overview of all active counters.
+.P
+By default, PAPI multiplexing, which allows support for collecting more metrics
+than supported by the hardware concurrently, is enabled.  One may modify the
+.B papi.control.enable_multiplexing
+metric to disable multiplexing by setting it to 0.
 .PP
 .SH INSTALLATION
 If you want access to the names, help text and values for the \*(ia

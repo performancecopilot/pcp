@@ -30,6 +30,9 @@ Error: No permission to perform requested operation
 papi.control.auto_enable
 Error: No permission to perform requested operation
 
+papi.control.enable_multiplexing
+Error: No permission to perform requested operation
+
 == PAPI library behaviour, control metric stores, non-root
 papi.control.enable: Error: No permission to perform requested operation
 papi.control.reset: Error: No permission to perform requested operation
@@ -64,6 +67,9 @@ papi.control.status
 
 papi.control.auto_enable
     value 120
+
+papi.control.enable_multiplexing
+    value 1
 
 == Testing local PAPI library behaviour, control metric stores as root
 papi.control.enable old value="" new value="TOT_INS"

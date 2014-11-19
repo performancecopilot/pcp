@@ -15,19 +15,20 @@
  */
 
 papi {
-    system	PAPI:*:*
+    system		PAPI:*:*
     control
     available
 }
 
 papi.control {
-    enable	PAPI:1:0
-    reset	PAPI:1:1
-    disable	PAPI:1:2
-    status	PAPI:1:3
-    auto_enable	PAPI:1:4
+    enable		PAPI:1:0
+    reset		PAPI:1:1
+    disable		PAPI:1:2
+    status		PAPI:1:3
+    auto_enable		PAPI:1:4
+    enable_multiplexing	PAPI:1:5
 }
 
 papi.available {
-    num_counters PAPI:2:0
+    num_counters	PAPI:2:0
 }

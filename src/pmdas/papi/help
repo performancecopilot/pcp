@@ -36,5 +36,7 @@
 
 @ papi.control.auto_enable Timeout for future auto-enabled counters in seconds.
 
+@ papi.control.enable_multiplexing Switch for enabling PAPI multiplexing
+
 @ papi.available.num_counters Number of hardware counters available for use
 
