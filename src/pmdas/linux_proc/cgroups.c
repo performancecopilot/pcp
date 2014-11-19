@@ -458,8 +458,10 @@ read_percpuacct_usage(const char *file, const char *name)
     if ((fp = fopen(file, "r")) == NULL)
 	return -ENOENT;
     p = fgets(buffer, sizeof(buffer), fp);
-    if (!p)
+    if (!p) {
+	fclose(fp);
 	return -ENOMEM;
+    }
 
     for (cpu = 0; ; cpu++) {
 	value = strtoull(p, &endp, 0);
@@ -480,6 +482,7 @@ read_percpuacct_usage(const char *file, const char *name)
 	percpuacct->usage = value;
 	pmdaCacheStore(indom, PMDA_CACHE_ADD, inst, percpuacct);
     }
+    fclose(fp);
     return 0;
 }
 
