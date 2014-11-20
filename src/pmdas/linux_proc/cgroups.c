@@ -594,8 +594,11 @@ read_memory_stats(const char *file, cgroup_memory_t *cmp)
     FILE *fp;
     int i;
 
-    if ((fp = fopen(file, "r")) == NULL)
+    memset(&memory, 0, sizeof(memory));
+    if ((fp = fopen(file, "r")) == NULL) {
+	memcpy(cmp, &memory, sizeof(memory));
 	return -ENOENT;
+    }
     while (fgets(buffer, sizeof(buffer), fp) != NULL) {
 	if (sscanf(buffer, "%s %llu\n", &name[0], &value) < 2)
 	    continue;
@@ -627,7 +630,7 @@ refresh_memory(const char *path, const char *name)
 	if (!memory)
 	    return;
     }
-    snprintf(file, sizeof(file), "%s/memory.stats", path);
+    snprintf(file, sizeof(file), "%s/memory.stat", path);
     read_memory_stats(file, memory);
 
     pmdaCacheStore(indom, PMDA_CACHE_ADD, name, memory);
