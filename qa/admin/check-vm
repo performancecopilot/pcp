@@ -237,6 +237,7 @@ cat $tmp.control \
 | while read apps
 do
     rm -f $tmp.ok
+    rm -f $tmp.echo
     for app in $apps
     do
 	case $app
@@ -290,13 +291,21 @@ do
 	esac
 	if $verbose
 	then
-	    echo -n " .. $app"
-	    $optional && echo -n "[optional]"
-	    if [ $ok = 0 ]
+	    if [ "$app" = dpkg -o "$app" = rpm ]
 	    then
-		echo -n " yes"
+		# rpm? and dpkg? guards are not really useful to report
+		#
+		:
 	    else
-		echo -n " no"
+		echo -n "$app ... "
+		$optional && echo -n "[optional]"
+		if [ $ok = 0 ]
+		then
+		    echo -n "yes "
+		else
+		    echo -n "no "
+		fi
+		touch $tmp.echo
 	    fi
 	fi
 	if [ $ok = 0 ]
@@ -313,7 +322,7 @@ do
 	    fi
 	fi
     done
-    $verbose && echo
+    [ -f $tmp.echo ] && echo
     if [ ! -f $tmp.ok ]
     then
 	echo "Missing: `echo $apps \
