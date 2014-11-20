@@ -1,0 +1,59 @@
+#!/bin/sh
+# PCP QA Test No. 885
+# Verify /proc/cpuinfo parsing for various architectures.
+#
+# Copyright (c) 2014 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+proc_stat()
+{
+    path=$1
+    ncpu=$2
+
+    echo cpu 0 0 0 0 0 0 0 0 0 > $path
+    cpu=0
+    while [ $cpu -lt $ncpu ]
+    do
+	echo cpu$cpu 0 0 0 0 0 0 0 0 0 >> $path
+	cpu=`expr $cpu + 1`
+    done
+}
+
+# real QA test starts here
+root=$tmp.root
+export LINUX_STATSPATH=$root
+pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
+files=`echo $here/linux/cpuinfo-* | LC_COLLATE=POSIX sort`
+metrics=`pminfo hinv.cpu | grep -v hinv.cpu.online`
+
+for file in $files
+do
+    rm -fr $root
+    mkdir -p $root/proc || _fail "root in use when processing $file"
+
+    cp $file $root/proc/cpuinfo
+    base=`basename $file`
+    ncpu=`echo $base | sed -e 's/.*-\([0-9][0-7]*\)cpu-.*/\1/'`
+    proc_stat $root/proc/stat $ncpu
+
+    echo "== Checking CPU hardware metrics from $base ($ncpu CPU)"
+    pminfo -f -L -K clear -K add,60,$pmda $metrics
+    echo && echo "== done" && echo
+    cd $here
+done
+
+# success, all done
+status=0
+exit

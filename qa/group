@@ -976,6 +976,7 @@ avahi
 861 pmcd pmda.pmcd local
 875 libpcp local valgrind
 876 pmda.xfs local
+885 pmda.linux local
 897 pmlc pmlogger local
 898 pmlogmv local 
 899 libpcp getopt local
