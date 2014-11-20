@@ -865,16 +865,18 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %config(noreplace) %{_confdir}/pmcd/rc.local
 %dir %{_confdir}/pmproxy
 %config(noreplace) %{_confdir}/pmproxy/pmproxy.options
-%dir %attr(0775,pcp,pcp) %{_confdir}/pmie
-%attr(0664,pcp,pcp) %config(noreplace) %{_confdir}/pmie/control
-%dir %attr(0775,pcp,pcp) %{_confdir}/pmlogger
-%attr(0664,pcp,pcp) %config(noreplace) %{_confdir}/pmlogger/control
+%dir %{_confdir}/pmie
+%config(noreplace) %{_confdir}/pmie/control
+%dir %{_confdir}/pmlogger
+%config(noreplace) %{_confdir}/pmlogger/control
 
 %{_localstatedir}/lib/pcp/config/pmafm
-%{_localstatedir}/lib/pcp/config/pmie
+%dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmie
+%{_localstatedir}/lib/pcp/config/pmie/*
 %{_localstatedir}/lib/pcp/config/pmieconf
+%dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmlogger
+%{_localstatedir}/lib/pcp/config/pmlogger/*
 %{_localstatedir}/lib/pcp/config/pmlogconf
-%{_localstatedir}/lib/pcp/config/pmlogger
 %{_localstatedir}/lib/pcp/config/pmlogrewrite
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmda
 
