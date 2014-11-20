@@ -1,0 +1,13 @@
+processor : 0
+cpu : 750
+temperature : 0 C
+revision : 131.2
+bogomips : 600.15
+zero pages : total: 0 (0Kb) current: 0 (0Kb) hits: 0/0 (0%)
+vendor : GESPAC
+machine : PCIPPC-2E1A
+cpu speed : 300Mhz
+bus speed : 100Mhz
+L2 : 1MB
+memory type : SDRAM
+backplane : System slot board with geographical address 8
