@@ -1,0 +1,20 @@
+processor : 0
+cpu : 604e
+clock : 200MHz
+revision : 2.2 (pvr 0009 0202)
+bogomips : 398.95
+
+processor : 1
+cpu : 604e
+clock : 200MHz
+revision : 2.4 (pvr 0009 0204)
+bogomips : 398.95
+
+total bogomips : 797.90
+machine : Power Macintosh
+motherboard : AAPL,???? MacRISC
+detected as : 16 (Unknown PowerSurge)
+pmac flags : 00000000
+L2 cache : 512K unified
+memory : 384MB
+pmac-generation : OldWorld

@@ -2,13 +2,17 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 IAM = pcp-programmers-guide
+REV = Revision_History.xml
+AUT = Author_Group.xml
 XML = $(IAM).xml
 PDF = $(IAM).pdf
+ENT = $(IAM).ent
 PUB = Book_Info.xml
 CFG = publican.cfg
 
+CP = cp -rdp
 LSRCFILES = $(XML) $(PUB) $(CFG) $(PDF)
-LDIRDIRT = pdf html en-US
+LDIRDIRT = pdf html en-US tmp
 LDIRT = built.*
 CWD = $(shell pwd)
 
@@ -18,13 +22,16 @@ include $(BUILDRULES)
 
 ifeq "$(BOOK_TOOLCHAIN)" "publican"
 built.$(BOOK_TOOLCHAIN):	$(XML)
-	@rm -fr pdf html en-US
-	@mkdir -p pdf html en-US/xml
-	$(LN_S) $(CWD)/$(PUB) en-US/
-	$(LN_S) $(CWD)/$(XML) en-US/xml/
-	$(LN_S) $(CWD)/$(TOPDIR)/images en-US/xml/figures
+	@rm -fr pdf html en-US tmp
+	@mkdir -p pdf html en-US tmp
+	$(CP) $(CWD)/$(PUB) en-US/
+	$(CP) $(CWD)/$(ENT) en-US/
+	$(CP) $(CWD)/$(REV) en-US/
+	$(CP) $(CWD)/$(AUT) en-US/
+	$(CP) $(CWD)/$(XML) en-US/
+	$(CP) $(CWD)/$(TOPDIR)/images en-US/
 	$(PUBLICAN) build --langs=en-US --formats=pdf
-	@# $(PUBLICAN) build --langs=en-US --formats=pdf,html
+	$(PUBLICAN) build --langs=en-US --formats=html,html-single
 	$(LN_S) $(CWD)/en-US/pdf/*.pdf pdf/$(IAM).pdf
 endif
 

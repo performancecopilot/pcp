@@ -26,7 +26,7 @@
 .SH DESCRIPTION
 .B pmda\*(ia
 is a \*(ia Performance Metrics Domain Agent (PMDA) which exposes
-hardware performance counters via the library Performance API (Papi).
+hardware performance counters via the library Performance API (PAPI).
 .PP
 The metrics exported by the \*(ia PMDA report values gathered from
 the hardware counters and metrics available, as reported by \*(ia.
@@ -57,6 +57,57 @@ is started, i.e.
 .BR $PCP_LOG_DIR/pmcd .
 If the log file cannot
 be created or is not writable, output is written to the standard error instead.
+.P
+Performance counters are activated automatically as they are fetched
+cyclically (such as via
+.BR pmval (1)
+or
+.BR pmlogger (1)).
+This automatic activation is temporary, and lasts only a number of seconds
+governed by the
+.B papi.control.auto_enable
+control value (default 120).  In the case automatic activation is undesirable, one may
+disable it by setting the
+.B papi.control.auto_enable
+metric to 0.
+.P
+Alternately, the
+.BR pmstore (1)
+command can be used to permanently enable tracking particular metrics, or stop them
+on demand.  Using the
+.B papi.control.enable
+and
+.B papi.control.disable
+metrics, one may set the metrics you wish to track using a space or comma seperated list.
+Writing to the
+.B papi.control.reset
+metric disables all counters immediately.  This may be useful if the system performance
+counters are needed for another profiling task.
+.P
+.ft CW
+.nf
+.in +0.5i
+# pmstore papi.control.enable "TOT_CYC TOT_INS"
+papi.control.enable old value="" new value="TOT_CYC TOT_INS"
+
+# pmval papi.system.TOT_CYC
+            8.371E+04
+# pmval papi.system.TOT_INS
+            2.712E+04
+# pmstore papi.control.disable "TOT_CYC,TOT_INS"
+papi.control.disable old value="" new value="TOT_CYC,TOT_INS"
+.in
+.fi
+.P
+Fetching the
+.BR papi.control.status
+metric provides an overview of all active counters.
+.P
+By default, PAPI multiplexing, which allows support for collecting more metrics
+than supported by the hardware concurrently, is enabled.  One may modify the
+.B papi.control.multiplex
+metric to disable multiplexing by setting it to 0.
+.PP
 .SH INSTALLATION
 If you want access to the names, help text and values for the \*(ia
 performance metrics, do the following as root:

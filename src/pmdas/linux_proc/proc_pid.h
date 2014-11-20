@@ -1,7 +1,7 @@
 /*
  * Linux /proc/<pid>/... Clusters
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -14,9 +14,10 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-
 #ifndef _PROC_PID_H
 #define _PROC_PID_H
+
+#include "proc_runq.h"
 
 /*
  * /proc/<pid>/stat metrics
@@ -114,17 +115,17 @@
 /*
  * metrics in /proc/<pid>/statm & /proc/<pid>/maps
  */
-#define PROC_PID_STATM_SIZE		 0
-#define PROC_PID_STATM_RSS		 1
-#define PROC_PID_STATM_SHARE		 2
-#define PROC_PID_STATM_TEXTRS		 3
-#define PROC_PID_STATM_LIBRS		 4
-#define PROC_PID_STATM_DATRS		 5
-#define PROC_PID_STATM_DIRTY		 6
-#define PROC_PID_STATM_MAPS      7
+#define PROC_PID_STATM_SIZE		0
+#define PROC_PID_STATM_RSS		1
+#define PROC_PID_STATM_SHARE		2
+#define PROC_PID_STATM_TEXTRS		3
+#define PROC_PID_STATM_LIBRS		4
+#define PROC_PID_STATM_DATRS		5
+#define PROC_PID_STATM_DIRTY		6
+#define PROC_PID_STATM_MAPS		7
 
 /* number of fields in proc_pid_statm_entry_t */
-#define NR_PROC_PID_STATM        8
+#define NR_PROC_PID_STATM		8
 
 /*
  * metrics in /proc/<pid>/schedstat
@@ -263,7 +264,7 @@ typedef struct {
 } proc_pid_list_t;
 
 /* refresh the proc indom, reset all "fetched" flags */
-extern int refresh_proc_pid(proc_pid_t *, int, const char *);
+extern int refresh_proc_pid(proc_pid_t *, proc_runq_t *, int, const char *);
 
 /* fetch a proc/<pid>/stat entry for pid */
 extern proc_pid_entry_t *fetch_proc_pid_stat(int, proc_pid_t *, int *);

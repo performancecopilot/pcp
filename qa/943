@@ -29,7 +29,8 @@ _filter_counts()
     # then map any number of values to COUNT
     #
     sed -e '/proc.psinfo.cgroups/s/-61 No data available/1/' \
-    | $PCP_AWK_PROG '$2 > 0 { $2 = "COUNT" } { print }'
+    | $PCP_AWK_PROG '$2 > 0 { $2 = "COUNT" } { print }' \
+    | LC_COLLATE=POSIX sort
 }
 
 # lists of metrics

@@ -1,0 +1,76 @@
+processor  : 0
+vendor     : GenuineIntel
+arch       : IA-64
+family     : 32
+model      : 0
+model name : Dual-Core Intel(R) Itanium(R) Processor 9040
+revision   : 7
+archrev    : 0
+features   : branchlong, 16-byte atomic ops
+cpu number : 0
+cpu regs   : 4
+cpu MHz    : 1594.007
+itc MHz    : 399.000000
+BogoMIPS   : 3186.68
+siblings   : 2
+physical id: 0
+core id    : 0
+thread id  : 0
+
+processor  : 1
+vendor     : GenuineIntel
+arch       : IA-64
+family     : 32
+model      : 0
+model name : Dual-Core Intel(R) Itanium(R) Processor 9040
+revision   : 7
+archrev    : 0
+features   : branchlong, 16-byte atomic ops
+cpu number : 0
+cpu regs   : 4
+cpu MHz    : 1594.007
+itc MHz    : 399.000000
+BogoMIPS   : 3186.68
+siblings   : 2
+physical id: 0
+core id    : 1
+thread id  : 0
+
+processor  : 2
+vendor     : GenuineIntel
+arch       : IA-64
+family     : 32
+model      : 0
+model name : Dual-Core Intel(R) Itanium(R) Processor 9040
+revision   : 7
+archrev    : 0
+features   : branchlong, 16-byte atomic ops
+cpu number : 0
+cpu regs   : 4
+cpu MHz    : 1594.007
+itc MHz    : 399.000000
+BogoMIPS   : 3186.68
+siblings   : 2
+physical id: 3
+core id    : 0
+thread id  : 0
+
+processor  : 3
+vendor     : GenuineIntel
+arch       : IA-64
+family     : 32
+model      : 0
+model name : Dual-Core Intel(R) Itanium(R) Processor 9040
+revision   : 7
+archrev    : 0
+features   : branchlong, 16-byte atomic ops
+cpu number : 0
+cpu regs   : 4
+cpu MHz    : 1594.007
+itc MHz    : 399.000000
+BogoMIPS   : 3186.68
+siblings   : 2
+physical id: 3
+core id    : 1
+thread id  : 0
+

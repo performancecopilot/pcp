@@ -18,6 +18,7 @@ Source1: pcp-webjs.src.tar.gz
 %{!?disable_papi: %global disable_papi 0%{?rhel} < 6}
 %{!?disable_perfevent: %global disable_perfevent 0%{?rhel} < 7}
 %endif
+
 %define disable_microhttpd 0
 %define disable_cairo 0
 %if 0%{?rhel} == 0 || 0%{?rhel} > 6
@@ -1048,6 +1049,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 * Mon Dec 01 2014 Dave Brolley <brolley@redhat.com> - 3.10.1-1
 - New conditionally-built pcp-pmda-perfevent sub-package.
 - Currently under development.
+
+* Tue Nov 18 2014 Dave Brolley <brolley@redhat.com> - 3.10.0-2
+- papi 5.4.0 rebuild
 
 * Fri Oct 31 2014 Nathan Scott <nathans@redhat.com> - 3.10.0-1
 - Create new sub-packages for pcp-webjs and python3-pcp.

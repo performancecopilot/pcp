@@ -1,0 +1,19 @@
+cpu                     : Alpha
+cpu model               : EV56
+cpu variation           : 7
+cpu revision            : 0
+cpu serial number       :
+system type             : Miata
+system variation        : 0
+system revision         : 0
+system serial number    :
+cycle frequency [Hz]    : 499714426 est.
+timer frequency [Hz]    : 1024.00
+page size [bytes]       : 8192
+phys. address bits      : 40
+max. addr. space #      : 127
+BogoMIPS                : 992.88
+kernel unaligned acc    : 196 (pc=fffffc0000517e44,va=2000001a032)
+user unaligned acc      : 171263 (pc=20000e6f610,va=1200c6f26)
+platform string         : Digital Personal WorkStation 500au
+cpus detected           : 4

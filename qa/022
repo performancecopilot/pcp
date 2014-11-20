@@ -99,7 +99,9 @@ pminfo $target -F proc \
     -e '/instance identifier/d' \
     -e '/^[ \t]*$/d' \
     -e '/DISAPPEARED/d' \
-    -e '/^proc\.fd\.count$/d'
+    -e '/^proc\.fd\.count$/d' \
+    > $tmp.info 2>&1
+LC_COLLATE=POSIX sort -n $tmp.info
 
 src/proc_test $target \
 	proc.psinfo.utime \

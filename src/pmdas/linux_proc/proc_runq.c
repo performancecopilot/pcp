@@ -18,77 +18,58 @@
 #include "impl.h"
 #include "pmda.h"
 #include <ctype.h>
-#include <dirent.h>
 #include <sys/stat.h>
-#include "proc_pid.h"
 #include "proc_runq.h"
+#include "proc_pid.h"
+#include "indom.h"
 
 int
-refresh_proc_runq(proc_runq_t *proc_runq)
+proc_runq_append(const char *process, proc_runq_t *proc_runq)
 {
-    int sz;
-    int fd;
-    char *p;
-    int sname;
-    DIR *dir;
-    struct dirent *d;
-    char fullpath[MAXPATHLEN];
-    char buf[4096];
+    int fd, sname;
+    ssize_t sz;
+    char *p, buf[4096];
 
-    memset(proc_runq, 0, sizeof(proc_runq_t));
-    if ((dir = opendir("/proc")) == NULL)
-    	return -oserror();
+    snprintf(buf, sizeof(buf), "%s/proc/%s/stat", proc_statspath, process);
+    if ((fd = open(buf, O_RDONLY)) < 0)
+	return fd;
 
-    while((d = readdir(dir)) != NULL) {
-	if (!isdigit((int)d->d_name[0]))
-	    continue;
-	sprintf(fullpath, "/proc/%s/stat", d->d_name);
-	if ((fd = open(fullpath, O_RDONLY)) < 0)
-	    continue;
-	sz = read(fd, buf, sizeof(buf));
-	close(fd);
-	buf[sizeof(buf)-1] = '\0';
+    sz = read(fd, buf, sizeof(buf));
+    close(fd);
+    buf[sizeof(buf)-1] = '\0';
 
-	/*
-	 * defunct (state name is 'Z')
-	 */
-	if (sz <= 0 || (p = _pm_getfield(buf, PROC_PID_STAT_STATE)) == NULL) {
-	    proc_runq->unknown++;
-	    continue;
-	}
-	if ((sname = *p) == 'Z') {
-	    proc_runq->defunct++;
-	    continue;
-	}
+    /* defunct (state name is 'Z') */
+    if (sz <= 0 || (p = _pm_getfield(buf, PROC_PID_STAT_STATE)) == NULL) {
+	proc_runq->unknown++;
+	return 0;
+    }
+    if ((sname = *p) == 'Z') {
+	proc_runq->defunct++;
+	return 0;
+    }
 
-	/*
-	 * kernel process (not defunct and virtual size is zero)
-	 */
-	if ((p = _pm_getfield(buf, PROC_PID_STAT_VSIZE)) == NULL) {
-	    proc_runq->unknown++;
-	    continue;
-	}
-	if (strcmp(p, "0") == 0) {
-	    proc_runq->kernel++;
-	    continue;
-	}
+    /* kernel process (not defunct and virtual size is zero) */
+    if ((p = _pm_getfield(buf, PROC_PID_STAT_VSIZE)) == NULL) {
+	proc_runq->unknown++;
+	return 0;
+    }
+    if (strcmp(p, "0") == 0) {
+	proc_runq->kernel++;
+	return 0;
+    }
 
-	/*
-	 * swapped (resident set size is zero)
-	 */
-	if ((p = _pm_getfield(buf, PROC_PID_STAT_RSS)) == NULL) {
-	    proc_runq->unknown++;
-	    continue;
-	}
-	if (strcmp(p, "0") == 0) {
-	    proc_runq->swapped++;
-	    continue;
-	}
+    /* swapped (resident set size is zero) */
+    if ((p = _pm_getfield(buf, PROC_PID_STAT_RSS)) == NULL) {
+	proc_runq->unknown++;
+	return 0;
+    }
+    if (strcmp(p, "0") == 0) {
+	proc_runq->swapped++;
+	return 0;
+    }
 
-	/*
-	 * All other states
-	 */
-	switch (sname) {
+    /* All other states */
+    switch (sname) {
 	case 'R':
 	    proc_runq->runnable++;
 	    break;
@@ -107,17 +88,6 @@ refresh_proc_runq(proc_runq_t *proc_runq)
 	    fprintf(stderr, "UNKNOWN %c : %s\n", sname, buf);
 	    proc_runq->unknown++;
 	    break;
-	}
     }
-    closedir(dir);
-
-#if PCP_DEBUG
-    if (pmDebug & DBG_TRACE_LIBPMDA) {
-	fprintf(stderr, "refresh_runq: runnable=%d sleeping=%d stopped=%d blocked=%d unknown=%d\n",
-	    proc_runq->runnable, proc_runq->sleeping, proc_runq->stopped,
-	    proc_runq->blocked, proc_runq->unknown);
-    }
-#endif
-
     return 0;
 }

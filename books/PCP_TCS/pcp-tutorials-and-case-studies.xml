@@ -11,7 +11,7 @@
 <email>pcp@mail.performancecopilot.org</email>
 <otheraddr>
 <ulink url="http://www.performancecopilot.org"/>
-<inlinemediaobject><imageobject><imagedata fileref="figures/pcp.svg"/></imageobject></inlinemediaobject>
+<inlinemediaobject><imageobject><imagedata fileref="images/pcp.svg"/></imageobject></inlinemediaobject>
 </otheraddr>
 </address>
 </affiliation>
@@ -133,7 +133,7 @@ For a complete list of manual sections on a platform enter the command:</para>
 
 <title>Web Site</title>
 <para>The following web site is accessible to everyone:</para>
-<variablelist condition="sgi_termlength:wide">
+<variablelist>
 <varlistentry>
 <term><emphasis role="bold">URL</emphasis></term><listitem><para><emphasis role="bold">Description</emphasis></para></listitem></varlistentry>
 <varlistentry>
