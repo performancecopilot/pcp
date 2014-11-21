@@ -221,7 +221,7 @@ class SystemtapModule(object):
             # know any values for it yet. We'll get those on a data
             # read.
             self.__indoms[array_name] = Indom(self.__pmda.indom_idx,
-                                             self.__pmda)
+                                              self.__pmda)
             self.__pmda.indom_idx += 1
 
         # If we're here, we know the array "header" was
@@ -466,8 +466,8 @@ class StapJsonPMDA(PMDA):
         self.modules_by_cluster = {}
         self.__load_all_json()
 
-        self.set_fetch(self.__fetch)
         self.set_fetch_callback(self.__fetch_callback)
+	self.set_refresh_metrics(self.__refresh_metrics)
         if self.debug:
             self.log("__init__ finished")
 
@@ -495,6 +495,18 @@ class StapJsonPMDA(PMDA):
                         metric_info.desc)
         self.__metrics[metric_info.idx] = metric_info
 
+    def __remove_modules(self, removed_modules):
+        ''' Clean up a list of removed modules. '''
+        if len(removed_modules):
+            for root in removed_modules:
+                if self.debug:
+                    self.log("Removing systemtap module '%s'"
+                             % os.path.basename(root))
+                self.modules_by_root[root].cleanup()
+                cluster = self.modules_by_root[root].cluster
+                del self.modules_by_root[root]
+                del self.modules_by_cluster[cluster]
+
     def __load_all_json(self):
         '''
         Walk the filesystem and load the JSON schema/data for every
@@ -515,6 +527,10 @@ class StapJsonPMDA(PMDA):
                 self.modules_by_root[root].load()
                 modules_seen[root] = 1
 
+        # Cleanup all removed modules.
+        removed_modules = [k for k in self.modules_by_root \
+                           if k not in modules_seen]
+        self.__remove_modules(removed_modules)
         if self.debug:
             self.log("load_all_json exit")
 
@@ -523,8 +539,13 @@ class StapJsonPMDA(PMDA):
         Walk the filesystem and refresh the JSON data for every module
         found.
         '''
+
+        if self.debug:
+            self.log("load_all_json_data entry")
+
         # FIXME: why do we need 'load_all_json()' and 'load_all_json_data()'?
         modules_seen = {}
+        refresh_metrics = 0
         for root, dummy, files in os.walk('/proc/systemtap'):
             # Make sure we have both of the files we're looking for
             if 'schema' in files and 'data' in files:
@@ -535,17 +556,50 @@ class StapJsonPMDA(PMDA):
                         = self.modules_by_root[root]
                     self.cluster_idx += 1
                     self.modules_by_root[root].load()
+                    if self.debug:
+                        self.log("load_all_json_data: adding module '%s'" % root)
                 else:
                     self.modules_by_root[root].refresh_json_data()
                 modules_seen[root] = 1
 
-    def __fetch(self):
-        ''' Called once per "fetch" PDU, before callbacks '''
+        # Cleanup all removed modules.
+        removed_modules = [k for k in self.modules_by_root \
+                           if k not in modules_seen]
+        if len(removed_modules) > 0:
+            if self.debug:
+                self.log("load_all_json_data: removed modules found")
+            refresh_metrics = 1
+            self.__remove_modules(removed_modules)
+
+        # If we've got a new or removed module, we need to recreate
+        # the metrics.
+        if refresh_metrics == 1:
+            if self.debug:
+                self.log("*** refreshing metrics ***")
+            self.clear_metrics()
+
+            # First refresh static metrics.
+            for (dummy, metric) in self.__metrics.items():
+                self.add_metric(metric.full_name, metric.obj, metric.desc)
+
+            # Now ask each systemtap module to refresh its metrics.
+            for (root, module) in self.modules_by_root.items():
+                module.refresh_metrics()
+
         if self.debug:
-            self.log("**** fetch *****")
+            self.log("load_all_json_data exit")
+
+    def __refresh_metrics(self):
+        '''
+        Called before callbacks. This allows us to update the list of
+        metrics if needed.
+        '''
+        if self.debug:
+            self.log("__refresh_metrics entry")
         self.__load_all_json_data()
         if self.debug:
-            self.log("**** fetch exit ****")
+            self.log("__refresh_metrics exit")
+	return
 
     def __fetch_callback(self, cluster, item, inst):
         '''
@@ -570,4 +624,5 @@ class StapJsonPMDA(PMDA):
 
 if __name__ == '__main__':
     #os.environ["PCP_PYTHON_DEBUG"] = "ALL"
+    #os.environ["PCP_PYTHON_DEBUG"] = "APPL0|LIBPMDA"
     StapJsonPMDA('stap_json', 132).run()
