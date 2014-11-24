@@ -80,12 +80,14 @@ cd pcp-git
 
 git archive --prefix=pcp-$CHANGELOG_VERSION/ -o ../pcp/pcp-$CHANGELOG_VERSION-$GIT_VERSION_TAG.tar.gz HEAD
 
+# if $PCP_WEB_JS is empty, then we don't need to git archive it seperately anymore!
+if [ ! -z $PCP_WEB_JS ]; then
 # clone and package the web-js stuff, this will be needed until isn't all merged as one big happy family
 cd ..
 git clone git://oss.sgi.com/pcp-webjs.git
 cd pcp-webjs
 git archive --prefix=pcp-webjs/ -o ../pcp/$PCP_WEB_JS HEAD
-
+fi
 # fedpackage stuff
 
 cd ../pcp
