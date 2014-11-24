@@ -104,3 +104,22 @@ fetch papi.control.status
 store papi.control.disable "TOT_INS"
 fetch papi.control.status
 EOF
+
+# add a test to check that the papi.control.status metric shows
+# evidence of altering the papi.control.multiplex metric
+
+echo "=== Daemon PMDA papi auto_enable with multiplexing disabled test ==="
+$sudo dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _filter
+open pipe $pipepmda -d 126
+getdesc on
+attr "username" "root"
+attr 11 "0"
+desc papi.control.multiplex
+fetch papi.control.status
+store papi.control.multiplex "0"
+store papi.control.auto_enable "5"
+fetch papi.system.TOT_INS
+fetch papi.control.status
+wait 7
+fetch papi.control.status
+EOF
