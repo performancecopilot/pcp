@@ -872,7 +872,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %{_localstatedir}/lib/pcp/config/pmafm
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmie
-%{_localstatedir}/lib/pcp/config/pmie/*
+%{_localstatedir}/lib/pcp/config/pmie
 %{_localstatedir}/lib/pcp/config/pmieconf
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmlogger
 %{_localstatedir}/lib/pcp/config/pmlogger/*
