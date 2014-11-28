@@ -920,7 +920,7 @@ __pmdaSetup(pmdaInterface *dispatch, int version, char *name)
 	dispatch->status = PM_ERR_GENERIC;
 	return;
     }
-    extp->dispatch = dispatch;
+    extp->pmda_interface = version;
     pmda->e_ext = (void *)extp;
 
     pmdaSetResultCallBack(dispatch, __pmFreeResultValues);
