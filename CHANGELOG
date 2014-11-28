@@ -1,5 +1,19 @@
 pcp-3.10.1 (1 December 2014)
-    - Currently under development.
+    - pmda proc: rework existing per-cgroup metrics - no
+      longer use dynamic metrics, allowing arbitray names
+    - pmda proc: add many new per-cgroup metrics, audited
+      definitions (units, etc) for existing metrics.
+    - perfevent pmda: new libpfm hardware counters agent
+    - papi pmda: switch to using dynamic metrics
+    - papi pmda: multiplexing, auto-enabling options
+    - papi pmda: added a new papi.control.reset metric
+    - pmwebd: improve /metrics/find for graphite dashboard
+    - pmwebd: $PCP_SHARE_DIR/webapps - default web content
+    - docs: clarify web services section in quick guide
+    - docs: fix books build for current publican versions
+    - docs: enable building of html book content as well
+    - linux pmda: improve aarch64 /proc/cpuinfo parsing
+    - libpcp: fix 64bit endian bug in highres event timers
 
 pcp-3.10.0 (31 October 2014)
     - pmlogextract: improve handling of corrupt archives
