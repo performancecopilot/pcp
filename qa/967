@@ -39,11 +39,25 @@ _filter()
     | _filter_papi_errors
 }
 
+_pmu_present()
+{
+    grep "Error*" $@; if [ $? -eq 0 ]; then _notrun "PAPI metrics not found on hardware"; fi
+}
+
 # vars and checks
 papirootpmns=$PCP_PMDAS_DIR/papi/root
 pipepmda=$PCP_PMDAS_DIR/papi/pmdapapi
 [ ! -f $papirootpmns ] && echo "FATAL ERROR Could not find \"$papirootpmns\"" && exit 1
 [ ! -f $pipepmda ] && echo "FATAL ERROR Could not find \"$pipepmda\"" && exit 1
+
+# Check if pmu's are present, else, _notrun the test
+$sudo dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _pmu_present
+open pipe $pipepmda -d 126
+getdesc on
+attr "username" "root"
+attr 11 "0"
+children papi.system
+EOF
 
 # real QA test starts here
 
