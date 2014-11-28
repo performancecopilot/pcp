@@ -23,7 +23,7 @@ DIR=`mktemp -d pcpXXX -p /tmp/`; cd $DIR
 # We need to differenciate between upstream sources and the later used distro sources
 # hence the specific checkout to pcp-git
 
-git clone git://oss.sgi.com/pcp/pcp.git pcp-git
+git clone git://git.pcp.io/pcp.git pcp-git
 #git clone git://sourceware.org/git/pcpfans.git pcp-git
 cd pcp-git
 
@@ -37,7 +37,7 @@ PCP_MAJOR_VERSION=`grep "^Version:" build/rpm/fedora.spec`
 CHANGELOG_VERSION=`echo $PCP_MAJOR_VERSION | cut -f2 -d" " | cut -f2`
 FINAL_RELEASE=`grep "define buildversion" build/rpm/fedora.spec | cut -f3 -d" "`
 GIT_VERSION_TAG=`echo 0.$(git describe | rev | cut -f1,2 -d- --output-delimiter=. | rev)`
-PCP_WEB_JS=`grep "^Source1:" build/rpm/fedora.spec | cut -f2 -d" "`
+PCP_WEB_JS=`grep "^Source*" build/rpm/fedora.spec | grep "webjs" | cut -f2 -d" "`
 ### lets do a sanity check first
 if which fedpkg &>/dev/null; then
  :
@@ -80,16 +80,15 @@ cd pcp-git
 
 git archive --prefix=pcp-$CHANGELOG_VERSION/ -o ../pcp/pcp-$CHANGELOG_VERSION-$GIT_VERSION_TAG.tar.gz HEAD
 
-# if $PCP_WEB_JS is empty, then we don't need to git archive it seperately anymore!
+# if $PCP_WEB_JS is empty, then we don't need to git archive it seperately.
 if [ ! -z $PCP_WEB_JS ]; then
-# clone and package the web-js stuff, this will be needed until isn't all merged as one big happy family
-cd ..
-git clone git://oss.sgi.com/pcp-webjs.git
-cd pcp-webjs
-git archive --prefix=pcp-webjs/ -o ../pcp/$PCP_WEB_JS HEAD
+    cd ..
+    git clone git://git.pcp.io/pcp-webjs.git pcp-webjs
+    cd pcp-webjs
+    git archive --prefix=pcp-webjs/ -o ../pcp/$PCP_WEB_JS HEAD
 fi
-# fedpackage stuff
 
+# fedpackage stuff
 cd ../pcp
 
 sed -i "s/Release:.*/Release: $GIT_VERSION_TAG\%\{\?dist\}/" pcp.spec
