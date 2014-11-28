@@ -62,7 +62,7 @@ static int number_of_counters; // XXX: collapse into number_of_events
 static unsigned int size_of_active_counters; // XXX: eliminate
 static __pmnsTree *papi_tree;
 
-static int refresh_metrics();
+static int refresh_metrics(int);
 static void auto_enable_expiry_cb(int, void *);
 
 static char helppath[MAXPATHLEN];
@@ -201,7 +201,7 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
                 if (auto_enable_time) {
                     // auto-enable this metric for a while
                     papi_info[idp->item].metric_enabled = now + auto_enable_time;
-                    sts = refresh_metrics();
+                    sts = refresh_metrics(0);
                     if (sts < 0)
                         return sts;
                 }
@@ -315,9 +315,9 @@ papi_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 }
 
 static void
-handle_papi_error(int error)
+handle_papi_error(int error, int logged)
 {
-    if (pmDebug & DBG_TRACE_APPL0)
+    if (logged || (pmDebug & DBG_TRACE_APPL0))
 	__pmNotifyErr(LOG_ERR, "Papi error: %s\n", PAPI_strerror(error));
 }
 
@@ -328,9 +328,13 @@ handle_papi_error(int error)
  * PAPI eventset with the survivors; restart.  (These steps are
  * necessary because PAPI doesn't let one modify a PAPI_RUNNING
  * EventSet, nor (due to a bug) subtract even from a PAPI_STOPPED one.)
+ *
+ * "log" parameter indicates whether errors are to be recorded in the
+ * papi.log file, or if there is a calling process we can send 'em to
+ * (in which case, they are not logged).
  */
 static int
-refresh_metrics(void)
+refresh_metrics(int log)
 {
     int sts = 0;
     int state = 0;
@@ -346,6 +350,7 @@ refresh_metrics(void)
 	sts = PAPI_stop(EventSet, values);
         if (sts != PAPI_OK) {
             /* futile to continue */
+            handle_papi_error(sts, log);
             return PM_ERR_VALUE;
         }
 
@@ -360,13 +365,13 @@ refresh_metrics(void)
         /* Clean up eventset */
         sts = PAPI_cleanup_eventset(EventSet);
         if (sts != PAPI_OK) {
-            handle_papi_error(sts);
+            handle_papi_error(sts, log);
             /* FALLTHROUGH */
         }
         
         sts = PAPI_destroy_eventset(&EventSet); /* sets EventSet=NULL */
         if (sts != PAPI_OK) {
-            handle_papi_error(sts);
+            handle_papi_error(sts, log);
             /* FALLTHROUGH */
         }
     }
@@ -374,15 +379,15 @@ refresh_metrics(void)
     /* Initialize new EventSet */
     EventSet = PAPI_NULL;
     if ((sts = PAPI_create_eventset(&EventSet)) != PAPI_OK) {
-	handle_papi_error(sts);
+	handle_papi_error(sts, log);
 	return PM_ERR_GENERIC;
     }
     if ((sts = PAPI_assign_eventset_component(EventSet, 0 /*CPU*/)) != PAPI_OK) {
-	handle_papi_error(sts);
+	handle_papi_error(sts, log);
 	return PM_ERR_GENERIC;
     }
     if (enable_multiplexing && (sts = PAPI_set_multiplex(EventSet)) != PAPI_OK) {
-	handle_papi_error(sts);
+	handle_papi_error(sts, log);
         /* not fatal - FALLTHROUGH */
     }
 
@@ -399,7 +404,7 @@ refresh_metrics(void)
                     __pmNotifyErr(LOG_DEBUG, "Unable to add: %s due to error: %s\n",
                                   eventname, PAPI_strerror(sts));
                 }
-		handle_papi_error(sts);
+		handle_papi_error(sts, log);
                 /*
                  * This is where we'd see if a requested counter was
                  * "one too many".  We must leave a note for the
@@ -410,7 +415,7 @@ refresh_metrics(void)
                 sts = PM_ERR_VALUE;
                 continue;
 	    }
-	    papi_info[i].position = number_of_active_counters ++;
+	    papi_info[i].position = number_of_active_counters++;
 	}
     }
 
@@ -418,7 +423,7 @@ refresh_metrics(void)
     if (number_of_active_counters > 0) {
 	sts = PAPI_start(EventSet);
 	if (sts != PAPI_OK) {
-	    handle_papi_error(sts);
+	    handle_papi_error(sts, log);
 	    return PM_ERR_VALUE;
 	}
     }
@@ -446,7 +451,7 @@ auto_enable_expiry_cb(int ignored1, void *ignored2)
 	    must_refresh = 1;
     }
     if (must_refresh)
-	refresh_metrics();
+	refresh_metrics(1);
 }
 
 static int
@@ -509,18 +514,18 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		substring = strtok(NULL, delim);
 	    }
             if (sts) { /* any unknown metric name encountered? */
-		sts = refresh_metrics(); /* still enable those that we can */
+		sts = refresh_metrics(0); /* still enable those that we can */
 		if (sts == 0)
 		    sts = PM_ERR_CONV; /* but return overall error */
 	    } else {
-		sts = refresh_metrics();
+		sts = refresh_metrics(0);
 	    }
 	    return sts;
 
 	case 1: //papi.reset
             for (j = 0; j < number_of_events; j++)
                 papi_info[j].metric_enabled = 0;
-            return refresh_metrics();
+            return refresh_metrics(0);
 
 	case 4: //papi.control.auto_enable
 	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
@@ -534,7 +539,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
 				 PM_TYPE_U32, &av, PM_TYPE_U32)) < 0)
 		return sts;
 	    enable_multiplexing = av.ul;
-	    return refresh_metrics();
+	    return refresh_metrics(0);
 
 	default:
 	    return PM_ERR_PMID;
@@ -638,15 +643,15 @@ papi_internal_init(pmdaInterface *dp)
 
     /* Set one-time settings for all future EventSets. */
     if ((sts = PAPI_set_domain(PAPI_DOM_ALL)) != PAPI_OK) {
-	handle_papi_error(sts);
+	handle_papi_error(sts, 0);
 	return PM_ERR_GENERIC;
     }
     if ((sts = PAPI_multiplex_init()) != PAPI_OK) {
-	handle_papi_error(sts);
+	handle_papi_error(sts, 0);
 	return PM_ERR_GENERIC;
     }
 
-    sts = refresh_metrics();
+    sts = refresh_metrics(0);
     if (sts != PAPI_OK)
 	return PM_ERR_GENERIC;
     return 0;
