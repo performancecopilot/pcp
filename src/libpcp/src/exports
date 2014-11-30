@@ -476,3 +476,8 @@ PCP_3.8 {
     __pmtimevalInc;
     __pmtimevalDec;
 } PCP_3.7;
+
+PCP_3.9 {
+  global:
+    pmParseUnitsStr;
+} PCP_3.8;
