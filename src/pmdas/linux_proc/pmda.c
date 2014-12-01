@@ -1591,7 +1591,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (idp->item == PROC_PID_STATM_MAPS) {	/* proc.memory.maps */
 	    if ((entry = fetch_proc_pid_maps(inst, &proc_pid, &sts)) == NULL)
 		return sts;
-	    atom->cp = entry->maps_buf;
+	    atom->cp = (entry->maps_buf ? entry->maps_buf : "");
 	} else {
 	    if ((entry = fetch_proc_pid_statm(inst, &proc_pid, &sts)) == NULL)
 		return sts;

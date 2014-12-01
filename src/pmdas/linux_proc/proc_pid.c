@@ -486,6 +486,8 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
     ep = (proc_pid_entry_t *)node->data;
 
     if (!(ep->flags & PROC_PID_FLAG_STAT_FETCHED)) {
+	if (ep->stat_buflen > 0)
+	    ep->stat_buf[0] = '\0';
 	if ((fd = proc_open("stat", ep)) < 0)
 	    *sts = maperr();
 	else if ((n = read(fd, buf, sizeof(buf))) < 0) {
@@ -524,6 +526,8 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
     }
 
     if (!(ep->flags & PROC_PID_FLAG_WCHAN_FETCHED)) {
+	if (ep->wchan_buflen > 0)
+	    ep->wchan_buf[0] = '\0';
 	if ((fd = proc_open("wchan", ep)) < 0) {
 	    /* ignore failure here, backwards compat */
 	    ;
@@ -593,6 +597,8 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
 	char	buf[1024];
 	char	*curline;
 
+	if (ep->status_buflen > 0)
+	    ep->status_buf[0] = '\0';
 	if ((fd = proc_open("status", ep)) < 0)
 	    *sts = maperr();
 	else if ((n = read(fd, buf, sizeof(buf))) < 0) {
@@ -798,6 +804,8 @@ fetch_proc_pid_statm(int id, proc_pid_t *proc_pid, int *sts)
 	char buf[1024];
 	int fd, n;
 
+	if (ep->statm_buflen > 0)
+	    ep->statm_buf[0] = '\0';
 	if ((fd = proc_open("statm", ep)) < 0)
 	    *sts = maperr();
 	else if ((n = read(fd, buf, sizeof(buf))) < 0) {
@@ -867,6 +875,8 @@ fetch_proc_pid_maps(int id, proc_pid_t *proc_pid, int *sts)
     if (!(ep->flags & PROC_PID_FLAG_MAPS_FETCHED)) {
 	int fd;
 
+	if (ep->maps_buflen > 0)
+	    ep->maps_buf[0] = '\0';
 	if ((fd = proc_open("maps", ep)) < 0)
 	    *sts = maperr();
 	else {
@@ -921,6 +931,8 @@ fetch_proc_pid_schedstat(int id, proc_pid_t *proc_pid, int *sts)
 	int fd, n;
 	char buf[1024];
 
+	if (ep->schedstat_buflen > 0)
+	    ep->schedstat_buf[0] = '\0';
 	if ((fd = proc_open("schedstat", ep)) < 0)
 	    *sts = maperr();
 	else if ((n = read(fd, buf, sizeof(buf))) < 0) {
@@ -995,6 +1007,8 @@ fetch_proc_pid_io(int id, proc_pid_t *proc_pid, int *sts)
 	char	buf[1024];
 	char	*curline;
 
+	if (ep->io_buflen > 0)
+	    ep->io_buf[0] = '\0';
 	if ((fd = proc_open("io", ep)) < 0)
 	    *sts = maperr();
 	else if ((n = read(fd, buf, sizeof(buf))) < 0) {
