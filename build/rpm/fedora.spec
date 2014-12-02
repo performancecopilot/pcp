@@ -7,8 +7,8 @@ Release: %{buildversion}%{?dist}
 License: GPLv2+ and LGPLv2.1+ and CC-BY
 URL: http://www.pcp.io
 Group: Applications/System
-Source0: %{name}-%{version}.src.tar.gz
-Source1: pcp-webjs.src.tar.gz
+Source0: ftp://oss.sgi.com/projects/pcp/download/%{name}-%{version}.src.tar.gz
+Source1: ftp://oss.sgi.com/projects/pcp/download/pcp-webjs.src.tar.gz
 
 # There are no papi/libpfm devel packages for s390 nor for some rhels, disable
 %ifarch s390 s390x
@@ -595,7 +595,7 @@ rm -fr $RPM_BUILD_ROOT/%{_localstatedir}/lib/pcp/config/pmsnap
 rm -fr $RPM_BUILD_ROOT/%{_localstatedir}/lib/pcp/config/pmchart
 rm -f $RPM_BUILD_ROOT/%{_localstatedir}/lib/pcp/config/pmafm/pcp-gui
 rm -f $RPM_BUILD_ROOT/%{_datadir}/applications/pmchart.desktop
-rm -f `find $RPM_BUILD_ROOT/%{_mandir}/man1 | egrep "$PCP_GUI"`
+rm -f `find $RPM_BUILD_ROOT/%{_mandir}/man1 | grep -E "$PCP_GUI"`
 %else
 rm -rf $RPM_BUILD_ROOT/usr/share/doc/pcp-gui
 desktop-file-validate $RPM_BUILD_ROOT/%{_datadir}/applications/pmchart.desktop
@@ -609,10 +609,10 @@ done
 
 # list of PMDAs in the base pkg
 ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
-  egrep -v 'simple|sample|trivial|txmon' |\
-  egrep -v 'perfevent|perfalloc.1' |\
-  egrep -v '^ib$|infiniband' |\
-  egrep -v 'papi' |\
+  grep -E -v 'simple|sample|trivial|txmon' |\
+  grep -E -v 'perfevent|perfalloc.1' |\
+  grep -E -v '^ib$|infiniband' |\
+  grep -E -v 'papi' |\
   sed -e 's#^#'%{_pmdasdir}'\/#' >base_pmdas.list
 
 # all base pcp package files except those split out into sub packages
@@ -630,18 +630,18 @@ ls -1 $RPM_BUILD_ROOT/%{_datadir}/pcp/demos/tutorials |\
 ls -1 $RPM_BUILD_ROOT/%{_pixmapdir} |\
   sed -e 's#^#'%{_pixmapdir}'\/#' > pcp-gui.list
 cat base_bin.list base_exec.list base_man.list |\
-  egrep "$PCP_GUI" >> pcp-gui.list
+  grep -E "$PCP_GUI" >> pcp-gui.list
 %endif
 cat base_pmdas.list base_bin.list base_exec.list base_man.list |\
-  egrep -v 'pmdaib|pmmgr|pmweb|pmsnap|2pcp' |\
-  egrep -v "$PCP_GUI|pixmaps|pcp-doc|tutorials" |\
-  egrep -v %{_confdir} | egrep -v %{_logsdir} > base.list
+  grep -E -v 'pmdaib|pmmgr|pmweb|pmsnap|2pcp' |\
+  grep -E -v "$PCP_GUI|pixmaps|pcp-doc|tutorials" |\
+  grep -E -v %{_confdir} | grep -E -v %{_logsdir} > base.list
 
 # all devel pcp package files except those split out into sub packages
 ls -1 $RPM_BUILD_ROOT/%{_mandir}/man3 |\
-sed -e 's#^#'%{_mandir}'\/man3\/#' | egrep -v '3pm|PMWEBAPI' >devel.list
+sed -e 's#^#'%{_mandir}'\/man3\/#' | grep -E -v '3pm|PMWEBAPI' >devel.list
 ls -1 $RPM_BUILD_ROOT/%{_datadir}/pcp/demos |\
-sed -e 's#^#'%{_datadir}'\/pcp\/demos\/#' | egrep -v tutorials >> devel.list
+sed -e 's#^#'%{_datadir}'\/pcp\/demos\/#' | grep -E -v tutorials >> devel.list
 
 %pre testsuite
 test -d %{_testsdir} || mkdir -p -m 755 %{_testsdir}
