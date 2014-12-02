@@ -1,23 +1,37 @@
 #!/usr/bin/perl
-#
-use LWP::UserAgent;
+use strict;
 
 package ActiveMQ;
+use JSON;
 
 sub new {
   my $class = shift;
   my $self = {
-    _connection => shift,
+    _rest_client => shift,
   };
-  $self->{_connection}->credentials("localhost:8161", "ActiveMQRealm", "admin", "admin");
   bless $self, $class;
   return $self;
 }
 
+sub average_message_size {
+    my ($self)  = @_;
+    return $self->query('AverageMessageSize');
+}
+
+sub broker_id {
+    my ($self)  = @_;
+    return $self->query('BrokerId');
+}
+
 sub total_message_count {
     my ($self)  = @_;
-    my $response = $self->{_connection}->get("http://localhost:8161/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost");
-    return undef unless $response->is_success;
-    return $response->decoded_content;
+    return $self->query('TotalMessageCount');
 }
+
+sub query {
+    my ($self, $value) = @_;
+    my $response = $self->{_rest_client}->get("/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost");
+    return $response->{'value'}->{$value};
+}
+
 1;
