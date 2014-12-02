@@ -1,3 +1,9 @@
+pcp (3.10.2) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Dave Brolley <brolley@redhat.com>  Fri, 09 Jan 2015 11:43:08 +1100
+
 pcp (3.10.1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).

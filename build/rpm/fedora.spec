@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.10.1
+Version: 3.10.2
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -1080,6 +1080,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root,-)
 
 %changelog
+* Fri Jan 09 2015 Dave Brolley <brolley@redhat.com> - 3.10.2-1
+- Update to latest PCP sources.
+
 * Mon Dec 01 2014 Nathan Scott <nathans@redhat.com> - 3.10.1-1
 - New conditionally-built pcp-pmda-perfevent sub-package.
 - Update to latest PCP sources.
