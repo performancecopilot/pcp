@@ -21,7 +21,9 @@ use PCP::PMDA;
 use LWP::UserAgent;
 use RESTClient;
 use ActiveMQ;
+use Data::Dumper;
 
+my $queue_indom = 0;
 my $http_client = LWP::UserAgent->new;
 my $rest_client = RESTClient->new($http_client, 'localhost', 8161, 'admin', 'admin', 'ActiveMQRealm');
 my $activemq = ActiveMQ->new($rest_client);
@@ -34,20 +36,27 @@ sub update_activemq_status
 sub activemq_fetch_callback
 {
 	my ($cluster, $item, $inst) = @_;
-    # 
-    if($item == 0) {
-        return ($activemq->total_message_count, 1);
-    } 
-    elsif ($item == 1) {
-        return ($activemq->average_message_size, 1);
+    if($cluster ==0) {
+        #
+        if($item == 0) {
+            return ($activemq->total_message_count, 1);
+        }
+        elsif ($item == 1) {
+            return ($activemq->average_message_size, 1);
+        }
+        elsif ($item == 2) {
+            return ($activemq->broker_id, 1);
+        }
+        else {
+            return (PM_ERR_PMID, 0);
+        }
     }
-    elsif ($item == 2) {
-        return ($activemq->broker_id, 1);
+    elsif ($cluster == 1) {
+        return (42, 1);
     }
     else {
-	    return (PM_ERR_PMID, 0);
+        return (PM_ERR_PMID, 0);
     }
-
 
     
 }
@@ -63,6 +72,22 @@ $pmda->add_metric(pmda_pmid(0,1), PM_TYPE_U32, PM_INDOM_NULL,
 $pmda->add_metric(pmda_pmid(0,2), PM_TYPE_STRING, PM_INDOM_NULL,
 	PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 	'activemq.broker_id', 'Unique id of the broker', '');
+
+$pmda->add_metric(pmda_pmid(1,0), PM_TYPE_U32, $queue_indom,
+    PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+    'activemq.queue.queue_size', 'Number of messages in the destination which are yet to be consumed', '');
+
+
+my @queues = $activemq->queues;
+
+#print Dumper(@queues);
+#
+my @queue_instances = map {
+      ($_->uid(), $_->short_name);
+    } @queues;
+#
+$pmda->add_indom($queue_indom, \@queue_instances,
+		'Instance domain exporting each queue', '');
 
 $pmda->set_fetch_callback(\&activemq_fetch_callback);
 $pmda->set_refresh(\&update_activemq_status);

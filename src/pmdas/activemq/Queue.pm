@@ -3,6 +3,8 @@ use strict;
 
 package Queue;
 
+use Digest::MD5 qw(md5);
+
 sub new {
   my $class = shift;
   my $self = {
@@ -20,8 +22,24 @@ sub queue_size {
 
 sub query {
   my ($self, $value) = @_;
-  my $response = $self->{_rest_client}->get("api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Queue,destinationName=" . $self->{_name});
+  my $response = $self->{_rest_client}->get("api/jolokia/read/" . $self->{_name});
   return $response->{'value'}->{$value};
+}
+
+sub short_name {
+  my ($self) = @_;
+  # parse fully qualified bean name such as ...
+  #     "org.apache.activemq:brokerName=localhost,destinationName=queue1,destinationType=Queue,type=Broker"
+  #   ... ame into a hash of key/values.
+  my %bean_name = split(/[=,]/, $self->{_name});
+  return $bean_name{"destinationName"};
+}
+
+sub uid {
+  my ($self) = @_;
+
+  my $md5 = substr( md5($self->{_name}), 0, 4 );
+  return unpack('L', $md5);
 }
 
 1;

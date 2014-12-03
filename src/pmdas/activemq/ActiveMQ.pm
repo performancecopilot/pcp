@@ -33,10 +33,11 @@ sub queues {
     my ($self)  = @_;
     my @queues = @{$self->query('Queues')};
 
-    my @queue_instances = map { 
+    my @queue_instances = map {
       Queue->new($_->{'objectName'}, $self->{_rest_client});
     } @queues;
-    return \@queue_instances;
+#    my @queue_instances = (Queue->new('org.apache.activemq:brokerName=localhost,destinationName=queue1,destinationType=Queue,type=Broker', $self->{_rest_client}));
+    return @queue_instances;
 }
 
 sub query {
