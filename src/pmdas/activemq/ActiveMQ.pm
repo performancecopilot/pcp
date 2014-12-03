@@ -2,7 +2,8 @@
 use strict;
 
 package ActiveMQ;
-use JSON;
+use Queue;
+use Data::Dumper;
 
 sub new {
   my $class = shift;
@@ -26,6 +27,16 @@ sub broker_id {
 sub total_message_count {
     my ($self)  = @_;
     return $self->query('TotalMessageCount');
+}
+
+sub queues {
+    my ($self)  = @_;
+    my @queues = @{$self->query('Queues')};
+
+    my @queue_instances = map { 
+      Queue->new($_->{'objectName'}, $self->{_rest_client});
+    } @queues;
+    return \@queue_instances;
 }
 
 sub query {

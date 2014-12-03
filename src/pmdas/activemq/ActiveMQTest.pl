@@ -6,14 +6,16 @@ use lib dirname (__FILE__);
 
 use Test::More;
 use Test::Magpie qw(mock when);
-
+use Data::Dumper;
 use ActiveMQ;
 
 BEGIN {
-  plan(tests => 3)
+  plan(tests => 4)
 }
 
 my $user_agent = mock;
+my $queue1 = mock;
+my $queue2 = mock;
   
 my $activemq = ActiveMQ->new( $user_agent );
 
@@ -26,4 +28,20 @@ is($activemq->average_message_size, 1234);
 
 when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost')->then_return({'value' => {'BrokerId' => 'myid' }});
 is($activemq->broker_id, "myid");
+
+when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost')->then_return(
+  {
+    'value' => {   
+      'Queues' => [
+        {'objectName' => 'org.apache.activemq:brokerName=localhost,destinationName=queue1,destinationType=Queue,type=Broker'},
+        {'objectName' => 'org.apache.activemq:brokerName=localhost,destinationName=queue2,destinationType=Queue,type=Broker'},
+      ]
+    }
+  
+  }
+);
+#my @myresult=@{$activemq->queues};
+#print Dumper($activemq->queues);
+#print $activemq->queues->[0]->queue_size;
+is_deeply(\$activemq->queues, \($queue1, $queue2));
 
