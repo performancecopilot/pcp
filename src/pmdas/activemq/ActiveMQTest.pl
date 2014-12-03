@@ -10,7 +10,7 @@ use Data::Dumper;
 use ActiveMQ;
 
 BEGIN {
-  plan(tests => 6)
+  plan(tests => 7)
 }
 
 my $user_agent = mock;
@@ -48,3 +48,16 @@ is($queue_size, 2);
 is($actual_queues[0]->short_name(), "queue1");
 is($actual_queues[1]->short_name(), "queue2");
 
+
+when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost')->then_return(
+  {
+    'value' => {
+      'Queues' => [
+        {'objectName' => 'org.apache.activemq:brokerName=localhost,destinationName=queue1,destinationType=Queue,type=Broker'},
+        {'objectName' => 'org.apache.activemq:brokerName=localhost,destinationName=queue2,destinationType=Queue,type=Broker'},
+      ]
+    }
+  }
+);
+
+is($activemq->queue_by_uid(2589169368)->short_name(), "queue1");

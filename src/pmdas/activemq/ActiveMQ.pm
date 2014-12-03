@@ -46,4 +46,17 @@ sub query {
     return $response->{'value'}->{$value};
 }
 
+sub queue_by_uid {
+  my ($self, $uid) = @_;
+
+  my @queues = $self->queues;
+  foreach my $queue (@queues) {
+    if ($queue->uid == $uid) {
+      return $queue;
+    }
+  }
+
+  return undef;
+}
+
 1;
