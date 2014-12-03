@@ -10,7 +10,7 @@ use Data::Dumper;
 use ActiveMQ;
 
 BEGIN {
-  plan(tests => 4)
+  plan(tests => 6)
 }
 
 my $user_agent = mock;
@@ -41,12 +41,10 @@ when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,broker
   }
 );
 
-is_deeply($activemq->queues, [$queue1, $queue2]);
+my @actual_queues = $activemq->queues;
+my $queue_size = @actual_queues;
 
-my @queues = ($queue1, $queue2);
+is($queue_size, 2);
+is($actual_queues[0]->short_name(), "queue1");
+is($actual_queues[1]->short_name(), "queue2");
 
-my @queue_instances = map {
-      ($_->uid(), $_->short_name);
-    } @queues;
-
-print Dumper(\@queue_instances);
