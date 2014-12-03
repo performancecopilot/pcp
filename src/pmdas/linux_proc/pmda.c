@@ -2616,10 +2616,10 @@ proc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    need_refresh[cluster]++;
     }
 
-    have_access = proc_ctx_access(pmda->e_context) || all_access;
+    have_access = all_access || proc_ctx_access(pmda->e_context);
     proc_refresh(pmda, need_refresh);
     sts = pmdaFetch(numpmid, pmidlist, resp, pmda);
-    have_access = proc_ctx_revert(pmda->e_context);
+    have_access = all_access || proc_ctx_revert(pmda->e_context);
     return sts;
 }
 
@@ -2628,16 +2628,17 @@ proc_store(pmResult *result, pmdaExt *pmda)
 {
     int i, sts = 0;
 
-    have_access = proc_ctx_access(pmda->e_context) || all_access;
+    have_access = all_access || proc_ctx_access(pmda->e_context);
 
     for (i = 0; i < result->numpmid; i++) {
 	pmValueSet *vsp = result->vset[i];
 	__pmID_int *idp = (__pmID_int *)&(vsp->pmid);
 	pmAtomValue av;
 
-	if (idp->cluster != CLUSTER_CONTROL)
-	    sts = PM_ERR_PERMISSION;
-	else if (vsp->numval != 1)
+	switch (idp->cluster){
+        
+	case CLUSTER_CONTROL:
+	if (vsp->numval != 1)
 	    sts = PM_ERR_INST;
 	else switch (idp->item) {
 	case 1: /* proc.control.all.threads */
@@ -2706,12 +2707,13 @@ proc_store(pmResult *result, pmdaExt *pmda)
 		break;
 	default:
 	    sts = PM_ERR_PERMISSION;
+	    break;
 	}
 	if (sts < 0)
 	    break;
     }
 
-    have_access = proc_ctx_revert(pmda->e_context);
+    have_access = all_access || proc_ctx_revert(pmda->e_context);
     return sts;
 }
 
@@ -2946,7 +2948,6 @@ proc_init(pmdaInterface *dp)
 	fprintf(stderr, "Metrics: %d.%d.%d\n", pmidp->domain, pmidp->cluster, pmidp->item);
     }
 
-    cgroup_init(metrictab, nmetrics);
     proc_ctx_init();
     proc_dynamic_init(metrictab, nmetrics);
 

@@ -157,8 +157,8 @@ refresh_cgroup_pidlist(int want_threads, const char *cgroup, proc_pid_list_t *pi
     FILE *fp;
     int pid;
 
-    pids.count = 0;
-    pids.threads = want_threads;
+    pids->count = 0;
+    pids->threads = want_threads;
 
     /*
      * We're running in cgroups mode where a subset of the processes is
@@ -196,8 +196,8 @@ refresh_global_pidlist(int want_threads, proc_runq_t *runq_stats, proc_pid_list_
     struct dirent *dp;
     char path[MAXPATHLEN];
 
-    pids.count = 0;
-    pids.threads = want_threads;
+    pids->count = 0;
+    pids->threads = want_threads;
 
     snprintf(path, sizeof(path), "%s/proc", proc_statspath);
     if ((dirp = opendir(path)) == NULL) {
@@ -506,7 +506,7 @@ hotproc_eval_procs(){
     hotpids.threads = 0;
 
     /* Whats running right now */
-    refresh_global_pidlist( 0, &hotpids );
+    refresh_global_pidlist( 0, NULL, &hotpids );
     refresh_proc_pidlist( &hotproc_poss_pid, &hotpids );
 
     for (i=0; i < hotpids.count; i++) {
@@ -1012,8 +1012,6 @@ refresh_proc_pid(proc_pid_t *proc_pid, proc_runq_t *proc_runq,
 {
     int sts, want_cgroups = (cgroups && cgroups[0] != '\0');
 
-    procpids.count = 0;
-    procpids.threads = threads;
     /* For the run queue stats, we cannot avoid the global /proc refresh.
      * However, we can ensure we scan it once only (either here or below).
      */
