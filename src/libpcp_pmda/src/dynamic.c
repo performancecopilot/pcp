@@ -24,8 +24,8 @@ static struct dynamic {
     int			prefixlen;
     int			mtabcount;	/* internal use only */
     int			extratrees;	/* internal use only */
-    int			nclusters;
-    int			*clusters;
+    //int			nclusters;
+    //int			*clusters;
     pmdaUpdatePMNS	pmnsupdate;
     pmdaUpdateText	textupdate;
     pmdaUpdateMetric	mtabupdate;
@@ -75,17 +75,20 @@ pmdaDynamicPMNS(const char *prefix,
 	__pmNotifyErr(LOG_ERR, "out-of-memory registering dynamic metrics");
 	return;
     }
-    ctabsz = sizeof(int) * nclusters;
-    if ((ctab = (int *)malloc(ctabsz)) == NULL) {
-	__pmNotifyErr(LOG_ERR, "out-of-memory registering dynamic clusters");
-	free(dynamic);
-	return;
-    }
+    //ctabsz = sizeof(int) * nclusters;
+    //if ((ctab = (int *)malloc(ctabsz)) == NULL) {
+//	__pmNotifyErr(LOG_ERR, "out-of-memory registering dynamic clusters");
+//	free(dynamic);
+//	return;
+ //   }
+
+    //fprintf(stderr, "Adding %s at location %d\n", prefix, dynamic_count);
+
     dynamic[dynamic_count].prefix = prefix;
     dynamic[dynamic_count].prefixlen = strlen(prefix);
-    dynamic[dynamic_count].nclusters = nclusters;
-    dynamic[dynamic_count].clusters = ctab;
-    memcpy(dynamic[dynamic_count].clusters, clusters, ctabsz);
+    //dynamic[dynamic_count].nclusters = nclusters;
+    //dynamic[dynamic_count].clusters = ctab;
+    //memcpy(dynamic[dynamic_count].clusters, clusters, ctabsz);
     dynamic[dynamic_count].pmnsupdate = pmnsupdate;
     dynamic[dynamic_count].textupdate = textupdate;
     dynamic[dynamic_count].mtabupdate = mtabupdate;
@@ -97,15 +100,76 @@ pmdaDynamicPMNS(const char *prefix,
     dynamic_count++;
 }
 
+/*
+ * Verify if a given pmid should be handled by this dynamic instance.
+ * Assumes pmnsupdate has been called so dynamic[index].pmns can't be NULL
+ */
+
+int
+pmdaDynamicCheckPMID( pmID pmid, int index )
+{
+
+    int numfound=0;
+    char **nameset;
+
+    pmdaNameSpace *tree = dynamic[index].pmns;
+    //__pmDumpNameNode(stderr, tree->root, 1);
+    numfound = pmdaTreeName(tree, pmid, &nameset);
+
+    int domain = pmid_domain(pmid);
+    int cluster = pmid_cluster(pmid);
+    int item = pmid_item(pmid);
+
+    //fprintf(stderr, "Check: %d.%d.%d In: %d Result: %d\n", domain, cluster, item, index, numfound);
+
+    /* Don't need the names, just seeing if its there */
+    
+    if( numfound > 0 ){
+	free(nameset);
+	return numfound;
+    }
+
+    return 0;
+
+}
+
+/*
+ *  * Verify if a given name should be handled by this dynamic instance.
+ *   * Assumes pmnsupdate has been called so dynamic[index].pmns can't be NULL
+ *    */
+
+int
+pmdaDynamicCheckName( char *name, int index )
+{
+
+    int found = 0;
+    pmID pmid;
+
+    pmdaNameSpace *tree = dynamic[index].pmns;
+
+    /* Use this because we want non-leaf nodes also, since we are called for child checks */
+    if( __pmdaNodeLookup(tree->root->first, name) != NULL ){
+	//fprintf( stderr, "Ours[%d]: %s\n", index, name);
+	return 1;
+    }
+    else{
+	//fprintf( stderr, "Not Ours[%d]: %s\n", index, name);
+	return 0;
+    }
+
+}
+
 pmdaNameSpace *
 pmdaDynamicLookupName(pmdaExt *pmda, const char *name)
 {
-    int i;
+    int i,sts;
 
     for (i = 0; i < dynamic_count; i++) {
-	if (strncmp(name, dynamic[i].prefix, dynamic[i].prefixlen) == 0) {
-	    if (dynamic[i].pmnsupdate(pmda, &dynamic[i].pmns))
-		pmdaDynamicMetricTable(pmda);
+	sts = dynamic[i].pmnsupdate(pmda, &dynamic[i].pmns);
+	if (sts)
+	    pmdaDynamicMetricTable(pmda);
+	if( pmdaDynamicCheckName( name, i )){
+	    //fprintf(stderr, "pmdaDynamicLookupName found %s in %d\n", name, i);
 	    return dynamic[i].pmns;
 	}
     }
@@ -115,17 +179,16 @@ pmdaDynamicLookupName(pmdaExt *pmda, const char *name)
 pmdaNameSpace *
 pmdaDynamicLookupPMID(pmdaExt *pmda, pmID pmid)
 {
-    int i, j, cluster;
+    int i, j, cluster, sts;
 
     for (i = 0; i < dynamic_count; i++) {
-	cluster = dynamic_pmid_cluster(i, pmid);
-	for (j = 0; j < dynamic[i].nclusters; j++) {
-	    if (cluster == dynamic[i].clusters[j]) {
-		if (dynamic[i].pmnsupdate(pmda, &dynamic[i].pmns))
+		/* Need to do this in all cases to be able to search the pmns */
+		sts = dynamic[i].pmnsupdate(pmda, &dynamic[i].pmns);
+		if(sts)
 		    pmdaDynamicMetricTable(pmda);
-		return dynamic[i].pmns;
-	    }
-	}
+		if( pmdaDynamicCheckPMID( pmid, i ) ){
+		    return dynamic[i].pmns;
+		}
     }
     return NULL;
 }
@@ -136,10 +199,11 @@ pmdaDynamicLookupText(pmID pmid, int type, char **buf, pmdaExt *pmda)
     int i, j;
 
     for (i = 0; i < dynamic_count; i++) {
-	int cluster = dynamic_pmid_cluster(i, pmid);
-	for (j = 0; j < dynamic[i].nclusters; j++)
-	    if (cluster == dynamic[i].clusters[j])
-		return dynamic[i].textupdate(pmda, pmid, type, buf);
+		/* Need to do this in all cases to be able to search the pmns */
+                dynamic[i].pmnsupdate(pmda, &dynamic[i].pmns);
+                if( pmdaDynamicCheckPMID( pmid, i ) ){
+		    return dynamic[i].textupdate(pmda, pmid, type, buf);
+		}
     }
     return -ENOENT;
 }
@@ -150,22 +214,23 @@ pmdaDynamicLookupText(pmID pmid, int type, char **buf, pmdaExt *pmda)
  * which needs to be filled in.  All a bit obscure, really.
  */
 static pmdaMetric *
-dynamic_metric_table(int index, pmdaMetric *offset)
+dynamic_metric_table(int index, pmdaMetric *offset, pmdaExt *pmda)
 {
     struct dynamic *dp = &dynamic[index];
     int m, tree_count = dp->extratrees;
+    int sts=0;
 
     for (m = 0; m < dp->nmetrics; m++) {
 	pmdaMetric *mp = &dp->metrics[m];
 	int cluster = dynamic_pmid_cluster(index, mp->m_desc.pmid);
 	int c, gid;
 
-	for (c = 0; c < dp->nclusters; c++)
-	    if (dp->clusters[c] == cluster)
-		break;
-	if (c < dp->nclusters)
-	    for (gid = 0; gid < tree_count; gid++)
-		dp->mtabupdate(mp, offset++, gid + 1);
+		/* Need to do this in all cases to be able to search the pmns */
+                sts = dp->pmnsupdate(pmda, &dp->pmns);
+		//fprintf(stderr, "Will check %p\n", (__pmID_int *)&mp->m_desc.pmid);
+                if( pmdaDynamicCheckPMID( mp->m_desc.pmid, index ) )
+		    for (gid = 0; gid < tree_count; gid++)
+			dp->mtabupdate(mp, offset++, gid + 1);
     }
     return offset;
 }
@@ -209,7 +274,7 @@ fallback:
 	memcpy(mtab, fixed, total * sizeof(pmdaMetric));
 	offset = mtab + total;
 	for (i = 0; i < dynamic_count; i++)
-	    offset = dynamic_metric_table(i, offset);
+	    offset = dynamic_metric_table(i, offset, pmda);
 	if (pmda->e_metrics != fixed)
 	    free(pmda->e_metrics);
 	pmdaRehash(pmda, mtab, resize);
