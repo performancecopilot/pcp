@@ -14,8 +14,8 @@ BEGIN {
 }
 
 my $user_agent = mock;
-my $queue1 = mock;
-my $queue2 = mock;
+my $queue1 = Queue->new('org.apache.activemq:brokerName=localhost,destinationName=queue1,destinationType=Queue,type=Broker', $user_agent);
+my $queue2 = Queue->new('org.apache.activemq:brokerName=localhost,destinationName=queue2,destinationType=Queue,type=Broker', $user_agent);
   
 my $activemq = ActiveMQ->new( $user_agent );
 
@@ -40,8 +40,6 @@ when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,broker
   
   }
 );
-#my @myresult=@{$activemq->queues};
-#print Dumper($activemq->queues);
-#print $activemq->queues->[0]->queue_size;
-is_deeply(\$activemq->queues, \($queue1, $queue2));
+
+is_deeply($activemq->queues, [$queue1, $queue2]);
 
