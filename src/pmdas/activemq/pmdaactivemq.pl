@@ -28,7 +28,7 @@ my $http_client = LWP::UserAgent->new;
 my $rest_client = RESTClient->new($http_client, 'localhost', 8161, 'admin', 'admin', 'ActiveMQRealm');
 my $activemq = ActiveMQ->new($rest_client);
 
-my @queue_instances;
+my %queue_instances;
 
 my @cluster_cache;		# time of last refresh for each cluster
 my $cache_interval = 2;		# min secs between refreshes for clusters
@@ -50,11 +50,11 @@ sub update_activemq_status
     elsif ($cluster == 1) {
         my @queues = $activemq->queues;
 
-        @queue_instances = map {
-          ($_->uid(), $_->short_name);
+        %queue_instances = map {
+          ($_->short_name(), $_->short_name());
         } @queues;
 
-        $pmda->replace_indom($queue_indom, \@queue_instances);
+        $pmda->replace_indom($queue_indom, \%queue_instances);
     }
 
     $cluster_cache[$cluster] = $now;
@@ -74,8 +74,7 @@ sub activemq_fetch_callback
 #	my $FILE;
 #
 #    open $FILE, ">>", "/tmp/activemq_pmda.log";
-#
-#print $FILE "\nfetch * ";
+
 	my ($cluster, $item, $inst) = @_;
 
     if($cluster ==0) {
@@ -95,9 +94,13 @@ sub activemq_fetch_callback
     }
     elsif ($cluster == 1) {
     	if ($inst == PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
-    	return (PM_ERR_INST, 0) unless ( grep $_ == $inst, @queue_instances );
 
-	    my $selected_queue = $activemq->queue_by_uid($inst);
+    	my $instance_queue_name = pmda_inst_lookup($queue_indom, $inst);
+    	return (PM_ERR_INST, 0) unless defined($instance_queue_name);
+
+	    my $selected_queue = $activemq->queue_by_short_name($instance_queue_name);
+	    return (PM_ERR_INST, 0) unless defined($selected_queue);
+
         if($item == 0) {
             return activemq_value($selected_queue->queue_size());
         }
@@ -155,7 +158,7 @@ $pmda->add_metric(pmda_pmid(1,4), PM_TYPE_U32, $queue_indom,
     PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
     'activemq.queue.average_enqueue_time', 'Average time a message has been held this destination', '');
 
-$pmda->add_indom($queue_indom, \@queue_instances,
+$pmda->add_indom($queue_indom, \%queue_instances,
 		'Instance domain exporting each queue', '');
 
 $pmda->set_fetch_callback(\&activemq_fetch_callback);

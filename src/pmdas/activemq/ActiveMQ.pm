@@ -49,12 +49,12 @@ sub query {
     return $response->{'value'}->{$value};
 }
 
-sub queue_by_uid {
-  my ($self, $uid) = @_;
+sub queue_by_short_name {
+  my ($self, $short_name) = @_;
 
   my @queues = $self->queues;
   foreach my $queue (@queues) {
-    if ($queue->uid == $uid) {
+    if ($queue->short_name eq $short_name) {
       return $queue;
     }
   }

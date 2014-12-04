@@ -47,7 +47,7 @@ is($actual_queues[0]->short_name(), "queue1", "queues() response contains queue1
 is($actual_queues[1]->short_name(), "queue2", "queues() response contains queue2");
 
 when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost')->then_return($actual_queue_response);
-is($activemq->queue_by_uid(2589169368)->short_name(), "queue1", "Find queue by uid");
+is($activemq->queue_by_short_name("queue2")->short_name(), "queue2", "Find queue by short name");
 
 when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost')->then_return($actual_queue_response);
-is($activemq->queue_by_uid(1234), undef, "Unknown uid should be undefined");
+is($activemq->queue_by_short_name("unknown_queue"), undef, "Unknown short name should be undefined");
