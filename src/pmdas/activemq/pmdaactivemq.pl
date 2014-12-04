@@ -57,13 +57,19 @@ sub activemq_fetch_callback
 	    my $selected_queue = $activemq->queue_by_uid($inst);
 	    print $FILE "Instance is :" . Dumper($inst) . " The queue is " . Dumper($selected_queue->short_name()) . " Queue size is :" . Dumper($selected_queue->queue_size());
 
-        return ($selected_queue->queue_size(), 1);
+        if($item == 0) {
+            return ($selected_queue->queue_size(), 1);
+        }
+        elsif($item == 1) {
+            return ($selected_queue->short_name(), 1);
+        }
+        else {
+            return (PM_ERR_PMID, 0);
+        }
     }
     else {
         return (PM_ERR_PMID, 0);
     }
-
-    
 }
 
 
@@ -85,6 +91,9 @@ $pmda->add_metric(pmda_pmid(1,0), PM_TYPE_U32, $queue_indom,
     PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
     'activemq.queue.queue_size', 'Number of messages in the destination which are yet to be consumed', '');
 
+$pmda->add_metric(pmda_pmid(1,1), PM_TYPE_STRING, $queue_indom,
+    PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+    'activemq.queue.queue_name', 'Name of the queue', '');
 
 my @queues = $activemq->queues;
 
