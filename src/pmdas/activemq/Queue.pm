@@ -20,52 +20,20 @@ sub queue_size {
   return $self->query('QueueSize');
 }
 
-#{
-#  "timestamp":1417655260,
-#  "status":200,
-#  "request":{"mbean":"org.apache.activemq:brokerName=localhost,destinationName=second_one,destinationType=Queue,type=Broker","type":"read"},
-#  "value":{
-#    "MemoryUsageByteCount":0,
-#    "ProducerCount":0,
-#    "UseCache":true,
-#    "ProducerFlowControl":true,
-#    "MaxAuditDepth":2048,
-#    "MaxPageSize":200,
-#    "CursorMemoryUsage":0,
-#    "DLQ":false,
-#    "AlwaysRetroactive":false,
-#    "MemoryPercentUsage":0,
-#    "MessageGroups":{},
-#    "PrioritizedMessages":false,
-#    "MaxEnqueueTime":0,
-#    "CursorFull":false,
-#    "MemoryLimit":720791142,
-#    "DispatchCount":0,
-#    "QueueSize":0,
-#    "BlockedProducerWarningInterval":30000,
-#    "DequeueCount":0,
-#    "AverageEnqueueTime":0.0,
-#    "TotalBlockedTime":0,
-#    "MinEnqueueTime":0,
-#    "CacheEnabled":true,
-#    "MessageGroupType":"cached",
-#    "MemoryUsagePortion":1.0,
-#    "InFlightCount":0,
-#    "Options":"",
-#    "SlowConsumerStrategy":null,
-#    "MinMessageSize":0,
-#    "AverageBlockedTime":0.0,
-#    "Name":"second_one",
-#    "MaxProducersToAudit":1024,
-#    "CursorPercentUsage":0,
-#    "BlockedSends":0,
-#    "ExpiredCount":0,
-#    "AverageMessageSize":0.0,
-#    "Subscriptions":[],
-#    "EnqueueCount":0,
-#    "MaxMessageSize":0,
-#    "ConsumerCount":0}
-#  }
+sub dequeue_count {
+  my ($self) = @_;
+  return $self->query('DequeueCount');
+}
+
+sub enqueue_count {
+  my ($self) = @_;
+  return $self->query('EnqueueCount');
+}
+
+sub average_enqueue_time {
+  my ($self) = @_;
+  return $self->query('AverageEnqueueTime');
+}
 
 sub query {
   my ($self, $value) = @_;

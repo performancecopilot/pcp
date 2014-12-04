@@ -63,6 +63,15 @@ sub activemq_fetch_callback
         elsif($item == 1) {
             return ($selected_queue->short_name(), 1);
         }
+        elsif($item == 2) {
+            return ($selected_queue->dequeue_count(), 1);
+        }
+        elsif($item == 3) {
+            return ($selected_queue->enqueue_count(), 1);
+        }
+        elsif($item == 4) {
+            return ($selected_queue->average_enqueue_time(), 1);
+        }
         else {
             return (PM_ERR_PMID, 0);
         }
@@ -94,6 +103,18 @@ $pmda->add_metric(pmda_pmid(1,0), PM_TYPE_U32, $queue_indom,
 $pmda->add_metric(pmda_pmid(1,1), PM_TYPE_STRING, $queue_indom,
     PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
     'activemq.queue.queue_name', 'Name of the queue', '');
+
+$pmda->add_metric(pmda_pmid(1,2), PM_TYPE_U32, $queue_indom,
+    PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+    'activemq.queue.dequeue_count', 'Number of messages that have been acknowledged (and removed from) from the destination', '');
+
+$pmda->add_metric(pmda_pmid(1,3), PM_TYPE_U32, $queue_indom,
+    PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+    'activemq.queue.enqueue_count', 'Number of messages that have been sent to the destination', '');
+
+$pmda->add_metric(pmda_pmid(1,4), PM_TYPE_U32, $queue_indom,
+    PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
+    'activemq.queue.average_enqueue_time', 'Average time a message has been held this destination', '');
 
 my @queues = $activemq->queues;
 
