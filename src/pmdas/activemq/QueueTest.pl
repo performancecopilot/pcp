@@ -18,7 +18,7 @@ my $rest_client = mock;
 
 my $queue = Queue->new("org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Queue,destinationName=queuename", $rest_client);
 
-when($rest_client)->get("api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Queue,destinationName=queuename")->then_return({'value' => { 'QueueSize' => 123}});
+when($rest_client)->get("/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Queue,destinationName=queuename")->then_return({'value' => { 'QueueSize' => 123}});
 
 is($queue->queue_size, 123);
 
