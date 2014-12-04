@@ -22,6 +22,7 @@ sub new {
 sub get {
   my ($self, $url) = @_;
   my $response = $self->{_http_client}->get("http://" . $self->{_host} . ":" . $self->{_port} . $url);
+  return undef unless defined($response);
   return undef unless $response->is_success;
   return decode_json($response->decoded_content);
 }

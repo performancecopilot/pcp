@@ -31,18 +31,21 @@ sub total_message_count {
 
 sub queues {
     my ($self)  = @_;
-    my @queues = @{$self->query('Queues')};
+    my $query_result = $self->query('Queues');
 
+    return undef unless defined($query_result);
+
+    my @queues = @{$query_result};
     my @queue_instances = map {
       Queue->new($_->{'objectName'}, $self->{_rest_client});
     } @queues;
-#    my @queue_instances = (Queue->new('org.apache.activemq:brokerName=localhost,destinationName=queue1,destinationType=Queue,type=Broker', $self->{_rest_client}));
     return @queue_instances;
 }
 
 sub query {
     my ($self, $value) = @_;
     my $response = $self->{_rest_client}->get("/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost");
+    return undef unless defined($response);
     return $response->{'value'}->{$value};
 }
 

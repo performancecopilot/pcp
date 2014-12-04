@@ -28,16 +28,48 @@ my $http_client = LWP::UserAgent->new;
 my $rest_client = RESTClient->new($http_client, 'localhost', 8161, 'admin', 'admin', 'ActiveMQRealm');
 my $activemq = ActiveMQ->new($rest_client);
 
+my @queue_instances;
+
+my @cluster_cache;		# time of last refresh for each cluster
+my $cache_interval = 2;		# min secs between refreshes for clusters
+
+my $pmda = PCP::PMDA->new('activemq', 133);
+
 sub update_activemq_status
 {
+    my ($cluster) = @_;
+    my $now = time;
+
+    if (defined($cluster_cache[$cluster]) && $now - $cluster_cache[$cluster] <= $cache_interval) {
+        return;
+    }
+
+    if ($cluster == 0) {
+
+    }
+    elsif ($cluster == 1) {
+        my @queues = $activemq->queues;
+
+        @queue_instances = map {
+          ($_->uid(), $_->short_name);
+        } @queues;
+
+        $pmda->replace_indom($queue_indom, \@queue_instances);
+    }
+
+    $cluster_cache[$cluster] = $now;
 }
+
 
 sub activemq_fetch_callback
 {
+#	my $FILE;
+#
+#    open $FILE, ">>", "/tmp/activemq_pmda.log";
+#
+#print $FILE "\nfetch * ";
 	my ($cluster, $item, $inst) = @_;
-	my $FILE;
 
-    open $FILE, ">>", "/tmp/activemq_pmda.log";
     if($cluster ==0) {
         #
         if($item == 0) {
@@ -55,8 +87,6 @@ sub activemq_fetch_callback
     }
     elsif ($cluster == 1) {
 	    my $selected_queue = $activemq->queue_by_uid($inst);
-	    print $FILE "Instance is :" . Dumper($inst) . " The queue is " . Dumper($selected_queue->short_name()) . " Queue size is :" . Dumper($selected_queue->queue_size());
-
         if($item == 0) {
             return ($selected_queue->queue_size(), 1);
         }
@@ -83,8 +113,6 @@ sub activemq_fetch_callback
 
 
 #print $FILE "We are alive...";
-
-my $pmda = PCP::PMDA->new('activemq', 133);
 
 $pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U32, PM_INDOM_NULL,
 	PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
@@ -116,14 +144,6 @@ $pmda->add_metric(pmda_pmid(1,4), PM_TYPE_U32, $queue_indom,
     PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
     'activemq.queue.average_enqueue_time', 'Average time a message has been held this destination', '');
 
-my @queues = $activemq->queues;
-
-#print Dumper(@queues);
-#
-my @queue_instances = map {
-      ($_->uid(), $_->short_name);
-    } @queues;
-#
 $pmda->add_indom($queue_indom, \@queue_instances,
 		'Instance domain exporting each queue', '');
 
