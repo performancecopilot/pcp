@@ -648,7 +648,8 @@ papi_internal_init(pmdaInterface *dp)
     for (component_id; component_id < number_of_components; component_id++) {
 	const PAPI_component_info_t *component;
 	component = PAPI_get_component_info(component_id);
-	if (component->disabled || strcmp("perf_event", component->name))
+	if (component->disabled || (strcmp("perf_event", component->name)
+				    && strcmp("perf_event_uncore", component->name)))
 	    continue;
 	sts = PAPI_enum_cmp_event (&native, PAPI_ENUM_FIRST, component_id);
 	if (sts == PAPI_OK)
