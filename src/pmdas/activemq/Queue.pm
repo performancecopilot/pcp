@@ -38,6 +38,7 @@ sub average_enqueue_time {
 sub query {
   my ($self, $value) = @_;
   my $response = $self->{_rest_client}->get("/api/jolokia/read/" . $self->{_name});
+  return undef unless defined($response);
   return $response->{'value'}->{$value};
 }
 

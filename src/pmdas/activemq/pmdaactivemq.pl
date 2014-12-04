@@ -61,6 +61,14 @@ sub update_activemq_status
 }
 
 
+sub activemq_value
+{
+    my ( $value ) = @_;
+
+    return (PM_ERR_APPVERSION, 0) unless (defined($value));
+    return ($value, 1);
+}
+
 sub activemq_fetch_callback
 {
 #	my $FILE;
@@ -71,36 +79,39 @@ sub activemq_fetch_callback
 	my ($cluster, $item, $inst) = @_;
 
     if($cluster ==0) {
-        #
+        if ($inst != PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
         if($item == 0) {
-            return ($activemq->total_message_count, 1);
+            return activemq_value($activemq->total_message_count);
         }
         elsif ($item == 1) {
-            return ($activemq->average_message_size, 1);
+            return activemq_value($activemq->average_message_size);
         }
         elsif ($item == 2) {
-            return ($activemq->broker_id, 1);
+            return activemq_value($activemq->broker_id);
         }
         else {
             return (PM_ERR_PMID, 0);
         }
     }
     elsif ($cluster == 1) {
+    	if ($inst == PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
+    	return (PM_ERR_INST, 0) unless ( grep $_ == $inst, @queue_instances );
+
 	    my $selected_queue = $activemq->queue_by_uid($inst);
         if($item == 0) {
-            return ($selected_queue->queue_size(), 1);
+            return activemq_value($selected_queue->queue_size());
         }
         elsif($item == 1) {
-            return ($selected_queue->short_name(), 1);
+            return activemq_value($selected_queue->short_name());
         }
         elsif($item == 2) {
-            return ($selected_queue->dequeue_count(), 1);
+            return activemq_value($selected_queue->dequeue_count());
         }
         elsif($item == 3) {
-            return ($selected_queue->enqueue_count(), 1);
+            return activemq_value($selected_queue->enqueue_count());
         }
         elsif($item == 4) {
-            return ($selected_queue->average_enqueue_time(), 1);
+            return activemq_value($selected_queue->average_enqueue_time());
         }
         else {
             return (PM_ERR_PMID, 0);
