@@ -756,6 +756,8 @@ update_indom_metric_buffers(void)
     Py_ssize_t i;
     PyObject *item;
     Py_buffer buffer;
+    const void *ptr;
+    Py_ssize_t len;
     int error = 0;
 
     if (indom_list == NULL || metric_list == NULL)
@@ -788,7 +790,8 @@ update_indom_metric_buffers(void)
     // Copy the indoms.
     for (i = 0; !error && i < nindoms; i++) {
 	item = PyList_GetItem(indom_list, i);
-	if (item) {
+	/* Newer buffer interface */
+	if (item && PyObject_CheckBuffer(item)) {
 	    // Attempt to extract buffer information from it.
 	    if (PyObject_GetBuffer(item, &buffer, PyBUF_ANY_CONTIGUOUS) == -1) {
 		PyErr_SetString(PyExc_TypeError,
@@ -796,25 +799,46 @@ update_indom_metric_buffers(void)
 		error = 1;
 		break;
 	    }
-
-	    // The indom table is supposed to be composed of
-	    // 'pmdaIndom(Structure)' items, which should be laid out
-	    // like a 'pmdaIndom' structure in memory.
-	    if (buffer.len != sizeof(pmdaIndom)) {
-		PyErr_SetString(PyExc_TypeError, "Invalid indom item size");
-		PyBuffer_Release(&buffer);
+	    ptr = buffer.buf;
+	    len = buffer.len;
+	}
+	/* Older buffer interface */
+	else if (item && PyObject_CheckReadBuffer(item)) {
+	    // Attempt to extract information from the item.
+	    if (PyObject_AsReadBuffer(item, &ptr, &len) == -1) {
+		PyErr_SetString(PyExc_TypeError,
+				"Unable to get indom item buffer");
 		error = 1;
 		break;
 	    }
-	    indom_buffer[i] = *(pmdaIndom *)buffer.buf;
-	    PyBuffer_Release(&buffer);
+	    buffer.buf = NULL;
 	}
+	else {
+ 	    PyErr_SetString(PyExc_TypeError, "Unable to retrieve indom");
+	    error = 1;
+	    break;
+	}
+
+	// The indom table is supposed to be composed of
+	// 'pmdaIndom(Structure)' items, which should be laid out
+	// like a 'pmdaIndom' structure in memory.
+	if (len != sizeof(pmdaIndom)) {
+	    PyErr_SetString(PyExc_TypeError, "Invalid indom item size");
+	    if (buffer.buf)
+		PyBuffer_Release(&buffer);
+	    error = 1;
+	    break;
+	}
+	indom_buffer[i] = *(pmdaIndom *)ptr;
+	if (buffer.buf)
+	    PyBuffer_Release(&buffer);
     }
 
     // Copy the metrics.
     for (i = 0; !error && i < nmetrics; i++) {
 	item = PyList_GetItem(metric_list, i);
-	if (item) {
+	/* Newer buffer interface */
+	if (item && PyObject_CheckBuffer(item)) {
 	    // Attempt to extract buffer information from it.
 	    if (PyObject_GetBuffer(item, &buffer, PyBUF_ANY_CONTIGUOUS)
 		== -1) {
@@ -823,19 +847,39 @@ update_indom_metric_buffers(void)
 		error = 1;
 		break;
 	    }
-
-	    // The metric table is supposed to be composed of
-	    // 'pmdaMetric(Structure)' items, which should be laid out
-	    // like a 'pmdaMetric' structure in memory.
-	    if (buffer.len != sizeof(pmdaMetric)) {
-		PyErr_SetString(PyExc_TypeError, "Invalid metric item size");
-		PyBuffer_Release(&buffer);
+	    ptr = buffer.buf;
+	    len = buffer.len;
+	}
+	/* Older buffer interface */
+	else if (item && PyObject_CheckReadBuffer(item)) {
+	    // Attempt to extract information from the item.
+	    if (PyObject_AsReadBuffer(item, &ptr, &len) == -1) {
+		PyErr_SetString(PyExc_TypeError,
+				"Unable to get metric item buffer");
 		error = 1;
 		break;
 	    }
-	    metric_buffer[i] = *(pmdaMetric *)buffer.buf;
-	    PyBuffer_Release(&buffer);
+	    buffer.buf = NULL;
 	}
+	else {
+	    PyErr_SetString(PyExc_TypeError, "Unable to retrieve metric");
+	    error = 1;
+	    break;
+	}
+
+	// The metric table is supposed to be composed of
+	// 'pmdaMetric(Structure)' items, which should be laid out
+	// like a 'pmdaMetric' structure in memory.
+	if (len != sizeof(pmdaMetric)) {
+	    PyErr_SetString(PyExc_TypeError, "Invalid metric item size");
+	    if (buffer.buf)
+		PyBuffer_Release(&buffer);
+	    error = 1;
+	    break;
+	}
+	metric_buffer[i] = *(pmdaMetric *)ptr;
+	if (buffer.buf)
+	    PyBuffer_Release(&buffer);
     }
     if (error) {
 	if (indom_buffer) {
