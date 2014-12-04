@@ -28,14 +28,16 @@ my $http_client = LWP::UserAgent->new;
 my $rest_client = RESTClient->new($http_client, 'localhost', 8161, 'admin', 'admin', 'ActiveMQRealm');
 my $activemq = ActiveMQ->new($rest_client);
 
-
-sub update_activemq_status 
+sub update_activemq_status
 {
 }
 
 sub activemq_fetch_callback
 {
 	my ($cluster, $item, $inst) = @_;
+	my $FILE;
+
+    open $FILE, ">>", "/tmp/activemq_pmda.log";
     if($cluster ==0) {
         #
         if($item == 0) {
@@ -52,7 +54,10 @@ sub activemq_fetch_callback
         }
     }
     elsif ($cluster == 1) {
-        return (42, 1);
+	    my $selected_queue = $activemq->queue_by_uid($inst);
+	    print $FILE "Instance is :" . Dumper($inst) . " The queue is " . Dumper($selected_queue->short_name()) . " Queue size is :" . Dumper($selected_queue->queue_size());
+
+        return ($selected_queue->queue_size(), 1);
     }
     else {
         return (PM_ERR_PMID, 0);
@@ -60,6 +65,9 @@ sub activemq_fetch_callback
 
     
 }
+
+
+#print $FILE "We are alive...";
 
 my $pmda = PCP::PMDA->new('activemq', 133);
 

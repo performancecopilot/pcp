@@ -22,7 +22,7 @@ sub queue_size {
 
 sub query {
   my ($self, $value) = @_;
-  my $response = $self->{_rest_client}->get("api/jolokia/read/" . $self->{_name});
+  my $response = $self->{_rest_client}->get("/api/jolokia/read/" . $self->{_name});
   return $response->{'value'}->{$value};
 }
 
