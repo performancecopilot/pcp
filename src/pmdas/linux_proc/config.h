@@ -41,26 +41,6 @@ typedef struct {
 
         derived_pred_t preds;
 
-	/* --- ioctl buffer fields for testing purposes only --- */
-
-        /* prpsinfo_t fields */
-	//ulong_t pr_size;
-	//ulong_t pr_rssize;
-
-	/* prusage_t fields */
-	//ulong_t pu_sysc;
-	//ulong_t pu_ictx;
-	//ulong_t pu_vctx;
-	//ulong_t pu_gbread;
-	//ulong_t pu_bread;
-	//ulong_t pu_gbwrit;
-	//ulong_t pu_bwrit;
-
-	/* accounting fields */
-	//accum_t ac_bwtime;
-	//accum_t ac_rwtime;
-	//accum_t ac_qwtime;
-
 } config_vars;
 
 #include "gram_node.h"
@@ -68,7 +48,7 @@ typedef struct {
 void set_conf_buffer( char * );
 char *get_conf_buffer();
 FILE *open_config(char []);
-void read_config(FILE *);
+int read_config(FILE *);
 int parse_config(bool_node **tree);
 void new_tree(bool_node *tree);
 int eval_tree(config_vars *);

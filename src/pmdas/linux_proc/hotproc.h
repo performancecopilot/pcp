@@ -21,6 +21,27 @@
 
 #include "config.h"
 
+/* Global items */
+#define ITEM_HOTPROC_G_REFRESH 1
+#define ITEM_HOTPROC_G_CPUIDLE 2
+#define ITEM_HOTPROC_G_CPUBURN 3
+#define ITEM_HOTPROC_G_OTHER_TRANSIENT 4
+#define ITEM_HOTPROC_G_OTHER_NOT_CPUBURN 5
+#define ITEM_HOTPROC_G_OTHER_TOTAL 6
+#define ITEM_HOTPROC_G_OTHER_PERCENT 7
+#define ITEM_HOTPROC_G_CONFIG 8
+#define ITEM_HOTPROC_G_CONFIG_GEN 9
+
+/* Predicate items */
+#define ITEM_HOTPROC_P_SYSCALLS 0
+#define ITEM_HOTPROC_P_CTXSWITCH 1
+#define ITEM_HOTPROC_P_VSIZE 2
+#define ITEM_HOTPROC_P_RSIZE 3
+#define ITEM_HOTPROC_P_IODEMAND 4
+#define ITEM_HOTPROC_P_IOWAIT 5
+#define ITEM_HOTPROC_P_SCHEDWAIT 6
+#define ITEM_HOTPROC_P_CPUBURN 7
+
 /* main process node type */
 typedef struct process_t {
     pid_t pid;

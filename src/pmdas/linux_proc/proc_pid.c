@@ -43,6 +43,10 @@ static proc_pid_t hotproc_poss_pid;
 
 #define INIT_HOTPROC_MAX 200
 
+extern int conf_gen;
+extern char *proc_statspath;
+extern long hz;
+
 /* Actual processes that are hot based on the current configuration 
  * Filled in hotproc_eval_procs 
  */
@@ -71,22 +75,6 @@ static double hot_total_cpuidle;
 static double hot_total_active;
 static double hot_total_inactive;
 
-int get_hot_totals(double * ta, double * ti, double * tt, double * tci ){
-
-	if( hot_have_totals ){
-		(*ta) = hot_total_active;
-		(*ti) = hot_total_inactive;
-		(*tt) = hot_total_transient;
-		(*tci) = hot_total_cpuidle;
-		return 1;
-	}
-	else{
-		return 0;
-	}
-
-}
-
-
 static unsigned long hot_refresh_count = 0;
 
 /* index into proc_list etc.. */
@@ -95,6 +83,21 @@ static int previous = 1;
 
 struct timeval   hotproc_update_interval;
 int     hotproc_timer_id = -1;
+
+int 
+get_hot_totals(double * ta, double * ti, double * tt, double * tci )
+{
+    if( hot_have_totals ){
+	(*ta) = hot_total_active;
+	(*ti) = hot_total_inactive;
+	(*tt) = hot_total_transient;
+	(*tci) = hot_total_cpuidle;
+	return 1;
+    }
+    else{
+	return 0;
+    }
+}
 
 static int
 compare_pid(const void *pa, const void *pb)
@@ -240,23 +243,24 @@ in_hot_active_list(pid_t pid)
 }
 
 static int
-check_if_hot( char *cpid ){
+check_if_hot( char *cpid )
+{
 
-	int mypid;
-	int sts = 0;
+    int mypid;
+    int sts = 0;
 
-	sts = sscanf( cpid, "%d", &mypid );
+    sts = sscanf( cpid, "%d", &mypid );
 
-	if( sts == 0 ){
-		return 0;
-	}
+    if( sts == 0 ){
+	return 0;
+    }
 	
-	if( in_hot_active_list(mypid) ){
-		return 1;
-	}
-	else{
-		return 0;
-	}	
+    if( in_hot_active_list(mypid) ){
+	return 1;
+    }
+    else{
+	return 0;
+    }	
 }
 
 static int
@@ -358,7 +362,6 @@ lookup_curr_node(pid_t pid)
     return lookup_node(current, pid);
 }
 
-
 static double
 DiffCounter(double current, double previous, int pmtype)
 {
@@ -376,68 +379,58 @@ DiffCounter(double current, double previous, int pmtype)
                 break;
         }
     }
-
     return outval;
 }
 
-
-
-
 int
-get_hotproc_node( pid_t pid, process_t **getnode ){
-
-        if( in_hot_active_list(pid) ){
-                (*getnode) = lookup_curr_node( pid );
-                if( (*getnode) == NULL ){
-                        return 0;
-                }
-                else{
-                        return 1;
-                }
-        }
-        else{
-                (*getnode) = NULL;
-                return 0;
-        }
-
+get_hotproc_node( pid_t pid, process_t **getnode )
+{
+    if( in_hot_active_list(pid) ){
+	(*getnode) = lookup_curr_node( pid );
+	if( (*getnode) == NULL ){
+	    return 0;
+	}
+	else{
+	    return 1;
+	}
+    }
+    else{
+	(*getnode) = NULL;
+	return 0;
+    }
 }
 
 /* The idea of this is copied from linux/proc_stat.c */
 static unsigned long long
-get_idle_time(){
+get_idle_time()
+{
+    FILE * fp = NULL;
 
-	FILE * fp = NULL; /* kept open until exit() */
-	char *linux_statspath = "";
+    unsigned long long idle_time;
+    int n;
+    char buf[MAXPATHLEN];
 
-	unsigned long long idle_time;
-	int n;
-	char        *envpath;
-	char buf[MAXPATHLEN];
+    snprintf(buf, sizeof(buf), "%s/proc/stat", proc_statspath);
+    if ((fp = fopen(buf, "r")) < 0)
+	return -oserror();
 
-    	if ((envpath = getenv("LINUX_STATSPATH")) != NULL)
-        	linux_statspath = envpath;
-	snprintf(buf, sizeof(buf), "%s/proc/stat", linux_statspath);
-	if ((fp = fopen(buf, "r")) < 0)
-		return -oserror();
+    n = fscanf( fp, "cpu %*u %*u %*u %llu %*u %*u %*u %*u %*u", &idle_time);
 
-    	n = fscanf( fp, "cpu %*llu %*llu %*llu %llu %*llu %*llu %*llu %*llu %*llu", &idle_time);
+    if( n != 1){
+	idle_time = 0;
+    }
 
-    	if( n != 1){
-    		idle_time = 0;
-    	}
+    fclose( fp );
 
-    	//fprintf(stderr, "Idle time: %llu\n", idle_time);
-
-    	fclose( fp );
-
-    	return idle_time;
+    return idle_time;
 }
 
 static void
 refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids);
 
 static int
-hotproc_eval_procs(){
+hotproc_eval_procs()
+{
 
     /* for each pid, compute stats and store in hotpid array */
 
@@ -472,22 +465,14 @@ hotproc_eval_procs(){
     double vctx_delta;              /* delta num of valid ctx switches for a process */
     double ictx_delta;              /* delta num of invalid ctx switches for a process */
     double bread_delta;             /* delta num of bytes read */
-    //double gbread_delta;            /* delta num of gigabytes read */
     double bwrit_delta;             /* delta num of bytes written */
-    //double gbwrit_delta;            /* delta num of gigabytes written */
     double bwtime_delta;            /* delta num of nanosesc for waiting for blocked io */
-    //double rwtime_delta;            /* delta num of nanosesc for waiting for raw io */
-    //double qwtime_delta;            /* delta num of nanosesc waiting on run queue */
     double timestamp_delta;         /* real time delta b/w refreshes for process */
     double total_cputime = 0;       /* total of cputime_deltas for each process */
     double total_activetime = 0;    /* total of cputime_deltas for active processes */
     double total_inactivetime = 0;  /* total of cputime_deltas for inactive processes */
 
-
-    static long         hz = -1;
-
-    if (hz == -1){
-        hz = sysconf(_SC_CLK_TCK);
+    if (num_cpus == 0){
         num_cpus = sysconf(_SC_NPROCESSORS_ONLN);
     }
 
@@ -517,8 +502,8 @@ hotproc_eval_procs(){
         node = __pmHashSearch(hotpids.pids[i], &hotproc_poss_pid.pidhash);
 
 	if( node == NULL){
-		fprintf(stderr,"hotproc : Hash search failed for Proc %d!\n", i);
-		continue;
+	    fprintf(stderr,"hotproc : Hash search failed for Proc %d!\n", i);
+	    continue;
 	}
 
 	__pmtimevalNow(&p_timestamp);
@@ -532,22 +517,22 @@ hotproc_eval_procs(){
 	ioentry = fetch_proc_pid_io(pid, &hotproc_poss_pid, &sts);
 
 	if( statentry == NULL || statusentry == NULL || ioentry == NULL){
-		/* Can happen if the process was exiting during refresh_proc_pidlist
-		 * then the above fetch's will fail
-		 * Would be best if they were not in the list at all
-		 * "np" is used from now on, so hopefully can just continue
-		*/
-		continue;
+	    /* Can happen if the process was exiting during refresh_proc_pidlist
+	     * then the above fetch's will fail
+	     * Would be best if they were not in the list at all
+	     * "np" is used from now on, so hopefully can just continue
+	     */
+	    continue;
 	}
 
 	if (np == hot_maxprocs[current]) {
-		process_t *res;
-		hot_maxprocs[current] = np*2;
-		res = (process_t *)realloc(hotproc_list[current],
-		hot_maxprocs[current] * sizeof(process_t));
-		if (res == NULL)
-			return -oserror();
-		hotproc_list[current] = res;
+	    process_t *res;
+	    hot_maxprocs[current] = np*2;
+	    res = (process_t *)realloc(hotproc_list[current],
+		    hot_maxprocs[current] * sizeof(process_t));
+	    if (res == NULL)
+		return -oserror();
+	    hotproc_list[current] = res;
 	}
 
 	newnode = &hotproc_list[current][np++];
@@ -559,24 +544,24 @@ hotproc_eval_procs(){
 	/* How do we deal with errors here??? */
 	
 	if( (f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_UTIME)) == NULL )
-		newnode->r_cputime = 0;
+	    newnode->r_cputime = 0;
 	else{
-		ul = (__uint32_t)strtoul(f, &tail, 0);
-        	newnode->r_cputime      = (double)ul / (double)hz;
+	    ul = (__uint32_t)strtoul(f, &tail, 0);
+	    newnode->r_cputime      = (double)ul / (double)hz;
 	}
 
 	if( (f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_STIME)) == NULL){
-		/* Nothing */
+	    /* Nothing */
 	}
 	else{
-        	ul = (__uint32_t)strtoul(f, &tail, 0);
-		newnode->r_cputime      += (double)ul / (double)hz;
+	    ul = (__uint32_t)strtoul(f, &tail, 0);
+	    newnode->r_cputime      += (double)ul / (double)hz;
 	}
 
-        newnode->r_cputimestamp = p_timestamp.tv_sec + p_timestamp.tv_usec / 1000000;
+	newnode->r_cputimestamp = p_timestamp.tv_sec + p_timestamp.tv_usec / 1000000;
 
 	/* Context Switches : vol and invol */
-	
+
         if ((f = _pm_getfield(statusentry->status_lines.vctxsw, 1)) == NULL)
 	    newnode->r_vctx = 0;
 	else
@@ -591,77 +576,73 @@ hotproc_eval_procs(){
 	/* Read */
 	
 	if ((f = _pm_getfield(ioentry->io_lines.readb, 1)) == NULL)
-               	ull = 0;
-        else
-               	ull = (__uint64_t)strtoull(f, &tail, 0);
+	    ull = 0;
+	else
+	    ull = (__uint64_t)strtoull(f, &tail, 0);
 		
 	newnode->r_bread = ull;
 
 	/* Write */
 
 	if ((f = _pm_getfield(ioentry->io_lines.writeb, 1)) == NULL)
-               	ull = 0;
-        else
-               	ull = (__uint64_t)strtoull(f, &tail, 0);
+	    ull = 0;
+	else
+	    ull = (__uint64_t)strtoull(f, &tail, 0);
 		
 	newnode->r_bwrit = ull;
 	
 	/* Block IO wait (delayacct_blkio_ticks) */
 
 	if ((f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_DELAYACCT_BLKIO_TICKS - 3)) == NULL)  /* Note the offset */
-		ul = 0;
+	    ul = 0;
 	else
-		ul = (__uint32_t)strtoul(f, &tail, 0);
+	    ul = (__uint32_t)strtoul(f, &tail, 0);
 		
 	newnode->r_bwtime = (double)ul / hz;
 
 	/* This is not the first time through, so we can generate rate stats */
 	if ((oldnode = lookup_node(previous, pid)) != NULL) {
 
-		/* Just copied the old Diff code.  Is there a new way to do this? */
+	    /* CPU */
+	    cputime_delta = DiffCounter(newnode->r_cputime, oldnode->r_cputime, PM_TYPE_64);
+	    timestamp_delta = DiffCounter(newnode->r_cputimestamp, oldnode->r_cputimestamp, PM_TYPE_64);
 
-		/* CPU */
-            	cputime_delta = DiffCounter(newnode->r_cputime, oldnode->r_cputime, PM_TYPE_64);
-		timestamp_delta = DiffCounter(newnode->r_cputimestamp, oldnode->r_cputimestamp, PM_TYPE_64);
+	    newnode->r_cpuburn = cputime_delta / timestamp_delta;
+	    vars.cpuburn = newnode->r_cpuburn;
 
-            	newnode->r_cpuburn = cputime_delta / timestamp_delta;
-            	vars.cpuburn = newnode->r_cpuburn;
-
-		/* IO */
-		bread_delta = DiffCounter((double)newnode->r_bread,
+	    /* IO */
+	    bread_delta = DiffCounter((double)newnode->r_bread,
                                    (double)oldnode->r_bread, PM_TYPE_64);
-                bwrit_delta = DiffCounter((double)newnode->r_bwrit,
+	    bwrit_delta = DiffCounter((double)newnode->r_bwrit,
                                     (double)oldnode->r_bwrit, PM_TYPE_64);
-                vars.preds.iodemand = (
+	    vars.preds.iodemand = (
                                  (double)bread_delta  +
                                  (double)bwrit_delta ) /
                                 timestamp_delta;
 
-                /* ctx switches */
-                vctx_delta = DiffCounter((double)newnode->r_vctx,
+	    /* ctx switches */
+	    vctx_delta = DiffCounter((double)newnode->r_vctx,
                                     (double)oldnode->r_vctx, PM_TYPE_64);
-                ictx_delta = DiffCounter((double)newnode->r_ictx,
+	    ictx_delta = DiffCounter((double)newnode->r_ictx,
                                     (double)oldnode->r_ictx, PM_TYPE_64);
-                vars.preds.ctxswitch = (vctx_delta + ictx_delta) / timestamp_delta;
+	    vars.preds.ctxswitch = (vctx_delta + ictx_delta) / timestamp_delta;
 
-                /* IO wait */
-                bwtime_delta = DiffCounter((double)newnode->r_bwtime,
+	    /* IO wait */
+	    bwtime_delta = DiffCounter((double)newnode->r_bwtime,
                                     (double)oldnode->r_bwtime, PM_TYPE_64);
 
-                vars.preds.iowait = bwtime_delta / timestamp_delta;
-
-
+	    vars.preds.iowait = bwtime_delta / timestamp_delta;
 	}
         else {
-        	newnode->r_cpuburn = 0;
-        	bzero(&newnode->preds, sizeof(newnode->preds));
-        	vars.cpuburn = 0;
-        	//vars.preds.syscalls = 0;
-        	vars.preds.ctxswitch = 0;
-        	vars.preds.iowait = 0;
-        	//vars.preds.schedwait = 0;
-        	vars.preds.iodemand = 0;
-        	cputime_delta = 0;
+	    newnode->r_cpuburn = 0;
+	    memset(&newnode->preds, 0, sizeof(newnode->preds));
+	    vars.cpuburn = 0;
+	    //vars.preds.syscalls = 0;
+	    vars.preds.ctxswitch = 0;
+	    vars.preds.iowait = 0;
+	    //vars.preds.schedwait = 0;
+	    vars.preds.iodemand = 0;
+	    cputime_delta = 0;
         }
 
         total_cputime += cputime_delta;
@@ -669,15 +650,15 @@ hotproc_eval_procs(){
 	/* Command */
 
 	if ((f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_CMD)) == NULL){
-		strcpy(vars.fname, "Unknown");
+	    strcpy(vars.fname, "Unknown");
 	}
 	else{
-		char *cmd = malloc( strlen(f+1) );
-		strcpy(cmd, f+1);
-		cmd[strlen(f+1)-1] = '\0';
-               	strncpy(vars.fname, cmd, sizeof(vars.fname));
-               	vars.fname[sizeof(vars.fname)-1]='\0';
-		free(cmd);
+	    char *cmd = malloc( strlen(f+1) );
+	    strcpy(cmd, f+1);
+	    cmd[strlen(f+1)-1] = '\0';
+	    strncpy(vars.fname, cmd, sizeof(vars.fname));
+	    vars.fname[sizeof(vars.fname)-1]='\0';
+	    free(cmd);
 	}
 
 	/* PS Args */
@@ -686,79 +667,79 @@ hotproc_eval_procs(){
 
 	/* UID and GID */
 	if ((f = _pm_getfield(statusentry->status_lines.uid, 1)) == NULL){
-               	ul = 0;
+	    ul = 0;
 	}
 	else{
-		ul = (__uint32_t)strtoul(f, &tail, 0);
+	    ul = (__uint32_t)strtoul(f, &tail, 0);
 	}
 	
-       	vars.uid = ul;
-       	
-       	if ((f = _pm_getfield(statusentry->status_lines.gid, 1)) == NULL){
-                ul = 0;
-        }
-        else{
-	        ul = (__uint32_t)strtoul(f, &tail, 0);
-        }
+	vars.uid = ul;
 
-        vars.gid = ul;
+	if ((f = _pm_getfield(statusentry->status_lines.gid, 1)) == NULL){
+	    ul = 0;
+	}
+	else{
+	    ul = (__uint32_t)strtoul(f, &tail, 0);
+	}
 
-        /* uname and gname */
+	vars.gid = ul;
+
+	/* uname and gname */
 
 	struct passwd *pwe;		
 
 	if ((pwe = getpwuid((uid_t)vars.uid)) != NULL){
-                strncpy(vars.uname, pwe->pw_name, sizeof(vars.uname));
-                vars.uname[sizeof(vars.uname)-1] = '\0';
+	    strncpy(vars.uname, pwe->pw_name, sizeof(vars.uname));
+	    vars.uname[sizeof(vars.uname)-1] = '\0';
 	}
-        else
-                strcpy(vars.uname, "UNKNOWN");
+	else
+	    strcpy(vars.uname, "UNKNOWN");
 
 	struct group *gre;
 
 	if ((gre = getgrgid((gid_t)vars.gid)) != NULL) {
-                strncpy(vars.gname, gre->gr_name, sizeof(vars.gname));
-                vars.gname[sizeof(vars.gname)-1] = '\0';
-        } 
-        else {
-                strcpy(vars.gname, "UNKNOWN");
-        }
+	    strncpy(vars.gname, gre->gr_name, sizeof(vars.gname));
+	    vars.gname[sizeof(vars.gname)-1] = '\0';
+	} 
+	else {
+	    strcpy(vars.gname, "UNKNOWN");
+	}
 
 	/* VSIZE from stat */
-	
+
 	if ((f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_VSIZE)) == NULL){
-                ul = 0;
+	    ul = 0;
 	}
 	else{
-               	ul = (__uint32_t)strtoul(f, &tail, 0);
-               	ul /= 1024;
+	    ul = (__uint32_t)strtoul(f, &tail, 0);
+	    ul /= 1024;
 	}
 
-		vars.preds.virtualsize = ul;
+	vars.preds.virtualsize = ul;
 
 	/* RSS from stat */
 
 	if ((f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_RSS)) == NULL){
-                ul = 0;
+	    ul = 0;
 	}
 	else{
-              	ul = (__uint32_t)strtoul(f, &tail, 0);
-               	ul *= getpagesize() / 1024;
+	    ul = (__uint32_t)strtoul(f, &tail, 0);
+	    ul *= getpagesize() / 1024;
 	}
 
 	vars.preds.residentsize = ul;
 
 	//  Struct copy.  I think it was a bug before.  Copy should be after rss and vm calcs
 	newnode->preds = vars.preds;
-                
-       	if ((sts = add_hot_active_list(newnode, &vars)) < 0) {
-       		return sts;
+
+	if ((sts = add_hot_active_list(newnode, &vars)) < 0) {
+	    return sts;
        	}
 
        	if (sts == 0)
-       		total_inactivetime += cputime_delta;
-       	else
-       		total_activetime += cputime_delta;
+	    total_inactivetime += cputime_delta;
+	else
+	    total_activetime += cputime_delta;
 
     }
 
@@ -769,7 +750,8 @@ hotproc_eval_procs(){
 
     double hptime = (ts.tv_sec - p_timestamp.tv_sec) + (ts.tv_usec - p_timestamp.tv_usec)/1000000.0;
 
-    //fprintf(stderr, "Hotproc Update took %f time\n", hptime);
+    if (pmDebug & DBG_TRACE_LIBPMDA)
+	fprintf(stderr, "Hotproc Update took %f time\n", hptime);
 
     /* Idle */
     sysidle[current] = get_idle_time();
@@ -780,11 +762,11 @@ hotproc_eval_procs(){
         hot_refresh_count = 2;
 
     if (hot_refresh_count > 1 ) {
-        sysidle_delta = DiffCounter(sysidle[current], sysidle[previous], PM_TYPE_64) / (double)HZ;
-        actual_delta = DiffCounter(refresh_time[current], refresh_time[previous], PM_TYPE_64);
-        transient_delta = num_cpus * actual_delta - (total_cputime + sysidle_delta);
-        if (transient_delta < 0) /* sanity check */
-            transient_delta = 0;
+	sysidle_delta = DiffCounter(sysidle[current], sysidle[previous], PM_TYPE_64) / (double)HZ;
+	actual_delta = DiffCounter(refresh_time[current], refresh_time[previous], PM_TYPE_64);
+	transient_delta = num_cpus * actual_delta - (total_cputime + sysidle_delta);
+	if (transient_delta < 0) /* sanity check */
+	    transient_delta = 0;
 
         hot_have_totals = 1;
         hot_total_transient = transient_delta / actual_delta;
@@ -792,7 +774,6 @@ hotproc_eval_procs(){
         hot_total_active = total_activetime / actual_delta;
         hot_total_inactive = total_inactivetime / actual_delta;
     }
-
 
     qsort(hotproc_list[current], hot_numprocs[current],
           sizeof(process_t), compar_pids);
@@ -808,24 +789,30 @@ hotproc_timer(int sig, void *ptr)
 }
 
 void
-init_hotproc_pid( pmdaIndom *indomtab ){
+init_hotproc_pid( pmdaIndom *indomtab )
+{
 
-	hotproc_poss_pid.indom = indomtab;
+    hotproc_poss_pid.indom = indomtab;
 
-	hotproc_update_interval.tv_sec = 10;
+    hotproc_update_interval.tv_sec = 10;
 
-	init_hotproc_list();
+    init_hotproc_list();
 
-	if ((hotproc_timer_id = __pmAFregister(&hotproc_update_interval, NULL, hotproc_timer)) < 0) {
-		__pmNotifyErr(LOG_ERR, "error registering hotproc timer");
-		exit(1);
+    /* Only if we have a valid config file.  Set all the other stuff up incase we enable later */
+    if( conf_gen ){
+        if ((hotproc_timer_id = __pmAFregister(&hotproc_update_interval, NULL, hotproc_timer)) < 0) {
+	    __pmNotifyErr(LOG_ERR, "error registering hotproc timer");
+	    /* OK to exit here?  Assume something really bad has happened */
+	    exit(1);
 	}
+    }
 }
 
-void reset_hotproc_timer(){
+void reset_hotproc_timer()
+{
 
-	__pmAFunregister(hotproc_timer_id);
-	hotproc_timer_id = __pmAFregister(&hotproc_update_interval, NULL, hotproc_timer);
+    __pmAFunregister(hotproc_timer_id);
+    hotproc_timer_id = __pmAFregister(&hotproc_update_interval, NULL, hotproc_timer);
 
 }
 

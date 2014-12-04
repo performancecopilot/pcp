@@ -56,7 +56,8 @@ static int			have_access;	/* =1 recvd uid/gid */
 static size_t			_pm_system_pagesize;
 static unsigned int		threads;	/* control.all.threads */
 static char *			cgroups;	/* control.all.cgroups */
-static int 			conf_gen = 1;	/* hotproc config version */
+int				conf_gen = 0;	/* hotproc config version, if zero hotproc not configured yet */
+long				hz = -1;
 
 extern struct timeval   hotproc_update_interval;
 
@@ -1226,56 +1227,56 @@ static pmdaMetric metrictab[] = {
  */
  
     /* hotproc.control.refresh */
-    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,1),
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_REFRESH),
       PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
     /* hotproc.control.config */
-    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,8),
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_CONFIG),
       PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
     /* hotproc.control.config_gen */
-    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,9),
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_CONFIG_GEN),
       PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
     /* hotproc.total.cpuidle */
-    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,2),
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_CPUIDLE),
       PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
     /* hotproc.total.cpuburn */
-    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,3),
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_CPUBURN),
       PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
     /* hotproc.total.cpuother.transient */
-    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,4),
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_OTHER_TRANSIENT),
       PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
     /* hotproc.total.cpuother.not_cpuburn */
-    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,5),
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_OTHER_NOT_CPUBURN),
       PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
     /* hotproc.total.cpuother.total */
-    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,6),
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_OTHER_TOTAL),
       PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
     /* hotproc.total.cpuother.percent */
-    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,7),
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_OTHER_PERCENT),
       PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
 
     /* hotproc.predicate.syscalls */
-    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,0),
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,ITEM_HOTPROC_P_SYSCALLS),
       PM_TYPE_FLOAT, HOTPROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,-1,1, 0,PM_TIME_SEC,0)} },
     /* hotproc.predicate.ctxswitch */
-    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,1),
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,ITEM_HOTPROC_P_CTXSWITCH),
       PM_TYPE_FLOAT, HOTPROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,-1,1, 0,PM_TIME_SEC,0)} },
     /* hotproc.predicate.virtualsize */
-    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,2),
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,ITEM_HOTPROC_P_VSIZE),
       PM_TYPE_U32, HOTPROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0, PM_SPACE_KBYTE,0,0)} },
     /* hotproc.predicate.residentsize */
-    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,3),
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,ITEM_HOTPROC_P_RSIZE),
       PM_TYPE_U32, HOTPROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0, PM_SPACE_KBYTE,0,0)} },
     /* hotproc.predicate.iodemand */
-    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,4),
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,ITEM_HOTPROC_P_IODEMAND),
       PM_TYPE_FLOAT, HOTPROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,-1,0, PM_SPACE_KBYTE,PM_TIME_SEC,0)} },
     /* hotproc.predicate.iowait */
-    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,5),
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,ITEM_HOTPROC_P_IOWAIT),
       PM_TYPE_FLOAT, HOTPROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0, 0,0,0)} },
     /* hotproc.predicate.schedwait */
-    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,6),
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,ITEM_HOTPROC_P_SCHEDWAIT),
       PM_TYPE_FLOAT, HOTPROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0, 0,0,0)} },
     /* hotproc.predicate.cpuburn */
-    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,7),
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,ITEM_HOTPROC_P_CPUBURN),
       PM_TYPE_FLOAT, HOTPROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0, 0,0,0)} },
 
 };
@@ -1467,8 +1468,8 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     const char		*cp;
     char		*f;
     proc_pid_entry_t	*entry;
-    static long		hz = -1;
     char 		*tail;
+    char 		*tmpbuf;
     proc_pid_t		*active_proc_pid;
 
     int have_totals;
@@ -1477,9 +1478,6 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     process_t *hotnode;
 
     active_proc_pid = &proc_pid;
-
-    if (hz == -1)
-    	hz = sysconf(_SC_CLK_TCK);
 
     if (mdesc->m_user != NULL) {
 	/* 
@@ -1526,46 +1524,52 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	switch(idp->item) {
 
-		case 1: /* refresh */
+		case ITEM_HOTPROC_G_REFRESH:
 			atom->ul = hotproc_update_interval.tv_sec;
 			break;
-		case 8: /* config */
-			atom->cp = get_conf_buffer();
+		case ITEM_HOTPROC_G_CONFIG:
+			tmpbuf = get_conf_buffer();
+			if( tmpbuf == NULL ){
+			    atom->cp = "";
+			}
+			else{
+			    atom->cp = tmpbuf;
+			}
 			break;
-		case 9: /* config_gen */
+		case ITEM_HOTPROC_G_CONFIG_GEN:
 			atom->ul = conf_gen;
 			break;
-		case 2: /* cpuidle */
+		case ITEM_HOTPROC_G_CPUIDLE:
 			if (!have_totals)
                 	    atom->f = 0;
 	                else
                 	    atom->f = tci;
 			break;
-		case 3: /* cpuburn */
+		case ITEM_HOTPROC_G_CPUBURN:
 			if (!have_totals)
                 	    atom->f = 0;
 	                else
                 	    atom->f = ta;
                 	break;
-		case 4: /* other transient */
+		case ITEM_HOTPROC_G_OTHER_TRANSIENT:
 			if (!have_totals)
                 	    atom->f = 0;
 	                else
                 	    atom->f = tt;
 			break;
-		case 5: /* other not_cpuburn */
+		case ITEM_HOTPROC_G_OTHER_NOT_CPUBURN:
 			if (!have_totals)
                 	    atom->f = 0;
 	                else
                 	    atom->f = ti;
                 	break;
-		case 6: /* other total */
+		case ITEM_HOTPROC_G_OTHER_TOTAL:
 			if (!have_totals)
                 	    atom->f = 0;
 	                else
                 	    atom->f = ti + tt;
 			break;
-		case 7: /* other percent */
+		case ITEM_HOTPROC_G_OTHER_PERCENT:
 		    {
                     	double other = tt + ti;
                     	double non_idle = other + ta;
@@ -1575,7 +1579,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
                      	*/
 
                      	/* Also if all the numbers are very small
-                     	 * this is not accurate
+                     	 * this is not accurate. Might want to dump this original metric
                      	 */
                     	
                     	if (!have_totals || non_idle == 0)
@@ -1599,28 +1603,28 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	switch(idp->item) {
 
-                case 0: /* syscalls */
+                case ITEM_HOTPROC_P_SYSCALLS:
                         return PM_ERR_PMID;
                         break;
-                case 1: /* ctxswitch */
+                case ITEM_HOTPROC_P_CTXSWITCH:
                         atom->f = hotnode->preds.ctxswitch;
                         break;
-                case 2: /* virtualsize */
+                case ITEM_HOTPROC_P_VSIZE:
 			atom->ul = hotnode->preds.virtualsize;
                         break;
-                case 3: /* residentsize */
+                case ITEM_HOTPROC_P_RSIZE:
 			atom->ul = hotnode->preds.residentsize;
                         break;
-                case 4: /* iodemand */
+                case ITEM_HOTPROC_P_IODEMAND:
 			atom->f = hotnode->preds.iodemand;
                         break;
-                case 5: /* iowait */
+                case ITEM_HOTPROC_P_IOWAIT:
                         atom->f = hotnode->preds.iowait;
                         break;
-                case 6: /* schedwait */
+                case ITEM_HOTPROC_P_SCHEDWAIT:
                         return PM_ERR_PMID;
                         break;
-                case 7: /* cpuburn.  not in orig hotproc */
+                case ITEM_HOTPROC_P_CPUBURN: /* not in orig hotproc */
 			atom->f = hotnode->r_cpuburn;
                         break;
 
@@ -2671,30 +2675,34 @@ proc_store(pmResult *result, pmdaExt *pmda)
 	    } //else switch (idp->item)
 	case CLUSTER_HOTPROC_GLOBAL:
 		switch(idp->item){
-		case 1: /* Update interval */
+		case ITEM_HOTPROC_G_REFRESH:
 			if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
 				hotproc_update_interval.tv_sec = av.ul;
 				reset_hotproc_timer();
 		    	}
 			break;
-		case 8: /* CONFIG */
+		case ITEM_HOTPROC_G_CONFIG:
 		    {
 			bool_node *tree = NULL;
 			char *savebuffer;
 			if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0) {
-				savebuffer = strdup(get_conf_buffer());
+				savebuffer = get_conf_buffer() ? strdup(get_conf_buffer()) : NULL;
 				set_conf_buffer( av.cp );
 				if(parse_config(&tree) !=0 ){
-					set_conf_buffer( savebuffer );
-					free(savebuffer);
+					if( savebuffer ){
+					    set_conf_buffer( savebuffer );
+					    free(savebuffer);
+					}
 				}
 				else{
 					conf_gen++;
 					new_tree(tree);
-					/* let things just catch up for now */
-					//restart_refresh();
+					if( conf_gen == 1 ){
+					    /* There was no config to start with. This is the first one, need to enable the timer */
+					    reset_hotproc_timer();
+					}
 				}
 			    	free(av.cp);
 		    	}
@@ -2875,6 +2883,9 @@ proc_init(pmdaInterface *dp)
     if ((envpath = getenv("PROC_STATSPATH")) != NULL)
 	proc_statspath = envpath;
 
+    if (hz == -1)
+    	hz = sysconf(_SC_CLK_TCK);
+
     if (_isDSO) {
 	char helppath[MAXPATHLEN];
 	int sep = __pmPathSeparator();
@@ -2928,8 +2939,14 @@ proc_init(pmdaInterface *dp)
 
     //Send this all to a hotproc init config function? TODO
     conf = open_config(h_configfile);
-    read_config(conf);
-    (void)fclose(conf);
+
+    /* Hotproc configured */
+    if( conf != NULL ){
+	if(read_config(conf)){
+	    conf_gen = 1;
+	}
+	(void)fclose(conf);
+    }
 
     init_hotproc_pid( &indomtab[HOTPROC_INDOM] );
  
@@ -2939,14 +2956,6 @@ proc_init(pmdaInterface *dp)
      * Added by Mike Mason <mmlnx@us.ibm.com>
      */
     read_ksym_sources(kernel_uname.release);
-
-
-    int q = 0;
-    __pmID_int          *pmidp = NULL;
-    for(q=0;q<nmetrics;q++){
-	pmidp = (__pmID_int *)&metrictab[q].m_desc.pmid;
-	fprintf(stderr, "Metrics: %d.%d.%d\n", pmidp->domain, pmidp->cluster, pmidp->item);
-    }
 
     proc_ctx_init();
     proc_dynamic_init(metrictab, nmetrics);

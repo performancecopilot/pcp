@@ -70,7 +70,7 @@ open_config(char configfile[])
     if ((conf = fopen(hotproc_configfile, "r")) == NULL) {
 	(void)fprintf(stderr, "%s: Unable to open configuration file \"%s\": %s\n",
 	    pmProgname, hotproc_configfile, osstrerror());
-	exit(1);
+	return NULL;
     }
     return conf;
 }
@@ -135,6 +135,7 @@ parse_config(bool_node **tree)
 	free(pred_buffer);
     pred_buffer = ptr; 
     pred_buffer[size] = '\0';
+    fprintf( stderr,"Post:\n|%s|\n", pred_buffer);
     return 0;
 
 error:
@@ -150,7 +151,7 @@ new_tree(bool_node *tree)
     the_tree = tree;
 }
 
-void
+int
 read_config(FILE *conf)
 {
     struct stat stat_buf;
@@ -163,7 +164,7 @@ read_config(FILE *conf)
     if (sts < 0) {
 	(void)fprintf(stderr, "%s: Failure to stat configuration file \"%s\": %s\n",
 	    pmProgname, hotproc_configfile, osstrerror());
-	exit(1);
+	return 0;
     }
     size = (long)stat_buf.st_size;
 
@@ -172,7 +173,7 @@ read_config(FILE *conf)
     if (conf_buffer == NULL) {
 	(void)fprintf(stderr, "%s: Failure to create buffer for configuration file \"%s\"\n",
 	    pmProgname, hotproc_configfile);
-	exit(1);
+	return 0;
     }
 
     /* read whole file into buffer */
@@ -180,14 +181,15 @@ read_config(FILE *conf)
     if (nread != size) {
 	(void)fprintf(stderr, "%s: Failure to read configuration file \"%s\" into buffer\n",
 	    pmProgname, hotproc_configfile);
-	exit(1);
+	return 0;
     }
     conf_buffer[size] = '\0'; /* terminate the buffer */
 
-    //fprintf(stderr, "Buffer: %s\n", conf_buffer);
-
     if (parse_config(&the_tree) != 0)
-        exit(1);
+        return 0;
+
+    return 1;
+
 }
 
 void
