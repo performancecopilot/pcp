@@ -71,10 +71,6 @@ sub activemq_value
 
 sub activemq_fetch_callback
 {
-	my $FILE;
-
-    open $FILE, ">>", "/tmp/activemq_pmda.log";
-
 	my ($cluster, $item, $inst) = @_;
 
     if($cluster ==0) {
@@ -107,28 +103,19 @@ sub activemq_fetch_callback
         my $metric_name = pmda_pmid_name($cluster, $item);
         my @metric_subnames = split(/\./, $metric_name);
 
-        print $FILE "\n" . $metric_name;
-        print $FILE "\n" . $metric_subnames[-1];
-
         return activemq_value($selected_queue->attribute_for($metric_subnames[-1]));
-#        else {
-#            return (PM_ERR_PMID, 0);
-#        }
     }
     else {
         return (PM_ERR_PMID, 0);
     }
 }
 
-
-#print $FILE "We are alive...";
-
 $pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U32, PM_INDOM_NULL,
 	PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 	'activemq.broker.total_message_count',	'Number of unacknowledged messages on the broker', '');
 $pmda->add_metric(pmda_pmid(0,1), PM_TYPE_U32, PM_INDOM_NULL,
 	PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-	'activemq.braker.average_message_size', 'Average message size on this broker', '');
+	'activemq.broker.average_message_size', 'Average message size on this broker', '');
 $pmda->add_metric(pmda_pmid(0,2), PM_TYPE_STRING, PM_INDOM_NULL,
 	PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 	'activemq.broker.id', 'Unique id of the broker', '');
@@ -138,28 +125,143 @@ $pmda->add_metric(pmda_pmid(0,3), PM_TYPE_STRING, PM_INDOM_NULL,
 
 my %queue_metrics = (
     'DequeueCount'  => {
-        description	=> '1',
+        description	=> '',
         metric_type	=> PM_SEM_COUNTER,
-        units	=> pmda_units(0,0,0,0,0,0)},
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(0,0,1,0,0,PM_COUNT_ONE)},
     'DispatchCount'  => {
-        description	=> '2',
+        description	=> '',
         metric_type	=> PM_SEM_COUNTER,
-        units	=> pmda_units(0,0,0,0,0,0)},
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(0,0,1,0,0,PM_COUNT_ONE)},
     'EnqueueCount'  => {
-        description	=> '3',
+        description	=> '',
         metric_type	=> PM_SEM_COUNTER,
-        units	=> pmda_units(0,0,0,0,0,0)},
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(0,0,1,0,0,PM_COUNT_ONE)},
     'ExpiredCount'  => {
-        description	=> '4',
+        description	=> '',
         metric_type	=> PM_SEM_COUNTER,
-        units	=> pmda_units(0,0,0,0,0,0)},
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(0,0,1,0,0,PM_COUNT_ONE)},
+    'AverageBlockedTime'  => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_FLOAT,
+        units	=> pmda_units(0,1,0,0,PM_TIME_MSEC,0)},
+    'MaxEnqueueTime'  => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(0,1,0,0,PM_TIME_MSEC,0)},
+    'AverageEnqueueTime'  => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_FLOAT,
+        units	=> pmda_units(0,1,0,0,PM_TIME_MSEC,0)},
+    'TotalBlockedTime'  => {
+        description	=> '',
+        metric_type	=> PM_SEM_COUNTER,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(0,1,0,0,PM_TIME_MSEC,0)},
+    'MinEnqueueTime'  => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(0,1,0,0,PM_TIME_MSEC,0)},
+    'BlockedProducerWarningInterval'  => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(0,1,0,0,PM_TIME_MSEC,0)},
+    'AverageMessageSize'  => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_FLOAT,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'CursorMemoryUsage'  => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'MaxMessageSize'  => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'MinMessageSize'  => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'MemoryUsageByteCount'  => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'MemoryLimit'  => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'BlockedSends'  => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(0,0,1,0,0,PM_COUNT_ONE)},
+    'ConsumerCount'  => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(0,0,1,0,0,PM_COUNT_ONE)},
+    'InFlightCount'  => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(0,0,1,0,0,PM_COUNT_ONE)},
+    'MaxAuditDepth'  => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(0,0,1,0,0,PM_COUNT_ONE)},
+    'MaxPageSize'  => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(0,0,1,0,0,PM_COUNT_ONE)},
+    'MaxProducersToAudit'  => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(0,0,1,0,0,PM_COUNT_ONE)},
+    'ProducerCount'  => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(0,0,1,0,0,PM_COUNT_ONE)},
+    'QueueSize'  => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(0,0,1,0,0,PM_COUNT_ONE)},
+    'CursorPercentUsage'  => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U32,
+        units	=> pmda_units(0,0,0,0,0,PM_COUNT_ONE)},
+    'MemoryPercentUsage'  => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U32,
+        units	=> pmda_units(0,0,0,0,0,PM_COUNT_ONE)},
+    'MemoryUsagePortion'  => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_FLOAT,
+        units	=> pmda_units(0,0,0,0,0,PM_COUNT_ONE)},
 );
 
 my $metricCounter = 0;
-
-#	my $FILE;
-#
-#    open $FILE, ">>", "/tmp/activemq_pmda.log";
 
 foreach my $metricName (sort (keys %queue_metrics)) {
     my %metricDetails = %{$queue_metrics{$metricName}};
@@ -169,37 +271,6 @@ foreach my $metricName (sort (keys %queue_metrics)) {
      $metricCounter++;
 }
 
-#my %queue_value_metrics = (
-#    "AverageBlockedTime", "",
-#    "AverageEnqueueTime", "",
-#    "AverageMessageSize", "",
-#    "BlockedProducerWarningInterval", "",
-#    "BlockedSends", "",
-#    "ConsumerCount", ""
-#    "CursorMemoryUsage", "",
-#    "CursorPercentUsage", "",
-#    "InFlightCount", "",
-#    "MaxAuditDepth", "",
-#    "MaxEnqueueTime", "",
-#    "MaxMessageSize", "",
-#    "MaxPageSize", "",
-#    "MaxProducersToAudit", "",
-#    "MemoryLimit", "",
-#    "MemoryPercentUsage", "",
-#    "MemoryUsageByteCount", "",
-#    "MemoryUsagePortion", "",
-#    "MinEnqueueTime", "",
-#    "MinMessageSize", "",
-#    "ProducerCount", "",
-#    "QueueSize", "",
-#    "TotalBlockedTime", "",
-#);
-#while(my($metricName, $metricDescription) = each %queue_value_metrics) {
-#    $pmda->add_metric(pmda_pmid(1,$metricCounter), PM_TYPE_U64, $queue_indom,
-#        PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-#        'activemq.queue.' . $metricName, $metricDescription, '');
-#     $metricCounter++;
-#}
 $pmda->add_indom($queue_indom, \%queue_instances,
 		'Instance domain exporting each queue', '');
 
