@@ -5,7 +5,7 @@ use File::Basename;
 use lib dirname (__FILE__);
 
 use Test::More;
-use Test::Magpie qw(mock when);
+use Test::Magpie qw(mock when verify);
 use Data::Dumper;
 use ActiveMQ;
 
@@ -39,6 +39,9 @@ is($activemq->broker_id, "myid", "broker_id is available");
 
 when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,service=Health')->then_return({'value' => {'CurrentStatus' => 'Good' }});
 is($activemq->health, "Good", "broker health is available");
+
+$activemq->refresh_health;
+verify($user_agent)->get('/api/jolokia/exec/org.apache.activemq:type=Broker,brokerName=localhost,service=Health/health');
 
 when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost')->then_return($actual_queue_response);
 

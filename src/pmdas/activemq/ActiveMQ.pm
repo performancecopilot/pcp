@@ -34,6 +34,11 @@ sub health {
     return $self->query('CurrentStatus', 'Health');
 }
 
+sub refresh_health {
+    my ($self)  = @_;
+    $self->{_rest_client}->get("/api/jolokia/exec/org.apache.activemq:type=Broker,brokerName=localhost,service=Health/health");
+}
+
 sub queues {
     my ($self)  = @_;
     my $query_result = $self->query('Queues');

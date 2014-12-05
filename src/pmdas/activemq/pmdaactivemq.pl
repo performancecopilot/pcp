@@ -45,7 +45,7 @@ sub update_activemq_status
     }
 
     if ($cluster == 0) {
-
+        $activemq->refresh_health;
     }
     elsif ($cluster == 1) {
         my @queues = $activemq->queues;
