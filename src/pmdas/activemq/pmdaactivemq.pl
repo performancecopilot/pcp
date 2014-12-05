@@ -71,9 +71,9 @@ sub activemq_value
 
 sub activemq_fetch_callback
 {
-#	my $FILE;
-#
-#    open $FILE, ">>", "/tmp/activemq_pmda.log";
+	my $FILE;
+
+    open $FILE, ">>", "/tmp/activemq_pmda.log";
 
 	my ($cluster, $item, $inst) = @_;
 
@@ -104,21 +104,16 @@ sub activemq_fetch_callback
 	    my $selected_queue = $activemq->queue_by_short_name($instance_queue_name);
 	    return (PM_ERR_INST, 0) unless defined($selected_queue);
 
-        if($item == 0) {
-            return activemq_value($selected_queue->queue_size());
-        }
-        elsif($item == 1) {
-            return activemq_value($selected_queue->dequeue_count());
-        }
-        elsif($item == 2) {
-            return activemq_value($selected_queue->enqueue_count());
-        }
-        elsif($item == 3) {
-            return activemq_value($selected_queue->average_enqueue_time());
-        }
-        else {
-            return (PM_ERR_PMID, 0);
-        }
+        my $metric_name = pmda_pmid_name($cluster, $item);
+        my @metric_subnames = split(/\./, $metric_name);
+
+        print $FILE "\n" . $metric_name;
+        print $FILE "\n" . $metric_subnames[-1];
+
+        return activemq_value($selected_queue->attribute_for($metric_subnames[-1]));
+#        else {
+#            return (PM_ERR_PMID, 0);
+#        }
     }
     else {
         return (PM_ERR_PMID, 0);
@@ -141,22 +136,70 @@ $pmda->add_metric(pmda_pmid(0,3), PM_TYPE_STRING, PM_INDOM_NULL,
 	PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 	'activemq.broker.health', 'String representation of current Broker state', '');
 
-$pmda->add_metric(pmda_pmid(1,0), PM_TYPE_U32, $queue_indom,
-    PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-    'activemq.queue.queue_size', 'Number of messages in the destination which are yet to be consumed', '');
+my %queue_metrics = (
+    'DequeueCount'  => {
+        description	=> '1',
+        metric_type	=> PM_SEM_COUNTER,
+        units	=> pmda_units(0,0,0,0,0,0)},
+    'DispatchCount'  => {
+        description	=> '2',
+        metric_type	=> PM_SEM_COUNTER,
+        units	=> pmda_units(0,0,0,0,0,0)},
+    'EnqueueCount'  => {
+        description	=> '3',
+        metric_type	=> PM_SEM_COUNTER,
+        units	=> pmda_units(0,0,0,0,0,0)},
+    'ExpiredCount'  => {
+        description	=> '4',
+        metric_type	=> PM_SEM_COUNTER,
+        units	=> pmda_units(0,0,0,0,0,0)},
+);
 
-$pmda->add_metric(pmda_pmid(1,1), PM_TYPE_U32, $queue_indom,
-    PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-    'activemq.queue.dequeue_count', 'Number of messages that have been acknowledged (and removed from) from the destination', '');
+my $metricCounter = 0;
 
-$pmda->add_metric(pmda_pmid(1,2), PM_TYPE_U32, $queue_indom,
-    PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-    'activemq.queue.enqueue_count', 'Number of messages that have been sent to the destination', '');
+#	my $FILE;
+#
+#    open $FILE, ">>", "/tmp/activemq_pmda.log";
 
-$pmda->add_metric(pmda_pmid(1,3), PM_TYPE_U32, $queue_indom,
-    PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
-    'activemq.queue.average_enqueue_time', 'Average time a message has been held this destination', '');
+foreach my $metricName (sort (keys %queue_metrics)) {
+    my %metricDetails = %{$queue_metrics{$metricName}};
+    $pmda->add_metric(pmda_pmid(1,$metricCounter), PM_TYPE_U64, $queue_indom,
+        $metricDetails{metric_type}, $metricDetails{units},
+        'activemq.queue.' . $metricName, $metricDetails{description}, '');
+     $metricCounter++;
+}
 
+#my %queue_value_metrics = (
+#    "AverageBlockedTime", "",
+#    "AverageEnqueueTime", "",
+#    "AverageMessageSize", "",
+#    "BlockedProducerWarningInterval", "",
+#    "BlockedSends", "",
+#    "ConsumerCount", ""
+#    "CursorMemoryUsage", "",
+#    "CursorPercentUsage", "",
+#    "InFlightCount", "",
+#    "MaxAuditDepth", "",
+#    "MaxEnqueueTime", "",
+#    "MaxMessageSize", "",
+#    "MaxPageSize", "",
+#    "MaxProducersToAudit", "",
+#    "MemoryLimit", "",
+#    "MemoryPercentUsage", "",
+#    "MemoryUsageByteCount", "",
+#    "MemoryUsagePortion", "",
+#    "MinEnqueueTime", "",
+#    "MinMessageSize", "",
+#    "ProducerCount", "",
+#    "QueueSize", "",
+#    "TotalBlockedTime", "",
+#);
+#while(my($metricName, $metricDescription) = each %queue_value_metrics) {
+#    $pmda->add_metric(pmda_pmid(1,$metricCounter), PM_TYPE_U64, $queue_indom,
+#        PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+#        'activemq.queue.' . $metricName, $metricDescription, '');
+#     $metricCounter++;
+#}
 $pmda->add_indom($queue_indom, \%queue_instances,
 		'Instance domain exporting each queue', '');
 

@@ -15,24 +15,9 @@ sub new {
   return $self;
 }
 
-sub queue_size {
-  my ($self) = @_;
-  return $self->query('QueueSize');
-}
-
-sub dequeue_count {
-  my ($self) = @_;
-  return $self->query('DequeueCount');
-}
-
-sub enqueue_count {
-  my ($self) = @_;
-  return $self->query('EnqueueCount');
-}
-
-sub average_enqueue_time {
-  my ($self) = @_;
-  return $self->query('AverageEnqueueTime');
+sub attribute_for {
+  my ($self, $attribute) = @_;
+  return $self->query($attribute);
 }
 
 sub query {
@@ -49,13 +34,6 @@ sub short_name {
   #   ... ame into a hash of key/values.
   my %bean_name = split(/[=,]/, $self->{_name});
   return $bean_name{"destinationName"};
-}
-
-sub uid {
-  my ($self) = @_;
-
-  my $md5 = substr( md5($self->{_name}), 0, 4 );
-  return unpack('L', $md5);
 }
 
 1;
