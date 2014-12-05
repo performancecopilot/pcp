@@ -180,7 +180,9 @@ pmwebres_respond (struct MHD_Connection *connection, const http_params& params, 
         connstamp (clog, connection) << "pmwebres serving file " << resourcefile << endl;
     }
 
-    resp = MHD_create_response_from_fd_at_offset (fds.st_size, fd, 0);	/* auto-closes fd */
+    resp = MHD_create_response_from_fd (fds.st_size, fd);	/* auto-closes fd */
+    /* NB: Problems have been observed with *_from_fd_at_offset() on
+       32-bit RHEL5, perhaps due to confusing off_t sizes.  */
     if (resp == NULL) {
         connstamp (cerr, connection) << "MHD_create_response_from_callbac failed" << endl;
         goto error_response;
