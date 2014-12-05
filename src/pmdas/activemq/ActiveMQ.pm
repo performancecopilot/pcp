@@ -29,6 +29,11 @@ sub total_message_count {
     return $self->query('TotalMessageCount');
 }
 
+sub health {
+    my ($self)  = @_;
+    return $self->query('CurrentStatus', 'Health');
+}
+
 sub queues {
     my ($self)  = @_;
     my $query_result = $self->query('Queues');
@@ -43,8 +48,10 @@ sub queues {
 }
 
 sub query {
-    my ($self, $value) = @_;
-    my $response = $self->{_rest_client}->get("/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost");
+    my ($self, $value, $service_name) = @_;
+    $service_name = ",service=" . $service_name if defined($service_name);
+
+    my $response = $self->{_rest_client}->get("/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost" . $service_name);
     return undef unless defined($response);
     return $response->{'value'}->{$value};
 }
