@@ -1133,7 +1133,7 @@ pmgraphite_gather_data (struct MHD_Connection *connection,
 
     // The patterns may have wildcards; expand the bad boys.
     for (unsigned i=0; i<target_patterns.size (); i++) {
-        unsigned pattern_length = count (target_patterns[i].begin (), target_patterns[i].end (), '.');
+        int pattern_length = count (target_patterns[i].begin (), target_patterns[i].end (), '.');
         vector <string> metrics = pmgraphite_enumerate_metrics (connection, target_patterns[i]);
         if (exit_p) {
             break;
@@ -1455,7 +1455,7 @@ float nicenum (float x, bool round_p)
     double f;/* fractional part of x */
     double nf;/* nice, rounded fraction */
 
-    expv = floor (log10f (x));
+    expv = (int) floor (log10f (x));
     f = x/exp10f (expv); /* between 1 and 10 */
     if (round_p)
         if (f<1.5) {
@@ -1836,7 +1836,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
                 float delta = f2[j].what - f[j].what;
                 float reldelta = fabs (delta / (ymax - ymin)); // compare delta to height of graph
                 assert (reldelta >= 0.0 && reldelta <= 1.0);
-                unsigned points = (reldelta * 10);
+                unsigned points = (unsigned) (reldelta * 10);
                 total_visibility_score[i] += points;
             }
 
