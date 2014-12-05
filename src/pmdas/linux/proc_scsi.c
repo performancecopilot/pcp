@@ -34,7 +34,6 @@ refresh_proc_scsi(proc_scsi_t *scsi)
     int n;
     FILE *fp;
     char *sp;
-    static int have_devfs = -1;
     static int next_id = -1;
 
     if (next_id < 0) {
@@ -48,18 +47,9 @@ refresh_proc_scsi(proc_scsi_t *scsi)
 	scsi->scsi_indom->it_numinst = 0;
 	scsi->scsi_indom->it_set = (pmdaInstid *)malloc(sizeof(pmdaInstid));
 
-	/* devfs naming convention */
-	have_devfs = access("/dev/.devfsd", F_OK) == 0;
-	if (have_devfs) {
-	    strcpy(diskname, "scsi/host%d/bus%d/target%d/lun%d/disc");
-	    strcpy(tapename, "st0");
-	    strcpy(cdromname, "scd0");
-	}
-	else {
-	    strcpy(diskname, "sda");
-	    strcpy(tapename, "st0");
-	    strcpy(cdromname, "scd0");
-	}
+	strcpy(diskname, "sda");
+	strcpy(tapename, "st0");
+	strcpy(cdromname, "scd0");
     }
 
     if ((fp = linux_statsfile("/proc/scsi/scsi", buf, sizeof(buf))) == NULL)
@@ -101,16 +91,8 @@ refresh_proc_scsi(proc_scsi_t *scsi)
 	    }
 
 	    if (strcmp(scsi->scsi[i].dev_type, "Direct-Access") == 0) {
-		if (have_devfs) {
-		    scsi->scsi[i].dev_name = (char *)malloc(64);
-		    sprintf(scsi->scsi[i].dev_name, diskname, 
-			scsi->scsi[i].dev_host, scsi->scsi[i].dev_channel,
-			scsi->scsi[i].dev_id, scsi->scsi[i].dev_lun);
-		}
-		else {
-		    scsi->scsi[i].dev_name = strdup(diskname);
-		    diskname[2]++; /* sd[a-z] bump to next disk device name */
-		}
+		scsi->scsi[i].dev_name = strdup(diskname);
+		diskname[2]++; /* sd[a-z] bump to next disk device name */
 	    }
 	    else
 	    if (strcmp(scsi->scsi[i].dev_type, "Sequential-Access") == 0) {
