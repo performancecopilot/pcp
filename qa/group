@@ -936,6 +936,7 @@ avahi
 755 pmda.apache pmda.install local
 756 pmda.perfevent local
 757 pmda.perfevent local
+758 perl local
 763 pmda local
 764 pmie local
 766 pmfind local
