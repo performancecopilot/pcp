@@ -21,42 +21,32 @@
 #include "indom.h"
 #include "proc_scsi.h"
 
-static char diskname[64];
-static char tapename[64];
-static char cdromname[64];
-
 int
-refresh_proc_scsi(proc_scsi_t *scsi)
+refresh_proc_scsi(pmInDom indom)
 {
     char buf[1024];
-    char name[1024];
-    int i;
+    char name[64];
+    char type[64];
     int n;
     FILE *fp;
     char *sp;
-    static int next_id = -1;
+    int sts;
+    DIR *dirp;
+    struct dirent *dentry;
+    scsi_entry_t *se;
+    static int first = 1;
 
-    if (next_id < 0) {
-	/* one trip initialization */
-	next_id = 0;
-
-	scsi->nscsi = 0;
-    	scsi->scsi = (scsi_entry_t *)malloc(sizeof(scsi_entry_t));
-
-	/* scsi indom */
-	scsi->scsi_indom->it_numinst = 0;
-	scsi->scsi_indom->it_set = (pmdaInstid *)malloc(sizeof(pmdaInstid));
-
-	strcpy(diskname, "sda");
-	strcpy(tapename, "st0");
-	strcpy(cdromname, "scd0");
+    if (first) {
+	first = 0;
+    	pmdaCacheOp(indom, PMDA_CACHE_LOAD);
     }
+    pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
     if ((fp = linux_statsfile("/proc/scsi/scsi", buf, sizeof(buf))) == NULL)
     	return -oserror();
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {
-	scsi_entry_t	x = { 0 };
+	scsi_entry_t x = { 0 };
 
 	if (strncmp(buf, "Host:", 5) != 0)
 	    continue;
@@ -65,77 +55,57 @@ refresh_proc_scsi(proc_scsi_t *scsi)
 	    &x.dev_host, &x.dev_channel, &x.dev_id, &x.dev_lun);
 	if (n != 4)
 	    continue;
-	for (i=0; i < scsi->nscsi; i++) {
-	    if (scsi->scsi[i].dev_host == x.dev_host && 
-	    	scsi->scsi[i].dev_channel == x.dev_channel &&
-	    	scsi->scsi[i].dev_id == x.dev_id &&
-	    	scsi->scsi[i].dev_lun == x.dev_lun)
-		break;
-	}
 
-	if (i == scsi->nscsi) {
-	    scsi->nscsi++;
-	    scsi->scsi = (scsi_entry_t *)realloc(scsi->scsi,
-		scsi->nscsi * sizeof(scsi_entry_t));
-	    memcpy(&scsi->scsi[i], &x, sizeof(scsi_entry_t));
-	    scsi->scsi[i].id = next_id++;
-	    /* scan for the Vendor: and Type: strings */
-	    while (fgets(buf, sizeof(buf), fp) != NULL) {
-		if ((sp = strstr(buf, "Type:")) != (char *)NULL) {
-		    if (sscanf(sp, "Type:   %s", name) == 1)
-			scsi->scsi[i].dev_type = strdup(name);
-		    else
-			scsi->scsi[i].dev_type = strdup("unknown");
+	while (fgets(buf, sizeof(buf), fp) != NULL) {
+	    if ((sp = strstr(buf, "Type:")) != (char *)NULL) {
+		if (sscanf(sp, "Type:   %s", type) == 1)
 		    break;
-		}
 	    }
-
-	    if (strcmp(scsi->scsi[i].dev_type, "Direct-Access") == 0) {
-		scsi->scsi[i].dev_name = strdup(diskname);
-		diskname[2]++; /* sd[a-z] bump to next disk device name */
-	    }
-	    else
-	    if (strcmp(scsi->scsi[i].dev_type, "Sequential-Access") == 0) {
-	    	scsi->scsi[i].dev_name = strdup(tapename);
-		tapename[2]++; /* st[0-9] bump to next tape device name */
-	    }
-	    else
-	    if (strcmp(scsi->scsi[i].dev_type, "CD-ROM") == 0) {
-	    	scsi->scsi[i].dev_name = strdup(cdromname);
-		cdromname[3]++; /* scd[0-9] bump to next CDROM device name */
-	    }
-	    else
-	    if (strcmp(scsi->scsi[i].dev_type, "Processor") == 0)
-	    	scsi->scsi[i].dev_name = strdup("SCSI Controller");
-	    else
-	    	scsi->scsi[i].dev_name = strdup("Unknown SCSI device");
-
-	    sprintf(name, "scsi%d:%d:%d:%d %s", scsi->scsi[i].dev_host,
-	    	scsi->scsi[i].dev_channel, scsi->scsi[i].dev_id, scsi->scsi[i].dev_lun, scsi->scsi[i].dev_type);
-	    scsi->scsi[i].namebuf = strdup(name);
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_LIBPMDA) {
-		fprintf(stderr, "refresh_proc_scsi: add host=scsi%d channel=%d id=%d lun=%d type=%s\n",
-		    scsi->scsi[i].dev_host, scsi->scsi[i].dev_channel,
-		    scsi->scsi[i].dev_id, scsi->scsi[i].dev_lun,
-		    scsi->scsi[i].dev_type);
-	    }
-#endif
 	}
+
+	sprintf(name, "scsi%d:%d:%d:%d %s",
+	    x.dev_host, x.dev_channel, x.dev_id, x.dev_lun, type);
+
+	sts = pmdaCacheLookupName(indom, name, NULL, (void **)&se);
+	if (sts == PM_ERR_INST || (sts >= 0 && se == NULL)) {
+	    /*
+	     * New device, not in indom cache
+	     */
+	    se = (scsi_entry_t *)malloc(sizeof(scsi_entry_t));
+	    *se = x; /* struct copy */
+	    se->instname = strdup(name);
+
+	    /* find the block device name from sysfs */
+	    sprintf(buf, "/sys/class/scsi_device/%d:%d:%d:%d/device/block",
+		se->dev_host, se->dev_channel, se->dev_id, se->dev_lun);
+	    if ((dirp = opendir(buf)) == NULL) {
+		free(se->instname);
+	    	free(se);
+		continue;
+	    }
+	    while ((dentry = readdir(dirp)) != NULL) {
+	    	if (dentry->d_name[0] == '.')
+		    continue;
+		se->dev_name = strdup(dentry->d_name);
+		break;
+	    }
+	    closedir(dirp);
+	}
+	else if (sts < 0)
+	    continue;
+
+	if ((sts = pmdaCacheStore(indom, PMDA_CACHE_ADD, se->instname, (void *)se)) < 0)
+	    continue;
+
+#if PCP_DEBUG
+	if (pmDebug & DBG_TRACE_LIBPMDA) {
+	    fprintf(stderr, "refresh_proc_scsi: instance \"%s\" = \"%s\"\n",
+		se->instname, se->dev_name);
+	}
+#endif
     }
 
-    /* refresh scsi indom */
-    if (scsi->scsi_indom->it_numinst != scsi->nscsi) {
-        scsi->scsi_indom->it_numinst = scsi->nscsi;
-        scsi->scsi_indom->it_set = (pmdaInstid *)realloc(scsi->scsi_indom->it_set,
-	    scsi->nscsi * sizeof(pmdaInstid));
-        memset(scsi->scsi_indom->it_set, 0, scsi->nscsi * sizeof(pmdaInstid));
-    }
-    for (i=0; i < scsi->nscsi; i++) {
-	scsi->scsi_indom->it_set[i].i_inst = scsi->scsi[i].id;
-	scsi->scsi_indom->it_set[i].i_name = scsi->scsi[i].namebuf;
-    }
-
+    pmdaCacheOp(indom, PMDA_CACHE_SAVE);
     fclose(fp);
     return 0;
 }
