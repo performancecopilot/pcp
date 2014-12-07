@@ -64,16 +64,8 @@ sub query {
 sub queue_by_short_name {
   my ($self, $short_name) = @_;
 
-	my $FILE;
-
-    open $FILE, ">>", "/tmp/activemq_pmda.log";
-
-
-
   my @queues = $self->queues;
-  print $FILE "\n@queues = $self->queues :" . Dumper(@queues);
   foreach my $queue (@queues) {
-    print $FILE "\ninside $queue (@queues)" . Dumper($queue);
     if ($queue->short_name eq $short_name) {
       return $queue;
     }
