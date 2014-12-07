@@ -37,8 +37,10 @@ refresh_inet_socket()
 static int
 refresh_net_dev_ioctl(char *name, net_interface_t *netip)
 {
-    struct ethtool_cmd ecmd = { 0 };
-    struct ifreq ifr = { 0 };
+    struct ethtool_cmd ecmd;
+    struct ifreq ifr;
+    int fd;
+
     /*
      * Note:
      * Initialization here is not really needed.  If the ioctl()s
@@ -49,7 +51,9 @@ refresh_net_dev_ioctl(char *name, net_interface_t *netip)
      * failures for qa/957
      * - Ken McDonell, 11 Apr 2014
      */
-    int fd;
+    memset(&ecmd, 0, sizeof(ecmd));
+    memset(&ifr, 0, sizeof(ifr));
+
 
     if ((fd = refresh_inet_socket()) < 0)
 	return 0;
