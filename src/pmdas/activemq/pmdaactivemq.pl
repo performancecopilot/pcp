@@ -110,11 +110,11 @@ sub activemq_fetch_callback
     }
 }
 
-$pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U32, PM_INDOM_NULL,
-	PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+$pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U64, PM_INDOM_NULL,
+	PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 	'activemq.broker.total_message_count',	'Number of unacknowledged messages on the broker', '');
-$pmda->add_metric(pmda_pmid(0,1), PM_TYPE_U32, PM_INDOM_NULL,
-	PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+$pmda->add_metric(pmda_pmid(0,1), PM_TYPE_FLOAT, PM_INDOM_NULL,
+	PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
 	'activemq.broker.average_message_size', 'Average message size on this broker', '');
 $pmda->add_metric(pmda_pmid(0,2), PM_TYPE_STRING, PM_INDOM_NULL,
 	PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
