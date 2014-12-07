@@ -10,7 +10,7 @@ use Data::Dumper;
 use ActiveMQ;
 
 BEGIN {
-  plan(tests => 9)
+  plan(tests => 11)
 }
 
 my $user_agent = mock;
@@ -51,6 +51,12 @@ my $queue_size = @actual_queues;
 is($queue_size, 2, "queues() returns collection of correct size");
 is($actual_queues[0]->short_name(), "queue1", "queues() response contains queue1");
 is($actual_queues[1]->short_name(), "queue2", "queues() response contains queue2");
+
+when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost')->then_return(undef);
+
+@actual_queues = $activemq->queues;
+$queue_size = @actual_queues;
+is($queue_size, 0, "queues() returns 0 size collection when user agent returns undef");
 
 when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost')->then_return($actual_queue_response);
 is($activemq->queue_by_short_name("queue2")->short_name(), "queue2", "Find queue by short name");
