@@ -19,7 +19,8 @@ import cpmapi as c_api
 from pcp.pmapi import pmUnits
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
 from subprocess import Popen, PIPE
-import string
+from os import getenv
+import string, shlex
 
 class UnboundPMDA(PMDA):
     '''
@@ -35,11 +36,12 @@ class UnboundPMDA(PMDA):
         Called once per PCP "fetch" PDU from pmcd(1)
         Iterates over the unbound statistics,
         '''
-        p = Popen(['/usr/sbin/unbound-control', 'stats_noreset'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        p = Popen(self.unboundctl, stdin=PIPE, stdout=PIPE, stderr=PIPE)
         p.wait()
-        stdout, stderr = p.communicate()
-        stdoutlines = string.split(stdout.strip(), '\n')
-        for line in stdoutlines:
+        try:
+            stdout, stderr = p.communicate()
+            stdoutlines = string.split(stdout.strip(), '\n')
+            for line in stdoutlines:
                 keyval = string.split(line, '=')
                 if keyval[0].startswith( 'histogram' ):
                     # Replace "." with "_" to avoid splitting metric name in multiple sub sections
@@ -57,6 +59,8 @@ class UnboundPMDA(PMDA):
                           self.values[keyval[0]] = float(keyval[1])
                     else:
                           self.values[keyval[0]] = long(keyval[1])
+        except OSError:
+            pass
 
     def unbound_fetch_callback(self, cluster, item, inst):
         '''
@@ -1344,6 +1348,8 @@ class UnboundPMDA(PMDA):
         PMDA.__init__(self, name, domain)
         self.patherrors = 0
         self.fileerrors = 0
+        ctl = getenv('UNBOUND_STATS', '/usr/sbin/unbound-control stats_noreset')
+        self.unboundctl = shlex.split(ctl)
 
         self.values = {}
         self.setup_unbound_metrics(name)
