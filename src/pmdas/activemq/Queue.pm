@@ -17,7 +17,10 @@ sub new {
 
 sub attribute_for {
   my ($self, $attribute) = @_;
-  return $self->query($attribute);
+
+  my $camel_case_attribute = "_" . $attribute;
+  $camel_case_attribute =~ s/_(\w)/\U$1/g;
+  return $self->query($camel_case_attribute);
 }
 
 sub query {
