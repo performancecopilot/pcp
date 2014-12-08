@@ -22,6 +22,7 @@ use LWP::UserAgent;
 use RESTClient;
 use ActiveMQ;
 use JVMMemory;
+use JVMMemoryPool;
 use Data::Dumper;
 
 my $rest_hostname = 'localhost';
@@ -44,6 +45,7 @@ $http_client->timeout($rest_timeout);
 my $rest_client = RESTClient->new($http_client, $rest_hostname, $rest_port, $rest_username, $rest_password, $rest_realm);
 my $activemq = ActiveMQ->new($rest_client);
 my $jvm_memory = JVMMemory->new($rest_client);
+my $jvm_memory_pool = JVMMemoryPool->new($rest_client);
 
 my %queue_instances;
 
@@ -86,12 +88,19 @@ sub activemq_value
     return ($value, 1);
 }
 
-sub metric_subname
+sub metric_subnames
 {
     my ($cluster, $item) = @_;
 
     my $metric_name = pmda_pmid_name($cluster, $item);
     my @metric_subnames = split(/\./, $metric_name);
+}
+
+sub metric_subname
+{
+    my ($cluster, $item) = @_;
+
+    my @metric_subnames = metric_subnames($cluster, $item);
     return $metric_subnames[-1];
 }
 
@@ -120,9 +129,14 @@ sub activemq_fetch_callback
     elsif ($cluster == 3) {
         if ($inst != PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
 
-        my $metric_name = pmda_pmid_name($cluster, $item);
-        my @metric_subnames = split(/\./, $metric_name);
+        my @metric_subnames = metric_subnames($cluster, $item);
         return activemq_value($jvm_memory->attribute_for($metric_subnames[-2], $metric_subnames[-1]));
+    }
+    elsif ($cluster == 4) {
+        if ($inst != PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
+
+        my @metric_subnames = metric_subnames($cluster, $item);
+        return activemq_value($jvm_memory_pool->attribute_for($metric_subnames[-3],$metric_subnames[-2], $metric_subnames[-1]));
     }
     else {
         return (PM_ERR_PMID, 0);
@@ -496,6 +510,298 @@ foreach my $metricName (sort (keys %memory_metrics)) {
      $metricCounter++;
 }
 
+my %memory_pool_metrics = (
+    'code_cache.peak_usage.max' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'code_cache.peak_usage.committed' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'code_cache.peak_usage.init' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'code_cache.peak_usage.used' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'code_cache.usage.max' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'code_cache.usage.committed' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'code_cache.usage.init' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'code_cache.usage.used' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_survivor_space.peak_usage.max' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_survivor_space.peak_usage.committed' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_survivor_space.peak_usage.init' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_survivor_space.peak_usage.used' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_survivor_space.usage.max' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_survivor_space.usage.committed' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_survivor_space.usage.init' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_survivor_space.usage.used' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_survivor_space.collection_usage.max' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_survivor_space.collection_usage.committed' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_survivor_space.collection_usage.init' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_survivor_space.collection_usage.used' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_eden_space.peak_usage.max' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_eden_space.peak_usage.committed' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_eden_space.peak_usage.init' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_eden_space.peak_usage.used' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_eden_space.usage.max' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_eden_space.usage.committed' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_eden_space.usage.init' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_eden_space.usage.used' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_eden_space.collection_usage.max' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_eden_space.collection_usage.committed' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_eden_space.collection_usage.init' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_eden_space.collection_usage.used' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_perm_gen.peak_usage.max' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_perm_gen.peak_usage.committed' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_perm_gen.peak_usage.init' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_perm_gen.peak_usage.used' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_perm_gen.usage.max' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_perm_gen.usage.committed' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_perm_gen.usage.init' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_perm_gen.usage.used' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_perm_gen.collection_usage.max' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_perm_gen.collection_usage.committed' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_perm_gen.collection_usage.init' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_perm_gen.collection_usage.used' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_old_gen.peak_usage.max' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_old_gen.peak_usage.committed' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_old_gen.peak_usage.init' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_old_gen.peak_usage.used' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_old_gen.usage.max' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_old_gen.usage.committed' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_old_gen.usage.init' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_old_gen.usage.used' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_old_gen.collection_usage.max' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_old_gen.collection_usage.committed' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_old_gen.collection_usage.init' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'ps_old_gen.collection_usage.used' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+);
+
+$metricCounter = 0;
+
+foreach my $metricName (sort (keys %memory_pool_metrics)) {
+    my %metricDetails = %{$memory_pool_metrics{$metricName}};
+    $pmda->add_metric(pmda_pmid(4,$metricCounter), $metricDetails{data_type}, PM_INDOM_NULL,
+        $metricDetails{metric_type}, $metricDetails{units},
+        'activemq.jvm.memory_pool.' . $metricName, $metricDetails{description}, '');
+     $metricCounter++;
+}
 
 
 $pmda->add_indom($queue_indom, \%queue_instances,
