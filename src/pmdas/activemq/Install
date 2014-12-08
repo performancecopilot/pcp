@@ -21,12 +21,15 @@ perl_opt=true
 daemon_opt=false
 forced_restart=false
 
-perl -e "use LWP::UserAgent" 2>/dev/null 
-if test $? -ne 0
-then
-	echo "LWP::UserAgent perl module is not installed"
+for module in JSON LWP::UserAgent File::Basename
+do
+    perl -e "use $module" 2>/dev/null 
+    if test $? -ne 0
+    then
+        echo "$module perl module is not installed"
 	exit 1
-fi
+    fi
+done
 
 pmdaSetup
 pmdaInstall
