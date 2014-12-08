@@ -23,7 +23,7 @@ use RESTClient;
 use ActiveMQ;
 use JVMMemory;
 use JVMMemoryPool;
-use Data::Dumper;
+use JVMGarbageCollection;
 
 my $rest_hostname = 'localhost';
 my $rest_port = 8161;
@@ -46,6 +46,7 @@ my $rest_client = RESTClient->new($http_client, $rest_hostname, $rest_port, $res
 my $activemq = ActiveMQ->new($rest_client);
 my $jvm_memory = JVMMemory->new($rest_client);
 my $jvm_memory_pool = JVMMemoryPool->new($rest_client);
+my $jvm_garbage_collection = JVMGarbageCollection->new($rest_client);
 
 my %queue_instances;
 
@@ -137,6 +138,12 @@ sub activemq_fetch_callback
 
         my @metric_subnames = metric_subnames($cluster, $item);
         return activemq_value($jvm_memory_pool->attribute_for($metric_subnames[-3],$metric_subnames[-2], $metric_subnames[-1]));
+    }
+    elsif ($cluster == 5) {
+        if ($inst != PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
+
+        my @metric_subnames = metric_subnames($cluster, $item);
+        return activemq_value($jvm_garbage_collection->attribute_for($metric_subnames[-2], $metric_subnames[-1]));
     }
     else {
         return (PM_ERR_PMID, 0);
@@ -803,6 +810,38 @@ foreach my $metricName (sort (keys %memory_pool_metrics)) {
      $metricCounter++;
 }
 
+my %gc_metrics = (
+    'ps_mark_sweep.collection_count' => {
+        description	=> '',
+        metric_type	=> PM_SEM_COUNTER,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(0,0,1,0,0,PM_COUNT_ONE)},
+    'ps_mark_sweep.collection_time' => {
+        description	=> '',
+        metric_type	=> PM_SEM_COUNTER,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(0,1,0,0,PM_TIME_MSEC,0)},
+    'ps_scavenge.collection_count' => {
+        description	=> '',
+        metric_type	=> PM_SEM_COUNTER,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(0,0,1,0,0,PM_COUNT_ONE)},
+    'ps_scavenge.collection_time' => {
+        description	=> '',
+        metric_type	=> PM_SEM_COUNTER,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(0,1,0,0,PM_TIME_MSEC,0)},
+);
+
+$metricCounter = 0;
+
+foreach my $metricName (sort (keys %gc_metrics)) {
+    my %metricDetails = %{$gc_metrics{$metricName}};
+    $pmda->add_metric(pmda_pmid(5,$metricCounter), $metricDetails{data_type}, PM_INDOM_NULL,
+        $metricDetails{metric_type}, $metricDetails{units},
+        'activemq.jvm.garbage_collection.' . $metricName, $metricDetails{description}, '');
+     $metricCounter++;
+}
 
 $pmda->add_indom($queue_indom, \%queue_instances,
 		'Instance domain exporting each queue', '');
