@@ -200,17 +200,19 @@ class DmCachePMDA(PMDA):
 
     def dmcache_refresh(self):
         ''' Refresh the values and instances for all device mapper caches '''
-        pipe = Popen(self.dmstatus, shell = True, stdout = PIPE, stderr = PIPE)
-        output, errors = pipe.communicate()
-        if errors:
-            self.err("dmcache_refresh: %s error: %s" % (self.dmstatus, errors))
-
         self.caches.clear()
-        for line in output.splitlines():
-            if 'No devices found' in line:
-                continue
-            name = line[:line.find(':')]            # extract cache name
-            self.caches[name] = DmCacheStats(line)  # extract stats values
+        pipe = Popen(self.dmstatus, shell = True, stdout = PIPE, stderr = PIPE)
+        try:
+            output, errors = pipe.communicate()
+            if errors:
+                self.err("refresh: %s error: %s" % (self.dmstatus, errors))
+            for line in output.splitlines():
+                if 'No devices found' in line:
+                    continue
+                name = line[:line.find(':')]            # extract cache name
+                self.caches[name] = DmCacheStats(line)  # extract stats values
+        except OSError:
+            pass
         self.replace_indom(self.cache_indom, self.caches)
 
     def dmcache_instance(self, serial):
