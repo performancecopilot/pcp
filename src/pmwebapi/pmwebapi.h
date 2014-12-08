@@ -119,7 +119,7 @@ template <class Value> void json_key_value (std::ostream &, const std::string &,
         const Value *, const char *);	// link-time error
 
 template <>			// <-- NB: important for proper overloading/specialization of the template
-void
+void inline
 json_key_value (std::ostream & o, const std::string & key, const std::string & value,
                 const char *suffix)
 {

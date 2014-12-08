@@ -1350,12 +1350,12 @@ proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
     }
 
     sts = PM_ERR_PERMISSION;
-    have_access = proc_ctx_access(pmda->e_context) || all_access;
+    have_access = all_access || proc_ctx_access(pmda->e_context);
     if (have_access || indomp->serial != PROC_INDOM) {
 	proc_refresh(pmda, need_refresh);
 	sts = pmdaInstance(indom, inst, name, result, pmda);
     }
-    have_access = proc_ctx_revert(pmda->e_context);
+    have_access = all_access || proc_ctx_revert(pmda->e_context);
 
     return sts;
 }
@@ -1591,7 +1591,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (idp->item == PROC_PID_STATM_MAPS) {	/* proc.memory.maps */
 	    if ((entry = fetch_proc_pid_maps(inst, &proc_pid, &sts)) == NULL)
 		return sts;
-	    atom->cp = entry->maps_buf;
+	    atom->cp = (entry->maps_buf ? entry->maps_buf : "");
 	} else {
 	    if ((entry = fetch_proc_pid_statm(inst, &proc_pid, &sts)) == NULL)
 		return sts;
@@ -2388,10 +2388,10 @@ proc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    need_refresh[cluster]++;
     }
 
-    have_access = proc_ctx_access(pmda->e_context) || all_access;
+    have_access = all_access || proc_ctx_access(pmda->e_context);
     proc_refresh(pmda, need_refresh);
     sts = pmdaFetch(numpmid, pmidlist, resp, pmda);
-    have_access = proc_ctx_revert(pmda->e_context);
+    have_access = all_access || proc_ctx_revert(pmda->e_context);
     return sts;
 }
 
@@ -2400,7 +2400,7 @@ proc_store(pmResult *result, pmdaExt *pmda)
 {
     int i, sts = 0;
 
-    have_access = proc_ctx_access(pmda->e_context) || all_access;
+    have_access = all_access || proc_ctx_access(pmda->e_context);
 
     for (i = 0; i < result->numpmid; i++) {
 	pmValueSet *vsp = result->vset[i];
@@ -2443,7 +2443,7 @@ proc_store(pmResult *result, pmdaExt *pmda)
 	    break;
     }
 
-    have_access = proc_ctx_revert(pmda->e_context);
+    have_access = all_access || proc_ctx_revert(pmda->e_context);
     return sts;
 }
 
