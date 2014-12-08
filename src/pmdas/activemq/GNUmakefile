@@ -15,6 +15,8 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
+TESTS = ActiveMQTest.pl QueueTest.pl RESTClientTest.pm
+
 IAM	= activemq
 DOMAIN	= ACTIVEMQ
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
@@ -42,3 +44,8 @@ install_pcp : install
 
 check_domain:	../../pmns/stdpmid
 	$(DOMAIN_PERLRULE)
+
+check:
+	for test in $(TESTS); do perl $$test || exit 1; done
+
+test : check
