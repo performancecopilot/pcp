@@ -21,6 +21,7 @@ use PCP::PMDA;
 use LWP::UserAgent;
 use RESTClient;
 use ActiveMQ;
+use JVMMemory;
 use Data::Dumper;
 
 my $rest_hostname = 'localhost';
@@ -42,6 +43,7 @@ $http_client->agent('pmdaactivemq');
 $http_client->timeout($rest_timeout);
 my $rest_client = RESTClient->new($http_client, $rest_hostname, $rest_port, $rest_username, $rest_password, $rest_realm);
 my $activemq = ActiveMQ->new($rest_client);
+my $jvm_memory = JVMMemory->new($rest_client);
 
 my %queue_instances;
 
@@ -114,6 +116,13 @@ sub activemq_fetch_callback
 	    my $selected_queue = $activemq->queue_by_short_name($instance_queue_name);
 	    return (PM_ERR_INST, 0) unless defined($selected_queue);
         return activemq_value($selected_queue->attribute_for(metric_subname($cluster, $item)));
+    }
+    elsif ($cluster == 3) {
+        if ($inst != PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
+
+        my $metric_name = pmda_pmid_name($cluster, $item);
+        my @metric_subnames = split(/\./, $metric_name);
+        return activemq_value($jvm_memory->attribute_for($metric_subnames[-2], $metric_subnames[-1]));
     }
     else {
         return (PM_ERR_PMID, 0);
@@ -433,6 +442,61 @@ foreach my $metricName (sort (keys %queue_metrics)) {
         'activemq.queue.' . $metricName, $metricDetails{description}, '');
      $metricCounter++;
 }
+
+my %memory_metrics = (
+    'non_heap_memory_usage.max' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'non_heap_memory_usage.committed' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'non_heap_memory_usage.init' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'non_heap_memory_usage.used' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'heap_memory_usage.max' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'heap_memory_usage.committed' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'heap_memory_usage.init' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'heap_memory_usage.used' => {
+        description	=> '',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+);
+
+$metricCounter = 0;
+
+foreach my $metricName (sort (keys %memory_metrics)) {
+    my %metricDetails = %{$memory_metrics{$metricName}};
+    $pmda->add_metric(pmda_pmid(3,$metricCounter), $metricDetails{data_type}, PM_INDOM_NULL,
+        $metricDetails{metric_type}, $metricDetails{units},
+        'activemq.jvm.memory.' . $metricName, $metricDetails{description}, '');
+     $metricCounter++;
+}
+
+
 
 $pmda->add_indom($queue_indom, \%queue_instances,
 		'Instance domain exporting each queue', '');
