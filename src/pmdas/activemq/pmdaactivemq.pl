@@ -23,9 +23,21 @@ use RESTClient;
 use ActiveMQ;
 use Data::Dumper;
 
+my $rest_hostname = 'localhost';
+my $rest_port = 8161;
+my $rest_username = 'admin';
+my $rest_password = 'admin';
+my $rest_realm = 'ActiveMQRealm';
+
 my $queue_indom = 0;
+
+# Configuration files for overriding the above settings
+for my $file (pmda_config('PCP_PMDAS_DIR') . '/activemq/activemq.conf', 'activemq.conf') {
+    eval `cat $file` unless ! -f $file;
+}
+
 my $http_client = LWP::UserAgent->new;
-my $rest_client = RESTClient->new($http_client, 'localhost', 8161, 'admin', 'admin', 'ActiveMQRealm');
+my $rest_client = RESTClient->new($http_client, $rest_hostname, $rest_port, $rest_username, $rest_password, $rest_realm);
 my $activemq = ActiveMQ->new($rest_client);
 
 my %queue_instances;
