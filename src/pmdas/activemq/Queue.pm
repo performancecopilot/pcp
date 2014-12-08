@@ -25,7 +25,7 @@ sub attribute_for {
 
 sub query {
   my ($self, $value) = @_;
-  my $response = $self->{_rest_client}->get("/api/jolokia/read/" . $self->{_name});
+  my $response = $self->{_rest_client}->get("/api/jolokia/read/" . $self->{_name} . "?ignoreErrors=true");
   return undef unless defined($response);
   return $response->{'value'}->{$value};
 }

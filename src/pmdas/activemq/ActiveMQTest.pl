@@ -26,16 +26,16 @@ my $actual_queue_response = {
                               };
 my $activemq = ActiveMQ->new( $user_agent );
 
-when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost')->then_return({'value' => {'BrokerId' => 'myid' }});
+when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost?ignoreErrors=true')->then_return({'value' => {'BrokerId' => 'myid' }});
 is($activemq->attribute_for('broker_id'), "myid", "broker_id is available");
 
-when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,service=Health')->then_return({'value' => {'CurrentStatus' => 'Good' }});
+when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,service=Health?ignoreErrors=true')->then_return({'value' => {'CurrentStatus' => 'Good' }});
 is($activemq->attribute_for('current_status', 'Health'), "Good", "attribute with service name is available");
 
 $activemq->refresh_health;
-verify($user_agent)->get('/api/jolokia/exec/org.apache.activemq:type=Broker,brokerName=localhost,service=Health/health');
+verify($user_agent)->get('/api/jolokia/exec/org.apache.activemq:type=Broker,brokerName=localhost,service=Health/health?ignoreErrors=true');
 
-when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost')->then_return($actual_queue_response);
+when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost?ignoreErrors=true')->then_return($actual_queue_response);
 
 my @actual_queues = $activemq->queues;
 my $queue_size = @actual_queues;
@@ -44,14 +44,14 @@ is($queue_size, 2, "queues() returns collection of correct size");
 is($actual_queues[0]->short_name(), "queue1", "queues() response contains queue1");
 is($actual_queues[1]->short_name(), "queue2", "queues() response contains queue2");
 
-when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost')->then_return(undef);
+when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost?ignoreErrors=true')->then_return(undef);
 
 @actual_queues = $activemq->queues;
 $queue_size = @actual_queues;
 is($queue_size, 0, "queues() returns 0 size collection when user agent returns undef");
 
-when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost')->then_return($actual_queue_response);
+when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost?ignoreErrors=true')->then_return($actual_queue_response);
 is($activemq->queue_by_short_name("queue2")->short_name(), "queue2", "Find queue by short name");
 
-when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost')->then_return($actual_queue_response);
+when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost?ignoreErrors=true')->then_return($actual_queue_response);
 is($activemq->queue_by_short_name("unknown_queue"), undef, "Unknown short name should be undefined");

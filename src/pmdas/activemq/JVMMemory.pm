@@ -23,7 +23,7 @@ sub attribute_for {
 sub query {
     my ($self, $metric_group, $value) = @_;
 
-    my $response = $self->{_rest_client}->get("/api/jolokia/read/java.lang:type=Memory");
+    my $response = $self->{_rest_client}->get("/api/jolokia/read/java.lang:type=Memory?ignoreErrors=true");
     return undef unless defined($response);
     return $response->{'value'}->{$metric_group}->{$value};
 }

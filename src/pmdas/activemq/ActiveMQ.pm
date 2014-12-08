@@ -23,7 +23,7 @@ sub attribute_for {
 
 sub refresh_health {
     my ($self)  = @_;
-    $self->{_rest_client}->get("/api/jolokia/exec/org.apache.activemq:type=Broker,brokerName=localhost,service=Health/health");
+    $self->{_rest_client}->get("/api/jolokia/exec/org.apache.activemq:type=Broker,brokerName=localhost,service=Health/health?ignoreErrors=true");
 }
 
 sub queues {
@@ -43,7 +43,7 @@ sub query {
     my ($self, $value, $service_name) = @_;
     $service_name = ",service=" . $service_name if defined($service_name);
 
-    my $response = $self->{_rest_client}->get("/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost" . $service_name);
+    my $response = $self->{_rest_client}->get("/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost" . $service_name . "?ignoreErrors=true");
     return undef unless defined($response);
     return $response->{'value'}->{$value};
 }
