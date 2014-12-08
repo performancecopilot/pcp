@@ -6,7 +6,6 @@ use lib dirname (__FILE__);
 
 use Test::More;
 use Test::Magpie;
-use Data::Dumper;
 
 use Queue;
 
