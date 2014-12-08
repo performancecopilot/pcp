@@ -443,6 +443,7 @@ you will get real memory on demand, and just as much as you use.
 @ mem.util.kernelStack kbytes of memory used for kernel stacks
 @ mem.util.hugepagesTotal a count of total hugepages
 @ mem.util.hugepagesFree a count of free hugepages
+@ mem.util.hugepagesRsvd a count of reserved hugepages
 @ mem.util.hugepagesSurp a count of surplus hugepages
 @ mem.util.directMap4k amount of memory that is directly mapped in 4kB pages
 @ mem.util.directMap2M amount of memory that is directly mapped in 2MB pages
@@ -496,6 +497,8 @@ User memory (Kbytes) in pages not backed by files, e.g. from malloc()
 @ mem.numa.alloc.other_node count of times a process ran on this node and got memory from another node
 @ mem.vmstat.nr_dirty number of pages in dirty state
 Instantaneous number of pages in dirty state, from /proc/vmstat
+@ mem.vmstat.nr_dirty_background_threshold background writeback threshold
+@ mem.vmstat.nr_dirty_threshold dirty throttling threshold
 @ mem.vmstat.nr_dirtied count of pages dirtied
 Count of pages entering dirty state, from /proc/vmstat
 @ mem.vmstat.nr_writeback number of pages in writeback state
