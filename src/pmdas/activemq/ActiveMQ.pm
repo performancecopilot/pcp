@@ -14,24 +14,12 @@ sub new {
   return $self;
 }
 
-sub average_message_size {
-    my ($self)  = @_;
-    return $self->query('AverageMessageSize');
-}
+sub attribute_for {
+  my ($self, $attribute, $service_name) = @_;
 
-sub broker_id {
-    my ($self)  = @_;
-    return $self->query('BrokerId');
-}
-
-sub total_message_count {
-    my ($self)  = @_;
-    return $self->query('TotalMessageCount');
-}
-
-sub health {
-    my ($self)  = @_;
-    return $self->query('CurrentStatus', 'Health');
+  my $camel_case_attribute = "_" . $attribute;
+  $camel_case_attribute =~ s/_(\w)/\U$1/g;
+  return $self->query($camel_case_attribute, $service_name);
 }
 
 sub refresh_health {

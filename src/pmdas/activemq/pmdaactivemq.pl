@@ -44,10 +44,10 @@ sub update_activemq_status
         return;
     }
 
-    if ($cluster == 0) {
+    if ($cluster == 1) {
         $activemq->refresh_health;
     }
-    elsif ($cluster == 1) {
+    elsif ($cluster == 2) {
         my @queues = $activemq->queues;
 
         %queue_instances = map {
@@ -69,29 +69,28 @@ sub activemq_value
     return ($value, 1);
 }
 
+sub metric_subname
+{
+    my ($cluster, $item) = @_;
+
+    my $metric_name = pmda_pmid_name($cluster, $item);
+    my @metric_subnames = split(/\./, $metric_name);
+    return $metric_subnames[-1];
+}
+
 sub activemq_fetch_callback
 {
 	my ($cluster, $item, $inst) = @_;
 
     if($cluster ==0) {
         if ($inst != PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
-        if($item == 0) {
-            return activemq_value($activemq->total_message_count);
-        }
-        elsif ($item == 1) {
-            return activemq_value($activemq->average_message_size);
-        }
-        elsif ($item == 2) {
-            return activemq_value($activemq->broker_id);
-        }
-        elsif ($item == 3) {
-            return activemq_value($activemq->health);
-        }
-        else {
-            return (PM_ERR_PMID, 0);
-        }
+        return activemq_value($activemq->attribute_for(metric_subname($cluster, $item)));
     }
-    elsif ($cluster == 1) {
+    elsif($cluster ==1) {
+        if ($inst != PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
+        return activemq_value($activemq->attribute_for(metric_subname($cluster, $item), 'Health'));
+    }
+    elsif ($cluster == 2) {
     	if ($inst == PM_IN_NULL)	{ return (PM_ERR_INST, 0); }
 
     	my $instance_queue_name = pmda_inst_lookup($queue_indom, $inst);
@@ -99,29 +98,58 @@ sub activemq_fetch_callback
 
 	    my $selected_queue = $activemq->queue_by_short_name($instance_queue_name);
 	    return (PM_ERR_INST, 0) unless defined($selected_queue);
-
-        my $metric_name = pmda_pmid_name($cluster, $item);
-        my @metric_subnames = split(/\./, $metric_name);
-
-        return activemq_value($selected_queue->attribute_for($metric_subnames[-1]));
+        return activemq_value($selected_queue->attribute_for(metric_subname($cluster, $item)));
     }
     else {
         return (PM_ERR_PMID, 0);
     }
 }
 
-$pmda->add_metric(pmda_pmid(0,0), PM_TYPE_U64, PM_INDOM_NULL,
-	PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-	'activemq.broker.total_message_count',	'Number of unacknowledged messages on the broker', '');
-$pmda->add_metric(pmda_pmid(0,1), PM_TYPE_FLOAT, PM_INDOM_NULL,
-	PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
-	'activemq.broker.average_message_size', 'Average message size on this broker', '');
-$pmda->add_metric(pmda_pmid(0,2), PM_TYPE_STRING, PM_INDOM_NULL,
-	PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-	'activemq.broker.id', 'Unique id of the broker', '');
-$pmda->add_metric(pmda_pmid(0,3), PM_TYPE_STRING, PM_INDOM_NULL,
-	PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-	'activemq.broker.health', 'String representation of current Broker state', '');
+my %broker_metrics = (
+    'total_message_count' => {
+        description	=> 'Number of unacknowledged messages on the broker',
+        metric_type	=> PM_SEM_COUNTER,
+        data_type	=> PM_TYPE_U64,
+        units	=> pmda_units(0,0,1,0,0,PM_COUNT_ONE)},
+    'average_message_size' => {
+        description	=> 'Average message size on this broker',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_FLOAT,
+        units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
+    'broker_id' => {
+        description	=> 'Unique id of the broker',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_STRING,
+        units	=> pmda_units(0,0,0,0,0,0)}
+);
+
+my $metricCounter = 0;
+
+foreach my $metricName (sort (keys %broker_metrics)) {
+    my %metricDetails = %{$broker_metrics{$metricName}};
+    $pmda->add_metric(pmda_pmid(0,$metricCounter), $metricDetails{data_type}, PM_INDOM_NULL,
+        $metricDetails{metric_type}, $metricDetails{units},
+        'activemq.broker.' . $metricName, $metricDetails{description}, '');
+     $metricCounter++;
+}
+
+my %health_metrics = (
+    'current_status' => {
+        description	=> 'String representation of current Broker state',
+        metric_type	=> PM_SEM_INSTANT,
+        data_type	=> PM_TYPE_STRING,
+        units	=> pmda_units(0,0,0,0,0,0)},
+);
+
+$metricCounter = 0;
+
+foreach my $metricName (sort (keys %health_metrics)) {
+    my %metricDetails = %{$health_metrics{$metricName}};
+    $pmda->add_metric(pmda_pmid(1,$metricCounter), $metricDetails{data_type}, PM_INDOM_NULL,
+        $metricDetails{metric_type}, $metricDetails{units},
+        'activemq.broker.' . $metricName, $metricDetails{description}, '');
+     $metricCounter++;
+}
 
 my %queue_metrics = (
     'dequeue_count'  => {
@@ -261,11 +289,11 @@ my %queue_metrics = (
         units	=> pmda_units(0,0,0,0,0,PM_COUNT_ONE)},
 );
 
-my $metricCounter = 0;
+$metricCounter = 0;
 
 foreach my $metricName (sort (keys %queue_metrics)) {
     my %metricDetails = %{$queue_metrics{$metricName}};
-    $pmda->add_metric(pmda_pmid(1,$metricCounter), PM_TYPE_U64, $queue_indom,
+    $pmda->add_metric(pmda_pmid(2,$metricCounter), $metricDetails{data_type}, $queue_indom,
         $metricDetails{metric_type}, $metricDetails{units},
         'activemq.queue.' . $metricName, $metricDetails{description}, '');
      $metricCounter++;
