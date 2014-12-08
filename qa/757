@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. 973
+# PCP QA Test No. 757
 # Exercise the perfevent PMDA.
 #
 # Copyright (c) 2014 Joseph White.

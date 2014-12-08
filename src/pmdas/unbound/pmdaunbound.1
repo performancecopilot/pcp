@@ -1,0 +1,65 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014 Jan-Frode Myklebust <janfrode@tanso.net>.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMDAUNBOUND 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaunbound\f1 \- Unbound resolver PMDA
+.SH DESCRIPTION
+\f3pmdaunbound\f1 is a Performance Metrics Domain Agent (PMDA) which exports
+metric values about the Unbound DNS resolver using the
+.BR unbound-control (8)
+.BR stats_noreset
+command.
+.PP
+This gives lots of insight into query types, response time, cache hits/misses,
+etc. Please see the
+.BR unbound-control (8)
+man page for explanation about each statistics counter.
+.PP
+Further details on the Unbound DNS resolver can be found at https://unbound.net/
+.SH INSTALLATION
+Install the Unbound PMDA by using the Install script as root:
+.PP
+      # cd $PCP_PMDAS_DIR/unbound
+.br
+      # ./Install
+.PP
+To uninstall, do the following as root:
+.PP
+      # cd $PCP_PMDAS_DIR/unbound
+.br
+      # ./Remove
+.PP
+\fBpmdaunbound\fR is launched by \fIpmcd\fR(1) and should never be executed
+directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the
+agent is installed or removed.
+.SH FILES
+.IP "\fB$PCP_PMDAS_DIR/unbound/Install\fR" 4
+installation script for the \fBpmdaunbound\fR agent
+.IP "\fB$PCP_PMDAS_DIR/unbound/Remove\fR" 4
+undo installation script for the \fBpmdaunbound\fR agent
+.IP "\fB$PCP_LOG_DIR/pmcd/unbound.log\fR" 4
+default log file for error messages from \fBpmdaunbound\fR
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fR are used to parameterize
+the file and directory names used by \fBPCP\fR. On each installation, the
+file \fB/etc/pcp.conf\fR contains the local values for these variables.
+The \fB$PCP_CONF\fR variable may be used to specify an alternative
+configuration file, as described in \fIpcp.conf\fR(5).
+.SH SEE ALSO
+.BR pmcd (1),
+.BR unbound-control (8),
+and
+.BR unbound (8)

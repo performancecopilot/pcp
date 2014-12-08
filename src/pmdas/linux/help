@@ -709,52 +709,68 @@ Total CPU time spent running virtual guest operating systems.
 
 @ hinv.ninterface number of active (up) network interfaces
 @ network.interface.in.bytes network recv read bytes from /proc/net/dev per network interface
-bytes column on the "Receive" side of /proc/net/dev (stats->rx_bytes counter in rtnl_link_stats64)
+bytes column on the "Receive" side of /proc/net/dev (stats->rx_bytes counter in
+rtnl_link_stats64)
 @ network.interface.in.packets network recv read packets from /proc/net/dev per network interface
-packets column on the "Receive" side of /proc/net/dev (stats->rx_packets counter in rtnl_link_stats64)
+packets column on the "Receive" side of /proc/net/dev
+(stats->rx_packets counter in rtnl_link_stats64)
 @ network.interface.in.errors network recv read errors from /proc/net/dev per network interface
-errors column on the "Receive" side of /proc/net/dev (stats->rx_errors counter in rtnl_link_stats64)
+errors column on the "Receive" side of /proc/net/dev
+(stats->rx_errors counter in rtnl_link_stats64)
 @ network.interface.in.drops network recv read drops from /proc/net/dev per network interface
-drop column on the "Receive" side of /proc/net/dev (stats->{rx_dropped + rx_missed_errors}
-counters in rtnl_link_stats64. rx_dropped are the dropped packets due to no space in linux buffers
-and rx_missed are due to the receiver NIC missing a packet. Not all NICS use the rx_missed_errors
-counter)
+drop column on the "Receive" side of /proc/net/dev
+(stats->{rx_dropped + rx_missed_errors} counters in rtnl_link_stats64)
+rx_dropped are the dropped packets due to no space in linux buffers and rx_missed
+are due to the receiver NIC missing a packet.
+Not all NICS use the rx_missed_errors counter.
 @ network.interface.in.mcasts network recv multicast packets from /proc/net/dev per network interface
-multicast column on the "Receive" side of /proc/net/dev (stats->multicast counter in rtnl_link_stats64)
+multicast column on the "Receive" side of /proc/net/dev
+(stats->multicast counter in rtnl_link_stats64)
 @ network.interface.in.fifo network recv fifo overrun errors from /proc/net/dev per network interface
-fifo column on the "Receive" side of /proc/net/dev (stats->rx_fifo_errors counter in rtnl_link_stats64)
+fifo column on the "Receive" side of /proc/net/dev
+(stats->rx_fifo_errors counter in rtnl_link_stats64)
 @ network.interface.in.frame network recv frames errors from /proc/net/dev per network interface
-frame column on the "Receive" side of /proc/net/dev (stats->{rx_length_errors + rx_over_errors +
-rx_crc_errors + rx_frame_errors} counters in rtnl_link_stats64
+frame column on the "Receive" side of /proc/net/dev
+(stats->{rx_length_errors + rx_over_errors + rx_crc_errors + rx_frame_errors}
+counters in rtnl_link_stats64)
 @ network.interface.in.compressed network recv compressed from /proc/net/dev per network interface
-compressed column on the "Receive" side of /proc/net/dev (stats->rx_compressed counter in
-rtnl_link_stats64). Almost exclusively used for CSLIP or HDLC devices
+compressed column on the "Receive" side of /proc/net/dev
+(stats->rx_compressed counter in rtnl_link_stats64).
+Almost exclusively used for CSLIP or HDLC devices
 @ network.interface.out.bytes network send bytes from /proc/net/dev per network interface
-bytes column on the "Transmit" side of /proc/net/dev (stats->tx_bytes counter in rtnl_link_stats64)
+bytes column on the "Transmit" side of /proc/net/dev
+(stats->tx_bytes counter in rtnl_link_stats64)
 @ network.interface.out.packets network send packets from /proc/net/dev per network interface
-packets column on the "Transmit" side of /proc/net/dev (stats->tx_packets counter in rtnl_link_stats64)
+packets column on the "Transmit" side of /proc/net/dev
+(stats->tx_packets counter in rtnl_link_stats64)
 @ network.interface.out.errors network send errors from /proc/net/dev per network interface
-errors column on the "Transmit" side of /proc/net/dev (stats->tx_errors counter in rtnl_link_stats64)
+errors column on the "Transmit" side of /proc/net/dev
+(stats->tx_errors counter in rtnl_link_stats64)
 @ network.interface.out.drops network send drops from /proc/net/dev per network interface
-drop column on the "Transmit" side of /proc/net/dev (stats->tx_dropped counter in rtnl_link_stats64)
+drop column on the "Transmit" side of /proc/net/dev
+(stats->tx_dropped counter in rtnl_link_stats64)
 @ network.interface.out.fifo network send fifos from /proc/net/dev per network interface
-fifo column on the "Transmit" side of /proc/net/dev (stats->tx_fifo_errors counter in rtnl_link_stats64)
+fifo column on the "Transmit" side of /proc/net/dev
+(stats->tx_fifo_errors counter in rtnl_link_stats64)
 @ network.interface.collisions network send collisions from /proc/net/dev per network interface
-colls column on the "Transmit" side of /proc/net/dev (stats->collisions counter in rtnl_link_stats64)
-Counter only valid for outgoing packets
+colls column on the "Transmit" side of /proc/net/dev
+(stats->collisions counter in rtnl_link_stats64).
+Counter only valid for outgoing packets.
 @ network.interface.out.carrier network send carrier from /proc/net/dev per network interface
-carrier column on the "Transmit" side of /proc/net/dev (stats->{tx_carrier_errors + tx_aborted_errors +
-tx_window_errors + tx_heartbeat_errors} counters in rtnl_link_stats64).
+carrier column on the "Transmit" side of /proc/net/dev
+(stats->{tx_carrier_errors + tx_aborted_errors + tx_window_errors +
+tx_heartbeat_errors} counters in rtnl_link_stats64).
 @ network.interface.out.compressed network send compressed from /proc/net/dev per network interface
-compressed column on the "Transmit" side of /proc/net/dev (stats->tx_compressed counter in
-rtnl_link_stats64). Almost exclusively used for CSLIP or HDLC devices
+compressed column on the "Transmit" side of /proc/net/dev
+(stats->tx_compressed counter in rtnl_link_stats64).
+Almost exclusively used for CSLIP or HDLC devices
 @ network.interface.total.bytes network total (in+out) bytes from /proc/net/dev per network interface
 @ network.interface.total.packets network total (in+out) packets from /proc/net/dev per network interface
 @ network.interface.total.errors network total (in+out) errors from /proc/net/dev per network interface
 @ network.interface.total.drops network total (in+out) drops from /proc/net/dev per network interface
 @ network.interface.total.mcasts network total (in) mcasts from /proc/net/dev per network interface
-Linux does not account for outgoing mcast packets per device, so this counter is identical to
-the incoming mcast metric
+Linux does not account for outgoing mcast packets per device, so this counter
+is identical to the incoming mcast metric.
 @ network.interface.mtu maximum transmission unit on network interface
 @ network.interface.speed interface speed in megabytes per second
 The linespeed on the network interface, as reported by the kernel,

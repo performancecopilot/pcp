@@ -691,26 +691,32 @@ pmda_inst_name(index,instance)
 	unsigned int	index
 	int		instance
     PREINIT:
-	int		i;
+	int		i, sts;
+	char *		name;
 	pmdaIndom *	p;
 	pmdaInstid	*instp;
     CODE:
 	if (index >= itab_size)	/* is this a valid indom */
 	    XSRETURN_UNDEF;
 	p = indomtab + index;
-	if (!p->it_set)	/* was this indom previously setup via a hash? */
-	    XSRETURN_UNDEF;
-
-	/* Optimistic (fast) direct lookup first, then iterate */
-	i = instance;
-	if (i > p->it_numinst || i < 0 || instance != p->it_set[i].i_inst) {
-	    for (i = 0; i < p->it_numinst; i++)
-		if (instance == p->it_set[i].i_inst)
-		    break;
-	    if (i == p->it_numinst)
+	if (!p->it_set)	{ /* was this indom previously setup via a hash? */
+	    sts = pmdaCacheLookup(p->it_indom, instance, &name, NULL);
+	    if (sts != PMDA_CACHE_ACTIVE)
 		XSRETURN_UNDEF;
+	    RETVAL = newSVpv(name,0);
 	}
-	RETVAL = newSVpv(p->it_set[i].i_name,0);
+	else {	/* we've been handed an array-based indom */
+	    /* Optimistic (fast) direct lookup first, then iterate */
+	    i = instance;
+	    if (i > p->it_numinst || i < 0 || instance != p->it_set[i].i_inst) {
+		for (i = 0; i < p->it_numinst; i++)
+		    if (instance == p->it_set[i].i_inst)
+			break;
+		if (i == p->it_numinst)
+		    XSRETURN_UNDEF;
+	    }
+	    RETVAL = newSVpv(p->it_set[i].i_name,0);
+	}
     OUTPUT:
 	RETVAL
 
@@ -1000,8 +1006,7 @@ add_indom(self,indom,insts,help,longhelp)
 	sts = update_indom(insts, p->it_indom, &p->it_set);
 	if (sts < 0)
 	    XSRETURN_UNDEF;
-	if (p->it_set)
-	    p->it_numinst = sts;
+	p->it_numinst = sts;
 	RETVAL = itab_size++;	/* used in calls to replace_indom() */
 
 	hash = pmInDomStr(indom);
@@ -1029,13 +1034,14 @@ replace_indom(self,index,insts)
 	else {
 	    p = indomtab + index;
 	    /* was this indom previously setup via an array? */
-	    if (p->it_set)
+	    if (p->it_set) {
 		release_list_indom(p->it_set, p->it_numinst);
+		p->it_numinst = 0;
+	    }
 	    sts = update_indom(insts, p->it_indom, &p->it_set);
 	    if (sts < 0)
 		XSRETURN_UNDEF;
-	    if (p->it_set)
-		p->it_numinst = sts;
+	    p->it_numinst = sts;
 	    RETVAL = sts;
 	}
     OUTPUT:

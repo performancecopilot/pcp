@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2014 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -15,21 +15,26 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-IAM	= slow_python
-TESTDIR = $(PCP_VAR_DIR)/testsuite/pmdas/$(IAM)
+IAM	= unbound
 PYSCRIPT = pmda$(IAM).python
+LDIRT	= domain.h root pmns $(IAM).log
 
-LDIRT	= domain.h $(IAM).log pmns.python
+MAN_SECTION = 1
+MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
+MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-default default_pcp setup: check_domain
+DOMAIN	= UNBOUND
+PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
+
+default_pcp default:	check_domain
 
 include $(BUILDRULES)
 
 install_pcp install:	default 
-	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 755 Install Remove $(TESTDIR)
-	$(INSTALL) -m 644 $(PYSCRIPT) $(TESTDIR)/$(PYSCRIPT)
-	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
+	$(INSTALL) -m 755 -d $(PMDADIR)
+	$(INSTALL) -m 755 Install Remove $(PMDADIR)
+	$(INSTALL) -m 644 $(PYSCRIPT) $(PMDADIR)/$(PYSCRIPT)
+	@$(INSTALL_MAN)
 
-check_domain:	$(TOPDIR)/src/pmns/stdpmid
+check_domain:	../../pmns/stdpmid
 	$(DOMAIN_PYTHONRULE)

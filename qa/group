@@ -172,6 +172,7 @@ pmda.summary
 pmda.systemd
 pmda.trivial
 pmda.txmon
+pmda.unbound
 pmda.weblog
 pmda.xfs
 pmda.zswap
@@ -933,9 +934,12 @@ avahi
 751 pmda.rpm local
 752 libpcp local
 753 derive pmie local
+754 pmda.unbound local
 755 pmda.apache pmda.install local
 756 pmda.perfevent local
-757 pmda.perfevent local
+757 pmda.perfevent pmda.install local
+758 perl local
+759 pmda.unbound pmda.install local
 763 pmda local
 764 pmie local
 766 pmfind local
