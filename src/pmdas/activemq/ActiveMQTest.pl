@@ -10,7 +10,7 @@ use Data::Dumper;
 use ActiveMQ;
 
 BEGIN {
-  plan(tests => 11)
+  plan(tests => 9)
 }
 
 my $user_agent = mock;
@@ -27,18 +27,11 @@ my $actual_queue_response = {
                               };
 my $activemq = ActiveMQ->new( $user_agent );
 
-
-when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost')->then_return({'value' => {'TotalMessageCount' => 5 }});
-is($activemq->total_message_count, 5, "total_message_count is available");
-
-when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost')->then_return({'value' => {'AverageMessageSize' => 1234 }});
-is($activemq->average_message_size, 1234, "average_message_size is available");
-
 when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost')->then_return({'value' => {'BrokerId' => 'myid' }});
-is($activemq->broker_id, "myid", "broker_id is available");
+is($activemq->attribute_for('broker_id'), "myid", "broker_id is available");
 
 when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost,service=Health')->then_return({'value' => {'CurrentStatus' => 'Good' }});
-is($activemq->health, "Good", "broker health is available");
+is($activemq->attribute_for('current_status', 'Health'), "Good", "attribute with service name is available");
 
 $activemq->refresh_health;
 verify($user_agent)->get('/api/jolokia/exec/org.apache.activemq:type=Broker,brokerName=localhost,service=Health/health');
