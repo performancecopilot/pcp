@@ -3,7 +3,6 @@ use strict;
 
 package ActiveMQ;
 use Queue;
-use Data::Dumper;
 
 sub new {
   my $class = shift;
