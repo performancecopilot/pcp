@@ -34,6 +34,13 @@ my $rest_timeout = 1;
 
 my $queue_indom = 0;
 
+my $broker_cluster = 0;
+my $health_cluster = 1;
+my $queue_cluster = 2;
+my $jvm_memory_cluster = 3;
+my $jvm_memory_pool_cluster = 4;
+my $jvm_garbage_collection_cluster = 5;
+
 # Configuration files for overriding the above settings
 for my $file (pmda_config('PCP_PMDAS_DIR') . '/activemq/activemq.conf', 'activemq.conf') {
     eval `cat $file` unless ! -f $file;
@@ -64,10 +71,10 @@ sub update_activemq_status
 	return;
     }
 
-    if ($cluster == 1) {
+    if ($cluster == $health_cluster) {
 	$activemq->refresh_health;
     }
-    elsif ($cluster == 2) {
+    elsif ($cluster == $queue_cluster) {
 	my @queues = $activemq->queues;
 
 	%queue_instances = map {
@@ -109,15 +116,15 @@ sub activemq_fetch_callback
 {
     my ($cluster, $item, $inst) = @_;
 
-    if($cluster ==0) {
+    if($cluster == $broker_cluster) {
 	if ($inst != PM_IN_NULL) { return (PM_ERR_INST, 0); }
 	return activemq_value($activemq->attribute_for(metric_subname($cluster, $item)));
     }
-    elsif($cluster ==1) {
+    elsif($cluster == $health_cluster) {
 	if ($inst != PM_IN_NULL) { return (PM_ERR_INST, 0); }
 	return activemq_value($activemq->attribute_for(metric_subname($cluster, $item), 'Health'));
     }
-    elsif ($cluster == 2) {
+    elsif ($cluster == $queue_cluster) {
 	if ($inst == PM_IN_NULL) { return (PM_ERR_INST, 0); }
 
 	my $instance_queue_name = pmda_inst_lookup($queue_indom, $inst);
@@ -127,19 +134,19 @@ sub activemq_fetch_callback
 	return (PM_ERR_INST, 0) unless defined($selected_queue);
 	return activemq_value($selected_queue->attribute_for(metric_subname($cluster, $item)));
     }
-    elsif ($cluster == 3) {
+    elsif ($cluster == $jvm_memory_cluster) {
 	if ($inst != PM_IN_NULL) { return (PM_ERR_INST, 0); }
 
 	my @metric_subnames = metric_subnames($cluster, $item);
 	return activemq_value($jvm_memory->attribute_for($metric_subnames[-2], $metric_subnames[-1]));
     }
-    elsif ($cluster == 4) {
+    elsif ($cluster == $jvm_memory_pool_cluster) {
 	if ($inst != PM_IN_NULL) { return (PM_ERR_INST, 0); }
 
 	my @metric_subnames = metric_subnames($cluster, $item);
 	return activemq_value($jvm_memory_pool->attribute_for($metric_subnames[-3],$metric_subnames[-2], $metric_subnames[-1]));
     }
-    elsif ($cluster == 5) {
+    elsif ($cluster == $jvm_garbage_collection_cluster) {
 	if ($inst != PM_IN_NULL) { return (PM_ERR_INST, 0); }
 
 	my @metric_subnames = metric_subnames($cluster, $item);
