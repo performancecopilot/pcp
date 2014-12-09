@@ -37,7 +37,7 @@ PCP_MAJOR_VERSION=`grep "^Version:" build/rpm/fedora.spec`
 CHANGELOG_VERSION=`echo $PCP_MAJOR_VERSION | cut -f2 -d" " | cut -f2`
 FINAL_RELEASE=`grep "define buildversion" build/rpm/fedora.spec | cut -f3 -d" "`
 GIT_VERSION_TAG=`echo 0.$(git describe | rev | cut -f1,2 -d- --output-delimiter=. | rev)`
-PCP_WEB_JS=`grep "^Source*" build/rpm/fedora.spec | grep "webjs" | cut -f2 -d" "`
+PCP_WEB_JS=`grep "^Source*" build/rpm/fedora.spec | grep "webjs" | cut -f2 -d" " | rev | cut -f1 -d"/" | rev`
 ### lets do a sanity check first
 if which fedpkg &>/dev/null; then
  :

@@ -31,4 +31,5 @@ papi.control {
 
 papi.available {
     num_counters	PAPI:2:0
+    version		PAPI:2:1
 }
