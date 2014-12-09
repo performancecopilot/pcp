@@ -10,7 +10,7 @@ use Test::Magpie qw(mock when);
 use RESTClient;
 
 BEGIN {
-  plan(tests => 2)
+    plan(tests => 2)
 }
 
 my $http_client = mock;

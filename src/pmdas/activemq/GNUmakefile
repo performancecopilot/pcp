@@ -15,7 +15,7 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-TESTS = ActiveMQTest.pl QueueTest.pl RESTClientTest.pm
+TESTS =	ActiveMQTest.pl QueueTest.pl RESTClientTest.pl JVMGarbageCollectionTest.pl JVMMemoryPoolTest.pl JVMMemoryTest.pl
 
 IAM	= activemq
 DOMAIN	= ACTIVEMQ

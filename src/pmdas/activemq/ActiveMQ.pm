@@ -1,24 +1,36 @@
-#!/usr/bin/perl
+#
+# Copyright (c) 2014 Aconex
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
 use strict;
 
 package ActiveMQ;
 use Queue;
 
 sub new {
-  my $class = shift;
-  my $self = {
-    _rest_client => shift,
-  };
-  bless $self, $class;
-  return $self;
+    my $class = shift;
+    my $self = {
+	_rest_client => shift,
+    };
+    bless $self, $class;
+    return $self;
 }
 
 sub attribute_for {
-  my ($self, $attribute, $service_name) = @_;
+    my ($self, $attribute, $service_name) = @_;
 
-  my $camel_case_attribute = "_" . $attribute;
-  $camel_case_attribute =~ s/_(\w)/\U$1/g;
-  return $self->query($camel_case_attribute, $service_name);
+    my $camel_case_attribute = "_" . $attribute;
+    $camel_case_attribute =~ s/_(\w)/\U$1/g;
+    return $self->query($camel_case_attribute, $service_name);
 }
 
 sub refresh_health {
@@ -34,7 +46,7 @@ sub queues {
 
     my @queues = @{$query_result};
     my @queue_instances = map {
-      Queue->new($_->{'objectName'}, $self->{_rest_client});
+	Queue->new($_->{'objectName'}, $self->{_rest_client});
     } @queues;
     return @queue_instances;
 }
@@ -49,16 +61,16 @@ sub query {
 }
 
 sub queue_by_short_name {
-  my ($self, $short_name) = @_;
+    my ($self, $short_name) = @_;
 
-  my @queues = $self->queues;
-  foreach my $queue (@queues) {
-    if ($queue->short_name eq $short_name) {
-      return $queue;
+    my @queues = $self->queues;
+    foreach my $queue (@queues) {
+	if ($queue->short_name eq $short_name) {
+	    return $queue;
+	}
     }
-  }
 
-  return undef;
+    return undef;
 }
 
 1;

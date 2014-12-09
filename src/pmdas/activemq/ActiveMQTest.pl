@@ -1,4 +1,17 @@
 #!/usr/bin/perl
+#
+# Copyright (c) 2014 Aconex
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
 use strict;
 
 use File::Basename;
@@ -9,21 +22,21 @@ use Test::Magpie qw(mock when verify);
 use ActiveMQ;
 
 BEGIN {
-  plan(tests => 9)
+    plan(tests => 9)
 }
 
 my $user_agent = mock;
 my $queue1 = Queue->new('org.apache.activemq:brokerName=gG,destinationName=queue1,destinationType=Queue,type=Broker', $user_agent);
 my $queue2 = Queue->new('org.apache.activemq:brokerName=localhost,destinationName=queue2,destinationType=Queue,type=Broker', $user_agent);
 my $actual_queue_response = {
-                                'value' => {
-                                  'Queues' => [
-                                    {'objectName' => 'org.apache.activemq:brokerName=localhost,destinationName=queue1,destinationType=Queue,type=Broker'},
-                                    {'objectName' => 'org.apache.activemq:brokerName=localhost,destinationName=queue2,destinationType=Queue,type=Broker'},
-                                  ]
-                                }
+    'value' => {
+	'Queues' => [
+	    {'objectName' => 'org.apache.activemq:brokerName=localhost,destinationName=queue1,destinationType=Queue,type=Broker'},
+	    {'objectName' => 'org.apache.activemq:brokerName=localhost,destinationName=queue2,destinationType=Queue,type=Broker'},
+	]
+    }
+};
 
-                              };
 my $activemq = ActiveMQ->new( $user_agent );
 
 when($user_agent)->get('/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost?ignoreErrors=true')->then_return({'value' => {'BrokerId' => 'myid' }});

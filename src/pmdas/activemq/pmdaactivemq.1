@@ -15,15 +15,17 @@
 .\"
 .TH PMDAACTIVEMQ 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmdaactivemq\f1 \- activemq performance metrics domain agent (PMDA)
+\f3pmdaactivemq\f1 \- ActiveMQ performance metrics domain agent (PMDA)
 .SH DESCRIPTION
 \f3pmdaactivemq\f1 is a Performance Metrics Domain Agent (\s-1PMDA\s0) which
-exports performance metrics from activemq.
+exports performance metrics from ActiveMQ.
 .SH INSTALLATION
-This \s-1PMDA\s0 requires that the activemq stub_status module is active and 
-available at http://localhost/activemq_status
+This \s-1PMDA\s0 requires that ActiveMQ has been installed with the Jolokia 
+JMX-HTTP bridge enabled. By default the PNDA will connect to localhost at
+port 8161 with a username and password of 'admin'. This can be configured
+in PCP_PMDAS_DIR/activemq/activemq.conf
 .PP
-Install the activemq \s-1PMDA\s0 by using the Install script as root:
+Install the ActiveMQ \s-1PMDA\s0 by using the Install script as root:
 .PP
       # cd $PCP_PMDAS_DIR/activemq
 .br
