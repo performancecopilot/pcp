@@ -1,0 +1,136 @@
+#
+# Copyright (c) 2014 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# CIFS PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help test goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+@ CIFS.0 Instance domain for mounted CIFS filesystems
+
+@ cifs.session Number of sessions
+Count of the number of active CIFS sessions.
+
+@ cifs.shares Number of shares
+Number of unqiue shares which are currently mounted on the system.
+
+@ cifs.buffer SMB request/response buffer
+Number of transactions currently in the SMB request/response buffer.
+
+@ cifs.pool_size SMB request/response pool size
+The total pool size for the SMB request/response buffer.
+
+@ cifs.small_buffer SMB small request/response buffer
+Number of transactions currently in the SMB small request/response buffer.
+
+@ cifs.small_pool_size SMB small request/response bool size
+The total pool size for the SMB small request/response buffer.
+
+@ cifs.mid_operations Pending network operations (MIDs)
+Total number of pending network operations (MIDs).
+
+@ cifs.total_operations CIFS operations
+The total number of CIFS operations
+
+@ cifs.total_reconnects CIFS share re-connects
+The total number of CIFS share reconnects.
+
+@ cifs.vfs_operations VFS operations
+The total number of Virtual File System operations.
+
+@ cifs.vfs_operations_max Max VFS operations.
+The max number of con-current Virtial File System operations allowed at
+one time.
+
+@ cifs.fs.connected File system connection status.
+The connection status for each file system mounted, 0 corresponds to a file
+system which is currently disconnected. 1 corresponds to a file system which
+is connected.
+
+@ cifs.fs.smbs CIFS server operations.
+Number of CIFS server operations for each mounted CIFS filesystem.
+
+@ cifs.fs.oplock_breaks Number of oplock breaks.
+Total number of operation lock breaks for each file system.
+
+@ cifs.fs.read Read operations
+Total number of read operations per filesystem mounted.
+
+@ cifs.fs.read_bytes Read bytes
+Total number of read bytes (throughput) for each mounted CIFS file system
+in KB.
+
+@ cifs.fs.write Write operations
+Total number of write operations per filesystem mounted.
+
+@ cifs.fs.write_bytes Write bytes
+Total number of write bytes (throughput) for each mounted CIFS file system
+in KB.
+
+@ cifs.fs.flushes Cache flushes
+Number of file system cache flushes.
+
+@ cifs.fs.locks Number of lock
+Total number of open locks for each mounted CIFS file system.
+
+@ cifs.fs.hard_links Hard links created
+Total number of hard links created for each file system.
+
+@ cifs.fs.sym_links Symbolic links created
+Total number of symbolic links created for each mounted file system.
+
+@ cifs.ops.open Open operations
+Total number of file open operations per mounted file system.
+
+@ cifs.ops.close Close operations
+Total number of file close operations per mounted file system.
+
+@ cifs.ops.delete Delete operations
+Total number of file delete operations per mounted file system.
+
+@ cifs.ops.posix_open Posix open operations
+Total number of posix file open operations per file system.
+
+@ cifs.ops.posix_mkdir Posix mkdir operations
+Total number of posix directory creation operations per file system.
+
+@ cifs.ops.mkdir mkdir operations
+Total number of directory creation operations per file system.
+
+@ cifs.ops.rmdir rmdir operations
+Total number of directory removal operations per file system.
+
+@ cifs.ops.rename rename operations
+Total number of rename operations per file system.
+
+@ cifs.ops.t2_rename t2 rename operations
+Total number of t2 rename operations per file system.
+
+@ cifs.ops.find_first FindFirst requests
+Total number of FindFirst requests to the server
+
+@ cifs.ops.find_next FindNext requests
+Total number of FindNext requests to the server
+
+@ cifs.ops.find_close FindClose requests
+Total number of FindClose requests to the server

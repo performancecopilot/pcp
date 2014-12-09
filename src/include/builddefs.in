@@ -294,10 +294,22 @@ SUBDIRS_MAKERULE = \
 # prepare symbols file for the GNU toolchain (linker) for DSO PMDAs
 VERSION_SCRIPT_MAKERULE = \
 	@rm -f $@; \
-	echo "{" >$@; \
+	echo "$(DOMAIN) {" >$@; \
 	echo "    global: $(PMDAINIT);" >>$@; \
 	echo "    local: *;" >>$@; \
 	echo "};" >>$@; \
+
+# prepare symbols file for other platforms toolchain for shared libs
+# (convert one canonical format - GNU toolchain style - into others)
+ifeq "$(TARGET_OS)" "solaris"
+EXPORTS_MAKERULE = \
+	$(AWK) <$< '\
+BEGIN	{ print "$$mapfile_version 2"; print } \
+/\{$$/	{ print "SYMBOL_VERSION", $$0; next } \
+	{ print }'
+else
+EXPORTS_MAKERULE =
+endif
 
 # prepare domain.h used during the PMDA build process for each PMDA
 DOMAIN_MAKERULE = \

@@ -878,6 +878,7 @@ avahi
 653 libpcp local
 654 pmda.gfs2 local
 655 pmda.gfs2 local
+656 pmda.cifs local valgrind
 660 pmwebapi local
 661 pmwebapi local
 666:reserved pmmgr local
