@@ -63,7 +63,11 @@ ifeq ($(TARGET_OS), darwin)
 # Mac OS X ld(1) takes a different format for the symbols file
 # _SHAREDOPTS	+=  -Wl,-exported_symbols_list $(VERSION_SCRIPT)
 else
+ifeq ($(TARGET_OS), solaris)
+_SHAREDOPTS	+= -Wl,-M $(VERSION_SCRIPT)
+else
 _SHAREDOPTS	+=  -Wl,--version-script=$(VERSION_SCRIPT)
+endif
 endif
 endif
 endif
