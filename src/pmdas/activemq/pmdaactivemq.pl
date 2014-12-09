@@ -153,7 +153,7 @@ sub activemq_fetch_callback
 my %broker_metrics = (
     'total_message_count' => {
 	description	=> 'Number of unacknowledged messages on the broker',
-	metric_type	=> PM_SEM_COUNTER,
+	metric_type	=> PM_SEM_INSTANT,
 	data_type	=> PM_TYPE_U64,
 	units	=> pmda_units(0,0,1,0,0,PM_COUNT_ONE)},
     'average_message_size' => {
