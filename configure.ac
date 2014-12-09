@@ -1301,7 +1301,7 @@ AS_IF([test "x$do_papi" != "xno"], [
 ])
 AC_SUBST(PMDA_PAPI, $pmda_papi)
 
-AS_IF([test "x$pmda_papi" == "xtrue"], [
+AS_IF([test "x$pmda_papi" = "xtrue"], [
     	dnl check if struct PAPI_component_info_t has a disabled field
 	AC_MSG_CHECKING([whether struct PAPI_component_info_t has a disabled field])
 cat <<End-of-File >conftest.c

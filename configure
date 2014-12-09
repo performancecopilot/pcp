@@ -10130,7 +10130,7 @@ fi
 PMDA_PAPI=$pmda_papi
 
 
-if test "x$pmda_papi" == "xtrue"; then :
+if test "x$pmda_papi" = "xtrue"; then :
 
     		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether struct PAPI_component_info_t has a disabled field" >&5
 $as_echo_n "checking whether struct PAPI_component_info_t has a disabled field... " >&6; }

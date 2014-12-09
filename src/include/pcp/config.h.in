@@ -21,7 +21,7 @@
 extern "C" {
 #endif
 
-/* if the PAPI_component_info_it struct has a 'disabled' variable */
+/* if the PAPI_component_info_t struct has a 'disabled' variable */
 #undef HAVE_PAPI_DISABLED_COMP
 
 #include <time.h>
