@@ -61,18 +61,28 @@ ifdef VERSION_SCRIPT
 ifneq ($(INVISIBILITY),)
 ifeq ($(TARGET_OS), darwin)
 # Mac OS X ld(1) takes a different format for the symbols file
-# _SHAREDOPTS	+=  -Wl,-exported_symbols_list $(VERSION_SCRIPT)
+# EXPORTS	= $(VERSION_SCRIPT).darwin
+# _SHAREDOPTS	+=  -Wl,-exported_symbols_list $(EXPORTS)
+# LDIRT		+= $(EXPORTS)
 else
 ifeq ($(TARGET_OS), solaris)
-_SHAREDOPTS	+= -Wl,-M $(VERSION_SCRIPT)
+EXPORTS		= $(VERSION_SCRIPT).solaris
+_SHAREDOPTS	+= -Wl,-M $(EXPORTS)
+LDIRT		+= $(EXPORTS)
 else
-_SHAREDOPTS	+=  -Wl,--version-script=$(VERSION_SCRIPT)
+EXPORTS		= $(VERSION_SCRIPT)
+_SHAREDOPTS	+= -Wl,--version-script=$(EXPORTS)
 endif
 endif
 endif
 endif
 
-$(LIBTARGET) : $(SUBDIRS) $(OBJECTS)
+ifneq ($(EXPORTS), $(VERSION_SCRIPT))
+$(EXPORTS) : $(VERSION_SCRIPT)
+	$(EXPORTS_MAKERULE)
+endif
+
+$(LIBTARGET) : $(SUBDIRS) $(OBJECTS) $(EXPORTS)
 	$(CC) $(LDFLAGS) $(_SHAREDOPTS) -o $(LIBTARGET) $(OBJECTS) $(LDLIBS) $(LIB_FOR_DLOPEN) $(LIB_FOR_BASENAME)
 endif
 

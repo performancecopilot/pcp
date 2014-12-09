@@ -34,7 +34,7 @@ LSRCFILES = $(PMNS) help root common.h clusters.h netmib2.h
 HELPTARGETS = help.dir help.pag
 VERSION_SCRIPT = exports
 
-LDIRT	= domain.h *.log $(HELPTARGETS) root_solaris
+LDIRT	= domain.h *.log $(HELPTARGETS) root_solaris $(VERSION_SCRIPT)
 
 LLDLIBS = $(PCP_PMDALIB) -lkstat -lzfs -lnvpair -lkvm -ldevinfo
 
@@ -43,7 +43,7 @@ default: build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "solaris"
-build-me: root_solaris domain.h $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
+build-me: root_solaris domain.h $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(VERSION_SCRIPT)
 	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
 	fi
