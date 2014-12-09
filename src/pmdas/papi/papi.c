@@ -643,6 +643,7 @@ papi_internal_init(pmdaInterface *dp)
 	}
     } while(PAPI_enum_event(&ec, 0) == PAPI_OK);
 
+#if defined(HAVE_PAPI_DISABLED_COMP)
     number_of_components = PAPI_num_components();
     native = 0 | PAPI_NATIVE_MASK;
     for (component_id; component_id < number_of_components; component_id++) {
@@ -688,6 +689,7 @@ papi_internal_init(pmdaInterface *dp)
 	    }
 	} while (PAPI_enum_cmp_event(&native, PAPI_ENUM_EVENTS, component_id) == PAPI_OK);
     }
+#endif
     pmdaTreeRebuildHash(papi_tree, number_of_events);
 
     /* Set one-time settings for all future EventSets. */
