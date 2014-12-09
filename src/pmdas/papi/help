@@ -40,3 +40,4 @@
 
 @ papi.available.num_counters Number of hardware counters available for use
 
+@ papi.available.version The current PAPI version number in use
