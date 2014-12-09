@@ -169,7 +169,7 @@ in
     sunos)
 	ARCH=`isainfo -k`
 	[ "$ARCH" = amd64 -o "$ARCH" = sparcv9 ] && \
-	configopts="$configopts --libdir=/usr/lib/64"
+	configopts="$configopts --disable-ssp --libdir=/usr/lib/64"
 	;;
 esac
 
