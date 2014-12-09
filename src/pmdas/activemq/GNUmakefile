@@ -15,7 +15,10 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-TESTS =	ActiveMQTest.pl QueueTest.pl RESTClientTest.pl JVMGarbageCollectionTest.pl JVMMemoryPoolTest.pl JVMMemoryTest.pl
+TESTS =	ActiveMQTest.pl QueueTest.pl RESTClientTest.pl \
+	JVMGarbageCollectionTest.pl JVMMemoryPoolTest.pl JVMMemoryTest.pl
+MODULES = ActiveMQ.pm Queue.pm RESTClient.pm \
+	JVMGarbageCollection.pm JVMMemory.pm JVMMemoryPool.pm
 
 IAM	= activemq
 DOMAIN	= ACTIVEMQ
@@ -34,8 +37,7 @@ include $(BUILDRULES)
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 pmda$(IAM).pl $(PMDADIR)/pmda$(IAM).pl
-	# $(INSTALL) -m 644 $(IAM).conf $(PMDADIR)/$(IAM).conf
+	$(INSTALL) -m 644 pmda$(IAM).pl $(MODULES) $(PMDADIR)
 	@$(INSTALL_MAN)
 
 default_pcp : default
