@@ -119,10 +119,28 @@ possible to count some native metrics and preset metrics concurrently.
 # pmstore papi.control.enable "perf.BRANCH-LOADS,perf.BRANCH-MISSES"
 papi.control.enable old value="" new value="perf.BRANCH-LOADS,perf.BRANCH-MISSES"
 
-# pmval papi.system.perf.BRANCH-LOADS
-	    6823.
-# pmval papi.system.perf.BRANCH-MISSES
-	     546.
+# pmval -s3 papi.system.perf.BRANCH-LOADS
+metric:    papi.system.perf.BRANCH-LOADS
+host:      HOSTNAME
+semantics: cumulative counter (converting to rate)
+units:     count (converting to count / sec)
+samples:   3
+interval:  1.00 sec
+            7530.    
+            7539.    
+            7543. 
+
+# pmval -s3 papi.system.perf.BRANCH-MISSES
+metric:    papi.system.perf.BRANCH-MISSES
+host:      HOSTNAME
+semantics: cumulative counter (converting to rate)
+units:     count (converting to count / sec)
+samples:   3
+interval:  1.00 sec
+             696.8   
+             590.8   
+             651.8
+
 # pmstore papi.control.disable "perf.BRANCH-LOADS,perf.BRANCH-MISSES"
 papi.control.disable old value="" new value="perf.BRANCH-LOADS,perf.BRANCH-MISSES"
 .PP
