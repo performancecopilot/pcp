@@ -676,11 +676,11 @@ papi_internal_init(pmdaInterface *dp)
 		int was_tokenized = 0;
 		expand_papi_info(i);
 		memcpy(&papi_info[i].info, &info, sizeof(PAPI_event_info_t));
-		tokenized_string = strtok(info.symbol, "::: ");
+		tokenized_string = strtok(info.symbol, "::: -");
 		while (tokenized_string != NULL) {
 		    strcat(local_native_metric_name, tokenized_string);
 		    was_tokenized = 1;
-		    tokenized_string=strtok(NULL, "::: ");
+		    tokenized_string=strtok(NULL, "::: -");
 		    if (tokenized_string)
 			strcat(local_native_metric_name, ".");
 		}
