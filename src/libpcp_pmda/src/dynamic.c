@@ -121,7 +121,7 @@ pmdaDynamicCheckName( const char *name, int index )
     pmdaNameSpace *tree = dynamic[index].pmns;
 
     /* Use this because we want non-leaf nodes also, since we are called for child checks */
-    if( __pmdaNodeLookup(tree->root->first, name) != NULL ){
+    if( pmdaNodeLookup(tree->root->first, name) != NULL ){
 	return 1;
     }
     else{
@@ -165,11 +165,13 @@ pmdaDynamicLookupPMID(pmdaExt *pmda, pmID pmid)
 int
 pmdaDynamicLookupText(pmID pmid, int type, char **buf, pmdaExt *pmda)
 {
-    int i;
+    int i, sts;
 
     for (i = 0; i < dynamic_count; i++) {
 	/* Need to do this in all cases to be able to search the pmns */
-	dynamic[i].pmnsupdate(pmda, &dynamic[i].pmns);
+	sts = dynamic[i].pmnsupdate(pmda, &dynamic[i].pmns);
+	if(sts)
+            pmdaDynamicMetricTable(pmda);
 	if( pmdaDynamicCheckPMID( pmid, i ) ){
 	    return dynamic[i].textupdate(pmda, pmid, type, buf);
 	}
@@ -187,14 +189,14 @@ dynamic_metric_table(int index, pmdaMetric *offset, pmdaExt *pmda)
 {
     struct dynamic *dp = &dynamic[index];
     int m, tree_count = dp->extratrees;
-    int sts=0;
+
+    /* Ensure that the pmns is up to date, need this in case a pmda calls pmdaDynamicMetricTable directly very early*/
+    dp->pmnsupdate(pmda, &dp->pmns);
 
     for (m = 0; m < dp->nmetrics; m++) {
 	pmdaMetric *mp = &dp->metrics[m];
 	int gid;
 
-	/* Need to do this in all cases to be able to search the pmns */
-	sts = dp->pmnsupdate(pmda, &dp->pmns);
 	if( pmdaDynamicCheckPMID( mp->m_desc.pmid, index ) )
 	    for (gid = 0; gid < tree_count; gid++)
 		dp->mtabupdate(mp, offset++, gid + 1);

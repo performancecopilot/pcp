@@ -113,3 +113,8 @@ PCP_PMDA_3.3 {
     pmdaEventHighResAddParam;
     pmdaEventHighResGetAddr;
 } PCP_PMDA_3.2;
+
+PCP_PMDA_3.4 {
+  global:
+    pmdaNodeLookup;
+} PCP_PMDA_3.3;

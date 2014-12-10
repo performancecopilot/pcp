@@ -564,7 +564,7 @@ extern int pmdaTreeName(pmdaNameSpace *, pmID, char ***);
 extern int pmdaTreeChildren(pmdaNameSpace *, const char *, int, char ***, int **);
 extern void pmdaTreeRebuildHash(pmdaNameSpace *, int);
 extern int pmdaTreeSize(pmdaNameSpace *);
-extern pmnsNode * __pmdaNodeLookup(pmnsNode *, const char *);
+extern pmnsNode * pmdaNodeLookup(pmnsNode *, const char *);
 
 /*
  * PMDA instance domain cache support
