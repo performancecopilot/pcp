@@ -83,7 +83,7 @@ fi
 cat $tmp.info $tmp.err | _filter_activemq
 
 # Check that the correct metrics are present
-pminfo activemq
+pminfo activemq | sort
 
 activemq_remove
 # success, all done
