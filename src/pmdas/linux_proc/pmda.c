@@ -1622,7 +1622,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
                         atom->f = hotnode->preds.iowait;
                         break;
                 case ITEM_HOTPROC_P_SCHEDWAIT:
-                        return PM_ERR_PMID;
+			atom->f = hotnode->preds.schedwait;
                         break;
                 case ITEM_HOTPROC_P_CPUBURN: /* not in orig hotproc */
 			atom->f = hotnode->r_cpuburn;
@@ -2634,85 +2634,90 @@ proc_store(pmResult *result, pmdaExt *pmda)
 
     have_access = all_access || proc_ctx_access(pmda->e_context);
 
+    int isroot = ( proc_ctx_getuid(pmda->e_context) == 0);
+    fprintf(stderr, "Store UID: %d\n", proc_ctx_getuid(pmda->e_context));
+
     for (i = 0; i < result->numpmid; i++) {
 	pmValueSet *vsp = result->vset[i];
 	__pmID_int *idp = (__pmID_int *)&(vsp->pmid);
 	pmAtomValue av;
 
 	switch (idp->cluster){
-        
+
 	case CLUSTER_CONTROL:
-	if (vsp->numval != 1)
-	    sts = PM_ERR_INST;
-	else switch (idp->item) {
-	case 1: /* proc.control.all.threads */
-	    if (!have_access)
-		sts = PM_ERR_PERMISSION;
-	    else if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
-				 PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
-	        if (av.ul > 1)	/* only zero or one allowed */
-		    sts = PM_ERR_CONV;
-		else
-		    threads = av.ul;
-	    }
-	    break;
-	case 2: /* proc.control.perclient.threads */
-	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
-				 PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
-		sts = proc_ctx_set_threads(pmda->e_context, av.ul);
-	    }
-	    break;
-	case 3:	/* proc.control.perclient.cgroups */
-	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
-				 PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0) {
-			if ((sts = proc_ctx_set_cgroups(pmda->e_context, av.cp)) < 0)
-			    free(av.cp);
-		    }
-		    break;
-		default:
+	    if (vsp->numval != 1)
+		sts = PM_ERR_INST;
+	    else switch (idp->item) {
+	    case 1: /* proc.control.all.threads */
+		if (!have_access)
 		    sts = PM_ERR_PERMISSION;
-		    break;
-	    } //else switch (idp->item)
-	case CLUSTER_HOTPROC_GLOBAL:
-		switch(idp->item){
-		case ITEM_HOTPROC_G_REFRESH:
-			if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+		else if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
-				hotproc_update_interval.tv_sec = av.ul;
-				reset_hotproc_timer();
-		    	}
-			break;
-		case ITEM_HOTPROC_G_CONFIG:
-		    {
-			bool_node *tree = NULL;
-			char *savebuffer;
-			if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
-				PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0) {
-				savebuffer = get_conf_buffer() ? strdup(get_conf_buffer()) : NULL;
-				set_conf_buffer( av.cp );
-				if(parse_config(&tree) !=0 ){
-					if( savebuffer ){
-					    set_conf_buffer( savebuffer );
-					    free(savebuffer);
-					}
-				}
-				else{
-					conf_gen++;
-					new_tree(tree);
-					if( conf_gen == 1 ){
-					    /* There was no config to start with. This is the first one, need to enable the timer */
-					    reset_hotproc_timer();
-					}
-				}
-			    	free(av.cp);
-		    	}
-		    }
-			break;
-		default:
-			sts = PM_ERR_PERMISSION;
-			break;
+		    if (av.ul > 1)	/* only zero or one allowed */
+			sts = PM_ERR_CONV;
+		    else
+			threads = av.ul;
 		}
 		break;
+	    case 2: /* proc.control.perclient.threads */
+		if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+				PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
+		    sts = proc_ctx_set_threads(pmda->e_context, av.ul);
+		}
+		break;
+	    case 3:	/* proc.control.perclient.cgroups */
+		if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+				PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0) {
+		    if ((sts = proc_ctx_set_cgroups(pmda->e_context, av.cp)) < 0)
+			free(av.cp);
+		}
+		break;
+	    default:
+		sts = PM_ERR_PERMISSION;
+		break;
+	    } //else switch (idp->item)
+	case CLUSTER_HOTPROC_GLOBAL:
+	    if (!isroot)
+		sts = PM_ERR_PERMISSION;
+	    else switch(idp->item){
+	    case ITEM_HOTPROC_G_REFRESH:
+		if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+				PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
+		    hotproc_update_interval.tv_sec = av.ul;
+		    reset_hotproc_timer();
+		}
+		break;
+	    case ITEM_HOTPROC_G_CONFIG:
+		{
+		    bool_node *tree = NULL;
+		    char *savebuffer;
+		    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+				    PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0) {
+			savebuffer = get_conf_buffer() ? strdup(get_conf_buffer()) : NULL;
+			set_conf_buffer( av.cp );
+			if(parse_config(&tree) !=0 ){
+			    if( savebuffer ){
+				set_conf_buffer( savebuffer );
+				free(savebuffer);
+			    }
+			}
+			else{
+			    conf_gen++;
+			    new_tree(tree);
+			    if( conf_gen == 1 ){
+				/* There was no config to start with. This is the first one, need to enable the timer */
+				reset_hotproc_timer();
+			    }
+			}
+			free(av.cp);
+		    }
+		}
+		break;
+	    default:
+		sts = PM_ERR_PERMISSION;
+		break;
+	    }
+	    break;
 	default:
 	    sts = PM_ERR_PERMISSION;
 	    break;
@@ -2720,7 +2725,6 @@ proc_store(pmResult *result, pmdaExt *pmda)
 	if (sts < 0)
 	    break;
     }
-
     have_access = all_access || proc_ctx_revert(pmda->e_context);
     return sts;
 }

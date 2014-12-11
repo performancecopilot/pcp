@@ -295,9 +295,11 @@ read_test_var(char *line, config_vars *vars)
     else if (strcmp(var, "pu_sysc") == 0) {
         vars->pu_sysc = atol(value);
     } 
+    */
     else if (strcmp(var, "ctxswitch") == 0) {
         vars->preds.ctxswitch = atof(value);
     } 
+    /*
     else if (strcmp(var, "pu_vctx") == 0) {
         vars->pu_vctx = atol(value);
     } 
@@ -340,9 +342,9 @@ read_test_var(char *line, config_vars *vars)
     //else if (strcmp(var, "ac_rwtime") == 0) {
     //    vars->ac_rwtime = atoll(value);
     //} 
-    //else if (strcmp(var, "schedwait") == 0) {
-    //    vars->preds.schedwait = atof(value);
-    //} 
+    else if (strcmp(var, "schedwait") == 0) {
+        vars->preds.schedwait = atof(value);
+    } 
     //else if (strcmp(var, "ac_qwtime") == 0) {
     //    vars->ac_qwtime = atoll(value);
     //} 
@@ -471,12 +473,12 @@ get_numvalue(bool_node *n)
 	case N_number: return n->data.num_val;
 	case N_cpuburn: return the_vars->cpuburn;
     //    case N_syscalls: return the_vars->preds.syscalls;
-    //    case N_ctxswitch: return the_vars->preds.ctxswitch;
+        case N_ctxswitch: return the_vars->preds.ctxswitch;
         case N_virtualsize: return the_vars->preds.virtualsize;
         case N_residentsize: return the_vars->preds.residentsize;
         case N_iodemand: return the_vars->preds.iodemand;
         case N_iowait: return the_vars->preds.iowait;
-    //    case N_schedwait: return the_vars->preds.schedwait;
+        case N_schedwait: return the_vars->preds.schedwait;
 	case N_gid: return the_vars->gid;
 	case N_uid: return the_vars->uid;
 	default:

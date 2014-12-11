@@ -26,7 +26,7 @@ typedef struct {
 	double  residentsize;
 	double  iodemand;
 	double  iowait;
-	//double  schedwait;
+	double  schedwait;
 } derived_pred_t;
 
 

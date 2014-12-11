@@ -109,6 +109,22 @@ proc_ctx_init(void)
 }
 
 int
+proc_ctx_getuid(int ctx)
+{
+    proc_perctx_t *pp;
+
+    if (ctx < 0 || ctx >= num_ctx)
+	return -1;
+
+    pp = &ctxtab[ctx];
+
+    if ( (pp->state & CTX_ACTIVE) && (pp->state & CTX_USERID) )
+	return pp->uid;
+    else
+	return -1;
+}
+
+int
 proc_ctx_access(int ctx)
 {
     proc_perctx_t *pp;

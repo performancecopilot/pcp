@@ -51,23 +51,18 @@ typedef struct process_t {
     unsigned long r_ictx;
     //ulong_t r_syscalls;
     unsigned long long r_bread;
-    //ulong_t r_gbread;
     unsigned long long r_bwrit;
-    //ulong_t r_gbwrit;
 
     float  r_cpuburn;
     double r_cputimestamp;
     double r_cputime;
 
     unsigned long long r_bwtime;
-    //accum_t r_rwtime;
-    //accum_t r_qwtime;
+    unsigned long long r_qwtime;
 
     /* predicate values */
     derived_pred_t preds;
 
 } process_t;
-
-//process_t * lookup_curr_node(pid_t);
 
 #endif

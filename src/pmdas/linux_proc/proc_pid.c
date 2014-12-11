@@ -451,6 +451,7 @@ hotproc_eval_procs()
     proc_pid_entry_t    *statentry;
     proc_pid_entry_t    *statusentry;
     proc_pid_entry_t    *ioentry;
+    proc_pid_entry_t    *schedstatentry;
     __pmHashNode *node;
     int i;
 
@@ -462,11 +463,12 @@ hotproc_eval_procs()
     double transient_delta;         /* calculated delta time of transient procs */
     double cputime_delta;           /* delta cpu time for a process */
     //double syscalls_delta;          /* delta num of syscalls for a process */
-    double vctx_delta;              /* delta num of valid ctx switches for a process */
-    double ictx_delta;              /* delta num of invalid ctx switches for a process */
+    double vctx_delta;              /* delta num of vol ctx switches for a process */
+    double ictx_delta;              /* delta num of invol ctx switches for a process */
     double bread_delta;             /* delta num of bytes read */
     double bwrit_delta;             /* delta num of bytes written */
-    double bwtime_delta;            /* delta num of nanosesc for waiting for blocked io */
+    double bwtime_delta;            /* delta num of microsec for waiting for blocked io */
+    double qwtime_delta;            /* delta num of microsec waiting on run queue */
     double timestamp_delta;         /* real time delta b/w refreshes for process */
     double total_cputime = 0;       /* total of cputime_deltas for each process */
     double total_activetime = 0;    /* total of cputime_deltas for active processes */
@@ -515,8 +517,9 @@ hotproc_eval_procs()
 	statentry = fetch_proc_pid_stat(pid, &hotproc_poss_pid, &sts);
 	statusentry = fetch_proc_pid_status(pid, &hotproc_poss_pid, &sts);
 	ioentry = fetch_proc_pid_io(pid, &hotproc_poss_pid, &sts);
+	schedstatentry = fetch_proc_pid_schedstat(pid, &hotproc_poss_pid, &sts);
 
-	if( statentry == NULL || statusentry == NULL || ioentry == NULL){
+	if( statentry == NULL || statusentry == NULL || ioentry == NULL || schedstatentry == NULL){
 	    /* Can happen if the process was exiting during refresh_proc_pidlist
 	     * then the above fetch's will fail
 	     * Would be best if they were not in the list at all
@@ -632,6 +635,12 @@ hotproc_eval_procs()
                                     (double)oldnode->r_bwtime, PM_TYPE_64);
 
 	    vars.preds.iowait = bwtime_delta / timestamp_delta;
+
+	    /* schedwait */
+	    qwtime_delta = DiffCounter((double)newnode->r_qwtime,
+		    (double)oldnode->r_qwtime, PM_TYPE_64);
+	    vars.preds.schedwait = qwtime_delta / timestamp_delta;
+
 	}
         else {
 	    newnode->r_cpuburn = 0;
@@ -640,7 +649,7 @@ hotproc_eval_procs()
 	    //vars.preds.syscalls = 0;
 	    vars.preds.ctxswitch = 0;
 	    vars.preds.iowait = 0;
-	    //vars.preds.schedwait = 0;
+	    vars.preds.schedwait = 0;
 	    vars.preds.iodemand = 0;
 	    cputime_delta = 0;
         }
