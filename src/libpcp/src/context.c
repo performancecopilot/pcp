@@ -336,8 +336,11 @@ __pmInitChannelLock(pthread_mutex_t *lock)
 static int
 ctxflags(__pmHashCtl *attrs)
 {
+    int sts;
     int flags = 0;
+    char *name = NULL;
     char *secure = NULL;
+    char *container = NULL;
     __pmHashNode *node;
 
     if ((node = __pmHashSearch(PCP_ATTR_PROTOCOL, attrs)) != NULL) {
@@ -353,7 +356,7 @@ ctxflags(__pmHashCtl *attrs)
 	secure = getenv("PCP_SECURE_SOCKETS");
 
     if (secure) {
-        if (secure[0] == '\0' ||
+	if (secure[0] == '\0' ||
 	   (strcmp(secure, "1")) == 0 ||
 	   (strcmp(secure, "enforce")) == 0) {
 	    flags |= PM_CTXFLAG_SECURE;
@@ -371,6 +374,18 @@ ctxflags(__pmHashCtl *attrs)
 	__pmHashSearch(PCP_ATTR_METHOD, attrs) != NULL ||
 	__pmHashSearch(PCP_ATTR_REALM, attrs) != NULL)
 	flags |= PM_CTXFLAG_AUTH;
+
+    if (__pmHashSearch(PCP_ATTR_CONTAINER, attrs) != NULL)
+	flags |= PM_CTXFLAG_CONTAINER;
+    else if ((container = getenv("PCP_CONTAINER")) != NULL) {
+	if ((name = strdup(container)) == NULL)
+	    return -ENOMEM;
+	if ((sts = __pmHashAdd(PCP_ATTR_CONTAINER, (void *)name, attrs)) < 0) {
+	    free(name);
+	    return sts;
+	}
+	flags |= PM_CTXFLAG_CONTAINER;
+    }
 
     return flags;
 }
@@ -461,7 +476,9 @@ INIT_CONTEXT:
 	    sts = PM_ERR_NOTHOST;
 	    goto FAILED;
 	} else {
-	    new->c_flags |= ctxflags(attrs);
+	    if ((sts = ctxflags(attrs) < 0))
+		goto FAILED;
+	    new->c_flags |= sts;
 	}
 
         /* As an optimization, if there is already a connection to the same PMCD,

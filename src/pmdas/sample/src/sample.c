@@ -1514,17 +1514,7 @@ sample_attribute(int ctx, int attr, const char *value, int length, pmdaExt *pmda
      * going to log any connection attribute messages we happen to get
      * from pmcd (handy for demo and testing purposes).
      */
-    if (pmDebug & DBG_TRACE_AUTH) {
-	char buffer[256];
-
-	if (!__pmAttrStr_r(attr, value, buffer, sizeof(buffer))) {
-	    __pmNotifyErr(LOG_ERR, "Bad Attribute: ctx=%d, attr=%d\n", ctx, attr);
-	} else {
-	    buffer[sizeof(buffer)-1] = '\0';
-	    __pmNotifyErr(LOG_INFO, "Attribute: ctx=%d %s", ctx, buffer);
-	}
-    }
-    return 0;
+    return pmdaAttribute(ctx, attr, value, length, pmda);
 }
 
 /*

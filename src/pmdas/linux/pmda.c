@@ -5679,6 +5679,12 @@ linux_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmd
     return pmdaTreeChildren(tree, name, flag, kids, sts);
 }
 
+static int
+linux_attribute(int ctx, int attr, const char *value, int len, pmdaExt *pmda)
+{
+    return pmdaAttribute(ctx, attr, value, len, pmda);
+}
+
 pmInDom
 linux_indom(int serial)
 {
@@ -5735,20 +5741,22 @@ linux_init(pmdaInterface *dp)
 	int sep = __pmPathSeparator();
 	snprintf(helppath, sizeof(helppath), "%s%c" "linux" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-	pmdaDSO(dp, PMDA_INTERFACE_4, "linux DSO", helppath);
+	pmdaDSO(dp, PMDA_INTERFACE_6, "linux DSO", helppath);
     } else {
 	__pmSetProcessIdentity(username);
     }
 
     if (dp->status != 0)
 	return;
+    dp->comm.flags |= PDU_FLAG_CONTAINER;
 
-    dp->version.four.instance = linux_instance;
-    dp->version.four.fetch = linux_fetch;
-    dp->version.four.text = linux_text;
-    dp->version.four.pmid = linux_pmid;
-    dp->version.four.name = linux_name;
-    dp->version.four.children = linux_children;
+    dp->version.six.instance = linux_instance;
+    dp->version.six.fetch = linux_fetch;
+    dp->version.six.text = linux_text;
+    dp->version.six.pmid = linux_pmid;
+    dp->version.six.name = linux_name;
+    dp->version.six.children = linux_children;
+    dp->version.six.attribute = linux_attribute;
     pmdaSetFetchCallBack(dp, linux_fetchCallBack);
 
     proc_stat.cpu_indom = proc_cpuinfo.cpuindom = &indomtab[CPU_INDOM];
@@ -5877,7 +5885,7 @@ main(int argc, char **argv)
 
     snprintf(helppath, sizeof(helppath), "%s%c" "linux" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, LINUX, "linux.log", helppath);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, LINUX, "linux.log", helppath);
 
     pmdaGetOptions(argc, argv, &opts, &dispatch);
     if (opts.errors) {

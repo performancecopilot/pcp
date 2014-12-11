@@ -747,7 +747,16 @@ pmdaChildren(const char *name, int traverse, char ***offspring, int **status, pm
 }
 
 int
-pmdaAttribute(int context, int attribute, const char *value, int size, pmdaExt *pmda)
+pmdaAttribute(int ctx, int attr, const char *value, int size, pmdaExt *pmda)
 {
-    return 0;	/* simply ignore everything by default */
+    if (pmDebug & (DBG_TRACE_ATTR|DBG_TRACE_AUTH)) {
+	char buffer[256];
+	if (!__pmAttrStr_r(attr, value, buffer, sizeof(buffer))) {
+	    __pmNotifyErr(LOG_ERR, "Bad attr: ctx=%d, attr=%d\n", ctx, attr);
+	} else {
+	    buffer[sizeof(buffer)-1] = '\0';
+	    __pmNotifyErr(LOG_INFO, "Attribute: ctx=%d %s", ctx, buffer);
+	}
+    }
+    return 0;
 }

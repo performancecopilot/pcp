@@ -696,13 +696,13 @@ __pmSecureServerHandshake(int fd, int flags, __pmHashCtl *attrs)
     int sts, ssf = DEFAULT_SECURITY_STRENGTH;
 
     /* protect from unsupported requests from future/oddball clients */
-    if ((flags & ~(PDU_FLAG_SECURE | PDU_FLAG_SECURE_ACK | PDU_FLAG_COMPRESS
-		   | PDU_FLAG_AUTH | PDU_FLAG_CREDS_REQD)) != 0)
+    if (flags & ~(PDU_FLAG_SECURE | PDU_FLAG_SECURE_ACK | PDU_FLAG_COMPRESS |
+		  PDU_FLAG_AUTH | PDU_FLAG_CREDS_REQD | PDU_FLAG_CONTAINER))
 	return PM_ERR_IPC;
 
     if (flags & PDU_FLAG_CREDS_REQD) {
 	if (__pmHashSearch(PCP_ATTR_USERID, attrs) != NULL)
-            return 0;	/* unix domain socket */
+	    return 0;	/* unix domain socket */
 	else
 	    flags |= PDU_FLAG_AUTH;	/* force authentication */
     }

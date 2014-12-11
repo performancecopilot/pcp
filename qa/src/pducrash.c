@@ -10,56 +10,50 @@
 #include <pcp/trace.h>
 #include <pcp/trace_dev.h>
 
-#include "localconfig.h"
-
-#if PCP_VER >= 3800
 static void
-decode_auth(const char *name)
+decode_attr(const char *name)
 {
     char		*value;
-    int			sts, attr, length;
-    struct auth {
+    int			sts, code, length;
+    struct attr {
 	__pmPDUHdr	hdr;
-	int		attr;
+	int		code;
 	char		value[0];
-    } *auth;
+    } *attr;
 
-    auth = (struct auth *)malloc(sizeof(*auth));
+    attr = (struct attr *)malloc(sizeof(*attr));
 
     fprintf(stderr, "[%s] checking all-zeroes structure\n", name);
-    memset(auth, 0, sizeof(*auth));
-    sts = __pmDecodeAuth((__pmPDU *)auth, &attr, &value, &length);
-    fprintf(stderr, "  __pmDecodeAuth: sts = %d (%s)\n", sts, pmErrStr(sts));
+    memset(attr, 0, sizeof(*attr));
+    sts = __pmDecodeAttr((__pmPDU *)attr, &code, &value, &length);
+    fprintf(stderr, "  __pmDecodeAttr: sts = %d (%s)\n", sts, pmErrStr(sts));
 
     fprintf(stderr, "[%s] checking negative length\n", name);
-    memset(auth, 0, sizeof(*auth));
-    auth->hdr.len = -512;
-    auth->hdr.type = PDU_AUTH;
-    auth->attr = htonl(PCP_ATTR_USERID);
-    sts = __pmDecodeAuth((__pmPDU *)auth, &attr, &value, &length);
-    fprintf(stderr, "  __pmDecodeAuth: sts = %d (%s)\n", sts, pmErrStr(sts));
+    memset(attr, 0, sizeof(*attr));
+    attr->hdr.len = -512;
+    attr->hdr.type = PDU_AUTH;
+    attr->code = htonl(PCP_ATTR_USERID);
+    sts = __pmDecodeAttr((__pmPDU *)attr, &code, &value, &length);
+    fprintf(stderr, "  __pmDecodeAttr: sts = %d (%s)\n", sts, pmErrStr(sts));
 
     fprintf(stderr, "[%s] checking empty value\n", name);
-    memset(auth, 0, sizeof(*auth));
-    auth->hdr.len = sizeof(*auth);
-    auth->hdr.type = PDU_AUTH;
-    auth->attr = htonl(PCP_ATTR_USERID);
-    sts = __pmDecodeAuth((__pmPDU *)auth, &attr, &value, &length);
-    fprintf(stderr, "  __pmDecodeAuth: sts = %d (%s)\n", sts, pmErrStr(sts));
+    memset(attr, 0, sizeof(*attr));
+    attr->hdr.len = sizeof(*attr);
+    attr->hdr.type = PDU_AUTH;
+    attr->code = htonl(PCP_ATTR_USERID);
+    sts = __pmDecodeAttr((__pmPDU *)attr, &code, &value, &length);
+    fprintf(stderr, "  __pmDecodeAttr: sts = %d (%s)\n", sts, pmErrStr(sts));
 
     fprintf(stderr, "[%s] checking access beyond limit\n", name);
-    memset(auth, 0, sizeof(*auth));
-    auth->hdr.len = INT_MAX;
-    auth->hdr.type = PDU_AUTH;
-    auth->attr = htonl(PCP_ATTR_USERID);
-    sts = __pmDecodeAuth((__pmPDU *)auth, &attr, &value, &length);
-    fprintf(stderr, "  __pmDecodeAuth: sts = %d (%s)\n", sts, pmErrStr(sts));
+    memset(attr, 0, sizeof(*attr));
+    attr->hdr.len = INT_MAX;
+    attr->hdr.type = PDU_AUTH;
+    attr->code = htonl(PCP_ATTR_USERID);
+    sts = __pmDecodeAttr((__pmPDU *)attr, &code, &value, &length);
+    fprintf(stderr, "  __pmDecodeAttr: sts = %d (%s)\n", sts, pmErrStr(sts));
 
-    free(auth);
+    free(attr);
 }
-#else
-static void decode_auth(const char *name) { (void)name; }
-#endif
 
 static void
 decode_creds(const char *name)
@@ -1229,7 +1223,7 @@ struct pdu {
     { "text", 		decode_text },
     { "trace_ack",	decode_trace_ack },
     { "trace_data",	decode_trace_data },
-    { "auth",		decode_auth },
+    { "attr",		decode_attr },
 };
 
 int

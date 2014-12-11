@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -11,10 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #ifndef _PMCD_H
@@ -216,8 +212,8 @@ extern void ParseRestartAgents(char *);
 extern void PrintAgentInfo(FILE *);
 extern void MarkStateChanges(int);
 extern void CleanupClient(ClientInfo *, int);
-extern int ClientsAuthentication(AgentInfo *);
-extern int AgentsAuthentication(int);
+extern int ClientsAttributes(AgentInfo *);
+extern int AgentsAttributes(int);
 extern pmResult **SplitResult(pmResult *);
 
 /*

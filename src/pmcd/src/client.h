@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -33,7 +33,7 @@ typedef struct {
     unsigned int	seq;		/* Client sequence number (pmdapmcd) */
     time_t		start;		/* Time client connected (pmdapmcd) */
     __pmSockAddr	*addr;		/* Network address of client */
-    __pmHashCtl		attrs;		/* Connection attributes (auth info) */
+    __pmHashCtl		attrs;		/* Connection attributes (tuples) */
 } ClientInfo;
 
 PMCD_EXTERN ClientInfo	*client;		/* Array of clients */

@@ -77,16 +77,10 @@ proc_ctx_set_groupid(int ctx, const char *value)
 int
 proc_ctx_attrs(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
 {
-    if (pmDebug & DBG_TRACE_AUTH) {
-	char buffer[256];
+    int	sts;
 
-	if (!__pmAttrStr_r(attr, value, buffer, sizeof(buffer))) {
-	    __pmNotifyErr(LOG_ERR, "Bad Attribute: ctx=%d, attr=%d\n", ctx, attr);
-	} else {
-	    buffer[sizeof(buffer)-1] = '\0';
-	    __pmNotifyErr(LOG_INFO, "Attribute: ctx=%d %s", ctx, buffer);
-	}
-    }
+    if ((sts = pmdaAttribute(ctx, attr, value, length, pmda)) < 0)
+	return sts;
 
     switch (attr) {
     case PCP_ATTR_USERID:
