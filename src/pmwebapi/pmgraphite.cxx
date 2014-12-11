@@ -34,7 +34,9 @@ extern "C"
 {
 #include <ctype.h>
 #include <math.h>
+#ifdef HAVE_FTS_H
 #include <fts.h>
+#endif
 #include <fnmatch.h>
 #include <regex.h>
 #ifdef HAVE_PTHREAD_H
@@ -223,6 +225,15 @@ vector <string> pmgraphite_enumerate_metrics (struct MHD_Connection * connection
         connstamp (clog, connection) << "Searching for archives under " << archivesdir << endl;
     }
 
+    // fts(3) is not available everywhere, and convenient substitutes don't
+    // seem to exist either.  nftw(3) is not multithread-safe nor can it operate
+    // without global variables; scandir(3) may or may not be defined with the
+    // proper _XOPEN_SOURCE rune, and then we have to recurse manually anyway ...
+    // maybe just back down to readdir() someday? :-(
+    //
+    // In the mean time, platforms without fts(3) will get only crippled graphite
+    // support, since no archives will be discovered.
+#if HAVE_FTS_H
     char *fts_argv[2];
     fts_argv[0] = (char *) archivesdir.c_str ();
     fts_argv[1] = NULL;
@@ -284,6 +295,8 @@ vector <string> pmgraphite_enumerate_metrics (struct MHD_Connection * connection
         pmDestroyContext (ctx);
     }
     fts_close (f);
+
+#endif
 
 out:
     if (verbosity > 2) {
@@ -1456,7 +1469,7 @@ float nicenum (float x, bool round_p)
     double nf;/* nice, rounded fraction */
 
     expv = (int) floor (log10f (x));
-    f = x/exp10f (expv); /* between 1 and 10 */
+    f = x/powf (10., expv); /* between 1 and 10 */
     if (round_p)
         if (f<1.5) {
             nf = 1.;
@@ -1476,7 +1489,7 @@ float nicenum (float x, bool round_p)
     } else {
         nf = 10.;
     }
-    return nf*exp10f (expv);
+    return nf*powf (10., expv);
 }
 
 vector<float> round_linear (float& ymin, float& ymax, unsigned nticks)
@@ -1733,9 +1746,9 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
 
     // What makes us tick?
     yticks = round_linear (ymin, ymax,
-                           (unsigned) (0.3 * sqrt (height))); // flot heuristic
+                           (unsigned) (0.3 * sqrtf (height))); // flot heuristic
     xticks = round_time (t_start, t_end,
-                         (unsigned) (0.3 * sqrt (width)), // flot heuristic
+                         (unsigned) (0.3 * sqrtf (width)), // flot heuristic
                          & strf_format);
 
 
