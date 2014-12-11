@@ -43,9 +43,6 @@ extern int _pm_numdisks;
  * device-mapper devices are named dm-[0-9]* and are mapped to their persistent
  * name using the symlinks in /dev/mapper.
  *
- * devfs scsi disks are named e.g. scsi/host0/bus0/target1/lun0/disc
- * devfs scsi partitions are named e.g. scsi/host0/bus0/target1/lun0/part1
- *
  * Mylex raid disks are named e.g. rd/c0d0 or dac960/c0d0
  * Mylex raid partitions are named e.g. rd/c0d0p1 or dac960/c0d0p1
  *

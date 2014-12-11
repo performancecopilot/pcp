@@ -39,6 +39,7 @@ touch $here/$seq.full
 # real QA test starts here
 pmda=$PCP_PMDAS_DIR/cifs/pmda_cifs.so,cifs_init
 pmns=$PCP_PMDAS_DIR/cifs/root
+_make_helptext cifs
 
 cd $here
 

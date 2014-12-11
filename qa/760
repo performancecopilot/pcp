@@ -1,0 +1,110 @@
+#!/bin/sh
+# PCP QA Test No. 760
+# Exercise the ActiveMQ PMDA installation, removal and values.
+#
+# Setup: Download the ActiveMQ release from
+# http://activemq.apache.org/activemq-5100-release.html. Unpack it
+# and run ./bin/activemq start inside the unpacked tarball
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+port=8161
+$PCP_BINADM_DIR/telnet-probe -c localhost $port  || \
+    _notrun "Noones home on the default ActiveMQ REST port $port"
+
+test -e $PCP_PMDAS_DIR/activemq || _notrun "ActiveMQ PMDA not installed"
+for module in JSON LWP::UserAgent File::Basename
+do
+    perl -e "use $module" 2>/dev/null
+    test $? -eq 0 || _notrun "ActiveMQ PMDA needs perl module $module"
+done
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+
+activemq_remove()
+{
+    echo
+    echo "=== remove activemq agent ==="
+    sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+activemq_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/activemq
+    $sudo ./Remove >/dev/null 2>&1
+
+    echo
+    echo "=== $iam agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    # Check activemq metrics have appeared ... X metrics and Y values
+    _filter_pmda_install <$tmp.out \
+    | sed \
+	-e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+    | $PCP_AWK_PROG '
+/Check activemq metrics have appeared/ { if ($7 >= 50) $7 = "X"
+                                         if ($10 >= 50) $10 = "Y"
+                                       }
+                                       { print }'
+}
+
+activemq_cleanup()
+{
+    _cleanup_pmda activemq
+}
+
+_prepare_pmda activemq
+trap "activemq_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_activemq()
+{
+    # filter metric values for deterministic output
+    tee -a $here/$seq.full | sed \
+	-e '/No value(s) available/d' \
+	-e '/not supported by this version/d' \
+        -e 's/value [0-9][0-9]*/value NUMBER/'
+}
+
+# real QA test starts here
+activemq_install
+
+# Put a message on the queue to make an instance of a queue domains
+curl -u admin:admin -d "body=message" --silent http://localhost:$port/api/message/pcptestqueue?type=queue > /dev/null
+
+# Wait until the instance domain is registered
+sleep 5
+
+# pmdaactivemq should have been started by the Install process - check
+if pminfo -v activemq > $tmp.info 2> $tmp.err
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+cat $tmp.info $tmp.err | _filter_activemq
+
+echo  "Validating all metrics have values..."
+pmprobe -v activemq > $tmp.metrics
+cat $tmp.metrics \
+| while read metric n1 vpcp
+do
+    [ "$n1" = "" -o "$vpcp" = "" ] && echo "error: metric $metric has no value"
+
+done
+
+activemq_remove
+# success, all done
+status=0
+exit

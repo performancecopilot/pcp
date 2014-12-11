@@ -10130,6 +10130,31 @@ fi
 PMDA_PAPI=$pmda_papi
 
 
+if test "x$pmda_papi" = "xtrue"; then :
+
+    		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether struct PAPI_component_info_t has a disabled field" >&5
+$as_echo_n "checking whether struct PAPI_component_info_t has a disabled field... " >&6; }
+cat <<End-of-File >conftest.c
+#include <papi.h>
+int main() { PAPI_component_info_t *c; c->disabled = 0; }
+End-of-File
+	(eval $ac_compile) 2>conftest.out
+	cat conftest.out >&5
+    	if test -s conftest.out
+    	then
+	   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+    	else
+    	   $as_echo "#define HAVE_PAPI_DISABLED_COMP 1" >>confdefs.h
+
+    	   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+
+    	fi
+    	rm -f conftest.*
+
+fi
+
 pmda_perfevent=false
 if test "x$do_perfevent" != "xno" ; then :
 

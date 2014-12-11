@@ -163,12 +163,12 @@ END             { if (warn) printf "%d warnings, ",warn
 #
 _prepare_pmda()
 {
-    agent=$1
+    __agent=$1
 
-    iam=$agent
+    iam=$__agent
     done_clean=false
     install_on_cleanup=false
-    pminfo $agent >/dev/null 2>&1 && install_on_cleanup=true
+    pminfo $__agent >/dev/null 2>&1 && install_on_cleanup=true
     # copy the pmcd config file to restore state later.
     _save_config $PCP_PMCDCONF_PATH
     unset ROOT MAKEFLAGS
@@ -176,7 +176,7 @@ _prepare_pmda()
 
 _cleanup_pmda()
 {
-    agent=$1
+    __agent=$1
 
     if $done_clean
     then
@@ -189,12 +189,37 @@ _cleanup_pmda()
 	_wait_for_pmlogger
 	if $install_on_cleanup
 	then
-	    ( cd $PCP_PMDAS_DIR/$agent; $sudo ./Install </dev/null >/dev/null 2>&1 )
+	    ( cd $PCP_PMDAS_DIR/$__agent; $sudo ./Install </dev/null >/dev/null 2>&1 )
 	else
-	    ( cd $PCP_PMDAS_DIR/$agent; $sudo ./Remove >/dev/null 2>&1 )
+	    ( cd $PCP_PMDAS_DIR/$__agent; $sudo ./Remove >/dev/null 2>&1 )
 	fi
 	done_clean=true
     fi
+}
+
+_make_helptext()
+{
+    __pmda=$1
+    __home=`pwd`
+
+    if [ -f $PCP_PMDAS_DIR/$__pmda/help.dir ]
+    then
+	# ./Install already run, or QA stumbled past to run newhelp
+	return 0
+    fi
+
+    cd $PCP_PMDAS_DIR/$__pmda
+    $sudo $PCP_BINADM_DIR/newhelp -n root help >$tmp.out 2>&1
+    if [ -f $PCP_PMDAS_DIR/$__pmda/help.dir ]
+    then
+	:
+    else
+	cat $tmp.out
+	echo "Arrgh ... failed to create help.dir for $pmda PMDA"
+	return 1
+    fi
+    cd $__home
+    return 0
 }
 
 _host_to_ipaddr()

@@ -13,6 +13,9 @@ Error: No permission to perform requested operation
 papi.available.num_counters
 Error: No permission to perform requested operation
 
+papi.available.version
+Error: No permission to perform requested operation
+
 == PAPI library behaviour, control metric fetches, non-root
 
 papi.control.enable
@@ -50,6 +53,9 @@ No value(s) available!
 
 papi.available.num_counters
     value NUMBER
+
+papi.available.version
+    value STRING
 
 == PAPI library behaviour, control metric fetches, as root
 

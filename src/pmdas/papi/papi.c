@@ -59,6 +59,7 @@ struct uid_tuple {
 static struct uid_tuple *ctxtab;
 static int ctxtab_size;
 static int number_of_counters; // XXX: collapse into number_of_events
+static char papi_version[15];
 static unsigned int size_of_active_counters; // XXX: eliminate
 static __pmnsTree *papi_tree;
 
@@ -170,7 +171,7 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     int sts;
     int i;
     int state;
-    char local_string[32];
+    char local_string[PAPI_HUGE_STR_LEN+12];
     static char status_string[4096];
     int first_metric = 0;
     time_t now;
@@ -288,6 +289,10 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_AVAILABLE:
 	if (idp->item == 0) {
 	    atom->ul = number_of_counters; /* papi.available.num_counters */
+	    return PMDA_FETCH_STATIC;
+	}
+	if (idp->item == 1) {
+	    atom->cp = papi_version; /* papi.available.version */
 	    return PMDA_FETCH_STATIC;
 	}
 	return PM_ERR_PMID;
@@ -592,11 +597,21 @@ static int
 papi_internal_init(pmdaInterface *dp)
 {
     int ec;
+    unsigned int native = 0;
     int sts;
     PAPI_event_info_t info;
-    char entry[PAPI_HUGE_STR_LEN]; // the length papi uses for the symbol name
+    char entry[PAPI_HUGE_STR_LEN+12]; // the length papi uses for the symbol name
     unsigned int i = 0;
     pmID pmid;
+    char *tokenized_string;
+    int number_of_components, component_id = 0;
+
+    sts = sprintf(papi_version, "%d.%d.%d", PAPI_VERSION_MAJOR(PAPI_VERSION),
+	    PAPI_VERSION_MINOR(PAPI_VERSION), PAPI_VERSION_REVISION(PAPI_VERSION));
+    if (sts < 0) {
+	__pmNotifyErr(LOG_ERR, "%s failed to create papi version metric.\n",pmProgname);
+	return PM_ERR_GENERIC;
+    }
 
     if ((sts = __pmNewPMNS(&papi_tree)) < 0) {
 	__pmNotifyErr(LOG_ERR, "%s failed to create dynamic papi pmns: %s\n",
@@ -639,6 +654,54 @@ papi_internal_init(pmdaInterface *dp)
 	    }
 	}
     } while(PAPI_enum_event(&ec, 0) == PAPI_OK);
+
+#if defined(HAVE_PAPI_DISABLED_COMP)
+    number_of_components = PAPI_num_components();
+    native = 0 | PAPI_NATIVE_MASK;
+    for (component_id; component_id < number_of_components; component_id++) {
+	const PAPI_component_info_t *component;
+	component = PAPI_get_component_info(component_id);
+	if (component->disabled || (strcmp("perf_event", component->name)
+				    && strcmp("perf_event_uncore", component->name)))
+	    continue;
+	sts = PAPI_enum_cmp_event (&native, PAPI_ENUM_FIRST, component_id);
+	if (sts == PAPI_OK)
+	do {
+	    if (PAPI_get_event_info(native, &info) == PAPI_OK) {
+		char local_native_metric_name[PAPI_HUGE_STR_LEN] = "";
+		int was_tokenized = 0;
+		expand_papi_info(i);
+		memcpy(&papi_info[i].info, &info, sizeof(PAPI_event_info_t));
+		tokenized_string = strtok(info.symbol, "::: ");
+		while (tokenized_string != NULL) {
+		    strcat(local_native_metric_name, tokenized_string);
+		    was_tokenized = 1;
+		    tokenized_string=strtok(NULL, "::: ");
+		    if (tokenized_string)
+			strcat(local_native_metric_name, ".");
+		}
+		if (!was_tokenized) {
+		    memcpy(&papi_info[i].papi_string_code, info.symbol, strlen(info.symbol));
+		    snprintf(entry, sizeof(entry),"papi.system.%s", papi_info[i].papi_string_code);
+		}
+		else {
+		    strncpy(papi_info[i].papi_string_code, local_native_metric_name, strlen(local_native_metric_name));
+		    snprintf(entry, sizeof(entry),"papi.system.%s", papi_info[i].papi_string_code);
+		}
+		pmid = pmid_build(dp->domain, CLUSTER_PAPI, i);
+		papi_info[i].pmid = pmid;
+		__pmAddPMNSNode(papi_tree, pmid, entry);
+		memset(&entry[0], 0, sizeof(entry));
+		papi_info[i].position = -1;
+		papi_info[i].metric_enabled = 0;
+		nummetrics++;
+		expand_metric_tab(i);
+		expand_values(i);
+		i++;
+	    }
+	} while (PAPI_enum_cmp_event(&native, PAPI_ENUM_EVENTS, component_id) == PAPI_OK);
+    }
+#endif
     pmdaTreeRebuildHash(papi_tree, number_of_events);
 
     /* Set one-time settings for all future EventSets. */
@@ -691,7 +754,7 @@ papi_init(pmdaInterface *dp)
     int sts;
 
     enable_multiplexing = 1;
-    nummetrics = 7;
+    nummetrics = 8;
     metrictab = malloc(nummetrics*sizeof(pmdaMetric));
     if (metrictab == NULL)
 	__pmNoMem("initial metrictab allocation", (nummetrics*sizeof(pmdaMetric)), PM_FATAL_ERR);
@@ -706,8 +769,12 @@ papi_init(pmdaInterface *dp)
 	    metrictab[i].m_desc.units = (pmUnits) PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0);
 	    break;
 	case 6: // papi.available.num_counters
-	    metrictab[i].m_desc.pmid = pmid_build(dp->domain, CLUSTER_AVAILABLE, 0);
-	    metrictab[i].m_desc.type = PM_TYPE_U32;
+	case 7: // papi.available.version
+	    metrictab[i].m_desc.pmid = pmid_build(dp->domain, CLUSTER_AVAILABLE, i - 6);
+	    if (i == 6)
+		metrictab[i].m_desc.type = PM_TYPE_U32;		
+	    else
+		metrictab[i].m_desc.type = PM_TYPE_STRING;
 	    metrictab[i].m_desc.indom = PM_INDOM_NULL;
 	    metrictab[i].m_desc.sem = PM_SEM_DISCRETE;
 	    metrictab[i].m_desc.units = (pmUnits) PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE);
