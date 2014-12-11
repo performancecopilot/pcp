@@ -343,7 +343,7 @@ Description: Documentation and tutorial for the Performance Co-Pilot
  PCP utilities and daemons, and the PCP graphical tools.
 
 Package: pcp-testsuite
-Depends: ${misc:Depends}, ${shlibs:Depends}, time, pcp (= ${binary:Version})
+Depends: ${misc:Depends}, ${shlibs:Depends}, pcp (= ${binary:Version})
 Architecture: any
 Suggests: valgrind
 Provides: pcpqa, pcp-gui-testsuite
