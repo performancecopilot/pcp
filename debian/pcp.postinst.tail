@@ -80,6 +80,7 @@ update-rc.d pmproxy defaults >/dev/null
 #
 for dir in /var/tmp/mmv /var/tmp/pmdabash
 do
+    [ -d $dir ] || continue
     [ "$(LC_ALL=C stat -c '%u %g %F' $dir)" = "0 0 directory" ] && mv $dir /var/lib/pcp/tmp
 done
 _clean_tmpdirs $PCP_TMP_DIR /var/tmp pmie pmlogger

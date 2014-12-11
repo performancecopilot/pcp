@@ -56,7 +56,7 @@ END	{ if (cpu < 3) print "CPU: less than 3 sec"
 }
 
 # real QA test starts here
-cat <<End-of-File >$tmp.pmns
+cat <<'End-of-File' >$tmp.pmns
 root {
     foo	40:2:1
 }
@@ -69,7 +69,13 @@ DEBUG=
 DELTA=20
 
 echo "=== all of the instances ==="
-(time pmval -z -n $tmp.pmns -a $arch -t $DELTA foo) >$tmp.out 2>$tmp.err
+if which time >/dev/null 2>&1
+then
+    ( time pmval -z -n $tmp.pmns -a $arch -t $DELTA foo ) >$tmp.out 2>$tmp.err
+else
+    echo "Warning: no time(1) executable found ...."
+    pmval -z -n $tmp.pmns -a $arch -t $DELTA foo >$tmp.out 2>$tmp.err
+fi
 _filter <$tmp.out
 echo
 echo "samples: `grep '^[0-9][0-9]:' $tmp.out | wc -l | sed -e 's/  *//g'`"
@@ -79,7 +85,12 @@ echo "__pmLogReads: `grep __pmLogRead $tmp.err | wc -l | sed -e 's/  *//g'`"
 
 echo
 echo "=== just instance #4653127 (always there) ==="
-(time pmval -z -i 4653127 -n $tmp.pmns -a $arch -t $DELTA foo) >$tmp.out 2>$tmp.err
+if which time >/dev/null 2>&1
+then
+    ( time pmval -z -i 4653127 -n $tmp.pmns -a $arch -t $DELTA foo ) >$tmp.out 2>$tmp.err
+else
+    pmval -z -i 4653127 -n $tmp.pmns -a $arch -t $DELTA foo >$tmp.out 2>$tmp.err
+fi
 _filter <$tmp.out
 echo
 echo "samples: `grep '^[0-9][0-9]:' $tmp.out | wc -l | sed -e 's/  *//g'`"
