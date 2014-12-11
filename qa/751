@@ -50,19 +50,23 @@ End-of-File
     migrate=$PCP_VAR_DIR/config/pmlogrewrite/rpm_migrate.conf
     pmlogrewrite -c $migrate -w $tmp.log-1 $tmp.log-2
     rm $tmp.log.conf $tmp.lrw.conf
-    pmdumplog -z -dil $tmp.log   >$tmp.log.dump
-    pmdumplog -z -dil $tmp.log-1 >$tmp.log-1.dump
-    pmdumplog -z -dil $tmp.log-2 >$tmp.log-2.dump
+    echo "+++ log +++" >>$seq.full
+    pmdumplog -z -dil $tmp.log   | tee -a $seq.full >$tmp.log.dump
+    echo "+++ log-1 +++" >>$seq.full
+    pmdumplog -z -dil $tmp.log-1 | tee -a $seq.full >$tmp.log-1.dump
+    echo "+++ log-2 +++" >>$seq.full
+    pmdumplog -z -dil $tmp.log-2 | tee -a $seq.full >$tmp.log-2.dump
 }
 
 # real QA test starts here
 
+echo
 _rpm_pmda_prepare
 create_rewrite_logs
-echo "old -> new changes"
-diff -u $tmp.log-1.dump $tmp.log-2.dump | sed -e '/^---/d' -e '/^+++/d'
-echo "new -> ref changes ... expect none"
-diff -u $tmp.log-2.dump $tmp.log.dump | sed -e '/^---/d' -e '/^+++/d'
+echo "old -> new changes" | tee -a $seq.full
+diff -u $tmp.log-1.dump $tmp.log-2.dump | tee -a $seq.full | sed -e '/^---/d' -e '/^+++/d'
+echo "new -> ref changes ... expect none" | tee -a $seq.full
+diff -u $tmp.log-2.dump $tmp.log.dump | tee -a $seq.full | sed -e '/^---/d' -e '/^+++/d'
 
 # success, all done
 status=0
