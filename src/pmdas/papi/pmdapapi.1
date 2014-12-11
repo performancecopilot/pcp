@@ -116,11 +116,11 @@ possible to count some native metrics and preset metrics concurrently.
 .ft CW
 .nf
 .in +0.5i
-# pmstore papi.control.enable "perf.BRANCH-LOADS,perf.BRANCH-MISSES"
-papi.control.enable old value="" new value="perf.BRANCH-LOADS,perf.BRANCH-MISSES"
+# pmstore papi.control.enable "perf.BRANCH.LOADS,perf.BRANCH.MISSES"
+papi.control.enable old value="" new value="perf.BRANCH.LOADS,perf.BRANCH.MISSES"
 
-# pmval -s3 papi.system.perf.BRANCH-LOADS
-metric:    papi.system.perf.BRANCH-LOADS
+# pmval -s3 papi.system.perf.BRANCH.LOADS
+metric:    papi.system.perf.BRANCH.LOADS
 host:      HOSTNAME
 semantics: cumulative counter (converting to rate)
 units:     count (converting to count / sec)
@@ -130,8 +130,8 @@ interval:  1.00 sec
             7539.    
             7543. 
 
-# pmval -s3 papi.system.perf.BRANCH-MISSES
-metric:    papi.system.perf.BRANCH-MISSES
+# pmval -s3 papi.system.perf.BRANCH.MISSES
+metric:    papi.system.perf.BRANCH.MISSES
 host:      HOSTNAME
 semantics: cumulative counter (converting to rate)
 units:     count (converting to count / sec)
@@ -141,8 +141,8 @@ interval:  1.00 sec
              590.8   
              651.8
 
-# pmstore papi.control.disable "perf.BRANCH-LOADS,perf.BRANCH-MISSES"
-papi.control.disable old value="" new value="perf.BRANCH-LOADS,perf.BRANCH-MISSES"
+# pmstore papi.control.disable "perf.BRANCH.LOADS,perf.BRANCH.MISSES"
+papi.control.disable old value="" new value="perf.BRANCH.LOADS,perf.BRANCH.MISSES"
 .PP
 .SH INSTALLATION
 If you want access to the names, help text and values for the \*(ia

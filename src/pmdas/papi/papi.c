@@ -307,11 +307,15 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 static int
 papi_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
-    int sts;
-
+    int i, sts = 0;
     __pmAFblock();
     auto_enable_expiry_cb(0, NULL); // run auto-expiry
-    if (permission_check(pmda->e_context))
+    for (i = 0; i < numpmid; i++) {
+	__pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
+	if (idp->cluster != CLUSTER_AVAILABLE)
+	    sts = 1;
+    }
+    if (sts == 0 || permission_check(pmda->e_context))
 	sts = pmdaFetch(numpmid, pmidlist, resp, pmda);
     else
         sts = PM_ERR_PERMISSION;
@@ -672,11 +676,11 @@ papi_internal_init(pmdaInterface *dp)
 		int was_tokenized = 0;
 		expand_papi_info(i);
 		memcpy(&papi_info[i].info, &info, sizeof(PAPI_event_info_t));
-		tokenized_string = strtok(info.symbol, "::: ");
+		tokenized_string = strtok(info.symbol, "::: -");
 		while (tokenized_string != NULL) {
 		    strcat(local_native_metric_name, tokenized_string);
 		    was_tokenized = 1;
-		    tokenized_string=strtok(NULL, "::: ");
+		    tokenized_string=strtok(NULL, "::: -");
 		    if (tokenized_string)
 			strcat(local_native_metric_name, ".");
 		}

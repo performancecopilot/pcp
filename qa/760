@@ -1,6 +1,10 @@
 #!/bin/sh
 # PCP QA Test No. 760
-# Exercise the ActiveMQ PMDA installation and removal.
+# Exercise the ActiveMQ PMDA installation, removal and values.
+#
+# Setup: Download the ActiveMQ release from
+# http://activemq.apache.org/activemq-5100-release.html. Unpack it
+# and run ./bin/activemq start inside the unpacked tarball
 #
 # Copyright (c) 2014 Red Hat.
 #
@@ -12,6 +16,10 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+
+port=8161
+$PCP_BINADM_DIR/telnet-probe -c localhost $port  || \
+    _notrun "Noones home on the default ActiveMQ REST port $port"
 
 test -e $PCP_PMDAS_DIR/activemq || _notrun "ActiveMQ PMDA not installed"
 for module in JSON LWP::UserAgent File::Basename
@@ -46,8 +54,7 @@ activemq_install()
 	-e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
     | $PCP_AWK_PROG '
 /Check activemq metrics have appeared/ { if ($7 >= 50) $7 = "X"
-                                         if ($9 >= 50) $9 = "Y"
-                                         if ($12 >= 0) $12 = "Z"
+                                         if ($10 >= 50) $10 = "Y"
                                        }
                                        { print }'
 }
@@ -72,6 +79,12 @@ _filter_activemq()
 # real QA test starts here
 activemq_install
 
+# Put a message on the queue to make an instance of a queue domains
+curl -u admin:admin -d "body=message" --silent http://localhost:$port/api/message/pcptestqueue?type=queue > /dev/null
+
+# Wait until the instance domain is registered
+sleep 5
+
 # pmdaactivemq should have been started by the Install process - check
 if pminfo -v activemq > $tmp.info 2> $tmp.err
 then
@@ -82,8 +95,14 @@ else
 fi
 cat $tmp.info $tmp.err | _filter_activemq
 
-# Check that the correct metrics are present
-pminfo activemq
+echo  "Validating all metrics have values..."
+pmprobe -v activemq > $tmp.metrics
+cat $tmp.metrics \
+| while read metric n1 vpcp
+do
+    [ "$n1" = "" -o "$vpcp" = "" ] && echo "error: metric $metric has no value"
+
+done
 
 activemq_remove
 # success, all done
