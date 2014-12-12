@@ -1266,21 +1266,27 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig * out, do
 	// parse base unit, only once per input string.  We don't support
 	// "microsec millisec", as that would require arithmetic on the scales.
 	// We could support "sec sec" (and turn that into sec^2) in the future.
-	for (i = 0; i < num_time_keywords; i++)
-	    if (dimension == d_none && out->dimTime == 0 && streqskip(time_keywords[i].keyword)) {
-		out->scaleTime = time_keywords[i].scale;
-		dimension = d_time;
-	    }
-	for (i = 0; i < num_space_keywords; i++)
-	    if (dimension == d_none && out->dimSpace == 0 && streqskip(space_keywords[i].keyword)) {
-		out->scaleSpace = space_keywords[i].scale;
-		dimension = d_space;
-	    }
-	for (i = 0; i < num_count_keywords; i++)
-	    if (dimension == d_none && out->dimCount == 0 && streqskip(count_keywords[i].keyword)) {
-		out->scaleCount = count_keywords[i].scale;
-		dimension = d_count;
-	    }
+	if (dimension == d_none && out->dimTime == 0)
+	    for (i = 0; i < num_time_keywords; i++)
+		if (streqskip(time_keywords[i].keyword)) {
+		    out->scaleTime = time_keywords[i].scale;
+		    dimension = d_time;
+		    break;
+		}
+	if (dimension == d_none && out->dimSpace == 0)
+	    for (i = 0; i < num_space_keywords; i++)
+		if (streqskip(space_keywords[i].keyword)) {
+		    out->scaleSpace = space_keywords[i].scale;
+		    dimension = d_space;
+		    break;
+		}
+	if (dimension == d_none && out->dimCount == 0)
+	    for (i = 0; i < num_count_keywords; i++)
+		if (streqskip(count_keywords[i].keyword)) {
+		    out->scaleCount = count_keywords[i].scale;
+		    dimension = d_count;
+		    break;
+		}
 
 	// parse optional dimension exponent
 	switch (dimension) {
@@ -1361,10 +1367,9 @@ pmParseUnitsStr(const char *str, pmUnits * out, double *multiplier, char **errMs
 	sts = __pmParseUnitsStrPart(str, str + strlen(str), &dividend, &dividend_mult, errMsg);
 	if (sts < 0)
 	    goto out;
-	// empty string for nonexistent denominator; will just return (0,0,0,0,0,0)*1.0
-	sts = __pmParseUnitsStrPart(str + strlen(str), str + strlen(str), &divisor, &divisor_mult, errMsg);
-	if (sts < 0)
-	    goto out;
+	// empty string for nonexistent denominator
+	memset(&divisor, 0, sizeof(divisor));
+	divisor_mult = 1.0;
     }
     else {
 	sts = __pmParseUnitsStrPart(str, slash, &dividend, &dividend_mult, errMsg);
@@ -1377,31 +1382,25 @@ pmParseUnitsStr(const char *str, pmUnits * out, double *multiplier, char **errMs
 
     // Compute the quotient dimensionality, check for possible bitfield overflow.
     dim = dividend.dimSpace - divisor.dimSpace;
-    if (dim < -8 || dim > 7) {
-	*errMsg = strdup("space dimension out of [-8,7] bounds");
+    out->dimSpace = dim;	// might get truncated
+    if (out->dimSpace != dim) {
+	*errMsg = strdup("space dimension out of bounds");
 	sts = PM_ERR_CONV;
 	goto out;
-    }
-    else {
-	out->dimSpace = dim;
     }
     dim = dividend.dimTime - divisor.dimTime;
-    if (dim < -8 || dim > 7) {
-	*errMsg = strdup("time dimension out of [-8,7] bounds");
+    out->dimTime = dim;		// might get truncated
+    if (out->dimTime != dim) {
+	*errMsg = strdup("time dimension out of bounds");
 	sts = PM_ERR_CONV;
 	goto out;
-    }
-    else {
-	out->dimTime = dim;
     }
     dim = dividend.dimCount - divisor.dimCount;
-    if (dim < -8 || dim > 7) {
-	*errMsg = strdup("count dimension out of [-8,7] bounds");
+    out->dimCount = dim;	// might get truncated
+    if (out->dimCount != dim) {
+	*errMsg = strdup("count dimension out of bounds");
 	sts = PM_ERR_CONV;
 	goto out;
-    }
-    else {
-	out->dimCount = dim;
     }
 
     // Compute the individual scales.  In theory, we have considerable
