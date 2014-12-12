@@ -334,10 +334,9 @@ __pmInitChannelLock(pthread_mutex_t *lock)
 #endif
 
 static int
-ctxflags(__pmHashCtl *attrs)
+ctxflags(__pmHashCtl *attrs, int *flags)
 {
     int sts;
-    int flags = 0;
     char *name = NULL;
     char *secure = NULL;
     char *container = NULL;
@@ -359,24 +358,24 @@ ctxflags(__pmHashCtl *attrs)
 	if (secure[0] == '\0' ||
 	   (strcmp(secure, "1")) == 0 ||
 	   (strcmp(secure, "enforce")) == 0) {
-	    flags |= PM_CTXFLAG_SECURE;
+	    *flags |= PM_CTXFLAG_SECURE;
 	} else if (strcmp(secure, "relaxed") == 0) {
-	    flags |= PM_CTXFLAG_RELAXED;
+	    *flags |= PM_CTXFLAG_RELAXED;
 	}
     }
 
     if (__pmHashSearch(PCP_ATTR_COMPRESS, attrs) != NULL)
-	flags |= PM_CTXFLAG_COMPRESS;
+	*flags |= PM_CTXFLAG_COMPRESS;
 
     if (__pmHashSearch(PCP_ATTR_USERAUTH, attrs) != NULL ||
 	__pmHashSearch(PCP_ATTR_USERNAME, attrs) != NULL ||
 	__pmHashSearch(PCP_ATTR_PASSWORD, attrs) != NULL ||
 	__pmHashSearch(PCP_ATTR_METHOD, attrs) != NULL ||
 	__pmHashSearch(PCP_ATTR_REALM, attrs) != NULL)
-	flags |= PM_CTXFLAG_AUTH;
+	*flags |= PM_CTXFLAG_AUTH;
 
     if (__pmHashSearch(PCP_ATTR_CONTAINER, attrs) != NULL)
-	flags |= PM_CTXFLAG_CONTAINER;
+	*flags |= PM_CTXFLAG_CONTAINER;
     else if ((container = getenv("PCP_CONTAINER")) != NULL) {
 	if ((name = strdup(container)) == NULL)
 	    return -ENOMEM;
@@ -384,10 +383,10 @@ ctxflags(__pmHashCtl *attrs)
 	    free(name);
 	    return sts;
 	}
-	flags |= PM_CTXFLAG_CONTAINER;
+	*flags |= PM_CTXFLAG_CONTAINER;
     }
 
-    return flags;
+    return 0;
 }
 
 int
@@ -475,10 +474,8 @@ INIT_CONTEXT:
 	} else if (nhosts == 0) {
 	    sts = PM_ERR_NOTHOST;
 	    goto FAILED;
-	} else {
-	    if ((sts = ctxflags(attrs) < 0))
-		goto FAILED;
-	    new->c_flags |= sts;
+	} else if ((sts = ctxflags(attrs, &new->c_flags)) < 0) {
+	    goto FAILED;
 	}
 
         /* As an optimization, if there is already a connection to the same PMCD,
