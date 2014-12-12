@@ -40,7 +40,19 @@
 #define CLUSTER_BLKIO_GROUPS	49 /* block layer I/O control groups */
 #define CLUSTER_PID_FD		51 /* /proc/<pid>/fd */
 
+#define CLUSTER_HOTPROC_PID_STAT        52 /*  /proc/<pid>/stat */
+#define CLUSTER_HOTPROC_PID_STATM       53 /*  /proc/<pid>/statm + /proc/<pid>/maps */
+#define CLUSTER_HOTPROC_PID_CGROUP      54 /* /proc/<pid>/cgroup */
+#define CLUSTER_HOTPROC_PID_LABEL       55 /* /proc/<pid>/attr/current (label) */
+#define CLUSTER_HOTPROC_PID_STATUS      56 /* /proc/<pid>/status */
+#define CLUSTER_HOTPROC_PID_SCHEDSTAT   57 /* /proc/<pid>/schedstat */
+#define CLUSTER_HOTPROC_PID_IO          58 /* /proc/<pid>/io */
+#define CLUSTER_HOTPROC_PID_FD          59 /* /proc/<pid>/fd */
+#define CLUSTER_HOTPROC_GLOBAL		60 /* overall hotproc stats and controls*/
+#define CLUSTER_HOTPROC_PRED      	61 /* derived hotproc metrics */
+
+
 #define MIN_CLUSTER  8		/* first cluster number we use here */
-#define NUM_CLUSTERS 52		/* one more than highest cluster number used */
+#define NUM_CLUSTERS 62		/* one more than highest cluster number used */
 
 #endif /* _CLUSTERS_H */
