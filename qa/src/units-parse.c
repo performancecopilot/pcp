@@ -21,17 +21,20 @@ void pmunits_roundtrip (int print_p, int d1, int d2, int d3, int s1, int s2, int
     pmUnits reversed;
     double reversed_multiplier;
     int sts;
-    
+    char *errmsg = NULL;
+
     (void) pmUnitsStr_r (& victim, converted, sizeof(converted));
-    sts = pmParseUnitsStr (converted, & reversed, & reversed_multiplier);
+    sts = pmParseUnitsStr (converted, & reversed, & reversed_multiplier, &errmsg);
     (void) pmUnitsStr_r (& reversed, converted2, sizeof(converted2));
 
     if (print_p)
-        printf("(%d,%d,%d,%d,%d,%d) => \"%s\" => conv rc %d => (%d,%d,%d,%d,%d,%d)*%g => \"%s\" \n",
+        printf("(%d,%d,%d,%d,%d,%d) => \"%s\" => conv rc %d%s%s => (%d,%d,%d,%d,%d,%d)*%g => \"%s\" \n",
                victim.dimSpace,victim.dimCount,victim.dimTime,
                victim.scaleSpace,victim.scaleCount,victim.scaleTime,
                converted,
                sts,
+               (sts < 0 ? " " : ""),
+               (sts < 0 ? errmsg : ""),
                reversed.dimSpace,reversed.dimCount,reversed.dimTime,
                reversed.scaleSpace,reversed.scaleCount,reversed.scaleTime,
                reversed_multiplier,
@@ -48,6 +51,9 @@ void pmunits_roundtrip (int print_p, int d1, int d2, int d3, int s1, int s2, int
         // "count x 10^6" => (dim=6 scale=1) or (scale=1 dim=6)
         assert (reversed.dimCount * reversed.scaleCount == victim.dimCount * victim.scaleCount);
     }
+
+    if (sts < 0)
+        free (errmsg);
 }
 
 
@@ -76,17 +82,23 @@ void pmunits_parse (const char *str)
     double reversed_multiplier;
     int sts;
     char converted[100] = "";
+    char *errmsg;
     
-    sts = pmParseUnitsStr (str, & reversed, & reversed_multiplier);
+    sts = pmParseUnitsStr (str, & reversed, & reversed_multiplier, & errmsg);
     (void) pmUnitsStr_r (& reversed, converted, sizeof(converted));
 
-    printf("\"%s\" => conv rc %d => (%d,%d,%d,%d,%d,%d)*%g => \"%s\"\n",
+    printf("\"%s\" => conv rc %d%s%s => (%d,%d,%d,%d,%d,%d)*%g => \"%s\"\n",
            str,
            sts,
+           (sts < 0 ? " " : ""),
+           (sts < 0 ? errmsg : ""),
            reversed.dimSpace,reversed.dimCount,reversed.dimTime,
            reversed.scaleSpace,reversed.scaleCount,reversed.scaleTime,
            reversed_multiplier,
            converted);
+
+    if (sts < 0)
+        free (errmsg);
 }
 
 

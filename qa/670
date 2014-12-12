@@ -44,6 +44,7 @@ $up scan | tee -a $seq.full
 $up tuple 0 0 0 1 1 1         # scales without dims
 
 $up parse "2e5"
+$up parse "-/2"               # bad floating point
 $up parse "2eg"               # bad floating point
 $up parse "25 sec/kb"
 $up parse "5 ms / 3 sec"

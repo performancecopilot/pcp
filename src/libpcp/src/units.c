@@ -1134,7 +1134,8 @@ typedef struct pmUnitsBig {
 } pmUnitsBig;
 
 static int
-__pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig *out, double *multiplier)
+__pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig *out, double *multiplier,
+                      char **errMsg)
 {
     int sts = 0;
     unsigned i;
@@ -1243,6 +1244,8 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig *out, dou
             double m = strtod(ptr, &newptr);
             if (errno || newptr == ptr || newptr > str_end) {
                 sts = PM_ERR_CONV;
+                // my kingdom for asprintf, my kingdom!
+                *errMsg = strdup("invalid floating point literal");
                 goto out;
             }
             ptr = newptr;
@@ -1282,7 +1285,8 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig *out, dou
         // parse optional dimension exponent
         switch (dimension) {
         case d_none:
-            // unrecognized base unit, punt!
+            // my kingdom for asprintf, my kingdom!
+            *errMsg = strdup("unrecognized or duplicate base unit");
             sts = PM_ERR_CONV;
             goto out;
 
@@ -1334,7 +1338,7 @@ out:
 
 // Parse a general "N $units / M $units" string into a pmUnits tuple and a multiplier.
 int
-pmParseUnitsStr(const char *str, pmUnits *out, double *multiplier)
+pmParseUnitsStr(const char *str, pmUnits *out, double *multiplier, char **errMsg)
 {
     const char *slash;
     double dividend_mult, divisor_mult;
@@ -1351,18 +1355,22 @@ pmParseUnitsStr(const char *str, pmUnits *out, double *multiplier)
     // Parse the dividend and divisor separately
     slash = strchr (str, '/');
     if (slash == NULL) {
-        sts = __pmParseUnitsStrPart(str, str+strlen(str), & dividend, & dividend_mult);
+        sts = __pmParseUnitsStrPart(str, str+strlen(str),
+                                    & dividend, & dividend_mult, errMsg);
         if (sts < 0)
             goto out;
         // empty string for nonexistent denominator; will just return (0,0,0,0,0,0)*1.0
-        sts = __pmParseUnitsStrPart(str+strlen(str), str+strlen(str), & divisor, & divisor_mult);
+        sts = __pmParseUnitsStrPart(str+strlen(str), str+strlen(str),
+                                    & divisor, & divisor_mult, errMsg);
         if (sts < 0)
             goto out;
     } else {
-        sts = __pmParseUnitsStrPart(str, slash, & dividend, & dividend_mult);
+        sts = __pmParseUnitsStrPart(str, slash,
+                                    & dividend, & dividend_mult, errMsg);
         if (sts < 0)
             goto out;
-        sts = __pmParseUnitsStrPart(slash+1, str+strlen(str), & divisor, & divisor_mult);
+        sts = __pmParseUnitsStrPart(slash+1, str+strlen(str),
+                                    & divisor, & divisor_mult, errMsg);
         if (sts < 0)
             goto out;
     }
@@ -1370,6 +1378,7 @@ pmParseUnitsStr(const char *str, pmUnits *out, double *multiplier)
     // Compute the quotient dimensionality, check for possible bitfield overflow.
     dim = dividend.dimSpace - divisor.dimSpace;
     if (dim < -8 || dim > 7) {
+        *errMsg = strdup("space dimension out of [-8,7] bounds");
         sts = PM_ERR_CONV;
         goto out;
     } else {
@@ -1377,6 +1386,7 @@ pmParseUnitsStr(const char *str, pmUnits *out, double *multiplier)
     }
     dim = dividend.dimTime - divisor.dimTime;
     if (dim < -8 || dim > 7) {
+        *errMsg = strdup("time dimension out of [-8,7] bounds");
         sts = PM_ERR_CONV;
         goto out;
     } else {
@@ -1384,6 +1394,7 @@ pmParseUnitsStr(const char *str, pmUnits *out, double *multiplier)
     }
     dim = dividend.dimCount - divisor.dimCount;
     if (dim < -8 || dim > 7) {
+        *errMsg = strdup("count dimension out of [-8,7] bounds");
         sts = PM_ERR_CONV;
         goto out;
     } else {
