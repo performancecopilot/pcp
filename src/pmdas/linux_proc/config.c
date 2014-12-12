@@ -135,7 +135,6 @@ parse_config(bool_node **tree)
 	free(pred_buffer);
     pred_buffer = ptr; 
     pred_buffer[size] = '\0';
-    fprintf( stderr,"Post:\n|%s|\n", pred_buffer);
     return 0;
 
 error:

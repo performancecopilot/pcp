@@ -2632,7 +2632,6 @@ proc_store(pmResult *result, pmdaExt *pmda)
     have_access = all_access || proc_ctx_access(pmda->e_context);
 
     int isroot = ( proc_ctx_getuid(pmda->e_context) == 0);
-    fprintf(stderr, "Store UID: %d\n", proc_ctx_getuid(pmda->e_context));
 
     for (i = 0; i < result->numpmid; i++) {
 	pmValueSet *vsp = result->vset[i];

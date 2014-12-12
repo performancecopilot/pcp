@@ -468,7 +468,7 @@ hotproc_eval_procs()
     double bread_delta;             /* delta num of bytes read */
     double bwrit_delta;             /* delta num of bytes written */
     double bwtime_delta;            /* delta num of microsec for waiting for blocked io */
-    double qwtime_delta;            /* delta num of microsec waiting on run queue */
+    double qwtime_delta;            /* delta num of nanosec waiting on run queue */
     double timestamp_delta;         /* real time delta b/w refreshes for process */
     double total_cputime = 0;       /* total of cputime_deltas for each process */
     double total_activetime = 0;    /* total of cputime_deltas for active processes */
@@ -544,7 +544,6 @@ hotproc_eval_procs()
 	/* Calc the stats we will need */
 
 	/* CPU Time is sum of U & S time */
-	/* How do we deal with errors here??? */
 	
 	if( (f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_UTIME)) == NULL )
 	    newnode->r_cputime = 0;
@@ -603,6 +602,15 @@ hotproc_eval_procs()
 		
 	newnode->r_bwtime = (double)ul / hz;
 
+	/* Schedwait (run_delay) */
+	if ((f = _pm_getfield(schedstatentry->schedstat_buf, 1)) == NULL)
+	    ull = 0;
+	else
+	    ull  = (__uint64_t)strtoull(f, &tail, 0);
+
+	newnode->r_qwtime = ull;
+
+
 	/* This is not the first time through, so we can generate rate stats */
 	if ((oldnode = lookup_node(previous, pid)) != NULL) {
 
@@ -639,7 +647,7 @@ hotproc_eval_procs()
 	    /* schedwait */
 	    qwtime_delta = DiffCounter((double)newnode->r_qwtime,
 		    (double)oldnode->r_qwtime, PM_TYPE_64);
-	    vars.preds.schedwait = qwtime_delta / timestamp_delta;
+	    vars.preds.schedwait = qwtime_delta / (timestamp_delta * 1000000000); /* run_delay in nsec */
 
 	}
         else {
