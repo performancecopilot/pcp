@@ -5113,12 +5113,15 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	return proc_partitions_fetch(mdesc, inst, atom);
 
     case CLUSTER_SCSI:
+	scsi_entry = NULL;
 	sts = pmdaCacheLookup(INDOM(SCSI_INDOM), inst, NULL, (void **)&scsi_entry);
 	if (sts < 0)
 	    return sts;
-	switch(idp->item) {
+	if (sts == PMDA_CACHE_INACTIVE)
+	    return PM_ERR_INST;
+	switch (idp->item) {
 	case 0: /* hinv.map.scsi */
-	    atom->cp = scsi_entry->dev_name;
+	    atom->cp = (scsi_entry && scsi_entry->dev_name) ? scsi_entry->dev_name : "";
 	    break;
 	default:
 	    return PM_ERR_PMID;
