@@ -455,6 +455,10 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     int			type;
     e_ext_t		*extp = (e_ext_t *)pmda->e_ext;
 
+    if (extp->dispatch->version.any.ext != pmda)
+	fprintf(stderr, "Botch: pmdaFetch: PMDA domain=%d pmda=%p extp=%p backpointer=%p pmda-via-backpointer %p NOT EQUAL to pmda\n",
+	    pmda->e_domain, pmda, extp, extp->dispatch, extp->dispatch->version.any.ext);
+
     if (extp->dispatch->comm.pmda_interface >= PMDA_INTERFACE_5)
 	__pmdaSetContext(pmda->e_context);
 
@@ -641,7 +645,7 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     *resp = extp->res;
     return 0;
 
- error:
+error:
 
     if (i) {
 	extp->res->numpmid = i;

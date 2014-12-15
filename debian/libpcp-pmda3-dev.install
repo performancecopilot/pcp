@@ -56,6 +56,7 @@ usr/share/man/man3/pmdaGetOptions.3.gz
 usr/share/man/man3/pmdahelp.3.gz
 usr/share/man/man3/pmdaInit.3.gz
 usr/share/man/man3/pmdaInstance.3.gz
+usr/share/man/man3/pmdaInterfaceMoved.3.gz
 usr/share/man/man3/pmdamain.3.gz
 usr/share/man/man3/pmdaMain.3.gz
 usr/share/man/man3/pmdaName.3.gz
