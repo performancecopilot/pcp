@@ -107,6 +107,7 @@ typedef struct __pmnsTree  pmdaNameSpace;
 typedef struct __pmHashCtl pmdaHashTable;
 typedef struct __pmProfile pmdaInProfile;
 typedef struct __pmInResult pmdaInResult;
+typedef struct __pmnsNode pmnsNode;
 
 /*
  * libpcp_pmda extension structure.
@@ -563,6 +564,7 @@ extern int pmdaTreeName(pmdaNameSpace *, pmID, char ***);
 extern int pmdaTreeChildren(pmdaNameSpace *, const char *, int, char ***, int **);
 extern void pmdaTreeRebuildHash(pmdaNameSpace *, int);
 extern int pmdaTreeSize(pmdaNameSpace *);
+extern pmnsNode * pmdaNodeLookup(pmnsNode *, const char *);
 
 /*
  * PMDA instance domain cache support

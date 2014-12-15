@@ -213,6 +213,8 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(8,5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* pmcd.feature.service_discovery */
     { PMDA_PMID(8,6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* pmcd.feature.containers */
+    { PMDA_PMID(8,7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /* End-of-List */
     { PM_ID_NULL, 0, 0, 0, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }
@@ -1845,6 +1847,12 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
     return sts;
 }
 
+static int
+pmcd_attribute(int ctx, int attr, const char *value, int len, pmdaExt *pmda)
+{
+    return pmdaAttribute(ctx, attr, value, len, pmda);
+}
+
 void
 __PMDA_INIT_CALL
 pmcd_init(pmdaInterface *dp)
@@ -1854,14 +1862,16 @@ pmcd_init(pmdaInterface *dp)
  
     snprintf(helppath, sizeof(helppath), "%s%c" "pmcd" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDSO(dp, PMDA_INTERFACE_5, "pmcd", helppath);
+    pmdaDSO(dp, PMDA_INTERFACE_6, "pmcd", helppath);
+    dp->comm.flags |= (PDU_FLAG_AUTH|PDU_FLAG_CONTAINER);
 
-    dp->version.four.profile = pmcd_profile;
-    dp->version.four.fetch = pmcd_fetch;
-    dp->version.four.desc = pmcd_desc;
-    dp->version.four.instance = pmcd_instance;
-    dp->version.four.store = pmcd_store;
-    dp->version.four.ext->e_endCallBack = end_context;
+    dp->version.six.profile = pmcd_profile;
+    dp->version.six.fetch = pmcd_fetch;
+    dp->version.six.desc = pmcd_desc;
+    dp->version.six.instance = pmcd_instance;
+    dp->version.six.store = pmcd_store;
+    dp->version.six.attribute = pmcd_attribute;
+    dp->version.six.ext->e_endCallBack = end_context;
 
     init_tables(dp->domain);
 

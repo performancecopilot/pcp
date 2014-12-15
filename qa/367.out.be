@@ -253,12 +253,19 @@ pdu-server: waiting ...
 016: 61732073 6e6f770a 
 
 pdu-server: waiting ...
+[SERVER]pmGetPDU: ATTR fd=<n> len=22 from=CLIENT
+000:       16     7011   CLIENT        5 70637071 61007e7e 
++ PDU_AUTH: attr=5 length=6 value="pcpqa"
+[SERVER]pmXmitPDU: ATTR fd=<n> len=22
+000:       16     7011   SERVER        5 70637071 61007e7e 
+
+pdu-server: waiting ...
 [SERVER]pmGetPDU: CREDS fd=<n> len=20 from=CLIENT
-000:       14     700c   CLIENT  1000000  b0a0201 
+000:       14     700c   CLIENT        1  1020a0b 
 + PDU_CREDS: sender=CLIENT count=1
 + [0] type=1 a=2 b=10 c=11
 [SERVER]pmXmitPDU: CREDS fd=<n> len=20
-000:       14     700c   SERVER  1000000  b0a0201 
+000:       14     700c   SERVER        1  1020a0b 
 
 pdu-server: waiting ...
 [SERVER]pmGetPDU: PMNS_IDS fd=<n> len=44 from=CLIENT

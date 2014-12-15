@@ -1270,11 +1270,10 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
 	need_refresh[CLUSTER_PID_FD] ||
 	need_refresh[CLUSTER_PROC_RUNQ]) {
 
-	if (refresh_proc_pid(&proc_pid,
+	refresh_proc_pid(&proc_pid,
 		need_refresh[CLUSTER_PROC_RUNQ]? &proc_runq : NULL,
 		proc_ctx_threads(pmda->e_context, threads),
-		proc_ctx_cgroups(pmda->e_context, cgroups)))
-	    pmdaDynamicMetricTable(pmda);
+		proc_ctx_cgroups(pmda->e_context, cgroups));
     }
 }
 
@@ -2545,7 +2544,7 @@ proc_init(pmdaInterface *dp)
 
     if (dp->status != 0)
 	return;
-    dp->comm.flags |= PDU_FLAG_AUTH;
+    dp->comm.flags |= (PDU_FLAG_AUTH|PDU_FLAG_CONTAINER);
 
     dp->version.six.instance = proc_instance;
     dp->version.six.store = proc_store;

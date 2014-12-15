@@ -572,6 +572,16 @@ __pmAddOptHostList(pmOptions *opts, char *arg)
 }
 
 static void
+__pmAddOptContainer(pmOptions *opts, char *arg)
+{
+    char buffer[MAXPATHLEN+16];
+
+    (void)opts;
+    snprintf(buffer, sizeof(buffer), "%s=%s", "PCP_CONTAINER", arg? arg : "");
+    putenv(buffer);
+}
+
+static void
 __pmSetLocalContextTable(pmOptions *opts, char *arg)
 {
     char *errmsg;
@@ -838,6 +848,8 @@ pmGetOptions(int argc, char *const *argv, pmOptions *opts)
 		__pmAddOptArchiveList(opts, opts->optarg);
 	    else if (strcmp(opt->long_opt, PMLONGOPT_ARCHIVE_FOLIO) == 0)
 		__pmAddOptArchiveFolio(opts, opts->optarg);
+	    else if (strcmp(opt->long_opt, PMLONGOPT_CONTAINER) == 0)
+		__pmAddOptContainer(opts, opts->optarg);
 	    else
 		flag = 1;
 	    break;

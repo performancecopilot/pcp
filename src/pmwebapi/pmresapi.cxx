@@ -31,7 +31,7 @@ using namespace std;
 static const char *
 guess_content_type (const char *filename)
 {
-    const char *extension = rindex (filename, '.');
+    const char *extension = strrchr (filename, '.');
     if (extension == NULL) {
         return NULL;
     }

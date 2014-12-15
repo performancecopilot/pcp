@@ -41,7 +41,7 @@ Log for pmcd on HOST started DATE
 active agent dom   pid  in out ver protocol parameters
 ============ === ===== === === === ======== ==========
 [OS]          ??                 X dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
-pmcd           2                 X dso i:5  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
+pmcd           2                 X dso i:6  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
 
 Host access list:
 00 01 Cur/MaxCons host-spec                               host-mask                               lvl host-name
@@ -69,7 +69,7 @@ Configuration left unchanged
 active agent dom   pid  in out ver protocol parameters
 ============ === ===== === === === ======== ==========
 [OS]          ??                 X dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
-pmcd           2                 X dso i:5  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
+pmcd           2                 X dso i:6  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
 
 Host access list:
 00 01 Cur/MaxCons host-spec                               host-mask                               lvl host-name

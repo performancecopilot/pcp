@@ -11,10 +11,10 @@ Error: No permission to perform requested operation
 == PAPI library behaviour, available hardware metrics, non-root
 
 papi.available.num_counters
-Error: No permission to perform requested operation
+    value NUMBER
 
 papi.available.version
-Error: No permission to perform requested operation
+    value STRING
 
 == PAPI library behaviour, control metric fetches, non-root
 

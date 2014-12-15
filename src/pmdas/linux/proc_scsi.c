@@ -27,7 +27,7 @@ refresh_proc_scsi(pmInDom indom)
     char buf[1024];
     char name[64];
     char type[64];
-    int n;
+    int n, failed;
     FILE *fp;
     char *sp;
     int sts;
@@ -66,43 +66,45 @@ refresh_proc_scsi(pmInDom indom)
 	sprintf(name, "scsi%d:%d:%d:%d %s",
 	    x.dev_host, x.dev_channel, x.dev_id, x.dev_lun, type);
 
+	failed = 0;
 	sts = pmdaCacheLookupName(indom, name, NULL, (void **)&se);
-	if (sts == PM_ERR_INST || (sts >= 0 && se == NULL)) {
-	    /*
-	     * New device, not in indom cache
-	     */
-	    se = (scsi_entry_t *)malloc(sizeof(scsi_entry_t));
+	if (sts == PMDA_CACHE_ACTIVE)
+	    continue;
+	if (sts != PMDA_CACHE_INACTIVE || se == NULL) {
+	    /* New device, not in indom cache */
+	    if ((se = (scsi_entry_t *)malloc(sizeof(scsi_entry_t))) == NULL) {
+		failed++;
+		continue;
+	    }
 	    *se = x; /* struct copy */
-	    se->instname = strdup(name);
 
 	    /* find the block device name from sysfs */
 	    sprintf(buf, "/sys/class/scsi_device/%d:%d:%d:%d/device/block",
 		se->dev_host, se->dev_channel, se->dev_id, se->dev_lun);
 	    if ((dirp = opendir(buf)) == NULL) {
-		free(se->instname);
 	    	free(se);
-		continue;
+		failed++;
+	    } else {
+		while ((dentry = readdir(dirp)) != NULL) {
+	    	    if (dentry->d_name[0] == '.')
+			continue;
+		    se->dev_name = strdup(dentry->d_name);
+		    break;
+		}
+		if (!se->dev_name) {
+		    failed++;
+		}
+		closedir(dirp);
 	    }
-	    while ((dentry = readdir(dirp)) != NULL) {
-	    	if (dentry->d_name[0] == '.')
-		    continue;
-		se->dev_name = strdup(dentry->d_name);
-		break;
-	    }
-	    closedir(dirp);
 	}
-	else if (sts < 0)
-	    continue;
-
-	if ((sts = pmdaCacheStore(indom, PMDA_CACHE_ADD, se->instname, (void *)se)) < 0)
-	    continue;
-
+	if (!failed) {
+	    pmdaCacheStore(indom, PMDA_CACHE_ADD, name, (void *)se);
 #if PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LIBPMDA) {
-	    fprintf(stderr, "refresh_proc_scsi: instance \"%s\" = \"%s\"\n",
-		se->instname, se->dev_name);
-	}
+	    if (pmDebug & DBG_TRACE_LIBPMDA)
+		fprintf(stderr, "refresh_proc_scsi: instance \"%s\" = \"%s\"\n",
+			name, se->dev_name);
 #endif
+	}
     }
 
     pmdaCacheOp(indom, PMDA_CACHE_SAVE);

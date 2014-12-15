@@ -117,4 +117,5 @@ PCP_PMDA_3.3 {
 PCP_PMDA_3.4 {
   global:
     pmdaInterfaceMoved;
+    pmdaNodeLookup;
 } PCP_PMDA_3.3;

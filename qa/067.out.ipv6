@@ -19,7 +19,7 @@ Log for pmcd on HOST started DATE
 active agent dom   pid  in out ver protocol parameters
 ============ === ===== === === === ======== ==========
 [OS]          ??                 2 dso i:?  lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init
-pmcd           2                 2 dso i:5  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
+pmcd           2                 2 dso i:6  lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
 test         246    -1 <n> <n> <n> bin sock dom=inet port=2222
 Host access list empty: access control turned off
 pmcd: PID = PID

@@ -188,7 +188,7 @@ refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
     FILE *fp;
     int i, cpunum, cpuid;
     int dups = 0, previous = -1;
-    cpuinfo_t *info;
+    cpuinfo_t *info = NULL;
     char *val;
     char *p;
     static int started = 0;

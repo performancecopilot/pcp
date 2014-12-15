@@ -15,11 +15,7 @@ echo "QA output created by $seq"
 
 rm -f $seq.out $seq.full
 endian=`_get_endian`
-if [ $PCP_VER -ge 30800 ]; then
-    ln $seq.out.$endian.2 $seq.out
-else
-    ln $seq.out.1 $seq.out
-fi
+ln $seq.out.$endian $seq.out
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!

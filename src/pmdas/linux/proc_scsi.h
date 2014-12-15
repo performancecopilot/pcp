@@ -20,7 +20,6 @@
 
 typedef struct {
     int			id;	     /* internal instance id */
-    char		*instname;   /* external name, i.e. host:channel:id:lun */
     int			dev_host;
     int			dev_channel;
     int			dev_id;

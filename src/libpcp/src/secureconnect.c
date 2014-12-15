@@ -1171,20 +1171,21 @@ __pmSecureClientHandshake(int fd, int flags, const char *hostname, __pmHashCtl *
 
     /*
      * If the server uses the secure-ack protocol, then expect an error
-     * pdu here containing the server's secure status. If the status is zero,
+     * PDU here containing the server's secure status. If the status is zero,
      * then all is ok, otherwise, return the status to the caller.
      */
     if (flags & PDU_FLAG_SECURE_ACK) {
 	__pmPDU *rpdu;
 	int pinpdu;
 	int serverSts;
+
 	pinpdu = sts = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &rpdu);
 	if (sts != PDU_ERROR) {
 	    if (pinpdu)
 		__pmUnpinPDUBuf(&rpdu);
 	    return -PM_ERR_IPC;
 	}
-	sts = __pmDecodeError (rpdu, &serverSts);
+	sts = __pmDecodeError(rpdu, &serverSts);
 	if (pinpdu)
 	    __pmUnpinPDUBuf(&rpdu);
 	if (sts < 0)
