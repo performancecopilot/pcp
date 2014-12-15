@@ -881,6 +881,8 @@ extern void pmFreeHighResEventResult(pmHighResResult **);
 
 extern int pmDiscoverServices(const char *, const char *, char ***);
 
+extern int pmParseUnitsStr(const char *, pmUnits *, double *, char **);
+
 #ifdef __cplusplus
 }
 #endif

@@ -2,7 +2,7 @@
  * procmemstat - sample, simple PMAPI client to report your own memory
  * usage
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -20,6 +20,8 @@
 #include "impl.h"
 #include "pmnsmap.h"
 
+static const char	*scale = "kbytes";
+
 static void
 get_sample(void)
 {
@@ -28,7 +30,8 @@ get_sample(void)
     static int		numpmid;
     static pmID		*pmidlist;
     static pmDesc	*desclist;
-    pmUnits		kbyte_scale;
+    static pmUnits	scaleunits;
+    static double	scalemult;
     int			pid;
     pmAtomValue		tmp;
     pmAtomValue		atom;
@@ -36,9 +39,11 @@ get_sample(void)
     int			i;
 
     if (first) {
-	memset(&kbyte_scale, 0, sizeof(kbyte_scale));
-	kbyte_scale.dimSpace = 1;
-	kbyte_scale.scaleSpace = PM_SPACE_KBYTE;
+	sts = pmParseUnitsStr(scale, &scaleunits, &scalemult);
+	if (sts < 0) {
+	    fprintf(stderr, "%s: unit/scale parse error\n", pmProgname, osstrerror());
+	    exit(1);
+	}
 
 	numpmid = sizeof(metrics) / sizeof(char *);
 	if ((pmidlist = (pmID *)malloc(numpmid * sizeof(pmidlist[0]))) == NULL) {
@@ -81,26 +86,30 @@ get_sample(void)
 	exit(1);
     }
 
-    printf("memory metrics for pid %" FMT_PID " (sizes in Kbytes)\n", pid);
+    printf("memory metrics for pid %" FMT_PID " (sizes in %s)\n", pid, scale);
     for (i = 0; i < numpmid; i++) {
 	/* process metrics in turn */
 	pmExtractValue(rp->vset[i]->valfmt, rp->vset[i]->vlist,
-		       desclist[i].type, &tmp, PM_TYPE_U32);
-	pmConvScale(PM_TYPE_U32, &tmp, &desclist[i].units,
-		    &atom, &kbyte_scale);
-	printf("%8d %s\n", atom.l, metrics[i]);
+		       desclist[i].type, &tmp, PM_TYPE_32);
+	sts = pmConvScale(PM_TYPE_32, &tmp, &desclist[i].units,
+			  &atom, &scaleunits);
+	if (sts == 0)
+	    printf("%8d %s\n", (int)(atom.l * scalemult), metrics[i]);
+	else
+	    printf("???????? %s\n", metrics[i]);
     }
 }
 
 pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),
     PMOPT_DEBUG,
+    {"", 1, 'u', "units", "rescale units (default kbytes)"},
     PMOPT_HELP,
     PMAPI_OPTIONS_END
 };
 
 pmOptions opts = {
-    .short_options = "D:?",
+    .short_options = "D:u:?",
     .long_options = longopts,
 };
 
@@ -110,9 +119,13 @@ main(int argc, char **argv)
     int			sts;
     char		*p;
     char		*q;
+    int			c;
 
     setlinebuf(stdout);
-    pmGetOptions(argc, argv, &opts);
+    while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
+	if (c == 'u')
+	    scale = opts.optarg;
+    }
 
     if (opts.errors || opts.optind < argc - 1) {
 	pmUsageMessage(&opts);
