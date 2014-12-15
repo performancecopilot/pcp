@@ -233,6 +233,7 @@ truncbin.meta
 tstate
 tztest
 unpack
+units-parse
 username
 whichtimezone
 wrap_int

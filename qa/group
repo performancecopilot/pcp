@@ -883,6 +883,7 @@ avahi
 660 pmwebapi local
 661 pmwebapi local
 666:reserved pmmgr local
+670 libpcp local
 701 pmlogcheck local
 702 python libpcp local
 703 pmda.weblog local
