@@ -74,7 +74,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	grind_conv.c getconfig.c err.c torture_logmeta.c keycache.c \
 	keycache2.c pmdaqueue.c drain-server.c template.c anon-sa.c \
 	username.c rtimetest.c getcontexthost.c badpmda.c chkputlogresult.c \
-	churnctx.c badUnitsStr_r.c
+	churnctx.c badUnitsStr_r.c units-parse.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
@@ -759,6 +759,10 @@ torture_indom: torture_indom.c
 torture_pmns: torture_pmns.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ torture_pmns.c $(LDLIBS)
+
+units-parse: units-parse.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ units-parse.c $(LDLIBS)
 
 # --- miscellaneous
 #

@@ -344,6 +344,11 @@ units.o
     abuf			# pmAtomStr deprecated by pmAtomStr_r
     tbuf			# pmTypeStr deprecated by pmTypeStr_r
     ubuf			# pmUnitsStr deprecated by pmUnitsStr_r
+    count_keywords              # const
+    exponent_keywords           # const
+    space_keywords              # const
+    time_keywords               # const
+    time_scales                 # const
 util.o
     idbuf			# pmIDStr deprecated by pmIDStr_r
     indombuf			# pmInDomStr deprecated by pmInDomStr_r
