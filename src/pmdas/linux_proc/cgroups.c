@@ -741,7 +741,6 @@ read_blkio_devices_stats(const char *file, const char *name, int style,
     pmInDom devtindom = INDOM(DEVT_INDOM);
     cgroup_perdevblkio_t *blkdev;
     cgroup_blkiops_t *blkios;
-    __uint64_t result = 0;
     char *devname = NULL;
     char buffer[4096];
     FILE *fp;
@@ -773,7 +772,6 @@ read_blkio_devices_stats(const char *file, const char *name, int style,
 
 	i = sscanf(buffer, "Total %llu\n", &value);
 	if (i == 2) {	/* final field - per-cgroup Total operations */
-	    result = value;
 	    break;
 	}
 
