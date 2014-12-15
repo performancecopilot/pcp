@@ -1112,13 +1112,13 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
 
 
 
-// Parse a general "N $units" string into a pmUnits tuple and a multiplier.
-// $units can be a series of SCALE-UNIT^EXPONENT, each unit dimension appearing
-// at most once.
+/* Parse a general "N $units" string into a pmUnits tuple and a multiplier. */
+/* $units can be a series of SCALE-UNIT^EXPONENT, each unit dimension appearing */
+/* at most once. */
 
-// An internal variant of pmUnits, but without the narrow bitfields.
-// That way, we can tolerate intermediate arithmetic that goes out of
-// range of the 4-bit bitfields.
+/* An internal variant of pmUnits, but without the narrow bitfields. */
+/* That way, we can tolerate intermediate arithmetic that goes out of */
+/* range of the 4-bit bitfields. */
 typedef struct pmUnitsBig
 {
     int dimSpace;		/* space dimension */
@@ -1134,7 +1134,7 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig * out, do
 {
     int sts = 0;
     unsigned i;
-    const char *ptr;		// scanning along str
+    const char *ptr;		/* scanning along str */
     enum dimension_t
     { d_none, d_space, d_time, d_count } dimension;
     struct unit_keyword_t
@@ -1208,7 +1208,7 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig * out, do
 	{"count x 10", 1},
 	{"counts", 0},
 	{"count", 0},
-	// NB: we don't support the anomalous "x 10^SCALE" syntax for the dimCount=0 case.
+	/* NB: we don't support the anomalous "x 10^SCALE" syntax for the dimCount=0 case. */
     };
     const size_t num_count_keywords = sizeof(count_keywords) / sizeof(count_keywords[0]);
     static const struct unit_keyword_t exponent_keywords[] = {
@@ -1216,9 +1216,9 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig * out, do
 	{"^-4", -4}, {"^-3", -3}, {"^-2", -2}, {"^-1", -1},
 	{"^0", 0}, /*{ "^1", 1 }, */ {"^2", 2}, {"^3", 3},
 	{"^4", 4}, {"^5", 5}, {"^6", 6}, {"^7", 7},
-	// NB: the following larger exponents are enabled by use of pmUnitsBig above.
+	/* NB: the following larger exponents are enabled by use of pmUnitsBig above. */
 	// They happen to be necessary because pmUnitsStr emits foo-dim=-8 as "/ foo^8",
-	// so the denominator could encounter wider-than-bitfield exponents.
+	/* so the denominator could encounter wider-than-bitfield exponents. */
 	{"^8", 8}, {"^9", 9}, {"^10", 10}, {"^11", 11},
 	{"^12", 12}, {"^13", 13}, {"^14", 14}, {"^15", 15},
 	{"^1", 1},
@@ -1229,22 +1229,22 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig * out, do
     memset(out, 0, sizeof(*out));
     ptr = str;
 
-    while (ptr != str_end) {	// parse whole string
+    while (ptr != str_end) {	/* parse whole string */
 	assert(*ptr != '\0');
 
-	if (isspace(*ptr)) {	// skip whitespace
+	if (isspace(*ptr)) {	/* skip whitespace */
 	    ptr++;
 	    continue;
 	}
 
-	if (*ptr == '-' || *ptr == '.' || isdigit(*ptr)) {	// possible floating-point number
+	if (*ptr == '-' || *ptr == '.' || isdigit(*ptr)) {	/* possible floating-point number */
 	    // parse it with strtod(3).
 	    char *newptr;
 	    errno = 0;
 	    double m = strtod(ptr, &newptr);
 	    if (errno || newptr == ptr || newptr > str_end) {
 		sts = PM_ERR_CONV;
-		// my kingdom for asprintf, my kingdom!
+		/* my kingdom for asprintf, my kingdom! */
 		*errMsg = strdup("invalid floating point literal");
 		goto out;
 	    }
@@ -1253,9 +1253,9 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig * out, do
 	    continue;
 	}
 
-	dimension = d_none;	// classify dimension of base unit
+	dimension = d_none;	/* classify dimension of base unit */
 
-	// match & skip over keyword (followed by space, ^, or EOL)
+	/* match & skip over keyword (followed by space, ^, or EOL) */
 #define streqskip(q) (((ptr+strlen(q) <= str_end) &&        \
                        (strncasecmp(ptr,q,strlen(q))==0) && \
                        ((isspace(*(ptr+strlen(q)))) ||      \
@@ -1263,9 +1263,9 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig * out, do
                         (ptr+strlen(q)==str_end)))          \
                        ? (ptr += strlen(q), 1) : 0)
 
-	// parse base unit, only once per input string.  We don't support
+	/* parse base unit, only once per input string.  We don't support */
 	// "microsec millisec", as that would require arithmetic on the scales.
-	// We could support "sec sec" (and turn that into sec^2) in the future.
+	/* We could support "sec sec" (and turn that into sec^2) in the future. */
 	if (dimension == d_none && out->dimTime == 0)
 	    for (i = 0; i < num_time_keywords; i++)
 		if (streqskip(time_keywords[i].keyword)) {
@@ -1288,10 +1288,10 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig * out, do
 		    break;
 		}
 
-	// parse optional dimension exponent
+	/* parse optional dimension exponent */
 	switch (dimension) {
 	    case d_none:
-		// my kingdom for asprintf, my kingdom!
+		/* my kingdom for asprintf, my kingdom! */
 		*errMsg = strdup("unrecognized or duplicate base unit");
 		sts = PM_ERR_CONV;
 		goto out;
@@ -1336,7 +1336,7 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig * out, do
 		break;
 	}
 
-	// fall through to next unit^exponent bit, if any
+	/* fall through to next unit^exponent bit, if any */
     }
 
 out:
@@ -1345,7 +1345,7 @@ out:
 
 
 
-// Parse a general "N $units / M $units" string into a pmUnits tuple and a multiplier.
+/* Parse a general "N $units / M $units" string into a pmUnits tuple and a multiplier. */
 int
 pmParseUnitsStr(const char *str, pmUnits * out, double *multiplier, char **errMsg)
 {
@@ -1361,13 +1361,13 @@ pmParseUnitsStr(const char *str, pmUnits * out, double *multiplier, char **errMs
 
     memset(out, 0, sizeof(*out));
 
-    // Parse the dividend and divisor separately
+    /* Parse the dividend and divisor separately */
     slash = strchr(str, '/');
     if (slash == NULL) {
 	sts = __pmParseUnitsStrPart(str, str + strlen(str), &dividend, &dividend_mult, errMsg);
 	if (sts < 0)
 	    goto out;
-	// empty string for nonexistent denominator
+	/* empty string for nonexistent denominator */
 	memset(&divisor, 0, sizeof(divisor));
 	divisor_mult = 1.0;
     }
@@ -1380,55 +1380,55 @@ pmParseUnitsStr(const char *str, pmUnits * out, double *multiplier, char **errMs
 	    goto out;
     }
 
-    // Compute the quotient dimensionality, check for possible bitfield overflow.
+    /* Compute the quotient dimensionality, check for possible bitfield overflow. */
     dim = dividend.dimSpace - divisor.dimSpace;
-    out->dimSpace = dim;	// might get truncated
+    out->dimSpace = dim;	/* might get truncated */
     if (out->dimSpace != dim) {
 	*errMsg = strdup("space dimension out of bounds");
 	sts = PM_ERR_CONV;
 	goto out;
     }
     dim = dividend.dimTime - divisor.dimTime;
-    out->dimTime = dim;		// might get truncated
+    out->dimTime = dim;		/* might get truncated */
     if (out->dimTime != dim) {
 	*errMsg = strdup("time dimension out of bounds");
 	sts = PM_ERR_CONV;
 	goto out;
     }
     dim = dividend.dimCount - divisor.dimCount;
-    out->dimCount = dim;	// might get truncated
+    out->dimCount = dim;	/* might get truncated */
     if (out->dimCount != dim) {
 	*errMsg = strdup("count dimension out of bounds");
 	sts = PM_ERR_CONV;
 	goto out;
     }
 
-    // Compute the individual scales.  In theory, we have considerable
+    /* Compute the individual scales.  In theory, we have considerable */
     // freedom here, because we are also outputting a multiplier.  We
-    // could just set all out->scale* to 0, and accumulate the
+    /* could just set all out->scale* to 0, and accumulate the */
     // compensating scaling multipliers there.  But in order to
-    // fulfill the testing-oriented invariant:
+    /* fulfill the testing-oriented invariant: */
     //
-    // for all valid pmUnits u:
+    /* for all valid pmUnits u: */
     //     pmParseUnitsStr(pmUnitsStr(u), out_u, out_multiplier) succeeds, and
-    //     out_u == u, and
+    /*     out_u == u, and */
     //     out_multiplier == 1.0
-    //
+    /* */
     // we need to propagate scales to some extent.  It is helpful to
-    // realize that pmUnitsStr() never generates multiplier literals,
+    /* realize that pmUnitsStr() never generates multiplier literals, */
     // nor the same dimension in the dividend and divisor.
 
-    *multiplier = divisor_mult / dividend_mult;	// NB: note reciprocation
+    *multiplier = divisor_mult / dividend_mult;	/* NB: note reciprocation */
 
     if (dividend.dimSpace == 0 && divisor.dimSpace != 0)
 	out->scaleSpace = divisor.scaleSpace;
     else if (divisor.dimSpace == 0 && dividend.dimSpace != 0)
 	out->scaleSpace = dividend.scaleSpace;
-    else {			// both have space dimension; must compute a scale/multiplier
+    else {			/* both have space dimension; must compute a scale/multiplier */
 	out->scaleSpace = PM_SPACE_BYTE;
 	*multiplier *= pow(pow(1024.0, (double) dividend.scaleSpace), -(double) dividend.dimSpace);
 	*multiplier *= pow(pow(1024.0, (double) divisor.scaleSpace), (double) divisor.dimSpace);
-	if (out->dimSpace == 0)	// became dimensionless?
+	if (out->dimSpace == 0)	/* became dimensionless? */
 	    out->scaleSpace = 0;
     }
 
@@ -1436,11 +1436,11 @@ pmParseUnitsStr(const char *str, pmUnits * out, double *multiplier, char **errMs
 	out->scaleCount = divisor.scaleCount;
     else if (divisor.dimCount == 0 && dividend.dimCount != 0)
 	out->scaleCount = dividend.scaleCount;
-    else {			// both have count dimension; must compute a scale/multiplier
+    else {			/* both have count dimension; must compute a scale/multiplier */
 	out->scaleCount = PM_COUNT_ONE;
 	*multiplier *= pow(pow(10.0, (double) dividend.scaleCount), -(double) dividend.dimCount);
 	*multiplier *= pow(pow(10.0, (double) divisor.scaleCount), (double) divisor.dimCount);
-	if (out->dimCount == 0)	// became dimensionless?
+	if (out->dimCount == 0)	/* became dimensionless? */
 	    out->scaleCount = 0;
     }
 
@@ -1448,7 +1448,7 @@ pmParseUnitsStr(const char *str, pmUnits * out, double *multiplier, char **errMs
 	out->scaleTime = divisor.scaleTime;
     else if (divisor.dimTime == 0 && dividend.dimTime != 0)
 	out->scaleTime = dividend.scaleTime;
-    else {			// both have time dimension; must compute a scale/multiplier
+    else {			/* both have time dimension; must compute a scale/multiplier */
 	out->scaleTime = PM_TIME_SEC;
 	static const double time_scales[] = {[PM_TIME_NSEC] = 0.000000001,
 	    [PM_TIME_USEC] = 0.000001,
@@ -1457,18 +1457,18 @@ pmParseUnitsStr(const char *str, pmUnits * out, double *multiplier, char **errMs
 	    [PM_TIME_MIN] = 60,
 	    [PM_TIME_HOUR] = 3600
 	};
-	// guaranteed by __pmParseUnitsStrPart; ensure in-range array access
+	/* guaranteed by __pmParseUnitsStrPart; ensure in-range array access */
 	assert(dividend.scaleTime >= PM_TIME_NSEC && dividend.scaleTime <= PM_TIME_HOUR);
 	assert(divisor.scaleTime >= PM_TIME_NSEC && divisor.scaleTime <= PM_TIME_HOUR);
 	*multiplier *= pow(time_scales[dividend.scaleTime], -(double) dividend.dimTime);
 	*multiplier *= pow(time_scales[divisor.scaleTime], (double) divisor.dimTime);
-	if (out->dimTime == 0)	// became dimensionless?
+	if (out->dimTime == 0)	/* became dimensionless? */
 	    out->scaleTime = 0;
     }
 
 out:
     if (sts < 0) {
-	memset(out, 0, sizeof(*out));	// clear partially filled in pmUnits
+	memset(out, 0, sizeof(*out));	/* clear partially filled in pmUnits */
 	*multiplier = 1.0;
     }
     return sts;
