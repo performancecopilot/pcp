@@ -601,14 +601,13 @@ static int
 papi_internal_init(pmdaInterface *dp)
 {
     int ec;
-    unsigned int native = 0;
     int sts;
     PAPI_event_info_t info;
     char entry[PAPI_HUGE_STR_LEN+12]; // the length papi uses for the symbol name
     unsigned int i = 0;
     pmID pmid;
     char *tokenized_string;
-    int number_of_components, component_id = 0;
+    int number_of_components = 0;
 
     sts = sprintf(papi_version, "%d.%d.%d", PAPI_VERSION_MAJOR(PAPI_VERSION),
 	    PAPI_VERSION_MINOR(PAPI_VERSION), PAPI_VERSION_REVISION(PAPI_VERSION));
@@ -660,9 +659,11 @@ papi_internal_init(pmdaInterface *dp)
     } while(PAPI_enum_event(&ec, 0) == PAPI_OK);
 
 #if defined(HAVE_PAPI_DISABLED_COMP)
+    int component_id = 0;
+    int native = 0;
     number_of_components = PAPI_num_components();
     native = 0 | PAPI_NATIVE_MASK;
-    for (component_id; component_id < number_of_components; component_id++) {
+    for (component_id = 0; component_id < number_of_components; component_id++) {
 	const PAPI_component_info_t *component;
 	component = PAPI_get_component_info(component_id);
 	if (component->disabled || (strcmp("perf_event", component->name)
