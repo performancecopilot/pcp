@@ -1003,6 +1003,7 @@ avahi
 945 pmlogrewrite pmda.xfs local
 946 pmfind avahi local
 950 avahi local
+955 pmda.linux local
 957 pmda.linux local valgrind
 958 archive local
 959 pmda.sample pmstore local
