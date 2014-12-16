@@ -34,6 +34,13 @@ my $rest_timeout = 1;
 
 my $queue_indom = 0;
 
+my $broker_cluster = 0;
+my $health_cluster = 1;
+my $queue_cluster = 2;
+my $jvm_memory_cluster = 3;
+my $jvm_memory_pool_cluster = 4;
+my $jvm_garbage_collection_cluster = 5;
+
 # Configuration files for overriding the above settings
 for my $file (pmda_config('PCP_PMDAS_DIR') . '/activemq/activemq.conf', 'activemq.conf') {
     eval `cat $file` unless ! -f $file;
@@ -64,10 +71,10 @@ sub update_activemq_status
 	return;
     }
 
-    if ($cluster == 1) {
+    if ($cluster == $health_cluster) {
 	$activemq->refresh_health;
     }
-    elsif ($cluster == 2) {
+    elsif ($cluster == $queue_cluster) {
 	my @queues = $activemq->queues;
 
 	%queue_instances = map {
@@ -109,15 +116,15 @@ sub activemq_fetch_callback
 {
     my ($cluster, $item, $inst) = @_;
 
-    if($cluster ==0) {
+    if($cluster == $broker_cluster) {
 	if ($inst != PM_IN_NULL) { return (PM_ERR_INST, 0); }
 	return activemq_value($activemq->attribute_for(metric_subname($cluster, $item)));
     }
-    elsif($cluster ==1) {
+    elsif($cluster == $health_cluster) {
 	if ($inst != PM_IN_NULL) { return (PM_ERR_INST, 0); }
 	return activemq_value($activemq->attribute_for(metric_subname($cluster, $item), 'Health'));
     }
-    elsif ($cluster == 2) {
+    elsif ($cluster == $queue_cluster) {
 	if ($inst == PM_IN_NULL) { return (PM_ERR_INST, 0); }
 
 	my $instance_queue_name = pmda_inst_lookup($queue_indom, $inst);
@@ -127,19 +134,19 @@ sub activemq_fetch_callback
 	return (PM_ERR_INST, 0) unless defined($selected_queue);
 	return activemq_value($selected_queue->attribute_for(metric_subname($cluster, $item)));
     }
-    elsif ($cluster == 3) {
+    elsif ($cluster == $jvm_memory_cluster) {
 	if ($inst != PM_IN_NULL) { return (PM_ERR_INST, 0); }
 
 	my @metric_subnames = metric_subnames($cluster, $item);
 	return activemq_value($jvm_memory->attribute_for($metric_subnames[-2], $metric_subnames[-1]));
     }
-    elsif ($cluster == 4) {
+    elsif ($cluster == $jvm_memory_pool_cluster) {
 	if ($inst != PM_IN_NULL) { return (PM_ERR_INST, 0); }
 
 	my @metric_subnames = metric_subnames($cluster, $item);
 	return activemq_value($jvm_memory_pool->attribute_for($metric_subnames[-3],$metric_subnames[-2], $metric_subnames[-1]));
     }
-    elsif ($cluster == 5) {
+    elsif ($cluster == $jvm_garbage_collection_cluster) {
 	if ($inst != PM_IN_NULL) { return (PM_ERR_INST, 0); }
 
 	my @metric_subnames = metric_subnames($cluster, $item);
@@ -159,7 +166,7 @@ my %broker_metrics = (
     'average_message_size' => {
 	description	=> 'Average message size on this broker',
 	metric_type	=> PM_SEM_INSTANT,
-	data_type	=> PM_TYPE_FLOAT,
+	data_type	=> PM_TYPE_U64,
 	units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
     'broker_id' => {
 	description	=> 'Unique id of the broker',
@@ -184,7 +191,7 @@ my %broker_metrics = (
     'store_limit' => {
 	description	=> 'Disk limit, in bytes, used for persistent messages before producers are blocked',
 	metric_type	=> PM_SEM_INSTANT,
-	data_type	=> PM_TYPE_FLOAT,
+	data_type	=> PM_TYPE_U64,
 	units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
     'total_consumer_count' => {
 	description	=> 'Number of message consumers subscribed to destinations on the broker',
@@ -209,7 +216,7 @@ my %broker_metrics = (
     'temp_limit' => {
 	description	=> 'Disk limit, in bytes, used for non-persistent messages and temporary data before producers are blocked',
 	metric_type	=> PM_SEM_INSTANT,
-	data_type	=> PM_TYPE_FLOAT,
+	data_type	=> PM_TYPE_U64,
 	units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
     'broker_name' => {
 	description	=> 'The name of the broker',
@@ -219,12 +226,12 @@ my %broker_metrics = (
     'job_scheduler_store_limit' => {
 	description	=> 'Disk limit, in bytes, used for scheduled messages before producers are blocked',
 	metric_type	=> PM_SEM_INSTANT,
-	data_type	=> PM_TYPE_FLOAT,
+	data_type	=> PM_TYPE_U64,
 	units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
     'min_message_size' => {
 	description	=> 'Min message size on this broker',
 	metric_type	=> PM_SEM_INSTANT,
-	data_type	=> PM_TYPE_FLOAT,
+	data_type	=> PM_TYPE_U64,
 	units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
     'job_scheduler_store_percent_usage' => {
 	description	=> 'Percent of job store limit used',
@@ -237,14 +244,14 @@ my %broker_metrics = (
 	data_type	=> PM_TYPE_U64,
 	units	=> pmda_units(0,0,1,0,0,PM_COUNT_ONE)},
     'broker_version' => {
-	description	=> 'Number of messages that have been acknowledged on the broker',
+	description	=> 'The version of the broker',
 	metric_type	=> PM_SEM_INSTANT,
 	data_type	=> PM_TYPE_STRING,
 	units	=> pmda_units(0,0,0,0,0,0)},
     'average_message_size' => {
 	description	=> 'Average message size on this broker',
 	metric_type	=> PM_SEM_INSTANT,
-	data_type	=> PM_TYPE_FLOAT,
+	data_type	=> PM_TYPE_U64,
 	units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
     'statistics_enabled' => {
 	description	=> 'Broker statistics enabled',
@@ -252,7 +259,7 @@ my %broker_metrics = (
 	data_type	=> PM_TYPE_STRING,
 	units	=> pmda_units(0,0,0,0,0,0)},
     'current_connections_count' => {
-	description	=> 'Current Connections Count',
+	description	=> 'Current connections count',
 	metric_type	=> PM_SEM_INSTANT,
 	data_type	=> PM_TYPE_U64,
 	units	=> pmda_units(0,0,1,0,0,PM_COUNT_ONE)},
@@ -269,7 +276,7 @@ my %broker_metrics = (
     'max_message_size' => {
 	description	=> 'Max message size on this broker',
 	metric_type	=> PM_SEM_INSTANT,
-	data_type	=> PM_TYPE_FLOAT,
+	data_type	=> PM_TYPE_U64,
 	units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
     'total_enqueue_count' => {
 	description	=> 'Number of messages that have been sent to the broker',
@@ -318,7 +325,7 @@ foreach my $metricName (sort (keys %health_metrics)) {
 
 my %queue_metrics = (
     'dequeue_count'  => {
-	description	=> 'Number of messages that have been acknowledged (and removed from) from the destination',
+	description	=> 'Number of messages that have been acknowledged (and removed from) from this destination',
 	metric_type	=> PM_SEM_COUNTER,
 	data_type	=> PM_TYPE_U64,
 	units	=> pmda_units(0,0,1,0,0,PM_COUNT_ONE)},
@@ -328,7 +335,7 @@ my %queue_metrics = (
 	data_type	=> PM_TYPE_U64,
 	units	=> pmda_units(0,0,1,0,0,PM_COUNT_ONE)},
     'enqueue_count'  => {
-	description	=> 'Number of messages that have been sent to the destination',
+	description	=> 'Number of messages that have been sent to this destination',
 	metric_type	=> PM_SEM_COUNTER,
 	data_type	=> PM_TYPE_U64,
 	units	=> pmda_units(0,0,1,0,0,PM_COUNT_ONE)},
@@ -340,17 +347,17 @@ my %queue_metrics = (
     'average_blocked_time'  => {
 	description	=> 'Get the average time (ms) a message is blocked for Flow Control',
 	metric_type	=> PM_SEM_INSTANT,
-	data_type	=> PM_TYPE_FLOAT,
+	data_type	=> PM_TYPE_DOUBLE,
 	units	=> pmda_units(0,1,0,0,PM_TIME_MSEC,0)},
     'max_enqueue_time'  => {
-	description	=> 'The longest time a message has been held this destination',
+	description	=> 'The longest time a message has been held at this destination',
 	metric_type	=> PM_SEM_INSTANT,
 	data_type	=> PM_TYPE_U64,
 	units	=> pmda_units(0,1,0,0,PM_TIME_MSEC,0)},
     'average_enqueue_time'  => {
-	description	=> 'Average time a message has been held this destination',
+	description	=> 'Average time a message has been held at this destination',
 	metric_type	=> PM_SEM_INSTANT,
-	data_type	=> PM_TYPE_FLOAT,
+	data_type	=> PM_TYPE_DOUBLE,
 	units	=> pmda_units(0,1,0,0,PM_TIME_MSEC,0)},
     'total_blocked_time'  => {
 	description	=> 'Get the total time (ms) messages are blocked for Flow Control',
@@ -358,19 +365,19 @@ my %queue_metrics = (
 	data_type	=> PM_TYPE_U64,
 	units	=> pmda_units(0,1,0,0,PM_TIME_MSEC,0)},
     'min_enqueue_time'  => {
-	description	=> 'The shortest time a message has been held this destination',
+	description	=> 'Average time a message has been held at this destination',
 	metric_type	=> PM_SEM_INSTANT,
 	data_type	=> PM_TYPE_U64,
 	units	=> pmda_units(0,1,0,0,PM_TIME_MSEC,0)},
     'blocked_producer_warning_interval'  => {
-	description	=> 'Blocked Producer Warning Interval',
+	description	=> 'Blocked producer warning interval',
 	metric_type	=> PM_SEM_INSTANT,
 	data_type	=> PM_TYPE_U64,
 	units	=> pmda_units(0,1,0,0,PM_TIME_MSEC,0)},
     'average_message_size'  => {
 	description	=> 'Average message size on this destination',
 	metric_type	=> PM_SEM_INSTANT,
-	data_type	=> PM_TYPE_FLOAT,
+	data_type	=> PM_TYPE_DOUBLE,
 	units	=> pmda_units(1,0,0,PM_SPACE_BYTE,0,0)},
     'cursor_memory_usage'  => {
 	description	=> 'Message cursor memory usage, in bytes',
