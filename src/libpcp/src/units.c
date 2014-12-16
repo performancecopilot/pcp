@@ -1217,7 +1217,7 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig * out, do
 	{"^0", 0}, /*{ "^1", 1 }, */ {"^2", 2}, {"^3", 3},
 	{"^4", 4}, {"^5", 5}, {"^6", 6}, {"^7", 7},
 	/* NB: the following larger exponents are enabled by use of pmUnitsBig above. */
-	// They happen to be necessary because pmUnitsStr emits foo-dim=-8 as "/ foo^8",
+	/* They happen to be necessary because pmUnitsStr emits foo-dim=-8 as "/ foo^8", */
 	/* so the denominator could encounter wider-than-bitfield exponents. */
 	{"^8", 8}, {"^9", 9}, {"^10", 10}, {"^11", 11},
 	{"^12", 12}, {"^13", 13}, {"^14", 14}, {"^15", 15},
@@ -1238,7 +1238,7 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig * out, do
 	}
 
 	if (*ptr == '-' || *ptr == '.' || isdigit(*ptr)) {	/* possible floating-point number */
-	    // parse it with strtod(3).
+	    /* parse it with strtod(3). */
 	    char *newptr;
 	    errno = 0;
 	    double m = strtod(ptr, &newptr);
@@ -1264,7 +1264,7 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig * out, do
                        ? (ptr += strlen(q), 1) : 0)
 
 	/* parse base unit, only once per input string.  We don't support */
-	// "microsec millisec", as that would require arithmetic on the scales.
+	/* "microsec millisec", as that would require arithmetic on the scales. */
 	/* We could support "sec sec" (and turn that into sec^2) in the future. */
 	if (dimension == d_none && out->dimTime == 0)
 	    for (i = 0; i < num_time_keywords; i++)
@@ -1403,20 +1403,22 @@ pmParseUnitsStr(const char *str, pmUnits * out, double *multiplier, char **errMs
 	goto out;
     }
 
-    /* Compute the individual scales.  In theory, we have considerable */
-    // freedom here, because we are also outputting a multiplier.  We
-    /* could just set all out->scale* to 0, and accumulate the */
-    // compensating scaling multipliers there.  But in order to
-    /* fulfill the testing-oriented invariant: */
-    //
-    /* for all valid pmUnits u: */
-    //     pmParseUnitsStr(pmUnitsStr(u), out_u, out_multiplier) succeeds, and
-    /*     out_u == u, and */
-    //     out_multiplier == 1.0
-    /* */
-    // we need to propagate scales to some extent.  It is helpful to
-    /* realize that pmUnitsStr() never generates multiplier literals, */
-    // nor the same dimension in the dividend and divisor.
+    /*
+     * Compute the individual scales.  In theory, we have considerable
+     * freedom here, because we are also outputting a multiplier.  We
+     * could just set all out->scale* to 0, and accumulate the
+     * compensating scaling multipliers there.  But in order to
+     * fulfill the testing-oriented invariant:
+     *
+     * for all valid pmUnits u:
+     *     pmParseUnitsStr(pmUnitsStr(u), out_u, out_multiplier) succeeds, and
+     *     out_u == u, and
+     *     out_multiplier == 1.0
+     *
+     * we need to propagate scales to some extent.  It is helpful to
+     * realize that pmUnitsStr() never generates multiplier literals,
+     *  nor the same dimension in the dividend and divisor.
+     */
 
     *multiplier = divisor_mult / dividend_mult;	/* NB: note reciprocation */
 

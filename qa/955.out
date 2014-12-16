@@ -1,0 +1,44 @@
+QA output created by 955
+=== Daemon PMDA linux static text then dynamic fetch test ===
+dbpmda> open pipe PCP_PMDAS_DIR/linux/pmdalinux -d 60
+Start pmdalinux PMDA: PCP_PMDAS_DIR/linux/pmdalinux -d 60
+dbpmda> text hinv.ncpu
+PMID: 60.NUMBER.NUMBER
+[number of CPUs in the system]
+<no help text specified>
+dbpmda> fetch kernel.percpu.interrupts.line1
+PMID(s): 60.NUMBER.NUMBER
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  60.NUMBER.NUMBER (<noname>): numval: 1 valfmt: 0 vlist[]:
+    inst [0 or ???] value NUMBER
+dbpmda> 
+=== Daemon PMDA linux static fetch then dynamic fetch test ===
+dbpmda> open pipe PCP_PMDAS_DIR/linux/pmdalinux -d 60
+Start pmdalinux PMDA: PCP_PMDAS_DIR/linux/pmdalinux -d 60
+dbpmda> fetch hinv.ncpu
+PMID(s): 60.NUMBER.NUMBER
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  60.NUMBER.NUMBER (hinv.ncpu): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+dbpmda> fetch kernel.percpu.interrupts.line1
+PMID(s): 60.NUMBER.NUMBER
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  60.NUMBER.NUMBER (<noname>): numval: 1 valfmt: 0 vlist[]:
+    inst [0 or ???] value NUMBER
+dbpmda> 
+=== Daemon PMDA linux dynamic then static fetch test ===
+dbpmda> open pipe PCP_PMDAS_DIR/linux/pmdalinux -d 60
+Start pmdalinux PMDA: PCP_PMDAS_DIR/linux/pmdalinux -d 60
+dbpmda> fetch kernel.percpu.interrupts.line1
+PMID(s): 60.NUMBER.NUMBER
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  60.NUMBER.NUMBER (<noname>): numval: 1 valfmt: 0 vlist[]:
+    inst [0 or ???] value NUMBER
+dbpmda> fetch hinv.ncpu
+PMID(s): 60.NUMBER.NUMBER
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  60.NUMBER.NUMBER (hinv.ncpu): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+dbpmda> 
+=== Daemon PMDA linux look for dynamic children ===
+LEAFS OK

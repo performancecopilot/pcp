@@ -99,10 +99,32 @@ version is not supported by
 The PMDA must be using
 .B PMDA_INTERFACE_2
 or later.
+.PP
+Once
+.B pmdaDaemon
+has been called, it is expected that the
+.B pmdaInterface
+structure pointed to by
+.I dispatch
+will remain accessible to the 
+routines in
+.I libpcp_pmda
+(not reclaimed off the stack,
+not freed or oherwise released, etc.).
+If the caller needs to move or relocate the
+.B pmdaInterface
+structure for any reason, then after the move
+.BR pmdaInterfaceMoved (3)
+must be called to resestablish the internal integrity of the
+.I pmdaInterface
+structure at the new location before any other routine in
+.I libpcp_pmda
+is called.
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR PMDA (3),
 .BR pmdaDSO (3),
-.BR pmdaGetOpt (3)
+.BR pmdaGetOpt (3),
+.BR pmdaInterfaceMoved (3)
 and
 .BR pmdaText (3).

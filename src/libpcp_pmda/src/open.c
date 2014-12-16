@@ -985,3 +985,18 @@ pmdaOpenLog(pmdaInterface *dispatch)
     __pmOpenLog(dispatch->version.any.ext->e_name, 
 		dispatch->version.any.ext->e_logfile, stderr, &c);
 }
+
+/*
+ * pmdaInterface was moved ... fix e_ext back pointer
+ */
+void
+pmdaInterfaceMoved(pmdaInterface *dispatch)
+{
+    if (dispatch->version.any.ext != NULL) {
+	if (dispatch->version.any.ext->e_ext != NULL) {
+	    e_ext_t	*extp;
+	    extp = (e_ext_t *)dispatch->version.any.ext->e_ext;
+	    extp->dispatch = dispatch;
+	}
+    }
+}

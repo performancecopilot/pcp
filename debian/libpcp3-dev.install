@@ -134,6 +134,7 @@ usr/share/man/man3/pmParseMetricSpec.3.gz
 usr/share/man/man3/pmparsetime.3.gz
 usr/share/man/man3/__pmParseTime.3.gz
 usr/share/man/man3/pmParseTimeWindow.3.gz
+usr/share/man/man3/pmParseUnitsStr.3.gz
 usr/share/man/man3/pmprintf.3.gz
 usr/share/man/man3/__pmPrintIPC.3.gz
 usr/share/man/man3/pmPrintValue.3.gz

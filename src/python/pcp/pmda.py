@@ -160,22 +160,46 @@ class MetricDispatch(object):
     # overloads
 
     def __init__(self, domain, name, logfile, helpfile):
-        self.clear_indoms()
-        self.clear_metrics()
-        cpmda.init_dispatch(domain, name, logfile, helpfile)
-
-    def clear_indoms(self):
         self._indomtable = []
         self._indoms = {}
         self._indom_oneline = {}
         self._indom_helptext = {}
-
-    def clear_metrics(self):
         self._metrictable = []
         self._metrics = {}
         self._metric_names = {}
         self._metric_oneline = {}
         self._metric_helptext = {}
+        cpmda.init_dispatch(domain, name, logfile, helpfile)
+
+    def clear_indoms(self):
+        # Notice we're using the following:
+        #
+        #   del list[:]
+        #   dict.clear()
+        #
+        # instead of:
+        #
+        #   list = []
+        #   dict = {}
+        #
+        # The latter creates a new list/dictionary and assigns it to
+        # the variable. But, the stashed list/dictionary reference
+        # down in cpmda still will point to the original
+        # list/dictionary. Clearing out the existing list/dictionary
+        # keeps the stashed references working the way we'd like.
+        del self._indomtable[:]
+        self._indoms.clear()
+        self._indom_oneline.clear()
+        self._indom_helptext.clear()
+
+    def clear_metrics(self):
+        # See note above in clear_indoms() about clearing
+        # lists/dictionaries.
+        del self._metrictable[:]
+        self._metrics.clear()
+        self._metric_names.clear()
+        self._metric_oneline.clear()
+        self._metric_helptext.clear()
 
     def reset_metrics(self):
         self.clear_metrics()
@@ -333,17 +357,7 @@ class PMDA(MetricDispatch):
             cpmda.pmid_longtext_refresh(self._metric_helptext)
             cpmda.indom_oneline_refresh(self._indom_oneline)
             cpmda.indom_longtext_refresh(self._indom_helptext)
-            numindoms = len(self._indomtable)
-            ibuf = create_string_buffer(numindoms * sizeof(pmdaIndom))
-            indoms = cast(ibuf, POINTER(pmdaIndom))
-            for i in range(numindoms):
-                indoms[i] = self._indomtable[i]
-            nummetrics = len(self._metrictable)
-            mbuf = create_string_buffer(nummetrics * sizeof(pmdaMetric))
-            metrics = cast(mbuf, POINTER(pmdaMetric))
-            for i in range(nummetrics):
-                metrics[i] = self._metrictable[i]
-            cpmda.pmda_dispatch(ibuf.raw, numindoms, mbuf.raw, nummetrics)
+            cpmda.pmda_dispatch(self._indomtable, self._metrictable)
 
     @staticmethod
     def set_fetch(fetch):
@@ -364,6 +378,10 @@ class PMDA(MetricDispatch):
     @staticmethod
     def set_store_callback(store_callback):
         return cpmda.set_store_callback(store_callback)
+
+    @staticmethod
+    def set_refresh_metrics(refresh_metrics):
+        return cpmda.set_refresh_metrics(refresh_metrics)
 
     @staticmethod
     def set_user(username):

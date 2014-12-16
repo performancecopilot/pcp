@@ -1,0 +1,68 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014 Ken McDonell, 2014. All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDAINTERFACEMOVED 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaInterfaceMoved\f1 \- reset internal state of a \f2pmdaInterface\f1 structure
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/pmda.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+void pmdaInterfaceMoved(pmdaInterface *\fIdispatch\fP)
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.SH DESCRIPTION
+After a call to either
+.BR pmdaDaemon (3)
+or
+.BR pmdaDSO (3)
+to initialize the
+.B pmdaInterface
+structure, if the caller needs to relocate or move the structure for
+any reason then
+.B pmdaInterfaceMoved
+needs to be called with the new base address of the
+.I pmdaInterface
+routine as specified by
+.IR dispatch .
+.PP
+.B pmdaInterfaceMoved
+will re-establish the internal integrity of the
+.I pmdaInterface
+structure at the new location before any other routine in
+.I libpcp_pmda
+called.
+.SH CAVEAT
+The PMDA must be using
+.B PMDA_INTERFACE_2
+or later.
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR PMDA (3),
+.BR pmdaDaemon (3)
+and
+.BR pmdaDSO (3).

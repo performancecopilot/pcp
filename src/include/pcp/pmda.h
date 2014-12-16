@@ -720,6 +720,8 @@ extern int pmdaEventSetAccess(int, int, int);
 
 extern char *__pmdaEventPrint(const char *, int, char *, int);
 
+extern void pmdaInterfaceMoved(pmdaInterface *);
+
 #ifdef __cplusplus
 }
 #endif
