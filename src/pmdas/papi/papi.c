@@ -606,8 +606,6 @@ papi_internal_init(pmdaInterface *dp)
     char entry[PAPI_HUGE_STR_LEN+12]; // the length papi uses for the symbol name
     unsigned int i = 0;
     pmID pmid;
-    char *tokenized_string;
-    int number_of_components = 0;
 
     sts = sprintf(papi_version, "%d.%d.%d", PAPI_VERSION_MAJOR(PAPI_VERSION),
 	    PAPI_VERSION_MINOR(PAPI_VERSION), PAPI_VERSION_REVISION(PAPI_VERSION));
@@ -659,8 +657,11 @@ papi_internal_init(pmdaInterface *dp)
     } while(PAPI_enum_event(&ec, 0) == PAPI_OK);
 
 #if defined(HAVE_PAPI_DISABLED_COMP)
-    int component_id = 0;
-    int native = 0;
+    char *tokenized_string;
+    int number_of_components;
+    int component_id;
+    int native;
+
     number_of_components = PAPI_num_components();
     native = 0 | PAPI_NATIVE_MASK;
     for (component_id = 0; component_id < number_of_components; component_id++) {
