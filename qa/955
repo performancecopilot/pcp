@@ -1,8 +1,9 @@
 #!/bin/sh
 # PCP QA Test No. 955
-# Check that a fetch for a dynamic metric works after interacting with non dynamic metrics in the same domain
+# Check that a fetch for a dynamic metric works after interacting
+# with non dynamic metrics in the same domain
 #
-# Copyright (c) 2014 [who are you?].  All Rights Reserved.
+# Copyright (c) 2014 Martins Innus.  All Rights Reserved.
 #
 
 seq=`basename $0`
