@@ -69,8 +69,8 @@ echo "=== Daemon PMDA papi auto_enable disabled test ==="
 $sudo dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _filter
 open pipe $pipepmda -d 126
 getdesc on
-attr "username" "root"
-attr 11 "0"
+attr 'username' 'root'
+attr 11 '0'
 desc papi.system.TOT_INS
 desc papi.control.status
 desc papi.control.auto_enable
