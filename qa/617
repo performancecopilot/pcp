@@ -145,11 +145,18 @@ text blah 29.2
 #test the store command
 store
 store 29.0.36 "42"
+store 29.0.36 '43'
 fetch sample.write_me
 store 29.0.36
 store 29.0.36 "57.3"
+store 29.0.36 '57.3'
 store 20.0.36 4
 store sample.write_me "Hello there"
+fetch sample.write_me
+store sample.string.write_me "Hello I'm here"
+fetch sample.string.write_me
+store sample.string.write_me '"hello world" to you too'
+fetch sample.string.write_me
 store 29.0.20 "3"
 store 0.0.0 "5"
 store sample.aggregate.write_me "foo bar"
