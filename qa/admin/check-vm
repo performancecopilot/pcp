@@ -229,6 +229,7 @@ dpkg?	Spreadsheet::Read	[libspreadsheet-read-perl]
 rpm?	Spreadsheet::Read	[cpan]
 dpkg?	Spreadsheet::WriteExcel	[libspreadsheet-writeexcel-perl]
 rpm?	Spreadsheet::WriteExcel	[perl-Spreadsheet-WriteExcel or cpan]
+rpm?	JSON::			[perl-JSON]
 Spreadsheet::ReadSXC		[cpan]
 # other run-time
 sadf				[sysstat]
@@ -250,11 +251,10 @@ time				[time(redhat)]
 dpkg?	realpath		[realpath]
 # pcp-gui
 dpkg?	qmake			[qt4-qmake]
-rpm?	qmake|qmake-qt4			[qt-devel]
-dpkg?	/usr/lib/libQtCore.so|/usr/lib/*/libQtCore.so	[libqt4-dev]
+rpm?	qmake|/usr/lib64/qt4/bin/qmake|/usr/lib/qt4/bin/qmake		[qt4-devel]
 dpkg?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[optional][libsoqt4-dev]
-rpm?	/usr/lib/libQtCore.so|/usr/lib*/libQtCore.so	[optional][qt-devel]
-dpkg?	/usr/include/Inventor/Qt/SoQt.h	[optional][libsoqt-dev-common]
+rpm?	/usr/lib/libQtCore.so|/usr/lib*/libQtCore.so|/usr/lib/qt4/lib/libQtCore.so	[optional][qt4-devel]
+dpkg?	/usr/include/Inventor/Qt/SoQt.h	[optional][libsoqt4-dev-common]
 dpkg?	/usr/include/Inventor/SoPath.h	[optional][libcoin60-dev or libcoin80-dev]
 # python
 rpm?	/usr/include/python*/Python.h	[python-devel]
@@ -285,7 +285,7 @@ then
 	    touch $tmp.need
 	fi
 	[ -f $tmp.need ] && \
-	    echo "rpm?	/usr/share/doc/packages/python-ctypes	[python-ctypes]" >>$tmp.control
+	    echo "rpm?	/usr/share/doc/python-ctypes*	[python-ctypes]" >>$tmp.control
     fi
 fi
 
@@ -328,7 +328,14 @@ do
 		[ -f $tmp.tmp ]
 		ok=$?
 		;;
+	    *::)
+		# special case Perl, no module name
+		echo "use `echo $app | sed -e 's/::$//'`;" | perl >/dev/null 2>&1
+		ok=$?
+		;;
+
 	    *::*)
+		# normal case Perl, with module name
 		echo "use $app;" | perl >/dev/null 2>&1
 		ok=$?
 		;;
@@ -428,7 +435,7 @@ perl		>=	5.6
 python		>=	2.6
 # configure.ac
 libmicrohttpd	>	0.9.9
-cairo		>=	1.2
+libcairo2-dev	>=	1.2
 End-of-File
     cat $tmp.control \
     | sed -e 's/#.*//' -e '/^[ 	]*$/d' \
@@ -451,7 +458,7 @@ End-of-File
 	    then
 		$verbose && echo "$pkg: version installed $version, need $relop $ctlversion, OK"
 	    else
-		echo "Error: $pkg version installed $version, need $relop $ctlversion"
+		echo "Warning: $pkg version installed $version, need $relop $ctlversion"
 	    fi
 	fi
     done
@@ -475,7 +482,7 @@ libibmad-devel	>=	1.1.7
 libibumad-devel	>=	1.1.7
 # configure.ac
 libmicrohttpd	>	0.9.9
-cairo		>=	1.2
+cairo-devel		>=	1.2
 End-of-File
     cat $tmp.control \
     | sed -e 's/#.*//' -e '/^[ 	]*$/d' \
@@ -489,7 +496,7 @@ End-of-File
 	then
 	    $verbose && echo "$rpm: version installed $version, need $relop $specversion, OK"
 	else
-	    echo "Error: $rpm version installed $version, need $relop $specversion"
+	    echo "Warning: $rpm version installed $version, need $relop $specversion"
 	fi
     done
 fi
