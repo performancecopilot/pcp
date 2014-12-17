@@ -697,8 +697,8 @@ extern char *pmGetConfig(const char *);
 #define PMOPT_HOST_LIST { PMLONGOPT_HOST_LIST, 1, 0, "HOSTS", \
 		"comma-separated list of metric source hosts" }
 #define PMLONGOPT_CONTAINER "container"
-#define PMOPT_CONTAINER { PMLONGOPT_CONTAINER, 1, 0, "CONTAINER", \
-		"name of the container being targetted" }
+#define PMOPT_CONTAINER { PMLONGOPT_CONTAINER, 1, 0, "NAME", \
+		"specify an individual container to be queried" }
 
 /* pmOptions flags */
 #define PM_OPTFLAG_INIT		(1<<0)	/* initialisation done */
