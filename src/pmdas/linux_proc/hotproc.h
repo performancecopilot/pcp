@@ -16,8 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef PHOTPROC_H
-#define PHOTPROC_H
+#ifndef _HOTPROC_H
+#define _HOTPROC_H
 
 #include "config.h"
 
@@ -64,5 +64,7 @@ typedef struct process_t {
     derived_pred_t preds;
 
 } process_t;
+
+void hotproc_init();
 
 #endif

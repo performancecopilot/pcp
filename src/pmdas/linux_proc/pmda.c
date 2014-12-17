@@ -1226,6 +1226,10 @@ static pmdaMetric metrictab[] = {
  * hotproc specific clusters
  */
  
+    /* hotproc.nprocs */
+    { NULL,
+      { PMDA_PMID(CLUSTER_HOTPROC_PID_STAT,99), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,0,0,0,0) } },
     /* hotproc.control.refresh */
     { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_REFRESH),
       PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
@@ -2875,10 +2879,7 @@ proc_init(pmdaInterface *dp)
     int		nindoms = sizeof(indomtab)/sizeof(indomtab[0]);
     int		nmetrics = sizeof(metrictab)/sizeof(metrictab[0]);
 
-    FILE *conf;
     char	*envpath;
-
-    int   sep = __pmPathSeparator();
 
     _pm_system_pagesize = getpagesize();
     if ((envpath = getenv("PROC_STATSPATH")) != NULL)
@@ -2933,23 +2934,8 @@ proc_init(pmdaInterface *dp)
     indomtab[HOTPROC_INDOM].it_indom = HOTPROC_INDOM;
     hotproc_pid.indom = &indomtab[HOTPROC_INDOM];
 
-    char    h_configfile[MAXPATHLEN];
-
-    snprintf(h_configfile, sizeof(h_configfile), "%s%c" "proc" "%c" "hotproc.conf",
-                    pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-
-    //Send this all to a hotproc init config function? TODO
-    conf = open_config(h_configfile);
-
-    /* Hotproc configured */
-    if( conf != NULL ){
-	if(read_config(conf)){
-	    conf_gen = 1;
-	}
-	(void)fclose(conf);
-    }
-
-    init_hotproc_pid( &indomtab[HOTPROC_INDOM] );
+    hotproc_init();
+    init_hotproc_pid( &hotproc_pid );
  
     /* 
      * Read System.map and /proc/ksyms. Used to translate wait channel

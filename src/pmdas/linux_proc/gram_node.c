@@ -33,6 +33,7 @@ void free_tree(bool_node *root)
 {
     bool_node *n, *next;
 
+    /* Left in from orig hotproc, but why? I check for NULL in my use, in case there was a good reason */
     if (root == NULL)
 	root = node_list; /* use last tree */
 

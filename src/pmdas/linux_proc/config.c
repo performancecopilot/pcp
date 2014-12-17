@@ -24,6 +24,7 @@
 #include <regex.h>
 
 #include "pmapi.h"
+#include "impl.h"
 
 #include "gram_node.h"
 #include "gram.tab.h"
@@ -68,8 +69,9 @@ open_config(char configfile[])
 
     FILE *conf;
     if ((conf = fopen(hotproc_configfile, "r")) == NULL) {
-	(void)fprintf(stderr, "%s: Unable to open configuration file \"%s\": %s\n",
-	    pmProgname, hotproc_configfile, osstrerror());
+	if (pmDebug & DBG_TRACE_LIBPMDA){
+	    (void)fprintf(stderr, "%s: Unable to open configuration file \"%s\": %s\n", pmProgname, hotproc_configfile, osstrerror());
+	}
 	return NULL;
     }
     return conf;
@@ -146,7 +148,11 @@ error:
 void
 new_tree(bool_node *tree)
 {
-    free_tree(the_tree);
+
+    /* free_tree will delete the tree we just constructed if NULL is passed in.  Not sure why */
+    if( the_tree != NULL )
+	free_tree(the_tree);
+
     the_tree = tree;
 }
 

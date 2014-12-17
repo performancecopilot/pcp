@@ -306,6 +306,6 @@ extern proc_pid_entry_t *fetch_proc_pid_label(int, proc_pid_t *, int *);
 /* extract the ith space separated field from a buffer */
 extern char *_pm_getfield(char *, int);
 
-extern void init_hotproc_pid( pmdaIndom * );
+extern void init_hotproc_pid( proc_pid_t * );
 
 #endif /* _PROC_PID_H */

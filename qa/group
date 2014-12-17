@@ -952,6 +952,7 @@ avahi
 787:reserved archive local pmie pmlogrewrite pmdumplog pmval
 798 pmda.nfsclient local
 799:retired pmda.papi local
+800 pmda.proc local
 813 pmda.papi local
 815 pmie local
 822:reserved pmlogrewrite

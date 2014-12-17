@@ -1,0 +1,69 @@
+QA output created by 800
+=== Hotproc disabled by default test ===
+dbpmda> open pipe PCP_PMDAS_DIR/proc/pmdaproc -d 3
+Start pmdaproc PMDA: PCP_PMDAS_DIR/proc/pmdaproc -d 3
+dbpmda> getdesc on
+dbpmda> fetch hotproc.control.config_gen
+PMID(s): 3.NUMBER.NUMBER
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  3.NUMBER.NUMBER (hotproc.control.config_gen): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+dbpmda> fetch hotproc.control.config
+PMID(s): 3.NUMBER.NUMBER
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  3.NUMBER.NUMBER (hotproc.control.config): numval: 1 valfmt: 1 vlist[]:
+   value ""
+dbpmda> 
+=== Check that hotproc can be configured with UID===
+dbpmda> open pipe PCP_PMDAS_DIR/proc/pmdaproc -d 3
+Start pmdaproc PMDA: PCP_PMDAS_DIR/proc/pmdaproc -d 3
+dbpmda> getdesc on
+dbpmda> attr "username" "root"
+Attribute: username=root
+Success
+dbpmda> attr 11 "0"
+Attribute: userid=0
+Success
+dbpmda> store hotproc.control.config "uid==0"
+PMID: 3.NUMBER.NUMBER
+Getting description...
+Sending Profile...
+Getting Result Structure...
+3.NUMBER.NUMBER: "" -> "uid==0"
+Sending Result...
+dbpmda> fetch hotproc.control.config
+PMID(s): 3.NUMBER.NUMBER
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  3.NUMBER.NUMBER (hotproc.control.config): numval: 1 valfmt: 1 vlist[]:
+   value "uid==0"
+dbpmda> wait 11
+dbpmda> fetch hotproc.nprocs
+PMID(s): 3.NUMBER.NUMBER
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  3.NUMBER.NUMBER (hotproc.nprocs): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+dbpmda> 
+=== Check that hotproc can be configured with process name===
+dbpmda> open pipe PCP_PMDAS_DIR/proc/pmdaproc -d 3
+Start pmdaproc PMDA: PCP_PMDAS_DIR/proc/pmdaproc -d 3
+dbpmda> getdesc on
+dbpmda> attr "username" "root"
+Attribute: username=root
+Success
+dbpmda> attr 11 "0"
+Attribute: userid=0
+Success
+dbpmda> wait 11
+dbpmda> store hotproc.control.config 'fname=="pmdaproc"'
+PMID: 3.NUMBER.NUMBER
+Getting description...
+Sending Profile...
+Getting Result Structure...
+3.NUMBER.NUMBER: "" -> "fname=="pmdaproc""
+Sending Result...
+dbpmda> fetch hotproc.nprocs
+PMID(s): 3.NUMBER.NUMBER
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  3.NUMBER.NUMBER (hotproc.nprocs): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+dbpmda> 
