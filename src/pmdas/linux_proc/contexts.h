@@ -44,6 +44,7 @@ typedef struct {
 extern void proc_ctx_init(void);
 extern int proc_ctx_attrs(int, int, const char *, int, pmdaExt *);
 extern void proc_ctx_end(int);
+extern int proc_ctx_getuid(int);
 
 extern int proc_ctx_access(int);
 extern int proc_ctx_revert(int);
