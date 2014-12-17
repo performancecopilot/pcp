@@ -3,10 +3,10 @@ QA output created by 967
 dbpmda> open pipe PCP_PMDAS_DIR/papi/pmdapapi -d 126
 Start pmdapapi PMDA: PCP_PMDAS_DIR/papi/pmdapapi -d 126
 dbpmda> getdesc on
-dbpmda> attr "username" "root"
+dbpmda> attr 'username' 'root'
 Attribute: username=root
 Success
-dbpmda> attr 11 "0"
+dbpmda> attr 11 '0'
 Attribute: userid=0
 Success
 dbpmda> desc papi.system.TOT_INS
