@@ -134,7 +134,8 @@ def minutes_seconds(milli):
 
 class _StandardOutput(object):
     def width_write(self, value):
-        self._width = value
+        if value > 0:
+            self._width = value
     width = property(None, width_write, None, None)
 
     def __init__(self, out):
@@ -144,13 +145,17 @@ class _StandardOutput(object):
         else:
             self.stdout = False
             self.so_stdscr = out
+            self._width = self.so_stdscr.getmaxyx()[1]
     def addstr(self, str, clrtoeol=False):
         if self.stdout:
             sys.stdout.write(str)
         else:
-            self.so_stdscr.addstr(str)
-            if clrtoeol:
-                self.so_stdscr.clrtoeol()
+            if self.getyx()[1] + len(str) <= self._width:
+                self.so_stdscr.addstr(str)
+                if clrtoeol:
+                    self.so_stdscr.clrtoeol()
+            elif len(str) > self._width:
+                self.so_stdscr.addstr(str[:self._width])
     def clear(self):
         if not self.stdout:
             self.so_stdscr.clear()
@@ -173,6 +178,8 @@ class _StandardOutput(object):
     def timeout(self, milliseconds):
         if not self.stdout:
             self.so_stdscr.timeout(milliseconds)
+        else:
+            time.sleep(milliseconds / 1000)
     def refresh(self):
         if not self.stdout:
             self.so_stdscr.refresh()
@@ -463,6 +470,7 @@ class _DiskPrint(_AtopPrint):
                 continue
             self.p_stdscr.addstr('LVM |')
             self.p_stdscr.addstr(' %-12s |' % (lvm[len(lvm)-12:]))
+            # No disk.partitions.avactive thus no busy calculation
             self.p_stdscr.addstr('              |')
             self.p_stdscr.addstr(' read %s |' % self.valstr(partitions_read, 7))
             self.p_stdscr.addstr(' write %s |' % self.valstr(partitions_write, 6))
@@ -472,6 +480,7 @@ class _DiskPrint(_AtopPrint):
             if self.apyx[1] >= 110:
                 val = (float(self.ss.get_scalar_value('disk.partitions.blkwrite', j)) / float(self._interval * 1000)) * 100
                 self.p_stdscr.addstr(' MBw/s %s |' % self.valstr(val, 6))
+            # No disk.partitions.avactive thus no avio calculation
             if self.end_of_screen():
                 break
             self.next_line()
@@ -498,6 +507,7 @@ class _DiskPrint(_AtopPrint):
                 val = (float(self.ss.get_scalar_value('disk.partitions.blkwrite', j)) / float(self._interval * 1000)) * 100
                 self.p_stdscr.addstr(' MBw/s %s |' % self.valstr(val, 6))
             try:
+                # (/proc/diskstats) time spent doing I/Os / (completed reads + completed writes)
                 avio = (float(self.ss.get_scalar_value('disk.dev.avactive', j)) / float(self.ss.get_scalar_value('disk.dev.total', j)))
             except ZeroDivisionError:
                 avio = 0
@@ -728,6 +738,8 @@ class _Options(object):
         # pylint: disable=R0201
         if opt == 'g':
             return 1
+        elif opt == 'L':
+            return 1
         return 0
 
     def option_callback(self, opt, optarg, index):
@@ -820,7 +832,7 @@ def main(stdscr_p):
         while (i_samples < opts.n_samples) or (opts.n_samples == 0):
             ss.get_stats(pmc)
             stdscr.move(0, 0)
-            stdscr.addstr('ATOP - %s\t\t%s elapsed\n\n' % (
+            stdscr.addstr('ATOP - %s                %s elapsed\n\n' % (
                     time.strftime("%c"),
                     datetime.timedelta(0, elapsed)))
             elapsed = delta.tv_sec
