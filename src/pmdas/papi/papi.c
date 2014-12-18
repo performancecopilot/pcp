@@ -45,6 +45,7 @@ typedef struct {
 #define METRIC_ENABLED_FOREVER ((time_t)-1)
 static __uint32_t auto_enable_time = 120; /* seconds; 0:disabled */
 static int auto_enable_afid = -1; /* pmaf(3) identifier for periodic callback */
+static int enable_multiplexing = 1; /* on by default */
 
 static papi_m_user_tuple *papi_info;
 static unsigned int number_of_events; /* cardinality of papi_info[] */
@@ -67,10 +68,6 @@ static int refresh_metrics(int);
 static void auto_enable_expiry_cb(int, void *);
 
 static char helppath[MAXPATHLEN];
-static pmdaMetric *metrictab;
-static int nummetrics;
-
-static int enable_multiplexing;
 
 static int
 permission_check(int context)
@@ -126,20 +123,6 @@ enlarge_ctxtab(int context)
     }
 }
 
-static void
-expand_metric_tab(int size)
-{
-    size_t need = sizeof(pmdaMetric)*(nummetrics+1);
-    metrictab = realloc(metrictab, need);
-    if (metrictab == NULL)
-	__pmNoMem("metrictab expansion", need, PM_FATAL_ERR);
-
-    metrictab[nummetrics-1].m_desc.pmid = papi_info[size].pmid;
-    metrictab[nummetrics-1].m_desc.type = PM_TYPE_64;
-    metrictab[nummetrics-1].m_desc.indom = PM_INDOM_NULL;
-    metrictab[nummetrics-1].m_desc.sem = PM_SEM_COUNTER;
-    metrictab[nummetrics-1].m_desc.units = (pmUnits) PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE);
-}
 
 static int
 check_papi_state()
@@ -560,8 +543,75 @@ papi_store(pmResult *result, pmdaExt *pmda)
 static int
 papi_desc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 {
-    return pmdaDesc(pmid, desc, pmda);
+    int sts = PM_ERR_PMID; // presume fail; switch statements fall through to this
+    __pmID_int *idp = (__pmID_int *)&(pmid);
+
+    switch (idp->cluster) {
+    case CLUSTER_PAPI:
+        desc->pmid = pmid;
+        desc->type = PM_TYPE_64;
+        desc->indom = PM_INDOM_NULL;
+        desc->sem = PM_SEM_COUNTER;
+        desc->units = (pmUnits) PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE);
+        sts = 0;
+        break;
+
+    case CLUSTER_CONTROL:
+        switch (idp->item) {
+        case 0: // papi.control.enable
+        case 1: // papi.control.reset
+        case 2: // papi.control.disable
+        case 3: // papi.control.status
+            desc->pmid = pmid;
+            desc->type = PM_TYPE_STRING;
+            desc->indom = PM_INDOM_NULL;
+            desc->sem = PM_SEM_INSTANT;
+            desc->units = (pmUnits) PMDA_PMUNITS(0,0,0,0,0,0);
+            sts = 0;
+            break;
+        case 4: // papi.control.auto_enable
+            desc->pmid = pmid;
+            desc->type = PM_TYPE_U32;
+            desc->indom = PM_INDOM_NULL;
+            desc->sem = PM_SEM_DISCRETE;
+            desc->units = (pmUnits) PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0);
+            sts = 0;
+        case 5: // papi.control.multiplex
+            desc->pmid = pmid;
+            desc->type = PM_TYPE_U32;
+            desc->indom = PM_INDOM_NULL;
+            desc->sem = PM_SEM_DISCRETE;
+            desc->units = (pmUnits) PMDA_PMUNITS(0,0,0,0,0,0);
+            sts = 0;
+            break;
+        }
+        break;
+
+    case CLUSTER_AVAILABLE:
+        switch (idp->item) {
+        case 0: // papi.available.num_counters
+            desc->pmid = pmid;
+            desc->type = PM_TYPE_U32;
+            desc->indom = PM_INDOM_NULL;
+            desc->sem = PM_SEM_DISCRETE;
+            desc->units = (pmUnits) PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE);
+            sts = 0;
+            break;
+        case 1: // papi.available.version
+            desc->pmid = pmid;
+            desc->type = PM_TYPE_STRING;
+            desc->indom = PM_INDOM_NULL;
+            desc->sem = PM_SEM_INSTANT;
+            desc->units = (pmUnits) PMDA_PMUNITS(0,0,0,0,0,0);
+            sts = 0;
+            break;
+        }
+        break;
+    }
+
+    return sts;
 }
+
 
 static int
 papi_text(int ident, int type, char **buffer, pmdaExt *ep)
@@ -580,8 +630,9 @@ papi_text(int ident, int type, char **buffer, pmdaExt *ep)
 		*buffer = papi_info[pmidp->item].info.long_descr;
 	    return 0;
 	}
-	return pmdaText(ident, type, buffer, ep);
     }
+
+    /* delegate to "help" file */
     return pmdaText(ident, type, buffer, ep);
 }
 
@@ -648,8 +699,6 @@ papi_internal_init(pmdaInterface *dp)
 		memset(&entry[0], 0, sizeof(entry));
 		papi_info[i].position = -1;
 		papi_info[i].metric_enabled = 0;
-		nummetrics++;
-		expand_metric_tab(i);
 		expand_values(i);
 		i++;
 	    }
@@ -700,8 +749,6 @@ papi_internal_init(pmdaInterface *dp)
 		memset(&entry[0], 0, sizeof(entry));
 		papi_info[i].position = -1;
 		papi_info[i].metric_enabled = 0;
-		nummetrics++;
-		expand_metric_tab(i);
 		expand_values(i);
 		i++;
 	    }
@@ -756,44 +803,7 @@ void
 __PMDA_INIT_CALL
 papi_init(pmdaInterface *dp)
 {
-    int i;
     int sts;
-
-    enable_multiplexing = 1;
-    nummetrics = 8;
-    metrictab = malloc(nummetrics*sizeof(pmdaMetric));
-    if (metrictab == NULL)
-	__pmNoMem("initial metrictab allocation", (nummetrics*sizeof(pmdaMetric)), PM_FATAL_ERR);
-    for(i = 0; i < nummetrics; i++) {
-	switch (i) {
-	case 4: // papi.control.auto_enable
-	case 5:
-	    metrictab[i].m_desc.pmid = pmid_build(dp->domain, CLUSTER_CONTROL, i);
-	    metrictab[i].m_desc.type = PM_TYPE_U32;
-	    metrictab[i].m_desc.indom = PM_INDOM_NULL;
-	    metrictab[i].m_desc.sem = PM_SEM_DISCRETE;
-	    metrictab[i].m_desc.units = (pmUnits) PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0);
-	    break;
-	case 6: // papi.available.num_counters
-	case 7: // papi.available.version
-	    metrictab[i].m_desc.pmid = pmid_build(dp->domain, CLUSTER_AVAILABLE, i - 6);
-	    if (i == 6)
-		metrictab[i].m_desc.type = PM_TYPE_U32;		
-	    else
-		metrictab[i].m_desc.type = PM_TYPE_STRING;
-	    metrictab[i].m_desc.indom = PM_INDOM_NULL;
-	    metrictab[i].m_desc.sem = PM_SEM_DISCRETE;
-	    metrictab[i].m_desc.units = (pmUnits) PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE);
-	    break;
-	default: // papi.control.{enable,reset,disable,status}
-	    metrictab[i].m_desc.pmid = pmid_build(dp->domain, CLUSTER_CONTROL, i);
-	    metrictab[i].m_desc.type = PM_TYPE_STRING;
-	    metrictab[i].m_desc.indom = PM_INDOM_NULL;
-	    metrictab[i].m_desc.sem = PM_SEM_INSTANT;
-	    metrictab[i].m_desc.units = (pmUnits) PMDA_PMUNITS(0,0,0,0,0,0);
-	    break;
-	}
-    }
 
     if (isDSO) {
 	int	sep = __pmPathSeparator();
@@ -829,7 +839,7 @@ papi_init(pmdaInterface *dp)
     dp->version.four.children = papi_children;
     pmdaSetFetchCallBack(dp, papi_fetchCallBack);
     pmdaSetEndContextCallBack(dp, papi_endContextCallBack);
-    pmdaInit(dp, NULL, 0, metrictab, nummetrics);
+    pmdaInit(dp, NULL, 0, NULL, 0);
 }
 
 static pmLongOptions longopts[] = {
@@ -875,7 +885,6 @@ main(int argc, char **argv)
     free(ctxtab);
     free(papi_info);
     free(values);
-    free(metrictab);
 
     exit(0);
 }

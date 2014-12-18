@@ -838,6 +838,7 @@ General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP log archive
   -h HOST, --host=HOST  metrics source is PMCD on host
+  --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
                         optional additional PMDA spec for local connection
@@ -862,6 +863,7 @@ General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP log archive
   -h HOST, --host=HOST  metrics source is PMCD on host
+  --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
                         optional additional PMDA spec for local connection
