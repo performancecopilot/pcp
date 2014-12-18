@@ -56,8 +56,8 @@ static int			have_access;	/* =1 recvd uid/gid */
 static size_t			_pm_system_pagesize;
 static unsigned int		threads;	/* control.all.threads */
 static char *			cgroups;	/* control.all.cgroups */
-int				conf_gen = 0;	/* hotproc config version, if zero hotproc not configured yet */
-long				hz = -1;
+int				conf_gen;	/* hotproc config version, if zero hotproc not configured yet */
+long				hz;
 
 extern struct timeval   hotproc_update_interval;
 
@@ -1257,10 +1257,11 @@ static pmdaMetric metrictab[] = {
     /* hotproc.total.cpuother.percent */
     { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_OTHER_PERCENT),
       PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
-
+#if 0
     /* hotproc.predicate.syscalls */
     { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,ITEM_HOTPROC_P_SYSCALLS),
       PM_TYPE_FLOAT, HOTPROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,-1,1, 0,PM_TIME_SEC,0)} },
+#endif
     /* hotproc.predicate.ctxswitch */
     { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,ITEM_HOTPROC_P_CTXSWITCH),
       PM_TYPE_FLOAT, HOTPROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,-1,1, 0,PM_TIME_SEC,0)} },
@@ -1357,7 +1358,6 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
                         proc_ctx_threads(pmda->e_context, threads),
                         proc_ctx_cgroups(pmda->e_context, cgroups));
     }
-
 }
 
 static int
@@ -1421,9 +1421,10 @@ proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
     /* no default label : pmdaInstance will pick up errors */
     }
 
-    if ( (indomp->serial == PROC_INDOM || indomp->serial == HOTPROC_INDOM ) && inst == PM_IN_NULL && name != NULL) {
+    if ((indomp->serial == PROC_INDOM || indomp->serial == HOTPROC_INDOM) &&
+	inst == PM_IN_NULL && name != NULL) {
     	/*
-	 * For the proc indom, if the name is a pid (as a string), and it
+	 * For the proc indoms if the name is a pid (as a string), and it
 	 * contains only digits (i.e. it's not a full instance name) then
 	 * reformat it to be exactly six digits, with leading zeros.
 	 *
@@ -1465,6 +1466,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
     pmInDom		indom;
     int			sts;
+    int			have_totals;
     unsigned long	ul;
     const char		*cp;
     char		*f;
@@ -1472,11 +1474,8 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     char 		*tail;
     char 		*tmpbuf;
     proc_pid_t		*active_proc_pid;
-
-    int have_totals;
-    double ta, ti, tt, tci;
-
-    process_t *hotnode;
+    double		ta, ti, tt, tci;
+    process_t		*hotnode;
 
     active_proc_pid = &proc_pid;
 
@@ -1517,219 +1516,179 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     }
     else
     switch (idp->cluster) {
-
     case CLUSTER_HOTPROC_GLOBAL:
-
-	
 	have_totals = get_hot_totals(&ta, &ti, &tt, &tci);
 
-	switch(idp->item) {
+	switch (idp->item) {
+	case ITEM_HOTPROC_G_REFRESH:
+	    atom->ul = hotproc_update_interval.tv_sec;
+	    break;
+	case ITEM_HOTPROC_G_CONFIG:
+	    tmpbuf = get_conf_buffer();
+	    atom->cp = tmpbuf ? tmpbuf : "";
+	    break;
+	case ITEM_HOTPROC_G_CONFIG_GEN:
+	    atom->ul = conf_gen;
+	    break;
+	case ITEM_HOTPROC_G_CPUIDLE:
+	    atom->f = have_totals ? tci : 0;
+	    break;
+	case ITEM_HOTPROC_G_CPUBURN:
+	    atom->f = have_totals ? ta : 0;
+	    break;
+	case ITEM_HOTPROC_G_OTHER_TRANSIENT:
+	    atom->f = have_totals ? tt : 0;
+	    break;
+	case ITEM_HOTPROC_G_OTHER_NOT_CPUBURN:
+	    atom->f = have_totals ? ti : 0;
+	    break;
+	case ITEM_HOTPROC_G_OTHER_TOTAL:
+	    atom->f = have_totals ? ti + tt : 0;
+	    break;
+	case ITEM_HOTPROC_G_OTHER_PERCENT: {
+	    double other = tt + ti;
+	    double non_idle = other + ta;
 
-		case ITEM_HOTPROC_G_REFRESH:
-			atom->ul = hotproc_update_interval.tv_sec;
-			break;
-		case ITEM_HOTPROC_G_CONFIG:
-			tmpbuf = get_conf_buffer();
-			if( tmpbuf == NULL ){
-			    atom->cp = "";
-			}
-			else{
-			    atom->cp = tmpbuf;
-			}
-			break;
-		case ITEM_HOTPROC_G_CONFIG_GEN:
-			atom->ul = conf_gen;
-			break;
-		case ITEM_HOTPROC_G_CPUIDLE:
-			if (!have_totals)
-                	    atom->f = 0;
-	                else
-                	    atom->f = tci;
-			break;
-		case ITEM_HOTPROC_G_CPUBURN:
-			if (!have_totals)
-                	    atom->f = 0;
-	                else
-                	    atom->f = ta;
-                	break;
-		case ITEM_HOTPROC_G_OTHER_TRANSIENT:
-			if (!have_totals)
-                	    atom->f = 0;
-	                else
-                	    atom->f = tt;
-			break;
-		case ITEM_HOTPROC_G_OTHER_NOT_CPUBURN:
-			if (!have_totals)
-                	    atom->f = 0;
-	                else
-                	    atom->f = ti;
-                	break;
-		case ITEM_HOTPROC_G_OTHER_TOTAL:
-			if (!have_totals)
-                	    atom->f = 0;
-	                else
-                	    atom->f = ti + tt;
-			break;
-		case ITEM_HOTPROC_G_OTHER_PERCENT:
-		    {
-                    	double other = tt + ti;
-                    	double non_idle = other + ta;
+	    /* if non_idle = 0, very unlikely,
+	     * then the value here is meaningless
+	     *
+	     * Also if all the numbers are very small
+	     * this is not accurate. Might want to dump this original metric
+	     */
+	    if (!have_totals || non_idle == 0)
+		atom->f = 0;
+	    else
+		atom->f = other / non_idle * 100;
+	    break;
+	}
 
-                    	/* if non_idle = 0, very unlikely,
-                     	* then the value here is meaningless
-                     	*/
-
-                     	/* Also if all the numbers are very small
-                     	 * this is not accurate. Might want to dump this original metric
-                     	 */
-                    	
-                    	if (!have_totals || non_idle == 0)
-                      		atom->f = 0;
-                    	else
-                     		atom->f = other / non_idle * 100;
-                    }
-			break;
-
-		default:
-			return PM_ERR_PMID;
-			break;
+	default:
+	    return PM_ERR_PMID;
 	}
 	break;
+
     case CLUSTER_HOTPROC_PRED:
-	sts = get_hotproc_node( inst, &hotnode );
+	sts = get_hotproc_node(inst, &hotnode);
+	if (sts == 0)
+	    return PM_ERR_INST;
 
-	if( sts == 0 ){
-		return PM_ERR_INST;
+	switch (idp->item) {
+	    case ITEM_HOTPROC_P_SYSCALLS:
+		return PM_ERR_PMID;
+		break;
+	    case ITEM_HOTPROC_P_CTXSWITCH:
+		atom->f = hotnode->preds.ctxswitch;
+		break;
+	    case ITEM_HOTPROC_P_VSIZE:
+		atom->ul = hotnode->preds.virtualsize;
+		break;
+	    case ITEM_HOTPROC_P_RSIZE:
+		atom->ul = hotnode->preds.residentsize;
+		break;
+	    case ITEM_HOTPROC_P_IODEMAND:
+		atom->f = hotnode->preds.iodemand;
+		break;
+	    case ITEM_HOTPROC_P_IOWAIT:
+		atom->f = hotnode->preds.iowait;
+		break;
+	    case ITEM_HOTPROC_P_SCHEDWAIT:
+		atom->f = hotnode->preds.schedwait;
+		break;
+	    case ITEM_HOTPROC_P_CPUBURN: /* not in orig hotproc */
+		atom->f = hotnode->r_cpuburn;
+		break;
+	    default:
+		return PM_ERR_PMID;
 	}
-
-	switch(idp->item) {
-
-                case ITEM_HOTPROC_P_SYSCALLS:
-                        return PM_ERR_PMID;
-                        break;
-                case ITEM_HOTPROC_P_CTXSWITCH:
-                        atom->f = hotnode->preds.ctxswitch;
-                        break;
-                case ITEM_HOTPROC_P_VSIZE:
-			atom->ul = hotnode->preds.virtualsize;
-                        break;
-                case ITEM_HOTPROC_P_RSIZE:
-			atom->ul = hotnode->preds.residentsize;
-                        break;
-                case ITEM_HOTPROC_P_IODEMAND:
-			atom->f = hotnode->preds.iodemand;
-                        break;
-                case ITEM_HOTPROC_P_IOWAIT:
-                        atom->f = hotnode->preds.iowait;
-                        break;
-                case ITEM_HOTPROC_P_SCHEDWAIT:
-			atom->f = hotnode->preds.schedwait;
-                        break;
-                case ITEM_HOTPROC_P_CPUBURN: /* not in orig hotproc */
-			atom->f = hotnode->r_cpuburn;
-                        break;
-
-                default:
-                        return PM_ERR_PMID;
-                        break;
-        }
 	break;
 
     case CLUSTER_HOTPROC_PID_STAT:
 	active_proc_pid = &hotproc_pid;
+	/*FALLTHROUGH*/
     case CLUSTER_PID_STAT:
 	if (idp->item == 99) /* proc.nprocs */
-	    	atom->ul = active_proc_pid->indom->it_numinst;
+	    atom->ul = active_proc_pid->indom->it_numinst;
 	else {
 	    static char ttyname[MAXPATHLEN];
 
 	    if (!have_access)
 		return PM_ERR_PERMISSION;
-	    if ((entry = fetch_proc_pid_stat(inst, active_proc_pid, &sts)) == NULL)
-	    	return sts;
+	    entry = fetch_proc_pid_stat(inst, active_proc_pid, &sts);
+	    if (entry == NULL)
+		return sts;
 
 	    switch (idp->item) {
+		case PROC_PID_STAT_PID:
+		    atom->ul = entry->id;
+		    break;
 
+		case PROC_PID_STAT_TTYNAME:
+		    f = _pm_getfield(entry->stat_buf, PROC_PID_STAT_TTY);
+		    if (f == NULL)
+			atom->cp = "?";
+		    else {
+			dev_t dev = (dev_t)atoi(f);
+			atom->cp = get_ttyname_info(inst, dev, ttyname);
+		    }
+		    break;
 
-	    case PROC_PID_STAT_PID:
-	    	atom->ul = entry->id;
-		break;
+		case PROC_PID_STAT_CMD:
+		    f = _pm_getfield(entry->stat_buf, idp->item);
+		    if (f == NULL)
+			return 0;
+		    atom->cp = f + 1;
+		    atom->cp[strlen(atom->cp)-1] = '\0';
+		    break;
 
-	    case PROC_PID_STAT_TTYNAME:
-		if ((f = _pm_getfield(entry->stat_buf, PROC_PID_STAT_TTY)) == NULL)
-		    atom->cp = "?";
-		else {
-		    dev_t dev = (dev_t)atoi(f);
-		    atom->cp = get_ttyname_info(inst, dev, ttyname);
-		}
-		break;
+		case PROC_PID_STAT_PSARGS:
+		    atom->cp = entry->name + 7;
+		    break;
 
-	    case PROC_PID_STAT_CMD:
-		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
-		    return 0;
-		atom->cp = f + 1;
-		atom->cp[strlen(atom->cp)-1] = '\0';
-		break;
+		case PROC_PID_STAT_STATE: /* string */
+		    f = _pm_getfield(entry->stat_buf, idp->item);
+		    if (f == NULL)
+			return 0;
+	    	    atom->cp = f;
+		    break;
 
-	    case PROC_PID_STAT_PSARGS:
-		atom->cp = entry->name + 7;
-		break;
+		case PROC_PID_STAT_VSIZE:
+		case PROC_PID_STAT_RSS_RLIM: /* bytes converted to kbytes */
+		    f = _pm_getfield(entry->stat_buf, idp->item);
+		    if (f == NULL)
+			return 0;
+		    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+		    atom->ul /= 1024;
+		    break;
 
-	    case PROC_PID_STAT_STATE:
-		/*
-		 * string
-		 */
-		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
-		    return 0;
-	    	atom->cp = f;
-		break;
+		case PROC_PID_STAT_RSS: /* pages converted to kbytes */
+			f = _pm_getfield(entry->stat_buf, idp->item);
+			if (f == NULL)
+			    return 0;
+			atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+			atom->ul *= _pm_system_pagesize / 1024;
+			break;
 
-	    case PROC_PID_STAT_VSIZE:
-	    case PROC_PID_STAT_RSS_RLIM:
-		/*
-		 * bytes converted to kbytes
-		 */
-		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
-		    return 0;
-		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
-		atom->ul /= 1024;
-		break;
+		    case PROC_PID_STAT_UTIME:
+		    case PROC_PID_STAT_STIME:
+		    case PROC_PID_STAT_CUTIME:
+		    case PROC_PID_STAT_CSTIME:
+			/* unsigned jiffies converted to unsigned msecs */
+			f = _pm_getfield(entry->stat_buf, idp->item);
+			if (f == NULL)
+			    return 0;
+			ul = (__uint32_t)strtoul(f, &tail, 0);
+			_pm_assign_ulong(atom, 1000 * (double)ul / hz);
+			break;
 
-	    case PROC_PID_STAT_RSS:
-		/*
-		 * pages converted to kbytes
-		 */
-		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
-		    return 0;
-		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
-		atom->ul *= _pm_system_pagesize / 1024;
-		break;
+		    case PROC_PID_STAT_PRIORITY:
+		    case PROC_PID_STAT_NICE: /* signed decimal int */
+			f = _pm_getfield(entry->stat_buf, idp->item);
+			if (f == NULL)
+			    return 0;
+			atom->l = (__int32_t)strtol(f, &tail, 0);
+			break;
 
-	    case PROC_PID_STAT_UTIME:
-	    case PROC_PID_STAT_STIME:
-	    case PROC_PID_STAT_CUTIME:
-	    case PROC_PID_STAT_CSTIME:
-		/*
-		 * unsigned jiffies converted to unsigned milliseconds
-		 */
-		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
-		    return 0;
-
-		ul = (__uint32_t)strtoul(f, &tail, 0);
-		_pm_assign_ulong(atom, 1000 * (double)ul / hz);
-		break;
-
-	    case PROC_PID_STAT_PRIORITY:
-	    case PROC_PID_STAT_NICE:
-		/*
-		 * signed decimal int
-		 */
-		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
-		    return 0;
-		atom->l = (__int32_t)strtol(f, &tail, 0);
-		break;
-
-	    case PROC_PID_STAT_WCHAN:
+		    case PROC_PID_STAT_WCHAN:
 		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
 			return 0;
 #if defined(HAVE_64BIT_PTR)
@@ -1806,6 +1765,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case CLUSTER_HOTPROC_PID_STATM:
 	active_proc_pid = &hotproc_pid;
+	/*FALLTHROUGH*/
     case CLUSTER_PID_STATM:
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
@@ -1831,6 +1791,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case CLUSTER_HOTPROC_PID_SCHEDSTAT:
 	active_proc_pid = &hotproc_pid;
+	/*FALLTHROUGH*/
     case CLUSTER_PID_SCHEDSTAT:
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
@@ -1856,6 +1817,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case CLUSTER_HOTPROC_PID_IO:
 	active_proc_pid = &hotproc_pid;
+	/*FALLTHROUGH*/
     case CLUSTER_PID_IO:
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
@@ -1917,6 +1879,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	 */
     case CLUSTER_HOTPROC_PID_STATUS:
 	active_proc_pid = &hotproc_pid;
+	/*FALLTHROUGH*/
     case CLUSTER_PID_STATUS:
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
@@ -2551,6 +2514,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case CLUSTER_HOTPROC_PID_FD:
 	active_proc_pid = &hotproc_pid;
+	/*FALLTHROUGH*/
     case CLUSTER_PID_FD:
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
@@ -2563,6 +2527,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case CLUSTER_HOTPROC_PID_CGROUP:
 	active_proc_pid = &hotproc_pid;
+	/*FALLTHROUGH*/
     case CLUSTER_PID_CGROUP:
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
@@ -2575,6 +2540,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case CLUSTER_HOTPROC_PID_LABEL:
 	active_proc_pid = &hotproc_pid;
+	/*FALLTHROUGH*/
     case CLUSTER_PID_LABEL:
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
@@ -2632,18 +2598,17 @@ static int
 proc_store(pmResult *result, pmdaExt *pmda)
 {
     int i, sts = 0;
+    int isroot;
 
     have_access = all_access || proc_ctx_access(pmda->e_context);
-
-    int isroot = ( proc_ctx_getuid(pmda->e_context) == 0);
+    isroot = (proc_ctx_getuid(pmda->e_context) == 0);
 
     for (i = 0; i < result->numpmid; i++) {
 	pmValueSet *vsp = result->vset[i];
 	__pmID_int *idp = (__pmID_int *)&(vsp->pmid);
 	pmAtomValue av;
 
-	switch (idp->cluster){
-
+	switch (idp->cluster) {
 	case CLUSTER_CONTROL:
 	    if (vsp->numval != 1)
 		sts = PM_ERR_INST;
@@ -2675,11 +2640,11 @@ proc_store(pmResult *result, pmdaExt *pmda)
 	    default:
 		sts = PM_ERR_PERMISSION;
 		break;
-	    } //else switch (idp->item)
+	    }
 	case CLUSTER_HOTPROC_GLOBAL:
 	    if (!isroot)
 		sts = PM_ERR_PERMISSION;
-	    else switch(idp->item){
+	    else switch (idp->item) {
 	    case ITEM_HOTPROC_G_REFRESH:
 		if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
@@ -2687,37 +2652,41 @@ proc_store(pmResult *result, pmdaExt *pmda)
 		    reset_hotproc_timer();
 		}
 		break;
-	    case ITEM_HOTPROC_G_CONFIG:
-		{
-		    bool_node *tree = NULL;
-		    char *savebuffer;
-		    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
-				    PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0) {
-			savebuffer = get_conf_buffer() ? strdup(get_conf_buffer()) : NULL;
-			set_conf_buffer( av.cp );
-			if(parse_config(&tree) !=0 ){
-			    if( savebuffer ){
-				set_conf_buffer( savebuffer );
-				free(savebuffer);
-			    }
+	    case ITEM_HOTPROC_G_CONFIG: {
+		bool_node *tree = NULL;
+		char *savebuffer;
+
+		if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+				PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0) {
+		    savebuffer = get_conf_buffer() ? strdup(get_conf_buffer()) : NULL;
+		    set_conf_buffer(av.cp);
+		    if (parse_config(&tree) !=0) {
+			if (savebuffer) {
+			    set_conf_buffer(savebuffer);
+			    free(savebuffer);
 			}
-			else{
-			    conf_gen++;
-			    new_tree(tree);
-			    if( conf_gen == 1 ){
-				/* There was no config to start with. This is the first one, need to enable the timer */
-				reset_hotproc_timer();
-			    }
-			}
-			free(av.cp);
 		    }
+		    else {
+			conf_gen++;
+			new_tree(tree);
+			if (conf_gen == 1) {
+			    /* There was no config to start with.
+			     * This is the first one, to enable the timer
+			     */
+				reset_hotproc_timer();
+			}
+		    }
+		    free(av.cp);
 		}
 		break;
+	    }
+
 	    default:
 		sts = PM_ERR_PERMISSION;
 		break;
 	    }
 	    break;
+
 	default:
 	    sts = PM_ERR_PERMISSION;
 	    break;
@@ -2806,87 +2775,18 @@ proc_strings_insert(const char *buf)
  * Initialise the agent (both daemon and DSO).
  */
 
-int isHotprocMetric( pmdaMetric *met ){
-
-	__pmID_int *mID = (__pmID_int *)&(met->m_desc.pmid);
-	int cluster = mID->cluster;
-
-	switch( cluster ){
-		case CLUSTER_PID_STAT:
-		case CLUSTER_PID_STATM:
-		case CLUSTER_PID_CGROUP:
-		case CLUSTER_PID_LABEL:
-		case CLUSTER_PID_STATUS:
-		case CLUSTER_PID_SCHEDSTAT:
-		case CLUSTER_PID_IO:
-		case CLUSTER_PID_FD:
-			return 1;
-		default:
-			return 0;
-	}
-
-}
-
-int getHotCluster( int cluster ){
-	
-	switch(cluster){
-
-	case CLUSTER_PID_STAT:
-		return CLUSTER_HOTPROC_PID_STAT;
-	case CLUSTER_PID_STATM:
-		return CLUSTER_HOTPROC_PID_STATM;
-	case CLUSTER_PID_CGROUP:
-		return CLUSTER_HOTPROC_PID_CGROUP;
-	case CLUSTER_PID_LABEL:
-		return CLUSTER_HOTPROC_PID_LABEL;
-	case CLUSTER_PID_STATUS:
-		return CLUSTER_HOTPROC_PID_STATUS;
-	case CLUSTER_PID_SCHEDSTAT:
-		return CLUSTER_HOTPROC_PID_SCHEDSTAT;
-	case CLUSTER_PID_IO:
-		return CLUSTER_HOTPROC_PID_IO;
-	case CLUSTER_PID_FD:
-		return CLUSTER_HOTPROC_PID_FD;
-	default:
-		return -1;
-	}
-}
-
-void createHotprocMetric( pmdaMetric *procmetric, pmdaMetric *hotmetric){
-
-	__pmID_int *mID = (__pmID_int *)&(procmetric->m_desc.pmid);
-        int cluster = mID->cluster;
-	int item = mID->item;
-
-	hotmetric->m_user = NULL;
-	hotmetric->m_desc = procmetric->m_desc;
-
-	int hcluster = getHotCluster(cluster); /* If the 2 fcns above are in sync, this should not error */
-
-	hotmetric->m_desc.pmid = PMDA_PMID( hcluster , item );
-	if( procmetric->m_desc.indom == PM_INDOM_NULL ){
-		hotmetric->m_desc.indom = PM_INDOM_NULL;
-	}
-	else {
-		hotmetric->m_desc.indom = HOTPROC_INDOM;
-	}
-}
-
 void 
 __PMDA_INIT_CALL
 proc_init(pmdaInterface *dp)
 {
     int		nindoms = sizeof(indomtab)/sizeof(indomtab[0]);
     int		nmetrics = sizeof(metrictab)/sizeof(metrictab[0]);
-
     char	*envpath;
 
+    hz = sysconf(_SC_CLK_TCK);
     _pm_system_pagesize = getpagesize();
     if ((envpath = getenv("PROC_STATSPATH")) != NULL)
 	proc_statspath = envpath;
-
-    if (hz == -1)
-    	hz = sysconf(_SC_CLK_TCK);
 
     if (_isDSO) {
 	char helppath[MAXPATHLEN];
@@ -2935,7 +2835,7 @@ proc_init(pmdaInterface *dp)
     hotproc_pid.indom = &indomtab[HOTPROC_INDOM];
 
     hotproc_init();
-    init_hotproc_pid( &hotproc_pid );
+    init_hotproc_pid(&hotproc_pid);
  
     /* 
      * Read System.map and /proc/ksyms. Used to translate wait channel

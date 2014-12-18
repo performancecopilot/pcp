@@ -31,16 +31,15 @@ CFILES		= pmda.c cgroups.c proc_pid.c proc_runq.c proc_dynamic.c\
 HFILES		= clusters.h indom.h \
 		  cgroups.h proc_pid.h proc_runq.h ksym.h getinfo.h contexts.h hotproc.h gram_node.h config.h
 
-LFILES = lex.l
-YFILES = gram.y
+LFILES		= lex.l
+YFILES		= gram.y
 
 SCRIPTS		= Install Remove
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
-LSRCFILES 	= help root linux_proc_migrate.conf $(SCRIPTS)
 LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) $(YFILES:%.y=%.tab.?)
 
-LLDLIBS		= $(PCP_PMDALIB)
+LLDLIBS		= $(PCP_PMDALIB) -lfl
 LCFLAGS		= $(INVISIBILITY)
 
 # Uncomment these flags for profiling
@@ -50,7 +49,6 @@ LCFLAGS		= $(INVISIBILITY)
 MAN_SECTION	= 1
 MAN_PAGES	= pmda$(IAM).$(MAN_SECTION)
 MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
-LLDLIBS += -lfl
 
 default:	build-me
 

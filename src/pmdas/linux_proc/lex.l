@@ -22,7 +22,7 @@
 #include <regex.h>
 
 
-void yyerror(char *s);
+extern void yyerror(char *s);
 
 static char emsg[256]; /* error message */
 

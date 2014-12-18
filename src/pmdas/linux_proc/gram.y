@@ -10,26 +10,22 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 %{
 #include <stdio.h>
 #include "./gram_node.h"
 
-void yyerror(char *s);
-int yylex(void);
-int yyparse(void);
+extern void yyerror(char *s);
+extern int yylex(void);
+extern int yyparse(void);
 
 extern int yy_scan_string(const char *);
 #define YYDEBUG 0
 
-int need_psusage = 0;
-int need_accounting = 0;
-static bool_node *pred_tree = NULL;
+int need_psusage;
+int need_accounting;
+static bool_node *pred_tree;
 extern char *conf_buffer;
 
 %}
@@ -80,8 +76,8 @@ version: VERSION NUMBER {
 	float version_num = $2;
 
 	if (version_num != 1.0) {
-	    (void)fprintf(stderr, "Wrong version number in configuration predicate\n");
-	    (void)fprintf(stderr, "Expected version %.2f, but was given version %.2f .\n",
+	    fprintf(stderr, "Wrong version number in configuration predicate\n");
+	    fprintf(stderr, "Expected version %.2f, but was given version %.2f .\n",
 		1.0, version_num);
 	    YYABORT;
 	}

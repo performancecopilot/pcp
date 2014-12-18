@@ -32,6 +32,8 @@
 #include "hotproc.h"
 
 static proc_pid_list_t procpids; /* previous pids list that the proc pmda uses */
+static void refresh_proc_pidlist(proc_pid_t *, proc_pid_list_t *);
+
 
 /* Hotproc variables */
 
@@ -42,8 +44,6 @@ static proc_pid_list_t hotpids;
 /* Hold a pointer to this since we need it for the timer */
 static proc_pid_t *hotproc_poss_pid;
 
-//static proc_pid_t hotproc_poss_pid;
-
 #define INIT_HOTPROC_MAX 200
 
 extern int conf_gen;
@@ -53,9 +53,9 @@ extern long hz;
 /* Actual processes that are hot based on the current configuration 
  * Filled in hotproc_eval_procs 
  */
-static pid_t *hot_active_list = NULL;
+static pid_t *hot_active_list;
 
-static int hot_numactive = 0;
+static int hot_numactive;
 static int hot_maxactive = INIT_HOTPROC_MAX;
 
 /* array size allocated */
@@ -71,17 +71,17 @@ static int hot_numprocs[2] = {0, 0};
 static process_t *hotproc_list[2] = {NULL, NULL};
 
 /* various cpu time totals  */
-static int num_cpus = 0;
-static int hot_have_totals = 0;
+static int num_cpus;
+static int hot_have_totals;
 static double hot_total_transient;
 static double hot_total_cpuidle;
 static double hot_total_active;
 static double hot_total_inactive;
 
-static unsigned long hot_refresh_count = 0;
+static unsigned long hot_refresh_count;
 
 /* index into proc_list etc.. */
-static int current = 0;
+static int current;
 static int previous = 1;
 
 struct timeval   hotproc_update_interval;
@@ -90,16 +90,14 @@ int     hotproc_timer_id = -1;
 int 
 get_hot_totals(double * ta, double * ti, double * tt, double * tci )
 {
-    if( hot_have_totals ){
-	(*ta) = hot_total_active;
-	(*ti) = hot_total_inactive;
-	(*tt) = hot_total_transient;
-	(*tci) = hot_total_cpuidle;
+    if (hot_have_totals) {
+	*ta = hot_total_active;
+	*ti = hot_total_inactive;
+	*tt = hot_total_transient;
+	*tci = hot_total_cpuidle;
 	return 1;
     }
-    else{
-	return 0;
-    }
+    return 0;
 }
 
 static int
@@ -237,37 +235,27 @@ in_hot_active_list(pid_t pid)
 {
     int i;
 
-    for(i = 0; i < hot_numactive; i++) {
+    for (i = 0; i < hot_numactive; i++) {
         if (pid == hot_active_list[i])
             return 1;
     }
-
     return 0;
 }
 
 static int
-check_if_hot( char *cpid )
+check_if_hot(char *cpid)
 {
-
     int mypid;
-    int sts = 0;
 
-    sts = sscanf( cpid, "%d", &mypid );
-
-    if( sts == 0 ){
+    if (sscanf(cpid, "%d", &mypid) == 0)
 	return 0;
-    }
-	
-    if( in_hot_active_list(mypid) ){
+    if (in_hot_active_list(mypid))
 	return 1;
-    }
-    else{
-	return 0;
-    }	
+    return 0;
 }
 
 static int
-refresh_hotproc_pidlist( proc_pid_list_t *pids )
+refresh_hotproc_pidlist(proc_pid_list_t *pids)
 {
     DIR *dirp;
     struct dirent *dp;
@@ -300,7 +288,6 @@ init_hotproc_list(void)
     return 0;
 }
 
-
 static void
 init_hot_active_list(void)
 {
@@ -308,20 +295,19 @@ init_hot_active_list(void)
 }
 
 /*
- *  * add_hot_active_list:
- *   * If unsuccessful in add - due to memory then return neg status.
- *    * If member of active list return 1
- *     * If non-member of active list return 0
- *      */
-
+ * add_hot_active_list:
+ * - If unsuccessful in add - due to memory then return neg status.
+ * - If member of active list return 1
+ * - If non-member of active list return 0
+ */
 static int
 add_hot_active_list(process_t *node, config_vars *vars)
 {
     if (eval_tree(vars) == 0) {
         return 0;
     }
-    else{
-        //fprintf(stderr, "Added hotproc %d\n", node->pid);
+    else {
+        /*fprintf(stderr, "Added hotproc %d\n", node->pid);*/
     }
 
     if (hot_numactive == hot_maxactive) {
@@ -337,11 +323,10 @@ add_hot_active_list(process_t *node, config_vars *vars)
 }
 
 static int
-compar_pids(const void *n1, const void *n2)
+compare_pids(const void *n1, const void *n2)
 {
     return ((process_t*)n2)->pid - ((process_t*)n1)->pid;
 }
-
 
 static process_t *
 lookup_node(int curr_prev, pid_t pid)
@@ -351,22 +336,22 @@ lookup_node(int curr_prev, pid_t pid)
 
     key.pid = pid;
 
-    if ( (hot_numprocs[curr_prev] > 0) &&
-         ((node = bsearch(&key, hotproc_list[curr_prev], hot_numprocs[curr_prev],
-           sizeof(process_t), compar_pids)) != NULL) ) {
-        return node;
+    if ((hot_numprocs[curr_prev] > 0) &&
+        ((node = bsearch(&key, hotproc_list[curr_prev], hot_numprocs[curr_prev],
+			sizeof(process_t), compare_pids)) != NULL)) {
+	return node;
     }
     return NULL;
 }
 
-process_t *
+static process_t *
 lookup_curr_node(pid_t pid)
 {
     return lookup_node(current, pid);
 }
 
 static double
-DiffCounter(double current, double previous, int pmtype)
+diff_counter(double current, double previous, int pmtype)
 {
     double      outval = current-previous;
 
@@ -386,59 +371,43 @@ DiffCounter(double current, double previous, int pmtype)
 }
 
 int
-get_hotproc_node( pid_t pid, process_t **getnode )
+get_hotproc_node(pid_t pid, process_t **getnode)
 {
-    if( in_hot_active_list(pid) ){
-	(*getnode) = lookup_curr_node( pid );
-	if( (*getnode) == NULL ){
-	    return 0;
-	}
-	else{
-	    return 1;
-	}
+    if (in_hot_active_list(pid)) {
+	*getnode = lookup_curr_node(pid);
+	return (*getnode != NULL);
     }
-    else{
-	(*getnode) = NULL;
-	return 0;
-    }
+    *getnode = NULL;
+    return 0;
 }
 
 /* The idea of this is copied from linux/proc_stat.c */
 static unsigned long long
-get_idle_time()
+get_idle_time(void)
 {
-    FILE * fp = NULL;
-
-    unsigned long long idle_time;
+    FILE *fp = NULL;
+    unsigned long long idle_time = 0;
     int n;
     char buf[MAXPATHLEN];
 
     snprintf(buf, sizeof(buf), "%s/proc/stat", proc_statspath);
     if ((fp = fopen(buf, "r")) < 0)
 	return -oserror();
-
-    n = fscanf( fp, "cpu %*u %*u %*u %llu %*u %*u %*u %*u %*u", &idle_time);
-
-    if( n != 1){
+    n = fscanf(fp, "cpu %*u %*u %*u %llu %*u %*u %*u %*u %*u", &idle_time);
+    if (n != 1)
 	idle_time = 0;
-    }
-
-    fclose( fp );
+    fclose(fp);
 
     return idle_time;
 }
 
-static void
-refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids);
-
+/*
+ * For each pid, compute stats and store in hotpid array
+ * (called by the timer)
+ */
 static int
-hotproc_eval_procs()
+hotproc_eval_procs(void)
 {
-
-    /* for each pid, compute stats and store in hotpid array */
-
-    /* Called by the timer */
-
     pid_t pid;
     struct timeval ts;
     int sts;
@@ -477,8 +446,8 @@ hotproc_eval_procs()
     double total_activetime = 0;    /* total of cputime_deltas for active processes */
     double total_inactivetime = 0;  /* total of cputime_deltas for inactive processes */
 
-    if (num_cpus == 0){
-        num_cpus = sysconf(_SC_NPROCESSORS_ONLN);
+    if (num_cpus == 0) {
+	num_cpus = sysconf(_SC_NPROCESSORS_ONLN);
     }
 
     if (current == 0) {
@@ -490,14 +459,14 @@ hotproc_eval_procs()
 
     init_hot_active_list();
 
-    (void)memset(&vars, 0, sizeof(config_vars));
+    memset(&vars, 0, sizeof(config_vars));
 
     hotpids.count = 0;
     hotpids.threads = 0;
 
     /* Whats running right now */
-    refresh_global_pidlist( 0, NULL, &hotpids );
-    refresh_proc_pidlist( hotproc_poss_pid, &hotpids );
+    refresh_global_pidlist(0, NULL, &hotpids);
+    refresh_proc_pidlist(hotproc_poss_pid, &hotpids);
 
     for (i=0; i < hotpids.count; i++) {
 
@@ -505,7 +474,7 @@ hotproc_eval_procs()
 
         node = __pmHashSearch(hotpids.pids[i], &hotproc_poss_pid->pidhash);
 
-	if( node == NULL){
+	if (node == NULL) {
 	    fprintf(stderr,"hotproc : Hash search failed for Proc %d!\n", i);
 	    continue;
 	}
@@ -513,17 +482,14 @@ hotproc_eval_procs()
 	__pmtimevalNow(&p_timestamp);
 
 	/* Collect all the stat/status/statm info */
-
-	/* (Ab)use existing functions */
-
 	statentry = fetch_proc_pid_stat(pid, hotproc_poss_pid, &sts);
 	statusentry = fetch_proc_pid_status(pid, hotproc_poss_pid, &sts);
 	ioentry = fetch_proc_pid_io(pid, hotproc_poss_pid, &sts);
 	schedstatentry = fetch_proc_pid_schedstat(pid, hotproc_poss_pid, &sts);
 
-	if( statentry == NULL || statusentry == NULL || ioentry == NULL || schedstatentry == NULL){
-	    /* Can happen if the process was exiting during refresh_proc_pidlist
-	     * then the above fetch's will fail
+	if (!statentry || !statusentry || !ioentry || !schedstatentry) {
+	    /* Can happen if the process was exiting during
+	     * refresh_proc_pidlist then the above fetch's will fail.
 	     * Would be best if they were not in the list at all
 	     * "np" is used from now on, so hopefully can just continue
 	     */
@@ -544,20 +510,19 @@ hotproc_eval_procs()
         newnode->pid = pid;
 
 	/* Calc the stats we will need */
-
 	/* CPU Time is sum of U & S time */
 	
-	if( (f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_UTIME)) == NULL )
+	if ((f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_UTIME)) == NULL)
 	    newnode->r_cputime = 0;
-	else{
+	else {
 	    ul = (__uint32_t)strtoul(f, &tail, 0);
 	    newnode->r_cputime      = (double)ul / (double)hz;
 	}
 
-	if( (f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_STIME)) == NULL){
+	if ((f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_STIME)) == NULL){
 	    /* Nothing */
 	}
-	else{
+	else {
 	    ul = (__uint32_t)strtoul(f, &tail, 0);
 	    newnode->r_cputime      += (double)ul / (double)hz;
 	}
@@ -617,16 +582,16 @@ hotproc_eval_procs()
 	if ((oldnode = lookup_node(previous, pid)) != NULL) {
 
 	    /* CPU */
-	    cputime_delta = DiffCounter(newnode->r_cputime, oldnode->r_cputime, PM_TYPE_64);
-	    timestamp_delta = DiffCounter(newnode->r_cputimestamp, oldnode->r_cputimestamp, PM_TYPE_64);
+	    cputime_delta = diff_counter(newnode->r_cputime, oldnode->r_cputime, PM_TYPE_64);
+	    timestamp_delta = diff_counter(newnode->r_cputimestamp, oldnode->r_cputimestamp, PM_TYPE_64);
 
 	    newnode->r_cpuburn = cputime_delta / timestamp_delta;
 	    vars.cpuburn = newnode->r_cpuburn;
 
 	    /* IO */
-	    bread_delta = DiffCounter((double)newnode->r_bread,
+	    bread_delta = diff_counter((double)newnode->r_bread,
                                    (double)oldnode->r_bread, PM_TYPE_64);
-	    bwrit_delta = DiffCounter((double)newnode->r_bwrit,
+	    bwrit_delta = diff_counter((double)newnode->r_bwrit,
                                     (double)oldnode->r_bwrit, PM_TYPE_64);
 	    vars.preds.iodemand = (
                                  (double)bread_delta  +
@@ -634,20 +599,20 @@ hotproc_eval_procs()
                                 timestamp_delta;
 
 	    /* ctx switches */
-	    vctx_delta = DiffCounter((double)newnode->r_vctx,
+	    vctx_delta = diff_counter((double)newnode->r_vctx,
                                     (double)oldnode->r_vctx, PM_TYPE_64);
-	    ictx_delta = DiffCounter((double)newnode->r_ictx,
+	    ictx_delta = diff_counter((double)newnode->r_ictx,
                                     (double)oldnode->r_ictx, PM_TYPE_64);
 	    vars.preds.ctxswitch = (vctx_delta + ictx_delta) / timestamp_delta;
 
 	    /* IO wait */
-	    bwtime_delta = DiffCounter((double)newnode->r_bwtime,
+	    bwtime_delta = diff_counter((double)newnode->r_bwtime,
                                     (double)oldnode->r_bwtime, PM_TYPE_64);
 
 	    vars.preds.iowait = bwtime_delta / timestamp_delta;
 
 	    /* schedwait */
-	    qwtime_delta = DiffCounter((double)newnode->r_qwtime,
+	    qwtime_delta = diff_counter((double)newnode->r_qwtime,
 		    (double)oldnode->r_qwtime, PM_TYPE_64);
 	    vars.preds.schedwait = qwtime_delta / (timestamp_delta * 1000000000); /* run_delay in nsec */
 
@@ -685,19 +650,19 @@ hotproc_eval_procs()
 	vars.psargs[sizeof(vars.psargs)-1]='\0';
 
 	/* UID and GID */
-	if ((f = _pm_getfield(statusentry->status_lines.uid, 1)) == NULL){
+	if ((f = _pm_getfield(statusentry->status_lines.uid, 1)) == NULL) {
 	    ul = 0;
 	}
-	else{
+	else {
 	    ul = (__uint32_t)strtoul(f, &tail, 0);
 	}
 	
 	vars.uid = ul;
 
-	if ((f = _pm_getfield(statusentry->status_lines.gid, 1)) == NULL){
+	if ((f = _pm_getfield(statusentry->status_lines.gid, 1)) == NULL) {
 	    ul = 0;
 	}
-	else{
+	else {
 	    ul = (__uint32_t)strtoul(f, &tail, 0);
 	}
 
@@ -707,12 +672,13 @@ hotproc_eval_procs()
 
 	struct passwd *pwe;		
 
-	if ((pwe = getpwuid((uid_t)vars.uid)) != NULL){
+	if ((pwe = getpwuid((uid_t)vars.uid)) != NULL) {
 	    strncpy(vars.uname, pwe->pw_name, sizeof(vars.uname));
 	    vars.uname[sizeof(vars.uname)-1] = '\0';
 	}
-	else
+	else {
 	    strcpy(vars.uname, "UNKNOWN");
+	}
 
 	struct group *gre;
 
@@ -726,10 +692,10 @@ hotproc_eval_procs()
 
 	/* VSIZE from stat */
 
-	if ((f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_VSIZE)) == NULL){
+	if ((f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_VSIZE)) == NULL) {
 	    ul = 0;
 	}
-	else{
+	else {
 	    ul = (__uint32_t)strtoul(f, &tail, 0);
 	    ul /= 1024;
 	}
@@ -738,10 +704,10 @@ hotproc_eval_procs()
 
 	/* RSS from stat */
 
-	if ((f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_RSS)) == NULL){
+	if ((f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_RSS)) == NULL) {
 	    ul = 0;
 	}
-	else{
+	else {
 	    ul = (__uint32_t)strtoul(f, &tail, 0);
 	    ul *= getpagesize() / 1024;
 	}
@@ -780,9 +746,9 @@ hotproc_eval_procs()
     if (hot_refresh_count == 0)
         hot_refresh_count = 2;
 
-    if (hot_refresh_count > 1 ) {
-	sysidle_delta = DiffCounter(sysidle[current], sysidle[previous], PM_TYPE_64) / (double)HZ;
-	actual_delta = DiffCounter(refresh_time[current], refresh_time[previous], PM_TYPE_64);
+    if (hot_refresh_count > 1) {
+	sysidle_delta = diff_counter(sysidle[current], sysidle[previous], PM_TYPE_64) / (double)HZ;
+	actual_delta = diff_counter(refresh_time[current], refresh_time[previous], PM_TYPE_64);
 	transient_delta = num_cpus * actual_delta - (total_cputime + sysidle_delta);
 	if (transient_delta < 0) /* sanity check */
 	    transient_delta = 0;
@@ -795,22 +761,20 @@ hotproc_eval_procs()
     }
 
     qsort(hotproc_list[current], hot_numprocs[current],
-          sizeof(process_t), compar_pids);
+          sizeof(process_t), compare_pids);
 
     return 0;
 }
 
-void
+static void
 hotproc_timer(int sig, void *ptr)
 {
-
     hotproc_eval_procs();
 }
 
 void
-init_hotproc_pid( proc_pid_t * _hotproc_poss_pid )
+init_hotproc_pid(proc_pid_t * _hotproc_poss_pid)
 {
-
     hotproc_poss_pid =  _hotproc_poss_pid;
 
     hotproc_update_interval.tv_sec = 10;
@@ -827,12 +791,11 @@ init_hotproc_pid( proc_pid_t * _hotproc_poss_pid )
     }
 }
 
-void reset_hotproc_timer()
+void
+reset_hotproc_timer(void)
 {
-
     __pmAFunregister(hotproc_timer_id);
     hotproc_timer_id = __pmAFregister(&hotproc_update_interval, NULL, hotproc_timer);
-
 }
 
 static void

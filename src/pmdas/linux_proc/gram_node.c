@@ -22,7 +22,7 @@
 static void dump_comparison(FILE *, bool_node *);
 static void dump_var(FILE *, bool_node *);
 
-static bool_node *node_list = NULL;
+static bool_node *node_list;
 
 void start_tree(void)
 {
@@ -104,9 +104,9 @@ bool_node *create_pat_node(char *str)
 void
 dump_bool_tree(FILE *f, bool_node *tree)
 {
-    (void)fprintf(f, "--- bool tree ---\n");
+    fprintf(f, "--- bool tree ---\n");
     dump_predicate(f, tree);
-    (void)fprintf(f, "\n--- end bool tree ---\n");
+    fprintf(f, "\n--- end bool tree ---\n");
 }
 
 void
@@ -114,40 +114,40 @@ dump_predicate(FILE *f, bool_node *pred)
 {
     bool_node *lhs, *rhs;
 
-    switch(pred->tag) {
+    switch (pred->tag) {
 	case N_and:	
 	    lhs = pred->data.children.left;
 	    rhs = pred->data.children.right;
-	    (void)fprintf(f, "(");
+	    fprintf(f, "(");
 	    dump_predicate(f, lhs);
-	    (void)fprintf(f, " && ");
+	    fprintf(f, " && ");
 	    dump_predicate(f, rhs);
-	    (void)fprintf(f, ")");
+	    fprintf(f, ")");
 	    break;
 	case N_or:	
 	    lhs = pred->data.children.left;
 	    rhs = pred->data.children.right;
-	    (void)fprintf(f, "(");
+	    fprintf(f, "(");
 	    dump_predicate(f, lhs);
-	    (void)fprintf(f, " || ");
+	    fprintf(f, " || ");
 	    dump_predicate(f, rhs);
-	    (void)fprintf(f, ")");
+	    fprintf(f, ")");
 	    break;
 	case N_not:	
 	    lhs = pred->data.children.left;
-	    (void)fprintf(f, "(! ");
+	    fprintf(f, "(! ");
 	    dump_predicate(f, lhs);
-	    (void)fprintf(f, ")");
+	    fprintf(f, ")");
 	    break;
 	case N_true:
-	    (void)fprintf(f, "(true)");
+	    fprintf(f, "(true)");
 	    break;
 	case N_false:
-	    (void)fprintf(f, "(false)");
+	    fprintf(f, "(false)");
 	    break;
 	default:
 	    dump_comparison(f, pred);
-    }/*switch*/
+    }
 }
 
 static void
@@ -156,46 +156,46 @@ dump_comparison(FILE *f, bool_node *comp)
     bool_node *lhs = comp->data.children.left;
     bool_node *rhs = comp->data.children.right;
 
-    (void)fprintf(f, "(");
+    fprintf(f, "(");
     dump_var(f, lhs);
     switch(comp->tag) {
-	case N_lt: (void)fprintf(f, " < "); break;
-	case N_gt: (void)fprintf(f, " > "); break;
-	case N_le: (void)fprintf(f, " <= "); break;
-	case N_ge: (void)fprintf(f, " >= "); break;
-	case N_eq: (void)fprintf(f, " == "); break;
-	case N_seq: (void)fprintf(f, " == "); break;
-	case N_sneq: (void)fprintf(f, " != "); break;
-	case N_neq: (void)fprintf(f, " != "); break;
-	case N_match: (void)fprintf(f, " ~ "); break;
-	case N_nmatch: (void)fprintf(f, " !~ "); break;
-	default: (void)fprintf(f, "<ERROR>"); break;
-    }/*switch*/
+	case N_lt: fprintf(f, " < "); break;
+	case N_gt: fprintf(f, " > "); break;
+	case N_le: fprintf(f, " <= "); break;
+	case N_ge: fprintf(f, " >= "); break;
+	case N_eq: fprintf(f, " == "); break;
+	case N_seq: fprintf(f, " == "); break;
+	case N_sneq: fprintf(f, " != "); break;
+	case N_neq: fprintf(f, " != "); break;
+	case N_match: fprintf(f, " ~ "); break;
+	case N_nmatch: fprintf(f, " !~ "); break;
+	default: fprintf(f, "<ERROR>"); break;
+    }
     dump_var(f, rhs);
-    (void)fprintf(f, ")");
+    fprintf(f, ")");
 }
 
 static void
 dump_var(FILE *f, bool_node *var)
 {
-    switch(var->tag) {
-	case N_str: (void)fprintf(f, "\"%s\"", var->data.str_val); break;
-	case N_pat: (void)fprintf(f, "\"%s\"", var->data.str_val); break;
-	case N_number: (void)fprintf(f, "%f", var->data.num_val); break;
-	case N_uid: (void)fprintf(f, "uid"); break;
-	case N_gid: (void)fprintf(f, "gid"); break;
-	case N_uname: (void)fprintf(f, "uname"); break;
-	case N_gname: (void)fprintf(f, "gname"); break;
-	case N_fname: (void)fprintf(f, "fname"); break;
-	case N_psargs: (void)fprintf(f, "psargs"); break;
-	case N_cpuburn: (void)fprintf(f, "cpuburn"); break;
-	case N_syscalls: (void)fprintf(f, "syscalls"); break;
-	case N_ctxswitch: (void)fprintf(f, "ctxswitch"); break;
-	case N_virtualsize: (void)fprintf(f, "virtualsize"); break;
-	case N_residentsize: (void)fprintf(f, "residentsize"); break;
-	case N_iodemand: (void)fprintf(f, "iodemand"); break;
-	case N_iowait: (void)fprintf(f, "iowait"); break;
-	case N_schedwait: (void)fprintf(f, "schedwait"); break;
-	default: (void)fprintf(f, "<ERROR>"); break;
-    }/*switch*/
+    switch (var->tag) {
+	case N_str: fprintf(f, "\"%s\"", var->data.str_val); break;
+	case N_pat: fprintf(f, "\"%s\"", var->data.str_val); break;
+	case N_number: fprintf(f, "%f", var->data.num_val); break;
+	case N_uid: fprintf(f, "uid"); break;
+	case N_gid: fprintf(f, "gid"); break;
+	case N_uname: fprintf(f, "uname"); break;
+	case N_gname: fprintf(f, "gname"); break;
+	case N_fname: fprintf(f, "fname"); break;
+	case N_psargs: fprintf(f, "psargs"); break;
+	case N_cpuburn: fprintf(f, "cpuburn"); break;
+	case N_syscalls: fprintf(f, "syscalls"); break;
+	case N_ctxswitch: fprintf(f, "ctxswitch"); break;
+	case N_virtualsize: fprintf(f, "virtualsize"); break;
+	case N_residentsize: fprintf(f, "residentsize"); break;
+	case N_iodemand: fprintf(f, "iodemand"); break;
+	case N_iowait: fprintf(f, "iowait"); break;
+	case N_schedwait: fprintf(f, "schedwait"); break;
+	default: fprintf(f, "<ERROR>"); break;
+    }
 }

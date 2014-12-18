@@ -10,31 +10,23 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 
-void
-yywarn(s)
-char	*s;
-{
-    extern int	yylineno;
+extern int  yylineno;
+extern char yytext[];
 
-    (void)fprintf(stderr, "Warning [line %d]\n%s\n", yylineno, s);
+void
+yywarn(char *s)
+{
+    fprintf(stderr, "Warning [line %d]\n%s\n", yylineno, s);
 }
 
 void
-yyerror(s)
-char	*s;
+yyerror(char *s)
 {
-    extern int	yylineno;
-    extern char yytext[];
-
-    (void)fprintf(stderr, "Specification error in configuration\n");
-    (void)fprintf(stderr, "[line %d] %s: %s\n", yylineno, s, yytext);
+    fprintf(stderr, "Specification error in configuration\n");
+    fprintf(stderr, "[line %d] %s: %s\n", yylineno, s, yytext);
 }

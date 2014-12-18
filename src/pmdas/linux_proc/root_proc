@@ -305,7 +305,6 @@ hotproc.total.cpuother {
 }
 
 hotproc.predicate {
-    syscalls       PROC:61:0
     ctxswitch      PROC:61:1
     virtualsize    PROC:61:2
     residentsize   PROC:61:3

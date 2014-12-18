@@ -30,11 +30,11 @@
 #include "gram.tab.h"
 #include "config.h"
 
-char *conf_buffer = NULL; /* contains config text */
-char *pred_buffer = NULL; /* contains parsed predicate */
+char *conf_buffer;	/* contains config text */
+char *pred_buffer;	/* contains parsed predicate */
 
-static bool_node *the_tree = NULL;
-static config_vars *the_vars = NULL;
+static bool_node *the_tree;
+static config_vars *the_vars;
 
 /* internal functions */
 static int eval_predicate(bool_node *);
@@ -47,30 +47,32 @@ static double get_numvalue(bool_node *);
 static void eval_error(char *);
 
 extern int parse_predicate(bool_node **);
-extern char *pmProgname;
 char *hotproc_configfile;
 extern FILE *yyin;
 
 void
-set_conf_buffer( char * buf){
+set_conf_buffer(char *buf)
+{
     conf_buffer = strdup(buf);
 }
 
 char *
-get_conf_buffer(){
-	return conf_buffer;
+get_conf_buffer(void)
+{
+    return conf_buffer;
 }
 
 FILE *
 open_config(char configfile[])
 {
+    FILE *conf;
 
     hotproc_configfile = strdup(configfile);
 
-    FILE *conf;
     if ((conf = fopen(hotproc_configfile, "r")) == NULL) {
-	if (pmDebug & DBG_TRACE_LIBPMDA){
-	    (void)fprintf(stderr, "%s: Unable to open configuration file \"%s\": %s\n", pmProgname, hotproc_configfile, osstrerror());
+	if (pmDebug & DBG_TRACE_APPL0) {
+	    fprintf(stderr, "%s: Cannot open configuration file \"%s\": %s\n",
+		    pmProgname, hotproc_configfile, osstrerror());
 	}
 	return NULL;
     }
@@ -89,7 +91,7 @@ parse_config(bool_node **tree)
     char *ptr;
 
     if ((sts = parse_predicate(tree)) != 0) {
-	(void)fprintf(stderr, "%s: Failed to parse configuration file\n", pmProgname);
+	fprintf(stderr, "%s: Failed to parse configuration file\n", pmProgname);
 	return sts;
     }
 
@@ -148,9 +150,8 @@ error:
 void
 new_tree(bool_node *tree)
 {
-
     /* free_tree will delete the tree we just constructed if NULL is passed in.  Not sure why */
-    if( the_tree != NULL )
+    if (the_tree != NULL )
 	free_tree(the_tree);
 
     the_tree = tree;
@@ -167,7 +168,7 @@ read_config(FILE *conf)
     /* get length of file */
     sts = fstat(fileno(conf), &stat_buf);
     if (sts < 0) {
-	(void)fprintf(stderr, "%s: Failure to stat configuration file \"%s\": %s\n",
+	fprintf(stderr, "%s: Failure to stat configuration file \"%s\": %s\n",
 	    pmProgname, hotproc_configfile, osstrerror());
 	return 0;
     }
@@ -176,7 +177,7 @@ read_config(FILE *conf)
     /* create buffer */
     conf_buffer = (char*)malloc(size+1*sizeof(char));
     if (conf_buffer == NULL) {
-	(void)fprintf(stderr, "%s: Failure to create buffer for configuration file \"%s\"\n",
+	fprintf(stderr, "%s: Cannot create buffer configuration file \"%s\"\n",
 	    pmProgname, hotproc_configfile);
 	return 0;
     }
@@ -184,7 +185,7 @@ read_config(FILE *conf)
     /* read whole file into buffer */
     nread = fread(conf_buffer, sizeof(char), size, conf);
     if (nread != size) {
-	(void)fprintf(stderr, "%s: Failure to read configuration file \"%s\" into buffer\n",
+	fprintf(stderr, "%s: Failure to fread \"%s\" file into buffer\n",
 	    pmProgname, hotproc_configfile);
 	return 0;
     }
@@ -194,7 +195,6 @@ read_config(FILE *conf)
         return 0;
 
     return 1;
-
 }
 
 void
@@ -202,7 +202,6 @@ dump_tree(FILE *f)
 {
     dump_bool_tree(f, the_tree);
 }
-
 
 int
 eval_tree(config_vars *vars)
@@ -314,45 +313,45 @@ read_test_var(char *line, config_vars *vars)
     else if (strcmp(var, "virtualsize") == 0) {
         vars->preds.virtualsize = atof(value);
     } 
-    //else if (strcmp(var, "pr_size") == 0) {
-    //    vars->pr_size = atol(value);
-    //} 
+    /*else if (strcmp(var, "pr_size") == 0) {
+        vars->pr_size = atol(value);
+    }
     else if (strcmp(var, "residentsize") == 0) {
         vars->preds.residentsize = atof(value);
     } 
-    //else if (strcmp(var, "pr_rssize") == 0) {
-    //    vars->pr_rssize = atol(value);
-    //} 
+    else if (strcmp(var, "pr_rssize") == 0) {
+        vars->pr_rssize = atol(value);
+    }*/
     else if (strcmp(var, "iodemand") == 0) {
         vars->preds.iodemand = atof(value);
     } 
-    //else if (strcmp(var, "pu_gbread") == 0) {
-    //    vars->pu_gbread = atol(value);
-    //} 
-    //else if (strcmp(var, "pu_bread") == 0) {
-    //    vars->pu_bread = atol(value);
-    //} 
-    //else if (strcmp(var, "pu_gbwrit") == 0) {
-    //    vars->pu_gbwrit = atol(value);
-    //} 
-    //else if (strcmp(var, "pu_bwrit") == 0) {
-    //    vars->pu_bwrit = atol(value);
-    //} 
-    //else if (strcmp(var, "iowait") == 0) {
-    //    vars->preds.iowait = atof(value);
-    //} 
-    //else if (strcmp(var, "ac_bwtime") == 0) {
-    //    vars->ac_bwtime = atoll(value);
-    //} 
-    //else if (strcmp(var, "ac_rwtime") == 0) {
-    //    vars->ac_rwtime = atoll(value);
-    //} 
+    /*else if (strcmp(var, "pu_gbread") == 0) {
+        vars->pu_gbread = atol(value);
+    } 
+    else if (strcmp(var, "pu_bread") == 0) {
+        vars->pu_bread = atol(value);
+    } 
+    else if (strcmp(var, "pu_gbwrit") == 0) {
+        vars->pu_gbwrit = atol(value);
+    } 
+    else if (strcmp(var, "pu_bwrit") == 0) {
+        vars->pu_bwrit = atol(value);
+    } 
+    else if (strcmp(var, "iowait") == 0) {
+        vars->preds.iowait = atof(value);
+    } 
+    else if (strcmp(var, "ac_bwtime") == 0) {
+        vars->ac_bwtime = atoll(value);
+    } 
+    else if (strcmp(var, "ac_rwtime") == 0) {
+        vars->ac_rwtime = atoll(value);
+    }*/
     else if (strcmp(var, "schedwait") == 0) {
         vars->preds.schedwait = atof(value);
     } 
-    //else if (strcmp(var, "ac_qwtime") == 0) {
-    //    vars->ac_qwtime = atoll(value);
-    //} 
+    /*else if (strcmp(var, "ac_qwtime") == 0) {
+        vars->ac_qwtime = atoll(value);
+    }*/
     else {
 	fprintf(stderr, "%s: Error unrecognised test variable: \"%s\"\n", 
                 pmProgname, var);
@@ -362,10 +361,9 @@ read_test_var(char *line, config_vars *vars)
     return 1;
 
 failure:
-    (void)fprintf(stderr, "%s: malloc failed for read_test_var()\n", pmProgname); 
+    fprintf(stderr, "%s: malloc failed for read_test_var()\n", pmProgname); 
     exit(1);
 }
-
 
 int
 read_test_values(FILE *file, config_vars *vars)
@@ -385,10 +383,10 @@ read_test_values(FILE *file, config_vars *vars)
     /* note that line must end in '\n' */
 
     /* reset all values */
-    (void)memset(vars, 0, sizeof(*vars));
+    memset(vars, 0, sizeof(*vars));
 
     /* read each var=value pair for a line */
-    for(i=0;/*forever*/;i++) {
+    for (i=0;/*forever*/;i++) {
         sts = read_test_var((i==0?line:NULL), vars); 
         if (sts == EOF) 
 	    return 1;
@@ -400,7 +398,7 @@ read_test_values(FILE *file, config_vars *vars)
 static void 
 eval_error(char *msg)
 {
-   (void)fprintf(stderr, "%s: Internal error : %s\n", pmProgname, msg?msg:""); 
+   fprintf(stderr, "%s: Internal error : %s\n", pmProgname, msg?msg:""); 
    exit(1);
 }
 
@@ -409,7 +407,7 @@ eval_predicate(bool_node *pred)
 {
     bool_node *lhs, *rhs;
 
-    switch(pred->tag) {
+    switch (pred->tag) {
 	case N_and:	
 	    lhs = pred->data.children.left;
 	    rhs = pred->data.children.right;
@@ -427,7 +425,7 @@ eval_predicate(bool_node *pred)
 	    return 0;
 	default:
 	    return eval_comparison(pred);
-    }/*switch*/
+    }
 }
 
 static int
@@ -436,7 +434,7 @@ eval_comparison(bool_node *comp)
     bool_node *lhs = comp->data.children.left;
     bool_node *rhs = comp->data.children.right;
 
-    switch(comp->tag) {
+    switch (comp->tag) {
 	case N_lt: case N_gt: case N_ge: case N_le:
         case N_eq: case N_neq:
 	    return eval_num_comp(comp->tag, lhs, rhs); 
@@ -446,9 +444,9 @@ eval_comparison(bool_node *comp)
 	    return eval_match_comp(comp->tag, lhs, rhs);
 	default:
 	    eval_error("comparison");
-        // error exits but to keep compiler happy
-        return 0;
-    }/*switch*/
+	    break;
+    }
+    return 0;
 }
 
 static int
@@ -457,7 +455,7 @@ eval_num_comp(N_tag tag, bool_node *lhs, bool_node *rhs)
     double x = get_numvalue(lhs);
     double y = get_numvalue(rhs);
 
-    switch(tag) {
+    switch (tag) {
 	case N_lt: return (x < y);
 	case N_gt: return (x > y);
 	case N_le: return (x <= y);
@@ -466,9 +464,9 @@ eval_num_comp(N_tag tag, bool_node *lhs, bool_node *rhs)
 	case N_neq: return (x != y);
 	default:
 	    eval_error("number comparison");
-        // error exits but to keep compiler happy
-        return 0;
-    }/*switch*/
+	    break;
+    }
+   return 0;
 }
 
 static double
@@ -477,7 +475,7 @@ get_numvalue(bool_node *n)
     switch(n->tag) {
 	case N_number: return n->data.num_val;
 	case N_cpuburn: return the_vars->cpuburn;
-    //    case N_syscalls: return the_vars->preds.syscalls;
+	/*case N_syscalls: return the_vars->preds.syscalls;*/
         case N_ctxswitch: return the_vars->preds.ctxswitch;
         case N_virtualsize: return the_vars->preds.virtualsize;
         case N_residentsize: return the_vars->preds.residentsize;
@@ -488,9 +486,9 @@ get_numvalue(bool_node *n)
 	case N_uid: return the_vars->uid;
 	default:
 	    eval_error("number value");
-        // error exits but to keep compiler happy
-        return 0;
+	    break;
     }
+    return 0;
 }
 
 static int
@@ -499,14 +497,14 @@ eval_str_comp(N_tag tag, bool_node *lhs, bool_node *rhs)
     char *x = get_strvalue(lhs);
     char *y = get_strvalue(rhs);
 
-    switch(tag) {
+    switch (tag) {
 	case N_seq: return (strcmp(x,y)==0?1:0);
 	case N_sneq: return (strcmp(x,y)==0?0:1);
 	default:
 	    eval_error("string comparison");
-        // error exits but to keep compiler happy
-        return 0;
-    }/*switch*/
+	    break;
+    }
+    return 0;
 }
 
 static int
@@ -532,39 +530,38 @@ eval_match_comp(N_tag tag, bool_node *lhs, bool_node *rhs)
 	eval_error("re_exec");
     }
 
-    switch(tag) {
+    switch (tag) {
 	case N_match: return sts;
 	case N_nmatch: return !sts;
 	default:
 	    eval_error("match comparison");
-        // error exits but to keep compiler happy
-        return 0;
-    }/*switch*/
+	    break;
+    }
+    return 0;
 }
 
 static char *
 get_strvalue(bool_node *n)
 {
-
-    switch(n->tag) {
+    switch (n->tag) {
 	case N_str: 
-        case N_pat:
+	case N_pat:
 		return n->data.str_val;
 	case N_gname: 
-		//if (the_vars->gname != NULL)
+		/*if (the_vars->gname != NULL)*/
 		    return the_vars->gname;
-		//else
-		  //  return get_gname_info(the_vars->gid);
+		/*else
+		    return get_gname_info(the_vars->gid);*/
 	case N_uname: 
-		//if (the_vars->uname != NULL)
+		/*if (the_vars->uname != NULL)*/
 		    return the_vars->uname;
-		//else
-		  //  return get_uname_info(the_vars->uid);
+		/*else
+		    return get_uname_info(the_vars->uid);*/
 	case N_fname: return the_vars->fname; 
 	case N_psargs: return the_vars->psargs; 
 	default:
 	    eval_error("string value");
-        // error exits but to keep compiler happy
-        return 0;
-    }/*switch*/
+	    break;
+    }
+    return 0;
 }

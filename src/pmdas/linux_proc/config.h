@@ -10,17 +10,13 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #ifndef CONFIG_H
 #define CONFIG_H
 
 typedef struct {
-	//double  syscalls;
+	/*double  syscalls;*/
 	double  ctxswitch;
 	double  virtualsize;
 	double  residentsize;
@@ -28,7 +24,6 @@ typedef struct {
 	double  iowait;
 	double  schedwait;
 } derived_pred_t;
-
 
 typedef struct {
         uid_t   uid;         /* real user id */
@@ -38,22 +33,20 @@ typedef struct {
         char    fname[256];     /* basename of exec()'d pathname */
         char    psargs[256];     /* initial chars of arg list */
 	double  cpuburn;
-
         derived_pred_t preds;
-
 } config_vars;
 
 #include "gram_node.h"
 
-void set_conf_buffer( char * );
-char *get_conf_buffer();
-FILE *open_config(char []);
-int read_config(FILE *);
-int parse_config(bool_node **tree);
-void new_tree(bool_node *tree);
-int eval_tree(config_vars *);
-void dump_tree(FILE *);
-void do_pred_testing(void);
-int read_test_values(FILE *, config_vars *);
+extern void set_conf_buffer(char *);
+extern char *get_conf_buffer(void);
+extern FILE *open_config(char []);
+extern int read_config(FILE *);
+extern int parse_config(bool_node **tree);
+extern void new_tree(bool_node *tree);
+extern int eval_tree(config_vars *);
+extern void dump_tree(FILE *);
+extern void do_pred_testing(void);
+extern int read_test_values(FILE *, config_vars *);
 
 #endif

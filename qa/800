@@ -1,8 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 800
-# [Excercise the hotproc additions to the linux_proc pmda]
+# Excercise the hotproc additions to the linux_proc pmda
 #
-# Copyright (c) 2014 [who are you?].  All Rights Reserved.
+# Copyright (c) 2014 Martins Innus.  All Rights Reserved.
 #
 
 seq=`basename $0`
@@ -15,9 +15,16 @@ echo "QA output created by $seq"
 
 [ -d $PCP_PMDAS_DIR/proc ] || _notrun "Proc PMDA not installed"
 
+_cleanup()
+{
+    cd $here
+    [ -f $tmp.backup ] && $sudo mv $tmp.backup $PCP_PMDAS_DIR/proc/hotproc.conf
+    rm -rf $tmp.*
+}
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
 {
@@ -32,6 +39,10 @@ _filter()
 # vars and checks
 pipepmda=$PCP_PMDAS_DIR/proc/pmdaproc
 [ ! -f $pipepmda ] && echo "FATAL ERROR Could not find \"$pipepmda\"" && exit 1
+
+# temporarily move aside any existing hotproc.conf (for qa determinism)
+[ -f $PCP_PMDAS_DIR/proc/hotproc.conf ] && \
+    $sudo mv $PCP_PMDAS_DIR/proc/hotproc.conf $tmp.backup
 
 # real QA test starts here
 
