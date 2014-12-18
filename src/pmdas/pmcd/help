@@ -30,7 +30,7 @@
 
 @ 2.1 Instance domain "pmloggers" from PMCD PMDA
 This is the list of currently active pmlogger instances on the same
-machine as this PMCD.  The instance names are the process ids of the
+machine as this PMCD.  The instance names are the process IDs of the
 pmlogger instances.  The primary pmlogger has an extra instance with the
 instance name "primary" and an instance id of zero (in addition to its
 normal process id instance).
@@ -49,7 +49,7 @@ in $PCP_PMCDCONF_PATH.
 
 @ 2.4 pmie Instance Domain
 One instance per running pmie process.  The internal and external instance
-identifiers are the process ids of the pmie instances.
+identifiers are the process IDs of the pmie instances.
 
 @ 2.5 buffer pool Instance Domain
 The instances are as follows:
@@ -64,6 +64,9 @@ The instances are as follows:
 	__pmFindPDUBuf, __pmPinPDUBuf and __pmUnpinPDUBuf
   8192+ PDU buffers larger that 8-Kbyte managed by __pmFindPDUBuf,
 	__pmPinPDUBuf and __pmUnpinPDUBuf
+
+@ 2.6 client Instance Domain
+One instance per identified, connected PMAPI client application.
 
 @ pmcd.numagents Number of agents (PMDAs) currently connected to PMCD
 The number of agents (PMDAs) currently connected to PMCD.  This may differ
@@ -267,7 +270,7 @@ and agents.  These PDUs are used for authentication.
 The fully qualified domain name of the host on which a pmlogger
 instance is running.
 
-The instance names are process ids of the active pmloggers.  The
+The instance names are process IDs of the active pmloggers.  The
 primary pmlogger has an extra instance with the instance name "primary"
 and an instance id of zero (in addition to its normal process id
 instance).
@@ -278,7 +281,7 @@ information.  This metric is a list of the active pmlogger control
 ports on the same machine as this PMCD (i.e. the host identified in the
 corresponding pmcd.pmlogger.host metric).
 
-The instance names are process ids of the active pmloggers.  The
+The instance names are process IDs of the active pmloggers.  The
 primary pmlogger has an extra instance with the instance name "primary"
 and an instance id of zero (in addition to its normal process id
 instance).
@@ -287,7 +290,7 @@ instance).
 The full pathname through the filesystem on the corresponding host
 (pmcd.pmlogger.host) that is the base name for the archive log files.
 
-The instance names are process ids of the active pmloggers.  The
+The instance names are process IDs of the active pmloggers.  The
 primary pmlogger has an extra instance with the instance name "primary"
 and an instance id of zero (in addition to its normal process id
 instance).
@@ -296,7 +299,7 @@ instance).
 The fully qualified domain name of the host from which a pmlogger
 instance is fetching metrics to be archived.
 
-The instance names are process ids of the active pmloggers.  The
+The instance names are process IDs of the active pmloggers.  The
 primary pmlogger has an extra instance with the instance name "primary"
 and an instance id of zero (in addition to its normal process id
 instance).

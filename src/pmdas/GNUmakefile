@@ -17,13 +17,14 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-CPMDAS = pmcd linux darwin freebsd solaris aix windows \
+CPMDAS = root pmcd \
+	linux_proc linux_xfs linux \
+	darwin freebsd netbsd solaris aix windows \
 	sample simple trivial sendmail mailq txmon \
-	cisco trace apache shping mounts weblog \
-	lmsensors process roomtemp summary hotproc \
-	lustrecomm linux_proc mmv etw logger bash \
-	systemd gfs2 netbsd linux_xfs infiniband jbd2 \
-	rpm nvidia papi perfevent cifs
+	apache cisco trace shping mounts weblog \
+	mmv lmsensors process roomtemp summary etw \
+	lustrecomm infiniband logger bash systemd \
+	gfs2 jbd2 cifs rpm nvidia papi perfevent
 
 PLPMDAS = bonding netfilter zimbra postgresql \
 	dbping memcache systemtap mysql vmware kvm \

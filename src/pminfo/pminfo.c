@@ -25,6 +25,7 @@ static pmLongOptions longopts[] = {
     PMOPT_ARCHIVE,
     PMOPT_DEBUG,
     PMOPT_HOST,
+    PMOPT_CONTAINER,
     PMOPT_LOCALPMDA,
     PMOPT_SPECLOCAL,
     PMOPT_NAMESPACE,

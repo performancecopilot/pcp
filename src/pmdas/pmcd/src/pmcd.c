@@ -281,8 +281,8 @@ typedef struct {
 #define CTX_INACTIVE    0
 #define CTX_ACTIVE      1
 
-static perctx_t *ctxtab = NULL;
-static int      num_ctx = 0;
+static perctx_t *ctxtab;
+static int      num_ctx;
 
 /*
  * expand and initialize the per client context table
@@ -340,7 +340,7 @@ init_tables(int dom)
     indomp->domain = dom;
     indomp->serial = INDOM_CLIENT;
 
-    /* merge performance domain id part into PMIDs in pmDesc table */
+    /* merge performance domain ID part into PMIDs in pmDesc table */
     for (i = 0; desctab[i].pmid != PM_ID_NULL; i++) {
 	pmidp = (__pmID_int *)&desctab[i].pmid;
 	pmidp->domain = dom;

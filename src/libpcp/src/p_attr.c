@@ -53,7 +53,7 @@ __pmSendAttr(int fd, int from, int attr, const char *value, int length)
 	    buffer[i] = isprint((int)value[i]) ? value[i] : '.';
 	buffer[length] = buffer[LIMIT_ATTR_PDU-1] = '\0';
 	if (attr)
-	    fprintf(stderr, "__pmSendAttr [len=%d]: attr=%x value=\"%s\"\n",
+	    fprintf(stderr, "__pmSendAttr [len=%d]: attr=0x%x value=\"%s\"\n",
 			    length, attr, buffer);
 	else
 	    fprintf(stderr, "__pmSendAttr [len=%d]: payload=\"%s\"\n",
@@ -91,7 +91,7 @@ __pmDecodeAttr(__pmPDU *pdubuf, int *attr, char **value, int *vlen)
 	    buffer[i] = isprint((int)pp->value[i]) ? pp->value[i] : '.';
 	buffer[length] = buffer[LIMIT_ATTR_PDU-1] = '\0';
 	if (*attr)
-	    fprintf(stderr, "__pmDecodeAttr [len=%d]: attr=%x value=\"%s\"\n",
+	    fprintf(stderr, "__pmDecodeAttr [len=%d]: attr=0x%x value=\"%s\"\n",
 			    length, *attr, buffer);
 	else
 	    fprintf(stderr, "__pmDecodeAttr [len=%d]: payload=\"%s\"\n",

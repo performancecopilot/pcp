@@ -2,7 +2,7 @@
 #
 # PMDA Name	Domain Number
 #
-IRIX		1
+ROOT		1
 PMCD		2
 PROC		3
 ENVIRON		4

@@ -854,6 +854,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %dir %attr(0775,pcp,pcp) %{_tempsdir}
 %dir %attr(0775,pcp,pcp) %{_tempsdir}/pmie
 %dir %attr(0775,pcp,pcp) %{_tempsdir}/pmlogger
+%dir %attr(0700,root,root) %{_tempsdir}/pmcd
 
 %dir %{_datadir}/pcp/lib
 %{_datadir}/pcp/lib/ReplacePmnsSubtree
