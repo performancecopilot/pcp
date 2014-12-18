@@ -20,7 +20,7 @@ PMID: 126.1.3
 dbpmda> desc papi.control.auto_enable
 PMID: 126.1.4
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL ADDR
-    Semantics: discrete  Units: sec
+    Semantics: discrete  Units: none
 dbpmda> store papi.control.auto_enable "0"
 PMID: 126.1.4
 Getting description...
@@ -159,7 +159,7 @@ Success
 dbpmda> desc papi.control.multiplex
 PMID: 126.1.5
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL ADDR
-    Semantics: discrete  Units: sec
+    Semantics: discrete  Units: none
 dbpmda> fetch papi.control.status
 PMID(s): 126.1.3
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
