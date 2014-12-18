@@ -33,6 +33,20 @@ enum {
     CLUSTER_AVAILABLE,	// available hardware
 };
 
+enum {
+    CONTROL_ENABLE = 0,  // papi.control.enable
+    CONTROL_RESET,       // papi.control.reset
+    CONTROL_DISABLE,     // papi.control.disable
+    CONTROL_STATUS,      // papi.control.status
+    CONTROL_AUTO_ENABLE, // papi.control.auto_enable
+    CONTROL_MULTIPLEX,   // papi.control.multiplex
+};
+
+enum {
+    AVAILABLE_NUM_COUNTERS = 0, // papi.available.num_counters
+    AVAILABLE_VERSION,          // papi.available.version
+};
+
 typedef struct {
     char papi_string_code[PAPI_HUGE_STR_LEN]; //same length as the papi 'symbol' or name of the event
     pmID pmid;
@@ -197,23 +211,21 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case CLUSTER_CONTROL:
 	switch (idp->item) {
-	case 0:
-	    atom->cp = ""; /* papi.control.enable */
-	    return PMDA_FETCH_STATIC;
-
-	case 1:
-	    /* papi.control.reset */
+	case CONTROL_ENABLE:
 	    atom->cp = "";
 	    return PMDA_FETCH_STATIC;
 
-	case 2:
-	    /* papi.control.disable */
+	case CONTROL_RESET:
+	    atom->cp = "";
+	    return PMDA_FETCH_STATIC;
+
+	case CONTROL_DISABLE:
 	    atom->cp = "";
 	    if ((sts = check_papi_state()) & PAPI_RUNNING)
 		return PMDA_FETCH_STATIC;
 	    return 0;
 
-	case 3:
+	case CONTROL_STATUS:
 	    sts = PAPI_state(EventSet, &state);
 	    if (sts != PAPI_OK)
 		return PM_ERR_VALUE;
@@ -254,13 +266,11 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->cp = status_string;
 	    return PMDA_FETCH_STATIC;
 
-	case 4:
-	    /* papi.control.auto_enable */
+	case CONTROL_AUTO_ENABLE:
 	    atom->ul = auto_enable_time;
             return PMDA_FETCH_STATIC;
 
-	case 5:
-	    /* papi.control.multiplex */
+	case CONTROL_MULTIPLEX:
 	    atom->ul = enable_multiplexing;
             return PMDA_FETCH_STATIC;
 
@@ -270,12 +280,12 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_AVAILABLE:
-	if (idp->item == 0) {
-	    atom->ul = number_of_counters; /* papi.available.num_counters */
+	if (idp->item == AVAILABLE_NUM_COUNTERS) {
+	    atom->ul = number_of_counters;
 	    return PMDA_FETCH_STATIC;
 	}
-	if (idp->item == 1) {
-	    atom->cp = papi_version; /* papi.available.version */
+	if (idp->item == AVAILABLE_VERSION) {
+	    atom->cp = papi_version;
 	    return PMDA_FETCH_STATIC;
 	}
 	return PM_ERR_PMID;
@@ -483,8 +493,8 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	    return PM_ERR_PERMISSION;
 
 	switch (idp->item) {
-	case 0: //papi.enable
-	case 2: //papi.disable // NB: almost identical handling!
+	case CONTROL_ENABLE:
+	case CONTROL_DISABLE: // NB: almost identical handling!
 	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				PM_TYPE_STRING, &av, PM_TYPE_STRING)) < 0)
 		return sts;
@@ -514,19 +524,19 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	    }
 	    return sts;
 
-	case 1: //papi.reset
+	case CONTROL_RESET:
             for (j = 0; j < number_of_events; j++)
                 papi_info[j].metric_enabled = 0;
             return refresh_metrics(0);
 
-	case 4: //papi.control.auto_enable
+	case CONTROL_AUTO_ENABLE:
 	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				 PM_TYPE_U32, &av, PM_TYPE_U32)) < 0)
 		return sts;
             auto_enable_time = av.ul;
             return papi_setup_auto_af();
 
-	case 5: //papi.control.multiplex
+	case CONTROL_MULTIPLEX:
 	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				 PM_TYPE_U32, &av, PM_TYPE_U32)) < 0)
 		return sts;
@@ -558,10 +568,10 @@ papi_desc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 
     case CLUSTER_CONTROL:
         switch (idp->item) {
-        case 0: // papi.control.enable
-        case 1: // papi.control.reset
-        case 2: // papi.control.disable
-        case 3: // papi.control.status
+        case CONTROL_ENABLE:
+        case CONTROL_RESET:
+        case CONTROL_DISABLE:
+        case CONTROL_STATUS:
             desc->pmid = pmid;
             desc->type = PM_TYPE_STRING;
             desc->indom = PM_INDOM_NULL;
@@ -569,14 +579,14 @@ papi_desc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
             desc->units = (pmUnits) PMDA_PMUNITS(0,0,0,0,0,0);
             sts = 0;
             break;
-        case 4: // papi.control.auto_enable
+        case CONTROL_AUTO_ENABLE:
             desc->pmid = pmid;
             desc->type = PM_TYPE_U32;
             desc->indom = PM_INDOM_NULL;
             desc->sem = PM_SEM_DISCRETE;
             desc->units = (pmUnits) PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0);
             sts = 0;
-        case 5: // papi.control.multiplex
+        case CONTROL_MULTIPLEX:
             desc->pmid = pmid;
             desc->type = PM_TYPE_U32;
             desc->indom = PM_INDOM_NULL;
@@ -589,7 +599,7 @@ papi_desc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 
     case CLUSTER_AVAILABLE:
         switch (idp->item) {
-        case 0: // papi.available.num_counters
+        case AVAILABLE_NUM_COUNTERS:
             desc->pmid = pmid;
             desc->type = PM_TYPE_U32;
             desc->indom = PM_INDOM_NULL;
@@ -597,7 +607,7 @@ papi_desc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
             desc->units = (pmUnits) PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE);
             sts = 0;
             break;
-        case 1: // papi.available.version
+        case AVAILABLE_VERSION:
             desc->pmid = pmid;
             desc->type = PM_TYPE_STRING;
             desc->indom = PM_INDOM_NULL;
