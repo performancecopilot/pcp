@@ -155,7 +155,7 @@ pmdaEnterContainerNameSpace(const char *container, int nsflags)
 	return sts;
 
     /* sendmsg to pmdaroot, await results */
-    if ((sts = __pmdaSendRootNameSpaceFdsReq(clientfd, container, nsflags)) < 0)
+    if ((sts = __pmdaSendRootNameSpaceFdsReq(clientfd, nsflags, container, strlen(container), 0)) < 0)
 	return sts;
 
     /* recvmsg from pmdaroot, error or results */
@@ -188,7 +188,7 @@ pmdaEnterContainerNameSpace(const char *container, int nsflags)
 	}
     }
     if (count && !sts)
-	sts = __pmdaSetNamespaceFds(nsflags, priv_fdset);
+	sts = __pmdaSetNameSpaceFds(nsflags, priv_fdset);
     if (sts)
 	return -oserror();
     return 0;
@@ -205,13 +205,13 @@ pmdaLeaveContainerNameSpace(int nsflags)
     if (clientfd < 0)
 	return PM_ERR_NOTCONN;
 
-    sts = __pmdaSetNamespaceFds(nsflags, self_fdset);
-    __pmdaCloseNamespaceFds(nsflags, priv_fdset);
+    sts = __pmdaSetNameSpaceFds(nsflags, self_fdset);
+    __pmdaCloseNameSpaceFds(nsflags, priv_fdset);
     return sts;
 }
 
 int
-__pmdaCloseNamespaceFds(int nsflags, int *fdset)
+__pmdaCloseNameSpaceFds(int nsflags, int *fdset)
 {
     if (nsflags & PMDA_NAMESPACE_IPC) {
 	close(fdset[PMDA_NAMESPACE_IPC_INDEX]);
@@ -266,7 +266,7 @@ __pmdaSetNameSpaceFds(int nsflags, int *fdset)
     return -ENOTSUP;
 }
 int
-__pmdaCloseNamespaceFds(int nsflags, int *fdset)
+__pmdaCloseNameSpaceFds(int nsflags, int *fdset)
 {
     (void)nsflags;
     (void)fdset;
