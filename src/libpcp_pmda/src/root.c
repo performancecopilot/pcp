@@ -159,7 +159,7 @@ pmdaEnterContainerNameSpace(const char *container, int nsflags)
 	return sts;
 
     /* recvmsg from pmdaroot, error or results */
-    if ((sts = __pmdaRecvRootNameSpaceFds(clientfd, &fdset, &count)) < 0)
+    if ((sts = __pmdaRecvRootNameSpaceFds(clientfd, fdset, &count)) < 0)
 	return sts;
 
     /* finish: unpack the result fds, and call setns(2) */
