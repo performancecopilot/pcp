@@ -699,7 +699,7 @@ pmdaDesc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 	return 0;
     }
 
-    __pmNotifyErr(LOG_ERR, "Requested metric %s is not defined",
+    __pmNotifyErr(LOG_ERR, "pmdaDesc: Requested metric %s is not defined",
 			pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
     return PM_ERR_PMID;
 }
