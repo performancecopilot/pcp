@@ -100,7 +100,8 @@ BuildRequires: systemd-devel
 BuildRequires: desktop-file-utils
 BuildRequires: qt4-devel >= 4.4
 %endif
- 
+BuildRequires: flex-devel
+
 Requires: bash gawk sed grep fileutils findutils initscripts perl which
 Requires: python
 %if 0%{?rhel} <= 5
