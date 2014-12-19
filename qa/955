@@ -14,6 +14,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+# TODO: use a LINUX_STATSPATH root to make test deterministic
+_notrun "WIP - needs to handle platform interrupts differences"
 [ -d $PCP_PMDAS_DIR/linux ] || _notrun "Linux PMDA not installed"
 
 status=1	# failure is the default!
