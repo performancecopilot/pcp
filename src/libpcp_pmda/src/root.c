@@ -155,11 +155,11 @@ pmdaEnterContainerNameSpace(const char *container, int nsflags)
 	return sts;
 
     /* sendmsg to pmdaroot, await results */
-    if ((sts = __pmSendRootNameSpaceFdsReq(clientfd, container, nsflags)) < 0)
+    if ((sts = __pmdaSendRootNameSpaceFdsReq(clientfd, container, nsflags)) < 0)
 	return sts;
 
     /* recvmsg from pmdaroot, error or results */
-    if ((sts = __pmRecvRootNameSpaceFds(clientfd, &fdset, &count)) < 0)
+    if ((sts = __pmdaRecvRootNameSpaceFds(clientfd, &fdset, &count)) < 0)
 	return sts;
 
     /* finish: unpack the result fds, and call setns(2) */
