@@ -1413,6 +1413,7 @@ AC_CHECK_FUNCS(getuid getgid)
 AC_CHECK_FUNCS(getgrent getgrent_r getgrnam getgrnam_r getgrgid getgrgid_r)
 AC_CHECK_FUNCS(getpwent getpwent_r getpwnam getpwnam_r getpwuid getpwuid_r)
 AC_CHECK_FUNCS(sysinfo trace_back_stack backtrace)
+AC_CHECK_FUNCS(sendmsg recvmsg setns)
 
 dnl only define readdir64 on non-linux platforms that support it
 if test $target_os != linux -a $target_os != freebsd -a $target_os != kfreebsd -a $target_os != netbsd; then

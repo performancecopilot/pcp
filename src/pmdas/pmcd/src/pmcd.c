@@ -261,7 +261,7 @@ static struct {
     {	8192,	"8192" },
     {   8193,	"8192+" },
 };
-static int	nbufsz = sizeof(bufinst) / sizeof(bufinst[0]);
+static const int	nbufsz = sizeof(bufinst) / sizeof(bufinst[0]);
 
 typedef struct {
     int		id;		/* index into client[] */
@@ -272,12 +272,13 @@ static whoami_t		*whoamis;
 static unsigned int	nwhoamis;
 
 typedef struct {
-    int			state;
-    double		last_cputime;
-    __uint64_t		last_pdu_in;
+    int		state;
+    double	last_cputime;
+    __uint64_t	last_pdu_in;
+    char	*container;
 } perctx_t;
 
-/* values for per context state */
+/* utilization values for per context state */
 #define CTX_INACTIVE    0
 #define CTX_ACTIVE      1
 
@@ -297,9 +298,11 @@ grow_ctxtab(int ctx)
     }
     while (num_ctx <= ctx) {
         ctxtab[num_ctx].state = CTX_INACTIVE;
+	ctxtab[num_ctx].container = NULL;
         num_ctx++;
     }
     ctxtab[ctx].state = CTX_INACTIVE;
+    ctxtab[ctx].container = NULL;
 }
 
 /*
@@ -1120,6 +1123,38 @@ fetch_feature(int item, pmAtomValue *avp)
     return 0;
 }
 
+static char *
+ctx_container(int ctx)
+{
+    if (ctx < num_ctx && ctx >= 0 && ctxtab[ctx].container)
+	return ctxtab[ctx].container;
+    return NULL;
+}
+
+static char *
+fetch_hostname(int ctx, pmAtomValue *avp, char *host)
+{
+    char	*container;
+
+    if (host)		/* ensure we only ever refresh once-per-fetch */
+	return host;
+
+    /* see if we're dealing with a request within a container */
+    if ((container = ctx_container(ctx)) != NULL) {
+	pmdaEnterContainerNameSpace(container, PMDA_NAMESPACE_UTS);
+	avp->cp = host = hostnameinfo();
+	pmdaLeaveContainerNameSpace(PMDA_NAMESPACE_UTS);
+    }
+    else if (_pmcd_hostname) {
+	avp->cp = host = _pmcd_hostname;
+    } else {
+	if (!host)
+	    host = hostnameinfo();
+	avp->cp = host;
+    }
+    return host;
+}
+
 static int
 fetch_cputime(int item, int ctx, pmAtomValue *avp)
 {
@@ -1167,8 +1202,12 @@ fetch_cputime(int item, int ctx, pmAtomValue *avp)
 static void
 end_context(int ctx)
 {
-    if (ctx >= 0 && ctx < num_ctx && ctxtab[ctx].state == CTX_ACTIVE) {
-	ctxtab[ctx].state = CTX_INACTIVE;
+    if (ctx >= 0 && ctx < num_ctx) {
+	if (ctxtab[ctx].state == CTX_ACTIVE)
+	    ctxtab[ctx].state = CTX_INACTIVE;
+	if (ctxtab[ctx].container)
+	    free(ctxtab[ctx].container);
+	ctxtab[ctx].container = NULL;
     }
 }
 
@@ -1371,13 +1410,8 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				break;
 
 			case 21:	/* hostname */
-                                if (_pmcd_hostname) {
-				    atom.cp = _pmcd_hostname;
-				} else {
-                                    if (!host)
-					host = hostnameinfo();
-                                    atom.cp = host;
-				}
+				need = pmda->e_context;	/* client context ID */
+				host = fetch_hostname(need, &atom, host);
 				break;
 			default:
 				sts = atom.l = PM_ERR_PMID;
@@ -1850,6 +1884,14 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 static int
 pmcd_attribute(int ctx, int attr, const char *value, int len, pmdaExt *pmda)
 {
+    if (ctx >= num_ctx)
+	grow_ctxtab(ctx);
+    if (attr == PCP_ATTR_CONTAINER) {
+	if (ctxtab[ctx].container)
+	    free(ctxtab[ctx].container);
+	if ((ctxtab[ctx].container = strdup(value)) == NULL)
+	    return -ENOMEM;
+    }
     return pmdaAttribute(ctx, attr, value, len, pmda);
 }
 

@@ -308,6 +308,11 @@ again:
     return sts;
 }
 
+/*
+ * Extract critical information (PID1, state) for a named container.
+ * Name here is the unique identifier we've chosen to use for Docker
+ * container external instance names (i.e. long hash names).
+ */
 int
 docker_value_refresh(container_driver_t *dp,
 	const char *name, container_t *values)
@@ -326,4 +331,47 @@ docker_value_refresh(container_driver_t *dp,
     sts = docker_values_parse(fp, name, values);
     fclose(fp);
     return sts;
+}
+
+/*
+ * Given two strings, determine if they identify the same container.
+ * This is called iteratively, passing over all container instances.
+ *
+ * For Docker we need to match user-supplied names (which Docker will
+ * have assigned itself, if none given - see 'docker ps'), optionally
+ * slash-prefixed (for some reason Docker does this? *shrug*).  Also,
+ * we want to allow for matching on the container hash identifiers we
+ * use for the external names (or unique-prefix components thereof).
+ *
+ * Use a simple ranking scheme - the closer the match, the higher the
+ * return value, up to a maximum of 100% (zero => no match).
+ *
+ * 'query' - the name supplied by the PCP monitoring tool.
+ * 'username' - the name from the container_t -> name field.
+ * 'instname' - the external instance identifier, lengthy hash.
+ */
+int
+docker_name_matching(struct container_driver *dp, const char *query,
+	const char *username, const char *instname)
+{
+    unsigned int ilength, qlength, limit;
+    int i, fuzzy = 0;
+
+    if (strcmp(query, username) == 0)
+	return 100;
+    if (username[0] != '\0' && strcmp(query, username+1) == 0)
+	return 99;
+    if (strcmp(query, instname) == 0)
+	return 98;
+    qlength = strlen(query);
+    ilength = strlen(instname);
+    /* find the shortest of the three boundary conditions */
+    if ((limit = (qlength < ilength) ? qlength : ilength) > 95)
+	limit = 95;
+    for (i = 0; i < limit; i++) {
+	if (query[i] != instname[i])
+	    break;
+	fuzzy++;	/* bump for each matching character */
+    }
+    return fuzzy;
 }

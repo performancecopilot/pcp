@@ -71,7 +71,6 @@ echo >> $tmp.conf
 echo "# from QA $seq ..." >> $tmp.conf
 echo PCP_DOCKER_DIR=$root/var/lib/docker >> $tmp.conf
 $sudo cp $tmp.conf $PCP_DIR/etc/pcp.conf
-cp $tmp.conf /tmp/saved.pcp.conf
 root_install
 
 echo "=== Checking empty containers configuration, no values"

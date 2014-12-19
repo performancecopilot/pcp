@@ -722,6 +722,71 @@ extern char *__pmdaEventPrint(const char *, int, char *, int);
 
 extern void pmdaInterfaceMoved(pmdaInterface *);
 
+/*
+ * Privileged PMDA services, as offered by pmdaroot(1).
+ */
+extern int pmdaRootConnect(void);
+extern void pmdaRootShutdown(void);
+
+enum {
+    PMDA_NAMESPACE_IPC_INDEX = 0,
+    PMDA_NAMESPACE_UTS_INDEX,
+    PMDA_NAMESPACE_NET_INDEX,
+    PMDA_NAMESPACE_MNT_INDEX,
+    PMDA_NAMESPACE_USER_INDEX,
+
+    PMDA_NAMESPACE_COUNT
+};
+
+#define PMDA_NAMESPACE_IPC	(1<<PMDA_NAMESPACE_IPC_INDEX)
+#define PMDA_NAMESPACE_UTS	(1<<PMDA_NAMESPACE_UTS_INDEX)
+#define PMDA_NAMESPACE_NET	(1<<PMDA_NAMESPACE_NET_INDEX)
+#define PMDA_NAMESPACE_MNT	(1<<PMDA_NAMESPACE_MNT_INDEX)
+#define PMDA_NAMESPACE_USER	(1<<PMDA_NAMESPACE_USER_INDEX)
+
+extern int pmdaEnterContainerNameSpace(const char *, int);
+extern int pmdaLeaveContainerNameSpace(int);
+
+/*
+ * Local PDU exchange details for elevated privilege operations.
+ * Only the PMDAs and pmcd need to know about this.
+ */
+#define ROOT_PDU_VERSION1	1
+#define ROOT_PDU_VERSION	ROOT_PDU_VERSION1
+
+#define PDUROOT_INFO		0x9000
+#define PDUROOT_NS_FDS_REQ	0x9001
+#define PDUROOT_NS_FDS		0x9002
+/*#define PDUROOT_STARTPMDA_REQ	0x9003*/
+/*#define PDUROOT_STARTPMDA	0x9004*/
+/*#define PDUROOT_SASLAUTH_REQ	0x9005*/
+/*#define PDUROOT_SASLAUTH	0x9006*/
+/*#define PDUROOT_CGROUP_REQ	0x9007*/
+/*#define PDUROOT_CGROUP	0x9008*/
+
+typedef struct {
+    int		type;
+    int		length;
+    int		status;
+    int		version;
+} __pmdaRootPDUHdr;
+
+typedef enum {
+    PDUROOT_FLAG_NS = (0<<1),
+} __pmdaRootServerFeature;
+
+extern int __pmdaConnectRoot(void);
+extern int __pmdaSendRootPDUInfo(int, int, int);
+extern int __pmdaRecvRootPDUInfo(int, int *, int *);
+extern int __pmdaSendRootNameSpaceFdsReq(int, int, const char *, int, int);
+extern int __pmdaDecodeRootNameSpaceFdsReq(void *, int *, char **, int *);
+extern int __pmdaSendRootNameSpaceFds(int, int, int *, int, int);
+extern int __pmdaRecvRootNameSpaceFds(int, int *, int *);
+
+extern int __pmdaSetNameSpaceFds(int, int *);
+extern int __pmdaOpenNameSpaceFds(int, int, int *);
+extern int __pmdaCloseNameSpaceFds(int, int *);
+
 #ifdef __cplusplus
 }
 #endif

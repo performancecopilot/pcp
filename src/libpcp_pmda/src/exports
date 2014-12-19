@@ -116,6 +116,20 @@ PCP_PMDA_3.3 {
 
 PCP_PMDA_3.4 {
   global:
+    pmdaRootConnect;
+    pmdaRootShutdown;
+    pmdaEnterContainerNameSpace;
+    pmdaLeaveContainerNameSpace;
     pmdaInterfaceMoved;
     pmdaNodeLookup;
+
+    __pmdaSetNameSpaceFds;
+    __pmdaOpenNameSpaceFds;
+    __pmdaCloseNameSpaceFds;
+    __pmdaSendRootPDUInfo;
+    __pmdaRecvRootPDUInfo;
+    __pmdaSendRootNameSpaceFdsReq;
+    __pmdaDecodeRootNameSpaceFdsReq;
+    __pmdaSendRootNameSpaceFds;
+    __pmdaRecvRootNameSpaceFds;
 } PCP_PMDA_3.3;

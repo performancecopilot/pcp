@@ -43,6 +43,8 @@ typedef int (*container_changed_t)(struct container_driver *);
 typedef void (*container_insts_t)(struct container_driver *, pmInDom);
 typedef int (*container_values_t)(struct container_driver *,
 		const char *, struct container *);
+typedef int (*container_match_t)(struct container_driver *,
+		const char *, const char *, const char *);
 
 typedef struct container_driver {
     char		*name;
@@ -52,6 +54,7 @@ typedef struct container_driver {
     container_changed_t	indom_changed;
     container_insts_t	insts_refresh;
     container_values_t	value_refresh;
+    container_match_t	name_matching;
 } container_driver_t;
 
 typedef struct container {
