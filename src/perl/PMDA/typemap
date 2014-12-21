@@ -18,7 +18,7 @@ INPUT
 
 O_OBJECT
 	if (sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG))
-		$var = ($type)SvIV((SV *)SvRV($arg));
+		$var = ($type)((intptr_t)(SvIV((SV *)SvRV($arg))));
 	else {
 		warn(\"${Package}::$func_name() -- $var is not a blessed SV reference\");
 		XSRETURN_UNDEF;
