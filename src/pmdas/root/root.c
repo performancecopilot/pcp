@@ -17,9 +17,19 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include <sys/stat.h>
 #include "root.h"
 #include "docker.h"
 #include "domain.h"
+
+#ifndef S_IRWXU
+/*
+ * for Linux we have this ...
+ * #define S_IRWXU	(__S_IREAD|__S_IWRITE|__S_IEXEC)
+ * fake up something equivalent for others
+ */
+#define S_IRWXU 0700
+#endif
 
 static char socket_path[MAXPATHLEN];
 static __pmSockAddr *socket_addr;
