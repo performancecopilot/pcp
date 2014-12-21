@@ -39,7 +39,7 @@ VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
 LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) $(YFILES:%.y=%.tab.?)
 
-LLDLIBS		= $(PCP_PMDALIB) -lfl
+LLDLIBS		= $(PCP_PMDALIB)
 LCFLAGS		= $(INVISIBILITY)
 
 # Uncomment these flags for profiling
@@ -56,8 +56,10 @@ include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
 build-me: domain.h root_proc $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
-	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
+	@if [ -f ../pmcd.conf ]; then \
+	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
+	    fi; \
 	fi
 
 install: default

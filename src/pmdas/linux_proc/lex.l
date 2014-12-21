@@ -26,6 +26,17 @@ extern void yyerror(char *s);
 
 static char emsg[256]; /* error message */
 
+#ifdef FLEX_SCANNER
+#ifndef YY_NO_UNPUT
+#define YY_NO_UNPUT
+#endif
+#else
+#undef input
+#define input() ((yytchar=fgetc(yyin)) == EOF ? 0 : yytchar)
+#undef unput
+#define unput(c) {yytchar=(c); ungetc(yytchar, yyin);}
+#endif /* FLEX_SCANNER */
+
 %}
 
 %option noinput
@@ -111,4 +122,10 @@ false		{ return FALSE; }
 	    yyerror("Illegal character");
 	}
 %%
+
+int
+yywrap (void)
+{
+    return 1;
+}
 
