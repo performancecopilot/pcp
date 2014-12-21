@@ -32,8 +32,10 @@ LCFLAGS		= -DJSMN_PARENT_LINKS
 LLDLIBS		= $(PCP_PMDALIB)
 
 default:	domain.h $(CMDTARGET) $(HELPTARGETS)
-	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
+	@if [ -f ../pmcd.conf ]; then \
+	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
+	    fi; \
 	fi
 
 include $(BUILDRULES)

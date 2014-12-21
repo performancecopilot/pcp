@@ -34,8 +34,10 @@ default:	build-me
 
 ifeq "$(TARGET_OS)" "aix" 
 build-me: common.h root_aix domain.h $(CMDTARGET) $(LIBTARGET) help.dir help.pag
-	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
+	@if [ -f ../pmcd.conf ]; then \
+	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
+	    fi; \
 	fi
 
 install: build-me
