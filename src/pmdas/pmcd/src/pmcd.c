@@ -1136,8 +1136,10 @@ fetch_hostname(int ctx, pmAtomValue *avp, char *host)
 {
     char	*container;
 
-    if (host)		/* ensure we only ever refresh once-per-fetch */
+    if (host) {		/* ensure we only ever refresh once-per-fetch */
+	avp->cp = host;
 	return host;
+    }
 
     /* see if we're dealing with a request within a container */
     if ((container = ctx_container(ctx)) != NULL) {
