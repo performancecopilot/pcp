@@ -30,6 +30,7 @@ static char emsg[256]; /* error message */
 #ifndef YY_NO_UNPUT
 #define YY_NO_UNPUT
 #endif
+int	yylineno;
 #else
 #undef input
 #define input() ((yytchar=fgetc(yyin)) == EOF ? 0 : yytchar)
