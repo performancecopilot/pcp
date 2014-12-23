@@ -28,62 +28,62 @@ containers.state.restarting 0
 == Checking values for active containers
 
 containers.driver
-    inst [0 or "781d21edbb014736f7fb4e1412ee55c5564c91ce0647be4879a7c547e6ebc1af"] value "docker"
-    inst [1 or "d4999f7c6d639c837c03634ab2bc51daa5b35fce1bf1e9f56ee9f8342fafa2ec"] value "docker"
+    inst [N or "781d21edbb014736f7fb4e1412ee55c5564c91ce0647be4879a7c547e6ebc1af"] value "docker"
+    inst [N or "d4999f7c6d639c837c03634ab2bc51daa5b35fce1bf1e9f56ee9f8342fafa2ec"] value "docker"
 
 containers.name
-    inst [0 or "781d21edbb014736f7fb4e1412ee55c5564c91ce0647be4879a7c547e6ebc1af"] value "/backstabbing_wright"
-    inst [1 or "d4999f7c6d639c837c03634ab2bc51daa5b35fce1bf1e9f56ee9f8342fafa2ec"] value "/jolly_tesla"
+    inst [N or "781d21edbb014736f7fb4e1412ee55c5564c91ce0647be4879a7c547e6ebc1af"] value "/backstabbing_wright"
+    inst [N or "d4999f7c6d639c837c03634ab2bc51daa5b35fce1bf1e9f56ee9f8342fafa2ec"] value "/jolly_tesla"
 
 containers.pid
-    inst [0 or "781d21edbb014736f7fb4e1412ee55c5564c91ce0647be4879a7c547e6ebc1af"] value 0
-    inst [1 or "d4999f7c6d639c837c03634ab2bc51daa5b35fce1bf1e9f56ee9f8342fafa2ec"] value 0
+    inst [N or "781d21edbb014736f7fb4e1412ee55c5564c91ce0647be4879a7c547e6ebc1af"] value 0
+    inst [N or "d4999f7c6d639c837c03634ab2bc51daa5b35fce1bf1e9f56ee9f8342fafa2ec"] value 0
 
 containers.state.running
-    inst [0 or "781d21edbb014736f7fb4e1412ee55c5564c91ce0647be4879a7c547e6ebc1af"] value 0
-    inst [1 or "d4999f7c6d639c837c03634ab2bc51daa5b35fce1bf1e9f56ee9f8342fafa2ec"] value 0
+    inst [N or "781d21edbb014736f7fb4e1412ee55c5564c91ce0647be4879a7c547e6ebc1af"] value 0
+    inst [N or "d4999f7c6d639c837c03634ab2bc51daa5b35fce1bf1e9f56ee9f8342fafa2ec"] value 0
 
 containers.state.paused
-    inst [0 or "781d21edbb014736f7fb4e1412ee55c5564c91ce0647be4879a7c547e6ebc1af"] value 0
-    inst [1 or "d4999f7c6d639c837c03634ab2bc51daa5b35fce1bf1e9f56ee9f8342fafa2ec"] value 0
+    inst [N or "781d21edbb014736f7fb4e1412ee55c5564c91ce0647be4879a7c547e6ebc1af"] value 0
+    inst [N or "d4999f7c6d639c837c03634ab2bc51daa5b35fce1bf1e9f56ee9f8342fafa2ec"] value 0
 
 containers.state.restarting
-    inst [0 or "781d21edbb014736f7fb4e1412ee55c5564c91ce0647be4879a7c547e6ebc1af"] value 0
-    inst [1 or "d4999f7c6d639c837c03634ab2bc51daa5b35fce1bf1e9f56ee9f8342fafa2ec"] value 0
+    inst [N or "781d21edbb014736f7fb4e1412ee55c5564c91ce0647be4879a7c547e6ebc1af"] value 0
+    inst [N or "d4999f7c6d639c837c03634ab2bc51daa5b35fce1bf1e9f56ee9f8342fafa2ec"] value 0
 
 == done
 
 == Checking values for active containers
 
 containers.driver
-    inst [2 or "252b56e79da57371dd0fe0fd1069418b761a06c42304d5c74b873f3fb9386d5f"] value "docker"
-    inst [3 or "2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255"] value "docker"
-    inst [4 or "d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e"] value "docker"
+    inst [N or "252b56e79da57371dd0fe0fd1069418b761a06c42304d5c74b873f3fb9386d5f"] value "docker"
+    inst [N or "2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255"] value "docker"
+    inst [N or "d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e"] value "docker"
 
 containers.name
-    inst [2 or "252b56e79da57371dd0fe0fd1069418b761a06c42304d5c74b873f3fb9386d5f"] value "/desperate_turing"
-    inst [3 or "2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255"] value "/jolly_sinoussi"
-    inst [4 or "d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e"] value "/dreamy_elion"
+    inst [N or "252b56e79da57371dd0fe0fd1069418b761a06c42304d5c74b873f3fb9386d5f"] value "/desperate_turing"
+    inst [N or "2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255"] value "/jolly_sinoussi"
+    inst [N or "d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e"] value "/dreamy_elion"
 
 containers.pid
-    inst [2 or "252b56e79da57371dd0fe0fd1069418b761a06c42304d5c74b873f3fb9386d5f"] value 0
-    inst [3 or "2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255"] value 32471
-    inst [4 or "d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e"] value 9579
+    inst [N or "252b56e79da57371dd0fe0fd1069418b761a06c42304d5c74b873f3fb9386d5f"] value 0
+    inst [N or "2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255"] value 32471
+    inst [N or "d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e"] value 9579
 
 containers.state.running
-    inst [2 or "252b56e79da57371dd0fe0fd1069418b761a06c42304d5c74b873f3fb9386d5f"] value 0
-    inst [3 or "2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255"] value 1
-    inst [4 or "d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e"] value 1
+    inst [N or "252b56e79da57371dd0fe0fd1069418b761a06c42304d5c74b873f3fb9386d5f"] value 0
+    inst [N or "2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255"] value 1
+    inst [N or "d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e"] value 1
 
 containers.state.paused
-    inst [2 or "252b56e79da57371dd0fe0fd1069418b761a06c42304d5c74b873f3fb9386d5f"] value 1
-    inst [3 or "2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255"] value 0
-    inst [4 or "d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e"] value 0
+    inst [N or "252b56e79da57371dd0fe0fd1069418b761a06c42304d5c74b873f3fb9386d5f"] value 1
+    inst [N or "2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255"] value 0
+    inst [N or "d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e"] value 0
 
 containers.state.restarting
-    inst [2 or "252b56e79da57371dd0fe0fd1069418b761a06c42304d5c74b873f3fb9386d5f"] value 0
-    inst [3 or "2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255"] value 0
-    inst [4 or "d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e"] value 0
+    inst [N or "252b56e79da57371dd0fe0fd1069418b761a06c42304d5c74b873f3fb9386d5f"] value 0
+    inst [N or "2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255"] value 0
+    inst [N or "d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e"] value 0
 
 == done
 
