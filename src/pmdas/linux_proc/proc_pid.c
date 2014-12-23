@@ -639,7 +639,7 @@ hotproc_eval_procs(void)
 	else{
 	    char *cmd = malloc( strlen(f+1)+1);
 	    strcpy(cmd, f+1);
-	    cmd[strlen(f+1)-1] = '\0';
+	    cmd[strlen(f+1)] = '\0';
 	    strncpy(vars.fname, cmd, sizeof(vars.fname));
 	    vars.fname[sizeof(vars.fname)-1]='\0';
 	    free(cmd);
