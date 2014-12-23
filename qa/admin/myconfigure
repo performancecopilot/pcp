@@ -24,13 +24,15 @@ in
 	;;
     linux)
 	ARCH=`uname -m`
-	[ -f /etc/slackware-version -a "$ARCH" = x86_64 ] && \
-	configopts="$configopts --libdir=/usr/lib64"
+	[ -f /etc/slackware-version -a "$ARCH" = x86_64 ] && configopts="$configopts --libdir=/usr/lib64"
+	if `which dpkg >/dev/null 2>&1`
+	then
+	    configopts="$configopts --libexecdir=/usr/lib"
+	fi
 	;;
     sunos)
 	ARCH=`isainfo -k`
-	[ "$ARCH" = amd64 -o "$ARCH" = sparcv9 ] && \
-	configopts="$configopts --libdir=/usr/lib/64"
+	[ "$ARCH" = amd64 -o "$ARCH" = sparcv9 ] && configopts="$configopts --libdir=/usr/lib/64"
 	;;
 esac
 
@@ -46,6 +48,14 @@ fi
 
 cd src/include
 $PCP_MAKE_PROG
+cd ../libpcp
+$PCP_MAKE_PROG
 cd ../pmns
+$PCP_MAKE_PROG
+cd ../pmcpp
+$PCP_MAKE_PROG
+cd ../newhelp
+$PCP_MAKE_PROG
+cd ../libpcp_pmda
 $PCP_MAKE_PROG
 echo "== Configured pcp ($configopts)"
