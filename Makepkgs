@@ -163,13 +163,11 @@ in
 	;;
     linux)
 	ARCH=`uname -m`
-	[ -f /etc/slackware-version -a "$ARCH" = x86_64 ] && \
-	configopts="$configopts --libdir=/usr/lib64"
+	[ -f /etc/slackware-version -a "$ARCH" = x86_64 ] && configopts="$configopts --libdir=/usr/lib64"
 	;;
     sunos)
 	ARCH=`isainfo -k`
-	[ "$ARCH" = amd64 -o "$ARCH" = sparcv9 ] && \
-	configopts="$configopts --disable-ssp --libdir=/usr/lib/64"
+	[ "$ARCH" = amd64 -o "$ARCH" = sparcv9 ] && configopts="$configopts --disable-ssp --libdir=/usr/lib/64"
 	;;
 esac
 
