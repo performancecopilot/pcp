@@ -177,6 +177,10 @@ done
 chown root:$grp $PCP_SYSCONF_DIR/pmcd/pmcd.conf
 chmod 644 $PCP_SYSCONF_DIR/pmcd/pmcd.conf
 
+# Expect only root owned things below $PCP_SYSCONF_DIR
+#
+find $PCP_SYSCONF_DIR ! -user root | xargs chown root:$grp
+
 # pcp:pcp and mode 775 directories
 #
 for dir in $PCP_LOG_DIR \
@@ -222,6 +226,7 @@ then
 else
     for svc in pcp pmcd pmie pmlogger pmproxy pmmgr pmwebd
     do
+	[ -f /etc/init.d/$svc ] || continue
 	if which rc-update >/dev/null 2>&1
 	then
 	    if rc-update show | grep " $svc " >/dev/null 2>&1
