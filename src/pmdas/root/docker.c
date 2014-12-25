@@ -56,7 +56,7 @@ jsmnint(const char *js, jsmntok_t *tok, int *value)
     if (tok->type != JSMN_PRIMITIVE)
 	return -1;
     strncpy(buffer, js + tok->start, tok->end - tok->start);
-    buffer[sizeof(buffer)-1] = '\0';
+    buffer[tok->end - tok->start] = '\0';
     *value = (int)strtol(buffer, NULL, 0);
     return 0;
 }
@@ -212,7 +212,8 @@ docker_values_extract(const char *js, jsmntok_t *t, size_t count,
 		else if (jsmneq(js, t, "Restarting") == 0)
 		    jsmnflag(js, value, flag, CONTAINER_FLAG_RESTARTING);
 		else if (jsmneq(js, t, "Pid") == 0) {
-		    jsmnint(js, value, &values->pid);
+		    if (jsmnint(js, value, &values->pid) < 0)
+			values->pid = -1;
 		    __pmNotifyErr(LOG_DEBUG, "docker_values_parse: PID=%d\n", values->pid);
 		}
 	    }
