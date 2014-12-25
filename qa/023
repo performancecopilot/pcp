@@ -94,7 +94,6 @@ chmod ugo+rwx $tmp
 cd $tmp
 
 SAVE_LOGGER=`_get_config pmlogger`
-echo "SAVE_LOGGER=$SAVE_LOGGER" >>$here/$seq.full
 [ -f $LOGCONTROL ] && $sudo mv $LOGCONTROL $SAVE_LOGCONTROL
 
 cleanup()
@@ -134,6 +133,7 @@ cleanup()
 trap "cleanup; exit \$status" 0 1 2 3 15
 
 rm -f $here/$seq.full
+echo "SAVE_LOGGER=$SAVE_LOGGER" >>$here/$seq.full
 
 # real QA test starts here
 
