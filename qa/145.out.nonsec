@@ -3,7 +3,7 @@ Error Parsing ASCII PMNS: Duplicate metric id (29.0.11) in name space for metric
 
 pminfo: Cannot load namespace from "TMP": Problems parsing PMNS definitions
 [PID]pmGetPDU: ERROR fd=<n> len=20 from=PMCD
-000:       14     7000     FROM        0  2010000 
+000:       14     7000     FROM        0 40000102 
 [PID]pmXmitPDU: CREDS fd=<n> len=20
 000:       14     700c     FROM        1  1020000 
 [PID]pmXmitPDU: PROFILE fd=<n> len=28
