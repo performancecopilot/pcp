@@ -527,10 +527,12 @@ then
     : pmcd started above
 else
     . /etc/pcp.env
-    if sudo $PCP_RC_DIR/pcp start >>$HOME/daily.log 2>&1
+    if sudo $PCP_RC_DIR/pcp start >$tmp.out 2>&1
     then
+	cat $tmp.out >>$HOME/daily.log
 	echo "Info: pmcd started" | tee -a $HOME/daily.log
     else
+	cat $tmp.out >>$HOME/daily.log
 	echo "Error: pmcd start failed" | tee -a $HOME/daily.log
 	exit 1
     fi
