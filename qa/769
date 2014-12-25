@@ -47,7 +47,16 @@ do
     do
 	echo "=== $svc $state ==="
 	_change_config $svc $state
-	_check_chk $svc
+	if [ -f $PCP_RC_DIR/$svc ]
+	then
+	    _check_chk $svc
+	else
+	    # fake output when init script not installed
+	    #
+	    xpect=true
+	    [ $state = off ] && xpect=false
+	    echo "is_chkconfig_on $svc returns $xpect"
+	fi
     done
     _change_config $svc $save
 done
