@@ -94,6 +94,7 @@ chmod ugo+rwx $tmp
 cd $tmp
 
 SAVE_LOGGER=`_get_config pmlogger`
+echo "SAVE_LOGGER=$SAVE_LOGGER" >>$here/$seq.full
 [ -f $LOGCONTROL ] && $sudo mv $LOGCONTROL $SAVE_LOGCONTROL
 
 cleanup()

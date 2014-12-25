@@ -438,6 +438,8 @@ s/\.\.\.\.*/.../
 	-e 's/^\(Waiting .*\.\.\.\)\(\$PCP_RC_DIR\)/\1\
 \2/' \
 	-e '/^[ 	]*$/d' \
+	-e '/is not a native service, redirecting to .*chkconfig/d' \
+	-e '/^Executing .*chkconfig pm.* --level=5/d' \
     | _filter_init_distro
 }
 
