@@ -208,9 +208,9 @@ src_tar_build()
     if [ -z "$TAR" -o ! -z "$USE_GIT_ARCHIVE" ]
     then
 	# no suitable GNU tar is available, use git-archive(1) - no local changes
-	if git status -s | grep '^.M'
+	if git status -s src man | grep '^.M'
 	then
-	    echo "Arrgh, modified files and either no tar ($TAR) or no --transform"
+	    echo "Arrgh, modified src files and either no tar ($TAR) or no --transform"
 	    echo "support in tar, so local changes would not be included in the build."
 	    exit 1
 	fi
