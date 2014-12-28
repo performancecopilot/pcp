@@ -208,6 +208,12 @@ src_tar_build()
     if [ -z "$TAR" -o ! -z "$USE_GIT_ARCHIVE" ]
     then
 	# no suitable GNU tar is available, use git-archive(1) - no local changes
+	if git status -s | grep '^.M'
+	then
+	    echo "Arrgh, modified files and either no tar ($TAR) or no --transform"
+	    echo "support in tar, so local changes would not be included in the build."
+	    exit 1
+	fi
 	git archive --format=tar --prefix=$source/ HEAD | $ZIP > $SRCTAR
     else
 	# build git file list and make tarball by hand to pick up any changes
