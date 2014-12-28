@@ -879,9 +879,17 @@ __pmSecureClientIPCFlags(int fd, int flags, const char *hostname, __pmHashCtl *a
 	 */
 	if (socket.sslFd == NULL)
 	    return -EOPNOTSUPP;
+#ifdef SSL_ENABLE_DEFLATE
 	secsts = SSL_OptionSet(socket.sslFd, SSL_ENABLE_DEFLATE, PR_TRUE);
 	if (secsts != SECSuccess)
 	    return __pmSecureSocketsError(PR_GetError());
+#else
+	/*
+	 * On some older platforms (e.g. CentOS 5.5) SSL_ENABLE_DEFLATE
+	 * is not defined ...
+	 */
+	return -EOPNOTSUPP;
+#endif /*SSL_ENABLE_DEFLATE*/
     }
 
     if ((flags & PDU_FLAG_AUTH) != 0) {
@@ -1312,9 +1320,17 @@ __pmSecureServerIPCFlags(int fd, int flags)
 	 */
 	if (socket.sslFd == NULL)
 	    return -EOPNOTSUPP;
+#ifdef SSL_ENABLE_DEFLATE
 	secsts = SSL_OptionSet(socket.sslFd, SSL_ENABLE_DEFLATE, PR_TRUE);
 	if (secsts != SECSuccess)
 	    return __pmSecureSocketsError(PR_GetError());
+#else
+	/*
+	 * On some older platforms (e.g. CentOS 5.5) SSL_ENABLE_DEFLATE
+	 * is not defined ...
+	 */
+	return -EOPNOTSUPP;
+#endif /*SSL_ENABLE_DEFLATE*/
     }
 
     if ((flags & PDU_FLAG_AUTH) != 0) {
