@@ -225,15 +225,15 @@ dpkg?	ExtUtils::MakeMaker	[libextutils-autoinstall-perl]
 rpm?	ExtUtils::MakeMaker	[perl-ExtUtils-MakeMaker]
 dpkg?	XML::TokeParser		[libxml-tokeparser-perl]
 rpm?	XML::TokeParser		[perl-XML-TokeParser]
-dpkg?	Spreadsheet::Read	[libspreadsheet-read-perl]
-rpm?	Spreadsheet::Read	[cpan]
+dpkg?	Spreadsheet::Read	[libspreadsheet-read-perl (QA optional)]
+rpm?	Spreadsheet::Read	[from cpan (QA optional)]
 dpkg?	Spreadsheet::WriteExcel	[libspreadsheet-writeexcel-perl]
 rpm?	Spreadsheet::WriteExcel	[perl-Spreadsheet-WriteExcel or cpan]
 rpm?	JSON::			[perl-JSON]
-Spreadsheet::ReadSXC		[cpan]
+Spreadsheet::ReadSXC		[from cpan (QA optional)]
 rpm	time			[time]
 # other run-time
-sadf				[sysstat (QA optional)]
+sadf				[sysstat]
 # QA
 bc
 curl
