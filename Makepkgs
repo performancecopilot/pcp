@@ -199,6 +199,28 @@ clean_packaging()
     rm -rf "$SRCDIR" "$SRCTAR" .gitcensus
 }
 
+fix_version()
+{
+    if [ -f "$1" -a -f "$2" ]
+    then
+	# as expected, both present
+	if diff "$1" "$2" >/dev/null 2>&1
+	then
+	    :
+	else
+	    # must be using git-archive(1) and VERSION.pcp has been
+	    # modified, e.g. by pcp-daily script ... use the modified
+	    # one to bump the build number in the packages
+	    #
+	    cp "$1" "$2"
+	fi
+    else
+	echo "Arrgh ... expect both these to exist ..."
+	ls -l "$1" "$2"
+	exit 1
+    fi
+}
+
 # Generate a list of all the files git knows about, create the
 # source tarball and then unpack it.  We'll then do the package
 # build in a guaranteed pristine environment.
@@ -324,6 +346,7 @@ prepare_debian_sources()
     cd "$SRCDIR" || exit 1
     $TAR -zxf "$SRCTAR" || exit 1
     cd "$SRCDIR/$source" || exit 1
+    fix_version ${topdir}/VERSION.pcp VERSION.pcp
 }
 
 prepare_debian_control()
@@ -357,6 +380,7 @@ prepare_build()
     if [ ! -d "$SRCDIR" ]; then
 	# extract gzipped tar archive
 	$TAR -xz --file="$SRCTAR" || exit 1
+	fix_version VERSION.pcp $SRCDIR/VERSION.pcp
     fi
 }
 
