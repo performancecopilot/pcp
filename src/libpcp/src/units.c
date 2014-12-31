@@ -1232,12 +1232,12 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig * out, do
     while (ptr != str_end) {	/* parse whole string */
 	assert(*ptr != '\0');
 
-	if (isspace(*ptr)) {	/* skip whitespace */
+	if (isspace((int)(*ptr))) {	/* skip whitespace */
 	    ptr++;
 	    continue;
 	}
 
-	if (*ptr == '-' || *ptr == '.' || isdigit(*ptr)) {	/* possible floating-point number */
+	if (*ptr == '-' || *ptr == '.' || isdigit((int)(*ptr))) {	/* possible floating-point number */
 	    /* parse it with strtod(3). */
 	    char *newptr;
 	    errno = 0;
@@ -1258,7 +1258,7 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig * out, do
 	/* match & skip over keyword (followed by space, ^, or EOL) */
 #define streqskip(q) (((ptr+strlen(q) <= str_end) &&        \
                        (strncasecmp(ptr,q,strlen(q))==0) && \
-                       ((isspace(*(ptr+strlen(q)))) ||      \
+                       ((isspace((int)(*(ptr+strlen(q))))) ||      \
                         (*(ptr+strlen(q))=='^') ||          \
                         (ptr+strlen(q)==str_end)))          \
                        ? (ptr += strlen(q), 1) : 0)
@@ -1297,7 +1297,7 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig * out, do
 		goto out;
 
 	    case d_time:
-		if (ptr == str_end || isspace(*ptr)) {
+		if (ptr == str_end || isspace((int)(*ptr))) {
 		    out->dimTime = 1;
 		}
 		else {
@@ -1310,7 +1310,7 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig * out, do
 		break;
 
 	    case d_space:
-		if (ptr == str_end || isspace(*ptr)) {
+		if (ptr == str_end || isspace((int)(*ptr))) {
 		    out->dimSpace = 1;
 		}
 		else {
@@ -1323,7 +1323,7 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, pmUnitsBig * out, do
 		break;
 
 	    case d_count:
-		if (ptr == str_end || isspace(*ptr)) {
+		if (ptr == str_end || isspace((int)(*ptr))) {
 		    out->dimCount = 1;
 		}
 		else {
