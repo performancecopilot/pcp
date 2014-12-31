@@ -106,11 +106,17 @@ int
 __pmdaSendRootNameSpaceFds(int socket, int pid, int *fdset, int count, int status)
 {
     __pmdaRootPDUNameSpaceFds fdspdu;
-    char cmsgbuf[CMSG_SPACE(sizeof(int) * PMDA_NAMESPACE_COUNT + 1)] = { 0 };
+    char cmsgbuf[CMSG_SPACE(sizeof(int) * PMDA_NAMESPACE_COUNT + 1)];
     struct cmsghdr *cmsg = NULL;
     struct msghdr hdr = { 0 };
     struct iovec data;
     ssize_t bytes = sizeof(int) * count;
+
+    /*
+     * used to be initialized in the declaration above, but this was
+     * too tricky for the NetBSD gcc, so ...
+     */
+    memset(cmsgbuf, 0, sizeof(cmsgbuf));
 
     if (count < 1 || fdset == NULL)
 	return -EINVAL;
