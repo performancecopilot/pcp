@@ -57,14 +57,14 @@ gnu_tool()
 	    exec=`which $command 2>/dev/null`
 	    if [ -n "$exec" ]
 	    then
-		if $command --help 2>&1 | egrep -q "(bug-$oldcmd@gnu.org)|(FreeBSD $gnutool)"
+		if $command --help 2>&1 | egrep -q "(bug-$oldcmd@gnu.org)|(FreeBSD $gnutool)|(NetBSD $gnutool)"
 		then
 		    echo $exec
 		    return 0
 		fi
 	    fi
 	done
-	echo "$prefix: can't find GNU $oldcmd in the commands $oldcmd or $@"
+	echo >&2 "$prefix: can't find GNU $oldcmd in the commands $oldcmd or $@"
 	[ $prefix = Error ] && exit 1
 	return 1
     fi
@@ -76,7 +76,7 @@ gnu_tool()
     command=`which $envvar 2>/dev/null`
     if [ -z "$command" ]
     then
-	echo "$prefix: $oldcmd (from the environment) does not exist!" >&2
+	echo >&2 "$prefix: $oldcmd (from the environment) does not exist!" >&2
 	[ $prefix = Error ] && exit 1
 	return 1
     fi
@@ -197,28 +197,6 @@ clean_packaging()
     echo
     echo "== Cleaning build tree for packaging build"
     rm -rf "$SRCDIR" "$SRCTAR" .gitcensus
-}
-
-fix_version()
-{
-    if [ -f "$1" -a -f "$2" ]
-    then
-	# as expected, both present
-	if diff "$1" "$2" >/dev/null 2>&1
-	then
-	    :
-	else
-	    # must be using git-archive(1) and VERSION.pcp has been
-	    # modified, e.g. by pcp-daily script ... use the modified
-	    # one to bump the build number in the packages
-	    #
-	    cp "$1" "$2"
-	fi
-    else
-	echo "Arrgh ... expect both these to exist ..."
-	ls -l "$1" "$2"
-	exit 1
-    fi
 }
 
 # Generate a list of all the files git knows about, create the
@@ -346,7 +324,6 @@ prepare_debian_sources()
     cd "$SRCDIR" || exit 1
     $TAR -zxf "$SRCTAR" || exit 1
     cd "$SRCDIR/$source" || exit 1
-    fix_version ${topdir}/VERSION.pcp VERSION.pcp
 }
 
 prepare_debian_control()
@@ -380,7 +357,6 @@ prepare_build()
     if [ ! -d "$SRCDIR" ]; then
 	# extract gzipped tar archive
 	$TAR -xz --file="$SRCTAR" || exit 1
-	fix_version VERSION.pcp $SRCDIR/VERSION.pcp
     fi
 }
 
