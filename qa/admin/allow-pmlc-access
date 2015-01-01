@@ -59,7 +59,7 @@ p
 		mask=`cat $tmp.addr | sed -e 's/.* //'`
 		case "$mask"
 		in
-		    255.255.255.0)	# /24 network
+		    255.255.255.0|0xffffff00)	# /24 network
 			echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
 			;;
 		    # pmcd's [access] is not smart enough to handle other

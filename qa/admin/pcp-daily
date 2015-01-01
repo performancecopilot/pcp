@@ -706,6 +706,9 @@ do
 	    FreeBSD\ *)
 	    	osname=freebsd
 		;;
+	    NetBSD\ *)
+	    	osname=netbsd
+		;;
 	    *)
 	    	osname=unknown
 		;;

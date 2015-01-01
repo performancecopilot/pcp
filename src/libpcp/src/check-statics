@@ -438,6 +438,8 @@ do
 		# + external symbols tend to have "C" lines
 		# for FreeBSD
 		# + strip  r __func__.NNN lines
+		# for NetBSD
+		# + strip  r CSWTCH.NNN lines
 		#
 		skip_file=false
 		nm $line \
@@ -460,6 +462,7 @@ do
 		    -e '/ r \.eh_frame/d' \
 		    -e '/ r __PRETTY_FUNCTION__.[0-9][0-9]*$/d' \
 		    -e '/ r __func__.[0-9][0-9]*$/d' \
+		    -e '/ r CSWTCH.[0-9][0-9]*$/d' \
 		    -e '/ r \.LC[0-9][0-9]*$/d' \
 		    -e '/ C ___pmLogReads/d' \
 		    -e '/ C ___pmNativeConfig/d' \

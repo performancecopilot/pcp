@@ -57,14 +57,14 @@ gnu_tool()
 	    exec=`which $command 2>/dev/null`
 	    if [ -n "$exec" ]
 	    then
-		if $command --help 2>&1 | egrep -q "(bug-$oldcmd@gnu.org)|(FreeBSD $gnutool)"
+		if $command --help 2>&1 | egrep -q "(bug-$oldcmd@gnu.org)|(FreeBSD $gnutool)|(NetBSD $gnutool)"
 		then
 		    echo $exec
 		    return 0
 		fi
 	    fi
 	done
-	echo "$prefix: can't find GNU $oldcmd in the commands $oldcmd or $@"
+	echo >&2 "$prefix: can't find GNU $oldcmd in the commands $oldcmd or $@"
 	[ $prefix = Error ] && exit 1
 	return 1
     fi
@@ -76,7 +76,7 @@ gnu_tool()
     command=`which $envvar 2>/dev/null`
     if [ -z "$command" ]
     then
-	echo "$prefix: $oldcmd (from the environment) does not exist!" >&2
+	echo >&2 "$prefix: $oldcmd (from the environment) does not exist!" >&2
 	[ $prefix = Error ] && exit 1
 	return 1
     fi
