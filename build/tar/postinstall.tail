@@ -172,7 +172,7 @@ fi
 grp=root
 case $PCP_PLATFORM
 in
-    freebsd)
+    freebsd|netbsd)
 	    grp=wheel
 	    ;;
 esac
