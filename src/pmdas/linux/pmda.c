@@ -4222,7 +4222,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * (double)proc_stat.n_guest[inst] / proc_stat.hz);
 	    break;
-	case 77: /* kernel.pernode.cpu.guest */
+	case 77: /* kernel.pernode.cpu.vuser */
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * ((double)proc_stat.n_user[inst] - (double)proc_stat.n_guest[inst])
 			/ proc_stat.hz);
