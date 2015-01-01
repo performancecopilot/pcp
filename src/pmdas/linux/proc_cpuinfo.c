@@ -26,41 +26,16 @@
 #include "indom.h"
 #include "proc_cpuinfo.h"
 
-
-static void
-decode_map(proc_cpuinfo_t *proc_cpuinfo, char *cp, int node, int offset)
-{
-    uint32_t map = strtoul(cp, NULL, 16);
-
-    while (map) {
-	int i;
-	
-	if ((i = ffsl(map))) {
-	    /* the kernel returns 32bit words in the map file */
-	    int cpu = i - 1 + 32*offset;
-
-	    proc_cpuinfo->cpuinfo[cpu].node = node;
-	    if (pmDebug & DBG_TRACE_APPL2) {
-		fprintf(stderr, "cpu %d -> node %d\n",
-			cpu, node);
-	    }
-	    map &= ~(1 << (i-1));
-	}
-    }
-}
-
 static void
 map_cpu_nodes(proc_cpuinfo_t *proc_cpuinfo)
 {
-    int i, j;
+    int i;
     const char *node_path = "sys/devices/system/node";
     char path[MAXPATHLEN];
-    char cpumap[4096];
-    DIR *nodes;
-    FILE *f;
-    struct dirent *de;
+    DIR *nodes, *cpus;
+    struct dirent *de, *ce;
     int node, max_node = -1;
-    char *cp;
+    int cpu;
     pmdaIndom *idp = PMDAINDOM(NODE_INDOM);
 
     for (i = 0; i < proc_cpuinfo->cpuindom->it_numinst; i++)
@@ -73,24 +48,18 @@ map_cpu_nodes(proc_cpuinfo_t *proc_cpuinfo)
     while ((de = readdir(nodes)) != NULL) {
 	if (sscanf(de->d_name, "node%d", &node) != 1)
 	    continue;
-
 	if (node > max_node)
 	    max_node = node;
-
-	snprintf(path, sizeof(path), "%s/%s/%s/cpumap",
-		 linux_statspath, node_path, de->d_name);
-	if ((f = fopen(path, "r")) == NULL)
+	snprintf(path, sizeof(path), "%s/%s/%s",
+	    linux_statspath, node_path, de->d_name);
+	if ((cpus = opendir(path)) == NULL)
 	    continue;
-	i = fscanf(f, "%s", cpumap);
-	fclose(f);
-	if (i != 1)
-	    continue;
-
-	for (j = 0; (cp = strrchr(cpumap, ',')); j++) {
-	    decode_map(proc_cpuinfo, cp+1, node, j);
-	    *cp = '\0';
+	while ((ce = readdir(cpus)) != NULL) {
+	    if (sscanf(ce->d_name, "cpu%d", &cpu) != 1)
+		continue;
+	    proc_cpuinfo->cpuinfo[cpu].node = node;
 	}
-	decode_map(proc_cpuinfo, cpumap, node, j);
+	closedir(cpus);
     }
     closedir(nodes);
 
