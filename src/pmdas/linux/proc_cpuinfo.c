@@ -38,7 +38,7 @@ map_cpu_nodes(proc_cpuinfo_t *proc_cpuinfo)
     int cpu;
     pmdaIndom *idp = PMDAINDOM(NODE_INDOM);
 
-    for (i = 0; i < proc_cpuinfo->cpuindom->it_numinst; i++)
+    for (i = 0; i < idp->it_numinst; i++)
 	proc_cpuinfo->cpuinfo[i].node = -1;
 
     snprintf(path, sizeof(path), "%s/%s", linux_statspath, node_path);
@@ -69,7 +69,7 @@ map_cpu_nodes(proc_cpuinfo_t *proc_cpuinfo)
     for (i = 0; i <= max_node; i++) {
 	char node_name[256];
 
-	sprintf(node_name, "node%d", i);
+	snprintf(node_name, sizeof(node_name), "node%d", i);
 	idp->it_set[i].i_inst = i;
 	idp->it_set[i].i_name = strdup(node_name);
     }
