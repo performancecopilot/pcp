@@ -1105,8 +1105,9 @@ put_sock(self,id,output)
 	pmdaInterface *self
 	int	id
 	char *	output
-    CODE:
+    PREINIT:
 	size_t	length = strlen(output);
+    CODE:
 	RETVAL = __pmWrite(local_files_get_descriptor(id), output, length);
     OUTPUT:
 	RETVAL
