@@ -2,7 +2,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/archives
-SRCARCH = 20071023-08-06-36.0 archive-20141125.000009.0 chartqa1.0 \
+SRCARCH = 20071023-08-06-36.0 archive-20141125-000009.0 chartqa1.0 \
 	diff1.0 diff2.0 dm-io.0 gap.0 gap2.0 moomba.pmkstat.0 mysql-1.0 \
 	oview-short.0 rattle.0 schizo-A.0 schizo-B.0 snort-disks.0 \
 	spotinstance.0 viewqa1.0 viewqa2.0 viewqa3.0 vldb-disks.0
