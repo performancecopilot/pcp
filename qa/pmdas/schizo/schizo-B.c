@@ -74,7 +74,7 @@ schizo_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     if (idp->cluster == 0) {
 	switch (idp->item) {
 	case 0:					/* version */
-	    atom->cp = "A";
+	    atom->cp = "B";
 	    break;
 
 	case 2:					/* mumble */
