@@ -27,3 +27,5 @@ End-of-File
     echo "Version $version log ..."
     cat $tmp.log
 done
+
+sudo ./Remove
