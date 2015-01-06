@@ -11,6 +11,7 @@ echo "QA output created by $seq"
 # get standard filters
 . ./common.product
 . ./common.filter
+. ./common.check
 
 PMCD_CONNECT_TIMEOUT=120
 PMCD_REQUEST_TIMEOUT=120
