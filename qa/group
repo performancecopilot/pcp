@@ -984,6 +984,7 @@ avahi
 842 python local
 843 pmda local python
 844 pmda.linux local
+860 pmda pmda.proc ostest local
 861 pmcd pmda.pmcd local
 873 pmda.linux local
 875 libpcp local valgrind
@@ -996,6 +997,7 @@ avahi
 901 libpcp event local
 902 libpcp mem_leak valgrind event local
 903 pmda.papi local
+907 pmlogextract local
 914 pmda.papi local
 919 pmlogger pmstat local
 922 derive pmie pmval local

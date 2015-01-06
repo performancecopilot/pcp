@@ -1,0 +1,60 @@
+#!/bin/sh
+# PCP QA Test No. 907
+# pmlogextract with schizo archives
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed -e "s@$tmp@TMP@g"
+}
+
+#    \
+#    schizo.data3 schizo.data4
+
+# real QA test starts here
+for metric in sample.bin sample.long.hundred sample.ulonglong.hundred \
+    schizo.version schizo.mumble schizo.foo schizo.data1 schizo.data2 
+do
+    echo "=== $metric ==="
+    xtra=''
+    [ "$metric" = schizo.mumble ] && xtra=schizo.fumble
+    echo "$metric" >$tmp.config
+    rm -f $tmp.xtract.*
+    if pmlogextract -c $tmp.config archives/schizo-B $tmp.xtract >$tmp.err 2>&1
+    then
+	echo "OK, metrics from intermediate archive ..."
+	pmdumplog -z $tmp.xtract $metric
+    else
+	_filter <$tmp.err
+	echo "intermedial pmlog extract failed!"
+	continue
+    fi
+    rm -f $tmp.out.*
+    if pmlogextract archives/schizo-A $tmp.xtract $tmp.out >$tmp.err 2>&1
+    then
+	echo "OK, metrics from final archive ..."
+	pmdumplog -a -z $tmp.out $metric $xtra
+    else
+	_filter <$tmp.err
+	echo "final pmlogextract failed"
+    fi
+done
+
+# success, all done
+status=0
+
+exit

@@ -7,7 +7,8 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/pmdas
-SUBDIRS = broken bigun dynamic slow slow_python memory_python test_perl
+SUBDIRS = broken bigun dynamic slow slow_python memory_python test_perl \
+	  schizo
 
 default default_pcp: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)

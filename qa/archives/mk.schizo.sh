@@ -1,0 +1,31 @@
+#!/bin/sh
+#
+# Create archives for Version A and Version B of the schizo PMDA
+#
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+rm -f schizo-A* schizo-B*
+
+cd ../pmdas/schizo
+
+for version in A B
+do
+    cat <<End-of-File | sudo ./Install
+both
+$version
+End-of-File
+    cat <<End-of-File | pmlogger -l $tmp.log -t 2sec -s 4 -r ../../archives/schizo-$version
+log mandatory on default {
+    schizo
+    sample.bin["bin-300"]
+    sample.long.hundred
+    sample.ulonglong.hundred
+}
+End-of-File
+    echo "Version $version log ..."
+    cat $tmp.log
+done
+
+sudo ./Remove
