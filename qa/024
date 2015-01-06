@@ -82,32 +82,11 @@ strip == 1			{ print >"'$tmp.tmp'"; next }
 				{ print }'
 }
 
-rm -f $seq.out
-if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a posi*tive numeric argument' >/dev/null
-then
-    if test $PCP_EOE_VER -ge 30013
-    then
-	ln $seq.out.4 $seq.out
-    elif test $PCP_EOE_VER -ge 20704
-    then
-	ln $seq.out.3 $seq.out
-    else
-	ln $seq.out.2 $seq.out
-    fi
-else
-    ln $seq.out.1 $seq.out
-fi
-
-
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 $sudo rm -rf $tmp.* $seq.full
 
 remote=`./getpmcdhosts -L -n 1 -a sample 2>$tmp.out`
-if [ -z "$remote" ]
-then
-    cat $tmp.out >$seq.notrun
-    exit
-fi
+[ -z "$remote" ] && _notrun `cat $tmp.out`
 
 # real QA test starts here
 echo "=== expected to pass ==="

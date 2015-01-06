@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2014 Red Hat.
+.\" Copyright (c) 2014-2015 Red Hat.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -21,22 +21,24 @@
 \f3pmdaLeaveContainerNameSpace\f1 \- privileged PCP collector services
 .SH "C SYNOPSIS"
 .ft 3
+#include <pcp/pmapi.h>
+.br
 #include <pcp/pmda.h>
 .sp
 .ad l
 .hy 0
 .in +8n
 .ti -8n
-void pmdaRootConnect(void);
+int pmdaRootConnect(void);
 .br
 .ti -8n
-void pmdaRootShutdown(void);
+void pmdaRootShutdown(int);
 .br
 .ti -8n
-void pmdaEnterContainerNameSpace(const char *, int);
+void pmdaEnterContainerNameSpace(int, const char *, int);
 .br
 .ti -8n
-void pmdaLeaveContainerNameSpace(int);
+void pmdaLeaveContainerNameSpace(int, int);
 .sp
 .in
 .hy

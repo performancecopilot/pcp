@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2015 Red Hat.
  * Copyright (c) 1995-2001,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -284,6 +284,7 @@ typedef struct {
 
 static perctx_t *ctxtab;
 static int      num_ctx;
+static int      rootfd = -1;
 
 /*
  * expand and initialize the per client context table
@@ -362,7 +363,6 @@ init_tables(int dom)
     }
     ndesc--;
 }
-
 
 static int
 pmcd_profile(__pmProfile *prof, pmdaExt *pmda)
@@ -1143,9 +1143,9 @@ fetch_hostname(int ctx, pmAtomValue *avp, char *host)
 
     /* see if we're dealing with a request within a container */
     if ((container = ctx_container(ctx)) != NULL) {
-	pmdaEnterContainerNameSpace(container, PMDA_NAMESPACE_UTS);
+	pmdaEnterContainerNameSpace(rootfd, container, PMDA_NAMESPACE_UTS);
 	avp->cp = host = hostnameinfo();
-	pmdaLeaveContainerNameSpace(PMDA_NAMESPACE_UTS);
+	pmdaLeaveContainerNameSpace(rootfd, PMDA_NAMESPACE_UTS);
     }
     else if (_pmcd_hostname) {
 	avp->cp = host = _pmcd_hostname;
@@ -1918,6 +1918,6 @@ pmcd_init(pmdaInterface *dp)
     dp->version.six.ext->e_endCallBack = end_context;
 
     init_tables(dp->domain);
-
+    rootfd = pmdaRootConnect(NULL);
     pmdaInit(dp, NULL, 0, NULL, 0);
 }

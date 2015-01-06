@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2014 Red Hat.
+.\" Copyright (c) 2014-2015 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -19,6 +19,7 @@
 \f3$PCP_PMDAS_DIR/root/pmdaroot\f1
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-l\f1 \f2logfile\f1]
+[\f3\-s\f1 \f2sockname\f1]
 .SH DESCRIPTION
 .B pmdaroot
 is a special Performance Metrics Domain Agent (PMDA) which cooperates
@@ -62,19 +63,30 @@ is started, i.e.
 .BR $PCP_LOG_DIR/pmcd .
 If the log file cannot
 be created or is not writable, output is written to the standard error instead.
+.TP
+.B \-s
+Location of the
+.BR unix (7)
+domain socket for communication with clients seeking privileged operations.
+By default, a socket file named
+.BR $PCP_TMP_DIR/pmcd/root.socket
+is used.
 .SH INSTALLATION
 Access to the names, help text and values for the kernel performance
-metrics is available by default - unlike most other agents, no action
+metrics is available by default \- unlike most other agents, no action
 is required to enable them and they should not be removed.
 .SH FILES
 .PD 0
 .TP 10
 .B $PCP_PMDAS_DIR/root/help
-default help text file for the the kernel metrics
+default help text file for metrics exported by the root PMDA.
 .TP 10
 .B $PCP_LOG_DIR/pmcd/root.log
 default log file for error messages and other information from
-the kernel PMDA.
+the root PMDA.
+.TP 10
+.B $PCP_TMP_DIR/pmcd/root.socket
+default socket file for communication with root PMDA clients.
 .PD
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
@@ -94,7 +106,7 @@ as described in
 .BR PCPIntro (1),
 .BR pmcd (1),
 .BR PMDA (3),
-.BR pmdaSetContainerNamespace (3),
+.BR pmdaEnterContainerNameSpace (3),
 .BR pcp.conf (5)
 and
-.BR pcp.env (5).
+.BR unix (7).

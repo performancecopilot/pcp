@@ -1,7 +1,7 @@
 /*
  * Service routines for elevated privilege services (pmdaroot).
  *
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014-2015 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -22,8 +22,6 @@
 #include <sched.h>
 #endif
 
-static int clientfd = -1;
-static char socketpath[MAXPATHLEN];
 static int priv_fdset[PMDA_NAMESPACE_COUNT];
 static int self_fdset[PMDA_NAMESPACE_COUNT];
 
@@ -31,22 +29,27 @@ static int self_fdset[PMDA_NAMESPACE_COUNT];
  * Connect to the pmdaroot socket as a client, perform version exchange
  */
 int
-pmdaRootConnect(void)
+pmdaRootConnect(const char *path)
 {
     __pmSockAddr	*addr;
+    char		socketpath[MAXPATHLEN];
     char		errmsg[PM_MAXERRMSGLEN];
-    int			i, fd, sts;
+    int			fd, sts;
 
     /* Ensure we start from an initially-invalid fd state */
-    for (i = 0; i < PMDA_NAMESPACE_COUNT; i++)
-	self_fdset[i] = priv_fdset[i] = -1;
+    memset(self_fdset, -1, sizeof(self_fdset));
+    memset(priv_fdset, -1, sizeof(priv_fdset));
 
     /* Initialize the socket address. */
     if ((addr = __pmSockAddrAlloc()) == NULL)
 	return -ENOMEM;
 
-    snprintf(socketpath, MAXPATHLEN, "%s/pmcd/root.socket",
+    if (path == NULL)
+	snprintf(socketpath, sizeof(socketpath), "%s/pmcd/root.socket",
 		pmGetConfig("PCP_TMP_DIR"));
+    else
+	strncpy(socketpath, path, sizeof(socketpath));
+    socketpath[sizeof(socketpath)-1] = '\0';
 
     __pmSockAddrSetFamily(addr, AF_UNIX);
     __pmSockAddrSetPath(addr, socketpath);
@@ -62,53 +65,67 @@ pmdaRootConnect(void)
     sts = __pmConnect(fd, addr, -1);
     __pmSockAddrFree(addr);
     if (sts < 0) {
-	__pmNotifyErr(LOG_ERR, "pmdaRootConnect: cannot connect to %s: %s\n",
+	if (sts != -EPERM || (pmDebug & DBG_TRACE_LIBPMDA))
+	    __pmNotifyErr(LOG_INFO,
+			"pmdaRootConnect: cannot connect to %s: %s\n",
 			socketpath, osstrerror_r(errmsg, sizeof(errmsg)));
 	__pmCloseSocket(fd);
 	return sts;
     }
-    clientfd = fd;
-    return 0;
+    return fd;
 }
 
 void
-pmdaRootShutdown(void)
+pmdaRootShutdown(int clientfd)
 {
-    if (clientfd != -1)
+    if (clientfd >= 0)
 	shutdown(clientfd, SHUT_RDWR);
-    clientfd = -1;
 }
 
 #if defined(HAVE_SETNS)
+static int
+nsopen(const char *process, const char *namespace)
+{
+    char path[MAXPATHLEN];
+
+    snprintf(path, sizeof(path), "/proc/%s/ns/%s", process, namespace);
+    path[sizeof(path)-1] = '\0';
+    return open(path, O_RDONLY);
+}
+
 int
 __pmdaOpenNameSpaceFds(int nsflags, int pid, int *fdset)
 {
     int		fd;
+    char	process[32];
 
-    (void)pid;	/* TODO: generalise this routine */
+    if (pid > 0)
+	snprintf(process, sizeof(process), "%d", pid);
+    else
+	strcpy(process, "self");
 
     if (nsflags & PMDA_NAMESPACE_IPC) {
-	if ((fd = open("/proc/self/ns/ipc", O_RDONLY)) < 0)
+	if ((fd = nsopen(process, "ipc")) < 0)
 	    return fd;
 	fdset[PMDA_NAMESPACE_IPC_INDEX] = fd;
     }
     if (nsflags & PMDA_NAMESPACE_UTS) {
-	if ((fd = open("/proc/self/ns/uts", O_RDONLY)) < 0)
+	if ((fd = nsopen(process, "uts")) < 0)
 	    return fd;
 	fdset[PMDA_NAMESPACE_UTS_INDEX] = fd;
     }
     if (nsflags & PMDA_NAMESPACE_NET) {
-	if ((fd = open("/proc/self/ns/net", O_RDONLY)) < 0)
+	if ((fd = nsopen(process, "net")) < 0)
 	    return fd;
 	fdset[PMDA_NAMESPACE_NET_INDEX] = fd;
     }
     if (nsflags & PMDA_NAMESPACE_MNT) {
-	if ((fd = open("/proc/self/ns/mnt", O_RDONLY)) < 0)
+	if ((fd = nsopen(process, "mnt")) < 0)
 	    return fd;
 	fdset[PMDA_NAMESPACE_MNT_INDEX] = fd;
     }
     if (nsflags & PMDA_NAMESPACE_USER) {
-	if ((fd = open("/proc/self/ns/user", O_RDONLY)) < 0)
+	if ((fd = nsopen(process, "user")) < 0)
 	    return fd;
 	fdset[PMDA_NAMESPACE_USER_INDEX] = fd;
     }
@@ -142,7 +159,7 @@ __pmdaSetNameSpaceFds(int nsflags, int *fdset)
  * that will get us back to where we started.
  */
 int
-pmdaEnterContainerNameSpace(const char *container, int nsflags)
+pmdaEnterContainerNameSpace(int clientfd, const char *container, int nsflags)
 {
     int		fdset[PMDA_NAMESPACE_COUNT];	/* NB: packed, ordered */
     int		flags, count, sts, i;
@@ -151,11 +168,12 @@ pmdaEnterContainerNameSpace(const char *container, int nsflags)
 	return PM_ERR_NOTCONN;
 
     /* setup: open my own namespace fds, stash 'em */
-    if ((sts = __pmdaOpenNameSpaceFds(nsflags, getpid(), self_fdset)) < 0)
+    if ((sts = __pmdaOpenNameSpaceFds(nsflags, -1, self_fdset)) < 0)
 	return sts;
 
     /* sendmsg to pmdaroot, await results */
-    if ((sts = __pmdaSendRootNameSpaceFdsReq(clientfd, nsflags, container, strlen(container), 0)) < 0)
+    if ((sts = __pmdaSendRootNameSpaceFdsReq(clientfd, nsflags, container,
+	strlen(container), 0)) < 0)
 	return sts;
 
     /* recvmsg from pmdaroot, error or results */
@@ -198,7 +216,7 @@ pmdaEnterContainerNameSpace(const char *container, int nsflags)
  * And another setns(2) to switch back to the original namespace
  */
 int
-pmdaLeaveContainerNameSpace(int nsflags)
+pmdaLeaveContainerNameSpace(int clientfd, int nsflags)
 {
     int		sts;
 
@@ -238,15 +256,17 @@ __pmdaCloseNameSpaceFds(int nsflags, int *fdset)
 
 #else	/* no support on this platform */
 int
-pmdaEnterContainerNameSpace(const char *container, int nsflags)
+pmdaEnterContainerNameSpace(int clientfd, const char *container, int nsflags)
 {
+    (void)clientfd;
     (void)nsflags;
     (void)container;
     return -ENOTSUP;
 }
 int
-pmdaLeaveContainerNameSpace(int nsflags)
+pmdaLeaveContainerNameSpace(int clientfd, int nsflags)
 {
+    (void)clientfd;
     (void)nsflags;
     return -ENOTSUP;
 }

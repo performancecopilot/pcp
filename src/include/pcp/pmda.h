@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2015 Red Hat.
  * Copyright (c) 1995,2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -725,8 +725,8 @@ extern void pmdaInterfaceMoved(pmdaInterface *);
 /*
  * Privileged PMDA services, as offered by pmdaroot(1).
  */
-extern int pmdaRootConnect(void);
-extern void pmdaRootShutdown(void);
+extern int pmdaRootConnect(const char *);
+extern void pmdaRootShutdown(int);
 
 enum {
     PMDA_NAMESPACE_IPC_INDEX = 0,
@@ -744,8 +744,8 @@ enum {
 #define PMDA_NAMESPACE_MNT	(1<<PMDA_NAMESPACE_MNT_INDEX)
 #define PMDA_NAMESPACE_USER	(1<<PMDA_NAMESPACE_USER_INDEX)
 
-extern int pmdaEnterContainerNameSpace(const char *, int);
-extern int pmdaLeaveContainerNameSpace(int);
+extern int pmdaEnterContainerNameSpace(int, const char *, int);
+extern int pmdaLeaveContainerNameSpace(int, int);
 
 /*
  * Local PDU exchange details for elevated privilege operations.
@@ -775,7 +775,6 @@ typedef enum {
     PDUROOT_FLAG_NS = (0<<1),
 } __pmdaRootServerFeature;
 
-extern int __pmdaConnectRoot(void);
 extern int __pmdaSendRootPDUInfo(int, int, int);
 extern int __pmdaRecvRootPDUInfo(int, int *, int *);
 extern int __pmdaSendRootNameSpaceFdsReq(int, int, const char *, int, int);

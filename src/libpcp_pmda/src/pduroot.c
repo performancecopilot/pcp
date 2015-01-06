@@ -33,6 +33,7 @@ __pmdaSendRootPDUInfo(int socket, int features, int status)
     pduinfo.features = features;
     pduinfo.zeroed = 0;
 
+    __pmIgnoreSignalPIPE();
     return send(socket, &pduinfo, sizeof(pduinfo), 0);
 }
 
@@ -78,6 +79,8 @@ __pmdaSendRootNameSpaceFdsReq(int socket, int flags, const char *name, int namel
     pdu->hdr.status = status;
     pdu->hdr.version = ROOT_PDU_VERSION;
     pdu->flags = flags;
+
+    __pmIgnoreSignalPIPE();
     return send(socket, pdu, length, 0);
 }
 
@@ -143,6 +146,7 @@ __pmdaSendRootNameSpaceFds(int socket, int pid, int *fdset, int count, int statu
     cmsg->cmsg_len   = CMSG_LEN(bytes);
     memcpy((int *)CMSG_DATA(cmsg), fdset, bytes);
 
+    __pmIgnoreSignalPIPE();
     if ((bytes = sendmsg(socket, &hdr, 0)) < 0) {
 	__pmNotifyErr(LOG_ERR, "__pmdaSendRootNameSpaceFds: sendmsg: %s\n",
 			strerror(errno));
