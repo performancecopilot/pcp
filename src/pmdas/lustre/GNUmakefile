@@ -15,7 +15,7 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-IAM		= nfsclient
+IAM		= lustre
 
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 
