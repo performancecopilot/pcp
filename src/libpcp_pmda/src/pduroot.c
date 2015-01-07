@@ -97,6 +97,7 @@ __pmdaDecodeRootNameSpaceFdsReq(void *buf,
 		int *flags, char **name, int *len, int *pid)
 {
     __pmdaRootPDUNameSpaceFdsReq *pdu = (__pmdaRootPDUNameSpaceFdsReq *)buf;
+    char *buffer = *name;
     int length;
 
     if (pdu->hdr.type != PDUROOT_NS_FDS_REQ)
@@ -108,11 +109,12 @@ __pmdaDecodeRootNameSpaceFdsReq(void *buf,
     *flags = pdu->flags;
     *pid = pdu->pid;
     if (length) {
-	strncpy(*name, pdu->name, length);
-	*name[length] = '\0';
+	strncpy(buffer, pdu->name, length);
+	buffer[length] = '\0';
     } else {
-	*name = NULL;
+	buffer = NULL;
     }
+    *name = buffer;
     *len = length;
     return 0;
 }

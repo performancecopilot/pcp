@@ -112,17 +112,18 @@ root_refresh_container_values(char *container, container_t *values)
 int
 root_container_search(const char *query)
 {
-    int sts, fuzzy, pid = -ESRCH, best = 0;
+    int inst, fuzzy, pid = -ESRCH, best = 0;
     char *name = NULL;
-    container_t *cp;
+    container_t *cp = NULL;
     container_driver_t *dp;
     pmInDom indom = INDOM(CONTAINERS_INDOM);
 
     for (pmdaCacheOp(indom, PMDA_CACHE_WALK_REWIND);;) {
-	if ((sts = pmdaCacheOp(indom, PMDA_CACHE_WALK_NEXT)) < 0)
+	if ((inst = pmdaCacheOp(indom, PMDA_CACHE_WALK_NEXT)) < 0)
 	    break;
-	if (!pmdaCacheLookup(indom, sts, &name, (void **)&cp) || !cp)
+	if (!pmdaCacheLookup(indom, inst, &name, (void **)&cp) || !cp)
 	    continue;
+	root_refresh_container_values(name, cp);
 	for (dp = &drivers[0]; dp->name != NULL; dp++) {
 	    if ((fuzzy = dp->name_matching(dp, query, cp->name, name)) <= best)
 		continue;

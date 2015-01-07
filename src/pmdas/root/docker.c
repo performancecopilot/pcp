@@ -363,7 +363,7 @@ docker_name_matching(struct container_driver *dp, const char *query,
 
     if (strcmp(query, username) == 0)
 	return 100;
-    if (username[0] != '\0' && strcmp(query, username+1) == 0)
+    if (username[0] == '/' && strcmp(query, username+1) == 0)
 	return 99;
     if (strcmp(query, instname) == 0)
 	return 98;
