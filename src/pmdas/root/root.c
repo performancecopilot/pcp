@@ -30,6 +30,7 @@
  */
 #define S_IRWXU 0700
 #endif
+#define MAXROOTPDU	6000 /* buffering limit */
 
 static char socket_path[MAXPATHLEN];
 static __pmSockAddr *socket_addr;
@@ -434,16 +435,18 @@ root_namespace_fds_request(root_client_t *cp, __pmdaRootPDUHdr *hdr)
 {
     int		fdset[PMDA_NAMESPACE_COUNT] = { 0 };
     char	buffer[MAXPATHLEN], *name = &buffer[0];
-    int		count = sizeof(buffer);
+    int		length = sizeof(buffer);
+    int		failed = 0;
     int		flags = 0;
     int		pid = -1;
     int		sts;
 
-    sts = __pmdaDecodeRootNameSpaceFdsReq((void*)hdr, &flags, &name, &count);
-    if (sts < 0)
+    if ((sts = __pmdaDecodeRootNameSpaceFdsReq((void *)hdr,
+				&flags, &name, &length, &pid)) < 0)
 	return sts;
 
     /*
+     * 0. decide if doing direct process or container lookup
      * 1. refresh container_t instance domain in preparation
      * 2. match container name from PDU to an instance, via the
      *     container_driver_t match_names() interface.
@@ -454,38 +457,60 @@ root_namespace_fds_request(root_client_t *cp, __pmdaRootPDUHdr *hdr)
      * 4. send back file descriptors to the requesting client
      * 5. close server process (local) open file descriptors.
      */
- 
-    root_refresh_container_indom();
-    if ((pid = root_container_search(name)) < 0) {
-	__pmNotifyErr(LOG_DEBUG, "no such container (name=%s)\n", name);
-	/* error propogated back out via PDU .status */
-    } else if ((sts = __pmdaOpenNameSpaceFds(flags, pid, fdset)) < 0) {
-	__pmNotifyErr(LOG_ERR, "cannot open pid=%d namespace(s)\n", pid);
+    if (name) {
+	root_refresh_container_indom();
+	if ((pid = root_container_search(name)) < 0) {
+	    __pmNotifyErr(LOG_DEBUG, "no such container (name=%s)\n", name);
+	    failed++;
+	}
     }
-    sts = __pmdaSendRootNameSpaceFds(cp->fd, pid, fdset, count, sts);
-    __pmdaCloseNameSpaceFds(flags, fdset);
+    if (!failed &&
+	(sts = __pmdaOpenNameSpaceFds(flags, pid, fdset)) < 0) {
+	__pmNotifyErr(LOG_ERR, "cannot open pid=%d namespace(s)\n", pid);
+	failed++;
+    }
+
+    /* any error is propagated back out via PDU .status field */
+    sts = __pmdaSendRootNameSpaceFds(cp->fd, pid, fdset, flags, sts);
+    if (!failed)
+	__pmdaCloseNameSpaceFds(flags, fdset);
     return sts;
 }
 
 static __pmdaRootPDUHdr *
 root_recvpdu(int fd)
 {
-    /*
-     * TODO: recv the PDU (length is in the header), pass back a
-     * pointer to the header.
-     *
-     * Check validity of the header in here too - status must be
-     * zero (non-error), version must match, valid length, etc.
-     *	    if (pdu->hdr.version > ROOT_PDU_VERSION)
-     *		...
-     *	    if (pdu->hdr.status != 0)
-     *		...
-     *
-     * Note: AF_UNIX ancillary data never arrives, its only sent -
-     * makes PDU handling for the server simpler than for clients!
-     */
+    static char		buffer[MAXROOTPDU];
+    __pmdaRootPDUHdr	*pdu = (__pmdaRootPDUHdr *)buffer;
+    int			bytes;
 
-    return NULL;	/* NYI */
+    memset(buffer, 0, sizeof(buffer));	// TODO: nuke
+    if ((bytes = recv(fd, &buffer, sizeof(buffer), 0)) < 0) {
+	__pmNotifyErr(LOG_ERR, "root_recvpdu: recv - %s\n", osstrerror());
+	return NULL;
+    }
+    if (bytes == 0)	/* client disconnected */
+	return NULL;
+    if (bytes < sizeof(__pmdaRootPDUHdr)) {
+	__pmNotifyErr(LOG_ERR, "root_recvpdu: %d bytes too small\n", bytes);
+	return NULL;
+    }
+    if (pdu->version > ROOT_PDU_VERSION) {
+	__pmNotifyErr(LOG_ERR, "root_recvpdu: client sent newer version (%d)\n",
+			pdu->version);
+	return NULL;
+    }
+    if (pdu->length < sizeof(__pmdaRootPDUHdr)) {
+	__pmNotifyErr(LOG_ERR, "root_recvpdu: PDU length (%d) is too small\n",
+			pdu->length);
+	return NULL;
+    }
+    if (pdu->status != 0) {
+	__pmNotifyErr(LOG_ERR, "root_recvpdu: client sent bad status (%d)\n",
+			pdu->status);
+	return NULL;
+    }
+    return pdu;
 }
 
 static void

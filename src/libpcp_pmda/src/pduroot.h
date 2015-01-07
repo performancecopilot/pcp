@@ -1,7 +1,7 @@
 /*
  * PDUs for elevated privilege service (pmdaroot) communication.
  *
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014-2015 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -24,7 +24,9 @@ typedef struct {
 
 typedef struct {
     __pmdaRootPDUHdr	hdr;
+    int			pid;
     int			flags;
+    int			zeroed;
     int			namelen;
     char		name[0];
 } __pmdaRootPDUNameSpaceFdsReq;
@@ -32,6 +34,7 @@ typedef struct {
 typedef struct {
     __pmdaRootPDUHdr	hdr;
     int			pid;
+    int			flags;
     /* file descriptors arrive via SCM_RIGHTS */
 } __pmdaRootPDUNameSpaceFds;
 

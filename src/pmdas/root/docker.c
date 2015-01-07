@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014-2015 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -204,7 +204,8 @@ docker_values_extract(const char *js, jsmntok_t *t, size_t count,
 	    if (t->parent == State) {	/* pick out various stateful values */
 		int 	*flag = &values->status;
 
-		__pmNotifyErr(LOG_DEBUG, "docker_values_parse: state\n");
+		if (pmDebug & DBG_TRACE_ATTR)
+		    __pmNotifyErr(LOG_DEBUG, "docker_values_parse: state\n");
 		if (jsmneq(js, t, "Running") == 0)
 		    jsmnflag(js, value, flag, CONTAINER_FLAG_RUNNING);
 		else if (jsmneq(js, t, "Paused") == 0)
@@ -214,7 +215,9 @@ docker_values_extract(const char *js, jsmntok_t *t, size_t count,
 		else if (jsmneq(js, t, "Pid") == 0) {
 		    if (jsmnint(js, value, &values->pid) < 0)
 			values->pid = -1;
-		    __pmNotifyErr(LOG_DEBUG, "docker_values_parse: PID=%d\n", values->pid);
+		    if (pmDebug & DBG_TRACE_ATTR)
+			__pmNotifyErr(LOG_DEBUG, "docker_value PID=%d\n",
+					values->pid);
 		}
 	    }
 	}
