@@ -90,6 +90,7 @@ pmUseContext(1) -> 0
 pmDestroyContext(1) -> 0, curcontext=-1
 pmUseContext(0) -> 0
 
+
 === try CONTEXT_LOCAL ===
 __pmSetSocketIPC: fd=<n>
 IPC table fd(PDU version):
@@ -102,6 +103,8 @@ pmNewContext(1, <localhost>) -> 0
 Dump Contexts: current context = 0
 Context[0] host <localhost>: pmcd=CONNECTED profile=NOT_SENT fd=<n> refcnt=1 origin=0.000000 delta=0
 Dump Instance Profile state=INCLUDE, 0 profiles
+build_dsotab: parsing $PCP_PMCDCONF_PATH
+<stripped lines>
 pmNewContext(3, (null)) -> 1
 Dump Contexts: current context = 1
 Context[1] standalone: profile=NOT_SENT
@@ -109,4 +112,19 @@ Dump Instance Profile state=INCLUDE, 0 profiles
 pmUseContext(1) -> 0
 pmDestroyContext(1) -> 0, curcontext=-1
 pmUseContext(0) -> 0
+NotifyEndLocalContext: DSO PMDA $PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX (30) notified of context 0 close
+NotifyEndLocalContext: DSO PMDA $PCP_PMDAS_DIR/OS/pmda_linux.$DSO_SUFFIX (60) notified of context 0 close
 
+sorted stripped lines ...
+ADDR [N] domain=30 name=$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX init=sample_init handle=(nil)
+ADDR [N] domain=70 name=$PCP_PMDAS_DIR/mmv/pmda_mmv.$DSO_SUFFIX init=mmv_init handle=(nil)
+ADDR [N] domain=N name=OS_PMDA, ...
+IPC table fd(PDU version): <n>(2,1)
+Local Context PMDA Table
+[N] domain=30, name=$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX, init=sample_init
+[N] domain=70, name=$PCP_PMDAS_DIR/mmv/pmda_mmv.$DSO_SUFFIX, init=mmv_init
+[N] domain=N, name=OS_PMDA, ...
+__pmLocalPMDA(op=ADD, domain=30, name=$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX, init=sample_init)
+__pmLocalPMDA(op=ADD, domain=70, name=$PCP_PMDAS_DIR/mmv/pmda_mmv.$DSO_SUFFIX, init=mmv_init)
+__pmLocalPMDA(op=ADD, domain=N, name=OS_PMDA, ...)
+__pmSetSocketIPC: fd=<n>

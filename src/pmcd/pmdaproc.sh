@@ -422,10 +422,9 @@ NF==0					{ next }
 state == 2				{ print >"'$tmp/pmcd.access'"; next }
 $1=="'$myname'" && $2=="'$mydomain'"	{ next }
 					{ print >"'$tmp/pmcd.body'"; next }'
-    ( cat $tmp/pmcd.body \
-      ; echo "$1" \
-      ; cat $tmp/pmcd.access \
-    ) >$PCP_PMCDCONF_PATH
+    echo "$1" >> $tmp/pmcd.body 
+    ( LC_COLLATE=POSIX sort -n -k2 $tmp/pmcd.body; echo; cat $tmp/pmcd.access )\
+    >$PCP_PMCDCONF_PATH
     rm -f $tmp/pmcd.access $tmp/pmcd.body
     eval $CHOWN root $PCP_PMCDCONF_PATH
     eval $CHMOD 644 $PCP_PMCDCONF_PATH

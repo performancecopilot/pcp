@@ -1,7 +1,7 @@
 /*
  * Linux PMDA
  *
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
  * Copyright (c) 2002 International Business Machines Corp.
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
@@ -84,6 +84,7 @@ static sysfs_kernel_t		sysfs_kernel;
 static numa_meminfo_t		numa_meminfo;
 
 static int		_isDSO = 1;	/* =0 I am a daemon */
+static int		rootfd = -1;	/* af_unix pmdaroot */
 static char		*username;
 
 /* globals */
@@ -3864,6 +3865,13 @@ static pmdaMetric metrictab[] = {
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 };
 
+typedef struct {
+    char        *container;
+} perctx_t;
+
+static perctx_t *ctxtab;
+static int      num_ctx;
+
 char *linux_statspath = "";	/* optional path prefix for all stats files */
 
 FILE *
@@ -3875,12 +3883,17 @@ linux_statsfile(const char *path, char *buffer, int size)
 }
 
 static void
-linux_refresh(pmdaExt *pmda, int *need_refresh)
+linux_refresh(pmdaExt *pmda, int *need_refresh, char *container, int nsflags)
 {
     int need_refresh_mtab = 0;
 
+    if (container && nsflags)
+	pmdaEnterContainerNameSpace(rootfd, container, nsflags);
+
     if (need_refresh[CLUSTER_PARTITIONS])
-    	refresh_proc_partitions(INDOM(DISK_INDOM), INDOM(PARTITIONS_INDOM), INDOM(DM_INDOM));
+    	refresh_proc_partitions(INDOM(DISK_INDOM),
+				INDOM(PARTITIONS_INDOM),
+				INDOM(DM_INDOM));
 
     if (need_refresh[CLUSTER_STAT])
     	refresh_proc_stat(&proc_cpuinfo, &proc_stat);
@@ -3918,10 +3931,10 @@ linux_refresh(pmdaExt *pmda, int *need_refresh)
 	refresh_proc_net_rpc(&proc_net_rpc);
 
     if (need_refresh[CLUSTER_NET_SOCKSTAT])
-    	refresh_proc_net_sockstat(&proc_net_sockstat);
+	refresh_proc_net_sockstat(&proc_net_sockstat);
 
     if (need_refresh[CLUSTER_KERNEL_UNAME])
-    	uname(&kernel_uname);
+	uname(&kernel_uname);
 
     if (need_refresh[CLUSTER_NET_SNMP])
 	refresh_proc_net_snmp(&_pm_proc_net_snmp);
@@ -3942,7 +3955,7 @@ linux_refresh(pmdaExt *pmda, int *need_refresh)
 	refresh_proc_slabinfo(&proc_slabinfo);
 
     if (need_refresh[CLUSTER_SEM_LIMITS])
-        refresh_sem_limits(&sem_limits);
+	refresh_sem_limits(&sem_limits);
 
     if (need_refresh[CLUSTER_MSG_LIMITS])
         refresh_msg_limits(&msg_limits);
@@ -3962,17 +3975,28 @@ linux_refresh(pmdaExt *pmda, int *need_refresh)
     if (need_refresh[CLUSTER_SYSFS_KERNEL])
     	refresh_sysfs_kernel(&sysfs_kernel);
 
+    if (container && nsflags)
+	pmdaLeaveContainerNameSpace(rootfd, nsflags);
     if (need_refresh_mtab)
 	pmdaDynamicMetricTable(pmda);
+}
+
+static char *
+linux_ctx_container(int ctx)
+{
+    if (ctx < num_ctx && ctx >= 0 && ctxtab[ctx].container)
+	return ctxtab[ctx].container;
+    return NULL;
 }
 
 static int
 linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
 {
     __pmInDom_int	*indomp = (__pmInDom_int *)&indom;
-    int			need_refresh[NUM_CLUSTERS];
+    int			need_refresh[NUM_CLUSTERS] = {0};
+    int			namespace_flags = 0;
+    char		*container = NULL;
 
-    memset(need_refresh, 0, sizeof(need_refresh));
     switch (indomp->serial) {
     case DISK_INDOM:
     case PARTITIONS_INDOM:
@@ -3980,51 +4004,58 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
 	need_refresh[CLUSTER_PARTITIONS]++;
 	break;
     case CPU_INDOM:
-    	need_refresh[CLUSTER_STAT]++;
+	need_refresh[CLUSTER_STAT]++;
 	break;
     case NODE_INDOM:
 	need_refresh[CLUSTER_NUMA_MEMINFO]++;
 	break;
     case LOADAVG_INDOM:
-    	need_refresh[CLUSTER_LOADAVG]++;
+	need_refresh[CLUSTER_LOADAVG]++;
 	break;
     case NET_DEV_INDOM:
-    	need_refresh[CLUSTER_NET_DEV]++;
+	need_refresh[CLUSTER_NET_DEV]++;
+	namespace_flags |= PMDA_NAMESPACE_NET;
 	break;
     case NET_ADDR_INDOM:
-    	need_refresh[CLUSTER_NET_ADDR]++;
+	need_refresh[CLUSTER_NET_ADDR]++;
+	namespace_flags |= PMDA_NAMESPACE_NET;
 	break;
     case FILESYS_INDOM:
-    	need_refresh[CLUSTER_FILESYS]++;
+	need_refresh[CLUSTER_FILESYS]++;
+	namespace_flags |= PMDA_NAMESPACE_MNT;
 	break;
     case TMPFS_INDOM:
-    	need_refresh[CLUSTER_TMPFS]++;
+	need_refresh[CLUSTER_TMPFS]++;
+	namespace_flags |= PMDA_NAMESPACE_MNT;
 	break;
     case SWAPDEV_INDOM:
-    	need_refresh[CLUSTER_SWAPDEV]++;
+	need_refresh[CLUSTER_SWAPDEV]++;
 	break;
     case NFS_INDOM:
     case NFS3_INDOM:
     case NFS4_CLI_INDOM:
     case NFS4_SVR_INDOM:
-    	need_refresh[CLUSTER_NET_NFS]++;
+	need_refresh[CLUSTER_NET_NFS]++;
+	namespace_flags |= PMDA_NAMESPACE_MNT;
 	break;
     case SCSI_INDOM:
-    	need_refresh[CLUSTER_SCSI]++;
+	need_refresh[CLUSTER_SCSI]++;
 	break;
     case LV_INDOM:
-    	need_refresh[CLUSTER_LV]++;
+	need_refresh[CLUSTER_LV]++;
 	break;
     case SLAB_INDOM:
-    	need_refresh[CLUSTER_SLAB]++;
+	need_refresh[CLUSTER_SLAB]++;
 	break;
     case ICMPMSG_INDOM:
-    	need_refresh[CLUSTER_NET_SNMP]++;
+	need_refresh[CLUSTER_NET_SNMP]++;
 	break;
     /* no default label : pmdaInstance will pick up errors */
     }
 
-    linux_refresh(pmda, need_refresh);
+    if (namespace_flags)
+	container = linux_ctx_container(pmda->e_context);
+    linux_refresh(pmda, need_refresh, container, namespace_flags);
     return pmdaInstance(indom, inst, name, result, pmda);
 }
 
@@ -5617,36 +5648,64 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 static int
 linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
-    int		i;
-    int		need_refresh[NUM_CLUSTERS];
+    int		need_refresh[NUM_CLUSTERS] = {0};
+    int		i, namespace_flags = 0;
+    char	*container = NULL;
 
-    memset(need_refresh, 0, sizeof(need_refresh));
-    for (i=0; i < numpmid; i++) {
+    for (i = 0; i < numpmid; i++) {
 	__pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
-	if (idp->cluster < NUM_CLUSTERS) {
-	    need_refresh[idp->cluster]++;
 
-	    if ((idp->cluster == CLUSTER_STAT || idp->cluster == CLUSTER_DM) && 
-		need_refresh[CLUSTER_PARTITIONS] == 0 &&
+	if (idp->cluster >= NUM_CLUSTERS)
+	    continue;
+	need_refresh[idp->cluster]++;
+
+	switch (idp->cluster) {
+	case CLUSTER_STAT:
+	case CLUSTER_DM:
+	    if (need_refresh[CLUSTER_PARTITIONS] == 0 &&
 		is_partitions_metric(pmidlist[i]))
 		need_refresh[CLUSTER_PARTITIONS]++;
+	    /* In 2.6 kernels, swap.{pagesin,pagesout} are in /proc/vmstat */
+	    if (_pm_have_proc_vmstat && idp->cluster == CLUSTER_STAT) {
+		if (idp->item >= 8 && idp->item <= 11)
+		    need_refresh[CLUSTER_VMSTAT]++;
+	    }
+	    break;
 
-	    if (idp->cluster == CLUSTER_CPUINFO ||
-		idp->cluster == CLUSTER_SYSFS_DEVICES ||
-		idp->cluster == CLUSTER_INTERRUPT_LINES ||
-		idp->cluster == CLUSTER_INTERRUPT_OTHER ||
-		idp->cluster == CLUSTER_INTERRUPTS)
-		need_refresh[CLUSTER_STAT]++;
-	}
+	case CLUSTER_CPUINFO:
+	case CLUSTER_SYSFS_DEVICES:
+	case CLUSTER_INTERRUPT_LINES:
+	case CLUSTER_INTERRUPT_OTHER:
+	case CLUSTER_INTERRUPTS:
+	    need_refresh[CLUSTER_STAT]++;
+	    break;
 
-	/* In 2.6 kernels, swap.{pagesin,pagesout} are in /proc/vmstat */
-	if (_pm_have_proc_vmstat && idp->cluster == CLUSTER_STAT) {
-	    if (idp->item >= 8 && idp->item <= 11)
-	    	need_refresh[CLUSTER_VMSTAT]++;
+	case CLUSTER_KERNEL_UNAME:
+	    namespace_flags |= PMDA_NAMESPACE_UTS;
+	    break;
+
+	case CLUSTER_NET_DEV:
+	case CLUSTER_NET_ADDR:
+	    namespace_flags |= PMDA_NAMESPACE_NET;
+	    break;
+
+	case CLUSTER_NET_NFS:
+	case CLUSTER_FILESYS:
+	case CLUSTER_TMPFS:
+	    namespace_flags |= PMDA_NAMESPACE_MNT;
+	    break;
+
+	case CLUSTER_SEM_LIMITS:
+	case CLUSTER_MSG_LIMITS:
+	case CLUSTER_SHM_LIMITS:
+	    namespace_flags |= PMDA_NAMESPACE_IPC;
+	    break;
 	}
     }
 
-    linux_refresh(pmda, need_refresh);
+    if (namespace_flags)
+	container = linux_ctx_container(pmda->e_context);
+    linux_refresh(pmda, need_refresh, container, namespace_flags);
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
@@ -5682,9 +5741,43 @@ linux_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmd
     return pmdaTreeChildren(tree, name, flag, kids, sts);
 }
 
+static void
+linux_grow_ctxtab(int ctx)
+{
+    /* expand and initialize the per client context table */
+    ctxtab = (perctx_t *)realloc(ctxtab, (ctx+1)*sizeof(ctxtab[0]));
+    if (ctxtab == NULL) {
+	__pmNoMem("grow_ctxtab", (ctx+1)*sizeof(ctxtab[0]), PM_FATAL_ERR);
+	/*NOTREACHED*/
+    }
+    while (num_ctx <= ctx) {
+	ctxtab[num_ctx].container = NULL;
+	num_ctx++;
+    }
+    ctxtab[ctx].container = NULL;
+}
+
+static void
+linux_end_context(int ctx)
+{
+    if (ctx >= 0 && ctx < num_ctx) {
+	if (ctxtab[ctx].container)
+	    free(ctxtab[ctx].container);
+	ctxtab[ctx].container = NULL;
+    }
+}
+
 static int
 linux_attribute(int ctx, int attr, const char *value, int len, pmdaExt *pmda)
 {
+    if (attr == PCP_ATTR_CONTAINER) {
+	if (ctx >= num_ctx)
+	    linux_grow_ctxtab(ctx);
+	if (ctxtab[ctx].container)
+	    free(ctxtab[ctx].container);
+	if ((ctxtab[ctx].container = strdup(value)) == NULL)
+	    return -ENOMEM;
+    }
     return pmdaAttribute(ctx, attr, value, len, pmda);
 }
 
@@ -5760,6 +5853,7 @@ linux_init(pmdaInterface *dp)
     dp->version.six.name = linux_name;
     dp->version.six.children = linux_children;
     dp->version.six.attribute = linux_attribute;
+    dp->version.six.ext->e_endCallBack = linux_end_context;
     pmdaSetFetchCallBack(dp, linux_fetchCallBack);
 
     proc_stat.cpu_indom = proc_cpuinfo.cpuindom = &indomtab[CPU_INDOM];
@@ -5850,6 +5944,7 @@ linux_init(pmdaInterface *dp)
     proc_vmstat_init();
     interrupts_init(metrictab, nmetrics);
 
+    rootfd = pmdaRootConnect(NULL);
     pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
     pmdaInit(dp, indomtab, nindoms, metrictab, nmetrics);
 

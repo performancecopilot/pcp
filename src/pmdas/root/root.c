@@ -1,7 +1,7 @@
 /*
  * PMCD privileged co-process (root) PMDA.
  *
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014-2015 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -257,8 +257,10 @@ root_setup_socket(void)
 	exit(1);
     }
 
-    snprintf(socket_path, sizeof(socket_path), "%s/pmcd/root.socket",
+    if (socket_path[0] == '\0')
+	snprintf(socket_path, sizeof(socket_path), "%s/pmcd/root.socket",
 		pmGetConfig("PCP_TMP_DIR"));
+    unlink(socket_path);
     memcpy(path, socket_path, sizeof(path));	/* dirname copy */
     sts = __pmMakePath(dirname(path), S_IRWXU);
     if (sts < 0 && oserror() != EEXIST) {
@@ -380,14 +382,14 @@ root_delete_client(root_client_t *cp)
 }
 
 static root_client_t *
-root_accept_client(int requestfd)
+root_accept_client(void)
 {
     int			i, fd;
     __pmSockLen		addrlen;
 
     i = root_new_client();
     addrlen = __pmSockAddrSize();
-    if ((fd = __pmAccept(requestfd, socket_addr, &addrlen)) < 0) {
+    if ((fd = __pmAccept(socket_fd, socket_addr, &addrlen)) < 0) {
 	if (neterror() == EPERM) {
 	    __pmNotifyErr(LOG_NOTICE, "root_accept_client(%d): %s\n",
 			fd, osstrerror());
@@ -410,22 +412,20 @@ root_accept_client(int requestfd)
 }
 
 static void
-root_check_new_client(__pmFdSet *fdset, int rfd, int family)
+root_check_new_client(__pmFdSet *fdset)
 {
-    if (__pmFD_ISSET(rfd, fdset)) {
-	root_client_t	*cp;
-	int		sts;
+    root_client_t	*cp;
+    int		sts;
 
-	if ((cp = root_accept_client(rfd)) == NULL)
-	    return;	/* accept failed and no client added */
+    if ((cp = root_accept_client()) == NULL)
+	return;	/* accept failed and no client added */
 
-	/* send server capabilities */
-	if ((sts = __pmdaSendRootPDUInfo(cp->fd, features, 0)) < 0) {
-	    __pmNotifyErr(LOG_ERR,
+    /* send server capabilities */
+    if ((sts = __pmdaSendRootPDUInfo(cp->fd, features, 0)) < 0) {
+	__pmNotifyErr(LOG_ERR,
 		"new_client: failed to ACK new client connection: %s\n",
 		pmErrStr(sts));
-	    root_delete_client(cp);
-	}
+	root_delete_client(cp);
     }
 }
 
@@ -552,7 +552,8 @@ root_main(pmdaInterface *dp)
 		if (__pmdaMainPDU(dp) < 0)
 		    exit(1);        /* it's fatal if we lose pmcd */
 	    }
-            __pmServerAddNewClients(&readable_fds, root_check_new_client);
+	    if (__pmFD_ISSET(socket_fd, &readable_fds))
+		root_check_new_client(&readable_fds);
 	    root_handle_client_input(&readable_fds);
 	}
 	else if (sts == -1 && neterror() != EINTR) {
@@ -576,8 +577,6 @@ root_check_user(void)
 static void
 root_init(pmdaInterface *dp)
 {
-    __pmNotifyErr(LOG_DEBUG, "%s: root_init start\n", pmProgname);
-
     root_check_user();
     root_setup_containers();
     root_setup_socket();
@@ -590,8 +589,6 @@ root_init(pmdaInterface *dp)
     pmdaSetFlags(dp, PMDA_EXT_FLAG_DIRECT);
     pmdaInit(dp, root_indomtab, INDOMTAB_SZ, root_metrictab, METRICTAB_SZ);
     pmdaCacheOp(INDOM(CONTAINERS_INDOM), PMDA_CACHE_CULL);
-
-    __pmNotifyErr(LOG_DEBUG, "%s: root_init end\n", pmProgname);
 }
 
 pmLongOptions	longopts[] = {
@@ -599,19 +596,20 @@ pmLongOptions	longopts[] = {
     PMOPT_DEBUG,
     PMDAOPT_DOMAIN,
     PMDAOPT_LOGFILE,
+    { "socket", 1, 's', "PATH", "Unix domain socket file [default $PCP_TMP_DIR/pmcd/root.socket]" },
     PMOPT_HELP,
     PMDA_OPTIONS_END
 };
 
 pmdaOptions	opts = {
-    .short_options = "D:d:l:?",
+    .short_options = "D:d:l:s:?",
     .long_options = longopts,
 };
 
 int
 main(int argc, char **argv)
 {
-    int			sep = __pmPathSeparator();
+    int			c, sep = __pmPathSeparator();
     pmdaInterface	dispatch;
     char		helppath[MAXPATHLEN];
 
@@ -620,7 +618,14 @@ main(int argc, char **argv)
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, ROOT, "root.log", helppath);
 
-    pmdaGetOptions(argc, argv, &opts, &dispatch);
+    while ((c = pmdaGetOptions(argc, argv, &opts, &dispatch)) != EOF) {
+	switch (c) {
+	case 's':
+	    strncpy(socket_path, opts.optarg, sizeof(socket_path));
+	    socket_path[sizeof(socket_path)-1] = '\0';
+	    break;
+	}
+    }
     if (opts.errors) {
 	pmdaUsageMessage(&opts);
 	exit(1);

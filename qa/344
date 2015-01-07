@@ -75,7 +75,10 @@ _filter()
 	-e "s/\.$DSO_SUFFIX/.\$DSO_SUFFIX/g" \
 	-e '/^0*x*[0-9a-f][0-9a-f]* /d' \
 	-e '/^\[[0-9][0-9]*]/d' \
-	-e '/^__pmLocalPMDA(/d'
+	-e '/^__pmLocalPMDA(/d' \
+	-e '/^__pmSetSocketIPC:/d' \
+	-e '/^IPC table fd(/d' \
+    #end
 }
 
 # -e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
