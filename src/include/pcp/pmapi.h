@@ -318,6 +318,7 @@ extern int pmNewContext(int, const char *);
 #define PM_CTXFLAG_COMPRESS	(1U<<11)/* compressed socket host channel */
 #define PM_CTXFLAG_RELAXED	(1U<<12)/* encrypted if possible else not */
 #define PM_CTXFLAG_AUTH		(1U<<13)/* make authenticated connection */
+#define PM_CTXFLAG_CONTAINER	(1U<<14)/* container connection attribute */
 
 /*
  * Duplicate current context -- returns handle to new one for pmUseContext()
@@ -695,6 +696,9 @@ extern char *pmGetConfig(const char *);
 #define PMLONGOPT_HOST_LIST "host-list"
 #define PMOPT_HOST_LIST { PMLONGOPT_HOST_LIST, 1, 0, "HOSTS", \
 		"comma-separated list of metric source hosts" }
+#define PMLONGOPT_CONTAINER "container"
+#define PMOPT_CONTAINER { PMLONGOPT_CONTAINER, 1, 0, "NAME", \
+		"specify an individual container to be queried" }
 
 /* pmOptions flags */
 #define PM_OPTFLAG_INIT		(1<<0)	/* initialisation done */
@@ -876,6 +880,8 @@ extern void pmFreeHighResEventResult(pmHighResResult **);
 #define PM_SERVER_WEBD_SPEC	"pmwebd"
 
 extern int pmDiscoverServices(const char *, const char *, char ***);
+
+extern int pmParseUnitsStr(const char *, pmUnits *, double *, char **);
 
 #ifdef __cplusplus
 }

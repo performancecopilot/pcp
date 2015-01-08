@@ -879,9 +879,17 @@ __pmSecureClientIPCFlags(int fd, int flags, const char *hostname, __pmHashCtl *a
 	 */
 	if (socket.sslFd == NULL)
 	    return -EOPNOTSUPP;
+#ifdef SSL_ENABLE_DEFLATE
 	secsts = SSL_OptionSet(socket.sslFd, SSL_ENABLE_DEFLATE, PR_TRUE);
 	if (secsts != SECSuccess)
 	    return __pmSecureSocketsError(PR_GetError());
+#else
+	/*
+	 * On some older platforms (e.g. CentOS 5.5) SSL_ENABLE_DEFLATE
+	 * is not defined ...
+	 */
+	return -EOPNOTSUPP;
+#endif /*SSL_ENABLE_DEFLATE*/
     }
 
     if ((flags & PDU_FLAG_AUTH) != 0) {
@@ -1171,20 +1179,21 @@ __pmSecureClientHandshake(int fd, int flags, const char *hostname, __pmHashCtl *
 
     /*
      * If the server uses the secure-ack protocol, then expect an error
-     * pdu here containing the server's secure status. If the status is zero,
+     * PDU here containing the server's secure status. If the status is zero,
      * then all is ok, otherwise, return the status to the caller.
      */
     if (flags & PDU_FLAG_SECURE_ACK) {
 	__pmPDU *rpdu;
 	int pinpdu;
 	int serverSts;
+
 	pinpdu = sts = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &rpdu);
 	if (sts != PDU_ERROR) {
 	    if (pinpdu)
 		__pmUnpinPDUBuf(&rpdu);
 	    return -PM_ERR_IPC;
 	}
-	sts = __pmDecodeError (rpdu, &serverSts);
+	sts = __pmDecodeError(rpdu, &serverSts);
 	if (pinpdu)
 	    __pmUnpinPDUBuf(&rpdu);
 	if (sts < 0)
@@ -1311,9 +1320,17 @@ __pmSecureServerIPCFlags(int fd, int flags)
 	 */
 	if (socket.sslFd == NULL)
 	    return -EOPNOTSUPP;
+#ifdef SSL_ENABLE_DEFLATE
 	secsts = SSL_OptionSet(socket.sslFd, SSL_ENABLE_DEFLATE, PR_TRUE);
 	if (secsts != SECSuccess)
 	    return __pmSecureSocketsError(PR_GetError());
+#else
+	/*
+	 * On some older platforms (e.g. CentOS 5.5) SSL_ENABLE_DEFLATE
+	 * is not defined ...
+	 */
+	return -EOPNOTSUPP;
+#endif /*SSL_ENABLE_DEFLATE*/
     }
 
     if ((flags & PDU_FLAG_AUTH) != 0) {

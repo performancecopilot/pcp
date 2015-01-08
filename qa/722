@@ -11,7 +11,7 @@ echo "QA output created by $seq"
 . ./common.python
 status=0	# success is the default!
 $sudo rm -f $tmp.* $seq.full
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "rm -f $tmp.* test.pmatop; exit \$status" 0 1 2 3 15
 
 remove_extra_whitespace()
 {
@@ -71,6 +71,7 @@ fi
 $PMATOP -r $here/src/pmatop-log.folio -m 1 1 2>&1 | tee -a $tmp.out | redact_header | remove_extra_whitespace
 $PMATOP -r $here/src/pmatop-log.folio -g 1 1 2>&1 | tee -a $tmp.out | redact_header | remove_extra_whitespace
 
+rm -f test.pmatop
 $PMATOP -w test.pmatop 0.2 10
 if pmafm test.pmatop  check | grep -q OK
 then echo pmatop log creation OK | tee -a $tmp.out 2>&1

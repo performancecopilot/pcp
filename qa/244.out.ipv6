@@ -43,7 +43,7 @@ Log for pmcd on HOST started DATE
 active agent dom   pid  in out ver protocol parameters
 ============ === ===== === === === ======== ==========
 fake_irix 1 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 1 fake_irix
-pmcd 2 A_PID dso i:5 lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
+pmcd 2 A_PID dso i:6 lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
 fake_cisco 5 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 5 fake_cisco
 fake_sampledso 30 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 30 fake_sampledso
 fake_linux 60 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 60 fake_linux
@@ -78,7 +78,7 @@ Cleanup "fake_sampledso" agent (dom 30): unconfigured, exit(0)
 active agent dom   pid  in out ver protocol parameters
 ============ === ===== === === === ======== ==========
 fake_irix 1 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 1 fake_irix
-pmcd 2 A_PID dso i:5 lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
+pmcd 2 A_PID dso i:6 lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
 fake_cisco 5 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 5 fake_cisco
 sample 29 A_PID FD FD 2 bin pipe cmd=...pmdasample -d 29
 fake_linux 60 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 60 fake_linux

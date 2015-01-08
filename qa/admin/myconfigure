@@ -5,26 +5,38 @@
 # works without surprises
 #
 
-VERS=`uname -s | cut -c-5`
-ARCH=`uname -m`
-configure_options="--prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d"
-case "$VERS"
+target=`uname -s | cut -c-5 | tr 'A-Z' 'a-z'`
+
+# Note:	this logic needs to match the settings in Makepkgs at the
+# 	top of thes source tree
+#
+if [ ! -x /usr/bin/rpmbuild ]
+then
+    configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
+else
+    configopts=`rpmbuild --eval '--prefix=%{_prefix} --exec-prefix=%{_exec_prefix} --bindir=%{_bindir} --sbindir=%{_sbindir} --sysconfdir=%{_sysconfdir} --datadir=%{_datadir} --includedir=%{_includedir} --libdir=%{_libdir} --libexecdir=%{_libexecdir} --localstatedir=%{_localstatedir} --sharedstatedir=%{_sharedstatedir} --mandir=%{_mandir}' 2>/dev/null`
+fi
+
+case "$target"
 in
-    MINGW)
-	configure_options="$configure_options --disable-ssp"
+    mingw)
+	configopts="$configopts --disable-ssp --without-threads"
 	;;
-    Linux)
-	if [ -f /etc/slackware-version ]
+    linux)
+	ARCH=`uname -m`
+	[ -f /etc/slackware-version -a "$ARCH" = x86_64 ] && configopts="$configopts --libdir=/usr/lib64"
+	if `which dpkg >/dev/null 2>&1`
 	then
-	    if [ "$ARCH" = x86_64 ]
-	    then
-		configure_options="$configure_options --libdir=/usr/lib64"
-	    fi
+	    configopts="$configopts --libexecdir=/usr/lib"
 	fi
+	;;
+    sunos)
+	ARCH=`isainfo -k`
+	[ "$ARCH" = amd64 -o "$ARCH" = sparcv9 ] && configopts="$configopts --libdir=/usr/lib/64"
 	;;
 esac
 
-./configure $configure_options
+./configure $configopts
 
 if [ ! -f src/include/pcp.conf ]
 then
@@ -36,5 +48,14 @@ fi
 
 cd src/include
 $PCP_MAKE_PROG
+cd ../libpcp
+$PCP_MAKE_PROG
 cd ../pmns
 $PCP_MAKE_PROG
+cd ../pmcpp
+$PCP_MAKE_PROG
+cd ../newhelp
+$PCP_MAKE_PROG
+cd ../libpcp_pmda
+$PCP_MAKE_PROG
+echo "== Configured pcp ($configopts)"

@@ -194,6 +194,7 @@ refresh_sbstats(pmdaExt *pmda, __pmnsTree **tree)
 	    for (s = 0; s < NUM_LOCKSTATS; s++)
 		add_pmns_node(sbstats_tree, pmda->e_domain, CLUSTER_SBSTATS, t, s);
 	*tree = sbstats_tree;
+	pmdaTreeRebuildHash( sbstats_tree, NUM_LOCKTYPES*NUM_LOCKSTATS );
 	return 1;
     }
     return 0;

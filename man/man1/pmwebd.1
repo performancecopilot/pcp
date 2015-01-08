@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2013 Red Hat, Inc.  All Rights Reserved.
+.\" Copyright (c) 2013-2014 Red Hat, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -15,7 +15,7 @@
 .\"
 .TH PMWEBD 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmwebd\f1 \- bridge client PMAPI to HTTP
+\f3pmwebd\f1 \- web access to PCP
 .SH SYNOPSIS
 \f3pmwebd\f1
 [\f3\-p\f1 \f2port\f1]
@@ -28,9 +28,9 @@
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-L\f1]
 [\f3\-N\f1]
+[\f3\-G\f1]
 [\f3\-K\f1 \f2spec\f1]
-[\f3\-A\f1 \f2archdir\f1]
-[\f3\-f\f1]
+[\f3\-A\f1 \f2archivesdir\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-U\f1 \f2username\f1]
 [\f3\-x\f1 \f2file\f1]
@@ -40,16 +40,16 @@
 
 .SH DESCRIPTION
 .B pmwebd
-is a long-running network daemon.  It binds a subset of the
+is a network daemon that binds a subset of the
 Performance Co-Pilot (PCP) client API (PMAPI) to RESTful web
 applications using the HTTP (PMWEBAPI) protocol.  Web
 clients request a URI with the prefix
 .B /pmapi
-to access the bindings.  pmwebd creates dynamic PCP contexts as requested
+to access the bindings.  pmwebd creates PCP contexts as requested
 by a dynamic pool of remote clients, and maintains them as long as the
 clients regularly reconnect to request PMAPI operations.  Otherwise,
 PCP contexts are closed after a timeout.  Permanent contexts may be
-requested on the command line. 
+requested on the command line.
 .PP
 In addition to the API binding, pmwebd may be optionally configured as a
 simple HTTP file server, in order to feed the web application itself
@@ -58,9 +58,14 @@ to a web browser.  URIs not matching the
 prefix are mapped to files under the configured resource directory, if
 the \f3\-R\f1 option was given.
 .PP
-The options to
-.B pmwebd
-are as follows.
+In addition, pmwebd may be optionally configured as a server of a subset
+of the graphite 0.9.12 web API, for URLs with the
+.B /graphite
+prefix, in order to expose PCP archives to interactive data-graphing web
+applications.
+
+.PP
+The options to pmwebd are as follows.
 .TP
 \f3\-p\f1 \f2port\f1
 Set the TCP port number on which pmwebd will listen for HTTP requests.
@@ -70,13 +75,28 @@ The default is 44323.
 Listen only on IPv4 or IPv6.  By default, pmwebd will listen on both
 protocols, if possible.
 .TP
+\f3\-A\f1 \f2archdir\f1
+Limit remote access to archives to only those beneath the given directory.
+By default, only files beneath the initial pmwebd working directory may
+be accessed.
+.TP
 \f3\-R\f1 \f2resdir\f1
 Activate file serving beneath the given resource directory.  All regular
 files there may be read & transcribed to remote clients.  By default,
 file serving is disabled.
 .TP
+\f3\-G\f1
+Activate servicing of a subset of the graphite webapi.  This exposes all
+PCP archives under the \-A directory to remote clients.  By default,
+graphite webapi serving is disabled.  To use the graphite and/or grafana
+web applications included with pmwebd, use both \-G and \-R, and connect
+your web browser to
+.nh
+.B http://127.0.0.1:43323/
+.hy
+.TP
 \f3\-t\f1 \f2timeout\f1
-Set the maximum timeout (in seconds) after the last operation on a web
+Set the maximum timeout (in seconds) after the last operation on a pmapi web
 context, before it is closed by pwmebd.  A smaller timeout may be requested
 by the web client.
 .TP
@@ -89,11 +109,6 @@ Assign the next permanent PMWEBAPI context identifier to a PMAPI connection
 to the given host (with an extended syntax as given in 
 .BR PCPIntro (1)),
 or archive file, or the PM_CONTEXT_LOCAL.
-.TP
-\f3\-A\f1 \f2archdir\f1
-Limit remote new-context requests for archives to beneath the given
-directory.  By default, only files beneath the initial working directory
-may be accessed.
 .TP
 \f3\-N\f1
 Disable creation of new PMWEBAPI contexts via HTTP requests, leaving only
@@ -112,39 +127,25 @@ More than one
 .B \-K
 option may be used.
 .TP
-\f3\-f\f1
-By default
-.B pmwebd
-is started as a daemon.
-The
-.B \-f
-option indicates that it should run in the foreground.
-This is most useful when trying to diagnose problems with establishing
-connections.
-.TP
 \f3\-l\f1 \f2logfile\f1
-By default a log file named
-.I pmwebd.log
-is written in the current directory.
-The
+By default, logging goes to standard output/error file handles.
+The verbosity flag \-v affects the amount of traffic.  The
 .B \-l
 option causes the log file to be written to
 .I logfile
-instead of the default.
+instead.
 If the log file cannot be created or is not writable, output is
 written to the standard error instead.
 .TP
 \f3\-U\f1 \f2username\f1
-Assume the identity of
+If invoked as root, assume the identity of
 .I username
 before starting to accept incoming requests from web clients.
 .TP
 \f3\-x\f1 \f2file\f1
-Before the
-.B pmwebd
+Before the pmwebd
 .I logfile
-can be opened,
-.B pmwebd
+can be opened, pmwebd
 may encounter a fatal error which prevents it from starting.  By default, the
 output describing this error is sent to
 .B /dev/tty
@@ -153,8 +154,7 @@ but it may redirected to
 .TP
 \f3\-v\f1
 Increase the verbosity of the
-.B pmwebd
-program as it logs to its standard error.
+pmwebd program as it logs to its standard output/error.
 .TP
 \f3\-?\f1
 Show pmwebd invocation help and exit.
@@ -178,6 +178,8 @@ so any remote connection can access any metric exposed by suchly connected
 PMAPI contexts.  However, a new host-context string may use
 authentication clauses of the longer host URLs, for example
 .IR pcps://hostname?method=plain&user=userid&pass=password .
+Use of resulting pmwebapi contexts later requires matching HTTP PLAIN
+authentication; see below.
 .TP
 inbound admission control
 The pmwebd program does not impose ACLs on the origin or rate of its
@@ -212,54 +214,48 @@ that precious, since there exist no state-destructive operations for
 them, except perhaps instance profile settings.
 
 .SH "STARTING AND STOPPING PMWEBD"
-Normally,
-.B pmwebd
-is started automatically at boot time and stopped when the
-system is being brought down.
-Under certain circumstances it is necessary to start or stop
-.B pmwebd
-manually.
-To do this one must become superuser and type
+
+The pmwebd server may be started automatically at boot time and
+stopped when the system is being brought down.  Users may also run
+customized pmwebd instances (under separate \-p PORT numbers), for
+example for their own archive farms.
+
+For management fo the system pmwebd, become superuser and type
 .PP
 .ft CS
 # $PCP_RC_DIR/pmwebd start
 .ft
 .PP
-to start
-.BR pmwebd ,
-or
+to start pmwebd, or
 .PP
 .ft CS
 # $PCP_RC_DIR/pmwebd stop
 .ft
 .PP
-to stop
-.BR pmwebd .
-Starting
-.B pmwebd
-when it is already running is the same as stopping
+to stop pmwebd.
+Starting pmwebd when it is already running is the same as stopping
 it and then starting it again.
 
 .SH FILES
 .PD 0
 .TP
-.B PCP_PMWEBDOPTIONS_PATH
+.B $PCP_PMWEBDOPTIONS_PATH
 command line options
 and environment variable settings for
-.B pmwebd
-when launched from
+pmwebd when launched from
 .B $PCP_RC_DIR/pmwebd
-All the command line option lines should start with a hyphen as
-the first character.
-This file can also contain environment variable settings of
-the form "VARIABLE=value".
+This file is interpreted as a Bourne Shell script, expecting
+variable settings of the form "OPTIONS=value" and possibly others.
 .TP
-.B \&./pmwebd.log
-(or
 .B $PCP_LOG_DIR/pmwebd/pmwebd.log
-when started automatically)
+Log file for system pmwebd service. 
+.TP
+.B $PCP_LOG_DIR
+Default directory for \-A option: a base directory containing PCP archives.
+.TP
+.B $PCP_SHARE_DIR/webapps
+Default directory for \-R option: a base directory containing web applications.
 .br
-All messages and diagnostics are directed here
 
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
@@ -275,11 +271,15 @@ variable may be used to specify an alternative
 configuration file,
 as described in
 .BR pcp.conf (5).
+
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR PMAPI (3),
 .BR PMWEBAPI (3),
 .BR pcp.conf (5),
 .BR pcp.env (5)
+.nh
+.BR http://graphite.readthedocs.org/
+.hy
 and
 .BR pmns (5).

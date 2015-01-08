@@ -29,7 +29,7 @@ LCFLAGS += $(PIECFLAGS)
 LLDFLAGS += $(PIELDFLAGS)
 ifeq "$(HAVE_CAIRO)" "true"
 LLDLIBS += $(LIB_FOR_CAIRO)
-LCFLAGS += -DHAVE_CAIRO
+LCFLAGS += -DHAVE_CAIRO $(CAIROCFLAGS)
 endif
 
 default:	build-me
@@ -48,6 +48,7 @@ install:	default
 	$(INSTALL) -m 755 -d `dirname $(PCP_PMWEBDOPTIONS_PATH)`
 	$(INSTALL) -m 644 pmwebd.options $(PCP_PMWEBDOPTIONS_PATH)
 	$(INSTALL) -m 755 rc_pmwebd $(PCP_RC_DIR)/pmwebd
+	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/webapps
 ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmwebd.service $(PCP_SYSTEMDUNIT_DIR)/pmwebd.service
 endif

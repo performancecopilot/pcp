@@ -44,13 +44,14 @@ pmdapapi_install()
     echo
     echo "=== PAPI agent installation ==="
     $sudo ./Install </dev/null >$tmp.out 2>&1
+    grep "warnings" $tmp.out; if [ $? -eq 0 ]; then _notrun "PAPI metrics not found on hardware"; fi
     # Check papi metrics have appeared ... X metrics and Y values
     _filter_pmda_install <$tmp.out \
     | sed \
         -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
         -e 's/[0-9][0-9]* warnings, //' \
     | $PCP_AWK_PROG '
-/Check papi metrics have appeared/   { if ($7 >= 100 && $7 <= 500) $7 = "X"
+/Check papi metrics have appeared/   { if ($7 >= 7 && $7 <= 500) $7 = "X"
                                        if ($10 >= 0 && $10 <= 500) $10 = "Y"
                                      }
                                      { print }'

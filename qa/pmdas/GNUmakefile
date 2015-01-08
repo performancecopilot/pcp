@@ -1,6 +1,5 @@
-#!gmake
 #
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012-2014 Red Hat.
 # Copyright (c) 2010 Aconex.  All Rights Reserved.
 #
 
@@ -8,8 +7,8 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/pmdas
-SUBDIRS = broken bigun dynamic slow slow_python memory_python
-LSRCFILES = GNUmakefile.install
+SUBDIRS = broken bigun dynamic slow slow_python memory_python test_perl \
+	  schizo
 
 default default_pcp: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)

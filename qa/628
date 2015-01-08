@@ -38,6 +38,8 @@ _cleanup()
     [ -f $tmp.root.bin ] && $sudo cp $tmp.root.bin $PCP_VAR_DIR/pmns/root.bin
     [ -f $tmp.pmcd.conf ] && $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
     $sudo $PCP_RC_DIR/pcp restart >/dev/null 2>&1
+    _wait_for_pmcd
+    _wait_for_pmlogger
     $sudo rm -rf $tmp.* $PCP_PMDAS_DIR/idiot
     exit $status
 }
@@ -74,6 +76,10 @@ both
 dso
 End-of-File
 
+rm -f $seq.full
+echo "=== simple install ===" >>$here/$seq.full
+cat $tmp.out >>$here/$seq.full
+
 if pminfo -v simple
 then
     :
@@ -99,12 +105,20 @@ do
     chmod u+w $file
     cp $tmp.tmp $file
 done
+for file in pmns help
+do
+    sed <$file >$tmp.tmp -e '/IDIOT/s//177/g'
+    cp $tmp.tmp $file
+done
 
 $sudo ./Remove >/dev/null 2>&1
 cat <<End-of-File | $sudo ./Install >$tmp.out 2>&1
 both
 dso
 End-of-File
+
+echo "=== idiot install ===" >>$here/$seq.full
+cat $tmp.out >>$here/$seq.full
 
 if pminfo -v idiot
 then
@@ -116,11 +130,28 @@ fi
 
 
 # real QA test starts here
-pminfo -fm simple.numfetch
+pminfo -fm simple.numfetch | tee $tmp.check
+
+if false
+then
+    # enable this trap to debug the infamous e_ext_t bug
+    #
+    if grep 'No value' $tmp.check >/dev/null 2>&1
+    then
+	echo "Bad pminfo trap (No values for simple.numfetch)"
+	echo "Continue?"
+	read ans </dev/tty
+    fi
+fi
+
+echo "=== pmcd log after first pminfo simple ===" >>$here/$seq.full
+cat $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
 pminfo -fm idiot.numfetch
 pminfo -fm idiot.numfetch
 pminfo -fm idiot.numfetch
 pminfo -fm simple.numfetch idiot.numfetch
+echo "=== pmcd log after last pminfo simple ===" >>$here/$seq.full
+cat $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
 
 # success, all done
 status=0

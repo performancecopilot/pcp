@@ -53,7 +53,7 @@ do
     | while read bad
     do
 	sum=`shasum <$bad | sed -e 's/ .*//'`
-	host=`echo "$bad" | sed -e "s;^$HOME/Logs/by-vm/;;" -e 's/[-/].*//'`
+	host=`echo "$bad" | sed -e "s;^$HOME/Logs/by-vm/;;" -e 's/\/.*//'`
 	if grep " $sum" <$tmp.sum >/dev/null 2>&1
 	then
 	    match_host=`grep " $sum" <$tmp.sum | sed -e 's/ .*//' -e 1q`

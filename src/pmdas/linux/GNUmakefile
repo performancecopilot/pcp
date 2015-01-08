@@ -66,8 +66,10 @@ include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
 build-me: domain.h $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
-	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
+	@if [ -f ../pmcd.conf ]; then \
+	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
+	    fi; \
 	fi
 
 install: default

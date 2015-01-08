@@ -20,7 +20,7 @@ CMDTARGET = pmcd$(EXECSUFFIX)
 HFILES = client.h pmcd.h
 CFILES = pmcd.c config.c dofetch.c dopdus.c dostore.c client.c agent.c util.c
 
-LLDLIBS	= $(PCPLIB) $(LIB_FOR_DLOPEN) -lpcp_pmcd
+LLDLIBS	= $(PCP_PMDALIB) $(LIB_FOR_DLOPEN) -lpcp_pmcd
 PCPLIB_LDFLAGS += -L$(TOPDIR)/src/libpcp_pmcd/$(LIBPCP_ABIDIR)
 
 LLDFLAGS += $(RDYNAMIC_FLAG) $(PIELDFLAGS)

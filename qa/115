@@ -45,6 +45,12 @@ _cleanup()
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+# Now that we have pmmgr in the mix, there is more than one pmie
+# potentially running, so lines like this
+# ... try /var/lib/pcp/tmp/pmie/25453: different logfile, skip
+#  /var/log/pcp/pmmgr/bozo/pmie.log differs to /tmp/SEQ-PID.log1
+# are now expected, and not a problem.
+#
 _filter()
 {
     sed \
@@ -55,6 +61,8 @@ _filter()
 	-e 's/\([ "]\)'"$host"'\([ "]\)/\1LOCALHOST\2/g' \
 	-e 's/\([ "]\)local:\([ "]\)/\1LOCALHOST\2/g' \
 	-e "s;/private/tmp;/tmp;g" \
+	-e '/ try .* different logfile, skip/d' \
+	-e '/\/pmmgr\/.* differs to /d' \
 	-e 's/ $//'
 }
 
@@ -66,7 +74,9 @@ _count_pmies()
     else return 0
     fi
 
+    ls -l >>$here/$seq.full
     plist=`ls -1`
+    echo "plist=$plist" >>$here/$seq.full
     cd $here
 
     for process in $plist

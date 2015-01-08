@@ -20,19 +20,11 @@
 
 typedef struct {
     int			id;	     /* internal instance id */
-    char		*namebuf;    /* external name, i.e. host:channel:id:lun */
     int			dev_host;
     int			dev_channel;
     int			dev_id;
     int			dev_lun;
-    char		*dev_type;
-    char		*dev_name;
+    char		*dev_name;  /* block device name (metric value) */
 } scsi_entry_t;
 
-typedef struct {
-    int           	nscsi;
-    scsi_entry_t 	*scsi;
-    pmdaIndom   	*scsi_indom;
-} proc_scsi_t;
-
-extern int refresh_proc_scsi(proc_scsi_t *);
+extern int refresh_proc_scsi(pmInDom indom);

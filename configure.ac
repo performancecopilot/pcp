@@ -113,6 +113,12 @@ AC_ARG_WITH([papi],
     [do_papi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-papi=$withval"],
     [do_papi=check])
 
+AC_ARG_WITH([perfevent],
+    [AC_HELP_STRING([--with-perfevent],
+		   [enable perfevent pmda (default is on)])],
+    [do_perfevent=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perfevent=$withval"],
+    [do_perfevent=check])
+
 AC_ARG_WITH([manager],
     [AC_HELP_STRING([--with-manager],
 		   [enable daemon manager (default is on)])],
@@ -517,7 +523,7 @@ AS_IF([test "x$do_python3" != "xno"], [
 	AC_CHECK_HEADERS([python${PY_MAJOR}.${PY_MINOR}m/Python.h], [], [
 	    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
 	    echo Cannot proceed with the Python $PY_MAJOR installation found.
-	    enable_python=false
+	    enable_python3=false
 	])
     fi
 
@@ -1182,6 +1188,7 @@ AC_CHECK_HEADERS(netdb.h sys/socket.h netinet/in.h netinet/tcp.h arpa/inet.h)
 AC_CHECK_HEADERS(windows.h winsock2.h ws2tcpip.h)
 AC_CHECK_HEADERS(execinfo.h bits/wordsize.h)
 AC_CHECK_HEADERS(iptypes.h, [], [], [#include <windows.h>])
+AC_CHECK_HEADERS(fts.h)
 
 dnl Check if we have <sys/endian.h> ... standard way
 AC_MSG_CHECKING([for sys/endian.h ])
@@ -1295,6 +1302,46 @@ AS_IF([test "x$do_papi" != "xno"], [
 ])
 AC_SUBST(PMDA_PAPI, $pmda_papi)
 
+AS_IF([test "x$pmda_papi" = "xtrue"], [
+    	dnl check if struct PAPI_component_info_t has a disabled field
+	AC_MSG_CHECKING([whether struct PAPI_component_info_t has a disabled field])
+cat <<End-of-File >conftest.c
+#include <papi.h>
+int main() { PAPI_component_info_t *c; c->disabled = 0; }
+End-of-File
+	(eval $ac_compile) 2>conftest.out
+	cat conftest.out >&5
+    	if test -s conftest.out
+    	then
+	   AC_MSG_RESULT(no)
+    	else
+    	   AC_DEFINE(HAVE_PAPI_DISABLED_COMP)
+    	   AC_MSG_RESULT(yes)
+
+    	fi
+    	rm -f conftest.*
+])
+
+pmda_perfevent=false
+AS_IF([test "x$do_perfevent" != "xno" ], [
+    enable_perfevent=true
+
+    savedLIBS=$LIBS
+    AC_CHECK_LIB([pfm], [pfm_get_os_event_encoding],
+		 [pfm_libs="-lpfm"],
+		 [enable_perfevent=false])
+    AC_CHECK_HEADERS([perfmon/pfmlib_perf_event.h], [], [enable_perfevent=false])
+    if test "$do_perfevent" != "check" -a "$enable_papi" != "true"
+    then
+	AC_MSG_ERROR(libpfm is not installed, cannot enable the perfevent PMDA)
+    else
+	pmda_perfevent=$enable_perfevent
+    fi
+    LIBS=$savedLIBS
+    AC_SUBST(PFM_LIBS, $pfm_libs)
+])
+AC_SUBST(PMDA_PERFEVENT, $pmda_perfevent)
+
 dnl Do you have RPM Package Manager libraries for pmdarpm?
 pmda_rpm=false
 savedLIBS=$LIBS
@@ -1366,6 +1413,7 @@ AC_CHECK_FUNCS(getuid getgid)
 AC_CHECK_FUNCS(getgrent getgrent_r getgrnam getgrnam_r getgrgid getgrgid_r)
 AC_CHECK_FUNCS(getpwent getpwent_r getpwnam getpwnam_r getpwuid getpwuid_r)
 AC_CHECK_FUNCS(sysinfo trace_back_stack backtrace)
+AC_CHECK_FUNCS(sendmsg recvmsg setns)
 
 dnl only define readdir64 on non-linux platforms that support it
 if test $target_os != linux -a $target_os != freebsd -a $target_os != kfreebsd -a $target_os != netbsd; then

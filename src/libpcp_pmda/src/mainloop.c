@@ -383,12 +383,12 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 #endif
 	break;
 
-    case PDU_AUTH:
+    case PDU_ATTR:
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_LIBPMDA)
-	    __pmNotifyErr(LOG_DEBUG, "Received PDU_AUTH\n");
+	    __pmNotifyErr(LOG_DEBUG, "Received PDU_ATTR\n");
 #endif
-	if (__pmDecodeAuth(pb, &subtype, &buffer, &length) < 0) 
+	if (__pmDecodeAttr(pb, &subtype, &buffer, &length) < 0) 
 	    break;
 	if (HAVE_V_SIX(dispatch->comm.pmda_interface)) {
 	    ctxnum = dispatch->version.six.ext->e_context;

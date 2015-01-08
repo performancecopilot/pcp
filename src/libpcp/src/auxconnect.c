@@ -961,8 +961,10 @@ __pmAuxConnectPMCDUnixSocket(const char *sock_path)
     /* Attempt to connect */
     fdFlags = __pmConnectTo(fd, myAddr, -1);
     __pmSockAddrFree(myAddr);
-    if (fdFlags < 0)
+    if (fdFlags < 0) {
+	__pmCloseSocket(fd);
 	return -ECONNREFUSED;
+    }
 
     /* FNDELAY and we're in progress - wait on select */
     stv = canwait;

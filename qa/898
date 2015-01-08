@@ -14,23 +14,21 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-# test for-some-thing || _notrun No support for some-thing
-
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
-mkdir $tmp
+mkdir $tmp.mv
 for i in 20140417.00.25 20140417.00.55
 do
     for ext in 0 index meta
     do
-	cp src/foo.$ext $tmp/$i.$ext
+	cp src/foo.$ext $tmp.mv/$i.$ext
     done
 done
 
 # real QA test starts here
-cd $tmp
+cd $tmp.mv
 echo "arg is .0 file name case"
 pmlogmv -N 20140417.00.25.0 destination
 

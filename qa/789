@@ -1,0 +1,76 @@
+#!/bin/sh
+# PCP QA Test No. 789
+# pmdapapi native metrics test
+#
+# Copyright (c) 2014 Red Hat Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d $PCP_PMDAS_DIR/papi ] || _notrun "PAPI PMDA is not installed"
+
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter_papi_errors()
+{
+    sed \
+	-e '/pfm_find_full_event(.*): event not found./d' \
+	-e '/events in papi_events.csv were not valid./d' \
+    # end
+}
+
+_filter()
+{
+    sed \
+	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+	-e 's/value [0-9][0-9]*/value NUMBER/' \
+	-e 's/TOT_INS(5): [0-9][0-9]*/TOT_INS(5) NUMBER/' \
+	-e 's/TOT_INS(-1): [0-9][0-9]*/TOT_INS(-1) NUMBER/' \
+	-e 's/0x[0-9a-f]*/ADDR/g' \
+	-e 's/[0-2][0-9]:00:00.000/TIME/' \
+	-e 's/126.0.[0-9][0-9]*/126.0.NUMBER/' \
+    | _filter_papi_errors
+}
+
+_pmu_present()
+{
+    grep "Error*" $@; if [ $? -eq 0 ]; then _notrun "PAPI native metrics not found on hardware"; fi
+}
+
+# vars and checks
+papirootpmns=$PCP_PMDAS_DIR/papi/root
+pipepmda=$PCP_PMDAS_DIR/papi/pmdapapi
+[ ! -f $papirootpmns ] && echo "FATAL ERROR Could not find \"$papirootpmns\"" && exit 1
+[ ! -f $pipepmda ] && echo "FATAL ERROR Could not find \"$pipepmda\"" && exit 1
+
+# Check if native pmu's are present, else, _notrun the test
+$sudo dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _pmu_present
+open pipe $pipepmda -d 126
+getdesc on
+attr "username" "root"
+attr 11 "0"
+traverse papi.system.perf
+EOF
+
+
+echo "=== Daemon PMDA papi native events test ==="
+$sudo dbpmda -n $papirootpmns -ie <<EOF | _filter
+open pipe $pipepmda -d 126
+getdesc on
+attr "username" "root"
+attr 11 "0"
+store papi.control.enable "perf.CYCLES"
+fetch papi.system.perf.CYCLES
+store papi.control.disable "perf.CYCLES"
+EOF
+# success, all done
+status=0
+
+exit

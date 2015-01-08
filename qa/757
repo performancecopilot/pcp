@@ -1,0 +1,97 @@
+#!/bin/sh
+# PCP QA Test No. 757
+# Exercise the perfevent PMDA.
+#
+# Copyright (c) 2014 Joseph White.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+test -e $PCP_PMDAS_DIR/perfevent/pmdaperfevent || _notrun "Optional perfevent PMDA not present"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+
+perfevent_remove()
+{
+    echo
+    echo "=== remove perfevent agent ==="
+    sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+perfevent_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/perfevent
+    $sudo ./Remove >/dev/null 2>&1
+    $sudo $PCP_RC_DIR/pmcd stop
+
+    [ -f $PCP_PMDAS_DIR/perfevent/perfevent.conf ] && \
+    $sudo cp $PCP_PMDAS_DIR/perfevent/perfevent.conf $tmp.backup
+    $sudo cp $here/perfevent/perfevent.conf $PCP_PMDAS_DIR/perfevent
+
+    echo
+    echo "=== $iam agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    # Check for warnings, we're going to considering these warnings
+    # indications that there is not perfevents on the current machine
+    grep "warnings" $tmp.out; if [ $? -eq 0 ]; then _notrun "perfevents not found"; fi
+    # Check perfevent metrics have appeared ... X metrics and Y values
+    _filter_pmda_install <$tmp.out \
+    | sed \
+	-e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+    | $PCP_AWK_PROG '
+/Check perfevent metrics have appeared/ { 
+                                          if ($10 >= 8) $10 = "Y"
+                                        }
+                                        { print }'
+}
+
+perfevent_cleanup()
+{
+    if [ -f $tmp.backup ]; then
+        $sudo cp $tmp.backup $PCP_PMDAS_DIR/perfevent/perfevent.conf
+        $sudo rm $tmp.backup
+    else
+        $sudo rm -f $PCP_PMDAS_DIR/perfevent/perfevent.conf
+    fi
+    _cleanup_pmda perfevent
+}
+
+_prepare_pmda perfevent
+trap "perfevent_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_perfevent()
+{
+    # filter metric values for deterministic output
+    tee -a $here/$seq.full | sed \
+        -e 's/value [0-9][0-9]*/value NUMBER/'
+}
+
+# real QA test starts here
+perfevent_install
+
+# pmdaperfevent should have been started by the Install process - check
+if pminfo -v perfevent > $tmp.info 2> $tmp.err
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+cat $tmp.info $tmp.err | _filter_perfevent
+
+# Check that the correct metrics are present
+pminfo perfevent
+
+perfevent_remove
+# success, all done
+status=0
+exit

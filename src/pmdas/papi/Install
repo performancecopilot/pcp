@@ -24,4 +24,8 @@ forced_restart=true
 
 pmdaSetup
 pmdaInstall
+
+# Shut down any counters auto-enabled during the pmdaInstall step
+pmstore papi.control.reset "" >/dev/null
+
 exit 0

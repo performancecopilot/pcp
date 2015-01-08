@@ -210,6 +210,7 @@ record-setarg
 reduce-gap.0
 reduce-gap.index
 reduce-gap.meta
+rootclient
 rtimetest
 scale
 slow_af
@@ -233,6 +234,7 @@ truncbin.meta
 tstate
 tztest
 unpack
+units-parse
 username
 whichtimezone
 wrap_int

@@ -10,6 +10,21 @@ tmp=/var/tmp/$$
 sts=0
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
+# add additional and optional directories
+for dir in /sbin /usr/sbin
+do
+    if [ -d "$dir" ]
+    then
+	if echo ":$PATH:" | grep -q ":$dir:"
+	then
+	    :
+	else
+	    export PATH="$PATH:$dir"
+	    #debug# echo add $dir to \$PATH
+	fi
+    fi
+done
+
 # same function is in check-vm ... need to track changes
 #
 _getnetworkaddr()
@@ -44,7 +59,7 @@ p
 		mask=`cat $tmp.addr | sed -e 's/.* //'`
 		case "$mask"
 		in
-		    255.255.255.0)	# /24 network
+		    255.255.255.0|0xffffff00)	# /24 network
 			echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
 			;;
 		    # pmcd's [access] is not smart enough to handle other

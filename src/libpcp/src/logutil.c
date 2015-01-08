@@ -896,7 +896,7 @@ done:
 		char	*q;
 		int	vol;
 		vol = (int)strtol(tp, &q, 10);
-		if (*q != '0') {
+		if (*q != '\0') {
 		    /* may have one of the trailing compressed file suffixes */
 		    int		i;
 		    for (i = 0; i < ncompress; i++) {

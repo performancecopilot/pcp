@@ -77,16 +77,10 @@ proc_ctx_set_groupid(int ctx, const char *value)
 int
 proc_ctx_attrs(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
 {
-    if (pmDebug & DBG_TRACE_AUTH) {
-	char buffer[256];
+    int	sts;
 
-	if (!__pmAttrStr_r(attr, value, buffer, sizeof(buffer))) {
-	    __pmNotifyErr(LOG_ERR, "Bad Attribute: ctx=%d, attr=%d\n", ctx, attr);
-	} else {
-	    buffer[sizeof(buffer)-1] = '\0';
-	    __pmNotifyErr(LOG_INFO, "Attribute: ctx=%d %s", ctx, buffer);
-	}
-    }
+    if ((sts = pmdaAttribute(ctx, attr, value, length, pmda)) < 0)
+	return sts;
 
     switch (attr) {
     case PCP_ATTR_USERID:
@@ -109,6 +103,22 @@ proc_ctx_init(void)
 }
 
 int
+proc_ctx_getuid(int ctx)
+{
+    proc_perctx_t *pp;
+
+    if (ctx < 0 || ctx >= num_ctx)
+	return -1;
+
+    pp = &ctxtab[ctx];
+
+    if ( (pp->state & CTX_ACTIVE) && (pp->state & CTX_USERID) )
+	return pp->uid;
+    else
+	return -1;
+}
+
+int
 proc_ctx_access(int ctx)
 {
     proc_perctx_t *pp;
@@ -123,8 +133,8 @@ proc_ctx_access(int ctx)
     if (pp->state & CTX_GROUPID) {
 	accessible++;
 	if (basegid != pp->gid) {
-	    if (setegid(pp->gid) < 0) {
-		__pmNotifyErr(LOG_ERR, "setegid(%d) access failed: %s\n",
+	    if (setresgid(pp->gid,pp->gid,-1) < 0) {
+		__pmNotifyErr(LOG_ERR, "set*gid(%d) access failed: %s\n",
 			      pp->gid, osstrerror());
 		accessible--;
 	    }
@@ -133,8 +143,8 @@ proc_ctx_access(int ctx)
     if (pp->state & CTX_USERID) {
 	accessible++;
 	if (baseuid != pp->uid) {
-	    if (seteuid(pp->uid) < 0) {
-		__pmNotifyErr(LOG_ERR, "seteuid(%d) access failed: %s\n",
+	    if (setresuid(pp->uid,pp->uid,-1) < 0) {
+		__pmNotifyErr(LOG_ERR, "set*uid(%d) access failed: %s\n",
 			      pp->uid, osstrerror());
 		accessible--;
 	    }
@@ -155,13 +165,13 @@ proc_ctx_revert(int ctx)
 	return 0;
 
     if ((pp->state & CTX_USERID) && baseuid != pp->uid) {
-	if (seteuid(baseuid) < 0)
-	    __pmNotifyErr(LOG_ERR, "seteuid(%d) revert failed: %s\n",
+	if (setresuid(baseuid,baseuid,-1) < 0)
+	    __pmNotifyErr(LOG_ERR, "set*uid(%d) revert failed: %s\n",
 			  baseuid, osstrerror());
     }
     if ((pp->state & CTX_GROUPID) && basegid != pp->gid) {
-	if (setegid(basegid) < 0)
-	    __pmNotifyErr(LOG_ERR, "setegid(%d) revert failed: %s\n",
+	if (setresgid(basegid,basegid,-1) < 0)
+	    __pmNotifyErr(LOG_ERR, "set*gid(%d) revert failed: %s\n",
 			  basegid, osstrerror());
     }
     return 0;

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2014 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -19,7 +19,6 @@ include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
 CFILES = data.c trace.c client.c
-LSRCFILES = pmcd.stp.in probes.d
 
 LCFLAGS = -I$(TOPDIR)/src/pmcd/src -I$(TOPDIR)/src/libpcp/src -DPMCD_INTERNAL
 LLDLIBS = -lpcp

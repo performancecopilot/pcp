@@ -422,10 +422,9 @@ NF==0					{ next }
 state == 2				{ print >"'$tmp/pmcd.access'"; next }
 $1=="'$myname'" && $2=="'$mydomain'"	{ next }
 					{ print >"'$tmp/pmcd.body'"; next }'
-    ( cat $tmp/pmcd.body \
-      ; echo "$1" \
-      ; cat $tmp/pmcd.access \
-    ) >$PCP_PMCDCONF_PATH
+    echo "$1" >> $tmp/pmcd.body 
+    ( LC_COLLATE=POSIX sort -n -k2 $tmp/pmcd.body; echo; cat $tmp/pmcd.access )\
+    >$PCP_PMCDCONF_PATH
     rm -f $tmp/pmcd.access $tmp/pmcd.body
     eval $CHOWN root $PCP_PMCDCONF_PATH
     eval $CHMOD 644 $PCP_PMCDCONF_PATH
@@ -491,6 +490,7 @@ __check_domain()
     # have something like
     #	#define FOO 123
     #
+    __root="$ROOT"	# saved, so we do not overwrite ROOT
     domain=''
     eval `$PCP_AWK_PROG <$__infile '
 /^#define/ && $3 ~ /^[0-9][0-9]*$/	{ print $2 "=" $3
@@ -501,6 +501,12 @@ __check_domain()
 					seen = 1
 				      }
 				    }'`
+    if [ "X$__root" != X ]	# restore ROOT if it was set before
+    then
+	export ROOT="$__root"
+    else
+	unset ROOT
+    fi
     if [ "X$domain" = X ]
     then
 	echo "Install: cannot determine the Performance Metrics Domain from ./domain.h"

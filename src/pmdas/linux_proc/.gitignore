@@ -4,3 +4,8 @@ pmda_proc.so
 help.dir
 help.pag
 exports
+pmdaproc.1.gz
+pmdaproc.1.lzma
+pmdaproc.1.xz
+pmdaproc.1.bz2
+gram.tab.h

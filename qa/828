@@ -107,6 +107,15 @@ cat >$tmp.suppress <<End-of-File
    fun:pmGetArchiveEnd
 }
 {
+   <vm02 - openSUSE 12.1 version of above>
+   Memcheck:Leak
+   fun:malloc
+   fun:__pmFindPDUBuf
+   fun:__pmLogRead
+   fun:__pmGetArchiveEnd
+   obj:*
+}
+{
    <case 1 - buf hdr in __pmFindPDUBuf from pmGetArchiveEnd - valloc variant>
    Memcheck:Leak
    fun:memalign
@@ -116,6 +125,16 @@ cat >$tmp.suppress <<End-of-File
    ...
    fun:__pmGetArchiveEnd
    fun:pmGetArchiveEnd
+}
+{
+   <vm02 - openSUSE 12.1 version of above>
+   Memcheck:Leak
+   fun:memalign
+   fun:valloc
+   fun:__pmFindPDUBuf
+   fun:__pmLogRead
+   fun:__pmGetArchiveEnd
+   obj:*
 }
 {
    <case 2 - buf hdr in __pmFindPDUBuf from pmGetArchiveEnd>
@@ -153,6 +172,27 @@ cat >$tmp.suppress <<End-of-File
    fun:pmFetch
 }
 {
+   <vm02 - openSUSE 12.1 version of above>
+   Memcheck:Leak
+   fun:memalign
+   fun:valloc
+   fun:__pmFindPDUBuf
+   fun:__pmLogRead
+   fun:cache_read
+   fun:do_roll
+   obj:*
+}
+{
+   <vm02 - openSUSE 12.1 version of above>
+   Memcheck:Leak
+   fun:malloc
+   fun:__pmFindPDUBuf
+   fun:__pmLogRead
+   fun:cache_read
+   fun:do_roll
+   obj:*
+}
+{
    <case 2 - PDU buf alloc>
    Memcheck:Leak
    ...
@@ -182,6 +222,41 @@ cat >$tmp.suppress <<End-of-File
    fun:__pmSetVersionIPC
    fun:__pmLogChkLabel
    fun:__pmLogChangeVol
+}
+{
+    <vm02 - openSUSE 12.1 valgrind snarfoo>
+    Memcheck:Cond
+    fun:strlen
+    obj:* 
+}
+# and on vm07 this appears broken
+# Conditional jump or move depends on uninitialised value(s)
+# at 0x4016536: index (strchr.S:56)
+# by 0x4007352: expand_dynamic_string_token (dl-load.c:431)
+# by 0x4007791: _dl_map_object (dl-load.c:2261)
+# by 0x400185D: map_doit (rtld.c:633)
+# by 0x400D905: _dl_catch_error (dl-error.c:178)
+# by 0x4001776: do_preload (rtld.c:817)
+# by 0x400487C: dl_main (rtld.c:1683)
+# by 0x4014A76: _dl_sysdep_start (dl-sysdep.c:243)
+# by 0x4001422: _dl_start (rtld.c:338)
+# by 0x4000AF7: ??? (in /lib/ld-2.11.3.so)
+# by 0x8: ???
+# by 0x7FF000046: ???
+{
+   <vm07 ld/_dl_start botch>
+   Memcheck:Cond
+   fun:index
+   fun:expand_dynamic_string_token
+   fun:_dl_map_object
+   fun:map_doit
+   fun:_dl_catch_error
+   fun:do_preload
+   fun:dl_main
+   fun:_dl_sysdep_start
+   fun:_dl_start
+   ...
+   obj:*
 }
 End-of-File
 

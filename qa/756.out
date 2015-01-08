@@ -1,0 +1,75 @@
+QA output created by 756
+ ===== test_init ==== 
+ ===== test_fail_init ==== 
+ ===== test_lots_of_counters ==== 
+data[0].name = DTLB_MISSES data[0].instances = 1
+	value[0] = 0
+data[1].name = SEGMENT_REG_LOADS data[1].instances = 1
+	value[0] = 0
+data[2].name = SB_DRAIN_CYCLES data[2].instances = 1
+	value[0] = 0
+data[3].name = RS_UOPS_DISPATCHED_NONE data[3].instances = 1
+	value[0] = 0
+data[4].name = RS_UOPS_DISPATCHED data[4].instances = 1
+	value[0] = 0
+data[5].name = RS_UOPS_DISPATCHED_CYCLES data[5].instances = 1
+	value[0] = 0
+data[6].name = MISPREDICTED_BRANCH_RETIRED data[6].instances = 1
+	value[0] = 0
+data[7].name = BRANCH_INSTRUCTIONS_RETIRED data[7].instances = 1
+	value[0] = 0
+data[8].name = LAST_LEVEL_CACHE_MISSES data[8].instances = 1
+	value[0] = 0
+data[9].name = LLC_MISSES data[9].instances = 1
+	value[0] = 0
+data[10].name = LAST_LEVEL_CACHE_REFERENCES data[10].instances = 1
+	value[0] = 0
+data[11].name = LLC_REFERENCES data[11].instances = 1
+	value[0] = 0
+data[12].name = UNHALTED_REFERENCE_CYCLES data[12].instances = 1
+	value[0] = 0
+data[13].name = INSTRUCTIONS_RETIRED data[13].instances = 1
+	value[0] = 0
+ ===== test_config ==== 
+ ===== test_config_filenotfound ==== 
+ ===== test_config_syntax_error ==== 
+ ===== test_config_empty ==== 
+ ===== test_pfm_fail_init ==== 
+ ===== test_perf_strerror ==== 
+ ===== test_missing_pmu_config ==== 
+ ===== test_api_safety ==== 
+ ===== test_malloc_checking ==== 
+ ===== test_node_rr ==== 
+ ===== test_event_programming_fail ==== 
+ ===== test_rapl ==== 
+data[0].name = DTLB_MISSES data[0].instances = 1
+	value[0] = 0
+data[1].name = SEGMENT_REG_LOADS data[1].instances = 1
+	value[0] = 0
+data[2].name = SB_DRAIN_CYCLES data[2].instances = 1
+	value[0] = 0
+data[3].name = RS_UOPS_DISPATCHED_NONE data[3].instances = 1
+	value[0] = 0
+data[4].name = RS_UOPS_DISPATCHED data[4].instances = 1
+	value[0] = 0
+data[5].name = RS_UOPS_DISPATCHED_CYCLES data[5].instances = 1
+	value[0] = 0
+data[6].name = MISPREDICTED_BRANCH_RETIRED data[6].instances = 1
+	value[0] = 0
+data[7].name = BRANCH_INSTRUCTIONS_RETIRED data[7].instances = 1
+	value[0] = 0
+data[8].name = LAST_LEVEL_CACHE_MISSES data[8].instances = 1
+	value[0] = 0
+data[9].name = LLC_MISSES data[9].instances = 1
+	value[0] = 0
+data[10].name = LAST_LEVEL_CACHE_REFERENCES data[10].instances = 2
+	value[0] = 0
+	value[1] = 0
+data[11].name = LLC_REFERENCES data[11].instances = 2
+	value[0] = 0
+	value[1] = 0
+data[12].name = UNHALTED_REFERENCE_CYCLES data[12].instances = 1
+	value[0] = 0
+data[13].name = INSTRUCTIONS_RETIRED data[13].instances = 1
+	value[0] = 0
+Unit tests Passed

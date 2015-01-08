@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2014 Red Hat.
 # Copyright (c) 2000-2008 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -12,10 +12,6 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 # 
 # Start or Stop the Performance Co-Pilot Collection Daemon (PMCD)
 #
@@ -118,7 +114,7 @@ _reboot_setup()
     #
     if [ ! -d "$PCP_TMP_DIR/pmlogger" ]
     then
-	mkdir -p -m 777 "$PCP_TMP_DIR/pmlogger"
+	mkdir -p -m 775 "$PCP_TMP_DIR/pmlogger"
 	chown $PCP_USER:$PCP_GROUP "$PCP_TMP_DIR/pmlogger"
     else
 	rm -rf $tmp/ent $tmp/pid
@@ -165,6 +161,9 @@ _reboot_setup()
     fi
 }
 
+# Note: _pmda_setup() runs in the background, in parallel with
+# the rest of the script.  It might complete well after the caller.
+#
 _pmda_setup()
 {
     # Auto-Install PMDAs?
@@ -488,7 +487,8 @@ Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
 
 	    $PCP_BINADM_DIR/pmpost "start pmcd from $prog"
 
-	    _pmda_setup
+	    # install any extra PMDAs, in the background
+	    _pmda_setup &
 
 	    # force removal of primary pmlogger link ... if primary
 	    # pmlogger is started, this will re-create the link

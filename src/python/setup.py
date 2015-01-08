@@ -34,7 +34,7 @@ setup(name = 'pcp',
         Extension('cpmi', ['pmi.c'], libraries = ['pcp_import']),
         Extension('cmmv', ['mmv.c'], libraries = ['pcp_mmv']),
     ],
-    platforms = [ 'Windows', 'Linux', 'FreeBSD', 'Solaris', 'Mac OS X', 'AIX' ],
+    platforms = [ 'Windows', 'Linux', 'FreeBSD', 'NetBSD', 'Solaris', 'Mac OS X', 'AIX' ],
     long_description =
         'PCP provides services to support system-level performance monitoring',
     classifiers = [

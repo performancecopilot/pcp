@@ -84,6 +84,106 @@ negotiate_proxy(int fd, const char *hostname, int port)
 }
 
 /*
+ * Verify that the requested context flags (ctxflags) are
+ * viable given available functionality from pmcd at the
+ * other end of a connection (features).
+ * Returns appropriate PDU flags for the client to send to
+ * pmcd if we can go ahead with the connection, else error.
+ */
+static int
+check_feature_flags(int ctxflags, int features)
+{
+    int		pduflags = 0;
+
+    if (features & PDU_FLAG_CREDS_REQD)
+	/*
+	 * This is a mandatory connection feature - pmcd must be
+	 * sent user credential information one way or another -
+	 * i.e. via SASL2 authentication, or AF_UNIX peer creds.
+	 */
+	pduflags |= PDU_FLAG_CREDS_REQD;
+
+    if (ctxflags) {
+	/*
+	 * If an optional connection feature (e.g. encryption) is
+	 * desired, the pmcd that we're talking to must advertise
+	 * support for the feature.  And if it did, the client in
+	 * turn must request it be enabled (now, via pduflags).
+	 */
+	if (ctxflags & (PM_CTXFLAG_SECURE|PM_CTXFLAG_RELAXED)) {
+	    if (features & PDU_FLAG_SECURE) {
+		pduflags |= PDU_FLAG_SECURE;
+		/*
+		 * Determine whether the server can send an ACK for a
+		 * secure connection request. We can still connect
+		 * whether it does or not, but we need to know the
+		 * protocol.
+		 */
+		if (features & PDU_FLAG_SECURE_ACK)
+		    pduflags |= PDU_FLAG_SECURE_ACK;
+	    } else if (ctxflags & PM_CTXFLAG_SECURE) {
+		return -EOPNOTSUPP;
+	    }
+	}
+	if (ctxflags & PM_CTXFLAG_COMPRESS) {
+	    if (features & PDU_FLAG_COMPRESS)
+		pduflags |= PDU_FLAG_COMPRESS;
+	    else
+		return -EOPNOTSUPP;
+	}
+	if (ctxflags & PM_CTXFLAG_AUTH) {
+	    if (features & PDU_FLAG_AUTH)
+		pduflags |= PDU_FLAG_AUTH;
+	    else
+		return -EOPNOTSUPP;
+	}
+	if (ctxflags & PM_CTXFLAG_CONTAINER) {
+	    if (features & PDU_FLAG_CONTAINER)
+		pduflags |= PDU_FLAG_CONTAINER;
+	    else
+		return -EOPNOTSUPP;
+	}
+    }
+    return pduflags;
+}
+
+static int
+container_handshake(int fd, __pmHashCtl *attrs)
+{
+    __pmHashNode *node;
+    const char *name;
+    int length;
+
+    if ((node = __pmHashSearch(PCP_ATTR_CONTAINER, attrs)) == NULL)
+	return -ESRCH;
+    if ((name = (const char *)node->data) == NULL)
+	return -ESRCH;
+    length = strlen(name);
+
+    if (pmDebug & DBG_TRACE_CONTEXT)
+	fprintf(stderr, "%s:__pmConnectHandshake container=\"%s\" [%d]\n",
+		__FILE__, name, length);
+
+    return __pmSendAttr(fd, FROM_ANON, PCP_ATTR_CONTAINER, name, length);
+}
+
+static int
+attributes_handshake(int fd, int flags, const char *host, __pmHashCtl *attrs)
+{
+    int sts;
+
+    if ((sts = __pmSecureClientHandshake(fd, flags, host, attrs)) < 0)
+	return sts;
+
+    /* additional connection attributes, done after secure setup */
+    if (((flags & PDU_FLAG_CONTAINER) != 0) &&
+	((sts = container_handshake(fd, attrs)) < 0))
+	return sts;
+
+    return 0;
+}
+
+/*
  * client connects to pmcd handshake
  */
 static int
@@ -123,82 +223,38 @@ __pmConnectHandshake(int fd, const char *hostname, int ctxflags, __pmHashCtl *at
 	if (version == PDU_VERSION2) {
 	    __pmPDUInfo		pduinfo;
 	    __pmVersionCred	handshake;
-	    int			pduflags = 0;
+	    int			pduflags;
 
 	    pduinfo = __ntohpmPDUInfo(*(__pmPDUInfo *)&challenge);
-
-	    if (pduinfo.features & PDU_FLAG_CREDS_REQD)
-		/*
-		 * This is a mandatory connection feature - pmcd must be
-		 * sent user credential information one way or another -
-		 * i.e. via SASL2 authentication, or AF_UNIX peer creds.
-		 */
-		pduflags |= PDU_FLAG_CREDS_REQD;
-
-	    if (ctxflags) {
-		/*
-		 * If an optional connection feature (e.g. encryption) is
-		 * desired, the pmcd that we're talking to must advertise
-		 * support for the feature.  And if it did, the client in
-		 * turn must request it be enabled (now, via pduflags).
-		 */
-		if (ctxflags & (PM_CTXFLAG_SECURE|PM_CTXFLAG_RELAXED)) {
-		    if (pduinfo.features & PDU_FLAG_SECURE) {
-			pduflags |= PDU_FLAG_SECURE;
-			/*
-			 * Determine whether the server can send an ACK for a
-			 * secure connection request. We can still connect
-			 * whether it does or not, but we need to know the
-			 * protocol.
-			 */
-			if (pduinfo.features & PDU_FLAG_SECURE_ACK)
-			    pduflags |= PDU_FLAG_SECURE_ACK;
-		    } else if (ctxflags & PM_CTXFLAG_SECURE) {
-			__pmUnpinPDUBuf(pb);
-			return -EOPNOTSUPP;
-		    }
-		}
-		if (ctxflags & PM_CTXFLAG_COMPRESS) {
-		    if (pduinfo.features & PDU_FLAG_COMPRESS)
-			pduflags |= PDU_FLAG_COMPRESS;
-		    else {
-			__pmUnpinPDUBuf(pb);
-			return -EOPNOTSUPP;
-		    }
-		}
-		if (ctxflags & PM_CTXFLAG_AUTH) {
-		    if (pduinfo.features & PDU_FLAG_AUTH)
-			pduflags |= PDU_FLAG_AUTH;
-		    else {
-			__pmUnpinPDUBuf(pb);
-			return -EOPNOTSUPP;
-		    }
-		}
+	    pduflags = sts = check_feature_flags(ctxflags, pduinfo.features);
+	    if (sts < 0) {
+		__pmUnpinPDUBuf(pb);
+		return sts;
 	    }
 
-	    /*
-	     * Negotiate connection version and features (via creds PDU)
-	     */
 	    if ((ok = __pmSetVersionIPC(fd, version)) < 0) {
 		__pmUnpinPDUBuf(pb);
 		return ok;
 	    }
 
+	    /*
+	     * Negotiate connection version and features (via creds PDU)
+	     */
 	    memset(&handshake, 0, sizeof(handshake));
 	    handshake.c_type = CVERSION;
 	    handshake.c_version = PDU_VERSION;
 	    handshake.c_flags = pduflags;
-
 	    sts = __pmSendCreds(fd, (int)getpid(), 1, (__pmCred *)&handshake);
 
 	    /*
-	     * At this point we know caller wants to set channel options and
-	     * pmcd supports them so go ahead and update the socket now (this
+	     * At this point we know the caller wants to set channel options
+	     * and pmcd supports them so go ahead and update the socket (this
 	     * completes the SSL handshake in encrypting mode, authentication
-	     * via SASL, and/or enabling compression in NSS).
+	     * via SASL, enabling compression in NSS, and any other requested
+	     * connection attributes).
 	     */
 	    if (sts >= 0 && pduflags)
-		sts = __pmSecureClientHandshake(fd, pduflags, hostname, attrs);
+		sts = attributes_handshake(fd, pduflags, hostname, attrs);
 	}
 	else
 	    sts = PM_ERR_IPC;
@@ -315,6 +371,11 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
 	/* Try connecting via the local unix domain socket, if requested and supported. */
 	if (nports == PM_HOST_SPEC_NPORTS_LOCAL || nports == PM_HOST_SPEC_NPORTS_UNIX) {
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
+#ifdef PCP_DEBUG
+	    if ((pmDebug & DBG_TRACE_CONTEXT) && (pmDebug & DBG_TRACE_DESPERATE)) {
+		fprintf(stderr, "__pmConnectPMCD: trying __pmAuxConnectPMCDUnixSocket(%s) ...\n", name);
+	    }
+#endif
 	    if ((fd = __pmAuxConnectPMCDUnixSocket(name)) >= 0) {
 		if ((sts = __pmConnectHandshake(fd, name, ctxflags, attrs)) < 0) {
 		    __pmCloseSocket(fd);
@@ -343,6 +404,11 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
 	/* If still not connected, try via the given host name and ports, if requested. */
 	if (sts == -1) {
 	    for (portIx = 0; portIx < nports; portIx++) {
+#ifdef PCP_DEBUG
+		if ((pmDebug & DBG_TRACE_CONTEXT) && (pmDebug & DBG_TRACE_DESPERATE)) {
+		    fprintf(stderr, "__pmConnectPMCD: trying __pmAuxConnectPMCDPort(%s, %d) ...\n", name, ports[portIx]);
+		}
+#endif
 		if ((fd = __pmAuxConnectPMCDPort(name, ports[portIx])) >= 0) {
 		    if ((sts = __pmConnectHandshake(fd, name, ctxflags, attrs)) < 0) {
 			__pmCloseSocket(fd);
@@ -397,6 +463,11 @@ __pmConnectPMCD(pmHostSpec *hosts, int nhosts, int ctxflags, __pmHashCtl *attrs)
     proxyport = (proxyhost->nports > 0) ? proxyhost->ports[0] : PROXY_PORT;
 
     for (portIx = 0; portIx < nports; portIx++) {
+#ifdef PCP_DEBUG
+	if ((pmDebug & DBG_TRACE_CONTEXT) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	    fprintf(stderr, "__pmConnectPMCD: trying __pmAuxConnectPMCDPort(%s, %d) ...\n", proxyhost->name, proxyport);
+	}
+#endif
 	fd = __pmAuxConnectPMCDPort(proxyhost->name, proxyport);
 	if (fd < 0) {
 #ifdef PCP_DEBUG

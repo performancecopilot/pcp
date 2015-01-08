@@ -22,6 +22,12 @@ _cleanup()
     rmdir $grp 2>/dev/null
 }
 
+_filter()
+{
+    grep -v percpu \
+    | LC_COLLATE=POSIX sort
+}
+
 prefix=cgroup
 grp=/tmp/cgroup_$seq
 status=1	# failure is the default!
@@ -46,32 +52,28 @@ pmda="-Kclear -Kadd,3,$PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init"
 
 # real test starts here
 echo "initial fetch, starting with a clean slate"
-pmprobe -L $pmda -v $prefix.mounts \
-| LC_COLLATE=POSIX sort
+pmprobe -L $pmda -v $prefix.mounts | _filter
 
-echo "cpuset metrics fetch, no user groups defined, single controller"
-$sudo mount -t cgroup -o cpuset none $grp || _fail "cpuset mount"
-pminfo -L $pmda -m $prefix.mounts $prefix.groups \
-| LC_COLLATE=POSIX sort
-$sudo umount $grp || _fail "cpuset umount"
+echo "cpu metrics fetch, no user groups defined, single controller"
+$sudo mount -t cgroup -o cpu none $grp || _fail "cpuset mount"
+pmprobe -v -L $pmda $prefix.mounts | _filter
+pmprobe -I -L $pmda $prefix.cpusched | _filter
+$sudo umount $grp || _fail "cpu umount"
 
 echo "cpuacct and cpuset fetch, no user groups defined, dual controllers"
 $sudo mount -t cgroup -o cpuacct,cpuset none $grp || _fail "cpu,cpuacct mount"
-pminfo -L $pmda -m $prefix.mounts $prefix.groups \
-| LC_COLLATE=POSIX sort
+pmprobe -v -L $pmda $prefix.mounts | _filter
+pmprobe -I -L $pmda $prefix.cpuacct $prefix.cpuset | _filter
 $sudo umount $grp || _fail "cpu,cpuacct cgroup umount"
 
 echo "cpuacct and cpuset fetch, one user group defined, dual controllers"
 $sudo mount -t cgroup -o cpuacct,cpuset none $grp || _fail "cpu,cpuacct mount"
 $sudo mkdir $grp/pcpqa
-pminfo -L $pmda $prefix.mounts $prefix.groups \
-| LC_COLLATE=POSIX sort \
-| xargs pminfo -L -d $pmda -m
+pmprobe -v -L $pmda $prefix.mounts | _filter
+pmprobe -L $pmda $prefix.mounts $prefix.cpuacct $prefix.cpuset | _filter
 $sudo rmdir $grp/pcpqa
 echo "cpuacct and cpuset fetch, one user group removed, dual controllers"
-pminfo -L $pmda $prefix.mounts $prefix.groups \
-| LC_COLLATE=POSIX sort \
-| xargs pminfo -L -d $pmda -m
+pmprobe -I -L $pmda $prefix.mounts $prefix.cpuacct $prefix.cpuset | _filter
 $sudo umount $grp || _fail "cpu,cpuacct cgroup umount"
 
 # success, all done

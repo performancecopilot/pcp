@@ -610,10 +610,12 @@ CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 		cp->pduInfo.features |= (PDU_FLAG_SECURE | PDU_FLAG_SECURE_ACK);
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_COMPRESS))
 		cp->pduInfo.features |= PDU_FLAG_COMPRESS;
-	    if (__pmServerHasFeature(PM_SERVER_FEATURE_AUTH))     /* optionally */
+	    if (__pmServerHasFeature(PM_SERVER_FEATURE_AUTH))       /*optional*/
 		cp->pduInfo.features |= PDU_FLAG_AUTH;
-	    if (__pmServerHasFeature(PM_SERVER_FEATURE_CREDS_REQD)) /* required */
+	    if (__pmServerHasFeature(PM_SERVER_FEATURE_CREDS_REQD)) /*required*/
 		cp->pduInfo.features |= PDU_FLAG_CREDS_REQD;
+	    if (__pmServerHasFeature(PM_SERVER_FEATURE_CONTAINERS))
+		cp->pduInfo.features |= PDU_FLAG_CONTAINER;
 	    challenge = *(__uint32_t *)(&cp->pduInfo);
 	    sts = 0;
 	}
@@ -798,6 +800,7 @@ main(int argc, char *argv[])
     __pmGetUsername(&username);
     __pmSetInternalState(PM_STATE_PMCS);
     __pmServerSetFeature(PM_SERVER_FEATURE_DISCOVERY);
+    __pmServerSetFeature(PM_SERVER_FEATURE_CONTAINERS);
 
     if ((envstr = getenv("PMCD_PORT")) != NULL)
 	nport = __pmServerAddPorts(envstr);

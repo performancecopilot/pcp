@@ -1,27 +1,57 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.10.0
+Version: 3.10.2
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
-License: GPLv2+ and LGPLv2.1+
+License: GPLv2+ and LGPLv2.1+ and CC-BY
 URL: http://www.pcp.io
 Group: Applications/System
-Source0: pcp-%{version}.src.tar.gz
-Source1: pcp-webjs.src.tar.gz
+Source0: ftp://oss.sgi.com/projects/pcp/download/%{name}-%{version}.src.tar.gz
+Source1: ftp://oss.sgi.com/projects/pcp/download/pcp-webjs.src.tar.gz
 
-# There is no papi-devel package for s390 or prior to rhel6, disable it
+# There are no papi/libpfm devel packages for s390 nor for some rhels, disable
 %ifarch s390 s390x
-%{!?disable_papi: %global disable_papi 1}
+%define disable_papi 1
+%define disable_perfevent 1
 %else
-%{!?disable_papi: %global disable_papi 0%{?rhel} < 6}
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+%define disable_papi 0
+%else
+%define disable_papi 1
 %endif
+%if 0%{?fedora} >= 20 || 0%{?rhel} > 6
+%define disable_perfevent 0
+%else
+%define disable_perfevent 1
+%endif
+%endif
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1169226
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %define disable_microhttpd 0
+%else
+%define disable_microhttpd 1
+%endif
+# Cairo headers on el5 incompatible with graphite code
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+%define disable_cairo 0
+%else
+%define disable_cairo 1
+%endif
+# Python development environment before el6 is pre-2.6 (too old)
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+%define disable_python2 0
+%else
+%define disable_python2 1
+%endif
+# No python3 development environment before el7
 %if 0%{?rhel} == 0 || 0%{?rhel} > 6
 %define disable_python3 0
 %else
 %define disable_python3 1
 %endif
+# Qt development and runtime environment missing components before el6
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %define disable_qt 0
 %else
@@ -33,7 +63,9 @@ BuildRequires: procps autoconf bison flex
 BuildRequires: nss-devel
 BuildRequires: rpm-devel
 BuildRequires: avahi-devel
+%if !%{disable_python2}
 BuildRequires: python-devel
+%endif
 %if !%{disable_python3}
 BuildRequires: python3-devel
 %endif
@@ -43,8 +75,14 @@ BuildRequires: cyrus-sasl-devel
 %if !%{disable_papi}
 BuildRequires: papi-devel
 %endif
+%if !%{disable_perfevent}
+BuildRequires: libpfm-devel >= 4.4
+%endif
 %if !%{disable_microhttpd}
 BuildRequires: libmicrohttpd-devel
+%endif
+%if !%{disable_cairo}
+BuildRequires: cairo-devel
 %endif
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 BuildRequires: systemtap-sdt-devel
@@ -62,8 +100,9 @@ BuildRequires: systemd-devel
 BuildRequires: desktop-file-utils
 BuildRequires: qt4-devel >= 4.4
 %endif
- 
-Requires: bash gawk sed grep fileutils findutils initscripts perl
+BuildRequires: flex-devel
+
+Requires: bash gawk sed grep fileutils findutils initscripts perl which
 Requires: python
 %if 0%{?rhel} <= 5
 Requires: python-ctypes
@@ -102,14 +141,12 @@ Obsoletes: pcp-pmda-nvidia
 %ifarch s390 s390x
 %define disable_infiniband 1
 %else
-
 # we never want Infiniband on RHEL5 or earlier
 %if 0%{?rhel} != 0 && 0%{?rhel} < 6
 %define disable_infiniband 1
 %else
 %define disable_infiniband 0
 %endif
-
 %endif
 
 %if %{disable_infiniband}
@@ -120,9 +157,10 @@ Obsoletes: pcp-pmda-nvidia
 %define _with_papi --with-papi=yes
 %endif
 
-%if %{disable_qt}
-%define _with_ib --with-qt=no
+%if !%{disable_perfevent}
+%define _with_perfevent --with-perfevent=yes
 %endif
+
 
 %description
 Performance Co-Pilot (PCP) provides a framework and services to support
@@ -155,7 +193,6 @@ License: LGPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot run-time libraries
 URL: http://www.pcp.io
-
 Requires: pcp-conf = %{version}-%{release}
 
 %description libs
@@ -198,7 +235,6 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) manager daemon
 URL: http://www.pcp.io
-
 Requires: pcp = %{version}-%{release}
 Requires: pcp-libs = %{version}-%{release}
 
@@ -223,8 +259,6 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) web API service
 URL: http://www.pcp.io
-
-Requires: pcp = %{version}-%{release}
 Requires: pcp-libs = %{version}-%{release}
 
 %description webapi
@@ -245,9 +279,6 @@ BuildArch: noarch
 %endif
 Summary: Performance Co-Pilot (PCP) web applications
 URL: http://www.pcp.io
-
-Requires: pcp-libs = %{version}-%{release}
-Requires: pcp-webapi = %{version}-%{release}
 
 %description webjs
 Javascript web application content for the Performance Co-Pilot (PCP)
@@ -393,12 +424,29 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for Performance API and hardware counters
 URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
-Requires: papi-devel
 BuildRequires: papi-devel
 
 %description pmda-papi
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting hardware counters statistics through PAPI (Performance API).
+%endif
+
+%if !%{disable_perfevent}
+#
+# pcp-pmda-perfevent
+#
+%package pmda-perfevent
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for hardware counters
+URL: http://www.pcp.io
+Requires: pcp-libs = %{version}-%{release}
+Requires: libpfm >= 4.4
+BuildRequires: libpfm-devel >= 4.4
+
+%description pmda-perfevent
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting hardware counters statistics through libpfm.
 %endif
 
 %if !%{disable_infiniband}
@@ -420,6 +468,7 @@ collecting Infiniband statistics.  By default, it monitors the local HCAs
 but can also be configured to monitor remote GUIDs such as IB switches.
 %endif
 
+%if !%{disable_python2}
 #
 # python-pcp. This is the PCP library bindings for python.
 #
@@ -434,6 +483,7 @@ Requires: pcp-libs = %{version}-%{release}
 This python PCP module contains the language bindings for
 Performance Metric API (PMAPI) monitor tools and Performance
 Metric Domain Agent (PMDA) collector tools written in Python.
+%endif
 
 %if !%{disable_python3}
 #
@@ -474,6 +524,7 @@ monitoring systems using live and archived Performance Co-Pilot
 # pcp-doc package
 #
 %package -n pcp-doc
+License: GPLv2+ and CC-BY
 Group: Documentation
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 BuildArch: noarch
@@ -500,7 +551,7 @@ PCP utilities and daemons, and the PCP graphical tools.
 rm -Rf $RPM_BUILD_ROOT
 
 %build
-%configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_qt}
+%configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_perfevent}
 make default_pcp
 
 %install
@@ -527,7 +578,8 @@ rm -fr $RPM_BUILD_ROOT/%{_initddir}/pmwebd
 rm -fr $RPM_BUILD_ROOT/%{_unitdir}/pmwebd.service
 rm -f $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin/pmwebd
 %else
-mv pcp-webjs $RPM_BUILD_ROOT/%{_datadir}/pcp/jsdemos
+mv pcp-webjs/* $RPM_BUILD_ROOT/%{_datadir}/pcp/webapps
+rmdir pcp-webjs
 %endif
 
 %if %{disable_infiniband}
@@ -540,7 +592,11 @@ rm -fr $RPM_BUILD_ROOT/%{_pmdasdir}/infiniband
 %if %{disable_qt}
 rm -fr $RPM_BUILD_ROOT/%{_pixmapdir}
 rm -fr $RPM_BUILD_ROOT/%{_confdir}/pmsnap
-rm -f `find $RPM_BUILD_ROOT/%{_mandir}/man1 | egrep "$PCP_GUI"`
+rm -fr $RPM_BUILD_ROOT/%{_localstatedir}/lib/pcp/config/pmsnap
+rm -fr $RPM_BUILD_ROOT/%{_localstatedir}/lib/pcp/config/pmchart
+rm -f $RPM_BUILD_ROOT/%{_localstatedir}/lib/pcp/config/pmafm/pcp-gui
+rm -f $RPM_BUILD_ROOT/%{_datadir}/applications/pmchart.desktop
+rm -f `find $RPM_BUILD_ROOT/%{_mandir}/man1 | grep -E "$PCP_GUI"`
 %else
 rm -rf $RPM_BUILD_ROOT/usr/share/doc/pcp-gui
 desktop-file-validate $RPM_BUILD_ROOT/%{_datadir}/applications/pmchart.desktop
@@ -554,9 +610,10 @@ done
 
 # list of PMDAs in the base pkg
 ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
-  egrep -v 'simple|sample|trivial|txmon' |\
-  egrep -v '^ib$|infiniband' |\
-  egrep -v 'papi' |\
+  grep -E -v 'simple|sample|trivial|txmon' |\
+  grep -E -v 'perfevent|perfalloc.1' |\
+  grep -E -v '^ib$|infiniband' |\
+  grep -E -v 'papi' |\
   sed -e 's#^#'%{_pmdasdir}'\/#' >base_pmdas.list
 
 # all base pcp package files except those split out into sub packages
@@ -574,18 +631,18 @@ ls -1 $RPM_BUILD_ROOT/%{_datadir}/pcp/demos/tutorials |\
 ls -1 $RPM_BUILD_ROOT/%{_pixmapdir} |\
   sed -e 's#^#'%{_pixmapdir}'\/#' > pcp-gui.list
 cat base_bin.list base_exec.list base_man.list |\
-  egrep "$PCP_GUI" >> pcp-gui.list
+  grep -E "$PCP_GUI" >> pcp-gui.list
 %endif
 cat base_pmdas.list base_bin.list base_exec.list base_man.list |\
-  egrep -v 'pmdaib|pmmgr|pmweb|pmsnap|2pcp' |\
-  egrep -v "$PCP_GUI|pixmaps|pcp-doc|tutorials" |\
-  egrep -v %{_confdir} | egrep -v %{_logsdir} > base.list
+  grep -E -v 'pmdaib|pmmgr|pmweb|pmsnap|2pcp' |\
+  grep -E -v "$PCP_GUI|pixmaps|pcp-doc|tutorials" |\
+  grep -E -v %{_confdir} | grep -E -v %{_logsdir} > base.list
 
 # all devel pcp package files except those split out into sub packages
 ls -1 $RPM_BUILD_ROOT/%{_mandir}/man3 |\
-sed -e 's#^#'%{_mandir}'\/man3\/#' | egrep -v '3pm|PMWEBAPI' >devel.list
+sed -e 's#^#'%{_mandir}'\/man3\/#' | grep -E -v '3pm|PMWEBAPI' >devel.list
 ls -1 $RPM_BUILD_ROOT/%{_datadir}/pcp/demos |\
-sed -e 's#^#'%{_datadir}'\/pcp\/demos\/#' | egrep -v tutorials >> devel.list
+sed -e 's#^#'%{_datadir}'\/pcp\/demos\/#' | grep -E -v tutorials >> devel.list
 
 %pre testsuite
 test -d %{_testsdir} || mkdir -p -m 755 %{_testsdir}
@@ -798,6 +855,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %dir %attr(0775,pcp,pcp) %{_tempsdir}
 %dir %attr(0775,pcp,pcp) %{_tempsdir}/pmie
 %dir %attr(0775,pcp,pcp) %{_tempsdir}/pmlogger
+%dir %attr(0700,root,root) %{_tempsdir}/pmcd
 
 %dir %{_datadir}/pcp/lib
 %{_datadir}/pcp/lib/ReplacePmnsSubtree
@@ -838,15 +896,18 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %config(noreplace) %{_confdir}/pmcd/rc.local
 %dir %{_confdir}/pmproxy
 %config(noreplace) %{_confdir}/pmproxy/pmproxy.options
-%dir %attr(0775,pcp,pcp) %{_confdir}/pmie
-%attr(0664,pcp,pcp) %config(noreplace) %{_confdir}/pmie/control
-%dir %attr(0775,pcp,pcp) %{_confdir}/pmlogger
-%attr(0664,pcp,pcp) %config(noreplace) %{_confdir}/pmlogger/control
+%dir %{_confdir}/pmie
+%config(noreplace) %{_confdir}/pmie/control
+%dir %{_confdir}/pmlogger
+%config(noreplace) %{_confdir}/pmlogger/control
 
 %{_localstatedir}/lib/pcp/config/pmafm
+%dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmie
+%{_localstatedir}/lib/pcp/config/pmie
 %{_localstatedir}/lib/pcp/config/pmieconf
+%dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmlogger
+%{_localstatedir}/lib/pcp/config/pmlogger/*
 %{_localstatedir}/lib/pcp/config/pmlogconf
-%{_localstatedir}/lib/pcp/config/pmlogger
 %{_localstatedir}/lib/pcp/config/pmlogrewrite
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmda
 
@@ -915,6 +976,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %attr(0775,pcp,pcp) %{_logsdir}/pmwebd
 %{_confdir}/pmwebd
 %config(noreplace) %{_confdir}/pmwebd/pmwebd.options
+%dir %{_datadir}/pcp/webapps
 %{_mandir}/man1/pmwebd.1.gz
 %{_mandir}/man3/PMWEBAPI.3.gz
 %endif
@@ -922,7 +984,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %if !%{disable_microhttpd}
 %files webjs
 %defattr(-,root,root)
-%{_datadir}/pcp/jsdemos
+%{_datadir}/pcp/webapps/*
 %endif
 
 %files manager
@@ -964,6 +1026,16 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %{_mandir}/man1/pmdapapi.1.gz
 %endif
 
+%if !%{disable_perfevent}
+%files pmda-perfevent
+%defattr(-,root,root)
+%{_pmdasdir}/perfevent
+%config(noreplace) %{_pmdasdir}/perfevent/perfevent.conf
+%{_mandir}/man1/perfalloc.1.gz
+%{_mandir}/man1/pmdaperfevent.1.gz
+%{_mandir}/man5/perfevent.conf.5.gz
+%endif
+
 %if !%{disable_infiniband}
 %files pmda-infiniband
 %defattr(-,root,root)
@@ -984,8 +1056,10 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %files -n perl-PCP-LogSummary -f perl-pcp-logsummary.list
 %defattr(-,root,root)
 
+%if !%{disable_python2}
 %files -n python-pcp -f python-pcp.list.rpm
 %defattr(-,root,root)
+%endif
 
 %if !%{disable_python3}
 %files -n python3-pcp -f python3-pcp.list.rpm
@@ -1008,8 +1082,19 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root,-)
 
 %changelog
+* Fri Jan 09 2015 Dave Brolley <brolley@redhat.com> - 3.10.2-1
+- Update to latest PCP sources.
+
+* Mon Dec 01 2014 Nathan Scott <nathans@redhat.com> - 3.10.1-1
+- New conditionally-built pcp-pmda-perfevent sub-package.
+- Update to latest PCP sources.
+
+* Tue Nov 18 2014 Dave Brolley <brolley@redhat.com> - 3.10.0-2
+- papi 5.4.0 rebuild
+
 * Fri Oct 31 2014 Nathan Scott <nathans@redhat.com> - 3.10.0-1
 - Create new sub-packages for pcp-webjs and python3-pcp.
+- Fix __pmDiscoverServicesWithOptions(1) codes (BZ 1139529)
 - Update to latest PCP sources.
 
 * Fri Sep 05 2014 Nathan Scott <nathans@redhat.com> - 3.9.10-1

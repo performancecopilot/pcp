@@ -141,6 +141,7 @@ extern "C" {
 #undef HAVE_NETINET_IN_H
 #undef HAVE_NETINET_TCP_H
 #undef HAVE_ARPA_INET_H
+#undef HAVE_FTS_H
 
 #undef HAVE_SYS_ENDIAN_H
 #undef HAVE_SYS_MACHINE_H
@@ -286,6 +287,14 @@ extern "C" {
 #undef HAVE_TRACE_BACK_STACK
 #undef HAVE_BACKTRACE
 #undef HAVE_READDIR64
+
+/* interfaces used for Linux container support (namespaces) */
+#undef HAVE_SENDMSG
+#undef HAVE_RECVMSG
+#undef HAVE_SETNS
+
+/* if the PAPI_component_info_t struct has a 'disabled' variable */
+#undef HAVE_PAPI_DISABLED_COMP
 
 /* if termio signals are supported */
 #ifdef HAVE_TERMIOS_H

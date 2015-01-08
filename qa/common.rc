@@ -30,6 +30,7 @@ for dir in /sbin /usr/sbin
 do
     [ -d "$dir" ] && PATH="$PATH:$dir"
 done
+export PATH
 
 # QA default environment variables
 PCP_PMCD_PROG=$PCP_BINADM_DIR/pmcd

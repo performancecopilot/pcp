@@ -295,6 +295,7 @@ refresh_interrupts(pmdaExt *pmda, __pmnsTree **tree)
 	for (i = 0; i < other_count; i++)
 	    update_other_pmns(dom, i, interrupt_other[i].name);
 	*tree = interrupt_tree;
+	pmdaTreeRebuildHash( interrupt_tree, lines_count+other_count );
 	return 1;
     }
     return 0;

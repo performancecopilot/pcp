@@ -11,7 +11,7 @@
 <email>pcp@mail.performancecopilot.org</email>
 <otheraddr>
 <ulink url="http://www.performancecopilot.org"/>
-<inlinemediaobject><imageobject><imagedata fileref="figures/pcp.svg"/></imageobject></inlinemediaobject>
+<inlinemediaobject><imageobject><imagedata fileref="images/pcp.svg"/></imageobject></inlinemediaobject>
 </otheraddr>
 </address>
 </affiliation>
@@ -48,11 +48,6 @@ registered in the United States and other countries.</para>
 Linux is a registered trademark of Linus Torvalds, used with permission.
 UNIX is a registered trademark of The Open Group.</para>
 </legalnotice>
-
-<revhistory>
-<revision><revnumber>002</revnumber><date>August 2013</date><revremark>Revised to support the Performance Co-Pilot 3.8 release.</revremark></revision>
-<revision><revnumber>001</revnumber><date>December 2002</date><revremark>Original publication. Supports the Performance Co-Pilot 2.3 release.</revremark></revision>
-</revhistory>
 
 </bookinfo>
 <toc/>
@@ -155,7 +150,7 @@ For example, <command>pminfo(1)</command> refers to the man page in section 1 fo
 
 <title>Web Site</title>
 <para>The following web site is accessible to everyone:</para>
-<variablelist condition="sgi_termlength:wide">
+<variablelist>
 <varlistentry>
 <term><emphasis role="bold">URL</emphasis></term><listitem><para><emphasis role="bold">Description</emphasis></para></listitem></varlistentry>
 <varlistentry>
@@ -507,7 +502,7 @@ or response-time measures. This instrumentation may exist in one or more
 of the functional domains as shown in <xref linkend="id5188602"/>.
 </para>
 <figure id="id5188602"><title>Performance Metric Domains as Autonomous Collections
-of Data</title><mediaobject><imageobject><imagedata fileref="figures/metric-domains.svg"/></imageobject><textobject><phrase>Performance Metric Domains as Autonomous Collections
+of Data</title><mediaobject><imageobject><imagedata fileref="images/metric-domains.svg"/></imageobject><textobject><phrase>Performance Metric Domains as Autonomous Collections
 of Data</phrase></textobject></mediaobject></figure>
 <para>Each domain has an associated access method:</para>
 <itemizedlist>
@@ -575,7 +570,7 @@ performance measurements. In most cases, connecting these tools together
 on the collector host is the responsibility of the PMCD process, as shown
 in <xref linkend="id5188883"/>.</para>
 <figure id="id5188883"><title>Process Structure for Distributed Operation</title>
-<mediaobject><imageobject><imagedata fileref="figures/remote-collector.svg"/></imageobject><textobject><phrase>Process Structure for Distributed Operation</phrase></textobject></mediaobject></figure>
+<mediaobject><imageobject><imagedata fileref="images/remote-collector.svg"/></imageobject><textobject><phrase>Process Structure for Distributed Operation</phrase></textobject></mediaobject></figure>
 <para>The host running the monitoring tools does not require any collection
 tools, including <command>pmcd</command>, because all requests for metrics
 are sent to the <command>pmcd</command> process on the collector host.
@@ -616,7 +611,7 @@ common prefix <literal>root</literal><emphasis role="bold">.</emphasis> is omitt
 from all names. For example, <xref linkend="id5189137"/> shows the
 nodes in a small subsection of a PMNS.</para>
 <figure id="id5189137"><title>Small Performance Metrics Name Space (PMNS)
-</title><mediaobject><imageobject><imagedata fileref="figures/pmns-small.svg"/></imageobject><textobject><phrase>Small Performance Metrics Name Space (PMNS)
+</title><mediaobject><imageobject><imagedata fileref="images/pmns-small.svg"/></imageobject><textobject><phrase>Small Performance Metrics Name Space (PMNS)
 </phrase></textobject></mediaobject></figure>
 <para>In this subsection, the following are valid names for performance
 metrics:</para>
@@ -783,7 +778,7 @@ supports delivery of performance metrics from a historical
 source in the form of a PCP archive log. Archive logs are created using
 the <literal>pmlogger</literal> utility, and are replayed in an architecture
 as shown in <xref linkend="id5189940"/>.</para>
-<figure id="id5189940"><title>Architecture for Retrospective Analysis</title><mediaobject><imageobject><imagedata fileref="figures/retrospective-architecture.svg"/></imageobject><textobject><phrase>Architecture for Retrospective Analysis</phrase></textobject></mediaobject></figure>
+<figure id="id5189940"><title>Architecture for Retrospective Analysis</title><mediaobject><imageobject><imagedata fileref="images/retrospective-architecture.svg"/></imageobject><textobject><phrase>Architecture for Retrospective Analysis</phrase></textobject></mediaobject></figure>
 <para>The PMAPI has been designed to minimize the differences required
 for an application to process performance data from an archive or from
 a real-time source. As a result, most PCP tools support live and retrospective
@@ -1780,7 +1775,7 @@ list of an allow statement.</para>
 </listitem>
 </itemizedlist>
 <para>The operations that can be allowed or disallowed are as follows:</para>
-<variablelist condition="sgi_termlength:narrow">
+<variablelist>
 <varlistentry>
 <term><literal>fetch</literal></term>
 <listitem><para>Allows retrieval of information from the PMCD. This may be
@@ -2293,7 +2288,7 @@ presented here in a single place for convenience.</para>
 <primary>file locations</primary></indexterm>The following files and directories
 are used by the PCP tools as repositories for option and configuration
 files and for binaries:</para>
-<variablelist condition="sgi_termlength:wide">
+<variablelist>
 <varlistentry>
 <term><filename>${PCP_DIR}/etc/pcp.env</filename></term>
 <listitem><para><indexterm id="IG31371888121"><primary>${PCP_DIR}/etc/pcp.env file</primary></indexterm>Script
@@ -2436,7 +2431,7 @@ a display, the sample origin, and the sample time alignment to your convenience.
 <para>The <literal>-S</literal>, <literal>-T</literal>, <literal>-O</literal>
 and <literal>-A</literal> command line options are used by PCP applications
 to define a time window of interest.</para>
-<variablelist condition="sgi_termlength:standard">
+<variablelist>
 <varlistentry>
 <term><literal>-S </literal> <replaceable>duration</replaceable></term>
 <listitem><para>The start option may be used to request that the display
@@ -2570,7 +2565,7 @@ serve only as installation defaults. For additional information, see the <comman
 man pages.</para>
 <para>The following environment variables are recognized by PCP (these
 definitions are also available on the <command>PCPIntro(1)</command> man page):</para>
-<variablelist condition="sgi_termlength:nextline">
+<variablelist>
 <varlistentry>
 <term><literal>PCP_COUNTER_WRAP</literal></term>
 <listitem><para><indexterm id="ITch03-15"><primary>PCP_COUNTER_WRAP variable
@@ -3393,7 +3388,7 @@ The <command>pmie</command> tool accepts the common
 PCP command line arguments, as described in <xref linkend="LE94335-PARENT"/>.
 In addition, <command>pmie</command> accepts the following command line arguments:
 </para>
-<variablelist condition="sgi_termlength:narrow">
+<variablelist>
 <varlistentry>
 <term><literal>-d</literal></term>
 <listitem><para>Enables interactive debug mode.</para>
@@ -3789,7 +3784,7 @@ metric.</para>
 from the current sample 0 to its predecessor 1, whose predecessor was 2, and
 so on. This scheme is illustrated by the time line shown in <xref linkend="id5201070"/>.
 </para>
-<figure id="id5201070"><title>Sampling Time Line</title><mediaobject><imageobject><imagedata fileref="figures/sampling-timeline.svg"/></imageobject><textobject><phrase>Sampling Time Line</phrase></textobject></mediaobject></figure>
+<figure id="id5201070"><title>Sampling Time Line</title><mediaobject><imageobject><imagedata fileref="images/sampling-timeline.svg"/></imageobject><textobject><phrase>Sampling Time Line</phrase></textobject></mediaobject></figure>
 <para>Each sample point is assumed to be separated from its predecessor by
 a constant amount of real time, the <literal>delta</literal>. The most recent
 sample point is always zero. The value of <literal>delta</literal> may vary
@@ -3807,7 +3802,7 @@ associated with the disk instance <literal>#disk1</literal> on the host <literal
 parameter space of {<literal>host</literal>} x {<literal>instance</literal>}
 x {<literal>sample time</literal>} as shown in <xref linkend="id5201194"/>.
 </para>
-<figure id="id5201194"><title>Three-Dimensional Parameter Space</title><mediaobject><imageobject><imagedata fileref="figures/parameter-space.svg"/></imageobject><textobject><phrase>Three-Dimensional Parameter Space</phrase></textobject></mediaobject></figure>
+<figure id="id5201194"><title>Three-Dimensional Parameter Space</title><mediaobject><imageobject><imagedata fileref="images/parameter-space.svg"/></imageobject><textobject><phrase>Three-Dimensional Parameter Space</phrase></textobject></mediaobject></figure>
 <para>A metric expression may also identify sets of values corresponding to
 one-, two-, or three-dimensional slices of this space, according to the following
 rules:</para>
@@ -4155,7 +4150,7 @@ This action always succeeds.</para>
 <para>Within the argument passed to an action method, the following expansions
 are supported to allow some of the context from the logical expression on
 the left to appear to be embedded in the argument:</para>
-<variablelist condition="sgi_termlength:narrow">
+<variablelist>
 <varlistentry>
 <term><literal>%h</literal></term>
 <listitem><para>The value of a <replaceable>host</replaceable> that makes
@@ -4761,7 +4756,7 @@ for example:</para>
 </secondary></indexterm>The following global files and directories influence
 the behavior of <command>pmie</command> and the <command>pmie</command> management
 scripts:</para>
-<variablelist condition="sgi_termlength:nextline" id="Z930361086sdc">
+<variablelist id="Z930361086sdc">
 <varlistentry>
 <term><filename>${PCP_DEMOS_DIR}/pmie/*</filename></term>
 <listitem><para>Contains sample <command>pmie</command> rules that may be
@@ -4809,7 +4804,7 @@ startup scripts.</para>
 <para>The PMCD PMDA exports information about executing <command>pmie</command>
 instances and their progress in terms of rule evaluations and action execution
 rates.</para>
-<variablelist condition="sgi_termlength:wide" id="Z929060000sdc">
+<variablelist id="Z929060000sdc">
 <varlistentry>
 <term><command>pmie_check</command></term>
 <listitem><para>This command is similar to the <command>pmlogger</command>
@@ -5153,7 +5148,7 @@ directory named after that host. Because each instance of <command>pmlogger</com
 can only log metrics fetched from a single host, this also simplifies
 some of the archive log management and administration tasks.</para>
 <para>For example, consider the filesystem and naming structure shown in <xref linkend="id5207462"/>.</para>
-<figure id="id5207462"><title>Archive Log Directory Structure</title><mediaobject><imageobject><imagedata fileref="figures/log-directory.svg"/></imageobject><textobject><phrase>Archive Log Directory Structure</phrase></textobject></mediaobject></figure>
+<figure id="id5207462"><title>Archive Log Directory Structure</title><mediaobject><imageobject><imagedata fileref="images/log-directory.svg"/></imageobject><textobject><phrase>Archive Log Directory Structure</phrase></textobject></mediaobject></figure>
 <para><indexterm id="IG31371888266"><primary>${PCP_PMLOGGERCONTROL_PATH} file</primary>
 </indexterm>The specification of where to place the archive log files for
 particular <command>pmlogger</command> instances is encoded in the configuration
@@ -5863,11 +5858,11 @@ consistent with your needs.</para>
 a collector and a monitor, as shown in <xref linkend="id5210776"/>.
 Because some of the PCP monitor tools make extensive use of visualization, this
 suggests the monitor system should be configured with a graphical display.</para>
-<figure id="id5210776"><title>PCP Deployment for a Single System</title><mediaobject><imageobject><imagedata fileref="figures/local-deploy.svg"/></imageobject><textobject><phrase>PCP Deployment for a Single System</phrase></textobject></mediaobject></figure>
+<figure id="id5210776"><title>PCP Deployment for a Single System</title><mediaobject><imageobject><imagedata fileref="images/local-deploy.svg"/></imageobject><textobject><phrase>PCP Deployment for a Single System</phrase></textobject></mediaobject></figure>
 <para>However, most PCP deployments involve at least two systems. For
 example, the setup shown in <xref linkend="id5210808"/> would be representative
 of many common scenarios.</para>
-<figure id="id5210808"><title>Basic PCP Deployment for Two Systems</title><mediaobject><imageobject><imagedata fileref="figures/remote-deploy.svg"/></imageobject><textobject><phrase>Basic PCP Deployment for Two Systems</phrase></textobject></mediaobject></figure>
+<figure id="id5210808"><title>Basic PCP Deployment for Two Systems</title><mediaobject><imageobject><imagedata fileref="images/remote-deploy.svg"/></imageobject><textobject><phrase>Basic PCP Deployment for Two Systems</phrase></textobject></mediaobject></figure>
 <para>But the most common site configuration would include a mixture of
 systems configured as PCP collectors, as PCP monitors, and as both PCP
 monitors and collectors, as shown in <xref linkend="id5210866"/>.</para>
@@ -5878,7 +5873,7 @@ there are several ways in which both the inference engine (<command>pmie</comman
 and the PCP archive logger (<command>pmlogger</command>) could be deployed.
 These options are discussed in the following sections of this chapter.</para>
 <figure id="id5210866"><title>General PCP Deployment for Multiple Systems
-</title><mediaobject><imageobject><imagedata fileref="figures/multi-deploy.svg"/></imageobject><textobject><phrase>General PCP Deployment for Multiple Systems
+</title><mediaobject><imageobject><imagedata fileref="images/multi-deploy.svg"/></imageobject><textobject><phrase>General PCP Deployment for Multiple Systems
 </phrase></textobject></mediaobject></figure>
 </section>
 <section id="LE69500-PARENT">
@@ -5929,7 +5924,7 @@ at both the server side and the client side.</para>
 <para>The arrangement in <xref linkend="id5211102"/> illustrates one
 way of measuring quality of service for client-server applications.</para>
 <figure id="id5211102"><title>PCP Deployment to Measure Client-Server Quality
-of Service</title><mediaobject><imageobject><imagedata fileref="figures/qos-deploy.svg"/></imageobject><textobject><phrase>PCP Deployment to Measure Client-Server Quality
+of Service</title><mediaobject><imageobject><imagedata fileref="images/qos-deploy.svg"/></imageobject><textobject><phrase>PCP Deployment to Measure Client-Server Quality
 of Service</phrase></textobject></mediaobject></figure>
 <para>The configuration of the PCP collector components on the Application
 Server System is standard. The new facility is the deployment of some
@@ -6001,7 +5996,7 @@ systems to capture performance data from remote PCP collector systems.
 system to act as the PCP archive site to run all <command>pmlogger</command>
 instances. This arrangement is shown in <xref linkend="id5211413"/>.
 </para>
-<figure id="id5211413"><title>Designated PCP Archive Site</title><mediaobject><imageobject><imagedata fileref="figures/designated-logger.svg"/></imageobject><textobject><phrase>Designated PCP Archive Site</phrase></textobject></mediaobject></figure>
+<figure id="id5211413"><title>Designated PCP Archive Site</title><mediaobject><imageobject><imagedata fileref="images/designated-logger.svg"/></imageobject><textobject><phrase>Designated PCP Archive Site</phrase></textobject></mediaobject></figure>
 </listitem></itemizedlist>
 </section>
 <section id="id5211434">
@@ -6103,7 +6098,7 @@ for site-specific and universal rule evaluation, or to support both tactical
 performance management (operations) and strategic performance management
 (capacity planning). Both situations are depicted in <xref linkend="id5211805"/>.
 </para>
-<figure id="id5211805"><title>PCP Management Site Deployment</title><mediaobject><imageobject><imagedata fileref="figures/designated-manager.svg"/></imageobject><textobject><phrase>PCP Management Site Deployment</phrase></textobject></mediaobject></figure>
+<figure id="id5211805"><title>PCP Management Site Deployment</title><mediaobject><imageobject><imagedata fileref="images/designated-manager.svg"/></imageobject><textobject><phrase>PCP Management Site Deployment</phrase></textobject></mediaobject></figure>
 </section>
 <section id="id5211825">
 
@@ -6365,7 +6360,7 @@ and documented in the <command>pmlogger(1)</command> man page.
 </para>
 <para>The following global files and directories influence the behavior of
 <command>pmlogger</command>:</para>
-<variablelist condition="sgi_termlength:nextline" id="Z930367453sdc">
+<variablelist id="Z930367453sdc">
 <varlistentry>
 <term><filename>${PCP_SYSCONF_DIR}/pmlogger</filename> </term>
 <listitem><para>Enable/disable state for the primary logger facility using
@@ -6420,7 +6415,7 @@ This folio is created and maintained by the <literal>cron</literal>-driven perio
 PCP inference engine is presented in <xref linkend="LE21414-PARENT"/>, and
 documented in the <command>pmie(1)</command> man page.</para>
 <para>The following global files and directories influence the behavior of <command>pmie</command>:</para>
-<variablelist condition="sgi_termlength:nextline" id="Z930367570sdc">
+<variablelist id="Z930367570sdc">
 <varlistentry>
 <term><filename>${PCP_SYSCONF_DIR}/pmie</filename></term>
 <listitem><para>Controls the pmie daemon facility. Enable using this command:<literallayout class="monospaced">chkconfig pmie on</literallayout></para>
@@ -6535,7 +6530,7 @@ by a period. The root node for the PMNS has the special name <literal>root</lite
 from all other <literal>pathnames</literal>.</para>
 <para>For example, refer to the PMNS shown in <xref linkend="id5213846"/>.
 The correct pathname for the rightmost non-leaf node is <literal>cpu.utilization</literal>, not <literal>root.cpu.utilization</literal>.</para>
-<figure id="id5213846"><title>Small Performance Metrics Name Space (PMNS)</title><mediaobject><imageobject><imagedata fileref="figures/pmns-small2.svg"/></imageobject><textobject><phrase>Small Performance Metrics Name Space (PMNS)</phrase></textobject></mediaobject></figure>
+<figure id="id5213846"><title>Small Performance Metrics Name Space (PMNS)</title><mediaobject><imageobject><imagedata fileref="images/pmns-small2.svg"/></imageobject><textobject><phrase>Small Performance Metrics Name Space (PMNS)</phrase></textobject></mediaobject></figure>
 <para>Each component in the pathname must begin with an alphabetic character
 and be followed by zero or more alphanumeric characters or the underscore
 (_) character. For alphabetic characters in a component, uppercase and lowercase

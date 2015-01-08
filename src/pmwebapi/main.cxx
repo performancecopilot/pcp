@@ -245,6 +245,14 @@ mhd_respond (void *cls, struct MHD_Connection *connection, const char *url0,
                      || (url2 == "browser") || (url2 == "graphlot" && url3 == "findmetric"))) {
             return pmgraphite_respond (connection, mhd_cc->params, url_tokens);
         }
+        // graphite dashboard idiosyncracy; note absence of /graphite top level
+        else if (graphite_p && (method == "GET" || method == "POST") && 
+                 ((url1 == "metrics" && url2 == "find") ||
+                  (url1 == "render"))) {
+            url_tokens.insert (url_tokens.begin() + 1 /* empty #0 */,
+                               string("graphite"));
+            return pmgraphite_respond (connection, mhd_cc->params, url_tokens);
+        }
 
         /* pmresapi? */
         else if ((resourcedir != "") && (method == "GET")) {
@@ -288,8 +296,8 @@ mhd_respond_completed (void *cls, struct MHD_Connection *connection, void **con_
         MHD_destroy_post_processor (mhd_cc->pp);
     }
 
-    delete
-    mhd_cc;
+    delete mhd_cc;
+    * con_cls = 0; // Don't re-delete if we're called again
 }
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -288,7 +288,8 @@ EXTERN int	pmDebug;
 #define DBG_TRACE_FAULT		(1<<23) /* fault injection tracing */
 #define DBG_TRACE_AUTH		(1<<24) /* authentication tracing */
 #define DBG_TRACE_DISCOVERY	(1<<25) /* service discovery tracing */
-/* not yet allocated, bits (1<<26) ... (1<<29) */
+#define DBG_TRACE_ATTR		(1<<26) /* all connection attributes */
+/* not yet allocated, bits (1<<27) ... (1<<29) */
 #define DBG_TRACE_DESPERATE	(1<<30) /* verbose/desperate level */
 
 extern int __pmParseDebug(const char *);
@@ -526,6 +527,7 @@ typedef enum {
     PCP_ATTR_GROUPID	= 12,	/* gid - group identifier (posix) */
     PCP_ATTR_LOCAL	= 13,	/* AF_UNIX socket with localhost fallback */
     PCP_ATTR_PROCESSID	= 14,	/* pid - process identifier (posix) */
+    PCP_ATTR_CONTAINER	= 15,	/* container name (linux) */
 } __pmAttrKey;
 
 extern __pmAttrKey __pmLookupAttrKey(const char *, size_t);
@@ -651,6 +653,7 @@ typedef enum {
     PM_SERVER_FEATURE_CREDS_REQD,
     PM_SERVER_FEATURE_UNIX_DOMAIN,
     PM_SERVER_FEATURE_DISCOVERY,
+    PM_SERVER_FEATURE_CONTAINERS,
     PM_SERVER_FEATURES
 } __pmServerFeature;
 
@@ -777,6 +780,7 @@ typedef struct {
 #define PDU_FLAG_CREDS_REQD	(1U<<3)
 #define PDU_FLAG_SECURE_ACK	(1U<<4)
 #define PDU_FLAG_NO_NSS_INIT	(1U<<5)
+#define PDU_FLAG_CONTAINER	(1U<<6)
 
 /* Credential CVERSION PDU elements look like this */
 typedef struct {
@@ -791,6 +795,7 @@ typedef struct {
 #endif
 } __pmVersionCred;
 
+extern void __pmIgnoreSignalPIPE(void);
 extern int __pmXmitPDU(int, __pmPDU *);
 extern int __pmGetPDU(int, int, int, __pmPDU **);
 extern int __pmGetPDUCeiling(void);
@@ -816,7 +821,7 @@ extern int __pmUnpinPDUBuf(void *);
 extern void __pmCountPDUBuf(int, int *, int *);
 
 #define PDU_START		0x7000
-#define PDU_ERROR		0x7000
+#define PDU_ERROR		PDU_START
 #define PDU_RESULT		0x7001
 #define PDU_PROFILE		0x7002
 #define PDU_FETCH		0x7003
@@ -832,7 +837,8 @@ extern void __pmCountPDUBuf(int, int *, int *);
 #define PDU_PMNS_NAMES		0x700e
 #define PDU_PMNS_CHILD		0x700f
 #define PDU_PMNS_TRAVERSE	0x7010
-#define PDU_AUTH		0x7011
+#define PDU_ATTR		0x7011
+#define PDU_AUTH		PDU_ATTR
 #define PDU_FINISH		0x7011
 #define PDU_MAX		 	(PDU_FINISH - PDU_START)
 
@@ -891,6 +897,8 @@ extern int __pmSendTraversePMNSReq(int, int, const char *);
 extern int __pmDecodeTraversePMNSReq(__pmPDU *, char **);
 extern int __pmSendAuth(int, int, int, const char *, int);
 extern int __pmDecodeAuth(__pmPDU *, int *, char **, int *);
+extern int __pmSendAttr(int, int, int, const char *, int);
+extern int __pmDecodeAttr(__pmPDU *, int *, char **, int *);
 
 #if defined(HAVE_64BIT_LONG)
 

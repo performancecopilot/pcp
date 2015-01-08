@@ -547,12 +547,15 @@ GetNewAgent(void)
 	szAgents = MIN_AGENTS_ALLOC;
     }
     else if (nAgents >= szAgents) {
+	int	i;
 	agent = (AgentInfo*)
 	    realloc(agent, sizeof(AgentInfo) * 2 * szAgents);
 	if (agent == NULL) {
 	    perror("GetNewAgentIndex: realloc");
 	    exit(1);
 	}
+	for (i = 0; i < nAgents; i++)
+	    pmdaInterfaceMoved(&agent[i].ipc.dso.dispatch);
 	szAgents *= 2;
     }
 
@@ -1340,13 +1343,13 @@ doneLine:
 }
 
 static int
-DoAuthentication(AgentInfo *ap, int clientID)
+DoAttributes(AgentInfo *ap, int clientID)
 {
     int sts = 0;
     __pmHashCtl *attrs = &client[clientID].attrs;
     __pmHashNode *node;
 
-    if ((ap->status.flags & PDU_FLAG_AUTH) == 0)
+    if ((ap->status.flags & (PDU_FLAG_AUTH|PDU_FLAG_CONTAINER)) == 0)
 	return 0;
 
     if (ap->ipcType == AGENT_DSO) {
@@ -1357,7 +1360,7 @@ DoAuthentication(AgentInfo *ap, int clientID)
 	     node != NULL;
 	     node = __pmHashWalk(attrs, PM_HASH_WALK_NEXT)) {
 #ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_CONTEXT) {
+	    if (pmDebug & DBG_TRACE_ATTR) {
 		char buffer[64];
 		__pmAttrStr_r(node->key, node->data, buffer, sizeof(buffer));
 		fprintf(stderr, "pmcd: send client[%d] attr %s to dso agent[%d]",
@@ -1378,14 +1381,14 @@ DoAuthentication(AgentInfo *ap, int clientID)
 	     node != NULL;
 	     node = __pmHashWalk(attrs, PM_HASH_WALK_NEXT)) {
 #ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_CONTEXT) {
+	    if (pmDebug & DBG_TRACE_ATTR) {
 		char buffer[64];
 		__pmAttrStr_r(node->key, node->data, buffer, sizeof(buffer));
 		fprintf(stderr, "pmcd: send client[%d] attr %s to daemon agent[%d]",
 			clientID, buffer, (int)(ap - agent));
 	    }
 #endif
-	    if ((sts = __pmSendAuth(ap->inFd,
+	    if ((sts = __pmSendAttr(ap->inFd,
 				clientID, node->key, node->data,
 				node->data ? strlen(node->data)+1 : 0)) < 0)
 		break;
@@ -1395,34 +1398,34 @@ DoAuthentication(AgentInfo *ap, int clientID)
 }
 
 /*
- * Once a secure client arrives, we need to inform any interested PMDAs.
- * Iterate over the authenticating agents and send connection attributes.
+ * Once a new client arrives, we'll need to inform any interested PMDAs -
+ * iterate over all of the active agents and send connection attributes.
  */
 int
-AgentsAuthentication(int clientID)
+AgentsAttributes(int clientID)
 {
     int agentID, sts = 0;
 
     for (agentID = 0; agentID < nAgents; agentID++) {
 	if (agent[agentID].status.connected &&
-	   (sts = DoAuthentication(&agent[agentID], clientID)) < 0)
+	   (sts = DoAttributes(&agent[agentID], clientID)) < 0)
 	    break;
     }
     return sts;
 }
 
 /*
- * Once a PMDA has started, we need to inform it about secure clients.
- * Iterate over the authenticated clients and send connection attributes
+ * Once a PMDA has started, we may need to inform it about the clients -
+ * iterate over the authenticated clients and send connection attributes.
  */
 int
-ClientsAuthentication(AgentInfo *ap)
+ClientsAttributes(AgentInfo *ap)
 {
     int clientID, sts = 0;
 
     for (clientID = 0; clientID < nClients; clientID++) {
 	if (client[clientID].status.connected &&
-	   (sts = DoAuthentication(ap, clientID)) < 0)
+	   (sts = DoAttributes(ap, clientID)) < 0)
 	    break;
     }
     return sts;
@@ -1478,9 +1481,9 @@ DoAgentCreds(AgentInfo* aPtr, __pmPDU *pb)
 	    return sts;
 	pmcd_trace(TR_XMIT_PDU, aPtr->inFd, PDU_CREDS, credcount);
 
-	/* send auth attributes for existing connected clients */
-	if ((flags & PDU_FLAG_AUTH) != 0 &&
-	    (sts = ClientsAuthentication(aPtr)) < 0)
+	/* send connection attributes for existing connected clients */
+	if ((flags & (PDU_FLAG_AUTH|PDU_FLAG_CONTAINER)) != 0 &&
+	    (sts = ClientsAttributes(aPtr)) < 0)
 	    return sts;
     }
 
@@ -1924,6 +1927,9 @@ GetAgentDso(AgentInfo *aPtr)
     DsoInfo		*dso = &aPtr->ipc.dso;
     const char		*name;
     unsigned int	challenge;
+#if defined(HAVE_DLOPEN)
+    char		*dlerrstr;
+#endif
 
     aPtr->status.connected = 0;
     aPtr->reason = REASON_NOSTART;
@@ -1978,10 +1984,12 @@ GetAgentDso(AgentInfo *aPtr)
      dispatch table for the DSO. */
 
 #if defined(HAVE_DLOPEN)
+    dlerror();
     dso->initFn = (void (*)(pmdaInterface*))dlsym(dso->dlHandle, dso->entryPoint);
-    if (dso->initFn == NULL) {
-	fprintf(stderr, "Couldn't find init function `%s' in %s DSO\n",
-		     dso->entryPoint, aPtr->pmDomainLabel);
+    dlerrstr = dlerror();
+    if (dlerrstr != NULL) {
+	fprintf(stderr, "Couldn't find init function `%s' in %s DSO: %s\n",
+		     dso->entryPoint, aPtr->pmDomainLabel, dlerrstr);
 	dlclose(dso->dlHandle);
 	return -1;
     }
@@ -2047,7 +2055,7 @@ GetAgentDso(AgentInfo *aPtr)
     aPtr->status.connected = 1;
     aPtr->status.flags = dso->dispatch.comm.flags;
     if (dso->dispatch.comm.flags & PDU_FLAG_AUTH)
-	ClientsAuthentication(aPtr);
+	ClientsAttributes(aPtr);
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0)
@@ -2286,10 +2294,14 @@ DupAgent(AgentInfo *dest, AgentInfo *src)
     memcpy(&dest->status, &src->status, sizeof(dest->status));
     if (src->ipcType == AGENT_DSO) {
 	dest->ipc.dso.dlHandle = src->ipc.dso.dlHandle;
+	/*
+	 * initFn is never needed again (DSO PMDA initialization has
+	 * already been done), but copy it across so that PrintAgentInfo()
+	 * reports the init routine's address
+	 */
+	dest->ipc.dso.initFn = src->ipc.dso.initFn;
 	memcpy(&dest->ipc.dso.dispatch, &src->ipc.dso.dispatch,
 	       sizeof(dest->ipc.dso.dispatch));
-	/* initFn should never be needed */
-	dest->ipc.dso.initFn = (DsoInitPtr)0;
     }
     else if (src->ipcType == AGENT_SOCKET)
 	dest->ipc.socket.agentPid = src->ipc.socket.agentPid;
@@ -2476,6 +2488,7 @@ ParseRestartAgents(char *fileName)
 	    if (!AgentsDiffer(&agent[i], &oldAgent[j]) &&
 		oldAgent[j].status.connected) {
 		DupAgent(&agent[i], &oldAgent[j]);
+		pmdaInterfaceMoved(&agent[i].ipc.dso.dispatch);
 		oldAgent[j].status.restartKeep = 1;
 	    }
 

@@ -11,7 +11,7 @@
 <email>pcp@mail.performancecopilot.org</email>
 <otheraddr>
 <ulink url="http://www.performancecopilot.org"/>
-<inlinemediaobject><imageobject><imagedata fileref="figures/pcp.svg"/></imageobject></inlinemediaobject>
+<inlinemediaobject><imageobject><imagedata fileref="images/pcp.svg"/></imageobject></inlinemediaobject>
 </otheraddr>
 </address>
 </affiliation>
@@ -48,14 +48,6 @@ registered in the United States and other countries.</para>
 Linux is a registered trademark of Linus Torvalds, used with permission.
 UNIX is a registered trademark of The Open Group.</para>
 </legalnotice>
-
-<revhistory>
-<revision><revnumber>007</revnumber><date>September 2013</date><revremark>Revised to include event metrics and the MMV PMDA coverage.</revremark></revision>
-<revision><revnumber>006</revnumber><date>August 2013</date><revremark>Revised to support the Performance Co-Pilot 3.8 release.</revremark></revision>
-<revision><revnumber>005</revnumber><date>December 2002</date><revremark>Revised to support the Performance Co-Pilot 2.3 release.</revremark></revision>
-<revision><revnumber>004</revnumber><date>March 2001</date><revremark>Revised to support the Performance Co-Pilot 2.2 release.</revremark></revision>
-<revision><revnumber>003</revnumber><date>July 1999</date><revremark>Revised to support the Performance Co-Pilot 2.1 release.</revremark></revision>
-</revhistory>
 
 </bookinfo>
 <toc/>
@@ -134,7 +126,7 @@ For a complete list of manual sections on a platform enter the command:</para>
 
 <title>Web Site</title>
 <para>The following web site is accessible to everyone:</para>
-<variablelist condition="sgi_termlength:wide">
+<variablelist>
 <varlistentry>
 <term><emphasis role="bold">URL</emphasis></term><listitem><para><emphasis role="bold">Description</emphasis></para></listitem></varlistentry>
 <varlistentry>
@@ -242,13 +234,13 @@ defined.</para>
 <para><xref linkend="id5177328"/> shows the architecture of PCP. The monitoring tools consume and process performance data using a public interface, the Performance Metrics Application Programming Interface (PMAPI).</para>
 <para><indexterm id="IG3134017713"><primary>PMCD</primary><secondary>overview</secondary></indexterm><indexterm id="IG3134017714"><primary>Performance Metrics Collection Daemon </primary><see>PMCD</see></indexterm>Below the PMAPI level is the PMCD process, which acts in a  coordinating role, accepting requests from clients, routing requests to one or more PMDAs, aggregating responses from the PMDAs, and responding to the requesting client.</para>
 <para>Each performance metric domain (such as the operating system kernel or a database management system) has a well-defined name space for referring to the specific performance metrics it knows how to collect.</para>
-<para><figure id="id5177328"><title>PCP Global Process Architecture</title><mediaobject><imageobject><imagedata fileref="figures/local-collector.svg"/></imageobject><textobject><phrase>PCP Global Process Architecture</phrase></textobject></mediaobject></figure></para>
+<para><figure id="id5177328"><title>PCP Global Process Architecture</title><mediaobject><imageobject><imagedata fileref="images/local-collector.svg"/></imageobject><textobject><phrase>PCP Global Process Architecture</phrase></textobject></mediaobject></figure></para>
 <section id="id5177343">
 
 <title>Distributed Collection</title>
 <para><indexterm id="IG3134017715"><primary>distributed performance management</primary><secondary>metrics collection</secondary></indexterm><indexterm id="IG3134017716"><primary>Cisco PMDA</primary></indexterm><indexterm id="IG3134017717"><primary>Cluster PMDA</primary></indexterm>The performance metrics collection architecture is distributed, in the sense that any monitoring tool may be executing remotely. However, a PMDA is expected to be running on the operating system for which it is collecting performance measurements; there are some notable PMDAs such as Cisco and Cluster that are exceptions, and collect performance data from remote systems.</para>
 <para><indexterm id="IG3134017718"><primary>PMCD</primary><secondary>distributed collection</secondary></indexterm><indexterm id="IG3134017719"><primary>collector hosts</primary></indexterm>As shown in <xref linkend="id5177408"/>, monitoring tools communicate only with PMCD. The PMDAs are controlled by PMCD and respond to requests from the monitoring tools that are forwarded by PMCD to the relevant PMDAs on the collector host.</para>
-<para><figure id="id5177408"><title>Process Structure for Distributed Operation</title><mediaobject><imageobject><imagedata fileref="figures/remote-collector.svg"/></imageobject><textobject><phrase>Process Structure for Distributed Operation</phrase></textobject></mediaobject></figure></para>
+<para><figure id="id5177408"><title>Process Structure for Distributed Operation</title><mediaobject><imageobject><imagedata fileref="images/remote-collector.svg"/></imageobject><textobject><phrase>Process Structure for Distributed Operation</phrase></textobject></mediaobject></figure></para>
 <para>The host running the monitoring tools does not require any collection tools, including PMCD, since all requests for metrics are sent to the PMCD process on the collector host.</para>
 <para><indexterm id="IG3134017720"><primary>PMDA </primary><secondary>man page</secondary></indexterm><indexterm id="IG3134017721"><primary>PMAPI</primary><secondary>man page</secondary></indexterm>The connections between monitoring tools and PMCD processes are managed in <filename>libpcp</filename>, below the PMAPI level; see the <command>PMAPI(3)</command> man page. Connections between PMDAs and PMCD are managed by the PMDA functions; see the <command>PMDA(3)</command> and <command>pmcd(1)</command> man pages. There can be multiple monitor clients and multiple PMDAs on the one host, but there may be only one PMCD process.</para>
 </section>
@@ -271,7 +263,7 @@ defined.</para>
 <title>Retrospective Sources of Performance Metrics</title>
 <para><indexterm id="IG3134017730"><primary>retrospective analysis</primary></indexterm>The distributed collection architecture described in the previous section is used when PMAPI clients are requesting performance metrics from a real-time or live source.</para>
 <para><indexterm id="IG3134017731"><primary>archive logs</primary><secondary>retrospective sources</secondary></indexterm>The PMAPI also supports delivery of performance metrics from a historical source in the form of a PCP archive log. Archive logs  are created using the <command>pmlogger</command> utility, and are replayed in an architecture as shown in <xref linkend="id5177742"/>.</para>
-<para><figure id="id5177742"><title>Architecture for Retrospective Analysis</title><mediaobject><imageobject><imagedata fileref="figures/retrospective-architecture.svg"/></imageobject><textobject><phrase>Architecture for Retrospective Analysis</phrase></textobject></mediaobject></figure></para>
+<para><figure id="id5177742"><title>Architecture for Retrospective Analysis</title><mediaobject><imageobject><imagedata fileref="images/retrospective-architecture.svg"/></imageobject><textobject><phrase>Architecture for Retrospective Analysis</phrase></textobject></mediaobject></figure></para>
 </section>
 </section>
 <section id="LE13618-PARENT">
@@ -587,7 +579,7 @@ simple  253     pipe    binary          ${PCP_PMDAS_DIR}/simple/pmdasimple -d 25
     pmUnits     units;          /* dimension and units */ 
 } pmDesc;</programlisting>
 <para>This structure contains the following fields:</para>
-<variablelist condition="sgi_termlength:narrow">
+<variablelist>
 <varlistentry>
 <term><literal>pmid</literal></term>
 <listitem><para>A unique identifier, Performance Metric Identifier (PMID), that differentiates this metric from other metrics across the union of all PMDAs</para>
@@ -1938,7 +1930,7 @@ typedef struct {
     } value;
 } pmValue;</programlisting>
 </example>
-<para><figure id="id5198718"><title>A Structured Result for Performance Metrics from <command>pmFetch</command></title><mediaobject><imageobject><imagedata fileref="figures/pmresult.svg"/></imageobject><textobject><phrase>A Structured Result for Performance Metrics from pmFetch</phrase></textobject></mediaobject></figure></para>
+<para><figure id="id5198718"><title>A Structured Result for Performance Metrics from <command>pmFetch</command></title><mediaobject><imageobject><imagedata fileref="images/pmresult.svg"/></imageobject><textobject><phrase>A Structured Result for Performance Metrics from pmFetch</phrase></textobject></mediaobject></figure></para>
 <para><indexterm id="IG31340177277"><primary>internal instance identifier</primary></indexterm>The internal instance identifier is stored in the <literal>inst</literal> element. If a value for a particular metric-instance pair is a 32-bit integer (signed or unsigned), then it will be stored in the <literal>lval</literal> element. If not, the value will be in a <literal>pmValueBlock</literal> structure, as shown in <xref linkend="Z1034793414tls"/>, and will be located via <literal>pval</literal>:</para>
 <para>The <literal>pmValueBlock</literal> structure is as follows:<example id="Z1034793414tls">
 <title><literal>pmValueBlock</literal> Structure</title>
@@ -2013,7 +2005,7 @@ many aspects of the other metric types - event metrics appear in the Name Space 
 do each of the event parameters), each has an associated Performance Metric Identifier
 and Descriptor, may have an instance domain associated with them, and may be recorded
 by <command>pmlogger</command> for subsequent replay.</para>
-<para><figure id="id5198719nat"><title>Sample <command>write(2)</command> syscall entry point encoding</title><mediaobject><imageobject><imagedata fileref="figures/syscallevent.svg"/></imageobject><textobject><phrase>Sample syscall entry point encoding</phrase></textobject></mediaobject></figure></para>
+<para><figure id="id5198719nat"><title>Sample <command>write(2)</command> syscall entry point encoding</title><mediaobject><imageobject><imagedata fileref="images/syscallevent.svg"/></imageobject><textobject><phrase>Sample syscall entry point encoding</phrase></textobject></mediaobject></figure></para>
 <para>Event metrics and their associated information (parameters, timestamps, flags,
 and so on) are delivered to monitoring tools alongside sampled metrics as part of the
 <command>pmResult</command> structure seen previously in <xref linkend="Z976549833sdc"/>.
@@ -2025,7 +2017,7 @@ metadata described earlier encoded with it (timestamps, flags, and so on) for ea
 event. The encoding of the series of events involves a compound data structure within
 the <command>pmValueSet</command> associated with the event metric PMID, as illustrated
 in <xref linkend="id5198719"/>.</para>
-<para><figure id="id5198719"><title>Result Format for Event Performance Metrics from <command>pmFetch</command></title><mediaobject><imageobject><imagedata fileref="figures/pmevents.svg"/></imageobject><textobject><phrase>Result Format for Event Performance Metrics from pmFetch</phrase></textobject></mediaobject></figure></para>
+<para><figure id="id5198719"><title>Result Format for Event Performance Metrics from <command>pmFetch</command></title><mediaobject><imageobject><imagedata fileref="images/pmevents.svg"/></imageobject><textobject><phrase>Result Format for Event Performance Metrics from pmFetch</phrase></textobject></mediaobject></figure></para>
 <para>At the highest level, the "series of events" is encapsulated within a
 <command>pmEventArray</command> structure, as in <xref linkend="Z976557818nat"/>:</para>
 <example id="Z976557818nat">
@@ -3880,7 +3872,7 @@ project. It supports both the existing JVM instrumentation, and custom applicati
 
 <title>Application and Performance Co-Pilot Relationship</title>
 <para><indexterm id="IG31340177550"><primary>applications</primary><secondary>instrumentation</secondary></indexterm><indexterm id="IG31340177551"><primary>instrumentation</primary></indexterm> <indexterm id="IG31340177552"><primary>data export</primary></indexterm>The relationship between an application, the <filename>pcp_mmv</filename> and <filename>pcp_trace</filename> instrumentation libraries, the MMV and Trace PMDAs, and the rest of the PCP infrastructure is shown in <xref linkend="id5216302"/>:</para>
-<para><figure id="id5216302"><title>Application and PCP Relationship</title><mediaobject><imageobject><imagedata fileref="figures/instrumentation.svg"/></imageobject><textobject><phrase>Application and PCP Relationship</phrase></textobject></mediaobject></figure></para>
+<para><figure id="id5216302"><title>Application and PCP Relationship</title><mediaobject><imageobject><imagedata fileref="images/instrumentation.svg"/></imageobject><textobject><phrase>Application and PCP Relationship</phrase></textobject></mediaobject></figure></para>
 <para>Once the application performance metrics are exported into the PCP framework, all of the PCP tools may be leveraged to provide performance monitoring and management, including:</para>
 <itemizedlist>
 <listitem><para>Two- and three-dimensional visualization of resource demands and performance, showing concurrent system activity and application activity.</para>
@@ -3901,7 +3893,7 @@ project. It supports both the existing JVM instrumentation, and custom applicati
 
 <title>MMV PMDA Design</title>
 <para><indexterm id="IG31340177470nat"><primary>MMV PMDA</primary><secondary>design</secondary></indexterm>An application instrumented with memory mapped values directly updates the memory that backs the metric values it exports. The MMV PMDA reads those values directly, from the <literal>same</literal> memory that the application is updating, when current values are sampled on behalf of PMAPI client tools. This relationship, and a simplified MMV API, are shown in <xref linkend="id5214410nat"/>.</para>
-<para><figure id="id5214410nat"><title>Memory Mapped Page Sharing</title><mediaobject><imageobject><imagedata fileref="figures/pmdammv.svg"/></imageobject></mediaobject></figure></para>
+<para><figure id="id5214410nat"><title>Memory Mapped Page Sharing</title><mediaobject><imageobject><imagedata fileref="images/pmdammv.svg"/></imageobject></mediaobject></figure></para>
 <para>It is worth noting that once the metrics of an application have been registered via the <filename>pcp_mmv</filename> library initialisation API, subsequent interactions with the library are not intrusive to the instrumented application. At the points where values are updated, the only cost involved is the memory mapping update, which is a single memory store operation. There is no need to explicitly transfer control to the MMV PMDA, nor allocate memory, nor make system or library calls. The PMDA will only sample the values at times driven by PMAPI client tools, and this places no overhead on the instrumented application.</para>
 </section>
 <section id="id5213288nat">
@@ -4128,7 +4120,7 @@ interval:  1.00 sec
 
 <title>Application Interaction</title>
 <para><indexterm id="IG31340177471"><primary>applications</primary><secondary>interaction</secondary></indexterm><xref linkend="id5213335"/> describes the general state maintained within the trace PMDA.</para>
-<para><figure id="id5213335"><title>Trace PMDA Overview</title><mediaobject><imageobject><imagedata fileref="figures/trace.svg"/></imageobject><textobject><phrase>Trace PMDA Overview</phrase></textobject></mediaobject></figure></para>
+<para><figure id="id5213335"><title>Trace PMDA Overview</title><mediaobject><imageobject><imagedata fileref="images/trace.svg"/></imageobject><textobject><phrase>Trace PMDA Overview</phrase></textobject></mediaobject></figure></para>
 <para><indexterm id="IG31340177472"><primary>Application Programming Interface</primary></indexterm> <indexterm id="IG31340177473"><primary> identification tags</primary></indexterm> <indexterm id="IG31340177474"><primary>IPC</primary><secondary>trace API</secondary></indexterm>Applications that are linked with the <filename>libpcp_trace</filename> library make calls through the trace Application Programming Interface (API). These calls result in interprocess communication of trace data between the application and the trace PMDA. This data consists of an identification tag and the performance data associated with that particular tag. The trace PMDA aggregates the incoming information and periodically updates the exported summary information to describe activity in the recent past.</para>
 <para><indexterm id="IG31340177475"><primary>PDU</primary></indexterm> <indexterm id="IG31340177476"><primary>working buffers</primary></indexterm>As each protocol data unit (PDU) is received, its data is stored in the current working buffer. At the same time, the global counter associated with the particular tag contained within the PDU is incremented. The working buffer contains all performance data that has arrived since the previous time interval elapsed. For additional information about the working buffer, see <xref linkend="LE42586-PARENT"/>.</para>
 </section>
@@ -4160,7 +4152,7 @@ trace.transact.rate</literallayout>
 <para>At a specified interval, the current working buffer and the accumulated data that it holds is moved into the set of historical buffers, and a new working buffer is used. The specified interval is a function of the number of historical buffers maintained.</para>
 <para>The primary advantage of the rolling-window sampling technique is seen at the point where data is actually exported. At this point, the data has a higher probability of reflecting a more recent sampling period than the data exported using simple periodic sampling.</para>
 <para><indexterm id="IG31340177489"><primary>sample duration</primary></indexterm>The data collected over each sample duration and exported using the rolling-window sampling technique provides a more up-to-date representation of the activity during the most recently completed sample duration than simple periodic sampling as shown in <xref linkend="id5213739"/>.</para>
-<para><figure id="id5213739"><title>Sample Duration Comparison</title><mediaobject><imageobject><imagedata fileref="figures/trace-sampling.svg"/></imageobject><textobject><phrase>Sample Duration Comparison</phrase></textobject></mediaobject></figure></para>
+<para><figure id="id5213739"><title>Sample Duration Comparison</title><mediaobject><imageobject><imagedata fileref="images/trace-sampling.svg"/></imageobject><textobject><phrase>Sample Duration Comparison</phrase></textobject></mediaobject></figure></para>
 <para><indexterm id="IG31340177490"><primary>ring buffers</primary></indexterm>The trace PMDA allows the length of the sample duration to be configured, as well as the number of historical buffers that are maintained. The rolling-window approach is implemented in the trace PMDA as a ring buffer (see <xref linkend="id5213335"/>).</para>
 <para><indexterm id="IG31340177491"><primary>working buffers</primary></indexterm> <indexterm id="IG31340177492"><primary>historical buffers</primary></indexterm>When the current working buffer is moved into the set of historical buffers, the least recent historical buffer is cleared of data and becomes the new working buffer.</para>
 </section>
@@ -4169,7 +4161,7 @@ trace.transact.rate</literallayout>
 <title>Rolling-Window Periodic Sampling Example</title>
 <para><indexterm id="IG31340177493"><primary>examples</primary><secondary>rolling-window sampling</secondary></indexterm>Consider the scenario where you want to know the rate of transactions over the last 10 seconds. You set the sampling rate for the trace PMDA to 10 seconds and fetch the metric <literal>trace.transact.rate</literal>. So if in the last 10 seconds, 8 transactions took place, the transaction rate would be 8/10 or 0.8 transactions per second.</para>
 <para>The trace PMDA does not actually do this. It instead does its calculations automatically at a subinterval of the sampling interval. Reconsider the 10-second scenario. It has a calculation subinterval of 2 seconds as shown in <xref linkend="id5213848"/>.</para>
-<para><figure id="id5213848"><title>Sampling Intervals</title><mediaobject><imageobject><imagedata fileref="figures/trace-example.svg"/></imageobject><textobject><phrase>Sampling Intervals</phrase></textobject></mediaobject></figure></para>
+<para><figure id="id5213848"><title>Sampling Intervals</title><mediaobject><imageobject><imagedata fileref="images/trace-example.svg"/></imageobject><textobject><phrase>Sampling Intervals</phrase></textobject></mediaobject></figure></para>
 <para>If at 13.5 seconds, you request the transaction rate, you receive a value of 0.7 transactions per second. In actual fact, the transaction rate was 0.8, but the trace PMDA did its calculations on the sampling interval from 2 seconds to 12 seconds, and not from 3.5 seconds to 13.5 seconds. For efficiency, the trace PMDA calculates the metrics on the last 10 seconds every 2 seconds. As a result, the PMDA is not driven each time a fetch request is received to do a calculation.</para>
 </section>
 </section>

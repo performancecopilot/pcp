@@ -13,6 +13,7 @@ big1.*
 134.full.*
 051.work/*
 151.work/*
+661.png
 check.out
 check.log
 pmlogger.log
@@ -29,7 +30,6 @@ sudo
 019.out
 022.out
 023.out
-024.out
 028.out
 031.out
 033.out
@@ -82,7 +82,6 @@ sudo
 261.out
 262.out
 266.out
-274.out
 276.out
 278.out
 283.out
@@ -90,7 +89,6 @@ sudo
 295.out
 298.out
 299.out
-300.out
 313.out
 320.out
 322.out
@@ -128,7 +126,6 @@ sudo
 501.out
 504.out
 512.out
-513.out
 514.out
 519.out
 520.out
@@ -159,4 +156,5 @@ sudo
 715.out
 716.out
 733.out
+944.out
 1051.out

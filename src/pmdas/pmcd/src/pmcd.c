@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2015 Red Hat.
  * Copyright (c) 1995-2001,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -213,6 +213,8 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(8,5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* pmcd.feature.service_discovery */
     { PMDA_PMID(8,6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* pmcd.feature.containers */
+    { PMDA_PMID(8,7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /* End-of-List */
     { PM_ID_NULL, 0, 0, 0, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }
@@ -259,7 +261,7 @@ static struct {
     {	8192,	"8192" },
     {   8193,	"8192+" },
 };
-static int	nbufsz = sizeof(bufinst) / sizeof(bufinst[0]);
+static const int	nbufsz = sizeof(bufinst) / sizeof(bufinst[0]);
 
 typedef struct {
     int		id;		/* index into client[] */
@@ -270,17 +272,19 @@ static whoami_t		*whoamis;
 static unsigned int	nwhoamis;
 
 typedef struct {
-    int			state;
-    double		last_cputime;
-    __uint64_t		last_pdu_in;
+    int		state;
+    double	last_cputime;
+    __uint64_t	last_pdu_in;
+    char	*container;
 } perctx_t;
 
-/* values for per context state */
+/* utilization values for per context state */
 #define CTX_INACTIVE    0
 #define CTX_ACTIVE      1
 
-static perctx_t *ctxtab = NULL;
-static int      num_ctx = 0;
+static perctx_t *ctxtab;
+static int      num_ctx;
+static int      rootfd = -1;
 
 /*
  * expand and initialize the per client context table
@@ -295,9 +299,11 @@ grow_ctxtab(int ctx)
     }
     while (num_ctx <= ctx) {
         ctxtab[num_ctx].state = CTX_INACTIVE;
+	ctxtab[num_ctx].container = NULL;
         num_ctx++;
     }
     ctxtab[ctx].state = CTX_INACTIVE;
+    ctxtab[ctx].container = NULL;
 }
 
 /*
@@ -338,7 +344,7 @@ init_tables(int dom)
     indomp->domain = dom;
     indomp->serial = INDOM_CLIENT;
 
-    /* merge performance domain id part into PMIDs in pmDesc table */
+    /* merge performance domain ID part into PMIDs in pmDesc table */
     for (i = 0; desctab[i].pmid != PM_ID_NULL; i++) {
 	pmidp = (__pmID_int *)&desctab[i].pmid;
 	pmidp->domain = dom;
@@ -357,7 +363,6 @@ init_tables(int dom)
     }
     ndesc--;
 }
-
 
 static int
 pmcd_profile(__pmProfile *prof, pmdaExt *pmda)
@@ -1118,6 +1123,40 @@ fetch_feature(int item, pmAtomValue *avp)
     return 0;
 }
 
+static char *
+ctx_container(int ctx)
+{
+    if (ctx < num_ctx && ctx >= 0 && ctxtab[ctx].container)
+	return ctxtab[ctx].container;
+    return NULL;
+}
+
+static char *
+fetch_hostname(int ctx, pmAtomValue *avp, char *host)
+{
+    char	*container;
+
+    if (host) {		/* ensure we only ever refresh once-per-fetch */
+	avp->cp = host;
+	return host;
+    }
+
+    /* see if we're dealing with a request within a container */
+    if ((container = ctx_container(ctx)) != NULL) {
+	pmdaEnterContainerNameSpaces(rootfd, container, PMDA_NAMESPACE_UTS);
+	avp->cp = host = hostnameinfo();
+	pmdaLeaveNameSpaces(rootfd, PMDA_NAMESPACE_UTS);
+    }
+    else if (_pmcd_hostname) {
+	avp->cp = host = _pmcd_hostname;
+    } else {
+	if (!host)
+	    host = hostnameinfo();
+	avp->cp = host;
+    }
+    return host;
+}
+
 static int
 fetch_cputime(int item, int ctx, pmAtomValue *avp)
 {
@@ -1165,8 +1204,12 @@ fetch_cputime(int item, int ctx, pmAtomValue *avp)
 static void
 end_context(int ctx)
 {
-    if (ctx >= 0 && ctx < num_ctx && ctxtab[ctx].state == CTX_ACTIVE) {
-	ctxtab[ctx].state = CTX_INACTIVE;
+    if (ctx >= 0 && ctx < num_ctx) {
+	if (ctxtab[ctx].state == CTX_ACTIVE)
+	    ctxtab[ctx].state = CTX_INACTIVE;
+	if (ctxtab[ctx].container)
+	    free(ctxtab[ctx].container);
+	ctxtab[ctx].container = NULL;
     }
 }
 
@@ -1369,13 +1412,8 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				break;
 
 			case 21:	/* hostname */
-                                if (_pmcd_hostname) {
-				    atom.cp = _pmcd_hostname;
-				} else {
-                                    if (!host)
-					host = hostnameinfo();
-                                    atom.cp = host;
-				}
+				need = pmda->e_context;	/* client context ID */
+				host = fetch_hostname(need, &atom, host);
 				break;
 			default:
 				sts = atom.l = PM_ERR_PMID;
@@ -1845,6 +1883,20 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
     return sts;
 }
 
+static int
+pmcd_attribute(int ctx, int attr, const char *value, int len, pmdaExt *pmda)
+{
+    if (ctx >= num_ctx)
+	grow_ctxtab(ctx);
+    if (attr == PCP_ATTR_CONTAINER) {
+	if (ctxtab[ctx].container)
+	    free(ctxtab[ctx].container);
+	if ((ctxtab[ctx].container = strdup(value)) == NULL)
+	    return -ENOMEM;
+    }
+    return pmdaAttribute(ctx, attr, value, len, pmda);
+}
+
 void
 __PMDA_INIT_CALL
 pmcd_init(pmdaInterface *dp)
@@ -1854,16 +1906,18 @@ pmcd_init(pmdaInterface *dp)
  
     snprintf(helppath, sizeof(helppath), "%s%c" "pmcd" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDSO(dp, PMDA_INTERFACE_5, "pmcd", helppath);
+    pmdaDSO(dp, PMDA_INTERFACE_6, "pmcd", helppath);
+    dp->comm.flags |= (PDU_FLAG_AUTH|PDU_FLAG_CONTAINER);
 
-    dp->version.four.profile = pmcd_profile;
-    dp->version.four.fetch = pmcd_fetch;
-    dp->version.four.desc = pmcd_desc;
-    dp->version.four.instance = pmcd_instance;
-    dp->version.four.store = pmcd_store;
-    dp->version.four.ext->e_endCallBack = end_context;
+    dp->version.six.profile = pmcd_profile;
+    dp->version.six.fetch = pmcd_fetch;
+    dp->version.six.desc = pmcd_desc;
+    dp->version.six.instance = pmcd_instance;
+    dp->version.six.store = pmcd_store;
+    dp->version.six.attribute = pmcd_attribute;
+    dp->version.six.ext->e_endCallBack = end_context;
 
     init_tables(dp->domain);
-
+    rootfd = pmdaRootConnect(NULL);
     pmdaInit(dp, NULL, 0, NULL, 0);
 }

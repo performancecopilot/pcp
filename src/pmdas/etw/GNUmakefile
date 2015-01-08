@@ -38,8 +38,10 @@ include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "mingw"
 build-me: root_etw $(LSRCFILES) $(LIBTARGET) $(EXTRATARGETS)
-	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
+	@if [ -f ../pmcd.conf ]; then \
+	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
+	    fi; \
 	fi
 
 install: build-me

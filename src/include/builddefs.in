@@ -116,6 +116,7 @@ NSSCFLAGS = @NSSCFLAGS@
 NSPRCFLAGS = @NSPRCFLAGS@
 SASLCFLAGS = @SASLCFLAGS@
 AVAHICFLAGS = @avahi_CFLAGS@
+CAIROCFLAGS = @cairo_CFLAGS@
 LIBMICROHTTPDCFLAGS = @libmicrohttpd_CFLAGS@
 
 LDFLAGS += $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
@@ -254,10 +255,12 @@ LIB_FOR_MICROHTTPD = @libmicrohttpd_LIBS@
 SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
 SYSTEMD_LIBS = @SYSTEMD_LIBS@
 PAPI_LIBS = @PAPI_LIBS@
+PFM_LIBS = @PFM_LIBS@
 IB_LIBS = @IB_LIBS@
 PMDA_RPM = @PMDA_RPM@
 PMDA_PAPI = @PMDA_PAPI@
 PMDA_SYSTEMD = @PMDA_SYSTEMD@
+PMDA_PERFEVENT = @PMDA_PERFEVENT@
 PMDA_INFINIBAND = @PMDA_INFINIBAND@
 
 SHELL = /bin/sh
@@ -291,10 +294,22 @@ SUBDIRS_MAKERULE = \
 # prepare symbols file for the GNU toolchain (linker) for DSO PMDAs
 VERSION_SCRIPT_MAKERULE = \
 	@rm -f $@; \
-	echo "{" >$@; \
+	echo "$(DOMAIN) {" >$@; \
 	echo "    global: $(PMDAINIT);" >>$@; \
 	echo "    local: *;" >>$@; \
 	echo "};" >>$@; \
+
+# prepare symbols file for other platforms toolchain for shared libs
+# (convert one canonical format - GNU toolchain style - into others)
+ifeq "$(TARGET_OS)" "solaris"
+EXPORTS_MAKERULE = \
+	$(AWK) <$< >$@ '\
+BEGIN	{ print "$$mapfile_version 2"; print } \
+/\{$$/	{ print "SYMBOL_VERSION", $$0; next } \
+	{ print }'
+else
+EXPORTS_MAKERULE =
+endif
 
 # prepare domain.h used during the PMDA build process for each PMDA
 DOMAIN_MAKERULE = \

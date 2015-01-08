@@ -93,8 +93,8 @@ htonEventArray(pmValueBlock * const vb, int highres)
 		nparams = hrerp->er_nparams;
 	    hrerp->er_nparams = htonl(nparams);
 	    hrerp->er_flags = htonl(hrerp->er_flags);
-	    hrerp->er_timestamp.tv_sec = htonl(hrerp->er_timestamp.tv_sec);
-	    hrerp->er_timestamp.tv_nsec = htonl(hrerp->er_timestamp.tv_nsec);
+	    __htonll((char *)&hrerp->er_timestamp.tv_sec);
+	    __htonll((char *)&hrerp->er_timestamp.tv_nsec);
 	}
 	else {
 	    pmEventRecord *erp = (pmEventRecord *)base;
@@ -194,8 +194,8 @@ ntohEventArray(pmValueBlock * const vb, int highres)
 	    pmHighResEventRecord *hrerp = (pmHighResEventRecord *)base;
 	    size = sizeof(hrerp->er_timestamp) + sizeof(hrerp->er_flags) +
 		    sizeof(hrerp->er_nparams);
-	    hrerp->er_timestamp.tv_sec = ntohl(hrerp->er_timestamp.tv_sec);
-	    hrerp->er_timestamp.tv_nsec = ntohl(hrerp->er_timestamp.tv_nsec);
+	    __ntohll((char *)&hrerp->er_timestamp.tv_sec);
+	    __ntohll((char *)&hrerp->er_timestamp.tv_nsec);
 	    nparams = hrerp->er_nparams = ntohl(hrerp->er_nparams);
 	    flags = hrerp->er_flags = ntohl(hrerp->er_flags);
 	}

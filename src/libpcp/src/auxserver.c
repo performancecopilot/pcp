@@ -865,15 +865,53 @@ int
 __pmSecureServerHandshake(int fd, int flags, __pmHashCtl *attrs)
 {
     (void)fd;
-    (void)flags;
-    (void)attrs;
-    return -EOPNOTSUPP;
+
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_AUTH)
+	fprintf(stderr, "%s:__pmSecureServerHandshake: flags=%d: ", __FILE__, flags);
+#endif
+
+    /* for things that require a secure server, return -EOPNOTSUPP */
+    if ((flags & (PDU_FLAG_SECURE | PDU_FLAG_SECURE_ACK | PDU_FLAG_COMPRESS
+		   | PDU_FLAG_AUTH)) != 0) {
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_AUTH)
+	    fprintf(stderr, "not allowed\n");
+#endif
+	return -EOPNOTSUPP;
+    }
+
+    /*
+     * CREDS_REQD is a special case that does not need a secure server
+     * provided we've connected on a unix domain socket
+     */
+    if ((flags & PDU_FLAG_CREDS_REQD) != 0 && __pmHashSearch(PCP_ATTR_USERID, attrs) != NULL) {
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_AUTH)
+	    fprintf(stderr, "ok\n");
+#endif
+	return 0;
+    }
+    /* remove all of the known good flags */
+    flags &= ~(PDU_FLAG_SECURE | PDU_FLAG_SECURE_ACK | PDU_FLAG_COMPRESS |
+	       PDU_FLAG_AUTH | PDU_FLAG_CREDS_REQD | PDU_FLAG_CONTAINER);
+    if (!flags)
+	return 0;
+
+    /* any remaining flags are unexpected */
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_AUTH)
+	fprintf(stderr, "bad\n");
+#endif
+    return PM_ERR_IPC;
 }
 
 int
 __pmSecureServerHasFeature(__pmServerFeature query)
 {
-    (void)query;
+    /* CREDS_REQD is a special case that does not need a secure server */
+    if ((query & PDU_FLAG_CREDS_REQD) != 0)
+	return 1;
     return 0;
 }
 
@@ -909,6 +947,7 @@ int
 __pmServerSetFeature(__pmServerFeature wanted)
 {
     if (wanted == PM_SERVER_FEATURE_DISCOVERY ||
+        wanted == PM_SERVER_FEATURE_CONTAINERS ||
         wanted == PM_SERVER_FEATURE_CREDS_REQD ||
 	wanted == PM_SERVER_FEATURE_UNIX_DOMAIN) {
 	server_features |= (1 << wanted);
@@ -927,6 +966,7 @@ __pmServerHasFeature(__pmServerFeature query)
 	sts = (strcmp(__pmGetAPIConfig("ipv6"), "true") == 0);
 	break;
     case PM_SERVER_FEATURE_DISCOVERY:
+    case PM_SERVER_FEATURE_CONTAINERS:
     case PM_SERVER_FEATURE_CREDS_REQD:
     case PM_SERVER_FEATURE_UNIX_DOMAIN:
 	if (server_features & (1 << query))

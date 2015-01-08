@@ -260,6 +260,11 @@ pmResult dump from 0x100078e0 timestamp: 0.000000 11:00:00.000 numpmid: 1
 .fi
 .in
 .PP
+The value argument in the
+.B store
+command must be a string, which is enclosed in either single quotes (')
+or double quotes (").
+.PP
 A
 .B profile
 can be specified for each instance domain which includes all, some or no
@@ -338,7 +343,7 @@ PMDA.
 .in +0.5i
 $ dbpmda
 dbpmda> open pipe /var/lib/pcp/pmdas/sample/pmdasample \-d 29
-dbpmda> Start pmdasample PMDA: /var/lib/pcp/pmdas/sample/pmdasample \-d 29
+Start pmdasample PMDA: /var/lib/pcp/pmdas/sample/pmdasample \-d 29
 dbpmda> children sample.secret
 Metric: sample.secret
    non-leaf foo
@@ -416,7 +421,7 @@ PMDA.
 .in +0.5i
 $ dbpmda
 dbpmda> open pipe pmdasample \-D AUTH \-l logfile
-dbpmda> Start pmdasample PMDA: pmdasample \-D AUTH \-l logfile
+Start pmdasample PMDA: pmdasample \-D AUTH \-l logfile
 dbpmda> attr "username" "tanya"
 Attribute: username=tanya
 Success

@@ -1,0 +1,67 @@
+#!/bin/sh
+# PCP QA Test No. 769
+# Check if the "chkconfig" controls and tests for the init scripts
+# and as used in the QA tests really work.
+#
+# Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+VERBOSE_CONFIG=false
+
+. $PCP_SHARE_DIR/lib/rc-proc.sh
+
+_check_chk()
+{
+    if is_chkconfig_on $1
+    then
+	echo "is_chkconfig_on $1 returns true"
+    else
+	echo "is_chkconfig_on $1 returns false"
+    fi
+}
+
+# real QA test starts here
+
+VERBOSE_CONFIG=true
+is_chkconfig_on pmie >>$seq.full
+VERBOSE_CONFIG=false
+
+for svc in pmcd pmie pmlogger pmmgr pmproxy pmwebd
+do
+    save=off
+    is_chkconfig_on $svc && save=on
+    echo "initial state for $svc: $save" >>$seq.full
+    for state in off on
+    do
+	echo "=== $svc $state ==="
+	if [ -f $PCP_RC_DIR/$svc ]
+	then
+	    _change_config $svc $state
+	    _check_chk $svc
+	else
+	    # fake output when init script not installed
+	    #
+	    xpect=true
+	    [ $state = off ] && xpect=false
+	    echo "is_chkconfig_on $svc returns $xpect"
+	fi
+    done
+    [ -f $PCP_RC_DIR/$svc ] && _change_config $svc $save
+done
+
+# success, all done
+status=0
+
+exit

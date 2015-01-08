@@ -1,0 +1,61 @@
+#! /bin/sh
+# PCP QA Test No. 656
+# checks functionality of pmdacifs in both DSO and daemon mode with Valgrind
+# memory testing.
+#
+# Copyright (c) 2014 Red Hat, Inc. All Rights Reserved.
+seq=`basename $0`
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+echo "QA output created by $seq"
+
+[ $PCP_PLATFORM = linux ] || _notrun "CIFS PMDA is Linux-specific (uses procfs)"
+
+root=$tmp.root
+export CIFS_STATSPATH=$root
+
+# helper functions
+
+_cleanup()
+{
+    $sudo rm -fr $root
+    $sudo rm -fr $tmp.*.dir
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+iam=cifs
+status=1 # failure is the default!
+trap "_cleanup $iam" 0 1 2 3 15
+
+$sudo rm -fr $root
+$sudo rm -fr $tmp.*.dir
+$sudo rm -f $tmp.* $seq.full
+touch $here/$seq.full
+
+# real QA test starts here
+pmda=$PCP_PMDAS_DIR/cifs/pmda_cifs.so,cifs_init
+pmns=$PCP_PMDAS_DIR/cifs/root
+_make_helptext cifs
+
+cd $here
+
+echo
+echo "=== Unpacking fake root === " | tee -a $here/$seq.full
+$sudo rm -fr $root
+mkdir $root || _fail "root in use when processing $tgz"
+cd $root
+tar xzf $here/cifs/cifs-root*
+cd $here
+
+echo
+echo "=== Valgrind check cifs metrics for all filesystems ===" | tee -a $here/$seq.full
+_run_valgrind pminfo -L -K clear -K add,121,$pmda -dfmtT -n $pmns cifs
+
+status=0
+exit

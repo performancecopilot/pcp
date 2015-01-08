@@ -170,8 +170,13 @@ _shutdown()
 	fi
     fi
 
-    true
-    $RC_STATUS -v
+    if [ "$1" = quietly ]
+    then
+	$RC_STATUS
+    else
+	true
+	$RC_STATUS -v
+    fi
     rm -fr "$tmp/pmie" "$PCP_TMP_DIR"/pmie/*
     $PCP_BINADM_DIR/pmpost "stop pmie from $pmprog"
 }

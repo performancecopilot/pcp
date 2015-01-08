@@ -50,18 +50,131 @@ static pmOptions opts = {
     .short_usage = "[options] input-archive output-archive",
 };
 
-const char *
-metricname(pmID pmid)
+/*
+ * extract metric name(s) from metadata pdu buffer
+ */
+void
+printmetricnames(FILE *f, __pmPDU *pdubuf)
 {
-    static char	*name = NULL;
-    if (name != NULL) {
-	free(name);
-	name = NULL;
+    if (ntohl(pdubuf[0]) > 8) {
+	/*
+	 * have at least one name ... names are packed
+	 * <len><name>... at the end of the buffer
+	 */
+	int	numnames = ntohl(pdubuf[7]);
+	char	*p = (char *)&pdubuf[8];
+	int	i;
+	__pmPDU	len;
+	for (i = 0; i < numnames; i++) {
+	    memmove((void *)&len, (void *)p, sizeof(__pmPDU));
+	    len = ntohl(len);
+	    p += sizeof(__pmPDU);
+	    if (i > 0) fprintf(f, ", ");
+	    fprintf(f, "%*.*s", len, len, p);
+	    p += len;
+	}
     }
-    if (pmNameID(pmid, &name) == 0)
-	return(name);
-    name = NULL;
-    return pmIDStr(pmid);
+    else
+	fprintf(f, "<noname>");
+}
+
+#define MATCH_NONE	0
+#define MATCH_SUBSET	1
+#define MATCH_SUPERSET	2
+#define MATCH_SOME	3
+#define MATCH_EQUAL	4
+/*
+ * compare sets of metric name(s) from two metadata pdu buffers
+ *
+ * returns MATCH_NONE if no intersection
+ * returns MATCH_SUBSET if {a names} is a proper subset of {b names}
+ * returns MATCH_SUPERSET if {a names} is a proper superset of {b names}
+ * returns MATCH_SOME if the intersection of {a names} and {b names} is
+ * not empty
+ * returns MATCH_EQUAL {a names} is identical to {b names}
+ */
+int
+matchnames(__pmPDU *a, __pmPDU *b)
+{
+    int		num_a = 0;
+    int		num_b = 0;
+    int		num_eq = 0;
+    int		i_a;
+    char	*p_a;
+    int		sts;
+
+    if (ntohl(a[0]) > 8) num_a = ntohl(a[7]);
+    if (ntohl(b[0]) > 8) num_b = ntohl(b[7]);
+
+    p_a = (char *)&a[8];
+
+    for (i_a = 0; i_a < num_a; i_a++) {
+	int		i_b;
+	char		*p_b;
+	__pmPDU		len_a;
+
+	memmove((void *)&len_a, (void *)p_a, sizeof(__pmPDU));
+	len_a = ntohl(len_a);
+	p_a += sizeof(__pmPDU);
+	p_b = (char *)&b[8];
+	for (i_b = 0; i_b < num_b; i_b++) {
+	    __pmPDU		len_b;
+	    memmove((void *)&len_b, (void *)p_b, sizeof(__pmPDU));
+	    len_b = ntohl(len_b);
+	    p_b += sizeof(__pmPDU);
+
+	    if (len_a == len_b && strncmp(p_a, p_b, len_a) == 0)
+		num_eq++;
+
+	    p_b += len_b;
+	}
+	p_a += len_a;
+    }
+
+    if (num_eq == 0) sts = MATCH_NONE;
+    else if (num_a == num_b) {
+	if (num_eq == num_b) sts = MATCH_EQUAL;
+	else sts = MATCH_SOME;
+    }
+    else if (num_a > num_b) {
+	if (num_eq == num_b) sts = MATCH_SUPERSET;
+	else sts = MATCH_SOME;
+    }
+    else {
+	/* num_a < num_b */
+	if (num_eq == num_a) sts = MATCH_SUBSET;
+	else sts = MATCH_SOME;
+    }
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL1) {
+	fprintf(stderr, "matchnames: ");
+	printmetricnames(stderr, a);
+	fprintf(stderr, " : ");
+	printmetricnames(stderr, b);
+	fprintf(stderr, " -> %d\n", sts);
+    }
+#endif
+
+    return sts;
+}
+
+void
+printsem(FILE *f, int sem)
+{
+    switch (sem) {
+	case PM_SEM_COUNTER:
+	    fprintf(f, "counter");
+	    break;
+	case PM_SEM_INSTANT:
+	    fprintf(f, "instant");
+	    break;
+	case PM_SEM_DISCRETE:
+	    fprintf(f, "discrete");
+	    break;
+	default:
+	    fprintf(f, "unknown (%d)", sem);
+	    break;
+    }
 }
 
 /*
@@ -240,7 +353,6 @@ _report(FILE *fp)
     else
 	fprintf(stderr, " %ld bytes.\n", (long int)sbuf.st_size);
     fprintf(stderr, "The last record, and the remainder of this file will not be extracted.\n");
-    abandon();
 }
 
 
@@ -528,27 +640,47 @@ update_descreclist(int i)
     else {
 	curr = rdesc;
 	/* find matching record or last record */
-	while (curr->next != NULL && curr->desc.pmid != ntoh_pmID(iap->pb[META][2]))
-	    curr = curr->next;
-
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL1) {
-	    fprintf(stderr, "update_descreclist: pmid: last/match %s", metricname(curr->desc.pmid));
-	    fprintf(stderr, " new %s", metricname(ntoh_pmID(iap->pb[META][2])));
-	    fputc('\n', stderr);
+	    fprintf(stderr, "update_descreclist: looking for ");
+	    printmetricnames(stderr, iap->pb[META]);
+	    fprintf(stderr, " (pmid:%s)\n", pmIDStr(ntoh_pmID(iap->pb[META][2])));
 	}
 #endif
+	while (curr->next != NULL && curr->desc.pmid != ntoh_pmID(iap->pb[META][2])) {
+	    if (curr->pdu != NULL) {
+		if (matchnames(curr->pdu, iap->pb[META]) != MATCH_NONE) {
+		    fprintf(stderr, "%s: Error: metric ", pmProgname);
+		    printmetricnames(stderr, curr->pdu);
+		    fprintf(stderr, ": PMID changed from %s", pmIDStr(curr->desc.pmid));
+		    fprintf(stderr, " to %s!\n", pmIDStr(ntoh_pmID(iap->pb[META][2])));
+		    abandon();
+		}
+#ifdef PCP_DEBUG
+		if (pmDebug & DBG_TRACE_APPL1) {
+		    fprintf(stderr, "update_descreclist: nomatch ");
+		    printmetricnames(stderr, curr->pdu);
+		    fprintf(stderr, " (pmid:%s)\n", pmIDStr(curr->desc.pmid));
+		}
+#endif
+	    }
+	    curr = curr->next;
+	}
     }
 
     if (curr->desc.pmid == ntoh_pmID(iap->pb[META][2])) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL1) {
+	    fprintf(stderr, "update_descreclist: pmid match ");
+	    printmetricnames(stderr, curr->pdu);
 	    fprintf(stderr, " type: old %s", pmTypeStr(curr->desc.type));
 	    fprintf(stderr, " new %s", pmTypeStr(ntohl(iap->pb[META][3])));
 	    fprintf(stderr, " indom: old %s", pmInDomStr(curr->desc.indom));
 	    fprintf(stderr, " new %s", pmInDomStr(ntoh_pmInDom(iap->pb[META][4])));
-	    fprintf(stderr, " sem: old %d", curr->desc.sem);
-	    fprintf(stderr, " new %d", (int)ntohl(iap->pb[META][5]));
+	    fprintf(stderr, " sem: old ");
+	    printsem(stderr, curr->desc.sem);
+	    fprintf(stderr, " new ");
+	    printsem(stderr, (int)ntohl(iap->pb[META][5]));
 	    fprintf(stderr, " units: old %s", pmUnitsStr(&curr->desc.units));
 	    pmup = (pmUnits *)&iap->pb[META][6];
 	    pmu = ntoh_pmUnits(*pmup);
@@ -556,28 +688,40 @@ update_descreclist(int i)
 	    fputc('\n', stderr);
 	}
 #endif
+	if (matchnames(curr->pdu, iap->pb[META]) != MATCH_EQUAL) {
+	    fprintf(stderr, "%s: Error: metric PMID %s", pmProgname, pmIDStr(curr->desc.pmid));
+	    fprintf(stderr, ": name changed from ");
+	    printmetricnames(stderr, curr->pdu);
+	    fprintf(stderr, " to ");
+	    printmetricnames(stderr, iap->pb[META]);
+	    fprintf(stderr, "!\n");
+	    abandon();
+	}
 	if (curr->desc.type != ntohl(iap->pb[META][3])) {
-	    fprintf(stderr,
-		"%s: Error: metric %s: type changed from",
-		pmProgname, metricname(curr->desc.pmid));
+	    fprintf(stderr, "%s: Error: metric ", pmProgname);
+	    printmetricnames(stderr, curr->pdu);
+	    fprintf(stderr, ": type changed from");
 	    fprintf(stderr, " %s", pmTypeStr(curr->desc.type));
 	    fprintf(stderr, " to %s!\n", pmTypeStr(ntohl(iap->pb[META][3])));
 	    abandon();
 	}
 	if (curr->desc.indom != ntoh_pmInDom(iap->pb[META][4])) {
-	    fprintf(stderr,
-		"%s: Error: metric %s: indom changed from",
-		pmProgname, metricname(curr->desc.pmid));
+	    fprintf(stderr, "%s: Error: metric ", pmProgname);
+	    printmetricnames(stderr, curr->pdu);
+	    fprintf(stderr, ": indom changed from");
 	    fprintf(stderr, " %s", pmInDomStr(curr->desc.indom));
 	    fprintf(stderr, " to %s!\n", pmInDomStr(ntoh_pmInDom(iap->pb[META][4])));
 	    abandon();
 	}
 	if (curr->desc.sem != ntohl(iap->pb[META][5])) {
-	    fprintf(stderr,
-		"%s: Error: metric %s: semantics changed from",
-		pmProgname, metricname(curr->desc.pmid));
-	    fprintf(stderr, " %d", curr->desc.sem);
-	    fprintf(stderr, " to %d!\n", (int)ntohl(iap->pb[META][5]));
+	    fprintf(stderr, "%s: Error: metric ", pmProgname);
+	    printmetricnames(stderr, curr->pdu);
+	    fprintf(stderr, ": semantics changed from");
+	    fprintf(stderr, " ");
+	    printsem(stderr, curr->desc.sem);
+	    fprintf(stderr, " to ");
+	    printsem(stderr, (int)ntohl(iap->pb[META][5]));
+	    fprintf(stderr, "!\n");
 	    abandon();
 	}
 	pmup = (pmUnits *)&iap->pb[META][6];
@@ -588,9 +732,9 @@ update_descreclist(int i)
 	    curr->desc.units.scaleSpace != pmu.scaleSpace ||
 	    curr->desc.units.scaleTime != pmu.scaleTime ||
 	    curr->desc.units.scaleCount != pmu.scaleCount) {
-	    fprintf(stderr,
-		"%s: Error: metric %s: units changed from",
-		pmProgname, metricname(curr->desc.pmid));
+	    fprintf(stderr, "%s: Error: metric ", pmProgname);
+	    printmetricnames(stderr, curr->pdu);
+	    fprintf(stderr, ": units changed from");
 	    fprintf(stderr, " %s", pmUnitsStr(&curr->desc.units));
 	    fprintf(stderr, " to %s!\n", pmUnitsStr(&pmu));
 	    abandon();
@@ -992,6 +1136,7 @@ againmeta:
 		fprintf(stderr, "%s: Error: _pmLogGet[meta %s]: %s\n",
 			pmProgname, iap->name, pmErrStr(sts));
 		_report(lcp->l_mdfp);
+		abandon();
 	    }
 	    PM_UNLOCK(ctxp->c_lock);
 	    continue;
@@ -1131,6 +1276,8 @@ againlog:
 		fprintf(stderr, "%s: Error: __pmLogRead[log %s]: %s\n",
 			pmProgname, iap->name, pmErrStr(sts));
 		_report(lcp->l_mfp);
+		if (sts != PM_ERR_LOGREC)
+		    abandon();
 	    }
 	    /* if the first data record has not been written out, then
 	     * do not generate a mark record, and you may as well ignore

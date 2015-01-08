@@ -1,0 +1,1910 @@
+QA output created by 661
+
+=== pmwebd graphite capabilities ===
+crashers
+the catalog
+HTTP/1.1 302 Moved Temporarily
+Content-Length: 0
+Location: /index.html?phantasm=&zoo=poo
+Date: XXX
+
+HTTP/1.1 302 Moved Temporarily
+Content-Length: 0
+Location: /blinkenlights/index.html
+Date: XXX
+
+HTTP/1.1 302 Moved Temporarily
+Content-Length: 0
+Location: /blinkenlights/index.html
+Date: XXX
+
+<html>
+<head><title>Performance Co-Pilot</title></head>
+<body>
+Web applications:
+<ul>
+<li><a href="blinkenlights/">blinkenlights demo</a>
+</li>
+<li><a href="graphite/">graphite</a>
+</li>
+<li><a href="grafana/index.html#/dashboard/file/default.json">grafana (flot js rendering)</a>
+</li>
+<li><a href="grafana/index.html#/dashboard/file/default-png.json">grafana (png rendering)</a>
+</li>
+</ul>
+</body></html>
+
+metric name breakage
+[]
+[]
+
+metric tree iteration
+[
+    {
+        "allowChildren": 1,
+        "expandable": 1,
+        "id": "src-2F-naslog-2E-meta.disk",
+        "leaf": 0,
+        "text": "disk"
+    },
+    {
+        "allowChildren": 1,
+        "expandable": 1,
+        "id": "src-2F-naslog-2E-meta.hinv",
+        "leaf": 0,
+        "text": "hinv"
+    },
+    {
+        "allowChildren": 1,
+        "expandable": 1,
+        "id": "src-2F-naslog-2E-meta.kernel",
+        "leaf": 0,
+        "text": "kernel"
+    },
+    {
+        "allowChildren": 1,
+        "expandable": 1,
+        "id": "src-2F-naslog-2E-meta.network",
+        "leaf": 0,
+        "text": "network"
+    },
+    {
+        "allowChildren": 1,
+        "expandable": 1,
+        "id": "src-2F-naslog-2E-meta.pmcd",
+        "leaf": 0,
+        "text": "pmcd"
+    },
+    {
+        "allowChildren": 1,
+        "expandable": 1,
+        "id": "src-2F-naslog-2E-meta.swap",
+        "leaf": 0,
+        "text": "swap"
+    },
+    {
+        "allowChildren": 1,
+        "expandable": 1,
+        "id": "src-2F-naslog-2E-meta.xfs",
+        "leaf": 0,
+        "text": "xfs"
+    }
+]
+{
+    "metrics": [
+        {
+            "is_leaf": 0,
+            "name": "disk",
+            "path": "src-2F-naslog-2E-meta.disk."
+        },
+        {
+            "is_leaf": 0,
+            "name": "hinv",
+            "path": "src-2F-naslog-2E-meta.hinv."
+        },
+        {
+            "is_leaf": 0,
+            "name": "kernel",
+            "path": "src-2F-naslog-2E-meta.kernel."
+        },
+        {
+            "is_leaf": 0,
+            "name": "network",
+            "path": "src-2F-naslog-2E-meta.network."
+        },
+        {
+            "is_leaf": 0,
+            "name": "pmcd",
+            "path": "src-2F-naslog-2E-meta.pmcd."
+        },
+        {
+            "is_leaf": 0,
+            "name": "swap",
+            "path": "src-2F-naslog-2E-meta.swap."
+        },
+        {
+            "is_leaf": 0,
+            "name": "xfs",
+            "path": "src-2F-naslog-2E-meta.xfs."
+        }
+    ]
+}
+{
+    "metrics": [
+        {
+            "is_leaf": 0,
+            "name": "all",
+            "path": "src-2F-naslog-2E-meta.kernel.all."
+        }
+    ]
+}
+{
+    "metrics": [
+        {
+            "is_leaf": 0,
+            "name": "all",
+            "path": "src-2F-naslog-2E-meta.kernel.all."
+        }
+    ]
+}
+{
+    "metrics": [
+        {
+            "is_leaf": 0,
+            "name": "cpu",
+            "path": "src-2F-naslog-2E-meta.kernel.all.cpu."
+        },
+        {
+            "is_leaf": 1,
+            "name": "kpreempt",
+            "path": "src-2F-naslog-2E-meta.kernel.all.kpreempt"
+        },
+        {
+            "is_leaf": 1,
+            "name": "kswitch",
+            "path": "src-2F-naslog-2E-meta.kernel.all.kswitch"
+        },
+        {
+            "is_leaf": 0,
+            "name": "load",
+            "path": "src-2F-naslog-2E-meta.kernel.all.load."
+        },
+        {
+            "is_leaf": 1,
+            "name": "pswitch",
+            "path": "src-2F-naslog-2E-meta.kernel.all.pswitch"
+        },
+        {
+            "is_leaf": 1,
+            "name": "syscall",
+            "path": "src-2F-naslog-2E-meta.kernel.all.syscall"
+        },
+        {
+            "is_leaf": 1,
+            "name": "sysexec",
+            "path": "src-2F-naslog-2E-meta.kernel.all.sysexec"
+        },
+        {
+            "is_leaf": 1,
+            "name": "sysfork",
+            "path": "src-2F-naslog-2E-meta.kernel.all.sysfork"
+        },
+        {
+            "is_leaf": 1,
+            "name": "sysioctl",
+            "path": "src-2F-naslog-2E-meta.kernel.all.sysioctl"
+        },
+        {
+            "is_leaf": 1,
+            "name": "sysread",
+            "path": "src-2F-naslog-2E-meta.kernel.all.sysread"
+        },
+        {
+            "is_leaf": 1,
+            "name": "syswrite",
+            "path": "src-2F-naslog-2E-meta.kernel.all.syswrite"
+        },
+        {
+            "is_leaf": 1,
+            "name": "users",
+            "path": "src-2F-naslog-2E-meta.kernel.all.users"
+        }
+    ]
+}
+
+metric regex grep 1
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.active.dks131d1
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.active.dks131d2
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.active.dks131d3
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.active.dks131d4
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkread.dks131d1
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkread.dks131d2
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkread.dks131d3
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkread.dks131d4
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blktotal.dks131d1
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blktotal.dks131d2
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blktotal.dks131d3
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blktotal.dks131d4
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkwrite.dks131d1
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkwrite.dks131d2
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkwrite.dks131d3
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkwrite.dks131d4
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.read.dks131d1
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.read.dks131d2
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.read.dks131d3
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.read.dks131d4
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.response.dks131d1
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.response.dks131d2
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.response.dks131d3
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.response.dks131d4
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.total.dks131d1
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.total.dks131d2
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.total.dks131d3
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.total.dks131d4
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.write.dks131d1
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.write.dks131d2
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.write.dks131d3
+src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.write.dks131d4
+
+metric regex grep 2
+src-2F-20130706-2E-meta.hinv.cpu.bogomips.cpu0,src-2F-20130706-2E-meta.hinv.cpu.bogomips.cpu1,src-2F-20130706-2E-meta.hinv.cpu.cache.cpu0,src-2F-20130706-2E-meta.hinv.cpu.cache.cpu1,src-2F-20130706-2E-meta.hinv.cpu.clock.cpu0,src-2F-20130706-2E-meta.hinv.cpu.clock.cpu1,src-2F-20130706-2E-meta.hinv.map.cpu_node.cpu0,src-2F-20130706-2E-meta.hinv.map.cpu_node.cpu1,src-2F-20130706-2E-meta.hinv.map.cpu_num.cpu0,src-2F-20130706-2E-meta.hinv.map.cpu_num.cpu1,src-2F-20130706-2E-meta.hinv.ncpu,src-2F-20130706-2E-meta.hinv.ndisk,src-2F-20130706-2E-meta.hinv.nfilesys,src-2F-20130706-2E-meta.hinv.pagesize,src-2F-20130706-2E-meta.hinv.physmem
+
+metric value dump 1
+[
+    {
+        "datapoints": [
+            [
+                null,
+                1385567400
+            ],
+            [
+                1472,
+                1385567585
+            ],
+            [
+                null,
+                1385567770
+            ],
+            [
+                null,
+                1385567955
+            ],
+            [
+                null,
+                1385568140
+            ],
+            [
+                null,
+                1385568325
+            ],
+            [
+                null,
+                1385568510
+            ],
+            [
+                null,
+                1385568695
+            ],
+            [
+                null,
+                1385568880
+            ],
+            [
+                null,
+                1385569065
+            ],
+            [
+                null,
+                1385569250
+            ],
+            [
+                null,
+                1385569435
+            ],
+            [
+                null,
+                1385569620
+            ],
+            [
+                null,
+                1385569805
+            ],
+            [
+                null,
+                1385569990
+            ],
+            [
+                null,
+                1385570175
+            ],
+            [
+                null,
+                1385570360
+            ],
+            [
+                null,
+                1385570545
+            ],
+            [
+                null,
+                1385570730
+            ],
+            [
+                null,
+                1385570915
+            ],
+            [
+                null,
+                1385571100
+            ],
+            [
+                null,
+                1385571285
+            ],
+            [
+                null,
+                1385571470
+            ],
+            [
+                null,
+                1385571655
+            ],
+            [
+                null,
+                1385571840
+            ],
+            [
+                null,
+                1385572025
+            ],
+            [
+                null,
+                1385572210
+            ],
+            [
+                null,
+                1385572395
+            ],
+            [
+                null,
+                1385572580
+            ],
+            [
+                null,
+                1385572765
+            ],
+            [
+                null,
+                1385572950
+            ],
+            [
+                null,
+                1385573135
+            ],
+            [
+                null,
+                1385573320
+            ],
+            [
+                null,
+                1385573505
+            ],
+            [
+                null,
+                1385573690
+            ],
+            [
+                null,
+                1385573875
+            ],
+            [
+                null,
+                1385574060
+            ],
+            [
+                null,
+                1385574245
+            ],
+            [
+                null,
+                1385574430
+            ],
+            [
+                null,
+                1385574615
+            ],
+            [
+                null,
+                1385574800
+            ],
+            [
+                null,
+                1385574985
+            ],
+            [
+                null,
+                1385575170
+            ],
+            [
+                null,
+                1385575355
+            ],
+            [
+                null,
+                1385575540
+            ],
+            [
+                null,
+                1385575725
+            ],
+            [
+                null,
+                1385575910
+            ],
+            [
+                null,
+                1385576095
+            ],
+            [
+                null,
+                1385576280
+            ],
+            [
+                null,
+                1385576465
+            ],
+            [
+                null,
+                1385576650
+            ],
+            [
+                null,
+                1385576835
+            ],
+            [
+                null,
+                1385577020
+            ],
+            [
+                null,
+                1385577205
+            ],
+            [
+                null,
+                1385577390
+            ],
+            [
+                null,
+                1385577575
+            ],
+            [
+                null,
+                1385577760
+            ],
+            [
+                null,
+                1385577945
+            ],
+            [
+                null,
+                1385578130
+            ],
+            [
+                null,
+                1385578315
+            ],
+            [
+                null,
+                1385578500
+            ],
+            [
+                null,
+                1385578685
+            ],
+            [
+                null,
+                1385578870
+            ],
+            [
+                null,
+                1385579055
+            ],
+            [
+                null,
+                1385579240
+            ],
+            [
+                null,
+                1385579425
+            ],
+            [
+                null,
+                1385579610
+            ],
+            [
+                null,
+                1385579795
+            ],
+            [
+                null,
+                1385579980
+            ],
+            [
+                null,
+                1385580165
+            ],
+            [
+                null,
+                1385580350
+            ],
+            [
+                null,
+                1385580535
+            ],
+            [
+                null,
+                1385580720
+            ],
+            [
+                null,
+                1385580905
+            ],
+            [
+                null,
+                1385581090
+            ],
+            [
+                null,
+                1385581275
+            ],
+            [
+                null,
+                1385581460
+            ],
+            [
+                null,
+                1385581645
+            ],
+            [
+                null,
+                1385581830
+            ],
+            [
+                null,
+                1385582015
+            ],
+            [
+                null,
+                1385582200
+            ],
+            [
+                null,
+                1385582385
+            ],
+            [
+                null,
+                1385582570
+            ],
+            [
+                null,
+                1385582755
+            ],
+            [
+                null,
+                1385582940
+            ],
+            [
+                null,
+                1385583125
+            ],
+            [
+                null,
+                1385583310
+            ],
+            [
+                null,
+                1385583495
+            ],
+            [
+                null,
+                1385583680
+            ],
+            [
+                null,
+                1385583865
+            ],
+            [
+                null,
+                1385584050
+            ],
+            [
+                null,
+                1385584235
+            ],
+            [
+                null,
+                1385584420
+            ],
+            [
+                null,
+                1385584605
+            ],
+            [
+                null,
+                1385584790
+            ],
+            [
+                null,
+                1385584975
+            ],
+            [
+                null,
+                1385585160
+            ],
+            [
+                null,
+                1385585345
+            ],
+            [
+                null,
+                1385585530
+            ],
+            [
+                null,
+                1385585715
+            ]
+        ],
+        "target": "src-2F-node_archive-2E-meta.proc.psinfo.pid.001472 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F--2E--2F-wait_launcher-2E-py"
+    },
+    {
+        "datapoints": [
+            [
+                null,
+                1385567400
+            ],
+            [
+                1503,
+                1385567585
+            ],
+            [
+                null,
+                1385567770
+            ],
+            [
+                null,
+                1385567955
+            ],
+            [
+                null,
+                1385568140
+            ],
+            [
+                null,
+                1385568325
+            ],
+            [
+                null,
+                1385568510
+            ],
+            [
+                null,
+                1385568695
+            ],
+            [
+                null,
+                1385568880
+            ],
+            [
+                null,
+                1385569065
+            ],
+            [
+                null,
+                1385569250
+            ],
+            [
+                null,
+                1385569435
+            ],
+            [
+                null,
+                1385569620
+            ],
+            [
+                null,
+                1385569805
+            ],
+            [
+                null,
+                1385569990
+            ],
+            [
+                null,
+                1385570175
+            ],
+            [
+                null,
+                1385570360
+            ],
+            [
+                null,
+                1385570545
+            ],
+            [
+                null,
+                1385570730
+            ],
+            [
+                null,
+                1385570915
+            ],
+            [
+                null,
+                1385571100
+            ],
+            [
+                null,
+                1385571285
+            ],
+            [
+                null,
+                1385571470
+            ],
+            [
+                null,
+                1385571655
+            ],
+            [
+                null,
+                1385571840
+            ],
+            [
+                null,
+                1385572025
+            ],
+            [
+                null,
+                1385572210
+            ],
+            [
+                null,
+                1385572395
+            ],
+            [
+                null,
+                1385572580
+            ],
+            [
+                null,
+                1385572765
+            ],
+            [
+                null,
+                1385572950
+            ],
+            [
+                null,
+                1385573135
+            ],
+            [
+                null,
+                1385573320
+            ],
+            [
+                null,
+                1385573505
+            ],
+            [
+                null,
+                1385573690
+            ],
+            [
+                null,
+                1385573875
+            ],
+            [
+                null,
+                1385574060
+            ],
+            [
+                null,
+                1385574245
+            ],
+            [
+                null,
+                1385574430
+            ],
+            [
+                null,
+                1385574615
+            ],
+            [
+                null,
+                1385574800
+            ],
+            [
+                null,
+                1385574985
+            ],
+            [
+                null,
+                1385575170
+            ],
+            [
+                null,
+                1385575355
+            ],
+            [
+                null,
+                1385575540
+            ],
+            [
+                null,
+                1385575725
+            ],
+            [
+                null,
+                1385575910
+            ],
+            [
+                null,
+                1385576095
+            ],
+            [
+                null,
+                1385576280
+            ],
+            [
+                null,
+                1385576465
+            ],
+            [
+                null,
+                1385576650
+            ],
+            [
+                null,
+                1385576835
+            ],
+            [
+                null,
+                1385577020
+            ],
+            [
+                null,
+                1385577205
+            ],
+            [
+                null,
+                1385577390
+            ],
+            [
+                null,
+                1385577575
+            ],
+            [
+                null,
+                1385577760
+            ],
+            [
+                null,
+                1385577945
+            ],
+            [
+                null,
+                1385578130
+            ],
+            [
+                null,
+                1385578315
+            ],
+            [
+                null,
+                1385578500
+            ],
+            [
+                null,
+                1385578685
+            ],
+            [
+                null,
+                1385578870
+            ],
+            [
+                null,
+                1385579055
+            ],
+            [
+                null,
+                1385579240
+            ],
+            [
+                null,
+                1385579425
+            ],
+            [
+                null,
+                1385579610
+            ],
+            [
+                null,
+                1385579795
+            ],
+            [
+                null,
+                1385579980
+            ],
+            [
+                null,
+                1385580165
+            ],
+            [
+                null,
+                1385580350
+            ],
+            [
+                null,
+                1385580535
+            ],
+            [
+                null,
+                1385580720
+            ],
+            [
+                null,
+                1385580905
+            ],
+            [
+                null,
+                1385581090
+            ],
+            [
+                null,
+                1385581275
+            ],
+            [
+                null,
+                1385581460
+            ],
+            [
+                null,
+                1385581645
+            ],
+            [
+                null,
+                1385581830
+            ],
+            [
+                null,
+                1385582015
+            ],
+            [
+                null,
+                1385582200
+            ],
+            [
+                null,
+                1385582385
+            ],
+            [
+                null,
+                1385582570
+            ],
+            [
+                null,
+                1385582755
+            ],
+            [
+                null,
+                1385582940
+            ],
+            [
+                null,
+                1385583125
+            ],
+            [
+                null,
+                1385583310
+            ],
+            [
+                null,
+                1385583495
+            ],
+            [
+                null,
+                1385583680
+            ],
+            [
+                null,
+                1385583865
+            ],
+            [
+                null,
+                1385584050
+            ],
+            [
+                null,
+                1385584235
+            ],
+            [
+                null,
+                1385584420
+            ],
+            [
+                null,
+                1385584605
+            ],
+            [
+                null,
+                1385584790
+            ],
+            [
+                null,
+                1385584975
+            ],
+            [
+                null,
+                1385585160
+            ],
+            [
+                null,
+                1385585345
+            ],
+            [
+                null,
+                1385585530
+            ],
+            [
+                null,
+                1385585715
+            ]
+        ],
+        "target": "src-2F-node_archive-2E-meta.proc.psinfo.pid.001503 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F-wait-2E-py"
+    },
+    {
+        "datapoints": [
+            [
+                null,
+                1385567400
+            ],
+            [
+                1516,
+                1385567585
+            ],
+            [
+                null,
+                1385567770
+            ],
+            [
+                null,
+                1385567955
+            ],
+            [
+                null,
+                1385568140
+            ],
+            [
+                null,
+                1385568325
+            ],
+            [
+                null,
+                1385568510
+            ],
+            [
+                null,
+                1385568695
+            ],
+            [
+                null,
+                1385568880
+            ],
+            [
+                null,
+                1385569065
+            ],
+            [
+                null,
+                1385569250
+            ],
+            [
+                null,
+                1385569435
+            ],
+            [
+                null,
+                1385569620
+            ],
+            [
+                null,
+                1385569805
+            ],
+            [
+                null,
+                1385569990
+            ],
+            [
+                null,
+                1385570175
+            ],
+            [
+                null,
+                1385570360
+            ],
+            [
+                null,
+                1385570545
+            ],
+            [
+                null,
+                1385570730
+            ],
+            [
+                null,
+                1385570915
+            ],
+            [
+                null,
+                1385571100
+            ],
+            [
+                null,
+                1385571285
+            ],
+            [
+                null,
+                1385571470
+            ],
+            [
+                null,
+                1385571655
+            ],
+            [
+                null,
+                1385571840
+            ],
+            [
+                null,
+                1385572025
+            ],
+            [
+                null,
+                1385572210
+            ],
+            [
+                null,
+                1385572395
+            ],
+            [
+                null,
+                1385572580
+            ],
+            [
+                null,
+                1385572765
+            ],
+            [
+                null,
+                1385572950
+            ],
+            [
+                null,
+                1385573135
+            ],
+            [
+                null,
+                1385573320
+            ],
+            [
+                null,
+                1385573505
+            ],
+            [
+                null,
+                1385573690
+            ],
+            [
+                null,
+                1385573875
+            ],
+            [
+                null,
+                1385574060
+            ],
+            [
+                null,
+                1385574245
+            ],
+            [
+                null,
+                1385574430
+            ],
+            [
+                null,
+                1385574615
+            ],
+            [
+                null,
+                1385574800
+            ],
+            [
+                null,
+                1385574985
+            ],
+            [
+                null,
+                1385575170
+            ],
+            [
+                null,
+                1385575355
+            ],
+            [
+                null,
+                1385575540
+            ],
+            [
+                null,
+                1385575725
+            ],
+            [
+                null,
+                1385575910
+            ],
+            [
+                null,
+                1385576095
+            ],
+            [
+                null,
+                1385576280
+            ],
+            [
+                null,
+                1385576465
+            ],
+            [
+                null,
+                1385576650
+            ],
+            [
+                null,
+                1385576835
+            ],
+            [
+                null,
+                1385577020
+            ],
+            [
+                null,
+                1385577205
+            ],
+            [
+                null,
+                1385577390
+            ],
+            [
+                null,
+                1385577575
+            ],
+            [
+                null,
+                1385577760
+            ],
+            [
+                null,
+                1385577945
+            ],
+            [
+                null,
+                1385578130
+            ],
+            [
+                null,
+                1385578315
+            ],
+            [
+                null,
+                1385578500
+            ],
+            [
+                null,
+                1385578685
+            ],
+            [
+                null,
+                1385578870
+            ],
+            [
+                null,
+                1385579055
+            ],
+            [
+                null,
+                1385579240
+            ],
+            [
+                null,
+                1385579425
+            ],
+            [
+                null,
+                1385579610
+            ],
+            [
+                null,
+                1385579795
+            ],
+            [
+                null,
+                1385579980
+            ],
+            [
+                null,
+                1385580165
+            ],
+            [
+                null,
+                1385580350
+            ],
+            [
+                null,
+                1385580535
+            ],
+            [
+                null,
+                1385580720
+            ],
+            [
+                null,
+                1385580905
+            ],
+            [
+                null,
+                1385581090
+            ],
+            [
+                null,
+                1385581275
+            ],
+            [
+                null,
+                1385581460
+            ],
+            [
+                null,
+                1385581645
+            ],
+            [
+                null,
+                1385581830
+            ],
+            [
+                null,
+                1385582015
+            ],
+            [
+                null,
+                1385582200
+            ],
+            [
+                null,
+                1385582385
+            ],
+            [
+                null,
+                1385582570
+            ],
+            [
+                null,
+                1385582755
+            ],
+            [
+                null,
+                1385582940
+            ],
+            [
+                null,
+                1385583125
+            ],
+            [
+                null,
+                1385583310
+            ],
+            [
+                null,
+                1385583495
+            ],
+            [
+                null,
+                1385583680
+            ],
+            [
+                null,
+                1385583865
+            ],
+            [
+                null,
+                1385584050
+            ],
+            [
+                null,
+                1385584235
+            ],
+            [
+                null,
+                1385584420
+            ],
+            [
+                null,
+                1385584605
+            ],
+            [
+                null,
+                1385584790
+            ],
+            [
+                null,
+                1385584975
+            ],
+            [
+                null,
+                1385585160
+            ],
+            [
+                null,
+                1385585345
+            ],
+            [
+                null,
+                1385585530
+            ],
+            [
+                null,
+                1385585715
+            ]
+        ],
+        "target": "src-2F-node_archive-2E-meta.proc.psinfo.pid.001516 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F-wait-2E-py"
+    },
+    {
+        "datapoints": [
+            [
+                null,
+                1385567400
+            ],
+            [
+                null,
+                1385567585
+            ],
+            [
+                null,
+                1385567770
+            ],
+            [
+                null,
+                1385567955
+            ],
+            [
+                null,
+                1385568140
+            ],
+            [
+                null,
+                1385568325
+            ],
+            [
+                null,
+                1385568510
+            ],
+            [
+                null,
+                1385568695
+            ],
+            [
+                null,
+                1385568880
+            ],
+            [
+                null,
+                1385569065
+            ],
+            [
+                null,
+                1385569250
+            ],
+            [
+                null,
+                1385569435
+            ],
+            [
+                null,
+                1385569620
+            ],
+            [
+                null,
+                1385569805
+            ],
+            [
+                null,
+                1385569990
+            ],
+            [
+                null,
+                1385570175
+            ],
+            [
+                null,
+                1385570360
+            ],
+            [
+                null,
+                1385570545
+            ],
+            [
+                null,
+                1385570730
+            ],
+            [
+                null,
+                1385570915
+            ],
+            [
+                null,
+                1385571100
+            ],
+            [
+                null,
+                1385571285
+            ],
+            [
+                null,
+                1385571470
+            ],
+            [
+                null,
+                1385571655
+            ],
+            [
+                null,
+                1385571840
+            ],
+            [
+                null,
+                1385572025
+            ],
+            [
+                null,
+                1385572210
+            ],
+            [
+                null,
+                1385572395
+            ],
+            [
+                null,
+                1385572580
+            ],
+            [
+                null,
+                1385572765
+            ],
+            [
+                null,
+                1385572950
+            ],
+            [
+                null,
+                1385573135
+            ],
+            [
+                null,
+                1385573320
+            ],
+            [
+                null,
+                1385573505
+            ],
+            [
+                null,
+                1385573690
+            ],
+            [
+                null,
+                1385573875
+            ],
+            [
+                null,
+                1385574060
+            ],
+            [
+                null,
+                1385574245
+            ],
+            [
+                null,
+                1385574430
+            ],
+            [
+                null,
+                1385574615
+            ],
+            [
+                null,
+                1385574800
+            ],
+            [
+                null,
+                1385574985
+            ],
+            [
+                null,
+                1385575170
+            ],
+            [
+                null,
+                1385575355
+            ],
+            [
+                null,
+                1385575540
+            ],
+            [
+                null,
+                1385575725
+            ],
+            [
+                null,
+                1385575910
+            ],
+            [
+                null,
+                1385576095
+            ],
+            [
+                null,
+                1385576280
+            ],
+            [
+                null,
+                1385576465
+            ],
+            [
+                null,
+                1385576650
+            ],
+            [
+                null,
+                1385576835
+            ],
+            [
+                null,
+                1385577020
+            ],
+            [
+                null,
+                1385577205
+            ],
+            [
+                null,
+                1385577390
+            ],
+            [
+                null,
+                1385577575
+            ],
+            [
+                null,
+                1385577760
+            ],
+            [
+                null,
+                1385577945
+            ],
+            [
+                null,
+                1385578130
+            ],
+            [
+                null,
+                1385578315
+            ],
+            [
+                null,
+                1385578500
+            ],
+            [
+                null,
+                1385578685
+            ],
+            [
+                null,
+                1385578870
+            ],
+            [
+                null,
+                1385579055
+            ],
+            [
+                null,
+                1385579240
+            ],
+            [
+                null,
+                1385579425
+            ],
+            [
+                null,
+                1385579610
+            ],
+            [
+                null,
+                1385579795
+            ],
+            [
+                null,
+                1385579980
+            ],
+            [
+                null,
+                1385580165
+            ],
+            [
+                null,
+                1385580350
+            ],
+            [
+                null,
+                1385580535
+            ],
+            [
+                null,
+                1385580720
+            ],
+            [
+                null,
+                1385580905
+            ],
+            [
+                null,
+                1385581090
+            ],
+            [
+                null,
+                1385581275
+            ],
+            [
+                null,
+                1385581460
+            ],
+            [
+                null,
+                1385581645
+            ],
+            [
+                null,
+                1385581830
+            ],
+            [
+                null,
+                1385582015
+            ],
+            [
+                null,
+                1385582200
+            ],
+            [
+                null,
+                1385582385
+            ],
+            [
+                null,
+                1385582570
+            ],
+            [
+                null,
+                1385582755
+            ],
+            [
+                null,
+                1385582940
+            ],
+            [
+                null,
+                1385583125
+            ],
+            [
+                null,
+                1385583310
+            ],
+            [
+                null,
+                1385583495
+            ],
+            [
+                null,
+                1385583680
+            ],
+            [
+                null,
+                1385583865
+            ],
+            [
+                null,
+                1385584050
+            ],
+            [
+                null,
+                1385584235
+            ],
+            [
+                null,
+                1385584420
+            ],
+            [
+                null,
+                1385584605
+            ],
+            [
+                null,
+                1385584790
+            ],
+            [
+                null,
+                1385584975
+            ],
+            [
+                null,
+                1385585160
+            ],
+            [
+                null,
+                1385585345
+            ],
+            [
+                null,
+                1385585530
+            ],
+            [
+                null,
+                1385585715
+            ]
+        ],
+        "target": "src-2F-node_archive-2E-meta.proc.psinfo.pid.001533 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F-wait-2E-py"
+    }
+]
+
+metric value dump 2
+[
+    {
+        "data": [],
+        "end": 20131129,
+        "name": "src-2F-node_archive-2E-meta.proc.psinfo.pid.001472 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F--2E--2F-wait_launcher-2E-py",
+        "start": 1385567400,
+        "step": 60
+    },
+    {
+        "data": [],
+        "end": 20131129,
+        "name": "src-2F-node_archive-2E-meta.proc.psinfo.pid.001503 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F-wait-2E-py",
+        "start": 1385567400,
+        "step": 60
+    },
+    {
+        "data": [],
+        "end": 20131129,
+        "name": "src-2F-node_archive-2E-meta.proc.psinfo.pid.001516 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F-wait-2E-py",
+        "start": 1385567400,
+        "step": 60
+    },
+    {
+        "data": [],
+        "end": 20131129,
+        "name": "src-2F-node_archive-2E-meta.proc.psinfo.pid.001533 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F-wait-2E-py",
+        "start": 1385567400,
+        "step": 60
+    }
+]
+
+metric gfx rendering
+size=999x999
+

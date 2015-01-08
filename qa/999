@@ -24,11 +24,12 @@ _filter()
     grep -v 'No value(s)' \
     | grep -v 'Metric not supported by this version' \
     | sed \
-	-e '/sample.*needprofile/d' \
-	-e '/sample\.bad\./d' \
-	-e '/sampledso\.bad\./d' \
-	-e '/cgroup.groups: pmLookupName: Unknown metric name/d' \
-	-e '/proc.psinfo.cgroups: No data available/d'
+	-e '/^sample.*needprofile/d' \
+	-e '/^sample\.bad\./d' \
+	-e '/^sampledso\.bad\./d' \
+	-e '/^cgroup.groups: pmLookupName: Unknown metric name/d' \
+	-e '/^proc.psinfo.cgroups: No data available/d' \
+	-e '/^papi.*: No permission to perform requested operation/d'
 }
 
 # real QA test starts here

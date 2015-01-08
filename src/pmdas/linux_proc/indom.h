@@ -18,20 +18,32 @@
 
 /*
  * indom serial numbers ... to manage the indom migration after the
- * linux -> linux + proc PMDAs split, these need to match the enum
- * assigned values for *_INDOM from the linux PMDA. Consequently,
- * the proc indom table is sparse.
+ * linux -> linux + proc PMDAs split these needed to match the enum
+ * assigned values for *_INDOM from the linux PMDA.  Consequently,
+ * the proc indom table is permanently sparse.
  */
-#define CPU_INDOM		 0 /* - percpu */
-#define DISK_INDOM		 1 /* - disks (with normal names) */
-#define DEVT_INDOM		 2 /* - disks (major:minor names) */
 #define PROC_INDOM		 9 /* - processes */
 #define STRINGS_INDOM		10 /* - fake indom, string hash */
-#define CGROUP_SUBSYS_INDOM	20 /* - control group subsystems */
-#define CGROUP_MOUNTS_INDOM	21 /* - control group mounts */
+#define DISK_INDOM		11 /* - internal-only (user device names) */
+#define DEVT_INDOM		12 /* - internal-only (major:minor names) */
+#define CPU_INDOM		13 /* - internal-only (user-visible CPUs) */
 
-#define MIN_INDOM  0		/* first indom number we use here */
-#define NUM_INDOMS 22		/* one more than highest indom number we use here */
+#define CGROUP_CPUSET_INDOM	20 /* - control group cpuset, groups */
+#define CGROUP_CPUACCT_INDOM	21 /* - control group cpuacct, groups */
+#define CGROUP_PERCPUACCT_INDOM	22 /* - control group cpuacct, groups::cpu */
+#define CGROUP_CPUSCHED_INDOM	23 /* - control group cpusched, groups */
+#define CGROUP_MEMORY_INDOM	24 /* - control group memory, groups */
+#define CGROUP_NETCLS_INDOM	25 /* - control group netclassifier, groups */
+#define CGROUP_BLKIO_INDOM	26 /* - control group blkio, groups */
+#define CGROUP_PERDEVBLKIO_INDOM 27 /* - control group blkio, groups::device */
+
+#define CGROUP_SUBSYS_INDOM	37 /* - control group subsystems */
+#define CGROUP_MOUNTS_INDOM	38 /* - control group mounts */
+
+#define HOTPROC_INDOM		39 /* - hot procs */
+
+#define MIN_INDOM  9		/* first indom number we use here */
+#define NUM_INDOMS 40		/* one more than highest indom number we use here */
 
 extern pmInDom proc_indom(int);
 #define INDOM(i) proc_indom(i)

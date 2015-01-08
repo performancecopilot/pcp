@@ -113,3 +113,26 @@ PCP_PMDA_3.3 {
     pmdaEventHighResAddParam;
     pmdaEventHighResGetAddr;
 } PCP_PMDA_3.2;
+
+PCP_PMDA_3.4 {
+  global:
+    pmdaInterfaceMoved;
+    pmdaNodeLookup;
+
+    pmdaRootConnect;
+    pmdaRootShutdown;
+    pmdaEnterProcessNameSpaces;
+    pmdaEnterContainerNameSpaces;
+    pmdaLeaveNameSpaces;
+
+    __pmdaSetNameSpaceFds;
+    __pmdaOpenNameSpaceFds;
+    __pmdaCloseNameSpaceFds;
+
+    __pmdaSendRootPDUInfo;
+    __pmdaRecvRootPDUInfo;
+    __pmdaSendRootNameSpaceFdsReq;
+    __pmdaDecodeRootNameSpaceFdsReq;
+    __pmdaSendRootNameSpaceFds;
+    __pmdaRecvRootNameSpaceFds;
+} PCP_PMDA_3.3;

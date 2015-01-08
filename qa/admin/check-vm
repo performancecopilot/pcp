@@ -62,7 +62,7 @@ p
 		mask=`cat $tmp.addr | sed -e 's/.* //'`
 		case "$mask"
 		in
-		    255.255.255.0)	# /24 network
+		    255.255.255.0|0xffffff00)	# /24 network
 			echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
 			;;
 		    # pmcd's [access] is not smart enough to handle other
@@ -88,6 +88,56 @@ p
     else
 	echo >&2 '_getnetworkaddr: no ifconfig?'
     fi
+}
+
+# version1 is on line 1
+# version2 is on line 2
+# relop is "<", "<=", "=", ">=" or ">"
+# return value is 0 (true) if version1 relop version2 is true
+# else return value is 1
+#
+_compare()
+{
+    relop="$1"
+    awk -F. >$tmp.compare '
+NR == 1	{ for (i = 1; i <= NF; i++)
+	    v[i] = $i
+	  nv = NF
+	  next
+	}
+NR == 2	{ nf = NF
+	  if (nv > nf) nf = nv
+	  for (i = 1; i <= nf; i++) {
+	    if (v[i]+0 == $i+0) continue
+	    if (v[i]+0 < $i+0) {
+		print "<"
+		exit
+	    }
+	    if (v[i]+0 > $i+0) {
+		print ">"
+		exit
+	    }
+	  }
+	  print "="
+	}'
+    ret=1
+    case `cat $tmp.compare`
+    in
+	"<")
+	    [ "$relop" = "<" -o "$relop" = "<=" ] && ret=0
+	    ;;
+	"=")
+	    [ "$relop" = "=" -o "$relop" = "<=" -o "$relop" = ">=" ] && ret=0
+	    ;;
+	">")
+	    [ "$relop" = ">" -o "$relop" = ">=" ] && ret=0
+	    ;;
+	*)
+	    echo "Arrgh ... installed version $version, want $relop $specversion,"
+	    echo "but failed to extract relop (`cat $tmp.compare`)"
+	    ;;
+    esac
+    return $ret
 }
 
 # add additional and optional directories
@@ -142,17 +192,24 @@ rpm?	rpmbuild		[rpm-build]
 # other build prerequisites
 dpkg?	/usr/share/doc/pkg-config	[pkg-config]
 dpkg?	/usr/share/doc/python-all-dev	[python-all-dev]
-dpkg?	/usr/include/microhttpd.h	[optional][libmicrohttpd-dev]
-rpm?	/usr/include/microhttpd.h	[optional][libmicrohttpd-devel]
-dpkg?	/usr/include/sasl/sasl.h	[optional][libsasl2-dev]
-rpm?	/usr/include/sasl/sasl.h	[optional][cyrus-sasl-devel]
-rpm?	/usr/include/systemd/sd-daemon.h	[optional][systemd-devel but not for CentOS 5.8]
-dpkg?	/usr/include/infiniband/umad.h	[optional][libibumad-dev]
-rpm?	/usr/include/infiniband/umad.h	[optional][libibumad-devel]
-dpkg?	/usr/include/infiniband/mad.h	[optional][libibmad-dev]
-rpm?	/usr/include/infiniband/mad.h	[optional][libibmad-devel]
-dpkg?	/usr/include/avahi-common	[optional][libavahi-common-dev]
-rpm?	/usr/include/avahi-common	[optional][avahi-devel]
+dpkg?	/usr/include/microhttpd.h	[libmicrohttpd-dev (build optional)]
+rpm?	/usr/include/microhttpd.h	[libmicrohttpd-devel (build optional)]
+dpkg?	/usr/include/cairo/cairo.h	[libcairo2-dev (build optional)]
+rpm?	/usr/include/cairo/cairo.h	[cairo-devel (build optional)]
+dpkg?	/usr/include/sasl/sasl.h	[libsasl2-dev (build optional)]
+rpm?	/usr/include/sasl/sasl.h	[cyrus-sasl-devel (build optional)]
+rpm?	/usr/include/systemd/sd-daemon.h	[systemd-devel (build optional)]
+dpkg?	/usr/include/infiniband/umad.h	[libibumad-dev (build optional)]
+rpm?	/usr/include/infiniband/umad.h	[libibumad-devel (build optional)]
+dpkg?	/usr/include/infiniband/mad.h	[libibmad-dev (build optional)]
+rpm?	/usr/include/infiniband/mad.h	[libibmad-devel (build optional)]
+dpkg?	/usr/include/avahi-common	[libavahi-common-dev (build optional)]
+rpm?	/usr/include/avahi-common	[avahi-devel (build optional)]
+dpkg?	/usr/include/papi.h		[libpapi-dev (build optional)]
+rpm?	/usr/include/papi.h		[papi-devel (build optional)]
+dpkg?	/usr/include/perfmon/pfmlib_perf_event.h	[libpfm4-dev (build optional)]
+rpm?	/usr/include/perfmon/pfmlib_perf_event.h	[libpfm-devel (build optional)]
+rpm?	/usr/include/rpm/header.h	[rpm-devel (build optional)]
 dpkg?	g++				[g++]
 rpm?	g++				[gcc-c++]
 # files
@@ -168,48 +225,49 @@ dpkg?	ExtUtils::MakeMaker	[libextutils-autoinstall-perl]
 rpm?	ExtUtils::MakeMaker	[perl-ExtUtils-MakeMaker]
 dpkg?	XML::TokeParser		[libxml-tokeparser-perl]
 rpm?	XML::TokeParser		[perl-XML-TokeParser]
-dpkg?	Spreadsheet::Read	[libspreadsheet-read-perl]
-rpm?	Spreadsheet::Read	[cpan]
+dpkg?	Spreadsheet::Read	[libspreadsheet-read-perl (QA optional)]
+rpm?	Spreadsheet::Read	[from cpan (QA optional)]
 dpkg?	Spreadsheet::WriteExcel	[libspreadsheet-writeexcel-perl]
 rpm?	Spreadsheet::WriteExcel	[perl-Spreadsheet-WriteExcel or cpan]
-Spreadsheet::ReadSXC		[cpan]
+rpm?	JSON::			[perl-JSON]
+Spreadsheet::ReadSXC		[from cpan (QA optional)]
+rpm	time			[time]
 # other run-time
 sadf				[sysstat]
 # QA
 bc
 curl
-dpkg?	Spreadsheet::XLSX	[libspreadsheet-xlsx-perl]
-rpm?	Spreadsheet::XLSX	[cpan]
-dpkg?	Text::CSV_XS		[Text-CSV_XS]
-rpm?	Text::CSV_XS		[perl-Text-CSV_XS]
+dpkg?	Spreadsheet::XLSX	[libspreadsheet-xlsx-perl (QA optional)]
+rpm?	Spreadsheet::XLSX	[from cpan (QA optional)]
+dpkg?	Text::CSV_XS		[Text-CSV_XS (QA optional)]
+rpm?	Text::CSV_XS		[perl-Text-CSV_XS (QA optional)]
 crontab				[from vixie-cron?]
 valgrind
-dpkg?	mail			[bsd-mailx]
-rpm?	mail			[mailx]
+dpkg?	mail			[bsd-mailx (QA optional)]
+rpm?	mail			[mailx (QA optional)]
 host				[bind-utils(redhat)]
-dpkg?	apache2			[apache2]
-rpm?	httpd			[httpd]
-time				[time(redhat)]
+dpkg?	apache2			[apache2 (QA optional)]
+rpm?	httpd			[httpd (QA optional)]
 dpkg?	realpath		[realpath]
+dpkg?	unbound-control		[unbound]
 # pcp-gui
-dpkg?	qmake			[qt4-qmake]
-rpm?	qmake|qmake-qt4			[qt-devel]
-dpkg?	/usr/lib/libQtCore.so|/usr/lib/*/libQtCore.so	[libqt4-dev]
-dpkg?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[optional][libsoqt4-dev]
-rpm?	/usr/lib/libQtCore.so|/usr/lib*/libQtCore.so	[optional][qt-devel]
-dpkg?	/usr/include/Inventor/Qt/SoQt.h	[optional][libsoqt-dev-common]
-dpkg?	/usr/include/Inventor/SoPath.h	[optional][libcoin60-dev or libcoin80-dev]
+dpkg?	qmake			[qt4-qmake (build optional)]
+rpm?	qmake|/usr/lib64/qt4/bin/qmake|/usr/lib/qt4/bin/qmake		[qt4-devel (build optional)]
+dpkg?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[libsoqt-dev (build optional)]
+rpm?	/usr/lib/libQtCore.so|/usr/lib*/libQtCore.so|/usr/lib/qt4/lib/libQtCore.so	[qt4-devel (build optional)]
+dpkg?	/usr/include/Inventor/Qt/SoQt.h	[libsoqt-dev-common (build optional)]
+dpkg?	/usr/include/Inventor/SoPath.h	[libcoin60-dev or libcoin80-dev (build optional)]
 # python
 rpm?	/usr/include/python*/Python.h	[python-devel]
 dpkg?	/usr/include/python*/Python.h	[python-dev]
-rpm?	/usr/lib/python*/curses		[python-curses]
+rpm?	/usr/lib*/python*/curses	[python-curses]
 # nss
-dpkg?	/usr/include/nspr/nspr.h	[optional][libnspr4-dev]
-rpm?	/usr/include/nspr4/nspr.h	[optional][nspr-devel]
-dpkg?	/usr/include/nss/nss.h		[optional][libnss3-dev]
-rpm?	/usr/include/nss3/nss.h		[optional][nss-devel]
-dpkg?	certutil			[optional][libnss3-tools]
-rpm?	certutil			[optional][nss-tools or mozilla-nss-tools]
+dpkg?	/usr/include/nspr/nspr.h	[libnspr4-dev (build optional)]
+rpm?	/usr/include/nspr4/nspr.h	[nspr-devel (build optional)]
+dpkg?	/usr/include/nss/nss.h		[libnss3-dev (build optional)]
+rpm?	/usr/include/nss3/nss.h		[nss-devel (build optional)]
+dpkg?	certutil			[libnss3-tools (build optional)]
+rpm?	certutil			[nss-tools or mozilla-nss-tools (build optional)]
 End-of-File
 
 if which python >/dev/null 2>&1
@@ -228,7 +286,7 @@ then
 	    touch $tmp.need
 	fi
 	[ -f $tmp.need ] && \
-	    echo "rpm?	/usr/share/doc/packages/python-ctypes	[python-ctypes]" >>$tmp.control
+	    echo "rpm?	/usr/share/doc/python-ctypes*	[python-ctypes]" >>$tmp.control
     fi
 fi
 
@@ -237,6 +295,7 @@ cat $tmp.control \
 | while read apps
 do
     rm -f $tmp.ok
+    rm -f $tmp.echo
     for app in $apps
     do
 	case $app
@@ -270,7 +329,14 @@ do
 		[ -f $tmp.tmp ]
 		ok=$?
 		;;
+	    *::)
+		# special case Perl, no module name
+		echo "use `echo $app | sed -e 's/::$//'`;" | perl >/dev/null 2>&1
+		ok=$?
+		;;
+
 	    *::*)
+		# normal case Perl, with module name
 		echo "use $app;" | perl >/dev/null 2>&1
 		ok=$?
 		;;
@@ -290,13 +356,21 @@ do
 	esac
 	if $verbose
 	then
-	    echo -n " .. $app"
-	    $optional && echo -n "[optional]"
-	    if [ $ok = 0 ]
+	    if [ "$app" = dpkg -o "$app" = rpm ]
 	    then
-		echo -n " yes"
+		# rpm? and dpkg? guards are not really useful to report
+		#
+		:
 	    else
-		echo -n " no"
+		echo -n "$app ... "
+		$optional && echo -n "[optional]"
+		if [ $ok = 0 ]
+		then
+		    echo -n "yes "
+		else
+		    echo -n "no "
+		fi
+		touch $tmp.echo
 	    fi
 	fi
 	if [ $ok = 0 ]
@@ -313,7 +387,7 @@ do
 	    fi
 	fi
     done
-    $verbose && echo
+    [ -f $tmp.echo ] && echo
     if [ ! -f $tmp.ok ]
     then
 	echo "Missing: `echo $apps \
@@ -346,6 +420,84 @@ then
 	    :
 	else
 	    echo "Need # apt-get install $pkg"
+	fi
+    done
+    # There are some version dependencies in the debian/control file
+    # (see Build-Depends and *-Version lines) and some are found in
+    # configure.ac ... both need to be mirrored here
+    #
+    cat <<End-of-File >$tmp.control
+# one line per package
+# pkg-name	relop	version
+# text after # is treated as a comment
+# debian/control
+debhelper	>=	5
+perl		>=	5.6
+python		>=	2.6
+# configure.ac
+libmicrohttpd	>	0.9.9
+libcairo2-dev	>=	1.2
+End-of-File
+    cat $tmp.control \
+    | sed -e 's/#.*//' -e '/^[ 	]*$/d' \
+    | while read pkg relop ctlversion
+    do
+	# dpkg -l lines like ...
+	# ii  debhelper      9.20131227ub all          ...
+	#
+	if grep "ii[ 	][ 	]*$pkg[ 	]" $tmp.tmp >/dev/null 2>&1
+	then
+	    version=`awk <$tmp.tmp '$2 == "'"$pkg"'" { print $3 }'`
+	    if [ -z "$version" ]
+	    then
+		echo "Arrgh ... failed to get version for $pkg from ..."
+		cat $tmp.tmp
+		continue
+	    fi
+	    ( echo $version; echo $ctlversion ) | _compare $relop
+	    if [ $? = 0 ]
+	    then
+		$verbose && echo "$pkg: version installed $version, need $relop $ctlversion, OK"
+	    else
+		echo "Warning: $pkg version installed $version, need $relop $ctlversion"
+	    fi
+	fi
+    done
+fi
+
+if which rpm >/dev/null 2>&1
+then
+    # RPM based, there are some version dependencies in the spec
+    # file (see BuildRequires: lines build/rpm/pcp.spec.in) and some
+    # are found in configure.ac ... both need to be mirrored here
+    #
+    cat <<End-of-File >$tmp.control
+# one line per rpm
+# rpm-name	relop	version
+# text after # is treated as a comment
+# pcp.spec.in
+qt-devel	>=	4.4
+qt4-devel	>=	4.4
+libpfm-devel	>=	4.4
+libibmad-devel	>=	1.1.7
+libibumad-devel	>=	1.1.7
+# configure.ac
+libmicrohttpd	>	0.9.9
+cairo-devel		>=	1.2
+End-of-File
+    cat $tmp.control \
+    | sed -e 's/#.*//' -e '/^[ 	]*$/d' \
+    | while read rpm relop specversion
+    do
+	rpm -q $rpm >$tmp.tmp 2>/dev/null
+	grep 'is not installed' $tmp.tmp >/dev/null 2>&1 && continue
+	version=`sed <$tmp.tmp -e "s/^$rpm-//" -e 's/-.*//'`
+	( echo $version; echo $specversion ) | _compare $relop
+	if [ $? = 0 ]
+	then
+	    $verbose && echo "$rpm: version installed $version, need $relop $specversion, OK"
+	else
+	    echo "Warning: $rpm version installed $version, need $relop $specversion"
 	fi
     done
 fi

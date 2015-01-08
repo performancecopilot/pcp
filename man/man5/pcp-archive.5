@@ -289,10 +289,11 @@ _
 12	4	instance domain number
 16	4	N: number of instances in domain, normally >0
 20	4	first instance number
-24	4	first offset into string table (see below)
-28	4	second instance number (if appropriate)
-32	4	second offset into string table (etc.)
-\...	...     ...
+24	4	second instance number (if appropriate)
+\...	...	...
+20+4*N	4	first offset into string table (see below)
+20+4*N+4	4	second offset into string table (etc.)
+\...	...	...
 20+8*N	M	base of string table, containing
 		packed, NUL-terminated instance names
 .TE

@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 # PCP QA Test No. 574
 # Tests out the api (uses torture_api) in archive mode.
 # Main motivation is to test the PMNS in archives for distrib-PMNS.
@@ -36,7 +36,7 @@ rm -f $tmp.*
 # Create new style version 2 log which includes
 # full-path names in the meta-data.
 #
-cat << EOF >> $tmp.conf 
+cat <<EOF >>$tmp.conf 
 #
 # pmlogger(1) configuration file 
 # used for torture_api
@@ -44,14 +44,18 @@ cat << EOF >> $tmp.conf
 log advisory on 1 secs {
 EOF
 # generate the metric names
-    src/torture_api -i -m >> $tmp.conf
-    cat << EOF >> $tmp.conf 
+    src/torture_api -i -m >>$tmp.conf
+    cat <<EOF >>$tmp.conf 
 }
 EOF
 cat $tmp.conf >$seq.full
-echo "" >$seq.full
+echo "---" >>$seq.full
 
 pmlogger -c $tmp.conf -V2 -s 1 -l $tmp.pmlog $tmp.logv2
+
+cat $tmp.pmlog >>$seq.full
+echo "---" >>$seq.full
+pminfo -a $tmp.logv2 >>$seq.full
 
 src/torture_api -i -v -s2 -a $tmp.logv2 2>&1 | _filter_torture_api
 
