@@ -54,6 +54,19 @@ namespacestr(int nsflags)
     return buffer;
 }
 
+static void
+report(int nsflags)
+{
+    if (nsflags & PMDA_NAMESPACE_UTS) {
+	char host[MAXHOSTNAMELEN];
+
+	if (gethostname(host, MAXHOSTNAMELEN) == -1)
+	    perror("gethostname");
+	else
+	    printf("hostname: %s\n", host);
+    }
+}
+
 int
 main(int argc, char **argv)
 {
@@ -129,32 +142,38 @@ main(int argc, char **argv)
     }
 
     if (contain && nsflags) {
+	report(nsflags);
 	if ((sts = pmdaEnterContainerNameSpaces(rootfd, contain, nsflags)) < 0) {
 	    fprintf(stderr, "pmdaEnterContainerNameSpaces: %s\n", pmErrStr(sts));
 	    exit(1);
 	}
-	printf("Success entering container \"%s\" namespaces: %s", contain,
+	printf("Success entering container \"%s\" namespaces: %s\n", contain,
 		namespacestr(nsflags));
+	report(nsflags);
 	if ((sts = pmdaLeaveNameSpaces(rootfd, nsflags)) < 0) {
 	    fprintf(stderr, "pmdaLeaveNameSpaces: %s\n", pmErrStr(sts));
 	    exit(1);
 	}
-	printf("Success leaving container \"%s\" namespaces: %s", contain,
+	printf("Success leaving container \"%s\" namespaces: %s\n", contain,
 		namespacestr(nsflags));
+	report(nsflags);
     }
     else if (process && nsflags) {
+	report(nsflags);
 	if ((sts = pmdaEnterProcessNameSpaces(rootfd, process, nsflags)) < 0) {
 	    fprintf(stderr, "pmdaEnterProcessNameSpaces: %s\n", pmErrStr(sts));
 	    exit(1);
 	}
-	printf("Successfully entered PID %d namespaces: %s", process,
+	printf("Successfully entered PID %d namespaces: %s\n", process,
 		namespacestr(nsflags));
+	report(nsflags);
 	if ((sts = pmdaLeaveNameSpaces(rootfd, nsflags)) < 0) {
 	    fprintf(stderr, "pmdaLeaveNameSpace: %s\n", pmErrStr(sts));
 	    exit(1);
 	}
-	printf("Success leaving PID %d namespaces: %s", process,
+	printf("Success leaving PID %d namespaces: %s\n", process,
 		namespacestr(nsflags));
+	report(nsflags);
     }
 
     pmdaRootShutdown(rootfd);

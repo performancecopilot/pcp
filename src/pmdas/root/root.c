@@ -30,7 +30,6 @@
  */
 #define S_IRWXU 0700
 #endif
-#define MAXROOTPDU	6000 /* buffering limit */
 
 static char socket_path[MAXPATHLEN];
 static __pmSockAddr *socket_addr;
@@ -481,7 +480,7 @@ root_namespace_fds_request(root_client_t *cp, __pmdaRootPDUHdr *hdr)
 static __pmdaRootPDUHdr *
 root_recvpdu(int fd)
 {
-    static char		buffer[MAXROOTPDU];
+    static char		buffer[BUFSIZ];
     __pmdaRootPDUHdr	*pdu = (__pmdaRootPDUHdr *)buffer;
     int			bytes;
 

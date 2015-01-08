@@ -167,6 +167,24 @@ __pmdaSetNameSpaceFds(int nsflags, int *fdset)
     return sts;
 }
 
+static int
+nscount(int nsflags)
+{
+    int 	count = 0;
+
+    if (nsflags & PMDA_NAMESPACE_IPC)
+	count++;
+    if (nsflags & PMDA_NAMESPACE_UTS)
+	count++;
+    if (nsflags & PMDA_NAMESPACE_NET)
+	count++;
+    if (nsflags & PMDA_NAMESPACE_MNT)
+	count++;
+    if (nsflags & PMDA_NAMESPACE_USER)
+	count++;
+    return count;
+}
+
 /*
  * Use setns(2) syscall to switch temporarily to a different namespace.
  * On the first call for each namespace we stash away a file descriptor
@@ -180,8 +198,11 @@ __pmdaEnterNameSpaces(int clientfd, int nsflags)
     int		fdset[PMDA_NAMESPACE_COUNT];	/* NB: packed, ordered */
     int		flags, count, sts, i;
 
+    if ((count = nscount(nsflags)) < 1)
+	return -EINVAL;
+
     /* recvmsg from pmdaroot, error or results */
-    if ((sts = __pmdaRecvRootNameSpaceFds(clientfd, fdset, &count)) < 0)
+    if ((sts = __pmdaRecvRootNameSpaceFds(clientfd, fdset, count)) < 0)
 	return sts;
 
     /* open my own namespace fds, stash 'em for LeaveNameSpaces */

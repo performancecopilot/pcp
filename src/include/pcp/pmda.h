@@ -781,7 +781,7 @@ extern int __pmdaRecvRootPDUInfo(int, int *, int *);
 extern int __pmdaSendRootNameSpaceFdsReq(int, int, const char *, int, int, int);
 extern int __pmdaDecodeRootNameSpaceFdsReq(void *, int *, char **, int *, int *);
 extern int __pmdaSendRootNameSpaceFds(int, int, int *, int, int);
-extern int __pmdaRecvRootNameSpaceFds(int, int *, int *);
+extern int __pmdaRecvRootNameSpaceFds(int, int *, int);
 
 extern int __pmdaSetNameSpaceFds(int, int *);
 extern int __pmdaOpenNameSpaceFds(int, int, int *);

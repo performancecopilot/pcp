@@ -146,9 +146,9 @@ __pmdaSendRootNameSpaceFds(int socket, int pid, int *fdset, int flags, int statu
     __pmdaRootPDUNameSpaceFds fdspdu;
     int densefds[PMDA_NAMESPACE_COUNT], count;
     char cmsgbuf[CMSG_SPACE(sizeof(int) * PMDA_NAMESPACE_COUNT + 1)];
-    struct cmsghdr *cmsg = NULL;
-    struct msghdr hdr;
-    struct iovec data;
+    struct cmsghdr *cmsg;
+    struct msghdr msghdr;
+    struct iovec pduptr;
     ssize_t bytes;
 
     fdset = collapse_fdset(fdset, flags, densefds, &count);
@@ -157,108 +157,84 @@ __pmdaSendRootNameSpaceFds(int socket, int pid, int *fdset, int flags, int statu
     if (count < 1 || fdset == NULL)
 	return -EINVAL;
 
-    memset(cmsgbuf, 0, sizeof(cmsgbuf));
-    memset(&data, 0, sizeof(data));
-    memset(&hdr, 0, sizeof(hdr));
-
     fdspdu.hdr.type = PDUROOT_NS_FDS;
     fdspdu.hdr.length = sizeof(__pmdaRootPDUNameSpaceFds);
     fdspdu.hdr.status = status;
     fdspdu.hdr.version = ROOT_PDU_VERSION;
-
     fdspdu.pid = pid;
     fdspdu.flags = flags;
+    pduptr.iov_base = &fdspdu;
+    pduptr.iov_len = sizeof(fdspdu);
 
-    data.iov_len = sizeof(fdspdu);
-    data.iov_base = &fdspdu;
+    msghdr.msg_name = NULL;
+    msghdr.msg_namelen = 0;
+    msghdr.msg_iov = &pduptr;
+    msghdr.msg_iovlen = 1;
+    msghdr.msg_flags = 0;
+    msghdr.msg_control = cmsgbuf;
+    msghdr.msg_controllen = CMSG_LEN(bytes);
 
-    hdr.msg_iov = &data;
-    hdr.msg_iovlen = 1;
-    hdr.msg_control = cmsgbuf;
-    hdr.msg_controllen = CMSG_LEN(bytes);
-
-    if ((cmsg = CMSG_FIRSTHDR(&hdr)) == NULL)
+    if ((cmsg = CMSG_FIRSTHDR(&msghdr)) == NULL)
 	return -EINVAL;
-
+    cmsg->cmsg_len = msghdr.msg_controllen;
+    cmsg->cmsg_type = SCM_RIGHTS;
     cmsg->cmsg_level = SOL_SOCKET;
-    cmsg->cmsg_type  = SCM_RIGHTS;
-    cmsg->cmsg_len   = CMSG_LEN(bytes);
     memcpy((int *)CMSG_DATA(cmsg), fdset, bytes);
 
     __pmIgnoreSignalPIPE();
-    if ((bytes = sendmsg(socket, &hdr, 0)) < 0) {
+    if ((bytes = sendmsg(socket, &msghdr, 0)) < 0) {
 	__pmNotifyErr(LOG_ERR, "__pmdaSendRootNameSpaceFds: sendmsg: %s\n",
-			strerror(errno));
+			osstrerror());
 	return -oserror();
     }
     return 0;
 }
 
-static int
-extract_fds(struct cmsghdr *cmsg, struct msghdr *msg, int *fds, int maxfds)
-{
-    int *recvfds, i, count = 0;
-
-    if (!cmsg || !msg)
-	return count;
-    if (cmsg->cmsg_type != SCM_RIGHTS)
-	return count;
-    if (msg->msg_controllen > 0) {
-	recvfds = (int *)CMSG_DATA(cmsg);
-	count = (cmsg->cmsg_len - sizeof(*cmsg)) / sizeof(int);
-	for (i = 0; i < count; i++) {
-	    if (i < maxfds) {
-		*fds++ = *recvfds++;
-	    } else {
-		close(*recvfds++);
-		count--;
-	    }
-	}
-    }
-    return count;
-}
-
 /* Client recvs __pmdaRootPDUNameSpaceFds PDUs */
 int
-__pmdaRecvRootNameSpaceFds(int socket, int *fdset, int *count)
+__pmdaRecvRootNameSpaceFds(int socket, int *fdset, int count)
 {
-    __pmdaRootPDUNameSpaceFds *fdspdu, fdsbuf;
-    char buf[CMSG_SPACE(sizeof(int) * PMDA_NAMESPACE_COUNT + 1)];
-    struct cmsghdr *cmsg = NULL;
-    struct msghdr msg = { 0 };
-    struct iovec vec = { 0 };
-    int sts;
+    char buf[CMSG_SPACE(sizeof(int) * PMDA_NAMESPACE_COUNT)];
+    __pmdaRootPDUNameSpaceFds fdspdu;
+    struct cmsghdr *cmsg;
+    struct msghdr msghdr;
+    struct iovec pduptr;
+    int i, sts;
 
-    vec.iov_base = (void *)&fdsbuf;
-    vec.iov_len = sizeof(fdsbuf);
-    msg.msg_iov = &vec;
-    msg.msg_iovlen = 1;
-    msg.msg_control = buf;
-    msg.msg_controllen = sizeof(buf);
-    if ((sts = recvmsg(socket, &msg, 0)) < 0)
+    if (count > PMDA_NAMESPACE_COUNT)
+	return -EINVAL;
+
+    pduptr.iov_base = &fdspdu;
+    pduptr.iov_len = sizeof(fdspdu);
+    msghdr.msg_name = NULL;
+    msghdr.msg_namelen = 0;
+    msghdr.msg_iov = &pduptr;
+    msghdr.msg_iovlen = 1;
+    msghdr.msg_flags = 0;
+    msghdr.msg_control = buf;
+    msghdr.msg_controllen = CMSG_SPACE(sizeof(int) * count);
+    cmsg = CMSG_FIRSTHDR(&msghdr);
+    cmsg->cmsg_len = msghdr.msg_controllen;
+    cmsg->cmsg_type = SCM_RIGHTS;
+    cmsg->cmsg_level = SOL_SOCKET;
+    memset((int *)CMSG_DATA(cmsg), -1, sizeof(int) * count);
+
+    if ((sts = recvmsg(socket, &msghdr, 0)) < 0)
 	return -oserror();
 
-    if (msg.msg_iovlen < 1)
-	return -EINVAL;
-    fdspdu = (__pmdaRootPDUNameSpaceFds *)msg.msg_iov;
-    if (sts != sizeof(*fdspdu))
-	return -EINVAL;
-    if (fdspdu->hdr.type != PDUROOT_NS_FDS)
-	return -ESRCH;
-    if (fdspdu->hdr.version > ROOT_PDU_VERSION)
-	return -ENOTSUP;
-    if (fdspdu->hdr.status != 0)
-	return fdspdu->hdr.status;
-    if (fdspdu->hdr.length != sizeof(__pmdaRootPDUNameSpaceFds))
-	return -E2BIG;
+    if (sts != sizeof(fdspdu))
+        return -EINVAL;
+    if (fdspdu.hdr.type != PDUROOT_NS_FDS)
+        return -ESRCH;
+    if (fdspdu.hdr.version > ROOT_PDU_VERSION)
+        return -ENOTSUP;
+    if (fdspdu.hdr.status != 0)
+        return fdspdu.hdr.status;
+    if (fdspdu.hdr.length != sizeof(__pmdaRootPDUNameSpaceFds))
+        return -E2BIG;
 
     /* extract the open file namespace descriptors */
-    if ((cmsg = CMSG_FIRSTHDR(&msg)) == NULL)
-	return -EINVAL;
-    do {
-	*count += extract_fds(cmsg, &msg, fdset, PMDA_NAMESPACE_COUNT);
-	cmsg = CMSG_NXTHDR(&msg, cmsg);
-    } while (cmsg != NULL);
-
+    for (i = 0; i < count; i++)
+	fdset[i] = ((int *)CMSG_DATA(cmsg))[i];
     return 0;
 }
