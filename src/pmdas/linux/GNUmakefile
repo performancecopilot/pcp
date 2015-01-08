@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2007-2010 Aconex.  All Rights Reserved.
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -24,7 +24,7 @@ LIBTARGET	= pmda_linux.so
 PMDAINIT	= linux_init
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 LOGREWRITEDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
-CONF_LINE	= "linux	60	dso	$(PMDAINIT)	$(PMDADIR)/$(LIBTARGET)"
+CONF_LINE	= "linux	60	pipe	binary		$(PMDADIR)/$(CMDTARGET)"
 
 CFILES		= pmda.c \
 		  proc_stat.c proc_meminfo.c proc_loadavg.c \

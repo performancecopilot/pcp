@@ -5839,7 +5839,8 @@ linux_init(pmdaInterface *dp)
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
 	pmdaDSO(dp, PMDA_INTERFACE_6, "linux DSO", helppath);
     } else {
-	__pmSetProcessIdentity(username);
+	if (username)
+	    __pmSetProcessIdentity(username);
     }
 
     if (dp->status != 0)
@@ -5979,7 +5980,6 @@ main(int argc, char **argv)
 
     _isDSO = 0;
     __pmSetProgname(argv[0]);
-    __pmGetUsername(&username);
 
     snprintf(helppath, sizeof(helppath), "%s%c" "linux" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);

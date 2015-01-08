@@ -217,6 +217,7 @@ _filter_optional_pmdas()
 	-e '/pmdajstat/d' \
 	-e '/pmdakvm/d' \
 	-e '/pmdalab/d' \
+	-e '/pmdalinux/d' \
 	-e '/pmdalogger/d' \
 	-e '/pmdalmsensors/d' \
 	-e '/pmdalockstat/d' \
