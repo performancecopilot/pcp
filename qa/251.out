@@ -61,8 +61,6 @@ __pmLogChangeVol: change to volume 0
 __pmLogChangeVol: change to volume 2
 __pmLogChangeVol: change to volume 0
 __pmLogChangeVol: change to volume 2
-__pmLogChangeVol: change to volume 0
-__pmLogChangeVol: change to volume 2
 
 metric:    sampledso.bin
 archive:   mv-bar
@@ -170,8 +168,6 @@ TIMESTAMP           100         500         900
 TIMESTAMP           100         500         900 
 
 Second volume missing ... bin-100,bin-500,bin-900 ...
-__pmLogChangeVol: change to volume 0
-__pmLogChangeVol: change to volume 2
 __pmLogChangeVol: change to volume 0
 __pmLogChangeVol: change to volume 2
 __pmLogChangeVol: change to volume 0
