@@ -1082,7 +1082,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root,-)
 
 %changelog
-* Fri Jan 09 2015 Dave Brolley <brolley@redhat.com> - 3.10.2-1
+* Fri Jan 23 2015 Dave Brolley <brolley@redhat.com> - 3.10.2-1
 - Update to latest PCP sources.
 
 * Mon Dec 01 2014 Nathan Scott <nathans@redhat.com> - 3.10.1-1
