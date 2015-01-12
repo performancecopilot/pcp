@@ -1013,6 +1013,7 @@ avahi
 958 archive local
 959 pmda.sample pmstore local
 960 pmda.ds389 local
+961 pmlogextract local
 962 archive local
 966 secure local
 967 pmda.papi local
