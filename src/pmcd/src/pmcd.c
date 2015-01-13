@@ -854,13 +854,19 @@ main(int argc, char *argv[])
     /* if this fails beware of the sky falling in */
     assert(sts >= 0);
 
-    if (dupok)
+    if (dupok) {
 	sts = pmLoadASCIINameSpace(pmnsfile, 1);
-    else
+	if (sts < 0) {
+	    fprintf(stderr, "Error: pmLoadASCIINameSpace: %s\n", pmErrStr(sts));
+	    DontStart();
+	}
+    }
+    else {
 	sts = pmLoadNameSpace(pmnsfile);
-    if (sts < 0) {
-	fprintf(stderr, "Error: pmLoadNameSpace: %s\n", pmErrStr(sts));
-	DontStart();
+	if (sts < 0) {
+	    fprintf(stderr, "Error: pmLoadNameSpace: %s\n", pmErrStr(sts));
+	    DontStart();
+	}
     }
 
     if (ParseInitAgents(configFileName) < 0) {
