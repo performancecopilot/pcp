@@ -502,6 +502,9 @@ LIBPCP.pmGetPMNSLocation.argtypes = []
 LIBPCP.pmLoadNameSpace.restype = c_int
 LIBPCP.pmLoadNameSpace.argtypes = [c_char_p]
 
+LIBPCP.pmLoadASCIINameSpace.restype = c_int
+LIBPCP.pmLoadASCIINameSpace.argtypes = [c_char_p, c_int]
+
 LIBPCP.pmLookupName.restype = c_int
 LIBPCP.pmLookupName.argtypes = [c_int, (c_char_p * 1), POINTER(c_uint)]
 
@@ -1147,6 +1150,18 @@ class pmContext(object):
         if status < 0:
             raise pmErr(status)
         status = LIBPCP.pmLoadNameSpace(filename)
+        if status < 0:
+            raise pmErr(status)
+        return status
+
+    def pmLoadASCIINameSpace(self, filename, dupok):
+        """PMAPI - Load an ASCII local namespace
+        status = pmLoadASCIINameSpace("filename", dupok)
+        """
+        status = LIBPCP.pmUseContext(self.ctx)
+        if status < 0:
+            raise pmErr(status)
+        status = LIBPCP.pmLoadASCIINameSpace(filename, dupok)
         if status < 0:
             raise pmErr(status)
         return status
