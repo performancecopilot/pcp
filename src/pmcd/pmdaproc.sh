@@ -158,8 +158,10 @@ args=""
 perl_args=""
 #	ditto for python PMDAS
 python_args=""
-#	Source for the pmns
+#	Source for the PMNS
 pmns_source=pmns
+#	Duplicate names allowed in the PMNS
+pmns_dupok=false
 #	Source for the helptext
 help_source=help
 #	Assume libpcp_pmda.so.1
@@ -1220,7 +1222,9 @@ _install()
 	if pminfo $__ns_opt $__n >/dev/null 2>&1
 	then
             cd $PMNSDIR
-	    if pmnsdel -n $PMNSROOT $__n >$tmp/base 2>&1
+	    # use -d here ... see note ahead of previous pmnsdel invocation
+	    #
+	    if pmnsdel -d -n $PMNSROOT $__n >$tmp/base 2>&1
 	    then
 		pmsignal -a -s HUP pmcd >/dev/null 2>&1
 		# Make sure the PMNS timestamp will be different the next
@@ -1259,8 +1263,20 @@ _install()
 	fi
 	sed -e "s/$SYMDOM:/$domain:/" <$__s >$PMNSDIR/$__n
 
+	__dup=''
+	if $pmns_dupok
+	then
+	    if grep '^-d' $PCP_PMCDOPTIONS_PATH >/dev/null 2>&1
+	    then
+		:
+	    else
+		echo "Warning: PMDA specifies \$pmns_dupok=$pmns_dupok but option -d for pmcd is not enabled in $PCP_PMCDOPTIONS_PATH"
+	    fi
+	    __dup='-d'
+	fi
+
         cd $PMNSDIR
-	if pmnsadd -n $PMNSROOT $__n
+	if pmnsadd $__dup -n $PMNSROOT $__n
 	then
 	    pmsignal -a -s HUP pmcd >/dev/null 2>&1
 	    # Make sure the PMNS timestamp will be different the next
@@ -1338,7 +1354,11 @@ _remove()
     for __n in $pmns_name
     do
 	$PCP_ECHO_PROG $PCP_ECHO_N "$__n ... ""$PCP_ECHO_C"
-	if pmnsdel -n $PMNSROOT $__n >$tmp/base 2>&1
+	# use -d here because if PMNS had duplicate names before,
+	# it may still have 'em after as the duplicates could be
+	# associated with a different PMDA
+	#
+	if pmnsdel -d -n $PMNSROOT $__n >$tmp/base 2>&1
 	then
 	    rm -f $PMNSDIR/$__n
 	    pmsignal -a -s HUP pmcd >/dev/null 2>&1
