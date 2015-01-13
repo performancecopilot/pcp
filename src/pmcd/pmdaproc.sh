@@ -160,8 +160,6 @@ perl_args=""
 python_args=""
 #	Source for the PMNS
 pmns_source=pmns
-#	Duplicate names allowed in the PMNS
-pmns_dupok=false
 #	Source for the helptext
 help_source=help
 #	Assume libpcp_pmda.so.1
@@ -209,7 +207,7 @@ do
 	    NAMESPACE=$2
 	    PMNSROOT=`basename $NAMESPACE`
 	    PMNSDIR=`dirname $NAMESPACE`
-	    __ns_opt="-n $2" 
+	    __ns_opt="-N $2" 
 	    shift
 	    ;;
 
@@ -1263,20 +1261,8 @@ _install()
 	fi
 	sed -e "s/$SYMDOM:/$domain:/" <$__s >$PMNSDIR/$__n
 
-	__dup=''
-	if $pmns_dupok
-	then
-	    if grep '^-d' $PCP_PMCDOPTIONS_PATH >/dev/null 2>&1
-	    then
-		:
-	    else
-		echo "Warning: PMDA specifies \$pmns_dupok=$pmns_dupok but option -d for pmcd is not enabled in $PCP_PMCDOPTIONS_PATH"
-	    fi
-	    __dup='-d'
-	fi
-
         cd $PMNSDIR
-	if pmnsadd $__dup -n $PMNSROOT $__n
+	if pmnsadd -d -n $PMNSROOT $__n
 	then
 	    pmsignal -a -s HUP pmcd >/dev/null 2>&1
 	    # Make sure the PMNS timestamp will be different the next

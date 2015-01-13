@@ -35,7 +35,6 @@ dso_opt=false
 pipe_opt=true		# supports pipe IPC
 socket_opt=true		# supports socket IPC
 socket_inet_def=2077	# default TCP port for Internet socket IPC
-pmns_dupok=true
 
 pmdaInstall
 
@@ -55,7 +54,6 @@ SYMDOM=SAMPLEDSO
 sed -e 's/sample/sampledso/' -e 's/SAMPLE/SAMPLEDSO/' <pmns >$tmp/pmns
 pmns_source=$tmp/pmns
 pmns_name=sampledso
-pmns_dupok=true
 
 if $do_pmda
 then
