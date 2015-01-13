@@ -66,7 +66,7 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,4), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* colour */
     { PMDA_PMID(0,5), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
-/* bin */
+/* bin or dupnames.bin */
     { PMDA_PMID(0,6), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* drift */
     { PMDA_PMID(0,7), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
@@ -86,7 +86,7 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,14), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* float.one */
     { PMDA_PMID(0,15), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
-/* float.ten */
+/* float.ten or dupnames.float.ten */
     { PMDA_PMID(0,16), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* float.hundred */
     { PMDA_PMID(0,17), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
@@ -106,7 +106,7 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,24), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* double.one */
     { PMDA_PMID(0,25), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
-/* double.ten */
+/* double.ten or dupnames.double.ten */
     { PMDA_PMID(0,26), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* double.hundred */
     { PMDA_PMID(0,27), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
@@ -126,7 +126,7 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,34), PM_TYPE_AGGREGATE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* aggregate.write_me */
     { PMDA_PMID(0,35), PM_TYPE_AGGREGATE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
-/* write_me */
+/* write_me or dupnames.write_me */
     { PMDA_PMID(0,36), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,-1,1,0,PM_TIME_SEC,PM_COUNT_ONE) },
 /* mirage */
     { PMDA_PMID(0,37), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(1,-1,0,PM_SPACE_KBYTE,PM_TIME_SEC,0) },
@@ -146,7 +146,7 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,44), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 /* percontext.xmit-pdu */
     { PMDA_PMID(0,45), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
-/* lights */
+/* lights or dupnames.lights */
     { PMDA_PMID(0,46), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* magnitude */
     { PMDA_PMID(0,47), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
@@ -1089,7 +1089,7 @@ init_tables(int dom)
 	    case PMDA_PMID(0,92):	/* darkness */
 		dp->indom = indomtab[COLOUR_INDOM].it_indom;
 		break;
-	    case PMDA_PMID(0,6):	/* bin */
+	    case PMDA_PMID(0,6):	/* bin or dupnames.bin */
 	    case PMDA_PMID(0,48):	/* bucket */
 	    case PMDA_PMID(0,50):	/* part_bin */
 	    case PMDA_PMID(0,51):	/* bogus_bin */
@@ -1776,7 +1776,7 @@ doit:
 				break;
 			}
 			break;
-		    case 6:
+		    case 6:		/* bin or dupnames.bin */
 		    case 48:
 		    case 50:
 		    case 51:
@@ -1900,7 +1900,7 @@ doit:
 			 */
 			type = PM_TYPE_AGGREGATE_STATIC;
 			break;
-		    case 46:
+		    case 46:		/* lights or dupnames.lights */
 			if (_n46 == 0) {
 			    _col46 = lrand48() % 3;
 			    _n46 = 1 + (int)(lrand48() % 10);
@@ -2000,7 +2000,7 @@ doit:
 		    case 15:		/* float.* group */
 			atom.f = 1;
 			break;
-		    case 16:
+		    case 16:		/* float.ten or dupnames.float.ten */
 			atom.f = 10;
 			break;
 		    case 17:
@@ -2015,7 +2015,7 @@ doit:
 		    case 25:		/* double.* group */
 			atom.d = 1;
 			break;
-		    case 26:
+		    case 26:		/* double.ten or dupnames.double.ten */
 			atom.d = 10;
 			break;
 		    case 27:
@@ -2495,7 +2495,7 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 7:	/* drift */
 	    case 8:	/* step */
 	    case 14:	/* long.write_me */
-	    case 36:	/* write_me */
+	    case 36:	/* write_me or dupnames.write_me */
 	    case 41:	/* recv_pdu */
 	    case 42:	/* xmit_pdu */
 	    case 56:	/* not_ready */
