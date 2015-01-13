@@ -92,6 +92,11 @@ sample.double.one
 sample.double.ten
 sample.double.write_me
 sample.drift
+sample.dupnames.bin
+sample.dupnames.double.ten
+sample.dupnames.float.ten
+sample.dupnames.lights
+sample.dupnames.write_me
 sample.dynamic.counter
 sample.dynamic.discrete
 sample.dynamic.instant
