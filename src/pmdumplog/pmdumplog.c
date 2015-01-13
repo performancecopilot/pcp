@@ -433,12 +433,12 @@ dumpDesc(__pmContext *ctxp)
 		printf("PMID: %s (%s)\n", pmIDStr(dp->pmid), "<noname>");
 	    else {
 		int	j;
-		printf("PMID: %s [%d names] ", pmIDStr(dp->pmid), sts);
+		printf("PMID: %s ", pmIDStr(dp->pmid));
 		for (j = 0; j < sts; j++) {
 		    if (j == 0)
 			putchar('(');
 		    else
-			putchar(',');
+			printf(", ");
 		    printf("%s", names[j]);
 		}
 		printf(")\n");
