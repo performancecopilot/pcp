@@ -14,9 +14,9 @@ main(int argc, char *argv[])
     int		i;
     char	buf[28];
 
-    i = pmLoadNameSpace(PM_NS_DEFAULT);
+    i = pmLoadASCIINameSpace(PM_NS_DEFAULT, 1);
     if (i < 0) {
-	printf("pmLoadNameSpace: %s\n", pmErrStr(i));
+	printf("pmLoadASCIINameSpace: %s\n", pmErrStr(i));
 	exit(1);
     }
 

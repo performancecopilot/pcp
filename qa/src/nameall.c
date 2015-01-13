@@ -131,7 +131,7 @@ load_namespace(char *namespace)
     if (dupok)
 	sts = pmLoadASCIINameSpace(namespace, 1);
     else
-	sts = pmLoadNameSpace(namespace);
+	sts = pmLoadASCIINameSpace(namespace, 1);
     if (sts < 0) {
 	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
 	exit(1);

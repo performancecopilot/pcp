@@ -71,8 +71,8 @@ Options:\n\
 	exit(1);
     }
 
-    if ((sts = pmLoadNameSpace(PM_NS_DEFAULT)) < 0) {
-	fprintf(stderr, "pmLoadNameSpace: %s\n", pmErrStr(sts));
+    if ((sts = pmLoadASCIINameSpace(PM_NS_DEFAULT, 1)) < 0) {
+	fprintf(stderr, "pmLoadASCIINameSpace: %s\n", pmErrStr(sts));
 	exit(1);
     }
 

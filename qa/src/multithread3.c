@@ -124,8 +124,8 @@ func2(void *arg)
     pthread_barrier_wait(&barrier);
 
     /* iter 2 */
-    if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
-	printf("%s: pmLoadNameSpace: [reload] %s\n", fn, pmErrStr(sts));
+    if ((sts = pmLoadASCIINameSpace(pmnsfile, 1)) < 0) {
+	printf("%s: pmLoadASCIINameSpace: [reload] %s\n", fn, pmErrStr(sts));
 	exit(1);
     }
     pthread_barrier_wait(&barrier);
@@ -153,8 +153,8 @@ func2(void *arg)
 	exit(1);
     }
     fclose(f);
-    if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
-	printf("%s: pmLoadNameSpace: [extra reload] %s\n", fn, pmErrStr(sts));
+    if ((sts = pmLoadASCIINameSpace(pmnsfile, 1)) < 0) {
+	printf("%s: pmLoadASCIINameSpace: [extra reload] %s\n", fn, pmErrStr(sts));
 	exit(1);
     }
     pthread_barrier_wait(&barrier);
@@ -197,8 +197,8 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
-	printf("pmLoadNameSpace: %s\n", pmErrStr(sts));
+    if ((sts = pmLoadASCIINameSpace(pmnsfile, 1)) < 0) {
+	printf("pmLoadASCIINameSpace: %s\n", pmErrStr(sts));
 	exit(1);
     }
 

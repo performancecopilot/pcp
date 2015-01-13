@@ -69,8 +69,8 @@ func2(void *arg)
 
     for (i = 0; i < ITER; i++) {
 	pmUnloadNameSpace();
-	if ((sts = pmLoadNameSpace(PM_NS_DEFAULT)) < 0) {
-	    printf("%s: pmLoadNameSpace[%d]: %s\n", fn, i, pmErrStr_r(sts, msgbuf, PM_MAXERRMSGLEN));
+	if ((sts = pmLoadASCIINameSpace(PM_NS_DEFAULT, 1)) < 0) {
+	    printf("%s: pmLoadASCIINameSpace[%d]: %s\n", fn, i, pmErrStr_r(sts, msgbuf, PM_MAXERRMSGLEN));
 	    exit(1);
 	}
     }
@@ -102,8 +102,8 @@ main(int argc, char **argv)
     }
     __pmSetPDUCntBuf(in, out);
 
-    if ((sts = pmLoadNameSpace(PM_NS_DEFAULT)) < 0) {
-	printf("%s: pmLoadNameSpace: %s\n", argv[0], pmErrStr_r(sts, msgbuf, PM_MAXERRMSGLEN));
+    if ((sts = pmLoadASCIINameSpace(PM_NS_DEFAULT, 1)) < 0) {
+	printf("%s: pmLoadASCIINameSpace: %s\n", argv[0], pmErrStr_r(sts, msgbuf, PM_MAXERRMSGLEN));
 	exit(1);
     }
 

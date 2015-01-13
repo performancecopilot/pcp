@@ -142,7 +142,7 @@ USAGE:
 	    goto USAGE;
     }
 
-    if (namespace != NULL && (sts = pmLoadNameSpace(namespace)) < 0) {
+    if (namespace != NULL && (sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
 	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
 	exit(1);
     }

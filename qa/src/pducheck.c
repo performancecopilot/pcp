@@ -1449,8 +1449,8 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    if ((e = pmLoadNameSpace(PM_NS_DEFAULT)) < 0) {
-	fprintf(stderr, "pmLoadNameSpace: %s\n", pmErrStr(e));
+    if ((e = pmLoadASCIINameSpace(PM_NS_DEFAULT, 1)) < 0) {
+	fprintf(stderr, "pmLoadASCIINameSpace: %s\n", pmErrStr(e));
 	exit(1);
     }
 

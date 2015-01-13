@@ -22,8 +22,8 @@ main()
     char	*buf;
     pmDesc	desc;
 
-    if ((n = pmLoadNameSpace(PM_NS_DEFAULT)) < 0) {
-	fprintf(stderr, "pmLoadNameSpace: %s\n", pmErrStr(n));
+    if ((n = pmLoadASCIINameSpace(PM_NS_DEFAULT, 1)) < 0) {
+	fprintf(stderr, "pmLoadASCIINameSpace: %s\n", pmErrStr(n));
 	exit(1);
     }
 
