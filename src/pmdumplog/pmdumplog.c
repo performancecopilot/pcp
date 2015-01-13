@@ -418,22 +418,31 @@ next:
 static void
 dumpDesc(__pmContext *ctxp)
 {
-    int		i;
-    int		sts;
-    char	*p;
+    int			i;
+    int			sts;
+    char		**names;
     __pmHashNode	*hp;
-    pmDesc	*dp;
+    pmDesc		*dp;
 
     printf("\nDescriptions for Metrics in the Log ...\n");
     for (i = 0; i < ctxp->c_archctl->ac_log->l_hashpmid.hsize; i++) {
 	for (hp = ctxp->c_archctl->ac_log->l_hashpmid.hash[i]; hp != NULL; hp = hp->next) {
 	    dp = (pmDesc *)hp->data;
-	    sts = pmNameID(dp->pmid, &p);
+	    sts = pmNameAll(dp->pmid, &names);
 	    if (sts < 0)
 		printf("PMID: %s (%s)\n", pmIDStr(dp->pmid), "<noname>");
 	    else {
-		printf("PMID: %s (%s)\n", pmIDStr(dp->pmid), p);
-		free(p);
+		int	j;
+		printf("PMID: %s [%d names] ", pmIDStr(dp->pmid), sts);
+		for (j = 0; j < sts; j++) {
+		    if (j == 0)
+			putchar('(');
+		    else
+			putchar(',');
+		    printf("%s", names[j]);
+		}
+		printf(")\n");
+		free(names);
 	    }
 	    __pmPrintDesc(stdout, dp);
 	}
