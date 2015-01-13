@@ -156,7 +156,7 @@ main(int argc, char **argv)
     }
 
     if ((sts = pmLoadASCIINameSpace(pmnsfile, dupok)) < 0) {
-	fprintf(stderr, "%s: Error: pmLoadNameSpace(%s): %s\n",
+	fprintf(stderr, "%s: Error: pmLoadASCIINameSpace(%s): %s\n",
 		pmProgname, pmnsfile, pmErrStr(sts));
 	exit(1);
     }

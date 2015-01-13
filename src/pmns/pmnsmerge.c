@@ -281,7 +281,7 @@ main(int argc, char **argv)
 	    printf("%s:\n", argv[j]);
 
 	if ((sts = pmLoadASCIINameSpace(argv[j], dupok)) < 0) {
-	    fprintf(stderr, "%s: Error: pmLoadNameSpace(%s): %s\n",
+	    fprintf(stderr, "%s: Error: pmLoadASCIINameSpace(%s): %s\n",
 		pmProgname, argv[j], pmErrStr(sts));
 	    exit(1);
 	}
@@ -313,7 +313,7 @@ main(int argc, char **argv)
      * now load the merged PMNS to check for errors ...
      */
     if ((sts = pmLoadASCIINameSpace(argv[argc-1], dupok)) < 0) {
-	fprintf(stderr, "%s: Error: pmLoadNameSpace(%s): %s\n",
+	fprintf(stderr, "%s: Error: pmLoadASCIINameSpace(%s): %s\n",
 	    pmProgname, argv[argc-1], pmErrStr(sts));
 	exit(1);
     }
