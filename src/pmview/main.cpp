@@ -369,7 +369,7 @@ main(int argc, char **argv)
     if (errflg)
 	usage();
 
-    if (a.my.pmnsfile && (sts = pmLoadNameSpace(a.my.pmnsfile)) < 0) {
+    if (a.my.pmnsfile && (sts = pmLoadASCIINameSpace(a.my.pmnsfile, 1)) < 0) {
 	pmprintf("%s: %s\n", pmProgname, pmErrStr(sts));
 	pmflush();
 	exit(1);
