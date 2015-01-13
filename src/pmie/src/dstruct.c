@@ -954,7 +954,7 @@ agentInit(void)
 
     /* Set up local name space for agent */
     /* Only load PMNS if it's default and hence not already loaded */
-    if (pmnsfile == PM_NS_DEFAULT && (sts = pmLoadNameSpace(pmnsfile)) < 0) {
+    if (pmnsfile == PM_NS_DEFAULT && (sts = pmLoadASCIINameSpace(pmnsfile, 1)) < 0) {
 	fprintf(stderr, "%s: agentInit: cannot load metric namespace: %s\n",
 		pmProgname, pmErrStr(sts));
 	exit(1);
