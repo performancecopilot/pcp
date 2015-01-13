@@ -234,7 +234,7 @@ End-of-File
     fi
 }
 
-_havepmcdtrace()
+_have_pmcd_trace()
 {
     fix=false
     for trace in traceconn tracepdu
@@ -265,6 +265,30 @@ End-of-File
 	_wait_for_pmlogger
     fi
 
+}
+
+_have_pmcd_dupok()
+{
+    if grep '^-d' $PCP_PMCDOPTIONS_PATH >/dev/null 2>&1
+    then
+	:
+    else
+	echo "PMCD option -d not enabled (allow duplicate names in PMNS)!"
+	echo "fix options, and restart PMCD"
+	[ -z "PCP_PMCDOPTIONS_PATH" ] && \
+	      PCP_PMCDOPTIONS_PATH="$PCP_SYSCONF_DIR/pmcd/pmcd.options"
+	PCPQA_PMCDOPTIONS="$PCP_PMCDOPTIONS_PATH"
+	cp $PCPQA_PMCDOPTIONS $tmp.tmp
+	cat >>$tmp.tmp <<'End-of-File'
+
+# added by PCP QA
+-d
+End-of-File
+	$sudo cp $tmp.tmp $PCPQA_PMCDOPTIONS
+	$sudo chown root:root $PCPQA_PMCDOPTIONS
+	$sudo $PCP_RC_DIR/pcp restart
+	_wait_for_pmlogger
+    fi
 }
 
 here=`pwd`
@@ -725,9 +749,10 @@ then
 else
     ./mk.localconfig
 
+    $OPTION_PMCD_DUPOK && _have_pmcd_dupok
     $OPTION_AGENTS && _haveagents
     $OPTION_LOGGER && _havelogger
-    $OPTION_PMCD_TRACE && _havepmcdtrace
+    $OPTION_PMCD_TRACE && _have_pmcd_trace
 
     if [ -f GNUmakefile.install ]
     then
