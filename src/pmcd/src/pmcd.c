@@ -96,6 +96,7 @@ static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Configuration options"),
     { "config", 1, 'c', "PATH", "path to configuration file" },
     { "certdb", 1, 'C', "PATH", "path to NSS certificate database" },
+    { "dupok", 0, 'd', 0, "allow duplicate names in PMNS (implied by -N)" },
     { "passfile", 1, 'P', "PATH", "password file for certificate database access" },
     { "", 1, 'L', "BYTES", "maximum size for PDUs from clients [default 65536]" },
     { "", 1, 'q', "TIME", "PMDA initial negotiation timeout (seconds) [default 3]" },
@@ -113,7 +114,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_POSIX,
-    .short_options = "Ac:C:D:fH:i:l:L:N:n:p:P:q:s:St:T:U:x:?",
+    .short_options = "Ac:C:dD:fH:i:l:L:N:n:p:P:q:s:St:T:U:x:?",
     .long_options = longopts,
 };
 
@@ -142,6 +143,10 @@ ParseOptions(int argc, char *argv[], int *nports)
 
 	    case 'C':	/* path to NSS certificate database */
 		certdb = opts.optarg;
+		break;
+
+	    case 'd':	/* duplicate names OK in PMNS */
+		dupok = 1;
 		break;
 
 	    case 'D':	/* debug flag */

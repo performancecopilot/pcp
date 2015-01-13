@@ -19,7 +19,7 @@
 \f3pmcd\f1 \- performance metrics collector daemon
 .SH SYNOPSIS
 \f3pmcd\f1
-[\f3\-AfS\f1]
+[\f3\-AdfS\f1]
 [\f3\-c\f1 \f2config\f1]
 [\f3\-C\f1 \f2dirname\f1]
 [\f3\-H\f1 \f2hostname\f1]
@@ -84,6 +84,12 @@ By default,
 will advertise its presence on the network using any available mechanisms
 (such as Avahi/DNS-SD), assisting remote monitoring tools with finding it.
 These mechanisms are disabled with this option.
+.TP
+.B \-d
+Allow duplicate names for the same Performance Metric Identifier (PMID) in
+the Performance Metrics Namespace (PMNS).  The default is to treat duplicates
+as a fatal error that will terminate
+.BR pmcd .
 .TP
 \f3\-c\f1 \f2config\f1
 On startup
@@ -187,7 +193,7 @@ size.
 \f3\-n\f1 \f2pmnsfile\f1
 Normally
 .B pmcd
-loads the default Performance Metrics Name Space (PMNS) from
+loads the default PMNS from
 .BR $PCP_VAR_DIR/pmns/root ,
 however if the
 .B \-n
@@ -199,12 +205,18 @@ from the file
 Same function as
 .BR \-n ,
 except for the handling of
-duplicate Performance Metric Identifiers (PMIDs) in
+duplicate names for the same PMID in
 .I pmnsfile
 \- duplicates are allowed with
 .B \-N
 they are not allowed with
 .BR \-n .
+.B \-N
+is equivalent to specifing both the
+.B \-n
+and
+.B \-d
+options.
 .TP
 \f3\-P\f1 \f2passfile\f1
 Specify the path to a file containing the Network Security Services certificate
