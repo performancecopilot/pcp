@@ -243,12 +243,8 @@ An optional daemon (pmmgr) that manages a collection of pmlogger and
 pmie daemons, for a set of discovered local and remote hosts running
 the performance metrics collection daemon (pmcd).  It ensures these
 daemons are running when appropriate, and manages their log rotation
-needs (which are particularly complex in the case of pmlogger).
-The base PCP package provides comparable functionality through cron
-scripts which predate this daemon but do still provide effective and
-efficient log management services.
-The pcp-manager package aims to aggressively enable new PCP features
-and as a result may not be suited to all production environments.
+needs.  It is an alternative to the cron-based pmlogger/pmie service
+scripts.
 
 %if !%{disable_microhttpd}
 #
@@ -995,7 +991,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %endif
 %{_libexecdir}/pcp/bin/pmmgr
 %attr(0775,pcp,pcp) %{_logsdir}/pmmgr
-%{_confdir}/pmmgr
+%config(missingok,noreplace) %{_confdir}/pmmgr
 %config(noreplace) %{_confdir}/pmmgr/pmmgr.options
 %{_mandir}/man1/pmmgr.1.gz
 
