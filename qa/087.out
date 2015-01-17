@@ -250,7 +250,7 @@ sample.seconds: value OK
 sample.drift: current error Metric not defined in the PCP archive log 
 sample.milliseconds: delta: 1000 +/- 20
 
-50 samples required 31-50 log reads
+50 samples required 33-50 log reads
 
 interpolate 20, 4 seconds appart
 Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
@@ -336,7 +336,7 @@ sample.drift: current error Metric not defined in the PCP archive log
 sample.milliseconds: delta: 4000 +/- 40
 sample[17] pmFetch: End of PCP archive log
 
-17 samples required 34-45 log reads
+17 samples required 35-45 log reads
 
 interpolate 16, 5 seconds appart
 Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
@@ -741,7 +741,7 @@ sample.seconds: value OK
 sample.drift: current error Metric not defined in the PCP archive log 
 sample.milliseconds: delta: 1000 +/- 20
 
-50 samples required 31-50 log reads
+50 samples required 33-50 log reads
 
 interpolate 20, 4 seconds appart
 Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
@@ -827,7 +827,7 @@ sample.drift: current error Metric not defined in the PCP archive log
 sample.milliseconds: delta: 4000 +/- 40
 sample[17] pmFetch: End of PCP archive log
 
-17 samples required 34-45 log reads
+17 samples required 35-45 log reads
 
 interpolate 16, 5 seconds appart
 Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
@@ -1232,7 +1232,7 @@ sample.seconds: value OK
 sample.drift: current error Metric not defined in the PCP archive log 
 sample.milliseconds: delta: 1000 +/- 20
 
-50 samples required 31-50 log reads
+50 samples required 33-50 log reads
 
 interpolate 20, 4 seconds appart
 Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
@@ -1318,7 +1318,7 @@ sample.drift: current error Metric not defined in the PCP archive log
 sample.milliseconds: delta: 4000 +/- 40
 sample[17] pmFetch: End of PCP archive log
 
-17 samples required 34-45 log reads
+17 samples required 35-45 log reads
 
 interpolate 16, 5 seconds appart
 Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
