@@ -4,7 +4,6 @@
 - log aging in background while new pmlogger's already running
 - old log compression (until we get libpcp zlib or something)
 - email error reporting?
-- qa
 - port to mingw?
 - port to cygwin?
 - pmlogger/pmie .log rotation
