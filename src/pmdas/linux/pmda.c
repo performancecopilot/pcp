@@ -3888,7 +3888,7 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, char *container, int nsflags)
     int need_refresh_mtab = 0;
 
     if (container && nsflags)
-	pmdaEnterContainerNameSpace(rootfd, container, nsflags);
+	pmdaEnterContainerNameSpaces(rootfd, container, nsflags);
 
     if (need_refresh[CLUSTER_PARTITIONS])
     	refresh_proc_partitions(INDOM(DISK_INDOM),
@@ -3976,7 +3976,7 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, char *container, int nsflags)
     	refresh_sysfs_kernel(&sysfs_kernel);
 
     if (container && nsflags)
-	pmdaLeaveContainerNameSpace(rootfd, nsflags);
+	pmdaLeaveNameSpaces(rootfd, nsflags);
     if (need_refresh_mtab)
 	pmdaDynamicMetricTable(pmda);
 }

@@ -744,8 +744,9 @@ enum {
 #define PMDA_NAMESPACE_MNT	(1<<PMDA_NAMESPACE_MNT_INDEX)
 #define PMDA_NAMESPACE_USER	(1<<PMDA_NAMESPACE_USER_INDEX)
 
-extern int pmdaEnterContainerNameSpace(int, const char *, int);
-extern int pmdaLeaveContainerNameSpace(int, int);
+extern int pmdaEnterContainerNameSpaces(int, const char *, int);
+extern int pmdaEnterProcessNameSpaces(int, int, int);
+extern int pmdaLeaveNameSpaces(int, int);
 
 /*
  * Local PDU exchange details for elevated privilege operations.
@@ -772,13 +773,13 @@ typedef struct {
 } __pmdaRootPDUHdr;
 
 typedef enum {
-    PDUROOT_FLAG_NS = (0<<1),
+    PDUROOT_FLAG_NS = (1<<0),
 } __pmdaRootServerFeature;
 
 extern int __pmdaSendRootPDUInfo(int, int, int);
 extern int __pmdaRecvRootPDUInfo(int, int *, int *);
-extern int __pmdaSendRootNameSpaceFdsReq(int, int, const char *, int, int);
-extern int __pmdaDecodeRootNameSpaceFdsReq(void *, int *, char **, int *);
+extern int __pmdaSendRootNameSpaceFdsReq(int, int, const char *, int, int, int);
+extern int __pmdaDecodeRootNameSpaceFdsReq(void *, int *, char **, int *, int *);
 extern int __pmdaSendRootNameSpaceFds(int, int, int *, int, int);
 extern int __pmdaRecvRootNameSpaceFds(int, int *, int *);
 

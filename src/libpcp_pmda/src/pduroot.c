@@ -1,7 +1,7 @@
 /*
  * Service routines for elevated privilege services (pmdaroot).
  *
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014-2015 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -56,21 +56,22 @@ __pmdaRecvRootPDUInfo(int socket, int *version, int *features)
 	return pduinfo.hdr.status;
     if (pduinfo.hdr.length != sizeof(__pmdaRootPDUInfo))
 	return -E2BIG;
+    *version = pduinfo.hdr.version;
     *features = pduinfo.features;
     return 0;
 }
 
 /* Client sends __pmdaRootPDUNameSpaceFdsReq PDUs */
 int
-__pmdaSendRootNameSpaceFdsReq(int socket, int flags, const char *name, int namelen, int status)
+__pmdaSendRootNameSpaceFdsReq(int socket, int flags, const char *name, int namelen, int pid, int status)
 {
     char buffer[sizeof(__pmdaRootPDUNameSpaceFdsReq) + MAXPATHLEN];
     __pmdaRootPDUNameSpaceFdsReq *pdu = (__pmdaRootPDUNameSpaceFdsReq *)buffer;
     int length;
 
-    if (namelen < 1)
+    if (namelen < 0)
 	return -EINVAL;
-    if (namelen > MAXPATHLEN)
+    if (namelen >= MAXPATHLEN)
 	return -E2BIG;
 
     length = sizeof(__pmdaRootPDUNameSpaceFdsReq) + namelen;
@@ -78,7 +79,13 @@ __pmdaSendRootNameSpaceFdsReq(int socket, int flags, const char *name, int namel
     pdu->hdr.length = length;
     pdu->hdr.status = status;
     pdu->hdr.version = ROOT_PDU_VERSION;
+
     pdu->flags = flags;
+    pdu->zeroed = 0;
+    pdu->pid = pid;
+    pdu->namelen = namelen;
+    if (namelen > 0)
+	strncpy(pdu->name, name, namelen);
 
     __pmIgnoreSignalPIPE();
     return send(socket, pdu, length, 0);
@@ -86,51 +93,83 @@ __pmdaSendRootNameSpaceFdsReq(int socket, int flags, const char *name, int namel
 
 /* Server decodes __pmdaRootPDUNameSpaceFdsReq PDUs */
 int
-__pmdaDecodeRootNameSpaceFdsReq(void *buf, int *flags, char **name, int *len)
+__pmdaDecodeRootNameSpaceFdsReq(void *buf,
+		int *flags, char **name, int *len, int *pid)
 {
     __pmdaRootPDUNameSpaceFdsReq *pdu = (__pmdaRootPDUNameSpaceFdsReq *)buf;
+    char *buffer = *name;
     int length;
 
     if (pdu->hdr.type != PDUROOT_NS_FDS_REQ)
         return -ESRCH;
     length = pdu->namelen;
-    if (*len < (length + 1) - sizeof(__pmdaRootPDUHdr))
+    if (*len < (length + 1) + sizeof(__pmdaRootPDUHdr))
 	return -E2BIG;
 
     *flags = pdu->flags;
-    strncpy(*name, pdu->name, length);
-    *name[length] = '\0';
+    *pid = pdu->pid;
+    if (length) {
+	strncpy(buffer, pdu->name, length);
+	buffer[length] = '\0';
+    } else {
+	buffer = NULL;
+    }
+    *name = buffer;
     *len = length;
     return 0;
 }
 
+static int *
+collapse_fdset(int *fdset, int flags, int *buffer, int *count)
+{
+    int index = 0;
+
+    if (flags & PMDA_NAMESPACE_IPC)
+	buffer[index++] = fdset[PMDA_NAMESPACE_IPC_INDEX];
+    if (flags & PMDA_NAMESPACE_UTS)
+	buffer[index++] = fdset[PMDA_NAMESPACE_UTS_INDEX];
+    if (flags & PMDA_NAMESPACE_NET)
+	buffer[index++] = fdset[PMDA_NAMESPACE_NET_INDEX];
+    if (flags & PMDA_NAMESPACE_MNT)
+	buffer[index++] = fdset[PMDA_NAMESPACE_MNT_INDEX];
+    if (flags & PMDA_NAMESPACE_USER)
+	buffer[index++] = fdset[PMDA_NAMESPACE_USER_INDEX];
+
+    *count = index;
+    return buffer;
+}
+
 /* Server sends __pmdaRootPDUNameSpaceFds PDUs */
 int
-__pmdaSendRootNameSpaceFds(int socket, int pid, int *fdset, int count, int status)
+__pmdaSendRootNameSpaceFds(int socket, int pid, int *fdset, int flags, int status)
 {
     __pmdaRootPDUNameSpaceFds fdspdu;
+    int densefds[PMDA_NAMESPACE_COUNT], count;
     char cmsgbuf[CMSG_SPACE(sizeof(int) * PMDA_NAMESPACE_COUNT + 1)];
     struct cmsghdr *cmsg = NULL;
-    struct msghdr hdr = { 0 };
+    struct msghdr hdr;
     struct iovec data;
-    ssize_t bytes = sizeof(int) * count;
+    ssize_t bytes;
 
-    /*
-     * used to be initialized in the declaration above, but this was
-     * too tricky for the NetBSD gcc, so ...
-     */
-    memset(cmsgbuf, 0, sizeof(cmsgbuf));
+    fdset = collapse_fdset(fdset, flags, densefds, &count);
+    bytes = sizeof(int) * count;
 
     if (count < 1 || fdset == NULL)
 	return -EINVAL;
+
+    memset(cmsgbuf, 0, sizeof(cmsgbuf));
+    memset(&data, 0, sizeof(data));
+    memset(&hdr, 0, sizeof(hdr));
 
     fdspdu.hdr.type = PDUROOT_NS_FDS;
     fdspdu.hdr.length = sizeof(__pmdaRootPDUNameSpaceFds);
     fdspdu.hdr.status = status;
     fdspdu.hdr.version = ROOT_PDU_VERSION;
-    fdspdu.pid = pid;
 
-    data.iov_len = sizeof(int);
+    fdspdu.pid = pid;
+    fdspdu.flags = flags;
+
+    data.iov_len = sizeof(fdspdu);
     data.iov_base = &fdspdu;
 
     hdr.msg_iov = &data;
@@ -199,7 +238,7 @@ __pmdaRecvRootNameSpaceFds(int socket, int *fdset, int *count)
     if ((sts = recvmsg(socket, &msg, 0)) < 0)
 	return -oserror();
 
-    if (msg.msg_iovlen != 1)
+    if (msg.msg_iovlen < 1)
 	return -EINVAL;
     fdspdu = (__pmdaRootPDUNameSpaceFds *)msg.msg_iov;
     if (sts != sizeof(*fdspdu))

@@ -34,7 +34,7 @@ pmdaRootConnect(const char *path)
     __pmSockAddr	*addr;
     char		socketpath[MAXPATHLEN];
     char		errmsg[PM_MAXERRMSGLEN];
-    int			fd, sts;
+    int			fd, sts, version, features;
 
     /* Ensure we start from an initially-invalid fd state */
     memset(self_fdset, -1, sizeof(self_fdset));
@@ -72,6 +72,20 @@ pmdaRootConnect(const char *path)
 	__pmCloseSocket(fd);
 	return sts;
     }
+
+    /* Check server connection information */
+    if ((sts = __pmdaRecvRootPDUInfo(fd, &version, &features)) < 0) {
+	__pmNotifyErr(LOG_ERR,
+			"pmdaRootConnect: cannot verify %s server: %s\n",
+			socketpath, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	__pmCloseSocket(fd);
+	return sts;
+    }
+
+    if (pmDebug & DBG_TRACE_LIBPMDA)
+	__pmNotifyErr(LOG_INFO,
+			"pmdaRootConnect: %s server version=%d features=0x%x\n",
+			socketpath, version, features);
     return fd;
 }
 
@@ -157,27 +171,21 @@ __pmdaSetNameSpaceFds(int nsflags, int *fdset)
  * Use setns(2) syscall to switch temporarily to a different namespace.
  * On the first call for each namespace we stash away a file descriptor
  * that will get us back to where we started.
+ * Note: the NameSpaceFdsReq PDU is sent by the caller (contents depend
+ * on whether we switch for a specific process ID or a container name).
  */
-int
-pmdaEnterContainerNameSpace(int clientfd, const char *container, int nsflags)
+static int
+__pmdaEnterNameSpaces(int clientfd, int nsflags)
 {
     int		fdset[PMDA_NAMESPACE_COUNT];	/* NB: packed, ordered */
     int		flags, count, sts, i;
 
-    if (clientfd < 0)
-	return PM_ERR_NOTCONN;
-
-    /* setup: open my own namespace fds, stash 'em */
-    if ((sts = __pmdaOpenNameSpaceFds(nsflags, -1, self_fdset)) < 0)
-	return sts;
-
-    /* sendmsg to pmdaroot, await results */
-    if ((sts = __pmdaSendRootNameSpaceFdsReq(clientfd, nsflags, container,
-	strlen(container), 0)) < 0)
-	return sts;
-
     /* recvmsg from pmdaroot, error or results */
     if ((sts = __pmdaRecvRootNameSpaceFds(clientfd, fdset, &count)) < 0)
+	return sts;
+
+    /* open my own namespace fds, stash 'em for LeaveNameSpaces */
+    if ((sts = __pmdaOpenNameSpaceFds(nsflags, -1, self_fdset)) < 0)
 	return sts;
 
     /* finish: unpack the result fds, and call setns(2) */
@@ -207,16 +215,49 @@ pmdaEnterContainerNameSpace(int clientfd, const char *container, int nsflags)
     }
     if (count && !sts)
 	sts = __pmdaSetNameSpaceFds(nsflags, priv_fdset);
+
     if (sts)
 	return -oserror();
     return 0;
+}
+
+int
+pmdaEnterContainerNameSpaces(int clientfd, const char *container, int nsflags)
+{
+    int	sts;
+
+    if (clientfd < 0)
+	return PM_ERR_NOTCONN;
+
+    /* sendmsg to pmdaroot */
+    if ((sts = __pmdaSendRootNameSpaceFdsReq(clientfd, nsflags,
+			container, strlen(container), 0, 0)) < 0)
+	return sts;
+    /* process the results */
+    return __pmdaEnterNameSpaces(clientfd, nsflags);
+}
+
+int
+pmdaEnterProcessNameSpaces(int clientfd, int pid, int nsflags)
+{
+    int	sts;
+
+    if (clientfd < 0)
+	return PM_ERR_NOTCONN;
+
+    /* sendmsg to pmdaroot */
+    if ((sts = __pmdaSendRootNameSpaceFdsReq(clientfd, nsflags,
+			NULL, 0, pid, 0)) < 0)
+	return sts;
+    /* process the results */
+    return __pmdaEnterNameSpaces(clientfd, nsflags);
 }
 
 /*
  * And another setns(2) to switch back to the original namespace
  */
 int
-pmdaLeaveContainerNameSpace(int clientfd, int nsflags)
+pmdaLeaveNameSpaces(int clientfd, int nsflags)
 {
     int		sts;
 
@@ -256,7 +297,7 @@ __pmdaCloseNameSpaceFds(int nsflags, int *fdset)
 
 #else	/* no support on this platform */
 int
-pmdaEnterContainerNameSpace(int clientfd, const char *container, int nsflags)
+pmdaEnterContainerNameSpaces(int clientfd, const char *container, int nsflags)
 {
     (void)clientfd;
     (void)nsflags;
@@ -264,7 +305,15 @@ pmdaEnterContainerNameSpace(int clientfd, const char *container, int nsflags)
     return -ENOTSUP;
 }
 int
-pmdaLeaveContainerNameSpace(int clientfd, int nsflags)
+pmdaEnterProcessNameSpaces(int clientfd, int process, int nsflags)
+{
+    (void)clientfd;
+    (void)nsflags;
+    (void)process;
+    return -ENOTSUP;
+}
+int
+pmdaLeaveNameSpaces(int clientfd, int nsflags)
 {
     (void)clientfd;
     (void)nsflags;

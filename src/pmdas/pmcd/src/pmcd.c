@@ -1143,9 +1143,9 @@ fetch_hostname(int ctx, pmAtomValue *avp, char *host)
 
     /* see if we're dealing with a request within a container */
     if ((container = ctx_container(ctx)) != NULL) {
-	pmdaEnterContainerNameSpace(rootfd, container, PMDA_NAMESPACE_UTS);
+	pmdaEnterContainerNameSpaces(rootfd, container, PMDA_NAMESPACE_UTS);
 	avp->cp = host = hostnameinfo();
-	pmdaLeaveContainerNameSpace(rootfd, PMDA_NAMESPACE_UTS);
+	pmdaLeaveNameSpaces(rootfd, PMDA_NAMESPACE_UTS);
     }
     else if (_pmcd_hostname) {
 	avp->cp = host = _pmcd_hostname;

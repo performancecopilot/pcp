@@ -17,7 +17,8 @@ usr/share/man/man3/pmdaConnect.3.gz
 usr/share/man/man3/pmdaDaemon.3.gz
 usr/share/man/man3/pmdaDesc.3.gz
 usr/share/man/man3/pmdaDSO.3.gz
-usr/share/man/man3/pmdaEnterContainerNameSpace.3.gz
+usr/share/man/man3/pmdaEnterContainerNameSpaces.3.gz
+usr/share/man/man3/pmdaEnterProcessNameSpaces.3.gz
 usr/share/man/man3/pmdaEventAddHighResMissedRecord.3.gz
 usr/share/man/man3/pmdaEventAddHighResRecord.3.gz
 usr/share/man/man3/pmdaEventAddMissedRecord.3.gz
@@ -58,7 +59,7 @@ usr/share/man/man3/pmdahelp.3.gz
 usr/share/man/man3/pmdaInit.3.gz
 usr/share/man/man3/pmdaInstance.3.gz
 usr/share/man/man3/pmdaInterfaceMoved.3.gz
-usr/share/man/man3/pmdaLeaveContainerNameSpace.3.gz
+usr/share/man/man3/pmdaLeaveNameSpaces.3.gz
 usr/share/man/man3/pmdamain.3.gz
 usr/share/man/man3/pmdaMain.3.gz
 usr/share/man/man3/pmdaName.3.gz
