@@ -77,7 +77,10 @@ echo "pid=$!" >>$seq.full
 
 date >> $seq.full
 echo "=== 3. look for pmmgr starting no daemons ===" | tee -a $seq.full
+$sudo $PCP_RC_DIR/pmcd start >/dev/null 2>&1
 sleep 10
+$sudo $PCP_RC_DIR/pmcd stop >/dev/null 2>&1
+sleep 10 # pmmgr daemon shutdown
 ls -1 $tmp.dir # should be almost empty
 
 date >> $seq.full
@@ -94,7 +97,7 @@ for x in `seq 5`
 do
     echo restart $x `date` >> $seq.full
     rm -f $tmp.dir/`hostname`/config.pmie $tmp.dir/`hostname`/config.pmlogger
-    $sudo $PCP_RC_DIR/pmcd restart >/dev/null 2>&1
+    $sudo $PCP_RC_DIR/pmcd start >/dev/null 2>&1
     i=0;
     # wait up to 30ish seconds for pm*conf to run
     while [ $i -lt 5 ]; do
@@ -104,13 +107,14 @@ do
             break
         fi
         sleep 5
-    done      
+    done
+    $sudo $PCP_RC_DIR/pmcd stop >/dev/null 2>&1
+    sleep 10 # pmmgr daemon shutdown
 done
-$sudo $PCP_RC_DIR/pmcd stop >/dev/null 2>&1
-sleep 10 # pmmgr daemon shutdown
 
 date >> $seq.full
 echo "=== 6. check the directories ===" | tee -a $seq.full
+# there should be five archives
 ls -1 $tmp.dir/`hostname` | _filter2
 ls -lR $tmp.dir >> $seq.full # for reference
 for f in $tmp.dir/`hostname`/*.meta; do
@@ -119,22 +123,23 @@ for f in $tmp.dir/`hostname`/*.meta; do
 done
 
 date >> $seq.full
-echo "=== 7. add log-merging/rewriting, stop pmFOOconf and kill pmcd once more ===" | tee -a $seq.full
+echo "=== 7. add log-merging/rewriting, sans pmFOOconf ===" | tee -a $seq.full
 touch $tmp.dir/pmlogrewrite
 touch $tmp.dir/pmlogmerge
-echo '-t 1 -c '$tmp.dir/`hostname`/config.pmlogger > $tmp.dir/pmlogger
+echo '-t 2 -c '$tmp.dir/`hostname`/config.pmlogger > $tmp.dir/pmlogger
 echo '-c '$tmp.dir/`hostname`/config.pmie > $tmp.dir/pmie
 rm $tmp.dir/pmlogconf
 rm $tmp.dir/pmieconf
 # ^^^ so pmmgr will react to pmcd restarts rather quickly
 echo 5min > $tmp.dir/pmlogmerge-retain
 $sudo $PCP_RC_DIR/pmcd start >/dev/null 2>&1
-sleep 30 # enough time to get new daemons started up, logs rotated/merged
+sleep 20 # enough time to get new daemons started up, logs rotated/merged
 $sudo $PCP_RC_DIR/pmcd stop >/dev/null 2>&1
 sleep 10 # pmmgr daemon shutdown
 
 date >> $seq.full
 echo "=== 8. recheck the directories past retain/merge ===" | tee -a $seq.full
+# there should be only two; one merged and one just-written-to
 ls -1 $tmp.dir/`hostname` | _filter2
 ls -lR $tmp.dir >> $seq.full # for reference
 for f in $tmp.dir/`hostname`/*.meta; do
@@ -154,12 +159,13 @@ date >> $seq.full
 echo "=== 10. wait a bit ===" | tee -a $seq.full
 # long enough for all the old archives to age out, only new granular stuff to survive
 # not an exact multiple of the pmlogmerge period, to avoid testing the edge moments
-sleep 60 # >> pmlogmerge-retaion
+sleep 50 # >> pmlogmerge-retaion
 $sudo $PCP_RC_DIR/pmcd stop >/dev/null 2>&1  # ensure daemons stop & no new ones are started
 sleep 10 # pmmgr daemon shutdown
 
 $date >> $seq.full
 echo "=== 11. admire grained / retained data ===" | tee -a $seq.full
+$# there should be 3 archives
 ls -1 $tmp.dir/`hostname` | _filter2
 ls -lR $tmp.dir >> $seq.full # for reference
 for f in $tmp.dir/`hostname`/*.meta; do
@@ -173,10 +179,10 @@ kill $pid
 pid=
 sleep 2
 
-echo "== full pmmgr logs:" >> $seq.full
+echo "== collecting full pmmgr logs:" >> $seq.full
 cat $tmp.out >> $seq.full
 
-echo "== recent daemon logs:" >> $seq.full
+echo "== collecting recent daemon logs:" >> $seq.full
 grep . $tmp.dir/`hostname`/*.log >> $seq.full
 
 # restart pmcd

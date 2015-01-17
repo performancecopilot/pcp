@@ -1316,7 +1316,8 @@ int main (int argc, char *argv[])
       // We want to respond quickly if a child daemon process dies.
       (void) signal (SIGCHLD, ignore_signal);
       (void) signal (SIGALRM, ignore_signal);
-      alarm (polltime);
+      // align alarm with next natural polltime-sized interval
+      alarm (polltime-(((unsigned)time(NULL)%(unsigned)polltime)));
       pause ();
       alarm (0);
       (void) signal (SIGCHLD, SIG_DFL);

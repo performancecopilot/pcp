@@ -19,11 +19,14 @@ archive-YYYYMMDD-HHMMSS.meta
 archive-YYYYMMDD-HHMMSS.0
 archive-YYYYMMDD-HHMMSS.index
 archive-YYYYMMDD-HHMMSS.meta
+archive-YYYYMMDD-HHMMSS.0
+archive-YYYYMMDD-HHMMSS.index
+archive-YYYYMMDD-HHMMSS.meta
 config.pmie
 config.pmlogger
 pmie.log
 pmlogger.log
-=== 7. add log-merging/rewriting, stop pmFOOconf and kill pmcd once more ===
+=== 7. add log-merging/rewriting, sans pmFOOconf ===
 === 8. recheck the directories past retain/merge ===
 archive-YYYYMMDD-HHMMSS.0
 archive-YYYYMMDD-HHMMSS.index
