@@ -416,6 +416,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 			if (icp->t_prior < icp->t_next && icp->t_prior >= t_req) {
 			    /* shuffle prior to next */
 			    icp->t_next = icp->t_prior;
+			    icp->s_next = icp->s_prior;
 			    if (pcp->valfmt == PM_VAL_INSITU)
 				icp->v_next.lval = icp->v_prior.lval;
 			    else {
