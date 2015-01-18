@@ -20,7 +20,7 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 # change to true to produce detailed values in $seq.full to
 # validate the interpolated values reported by pmval
 #
-full=false
+full=true
 $full && rm -f $seq.full
 
 _summary()
