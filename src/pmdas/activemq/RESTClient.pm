@@ -35,20 +35,21 @@ sub new {
 
 sub get {
     my ($self, $url) = @_;
-    my $response = undef;
+    my $json = undef;
 
-    my $cached_data = $self->{_cache}->get($url);
-    if(defined($cached_data)) {
-	$response = $cached_data;
+    my $cached_json = $self->{_cache}->get($url);
+    if(defined($cached_json)) {
+	$json = $cached_json;
     }
     else {
-	$response = $self->{_http_client}->get("http://" . $self->{_host} . ":" . $self->{_port} . $url);
-	$self->{_cache}->put($url,$response);
+	my $response = $self->{_http_client}->get("http://" . $self->{_host} . ":" . $self->{_port} . $url);
+	return undef unless defined($response);
+	return undef unless $response->is_success;
+	$json = decode_json($response->decoded_content);
+	$self->{_cache}->put($url,$json);
     }
 
-    return undef unless defined($response);
-    return undef unless $response->is_success;
-    return decode_json($response->decoded_content);
+    return $json;
 }
 
 1;
