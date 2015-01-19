@@ -33,7 +33,7 @@ my $rest_username = 'admin';
 my $rest_password = 'admin';
 my $rest_realm = 'ActiveMQRealm';
 my $rest_timeout = 1;
-my $cache_time = 1;
+my $cache_time = 0.5;
 
 my $queue_indom = 0;
 
