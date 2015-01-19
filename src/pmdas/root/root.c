@@ -46,7 +46,7 @@ static pmdaIndom root_indomtab[NUM_INDOMS];
 #define INDOMTAB_SZ (sizeof(root_indomtab)/sizeof(root_indomtab[0]))
 
 static pmdaMetric root_metrictab[] = {
-    { NULL, { PMDA_PMID(0, CONTAINERS_DRIVER), PM_TYPE_STRING,
+    { NULL, { PMDA_PMID(0, CONTAINERS_ENGINE), PM_TYPE_STRING,
 	CONTAINERS_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) } },
     { NULL, { PMDA_PMID(0, CONTAINERS_NAME), PM_TYPE_STRING,
 	CONTAINERS_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
@@ -61,7 +61,7 @@ static pmdaMetric root_metrictab[] = {
 };
 #define METRICTAB_SZ (sizeof(root_metrictab)/sizeof(root_metrictab[0]))
 
-static container_driver_t drivers[] = {
+static container_engine_t engines[] = {
     {
 	.name		= "docker",
 	.setup		= docker_setup,
@@ -76,9 +76,9 @@ static container_driver_t drivers[] = {
 static void
 root_setup_containers(void)
 {
-    container_driver_t *dp;
+    container_engine_t *dp;
 
-    for (dp = &drivers[0]; dp->name != NULL; dp++)
+    for (dp = &engines[0]; dp->name != NULL; dp++)
 	dp->setup(dp);
 }
 
@@ -86,25 +86,25 @@ static void
 root_refresh_container_indom(void)
 {
     int need_refresh = 0;
-    container_driver_t *dp;
+    container_engine_t *dp;
     pmInDom indom = INDOM(CONTAINERS_INDOM);
 
-    for (dp = &drivers[0]; dp->name != NULL; dp++)
+    for (dp = &engines[0]; dp->name != NULL; dp++)
 	need_refresh |= dp->indom_changed(dp);
     if (!need_refresh)
 	return;
 
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
-    for (dp = &drivers[0]; dp->name != NULL; dp++)
+    for (dp = &engines[0]; dp->name != NULL; dp++)
 	dp->insts_refresh(dp, indom);
 }
 
 static void
 root_refresh_container_values(char *container, container_t *values)
 {
-    container_driver_t *dp;
+    container_engine_t *dp;
 
-    for (dp = &drivers[0]; dp->name != NULL; dp++)
+    for (dp = &engines[0]; dp->name != NULL; dp++)
 	dp->value_refresh(dp, container, values);
 }
 
@@ -114,7 +114,7 @@ root_container_search(const char *query)
     int inst, fuzzy, pid = PM_ERR_NOCONTAINER, best = 0;
     char *name = NULL;
     container_t *cp = NULL;
-    container_driver_t *dp;
+    container_engine_t *dp;
     pmInDom indom = INDOM(CONTAINERS_INDOM);
 
     for (pmdaCacheOp(indom, PMDA_CACHE_WALK_REWIND);;) {
@@ -123,7 +123,7 @@ root_container_search(const char *query)
 	if (!pmdaCacheLookup(indom, inst, &name, (void **)&cp) || !cp)
 	    continue;
 	root_refresh_container_values(name, cp);
-	for (dp = &drivers[0]; dp->name != NULL; dp++) {
+	for (dp = &engines[0]; dp->name != NULL; dp++) {
 	    if ((fuzzy = dp->name_matching(dp, query, cp->name, name)) <= best)
 		continue;
 	    if (pmDebug & DBG_TRACE_ATTR)
@@ -181,8 +181,8 @@ root_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_INST;
 	root_refresh_container_values(name, cp);
 	switch (idp->item) {
-	case 0:		/* containers.driver */
-	    atom->cp = cp->driver->name;
+	case 0:		/* containers.engine */
+	    atom->cp = cp->engine->name;
 	    break;
 	case 1:		/* containers.name */
 	    atom->cp = cp->name;
@@ -449,7 +449,7 @@ root_namespace_fds_request(root_client_t *cp, __pmdaRootPDUHdr *hdr)
      * 0. decide if doing direct process or container lookup
      * 1. refresh container_t instance domain in preparation
      * 2. match container name from PDU to an instance, via the
-     *     container_driver_t match_names() interface.
+     *     container_engine_t match_names() interface.
      *     -> if not found, save error status to send back
      * 3. use pid and namespace flags to open namespace fds
      *     i.e. fd = open("/proc/PID/ns/FLAG") -> set of fds.
@@ -484,7 +484,6 @@ root_recvpdu(int fd)
     __pmdaRootPDUHdr	*pdu = (__pmdaRootPDUHdr *)buffer;
     int			bytes;
 
-    memset(buffer, 0, sizeof(buffer));	// TODO: nuke
     if ((bytes = recv(fd, &buffer, sizeof(buffer), 0)) < 0) {
 	__pmNotifyErr(LOG_ERR, "root_recvpdu: recv - %s\n", osstrerror());
 	return NULL;
