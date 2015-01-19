@@ -24,6 +24,8 @@ use ActiveMQ;
 use JVMMemory;
 use JVMMemoryPool;
 use JVMGarbageCollection;
+use TimeSource;
+use Cache;
 
 my $rest_hostname = 'localhost';
 my $rest_port = 8161;
@@ -31,6 +33,7 @@ my $rest_username = 'admin';
 my $rest_password = 'admin';
 my $rest_realm = 'ActiveMQRealm';
 my $rest_timeout = 1;
+my $cache_time = 1;
 
 my $queue_indom = 0;
 
@@ -45,11 +48,12 @@ my $jvm_garbage_collection_cluster = 5;
 for my $file (pmda_config('PCP_PMDAS_DIR') . '/activemq/activemq.conf', 'activemq.conf') {
     eval `cat $file` unless ! -f $file;
 }
-
+my $timesource = TimeSource->new;
+my $cache = Cache->new($timesource, $cache_time);
 my $http_client = LWP::UserAgent->new;
 $http_client->agent('pmdaactivemq');
 $http_client->timeout($rest_timeout);
-my $rest_client = RESTClient->new($http_client, $rest_hostname, $rest_port, $rest_username, $rest_password, $rest_realm);
+my $rest_client = RESTClient->new($http_client, $cache, $rest_hostname, $rest_port, $rest_username, $rest_password, $rest_realm);
 my $activemq = ActiveMQ->new($rest_client);
 my $jvm_memory = JVMMemory->new($rest_client);
 my $jvm_memory_pool = JVMMemoryPool->new($rest_client);

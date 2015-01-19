@@ -21,6 +21,7 @@ sub new {
     my $class = shift;
     my $self = {
 	_http_client => shift,
+	_cache => shift,
 	_host => shift,
 	_port => shift,
 	_username => shift,
@@ -34,8 +35,17 @@ sub new {
 
 sub get {
     my ($self, $url) = @_;
+    my $response = undef;
 
-    my $response = $self->{_http_client}->get("http://" . $self->{_host} . ":" . $self->{_port} . $url);
+    my $cached_data = $self->{_cache}->get($url);
+    if(defined($cached_data)) {
+	$response = $cached_data;
+    }
+    else {
+	$response = $self->{_http_client}->get("http://" . $self->{_host} . ":" . $self->{_port} . $url);
+	$self->{_cache}->put($url,$response);
+    }
+
     return undef unless defined($response);
     return undef unless $response->is_success;
     return decode_json($response->decoded_content);
