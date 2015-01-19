@@ -111,7 +111,7 @@ root_refresh_container_values(char *container, container_t *values)
 int
 root_container_search(const char *query)
 {
-    int inst, fuzzy, pid = -ESRCH, best = 0;
+    int inst, fuzzy, pid = PM_ERR_NOCONTAINER, best = 0;
     char *name = NULL;
     container_t *cp = NULL;
     container_driver_t *dp;
