@@ -17,9 +17,9 @@
 .SH NAME
 \f3pmdaRootConnect\f1,
 \f3pmdaRootShutdown\f1,
-\f3pmdaEnterProcessNameSpaces\f1,
-\f3pmdaEnterContainerNameSpaces\f1,
-\f3pmdaLeaveNameSpaces\f1 \- privileged PCP collector services
+\f3pmdaRootContainerHostName\f1,
+\f3pmdaRootContainerProcessID\f1,
+\f3pmdaRootContainerCGroupName\f1 \- privileged PCP collector services
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -36,13 +36,13 @@ int pmdaRootConnect(void);
 void pmdaRootShutdown(int \fIfd\fP);
 .br
 .ti -8n
-void pmdaEnterContainerNameSpaces(int \fIfd\fP, const char *\fIname\fP, int \fInsflags\fP);
+int pmdaRootContainerHostName(int \fIfd\fP, char *\fIname\fP, int \fInamelen\fP, char *\fIbuffer\fP, int \fIbuflen\fP);
 .br
 .ti -8n
-void pmdaEnterProcessNameSpaces(int \fIfd\fP, int \fIpid\fP, int \fInsflags\fP);
+int pmdaRootContainerProcessID(int \fIfd\fP, char *\fIname\fP, int \fInamelen\fP);
 .br
 .ti -8n
-void pmdaLeaveNameSpaces(int \fIfd\fP, int \fInsflags\fP);
+int pmdaRootContainerCGroupName(int \fIfd\fP, char *\fIname\fP, int \fInamelen\fP, char *\fIbuffer\fP, int \fIbuflen\fP);
 .sp
 .in
 .hy
@@ -67,62 +67,68 @@ domain socket file descriptor, which can be subsequently passed to
 each of the other APIs described here.
 This channel can be used to perform limited privilege escalation
 for specific scenarios needed by PCP collector services.
-The channel is deactivated using the
+The channel can be deactivated using the
 .B pmdaRootShutdown
 interface.
 .PP
-Currently, these services allow modification of one of more of a
-processes namespaces via the
+Currently, these services provide access to the container facilities
+of modern Linux distributions, as needed by various agents accessing
+kernel features related to containers.
+.PP
+.B pmdaRootContainerHostName
+allows lookup of the current hostname for a named container on behalf
+of an unprivileged process, via the
 .BR setns (3)
 system call on Linux.
-This provides a facility whereby a PMDA can access and export metric
-values as if it were running within a container, without the need to
-actually be within the container and without the need to run as root.
+On success, the hostname is returned in the supplied
+.BR buffer ,
+of size
+.B buflen
+and the return value indicates the length of the hostname.
 .PP
-A PMDA using this facility can access it in one of two ways \- either
-directly, using the process identifier of another process running
-in those namespaces, via
-.BR pmdaEnterProcessNameSpaces ,
-or indirectly, using the
+.B pmdaRootContainerProcessID
+performs a
 .I name
-of a container (which is mapped to PID one for that container,
-internally, before the namespace change operation).
-.BB
+to process identifier translation \- on success, the return value
+is the identifier of the first process started (process 1) in the
+named container.
+.PP
+.B pmdaRootContainerCGroupName
+fills the supplied
+.I buffer
+with the engine-specific names of kernel control groups that have
+been used to build the container identified
+by
+.IR name .
+When successful, the return value indicates the length of the cgroup
+name resolved for the container.
+.PP
 The
 .I name
 of the container is interpreted by
 .BR pmdaroot (1),
 which attempts to match up the specified name with one of the
-implementations of containers that it is aware of (hence, the
+implementations of containers that it is aware of.
+Hence, the
 .I name
 argument is potentially interpreted differently, depending on the
-container driver that claims it within
+installed container engine, as determined internally by
 .BR pmdaroot (1)).
 .PP
-In the case of Docker containers, for example, a valid container
-name can be the unique hash identifier, the human-readable name,
-or any unique identifier substring \- this is a similar algorithm
-to that used by the Docker tools themselves.
-.PP
-Every call to enter a namespace must be paired with a subsequent
-call to leave it, returning the collector process to its original
-state.
-This is achieved via the
-.B pmdaLeaveNameSpaces
-interface.
-.PP
-The
-.I nsflags
-parameter specified the namespaces which are to be entered.
-This is a bitwise OR of one of more of the namespace macros,
-representing the equivalent Linux kernel namespaces of course \-
-PMDA_NAMESPACE_IPC (inter-process communication names),
-PMDA_NAMESPACE_UTS (system names), PMDA_NAMESPACE_NET
-(network interface names), PMDA_NAMESPACE_MNT (filesystem
-mount names), PMDA_NAMESPACE_USER (user account names).
+In the case of the Docker container engine, for example, a valid
+container name can be the unique hash identifier, the human-readable
+name, or any unique identifier substring. This is the algorithm used
+by the Docker client tools themselves.
+.SH DIAGNOSTICS
+All
+.B pmdaRoot
+interfaces will return negative status codes suitable for passing
+to
+.BR pmErrStr_r (3).
 .SH SEE ALSO
 .BR pmcd (1),
 .BR pmdaroot (1),
+.BR pmErrStr_r (3),
 .BR PMDA (3),
 .BR setns (3)
 and

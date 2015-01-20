@@ -75,7 +75,7 @@ jsmnstrdup(const char *js, jsmntok_t *tok, char **name)
 }
 
 /*
- * Container driver implementation for Docker
+ * Container implementation for the Docker engine
  *
  * Currently uses direct access to the /var/lib/docker/container state
  * to discover local containers.  We may want to switch over to using
@@ -87,7 +87,7 @@ jsmnstrdup(const char *js, jsmntok_t *tok, char **name)
  */
 
 void
-docker_setup(container_driver_t *dp)
+docker_setup(container_engine_t *dp)
 {
      static const char *docker_default = "/var/lib/docker";
      const char *docker = getenv("PCP_DOCKER_DIR");
@@ -102,7 +102,7 @@ docker_setup(container_driver_t *dp)
 }
 
 int
-docker_indom_changed(container_driver_t *dp)
+docker_indom_changed(container_engine_t *dp)
 {
     static int		lasterrno;
     static struct stat	lastsbuf;
@@ -122,7 +122,7 @@ docker_indom_changed(container_driver_t *dp)
 }
 
 void
-docker_insts_refresh(container_driver_t *dp, pmInDom indom)
+docker_insts_refresh(container_engine_t *dp, pmInDom indom)
 {
     DIR			*rundir;
     char		*path;
@@ -150,7 +150,9 @@ docker_insts_refresh(container_driver_t *dp, pmInDom indom)
 			pmProgname, path);
 	    if ((cp = calloc(1, sizeof(container_t))) == NULL)
 		continue;
-	    cp->driver = dp;
+	    cp->engine = dp;
+	    snprintf(cp->cgroup, sizeof(cp->cgroup),
+			"system.slice/docker-%s.scope", path);
 	}
 	pmdaCacheStore(indom, PMDA_CACHE_ADD, path, cp);
     }
@@ -318,7 +320,7 @@ again:
  * container external instance names (i.e. long hash names).
  */
 int
-docker_value_refresh(container_driver_t *dp,
+docker_value_refresh(container_engine_t *dp,
 	const char *name, container_t *values)
 {
     int		sts;
@@ -355,7 +357,7 @@ docker_value_refresh(container_driver_t *dp,
  * 'instname' - the external instance identifier, lengthy hash.
  */
 int
-docker_name_matching(struct container_driver *dp, const char *query,
+docker_name_matching(struct container_engine *dp, const char *query,
 	const char *username, const char *instname)
 {
     unsigned int ilength, qlength, limit;

@@ -28,5 +28,5 @@ typedef struct filesys {
     struct statfs stats;
 } filesys_t;
 
-extern int refresh_filesys(pmInDom, pmInDom);
+extern int refresh_filesys(pmInDom, pmInDom, int);
 extern char *scan_filesys_options(const char *, const char *);

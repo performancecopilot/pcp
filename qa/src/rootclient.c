@@ -16,51 +16,27 @@ static pmLongOptions longopts[] = {
 	"specify the process identifier to be targetted" },
     { "socket", 1, 's', "PATH",
 	"pmdaroot socket file [default $PCP_TMP_DIR/pmcd/root.socket]" },
-    { "ipc", 0, 'i', NULL, "Enter the IPC namespace of the target" },
-    { "uts", 0, 'u', NULL, "Enter the UTS namespace of the target" },
-    { "net", 0, 'n', NULL, "Enter the NET namespace of the target" },
-    { "mnt", 0, 'm', NULL, "Enter the MNT namespace of the target" },
-    { "user", 0, 'U', NULL, "Enter the USER namespace of the target" },
+    { "hostname", 0, 'H', NULL, "Lookup container hostname" },
+    { "cgroup", 0, 'C', NULL, "Lookup container cgroup name" },
+    { "pid", 0, 'P', NULL, "Lookup PID for a container" },
     PMOPT_HELP,
     PMAPI_OPTIONS_END
 };
 static pmOptions opts = {
-    .short_options = "D:c:p:s:iunmU?",
+    .short_options = "D:c:p:s:CHP?",
     .long_options = longopts,
 };
-
-static char *
-namespacestr(int nsflags)
-{
-    static char buffer[256];
-    int length;
-
-    memset(buffer, 0, sizeof(buffer));
-    if (nsflags & PMDA_NAMESPACE_IPC)
-	strcat(buffer, "ipc,");
-    if (nsflags & PMDA_NAMESPACE_UTS)
-	strcat(buffer, "uts,");
-    if (nsflags & PMDA_NAMESPACE_NET)
-	strcat(buffer, "net,");
-    if (nsflags & PMDA_NAMESPACE_MNT)
-	strcat(buffer, "mnt,");
-    if (nsflags & PMDA_NAMESPACE_USER)
-	strcat(buffer, "user,");
-    
-    /* overwrite the final comma */
-    if ((length = strlen(buffer)) > 0)
-	buffer[length-1] = '\0';
-
-    return buffer;
-}
 
 int
 main(int argc, char **argv)
 {
     int	c, sts;
-    int	process = 0;
-    int	nsflags = 0;
+    int	Cflag = 0;
+    int	Hflag = 0;
+    int	Pflag = 0;
+    int	length = 0;
     char *contain = NULL;
+    char buffer[BUFSIZ];
 
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
@@ -77,29 +53,25 @@ main(int argc, char **argv)
 
 	case 'c':	/* target container name */
 	    contain = opts.optarg;
+	    length = strlen(contain);
 	    break;
 	case 'p':	/* target process identifier */
-	    process = atoi(opts.optarg);
+	    contain = NULL;
+	    length = atoi(opts.optarg);
 	    break;
 
 	case 's':	/* socket name */
 	    sockname = opts.optarg;
 	    break;
 
-	case 'i':
-	    nsflags |= PMDA_NAMESPACE_IPC;
+	case 'C':
+	    Cflag = 1;
 	    break;
-	case 'u':
-	    nsflags |= PMDA_NAMESPACE_UTS;
+	case 'H':
+	    Hflag = 1;
 	    break;
-	case 'n':
-	    nsflags |= PMDA_NAMESPACE_NET;
-	    break;
-	case 'm':
-	    nsflags |= PMDA_NAMESPACE_MNT;
-	    break;
-	case 'U':
-	    nsflags |= PMDA_NAMESPACE_USER;
+	case 'P':
+	    Pflag = 1;
 	    break;
 
 	case '?':
@@ -114,47 +86,34 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    if (!contain && !process) {
-	fprintf(stderr, "Must specify target --container or --process\n");
-	exit(1);
-    }
-    if (contain && process) {
-	fprintf(stderr, "Cannot specify both --container or --process\n");
-	exit(1);
-    }
-
     if ((rootfd = pmdaRootConnect(sockname)) < 0) {
 	fprintf(stderr, "pmdaRootConnect: %s\n", pmErrStr(rootfd));
 	exit(1);
     }
 
-    if (contain && nsflags) {
-	if ((sts = pmdaEnterContainerNameSpaces(rootfd, contain, nsflags)) < 0) {
-	    fprintf(stderr, "pmdaEnterContainerNameSpaces: %s\n", pmErrStr(sts));
+    if (Hflag) {
+	sts = pmdaRootContainerHostName(rootfd, contain, length, buffer, BUFSIZ);
+	if (sts < 0) {
+	    fprintf(stderr, "pmdaRootContainerHostName: %s\n", pmErrStr(sts));
 	    exit(1);
 	}
-	printf("Success entering container \"%s\" namespaces: %s", contain,
-		namespacestr(nsflags));
-	if ((sts = pmdaLeaveNameSpaces(rootfd, nsflags)) < 0) {
-	    fprintf(stderr, "pmdaLeaveNameSpaces: %s\n", pmErrStr(sts));
-	    exit(1);
-	}
-	printf("Success leaving container \"%s\" namespaces: %s", contain,
-		namespacestr(nsflags));
+	printf("Hostname: %s\n", buffer);
     }
-    else if (process && nsflags) {
-	if ((sts = pmdaEnterProcessNameSpaces(rootfd, process, nsflags)) < 0) {
-	    fprintf(stderr, "pmdaEnterProcessNameSpaces: %s\n", pmErrStr(sts));
+    if (Cflag) {
+	sts = pmdaRootContainerCGroupName(rootfd, contain, length, buffer, BUFSIZ);
+	if (sts < 0) {
+	    fprintf(stderr, "pmdaRootContainerCGroupName: %s\n", pmErrStr(sts));
 	    exit(1);
 	}
-	printf("Successfully entered PID %d namespaces: %s", process,
-		namespacestr(nsflags));
-	if ((sts = pmdaLeaveNameSpaces(rootfd, nsflags)) < 0) {
-	    fprintf(stderr, "pmdaLeaveNameSpace: %s\n", pmErrStr(sts));
+	printf("CGroup: %s\n", buffer);
+    }
+    if (Pflag) {
+	sts = pmdaRootContainerProcessID(rootfd, contain, length);
+	if (sts < 0) {
+	    fprintf(stderr, "pmdaRootContainerProcessID: %s\n", pmErrStr(sts));
 	    exit(1);
 	}
-	printf("Success leaving PID %d namespaces: %s", process,
-		namespacestr(nsflags));
+	printf("PID: %d\n", sts);
     }
 
     pmdaRootShutdown(rootfd);
