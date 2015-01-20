@@ -958,7 +958,7 @@ avahi
 782 pmwebapi local
 783 pmda.rpm local valgrind
 786 context context_local libpcp local
-787:reserved archive local pmie pmlogrewrite pmdumplog pmval
+787 archive local pmie pmlogrewrite pmdumplog pmval
 789 pmda.papi local
 798 pmda.nfsclient local
 799:retired pmda.papi local

@@ -3,13 +3,6 @@
 # Run test builds on one or more PCP machines
 #
 
-tmp=/var/tmp/$$
-sts=0
-trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
-
-list_1="vm03 vm01 vm04 vm07 vm12 vm14 vm16 vm18 vm20 vm22 vm24"
-list_2="fuji grundy vm02 vm00 vm05 vm11 vm15 vm19 vm21 vm23"
-
 _usage()
 {
     echo >&2 "Usage: `basename $0` [options] vm ..."
@@ -41,165 +34,6 @@ _usage()
     echo >&2 "vmlist2: $list_2"
     echo >&2 "[both vmlists run in parallel for the default case without -S]"
 }
-
-args="$*"
-pcp_branch=dev
-pcp_tree=pcp
-cflag=false
-fflag=false
-hflag=false
-iflag=false
-mflag=false
-pflag=false
-qflag=false
-rflag=false
-what="-g sanity -g libpcp -g pdu -g pmda -g valgrind -g pmie"
-what=all
-sflag=false
-Sflag=false
-options=false
-work=false
-efile=''
-debug=false
-while getopts "ab:B:cde:fg:himpqrsSt:T:?" c
-do
-    case $c
-    in
-	a)
-	    options=true
-	    work=true
-	    pflag=true
-	    mflag=true
-	    iflag=true
-	    qflag=true
-	    hflag=true
-	    ;;
-	b)
-	    pcp_branch="$OPTARG"
-	    ;;
-	c)
-	    options=true
-	    work=true
-	    cflag=true
-	    ;;
-	d)
-	    debug=true
-	    ;;
-	e)
-	    efile="$OPTARG"
-	    if [ -f "$efile" ]
-	    then
-		:
-	    else
-		echo "Error: $efile: cannot be found"
-		sts=1
-		exit
-	    fi
-	    ;;
-	f)
-	    fflag=true
-	    ;;
-	g)
-	    what="$OPTARG"
-	    ;;
-	h)
-	    options=true
-	    work=true
-	    hflag=true
-	    ;;
-	i)
-	    options=true
-	    work=true
-	    iflag=true
-	    ;;
-	m)
-	    options=true
-	    work=true
-	    mflag=true
-	    ;;
-	p)
-	    options=true
-	    work=true
-	    pflag=true
-	    ;;
-	q)
-	    options=true
-	    work=true
-	    qflag=true
-	    ;;
-	r)
-	    options=true
-	    work=true
-	    rflag=true
-	    ;;
-	s)
-	    options=true
-	    sflag=true
-	    ;;
-	S)
-	    Sflag=true
-	    ;;
-	t)
-	    pcp_tree="$OPTARG"
-	    ;;
-	?)
-	    _usage
-	    sts=1
-	    exit
-	    ;;
-    esac
-done
-shift `expr $OPTIND - 1`
-
-if [ $# -eq 0 ]
-then
-    if $Sflag
-    then
-	# serial run
-	set -- $list_1 $list_2
-    else
-	# run in parallel
-	set -- $list_1
-	pcp-daily $args $list_2 &
-    fi
-fi
-
-if $options
-then
-    :
-else
-    # defaults
-    #
-    work=true
-    pflag=true
-    mflag=true
-    iflag=true
-    qflag=true
-    hflag=true
-    sflag=true
-fi
-
-today=`date +%Y-%m-%d`
-mkdir -p $HOME/Logs/by-date/$today
-
-rm -f $tmp.domains
-echo "bozo" >>$tmp.domains
-echo "bozo-vm" >>$tmp.domains
-echo "bozo-laptop" >>$tmp.domains
-echo "fuji" >>$tmp.domains
-echo "grundy.sgi.com" >>$tmp.domains
-if which virsh >/dev/null 2>&1
-then
-    virsh list --all \
-    | sed >>$tmp.domains \
-        -e 1d \
-        -e '/-----/d' \
-        -e 's/^  *//' \
-        -e 's/^[0-9][0-9]*[ 	]*//' \
-        -e 's/^-[ 	]*//' \
-	-e 's/[    ].*//' \
-        -e '/^$/d'
-fi
 
 _script_header()
 {
@@ -608,6 +442,187 @@ done
 echo "Info: harvest \$nbad *.bad files, \$nfull *.full files" | tee -a \$HOME/daily.log
 End-of-File
 }
+
+# Mainline starts here ...
+#
+
+tmp=/var/tmp/$$
+sts=0
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+list_1="vm03 vm01 vm04 vm07 vm12 vm14 vm16 vm18 vm20 vm22 vm24"
+list_2="fuji grundy vm02 vm00 vm05 vm11 vm15 vm19 vm21 vm23"
+
+args="$*"
+pcp_branch=dev
+pcp_tree=pcp
+cflag=false
+fflag=false
+hflag=false
+iflag=false
+mflag=false
+pflag=false
+qflag=false
+rflag=false
+what="-g sanity -g libpcp -g pdu -g pmda -g valgrind -g pmie"
+what=all
+sflag=false
+Sflag=false
+options=false
+work=false
+efile=''
+debug=false
+while getopts "ab:B:cde:fg:himpqrsSt:T:?" c
+do
+    case $c
+    in
+	a)
+	    options=true
+	    work=true
+	    pflag=true
+	    mflag=true
+	    iflag=true
+	    qflag=true
+	    hflag=true
+	    ;;
+	b)
+	    pcp_branch="$OPTARG"
+	    ;;
+	c)
+	    options=true
+	    work=true
+	    cflag=true
+	    ;;
+	d)
+	    debug=true
+	    ;;
+	e)
+	    efile="$OPTARG"
+	    if [ -f "$efile" ]
+	    then
+		:
+	    else
+		echo "Error: $efile: cannot be found"
+		sts=1
+		exit
+	    fi
+	    ;;
+	f)
+	    fflag=true
+	    ;;
+	g)
+	    what="$OPTARG"
+	    ;;
+	h)
+	    options=true
+	    work=true
+	    hflag=true
+	    ;;
+	i)
+	    options=true
+	    work=true
+	    iflag=true
+	    ;;
+	m)
+	    options=true
+	    work=true
+	    mflag=true
+	    ;;
+	p)
+	    options=true
+	    work=true
+	    pflag=true
+	    ;;
+	q)
+	    options=true
+	    work=true
+	    qflag=true
+	    ;;
+	r)
+	    options=true
+	    work=true
+	    rflag=true
+	    ;;
+	s)
+	    options=true
+	    sflag=true
+	    ;;
+	S)
+	    Sflag=true
+	    ;;
+	t)
+	    pcp_tree="$OPTARG"
+	    ;;
+	?)
+	    _usage
+	    sts=1
+	    exit
+	    ;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+if [ $# -eq 0 ]
+then
+    if $Sflag
+    then
+	# serial run
+	set -- $list_1 $list_2
+    else
+	# run in parallel
+	set -- $list_1
+	pcp-daily $args $list_2 &
+    fi
+fi
+
+if $options
+then
+    :
+else
+    # defaults
+    #
+    work=true
+    pflag=true
+    mflag=true
+    iflag=true
+    qflag=true
+    hflag=true
+    sflag=true
+fi
+
+today=`date +%Y-%m-%d`
+mkdir -p $HOME/Logs/by-date/$today
+
+rm -f $tmp.domains
+
+# some driver host specific things ...
+#
+case `hostname`
+in
+    bozo)
+	echo "bozo" >>$tmp.domains
+	echo "bozo-vm" >>$tmp.domains
+	echo "bozo-laptop" >>$tmp.domains
+	echo "fuji" >>$tmp.domains
+	echo "grundy.sgi.com" >>$tmp.domains
+	# and open up the X server
+	#
+	DISPLAY=bozo:0.0 xhost + >/dev/null
+	;;
+esac
+
+if which virsh >/dev/null 2>&1
+then
+    virsh list --all \
+    | sed >>$tmp.domains \
+        -e 1d \
+        -e '/-----/d' \
+        -e 's/^  *//' \
+        -e 's/^[0-9][0-9]*[ 	]*//' \
+        -e 's/^-[ 	]*//' \
+	-e 's/[    ].*//' \
+        -e '/^$/d'
+fi
 
 for target
 do
