@@ -30,6 +30,7 @@ _filter_pid()
     sed \
 	-e "/ $rootpid /s//PID /g" \
 	-e "s/ $rootpid not available/ PID not available/g" \
+	-e "s/`hostname`/HOSTNAME/" \
     # end
 }
 

@@ -121,18 +121,13 @@ PCP_PMDA_3.4 {
 
     pmdaRootConnect;
     pmdaRootShutdown;
-    pmdaEnterProcessNameSpaces;
-    pmdaEnterContainerNameSpaces;
-    pmdaLeaveNameSpaces;
-
-    __pmdaSetNameSpaceFds;
-    __pmdaOpenNameSpaceFds;
-    __pmdaCloseNameSpaceFds;
+    pmdaRootContainerHostName;
+    pmdaRootContainerProcessID;
+    pmdaRootContainerCGroupName;
 
     __pmdaSendRootPDUInfo;
     __pmdaRecvRootPDUInfo;
-    __pmdaSendRootNameSpaceFdsReq;
-    __pmdaDecodeRootNameSpaceFdsReq;
-    __pmdaSendRootNameSpaceFds;
-    __pmdaRecvRootNameSpaceFds;
+    __pmdaSendRootPDUContainer;
+    __pmdaRecvRootPDUContainer;
+    __pmdaDecodeRootPDUContainer;
 } PCP_PMDA_3.3;

@@ -7,7 +7,7 @@ log records: 7565
 Note: timezone set to local timezone of host "super.elastic.org" from archive
 
 metric:    hinv.ncpu
-archive:   src/slow
+archive:   archives/bug-1044
 host:      super.elastic.org
 start:     Fri Jan 10 18:00:00 2014
 end:       Mon Jan 13 08:59:49 2014
@@ -344,7 +344,7 @@ sample[64] pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "super.elastic.org" from archive
 
 metric:    kernel.all.nprocs
-archive:   src/slow
+archive:   archives/bug-1044
 host:      super.elastic.org
 start:     Fri Jan 10 18:00:00 2014
 end:       Mon Jan 13 08:59:49 2014
@@ -681,7 +681,7 @@ sample[64] pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "super.elastic.org" from archive
 
 metric:    pmcd.numagents
-archive:   src/slow
+archive:   archives/bug-1044
 host:      super.elastic.org
 start:     Fri Jan 10 18:00:00 2014
 end:       Mon Jan 13 08:59:49 2014
@@ -752,7 +752,7 @@ interval:  3600.00 sec
 06:00:00.000  No values available
 07:00:00.000  No values available
 08:00:00.000  No values available
-log reads: 13266
+log reads: ** expect 7500-15000 approx except for bug 1044 * 51349
 
 +++ backwards +++
 metric[0]: pmcd.numagents
@@ -947,7 +947,7 @@ sample 63, delta time=-3600.000 secs
 pmcd.numagents: no current values no prior values 
 sample[64] pmFetch: End of PCP archive log
 
-64 samples required 14696 log reads
+64 samples required ** expect 7500-15000 approx except for bug 1044 * 47453 log reads
 
 === pmcd.numagents converted to discrete semantics ===
 Note: timezone set to local timezone of host "super.elastic.org" from archive
@@ -1024,7 +1024,7 @@ interval:  3600.00 sec
 06:00:00.000          4
 07:00:00.000          4
 08:00:00.000          4
-log reads: 13266
+log ** expect 7500-15000 approx except for bug 1044 *: 51349
 
 === all metrics at once ===
 pmie: timezone set to local timezone of host super.elastic.org
@@ -1280,4 +1280,4 @@ hinv_ncpu (Mon Jan 13 08:00:00 2014): 4
 kernel_all_nprocs (Mon Jan 13 08:00:00 2014): 942
 pmcd_numagents (Mon Jan 13 08:00:00 2014): ?
 
-log reads: 14947
+log reads: ** expect 7500-15000 approx except for bug 1044 * 53030

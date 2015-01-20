@@ -18,7 +18,7 @@
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 iam=proc
-pmns_name="proc cgroup"
+pmns_name="proc cgroup hotproc"
 
 pmdaSetup
 pmdaRemove
