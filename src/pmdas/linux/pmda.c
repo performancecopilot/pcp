@@ -61,6 +61,7 @@
 #include "sysfs_kernel.h"
 #include "linux_table.h"
 #include "numa_meminfo.h"
+#include "namespaces.h"
 #include "interrupts.h"
 #include "devmapper.h"
 
@@ -3867,6 +3868,7 @@ static pmdaMetric metrictab[] = {
 
 typedef struct {
     char        *container;
+    int		length;
 } perctx_t;
 
 static perctx_t *ctxtab;
@@ -3883,12 +3885,9 @@ linux_statsfile(const char *path, char *buffer, int size)
 }
 
 static void
-linux_refresh(pmdaExt *pmda, int *need_refresh, char *container, int nsflags)
+linux_refresh(pmdaExt *pmda, int *need_refresh, int pid)
 {
     int need_refresh_mtab = 0;
-
-    if (container && nsflags)
-	pmdaEnterContainerNameSpaces(rootfd, container, nsflags);
 
     if (need_refresh[CLUSTER_PARTITIONS])
     	refresh_proc_partitions(INDOM(DISK_INDOM),
@@ -3896,10 +3895,10 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, char *container, int nsflags)
 				INDOM(DM_INDOM));
 
     if (need_refresh[CLUSTER_STAT])
-    	refresh_proc_stat(&proc_cpuinfo, &proc_stat);
+	refresh_proc_stat(&proc_cpuinfo, &proc_stat);
 
     if (need_refresh[CLUSTER_CPUINFO])
-    	refresh_proc_cpuinfo(&proc_cpuinfo);
+	refresh_proc_cpuinfo(&proc_cpuinfo);
 
     if (need_refresh[CLUSTER_MEMINFO])
 	refresh_proc_meminfo(&proc_meminfo);
@@ -3917,7 +3916,7 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, char *container, int nsflags)
 	refresh_net_dev_addr(INDOM(NET_ADDR_INDOM));
 
     if (need_refresh[CLUSTER_FILESYS] || need_refresh[CLUSTER_TMPFS])
-	refresh_filesys(INDOM(FILESYS_INDOM), INDOM(TMPFS_INDOM));
+	refresh_filesys(INDOM(FILESYS_INDOM), INDOM(TMPFS_INDOM), pid);
 
     if (need_refresh[CLUSTER_INTERRUPTS] ||
 	need_refresh[CLUSTER_INTERRUPT_LINES] ||
@@ -3975,17 +3974,17 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, char *container, int nsflags)
     if (need_refresh[CLUSTER_SYSFS_KERNEL])
     	refresh_sysfs_kernel(&sysfs_kernel);
 
-    if (container && nsflags)
-	pmdaLeaveNameSpaces(rootfd, nsflags);
     if (need_refresh_mtab)
 	pmdaDynamicMetricTable(pmda);
 }
 
 static char *
-linux_ctx_container(int ctx)
+linux_ctx_container(int ctx, int *length)
 {
-    if (ctx < num_ctx && ctx >= 0 && ctxtab[ctx].container)
+    if (ctx < num_ctx && ctx >= 0 && ctxtab[ctx].container) {
+	*length = ctxtab[ctx].length;
 	return ctxtab[ctx].container;
+    }
     return NULL;
 }
 
@@ -3994,7 +3993,7 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
 {
     __pmInDom_int	*indomp = (__pmInDom_int *)&indom;
     int			need_refresh[NUM_CLUSTERS] = {0};
-    int			namespace_flags = 0;
+    int			sts, pid = 0, length = 0, ns_flags = 0;
     char		*container = NULL;
 
     switch (indomp->serial) {
@@ -4014,19 +4013,19 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
 	break;
     case NET_DEV_INDOM:
 	need_refresh[CLUSTER_NET_DEV]++;
-	namespace_flags |= PMDA_NAMESPACE_NET;
+	ns_flags |= LINUX_NAMESPACE_NET;
 	break;
     case NET_ADDR_INDOM:
 	need_refresh[CLUSTER_NET_ADDR]++;
-	namespace_flags |= PMDA_NAMESPACE_NET;
+	ns_flags |= LINUX_NAMESPACE_NET;
 	break;
     case FILESYS_INDOM:
 	need_refresh[CLUSTER_FILESYS]++;
-	namespace_flags |= PMDA_NAMESPACE_MNT;
+	ns_flags |= LINUX_NAMESPACE_MNT;
 	break;
     case TMPFS_INDOM:
 	need_refresh[CLUSTER_TMPFS]++;
-	namespace_flags |= PMDA_NAMESPACE_MNT;
+	ns_flags |= LINUX_NAMESPACE_MNT;
 	break;
     case SWAPDEV_INDOM:
 	need_refresh[CLUSTER_SWAPDEV]++;
@@ -4036,7 +4035,7 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
     case NFS4_CLI_INDOM:
     case NFS4_SVR_INDOM:
 	need_refresh[CLUSTER_NET_NFS]++;
-	namespace_flags |= PMDA_NAMESPACE_MNT;
+	ns_flags |= LINUX_NAMESPACE_MNT;
 	break;
     case SCSI_INDOM:
 	need_refresh[CLUSTER_SCSI]++;
@@ -4053,10 +4052,15 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
     /* no default label : pmdaInstance will pick up errors */
     }
 
-    if (namespace_flags)
-	container = linux_ctx_container(pmda->e_context);
-    linux_refresh(pmda, need_refresh, container, namespace_flags);
-    return pmdaInstance(indom, inst, name, result, pmda);
+    if (ns_flags)
+	container = linux_ctx_container(pmda->e_context, &length);
+    if (container)
+	pid = container_enter_namespaces(rootfd, container, length, ns_flags);
+    linux_refresh(pmda, need_refresh, pid);
+    sts = pmdaInstance(indom, inst, name, result, pmda);
+    if (container)
+	container_leave_namespaces(rootfd, ns_flags);
+    return sts;
 }
 
 /*
@@ -5649,7 +5653,7 @@ static int
 linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
     int		need_refresh[NUM_CLUSTERS] = {0};
-    int		i, namespace_flags = 0;
+    int		i, sts, pid = 0, length = 0, ns_flags = 0;
     char	*container = NULL;
 
     for (i = 0; i < numpmid; i++) {
@@ -5681,32 +5685,37 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    break;
 
 	case CLUSTER_KERNEL_UNAME:
-	    namespace_flags |= PMDA_NAMESPACE_UTS;
+	    ns_flags |= LINUX_NAMESPACE_UTS;
 	    break;
 
 	case CLUSTER_NET_DEV:
 	case CLUSTER_NET_ADDR:
-	    namespace_flags |= PMDA_NAMESPACE_NET;
+	    ns_flags |= LINUX_NAMESPACE_NET;
 	    break;
 
 	case CLUSTER_NET_NFS:
 	case CLUSTER_FILESYS:
 	case CLUSTER_TMPFS:
-	    namespace_flags |= PMDA_NAMESPACE_MNT;
+	    ns_flags |= LINUX_NAMESPACE_MNT;
 	    break;
 
 	case CLUSTER_SEM_LIMITS:
 	case CLUSTER_MSG_LIMITS:
 	case CLUSTER_SHM_LIMITS:
-	    namespace_flags |= PMDA_NAMESPACE_IPC;
+	    ns_flags |= LINUX_NAMESPACE_IPC;
 	    break;
 	}
     }
 
-    if (namespace_flags)
-	container = linux_ctx_container(pmda->e_context);
-    linux_refresh(pmda, need_refresh, container, namespace_flags);
-    return pmdaFetch(numpmid, pmidlist, resp, pmda);
+    if (ns_flags)
+	container = linux_ctx_container(pmda->e_context, &length);
+    if (container)
+	pid = container_enter_namespaces(rootfd, container, length, ns_flags);
+    linux_refresh(pmda, need_refresh, pid);
+    sts = pmdaFetch(numpmid, pmidlist, resp, pmda);
+    if (container)
+	container_leave_namespaces(rootfd, ns_flags);
+    return sts;
 }
 
 static int
@@ -5777,6 +5786,7 @@ linux_attribute(int ctx, int attr, const char *value, int len, pmdaExt *pmda)
 	    free(ctxtab[ctx].container);
 	if ((ctxtab[ctx].container = strdup(value)) == NULL)
 	    return -ENOMEM;
+	ctxtab[ctx].length = len;
     }
     return pmdaAttribute(ctx, attr, value, len, pmda);
 }

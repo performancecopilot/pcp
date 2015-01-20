@@ -151,6 +151,8 @@ docker_insts_refresh(container_engine_t *dp, pmInDom indom)
 	    if ((cp = calloc(1, sizeof(container_t))) == NULL)
 		continue;
 	    cp->engine = dp;
+	    snprintf(cp->cgroup, sizeof(cp->cgroup),
+			"system.slice/docker-%s.scope", path);
 	}
 	pmdaCacheStore(indom, PMDA_CACHE_ADD, path, cp);
     }

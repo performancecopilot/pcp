@@ -61,6 +61,7 @@ typedef struct container {
     int			pid;
     int			status;
     char		*name;
+    char		cgroup[128];
     struct stat		stat;
     container_engine_t	*engine;
 } container_t;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2015 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -264,6 +264,7 @@ typedef void (*cgroup_refresh_t)(const char *, const char *);
 extern void refresh_cgroups(const char *,
 			    cgroup_setup_t, cgroup_refresh_t);
 extern char *cgroup_find_subsys(pmInDom, filesys_t *);
+extern int cgroup_mounts_subsys(const char *, char *, int);
 
 extern void refresh_cgroup_subsys(void);
 extern void refresh_cgroup_filesys(void);

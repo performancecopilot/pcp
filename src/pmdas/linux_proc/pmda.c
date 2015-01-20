@@ -4,7 +4,7 @@
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * Portions Copyright (c) 2002 International Business Machines Corp.
  * Portions Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
- * Portions Copyright (c) 2012-2014 Red Hat.
+ * Portions Copyright (c) 2012-2015 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -46,7 +46,8 @@
 #include "cgroups.h"
 
 /* globals */
-static int			_isDSO = 1;	/* for local contexts */
+static int			_isDSO = 1;	/* =0 I am a daemon */
+static int			rootfd = -1;	/* af_unix pmdaroot */
 static proc_pid_t		proc_pid;
 static proc_pid_t		hotproc_pid;
 static struct utsname		kernel_uname;
@@ -1303,6 +1304,11 @@ proc_statsfile(const char *path, char *buffer, int size)
 static void
 proc_refresh(pmdaExt *pmda, int *need_refresh)
 {
+    const char *container;
+    int length = 0;
+
+    container = proc_ctx_container(pmda->e_context, &length);
+
     if (need_refresh[CLUSTER_CGROUP_SUBSYS] ||
 	need_refresh[CLUSTER_CGROUP_MOUNTS] ||
 	need_refresh[CLUSTER_CPUSET_GROUPS] || 
@@ -1310,7 +1316,8 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
 	need_refresh[CLUSTER_CPUSCHED_GROUPS] ||
 	need_refresh[CLUSTER_MEMORY_GROUPS] ||
 	need_refresh[CLUSTER_NETCLS_GROUPS] ||
-	need_refresh[CLUSTER_BLKIO_GROUPS]) {
+	need_refresh[CLUSTER_BLKIO_GROUPS] ||
+	container) {
 
 	refresh_cgroup_subsys();
 	refresh_cgroup_filesys();
@@ -1338,11 +1345,11 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
 	need_refresh[CLUSTER_PID_SCHEDSTAT] ||
 	need_refresh[CLUSTER_PID_FD] ||
 	need_refresh[CLUSTER_PROC_RUNQ]) {
-
 	refresh_proc_pid(&proc_pid,
 		need_refresh[CLUSTER_PROC_RUNQ]? &proc_runq : NULL,
 		proc_ctx_threads(pmda->e_context, threads),
-		proc_ctx_cgroups(pmda->e_context, cgroups));
+		proc_ctx_cgroups(pmda->e_context, cgroups),
+		container, length, rootfd);
     }
     if (need_refresh[CLUSTER_HOTPROC_PID_STAT] ||
         need_refresh[CLUSTER_HOTPROC_PID_STATM] ||
@@ -2847,6 +2854,7 @@ proc_init(pmdaInterface *dp)
     proc_ctx_init();
     proc_dynamic_init(metrictab, nmetrics);
 
+    rootfd = pmdaRootConnect(NULL);
     pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
     pmdaInit(dp, indomtab, nindoms, metrictab, nmetrics);
 

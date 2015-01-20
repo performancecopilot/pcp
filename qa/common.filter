@@ -45,6 +45,12 @@ s/ i:[0-9] / i:? /
 s/lib=[^ ]*/lib=[OS]pmda.$DSO_SUFFIX/
 s/entry=[^ ]*/entry=[OS]_init/
 }' \
+	-e '/^linux.*pmdalinux/{
+s/linux/[OS] /
+s/60.*bin/??                 N dso/
+s/ pipe / i:?  /
+s/cmd=[^ ]*/lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init/
+}' \
 	-e '/^darwin.*pmda_darwin/{
 s/darwin/[OS]  /
 s/78/??/

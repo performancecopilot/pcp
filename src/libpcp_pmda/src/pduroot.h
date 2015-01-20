@@ -22,20 +22,15 @@ typedef struct {
     int			zeroed;
 } __pmdaRootPDUInfo;
 
+/*
+ * Common PDU for container operations
+ * (PID, host and cgroup name requests and responses).
+ */
 typedef struct {
     __pmdaRootPDUHdr	hdr;
     int			pid;
-    int			flags;
-    int			zeroed;
     int			namelen;
     char		name[0];
-} __pmdaRootPDUNameSpaceFdsReq;
-
-typedef struct {
-    __pmdaRootPDUHdr	hdr;
-    int			pid;
-    int			flags;
-    /* file descriptors arrive via SCM_RIGHTS */
-} __pmdaRootPDUNameSpaceFds;
+} __pmdaRootPDUContainer;
 
 #endif	/* _PDUROOT_H */

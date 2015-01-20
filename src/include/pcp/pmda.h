@@ -727,26 +727,9 @@ extern void pmdaInterfaceMoved(pmdaInterface *);
  */
 extern int pmdaRootConnect(const char *);
 extern void pmdaRootShutdown(int);
-
-enum {
-    PMDA_NAMESPACE_IPC_INDEX = 0,
-    PMDA_NAMESPACE_UTS_INDEX,
-    PMDA_NAMESPACE_NET_INDEX,
-    PMDA_NAMESPACE_MNT_INDEX,
-    PMDA_NAMESPACE_USER_INDEX,
-
-    PMDA_NAMESPACE_COUNT
-};
-
-#define PMDA_NAMESPACE_IPC	(1<<PMDA_NAMESPACE_IPC_INDEX)
-#define PMDA_NAMESPACE_UTS	(1<<PMDA_NAMESPACE_UTS_INDEX)
-#define PMDA_NAMESPACE_NET	(1<<PMDA_NAMESPACE_NET_INDEX)
-#define PMDA_NAMESPACE_MNT	(1<<PMDA_NAMESPACE_MNT_INDEX)
-#define PMDA_NAMESPACE_USER	(1<<PMDA_NAMESPACE_USER_INDEX)
-
-extern int pmdaEnterContainerNameSpaces(int, const char *, int);
-extern int pmdaEnterProcessNameSpaces(int, int, int);
-extern int pmdaLeaveNameSpaces(int, int);
+extern int pmdaRootContainerHostName(int, const char *, int, char *, int);
+extern int pmdaRootContainerProcessID(int, const char *, int);
+extern int pmdaRootContainerCGroupName(int, const char *, int, char *, int);
 
 /*
  * Local PDU exchange details for elevated privilege operations.
@@ -756,14 +739,22 @@ extern int pmdaLeaveNameSpaces(int, int);
 #define ROOT_PDU_VERSION	ROOT_PDU_VERSION1
 
 #define PDUROOT_INFO		0x9000
-#define PDUROOT_NS_FDS_REQ	0x9001
-#define PDUROOT_NS_FDS		0x9002
-/*#define PDUROOT_STARTPMDA_REQ	0x9003*/
-/*#define PDUROOT_STARTPMDA	0x9004*/
-/*#define PDUROOT_SASLAUTH_REQ	0x9005*/
-/*#define PDUROOT_SASLAUTH	0x9006*/
-/*#define PDUROOT_CGROUP_REQ	0x9007*/
-/*#define PDUROOT_CGROUP	0x9008*/
+#define PDUROOT_HOSTNAME_REQ	0x9001
+#define PDUROOT_HOSTNAME	0x9002
+#define PDUROOT_PROCESSID_REQ	0x9003
+#define PDUROOT_PROCESSID	0x9004
+#define PDUROOT_CGROUPNAME_REQ	0x9005
+#define PDUROOT_CGROUPNAME	0x9006
+/*#define PDUROOT_STARTPMDA_REQ	0x9007*/
+/*#define PDUROOT_STARTPMDA	0x9008*/
+/*#define PDUROOT_SASLAUTH_REQ	0x9009*/
+/*#define PDUROOT_SASLAUTH	0x900a*/
+
+typedef enum {
+    PDUROOT_FLAG_HOSTNAME	= (1<<0),
+    PDUROOT_FLAG_PROCESSID	= (1<<1),
+    PDUROOT_FLAG_CGROUPNAME	= (1<<2),
+} __pmdaRootServerFeature;
 
 typedef struct {
     int		type;
@@ -772,20 +763,11 @@ typedef struct {
     int		version;
 } __pmdaRootPDUHdr;
 
-typedef enum {
-    PDUROOT_FLAG_NS = (1<<0),
-} __pmdaRootServerFeature;
-
 extern int __pmdaSendRootPDUInfo(int, int, int);
 extern int __pmdaRecvRootPDUInfo(int, int *, int *);
-extern int __pmdaSendRootNameSpaceFdsReq(int, int, const char *, int, int, int);
-extern int __pmdaDecodeRootNameSpaceFdsReq(void *, int *, char **, int *, int *);
-extern int __pmdaSendRootNameSpaceFds(int, int, int *, int, int);
-extern int __pmdaRecvRootNameSpaceFds(int, int *, int);
-
-extern int __pmdaSetNameSpaceFds(int, int *);
-extern int __pmdaOpenNameSpaceFds(int, int, int *);
-extern int __pmdaCloseNameSpaceFds(int, int *);
+extern int __pmdaSendRootPDUContainer(int, int, int, const char *, int, int);
+extern int __pmdaRecvRootPDUContainer(int, int, void *, int);
+extern int __pmdaDecodeRootPDUContainer(void *, int, int *, char *, int);
 
 #ifdef __cplusplus
 }
