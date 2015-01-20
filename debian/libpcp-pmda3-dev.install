@@ -17,8 +17,6 @@ usr/share/man/man3/pmdaConnect.3.gz
 usr/share/man/man3/pmdaDaemon.3.gz
 usr/share/man/man3/pmdaDesc.3.gz
 usr/share/man/man3/pmdaDSO.3.gz
-usr/share/man/man3/pmdaEnterContainerNameSpaces.3.gz
-usr/share/man/man3/pmdaEnterProcessNameSpaces.3.gz
 usr/share/man/man3/pmdaEventAddHighResMissedRecord.3.gz
 usr/share/man/man3/pmdaEventAddHighResRecord.3.gz
 usr/share/man/man3/pmdaEventAddMissedRecord.3.gz
@@ -70,6 +68,9 @@ usr/share/man/man3/pmdaProfile.3.gz
 usr/share/man/man3/pmdaRehash.3.gz
 usr/share/man/man3/pmdarootconnect.3.gz
 usr/share/man/man3/pmdaRootConnect.3.gz
+usr/share/man/man3/pmdaRootContainerCGroupName.3.gz
+usr/share/man/man3/pmdaRootContainerHostName.3.gz
+usr/share/man/man3/pmdaRootContainerProcessID.3.gz
 usr/share/man/man3/pmdaRootShutdown.3.gz
 usr/share/man/man3/pmdaSetCheckCallBack.3.gz
 usr/share/man/man3/pmdaSetDoneCallBack.3.gz
