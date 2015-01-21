@@ -273,9 +273,10 @@ static unsigned int	nwhoamis;
 
 typedef struct {
     int		state;
+    int		length;
+    char	*container;
     double	last_cputime;
     __uint64_t	last_pdu_in;
-    char	*container;
 } perctx_t;
 
 /* utilization values for per context state */
@@ -1124,37 +1125,40 @@ fetch_feature(int item, pmAtomValue *avp)
 }
 
 static char *
-ctx_container(int ctx)
+ctx_container(int ctx, int *length)
 {
-    if (ctx < num_ctx && ctx >= 0 && ctxtab[ctx].container)
+    if (ctx < num_ctx && ctx >= 0 && ctxtab[ctx].container) {
+	*length = ctxtab[ctx].length;
 	return ctxtab[ctx].container;
+    }
     return NULL;
 }
 
 static char *
-fetch_hostname(int ctx, pmAtomValue *avp, char *host)
+fetch_hostname(int ctx, pmAtomValue *avp, char *hostname)
 {
+    static char	host[MAXHOSTNAMELEN];
     char	*container;
+    int		length;
 
-    if (host) {		/* ensure we only ever refresh once-per-fetch */
-	avp->cp = host;
-	return host;
+    if (hostname) {	/* ensure we only ever refresh once-per-fetch */
+	avp->cp = hostname;
+	return hostname;
     }
 
     /* see if we're dealing with a request within a container */
-    if ((container = ctx_container(ctx)) != NULL) {
-	pmdaEnterContainerNameSpaces(rootfd, container, PMDA_NAMESPACE_UTS);
-	avp->cp = host = hostnameinfo();
-	pmdaLeaveNameSpaces(rootfd, PMDA_NAMESPACE_UTS);
+    if ((container = ctx_container(ctx, &length)) != NULL) {
+	pmdaRootContainerHostName(rootfd, container, length, host, sizeof(host));
+	avp->cp = hostname = host;
     }
     else if (_pmcd_hostname) {
-	avp->cp = host = _pmcd_hostname;
+	avp->cp = hostname = _pmcd_hostname;
     } else {
-	if (!host)
-	    host = hostnameinfo();
-	avp->cp = host;
+	if (!hostname)
+	    hostname = hostnameinfo();
+	avp->cp = hostname;
     }
-    return host;
+    return hostname;
 }
 
 static int
@@ -1893,6 +1897,7 @@ pmcd_attribute(int ctx, int attr, const char *value, int len, pmdaExt *pmda)
 	    free(ctxtab[ctx].container);
 	if ((ctxtab[ctx].container = strdup(value)) == NULL)
 	    return -ENOMEM;
+	ctxtab[ctx].length = len;
     }
     return pmdaAttribute(ctx, attr, value, len, pmda);
 }

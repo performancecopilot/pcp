@@ -4,7 +4,7 @@ pcp (3.10.2) unstable; urgency=low
   * Fix insecure use of /var/tmp in postinst (closes: #771793)
   * New release (full details in CHANGELOG).
 
- -- Nathan Scott <nathans@debian.org>  Fri, 09 Jan 2015 11:10:54 +1100
+ -- Nathan Scott <nathans@debian.org>  Fri, 23 Jan 2015 11:10:54 +1100
 
 pcp (3.10.1) unstable; urgency=low
 

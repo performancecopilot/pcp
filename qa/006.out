@@ -53,7 +53,7 @@ QA output created by 006
 -12396 No such PMAPI error code (-12396)
 -12397 Unknown or illegal metric type
 -12398 Operation not supported for multi-threaded applications
--12399 No such PMAPI error code (-12399)
+-12399 Container not found
 -12400 No such PMAPI error code (-12400)
 -12401 No such PMAPI error code (-12401)
 -12402 No such PMAPI error code (-12402)
