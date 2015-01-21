@@ -98,19 +98,22 @@ matchnames(__pmPDU *a, __pmPDU *b)
 {
     int		num_a = 0;
     int		num_b = 0;
-    int		num_eq = 0;
+    int		num_a_eq = 0;
+    int		num_b_eq = 0;
     int		i_a;
+    int		i_b;
     char	*p_a;
+    char	*p_b;
     int		sts;
 
     if (ntohl(a[0]) > 8) num_a = ntohl(a[7]);
     if (ntohl(b[0]) > 8) num_b = ntohl(b[7]);
 
+    /*
+     * count number of names from {a names} that match names in {b names}
+     */
     p_a = (char *)&a[8];
-
     for (i_a = 0; i_a < num_a; i_a++) {
-	int		i_b;
-	char		*p_b;
 	__pmPDU		len_a;
 
 	memmove((void *)&len_a, (void *)p_a, sizeof(__pmPDU));
@@ -123,26 +126,59 @@ matchnames(__pmPDU *a, __pmPDU *b)
 	    len_b = ntohl(len_b);
 	    p_b += sizeof(__pmPDU);
 
-	    if (len_a == len_b && strncmp(p_a, p_b, len_a) == 0)
-		num_eq++;
+	    if (len_a == len_b && strncmp(p_a, p_b, len_a) == 0) {
+		num_a_eq++;
+		break;
+	    }
 
 	    p_b += len_b;
 	}
 	p_a += len_a;
     }
 
-    if (num_eq == 0) sts = MATCH_NONE;
+
+    /*
+     * count number of names from {b names} that match names in {a names}
+     * ... this would not be necessary, but due to an apparent pmlogger
+     * bug, the _same_ name can appear in either or both of the {a names}
+     * and {b names} sets, which complicates the logic here.
+     */
+    p_b = (char *)&b[8];
+    for (i_b = 0; i_b < num_b; i_b++) {
+	__pmPDU		len_b;
+
+	memmove((void *)&len_b, (void *)p_b, sizeof(__pmPDU));
+	len_b = ntohl(len_b);
+	p_b += sizeof(__pmPDU);
+	p_a = (char *)&a[8];
+	for (i_a = 0; i_a < num_a; i_a++) {
+	    __pmPDU		len_a;
+	    memmove((void *)&len_a, (void *)p_a, sizeof(__pmPDU));
+	    len_a = ntohl(len_a);
+	    p_a += sizeof(__pmPDU);
+
+	    if (len_b == len_a && strncmp(p_b, p_a, len_b) == 0) {
+		num_b_eq++;
+		break;
+	    }
+
+	    p_a += len_a;
+	}
+	p_b += len_b;
+    }
+
+    if (num_a_eq == 0 && num_b_eq == 0) sts = MATCH_NONE;
     else if (num_a == num_b) {
-	if (num_eq == num_b) sts = MATCH_EQUAL;
+	if (num_a_eq == num_a && num_b_eq == num_b) sts = MATCH_EQUAL;
 	else sts = MATCH_SOME;
     }
     else if (num_a > num_b) {
-	if (num_eq == num_b) sts = MATCH_SUPERSET;
+	if (num_b_eq == num_b) sts = MATCH_SUPERSET;
 	else sts = MATCH_SOME;
     }
     else {
 	/* num_a < num_b */
-	if (num_eq == num_a) sts = MATCH_SUBSET;
+	if (num_a_eq == num_a) sts = MATCH_SUBSET;
 	else sts = MATCH_SOME;
     }
 #ifdef PCP_DEBUG
@@ -151,7 +187,7 @@ matchnames(__pmPDU *a, __pmPDU *b)
 	printmetricnames(stderr, a);
 	fprintf(stderr, " : ");
 	printmetricnames(stderr, b);
-	fprintf(stderr, " -> %d\n", sts);
+	fprintf(stderr, " num_a=%d num_b=%d num_a_eq=%d num_b_eq=%d -> %d\n", num_a, num_b, num_a_eq, num_b_eq, sts);
     }
 #endif
 
@@ -208,17 +244,6 @@ typedef struct {
     int			valfmt;		/* insitu or pointer */
     __pmValue_PDU	vlist[1];	/* zero or more */
 } vlist_t;
-
-/*
- *  This struct is not needed?
- */
-typedef struct {
-    /* __pmPDUHdr		hdr; */
-    __pmPDU		hdr;
-    __pmTimeval		timestamp;	/* when returned */
-    int			numpmid;	/* no. of PMIDs to follow */
-    __pmPDU		data[1];	/* zero or more */
-} result_t;
 
 /*
  *  Mark record

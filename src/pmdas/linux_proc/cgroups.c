@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -251,6 +251,32 @@ cgroup_find_subsys(pmInDom indom, filesys_t *fs)
     if (out)
 	return opts;
     return dunno;
+}
+
+int
+cgroup_mounts_subsys(const char *system, char *buffer, int length)
+{
+    pmInDom mounts = INDOM(CGROUP_MOUNTS_INDOM);
+    pmInDom subsys = INDOM(CGROUP_SUBSYS_INDOM);
+    filesys_t *fs;
+    char *name;
+    int sts;
+
+    /* Iterate over cgroup.mounts.subsys indom, comparing the value
+     * with the given subsys - if a match is found, return the inst
+     * name, else NULL.
+     */
+    pmdaCacheOp(mounts, PMDA_CACHE_WALK_REWIND);
+    while ((sts = pmdaCacheOp(mounts, PMDA_CACHE_WALK_NEXT)) != -1) {
+	if (!pmdaCacheLookup(mounts, sts, &name, (void **)&fs))
+	    continue;
+	if (strcmp(system, cgroup_find_subsys(subsys, fs)) != 0)
+	    continue;
+	snprintf(buffer, length, "%s%s/", proc_statspath, name);
+	buffer[length-1] = '\0';
+	return strlen(buffer);
+    }
+    return 0;
 }
 
 static const char *

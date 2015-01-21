@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014-2015 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -21,7 +21,10 @@ CMDTARGET	= pmda$(IAM)$(EXECSUFFIX)
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 CONF_LINE	= "root	1	pipe	binary		$(PMDADIR)/$(CMDTARGET)"
 
-CFILES		= root.c jsmn.c docker.c
+CFILES		= root.c jsmn.c
+ifeq "$(TARGET_OS)" "linux"
+CFILES		+= docker.c
+endif
 
 SCRIPTS		= Install Remove
 VERSION_SCRIPT	= exports

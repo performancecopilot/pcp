@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013,2015 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,6 +30,8 @@ proc_ctx_clear(int ctx)
     ctxtab[ctx].gid = -1;
     ctxtab[ctx].threads = 1;
     ctxtab[ctx].cgroups = NULL;
+    ctxtab[ctx].container = NULL;
+    ctxtab[ctx].length = 0;
 }
 
 void
@@ -37,6 +39,8 @@ proc_ctx_end(int ctx)
 {
     if (ctx < 0 || ctx >= num_ctx || ctxtab[ctx].state == CTX_INACTIVE)
 	return;
+    if (ctxtab[ctx].state & CTX_CONTAINER)
+	free((void *)ctxtab[ctx].container);
     if (ctxtab[ctx].state & CTX_CGROUPS)
 	free((void *)ctxtab[ctx].cgroups);
     proc_ctx_clear(ctx);
@@ -74,6 +78,15 @@ proc_ctx_set_groupid(int ctx, const char *value)
     ctxtab[ctx].state |= (CTX_ACTIVE | CTX_GROUPID);
 }
 
+static void
+proc_ctx_set_container(int ctx, const char *value, int length)
+{
+    proc_ctx_growtab(ctx);
+    ctxtab[ctx].length = length;
+    ctxtab[ctx].container = strndup(value, length);
+    ctxtab[ctx].state |= (CTX_ACTIVE | CTX_CONTAINER);
+}
+
 int
 proc_ctx_attrs(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
 {
@@ -88,6 +101,9 @@ proc_ctx_attrs(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
 	break;
     case PCP_ATTR_GROUPID:
 	proc_ctx_set_groupid(ctx, value);
+	break;
+    case PCP_ATTR_CONTAINER:
+	proc_ctx_set_container(ctx, value, length);
 	break;
     default:
 	break;
@@ -112,7 +128,7 @@ proc_ctx_getuid(int ctx)
 
     pp = &ctxtab[ctx];
 
-    if ( (pp->state & CTX_ACTIVE) && (pp->state & CTX_USERID) )
+    if ((pp->state & CTX_ACTIVE) && (pp->state & CTX_USERID))
 	return pp->uid;
     else
 	return -1;
@@ -210,6 +226,23 @@ proc_ctx_set_threads(int ctx, unsigned int threads)
     pp->state |= CTX_THREADS;
     pp->threads = threads;
     return 0;
+}
+
+const char *
+proc_ctx_container(int ctx, int *length)
+{
+    proc_perctx_t *pp;
+
+    if (ctx < 0 || ctx >= num_ctx)
+	return NULL;
+    pp = &ctxtab[ctx];
+    if (pp->state == CTX_INACTIVE)
+	return NULL;
+    if (pp->state & CTX_CONTAINER) {
+	*length = pp->length;
+	return pp->container;
+    }
+    return NULL;
 }
 
 const char *
