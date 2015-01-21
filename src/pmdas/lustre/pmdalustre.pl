@@ -107,7 +107,10 @@ sub lustre_get_llite_stats{
 			while (<STATS>) {
                 		my $line = $_;
 				# Byte types first
-				if( $line =~ /^(read_bytes|write_bytes|osc_read|osc_write)\s+(\d+) samples \[bytes\] (\d+) (\d+) (\d+)$/){
+				my $byte_types = join '|', @llite_byte_stats;
+				my $pages_types = join '|', @llite_page_stats;
+				my $reg_types = join '|', @llite_reg_stats;
+				if( $line =~ /^($byte_types)\s+(\d+) samples \[bytes\] (\d+) (\d+) (\d+)$/){
 					my $name = $1;
 					my $count = $2;
 					my $min = $3;
@@ -119,7 +122,7 @@ sub lustre_get_llite_stats{
 					$h_llite{$mtroot}->{"lustre.llite.$name.total"} = $total;
 				# Pages types
 				# I have not seen these, so can't test
-				} elsif ( $line =~ /^(brw_read|brw_write)\s+(\d+) samples \[pages\] (\d+) (\d+) (\d+)$/){
+				} elsif ( $line =~ /^($pages_types)\s+(\d+) samples \[pages\] (\d+) (\d+) (\d+)$/){
 					my $name = $1;
                                         my $count = $2;
                                         my $min = $3;
@@ -130,8 +133,7 @@ sub lustre_get_llite_stats{
                                         $h_llite{$mtroot}->{"lustre.llite.$name.max"} = $max;
                                         $h_llite{$mtroot}->{"lustre.llite.$name.total"} = $total;
 				# Regs types
-				# List them all to ensure they match the metric defs below
-				} elsif ( $line =~ /^(dirty_pages_hits|dirty_pages_misses|ioctl|open|close|mmap|seek|fsync|readdir|setattr|truncate|flock|getattr|create|link|unlink|symlink|mkdir|rmdir|mknod|rename|statfs|alloc_inode|setxattr|getxattr|getxattr_hits|listxattr|removexattr|inode_permission)\s+(\d+) samples [regs]$$/ ){
+				} elsif ( $line =~ /^($reg_types)\s+(\d+) samples \[regs\]$/ ){
 					my $name = $1;
                                         my $count = $2;
 					$h_llite{$mtroot}->{"lustre.llite.$name.count"} = $count;
@@ -156,6 +158,8 @@ sub lustre_get_lnet_stats{
 
 	while (<STATS>) {
 		my $line = $_;
+		# From: lustre-2.5.3/lnet/lnet/router_proc.c
+		# which claims to be lnet_proc.c
 		if( $line =~ /^(\d+)\s(\d+)\s(\d+)\s(\d+)\s(\d+)\s(\d+)\s(\d+)\s(\d+)\s(\d+)\s(\d+)\s(\d+)$/){
 			my $msgs_alloc = $1;
 			my $msgs_max = $2;
@@ -312,6 +316,7 @@ for my $stat_name (@llite_reg_stats) {
 # lnet
 $item = 1;
 
+# Can't loop through, units are all different
 $pmda->add_metric(pmda_pmid(1, $item++), PM_TYPE_U32, PM_INDOM_NULL,
 		PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		"lustre.lnet.msgs_alloc",
