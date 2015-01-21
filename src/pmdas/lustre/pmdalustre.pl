@@ -99,9 +99,10 @@ sub lustre_get_llite_stats{
 			
 			my $statspath = $LLITE_PATH . $ldev . '/stats';
 
-			open STATS, '<', $statspath ||
-                		( $pmda->err("pmdalustre failed to open $statspath: $!") &&
-                		die "Can't open $statspath: $!\n") ;
+			if( ! open STATS, '<', $statspath ) {
+                		$pmda->err("pmdalustre failed to open $statspath: $!");
+                		die "Can't open $statspath: $!\n";
+			}
 
 			while (<STATS>) {
                 		my $line = $_;
@@ -148,9 +149,10 @@ sub lustre_get_lnet_stats{
 
 	my $statspath = $LNET_PATH . 'stats';
 
-	open STATS, '<', $statspath ||
-		( $pmda->err("pmdalustre failed to open $statspath: $!") &&
-		  die "Can't open $statspath: $!\n") ;
+	if( ! open STATS, '<', $statspath ){
+		$pmda->err ("pmdalustre failed to open $statspath: $!");
+		die "Can't open $statspath: $!\n";
+	}
 
 	while (<STATS>) {
 		my $line = $_;
@@ -179,6 +181,7 @@ sub lustre_get_lnet_stats{
 			$h_lnet->{'lustre.lnet.drop_length'} = $drop_length;
 		}
 	}
+	close( STATS );
 }
 
 #
@@ -221,7 +224,7 @@ sub lustre_fetch_callback {
 # process, so there are special requirements:  no comments, the domain has to
 # be a bare number.
 #
-our $pmda = PCP::PMDA->new('lustre', 437);
+our $pmda = PCP::PMDA->new('lustre', 134);
 
 # Metrics
 

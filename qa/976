@@ -17,7 +17,8 @@ status=1
 perl -e "use PCP::PMDA" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
 
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+#trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "exit \$status" 0 1 2 3 15
 
 _filter()
 {
@@ -28,11 +29,13 @@ _filter()
 }
 
 # real QA test starts here
-domain=437
+domain=134
 script=pmdalustre.pl
 cd "$PCP_PMDAS_DIR/lustre"
 
 # create a root namespace file for dbpmda to use
+export LUSTRE_LLITE_PATH="$here/lustre/llite/"
+export LUSTRE_LNET_PATH="$here/lustre/lnet/"
 PCP_PERL_PMNS=root /usr/bin/perl $script > $tmp.root
 
 # create a set of commands for dbpmda
@@ -52,8 +55,6 @@ End-of-File
 
 # iterate over our pre-canned mountstats files
 test="$here/nfsclient"
-export LLITE_PATH="$here/lustre/llite"
-export LNET_PATH="$here/lustre/lnet"
 echo === Testing precanned lustre files
 $sudo dbpmda -n $tmp.root -ie < $tmp.cmds 2>&1 | _filter
 
