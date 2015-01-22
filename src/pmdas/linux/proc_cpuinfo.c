@@ -1,7 +1,7 @@
 /*
  * Linux /proc/cpuinfo metrics cluster
  *
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2015 Red Hat.
  * Copyright (c) 2000-2005 Silicon Graphics, Inc.  All Rights Reserved.
  * Portions Copyright (c) 2001 Gilly Ran (gilly@exanet.com) - for the
  * portions supporting the Alpha platform.  All rights reserved.
@@ -34,46 +34,57 @@ map_cpu_nodes(proc_cpuinfo_t *proc_cpuinfo)
     char path[MAXPATHLEN];
     DIR *nodes, *cpus;
     struct dirent *de, *ce;
-    int node, max_node = -1;
+    int node, max_node_number = 0;
     int cpu;
-    pmdaIndom *idp = PMDAINDOM(NODE_INDOM);
+    pmdaIndom *node_idp = PMDAINDOM(NODE_INDOM);
+    pmdaIndom *cpu_idp = PMDAINDOM(CPU_INDOM);
 
-    for (i = 0; i < idp->it_numinst; i++)
-	proc_cpuinfo->cpuinfo[i].node = -1;
-
-    snprintf(path, sizeof(path), "%s/%s", linux_statspath, node_path);
-    if ((nodes = opendir(path)) == NULL)
-	return;
-
-    while ((de = readdir(nodes)) != NULL) {
-	if (sscanf(de->d_name, "node%d", &node) != 1)
-	    continue;
-	if (node > max_node)
-	    max_node = node;
-	snprintf(path, sizeof(path), "%s/%s/%s",
-	    linux_statspath, node_path, de->d_name);
-	if ((cpus = opendir(path)) == NULL)
-	    continue;
-	while ((ce = readdir(cpus)) != NULL) {
-	    if (sscanf(ce->d_name, "cpu%d", &cpu) != 1)
-		continue;
-	    proc_cpuinfo->cpuinfo[cpu].node = node;
-	}
-	closedir(cpus);
+    if (cpu_idp->it_numinst == 1) {
+	/* fake one numa node, like most kernels do */
+	max_node_number = 0;
+    	proc_cpuinfo->cpuinfo[0].node = max_node_number;
     }
-    closedir(nodes);
+    else {
+	/*
+	 * scan /sys to figure out cpu - node mapping
+	 */
+	for (i = 0; i < cpu_idp->it_numinst; i++)
+	    proc_cpuinfo->cpuinfo[i].node = 0;
+
+	snprintf(path, sizeof(path), "%s/%s", linux_statspath, node_path);
+	if ((nodes = opendir(path)) != NULL) {
+	    while ((de = readdir(nodes)) != NULL) {
+		if (sscanf(de->d_name, "node%d", &node) != 1)
+		    continue;
+		if (node > max_node_number)
+		    max_node_number = node;
+		snprintf(path, sizeof(path), "%s/%s/%s",
+		    linux_statspath, node_path, de->d_name);
+		if ((cpus = opendir(path)) == NULL)
+		    continue;
+		while ((ce = readdir(cpus)) != NULL) {
+		    if (sscanf(ce->d_name, "cpu%d", &cpu) != 1)
+			continue;
+		    if (cpu >= 0 && cpu < cpu_idp->it_numinst)
+			proc_cpuinfo->cpuinfo[cpu].node = node;
+		}
+		closedir(cpus);
+	    }
+	    closedir(nodes);
+	}
+    }
 
     /* initialize node indom */
-    idp->it_numinst = max_node + 1;
-    idp->it_set = calloc(max_node + 1, sizeof(pmdaInstid));
-    for (i = 0; i <= max_node; i++) {
-	char node_name[256];
+    node_idp->it_numinst = max_node_number + 1;
+    node_idp->it_set = calloc(max_node_number + 1, sizeof(pmdaInstid));
+    for (i = 0; i < node_idp->it_numinst; i++) {
+	char node_name[16];
 
 	snprintf(node_name, sizeof(node_name), "node%d", i);
-	idp->it_set[i].i_inst = i;
-	idp->it_set[i].i_name = strdup(node_name);
+	node_idp->it_set[i].i_inst = i;
+	node_idp->it_set[i].i_name = strdup(node_name);
     }
-    proc_cpuinfo->node_indom = idp;
+    proc_cpuinfo->node_indom = node_idp;
 }
 
 char *
