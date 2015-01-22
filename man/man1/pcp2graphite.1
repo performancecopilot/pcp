@@ -1,0 +1,93 @@
+.TH PCP2GRAPHITE 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+.B pcp2graphite 
+\- pcp-to-graphite data pump
+
+.SH SYNOPSIS
+.B pcp2graphite
+[\f3\-h\f1 \f2HOST\f1]
+[\f3\-t\f1 \f2DELTA\f1]
+[\f3\-g\f1 \f2GRAPHITEHOST\f1]
+[\f3\-p\f1 \f2PICKLEPORT\f1]
+[\f3\-P\f1 \f2TEXTPORT\f1]
+[\f3\-u\f1 \f2UNITS\f1]
+[\f3\-m\f1 \f2PREFIX\f1]
+\f2metricname\f1 ...
+
+.SH DESCRIPTION
+The program
+.I pcp2graphite
+is PCP monitor / data exporter program based on the Python PMAPI
+bindings.  It relays whole hierarchies of the PMNS to a designated
+Graphite (Carbon/Whisper) database by periodically polling, then
+copying/converting relevant numerical metrics across the Graphite
+"text" or "pickled" TCP protocols.  Metric values are optionally
+scaled to a given unit/scale, but are not rate-converted.  Metric
+names may be prefixed and are somewhat canonicalized to fit the
+Graphite namespace rules.  One-shot conversion runs such as from
+archives are not currently supported.
+
+The data transfer will continue on a best-effort basis until the
+program is interrupted.  Temporary errors are ignored.  Multiple
+copies of this program may be run in parallel, to populate different
+Graphite databases or subtrees, with different scaling or sampling
+intervals.
+
+.TP
+.B \-h HOST
+Specify the PMCD server where PCP metrics are to be extracted from.
+Default \f2local:\f1.
+
+.TP
+.B \-t DELTA
+Specify the polling interval in seconds.  Polling is aligned to
+natural multiples of this interval.  Default \f260\f1.
+
+.TP
+.B \-g GRAPHITEHOST
+Specify the graphite carbon-cache server where the relayed data is to
+be relayed.  Default \f2localhost\f1.
+
+.TP
+.B \-p PICKLEPORT
+Select the more efficient "pickled" encoding for carbon-cache
+communication, and use the given TCP port.  This is default, using
+port \f22004\f1.
+
+.TP
+.B \-P TEXTPORT
+Select the less efficient "text" encoding for carbon-cache
+communication, and use the given TCP port.  This protocol is not
+default, because it requires a separate TCP connection for each
+metric.  The typical port is \f22003\f1.
+
+.TP
+.B \-u UNITS
+Rescale the metrics to the given UNITS string, as parsed by the
+.I pmParseUnitsStr
+function.  This must be dimensionally consistent with the underlying
+PCP metric.  Default is no scaling.
+
+.TP
+.B \-m PREFIX
+Use the given string as a prefix for all PMNS metrics relayed to Graphite.
+Default is \f2pcp.\f1 (note the period at the end).
+
+.TP
+.B metricname ...
+Relay all numeric metrics nested at or below the given name in the PMNS.
+This option may be repeated.  This is a compulsory option, having no
+default.
+
+.PP
+.SH "SEE ALSO"
+.BR PCPIntro (1),
+.BR python (1),
+.BR pmcd (1),
+.BR pmParseUnitsStr (3),
+.BR http://graphite.wikidot.com/ ,
+.BR pmval (1),
+.BR PMAPI (3),
+and
+.BR pcp.conf (5).
+
