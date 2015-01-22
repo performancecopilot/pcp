@@ -266,7 +266,7 @@ typedef struct {
 } proc_pid_list_t;
 
 /* refresh the proc indom, reset all "fetched" flags */
-extern int refresh_proc_pid(proc_pid_t *, proc_runq_t *, int, const char *, const char *, int, int);
+extern int refresh_proc_pid(proc_pid_t *, proc_runq_t *, int, const char *, const char *, int);
 
 extern int refresh_hotproc_pid(proc_pid_t *, int, const char *);
 

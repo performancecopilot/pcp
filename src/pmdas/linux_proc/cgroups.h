@@ -261,7 +261,7 @@ enum {
  */
 typedef void (*cgroup_setup_t)(void);
 typedef void (*cgroup_refresh_t)(const char *, const char *);
-extern void refresh_cgroups(const char *,
+extern void refresh_cgroups(const char *, const char *, int,
 			    cgroup_setup_t, cgroup_refresh_t);
 extern char *cgroup_find_subsys(pmInDom, filesys_t *);
 extern int cgroup_mounts_subsys(const char *, char *, int);
