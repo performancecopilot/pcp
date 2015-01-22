@@ -1084,6 +1084,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %changelog
 * Fri Jan 23 2015 Dave Brolley <brolley@redhat.com> - 3.10.2-1
 - Update to latest PCP sources.
+- Improve pmdaInit diagnostics for DSO helptext (BZ 1182949)
 
 * Mon Dec 01 2014 Nathan Scott <nathans@redhat.com> - 3.10.1-1
 - New conditionally-built pcp-pmda-perfevent sub-package.
