@@ -13,39 +13,37 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMDALUSTRE 1 "PCP" "Performance Co-Pilot"
+.TH PMDAGPFS 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmdalustre\f1 \- lustre filesystem statistics performance metrics domain agent (PMDA)
+\f3pmdagpfs\f1 \- gpfs filesystem statistics performance metrics domain agent (PMDA)
 .SH DESCRIPTION
-\f3pmdalustre\f1 is a Performance Metrics Domain Agent (\s-1PMDA\s0) which
+\f3pmdagpfs\f1 is a Performance Metrics Domain Agent (\s-1PMDA\s0) which
 exports metric values from the
-.I /proc/fs/lustre
-and
-.I /proc/sys/lnet
-trees to provide information on mounted lustre filesystems.
+.I /usr/lpp/mmfs/bin/mmpmon
+program to provide information on mounted gpfs filesystems.
 .SH INSTALLATION
-Install the lustre PMDA by using the Install script as root:
+Install the gpfs PMDA by using the Install script as root:
 .PP
-      # cd $PCP_PMDAS_DIR/lustre
+      # cd $PCP_PMDAS_DIR/gpfs
 .br
       # ./Install
 .PP
 To uninstall, do the following as root:
 .PP
-      # cd $PCP_PMDAS_DIR/lustre
+      # cd $PCP_PMDAS_DIR/gpfs
 .br
       # ./Remove
 .PP
-\fBpmdalustre\fR is launched by \fIpmcd\fR(1) and should never be executed 
+\fBpmdagpfs\fR is launched by \fIpmcd\fR(1) and should never be executed 
 directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the 
 agent is installed or removed.
 .SH FILES
-.IP "\fB$PCP_PMDAS_DIR/lustre/Install\fR" 4 
-installation script for the \fBpmdalustre\fR agent 
-.IP "\fB$PCP_PMDAS_DIR/lustre/Remove\fR" 4 
-undo installation script for the \fBpmdalustre\fR agent 
-.IP "\fB$PCP_LOG_DIR/pmcd/lustre.log\fR" 4 
-default log file for error messages from \fBpmdalustre\fR 
+.IP "\fB$PCP_PMDAS_DIR/gpfs/Install\fR" 4 
+installation script for the \fBpmdagpfs\fR agent 
+.IP "\fB$PCP_PMDAS_DIR/gpfs/Remove\fR" 4 
+undo installation script for the \fBpmdagpfs\fR agent 
+.IP "\fB$PCP_LOG_DIR/pmcd/gpfs.log\fR" 4 
+default log file for error messages from \fBpmdagpfs\fR 
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fR are used to parameterize
 the file and directory names used by \fBPCP\fR. On each installation, the
@@ -56,4 +54,4 @@ configuration file, as described in \fIpcp.conf\fR(5).
 .BR PCPIntro (1),
 .BR pmcd (1),
 and
-.BR llstat (1).
+.BR mmpmon (8).

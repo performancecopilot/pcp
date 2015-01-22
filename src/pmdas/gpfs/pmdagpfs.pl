@@ -18,7 +18,7 @@ for my $file (pmda_config('PCP_PMDAS_DIR') . '/gpfs/gpfs.conf', 'gpfs.conf') {
 
 # Check env variable for MMPMON_CMD to use.  Should be a cmd.  Easiest to use "echo test_file" for QA
 if ( defined $ENV{"GPFS_MMPMON_CMD"} ) {
-	$MMPMON_CMD = $ENV{"GPFS_MMPMON_CMD"}
+	$MMPMON_CMD = $ENV{"GPFS_MMPMON_CMD"};
 }
 
 # The stats hash is keyed on cluster:filesystem
@@ -115,7 +115,7 @@ sub gpfs_fetch_callback {
 # process, so there are special requirements:  no comments, the domain has to
 # be a bare number.
 #
-our $pmda = PCP::PMDA->new('lustre', 135);
+our $pmda = PCP::PMDA->new('gpfs', 135);
 
 # Metrics
 
