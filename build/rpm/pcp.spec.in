@@ -885,7 +885,8 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %if "@enable_manager@" == "true"
 %files manager -f manager_files.rpm
 %defattr(-,root,root)
-%config(missingok,noreplace) /etc/pcp/pmmgr
+# %config(missingok,noreplace) /etc/pcp/pmmgr
+# set via awk processing above
 %endif
 
 %files testsuite -f testsuite_files.rpm
