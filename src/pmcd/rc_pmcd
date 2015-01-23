@@ -230,7 +230,6 @@ _start_pmcheck()
 }
 
 # Use $PCP_PMCDCONF_PATH to find and terminate pipe/socket PMDAs.
-# (First join up continued lines in config file)
 #
 _killpmdas()
 {
@@ -241,53 +240,35 @@ Warning: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot identify PM
          to be terminated.'
 	return
     fi
-    # Give each PMDA 2 seconds after a SIGTERM to die, then SIGKILL.
-    # Represent python/perl pmdas as
-    # python_<pmdapath> or perl_<pmdapath>
-    # so that they will remain as one element in the list.
-    # They will be separated again for passing to _get_pids_by_name.
-    #
-    for pmda in `$PCP_AWK_PROG <$PCP_PMCDCONF_PATH '
+
+    # First join up continued lines in config file, then find processes
+    $PCP_AWK_PROG < $PCP_PMCDCONF_PATH '
 /\\\\$/		{ printf "%s ", substr($0, 0, length($0) - 1); next }
 		{ print }' \
 | $PCP_AWK_PROG '
-$1 ~ /^#/ { next }
-tolower($3) == "pipe" && NF > 4	{
-  if ((tolower($5) == "python" || tolower($5) == "perl") && NF > 5)
-    print $5"_"$6
-  else
-    print $5
-  next
-}
-tolower($3) == "socket" && NF > 5 { print $6; next }' \
-| sort -u`
+$1 ~ /^#/				{ next }
+tolower($3) == "pipe" && NF > 4		{ $1=$2=$3=$4=""; print $0; next }
+tolower($3) == "socket" && NF > 5	{ $1=$2=$3=$4=$5=""; print $0; next }
+' > $tmp/pmdas
+
+    cat $tmp/pmdas | while read pmda
     do
-	# Stop any matching PMDA that is still running.
-	# For python pmdas, $pmda will be of the form python_<pmdapath>
-	# We need to replace the _ with a space but we still need to pass the
-	# two remaining tokens as one word to _get_pids_by_name. Otherwise, we
-	# need to strip the path from $pmda.
-	#
-	if [ `echo -n $pmda | cut -b 1-7` = "python_" ]
-	then
-	    pmda=`echo $pmda | sed -e 's/python_/python /'`
-	else
-	    pmda=`basename $pmda`
-	fi
-	for __sig in TERM KILL
-	do
-	    # Quote "$pmda" here because it might contain two words
-	    __pids=`_get_pids_by_name "$pmda"`
-	    if [ ! -z "$__pids" ]
-	    then
-		pmsignal -s $__sig $__pids >/dev/null 2>&1
-		# allow signal processing to be done
-		sleep 2
-	    else
-		break
-	    fi
-	done
+	_get_pids_by_args $pmda >$tmp/tmp
+	[ -s $tmp/tmp ] || continue
+	pmsignal -s TERM `cat $tmp/tmp` > /dev/null 2>&1 &
     done
+    wait
+
+    # Give all PMDAs 2 seconds after a SIGTERM to die, then SIGKILL
+    sleep 2
+
+    cat $tmp/pmdas | while read pmda
+    do
+	_get_pids_by_args $pmda >$tmp/tmp
+	[ -s $tmp/tmp ] || continue
+	pmsignal -s KILL `cat $tmp/tmp` > /dev/null 2>&1 &
+    done
+    wait
 }
 
 _shutdown()
