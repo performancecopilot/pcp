@@ -1,7 +1,7 @@
 /*
  * Linux /proc/<pid>/... Clusters
  *
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2015 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -266,7 +266,7 @@ typedef struct {
 } proc_pid_list_t;
 
 /* refresh the proc indom, reset all "fetched" flags */
-extern int refresh_proc_pid(proc_pid_t *, proc_runq_t *, int, const char *);
+extern int refresh_proc_pid(proc_pid_t *, proc_runq_t *, int, const char *, const char *, int);
 
 extern int refresh_hotproc_pid(proc_pid_t *, int, const char *);
 

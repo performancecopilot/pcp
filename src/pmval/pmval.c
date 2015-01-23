@@ -1,7 +1,7 @@
 /*
  * pmval - simple performance metrics value dumper
  *
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014-2015 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -49,6 +49,7 @@ static pmLongOptions longopts[] = {
     PMAPI_GENERAL_OPTIONS,
     PMOPT_SPECLOCAL,
     PMOPT_LOCALPMDA,
+    PMOPT_CONTAINER,
     PMAPI_OPTIONS_HEADER("Reporting options"),
     { "delay", 0, 'd', 0, "delay, pause between updates for archive replay" },
     { "precision", 1, 'f', "N", "fixed output format with N digits precision" },

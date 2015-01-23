@@ -22,9 +22,6 @@
 #include <sched.h>
 #endif
 
-static int priv_fdset[PMDA_NAMESPACE_COUNT];
-static int self_fdset[PMDA_NAMESPACE_COUNT];
-
 /*
  * Connect to the pmdaroot socket as a client, perform version exchange
  */
@@ -35,10 +32,6 @@ pmdaRootConnect(const char *path)
     char		socketpath[MAXPATHLEN];
     char		errmsg[PM_MAXERRMSGLEN];
     int			fd, sts, version, features;
-
-    /* Ensure we start from an initially-invalid fd state */
-    memset(self_fdset, -1, sizeof(self_fdset));
-    memset(priv_fdset, -1, sizeof(priv_fdset));
 
     /* Initialize the socket address. */
     if ((addr = __pmSockAddrAlloc()) == NULL)
@@ -96,249 +89,72 @@ pmdaRootShutdown(int clientfd)
 	shutdown(clientfd, SHUT_RDWR);
 }
 
-#if defined(HAVE_SETNS)
 static int
-nsopen(const char *process, const char *namespace)
+container_access(int clientfd, const char *name, int *namelen, int *pid)
 {
-    char path[MAXPATHLEN];
-
-    snprintf(path, sizeof(path), "/proc/%s/ns/%s", process, namespace);
-    path[sizeof(path)-1] = '\0';
-    return open(path, O_RDONLY);
-}
-
-int
-__pmdaOpenNameSpaceFds(int nsflags, int pid, int *fdset)
-{
-    int		fd;
-    char	process[32];
-
-    if (pid > 0)
-	snprintf(process, sizeof(process), "%d", pid);
-    else
-	strcpy(process, "self");
-
-    if (nsflags & PMDA_NAMESPACE_IPC) {
-	if ((fd = nsopen(process, "ipc")) < 0)
-	    return fd;
-	fdset[PMDA_NAMESPACE_IPC_INDEX] = fd;
-    }
-    if (nsflags & PMDA_NAMESPACE_UTS) {
-	if ((fd = nsopen(process, "uts")) < 0)
-	    return fd;
-	fdset[PMDA_NAMESPACE_UTS_INDEX] = fd;
-    }
-    if (nsflags & PMDA_NAMESPACE_NET) {
-	if ((fd = nsopen(process, "net")) < 0)
-	    return fd;
-	fdset[PMDA_NAMESPACE_NET_INDEX] = fd;
-    }
-    if (nsflags & PMDA_NAMESPACE_MNT) {
-	if ((fd = nsopen(process, "mnt")) < 0)
-	    return fd;
-	fdset[PMDA_NAMESPACE_MNT_INDEX] = fd;
-    }
-    if (nsflags & PMDA_NAMESPACE_USER) {
-	if ((fd = nsopen(process, "user")) < 0)
-	    return fd;
-	fdset[PMDA_NAMESPACE_USER_INDEX] = fd;
+    if (clientfd < 0)
+	return -ENOTCONN;
+    if (name) {
+	*pid = 0;
+    } else {
+	/* direct by-PID access mechanism for QA testing */
+	*pid = *namelen;
+	namelen = 0;
     }
     return 0;
 }
 
 int
-__pmdaSetNameSpaceFds(int nsflags, int *fdset)
+pmdaRootContainerHostName(int clientfd, const char *name, int namelen,
+			char *buffer, int buflen)
 {
-    int		sts = 0;
+    char pdubuf[sizeof(__pmdaRootPDUContainer) + MAXPATHLEN];
+    int	sts, pid;
 
-    if (nsflags & PMDA_NAMESPACE_IPC)
-	sts |= setns(fdset[PMDA_NAMESPACE_IPC_INDEX], 0);
-    if (nsflags & PMDA_NAMESPACE_UTS)
-	sts |= setns(fdset[PMDA_NAMESPACE_UTS_INDEX], 0);
-    if (nsflags & PMDA_NAMESPACE_NET)
-	sts |= setns(fdset[PMDA_NAMESPACE_NET_INDEX], 0);
-    if (nsflags & PMDA_NAMESPACE_MNT)
-	sts |= setns(fdset[PMDA_NAMESPACE_MNT_INDEX], 0);
-    if (nsflags & PMDA_NAMESPACE_USER)
-	sts |= setns(fdset[PMDA_NAMESPACE_USER_INDEX], 0);
-
-    if (sts)
-	return -oserror();
-    return sts;
-}
-
-/*
- * Use setns(2) syscall to switch temporarily to a different namespace.
- * On the first call for each namespace we stash away a file descriptor
- * that will get us back to where we started.
- * Note: the NameSpaceFdsReq PDU is sent by the caller (contents depend
- * on whether we switch for a specific process ID or a container name).
- */
-static int
-__pmdaEnterNameSpaces(int clientfd, int nsflags)
-{
-    int		fdset[PMDA_NAMESPACE_COUNT];	/* NB: packed, ordered */
-    int		flags, count, sts, i;
-
-    /* recvmsg from pmdaroot, error or results */
-    if ((sts = __pmdaRecvRootNameSpaceFds(clientfd, fdset, &count)) < 0)
+    if ((sts = container_access(clientfd, name, &namelen, &pid)) < 0)
 	return sts;
-
-    /* open my own namespace fds, stash 'em for LeaveNameSpaces */
-    if ((sts = __pmdaOpenNameSpaceFds(nsflags, -1, self_fdset)) < 0)
+    if ((sts = __pmdaSendRootPDUContainer(clientfd, PDUROOT_HOSTNAME_REQ,
+			pid, name, namelen, 0)) < 0)
 	return sts;
-
-    /* finish: unpack the result fds, and call setns(2) */
-    sts = 0;
-    flags = nsflags;
-    for (i = sts = 0; i < count; i++) {
-	if (flags & PMDA_NAMESPACE_IPC) {
-	    priv_fdset[PMDA_NAMESPACE_IPC_INDEX] = fdset[i];
-	    flags &= ~PMDA_NAMESPACE_IPC;
-	}
-	if (flags & PMDA_NAMESPACE_UTS) {
-	    priv_fdset[PMDA_NAMESPACE_UTS_INDEX] = fdset[i];
-	    flags &= ~PMDA_NAMESPACE_UTS;
-	}
-	if (flags & PMDA_NAMESPACE_NET) {
-	    priv_fdset[PMDA_NAMESPACE_NET_INDEX] = fdset[i];
-	    flags &= ~PMDA_NAMESPACE_NET;
-	}
-	if (flags & PMDA_NAMESPACE_MNT) {
-	    priv_fdset[PMDA_NAMESPACE_MNT_INDEX] = fdset[i];
-	    flags &= ~PMDA_NAMESPACE_MNT;
-	}
-	if (flags & PMDA_NAMESPACE_USER) {
-	    priv_fdset[PMDA_NAMESPACE_USER_INDEX] = fdset[i];
-	    flags &= ~PMDA_NAMESPACE_USER;
-	}
-    }
-    if (count && !sts)
-	sts = __pmdaSetNameSpaceFds(nsflags, priv_fdset);
-
-    if (sts)
-	return -oserror();
-    return 0;
-}
-
-int
-pmdaEnterContainerNameSpaces(int clientfd, const char *container, int nsflags)
-{
-    int	sts;
-
-    if (clientfd < 0)
-	return PM_ERR_NOTCONN;
-
-    /* sendmsg to pmdaroot */
-    if ((sts = __pmdaSendRootNameSpaceFdsReq(clientfd, nsflags,
-			container, strlen(container), 0, 0)) < 0)
+    if ((sts = __pmdaRecvRootPDUContainer(clientfd, PDUROOT_HOSTNAME,
+			pdubuf, sizeof(pdubuf))) < 0)
 	return sts;
-    /* process the results */
-    return __pmdaEnterNameSpaces(clientfd, nsflags);
+    return __pmdaDecodeRootPDUContainer(pdubuf, sts, &pid, buffer, buflen);
 }
 
 int
-pmdaEnterProcessNameSpaces(int clientfd, int pid, int nsflags)
+pmdaRootContainerProcessID(int clientfd, const char *name, int namelen)
 {
-    int	sts;
+    char pdubuf[sizeof(__pmdaRootPDUContainer)];
+    int sts, pid;
 
-    if (clientfd < 0)
-	return PM_ERR_NOTCONN;
-
-    /* sendmsg to pmdaroot */
-    if ((sts = __pmdaSendRootNameSpaceFdsReq(clientfd, nsflags,
-			NULL, 0, pid, 0)) < 0)
+    if ((sts = container_access(clientfd, name, &namelen, &pid)) < 0)
 	return sts;
-    /* process the results */
-    return __pmdaEnterNameSpaces(clientfd, nsflags);
-}
-
-/*
- * And another setns(2) to switch back to the original namespace
- */
-int
-pmdaLeaveNameSpaces(int clientfd, int nsflags)
-{
-    int		sts;
-
-    if (clientfd < 0)
-	return PM_ERR_NOTCONN;
-
-    sts = __pmdaSetNameSpaceFds(nsflags, self_fdset);
-    __pmdaCloseNameSpaceFds(nsflags, priv_fdset);
-    return sts;
+    if ((sts = __pmdaSendRootPDUContainer(clientfd, PDUROOT_PROCESSID_REQ,
+			pid, name, namelen, 0)) < 0)
+	return sts;
+    if ((sts = __pmdaRecvRootPDUContainer(clientfd, PDUROOT_PROCESSID,
+			pdubuf, sizeof(pdubuf))) < 0)
+	return sts;
+    if ((sts = __pmdaDecodeRootPDUContainer(pdubuf, sts, &pid, NULL, 0)) < 0)
+	return sts;
+    return pid;
 }
 
 int
-__pmdaCloseNameSpaceFds(int nsflags, int *fdset)
+pmdaRootContainerCGroupName(int clientfd, const char *name, int namelen,
+			char *buffer, int buflen)
 {
-    if (nsflags & PMDA_NAMESPACE_IPC) {
-	close(fdset[PMDA_NAMESPACE_IPC_INDEX]);
-	fdset[PMDA_NAMESPACE_IPC_INDEX] = -1;
-    }
-    if (nsflags & PMDA_NAMESPACE_UTS) {
-	close(fdset[PMDA_NAMESPACE_UTS_INDEX]);
-	fdset[PMDA_NAMESPACE_UTS_INDEX] = -1;
-    }
-    if (nsflags & PMDA_NAMESPACE_NET) {
-	close(fdset[PMDA_NAMESPACE_NET_INDEX]);
-	fdset[PMDA_NAMESPACE_NET_INDEX] = -1;
-    }
-    if (nsflags & PMDA_NAMESPACE_MNT) {
-	close(fdset[PMDA_NAMESPACE_MNT_INDEX]);
-	fdset[PMDA_NAMESPACE_MNT_INDEX] = -1;
-    }
-    if (nsflags & PMDA_NAMESPACE_USER) {
-	close(fdset[PMDA_NAMESPACE_USER_INDEX]);
-	fdset[PMDA_NAMESPACE_USER_INDEX] = -1;
-    }
-    return 0;
-}
+    char pdubuf[sizeof(__pmdaRootPDUContainer) + MAXPATHLEN];
+    int	sts, pid;
 
-#else	/* no support on this platform */
-int
-pmdaEnterContainerNameSpaces(int clientfd, const char *container, int nsflags)
-{
-    (void)clientfd;
-    (void)nsflags;
-    (void)container;
-    return -ENOTSUP;
+    if ((sts = container_access(clientfd, name, &namelen, &pid)) < 0)
+	return sts;
+    if ((sts = __pmdaSendRootPDUContainer(clientfd, PDUROOT_CGROUPNAME_REQ,
+			pid, name, namelen, 0)) < 0)
+	return sts;
+    if ((sts = __pmdaRecvRootPDUContainer(clientfd, PDUROOT_CGROUPNAME,
+			pdubuf, sizeof(pdubuf))) < 0)
+	return sts;
+    return __pmdaDecodeRootPDUContainer(pdubuf, sts, &pid, buffer, buflen);
 }
-int
-pmdaEnterProcessNameSpaces(int clientfd, int process, int nsflags)
-{
-    (void)clientfd;
-    (void)nsflags;
-    (void)process;
-    return -ENOTSUP;
-}
-int
-pmdaLeaveNameSpaces(int clientfd, int nsflags)
-{
-    (void)clientfd;
-    (void)nsflags;
-    return -ENOTSUP;
-}
-int
-__pmdaOpenNameSpaceFds(int nsflags, int pid, int *fdset)
-{
-    (void)nsflags;
-    (void)pid;
-    (void)fdset;
-    return -ENOTSUP;
-}
-int
-__pmdaSetNameSpaceFds(int nsflags, int *fdset)
-{
-    (void)nsflags;
-    (void)fdset;
-    return -ENOTSUP;
-}
-int
-__pmdaCloseNameSpaceFds(int nsflags, int *fdset)
-{
-    (void)nsflags;
-    (void)fdset;
-    return -ENOTSUP;
-}
-#endif

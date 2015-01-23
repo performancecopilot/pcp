@@ -23,10 +23,11 @@ rm -f $seq.full
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 username=`id -u -n`
+hostname=`hostname`
 trap "_cleanup" 0 1 2 3 15
 
 
-# Shorten timeouts because of the rapid-fire pmcd/pmmgr-daemon livespan tests
+# Shorten timeouts because of the rapid-fire pmcd/pmmgr-daemon lifespan tests
 PMCD_WAIT_TIMEOUT=1
 PMCD_CONNECT_TIMEOUT=1
 PMCD_RECONNECT_TIMEOUT=1
@@ -54,7 +55,7 @@ _filter()
 _filter2()
 {
     tee -a $seq.full |
-    sed -e 's,'`hostname`',HOSTNAME,' \
+    sed -e 's,'$hostname',HOSTNAME,' \
         -e 's,[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]\.[0-9][0-9][0-9][0-9][0-9][0-9],YYYYMMDD-HHMMSS,'
 }
 
@@ -93,16 +94,16 @@ echo $tmp.dir > $tmp.dir/log-directory  # same dir
 
 date >> $seq.full
 echo "=== 5. restart pmcd a few times to get a bunch of pmlogger archives ===" | tee -a $seq.full
-for x in `seq 5`
+for x in `seq 4`
 do
     echo restart $x `date` >> $seq.full
-    rm -f $tmp.dir/`hostname`/config.pmie $tmp.dir/`hostname`/config.pmlogger
+    rm -f $tmp.dir/$hostname/config.pmie $tmp.dir/$hostname/config.pmlogger
     $sudo $PCP_RC_DIR/pmcd start >/dev/null 2>&1
     i=0;
     # wait up to 30ish seconds for pm*conf to run
     while [ $i -lt 5 ]; do
         i=`expr $i + 1`
-        if [ -f $tmp.dir/`hostname`/config.pmlogger -a -f $tmp.dir/`hostname`/config.pmie ]; then
+        if [ -f $tmp.dir/$hostname/config.pmlogger -a -f $tmp.dir/$hostname/config.pmie ]; then
             sleep 5 # time enough after pm*conf to start pmlogger+pmie proper
             break
         fi
@@ -114,11 +115,15 @@ done
 
 date >> $seq.full
 echo "=== 6. check the directories ===" | tee -a $seq.full
-# there should be five archives
-ls -1 $tmp.dir/`hostname` | _filter2
+# there should be three archives ... unless some timing glitch interfered
+count=`ls -1 $tmp.dir/$hostname/*.meta | wc -l`
+if [ $count -gt 1 ]; then
+    echo more than one
+fi    
+
 ls -lR $tmp.dir >> $seq.full # for reference
-for f in $tmp.dir/`hostname`/*.meta; do
-    echo == $f ==>> $seq.full
+for f in $tmp.dir/$hostname/*.meta; do
+    echo == $f == >> $seq.full
     pmloglabel -L $f >> $seq.full
 done
 
@@ -126,8 +131,8 @@ date >> $seq.full
 echo "=== 7. add log-merging/rewriting, sans pmFOOconf ===" | tee -a $seq.full
 touch $tmp.dir/pmlogrewrite
 touch $tmp.dir/pmlogmerge
-echo '-t 2 -c '$tmp.dir/`hostname`/config.pmlogger > $tmp.dir/pmlogger
-echo '-c '$tmp.dir/`hostname`/config.pmie > $tmp.dir/pmie
+echo '-t 2 -c '$tmp.dir/$hostname/config.pmlogger > $tmp.dir/pmlogger
+echo '-c '$tmp.dir/$hostname/config.pmie > $tmp.dir/pmie
 rm $tmp.dir/pmlogconf
 rm $tmp.dir/pmieconf
 # ^^^ so pmmgr will react to pmcd restarts rather quickly
@@ -140,9 +145,13 @@ sleep 10 # pmmgr daemon shutdown
 date >> $seq.full
 echo "=== 8. recheck the directories past retain/merge ===" | tee -a $seq.full
 # there should be only two; one merged and one just-written-to
-ls -1 $tmp.dir/`hostname` | _filter2
+count=`ls -1 $tmp.dir/$hostname/*.meta | wc -l`
+if [ $count -lt 3 ]; then
+    echo less than three
+fi
+
 ls -lR $tmp.dir >> $seq.full # for reference
-for f in $tmp.dir/`hostname`/*.meta; do
+for f in $tmp.dir/$hostname/*.meta; do
     echo == $f == >> $seq.full
     pmloglabel -L $f >> $seq.full
 done
@@ -165,10 +174,14 @@ sleep 10 # pmmgr daemon shutdown
 
 $date >> $seq.full
 echo "=== 11. admire grained / retained data ===" | tee -a $seq.full
-# there should be 3 archives
-ls -1 $tmp.dir/`hostname` | _filter2
+# there should be 3 archives, unless timing glitches
+count=`ls -1 $tmp.dir/$hostname/*.meta | wc -l`
+if [ $count -gt 2 -a $count -lt 5 ]; then
+    echo more than two and less than five
+fi
+
 ls -lR $tmp.dir >> $seq.full # for reference
-for f in $tmp.dir/`hostname`/*.meta; do
+for f in $tmp.dir/$hostname/*.meta; do
     echo == $f ==>> $seq.full
     pmloglabel -L $f >> $seq.full
 done
@@ -183,7 +196,7 @@ echo "== collecting full pmmgr logs:" >> $seq.full
 cat $tmp.out >> $seq.full
 
 echo "== collecting recent daemon logs:" >> $seq.full
-grep . $tmp.dir/`hostname`/*.log >> $seq.full
+grep . $tmp.dir/$hostname/*.log >> $seq.full
 
 # restart pmcd
 $sudo $PCP_RC_DIR/pmcd restart >/dev/null 2>&1

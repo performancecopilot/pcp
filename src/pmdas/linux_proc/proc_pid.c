@@ -1,7 +1,7 @@
 /*
  * Linux proc/<pid>/{stat,statm,status,...} Clusters
  *
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2015 Red Hat.
  * Copyright (c) 2000,2004,2006 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  * 
@@ -28,7 +28,7 @@
 #include "proc_pid.h"
 #include "proc_runq.h"
 #include "indom.h"
-
+#include "cgroups.h"
 #include "hotproc.h"
 
 static proc_pid_list_t procpids; /* previous pids list that the proc pmda uses */
@@ -977,9 +977,14 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 
 int
 refresh_proc_pid(proc_pid_t *proc_pid, proc_runq_t *proc_runq,
-		 int threads, const char *cgroups)
+		 int want_threads, const char *cgroups,
+		 const char *container, int namelen)
 {
-    int sts, want_cgroups = (cgroups && cgroups[0] != '\0');
+    char path[MAXPATHLEN], *offset;
+    int sts, length, want_cgroups;
+    const char *filter = cgroups;
+
+    want_cgroups = container || (cgroups && cgroups[0] != '\0');
 
     /* For the run queue stats, we cannot avoid the global /proc refresh.
      * However, we can ensure we scan it once only (either here or below).
@@ -987,20 +992,34 @@ refresh_proc_pid(proc_pid_t *proc_pid, proc_runq_t *proc_runq,
     if (proc_runq) {
 	memset(proc_runq, 0, sizeof(proc_runq_t));
 	if (!want_cgroups)
-	    refresh_global_pidlist(threads, proc_runq, &procpids);
+	    refresh_global_pidlist(want_threads, proc_runq, &procpids);
+    }
+
+    /* For containers we asked pmdaroot for a cgroup name for the container.
+     * We must find this systems mount path for a cgroup subsystem that will
+     * be in use for all containers - choose memory for this purpose, as its
+     * pervasive and all container engines must surely use it.  Surely.
+     */
+    if (container) {
+	length = cgroup_mounts_subsys("memory", path, sizeof(path));
+	offset = path + length;
+	length = sizeof(path) - length;
+	strncat(path, container, length);
+	filter = path;
     }
 
     sts = want_cgroups ?
-	refresh_cgroup_pidlist(threads, cgroups, &procpids) :
-	refresh_global_pidlist(threads, proc_runq, &procpids);
+	refresh_cgroup_pidlist(want_threads, filter, &procpids) :
+	refresh_global_pidlist(want_threads, proc_runq, &procpids);
     if (sts < 0)
 	return sts;
 
 #if PCP_DEBUG
     if (pmDebug & DBG_TRACE_LIBPMDA)
 	fprintf(stderr,
-		"refresh_proc_pid: %d pids (threads=%d, cgroups=\"%s\")\n",
-		sts, threads, cgroups ? cgroups : "");
+		"refresh_proc_pid: %d pids (threads=%d, %s=\"%s\")\n",
+		procpids.count, procpids.threads,
+		container ? "container" : "cgroups", filter ? filter : "");
 #endif
 
     refresh_proc_pidlist(proc_pid, &procpids);

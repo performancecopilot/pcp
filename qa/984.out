@@ -1,0 +1,207 @@
+QA output created by 984
+Rewriting damaged archive
+Comparing before to after
+@@ -1,139 +1,139 @@
+ 
+ cgroup.memory.stat.cache
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: instant  Units: Kbyte
++    Semantics: instant  Units: byte
+ 
+ cgroup.memory.stat.rss
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: instant  Units: Kbyte
++    Semantics: instant  Units: byte
+ 
+ cgroup.memory.stat.rss_huge
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: instant  Units: Kbyte
++    Semantics: instant  Units: byte
+ 
+ cgroup.memory.stat.mapped_file
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: instant  Units: Kbyte
++    Semantics: instant  Units: byte
+ 
+ cgroup.memory.stat.writeback
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: instant  Units: Kbyte
++    Semantics: instant  Units: byte
+ 
+ cgroup.memory.stat.swap
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: instant  Units: Kbyte
++    Semantics: instant  Units: byte
+ 
+ cgroup.memory.stat.pgpgin
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: counter  Units: Kbyte
++    Semantics: counter  Units: count
+ 
+ cgroup.memory.stat.pgpgout
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: counter  Units: Kbyte
++    Semantics: counter  Units: count
+ 
+ cgroup.memory.stat.pgfault
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: counter  Units: Kbyte
++    Semantics: counter  Units: count
+ 
+ cgroup.memory.stat.pgmajfault
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: counter  Units: Kbyte
++    Semantics: counter  Units: count
+ 
+ cgroup.memory.stat.inactive_anon
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: instant  Units: Kbyte
++    Semantics: instant  Units: byte
+ 
+ cgroup.memory.stat.active_anon
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: instant  Units: Kbyte
++    Semantics: instant  Units: byte
+ 
+ cgroup.memory.stat.inactive_file
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: instant  Units: Kbyte
++    Semantics: instant  Units: byte
+ 
+ cgroup.memory.stat.active_file
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: instant  Units: Kbyte
++    Semantics: instant  Units: byte
+ 
+ cgroup.memory.stat.unevictable
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: instant  Units: Kbyte
++    Semantics: instant  Units: byte
+ 
+ cgroup.memory.stat.total.cache
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: instant  Units: Kbyte
++    Semantics: instant  Units: byte
+ 
+ cgroup.memory.stat.total.rss
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: instant  Units: Kbyte
++    Semantics: instant  Units: byte
+ 
+ cgroup.memory.stat.total.rss_huge
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: instant  Units: Kbyte
++    Semantics: instant  Units: byte
+ 
+ cgroup.memory.stat.total.mapped_file
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: instant  Units: Kbyte
++    Semantics: instant  Units: byte
+ 
+ cgroup.memory.stat.total.writeback
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: instant  Units: Kbyte
++    Semantics: instant  Units: byte
+ 
+ cgroup.memory.stat.total.swap
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: instant  Units: Kbyte
++    Semantics: instant  Units: byte
+ 
+ cgroup.memory.stat.total.pgpgin
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: counter  Units: Kbyte
++    Semantics: counter  Units: count
+ 
+ cgroup.memory.stat.total.pgpgout
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: counter  Units: Kbyte
++    Semantics: counter  Units: count
+ 
+ cgroup.memory.stat.total.pgfault
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: counter  Units: Kbyte
++    Semantics: counter  Units: count
+ 
+ cgroup.memory.stat.total.pgmajfault
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: counter  Units: Kbyte
++    Semantics: counter  Units: count
+ 
+ cgroup.memory.stat.total.inactive_anon
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: instant  Units: Kbyte
++    Semantics: instant  Units: byte
+ 
+ cgroup.memory.stat.total.active_anon
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: instant  Units: Kbyte
++    Semantics: instant  Units: byte
+ 
+ cgroup.memory.stat.total.inactive_file
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: instant  Units: Kbyte
++    Semantics: instant  Units: byte
+ 
+ cgroup.memory.stat.total.active_file
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: instant  Units: Kbyte
++    Semantics: instant  Units: byte
+ 
+ cgroup.memory.stat.total.unevictable
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: instant  Units: Kbyte
++    Semantics: instant  Units: byte
+ 
+ cgroup.memory.stat.recent.rotated_anon
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: counter  Units: Kbyte
++    Semantics: counter  Units: byte
+ 
+ cgroup.memory.stat.recent.rotated_file
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: counter  Units: Kbyte
++    Semantics: counter  Units: byte
+ 
+ cgroup.memory.stat.recent.scanned_anon
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: counter  Units: Kbyte
++    Semantics: counter  Units: byte
+ 
+ cgroup.memory.stat.recent.scanned_file
+     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+-    Semantics: counter  Units: Kbyte
++    Semantics: counter  Units: byte
+ 
+ cgroup.blkio.dev.io_merged.read
+     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
+@@ -177,23 +177,23 @@
+ 
+ cgroup.blkio.dev.io_service_bytes.read
+     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
+-    Semantics: counter  Units: Kbyte
++    Semantics: counter  Units: byte
+ 
+ cgroup.blkio.dev.io_service_bytes.write
+     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
+-    Semantics: counter  Units: Kbyte
++    Semantics: counter  Units: byte
+ 
+ cgroup.blkio.dev.io_service_bytes.sync
+     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
+-    Semantics: counter  Units: Kbyte
++    Semantics: counter  Units: byte
+ 
+ cgroup.blkio.dev.io_service_bytes.async
+     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
+-    Semantics: counter  Units: Kbyte
++    Semantics: counter  Units: byte
+ 
+ cgroup.blkio.dev.io_service_bytes.total
+     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
+-    Semantics: counter  Units: Kbyte
++    Semantics: counter  Units: byte
+ 
+ cgroup.blkio.dev.io_serviced.read
+     Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
+Verify cgroup metrics help

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2012-2014 Red Hat Inc.
+# Copyright (C) 2012-2015 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -295,6 +295,31 @@ def test_pcp(self):
     except pmapi.pmErr as error:
         print("pmFetch: ", error)
         self.assertTrue(False)
+
+    # pmParseUnitsStr
+    try:
+        (units,mult) = ctx.pmParseUnitsStr("5 mb/4 seconds")
+        print("pmParseUnitsStr:", units, mult)
+        self.assertTrue(True)
+    except pmapi.pmErr as error:
+        print("pmParseUnitsStr: ", error)
+        self.assertTrue(False)
+
+    try:
+        (units,mult) = ctx.pmParseUnitsStr("one flew over the cockoo's nest")
+        print("pmParseUnitsStr:", units, mult)
+        self.assertTrue(False)
+    except pmapi.pmErr as error:
+        print("pmParseUnitsStr: ", error)
+        self.assertTrue(True)
+
+    try:
+        (units,mult) = ctx.pmParseUnitsStr(5) # type-checking non-string
+        print("pmParseUnitsStr:", units, mult)
+        self.assertTrue(False)
+    except AssertionError as error:
+        print("pmParseUnitsStr: ", error)
+        self.assertTrue(True)
 
     # pmFetch
     try:

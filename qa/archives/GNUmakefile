@@ -6,7 +6,7 @@ SRCARCH = 20071023-08-06-36.0 archive-20141125-000009.0 chartqa1.0 \
 	diff1.0 diff2.0 dm-io.0 gap.0 gap2.0 moomba.pmkstat.0 mysql-1.0 \
 	oview-short.0 rattle.0 schizo-A.0 schizo-B.0 snort-disks.0 \
 	spotinstance.0 viewqa1.0 viewqa2.0 viewqa3.0 vldb-disks.0 \
-	20150105.17.57.0 20150105.17.57-00.0
+	bug-1044.0 20150105.17.57.0 20150105.17.57-00.0 cgroups-units.0
 SRCEXTRAS = $(subst .0,.meta,$(SRCARCH)) $(subst .0,.index,$(SRCARCH))
 SCRIPTS = mk.diff.sh mk.gap.sh mk.mysql.sh mk.schizo.sh
 OTHERS = GNUmakefile.install ds390-access.gz

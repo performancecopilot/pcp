@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014-2015 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,7 +20,7 @@ enum {
 };
 
 enum {
-    CONTAINERS_DRIVER,
+    CONTAINERS_ENGINE,
     CONTAINERS_NAME,
     CONTAINERS_PID,
     CONTAINERS_RUNNING,
@@ -31,22 +31,22 @@ enum {
 
 /*
  * General container services, abstracting individual implementations into
- * "drivers" which are then instantiated one-per-container-technology.
+ * "engines" which are then instantiated one-per-container-technology.
  */
 
 struct stat;
 struct container;
-struct container_driver;
+struct container_engine;
 
-typedef void (*container_setup_t)(struct container_driver *);
-typedef int (*container_changed_t)(struct container_driver *);
-typedef void (*container_insts_t)(struct container_driver *, pmInDom);
-typedef int (*container_values_t)(struct container_driver *,
+typedef void (*container_setup_t)(struct container_engine *);
+typedef int (*container_changed_t)(struct container_engine *);
+typedef void (*container_insts_t)(struct container_engine *, pmInDom);
+typedef int (*container_values_t)(struct container_engine *,
 		const char *, struct container *);
-typedef int (*container_match_t)(struct container_driver *,
+typedef int (*container_match_t)(struct container_engine *,
 		const char *, const char *, const char *);
 
-typedef struct container_driver {
+typedef struct container_engine {
     char		*name;
     int			state;
     char		path[60];
@@ -55,14 +55,15 @@ typedef struct container_driver {
     container_insts_t	insts_refresh;
     container_values_t	value_refresh;
     container_match_t	name_matching;
-} container_driver_t;
+} container_engine_t;
 
 typedef struct container {
     int			pid;
     int			status;
     char		*name;
+    char		cgroup[128];
     struct stat		stat;
-    container_driver_t	*driver;
+    container_engine_t	*engine;
 } container_t;
 
 enum {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 1995-2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -652,7 +652,7 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
     }
     else {
 	if (dispatch->version.two.text == pmdaText)
-	    __pmNotifyErr(LOG_WARNING, "pmdaInit: PMDA %s: No help text file specified", pmda->e_name); 
+	    __pmNotifyErr(LOG_WARNING, "pmdaInit: PMDA %s: No help text file specified for pmdaText", pmda->e_name); 
 #ifdef PCP_DEBUG
 	else
 	    if (pmDebug & DBG_TRACE_LIBPMDA)

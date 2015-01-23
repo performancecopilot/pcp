@@ -30,7 +30,6 @@
  */
 #define S_IRWXU 0700
 #endif
-#define MAXROOTPDU	6000 /* buffering limit */
 
 static char socket_path[MAXPATHLEN];
 static __pmSockAddr *socket_addr;
@@ -40,14 +39,16 @@ static int pmcd_fd = -1;
 static __pmFdSet connected_fds;
 static int maximum_fd;
 
-static const int features = PDUROOT_FLAG_NS /* | ... */ ;
+static const int features = PDUROOT_FLAG_HOSTNAME | \
+			    PDUROOT_FLAG_PROCESSID | \
+			    PDUROOT_FLAG_CGROUPNAME;
 
 static pmdaIndom root_indomtab[NUM_INDOMS];
 #define INDOM(x) (root_indomtab[x].it_indom)
 #define INDOMTAB_SZ (sizeof(root_indomtab)/sizeof(root_indomtab[0]))
 
 static pmdaMetric root_metrictab[] = {
-    { NULL, { PMDA_PMID(0, CONTAINERS_DRIVER), PM_TYPE_STRING,
+    { NULL, { PMDA_PMID(0, CONTAINERS_ENGINE), PM_TYPE_STRING,
 	CONTAINERS_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) } },
     { NULL, { PMDA_PMID(0, CONTAINERS_NAME), PM_TYPE_STRING,
 	CONTAINERS_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
@@ -62,7 +63,8 @@ static pmdaMetric root_metrictab[] = {
 };
 #define METRICTAB_SZ (sizeof(root_metrictab)/sizeof(root_metrictab[0]))
 
-static container_driver_t drivers[] = {
+static container_engine_t engines[] = {
+#ifdef IS_LINUX
     {
 	.name		= "docker",
 	.setup		= docker_setup,
@@ -71,15 +73,16 @@ static container_driver_t drivers[] = {
 	.value_refresh	= docker_value_refresh,
 	.name_matching	= docker_name_matching,
     },
+#endif
     { .name = NULL },
 };
 
 static void
 root_setup_containers(void)
 {
-    container_driver_t *dp;
+    container_engine_t *dp;
 
-    for (dp = &drivers[0]; dp->name != NULL; dp++)
+    for (dp = &engines[0]; dp->name != NULL; dp++)
 	dp->setup(dp);
 }
 
@@ -87,35 +90,35 @@ static void
 root_refresh_container_indom(void)
 {
     int need_refresh = 0;
-    container_driver_t *dp;
+    container_engine_t *dp;
     pmInDom indom = INDOM(CONTAINERS_INDOM);
 
-    for (dp = &drivers[0]; dp->name != NULL; dp++)
+    for (dp = &engines[0]; dp->name != NULL; dp++)
 	need_refresh |= dp->indom_changed(dp);
     if (!need_refresh)
 	return;
 
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
-    for (dp = &drivers[0]; dp->name != NULL; dp++)
+    for (dp = &engines[0]; dp->name != NULL; dp++)
 	dp->insts_refresh(dp, indom);
 }
 
 static void
 root_refresh_container_values(char *container, container_t *values)
 {
-    container_driver_t *dp;
+    container_engine_t *dp;
 
-    for (dp = &drivers[0]; dp->name != NULL; dp++)
+    for (dp = &engines[0]; dp->name != NULL; dp++)
 	dp->value_refresh(dp, container, values);
 }
 
-int
+container_t *
 root_container_search(const char *query)
 {
-    int inst, fuzzy, pid = -ESRCH, best = 0;
+    int inst, fuzzy, best = 0;
     char *name = NULL;
-    container_t *cp = NULL;
-    container_driver_t *dp;
+    container_t *cp = NULL, *found = NULL;
+    container_engine_t *dp;
     pmInDom indom = INDOM(CONTAINERS_INDOM);
 
     for (pmdaCacheOp(indom, PMDA_CACHE_WALK_REWIND);;) {
@@ -124,26 +127,26 @@ root_container_search(const char *query)
 	if (!pmdaCacheLookup(indom, inst, &name, (void **)&cp) || !cp)
 	    continue;
 	root_refresh_container_values(name, cp);
-	for (dp = &drivers[0]; dp->name != NULL; dp++) {
+	for (dp = &engines[0]; dp->name != NULL; dp++) {
 	    if ((fuzzy = dp->name_matching(dp, query, cp->name, name)) <= best)
 		continue;
 	    if (pmDebug & DBG_TRACE_ATTR)
 		__pmNotifyErr(LOG_DEBUG, "container search: %s/%s (%d->%d)\n",
 				query, name, best, fuzzy);
-	    pid = cp->pid;
 	    best = fuzzy;
+	    found = cp;
 	}
     }
 
     if (pmDebug & DBG_TRACE_ATTR) {
-	if (best)
+	if (found)
 	    __pmNotifyErr(LOG_DEBUG, "found container: %s (%s/%d) pid=%d\n",
-				name, query, best, pid);
+				name, query, best, found->pid);
 	else
 	    __pmNotifyErr(LOG_DEBUG, "container %s not matched\n", query);
     }
 
-    return pid;
+    return found;
 }
 
 static int
@@ -182,8 +185,8 @@ root_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_INST;
 	root_refresh_container_values(name, cp);
 	switch (idp->item) {
-	case 0:		/* containers.driver */
-	    atom->cp = cp->driver->name;
+	case 0:		/* containers.engine */
+	    atom->cp = cp->engine->name;
 	    break;
 	case 1:		/* containers.name */
 	    atom->cp = cp->name;
@@ -431,93 +434,177 @@ root_check_new_client(__pmFdSet *fdset)
     }
 }
 
+/*
+ * Namespaced request for hostname as seen by the given process ID.
+ */
 static int
-root_namespace_fds_request(root_client_t *cp, __pmdaRootPDUHdr *hdr)
+root_hostname(int pid, char *buffer, int *length)
 {
-    int		fdset[PMDA_NAMESPACE_COUNT] = { 0 };
-    char	buffer[MAXPATHLEN], *name = &buffer[0];
-    int		length = sizeof(buffer);
-    int		failed = 0;
-    int		flags = 0;
-    int		pid = -1;
-    int		sts;
+#ifdef HAVE_SETNS
+    static int utsfd = -1;
+    char path[MAXPATHLEN];
+    int fd, sts = 0;
 
-    if ((sts = __pmdaDecodeRootNameSpaceFdsReq((void *)hdr,
-				&flags, &name, &length, &pid)) < 0)
+    if (utsfd < 0) {
+	if ((utsfd = open("/proc/self/ns/uts", O_RDONLY)) < 0)
+	    return -oserror();
+    }
+    snprintf(path, sizeof(path), "/proc/%d/ns/uts", pid);
+    if ((fd = open(path, O_RDONLY)) < 0)
+	return -oserror();
+    if (setns(fd, CLONE_NEWUTS) < 0) {
+	sts = -oserror();
+	close(fd);
 	return sts;
-
-    /*
-     * 0. decide if doing direct process or container lookup
-     * 1. refresh container_t instance domain in preparation
-     * 2. match container name from PDU to an instance, via the
-     *     container_driver_t match_names() interface.
-     *     -> if not found, save error status to send back
-     * 3. use pid and namespace flags to open namespace fds
-     *     i.e. fd = open("/proc/PID/ns/FLAG") -> set of fds.
-     *     -> if any errors, save error status to send back
-     * 4. send back file descriptors to the requesting client
-     * 5. close server process (local) open file descriptors.
-     */
-    if (name) {
-	root_refresh_container_indom();
-	if ((pid = root_container_search(name)) < 0) {
-	    __pmNotifyErr(LOG_DEBUG, "no such container (name=%s)\n", name);
-	    failed++;
-	}
     }
-    if (!failed &&
-	(sts = __pmdaOpenNameSpaceFds(flags, pid, fdset)) < 0) {
-	__pmNotifyErr(LOG_ERR, "cannot open pid=%d namespace(s)\n", pid);
-	failed++;
+    close(fd);
+    if ((gethostname(buffer, *length)) < 0) {
+	sts = -oserror();
+	*length = 0;
     }
-
-    /* any error is propagated back out via PDU .status field */
-    sts = __pmdaSendRootNameSpaceFds(cp->fd, pid, fdset, flags, sts);
-    if (!failed)
-	__pmdaCloseNameSpaceFds(flags, fdset);
+    else {
+	*length = strlen(buffer);
+    }
+    setns(utsfd, CLONE_NEWUTS);
     return sts;
+#else
+    return -EOPNOTSUPP;
+#endif
 }
 
-static __pmdaRootPDUHdr *
-root_recvpdu(int fd)
+static int
+root_hostname_request(root_client_t *cp, void *pdu, int pdulen)
 {
-    static char		buffer[MAXROOTPDU];
+    container_t *container;
+    char	name[MAXPATHLEN];
+    char	buffer[MAXHOSTNAMELEN];
+    int		sts, pid, length = 0, namelen;
+
+    sts = __pmdaDecodeRootPDUContainer(pdu, pdulen, &pid, name, sizeof(name));
+    if (sts < 0)
+	return sts;
+    namelen = sts;
+
+    root_refresh_container_indom();
+    if (sts > 0) {
+	container = root_container_search(name);
+	if (container) {
+	    pid = container->pid;
+	    sts = 0;
+	} else {
+	    if (pmDebug & DBG_TRACE_ATTR)
+		__pmNotifyErr(LOG_DEBUG, "no container with name=%s\n", name);
+	    sts = PM_ERR_NOCONTAINER;
+	}
+    }
+    if (!sts) {
+	length = sizeof(buffer);
+	sts = root_hostname(pid, buffer, &length);
+	if (pmDebug & DBG_TRACE_ATTR)
+	    __pmNotifyErr(LOG_DEBUG, "pid=%d container=%s hostname=%s\n",
+			pid, namelen ? name : "", sts < 0 ? "?" : buffer);
+    }
+
+    return __pmdaSendRootPDUContainer(cp->fd, PDUROOT_HOSTNAME,
+			pid, buffer, length, sts);
+}
+
+static int
+root_processid_request(root_client_t *cp, void *pdu, int pdulen)
+{
+    container_t *container;
+    char	buffer[MAXHOSTNAMELEN], *name = &buffer[0];
+    int		sts, pid;
+
+    sts = __pmdaDecodeRootPDUContainer(pdu, pdulen, &pid, name, sizeof(buffer));
+    if (sts < 0)
+	return sts;
+    if (sts == 0)
+	return -EOPNOTSUPP;
+
+    root_refresh_container_indom();
+    if ((container = root_container_search(name)) != NULL) {
+	pid = container->pid;
+	sts = 0;
+    } else {
+	if (pmDebug & DBG_TRACE_ATTR)
+	    __pmNotifyErr(LOG_DEBUG, "no container with name=%s\n", name);
+	sts = PM_ERR_NOCONTAINER;
+    }
+    return __pmdaSendRootPDUContainer(cp->fd, PDUROOT_PROCESSID,
+			pid, NULL, 0, sts);
+}
+
+static int
+root_cgroupname_request(root_client_t *cp, void *pdu, int pdulen)
+{
+    container_t *container;
+    char	name[MAXPATHLEN], *cgroup = NULL;
+    int		sts, pid, length = 0;
+
+    sts = __pmdaDecodeRootPDUContainer(pdu, pdulen, &pid, name, sizeof(name));
+    if (sts < 0)
+	return sts;
+    if (sts == 0)
+	return -EOPNOTSUPP;
+
+    root_refresh_container_indom();
+    if ((container = root_container_search(name)) == NULL) {
+	if (pmDebug & DBG_TRACE_ATTR)
+	    __pmNotifyErr(LOG_DEBUG, "no container with name=%s\n", name);
+	sts = PM_ERR_NOCONTAINER;
+    } else {
+	sts = 0;
+	pid = container->pid;
+	cgroup = container->cgroup;
+	length = strlen(container->cgroup);
+	if (pmDebug & DBG_TRACE_ATTR)
+	    __pmNotifyErr(LOG_DEBUG, "container %s cgroup=%s\n", name, cgroup);
+    }
+    return __pmdaSendRootPDUContainer(cp->fd, PDUROOT_CGROUPNAME,
+			pid, cgroup, length, sts);
+}
+
+static int
+root_recvpdu(int fd, __pmdaRootPDUHdr **hdr)
+{
+    static char		buffer[BUFSIZ];
     __pmdaRootPDUHdr	*pdu = (__pmdaRootPDUHdr *)buffer;
     int			bytes;
 
-    memset(buffer, 0, sizeof(buffer));	// TODO: nuke
     if ((bytes = recv(fd, &buffer, sizeof(buffer), 0)) < 0) {
 	__pmNotifyErr(LOG_ERR, "root_recvpdu: recv - %s\n", osstrerror());
-	return NULL;
+	return bytes;
     }
     if (bytes == 0)	/* client disconnected */
-	return NULL;
+	return 0;
     if (bytes < sizeof(__pmdaRootPDUHdr)) {
 	__pmNotifyErr(LOG_ERR, "root_recvpdu: %d bytes too small\n", bytes);
-	return NULL;
+	return -EINVAL;
     }
     if (pdu->version > ROOT_PDU_VERSION) {
 	__pmNotifyErr(LOG_ERR, "root_recvpdu: client sent newer version (%d)\n",
 			pdu->version);
-	return NULL;
+	return -EOPNOTSUPP;
     }
     if (pdu->length < sizeof(__pmdaRootPDUHdr)) {
 	__pmNotifyErr(LOG_ERR, "root_recvpdu: PDU length (%d) is too small\n",
 			pdu->length);
-	return NULL;
+	return -E2BIG;
     }
-    if (pdu->status != 0) {
+    if (pdu->status < 0) {
 	__pmNotifyErr(LOG_ERR, "root_recvpdu: client sent bad status (%d)\n",
 			pdu->status);
-	return NULL;
+	return pdu->status;
     }
-    return pdu;
+    *hdr = pdu;
+    return bytes;
 }
 
 static void
 root_handle_client_input(__pmFdSet *fds)
 {
-    __pmdaRootPDUHdr	*php;
+    __pmdaRootPDUHdr	*php = NULL;
     root_client_t	*cp;
     int			i, sts;
 
@@ -526,19 +613,26 @@ root_handle_client_input(__pmFdSet *fds)
 	if (cp->fd == -1 || !__pmFD_ISSET(cp->fd, fds))
 	    continue;
 
-	if ((php = root_recvpdu(cp->fd)) == NULL) {
+	if ((sts = root_recvpdu(cp->fd, &php)) <= 0) {
 	    root_delete_client(cp);
 	    continue;
 	}
 
 	switch (php->type) {
-	case PDUROOT_NS_FDS_REQ:
-	    sts = root_namespace_fds_request(cp, php);
+	case PDUROOT_HOSTNAME_REQ:
+	    sts = root_hostname_request(cp, (void *)php, sts);
+	    break;
+
+	case PDUROOT_PROCESSID_REQ:
+	    sts = root_processid_request(cp, (void *)php, sts);
+	    break;
+
+	case PDUROOT_CGROUPNAME_REQ:
+	    sts = root_cgroupname_request(cp, (void *)php, sts);
 	    break;
 
 	/*
 	 * We expect to add functionality here over time, e.g.:
-	 * - container-name-to-cgroup-path lookups (pmdaproc and co).
 	 * - PDU for (re)starting a PMDA & pass back fds;
 	 * - authentication requests via SASL;
 	 */

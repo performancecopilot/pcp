@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -253,6 +253,32 @@ cgroup_find_subsys(pmInDom indom, filesys_t *fs)
     return dunno;
 }
 
+int
+cgroup_mounts_subsys(const char *system, char *buffer, int length)
+{
+    pmInDom mounts = INDOM(CGROUP_MOUNTS_INDOM);
+    pmInDom subsys = INDOM(CGROUP_SUBSYS_INDOM);
+    filesys_t *fs;
+    char *name;
+    int sts;
+
+    /* Iterate over cgroup.mounts.subsys indom, comparing the value
+     * with the given subsys - if a match is found, return the inst
+     * name, else NULL.
+     */
+    pmdaCacheOp(mounts, PMDA_CACHE_WALK_REWIND);
+    while ((sts = pmdaCacheOp(mounts, PMDA_CACHE_WALK_NEXT)) != -1) {
+	if (!pmdaCacheLookup(mounts, sts, &name, (void **)&fs))
+	    continue;
+	if (strcmp(system, cgroup_find_subsys(subsys, fs)) != 0)
+	    continue;
+	snprintf(buffer, length, "%s%s/", proc_statspath, name);
+	buffer[length-1] = '\0';
+	return strlen(buffer);
+    }
+    return 0;
+}
+
 static const char *
 cgroup_name(const char *path, int offset)
 {
@@ -269,7 +295,8 @@ cgroup_name(const char *path, int offset)
 }
 
 static void
-cgroup_scan(const char *mnt, const char *path, cgroup_refresh_t refresh)
+cgroup_scan(const char *mnt, const char *path, cgroup_refresh_t refresh,
+		const char *container, int container_length)
 {
     int length;
     DIR *dirp;
@@ -290,7 +317,8 @@ cgroup_scan(const char *mnt, const char *path, cgroup_refresh_t refresh)
 	return;
 
     cgname = cgroup_name(cgpath, length);
-    refresh(cgpath, cgname);
+    if (strncmp(cgpath, container, container_length) == 0)
+	refresh(cgpath, cgname);
 
     /* descend into subdirectories to find all cgroups */
     while ((dp = readdir(dirp)) != NULL) {
@@ -308,8 +336,9 @@ cgroup_scan(const char *mnt, const char *path, cgroup_refresh_t refresh)
 	    continue;
 
 	cgname = cgroup_name(cgpath, length);
-	refresh(cgpath, cgname);
-	cgroup_scan(mnt, cgname, refresh);
+	if (strncmp(cgpath, container, container_length) == 0)
+	    refresh(cgpath, cgname);
+	cgroup_scan(mnt, cgname, refresh, container, container_length);
     }
     closedir(dirp);
 }
@@ -322,7 +351,8 @@ cgroup_scan(const char *mnt, const char *path, cgroup_refresh_t refresh)
  * its role is to refresh the values for that one named cgroup.
  */
 void
-refresh_cgroups(const char *subsys, cgroup_setup_t setup, cgroup_refresh_t refresh)
+refresh_cgroups(const char *subsys, const char *container,
+	int length, cgroup_setup_t setup, cgroup_refresh_t refresh)
 {
     int sts;
     filesys_t *fs;
@@ -335,7 +365,7 @@ refresh_cgroups(const char *subsys, cgroup_setup_t setup, cgroup_refresh_t refre
 	if (scan_filesys_options(fs->options, subsys) == NULL)
 	    continue;
 	setup();
-	cgroup_scan(fs->path, "", refresh);
+	cgroup_scan(fs->path, "", refresh, container, length);
     }
 }
 

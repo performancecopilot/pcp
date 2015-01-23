@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2007-2010 Aconex.  All Rights Reserved.
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -24,7 +24,7 @@ LIBTARGET	= pmda_linux.so
 PMDAINIT	= linux_init
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 LOGREWRITEDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
-CONF_LINE	= "linux	60	dso	$(PMDAINIT)	$(PMDADIR)/$(LIBTARGET)"
+CONF_LINE	= "linux	60	pipe	binary		$(PMDADIR)/$(CMDTARGET)"
 
 CFILES		= pmda.c \
 		  proc_stat.c proc_meminfo.c proc_loadavg.c \
@@ -35,7 +35,7 @@ CFILES		= pmda.c \
 		  proc_slabinfo.c sem_limits.c msg_limits.c shm_limits.c \
 		  proc_uptime.c proc_sys_fs.c proc_vmstat.c \
 		  sysfs_kernel.c linux_table.c numa_meminfo.c \
-		  proc_net_netstat.c
+		  proc_net_netstat.c namespaces.c
 
 HFILES		= clusters.h indom.h convert.h \
 		  proc_stat.h proc_meminfo.h proc_loadavg.h \
@@ -46,7 +46,7 @@ HFILES		= clusters.h indom.h convert.h \
 		  proc_slabinfo.h sem_limits.h msg_limits.h shm_limits.h \
 		  proc_uptime.h proc_sys_fs.h proc_vmstat.h \
 		  sysfs_kernel.h linux_table.h numa_meminfo.h \
-		  proc_net_netstat.h
+		  proc_net_netstat.h namespaces.h
 
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag

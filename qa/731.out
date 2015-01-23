@@ -139,245 +139,245 @@ No value(s) available!
 
 cgroup.memory.stat.cache
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
+    Semantics: instant  Units: byte
     inst [0 or "/"] value 909434880
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.rss
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
+    Semantics: instant  Units: byte
     inst [0 or "/"] value 479805440
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.rss_huge
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
+    Semantics: instant  Units: byte
     inst [0 or "/"] value 0
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.mapped_file
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
+    Semantics: instant  Units: byte
     inst [0 or "/"] value 106840064
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.writeback
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
+    Semantics: instant  Units: byte
     inst [0 or "/"] value 0
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.swap
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
+    Semantics: instant  Units: byte
     inst [0 or "/"] value 0
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.pgpgin
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: count
     inst [0 or "/"] value 4313639
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.pgpgout
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: count
     inst [0 or "/"] value 4008706
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.pgfault
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: count
     inst [0 or "/"] value 0
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.pgmajfault
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: count
     inst [0 or "/"] value 0
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.inactive_anon
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
+    Semantics: instant  Units: byte
     inst [0 or "/"] value 8019968
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.active_anon
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
+    Semantics: instant  Units: byte
     inst [0 or "/"] value 480120832
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.inactive_file
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
+    Semantics: instant  Units: byte
     inst [0 or "/"] value 470528000
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.active_file
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
+    Semantics: instant  Units: byte
     inst [0 or "/"] value 430522368
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.unevictable
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
+    Semantics: instant  Units: byte
     inst [0 or "/"] value 16384
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.total.cache
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
+    Semantics: instant  Units: byte
     inst [0 or "/"] value 909434880
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.total.rss
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
+    Semantics: instant  Units: byte
     inst [0 or "/"] value 479805440
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.total.rss_huge
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
+    Semantics: instant  Units: byte
     inst [0 or "/"] value 0
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.total.mapped_file
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
+    Semantics: instant  Units: byte
     inst [0 or "/"] value 106840064
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.total.writeback
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
+    Semantics: instant  Units: byte
     inst [0 or "/"] value 0
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.total.swap
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
+    Semantics: instant  Units: byte
     inst [0 or "/"] value 0
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.total.pgpgin
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: count
     inst [0 or "/"] value 4313639
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.total.pgpgout
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: count
     inst [0 or "/"] value 4008706
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.total.pgfault
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: count
     inst [0 or "/"] value 0
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.total.pgmajfault
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: count
     inst [0 or "/"] value 0
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.total.inactive_anon
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
+    Semantics: instant  Units: byte
     inst [0 or "/"] value 8019968
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.total.active_anon
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
+    Semantics: instant  Units: byte
     inst [0 or "/"] value 480120832
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.total.inactive_file
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
+    Semantics: instant  Units: byte
     inst [0 or "/"] value 470528000
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.total.active_file
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
+    Semantics: instant  Units: byte
     inst [0 or "/"] value 430522368
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.total.unevictable
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
+    Semantics: instant  Units: byte
     inst [0 or "/"] value 16384
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.recent.rotated_anon
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [0 or "/"] value 0
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.recent.rotated_file
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [0 or "/"] value 0
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.recent.scanned_anon
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [0 or "/"] value 0
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.memory.stat.recent.scanned_file
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: counter  Units: Kbyte
+    Semantics: counter  Units: byte
     inst [0 or "/"] value 0
     inst [1 or "/libvirt"] value 0
     inst [2 or "/libvirt/lxc"] value 0
 
 cgroup.netclass.classid
     Data Type: 64-bit unsigned int  InDom: 3.25 0xc00019
-    Semantics: instant  Units: Kbyte
+    Semantics: instant  Units: none
 No value(s) available!
 
 cgroup.blkio.dev.sectors

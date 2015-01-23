@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (c) 2013-2014 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 # Copyright (c) 2000-2008 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -241,32 +241,53 @@ Warning: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot identify PM
          to be terminated.'
 	return
     fi
-    # Give each PMDA 2 seconds after a SIGTERM to die, then SIGKILL
+    # Give each PMDA 2 seconds after a SIGTERM to die, then SIGKILL.
+    # Represent python/perl pmdas as
+    # python_<pmdapath> or perl_<pmdapath>
+    # so that they will remain as one element in the list.
+    # They will be separated again for passing to _get_pids_by_name.
+    #
     for pmda in `$PCP_AWK_PROG <$PCP_PMCDCONF_PATH '
 /\\\\$/		{ printf "%s ", substr($0, 0, length($0) - 1); next }
 		{ print }' \
 | $PCP_AWK_PROG '
-$1 ~ /^#/				{ next }
-tolower($3) == "pipe" && NF > 4		{ print $5; next }
-tolower($3) == "socket" && NF > 5	{ print $6; next }' \
+$1 ~ /^#/ { next }
+tolower($3) == "pipe" && NF > 4	{
+  if ((tolower($5) == "python" || tolower($5) == "perl") && NF > 5)
+    print $5"_"$6
+  else
+    print $5
+  next
+}
+tolower($3) == "socket" && NF > 5 { print $6; next }' \
 | sort -u`
     do
-	pmsignal -a -s TERM `basename $pmda` > /dev/null 2>&1 &
+	# Stop any matching PMDA that is still running.
+	# For python pmdas, $pmda will be of the form python_<pmdapath>
+	# We need to replace the _ with a space but we still need to pass the
+	# two remaining tokens as one word to _get_pids_by_name. Otherwise, we
+	# need to strip the path from $pmda.
+	#
+	if [ `echo -n $pmda | cut -b 1-7` = "python_" ]
+	then
+	    pmda=`echo $pmda | sed -e 's/python_/python /'`
+	else
+	    pmda=`basename $pmda`
+	fi
+	for __sig in TERM KILL
+	do
+	    # Quote "$pmda" here because it might contain two words
+	    __pids=`_get_pids_by_name "$pmda"`
+	    if [ ! -z "$__pids" ]
+	    then
+		pmsignal -s $__sig $__pids >/dev/null 2>&1
+		# allow signal processing to be done
+		sleep 2
+	    else
+		break
+	    fi
+	done
     done
-    sleep 2
-    for pmda in `$PCP_AWK_PROG <$PCP_PMCDCONF_PATH '
-/\\\\$/		{ printf "%s ", substr($0, 0, length($0) - 1); next }
-		{ print }' \
-| $PCP_AWK_PROG '
-$1 ~ /^#/				{ next }
-tolower($3) == "pipe" && NF > 4		{ print $5; next }
-tolower($3) == "socket" && NF > 5	{ print $6; next }' \
-| sort -u`
-    do
-	pmsignal -a -s KILL `basename $pmda` > /dev/null 2>&1 &
-    done
-
-    wait
 }
 
 _shutdown()

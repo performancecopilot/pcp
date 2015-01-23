@@ -18,6 +18,8 @@
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 iam=xfs
+pmns_name="xfs quota"
+
 pmdaSetup
 pmdaRemove
 exit 0

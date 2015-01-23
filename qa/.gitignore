@@ -24,7 +24,6 @@ qa_hosts
 qa_outfiles
 rc_cron_check.clean
 sudo
-006.out
 008.out
 012.out
 019.out

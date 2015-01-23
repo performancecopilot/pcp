@@ -109,6 +109,9 @@ logutil
 # NSS, SASL, other authentication
 secure
 
+# Containers functionality
+containers
+
 # log extraction app
 pmlogextract
 # log reduction app
@@ -267,6 +270,9 @@ pcp.py
 
 # Uses avahi
 avahi
+
+# Uses Linux kernel cgroups
+cgroups
 
 # test-group association ... one line per test
 # add :retired or :reserved as a tag immediately after the test number
@@ -628,7 +634,7 @@ avahi
 358 pmie local pmstore
 359 pmcd pminfo sanity local
 360 pmie remote
-361 pmda.linux local
+361 pmda.linux local cgroups
 362 pmlogconf local
 363 logutil local
 364 pmlogconf local
@@ -883,6 +889,7 @@ avahi
 660 pmwebapi local
 661 pmwebapi local
 666:reserved pmmgr local
+667 python local
 670 libpcp local
 701 pmlogcheck local
 702 python libpcp local
@@ -913,8 +920,8 @@ avahi
 727 avahi local
 728 libpcp getopt local
 729 python local
-730 pmda.proc local
-731 pmda.proc local valgrind
+730 pmda.proc local cgroups
+731 pmda.proc local cgroups valgrind
 732 pmda.linux local
 733 pmie pmval pmdumplog local
 734 libpcp pmstat remote
@@ -958,7 +965,7 @@ avahi
 782 pmwebapi local
 783 pmda.rpm local valgrind
 786 context context_local libpcp local
-787:reserved archive local pmie pmlogrewrite pmdumplog pmval
+787 archive local pmie pmlogrewrite pmdumplog pmval
 789 pmda.papi local
 798 pmda.nfsclient local
 799:retired pmda.papi local
@@ -1022,6 +1029,7 @@ avahi
 978 libpcp getopt sanity local
 979 python local
 980 python local
+984 cgroups local
 985 pmda.dmcache dbpmda local
 986 pmda.dmcache pmda.install local
 987 pmda.xfs local

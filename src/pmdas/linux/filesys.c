@@ -1,7 +1,7 @@
 /*
  * Linux Filesystem Cluster
  *
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014-2015 Red Hat.
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -40,10 +40,10 @@ scan_filesys_options(const char *options, const char *option)
 }
 
 int
-refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom)
+refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom, int pid)
 {
     char buf[MAXPATHLEN];
-    char realdevice[MAXPATHLEN];
+    char src[MAXPATHLEN];
     filesys_t *fs;
     pmInDom indom;
     FILE *fp;
@@ -53,7 +53,10 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom)
     pmdaCacheOp(tmpfs_indom, PMDA_CACHE_INACTIVE);
     pmdaCacheOp(filesys_indom, PMDA_CACHE_INACTIVE);
 
-    if ((fp = linux_statsfile("/proc/mounts", buf, sizeof(buf))) == NULL)
+    /* presence of PID indicates operation within a container namespace */
+    snprintf(src, sizeof(src), "%s/proc/%s/mounts",
+				linux_statspath, pid > 0 ? "1" : "self");
+    if ((fp = fopen(src, "r")) == NULL)
 	return -oserror();
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {
@@ -67,7 +70,12 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom)
 	    strcmp(type, "nfs") == 0 ||
 	    strcmp(type, "devfs") == 0 ||
 	    strcmp(type, "devpts") == 0 ||
+	    strcmp(type, "devtmpfs") == 0 ||
+	    strcmp(type, "selinuxfs") == 0 ||
+	    strcmp(type, "securityfs") == 0 ||
+	    strcmp(type, "configfs") == 0 ||
 	    strcmp(type, "cgroup") == 0 ||
+	    strcmp(type, "sysfs") == 0 ||
 	    strncmp(type, "auto", 4) == 0)
 	    continue;
 
@@ -78,8 +86,8 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom)
 	}
 	else if (strncmp(device, "/dev", 4) != 0)
 	    continue;
-	if (realpath(device, realdevice) != NULL)
-	    device = realdevice;
+	if (realpath(device, src) != NULL)
+	    device = src;
 
 	sts = pmdaCacheLookupName(indom, device, NULL, (void **)&fs);
 	if (sts == PMDA_CACHE_ACTIVE)	/* repeated line in /proc/mounts? */

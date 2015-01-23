@@ -1,7 +1,7 @@
 QA output created by 860
 
 metric:    proc.memory.maps
-host:      smash
+host:      HOSTNAME
 semantics: instantaneous value
 units:     none
 samples:   1
