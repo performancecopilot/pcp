@@ -1271,8 +1271,10 @@ int main (int argc, char *argv[])
     js.push_back (new pmmgr_job_spec(default_config_dir));
 
   // let pmdapmcd know pmmgr is currently running
-  if (__pmServerCreatePIDFile(pmProgname, PM_FATAL_ERR) < 0)
-    exit(1);
+  // NB: A failure from this call is of no significance: pmmgr is not
+  // required to be run as uid pcp or root, so must not fail for the
+  // mere inability to write into /var/run/pcp.
+  (void) __pmServerCreatePIDFile(pmProgname, PM_FATAL_ERR);
 
   // lose root privileges if we have them
   __pmSetProcessIdentity(username.c_str());
