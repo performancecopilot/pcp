@@ -1085,6 +1085,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 * Fri Jan 23 2015 Dave Brolley <brolley@redhat.com> - 3.10.2-1
 - Update to latest PCP sources.
 - Improve pmdaInit diagnostics for DSO helptext (BZ 1182949)
+- Tighten up PMDA termination on pmcd stop (BZ 1180109)
+- Correct units for cgroup memory metrics (BZ 1180351)
+- Add the pcp2graphite(1) export script (BZ 1163986)
 
 * Mon Dec 01 2014 Nathan Scott <nathans@redhat.com> - 3.10.1-1
 - New conditionally-built pcp-pmda-perfevent sub-package.
