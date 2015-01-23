@@ -980,7 +980,7 @@ refresh_proc_pid(proc_pid_t *proc_pid, proc_runq_t *proc_runq,
 		 int want_threads, const char *cgroups,
 		 const char *container, int namelen)
 {
-    char path[MAXPATHLEN], *offset;
+    char path[MAXPATHLEN];
     int sts, length, want_cgroups;
     const char *filter = cgroups;
 
@@ -1002,7 +1002,6 @@ refresh_proc_pid(proc_pid_t *proc_pid, proc_runq_t *proc_runq,
      */
     if (container) {
 	length = cgroup_mounts_subsys("memory", path, sizeof(path));
-	offset = path + length;
 	length = sizeof(path) - length;
 	strncat(path, container, length);
 	filter = path;
