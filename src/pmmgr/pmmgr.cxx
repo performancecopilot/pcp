@@ -1274,7 +1274,7 @@ int main (int argc, char *argv[])
   // NB: A failure from this call is of no significance: pmmgr is not
   // required to be run as uid pcp or root, so must not fail for the
   // mere inability to write into /var/run/pcp.
-  (void) __pmServerCreatePIDFile(pmProgname, PM_FATAL_ERR);
+  (void) __pmServerCreatePIDFile(pmProgname, 0);
 
   // lose root privileges if we have them
   __pmSetProcessIdentity(username.c_str());
