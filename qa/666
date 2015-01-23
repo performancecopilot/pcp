@@ -165,7 +165,7 @@ sleep 10 # pmmgr daemon shutdown
 
 $date >> $seq.full
 echo "=== 11. admire grained / retained data ===" | tee -a $seq.full
-$# there should be 3 archives
+# there should be 3 archives
 ls -1 $tmp.dir/`hostname` | _filter2
 ls -lR $tmp.dir >> $seq.full # for reference
 for f in $tmp.dir/`hostname`/*.meta; do
