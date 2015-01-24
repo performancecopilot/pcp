@@ -1,3 +1,5 @@
+pcp-3.10.3 (2 March 2015)
+
 pcp-3.10.2 (23 January 2015)
     - PMAPI extension: pmParseUnitsStr. Includes python binding
     - libpcp/pmcd: protocol-level support for containers
