@@ -51,14 +51,38 @@ report_package()
 
 package_totals_before()
 {
-    pre_bytes=`pmprobe -v rpm.total.bytes | awk '{ print $3 }'`
-    pre_count=`pmprobe -v rpm.total.count | awk '{ print $3 }'`
+    pre_bytes=`pmprobe -v rpm.total.bytes | tee $tmp.tmp | awk '$2==1 { print $3 }'`
+    if [ -z "$pre_bytes" ]
+    then
+	echo "Error: failed to get pre_bytes from pmprobe output ..."
+	cat $tmp.tmp
+	pre_bytes=0
+    fi
+    pre_count=`pmprobe -v rpm.total.count | tee $tmp.tmp | awk '$2==1 { print $3 }'`
+    if [ -z "$pre_count" ]
+    then
+	echo "Error: failed to get pre_count from pmprobe output ..."
+	cat $tmp.tmp
+	pre_count=0
+    fi
 }
 
 package_totals_after()
 {
-    post_bytes=`pmprobe -v rpm.total.bytes | awk '{ print $3 }'`
-    post_count=`pmprobe -v rpm.total.count | awk '{ print $3 }'`
+    post_bytes=`pmprobe -v rpm.total.bytes | tee $tmp.tmp | awk '$2==1 { print $3 }'`
+    if [ -z "$post_bytes" ]
+    then
+	echo "Error: failed to get post_bytes from pmprobe output ..."
+	cat $tmp.tmp
+	post_bytes=0
+    fi
+    post_count=`pmprobe -v rpm.total.count | tee $tmp.tmp | awk '$2==1 { print $3 }'`
+    if [ -z "$post_count" ]
+    then
+	echo "Error: failed to get post_count from pmprobe output ..."
+	cat $tmp.tmp
+	post_count=0
+    fi
 
     diff_bytes=`expr $post_bytes - $pre_bytes`
     echo "bytes diff: $post_bytes - $pre_bytes = $diff_bytes" >> $seq.full
