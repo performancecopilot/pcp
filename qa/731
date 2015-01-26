@@ -22,9 +22,17 @@ trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    sed -e \
-	"s,$PCP_PMDAS_DIR/,,g" \
-    # end
+    cat >$tmp.out
+    sed -e 1q $tmp.out
+    echo "Metrics ..."
+    grep '^cgroup' $tmp.out | LC_COLLATE=POSIX sort
+    nvalue=`grep 'inst \[' <$tmp.out | wc -l | sed -e 's/ //g'`
+    echo
+    echo "and $nvalue instance values."
+    $PCP_AWK_PROG <$tmp.out '
+/^=== std err ===/	{ want = 1 }
+want == 1		{ print }' \
+    | sed -e "s,$PCP_PMDAS_DIR/,PCP_PMDAS_DIR/,g"
 }
 
 # real QA test starts here
@@ -43,7 +51,9 @@ do
 
     echo "== Running valgrind for cgroup fetch - $base"
     cd $here
-    _run_valgrind pminfo -L -K clear -K add,3,$pmda -d -f cgroup 2>&1 | _filter
+    _run_valgrind pminfo -L -K clear -K add,3,$pmda -d -f cgroup 2>&1 \
+    | tee -a $seq.full \
+    | _filter
 
     # takes too long to verify everything, so check just first
     echo $base | grep -q 001 || continue
