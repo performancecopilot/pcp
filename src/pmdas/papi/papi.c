@@ -176,14 +176,6 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     time_t now;
 
     now = time(NULL);
-    sts = check_papi_state();
-    if (sts & PAPI_RUNNING) {
-	sts = PAPI_read(EventSet, values);
-	if (sts != PAPI_OK) {
-	    __pmNotifyErr(LOG_ERR, "PAPI_read: %s\n", PAPI_strerror(sts));
-	    return PM_ERR_VALUE;
-	}
-    }
 
     switch (idp->cluster) {
     case CLUSTER_PAPI:
@@ -313,8 +305,29 @@ static int
 papi_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
     int i, sts = 0;
+
     __pmAFblock();
     auto_enable_expiry_cb(0, NULL); // run auto-expiry
+
+    /* Update our copy of the papi counter values, so that we do so
+       only once per pcp-fetch batch.  Though it's relatively cheap,
+       and harmless even if the incoming pcp-fetch is for non-counter
+       pcp metrics, we do this only for CLUSTER_PAPI pmids. */
+    for (i=0; i<numpmid; i++) {
+        __pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
+        if (idp->cluster == CLUSTER_PAPI) {
+            sts = check_papi_state();
+            if (sts & PAPI_RUNNING) {
+                sts = PAPI_read(EventSet, values);
+                if (sts != PAPI_OK) {
+                    __pmNotifyErr(LOG_ERR, "PAPI_read: %s\n", PAPI_strerror(sts));
+                    return PM_ERR_VALUE;
+                }
+            }
+            break; /* No need to look at other pmids. */
+        }
+    }
+    sts = 0; /* clear out any PAPI remnant flags */
 
     /* If we get a lot of pmids in the papi auto-enable region, we can
        suffer from arithmetic increases in runtime per fetch
