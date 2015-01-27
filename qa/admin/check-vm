@@ -237,6 +237,7 @@ sadf				[sysstat]
 # QA
 bc				[(QA optional)]
 curl				[(QA optional)]
+socat				[(QA optional)]
 dpkg?	Spreadsheet::XLSX	[libspreadsheet-xlsx-perl (QA optional)]
 rpm?	Spreadsheet::XLSX	[from cpan (QA optional)]
 dpkg?	Text::CSV_XS		[Text-CSV_XS (QA optional)]

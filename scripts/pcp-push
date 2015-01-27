@@ -140,4 +140,11 @@ then
     echo "+ echo $sha >pushed.sha"
 else
     echo "$sha" >pushed.sha
+    case `id -un`
+    in
+	kenj)
+	    echo "To send commit mail ..."
+	    echo 'thunderbird -compose to=pcp@oss.sgi.com,subject="pcp updates",body="`cat /tmp/msg`"'
+	    ;;
+    esac
 fi
