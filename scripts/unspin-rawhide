@@ -1,0 +1,9 @@
+#!/bin/sh
+
+specfile=pcp.spec
+
+sed -i \
+    -e 's/^Release: 1%{?dist}/Release: %{buildversion}%{?dist}/g' \
+    -e 's,%{name}-%{version}-.*.tar.gz,ftp://ftp.pcp.io/projects/pcp/download/%{name}-%{version}.src.tar.gz,g' \
+    $specfile
+

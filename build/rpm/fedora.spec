@@ -7,8 +7,8 @@ Release: %{buildversion}%{?dist}
 License: GPLv2+ and LGPLv2.1+ and CC-BY
 URL: http://www.pcp.io
 Group: Applications/System
-Source0: ftp://oss.sgi.com/projects/pcp/download/%{name}-%{version}.src.tar.gz
-Source1: ftp://oss.sgi.com/projects/pcp/download/pcp-webjs.src.tar.gz
+Source0: ftp://ftp.pcp.io/projects/pcp/download/%{name}-%{version}.src.tar.gz
+Source1: ftp://ftp.pcp.io/projects/pcp/download/pcp-webjs.src.tar.gz
 
 # There are no papi/libpfm devel packages for s390 nor for some rhels, disable
 %ifarch s390 s390x
