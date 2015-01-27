@@ -43,9 +43,7 @@ do
 
     echo "== Running valgrind for cgroup fetch - $base"
     cd $here
-    _run_valgrind pminfo -L -K clear -K add,3,$pmda -d -f cgroup 2>&1 >$tmp.1
-    cat $tmp.1 >> $seq.full
-    LC_COLLATE=POSIX sort $tmp.1 | _filter
+    _run_valgrind pminfo -L -K clear -K add,3,$pmda -d -f cgroup 2>&1 | _filter
 
     # takes too long to verify everything, so check just first
     echo $base | grep -q 001 || continue
@@ -53,9 +51,9 @@ do
     for tree in $trees
     do
 	name=`pminfo cgroup.$tree | sed 1q`
-	echo "== valgrind on $tree multiple fetches - $base" | tee -a $seq.full
-	_run_valgrind pmval -L -K clear -K add,3,$pmda -s 1024 -t 0.00001 $name >> $seq.full
-	echo "checked cgroup tree $tree via metric $metric" | tee -a $seq.full
+	echo "== Running valgrind on $tree for multiple fetches - $base"
+	_run_valgrind pmval -L -K clear -K add,3,$pmda -s 1099 -t 0.00001 $name >/dev/null
+	echo "checked cgroup tree $tree via metric $metric" >> $seq.full
     done
 
     echo && echo "== done" && echo

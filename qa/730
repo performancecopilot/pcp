@@ -33,17 +33,12 @@ do
     tar xzf $tgz
     base=`basename $tgz`
 
-    echo "== Checking namespace and metric numbering - $base" > $tmp.1
-    pminfo -L -K clear -K add,3,$pmda cgroup >> $tmp.1
-    echo "== Checking metric descriptors and values - $base" > $tmp.2
-    pminfo -L -K clear -K add,3,$pmda -d -f cgroup >> $tmp.2
-    echo "== Checking on an individual metric fetch - $base" > $tmp.3
-    pminfo -L -K clear -K add,3,$pmda -f cgroup.blkio.dev.time >> $tmp.3
-
-    LC_COLLATE=POSIX sort $tmp.1
-    LC_COLLATE=POSIX sort $tmp.2
-    LC_COLLATE=POSIX sort $tmp.3
-    cat $tmp.1 $tmp.2 $tmp.3 >> $seq.full
+    echo "== Checking namespace and metric numbering - $base"
+    pminfo -L -K clear -K add,3,$pmda cgroup
+    echo "== Checking metric descriptors and values - $base"
+    pminfo -L -K clear -K add,3,$pmda -d -f cgroup
+    echo "== Checking on an individual metric fetch - $base"
+    pminfo -L -K clear -K add,3,$pmda -f cgroup.blkio.dev.time
 
     # takes too long to verify everything, so check just first
     echo $base | grep -q 001 || continue
@@ -52,7 +47,7 @@ do
     do
 	name=`pminfo cgroup.$tree | sed 1q`
 	echo "== Checking out multi-sample monitor tool - $base"
-	pmval -L -K clear -K add,3,$pmda -s 1024 -t 0.00001 $name >>$seq.full
+	pmval -L -K clear -K add,3,$pmda -s 2048 -t 0.00001 $name >/dev/null
 	echo "checked cgroup tree $tree via metric $metric" >> $seq.full
     done
 
