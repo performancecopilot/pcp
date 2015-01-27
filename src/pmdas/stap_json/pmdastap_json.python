@@ -12,6 +12,8 @@ from pcp.pmapi import pmUnits
 from ctypes import c_int, POINTER, cast
 import os
 
+import traceback
+
 class Metric(object):
     ''' Metric information class '''
     def __init__(self, name_prefix, cluster, idx, pmda):
@@ -28,6 +30,7 @@ class Metric(object):
         self.pmid = None
         self.obj = None
         self.indom = None
+        self.index_pointer = None
 
     # Make sure when setting 'name', 'full_name' also gets updated.
     @property
@@ -48,6 +51,7 @@ class Metric(object):
         added to the PMDA.
         '''
         if not self.valid():
+            self.__pmda.log("Invalid metric")
             raise RuntimeError("Invalid metric")
 
         self.pmid = self.__pmda.pmid(self.cluster, self.idx)
@@ -101,6 +105,7 @@ class SystemtapModule(object):
         self.__data_path = "%s/data" % path
         self.__json_data = {}
         self.__metrics = {}
+        self.__metrics_by_name = {}
         self.__metric_idx = 0
         self.__indoms = {}
 
@@ -109,18 +114,18 @@ class SystemtapModule(object):
         self.__metadata = {}
         try:
             fobj = open(self.__metadata_path)
-        except IOError as error:
+        except IOError:
             self.__pmda.log("Couldn't open JSON metadata file: %s"
                             % self.__metadata_path)
-            self.__pmda.log("%s" % error)
+            self.__pmda.log("%s" % traceback.format_exc())
             return
         try:
             self.__metadata = json.load(fobj,
                                         object_pairs_hook=collections.OrderedDict)
-        except ValueError as error:
+        except ValueError:
             self.__pmda.log("Couldn't parse JSON metadata from %s"
                             % self.__metadata_path)
-            self.__pmda.log("%s" % error)
+            self.__pmda.log("%s" % traceback.format_exc())
         fobj.close()
 
     def __load_json_data(self):
@@ -128,18 +133,18 @@ class SystemtapModule(object):
         self.__json_data = {}
         try:
             fobj = open(self.__data_path)
-        except IOError as error:
+        except IOError:
             self.__pmda.log("Couldn't open JSON data file: %s"
                             % self.__data_path)
-            self.__pmda.log("%s" % error)
+            self.__pmda.log("%s" % traceback.format_exc())
             return
         try:
             self.__json_data \
                 = json.load(fobj, object_pairs_hook=collections.OrderedDict)
-        except ValueError as error:
+        except ValueError:
             self.__pmda.log("Couldn't parse JSON data from %s"
                             % self.__data_path)
-            self.__pmda.log("%s" % error)
+            self.__pmda.log("%s" % traceback.format_exc())
         fobj.close()
 
     def load(self):
@@ -147,7 +152,8 @@ class SystemtapModule(object):
         Load the JSON metadata and data files for this systemtap module,
         then create metrics based on the JSON.
         '''
-        self.__pmda.log("Loading module %s" % self.__root_name)
+        if self.__pmda.debug:
+            self.__pmda.log("Loading module %s" % self.__root_name)
         self.__load_json_metadata()
         self.__load_json_data()
 
@@ -162,8 +168,9 @@ class SystemtapModule(object):
         # Parse the metadata, creating metrics as needed.
         try:
             self.__parse_metadata()
-        except TypeError as error:
-            self.__pmda.log("Couldn't parse JSON metadata: %s" % error)
+        except TypeError:
+            self.__pmda.log("Couldn't parse JSON metadata")
+            self.__pmda.log("%s" % traceback.format_exc())
 
     def refresh_json_data(self):
         ''' Reload the JSON data and update indoms. '''
@@ -185,12 +192,19 @@ class SystemtapModule(object):
         for array_name in self.__indoms.keys():
             index = 0
             try:
-                # json_data['data'][array_name] is a list of
-                # dictionaries.
-                for item in self.__json_data['data'][array_name]:
-                    self.__indoms[array_name].add_value(item['__id'], index)
+                metric_info = self.__metrics_by_name[array_name]
+                metrics_array = metric_info.pointer.resolve(self.__json_data)
+
+                # Loop through all the array items, updating the indom
+                # list with the array's index pointer values.
+                for item in metrics_array:
+                    indom_value = metric_info.index_pointer.resolve(item)
+                    self.__indoms[array_name].add_value(indom_value, index)
                     index += 1
             except KeyError:
+                self.__pmda.log("Error while refreshing indom for array %s"
+                                % array_name)
+                self.__pmda.log("%s" % traceback.format_exc())
                 continue
             self.__pmda.replace_indom(self.__indoms[array_name].obj,
                                       self.__indoms[array_name].values)
@@ -198,37 +212,15 @@ class SystemtapModule(object):
     def __add_metric(self, metric_info):
         ''' Create and add a metric to the pmda. '''
         metric_info.create()
-        self.__pmda.add_metric(metric_info.full_name, metric_info.obj,
-                               metric_info.desc)
+        # Add the metric to the pmda (unless it is an array metric).
+        if metric_info.type != c_api.PM_TYPE_NOSUPPORT:
+            self.__pmda.add_metric(metric_info.full_name, metric_info.obj,
+                                   metric_info.desc)
         self.__metrics[metric_info.idx] = metric_info
+        self.__metrics_by_name[metric_info.name] = metric_info
 
-    def __parse_array_schema(self, array_name, properties):
-        ''' Parse a JSON array schema.  '''
-        # First process the array schema "header" information.
-        array_properties = None
-        for (key, value) in properties.items():
-            # 'type' (required): Sanity check it.
-            if key == 'type':
-                if not isinstance(value, unicode):
-                    raise TypeError
-                if value != 'object':
-                    raise TypeError("Type attribute has unknown value '%s'"
-                                    % value)
-            # 'additionalProperties' (optional): Ignore it.
-            elif key == "additionalProperties":
-                # Do nothing.
-                pass
-            # 'properties' (required): Type check it and save for later.
-            elif key == "properties":
-                if not isinstance(value, dict):
-                    raise TypeError
-                array_properties = value
-            # For everything else, raise an error.
-            else:
-                raise RuntimeError("Unknown attribute '%s'" % key)
-        if not array_properties:
-            raise RuntimeError("Schema has no 'properties' attribute")
-
+    def __parse_array_metadata(self, array_name, metrics_array):
+        ''' Parse a JSON array metadata.  '''
         if not self.__indoms.has_key(array_name):
             # Note that we're creating an indom here, but we don't
             # know any values for it yet. We'll get those on a data
@@ -237,71 +229,102 @@ class SystemtapModule(object):
                                               self.__pmda)
             self.__pmda.indom_idx += 1
 
-        # If we're here, we know the array "header" was
-        # reasonable. Now process "properties", which is the real data
-        # description.
-        for (name, attributes) in array_properties.items():
+        # Process the array's metrics array.
+        for item in metrics_array:
             metric_info = Metric("%s.%s" % (self.__pmda.pmda_name,
                                             self.__root_name),
-                                 self.cluster, self.__metric_idx, self.__pmda)
+                                 self.cluster, self.__metric_idx,
+                                 self.__pmda)
             self.__metric_idx += 1
-            metric_info.name = "%s.%s" % (array_name, name), 
             metric_info.indom = self.__indoms[array_name]
-            for (key, value) in attributes.items():
-                # 'type' (required): Sanity check it and save it.
-                if key == 'type':
+
+            for (key, value) in item.iteritems():
+                # 'name' (required): Sanity check it and save it.
+                if key == 'name':
                     if not isinstance(value, unicode):
-                        raise TypeError
+                        self.__pmda.log("Invalid metadata 'name' value")
+                        raise TypeError("Invalid metadata 'name' value")
+                    metric_info.name = "%s.%s" % (array_name, value)
+                # 'type' (required): Sanity check it and save it.
+                elif key == 'type':
+                    if not isinstance(value, unicode):
+                        self.__pmda.log("Invalid metadata 'type' value")
+                        raise TypeError("Invalid metadata 'type' value")
                     if value == 'string':
                         metric_info.type = c_api.PM_TYPE_STRING
                         metric_info.sem = c_api.PM_SEM_INSTANT
                     elif value == 'integer':
                         metric_info.type = c_api.PM_TYPE_64
                         metric_info.sem = c_api.PM_SEM_COUNTER
+                    elif value == 'array':
+                        # We don't allow arrays to have sub-arrays.
+                        self.__pmda.log("Arrays can't contain arrays")
+                        raise TypeError("Arrays can't contain arrays")
                     else:
-                        raise \
-                            TypeError("Type attribute has unknown value '%s'"
-                                      % value)
+                        self.__pmda.log("Type attribute has unknown value '%s'"
+                                        % value)
+                        raise TypeError("Type attribute has unknown value '%s'"
+                                        % value)
+                # 'pointer' (required): Sanity check it and save it.
+                elif key == 'pointer':
+                    if not isinstance(value, unicode):
+                        self.__pmda.log("Invalid metadata 'pointer' value")
+                        raise TypeError("Invalid metadata 'pointer' value")
+                    metric_info.pointer = jsonpointer.JsonPointer(value)
                 # 'description' (optional): Type check it and save it.
                 elif key == 'description':
                     if not isinstance(value, unicode):
-                        raise TypeError
+                        self.__pmda.log("Invalid schema 'description' value")
+                        raise TypeError("Invalid schema 'description' value")
                     metric_info.desc = value
-                # 'additionalProperties' (optional): Ignore it.
-                elif key == "additionalProperties":
-                    # Do nothing.
-                    pass
                 # For everything else, raise an error.
+                # FIXME: or just ignore it?
                 else:
-                    raise \
-                        RuntimeError("Schema for '%s' has an unknown"
-                                     " attribute '%s'" % (name, key))
+                    self.__pmda.log("Metadata has an unknown attribute '%s'"
+                                    % (key))
+                    raise TypeError("Metadata has an unknown attribute '%s'"
+                                    % (key))
 
             # Make sure we have everything we need.
-            if metric_info.type == c_api.PM_TYPE_UNKNOWN:
-                raise RuntimeError("Schema for '%s' has no 'type' attribute"
-                                   % name)
+            if not metric_info.valid() or metric_info.pointer == None:
+                self.__pmda.log("Metadata doesn't have required"
+                                " information for the following entry: %s"
+                                % metric_info.name)
+                raise TypeError("Metadata doesn't have required"
+                                " information for the following entry: %s"
+                                % metric_info.name)
 
-            # Add the metric (if it isn't our special '__id' metric).
-            if name != '__id':
-                self.__add_metric(metric_info)
+            # We have all the required information. Add the metric.
+            self.__add_metric(metric_info)
 
     def __parse_metadata(self):
         '''
         Go through the meta, looking for information we can use to
         create the pcp representation of the metadata.
         '''
-
-        self.__pmda.log("__parse_metadata")
-
         # Look for the "metrics" array.
         metrics_array = None
         for (key, value) in self.__metadata.items():
-            if key == "metrics":
+            # 'metrics' (required): Save it.
+            if key == 'metrics':
                 metrics_array = value
-                self.__pmda.log("metrics array: %s" % value)
-                break
+            # 'prefix' (optional): Sanity check it and save it.
+            elif key == 'prefix':
+                if not isinstance(value, unicode):
+                    self.__pmda.log("Invalid metadata 'prefix' value")
+                    raise TypeError("Invalid metadata 'prefix' value")
+                # FIXME: need to validate name and make sure it
+                # doesn't already exist.
+                self.__root_name = value
+            # For everything else, raise an error.
+            # FIXME: or just ignore it?
+            else:
+                self.__pmda.log("Metadata has an unknown attribute '%s'"
+                                % key)
+                raise TypeError("Metadata has an unknown attribute '%s'"
+                                % key)
         if not metrics_array:
+            self.__pmda.log("Metadata has no 'metrics' array")
             raise TypeError("Metadata has no 'metrics' array")
         
         # Process the metrics array.
@@ -312,17 +335,17 @@ class SystemtapModule(object):
                                  self.__pmda)
             self.__metric_idx += 1
 
-            for key, value in item.iteritems():
-                self.__pmda.log("%s: %s" % (key, value))
+            for (key, value) in item.iteritems():
                 # 'name' (required): Sanity check it and save it.
                 if key == 'name':
                     if not isinstance(value, unicode):
+                        self.__pmda.log("Invalid metadata 'name' value")
                         raise TypeError("Invalid metadata 'name' value")
                     metric_info.name = value
                 # 'type' (required): Sanity check it and save it.
-                # FIXME: will 'sem' value will need to come later?
                 elif key == 'type':
                     if not isinstance(value, unicode):
+                        self.__pmda.log("Invalid metadata 'type' value")
                         raise TypeError("Invalid metadata 'type' value")
                     if value == 'string':
                         metric_info.type = c_api.PM_TYPE_STRING
@@ -330,26 +353,69 @@ class SystemtapModule(object):
                     elif value == 'integer':
                         metric_info.type = c_api.PM_TYPE_64
                         metric_info.sem = c_api.PM_SEM_COUNTER
+                    elif value == 'array':
+                        # For arrays, we have to create metrics for
+                        # each subitem in the array, using the same
+                        # indom. This happens in the 'metrics' handling
+                        # below.
+                        metric_info.type = c_api.PM_TYPE_NOSUPPORT
                     else:
+                        self.__pmda.log("Type attribute has unknown value '%s'"
+                                        % value)
                         raise \
                             TypeError("Type attribute has unknown value '%s'"
                                       % value)
                 # 'pointer' (required): Sanity check it and save it.
                 elif key == 'pointer':
                     if not isinstance(value, unicode):
+                        self.__pmda.log("Invalid metadata 'pointer' value")
                         raise TypeError("Invalid metadata 'pointer' value")
                     metric_info.pointer = jsonpointer.JsonPointer(value)
                 # 'description' (optional): Type check it and save it.
                 elif key == 'description':
                     if not isinstance(value, unicode):
+                        self.__pmda.log("Invalid schema 'description' value")
                         raise TypeError("Invalid schema 'description' value")
                     metric_info.desc = value
+                # 'index' (required for arrays): Type check and save it.
+                elif key == 'index':
+                    if not isinstance(value, unicode):
+                        self.__pmda.log("Invalid schema 'index' value")
+                        raise TypeError("Invalid schema 'index' value")
+                    if metric_info.type != c_api.PM_TYPE_NOSUPPORT:
+                        self.__pmda.log("Metadata has an 'index' item"
+                                        " for non-array '%s'"
+                                        % metric_info.name)
+                        raise TypeError("Metadata has an 'index' item"
+                                        " for non-array '%s'"
+                                        % metric_info.name)
+                    # If we're here, we're processing an array's
+                    # metadata
+                    metric_info.index_pointer = jsonpointer.JsonPointer(value)
+                # 'metrics' (required for arrays): Process it.
+                elif key == 'metrics':
+                    if metric_info.type != c_api.PM_TYPE_NOSUPPORT:
+                        self.__pmda.log("Metadata has an 'metrics' item"
+                                        " for non-array '%s'"
+                                        % metric_info.name)
+                        raise TypeError("Metadata has an 'metrics' item"
+                                        " for non-array '%s'"
+                                        % metric_info.name)
+
+                    # If we're here, we're processing an array's
+                    # metadata. For arrays, we have to create metrics
+                    # for each subitem in the array, using the same
+                    # indom.
+                    self.__parse_array_metadata(metric_info.name, value)
                 # For everything else, raise an error.
                 # FIXME: or just ignore it?
                 else:
+                    self.__pmda.log("Metadata has an unknown attribute '%s'"
+                                    % key)
                     raise TypeError("Metadata has an unknown attribute '%s'"
-                                    % (key))
+                                    % key)
 
+            # Make sure we have everything we need.
             if not metric_info.valid() or metric_info.pointer == None:
                 self.__pmda.log("Metadata doesn't have required"
                                 " information for the following entry: %s"
@@ -359,13 +425,14 @@ class SystemtapModule(object):
                                 % item)
 
             # We have all the required information. Add the metric.
-            self.__pmda.log("Adding metric '%s'" % metric_info.name)
+            if self.__pmda.debug:
+                self.__pmda.log("Adding metric '%s'" % metric_info.name)
             self.__add_metric(metric_info)
 
     def fetch(self, item, inst):
         ''' Fetch value for this item and instance.  '''
         if not self.__metrics.has_key(item):
-            self.__pmda.log("Module %s has no item %d instance %d"
+            self.__pmda.log("Module '%s' has no item %d instance %d"
                             % (self.__root_name, item, inst))
             return [c_api.PM_ERR_PMID, 0]
         metric_info = self.__metrics[item]
@@ -381,16 +448,38 @@ class SystemtapModule(object):
 
             # Split the full name into the array name and metric
             (array, metric) = metric_info.name.split('.', 2)
+            if not self.__metrics_by_name.has_key(array):
+                self.__pmda.log("Module '%s' has no item '%s'"
+                                % (self.__root_name, array))
+                return [c_api.PM_ERR_PMID, 0]
+            array_info = self.__metrics_by_name[array]
+
             try:
-                return [self.__json_data['data'][array][array_index][metric], 1]
+                # Get the entire array.
+                metrics_array = array_info.pointer.resolve(self.__json_data)
+
+                # Get the appropriate item from within the desired array entry.
+                return [metric_info.pointer.resolve(metrics_array[array_index]),
+                        1]
             except KeyError:
+                self.__pmda.log("Error while fetching metrics for array %s"
+                                % array_info.name)
+                self.__pmda.log("%s" % traceback.format_exc())
                 pass
         # Handle single-valued metrics.
         else:
             try:
-                self.__pmda.log("fetching value for %s" % metric_info.name)
+                if metric_info.type == c_api.PM_TYPE_STRING:
+                    type_str = 'string'
+                elif metric_info.type == c_api.PM_TYPE_64:
+                    type_str = 'int'
+                else:
+                    type_str = 'unknown'
                 return [metric_info.pointer.resolve(self.__json_data), 1]
             except KeyError:
+                self.__pmda.log("Error while fetching metric %s"
+                                % metric_info.name)
+                self.__pmda.log("%s" % traceback.format_exc())
                 pass
         self.__pmda.log("Module %s couldn't fetch value for item %d instance %d"
                         % (self.__root_name, item, inst))
