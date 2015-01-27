@@ -22,8 +22,9 @@ $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-pmprobe -v kernel.pernode.cpu.user kernel.all.cpu.user |\
-awk '/\.pernode/ {pernode=$NF} /\.all/ {all=$NF} END {if (pernode != all) {print "fail"; exit(1);}}'
+pmprobe -v kernel.pernode.cpu.user kernel.all.cpu.user \
+| tee -a $seq.full \
+| awk '/\.pernode/ {pernode=$NF} /\.all/ {all=$NF} END {if (pernode != all) {print "fail"; exit(1);}}'
 
 status=$?
 exit
