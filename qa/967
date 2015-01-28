@@ -2,7 +2,7 @@
 # PCP QA Test No. 967
 # Testing auto enabling pmdapapi metrics
 #
-# Copyright (c) 2014 Red Hat Inc.  All Rights Reserved.
+# Copyright (c) 2014-2015 Red Hat Inc.  All Rights Reserved.
 #
 
 seq=`basename $0`
@@ -92,6 +92,7 @@ attr "username" "root"
 attr 11 "0"
 desc papi.system.TOT_INS
 store papi.control.auto_enable "5"
+store papi.control.batch "5"
 fetch papi.system.TOT_INS
 fetch papi.control.status
 wait 7

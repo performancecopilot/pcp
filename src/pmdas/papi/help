@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014 Red Hat, Inc.  All Rights Reserved.
+# Copyright (c) 2014-2015 Red Hat, Inc.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -37,6 +37,8 @@
 @ papi.control.auto_enable Timeout for future auto-enabled counters in seconds.
 
 @ papi.control.multiplex Switch for enabling PAPI multiplexing
+
+@ papi.control.batch Maximum number of counters per fetch to enable without batching
 
 @ papi.available.num_counters Number of hardware counters available for use
 
