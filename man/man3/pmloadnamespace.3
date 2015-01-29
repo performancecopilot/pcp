@@ -56,13 +56,15 @@ Externally a PMNS is stored in an ASCII format as
 described in
 .BR pmns (5).
 .PP
-By default,
-multiple names in the PMNS are not allowed to be
+As of Version 3.10.3 of PCP, by default,
+multiple names in the PMNS
+.B are
+allowed to be
 associated with a single Performance
 Metrics Identifier (PMID).
 .BR pmLoadASCIINameSpace (3)
 provides an alternative interface with user-defined control
-over the processing of duplicate PMIDs in the PMNS.
+over the processing of duplicate names for the same PMID in the PMNS.
 .PP
 .B pmLoadNameSpace
 returns zero on success.
