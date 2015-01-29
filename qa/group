@@ -1036,6 +1036,7 @@ cgroups
 987 pmda.xfs local
 988 pmda.xfs local valgrind
 991 python local
+993 pmlogger pmdumplog local
 994 other verify
 996 pmdiff local
 997 pmlogextract local
