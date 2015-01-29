@@ -28,14 +28,13 @@ static char		*fullname;	/* full PMNS pathname for newbie */
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),
     PMOPT_DEBUG,
-    { "duplicates", 0, 'd', 0, "duplicate PMIDs are allowed" },
     PMOPT_NAMESPACE,
     PMOPT_HELP,
     PMAPI_OPTIONS_END
 };
 
 static pmOptions opts = {
-    .short_options = "dD:n:?",
+    .short_options = "D:n:?",
     .long_options = longopts,
     .short_usage = "[options] metricpath [...]",
 };
@@ -106,7 +105,6 @@ main(int argc, char **argv)
     int		sep = __pmPathSeparator();
     int		sts;
     int		c;
-    int		dupok = 0;
     char	*p;
     char	pmnsfile[MAXPATHLEN];
     char	outfname[MAXPATHLEN];
@@ -123,10 +121,6 @@ main(int argc, char **argv)
 
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
-
-	case 'd':	/* duplicate PMIDs are OK */
-	    dupok = 1;
-	    break;
 
 	case 'D':	/* debug flag */
 	    if ((sts = __pmParseDebug(opts.optarg)) < 0) {
@@ -155,7 +149,7 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    if ((sts = pmLoadASCIINameSpace(pmnsfile, dupok)) < 0) {
+    if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
 	fprintf(stderr, "%s: Error: pmLoadNameSpace(%s): %s\n",
 		pmProgname, pmnsfile, pmErrStr(sts));
 	exit(1);
