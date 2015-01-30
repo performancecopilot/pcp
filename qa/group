@@ -154,10 +154,12 @@ pmda.dmcache
 pmda.ds389
 pmda.environ
 pmda.gfs2
+pmda.gpfs
 pmda.hotproc
 pmda.jbd2
 pmda.kvm
 pmda.logger
+pmda.lustre
 pmda.mailq
 pmda.memcache
 pmda.mmv
