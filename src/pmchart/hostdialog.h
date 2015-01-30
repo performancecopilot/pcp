@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Red Hat.
+ * Copyright (c) 2013-2015, Red Hat.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -37,6 +37,7 @@ private slots:
     virtual void secureCheckBox_toggled(bool);
     virtual void certificatesPushButton_clicked();
     virtual void authenticateCheckBox_toggled(bool);
+    virtual void nssGuiError(QProcess::ProcessError);
     virtual void nssGuiFinished(int, QProcess::ExitStatus);
 
 private:

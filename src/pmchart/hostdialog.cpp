@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Red Hat.
+ * Copyright (c) 2013-2015, Red Hat.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -139,9 +139,28 @@ HostDialog::nssGuiStart()
     arguments << dbpath;
 
     my.nssGuiProc = new QProcess(this);
+    connect(my.nssGuiProc, SIGNAL(error(QProcess::ProcessError)),
+                 this, SLOT(nssGuiError(QProcess::ProcessError)));
     connect(my.nssGuiProc, SIGNAL(finished(int, QProcess::ExitStatus)),
                  this, SLOT(nssGuiFinished(int, QProcess::ExitStatus)));
     my.nssGuiProc->start("nss-gui", arguments);
+}
+
+void
+HostDialog::nssGuiError(QProcess::ProcessError error)
+{
+    QString message;
+
+    if (error == QProcess::FailedToStart) {
+	message = tr("Unable to start the nss-gui helper program.\n");
+    } else {
+	message.append(tr("Generic nss-gui program failure, state="));
+	message.append(error).append("\n");
+    }
+    QMessageBox::warning(this, pmProgname, message,
+		QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
+		Qt::NoButton, Qt::NoButton);
+    my.nssGuiStarted = false;
 }
 
 void
