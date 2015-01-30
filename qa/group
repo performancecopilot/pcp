@@ -1027,10 +1027,11 @@ cgroups
 967 pmda.papi local
 972 pmda.zswap dbpmda local
 973 pmda.zswap pmda.install local
-976 other local
+976 dbpmda perl pmda.lustre local
 978 libpcp getopt sanity local
 979 python local
 980 python local
+981 dbpmda perl pmda.gpfs local
 984 cgroups local
 985 pmda.dmcache dbpmda local
 986 pmda.dmcache pmda.install local
