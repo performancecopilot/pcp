@@ -34,3 +34,8 @@
 # setting of environment variables for pmcd and
 # the PCP rc scripts. See pmcd(1) and PMAPI(3).
 # PMCD_WAIT_TIMEOUT=120
+
+# PMNS controls
+# -n and -N are not recommended (the defaults work better in most cases)
+# -n /some/path
+# -N /some/path
