@@ -185,10 +185,12 @@ skip				{ next }
     fi
 }
 
-while getopts nusv\? c
+while getopts dnusv\? c
 do
     case $c
     in
+	d)	echo "$prog: Warning: -d deprecated, duplicate PMNS names allowed by default"
+		;;
 	n)	nochanges=true
 		echo "$prog: Warning: dry run, no changes will be made"
 		;;

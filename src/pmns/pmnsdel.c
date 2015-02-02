@@ -34,7 +34,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "D:n:?",
+    .short_options = "dD:n:?",
     .long_options = longopts,
     .short_usage = "[options] metricpath [...]",
 };
@@ -122,9 +122,13 @@ main(int argc, char **argv)
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 
+	case 'd':	/* duplicate PMIDs are OK */
+	    fprintf(stderr, "%s: Warning: -d deprecated, duplicate PMNS names allowed by default\n", pmProgname);
+	    break;
+
 	case 'D':	/* debug flag */
 	    if ((sts = __pmParseDebug(opts.optarg)) < 0) {
-		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
 			pmProgname, opts.optarg);
 		opts.errors++;
 	    } else {

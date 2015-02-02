@@ -38,7 +38,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "aD:fv?",
+    .short_options = "aD:dfv?",
     .long_options = longopts,
     .short_usage = "[options] infile [...] outfile",
 };
@@ -214,9 +214,13 @@ main(int argc, char **argv)
 	    asis = 1;
 	    break;
 
+	case 'd':	/* duplicate PMIDs are OK */
+	    fprintf(stderr, "%s: Warning: -d deprecated, duplicate PMNS names allowed by default\n", pmProgname);
+	    break;
+
 	case 'D':	/* debug flag */
 	    if ((sts = __pmParseDebug(opts.optarg)) < 0) {
-		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
 		    pmProgname, opts.optarg);
 		opts.errors++;
 	    } else {

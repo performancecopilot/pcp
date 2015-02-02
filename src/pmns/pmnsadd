@@ -31,10 +31,12 @@ _usage()
 
 namespace=${PMNS_DEFAULT-$PCP_VAR_DIR/pmns/root}
 
-while getopts n:\? c
+while getopts dn:\? c
 do
     case $c
     in
+	d)	echo "$prog: Warning: -d deprecated, duplicate PMNS names allowed by default"
+		;;
 	n)	namespace=$OPTARG
 		;;
 	\?)	_usage
