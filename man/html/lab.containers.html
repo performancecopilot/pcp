@@ -23,9 +23,10 @@
 	</TR>
 </TABLE>
 <H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Analysis of Linux Containers</FONT></H1>
+<P><BR></P>
 <TABLE WIDTH="15%" BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
 	<TR><TD BGCOLOR="#e2e2e2">
-<PRE><IMG SRC="images/system-search.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR>
+<PRE><IMG SRC="images/system-search.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0><I>Tools</I>
 docker
 lxc-info
 lxc-ls
@@ -36,8 +37,8 @@ pmdaroot
 pminfo
 pmprobe</PRE></TD></TR>
 </TABLE>
-<P>Container technologies (like Docker, LXC, Rocket and others) build on
-two Linux kernel facilities - <I>cgroups</I> and <I>namespaces</I>.
+<P>Container engines like Docker, LXC, Rocket and others build on
+two Linux kernel facilities - <B>cgroups</B> and <B>namespaces</B>.
 In order to understand the performance characteristics of containerized
 environments, we need some background kernel knowledge to see how these
 concepts affect both the system itself, and system-level analysis tools
@@ -47,6 +48,7 @@ while at the same time showing you how to extract performance data from
 individual containers using the PCP tools.</P>
 <P>For an explanation of Performance Co-Pilot terms and acronyms, consult 
 the <A HREF="glossary.html">PCP glossary</A>.</P>
+<P><BR></P>
 <UL>
     <LI>
     <A HREF="#started">Getting Started</A> 
@@ -56,9 +58,20 @@ the <A HREF="glossary.html">PCP glossary</A>.</P>
     <A HREF="#namespaces">Namespaces</A> 
     <LI>
     <A HREF="#details">Containers and PCP</A>
+    <UL>
+        <LI>Core Extensions
+        <LI>Elevated Privileges
+        <LI>Container-specific Metric Values
+    </UL>
     <LI>
     <A HREF="#nextstep">Next Steps</A> 
+    <UL>
+        <LI>Console Tools
+        <LI>Graphical Tools
+        <LI>Domain Agents
+    </UL>
 </UL>
+</P>
 
 <P><BR></P>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
@@ -79,8 +92,7 @@ are in a position to begin analysing those containers with PCP tools.
 </P>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Request networking metrics for a host and then a container running on the host:<BR>
-<PRE><B>
-$ pminfo --fetch containers.name containers.state.running
+<PRE><B>$ pminfo --fetch containers.name containers.state.running
 
 containers.name
     inst [0 or "<FONT COLOR="#cc0000">f4d3b90bea15</FONT>..."] value "<FONT COLOR="#cc0000">sharp_feynman</FONT>"
@@ -99,18 +111,19 @@ $ pmprobe -I --container <FONT COLOR="#cc0000">sharp_feynman</FONT> network.inte
 network.interface.up 2 "lo" "eth0"
 
 $ pmprobe -I --container <FONT COLOR="#cc0000">f4d3b90bea15</FONT> network.interface.up
-network.interface.up 2 "lo" "eth0"
-</B></PRE>
+network.interface.up 2 "lo" "eth0"</B></PRE>
 </TD></TR>
 </TABLE>
-<P>Let's dive deeper and see what's happening below the surface.
+<P><B>Note</B>: these commands all query the same <I>pmcd</I> process
+- from the host running the container engine.  In other words, <I>there
+is no need to install any PCP software inside the monitored containers</I>.</P>
 
 <P><BR></P>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="cgroups">Control Groups</A></B></FONT></P></TD></TR>
 </TABLE>
 <P>Control Groups are a Linux kernel mechanism for aggregating
-or partitioning sets of tasks and their children, into hierarchical
+or partitioning sets of tasks, and their children, into hierarchical
 groups with specialized behaviour.
 This is the underlying technology used for controlling the set of
 processes within each container.
@@ -184,7 +197,7 @@ with that instance of the cgroup file system.
 </TABLE>
 <P>Completely distinct to cgroups, at least within the kernel, is the
 concept of <I>namespaces</I>.
-Namespaces allow different process to have differing views of several
+Namespaces allow different processes to have differing views of several
 aspects of the kernel, such as the hostname (UTS namespace), network
 interfaces (NET namespace), process identifiers (PID namespace), mounted
 filesystems (MNT namespace) and so on.
@@ -205,42 +218,59 @@ the set from the host itself.
 </P>
 <P>Finally, it is important to note that namespaces are not a complete
 abstraction, in that many aspects of the underlying host remain visible
-from within the container.  This affects performance tools in that some
-metrics can be adjusted and fine-tuned relative to the container, while
-others cannot.
+from within the container.  This affects performance tools in that the
+values exported for some metrics can be adjusted and fine-tuned relative
+to the container, while others cannot.
 </P>
 
 <P><BR></P>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
         <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="details">Containers and PCP</A></B></FONT></P></TD></TR>
 </TABLE>
+<P ALIGN=LEFT><FONT SIZE=4><B>Core Extensions</B></FONT>
 <P>All connections made to the PCP metrics collector daemon (<I>pmcd</I>)
 are made using the PCP protocol, which is TCP/IP based and thus
 (importantly for containers) connection-oriented.
-This means each individual monitoring tool has a unique connection to
-<I>pmcd</I>, and can request specific, custom metrics - including
-the ability to request metric values related to a named container.
+Each individual monitoring tool has a unique connection to <I>pmcd</I>
+and can request values for a specific, custom set of metrics. This includes
+being able to request metric values related to a specific, named container.
+Note that PCP differs to the design of several other monitoring systems
+in this regard, which write or send out a specified set of system-wide
+values, on a set interval.
 </P>
 <P>From a user point of view, this boils down to being able to specify a
-container via the interface (whether command line or graphical) of the PCP
-monitoring tools.
-</P>
-<P>Support for containers was added first in the 3.10.2 version of PCP.
-This version includes the <B>pmdaroot(1)</B> agent, a critical component
-of the container support, it must be enabled in order to monitor containers.
-Verify that there is a <B>pmdaroot</B> line in <I>/etc/pcp/pmcd/pmcd.conf</I>
-and the <B>pcp</B> command reports that it is running.
-</P>
-<P>With that in place, several kernel agents become able to customise their
-behavior when monitoring of a container is requested.
-These include the network, filesys, ipc, and other metrics in
-<B>pmdalinux</B>, and the per-process and cgroup metrics in <B>pmdaproc</B>.
+container via the interface (whether command line or graphical) of the
+PCP monitoring tools and to have that container name transfered to the
+PCP collector system.  This allows for filtering and fine-tuning of the
+metric values it returns, such that the values are specific to the named
+container.
 </P>
 
+<P ALIGN=LEFT><FONT SIZE=4><B>Elevated Privileges</B></FONT>
+<P>Support for containers was first added in the 3.10.2 version of PCP
+(released in January 2015).
+This version includes the <I>pmdaroot</I> daemon - a critical component
+of the container support, it must be enabled in order to monitor containers.
+</P>
+<P>It performs privileged operations on behalf of other PCP agents and plays
+a pivotal role in informing the other agents about various attributes of the
+active containers that it discovers on the PCP collector system.
+</P>
+<P>Verify that there is a <I>pmdaroot</I> line in <I>/etc/pcp/pmcd/pmcd.conf</I>
+and that the <I>pcp</I> command reports that it is running.
+</P>
+
+<P ALIGN=LEFT><FONT SIZE=4><B>Container-specific Metric Values</B></FONT>
+<P>With that core functionality in place, several kernel agents have been
+taught to customize the metric values they report when the monitoring of a
+named container has been requested.
+These include the network, filesys, ipc, and other metrics in
+<I>pmdalinux</I>, as well as the per-process and cgroup metrics in
+<I>pmdaproc</I>.
+</P>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
-	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Requesting container-specific process and control group metrics:<BR>
-<PRE><B>
-$ pminfo -t --fetch --container <FONT COLOR="#cc0000">sharp_feynman</FONT> cgroup.memory.stat.cache proc.psinfo.rss pmcd.hostname
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Requesting container-specific process and control group metrics:
+<BR><PRE><B>$ pminfo -t --fetch --container <FONT COLOR="#cc0000">sharp_feynman</FONT> cgroup.memory.stat.cache proc.psinfo.rss pmcd.hostname
 
 cgroup.memory.stat.cache [Number of bytes of page cache memory]
     inst [2 or "/system.slice/docker-f4d3b90bea15..."] value 9695232
@@ -250,9 +280,7 @@ proc.psinfo.rss [resident set size (i.e. physical memory) of the process]
     inst [27996 or "027996 /bin/bash"] value 2964
 
 pmcd.hostname [local hostname]
-    value "f4d3b90bea15"</B>
-
-</PRE>
+    value "f4d3b90bea15"</B></PRE>
 </TD></TR>
 </TABLE>
 
@@ -262,23 +290,37 @@ pmcd.hostname [local hostname]
 </TABLE>
 
 <P>Upcoming versions of PCP will extend the initial work done for container
-analysis in several directions, particularly on the monitoring tool side.
-A new console monitoring tool with deep container knowledge is planned, as
-are changes to existing monitoring tools to enrich the container analysis
-experience.</P>
+analysis in several directions, particularly on the monitoring tool side.</P>
 
-<P ALIGN=LEFT><FONT SIZE=4><B>Graphical Monitor Tools</B></FONT>
+<P ALIGN=LEFT><FONT SIZE=4><B>Console Tools</B></FONT>
+<P>In addition to adding the container command line option to more of the
+existing monitoring tools, a light-weight console-based monitoring tool
+with deep container knowledge is planned. This tool will sample and report
+cgroup and namespaced metrics for a specified container, in an easily
+consumed form - a little like <I>top</I> or <I>vmstat</I> perhaps.</P>
+
+<P ALIGN=LEFT><FONT SIZE=4><B>Graphical Tools</B></FONT>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
         <TR><TD WIDTH=500><P ALIGN=><CENTER><BR><IMG ALIGN=MIDDLE SRC="images/pmchart_add_host_container.png" ALT="" BORDER=0></CENTER></P></TD>
-        <TD><P>In the PCP strip chart utility <I>pmchart</I> from version 3.10.3 onward, connections to containers can be established using the "Add Host" dialog.  This can be accessed via the "New Chart" or "Open View" menu entries.<UL>
+        <TD><P>In the PCP strip chart utility <I>pmchart</I> from version 3.10.3 onward, connections to containers can be established using the "Add Host" dialog, as shown to the left.</P>
+	<P>This can be accessed via the "New Chart" or "Open View" menu entries.</P>
+	<UL>
         <LI>Specify the name of the PCP Collector system where <I>pmcd</I> is running.
         <LI>Press the "Advanced" push button to enable additional connection attributes to be specified.
         <LI>Select the "Container" check box, and enter a container name.
-        <LI>Press "OK" to establish a connection to the container on host.
+        <LI>Press "OK" to establish a connection to the container on host -
+            this functions in much the same was as the <I>pminfo</I> examples
+            from earlier in this tutorial.
 	</UL>
 	</TD>
         </TR>
 </TABLE>
+
+<P ALIGN=LEFT><FONT SIZE=4><B>Domain Agents</B></FONT>
+<P>As the underlying container technologies are maturing, they are becoming
+instrumented for analysis. For example, <B>etcd</B> and <B>docker</B> now
+have APIs to extract the instrumentation about their behaviour, which will
+be exported as new PCP metrics.</P>
 
 <P><BR></P>
 <HR>
