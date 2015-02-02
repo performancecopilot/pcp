@@ -955,6 +955,7 @@ cgroups
 762 help local
 763 pmda local
 764 pmie local
+765 pmlogsummary local
 766 pmfind local
 768 pmlogextract local
 769 other local
