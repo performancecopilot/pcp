@@ -45,8 +45,8 @@ General options:
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -82,8 +82,8 @@ General options:
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -119,8 +119,8 @@ General options:
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -156,8 +156,8 @@ General options:
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -193,8 +193,8 @@ General options:
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -230,8 +230,8 @@ General options:
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -267,8 +267,8 @@ General options:
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -304,8 +304,8 @@ General options:
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -341,8 +341,8 @@ General options:
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -378,8 +378,8 @@ General options:
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -415,8 +415,8 @@ General options:
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -452,8 +452,8 @@ General options:
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -489,8 +489,8 @@ General options:
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -526,8 +526,8 @@ General options:
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -563,8 +563,8 @@ General options:
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -600,8 +600,8 @@ General options:
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -648,8 +648,8 @@ General options:
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -685,8 +685,8 @@ General options:
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -734,8 +734,8 @@ General options:
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -781,8 +781,8 @@ General options:
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -818,8 +818,8 @@ General options:
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -855,8 +855,8 @@ General options:
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone

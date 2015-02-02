@@ -101,7 +101,7 @@ echo
 echo "=== Rebuild -u ==="
 rm -f root root.bin
 cp root.start root
-$sudo ./Rebuild -du | _filter
+$sudo ./Rebuild -u | _filter
 pminfo -m -n root
 
 # success, all done

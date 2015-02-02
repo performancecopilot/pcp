@@ -46,7 +46,7 @@ TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "
               2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
               2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value "PATH"
 
-TIMESTAMP  29.0.6 (sample.bin):
+TIMESTAMP  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
                 inst [100 or "bin-100"] value 100
                 inst [200 or "bin-200"] value 200
                 inst [300 or "bin-300"] value 300
@@ -57,7 +57,7 @@ TIMESTAMP  29.0.6 (sample.bin):
                 inst [800 or "bin-800"] value 800
                 inst [900 or "bin-900"] value 900
 
-TIMESTAMP  29.0.6 (sample.bin):
+TIMESTAMP  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
                 inst [100 or "bin-100"] value 100
                 inst [200 or "bin-200"] value 200
                 inst [300 or "bin-300"] value 300
@@ -68,7 +68,7 @@ TIMESTAMP  29.0.6 (sample.bin):
                 inst [800 or "bin-800"] value 800
                 inst [900 or "bin-900"] value 900
 
-TIMESTAMP  29.0.6 (sample.bin):
+TIMESTAMP  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
                 inst [100 or "bin-100"] value 100
                 inst [200 or "bin-200"] value 200
                 inst [300 or "bin-300"] value 300
@@ -79,7 +79,7 @@ TIMESTAMP  29.0.6 (sample.bin):
                 inst [800 or "bin-800"] value 800
                 inst [900 or "bin-900"] value 900
 
-TIMESTAMP  29.0.6 (sample.bin):
+TIMESTAMP  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
                 inst [100 or "bin-100"] value 100
                 inst [200 or "bin-200"] value 200
                 inst [300 or "bin-300"] value 300
@@ -158,7 +158,7 @@ TIMESTAMP  2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "
 
 TIMESTAMP  PMID (hinv.ndisk): value INTEGER
 
-TIMESTAMP  29.0.6 (sample.bin):
+TIMESTAMP  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
                 inst [100 or "bin-100"] value 100
                 inst [200 or "bin-200"] value 200
                 inst [300 or "bin-300"] value 300
@@ -169,7 +169,7 @@ TIMESTAMP  29.0.6 (sample.bin):
                 inst [800 or "bin-800"] value 800
                 inst [900 or "bin-900"] value 900
 
-TIMESTAMP  29.0.6 (sample.bin):
+TIMESTAMP  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
                 inst [100 or "bin-100"] value 100
                 inst [200 or "bin-200"] value 200
                 inst [300 or "bin-300"] value 300
@@ -180,7 +180,7 @@ TIMESTAMP  29.0.6 (sample.bin):
                 inst [800 or "bin-800"] value 800
                 inst [900 or "bin-900"] value 900
 
-TIMESTAMP  29.0.6 (sample.bin):
+TIMESTAMP  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
                 inst [100 or "bin-100"] value 100
                 inst [200 or "bin-200"] value 200
                 inst [300 or "bin-300"] value 300
@@ -191,7 +191,7 @@ TIMESTAMP  29.0.6 (sample.bin):
                 inst [800 or "bin-800"] value 800
                 inst [900 or "bin-900"] value 900
 
-TIMESTAMP  29.0.6 (sample.bin):
+TIMESTAMP  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
                 inst [100 or "bin-100"] value 100
                 inst [200 or "bin-200"] value 200
                 inst [300 or "bin-300"] value 300

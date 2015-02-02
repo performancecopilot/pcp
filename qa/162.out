@@ -92,6 +92,15 @@ sample.double.one
 sample.double.ten
 sample.double.write_me
 sample.drift
+sample.dupnames.daemon_pid
+sample.dupnames.pid_daemon
+sample.dupnames.three.bin
+sample.dupnames.three.write_me
+sample.dupnames.two.bin
+sample.dupnames.two.double.ten
+sample.dupnames.two.float.ten
+sample.dupnames.two.lights
+sample.dupnames.two.write_me
 sample.dynamic.counter
 sample.dynamic.discrete
 sample.dynamic.instant

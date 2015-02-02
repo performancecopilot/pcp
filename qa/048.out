@@ -12,10 +12,10 @@ pmResult ... numpmid: 6
     inst [2 or "blue"] value NUMBER
   29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+  29.0.46 (sample.dupnames.two.lights, sample.lights): numval: 1 valfmt: 1 vlist[]:
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
-  30.0.6 (sampledso.bin): No values returned!
+  30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
@@ -25,10 +25,10 @@ pmResult ... numpmid: 6
     inst [2 or "blue"] value NUMBER
   29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+  29.0.46 (sample.dupnames.two.lights, sample.lights): numval: 1 valfmt: 1 vlist[]:
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
-  30.0.6 (sampledso.bin): No values returned!
+  30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
@@ -38,10 +38,10 @@ pmResult ... numpmid: 6
     inst [2 or "blue"] value NUMBER
   29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+  29.0.46 (sample.dupnames.two.lights, sample.lights): numval: 1 valfmt: 1 vlist[]:
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
-  30.0.6 (sampledso.bin): No values returned!
+  30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
@@ -51,10 +51,10 @@ pmResult ... numpmid: 6
     inst [2 or "blue"] value NUMBER
   29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+  29.0.46 (sample.dupnames.two.lights, sample.lights): numval: 1 valfmt: 1 vlist[]:
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
-  30.0.6 (sampledso.bin): No values returned!
+  30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
@@ -64,10 +64,10 @@ pmResult ... numpmid: 6
     inst [2 or "blue"] value NUMBER
   29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+  29.0.46 (sample.dupnames.two.lights, sample.lights): numval: 1 valfmt: 1 vlist[]:
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
-  30.0.6 (sampledso.bin): No values returned!
+  30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
@@ -77,10 +77,10 @@ pmResult ... numpmid: 6
     inst [2 or "blue"] value NUMBER
   29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+  29.0.46 (sample.dupnames.two.lights, sample.lights): numval: 1 valfmt: 1 vlist[]:
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
-  30.0.6 (sampledso.bin): No values returned!
+  30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
@@ -90,10 +90,10 @@ pmResult ... numpmid: 6
     inst [2 or "blue"] value NUMBER
   29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+  29.0.46 (sample.dupnames.two.lights, sample.lights): numval: 1 valfmt: 1 vlist[]:
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
-  30.0.6 (sampledso.bin): No values returned!
+  30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
@@ -103,10 +103,10 @@ pmResult ... numpmid: 6
     inst [2 or "blue"] value NUMBER
   29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+  29.0.46 (sample.dupnames.two.lights, sample.lights): numval: 1 valfmt: 1 vlist[]:
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
-  30.0.6 (sampledso.bin): No values returned!
+  30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 Found 8 samples
 
 Pass 2: backwards scan
@@ -143,10 +143,10 @@ pmResult ... numpmid: 6
     inst [2 or "blue"] value NUMBER
   29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+  29.0.46 (sample.dupnames.two.lights, sample.lights): numval: 1 valfmt: 1 vlist[]:
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
-  30.0.6 (sampledso.bin): No values returned!
+  30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
@@ -156,10 +156,10 @@ pmResult ... numpmid: 6
     inst [2 or "blue"] value NUMBER
   29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+  29.0.46 (sample.dupnames.two.lights, sample.lights): numval: 1 valfmt: 1 vlist[]:
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
-  30.0.6 (sampledso.bin): No values returned!
+  30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
@@ -169,10 +169,10 @@ pmResult ... numpmid: 6
     inst [2 or "blue"] value NUMBER
   29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+  29.0.46 (sample.dupnames.two.lights, sample.lights): numval: 1 valfmt: 1 vlist[]:
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
-  30.0.6 (sampledso.bin): No values returned!
+  30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
@@ -182,10 +182,10 @@ pmResult ... numpmid: 6
     inst [2 or "blue"] value NUMBER
   29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+  29.0.46 (sample.dupnames.two.lights, sample.lights): numval: 1 valfmt: 1 vlist[]:
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
-  30.0.6 (sampledso.bin): No values returned!
+  30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
@@ -195,10 +195,10 @@ pmResult ... numpmid: 6
     inst [2 or "blue"] value NUMBER
   29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+  29.0.46 (sample.dupnames.two.lights, sample.lights): numval: 1 valfmt: 1 vlist[]:
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
-  30.0.6 (sampledso.bin): No values returned!
+  30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
@@ -208,10 +208,10 @@ pmResult ... numpmid: 6
     inst [2 or "blue"] value NUMBER
   29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+  29.0.46 (sample.dupnames.two.lights, sample.lights): numval: 1 valfmt: 1 vlist[]:
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
-  30.0.6 (sampledso.bin): No values returned!
+  30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
@@ -221,10 +221,10 @@ pmResult ... numpmid: 6
     inst [2 or "blue"] value NUMBER
   29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+  29.0.46 (sample.dupnames.two.lights, sample.lights): numval: 1 valfmt: 1 vlist[]:
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
-  30.0.6 (sampledso.bin): No values returned!
+  30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
@@ -234,10 +234,10 @@ pmResult ... numpmid: 6
     inst [2 or "blue"] value NUMBER
   29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+  29.0.46 (sample.dupnames.two.lights, sample.lights): numval: 1 valfmt: 1 vlist[]:
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
-  30.0.6 (sampledso.bin): No values returned!
+  30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 Found 8 samples
 
 Pass 2: backwards scan
@@ -274,10 +274,10 @@ pmResult ... numpmid: 6
     inst [2 or "blue"] value NUMBER
   29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+  29.0.46 (sample.dupnames.two.lights, sample.lights): numval: 1 valfmt: 1 vlist[]:
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
-  30.0.6 (sampledso.bin): No values returned!
+  30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
@@ -287,10 +287,10 @@ pmResult ... numpmid: 6
     inst [2 or "blue"] value NUMBER
   29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+  29.0.46 (sample.dupnames.two.lights, sample.lights): numval: 1 valfmt: 1 vlist[]:
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
-  30.0.6 (sampledso.bin): No values returned!
+  30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
@@ -300,10 +300,10 @@ pmResult ... numpmid: 6
     inst [2 or "blue"] value NUMBER
   29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+  29.0.46 (sample.dupnames.two.lights, sample.lights): numval: 1 valfmt: 1 vlist[]:
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
-  30.0.6 (sampledso.bin): No values returned!
+  30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
@@ -313,10 +313,10 @@ pmResult ... numpmid: 6
     inst [2 or "blue"] value NUMBER
   29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+  29.0.46 (sample.dupnames.two.lights, sample.lights): numval: 1 valfmt: 1 vlist[]:
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
-  30.0.6 (sampledso.bin): No values returned!
+  30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
@@ -326,10 +326,10 @@ pmResult ... numpmid: 6
     inst [2 or "blue"] value NUMBER
   29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+  29.0.46 (sample.dupnames.two.lights, sample.lights): numval: 1 valfmt: 1 vlist[]:
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
-  30.0.6 (sampledso.bin): No values returned!
+  30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
@@ -339,10 +339,10 @@ pmResult ... numpmid: 6
     inst [2 or "blue"] value NUMBER
   29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+  29.0.46 (sample.dupnames.two.lights, sample.lights): numval: 1 valfmt: 1 vlist[]:
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
-  30.0.6 (sampledso.bin): No values returned!
+  30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
@@ -352,10 +352,10 @@ pmResult ... numpmid: 6
     inst [2 or "blue"] value NUMBER
   29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+  29.0.46 (sample.dupnames.two.lights, sample.lights): numval: 1 valfmt: 1 vlist[]:
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
-  30.0.6 (sampledso.bin): No values returned!
+  30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
@@ -365,10 +365,10 @@ pmResult ... numpmid: 6
     inst [2 or "blue"] value NUMBER
   29.0.7 (sample.drift): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  29.0.46 (sample.lights): numval: 1 valfmt: 1 vlist[]:
+  29.0.46 (sample.dupnames.two.lights, sample.lights): numval: 1 valfmt: 1 vlist[]:
    value STRING
   30.0.3 (sampledso.milliseconds): No values returned!
-  30.0.6 (sampledso.bin): No values returned!
+  30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 Found 8 samples
 
 Pass 2: backwards scan

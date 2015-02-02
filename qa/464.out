@@ -35,7 +35,7 @@ Error Parsing ASCII PMNS: pmcpp returned non-zero exit status
 pminfo: Cannot load namespace from "TMP.root": Problems parsing PMNS definitions
 pmcpp: TMP.4[2]: #include "TMP.5"
 pmcpp: Error: #include nesting too deep
-load(name=TMP.root, dupok=0) lic case=0 fname=TMP.root
+load(name=TMP.root, dupok=1) lic case=0 fname=TMP.root
 loadascii(file=TMP.root)
 pmLoadNameSpace: zero -> 1.0.0
 pmLoadNameSpace: one -> 1.0.1
