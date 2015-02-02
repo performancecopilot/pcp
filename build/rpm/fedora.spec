@@ -27,18 +27,8 @@ Source1: ftp://ftp.pcp.io/projects/pcp/download/pcp-webjs.src.tar.gz
 %endif
 %endif
 
-# https://bugzilla.redhat.com/show_bug.cgi?id=1169226
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %define disable_microhttpd 0
-%else
-%define disable_microhttpd 1
-%endif
-# Cairo headers on el5 incompatible with graphite code
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %define disable_cairo 0
-%else
-%define disable_cairo 1
-%endif
 # Python development environment before el6 is pre-2.6 (too old)
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %define disable_python2 0
