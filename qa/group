@@ -952,6 +952,7 @@ cgroups
 759 pmda.unbound pmda.install local
 760 pmda.activemq pmda.install local
 761 pmda.root local
+762 help local
 763 pmda local
 764 pmie local
 766 pmfind local
