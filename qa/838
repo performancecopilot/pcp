@@ -2,7 +2,7 @@
 # PCP QA Test No. 838
 # Check that -d option (duplicate are OK in the PMNS) is deprecated
 #
-# Copyright (c) 2015 [who are you?].  All Rights Reserved.
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
 #
 
 seq=`basename $0`
