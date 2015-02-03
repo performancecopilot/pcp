@@ -1,11 +1,10 @@
 # pylint: disable=too-many-public-methods, too-many-instance-attributes
-# pylint: disable=too-many-arguments
 '''
 Performance Metrics Domain Agent exporting systemtap JSON metrics.
 '''
 import json
 import jsonpointer
-import collections
+from collections import OrderedDict
 from pcp.pmda import PMDA, pmdaMetric
 import cpmapi as c_api
 from pcp.pmapi import pmUnits
@@ -35,15 +34,18 @@ class Metric(object):
     # Make sure when setting 'name', 'full_name' also gets updated.
     @property
     def name(self):
+        ''' Get metric name value. '''
         return self.__name
 
     @name.setter
     def name(self, name):
+        ''' Set metric name value. '''
         self.__name = name
         self.full_name = "%s.%s" % (self.name_prefix, name)
 
     def valid(self):
-        return (self.__name != '' and self.type != c_api.PM_TYPE_UNKNOWN)
+        ''' Is metric valid?. '''
+        return self.__name != '' and self.type != c_api.PM_TYPE_UNKNOWN
 
     def create(self):
         '''
@@ -120,8 +122,7 @@ class SystemtapModule(object):
             self.__pmda.log("%s" % traceback.format_exc())
             return
         try:
-            self.__metadata = json.load(fobj,
-                                        object_pairs_hook=collections.OrderedDict)
+            self.__metadata = json.load(fobj, object_pairs_hook=OrderedDict)
         except ValueError:
             self.__pmda.log("Couldn't parse JSON metadata from %s"
                             % self.__metadata_path)
@@ -139,8 +140,7 @@ class SystemtapModule(object):
             self.__pmda.log("%s" % traceback.format_exc())
             return
         try:
-            self.__json_data \
-                = json.load(fobj, object_pairs_hook=collections.OrderedDict)
+            self.__json_data = json.load(fobj, object_pairs_hook=OrderedDict)
         except ValueError:
             self.__pmda.log("Couldn't parse JSON data from %s"
                             % self.__data_path)
@@ -326,7 +326,7 @@ class SystemtapModule(object):
         if not metrics_array:
             self.__pmda.log("Metadata has no 'metrics' array")
             raise TypeError("Metadata has no 'metrics' array")
-        
+
         # Process the metrics array.
         for item in metrics_array:
             metric_info = Metric("%s.%s" % (self.__pmda.pmda_name,
@@ -447,7 +447,7 @@ class SystemtapModule(object):
                 return [c_api.PM_ERR_INST, 0]
 
             # Split the full name into the array name and metric
-            (array, metric) = metric_info.name.split('.', 2)
+            (array, dummy) = metric_info.name.split('.', 2)
             if not self.__metrics_by_name.has_key(array):
                 self.__pmda.log("Module '%s' has no item '%s'"
                                 % (self.__root_name, array))
@@ -465,22 +465,14 @@ class SystemtapModule(object):
                 self.__pmda.log("Error while fetching metrics for array %s"
                                 % array_info.name)
                 self.__pmda.log("%s" % traceback.format_exc())
-                pass
         # Handle single-valued metrics.
         else:
             try:
-                if metric_info.type == c_api.PM_TYPE_STRING:
-                    type_str = 'string'
-                elif metric_info.type == c_api.PM_TYPE_64:
-                    type_str = 'int'
-                else:
-                    type_str = 'unknown'
                 return [metric_info.pointer.resolve(self.__json_data), 1]
             except KeyError:
                 self.__pmda.log("Error while fetching metric %s"
                                 % metric_info.name)
                 self.__pmda.log("%s" % traceback.format_exc())
-                pass
         self.__pmda.log("Module %s couldn't fetch value for item %d instance %d"
                         % (self.__root_name, item, inst))
         return [c_api.PM_ERR_TYPE, 0]
@@ -515,7 +507,7 @@ class StapJsonPMDA(PMDA):
         self.__load_all_json()
 
         self.set_fetch_callback(self.__fetch_callback)
-	self.set_refresh_metrics(self.__refresh_metrics)
+        self.set_refresh_metrics(self.__refresh_metrics)
         if self.debug:
             self.log("__init__ finished")
 
@@ -589,7 +581,6 @@ class StapJsonPMDA(PMDA):
         Walk the filesystem and refresh the JSON data for every module
         found.
         '''
-
         if self.debug:
             self.log("load_all_json_data entry")
 
@@ -607,7 +598,8 @@ class StapJsonPMDA(PMDA):
                     self.cluster_idx += 1
                     self.modules_by_root[root].load()
                     if self.debug:
-                        self.log("load_all_json_data: adding module '%s'" % root)
+                        self.log("load_all_json_data: adding module '%s'"
+                                 % root)
                 else:
                     self.modules_by_root[root].refresh_json_data()
                 modules_seen[root] = 1
@@ -649,7 +641,7 @@ class StapJsonPMDA(PMDA):
         self.__load_all_json_data()
         if self.debug:
             self.log("__refresh_metrics exit")
-	return
+        return
 
     def __fetch_callback(self, cluster, item, inst):
         '''
