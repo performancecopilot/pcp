@@ -153,6 +153,7 @@ sampledso.event.param_string [STRING parameter for event records]
 sampledso.event.param_aggregate [AGGREGATE parameter for event records]
 sampledso.dupnames.daemon_pid [Process id of PMDA daemon]
 sampledso.dupnames.pid_daemon [Process id of PMDA daemon]
+sampledso.dupnames.two.seconds [Elapsed time (seconds)]
 sampledso.dupnames.two.bin [Several constant instances]
 sampledso.dupnames.two.write_me [Modifiable, but otherwise constant.]
 sampledso.dupnames.two.lights [Traffic lights.]
@@ -1012,6 +1013,11 @@ The process id of PMDA daemon, -1 if the daemon is a DSO.
 sampledso.dupnames.pid_daemon
 Help:
 The process id of PMDA daemon, -1 if the daemon is a DSO.
+
+sampledso.dupnames.two.seconds
+Help:
+The elapsed time since the PMDA started, in seconds, i.e. as returned
+by time(2).
 
 sampledso.dupnames.two.bin
 Help:

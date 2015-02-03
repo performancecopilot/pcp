@@ -551,303 +551,303 @@ Archive basename: ARCHIVE
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory on once
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory on once
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory on once
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory on once
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory off
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory on once
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: advisory on once
-  metric: sample.seconds [request failed]
+  metric: sample.dupnames.two.seconds or sample.seconds [request failed]
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory on once
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: advisory off
-  metric: sample.seconds [request failed]
+  metric: sample.dupnames.two.seconds or sample.seconds [request failed]
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory on once
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory off
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: advisory on once
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: advisory off
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory off
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory on once
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory off
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory off
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory off
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory off
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: advisory on once
-  metric: sample.seconds [request failed]
+  metric: sample.dupnames.two.seconds or sample.seconds [request failed]
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory off
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: advisory off
-  metric: sample.seconds [request failed]
+  metric: sample.dupnames.two.seconds or sample.seconds [request failed]
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: advisory on once
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory on once
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: advisory on once
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: advisory on once
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory off
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: advisory on once
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: advisory on once
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: advisory on once
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: advisory off
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: advisory off
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory on once
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: advisory off
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: advisory off
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory off
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: advisory off
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: advisory on once
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: advisory off
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: advisory off
-  metric: sample.seconds
+  metric: sample.dupnames.two.seconds or sample.seconds
 
 DATE
 pmlc request from HOST: mandatory on 0.0 sec
@@ -861,4 +861,4 @@ Uniq filtered entries from pmdumplog ...
 2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 29.0.10 (sample.long.one): value NUMBER
-29.0.2 (sample.seconds): value NUMBER
+29.0.2 (sample.dupnames.two.seconds or sample.seconds): value NUMBER

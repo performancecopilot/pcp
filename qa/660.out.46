@@ -85,7 +85,7 @@ len(metrics[]):0
 context #### metadata prefix=no.such.metric3,pmcd.client.whoami,no.such.metric4 response code 200
 len(metrics[]):0
 context #### metadata prefix=sample response code 200
-len(metrics[]):159
+len(metrics[]):160
   metric:sample.aggregate.hullo metadata:7
   metric:sample.aggregate.null metadata:7
   metric:sample.aggregate.write_me metadata:7
@@ -123,6 +123,7 @@ len(metrics[]):159
   metric:sample.dupnames.two.double.ten metadata:7
   metric:sample.dupnames.two.float.ten metadata:7
   metric:sample.dupnames.two.lights metadata:7
+  metric:sample.dupnames.two.seconds metadata:7
   metric:sample.dupnames.two.write_me metadata:7
   metric:sample.dynamic.counter metadata:8
   metric:sample.dynamic.discrete metadata:8
@@ -344,7 +345,7 @@ len(metrics[]):0
 context #### metadata prefix=no.such.metric3,pmcd.client.whoami,no.such.metric4 response code 200
 len(metrics[]):0
 context #### metadata prefix=sample response code 200
-len(metrics[]):159
+len(metrics[]):160
   metric:sample.aggregate.hullo metadata:7
   metric:sample.aggregate.null metadata:7
   metric:sample.aggregate.write_me metadata:7
@@ -382,6 +383,7 @@ len(metrics[]):159
   metric:sample.dupnames.two.double.ten metadata:7
   metric:sample.dupnames.two.float.ten metadata:7
   metric:sample.dupnames.two.lights metadata:7
+  metric:sample.dupnames.two.seconds metadata:7
   metric:sample.dupnames.two.write_me metadata:7
   metric:sample.dynamic.counter metadata:8
   metric:sample.dynamic.discrete metadata:8

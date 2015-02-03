@@ -4,7 +4,7 @@ PMID 29.0.0 sample.control: A control variable for the "sample" PMDA
 
 PMID 29.0.1 sample.dupnames.pid_daemon or sample.dupnames.daemon_pid or sample.daemon_pid: Process id of PMDA daemon
 
-PMID 29.0.2 sample.seconds: Elapsed time (seconds)
+PMID 29.0.2 sample.dupnames.two.seconds or sample.seconds: Elapsed time (seconds)
 
 PMID 29.0.3 sample.milliseconds: Elapsed time (milliseconds)
 

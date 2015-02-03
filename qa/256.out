@@ -444,6 +444,7 @@ sampledso.event.param_string
 sampledso.event.param_aggregate
 sampledso.dupnames.daemon_pid
 sampledso.dupnames.pid_daemon
+sampledso.dupnames.two.seconds
 sampledso.dupnames.two.bin
 sampledso.dupnames.two.write_me
 sampledso.dupnames.two.lights
@@ -630,6 +631,7 @@ sampledso.event.param_string
 sampledso.event.param_aggregate
 sampledso.dupnames.daemon_pid
 sampledso.dupnames.pid_daemon
+sampledso.dupnames.two.seconds
 sampledso.dupnames.two.bin
 sampledso.dupnames.two.write_me
 sampledso.dupnames.two.lights
@@ -647,6 +649,7 @@ sampledso.suba.subb.subc.subd.six
 Name space load: N.NN msec
 30.0.1 alias sampledso.daemon_pid and sampledso.dupnames.pid_daemon
 30.0.1 alias sampledso.daemon_pid and sampledso.dupnames.daemon_pid
+30.0.2 alias sampledso.seconds and sampledso.dupnames.two.seconds
 30.0.6 alias sampledso.bin and sampledso.dupnames.three.bin
 30.0.6 alias sampledso.bin and sampledso.dupnames.two.bin
 30.0.36 alias sampledso.write_me and sampledso.dupnames.three.write_me
@@ -659,6 +662,7 @@ pmNameAll(sampledso.secret): Unknown or illegal metric identifier
 30.0.1 alias sampledso.dupnames.daemon_pid and sampledso.daemon_pid
 30.0.1 alias sampledso.dupnames.pid_daemon and sampledso.dupnames.daemon_pid
 30.0.1 alias sampledso.dupnames.pid_daemon and sampledso.daemon_pid
+30.0.2 alias sampledso.dupnames.two.seconds and sampledso.seconds
 30.0.6 alias sampledso.dupnames.two.bin and sampledso.dupnames.three.bin
 30.0.6 alias sampledso.dupnames.two.bin and sampledso.bin
 30.0.36 alias sampledso.dupnames.two.write_me and sampledso.dupnames.three.write_me

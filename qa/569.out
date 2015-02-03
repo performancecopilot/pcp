@@ -136,6 +136,7 @@ sample.event.param_string 0
 sample.event.param_aggregate 0
 sample.dupnames.daemon_pid 1
 sample.dupnames.pid_daemon 1
+sample.dupnames.two.seconds 1
 sample.dupnames.two.bin 9
 sample.dupnames.two.write_me 1
 sample.dupnames.two.lights 1
@@ -310,6 +311,7 @@ sample.event.param_string 0
 sample.event.param_aggregate 0
 sample.dupnames.daemon_pid 1 PM_IN_NULL
 sample.dupnames.pid_daemon 1 PM_IN_NULL
+sample.dupnames.two.seconds 1 PM_IN_NULL
 sample.dupnames.two.bin 9 ?100 ?200 ?300 ?400 ?500 ?600 ?700 ?800 ?900
 sample.dupnames.two.write_me 1 PM_IN_NULL
 sample.dupnames.two.lights 1 PM_IN_NULL
@@ -490,6 +492,7 @@ sample.event.param_string 0
 sample.event.param_aggregate 0
 sample.dupnames.daemon_pid 1 PM_IN_NULL
 sample.dupnames.pid_daemon 1 PM_IN_NULL
+sample.dupnames.two.seconds 1 PM_IN_NULL
 sample.dupnames.two.bin 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"
 sample.dupnames.two.write_me 1 PM_IN_NULL
 sample.dupnames.two.lights 1 PM_IN_NULL
@@ -656,6 +659,7 @@ sample.event.param_string 0
 sample.event.param_aggregate 0
 sample.dupnames.daemon_pid 1 NUMBER
 sample.dupnames.pid_daemon 1 NUMBER
+sample.dupnames.two.seconds 1 NUMBER
 sample.dupnames.two.bin 9 100 200 300 400 500 600 700 800 900
 sample.dupnames.two.write_me 1 NUMBER
 sample.dupnames.two.lights 1 "STRING"
@@ -867,6 +871,7 @@ sample.event.param_string 0
 sample.event.param_aggregate 0
 sample.dupnames.daemon_pid 1 PM_IN_NULL PM_IN_NULL
 sample.dupnames.pid_daemon 1 PM_IN_NULL PM_IN_NULL
+sample.dupnames.two.seconds 1 PM_IN_NULL PM_IN_NULL
 sample.dupnames.two.bin 9 ?100 "bin-100" ?200 "bin-200" ?300 "bin-300" ?400 "bin-400" ?500 "bin-500" ?600 "bin-600" ?700 "bin-700" ?800 "bin-800" ?900 "bin-900"
 sample.dupnames.two.write_me 1 PM_IN_NULL PM_IN_NULL
 sample.dupnames.two.lights 1 PM_IN_NULL PM_IN_NULL

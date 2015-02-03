@@ -4,7 +4,7 @@ QA output created by 048
 
 Pass 1: forward scan
 pmResult ... numpmid: 6
-  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+  29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value NUMBER
@@ -17,7 +17,7 @@ pmResult ... numpmid: 6
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
-  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+  29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value NUMBER
@@ -30,7 +30,7 @@ pmResult ... numpmid: 6
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
-  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+  29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value NUMBER
@@ -43,7 +43,7 @@ pmResult ... numpmid: 6
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
-  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+  29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value NUMBER
@@ -56,7 +56,7 @@ pmResult ... numpmid: 6
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
-  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+  29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value NUMBER
@@ -69,7 +69,7 @@ pmResult ... numpmid: 6
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
-  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+  29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value NUMBER
@@ -82,7 +82,7 @@ pmResult ... numpmid: 6
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
-  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+  29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value NUMBER
@@ -95,7 +95,7 @@ pmResult ... numpmid: 6
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
-  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+  29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value NUMBER
@@ -135,7 +135,7 @@ Pass 6: EOL tests, forwards and backwards
 
 Pass 1: forward scan
 pmResult ... numpmid: 6
-  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+  29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value NUMBER
@@ -148,7 +148,7 @@ pmResult ... numpmid: 6
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
-  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+  29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value NUMBER
@@ -161,7 +161,7 @@ pmResult ... numpmid: 6
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
-  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+  29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value NUMBER
@@ -174,7 +174,7 @@ pmResult ... numpmid: 6
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
-  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+  29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value NUMBER
@@ -187,7 +187,7 @@ pmResult ... numpmid: 6
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
-  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+  29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value NUMBER
@@ -200,7 +200,7 @@ pmResult ... numpmid: 6
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
-  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+  29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value NUMBER
@@ -213,7 +213,7 @@ pmResult ... numpmid: 6
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
-  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+  29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value NUMBER
@@ -226,7 +226,7 @@ pmResult ... numpmid: 6
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
-  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+  29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value NUMBER
@@ -266,7 +266,7 @@ Pass 6: EOL tests, forwards and backwards
 
 Pass 1: forward scan
 pmResult ... numpmid: 6
-  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+  29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value NUMBER
@@ -279,7 +279,7 @@ pmResult ... numpmid: 6
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
-  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+  29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value NUMBER
@@ -292,7 +292,7 @@ pmResult ... numpmid: 6
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
-  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+  29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value NUMBER
@@ -305,7 +305,7 @@ pmResult ... numpmid: 6
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
-  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+  29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value NUMBER
@@ -318,7 +318,7 @@ pmResult ... numpmid: 6
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
-  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+  29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value NUMBER
@@ -331,7 +331,7 @@ pmResult ... numpmid: 6
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
-  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+  29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value NUMBER
@@ -344,7 +344,7 @@ pmResult ... numpmid: 6
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
-  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+  29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value NUMBER
@@ -357,7 +357,7 @@ pmResult ... numpmid: 6
   30.0.3 (sampledso.milliseconds): No values returned!
   30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): No values returned!
 pmResult ... numpmid: 6
-  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+  29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
   29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
     inst [0 or "red"] value NUMBER
