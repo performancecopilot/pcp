@@ -22,7 +22,7 @@ PMID: 29.0.6 (sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin
 PMID: 29.0.46 (sample.dupnames.two.lights or sample.lights)
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-PMID: 29.0.2 (sample.seconds)
+PMID: 29.0.2 (sample.dupnames.two.seconds or sample.seconds)
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: sec
 
@@ -48,6 +48,6 @@ PMID: 29.0.6 (sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin
 PMID: 29.0.46 (sample.dupnames.two.lights or sample.lights)
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-PMID: 29.0.2 (sample.seconds)
+PMID: 29.0.2 (sample.dupnames.two.seconds or sample.seconds)
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: sec
