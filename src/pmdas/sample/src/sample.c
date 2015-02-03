@@ -1750,7 +1750,7 @@ doit:
 			if (_mypid == 0) _mypid = (int)getpid();
 			atom.ul = _mypid;
 			break;
-		    case 2:		/* seconds */
+		    case 2:		/* seconds or sample.dupnames.seconds */
 			atom.ul = time(NULL) - _start;
 			break;
 		    case 3:		/* milliseconds */
