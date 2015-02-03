@@ -1014,6 +1014,7 @@ cgroups
 922 derive pmie pmval local
 928 archive local
 929 logutil local
+930 pmlogrewrite local
 943 pmprobe pmda.proc local
 944 pmcd secure local
 945 pmlogrewrite pmda.xfs local
