@@ -95,7 +95,7 @@ are in a position to begin analysing those containers with PCP tools.
 <PRE><B>$ pminfo --fetch containers.name containers.state.running
 
 containers.name
-    inst [0 or "<FONT COLOR="#cc0000">f4d3b90bea15</FONT>..."] value "<FONT COLOR="#cc0000">sharp_feynman</FONT>"
+    inst [0 or "<SPAN>f4d3b90bea15</SPAN>..."] value "<SPAN>sharp_feynman</SPAN>"
     inst [1 or "d43eda0a7e7d..."] value "cranky_colden"
     inst [2 or "252b56e79da5..."] value "desperate_turing"
 
@@ -107,10 +107,10 @@ containers.state.running
 $ pmprobe -I network.interface.up
 network.interface.up 5 "p2p1" "wlp2s0" "lo" "docker0" "veth2234780"
 
-$ pmprobe -I --container <FONT COLOR="#cc0000">sharp_feynman</FONT> network.interface.up
+$ pmprobe -I --container <SPAN>sharp_feynman</SPAN> network.interface.up
 network.interface.up 2 "lo" "eth0"
 
-$ pmprobe -I --container <FONT COLOR="#cc0000">f4d3b90bea15</FONT> network.interface.up
+$ pmprobe -I --container <SPAN>f4d3b90bea15</SPAN> network.interface.up
 network.interface.up 2 "lo" "eth0"</B></PRE>
 </TD></TR>
 </TABLE>
@@ -270,7 +270,7 @@ These include the network, filesys, ipc, and other metrics in
 </P>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Requesting container-specific process and control group metrics:
-<BR><PRE><B>$ pminfo -t --fetch --container <FONT COLOR="#cc0000">sharp_feynman</FONT> cgroup.memory.stat.cache proc.psinfo.rss pmcd.hostname
+<BR><PRE><B>$ pminfo -t --fetch --container <SPAN>sharp_feynman</SPAN> cgroup.memory.stat.cache proc.psinfo.rss pmcd.hostname
 
 cgroup.memory.stat.cache [Number of bytes of page cache memory]
     inst [2 or "/system.slice/docker-f4d3b90bea15..."] value 9695232
@@ -280,7 +280,7 @@ proc.psinfo.rss [resident set size (i.e. physical memory) of the process]
     inst [27996 or "027996 /bin/bash"] value 2964
 
 pmcd.hostname [local hostname]
-    value "f4d3b90bea15"</B></PRE>
+    value "<SPAN>f4d3b90bea15</SPAN>"</B></PRE>
 </TD></TR>
 </TABLE>
 
@@ -301,7 +301,7 @@ consumed form - a little like <I>top</I> or <I>vmstat</I> perhaps.</P>
 
 <P ALIGN=LEFT><FONT SIZE=4><B>Graphical Tools</B></FONT>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
-        <TR><TD WIDTH=500><P ALIGN=><CENTER><BR><IMG ALIGN=MIDDLE SRC="images/pmchart_add_host_container.png" ALT="" BORDER=0></CENTER></P></TD>
+        <TR><TD WIDTH=500><P ALIGN=CENTER><BR><IMG ALIGN=MIDDLE SRC="images/pmchart_add_host_container.png" ALT="" BORDER=0></P></TD>
         <TD><P>In the PCP strip chart utility <I>pmchart</I> from version 3.10.3 onward, connections to containers can be established using the "Add Host" dialog, as shown to the left.</P>
 	<P>This can be accessed via the "New Chart" or "Open View" menu entries.</P>
 	<UL>
