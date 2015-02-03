@@ -78,6 +78,7 @@ sample {
     scramble
     percontext
     event
+    dupnames
 }
 
 sample.long {
@@ -257,4 +258,33 @@ sample.event {
     param_double	SAMPLE:0:133
     param_string	SAMPLE:0:134
     param_aggregate	SAMPLE:0:135
+}
+
+sample.dupnames {
+    two
+    three
+    daemon_pid		SAMPLE:0:1
+    pid_daemon		SAMPLE:0:1
+}
+
+sample.dupnames.two {
+    seconds		SAMPLE:0:2
+    bin			SAMPLE:0:6
+    write_me		SAMPLE:0:36
+    lights		SAMPLE:0:46
+    float
+    double
+}
+
+sample.dupnames.two.float {
+    ten			SAMPLE:0:16
+}
+
+sample.dupnames.two.double {
+    ten			SAMPLE:0:26
+}
+
+sample.dupnames.three {
+    bin			SAMPLE:0:6
+    write_me		SAMPLE:0:36
 }

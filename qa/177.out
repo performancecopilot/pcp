@@ -11,12 +11,12 @@ Archive basename: ARCHIVE
 
 DATE
 pmlc request from HOST: mandatory on 0.2 sec
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-100
 
 DATE
 pmlc request from HOST: mandatory on 0.2 sec
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-200
 pmlogger: Sample limit reached, exiting
 

@@ -302,7 +302,7 @@ dumpval(FILE *f, int type, int valfmt, int prior, instcntl_t *icp)
         fprintf(f, " v=%f", tmp);
     }
     else
-        fprintf(f, "v=??? (lval=%d)", vp->lval);
+        fprintf(f, " v=??? (lval=%d)", vp->lval);
 }
 
 static void

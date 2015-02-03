@@ -42,7 +42,9 @@ in which the
 argument may be used to control the handling of multiple names
 in the PMNS that may be associated with a single Performance Metric
 Identifier (PMID).  A value of 0 disallows duplicates, any other value allows
-duplicates.
+duplicates and the latter is the default behaviour of
+.BR pmLoadNameSpace (3)
+as of Version 3.10.3 of PCP.
 .PP
 The
 .I filename

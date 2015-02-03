@@ -19,14 +19,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f $seq.out
-if [ $PCP_VER -lt 30600 ]
-then
-    ln $seq.out.1 $seq.out || exit 1
-else
-    ln $seq.out.2 $seq.out || exit 1
-fi
-
 status=1	# failure is the default!
 trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15
 
@@ -100,47 +92,17 @@ _copy_Rebuild .
 # real QA test starts here
 #
 echo "=== Rebuild ==="
-echo "(expect Duplicate PMID failure)"
 rm -f root root.bin
 cp root.start root
-$sudo ./Rebuild 2>&1 \
-| sed \
-    -e 's;/private/;/;' \
-    -e "s;$tmp;.;" \
-| _filter
-if [ $PCP_VER -lt 30600 ]
-then
-    [ -f root.bin ] && echo "root.bin created"
-    pminfo -m -n root
-else
-    pminfo -m -N root
-fi
+$sudo ./Rebuild | _filter
+pminfo -m -n root
 
 echo
-echo "=== Rebuild -d ==="
+echo "=== Rebuild -u ==="
 rm -f root root.bin
 cp root.start root
-$sudo ./Rebuild -d | _filter
-if [ $PCP_VER -lt 30600 ]
-then
-    [ -f root.bin ] && echo "root.bin created"
-    pminfo -m -n root
-else
-    pminfo -m -N root
-fi
-
-echo
-echo "=== Rebuild -du ==="
-rm -f root root.bin
-cp root.start root
-$sudo ./Rebuild -du | _filter
-if [ $PCP_VER -lt 30600 ]
-then
-    [ -f root.bin ] && echo "root.bin created"
-    pminfo -m -n root
-else
-    pminfo -m -N root
-fi
+$sudo ./Rebuild -u | _filter
+pminfo -m -n root
 
 # success, all done
 status=0

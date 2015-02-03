@@ -181,14 +181,25 @@ def test_pcp(self):
 
     for i in xrange(len(metrics)):
         # pmNameAll
+	# one of the returned names should be the same as metrics[i]
         nameall = ctx.pmNameAll(self.metric_ids[i])
-        print("pmNameAll:", nameall[0])
-        self.assertTrue(nameall[0] == metrics[i])
+	match = 0
+	for j in xrange(len(nameall)):
+	    print("pmNameAll:", nameall[j])
+	    if (nameall[j] == metrics[i]):
+		match = 1
+        self.assertTrue(match)
 
         # pmNameID
+	# result will be one of the names from pmNameAll and we've
+	# already established that one of these is the same as metrics[i]
         name = ctx.pmNameID(self.metric_ids[i])
-        print("pmNameID:", name)
-        self.assertTrue(name == metrics[i])
+        print("pmNameID:", name);
+	match = 0
+	for j in xrange(len(nameall)):
+	    if (nameall[j] == name):
+		match = 1
+        self.assertTrue(match)
 
         # pmLookupDesc
         descs = ctx.pmLookupDescs(self.metric_ids[i])

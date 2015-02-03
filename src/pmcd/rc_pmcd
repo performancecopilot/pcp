@@ -151,7 +151,7 @@ _reboot_setup()
 	    $ECHO $PCP_ECHO_N "Rebuilding PMNS ..." "$PCP_ECHO_C"
 	    here=`pwd`
 	    cd $PMNSDIR
-	    ./Rebuild -du $REBUILDOPT
+	    ./Rebuild -u $REBUILDOPT
 	    $RC_STATUS -v
 	    # The 'root' file does not get updated when data did not change,
 	    # so we must touch it to update date.

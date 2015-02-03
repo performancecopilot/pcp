@@ -18,7 +18,7 @@
 \f3pmnsmerge\f1 \- merge multiple versions of a Performance Co-Pilot PMNS
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmnsmerge
-[\f3\-adfv\f1]
+[\f3\-afv\f1]
 .I infile
 [...]
 .I outfile
@@ -127,12 +127,6 @@ The
 option forces the removal of
 .I outfile
 (if it exists), before the check is made.
-.PP
-The
-.B \-d
-option allows the resultant PMNS to optionally contain
-duplicate PMIDs with different names in the PMNS.  By default
-this condition is considered an error.
 .PP
 The
 .B \-v

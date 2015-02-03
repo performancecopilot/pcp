@@ -76,5 +76,5 @@ yet.another {
 }
 End-of-File
 
-pminfo -b1 -n $tmp 2>&1 | _filter_load
-pminfo -b1 -D1 -N $tmp -fdm 2>&1 | _filter
+pminfo -b1 -N $tmp 2>&1 | _filter_load
+pminfo -b1 -D1 -n $tmp -fdm 2>&1 | _filter

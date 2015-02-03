@@ -1,0 +1,19 @@
+QA output created by 392
+=== Rebuild ===
+hw.old_hw PMID: 1.44.0
+hw.both_hw PMID: 1.44.1
+hw.new_hw PMID: 1.44.2
+hw.hub.nasid PMID: 1.44.8
+hpux.old_irix PMID: 1.10.0
+hpux.both_irix PMID: 1.10.1
+hpux.hub.nasid PMID: 1.44.8
+hpux.new_irix PMID: 1.10.2
+foo.bar PMID: 1.2.0
+
+=== Rebuild -u ===
+foo.bar PMID: 1.2.0
+hw.both_hw PMID: 1.44.1
+hw.new_hw PMID: 1.44.2
+hw.hub.nasid PMID: 1.44.8
+hpux.both_irix PMID: 1.10.1
+hpux.new_irix PMID: 1.10.2

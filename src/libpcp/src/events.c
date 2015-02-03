@@ -68,11 +68,13 @@ dump_parameter(FILE *f, pmEventParameter *epp)
     pmAtomValue	atom;
     char	strbuf[20];
     char	*vbuf;
-    char	*name;
+    int		numnames;
+    char	**names;
 
-    if (pmNameID(epp->ep_pmid, &name) == 0) {
-	fprintf(f, " %s", name);
-	free(name);
+    if ((numnames = pmNameAll(epp->ep_pmid, &names)) > 0) {
+	fprintf(f, " ");
+	__pmPrintMetricNames(f, numnames, names, " or ");
+	free(names);
     } else {
 	fprintf(f, " %s", pmIDStr_r(epp->ep_pmid, strbuf, sizeof(strbuf)));
     }

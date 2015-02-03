@@ -191,7 +191,7 @@ Archive basename: ARCHIVE
 
 DATE
 pmlc request from HOST: advisory on 25032.7 sec
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-100
 
 Log finished DATE

@@ -10,16 +10,16 @@ PMID: 2.3.3 (pmcd.pmlogger.host)
 PMID: 2.3.0 (pmcd.pmlogger.port)
     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
     Semantics: discrete  Units: none
-PMID: 29.0.6 (sample.bin)
-    Data Type: 32-bit int  InDom: 29.2 0x7400002
-    Semantics: instant  Units: none
 PMID: 29.0.5 (sample.colour)
     Data Type: 32-bit int  InDom: 29.1 0x7400001
     Semantics: instant  Units: none
 PMID: 29.0.7 (sample.drift)
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-PMID: 29.0.46 (sample.lights)
+PMID: 29.0.6 (sample.dupnames.two.bin or sample.dupnames.three.bin or sample.bin)
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+PMID: 29.0.46 (sample.dupnames.two.lights or sample.lights)
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 PMID: 29.0.2 (sample.seconds)
@@ -51,6 +51,16 @@ PMID: 29.0.2 (sample.seconds)
 0 sample.double.ten
 0 sample.double.write_me
 0 sample.drift
+0 sample.dupnames.daemon_pid
+0 sample.dupnames.pid_daemon
+0 sample.dupnames.three.bin
+0 sample.dupnames.three.write_me
+0 sample.dupnames.two.bin
+0 sample.dupnames.two.double.ten
+0 sample.dupnames.two.float.ten
+0 sample.dupnames.two.lights
+0 sample.dupnames.two.seconds
+0 sample.dupnames.two.write_me
 0 sample.error_check
 0 sample.error_code
 0 sample.event.highres_records
@@ -159,6 +169,10 @@ PMID: 29.0.2 (sample.seconds)
 1 sample.bin
 1 sample.colour
 1 sample.drift
+1 sample.dupnames.three.bin
+1 sample.dupnames.two.bin
+1 sample.dupnames.two.lights
+1 sample.dupnames.two.seconds
 1 sample.lights
 1 sample.seconds
 2
@@ -187,6 +201,16 @@ PMID: 29.0.2 (sample.seconds)
 2 sample.double.ten
 2 sample.double.write_me
 2 sample.drift
+2 sample.dupnames.daemon_pid
+2 sample.dupnames.pid_daemon
+2 sample.dupnames.three.bin
+2 sample.dupnames.three.write_me
+2 sample.dupnames.two.bin
+2 sample.dupnames.two.double.ten
+2 sample.dupnames.two.float.ten
+2 sample.dupnames.two.lights
+2 sample.dupnames.two.seconds
+2 sample.dupnames.two.write_me
 2 sample.error_check
 2 sample.error_code
 2 sample.event.highres_records
