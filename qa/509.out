@@ -176,6 +176,7 @@ pmLoadNameSpace: recv_pdu -> 29.0.44
 pmLoadNameSpace: reset -> 29.0.126
 pmLoadNameSpace: reset_highres -> 29.0.140
 pmLoadNameSpace: seconds -> 29.0.2
+pmLoadNameSpace: seconds -> 29.0.2
 pmLoadNameSpace: secret -> 29.*.*
 pmLoadNameSpace: sem -> 29.0.89
 pmLoadNameSpace: start -> 29.0.124
