@@ -874,6 +874,7 @@ main(int argc, char **argv)
     __pmTimeval	tstamp = { 0 };		/* for last log record */
     off_t	old_log_offset = 0;	/* log offset before last log record */
     off_t	old_meta_offset;
+    int		seen_event = 0;
 
     /* process cmd line args */
     if (parseargs(argc, argv) < 0) {
@@ -1150,6 +1151,9 @@ main(int argc, char **argv)
 	    }
 
 	    if (stsmeta == TYPE_DESC) {
+		pmDesc	*dp = (pmDesc *)&inarch.metarec[2];
+		pmID	pmid = ntoh_pmID(dp->pmid);
+		int	type = ntohl(dp->type);
 		/*
 		 * We used to apply an optimization here to stop
 		 * processing pmDesc metadata if the PMID of the
@@ -1166,10 +1170,28 @@ main(int argc, char **argv)
 		 * is output, even if they may not appear in a packed
 		 * pmResult until later, or not at all.
 		 *
-		 * So, just keep processing the pmDesc metadata
-		 * until it is exhausted, or we find a pmInDom metadata
-		 * record with a timestamp after the current pmResult.
+		 * So if we've seen a metric of type PM_TYPE_EVENT
+		 * or PM_TYPE_HIGHRES_EVENT, just keep processing the
+		 * pmDesc metadata until it is exhausted, or we find
+		 * a pmInDom metadata record with a timestamp after the
+		 * current pmResult.
 		 */
+
+		if (!seen_event) {
+		    if (type == PM_TYPE_EVENT || type == PM_TYPE_HIGHRES_EVENT)
+			seen_event = 1;
+		    else {
+			/*
+			 * if pmid not in next pmResult, we're done ...
+			 */
+			for (i = 0; i < inarch.rp->numpmid; i++) {
+			    if (pmid == inarch.rp->vset[i]->pmid)
+				break;
+			}
+			if (i == inarch.rp->numpmid)
+			    break;
+		    }
+		}
 
 		/*
 		 * rewrite if needed, delete if needed else output
