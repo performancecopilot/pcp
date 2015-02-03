@@ -111,7 +111,7 @@ parameters may be optional.
 The general form of the requests is as follows:
 .TP
 .B /pmapi/NNNNN/_metric
-Traverse the entire PMNS.
+Traverse the entire Performance Metrics Name Space (PMNS).
 .TP
 .B /pmapi/NNNNN/_metric?prefix=NAME
 Traverse the subtree of PMNS with the prefix NAME.
@@ -130,6 +130,13 @@ as an array.  For example:
 .ESAMPLE
 
 Most of the fields are self-explanatory.
+.TP
+name
+A name for the metric as defined in the PMNS.
+If the PMNS contains multiple names associated with the metric's
+Performance Metric Identifier (PMID),
+one of these will be returned via name, but there is no way to
+determine which of the duplicate names this will be.
 .TP
 PPPP
 the PMID
