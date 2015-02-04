@@ -48,7 +48,10 @@ pmstore test_perl.some_value 0 \
 # need a few invocations to tickle the bug
 for i in 1 2 3 4 5; do
     echo "=== Round $i ===" | tee -a $here/$seq.full
-    pmprobe test_perl
+    pmprobe \
+	test_perl.other_indom.some_value \
+	test_perl.some_value \
+	test_perl.some_indom.some_value
 done
 
 # success, all done
