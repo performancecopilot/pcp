@@ -90,6 +90,7 @@ OTHER_SUBDIRS = \
 	pmval \
 	pmwebapi \
 	perl \
+	python \
 	procmemstat \
 	autofsd-probe \
 	telnet-probe \
@@ -101,10 +102,6 @@ OTHER_SUBDIRS = \
 	win32ctl \
 	pcp2graphite \
 	#
-
-ifeq "$(ENABLE_PYTHON)" "true"
-OTHER_SUBDIRS += python
-endif
 
 SUBDIRS = \
 	$(INCLUDE_SUBDIR) \

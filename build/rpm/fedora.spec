@@ -100,7 +100,7 @@ Requires: python
 %endif
 
 Requires: pcp-libs = %{version}-%{release}
-%if !%{disable_python2} || !%{disable_python3}
+%if !%{disable_python2}
 Requires: python-pcp = %{version}-%{release}
 %endif
 Requires: perl-PCP-PMDA = %{version}-%{release}
