@@ -33,3 +33,7 @@ differences relative to 031.out ...
 differences relative to 031.out ...
 1d0
 < QA output created by 031
+100c99
+<   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
+---
+>   29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:

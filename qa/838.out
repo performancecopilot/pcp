@@ -1,7 +1,6 @@
 QA output created by 838
 === Rebuild -d ===
 Rebuild: Warning: -d deprecated, duplicate PMNS names allowed by default
-
 one.foo PMID: 1.2.3
 one.bar PMID: 1.4.5
 

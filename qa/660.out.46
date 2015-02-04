@@ -528,7 +528,9 @@ context #### indom names=kernel.all.nprocs response code 400
 
 === 3. pmwebd security constraints, file service ===
 PMWEBD error, XXX
+
 PMWEBD error, XXX
+
 * About to connect() to LOCALHOST port 44323 (####)
 *   Trying LOCALADDR...
 * Connected to LOCALHOST (LOCALADDR) port 44323 (####)
@@ -536,17 +538,19 @@ PMWEBD error, XXX
 > User-Agent: FOO
 > Host: LOCALHOST:44323
 > Accept: */*
-> 
+>
 < HTTP/1.1 400 Bad Request
 < Content-Length: 56
 < Access-Control-Allow-Origin: *
 < Content-Type: text/plain
 < Date: DATE
-< 
+<
 { [data not shown]
 * Connection #### to host LOCALHOST left intact
 PMWEBD error, XXX
+
 PMWEBD error, XXX
+
 * About to connect() to LOCALHOST port 44323 (####)
 *   Trying LOCALADDR...
 * Connected to LOCALHOST (LOCALADDR) port 44323 (####)
@@ -554,16 +558,17 @@ PMWEBD error, XXX
 > User-Agent: FOO
 > Host: LOCALHOST:44323
 > Accept: */*
-> 
+>
 < HTTP/1.1 400 Bad Request
 < Content-Length: 40
 < Access-Control-Allow-Origin: *
 < Content-Type: text/plain
 < Date: DATE
-< 
+<
 { [data not shown]
 * Connection #### to host LOCALHOST left intact
 PMWEBD error, XXX
+
 * About to connect() to LOCALHOST port 44323 (####)
 *   Trying LOCALADDR...
 * Connected to LOCALHOST (LOCALADDR) port 44323 (####)
@@ -571,14 +576,15 @@ PMWEBD error, XXX
 > User-Agent: FOO
 > Host: LOCALHOST:44323
 > Accept: */*
-> 
+>
 < HTTP/1.1 400 Bad Request
 < Content-Length: 40
 < Access-Control-Allow-Origin: *
 < Content-Type: text/plain
 < Date: DATE
-< 
+<
 { [data not shown]
 * Connection #### to host LOCALHOST left intact
 PMWEBD error, XXX
+
 file service ok
