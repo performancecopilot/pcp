@@ -607,7 +607,7 @@ in
 	echo "grundy.sgi.com" >>$tmp.domains
 	# and open up the X server
 	#
-	DISPLAY=bozo:0.0 xhost + >/dev/null
+	DISPLAY=localhost:0.0 xhost + >/dev/null
 	;;
 esac
 

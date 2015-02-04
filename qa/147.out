@@ -5,7 +5,7 @@ dbpmda> getdesc on
 dbpmda> fetch 29.0.6
 PMID(s): 29.0.6
 pmResult ... numpmid: 1
-  29.0.6 (sample.bin): numval: 9 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 9 valfmt: 0 vlist[]:
     inst [100 or ???] value 100
     inst [200 or ???] value 200
     inst [300 or ???] value 300
@@ -23,7 +23,7 @@ dbpmda> profile 29.2 add 800
 dbpmda> fetch 29.0.6
 PMID(s): 29.0.6
 pmResult ... numpmid: 1
-  29.0.6 (sample.bin): numval: 4 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 4 valfmt: 0 vlist[]:
     inst [200 or ???] value 200
     inst [400 or ???] value 400
     inst [600 or ???] value 600
@@ -37,7 +37,7 @@ dbpmda> profile 29.2 delete 900
 dbpmda> fetch 29.0.6
 PMID(s): 29.0.6
 pmResult ... numpmid: 1
-  29.0.6 (sample.bin): numval: 4 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 4 valfmt: 0 vlist[]:
     inst [200 or ???] value 200
     inst [400 or ???] value 400
     inst [600 or ???] value 600
@@ -46,7 +46,7 @@ dbpmda> open dso $PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX sample_init 30
 dbpmda> fetch 30.0.6
 PMID(s): 30.0.6
 pmResult ... numpmid: 1
-  30.0.6 (sampledso.bin): numval: 9 valfmt: 0 vlist[]:
+  30.0.6 (sampledso.dupnames.three.bin or sampledso.dupnames.two.bin or sampledso.bin): numval: 9 valfmt: 0 vlist[]:
     inst [100 or ???] value 100
     inst [200 or ???] value 200
     inst [300 or ???] value 300
@@ -64,7 +64,7 @@ dbpmda> profile 30.2 add 800
 dbpmda> fetch 30.0.6
 PMID(s): 30.0.6
 pmResult ... numpmid: 1
-  30.0.6 (sampledso.bin): numval: 4 valfmt: 0 vlist[]:
+  30.0.6 (sampledso.dupnames.three.bin or sampledso.dupnames.two.bin or sampledso.bin): numval: 4 valfmt: 0 vlist[]:
     inst [200 or ???] value 200
     inst [400 or ???] value 400
     inst [600 or ???] value 600
@@ -78,7 +78,7 @@ dbpmda> profile 30.2 delete 900
 dbpmda> fetch 30.0.6
 PMID(s): 30.0.6
 pmResult ... numpmid: 1
-  30.0.6 (sampledso.bin): numval: 4 valfmt: 0 vlist[]:
+  30.0.6 (sampledso.dupnames.three.bin or sampledso.dupnames.two.bin or sampledso.bin): numval: 4 valfmt: 0 vlist[]:
     inst [200 or ???] value 200
     inst [400 or ???] value 400
     inst [600 or ???] value 600

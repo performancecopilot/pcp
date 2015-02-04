@@ -20,7 +20,6 @@
 .\" arguments use .I or \f2
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmnsdel
-[\f3\-d\f1]
 [\f3\-n\f1 \f2namespace\f1]
 .I metricpath
 [ ... ]
@@ -32,7 +31,7 @@ Performance Co-Pilot (PCP).
 .P
 Normally
 .B pmnsdel
-operates on the default Performance Metrics Namespace (PMNS), however
+operates on the default Performance Metrics Name Space (PMNS), however
 if the
 .B \-n
 option is specified an alternative namespace is used
@@ -67,12 +66,6 @@ the original namespace is restored.  Note
 that any PMNS files that are no longer referenced by the modified namespace
 will not be removed, even though their contents are
 not part of the new namespace.
-.PP
-The
-.B \-d
-option allows the resultant PMNS to optionally contain
-duplicate PMIDs with different names in the PMNS.  By default
-this condition is considered an error.
 .SH CAVEAT
 Once the writing of the new
 .I namespace

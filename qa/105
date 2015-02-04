@@ -69,7 +69,8 @@ s/value ".*"/value STRING/
 	-e "/pmcd\.pmlogger\./s/$logger_pid/LOGGER_PID/g" \
 	-e '/pmcd\.pmlogger\.port/s/value .*/value PORT/' \
 	-e '/pmcd\.pmlogger\.host/s/value ".*/value "HOST"/' \
-	-e '/pmcd\.pmlogger\.archive/s/value ".*/value "PATH"/'
+	-e '/pmcd\.pmlogger\.archive/s/value ".*/value "PATH"/' \
+    # end
 }
 
 _do_cmds()

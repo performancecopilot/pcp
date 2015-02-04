@@ -13,14 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f $seq.out
-if [ $PCP_VER -lt 30600 ]
-then
-    ln $seq.out.1 $seq.out || exit 1
-else
-    ln $seq.out.2 $seq.out || exit 1
-fi
-
 signal=$PCP_BINADM_DIR/pmsignal
 _needclean=true
 pmns="nameall.pmns"
@@ -68,22 +60,12 @@ yet.another {
 }
 End-of-File
 
-if [ $PCP_VER -lt 30600 ]
-then
-    pmnscomp -df -n $pmns $pmns.bin
-fi
-
 $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
 
 # Note: start pmcd with -f so that its PID stays the same (no daemon)
 #
 export PMCD_SOCKET=$tmp/pmcd.socket
-if [ $PCP_VER -lt 30600 ]
-then
-    $PCP_PMCD_PROG -f -n $pmns -l $seq.full &
-else
-    $PCP_PMCD_PROG -f -N $pmns -l $seq.full &
-fi
+$PCP_PMCD_PROG -f -n $pmns -l $seq.full &
 pmcd=$!
 _wait_for_pmcd
 

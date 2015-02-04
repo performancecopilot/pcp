@@ -18,6 +18,29 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
+/*
+ * Note on "name" parameter following changes to allow duplicate names
+ * in the PMNS.  Refer to the two pmNameID() calls in the code below.
+ *
+ * The "name" parameter should really return a set of names, not just
+ * "one of the names" for the associated metric.
+ *
+ * On 04/02/15 02:23, Frank Ch. Eigler wrote:
+ *
+ * A possible step would be to pass back all names for pmid-metadata, one
+ * could add a JSON vector subfield like
+ *      "names": ["foo.bar", "foo.bar2"]
+ * to the /pmapi/NNNNN/_metric query.
+ *
+ * A likely necessary step would be to tweak the /_fetch code, so that
+ * the result "name":"NAME*" fields match up with the /_fetch?name=NAME
+ * requests.  This would mean teaching pmwebapi_respond_metric_fetch() to
+ * store not just resolved "pmID *metrics;" but a vector of pre-resolved
+ * "metric-names".
+ * 
+ * - Ken 4 Feb 2015
+ */
+
 #include "pmwebapi.h"
 
 #include <map>

@@ -28,7 +28,7 @@ cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
 Given a
-Performance Metric ID (PMID) via 
+Performance Metric Identifier (PMID) via 
 .IR pmid ,
 .B pmNameID
 will
@@ -43,6 +43,13 @@ but there is no way to determine which of the duplicate names
 this will be.  See
 .BR pmNameAll (3)
 if all of the corresponding names are required.
+.PP
+As of Version 3.10.3 of PCP, duplicate names for the same PMID
+.B are
+allowed in the PMNS, so using
+.BR pmNameAll (3)
+is recommended over
+.BR pmnameID .
 .PP
 .I name
 is a null-byte terminated string, allocated by
@@ -76,7 +83,7 @@ Failed to access a PMNS for operation.
 Note that if the application hasn't a priori called 
 .BR pmLoadNameSpace (3)
 and wants to use the distributed PMNS, then a call to
-.B pmNameId
+.B pmNameID
 must be made after the creation of a context (see 
 .BR pmNewContext (3)).
 .IP \f3PM_ERR_PMID\f1

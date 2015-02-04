@@ -874,6 +874,7 @@ main(int argc, char **argv)
     __pmTimeval	tstamp = { 0 };		/* for last log record */
     off_t	old_log_offset = 0;	/* log offset before last log record */
     off_t	old_meta_offset;
+    int		seen_event = 0;
 
     /* process cmd line args */
     if (parseargs(argc, argv) < 0) {
@@ -1131,36 +1132,67 @@ main(int argc, char **argv)
 	 * that is not in the current log record
 	 */
 	for ( ; ; ) {
-	    pmID	pmid;			/* pmid for TYPE_DESC */
-	    pmInDom	indom;			/* indom for TYPE_INDOM */
-
 	    if (stsmeta == 0) {
 		in_offset = ftell(inarch.ctxp->c_archctl->ac_log->l_mdfp);
 		stsmeta = nextmeta();
 #if PCP_DEBUG
-		if (stsmeta < 0 && pmDebug & DBG_TRACE_APPL0)
-		    fprintf(stderr, "Metadata: read EOF @ offset=%ld\n", in_offset);
+		if (pmDebug & DBG_TRACE_APPL0) {
+		    if (stsmeta < 0)
+			fprintf(stderr, "Metadata: read EOF @ offset=%ld\n", in_offset);
+		    else if (stsmeta == TYPE_DESC)
+			fprintf(stderr, "Metadata: read PMID %s @ offset=%ld\n", pmIDStr(ntoh_pmID(inarch.metarec[2])), in_offset);
+		    else if (stsmeta == TYPE_INDOM)
+			fprintf(stderr, "Metadata: read InDom %s @ offset=%ld\n", pmInDomStr(ntoh_pmInDom((unsigned int)inarch.metarec[4])), in_offset);
+		}
 #endif
 	    }
 	    if (stsmeta < 0) {
 		break;
 	    }
+
 	    if (stsmeta == TYPE_DESC) {
-		int	i;
-		pmid = ntoh_pmID(inarch.metarec[2]);
-#if PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0)
-		    fprintf(stderr, "Metadata: read PMID %s @ offset=%ld\n", pmIDStr(pmid), in_offset);
-#endif
+		pmDesc	*dp = (pmDesc *)&inarch.metarec[2];
+		pmID	pmid = ntoh_pmID(dp->pmid);
+		int	type = ntohl(dp->type);
 		/*
-		 * if pmid not in next pmResult, we're done ...
+		 * We used to apply an optimization here to stop
+		 * processing pmDesc metadata if the PMID of the
+		 * next metadata did not match one of the PMIDs
+		 * in the current pmResult.
+		 *
+		 * Unfortunately "event" records contain packed
+		 * PMIDs for the event records and pseudo PMIDs
+		 * for the metrics used to encode the event record
+		 * parameters ... these just confuse the optimization
+		 * and unpacking the event records does not help
+		 * because the pmDesc for the pseudo PMIDs are 
+		 * written in a batch when the first event record
+		 * is output, even if they may not appear in a packed
+		 * pmResult until later, or not at all.
+		 *
+		 * So if we've seen a metric of type PM_TYPE_EVENT
+		 * or PM_TYPE_HIGHRES_EVENT, just keep processing the
+		 * pmDesc metadata until it is exhausted, or we find
+		 * a pmInDom metadata record with a timestamp after the
+		 * current pmResult.
 		 */
-		for (i = 0; i < inarch.rp->numpmid; i++) {
-		    if (pmid == inarch.rp->vset[i]->pmid)
-			break;
+
+		if (!seen_event) {
+		    if (type == PM_TYPE_EVENT || type == PM_TYPE_HIGHRES_EVENT)
+			seen_event = 1;
+		    else {
+			/*
+			 * if pmid not in next pmResult, we're done ...
+			 */
+			for (i = 0; i < inarch.rp->numpmid; i++) {
+			    if (pmid == inarch.rp->vset[i]->pmid)
+				break;
+			}
+			if (i == inarch.rp->numpmid)
+			    break;
+		    }
 		}
-		if (i == inarch.rp->numpmid)
-		    break;
+
 		/*
 		 * rewrite if needed, delete if needed else output
 		 */
@@ -1169,11 +1201,6 @@ main(int argc, char **argv)
 	    else if (stsmeta == TYPE_INDOM) {
 		struct timeval	stamp;
 		__pmTimeval	*tvp = (__pmTimeval *)&inarch.metarec[2];
-		indom = ntoh_pmInDom((unsigned int)inarch.metarec[4]);
-#if PCP_DEBUG
-		if (pmDebug & DBG_TRACE_APPL0)
-		    fprintf(stderr, "Metadata: read InDom %s @ offset=%ld\n", pmInDomStr(indom), in_offset);
-#endif
 		stamp.tv_sec = ntohl(tvp->tv_sec);
 		stamp.tv_usec = ntohl(tvp->tv_usec);
 		if (fixstamp(&stamp)) {

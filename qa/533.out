@@ -9,7 +9,7 @@ PMID: 29.0.1
 dbpmda> fetch sample.daemon_pid
 PMID(s): 29.0.1
 pmResult ... numpmid: 1
-  29.0.1 (sample.daemon_pid): numval: 1 valfmt: 0 vlist[]:
+  29.0.1 (sample.dupnames.pid_daemon or sample.dupnames.daemon_pid or sample.daemon_pid): numval: 1 valfmt: 0 vlist[]:
    value PID
 dbpmda> text sample.daemon_pid
 PMID: 29.0.1

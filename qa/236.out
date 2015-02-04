@@ -5,14 +5,12 @@ Usage: pmnsadd [-d] [-n namespace] file
 Usage: pmnsdel [options] metricpath [...]
 
 Options:
-  -d, --duplicates      duplicate PMIDs are allowed
   -n FILE, --namespace=FILE
                         use an alternative PMNS
   -?, --help            show this usage message and exit
 Usage: pmnsdel [options] metricpath [...]
 
 Options:
-  -d, --duplicates      duplicate PMIDs are allowed
   -n FILE, --namespace=FILE
                         use an alternative PMNS
   -?, --help            show this usage message and exit

@@ -954,8 +954,10 @@ cgroups
 759 pmda.unbound pmda.install local
 760 pmda.activemq pmda.install local
 761 pmda.root local
+762 help local
 763 pmda local
 764 pmie local
+765 pmlogsummary local
 766 pmfind local
 768 pmlogextract local
 769 other local
@@ -989,6 +991,7 @@ cgroups
 835 pmda.memcache local
 836 pmlogsummary local pmdiff
 837 pmda.sample containers local
+838 pmns local
 840 avahi local
 841 pmda local
 842 python local
@@ -1013,6 +1016,7 @@ cgroups
 922 derive pmie pmval local
 928 archive local
 929 logutil local
+930 pmlogrewrite local
 943 pmprobe pmda.proc local
 944 pmcd secure local
 945 pmlogrewrite pmda.xfs local
@@ -1040,6 +1044,7 @@ cgroups
 987 pmda.xfs local
 988 pmda.xfs local valgrind
 991 python local
+993 pmlogger pmdumplog local
 994 other verify
 996 pmdiff local
 997 pmlogextract local

@@ -755,7 +755,7 @@ Archive basename: ARCHIVE
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
@@ -764,20 +764,20 @@ pmlc request from HOST: mandatory maybe
 
 DATE
 pmlc request from HOST: mandatory on once
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-100
     instance: bin-200
     instance: bin-300
 
 DATE
 pmlc request from HOST: mandatory on once
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-200
     instance: bin-400
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
@@ -786,20 +786,20 @@ pmlc request from HOST: mandatory maybe
 
 DATE
 pmlc request from HOST: mandatory on once
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-100
     instance: bin-200
     instance: bin-300
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #200
     instance: #400
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
@@ -808,20 +808,20 @@ pmlc request from HOST: mandatory maybe
 
 DATE
 pmlc request from HOST: mandatory on once
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-100
     instance: bin-200
     instance: bin-300
 
 DATE
 pmlc request from HOST: mandatory off
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-200
     instance: bin-400
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
@@ -830,20 +830,20 @@ pmlc request from HOST: mandatory maybe
 
 DATE
 pmlc request from HOST: mandatory on once
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-100
     instance: bin-200
     instance: bin-300
 
 DATE
 pmlc request from HOST: advisory on once
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-200 [request failed]
     instance: bin-400
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
@@ -852,20 +852,20 @@ pmlc request from HOST: mandatory maybe
 
 DATE
 pmlc request from HOST: mandatory on once
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-100
     instance: bin-200
     instance: bin-300
 
 DATE
 pmlc request from HOST: advisory off
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-200 [request failed]
     instance: #400
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
@@ -874,20 +874,20 @@ pmlc request from HOST: mandatory maybe
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
 
 DATE
 pmlc request from HOST: mandatory on once
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-200
     instance: bin-400
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
@@ -896,20 +896,20 @@ pmlc request from HOST: mandatory maybe
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #200
     instance: #400
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
@@ -918,20 +918,20 @@ pmlc request from HOST: mandatory maybe
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
 
 DATE
 pmlc request from HOST: mandatory off
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-200
     instance: bin-400
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
@@ -940,20 +940,20 @@ pmlc request from HOST: mandatory maybe
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
 
 DATE
 pmlc request from HOST: advisory on once
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-200
     instance: bin-400
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
@@ -962,20 +962,20 @@ pmlc request from HOST: mandatory maybe
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
 
 DATE
 pmlc request from HOST: advisory off
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #200
     instance: #400
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
@@ -984,20 +984,20 @@ pmlc request from HOST: mandatory maybe
 
 DATE
 pmlc request from HOST: mandatory off
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-100
     instance: bin-200
     instance: bin-300
 
 DATE
 pmlc request from HOST: mandatory on once
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-200
     instance: bin-400
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
@@ -1006,20 +1006,20 @@ pmlc request from HOST: mandatory maybe
 
 DATE
 pmlc request from HOST: mandatory off
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-100
     instance: bin-200
     instance: bin-300
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #200
     instance: #400
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
@@ -1028,20 +1028,20 @@ pmlc request from HOST: mandatory maybe
 
 DATE
 pmlc request from HOST: mandatory off
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-100
     instance: bin-200
     instance: bin-300
 
 DATE
 pmlc request from HOST: mandatory off
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-200
     instance: bin-400
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
@@ -1050,20 +1050,20 @@ pmlc request from HOST: mandatory maybe
 
 DATE
 pmlc request from HOST: mandatory off
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-100
     instance: bin-200
     instance: bin-300
 
 DATE
 pmlc request from HOST: advisory on once
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-200 [request failed]
     instance: bin-400
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
@@ -1072,20 +1072,20 @@ pmlc request from HOST: mandatory maybe
 
 DATE
 pmlc request from HOST: mandatory off
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-100
     instance: bin-200
     instance: bin-300
 
 DATE
 pmlc request from HOST: advisory off
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-200 [request failed]
     instance: #400
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
@@ -1094,20 +1094,20 @@ pmlc request from HOST: mandatory maybe
 
 DATE
 pmlc request from HOST: advisory on once
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-100
     instance: bin-200
     instance: bin-300
 
 DATE
 pmlc request from HOST: mandatory on once
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-200
     instance: bin-400
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
@@ -1116,20 +1116,20 @@ pmlc request from HOST: mandatory maybe
 
 DATE
 pmlc request from HOST: advisory on once
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-100
     instance: bin-200
     instance: bin-300
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #200
     instance: #400
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
@@ -1138,20 +1138,20 @@ pmlc request from HOST: mandatory maybe
 
 DATE
 pmlc request from HOST: advisory on once
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-100
     instance: bin-200
     instance: bin-300
 
 DATE
 pmlc request from HOST: mandatory off
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-200
     instance: bin-400
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
@@ -1160,20 +1160,20 @@ pmlc request from HOST: mandatory maybe
 
 DATE
 pmlc request from HOST: advisory on once
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-100
     instance: bin-200
     instance: bin-300
 
 DATE
 pmlc request from HOST: advisory on once
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-200
     instance: bin-400
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
@@ -1182,20 +1182,20 @@ pmlc request from HOST: mandatory maybe
 
 DATE
 pmlc request from HOST: advisory on once
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-100
     instance: bin-200
     instance: bin-300
 
 DATE
 pmlc request from HOST: advisory off
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #200
     instance: #400
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
@@ -1204,20 +1204,20 @@ pmlc request from HOST: mandatory maybe
 
 DATE
 pmlc request from HOST: advisory off
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
 
 DATE
 pmlc request from HOST: mandatory on once
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-200
     instance: bin-400
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
@@ -1226,20 +1226,20 @@ pmlc request from HOST: mandatory maybe
 
 DATE
 pmlc request from HOST: advisory off
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #200
     instance: #400
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
@@ -1248,20 +1248,20 @@ pmlc request from HOST: mandatory maybe
 
 DATE
 pmlc request from HOST: advisory off
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
 
 DATE
 pmlc request from HOST: mandatory off
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-200
     instance: bin-400
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
@@ -1270,20 +1270,20 @@ pmlc request from HOST: mandatory maybe
 
 DATE
 pmlc request from HOST: advisory off
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
 
 DATE
 pmlc request from HOST: advisory on once
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: bin-200
     instance: bin-400
 
 DATE
 pmlc request from HOST: mandatory maybe
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
@@ -1292,14 +1292,14 @@ pmlc request from HOST: mandatory maybe
 
 DATE
 pmlc request from HOST: advisory off
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #100
     instance: #200
     instance: #300
 
 DATE
 pmlc request from HOST: advisory off
-  metric: sample.bin
+  metric: sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     instance: #200
     instance: #400
 
@@ -1315,8 +1315,8 @@ Uniq filtered entries from pmdumplog ...
 2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
 29.0.10 (sample.long.one): value NUMBER
-29.0.6 (sample.bin):
-29.0.6 (sample.bin): inst [400 or "bin-400"] value NUMBER
+29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): inst [400 or "bin-400"] value NUMBER
 inst [100 or "bin-100"] value NUMBER
 inst [200 or "bin-200"] value NUMBER
 inst [300 or "bin-300"] value NUMBER

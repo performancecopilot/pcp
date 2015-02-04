@@ -158,7 +158,7 @@ args=""
 perl_args=""
 #	ditto for python PMDAS
 python_args=""
-#	Source for the pmns
+#	Source for the PMNS
 pmns_source=pmns
 #	Source for the helptext
 help_source=help
@@ -1210,7 +1210,7 @@ _install()
 	    exit 1
 	fi
 	cd $PMNSDIR
-	./Rebuild -dus
+	./Rebuild -us
 	cd $__here
 	forced_restart=true
     fi

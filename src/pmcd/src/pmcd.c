@@ -40,7 +40,7 @@ static char	*pmnsfile = PM_NS_DEFAULT;
 static char	*username;
 static char	*certdb;		/* certificate database path (NSS) */
 static char	*dbpassfile;		/* certificate database password file */
-static int	dupok;			/* set to 1 for -N pmnsfile */
+static int	dupok = 1;		/* set to 0 for -N pmnsfile */
 static char	sockpath[MAXPATHLEN];	/* local unix domain socket path */
 
 #ifdef HAVE_SA_SIGINFO
@@ -86,7 +86,7 @@ static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("General options"),
     PMOPT_DEBUG,
     PMOPT_NAMESPACE,
-    PMOPT_DUPNAMES,
+    PMOPT_UNIQNAMES,
     PMOPT_HELP,
     PMAPI_OPTIONS_HEADER("Service options"),
     { "", 0, 'A', 0, "disable service advertisement" },
@@ -185,7 +185,7 @@ ParseOptions(int argc, char *argv[], int *nports)
 		break;
 
 	    case 'N':
-		dupok = 1;
+		dupok = 0;
 		/*FALLTHROUGH*/
 	    case 'n':
 	    	/* name space file name */
@@ -497,14 +497,10 @@ SignalReloadPMNS(void)
 	__pmNotifyErr(LOG_INFO, "Reloading PMNS \"%s\"",
 	   (pmnsfile==PM_NS_DEFAULT)?"DEFAULT":pmnsfile);
 	pmUnloadNameSpace();
-	if (dupok)
-	    sts = pmLoadASCIINameSpace(pmnsfile, 1);
-	else
-	    sts = pmLoadNameSpace(pmnsfile);
+	sts = pmLoadASCIINameSpace(pmnsfile, dupok);
 	if (sts < 0) {
-	    __pmNotifyErr(LOG_ERR, "PMNS \"%s\" load failed: %s",
-		(pmnsfile == PM_NS_DEFAULT) ? "DEFAULT" : pmnsfile,
-		pmErrStr(sts));
+	    __pmNotifyErr(LOG_ERR, "pmLoadASCIINameSpace(%s, %d): %s\n",
+		(pmnsfile == PM_NS_DEFAULT) ? "DEFAULT" : pmnsfile, dupok, pmErrStr(sts));
 	}
     }
     else {
@@ -849,12 +845,10 @@ main(int argc, char *argv[])
     /* if this fails beware of the sky falling in */
     assert(sts >= 0);
 
-    if (dupok)
-	sts = pmLoadASCIINameSpace(pmnsfile, 1);
-    else
-	sts = pmLoadNameSpace(pmnsfile);
+    sts = pmLoadASCIINameSpace(pmnsfile, dupok);
     if (sts < 0) {
-	fprintf(stderr, "Error: pmLoadNameSpace: %s\n", pmErrStr(sts));
+	fprintf(stderr, "Error: pmLoadASCIINameSpace(%s, %d): %s\n",
+	    (pmnsfile == PM_NS_DEFAULT) ? "DEFAULT" : pmnsfile, dupok, pmErrStr(sts));
 	DontStart();
     }
 

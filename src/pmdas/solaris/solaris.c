@@ -184,21 +184,27 @@ main(int argc, char **argv)
 	    exit(1);
 
 	for (c = 0; c < metrictab_sz; c++) {
-	    char *name;
+	    char **names;
+	    int	i;
 	    int e;
 	    __pmID_int *id = __pmid_int(&metricdesc[c].md_desc.pmid);
 	    id->domain = desc.domain;
 
-	    if ((e = pmNameID(metricdesc[c].md_desc.pmid, &name)) != 0) {
+	    if ((e = pmNameAll(metricdesc[c].md_desc.pmid, &names)) < 1) {
 		printf ("Cannot find %s(%s) in %s: %s\n",
 		        metricdesc[c].md_name,
 			pmIDStr(metricdesc[c].md_desc.pmid),
 			namespace, pmErrStr(e));
 	    } else {
-		if (strcmp(name, metricdesc[c].md_name)) {
-			printf ("%s is %s in the %s but %s in code\n",
-				pmIDStr(metricdesc[c].md_desc.pmid),
-				name, namespace,metricdesc[c].md_name);
+		for (i = 0; i < e; i++) {
+		    if (strcmp(names[i], metricdesc[c].md_name) == 0)
+			break;
+		}
+		if (i == e) {
+		    printf ("%s is ", pmIDStr(metricdesc[c].md_desc.pmid));
+		    __pmPrintMetricNames(stdout, e, names, " or ");
+		    printf(" in the %s but %s in code\n",
+				namespace,metricdesc[c].md_name);
 		}
 	    }
 	}

@@ -82,14 +82,12 @@ root=root
 root_updated=false
 update=false
 verbose=""
-dupok=false
 silent=false
 
 _usage()
 {
-    _trace "Usage: Rebuild [-dnsuv]"
+    _trace "Usage: Rebuild [-nsuv]"
     _trace "Options:"
-    _trace "  -d    allow duplicate PMIDs in the PMNS"
     _trace "  -n    dry run, show me what would be done"
     _trace "  -s    silent, exit status says it all"
     _trace "  -u    once only upgrade processing for a new PCP version"
@@ -191,7 +189,7 @@ while getopts dnusv\? c
 do
     case $c
     in
-	d)	dupok=true
+	d)	echo "$prog: Warning: -d deprecated, duplicate PMNS names allowed by default"
 		;;
 	n)	nochanges=true
 		echo "$prog: Warning: dry run, no changes will be made"
@@ -309,12 +307,7 @@ _trace $root $mergelist | fmt | sed -e 's/^/    /'
 
 rm -f root.new
 eval $PMNSMERGE
-if $dupok
-then
-    pmnsmerge $verbose -d $root $mergelist root.new >$tmp/out 2>&1
-else
-    pmnsmerge $verbose $root $mergelist root.new >$tmp/out 2>&1
-fi
+pmnsmerge $verbose $root $mergelist root.new >$tmp/out 2>&1
 
 if [ $? != 0 ]
 then
@@ -328,28 +321,13 @@ fi
 #
 if [ -f root ]
 then
-    if $dupok
-    then
-	pminfo -m -N root 2>/dev/null | sort >$tmp/list.old
-    else
-	pminfo -m -n root 2>/dev/null | sort >$tmp/list.old
-    fi
+    pminfo -m -n root 2>/dev/null | sort >$tmp/list.old
 fi
 if [ ! -s $tmp/list.old ]
 then
-    if $dupok
-    then
-	pminfo -m -N $root 2>/dev/null | sort >$tmp/list.old
-    else
-	pminfo -m -n $root 2>/dev/null | sort >$tmp/list.old
-    fi
+    pminfo -m -n $root 2>/dev/null | sort >$tmp/list.old
 fi
-if $dupok
-then
-    pminfo -m -N root.new | sort >$tmp/list.new
-else
-    pminfo -m -n root.new | sort >$tmp/list.new
-fi
+pminfo -m -n root.new | sort >$tmp/list.new
 if cmp -s $tmp/list.old $tmp/list.new > /dev/null 2>&1
 then
     [ ! -f root ] && eval $MV root.new root

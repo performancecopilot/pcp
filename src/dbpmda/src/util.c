@@ -545,20 +545,22 @@ _dbDumpResult(FILE *f, pmResult *resp, pmDesc *desc_list)
     int		i;
     int		j;
     int		n;
-    char	*p;
+    char	**names;
 
-    fprintf(f,"pmResult dump from " PRINTF_P_PFX "%p timestamp: %d.%06d ",
+    fprintf(f, "pmResult dump from " PRINTF_P_PFX "%p timestamp: %d.%06d ",
         resp, (int)resp->timestamp.tv_sec, (int)resp->timestamp.tv_usec);
     __pmPrintStamp(f, &resp->timestamp);
     fprintf(f, " numpmid: %d\n", resp->numpmid);
     for (i = 0; i < resp->numpmid; i++) {
 	pmValueSet	*vsp = resp->vset[i];
-	n = pmNameID(vsp->pmid, &p);
+	n = pmNameAll(vsp->pmid, &names);
 	if (n < 0)
-	    fprintf(f,"  %s (%s):", pmIDStr(vsp->pmid), "<noname>");
+	    fprintf(f, "  %s (%s):", pmIDStr(vsp->pmid), "<noname>");
 	else {
-	    fprintf(f,"  %s (%s):", pmIDStr(vsp->pmid), p);
-	    free(p);
+	    fprintf(f, "  %s (", pmIDStr(vsp->pmid));
+	    __pmPrintMetricNames(f, n, names, " or ");
+	    fprintf(f, "):");
+	    free(names);
 	}
 	if (vsp->numval == 0) {
 	    fprintf(f, " No values returned!\n");
@@ -573,7 +575,7 @@ _dbDumpResult(FILE *f, pmResult *resp, pmDesc *desc_list)
 	for (j = 0; j < vsp->numval; j++) {
 	    pmValue	*vp = &vsp->vlist[j];
 	    if (vsp->numval > 1 || desc_list[i].indom != PM_INDOM_NULL) {
-		fprintf(f,"    inst [%d", vp->inst);
+		fprintf(f, "    inst [%d", vp->inst);
 		fprintf(f, " or ???]");
 		fputc(' ', f);
 	    }
