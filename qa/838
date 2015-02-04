@@ -20,7 +20,8 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 _filter()
 {
     sed \
-	-e '/.*\/pmsignal: .* Operation not permitted/d' \
+	-e '/Operation not permitted/d' \
+	-e '/^ *$/d'
     # end
 }
 
