@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2014 Red Hat.
+# Copyright (c) 2012-2015 Red Hat.
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -158,6 +158,7 @@ PERLFILES = \
 # not installed:
 PLFILES = $(shell echo $(PERLFILES) | sed -e 's/\.perl/.pl/g')
 
+ifeq "$(ENABLE_PYTHON)" "true"
 PYTHONFILES = \
 	test_pcp.python test_pmcc.python \
 	test_pmi.python check_import.python \
@@ -166,6 +167,10 @@ PYTHONFILES = \
 	test_pcp_time.python
 # not installed:
 PYFILES = $(shell echo $(PYTHONFILES) | sed -e 's/\.python/.py/g')
+else
+PYTHONFILES =
+PYFILES =
+endif
 
 ifneq "$(TARGET_OS)" "mingw"
 CFILES += $(POSIXFILES) $(TRACEFILES)
