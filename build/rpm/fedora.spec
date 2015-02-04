@@ -92,13 +92,17 @@ BuildRequires: qt4-devel >= 4.4
 %endif
 
 Requires: bash gawk sed grep fileutils findutils initscripts perl which
-Requires: python
+%if !%{disable_python2}
 %if 0%{?rhel} <= 5
 Requires: python-ctypes
 %endif
+Requires: python
+%endif
 
 Requires: pcp-libs = %{version}-%{release}
+%if !%{disable_python2}
 Requires: python-pcp = %{version}-%{release}
+%endif
 Requires: perl-PCP-PMDA = %{version}-%{release}
 Obsoletes: pcp-gui-debuginfo
 Obsoletes: pcp-pmda-nvidia

@@ -26,7 +26,7 @@ pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
 
 for tgz in $here/linux/nfsrpc-*.tgz
 do
-    rm -fr $root
+    $sudo rm -fr $root
     mkdir $root || _fail "root in use when processing $tgz"
     cd $root
     tar xzf $tgz

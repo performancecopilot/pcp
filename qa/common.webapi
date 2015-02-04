@@ -26,6 +26,7 @@ _webapi_header_filter()
 _webapi_response_filter()
 {
     tee -a $seq.full \
+    | col -b \
     | sed -e 's,#[0-9]*,####,g' \
         -e 's/ connected$//g' \
         -e '/^\* Adding handle: /d' \
