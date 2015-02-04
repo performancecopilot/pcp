@@ -126,6 +126,13 @@ _filter_pmie <$tmp.out
 echo status=$sts
 _filter_date < $tmp.pmie3
 
+# debug check ... someone's clobbering pconf
+#
+if `which git >/dev/null 2>&1`
+then
+    git status -s pconf
+fi
+
 # success, all done
 status=0
 exit
