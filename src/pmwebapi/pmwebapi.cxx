@@ -1070,6 +1070,7 @@ pmwebapi_respond (struct MHD_Connection *connection, const http_params & params,
     /* All other calls use $CTX/command, so we parse $CTX
        generally and map it to the webcontext* */
     if (url.size () != 4) {
+	connstamp (cerr, connection) << "url.size() " << url.size() << " not 4, url[2]=" << url[2] << ", new_contexts_p=" << new_contexts_p << endl;
         rc = -EINVAL;
         goto out;
     }
@@ -1164,6 +1165,7 @@ pmwebapi_respond (struct MHD_Connection *connection, const http_params & params,
     /* if-multithreaded: watch out. */
     rc = pmUseContext (c->context);
     if (rc) {
+	connstamp (cerr, connection) << "pmUseContext(" << c->context << ") failed: " << pmErrStr(rc) << endl;
         goto out;
     }
     /* -------------------------------------------------------------------- */
