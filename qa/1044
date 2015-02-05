@@ -136,6 +136,13 @@ echo "=== check env variable gets used over default..."
 pmieconf list all
 echo status=$?
 
+# debug check ... someone's clobbering pconf
+#
+if `which git >/dev/null 2>&1`
+then
+    git status -s pconf
+fi
+
 # success, all done
 status=0
 exit

@@ -652,7 +652,7 @@ ifeq ($(PCP_PLATFORM),darwin)
 QTMAKE = $(QMAKE) -spec macx-g++ CONFIG+=$(QT_RELEASE) && $(QTFIX) <Makefile >Makefile.fix && mv Makefile.fix Makefile && make -f Makefile
 MACBUILD = build/$(QT_RELEASE)/$(COMMAND).app/Contents
 BINARY = $(MACBUILD)/MacOS/$(COMMAND)
-LNMAKE = test ! -f $(BINARY) -o -L $(COMMAND) || $(LN_S) $(BINARY) $(COMMAND)
+LNMAKE = test ! -f $(BINARY) -o -L $(COMMAND) || ( rm -f $(COMMAND) && $(LN_S) $(BINARY) $(COMMAND) )
 WINDOW = mac
 endif
 ifeq ($(PCP_PLATFORM),mingw)
@@ -664,7 +664,7 @@ endif
 ifeq "$(findstring $(PCP_PLATFORM),darwin mingw)" ""
 QTMAKE = $(QMAKE) CONFIG+=$(QT_RELEASE) && $(QTFIX) <Makefile >Makefile.fix && mv Makefile.fix Makefile && $(MAKE) $(MAKEOPTS) -f Makefile
 BINARY = build/$(QT_RELEASE)/$(COMMAND)
-LNMAKE = test ! -f $(BINARY) -o -L $(COMMAND) || $(LN_S) $(BINARY) $(COMMAND)
+LNMAKE = test ! -f $(BINARY) -o -L $(COMMAND) || ( rm -f $(COMMAND) && $(LN_S) $(BINARY) $(COMMAND) )
 WINDOW = x11
 endif
 
