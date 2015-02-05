@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013,2015 Red Hat.
  * Copyright (c) 2007 Aconex.  All Rights Reserved.
  * Copyright (c) 1998,2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -77,11 +77,7 @@ QmcSource::retryConnect(int type, QString &source)
     }
 
     oldContext = pmWhichContext();
-
     hostSpec = source;
-    if (my.attrs != QString::null)
-	hostSpec.append("?").append(my.attrs);
-
     my.status = pmNewContext(type | my.flags, (const char *)hostSpec.toAscii());
     if (my.status >= 0) {
 	my.handles.append(my.status);

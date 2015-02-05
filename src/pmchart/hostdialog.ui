@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>383</width>
-    <height>302</height>
+    <width>426</width>
+    <height>352</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,7 +22,7 @@
   <property name="minimumSize">
    <size>
     <width>300</width>
-    <height>100</height>
+    <height>120</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -38,14 +38,8 @@
   <property name="modal">
    <bool>true</bool>
   </property>
-  <layout class="QGridLayout">
-   <property name="margin">
-    <number>9</number>
-   </property>
-   <property name="spacing">
-    <number>6</number>
-   </property>
-   <item row="0" column="0">
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
     <layout class="QVBoxLayout">
      <property name="spacing">
       <number>6</number>
@@ -119,6 +113,20 @@
          </property>
         </widget>
        </item>
+       <item row="2" column="0">
+        <widget class="QCheckBox" name="containerCheckBox">
+         <property name="text">
+          <string>Container:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="containerLineEdit">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
      <item>
@@ -145,11 +153,11 @@
        </item>
        <item row="0" column="2">
         <widget class="QPushButton" name="certificatesPushButton">
-         <property name="text">
-          <string>Certificates</string>
-         </property>
          <property name="enabled">
           <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Certificates</string>
          </property>
         </widget>
        </item>
@@ -254,12 +262,36 @@
      </item>
     </layout>
    </item>
-   <item row="7" column="0">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="advancedPushButton">
+       <property name="text">
+        <string>Advanced...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QDialogButtonBox" name="buttonBox">
+       <property name="standardButtons">
+        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
@@ -267,6 +299,7 @@
   <tabstop>hostLineEdit</tabstop>
   <tabstop>proxyCheckBox</tabstop>
   <tabstop>proxyLineEdit</tabstop>
+  <tabstop>containerCheckBox</tabstop>
   <tabstop>secureCheckBox</tabstop>
   <tabstop>certificatesPushButton</tabstop>
   <tabstop>compressCheckBox</tabstop>
@@ -274,6 +307,7 @@
   <tabstop>usernameLineEdit</tabstop>
   <tabstop>passwordLineEdit</tabstop>
   <tabstop>realmLineEdit</tabstop>
+  <tabstop>advancedPushButton</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources>
@@ -285,12 +319,32 @@
    <signal>accepted()</signal>
    <receiver>HostDialog</receiver>
    <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
    <receiver>HostDialog</receiver>
    <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
   <connection>
    <sender>proxyCheckBox</sender>
@@ -299,10 +353,22 @@
    <slot>proxyCheckBox_toggled(bool)</slot>
   </connection>
   <connection>
+   <sender>containerCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>HostDialog</receiver>
+   <slot>containerCheckBox_toggled(bool)</slot>
+  </connection>
+  <connection>
    <sender>certificatesPushButton</sender>
    <signal>clicked()</signal>
    <receiver>HostDialog</receiver>
    <slot>certificatesPushButton_clicked()</slot>
+  </connection>
+  <connection>
+   <sender>advancedPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>HostDialog</receiver>
+   <slot>advancedPushButton_clicked()</slot>
   </connection>
   <connection>
    <sender>secureCheckBox</sender>

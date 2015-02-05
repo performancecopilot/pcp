@@ -27,6 +27,7 @@ public:
     int getContextFlags() const;
     QString getHostName(void) const;
     QString getHostSpecification() const;
+    void reset();
 
 protected slots:
     virtual void languageChange();
@@ -35,6 +36,8 @@ private slots:
     virtual void quit();
     virtual void proxyCheckBox_toggled(bool);
     virtual void secureCheckBox_toggled(bool);
+    virtual void containerCheckBox_toggled(bool);
+    virtual void advancedPushButton_clicked();
     virtual void certificatesPushButton_clicked();
     virtual void authenticateCheckBox_toggled(bool);
     virtual void nssGuiError(QProcess::ProcessError);
@@ -42,10 +45,15 @@ private slots:
 
 private:
     void nssGuiStart();
+    void changedAdvancedState();
 
     struct {
-	bool		nssGuiStarted;
 	QProcess	*nssGuiProc;
+	bool		nssGuiStarted;
+	bool		advancedState;
+	QString		advancedString;
+	int		originalHeight;
+	int		minimalHeight;
     } my;
 };
 
