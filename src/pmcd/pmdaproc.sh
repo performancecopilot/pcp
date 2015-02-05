@@ -1220,27 +1220,44 @@ _install()
 	done
     fi
 
-    # Check the PMDA's PMNS
+    # Check the PMDA's PMNS ... use root if it exists, else pmns
+    # if it exists, else skip the check.
     #
-    if $pmns_dupok
+    __root=''
+    if [ -f root ]
     then
-	__n=-n
-    else
-	__n=-N
+	# have a root PMNS file
+	__root=root
+    elif [ -f pmns ]
+    then
+	# have pmns file, synthesize a root PMNS file
+	__root=$pcptmp.root
+	echo 'root {' >$__root
+	echo '#include "pmns"' >>$__root
+	echo '}' >>$__root
     fi
-    if pminfo $__n root 2>$pcptmp.err >/dev/null
+    if [ -n "$__root" ]
     then
-	:
-    else
-	cat $pcptmp.err
-	echo "Error: PMDA's PMNS is bad"
-	if grep 'Duplicate metric' $pcptmp.err >/dev/null
+	if $pmns_dupok
 	then
-	    echo "Hint: set pmns_dupok=true in the PMDA's Install script if duplicate names are"
-	    echo "      expected in the PMNS"
+	    __n=-n
+	else
+	    __n=-N
 	fi
-	__sts=1
-	exit
+	if pminfo $__n $__root 2>$pcptmp.err >/dev/null
+	then
+	    :
+	else
+	    cat $pcptmp.err
+	    echo "Error: PMDA's PMNS is bad"
+	    if grep 'Duplicate metric' $pcptmp.err >/dev/null
+	    then
+		echo "Hint: set pmns_dupok=true in the PMDA's Install script if duplicate names are"
+		echo "      expected in the PMNS"
+	    fi
+	    __sts=1
+	    exit
+	fi
     fi
 
     $PCP_SHARE_DIR/lib/lockpmns $NAMESPACE
