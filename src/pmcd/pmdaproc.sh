@@ -1224,9 +1224,14 @@ _install()
     # if it exists, else skip the check.
     #
     __root=''
-    if [ -f root ]
+    if [ -f root -a ! -f pmns.save ]
     then
-	# have a root PMNS file
+	# have a root PMNS file and no pmns.save ... if pmns.save exists
+	# then this is one of the schizo PMDAs, like simple, and "root"
+	# probably belongs to pmns.save, so we need to synthesize a root
+	# PMNS file for the generate pmns file (for Perl or Python PMDA
+	# installs)
+	#
 	__root=root
     elif [ -f pmns ]
     then
