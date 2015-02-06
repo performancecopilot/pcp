@@ -1,7 +1,7 @@
 #
 # common preliminary check procedures for QA scripts
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014-2015 Red Hat.
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
@@ -812,6 +812,35 @@ _run_valgrind()
     echo "=== filtered valgrind report ==="
     _filter_valgrind <$tmp._valgrind
 }
+
+
+# Alternate invocation, using valgrind-silence as an assertion.
+# Produces no stdout/stderr from valgrind - except in case of errors!
+# Uses same suppression logic as _run_valgrind.
+#
+# Usage:                    $_valgrind_clean_assert CMD ARGS ...
+# just as you'd have used   CMD ARGS ...
+# alone, or                 |filtered
+# or                        & backgrounded
+#
+# It works even if valgrind is not available (expanding to nothing).
+#
+_valgrind_clean_assert=
+if which valgrind >/dev/null 2>&1; then
+    __version=`valgrind --version | sed -e 's/valgrind-//'`
+    if [ -f $here/valgrind-suppress-$__version ]
+    then
+        __extra="--suppressions=$here/valgrind-suppress-$__version"
+        echo "Warning: using extra $__extra" >>$seq.full
+    else
+	__extra=''
+    fi
+    _valgrind_clean_assert="valgrind -q  --leak-check=full --read-var-info=yes \
+	     --suppressions=$here/valgrind-suppress $__extra \
+             --log-fd=1"
+fi
+
+
 
 #
 # Checks that given_value is in range of correct_value +/- tolerance.
