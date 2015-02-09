@@ -1,9 +1,10 @@
 #!/bin/sh
 # PCP QA Test No. 761
 # Exercise the PMCD privileged co-process (root) PMDA
-# Install, Remove and handling of Docker containers.
+# Install, Remove and handling of different container
+# engines container.* metrics.
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014-2015 Red Hat.
 #
 
 seq=`basename $0`
@@ -16,7 +17,6 @@ echo "QA output created by $seq"
 
 _get_libpcp_config
 $unix_domain_sockets || _notrun "No unix domain socket support available"
-grep -q PCP_DOCKER_DIR $PCP_DIR/etc/pcp.conf && _notrun "PCP_DOCKER_DIR is set"
 
 root=$tmp.root
 status=1	# failure is the default!
@@ -81,9 +81,24 @@ trap "root_cleanup; exit \$status" 0 1 2 3 15
 cp $PCP_DIR/etc/pcp.conf $tmp.conf
 cp $PCP_DIR/etc/pcp.conf $tmp.conf.backup
 
+# simple testing script for LXC containers
+cat >$tmp.test-lxc-info.sh <<EOF
+#!/bin/bash
+name="\$2"
+test -d "\$PCP_LXC_DIR/\$name" || exit 0
+echo "Name:           \$name"
+echo "State:          RUNNING"
+echo "PID:            17297"
+echo "CPU use:        1.13 seconds"
+EOF
+chmod 755 $tmp.test-lxc-info.sh
+export PCP_LXC_DIR=$root/var/lib/lxc
+
 # real QA test starts here
 echo >> $tmp.conf
 echo "# from QA $seq ..." >> $tmp.conf
+echo PCP_LXC_DIR=$root/var/lib/lxc >> $tmp.conf
+echo PCP_LXC_INFO=$tmp.test-lxc-info.sh >> $tmp.conf
 echo PCP_DOCKER_DIR=$root/var/lib/docker >> $tmp.conf
 $sudo cp $tmp.conf $PCP_DIR/etc/pcp.conf
 root_install

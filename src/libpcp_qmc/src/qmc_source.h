@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat, Inc.
+ * Copyright (c) 2013,2015 Red Hat, Inc.
  * Copyright (c) 2007 Aconex.  All Rights Reserved.
  * Copyright (c) 1998,2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -42,6 +42,7 @@ public:
     QString proxy() const { return my.proxy; }
     char *proxyAscii() const { return strdup((const char *)my.proxy.toAscii()); }
     int tzHandle() const { return my.tz; }
+    QString attributes() const { return my.attrs; }
     QString timezone() const { return my.timezone; }
     struct timeval start() const { return my.start; }
     QString startTime() { return timeString(&my.start); }

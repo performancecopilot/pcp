@@ -1034,6 +1034,7 @@ cgroups
 972 pmda.zswap dbpmda local
 973 pmda.zswap pmda.install local
 976 dbpmda perl pmda.lustre local
+977 libpcp valgrind local
 978 libpcp getopt sanity local
 979 python local
 980 python local

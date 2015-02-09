@@ -9,7 +9,7 @@
  */
 
 #define SOURCE handle == 0 ? "host" : ( type == PM_CONTEXT_ARCHIVE ? "archive" : "host" )
-#define HOST handle == 0 ? "localhost" : host
+#define HOST handle == 0 ? "local:" : host
 
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
@@ -60,13 +60,9 @@ main(int argc, char **argv)
     int		errflag = 0;
     int		type = 0;
     int		iter = 5;
-    char	*host = "localhost";
+    char	*host = "local:";
     char	*endnum;
-#ifdef PCP_DEBUG
     static char	*debug = "[-D N] ";
-#else
-    static char	*debug = "";
-#endif
     static char	*usage = "[-a archive] [-c dmfile] [-h hostname] [-L] [-n namespace] [-s iterations]";
 
     __pmSetProgname(argv[0]);
@@ -91,7 +87,6 @@ main(int argc, char **argv)
 	    }
 	    break;
 
-#ifdef PCP_DEBUG
 	case 'D':	/* debug flag */
 	    sts = __pmParseDebug(optarg);
 	    if (sts < 0) {
@@ -102,7 +97,6 @@ main(int argc, char **argv)
 	    else
 		pmDebug |= sts;
 	    break;
-#endif
 
 	case 'h':	/* hostname for PMCD to contact */
 	    if (type != 0) {
