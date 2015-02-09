@@ -72,7 +72,7 @@ cp $tmp.pmie $seq.full
 #
 if `which git >/dev/null 2>&1`
 then
-    if git config --local --get remote.origin.url >/dev/null
+    if git config --get remote.origin.url >/dev/null
     then
 	# assume we're in a git repository
 	git status -s pconf
