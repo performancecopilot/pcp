@@ -131,8 +131,6 @@ do
 	echo "Arrg, failed to start pmlogger and pmie at iteration $x"
 	ls -lR $tmp.dir
 	pminfo -f pmcd.pmlogger pmcd.pmie
-	echo "go check $tmp.dir and ps while I snooze ..."
-	sleep 3600
     fi
 
     $sudo $PCP_RC_DIR/pmcd stop >>$seq.full 2>&1
