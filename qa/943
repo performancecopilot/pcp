@@ -24,11 +24,13 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter_counts()
 {
-    # special case this one ...
+    # special case these ones ...
     # proc.psinfo.cgroups -61 No data available
+    # proc.psinfo.cgroups -12350 Metric not supported by this version of monitored application
     # then map any number of values to COUNT
     #
     sed -e '/proc.psinfo.cgroups/s/-61 No data available/1/' \
+        -e '/proc.psinfo.cgroups/s/-12350 .* application/1/' \
     | $PCP_AWK_PROG '$2 > 0 { $2 = "COUNT" } { print }' \
     | LC_COLLATE=POSIX sort
 }
