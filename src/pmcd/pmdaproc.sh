@@ -153,7 +153,7 @@ ipc_prot=binary
 #	Need to force a restart of pmcd?
 forced_restart=true
 #	Delay after install before checking (sec)
-check_delay=3
+check_delay=0.3
 #	Additional command line args to go in $PCP_PMCDCONF_PATH
 args=""
 #	ditto for perl PMDAs
@@ -364,13 +364,13 @@ END					{ exit status }'
 	then
 	    pmsignal -a -s HUP pmcd >/dev/null 2>&1
 	    # allow signal processing to be done before checking status
-	    sleep 2
+	    pmsleep 0.2
 	    __wait_for_pmcd
 	    if $__pmcd_is_dead
 	    then
 		__restore_pmcd
 		# give PMCD a chance to get back into original state
-	    sleep 3
+		pmsleep 3
 		__wait_for_pmcd
 	    fi
 	fi
@@ -386,7 +386,7 @@ END					{ exit status }'
 	then
 	    pmsignal -s $__sig $__pids >/dev/null 2>&1
 	    # allow signal processing to be done
-	    sleep 2
+	    pmsleep 0.2
 	else
 	    break
 	fi
@@ -453,7 +453,7 @@ $1=="'$myname'" && $2=="'$mydomain'"	{ next }
     then
 	pmsignal -a -s HUP pmcd >/dev/null 2>&1
 	# allow signal processing to be done before checking status
-	sleep 2
+	pmsleep 0.2
 	__wait_for_pmcd
 	$__pmcd_is_dead && __restore_pmcd
     else
@@ -1299,8 +1299,8 @@ _install()
 	    then
 		pmsignal -a -s HUP pmcd >/dev/null 2>&1
 		# Make sure the PMNS timestamp will be different the next
-		# time the PMNS is updated (for Linux only 1 sec resolution)
-		sleep 2
+		# time the PMNS is updated
+		pmsleep 0.2
 	    else
 		if grep 'Non-terminal "'"$__n"'" not found' $tmp/base >/dev/null
 		then
@@ -1340,8 +1340,8 @@ _install()
 	then
 	    pmsignal -a -s HUP pmcd >/dev/null 2>&1
 	    # Make sure the PMNS timestamp will be different the next
-	    # time the PMNS is updated (for Linux only 1 sec resolution)
-	    sleep 2
+	    # time the PMNS is updated 
+	    pmsleep 0.2
 	else
 	    echo "$prog: failed to add the PMNS entries for \"$__n\" ..."
 	    echo
@@ -1383,8 +1383,9 @@ _install()
 	#
 	if $do_check
 	then
-	    [ "$check_delay" -gt 5 ] && echo "Wait $check_delay seconds for the $iam agent to initialize ..."
-	    sleep $check_delay
+	    __delay_int=`echo $check_delay | sed -e 's/\..*//g'`
+	    [ "$__delay_int" -gt 5 ] && echo "Wait $check_delay seconds for the $iam agent to initialize ..."
+	    pmsleep $check_delay
 	    for __n in $pmns_name
 	    do
 		$PCP_ECHO_PROG $PCP_ECHO_N "Check $__n metrics have appeared ... ""$PCP_ECHO_C"
@@ -1419,7 +1420,7 @@ _remove()
 	then
 	    rm -f $PMNSDIR/$__n
 	    pmsignal -a -s HUP pmcd >/dev/null 2>&1
-	    sleep 2
+	    pmsleep 0.2
 	    echo "done"
 	else
 	    if grep 'Non-terminal "'"$__n"'" not found' $tmp/base >/dev/null
