@@ -19,6 +19,7 @@
 #include "pmda.h"
 #include <sys/stat.h>
 #include "root.h"
+#include "lxc.h"
 #include "docker.h"
 #include "domain.h"
 
@@ -73,6 +74,14 @@ static container_engine_t engines[] = {
 	.value_refresh	= docker_value_refresh,
 	.name_matching	= docker_name_matching,
     },
+    {
+	.name		= "lxc",
+	.setup		= lxc_setup,
+	.indom_changed	= lxc_indom_changed,
+	.insts_refresh	= lxc_insts_refresh,
+	.value_refresh	= lxc_value_refresh,
+	.name_matching	= lxc_name_matching,
+    },
 #endif
     { .name = NULL },
 };
@@ -109,7 +118,8 @@ root_refresh_container_values(char *container, container_t *values)
     container_engine_t *dp;
 
     for (dp = &engines[0]; dp->name != NULL; dp++)
-	dp->value_refresh(dp, container, values);
+	if (values->engine == dp)
+	    dp->value_refresh(dp, container, values);
 }
 
 container_t *
@@ -189,7 +199,7 @@ root_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->cp = cp->engine->name;
 	    break;
 	case 1:		/* containers.name */
-	    atom->cp = cp->name;
+	    atom->cp = *cp->name == '/' ? cp->name+1 : cp->name;
 	    break;
 	case 2:		/* containers.pid */
 	    atom->ul = cp->pid;

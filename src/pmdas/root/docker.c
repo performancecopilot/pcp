@@ -159,7 +159,7 @@ docker_insts_refresh(container_engine_t *dp, pmInDom indom)
     closedir(rundir);
 }
 
-int
+static int
 docker_values_changed(const char *path, container_t *values)
 {
     struct stat		statbuf;

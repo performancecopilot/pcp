@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015 Red Hat.
+ * Copyright (c) 2015 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,13 +13,13 @@
  */
 
 /*
- * Container engine implementation for Docker
+ * Container engine implementation for LXC
  */
 
-extern void docker_setup(container_engine_t *);
-extern int docker_indom_changed(container_engine_t *);
-extern void docker_insts_refresh(container_engine_t *, pmInDom);
-extern int docker_value_refresh(container_engine_t *, const char *,
+extern void lxc_setup(container_engine_t *);
+extern int lxc_indom_changed(container_engine_t *);
+extern void lxc_insts_refresh(container_engine_t *, pmInDom);
+extern int lxc_value_refresh(container_engine_t *, const char *,
 		container_t *);
-extern int docker_name_matching(container_engine_t *, const char *,
+extern int lxc_name_matching(container_engine_t *, const char *,
 		const char *, const char *);
