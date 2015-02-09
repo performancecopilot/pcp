@@ -1,4 +1,42 @@
-pcp-3.10.2 (23 January 2014)
+pcp-3.10.3 (2 March 2015)
+
+pcp-3.10.2 (23 January 2015)
+    - PMAPI extension: pmParseUnitsStr. Includes python binding
+    - libpcp/pmcd: protocol-level support for containers
+    - libpcp_pmda - add pmdaInterfaceMoved() function
+    - pmdalinux: improve help text for network metrics
+    - pmdalinux: remove support for devfs device names - replaced by udev
+    - pmdalinux: rework hinv.map.scsi for longer scsi device names and indom
+    - pmdalinux: switch to running as a daemon, as root
+      persistence
+    - activeMQ: new pmda
+    - CIFS: new pmda (Common Internet File System)
+    - pmda unbound: a new PMDA for the Unbound DNS resolver
+    - pmdapapi: add configure conditional to test for
+      PAPI_component_info_t->disabled
+    - pmdapapi: add papi.available.version to output current PAPI version being
+      used
+    - pmdapapi: other new metrics
+    - pmdapapi: drop root requirement for less sensitive papi.available metrics
+    - pmdapapi: use dynamic metric description
+    - dbpmda: extend string syntax to include both " and ' delimiters
+    - rc_pmcd: execute _pmda_setup in the background
+    - Solaris build improvements:
+      - Support for Solaris symbol versioning
+      - use a libcpp exports comment style that works for both Linux and Solaris
+    - pmwebd: buildability fixes for illumos-based distros
+    - pmda root: a privileged pmcd co-process
+      Initial implementation of "pmdaroot", a helper co-process
+      for pmcd that runs with elevated privileges and is able to
+      (well, will be able to soon) offer services to pmcd and to
+      other PMDAs where root access is required
+    - pmdaroot/libpcp_pmda: interfaces for changing namespaces
+    - pmlogextract robustness improvements
+    - add pcp2graphite
+    - fix security PR1101: unprivileged access to linux proc.* metrics on modern
+      kernel
+    - Fedora 1180109: pmda cleanup was killing unrelated python and perl
+      processes
 
 pcp-3.10.1 (1 December 2014)
     - pmda proc: rework existing per-cgroup metrics - no

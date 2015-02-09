@@ -188,12 +188,8 @@ An optional daemon (pmmgr) that manages a collection of pmlogger and
 pmie daemons, for a set of discovered local and remote hosts running
 the performance metrics collection daemon (pmcd).  It ensures these
 daemons are running when appropriate, and manages their log rotation
-needs (which are particularly complex in the case of pmlogger).
-The base PCP package provides comparable functionality through cron
-scripts which predate this daemon but do still provide effective and
-efficient log management services.
-The pcp-manager package aims to aggressively enable new PCP features
-and as a result may not be suited to all production environments.
+needs.  It is an alternative to the cron-based pmlogger/pmie service
+scripts.
 %endif
 
 %if "@enable_webapi@" == "true"
@@ -652,8 +648,12 @@ $1 == "f" && $6 ~ "etc/pcp.env"  { printf ("%%%%config ") >> f; }
 $1 == "f" && $6 ~ "etc/pcp.sh"   { printf ("%%%%config ") >> f; }
 $1 == "f" {
 	    for (i=0; i < nconf; i++) {
-	    	if ($6 ~ conf[i]) {
-		    printf ("%%%%config(noreplace) ") >> f;
+		if ($6 ~ conf[i]) {
+		    if ($6 ~ "pmmgr") {
+			printf ("%%%%config(noreplace,missingok) ") >> f;
+		    } else {
+			printf ("%%%%config(noreplace) ") >> f;
+		    }
 		    break;
 		}
 	    }
@@ -885,6 +885,8 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %if "@enable_manager@" == "true"
 %files manager -f manager_files.rpm
 %defattr(-,root,root)
+# %config(missingok,noreplace) /etc/pcp/pmmgr
+# set via awk processing above
 %endif
 
 %files testsuite -f testsuite_files.rpm

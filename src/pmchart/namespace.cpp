@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2015, Red Hat.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
@@ -94,12 +95,16 @@ QString NameSpace::sourceTip()
     tooltip = "Performance metrics from host ";
     tooltip.append(source.host());
 
-    if (my.context->source().type() == PM_CONTEXT_ARCHIVE) {
+    if (source.type() == PM_CONTEXT_ARCHIVE) {
 	tooltip.append("\n  commencing ");
 	tooltip.append(source.startTime());
 	tooltip.append("\n  ending            ");
 	tooltip.append(source.endTime());
+    } else if (source.attributes() != QString::null) {
+	tooltip.append("\nAttributes: ");
+	tooltip.append(source.attributes());
     }
+
     tooltip.append("\nTimezone: ");
     tooltip.append(source.timezone());
     return tooltip;

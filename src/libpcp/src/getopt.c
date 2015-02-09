@@ -725,6 +725,8 @@ __pmStartOptions(pmOptions *opts)
 	else if (strcmp(s, "LOCALMODE") == 0)
 	    __pmSetLocalContextFlag(opts);
 	else if (strcmp(s, "NAMESPACE") == 0)
+	    __pmSetNameSpace(opts, value, 1);
+	else if (strcmp(s, "UNIQNAMES") == 0)
 	    __pmSetNameSpace(opts, value, 0);
 	else if (strcmp(s, "ORIGIN") == 0 ||
 		 strcmp(s, "ORIGIN_TIME") == 0)
@@ -803,10 +805,10 @@ pmGetOptions(int argc, char *const *argv, pmOptions *opts)
 	    __pmSetLocalContextFlag(opts);
 	    break;
 	case 'N':
-	    __pmSetNameSpace(opts, opts->optarg, 1);
+	    __pmSetNameSpace(opts, opts->optarg, 0);
 	    break;
 	case 'n':
-	    __pmSetNameSpace(opts, opts->optarg, 0);
+	    __pmSetNameSpace(opts, opts->optarg, 1);
 	    break;
 	case 'O':
 	    __pmSetOrigin(opts, opts->optarg);

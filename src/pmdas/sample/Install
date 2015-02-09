@@ -21,6 +21,7 @@
 iam=sample
 forced_restart=false
 pmda_interface=2
+pmns_dupok=true		# we have duplicate names in our PMNS
 
 # Do it for sample
 #

@@ -54,11 +54,12 @@ static void
 foo(FILE *f, char *fn, int i, void *closure)
 {
     int		sts;
+    int		numnames;
     int		j;
     int		leaf;
     pmID	pmids[NMETRIC];
-    char	*tmp;
-    char	**tmpset;
+    char	**names;
+    char	*name;
     int		*stsset;
     char	strbuf[20];
 
@@ -80,35 +81,43 @@ foo(FILE *f, char *fn, int i, void *closure)
     fprintf(f, "%s: %s", fn, namelist[i]);
     if (pmidlist[i] != PM_ID_NULL) {
 	/* leaf node in PMNS */
-	if ((sts = pmNameID(pmidlist[i], &tmp)) < 0) {
+	if ((numnames = pmNameAll(pmidlist[i], &names)) < 0) {
+	    fprintf(f, "\n%s: %s ...: pmNameAll Error: %s\n", fn, namelist[i], pmErrStr(numnames));
+	    pthread_exit("botch");
+	}
+	for (j = 0; j < numnames; j++) {
+	    if (strcmp(names[j], namelist[i]) == 0)
+		break;
+	}
+	if (j == numnames) {
+	    fprintf(f, "\n%s: %s: Botch: expecting %s, got {", fn, pmIDStr_r(pmidlist[i], strbuf, sizeof(strbuf)), namelist[i]);
+	    __pmPrintMetricNames(f, numnames, names, ",");
+	    fprintf(f, "}\n");
+	    pthread_exit("botch");
+	}
+	fprintf(f, " pmNameAll OK");
+	if ((sts = pmNameID(pmidlist[i], &name)) < 0) {
 	    fprintf(f, "\n%s: %s ...: pmNameID Error: %s\n", fn, namelist[i], pmErrStr(sts));
 	    pthread_exit("botch");
 	}
-	if (strcmp(tmp, namelist[i]) != 0) {
-	    fprintf(f, "\n%s: %s: Botch: expecting %s, got %s\n", fn, pmIDStr_r(pmidlist[i], strbuf, sizeof(strbuf)), namelist[i], tmp);
+	for (j = 0; j < numnames; j++) {
+	    if (strcmp(name, names[j]) == 0)
+		break;
+	}
+	if (j == numnames) {
+	    fprintf(f, "\n%s: %s: Botch: expecting one of {", fn, pmIDStr_r(pmidlist[i], strbuf, sizeof(strbuf)));
+	    __pmPrintMetricNames(f, numnames, names, ",");
+	    fprintf(f, "}, got %s\n", name);
 	    pthread_exit("botch");
 	}
-	free(tmp);
+	free(names);
+	free(name);
 	fprintf(f, " pmNameID OK");
-	if ((sts = pmNameAll(pmidlist[i], &tmpset)) < 0) {
-	    fprintf(f, "\n%s: %s ...: pmNameAll Error: %s\n", fn, namelist[i], pmErrStr(sts));
-	    pthread_exit("botch");
-	}
-	if (sts != 1) {
-	    fprintf(f, "\n%s: %s ...: pmNameAll Botch: expecting %d, got %d\n", fn, namelist[i], 1, sts);
-	    pthread_exit("botch");
-	}
-	if (strcmp(tmpset[0], namelist[i]) != 0) {
-	    fprintf(f, "\n%s: %s: Botch: expecting %s, got %s\n", fn, pmIDStr_r(pmidlist[i], strbuf, sizeof(strbuf)), namelist[i], tmpset[0]);
-	    pthread_exit("botch");
-	}
-	free(tmpset);
-	fprintf(f, " pmNameAll OK");
     }
     else {
 	/* non-leaf node in PMNS */
 	int	keep = 0;
-	if ((sts = pmGetChildrenStatus(namelist[i], &tmpset, &stsset)) < 0) {
+	if ((sts = pmGetChildrenStatus(namelist[i], &names, &stsset)) < 0) {
 	    fprintf(f, "\n%s: %s ...: pmGetChildrenStatus Error: %s\n", fn, namelist[i], pmErrStr(sts));
 	    pthread_exit("botch");
 	}
@@ -119,7 +128,7 @@ foo(FILE *f, char *fn, int i, void *closure)
 	if (leaf_chn[i] == -1) {
 	    leaf_chn[i] = leaf;
 	    nonleaf_chn[i] = sts - leaf;
-	    chn[i] = tmpset;
+	    chn[i] = names;
 	    keep = 1;
 	}
 	else {
@@ -128,17 +137,17 @@ foo(FILE *f, char *fn, int i, void *closure)
 		pthread_exit("botch");
 	    }
 	    for (j = 0; j < sts; j++) {
-		if (strcmp(chn[i][j], tmpset[j]) != 0) {
-		    fprintf(f, "\n%s: %s: Botch: child[%d] expecting %s, got %s\n", fn, namelist[i], j, chn[i][j], tmpset[j]);
+		if (strcmp(chn[i][j], names[j]) != 0) {
+		    fprintf(f, "\n%s: %s: Botch: child[%d] expecting %s, got %s\n", fn, namelist[i], j, chn[i][j], names[j]);
 		    pthread_exit("botch");
 		}
 	    }
 	}
 	if (keep == 0)
-	    free(tmpset);
+	    free(names);
 	free(stsset);
 	fprintf(f, " pmGetChildrenStatus OK");
-	if ((sts = pmGetChildren(namelist[i], &tmpset)) < 0) {
+	if ((sts = pmGetChildren(namelist[i], &names)) < 0) {
 	    fprintf(f, "\n%s: %s ...: pmGetChildren Error: %s\n", fn, namelist[i], pmErrStr(sts));
 	    pthread_exit("botch");
 	}
@@ -147,12 +156,12 @@ foo(FILE *f, char *fn, int i, void *closure)
 	    pthread_exit("botch");
 	}
 	for (j = 0; j < sts; j++) {
-	    if (strcmp(chn[i][j], tmpset[j]) != 0) {
-		fprintf(f, "\n%s: %s: Botch: child[%d] expecting %s, got %s\n", fn, namelist[i], j, chn[i][j], tmpset[j]);
+	    if (strcmp(chn[i][j], names[j]) != 0) {
+		fprintf(f, "\n%s: %s: Botch: child[%d] expecting %s, got %s\n", fn, namelist[i], j, chn[i][j], names[j]);
 		pthread_exit("botch");
 	    }
 	}
-	free(tmpset);
+	free(names);
 	fprintf(f, " pmGetChildren OK");
 	*((int *)closure) = 0;
 	if ((sts = pmTraversePMNS_r(namelist[i], dometric, closure)) < 0) {

@@ -578,16 +578,25 @@ dump_valueset(FILE *f, pmValueSet *vsp)
     pmDesc	desc;
     char	errmsg[PM_MAXERRMSGLEN];
     char	strbuf[20];
-    char	*pmid, *p;
+    char	*pmid;
+    char	*p;
+    char	**names;
     int		have_desc = 1;
     int		n, j;
 
     pmid = pmIDStr_r(vsp->pmid, strbuf, sizeof(strbuf));
-    if ((n = pmNameID(vsp->pmid, &p)) < 0)
-	fprintf(f,"  %s (%s):", pmid, "<noname>");
+    if ((n = pmNameAll(vsp->pmid, &names)) < 0)
+	fprintf(f, "  %s (%s):", pmid, "<noname>");
     else {
-	fprintf(f,"  %s (%s):", pmid, p);
-	free(p);
+	int	j;
+	fprintf(f, "  %s (", pmid);
+	for (j = 0; j < n; j++) {
+	    if (j > 0)
+		fprintf(f, ", ");
+	    fprintf(f, "%s", names[j]);
+	}
+	fprintf(f, "):");
+	free(names);
     }
     if (vsp->numval == 0) {
 	fprintf(f, " No values returned!\n");
@@ -609,7 +618,7 @@ dump_valueset(FILE *f, pmValueSet *vsp)
     for (j = 0; j < vsp->numval; j++) {
 	pmValue	*vp = &vsp->vlist[j];
 	if (vsp->numval > 1 || vp->inst != PM_INDOM_NULL) {
-	    fprintf(f,"    inst [%d", vp->inst);
+	    fprintf(f, "    inst [%d", vp->inst);
 	    if (have_desc &&
 		pmNameInDom(desc.indom, vp->inst, &p) >= 0) {
 		fprintf(f, " or \"%s\"]", p);
@@ -1137,7 +1146,7 @@ __pmPrintDesc(FILE *f, const pmDesc *desc)
     if (type == unknownVal)
 	fprintf(f, " (%d)", desc->type);
 
-    fprintf(f,"  InDom: %s 0x%x\n", pmInDomStr_r(desc->indom, strbuf, sizeof(strbuf)), desc->indom);
+    fprintf(f, "  InDom: %s 0x%x\n", pmInDomStr_r(desc->indom, strbuf, sizeof(strbuf)), desc->indom);
 
     switch (desc->sem) {
 	case PM_SEM_COUNTER:

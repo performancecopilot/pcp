@@ -21,9 +21,9 @@ CMDTARGET	= pmda$(IAM)$(EXECSUFFIX)
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 CONF_LINE	= "root	1	pipe	binary		$(PMDADIR)/$(CMDTARGET)"
 
-CFILES		= root.c jsmn.c
+CFILES		= root.c
 ifeq "$(TARGET_OS)" "linux"
-CFILES		+= docker.c
+CFILES		+= jsmn.c docker.c lxc.c
 endif
 
 SCRIPTS		= Install Remove

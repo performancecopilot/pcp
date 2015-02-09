@@ -1,0 +1,72 @@
+#!/bin/sh
+# PCP QA Test No. 838
+# Check that -d option (duplicate are OK in the PMNS) is deprecated
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e '/Operation not permitted/d' \
+	-e '/^ *$/d'
+    # end
+}
+
+
+mkdir $tmp.pmns
+cd $tmp.pmns
+
+cat <<End-of-File >root_one
+root {
+    one
+}
+one {
+    foo	1:2:3
+    bar 1:4:5
+}
+End-of-File
+
+cat <<End-of-File >two
+two {
+    mumble	2:0:0
+    fumble	2:0:0	/* duplicate name */
+}
+End-of-File
+
+# real QA test starts here
+echo "=== Rebuild -d ==="
+$PCP_VAR_DIR/pmns/Rebuild -d 2>&1 | _filter
+pminfo -n root -m
+
+echo
+echo "=== pmnsadd -d ==="
+pmnsadd -d -n root two
+pminfo -n root -m
+
+echo
+echo "=== pmnsdel -d ==="
+pmnsdel -d -n root one
+pminfo -n root -m
+
+echo
+echo "=== pmnsmerge -d ==="
+pmnsmerge -d root root_one root_new
+pminfo -n root_new -m
+
+# success, all done
+status=0
+
+exit

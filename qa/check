@@ -566,6 +566,10 @@ do
     fi
     [ -f $seq.notrun ] || try=`expr $try + 1`
     rm -f $seq.notrun
+
+    # optional callback
+    #
+    [ -x check.callback ] && check.callback $seq
 done
 
 interrupt=false

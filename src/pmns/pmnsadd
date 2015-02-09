@@ -30,13 +30,12 @@ _usage()
 }
 
 namespace=${PMNS_DEFAULT-$PCP_VAR_DIR/pmns/root}
-dupok=""
 
 while getopts dn:\? c
 do
     case $c
     in
-	d)	dupok="-d"
+	d)	echo "$prog: Warning: -d deprecated, duplicate PMNS names allowed by default"
 		;;
 	n)	namespace=$OPTARG
 		;;
@@ -108,7 +107,7 @@ fi
 rm -f $namespace.new
 [ -f $namespace ] && cp -p $namespace $namespace.new
 
-$PCP_BINADM_DIR/pmnsmerge -f $dupok $namespace $tmp/tmp $namespace.new
+$PCP_BINADM_DIR/pmnsmerge -f $namespace $tmp/tmp $namespace.new
 exitsts=$?
 
 # from here on, ignore SIGINT, SIGHUP and SIGTERM to protect

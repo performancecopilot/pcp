@@ -96,7 +96,7 @@ pmResult ... numpmid: 1
    value STRING AGGREGATE
 Fetch of sample.seconds:
 pmResult ... numpmid: 1
-  29.0.2 (sample.seconds): numval: 1 valfmt: 0 vlist[]:
+  29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
 Fetch of sample.colour:
 pmResult ... numpmid: 1

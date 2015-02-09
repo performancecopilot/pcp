@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2014 Red Hat.
+# Copyright (c) 2012-2015 Red Hat.
 # Copyright (c) 2010 Aconex.  All Rights Reserved.
 #
 
@@ -7,8 +7,12 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/pmdas
-SUBDIRS = broken bigun dynamic slow slow_python memory_python test_perl \
+SUBDIRS = broken bigun dynamic slow test_perl \
 	  schizo
+
+ifeq "$(ENABLE_PYTHON)" "true"
+SUBDIRS += slow_python memory_python
+endif
 
 default default_pcp: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)

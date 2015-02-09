@@ -1,0 +1,301 @@
+QA output created by 762
+
+PMID 29.0.0 sample.control: A control variable for the "sample" PMDA
+
+PMID 29.0.1 sample.dupnames.pid_daemon or sample.dupnames.daemon_pid or sample.daemon_pid: Process id of PMDA daemon
+
+PMID 29.0.2 sample.dupnames.two.seconds or sample.seconds: Elapsed time (seconds)
+
+PMID 29.0.3 sample.milliseconds: Elapsed time (milliseconds)
+
+PMID 29.0.4 sample.load: Hypothetical load
+
+PMID 29.0.5 sample.colour: Metrics with a "saw-tooth" trend over time
+
+PMID 29.0.6 sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin: Several constant instances
+
+PMID 29.0.7 sample.drift: A random trended metric
+
+PMID 29.0.8 sample.step: A step function (instantaneous)
+
+PMID 29.0.9 sample.noinst: No instance available
+
+PMID 29.0.10 sample.long.one: 1 as a 32-bit integer
+
+PMID 29.0.11 sample.long.ten: 10 as a 32-bit integer
+
+PMID 29.0.12 sample.long.hundred: 100 as a 32-bit integer
+
+PMID 29.0.13 sample.long.million: 1000000 as a 32-bit integer
+
+PMID 29.0.14 sample.long.write_me: a 32-bit integer that can be modified
+
+PMID 29.0.15 sample.float.one: 1 as a 32-bit floating point value
+
+PMID 29.0.16 sample.dupnames.two.float.ten or sample.float.ten: 10 as a 32-bit floating point value
+
+PMID 29.0.17 sample.float.hundred: 100 as a 32-bit floating point value
+
+PMID 29.0.18 sample.float.million: 1000000 as a 32-bit floating point value
+
+PMID 29.0.19 sample.float.write_me: a 32-bit floating-point value that can be modified
+
+PMID 29.0.20 sample.longlong.one: 1 as a 64-bit integer
+
+PMID 29.0.21 sample.longlong.ten: 10 as a 64-bit integer
+
+PMID 29.0.22 sample.longlong.hundred: 100 as a 64-bit integer
+
+PMID 29.0.23 sample.longlong.million: 1000000 as a 64-bit integer
+
+PMID 29.0.24 sample.longlong.write_me: a 64-bit integer that can be modified
+
+PMID 29.0.25 sample.double.one: 1 as a 64-bit floating point value
+
+PMID 29.0.26 sample.dupnames.two.double.ten or sample.double.ten: 10 as a 64-bit floating point value
+
+PMID 29.0.27 sample.double.hundred: 100 as a 64-bit floating point value
+
+PMID 29.0.28 sample.double.million: 1000000 as a 64-bit floating point value
+
+PMID 29.0.29 sample.double.write_me: a 64-bit floating-point value that can be modified
+
+PMID 29.0.30 sample.string.null: a zero length string
+
+PMID 29.0.31 sample.string.hullo: K&R have a lot to answer for
+
+PMID 29.0.32 sample.string.write_me: a string value that can be modified
+
+PMID 29.0.33 sample.aggregate.null: a zero length aggregate
+
+PMID 29.0.34 sample.aggregate.hullo: K&R have a lot to answer for
+
+PMID 29.0.35 sample.aggregate.write_me: a aggregate value that can be modified
+
+PMID 29.0.36 sample.dupnames.three.write_me or sample.dupnames.two.write_me or sample.write_me: Modifiable, but otherwise constant.
+
+PMID 29.0.37 sample.mirage: Simple saw-tooth rate, but instances come and go
+
+PMID 29.0.38 sample.mirage_longlong: Simple saw-tooth rate, but instances come and go
+
+PMID 29.0.39 sample.sysinfo: Aggregate containing system accounting structures
+
+PMID 29.0.40 sample.pdu: Total PDU count
+
+PMID 29.0.41 sample.recv_pdu: Count of PDUs received
+
+PMID 29.0.42 sample.xmit_pdu: Count of PDUs transmitted
+
+PMID 29.0.43 sample.percontext.pdu: Total PDU count for the client context
+
+PMID 29.0.44 sample.percontext.recv_pdu: Count of PDUs received from the client context
+
+PMID 29.0.45 sample.percontext.xmit_pdu: Count of PDUs transmitted
+
+PMID 29.0.46 sample.dupnames.two.lights or sample.lights: Traffic lights.
+
+PMID 29.0.47 sample.magnitude: Powers of two.
+
+PMID 29.0.48 sample.bucket: Several constant instances
+
+PMID 29.0.49 sample.needprofile: Metrics that need an explicit profile
+
+PMID 29.0.50 sample.part_bin: Several constant instances
+
+PMID 29.0.51 sample.bogus_bin: Several constant instances
+
+PMID 29.0.52 sample.hordes.one: 500 instances
+
+PMID 29.0.53 sample.hordes.two: 500 instances
+
+PMID 29.0.54 sample.bad.unknown: Not known to the PMDA
+
+PMID 29.0.55 sample.bad.nosupport: Not supported in this version of the PMDA
+
+PMID 29.0.56 sample.not_ready: interval (in seconds) during which PMDA does not respond to PDUs
+
+PMID 29.0.57 sample.wrap.long: long counter that wraps
+
+PMID 29.0.58 sample.wrap.ulong: unsigned long counter that wraps
+
+PMID 29.0.59 sample.wrap.longlong: long long counter that wraps
+
+PMID 29.0.60 sample.wrap.ulonglong: unsigned long long counter that wraps
+
+PMID 29.0.61 sample.dodgey.control: control values retured for sample.dodgey.value
+
+PMID 29.0.62 sample.dodgey.value: 5 unreliable instances
+
+PMID 29.0.63 sample.step_counter: A step function (counter)
+
+PMID 29.0.64 sample.rapid: count very quickly
+
+PMID 29.0.65 sample.scale_step.bytes_up: count up by powers of 2, wrap back to one at 10 Tbytes
+
+PMID 29.0.66 sample.scale_step.bytes_down: count down by powers of 2, wrap back to 10 Tbytes at 1
+
+PMID 29.0.67 sample.scale_step.count_up: count up by powers of 10, wrap back to 1 at 10e12
+
+PMID 29.0.68 sample.scale_step.count_down: count down by powers of 10, wrap back to 10e12 at 1
+
+PMID 29.0.69 sample.scale_step.time_up_secs: count up seconds by multiples of 10, wrap back to 1 second at 1 day
+
+PMID 29.0.70 sample.scale_step.time_up_nanosecs: count up nanoseconds by multiples of 10, wrap back to 1 nanosecond at 1 day
+
+PMID 29.0.71 sample.scale_step.none_up: count up dimensionless by multiples of 10, wrap back to 1 at 10 million
+
+PMID 29.0.72 sample.const_rate.value: constant rate counter
+
+PMID 29.0.73 sample.const_rate.gradient: rate per second to set sample.const_rate.value, writable
+
+PMID 29.0.74 sample.error_code: Arbitrary PMAPI error code for sample.error_check
+
+PMID 29.0.75 sample.error_check: Return PMAPI error code from sample.error_code
+
+PMID 29.0.76 sample.dynamic.counter: counter metric with dynamic indom
+
+PMID 29.0.77 sample.dynamic.discrete: discrete metric with dynamic indom
+
+PMID 29.0.78 sample.dynamic.instant: instant metric with dynamic indom
+
+PMID 29.0.79 sample.many.count: number of instances in sample.many.int's domain
+
+PMID 29.0.80 sample.many.int: variable sized instance domain
+
+PMID 29.0.81 sample.byte_ctr: counter byte counter
+
+PMID 29.0.82 sample.byte_rate: instantaneous bytes/second 
+
+PMID 29.0.83 sample.kbyte_ctr: counter Kbytes/second
+
+PMID 29.0.84 sample.kbyte_rate: instantaneous Kbytes/second
+
+PMID 29.0.85 sample.byte_rate_perhour: instantaneous bytes/hour
+
+PMID 29.0.86 sample.dynamic.meta.metric: metric with modifiable metadata
+
+PMID 29.0.87 sample.dynamic.meta.pmdesc.type: pmDesc.type for sample.dynamic.meta.metric
+
+PMID 29.0.88 sample.dynamic.meta.pmdesc.indom: pmDesc.indom for sample.dynamic.meta.metric
+
+PMID 29.0.89 sample.dynamic.meta.pmdesc.sem: pmDesc.sem for sample.dynamic.meta.metric
+
+PMID 29.0.90 sample.dynamic.meta.pmdesc.units: pmDesc.units for sample.dynamic.meta.metric
+
+PMID 29.0.91 sample.datasize: Space allocated for PMDA's data segment
+
+PMID 29.0.92 sample.darkness: No values available
+
+PMID 29.0.93 sample.ulong.one: 1 as a 32-bit unsigned integer
+
+PMID 29.0.94 sample.ulong.ten: 10 as a 32-bit unsigned integer
+
+PMID 29.0.95 sample.ulong.hundred: 100 as a 32-bit unsigned integer
+
+PMID 29.0.96 sample.ulong.million: 1000000 as a 32-bit unsigned integer
+
+PMID 29.0.97 sample.ulong.write_me: a 32-bit unsigned integer that can be modified
+
+PMID 29.0.98 sample.ulonglong.one: 1 as a 64-bit unsigned integer
+
+PMID 29.0.99 sample.ulonglong.ten: 10 as a 64-bit unsigned integer
+
+PMID 29.0.100 sample.ulonglong.hundred: 100 as a 64-bit unsigned integer
+
+PMID 29.0.101 sample.ulonglong.million: 1000000 as a 64-bit unsigned integer
+
+PMID 29.0.102 sample.ulonglong.write_me: a 64-bit unsigned integer that can be modified
+
+PMID 29.0.103 sample.long.bin: like sample.bin but type 32
+
+PMID 29.0.104 sample.long.bin_ctr: like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE
+
+PMID 29.0.105 sample.ulong.bin: like sample.bin but type U32
+
+PMID 29.0.106 sample.ulong.bin_ctr: like sample.bin but type U32, SEM_COUNTER and SPACE_KBYTE
+
+PMID 29.0.107 sample.float.bin: like sample.bin but type FLOAT
+
+PMID 29.0.108 sample.float.bin_ctr: like sample.bin but type FLOAT, SEM_COUNTER and SPACE_KBYTE
+
+PMID 29.0.109 sample.longlong.bin: like sample.bin but type 64
+
+PMID 29.0.110 sample.longlong.bin_ctr: like sample.bin but type 64, SEM_COUNTER and SPACE_KBYTE
+
+PMID 29.0.111 sample.ulonglong.bin: like sample.bin but type U64
+
+PMID 29.0.112 sample.ulonglong.bin_ctr: like sample.bin but type U64, SEM_COUNTER and SPACE_KBYTE
+
+PMID 29.0.113 sample.double.bin: like sample.bin but type DOUBLE
+
+PMID 29.0.114 sample.double.bin_ctr: like sample.bin but type DOUBLE, SEM_COUNTER and SPACE_KBYTE
+
+PMID 29.0.115 sample.ulong.count.base: count scale is 1, value is 42,000,000
+
+PMID 29.0.116 sample.ulong.count.deca: count scale is 10, value is 4,200,000
+
+PMID 29.0.117 sample.ulong.count.hecto: count scale is 10, value is 420,000
+
+PMID 29.0.118 sample.ulong.count.kilo: count scale is 10, value is 42,000
+
+PMID 29.0.119 sample.ulong.count.mega: count scale is 10, value is 42
+
+PMID 29.0.120 sample.scramble.version: Current state version and reset for sample.scramble.bin
+
+PMID 29.0.121 sample.scramble.bin: Several constant instances, instances scrambled
+
+PMID 29.0.122 sample.percontext.control.ctx: Number of PMAPI contexts seen
+
+PMID 29.0.123 sample.percontext.control.active: Number of active PMAPI contexts
+
+PMID 29.0.124 sample.percontext.control.start: Number of new PMAPI contexts seen
+
+PMID 29.0.125 sample.percontext.control.end: Number of PMAPI contexts closed
+
+PMID 29.0.126 sample.event.reset: reset event record state
+
+PMID 29.0.127 sample.event.type: event type parameter for event records
+
+PMID 29.0.128 sample.event.param_32: 32 parameter for event records
+
+PMID 29.0.129 sample.event.param_u32: U32 parameter for event records
+
+PMID 29.0.130 sample.event.param_64: 64 parameter for event records
+
+PMID 29.0.131 sample.event.param_u64: U64 parameter for event records
+
+PMID 29.0.132 sample.event.param_float: FLOAT parameter for event records
+
+PMID 29.0.133 sample.event.param_double: DOUBLE parameter for event records
+
+PMID 29.0.134 sample.event.param_string: STRING parameter for event records
+
+PMID 29.0.135 sample.event.param_aggregate: AGGREGATE parameter for event records
+
+PMID 29.0.136 sample.event.records: Dummy event records
+
+PMID 29.0.137 sample.event.no_indom_records: More dummy event records
+
+PMID 29.0.138 sample.bad.novalues: Scalar with no values, ever
+
+PMID 29.0.139 sample.event.highres_records: Dummy highres timestamp event records
+
+PMID 29.0.140 sample.event.reset_highres: reset highres event record state
+
+PMID 29.0.1000: dynamic *.secret.bar metric
+
+PMID 29.0.1001: dynamic *.secret.foo.one metric
+
+PMID 29.0.1002: dynamic *.secret.foo.two metric
+
+PMID 29.0.1003: dynamic *.secret.foo.bar.three metric
+
+PMID 29.0.1004: dynamic *.secret.foo.bar.four metric
+
+PMID 29.0.1005: dynamic *.secret.foo.bar.grunt.five metric
+
+PMID 29.0.1006: dynamic *.secret.foo.bar.grunt.snort.six metric
+
+PMID 29.0.1007: dynamic *.secret.foo.bar.grunt.snort.huff.puff.seven metric
+
+PMID 29.0.1023 sample.bigid: a metric with item number bigger then 2^9

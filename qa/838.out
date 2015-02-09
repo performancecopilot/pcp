@@ -1,0 +1,24 @@
+QA output created by 838
+=== Rebuild -d ===
+Rebuild: Warning: -d deprecated, duplicate PMNS names allowed by default
+one.foo PMID: 1.2.3
+one.bar PMID: 1.4.5
+
+=== pmnsadd -d ===
+pmnsadd: Warning: -d deprecated, duplicate PMNS names allowed by default
+one.foo PMID: 1.2.3
+one.bar PMID: 1.4.5
+two.mumble PMID: 2.0.0
+two.fumble PMID: 2.0.0
+
+=== pmnsdel -d ===
+pmnsdel: Warning: -d deprecated, duplicate PMNS names allowed by default
+two.mumble PMID: 2.0.0
+two.fumble PMID: 2.0.0
+
+=== pmnsmerge -d ===
+pmnsmerge: Warning: -d deprecated, duplicate PMNS names allowed by default
+two.mumble PMID: 2.0.0
+two.fumble PMID: 2.0.0
+one.foo PMID: 1.2.3
+one.bar PMID: 1.4.5

@@ -645,8 +645,8 @@ extern char *pmGetConfig(const char *);
 			"metrics source is local connection to a PMDA" }
 #define PMOPT_NAMESPACE	{ "namespace",	1, 'n', "FILE", \
 			"use an alternative PMNS" }
-#define PMOPT_DUPNAMES	{ "dupnames",	1, 'N', "FILE", \
-			"use an alternative PMNS (duplicate names allowed)" }
+#define PMOPT_UNIQNAMES	{ "uniqnames",	1, 'N', "FILE", \
+			"like -n but only one name allowed for each PMID" }
 #define PMOPT_ORIGIN	{ "origin",	1, 'O', "TIME", \
 			"initial sample time within the time window" }
 #define PMOPT_GUIPORT	{ "guiport",	1, 'p', "N", \

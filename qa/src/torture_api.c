@@ -268,7 +268,7 @@ test_api(void)
     char		**inamelist;
     int			n;
     int			numpmid = MAXNAMES;
-    char		*back;
+    char		**names;
     pmResult		*resp;
     pmDesc		desc;
 
@@ -346,19 +346,30 @@ test_api(void)
 	    do_chn(namelist[i]);
 	if (midlist[i] != PM_ID_NULL) {
 	    _op++;
-	    n = pmNameID(midlist[i], &back);
+	    n = pmNameAll(midlist[i], &names);
 	    if (n < 0) {
 		_err++;
-		printf("pmNameID: %s\n", pmErrStr(n));
+		printf("pmNameAll: %s\n", pmErrStr(n));
 	    }
 	    else {
-		if (strcmp(namelist[i], back) != 0 &&
-		    strcmp(&namelist[i][5], back) != 0) {
-		    _err++;
-		    printf("pmNameID botch: expected \"%s\", got \"%s\"\n",
-			namelist[i], back);
+		/*
+		 * strange [5] here is to skip over kernel. prefix ...
+		 * this is from a bog of eternal stench, long, long ago
+		 */
+		int	k;
+		for (k = 0; k < n; k++) {
+		    if (strcmp(namelist[i], names[k]) == 0 ||
+			strcmp(&namelist[i][5], names[k]) == 0)
+			break;
 		}
-		free(back);
+		if (k == n) {
+		    _err++;
+		    printf("pmNameAll botch: expected \"%s\", got \"",
+			namelist[i]);
+		    __pmPrintMetricNames(stdout, n, names, " or ");
+		    printf("\"\n");
+		}
+		free(names);
 	    }
 	    _op++;
 	    if ((n = pmLookupDesc(midlist[i], &desc)) < 0) {

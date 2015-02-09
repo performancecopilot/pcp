@@ -182,7 +182,7 @@ bison
 gdb
 mktemp
 gawk
-cpan
+cpan				[(QA optional)]
 # optional executables
 dpkg?	dpkg-buildpackage	[dpkg-dev]
 dpkg?	dh			[debhelper]
@@ -235,21 +235,22 @@ rpm	time			[time]
 # other run-time
 sadf				[sysstat]
 # QA
-bc
-curl
+bc				[(QA optional)]
+curl				[(QA optional)]
+socat				[(QA optional)]
 dpkg?	Spreadsheet::XLSX	[libspreadsheet-xlsx-perl (QA optional)]
 rpm?	Spreadsheet::XLSX	[from cpan (QA optional)]
 dpkg?	Text::CSV_XS		[Text-CSV_XS (QA optional)]
 rpm?	Text::CSV_XS		[perl-Text-CSV_XS (QA optional)]
 crontab				[from vixie-cron?]
-valgrind
+valgrind			[(QA optional)]
 dpkg?	mail			[bsd-mailx (QA optional)]
 rpm?	mail			[mailx (QA optional)]
 host				[bind-utils(redhat)]
 dpkg?	apache2			[apache2 (QA optional)]
 rpm?	httpd			[httpd (QA optional)]
 dpkg?	realpath		[realpath]
-dpkg?	unbound-control		[unbound]
+dpkg?	unbound-control		[unbound (QA optional)]
 # pcp-gui
 dpkg?	qmake			[qt4-qmake (build optional)]
 rpm?	qmake|/usr/lib64/qt4/bin/qmake|/usr/lib/qt4/bin/qmake		[qt4-devel (build optional)]

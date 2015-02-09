@@ -19,7 +19,6 @@
 extern void docker_setup(container_engine_t *);
 extern int docker_indom_changed(container_engine_t *);
 extern void docker_insts_refresh(container_engine_t *, pmInDom);
-extern int docker_values_changed(const char *, container_t *);
 extern int docker_value_refresh(container_engine_t *, const char *,
 		container_t *);
 extern int docker_name_matching(container_engine_t *, const char *,

@@ -1,840 +1,387 @@
 QA output created by 731
 == Running valgrind for cgroup fetch - cgroups-root-001.tgz
 === std out ===
-
-cgroup.subsys.hierarchy
-    Data Type: 32-bit unsigned int  InDom: 3.37 0xc00025
-    Semantics: instant  Units: none
-    inst [0 or "cpuset"] value 1
-    inst [1 or "ns"] value 0
-    inst [2 or "cpu"] value 2
-    inst [3 or "cpuacct"] value 3
-    inst [4 or "memory"] value 4
-    inst [5 or "devices"] value 5
-    inst [6 or "freezer"] value 6
-    inst [7 or "net_cls"] value 7
-    inst [8 or "blkio"] value 8
-    inst [9 or "perf_event"] value 0
-    inst [10 or "net_prio"] value 0
-
-cgroup.subsys.count
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
-    value 11
-
-cgroup.subsys.num_cgroups
-    Data Type: 32-bit unsigned int  InDom: 3.37 0xc00025
-    Semantics: instant  Units: none
-    inst [0 or "cpuset"] value 11
-    inst [1 or "ns"] value 1
-    inst [2 or "cpu"] value 38
-    inst [3 or "cpuacct"] value 11
-    inst [4 or "memory"] value 11
-    inst [5 or "devices"] value 11
-    inst [6 or "freezer"] value 11
-    inst [7 or "net_cls"] value 1
-    inst [8 or "blkio"] value 11
-    inst [9 or "perf_event"] value 1
-    inst [10 or "net_prio"] value 1
-
-cgroup.subsys.enabled
-    Data Type: 32-bit unsigned int  InDom: 3.37 0xc00025
-    Semantics: instant  Units: none
-    inst [0 or "cpuset"] value 1
-    inst [1 or "ns"] value 1
-    inst [2 or "cpu"] value 1
-    inst [3 or "cpuacct"] value 1
-    inst [4 or "memory"] value 1
-    inst [5 or "devices"] value 1
-    inst [6 or "freezer"] value 1
-    inst [7 or "net_cls"] value 1
-    inst [8 or "blkio"] value 1
-    inst [9 or "perf_event"] value 1
-    inst [10 or "net_prio"] value 1
-
-cgroup.mounts.subsys
-    Data Type: string  InDom: 3.38 0xc00026
-    Semantics: instant  Units: none
-    inst [0 or "/cgroup/cpuset"] value "cpuset"
-    inst [1 or "/cgroup/cpu"] value "cpu"
-    inst [2 or "/cgroup/cpuacct"] value "cpuacct"
-    inst [3 or "/cgroup/memory"] value "memory"
-    inst [4 or "/cgroup/devices"] value "devices"
-    inst [5 or "/cgroup/freezer"] value "freezer"
-    inst [6 or "/cgroup/net_cls"] value "net_cls"
-    inst [7 or "/cgroup/blkio"] value "blkio"
-
-cgroup.mounts.count
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: count
-    value 8
-
-cgroup.cpuset.cpus
-    Data Type: string  InDom: 3.20 0xc00014
-    Semantics: instant  Units: none
-    inst [0 or "/"] value "0-7"
-    inst [1 or "/libvirt"] value "0-7"
-    inst [2 or "/libvirt/lxc"] value "0-7"
-
-cgroup.cpuset.mems
-    Data Type: string  InDom: 3.20 0xc00014
-    Semantics: instant  Units: none
-    inst [0 or "/"] value "0"
-    inst [1 or "/libvirt"] value "0"
-    inst [2 or "/libvirt/lxc"] value "0"
-
-cgroup.cpuacct.usage
-    Data Type: 64-bit unsigned int  InDom: 3.21 0xc00015
-    Semantics: counter  Units: nanosec
-    inst [0 or "/"] value 9621952148817
-    inst [1 or "/libvirt"] value 6446959756151
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.cpuacct.usage_percpu
-    Data Type: 64-bit unsigned int  InDom: 3.22 0xc00016
-    Semantics: counter  Units: nanosec
-    inst [0 or "/::cpu0"] value 1627403799055
-    inst [1 or "/::cpu1"] value 1402796290832
-    inst [2 or "/::cpu2"] value 1179015192815
-    inst [3 or "/::cpu3"] value 1191687607792
-    inst [4 or "/::cpu4"] value 1118986660943
-    inst [5 or "/::cpu5"] value 1107246126589
-    inst [6 or "/::cpu6"] value 995495472641
-    inst [7 or "/::cpu7"] value 999320975984
-    inst [8 or "/libvirt::cpu0"] value 837880387456
-    inst [9 or "/libvirt::cpu1"] value 791812411026
-    inst [10 or "/libvirt::cpu2"] value 839508086847
-    inst [11 or "/libvirt::cpu3"] value 814371336334
-    inst [12 or "/libvirt::cpu4"] value 735998138072
-    inst [13 or "/libvirt::cpu5"] value 721151202093
-    inst [14 or "/libvirt::cpu6"] value 833638956358
-    inst [15 or "/libvirt::cpu7"] value 872599226711
-    inst [16 or "/libvirt/lxc::cpu0"] value 0
-    inst [17 or "/libvirt/lxc::cpu1"] value 0
-    inst [18 or "/libvirt/lxc::cpu2"] value 0
-    inst [19 or "/libvirt/lxc::cpu3"] value 0
-    inst [20 or "/libvirt/lxc::cpu4"] value 0
-    inst [21 or "/libvirt/lxc::cpu5"] value 0
-    inst [22 or "/libvirt/lxc::cpu6"] value 0
-    inst [23 or "/libvirt/lxc::cpu7"] value 0
-
-cgroup.cpuacct.stat.user
-    Data Type: 64-bit unsigned int  InDom: 3.21 0xc00015
-    Semantics: counter  Units: millisec
-    inst [0 or "/"] value 142247
-    inst [1 or "/libvirt"] value 43622
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.cpuacct.stat.system
-    Data Type: 64-bit unsigned int  InDom: 3.21 0xc00015
-    Semantics: counter  Units: millisec
-    inst [0 or "/"] value 582900
-    inst [1 or "/libvirt"] value 384901
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.cpusched.shares
-    Data Type: 64-bit unsigned int  InDom: 3.23 0xc00017
-    Semantics: counter  Units: none
-No value(s) available!
-
-cgroup.memory.stat.cache
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
-    inst [0 or "/"] value 909434880
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.rss
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
-    inst [0 or "/"] value 479805440
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.rss_huge
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.mapped_file
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
-    inst [0 or "/"] value 106840064
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.writeback
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.swap
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.pgpgin
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: counter  Units: Kbyte
-    inst [0 or "/"] value 4313639
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.pgpgout
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: counter  Units: Kbyte
-    inst [0 or "/"] value 4008706
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.pgfault
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: counter  Units: Kbyte
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.pgmajfault
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: counter  Units: Kbyte
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.inactive_anon
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
-    inst [0 or "/"] value 8019968
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.active_anon
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
-    inst [0 or "/"] value 480120832
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.inactive_file
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
-    inst [0 or "/"] value 470528000
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.active_file
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
-    inst [0 or "/"] value 430522368
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.unevictable
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
-    inst [0 or "/"] value 16384
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.total.cache
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
-    inst [0 or "/"] value 909434880
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.total.rss
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
-    inst [0 or "/"] value 479805440
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.total.rss_huge
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.total.mapped_file
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
-    inst [0 or "/"] value 106840064
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.total.writeback
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.total.swap
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.total.pgpgin
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: counter  Units: Kbyte
-    inst [0 or "/"] value 4313639
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.total.pgpgout
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: counter  Units: Kbyte
-    inst [0 or "/"] value 4008706
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.total.pgfault
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: counter  Units: Kbyte
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.total.pgmajfault
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: counter  Units: Kbyte
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.total.inactive_anon
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
-    inst [0 or "/"] value 8019968
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.total.active_anon
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
-    inst [0 or "/"] value 480120832
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.total.inactive_file
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
-    inst [0 or "/"] value 470528000
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.total.active_file
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
-    inst [0 or "/"] value 430522368
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.total.unevictable
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: instant  Units: Kbyte
-    inst [0 or "/"] value 16384
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.recent.rotated_anon
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: counter  Units: Kbyte
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.recent.rotated_file
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: counter  Units: Kbyte
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.recent.scanned_anon
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: counter  Units: Kbyte
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.memory.stat.recent.scanned_file
-    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
-    Semantics: counter  Units: Kbyte
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.netclass.classid
-    Data Type: 64-bit unsigned int  InDom: 3.25 0xc00019
-    Semantics: instant  Units: Kbyte
-No value(s) available!
-
-cgroup.blkio.dev.sectors
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 1189207
-    inst [2 or "/::sda"] value 366860
-
-cgroup.blkio.dev.time
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: millisec
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 2266200
-    inst [2 or "/::sda"] value 2188770
-
-cgroup.blkio.dev.io_merged.read
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: count
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_merged.write
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: count
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_merged.sync
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: count
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_merged.async
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: count
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_merged.total
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: count
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_queued.read
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: count
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_queued.write
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: count
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_queued.sync
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: count
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_queued.async
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: count
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_queued.total
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: count
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_service_bytes.read
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_service_bytes.write
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_service_bytes.sync
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_service_bytes.async
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_service_bytes.total
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: Kbyte
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_serviced.read
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: count
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_serviced.write
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: count
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_serviced.sync
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: count
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_serviced.async
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: count
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_serviced.total
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: count
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_service_time.read
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: nanosec
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_service_time.write
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: nanosec
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_service_time.sync
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: nanosec
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_service_time.async
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: nanosec
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_service_time.total
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: nanosec
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_wait_time.read
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: nanosec
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_wait_time.write
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: nanosec
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_wait_time.sync
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: nanosec
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_wait_time.async
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: nanosec
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.dev.io_wait_time.total
-    Data Type: 64-bit unsigned int  InDom: 3.27 0xc0001b
-    Semantics: counter  Units: nanosec
-    inst [0 or "/::sr0"] value 0
-    inst [1 or "/::sdb"] value 0
-    inst [2 or "/::sda"] value 0
-
-cgroup.blkio.all.sectors
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
-    inst [0 or "/"] value 1556067
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.blkio.all.time
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: millisec
-    inst [0 or "/"] value 4454970
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.blkio.all.io_merged.read
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: count
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.blkio.all.io_merged.write
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: count
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.blkio.all.io_merged.sync
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: count
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
+Metrics ...
 cgroup.blkio.all.io_merged.async
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: count
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
+cgroup.blkio.all.io_merged.read
+cgroup.blkio.all.io_merged.sync
 cgroup.blkio.all.io_merged.total
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: count
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.blkio.all.io_queued.read
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: count
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.blkio.all.io_queued.write
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: count
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.blkio.all.io_queued.sync
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: count
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
+cgroup.blkio.all.io_merged.write
 cgroup.blkio.all.io_queued.async
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: count
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
+cgroup.blkio.all.io_queued.read
+cgroup.blkio.all.io_queued.sync
 cgroup.blkio.all.io_queued.total
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: count
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.blkio.all.io_service_bytes.read
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.blkio.all.io_service_bytes.write
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.blkio.all.io_service_bytes.sync
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
+cgroup.blkio.all.io_queued.write
 cgroup.blkio.all.io_service_bytes.async
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
+cgroup.blkio.all.io_service_bytes.read
+cgroup.blkio.all.io_service_bytes.sync
 cgroup.blkio.all.io_service_bytes.total
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: Kbyte
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.blkio.all.io_serviced.read
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: count
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.blkio.all.io_serviced.write
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: count
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.blkio.all.io_serviced.sync
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: count
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.blkio.all.io_serviced.async
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: count
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.blkio.all.io_serviced.total
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: count
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.blkio.all.io_service_time.read
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: nanosec
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.blkio.all.io_service_time.write
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: nanosec
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.blkio.all.io_service_time.sync
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: nanosec
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
+cgroup.blkio.all.io_service_bytes.write
 cgroup.blkio.all.io_service_time.async
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: nanosec
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
+cgroup.blkio.all.io_service_time.read
+cgroup.blkio.all.io_service_time.sync
 cgroup.blkio.all.io_service_time.total
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: nanosec
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.blkio.all.io_wait_time.read
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: nanosec
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.blkio.all.io_wait_time.write
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: nanosec
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
-cgroup.blkio.all.io_wait_time.sync
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: nanosec
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
+cgroup.blkio.all.io_service_time.write
+cgroup.blkio.all.io_serviced.async
+cgroup.blkio.all.io_serviced.read
+cgroup.blkio.all.io_serviced.sync
+cgroup.blkio.all.io_serviced.total
+cgroup.blkio.all.io_serviced.write
 cgroup.blkio.all.io_wait_time.async
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: nanosec
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
-
+cgroup.blkio.all.io_wait_time.read
+cgroup.blkio.all.io_wait_time.sync
 cgroup.blkio.all.io_wait_time.total
-    Data Type: 64-bit unsigned int  InDom: 3.26 0xc0001a
-    Semantics: counter  Units: nanosec
-    inst [0 or "/"] value 0
-    inst [1 or "/libvirt"] value 0
-    inst [2 or "/libvirt/lxc"] value 0
+cgroup.blkio.all.io_wait_time.write
+cgroup.blkio.all.sectors
+cgroup.blkio.all.time
+cgroup.blkio.dev.io_merged.async
+cgroup.blkio.dev.io_merged.read
+cgroup.blkio.dev.io_merged.sync
+cgroup.blkio.dev.io_merged.total
+cgroup.blkio.dev.io_merged.write
+cgroup.blkio.dev.io_queued.async
+cgroup.blkio.dev.io_queued.read
+cgroup.blkio.dev.io_queued.sync
+cgroup.blkio.dev.io_queued.total
+cgroup.blkio.dev.io_queued.write
+cgroup.blkio.dev.io_service_bytes.async
+cgroup.blkio.dev.io_service_bytes.read
+cgroup.blkio.dev.io_service_bytes.sync
+cgroup.blkio.dev.io_service_bytes.total
+cgroup.blkio.dev.io_service_bytes.write
+cgroup.blkio.dev.io_service_time.async
+cgroup.blkio.dev.io_service_time.read
+cgroup.blkio.dev.io_service_time.sync
+cgroup.blkio.dev.io_service_time.total
+cgroup.blkio.dev.io_service_time.write
+cgroup.blkio.dev.io_serviced.async
+cgroup.blkio.dev.io_serviced.read
+cgroup.blkio.dev.io_serviced.sync
+cgroup.blkio.dev.io_serviced.total
+cgroup.blkio.dev.io_serviced.write
+cgroup.blkio.dev.io_wait_time.async
+cgroup.blkio.dev.io_wait_time.read
+cgroup.blkio.dev.io_wait_time.sync
+cgroup.blkio.dev.io_wait_time.total
+cgroup.blkio.dev.io_wait_time.write
+cgroup.blkio.dev.sectors
+cgroup.blkio.dev.time
+cgroup.cpuacct.stat.system
+cgroup.cpuacct.stat.user
+cgroup.cpuacct.usage
+cgroup.cpuacct.usage_percpu
+cgroup.cpusched.shares
+cgroup.cpuset.cpus
+cgroup.cpuset.mems
+cgroup.memory.stat.active_anon
+cgroup.memory.stat.active_file
+cgroup.memory.stat.cache
+cgroup.memory.stat.inactive_anon
+cgroup.memory.stat.inactive_file
+cgroup.memory.stat.mapped_file
+cgroup.memory.stat.pgfault
+cgroup.memory.stat.pgmajfault
+cgroup.memory.stat.pgpgin
+cgroup.memory.stat.pgpgout
+cgroup.memory.stat.recent.rotated_anon
+cgroup.memory.stat.recent.rotated_file
+cgroup.memory.stat.recent.scanned_anon
+cgroup.memory.stat.recent.scanned_file
+cgroup.memory.stat.rss
+cgroup.memory.stat.rss_huge
+cgroup.memory.stat.swap
+cgroup.memory.stat.total.active_anon
+cgroup.memory.stat.total.active_file
+cgroup.memory.stat.total.cache
+cgroup.memory.stat.total.inactive_anon
+cgroup.memory.stat.total.inactive_file
+cgroup.memory.stat.total.mapped_file
+cgroup.memory.stat.total.pgfault
+cgroup.memory.stat.total.pgmajfault
+cgroup.memory.stat.total.pgpgin
+cgroup.memory.stat.total.pgpgout
+cgroup.memory.stat.total.rss
+cgroup.memory.stat.total.rss_huge
+cgroup.memory.stat.total.swap
+cgroup.memory.stat.total.unevictable
+cgroup.memory.stat.total.writeback
+cgroup.memory.stat.unevictable
+cgroup.memory.stat.writeback
+cgroup.mounts.count
+cgroup.mounts.subsys
+cgroup.netclass.classid
+cgroup.subsys.count
+cgroup.subsys.enabled
+cgroup.subsys.hierarchy
+cgroup.subsys.num_cgroups
+
+and 374 instance values.
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -K clear -K add,3,proc/pmda_proc.so,proc_init -d -f cgroup
+Command: pminfo -L -K clear -K add,3,PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init -d -f cgroup
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
+== Running valgrind on blkio for multiple fetches - cgroups-root-001.tgz
+== Running valgrind on cpuacct for multiple fetches - cgroups-root-001.tgz
+== Running valgrind on cpusched for multiple fetches - cgroups-root-001.tgz
+== Running valgrind on cpuset for multiple fetches - cgroups-root-001.tgz
+== Running valgrind on memory for multiple fetches - cgroups-root-001.tgz
+== Running valgrind on mounts for multiple fetches - cgroups-root-001.tgz
+== Running valgrind on netclass for multiple fetches - cgroups-root-001.tgz
+== Running valgrind on subsys for multiple fetches - cgroups-root-001.tgz
 
 == done
 
+== Running valgrind for cgroup fetch - cgroups-root-002.tgz
+=== std out ===
+Metrics ...
+cgroup.blkio.all.io_merged.async
+cgroup.blkio.all.io_merged.read
+cgroup.blkio.all.io_merged.sync
+cgroup.blkio.all.io_merged.total
+cgroup.blkio.all.io_merged.write
+cgroup.blkio.all.io_queued.async
+cgroup.blkio.all.io_queued.read
+cgroup.blkio.all.io_queued.sync
+cgroup.blkio.all.io_queued.total
+cgroup.blkio.all.io_queued.write
+cgroup.blkio.all.io_service_bytes.async
+cgroup.blkio.all.io_service_bytes.read
+cgroup.blkio.all.io_service_bytes.sync
+cgroup.blkio.all.io_service_bytes.total
+cgroup.blkio.all.io_service_bytes.write
+cgroup.blkio.all.io_service_time.async
+cgroup.blkio.all.io_service_time.read
+cgroup.blkio.all.io_service_time.sync
+cgroup.blkio.all.io_service_time.total
+cgroup.blkio.all.io_service_time.write
+cgroup.blkio.all.io_serviced.async
+cgroup.blkio.all.io_serviced.read
+cgroup.blkio.all.io_serviced.sync
+cgroup.blkio.all.io_serviced.total
+cgroup.blkio.all.io_serviced.write
+cgroup.blkio.all.io_wait_time.async
+cgroup.blkio.all.io_wait_time.read
+cgroup.blkio.all.io_wait_time.sync
+cgroup.blkio.all.io_wait_time.total
+cgroup.blkio.all.io_wait_time.write
+cgroup.blkio.all.sectors
+cgroup.blkio.all.time
+cgroup.blkio.dev.io_merged.async
+cgroup.blkio.dev.io_merged.read
+cgroup.blkio.dev.io_merged.sync
+cgroup.blkio.dev.io_merged.total
+cgroup.blkio.dev.io_merged.write
+cgroup.blkio.dev.io_queued.async
+cgroup.blkio.dev.io_queued.read
+cgroup.blkio.dev.io_queued.sync
+cgroup.blkio.dev.io_queued.total
+cgroup.blkio.dev.io_queued.write
+cgroup.blkio.dev.io_service_bytes.async
+cgroup.blkio.dev.io_service_bytes.read
+cgroup.blkio.dev.io_service_bytes.sync
+cgroup.blkio.dev.io_service_bytes.total
+cgroup.blkio.dev.io_service_bytes.write
+cgroup.blkio.dev.io_service_time.async
+cgroup.blkio.dev.io_service_time.read
+cgroup.blkio.dev.io_service_time.sync
+cgroup.blkio.dev.io_service_time.total
+cgroup.blkio.dev.io_service_time.write
+cgroup.blkio.dev.io_serviced.async
+cgroup.blkio.dev.io_serviced.read
+cgroup.blkio.dev.io_serviced.sync
+cgroup.blkio.dev.io_serviced.total
+cgroup.blkio.dev.io_serviced.write
+cgroup.blkio.dev.io_wait_time.async
+cgroup.blkio.dev.io_wait_time.read
+cgroup.blkio.dev.io_wait_time.sync
+cgroup.blkio.dev.io_wait_time.total
+cgroup.blkio.dev.io_wait_time.write
+cgroup.blkio.dev.sectors
+cgroup.blkio.dev.time
+cgroup.cpuacct.stat.system
+cgroup.cpuacct.stat.user
+cgroup.cpuacct.usage
+cgroup.cpuacct.usage_percpu
+cgroup.cpusched.shares
+cgroup.cpuset.cpus
+cgroup.cpuset.mems
+cgroup.memory.stat.active_anon
+cgroup.memory.stat.active_file
+cgroup.memory.stat.cache
+cgroup.memory.stat.inactive_anon
+cgroup.memory.stat.inactive_file
+cgroup.memory.stat.mapped_file
+cgroup.memory.stat.pgfault
+cgroup.memory.stat.pgmajfault
+cgroup.memory.stat.pgpgin
+cgroup.memory.stat.pgpgout
+cgroup.memory.stat.recent.rotated_anon
+cgroup.memory.stat.recent.rotated_file
+cgroup.memory.stat.recent.scanned_anon
+cgroup.memory.stat.recent.scanned_file
+cgroup.memory.stat.rss
+cgroup.memory.stat.rss_huge
+cgroup.memory.stat.swap
+cgroup.memory.stat.total.active_anon
+cgroup.memory.stat.total.active_file
+cgroup.memory.stat.total.cache
+cgroup.memory.stat.total.inactive_anon
+cgroup.memory.stat.total.inactive_file
+cgroup.memory.stat.total.mapped_file
+cgroup.memory.stat.total.pgfault
+cgroup.memory.stat.total.pgmajfault
+cgroup.memory.stat.total.pgpgin
+cgroup.memory.stat.total.pgpgout
+cgroup.memory.stat.total.rss
+cgroup.memory.stat.total.rss_huge
+cgroup.memory.stat.total.swap
+cgroup.memory.stat.total.unevictable
+cgroup.memory.stat.total.writeback
+cgroup.memory.stat.unevictable
+cgroup.memory.stat.writeback
+cgroup.mounts.count
+cgroup.mounts.subsys
+cgroup.netclass.classid
+cgroup.subsys.count
+cgroup.subsys.enabled
+cgroup.subsys.hierarchy
+cgroup.subsys.num_cgroups
+
+and 182 instance values.
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,3,PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init -d -f cgroup
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+== Running valgrind for cgroup fetch - cgroups-root-003.tgz
+=== std out ===
+Metrics ...
+cgroup.blkio.all.io_merged.async
+cgroup.blkio.all.io_merged.read
+cgroup.blkio.all.io_merged.sync
+cgroup.blkio.all.io_merged.total
+cgroup.blkio.all.io_merged.write
+cgroup.blkio.all.io_queued.async
+cgroup.blkio.all.io_queued.read
+cgroup.blkio.all.io_queued.sync
+cgroup.blkio.all.io_queued.total
+cgroup.blkio.all.io_queued.write
+cgroup.blkio.all.io_service_bytes.async
+cgroup.blkio.all.io_service_bytes.read
+cgroup.blkio.all.io_service_bytes.sync
+cgroup.blkio.all.io_service_bytes.total
+cgroup.blkio.all.io_service_bytes.write
+cgroup.blkio.all.io_service_time.async
+cgroup.blkio.all.io_service_time.read
+cgroup.blkio.all.io_service_time.sync
+cgroup.blkio.all.io_service_time.total
+cgroup.blkio.all.io_service_time.write
+cgroup.blkio.all.io_serviced.async
+cgroup.blkio.all.io_serviced.read
+cgroup.blkio.all.io_serviced.sync
+cgroup.blkio.all.io_serviced.total
+cgroup.blkio.all.io_serviced.write
+cgroup.blkio.all.io_wait_time.async
+cgroup.blkio.all.io_wait_time.read
+cgroup.blkio.all.io_wait_time.sync
+cgroup.blkio.all.io_wait_time.total
+cgroup.blkio.all.io_wait_time.write
+cgroup.blkio.all.sectors
+cgroup.blkio.all.time
+cgroup.blkio.dev.io_merged.async
+cgroup.blkio.dev.io_merged.read
+cgroup.blkio.dev.io_merged.sync
+cgroup.blkio.dev.io_merged.total
+cgroup.blkio.dev.io_merged.write
+cgroup.blkio.dev.io_queued.async
+cgroup.blkio.dev.io_queued.read
+cgroup.blkio.dev.io_queued.sync
+cgroup.blkio.dev.io_queued.total
+cgroup.blkio.dev.io_queued.write
+cgroup.blkio.dev.io_service_bytes.async
+cgroup.blkio.dev.io_service_bytes.read
+cgroup.blkio.dev.io_service_bytes.sync
+cgroup.blkio.dev.io_service_bytes.total
+cgroup.blkio.dev.io_service_bytes.write
+cgroup.blkio.dev.io_service_time.async
+cgroup.blkio.dev.io_service_time.read
+cgroup.blkio.dev.io_service_time.sync
+cgroup.blkio.dev.io_service_time.total
+cgroup.blkio.dev.io_service_time.write
+cgroup.blkio.dev.io_serviced.async
+cgroup.blkio.dev.io_serviced.read
+cgroup.blkio.dev.io_serviced.sync
+cgroup.blkio.dev.io_serviced.total
+cgroup.blkio.dev.io_serviced.write
+cgroup.blkio.dev.io_wait_time.async
+cgroup.blkio.dev.io_wait_time.read
+cgroup.blkio.dev.io_wait_time.sync
+cgroup.blkio.dev.io_wait_time.total
+cgroup.blkio.dev.io_wait_time.write
+cgroup.blkio.dev.sectors
+cgroup.blkio.dev.time
+cgroup.cpuacct.stat.system
+cgroup.cpuacct.stat.user
+cgroup.cpuacct.usage
+cgroup.cpuacct.usage_percpu
+cgroup.cpusched.shares
+cgroup.cpuset.cpus
+cgroup.cpuset.mems
+cgroup.memory.stat.active_anon
+cgroup.memory.stat.active_file
+cgroup.memory.stat.cache
+cgroup.memory.stat.inactive_anon
+cgroup.memory.stat.inactive_file
+cgroup.memory.stat.mapped_file
+cgroup.memory.stat.pgfault
+cgroup.memory.stat.pgmajfault
+cgroup.memory.stat.pgpgin
+cgroup.memory.stat.pgpgout
+cgroup.memory.stat.recent.rotated_anon
+cgroup.memory.stat.recent.rotated_file
+cgroup.memory.stat.recent.scanned_anon
+cgroup.memory.stat.recent.scanned_file
+cgroup.memory.stat.rss
+cgroup.memory.stat.rss_huge
+cgroup.memory.stat.swap
+cgroup.memory.stat.total.active_anon
+cgroup.memory.stat.total.active_file
+cgroup.memory.stat.total.cache
+cgroup.memory.stat.total.inactive_anon
+cgroup.memory.stat.total.inactive_file
+cgroup.memory.stat.total.mapped_file
+cgroup.memory.stat.total.pgfault
+cgroup.memory.stat.total.pgmajfault
+cgroup.memory.stat.total.pgpgin
+cgroup.memory.stat.total.pgpgout
+cgroup.memory.stat.total.rss
+cgroup.memory.stat.total.rss_huge
+cgroup.memory.stat.total.swap
+cgroup.memory.stat.total.unevictable
+cgroup.memory.stat.total.writeback
+cgroup.memory.stat.unevictable
+cgroup.memory.stat.writeback
+cgroup.mounts.count
+cgroup.mounts.subsys
+cgroup.netclass.classid
+cgroup.subsys.count
+cgroup.subsys.enabled
+cgroup.subsys.hierarchy
+cgroup.subsys.num_cgroups
+
+and 3509 instance values.
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,3,PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init -d -f cgroup
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

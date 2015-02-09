@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Red Hat.
+ * Copyright (c) 2013-2015, Red Hat.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -21,6 +21,11 @@ HostDialog::HostDialog(QWidget *parent) : QDialog(parent)
 {
     setupUi(this);
     my.nssGuiStarted = false;
+    my.advancedState = false;
+    my.advancedString = advancedPushButton->text();
+    my.originalHeight = geometry().height();
+    my.minimalHeight = minimumHeight();
+    changedAdvancedState();
 }
 
 void
@@ -30,12 +35,19 @@ HostDialog::quit()
 	my.nssGuiProc->terminate();
 	my.nssGuiStarted = false;
     }
+    my.advancedState = false;
 }
 
 void
 HostDialog::languageChange()
 {
     retranslateUi(this);
+}
+
+void
+HostDialog::containerCheckBox_toggled(bool enableContainers)
+{
+    containerLineEdit->setEnabled(enableContainers);
 }
 
 void
@@ -77,6 +89,8 @@ QString
 HostDialog::getHostSpecification(void) const
 {
     QString host = getHostName();
+    bool need_separator = false;
+    bool need_delimiter = false;
 
     if (hostLineEdit->isModified())
         host = hostLineEdit->text().trimmed();
@@ -89,16 +103,31 @@ HostDialog::getHostSpecification(void) const
             host.prepend("@").prepend(proxy);
     }
 
+    if (containerCheckBox->isChecked() ||
+	authenticateCheckBox->isChecked())
+	need_delimiter = true;
+
+    if (need_delimiter)
+	host.append("?");
+
+    if (containerCheckBox->isChecked()) {
+	QString container = containerLineEdit->text().trimmed();
+	host.append("container=").append(container);
+	need_separator = true;
+    }
+
     if (authenticateCheckBox->isChecked()) {
 	QString username = usernameLineEdit->text().trimmed();
 	QString password = passwordLineEdit->text().trimmed();
 	QString realm = realmLineEdit->text().trimmed();
 
-	host.append("?username=").append(username);
+	if (need_separator)
+	    host.append("&");
+	host.append("username=").append(username);
 	host.append("&password=").append(password);
 	host.append("&realm=").append(realm);
+	need_separator = true;
     }
-
     return host;
 }
 
@@ -114,6 +143,56 @@ HostDialog::getContextFlags(void) const
     if (authenticateCheckBox->isChecked())
         flags |= PM_CTXFLAG_AUTH;
     return flags;
+}
+
+void
+HostDialog::changedAdvancedState(void)
+{
+    int	height;
+    bool hidden = (my.advancedState == false);
+
+    proxyCheckBox->setHidden(hidden);
+    proxyLineEdit->setHidden(hidden);
+    containerCheckBox->setHidden(hidden);
+    containerLineEdit->setHidden(hidden);
+
+    secureCheckBox->setHidden(hidden);
+    compressCheckBox->setHidden(hidden);
+    certificatesPushButton->setHidden(hidden);
+
+    authenticateCheckBox->setHidden(hidden);
+    usernameLabel->setHidden(hidden);
+    usernameLineEdit->setHidden(hidden);
+    passwordLabel->setHidden(hidden);
+    passwordLineEdit->setHidden(hidden);
+    realmLabel->setHidden(hidden);
+    realmLineEdit->setHidden(hidden);
+
+    if (my.advancedState) {
+	advancedPushButton->setText(tr("Hide"));
+    } else {
+	advancedPushButton->setText(my.advancedString);
+	proxyCheckBox->setChecked(false);
+	proxyLineEdit->clear();
+	containerCheckBox->setChecked(false);
+	containerLineEdit->clear();
+	secureCheckBox->setChecked(false);
+	compressCheckBox->setChecked(false);
+	authenticateCheckBox->setChecked(false);
+	usernameLineEdit->clear();
+	passwordLineEdit->clear();
+	realmLineEdit->clear();
+    }
+
+    height = my.advancedState ? my.originalHeight : my.minimalHeight;
+    resize(geometry().width(), height);
+}
+
+void
+HostDialog::advancedPushButton_clicked()
+{
+    my.advancedState = !my.advancedState;
+    changedAdvancedState();
 }
 
 void
@@ -139,9 +218,28 @@ HostDialog::nssGuiStart()
     arguments << dbpath;
 
     my.nssGuiProc = new QProcess(this);
+    connect(my.nssGuiProc, SIGNAL(error(QProcess::ProcessError)),
+                 this, SLOT(nssGuiError(QProcess::ProcessError)));
     connect(my.nssGuiProc, SIGNAL(finished(int, QProcess::ExitStatus)),
                  this, SLOT(nssGuiFinished(int, QProcess::ExitStatus)));
     my.nssGuiProc->start("nss-gui", arguments);
+}
+
+void
+HostDialog::nssGuiError(QProcess::ProcessError error)
+{
+    QString message;
+
+    if (error == QProcess::FailedToStart) {
+	message = tr("Unable to start the nss-gui helper program.\n");
+    } else {
+	message.append(tr("Generic nss-gui program failure, state="));
+	message.append(error).append("\n");
+    }
+    QMessageBox::warning(this, pmProgname, message,
+		QMessageBox::Ok|QMessageBox::Default|QMessageBox::Escape,
+		Qt::NoButton, Qt::NoButton);
+    my.nssGuiStarted = false;
 }
 
 void

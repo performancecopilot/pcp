@@ -1,14 +1,14 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.10.2
+Version: 3.10.3
 %define buildversion 1
 
 Release: %{buildversion}%{?dist}
 License: GPLv2+ and LGPLv2.1+ and CC-BY
 URL: http://www.pcp.io
 Group: Applications/System
-Source0: ftp://oss.sgi.com/projects/pcp/download/%{name}-%{version}.src.tar.gz
-Source1: ftp://oss.sgi.com/projects/pcp/download/pcp-webjs.src.tar.gz
+Source0: ftp://ftp.pcp.io/projects/pcp/download/%{name}-%{version}.src.tar.gz
+Source1: ftp://ftp.pcp.io/projects/pcp/download/pcp-webjs.src.tar.gz
 
 # There are no papi/libpfm devel packages for s390 nor for some rhels, disable
 %ifarch s390 s390x
@@ -27,18 +27,8 @@ Source1: ftp://oss.sgi.com/projects/pcp/download/pcp-webjs.src.tar.gz
 %endif
 %endif
 
-# https://bugzilla.redhat.com/show_bug.cgi?id=1169226
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %define disable_microhttpd 0
-%else
-%define disable_microhttpd 1
-%endif
-# Cairo headers on el5 incompatible with graphite code
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %define disable_cairo 0
-%else
-%define disable_cairo 1
-%endif
 # Python development environment before el6 is pre-2.6 (too old)
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %define disable_python2 0
@@ -100,16 +90,19 @@ BuildRequires: systemd-devel
 BuildRequires: desktop-file-utils
 BuildRequires: qt4-devel >= 4.4
 %endif
-BuildRequires: flex-devel
 
 Requires: bash gawk sed grep fileutils findutils initscripts perl which
-Requires: python
+%if !%{disable_python2}
 %if 0%{?rhel} <= 5
 Requires: python-ctypes
 %endif
+Requires: python
+%endif
 
 Requires: pcp-libs = %{version}-%{release}
+%if !%{disable_python2}
 Requires: python-pcp = %{version}-%{release}
+%endif
 Requires: perl-PCP-PMDA = %{version}-%{release}
 Obsoletes: pcp-gui-debuginfo
 Obsoletes: pcp-pmda-nvidia
@@ -243,12 +236,8 @@ An optional daemon (pmmgr) that manages a collection of pmlogger and
 pmie daemons, for a set of discovered local and remote hosts running
 the performance metrics collection daemon (pmcd).  It ensures these
 daemons are running when appropriate, and manages their log rotation
-needs (which are particularly complex in the case of pmlogger).
-The base PCP package provides comparable functionality through cron
-scripts which predate this daemon but do still provide effective and
-efficient log management services.
-The pcp-manager package aims to aggressively enable new PCP features
-and as a result may not be suited to all production environments.
+needs.  It is an alternative to the cron-based pmlogger/pmie service
+scripts.
 
 %if !%{disable_microhttpd}
 #
@@ -995,7 +984,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %endif
 %{_libexecdir}/pcp/bin/pmmgr
 %attr(0775,pcp,pcp) %{_logsdir}/pmmgr
-%{_confdir}/pmmgr
+%config(missingok,noreplace) %{_confdir}/pmmgr
 %config(noreplace) %{_confdir}/pmmgr/pmmgr.options
 %{_mandir}/man1/pmmgr.1.gz
 
@@ -1082,8 +1071,14 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root,-)
 
 %changelog
+* Mon Mar 02 2015 Dave Brolley <brolley@redhat.com> - 3.10.3-1
+
 * Fri Jan 23 2015 Dave Brolley <brolley@redhat.com> - 3.10.2-1
 - Update to latest PCP sources.
+- Improve pmdaInit diagnostics for DSO helptext (BZ 1182949)
+- Tighten up PMDA termination on pmcd stop (BZ 1180109)
+- Correct units for cgroup memory metrics (BZ 1180351)
+- Add the pcp2graphite(1) export script (BZ 1163986)
 
 * Mon Dec 01 2014 Nathan Scott <nathans@redhat.com> - 3.10.1-1
 - New conditionally-built pcp-pmda-perfevent sub-package.

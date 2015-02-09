@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
- (c) Copyright 2013-2014 Red Hat.
+ (c) Copyright 2013-2015 Red Hat.
  Permission is granted to copy, distribute, and/or modify this document
  under the terms of the Creative Commons Attribution-Share Alike, Version
  3.0 or any later version published by the Creative Commons Corp. A copy
@@ -23,14 +23,15 @@
 	</TR>
 </TABLE>
 <H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Secure Connections</FONT></H1>
+<P><BR></P>
 <TABLE WIDTH="15%" BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
-	<TR><TD BGCOLOR="#e2e2e2"><IMG SRC="images/system-search.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;<I>Tools</I><BR><PRE>
+	<TR><TD BGCOLOR="#e2e2e2">
+<PRE><IMG SRC="images/system-search.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0><I>Tools</I>
 certutil
 pmcd
 pminfo
 pmchart
-pmproxy
-</PRE></TD></TR>
+pmproxy</PRE></TD></TR>
 </TABLE>
 <P>This chapter of the Performance Co-Pilot tutorial covers setting up secure
 connections between PCP collector and monitor components.
@@ -170,12 +171,12 @@ using the <B>-x</B> option to <I>certutil</I>.
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;After customising the certificate subject names (<B>-s</B> and <B>-8</B> options below), in a privileged shell enter:<BR>
 <PRE><B>
 # certutil -d sql:/etc/pki/nssdb -S -x \
-	-n &quot;<FONT COLOR="#000000">Local CA certificate</FONT>&quot; -s &quot;cn=<FONT COLOR="#000000">Local PCP Installation</FONT>, dc=<FONT COLOR="#cc0000">YOUR</FONT>,dc=<FONT COLOR="#cc0000">DOMAIN</FONT>,dc=<FONT COLOR="#cc0000">NAME</FONT>&quot; \
+	-n &quot;Local CA certificate&quot; -s &quot;cn=Local PCP Installation, dc=<SPAN>YOUR</SPAN>,dc=<SPAN>DOMAIN</SPAN>,dc=<SPAN>NAME</SPAN>&quot; \
 	-t &quot;CT,,&quot; -v 120
 
 # certutil -d sql:/etc/pki/nssdb -S \
-	-c &quot;<FONT COLOR="#000000">Local CA certificate</FONT>&quot; \
-	-n &quot;PCP Collector certificate&quot; -s &quot;cn=PCP Collector&quot; -8 &quot;<FONT COLOR="#cc0000">YOUR.HOST.NAME,ALT.DNS.NAME,...</FONT>" \
+	-c &quot;Local CA certificate&quot; \
+	-n &quot;PCP Collector certificate&quot; -s &quot;cn=PCP Collector&quot; -8 &quot;<SPAN>YOUR.HOST.NAME,ALT.DNS.NAME,...</SPAN>" \
 	-t &quot;P,,&quot; -v 120
 </B></PRE>
 </TD></TR>
@@ -228,15 +229,15 @@ and certificate will be automatically setup in the correct location on your beha
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To establish a secure connection, in a shell enter:<BR>
 <PRE><B>
 $ export PCP_SECURE_SOCKETS=enforce
-$ pminfo -h <FONT COLOR="#cc0000">YOUR.HOST.NAME</FONT> -f kernel.all.load
-WARNING: issuer of certificate received from host <FONT COLOR="#000000">YOUR.HOST.NAME</FONT> is not trusted.
-SHA1 fingerprint is <FONT COLOR="#000000">34:92:D2:DC:DE:28:3A:2D:DD:B9:1A:6C:C9:51:1E:B8:FA:CE:63:51</FONT>
-Do you want to accept and save this certificate locally anyway (y/n)? <FONT COLOR="#000000">y</FONT>
+$ pminfo --host <SPAN>YOUR.HOST.NAME</SPAN> -f kernel.all.load
+WARNING: issuer of certificate received from host YOUR.HOST.NAME is not trusted.
+SHA1 fingerprint is 34:92:D2:DC:DE:28:3A:2D:DD:B9:1A:6C:C9:51:1E:B8:FA:CE:63:51
+Do you want to accept and save this certificate locally anyway (y/n)? y
 
 kernel.all.load
-    inst [1 or "1 minute"] value <FONT COLOR="#000000">1.26</FONT>
-    inst [5 or "5 minute"] value <FONT COLOR="#000000">1.29</FONT>
-    inst [15 or "15 minute"] value <FONT COLOR="#000000">1.28</FONT>
+    inst [1 or "1 minute"] value 1.26
+    inst [5 or "5 minute"] value 1.29
+    inst [15 or "15 minute"] value 1.28
 </B></PRE>
 </TD></TR>
 </TABLE>
@@ -297,10 +298,13 @@ on a monitor system allowing access to a group of hosts.
 <BR>
 <P ALIGN=LEFT><FONT SIZE=4><B>Graphical Monitor Tools</B></FONT>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
-        <TR><TD WIDTH=500><P ALIGN=><CENTER><BR><IMG ALIGN=MIDDLE SRC="images/pmchart_add_host_secure.png" ALT="" BORDER=0></CENTER></P></TD>
+        <TR><TD WIDTH=500><P ALIGN=CENTER><BR><IMG ALIGN=MIDDLE SRC="images/pmchart_add_host_secure.png" ALT="" BORDER=0></P></TD>
         <TD><P>In the PCP strip chart utility <I>pmchart</I> from version 1.5.7 onward, secure connections can be established using the "Add Host" dialog.  This can be accessed via the "New Chart" or "Open View" menu entries.<UL>
         <LI>Specify the name of the PCP Collector system where <I>pmcd</I> is running.
+        <LI>Press the "Advanced..." button in the bottom left.
         <LI>Select the "Secure" check box.
+        <LI>If the <I>nss-gui</I> application is installed, the "Certificates" button
+can be used to inspect and administer locally installed security certificates.
         <LI>Press "OK" to establish a new secure connection to the host.
 	</UL>
 	Note that it is not necessary to use the PCP_SECURE_SOCKETS environment variable described above with <I>pmchart</I>.  However, if it is used, secure connections will become the default mode for all connections established by <I>pmchart</I> too.

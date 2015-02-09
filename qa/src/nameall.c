@@ -16,7 +16,7 @@ static int 	pmns_style = 1;
 static int	vflag;
 static char	*host = "localhost";
 static char	*namespace = PM_NS_DEFAULT;
-static int	dupok = 0;
+static int	dupok = 1;
 
 static void
 dometric(const char *name)
@@ -88,7 +88,7 @@ parse_args(int argc, char **argv)
 	    break;
 
 	case 'N':
-	    dupok=1;
+	    dupok=0;
 	    /*FALLTHROUGH*/
 	case 'n':	/* alternative name space file */
 	    namespace = optarg;
@@ -128,12 +128,9 @@ load_namespace(char *namespace)
     int sts;
 
     gettimeofday(&then, (struct timezone *)0);
-    if (dupok)
-	sts = pmLoadASCIINameSpace(namespace, 1);
-    else
-	sts = pmLoadNameSpace(namespace);
+    sts = pmLoadASCIINameSpace(namespace, dupok);
     if (sts < 0) {
-	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
+	printf("%s: Cannot load namespace from \"%s\" (dupok=%d): %s\n", pmProgname, namespace, dupok, pmErrStr(sts));
 	exit(1);
     }
     gettimeofday(&now, (struct timezone *)0);

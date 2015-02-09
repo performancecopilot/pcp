@@ -20,7 +20,6 @@
 .\" arguments use .I or \f2
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmnsadd
-[\f3\-d\f1]
 [\f3\-n\f1 \f2namespace\f1]
 .I file
 .SH DESCRIPTION
@@ -38,7 +37,7 @@ Performance Co-Pilot (PCP).
 .P
 Normally
 .B pmnsadd
-operates on the default Performance Metrics Namespace (PMNS), however
+operates on the default Performance Metrics Name Space (PMNS), however
 if the
 .B \-n
 option is specified an alternative namespace is used
@@ -119,12 +118,6 @@ will update the PMNS using
 .BR pmnsmerge (1)
 \- if this fails for any reason, the original namespace remains
 unchanged.
-.PP
-The
-.B \-d
-option allows the resultant PMNS to optionally contain
-duplicate PMIDs with different names in the PMNS.  By default
-this condition is considered an error.
 .SH CAVEAT
 Once the writing of the new
 .I namespace

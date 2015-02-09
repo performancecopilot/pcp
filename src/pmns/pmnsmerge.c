@@ -31,7 +31,6 @@ static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),
     PMOPT_DEBUG,
     { "", 0, 'a', 0, "process files in order, ignoring embedded _DATESTAMP control lines" },
-    { "duplicates", 0, 'd', 0, "duplicate PMIDs are allowed" },
     { "force", 0, 'f', 0, "force overwriting of the output file if it exists" },
     { "verbose", 0, 'v', 0, "verbose, echo input file names as processed" },
     PMOPT_HELP,
@@ -204,7 +203,6 @@ main(int argc, char **argv)
     int		j;
     int		force = 0;
     int		asis = 0;
-    int		dupok = 0;
     __pmnsNode	*tmp;
 
     umask((mode_t)022);		/* anything else is pretty silly */
@@ -217,12 +215,12 @@ main(int argc, char **argv)
 	    break;
 
 	case 'd':	/* duplicate PMIDs are OK */
-	    dupok = 1;
+	    fprintf(stderr, "%s: Warning: -d deprecated, duplicate PMNS names allowed by default\n", pmProgname);
 	    break;
 
 	case 'D':	/* debug flag */
 	    if ((sts = __pmParseDebug(opts.optarg)) < 0) {
-		pmprintf("%s: unrecognized debug flag specification (%s)\n",
+		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
 		    pmProgname, opts.optarg);
 		opts.errors++;
 	    } else {
@@ -280,7 +278,7 @@ main(int argc, char **argv)
 	if (verbose)
 	    printf("%s:\n", argv[j]);
 
-	if ((sts = pmLoadASCIINameSpace(argv[j], dupok)) < 0) {
+	if ((sts = pmLoadNameSpace(argv[j])) < 0) {
 	    fprintf(stderr, "%s: Error: pmLoadNameSpace(%s): %s\n",
 		pmProgname, argv[j], pmErrStr(sts));
 	    exit(1);
@@ -312,7 +310,7 @@ main(int argc, char **argv)
     /*
      * now load the merged PMNS to check for errors ...
      */
-    if ((sts = pmLoadASCIINameSpace(argv[argc-1], dupok)) < 0) {
+    if ((sts = pmLoadNameSpace(argv[argc-1])) < 0) {
 	fprintf(stderr, "%s: Error: pmLoadNameSpace(%s): %s\n",
 	    pmProgname, argv[argc-1], pmErrStr(sts));
 	exit(1);

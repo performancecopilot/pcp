@@ -978,10 +978,11 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 int
 refresh_proc_pid(proc_pid_t *proc_pid, proc_runq_t *proc_runq,
 		 int want_threads, const char *cgroups,
-		 const char *container, int namelen, int rootfd)
+		 const char *container, int namelen)
 {
-    char path[MAXPATHLEN], *offset;
+    char path[MAXPATHLEN];
     int sts, length, want_cgroups;
+    const char *filter = cgroups;
 
     want_cgroups = container || (cgroups && cgroups[0] != '\0');
 
@@ -994,23 +995,20 @@ refresh_proc_pid(proc_pid_t *proc_pid, proc_runq_t *proc_runq,
 	    refresh_global_pidlist(want_threads, proc_runq, &procpids);
     }
 
-    /* For containers, we ask pmdaroot for a cgroup path for this container.
+    /* For containers we asked pmdaroot for a cgroup name for the container.
      * We must find this systems mount path for a cgroup subsystem that will
      * be in use for all containers - choose memory for this purpose, as its
      * pervasive and all container engines must surely use it.  Surely.
      */
     if (container) {
 	length = cgroup_mounts_subsys("memory", path, sizeof(path));
-	offset = path + length;
 	length = sizeof(path) - length;
-	if ((sts = pmdaRootContainerCGroupName(rootfd,
-				container, namelen, offset, length)) < 0)
-	    return sts;
-	cgroups = path;
+	strncat(path, container, length);
+	filter = path;
     }
 
     sts = want_cgroups ?
-	refresh_cgroup_pidlist(want_threads, cgroups, &procpids) :
+	refresh_cgroup_pidlist(want_threads, filter, &procpids) :
 	refresh_global_pidlist(want_threads, proc_runq, &procpids);
     if (sts < 0)
 	return sts;
@@ -1020,7 +1018,7 @@ refresh_proc_pid(proc_pid_t *proc_pid, proc_runq_t *proc_runq,
 	fprintf(stderr,
 		"refresh_proc_pid: %d pids (threads=%d, %s=\"%s\")\n",
 		procpids.count, procpids.threads,
-		container ? "container" : "cgroups", cgroups ? cgroups : "");
+		container ? "container" : "cgroups", filter ? filter : "");
 #endif
 
     refresh_proc_pidlist(proc_pid, &procpids);

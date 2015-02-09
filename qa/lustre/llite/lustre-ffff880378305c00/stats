@@ -1,0 +1,16 @@
+snapshot_time             1420750934.57342 secs.usecs
+read_bytes                34 samples [bytes] 0 59 1003
+write_bytes               5 samples [bytes] 2 203338 203517
+osc_read                  1 samples [bytes] 59 59 59
+osc_write                 5 samples [bytes] 2 203338 203517
+open                      33 samples [regs]
+close                     33 samples [regs]
+seek                      28 samples [regs]
+readdir                   39 samples [regs]
+truncate                  2 samples [regs]
+getattr                   148 samples [regs]
+create                    3 samples [regs]
+statfs                    10 samples [regs]
+alloc_inode               9 samples [regs]
+getxattr                  5 samples [regs]
+inode_permission          271 samples [regs]

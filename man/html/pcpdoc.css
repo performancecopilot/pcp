@@ -18,7 +18,7 @@ h2 {
     font-weight: medium;
 }
 
-p, td  {
+p, td {
     color: #000060;
     font-family: Verdana,Arial,sans-serif;
     font-size: 11pt;
@@ -36,7 +36,11 @@ pre {
     font-size: 10pt;
 }
 
-th  {
+pre span {
+    color: #cc0000;
+}
+
+th {
     color: #000060;
     font-family: Verdana,Arial,sans-serif;
     font-size: 11pt;

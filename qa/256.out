@@ -442,6 +442,16 @@ sampledso.event.param_float
 sampledso.event.param_double
 sampledso.event.param_string
 sampledso.event.param_aggregate
+sampledso.dupnames.daemon_pid
+sampledso.dupnames.pid_daemon
+sampledso.dupnames.two.seconds
+sampledso.dupnames.two.bin
+sampledso.dupnames.two.write_me
+sampledso.dupnames.two.lights
+sampledso.dupnames.two.float.ten
+sampledso.dupnames.two.double.ten
+sampledso.dupnames.three.bin
+sampledso.dupnames.three.write_me
 sampledso.one
 sampledso.suba.two
 sampledso.suba.three
@@ -619,6 +629,16 @@ sampledso.event.param_float
 sampledso.event.param_double
 sampledso.event.param_string
 sampledso.event.param_aggregate
+sampledso.dupnames.daemon_pid
+sampledso.dupnames.pid_daemon
+sampledso.dupnames.two.seconds
+sampledso.dupnames.two.bin
+sampledso.dupnames.two.write_me
+sampledso.dupnames.two.lights
+sampledso.dupnames.two.float.ten
+sampledso.dupnames.two.double.ten
+sampledso.dupnames.three.bin
+sampledso.dupnames.three.write_me
 sampledso.one
 sampledso.suba.two
 sampledso.suba.three
@@ -627,7 +647,33 @@ sampledso.suba.subb.subc.subd.five
 sampledso.suba.subb.subc.subd.six
 === -n .../root ===
 Name space load: N.NN msec
+30.0.1 alias sampledso.daemon_pid and sampledso.dupnames.pid_daemon
+30.0.1 alias sampledso.daemon_pid and sampledso.dupnames.daemon_pid
+30.0.2 alias sampledso.seconds and sampledso.dupnames.two.seconds
+30.0.6 alias sampledso.bin and sampledso.dupnames.three.bin
+30.0.6 alias sampledso.bin and sampledso.dupnames.two.bin
+30.0.36 alias sampledso.write_me and sampledso.dupnames.three.write_me
+30.0.36 alias sampledso.write_me and sampledso.dupnames.two.write_me
+30.0.46 alias sampledso.lights and sampledso.dupnames.two.lights
 pmNameAll(sampledso.secret): Unknown or illegal metric identifier
+30.0.16 alias sampledso.float.ten and sampledso.dupnames.two.float.ten
+30.0.26 alias sampledso.double.ten and sampledso.dupnames.two.double.ten
+30.0.1 alias sampledso.dupnames.daemon_pid and sampledso.dupnames.pid_daemon
+30.0.1 alias sampledso.dupnames.daemon_pid and sampledso.daemon_pid
+30.0.1 alias sampledso.dupnames.pid_daemon and sampledso.dupnames.daemon_pid
+30.0.1 alias sampledso.dupnames.pid_daemon and sampledso.daemon_pid
+30.0.2 alias sampledso.dupnames.two.seconds and sampledso.seconds
+30.0.6 alias sampledso.dupnames.two.bin and sampledso.dupnames.three.bin
+30.0.6 alias sampledso.dupnames.two.bin and sampledso.bin
+30.0.36 alias sampledso.dupnames.two.write_me and sampledso.dupnames.three.write_me
+30.0.36 alias sampledso.dupnames.two.write_me and sampledso.write_me
+30.0.46 alias sampledso.dupnames.two.lights and sampledso.lights
+30.0.16 alias sampledso.dupnames.two.float.ten and sampledso.float.ten
+30.0.26 alias sampledso.dupnames.two.double.ten and sampledso.double.ten
+30.0.6 alias sampledso.dupnames.three.bin and sampledso.dupnames.two.bin
+30.0.6 alias sampledso.dupnames.three.bin and sampledso.bin
+30.0.36 alias sampledso.dupnames.three.write_me and sampledso.dupnames.two.write_me
+30.0.36 alias sampledso.dupnames.three.write_me and sampledso.write_me
 
 === -L sampledso.one.bad ===
 Error: sampledso.one.bad: Unknown metric name

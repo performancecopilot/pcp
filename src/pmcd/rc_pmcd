@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (c) 2013-2014 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 # Copyright (c) 2000-2008 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -151,7 +151,7 @@ _reboot_setup()
 	    $ECHO $PCP_ECHO_N "Rebuilding PMNS ..." "$PCP_ECHO_C"
 	    here=`pwd`
 	    cd $PMNSDIR
-	    ./Rebuild -du $REBUILDOPT
+	    ./Rebuild -u $REBUILDOPT
 	    $RC_STATUS -v
 	    # The 'root' file does not get updated when data did not change,
 	    # so we must touch it to update date.
@@ -230,7 +230,6 @@ _start_pmcheck()
 }
 
 # Use $PCP_PMCDCONF_PATH to find and terminate pipe/socket PMDAs.
-# (First join up continued lines in config file)
 #
 _killpmdas()
 {
@@ -241,31 +240,34 @@ Warning: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot identify PM
          to be terminated.'
 	return
     fi
-    # Give each PMDA 2 seconds after a SIGTERM to die, then SIGKILL
-    for pmda in `$PCP_AWK_PROG <$PCP_PMCDCONF_PATH '
-/\\\\$/		{ printf "%s ", substr($0, 0, length($0) - 1); next }
-		{ print }' \
-| $PCP_AWK_PROG '
-$1 ~ /^#/				{ next }
-tolower($3) == "pipe" && NF > 4		{ print $5; next }
-tolower($3) == "socket" && NF > 5	{ print $6; next }' \
-| sort -u`
-    do
-	pmsignal -a -s TERM `basename $pmda` > /dev/null 2>&1 &
-    done
-    sleep 2
-    for pmda in `$PCP_AWK_PROG <$PCP_PMCDCONF_PATH '
-/\\\\$/		{ printf "%s ", substr($0, 0, length($0) - 1); next }
-		{ print }' \
-| $PCP_AWK_PROG '
-$1 ~ /^#/				{ next }
-tolower($3) == "pipe" && NF > 4		{ print $5; next }
-tolower($3) == "socket" && NF > 5	{ print $6; next }' \
-| sort -u`
-    do
-	pmsignal -a -s KILL `basename $pmda` > /dev/null 2>&1 &
-    done
 
+    # First join up continued lines in config file, then find processes
+    $PCP_AWK_PROG < $PCP_PMCDCONF_PATH '
+/\\\\$/		{ printf "%s ", substr($0, 0, length($0) - 1); next }
+		{ print }' \
+| $PCP_AWK_PROG '
+$1 ~ /^#/				{ next }
+tolower($3) == "pipe" && NF > 4		{ $1=$2=$3=$4=""; print $0; next }
+tolower($3) == "socket" && NF > 5	{ $1=$2=$3=$4=$5=""; print $0; next }
+' > $tmp/pmdas
+
+    cat $tmp/pmdas | while read pmda
+    do
+	_get_pids_by_args $pmda >$tmp/tmp
+	[ -s $tmp/tmp ] || continue
+	pmsignal -s TERM `cat $tmp/tmp` > /dev/null 2>&1 &
+    done
+    wait
+
+    # Give all PMDAs 2 seconds after a SIGTERM to die, then SIGKILL
+    sleep 2
+
+    cat $tmp/pmdas | while read pmda
+    do
+	_get_pids_by_args $pmda >$tmp/tmp
+	[ -s $tmp/tmp ] || continue
+	pmsignal -s KILL `cat $tmp/tmp` > /dev/null 2>&1 &
+    done
     wait
 }
 

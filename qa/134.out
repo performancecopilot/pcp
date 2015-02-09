@@ -91,7 +91,7 @@ Metrics in archive:
     pmcd.pmlogger.archive
     pmcd.control.register
     pmcd.control.register
-    sample.bin
+    sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     pmcd.control.timeout
     pmcd.control.debug
     pmcd.control.register
@@ -116,7 +116,7 @@ Metrics in archive:
     pmcd.pmlogger.archive
     pmcd.control.register
     pmcd.control.register
-    sample.bin
+    sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin
     pmcd.control.timeout
     pmcd.control.debug
     pmcd.control.register

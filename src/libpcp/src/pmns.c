@@ -90,6 +90,27 @@ static int useExtPMNS;	/* set by __pmUsePMNS() */
 static int load(const char *filename, int dupok);
 static __pmnsNode *locate(const char *name, __pmnsNode *root);
 
+/*
+ * Helper routine to report all the names for a metric ...
+ * numnames and names[] would typically by returned from
+ * an earlier call to pmNameAll()
+ */
+void
+__pmPrintMetricNames(FILE *f, int numnames, char **names, char *sep)
+{
+    int		j;
+    
+    if (numnames < 1)
+	fprintf(f, "<nonames>");
+    else {
+	for (j = 0; j < numnames; j++) {
+	    if (j == 0)
+		fprintf(f, "%s", names[j]);
+	    else
+		fprintf(f, "%s%s", sep, names[j]);
+	}
+    }
+}
 
 /*
  * Set current pmns to an externally supplied PMNS.
@@ -134,7 +155,8 @@ LoadDefault(char *reason_msg)
 		reason_msg);
 	}
 #endif
-	if (load(PM_NS_DEFAULT, 0) < 0)
+	/* duplicate names in the PMNS are OK now ... */
+	if (load(PM_NS_DEFAULT, 1) < 0)
 	    return PM_ERR_NOPMNS;
 	else
 	    return PMNS_LOCAL;
@@ -788,13 +810,15 @@ mark_one(__pmnsTree *pmns, pmID pmid, int bit)
     pmns->mark_state = UNKNOWN_MARK_STATE;
     for (np = pmns->htab[pmid % pmns->htabsize]; np != NULL; np = np->hash) {
 	if ((np->pmid & PMID_MASK) == (pmid & PMID_MASK)) {
-	    for ( ; np != NULL; np = np->parent) {
+	    /* mark nodes from leaf to root of the PMNS */
+	    __pmnsNode	*lnp;
+	    for (lnp = np; lnp != NULL; lnp = lnp->parent) {
 		if (bit)
-		    np->pmid |= MARK_BIT;
+		    lnp->pmid |= MARK_BIT;
 		else
-		    np->pmid &= ~MARK_BIT;
+		    lnp->pmid &= ~MARK_BIT;
 	    }
-	    return;
+	    /* keep going, may be more than one name with this PMID */
 	}
     }
 }
@@ -1339,12 +1363,13 @@ locate(const char *name, __pmnsNode *root)
  */
 
 /*
- * As of PCP 3.6, there is _only_ the ASCII version of the PMNS
+ * As of PCP 3.6, there is _only_ the ASCII version of the PMNS.
+ * As of PCP 3.10.3, the default is to allow duplicates in the PMNS.
  */
 int
 pmLoadNameSpace(const char *filename)
 {
-    return pmLoadASCIINameSpace(filename, 0);
+    return pmLoadASCIINameSpace(filename, 1);
 }
 
 int
@@ -2291,7 +2316,7 @@ pmNameAll(pmID pmid, char ***namelist)
 	}
 	PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	PM_UNLOCK(ctxp->c_lock);
-	if (n == 0)
+	if (n < 1)
 	    goto try_derive;
 	return n;
     }

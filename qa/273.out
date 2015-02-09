@@ -151,6 +151,16 @@ sampledso.event.param_float [FLOAT parameter for event records]
 sampledso.event.param_double [DOUBLE parameter for event records]
 sampledso.event.param_string [STRING parameter for event records]
 sampledso.event.param_aggregate [AGGREGATE parameter for event records]
+sampledso.dupnames.daemon_pid [Process id of PMDA daemon]
+sampledso.dupnames.pid_daemon [Process id of PMDA daemon]
+sampledso.dupnames.two.seconds [Elapsed time (seconds)]
+sampledso.dupnames.two.bin [Several constant instances]
+sampledso.dupnames.two.write_me [Modifiable, but otherwise constant.]
+sampledso.dupnames.two.lights [Traffic lights.]
+sampledso.dupnames.two.float.ten [10 as a 32-bit floating point value]
+sampledso.dupnames.two.double.ten [10 as a 64-bit floating point value]
+sampledso.dupnames.three.bin [Several constant instances]
+sampledso.dupnames.three.write_me [Modifiable, but otherwise constant.]
 
 sampledso.control
 Help:
@@ -996,6 +1006,54 @@ sampledso.event.param_aggregate
 Help:
 AGGREGATE parameter for event records
 
+sampledso.dupnames.daemon_pid
+Help:
+The process id of PMDA daemon, -1 if the daemon is a DSO.
+
+sampledso.dupnames.pid_daemon
+Help:
+The process id of PMDA daemon, -1 if the daemon is a DSO.
+
+sampledso.dupnames.two.seconds
+Help:
+The elapsed time since the PMDA started, in seconds, i.e. as returned
+by time(2).
+
+sampledso.dupnames.two.bin
+Help:
+9 instances labelled "bin-100" thru "bin-900", each with a constant
+value of 100 thru 900.
+
+sampledso.dupnames.two.write_me
+Help:
+This metric has a 32-bit integer value of 2, unless changed via pmStore.
+The metric has semantics of rate, and units of events per second.
+
+sampledso.dupnames.two.lights
+Help:
+A singular metric that has a discrete string value, namely "red",
+"yellow" or "green".  There is some persistance in the value, so
+consecutive fetches are likely to return the same value, however over a
+long period of time all values are equally probable.
+
+sampledso.dupnames.two.float.ten
+Help:
+10 as a 32-bit floating point value
+
+sampledso.dupnames.two.double.ten
+Help:
+10 as a 64-bit floating point value
+
+sampledso.dupnames.three.bin
+Help:
+9 instances labelled "bin-100" thru "bin-900", each with a constant
+value of 100 thru 900.
+
+sampledso.dupnames.three.write_me
+Help:
+This metric has a 32-bit integer value of 2, unless changed via pmStore.
+The metric has semantics of rate, and units of events per second.
+
 sample.seconds
 Full Help: Error: Operation requires context with host source of metrics
 
@@ -1009,6 +1067,18 @@ sample.drift
 Full Help: Error: Operation requires context with host source of metrics
 
 sample.lights
+Full Help: Error: Operation requires context with host source of metrics
+
+sample.dupnames.three.bin
+Full Help: Error: Operation requires context with host source of metrics
+
+sample.dupnames.two.seconds
+Full Help: Error: Operation requires context with host source of metrics
+
+sample.dupnames.two.bin
+Full Help: Error: Operation requires context with host source of metrics
+
+sample.dupnames.two.lights
 Full Help: Error: Operation requires context with host source of metrics
 
 simple.now
@@ -1038,7 +1108,7 @@ __pmFetchLocal: calling ???_profile(domain: 30), context: 0
 __pmFetchLocal: [0] PMID=30.0.6 nval=9
 pmFetch returns ...
 pmResult ... numpmid: 1
-  30.0.6 (sampledso.bin): numval: 9 valfmt: 0 vlist[]:
+  30.0.6 (sampledso.dupnames.three.bin, sampledso.dupnames.two.bin, sampledso.bin): numval: 9 valfmt: 0 vlist[]:
     inst [100 or "bin-100"] value NUMBER
     inst [200 or "bin-200"] value NUMBER
     inst [300 or "bin-300"] value NUMBER

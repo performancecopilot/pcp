@@ -1,0 +1,36 @@
+QA output created by 981
+=== Testing precanned gpfs files
+dbpmda> open pipe /usr/bin/perl pmdagpfs.pl
+Start perl PMDA: /usr/bin/perl pmdagpfs.pl
+dbpmda> getdesc on
+dbpmda> desc gpfs.fsios.cluster
+PMID: 135.0.1
+    Data Type: string  InDom: 135.0 0x21c00000
+    Semantics: instant  Units: none
+dbpmda> desc gpfs.fsios.filesystem
+PMID: 135.0.2
+    Data Type: string  InDom: 135.0 0x21c00000
+    Semantics: instant  Units: none
+dbpmda> desc gpfs.fsios.read_bytes
+PMID: 135.0.4
+    Data Type: 64-bit unsigned int  InDom: 135.0 0x21c00000
+    Semantics: counter  Units: byte
+dbpmda> fetch gpfs.fsios.cluster
+PMID(s): 135.0.1
+pmResult ... numpmid: 1
+  135.0.1 (<noname>): numval: 1 valfmt: 1 vlist[]:
+    inst [0 or ???] value STRING
+dbpmda> fetch gpfs.fsios.filesystem
+PMID(s): 135.0.2
+pmResult ... numpmid: 1
+  135.0.2 (<noname>): numval: 1 valfmt: 1 vlist[]:
+    inst [0 or ???] value STRING
+dbpmda> fetch gpfs.fsios.read_bytes
+PMID(s): 135.0.4
+pmResult ... numpmid: 1
+  135.0.4 (<noname>): numval: 1 valfmt: 1 vlist[]:
+    inst [0 or ???] value NUMBER
+dbpmda> instance 135.0
+pmInDom: 135.0
+[  0] inst: 0 name: "gpfs.foobar.com:gpfs0"
+dbpmda> 

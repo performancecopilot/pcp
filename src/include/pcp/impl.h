@@ -246,6 +246,8 @@ extern void __pmUsePMNS(__pmnsTree *); /* for debugging */
 extern int __pmFixPMNSHashTab(__pmnsTree *, int, int);
 extern int __pmAddPMNSNode(__pmnsTree *, int, const char *);
 
+/* helper routine to print all names of a metric */
+extern void __pmPrintMetricNames(FILE *, int, char **, char *);
 
 /* return true if the named pmns file has changed */
 extern int __pmHasPMNSFileChanged(const char *);

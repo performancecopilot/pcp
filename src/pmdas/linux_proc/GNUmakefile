@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2007-2010 Aconex.  All Rights Reserved.
-# Copyright (c) 2013-2014 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -35,6 +35,7 @@ LFILES		= lex.l
 YFILES		= gram.y
 
 SCRIPTS		= Install Remove
+LOGREWRITERS	= linux_proc_migrate.conf cgroup_units.conf
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
 LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) $(YFILES:%.y=%.tab.?)
@@ -67,7 +68,7 @@ install: default
 	$(INSTALL) -m 644 domain.h help help.dir help.pag root root_proc samplehotproc.conf $(PMDADIR)
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 root_proc $(PCP_VAR_DIR)/pmns/root_proc
-	$(INSTALL) -m 644 linux_proc_migrate.conf $(PCP_VAR_DIR)/config/pmlogrewrite/linux_proc_migrate.conf
+	$(INSTALL) -m 644 $(LOGREWRITERS) $(PCP_VAR_DIR)/config/pmlogrewrite
 	@$(INSTALL_MAN)
 else
 build-me:

@@ -165,15 +165,15 @@ dump_parameter(pmValueSet *xvsp, int index, int *flagsptr)
 {
     int		sts, flags = *flagsptr;
     pmDesc	desc;
-    char	*name;
+    char	**names;
 
-    if (pmNameID(xvsp->pmid, &name) >= 0) {
+    if ((sts = pmNameAll(xvsp->pmid, &names)) >= 0) {
 	if (index == 0) {
 	    if (xvsp->pmid == pmid_flags) {
 		flags = xvsp->vlist[0].value.lval;
 		printf(" flags 0x%x", flags);
 		printf(" (%s) ---\n", pmEventFlagsStr(flags));
-		free(name);
+		free(names);
 		*flagsptr = flags;
 		return;
 	    }
@@ -183,11 +183,13 @@ dump_parameter(pmValueSet *xvsp, int index, int *flagsptr)
 	    (xvsp->pmid == pmid_missed)) {
 	    printf("              ==> %d missed event records\n",
 		    xvsp->vlist[0].value.lval);
-	    free(name);
+	    free(names);
 	    return;
 	}
-	printf("                %s (%s):", pmIDStr(xvsp->pmid), name);
-	free(name);
+	printf("    ");
+	__pmPrintMetricNames(stdout, sts, names, " or ");
+	printf(" (%s):", pmIDStr(xvsp->pmid));
+	free(names);
     }
     else
 	printf("	            PMID: %s:", pmIDStr(xvsp->pmid));
@@ -201,7 +203,7 @@ dump_parameter(pmValueSet *xvsp, int index, int *flagsptr)
 }
 
 static void
-dump_event(const char *name, pmValueSet *vsp, int index, int indom, int type)
+dump_event(int numnames, char **names, pmValueSet *vsp, int index, int indom, int type)
 {
     int		r;		/* event records */
     int		p;		/* event parameters */
@@ -216,7 +218,8 @@ dump_event(const char *name, pmValueSet *vsp, int index, int indom, int type)
 
     if (index > 0)
 	printf("            ");
-    printf("  %s (%s", pmIDStr(vsp->pmid), name);
+    printf("  %s (", pmIDStr(vsp->pmid));
+    __pmPrintMetricNames(stdout, numnames, names, " or ");
     if (indom != PM_INDOM_NULL) {
 	putchar('[');
 	if (pmNameInDom(indom, vp->inst, &iname) < 0)
@@ -296,13 +299,15 @@ dump_event(const char *name, pmValueSet *vsp, int index, int indom, int type)
 }
 
 static void
-dump_metric(const char *mname, pmValueSet *vsp, int index, int indom, int type)
+dump_metric(int numnames, char **names, pmValueSet *vsp, int index, int indom, int type)
 {
     pmValue	*vp = &vsp->vlist[index];
     char	*iname;
 
     if (index == 0) {
-	printf("  %s (%s):", pmIDStr(vsp->pmid), mname);
+	printf("  %s (", pmIDStr(vsp->pmid));
+	__pmPrintMetricNames(stdout, numnames, names, " or ");
+	printf("):");
 	if (vsp->numval > 1) {
 	    putchar('\n');
 	    printf("               ");
@@ -331,7 +336,7 @@ dumpResult(pmResult *resp)
     int		i;
     int		j;
     int		n;
-    char	*mname;
+    char	**names;
     pmDesc	desc;
 
     if (sflag) {
@@ -352,14 +357,17 @@ dumpResult(pmResult *resp)
 
 	if (i > 0)
 	    printf("            ");
-	if ((n = pmNameID(vsp->pmid, &mname)) < 0)
-	    mname = strdup("<noname>");
+	n = pmNameAll(vsp->pmid, &names);
 	if (vsp->numval == 0) {
-	    printf("  %s (%s): No values returned!\n", pmIDStr(vsp->pmid), mname);
+	    printf("  %s (", pmIDStr(vsp->pmid));
+	    __pmPrintMetricNames(stdout, n, names, " or ");
+	    printf("): No values returned!\n");
 	    goto next;
 	}
 	else if (vsp->numval < 0) {
-	    printf("  %s (%s): %s\n", pmIDStr(vsp->pmid), mname, pmErrStr(vsp->numval));
+	    printf("  %s (", pmIDStr(vsp->pmid));
+	    __pmPrintMetricNames(stdout, n, names, " or ");
+	    printf("): %s\n", pmErrStr(vsp->numval));
 	    goto next;
 	}
 
@@ -375,13 +383,13 @@ dumpResult(pmResult *resp)
 	for (j = 0; j < vsp->numval; j++) {
 	    if (desc.type == PM_TYPE_EVENT ||
 		desc.type == PM_TYPE_HIGHRES_EVENT)
-		dump_event(mname, vsp, j, desc.indom, desc.type);
+		dump_event(n, names, vsp, j, desc.indom, desc.type);
 	    else
-		dump_metric(mname, vsp, j, desc.indom, desc.type);
+		dump_metric(n, names, vsp, j, desc.indom, desc.type);
 	}
 next:
-	if (mname)
-	    free(mname);
+	if (n > 0)
+	    free(names);
     }
 }
 

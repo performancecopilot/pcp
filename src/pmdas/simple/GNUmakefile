@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2013 Red Hat.
+# Copyright (c) 2012-2015 Red Hat.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -21,7 +21,10 @@ CMDTARGET = pmdasimple$(EXECSUFFIX)
 LLDLIBS = $(PCP_PMDALIB)
 LCFLAGS = -I.
 DFILES	= README help
-SCRIPTS = pmdasimple.perl pmdasimple.python
+SCRIPTS = pmdasimple.perl
+ifeq "$(ENABLE_PYTHON)" "true"
+SCRIPTS += pmdasimple.python
+endif
 LSRCFILES = Install Remove pmns root $(DFILES) $(SCRIPTS) \
 	simple.conf GNUmakefile.install
 

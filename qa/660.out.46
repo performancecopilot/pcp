@@ -85,7 +85,7 @@ len(metrics[]):0
 context #### metadata prefix=no.such.metric3,pmcd.client.whoami,no.such.metric4 response code 200
 len(metrics[]):0
 context #### metadata prefix=sample response code 200
-len(metrics[]):150
+len(metrics[]):160
   metric:sample.aggregate.hullo metadata:7
   metric:sample.aggregate.null metadata:7
   metric:sample.aggregate.write_me metadata:7
@@ -115,6 +115,16 @@ len(metrics[]):150
   metric:sample.double.ten metadata:7
   metric:sample.double.write_me metadata:7
   metric:sample.drift metadata:7
+  metric:sample.dupnames.daemon_pid metadata:7
+  metric:sample.dupnames.pid_daemon metadata:7
+  metric:sample.dupnames.three.bin metadata:8
+  metric:sample.dupnames.three.write_me metadata:7
+  metric:sample.dupnames.two.bin metadata:8
+  metric:sample.dupnames.two.double.ten metadata:7
+  metric:sample.dupnames.two.float.ten metadata:7
+  metric:sample.dupnames.two.lights metadata:7
+  metric:sample.dupnames.two.seconds metadata:7
+  metric:sample.dupnames.two.write_me metadata:7
   metric:sample.dynamic.counter metadata:8
   metric:sample.dynamic.discrete metadata:8
   metric:sample.dynamic.instant metadata:8
@@ -335,7 +345,7 @@ len(metrics[]):0
 context #### metadata prefix=no.such.metric3,pmcd.client.whoami,no.such.metric4 response code 200
 len(metrics[]):0
 context #### metadata prefix=sample response code 200
-len(metrics[]):150
+len(metrics[]):160
   metric:sample.aggregate.hullo metadata:7
   metric:sample.aggregate.null metadata:7
   metric:sample.aggregate.write_me metadata:7
@@ -365,6 +375,16 @@ len(metrics[]):150
   metric:sample.double.ten metadata:7
   metric:sample.double.write_me metadata:7
   metric:sample.drift metadata:7
+  metric:sample.dupnames.daemon_pid metadata:7
+  metric:sample.dupnames.pid_daemon metadata:7
+  metric:sample.dupnames.three.bin metadata:8
+  metric:sample.dupnames.three.write_me metadata:7
+  metric:sample.dupnames.two.bin metadata:8
+  metric:sample.dupnames.two.double.ten metadata:7
+  metric:sample.dupnames.two.float.ten metadata:7
+  metric:sample.dupnames.two.lights metadata:7
+  metric:sample.dupnames.two.seconds metadata:7
+  metric:sample.dupnames.two.write_me metadata:7
   metric:sample.dynamic.counter metadata:8
   metric:sample.dynamic.discrete metadata:8
   metric:sample.dynamic.instant metadata:8
@@ -508,7 +528,9 @@ context #### indom names=kernel.all.nprocs response code 400
 
 === 3. pmwebd security constraints, file service ===
 PMWEBD error, XXX
+
 PMWEBD error, XXX
+
 * About to connect() to LOCALHOST port 44323 (####)
 *   Trying LOCALADDR...
 * Connected to LOCALHOST (LOCALADDR) port 44323 (####)
@@ -516,17 +538,19 @@ PMWEBD error, XXX
 > User-Agent: FOO
 > Host: LOCALHOST:44323
 > Accept: */*
-> 
+>
 < HTTP/1.1 400 Bad Request
 < Content-Length: 56
 < Access-Control-Allow-Origin: *
 < Content-Type: text/plain
 < Date: DATE
-< 
+<
 { [data not shown]
 * Connection #### to host LOCALHOST left intact
 PMWEBD error, XXX
+
 PMWEBD error, XXX
+
 * About to connect() to LOCALHOST port 44323 (####)
 *   Trying LOCALADDR...
 * Connected to LOCALHOST (LOCALADDR) port 44323 (####)
@@ -534,16 +558,17 @@ PMWEBD error, XXX
 > User-Agent: FOO
 > Host: LOCALHOST:44323
 > Accept: */*
-> 
+>
 < HTTP/1.1 400 Bad Request
 < Content-Length: 40
 < Access-Control-Allow-Origin: *
 < Content-Type: text/plain
 < Date: DATE
-< 
+<
 { [data not shown]
 * Connection #### to host LOCALHOST left intact
 PMWEBD error, XXX
+
 * About to connect() to LOCALHOST port 44323 (####)
 *   Trying LOCALADDR...
 * Connected to LOCALHOST (LOCALADDR) port 44323 (####)
@@ -551,14 +576,15 @@ PMWEBD error, XXX
 > User-Agent: FOO
 > Host: LOCALHOST:44323
 > Accept: */*
-> 
+>
 < HTTP/1.1 400 Bad Request
 < Content-Length: 40
 < Access-Control-Allow-Origin: *
 < Content-Type: text/plain
 < Date: DATE
-< 
+<
 { [data not shown]
 * Connection #### to host LOCALHOST left intact
 PMWEBD error, XXX
+
 file service ok

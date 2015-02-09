@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Red Hat.
+ * Copyright (c) 2013-2015, Red Hat.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -27,6 +27,7 @@ public:
     int getContextFlags() const;
     QString getHostName(void) const;
     QString getHostSpecification() const;
+    void reset();
 
 protected slots:
     virtual void languageChange();
@@ -35,16 +36,24 @@ private slots:
     virtual void quit();
     virtual void proxyCheckBox_toggled(bool);
     virtual void secureCheckBox_toggled(bool);
+    virtual void containerCheckBox_toggled(bool);
+    virtual void advancedPushButton_clicked();
     virtual void certificatesPushButton_clicked();
     virtual void authenticateCheckBox_toggled(bool);
+    virtual void nssGuiError(QProcess::ProcessError);
     virtual void nssGuiFinished(int, QProcess::ExitStatus);
 
 private:
     void nssGuiStart();
+    void changedAdvancedState();
 
     struct {
-	bool		nssGuiStarted;
 	QProcess	*nssGuiProc;
+	bool		nssGuiStarted;
+	bool		advancedState;
+	QString		advancedString;
+	int		originalHeight;
+	int		minimalHeight;
     } my;
 };
 

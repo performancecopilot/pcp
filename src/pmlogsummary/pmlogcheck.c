@@ -85,13 +85,14 @@ typeStr(int pmtype)
 static void
 print_metric(FILE *f, pmID pmid)
 {
-    char	*name = NULL;
+    int		numnames;
+    char	**names;
 
-    if (pmNameID(pmid, &name) < 0)
+    if ((numnames = pmNameAll(pmid, &names)) < 1)
 	fprintf(f, "%s", pmIDStr(pmid));
     else {
-	fprintf(f, "%s", name);
-	free(name);
+	__pmPrintMetricNames(f, numnames, names, " or ");
+	free(names);
     }
 }
 

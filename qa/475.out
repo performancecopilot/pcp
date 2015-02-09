@@ -8,27 +8,27 @@ Warning: pmLookupName -> Metric name is not a leaf in PMNS
  100 func1: pmcd.pmlogger ... pmLookupName OK
  100 func1: pmcd.pmlogger pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func1: sample.longlong.one ... pmLookupName OK
- 100 func1: sample.longlong.one pmNameID OK pmNameAll OK
+ 100 func1: sample.longlong.one pmNameAll OK pmNameID OK
  100 func1: sample.secret ... pmLookupName OK
  100 func1: sample.secret pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func1: sampledso.bin ... pmLookupName OK
- 100 func1: sampledso.bin pmNameID OK pmNameAll OK
+ 100 func1: sampledso.bin pmNameAll OK pmNameID OK
  100 func2: pmcd.pmlogger ... pmLookupName OK
  100 func2: pmcd.pmlogger pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func2: sample.longlong.one ... pmLookupName OK
- 100 func2: sample.longlong.one pmNameID OK pmNameAll OK
+ 100 func2: sample.longlong.one pmNameAll OK pmNameID OK
  100 func2: sample.secret ... pmLookupName OK
  100 func2: sample.secret pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func2: sampledso.bin ... pmLookupName OK
- 100 func2: sampledso.bin pmNameID OK pmNameAll OK
+ 100 func2: sampledso.bin pmNameAll OK pmNameID OK
  100 func3: pmcd.pmlogger ... pmLookupName OK
  100 func3: pmcd.pmlogger pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func3: sample.longlong.one ... pmLookupName OK
- 100 func3: sample.longlong.one pmNameID OK pmNameAll OK
+ 100 func3: sample.longlong.one pmNameAll OK pmNameID OK
  100 func3: sample.secret ... pmLookupName OK
  100 func3: sample.secret pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func3: sampledso.bin ... pmLookupName OK
- 100 func3: sampledso.bin pmNameID OK pmNameAll OK
+ 100 func3: sampledso.bin pmNameAll OK pmNameID OK
 
 Two contexts, same host, different fd's ...
 Warning: pmLookupName -> Metric name is not a leaf in PMNS
@@ -39,27 +39,27 @@ Warning: pmLookupName -> Metric name is not a leaf in PMNS
  100 func1: pmcd.pmlogger ... pmLookupName OK
  100 func1: pmcd.pmlogger pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func1: sample.longlong.one ... pmLookupName OK
- 100 func1: sample.longlong.one pmNameID OK pmNameAll OK
+ 100 func1: sample.longlong.one pmNameAll OK pmNameID OK
  100 func1: sample.secret ... pmLookupName OK
  100 func1: sample.secret pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func1: sampledso.bin ... pmLookupName OK
- 100 func1: sampledso.bin pmNameID OK pmNameAll OK
+ 100 func1: sampledso.bin pmNameAll OK pmNameID OK
  100 func2: pmcd.pmlogger ... pmLookupName OK
  100 func2: pmcd.pmlogger pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func2: sample.longlong.one ... pmLookupName OK
- 100 func2: sample.longlong.one pmNameID OK pmNameAll OK
+ 100 func2: sample.longlong.one pmNameAll OK pmNameID OK
  100 func2: sample.secret ... pmLookupName OK
  100 func2: sample.secret pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func2: sampledso.bin ... pmLookupName OK
- 100 func2: sampledso.bin pmNameID OK pmNameAll OK
+ 100 func2: sampledso.bin pmNameAll OK pmNameID OK
  100 func3: pmcd.pmlogger ... pmLookupName OK
  100 func3: pmcd.pmlogger pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func3: sample.longlong.one ... pmLookupName OK
- 100 func3: sample.longlong.one pmNameID OK pmNameAll OK
+ 100 func3: sample.longlong.one pmNameAll OK pmNameID OK
  100 func3: sample.secret ... pmLookupName OK
  100 func3: sample.secret pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func3: sampledso.bin ... pmLookupName OK
- 100 func3: sampledso.bin pmNameID OK pmNameAll OK
+ 100 func3: sampledso.bin pmNameAll OK pmNameID OK
 
 Two contexts, same host, same fd's ...
 Warning: pmLookupName -> Metric name is not a leaf in PMNS
@@ -70,27 +70,27 @@ Warning: pmLookupName -> Metric name is not a leaf in PMNS
  100 func1: pmcd.pmlogger ... pmLookupName OK
  100 func1: pmcd.pmlogger pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func1: sample.longlong.one ... pmLookupName OK
- 100 func1: sample.longlong.one pmNameID OK pmNameAll OK
+ 100 func1: sample.longlong.one pmNameAll OK pmNameID OK
  100 func1: sample.secret ... pmLookupName OK
  100 func1: sample.secret pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func1: sampledso.bin ... pmLookupName OK
- 100 func1: sampledso.bin pmNameID OK pmNameAll OK
+ 100 func1: sampledso.bin pmNameAll OK pmNameID OK
  100 func2: pmcd.pmlogger ... pmLookupName OK
  100 func2: pmcd.pmlogger pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func2: sample.longlong.one ... pmLookupName OK
- 100 func2: sample.longlong.one pmNameID OK pmNameAll OK
+ 100 func2: sample.longlong.one pmNameAll OK pmNameID OK
  100 func2: sample.secret ... pmLookupName OK
  100 func2: sample.secret pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func2: sampledso.bin ... pmLookupName OK
- 100 func2: sampledso.bin pmNameID OK pmNameAll OK
+ 100 func2: sampledso.bin pmNameAll OK pmNameID OK
  100 func3: pmcd.pmlogger ... pmLookupName OK
  100 func3: pmcd.pmlogger pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func3: sample.longlong.one ... pmLookupName OK
- 100 func3: sample.longlong.one pmNameID OK pmNameAll OK
+ 100 func3: sample.longlong.one pmNameAll OK pmNameID OK
  100 func3: sample.secret ... pmLookupName OK
  100 func3: sample.secret pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func3: sampledso.bin ... pmLookupName OK
- 100 func3: sampledso.bin pmNameID OK pmNameAll OK
+ 100 func3: sampledso.bin pmNameAll OK pmNameID OK
 
 Three contexts, same host, different fd's ...
 Warning: pmLookupName -> Metric name is not a leaf in PMNS
@@ -101,27 +101,27 @@ Warning: pmLookupName -> Metric name is not a leaf in PMNS
  100 func1: pmcd.pmlogger ... pmLookupName OK
  100 func1: pmcd.pmlogger pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func1: sample.longlong.one ... pmLookupName OK
- 100 func1: sample.longlong.one pmNameID OK pmNameAll OK
+ 100 func1: sample.longlong.one pmNameAll OK pmNameID OK
  100 func1: sample.secret ... pmLookupName OK
  100 func1: sample.secret pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func1: sampledso.bin ... pmLookupName OK
- 100 func1: sampledso.bin pmNameID OK pmNameAll OK
+ 100 func1: sampledso.bin pmNameAll OK pmNameID OK
  100 func2: pmcd.pmlogger ... pmLookupName OK
  100 func2: pmcd.pmlogger pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func2: sample.longlong.one ... pmLookupName OK
- 100 func2: sample.longlong.one pmNameID OK pmNameAll OK
+ 100 func2: sample.longlong.one pmNameAll OK pmNameID OK
  100 func2: sample.secret ... pmLookupName OK
  100 func2: sample.secret pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func2: sampledso.bin ... pmLookupName OK
- 100 func2: sampledso.bin pmNameID OK pmNameAll OK
+ 100 func2: sampledso.bin pmNameAll OK pmNameID OK
  100 func3: pmcd.pmlogger ... pmLookupName OK
  100 func3: pmcd.pmlogger pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func3: sample.longlong.one ... pmLookupName OK
- 100 func3: sample.longlong.one pmNameID OK pmNameAll OK
+ 100 func3: sample.longlong.one pmNameAll OK pmNameID OK
  100 func3: sample.secret ... pmLookupName OK
  100 func3: sample.secret pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func3: sampledso.bin ... pmLookupName OK
- 100 func3: sampledso.bin pmNameID OK pmNameAll OK
+ 100 func3: sampledso.bin pmNameAll OK pmNameID OK
 
 Three contexts, same host, same fd's ...
 Warning: pmLookupName -> Metric name is not a leaf in PMNS
@@ -132,24 +132,24 @@ Warning: pmLookupName -> Metric name is not a leaf in PMNS
  100 func1: pmcd.pmlogger ... pmLookupName OK
  100 func1: pmcd.pmlogger pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func1: sample.longlong.one ... pmLookupName OK
- 100 func1: sample.longlong.one pmNameID OK pmNameAll OK
+ 100 func1: sample.longlong.one pmNameAll OK pmNameID OK
  100 func1: sample.secret ... pmLookupName OK
  100 func1: sample.secret pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func1: sampledso.bin ... pmLookupName OK
- 100 func1: sampledso.bin pmNameID OK pmNameAll OK
+ 100 func1: sampledso.bin pmNameAll OK pmNameID OK
  100 func2: pmcd.pmlogger ... pmLookupName OK
  100 func2: pmcd.pmlogger pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func2: sample.longlong.one ... pmLookupName OK
- 100 func2: sample.longlong.one pmNameID OK pmNameAll OK
+ 100 func2: sample.longlong.one pmNameAll OK pmNameID OK
  100 func2: sample.secret ... pmLookupName OK
  100 func2: sample.secret pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func2: sampledso.bin ... pmLookupName OK
- 100 func2: sampledso.bin pmNameID OK pmNameAll OK
+ 100 func2: sampledso.bin pmNameAll OK pmNameID OK
  100 func3: pmcd.pmlogger ... pmLookupName OK
  100 func3: pmcd.pmlogger pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func3: sample.longlong.one ... pmLookupName OK
- 100 func3: sample.longlong.one pmNameID OK pmNameAll OK
+ 100 func3: sample.longlong.one pmNameAll OK pmNameID OK
  100 func3: sample.secret ... pmLookupName OK
  100 func3: sample.secret pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func3: sampledso.bin ... pmLookupName OK
- 100 func3: sampledso.bin pmNameID OK pmNameAll OK
+ 100 func3: sampledso.bin pmNameAll OK pmNameID OK

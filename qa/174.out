@@ -8,7 +8,7 @@ PMID(s): 29.0.6
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
 pmResult dump from ... numpmid: 1
-  29.0.6 (sample.bin): numval: 9 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 9 valfmt: 0 vlist[]:
     inst [100 or ???] value 100
     inst [200 or ???] value 200
     inst [300 or ???] value 300
@@ -23,7 +23,7 @@ PMID(s): 29.0.6
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
 pmResult dump from ... numpmid: 1
-  29.0.6 (sample.bin): numval: 9 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 9 valfmt: 0 vlist[]:
     inst [100 or ???] value 100
     inst [200 or ???] value 200
     inst [300 or ???] value 300
@@ -38,7 +38,7 @@ PMID(s): 29.0.6
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
 pmResult dump from ... numpmid: 1
-  29.0.6 (sample.bin): numval: 9 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 9 valfmt: 0 vlist[]:
     inst [100 or ???] value 100
     inst [200 or ???] value 200
     inst [300 or ???] value 300
@@ -55,21 +55,21 @@ PMID(s): 29.0.6
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
 pmResult dump from ... numpmid: 1
-  29.0.6 (sample.bin): numval: 1 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 1 valfmt: 0 vlist[]:
     inst [200 or ???] value 200
 dbpmda> fetch 29.0.6
 PMID(s): 29.0.6
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
 pmResult dump from ... numpmid: 1
-  29.0.6 (sample.bin): numval: 1 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 1 valfmt: 0 vlist[]:
     inst [200 or ???] value 200
 dbpmda> fetch 29.0.6
 PMID(s): 29.0.6
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
 pmResult dump from ... numpmid: 1
-  29.0.6 (sample.bin): numval: 1 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 1 valfmt: 0 vlist[]:
     inst [200 or ???] value 200
 dbpmda> profile 29.2 add 400
 dbpmda> fetch 29.0.6
@@ -77,7 +77,7 @@ PMID(s): 29.0.6
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
 pmResult dump from ... numpmid: 1
-  29.0.6 (sample.bin): numval: 2 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 2 valfmt: 0 vlist[]:
     inst [200 or ???] value 200
     inst [400 or ???] value 400
 dbpmda> fetch 29.0.6
@@ -85,7 +85,7 @@ PMID(s): 29.0.6
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
 pmResult dump from ... numpmid: 1
-  29.0.6 (sample.bin): numval: 2 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 2 valfmt: 0 vlist[]:
     inst [200 or ???] value 200
     inst [400 or ???] value 400
 dbpmda> fetch 29.0.6
@@ -93,7 +93,7 @@ PMID(s): 29.0.6
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
 pmResult dump from ... numpmid: 1
-  29.0.6 (sample.bin): numval: 2 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 2 valfmt: 0 vlist[]:
     inst [200 or ???] value 200
     inst [400 or ???] value 400
 dbpmda> open dso SAMPLEDSO sample_init 30
@@ -102,7 +102,7 @@ PMID(s): 30.0.6
     Data Type: 32-bit int  InDom: 30.2 0x7800002
     Semantics: instant  Units: none
 pmResult dump from ... numpmid: 1
-  30.0.6 (sampledso.bin): numval: 9 valfmt: 0 vlist[]:
+  30.0.6 (sampledso.dupnames.three.bin or sampledso.dupnames.two.bin or sampledso.bin): numval: 9 valfmt: 0 vlist[]:
     inst [100 or ???] value 100
     inst [200 or ???] value 200
     inst [300 or ???] value 300
@@ -117,7 +117,7 @@ PMID(s): 30.0.6
     Data Type: 32-bit int  InDom: 30.2 0x7800002
     Semantics: instant  Units: none
 pmResult dump from ... numpmid: 1
-  30.0.6 (sampledso.bin): numval: 9 valfmt: 0 vlist[]:
+  30.0.6 (sampledso.dupnames.three.bin or sampledso.dupnames.two.bin or sampledso.bin): numval: 9 valfmt: 0 vlist[]:
     inst [100 or ???] value 100
     inst [200 or ???] value 200
     inst [300 or ???] value 300
@@ -132,7 +132,7 @@ PMID(s): 30.0.6
     Data Type: 32-bit int  InDom: 30.2 0x7800002
     Semantics: instant  Units: none
 pmResult dump from ... numpmid: 1
-  30.0.6 (sampledso.bin): numval: 9 valfmt: 0 vlist[]:
+  30.0.6 (sampledso.dupnames.three.bin or sampledso.dupnames.two.bin or sampledso.bin): numval: 9 valfmt: 0 vlist[]:
     inst [100 or ???] value 100
     inst [200 or ???] value 200
     inst [300 or ???] value 300
@@ -149,21 +149,21 @@ PMID(s): 30.0.6
     Data Type: 32-bit int  InDom: 30.2 0x7800002
     Semantics: instant  Units: none
 pmResult dump from ... numpmid: 1
-  30.0.6 (sampledso.bin): numval: 1 valfmt: 0 vlist[]:
+  30.0.6 (sampledso.dupnames.three.bin or sampledso.dupnames.two.bin or sampledso.bin): numval: 1 valfmt: 0 vlist[]:
     inst [100 or ???] value 100
 dbpmda> fetch 30.0.6
 PMID(s): 30.0.6
     Data Type: 32-bit int  InDom: 30.2 0x7800002
     Semantics: instant  Units: none
 pmResult dump from ... numpmid: 1
-  30.0.6 (sampledso.bin): numval: 1 valfmt: 0 vlist[]:
+  30.0.6 (sampledso.dupnames.three.bin or sampledso.dupnames.two.bin or sampledso.bin): numval: 1 valfmt: 0 vlist[]:
     inst [100 or ???] value 100
 dbpmda> fetch 30.0.6
 PMID(s): 30.0.6
     Data Type: 32-bit int  InDom: 30.2 0x7800002
     Semantics: instant  Units: none
 pmResult dump from ... numpmid: 1
-  30.0.6 (sampledso.bin): numval: 1 valfmt: 0 vlist[]:
+  30.0.6 (sampledso.dupnames.three.bin or sampledso.dupnames.two.bin or sampledso.bin): numval: 1 valfmt: 0 vlist[]:
     inst [100 or ???] value 100
 dbpmda> profile 30.2 add 300
 dbpmda> fetch 30.0.6
@@ -171,7 +171,7 @@ PMID(s): 30.0.6
     Data Type: 32-bit int  InDom: 30.2 0x7800002
     Semantics: instant  Units: none
 pmResult dump from ... numpmid: 1
-  30.0.6 (sampledso.bin): numval: 2 valfmt: 0 vlist[]:
+  30.0.6 (sampledso.dupnames.three.bin or sampledso.dupnames.two.bin or sampledso.bin): numval: 2 valfmt: 0 vlist[]:
     inst [100 or ???] value 100
     inst [300 or ???] value 300
 dbpmda> fetch 30.0.6
@@ -179,7 +179,7 @@ PMID(s): 30.0.6
     Data Type: 32-bit int  InDom: 30.2 0x7800002
     Semantics: instant  Units: none
 pmResult dump from ... numpmid: 1
-  30.0.6 (sampledso.bin): numval: 2 valfmt: 0 vlist[]:
+  30.0.6 (sampledso.dupnames.three.bin or sampledso.dupnames.two.bin or sampledso.bin): numval: 2 valfmt: 0 vlist[]:
     inst [100 or ???] value 100
     inst [300 or ???] value 300
 dbpmda> fetch 30.0.6
@@ -187,7 +187,7 @@ PMID(s): 30.0.6
     Data Type: 32-bit int  InDom: 30.2 0x7800002
     Semantics: instant  Units: none
 pmResult dump from ... numpmid: 1
-  30.0.6 (sampledso.bin): numval: 2 valfmt: 0 vlist[]:
+  30.0.6 (sampledso.dupnames.three.bin or sampledso.dupnames.two.bin or sampledso.bin): numval: 2 valfmt: 0 vlist[]:
     inst [100 or ???] value 100
     inst [300 or ???] value 300
 

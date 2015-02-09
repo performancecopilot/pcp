@@ -1130,14 +1130,15 @@ do_control(__pmPDU *pb)
     for (i = 0; i < request->numpmid; i++) {
 
 	if (control == PM_LOG_MANDATORY || control == PM_LOG_ADVISORY) {
-	    char	*p;
+	    char	**names;
 
-	    sts = pmNameID(request->vset[i]->pmid, &p);
+	    sts = pmNameAll(request->vset[i]->pmid, &names);
 	    if (sts < 0)
 		fprintf(stderr, "  metric: %s", pmIDStr(request->vset[i]->pmid));
 	    else {
-		fprintf(stderr, "  metric: %s", p);
-		free(p);
+		fprintf(stderr, "  metric: ");
+		__pmPrintMetricNames(stderr, sts, names, " or ");
+		free(names);
 	    }
 	}
 

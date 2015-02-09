@@ -19,6 +19,10 @@
  *
  * TODO
  *   +	-g and -p - nothing has been checked
+ *   + hash table still has the 1:1 mapping for name:pmid assumption
+ *     ... need to use pmNameAll() instead of pmNameID() and change the
+ *     hash data structure if this assumption no longer holds for
+ *     "metrics" within an event record
  */
 
 #include "pmevent.h"

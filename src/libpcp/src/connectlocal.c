@@ -131,6 +131,7 @@ build_dsotab(void)
 	    snprintf(pathbuf, sizeof(pathbuf), "%s/linux/pmda_linux.so",
 			pmGetConfig("PCP_PMDAS_DIR"));
 	    name = pathbuf;
+	    peekc = *p;
 	    goto dsoload;
 	}
 	/* skip the PMDA's name */
