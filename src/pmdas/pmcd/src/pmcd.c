@@ -1139,7 +1139,7 @@ fetch_hostname(int ctx, pmAtomValue *avp, char *hostname)
 {
     static char	host[MAXHOSTNAMELEN];
     char	*container;
-    int		length;
+    int		length, sts;
 
     if (hostname) {	/* ensure we only ever refresh once-per-fetch */
 	avp->cp = hostname;
@@ -1147,11 +1147,14 @@ fetch_hostname(int ctx, pmAtomValue *avp, char *hostname)
     }
 
     /* see if we're dealing with a request within a container */
-    if ((container = ctx_container(ctx, &length)) != NULL) {
-	pmdaRootContainerHostName(rootfd, container, length, host, sizeof(host));
+    if ((container = ctx_container(ctx, &length)) != NULL &&
+	((sts = pmdaRootContainerHostName(rootfd, container, length,
+					host, sizeof(host)) >= 0))) {
 	avp->cp = hostname = host;
+	return hostname;
     }
-    else if (_pmcd_hostname) {
+
+    if (_pmcd_hostname) {
 	avp->cp = hostname = _pmcd_hostname;
     } else {
 	if (!hostname)
