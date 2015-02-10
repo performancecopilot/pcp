@@ -421,5 +421,8 @@ main(int argc, char **argv)
     printf("Pass 6 done\n");
     fflush(stdout);
 
+    if (resvec != NULL)
+	free(resvec);
+
     exit(0);
 }
