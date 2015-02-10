@@ -102,8 +102,8 @@ refresh_cgroup_devices(void)
 	}
 	/* keeping track of all fields (major/minor/inst/name) */
 	pmdaCacheStore(diskindom, PMDA_CACHE_ADD, namebuf, dev);
-	pmdaCacheLookupName(diskindom, namebuf, &dev->inst, NULL);
-	pmdaCacheLookup(diskindom, dev->inst, &dev->name, NULL);
+	(void)pmdaCacheLookupName(diskindom, namebuf, &dev->inst, NULL);
+	(void)pmdaCacheLookup(diskindom, dev->inst, &dev->name, NULL);
 
 	snprintf(buf, sizeof(buf), "%u:%u", major, minor);
 	pmdaCacheStore(devtindom, PMDA_CACHE_ADD, buf, (void *)dev);
@@ -141,7 +141,7 @@ refresh_cgroup_subsys(void)
 	sts = pmdaCacheLookupName(subsys, name, NULL, (void **)&ssp);
 	if (sts != PMDA_CACHE_INACTIVE) {
 	    if ((ssp = (subsys_t *)malloc(sizeof(subsys_t))) == NULL)
-		return;
+		continue;
 	}
 	ssp->hierarchy = hierarchy;
 	ssp->num_cgroups = num_cgroups;
