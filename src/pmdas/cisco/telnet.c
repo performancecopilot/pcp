@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 1995-2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -50,7 +50,8 @@ conn_cisco(cisco_t * cp)
 	else if (__pmSockAddrIsIPv6(myaddr))
 	    fd = __pmCreateIPv6Socket();
 	else
-	    continue;
+	    fd = -1;
+
 	if (fd < 0) {
 	    __pmSockAddrFree(myaddr);
 	    continue; /* Try the next address */
