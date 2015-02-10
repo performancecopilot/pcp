@@ -85,10 +85,11 @@ parse_config(bool_node **tree)
     int sts;
     FILE *file = NULL;
     char tmpname[] = "/var/tmp/pcp.XXXXXX";
+    mode_t cur_umask;
     int fid = -1;
     struct stat stat_buf;
     long size;
-    char *ptr;
+    char *ptr = NULL;
 
     if ((sts = parse_predicate(tree)) != 0) {
 	fprintf(stderr, "%s: Failed to parse configuration file\n", pmProgname);
@@ -96,7 +97,10 @@ parse_config(bool_node **tree)
     }
 
     /* --- dump to tmp file & read to buffer --- */
-    if ((fid = mkstemp(tmpname)) == -1 ||
+    cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
+    fid = mkstemp(tmpname);
+    umask(cur_umask);
+    if (fid == -1 ||
 	(file = fdopen(fid, "w+")) == NULL) {
 	sts = -oserror();
 	fprintf(stderr, "%s: parse_config: failed to create \"%s\": %s\n",
@@ -142,7 +146,9 @@ parse_config(bool_node **tree)
     return 0;
 
 error:
-    if (file != NULL)
+    if (ptr)
+	free(ptr);
+    if (file)
 	(void)fclose(file);
     return sts;
 }
