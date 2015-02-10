@@ -99,6 +99,7 @@ OTHER_SUBDIRS = \
 	mrtg2pcp \
 	sar2pcp \
 	sheet2pcp \
+	ganglia2pcp \
 	win32ctl \
 	pcp2graphite \
 	#
