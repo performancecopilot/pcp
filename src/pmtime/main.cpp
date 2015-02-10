@@ -54,7 +54,7 @@ int main(int argc, char **argv)
 
     opts.short_options = "D:p:V?";
     opts.long_options = longopts;
-    pmGetOptions(argc, argv, &opts);
+    (void)pmGetOptions(argc, argv, &opts);
     if (opts.errors || opts.optind != argc) {
 	pmUsageMessage(&opts);
 	exit(1);
