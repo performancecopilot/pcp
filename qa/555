@@ -100,7 +100,7 @@ cleanup()
     if [ -f $tmp.setup ]; then
 	if $update_config
 	then
-	    [ -f $sonfig.$seq ] && $sudo mv $config.$seq $config
+	    [ -f $config.$seq ] && $sudo mv $config.$seq $config
 	else
 	    $sudo rm -f $config
 	fi
