@@ -549,7 +549,9 @@ parseSocketPath(
     if (*path != __pmPathSeparator()) {
 	absolute_path[0] = __pmPathSeparator();
 	strncpy(absolute_path + 1, path, len);
-	absolute_path[++len] = '\0';
+	if (len < sizeof(absolute_path)-1)
+	    absolute_path[++len] = '\0';
+	absolute_path[sizeof(absolute_path)-1] = '\0';
 	path = absolute_path;
     }
 
