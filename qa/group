@@ -890,6 +890,7 @@ cgroups
 656 pmda.cifs local valgrind
 660 pmwebapi local
 661 pmwebapi local
+662 pmwebapi python local
 666 pmmgr local
 667 python local
 670 libpcp local

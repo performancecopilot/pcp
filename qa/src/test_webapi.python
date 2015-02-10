@@ -30,7 +30,7 @@ os.unsetenv('HTTP_PROXY')
 # ------------------------------------------------------------------------
 
 # test - create contexts
-req = requests.get(url=url + 'pmapi/context?local=foo&polltimeout=5')
+req = requests.get(url=url + 'pmapi/context?local=foo&polltimeout=2')
 resp = req.json()
 ctx_local = resp['context']
 print('Received PM_CONTEXT_LOCAL #' + str(ctx_local))
@@ -221,7 +221,7 @@ test_indom(ctx_local,'names=keepalive')
 # ------------------------------------------------------------------------
 
 print 'sleeping briefly to expire contexts' 
-time.sleep(10) # >> polltimeout=2
+time.sleep(5) # >> polltimeout=2
 
 test_metadata(ctx_local,'names=kernel.all.nprocs')  # expect status 400ish
 test_indom(ctx_host,'names=kernel.all.nprocs')
