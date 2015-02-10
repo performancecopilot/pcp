@@ -652,7 +652,7 @@ __pmGetAttrConsole(const char *prompt, int secret)
     return value;
 }
 
-static char *
+static const char * /* don't free()! */ 
 __pmGetAttrValue(__pmAttrKey key, __pmHashCtl *attrs, const char *prompt)
 {
     __pmHashNode *node;
@@ -736,7 +736,7 @@ __pmAuthSecretCB(sasl_conn_t *saslconn, void *context, int id, sasl_secret_t **s
 {
     __pmHashCtl *attrs = (__pmHashCtl *)context;
     size_t length = 0;
-    char *password;
+    const char *password;
 
     if (pmDebug & DBG_TRACE_AUTH)
 	fprintf(stderr, "%s:__pmAuthSecretCB enter ctx=%p id=%#x\n", __FILE__, context, id);
@@ -749,7 +749,6 @@ __pmAuthSecretCB(sasl_conn_t *saslconn, void *context, int id, sasl_secret_t **s
 
     *secret = (sasl_secret_t *) calloc(1, sizeof(sasl_secret_t) + length + 1);
     if (!*secret) {
-	free(password);
 	return SASL_NOMEM;
     }
 
@@ -761,7 +760,6 @@ __pmAuthSecretCB(sasl_conn_t *saslconn, void *context, int id, sasl_secret_t **s
     if (pmDebug & DBG_TRACE_AUTH)
 	fprintf(stderr, "%s:__pmAuthSecretCB ctx=%p id=%#x -> data=%s len=%u\n",
 		__FILE__, context, id, password, (unsigned)length);
-    free(password);
 
     return SASL_OK;
 }
