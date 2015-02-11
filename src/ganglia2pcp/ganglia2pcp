@@ -398,7 +398,7 @@ my %args;
 my $sts = getopt('f:s:e:Z:h:d:', \%args);
 
 if (!defined($sts) || $#ARGV != 0) {
-    print "Usage: rrd2pcp [-s start] [-e end] [-f output file name] [-d output file dir ] [-Z timezone] [-h hostname] input_dir \n";
+    print "Usage: ganglia2pcp [-s start] [-e end] [-f output file name] [-d output file dir ] [-Z timezone] [-h hostname] input_dir \n";
     exit(1);
 }
 

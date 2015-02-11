@@ -19,6 +19,7 @@ libpcp_tracedev = libpcp-trace2-dev
 libpcp_import = libpcp-import1
 libpcp_importdev = libpcp-import1-dev
 pcp_import_sar = pcp-import-sar2pcp
+pcp_import_ganglia = pcp-import-ganglia2pcp
 pcp_import_mrtg = pcp-import-mrtg2pcp
 pcp_import_sheet = pcp-import-sheet2pcp
 pcp_import_iostat = pcp-import-iostat2pcp
@@ -160,6 +161,7 @@ binary-arch: checkroot build-stamp
 	$(pkglibpcp_import_perl) $(MAKE) -C src/perl/LogImport install_perl
 	$(pkgpcp_logsummary_perl) $(MAKE) -C src/perl/LogSummary install_perl
 	$(pkgpcp_import_sar) $(MAKE) -C src/sar2pcp install
+	$(pkgpcp_import_ganglia) $(MAKE) -C src/ganglia2pcp install
 	$(pkgpcp_import_mrtg) $(MAKE) -C src/mrtg2pcp install
 	$(pkgpcp_import_sheet) $(MAKE) -C src/sheet2pcp install
 	$(pkgpcp_import_iostat) $(MAKE) -C src/iostat2pcp install
