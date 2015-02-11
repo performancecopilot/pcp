@@ -26,14 +26,37 @@ daemon_opt=true
 
 # On some platforms, the 'adm' user does not exist, so the pmda needs
 # to run as root, to get full access to the systemd journal
+# On other systems, a process needs to belong to group 'systemd-journal' 
+# to access the systemd journal.
+
+args=''
 whoami=`which whoami 2>/dev/null`
 haveadm="`su adm -s $whoami 2>/dev/null`"
 if [ "x$haveadm" != "xadm" ]; then
     args="-Uroot"
-    echo "Warning: user adm not found, running pmda as root"
+    echo "Warning: user adm not found, running PMDA as root"
     echo
 else
-    args=
+    journalctl=`which journalctl 2>/dev/null`
+    if [ -n "$journalctl" ]
+    then
+	if su adm -s /bin/sh -c "$journalctl --this-boot --lines=1 --no-pager >/dev/null 2>$tmp.err"
+	then
+	    # all good ... PMDA default is to run as the user adm
+	    :
+	else
+	    echo "Warning: user adm cannot run journalctl, running PMDA as root"
+	    echo
+	    args=-Uroot
+	fi
+    else
+	# not sure what sort of system this might be that has user adm and
+	# systemd installed, but no journalctl ...
+	# but run PMDA as root as the fall back option
+	echo "Warning: journalctl(1) not found, running PMDA as root"
+	echo
+	args=-Uroot
+    fi
 fi
 
 pmdaSetup

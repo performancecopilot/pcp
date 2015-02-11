@@ -154,6 +154,8 @@ ipc_prot=binary
 forced_restart=true
 #	Delay after install before checking (sec)
 check_delay=0.3
+#	Delay after sending a signal to pmcd (sec)
+signal_delay=1
 #	Additional command line args to go in $PCP_PMCDCONF_PATH
 args=""
 #	ditto for perl PMDAs
@@ -364,7 +366,7 @@ END					{ exit status }'
 	then
 	    pmsignal -a -s HUP pmcd >/dev/null 2>&1
 	    # allow signal processing to be done before checking status
-	    pmsleep 0.2
+	    pmsleep $signal_delay
 	    __wait_for_pmcd
 	    if $__pmcd_is_dead
 	    then
@@ -386,7 +388,7 @@ END					{ exit status }'
 	then
 	    pmsignal -s $__sig $__pids >/dev/null 2>&1
 	    # allow signal processing to be done
-	    pmsleep 0.2
+	    pmsleep $signal_delay
 	else
 	    break
 	fi
@@ -453,7 +455,7 @@ $1=="'$myname'" && $2=="'$mydomain'"	{ next }
     then
 	pmsignal -a -s HUP pmcd >/dev/null 2>&1
 	# allow signal processing to be done before checking status
-	pmsleep 0.2
+	pmsleep $signal_delay
 	__wait_for_pmcd
 	$__pmcd_is_dead && __restore_pmcd
     else
@@ -1300,7 +1302,7 @@ _install()
 		pmsignal -a -s HUP pmcd >/dev/null 2>&1
 		# Make sure the PMNS timestamp will be different the next
 		# time the PMNS is updated
-		pmsleep 0.2
+		pmsleep $signal_delay
 	    else
 		if grep 'Non-terminal "'"$__n"'" not found' $tmp/base >/dev/null
 		then
@@ -1341,7 +1343,7 @@ _install()
 	    pmsignal -a -s HUP pmcd >/dev/null 2>&1
 	    # Make sure the PMNS timestamp will be different the next
 	    # time the PMNS is updated 
-	    pmsleep 0.2
+	    pmsleep $signal_delay
 	else
 	    echo "$prog: failed to add the PMNS entries for \"$__n\" ..."
 	    echo
@@ -1420,7 +1422,7 @@ _remove()
 	then
 	    rm -f $PMNSDIR/$__n
 	    pmsignal -a -s HUP pmcd >/dev/null 2>&1
-	    pmsleep 0.2
+	    pmsleep $signal_delay
 	    echo "done"
 	else
 	    if grep 'Non-terminal "'"$__n"'" not found' $tmp/base >/dev/null

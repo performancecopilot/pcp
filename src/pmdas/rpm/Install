@@ -21,6 +21,7 @@
 iam=rpm
 pmda_interface=5
 forced_restart=false
+check_delay=3
 
 dso_opt=true
 pipe_opt=true
