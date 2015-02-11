@@ -439,9 +439,14 @@ while(my $rrd_file = readdir(RRD_DIR)){
 		#my $rrd_file_hash = RRDs::info("$rrd_dir/$rrd_file");
 		#my $ERR=RRDs::error;
 		#die "ERROR in RRDs::info($rrd_dir/$rrd_file) : $ERR\n" if $ERR;
-		#print "\nOpening: $rrd_file\n";
+		#print "\nOpening: $rrd_dir/$rrd_file\n";
 		#foreach my $key (keys %$rrd_file_hash){
-		#	print "$key = $$rrd_file_hash{$key}\n";
+		#	my $vall = "undef";
+		#	print "$key = ";
+		#	if( defined $rrd_file_hash->{"$key"} ){
+		#		$vall = $rrd_file_hash->{"$key"};
+		#	}
+		#	print "$vall\n";
 		#}
 
 		$rrd_found{"$rrd_file"} = 1;
@@ -468,7 +473,7 @@ while(my $rrd_file = readdir(RRD_DIR)){
 		for my $line (@$data) {
 			$start += $step;
 			for my $val (@$line) {
-				if( length $val){ # Last value is almost always NaN
+				if( defined $val){ # Last value is almost always NaN
 					# Add to the hash
 					$rrd_stats{$start}{"$rrd_file"} = $val;
 				}
@@ -552,7 +557,7 @@ my %metrics_added;
 # Keep track of instances added, so we only add each instance once
 my %instances_added;
 
-foreach my $rrd_metric ( keys %rrd_found ){
+foreach my $rrd_metric ( sort {lc $a cmp lc $b} keys %rrd_found ){
 	# Skip any we have not been configured to convert
 	# All should be here, since we check above
 	if( exists $rrd_pcp_mapping{$rrd_metric} ){
@@ -594,7 +599,7 @@ foreach my $rrd_metric ( keys %rrd_found ){
 
 # Loop through by time
 foreach my $timestep ( sort {$a<=>$b} keys %rrd_stats ){
-	foreach my $metric ( keys %{$rrd_stats{$timestep}} ){
+	foreach my $metric ( sort {lc $a cmp lc $b} keys %{$rrd_stats{$timestep}} ){
 		
 		#print "pmiPutValue : " . $rrd_pcp_mapping{$metric}{"name"} . " : " . $metric . " : " . "$rrd_stats{$timestep}{$metric}" . "\n";
 
