@@ -16,7 +16,7 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-default:
+default: 
 
 include $(BUILDRULES)
 
