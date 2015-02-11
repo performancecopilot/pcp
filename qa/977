@@ -13,6 +13,18 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+if pminfo -v --container=test >/dev/null 2>$tmp.err
+then
+    :
+else
+    if grep 'Operation not supported' $tmp.err >/dev/null
+    then
+	_notrun "No container support"
+    else
+	_notrun "`cat $tmp.err`"
+    fi
+fi
+
 _check_valgrind
 
 status=1	# failure is the default!
