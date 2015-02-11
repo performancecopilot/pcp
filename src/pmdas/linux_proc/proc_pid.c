@@ -391,7 +391,7 @@ get_idle_time(void)
     char buf[MAXPATHLEN];
 
     snprintf(buf, sizeof(buf), "%s/proc/stat", proc_statspath);
-    if ((fp = fopen(buf, "r")) < 0)
+    if ((fp = fopen(buf, "r")) == NULL)
 	return -oserror();
     n = fscanf(fp, "cpu %*u %*u %*u %llu %*u %*u %*u %*u %*u", &idle_time);
     if (n != 1)
@@ -633,16 +633,17 @@ hotproc_eval_procs(void)
 
 	/* Command */
 
-	if ((f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_CMD)) == NULL){
+	if ((f = _pm_getfield(statentry->stat_buf, PROC_PID_STAT_CMD)) == NULL) {
 	    strcpy(vars.fname, "Unknown");
 	}
-	else{
-	    char *cmd = malloc( strlen(f+1)+1);
-	    strcpy(cmd, f+1);
-	    cmd[strlen(f+1)] = '\0';
+	else {
+	    char *cmd = f + 1;	/* skip enclosing parentheses */
+	    size_t len = strlen(cmd);
+
 	    strncpy(vars.fname, cmd, sizeof(vars.fname));
-	    vars.fname[sizeof(vars.fname)-1]='\0';
-	    free(cmd);
+	    if (len < sizeof(vars.fname))
+		vars.fname[len] = '\0';
+	    vars.fname[sizeof(vars.fname) - 1] = '\0';
 	}
 
 	/* PS Args */

@@ -1,0 +1,525 @@
+QA output created by 662
+
+=== IPv4 pmwebd testing via python ===
+Received PM_CONTEXT_LOCAL ####
+Received PM_CONTEXT_HOST ####
+bad archive /dev/null response code 400
+bad archive ../etc/passwd response code 400
+bad archive /etc/passwd response code 400
+bad archive ../../etc/shadow response code 400
+command NOSUCHAPI response code 400
+context NOSUCHCONTEXT response code 400
+context 0 response code 400
+non-pmwebapi response code 400
+context #### local metric .* enumeration with pminfo ####
+context #### local metric .* enumeration with pmwebinfo ####
+context #### local metric .* enumeration match count PASS
+context #### host metric .* enumeration with pminfo ####
+context #### host metric .* enumeration with pmwebinfo ####
+context #### host metric .* enumeration match count PASS
+context #### local-kernel metric kernel.* enumeration with pminfo ####
+context #### local-kernel metric kernel.* enumeration with pmwebinfo ####
+context #### local-kernel metric kernel.* enumeration match count PASS
+context #### host-kernel metric kernel.* enumeration with pminfo ####
+context #### host-kernel metric kernel.* enumeration with pmwebinfo ####
+context #### host-kernel metric kernel.* enumeration match count PASS
+context #### response code 400
+context #### fetch names= response code 400
+context #### fetch names=no.such.metric response code 400
+context #### fetch names=no.such.metric1,pmcd.client.whoami,no.such.metric2 response code 200
+timestamps fields:2 len(values[]):0
+context #### fetch names=no.such.metric3,pmcd.client.whoami,no.such.metric4 response code 200
+timestamps fields:2 len(values[]):1
+  metric:pmcd.client.whoami
+  with instances
+context #### fetch names=sample.event.records response code 200
+timestamps fields:2 len(values[]):1
+  metric:sample.event.records
+  with instances
+context #### fetch pmids=121634826,0x740000b response code 200
+timestamps fields:2 len(values[]):2
+  metric:sample.long.one
+  with instances
+  metric:sample.long.ten
+  with instances
+context #### fetch names=keepalive response code 400
+context #### fetch names=sample.bogus_bin,sample.sysinfo,sample.byte_rate,sample.ulong.bin response code 200
+timestamps fields:2 len(values[]):4
+  metric:sample.bogus_bin
+  with instances
+  metric:sample.byte_rate
+  with instances
+  metric:sample.sysinfo
+  with instances
+  metric:sample.ulong.bin
+  with instances
+context #### fetch names=sample.longlong.bin,,,sample.ulonglong.million,sample.float.hundred response code 200
+timestamps fields:2 len(values[]):3
+  metric:sample.float.hundred
+  with instances
+  metric:sample.longlong.bin
+  with instances
+  metric:sample.ulonglong.million
+  with instances
+context #### fetch names=sample.double.bin_ctr,sample.aggregate.null,sample.hordes.one response code 200
+timestamps fields:2 len(values[]):3
+  metric:sample.aggregate.null
+  with instances
+  metric:sample.double.bin_ctr
+  with instances
+  metric:sample.hordes.one
+  with instances
+context #### fetch names=sample.dodgey.value response code 200
+timestamps fields:2 len(values[]):1
+  metric:sample.dodgey.value
+  with instances
+context #### fetch pmids=blargh response code 400
+context #### metadata prefix=no.such.metric response code 200
+len(metrics[]):0
+context #### metadata prefix=no.such.metric1,pmcd.client.whoami,no.such.metric2 response code 200
+len(metrics[]):0
+context #### metadata prefix=no.such.metric3,pmcd.client.whoami,no.such.metric4 response code 200
+len(metrics[]):0
+context #### metadata prefix=sample response code 200
+len(metrics[]):160
+  metric:sample.aggregate.hullo metadata:7
+  metric:sample.aggregate.null metadata:7
+  metric:sample.aggregate.write_me metadata:7
+  metric:sample.bad.nosupport metadata:7
+  metric:sample.bad.novalues metadata:7
+  metric:sample.bigid metadata:7
+  metric:sample.bin metadata:8
+  metric:sample.bogus_bin metadata:8
+  metric:sample.bucket metadata:8
+  metric:sample.byte_ctr metadata:7
+  metric:sample.byte_rate metadata:7
+  metric:sample.byte_rate_perhour metadata:7
+  metric:sample.colour metadata:8
+  metric:sample.const_rate.gradient metadata:7
+  metric:sample.const_rate.value metadata:7
+  metric:sample.control metadata:7
+  metric:sample.daemon_pid metadata:7
+  metric:sample.darkness metadata:8
+  metric:sample.datasize metadata:7
+  metric:sample.dodgey.control metadata:7
+  metric:sample.dodgey.value metadata:8
+  metric:sample.double.bin metadata:8
+  metric:sample.double.bin_ctr metadata:8
+  metric:sample.double.hundred metadata:7
+  metric:sample.double.million metadata:7
+  metric:sample.double.one metadata:7
+  metric:sample.double.ten metadata:7
+  metric:sample.double.write_me metadata:7
+  metric:sample.drift metadata:7
+  metric:sample.dupnames.daemon_pid metadata:7
+  metric:sample.dupnames.pid_daemon metadata:7
+  metric:sample.dupnames.three.bin metadata:8
+  metric:sample.dupnames.three.write_me metadata:7
+  metric:sample.dupnames.two.bin metadata:8
+  metric:sample.dupnames.two.double.ten metadata:7
+  metric:sample.dupnames.two.float.ten metadata:7
+  metric:sample.dupnames.two.lights metadata:7
+  metric:sample.dupnames.two.seconds metadata:7
+  metric:sample.dupnames.two.write_me metadata:7
+  metric:sample.dynamic.counter metadata:8
+  metric:sample.dynamic.discrete metadata:8
+  metric:sample.dynamic.instant metadata:8
+  metric:sample.dynamic.meta.metric metadata:7
+  metric:sample.dynamic.meta.pmdesc.indom metadata:7
+  metric:sample.dynamic.meta.pmdesc.sem metadata:7
+  metric:sample.dynamic.meta.pmdesc.type metadata:7
+  metric:sample.dynamic.meta.pmdesc.units metadata:7
+  metric:sample.error_check metadata:7
+  metric:sample.error_code metadata:7
+  metric:sample.event.highres_records metadata:8
+  metric:sample.event.no_indom_records metadata:7
+  metric:sample.event.param_32 metadata:7
+  metric:sample.event.param_64 metadata:7
+  metric:sample.event.param_aggregate metadata:7
+  metric:sample.event.param_double metadata:7
+  metric:sample.event.param_float metadata:7
+  metric:sample.event.param_string metadata:7
+  metric:sample.event.param_u32 metadata:7
+  metric:sample.event.param_u64 metadata:7
+  metric:sample.event.records metadata:8
+  metric:sample.event.reset metadata:7
+  metric:sample.event.reset_highres metadata:7
+  metric:sample.event.type metadata:7
+  metric:sample.float.bin metadata:8
+  metric:sample.float.bin_ctr metadata:8
+  metric:sample.float.hundred metadata:7
+  metric:sample.float.million metadata:7
+  metric:sample.float.one metadata:7
+  metric:sample.float.ten metadata:7
+  metric:sample.float.write_me metadata:7
+  metric:sample.hordes.one metadata:8
+  metric:sample.hordes.two metadata:8
+  metric:sample.kbyte_ctr metadata:7
+  metric:sample.kbyte_rate metadata:7
+  metric:sample.lights metadata:7
+  metric:sample.load metadata:7
+  metric:sample.long.bin metadata:8
+  metric:sample.long.bin_ctr metadata:8
+  metric:sample.long.hundred metadata:7
+  metric:sample.long.million metadata:7
+  metric:sample.long.one metadata:7
+  metric:sample.long.ten metadata:7
+  metric:sample.long.write_me metadata:7
+  metric:sample.longlong.bin metadata:8
+  metric:sample.longlong.bin_ctr metadata:8
+  metric:sample.longlong.hundred metadata:7
+  metric:sample.longlong.million metadata:7
+  metric:sample.longlong.one metadata:7
+  metric:sample.longlong.ten metadata:7
+  metric:sample.longlong.write_me metadata:7
+  metric:sample.magnitude metadata:7
+  metric:sample.many.count metadata:7
+  metric:sample.many.int metadata:8
+  metric:sample.milliseconds metadata:7
+  metric:sample.mirage metadata:8
+  metric:sample.mirage_longlong metadata:8
+  metric:sample.needprofile metadata:8
+  metric:sample.noinst metadata:7
+  metric:sample.not_ready metadata:7
+  metric:sample.part_bin metadata:8
+  metric:sample.pdu metadata:7
+  metric:sample.percontext.control.active metadata:7
+  metric:sample.percontext.control.ctx metadata:7
+  metric:sample.percontext.control.end metadata:7
+  metric:sample.percontext.control.start metadata:7
+  metric:sample.percontext.pdu metadata:7
+  metric:sample.percontext.recv_pdu metadata:7
+  metric:sample.percontext.xmit_pdu metadata:7
+  metric:sample.rapid metadata:7
+  metric:sample.recv_pdu metadata:7
+  metric:sample.scale_step.bytes_down metadata:7
+  metric:sample.scale_step.bytes_up metadata:7
+  metric:sample.scale_step.count_down metadata:7
+  metric:sample.scale_step.count_up metadata:7
+  metric:sample.scale_step.none_up metadata:7
+  metric:sample.scale_step.time_up_nanosecs metadata:7
+  metric:sample.scale_step.time_up_secs metadata:7
+  metric:sample.scramble.bin metadata:8
+  metric:sample.scramble.version metadata:7
+  metric:sample.seconds metadata:7
+  metric:sample.secret.bar metadata:7
+  metric:sample.secret.foo.bar.four metadata:7
+  metric:sample.secret.foo.bar.grunt.five metadata:7
+  metric:sample.secret.foo.bar.grunt.snort.huff.puff.seven metadata:7
+  metric:sample.secret.foo.bar.grunt.snort.six metadata:7
+  metric:sample.secret.foo.bar.max.redirect metadata:8
+  metric:sample.secret.foo.bar.three metadata:7
+  metric:sample.secret.foo.one metadata:7
+  metric:sample.secret.foo.two metadata:7
+  metric:sample.step metadata:7
+  metric:sample.step_counter metadata:7
+  metric:sample.string.hullo metadata:7
+  metric:sample.string.null metadata:7
+  metric:sample.string.write_me metadata:7
+  metric:sample.sysinfo metadata:7
+  metric:sample.ulong.bin metadata:8
+  metric:sample.ulong.bin_ctr metadata:8
+  metric:sample.ulong.count.base metadata:7
+  metric:sample.ulong.count.deca metadata:7
+  metric:sample.ulong.count.hecto metadata:7
+  metric:sample.ulong.count.kilo metadata:7
+  metric:sample.ulong.count.mega metadata:7
+  metric:sample.ulong.hundred metadata:7
+  metric:sample.ulong.million metadata:7
+  metric:sample.ulong.one metadata:7
+  metric:sample.ulong.ten metadata:7
+  metric:sample.ulong.write_me metadata:7
+  metric:sample.ulonglong.bin metadata:8
+  metric:sample.ulonglong.bin_ctr metadata:8
+  metric:sample.ulonglong.hundred metadata:7
+  metric:sample.ulonglong.million metadata:7
+  metric:sample.ulonglong.one metadata:7
+  metric:sample.ulonglong.ten metadata:7
+  metric:sample.ulonglong.write_me metadata:7
+  metric:sample.wrap.long metadata:7
+  metric:sample.wrap.longlong metadata:7
+  metric:sample.wrap.ulong metadata:7
+  metric:sample.wrap.ulonglong metadata:7
+  metric:sample.write_me metadata:7
+  metric:sample.xmit_pdu metadata:7
+context #### metadata prefix=keepalive response code 200
+len(metrics[]):0
+context #### indom indom= response code 400
+context #### indom indom=0x7400009 response code 200
+indom:121634825
+  with instances
+context #### indom name=sample.many.int&instance=1,4 response code 200
+indom:121634824
+  with instances
+context #### indom indom=0x7400008&iname=i-2,,,i-3 response code 200
+indom:121634824
+  with instances
+context #### indom name=pmcd.client.whoami response code 200
+indom:8388614
+  with instances
+context #### indom names=keepalive response code 400
+sleeping briefly to expire contexts
+context #### metadata names=kernel.all.nprocs response code 400
+context #### indom names=kernel.all.nprocs response code 400
+
+=== IPv6 pmwebd testing via python ===
+Received PM_CONTEXT_LOCAL ####
+Received PM_CONTEXT_HOST ####
+bad archive /dev/null response code 400
+bad archive ../etc/passwd response code 400
+bad archive /etc/passwd response code 400
+bad archive ../../etc/shadow response code 400
+command NOSUCHAPI response code 400
+context NOSUCHCONTEXT response code 400
+context 0 response code 400
+non-pmwebapi response code 400
+context #### local metric .* enumeration with pminfo ####
+context #### local metric .* enumeration with pmwebinfo ####
+context #### local metric .* enumeration match count PASS
+context #### host metric .* enumeration with pminfo ####
+context #### host metric .* enumeration with pmwebinfo ####
+context #### host metric .* enumeration match count PASS
+context #### local-kernel metric kernel.* enumeration with pminfo ####
+context #### local-kernel metric kernel.* enumeration with pmwebinfo ####
+context #### local-kernel metric kernel.* enumeration match count PASS
+context #### host-kernel metric kernel.* enumeration with pminfo ####
+context #### host-kernel metric kernel.* enumeration with pmwebinfo ####
+context #### host-kernel metric kernel.* enumeration match count PASS
+context #### response code 400
+context #### fetch names= response code 400
+context #### fetch names=no.such.metric response code 400
+context #### fetch names=no.such.metric1,pmcd.client.whoami,no.such.metric2 response code 200
+timestamps fields:2 len(values[]):0
+context #### fetch names=no.such.metric3,pmcd.client.whoami,no.such.metric4 response code 200
+timestamps fields:2 len(values[]):1
+  metric:pmcd.client.whoami
+  with instances
+context #### fetch names=sample.event.records response code 200
+timestamps fields:2 len(values[]):1
+  metric:sample.event.records
+  with instances
+context #### fetch pmids=121634826,0x740000b response code 200
+timestamps fields:2 len(values[]):2
+  metric:sample.long.one
+  with instances
+  metric:sample.long.ten
+  with instances
+context #### fetch names=keepalive response code 400
+context #### fetch names=sample.bogus_bin,sample.sysinfo,sample.byte_rate,sample.ulong.bin response code 200
+timestamps fields:2 len(values[]):4
+  metric:sample.bogus_bin
+  with instances
+  metric:sample.byte_rate
+  with instances
+  metric:sample.sysinfo
+  with instances
+  metric:sample.ulong.bin
+  with instances
+context #### fetch names=sample.longlong.bin,,,sample.ulonglong.million,sample.float.hundred response code 200
+timestamps fields:2 len(values[]):3
+  metric:sample.float.hundred
+  with instances
+  metric:sample.longlong.bin
+  with instances
+  metric:sample.ulonglong.million
+  with instances
+context #### fetch names=sample.double.bin_ctr,sample.aggregate.null,sample.hordes.one response code 200
+timestamps fields:2 len(values[]):3
+  metric:sample.aggregate.null
+  with instances
+  metric:sample.double.bin_ctr
+  with instances
+  metric:sample.hordes.one
+  with instances
+context #### fetch names=sample.dodgey.value response code 200
+timestamps fields:2 len(values[]):1
+  metric:sample.dodgey.value
+  with instances
+context #### fetch pmids=blargh response code 400
+context #### metadata prefix=no.such.metric response code 200
+len(metrics[]):0
+context #### metadata prefix=no.such.metric1,pmcd.client.whoami,no.such.metric2 response code 200
+len(metrics[]):0
+context #### metadata prefix=no.such.metric3,pmcd.client.whoami,no.such.metric4 response code 200
+len(metrics[]):0
+context #### metadata prefix=sample response code 200
+len(metrics[]):160
+  metric:sample.aggregate.hullo metadata:7
+  metric:sample.aggregate.null metadata:7
+  metric:sample.aggregate.write_me metadata:7
+  metric:sample.bad.nosupport metadata:7
+  metric:sample.bad.novalues metadata:7
+  metric:sample.bigid metadata:7
+  metric:sample.bin metadata:8
+  metric:sample.bogus_bin metadata:8
+  metric:sample.bucket metadata:8
+  metric:sample.byte_ctr metadata:7
+  metric:sample.byte_rate metadata:7
+  metric:sample.byte_rate_perhour metadata:7
+  metric:sample.colour metadata:8
+  metric:sample.const_rate.gradient metadata:7
+  metric:sample.const_rate.value metadata:7
+  metric:sample.control metadata:7
+  metric:sample.daemon_pid metadata:7
+  metric:sample.darkness metadata:8
+  metric:sample.datasize metadata:7
+  metric:sample.dodgey.control metadata:7
+  metric:sample.dodgey.value metadata:8
+  metric:sample.double.bin metadata:8
+  metric:sample.double.bin_ctr metadata:8
+  metric:sample.double.hundred metadata:7
+  metric:sample.double.million metadata:7
+  metric:sample.double.one metadata:7
+  metric:sample.double.ten metadata:7
+  metric:sample.double.write_me metadata:7
+  metric:sample.drift metadata:7
+  metric:sample.dupnames.daemon_pid metadata:7
+  metric:sample.dupnames.pid_daemon metadata:7
+  metric:sample.dupnames.three.bin metadata:8
+  metric:sample.dupnames.three.write_me metadata:7
+  metric:sample.dupnames.two.bin metadata:8
+  metric:sample.dupnames.two.double.ten metadata:7
+  metric:sample.dupnames.two.float.ten metadata:7
+  metric:sample.dupnames.two.lights metadata:7
+  metric:sample.dupnames.two.seconds metadata:7
+  metric:sample.dupnames.two.write_me metadata:7
+  metric:sample.dynamic.counter metadata:8
+  metric:sample.dynamic.discrete metadata:8
+  metric:sample.dynamic.instant metadata:8
+  metric:sample.dynamic.meta.metric metadata:7
+  metric:sample.dynamic.meta.pmdesc.indom metadata:7
+  metric:sample.dynamic.meta.pmdesc.sem metadata:7
+  metric:sample.dynamic.meta.pmdesc.type metadata:7
+  metric:sample.dynamic.meta.pmdesc.units metadata:7
+  metric:sample.error_check metadata:7
+  metric:sample.error_code metadata:7
+  metric:sample.event.highres_records metadata:8
+  metric:sample.event.no_indom_records metadata:7
+  metric:sample.event.param_32 metadata:7
+  metric:sample.event.param_64 metadata:7
+  metric:sample.event.param_aggregate metadata:7
+  metric:sample.event.param_double metadata:7
+  metric:sample.event.param_float metadata:7
+  metric:sample.event.param_string metadata:7
+  metric:sample.event.param_u32 metadata:7
+  metric:sample.event.param_u64 metadata:7
+  metric:sample.event.records metadata:8
+  metric:sample.event.reset metadata:7
+  metric:sample.event.reset_highres metadata:7
+  metric:sample.event.type metadata:7
+  metric:sample.float.bin metadata:8
+  metric:sample.float.bin_ctr metadata:8
+  metric:sample.float.hundred metadata:7
+  metric:sample.float.million metadata:7
+  metric:sample.float.one metadata:7
+  metric:sample.float.ten metadata:7
+  metric:sample.float.write_me metadata:7
+  metric:sample.hordes.one metadata:8
+  metric:sample.hordes.two metadata:8
+  metric:sample.kbyte_ctr metadata:7
+  metric:sample.kbyte_rate metadata:7
+  metric:sample.lights metadata:7
+  metric:sample.load metadata:7
+  metric:sample.long.bin metadata:8
+  metric:sample.long.bin_ctr metadata:8
+  metric:sample.long.hundred metadata:7
+  metric:sample.long.million metadata:7
+  metric:sample.long.one metadata:7
+  metric:sample.long.ten metadata:7
+  metric:sample.long.write_me metadata:7
+  metric:sample.longlong.bin metadata:8
+  metric:sample.longlong.bin_ctr metadata:8
+  metric:sample.longlong.hundred metadata:7
+  metric:sample.longlong.million metadata:7
+  metric:sample.longlong.one metadata:7
+  metric:sample.longlong.ten metadata:7
+  metric:sample.longlong.write_me metadata:7
+  metric:sample.magnitude metadata:7
+  metric:sample.many.count metadata:7
+  metric:sample.many.int metadata:8
+  metric:sample.milliseconds metadata:7
+  metric:sample.mirage metadata:8
+  metric:sample.mirage_longlong metadata:8
+  metric:sample.needprofile metadata:8
+  metric:sample.noinst metadata:7
+  metric:sample.not_ready metadata:7
+  metric:sample.part_bin metadata:8
+  metric:sample.pdu metadata:7
+  metric:sample.percontext.control.active metadata:7
+  metric:sample.percontext.control.ctx metadata:7
+  metric:sample.percontext.control.end metadata:7
+  metric:sample.percontext.control.start metadata:7
+  metric:sample.percontext.pdu metadata:7
+  metric:sample.percontext.recv_pdu metadata:7
+  metric:sample.percontext.xmit_pdu metadata:7
+  metric:sample.rapid metadata:7
+  metric:sample.recv_pdu metadata:7
+  metric:sample.scale_step.bytes_down metadata:7
+  metric:sample.scale_step.bytes_up metadata:7
+  metric:sample.scale_step.count_down metadata:7
+  metric:sample.scale_step.count_up metadata:7
+  metric:sample.scale_step.none_up metadata:7
+  metric:sample.scale_step.time_up_nanosecs metadata:7
+  metric:sample.scale_step.time_up_secs metadata:7
+  metric:sample.scramble.bin metadata:8
+  metric:sample.scramble.version metadata:7
+  metric:sample.seconds metadata:7
+  metric:sample.secret.bar metadata:7
+  metric:sample.secret.foo.bar.four metadata:7
+  metric:sample.secret.foo.bar.grunt.five metadata:7
+  metric:sample.secret.foo.bar.grunt.snort.huff.puff.seven metadata:7
+  metric:sample.secret.foo.bar.grunt.snort.six metadata:7
+  metric:sample.secret.foo.bar.max.redirect metadata:8
+  metric:sample.secret.foo.bar.three metadata:7
+  metric:sample.secret.foo.one metadata:7
+  metric:sample.secret.foo.two metadata:7
+  metric:sample.step metadata:7
+  metric:sample.step_counter metadata:7
+  metric:sample.string.hullo metadata:7
+  metric:sample.string.null metadata:7
+  metric:sample.string.write_me metadata:7
+  metric:sample.sysinfo metadata:7
+  metric:sample.ulong.bin metadata:8
+  metric:sample.ulong.bin_ctr metadata:8
+  metric:sample.ulong.count.base metadata:7
+  metric:sample.ulong.count.deca metadata:7
+  metric:sample.ulong.count.hecto metadata:7
+  metric:sample.ulong.count.kilo metadata:7
+  metric:sample.ulong.count.mega metadata:7
+  metric:sample.ulong.hundred metadata:7
+  metric:sample.ulong.million metadata:7
+  metric:sample.ulong.one metadata:7
+  metric:sample.ulong.ten metadata:7
+  metric:sample.ulong.write_me metadata:7
+  metric:sample.ulonglong.bin metadata:8
+  metric:sample.ulonglong.bin_ctr metadata:8
+  metric:sample.ulonglong.hundred metadata:7
+  metric:sample.ulonglong.million metadata:7
+  metric:sample.ulonglong.one metadata:7
+  metric:sample.ulonglong.ten metadata:7
+  metric:sample.ulonglong.write_me metadata:7
+  metric:sample.wrap.long metadata:7
+  metric:sample.wrap.longlong metadata:7
+  metric:sample.wrap.ulong metadata:7
+  metric:sample.wrap.ulonglong metadata:7
+  metric:sample.write_me metadata:7
+  metric:sample.xmit_pdu metadata:7
+context #### metadata prefix=keepalive response code 200
+len(metrics[]):0
+context #### indom indom= response code 400
+context #### indom indom=0x7400009 response code 200
+indom:121634825
+  with instances
+context #### indom name=sample.many.int&instance=1,4 response code 200
+indom:121634824
+  with instances
+context #### indom indom=0x7400008&iname=i-2,,,i-3 response code 200
+indom:121634824
+  with instances
+context #### indom name=pmcd.client.whoami response code 200
+indom:8388614
+  with instances
+context #### indom names=keepalive response code 400
+sleeping briefly to expire contexts
+context #### metadata names=kernel.all.nprocs response code 400
+context #### indom names=kernel.all.nprocs response code 400

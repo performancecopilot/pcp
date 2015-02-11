@@ -118,7 +118,6 @@ nvmlDeviceGetCount(unsigned int *count)
 }
 
 #define CHECK_INDEX(index) { \
-    if ((index) < 0) return NVML_ERROR_INVALID_ARGUMENT; \
     if ((index) >= NUM_GPUS) return NVML_ERROR_GPU_IS_LOST; }
 
 #define CHECK_DEVICE(devp) { \

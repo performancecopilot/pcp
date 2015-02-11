@@ -804,7 +804,8 @@ int makeSocket(const char *host)
 	    else if (__pmSockAddrIsIPv6(myaddr))
 		sock = __pmCreateIPv6Socket();
 	    else
-		continue;
+		sock = -1;
+
 	    if (sock < 0) {
 		__pmSockAddrFree(myaddr);
 		continue; /* Try the next address */

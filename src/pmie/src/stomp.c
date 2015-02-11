@@ -59,7 +59,8 @@ static int stomp_connect(const char *hostname, int port)
 	else if (__pmSockAddrIsIPv6(myaddr))
 	    fd = __pmCreateIPv6Socket();
 	else
-	    continue;
+	    fd = -1;
+
 	if (fd < 0) {
 	    __pmSockAddrFree(myaddr);
 	    continue; /* Try the next address */

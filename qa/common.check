@@ -270,6 +270,25 @@ _host_to_fqdn()
     echo "$ans"
 }
 
+_ipv6_localhost()
+{
+    if [ ! -f /etc/hosts ]
+    then
+	echo "Arrgh ... cannot find /etc/hosts to determine IPv6 localhost name"
+	exit
+    fi
+    for sniff in localhost6 ip6-localhost
+    do
+	if sed -e '/^#/d' -e 's/$/ /' /etc/hosts | grep -q "[ 	]$sniff "
+	then
+	    echo $sniff
+	    return
+	fi
+    done
+    echo "Arrgh ... cannot determine IPv6 localhost name from /etc/hosts"
+    exit
+}
+
 _check_metric()
 {
     if pminfo -h ${2-localhost} -f $1 2>&1 | grep " value " >/dev/null

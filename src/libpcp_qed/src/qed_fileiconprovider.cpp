@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Red Hat.
+ * Copyright (c) 2014-2015, Red Hat.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -96,7 +96,8 @@ QIcon QedFileIconProvider::icon(const QFileInfo &fi) const
 
     if (fi.isFile()) {
 	QFile file(fi.filePath());
-	file.open(QIODevice::ReadOnly);
+	if (!file.open(QIODevice::ReadOnly))
+	    return my.file;	// catch-all return code for regular files
 	char block[9];
 	int count = file.read(block, sizeof(block)-1);
 	if (count == sizeof(block)-1) {
