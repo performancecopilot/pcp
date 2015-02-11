@@ -1,3 +1,4 @@
 domain.h
 pmdapapi
 pmda_papi.so
+pmdapapi.1.*

@@ -144,6 +144,7 @@ pmda
 pmda.install
 
 ## Assorted PMDAs
+pmda.activemq
 pmda.apache
 pmda.cisco
 pmda.dmcache
@@ -172,6 +173,7 @@ pmda.summary
 pmda.systemd
 pmda.trivial
 pmda.txmon
+pmda.unbound
 pmda.weblog
 pmda.xfs
 pmda.zswap
@@ -877,6 +879,7 @@ avahi
 653 libpcp local
 654 pmda.gfs2 local
 655 pmda.gfs2 local
+656 pmda.cifs local valgrind
 660 pmwebapi local
 661 pmwebapi local
 666:reserved pmmgr local
@@ -933,13 +936,18 @@ avahi
 751 pmda.rpm local
 752 libpcp local
 753 derive pmie local
+754 pmda.unbound local
 755 pmda.apache pmda.install local
 756 pmda.perfevent local
-757 pmda.perfevent local
+757 pmda.perfevent pmda.install local
+758 perl local
+759 pmda.unbound pmda.install local
+760 pmda.activemq pmda.install local
 763 pmda local
 764 pmie local
 766 pmfind local
 768 pmlogextract local
+769 other local
 775 sanity pmfind local
 776 pmfind local
 779 pmda local
@@ -949,7 +957,10 @@ avahi
 783 pmda.rpm local valgrind
 786 context context_local libpcp local
 787:reserved archive local pmie pmlogrewrite pmdumplog pmval
+789 pmda.papi local
 798 pmda.nfsclient local
+799:retired pmda.papi local
+813 pmda.papi local
 815 pmie local
 822:reserved pmlogrewrite
 823 pmda.sample pmstore secure local
@@ -973,6 +984,7 @@ avahi
 861 pmcd pmda.pmcd local
 875 libpcp local valgrind
 876 pmda.xfs local
+885 pmda.linux local
 897 pmlc pmlogger local
 898 pmlogmv local 
 899 libpcp getopt local
@@ -996,6 +1008,7 @@ avahi
 960 pmda.ds389 local
 962 archive local
 966 secure local
+967 pmda.papi local
 972 pmda.zswap dbpmda local
 973 pmda.zswap pmda.install local
 978 libpcp getopt sanity local

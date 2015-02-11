@@ -1,0 +1,30 @@
+QA output created by 789
+=== Daemon PMDA papi native events test ===
+dbpmda> open pipe PCP_PMDAS_DIR/papi/pmdapapi -d 126
+Start pmdapapi PMDA: PCP_PMDAS_DIR/papi/pmdapapi -d 126
+dbpmda> getdesc on
+dbpmda> attr "username" "root"
+Attribute: username=root
+Success
+dbpmda> attr 11 "0"
+Attribute: userid=0
+Success
+dbpmda> store papi.control.enable "perf.CYCLES"
+PMID: 126.1.0
+Getting description...
+Sending Profile...
+Getting Result Structure...
+126.1.0: "" -> "perf.CYCLES"
+Sending Result...
+dbpmda> fetch papi.system.perf.CYCLES
+PMID(s): 126.0.NUMBER
+pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
+  126.0.NUMBER (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value NUMBER
+dbpmda> store papi.control.disable "perf.CYCLES"
+PMID: 126.1.2
+Getting description...
+Getting Result Structure...
+126.1.2: "" -> "perf.CYCLES"
+Sending Result...
+dbpmda> 

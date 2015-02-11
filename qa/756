@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. 746
+# PCP QA Test No. 756
 # Run the test harness for perfevent code.
 #
 # The test harness is designed to check the correct function of the

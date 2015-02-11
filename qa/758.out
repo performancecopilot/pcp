@@ -1,0 +1,72 @@
+QA output created by 758
+You will need to choose an appropriate configuration for installation of
+the "test_perl" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+Updating the PMCD control file, and notifying PMCD ...
+Check test_perl metrics have appeared ... 3 metrics and 5 values
+=== Round 1 ===
+
+test_perl.other_indom.some_value
+No value(s) available!
+
+test_perl.some_value
+    value 6
+
+test_perl.some_indom.some_value
+    inst [99 or "instance99"] value 123
+    inst [100 or "instance100"] value 123
+    inst [101 or "instance101"] value 123
+    inst [102 or "instance102"] value 123
+=== Round 2 ===
+
+test_perl.other_indom.some_value
+    inst [0 or "one"] value "one"
+    inst [1 or "two"] value "two"
+
+test_perl.some_value
+    value 0
+
+test_perl.some_indom.some_value
+No value(s) available!
+=== Round 3 ===
+
+test_perl.other_indom.some_value
+    inst [0 or "one"] value "one"
+    inst [1 or "two"] value "two"
+
+test_perl.some_value
+    value 3
+
+test_perl.some_indom.some_value
+    inst [0 or "instance0"] value 123
+    inst [1 or "instance1"] value 123
+=== Round 4 ===
+
+test_perl.other_indom.some_value
+No value(s) available!
+
+test_perl.some_value
+    value 6
+
+test_perl.some_indom.some_value
+    inst [99 or "instance99"] value 123
+    inst [100 or "instance100"] value 123
+    inst [101 or "instance101"] value 123
+    inst [102 or "instance102"] value 123
+=== Round 5 ===
+
+test_perl.other_indom.some_value
+    inst [0 or "one"] value "one"
+    inst [1 or "two"] value "two"
+
+test_perl.some_value
+    value 0
+
+test_perl.some_indom.some_value
+No value(s) available!

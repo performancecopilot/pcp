@@ -87,7 +87,7 @@ extern std::ostream & timestamp (std::ostream & o);
 extern std::string conninfo (MHD_Connection *, bool serv_p);
 extern std::ostream & connstamp (std::ostream & o, MHD_Connection *);
 extern std::string urlencode (const std::string &);
-extern std::vector <std::string> split (const std::string & s, char delim);
+extern std::vector <std::string> split (const std::string & s, char sep);
 extern bool cursed_path_p (const std::string & blessed, const std::string & questionable);
 extern void json_quote (std::ostream & o, const std::string & value);
 
@@ -119,7 +119,7 @@ template <class Value> void json_key_value (std::ostream &, const std::string &,
         const Value *, const char *);	// link-time error
 
 template <>			// <-- NB: important for proper overloading/specialization of the template
-void
+void inline
 json_key_value (std::ostream & o, const std::string & key, const std::string & value,
                 const char *suffix)
 {

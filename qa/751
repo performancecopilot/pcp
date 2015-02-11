@@ -16,33 +16,57 @@ trap "_rpm_cleanup" 0 1 2 3 15
 
 create_rewrite_logs()
 {
-    echo -e 'log mandatory on once {
-rpm.arch\nrpm.buildhost\nrpm.buildtime\nrpm.description\nrpm.epoch\nrpm.group
-rpm.installtime\nrpm.license\nrpm.packager\nrpm.release\nrpm.size
-rpm.sourcerpm\nrpm.summary\nrpm.url\nrpm.vendor\nrpm.version\nrpm.name
-rpm.refresh.count\nrpm.refresh.time.user\nrpm.refresh.time.sys
-rpm.refresh.time.elapsed\nrpm.datasize\nrpm.total.count\nrpm.total.bytes
+    cat <<'End-of-File' >$tmp.log.conf
+log mandatory on once {
+  rpm.arch
+  rpm.buildhost
+  rpm.buildtime
+  rpm.description
+  rpm.epoch
+  rpm.group
+  rpm.installtime
+  rpm.license
+  rpm.packager
+  rpm.release
+  rpm.size
+  rpm.sourcerpm
+  rpm.summary
+  rpm.url
+  rpm.vendor
+  rpm.version
+  rpm.name
+  rpm.refresh.count
+  rpm.refresh.time.user
+  rpm.refresh.time.sys
+  rpm.refresh.time.elapsed
+  rpm.datasize
+  rpm.total.count
+  rpm.total.bytes
 }
-' >$tmp.log.conf
+End-of-File
     pmlogger -r -c $tmp.log.conf -T 2sec $tmp.log
     echo 'metric 123.1.10 { type -> U32 }' > $tmp.lrw.conf
     pmlogrewrite -c $tmp.lrw.conf -w $tmp.log $tmp.log-1
     migrate=$PCP_VAR_DIR/config/pmlogrewrite/rpm_migrate.conf
     pmlogrewrite -c $migrate -w $tmp.log-1 $tmp.log-2
     rm $tmp.log.conf $tmp.lrw.conf
-    pmdumplog -z -dil $tmp.log   >$tmp.log.dump
-    pmdumplog -z -dil $tmp.log-1 >$tmp.log-1.dump
-    pmdumplog -z -dil $tmp.log-2 >$tmp.log-2.dump
+    echo "+++ log +++" >>$seq.full
+    pmdumplog -z -dil $tmp.log   | tee -a $seq.full >$tmp.log.dump
+    echo "+++ log-1 +++" >>$seq.full
+    pmdumplog -z -dil $tmp.log-1 | tee -a $seq.full >$tmp.log-1.dump
+    echo "+++ log-2 +++" >>$seq.full
+    pmdumplog -z -dil $tmp.log-2 | tee -a $seq.full >$tmp.log-2.dump
 }
 
 # real QA test starts here
 
+echo
 _rpm_pmda_prepare
 create_rewrite_logs
-echo -e "\nold -> new changes"
-diff -u $tmp.log-1.dump $tmp.log-2.dump | sed -e '/^---/d' -e '/^+++/d'
-echo "new -> ref changes ... expect none"
-diff -u $tmp.log-2.dump $tmp.log.dump | sed -e '/^---/d' -e '/^+++/d'
+echo "old -> new changes" | tee -a $seq.full
+diff -u $tmp.log-1.dump $tmp.log-2.dump | tee -a $seq.full | sed -e '/^---/d' -e '/^+++/d'
+echo "new -> ref changes ... expect none" | tee -a $seq.full
+diff -u $tmp.log-2.dump $tmp.log.dump | tee -a $seq.full | sed -e '/^---/d' -e '/^+++/d'
 
 # success, all done
 status=0

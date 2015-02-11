@@ -29,6 +29,9 @@
 # chkconfig_on_msg: echo a message about how to chkconfig $1 on
 #
 
+VERBOSE_CONFIG=${VERBOSE_CONFIG-false}
+[ -z "$tmp" ] && tmp=`pwd`/rc-proc-tmp
+
 #
 # private functions
 #
@@ -122,9 +125,11 @@ is_chkconfig_on()
     if [ "$PCP_PLATFORM" = mingw -o "$PCP_PLATFORM" = "freebsd" ]
     then
 	# unknown mechanism, just do it
+	$VERBOSE_CONFIG && echo "is_chkconfig_on: unconditionally on"
 	_ret=0
     elif [ "$PCP_PLATFORM" = "darwin" ]
     then
+	$VERBOSE_CONFIG && echo "is_chkconfig_on: using /etc/hostconfig"
 	case "$1"
         in
 	pmcd)     [ "`. /etc/hostconfig; echo $PMCD`" = "-YES-" ] && _ret=0 ;;
@@ -136,26 +141,47 @@ is_chkconfig_on()
 	esac
     elif $_have_systemctl
     then
-	systemctl is-enabled "$_flag".service >/dev/null 2>&1 && _ret=0
+	$VERBOSE_CONFIG && echo "is_chkconfig_on: using systemctl"
+	systemctl is-enabled "$_flag".service >$tmp.tmp 2>&1
+	_ret=$?
+	# if redirected to chkconfig, the answer is buried in stdout
+	# not in the exit status of the systemctl command
+	#
+	if grep 'redirecting to /sbin/chkconfig' $tmp.tmp >/dev/null 2>&1
+	then
+	    $VERBOSE_CONFIG && echo "is_chkconfig_on: redirected to chkconfig"
+	    if grep "^$_flag[ 	][ 	]*on" $tmp.tmp >/dev/null 2>&1
+	    then
+		_ret=0
+	    else
+		_ret=1
+	    fi
+	fi
     elif $_have_chkconfig
     then
+	$VERBOSE_CONFIG && echo "is_chkconfig_on: using chkconfig | grep $_r1:on"
 	chkconfig --list "$_flag" 2>&1 | grep $_rl":on" >/dev/null 2>&1 && _ret=0
     elif $_have_sysvrcconf
     then
+	$VERBOSE_CONFIG && echo "is_chkconfig_on: using sysv-rc-conf | grep $_r1:on"
 	sysv-rc-conf --list "$_flag" 2>&1 | grep $_rl":on" >/dev/null 2>&1 && _ret=0
     elif $_have_rcupdate
     then
+	$VERBOSE_CONFIG && echo "is_chkconfig_on: using rc-update"
 	rc-update show 2>&1 | grep "$_flag" >/dev/null 2>&1 && _ret=0
     elif $_have_svcadm
     then
+	$VERBOSE_CONFIG && echo "is_chkconfig_on: using svcs"
 	svcs -l pcp/$_flag | grep "enabled  *true" >/dev/null 2>&1 && _ret=0
     else
 	#
 	# don't know, fallback to using the existence of rc symlinks
 	#
 	if [ -f /etc/debian_version ]; then
+	    $VERBOSE_CONFIG && echo "is_chkconfig_on: using /etc/rc$_rl.d/S[0-9]*$_flag"
 	   ls /etc/rc$_rl.d/S[0-9]*$_flag >/dev/null 2>&1 && _ret=0
 	else
+	    $VERBOSE_CONFIG && echo "is_chkconfig_on: using /etc/rc.d/rc$_rl.d/S[0-9]*$_flag"
 	   ls /etc/rc.d/rc$_rl.d/S[0-9]*$_flag >/dev/null 2>&1 && _ret=0
 	fi
     fi

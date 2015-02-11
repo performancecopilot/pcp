@@ -434,7 +434,6 @@ PCP_3.4 {
   global:
     __pmConnectCheckError;
     __pmConnectRestoreFlags;
-    __pmFdOpen;
     __pmGetFileStatusFlags;
     __pmSetFileStatusFlags;
     __pmGetFileDescriptorFlags;
@@ -476,3 +475,9 @@ PCP_3.8 {
     __pmtimevalInc;
     __pmtimevalDec;
 } PCP_3.7;
+
+PCP_3.9 {
+  global:
+    __pmSendAttr;
+    __pmDecodeAttr;
+} PCP_3.8;

@@ -72,7 +72,6 @@ static proc_net_tcp_t		proc_net_tcp;
 static proc_net_sockstat_t	proc_net_sockstat;
 static struct utsname		kernel_uname;
 static char 			uname_string[sizeof(kernel_uname)];
-static proc_scsi_t		proc_scsi;
 static dev_mapper_t		dev_mapper;
 static proc_cpuinfo_t		proc_cpuinfo;
 static proc_slabinfo_t		proc_slabinfo;
@@ -3928,7 +3927,7 @@ linux_refresh(pmdaExt *pmda, int *need_refresh)
 	refresh_proc_net_snmp(&_pm_proc_net_snmp);
 
     if (need_refresh[CLUSTER_SCSI])
-	refresh_proc_scsi(&proc_scsi);
+	refresh_proc_scsi(INDOM(SCSI_INDOM));
 
     if (need_refresh[CLUSTER_LV])
 	refresh_dev_mapper(&dev_mapper);
@@ -4043,6 +4042,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     struct filesys	*fs;
     net_addr_t		*addrp;
     net_interface_t	*netip;
+    scsi_entry_t	*scsi_entry;
 
     if (mdesc->m_user != NULL) {
 	/* 
@@ -5113,19 +5113,15 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	return proc_partitions_fetch(mdesc, inst, atom);
 
     case CLUSTER_SCSI:
-	if (proc_scsi.nscsi == 0)
-	    return 0; /* no values available */
-	switch(idp->item) {
+	scsi_entry = NULL;
+	sts = pmdaCacheLookup(INDOM(SCSI_INDOM), inst, NULL, (void **)&scsi_entry);
+	if (sts < 0)
+	    return sts;
+	if (sts == PMDA_CACHE_INACTIVE)
+	    return PM_ERR_INST;
+	switch (idp->item) {
 	case 0: /* hinv.map.scsi */
-	    atom->cp = (char *)NULL;
-	    for (i=0; i < proc_scsi.nscsi; i++) {
-		if (proc_scsi.scsi[i].id == inst) {
-		    atom->cp = proc_scsi.scsi[i].dev_name;
-		    break;
-		}
-	    }
-	    if (i == proc_scsi.nscsi)
-	    	return PM_ERR_INST;
+	    atom->cp = (scsi_entry && scsi_entry->dev_name) ? scsi_entry->dev_name : "";
 	    break;
 	default:
 	    return PM_ERR_PMID;
@@ -5686,6 +5682,12 @@ linux_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmd
     return pmdaTreeChildren(tree, name, flag, kids, sts);
 }
 
+static int
+linux_attribute(int ctx, int attr, const char *value, int len, pmdaExt *pmda)
+{
+    return pmdaAttribute(ctx, attr, value, len, pmda);
+}
+
 pmInDom
 linux_indom(int serial)
 {
@@ -5742,25 +5744,26 @@ linux_init(pmdaInterface *dp)
 	int sep = __pmPathSeparator();
 	snprintf(helppath, sizeof(helppath), "%s%c" "linux" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-	pmdaDSO(dp, PMDA_INTERFACE_4, "linux DSO", helppath);
+	pmdaDSO(dp, PMDA_INTERFACE_6, "linux DSO", helppath);
     } else {
 	__pmSetProcessIdentity(username);
     }
 
     if (dp->status != 0)
 	return;
+    dp->comm.flags |= PDU_FLAG_CONTAINER;
 
-    dp->version.four.instance = linux_instance;
-    dp->version.four.fetch = linux_fetch;
-    dp->version.four.text = linux_text;
-    dp->version.four.pmid = linux_pmid;
-    dp->version.four.name = linux_name;
-    dp->version.four.children = linux_children;
+    dp->version.six.instance = linux_instance;
+    dp->version.six.fetch = linux_fetch;
+    dp->version.six.text = linux_text;
+    dp->version.six.pmid = linux_pmid;
+    dp->version.six.name = linux_name;
+    dp->version.six.children = linux_children;
+    dp->version.six.attribute = linux_attribute;
     pmdaSetFetchCallBack(dp, linux_fetchCallBack);
 
     proc_stat.cpu_indom = proc_cpuinfo.cpuindom = &indomtab[CPU_INDOM];
     numa_meminfo.node_indom = proc_cpuinfo.node_indom = &indomtab[NODE_INDOM];
-    proc_scsi.scsi_indom = &indomtab[SCSI_INDOM];
     dev_mapper.lv_indom = &indomtab[LV_INDOM];
     proc_slabinfo.indom = &indomtab[SLAB_INDOM];
 
@@ -5885,7 +5888,7 @@ main(int argc, char **argv)
 
     snprintf(helppath, sizeof(helppath), "%s%c" "linux" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_4, pmProgname, LINUX, "linux.log", helppath);
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, LINUX, "linux.log", helppath);
 
     pmdaGetOptions(argc, argv, &opts, &dispatch);
     if (opts.errors) {

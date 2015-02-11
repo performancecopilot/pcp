@@ -455,7 +455,7 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     int			type;
     e_ext_t		*extp = (e_ext_t *)pmda->e_ext;
 
-    if (extp->pmda_interface >= PMDA_INTERFACE_5)
+    if (extp->dispatch->comm.pmda_interface >= PMDA_INTERFACE_5)
 	__pmdaSetContext(pmda->e_context);
 
     if (numpmid > extp->maxnpmids) {
@@ -499,7 +499,7 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	else {
 	    dp = NULL;
 	    /* dynamic name metrics may often vanish, avoid log spam */
-	    if (extp->pmda_interface < PMDA_INTERFACE_4) {
+	    if (extp->dispatch->comm.pmda_interface < PMDA_INTERFACE_4) {
 		char	strbuf[20];
 		__pmNotifyErr(LOG_ERR,
 			"pmdaFetch: Requested metric %s is not defined",
@@ -596,8 +596,8 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		 *	== 2 (PMDA_FETCH_DYNAMIC) => OK and free(atom.vp)
 		 *	     after __pmStuffValue() called
 		 */
-		if (extp->pmda_interface == PMDA_INTERFACE_2 ||
-		    (extp->pmda_interface >= PMDA_INTERFACE_3 && sts > 0)) {
+		if (extp->dispatch->comm.pmda_interface == PMDA_INTERFACE_2 ||
+		    (extp->dispatch->comm.pmda_interface >= PMDA_INTERFACE_3 && sts > 0)) {
 		    int		lsts;
 
 		    if ((lsts = __pmStuffValue(&atom, &vset->vlist[j], type)) == PM_ERR_TYPE) {
@@ -612,7 +612,7 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			vset->valfmt = lsts;
 			j++;
 		    }
-		    if (extp->pmda_interface >= PMDA_INTERFACE_5 && sts == PMDA_FETCH_DYNAMIC) {
+		    if (extp->dispatch->comm.pmda_interface >= PMDA_INTERFACE_5 && sts == PMDA_FETCH_DYNAMIC) {
 			if (type == PM_TYPE_STRING)
 			    free(atom.cp);
 			else if (type == PM_TYPE_AGGREGATE)
@@ -661,7 +661,7 @@ pmdaDesc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
     pmdaMetric		*metric;
     char		strbuf[32];
 
-    if (extp->pmda_interface >= PMDA_INTERFACE_5)
+    if (extp->dispatch->comm.pmda_interface >= PMDA_INTERFACE_5)
 	__pmdaSetContext(pmda->e_context);
 
     if (pmda->e_flags & PMDA_EXT_FLAG_HASHED)
@@ -690,7 +690,7 @@ pmdaText(int ident, int type, char **buffer, pmdaExt *pmda)
 {
     e_ext_t		*extp = (e_ext_t *)pmda->e_ext;
 
-    if (extp->pmda_interface >= PMDA_INTERFACE_5)
+    if (extp->dispatch->comm.pmda_interface >= PMDA_INTERFACE_5)
 	__pmdaSetContext(pmda->e_context);
 
     if (pmda->e_help >= 0) {
@@ -747,7 +747,16 @@ pmdaChildren(const char *name, int traverse, char ***offspring, int **status, pm
 }
 
 int
-pmdaAttribute(int context, int attribute, const char *value, int size, pmdaExt *pmda)
+pmdaAttribute(int ctx, int attr, const char *value, int size, pmdaExt *pmda)
 {
-    return 0;	/* simply ignore everything by default */
+    if (pmDebug & (DBG_TRACE_ATTR|DBG_TRACE_AUTH)) {
+	char buffer[256];
+	if (!__pmAttrStr_r(attr, value, buffer, sizeof(buffer))) {
+	    __pmNotifyErr(LOG_ERR, "Bad attr: ctx=%d, attr=%d\n", ctx, attr);
+	} else {
+	    buffer[sizeof(buffer)-1] = '\0';
+	    __pmNotifyErr(LOG_INFO, "Attribute: ctx=%d %s", ctx, buffer);
+	}
+    }
+    return 0;
 }

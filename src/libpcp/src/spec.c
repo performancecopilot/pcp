@@ -506,9 +506,7 @@ fail:
 
 /*
  * Parse a socket path.
- * Accept anything up to, but not including the first ':', or the end of the spec.
- * We use ':' as the delimeter even though a '?' could be the start of the attibutes because
- * '?' is a valid character in a socket path. It is also consistent with things like $PATH.
+ * Accept anything up to, but not including the first ':', '?' or the end of the spec.
  */
 static int      /* 0 -> ok, PM_ERR_GENERIC -> error message is set */
 parseSocketPath(
@@ -520,26 +518,28 @@ parseSocketPath(
     const char *s, *start, *path;
     char absolute_path[MAXPATHLEN];
     size_t len;
-    int nhosts = 0;
+    int nhosts = 0, delimited = 0;
 
-    /* Scan to the end of the string or to the first ':'. */
+    /* Scan to the end of the string or to the first delimiter. */
     for (s = start = *position; s != NULL; s++) {
 	if (*s == '\0')
 	    break;
-	if (*s == ':') {
-	    ++s;
+	if (*s == ':' || *s == '?') {
+	    delimited = 1;
 	    break;
 	}
     }
 
     /* If the path is empty, then provide the default. */
-    if (s == start) {
+    if (s == start || (delimited && s == start + 1)) {
 	path = __pmPMCDLocalSocketDefault();
 	len = strlen(path);
     }
     else {
 	path = start;
 	len = s - start;
+	if (len >= MAXPATHLEN)
+	    len = MAXPATHLEN - 1;
     }
 
     /*
@@ -547,8 +547,9 @@ parseSocketPath(
      * (optional) "//" from "local://some/path".
      */
     if (*path != __pmPathSeparator()) {
-	len = snprintf (absolute_path, sizeof(absolute_path), "%c%s",
-			__pmPathSeparator(), path);
+	absolute_path[0] = __pmPathSeparator();
+	strncpy(absolute_path + 1, path, len);
+	absolute_path[++len] = '\0';
 	path = absolute_path;
     }
 
@@ -813,6 +814,9 @@ __pmLookupAttrKey(const char *attribute, size_t size)
     if (size == sizeof("secure") &&
 	strncmp(attribute, "secure", size) == 0)
 	return PCP_ATTR_SECURE;
+    if (size == sizeof("container") &&
+	strncmp(attribute, "container", size) == 0)
+	return PCP_ATTR_CONTAINER;
     return PCP_ATTR_NONE;
 }
 
@@ -983,6 +987,8 @@ __pmAttrKeyStr_r(__pmAttrKey key, char *string, size_t size)
 	return snprintf(string, size, "groupid");
     case PCP_ATTR_PROCESSID:
 	return snprintf(string, size, "processid");
+    case PCP_ATTR_CONTAINER:
+	return snprintf(string, size, "container");
     case PCP_ATTR_NONE:
     default:
 	break;
@@ -1009,6 +1015,7 @@ __pmAttrStr_r(__pmAttrKey key, const char *data, char *string, size_t size)
     case PCP_ATTR_USERID:
     case PCP_ATTR_GROUPID:
     case PCP_ATTR_PROCESSID:
+    case PCP_ATTR_CONTAINER:
 	return snprintf(string, size, "%s=%s", name, data ? data : "");
 
     case PCP_ATTR_UNIXSOCK:

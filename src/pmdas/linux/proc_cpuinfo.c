@@ -164,13 +164,31 @@ refresh_sysfs_online(unsigned int node_num, const char *node)
     return online;
 }
 
+static char *
+trim_whitespace(char *s)
+{
+    char *end;
+
+    while (isspace(*s))
+	s++;	/* trim leading whitespace */
+    if (*s == '\0') 
+	return s;
+    end = s + strlen(s) - 1;
+    while (end > s && isspace(*end))
+	end--;	/* trim trailing whitespace */
+    *(end + 1) = '\0';
+    return s;
+}
+
 int
 refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
 {
+#define PROCESSOR_LINE 1
     char buf[4096];
     FILE *fp;
-    int cpunum;
-    cpuinfo_t *info;
+    int i, cpunum, cpuid;
+    int dups = 0, previous = -1;
+    cpuinfo_t *info = NULL;
     char *val;
     char *p;
     static int started = 0;
@@ -194,7 +212,7 @@ refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
 
 #if defined(HAVE_ALPHA_LINUX)
     cpunum = 0;
-#else	//intel
+#else	/* Intel & all others */
     cpunum = -1;
 #endif
     while (fgets(buf, sizeof(buf), fp) != NULL) {
@@ -207,10 +225,14 @@ refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
 #if !defined(HAVE_ALPHA_LINUX)
 	if (strncmp(buf, "processor", 9) == 0) {
 	    cpunum++;
+	    if (previous == PROCESSOR_LINE)
+		dups = 1;	/* aarch64-mode; dup values at the end */
+	    previous = PROCESSOR_LINE;
 	    proc_cpuinfo->cpuinfo[cpunum].cpu_num = atoi(val);
 	    continue;
 	}
 #endif
+	previous = !PROCESSOR_LINE;
 
 	if (cpunum < 0 || cpunum >= proc_cpuinfo->cpuindom->it_numinst)
 	    continue;
@@ -222,11 +244,17 @@ refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
 	    info->sapic = linux_strings_insert(val);
 	else if (info->model_name < 0 && strncasecmp(buf, "model name", 10) == 0)
 	    info->model_name = linux_strings_insert(val);
+	else if (info->model_name < 0 && strncasecmp(buf, "hardware", 8) == 0)
+	    info->model_name = linux_strings_insert(val);
 	else if (info->model < 0 && strncasecmp(buf, "model", 5) == 0)
 	    info->model = linux_strings_insert(val);
 	else if (info->model < 0 && strncasecmp(buf, "cpu model", 9) == 0)
 	    info->model = linux_strings_insert(val);
+	else if (info->model < 0 && strncasecmp(buf, "cpu variant", 11) == 0)
+	    info->model = linux_strings_insert(val);
 	else if (info->vendor < 0 && strncasecmp(buf, "vendor", 6) == 0)
+	    info->vendor = linux_strings_insert(val);
+	else if (info->vendor < 0 && strncasecmp(buf, "cpu implementer", 15) == 0)
 	    info->vendor = linux_strings_insert(val);
 	else if (info->stepping < 0 && strncasecmp(buf, "step", 4) == 0)
 	    info->stepping = linux_strings_insert(val);
@@ -237,7 +265,7 @@ refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
 	else if (info->flags < 0 && strncasecmp(buf, "flags", 5) == 0)
 	    info->flags = linux_strings_insert(val);
 	else if (info->flags < 0 && strncasecmp(buf, "features", 8) == 0)
-	    info->flags = linux_strings_insert(val);
+	    info->flags = linux_strings_insert(trim_whitespace(val));
 	else if (info->cache == 0 && strncasecmp(buf, "cache size", 10) == 0)
 	    info->cache = atoi(val);
 	else if (info->cache_align == 0 && strncasecmp(buf, "cache_align", 11) == 0)
@@ -255,10 +283,18 @@ refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
     fclose(fp);
 
 #if defined(HAVE_ALPHA_LINUX)
-    /* all processors are identical, therefore duplicate it to all the instances */
+    /* all identical processors, therefore duplicate to all the instances */
     for (cpunum = 1; cpunum < proc_cpuinfo->cpuindom->it_numinst; cpunum++)
 	memcpy(&proc_cpuinfo->cpuinfo[cpunum], info, sizeof(cpuinfo_t));
 #endif
+    /* all identical processors, duplicate last through earlier instances */
+    if (dups) {
+	for (i = 0; i < proc_cpuinfo->cpuindom->it_numinst-1; i++) {
+	    cpuid = proc_cpuinfo->cpuinfo[i].cpu_num;
+	    memcpy(&proc_cpuinfo->cpuinfo[i], info, sizeof(cpuinfo_t));
+	    proc_cpuinfo->cpuinfo[i].cpu_num = cpuid;
+	}
+    }
 
     if (started < 2) {
 	map_cpu_nodes(proc_cpuinfo);

@@ -27,10 +27,10 @@
  * when multiple DSO PMDAs are in use
  */
 typedef struct {
-    int		pmda_interface;
-    pmResult	*res;			/* high-water allocation for */
-    int		maxnpmids;		/* pmResult for each PMDA */
-    __pmHashCtl	hashpmids;		/* hashed metrictab lookups */
+    pmdaInterface	*dispatch;	/* back pointer to our pmdaInterface */
+    pmResult		*res;		/* high-water allocation for */
+    int			maxnpmids;	/* pmResult for each PMDA */
+    __pmHashCtl		hashpmids;	/* hashed metrictab lookups */
 } e_ext_t;
 
 #endif /* LIBDEFS_H */

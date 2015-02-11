@@ -90,8 +90,8 @@ pmdaTreeSize(__pmnsTree *pmns)
     return 0;
 }
 
-static __pmnsNode *
-__pmdaNodeLookup(__pmnsNode *node, const char *name)
+__pmnsNode *
+pmdaNodeLookup(__pmnsNode *node, const char *name)
 {
     while (node != NULL) {
 	size_t length = strlen(node->name);
@@ -99,7 +99,7 @@ __pmdaNodeLookup(__pmnsNode *node, const char *name)
 	    if (name[length] == '\0')
 		return node;
 	    if (name[length] == '.' && NONLEAF(node))
-		return __pmdaNodeLookup(node->first, name + length + 1);
+		return pmdaNodeLookup(node->first, name + length + 1);
 	}
 	node = node->next;
     }
@@ -112,7 +112,7 @@ pmdaTreePMID(__pmnsTree *pmns, const char *name, pmID *pmid)
     if (pmns && pmns->root) {
 	__pmnsNode *node;
 
-	if ((node = __pmdaNodeLookup(pmns->root->first, name)) == NULL)
+	if ((node = pmdaNodeLookup(pmns->root->first, name)) == NULL)
 	    return PM_ERR_NAME;
 	if (NONLEAF(node))
 	    return PM_ERR_NAME;
@@ -302,7 +302,7 @@ pmdaTreeChildren(__pmnsTree *pmns, const char *name, int traverse, char ***offsp
     if (!pmns)
 	return PM_ERR_NAME;
 
-    if ((node = __pmdaNodeLookup(pmns->root->first, name)) == NULL)
+    if ((node = pmdaNodeLookup(pmns->root->first, name)) == NULL)
 	return PM_ERR_NAME;
 
     if (traverse == 0)

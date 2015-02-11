@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. 973
+# PCP QA Test No. 757
 # Exercise the perfevent PMDA.
 #
 # Copyright (c) 2014 Joseph White.
@@ -40,11 +40,13 @@ perfevent_install()
     echo
     echo "=== $iam agent installation ==="
     $sudo ./Install </dev/null >$tmp.out 2>&1
+    # Check for warnings, we're going to considering these warnings
+    # indications that there is not perfevents on the current machine
+    grep "warnings" $tmp.out; if [ $? -eq 0 ]; then _notrun "perfevents not found"; fi
     # Check perfevent metrics have appeared ... X metrics and Y values
     _filter_pmda_install <$tmp.out \
     | sed \
 	-e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
-	-e 's/[0-9][0-9]* warnings, //' \
     | $PCP_AWK_PROG '
 /Check perfevent metrics have appeared/ { 
                                           if ($10 >= 8) $10 = "Y"

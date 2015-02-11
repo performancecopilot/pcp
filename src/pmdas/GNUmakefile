@@ -23,15 +23,15 @@ CPMDAS = pmcd linux darwin freebsd solaris aix windows \
 	lmsensors process roomtemp summary hotproc \
 	lustrecomm linux_proc mmv etw logger bash \
 	systemd gfs2 netbsd linux_xfs infiniband jbd2 \
-	rpm nvidia papi perfevent
+	rpm nvidia papi perfevent cifs
 
 PLPMDAS = bonding netfilter zimbra postgresql \
 	dbping memcache systemtap mysql vmware kvm \
 	named news pdns samba dtsrun postfix gpsd \
 	rsyslog elasticsearch snmp nginx nfsclient \
-	ds389 ds389log
+	ds389 ds389log activemq
 
-PYPMDAS = gluster zswap dmcache stap_json
+PYPMDAS = gluster zswap dmcache unbound stap_json
 
 SUBDIRS = $(CPMDAS) $(PLPMDAS) $(PYPMDAS)
 LDIRT = pmcd.conf

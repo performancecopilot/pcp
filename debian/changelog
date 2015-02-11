@@ -1,8 +1,16 @@
+pcp (3.10.2) unstable; urgency=low
+
+  * Fix uninstallable i386 perl dependencies (closes: #771789)
+  * Fix insecure use of /var/tmp in postinst (closes: #771793)
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 09 Jan 2015 11:10:54 +1100
+
 pcp (3.10.1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
 
- -- Nathan Scott <nathans@debian.org>  Mon, 01 Dec 2014 12:00:00 +1100
+ -- Nathan Scott <nathans@debian.org>  Mon, 01 Dec 2014 11:43:08 +1100
 
 pcp (3.10.0) unstable; urgency=low
 

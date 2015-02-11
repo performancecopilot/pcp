@@ -321,6 +321,7 @@ refresh_worst_glock(pmdaExt *pmda, __pmnsTree **tree)
 	    for (s = 0; s < NUM_GLOCKSTATS; s++)
 		add_pmns_node(worst_glock_tree, pmda->e_domain, CLUSTER_WORSTGLOCK, t, s);
 	*tree = worst_glock_tree;
+	pmdaTreeRebuildHash( worst_glock_tree, NUM_TOPNUM*NUM_GLOCKSTATS );
 	return 1;
     }
     return 0;

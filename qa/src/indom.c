@@ -246,9 +246,11 @@ Options\n\
 	}
     }
 
-    if ((sts = pmLoadNameSpace(namespace)) < 0) {
-	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
-	exit(1);
+    if (namespace != PM_NS_DEFAULT) {
+	if ((sts = pmLoadNameSpace(namespace)) < 0) {
+	    fprintf(stderr, "%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
+	    exit(1);
+	}
     }
 
     if (type == 0) {

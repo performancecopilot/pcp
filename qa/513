@@ -11,12 +11,6 @@ echo "QA output created by $seq"
 . ./common.check
 
 _check_valgrind
-rm -f $seq.out $seq.full
-if [ $PCP_VER -ge 30800 ]; then
-    ln $seq.out.2 $seq.out
-else
-    ln $seq.out.1 $seq.out
-fi
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full

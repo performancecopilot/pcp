@@ -1188,6 +1188,7 @@ AC_CHECK_HEADERS(netdb.h sys/socket.h netinet/in.h netinet/tcp.h arpa/inet.h)
 AC_CHECK_HEADERS(windows.h winsock2.h ws2tcpip.h)
 AC_CHECK_HEADERS(execinfo.h bits/wordsize.h)
 AC_CHECK_HEADERS(iptypes.h, [], [], [#include <windows.h>])
+AC_CHECK_HEADERS(fts.h)
 
 dnl Check if we have <sys/endian.h> ... standard way
 AC_MSG_CHECKING([for sys/endian.h ])
@@ -1300,6 +1301,26 @@ AS_IF([test "x$do_papi" != "xno"], [
     AC_SUBST(PAPI_LIBS, $papi_libs)
 ])
 AC_SUBST(PMDA_PAPI, $pmda_papi)
+
+AS_IF([test "x$pmda_papi" = "xtrue"], [
+    	dnl check if struct PAPI_component_info_t has a disabled field
+	AC_MSG_CHECKING([whether struct PAPI_component_info_t has a disabled field])
+cat <<End-of-File >conftest.c
+#include <papi.h>
+int main() { PAPI_component_info_t *c; c->disabled = 0; }
+End-of-File
+	(eval $ac_compile) 2>conftest.out
+	cat conftest.out >&5
+    	if test -s conftest.out
+    	then
+	   AC_MSG_RESULT(no)
+    	else
+    	   AC_DEFINE(HAVE_PAPI_DISABLED_COMP)
+    	   AC_MSG_RESULT(yes)
+
+    	fi
+    	rm -f conftest.*
+])
 
 pmda_perfevent=false
 AS_IF([test "x$do_perfevent" != "xno" ], [

@@ -1000,6 +1000,59 @@ done:
 
 /*************************************************************************/
 
+static int
+GetAttribute(ClientInfo *cp, int code)
+{
+    __pmPDU	*pb;
+    char	*value;
+    int		vlen, attr;
+    int		sts, pinpdu;
+
+    /* Expecting an attribute (code) PDU from the client */
+    pinpdu = sts = __pmGetPDU(cp->fd, LIMIT_SIZE, _pmcd_timeout, &pb);
+    if (sts > 0)
+	pmcd_trace(TR_RECV_PDU, cp->fd, sts, (int)((__psint_t)pb & 0xffffffff));
+    if (sts == PDU_ATTR) {
+	if ((sts = __pmDecodeAttr(pb, &attr, &value, &vlen)) == 0) {
+	    if (code != attr) {	/* unanticipated attribute */
+		sts = PM_ERR_IPC;
+	    } else if ((value = strndup(value, vlen)) == NULL) {
+		sts = -ENOMEM;
+	    } else {	/* stash the attribute for this client */
+		sts = __pmHashAdd(attr, (void *)value, &cp->attrs);
+	    }
+	}
+    } else if (sts > 0) {	/* unexpected PDU type */
+	sts = PM_ERR_IPC;
+    }
+    if (pinpdu > 0)
+	__pmUnpinPDUBuf(pb);
+    return sts;
+}
+
+static int
+ConnectionAttributes(ClientInfo *cp, int flags)
+{
+    int sts;
+
+    if ((sts = __pmSecureServerHandshake(cp->fd, flags, &cp->attrs)) < 0) {
+	if (pmDebug & DBG_TRACE_AUTH)
+	    fprintf(stderr, "DoCreds: __pmSecureServerHandshake gave %d: %s\n",
+		    sts, pmErrStr(sts));
+	return sts;
+    }
+
+    if ((flags & PDU_FLAG_CONTAINER) &&
+	(sts = GetAttribute(cp, PCP_ATTR_CONTAINER)) < 0) {
+	if (pmDebug & DBG_TRACE_ATTR)
+	    fprintf(stderr, "DoCreds: failed GetAttribute container %d: %s\n",
+		    sts, pmErrStr(sts));
+	return sts;
+    }
+
+    return 0;
+}
+
 int
 DoCreds(ClientInfo *cp, __pmPDU *pb)
 {
@@ -1018,7 +1071,7 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
 		flags = vcp->c_flags;
 		version = vcp->c_version;
 #ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_AUTH) {
+		if (pmDebug & DBG_TRACE_ATTR) {
 		    static const struct {
 			int	flag;
 			char	*name;
@@ -1028,7 +1081,8 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
 			{ PDU_FLAG_AUTH,	"AUTH" },
 			{ PDU_FLAG_CREDS_REQD,	"CREDS_REQD" },
 			{ PDU_FLAG_SECURE_ACK,	"SECURE_ACK" },
-			{ PDU_FLAG_NO_NSS_INIT,	"NO_NSS_INIT" }
+			{ PDU_FLAG_NO_NSS_INIT,	"NO_NSS_INIT" },
+			{ PDU_FLAG_CONTAINER,	"CONTAINER" },
 		    };
 		    int	i;
 		    int	first = 1;
@@ -1068,30 +1122,25 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
 	 * on to check access is allowed for the authenticated persona, and
 	 * finally notify any interested PMDAs
 	 */
-	if ((sts = __pmSecureServerHandshake(cp->fd, flags, &cp->attrs)) < 0) {
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_AUTH)
-		fprintf(stderr, "DoCreds: __pmSecureServerHandshake returns %d: %s\n", sts, pmErrStr(sts));
-#endif
+	if ((sts = ConnectionAttributes(cp, flags)) < 0)
 	    return sts;
-	}
     }
     if ((sts = CheckAccountAccess(cp)) < 0) {	/* host access done already */
-#ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_AUTH)
-	    fprintf(stderr, "DoCreds: CheckAccountAccess returns %d: %s\n", sts, pmErrStr(sts));
-#endif
+	    fprintf(stderr, "DoCreds: CheckAccountAccess returns %d: %s\n",
+		    sts, pmErrStr(sts));
 	return sts;
     }
-    else if (sts > 0)	/* account authentication successful - inform PMDAs */ {
-	sts = AgentsAuthentication(cp - client);
-#ifdef PCP_DEBUG
-	if (sts < 0 && (pmDebug & DBG_TRACE_AUTH))
-	    fprintf(stderr, "DoCreds: AgentsAuthentication returns %d: %s\n", sts, pmErrStr(sts));
-#endif
+    /*
+     * account authentication successful (if needed) and/or other attributes
+     * have been given - in these cases, we need to inform interested PMDAs.
+     */
+    else if (sts > 0 || (flags & PDU_FLAG_CONTAINER)) {
+	sts = AgentsAttributes(cp - client);
+	if (sts < 0 && (pmDebug & (DBG_TRACE_AUTH|DBG_TRACE_ATTR)))
+	    fprintf(stderr, "DoCreds: AgentsAttributes returns %d: %s\n",
+		    sts, pmErrStr(sts));
     }
-
-    /* else: no account-based authentication needed, so finish successfully */
 
     return sts;
 }

@@ -1,7 +1,7 @@
 /*
  * Linux proc/<pid>/{stat,statm,status,...} Clusters
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 2000,2004,2006 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  * 
@@ -23,6 +23,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include "proc_pid.h"
+#include "proc_runq.h"
 #include "indom.h"
 
 static proc_pid_list_t pids;
@@ -88,6 +89,9 @@ refresh_cgroup_pidlist(int want_threads, const char *cgroup)
     FILE *fp;
     int pid;
 
+    pids.count = 0;
+    pids.threads = want_threads;
+
     /*
      * We're running in cgroups mode where a subset of the processes is
      * going to be returned based on the cgroup specified earlier via a
@@ -118,11 +122,14 @@ refresh_cgroup_pidlist(int want_threads, const char *cgroup)
 }
 
 static int
-refresh_global_pidlist(int want_threads)
+refresh_global_pidlist(int want_threads, proc_runq_t *runq_stats)
 {
     DIR *dirp;
     struct dirent *dp;
     char path[MAXPATHLEN];
+
+    pids.count = 0;
+    pids.threads = want_threads;
 
     snprintf(path, sizeof(path), "%s/proc", proc_statspath);
     if ((dirp = opendir(path)) == NULL) {
@@ -141,6 +148,8 @@ refresh_global_pidlist(int want_threads)
 	    pidlist_append(dp->d_name);
 	    if (want_threads)
 		tasklist_append(dp->d_name);
+	    if (runq_stats)
+		proc_runq_append(dp->d_name, runq_stats);
 	}
     }
     closedir(dirp);
@@ -327,16 +336,23 @@ refresh_proc_pidlist(proc_pid_t *proc_pid)
 }
 
 int
-refresh_proc_pid(proc_pid_t *proc_pid, int threads, const char *cgroups)
+refresh_proc_pid(proc_pid_t *proc_pid, proc_runq_t *proc_runq,
+		 int threads, const char *cgroups)
 {
-    int sts;
+    int sts, want_cgroups = (cgroups && cgroups[0] != '\0');
 
-    pids.count = 0;
-    pids.threads = threads;
+    /* For the run queue stats, we cannot avoid the global /proc refresh.
+     * However, we can ensure we scan it once only (either here or below).
+     */
+    if (proc_runq) {
+	memset(proc_runq, 0, sizeof(proc_runq_t));
+	if (!want_cgroups)
+	    refresh_global_pidlist(threads, proc_runq);
+    }
 
-    sts = (cgroups && cgroups[0] != '\0') ?
-		refresh_cgroup_pidlist(threads, cgroups) :
-		refresh_global_pidlist(threads);
+    sts = want_cgroups ?
+	refresh_cgroup_pidlist(threads, cgroups) :
+	refresh_global_pidlist(threads, proc_runq);
     if (sts < 0)
 	return sts;
 
@@ -470,6 +486,8 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
     ep = (proc_pid_entry_t *)node->data;
 
     if (!(ep->flags & PROC_PID_FLAG_STAT_FETCHED)) {
+	if (ep->stat_buflen > 0)
+	    ep->stat_buf[0] = '\0';
 	if ((fd = proc_open("stat", ep)) < 0)
 	    *sts = maperr();
 	else if ((n = read(fd, buf, sizeof(buf))) < 0) {
@@ -508,6 +526,8 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
     }
 
     if (!(ep->flags & PROC_PID_FLAG_WCHAN_FETCHED)) {
+	if (ep->wchan_buflen > 0)
+	    ep->wchan_buf[0] = '\0';
 	if ((fd = proc_open("wchan", ep)) < 0) {
 	    /* ignore failure here, backwards compat */
 	    ;
@@ -577,6 +597,8 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
 	char	buf[1024];
 	char	*curline;
 
+	if (ep->status_buflen > 0)
+	    ep->status_buf[0] = '\0';
 	if ((fd = proc_open("status", ep)) < 0)
 	    *sts = maperr();
 	else if ((n = read(fd, buf, sizeof(buf))) < 0) {
@@ -782,6 +804,8 @@ fetch_proc_pid_statm(int id, proc_pid_t *proc_pid, int *sts)
 	char buf[1024];
 	int fd, n;
 
+	if (ep->statm_buflen > 0)
+	    ep->statm_buf[0] = '\0';
 	if ((fd = proc_open("statm", ep)) < 0)
 	    *sts = maperr();
 	else if ((n = read(fd, buf, sizeof(buf))) < 0) {
@@ -851,6 +875,8 @@ fetch_proc_pid_maps(int id, proc_pid_t *proc_pid, int *sts)
     if (!(ep->flags & PROC_PID_FLAG_MAPS_FETCHED)) {
 	int fd;
 
+	if (ep->maps_buflen > 0)
+	    ep->maps_buf[0] = '\0';
 	if ((fd = proc_open("maps", ep)) < 0)
 	    *sts = maperr();
 	else {
@@ -905,6 +931,8 @@ fetch_proc_pid_schedstat(int id, proc_pid_t *proc_pid, int *sts)
 	int fd, n;
 	char buf[1024];
 
+	if (ep->schedstat_buflen > 0)
+	    ep->schedstat_buf[0] = '\0';
 	if ((fd = proc_open("schedstat", ep)) < 0)
 	    *sts = maperr();
 	else if ((n = read(fd, buf, sizeof(buf))) < 0) {
@@ -979,6 +1007,8 @@ fetch_proc_pid_io(int id, proc_pid_t *proc_pid, int *sts)
 	char	buf[1024];
 	char	*curline;
 
+	if (ep->io_buflen > 0)
+	    ep->io_buf[0] = '\0';
 	if ((fd = proc_open("io", ep)) < 0)
 	    *sts = maperr();
 	else if ((n = read(fd, buf, sizeof(buf))) < 0) {

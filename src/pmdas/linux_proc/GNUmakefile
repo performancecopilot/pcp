@@ -26,7 +26,7 @@ PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 CONF_LINE	= "proc	3	pipe	binary		$(PMDADIR)/$(CMDTARGET) -d 3"
 
 CFILES		= pmda.c \
-		  cgroups.c proc_pid.c proc_runq.c ksym.c getinfo.c contexts.c
+		  cgroups.c proc_pid.c proc_dynamic.c proc_runq.c ksym.c getinfo.c contexts.c
 
 HFILES		= clusters.h indom.h \
 		  cgroups.h proc_pid.h proc_runq.h ksym.h getinfo.h contexts.h

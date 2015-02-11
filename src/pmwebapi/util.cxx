@@ -12,7 +12,7 @@
  * for more details.
  */
 
-#define _XOPEN_SOURCE 500
+#define _XOPEN_SOURCE 600
 
 #include "pmapi.h"
 #include "impl.h"
@@ -89,15 +89,24 @@ ostream & connstamp (ostream & o, struct MHD_Connection * conn)
 }
 
 
-// based on http://stackoverflow.com/a/236803/661150
-vector <string> split (const std::string & s, char delim)
+// originally based on http://stackoverflow.com/a/236803/661150
+// but we'd like a separator rather than terminator semantics,
+// in order to separate the   foo.bar -vs- foo.bar.  cases.
+//
+vector <string> split (const std::string & str, char sep)
 {
     vector <string> elems;
-    stringstream ss (s);
-    string item;
-    while (getline (ss, item, delim)) {
-        elems.push_back (item);
-    }
+
+    string::size_type lastPos = 0;
+
+    while (1)
+        {
+            string::size_type pos = str.find_first_of(sep, lastPos); // may be ::npos
+            elems.push_back(str.substr(lastPos, pos - lastPos));
+            if (pos == string::npos) break;
+            lastPos = pos + 1;
+        }
+
     return elems;
 }
 
