@@ -36,22 +36,28 @@ $1 == "inst"	{ if (seen[$3] == "") {
 }
 
 # real QA test starts here
-src/clientid -l a bb ccc dddd eeeee ffffff ggggggg hhhhhhhh iiiiiiiii >$tmp.1 2>$tmp.2 &
+src/clientid -l a bb ccc dddd eeeee ffffff ggggggg hhhhhhhh iiiiiiiii >$tmp.1.out 2>$tmp.1.err &
 pidlist="$pidlist $!"
 sleep 2
-src/clientid -l foo-bar-mumble >$tmp.3 2>$tmp.4 &
+src/clientid -l foo-bar-mumble >$tmp.2.out 2>$tmp.2.err &
 pidlist="$pidlist $!"
 sleep 2
-src/clientid -l "here is a longer string to go in the ident place holder to try things out that are not quite so short and boring" >$tmp.5 2>$tmp.6 &
+src/clientid -l "here is a longer string to go in the ident place holder to try things out that are not quite so short and boring" >$tmp.3.out 2>$tmp.3.err &
 pidlist="$pidlist $!"
 sleep 2
 
-kill -TERM $pidlist
-wait
-
-cat $tmp.? \
-| tee $seq.full \
+for file in $tmp.?.*
+do
+    echo >>$seq.full
+    echo "=== $file ===" >>$seq.full
+    cat $file \
+    | tee -a $seq.full
+done \
 | _filter
+
+exec >/dev/null 2>&1
+kill -HUP $pidlist
+wait
 
 # success, all done
 exit

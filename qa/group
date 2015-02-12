@@ -890,7 +890,6 @@ cgroups
 656 pmda.cifs local valgrind
 660 pmwebapi local
 661 pmwebapi local
-662 pmwebapi python local
 666 pmmgr local
 667 python local
 670 libpcp local
@@ -954,7 +953,7 @@ cgroups
 758 perl local
 759 pmda.unbound pmda.install local
 760 pmda.activemq pmda.install local
-761 pmda.root local
+761 pmda.root local containers
 762 help local
 763 pmda local
 764 pmie local
@@ -1035,7 +1034,7 @@ cgroups
 972 pmda.zswap dbpmda local
 973 pmda.zswap pmda.install local
 976 dbpmda perl pmda.lustre local
-977 libpcp valgrind local
+977 libpcp valgrind local containers
 978 libpcp getopt sanity local
 979 python local
 980 python local
