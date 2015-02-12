@@ -150,12 +150,15 @@ void
 __pmSockAddrSetPath(__pmSockAddr *addr, const char *path)
 {
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
-    if (addr->sockaddr.raw.sa_family == AF_UNIX)
-	strncpy(addr->sockaddr.local.sun_path, path, sizeof(addr->sockaddr.local.sun_path));
-    else
+    if (addr->sockaddr.raw.sa_family == AF_UNIX) {
+	int buflen = sizeof(addr->sockaddr.local.sun_path);
+	strncpy(addr->sockaddr.local.sun_path, path, buflen);
+	addr->sockaddr.local.sun_path[buflen-1] = '\0';
+    } else {
 	__pmNotifyErr(LOG_ERR,
 		"%s:__pmSockAddrSetPath: Invalid address family: %d\n",
 		__FILE__, addr->sockaddr.raw.sa_family);
+    }
 #else
     __pmNotifyErr(LOG_ERR, "%s:__pmSockAddrSetPath: AF_UNIX is not supported\n", __FILE__);
 #endif
