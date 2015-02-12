@@ -19,7 +19,7 @@ PMID: 60.3.0 (network.interface.in.bytes)
     Data Type: 64-bit unsigned int  InDom: 60.3 0xf000003
     Semantics: counter  Units: byte
 PMID: 60.18.0 (hinv.cpu.clock)
-    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: float  InDom: 60.0 0xf000000
     Semantics: discrete  Units: none
 PMID: 60.3.1 (network.interface.in.packets)
     Data Type: 64-bit unsigned int  InDom: 60.3 0xf000003
@@ -73,6 +73,9 @@ InDom: 60.2
                  15 or "15 minute"
                  5 or "5 minute"
                  1 or "1 minute"
+InDom: 60.0
+17:02:00.000 1 instances
+                 0 or "cpu0"
 InDom: 60.3
 17:02:00.000 1 instances
                  1000 or "total"
@@ -80,8 +83,8 @@ InDom: 60.3
 Temporal Index
              Log Vol    end(meta)     end(log)
 17:02:00.000       0          132          132
-17:02:00.000       0         1354          132
-17:21:00.000       0         1354        12452
+17:02:00.000       0         1395          132
+17:21:00.000       0         1395        12452
 
 [616 bytes]
 17:02:00.000  60.26.0 (kernel.all.uptime): value 170620
@@ -90,7 +93,7 @@ Temporal Index
               60.0.23 (kernel.all.cpu.idle): value 59940
               60.0.21 (kernel.all.cpu.nice): value 0
               60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): value 3393
+              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
               60.0.22 (kernel.all.cpu.sys): value 60
               60.0.20 (kernel.all.cpu.user): value 0
               60.0.35 (kernel.all.cpu.wait.total): value 0
@@ -114,7 +117,7 @@ Temporal Index
               60.0.23 (kernel.all.cpu.idle): value 119880
               60.0.21 (kernel.all.cpu.nice): value 0
               60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): value 3393
+              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
               60.0.22 (kernel.all.cpu.sys): value 120
               60.0.20 (kernel.all.cpu.user): value 0
               60.0.35 (kernel.all.cpu.wait.total): value 0
@@ -138,7 +141,7 @@ Temporal Index
               60.0.23 (kernel.all.cpu.idle): value 179820
               60.0.21 (kernel.all.cpu.nice): value 0
               60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): value 3393
+              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
               60.0.22 (kernel.all.cpu.sys): value 178
               60.0.20 (kernel.all.cpu.user): value 2
               60.0.35 (kernel.all.cpu.wait.total): value 0
@@ -162,7 +165,7 @@ Temporal Index
               60.0.23 (kernel.all.cpu.idle): value 239760
               60.0.21 (kernel.all.cpu.nice): value 0
               60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): value 3393
+              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
               60.0.22 (kernel.all.cpu.sys): value 178
               60.0.20 (kernel.all.cpu.user): value 62
               60.0.35 (kernel.all.cpu.wait.total): value 0
@@ -186,7 +189,7 @@ Temporal Index
               60.0.23 (kernel.all.cpu.idle): value 299668
               60.0.21 (kernel.all.cpu.nice): value 0
               60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): value 3393
+              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
               60.0.22 (kernel.all.cpu.sys): value 210
               60.0.20 (kernel.all.cpu.user): value 122
               60.0.35 (kernel.all.cpu.wait.total): value 0
@@ -210,7 +213,7 @@ Temporal Index
               60.0.23 (kernel.all.cpu.idle): value 359550
               60.0.21 (kernel.all.cpu.nice): value 0
               60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): value 3393
+              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
               60.0.22 (kernel.all.cpu.sys): value 270
               60.0.20 (kernel.all.cpu.user): value 182
               60.0.35 (kernel.all.cpu.wait.total): value 0
@@ -234,7 +237,7 @@ Temporal Index
               60.0.23 (kernel.all.cpu.idle): value 419490
               60.0.21 (kernel.all.cpu.nice): value 0
               60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): value 3393
+              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
               60.0.22 (kernel.all.cpu.sys): value 330
               60.0.20 (kernel.all.cpu.user): value 242
               60.0.35 (kernel.all.cpu.wait.total): value 0
@@ -258,7 +261,7 @@ Temporal Index
               60.0.23 (kernel.all.cpu.idle): value 479430
               60.0.21 (kernel.all.cpu.nice): value 0
               60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): value 3393
+              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
               60.0.22 (kernel.all.cpu.sys): value 390
               60.0.20 (kernel.all.cpu.user): value 270
               60.0.35 (kernel.all.cpu.wait.total): value 0
@@ -282,7 +285,7 @@ Temporal Index
               60.0.23 (kernel.all.cpu.idle): value 539371
               60.0.21 (kernel.all.cpu.nice): value 0
               60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): value 3393
+              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
               60.0.22 (kernel.all.cpu.sys): value 449
               60.0.20 (kernel.all.cpu.user): value 270
               60.0.35 (kernel.all.cpu.wait.total): value 0
@@ -306,7 +309,7 @@ Temporal Index
               60.0.23 (kernel.all.cpu.idle): value 599371
               60.0.21 (kernel.all.cpu.nice): value 0
               60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): value 3393
+              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
               60.0.22 (kernel.all.cpu.sys): value 449
               60.0.20 (kernel.all.cpu.user): value 270
               60.0.35 (kernel.all.cpu.wait.total): value 0
@@ -330,7 +333,7 @@ Temporal Index
               60.0.23 (kernel.all.cpu.idle): value 659340
               60.0.21 (kernel.all.cpu.nice): value 0
               60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): value 3393
+              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
               60.0.22 (kernel.all.cpu.sys): value 480
               60.0.20 (kernel.all.cpu.user): value 301
               60.0.35 (kernel.all.cpu.wait.total): value 0
@@ -354,7 +357,7 @@ Temporal Index
               60.0.23 (kernel.all.cpu.idle): value 719280
               60.0.21 (kernel.all.cpu.nice): value 0
               60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): value 3393
+              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
               60.0.22 (kernel.all.cpu.sys): value 540
               60.0.20 (kernel.all.cpu.user): value 361
               60.0.35 (kernel.all.cpu.wait.total): value 0
@@ -378,7 +381,7 @@ Temporal Index
               60.0.23 (kernel.all.cpu.idle): value 779220
               60.0.21 (kernel.all.cpu.nice): value 0
               60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): value 3393
+              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
               60.0.22 (kernel.all.cpu.sys): value 600
               60.0.20 (kernel.all.cpu.user): value 361
               60.0.35 (kernel.all.cpu.wait.total): value 0
@@ -402,7 +405,7 @@ Temporal Index
               60.0.23 (kernel.all.cpu.idle): value 839160
               60.0.21 (kernel.all.cpu.nice): value 0
               60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): value 3393
+              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
               60.0.22 (kernel.all.cpu.sys): value 660
               60.0.20 (kernel.all.cpu.user): value 390
               60.0.35 (kernel.all.cpu.wait.total): value 0
@@ -426,7 +429,7 @@ Temporal Index
               60.0.23 (kernel.all.cpu.idle): value 899100
               60.0.21 (kernel.all.cpu.nice): value 0
               60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): value 3393
+              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
               60.0.22 (kernel.all.cpu.sys): value 720
               60.0.20 (kernel.all.cpu.user): value 450
               60.0.35 (kernel.all.cpu.wait.total): value 0
@@ -450,7 +453,7 @@ Temporal Index
               60.0.23 (kernel.all.cpu.idle): value 959040
               60.0.21 (kernel.all.cpu.nice): value 0
               60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): value 3393
+              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
               60.0.22 (kernel.all.cpu.sys): value 780
               60.0.20 (kernel.all.cpu.user): value 450
               60.0.35 (kernel.all.cpu.wait.total): value 60
@@ -474,7 +477,7 @@ Temporal Index
               60.0.23 (kernel.all.cpu.idle): value 1018560
               60.0.21 (kernel.all.cpu.nice): value 0
               60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): value 3393
+              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
               60.0.22 (kernel.all.cpu.sys): value 960
               60.0.20 (kernel.all.cpu.user): value 630
               60.0.35 (kernel.all.cpu.wait.total): value 240
@@ -498,7 +501,7 @@ Temporal Index
               60.0.23 (kernel.all.cpu.idle): value 1078320
               60.0.21 (kernel.all.cpu.nice): value 0
               60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): value 3393
+              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
               60.0.22 (kernel.all.cpu.sys): value 1080
               60.0.20 (kernel.all.cpu.user): value 810
               60.0.35 (kernel.all.cpu.wait.total): value 240
@@ -522,7 +525,7 @@ Temporal Index
               60.0.23 (kernel.all.cpu.idle): value 1138200
               60.0.21 (kernel.all.cpu.nice): value 0
               60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): value 3393
+              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
               60.0.22 (kernel.all.cpu.sys): value 1140
               60.0.20 (kernel.all.cpu.user): value 870
               60.0.35 (kernel.all.cpu.wait.total): value 240
@@ -546,7 +549,7 @@ Temporal Index
               60.0.23 (kernel.all.cpu.idle): value 1193926
               60.0.21 (kernel.all.cpu.nice): value 0
               60.0.32 (hinv.ncpu): value 1
-              60.18.0 (hinv.cpu.clock): value 3393
+              60.18.0 (hinv.cpu.clock): inst [0 or "cpu0"] value 3393
               60.0.22 (kernel.all.cpu.sys): value 4486
               60.0.20 (kernel.all.cpu.user): value 1798
               60.0.35 (kernel.all.cpu.wait.total): value 240
