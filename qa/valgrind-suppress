@@ -106,7 +106,6 @@
 {
    cyrus-sasl callback leak, RHBZ1191183
    Memcheck:Leak
-   match-leak-kinds: definite
    fun:calloc
    fun:__pmAuthSecretCB
    fun:_plug_get_password
