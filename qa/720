@@ -24,3 +24,4 @@ _run_valgrind src/parsehostattrs pcp://some.host?user=pcpqa
 _run_valgrind src/parsehostattrs some.host?user=pcpqa
 _run_valgrind src/parsehostattrs some.host
 _run_valgrind src/parsehostattrs pcp://?compress
+_run_valgrind pminfo -h pcp://localhost?user=NOsuchUSER\&pass=DEFINITELYnotApassword
