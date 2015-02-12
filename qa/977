@@ -14,6 +14,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 _check_valgrind
+_check_containers
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full

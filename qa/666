@@ -77,9 +77,11 @@ date >>$seq.full
 echo "=== 2. pmmgr barenaked startup  ===" | tee -a $seq.full
 echo 'local:' >$tmp.dir/target-host
 echo 'localhost' >>$tmp.dir/target-host
+echo 'pcp://localhost:44321/' >>$tmp.dir/target-host
 echo 'localhost6' >>$tmp.dir/target-host
+echo 'pcp://localhost6:44321/' >>$tmp.dir/target-host
 # note -v -v here is the same as -D appl0,appl1
-$sudo $PCP_BINADM_DIR/pmmgr -v -v -p 5 -l $tmp.out -c $tmp.dir &
+$sudo $_valgrind_clean_assert $PCP_BINADM_DIR/pmmgr -v -v -p 5 -l $tmp.out -c $tmp.dir &
 pid=$!
 echo "pid=$!" >>$seq.full
 

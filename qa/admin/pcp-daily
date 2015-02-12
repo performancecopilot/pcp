@@ -120,6 +120,7 @@ _script_git_pull()
 # not needed any longer - 26 Mar 2013
 #${MAKE:-make} clean >>\$HOME/daily.log 2>&1
 # only VERSION.pcp is expected to be modified, sometimes!
+rm -f VERSION.pcp
 git checkout -- VERSION.pcp
 if git checkout $pcp_branch >>\$HOME/daily.log 2>&1
 then
@@ -185,12 +186,14 @@ else
     else
 	echo "Error: Makepkgs failed!" | tee -a $HOME/daily.log
 	# restore build number
-	git checkout -f VERSION.pcp
+	rm -f VERSION.pcp
+	git checkout -- VERSION.pcp
 	exit 1
     fi
 fi
 # restore build number
-git checkout -f VERSION.pcp
+rm -f VERSION.pcp
+git checkout -- VERSION.pcp
 # Look for errors/warnings in the build logs ...
 #
 for log in Logs/*

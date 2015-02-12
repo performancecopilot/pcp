@@ -437,7 +437,7 @@ pmmgr_job_spec::poll()
 	  // favour its preservation.  This way, an existing daemon connection
 	  // won't be upset / flopped around.
 	    if ((old_known_targets.find(hostid) != old_known_targets.end()) && // known host
-		(*it == old_known_targets.at(hostid))) // same connection
+		(*it == old_known_targets.find(hostid)->second)) // same connection
 		{
 		    known_targets[hostid] = *it;
 		    known_target_scores[hostid] = -1.; // better than other alternatives
@@ -479,7 +479,7 @@ pmmgr_job_spec::poll()
     {
       const pmmgr_hostid& hostid = it->first;
       if ((old_known_targets.find(hostid) == old_known_targets.end()) || // new host?
-	  (old_known_targets.at(hostid) != it->second)) // reappeared at different address?
+	  (old_known_targets.find(hostid)->second != it->second)) // reappeared at different address?
 	note_new_hostid (hostid, known_targets[hostid]);
     }
 

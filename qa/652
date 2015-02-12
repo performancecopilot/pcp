@@ -84,35 +84,37 @@ trap "_cleanup" 0 1 2 3 15
 $sudo rm -fr $tmp.dir
 $sudo rm -f $tmp.* $seq.full
 
-exec 2>$seq.full
-set -x # trace this test case
+#debug# exec 2>$seq.full
+#debug# set -x # trace this test case
 
 # real QA test starts here
 _prepare_pmda_install $iam
 
 # install PMDA accepting the defaults (esp config file)
-$sudo ./Remove < /dev/null >/dev/null 2>&1
-$sudo ./Install < /dev/null >$tmp.out 2>&1
+$sudo ./Remove </dev/null >>$here/$seq.full 2>&1
+$sudo ./Install </dev/null >$tmp.out 2>&1
+_wait_for_pmcd
+cat $tmp.out >>$here/$seq.full
 cat $tmp.out | _filter_pmda_install | _filter_pmda_warning | _filter
 
-echo
-echo "=== 1. scalar metrics  ==="
+echo | tee -a $here/$seq.full
+echo "=== 1. scalar metrics  ===" | tee -a $here/$seq.full
 pmprobe -v systemd | tee -a $here/$seq.full | _filter_probe
 
-echo
-echo "=== 2. journald.records  ==="
+echo | tee -a $here/$seq.full
+echo "=== 2. journald.records  ===" | tee -a $here/$seq.full
 (sleep 3; logger yo) &
 pmevent -T 10 systemd.journal.records | tee -a $here/$seq.full | _filter_events
 
-echo
-echo "=== 3. journald.records  ==="
+echo | tee -a $here/$seq.full
+echo "=== 3. journald.records  ===" | tee -a $here/$seq.full
 (sleep 3; logger yo) &
 pmevent -T 10 systemd.journal.records_raw | tee -a $here/$seq.full | _filter_events_raw
 
 # remove PMDA to ensure proper cleanup (in case it wasnt already installed beforehand)
-$sudo ./Remove < /dev/null >/dev/null 2>&1
+$sudo ./Remove </dev/null >>$here/$seq.full 2>&1
 
-journalctl MESSAGE=yo >> $here/$seq.full
+$sudo journalctl MESSAGE=yo >>$here/$seq.full
 cat $PCP_LOG_DIR/pmcd/systemd.log >>$here/$seq.full
 
 status=0

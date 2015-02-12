@@ -47,6 +47,5 @@ extern void new_tree(bool_node *tree);
 extern int eval_tree(config_vars *);
 extern void dump_tree(FILE *);
 extern void do_pred_testing(void);
-extern int read_test_values(FILE *, config_vars *);
 
 #endif

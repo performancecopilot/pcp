@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 2000,2004,2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -150,12 +150,15 @@ void
 __pmSockAddrSetPath(__pmSockAddr *addr, const char *path)
 {
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
-    if (addr->sockaddr.raw.sa_family == AF_UNIX)
-	strncpy(addr->sockaddr.local.sun_path, path, sizeof(addr->sockaddr.local.sun_path));
-    else
+    if (addr->sockaddr.raw.sa_family == AF_UNIX) {
+	int buflen = sizeof(addr->sockaddr.local.sun_path);
+	strncpy(addr->sockaddr.local.sun_path, path, buflen);
+	addr->sockaddr.local.sun_path[buflen-1] = '\0';
+    } else {
 	__pmNotifyErr(LOG_ERR,
 		"%s:__pmSockAddrSetPath: Invalid address family: %d\n",
 		__FILE__, addr->sockaddr.raw.sa_family);
+    }
 #else
     __pmNotifyErr(LOG_ERR, "%s:__pmSockAddrSetPath: AF_UNIX is not supported\n", __FILE__);
 #endif
@@ -502,7 +505,7 @@ __pmCreateIPv6Socket(void)
      * kernels.  Setting then testing is the most reliable way we've found.
      */
     on = 1;
-    __pmSetSockOpt(fd, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof(on));
+    (void)__pmSetSockOpt(fd, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof(on));
     on = 0;
     sts = __pmGetSockOpt(fd, IPPROTO_IPV6, IPV6_V6ONLY, (void *)&on, &onlen);
     if (sts < 0 || on != 1) {
@@ -581,9 +584,11 @@ __pmBind(int fd, void *addr, __pmSockLen addrlen)
 
 #ifdef PCP_DEBUG
     if ((pmDebug & DBG_TRACE_CONTEXT) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	char *sockname = __pmSockAddrToString(sock);
 	fprintf(stderr, "%s:__pmBind(fd=%d, family=%d, port=%d, addr=%s)\n",
 	    __FILE__, fd, __pmSockAddrGetFamily(sock), __pmSockAddrGetPort(sock),
-	    __pmSockAddrToString(sock));
+	    sockname);
+	free(sockname);
     }
 #endif
     if (sock->sockaddr.raw.sa_family == AF_INET)

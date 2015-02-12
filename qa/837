@@ -15,6 +15,7 @@ echo "QA output created by $seq"
 
 _get_libpcp_config
 $unix_domain_sockets || _notrun "No unix domain socket support available"
+_check_containers
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full

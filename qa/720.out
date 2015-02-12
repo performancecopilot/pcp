@@ -96,3 +96,13 @@ LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+=== std err ===
+pminfo: Cannot connect to PMCD on host "pcp://localhost?user=NOsuchUSER&pass=DEFINITELYnotApassword": Authentication - authentication failure
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -h pcp://localhost?user=NOsuchUSER&pass=DEFINITELYnotApassword
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

@@ -82,3 +82,20 @@ _wait_for_pmwebd()
 	pmsleep 0.1
     done
 }
+
+_wait_for_pmwebd_logfile()
+{
+    logfile="$1"
+
+    sleep 2		# let it start up
+    if [ -f "$logfile" ]
+    then
+	cat "$logfile" >>$seq.full
+    else
+	echo "pmwebd failed to start, $logfile not created"
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mwebd'
+	status=1
+	exit
+    fi
+}
+

@@ -2663,6 +2663,8 @@ proc_store(pmResult *result, pmdaExt *pmda)
 		sts = PM_ERR_PERMISSION;
 		break;
 	    }
+	    break;
+
 	case CLUSTER_HOTPROC_GLOBAL:
 	    if (!isroot)
 		sts = PM_ERR_PERMISSION;
@@ -2682,22 +2684,22 @@ proc_store(pmResult *result, pmdaExt *pmda)
 				PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0) {
 		    savebuffer = get_conf_buffer() ? strdup(get_conf_buffer()) : NULL;
 		    set_conf_buffer(av.cp);
-		    if (parse_config(&tree) !=0) {
-			if (savebuffer) {
+		    if (parse_config(&tree) != 0) {
+			if (savebuffer)
 			    set_conf_buffer(savebuffer);
-			    free(savebuffer);
-			}
 		    }
 		    else {
 			conf_gen++;
 			new_tree(tree);
 			if (conf_gen == 1) {
 			    /* There was no config to start with.
-			     * This is the first one, to enable the timer
+			     * This is the first one, so enable the timer.
 			     */
-				reset_hotproc_timer();
+			    reset_hotproc_timer();
 			}
 		    }
+		    if (savebuffer)
+			free(savebuffer);
 		    free(av.cp);
 		}
 		break;

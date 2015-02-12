@@ -201,10 +201,10 @@ map_persistent_dm_name(char *namebuf, int namelen, int devmajor, int devminor)
     snprintf(path, sizeof(path), "%s/sys/block/%s/dm/name", linux_statspath, namebuf);
     if ((fd = open(path, O_RDONLY)) >= 0) {
 	memset(path, 0, sizeof(path));
-    	if (read(fd, path, sizeof(path)) > 0) {
+    	if (read(fd, path, sizeof(path)-1) > 0) {
 	    if ((p = strchr(path, '\n')) != NULL)
 	    	*p = '\0';
-	    strncpy(namebuf, path, MIN(sizeof(path), namelen));
+	    strncpy(namebuf, path, MIN((sizeof(path)-1), namelen));
 	    found = 1;
 	}
     	close(fd);
