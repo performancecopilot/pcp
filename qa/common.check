@@ -195,6 +195,8 @@ _cleanup_pmda()
 	else
 	    ( cd $PCP_PMDAS_DIR/$__agent; $sudo ./Remove >/dev/null 2>&1 )
 	fi
+	_wait_for_pmcd
+	_wait_for_pmlogger
 	done_clean=true
     fi
 }
@@ -625,8 +627,11 @@ _writable_primary_logger()
 	$sudo $PMLOGCONF -q -h localhost "$_configfile" >>$seq.full 2>&1
 
     # finally, open it up to local access from pmlc
-    $sudo sed -i -e 's/^allow localhost.*$/allow localhost : all;/g' \
-                 -e 's/^allow local:.*$/allow local:* : all;/g' "$_configfile"
+    sed <"$_configfile" >$tmp.sed-i \
+	-e 's/^allow localhost.*$/allow localhost : all;/g' \
+	-e 's/^allow local:.*$/allow local:* : all;/g'
+    $sudo cp $tmp.sed-i "$_configfile"
+    rm -f $tmp.sed-i
 }
 
 # restore primary logger pmlc access restrictions
@@ -641,10 +646,14 @@ _restore_primary_logger()
 	_restore_config "$_configfile"
     else
 	# otherwise, close out access from local pmlc once more
-	test -f "$_configfile" && \
-	    $sudo sed -i -e 's/^allow localhost.*$/allow localhost : enquire;/g' \
-			 -e 's/^allow local:.*$/allow local:* : enquire;/g' \
-		"$_configfile"
+	if test -f "$_configfile"
+	then
+	    sed <"$_configfile" >$tmp.sed-i \
+		-e 's/^allow localhost.*$/allow localhost : enquire;/g' \
+		-e 's/^allow local:.*$/allow local:* : enquire;/g'
+	    $sudo cp $tmp.sed-i "$_configfile"
+	    rm -f $tmp.sed-i
+	fi
     fi
 }
 
