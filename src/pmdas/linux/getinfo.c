@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014-2015 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -49,10 +49,8 @@ get_distro_info(void)
 
     for (r = 0; rfiles[r] != NULL; r++) {
 	snprintf(path, sizeof(path), "%s/etc/%s", linux_statspath, rfiles[r]);
-	if (stat(path, &sbuf) == 0 && S_ISREG(sbuf.st_mode)) {
-	    fd = open(path, O_RDONLY);
+	if ((fd = open(path, O_RDONLY)) != -1)
 	    break;
-	}
     }
     if (fd != -1) {
 	if (r == DEB_VERSION) {	/* Debian, needs a prefix */
