@@ -233,6 +233,7 @@ cgroup_find_subsys(pmInDom indom, filesys_t *fs)
 
     memset(opts, 0, sizeof(opts));
     strncpy(buffer, fs->options, sizeof(buffer));
+    buffer[sizeof(buffer)-1] = '\0';
 
     s = strtok(buffer, ",");
     while (s) {
