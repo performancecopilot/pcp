@@ -252,13 +252,18 @@ our %rrd_pcp_mapping = (
                                     "sem"   => PM_SEM_DISCRETE,
                                     "units" => pmiUnits(0,0,0,0,0,0),
                 },
-		# Need to deal with indoms here but I don't have a file from a mult-cpu machine
+		# Need to deal with indoms here in a different way
+		# Even on multi cpu machines, ganglia reports only one value
                 "cpu_speed.rrd" => { "name"  => "hinv.cpu.clock",
 				    "pmid"  => pmiID(60,18,0),
                                     "type"  => PM_TYPE_FLOAT,
-                                    "indom" => PM_INDOM_NULL,
+                                    "indom" => pmiInDom(60,0),
                                     "sem"   => PM_SEM_DISCRETE,
                                     "units" => pmiUnits(0,0,0,0,0,0),
+				    "inst_pattern" => "%d",
+				    "iname_pattern" => "cpu%d",
+				    "inst_src" => "cpu_num.rrd",
+				    "inst_constructed" => -1,
                 },
 		# Instance parameter denotes that the mapping is to an instance
 		# ie, 3 rrd files get mapped to 3 instances of 1 pcp metric
@@ -354,6 +359,7 @@ our %rrd_pcp_mapping = (
 # "run" = proc.runq.runnable
 # and
 # "total" = proc.nprocs
+# Need to Confirm
 #
 #                "proc_run.rrd" => { "name"  => "",
 #				    "pmid"  => pmiID(),
@@ -578,15 +584,74 @@ foreach my $rrd_metric ( sort {lc $a cmp lc $b} keys %rrd_found ){
 
 		if( $rrd_pcp_mapping{$rrd_metric}{"indom"} != PM_INDOM_NULL ){
 
-			# An identifier that we can store for idom/instance ID
-			my $indomID = "$rrd_pcp_mapping{$rrd_metric}{'indom'}" . $rrd_pcp_mapping{$rrd_metric}{'inst'}; 
+			# Is this an indom that doesn't map 1:1 from ganglia and we need to duplicate values
+			if( defined $rrd_pcp_mapping{$rrd_metric}{"inst_pattern"} ){
+				# And we haven't built it already
+				if( $rrd_pcp_mapping{$rrd_metric}{'inst_constructed'} == -1){
+					my $indom_src = $rrd_pcp_mapping{$rrd_metric}{"inst_src"};
+					my $num_inst = 0;
+					# Get the first time we see the value we need.  A bit cumbersome
+					my $foundit = 0;
+					foreach my $timestep ( sort {$a<=>$b} keys %rrd_stats ){
+						if( $foundit ){
+							last;
+						}
+						foreach my $metric ( sort {lc $a cmp lc $b} keys %{$rrd_stats{$timestep}} ){
+							if( $metric eq $indom_src ){
+								my $metric_value = $rrd_stats{$timestep}{$metric};
+								if( defined $metric_value ){
+									$num_inst = $metric_value;
+									$foundit = 1;
+									last;
+								}
+							}
+						}
+					}
+					if( !$foundit ){
+						# Can't really recover since there is no instance
+						# Maybe, deconfigure ourselves for this metric and log it?
+						die "Couldn't find indom information for $rrd_metric\n";
+					}
+					# Keep track for later
+					$rrd_pcp_mapping{$rrd_metric}{'inst_constructed'} = $num_inst;
 
-			if( ! $instances_added{$indomID} ){
-				pmiAddInstance($rrd_pcp_mapping{$rrd_metric}{"indom"},
-						$rrd_pcp_mapping{$rrd_metric}{"iname"},
-						$rrd_pcp_mapping{$rrd_metric}{"inst"}) >= 0
-					or die "pmiAddInstance " . $rrd_pcp_mapping{$rrd_metric}{'name'} . $rrd_pcp_mapping{$rrd_metric}{'iname'} . pmiErrStr(-1) . "\n";
-				$instances_added{$indomID}=1;
+					foreach my $iid (0..$num_inst-1){
+						my $inst_spec = $rrd_pcp_mapping{$rrd_metric}{"inst_pattern"};
+						my $iname_spec = $rrd_pcp_mapping{$rrd_metric}{"iname_pattern"};
+						my $inst = sprintf($inst_spec, $iid);
+						my $iname = sprintf($iname_spec, $iid);
+
+
+						my $indomID;
+						$indomID = "$rrd_pcp_mapping{$rrd_metric}{'indom'}" . $inst;
+
+						#print "Adding constructed inst: $inst $iname for $rrd_pcp_mapping{$rrd_metric}{'name'}\n";
+
+						if( ! $instances_added{$indomID} ){
+							pmiAddInstance($rrd_pcp_mapping{$rrd_metric}{"indom"},
+									$iname,
+									$inst) >= 0
+								or die "pmiAddInstance " . $rrd_pcp_mapping{$rrd_metric}{'name'} . $rrd_pcp_mapping{$rrd_metric}{'iname'} . pmiErrStr(-1) . "\n";
+							$instances_added{$indomID}=1;
+						}
+
+					}
+				}
+			}
+			else{
+				# Regular instance mapping
+				
+				# An identifier that we can store for indom/instance ID
+				my $indomID;
+				$indomID = "$rrd_pcp_mapping{$rrd_metric}{'indom'}" . $rrd_pcp_mapping{$rrd_metric}{'inst'}; 
+
+				if( ! $instances_added{$indomID} ){
+					pmiAddInstance($rrd_pcp_mapping{$rrd_metric}{"indom"},
+							$rrd_pcp_mapping{$rrd_metric}{"iname"},
+							$rrd_pcp_mapping{$rrd_metric}{"inst"}) >= 0
+						or die "pmiAddInstance " . $rrd_pcp_mapping{$rrd_metric}{'name'} . $rrd_pcp_mapping{$rrd_metric}{'iname'} . pmiErrStr(-1) . "\n";
+					$instances_added{$indomID}=1;
+				}
 			}
 		}
 	}
@@ -612,16 +677,33 @@ foreach my $timestep ( sort {$a<=>$b} keys %rrd_stats ){
 		}
 
 		if( $rrd_pcp_mapping{$metric}{"indom"} == PM_INDOM_NULL){
+			# No indom
 			my $sts = pmiPutValue($rrd_pcp_mapping{$metric}{"name"}, "", $metric_value);
 			if( $sts < 0 ){
 				die "pmiPutValue failed NULL indom : " . pmiErrStr($sts) . "\n";
 			}
 		}
-		else{
+		elsif(!defined $rrd_pcp_mapping{$metric}{"inst_pattern"}){
+			# Regular Indom
 			my $sts = pmiPutValue($rrd_pcp_mapping{$metric}{"name"}, $rrd_pcp_mapping{$metric}{"iname"}, $metric_value);
 			if( $sts < 0 ){
                                 die "pmiPutValue failed indom : " . pmiErrStr($sts) . "\n";
                         }
+		}
+		else{
+			# Constructed indom
+			my $num_inst = $rrd_pcp_mapping{$metric}{'inst_constructed'};
+			foreach my $iid(0..$num_inst-1){
+
+				my $iname_spec = $rrd_pcp_mapping{$metric}{"iname_pattern"};
+				my $iname = sprintf($iname_spec, $iid);
+				
+				my $sts = pmiPutValue($rrd_pcp_mapping{$metric}{"name"}, $iname, $metric_value);
+				if( $sts < 0 ){
+					die "pmiPutValue failed constructed indom : " . pmiErrStr($sts) . "\n";
+				}
+			}
+			
 		}
 	}	
 	pmiWrite($timestep, 0) >= 0 or die "pmiWrite failed :" . pmiErrStr(-1) . "\n";
