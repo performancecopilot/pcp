@@ -30,7 +30,7 @@ typedef struct {
     __pmdaRootPDUHdr	hdr;
     int			pid;
     int			namelen;
-    char		name[0];
+    char		name[MAXPATHLEN];	/* max possible size */
 } __pmdaRootPDUContainer;
 
 #endif	/* _PDUROOT_H */
