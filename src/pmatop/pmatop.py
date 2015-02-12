@@ -452,8 +452,12 @@ class _DiskPrint(_AtopPrint):
 
 # Missing: LVM avq (average queue depth)
 
-        lvms = dict(map(lambda x: (os.path.realpath("/dev/mapper/" + x)[5:], x),
+        try:
+	    lvms = dict(map(lambda x: (os.path.realpath("/dev/mapper/" + x)[5:], x),
                          (os.listdir("/dev/mapper"))))
+	except Exception as e:
+	    # if /dev/mapper does not exist, charge on McDuff
+	    lvms = ''
 
         for j in xrange(self.ss.get_len(self.ss.get_metric_value('disk.partitions.read'))):
             if self._replay_archive == True:
@@ -489,6 +493,7 @@ class _DiskPrint(_AtopPrint):
             (inst, iname) = context.pmGetInDom(self.ss.metric_descs[self.ss.metrics_dict['disk.dev.read']])
         except pmapi.pmErr as e:
             iname = iname = "X"
+
 
         for j in xrange(self.ss.get_len(self.ss.get_metric_value('disk.dev.read_bytes'))):
             self.p_stdscr.addstr('DSK |')
