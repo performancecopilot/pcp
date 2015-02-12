@@ -760,6 +760,21 @@ _check_display()
     fi
 }
 
+_check_containers()
+{
+    if pminfo -v --container=test >/dev/null 2>$tmp.err
+    then
+	:
+    else
+	if grep 'Operation not supported' $tmp.err >/dev/null
+	then
+	    _notrun "No container support"
+	else
+	    _notrun "`cat $tmp.err`"
+	fi
+    fi
+}
+
 # valgrind support
 #
 # typical usage:
