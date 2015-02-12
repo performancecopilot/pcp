@@ -671,7 +671,7 @@ static int
 __pmAuthRealmCB(void *context, int id, const char **realms, const char **result)
 {
     __pmHashCtl *attrs = (__pmHashCtl *)context;
-    char *value = NULL;
+    const char *value = NULL;
 
     if (pmDebug & DBG_TRACE_AUTH)
 	fprintf(stderr, "%s:__pmAuthRealmCB enter ctx=%p id=%#x\n", __FILE__, context, id);
@@ -680,7 +680,7 @@ __pmAuthRealmCB(void *context, int id, const char **realms, const char **result)
 	return SASL_FAIL;
 
     value = __pmGetAttrValue(PCP_ATTR_REALM, attrs, "Realm: ");
-    *result = (const char *)value;
+    *result = value;
 
     if (pmDebug & DBG_TRACE_AUTH) {
 	fprintf(stderr, "%s:__pmAuthRealmCB ctx=%p, id=%#x, realms=(", __FILE__, context, id);
@@ -699,7 +699,7 @@ static int
 __pmAuthSimpleCB(void *context, int id, const char **result, unsigned *len)
 {
     __pmHashCtl *attrs = (__pmHashCtl *)context;
-    char *value = NULL;
+    const char *value = NULL;
     int sts;
 
     if (pmDebug & DBG_TRACE_AUTH)

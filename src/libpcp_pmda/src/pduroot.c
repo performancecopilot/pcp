@@ -66,8 +66,7 @@ int
 __pmdaSendRootPDUContainer(int fd, int pdutype,
 		int pid, const char *name, int len, int status)
 {
-    char buffer[sizeof(__pmdaRootPDUContainer) + MAXPATHLEN];
-    __pmdaRootPDUContainer *pdu = (__pmdaRootPDUContainer *)buffer;
+    __pmdaRootPDUContainer pdu;
     int length;
 
     if (len < 0)
@@ -76,18 +75,18 @@ __pmdaSendRootPDUContainer(int fd, int pdutype,
 	return -E2BIG;
 
     length = sizeof(__pmdaRootPDUContainer) + len;
-    pdu->hdr.type = pdutype;
-    pdu->hdr.length = length;
-    pdu->hdr.status = status;
-    pdu->hdr.version = ROOT_PDU_VERSION;
+    pdu.hdr.type = pdutype;
+    pdu.hdr.length = length;
+    pdu.hdr.status = status;
+    pdu.hdr.version = ROOT_PDU_VERSION;
 
-    pdu->pid = pid;
-    pdu->namelen = len;
+    pdu.pid = pid;
+    pdu.namelen = len;
     if (len > 0)
-	strncpy(pdu->name, name, len);
+	strncpy(pdu.name, name, len);
 
     __pmIgnoreSignalPIPE();
-    return send(fd, pdu, length, 0);
+    return send(fd, &pdu, length, 0);
 }
 
 /* Client and server recv __pmdaRootPDUContainer PDUs */
