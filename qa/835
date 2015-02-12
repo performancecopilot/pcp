@@ -2,7 +2,7 @@
 # PCP QA Test No. 835
 # Exercise the memcache PMDA - install, remove and values.
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014-2015 Red Hat.
 # Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
 # Copyright (c) 2008 Aconex.  All Rights Reserved. (based on qa/348)
 #
@@ -119,7 +119,7 @@ do
     then
         case $metric
         in
-	    bytes_written)
+	    bytes_read|bytes_written)
 		# unstable, skip these ones
 		;;
 	    curr_connections|connection_structures)
