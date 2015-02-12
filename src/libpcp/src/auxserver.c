@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -267,7 +267,6 @@ __pmServerCreatePIDFile(const char *spec, int verbose)
 {
     char        pidpath[MAXPATHLEN];
     FILE        *pidfile;
-    int		sts = 0;
 
     if (!serviceSpec)
 	__pmServerSetServiceSpec(spec);
@@ -283,12 +282,8 @@ __pmServerCreatePIDFile(const char *spec, int verbose)
     atexit(pidonexit);
     fprintf(pidfile, "%" FMT_PID, getpid());
     fclose(pidfile);
-    if (chmod(pidpath, S_IRUSR | S_IRGRP | S_IROTH) < 0) {
-	if (verbose)
-	    fprintf(stderr, "Error: cannot chmod PID file %s\n", pidpath);
-	sts = -oserror();
-    }
-    return sts;
+    chmod(pidpath, S_IRUSR | S_IRGRP | S_IROTH);
+    return 0;
 }
 
 void

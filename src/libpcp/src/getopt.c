@@ -1,7 +1,7 @@
 /*
  * Common argument parsing for all PMAPI client tools.
  *
- * Copyright (c) 2014-2015 Red Hat.
+ * Copyright (c) 2014 Red Hat.
  * Copyright (C) 1987-2014 Free Software Foundation, Inc.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -404,10 +404,6 @@ __pmAddOptArchiveFolio(pmOptions *opts, char *arg)
 
     if (opts->nhosts && !(opts->flags & PM_OPTFLAG_MIXED)) {
 	pmprintf("%s: only one of hosts or archives allowed\n", pmProgname);
-	opts->errors++;
-    } else if (arg == NULL) {
-	pmprintf("%s: cannot open empty archive folio name\n", pmProgname);
-	opts->flags |= PM_OPTFLAG_RUNTIME_ERR;
 	opts->errors++;
     } else if ((fp = fopen(arg, "r")) == NULL) {
 	pmprintf("%s: cannot open archive folio %s: %s\n", pmProgname,
