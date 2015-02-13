@@ -104,15 +104,26 @@
 }
 
 {
-   cyrus-sasl callback leak, RHBZ1191183
+   cyrus-sasl callback leak, RHBZ1191183, variant #1
    Memcheck:Leak
    fun:calloc
    fun:__pmAuthSecretCB
    fun:_plug_get_password
-   fun:ask_user_info
-   fun:digestmd5_client_mech_step2
-   fun:digestmd5_client_mech_step
+   ...
    fun:sasl_client_step
+   fun:__pmAuthClientNegotiation
+   ...
+}
+
+{
+   cyrus-sasl callback leak, RHBZ1191183, variant #2
+   Memcheck:Leak
+   fun:calloc
+   fun:__pmAuthSecretCB
+   fun:_plug_get_password
+   ...
+   fun:sasl_client_step
+   fun:sasl_client_start
    fun:__pmAuthClientNegotiation
    ...
 }
