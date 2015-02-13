@@ -110,12 +110,30 @@ These time terms for a specific day are relative to the current time.
 #1 "first sunday"                   SUNDAY
 #2 "first sunday"                   SUNDAY
 #3 "first sunday"                   2014-01-27 11:28:50
-#1 "last monday"                    LAST MONDAY
-#2 "last monday"                    LAST MONDAY
-#3 "last monday"                    2014-01-27 11:28:50
-#1 "next tuesday"                   NEXT TUESDAY
-#2 "next tuesday"                   NEXT TUESDAY
+#1 "this sunday"                    SUNDAY
+#2 "this sunday"                    SUNDAY
+#3 "this sunday"                    2014-01-27 11:28:50
+#1 "next sunday"                    SUNDAY
+#2 "next sunday"                    SUNDAY
+#3 "next sunday"                    2014-01-27 11:28:50
+#1 "last sunday"                    LAST SUNDAY
+#2 "last sunday"                    LAST SUNDAY
+#3 "last sunday"                    2014-01-27 11:28:50
+#1 "tuesday"                        TUESDAY
+#2 "tuesday"                        TUESDAY
+#3 "tuesday"                        2014-01-27 11:28:50
+#1 "first tuesday"                  TUESDAY
+#2 "first tuesday"                  TUESDAY
+#3 "first tuesday"                  2014-01-27 11:28:50
+#1 "this tuesday"                   TUESDAY
+#2 "this tuesday"                   TUESDAY
+#3 "this tuesday"                   2014-01-27 11:28:50
+#1 "next tuesday"                   TUESDAY
+#2 "next tuesday"                   TUESDAY
 #3 "next tuesday"                   2014-01-27 11:28:50
+#1 "last tuesday"                   LAST TUESDAY
+#2 "last tuesday"                   LAST TUESDAY
+#3 "last tuesday"                   2014-01-27 11:28:50
 Note: timezone set to "TZ=America/Los_Angeles"
 
 metric:    sample.bin

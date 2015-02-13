@@ -222,7 +222,6 @@ then
     echo Errors: | tee -a $here/$seq.full
     _filter < $errors
     echo FAILED ... sleeping
-    sleep 300
     exit 1
 fi
 

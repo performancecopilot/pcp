@@ -16,6 +16,7 @@ _usage()
     echo >&2 "  -n                  dryrun"
     echo >&2 "  -r range            [defaults to \$(cat pushed.sha)..)]"
     echo >&2 "  -t tree             [defaults to pcp]"
+    echo >&2 "  -s                  short format, do not include commit messages"
     exit 1
 }
 
@@ -23,13 +24,14 @@ dryrun=false
 GIT=git
 branch=dev
 tree=pcp
+short=false
 if [ -f pushed.sha ]
 then
     range=$(cat pushed.sha)..
 else
     range=''
 fi
-while getopts "b:nr:t:?" c
+while getopts "b:nr:st:?" c
 do
     case $c
     in
@@ -42,6 +44,9 @@ do
 	    ;;
 	r)
 	    range="$OPTARG"
+	    ;;
+	s)
+	    short=true
 	    ;;
 	t)
 	    branch="$OPTARG"
@@ -72,6 +77,14 @@ echo "Changes committed to $pull $branch" >/tmp/msg
 echo >>/tmp/msg
 git shortlog --no-merges --numbered $range >>/tmp/msg
 git log --no-merges -p $range | diffstat -p1 >>/tmp/msg
+if $short
+then
+    :
+else
+    echo >>/tmp/msg
+    echo "Details ..." >>/tmp/msg
+    git log --no-merges $range >>/tmp/msg
+fi
 
 xclip -sel clip < /tmp/msg
 cat /tmp/msg

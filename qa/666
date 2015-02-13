@@ -111,11 +111,11 @@ do
     $sudo $PCP_RC_DIR/pmcd start >>$seq.full 2>&1
     _wait_for_pmcd
     i=0;
-    # wait up to 35ish seconds for pm*conf to run
-    while [ $i -lt 6 ]; do
+    # wait up to 60ish seconds for pm*conf to run
+    while [ $i -lt 19 ]; do
 	rm -f $tmp.ok
         i=`expr $i + 1`
-	echo "pmlogger & pmie probe #$i" >>$seq.full
+	echo "pmlogger & pmie probe #$i `date`" >>$seq.full
 	if pminfo -f pmcd.pmlogger.archive | tee -a $seq.full | grep $tmp.dir/$hostname/archive- >/dev/null
 	then
 	    # our pmlogger has started ...
@@ -126,7 +126,7 @@ do
 		break
 	    fi
 	fi
-        sleep 5
+        sleep 3
     done
     if [ ! -f $tmp.ok ]
     then
