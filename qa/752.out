@@ -119,6 +119,21 @@ These time terms for a specific day are relative to the current time.
 #1 "last sunday"                    LAST SUNDAY
 #2 "last sunday"                    LAST SUNDAY
 #3 "last sunday"                    2014-01-27 11:28:50
+#1 "monday"                         MONDAY
+#2 "monday"                         MONDAY
+#3 "monday"                         2014-01-27 11:28:50
+#1 "first monday"                   MONDAY
+#2 "first monday"                   MONDAY
+#3 "first monday"                   2014-01-27 11:28:50
+#1 "this monday"                    MONDAY
+#2 "this monday"                    MONDAY
+#3 "this monday"                    2014-01-27 11:28:50
+#1 "next monday"                    MONDAY
+#2 "next monday"                    MONDAY
+#3 "next monday"                    2014-01-27 11:28:50
+#1 "last monday"                    LAST MONDAY
+#2 "last monday"                    LAST MONDAY
+#3 "last monday"                    2014-01-27 11:28:50
 #1 "tuesday"                        TUESDAY
 #2 "tuesday"                        TUESDAY
 #3 "tuesday"                        2014-01-27 11:28:50
@@ -134,6 +149,66 @@ These time terms for a specific day are relative to the current time.
 #1 "last tuesday"                   LAST TUESDAY
 #2 "last tuesday"                   LAST TUESDAY
 #3 "last tuesday"                   2014-01-27 11:28:50
+#1 "wednesday"                      WEDNESDAY
+#2 "wednesday"                      WEDNESDAY
+#3 "wednesday"                      2014-01-27 11:28:50
+#1 "first wednesday"                WEDNESDAY
+#2 "first wednesday"                WEDNESDAY
+#3 "first wednesday"                2014-01-27 11:28:50
+#1 "this wednesday"                 WEDNESDAY
+#2 "this wednesday"                 WEDNESDAY
+#3 "this wednesday"                 2014-01-27 11:28:50
+#1 "next wednesday"                 WEDNESDAY
+#2 "next wednesday"                 WEDNESDAY
+#3 "next wednesday"                 2014-01-27 11:28:50
+#1 "last wednesday"                 LAST WEDNESDAY
+#2 "last wednesday"                 LAST WEDNESDAY
+#3 "last wednesday"                 2014-01-27 11:28:50
+#1 "thursday"                       THURSDAY
+#2 "thursday"                       THURSDAY
+#3 "thursday"                       2014-01-27 11:28:50
+#1 "first thursday"                 THURSDAY
+#2 "first thursday"                 THURSDAY
+#3 "first thursday"                 2014-01-27 11:28:50
+#1 "this thursday"                  THURSDAY
+#2 "this thursday"                  THURSDAY
+#3 "this thursday"                  2014-01-27 11:28:50
+#1 "next thursday"                  THURSDAY
+#2 "next thursday"                  THURSDAY
+#3 "next thursday"                  2014-01-27 11:28:50
+#1 "last thursday"                  LAST THURSDAY
+#2 "last thursday"                  LAST THURSDAY
+#3 "last thursday"                  2014-01-27 11:28:50
+#1 "friday"                         2015-02-20 00:00:00
+#2 "friday"                         2015-02-20 00:00:00
+#3 "friday"                         2014-01-27 11:28:50
+#1 "first friday"                   FIRST FRIDAY
+#2 "first friday"                   FIRST FRIDAY
+#3 "first friday"                   2014-01-27 11:28:50
+#1 "this friday"                    FRIDAY
+#2 "this friday"                    FRIDAY
+#3 "this friday"                    2014-01-27 11:28:50
+#1 "next friday"                    NEXT FRIDAY
+#2 "next friday"                    NEXT FRIDAY
+#3 "next friday"                    2014-01-27 11:28:50
+#1 "last friday"                    LAST FRIDAY
+#2 "last friday"                    LAST FRIDAY
+#3 "last friday"                    2014-01-27 11:28:50
+#1 "saturday"                       SATURDAY
+#2 "saturday"                       SATURDAY
+#3 "saturday"                       2014-01-27 11:28:50
+#1 "first saturday"                 SATURDAY
+#2 "first saturday"                 SATURDAY
+#3 "first saturday"                 2014-01-27 11:28:50
+#1 "this saturday"                  SATURDAY
+#2 "this saturday"                  SATURDAY
+#3 "this saturday"                  2014-01-27 11:28:50
+#1 "next saturday"                  SATURDAY
+#2 "next saturday"                  SATURDAY
+#3 "next saturday"                  2014-01-27 11:28:50
+#1 "last saturday"                  LAST SATURDAY
+#2 "last saturday"                  LAST SATURDAY
+#3 "last saturday"                  2014-01-27 11:28:50
 Note: timezone set to "TZ=America/Los_Angeles"
 
 metric:    sample.bin

@@ -23,15 +23,40 @@ echo "first sunday: $(date '+%Y-%m-%d' -d 'first sunday')" >>$seq.full
 echo "this sunday: $(date '+%Y-%m-%d' -d 'this sunday')" >>$seq.full
 echo "next sunday: $(date '+%Y-%m-%d' -d 'next sunday')" >>$seq.full
 echo "last sunday: $(date '+%Y-%m-%d' -d 'last sunday')" >>$seq.full
+echo "monday: $(date '+%Y-%m-%d' -d 'monday')" >>$seq.full
+echo "first monday: $(date '+%Y-%m-%d' -d 'first monday')" >>$seq.full
+echo "this monday: $(date '+%Y-%m-%d' -d 'this monday')" >>$seq.full
+echo "next monday: $(date '+%Y-%m-%d' -d 'next monday')" >>$seq.full
+echo "last monday: $(date '+%Y-%m-%d' -d 'last monday')" >>$seq.full
 echo "tuesday: $(date '+%Y-%m-%d' -d 'tuesday')" >>$seq.full
 echo "first tuesday: $(date '+%Y-%m-%d' -d 'first tuesday')" >>$seq.full
 echo "this tuesday: $(date '+%Y-%m-%d' -d 'this tuesday')" >>$seq.full
 echo "next tuesday: $(date '+%Y-%m-%d' -d 'next tuesday')" >>$seq.full
 echo "last tuesday: $(date '+%Y-%m-%d' -d 'last tuesday')" >>$seq.full
+echo "wednesday: $(date '+%Y-%m-%d' -d 'wednesday')" >>$seq.full
+echo "first wednesday: $(date '+%Y-%m-%d' -d 'first wednesday')" >>$seq.full
+echo "this wednesday: $(date '+%Y-%m-%d' -d 'this wednesday')" >>$seq.full
+echo "next wednesday: $(date '+%Y-%m-%d' -d 'next wednesday')" >>$seq.full
+echo "last wednesday: $(date '+%Y-%m-%d' -d 'last wednesday')" >>$seq.full
+echo "thursday: $(date '+%Y-%m-%d' -d 'thursday')" >>$seq.full
+echo "first thursday: $(date '+%Y-%m-%d' -d 'first thursday')" >>$seq.full
+echo "this thursday: $(date '+%Y-%m-%d' -d 'this thursday')" >>$seq.full
+echo "next thursday: $(date '+%Y-%m-%d' -d 'next thursday')" >>$seq.full
+echo "last thursday: $(date '+%Y-%m-%d' -d 'last thursday')" >>$seq.full
+echo "friday: $(date '+%Y-%m-%d' -d 'friday')" >>$seq.full
+echo "first friday: $(date '+%Y-%m-%d' -d 'first friday')" >>$seq.full
+echo "this friday: $(date '+%Y-%m-%d' -d 'this friday')" >>$seq.full
+echo "next friday: $(date '+%Y-%m-%d' -d 'next friday')" >>$seq.full
+echo "last friday: $(date '+%Y-%m-%d' -d 'last friday')" >>$seq.full
+echo "saturday: $(date '+%Y-%m-%d' -d 'saturday')" >>$seq.full
+echo "first saturday: $(date '+%Y-%m-%d' -d 'first saturday')" >>$seq.full
+echo "this saturday: $(date '+%Y-%m-%d' -d 'this saturday')" >>$seq.full
+echo "next saturday: $(date '+%Y-%m-%d' -d 'next saturday')" >>$seq.full
+echo "last saturday: $(date '+%Y-%m-%d' -d 'last saturday')" >>$seq.full
 
 # Be careful, sunday, first sunday, next sunday and today could all be
 # the same date.
-# Ditto for monday and tuesday.
+# Ditto for all the other days of the week.
 #
 src/rtimetest \
 | tee -a $seq.full \
@@ -41,11 +66,36 @@ src/rtimetest \
     -e "/this sunday/s/$(date '+%Y-%m-%d' -d 'this sunday') ..:..:../THIS SUNDAY/" \
     -e "/next sunday/s/$(date '+%Y-%m-%d' -d 'next sunday') ..:..:../NEXT SUNDAY/" \
     -e "/last sunday/s/$(date '+%Y-%m-%d' -d 'last sunday') ..:..:../LAST SUNDAY/" \
+    -e "/monday/s/$(date '+%Y-%m-%d' -d 'monday') ..:..:../MONDAY/" \
+    -e "/first monday/s/$(date '+%Y-%m-%d' -d 'first monday') ..:..:../FIRST MONDAY/" \
+    -e "/this monday/s/$(date '+%Y-%m-%d' -d 'this monday') ..:..:../THIS MONDAY/" \
+    -e "/next monday/s/$(date '+%Y-%m-%d' -d 'next monday') ..:..:../NEXT MONDAY/" \
+    -e "/last monday/s/$(date '+%Y-%m-%d' -d 'last monday') ..:..:../LAST MONDAY/" \
     -e "/tuesday/s/$(date '+%Y-%m-%d' -d 'tuesday') ..:..:../TUESDAY/" \
     -e "/first tuesday/s/$(date '+%Y-%m-%d' -d 'first tuesday') ..:..:../FIRST TUESDAY/" \
     -e "/this tuesday/s/$(date '+%Y-%m-%d' -d 'this tuesday') ..:..:../THIS TUESDAY/" \
     -e "/next tuesday/s/$(date '+%Y-%m-%d' -d 'next tuesday') ..:..:../NEXT TUESDAY/" \
     -e "/last tuesday/s/$(date '+%Y-%m-%d' -d 'last tuesday') ..:..:../LAST TUESDAY/" \
+    -e "/wednesday/s/$(date '+%Y-%m-%d' -d 'wednesday') ..:..:../WEDNESDAY/" \
+    -e "/first wednesday/s/$(date '+%Y-%m-%d' -d 'first wednesday') ..:..:../FIRST WEDNESDAY/" \
+    -e "/this wednesday/s/$(date '+%Y-%m-%d' -d 'this wednesday') ..:..:../THIS WEDNESDAY/" \
+    -e "/next wednesday/s/$(date '+%Y-%m-%d' -d 'next wednesday') ..:..:../NEXT WEDNESDAY/" \
+    -e "/last wednesday/s/$(date '+%Y-%m-%d' -d 'last wednesday') ..:..:../LAST WEDNESDAY/" \
+    -e "/thursday/s/$(date '+%Y-%m-%d' -d 'thursday') ..:..:../THURSDAY/" \
+    -e "/first thursday/s/$(date '+%Y-%m-%d' -d 'first thursday') ..:..:../FIRST THURSDAY/" \
+    -e "/this thursday/s/$(date '+%Y-%m-%d' -d 'this thursday') ..:..:../THIS THURSDAY/" \
+    -e "/next thursday/s/$(date '+%Y-%m-%d' -d 'next thursday') ..:..:../NEXT THURSDAY/" \
+    -e "/last thursday/s/$(date '+%Y-%m-%d' -d 'last thursday') ..:..:../LAST THURSDAY/" \
+    -e "/friday/s/$(date '+%Y-%m-%d' -d 'friday') ..:..:../FRIDAY/" \
+    -e "/first friday/s/$(date '+%Y-%m-%d' -d 'first friday') ..:..:../FIRST FRIDAY/" \
+    -e "/this friday/s/$(date '+%Y-%m-%d' -d 'this friday') ..:..:../THIS FRIDAY/" \
+    -e "/next friday/s/$(date '+%Y-%m-%d' -d 'next friday') ..:..:../NEXT FRIDAY/" \
+    -e "/last friday/s/$(date '+%Y-%m-%d' -d 'last friday') ..:..:../LAST FRIDAY/" \
+    -e "/saturday/s/$(date '+%Y-%m-%d' -d 'saturday') ..:..:../SATURDAY/" \
+    -e "/first saturday/s/$(date '+%Y-%m-%d' -d 'first saturday') ..:..:../FIRST SATURDAY/" \
+    -e "/this saturday/s/$(date '+%Y-%m-%d' -d 'this saturday') ..:..:../THIS SATURDAY/" \
+    -e "/next saturday/s/$(date '+%Y-%m-%d' -d 'next saturday') ..:..:../NEXT SATURDAY/" \
+    -e "/last saturday/s/$(date '+%Y-%m-%d' -d 'last saturday') ..:..:../LAST SATURDAY/" \
     -e "s/$(date '+%Y-%m-%d' -d 'yesterday') ..:..:../YESTERDAY/" \
     -e "s/$(date '+%Y-%m-%d' -d 'tomorrow') ..:..:../TOMORROW/" \
     -e "s/$(date '+%Y-%m-%d') ..:..:../TODAY/"
