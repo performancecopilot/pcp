@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2015 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -163,8 +163,14 @@ main(int argc, char *argv[])
 	"tomorrow",
 	"sunday",
 	"first sunday",
-	"last monday",
-	"next tuesday"
+	"this sunday",
+	"next sunday",
+	"last sunday",
+	"tuesday",
+	"first tuesday",
+	"this tuesday",
+	"next tuesday",
+	"last tuesday",
     };
 
 
