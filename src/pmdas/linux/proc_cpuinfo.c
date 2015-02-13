@@ -160,6 +160,17 @@ trim_whitespace(char *s)
     return s;
 }
 
+static void
+setup_cpuinfo(cpuinfo_t *cpuinfo)
+{
+    cpuinfo->sapic = -1;
+    cpuinfo->vendor = -1;
+    cpuinfo->model = -1;
+    cpuinfo->model_name = -1;
+    cpuinfo->stepping = -1;
+    cpuinfo->flags = -1;
+}
+
 int
 refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
 {
@@ -168,33 +179,26 @@ refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
     FILE *fp;
     int i, cpunum, cpuid;
     int dups = 0, previous = -1;
+    cpuinfo_t saved = { 0 };
     cpuinfo_t *info = NULL;
     char *val;
     char *p;
-    static int started = 0;
+    static int started;
 
     if (!started) {
 	int need = proc_cpuinfo->cpuindom->it_numinst * sizeof(cpuinfo_t);
 	proc_cpuinfo->cpuinfo = (cpuinfo_t *)calloc(1, need);
-	for (cpunum=0; cpunum < proc_cpuinfo->cpuindom->it_numinst; cpunum++) {
-	    proc_cpuinfo->cpuinfo[cpunum].sapic = -1;
-	    proc_cpuinfo->cpuinfo[cpunum].vendor = -1;
-	    proc_cpuinfo->cpuinfo[cpunum].model = -1;
-	    proc_cpuinfo->cpuinfo[cpunum].model_name = -1;
-	    proc_cpuinfo->cpuinfo[cpunum].stepping = -1;
-	    proc_cpuinfo->cpuinfo[cpunum].flags = -1;
-	}
+	for (cpunum = 0; cpunum < proc_cpuinfo->cpuindom->it_numinst; cpunum++)
+	    setup_cpuinfo(&proc_cpuinfo->cpuinfo[cpunum]);
 	started = 1;
     }
 
     if ((fp = linux_statsfile("/proc/cpuinfo", buf, sizeof(buf))) == NULL)
-    	return -oserror();
+	return -oserror();
 
-#if defined(HAVE_ALPHA_LINUX)
-    cpunum = 0;
-#else	/* Intel & all others */
     cpunum = -1;
-#endif
+    setup_cpuinfo(&saved);
+
     while (fgets(buf, sizeof(buf), fp) != NULL) {
 	if ((val = strrchr(buf, '\n')) != NULL)
 	    *val = '\0';
@@ -202,7 +206,6 @@ refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
 	    continue;
 	val += 2;
 
-#if !defined(HAVE_ALPHA_LINUX)
 	if (strncmp(buf, "processor", 9) == 0) {
 	    cpunum++;
 	    if (previous == PROCESSOR_LINE)
@@ -211,13 +214,19 @@ refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
 	    proc_cpuinfo->cpuinfo[cpunum].cpu_num = atoi(val);
 	    continue;
 	}
-#endif
 	previous = !PROCESSOR_LINE;
 
-	if (cpunum < 0 || cpunum >= proc_cpuinfo->cpuindom->it_numinst)
+	if (cpunum >= proc_cpuinfo->cpuindom->it_numinst)
 	    continue;
 
-	info = &proc_cpuinfo->cpuinfo[cpunum];
+	/* we may need to save up state before seeing any processor ID */
+	if (dups || cpunum < 0) {
+	    dups = 1;
+	    info = &saved;
+	}
+	else {
+	    info = &proc_cpuinfo->cpuinfo[cpunum];
+	}
 
 	/* note: order is important due to strNcmp comparisons */
 	if (info->sapic < 0 && strncasecmp(buf, "sapic", 5) == 0)
@@ -262,16 +271,12 @@ refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
     }
     fclose(fp);
 
-#if defined(HAVE_ALPHA_LINUX)
-    /* all identical processors, therefore duplicate to all the instances */
-    for (cpunum = 1; cpunum < proc_cpuinfo->cpuindom->it_numinst; cpunum++)
-	memcpy(&proc_cpuinfo->cpuinfo[cpunum], info, sizeof(cpuinfo_t));
-#endif
     /* all identical processors, duplicate last through earlier instances */
     if (dups) {
-	for (i = 0; i < proc_cpuinfo->cpuindom->it_numinst-1; i++) {
-	    cpuid = proc_cpuinfo->cpuinfo[i].cpu_num;
-	    memcpy(&proc_cpuinfo->cpuinfo[i], info, sizeof(cpuinfo_t));
+	for (i = 0; i < proc_cpuinfo->cpuindom->it_numinst; i++) {
+	    if ((cpuid = proc_cpuinfo->cpuinfo[i].cpu_num) == 0)
+		cpuid = i;
+	    memcpy(&proc_cpuinfo->cpuinfo[i], &saved, sizeof(cpuinfo_t));
 	    proc_cpuinfo->cpuinfo[i].cpu_num = cpuid;
 	}
     }

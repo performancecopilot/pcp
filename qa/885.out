@@ -2,25 +2,25 @@ QA output created by 885
 == Checking CPU hardware metrics from cpuinfo-1cpu-alpha (1 CPU)
 
 hinv.cpu.clock
-No value(s) available!
+    inst [0 or "cpu0"] value 499.71442
 
 hinv.cpu.vendor
     inst [0 or "cpu0"] value "unknown"
 
 hinv.cpu.model
-    inst [0 or "cpu0"] value "unknown"
+    inst [0 or "cpu0"] value "EV56"
 
 hinv.cpu.stepping
-    inst [0 or "cpu0"] value "unknown"
+    inst [0 or "cpu0"] value "0"
 
 hinv.cpu.cache
 No value(s) available!
 
 hinv.cpu.bogomips
-No value(s) available!
+    inst [0 or "cpu0"] value 992.88
 
 hinv.cpu.model_name
-    inst [0 or "cpu0"] value "unknown"
+    inst [0 or "cpu0"] value "EV56"
 
 hinv.cpu.flags
     inst [0 or "cpu0"] value "unknown"
@@ -42,13 +42,13 @@ hinv.cpu.model
     inst [0 or "cpu0"] value "unknown"
 
 hinv.cpu.stepping
-    inst [0 or "cpu0"] value "unknown"
+    inst [0 or "cpu0"] value "1.18 (pvr 7000 0112)"
 
 hinv.cpu.cache
 No value(s) available!
 
 hinv.cpu.bogomips
-No value(s) available!
+    inst [0 or "cpu0"] value 1389.36
 
 hinv.cpu.model_name
     inst [0 or "cpu0"] value "unknown"
@@ -73,13 +73,13 @@ hinv.cpu.model
     inst [0 or "cpu0"] value "unknown"
 
 hinv.cpu.stepping
-    inst [0 or "cpu0"] value "unknown"
+    inst [0 or "cpu0"] value "3.3 (pvr 0004 0303)"
 
 hinv.cpu.cache
 No value(s) available!
 
 hinv.cpu.bogomips
-No value(s) available!
+    inst [0 or "cpu0"] value 239.2
 
 hinv.cpu.model_name
     inst [0 or "cpu0"] value "unknown"
@@ -148,6 +148,43 @@ hinv.cpu.model_name
 
 hinv.cpu.flags
     inst [0 or "cpu0"] value "unknown"
+
+hinv.cpu.cache_alignment
+No value(s) available!
+
+== done
+
+== Checking CPU hardware metrics from cpuinfo-2cpu-s390x-linux-2.6.32 (2 CPU)
+
+hinv.cpu.clock
+No value(s) available!
+
+hinv.cpu.vendor
+    inst [0 or "cpu0"] value "IBM/S390"
+    inst [1 or "cpu1"] value "IBM/S390"
+
+hinv.cpu.model
+    inst [0 or "cpu0"] value "unknown"
+    inst [1 or "cpu1"] value "unknown"
+
+hinv.cpu.stepping
+    inst [0 or "cpu0"] value "unknown"
+    inst [1 or "cpu1"] value "unknown"
+
+hinv.cpu.cache
+No value(s) available!
+
+hinv.cpu.bogomips
+    inst [0 or "cpu0"] value 2913
+    inst [1 or "cpu1"] value 2913
+
+hinv.cpu.model_name
+    inst [0 or "cpu0"] value "unknown"
+    inst [1 or "cpu1"] value "unknown"
+
+hinv.cpu.flags
+    inst [0 or "cpu0"] value "esan3 zarch stfle msa ldisp eimm dfp etf3eh highgprs"
+    inst [1 or "cpu1"] value "esan3 zarch stfle msa ldisp eimm dfp etf3eh highgprs"
 
 hinv.cpu.cache_alignment
 No value(s) available!
@@ -814,7 +851,10 @@ hinv.cpu.cache_alignment
 == Checking CPU hardware metrics from cpuinfo-4cpu-alpha (4 CPU)
 
 hinv.cpu.clock
-No value(s) available!
+    inst [0 or "cpu0"] value 499.71442
+    inst [1 or "cpu1"] value 499.71442
+    inst [2 or "cpu2"] value 499.71442
+    inst [3 or "cpu3"] value 499.71442
 
 hinv.cpu.vendor
     inst [0 or "cpu0"] value "unknown"
@@ -823,28 +863,31 @@ hinv.cpu.vendor
     inst [3 or "cpu3"] value "unknown"
 
 hinv.cpu.model
-    inst [0 or "cpu0"] value "unknown"
-    inst [1 or "cpu1"] value "unknown"
-    inst [2 or "cpu2"] value "unknown"
-    inst [3 or "cpu3"] value "unknown"
+    inst [0 or "cpu0"] value "EV56"
+    inst [1 or "cpu1"] value "EV56"
+    inst [2 or "cpu2"] value "EV56"
+    inst [3 or "cpu3"] value "EV56"
 
 hinv.cpu.stepping
-    inst [0 or "cpu0"] value "unknown"
-    inst [1 or "cpu1"] value "unknown"
-    inst [2 or "cpu2"] value "unknown"
-    inst [3 or "cpu3"] value "unknown"
+    inst [0 or "cpu0"] value "0"
+    inst [1 or "cpu1"] value "0"
+    inst [2 or "cpu2"] value "0"
+    inst [3 or "cpu3"] value "0"
 
 hinv.cpu.cache
 No value(s) available!
 
 hinv.cpu.bogomips
-No value(s) available!
+    inst [0 or "cpu0"] value 992.88
+    inst [1 or "cpu1"] value 992.88
+    inst [2 or "cpu2"] value 992.88
+    inst [3 or "cpu3"] value 992.88
 
 hinv.cpu.model_name
-    inst [0 or "cpu0"] value "unknown"
-    inst [1 or "cpu1"] value "unknown"
-    inst [2 or "cpu2"] value "unknown"
-    inst [3 or "cpu3"] value "unknown"
+    inst [0 or "cpu0"] value "EV56"
+    inst [1 or "cpu1"] value "EV56"
+    inst [2 or "cpu2"] value "EV56"
+    inst [3 or "cpu3"] value "EV56"
 
 hinv.cpu.flags
     inst [0 or "cpu0"] value "unknown"
