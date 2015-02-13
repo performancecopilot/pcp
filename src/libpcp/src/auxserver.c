@@ -267,7 +267,6 @@ __pmServerCreatePIDFile(const char *spec, int verbose)
 {
     char        pidpath[MAXPATHLEN];
     FILE        *pidfile;
-    int		sts = 0;
 
     if (!serviceSpec)
 	__pmServerSetServiceSpec(spec);
@@ -282,13 +281,9 @@ __pmServerCreatePIDFile(const char *spec, int verbose)
     }
     atexit(pidonexit);
     fprintf(pidfile, "%" FMT_PID, getpid());
+    (void)fchmod(fileno(pidfile), S_IRUSR | S_IRGRP | S_IROTH);
     fclose(pidfile);
-    if (chmod(pidpath, S_IRUSR | S_IRGRP | S_IROTH) < 0) {
-	if (verbose)
-	    fprintf(stderr, "Error: cannot chmod PID file %s\n", pidpath);
-	sts = -oserror();
-    }
-    return sts;
+    return 0;
 }
 
 void

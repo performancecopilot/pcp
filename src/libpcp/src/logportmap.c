@@ -339,19 +339,15 @@ __pmIsLocalhost(const char *hostname)
 		for (addr2 = __pmHostEntGetSockAddr(servInfo2, &enumIx2);
 		     addr2 != NULL;
 		     addr2 = __pmHostEntGetSockAddr(servInfo2, &enumIx2)) {
-		    sts = __pmSockAddrCompare(addr1, addr2);
-		    __pmSockAddrFree(addr2);
-		    if (sts == 0) {
+		    if (__pmSockAddrCompare(addr1, addr2) == 0) {
 			__pmHostEntFree(servInfo1);
 			__pmHostEntFree(servInfo2);
-			__pmSockAddrFree(addr1);
 			return 1;
 		    }
 		}
 	    }
 	    __pmHostEntFree(servInfo1);
 	    __pmHostEntFree(servInfo2);
-	    __pmSockAddrFree(addr1);
 	}
     }
 
