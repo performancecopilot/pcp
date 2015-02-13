@@ -878,7 +878,8 @@ if which valgrind >/dev/null 2>&1; then
     else
 	__extra=''
     fi
-    _valgrind_clean_assert="valgrind -q  --leak-check=full --read-var-info=yes \
+    _valgrind_clean_assert="valgrind -q \
+    	     --vgdb=no --leak-check=full --read-var-info=yes \
 	     --suppressions=$here/valgrind-suppress $__extra \
              --log-fd=1"
 fi
