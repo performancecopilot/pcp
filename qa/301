@@ -113,6 +113,7 @@ fi
 dbugEcho 1 "Starting up PCP"
 $sudo sh $PCP_RC_DIR/pcp restart >/dev/null
 _wait_for_pmcd
+_wait_for_pmlogger
 
 # success or failure, we've finished
 status=`expr $status - 1`
