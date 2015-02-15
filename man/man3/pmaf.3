@@ -72,6 +72,30 @@ and each time the event occurs the function
 .I func
 will be called with the event number and the event data as arguments.
 .P
+.I func
+is called in a SIGALRM signal handler context and so the routines
+that may be safely called from
+.I func
+are restricted to the so-called
+.I async-signal-safe
+set.
+In particular there must be no Standard I/O
+calls nor calls to any of the
+.BR malloc (3)
+routines to modify the state of the heap.
+Refer to the
+.I "Pointer to a Function"
+Section of the POSIX.1-2013 document at
+http://pubs.opengroup.org/onlinepubs/9699919799/functions/V2_chap02.html
+for a fuller description.
+.P
+The safest and simplest class of
+.I func
+routines are those that do minimal processing, set some global state and return.
+The real work associated with the event is done subsequently
+from the application's main loop when the
+global state change is detected.
+.P
 Once the event occurs and the callback has been executed, the event
 will be rescheduled for
 .I delta
@@ -121,7 +145,7 @@ The routines support the standard PCP debug tracing, and the value
 (or
 .B "\-D af"
 on the command line)
-will produce diagnostics on standard error that trace the enqueueing
+will produce diagnostics on standard error that trace the enqueuing
 and execution of events.
 .SH CAVEATS
 These routines rely on
