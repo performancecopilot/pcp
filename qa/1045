@@ -114,11 +114,14 @@ echo status=$sts
 _filter_date < $tmp.pmie2
 
 cp $tmp.pmie $tmp.pmie3
+( echo "before pmieconf"; ( [ -f ./pconf/cpu/load_average ] && ls -l ./pconf/cpu/load_average ) ) >>$seq.full
 $sudo mv ./pconf/cpu/load_average $tmp.load
 echo
 echo "=== check that changes for unsupported rules are moved to end"
 pmieconf -r ./pconf -f $tmp.pmie3 m filesys.buffer_cache holdoff 120 >/dev/null
+( echo "after pmieconf"; ( [ -f ./pconf/cpu/load_average ] && ls -l ./pconf/cpu/load_average ) ) >>$seq.full
 $sudo mv $tmp.load ./pconf/cpu/load_average
+( echo "after restore"; ( [ -f ./pconf/cpu/load_average ] && ls -l ./pconf/cpu/load_average ) ) >>$seq.full
 echo status=$?
 pmie -C $tmp.pmie3 >$tmp.out 2>&1
 sts=$?
