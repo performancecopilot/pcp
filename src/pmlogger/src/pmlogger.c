@@ -30,6 +30,9 @@ struct timeval	vol_switch_time;         /* time interval 'til vol switch */
 int		vol_samples_counter;     /* Counts samples - reset for new vol*/
 int		vol_switch_afid = -1;    /* afid of event for vol switch */
 int		vol_switch_flag;         /* sighup received - switch vol now */
+int		vol_switch_alarm = 0;	 /* vol_switch_callback() called */
+int		run_done_alarm = 0;	 /* run_done_callback() called */
+int		log_alarm = 0;	 	 /* log_callback() called */
 int		parse_done;
 int		primary;		/* Non-zero for primary pmlogger */
 char	    	*archBase;		/* base name for log files */
@@ -81,16 +84,22 @@ run_done(int sts, char *msg)
     exit(sts);
 }
 
+/*
+ * Warning: called in signal handler context ... be careful
+ */
 static void
 run_done_callback(int i, void *j)
 {
-    run_done(0, NULL);
+    run_done_alarm = 1;
 }
 
+/*
+ * Warning: called in signal handler context ... be careful
+ */
 static void
 vol_switch_callback(int i, void *j)
 {
-    newvolume(VOL_SW_TIME);
+    vol_switch_alarm = 1;
 }
 
 static int
@@ -435,6 +444,7 @@ failed:
 
     if (cmd == 'Q' || (cmd == 'X' && strcmp(lbuf, "Yes") == 0)) {
 	run_done(0, "Recording session terminated");
+	/*NOTREACHED*/
     }
 
     if (cmd != '?') {
@@ -496,6 +506,7 @@ main(int argc, char **argv)
     char		*runtime = NULL;
     int	    		ctx;		/* handle corresponding to ctxp below */
     __pmContext  	*ctxp;		/* pmlogger has just this one context */
+    int			niter;
 
     __pmGetUsername(&username);
 
@@ -897,10 +908,59 @@ main(int argc, char **argv)
 
     for ( ; ; ) {
 	int		nready;
+
+#ifdef PCP_DEBUG
+	if ((pmDebug & DBG_TRACE_APPL2) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	    fprintf(stderr, "before __pmSelectRead(%d,...): run_done_alarm=%d vol_switch_alarm=%d log_alarm=%d\n", numfds, run_done_alarm, vol_switch_alarm, log_alarm);
+	}
+#endif
+
+	niter = 0;
+	while (log_alarm && niter++ < 10) {
+	    __pmAFblock();
+	    log_alarm = 0;
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL2)
+		fprintf(stderr, "delayed callback: log_alarm\n");
+#endif
+	    for (tp = tasklist; tp != NULL; tp = tp->t_next) {
+		if (tp->t_alarm) {
+		    tp->t_alarm = 0;
+		    do_work(tp);
+		}
+	    }
+	    __pmAFunblock();
+	}
+
+	if (vol_switch_alarm) {
+	    __pmAFblock();
+	    vol_switch_alarm = 0;
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL2)
+		fprintf(stderr, "delayed callback: vol_switch_alarm\n");
+#endif
+	    newvolume(VOL_SW_TIME);
+	    __pmAFunblock();
+	}
+
+	if (run_done_alarm) {
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL2)
+		fprintf(stderr, "delayed callback: run_done_alarm\n");
+#endif
+	    run_done(0, NULL);
+	    /*NOTREACHED*/
+	}
+
 	__pmFD_COPY(&readyfds, &fds);
 	nready = __pmSelectRead(numfds, &readyfds, NULL);
 
-	/* block signals to simplify IO handling */
+#ifdef PCP_DEBUG
+	if ((pmDebug & DBG_TRACE_APPL2) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	    fprintf(stderr, "__pmSelectRead(%d,...) done: nready=%d run_done_alarm=%d vol_switch_alarm=%d log_alarm=%d\n", numfds, nready, run_done_alarm, vol_switch_alarm, log_alarm);
+	}
+#endif
+
 	__pmAFblock();
 	if (nready > 0) {
 

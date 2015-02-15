@@ -374,14 +374,32 @@ lookupTaskCacheNames(pmID pmid, char ***namesptr)
     return numnames;
 }
 
+/*
+ * Warning: called in signal handler context ... be careful
+ */
 void
 log_callback(int afid, void *data)
+{
+    task_t		*tp;
+    for (tp = tasklist; tp != NULL; tp = tp->t_next) {
+	if (tp->t_afid == afid) {
+	    tp->t_alarm = 1;
+	    log_alarm = 1;
+	    break;
+	}
+    }
+}
+
+/*
+ * do real work from callback ...
+ */
+void
+do_work(task_t *tp)
 {
     int			i;
     int			j;
     int			k;
     int			sts;
-    task_t		*tp = (task_t *)data;
     fetchctl_t		*fp;
     indomctl_t		*idp;
     pmResult		*resp;
@@ -404,13 +422,23 @@ log_callback(int afid, void *data)
     __pmTimeval		resp_tval;
     unsigned long	peek_offset;
 
+#ifdef PCP_DEBUG
+    if ((pmDebug & DBG_TRACE_APPL2) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	struct timeval	now;
+
+	__pmtimevalNow(&now);
+	__pmPrintStamp(stderr, &now);
+	fprintf(stderr, " do_work(tp=%p): afid=%d parse_done=%d exit_samples=%d\n", tp, tp->t_afid, parse_done, exit_samples);
+    }
+#endif
+
     if (!parse_done)
 	/* ignore callbacks until all of the config file has been parsed */
 	return;
 
     /* find AFctl_t for this afid */
     for (acp = achead; acp != (AFctl_t *)0; acp = acp->ac_next) {
-	if (acp->ac_afid == afid)
+	if (acp->ac_afid == tp->t_afid)
 	    break;
     }
     if (acp == (AFctl_t *)0) {
@@ -419,7 +447,7 @@ log_callback(int afid, void *data)
 	    __pmNoMem("log_callback: new AFctl_t entry calloc",
 		     sizeof(AFctl_t), PM_FATAL_ERR);
 	}
-	acp->ac_afid = afid;
+	acp->ac_afid = tp->t_afid;
 	acp->ac_next = achead;
 	achead = acp;
     }
