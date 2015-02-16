@@ -153,7 +153,7 @@ sub convert_boottime {
 #
 # Ganglia metrics are already rate converted.
 #
-# Need to guess at the metric metadata since there is no guarantee we are procesing the logs on
+# Need to guess at the metric metadata since there is no guarantee we are processing the logs
 # on the host from which they were collected.  These values are from x86_64 linux.
 #
 # Could come up with different mappings based on source host if necessary.
