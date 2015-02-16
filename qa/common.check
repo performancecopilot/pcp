@@ -878,8 +878,13 @@ if which valgrind >/dev/null 2>&1; then
     else
 	__extra=''
     fi
+    valgrind --help 2>&1 | grep -q vgdb
+    if [ $? -eq 0 ]
+    then
+	__extra="$__extra --vgdb=no"
+    fi
     _valgrind_clean_assert="valgrind -q \
-    	     --vgdb=no --leak-check=full --read-var-info=yes \
+    	     --leak-check=full --read-var-info=yes \
 	     --suppressions=$here/valgrind-suppress $__extra \
              --log-fd=1"
 fi
