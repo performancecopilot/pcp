@@ -10,11 +10,13 @@ import cpmapi as c_api
 from pcp.pmapi import pmUnits
 from ctypes import c_int, POINTER, cast
 import os
+import re
 
 import traceback
 
 class Metric(object):
     ''' Metric information class '''
+    __name_re = re.compile(r'^[a-zA-Z][\w_\.]+$')
     def __init__(self, name_prefix, cluster, idx, pmda):
         self.__name = ''
         self.name_prefix = name_prefix
@@ -40,8 +42,15 @@ class Metric(object):
     @name.setter
     def name(self, name):
         ''' Set metric name value. '''
-        self.__name = name
-        self.full_name = "%s.%s" % (self.name_prefix, name)
+        # Metric names must start with an alphabetic character. The rest
+        # of the characters must be alphanumeric or an '_'. One '.'
+        # can appear in the name (but not as the first character).
+        if Metric.__name_re.match(name) and name.count('.') <= 1:
+            self.__name = name
+            self.full_name = "%s.%s" % (self.name_prefix, name)
+        else:
+            self.__pmda.log("Invalid metric name '%s'" % name)
+            raise RuntimeError("Invalid metric name '%s'" % name)
 
     def valid(self):
         ''' Is metric valid?. '''
