@@ -1014,6 +1014,7 @@ cgroups
 914 pmda.papi local
 919 pmlogger pmstat local
 922 derive pmie pmval local
+926 other local
 928 archive local
 929 logutil local
 930 pmlogrewrite local

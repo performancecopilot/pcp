@@ -19,6 +19,7 @@ libpcp_tracedev = libpcp-trace2-dev
 libpcp_import = libpcp-import1
 libpcp_importdev = libpcp-import1-dev
 pcp_import_sar = pcp-import-sar2pcp
+pcp_import_ganglia = pcp-import-ganglia2pcp
 pcp_import_mrtg = pcp-import-mrtg2pcp
 pcp_import_sheet = pcp-import-sheet2pcp
 pcp_import_iostat = pcp-import-iostat2pcp
@@ -50,6 +51,7 @@ dirlibpcp_tracedev = debian/$(libpcp_tracedev)
 dirlibpcp_import = debian/$(libpcp_import)
 dirlibpcp_importdev = debian/$(libpcp_importdev)
 dirpcp_import_sar = debian/$(pcp_import_sar)
+dirpcp_import_ganglia = debian/$(pcp_import_ganglia)
 dirpcp_import_mrtg = debian/$(pcp_import_mrtg)
 dirpcp_import_sheet = debian/$(pcp_import_sheet)
 dirpcp_import_iostat = debian/$(pcp_import_iostat)
@@ -71,6 +73,7 @@ alldir = $(dirpcp) $(dirpcpcfg) \
 		$(dirlibpcp_import) $(dirlibpcp_importdev) \
 		$(dirlibpcp_mmv) $(dirlibpcp_mmvdev) \
 		$(dirpcp_import_sar) $(dirpcp_import_mrtg) \
+		$(dirpcp_import_ganglia) \
 		$(dirpcp_import_sheet) $(dirpcp_import_iostat) \
 		$(dirpcp_import_collectl) $(dirpcp_testsuite) \
 		$(dirpcp_pmda_infiniband) $(allperldir) \
@@ -93,6 +96,7 @@ pkglibpcp_pmda_perl = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_pmda_perl);
 pkglibpcp_import_perl = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_import_perl);
 pkgpcp_logsummary_perl = $(zip) DIST_ROOT=`pwd`/$(dirpcp_logsummary_perl);
 pkgpcp_import_sar = $(zip) DIST_ROOT=`pwd`/$(dirpcp_import_sar);
+pkgpcp_import_ganglia = $(zip) DIST_ROOT=`pwd`/$(dirpcp_import_ganglia);
 pkgpcp_import_mrtg = $(zip) DIST_ROOT=`pwd`/$(dirpcp_import_mrtg);
 pkgpcp_import_sheet = $(zip) DIST_ROOT=`pwd`/$(dirpcp_import_sheet);
 pkgpcp_import_iostat = $(zip) DIST_ROOT=`pwd`/$(dirpcp_import_iostat);
@@ -160,6 +164,7 @@ binary-arch: checkroot build-stamp
 	$(pkglibpcp_import_perl) $(MAKE) -C src/perl/LogImport install_perl
 	$(pkgpcp_logsummary_perl) $(MAKE) -C src/perl/LogSummary install_perl
 	$(pkgpcp_import_sar) $(MAKE) -C src/sar2pcp install
+	$(pkgpcp_import_ganglia) $(MAKE) -C src/ganglia2pcp install
 	$(pkgpcp_import_mrtg) $(MAKE) -C src/mrtg2pcp install
 	$(pkgpcp_import_sheet) $(MAKE) -C src/sheet2pcp install
 	$(pkgpcp_import_iostat) $(MAKE) -C src/iostat2pcp install
@@ -208,6 +213,7 @@ binary-arch: checkroot build-stamp
 	dh_perl -p $(libpcp_import_perl)
 	dh_perl -p $(pcp_logsummary_perl)
 	dh_perl -p $(pcp_import_sar)
+	dh_perl -p $(pcp_import_ganglia)
 	dh_perl -p $(pcp_import_mrtg)
 	dh_perl -p $(pcp_import_sheet)
 	dh_perl -p $(pcp_import_iostat)
