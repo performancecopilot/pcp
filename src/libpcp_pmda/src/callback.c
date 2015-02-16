@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014 Red Hat.
  * Copyright (c) 1995-2000 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -450,10 +450,15 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     int			numval;
     pmValueSet		*vset;
     pmDesc		*dp;
+    pmdaMetric          metaBuf;
     pmdaMetric		*metap;
     pmAtomValue		atom;
     int			type;
     e_ext_t		*extp = (e_ext_t *)pmda->e_ext;
+
+    if (extp->dispatch->version.any.ext != pmda)
+	fprintf(stderr, "Botch: pmdaFetch: PMDA domain=%d pmda=%p extp=%p backpointer=%p pmda-via-backpointer %p NOT EQUAL to pmda\n",
+	    pmda->e_domain, pmda, extp, extp->dispatch, extp->dispatch->version.any.ext);
 
     if (extp->dispatch->comm.pmda_interface >= PMDA_INTERFACE_5)
 	__pmdaSetContext(pmda->e_context);
@@ -472,7 +477,12 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     extp->res->timestamp.tv_usec = 0;
     extp->res->numpmid = numpmid;
 
+    /* Look up the pmDesc for the incoming pmids in our pmdaMetrics tables,
+       if present.  Fall back to .desc callback if not found (for highly
+       dynamic pmdas). */
     for (i = 0; i < numpmid; i++) {
+        dp = NULL;
+
 	if (pmda->e_flags & PMDA_EXT_FLAG_HASHED)
 	    metap = __pmdaHashedSearch(pmidlist[i], &extp->hashpmids);
 	else if (pmda->e_direct)
@@ -480,8 +490,22 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	else
 	    metap = __pmdaLinearSearch(pmidlist[i], pmda);
 
-	if (metap) {
+	if (metap != NULL)
 	    dp = &(metap->m_desc);
+        else {
+            /* possibly a highly dynamic metric with null metrictab[] */
+            if (extp->dispatch->version.any.desc != NULL) {
+                /* may need a temporary pmdaMetric for passing to e_fetchCallBack */
+                sts = (*(extp->dispatch->version.any.desc))(pmidlist[i], &metaBuf.m_desc, pmda);
+                if (sts >= 0) {
+                    metaBuf.m_user = NULL;
+                    metap = &metaBuf;
+                    dp = &metaBuf.m_desc;
+                }
+            }
+        }
+
+	if (dp != NULL) {
 	    if (dp->indom != PM_INDOM_NULL) {
 		/* count instances in the profile */
 		numval = 0;
@@ -497,7 +521,6 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    }
 	}
 	else {
-	    dp = NULL;
 	    /* dynamic name metrics may often vanish, avoid log spam */
 	    if (extp->dispatch->comm.pmda_interface < PMDA_INTERFACE_4) {
 		char	strbuf[20];
@@ -641,7 +664,7 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     *resp = extp->res;
     return 0;
 
- error:
+error:
 
     if (i) {
 	extp->res->numpmid = i;
@@ -676,7 +699,7 @@ pmdaDesc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 	return 0;
     }
 
-    __pmNotifyErr(LOG_ERR, "Requested metric %s is not defined",
+    __pmNotifyErr(LOG_ERR, "pmdaDesc: Requested metric %s is not defined",
 			pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
     return PM_ERR_PMID;
 }

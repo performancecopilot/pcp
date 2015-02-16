@@ -312,28 +312,61 @@ lookupTaskCacheIndex(task_t *tp, pmID pmid)
 static int
 lookupTaskCacheNames(pmID pmid, char ***namesptr)
 {
-    int i, numnames = 0, len = 0;
-    char *data, **names = NULL;
-    task_t *tp;
+    int		i;
+    int		j;
+    int		numnames;
+    int		str_len = 0;
+    char	*data;
+    char	**names;
+    task_t	*tp;
+
+    /*
+     * start with names (including duplicate, if any) from the PMNS
+     */
+    numnames = pmNameAll(pmid, &names);
+    if (numnames < 0) {
+	numnames = 0;
+	names = (char **)malloc(0);
+    }
+    for (i = 0; i < numnames; i++) {
+	str_len += strlen(names[i]) + 1;
+    }
 
     for (tp = tasklist; tp != NULL; tp = tp->t_next) {
 	for (i = 0; i < tp->t_numpmid; i++) {
 	    if (tp->t_pmidlist[i] != pmid)
 		continue;
-	    len += strlen(tp->t_namelist[i]) + 1;
-	    numnames++;
-	}
-    }
-
-    names = (char **)malloc(numnames * sizeof(names[0]) + len);
-    data = (char *)names + (numnames * sizeof(names[0]));
-    for (tp = tasklist, len = 0; tp != NULL; tp = tp->t_next) {
-	for (i = 0; i < tp->t_numpmid; i++) {
-	    if (tp->t_pmidlist[i] != pmid)
-		continue;
-	    names[len++] = data;
-	    strcpy(data, tp->t_namelist[i]);
-	    data += (strlen(tp->t_namelist[i]) + 1);
+	    for (j = 0; j < numnames; j++) {
+		if (strcmp(names[j], tp->t_namelist[i]) == 0) {
+		    /* in task list, and already in names[] ... skip */
+		    break;
+		}
+	    }
+	    if (j == numnames) {
+		/*
+		 * need to append this one ... this is rare!
+		 * only known case where this happens is when the
+		 * pmlogger configuration file names a dynamic metric
+		 * that is mapped to an existing PMID which is in
+		 * the PMNS, but the PMID->name service knows nothing
+		 * about the name of the dynamic metric
+		 */
+		int	old_str_len = str_len;
+		str_len += strlen(tp->t_namelist[i]) + 1;
+		numnames++;
+		names = (char **)realloc(names, numnames * sizeof(names[0]) + str_len);
+		data = (char *)names + ((numnames-1) * sizeof(names[0]));
+		/* relocate strings */
+		memmove(data+sizeof(names[0]), data, old_str_len);
+		data += sizeof(names[0]);
+		for (j = 0; j < numnames; j++) {
+		    names[j] = data;
+		    if (j == numnames - 1) {
+			strcpy(data, tp->t_namelist[i]);
+		    }
+		    data += (strlen(names[j]) + 1);
+		}
+	    }
 	}
     }
 
@@ -341,14 +374,32 @@ lookupTaskCacheNames(pmID pmid, char ***namesptr)
     return numnames;
 }
 
+/*
+ * Warning: called in signal handler context ... be careful
+ */
 void
 log_callback(int afid, void *data)
+{
+    task_t		*tp;
+    for (tp = tasklist; tp != NULL; tp = tp->t_next) {
+	if (tp->t_afid == afid) {
+	    tp->t_alarm = 1;
+	    log_alarm = 1;
+	    break;
+	}
+    }
+}
+
+/*
+ * do real work from callback ...
+ */
+void
+do_work(task_t *tp)
 {
     int			i;
     int			j;
     int			k;
     int			sts;
-    task_t		*tp = (task_t *)data;
     fetchctl_t		*fp;
     indomctl_t		*idp;
     pmResult		*resp;
@@ -371,13 +422,23 @@ log_callback(int afid, void *data)
     __pmTimeval		resp_tval;
     unsigned long	peek_offset;
 
+#ifdef PCP_DEBUG
+    if ((pmDebug & DBG_TRACE_APPL2) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	struct timeval	now;
+
+	__pmtimevalNow(&now);
+	__pmPrintStamp(stderr, &now);
+	fprintf(stderr, " do_work(tp=%p): afid=%d parse_done=%d exit_samples=%d\n", tp, tp->t_afid, parse_done, exit_samples);
+    }
+#endif
+
     if (!parse_done)
 	/* ignore callbacks until all of the config file has been parsed */
 	return;
 
     /* find AFctl_t for this afid */
     for (acp = achead; acp != (AFctl_t *)0; acp = acp->ac_next) {
-	if (acp->ac_afid == afid)
+	if (acp->ac_afid == tp->t_afid)
 	    break;
     }
     if (acp == (AFctl_t *)0) {
@@ -386,7 +447,7 @@ log_callback(int afid, void *data)
 	    __pmNoMem("log_callback: new AFctl_t entry calloc",
 		     sizeof(AFctl_t), PM_FATAL_ERR);
 	}
-	acp->ac_afid = afid;
+	acp->ac_afid = tp->t_afid;
 	acp->ac_next = achead;
 	achead = acp;
     }
@@ -529,11 +590,15 @@ log_callback(int afid, void *data)
 		}
 		desc = tp->t_desclist[taskindex];
 		numnames = lookupTaskCacheNames(vsp->pmid, &names);
+		if (numnames < 1) {
+		    fprintf(stderr, "lookupTaskCacheNames(%s, ...): %s\n", pmIDStr(vsp->pmid), pmErrStr(sts));
+		    exit(1);
+		}
 		if ((sts = __pmLogPutDesc(&logctl, &desc, numnames, names)) < 0) {
 		    fprintf(stderr, "__pmLogPutDesc: %s\n", pmErrStr(sts));
 		    exit(1);
 		}
-		if (numnames) {
+		if (numnames > 0) {
 		    free(names);
 		}
 	    }

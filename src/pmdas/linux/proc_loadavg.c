@@ -25,21 +25,24 @@ refresh_proc_loadavg(proc_loadavg_t *proc_loadavg)
 {
     char buf[1024];
     FILE *fp;
+    int sts = 0;
 
     if ((fp = linux_statsfile("/proc/loadavg", buf, sizeof(buf))) == NULL)
 	return -oserror();
 
     if (fgets(buf, sizeof(buf), fp) == NULL)
-	return -oserror();
+	sts = -oserror();
     fclose(fp);
 
-    /*
-     * 0.00 0.00 0.05 1/67 17563
-     * Lastpid added by Mike Mason <mmlnx@us.ibm.com>
-     */
-    sscanf((const char *)buf, "%f %f %f %u/%u %u",
-	   &proc_loadavg->loadavg[0], &proc_loadavg->loadavg[1], 
-	   &proc_loadavg->loadavg[2], &proc_loadavg->runnable,
-	   &proc_loadavg->nprocs, &proc_loadavg->lastpid);
-    return 0;
+    if (sts == 0) {
+	/*
+	 * 0.00 0.00 0.05 1/67 17563
+	 * Lastpid added by Mike Mason <mmlnx@us.ibm.com>
+	 */
+	sscanf((const char *)buf, "%f %f %f %u/%u %u",
+		&proc_loadavg->loadavg[0], &proc_loadavg->loadavg[1], 
+		&proc_loadavg->loadavg[2], &proc_loadavg->runnable,
+		&proc_loadavg->nprocs, &proc_loadavg->lastpid);
+    }
+    return sts;
 }

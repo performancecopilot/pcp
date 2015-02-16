@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 274
-# Throw a broken PMDA at PCP 2.0 libpcp_pmda and dbpmda
+# Throw a broken PMDA at libpcp_pmda and dbpmda
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -12,14 +12,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
-
-rm -f $seq.out
-if [ $PCP_VER -lt 30600 ]
-then
-    ln $seq.out.1 $seq.out
-else
-    ln $seq.out.2 $seq.out
-fi
 
 status=1
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

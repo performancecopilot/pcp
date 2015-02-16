@@ -1,0 +1,40 @@
+#!/bin/sh
+# PCP QA Test No. 860
+# Exercise the fix for oss bugzilla #1101.
+#
+# Copyright (c) 2015 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_get_libpcp_config
+$unix_domain_sockets || _notrun "No unix domain socket support available"
+pminfo proc.memory.maps >/dev/null 2>&1 || _notrun "proc metric unavailable"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+rootpid=1
+connect="unix:"
+#connect=localhost
+
+_filter_pid()
+{
+    sed \
+	-e "/ $rootpid /s//PID /g" \
+	-e "s/ $rootpid not available/ PID not available/g" \
+	-e "s/`hostname`/HOSTNAME/" \
+    # end
+}
+
+# real QA test starts here
+pmval -s 1 -h $connect -i $rootpid proc.memory.maps | _filter_pid
+status=$?
+exit

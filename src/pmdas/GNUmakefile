@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2014 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -17,21 +17,26 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-CPMDAS = pmcd linux darwin freebsd solaris aix windows \
+CPMDAS = root pmcd \
+	linux_proc linux_xfs linux \
+	darwin freebsd netbsd solaris aix windows \
 	sample simple trivial sendmail mailq txmon \
-	cisco trace apache shping mounts weblog \
-	lmsensors process roomtemp summary hotproc \
-	lustrecomm linux_proc mmv etw logger bash \
-	systemd gfs2 netbsd linux_xfs infiniband jbd2 \
-	rpm nvidia papi perfevent cifs
+	apache cisco trace shping mounts weblog \
+	mmv lmsensors process roomtemp summary etw \
+	lustrecomm infiniband logger bash systemd \
+	gfs2 jbd2 cifs rpm nvidia papi perfevent
 
 PLPMDAS = bonding netfilter zimbra postgresql \
 	dbping memcache systemtap mysql vmware kvm \
 	named news pdns samba dtsrun postfix gpsd \
 	rsyslog elasticsearch snmp nginx nfsclient \
-	ds389 ds389log activemq
+	ds389 ds389log activemq lustre gpfs
 
+ifeq "$(ENABLE_PYTHON)" "true"
 PYPMDAS = gluster zswap dmcache unbound stap_json
+else
+PYPMDAS =
+endif
 
 SUBDIRS = $(CPMDAS) $(PLPMDAS) $(PYPMDAS)
 LDIRT = pmcd.conf

@@ -23,27 +23,28 @@ _filter()
     sed \
 	-e '/No value(s) available/d' \
 	-e '/Metric not supported by this version of monitored application/d' \
-	-e '/cgroup.groups: pmLookupName: Unknown metric name/d' \
-	-e '/proc.psinfo.cgroups: No data available/d' \
-	-e '/^sample.needprofile:/d' \
-	-e '/^sample.bad.unknown:/d' \
-	-e '/^sample.bad.nosupport:/d' \
-	-e '/^sampledso.needprofile:/d' \
-	-e '/^sampledso.bad.unknown:/d' \
-	-e '/^sampledso.bad.nosupport:/d' \
-	-e '/^proc.schedstat.*: Unknown or .*/d' \
-	-e '/^proc.schedstat.*: No permission/d' \
-	-e '/^proc.psinfo.*: No permission/d' \
-	-e '/^proc.psinfo.cgroups: Unknown or illegal instance identifier/d' \
-	-e '/^proc.psinfo.labels: Unknown or illegal instance identifier/d' \
-	-e '/^proc.memory.*: No permission/d' \
-	-e '/^proc.id.*: No permission/d' \
-	-e '/^proc.fd.*: No permission/d' \
-	-e '/^proc.io.*: /d' \
-	-e '/^papi.*: No permission/d' \
-	-e '/^logger.perfile.reg.records: No permission/d' \
-	-e '/^logger.perfile.fifo.records: Try again./d' \
-	-e '/^logger.perfile.reg.records: Try again./d'
+	-e '/cgroup\.groups: pmLookupName: Unknown metric name/d' \
+	-e '/proc\.psinfo\.cgroups: No data available/d' \
+	-e '/^sample\.needprofile:/d' \
+	-e '/^sample\.bad\.unknown:/d' \
+	-e '/^sample\.bad\.nosupport:/d' \
+	-e '/^sampledso\.needprofile:/d' \
+	-e '/^sampledso\.bad\.unknown:/d' \
+	-e '/^sampledso\.bad\.nosupport:/d' \
+	-e '/^proc\.schedstat.*: Unknown or .*/d' \
+	-e '/^proc\.schedstat.*: No permission/d' \
+	-e '/^proc\.psinfo.*: No permission/d' \
+	-e '/^proc\.psinfo\.cgroups: Unknown or illegal instance identifier/d' \
+	-e '/^proc\.psinfo\.labels: Unknown or illegal instance identifier/d' \
+	-e '/^proc\.memory.*: No permission/d' \
+	-e '/^proc\.id.*: No permission/d' \
+	-e '/^proc\.fd.*: No permission/d' \
+	-e '/^proc\.io.*: /d' \
+	-e '/^papi\..*: No permission/d' \
+	-e '/^logger\.perfile\.reg\.records: No permission/d' \
+	-e '/^logger\.perfile\.fifo\.records: Try again./d' \
+	-e '/^logger\.perfile\.reg\.records: Try again./d' \
+	-e '/^containers\..*: pmLookupDesc: Unknown or illegal metric identifier/d'
 }
 
 # real QA test starts here

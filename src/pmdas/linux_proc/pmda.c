@@ -4,7 +4,7 @@
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * Portions Copyright (c) 2002 International Business Machines Corp.
  * Portions Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
- * Portions Copyright (c) 2012-2014 Red Hat.
+ * Portions Copyright (c) 2012-2015 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,6 +36,7 @@
 #include "../linux/convert.h"
 #include "clusters.h"
 #include "indom.h"
+#include "hotproc.h"
 
 #include "getinfo.h"
 #include "proc_pid.h"
@@ -45,8 +46,10 @@
 #include "cgroups.h"
 
 /* globals */
-static int			_isDSO = 1;	/* for local contexts */
+static int			_isDSO = 1;	/* =0 I am a daemon */
+static int			rootfd = -1;	/* af_unix pmdaroot */
 static proc_pid_t		proc_pid;
+static proc_pid_t		hotproc_pid;
 static struct utsname		kernel_uname;
 static proc_runq_t		proc_runq;
 static int			all_access;	/* =1 no access checks */
@@ -54,6 +57,10 @@ static int			have_access;	/* =1 recvd uid/gid */
 static size_t			_pm_system_pagesize;
 static unsigned int		threads;	/* control.all.threads */
 static char *			cgroups;	/* control.all.cgroups */
+int				conf_gen;	/* hotproc config version, if zero hotproc not configured yet */
+long				hz;
+
+extern struct timeval   hotproc_update_interval;
 
 char *proc_statspath = "";	/* optional path prefix for all stats files */
 
@@ -696,177 +703,177 @@ static pmdaMetric metrictab[] = {
 /* cgroup.memory.stat.cache */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_CACHE), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* cgroup.memory.stat.rss */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_RSS), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* cgroup.memory.stat.rss_huge */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_RSS_HUGE), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* cgroup.memory.stat.mapped_file */
   { NULL,
      { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_MAPPED_FILE), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* cgroup.memory.stat.writeback */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_WRITEBACK), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* cgroup.memory.stat.swap */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_SWAP), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* cgroup.memory.stat.pgpgin */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_PGPGIN), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* cgroup.memory.stat.pgpgout */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_PGPGOUT), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* cgroup.memory.stat.pgfault */
   { NULL,
     {PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_PGFAULT), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* cgroup.memory.stat.pgmajfault */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_PGMAJFAULT), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* cgroup.memory.stat.inactive_anon */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_INACTIVE_ANON), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* cgroup.memory.stat.active_anon */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_ACTIVE_ANON), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* cgroup.memory.stat.inactive_file */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_INACTIVE_FILE), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* cgroup.memory.stat.active_file */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_ACTIVE_FILE), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* cgroup.memory.stat.unevictable */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_UNEVICTABLE), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* cgroup.memory.stat.total.cache */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_TOTAL_CACHE), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* cgroup.memory.stat.total.rss */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_TOTAL_RSS), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* cgroup.memory.stat.total.rss_huge */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_TOTAL_RSS_HUGE), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* cgroup.memory.stat.total.mapped_file */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_TOTAL_MAPPED_FILE), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* cgroup.memory.stat.total.writeback */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_TOTAL_WRITEBACK), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* cgroup.memory.stat.total.swap */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_TOTAL_SWAP), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* cgroup.memory.stat.total.pgpgin */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_TOTAL_PGPGIN), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* cgroup.memory.stat.total.pgpgout */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_TOTAL_PGPGOUT), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* cgroup.memory.stat.total.pgfault */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_TOTAL_PGFAULT), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* cgroup.memory.stat.total.pgmajfault */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_TOTAL_PGMAJFAULT), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* cgroup.memory.stat.total.inactive_anon */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_TOTAL_INACTIVE_ANON), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* cgroup.memory.stat.total.active_anon */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_TOTAL_ACTIVE_ANON), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* cgroup.memory.stat.total.inactive_file */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_TOTAL_INACTIVE_FILE), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* cgroup.memory.stat.total.active_file */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_TOTAL_ACTIVE_FILE), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* cgroup.memory.stat.total.unevictable */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_TOTAL_UNEVICTABLE), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* cgroup.memory.stat.recent.rotated_anon */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_RECENT_ROTATED_ANON), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* cgroup.memory.stat.recent.rotated_file */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_RECENT_ROTATED_FILE), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* cgroup.memory.stat.recent.scanned_anon */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_RECENT_SCANNED_ANON), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* cgroup.memory.stat.recent.scanned_file */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_RECENT_SCANNED_FILE), PM_TYPE_U64,
-    CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* cgroup.netclass.classid */
   { NULL,
     { PMDA_PMID(CLUSTER_NETCLS_GROUPS, CG_NETCLS_CLASSID), PM_TYPE_U64,
-    CGROUP_NETCLS_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    CGROUP_NETCLS_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /* cgroup.blkio.dev.io_merged.read */
   { NULL,
@@ -1215,6 +1222,69 @@ static pmdaMetric metrictab[] = {
   { NULL,
     { PMDA_PMID(CLUSTER_CONTROL, 3), PM_TYPE_STRING,
     PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+/*
+ * hotproc specific clusters
+ */
+ 
+    /* hotproc.nprocs */
+    { NULL,
+      { PMDA_PMID(CLUSTER_HOTPROC_PID_STAT,99), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,0,0,0,0) } },
+    /* hotproc.control.refresh */
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_REFRESH),
+      PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
+    /* hotproc.control.config */
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_CONFIG),
+      PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
+    /* hotproc.control.config_gen */
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_CONFIG_GEN),
+      PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
+    /* hotproc.total.cpuidle */
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_CPUIDLE),
+      PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
+    /* hotproc.total.cpuburn */
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_CPUBURN),
+      PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
+    /* hotproc.total.cpuother.transient */
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_OTHER_TRANSIENT),
+      PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
+    /* hotproc.total.cpuother.not_cpuburn */
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_OTHER_NOT_CPUBURN),
+      PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
+    /* hotproc.total.cpuother.total */
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_OTHER_TOTAL),
+      PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
+    /* hotproc.total.cpuother.percent */
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_OTHER_PERCENT),
+      PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
+#if 0
+    /* hotproc.predicate.syscalls */
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,ITEM_HOTPROC_P_SYSCALLS),
+      PM_TYPE_FLOAT, HOTPROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,-1,1, 0,PM_TIME_SEC,0)} },
+#endif
+    /* hotproc.predicate.ctxswitch */
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,ITEM_HOTPROC_P_CTXSWITCH),
+      PM_TYPE_FLOAT, HOTPROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,-1,1, 0,PM_TIME_SEC,0)} },
+    /* hotproc.predicate.virtualsize */
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,ITEM_HOTPROC_P_VSIZE),
+      PM_TYPE_U32, HOTPROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0, PM_SPACE_KBYTE,0,0)} },
+    /* hotproc.predicate.residentsize */
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,ITEM_HOTPROC_P_RSIZE),
+      PM_TYPE_U32, HOTPROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0, PM_SPACE_KBYTE,0,0)} },
+    /* hotproc.predicate.iodemand */
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,ITEM_HOTPROC_P_IODEMAND),
+      PM_TYPE_FLOAT, HOTPROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,-1,0, PM_SPACE_KBYTE,PM_TIME_SEC,0)} },
+    /* hotproc.predicate.iowait */
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,ITEM_HOTPROC_P_IOWAIT),
+      PM_TYPE_FLOAT, HOTPROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0, 0,0,0)} },
+    /* hotproc.predicate.schedwait */
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,ITEM_HOTPROC_P_SCHEDWAIT),
+      PM_TYPE_FLOAT, HOTPROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0, 0,0,0)} },
+    /* hotproc.predicate.cpuburn */
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_PRED,ITEM_HOTPROC_P_CPUBURN),
+      PM_TYPE_FLOAT, HOTPROC_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0, 0,0,0)} },
+
 };
 
 pmInDom
@@ -1231,9 +1301,20 @@ proc_statsfile(const char *path, char *buffer, int size)
     return fopen(buffer, "r");
 }
 
-static void
+static int
 proc_refresh(pmdaExt *pmda, int *need_refresh)
 {
+    char cgroup[MAXPATHLEN];
+    const char *container;
+    int sts, namelen = 0, cgrouplen = 0;
+
+    if ((container = proc_ctx_container(pmda->e_context, &namelen)) != NULL) {
+	if ((sts = pmdaRootContainerCGroupName(rootfd, container, namelen,
+				cgroup, sizeof(cgroup))) < 0)
+	    return sts;
+	cgrouplen = sts;
+    }
+
     if (need_refresh[CLUSTER_CGROUP_SUBSYS] ||
 	need_refresh[CLUSTER_CGROUP_MOUNTS] ||
 	need_refresh[CLUSTER_CPUSET_GROUPS] || 
@@ -1241,23 +1322,30 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
 	need_refresh[CLUSTER_CPUSCHED_GROUPS] ||
 	need_refresh[CLUSTER_MEMORY_GROUPS] ||
 	need_refresh[CLUSTER_NETCLS_GROUPS] ||
-	need_refresh[CLUSTER_BLKIO_GROUPS]) {
+	need_refresh[CLUSTER_BLKIO_GROUPS] ||
+	container) {
 
 	refresh_cgroup_subsys();
 	refresh_cgroup_filesys();
 
 	if (need_refresh[CLUSTER_CPUSET_GROUPS])
-	    refresh_cgroups("cpuset", setup_cpuset, refresh_cpuset);
+	    refresh_cgroups("cpuset", cgroup, cgrouplen,
+			    setup_cpuset, refresh_cpuset);
 	if (need_refresh[CLUSTER_CPUACCT_GROUPS])
-	    refresh_cgroups("cpuacct", setup_cpuacct, refresh_cpuacct);
+	    refresh_cgroups("cpuacct", cgroup, cgrouplen,
+			    setup_cpuacct, refresh_cpuacct);
 	if (need_refresh[CLUSTER_CPUSCHED_GROUPS])
-	    refresh_cgroups("cpusched", setup_cpusched, refresh_cpusched);
+	    refresh_cgroups("cpusched", cgroup, cgrouplen,
+			    setup_cpusched, refresh_cpusched);
 	if (need_refresh[CLUSTER_MEMORY_GROUPS])
-	    refresh_cgroups("memory", setup_memory, refresh_memory);
+	    refresh_cgroups("memory", cgroup, cgrouplen,
+			    setup_memory, refresh_memory);
 	if (need_refresh[CLUSTER_NETCLS_GROUPS])
-	    refresh_cgroups("netcls", setup_netcls, refresh_netcls);
+	    refresh_cgroups("netcls", cgroup, cgrouplen,
+			    setup_netcls, refresh_netcls);
 	if (need_refresh[CLUSTER_BLKIO_GROUPS])
-	    refresh_cgroups("blkio", setup_blkio, refresh_blkio);
+	    refresh_cgroups("blkio", cgroup, cgrouplen,
+			    setup_blkio, refresh_blkio);
     }
 
     if (need_refresh[CLUSTER_PID_STAT] ||
@@ -1269,12 +1357,28 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
 	need_refresh[CLUSTER_PID_SCHEDSTAT] ||
 	need_refresh[CLUSTER_PID_FD] ||
 	need_refresh[CLUSTER_PROC_RUNQ]) {
-
 	refresh_proc_pid(&proc_pid,
 		need_refresh[CLUSTER_PROC_RUNQ]? &proc_runq : NULL,
 		proc_ctx_threads(pmda->e_context, threads),
-		proc_ctx_cgroups(pmda->e_context, cgroups));
+		proc_ctx_cgroups(pmda->e_context, cgroups),
+		container ? cgroup : NULL, cgrouplen);
+
     }
+    if (need_refresh[CLUSTER_HOTPROC_PID_STAT] ||
+        need_refresh[CLUSTER_HOTPROC_PID_STATM] ||
+        need_refresh[CLUSTER_HOTPROC_PID_STATUS] ||
+        need_refresh[CLUSTER_HOTPROC_PID_IO] ||
+        need_refresh[CLUSTER_HOTPROC_PID_LABEL] ||
+        need_refresh[CLUSTER_HOTPROC_PID_CGROUP] ||
+        need_refresh[CLUSTER_HOTPROC_PID_SCHEDSTAT] ||
+        need_refresh[CLUSTER_HOTPROC_PID_FD] ||
+        need_refresh[CLUSTER_HOTPROC_GLOBAL] ||
+        need_refresh[CLUSTER_HOTPROC_PRED]){
+        refresh_hotproc_pid(&hotproc_pid,
+                        proc_ctx_threads(pmda->e_context, threads),
+                        proc_ctx_cgroups(pmda->e_context, cgroups));
+    }
+    return 0;
 }
 
 static int
@@ -1296,6 +1400,19 @@ proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
         need_refresh[CLUSTER_PID_IO]++;
         need_refresh[CLUSTER_PID_FD]++;
 	break;
+    case HOTPROC_INDOM:
+        need_refresh[CLUSTER_HOTPROC_PID_STAT]++;
+        need_refresh[CLUSTER_HOTPROC_PID_STATM]++;
+        need_refresh[CLUSTER_HOTPROC_PID_STATUS]++;
+        need_refresh[CLUSTER_HOTPROC_PID_LABEL]++;
+        need_refresh[CLUSTER_HOTPROC_PID_CGROUP]++;
+        need_refresh[CLUSTER_HOTPROC_PID_SCHEDSTAT]++;
+        need_refresh[CLUSTER_HOTPROC_PID_IO]++;
+        need_refresh[CLUSTER_HOTPROC_PID_FD]++;
+        need_refresh[CLUSTER_HOTPROC_GLOBAL]++;
+        need_refresh[CLUSTER_HOTPROC_PRED]++;
+        break;
+
     case CGROUP_CPUSET_INDOM:
 	need_refresh[CLUSTER_CPUSET_GROUPS]++;
 	break;
@@ -1325,9 +1442,10 @@ proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
     /* no default label : pmdaInstance will pick up errors */
     }
 
-    if (indomp->serial == PROC_INDOM && inst == PM_IN_NULL && name != NULL) {
+    if ((indomp->serial == PROC_INDOM || indomp->serial == HOTPROC_INDOM) &&
+	inst == PM_IN_NULL && name != NULL) {
     	/*
-	 * For the proc indom, if the name is a pid (as a string), and it
+	 * For the proc indoms if the name is a pid (as a string), and it
 	 * contains only digits (i.e. it's not a full instance name) then
 	 * reformat it to be exactly six digits, with leading zeros.
 	 *
@@ -1350,9 +1468,10 @@ proc_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaEx
 
     sts = PM_ERR_PERMISSION;
     have_access = all_access || proc_ctx_access(pmda->e_context);
-    if (have_access || indomp->serial != PROC_INDOM) {
-	proc_refresh(pmda, need_refresh);
-	sts = pmdaInstance(indom, inst, name, result, pmda);
+    if (have_access ||
+	((indomp->serial != PROC_INDOM) && (indomp->serial != HOTPROC_INDOM))) {
+	if ((sts = proc_refresh(pmda, need_refresh)) == 0)
+	    sts = pmdaInstance(indom, inst, name, result, pmda);
     }
     have_access = all_access || proc_ctx_revert(pmda->e_context);
 
@@ -1369,15 +1488,18 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
     pmInDom		indom;
     int			sts;
+    int			have_totals;
     unsigned long	ul;
     const char		*cp;
     char		*f;
     proc_pid_entry_t	*entry;
-    static long		hz = -1;
     char 		*tail;
+    char 		*tmpbuf;
+    proc_pid_t		*active_proc_pid;
+    double		ta, ti, tt, tci;
+    process_t		*hotnode;
 
-    if (hz == -1)
-    	hz = sysconf(_SC_CLK_TCK);
+    active_proc_pid = &proc_pid;
 
     if (mdesc->m_user != NULL) {
 	/* 
@@ -1416,100 +1538,179 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     }
     else
     switch (idp->cluster) {
+    case CLUSTER_HOTPROC_GLOBAL:
+	have_totals = get_hot_totals(&ta, &ti, &tt, &tci);
 
+	switch (idp->item) {
+	case ITEM_HOTPROC_G_REFRESH:
+	    atom->ul = hotproc_update_interval.tv_sec;
+	    break;
+	case ITEM_HOTPROC_G_CONFIG:
+	    tmpbuf = get_conf_buffer();
+	    atom->cp = tmpbuf ? tmpbuf : "";
+	    break;
+	case ITEM_HOTPROC_G_CONFIG_GEN:
+	    atom->ul = conf_gen;
+	    break;
+	case ITEM_HOTPROC_G_CPUIDLE:
+	    atom->f = have_totals ? tci : 0;
+	    break;
+	case ITEM_HOTPROC_G_CPUBURN:
+	    atom->f = have_totals ? ta : 0;
+	    break;
+	case ITEM_HOTPROC_G_OTHER_TRANSIENT:
+	    atom->f = have_totals ? tt : 0;
+	    break;
+	case ITEM_HOTPROC_G_OTHER_NOT_CPUBURN:
+	    atom->f = have_totals ? ti : 0;
+	    break;
+	case ITEM_HOTPROC_G_OTHER_TOTAL:
+	    atom->f = have_totals ? ti + tt : 0;
+	    break;
+	case ITEM_HOTPROC_G_OTHER_PERCENT: {
+	    double other = tt + ti;
+	    double non_idle = other + ta;
+
+	    /* if non_idle = 0, very unlikely,
+	     * then the value here is meaningless
+	     *
+	     * Also if all the numbers are very small
+	     * this is not accurate. Might want to dump this original metric
+	     */
+	    if (!have_totals || non_idle == 0)
+		atom->f = 0;
+	    else
+		atom->f = other / non_idle * 100;
+	    break;
+	}
+
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
+    case CLUSTER_HOTPROC_PRED:
+	sts = get_hotproc_node(inst, &hotnode);
+	if (sts == 0)
+	    return PM_ERR_INST;
+
+	switch (idp->item) {
+	    case ITEM_HOTPROC_P_SYSCALLS:
+		return PM_ERR_PMID;
+		break;
+	    case ITEM_HOTPROC_P_CTXSWITCH:
+		atom->f = hotnode->preds.ctxswitch;
+		break;
+	    case ITEM_HOTPROC_P_VSIZE:
+		atom->ul = hotnode->preds.virtualsize;
+		break;
+	    case ITEM_HOTPROC_P_RSIZE:
+		atom->ul = hotnode->preds.residentsize;
+		break;
+	    case ITEM_HOTPROC_P_IODEMAND:
+		atom->f = hotnode->preds.iodemand;
+		break;
+	    case ITEM_HOTPROC_P_IOWAIT:
+		atom->f = hotnode->preds.iowait;
+		break;
+	    case ITEM_HOTPROC_P_SCHEDWAIT:
+		atom->f = hotnode->preds.schedwait;
+		break;
+	    case ITEM_HOTPROC_P_CPUBURN: /* not in orig hotproc */
+		atom->f = hotnode->r_cpuburn;
+		break;
+	    default:
+		return PM_ERR_PMID;
+	}
+	break;
+
+    case CLUSTER_HOTPROC_PID_STAT:
+	active_proc_pid = &hotproc_pid;
+	/*FALLTHROUGH*/
     case CLUSTER_PID_STAT:
 	if (idp->item == 99) /* proc.nprocs */
-	    atom->ul = proc_pid.indom->it_numinst;
+	    atom->ul = active_proc_pid->indom->it_numinst;
 	else {
 	    static char ttyname[MAXPATHLEN];
 
 	    if (!have_access)
 		return PM_ERR_PERMISSION;
-	    if ((entry = fetch_proc_pid_stat(inst, &proc_pid, &sts)) == NULL)
-	    	return sts;
+	    entry = fetch_proc_pid_stat(inst, active_proc_pid, &sts);
+	    if (entry == NULL)
+		return sts;
 
 	    switch (idp->item) {
+		case PROC_PID_STAT_PID:
+		    atom->ul = entry->id;
+		    break;
 
+		case PROC_PID_STAT_TTYNAME:
+		    f = _pm_getfield(entry->stat_buf, PROC_PID_STAT_TTY);
+		    if (f == NULL)
+			atom->cp = "?";
+		    else {
+			dev_t dev = (dev_t)atoi(f);
+			atom->cp = get_ttyname_info(inst, dev, ttyname);
+		    }
+		    break;
 
-	    case PROC_PID_STAT_PID:
-	    	atom->ul = entry->id;
-		break;
+		case PROC_PID_STAT_CMD:
+		    f = _pm_getfield(entry->stat_buf, idp->item);
+		    if (f == NULL)
+			return 0;
+		    atom->cp = f + 1;
+		    atom->cp[strlen(atom->cp)-1] = '\0';
+		    break;
 
-	    case PROC_PID_STAT_TTYNAME:
-		if ((f = _pm_getfield(entry->stat_buf, PROC_PID_STAT_TTY)) == NULL)
-		    atom->cp = "?";
-		else {
-		    dev_t dev = (dev_t)atoi(f);
-		    atom->cp = get_ttyname_info(inst, dev, ttyname);
-		}
-		break;
+		case PROC_PID_STAT_PSARGS:
+		    atom->cp = entry->name + 7;
+		    break;
 
-	    case PROC_PID_STAT_CMD:
-		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
-		    return 0;
-		atom->cp = f + 1;
-		atom->cp[strlen(atom->cp)-1] = '\0';
-		break;
+		case PROC_PID_STAT_STATE: /* string */
+		    f = _pm_getfield(entry->stat_buf, idp->item);
+		    if (f == NULL)
+			return 0;
+	    	    atom->cp = f;
+		    break;
 
-	    case PROC_PID_STAT_PSARGS:
-		atom->cp = entry->name + 7;
-		break;
+		case PROC_PID_STAT_VSIZE:
+		case PROC_PID_STAT_RSS_RLIM: /* bytes converted to kbytes */
+		    f = _pm_getfield(entry->stat_buf, idp->item);
+		    if (f == NULL)
+			return 0;
+		    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+		    atom->ul /= 1024;
+		    break;
 
-	    case PROC_PID_STAT_STATE:
-		/*
-		 * string
-		 */
-		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
-		    return 0;
-	    	atom->cp = f;
-		break;
+		case PROC_PID_STAT_RSS: /* pages converted to kbytes */
+			f = _pm_getfield(entry->stat_buf, idp->item);
+			if (f == NULL)
+			    return 0;
+			atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+			atom->ul *= _pm_system_pagesize / 1024;
+			break;
 
-	    case PROC_PID_STAT_VSIZE:
-	    case PROC_PID_STAT_RSS_RLIM:
-		/*
-		 * bytes converted to kbytes
-		 */
-		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
-		    return 0;
-		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
-		atom->ul /= 1024;
-		break;
+		    case PROC_PID_STAT_UTIME:
+		    case PROC_PID_STAT_STIME:
+		    case PROC_PID_STAT_CUTIME:
+		    case PROC_PID_STAT_CSTIME:
+			/* unsigned jiffies converted to unsigned msecs */
+			f = _pm_getfield(entry->stat_buf, idp->item);
+			if (f == NULL)
+			    return 0;
+			ul = (__uint32_t)strtoul(f, &tail, 0);
+			_pm_assign_ulong(atom, 1000 * (double)ul / hz);
+			break;
 
-	    case PROC_PID_STAT_RSS:
-		/*
-		 * pages converted to kbytes
-		 */
-		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
-		    return 0;
-		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
-		atom->ul *= _pm_system_pagesize / 1024;
-		break;
+		    case PROC_PID_STAT_PRIORITY:
+		    case PROC_PID_STAT_NICE: /* signed decimal int */
+			f = _pm_getfield(entry->stat_buf, idp->item);
+			if (f == NULL)
+			    return 0;
+			atom->l = (__int32_t)strtol(f, &tail, 0);
+			break;
 
-	    case PROC_PID_STAT_UTIME:
-	    case PROC_PID_STAT_STIME:
-	    case PROC_PID_STAT_CUTIME:
-	    case PROC_PID_STAT_CSTIME:
-		/*
-		 * unsigned jiffies converted to unsigned milliseconds
-		 */
-		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
-		    return 0;
-
-		ul = (__uint32_t)strtoul(f, &tail, 0);
-		_pm_assign_ulong(atom, 1000 * (double)ul / hz);
-		break;
-
-	    case PROC_PID_STAT_PRIORITY:
-	    case PROC_PID_STAT_NICE:
-		/*
-		 * signed decimal int
-		 */
-		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
-		    return 0;
-		atom->l = (__int32_t)strtol(f, &tail, 0);
-		break;
-
-	    case PROC_PID_STAT_WCHAN:
+		    case PROC_PID_STAT_WCHAN:
 		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
 			return 0;
 #if defined(HAVE_64BIT_PTR)
@@ -1584,15 +1785,18 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 	break;
 
+    case CLUSTER_HOTPROC_PID_STATM:
+	active_proc_pid = &hotproc_pid;
+	/*FALLTHROUGH*/
     case CLUSTER_PID_STATM:
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
 	if (idp->item == PROC_PID_STATM_MAPS) {	/* proc.memory.maps */
-	    if ((entry = fetch_proc_pid_maps(inst, &proc_pid, &sts)) == NULL)
+	    if ((entry = fetch_proc_pid_maps(inst, active_proc_pid, &sts)) == NULL)
 		return sts;
 	    atom->cp = (entry->maps_buf ? entry->maps_buf : "");
 	} else {
-	    if ((entry = fetch_proc_pid_statm(inst, &proc_pid, &sts)) == NULL)
+	    if ((entry = fetch_proc_pid_statm(inst, active_proc_pid, &sts)) == NULL)
 		return sts;
 
 	    if (idp->item <= PROC_PID_STATM_DIRTY) {
@@ -1607,10 +1811,13 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
     	break;
 
+    case CLUSTER_HOTPROC_PID_SCHEDSTAT:
+	active_proc_pid = &hotproc_pid;
+	/*FALLTHROUGH*/
     case CLUSTER_PID_SCHEDSTAT:
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
-	if ((entry = fetch_proc_pid_schedstat(inst, &proc_pid, &sts)) == NULL)
+	if ((entry = fetch_proc_pid_schedstat(inst, active_proc_pid, &sts)) == NULL)
 	    return sts;
 
 	if (idp->item < NR_PROC_PID_SCHED) {
@@ -1630,10 +1837,13 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_PMID;
     	break;
 
+    case CLUSTER_HOTPROC_PID_IO:
+	active_proc_pid = &hotproc_pid;
+	/*FALLTHROUGH*/
     case CLUSTER_PID_IO:
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
-	if ((entry = fetch_proc_pid_io(inst, &proc_pid, &sts)) == NULL)
+	if ((entry = fetch_proc_pid_io(inst, active_proc_pid, &sts)) == NULL)
 	    return sts;
 
 	switch (idp->item) {
@@ -1689,10 +1899,13 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	/*
 	 * Cluster added by Mike Mason <mmlnx@us.ibm.com>
 	 */
+    case CLUSTER_HOTPROC_PID_STATUS:
+	active_proc_pid = &hotproc_pid;
+	/*FALLTHROUGH*/
     case CLUSTER_PID_STATUS:
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
-	if ((entry = fetch_proc_pid_status(inst, &proc_pid, &sts)) == NULL)
+	if ((entry = fetch_proc_pid_status(inst, active_proc_pid, &sts)) == NULL)
 		return sts;
 
 	switch (idp->item) {
@@ -2321,32 +2534,41 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
     }
 
+    case CLUSTER_HOTPROC_PID_FD:
+	active_proc_pid = &hotproc_pid;
+	/*FALLTHROUGH*/
     case CLUSTER_PID_FD:
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
 	if (idp->item > PROC_PID_FD_COUNT)
 	    return PM_ERR_PMID;
-	if ((entry = fetch_proc_pid_fd(inst, &proc_pid, &sts)) == NULL)
+	if ((entry = fetch_proc_pid_fd(inst, active_proc_pid, &sts)) == NULL)
 	    return sts;
 	atom->ul = entry->fd_count;
 	break;
 
+    case CLUSTER_HOTPROC_PID_CGROUP:
+	active_proc_pid = &hotproc_pid;
+	/*FALLTHROUGH*/
     case CLUSTER_PID_CGROUP:
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
 	if (idp->item > PROC_PID_CGROUP)
 	    return PM_ERR_PMID;
-	if ((entry = fetch_proc_pid_cgroup(inst, &proc_pid, &sts)) == NULL)
+	if ((entry = fetch_proc_pid_cgroup(inst, active_proc_pid, &sts)) == NULL)
 	    return sts;
 	atom->cp = proc_strings_lookup(entry->cgroup_id);
 	break;
 
+    case CLUSTER_HOTPROC_PID_LABEL:
+	active_proc_pid = &hotproc_pid;
+	/*FALLTHROUGH*/
     case CLUSTER_PID_LABEL:
 	if (!have_access)
 	    return PM_ERR_PERMISSION;
 	if (idp->item > PROC_PID_LABEL)
 	    return PM_ERR_PMID;
-	if ((entry = fetch_proc_pid_label(inst, &proc_pid, &sts)) == NULL)
+	if ((entry = fetch_proc_pid_label(inst, active_proc_pid, &sts)) == NULL)
 	    return sts;
 	atom->cp = proc_strings_lookup(entry->label_id);
 	break;
@@ -2388,8 +2610,8 @@ proc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     }
 
     have_access = all_access || proc_ctx_access(pmda->e_context);
-    proc_refresh(pmda, need_refresh);
-    sts = pmdaFetch(numpmid, pmidlist, resp, pmda);
+    if ((sts = proc_refresh(pmda, need_refresh)) == 0)
+	sts = pmdaFetch(numpmid, pmidlist, resp, pmda);
     have_access = all_access || proc_ctx_revert(pmda->e_context);
     return sts;
 }
@@ -2398,45 +2620,100 @@ static int
 proc_store(pmResult *result, pmdaExt *pmda)
 {
     int i, sts = 0;
+    int isroot;
 
     have_access = all_access || proc_ctx_access(pmda->e_context);
+    isroot = (proc_ctx_getuid(pmda->e_context) == 0);
 
     for (i = 0; i < result->numpmid; i++) {
 	pmValueSet *vsp = result->vset[i];
 	__pmID_int *idp = (__pmID_int *)&(vsp->pmid);
 	pmAtomValue av;
 
-	if (idp->cluster != CLUSTER_CONTROL)
-	    sts = PM_ERR_PERMISSION;
-	else if (vsp->numval != 1)
-	    sts = PM_ERR_INST;
-	else switch (idp->item) {
-	case 1: /* proc.control.all.threads */
-	    if (!have_access)
+	switch (idp->cluster) {
+	case CLUSTER_CONTROL:
+	    if (vsp->numval != 1)
+		sts = PM_ERR_INST;
+	    else switch (idp->item) {
+	    case 1: /* proc.control.all.threads */
+		if (!have_access)
+		    sts = PM_ERR_PERMISSION;
+		else if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+				PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
+		    if (av.ul > 1)	/* only zero or one allowed */
+			sts = PM_ERR_CONV;
+		    else
+			threads = av.ul;
+		}
+		break;
+	    case 2: /* proc.control.perclient.threads */
+		if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+				PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
+		    sts = proc_ctx_set_threads(pmda->e_context, av.ul);
+		}
+		break;
+	    case 3:	/* proc.control.perclient.cgroups */
+		if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+				PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0) {
+		    if ((sts = proc_ctx_set_cgroups(pmda->e_context, av.cp)) < 0)
+			free(av.cp);
+		}
+		break;
+	    default:
 		sts = PM_ERR_PERMISSION;
-	    else if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
-				 PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
-	        if (av.ul > 1)	/* only zero or one allowed */
-		    sts = PM_ERR_CONV;
-		else
-		    threads = av.ul;
+		break;
 	    }
 	    break;
-	case 2: /* proc.control.perclient.threads */
-	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
-				 PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
-		sts = proc_ctx_set_threads(pmda->e_context, av.ul);
-	    }
-	    break;
-	case 3:	/* proc.control.perclient.cgroups */
-	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
-				 PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0) {
-		if ((sts = proc_ctx_set_cgroups(pmda->e_context, av.cp)) < 0)
+
+	case CLUSTER_HOTPROC_GLOBAL:
+	    if (!isroot)
+		sts = PM_ERR_PERMISSION;
+	    else switch (idp->item) {
+	    case ITEM_HOTPROC_G_REFRESH:
+		if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+				PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
+		    hotproc_update_interval.tv_sec = av.ul;
+		    reset_hotproc_timer();
+		}
+		break;
+	    case ITEM_HOTPROC_G_CONFIG: {
+		bool_node *tree = NULL;
+		char *savebuffer;
+
+		if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+				PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0) {
+		    savebuffer = get_conf_buffer() ? strdup(get_conf_buffer()) : NULL;
+		    set_conf_buffer(av.cp);
+		    if (parse_config(&tree) != 0) {
+			if (savebuffer)
+			    set_conf_buffer(savebuffer);
+		    }
+		    else {
+			conf_gen++;
+			new_tree(tree);
+			if (conf_gen == 1) {
+			    /* There was no config to start with.
+			     * This is the first one, so enable the timer.
+			     */
+			    reset_hotproc_timer();
+			}
+		    }
+		    if (savebuffer)
+			free(savebuffer);
 		    free(av.cp);
+		}
+		break;
+	    }
+
+	    default:
+		sts = PM_ERR_PERMISSION;
+		break;
 	    }
 	    break;
+
 	default:
 	    sts = PM_ERR_PERMISSION;
+	    break;
 	}
 	if (sts < 0)
 	    break;
@@ -2530,6 +2807,7 @@ proc_init(pmdaInterface *dp)
     int		nmetrics = sizeof(metrictab)/sizeof(metrictab[0]);
     char	*envpath;
 
+    hz = sysconf(_SC_CLK_TCK);
     _pm_system_pagesize = getpagesize();
     if ((envpath = getenv("PROC_STATSPATH")) != NULL)
 	proc_statspath = envpath;
@@ -2576,6 +2854,12 @@ proc_init(pmdaInterface *dp)
     indomtab[CGROUP_MOUNTS_INDOM].it_indom = CGROUP_MOUNTS_INDOM;
 
     proc_pid.indom = &indomtab[PROC_INDOM];
+
+    indomtab[HOTPROC_INDOM].it_indom = HOTPROC_INDOM;
+    hotproc_pid.indom = &indomtab[HOTPROC_INDOM];
+
+    hotproc_init();
+    init_hotproc_pid(&hotproc_pid);
  
     /* 
      * Read System.map and /proc/ksyms. Used to translate wait channel
@@ -2587,6 +2871,7 @@ proc_init(pmdaInterface *dp)
     proc_ctx_init();
     proc_dynamic_init(metrictab, nmetrics);
 
+    rootfd = pmdaRootConnect(NULL);
     pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
     pmdaInit(dp, indomtab, nindoms, metrictab, nmetrics);
 

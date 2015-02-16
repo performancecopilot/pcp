@@ -150,7 +150,7 @@ _rpm_package_install()
 
 _rpm_package_install_await()
 {
-    countdown=150	# 15 seconds
+    countdown=300	# 30 seconds
 
     _rpm_prepare_check
     while [ $countdown -gt 0 ]

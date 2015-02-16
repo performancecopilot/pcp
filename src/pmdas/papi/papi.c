@@ -1,7 +1,7 @@
 /*
  * PAPI PMDA
  *
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014-2015 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -10,7 +10,7 @@
  * 
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU General Public License
  * for more details.
  */
 
@@ -33,6 +33,21 @@ enum {
     CLUSTER_AVAILABLE,	// available hardware
 };
 
+enum {
+    CONTROL_ENABLE = 0,	 // papi.control.enable
+    CONTROL_RESET,	 // papi.control.reset
+    CONTROL_DISABLE,	 // papi.control.disable
+    CONTROL_STATUS,	 // papi.control.status
+    CONTROL_AUTO_ENABLE, // papi.control.auto_enable
+    CONTROL_MULTIPLEX,	 // papi.control.multiplex
+    CONTROL_BATCH,	 // papi.control.batch
+};
+
+enum {
+    AVAILABLE_NUM_COUNTERS = 0, // papi.available.num_counters
+    AVAILABLE_VERSION,		// papi.available.version
+};
+
 typedef struct {
     char papi_string_code[PAPI_HUGE_STR_LEN]; //same length as the papi 'symbol' or name of the event
     pmID pmid;
@@ -45,6 +60,8 @@ typedef struct {
 #define METRIC_ENABLED_FOREVER ((time_t)-1)
 static __uint32_t auto_enable_time = 120; /* seconds; 0:disabled */
 static int auto_enable_afid = -1; /* pmaf(3) identifier for periodic callback */
+static int enable_multiplexing = 1; /* on by default */
+static __uint32_t refresh_batch = 10; /* max. number of pmids to refresh individually */
 
 static papi_m_user_tuple *papi_info;
 static unsigned int number_of_events; /* cardinality of papi_info[] */
@@ -67,10 +84,6 @@ static int refresh_metrics(int);
 static void auto_enable_expiry_cb(int, void *);
 
 static char helppath[MAXPATHLEN];
-static pmdaMetric *metrictab;
-static int nummetrics;
-
-static int enable_multiplexing;
 
 static int
 permission_check(int context)
@@ -94,7 +107,7 @@ expand_papi_info(int size)
 }
 
 static void
-expand_values(int size)  // XXX: collapse into expand_papi_info()
+expand_values(int size)	 // XXX: collapse into expand_papi_info()
 {
     if (size_of_active_counters <= size) {
 	size_t new_size = (size + 1) * sizeof(long_long);
@@ -116,30 +129,16 @@ enlarge_ctxtab(int context)
 {
     /* Grow the context table if necessary. */
     if (ctxtab_size /* cardinal */ <= context /* ordinal */) {
-        size_t need = (context + 1) * sizeof(struct uid_tuple);
-        ctxtab = realloc(ctxtab, need);
-        if (ctxtab == NULL)
-            __pmNoMem("papi ctx table", need, PM_FATAL_ERR);
-        /* Blank out new entries. */
-        while (ctxtab_size <= context)
-            memset(&ctxtab[ctxtab_size++], 0, sizeof(struct uid_tuple));
+	size_t need = (context + 1) * sizeof(struct uid_tuple);
+	ctxtab = realloc(ctxtab, need);
+	if (ctxtab == NULL)
+	    __pmNoMem("papi ctx table", need, PM_FATAL_ERR);
+	/* Blank out new entries. */
+	while (ctxtab_size <= context)
+	    memset(&ctxtab[ctxtab_size++], 0, sizeof(struct uid_tuple));
     }
 }
 
-static void
-expand_metric_tab(int size)
-{
-    size_t need = sizeof(pmdaMetric)*(nummetrics+1);
-    metrictab = realloc(metrictab, need);
-    if (metrictab == NULL)
-	__pmNoMem("metrictab expansion", need, PM_FATAL_ERR);
-
-    metrictab[nummetrics-1].m_desc.pmid = papi_info[size].pmid;
-    metrictab[nummetrics-1].m_desc.type = PM_TYPE_64;
-    metrictab[nummetrics-1].m_desc.indom = PM_INDOM_NULL;
-    metrictab[nummetrics-1].m_desc.sem = PM_SEM_COUNTER;
-    metrictab[nummetrics-1].m_desc.units = (pmUnits) PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE);
-}
 
 static int
 check_papi_state()
@@ -177,14 +176,6 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     time_t now;
 
     now = time(NULL);
-    sts = check_papi_state();
-    if (sts & PAPI_RUNNING) {
-	sts = PAPI_read(EventSet, values);
-	if (sts != PAPI_OK) {
-	    __pmNotifyErr(LOG_ERR, "PAPI_read: %s\n", PAPI_strerror(sts));
-	    return PM_ERR_VALUE;
-	}
-    }
 
     switch (idp->cluster) {
     case CLUSTER_PAPI:
@@ -192,45 +183,43 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    // the 'case' && 'idp->item' value we get is the pmns_position
 	    if (papi_info[idp->item].position >= 0) {
 		atom->ll = papi_info[idp->item].prev_value + values[papi_info[idp->item].position];
-                // if previously auto-enabled, extend the timeout
-                if (papi_info[idp->item].metric_enabled != METRIC_ENABLED_FOREVER &&
-                    auto_enable_time)
-                    papi_info[idp->item].metric_enabled = now + auto_enable_time;
+		// if previously auto-enabled, extend the timeout
+		if (papi_info[idp->item].metric_enabled != METRIC_ENABLED_FOREVER &&
+		    auto_enable_time)
+		    papi_info[idp->item].metric_enabled = now + auto_enable_time;
 		return PMDA_FETCH_STATIC;
 	    }
 	    else {
-                if (auto_enable_time) {
-                    // auto-enable this metric for a while
-                    papi_info[idp->item].metric_enabled = now + auto_enable_time;
-                    sts = refresh_metrics(0);
-                    if (sts < 0)
-                        return sts;
-                }
+		if (auto_enable_time) {
+		    // auto-enable this metric for a while
+		    papi_info[idp->item].metric_enabled = now + auto_enable_time;
+		    sts = refresh_metrics(0);
+		    if (sts < 0)
+			return sts;
+		}
 		return PMDA_FETCH_NOVALUES;
-            }
+	    }
 	}
 
 	return PM_ERR_PMID;
 
     case CLUSTER_CONTROL:
 	switch (idp->item) {
-	case 0:
-	    atom->cp = ""; /* papi.control.enable */
-	    return PMDA_FETCH_STATIC;
-
-	case 1:
-	    /* papi.control.reset */
+	case CONTROL_ENABLE:
 	    atom->cp = "";
 	    return PMDA_FETCH_STATIC;
 
-	case 2:
-	    /* papi.control.disable */
+	case CONTROL_RESET:
+	    atom->cp = "";
+	    return PMDA_FETCH_STATIC;
+
+	case CONTROL_DISABLE:
 	    atom->cp = "";
 	    if ((sts = check_papi_state()) & PAPI_RUNNING)
 		return PMDA_FETCH_STATIC;
 	    return 0;
 
-	case 3:
+	case CONTROL_STATUS:
 	    sts = PAPI_state(EventSet, &state);
 	    if (sts != PAPI_OK)
 		return PM_ERR_VALUE;
@@ -250,36 +239,38 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (state & PAPI_MULTIPLEXING)
 		strcat(status_string,"has multiplexing enabled, ");
 	    if (state & PAPI_ATTACHED)
-	        strcat(status_string, "is attached to another process/thread, ");
+		strcat(status_string, "is attached to another process/thread, ");
 	    if (state & PAPI_CPU_ATTACHED)
 		strcat(status_string, "is attached to a specific CPU, ");
 
-            first_metric = 1;
+	    first_metric = 1;
 	    for(i = 0; i < number_of_events; i++){
 		if(papi_info[i].position < 0)
-                    continue;
-                sprintf(local_string, "%s%s(%d): %lld",
-                        (first_metric ? "" : ", "),
-                        papi_info[i].papi_string_code,
-                        (papi_info[i].metric_enabled == METRIC_ENABLED_FOREVER ? -1 :
-                         (int)(papi_info[i].metric_enabled - now)), // number of seconds left
-                        (papi_info[i].prev_value + values[papi_info[i].position]));
-                first_metric = 0;
-                if ((strlen(status_string) + strlen(local_string) + 1) < sizeof(status_string))
-                    strcat(status_string, local_string);
+		    continue;
+		sprintf(local_string, "%s%s(%d): %lld",
+			(first_metric ? "" : ", "),
+			papi_info[i].papi_string_code,
+			(papi_info[i].metric_enabled == METRIC_ENABLED_FOREVER ? -1 :
+			 (int)(papi_info[i].metric_enabled - now)), // number of seconds left
+			(papi_info[i].prev_value + values[papi_info[i].position]));
+		first_metric = 0;
+		if ((strlen(status_string) + strlen(local_string) + 1) < sizeof(status_string))
+		    strcat(status_string, local_string);
 	    }
 	    atom->cp = status_string;
 	    return PMDA_FETCH_STATIC;
 
-	case 4:
-	    /* papi.control.auto_enable */
+	case CONTROL_AUTO_ENABLE:
 	    atom->ul = auto_enable_time;
-            return PMDA_FETCH_STATIC;
+	    return PMDA_FETCH_STATIC;
 
-	case 5:
-	    /* papi.control.multiplex */
+	case CONTROL_MULTIPLEX:
 	    atom->ul = enable_multiplexing;
-            return PMDA_FETCH_STATIC;
+	    return PMDA_FETCH_STATIC;
+
+	case CONTROL_BATCH:
+	    atom->ul = refresh_batch;
+	    return PMDA_FETCH_STATIC;
 
 	default:
 	    return PM_ERR_PMID;
@@ -287,12 +278,12 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_AVAILABLE:
-	if (idp->item == 0) {
-	    atom->ul = number_of_counters; /* papi.available.num_counters */
+	if (idp->item == AVAILABLE_NUM_COUNTERS) {
+	    atom->ul = number_of_counters;
 	    return PMDA_FETCH_STATIC;
 	}
-	if (idp->item == 1) {
-	    atom->cp = papi_version; /* papi.available.version */
+	if (idp->item == AVAILABLE_VERSION) {
+	    atom->cp = papi_version;
 	    return PMDA_FETCH_STATIC;
 	}
 	return PM_ERR_PMID;
@@ -304,12 +295,57 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     return PMDA_FETCH_NOVALUES;
 }
 
+
+/* Flags to communicate with refresh_metrics() for batching control. */
+static int temp_suppress_refresh = 0;
+static int temp_suppress_refresh_count = 0;
+
+
 static int
 papi_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
     int i, sts = 0;
+
     __pmAFblock();
     auto_enable_expiry_cb(0, NULL); // run auto-expiry
+
+    /* Update our copy of the papi counter values, so that we do so
+       only once per pcp-fetch batch.  Though it's relatively cheap,
+       and harmless even if the incoming pcp-fetch is for non-counter
+       pcp metrics, we do this only for CLUSTER_PAPI pmids. */
+    for (i=0; i<numpmid; i++) {
+        __pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
+        if (idp->cluster == CLUSTER_PAPI) {
+            sts = check_papi_state();
+            if (sts & PAPI_RUNNING) {
+                sts = PAPI_read(EventSet, values);
+                if (sts != PAPI_OK) {
+                    __pmNotifyErr(LOG_ERR, "PAPI_read: %s\n", PAPI_strerror(sts));
+                    return PM_ERR_VALUE;
+                }
+            }
+            break; /* No need to look at other pmids. */
+        }
+    }
+    sts = 0; /* clear out any PAPI remnant flags */
+
+    /* If we get a lot of pmids in the papi auto-enable region, we can
+       suffer from arithmetic increases in runtime per fetch
+       (auto-enable invocation), due to complete PAPI refreshes for
+       each metric.  While this e.g. gives us precise errors (for the
+       failing pmids), the runtime can be too high.  So, depending on
+       whether numpmid is large or small, we'll either refresh per
+       pmid, or once at the end of a batch.  In the latter case, we
+       won't be able to communicate to the client which counter might
+       fail (if any).
+
+       What's too many?	 Let users parametrize; the default should be
+       below where noticeable papi delays have been reported. */
+    if (numpmid > refresh_batch) {
+	temp_suppress_refresh_count = 0;
+	temp_suppress_refresh = 1;
+    }
+
     for (i = 0; i < numpmid; i++) {
 	__pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
 	if (idp->cluster != CLUSTER_AVAILABLE)
@@ -318,7 +354,17 @@ papi_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     if (sts == 0 || permission_check(pmda->e_context))
 	sts = pmdaFetch(numpmid, pmidlist, resp, pmda);
     else
-        sts = PM_ERR_PERMISSION;
+	sts = PM_ERR_PERMISSION;
+
+    temp_suppress_refresh = 0;
+    if (temp_suppress_refresh_count) {
+	/* catch up on deferred refresh, regardless of sts so far */
+	int sts2 = refresh_metrics(1);
+	 /* copy new error over if appropriate */
+	if (sts == 0)
+	    sts = sts2;
+    }
+
     __pmAFunblock();
     return sts;
 }
@@ -342,6 +388,7 @@ handle_papi_error(int error, int logged)
  * papi.log file, or if there is a calling process we can send 'em to
  * (in which case, they are not logged).
  */
+
 static int
 refresh_metrics(int log)
 {
@@ -351,38 +398,43 @@ refresh_metrics(int log)
     int number_of_active_counters = 0;
     time_t now;
 
+    if (temp_suppress_refresh) { /* batching in effect */
+	temp_suppress_refresh_count ++;
+	return 0;
+    }
+
     now = time(NULL);
 
     /* Shut down, save previous state. */
     state = check_papi_state();
     if (state & PAPI_RUNNING) {
 	sts = PAPI_stop(EventSet, values);
-        if (sts != PAPI_OK) {
-            /* futile to continue */
-            handle_papi_error(sts, log);
-            return PM_ERR_VALUE;
-        }
+	if (sts != PAPI_OK) {
+	    /* futile to continue */
+	    handle_papi_error(sts, log);
+	    return PM_ERR_VALUE;
+	}
 
-        /* Save previous values */ 
-        for (i = 0; i < number_of_events; i++){
-            if(papi_info[i].position >= 0) {
-                papi_info[i].prev_value += values[papi_info[i].position];
-                papi_info[i].position = -1;
-            }
-        }
+	/* Save previous values */ 
+	for (i = 0; i < number_of_events; i++){
+	    if(papi_info[i].position >= 0) {
+		papi_info[i].prev_value += values[papi_info[i].position];
+		papi_info[i].position = -1;
+	    }
+	}
 
-        /* Clean up eventset */
-        sts = PAPI_cleanup_eventset(EventSet);
-        if (sts != PAPI_OK) {
-            handle_papi_error(sts, log);
-            /* FALLTHROUGH */
-        }
-        
-        sts = PAPI_destroy_eventset(&EventSet); /* sets EventSet=NULL */
-        if (sts != PAPI_OK) {
-            handle_papi_error(sts, log);
-            /* FALLTHROUGH */
-        }
+	/* Clean up eventset */
+	sts = PAPI_cleanup_eventset(EventSet);
+	if (sts != PAPI_OK) {
+	    handle_papi_error(sts, log);
+	    /* FALLTHROUGH */
+	}
+	
+	sts = PAPI_destroy_eventset(&EventSet); /* sets EventSet=NULL */
+	if (sts != PAPI_OK) {
+	    handle_papi_error(sts, log);
+	    /* FALLTHROUGH */
+	}
     }
 
     /* Initialize new EventSet */
@@ -397,32 +449,32 @@ refresh_metrics(int log)
     }
     if (enable_multiplexing && (sts = PAPI_set_multiplex(EventSet)) != PAPI_OK) {
 	handle_papi_error(sts, log);
-        /* not fatal - FALLTHROUGH */
+	/* not fatal - FALLTHROUGH */
     }
 
     /* Add all survivor events to new EventSet */
     number_of_active_counters = 0;
     for (i = 0; i < number_of_events; i++) {
 	if (papi_info[i].metric_enabled == METRIC_ENABLED_FOREVER ||
-            papi_info[i].metric_enabled >= now) {
+	    papi_info[i].metric_enabled >= now) {
 	    sts = PAPI_add_event(EventSet, papi_info[i].info.event_code);
 	    if (sts != PAPI_OK) {
-                if (pmDebug & DBG_TRACE_APPL0) {
-                    char eventname[PAPI_MAX_STR_LEN];
-                    PAPI_event_code_to_name(papi_info[i].info.event_code, eventname);
-                    __pmNotifyErr(LOG_DEBUG, "Unable to add: %s due to error: %s\n",
-                                  eventname, PAPI_strerror(sts));
-                }
+		if (pmDebug & DBG_TRACE_APPL0) {
+		    char eventname[PAPI_MAX_STR_LEN];
+		    PAPI_event_code_to_name(papi_info[i].info.event_code, eventname);
+		    __pmNotifyErr(LOG_DEBUG, "Unable to add: %s due to error: %s\n",
+				  eventname, PAPI_strerror(sts));
+		}
 		handle_papi_error(sts, log);
-                /*
-                 * This is where we'd see if a requested counter was
-                 * "one too many".  We must leave a note for the
-                 * function to return an error, but must continue (so
-                 * that reactivating other counters is still
-                 * attempted).  
-                 */
-                sts = PM_ERR_VALUE;
-                continue;
+		/*
+		 * This is where we'd see if a requested counter was
+		 * "one too many".  We must leave a note for the
+		 * function to return an error, but must continue (so
+		 * that reactivating other counters is still
+		 * attempted).	
+		 */
+		sts = PM_ERR_VALUE;
+		continue;
 	    }
 	    papi_info[i].position = number_of_active_counters++;
 	}
@@ -500,8 +552,8 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	    return PM_ERR_PERMISSION;
 
 	switch (idp->item) {
-	case 0: //papi.enable
-	case 2: //papi.disable // NB: almost identical handling!
+	case CONTROL_ENABLE:
+	case CONTROL_DISABLE: // NB: almost identical handling!
 	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				PM_TYPE_STRING, &av, PM_TYPE_STRING)) < 0)
 		return sts;
@@ -522,7 +574,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		}
 		substring = strtok(NULL, delim);
 	    }
-            if (sts) { /* any unknown metric name encountered? */
+	    if (sts) { /* any unknown metric name encountered? */
 		sts = refresh_metrics(0); /* still enable those that we can */
 		if (sts == 0)
 		    sts = PM_ERR_CONV; /* but return overall error */
@@ -531,24 +583,31 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	    }
 	    return sts;
 
-	case 1: //papi.reset
-            for (j = 0; j < number_of_events; j++)
-                papi_info[j].metric_enabled = 0;
-            return refresh_metrics(0);
+	case CONTROL_RESET:
+	    for (j = 0; j < number_of_events; j++)
+		papi_info[j].metric_enabled = 0;
+	    return refresh_metrics(0);
 
-	case 4: //papi.control.auto_enable
+	case CONTROL_AUTO_ENABLE:
 	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				 PM_TYPE_U32, &av, PM_TYPE_U32)) < 0)
 		return sts;
-            auto_enable_time = av.ul;
-            return papi_setup_auto_af();
+	    auto_enable_time = av.ul;
+	    return papi_setup_auto_af();
 
-	case 5: //papi.control.multiplex
+	case CONTROL_MULTIPLEX:
 	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				 PM_TYPE_U32, &av, PM_TYPE_U32)) < 0)
 		return sts;
 	    enable_multiplexing = av.ul;
 	    return refresh_metrics(0);
+
+	case CONTROL_BATCH:
+	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+				      PM_TYPE_U32, &av, PM_TYPE_U32)) < 0)
+		return sts;
+	    refresh_batch = av.ul;
+	    return 0;
 
 	default:
 	    return PM_ERR_PMID;
@@ -560,8 +619,77 @@ papi_store(pmResult *result, pmdaExt *pmda)
 static int
 papi_desc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 {
-    return pmdaDesc(pmid, desc, pmda);
+    int sts = PM_ERR_PMID; // presume fail; switch statements fall through to this
+    __pmID_int *idp = (__pmID_int *)&(pmid);
+
+    switch (idp->cluster) {
+    case CLUSTER_PAPI:
+	desc->pmid = pmid;
+	desc->type = PM_TYPE_64;
+	desc->indom = PM_INDOM_NULL;
+	desc->sem = PM_SEM_COUNTER;
+	desc->units = (pmUnits) PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE);
+	sts = 0;
+	break;
+
+    case CLUSTER_CONTROL:
+	switch (idp->item) {
+	case CONTROL_ENABLE:
+	case CONTROL_RESET:
+	case CONTROL_DISABLE:
+	case CONTROL_STATUS:
+	    desc->pmid = pmid;
+	    desc->type = PM_TYPE_STRING;
+	    desc->indom = PM_INDOM_NULL;
+	    desc->sem = PM_SEM_INSTANT;
+	    desc->units = (pmUnits) PMDA_PMUNITS(0,0,0,0,0,0);
+	    sts = 0;
+	    break;
+	case CONTROL_AUTO_ENABLE:
+	    desc->pmid = pmid;
+	    desc->type = PM_TYPE_U32;
+	    desc->indom = PM_INDOM_NULL;
+	    desc->sem = PM_SEM_DISCRETE;
+	    desc->units = (pmUnits) PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0);
+	    sts = 0;
+	    break;
+	case CONTROL_MULTIPLEX:
+	case CONTROL_BATCH:
+	    desc->pmid = pmid;
+	    desc->type = PM_TYPE_U32;
+	    desc->indom = PM_INDOM_NULL;
+	    desc->sem = PM_SEM_DISCRETE;
+	    desc->units = (pmUnits) PMDA_PMUNITS(0,0,0,0,0,0);
+	    sts = 0;
+	    break;
+	}
+	break;
+
+    case CLUSTER_AVAILABLE:
+	switch (idp->item) {
+	case AVAILABLE_NUM_COUNTERS:
+	    desc->pmid = pmid;
+	    desc->type = PM_TYPE_U32;
+	    desc->indom = PM_INDOM_NULL;
+	    desc->sem = PM_SEM_DISCRETE;
+	    desc->units = (pmUnits) PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE);
+	    sts = 0;
+	    break;
+	case AVAILABLE_VERSION:
+	    desc->pmid = pmid;
+	    desc->type = PM_TYPE_STRING;
+	    desc->indom = PM_INDOM_NULL;
+	    desc->sem = PM_SEM_INSTANT;
+	    desc->units = (pmUnits) PMDA_PMUNITS(0,0,0,0,0,0);
+	    sts = 0;
+	    break;
+	}
+	break;
+    }
+
+    return sts;
 }
+
 
 static int
 papi_text(int ident, int type, char **buffer, pmdaExt *ep)
@@ -580,8 +708,9 @@ papi_text(int ident, int type, char **buffer, pmdaExt *ep)
 		*buffer = papi_info[pmidp->item].info.long_descr;
 	    return 0;
 	}
-	return pmdaText(ident, type, buffer, ep);
     }
+
+    /* delegate to "help" file */
     return pmdaText(ident, type, buffer, ep);
 }
 
@@ -601,14 +730,11 @@ static int
 papi_internal_init(pmdaInterface *dp)
 {
     int ec;
-    unsigned int native = 0;
     int sts;
     PAPI_event_info_t info;
     char entry[PAPI_HUGE_STR_LEN+12]; // the length papi uses for the symbol name
     unsigned int i = 0;
     pmID pmid;
-    char *tokenized_string;
-    int number_of_components, component_id = 0;
 
     sts = sprintf(papi_version, "%d.%d.%d", PAPI_VERSION_MAJOR(PAPI_VERSION),
 	    PAPI_VERSION_MINOR(PAPI_VERSION), PAPI_VERSION_REVISION(PAPI_VERSION));
@@ -651,8 +777,6 @@ papi_internal_init(pmdaInterface *dp)
 		memset(&entry[0], 0, sizeof(entry));
 		papi_info[i].position = -1;
 		papi_info[i].metric_enabled = 0;
-		nummetrics++;
-		expand_metric_tab(i);
 		expand_values(i);
 		i++;
 	    }
@@ -660,9 +784,14 @@ papi_internal_init(pmdaInterface *dp)
     } while(PAPI_enum_event(&ec, 0) == PAPI_OK);
 
 #if defined(HAVE_PAPI_DISABLED_COMP)
+    char *tokenized_string;
+    int number_of_components;
+    int component_id;
+    int native;
+
     number_of_components = PAPI_num_components();
     native = 0 | PAPI_NATIVE_MASK;
-    for (component_id; component_id < number_of_components; component_id++) {
+    for (component_id = 0; component_id < number_of_components; component_id++) {
 	const PAPI_component_info_t *component;
 	component = PAPI_get_component_info(component_id);
 	if (component->disabled || (strcmp("perf_event", component->name)
@@ -698,8 +827,6 @@ papi_internal_init(pmdaInterface *dp)
 		memset(&entry[0], 0, sizeof(entry));
 		papi_info[i].position = -1;
 		papi_info[i].metric_enabled = 0;
-		nummetrics++;
-		expand_metric_tab(i);
 		expand_values(i);
 		i++;
 	    }
@@ -754,44 +881,7 @@ void
 __PMDA_INIT_CALL
 papi_init(pmdaInterface *dp)
 {
-    int i;
     int sts;
-
-    enable_multiplexing = 1;
-    nummetrics = 8;
-    metrictab = malloc(nummetrics*sizeof(pmdaMetric));
-    if (metrictab == NULL)
-	__pmNoMem("initial metrictab allocation", (nummetrics*sizeof(pmdaMetric)), PM_FATAL_ERR);
-    for(i = 0; i < nummetrics; i++) {
-	switch (i) {
-	case 4: // papi.control.auto_enable
-	case 5:
-	    metrictab[i].m_desc.pmid = pmid_build(dp->domain, CLUSTER_CONTROL, i);
-	    metrictab[i].m_desc.type = PM_TYPE_U32;
-	    metrictab[i].m_desc.indom = PM_INDOM_NULL;
-	    metrictab[i].m_desc.sem = PM_SEM_DISCRETE;
-	    metrictab[i].m_desc.units = (pmUnits) PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0);
-	    break;
-	case 6: // papi.available.num_counters
-	case 7: // papi.available.version
-	    metrictab[i].m_desc.pmid = pmid_build(dp->domain, CLUSTER_AVAILABLE, i - 6);
-	    if (i == 6)
-		metrictab[i].m_desc.type = PM_TYPE_U32;		
-	    else
-		metrictab[i].m_desc.type = PM_TYPE_STRING;
-	    metrictab[i].m_desc.indom = PM_INDOM_NULL;
-	    metrictab[i].m_desc.sem = PM_SEM_DISCRETE;
-	    metrictab[i].m_desc.units = (pmUnits) PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE);
-	    break;
-	default: // papi.control.{enable,reset,disable,status}
-	    metrictab[i].m_desc.pmid = pmid_build(dp->domain, CLUSTER_CONTROL, i);
-	    metrictab[i].m_desc.type = PM_TYPE_STRING;
-	    metrictab[i].m_desc.indom = PM_INDOM_NULL;
-	    metrictab[i].m_desc.sem = PM_SEM_INSTANT;
-	    metrictab[i].m_desc.units = (pmUnits) PMDA_PMUNITS(0,0,0,0,0,0);
-	    break;
-	}
-    }
 
     if (isDSO) {
 	int	sep = __pmPathSeparator();
@@ -827,7 +917,7 @@ papi_init(pmdaInterface *dp)
     dp->version.four.children = papi_children;
     pmdaSetFetchCallBack(dp, papi_fetchCallBack);
     pmdaSetEndContextCallBack(dp, papi_endContextCallBack);
-    pmdaInit(dp, NULL, 0, metrictab, nummetrics);
+    pmdaInit(dp, NULL, 0, NULL, 0);
 }
 
 static pmLongOptions longopts[] = {
@@ -858,7 +948,7 @@ main(int argc, char **argv)
 
     snprintf(helppath, sizeof(helppath), "%s%c" "papi" "%c" "help",
 	     pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, PAPI, "papi.log", helppath);    
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, PAPI, "papi.log", helppath);	
     pmdaGetOptions(argc, argv, &opts, &dispatch);
     if (opts.errors) {
 	pmdaUsageMessage(&opts);
@@ -873,7 +963,6 @@ main(int argc, char **argv)
     free(ctxtab);
     free(papi_info);
     free(values);
-    free(metrictab);
 
     exit(0);
 }

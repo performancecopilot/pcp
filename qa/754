@@ -16,9 +16,16 @@ test -f "$pmda_script" || _notrun "pmdaunbound not supported"
 $python -c "from pcp import pmda" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
 
+_cleanup()
+{
+    cd $here
+    rm -rf $tmp.*
+    $sudo rm -f /tmp/unbound-qa.txt	# from test.sh
+}
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
 {
@@ -39,6 +46,7 @@ _filter_result()
 
 domain=132
 test="$here/unbound"
+$sudo rm -f /tmp/unbound-qa.txt		# from test.sh
 export UNBOUND_STATS="$here/unbound/test.sh"
 
 # real QA test starts here

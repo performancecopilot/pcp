@@ -1,3 +1,19 @@
+# set up $PATH to include all the optional and bizarre places that
+# useful executables might be hiding
+#
+for xtra in /usr/sbin /sbin /usr/local/bin $PCP_BINADM_DIR \
+	    /usr/local/git/bin /usr/perl5/bin /usr/gnu/bin
+do
+    [ -d "$xtra" ] || continue
+    if echo ":${PATH}:" | grep ":$xtra:" >/dev/null 2>&1
+    then
+	:
+    else
+	PATH="$PATH:$xtra"
+    fi
+done
+export PATH
+
 # migrate and clean configs
 echo >>$PCP_LOG_DIR/install.log
 date >>$PCP_LOG_DIR/install.log

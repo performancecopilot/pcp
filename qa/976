@@ -1,0 +1,62 @@
+#!/bin/sh
+# PCP QA Test No. 976
+# Test the perl lustre pmda
+#
+# Copyright (c) 2015 Martins Innus.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1
+perl -e "use PCP::PMDA" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
+
+#trap "exit \$status" 0 1 2 3 15
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+        -e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
+        -e "s;$script;pmdalustre.pl;" \
+    | _filter_dumpresult
+}
+
+# real QA test starts here
+domain=134
+script=pmdalustre.pl
+cd "$PCP_PMDAS_DIR/lustre"
+
+# create a root namespace file for dbpmda to use
+export LUSTRE_LLITE_PATH="$here/lustre/llite/"
+export LUSTRE_LNET_PATH="$here/lustre/lnet/"
+PCP_PERL_PMNS=root /usr/bin/perl $script > $tmp.root
+
+# create a set of commands for dbpmda
+cat >$tmp.cmds <<End-of-File
+open pipe /usr/bin/perl $script
+getdesc on
+desc lustre.llite.superblock
+desc lustre.llite.volume
+desc lustre.llite.read_bytes.count
+desc lustre.lnet.recv_length
+fetch lustre.llite.superblock
+fetch lustre.llite.volume
+fetch lustre.llite.read_bytes.count
+fetch lustre.lnet.recv_length
+instance $domain.0
+End-of-File
+
+# iterate over our pre-canned mountstats files
+test="$here/nfsclient"
+echo === Testing precanned lustre files
+$sudo dbpmda -n $tmp.root -ie < $tmp.cmds 2>&1 | _filter
+
+status=0
+exit

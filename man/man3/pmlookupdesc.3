@@ -170,13 +170,13 @@ structure.
  * represents hours/million-events
  */
 typedef struct {
-    int dimSpace:4;    /* space dimension */
-    int dimTime:4;     /* time dimension */
-    int dimCount:4;    /* event dimension */
-    int scaleSpace:4;  /* one of PM_SPACE_* below */
-    int scaleTime:4;   /* one of PM_TIME_* below */
-    int scaleCount:4;  /* one of PM_COUNT_* below */
-} pmUnits;             /* dimensional units and scale of value */
+    int dimSpace:4;             /* space dimension */
+    int dimTime:4;              /* time dimension */
+    int dimCount:4;             /* event dimension */
+    unsigned int scaleSpace:4;  /* one of PM_SPACE_* below */
+    unsigned int scaleTime:4;   /* one of PM_TIME_* below */
+    int scaleCount:4;           /* one of PM_COUNT_* below */
+} pmUnits;                      /* dimensional units and scale of value */
 
 /* pmUnits.scaleSpace */
 #define PM_SPACE_BYTE   0       /* bytes */

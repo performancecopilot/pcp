@@ -1,0 +1,43 @@
+QA output created by 977
+=== std out ===
+Iteration 4
+Iteration 3
+Iteration 2
+Iteration 1
+Iteration 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/grind_ctx -h pcp://localhost?container=fe4564ddf901
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+Iteration 4
+Iteration 3
+Iteration 2
+Iteration 1
+Iteration 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/grind_ctx -h local:?container=fe4564ddf901
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+Iteration 4
+Iteration 3
+Iteration 2
+Iteration 1
+Iteration 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/grind_ctx -L
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

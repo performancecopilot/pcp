@@ -1,0 +1,56 @@
+#!/bin/sh
+# PCP QA Test No. 981
+# Test gpfs pmda
+#
+# Copyright (c) 2015 Martins Innus.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1
+perl -e "use PCP::PMDA" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
+
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+        -e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
+        -e "s;$script;pmdagpfs.pl;" \
+    | _filter_dumpresult
+}
+
+# real QA test starts here
+domain=135
+script=pmdagpfs.pl
+cd "$PCP_PMDAS_DIR/gpfs"
+
+# create a root namespace file for dbpmda to use
+export GPFS_MMPMON_CMD="cat $here/gpfs/mmpmon_fsios.txt"
+PCP_PERL_PMNS=root /usr/bin/perl $script > $tmp.root
+
+# create a set of commands for dbpmda
+cat >$tmp.cmds <<End-of-File
+open pipe /usr/bin/perl $script
+getdesc on
+desc gpfs.fsios.cluster
+desc gpfs.fsios.filesystem
+desc gpfs.fsios.read_bytes
+fetch gpfs.fsios.cluster
+fetch gpfs.fsios.filesystem
+fetch gpfs.fsios.read_bytes
+instance $domain.0
+End-of-File
+
+# iterate over our pre-canned gpfs files
+echo === Testing precanned gpfs files
+$sudo dbpmda -n $tmp.root -ie < $tmp.cmds 2>&1 | _filter
+
+status=0

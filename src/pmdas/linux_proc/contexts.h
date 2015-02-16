@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013,2015 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,12 +25,13 @@
  */
 
 enum {
-    CTX_INACTIVE = 0x0,
-    CTX_ACTIVE   = 0x1,
-    CTX_USERID   = 0x2,
-    CTX_GROUPID  = 0x4,
-    CTX_THREADS  = 0x8,
-    CTX_CGROUPS  = 0x10,
+    CTX_INACTIVE = 0,
+    CTX_ACTIVE   = (1<<0),
+    CTX_USERID   = (1<<1),
+    CTX_GROUPID  = (1<<2),
+    CTX_THREADS  = (1<<3),
+    CTX_CGROUPS  = (1<<4),
+    CTX_CONTAINER= (1<<5),
 };
 
 typedef struct {
@@ -39,14 +40,19 @@ typedef struct {
     gid_t		gid;
     unsigned int	threads;
     const char		*cgroups;
+    const char		*container;
+    unsigned int	length;
 } proc_perctx_t;
 
 extern void proc_ctx_init(void);
 extern int proc_ctx_attrs(int, int, const char *, int, pmdaExt *);
 extern void proc_ctx_end(int);
+extern int proc_ctx_getuid(int);
 
 extern int proc_ctx_access(int);
 extern int proc_ctx_revert(int);
+
+extern const char *proc_ctx_container(int, int *);
 
 extern unsigned int proc_ctx_threads(int, unsigned int);
 extern int proc_ctx_set_threads(int, unsigned int);

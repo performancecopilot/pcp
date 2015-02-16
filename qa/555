@@ -34,6 +34,10 @@ $sudo rm -f $seq.full /tmp/syslog.full /tmp/syslog.out
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 
+# sometimes don't want the -E variant of sudo, as this fails to run
+# service rsyslog correctly (at least on bozo)
+sudo_no_E=`which sudo`
+
 update_config=true
 systemctl=false
 upstart=false
@@ -69,9 +73,6 @@ then
 	    exit 1
 	fi
     fi
-    echo "upstart=$upstart" >>/tmp/syslog.full
-    echo "systemctl=$systemctl" >>/tmp/syslog.full
-    echo "init=$init" >>/tmp/syslog.full
 elif [ -f /etc/syslog.conf ]
 then
     # regular old syslogd
@@ -83,6 +84,12 @@ else
     _notrun "No /etc/*syslog.conf -- probably using a different syslog package"
 fi
 
+echo "upstart=$upstart" >>/tmp/syslog.full
+echo "systemctl=$systemctl" >>/tmp/syslog.full
+echo "init=$init" >>/tmp/syslog.full
+echo "update_config=$update_config" >>/tmp/syslog.full
+echo "daemon=$daemon" >>/tmp/syslog.full
+
 # avoid systemd/systemctl wrapper
 #
 [ -f /etc/SuSE-release ] && export SYSTEMD_NO_WRAP=1
@@ -90,18 +97,18 @@ fi
 
 cleanup()
 {
-    if [ -f $config.$seq ]; then
+    if [ -f $tmp.setup ]; then
 	if $update_config
 	then
-	    $sudo mv $config.$seq $config
+	    [ -f $config.$seq ] && $sudo mv $config.$seq $config
 	else
-	    $sudo rm $config.$seq $config
+	    $sudo rm -f $config
 	fi
 	if [ $daemon = rsyslogd ]
 	then
 	    if $upstart
 	    then
-		$sudo service rsyslog restart >>/tmp/syslog.full 2>&1
+		$sudo_no_E service rsyslog restart >>/tmp/syslog.full 2>&1
 	    elif $systemctl
 	    then
 		$sudo systemctl restart rsyslog
@@ -114,8 +121,9 @@ cleanup()
 	else
 	    $sudo $signal -a -s HUP $daemon || exit
 	fi
+	rm $tmp.setup
     fi
-    $sudo mv /tmp/syslog.full $seq.full
+    [ -f /tmp/syslog.full ] && $sudo mv /tmp/syslog.full $seq.full
     $sudo rm -f /tmp/syslog.out
     rm -f $tmp.*
 }
@@ -132,11 +140,10 @@ setup()
 	$sudo cp /dev/null /tmp/syslog.out || exit
 	$sudo chmod 666 /tmp/syslog.out || exit
     fi
+    touch $tmp.setup
     if $update_config
     then
 	$sudo mv $config $config.$seq || exit
-    else
-	$sudo touch $config.$seq
     fi
     echo '*.*  /tmp/syslog.out' >$tmp.syslog.conf
     $sudo cp $tmp.syslog.conf $config || exit
@@ -146,7 +153,7 @@ setup()
     then
 	if $upstart
 	then
-	    $sudo service rsyslog restart >>/tmp/syslog.full 2>&1
+	    $sudo_no_E service rsyslog restart >>/tmp/syslog.full 2>&1
 	elif $systemctl
 	then
 	    $sudo systemctl restart rsyslog >>/tmp/syslog.full 2>&1

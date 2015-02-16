@@ -44,8 +44,10 @@ include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "solaris"
 build-me: root_solaris domain.h $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(VERSION_SCRIPT)
-	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
+	@if [ -f ../pmcd.conf ]; then \
+	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
+	    fi; \
 	fi
 
 install: build-me

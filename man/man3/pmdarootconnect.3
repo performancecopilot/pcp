@@ -1,0 +1,135 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014-2015 Red Hat.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDAROOTCONNECT 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdaRootConnect\f1,
+\f3pmdaRootShutdown\f1,
+\f3pmdaRootContainerHostName\f1,
+\f3pmdaRootContainerProcessID\f1,
+\f3pmdaRootContainerCGroupName\f1 \- privileged PCP collector services
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/pmda.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmdaRootConnect(void);
+.br
+.ti -8n
+void pmdaRootShutdown(int \fIfd\fP);
+.br
+.ti -8n
+int pmdaRootContainerHostName(int \fIfd\fP, char *\fIname\fP, int \fInamelen\fP, char *\fIbuffer\fP, int \fIbuflen\fP);
+.br
+.ti -8n
+int pmdaRootContainerProcessID(int \fIfd\fP, char *\fIname\fP, int \fInamelen\fP);
+.br
+.ti -8n
+int pmdaRootContainerCGroupName(int \fIfd\fP, char *\fIname\fP, int \fInamelen\fP, char *\fIbuffer\fP, int \fIbuflen\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp_pmda \-lpcp
+.ft 1
+.SH DESCRIPTION
+.B pmdaRootConnect
+initializes an IPC channel between a PCP collector process \- either a
+.BR PMDA (3)
+or
+.BR pmcd (1)
+itself \- and the
+.BR pmdaroot (1)
+server.
+.PP
+On success, the return value from
+.B pmdaRootConnect
+is a
+.BR unix (7)
+domain socket file descriptor, which can be subsequently passed to
+each of the other APIs described here.
+This channel can be used to perform limited privilege escalation
+for specific scenarios needed by PCP collector services.
+The channel can be deactivated using the
+.B pmdaRootShutdown
+interface.
+.PP
+Currently, these services provide access to the container facilities
+of modern Linux distributions, as needed by various agents accessing
+kernel features related to containers.
+.PP
+.B pmdaRootContainerHostName
+allows lookup of the current hostname for a named container on behalf
+of an unprivileged process, via the
+.BR setns (3)
+system call on Linux.
+On success, the hostname is returned in the supplied
+.BR buffer ,
+of size
+.B buflen
+and the return value indicates the length of the hostname.
+.PP
+.B pmdaRootContainerProcessID
+performs a
+.I name
+to process identifier translation \- on success, the return value
+is the identifier of the first process started (process 1) in the
+named container.
+.PP
+.B pmdaRootContainerCGroupName
+fills the supplied
+.I buffer
+with the engine-specific names of kernel control groups that have
+been used to build the container identified
+by
+.IR name .
+When successful, the return value indicates the length of the cgroup
+name resolved for the container.
+.PP
+The
+.I name
+of the container is interpreted by
+.BR pmdaroot (1),
+which attempts to match up the specified name with one of the
+implementations of containers that it is aware of.
+Hence, the
+.I name
+argument is potentially interpreted differently, depending on the
+installed container engine, as determined internally by
+.BR pmdaroot (1)).
+.PP
+In the case of the Docker container engine, for example, a valid
+container name can be the unique hash identifier, the human-readable
+name, or any unique identifier substring. This is the algorithm used
+by the Docker client tools themselves.
+.SH DIAGNOSTICS
+All
+.B pmdaRoot
+interfaces will return negative status codes suitable for passing
+to
+.BR pmErrStr_r (3).
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pmdaroot (1),
+.BR pmErrStr_r (3),
+.BR PMDA (3),
+.BR setns (3)
+and
+.BR unix (7).

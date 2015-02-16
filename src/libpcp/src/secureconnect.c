@@ -652,7 +652,7 @@ __pmGetAttrConsole(const char *prompt, int secret)
     return value;
 }
 
-static char *
+static const char * /* don't free()! */ 
 __pmGetAttrValue(__pmAttrKey key, __pmHashCtl *attrs, const char *prompt)
 {
     __pmHashNode *node;
@@ -671,7 +671,7 @@ static int
 __pmAuthRealmCB(void *context, int id, const char **realms, const char **result)
 {
     __pmHashCtl *attrs = (__pmHashCtl *)context;
-    char *value = NULL;
+    const char *value = NULL;
 
     if (pmDebug & DBG_TRACE_AUTH)
 	fprintf(stderr, "%s:__pmAuthRealmCB enter ctx=%p id=%#x\n", __FILE__, context, id);
@@ -680,7 +680,7 @@ __pmAuthRealmCB(void *context, int id, const char **realms, const char **result)
 	return SASL_FAIL;
 
     value = __pmGetAttrValue(PCP_ATTR_REALM, attrs, "Realm: ");
-    *result = (const char *)value;
+    *result = value;
 
     if (pmDebug & DBG_TRACE_AUTH) {
 	fprintf(stderr, "%s:__pmAuthRealmCB ctx=%p, id=%#x, realms=(", __FILE__, context, id);
@@ -699,7 +699,7 @@ static int
 __pmAuthSimpleCB(void *context, int id, const char **result, unsigned *len)
 {
     __pmHashCtl *attrs = (__pmHashCtl *)context;
-    char *value = NULL;
+    const char *value = NULL;
     int sts;
 
     if (pmDebug & DBG_TRACE_AUTH)
@@ -736,7 +736,7 @@ __pmAuthSecretCB(sasl_conn_t *saslconn, void *context, int id, sasl_secret_t **s
 {
     __pmHashCtl *attrs = (__pmHashCtl *)context;
     size_t length = 0;
-    char *password;
+    const char *password;
 
     if (pmDebug & DBG_TRACE_AUTH)
 	fprintf(stderr, "%s:__pmAuthSecretCB enter ctx=%p id=%#x\n", __FILE__, context, id);
@@ -749,7 +749,6 @@ __pmAuthSecretCB(sasl_conn_t *saslconn, void *context, int id, sasl_secret_t **s
 
     *secret = (sasl_secret_t *) calloc(1, sizeof(sasl_secret_t) + length + 1);
     if (!*secret) {
-	free(password);
 	return SASL_NOMEM;
     }
 
@@ -761,7 +760,6 @@ __pmAuthSecretCB(sasl_conn_t *saslconn, void *context, int id, sasl_secret_t **s
     if (pmDebug & DBG_TRACE_AUTH)
 	fprintf(stderr, "%s:__pmAuthSecretCB ctx=%p id=%#x -> data=%s len=%u\n",
 		__FILE__, context, id, password, (unsigned)length);
-    free(password);
 
     return SASL_OK;
 }
@@ -879,9 +877,17 @@ __pmSecureClientIPCFlags(int fd, int flags, const char *hostname, __pmHashCtl *a
 	 */
 	if (socket.sslFd == NULL)
 	    return -EOPNOTSUPP;
+#ifdef SSL_ENABLE_DEFLATE
 	secsts = SSL_OptionSet(socket.sslFd, SSL_ENABLE_DEFLATE, PR_TRUE);
 	if (secsts != SECSuccess)
 	    return __pmSecureSocketsError(PR_GetError());
+#else
+	/*
+	 * On some older platforms (e.g. CentOS 5.5) SSL_ENABLE_DEFLATE
+	 * is not defined ...
+	 */
+	return -EOPNOTSUPP;
+#endif /*SSL_ENABLE_DEFLATE*/
     }
 
     if ((flags & PDU_FLAG_AUTH) != 0) {
@@ -1312,9 +1318,17 @@ __pmSecureServerIPCFlags(int fd, int flags)
 	 */
 	if (socket.sslFd == NULL)
 	    return -EOPNOTSUPP;
+#ifdef SSL_ENABLE_DEFLATE
 	secsts = SSL_OptionSet(socket.sslFd, SSL_ENABLE_DEFLATE, PR_TRUE);
 	if (secsts != SECSuccess)
 	    return __pmSecureSocketsError(PR_GetError());
+#else
+	/*
+	 * On some older platforms (e.g. CentOS 5.5) SSL_ENABLE_DEFLATE
+	 * is not defined ...
+	 */
+	return -EOPNOTSUPP;
+#endif /*SSL_ENABLE_DEFLATE*/
     }
 
     if ((flags & PDU_FLAG_AUTH) != 0) {

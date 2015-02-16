@@ -182,7 +182,8 @@ p
 | LC_COLLATE=POSIX sort -u
 
 echo >>$seq.full
-echo "=== tail SYSLOG ===" >>$seq.full
+echo "=== tail SYSLOG ($SYSLOG) ===" >>$seq.full
+echo "`wc -l <$tmp.tmp | sed -e 's/ //g'` lines ... expect 100" >>$seq.full
 cat $tmp.tmp >>$seq.full
 
 # success, all done

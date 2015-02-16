@@ -1,0 +1,49 @@
+#!/bin/sh
+# PCP QA Test No. 993
+# pmlogger and pmdumplog with metrics that have more than one name
+# in the PMNS.
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    grep '^PMID' \
+    | LC_COLLATE=POSIX sort
+}
+
+# real QA test starts here
+cat <<End-of-File >$tmp.config
+log mandatory on default {
+    sample.dupnames
+}
+log mandatory on default {
+    sample.bin
+    sample.write_me
+    sample.lights
+    sample.float.ten
+    sample.double.ten
+}
+End-of-File
+
+pmlogger -c $tmp.config -s 4 -l $tmp.log -t 1sec $tmp
+cat $tmp.log >>$seq.full
+
+pmdumplog -d $tmp | _filter
+
+# success, all done
+status=0
+
+exit

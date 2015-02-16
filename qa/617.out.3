@@ -246,7 +246,7 @@ fetch metric [ metric ... ]
 dbpmda> fetch 29.0.6
 PMID(s): 29.0.6
 pmResult dump from ADDR timestamp: 0.000000 TIMEZONE numpmid: 1
-  29.0.6 (sample.bin): numval: 9 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 9 valfmt: 0 vlist[]:
     inst [100 or ???] value 100
     inst [200 or ???] value 200
     inst [300 or ???] value 300
@@ -259,7 +259,7 @@ pmResult dump from ADDR timestamp: 0.000000 TIMEZONE numpmid: 1
 dbpmda> fetch sample.bin 29.0.5
 PMID(s): 29.0.6 29.0.5
 pmResult dump from ADDR timestamp: 0.000000 TIMEZONE numpmid: 2
-  29.0.6 (sample.bin): numval: 9 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 9 valfmt: 0 vlist[]:
     inst [100 or ???] value 100
     inst [200 or ???] value 200
     inst [300 or ???] value 300
@@ -310,7 +310,7 @@ Dump Instance Profile state=INCLUDE, 1 profiles
 dbpmda> fetch 29.0.6
 PMID(s): 29.0.6
 pmResult dump from ADDR timestamp: 0.000000 TIMEZONE numpmid: 1
-  29.0.6 (sample.bin): No values returned!
+  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): No values returned!
 dbpmda> profile 29.2 add 200
 dbpmda> status
 
@@ -329,7 +329,7 @@ Dump Instance Profile state=INCLUDE, 1 profiles
 dbpmda> fetch 29.0.6
 PMID(s): 29.0.6
 pmResult dump from ADDR timestamp: 0.000000 TIMEZONE numpmid: 1
-  29.0.6 (sample.bin): numval: 1 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 1 valfmt: 0 vlist[]:
     inst [200 or ???] value 200
 dbpmda> profile 29.2 add 250
 dbpmda> status
@@ -349,7 +349,7 @@ Dump Instance Profile state=INCLUDE, 1 profiles
 dbpmda> fetch 29.0.6
 PMID(s): 29.0.6
 pmResult dump from ADDR timestamp: 0.000000 TIMEZONE numpmid: 1
-  29.0.6 (sample.bin): numval: 1 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 1 valfmt: 0 vlist[]:
     inst [200 or ???] value 200
 dbpmda> profile 29.2 add 300
 dbpmda> status
@@ -369,7 +369,7 @@ Dump Instance Profile state=INCLUDE, 1 profiles
 dbpmda> fetch 29.0.6
 PMID(s): 29.0.6
 pmResult dump from ADDR timestamp: 0.000000 TIMEZONE numpmid: 1
-  29.0.6 (sample.bin): numval: 2 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 2 valfmt: 0 vlist[]:
     inst [200 or ???] value 200
     inst [300 or ???] value 300
 dbpmda> profile 29.2 delete 200
@@ -390,7 +390,7 @@ Dump Instance Profile state=INCLUDE, 1 profiles
 dbpmda> fetch 29.0.6
 PMID(s): 29.0.6
 pmResult dump from ADDR timestamp: 0.000000 TIMEZONE numpmid: 1
-  29.0.6 (sample.bin): numval: 1 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 1 valfmt: 0 vlist[]:
     inst [300 or ???] value 300
 dbpmda> profile 29.2 all
 dbpmda> status
@@ -409,7 +409,7 @@ Dump Instance Profile state=INCLUDE, 1 profiles
 dbpmda> fetch 29.0.6
 PMID(s): 29.0.6
 pmResult dump from ADDR timestamp: 0.000000 TIMEZONE numpmid: 1
-  29.0.6 (sample.bin): numval: 9 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin): numval: 9 valfmt: 0 vlist[]:
     inst [100 or ???] value 100
     inst [200 or ???] value 200
     inst [300 or ???] value 300
@@ -450,16 +450,27 @@ Getting description...
 Getting Result Structure...
 29.0.36: 2 -> 42
 Sending Result...
+dbpmda> store 29.0.36 '43'
+PMID: 29.0.36
+Getting description...
+Getting Result Structure...
+29.0.36: 42 -> 43
+Sending Result...
 dbpmda> fetch sample.write_me
 PMID(s): 29.0.36
 pmResult dump from ADDR timestamp: 0.000000 TIMEZONE numpmid: 1
-  29.0.36 (sample.write_me): numval: 1 valfmt: 0 vlist[]:
-   value 42
+  29.0.36 (sample.dupnames.three.write_me or sample.dupnames.two.write_me or sample.write_me): numval: 1 valfmt: 0 vlist[]:
+   value 43
 dbpmda> store 29.0.36
                     ^ at or near here
 Error: Syntax error
 Type 'help' for a list of commands.
 dbpmda> store 29.0.36 "57.3"
+PMID: 29.0.36
+Getting description...
+Getting Result Structure...
+Error: Value "57.3" is incompatible with metric type (PM_TYPE_32)
+dbpmda> store 29.0.36 '57.3'
 PMID: 29.0.36
 Getting description...
 Getting Result Structure...
@@ -474,6 +485,33 @@ PMID: 29.0.36
 Getting description...
 Getting Result Structure...
 Error: Value "Hello there" is incompatible with metric type (PM_TYPE_32)
+dbpmda> fetch sample.write_me
+PMID(s): 29.0.36
+pmResult dump from ADDR timestamp: 0.000000 TIMEZONE numpmid: 1
+  29.0.36 (sample.dupnames.three.write_me or sample.dupnames.two.write_me or sample.write_me): numval: 1 valfmt: 0 vlist[]:
+   value 43
+dbpmda> store sample.string.write_me "Hello I'm here"
+PMID: 29.0.32
+Getting description...
+Getting Result Structure...
+29.0.32: "13" -> "Hello I'm here"
+Sending Result...
+dbpmda> fetch sample.string.write_me
+PMID(s): 29.0.32
+pmResult dump from ADDR timestamp: 0.000000 TIMEZONE numpmid: 1
+  29.0.32 (sample.string.write_me): numval: 1 valfmt: 1 vlist[]:
+   value "Hello I'm here"
+dbpmda> store sample.string.write_me '"hello world" to you too'
+PMID: 29.0.32
+Getting description...
+Getting Result Structure...
+29.0.32: "Hello I'm here" -> ""hello world" to you too"
+Sending Result...
+dbpmda> fetch sample.string.write_me
+PMID(s): 29.0.32
+pmResult dump from ADDR timestamp: 0.000000 TIMEZONE numpmid: 1
+  29.0.32 (sample.string.write_me): numval: 1 valfmt: 1 vlist[]:
+   value ""hello world" to you too"
 dbpmda> store 29.0.20 "3"
 PMID: 29.0.20
 Getting description...

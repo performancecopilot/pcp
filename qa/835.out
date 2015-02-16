@@ -22,7 +22,6 @@ Check memcache metrics have appeared ... X metrics and Y values
 === check values ===
 active_slabs is in range
 bytes is in range
-bytes_read is in range
 cmd_get is in range
 cmd_set is in range
 connection_structures is in range

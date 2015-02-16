@@ -566,7 +566,7 @@ QmcMetric::formatNumber(double value)
 	if (value > 99950000000000.0)
 	    strcpy(buf, "  inf?");
 	else if (value > 99950000000.0)
-	    sprintf(buf, "%5.2fT", (double)((long double)value / (long double)1000000000000));
+	    sprintf(buf, "%5.2fT", (double)((long double)value / (long double)1000000000000LL));
 	else if (value > 99950000.0)
 	    sprintf(buf, "%5.2fG", (double)((long double)value / (long double)1000000000));
 	else if (value > 99950.0)
@@ -582,7 +582,7 @@ QmcMetric::formatNumber(double value)
 	if (value < -9995000000000.0)
 	    strcpy(buf, " -inf?");
 	else if (value < -9995000000.0)
-	    sprintf(buf, "%.2fT", (double)((long double)value / (long double)1000000000000));
+	    sprintf(buf, "%.2fT", (double)((long double)value / (long double)1000000000000LL));
 	else if (value < -9995000.0)
 	    sprintf(buf, "%.2fG", (double)((long double)value / (long double)1000000000));
 	else if (value < -9995.0)

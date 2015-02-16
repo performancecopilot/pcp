@@ -1452,7 +1452,7 @@ TIMESTAMP ... numpmid: 20
    value "13"
   511.0.7 (myname.f): numval: 1 valfmt: 1 vlist[]:
    value "hullo world!"
-  29.0.6 (sample.bin): numval: 9 valfmt: 0 vlist[]:
+  29.0.6 (sample.dupnames.three.bin, sample.dupnames.two.bin, sample.bin): numval: 9 valfmt: 0 vlist[]:
     inst [100 or "bin-100"] value 100
     inst [200 or "bin-200"] value 200
     inst [300 or "bin-300"] value 300

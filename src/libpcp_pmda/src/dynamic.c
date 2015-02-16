@@ -1,7 +1,7 @@
 /*
  * Dynamic namespace metrics, PMDA helper routines.
  *
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2015 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -89,58 +89,52 @@ pmdaDynamicPMNS(const char *prefix,
  * Verify if a given pmid should be handled by this dynamic instance.
  * Assumes pmnsupdate has been called so dynamic[index].pmns can't be NULL
  */
-
 int
 pmdaDynamicCheckPMID( pmID pmid, int index )
 {
-
-    int numfound=0;
-    char **nameset;
+    int numfound = 0;
+    char **nameset = NULL;
 
     pmdaNameSpace *tree = dynamic[index].pmns;
     numfound = pmdaTreeName(tree, pmid, &nameset);
 
     /* Don't need the names, just seeing if its there */
-    
-    if( numfound > 0 ){
+    if (nameset)
 	free(nameset);
-	return numfound;
-    }
 
+    if (numfound > 0)
+	return numfound;
     return 0;
 }
 
 /*
- *  * Verify if a given name should be handled by this dynamic instance.
- *   * Assumes pmnsupdate has been called so dynamic[index].pmns can't be NULL
- *    */
-
+ * Verify if a given name should be handled by this dynamic instance.
+ * Assumes pmnsupdate has been called so dynamic[index].pmns can't be NULL
+ */
 int
-pmdaDynamicCheckName( const char *name, int index )
+pmdaDynamicCheckName(const char *name, int index)
 {
     pmdaNameSpace *tree = dynamic[index].pmns;
 
-    /* Use this because we want non-leaf nodes also, since we are called for child checks */
-    if( pmdaNodeLookup(tree->root->first, name) != NULL ){
+    /* Use this because we want non-leaf nodes also,
+     * since we are called for child checks.
+     */
+    if (pmdaNodeLookup(tree->root->first, name) != NULL)
 	return 1;
-    }
-    else{
-	return 0;
-    }
+    return 0;
 }
 
 pmdaNameSpace *
 pmdaDynamicLookupName(pmdaExt *pmda, const char *name)
 {
-    int i,sts;
+    int i, sts;
 
     for (i = 0; i < dynamic_count; i++) {
 	sts = dynamic[i].pmnsupdate(pmda, &dynamic[i].pmns);
 	if (sts)
 	    pmdaDynamicMetricTable(pmda);
-	if( pmdaDynamicCheckName( name, i )){
+	if (pmdaDynamicCheckName(name, i))
 	    return dynamic[i].pmns;
-	}
     }
     return NULL;
 }
@@ -155,9 +149,8 @@ pmdaDynamicLookupPMID(pmdaExt *pmda, pmID pmid)
 	sts = dynamic[i].pmnsupdate(pmda, &dynamic[i].pmns);
 	if(sts)
 	    pmdaDynamicMetricTable(pmda);
-	if( pmdaDynamicCheckPMID( pmid, i ) ){
+	if (pmdaDynamicCheckPMID(pmid, i))
 	    return dynamic[i].pmns;
-	}
     }
     return NULL;
 }
@@ -170,11 +163,10 @@ pmdaDynamicLookupText(pmID pmid, int type, char **buf, pmdaExt *pmda)
     for (i = 0; i < dynamic_count; i++) {
 	/* Need to do this in all cases to be able to search the pmns */
 	sts = dynamic[i].pmnsupdate(pmda, &dynamic[i].pmns);
-	if(sts)
-            pmdaDynamicMetricTable(pmda);
-	if( pmdaDynamicCheckPMID( pmid, i ) ){
+	if (sts)
+	    pmdaDynamicMetricTable(pmda);
+	if (pmdaDynamicCheckPMID(pmid, i))
 	    return dynamic[i].textupdate(pmda, pmid, type, buf);
-	}
     }
     return -ENOENT;
 }
@@ -190,14 +182,16 @@ dynamic_metric_table(int index, pmdaMetric *offset, pmdaExt *pmda)
     struct dynamic *dp = &dynamic[index];
     int m, tree_count = dp->extratrees;
 
-    /* Ensure that the pmns is up to date, need this in case a pmda calls pmdaDynamicMetricTable directly very early*/
+    /* Ensure that the pmns is up to date, need this in case a PMDA calls
+     * pmdaDynamicMetricTable directly very early on in its life.
+     */
     dp->pmnsupdate(pmda, &dp->pmns);
 
     for (m = 0; m < dp->nmetrics; m++) {
 	pmdaMetric *mp = &dp->metrics[m];
 	int gid;
 
-	if( pmdaDynamicCheckPMID( mp->m_desc.pmid, index ) )
+	if (pmdaDynamicCheckPMID( mp->m_desc.pmid, index))
 	    for (gid = 0; gid < tree_count; gid++)
 		dp->mtabupdate(mp, offset++, gid + 1);
     }

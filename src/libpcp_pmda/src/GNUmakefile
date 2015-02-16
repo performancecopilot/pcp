@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2014 Red Hat.
 # Copyright (c) 2009,2011 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -18,7 +18,7 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 CFILES	= callback.c open.c mainloop.c help.c cache.c tree.c context.c \
-	  events.c queues.c dynamic.c
+	  events.c queues.c dynamic.c pduroot.c root.c
 HFILES	= libdefs.h queues.h
 LLDLIBS	= -lpcp
 

@@ -1,0 +1,45 @@
+#!gmake
+#
+# Copyright (c) 2009 Aconex.  All Rights Reserved.
+# 
+
+SHELL	= sh
+
+ifdef PCP_CONF
+include $(PCP_CONF)
+else
+include $(PCP_DIR)/etc/pcp.conf
+endif
+include $(PCP_INC_DIR)/builddefs
+
+# remove -Lpath and -Ipath options from builddefs CFLAGS value
+#
+PCP_LIBS	=
+TMP		:= $(CFLAGS:-I%=)
+ifdef PCP_DIR
+# put -Ipath and -Lpath back but use paths for run-time environment
+#
+CFLAGS		= $(TMP) -I$(PCP_INC_DIR)/..
+LDFLAGS		= -L$(PCP_LIB_DIR)
+else
+CFLAGS		= $(TMP)
+endif
+
+IAM = schizo
+CFILES = $(IAM)-A.c $(IAM)-B.c
+TARGETS = pmda$(IAM)-A pmda$(IAM)-B
+LDIRT	= *.log help.dir help.pag
+
+LLDLIBS = -lpcp_pmda -lpcp
+
+default default_pcp setup:: $(TARGETS)
+
+install install_pcp:
+
+include $(PCP_INC_DIR)/buildrules
+
+pmda$(IAM)-A:	$(IAM)-A.o
+	$(CCF) -o $@ $(LDFLAGS) $< $(LDLIBS)
+
+pmda$(IAM)-B:	$(IAM)-B.o
+	$(CCF) -o $@ $(LDFLAGS) $< $(LDLIBS)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 1997,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -186,6 +186,7 @@ typedef struct {
 /* retired PM_ERR_PMCDLICENSE (-PM_ERR_BASE-51) PMCD is not licensed to accept connections */
 #define PM_ERR_TYPE		(-PM_ERR_BASE-52)   /* Unknown or illegal metric type */
 #define PM_ERR_THREAD		(-PM_ERR_BASE-53)   /* Operation not supported for multi-threaded applications */
+#define PM_ERR_NOCONTAINER	(-PM_ERR_BASE-54)   /* Container not found */
 
 /* retired PM_ERR_CTXBUSY (-PM_ERR_BASE-97) Context is busy */
 #define PM_ERR_TOOSMALL		(-PM_ERR_BASE-98)   /* Insufficient elements in list */
@@ -644,8 +645,8 @@ extern char *pmGetConfig(const char *);
 			"metrics source is local connection to a PMDA" }
 #define PMOPT_NAMESPACE	{ "namespace",	1, 'n', "FILE", \
 			"use an alternative PMNS" }
-#define PMOPT_DUPNAMES	{ "dupnames",	1, 'N', "FILE", \
-			"use an alternative PMNS (duplicate names allowed)" }
+#define PMOPT_UNIQNAMES	{ "uniqnames",	1, 'N', "FILE", \
+			"like -n but only one name allowed for each PMID" }
 #define PMOPT_ORIGIN	{ "origin",	1, 'O', "TIME", \
 			"initial sample time within the time window" }
 #define PMOPT_GUIPORT	{ "guiport",	1, 'p', "N", \
@@ -697,8 +698,8 @@ extern char *pmGetConfig(const char *);
 #define PMOPT_HOST_LIST { PMLONGOPT_HOST_LIST, 1, 0, "HOSTS", \
 		"comma-separated list of metric source hosts" }
 #define PMLONGOPT_CONTAINER "container"
-#define PMOPT_CONTAINER { PMLONGOPT_CONTAINER, 1, 0, "CONTAINER", \
-		"name of the container being targetted" }
+#define PMOPT_CONTAINER { PMLONGOPT_CONTAINER, 1, 0, "NAME", \
+		"specify an individual container to be queried" }
 
 /* pmOptions flags */
 #define PM_OPTFLAG_INIT		(1<<0)	/* initialisation done */
@@ -880,6 +881,8 @@ extern void pmFreeHighResEventResult(pmHighResResult **);
 #define PM_SERVER_WEBD_SPEC	"pmwebd"
 
 extern int pmDiscoverServices(const char *, const char *, char ***);
+
+extern int pmParseUnitsStr(const char *, pmUnits *, double *, char **);
 
 #ifdef __cplusplus
 }

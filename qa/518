@@ -52,24 +52,35 @@ sleep 2
 #           expected evaluation rate=0.10 rules/sec
 #
 # want our pmie, not any other pmie processes
+# map = -> '= ' and )$ -> ' )' for evaluations line
+# map rules) -> rule) to dodge pluralization
 #
+debug=false
 pcp -P \
 | tee -a $seq.full \
-| sed -e 's/=/= /g' -e 's/)$/ )/' \
+| sed \
+    -e '/^  *evaluations / {
+s/=/= /g
+s/)$/ )/
+}' \
+    -e 's/rules)$/rule)/' \
 | $PCP_AWK_PROG '
-/pmie:/		{ state=1 }
-state==1 && /'`echo $tmp.pmie | sed -e s@/@\\\\\\\\/@g`' \(2 rules \)/	{ print; want = 1; next }
+/pmie: .* rule\)/		{ state=1 }
+'$debug' == "true"		{ print "state=" state " want=" want ": " $0 }
+state==1 && /'`echo $tmp.pmie | sed -e s@/@\\\\\\\\/@g`' \(2 rule\)/	{ print; want = 1; next }
 state==1 && / \(actions=/	{ if ($3 == $5 && $5 == $9) {
 				      if ($3 >= 4 && $3 <= 6) $3 = "OK"
 				      if ($5 >= 4 && $5 <= 6) $5 = "OK"
 				      if ($9 >= 4 && $9 <= 6) $9 = "OK"
 				  }
 				}
-state==1 && / rules\)/		{ want = 0 }
+state==1 && / rule\)/		{ want = 0 }
 want==1		{ print }' \
 | sed \
-    -e 's/= /=/g' \
-    -e 's/ )$/)/' \
+    -e '/^evaluations / {
+s/= /=/g
+s/ )$/)/
+}' \
     -e "s;$tmp;TMP;" \
     -e "s;/privateTMP;TMP;g" \
     -e '/TMP/{

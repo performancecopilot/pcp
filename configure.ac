@@ -1413,6 +1413,7 @@ AC_CHECK_FUNCS(getuid getgid)
 AC_CHECK_FUNCS(getgrent getgrent_r getgrnam getgrnam_r getgrgid getgrgid_r)
 AC_CHECK_FUNCS(getpwent getpwent_r getpwnam getpwnam_r getpwuid getpwuid_r)
 AC_CHECK_FUNCS(sysinfo trace_back_stack backtrace)
+AC_CHECK_FUNCS(sendmsg recvmsg setns)
 
 dnl only define readdir64 on non-linux platforms that support it
 if test $target_os != linux -a $target_os != freebsd -a $target_os != kfreebsd -a $target_os != netbsd; then
@@ -1524,22 +1525,19 @@ AC_HEADER_TIOCGWINSZ
 
 dnl check if linker needs -rdynamic for dynamically loaded shared
 dnl libraries to see the symbols in the process loading them.
+dnl This is e.g., needed on linux for pmcd loading pmda_pmcd.so.
 AC_MSG_CHECKING([if linker supports -rdynamic])
-cat <<End-of-File >conftest.c
-main() {;}
-End-of-File
-rdynamic_flag=
-$CC -o conftest -rdynamic conftest.c 2>conftest.out
-test -s conftest.out || rdynamic_flag=-rdynamic
-AC_SUBST(rdynamic_flag)
-if test -z "$rdynamic_flag"
-then
-   AC_MSG_RESULT(no)
-else
-   AC_MSG_RESULT(yes)
-fi
-rm -f conftest.c conftest.o conftest
-rm -rf conftest.dSYM
+save_CFLAGS="$CFLAGS"
+CFLAGS="-rdynamic"
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([])],
+    [AC_MSG_RESULT([yes])
+     rdynamic_flag=-rdynamic],
+    [AC_MSG_RESULT([no])
+     rdynamic_flag=]
+)
+CFLAGS="$save_CFLAGS"
+AC_SUBST([rdynamic_flag])
+
 
 dnl check if argument to user's select() method in scandir call is const
 AC_MSG_CHECKING([whether const arg for scandir() select method])
@@ -1568,7 +1566,7 @@ cat <<End-of-File >conftest.c
 #include <stdlib.h>
 #include <unistd.h>
 #include <dirent.h>
-int main() { struct dirent.d; d.d_off = 0; }
+int main() { struct dirent d; d.d_off = 0; }
 End-of-File
 (eval $ac_compile) 2>conftest.out
 cat conftest.out >&5

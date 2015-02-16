@@ -37,8 +37,10 @@ default_pcp default :: $(TARGETS)
 
 default_pcp default :: $(SUBDIRS) 
 	$(SUBDIRS_MAKERULE)
-	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
+	@if [ -f ../pmcd.conf ]; then \
+	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
+	    fi; \
 	fi
 
 install_pcp install :: $(SUBDIRS)

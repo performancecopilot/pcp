@@ -1,10 +1,9 @@
 #!/bin/sh
 # PCP QA Test No. 787
 # Frank's "slow" archive with <mark> records
+# See http://oss.sgi.com/bugzilla/show_bug.cgi?id=1044
 #
 # Copyright (c) 2014 Ken McDonell.  All Rights Reserved.
-#
-# TODO - read backwards?
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -21,7 +20,7 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 # change to true to produce detailed values in $seq.full to
 # validate the interpolated values reported by pmval
 #
-full=false
+full=true
 $full && rm -f $seq.full
 
 _summary()
@@ -34,7 +33,7 @@ _filter()
     sed -e "s@$tmp@TMP@g"
 }
 
-pmdumplog -xz src/slow >$tmp.tmp
+pmdumplog -xz archives/bug-1044 >$tmp.tmp
 echo "log records: `egrep '^([A-Z][a-z][a-z] )|([0-2][0-9]:)' <$tmp.tmp | wc -l | sed -e 's/ //g'`"
 
 # for full output, lines look like
@@ -47,17 +46,17 @@ for metric in hinv.ncpu kernel.all.nprocs pmcd.numagents
 do
     echo
     echo "=== $metric ==="
-    $full && pmdumplog -xz src/slow $metric | egrep '^([A-Z][a-z][a-z] )|([0-2][0-9]:)' | LC_COLLATE=POSIX sort -k 3,3n -k 4,4 >$tmp.tmp
+    $full && pmdumplog -xz archives/bug-1044 $metric | egrep '^([A-Z][a-z][a-z] )|([0-2][0-9]:)' | LC_COLLATE=POSIX sort -k 3,3n -k 4,4 >$tmp.tmp
     $full && LC_COLLATE=POSIX sort -k 3,3n -k 4,4 $tmp.tmp $tmp.mark >>$seq.full
 
     echo
     echo "+++ forwards +++"
-    pmval -z -Dlog -t 1hr -A 1hr -a src/slow $metric 2>$tmp.err
+    pmval -z -Dlog -t 1hr -A 1hr -a archives/bug-1044 $metric 2>$tmp.err
     echo "log reads: `_summary <$tmp.err`"
 
     echo
     echo "+++ backwards +++"
-    src/interp1 -d -s 1000 -a src/slow -t 3600 $metric
+    src/interp1 -d -s 1000 -a archives/bug-1044 -t 3600 $metric
 
     echo "`echo $metric | sed -e 's/\./_/g'` = $metric;" >>$tmp.pmie
 done
@@ -65,14 +64,14 @@ done
 echo
 echo "=== pmcd.numagents converted to discrete semantics ==="
 echo "metric pmcd.numagents {  sem -> discrete }" >$tmp.config
-pmlogrewrite -c $tmp.config src/slow $tmp
+pmlogrewrite -c $tmp.config archives/bug-1044 $tmp
 pmval -z -Dlog -t 1hr -A 1hr -a $tmp pmcd.numagents 2>$tmp.err \
 | _filter
 echo "log reads: `_summary <$tmp.err`"
 
 echo
 echo "=== all metrics at once ==="
-pmie -z -a src/slow -c $tmp.pmie -t 1hr -A 1hr -v -Dlog 2>$tmp.err
+pmie -z -a archives/bug-1044 -c $tmp.pmie -t 1hr -A 1hr -v -Dlog 2>$tmp.err
 echo "log reads: `_summary <$tmp.err`"
 
 

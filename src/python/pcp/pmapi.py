@@ -1,7 +1,7 @@
 # pylint: disable=C0103
 """ Wrapper module for LIBPCP - the core Performace Co-Pilot API """
 #
-# Copyright (C) 2012-2014 Red Hat
+# Copyright (C) 2012-2015 Red Hat
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of the "pcp" module, the python interfaces for the
@@ -289,7 +289,6 @@ class pmUnits(Structure):
     def __str__(self):
         unitstr = ctypes.create_string_buffer(64)
         return str(LIBPCP.pmUnitsStr_r(self, unitstr, 64))
-
 
 class pmValueBlock(Structure):
     """Value block bitfields for different compilers
@@ -1883,6 +1882,19 @@ class pmContext(object):
         (result, '') = pmParseMetricSpec("hinv.ncpu", 0, "localhost")
         """
         return (pmMetricSpec.fromString(string, isarch, source), '')
+
+    @staticmethod
+    def pmParseUnitsStr(string):
+        assert isinstance(string, basestring)
+        result = pmUnits()
+        errmsg = c_char_p()
+        multiplier = c_double()
+        status = LIBPCP.pmParseUnitsStr(string, byref(result), byref(multiplier), byref(errmsg))
+        if status < 0:
+            text = str(errmsg.value)
+            LIBC.free(errmsg)
+            raise pmErr(status, text)
+        return (result, multiplier.value)
 
     @staticmethod
     def pmtimevalSleep(tvp):

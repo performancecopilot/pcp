@@ -1,0 +1,10 @@
+QA output created by 860
+
+metric:    proc.memory.maps
+host:      HOSTNAME
+semantics: instantaneous value
+units:     none
+samples:   1
+
+                   PID 
+                   "" 

@@ -39,14 +39,14 @@ General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP log archive
   -h HOST, --host=HOST  metrics source is PMCD on host
-  --container=NAME      specify the specific container to be queried
+  --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -76,14 +76,14 @@ General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP log archive
   -h HOST, --host=HOST  metrics source is PMCD on host
-  --container=NAME      specify the specific container to be queried
+  --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -113,14 +113,14 @@ General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP log archive
   -h HOST, --host=HOST  metrics source is PMCD on host
-  --container=NAME      specify the specific container to be queried
+  --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -150,14 +150,14 @@ General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP log archive
   -h HOST, --host=HOST  metrics source is PMCD on host
-  --container=NAME      specify the specific container to be queried
+  --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -187,14 +187,14 @@ General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP log archive
   -h HOST, --host=HOST  metrics source is PMCD on host
-  --container=NAME      specify the specific container to be queried
+  --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -224,14 +224,14 @@ General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP log archive
   -h HOST, --host=HOST  metrics source is PMCD on host
-  --container=NAME      specify the specific container to be queried
+  --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -261,14 +261,14 @@ General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP log archive
   -h HOST, --host=HOST  metrics source is PMCD on host
-  --container=NAME      specify the specific container to be queried
+  --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -298,14 +298,14 @@ General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP log archive
   -h HOST, --host=HOST  metrics source is PMCD on host
-  --container=NAME      specify the specific container to be queried
+  --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -335,14 +335,14 @@ General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP log archive
   -h HOST, --host=HOST  metrics source is PMCD on host
-  --container=NAME      specify the specific container to be queried
+  --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -372,14 +372,14 @@ General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP log archive
   -h HOST, --host=HOST  metrics source is PMCD on host
-  --container=NAME      specify the specific container to be queried
+  --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -409,14 +409,14 @@ General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP log archive
   -h HOST, --host=HOST  metrics source is PMCD on host
-  --container=NAME      specify the specific container to be queried
+  --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -446,14 +446,14 @@ General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP log archive
   -h HOST, --host=HOST  metrics source is PMCD on host
-  --container=NAME      specify the specific container to be queried
+  --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -483,14 +483,14 @@ General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP log archive
   -h HOST, --host=HOST  metrics source is PMCD on host
-  --container=NAME      specify the specific container to be queried
+  --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -520,14 +520,14 @@ General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP log archive
   -h HOST, --host=HOST  metrics source is PMCD on host
-  --container=NAME      specify the specific container to be queried
+  --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -557,14 +557,14 @@ General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP log archive
   -h HOST, --host=HOST  metrics source is PMCD on host
-  --container=NAME      specify the specific container to be queried
+  --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -594,14 +594,14 @@ General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP log archive
   -h HOST, --host=HOST  metrics source is PMCD on host
-  --container=NAME      specify the specific container to be queried
+  --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -626,6 +626,7 @@ Metrics options:
 +++ -K add,400,TMP.$DSO_SUFFIX,sample_init +++
 build_dsotab: parsing $PCP_PMCDCONF_PATH
 NotifyEndLocalContext: DSO PMDA $PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX (30) notified of context 0 close
+NotifyEndLocalContext: DSO PMDA $PCP_VAR_DIR/pmdas/linux/pmda_linux.$DSO_SUFFIX (60) notified of context 0 close
 NotifyEndLocalContext: DSO PMDA TMP.$DSO_SUFFIX (400) notified of context 0 close
 
 sample.string.write_me PMID: 30.0.29
@@ -641,14 +642,14 @@ General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP log archive
   -h HOST, --host=HOST  metrics source is PMCD on host
-  --container=NAME      specify the specific container to be queried
+  --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -678,14 +679,14 @@ General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP log archive
   -h HOST, --host=HOST  metrics source is PMCD on host
-  --container=NAME      specify the specific container to be queried
+  --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -709,10 +710,12 @@ Metrics options:
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K del,30 +++
 build_dsotab: parsing $PCP_PMCDCONF_PATH
+NotifyEndLocalContext: DSO PMDA $PCP_VAR_DIR/pmdas/linux/pmda_linux.$DSO_SUFFIX (60) notified of context 0 close
 sample.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 +++ -K del,30, +++
 build_dsotab: parsing $PCP_PMCDCONF_PATH
+NotifyEndLocalContext: DSO PMDA $PCP_VAR_DIR/pmdas/linux/pmda_linux.$DSO_SUFFIX (60) notified of context 0 close
 sample.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 +++ -K del,,sample/pmda_sample.$DSO_SUFFIX +++
@@ -725,14 +728,14 @@ General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP log archive
   -h HOST, --host=HOST  metrics source is PMCD on host
-  --container=NAME      specify the specific container to be queried
+  --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -756,10 +759,12 @@ Metrics options:
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K del,30,sample/pmda_sample.$DSO_SUFFIX, +++
 build_dsotab: parsing $PCP_PMCDCONF_PATH
+NotifyEndLocalContext: DSO PMDA $PCP_VAR_DIR/pmdas/linux/pmda_linux.$DSO_SUFFIX (60) notified of context 0 close
 sample.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 +++ -K del,30,sample/pmda_sample.$DSO_SUFFIX,sample_init +++
 build_dsotab: parsing $PCP_PMCDCONF_PATH
+NotifyEndLocalContext: DSO PMDA $PCP_VAR_DIR/pmdas/linux/pmda_linux.$DSO_SUFFIX (60) notified of context 0 close
 sample.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 +++ -K del,, +++
@@ -770,14 +775,14 @@ General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP log archive
   -h HOST, --host=HOST  metrics source is PMCD on host
-  --container=NAME      specify the specific container to be queried
+  --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -807,14 +812,14 @@ General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP log archive
   -h HOST, --host=HOST  metrics source is PMCD on host
-  --container=NAME      specify the specific container to be queried
+  --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
@@ -844,14 +849,14 @@ General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP log archive
   -h HOST, --host=HOST  metrics source is PMCD on host
-  --container=NAME      specify the specific container to be queried
+  --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
-  -N FILE, --dupnames=FILE
-                        use an alternative PMNS (duplicate names allowed)
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
   -O TIME, --origin=TIME
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone

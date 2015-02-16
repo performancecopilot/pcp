@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2007-2010 Aconex.  All Rights Reserved.
-# Copyright (c) 2013-2014 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -25,16 +25,20 @@ PMDAINIT	= proc_init
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 CONF_LINE	= "proc	3	pipe	binary		$(PMDADIR)/$(CMDTARGET) -d 3"
 
-CFILES		= pmda.c \
-		  cgroups.c proc_pid.c proc_dynamic.c proc_runq.c ksym.c getinfo.c contexts.c
+CFILES		= pmda.c cgroups.c proc_pid.c proc_runq.c proc_dynamic.c\
+		  ksym.c getinfo.c contexts.c gram_node.c config.c error.c hotproc.c
 
 HFILES		= clusters.h indom.h \
-		  cgroups.h proc_pid.h proc_runq.h ksym.h getinfo.h contexts.h
+		  cgroups.h proc_pid.h proc_runq.h ksym.h getinfo.h contexts.h hotproc.h gram_node.h config.h
+
+LFILES		= lex.l
+YFILES		= gram.y
 
 SCRIPTS		= Install Remove
+LOGREWRITERS	= linux_proc_migrate.conf cgroup_units.conf
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
-LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT)
+LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) $(YFILES:%.y=%.tab.?)
 
 LLDLIBS		= $(PCP_PMDALIB)
 LCFLAGS		= $(INVISIBILITY)
@@ -52,22 +56,29 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: domain.h $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
-	@if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
+build-me: domain.h root_proc $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
+	@if [ -f ../pmcd.conf ]; then \
+	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
+	    fi; \
 	fi
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 domain.h help help.dir help.pag root root_proc $(PMDADIR)
+	$(INSTALL) -m 644 domain.h help help.dir help.pag root root_proc samplehotproc.conf $(PMDADIR)
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 root_proc $(PCP_VAR_DIR)/pmns/root_proc
-	$(INSTALL) -m 644 linux_proc_migrate.conf $(PCP_VAR_DIR)/config/pmlogrewrite/linux_proc_migrate.conf
+	$(INSTALL) -m 644 $(LOGREWRITERS) $(PCP_VAR_DIR)/config/pmlogrewrite
 	@$(INSTALL_MAN)
 else
 build-me:
 install:
 endif
+
+.NOTPARALLEL:
+gram.tab.h gram.tab.c:	gram.y
+
+config.o lex.o gram.tab.o:		gram.tab.h
 
 default_pcp : default
 
@@ -82,6 +93,8 @@ $(VERSION_SCRIPT):
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
+gram.tab.o:	hotproc.h
+lex.o:	hotproc.h
 cgroups.o pmda.o: clusters.h
 cgroups.o pmda.o:	cgroups.h
 cgroups.o pmda.o proc_pid.o proc_runq.o:	proc_pid.h

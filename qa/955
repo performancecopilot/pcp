@@ -1,0 +1,87 @@
+#!/bin/sh
+# PCP QA Test No. 955
+# Check that a fetch for a dynamic metric works after interacting
+# with non dynamic metrics in the same domain
+#
+# Copyright (c) 2014 Martins Innus.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# TODO: use a LINUX_STATSPATH root to make test deterministic
+_notrun "WIP - needs to handle platform interrupts differences"
+[ -d $PCP_PMDAS_DIR/linux ] || _notrun "Linux PMDA not installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+        -e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+        -e 's/value [0-9][0-9]*.*/value NUMBER/' \
+        -e 's/0x[0-9a-f]*/ADDR/g' \
+        -e 's/[0-2][0-9]:00:00.000/TIME/' \
+        -e 's/60.[0-9][0-9]*.[0-9][0-9]*/60.NUMBER.NUMBER/'
+}
+
+_count_leafs()
+{
+   grep leaf |	$PCP_AWK_PROG '
+		END {if (NR > 2) print "LEAFS OK" 
+			   else print "NO LEAFS"}'
+   
+}
+
+
+# vars and checks
+pipepmda=$PCP_PMDAS_DIR/linux/pmdalinux
+[ ! -f $pipepmda ] && echo "FATAL ERROR Could not find \"$pipepmda\"" && exit 1
+
+# real QA test starts here
+
+# Test real regression that occured when updating dynamic metrics
+echo "=== Daemon PMDA linux static text then dynamic fetch test ==="
+$sudo dbpmda -ie <<EOF 2>&1 | _filter
+open pipe $pipepmda -d 60
+text hinv.ncpu
+fetch kernel.percpu.interrupts.line1
+EOF
+
+
+# Try a couple of other plausible failures
+
+# Static fetch then dynamic fetch
+echo "=== Daemon PMDA linux static fetch then dynamic fetch test ==="
+$sudo dbpmda -ie <<EOF 2>&1 | _filter
+open pipe $pipepmda -d 60
+fetch hinv.ncpu
+fetch kernel.percpu.interrupts.line1
+EOF
+
+# Dynamic fetch then static fetch
+echo "=== Daemon PMDA linux dynamic then static fetch test ==="
+$sudo dbpmda -ie <<EOF 2>&1 | _filter
+open pipe $pipepmda -d 60
+fetch kernel.percpu.interrupts.line1
+fetch hinv.ncpu
+EOF
+
+# Dump a dynamic tree
+echo "=== Daemon PMDA linux look for dynamic children ==="
+$sudo dbpmda -ie <<EOF 2>&1 | _filter | _count_leafs
+open pipe $pipepmda -d 60
+children kernel.percpu.interrupts
+EOF
+
+# success, all done
+status=0
+
+exit

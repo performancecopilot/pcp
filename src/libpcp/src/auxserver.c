@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2015 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -281,8 +281,8 @@ __pmServerCreatePIDFile(const char *spec, int verbose)
     }
     atexit(pidonexit);
     fprintf(pidfile, "%" FMT_PID, getpid());
+    (void)fchmod(fileno(pidfile), S_IRUSR | S_IRGRP | S_IROTH);
     fclose(pidfile);
-    chmod(pidpath, S_IRUSR | S_IRGRP | S_IROTH);
     return 0;
 }
 

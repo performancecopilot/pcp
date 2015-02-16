@@ -5,17 +5,20 @@ dometric(const char *name)
 {
     int			sts;
     metric_t		*mp;
+    int			j;
+    int			numnames;
+    char		**names;
 
     if ((namelist = (char **)realloc(namelist, (numpmid+1)*sizeof(namelist[0]))) == NULL) {
 	fprintf(stderr,
-	    "%s: dometric: Error: cannot realloc space for %d names\n",
+	    "%s: dometric: Error: cannot realloc space for %d namelist\n",
 		pmProgname, numpmid+1);
 	exit(1);
     }
     namelist[numpmid] = strdup(name);
     if ((pmidlist = (pmID *)realloc(pmidlist, (numpmid+1)*sizeof(pmidlist[0]))) == NULL) {
 	fprintf(stderr,
-	    "%s: dometric: Error: cannot realloc space for %d pmIDs\n",
+	    "%s: dometric: Error: cannot realloc space for %d pmidlist\n",
 		pmProgname, numpmid+1);
 	exit(1);
     }
@@ -55,6 +58,20 @@ dometric(const char *name)
 	mp->mode = MODE_SKIP;
 	goto done;
     }
+    
+    /*
+     * if we've already seen this PMID it is a duplicate name in the
+     * PMNS, so remove this one from the fetch list as we only need
+     * to instantiate the value once in each pmFetch ... any duplicate
+     * PMNS names are added to the output archive metadata when
+     * __pmLogPutDesc() is called below.
+     */
+    for (j = 0; j < numpmid; j++) {
+	if (pmidlist[j] == pmidlist[numpmid]) {
+	    numpmid--;
+	    goto done;
+	}
+    }
 
     /*
      * input -> output descriptor mapping ... has to be the same
@@ -92,10 +109,20 @@ dometric(const char *name)
 	    break;
 #endif
     }
+
+    /* get all the names for this metric ... */
+    if ((numnames = pmNameAll(pmidlist[numpmid], &names)) < 0) {
+	fprintf(stderr,
+	    "%s: Error: failed to get names for %s (%s): %s\n",
+		pmProgname, namelist[numpmid], pmIDStr(pmidlist[numpmid]), pmErrStr(sts));
+	exit(1);
+    }
+
 #if PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0) {
-	fprintf(stderr, "metric: \"%s\" (%s)\n",
-	    namelist[numpmid], pmIDStr(pmidlist[numpmid]));
+	fprintf(stderr, "metric: \"");
+	__pmPrintMetricNames(stderr, numnames, names, " or ");
+	fprintf(stderr, "\" (%s)\n", pmIDStr(pmidlist[numpmid]));
 	fprintf(stderr, "input descriptor:\n");
 	__pmPrintDesc(stderr, &mp->idesc);
 	fprintf(stderr, "output descriptor (added to archive):\n");
@@ -103,12 +130,15 @@ dometric(const char *name)
     }
 #endif
 
-    if ((sts = __pmLogPutDesc(&logctl, &mp->odesc, 1, &namelist[numpmid])) < 0) {
+    if ((sts = __pmLogPutDesc(&logctl, &mp->odesc, numnames, names)) < 0) {
 	fprintf(stderr,
-	    "%s: Error: failed to add pmDesc for %s (%s): %s\n",
-		pmProgname, namelist[numpmid], pmIDStr(pmidlist[numpmid]), pmErrStr(sts));
+	    "%s: Error: failed to add pmDesc for", pmProgname);
+	__pmPrintMetricNames(stderr, numnames, names, " or ");
+	fprintf(stderr,
+	    " (%s): %s\n", pmIDStr(pmidlist[numpmid]), pmErrStr(sts));
 	exit(1);
     }
+    free(names);
 
     /*
      * instance domain initialization
@@ -117,7 +147,6 @@ dometric(const char *name)
 	/*
 	 * has an instance domain, check to see if it has already been seen
 	 */
-	int		j;
 
 	for (j = 0; j <= numpmid; j++) {
 	    if (metriclist[j].idp != NULL && 

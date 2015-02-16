@@ -45,6 +45,12 @@ s/ i:[0-9] / i:? /
 s/lib=[^ ]*/lib=[OS]pmda.$DSO_SUFFIX/
 s/entry=[^ ]*/entry=[OS]_init/
 }' \
+	-e '/^linux.*pmdalinux/{
+s/linux/[OS] /
+s/60.*bin/??                 N dso/
+s/ pipe / i:?  /
+s/cmd=[^ ]*/lib=[OS]pmda.$DSO_SUFFIX entry=[OS]_init/
+}' \
 	-e '/^darwin.*pmda_darwin/{
 s/darwin/[OS]  /
 s/78/??/
@@ -189,6 +195,7 @@ _filter_dbg()
 _filter_optional_pmdas()
 {
     sed \
+	-e '/pmdaroot/d' \
 	-e '/pmdaaconex/d' \
 	-e '/pmdaapache/d' \
 	-e '/pmdaarray/d' \
@@ -216,6 +223,7 @@ _filter_optional_pmdas()
 	-e '/pmdajstat/d' \
 	-e '/pmdakvm/d' \
 	-e '/pmdalab/d' \
+	-e '/pmdalinux/d' \
 	-e '/pmdalogger/d' \
 	-e '/pmdalmsensors/d' \
 	-e '/pmdalockstat/d' \
@@ -286,6 +294,7 @@ _filter_top_pmns()
 	-e '/^    brocade /d' \
 	-e '/^    broken /d' \
 	-e '/^    cgroup /d' \
+	-e '/^    containers /d' \
 	-e '/^    cisco /d' \
 	-e '/^    datatape /d' \
 	-e '/^    dbping /d' \
@@ -319,6 +328,7 @@ _filter_top_pmns()
 	-e '/^    news /d' \
 	-e '/^    nginx /d' \
 	-e '/^    nvidia /d' \
+	-e '/^    papi /d' \
 	-e '/^    perfevent /d' \
 	-e '/^    oracle /d' \
 	-e '/^    oraping /d' \
@@ -435,6 +445,8 @@ s/\.\.\.\.*/.../
 	-e 's/^\(Waiting .*\.\.\.\)\(\$PCP_RC_DIR\)/\1\
 \2/' \
 	-e '/^[ 	]*$/d' \
+	-e '/is not a native service, redirecting to .*chkconfig/d' \
+	-e '/^Executing .*chkconfig pm.* --level=5/d' \
     | _filter_init_distro
 }
 
@@ -457,6 +469,8 @@ s/\.\.\.\.*/.../
 	-e '/^Waiting for pmie/s/\.\.\. *$/.../' \
 	-e '/^Performance Co-Pilot/s/\.\.\. *$/.../' \
         -e '/^\.[. ]*done$/d' \
+	-e '/is not a native service, redirecting to .*chkconfig/d' \
+	-e '/^Executing .*chkconfig pm.* --level=5/d' \
     | _filter_init_distro
 }
 
@@ -660,10 +674,8 @@ _filter_torture_api()
 	-e '/^    cihb /d' \
 	-e '/^    cms /d' \
 	-e '/^    cxfs /d' \
-	-e '/^    dmcache /d' \
 	-e '/^    ds389 /d' \
 	-e '/^    dynamic /d' \
-	-e '/^    elasticsearch /d' \
 	-e '/^    engr /d' \
 	-e '/^    feature /d' \
 	-e '/^    idiot /d' \
@@ -682,9 +694,7 @@ _filter_torture_api()
 	-e '/^    netfilter /d' \
 	-e '/^    numa /d' \
 	-e '/^    nvidia /d' \
-	-e '/^    perfevent /d' \
 	-e '/^    origin /d' \
-	-e '/^    papi /d' \
 	-e '/^    pdns /d' \
 	-e '/^    p76 /d' \
 	-e '/^    process /d' \
@@ -702,9 +712,7 @@ _filter_torture_api()
 	-e '/^    vmware /d' \
 	-e '/^    waitio /d' \
 	-e '/^    xvm /d' \
-	-e '/^    zimbra /d' \
-	-e '/^    zswap /d' \
-
+    # end
 }
 
 _filter_install()

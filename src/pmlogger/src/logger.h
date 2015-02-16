@@ -35,11 +35,13 @@ typedef struct task_s {
     pmDesc		*t_desclist;
     fetchctl_t		*t_fetch;
     int			t_afid;
+    int			t_alarm;	/* set when log_callback() called for this task */
     int			t_size;
 } task_t;
 
 extern task_t		*tasklist;	/* master list of tasks */
 extern __pmLogCtl	logctl;		/* global log control */
+extern int log_alarm;			/* set when log_callback() called for any task */
 
 /* config file parser states */
 #define GLOBAL  0
@@ -117,6 +119,7 @@ extern void freeinst(int *, int *, char **);
 extern void linkback(task_t *);
 extern optreq_t *findoptreq(pmID, int);
 extern void log_callback(int, void *);
+extern void do_work(task_t *);
 extern int chk_one(task_t *, pmID, int);
 extern int chk_all(task_t *, pmID);
 extern int newvolume(int);

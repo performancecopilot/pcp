@@ -1,7 +1,7 @@
 /*
  * Linux /proc/<pid>/... Clusters
  *
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2015 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -18,6 +18,8 @@
 #define _PROC_PID_H
 
 #include "proc_runq.h"
+#include "hotproc.h"
+
 
 /*
  * /proc/<pid>/stat metrics
@@ -264,7 +266,15 @@ typedef struct {
 } proc_pid_list_t;
 
 /* refresh the proc indom, reset all "fetched" flags */
-extern int refresh_proc_pid(proc_pid_t *, proc_runq_t *, int, const char *);
+extern int refresh_proc_pid(proc_pid_t *, proc_runq_t *, int, const char *, const char *, int);
+
+extern int refresh_hotproc_pid(proc_pid_t *, int, const char *);
+
+extern int get_hot_totals(double * ta, double * ti, double * tt, double * tci );
+
+extern int get_hotproc_node(pid_t pid, process_t **getnode);
+
+extern void reset_hotproc_timer(void);
 
 /* fetch a proc/<pid>/stat entry for pid */
 extern proc_pid_entry_t *fetch_proc_pid_stat(int, proc_pid_t *, int *);
@@ -295,5 +305,7 @@ extern proc_pid_entry_t *fetch_proc_pid_label(int, proc_pid_t *, int *);
 
 /* extract the ith space separated field from a buffer */
 extern char *_pm_getfield(char *, int);
+
+extern void init_hotproc_pid(proc_pid_t *);
 
 #endif /* _PROC_PID_H */

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2014 Red Hat.
+# Copyright (c) 2012-2015 Red Hat.
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -38,7 +38,7 @@ SRCARCH	= mirage.0 moomba.client.0 \
 	multi-vm00.0 multi-vm01.0 multi-vm02.0 multi-vm03.0 pmatop-log.0 \
 	new_mysql.0 new_snmp.0 old_xfs.0 node_archive.0 count-mark.0 \
 	pyapi.0 pcp-free.0 pcp-uptime.0 pcp-numastat-1-node.0 numa.0 \
-	slow.0 bug1057.0
+	bug1057.0
 
 SRCARCHPART = ok-noti-bigbin.0 pmatop-log.folio \
 	20130706.0.bz2 20130706.index 20130706.meta
@@ -74,7 +74,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	grind_conv.c getconfig.c err.c torture_logmeta.c keycache.c \
 	keycache2.c pmdaqueue.c drain-server.c template.c anon-sa.c \
 	username.c rtimetest.c getcontexthost.c badpmda.c chkputlogresult.c \
-	churnctx.c badUnitsStr_r.c
+	churnctx.c badUnitsStr_r.c units-parse.c rootclient.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
@@ -158,6 +158,7 @@ PERLFILES = \
 # not installed:
 PLFILES = $(shell echo $(PERLFILES) | sed -e 's/\.perl/.pl/g')
 
+ifeq "$(ENABLE_PYTHON)" "true"
 PYTHONFILES = \
 	test_pcp.python test_pmcc.python \
 	test_pmi.python check_import.python \
@@ -166,6 +167,10 @@ PYTHONFILES = \
 	test_pcp_time.python
 # not installed:
 PYFILES = $(shell echo $(PYTHONFILES) | sed -e 's/\.python/.py/g')
+else
+PYTHONFILES =
+PYFILES =
+endif
 
 ifneq "$(TARGET_OS)" "mingw"
 CFILES += $(POSIXFILES) $(TRACEFILES)
@@ -444,7 +449,7 @@ domain.h:	$(PCP_VAR_DIR)/pmns/stdpmid
 
 pmdashutdown:	pmdashutdown.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ pmdashutdown.c -lpcp_pmda $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
 
 dumb_pmda: dumb_pmda.c
 	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
@@ -453,6 +458,9 @@ pmdacache: pmdacache.c
 	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
 
 pmdaqueue: pmdaqueue.c
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
+
+rootclient: rootclient.c
 	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
 
 atomstr: atomstr.c
@@ -759,6 +767,10 @@ torture_indom: torture_indom.c
 torture_pmns: torture_pmns.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ torture_pmns.c $(LDLIBS)
+
+units-parse: units-parse.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ units-parse.c $(LDLIBS)
 
 # --- miscellaneous
 #

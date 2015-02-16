@@ -136,6 +136,18 @@ echo "=== check env variable gets used over default..."
 pmieconf list all
 echo status=$?
 
+# debug check ... someone's clobbering pconf
+#
+if `which git >/dev/null 2>&1`
+then
+    if git config --get remote.origin.url >/dev/null
+    then
+	# assume we're in a git repository, but may be older version of
+	# git (so -s does not work)
+	git status | grep pconf
+    fi
+fi
+
 # success, all done
 status=0
 exit

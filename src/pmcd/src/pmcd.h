@@ -221,7 +221,7 @@ extern pmResult **SplitResult(pmResult *);
  * This is reported in the pmcd.openfds metric.
  */
 PMCD_EXTERN int pmcd_hi_openfds;
-extern void pmcd_openfds_sethi(int fd);
+extern void pmcd_openfds_sethi(int);
 
 /* Explicitly requested hostname (pmcd.hostname metric) */
 PMCD_EXTERN char *_pmcd_hostname;

@@ -116,5 +116,18 @@ PCP_PMDA_3.3 {
 
 PCP_PMDA_3.4 {
   global:
+    pmdaInterfaceMoved;
     pmdaNodeLookup;
+
+    pmdaRootConnect;
+    pmdaRootShutdown;
+    pmdaRootContainerHostName;
+    pmdaRootContainerProcessID;
+    pmdaRootContainerCGroupName;
+
+    __pmdaSendRootPDUInfo;
+    __pmdaRecvRootPDUInfo;
+    __pmdaSendRootPDUContainer;
+    __pmdaRecvRootPDUContainer;
+    __pmdaDecodeRootPDUContainer;
 } PCP_PMDA_3.3;

@@ -1,0 +1,58 @@
+#!/bin/sh
+# PCP QA Test No. 837
+# Exercise basic --container option handling in libpcp[_pmda].
+#
+# Copyright (c) 2015 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_get_libpcp_config
+$unix_domain_sockets || _notrun "No unix domain socket support available"
+_check_containers
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    grep -i attribute | \
+    sed \
+	-e "s/processid=[0-9][0-9]*/processid=PID/" \
+	-e "s/groupid=$gid/groupid=GID/" \
+	-e "s/userid=$uid/userid=UID/" \
+	-e '/ctx=[0-9][0-9]*/s//ctx=N/' \
+	-e '/pmdasample([0-9][0-9]*)/s//pmdasample(PID)/' \
+	-e 's/^\[[A-Z].. [A-Z]..  *[0-9][0-9]* ..:..:..]/[DATETIME]/'
+}
+
+# real QA test starts here
+uid=`id -u`
+gid=`id -g`
+
+# reset the sample PMDA logfile
+$sudo $PCP_RC_DIR/pcp start >/dev/null 2>&1
+_wait_for_pmcd
+_wait_for_pmlogger
+
+# store to enable verbose attribute diagnostics
+authdbg=`pmdbg -l | grep DBG_TRACE_AUTH | awk '{ print $2 }'`
+pmstore sample.control $authdbg
+
+pminfo --container=wedge sample >/dev/null 2>&1
+pmprobe --container=tailed sample >/dev/null 2>&1
+pmval -s1 --container=eagle sample.dodgey.value >/dev/null 2>&1
+
+cat $PCP_LOG_DIR/pmcd/sample.log | _filter
+pmstore sample.control 0
+
+# success, all done
+status=0
+exit

@@ -296,15 +296,16 @@ main(int argc, char **argv)
 		printf("\nInDom %s:", pmInDomStr((pmInDom)id));
 	    }
 	    else {
-		char		*p;
+		char		**names;
 		if (!allpmid)
 		    continue;
 
 		printf("\nPMID %s", pmIDStr((pmID)id));
-		sts = pmNameID(id, &p);
-		if (sts == 0) {
-		    printf(" %s", p);
-		    free(p);
+		sts = pmNameAll(id, &names);
+		if (sts > 0) {
+		    printf(" ");
+		    __pmPrintMetricNames(stdout, sts, names, " or ");
+		    free(names);
 		}
 		putchar(':');
 	    }

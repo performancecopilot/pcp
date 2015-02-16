@@ -14,6 +14,12 @@ echo "QA output created by $seq"
 . ./common.check
 
 test -e $PCP_PMDAS_DIR/unbound || _notrun "unbound PMDA not installed"
+if which unbound-control >/dev/null 2>&1
+then
+    :
+else
+    _notrun "unbound-control not installed"
+fi
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full

@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2014 Aconex
-# Copyright (c) 2014 Red Hat
+# Copyright (c) 2014-2015 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -62,11 +62,22 @@ sub test_perl_update_status
     }
 }
 
+sub test_perl_store_callback
+{
+    my ($cluster, $item, $inst, $val) = @_;
+
+    if ($cluster == 0 && $item == 0) {
+	$refreshes = $val;
+	return 0;
+    }
+    return PM_ERR_PERMISSION;
+}
+
 sub test_perl_fetch_callback
 {
     my ($cluster, $item, $inst) = @_;
 
-    if($cluster ==0) {
+    if ($cluster == 0) {
         if ($item == 0) {
             return ($refreshes, 1);
         }
@@ -106,6 +117,7 @@ $other_indom = $pmda->add_indom($other_indom, {},
 		'Instance domain exporting other instances', '');
 
 $pmda->set_fetch_callback(\&test_perl_fetch_callback);
+$pmda->set_store_callback(\&test_perl_store_callback);
 $pmda->set_refresh(\&test_perl_update_status);
 $pmda->set_user('pcp');
 $pmda->run;

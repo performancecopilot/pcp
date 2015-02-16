@@ -40,8 +40,10 @@
 #define CGROUP_SUBSYS_INDOM	37 /* - control group subsystems */
 #define CGROUP_MOUNTS_INDOM	38 /* - control group mounts */
 
+#define HOTPROC_INDOM		39 /* - hot procs */
+
 #define MIN_INDOM  9		/* first indom number we use here */
-#define NUM_INDOMS 39		/* one more than highest indom number we use here */
+#define NUM_INDOMS 40		/* one more than highest indom number we use here */
 
 extern pmInDom proc_indom(int);
 #define INDOM(i) proc_indom(i)

@@ -1,0 +1,17 @@
+#
+# schizo help file - Version A
+#
+
+@ schizo.version "A"
+
+@ schizo.foo changes pmid
+
+@ schizo.fumble pmid 421.0.2 in Version A
+
+@ schizo.data1 changes data type
+
+@ schizo.data2 changes data semantics
+
+@ schizo.data3 changes indom
+
+@ schizo.data4 changes units

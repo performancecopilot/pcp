@@ -1,7 +1,7 @@
 /*
  * Common argument parsing for all PMAPI client tools.
  *
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014-2015 Red Hat.
  * Copyright (C) 1987-2014 Free Software Foundation, Inc.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -405,6 +405,10 @@ __pmAddOptArchiveFolio(pmOptions *opts, char *arg)
     if (opts->nhosts && !(opts->flags & PM_OPTFLAG_MIXED)) {
 	pmprintf("%s: only one of hosts or archives allowed\n", pmProgname);
 	opts->errors++;
+    } else if (arg == NULL) {
+	pmprintf("%s: cannot open empty archive folio name\n", pmProgname);
+	opts->flags |= PM_OPTFLAG_RUNTIME_ERR;
+	opts->errors++;
     } else if ((fp = fopen(arg, "r")) == NULL) {
 	pmprintf("%s: cannot open archive folio %s: %s\n", pmProgname,
 		arg, pmErrStr_r(-oserror(), buffer, sizeof(buffer)));
@@ -725,6 +729,8 @@ __pmStartOptions(pmOptions *opts)
 	else if (strcmp(s, "LOCALMODE") == 0)
 	    __pmSetLocalContextFlag(opts);
 	else if (strcmp(s, "NAMESPACE") == 0)
+	    __pmSetNameSpace(opts, value, 1);
+	else if (strcmp(s, "UNIQNAMES") == 0)
 	    __pmSetNameSpace(opts, value, 0);
 	else if (strcmp(s, "ORIGIN") == 0 ||
 		 strcmp(s, "ORIGIN_TIME") == 0)
@@ -803,10 +809,10 @@ pmGetOptions(int argc, char *const *argv, pmOptions *opts)
 	    __pmSetLocalContextFlag(opts);
 	    break;
 	case 'N':
-	    __pmSetNameSpace(opts, opts->optarg, 1);
+	    __pmSetNameSpace(opts, opts->optarg, 0);
 	    break;
 	case 'n':
-	    __pmSetNameSpace(opts, opts->optarg, 0);
+	    __pmSetNameSpace(opts, opts->optarg, 1);
 	    break;
 	case 'O':
 	    __pmSetOrigin(opts, opts->optarg);

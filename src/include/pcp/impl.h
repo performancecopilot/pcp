@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -246,6 +246,8 @@ extern void __pmUsePMNS(__pmnsTree *); /* for debugging */
 extern int __pmFixPMNSHashTab(__pmnsTree *, int, int);
 extern int __pmAddPMNSNode(__pmnsTree *, int, const char *);
 
+/* helper routine to print all names of a metric */
+extern void __pmPrintMetricNames(FILE *, int, char **, char *);
 
 /* return true if the named pmns file has changed */
 extern int __pmHasPMNSFileChanged(const char *);
@@ -795,6 +797,7 @@ typedef struct {
 #endif
 } __pmVersionCred;
 
+extern void __pmIgnoreSignalPIPE(void);
 extern int __pmXmitPDU(int, __pmPDU *);
 extern int __pmGetPDU(int, int, int, __pmPDU **);
 extern int __pmGetPDUCeiling(void);

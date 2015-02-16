@@ -25,10 +25,11 @@ static pmLongOptions longopts[] = {
     PMOPT_ARCHIVE,
     PMOPT_DEBUG,
     PMOPT_HOST,
+    PMOPT_CONTAINER,
     PMOPT_LOCALPMDA,
     PMOPT_SPECLOCAL,
     PMOPT_NAMESPACE,
-    PMOPT_DUPNAMES,
+    PMOPT_UNIQNAMES,
     PMOPT_ORIGIN,
     PMOPT_TIMEZONE,
     PMOPT_HOSTZONE,
@@ -223,15 +224,15 @@ dump_parameter(pmValueSet *xvsp, int index, int *flagsp)
 {
     int		sts, flags = *flagsp;
     pmDesc	desc;
-    char	*name;
+    char	**names;
 
-    if (pmNameID(xvsp->pmid, &name) >= 0) {
+    if ((sts = pmNameAll(xvsp->pmid, &names)) >= 0) {
 	if (index == 0) {
 	    if (xvsp->pmid == pmid_flags) {
 		flags = *flagsp = xvsp->vlist[0].value.lval;
 		printf(" flags 0x%x", flags);
 		printf(" (%s) ---\n", pmEventFlagsStr(flags));
-		free(name);
+		free(names);
 		return;
 	    }
 	    else
@@ -242,11 +243,13 @@ dump_parameter(pmValueSet *xvsp, int index, int *flagsp)
 	    (xvsp->pmid == pmid_missed)) {
 	    printf("        ==> %d missed event records\n",
 			xvsp->vlist[0].value.lval);
-	    free(name);
+	    free(names);
 	    return;
 	}
-	printf("    %s (%s)\n", name, pmIDStr(xvsp->pmid));
-	free(name);
+	printf("    ");
+	__pmPrintMetricNames(stdout, sts, names, " or ");
+	printf(" (%s)\n", pmIDStr(xvsp->pmid));
+	free(names);
     }
     else
 	printf("	PMID: %s\n", pmIDStr(xvsp->pmid));

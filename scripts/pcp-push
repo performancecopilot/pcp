@@ -1,0 +1,163 @@
+#!/bin/sh
+#
+# typical usage:
+# push-pcp -b dev -t pcp -r 6bad98e4b0537c2e99b3906ca7a36f4998ea3419..
+#
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+_usage()
+{
+    echo >&2 "Usage: pcp-push [options]"
+    echo >&2
+    echo >&2 "options:"
+    echo >&2 "  -b branch           [defaults to dev]"
+    echo >&2 "  -n                  dryrun"
+    echo >&2 "  -r range            [defaults to \$(cat pushed.sha)..)]"
+    echo >&2 "  -t tree             [defaults to pcp]"
+    echo >&2 "  -s                  short format, do not include commit messages"
+    exit 1
+}
+
+dryrun=false
+GIT=git
+branch=dev
+tree=pcp
+short=false
+if [ -f pushed.sha ]
+then
+    range=$(cat pushed.sha)..
+else
+    range=''
+fi
+while getopts "b:nr:st:?" c
+do
+    case $c
+    in
+	b)
+	    branch="$OPTARG"
+	    ;;
+	n)
+	    dryrun=true
+	    GIT="echo + git"
+	    ;;
+	r)
+	    range="$OPTARG"
+	    ;;
+	s)
+	    short=true
+	    ;;
+	t)
+	    branch="$OPTARG"
+	    ;;
+	*)
+	    _usage
+	    # NOTREACHED
+    esac
+done
+shift `expr $OPTIND - 1`
+
+[ $# -eq 0 ] || _usage
+
+if [ -z "$range" ]
+then
+    echo "Error: no range from pushed.sha, so need -r range"
+    exit 1
+fi
+
+
+unset GIT_EXTERNAL_DIFF
+#old# pull=git://git.pcp.io/$tree.git
+#old# push="ssh://git.pcp.io/oss/git/$tree.git $branch"
+pull=`git config remote.origin.url`
+push=`echo "$pull" | sed -e 's/^git:/ssh:/' -e "s;/git.pcp.io/;/git.pcp.io/oss/git/;"`
+push="$push $branch"
+echo "Changes committed to $pull $branch" >/tmp/msg
+echo >>/tmp/msg
+git shortlog --no-merges --numbered $range >>/tmp/msg
+git log --no-merges -p $range | diffstat -p1 >>/tmp/msg
+if $short
+then
+    :
+else
+    echo >>/tmp/msg
+    echo "Details ..." >>/tmp/msg
+    git log --no-merges $range >>/tmp/msg
+fi
+
+xclip -sel clip < /tmp/msg
+cat /tmp/msg
+echo "(all of this for email is in /tmp/msg)"
+rm -f $tmp.y
+while true
+do
+    echo -n "Push to $push? [y|n|q] (or ctrl+C to abort) "
+    read ans </dev/tty
+    if [ -z "$ans" ]
+    then
+	:
+    elif [ "$ans" = y ]
+    then
+	touch $tmp.y
+	break
+    elif [ "$ans" = n ]
+    then
+    	break
+    elif [ "$ans" = q ]
+    then
+	echo "Quitting ... pushed.sha not updated"
+	exit
+    fi
+    echo "Answer the question, bozo!"
+done
+if [ -f $tmp.y ]
+then
+    $GIT push $push
+    $GIT push --tags $push
+fi
+
+rm -f $tmp.y
+while true
+do
+    echo -n "Push to github mirror? [y|n|q] (or ctrl+C to abort) "
+    read ans </dev/tty
+    if [ -z "$ans" ]
+    then
+	:
+    elif [ "$ans" = y ]
+    then
+	touch $tmp.y
+	break
+    elif [ "$ans" = n ]
+    then
+    	break
+    elif [ "$ans" = q ]
+    then
+	echo "Quitting ... pushed.sha not updated"
+	exit
+    fi
+    echo "Answer the question, bozo!"
+done
+if [ -f $tmp.y ]
+then
+    push="ssh://git@github.com/performancecopilot/pcp.git"
+    $GIT push --mirror $push
+fi
+
+# remember last commit that was pushed ...
+#
+sha=`git log | sed -e 's/commit //' -e 1q`
+if $dryrun
+then
+    echo "+ echo $sha >pushed.sha"
+else
+    echo "$sha" >pushed.sha
+    case `id -un`
+    in
+	kenj)
+	    echo "To send commit mail ..."
+	    echo 'thunderbird -compose to=pcp@oss.sgi.com,subject="pcp updates",body="`cat /tmp/msg`"'
+	    ;;
+    esac
+fi

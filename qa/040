@@ -14,6 +14,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 trap "$sudo rm -f $tmp.*; exit" 0 1 2 3 15
+rm -f $seq.full
 
 if ps l -p 1 2>/dev/null | sed -e 1q | grep RSS >/dev/null
 then
@@ -42,17 +43,18 @@ NR == 1	{ for (i = 1; i <= NF; i++) {
 
 rm -f $tmp.*
 cat <<End-of-File >$tmp.config
-log mandatory on 5 msec {
+log mandatory on 20 msec {
     pmcd.control
 }
 End-of-File
 
-_start_up_pmlogger -c $tmp.config -l $tmp.log -s 3000 $tmp
+#debug# _start_up_pmlogger -c $tmp.config -Daf,appl2,desperate -l $tmp.log -s 1000 $tmp
+_start_up_pmlogger -c $tmp.config -l $tmp.log -s 1000 $tmp
 mylogger=$pid
 _wait_for_pmlogger $mylogger $tmp.log
 
 seen=0
-for i in 1 2 3 4 5 6 7 8
+for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
 do
 sleep 1
 ps $ps_arg -p $mylogger \
@@ -68,8 +70,8 @@ done \
 | while read cnt sz
 do
     seen=`expr $seen + 1`
-    # expect one line, with a count of 8 sizes, all the same!
-    if [ $seen -gt 1 -o $cnt -ne 8 ]
+    # expect one line, with a count of 15 sizes, all the same!
+    if [ $seen -gt 1 -o $cnt -ne 15 ]
     then
 	echo "Error: pmlogger virtual or resident size grew ... memory leak?"
 	echo "       or maybe pmlogger died, or failed to start"
@@ -87,6 +89,7 @@ done
 echo "OK"
 
 _wait_pmlogger_end $mylogger
+cat $tmp.log >>$seq.full
 echo
 echo "pmlogger log"
 _filter_pmlogger_log <$tmp.log

@@ -22,6 +22,85 @@
    obj:*
 }
 
+# and on vm11
+#	at 0x4023F50: malloc (vg_replace_malloc.c:236)
+#	by 0x4085CAE: __pmHashAdd (hash.c:85)
+#	by 0x4060CB8: addindom (logmeta.c:66)
+#	by 0x4061D57: __pmLogLoadMeta (logmeta.c:329)
+#	by 0x406821E: __pmLogOpen (logutil.c:1013)
+#	by 0x4048632: pmNewContext (context.c:579)
+#	by 0x8048F2B: main (interp2.c:119)
+# which is bogus
+{
+   Valgrind 3.6.0.SVN-Debian botch #1 loadmeta
+   Memcheck:Leak
+   fun:malloc
+   fun:__pmHashAdd
+   fun:addindom
+   fun:__pmLogLoadMeta
+   fun:__pmLogOpen
+   fun:pmNewContext
+   fun:main
+}
+
+# also on vm11, similar to above
+#	at 0x4023F50: malloc (vg_replace_malloc.c:236)
+#	by 0x4060B93: addindom (logmeta.c:45)
+#	by 0x4061D57: __pmLogLoadMeta (logmeta.c:329)
+#	by 0x406821E: __pmLogOpen (logutil.c:1013)
+#	by 0x4048632: pmNewContext (context.c:579)
+#	by 0x8048F2B: main (interp2.c:119)
+{
+   Valgrind 3.6.0.SVN-Debian botch #2 loadmeta
+   Memcheck:Leak
+   fun:malloc
+   fun:addindom
+   fun:__pmLogLoadMeta
+   fun:__pmLogOpen
+   fun:pmNewContext
+   fun:main
+}
+
+# also on vm11, similar to above
+#	at 0x4023F50: malloc (vg_replace_malloc.c:236)
+#	by 0x4061C4D: __pmLogLoadMeta (logmeta.c:271)
+#	by 0x406821E: __pmLogOpen (logutil.c:1013)
+#	by 0x4048632: pmNewContext (context.c:579)
+#	by 0x8048F2B: main (interp2.c:119)
+{
+   Valgrind 3.6.0.SVN-Debian botch #3 loadmeta
+   Memcheck:Leak
+   fun:malloc
+   fun:__pmLogLoadMeta
+   fun:__pmLogOpen
+   fun:pmNewContext
+   fun:main
+}
+
+# also on vm11
+#	at 0x4023F50: malloc (vg_replace_malloc.c:236)
+#	by 0x404CD8B: __pmDecodeResult (p_result.c:236)
+#	by 0x4065516: __pmLogRead (logutil.c:1662)
+#	by 0x4069E52: cache_read (interp.c:198)
+#	by 0x406CD17: __pmLogFetchInterp (interp.c:872)
+#	by 0x4067657: __pmLogFetch (logutil.c:1749)
+#	by 0x4049D65: pmFetch (fetch.c:151)
+#	by 0x8049514: main (interp4.c:240)
+{
+   Valgrind 3.6.0.SVN-Debian botch
+   Memcheck:Leak
+   fun:malloc
+   fun:__pmDecodeResult
+   fun:__pmLogRead
+   fun:cache_read
+   fun:__pmLogFetchInterp
+   fun:__pmLogFetch
+   fun:pmFetch
+   fun:main
+}
+
+
+
 # dlopen issues seen with valgrind 3.6.0 on i586 Debian 6.0.7
 {
    dlopen -> local_strdup

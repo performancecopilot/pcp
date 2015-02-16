@@ -1,0 +1,52 @@
+#!/bin/sh
+# PCP QA Test No. 926
+# Exercise the ganglia2pcp utility
+#
+# Copyright (c) 2015 Martins Innus.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which ganglia2pcp >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "ganglia2pcp not installed"
+
+perl -e "use Date::Parse" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl Date::Parse module not installed"
+
+perl -e "use Date::Format" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl Date::Format module not installed"
+
+perl -e "use RRDs" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl RRDs module not installed"
+
+status=0        # success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+# only one dir for now, add more if we get more sample data
+for indir in \
+    ./ganglia/gangliatest
+do
+    echo
+    echo "=== $indir ==="
+    rm -f $tmp.0 $tmp.index $tmp.meta
+    outfile=`basename $tmp`
+    outdir=`dirname $tmp`
+    ganglia2pcp  -s "Feb 1 12:00:00 UTC 2015" -f $outfile -d $outdir -Z UTC $indir
+
+    if [ -f $tmp.0 ]
+    then
+        pmdumplog -z -a $tmp
+    fi
+done
+
+# success, all done
+exit
+

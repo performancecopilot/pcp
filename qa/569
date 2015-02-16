@@ -37,6 +37,14 @@ s/ NUMBER/ 1/
 s/ [0-9][0-9]*/ NUMBER/g
 s/ NUMBER/ 1/
 }' \
+	-e '/sample\.dupnames\.daemon_pid /{
+s/ [0-9][0-9]*/ NUMBER/g
+s/ NUMBER/ 1/
+}' \
+	-e '/sample\.dupnames\.pid_daemon /{
+s/ [0-9][0-9]*/ NUMBER/g
+s/ NUMBER/ 1/
+}' \
 	-e '/sample\..*\.write_me /{
 s/ [0-9][0-9]*/ NUMBER/g
 s/ ".*"/ "STRING"/g
@@ -81,6 +89,7 @@ s/ [0-9][0-9.]*/ NUMBER/g
 s/ NUMBER/ 1/
 }' \
 	-e '/sample\.lights /s/ ".*"/ "STRING"/g' \
+	-e '/sample\.dupnames.two.lights /s/ ".*"/ "STRING"/g' \
 	-e '/sample\.sysinfo 1/d' \
 	-e '/sample\.secret\.foo\.bar\.max\.redirect/{
 s/ [0-9][0-9.]*.*/ NUMBER .../g

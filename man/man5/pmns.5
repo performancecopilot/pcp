@@ -37,11 +37,14 @@ Loading of a PMNS is done by calling
 or
 .BR pmLoadASCIINameSpace (3).
 .PP
-By default duplicate PMIDs are not allowed in the PMNS,
+As of Version 3.10.3 of PCP,
+by default duplicate names for the same PMID
+.B are
+allowed in the PMNS,
 although
 .BR pmLoadASCIINameSpace (3)
 provides an alternative interface with user-defined control
-over the processing of duplicate PMIDs in the PMNS.
+over the processing of duplicate names in the PMNS.
 The external format for a PMNS conforms to the syntax
 and semantics described in the following sections.
 .PP

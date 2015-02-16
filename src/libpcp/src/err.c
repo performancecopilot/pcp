@@ -133,6 +133,8 @@ static const struct {
 	"QA fault injected" },
     { PM_ERR_THREAD,		"PM_ERR_THREAD",
         "Operation not supported for multi-threaded applications" },
+    { PM_ERR_NOCONTAINER,	"PM_ERR_NOCONTAINER",
+        "Container not found" },
     /* insert new libpcp error codes here */
     { PM_ERR_NYI,		"PM_ERR_NYI",
 	"Functionality not yet implemented" },

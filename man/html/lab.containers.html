@@ -1,0 +1,334 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!--
+ (c) Copyright 2015 Red Hat.
+ Permission is granted to copy, distribute, and/or modify this document
+ under the terms of the Creative Commons Attribution-Share Alike, Version
+ 3.0 or any later version published by the Creative Commons Corp. A copy
+ of the license is available at
+ http://creativecommons.org/licenses/by-sa/3.0/us/ .
+-->
+<HTML>
+<HEAD>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta http-equiv="content-style-type" content="text/css">
+	<link href="pcpdoc.css" rel="stylesheet" type="text/css">
+	<link href="images/pcp.ico" rel="icon" type="image/ico">
+	<TITLE>Analysis of Linux Containers</TITLE>
+</HEAD>
+<BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://pcp.io/"><IMG SRC="images/pcpicon.png" ALT="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
+	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
+	<TD WIDTH=500><P ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	</TR>
+</TABLE>
+<H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Analysis of Linux Containers</FONT></H1>
+<P><BR></P>
+<TABLE WIDTH="15%" BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
+	<TR><TD BGCOLOR="#e2e2e2">
+<PRE><IMG SRC="images/system-search.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0><I>Tools</I>
+docker
+lxc-info
+lxc-ls
+pmcd
+pmdalinux
+pmdaproc
+pmdaroot
+pminfo
+pmprobe</PRE></TD></TR>
+</TABLE>
+<P>Container engines like Docker, LXC, Rocket and others build on
+two Linux kernel facilities - <B>cgroups</B> and <B>namespaces</B>.
+In order to understand the performance characteristics of containerized
+environments, we need some background kernel knowledge to see how these
+concepts affect both the system itself, and system-level analysis tools
+like PCP.</P>
+<P>This tutorial aims to build or refresh your knowledge in these areas,
+while at the same time showing you how to extract performance data from
+individual containers using the PCP tools.</P>
+<P>For an explanation of Performance Co-Pilot terms and acronyms, consult 
+the <A HREF="glossary.html">PCP glossary</A>.</P>
+<P><BR></P>
+<UL>
+    <LI>
+    <A HREF="#started">Getting Started</A> 
+    <LI>
+    <A HREF="#cgroups">Control Groups</A> 
+    <LI>
+    <A HREF="#namespaces">Namespaces</A> 
+    <LI>
+    <A HREF="#details">Containers and PCP</A>
+    <UL>
+        <LI>Core Extensions
+        <LI>Elevated Privileges
+        <LI>Container-specific Metric Values
+    </UL>
+    <LI>
+    <A HREF="#nextstep">Next Steps</A> 
+    <UL>
+        <LI>Console Tools
+        <LI>Graphical Tools
+        <LI>Domain Agents
+    </UL>
+</UL>
+</P>
+
+<P><BR></P>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="overview">Getting Started</A></B></FONT></P></TD></TR>
+</TABLE>
+<P>Creating and administering containers is the job of a container runtime
+engine, and each operates differently.
+If you don't have some handy already, create and start one or two containers
+for experimentation - the steps involved are widely documented, and differ
+differ between engines, so we will skip over them here.
+</P>
+<UL>
+  <LI>Using <A HREF="http://docker.io/">Docker</A>, the <B>docker ps -a</B> command can then be used to observe running containers.
+  <LI>With <A HREF="http://linuxcontainers.org/">LXC</A>, the <B>lxc-ls</B> and <B>lxc-info</B> commands are used for this purpose.
+</UL>
+<P>Once these commands are correctly reporting running containers, we
+are in a position to begin analysing those containers with PCP tools.
+</P>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Request networking metrics for a host and then a container running on the host:<BR>
+<PRE><B>$ pminfo --fetch containers.name containers.state.running
+
+containers.name
+    inst [0 or "<SPAN>f4d3b90bea15</SPAN>..."] value "<SPAN>sharp_feynman</SPAN>"
+    inst [1 or "d43eda0a7e7d..."] value "cranky_colden"
+    inst [2 or "252b56e79da5..."] value "desperate_turing"
+
+containers.state.running
+    inst [0 or "f4d3b90bea15..."] value 1
+    inst [1 or "d43eda0a7e7d..."] value 0
+    inst [2 or "252b56e79da5..."] value 1
+
+$ pmprobe -I network.interface.up
+network.interface.up 5 "p2p1" "wlp2s0" "lo" "docker0" "veth2234780"
+
+$ pmprobe -I --container <SPAN>sharp_feynman</SPAN> network.interface.up
+network.interface.up 2 "lo" "eth0"
+
+$ pmprobe -I --container <SPAN>f4d3b90bea15</SPAN> network.interface.up
+network.interface.up 2 "lo" "eth0"</B></PRE>
+</TD></TR>
+</TABLE>
+<P><B>Note</B>: these commands all query the same <I>pmcd</I> process
+- from the host running the container engine.  In other words, <I>there
+is no need to install any PCP software inside the monitored containers</I>.</P>
+
+<P><BR></P>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="cgroups">Control Groups</A></B></FONT></P></TD></TR>
+</TABLE>
+<P>Control Groups are a Linux kernel mechanism for aggregating
+or partitioning sets of tasks, and their children, into hierarchical
+groups with specialized behaviour.
+This is the underlying technology used for controlling the set of
+processes within each container.
+</P>
+<P>Recall that the concept of a &quot;container&quot; is a user-space
+construct only, and it is the role of the container engine to ensure
+the kernel cgroup hierarchies are constructed and managed appropriately
+for the containers it provides.
+</P>
+<P>A cgroup <B>subsystem</B> is kernel code that makes use of the task
+grouping facilities provided by cgroups to treat groups of tasks in
+particular ways.  A subsystem is typically a "resource controller" that
+schedules a resource or applies per-cgroup limits.  Examples of cgroup
+subsystems used by container engines include the virtual memory subsystem
+(<I>memory</I>), the processor accounting subsystem (<I>cpuacct</I>),
+the block accounting cgroup (<I>blkio</I>), and several others.
+</P>
+<P>Within the scope of individual cgroup subsystems, hierarchies
+can be created, managed and shaped in terms of the tasks within them.
+A <B>hierarchy</B> is a set of cgroups arranged in a tree, such that
+every task in the system is in exactly one of the cgroups in the
+hierarchy, and a set of subsystems; each <I>subsystem</I> has
+system-specific state attached to each cgroup in the hierarchy.
+</P>
+<P>Each hierarchy has an instance of the cgroup virtual filesystem
+associated with it.
+</P>
+
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;These can be interrogated by querying the PCP <B>cgroup.subsys</B> and <B>cgroup.mounts</B> metrics.<BR>
+<PRE><B>$ pminfo --fetch cgroup.subsys.num_cgroups
+
+cgroup.mounts.subsys
+    inst [0 or "/sys/fs/cgroup/systemd"] value "?"
+    inst [1 or "/sys/fs/cgroup/cpuset"] value "cpuset"
+    inst [2 or "/sys/fs/cgroup/cpu,cpuacct"] value "cpu,cpuacct"
+    inst [3 or "/sys/fs/cgroup/memory"] value "memory"
+    inst [4 or "/sys/fs/cgroup/devices"] value "devices"
+    inst [5 or "/sys/fs/cgroup/freezer"] value "freezer"
+    inst [6 or "/sys/fs/cgroup/net_cls,net_prio"] value "net_cls,net_prio"
+    inst [7 or "/sys/fs/cgroup/blkio"] value "blkio"
+    inst [8 or "/sys/fs/cgroup/perf_event"] value "perf_event"
+    inst [9 or "/sys/fs/cgroup/hugetlb"] value "hugetlb"
+
+cgroup.subsys.num_cgroups
+    inst [0 or "cpuset"] value 1
+    inst [1 or "cpu"] value 77
+    inst [2 or "cpuacct"] value 77
+    inst [3 or "memory"] value 3
+    inst [4 or "devices"] value 3
+    inst [5 or "freezer"] value 3
+    inst [6 or "net_cls"] value 1
+    inst [7 or "blkio"] value 77
+    inst [8 or "perf_event"] value 1
+    inst [9 or "net_prio"] value 1
+    inst [10 or "hugetlb"] value 1</B></PRE>
+</TD></TR>
+</TABLE>
+
+<P>Userspace code (i.e. container engines like Docker and LXC) can
+create and destroy cgroups by name in an instance of the cgroup
+virtual file system, specify and query to which cgroup a task is
+assigned, and list the task PIDs assigned to a cgroup.
+Those creations and assignments only affect the hierarchy associated
+with that instance of the cgroup file system.
+</P>
+
+<P><BR></P>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="namespaces">Namespaces</A></B></FONT></P></TD></TR>
+</TABLE>
+<P>Completely distinct to cgroups, at least within the kernel, is the
+concept of <I>namespaces</I>.
+Namespaces allow different processes to have differing views of several
+aspects of the kernel, such as the hostname (UTS namespace), network
+interfaces (NET namespace), process identifiers (PID namespace), mounted
+filesystems (MNT namespace) and so on.
+</P>
+<P>When processes share a namespace, they share the same view of a resource.
+For example, objects created in one IPC namespace are visible to all other
+processes that are members of that namespace, but are not visible to
+processes having another IPC namespace.
+So for our purposes, all processes running in one container can thus have
+a different view to the IPC resources visible to a process running on the
+host or a different container.
+</P>
+<P>Returning to the first networking example in this tutorial, we can see
+how namespaces become important from a performance tooling point of view.
+For network metrics within a container, we want to be able to report values
+for the set of network interfaces visible within that container, instead of
+the set from the host itself.
+</P>
+<P>Finally, it is important to note that namespaces are not a complete
+abstraction, in that many aspects of the underlying host remain visible
+from within the container.  This affects performance tools in that the
+values exported for some metrics can be adjusted and fine-tuned relative
+to the container, while others cannot.
+</P>
+
+<P><BR></P>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="details">Containers and PCP</A></B></FONT></P></TD></TR>
+</TABLE>
+<P ALIGN=LEFT><FONT SIZE=4><B>Core Extensions</B></FONT>
+<P>All connections made to the PCP metrics collector daemon (<I>pmcd</I>)
+are made using the PCP protocol, which is TCP/IP based and thus
+(importantly for containers) connection-oriented.
+Each individual monitoring tool has a unique connection to <I>pmcd</I>
+and can request values for a specific, custom set of metrics. This includes
+being able to request metric values related to a specific, named container.
+Note that PCP differs to the design of several other monitoring systems
+in this regard, which write or send out a specified set of system-wide
+values, on a set interval.
+</P>
+<P>From a user point of view, this boils down to being able to specify a
+container via the interface (whether command line or graphical) of the
+PCP monitoring tools and to have that container name transfered to the
+PCP collector system.  This allows for filtering and fine-tuning of the
+metric values it returns, such that the values are specific to the named
+container.
+</P>
+
+<P ALIGN=LEFT><FONT SIZE=4><B>Elevated Privileges</B></FONT>
+<P>Support for containers was first added in the 3.10.2 version of PCP
+(released in January 2015).
+This version includes the <I>pmdaroot</I> daemon - a critical component
+of the container support, it must be enabled in order to monitor containers.
+</P>
+<P>It performs privileged operations on behalf of other PCP agents and plays
+a pivotal role in informing the other agents about various attributes of the
+active containers that it discovers on the PCP collector system.
+</P>
+<P>Verify that there is a <I>pmdaroot</I> line in <I>/etc/pcp/pmcd/pmcd.conf</I>
+and that the <I>pcp</I> command reports that it is running.
+</P>
+
+<P ALIGN=LEFT><FONT SIZE=4><B>Container-specific Metric Values</B></FONT>
+<P>With that core functionality in place, several kernel agents have been
+taught to customize the metric values they report when the monitoring of a
+named container has been requested.
+These include the network, filesys, ipc, and other metrics in
+<I>pmdalinux</I>, as well as the per-process and cgroup metrics in
+<I>pmdaproc</I>.
+</P>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Requesting container-specific process and control group metrics:
+<BR><PRE><B>$ pminfo -t --fetch --container <SPAN>sharp_feynman</SPAN> cgroup.memory.stat.cache proc.psinfo.rss pmcd.hostname
+
+cgroup.memory.stat.cache [Number of bytes of page cache memory]
+    inst [2 or "/system.slice/docker-f4d3b90bea15..."] value 9695232
+
+proc.psinfo.rss [resident set size (i.e. physical memory) of the process]
+    inst [21967 or "021967 dd if=/dev/random of=/tmp/bits count=200k"] value 676
+    inst [27996 or "027996 /bin/bash"] value 2964
+
+pmcd.hostname [local hostname]
+    value "<SPAN>f4d3b90bea15</SPAN>"</B></PRE>
+</TD></TR>
+</TABLE>
+
+<P><BR></P>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="nextstep">Next Steps</A></B></FONT></P></TD></TR>
+</TABLE>
+
+<P>Upcoming versions of PCP will extend the initial work done for container
+analysis in several directions, particularly on the monitoring tool side.</P>
+
+<P ALIGN=LEFT><FONT SIZE=4><B>Console Tools</B></FONT>
+<P>In addition to adding the container command line option to more of the
+existing monitoring tools, a light-weight console-based monitoring tool
+with deep container knowledge is planned. This tool will sample and report
+cgroup and namespaced metrics for a specified container, in an easily
+consumed form - a little like <I>top</I> or <I>vmstat</I> perhaps.</P>
+
+<P ALIGN=LEFT><FONT SIZE=4><B>Graphical Tools</B></FONT>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+        <TR><TD WIDTH=500><P ALIGN=CENTER><BR><IMG ALIGN=MIDDLE SRC="images/pmchart_add_host_container.png" ALT="" BORDER=0></P></TD>
+        <TD><P>In the PCP strip chart utility <I>pmchart</I> from version 3.10.3 onward, connections to containers can be established using the "Add Host" dialog, as shown to the left.</P>
+	<P>This can be accessed via the "New Chart" or "Open View" menu entries.</P>
+	<UL>
+        <LI>Specify the name of the PCP Collector system where <I>pmcd</I> is running.
+        <LI>Press the "Advanced" push button to enable additional connection attributes to be specified.
+        <LI>Select the "Container" check box, and enter a container name.
+        <LI>Press "OK" to establish a connection to the container on host -
+            this functions in much the same was as the <I>pminfo</I> examples
+            from earlier in this tutorial.
+	</UL>
+	</TD>
+        </TR>
+</TABLE>
+
+<P ALIGN=LEFT><FONT SIZE=4><B>Domain Agents</B></FONT>
+<P>As the underlying container technologies are maturing, they are becoming
+instrumented for analysis. For example, <B>etcd</B> and <B>docker</B> now
+have APIs to extract the instrumentation about their behaviour, which will
+be exported as new PCP metrics.</P>
+
+<P><BR></P>
+<HR>
+<CENTER>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH="50%"><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc</FONT></A></P></TD>
+	<TD WIDTH="50%"><P ALIGN=RIGHT><A HREF="http://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2015 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></A></P></TD></TR>
+</TABLE>
+</CENTER>
+</BODY>
+</HTML>

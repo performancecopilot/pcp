@@ -38,9 +38,17 @@ refresh_proc_scsi(pmInDom indom)
 
     if (first) {
 	first = 0;
-    	pmdaCacheOp(indom, PMDA_CACHE_LOAD);
+	/*
+	 * failure here maybe OK, e.g. if the external cache file does
+	 * not exist
+	 */
+    	sts = pmdaCacheOp(indom, PMDA_CACHE_LOAD);
+#if PCP_DEBUG
+	if ((pmDebug & DBG_TRACE_LIBPMDA) && sts < 0)
+	    fprintf(stderr, "refresh_proc_scsi: pmdaCacheOp(%s, LOAD): %s\n",
+		    pmInDomStr(indom), pmErrStr(sts));
+#endif
     }
-    pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
     if ((fp = linux_statsfile("/proc/scsi/scsi", buf, sizeof(buf))) == NULL)
     	return -oserror();
@@ -82,9 +90,9 @@ refresh_proc_scsi(pmInDom indom)
 	    sprintf(buf, "/sys/class/scsi_device/%d:%d:%d:%d/device/block",
 		se->dev_host, se->dev_channel, se->dev_id, se->dev_lun);
 	    if ((dirp = opendir(buf)) == NULL) {
-	    	free(se);
 		failed++;
 	    } else {
+		se->dev_name = NULL;
 		while ((dentry = readdir(dirp)) != NULL) {
 	    	    if (dentry->d_name[0] == '.')
 			continue;
@@ -98,13 +106,23 @@ refresh_proc_scsi(pmInDom indom)
 	    }
 	}
 	if (!failed) {
-	    pmdaCacheStore(indom, PMDA_CACHE_ADD, name, (void *)se);
+	    sts = pmdaCacheStore(indom, PMDA_CACHE_ADD, name, (void *)se);
+	    if (sts < 0) {
+		fprintf(stderr, "Warning: refresh_proc_scsi: pmdaCacheOp(%s, ADD, \"%s\", (%s)): %s\n",
+		    pmInDomStr(indom), name, se->dev_name, pmErrStr(sts));
+		free(se->dev_name);
+		free(se);
+	    }
 #if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_LIBPMDA)
-		fprintf(stderr, "refresh_proc_scsi: instance \"%s\" = \"%s\"\n",
+	    else {
+		if (pmDebug & DBG_TRACE_LIBPMDA)
+		    fprintf(stderr, "refresh_proc_scsi: instance \"%s\" = \"%s\"\n",
 			name, se->dev_name);
+	    }
 #endif
 	}
+	else
+	    free(se);
     }
 
     pmdaCacheOp(indom, PMDA_CACHE_SAVE);

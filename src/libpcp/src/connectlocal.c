@@ -67,6 +67,7 @@ build_dsotab(void)
      *
      */
     char	configFileName[MAXPATHLEN];
+    char	pathbuf[MAXPATHLEN];
     FILE	*configFile;
     char	*config;
     char	*p;
@@ -119,6 +120,20 @@ build_dsotab(void)
 	     */
 	    goto eatline;
 	}
+	if (strncmp(p, "linux", 5) == 0) {
+	    /*
+	     * the Linux PMDA is an exception now too ... we run it as root
+	     * (daemon) but we still want to make the DSO available for any
+	     * local context users.  We add this explicitly below.
+	     */
+	    domain = 60;
+	    init = "linux_init";
+	    snprintf(pathbuf, sizeof(pathbuf), "%s/linux/pmda_linux.so",
+			pmGetConfig("PCP_PMDAS_DIR"));
+	    name = pathbuf;
+	    peekc = *p;
+	    goto dsoload;
+	}
 	/* skip the PMDA's name */
 	while (*p != '\0' && *p != '\n' && !isspace((int)*p))
 	    p++;
@@ -149,6 +164,7 @@ build_dsotab(void)
 	    p++;
 	peekc = *p;
 	*p = '\0';
+dsoload:
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {
 	    fprintf(stderr, "[%d] domain=%d, name=%s, init=%s\n", lineno, domain, name, init);

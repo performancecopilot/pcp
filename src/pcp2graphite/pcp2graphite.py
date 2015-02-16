@@ -1,0 +1,261 @@
+#!/usr/bin/python
+#
+# Copyright (C) 2014-2015 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+""" Relay PCP metrics to a graphite server """
+
+import sys
+import time
+
+
+from pcp import pmapi
+from cpmapi import PM_TYPE_FLOAT, PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_DOUBLE
+
+
+class GraphiteRelay(object):
+    """ Sends a periodic report to graphite about all instances of named metrics.
+	Knows about some of the default PCP arguments.
+    """
+
+    def __init__(self):
+	""" Construct object, parse command line """
+	self.context = None
+	self.opts = pmapi.pmOptions()
+	self.opts.pmSetShortOptions("g:p:P:u:m:t:h:Lt:D:V?") # must include common options
+	self.opts.pmSetShortUsage("[options] metricname ...")
+	self.opts.pmSetOptionCallback(self.option)
+	self.opts.pmSetOverrideCallback(self.option_override)
+        # hack to include some explanatory text
+	self.opts.pmSetLongOptionHeader("""Description:
+Every 60 seconds (or other interval), relay given all instances of
+a given hierarchy of PCP metrics to a graphite/carbon server on the network.
+
+Options""")
+	self.opts.pmSetLongOptionVersion() # -V
+	# self.opts.pmSetLongOptionArchive() # -a FILE   -- not supported yet; need -S/etc. controls
+	self.opts.pmSetLongOptionDebug() # -D stuff
+	self.opts.pmSetLongOptionHost() # -h HOST
+	# self.opts.pmSetLongOptionLocalPMDA() # -L
+	self.opts.pmSetLongOptionInterval() # -t NUMBER
+        self.opts.pmSetLongOption("graphite-host", 1, 'g', '', "graphite server host (default \"localhost\")")
+        self.opts.pmSetLongOption("pickled-port", 1, 'p', '', "graphite pickled port (default 2004)")
+        self.opts.pmSetLongOption("text-port", 1, 'P', '', "graphite plaintext port (usually 2003)")
+        self.opts.pmSetLongOption("units", 1, 'u', '', "rescale all metric units (e.g., \"mbytes/5 sec\")")
+        self.opts.pmSetLongOption("prefix", 1, 'm', '', "prefix for metric names (default \"pcp.\")")
+	self.opts.pmSetLongOptionHelp()
+        self.graphite_host = "localhost"
+        self.graphite_port = 2004
+        self.pickle = True
+        self.prefix = "pcp."
+        self.unitsstr = None
+        self.units = None # pass verbatim by default
+        self.units_mult = None # pass verbatim by default
+
+        # now actually parse
+	self.context = pmapi.pmContext.fromOptions(self.opts, sys.argv)
+        self.interval = self.opts.pmGetOptionInterval() or pmapi.timeval(60,0)
+
+        if self.unitsstr is not None:
+            (self.units, self.units_mult) = self.context.pmParseUnitsStr(self.unitsstr)
+        self.metrics = []
+        self.pmids = []
+        self.descs = []
+        metrics = self.opts.pmNonOptionsFromList(sys.argv)
+        if metrics:
+            for m in metrics:
+                try:
+                    self.context.pmTraversePMNS(m, self.handle_candidate_metric)
+                except pmapi.pmErr, error:
+                    sys.stderr.write("Excluding metric %s (%s)\n" % (m, str(error)))
+
+        if len(self.metrics) == 0:
+            sys.stderr.write("No acceptable metrics specified.\n")
+            raise pmapi.pmUsageErr()
+
+        # Report what we're about to do
+        print ("Relaying %d %smetric(s) with prefix %s "
+               "in %s mode to %s:%d every %f s") % (len(self.metrics),
+                                                    "rescaled " if self.units else "",
+                                                    self.prefix,
+                                                    "pickled" if self.pickle else "text",
+                                                    self.graphite_host, self.graphite_port,
+                                                    self.interval)
+
+    def option_override(self, opt):
+        if (opt == 'p') or (opt == 'g'):
+            return 1
+        return 0
+
+    def option(self, opt, optarg, index): # need only handle the non-common options
+        if (opt == 'g'):
+            self.graphite_host = optarg
+        elif (opt == 'p'):
+            self.graphite_port = int(optarg if optarg else "2004")
+            self.pickle = True
+        elif (opt == 'P'):
+            self.graphite_port = int(optarg if optarg else "2003")
+            self.pickle = False
+        elif (opt == 'u'):
+            self.unitsstr = optarg
+        elif (opt == 'm'):
+            self.prefix = optarg
+        else:
+            raise pmapi.pmUsageErr()
+
+
+    # Check the given metric name (a leaf in the PMNS) for
+    # acceptability for graphite: it needs to be numeric, and
+    # convertable to the given unit (if specified).
+    def handle_candidate_metric(self, name):
+        try:
+            pmid = self.context.pmLookupName(name)[0]
+            desc = self.context.pmLookupDescs(pmid)[0]
+
+            # reject non-numeric types (future pmExtractValue failure)
+            types = desc.contents.type
+            if not ((types == PM_TYPE_32) or
+                    (types == PM_TYPE_U32) or
+                    (types == PM_TYPE_64) or
+                    (types == PM_TYPE_U64) or
+                    (types == PM_TYPE_FLOAT) or
+                    (types == PM_TYPE_DOUBLE)):
+                return
+            # reject dimensionally incompatible (future pmConvScale failure)
+            if self.units is not None:
+                units = desc.contents.units
+                if ((units.dimSpace != self.units.dimSpace) or
+                    (units.dimTime != self.units.dimTime) or
+                    (units.dimCount != self.units.dimCount)):
+                    return
+
+            self.metrics.append(name)
+            self.pmids.append(pmid)
+            self.descs.append(desc)
+        except pmapi.pmErr, error:
+            pass
+
+
+    # Convert a python list of pmids (numbers) to a ctypes LP_c_uint (a C array of uints).
+    def convert_pmids_to_ctypes(self, pmids):
+        import ctypes
+        from ctypes import c_uint
+        pmidA = (c_uint * len(pmids))()
+        for i,p in enumerate(pmids):
+            pmidA[i] = c_uint(p)
+        return pmidA
+
+    def send(self, timestamp, miv_tuples):
+        import socket
+        if self.pickle:
+            try:
+                import pickle
+                import struct
+                s = socket.create_connection((self.graphite_host, self.graphite_port))
+                pickled_input = []
+                for (metric, value) in miv_tuples:
+                    pickled_input.append((metric, (timestamp, value)))
+                pickled_output = pickle.dumps(pickled_input)
+                header = struct.pack("!L", len(pickled_output))
+                s.send(header + pickled_output)
+                s.close()
+            except socket.error, err:
+                sys.stderr.write("cannot send message to %s:%d, %s, continuing\n" %
+                                 (self.graphite_host, self.graphite_port, err.strerror))
+                return
+            
+        else:
+            for (metric, value) in miv_tuples:
+                try:
+                    s = socket.create_connection((self.graphite_host, self.graphite_port))
+
+                    s.send("%s %s %s\n" % (metric, value, timestamp))
+                    s.close()
+                except IOError, err:
+                    sys.stderr.write("cannot send message to %s:%d, %s, continuing\n" %
+                                     (self.graphite_host, self.graphite_port, err.strerror))
+                    return
+
+
+    def sanitize_nameindom(self,str):
+        """ Quote the given instance-domain string for proper digestion
+        by carbon/graphite. """
+        import re
+        return "_" + re.sub('[^a-zA-Z_0-9-]','_', str)
+
+    def execute(self):
+	""" Using a PMAPI context (could be either host or archive),
+	    fetch and report a fixed set of values related to graphite.
+	"""
+        
+        # align poll interval to host clock
+        time.sleep(float(self.interval) - (time.time() % float(self.interval)))
+
+        # NB: we'd like to do: result = self.context.pmFetch(self.pmids)
+        # But: pmFetch takes ctypes array-of-uint's, not a python list.  It needs to become polymorphic.
+        result = self.context.pmFetch(self.convert_pmids_to_ctypes(self.pmids))
+	sample_time = result.contents.timestamp.tv_sec # + (result.contents.timestamp.tv_usec/1000000.0)
+
+        miv_tuples = []
+
+        for i, name in enumerate(self.metrics):
+            for j in range(0,result.contents.get_numval(i)):
+                atom = self.context.pmExtractValue(
+                    result.contents.get_valfmt(i),
+                    result.contents.get_vlist(i,j),
+                self.descs[i].contents.type, PM_TYPE_FLOAT)
+
+                inst = result.contents.get_vlist(i,j).inst
+                if inst is None or inst < 0:
+                    suffix=""
+                else:
+                    suffix="."+self.sanitize_nameindom(self.context.pmNameInDom(self.descs[i], inst))
+
+                # Rescale if desired
+                if self.units is not None:
+                    try:
+                        atom = self.context.pmConvScale(PM_TYPE_FLOAT, atom,
+                                                        self.descs, i,
+                                                        self.units)
+                    except pmapi.pmErr, error:
+                        sys.stderr.write("While converting scale (%s -> %s) for %s\n" %
+                                         (self.context.pmUnitsStr(self.descs[i].contents.units),
+                                          self.context.pmUnitsStr(self.units),
+                                          name))
+                        raise
+                if self.units_mult is not None:
+                    atom.f = atom.f * self.units_mult
+
+                miv_tuples.append((self.prefix+name+suffix, atom.f))
+
+        self.send(sample_time, miv_tuples)
+	self.context.pmFreeResult(result)
+
+if __name__ == '__main__':
+    try:
+	G=GraphiteRelay()
+        while True:
+            try:
+                G.execute()
+            except pmapi.pmErr, error:
+                sys.stderr.write(str(error) + ", continuing\n")
+                pass
+
+    except pmapi.pmUsageErr, usage:
+	sys.stderr.write("\n")
+        usage.message()
+    except KeyboardInterrupt:
+	pass
+    except Exception, error:
+        import traceback
+        sys.stderr.write(str(error) + "\n") # init error: stop now
+        sys.stderr.write(traceback.format_exc() + "\n")

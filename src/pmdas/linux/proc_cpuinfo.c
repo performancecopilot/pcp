@@ -1,7 +1,7 @@
 /*
  * Linux /proc/cpuinfo metrics cluster
  *
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2015 Red Hat.
  * Copyright (c) 2000-2005 Silicon Graphics, Inc.  All Rights Reserved.
  * Portions Copyright (c) 2001 Gilly Ran (gilly@exanet.com) - for the
  * portions supporting the Alpha platform.  All rights reserved.
@@ -26,85 +26,65 @@
 #include "indom.h"
 #include "proc_cpuinfo.h"
 
-
-static void
-decode_map(proc_cpuinfo_t *proc_cpuinfo, char *cp, int node, int offset)
-{
-    uint32_t map = strtoul(cp, NULL, 16);
-
-    while (map) {
-	int i;
-	
-	if ((i = ffsl(map))) {
-	    /* the kernel returns 32bit words in the map file */
-	    int cpu = i - 1 + 32*offset;
-
-	    proc_cpuinfo->cpuinfo[cpu].node = node;
-	    if (pmDebug & DBG_TRACE_APPL2) {
-		fprintf(stderr, "cpu %d -> node %d\n",
-			cpu, node);
-	    }
-	    map &= ~(1 << (i-1));
-	}
-    }
-}
-
 static void
 map_cpu_nodes(proc_cpuinfo_t *proc_cpuinfo)
 {
-    int i, j;
+    int i;
     const char *node_path = "sys/devices/system/node";
     char path[MAXPATHLEN];
-    char cpumap[4096];
-    DIR *nodes;
-    FILE *f;
-    struct dirent *de;
-    int node, max_node = -1;
-    char *cp;
-    pmdaIndom *idp = PMDAINDOM(NODE_INDOM);
+    DIR *nodes, *cpus;
+    struct dirent *de, *ce;
+    int node, max_node_number = 0;
+    int cpu;
+    pmdaIndom *node_idp = PMDAINDOM(NODE_INDOM);
+    pmdaIndom *cpu_idp = PMDAINDOM(CPU_INDOM);
 
-    for (i = 0; i < proc_cpuinfo->cpuindom->it_numinst; i++)
-	proc_cpuinfo->cpuinfo[i].node = -1;
-
-    snprintf(path, sizeof(path), "%s/%s", linux_statspath, node_path);
-    if ((nodes = opendir(path)) == NULL)
-	return;
-
-    while ((de = readdir(nodes)) != NULL) {
-	if (sscanf(de->d_name, "node%d", &node) != 1)
-	    continue;
-
-	if (node > max_node)
-	    max_node = node;
-
-	snprintf(path, sizeof(path), "%s/%s/%s/cpumap",
-		 linux_statspath, node_path, de->d_name);
-	if ((f = fopen(path, "r")) == NULL)
-	    continue;
-	i = fscanf(f, "%s", cpumap);
-	fclose(f);
-	if (i != 1)
-	    continue;
-
-	for (j = 0; (cp = strrchr(cpumap, ',')); j++) {
-	    decode_map(proc_cpuinfo, cp+1, node, j);
-	    *cp = '\0';
-	}
-	decode_map(proc_cpuinfo, cpumap, node, j);
+    if (cpu_idp->it_numinst == 1) {
+	/* fake one numa node, like most kernels do */
+	max_node_number = 0;
+    	proc_cpuinfo->cpuinfo[0].node = max_node_number;
     }
-    closedir(nodes);
+    else {
+	/*
+	 * scan /sys to figure out cpu - node mapping
+	 */
+	for (i = 0; i < cpu_idp->it_numinst; i++)
+	    proc_cpuinfo->cpuinfo[i].node = 0;
+
+	snprintf(path, sizeof(path), "%s/%s", linux_statspath, node_path);
+	if ((nodes = opendir(path)) != NULL) {
+	    while ((de = readdir(nodes)) != NULL) {
+		if (sscanf(de->d_name, "node%d", &node) != 1)
+		    continue;
+		if (node > max_node_number)
+		    max_node_number = node;
+		snprintf(path, sizeof(path), "%s/%s/%s",
+		    linux_statspath, node_path, de->d_name);
+		if ((cpus = opendir(path)) == NULL)
+		    continue;
+		while ((ce = readdir(cpus)) != NULL) {
+		    if (sscanf(ce->d_name, "cpu%d", &cpu) != 1)
+			continue;
+		    if (cpu >= 0 && cpu < cpu_idp->it_numinst)
+			proc_cpuinfo->cpuinfo[cpu].node = node;
+		}
+		closedir(cpus);
+	    }
+	    closedir(nodes);
+	}
+    }
 
     /* initialize node indom */
-    idp->it_numinst = max_node + 1;
-    idp->it_set = calloc(max_node + 1, sizeof(pmdaInstid));
-    for (i = 0; i <= max_node; i++) {
-	char node_name[256];
+    node_idp->it_numinst = max_node_number + 1;
+    node_idp->it_set = calloc(max_node_number + 1, sizeof(pmdaInstid));
+    for (i = 0; i < node_idp->it_numinst; i++) {
+	char node_name[16];
 
-	sprintf(node_name, "node%d", i);
-	idp->it_set[i].i_inst = i;
-	idp->it_set[i].i_name = strdup(node_name);
+	snprintf(node_name, sizeof(node_name), "node%d", i);
+	node_idp->it_set[i].i_inst = i;
+	node_idp->it_set[i].i_name = strdup(node_name);
     }
-    proc_cpuinfo->node_indom = idp;
+    proc_cpuinfo->node_indom = node_idp;
 }
 
 char *
@@ -180,6 +160,17 @@ trim_whitespace(char *s)
     return s;
 }
 
+static void
+setup_cpuinfo(cpuinfo_t *cpuinfo)
+{
+    cpuinfo->sapic = -1;
+    cpuinfo->vendor = -1;
+    cpuinfo->model = -1;
+    cpuinfo->model_name = -1;
+    cpuinfo->stepping = -1;
+    cpuinfo->flags = -1;
+}
+
 int
 refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
 {
@@ -188,33 +179,26 @@ refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
     FILE *fp;
     int i, cpunum, cpuid;
     int dups = 0, previous = -1;
+    cpuinfo_t saved = { 0 };
     cpuinfo_t *info = NULL;
     char *val;
     char *p;
-    static int started = 0;
+    static int started;
 
     if (!started) {
 	int need = proc_cpuinfo->cpuindom->it_numinst * sizeof(cpuinfo_t);
 	proc_cpuinfo->cpuinfo = (cpuinfo_t *)calloc(1, need);
-	for (cpunum=0; cpunum < proc_cpuinfo->cpuindom->it_numinst; cpunum++) {
-	    proc_cpuinfo->cpuinfo[cpunum].sapic = -1;
-	    proc_cpuinfo->cpuinfo[cpunum].vendor = -1;
-	    proc_cpuinfo->cpuinfo[cpunum].model = -1;
-	    proc_cpuinfo->cpuinfo[cpunum].model_name = -1;
-	    proc_cpuinfo->cpuinfo[cpunum].stepping = -1;
-	    proc_cpuinfo->cpuinfo[cpunum].flags = -1;
-	}
+	for (cpunum = 0; cpunum < proc_cpuinfo->cpuindom->it_numinst; cpunum++)
+	    setup_cpuinfo(&proc_cpuinfo->cpuinfo[cpunum]);
 	started = 1;
     }
 
     if ((fp = linux_statsfile("/proc/cpuinfo", buf, sizeof(buf))) == NULL)
-    	return -oserror();
+	return -oserror();
 
-#if defined(HAVE_ALPHA_LINUX)
-    cpunum = 0;
-#else	/* Intel & all others */
     cpunum = -1;
-#endif
+    setup_cpuinfo(&saved);
+
     while (fgets(buf, sizeof(buf), fp) != NULL) {
 	if ((val = strrchr(buf, '\n')) != NULL)
 	    *val = '\0';
@@ -222,7 +206,6 @@ refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
 	    continue;
 	val += 2;
 
-#if !defined(HAVE_ALPHA_LINUX)
 	if (strncmp(buf, "processor", 9) == 0) {
 	    cpunum++;
 	    if (previous == PROCESSOR_LINE)
@@ -231,13 +214,19 @@ refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
 	    proc_cpuinfo->cpuinfo[cpunum].cpu_num = atoi(val);
 	    continue;
 	}
-#endif
 	previous = !PROCESSOR_LINE;
 
-	if (cpunum < 0 || cpunum >= proc_cpuinfo->cpuindom->it_numinst)
+	if (cpunum >= proc_cpuinfo->cpuindom->it_numinst)
 	    continue;
 
-	info = &proc_cpuinfo->cpuinfo[cpunum];
+	/* we may need to save up state before seeing any processor ID */
+	if (dups || cpunum < 0) {
+	    dups = 1;
+	    info = &saved;
+	}
+	else {
+	    info = &proc_cpuinfo->cpuinfo[cpunum];
+	}
 
 	/* note: order is important due to strNcmp comparisons */
 	if (info->sapic < 0 && strncasecmp(buf, "sapic", 5) == 0)
@@ -282,16 +271,12 @@ refresh_proc_cpuinfo(proc_cpuinfo_t *proc_cpuinfo)
     }
     fclose(fp);
 
-#if defined(HAVE_ALPHA_LINUX)
-    /* all identical processors, therefore duplicate to all the instances */
-    for (cpunum = 1; cpunum < proc_cpuinfo->cpuindom->it_numinst; cpunum++)
-	memcpy(&proc_cpuinfo->cpuinfo[cpunum], info, sizeof(cpuinfo_t));
-#endif
     /* all identical processors, duplicate last through earlier instances */
     if (dups) {
-	for (i = 0; i < proc_cpuinfo->cpuindom->it_numinst-1; i++) {
-	    cpuid = proc_cpuinfo->cpuinfo[i].cpu_num;
-	    memcpy(&proc_cpuinfo->cpuinfo[i], info, sizeof(cpuinfo_t));
+	for (i = 0; i < proc_cpuinfo->cpuindom->it_numinst; i++) {
+	    if ((cpuid = proc_cpuinfo->cpuinfo[i].cpu_num) == 0)
+		cpuid = i;
+	    memcpy(&proc_cpuinfo->cpuinfo[i], &saved, sizeof(cpuinfo_t));
 	    proc_cpuinfo->cpuinfo[i].cpu_num = cpuid;
 	}
     }

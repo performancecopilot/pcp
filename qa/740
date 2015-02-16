@@ -34,8 +34,9 @@ _filter()
 }
 
 # real QA test starts here
-$sudo $PCP_RC_DIR/pmcd start >/dev/null 2>&1
+$sudo $PCP_RC_DIR/pcp start >/dev/null 2>&1
 _wait_for_pmcd
+_wait_for_pmlogger
 
 # store to enable verbose attribute diagnostics
 authdbg=`pmdbg -l | grep DBG_TRACE_AUTH | awk '{ print $2 }'`

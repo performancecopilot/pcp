@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2012-2014 Red Hat Inc.
+# Copyright (C) 2012-2015 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -181,14 +181,25 @@ def test_pcp(self):
 
     for i in xrange(len(metrics)):
         # pmNameAll
+	# one of the returned names should be the same as metrics[i]
         nameall = ctx.pmNameAll(self.metric_ids[i])
-        print("pmNameAll:", nameall[0])
-        self.assertTrue(nameall[0] == metrics[i])
+	match = 0
+	for j in xrange(len(nameall)):
+	    print("pmNameAll:", nameall[j])
+	    if (nameall[j] == metrics[i]):
+		match = 1
+        self.assertTrue(match)
 
         # pmNameID
+	# result will be one of the names from pmNameAll and we've
+	# already established that one of these is the same as metrics[i]
         name = ctx.pmNameID(self.metric_ids[i])
-        print("pmNameID:", name)
-        self.assertTrue(name == metrics[i])
+        print("pmNameID:", name);
+	match = 0
+	for j in xrange(len(nameall)):
+	    if (nameall[j] == name):
+		match = 1
+        self.assertTrue(match)
 
         # pmLookupDesc
         descs = ctx.pmLookupDescs(self.metric_ids[i])
@@ -295,6 +306,31 @@ def test_pcp(self):
     except pmapi.pmErr as error:
         print("pmFetch: ", error)
         self.assertTrue(False)
+
+    # pmParseUnitsStr
+    try:
+        (units,mult) = ctx.pmParseUnitsStr("5 mb/4 seconds")
+        print("pmParseUnitsStr:", units, mult)
+        self.assertTrue(True)
+    except pmapi.pmErr as error:
+        print("pmParseUnitsStr: ", error)
+        self.assertTrue(False)
+
+    try:
+        (units,mult) = ctx.pmParseUnitsStr("one flew over the cockoo's nest")
+        print("pmParseUnitsStr:", units, mult)
+        self.assertTrue(False)
+    except pmapi.pmErr as error:
+        print("pmParseUnitsStr: ", error)
+        self.assertTrue(True)
+
+    try:
+        (units,mult) = ctx.pmParseUnitsStr(5) # type-checking non-string
+        print("pmParseUnitsStr:", units, mult)
+        self.assertTrue(False)
+    except AssertionError as error:
+        print("pmParseUnitsStr: ", error)
+        self.assertTrue(True)
 
     # pmFetch
     try:

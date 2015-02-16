@@ -1,0 +1,82 @@
+#!/bin/sh
+# PCP QA Test No. 800
+# Excercise the hotproc additions to the linux_proc pmda
+#
+# Copyright (c) 2014 Martins Innus.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d $PCP_PMDAS_DIR/proc ] || _notrun "Proc PMDA not installed"
+
+_cleanup()
+{
+    cd $here
+    [ -f $tmp.backup ] && $sudo mv $tmp.backup $PCP_PMDAS_DIR/proc/hotproc.conf
+    rm -rf $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+        -e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+        -e 's/value [0-9][0-9]*/value NUMBER/' \
+        -e 's/0x[0-9a-f]*/ADDR/g' \
+        -e 's/[0-2][0-9]:00:00.000/TIME/' \
+        -e 's/3.[0-9][0-9]*.[0-9][0-9]*/3.NUMBER.NUMBER/'
+}
+
+# vars and checks
+pipepmda=$PCP_PMDAS_DIR/proc/pmdaproc
+[ ! -f $pipepmda ] && echo "FATAL ERROR Could not find \"$pipepmda\"" && exit 1
+
+# temporarily move aside any existing hotproc.conf (for qa determinism)
+[ -f $PCP_PMDAS_DIR/proc/hotproc.conf ] && \
+    $sudo mv $PCP_PMDAS_DIR/proc/hotproc.conf $tmp.backup
+
+# real QA test starts here
+
+# By default, hotproc should be disabled
+echo "=== Hotproc disabled by default test ==="
+$sudo dbpmda -ie <<EOF 2>&1 | _filter
+open pipe $pipepmda -d 3
+getdesc on
+fetch hotproc.control.config_gen
+fetch hotproc.control.config
+EOF
+
+echo "=== Check that hotproc can be configured with UID==="
+$sudo dbpmda -ie <<EOF 2>&1 | _filter
+open pipe $pipepmda -d 3
+getdesc on
+attr "username" "root"
+attr 11 "0"
+store hotproc.control.config "uid==0"
+fetch hotproc.control.config
+wait 11
+fetch hotproc.nprocs
+EOF
+
+echo "=== Check that hotproc can be configured with process name==="
+$sudo dbpmda -ie <<EOF 2>&1 | _filter
+open pipe $pipepmda -d 3
+getdesc on
+attr "username" "root"
+attr 11 "0"
+wait 11
+store hotproc.control.config 'fname=="pmdaproc"'
+fetch hotproc.nprocs
+EOF
+
+status=0
+exit

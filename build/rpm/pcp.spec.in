@@ -188,12 +188,8 @@ An optional daemon (pmmgr) that manages a collection of pmlogger and
 pmie daemons, for a set of discovered local and remote hosts running
 the performance metrics collection daemon (pmcd).  It ensures these
 daemons are running when appropriate, and manages their log rotation
-needs (which are particularly complex in the case of pmlogger).
-The base PCP package provides comparable functionality through cron
-scripts which predate this daemon but do still provide effective and
-efficient log management services.
-The pcp-manager package aims to aggressively enable new PCP features
-and as a result may not be suited to all production environments.
+needs.  It is an alternative to the cron-based pmlogger/pmie service
+scripts.
 %endif
 
 %if "@enable_webapi@" == "true"
@@ -335,6 +331,20 @@ Requires: pcp-libs >= @package_version@ perl-PCP-LogImport >= @package_version@
 
 %description import-mrtg2pcp
 Performance Co-Pilot (PCP) front-end tools for importing MTRG data
+into standard PCP archive logs for replay with any PCP monitoring tool.
+
+#
+# pcp-import-ganglia2pcp
+#
+%package import-ganglia2pcp
+License: LGPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for importing ganglia data into PCP archive logs
+URL: http://www.pcp.io
+Requires: pcp-libs >= @package_version@ perl-PCP-LogImport >= @package_version@
+
+%description import-ganglia2pcp
+Performance Co-Pilot (PCP) front-end tools for importing ganglia data
 into standard PCP archive logs for replay with any PCP monitoring tool.
 
 #
@@ -592,6 +602,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'sar2pcp' >import_sar2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'iostat2pcp' >import_iostat2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'sheet2pcp' >import_sheet2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'mrtg2pcp' >import_mrtg2pcp_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'ganglia2pcp' >import_ganglia2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'collectl2pcp' >import_collectl2pcp_files
 %if "@pmda_infiniband@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'infiniband|pmdaib|pmdas/ib' >pmda_infiniband_files
@@ -622,6 +633,7 @@ BEGIN {
     while( getline < "import_iostat2pcp_files") import_iostat2pcp[$0]=1;
     while( getline < "import_sheet2pcp_files") import_sheet2pcp[$0]=1;
     while( getline < "import_mrtg2pcp_files") import_mrtg2pcp[$0]=1;
+    while( getline < "import_ganglia2pcp_files") import_ganglia2pcp[$0]=1;
     while( getline < "import_collectl2pcp_files") import_collectl2pcp[$0]=1;
     while( getline < "import_collectl2pcp_files") import_collectl2pcp[$0]=1;
     while( getline < "conf_files") conf[nconf++]=$0;
@@ -642,6 +654,7 @@ BEGIN {
     else if (import_iostat2pcp[$NF]) f="import_iostat2pcp_files.rpm";
     else if (import_sheet2pcp[$NF]) f="import_sheet2pcp_files.rpm";
     else if (import_mrtg2pcp[$NF]) f="import_mrtg2pcp_files.rpm";
+    else if (import_ganglia2pcp[$NF]) f="import_ganglia2pcp_files.rpm";
     else if (import_collectl2pcp[$NF]) f="import_collectl2pcp_files.rpm";
     else f="base_files.rpm"
 }
@@ -652,8 +665,12 @@ $1 == "f" && $6 ~ "etc/pcp.env"  { printf ("%%%%config ") >> f; }
 $1 == "f" && $6 ~ "etc/pcp.sh"   { printf ("%%%%config ") >> f; }
 $1 == "f" {
 	    for (i=0; i < nconf; i++) {
-	    	if ($6 ~ conf[i]) {
-		    printf ("%%%%config(noreplace) ") >> f;
+		if ($6 ~ conf[i]) {
+		    if ($6 ~ "pmmgr") {
+			printf ("%%%%config(noreplace,missingok) ") >> f;
+		    } else {
+			printf ("%%%%config(noreplace) ") >> f;
+		    }
 		    break;
 		}
 	    }
@@ -885,6 +902,8 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %if "@enable_manager@" == "true"
 %files manager -f manager_files.rpm
 %defattr(-,root,root)
+# %config(missingok,noreplace) /etc/pcp/pmmgr
+# set via awk processing above
 %endif
 
 %files testsuite -f testsuite_files.rpm
@@ -915,6 +934,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root)
 
 %files import-mrtg2pcp -f import_mrtg2pcp_files.rpm
+%defattr(-,root,root)
+
+%files import-ganglia2pcp -f import_ganglia2pcp_files.rpm
 %defattr(-,root,root)
 
 %files import-collectl2pcp -f import_collectl2pcp_files.rpm

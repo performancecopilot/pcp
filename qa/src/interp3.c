@@ -421,5 +421,11 @@ main(int argc, char **argv)
     printf("Pass 6 done\n");
     fflush(stdout);
 
+    if (resvec != NULL) {
+	for (i = 0; i < resnum; i++)
+	    pmFreeResult(resvec[i]);
+	free(resvec);
+    }
+
     exit(0);
 }

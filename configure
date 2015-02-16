@@ -10727,6 +10727,18 @@ _ACEOF
 fi
 done
 
+for ac_func in sendmsg recvmsg setns
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
 
 if test $target_os != linux -a $target_os != freebsd -a $target_os != kfreebsd -a $target_os != netbsd; then
     for ac_func in readdir64
@@ -11178,23 +11190,33 @@ fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if linker supports -rdynamic" >&5
 $as_echo_n "checking if linker supports -rdynamic... " >&6; }
-cat <<End-of-File >conftest.c
-main() {;}
-End-of-File
-rdynamic_flag=
-$CC -o conftest -rdynamic conftest.c 2>conftest.out
-test -s conftest.out || rdynamic_flag=-rdynamic
+save_CFLAGS="$CFLAGS"
+CFLAGS="-rdynamic"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
 
-if test -z "$rdynamic_flag"
-then
-   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-else
-   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
+     rdynamic_flag=-rdynamic
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+     rdynamic_flag=
+
 fi
-rm -f conftest.c conftest.o conftest
-rm -rf conftest.dSYM
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+CFLAGS="$save_CFLAGS"
+
+
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether const arg for scandir() select method" >&5
 $as_echo_n "checking whether const arg for scandir() select method... " >&6; }
@@ -11226,7 +11248,7 @@ cat <<End-of-File >conftest.c
 #include <stdlib.h>
 #include <unistd.h>
 #include <dirent.h>
-int main() { struct dirent.d; d.d_off = 0; }
+int main() { struct dirent d; d.d_off = 0; }
 End-of-File
 (eval $ac_compile) 2>conftest.out
 cat conftest.out >&5

@@ -61,7 +61,7 @@ pmResult dump from ADDR timestamp: 0.000000 HH:00:00.000 numpmid: 3
   29.0.1002 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 2 2.8025969e-45 ADDR
 dbpmda> 
-load(name=(null), dupok=0) lic case=0 fname=/var/lib/pcp/pmns/root
+load(name=(null), dupok=1) lic case=0 fname=/var/lib/pcp/pmns/root
 loadascii(file=/var/lib/pcp/pmns/root)
 pmLoadNameSpace: active -> 29.0.123
 pmLoadNameSpace: base -> 29.0.115
@@ -73,6 +73,8 @@ pmLoadNameSpace: bin -> 29.0.109
 pmLoadNameSpace: bin -> 29.0.111
 pmLoadNameSpace: bin -> 29.0.113
 pmLoadNameSpace: bin -> 29.0.121
+pmLoadNameSpace: bin -> 29.0.6
+pmLoadNameSpace: bin -> 29.0.6
 pmLoadNameSpace: bin -> 29.0.6
 pmLoadNameSpace: bin_ctr -> 29.0.104
 pmLoadNameSpace: bin_ctr -> 29.0.106
@@ -95,6 +97,7 @@ pmLoadNameSpace: count_down -> 29.0.68
 pmLoadNameSpace: count_up -> 29.0.67
 pmLoadNameSpace: counter -> 29.0.76
 pmLoadNameSpace: ctx -> 29.0.122
+pmLoadNameSpace: daemon_pid -> 29.0.1
 pmLoadNameSpace: daemon_pid -> 29.0.1
 pmLoadNameSpace: darkness -> 29.0.92
 pmLoadNameSpace: datasize -> 29.0.91
@@ -121,6 +124,7 @@ pmLoadNameSpace: int -> 29.0.80
 pmLoadNameSpace: kbyte_ctr -> 29.0.83
 pmLoadNameSpace: kbyte_rate -> 29.0.84
 pmLoadNameSpace: kilo -> 29.0.118
+pmLoadNameSpace: lights -> 29.0.46
 pmLoadNameSpace: lights -> 29.0.46
 pmLoadNameSpace: load -> 29.0.4
 pmLoadNameSpace: long -> 29.0.57
@@ -164,12 +168,14 @@ pmLoadNameSpace: param_u64 -> 29.0.131
 pmLoadNameSpace: part_bin -> 29.0.50
 pmLoadNameSpace: pdu -> 29.0.40
 pmLoadNameSpace: pdu -> 29.0.43
+pmLoadNameSpace: pid_daemon -> 29.0.1
 pmLoadNameSpace: rapid -> 29.0.64
 pmLoadNameSpace: records -> 29.0.136
 pmLoadNameSpace: recv_pdu -> 29.0.41
 pmLoadNameSpace: recv_pdu -> 29.0.44
 pmLoadNameSpace: reset -> 29.0.126
 pmLoadNameSpace: reset_highres -> 29.0.140
+pmLoadNameSpace: seconds -> 29.0.2
 pmLoadNameSpace: seconds -> 29.0.2
 pmLoadNameSpace: secret -> 29.*.*
 pmLoadNameSpace: sem -> 29.0.89
@@ -179,7 +185,9 @@ pmLoadNameSpace: step_counter -> 29.0.63
 pmLoadNameSpace: sysinfo -> 29.0.39
 pmLoadNameSpace: ten -> 29.0.11
 pmLoadNameSpace: ten -> 29.0.16
+pmLoadNameSpace: ten -> 29.0.16
 pmLoadNameSpace: ten -> 29.0.21
+pmLoadNameSpace: ten -> 29.0.26
 pmLoadNameSpace: ten -> 29.0.26
 pmLoadNameSpace: ten -> 29.0.94
 pmLoadNameSpace: ten -> 29.0.99
@@ -202,6 +210,8 @@ pmLoadNameSpace: write_me -> 29.0.24
 pmLoadNameSpace: write_me -> 29.0.29
 pmLoadNameSpace: write_me -> 29.0.32
 pmLoadNameSpace: write_me -> 29.0.35
+pmLoadNameSpace: write_me -> 29.0.36
+pmLoadNameSpace: write_me -> 29.0.36
 pmLoadNameSpace: write_me -> 29.0.36
 pmLoadNameSpace: write_me -> 29.0.97
 pmLoadNameSpace: xmit_pdu -> 29.0.42

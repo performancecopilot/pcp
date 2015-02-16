@@ -133,6 +133,7 @@ cleanup()
 trap "cleanup; exit \$status" 0 1 2 3 15
 
 rm -f $here/$seq.full
+echo "SAVE_LOGGER=$SAVE_LOGGER" >>$here/$seq.full
 
 # real QA test starts here
 

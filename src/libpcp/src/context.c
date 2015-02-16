@@ -334,6 +334,24 @@ __pmInitChannelLock(pthread_mutex_t *lock)
 #endif
 
 static int
+ctxlocal(__pmHashCtl *attrs)
+{
+    int sts;
+    char *name = NULL;
+    char *container = NULL;
+
+    if ((container = getenv("PCP_CONTAINER")) != NULL) {
+	if ((name = strdup(container)) == NULL)
+	    return -ENOMEM;
+	if ((sts = __pmHashAdd(PCP_ATTR_CONTAINER, (void *)name, attrs)) < 0) {
+	    free(name);
+	    return sts;
+	}
+    }
+    return 0;
+}
+
+static int
 ctxflags(__pmHashCtl *attrs, int *flags)
 {
     int sts;
@@ -533,6 +551,8 @@ INIT_CONTEXT:
 	new->c_pmcd->pc_refcnt++;
     }
     else if (new->c_type == PM_CONTEXT_LOCAL) {
+	if ((sts = ctxlocal(&new->c_attrs)) != 0)
+	    goto FAILED;
 	if ((sts = __pmConnectLocal(&new->c_attrs)) != 0)
 	    goto FAILED;
     }
@@ -906,6 +926,8 @@ pmDestroyContext(int handle)
 	    free(ctxp->c_archctl->ac_cache);
 	free(ctxp->c_archctl);
     }
+    __pmFreeAttrsSpec(&ctxp->c_attrs);
+    __pmHashClear(&ctxp->c_attrs);
     ctxp->c_type = PM_CONTEXT_FREE;
 
     if (handle == PM_TPD(curcontext))

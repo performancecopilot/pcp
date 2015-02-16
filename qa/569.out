@@ -134,6 +134,16 @@ sample.event.param_float 0
 sample.event.param_double 0
 sample.event.param_string 0
 sample.event.param_aggregate 0
+sample.dupnames.daemon_pid 1
+sample.dupnames.pid_daemon 1
+sample.dupnames.two.seconds 1
+sample.dupnames.two.bin 9
+sample.dupnames.two.write_me 1
+sample.dupnames.two.lights 1
+sample.dupnames.two.float.ten 1
+sample.dupnames.two.double.ten 1
+sample.dupnames.three.bin 9
+sample.dupnames.three.write_me 1
 
 === -i ===
 sample.control 1 PM_IN_NULL
@@ -299,6 +309,16 @@ sample.event.param_float 0
 sample.event.param_double 0
 sample.event.param_string 0
 sample.event.param_aggregate 0
+sample.dupnames.daemon_pid 1 PM_IN_NULL
+sample.dupnames.pid_daemon 1 PM_IN_NULL
+sample.dupnames.two.seconds 1 PM_IN_NULL
+sample.dupnames.two.bin 9 ?100 ?200 ?300 ?400 ?500 ?600 ?700 ?800 ?900
+sample.dupnames.two.write_me 1 PM_IN_NULL
+sample.dupnames.two.lights 1 PM_IN_NULL
+sample.dupnames.two.float.ten 1 PM_IN_NULL
+sample.dupnames.two.double.ten 1 PM_IN_NULL
+sample.dupnames.three.bin 9 ?100 ?200 ?300 ?400 ?500 ?600 ?700 ?800 ?900
+sample.dupnames.three.write_me 1 PM_IN_NULL
 
 === -I ===
 sample.control 1 PM_IN_NULL
@@ -470,6 +490,16 @@ sample.event.param_float 0
 sample.event.param_double 0
 sample.event.param_string 0
 sample.event.param_aggregate 0
+sample.dupnames.daemon_pid 1 PM_IN_NULL
+sample.dupnames.pid_daemon 1 PM_IN_NULL
+sample.dupnames.two.seconds 1 PM_IN_NULL
+sample.dupnames.two.bin 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"
+sample.dupnames.two.write_me 1 PM_IN_NULL
+sample.dupnames.two.lights 1 PM_IN_NULL
+sample.dupnames.two.float.ten 1 PM_IN_NULL
+sample.dupnames.two.double.ten 1 PM_IN_NULL
+sample.dupnames.three.bin 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"
+sample.dupnames.three.write_me 1 PM_IN_NULL
 
 === -v ===
 sample.control 1 0
@@ -627,6 +657,16 @@ sample.event.param_float 0
 sample.event.param_double 0
 sample.event.param_string 0
 sample.event.param_aggregate 0
+sample.dupnames.daemon_pid 1 NUMBER
+sample.dupnames.pid_daemon 1 NUMBER
+sample.dupnames.two.seconds 1 NUMBER
+sample.dupnames.two.bin 9 100 200 300 400 500 600 700 800 900
+sample.dupnames.two.write_me 1 NUMBER
+sample.dupnames.two.lights 1 "STRING"
+sample.dupnames.two.float.ten 1 10
+sample.dupnames.two.double.ten 1 10
+sample.dupnames.three.bin 9 100 200 300 400 500 600 700 800 900
+sample.dupnames.three.write_me 1 NUMBER
 
 === -iI ===
 sample.control 1 PM_IN_NULL PM_IN_NULL
@@ -829,6 +869,17 @@ sample.event.param_float 0
 sample.event.param_double 0
 sample.event.param_string 0
 sample.event.param_aggregate 0
+sample.dupnames.daemon_pid 1 PM_IN_NULL PM_IN_NULL
+sample.dupnames.pid_daemon 1 PM_IN_NULL PM_IN_NULL
+sample.dupnames.two.seconds 1 PM_IN_NULL PM_IN_NULL
+sample.dupnames.two.bin 9 ?100 "bin-100" ?200 "bin-200" ?300 "bin-300" ?400 "bin-400" ?500 "bin-500" ?600 "bin-600" ?700 "bin-700" ?800 "bin-800" ?900 "bin-900"
+sample.dupnames.two.write_me 1 PM_IN_NULL PM_IN_NULL
+sample.dupnames.two.lights 1 PM_IN_NULL PM_IN_NULL
+sample.dupnames.two.float.ten 1 PM_IN_NULL PM_IN_NULL
+sample.dupnames.two.double.ten 1 PM_IN_NULL PM_IN_NULL
+sample.dupnames.three.bin 9 ?100 "bin-100" ?200 "bin-200" ?300 "bin-300" ?400 "bin-400" ?500 "bin-500" ?600 "bin-600" ?700 "bin-700" ?800 "bin-800" ?900 "bin-90
+0"
+sample.dupnames.three.write_me 1 PM_IN_NULL PM_IN_NULL
 
 === -iv ===
 pmprobe: at most one of -v and (-i or -I) allowed
@@ -838,7 +889,7 @@ General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP log archive
   -h HOST, --host=HOST  metrics source is PMCD on host
-  --container=NAME      specify the specific container to be queried
+  --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
                         optional additional PMDA spec for local connection
@@ -863,7 +914,7 @@ General options:
   -a FILE, --archive=FILE
                         metrics source is a PCP log archive
   -h HOST, --host=HOST  metrics source is PMCD on host
-  --container=NAME      specify the specific container to be queried
+  --container=NAME      specify an individual container to be queried
   -L, --local-PMDA      metrics source is local connection to a PMDA
   -K SPEC, --spec-local=SPEC
                         optional additional PMDA spec for local connection

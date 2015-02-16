@@ -1,0 +1,508 @@
+QA output created by 907
+=== sample.bin ===
+OK, metrics from intermediate archive ...
+Note: timezone set to local timezone of host "bozo" from archive
+
+
+11:12:02.983  29.0.6 (sample.bin): inst [300 or "bin-300"] value 300
+
+11:12:04.983  29.0.6 (sample.bin): inst [300 or "bin-300"] value 300
+
+11:12:06.982  29.0.6 (sample.bin): inst [300 or "bin-300"] value 300
+
+11:12:08.983  29.0.6 (sample.bin): inst [300 or "bin-300"] value 300
+OK, metrics from final archive ...
+Note: timezone set to local timezone of host "bozo" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo
+  commencing Sun Jan  4 11:11:41.369 2015
+  ending     Sun Jan  4 11:12:08.983 2015
+
+Descriptions for Metrics in the Log ...
+PMID: 29.0.100 (sample.ulonglong.hundred)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 241.0.2 (schizo.fumble)
+    Data Type: string  InDom: 241.0 0x3c400000
+    Semantics: discrete  Units: none
+PMID: 241.1.4 (schizo.data4)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+PMID: 29.0.6 (sample.bin)
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+PMID: 29.0.12 (sample.long.hundred)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 2.3.0 (pmcd.pmlogger.port)
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 241.1.1 (schizo.data1)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+PMID: 241.0.0 (schizo.version)
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+PMID: 2.3.2 (pmcd.pmlogger.archive)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 241.1.2 (schizo.data2)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+PMID: 241.0.1 (schizo.foo)
+    Data Type: string  InDom: 241.0 0x3c400000
+    Semantics: discrete  Units: none
+PMID: 2.3.3 (pmcd.pmlogger.host)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 241.1.3 (schizo.data3)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: sec
+
+Instance Domains in the Log ...
+InDom: 29.2
+11:11:43.370 9 instances
+                 100 or "bin-100"
+                 200 or "bin-200"
+                 300 or "bin-300"
+                 400 or "bin-400"
+                 500 or "bin-500"
+                 600 or "bin-600"
+                 700 or "bin-700"
+                 800 or "bin-800"
+                 900 or "bin-900"
+11:12:02.983 9 instances
+                 100 or "bin-100"
+                 200 or "bin-200"
+                 300 or "bin-300"
+                 400 or "bin-400"
+                 500 or "bin-500"
+                 600 or "bin-600"
+                 700 or "bin-700"
+                 800 or "bin-800"
+                 900 or "bin-900"
+InDom: 241.0
+11:11:43.370 1 instances
+                 0 or "zero"
+InDom: 2.1
+11:11:41.369 1 instances
+                 19426 or "19426"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+11:11:41.369       0          132          132
+11:11:43.370       0          351          300
+11:12:02.983       0         1102         1360
+11:12:08.983       0         1274         1480
+
+[40 bytes]
+11:11:43.370  29.0.6 (sample.bin): inst [300 or "bin-300"] value 300
+
+[40 bytes]
+11:11:45.370  29.0.6 (sample.bin): inst [300 or "bin-300"] value 300
+
+[40 bytes]
+11:11:47.370  29.0.6 (sample.bin): inst [300 or "bin-300"] value 300
+
+[40 bytes]
+11:11:49.370  29.0.6 (sample.bin): inst [300 or "bin-300"] value 300
+
+[40 bytes]
+11:12:02.983  29.0.6 (sample.bin): inst [300 or "bin-300"] value 300
+
+[40 bytes]
+11:12:04.983  29.0.6 (sample.bin): inst [300 or "bin-300"] value 300
+
+[40 bytes]
+11:12:06.982  29.0.6 (sample.bin): inst [300 or "bin-300"] value 300
+
+[40 bytes]
+11:12:08.983  29.0.6 (sample.bin): inst [300 or "bin-300"] value 300
+=== sample.long.hundred ===
+OK, metrics from intermediate archive ...
+Note: timezone set to local timezone of host "bozo" from archive
+
+
+11:12:02.983  29.0.12 (sample.long.hundred): value 100
+
+11:12:04.983  29.0.12 (sample.long.hundred): value 100
+
+11:12:06.982  29.0.12 (sample.long.hundred): value 100
+
+11:12:08.983  29.0.12 (sample.long.hundred): value 100
+OK, metrics from final archive ...
+Note: timezone set to local timezone of host "bozo" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo
+  commencing Sun Jan  4 11:11:41.369 2015
+  ending     Sun Jan  4 11:12:08.983 2015
+
+Descriptions for Metrics in the Log ...
+PMID: 29.0.100 (sample.ulonglong.hundred)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 241.0.2 (schizo.fumble)
+    Data Type: string  InDom: 241.0 0x3c400000
+    Semantics: discrete  Units: none
+PMID: 241.1.4 (schizo.data4)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+PMID: 29.0.6 (sample.bin)
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+PMID: 29.0.12 (sample.long.hundred)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 2.3.0 (pmcd.pmlogger.port)
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 241.1.1 (schizo.data1)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+PMID: 241.0.0 (schizo.version)
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+PMID: 2.3.2 (pmcd.pmlogger.archive)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 241.1.2 (schizo.data2)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+PMID: 241.0.1 (schizo.foo)
+    Data Type: string  InDom: 241.0 0x3c400000
+    Semantics: discrete  Units: none
+PMID: 2.3.3 (pmcd.pmlogger.host)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 241.1.3 (schizo.data3)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: sec
+
+Instance Domains in the Log ...
+InDom: 29.2
+11:11:43.370 9 instances
+                 100 or "bin-100"
+                 200 or "bin-200"
+                 300 or "bin-300"
+                 400 or "bin-400"
+                 500 or "bin-500"
+                 600 or "bin-600"
+                 700 or "bin-700"
+                 800 or "bin-800"
+                 900 or "bin-900"
+InDom: 241.0
+11:11:43.370 1 instances
+                 0 or "zero"
+InDom: 2.1
+11:11:41.369 1 instances
+                 19426 or "19426"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+11:11:41.369       0          132          132
+11:11:43.370       0          351          300
+11:12:08.983       0         1102         1480
+
+[40 bytes]
+11:11:43.370  29.0.12 (sample.long.hundred): value 100
+
+[40 bytes]
+11:11:45.370  29.0.12 (sample.long.hundred): value 100
+
+[40 bytes]
+11:11:47.370  29.0.12 (sample.long.hundred): value 100
+
+[40 bytes]
+11:11:49.370  29.0.12 (sample.long.hundred): value 100
+
+[40 bytes]
+11:12:02.983  29.0.12 (sample.long.hundred): value 100
+
+[40 bytes]
+11:12:04.983  29.0.12 (sample.long.hundred): value 100
+
+[40 bytes]
+11:12:06.982  29.0.12 (sample.long.hundred): value 100
+
+[40 bytes]
+11:12:08.983  29.0.12 (sample.long.hundred): value 100
+=== sample.ulonglong.hundred ===
+OK, metrics from intermediate archive ...
+Note: timezone set to local timezone of host "bozo" from archive
+
+
+11:12:02.983  29.0.100 (sample.ulonglong.hundred): value 100
+
+11:12:04.983  29.0.100 (sample.ulonglong.hundred): value 100
+
+11:12:06.982  29.0.100 (sample.ulonglong.hundred): value 100
+
+11:12:08.983  29.0.100 (sample.ulonglong.hundred): value 100
+OK, metrics from final archive ...
+Note: timezone set to local timezone of host "bozo" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo
+  commencing Sun Jan  4 11:11:41.369 2015
+  ending     Sun Jan  4 11:12:08.983 2015
+
+Descriptions for Metrics in the Log ...
+PMID: 29.0.100 (sample.ulonglong.hundred)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 241.0.2 (schizo.fumble)
+    Data Type: string  InDom: 241.0 0x3c400000
+    Semantics: discrete  Units: none
+PMID: 241.1.4 (schizo.data4)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+PMID: 29.0.6 (sample.bin)
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+PMID: 29.0.12 (sample.long.hundred)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 2.3.0 (pmcd.pmlogger.port)
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 241.1.1 (schizo.data1)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+PMID: 241.0.0 (schizo.version)
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+PMID: 2.3.2 (pmcd.pmlogger.archive)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 241.1.2 (schizo.data2)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+PMID: 241.0.1 (schizo.foo)
+    Data Type: string  InDom: 241.0 0x3c400000
+    Semantics: discrete  Units: none
+PMID: 2.3.3 (pmcd.pmlogger.host)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 241.1.3 (schizo.data3)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: sec
+
+Instance Domains in the Log ...
+InDom: 29.2
+11:11:43.370 9 instances
+                 100 or "bin-100"
+                 200 or "bin-200"
+                 300 or "bin-300"
+                 400 or "bin-400"
+                 500 or "bin-500"
+                 600 or "bin-600"
+                 700 or "bin-700"
+                 800 or "bin-800"
+                 900 or "bin-900"
+InDom: 241.0
+11:11:43.370 1 instances
+                 0 or "zero"
+InDom: 2.1
+11:11:41.369 1 instances
+                 19426 or "19426"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+11:11:41.369       0          132          132
+11:11:43.370       0          351          300
+11:12:08.983       0         1102         1516
+
+[52 bytes]
+11:11:43.370  29.0.100 (sample.ulonglong.hundred): value 100
+
+[52 bytes]
+11:11:45.370  29.0.100 (sample.ulonglong.hundred): value 100
+
+[52 bytes]
+11:11:47.370  29.0.100 (sample.ulonglong.hundred): value 100
+
+[52 bytes]
+11:11:49.370  29.0.100 (sample.ulonglong.hundred): value 100
+
+[52 bytes]
+11:12:02.983  29.0.100 (sample.ulonglong.hundred): value 100
+
+[52 bytes]
+11:12:04.983  29.0.100 (sample.ulonglong.hundred): value 100
+
+[52 bytes]
+11:12:06.982  29.0.100 (sample.ulonglong.hundred): value 100
+
+[52 bytes]
+11:12:08.983  29.0.100 (sample.ulonglong.hundred): value 100
+=== schizo.version ===
+OK, metrics from intermediate archive ...
+Note: timezone set to local timezone of host "bozo" from archive
+
+
+11:12:02.983  241.0.0 (schizo.version): value "B"
+
+11:12:04.983  241.0.0 (schizo.version): value "B"
+
+11:12:06.982  241.0.0 (schizo.version): value "B"
+
+11:12:08.983  241.0.0 (schizo.version): value "B"
+OK, metrics from final archive ...
+Note: timezone set to local timezone of host "bozo" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host bozo
+  commencing Sun Jan  4 11:11:41.369 2015
+  ending     Sun Jan  4 11:12:08.983 2015
+
+Descriptions for Metrics in the Log ...
+PMID: 29.0.100 (sample.ulonglong.hundred)
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 241.0.2 (schizo.fumble)
+    Data Type: string  InDom: 241.0 0x3c400000
+    Semantics: discrete  Units: none
+PMID: 241.1.4 (schizo.data4)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: byte
+PMID: 29.0.6 (sample.bin)
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+PMID: 29.0.12 (sample.long.hundred)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 2.3.0 (pmcd.pmlogger.port)
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 241.1.1 (schizo.data1)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+PMID: 241.0.0 (schizo.version)
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+PMID: 2.3.2 (pmcd.pmlogger.archive)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 241.1.2 (schizo.data2)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+PMID: 241.0.1 (schizo.foo)
+    Data Type: string  InDom: 241.0 0x3c400000
+    Semantics: discrete  Units: none
+PMID: 2.3.3 (pmcd.pmlogger.host)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 241.1.3 (schizo.data3)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: sec
+
+Instance Domains in the Log ...
+InDom: 29.2
+11:11:43.370 9 instances
+                 100 or "bin-100"
+                 200 or "bin-200"
+                 300 or "bin-300"
+                 400 or "bin-400"
+                 500 or "bin-500"
+                 600 or "bin-600"
+                 700 or "bin-700"
+                 800 or "bin-800"
+                 900 or "bin-900"
+InDom: 241.0
+11:11:43.370 1 instances
+                 0 or "zero"
+InDom: 2.1
+11:11:41.369 1 instances
+                 19426 or "19426"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+11:11:41.369       0          132          132
+11:11:43.370       0          351          300
+11:12:08.983       0         1102         1504
+
+[48 bytes]
+11:11:43.370  241.0.0 (schizo.version): value "A"
+
+[48 bytes]
+11:11:45.370  241.0.0 (schizo.version): value "A"
+
+[48 bytes]
+11:11:47.370  241.0.0 (schizo.version): value "A"
+
+[48 bytes]
+11:11:49.370  241.0.0 (schizo.version): value "A"
+
+[48 bytes]
+11:12:02.983  241.0.0 (schizo.version): value "B"
+
+[48 bytes]
+11:12:04.983  241.0.0 (schizo.version): value "B"
+
+[48 bytes]
+11:12:06.982  241.0.0 (schizo.version): value "B"
+
+[48 bytes]
+11:12:08.983  241.0.0 (schizo.version): value "B"
+=== schizo.mumble ===
+OK, metrics from intermediate archive ...
+Note: timezone set to local timezone of host "bozo" from archive
+
+
+11:12:02.983  241.0.2 (schizo.mumble): inst [0 or "one"] value "mumble"
+
+11:12:04.983  241.0.2 (schizo.mumble): inst [0 or "one"] value "mumble"
+
+11:12:06.982  241.0.2 (schizo.mumble): inst [0 or "one"] value "mumble"
+
+11:12:08.983  241.0.2 (schizo.mumble): inst [0 or "one"] value "mumble"
+pmlogextract: Error: metric PMID 241.0.2: name changed from schizo.mumble to schizo.fumble!
+Archive "TMP.out" not created.
+final pmlogextract failed
+=== schizo.foo ===
+OK, metrics from intermediate archive ...
+Note: timezone set to local timezone of host "bozo" from archive
+
+
+11:12:02.983  241.0.3 (schizo.foo): inst [0 or "one"] value "foo"
+
+11:12:04.983  241.0.3 (schizo.foo): inst [0 or "one"] value "foo"
+
+11:12:06.982  241.0.3 (schizo.foo): inst [0 or "one"] value "foo"
+
+11:12:08.983  241.0.3 (schizo.foo): inst [0 or "one"] value "foo"
+pmlogextract: Error: metric schizo.foo: PMID changed from 241.0.3 to 241.0.1!
+Archive "TMP.out" not created.
+final pmlogextract failed
+=== schizo.data1 ===
+OK, metrics from intermediate archive ...
+Note: timezone set to local timezone of host "bozo" from archive
+
+
+11:12:02.983  241.1.1 (schizo.data1): value 4294967295
+
+11:12:04.983  241.1.1 (schizo.data1): value 4294967295
+
+11:12:06.982  241.1.1 (schizo.data1): value 4294967295
+
+11:12:08.983  241.1.1 (schizo.data1): value 4294967295
+pmlogextract: Error: metric schizo.data1: type changed from 64 to 32!
+Archive "TMP.out" not created.
+final pmlogextract failed
+=== schizo.data2 ===
+OK, metrics from intermediate archive ...
+Note: timezone set to local timezone of host "bozo" from archive
+
+
+11:12:02.983  241.1.2 (schizo.data2): value -2
+
+11:12:04.983  241.1.2 (schizo.data2): value -2
+
+11:12:06.982  241.1.2 (schizo.data2): value -2
+
+11:12:08.983  241.1.2 (schizo.data2): value -2
+pmlogextract: Error: metric schizo.data2: semantics changed from discrete to instant!
+Archive "TMP.out" not created.
+final pmlogextract failed

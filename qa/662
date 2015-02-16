@@ -1,0 +1,63 @@
+#! /bin/sh
+# PCP QA Test No. 662
+# checks pmwebd functionality using python test script
+#
+# Copyright (c) 2013-2015 Red Hat, Inc.  All Rights Reserved.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.webapi
+
+pyscript=src/test_webapi.py
+python $pyscript --version 2>/dev/null || _notrun "python/modules missing"
+
+$sudo rm -f $tmp.* $seq.full
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+username=`id -u -n`
+
+webargs="-U $username"
+webport=`_find_free_port`
+webpid=""
+
+_cleanup()
+{
+    if [ "X$webpid" != "X" ]; then
+	$signal -s TERM $webpid
+	webpid=""
+    fi
+    $sudo rm -f $tmp.*
+}
+
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+$PCP_BINADM_DIR/pmwebd $webargs -p $webport -l $tmp.out -v -t5 &
+
+webpid=$!
+echo "pid=$webpid" >>$seq.full
+_wait_for_pmwebd_logfile $tmp.out
+
+# prepare the expected output file based on detected mode
+rm -f $seq.out
+if grep -q IPv6 $tmp.out; then
+    grep -q IPv4 $tmp.out || _notrun "QA host running in IPv6 mode only"
+    ln $seq.out.46 $seq.out	# ipv6 + ipv4
+else
+    ln $seq.out.4 $seq.out	# ipv4 only
+fi
+
+ipv6local=`_ipv6_localhost`
+echo "ipv6local=$ipv6local" >>$seq.full
+if grep -q IPv4 $tmp.out; then
+    echo && echo === IPv4 pmwebd testing via python ===
+    python $pyscript --host localhost --port $webport | _webapi_response_filter
+fi
+if grep -q IPv6 $tmp.out; then
+    echo && echo === IPv6 pmwebd testing via python ===
+    python $pyscript --host $ipv6local --port $webport | _webapi_response_filter
+fi
+
+status=0
+exit

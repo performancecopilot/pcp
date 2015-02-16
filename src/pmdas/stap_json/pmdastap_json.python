@@ -676,4 +676,4 @@ class StapJsonPMDA(PMDA):
 if __name__ == '__main__':
     #os.environ["PCP_PYTHON_DEBUG"] = "ALL"
     #os.environ["PCP_PYTHON_DEBUG"] = "APPL0|LIBPMDA"
-    StapJsonPMDA('stap_json', 134).run()
+    StapJsonPMDA('stap_json', 136).run()

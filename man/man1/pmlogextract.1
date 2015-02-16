@@ -223,7 +223,7 @@ each metric name is
 where
 .I metric
 may be a leaf or a non-leaf node in the Performance Metrics
-Namespace (PMNS, see
+Name Space (PMNS, see
 .BR pmns (5)).
 If a metric refers to a non-leaf node in the PMNS,
 .B pmlogextract
@@ -306,6 +306,43 @@ using
 where a timestamp and the annotation
 .B <mark>
 is used to indicate a ``mark'' record.
+.SH METADATA CHECKS
+When more than one
+.I input
+archive is specified, 
+.B pmlogextract
+performs a number of checks to ensure the metadata is consistent for
+metrics appearing in more than one of the
+.I input
+archives.
+These checks include:
+.IP * 2n
+metric data type is the same
+.PD 0
+.IP * 2n
+metric semantics are the same
+.IP * 2n
+metric units are the same
+.IP * 2n
+metric is either always singular or always has the same instance domain
+.IP * 2n
+metrics with the same name have the same PMID
+.IP * 2n
+metrics with the same PMID have the same name
+.PD
+.PP
+If any of these checks fail,
+.B pmlogextract
+reports the details and aborts without creating the
+.I output
+archive.
+.PP
+To address these semantic issues, use
+.BR pmlogrewrite (1)
+to translate the
+.I input
+archives into equivalent archives with consistent metdadata before using
+.BR pmlogextract .
 .SH FILES
 .PD 0
 For each of the
@@ -357,6 +394,7 @@ as described in
 .BR pmlc (1),
 .BR pmlogger (1),
 .BR pmlogreduce (1),
+.BR pmlogrewrite (1),
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).

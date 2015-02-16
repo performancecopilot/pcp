@@ -480,4 +480,11 @@ PCP_3.9 {
   global:
     __pmSendAttr;
     __pmDecodeAttr;
+    __pmIgnoreSignalPIPE;
+    pmParseUnitsStr;
 } PCP_3.8;
+
+PCP_3.10 {
+  global:
+    __pmPrintMetricNames;
+} PCP_3.9;

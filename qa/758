@@ -2,7 +2,7 @@
 # PCP QA Test No. 758
 # Exercise a couple of perl PMDA module bugs/features.
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014-2015 Red Hat.
 #
 
 seq=`basename $0`
@@ -33,12 +33,25 @@ trap "cd $here; rm -rf $tmp.*; _cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 cd pmdas/test_perl
-$sudo ./Install </dev/null
+$sudo ./Install </dev/null \
+    | _filter_pmda_install \
+    | sed -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+    | $PCP_AWK_PROG '
+/Check test_perl metrics have appeared/ { if ($10 >= 0 && $10 <= 5) $10 = "N" }
+                                        { print }'
+cd $here
+
+# start from a known place
+pmstore test_perl.some_value 0 \
+    | sed -e 's/old value=./old value=N/g'
 
 # need a few invocations to tickle the bug
 for i in 1 2 3 4 5; do
-    echo "=== Round $i ==="
-    pminfo -f test_perl
+    echo "=== Round $i ===" | tee -a $here/$seq.full
+    pmprobe \
+	test_perl.other_indom.some_value \
+	test_perl.some_value \
+	test_perl.some_indom.some_value
 done
 
 # success, all done

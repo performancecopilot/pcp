@@ -5,12 +5,14 @@
 #
 # Copyright (c) 2014 Red Hat, Inc. All Rights Reserved.
 seq=`basename $0`
-echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
+
+_check_valgrind
+echo "QA output created by $seq"
 
 [ $PCP_PLATFORM = linux ] || _notrun "CIFS PMDA is Linux-specific (uses procfs)"
 

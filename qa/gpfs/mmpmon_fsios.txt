@@ -1,0 +1,1 @@
+_fs_io_s_ _n_ 10.10.1.1 _nn_ myhost _rc_ 0 _t_ 1421869154 _tu_ 766776 _cl_ gpfs.foobar.com _fs_ gpfs0 _d_ 107 _br_ 3592793024 _bw_ 2552776479 _oc_ 6758 _cc_ 6542 _rdc_ 2923 _wc_ 176495 _dir_ 1367 _iu_ 1418

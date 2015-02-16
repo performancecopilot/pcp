@@ -1,0 +1,128 @@
+#!/bin/sh
+# PCP QA Test No. 761
+# Exercise the PMCD privileged co-process (root) PMDA
+# Install, Remove and handling of different container
+# engines container.* metrics.
+#
+# Copyright (c) 2014-2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_get_libpcp_config
+$unix_domain_sockets || _notrun "No unix domain socket support available"
+
+root=$tmp.root
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+
+root_remove()
+{
+    echo
+    echo "=== remove root agent ==="
+    cd $PCP_PMDAS_DIR/root
+    sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+root_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/root
+    $sudo ./Remove >/dev/null 2>&1
+
+    echo
+    echo "=== $iam agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    # Check root metrics have appeared ... X metrics and Y values
+    _filter_pmda_install <$tmp.out \
+    | sed \
+        -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+    | $PCP_AWK_PROG '
+/Check root metrics have appeared/ { if ($7 >= 5) $7 = "X"
+                                     if ($10 >= 5) $10 = "Y"
+                                   }
+                                   { print }'
+}
+
+root_cleanup()
+{
+    cd $here
+    [ -d $root ] && sudo rm -fr $root
+    [ -f $tmp.conf.backup ] && sudo cp $tmp.conf.backup $PCP_DIR/etc/pcp.conf
+    _cleanup_pmda root
+}
+
+# do metrics one at a time, map all internal instance ids to N and sort
+# instance lines
+#
+_check()
+{
+    pminfo containers \
+    | while read metric
+    do
+	pminfo -f $metric >$tmp.tmp
+	grep -v ' inst \[' $tmp.tmp
+	sed -n -e '/inst \[/s/\[[0-9][0-9]*/[N/p' $tmp.tmp \
+	| LC_COLLATE=POSIX sort
+    done
+}
+
+_prepare_pmda root containers
+trap "root_cleanup; exit \$status" 0 1 2 3 15
+
+# backup main PCP config
+cp $PCP_DIR/etc/pcp.conf $tmp.conf
+cp $PCP_DIR/etc/pcp.conf $tmp.conf.backup
+
+# simple testing script for LXC containers
+cat >$tmp.test-lxc-info.sh <<EOF
+#!/bin/bash
+name="\$2"
+test -d "\$PCP_LXC_DIR/\$name" || exit 0
+echo "Name:           \$name"
+echo "State:          RUNNING"
+echo "PID:            17297"
+echo "CPU use:        1.13 seconds"
+EOF
+chmod 755 $tmp.test-lxc-info.sh
+export PCP_LXC_DIR=$root/var/lib/lxc
+
+# real QA test starts here
+echo >> $tmp.conf
+echo "# from QA $seq ..." >> $tmp.conf
+echo PCP_LXC_DIR=$root/var/lib/lxc >> $tmp.conf
+echo PCP_LXC_INFO=$tmp.test-lxc-info.sh >> $tmp.conf
+echo PCP_DOCKER_DIR=$root/var/lib/docker >> $tmp.conf
+$sudo cp $tmp.conf $PCP_DIR/etc/pcp.conf
+root_install
+
+echo "=== Checking empty containers configuration, no values"
+pmprobe -v containers
+echo "== done" && echo
+
+tarballs=`echo $here/linux/containers-*.tgz | LC_COLLATE=POSIX sort`
+for tgz in $tarballs
+do
+    $sudo rm -fr $root
+    mkdir $root || _fail "root in use when processing $tgz"
+    cd $root
+    $sudo tar xzf $tgz
+    base=`basename $tgz`
+
+    echo "== Checking values for active containers"
+    _check
+    echo && echo "== done" && echo
+    cd $here
+done
+
+root_remove
+# success, all done
+status=0
+exit
