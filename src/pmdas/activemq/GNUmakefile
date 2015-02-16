@@ -16,9 +16,11 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 TESTS =	ActiveMQTest.pl QueueTest.pl RESTClientTest.pl \
-	JVMGarbageCollectionTest.pl JVMMemoryPoolTest.pl JVMMemoryTest.pl
+	JVMGarbageCollectionTest.pl JVMMemoryPoolTest.pl JVMMemoryTest.pl \
+	CacheTest.pl
 MODULES = ActiveMQ.pm Queue.pm RESTClient.pm \
-	JVMGarbageCollection.pm JVMMemory.pm JVMMemoryPool.pm
+	JVMGarbageCollection.pm JVMMemory.pm JVMMemoryPool.pm \
+	Cache.pm TimeSource.pm
 
 IAM	= activemq
 DOMAIN	= ACTIVEMQ
