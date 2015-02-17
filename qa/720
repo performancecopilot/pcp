@@ -30,12 +30,25 @@ _filter_auth()
     # filter all the wierd and wonderful ways that SASL and its merry modules
     # might fail, into one canonical form ("authentication failure").
     #
+    # Noise ...
+    # [Fri Feb 13 23:00:29] pminfo(9819) Alert: GSSAPI Error: Unspecified GSS failure.  Minor code may provide more information (Credentials cache file '/tmp/krb5cc_1000' not found)
+    #
+    # equivalence ...
+    # pminfo: ...notApassword": Authentication - generic failure
+    # and
+    # Error: Authentication - user not found
+    # and
+    # pminfo: ...notApassword": Authentication - authentication failure
+    # are considered equivalent to
+    # Error: Authentication - authentication failure
+    #
     tee -a $seq.full | \
     sed \
 	-e '/GSSAPI Error:/d' \
-	-e 's/ - generic failure/ - authentication failure/g' \
-	-e 's/ - no mechanism available/ - authentication failure/g' \
 	-e 's/^pminfo: .*Authentication -/Error: Authentication -/g' \
+	-e '/Error: Authentication/s/ - generic failure/ - authentication failure/g' \
+	-e '/Error: Authentication/s/ - no mechanism available/ - authentication failure/g' \
+	-e '/Error: Authentication/s/ - user not found/ - authentication failure/g' \
     # end
 }
 
