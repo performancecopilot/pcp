@@ -5,11 +5,13 @@ QA output created by 660
 "context":
 
 === pmwebd security constraints, file service ===
++++ should fail due to -N
 PMWEBD error, XXX
 
++++ should fail due to nonexistent context#
 PMWEBD error, XXX
 
-* About to connect() to LOCALHOST port 44323 (####)
++++ should fail with a different error (insufficient elements; ie pmFetch failed)
 *   Trying LOCALADDR...
 * Connected to LOCALHOST (LOCALADDR) port 44323 (####)
 > GET /pmapi/2222/_fetch?names= HTTP/1.1
@@ -27,9 +29,10 @@ PMWEBD error, XXX
 * Connection #### to host LOCALHOST left intact
 PMWEBD error, XXX
 
++++ should fail with a different error (insufficient elements; ie pmFetch failed)
 PMWEBD error, XXX
 
-* About to connect() to LOCALHOST port 44323 (####)
++++ should fail due to suspicious pmresapi path name
 *   Trying LOCALADDR...
 * Connected to LOCALHOST (LOCALADDR) port 44323 (####)
 > GET /etc/passwd HTTP/1.1
@@ -47,7 +50,7 @@ PMWEBD error, XXX
 * Connection #### to host LOCALHOST left intact
 PMWEBD error, XXX
 
-* About to connect() to LOCALHOST port 44323 (####)
++++ should fail due to non-enablement of graphite
 *   Trying LOCALADDR...
 * Connected to LOCALHOST (LOCALADDR) port 44323 (####)
 > GET /graphite/render?target=* HTTP/1.1
@@ -65,4 +68,5 @@ PMWEBD error, XXX
 * Connection #### to host LOCALHOST left intact
 PMWEBD error, XXX
 
++++ should pass, feed this very script
 file service ok
