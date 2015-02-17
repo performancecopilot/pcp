@@ -455,7 +455,7 @@ class _DiskPrint(_AtopPrint):
         try:
 	    lvms = dict(map(lambda x: (os.path.realpath("/dev/mapper/" + x)[5:], x),
                          (os.listdir("/dev/mapper"))))
-	except Exception as e:
+	except OSError as e:
 	    # if /dev/mapper does not exist, charge on McDuff
 	    lvms = ''
 
