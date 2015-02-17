@@ -49,10 +49,14 @@ get_distro_info(void)
 
     for (r = 0; rfiles[r] != NULL; r++) {
 	snprintf(path, sizeof(path), "%s/etc/%s", linux_statspath, rfiles[r]);
-	if (stat(path, &sbuf) == 0) {
-	    if ((fd = open(path, O_RDONLY)) != -1)
-		break;
+	if ((fd = open(path, O_RDONLY)) == -1)
+	    continue;
+	if (fstat(fd, &sbuf) == -1) {
+	    close(fd);
+	    fd = -1;
+	    continue;
 	}
+	break;
     }
     if (fd != -1) {
 	if (r == DEB_VERSION) {	/* Debian, needs a prefix */

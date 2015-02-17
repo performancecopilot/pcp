@@ -34,6 +34,10 @@ PCPIMPORTSAR = pcp-import-sar2pcp
 PCPIMPORTSAR_FILES = pcp-import-sar2pcp.install
 PCPIMPORTSAR_DOC_DIR = $(PCP_DOC_DIR)/../pcp-import-sar2pcp
 
+PCPIMPORTSAR = pcp-import-ganglia2pcp
+PCPIMPORTSAR_FILES = pcp-import-ganglia2pcp.install
+PCPIMPORTSAR_DOC_DIR = $(PCP_DOC_DIR)/../pcp-import-ganglia2pcp
+
 PCPIMPORTMRTG = pcp-import-mrtg2pcp
 PCPIMPORTMRTG_FILES = pcp-import-mrtg2pcp.install
 PCPIMPORTMRTG_DOC_DIR = $(PCP_DOC_DIR)/../pcp-import-mrtg2pcp

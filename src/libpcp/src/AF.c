@@ -323,8 +323,13 @@ onalarm(int dummy)
 	}
 
 	if (root == NULL) {
-	    pmprintf("Warning: AF event queue is empty, nothing more will be scheduled\n");
-	    pmflush();
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_AF) {
+		__pmPrintStamp(stderr, &now);
+		fprintf(stderr, "Warning: AF event queue is empty, nothing more will be scheduled\n");
+	    }
+#endif
+	    ;
 	}
 	else {
 	    /* set itimer for head of queue */

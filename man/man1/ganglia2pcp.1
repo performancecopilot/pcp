@@ -1,0 +1,118 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2012-2013 Red Hat.
+.\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH GANGLIA2PCP 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3ganglia2pcp\f1 \- import ganglia data and create a PCP archive
+.SH SYNOPSIS
+\&\fBganglia2pcp\fR [\fB\-s\fR \fIstart\fR] [\fB\-e\fR \fIend\fR] [\fB\-f\fR \fIoutfile\fR] [\fB\-d\fR \fIoutdir\fR] [\fB\-Z\fR \fItimezone\fR] [\fB\-h\fR \fIhostname\fR] \fIinput_dir\fR
+.SH DESCRIPTION
+\&\fBganglia2pcp\fR is intended to read a set of ganglia files stored in the 
+rrd format
+and translate them into a Performance
+Co-Pilot (\s-1PCP\s0) archive with the basename \fIoutfile\fR.
+.PP
+The intent of this converter is to take all of the rrd files found in the input_dir
+and generate a single pcp archive file.  The mapping of ganglia metrics to pcp metrics
+is defined internally.
+.PP
+The resultant \s-1PCP\s0 achive may be used with all the \s-1PCP\s0 client tools
+to graph subsets of the data using \fBpmchart\fR(1),
+perform data reduction and reporting, filter with
+the \s-1PCP\s0 inference engine \fBpmie\fR(1), etc.
+.PP
+A series of physical files will be created with the prefix \fIoutfile\fR.
+These are \fIoutfile\fR\fB.0\fR (the performance data),
+\&\fIoutfile\fR\fB.meta\fR (the metadata that describes the performance data) and
+\&\fIoutfile\fR\fB.index\fR (a temporal index to improve efficiency of replay
+operations for the archive).  If any of these files exists already,
+then \fBsar2pcp\fR will \fBnot\fR overwrite them and will exit with an error
+message of the form
+.PP
+_\|_pmLogNewFile: \*(L"blah.0\*(R" already exists, not over-written
+.PP
+\&\fBganglia2pcp\fR is a Perl script that uses the PCP::LogImport Perl wrapper
+around the \s-1PCP\s0 \fIlibpcp_import\fR
+library, and as such could be used as an example to develop new
+tools to import other types of performance data and create \s-1PCP\s0 archives.
+The RRDs Perl wrapper is used to parse the raw rrd format files.
+.PP
+Options control the functioning of the converter.
+.TP 5
+.B \-s
+The
+.I start
+argument specifies a start time in a format understood by str2time. The default
+start time is 24 prior to current time.
+.TP 5
+.B \-e
+The
+.I end
+argument specifies a end time in a format understood by str2time. The default
+start time is current time.
+.TP 5
+.B \-f
+The
+.I outfile
+argument specifies a output file name.  The default name is in the standard pmlogger format
+based on the start time, eg 20150201.00.10
+.TP 5
+.B \-d
+The
+.I outdir
+argument specifies a output to write to.  The default is the current directory
+.TP 5
+.B \-Z
+The
+.I timezone
+argument sets the source timezone in the \s-1PCP\s0 archive (the
+default is to use the local timezone).  The timezone must have the
+format +HHMM (for hours and minutes East of \s-1UTC\s0) or \-HHMM (for hours
+and minutes West of \s-1UTC\s0) or \s-1UTC\s0.  Note in particular that \fBneither\fR the \fBzoneinfo\fR
+(aka Olson) format, e.g. Europe/Paris, nor the Posix \fB\s-1TZ\s0\fR format, e.g.
+\&\s-1EST+5\s0 is allowed.
+Example: timezone=\*(L"+1100\*(R".
+.TP 5
+.B \-h
+The
+.I hostname
+argument specifies a hostname to write to the archive. The default is taken from the directory
+name that the rrd files reside in.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR pmie (1),
+.BR pmchart (1),
+.BR pmlogger (1),
+.BR pmlogextract (1),
+.BR pmlogsummary (1),
+.BR Date::Parse (3pm),
+.BR Date::Format (3pm),
+.BR PCP::LogImport (3pm),
+.BR RRDs (3pm)
+and
+.BR LOGIMPORT (3).

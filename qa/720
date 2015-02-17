@@ -24,4 +24,20 @@ _run_valgrind src/parsehostattrs pcp://some.host?user=pcpqa
 _run_valgrind src/parsehostattrs some.host?user=pcpqa
 _run_valgrind src/parsehostattrs some.host
 _run_valgrind src/parsehostattrs pcp://?compress
-_run_valgrind pminfo -h pcp://localhost?user=NOsuchUSER\&pass=DEFINITELYnotApassword
+
+_filter_auth()
+{
+    # filter all the wierd and wonderful ways that SASL and its merry modules
+    # might fail, into one canonical form ("authentication failure").
+    #
+    tee -a $seq.full | \
+    sed \
+	-e '/GSSAPI Error:/d' \
+	-e 's/ - generic failure/ - authentication failure/g' \
+	-e 's/ - no mechanism available/ - authentication failure/g' \
+	-e 's/^pminfo: .*Authentication -/Error: Authentication -/g' \
+    # end
+}
+
+echo "pminfo username/password failure valgrind checking" >> $seq.full
+_run_valgrind pminfo -h pcp://localhost?user=NOsuchUSER\&pass=DEFINITELYnotApassword 2>&1 | _filter_auth

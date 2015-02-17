@@ -127,3 +127,18 @@
    fun:__pmAuthClientNegotiation
    ...
 }
+
+{
+   RHEL6.3 GSS/kerberos libraries via cyrus-sasl, uninit'd access
+   Memcheck:Addr8
+   ...
+   fun:krb5int_clean_hostname
+   fun:krb5_get_host_realm
+   ...
+   fun:gss_init_sec_context
+   ...
+   fun:sasl_client_step
+   fun:sasl_client_start
+   fun:__pmAuthClientNegotiation
+   ...
+}

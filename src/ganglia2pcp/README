@@ -1,0 +1,30 @@
+Converting a set of ganglia (rrd) log files to a PCP archive
+
+This example uses the PCP::LogImport Perl wrapper around the libpcp_import
+library to convert a set of rrd datafiles into a PCP archive.
+
+Usage: ganglia2pcp [-s start] [-e end] [-f output file name] [-d output file dir ] [-Z timezone] [-h hostname] input_dir
+
+The translation currently supports the following PCP metrics:
+
+kernel.all.uptime
+network.interface.in.bytes
+network.interface.out.bytes
+kernel.all.cpu.idle
+kernel.all.cpu.nice
+kernel.all.cpu.sys
+kernel.all.cpu.user
+kernel.all.cpu.wait.total
+hinv.ncpu
+hinv.cpu.clock
+kernel.all.load
+kernel.all.load
+kernel.all.load
+mem.util.bufmem
+mem.util.cached
+mem.util.free
+hinv.physmem
+network.interface.in.packets
+network.interface.out.packets
+swap.free
+swap.length

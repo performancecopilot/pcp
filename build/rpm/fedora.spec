@@ -390,6 +390,21 @@ Performance Co-Pilot (PCP) front-end tools for importing MTRG data
 into standard PCP archive logs for replay with any PCP monitoring tool.
 
 #
+# pcp-import-ganglia2pcp
+#
+%package import-ganglia2pcp
+License: LGPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for importing ganglia data into PCP archive logs
+URL: http://www.pcp.io
+Requires: pcp-libs = %{version}-%{release}
+Requires: perl-PCP-LogImport = %{version}-%{release}
+
+%description import-ganglia2pcp
+Performance Co-Pilot (PCP) front-end tools for importing ganglia data
+into standard PCP archive logs for replay with any PCP monitoring tool.
+
+#
 # pcp-import-collectl2pcp
 #
 %package import-collectl2pcp
@@ -1002,6 +1017,11 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root)
 %{_bindir}/mrtg2pcp
 %{_mandir}/man1/mrtg2pcp.1.gz
+
+%files import-ganglia2pcp
+%defattr(-,root,root)
+%{_bindir}/ganglia2pcp
+%{_mandir}/man1/ganglia2pcp.1.gz
 
 %files import-collectl2pcp
 %defattr(-,root,root)

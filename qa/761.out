@@ -90,6 +90,28 @@ containers.state.restarting
 == Checking values for active containers
 
 containers.engine
+    inst [N or "c2a1bd412ad4206ced8107b9faa1f9b244bd873dcced6f909dbf72682662b7d9"] value "docker"
+
+containers.name
+    inst [N or "c2a1bd412ad4206ced8107b9faa1f9b244bd873dcced6f909dbf72682662b7d9"] value "jovial_lovelace"
+
+containers.pid
+    inst [N or "c2a1bd412ad4206ced8107b9faa1f9b244bd873dcced6f909dbf72682662b7d9"] value 18720
+
+containers.state.running
+    inst [N or "c2a1bd412ad4206ced8107b9faa1f9b244bd873dcced6f909dbf72682662b7d9"] value 1
+
+containers.state.paused
+    inst [N or "c2a1bd412ad4206ced8107b9faa1f9b244bd873dcced6f909dbf72682662b7d9"] value 0
+
+containers.state.restarting
+    inst [N or "c2a1bd412ad4206ced8107b9faa1f9b244bd873dcced6f909dbf72682662b7d9"] value 0
+
+== done
+
+== Checking values for active containers
+
+containers.engine
     inst [N or "myvm"] value "lxc"
 
 containers.name
