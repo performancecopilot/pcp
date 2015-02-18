@@ -1,9 +1,6 @@
 #!/usr/bin/python
-
 #
-# pmatop.py
-#
-# Copyright (C) 2013, 2014 Red Hat Inc.
+# Copyright (C) 2013-2015 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -445,29 +442,19 @@ class _DiskPrint(_AtopPrint):
     replay_archive = property(None, replay_archive_write, None, None)
 
     def disk(self, context):
+        desc = self.ss.metric_descs[self.ss.metrics_dict['disk.partitions.read']]
         try:
-            (inst, iname) = context.pmGetInDom(self.ss.metric_descs[self.ss.metrics_dict['disk.partitions.read']])
+            (inst, iname) = context.pmGetInDom(desc)
         except pmapi.pmErr as e:
             iname = iname = "X"
 
-# Missing: LVM avq (average queue depth)
-
-        try:
-	    lvms = dict(map(lambda x: (os.path.realpath("/dev/mapper/" + x)[5:], x),
-                         (os.listdir("/dev/mapper"))))
-	except OSError as e:
-	    # if /dev/mapper does not exist, charge on McDuff
-	    lvms = ''
+        # Missing: LVM avq (average queue depth)
+        # TODO: switch to using disk.dm metrics?
 
         for j in xrange(self.ss.get_len(self.ss.get_metric_value('disk.partitions.read'))):
-            if self._replay_archive == True:
-                if iname[j][:2] != "dm":
-                    continue
-                lvm = iname[j]
-            else:
-                if iname[j] not in lvms:
-                    continue
-                lvm = lvms[iname[j]]
+            if iname[j][:2] != "dm":
+                continue
+            lvm = iname[j]
             partitions_read = self.ss.get_scalar_value('disk.partitions.read', j)
             partitions_write = self.ss.get_scalar_value('disk.partitions.write', j)
             if partitions_read == 0 and partitions_write == 0:
@@ -493,7 +480,6 @@ class _DiskPrint(_AtopPrint):
             (inst, iname) = context.pmGetInDom(self.ss.metric_descs[self.ss.metrics_dict['disk.dev.read']])
         except pmapi.pmErr as e:
             iname = iname = "X"
-
 
         for j in xrange(self.ss.get_len(self.ss.get_metric_value('disk.dev.read_bytes'))):
             self.p_stdscr.addstr('DSK |')
@@ -706,10 +692,8 @@ class _ProcPrint(_AtopPrint):
 
 class _Options(object):
     def __init__(self):
-        self.input_file = ""
         self.output_file = ""
         self.output_type = "g"
-        self.host = "local:"
         self.create_archive = False
         self.replay_archive = False
         self.have_interval_arg = False
@@ -724,16 +708,28 @@ class _Options(object):
         opts.pmSetOptionCallback(self.option_callback)
         opts.pmSetOverrideCallback(self.override)
         # leading - returns args that are not options with leading ^A
-        opts.pmSetShortOptions("-gmw:r:L:h:V?")
-        opts.pmSetLongOptionHeader("Options")
+        opts.pmSetShortOptions("-gmw:r:L:h:a:V?")
+        opts.pmSetLongOptionText("Interactive: [-g|-m] [-L linelen] [-h host | -a archive] [ interval [ samples ]]")
+        opts.pmSetLongOptionText("Write folio: pmatop -w folio [ interval [ samples ]]")
+        opts.pmSetLongOptionText("Read folio: pmatop -r folio [-g|-m] [-L linelen] [-h host]")
+        opts.pmSetLongOptionHeader("Reporting Options")
         opts.pmSetLongOption("generic", 0, 'g', '', "Display generic metrics")
         opts.pmSetLongOption("memory", 0, 'm', '', "Display memory metrics")
-        opts.pmSetLongOption("write", 1, 'w', 'FILENAME', "Write metric data to file")
-        opts.pmSetLongOption("read", 1, 'r', 'FILENAME', "Read metric data from file")
         opts.pmSetLongOption("width", 1, 'L', 'WIDTH', "Width of the output")
-        opts.pmSetShortUsage("[options]\nInteractive: [-g|-m] [-L linelen] [-h host] [ interval [ samples ]]\nWrite raw logfile: pmatop -w rawfile [ interval [ samples ]]\nRead raw logfile: pmatop -r [ rawfile ] [-g|-m] [-L linelen] [-h host]")
+        opts.pmSetLongOptionHeader("Folio Options")
+        opts.pmSetLongOption("write", 1, 'w', 'FILENAME', "Write metric data to PCP archive folio")
+        opts.pmSetLongOption("read", 1, 'r', 'FILENAME', "Read metric data from PCP archive folio")
+        opts.pmSetLongOptionHeader("General Options")
+        opts.pmSetLongOptionAlign()
+        opts.pmSetLongOptionArchive()
+        opts.pmSetLongOptionDebug()
         opts.pmSetLongOptionHost()
+        opts.pmSetLongOptionOrigin()
+        opts.pmSetLongOptionStart()
+        opts.pmSetLongOptionFinish()
         opts.pmSetLongOptionVersion()
+        opts.pmSetLongOptionTimeZone()
+        opts.pmSetLongOptionHostZone()
         opts.pmSetLongOptionHelp()
         return opts
 
@@ -743,6 +739,8 @@ class _Options(object):
         # pylint: disable=R0201
         if opt == 'g':
             return 1
+        elif opt == "a":
+            self.replay_archive = True
         elif opt == 'L':
             return 1
         return 0
@@ -760,12 +758,9 @@ class _Options(object):
             self.create_archive = True
         elif opt == "r":
             self.opts.pmSetOptionArchiveFolio(optarg)
-            self.input_file = optarg
             self.replay_archive = True
         elif opt == "L":
             self.width = int(optarg)
-        elif opt == 'h':
-            self.host = optarg
         elif opt == "":
             if self.have_interval_arg == False:
                 self.interval_arg = optarg
@@ -801,13 +796,11 @@ def main(stdscr_p):
     stdscr.width = opts.width
 
     pmc = pmapi.pmContext.fromOptions(opts.opts, sys.argv)
+    (delta, errmsg) = pmc.pmParseInterval(str(opts.interval_arg) + " seconds")
     if pmc.type == c_api.PM_CONTEXT_ARCHIVE:
-        pmc.pmSetMode(c_api.PM_MODE_FORW, pmapi.timeval(0, 0), 0)
-
+        pmc.pmSetMode(c_api.PM_MODE_FORW, delta, 0)
 
     host = pmc.pmGetContextHostName()
-
-    (delta, errmsg) = pmc.pmParseInterval(str(opts.interval_arg) + " seconds")
 
     ss.setup_metrics(pmc)
 
@@ -836,10 +829,10 @@ def main(stdscr_p):
         elapsed = ss.get_metric_value('kernel.all.uptime')
         while (i_samples < opts.n_samples) or (opts.n_samples == 0):
             ss.get_stats(pmc)
+            stamp = pmc.pmCtime(ss.timestamp)
             stdscr.move(0, 0)
             stdscr.addstr('ATOP - %s                %s elapsed\n\n' % (
-                    time.strftime("%c"),
-                    datetime.timedelta(0, elapsed)))
+                    stamp.rstrip(), datetime.timedelta(0, elapsed)))
             elapsed = delta.tv_sec
             stdscr.move(2, 0)
 
