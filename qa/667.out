@@ -6,3 +6,20 @@ a(S'pcp.hinv.ncpu'
 === 2. pcp2graphite text, 2-second aligned  ===
 foobar.hinv.ncpu NCPUS TIMESTAMP2
 foobar.hinv.ncpu NCPUS TIMESTAMP2
+Excluding metric sample.datasize (incompatible dimensions)
+=== 3. pcp2graphite bad-instance tolerance ===
+pcp.sample.bogus_bin._bin-100 100.0 TIMESTAMP2
+pcp.sample.bogus_bin._bin-300 300.0 TIMESTAMP2
+pcp.sample.bogus_bin._bin-500 500.0 TIMESTAMP2
+pcp.sample.bogus_bin._bin-700 700.0 TIMESTAMP2
+pcp.sample.bogus_bin._bin-900 900.0 TIMESTAMP2
+pcp.sample.bogus_bin._bin-100 100.0 TIMESTAMP2
+pcp.sample.bogus_bin._bin-300 300.0 TIMESTAMP2
+pcp.sample.bogus_bin._bin-500 500.0 TIMESTAMP2
+pcp.sample.bogus_bin._bin-700 700.0 TIMESTAMP2
+pcp.sample.bogus_bin._bin-900 900.0 TIMESTAMP2
+Excluding metric sample.aggregate.null (need numeric type)
+Excluding metric sample.string.hullo (need numeric type)
+Excluding metric NoSuchMetric (PM_ERR_NAME Unknown metric name)
+Excluding metric sample.bad.unknown (PM_ERR_PMID Unknown or illegal metric identifier)
+Excluding metric sample.bad.nosupport (need numeric type)
