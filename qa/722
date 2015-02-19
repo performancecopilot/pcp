@@ -2,7 +2,7 @@
 # PCP QA Test No. 722
 # Exercise the python pmatop implementation
 #
-# Copyright (c) 2013-2014 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 #
 
 seq=`basename $0`
@@ -68,18 +68,44 @@ if [ $? -ne 0 ]; then
 fi
 
 # real QA test starts here
-$PMATOP -r $here/src/pmatop-log.folio -m 1 1 2>&1 | tee -a $tmp.out | redact_header | remove_extra_whitespace
-$PMATOP -r $here/src/pmatop-log.folio -g 1 1 2>&1 | tee -a $tmp.out | redact_header | remove_extra_whitespace
+rm -f test.pmatop $tmp.folio $tmp.direct
 
-rm -f test.pmatop
+# verify mkaf(1) archive folios
+echo "generic metrics mode" >> $tmp.folio
+$PMATOP -r $here/src/pmatop-log.folio -m 1 1 2>&1 | tee -a $tmp.folio | redact_header | remove_extra_whitespace
+echo "memory metrics mode" >> $tmp.folio
+$PMATOP -r $here/src/pmatop-log.folio -g 1 1 2>&1 | tee -a $tmp.folio | redact_header | remove_extra_whitespace
+cat $tmp.folio >> $here/seq.full
+echo "== Archive folio testing complete"
+
+# verify pmlogger archive logs
+echo "generic metrics mode" >> $tmp.direct
+$PMATOP -a $here/src/pmatop-log -m 1 1 2>&1 | tee -a $tmp.direct | redact_header | remove_extra_whitespace
+echo "memory metrics mode" >> $tmp.direct
+$PMATOP -a $here/src/pmatop-log -g 1 1 2>&1 | tee -a $tmp.direct | redact_header | remove_extra_whitespace
+cat $tmp.direct >> $here/seq.full
+echo "== Direct archive testing complete"
+
+echo "== Comparing direct to folio output"
+diff $tmp.folio $tmp.direct
+if [ $? -eq 0 ]; then
+    echo "  Output compares exactly - good"
+else
+    echo "  Folio differs to direct access - bad"
+fi
+echo "== Output comparisons all completed"
+
+# verify creating archive folios
 $PMATOP -w test.pmatop 0.2 10
 if pmafm test.pmatop  check | grep -q OK
-then echo pmatop log creation OK | tee -a $tmp.out 2>&1
-else echo pmatop log creation FAILED | tee -a $tmp.out 2>&1; fi
+then echo pmatop log creation OK | tee -a $tmp.write 2>&1
+else echo pmatop log creation FAILED | tee -a $tmp.write 2>&1; fi
+cat $tmp.write >> $here/seq.full
+echo "== Live writer testing complete"
 
-cat $tmp.out >>$here/$seq.full
+# finished, clean up
+eval `pmafm test.pmatop remove`
 
 # success, all done
-eval `pmafm test.pmatop remove`
 status=0
 exit

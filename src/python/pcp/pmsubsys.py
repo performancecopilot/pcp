@@ -1,7 +1,7 @@
 #
 # Performance Co-Pilot subsystem classes
 #
-# Copyright (C) 2013 Red Hat Inc.
+# Copyright (C) 2013-2015 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -31,7 +31,7 @@ http://www.performancecopilot.org
 
 import copy
 import cpmapi as c_api
-from pcp.pmapi import pmErr
+from pcp.pmapi import pmErr, timeval
 from ctypes import c_char_p
 
 # python version information and compatibility
@@ -48,6 +48,7 @@ else:
 class Subsystem(object):
     def __init__(self):
         self.metrics = []
+        self.timestamp = timeval(0, 0)
         self.diff_metrics = []
         self.metric_pmids = []
         self.metric_descs = []
@@ -162,6 +163,7 @@ class Subsystem(object):
         list_type = type([])
 
         metric_result = pcp.pmFetch(self.metric_pmids)
+        self.timestamp = metric_result.contents.timestamp
 
         if max(self.old_metric_values) == 0:
             first = True
