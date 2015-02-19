@@ -959,6 +959,7 @@ cgroups
 764 pmie local
 765 pmlogsummary local
 766 pmfind local
+767 pmda.linux local containers
 768 pmlogextract local
 769 other local
 775 sanity pmfind local

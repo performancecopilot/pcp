@@ -4052,10 +4052,12 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
     /* no default label : pmdaInstance will pick up errors */
     }
 
-    if (ns_flags)
-	container = linux_ctx_container(pmda->e_context, &length);
-    if (container)
-	pid = container_enter_namespaces(rootfd, container, length, ns_flags);
+    if ((container = linux_ctx_container(pmda->e_context, &length)) != NULL) {
+	sts = container_enter_namespaces(rootfd, container, length, ns_flags);
+	if (sts < 0)
+	    return sts;
+	pid = sts;
+    }
     linux_refresh(pmda, need_refresh, pid);
     sts = pmdaInstance(indom, inst, name, result, pmda);
     if (container)
@@ -5417,7 +5419,6 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 	break;
 
-
     case CLUSTER_IB: /* deprecated: network.ib, use infiniband PMDA */
         return PM_ERR_APPVERSION;
 
@@ -5639,8 +5640,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case CLUSTER_DM:
 	return proc_partitions_fetch(mdesc, inst, atom);
-	break;
-    	
+
     default: /* unknown cluster */
 	return PM_ERR_PMID;
     }
@@ -5707,10 +5707,12 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	}
     }
 
-    if (ns_flags)
-	container = linux_ctx_container(pmda->e_context, &length);
-    if (container)
-	pid = container_enter_namespaces(rootfd, container, length, ns_flags);
+    if ((container = linux_ctx_container(pmda->e_context, &length)) != NULL) {
+	sts = container_enter_namespaces(rootfd, container, length, ns_flags);
+	if (sts < 0)
+	    return sts;
+	pid = sts;
+    }
     linux_refresh(pmda, need_refresh, pid);
     sts = pmdaFetch(numpmid, pmidlist, resp, pmda);
     if (container)

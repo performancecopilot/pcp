@@ -77,8 +77,8 @@ pmdaRootConnect(const char *path)
 
     if (pmDebug & DBG_TRACE_LIBPMDA)
 	__pmNotifyErr(LOG_INFO,
-			"pmdaRootConnect: %s server version=%d features=0x%x\n",
-			socketpath, version, features);
+		"pmdaRootConnect: %s server fd=%d version=%d features=0x%x\n",
+			socketpath, fd, version, features);
     return fd;
 }
 

@@ -1,0 +1,20 @@
+QA output created by 767
+== kernel PMDA
+kernel.all.load -12399 Container not found
+network.interface.in.bytes -12399 Container not found
+
+kernel.all.load
+Error: Container not found
+
+network.interface.in.bytes
+Error: Container not found
+
+== procfs PMDA
+proc.memory.rss -12399 Container not found
+cgroup.memory.stat.rss -12399 Container not found
+
+proc.memory.rss
+Error: Container not found
+
+cgroup.memory.stat.rss
+Error: Container not found
