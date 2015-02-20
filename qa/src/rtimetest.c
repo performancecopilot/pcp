@@ -30,7 +30,7 @@ set_tm(struct timeval *ntv, struct tm *ntm, struct tm *btm, int mon,
 	ntm->tm_min = min;
 
     if (ntv != NULL) {
-	ntv->tv_sec = mktime(ntm);
+	ntv->tv_sec = __pmMktime(ntm);
 	ntv->tv_usec = 0;
     }
 }
