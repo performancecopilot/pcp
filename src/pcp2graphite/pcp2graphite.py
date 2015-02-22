@@ -19,8 +19,8 @@ import time
 
 
 from pcp import pmapi
-from cpmapi import PM_TYPE_FLOAT, PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_DOUBLE
-
+from cpmapi import PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_DOUBLE
+import cpmapi as c_api
 
 class GraphiteRelay(object):
     """ Sends a periodic report to graphite about all instances of named metrics.
@@ -36,9 +36,10 @@ class GraphiteRelay(object):
 	self.opts.pmSetOptionCallback(self.option)
 	self.opts.pmSetOverrideCallback(self.option_override)
         # hack to include some explanatory text
-	self.opts.pmSetLongOptionHeader("""Description:
-Every 60 seconds (or other interval), relay given all instances of
-a given hierarchy of PCP metrics to a graphite/carbon server on the network.
+	self.opts.pmSetLongOptionHeader("""
+Description: Periodically, relay raw values of all instances of a
+given hierarchies of PCP metrics to a graphite/carbon server on the
+network.
 
 Options""")
 	self.opts.pmSetLongOptionVersion() # -V
@@ -116,35 +117,42 @@ Options""")
     # Check the given metric name (a leaf in the PMNS) for
     # acceptability for graphite: it needs to be numeric, and
     # convertable to the given unit (if specified).
+    #
+    # Print an error message here if needed; can't throw an exception through the
+    # pmapi pmTraversePMNS wrapper.
     def handle_candidate_metric(self, name):
         try:
             pmid = self.context.pmLookupName(name)[0]
             desc = self.context.pmLookupDescs(pmid)[0]
+        except pmapi.pmErr, err:
+            sys.stderr.write("Excluding metric %s (%s)\n" % (name, str(err)))
+            return
 
-            # reject non-numeric types (future pmExtractValue failure)
-            types = desc.contents.type
-            if not ((types == PM_TYPE_32) or
-                    (types == PM_TYPE_U32) or
-                    (types == PM_TYPE_64) or
-                    (types == PM_TYPE_U64) or
-                    (types == PM_TYPE_FLOAT) or
-                    (types == PM_TYPE_DOUBLE)):
+        # reject non-numeric types (future pmExtractValue failure)
+        types = desc.contents.type
+        if not ((types == PM_TYPE_32) or
+                (types == PM_TYPE_U32) or
+                (types == PM_TYPE_64) or
+                (types == PM_TYPE_U64) or
+                (types == c_api.PM_TYPE_FLOAT) or
+                (types == PM_TYPE_DOUBLE)):
+            sys.stderr.write("Excluding metric %s (need numeric type)\n" % name)
+            return
+            
+        # reject dimensionally incompatible (future pmConvScale failure)
+        if self.units is not None:
+            units = desc.contents.units
+            if ((units.dimSpace != self.units.dimSpace) or
+                (units.dimTime != self.units.dimTime) or
+                (units.dimCount != self.units.dimCount)):
+                sys.stderr.write("Excluding metric %s (incompatible dimensions)\n" % name)
                 return
-            # reject dimensionally incompatible (future pmConvScale failure)
-            if self.units is not None:
-                units = desc.contents.units
-                if ((units.dimSpace != self.units.dimSpace) or
-                    (units.dimTime != self.units.dimTime) or
-                    (units.dimCount != self.units.dimCount)):
-                    return
 
-            self.metrics.append(name)
-            self.pmids.append(pmid)
-            self.descs.append(desc)
-        except pmapi.pmErr, error:
-            pass
+        self.metrics.append(name)
+        self.pmids.append(pmid)
+        self.descs.append(desc)
 
-
+        
     # Convert a python list of pmids (numbers) to a ctypes LP_c_uint (a C array of uints).
     def convert_pmids_to_ctypes(self, pmids):
         import ctypes
@@ -209,33 +217,33 @@ Options""")
 
         for i, name in enumerate(self.metrics):
             for j in range(0,result.contents.get_numval(i)):
-                atom = self.context.pmExtractValue(
-                    result.contents.get_valfmt(i),
-                    result.contents.get_vlist(i,j),
-                self.descs[i].contents.type, PM_TYPE_FLOAT)
-
-                inst = result.contents.get_vlist(i,j).inst
-                if inst is None or inst < 0:
-                    suffix=""
-                else:
-                    suffix="."+self.sanitize_nameindom(self.context.pmNameInDom(self.descs[i], inst))
-
-                # Rescale if desired
-                if self.units is not None:
-                    try:
-                        atom = self.context.pmConvScale(PM_TYPE_FLOAT, atom,
+                # a fetch or other error will just omit that data value from the graphite-bound set
+                try: 
+                    atom = self.context.pmExtractValue(
+                        result.contents.get_valfmt(i),
+                        result.contents.get_vlist(i,j),
+                        self.descs[i].contents.type, c_api.PM_TYPE_FLOAT)
+                    
+                    inst = result.contents.get_vlist(i,j).inst
+                    if inst is None or inst < 0:
+                        suffix=""
+                    else:
+                        suffix="."+self.sanitize_nameindom(self.context.pmNameInDom(self.descs[i], inst))
+                        
+                    # Rescale if desired
+                    if self.units is not None:
+                        atom = self.context.pmConvScale(c_api.PM_TYPE_FLOAT, atom,
                                                         self.descs, i,
                                                         self.units)
-                    except pmapi.pmErr, error:
-                        sys.stderr.write("While converting scale (%s -> %s) for %s\n" %
-                                         (self.context.pmUnitsStr(self.descs[i].contents.units),
-                                          self.context.pmUnitsStr(self.units),
-                                          name))
-                        raise
-                if self.units_mult is not None:
-                    atom.f = atom.f * self.units_mult
+                            
+                    if self.units_mult is not None:
+                        atom.f = atom.f * self.units_mult
+                        
+                    miv_tuples.append((self.prefix+name+suffix, atom.f))
 
-                miv_tuples.append((self.prefix+name+suffix, atom.f))
+                except pmapi.pmErr, error:
+                    sys.stderr.write("%s[%d]: %s, continuing\n" % (name, inst, str(error)))
+                    pass
 
         self.send(sample_time, miv_tuples)
 	self.context.pmFreeResult(result)
@@ -244,11 +252,7 @@ if __name__ == '__main__':
     try:
 	G=GraphiteRelay()
         while True:
-            try:
-                G.execute()
-            except pmapi.pmErr, error:
-                sys.stderr.write(str(error) + ", continuing\n")
-                pass
+            G.execute()
 
     except pmapi.pmUsageErr, usage:
 	sys.stderr.write("\n")

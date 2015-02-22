@@ -60,7 +60,7 @@ echo "=== 2. pcp2graphite text, 2-second aligned  ===" | tee -a $seq.full
 socat tcp-listen:$port_text,reuseaddr,fork - >$tmp.dir/test2.out 2>$tmp.err &
 pid=$!
 sleep 2
-pcp2graphite -t 2 -P $port_text -u "/$scale" -m foobar. hinv.ncpu 2>$tmp.p2g.err &
+pcp2graphite -t 2 -P $port_text -u "/$scale" -m foobar. hinv.ncpu sample.datasize 2>$tmp.p2g.err &
 p2gpid=$!
 sleep 5 # enough for at least 2 messages
 $signal $pid $p2gpid 2>/dev/null
@@ -68,12 +68,33 @@ wait
 cat $tmp.dir/test2.out | head -2 |
     sed -e "s,\.ncpu $ncpu ,.ncpu NCPUS ," |    # confirm ncpus value
     sed -r -e 's, [0-9]+[02468]$, TIMESTAMP2,'  # confirm time alignment
+grep 'Excluding' $tmp.p2g.err
 echo "--- pcpgraphite stderr --" >>$seq.full
 cat $tmp.p2g.err >>$seq.full
 echo "--- socket cat stdout --" >>$seq.full
 cat $tmp.dir/test2.out >>$seq.full
 echo "--- socket cat stderr --" >>$seq.full
 cat $tmp.err >>$seq.full
+
+echo "=== 3. pcp2graphite bad-instance tolerance ===" | tee -a $seq.full
+socat tcp-listen:$port_text,reuseaddr,fork - >$tmp.dir/test3.out 2>$tmp.err &
+pid=$!
+sleep 2
+pcp2graphite -t 2 -P $port_text sample.bogus_bin sample.aggregate.null sample.string.hullo NoSuchMetric sample.bad 2>$tmp.p2g.err &
+p2gpid=$!
+sleep 5 # enough for at least 2 messages
+$signal $pid $p2gpid 2>/dev/null
+wait
+cat $tmp.dir/test3.out | head -10 |
+    sed -r -e 's, [0-9]+[02468]$, TIMESTAMP2,'  # confirm time alignment
+grep 'Excluding' $tmp.p2g.err
+echo "--- pcpgraphite stderr --" >>$seq.full
+cat $tmp.p2g.err >>$seq.full
+echo "--- socket cat stdout --" >>$seq.full
+cat $tmp.dir/test3.out >>$seq.full
+echo "--- socket cat stderr --" >>$seq.full
+cat $tmp.err >>$seq.full
+
 
 status=0
 exit
