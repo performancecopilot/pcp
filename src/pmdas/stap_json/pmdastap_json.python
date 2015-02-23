@@ -64,15 +64,15 @@ class Metric(object):
     @units.setter
     def units(self, units):
         ''' Set metric units value. '''
-    	try:
+        try:
             # pmParseUnitsStr() doesn't handle unicode
             utf8_units = units.encode("utf-8")
             # pmParseUnitsStr() returns 2 things: a units value and a
             # multipler value.
-            (units_val, multiplier) = pmContext.pmParseUnitsStr(utf8_units)
+            (units_val, dummy) = pmContext.pmParseUnitsStr(utf8_units)
             self.__units_val = units_val
             self.__units_str = units
-    	except pmErr:
+        except pmErr:
             self.__pmda.log("Ignoring invalid units '%s'" % units)
             self.__pmda.log("%s" % traceback.format_exc())
 
