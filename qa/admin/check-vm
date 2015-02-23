@@ -253,6 +253,8 @@ dpkg?	apache2			[apache2 (QA optional)]
 rpm?	httpd			[httpd (QA optional)]
 dpkg?	realpath		[realpath]
 dpkg?	unbound-control		[unbound (QA optional)]
+rpm?	/usr/share/doc/python-requests*	[python-requests (QA optional)]
+dpkg?	/usr/share/doc/python-requests	[python-requests (QA optional)]
 # pcp-gui
 dpkg?	qmake			[qt4-qmake (build optional)]
 rpm?	qmake|/usr/lib64/qt4/bin/qmake|/usr/lib/qt4/bin/qmake		[qt4-devel (build optional)]

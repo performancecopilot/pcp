@@ -44,11 +44,23 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # So filter to remove both variants to ensure the test is deemed to
 # have passed.
 #
+# Also there is some other noise from a similar source but different
+# causes, e.g.
+#
+# * HTTP 1.1 or later with persistent connection, pipelining supported
+# WARNING: gnome-keyring:: couldn't connect to: ...
+# * [othewise blank line]
+# [blank line]
+#
 _filter()
 {
     sed \
 	-e '/Hostname was NOT found in DNS cache/d' \
-	-e '/About to connect() to LOCALHOST port 44323 (####)/d'
+	-e '/About to connect() to LOCALHOST port 44323 (####)/d' \
+	-e '/HTTP 1.1 or later with persistent connection/d' \
+	-e '/WARNING: gnome-keyring::/d' \
+	-e '/^\*$/d' \
+	-e '/^[ 	]*$/d'
 }
 
 ipv6local=`_ipv6_localhost`
