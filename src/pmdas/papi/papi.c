@@ -537,6 +537,7 @@ static int
 papi_store(pmResult *result, pmdaExt *pmda)
 {
     int sts;
+    int sts2;
     int i, j;
     const char *delim = " ,";
     char *substring;
@@ -548,15 +549,19 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	__pmID_int *idp = (__pmID_int *)&(vsp->pmid);
 	pmAtomValue av;
 
-	if (idp->cluster != CLUSTER_CONTROL)
-	    return PM_ERR_PERMISSION;
-
+	if (idp->cluster != CLUSTER_CONTROL) {
+	    //	    return PM_ERR_PERMISSION;
+	    sts2 = PM_ERR_PERMISSION;
+	    continue;
+	}
 	switch (idp->item) {
 	case CONTROL_ENABLE:
 	case CONTROL_DISABLE: // NB: almost identical handling!
 	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
-				PM_TYPE_STRING, &av, PM_TYPE_STRING)) < 0)
-		return sts;
+				      PM_TYPE_STRING, &av, PM_TYPE_STRING)) < 0) {
+		sts2 = sts;
+		continue;
+	    }
 	    substring = strtok(av.cp, delim);
 	    while (substring != NULL) {
 		for (j = 0; j < number_of_events; j++) {
@@ -581,39 +586,53 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	    } else {
 		sts = refresh_metrics(0);
 	    }
-	    return sts;
+	    sts2 = sts;
+	    continue;
 
 	case CONTROL_RESET:
 	    for (j = 0; j < number_of_events; j++)
 		papi_info[j].metric_enabled = 0;
-	    return refresh_metrics(0);
+	    sts = refresh_metrics(0);
+	    continue;
 
 	case CONTROL_AUTO_ENABLE:
 	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
-				 PM_TYPE_U32, &av, PM_TYPE_U32)) < 0)
-		return sts;
+				      PM_TYPE_U32, &av, PM_TYPE_U32)) < 0) {
+		sts2 = sts;
+		continue;
+	    }
 	    auto_enable_time = av.ul;
-	    return papi_setup_auto_af();
+	    sts = papi_setup_auto_af();
+	    continue;
 
 	case CONTROL_MULTIPLEX:
 	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
-				 PM_TYPE_U32, &av, PM_TYPE_U32)) < 0)
-		return sts;
+				      PM_TYPE_U32, &av, PM_TYPE_U32)) < 0) {
+		sts2 = sts;
+		continue;
+	    }
 	    enable_multiplexing = av.ul;
-	    return refresh_metrics(0);
+	    sts = refresh_metrics(0);
+	    continue;
 
 	case CONTROL_BATCH:
 	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
-				      PM_TYPE_U32, &av, PM_TYPE_U32)) < 0)
-		return sts;
+				      PM_TYPE_U32, &av, PM_TYPE_U32)) < 0) {
+		sts2 = sts;
+		continue;
+	    }
 	    refresh_batch = av.ul;
-	    return 0;
+	    sts = 0;
+	    continue;
 
 	default:
-	    return PM_ERR_PMID;
+	    sts2 = PM_ERR_PMID;
+	    continue;
 	}
     }
-    return 0;
+    if (sts == 0)
+	sts = sts2;
+    return sts;
 }
 
 static int
