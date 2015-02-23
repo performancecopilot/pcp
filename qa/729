@@ -24,7 +24,7 @@ fname = 'src/bug_v2'
 context = pcp.pmapi.pmContext(c_api.PM_CONTEXT_ARCHIVE, fname)
 pmids = context.pmLookupName(['proc.nprocs'])
 descs = context.pmLookupDescs(pmids[0])
-print '%s%s' % (descs[0].contents.units, 'Completed safely')
+print('%s%s' % (descs[0].contents.units, 'Completed safely'))
 EOF
 
 cat > $tmp.parse << EOF
@@ -32,8 +32,8 @@ import pcp.pmapi
 context = pcp.pmapi.pmContext(target='local:')
 try:
   print(context.pmParseInterval(''))
-except pcp.pmapi.pmErr, error:
-  print 'Completed safely'
+except pcp.pmapi.pmErr as error:
+  print('Completed safely')
 EOF
 
 # real QA test starts here

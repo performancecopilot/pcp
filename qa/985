@@ -2,28 +2,20 @@
 # PCP QA Test No. 985
 # Exercise the dmcache PMDA using dbpmda.
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014-2015 Red Hat.
 #
 
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.python
 
+python_path=`which $python`
 pmda_path="$PCP_PMDAS_DIR/dmcache"
 pmda_script="$pmda_path/pmdadmcache.python"
 test -f "$pmda_script" || _notrun "pmdadmcache not supported"
-python -c "from pcp import pmda" >/dev/null 2>&1
+$python -c "from pcp import pmda" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
-case `python -V 2>&1 | sed -e 's/Python //'`
-in
-    0.*.*|1.*.*|2.0.*|2.1.*|2.3.*|2.4.*)
-	_notrun "need python 2.5 or later"
-	;;
-esac
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
@@ -36,7 +28,9 @@ _filter()
 	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
 	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
 	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*/TIMESTAMP/' \
-
+	-e "s;$python_path;\$PCP_PYTHON_PROG;" \
+	-e "s;$python;python;" \
+    #end
     test -f dmcache.log && cat dmcache.log >> $seq.full
 }
 
@@ -53,11 +47,11 @@ export DM_STATUS=$tmp.dmcache.sh
 
 # real QA test starts here
 echo "== Finding dmcache metrics" | tee -a $seq.full
-PCP_PYTHON_PMNS=root python "$pmda_script" 2>/dev/null > $tmp.root
+PCP_PYTHON_PMNS=root $python "$pmda_script" 2>/dev/null > $tmp.root
 
 echo "== Testing dmcache metrics" | tee -a $seq.full
 $sudo dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
-open pipe /usr/bin/python $pmda_script
+open pipe $python_path $pmda_script
 getdesc on
 instance $domain.0
 desc dmcache.size

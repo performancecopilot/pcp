@@ -1,7 +1,7 @@
 # pylint: disable=C0103
 """Wrapper module for libpcp_pmda - Performace Co-Pilot Domain Agent API
 #
-# Copyright (C) 2013-2014 Red Hat.
+# Copyright (C) 2013-2015 Red Hat.
 #
 # This file is part of the "pcp" module, the python interfaces for the
 # Performance Co-Pilot toolkit.
@@ -86,7 +86,7 @@ class pmdaInstid(Structure):
     def __init__(self, instid, name):
         Structure.__init__(self)
         self.i_inst = instid
-        self.i_name = name
+        self.i_name = name.encode('utf-8')
 
     def __str__(self):
         return "pmdaInstid@%#lx index=%d name=%s" % (addressof(self), self.i_inst, self.i_name)
@@ -117,7 +117,8 @@ class pmdaIndom(Structure):
     def set_dict_instances(self, indom, insts):
         LIBPCP_PMDA.pmdaCacheOp(indom, cpmda.PMDA_CACHE_INACTIVE)
         for key in insts.keys():
-            LIBPCP_PMDA.pmdaCacheStore(indom, cpmda.PMDA_CACHE_ADD, key, byref(insts[key]))
+            key8 = key.encode('utf-8')
+            LIBPCP_PMDA.pmdaCacheStore(indom, cpmda.PMDA_CACHE_ADD, key8, byref(insts[key]))
         LIBPCP_PMDA.pmdaCacheOp(indom, cpmda.PMDA_CACHE_SAVE)
 
     def set_instances(self, indom, insts):
@@ -271,11 +272,11 @@ class MetricDispatch(object):
             name = (c_char_p)()
             sts = LIBPCP_PMDA.pmdaCacheLookup(indom, instance, byref(name), None)
             if (sts == cpmda.PMDA_CACHE_ACTIVE):
-                return name.value
+                return str(name.value.decode())
         elif (entry.it_numinst > 0 and entry.it_indom == indom):
             for inst in entry.it_set:
                 if (inst.i_inst == instance):
-                    return inst.i_name
+                    return str(inst.i_name.decode())
         return None
 
 

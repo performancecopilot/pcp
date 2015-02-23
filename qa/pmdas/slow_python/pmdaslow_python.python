@@ -32,33 +32,33 @@ class SlowPMDA(PMDA):
     '''
 
     def slow_fetch_callback(self, cluster, item, inst):
-	global fetch_delay
+        global fetch_delay
 
-	if int(fetch_delay) < 0:
-	    time.sleep(-1*int(fetch_delay))
+        if int(fetch_delay) < 0:
+            time.sleep(-1*int(fetch_delay))
 
-	if int(fetch_delay) > 0:
-	    time.sleep(int(fetch_delay))
+        if int(fetch_delay) > 0:
+            time.sleep(int(fetch_delay))
 
         if cluster == 0 and item == 0:
             return [13, 1]
         return [c_api.PM_ERR_PMID, 0]
 
     def __init__(self, name, domain):
-	global start_delay
+        global start_delay
 
         PMDA.__init__(self, name, domain)
 
         self.configfile = PCP.pmGetConfig('PCP_PMDAS_DIR')
         self.configfile += '/' + name + '/' + name + '.conf'
 
-	if int(start_delay) > 0:
-	    self.connect_pmcd()
+        if int(start_delay) > 0:
+            self.connect_pmcd()
 
-	if int(start_delay) < 0:
-	    time.sleep(-1*int(start_delay))
-	if int(start_delay) > 0:
-	    time.sleep(int(start_delay))
+        if int(start_delay) < 0:
+            time.sleep(-1*int(start_delay))
+        if int(start_delay) > 0:
+            time.sleep(int(start_delay))
 
         self.add_metric(name + '.thirteen', pmdaMetric(self.pmid(0, 0),
                 c_api.PM_TYPE_32, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,

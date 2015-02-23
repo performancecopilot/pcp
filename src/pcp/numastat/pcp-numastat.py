@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Copyright (C) 2014 Red Hat.
+# Copyright (C) 2014-2015 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -19,6 +19,9 @@ import os
 import sys
 from pcp import pmapi
 from cpmapi import PM_TYPE_U64
+
+if sys.version >= '3':
+    long = int  # python2 to python3 portability (no long() in python3)
 
 class NUMAStat(object):
     """ Gives a short summary of per-node NUMA memory information.
@@ -103,7 +106,7 @@ class NUMAStat(object):
             print("No NUMA nodes found, exiting")
             sys.exit(1)
         self.resize()
-        maxnodes = (self.width - 16) / 16
+        maxnodes = int((self.width - 16) / 16)
         if maxnodes > len(nodes):        # just an initial header suffices
             header = '%-16s' % ''
             for node in nodes:

@@ -2,7 +2,7 @@
 Performance Metrics Domain Agent exporting Gluster filesystem metrics.
 '''
 #
-# Copyright (c) 2013-2014 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -29,6 +29,10 @@ from os import getenv
 import subprocess
 
 import threading
+
+import sys
+if sys.version >= '3':
+    long = int	# python2 to python3 portability (no long() in python3)
 
 VOL_INFO_COMMAND = 'gluster --xml volume info'
 VOL_STOP_COMMAND = 'gluster --xml volume profile %s stop'
@@ -233,8 +237,8 @@ class GlusterPMDA(PMDA):
             return [c_api.PM_ERR_INST, 0]
         cache = cast(voidp, POINTER(GlusterBrick))
         brick = cache.contents
-        fileop = item / 4
-        index = item % 4
+        fileop = int(item / 4)
+        index = int(item % 4)
         if (index == 0):
             return [brick.mintime[fileop], 1]
         elif (index == 1):
