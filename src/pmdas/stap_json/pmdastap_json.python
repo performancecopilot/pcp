@@ -315,13 +315,10 @@ class SystemtapModule(object):
                         self.__pmda.log("Invalid schema 'units' value")
                         raise TypeError("Invalid schema 'units' value")
                     metric_info.units = value
-                # For everything else, raise an error.
-                # FIXME: or just ignore it?
+                # For everything else, just ignore it.
                 else:
-                    self.__pmda.log("Metadata has an unknown attribute '%s'"
-                                    % (key))
-                    raise TypeError("Metadata has an unknown attribute '%s'"
-                                    % (key))
+                    self.__pmda.log("Ignoring unknown attribute in"
+                                    " metadata '%s'" % (key))
 
             # Make sure we have everything we need.
             if not metric_info.valid() or metric_info.pointer == None:
@@ -354,13 +351,11 @@ class SystemtapModule(object):
                 # FIXME: need to validate name and make sure it
                 # doesn't already exist.
                 self.__root_name = value
-            # For everything else, raise an error.
-            # FIXME: or just ignore it?
+            # For everything else, just ignore it.
             else:
-                self.__pmda.log("Metadata has an unknown attribute '%s'"
-                                % key)
-                raise TypeError("Metadata has an unknown attribute '%s'"
-                                % key)
+                self.__pmda.log("Ignoring unknown attribute in"
+                                " metadata '%s'" % (key))
+
         if not metrics_array:
             self.__pmda.log("Metadata has no 'metrics' array")
             raise TypeError("Metadata has no 'metrics' array")
@@ -451,13 +446,10 @@ class SystemtapModule(object):
                         self.__pmda.log("Invalid schema 'units' value")
                         raise TypeError("Invalid schema 'units' value")
                     metric_info.units = value
-                # For everything else, raise an error.
-                # FIXME: or just ignore it?
+                # For everything else, just ignore it.
                 else:
-                    self.__pmda.log("Metadata has an unknown attribute '%s'"
-                                    % key)
-                    raise TypeError("Metadata has an unknown attribute '%s'"
-                                    % key)
+                    self.__pmda.log("Ignoring unknown attribute in"
+                                    " metadata '%s'" % (key))
 
             # Make sure we have everything we need.
             if not metric_info.valid() or metric_info.pointer == None:
