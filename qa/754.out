@@ -1,7 +1,7 @@
 QA output created by 754
 == Testing unbound metric values
-dbpmda> open pipe $PYTHON $PCP_PMDAS_DIR/unbound/pmdaunbound.python
-Start python PMDA: $PYTHON $PCP_PMDAS_DIR/unbound/pmdaunbound.python
+dbpmda> open pipe $PCP_PYTHON_PROG $PCP_PMDAS_DIR/unbound/pmdaunbound.python
+Start python PMDA: $PCP_PYTHON_PROG $PCP_PMDAS_DIR/unbound/pmdaunbound.python
 dbpmda> getdesc on
 dbpmda> fetch unbound.histogram.262144_000000_to_524288_000000
 PMID(s): 132.0.139

@@ -30,7 +30,7 @@ def dump_seq(name_p, seq_p):
 
 def dump_array_ptrs(name_p, arr_p):
     print(name_p)
-    for i in xrange(len(arr_p)):
+    for i in range(len(arr_p)):
         if (i > 0):
             print(" ", arr_p[i].contents)
         else:
@@ -38,7 +38,7 @@ def dump_array_ptrs(name_p, arr_p):
 
 def dump_array(name_p, arr_p):
     print(name_p)
-    for i in xrange(len(arr_p)):
+    for i in range(len(arr_p)):
         if (i > 0):
             print(" ", hex(arr_p[i]))
         else:
@@ -72,8 +72,9 @@ def test_pcp(self):
     source = 'localhost'
     try:
         (rsltp, errmsg) = ctx.pmParseMetricSpec("kernel.all.load", 0, source)
-        print("pmParseMetricSpec:", rsltp.contents.source)
-        self.assertTrue(rsltp.contents.source == source)
+        result = rsltp.contents.source.decode()
+        print("pmParseMetricSpec:", result)
+        self.assertTrue(result == source)
     except pmapi.pmErr as error:
         print("pmParseMetricSpec error: ", error)
 
@@ -124,7 +125,7 @@ def test_pcp(self):
                               api.PM_TYPE_STRING)
     machine_vp = atom.vp
     self.assertTrue(machine_u32 != machine_vp)
-    self.assertTrue(type(atom.cp) == type(''))
+    self.assertTrue(type(atom.cp) == type('') or type(atom.cp) == type(b''))
 
     # pmGetChildren
     if not self.archive_type:
@@ -179,26 +180,26 @@ def test_pcp(self):
     dump_array("pmLookupName", self.metric_ids)
     self.assertTrue(len(self.metric_ids) == 4)
 
-    for i in xrange(len(metrics)):
+    for i in range(len(metrics)):
         # pmNameAll
-	# one of the returned names should be the same as metrics[i]
+        # one of the returned names should be the same as metrics[i]
         nameall = ctx.pmNameAll(self.metric_ids[i])
-	match = 0
-	for j in xrange(len(nameall)):
-	    print("pmNameAll:", nameall[j])
-	    if (nameall[j] == metrics[i]):
-		match = 1
+        match = 0
+        for j in range(len(nameall)):
+            print("pmNameAll:", nameall[j])
+            if (nameall[j] == metrics[i]):
+                match = 1
         self.assertTrue(match)
 
         # pmNameID
-	# result will be one of the names from pmNameAll and we've
-	# already established that one of these is the same as metrics[i]
+        # result will be one of the names from pmNameAll and we've
+        # already established that one of these is the same as metrics[i]
         name = ctx.pmNameID(self.metric_ids[i])
         print("pmNameID:", name);
-	match = 0
-	for j in xrange(len(nameall)):
-	    if (nameall[j] == name):
-		match = 1
+        match = 0
+        for j in range(len(nameall)):
+            if (nameall[j] == name):
+                match = 1
         self.assertTrue(match)
 
         # pmLookupDesc
@@ -328,7 +329,7 @@ def test_pcp(self):
         (units,mult) = ctx.pmParseUnitsStr(5) # type-checking non-string
         print("pmParseUnitsStr:", units, mult)
         self.assertTrue(False)
-    except AssertionError as error:
+    except pmapi.pmErr as error:
         print("pmParseUnitsStr: ", error)
         self.assertTrue(True)
 
@@ -357,10 +358,10 @@ def test_pcp(self):
         print("pmStore: ", error)
         self.assertTrue(True)
 
-    for i in xrange(results.contents.numpmid):
+    for i in range(results.contents.numpmid):
         if (results.contents.get_pmid(i) != self.metric_ids[1]):
             continue
-        for val in xrange(9):
+        for val in range(9):
             # sample.bin - each instance in turn
             atom = ctx.pmExtractValue(results.contents.get_valfmt(i),
                                       results.contents.get_vlist(i, val),
@@ -370,7 +371,7 @@ def test_pcp(self):
             self.assertTrue(99*(val+1) <= atom.f and atom.f <= 101*(val+1))
 
     # pmExtractValue 
-    for i in xrange(results.contents.numpmid):
+    for i in range(results.contents.numpmid):
         if (results.contents.get_pmid(i) != self.metric_ids[3]):
             continue
         # mem.freemem
@@ -449,7 +450,10 @@ def test_pcp(self):
     # pmPrintValue
     if not self.archive_type:
         print("pmPrintValue:")
-        ctx.pmPrintValue(sys.__stdout__, results, descs[0], 0, 0, 8)
+        if sys.version >= '3':
+            print('Not yet implemented')
+        else:
+            ctx.pmPrintValue(sys.__stdout__, results, descs[0], 0, 0, 8)
         print('')
 
     # pmReconnectContext

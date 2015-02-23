@@ -1,8 +1,8 @@
 QA output created by 985
 == Finding dmcache metrics
 == Testing dmcache metrics
-dbpmda> open pipe /usr/bin/python $PCP_PMDAS_DIR/dmcache/pmdadmcache.python
-Start python PMDA: /usr/bin/python $PCP_PMDAS_DIR/dmcache/pmdadmcache.python
+dbpmda> open pipe $PCP_PYTHON_PROG $PCP_PMDAS_DIR/dmcache/pmdadmcache.python
+Start python PMDA: $PCP_PYTHON_PROG $PCP_PMDAS_DIR/dmcache/pmdadmcache.python
 dbpmda> getdesc on
 dbpmda> instance 129.0
 pmInDom: 129.0

@@ -2,7 +2,7 @@
 Performance Metrics Domain Agent exporting Device Mapper Cache metrics.
 '''
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014-2015 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -22,6 +22,10 @@ from cpmapi import (PM_SEM_DISCRETE, PM_SEM_INSTANT, PM_SEM_COUNTER,
      PM_TYPE_U32, PM_TYPE_U64, PM_TYPE_STRING, PM_COUNT_ONE)
 from subprocess import PIPE, Popen
 from os import getenv
+
+import sys
+if sys.version >= '3':
+    long = int	# python2 to python3 portability (no long() in python3)
 
 IOMODES = { 'writeback': 1, 'writethrough': 2, 'passthrough': 3 }
 
@@ -65,18 +69,18 @@ class DmCacheStats(Structure):
 
         self.size = long(data[2]) - long(data[1])
         self.metadata_block_size = mbsize
-        self.metadata_used  = long(data[5]) * mbsize / 1024
-        self.metadata_total = long(data[6]) * mbsize / 1024
+        self.metadata_used  = long(data[5]) * int(mbsize / 1024)
+        self.metadata_total = long(data[6]) * int(mbsize / 1024)
         self.cache_block_size = cbsize
-        self.cache_used = long(data[8]) * cbsize / 1024
-        self.cache_total = long(data[9]) * cbsize / 1024
+        self.cache_used = long(data[8]) * int(cbsize / 1024)
+        self.cache_total = long(data[9]) * int(cbsize / 1024)
         self.read_hits = long(data[10])
         self.read_misses = long(data[11])
         self.write_hits = long(data[12])
         self.write_misses = long(data[13])
         self.demotions = long(data[14])
         self.promotions = long(data[15])
-        self.dirty = long(data[16]) * cbsize / 1024
+        self.dirty = long(data[16]) * int(cbsize / 1024)
         self.iomode = IOMODES[data[18]]
 
     def io_mode(self):
@@ -206,7 +210,7 @@ class DmCachePMDA(PMDA):
             output, errors = pipe.communicate()
             if errors:
                 self.err("refresh: %s error: %s" % (self.dmstatus, errors))
-            for line in output.splitlines():
+            for line in output.decode().splitlines():
                 if 'No devices found' in line:
                     continue
                 name = line[:line.find(':')]            # extract cache name

@@ -1,7 +1,7 @@
 QA output created by 972
 == Testing zswap metrics
-dbpmda> open pipe /usr/bin/python $PCP_PMDAS_DIR/zswap/pmdazswap.python
-Start python PMDA: /usr/bin/python $PCP_PMDAS_DIR/zswap/pmdazswap.python
+dbpmda> open pipe $PCP_PYTHON_PROG $PCP_PMDAS_DIR/zswap/pmdazswap.python
+Start python PMDA: $PCP_PYTHON_PROG $PCP_PMDAS_DIR/zswap/pmdazswap.python
 dbpmda> getdesc on
 dbpmda> desc zswap.pool_limit_hit
 PMID: 125.0.0

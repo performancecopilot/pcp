@@ -1,6 +1,6 @@
 QA output created by 718
-dbpmda> open pipe /usr/bin/python pmdasimple.python
-Start python PMDA: /usr/bin/python pmdasimple.python
+dbpmda> open pipe $PCP_PYTHON_PROG pmdasimple.python
+Start python PMDA: $PCP_PYTHON_PROG pmdasimple.python
 dbpmda> getdesc on
 dbpmda> desc simple.numfetch
 PMID: 253.0.0

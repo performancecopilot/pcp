@@ -1,6 +1,6 @@
 """ Test metric value extraction/reporting using the pcp.pmcc module """
 #
-# Copyright (C) 2013-2014 Red Hat Inc.
+# Copyright (C) 2013-2015 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -13,8 +13,13 @@
 # for more details.
 #
 
+import sys
 import unittest
 from pcp import pmcc, pmapi
+
+if sys.version >= '3':
+    import functools
+    reduce = functools.reduce
 
 CPU_METRICS = [ "kernel.all.cpu.sys", "kernel.all.cpu.user",
                 "kernel.all.cpu.nice", "kernel.all.cpu.idle", ]

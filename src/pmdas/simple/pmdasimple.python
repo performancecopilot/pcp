@@ -2,7 +2,7 @@
 Python implementation of the "simple" Performance Metrics Domain Agent.
 '''
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013,2015 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -206,7 +206,7 @@ class SimplePMDA(PMDA):
         self.configfile = PCP.pmGetConfig('PCP_PMDAS_DIR')
         self.configfile += '/' + name + '/' + name + '.conf'
 
-	self.connect_pmcd();
+        self.connect_pmcd()
 
         self.color_indom = self.indom(0)
         self.add_indom(pmdaIndom(self.color_indom, self.colors))
