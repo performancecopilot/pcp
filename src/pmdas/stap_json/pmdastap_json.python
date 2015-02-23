@@ -7,7 +7,7 @@ import jsonpointer
 from collections import OrderedDict
 from pcp.pmda import PMDA, pmdaMetric
 import cpmapi as c_api
-from pcp.pmapi import pmUnits
+from pcp.pmapi import pmUnits, pmContext, pmErr
 from ctypes import c_int, POINTER, cast
 import os
 import re
@@ -32,6 +32,8 @@ class Metric(object):
         self.obj = None
         self.indom = None
         self.index_pointer = None
+        self.__units_val = pmUnits(0, 0, 0, 0, 0, 0)
+        self.__units_str = ''
 
     # Make sure when setting 'name', 'full_name' also gets updated.
     @property
@@ -52,6 +54,28 @@ class Metric(object):
             self.__pmda.log("Invalid metric name '%s'" % name)
             raise RuntimeError("Invalid metric name '%s'" % name)
 
+    # For the 'units' property, internally we store it 2 different
+    # ways: as a text string and as a numeric value.
+    @property
+    def units(self):
+        ''' Get metric units value. '''
+        return self.__units_str
+
+    @units.setter
+    def units(self, units):
+        ''' Set metric units value. '''
+    	try:
+            # pmParseUnitsStr() doesn't handle unicode
+            utf8_units = units.encode("utf-8")
+            # pmParseUnitsStr() returns 2 things: a units value and a
+            # multipler value.
+            (units_val, multiplier) = pmContext.pmParseUnitsStr(utf8_units)
+            self.__units_val = units_val
+            self.__units_str = units
+    	except pmErr:
+            self.__pmda.log("Ignoring invalid units '%s'" % units)
+            self.__pmda.log("%s" % traceback.format_exc())
+
     def valid(self):
         ''' Is metric valid?. '''
         return self.__name != '' and self.type != c_api.PM_TYPE_UNKNOWN
@@ -66,13 +90,12 @@ class Metric(object):
             raise RuntimeError("Invalid metric")
 
         self.pmid = self.__pmda.pmid(self.cluster, self.idx)
-        # FIXME: we'll need to handle units/scale at some point...
         if self.indom != None:
             self.obj = pmdaMetric(self.pmid, self.type, self.indom.obj,
-                                  self.sem, pmUnits(0, 0, 0, 0, 0, 0))
+                                  self.sem, self.__units_val)
         else:
             self.obj = pmdaMetric(self.pmid, self.type, c_api.PM_INDOM_NULL,
-                                  self.sem, pmUnits(0, 0, 0, 0, 0, 0))
+                                  self.sem, self.__units_val)
 
     # Note that you can't delete individual metrics. The
     # pmda.{clear,reset}_metrics() functions clear out *all* metrics.
@@ -286,6 +309,12 @@ class SystemtapModule(object):
                         self.__pmda.log("Invalid schema 'description' value")
                         raise TypeError("Invalid schema 'description' value")
                     metric_info.desc = value
+                # 'units' (optional): Type check and save it.
+                elif key == 'units':
+                    if not isinstance(value, unicode):
+                        self.__pmda.log("Invalid schema 'units' value")
+                        raise TypeError("Invalid schema 'units' value")
+                    metric_info.units = value
                 # For everything else, raise an error.
                 # FIXME: or just ignore it?
                 else:
@@ -416,6 +445,12 @@ class SystemtapModule(object):
                     # for each subitem in the array, using the same
                     # indom.
                     self.__parse_array_metadata(metric_info.name, value)
+                # 'units' (optional): Type check and save it.
+                elif key == 'units':
+                    if not isinstance(value, unicode):
+                        self.__pmda.log("Invalid schema 'units' value")
+                        raise TypeError("Invalid schema 'units' value")
+                    metric_info.units = value
                 # For everything else, raise an error.
                 # FIXME: or just ignore it?
                 else:
