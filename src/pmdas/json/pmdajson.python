@@ -134,9 +134,12 @@ class JsonSource(object):
         self.cluster = cluster
         self.__pmda = pmda
         self.__root_name = os.path.basename(path)
-        self.__metadata_path = "%s/metadata" % path
+        self.__metadata_path = "%s/metadata.json" % path
         self.__metadata = {}
-        self.__data_path = "%s/data" % path
+        # Note that this is the default data path.
+        # FIXME: in the future, we'll support overriding this with
+        # "payload-file", "payload-exec", and/or "payload-url".
+        self.__data_path = "%s/data.json" % path
         self.__json_data = {}
         self.__metrics = {}
         self.__metrics_by_name = {}
@@ -535,7 +538,8 @@ class JsonPMDA(PMDA):
         self.__metrics = {}
         # FIXME: python doesn't have a __pmParseDebug() wrapper. So,
         # if PCP_PYTHON_DEBUG has any value, turn debugging on.
-        self.debug = os.environ.has_key('PCP_PYTHON_DEBUG')
+        #self.debug = os.environ.has_key('PCP_PYTHON_DEBUG')
+        self.debug = 1
         self.__add_static_metrics()
 
         self.__directory_list = [ '/proc/systemtap' ]
@@ -598,14 +602,14 @@ class JsonPMDA(PMDA):
         sources_seen = {}
         for dir in self.__directory_list:
             for root, dummy, files in os.walk(dir):
-                # Make sure we have both of the files we're looking for
-                if 'metadata' in files and 'data' in files:
+                # Make sure we have the metadata file.
+                if 'metadata.json' in files:
                     if not self.sources_by_root.has_key(root):
-                        self.sources_by_root[root] \
-                            = JsonSource(root, self.cluster_idx, self)
-                        self.sources_by_cluster[self.cluster_idx] \
-                            = self.sources_by_root[root]
+                        source = JsonSource(root, self.cluster_idx, self)
+                        self.sources_by_root[root] = source
+                        self.sources_by_cluster[self.cluster_idx] = source
                         self.cluster_idx += 1
+                    
                     self.sources_by_root[root].load()
                     sources_seen[root] = 1
 
@@ -629,15 +633,14 @@ class JsonPMDA(PMDA):
         refresh_metrics = 0
         for dir in self.__directory_list:
             for root, dummy, files in os.walk(dir):
-                # Make sure we have both of the files we're looking for
-                if 'metadata' in files and 'data' in files:
+                # Make sure we have the metadata file.
+                if 'metadata.json' in files:
                     if not self.sources_by_root.has_key(root):
-                        self.sources_by_root[root] \
-                            = JsonSource(root, self.cluster_idx, self)
-                        self.sources_by_cluster[self.cluster_idx] \
-                            = self.sources_by_root[root]
+                        source = JsonSource(root, self.cluster_idx, self)
+                        self.sources_by_root[root] = source
+                        self.sources_by_cluster[self.cluster_idx] = source
                         self.cluster_idx += 1
-                        self.sources_by_root[root].load()
+                        source.load()
                         if self.debug:
                             self.log("load_all_json_data: adding JSON"
                                      " source '%s'" % root)
