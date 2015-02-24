@@ -33,7 +33,7 @@ PLPMDAS = bonding netfilter zimbra postgresql \
 	ds389 ds389log activemq lustre gpfs
 
 ifeq "$(ENABLE_PYTHON)" "true"
-PYPMDAS = gluster zswap dmcache unbound stap_json
+PYPMDAS = gluster zswap dmcache unbound json
 else
 PYPMDAS =
 endif

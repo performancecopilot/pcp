@@ -1,6 +1,6 @@
 # pylint: disable=too-many-public-methods, too-many-instance-attributes
 '''
-Performance Metrics Domain Agent exporting systemtap JSON metrics.
+Performance Metrics Domain Agent exporting JSON metrics.
 '''
 import json
 import jsonpointer
@@ -124,10 +124,10 @@ class Indom(object):
         valuep = cast(voidp, POINTER(c_int))
         return valuep.contents.value
 
-class SystemtapModule(object):
+class JsonSource(object):
     '''
-    Systemtap Module class. Contains all metrics and data needed by a
-    single systemtap module.
+    JSON Source class. Contains all metrics and data needed by a
+    single JSON source.
     '''
     def __init__(self, path, cluster, pmda):
         self.__path = path
@@ -144,7 +144,7 @@ class SystemtapModule(object):
         self.__indoms = {}
 
     def __load_json_metadata(self):
-        ''' Load the JSON metadata file for this systemtap module. '''
+        ''' Load the JSON metadata file for this JSON source. '''
         self.__metadata = {}
         try:
             fobj = open(self.__metadata_path)
@@ -162,7 +162,7 @@ class SystemtapModule(object):
         fobj.close()
 
     def __load_json_data(self):
-        ''' Load the JSON data file for this systemtap module. '''
+        ''' Load the JSON data file for this JSON source. '''
         self.__json_data = {}
         try:
             fobj = open(self.__data_path)
@@ -181,11 +181,11 @@ class SystemtapModule(object):
 
     def load(self):
         '''
-        Load the JSON metadata and data files for this systemtap module,
+        Load the JSON metadata and data files for this JSON source,
         then create metrics based on the JSON.
         '''
         if self.__pmda.debug:
-            self.__pmda.log("Loading module %s" % self.__root_name)
+            self.__pmda.log("Loading JSON source %s" % self.__root_name)
         self.__load_json_metadata()
         self.__load_json_data()
 
@@ -213,7 +213,7 @@ class SystemtapModule(object):
         self.__refresh_indoms()
 
     def cleanup(self):
-        ''' Cleanup module data. '''
+        ''' Cleanup JSON source data. '''
         self.__metadata = {}
         self.__json_data = {}
         self.__metrics = {}
@@ -468,7 +468,7 @@ class SystemtapModule(object):
     def fetch(self, item, inst):
         ''' Fetch value for this item and instance.  '''
         if not self.__metrics.has_key(item):
-            self.__pmda.log("Module '%s' has no item %d instance %d"
+            self.__pmda.log("JSON source '%s' has no item %d instance %d"
                             % (self.__root_name, item, inst))
             return [c_api.PM_ERR_PMID, 0]
         metric_info = self.__metrics[item]
@@ -478,14 +478,14 @@ class SystemtapModule(object):
             # Get the array index from the indom.
             array_index = metric_info.indom.lookup_inst(inst)
             if array_index == None:
-                self.__pmda.log("Module %s has no indom %d"
+                self.__pmda.log("JSON source %s has no indom %d"
                                 % (self.__root_name, inst))
                 return [c_api.PM_ERR_INST, 0]
 
             # Split the full name into the array name and metric
             (array, dummy) = metric_info.name.split('.', 2)
             if not self.__metrics_by_name.has_key(array):
-                self.__pmda.log("Module '%s' has no item '%s'"
+                self.__pmda.log("JSON source '%s' has no item '%s'"
                                 % (self.__root_name, array))
                 return [c_api.PM_ERR_PMID, 0]
             array_info = self.__metrics_by_name[array]
@@ -509,20 +509,21 @@ class SystemtapModule(object):
                 self.__pmda.log("Error while fetching metric %s"
                                 % metric_info.name)
                 self.__pmda.log("%s" % traceback.format_exc())
-        self.__pmda.log("Module %s couldn't fetch value for item %d instance %d"
+        self.__pmda.log("JSON source %s couldn't fetch value for"
+                        " item %d instance %d"
                         % (self.__root_name, item, inst))
         return [c_api.PM_ERR_TYPE, 0]
 
     def refresh_metrics(self):
         '''
-        Refresh metrics by re-adding all metrics for this module to
+        Refresh metrics by re-adding all metrics for this JSON source to
         the PMDA.
         '''
         for (dummy, metric) in self.__metrics.items():
             self.__pmda.add_metric(metric.full_name, metric.obj, metric.desc)
 
-class StapJsonPMDA(PMDA):
-    ''' systemtap JSON PMDA class '''
+class JsonPMDA(PMDA):
+    ''' JSON PMDA class '''
     def __init__(self, pmda_name, domain):
         self.pmda_name = pmda_name
         PMDA.__init__(self, self.pmda_name, domain)
@@ -537,9 +538,11 @@ class StapJsonPMDA(PMDA):
         self.debug = os.environ.has_key('PCP_PYTHON_DEBUG')
         self.__add_static_metrics()
 
+        self.__directory_list = [ '/proc/systemtap' ]
+
         # Load all the metadata files and json data.
-        self.modules_by_root = {}
-        self.modules_by_cluster = {}
+        self.sources_by_root = {}
+        self.sources_by_cluster = {}
         self.__load_all_json()
 
         self.set_fetch_callback(self.__fetch_callback)
@@ -549,20 +552,20 @@ class StapJsonPMDA(PMDA):
 
     def __add_static_metrics(self):
         '''
-        Create all the static metrics (not from a systemtap module).
+        Create all the static metrics (not from a JSON source).
         '''
-        # Create our 'nmodules' metric.
+        # Create our 'nsources' metric.
         metric_info = Metric(self.pmda_name, 0, 0, self)
-        metric_info.name = 'nmodules'
+        metric_info.name = 'nsources'
         metric_info.type = c_api.PM_TYPE_64
         metric_info.sem = c_api.PM_SEM_COUNTER
-        metric_info.desc = 'Number of modules'
+        metric_info.desc = 'Number of JSON sources'
         metric_info.create()
         self.add_metric(metric_info.full_name, metric_info.obj,
                         metric_info.desc)
         self.__metrics[metric_info.idx] = metric_info
 
-        # Create out 'debug' metric.
+        # Create our 'debug' metric.
         metric_info = Metric(self.pmda_name, 0, 1, self)
         metric_info.name = 'debug'
         metric_info.type = c_api.PM_TYPE_64
@@ -573,83 +576,85 @@ class StapJsonPMDA(PMDA):
                         metric_info.desc)
         self.__metrics[metric_info.idx] = metric_info
 
-    def __remove_modules(self, removed_modules):
-        ''' Clean up a list of removed modules. '''
-        if len(removed_modules):
-            for root in removed_modules:
+    def __remove_JSON_sources(self, removed_sources):
+        ''' Clean up a list of removed JSON sources. '''
+        if len(removed_sources):
+            for root in removed_sources:
                 if self.debug:
-                    self.log("Removing systemtap module '%s'"
+                    self.log("Removing JSON source '%s'"
                              % os.path.basename(root))
-                self.modules_by_root[root].cleanup()
-                cluster = self.modules_by_root[root].cluster
-                del self.modules_by_root[root]
-                del self.modules_by_cluster[cluster]
+                self.sources_by_root[root].cleanup()
+                cluster = self.sources_by_root[root].cluster
+                del self.sources_by_root[root]
+                del self.sources_by_cluster[cluster]
 
     def __load_all_json(self):
         '''
         Walk the filesystem and load the JSON metadata/data for every
-        module found.
+        JSON source found.
         '''
         if self.debug:
             self.log("load_all_json entry")
-        modules_seen = {}
-        for root, dummy, files in os.walk('/proc/systemtap'):
-            # Make sure we have both of the files we're looking for
-            if 'metadata' in files and 'data' in files:
-                if not self.modules_by_root.has_key(root):
-                    self.modules_by_root[root] \
-                        = SystemtapModule(root, self.cluster_idx, self)
-                    self.modules_by_cluster[self.cluster_idx] \
-                        = self.modules_by_root[root]
-                    self.cluster_idx += 1
-                self.modules_by_root[root].load()
-                modules_seen[root] = 1
+        sources_seen = {}
+        for dir in self.__directory_list:
+            for root, dummy, files in os.walk(dir):
+                # Make sure we have both of the files we're looking for
+                if 'metadata' in files and 'data' in files:
+                    if not self.sources_by_root.has_key(root):
+                        self.sources_by_root[root] \
+                            = JsonSource(root, self.cluster_idx, self)
+                        self.sources_by_cluster[self.cluster_idx] \
+                            = self.sources_by_root[root]
+                        self.cluster_idx += 1
+                    self.sources_by_root[root].load()
+                    sources_seen[root] = 1
 
-        # Cleanup all removed modules.
-        removed_modules = [k for k in self.modules_by_root \
-                           if k not in modules_seen]
-        self.__remove_modules(removed_modules)
+        # Cleanup all removed JSON sources.
+        removed_sources = [k for k in self.sources_by_root \
+                           if k not in sources_seen]
+        self.__remove_JSON_sources(removed_sources)
         if self.debug:
             self.log("load_all_json exit")
 
     def __load_all_json_data(self):
         '''
-        Walk the filesystem and refresh the JSON data for every module
-        found.
+        Walk the filesystem and refresh the JSON data for every JSON
+        source found.
         '''
         if self.debug:
             self.log("load_all_json_data entry")
 
         # FIXME: why do we need 'load_all_json()' and 'load_all_json_data()'?
-        modules_seen = {}
+        sources_seen = {}
         refresh_metrics = 0
-        for root, dummy, files in os.walk('/proc/systemtap'):
-            # Make sure we have both of the files we're looking for
-            if 'metadata' in files and 'data' in files:
-                if not self.modules_by_root.has_key(root):
-                    self.modules_by_root[root] \
-                        = SystemtapModule(root, self.cluster_idx, self)
-                    self.modules_by_cluster[self.cluster_idx] \
-                        = self.modules_by_root[root]
-                    self.cluster_idx += 1
-                    self.modules_by_root[root].load()
-                    if self.debug:
-                        self.log("load_all_json_data: adding module '%s'"
-                                 % root)
-                else:
-                    self.modules_by_root[root].refresh_json_data()
-                modules_seen[root] = 1
+        for dir in self.__directory_list:
+            for root, dummy, files in os.walk(dir):
+                # Make sure we have both of the files we're looking for
+                if 'metadata' in files and 'data' in files:
+                    if not self.sources_by_root.has_key(root):
+                        self.sources_by_root[root] \
+                            = JsonSource(root, self.cluster_idx, self)
+                        self.sources_by_cluster[self.cluster_idx] \
+                            = self.sources_by_root[root]
+                        self.cluster_idx += 1
+                        self.sources_by_root[root].load()
+                        if self.debug:
+                            self.log("load_all_json_data: adding JSON"
+                                     " source '%s'" % root)
+                    else:
+                        self.sources_by_root[root].refresh_json_data()
+                    sources_seen[root] = 1
 
-        # Cleanup all removed modules.
-        removed_modules = [k for k in self.modules_by_root \
-                           if k not in modules_seen]
-        if len(removed_modules) > 0:
+        # Cleanup all removed JSON sources.
+        removed_sources = [k for k in self.sources_by_root \
+                           if k not in sources_seen]
+        if len(removed_sources) > 0:
             if self.debug:
-                self.log("load_all_json_data: removed modules found")
+                self.log("load_all_json_data: removed JSON sources found")
             refresh_metrics = 1
-            self.__remove_modules(removed_modules)
+            self.__remove_JSON_sources(removed_sources)
 
-        # If we've got a new or removed module, we need to recreate
+        # If we've got a new or removed JSON source, we need to recreate
         # the metrics.
         if refresh_metrics == 1:
             if self.debug:
@@ -660,9 +665,9 @@ class StapJsonPMDA(PMDA):
             for (dummy, metric) in self.__metrics.items():
                 self.add_metric(metric.full_name, metric.obj, metric.desc)
 
-            # Now ask each systemtap module to refresh its metrics.
-            for (root, module) in self.modules_by_root.items():
-                module.refresh_metrics()
+            # Now ask each JSON source to refresh its metrics.
+            for (root, source) in self.sources_by_root.items():
+                source.refresh_metrics()
 
         if self.debug:
             self.log("load_all_json_data exit")
@@ -687,20 +692,20 @@ class StapJsonPMDA(PMDA):
         if self.debug:
             self.log("**** fetch_callback: %d, %d, %d ****" %
                      (cluster, item, inst))
-        if not self.modules_by_cluster.has_key(cluster):
+        if not self.sources_by_cluster.has_key(cluster):
             # Handle our static metrics.
             if cluster == 0:
                 if item == 0:
-                    return [len(self.modules_by_cluster), 1]
+                    return [len(self.sources_by_cluster), 1]
                 elif item == 1:
                     return [self.debug, 1]
             if self.debug:
                 self.log("Invalid cluster %d" % cluster)
             return [c_api.PM_ERR_PMID, 0]
-        module = self.modules_by_cluster[cluster]
-        return module.fetch(item, inst)
+        source = self.sources_by_cluster[cluster]
+        return source.fetch(item, inst)
 
 if __name__ == '__main__':
     #os.environ["PCP_PYTHON_DEBUG"] = "ALL"
     #os.environ["PCP_PYTHON_DEBUG"] = "APPL0|LIBPMDA"
-    StapJsonPMDA('stap_json', 136).run()
+    JsonPMDA('json', 136).run()

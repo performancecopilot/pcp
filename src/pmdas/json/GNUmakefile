@@ -15,11 +15,11 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-IAM	= stap_json
+IAM	= json
 PYSCRIPT = pmda$(IAM).python
 LSRCFILES = Install Remove $(PYSCRIPT)
 
-DOMAIN	= STAP_JSON
+DOMAIN	= JSON
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
 LDIRT	= domain.h $(IAM).log

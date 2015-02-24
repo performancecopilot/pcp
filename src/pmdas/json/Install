@@ -12,13 +12,13 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# Install the stap_json PMDA
+# Install the json PMDA
 #
 
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
-iam=stap_json
+iam=json
 python_opt=true
 daemon_opt=false
 forced_restart=true
