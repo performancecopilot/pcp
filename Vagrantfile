@@ -340,7 +340,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |global_config|
            config.vm.provision :shell, :inline => options[:script]
 
 	   # Run QA and copy results back to host
-           #config.vm.provision :shell, :inline => $script_qa
+           config.vm.provision :shell, :inline => $script_qa
 	end
   end
 end
