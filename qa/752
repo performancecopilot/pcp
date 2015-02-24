@@ -99,13 +99,13 @@ src/rtimetest \
 /friday/s/'$(date '+%Y-%m-%d' -d 'last friday')' ..:..:../last FRIDAY/
 /saturday/s/'$(date '+%Y-%m-%d' -d 'last saturday')' ..:..:../last SATURDAY/
 }' \
-    -e "/sunday/s/$(date '+%Y-%m-%d' -d 'sunday') ..:..:../SUNDAY/" \
-    -e "/monday/s/$(date '+%Y-%m-%d' -d 'monday') ..:..:../MONDAY/" \
-    -e "/tuesday/s/$(date '+%Y-%m-%d' -d 'tuesday') ..:..:../TUESDAY/" \
-    -e "/wednesday/s/$(date '+%Y-%m-%d' -d 'wednesday') ..:..:../WEDNESDAY/" \
-    -e "/thursday/s/$(date '+%Y-%m-%d' -d 'thursday') ..:..:../THURSDAY/" \
-    -e "/friday/s/$(date '+%Y-%m-%d' -d 'friday') ..:..:../FRIDAY/" \
-    -e "/saturday/s/$(date '+%Y-%m-%d' -d 'saturday') ..:..:../SATURDAY/" \
+    -e "/\"sunday\"/s/$(date '+%Y-%m-%d' -d 'sunday') ..:..:../SUNDAY/" \
+    -e "/\"monday\"/s/$(date '+%Y-%m-%d' -d 'monday') ..:..:../MONDAY/" \
+    -e "/\"tuesday\"/s/$(date '+%Y-%m-%d' -d 'tuesday') ..:..:../TUESDAY/" \
+    -e "/\"wednesday\"/s/$(date '+%Y-%m-%d' -d 'wednesday') ..:..:../WEDNESDAY/" \
+    -e "/\"thursday\"/s/$(date '+%Y-%m-%d' -d 'thursday') ..:..:../THURSDAY/" \
+    -e "/\"friday\"/s/$(date '+%Y-%m-%d' -d 'friday') ..:..:../FRIDAY/" \
+    -e "/\"saturday\"/s/$(date '+%Y-%m-%d' -d 'saturday') ..:..:../SATURDAY/" \
     -e "/yesterday/s/$(date '+%Y-%m-%d' -d 'yesterday') ..:..:../YESTERDAY/" \
     -e "/tomorrow/s/$(date '+%Y-%m-%d' -d 'tomorrow') ..:..:../TOMORROW/" \
     -e "/now/s/$(date '+%Y-%m-%d') ..:..:../TODAY/" \
