@@ -771,17 +771,9 @@ _check_display()
 
 _check_containers()
 {
-    if pminfo -v --container=test >/dev/null 2>$tmp.err
-    then
-	:
-    else
-	if grep 'Operation not supported' $tmp.err >/dev/null
-	then
-	    _notrun "No container support"
-	else
-	    _notrun "`cat $tmp.err`"
-	fi
-    fi
+    [ $PCP_PLATFORM = linux ] || _notrun "Linux-specific containers testing"
+    _contain=`pmprobe -v pmcd.feature.containers | awk '{ print $3 }'`
+    [ $_contain = 1 ] || _notrun "Running kernel does not support containers"
 }
 
 # valgrind support

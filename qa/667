@@ -84,8 +84,11 @@ p2gpid=$!
 sleep 5 # enough for at least 2 messages
 $signal $pid $p2gpid 2>/dev/null
 wait
-cat $tmp.dir/test3.out | head -10 |
-    sed -r -e 's, [0-9]+[02468]$, TIMESTAMP2,'  # confirm time alignment
+# confirm time alignment
+cat $tmp.dir/test3.out \
+    | head -10 \
+    | sed -r -e 's, [0-9]+[02468]$, TIMESTAMP2,'  \
+    | LC_COLLATE=POSIX sort
 grep 'Excluding' $tmp.p2g.err
 echo "--- pcpgraphite stderr --" >>$seq.full
 cat $tmp.p2g.err >>$seq.full

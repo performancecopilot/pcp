@@ -947,11 +947,18 @@ int
 __pmServerSetFeature(__pmServerFeature wanted)
 {
     if (wanted == PM_SERVER_FEATURE_DISCOVERY ||
-        wanted == PM_SERVER_FEATURE_CONTAINERS ||
-        wanted == PM_SERVER_FEATURE_CREDS_REQD ||
+	wanted == PM_SERVER_FEATURE_CREDS_REQD ||
 	wanted == PM_SERVER_FEATURE_UNIX_DOMAIN) {
 	server_features |= (1 << wanted);
 	return 1;
+    }
+    if (wanted == PM_SERVER_FEATURE_CONTAINERS) {
+#if defined(HAVE_SETNS)
+	server_features |= (1 << wanted);
+	return 1;
+#else
+	return 0;
+#endif
     }
     return __pmSecureServerSetFeature(wanted);
 }
