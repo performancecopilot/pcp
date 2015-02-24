@@ -24,14 +24,18 @@ PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
 LDIRT	= domain.h $(IAM).log
 
-default_pcp default:	check_domain
+default_pcp default:	domain.h check_domain
 
 include $(BUILDRULES)
 
 install_pcp install:	default 
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
+	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
 	$(INSTALL) -m 644 $(PYSCRIPT) $(PMDADIR)/$(PYSCRIPT)
+
+domain.h: ../../pmns/stdpmid
+	$(DOMAIN_MAKERULE)
 
 check_domain:	../../pmns/stdpmid
 	$(DOMAIN_PYTHONRULE)
