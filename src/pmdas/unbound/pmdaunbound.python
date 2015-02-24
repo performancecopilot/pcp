@@ -20,7 +20,10 @@ from pcp.pmapi import pmUnits
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
 from subprocess import Popen, PIPE
 from os import getenv
-import string, shlex
+import shlex
+import sys
+if sys.version >= '3':
+    long = int	# python2 to python3 portability (no long() in python3)
 
 class UnboundPMDA(PMDA):
     '''
@@ -40,9 +43,9 @@ class UnboundPMDA(PMDA):
         p.wait()
         try:
             stdout, stderr = p.communicate()
-            stdoutlines = string.split(stdout.strip(), '\n')
-            for line in stdoutlines:
-                keyval = string.split(line, '=')
+            stdoutlines = stdout.decode().strip()
+            for line in stdoutlines.split('\n'):
+                keyval = line.split('=')
                 if keyval[0].startswith( 'histogram' ):
                     # Replace "." with "_" to avoid splitting metric name in multiple sub sections
                     keyval[0] = "histogram." + "_".join(str(v) for v in keyval[0].split(".")[1:])

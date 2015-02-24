@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Copyright (C) 2014 Red Hat.
+# Copyright (C) 2014-2015 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -17,6 +17,9 @@
 
 import sys
 from pcp import pmapi, pmcc
+
+if sys.version >= '3':
+    long = int  # python2 to python3 portability (no long() in python3)
 
 CACHE_METRICS = ['dmcache.cache.used', 'dmcache.cache.total',
                  'dmcache.metadata.used', 'dmcache.metadata.total',

@@ -1,8 +1,6 @@
 """ Convenience Classes building on the base PMAPI extension module """
 #
-# pmcc.py
-#
-# Copyright (C) 2013-2014 Red Hat
+# Copyright (C) 2013-2015 Red Hat
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of the "pcp" module, the python interfaces for the
@@ -33,11 +31,15 @@ class MetricCore(object):
     PMAPI metrics are unique by name, and MetricCores should be also
     rarely, some PMAPI metrics with different names might have identical PMIDs
     PMAPI metrics are unique by (name) and by (name,pmid) - _usually_ by (pmid)
-    too.
+    too.  Note that names here (and only here) are stored as byte strings for
+    direct PMAPI access.  All dictionaries/caching strategies built using the
+    core structure use native strings (i.e., not byte strings in python3).
     """
 
     def __init__(self, ctx, name, pmid):
         self.ctx = ctx
+        if type(name) != type(b''):
+            name = name.encode('utf-8')
         self.name = name
         self.pmid = pmid
         self.desc = None
@@ -73,7 +75,7 @@ class Metric(object):
     def _R_ctx(self):
         return self._core.ctx
     def _R_name(self):
-        return self._core.name
+        return self._core.name.decode()
     def _R_pmid(self):
         return self._core.pmid
     def _R_desc(self):
@@ -105,7 +107,7 @@ class Metric(object):
             try:
                 name = instD[instval.inst]
             except KeyError:
-                name = b''
+                name = ''
             outAtom = self.ctx.pmExtractValue(
                     vset.valfmt, instval, self.desc.type, self._convType)
             if self._convUnits:
@@ -151,7 +153,7 @@ class Metric(object):
             try:
                 name = instD[instval.inst]
             except KeyError:
-                name = b''
+                name = ''
             outAtom = self.ctx.pmExtractValue(vset.valfmt,
                     instval, self.desc.type, PM_TYPE_DOUBLE)
             poutAtom = self.ctx.pmExtractValue(pvset.valfmt,
@@ -281,7 +283,7 @@ class MetricCache(pmContext):
                     instmap = {}
             self._mcIndomD.update({indom: instmap})
 
-        self._mcByNameD.update({core.name: core})
+        self._mcByNameD.update({core.name.decode(): core})
         self._mcByPmidD.update({core.pmid: core})
 
     def mcGetCoresByName(self, nameL):
@@ -291,8 +293,8 @@ class MetricCache(pmContext):
         errL = None
         # lookup names in cache
         for index, name in enumerate(nameL):
-            if type(name) != type(b''):
-                name = name.encode('utf-8')
+            if type(name) == type(b''):
+                name = name.decode()
             # lookup metric core in cache
             core = self._mcByNameD.get(name)
             if not core:
@@ -306,8 +308,6 @@ class MetricCache(pmContext):
         if missD:
             idL, errL = self.mcFetchPmids(missD.keys())
             for name, pmid in idL:
-                if type(name) != type(b''):
-                    name = name.encode('utf-8')
                 if pmid == PM_ID_NULL:
                     # fetch failed for the given metric name
                     if not errL:
@@ -354,7 +354,7 @@ class MetricCache(pmContext):
             print >> stderr, fail
             raise SystemExit(1)
 
-        return zip(nameA, pmidArray), errL
+        return zip(nameL, pmidArray), errL
 
 
 class MetricGroup(dict):
@@ -411,6 +411,12 @@ class MetricGroup(dict):
         self._prev = None
         self._altD = {}
         self.mgAdd(inL)
+
+    def __setitem__(self, attr, value = []):
+        if attr in self:
+            raise KeyError("metric group with that key already exists")
+        else:
+            dict.__setitem__(self, attr, MetricGroup(self, inL = value))
 
     ##
     # methods

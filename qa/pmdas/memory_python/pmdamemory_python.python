@@ -42,7 +42,7 @@ class MemoryPMDA(PMDA):
         # At this point if all goes well, the PMDA internal
         # _metric_names dictionary will contain the metric we just
         # added. If not, memory has become corrupted.
-        if not self._metric_names.has_key(self.metric_pmid):
+        if not self.metric_pmid in self._metric_names:
             self.memory_valid = 0
             msg = '_metric_names has no matching pmid'
             self.log(msg)
@@ -66,14 +66,14 @@ class MemoryPMDA(PMDA):
         self.memory_valid = 1
         self.metric_name = name + '.memory_valid'
         self.metric_pmid = self.pmid(0, 0)
-	self.metric_obj = pmdaMetric(self.metric_pmid, c_api.PM_TYPE_64,
+        self.metric_obj = pmdaMetric(self.metric_pmid, c_api.PM_TYPE_64,
                                      c_api.PM_INDOM_NULL, c_api.PM_SEM_COUNTER,
                                      pmUnits(0, 0, 0, 0, 0, 0))
         self.metric_oneline = "test metric"
         self.add_metric(self.metric_name, self.metric_obj, self.metric_oneline)
 
         # Make sure the PMDA's internal dictionary is in a good state.
-        if not self._metric_names.has_key(self.metric_pmid):
+        if not self.metric_pmid in self._metric_names:
             self.memory_valid = 0
             msg = '_metric_names has no matching pmid'
             self.log(msg)

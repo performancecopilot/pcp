@@ -7,12 +7,11 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-. ./common.product
-. ./common.filter
-. ./common.check
-
-which socat >/dev/null 2>&1 || _notrun "No socat binary installed"
-pcp2graphite --version 2>/dev/null || _notrun "python/modules missing"
+. ./common.python
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+which pcp2graphite >$seq.full 2>&1 || _notrun "pcp2graphite not installed"
+which socat >/dev/null 2>&1 || _notrun "socat binary not installed"
 
 port_pickled=2004
 port_text=2003

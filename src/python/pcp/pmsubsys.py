@@ -48,13 +48,18 @@ else:
 class Subsystem(object):
     def __init__(self):
         self.metrics = []
-        self.timestamp = timeval(0, 0)
+        self._timestamp = timeval(0, 0)
         self.diff_metrics = []
         self.metric_pmids = []
         self.metric_descs = []
         self.metric_values = []
         self.metrics_dict = {}
         self.old_metric_values = []
+
+    def _R_timestamp(self):
+        return self._timestamp
+
+    timestamp = property(_R_timestamp, None, None, None)
 
     def setup_metrics(self, pcp):
         # remove any unsupported metrics
@@ -163,7 +168,7 @@ class Subsystem(object):
         list_type = type([])
 
         metric_result = pcp.pmFetch(self.metric_pmids)
-        self.timestamp = metric_result.contents.timestamp
+        self._timestamp = metric_result.contents.timestamp
 
         if max(self.old_metric_values) == 0:
             first = True

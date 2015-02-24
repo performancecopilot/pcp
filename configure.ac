@@ -534,6 +534,15 @@ AS_IF([test "x$do_python3" != "xno"], [
 ])
 AC_SUBST(enable_python3)
 
+dnl choose the prefered python executable (py2 -> py3 transtion)
+if test "$enable_python3" = "true"
+then
+    pcp_python_prog=$PYTHON3
+else
+    pcp_python_prog=$PYTHON
+fi
+AC_SUBST(pcp_python_prog)
+
 qmake=$QMAKE
 enable_qt=false
 qt_release=release

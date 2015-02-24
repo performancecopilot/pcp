@@ -2,7 +2,7 @@
 Performance Metrics Domain Agent exporting Linux compressed swap metrics.
 '''
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014-2015 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -20,6 +20,9 @@ from pcp.pmapi import pmUnits
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
 from resource import getpagesize
 from os import getenv, listdir
+import sys
+if sys.version >= '3':
+    long = int	# python2 to python3 portability (no long() in python3)
 
 ZSWAP_PAGESIZE = getpagesize()
 ZSWAP_STATS_PATH = '/sys/kernel/debug/zswap'

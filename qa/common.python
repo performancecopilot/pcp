@@ -8,8 +8,7 @@
 . ./common.filter
 . ./common.check
 
-# allow alternate versions of python to be used
-python=${PYTHON:-/usr/bin/python}
+python=${PCP_PYTHON_PROG:-python}
 eval $python -c exit 2>/dev/null || _notrun "$python unavailable"
 
 # verify output from unittest indicates successful testing
