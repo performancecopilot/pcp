@@ -45,7 +45,7 @@ yum -y install git ncurses-devel readline-devel man libmicrohttpd-devel qt4-deve
 # avahi-devel
 
 cd /vagrant
-sudo -H -u vagrant env PYTHON=python26 ./Makepkgs
+sudo -H -u vagrant env PYTHON=python2.6 ./Makepkgs
 rpm -ivh  pcp-*/build/rpm/*.rpm
 
 # Doesn't start automatically on all distributions
