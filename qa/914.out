@@ -47,10 +47,10 @@ papi.control.disable: Error: No permission to perform requested operation
 == PAPI library behaviour, total instructions/cycles, as root
 
 papi.system.TOT_INS
-No value(s) available!
+    value NUMBER
 
 papi.system.TOT_CYC
-No value(s) available!
+    value NUMBER
 
 == PAPI library behaviour, available hardware metrics, as root
 

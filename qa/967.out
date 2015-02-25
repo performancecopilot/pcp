@@ -84,7 +84,8 @@ Sending Result...
 dbpmda> fetch papi.system.TOT_INS
 PMID(s): 126.0.NUMBER
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  126.0.NUMBER (<noname>): No values returned!
+  126.0.NUMBER (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value NUMBER
 dbpmda> fetch papi.control.status
 PMID(s): 126.1.3
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
@@ -186,7 +187,8 @@ Sending Result...
 dbpmda> fetch papi.system.TOT_INS
 PMID(s): 126.0.NUMBER
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  126.0.NUMBER (<noname>): No values returned!
+  126.0.NUMBER (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value NUMBER
 dbpmda> fetch papi.control.status
 PMID(s): 126.1.3
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
