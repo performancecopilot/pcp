@@ -140,8 +140,9 @@ $sudo ./Remove >$tmp.out 2>&1
 _filter_pmda_remove <$tmp.out
 
 echo
-echo "=== $iam agent re-installation ==="
+echo "=== $iam agent re-installation ===" | tee -a $here/$seq.full
 $sudo ./Install <$tmp.input >$tmp.out 2>&1
+cat $tmp.out >>$here/$seq.full
 _filter_pmda_install <$tmp.out
 
 status=0
