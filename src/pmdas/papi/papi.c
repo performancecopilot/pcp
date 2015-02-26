@@ -532,7 +532,6 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	pmAtomValue av;
 
 	if (idp->cluster != CLUSTER_CONTROL) {
-	    //	    return PM_ERR_PERMISSION;
 	    sts2 = PM_ERR_PERMISSION;
 	    continue;
 	}
@@ -588,6 +587,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	    }
 	    auto_enable_time = av.ul;
 	    sts = papi_setup_auto_af();
+	    sts2 = sts;
 	    continue;
 
 	case CONTROL_MULTIPLEX:
@@ -598,6 +598,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	    }
 	    enable_multiplexing = av.ul;
 	    sts = refresh_metrics(0);
+	    sts2 = sts;
 	    continue;
 
 	default:
