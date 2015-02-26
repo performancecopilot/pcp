@@ -86,7 +86,7 @@ class Subsystem(object):
         return metrics_string
 
     def get_scalar_value(self, var, idx):
-        if type(var) == type(str()):
+        if type(var) == type('') or type(var) == type(b''):
             value = self.get_metric_value(var)
         else:
             value = self.metric_values[var]
@@ -157,7 +157,7 @@ class Subsystem(object):
                 return atom1.d 
         elif atom_type == c_api.PM_TYPE_STRING:
             atom_str = c_char_p(atom1.cp)
-            return str(atom_str.value)
+            return str(atom_str.value.decode())
         else:
             return 0
 
