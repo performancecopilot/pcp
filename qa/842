@@ -13,7 +13,7 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
-PMIOSTAT=$PCP_BIN_DIR/pmiostat
+PMIOSTAT="$PCP_BIN_DIR/pmiostat"
 test -x $PMIOSTAT || _notrun "No pmiostat(1) installed"
 PMIOSTAT="$python $PMIOSTAT"
 

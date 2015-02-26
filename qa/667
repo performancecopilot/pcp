@@ -10,8 +10,8 @@ echo "QA output created by $seq"
 . ./common.python
 $python -c "from pcp import pmapi" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
-which pcp2graphite >$seq.full 2>&1 || _notrun "pcp2graphite not installed"
 which socat >/dev/null 2>&1 || _notrun "socat binary not installed"
+which pcp2graphite >$seq.full 2>&1 || _notrun "pcp2graphite not installed"
 
 port_pickled=2004
 port_text=2003
@@ -35,13 +35,14 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 scale=10
 ncpu=`pmprobe -v hinv.ncpu | awk '{print $3*'$scale'".0"}'`
+pcp2graphite="$python `which pcp2graphite`"
 
 echo | tee -a $seq.full
 echo "=== 1. pcp2graphite one-shot pickle  ===" | tee -a $seq.full
 socat tcp-listen:$port_pickled,reuseaddr - >$tmp.dir/test1.out 2>$tmp.err &
 pid=$!
 sleep 2
-pcp2graphite -t 1 hinv.ncpu hinv.ncpu 2>$tmp.p2g.err &   # will error out after socket cat dies
+$pcp2graphite -t 1 hinv.ncpu hinv.ncpu 2>$tmp.p2g.err &   # will error out after socket cat dies
 p2gpid=$!
 sleep 3
 $signal $pid $p2gpid 2>/dev/null
@@ -59,7 +60,7 @@ echo "=== 2. pcp2graphite text, 2-second aligned  ===" | tee -a $seq.full
 socat tcp-listen:$port_text,reuseaddr,fork - >$tmp.dir/test2.out 2>$tmp.err &
 pid=$!
 sleep 2
-pcp2graphite -t 2 -P $port_text -u "/$scale" -m foobar. hinv.ncpu sample.datasize 2>$tmp.p2g.err &
+$pcp2graphite -t 2 -P $port_text -u "/$scale" -m foobar. hinv.ncpu sample.datasize 2>$tmp.p2g.err &
 p2gpid=$!
 sleep 5 # enough for at least 2 messages
 $signal $pid $p2gpid 2>/dev/null
@@ -79,7 +80,7 @@ echo "=== 3. pcp2graphite bad-instance tolerance ===" | tee -a $seq.full
 socat tcp-listen:$port_text,reuseaddr,fork - >$tmp.dir/test3.out 2>$tmp.err &
 pid=$!
 sleep 2
-pcp2graphite -t 2 -P $port_text sample.bogus_bin sample.aggregate.null sample.string.hullo NoSuchMetric sample.bad 2>$tmp.p2g.err &
+$pcp2graphite -t 2 -P $port_text sample.bogus_bin sample.aggregate.null sample.string.hullo NoSuchMetric sample.bad 2>$tmp.p2g.err &
 p2gpid=$!
 sleep 5 # enough for at least 2 messages
 $signal $pid $p2gpid 2>/dev/null
@@ -96,7 +97,6 @@ echo "--- socket cat stdout --" >>$seq.full
 cat $tmp.dir/test3.out >>$seq.full
 echo "--- socket cat stderr --" >>$seq.full
 cat $tmp.err >>$seq.full
-
 
 status=0
 exit

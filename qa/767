@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ $PCP_PLATFORM = linux ] || _notrun "Linux-specific containers testing"
+_check_containers
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full

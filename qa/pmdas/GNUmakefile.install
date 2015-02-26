@@ -26,7 +26,10 @@ SUBDIRS_MAKERULE = \
 	    fi; \
 	done
 
-SUBDIRS = broken bigun dynamic slow slow_python memory_python
+SUBDIRS = broken bigun dynamic slow
+ifeq "$(ENABLE_PYTHON)" "true"
+SUBDIRS += slow_python memory_python
+endif
 
 default default_pcp: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)

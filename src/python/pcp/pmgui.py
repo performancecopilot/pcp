@@ -1,7 +1,7 @@
 # pylint: disable=C0103
 """ Wrapper module for libpcp_gui - PCP Graphical User Interface clients """
 #
-# Copyright (C) 2012-2013 Red Hat Inc.
+# Copyright (C) 2012-2015 Red Hat Inc.
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of the "pcp" module, the python interfaces for the
@@ -131,6 +131,10 @@ class GuiClient(object):
         """ GUI API - Setup an archive recording session
         File* file = pmRecordSetup("folio", "creator", 0)
         """
+        if type(folio) != type(b''):
+            folio =  folio.encode('utf-8')
+        if type(creator) != type(b''):
+            creator = creator.encode('utf-8')
         file_result = LIBPCP_GUI.pmRecordSetup(
                                 c_char_p(folio), c_char_p(creator), replay)
         if (file_result == 0):
@@ -142,11 +146,15 @@ class GuiClient(object):
         """ GUI API - Adds host to an archive recording session
         (status, recordhost) = pmRecordAddHost("host", 1, "configuration")
         """
+        if type(host) != type(b''):
+            host = host.encode('utf-8')
         rhp = POINTER(pmRecordHost)()
         status = LIBPCP_GUI.pmRecordAddHost(
                                 c_char_p(host), isdefault, byref(rhp))
         if status < 0:
             raise pmErr(status)
+        if type(config) != type(b''):
+            config = config.encode('utf-8')
         status = LIBC.fputs(c_char_p(config), c_long(rhp.contents.f_config))
         if (status < 0):
             LIBC.perror(c_char_p(""))
@@ -160,6 +168,8 @@ class GuiClient(object):
         status = pmRecordControl(0, cpmgui.PM_REC_ON)
         status = pmRecordControl(0, cpmgui.PM_REC_OFF)
         """
+        if type(options) != type(b''):
+            options = options.encode('utf-8')
         status = LIBPCP_GUI.pmRecordControl(
                                 cast(rhp, POINTER(pmRecordHost)),
                                 request, c_char_p(options))
