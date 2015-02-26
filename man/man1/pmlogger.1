@@ -25,6 +25,7 @@
 [\f3\-L\f1]
 [\f3\-m\f1 \f2note\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
+[\f3\-p\f1 \f2pid\f1]
 [\f3\-P\f1]
 [\f3\-r\f1]
 [\f3\-s\f1 \f2endsize\f1]
@@ -346,7 +347,17 @@ From this it can be seen that
 .B \-T 10mins
 and
 .B \-s 10mins
-perform identical actions. 
+perform identical actions.
+.PP
+Alternatively,
+.B pmlogger
+runtime may be limited by specifying a PID via the
+.B \-p
+or
+.B \-\-PID
+trigger.  In which the
+.B pmlogger
+instance will exit when the targeted PID exits.
 .PP
 When
 .B pmlogger
