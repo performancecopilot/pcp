@@ -111,7 +111,7 @@ class IostatReport(pmcc.MetricGroupPrinter):
                                'avgrq-sz', 'avgqu-sz', 'await', 'r_await', 'w_await', '%util')
                     print("%-12s %7s %7s %6s %6s %8s %8s %8s %8s %7s %7s %7s %5s" % heading)
 
-        for inst in instlist:
+        for inst in sorted(instlist):
             # basic stats
             rrqm = (c_rrqm[inst] - p_rrqm[inst]) / dt
             wrqm = (c_wrqm[inst] - p_wrqm[inst]) / dt
