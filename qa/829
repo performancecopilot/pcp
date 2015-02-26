@@ -13,11 +13,13 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
-test -x $PCP_BINADM_DIR/pcp-dmcache || _notrun "No pcp-dmcache(1) installed"
+pcp_dmcache="$PCP_BINADM_DIR/pcp-dmcache"
+test -x $pcp_dmcache || _notrun "No pcp-dmcache(1) installed"
+pcp_dmcache="$python $pcp_dmcache"
 
 # real QA test starts here
 echo 'All output'
-pcp -z --archive archives/dm-io dmcache
+PCP_ARCHIVE=archives/dm-io PCP_HOSTZONE=1 $pcp_dmcache
 echo
 
 echo 'One device'

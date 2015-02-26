@@ -56,8 +56,12 @@ echo "First attempt ... expect nothing"
 pminfo -v | _filter
 echo "Second attempt ... expect nothing"
 pminfo -v | _filter
+
 echo "Once more, but with --container ... expect nothing"
-pminfo -v --container=no.such.container | _filter
+containers=`pmprobe -v pmcd.feature.containers 2>/dev/null | awk '{ print $3 }'`
+if [ "$containers" = "1" ]; then
+    pminfo -v --container=no.such.container | _filter
+fi
 
 # success, all done
 exit

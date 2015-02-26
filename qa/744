@@ -13,16 +13,24 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-test -f $here/src/libnvidia-ml.$DSO_SUFFIX || \
-	_notrun "No NVIDIA QA wrapper library is available"
-test -f $PCP_LIB_DIR/libnvidia-ml.$DSO_SUFFIX && \
-	_notrun "Conflicting system NVIDIA library found"
-test -f $PCP_LIB32_DIR/libnvidia-ml.$DSO_SUFFIX && \
-	_notrun "Conflicting 32-bit system NVIDIA library found"
-
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+test -f $here/src/libnvidia-ml.$DSO_SUFFIX || \
+	_notrun "No NVIDIA QA wrapper library is available"
+for dir in $PCP_LIB_DIR $PCP_LIB32_DIR
+do
+    if [ -d $dir ]
+    then
+	find $dir -name libnvidia-ml.$DSO_SUFFIX >$tmp.libs
+	if [ -s $tmp.libs ]
+	then
+	    _notrun "Conflicting system NVIDIA library found: `cat $tmp.libs`"
+	    # NOTREACHED
+	fi
+    fi
+done
 
 _filter()
 {

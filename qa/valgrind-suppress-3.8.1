@@ -21,3 +21,46 @@
    obj:*
 }
 
+# Seen on bozo-laptop with qa/666
+#
+# Syscall param sendmsg(mmsg[0].msg_hdr) points to uninitialised byte(s)
+#    at 0x4ADC176: sendmmsg (sendmmsg.c:32)
+#    by 0x52788F0: __libc_res_nsend (res_send.c:1140)
+#    by 0x5275E1E: __libc_res_nquery (res_query.c:226)
+#    by 0x527649F: __libc_res_nquerydomain (res_query.c:582)
+#    by 0x5276996: __libc_res_nsearch (res_query.c:416)
+#    by 0x483C6E5: _nss_dns_gethostbyname4_r (dns-host.c:314)
+#    by 0x4AB05B6: gaih_inet (getaddrinfo.c:849)
+#    by 0x4AB368A: getaddrinfo (getaddrinfo.c:2465)
+#    by 0x488B121: __pmGetAddrInfo (in /usr/lib/libpcp.so.3)
+#    by 0x488B225: __pmAuxConnectPMCDPort (in /usr/lib/libpcp.so.3)
+#    by 0x485B248: __pmConnectPMCD (in /usr/lib/libpcp.so.3)
+#    by 0x485D772: pmNewContext (in /usr/lib/libpcp.so.3)
+{
+   Seen on bozo-laptop
+   Memcheck:Param
+   sendmsg(mmsg[0].msg_hdr)
+   fun:sendmmsg
+   fun:__libc_res_nsend
+   fun:__libc_res_nquery
+   fun:__libc_res_nquerydomain
+   fun:__libc_res_nsearch
+   ...
+   fun:gaih_inet
+   fun:getaddrinfo
+}
+
+# ditto
+{
+   Seen on bozo-laptop
+   Memcheck:Param
+   sendmsg(mmsg[1].msg_hdr)
+   fun:sendmmsg
+   fun:__libc_res_nsend
+   fun:__libc_res_nquery
+   fun:__libc_res_nquerydomain
+   fun:__libc_res_nsearch
+   ...
+   fun:gaih_inet
+   fun:getaddrinfo
+}

@@ -240,7 +240,7 @@ class _cpuCollectPrint(_CollectPrint):
 
 class _interruptCollectPrint(_CollectPrint):
     def print_header1_brief(self):
-        ndashes = (((self.ss.get_len(self.ss.get_metric_value('kernel.percpu.interrupts.THR'))) * 6) - 6) / 2
+        ndashes = int(((self.ss.get_metric_value('hinv.ncpu') * 6) - 6) / 2)
         hdr = "#<"
         for k in range(ndashes):
             hdr += "-"
@@ -252,25 +252,25 @@ class _interruptCollectPrint(_CollectPrint):
     def print_header1_detail(self):
         print('# INTERRUPT DETAILS')
         sys.stdout.write('# Int    ')
-        for k in range(self.ss.get_len(self.ss.get_metric_value('kernel.percpu.interrupts.THR'))):
+        for k in self.ss.get_metric_value('hinv.ncpu'):
             sys.stdout.write('Cpu%d ' % k)
         print('Type            Device(s)')
     def print_header1_verbose(self):
         print('# INTERRUPT SUMMARY')
     def print_header2_brief(self):
-        for k in range(self.ss.get_len(self.ss.get_metric_value('kernel.percpu.interrupts.THR'))):
+        for k in range(self.ss.get_metric_value('hinv.ncpu')):
             if k == 0:
                 sys.stdout.write('#Cpu%d ' % k)
             else:
                 sys.stdout.write('Cpu%d ' % k)
     def print_header2_verbose(self):
         sys.stdout.write('#    ')
-        for k in range(self.ss.get_len(self.ss.get_metric_value('kernel.percpu.interrupts.THR'))):
+        for k in range(self.ss.get_metric_value('hinv.ncpu')):
             sys.stdout.write('Cpu%d ' % k)
         print('')
     def print_brief(self):
         int_count = []
-        for k in range(self.ss.get_len(self.ss.get_metric_value('kernel.percpu.interrupts.THR'))):
+        for k in range(self.ss.get_metric_value('hinv.ncpu')):
             int_count.append(0)
             for j in ss.metrics:
                 if j[0:24] == 'kernel.percpu.interrupts':
@@ -279,12 +279,13 @@ class _interruptCollectPrint(_CollectPrint):
         for k in range(self.ss.get_len(self.ss.get_metric_value('kernel.percpu.interrupts.THR'))):
             sys.stdout.write("%4d " % (int_count[k]))
     def print_detail(self):
+        ncpu = self.ss.get_metric_value('hinv.ncpu')
         for j in ss.metrics:
             if j[0:24] != 'kernel.percpu.interrupts':
                 continue
             j_i = self.ss.metrics_dict[j]
             have_nonzero_value = False
-            for k in range(self.ss.get_len(self.ss.get_metric_value('kernel.percpu.interrupts.THR'))):
+            for k in range(ncpu):
                 if self.ss.get_scalar_value(j_i, k) != 0:
                     have_nonzero_value = True
                 if not have_nonzero_value:
@@ -292,7 +293,7 @@ class _interruptCollectPrint(_CollectPrint):
             if have_nonzero_value:
                 # pcp does not give the interrupt # so print spaces
                 sys.stdout.write("%-8s" % self.ss.metrics[j_i].split(".")[3])
-                for i in range(self.ss.get_len(self.ss.get_metric_value('kernel.percpu.interrupts.THR'))):
+                for i in range(ncpu):
                     sys.stdout.write("%4d " % (self.ss.get_scalar_value(j_i, i)))
                 text = (pm.pmLookupText(self.ss.metric_pmids[j_i], c_api.PM_TEXT_ONELINE))
                 print("%-18s %s" % (text[:(str.index(text, " "))],
@@ -608,11 +609,13 @@ if __name__ == '__main__':
         c_api.pmUsageMessage()
         sys.exit(1)
 
+    # Setup some default reporting if none specified so far
     if len(subsys) == 0:
+        subsys.append(cpu)
+        subsys.append(disk)
+        subsys.append(net)
         if opts.create_archive:
-            map(subsys.append, (cpu, disk, net, interrupt, memory))
-        else:
-            map(subsys.append, (cpu, disk, net))
+            subsys.append(interrupt, memory)
 
     if opts.duration_arg != 0:
         (timeval, errmsg) = pm.pmParseInterval(str(opts.duration_arg))
@@ -686,12 +689,12 @@ if __name__ == '__main__':
                     if ssx == 0:
                         continue
                     if opts.verbosity != "brief" and (len(subsys) > 1 or i_samples == 0):
-                        print
+                        print('')
                         ssx.print_header1()
                         ssx.print_header2()
                     ssx.print_line()
                 if opts.verbosity == "brief":
-                    print
+                    print('')
             except pmapi.pmErr as e:
                 if str(e).find("PM_ERR_EOL") != -1:
                     print(str(e))
