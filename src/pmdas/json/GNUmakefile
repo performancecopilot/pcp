@@ -31,8 +31,7 @@ include $(BUILDRULES)
 install_pcp install:	default 
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
-	$(INSTALL) -m 644 $(PYSCRIPT) $(PMDADIR)/$(PYSCRIPT)
+	$(INSTALL) -m 644 domain.h config.json $(PYSCRIPT) $(PMDADIR)
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)

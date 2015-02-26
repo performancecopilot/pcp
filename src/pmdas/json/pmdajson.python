@@ -134,7 +134,7 @@ class JsonSource(object):
         self.cluster = cluster
         self.__pmda = pmda
         self.__root_name = os.path.basename(path)
-        self.__metadata_path = "%s/metadata.json" % path
+        self.__metadata_path = "%s/%s" % (path, pmda.metadata_name)
         self.__metadata = {}
         # Note that this is the default data path.
         # FIXME: in the future, we'll support overriding this with
@@ -532,6 +532,8 @@ class JsonPMDA(PMDA):
         PMDA.__init__(self, self.pmda_name, domain)
         self.indom_idx = 0
 
+        self.metadata_name = 'metadata.json'
+
         # cluster 0 is reserved for the static metrics
         self.cluster_idx = 1
 
@@ -542,7 +544,20 @@ class JsonPMDA(PMDA):
         self.debug = 1
         self.__add_static_metrics()
 
-        self.__directory_list = [ '/proc/systemtap' ]
+        # Set up defaults for config variables.
+        self.__directory_list = []
+
+        # Load config file and process config items.
+        self.__load_config_file()
+        for (key, value) in self.__config_data.items():
+            if key == 'directory_list':
+                if not isinstance(value, list):
+                    self.log("Invalid config file 'directory_list' value")
+                    continue
+                self.__directory_list = value
+            # For everything else, just ignore it.
+            else:
+                self.__pmda.log("Ignoring unknown config option '%s'" % key)
 
         # Load all the metadata files and json data.
         self.sources_by_root = {}
@@ -553,6 +568,22 @@ class JsonPMDA(PMDA):
         self.set_refresh_metrics(self.__refresh_metrics)
         if self.debug:
             self.log("__init__ finished")
+
+    def __load_config_file(self):
+        ''' Load config file. '''
+        self.__config_data = {}
+        try:
+            fobj = open("config.json")
+        except IOError:
+            self.log("Couldn't open JSON config file")
+            self.log("%s" % traceback.format_exc())
+            return
+        try:
+            self.__config_data = json.load(fobj)
+        except ValueError:
+            self.log("Couldn't parse JSON config file")
+            self.log("%s" % traceback.format_exc())
+        fobj.close()
 
     def __add_static_metrics(self):
         '''
@@ -603,7 +634,7 @@ class JsonPMDA(PMDA):
         for dir in self.__directory_list:
             for root, dummy, files in os.walk(dir):
                 # Make sure we have the metadata file.
-                if 'metadata.json' in files:
+                if self.metadata_name in files:
                     if not self.sources_by_root.has_key(root):
                         source = JsonSource(root, self.cluster_idx, self)
                         self.sources_by_root[root] = source
@@ -634,7 +665,7 @@ class JsonPMDA(PMDA):
         for dir in self.__directory_list:
             for root, dummy, files in os.walk(dir):
                 # Make sure we have the metadata file.
-                if 'metadata.json' in files:
+                if self.metadata_name in files:
                     if not self.sources_by_root.has_key(root):
                         source = JsonSource(root, self.cluster_idx, self)
                         self.sources_by_root[root] = source
