@@ -13,16 +13,16 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
-test -x $PCP_BINADM_DIR/pcp-uptime || _notrun "No pcp-uptime(1) installed"
-
-archive="-a $here/src/pcp-uptime -z"
+pcp_uptime="$PCP_BINADM_DIR/pcp-uptime"
+test -x $pcp_uptime || _notrun "No pcp-uptime(1) installed"
+pcp_uptime="$python $pcp_uptime"
 
 # real QA test starts here
 echo && echo uptime output, at archive start
-pcp $archive uptime
+PCP_ARCHIVE="src/pcp-uptime" PCP_HOSTZONE=1 $pcp_uptime
 
 echo && echo uptime output, at archive end
-pcp $archive -O-0 uptime
+pcp -a $here/src/pcp-uptime -z -O-0 uptime
 
 # success, all done
 status=0
