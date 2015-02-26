@@ -1023,6 +1023,7 @@ cgroups
 944 pmcd secure local
 945 pmlogrewrite pmda.xfs local
 946 pmfind avahi local
+947 pmlogger local
 950 avahi local
 955 pmda.linux local
 957 pmda.linux local valgrind

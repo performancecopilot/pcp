@@ -17,6 +17,7 @@
 #include <limits.h>
 #include <sys/stat.h>
 #include "logger.h"
+#include <errno.h>
 
 char		*configfile;
 __pmLogCtl	logctl;
@@ -464,6 +465,7 @@ static pmLongOptions longopts[] = {
     { "linger", 0, 'L', 0, "run even if not primary logger instance and nothing to log" },
     { "note", 1, 'm', "MSG", "descriptive note to be added to the port map file" },
     PMOPT_NAMESPACE,
+    { "PID", 1, 'p', "PID", "Log specified metric for the lifetime of the pid" },
     { "primary", 0, 'P', 0, "execute as primary logger instance" },
     { "report", 0, 'r', 0, "report record sizes and archive growth rate" },
     { "size", 1, 's', "SIZE", "terminate after endsize has been accumulated" },
@@ -480,7 +482,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "c:D:h:l:Lm:n:Prs:T:t:uU:v:V:x:y?",
+    .short_options = "c:D:h:l:Lm:n:p:Prs:T:t:uU:v:V:x:y?",
     .long_options = longopts,
     .short_usage = "[options] archive",
 };
@@ -507,6 +509,7 @@ main(int argc, char **argv)
     int	    		ctx;		/* handle corresponding to ctxp below */
     __pmContext  	*ctxp;		/* pmlogger has just this one context */
     int			niter;
+    pid_t               target_pid;
 
     __pmGetUsername(&username);
 
@@ -570,6 +573,18 @@ main(int argc, char **argv)
 
 	case 'n':		/* alternative name space file */
 	    pmnsfile = opts.optarg;
+	    break;
+
+	case 'p':
+	    target_pid = (int)strtol(opts.optarg, &endnum, 10);
+	    if (target_pid){
+		errno = 0;
+		sts = kill(target_pid, 0);
+		if (sts) {
+		    pmprintf("PID error: %s (target pid: %d)\n", strerror(errno), target_pid);
+		    opts.errors++;
+		}
+	    }
 	    break;
 
 	case 'P':		/* this is the primary pmlogger */
@@ -1100,6 +1115,13 @@ main(int argc, char **argv)
 	    fprintf(stderr, "Error: select: %s\n", netstrerror());
 
 	__pmAFunblock();
+
+	if (target_pid) {
+	    errno = 0;
+	    sts = kill(target_pid, 0);
+	    if (sts && errno == ESRCH)
+		exit(PM_ERR_GENERIC);
+	}
 
 	if (exit_code)
 	    break;
