@@ -351,13 +351,14 @@ perform identical actions.
 .PP
 Alternatively,
 .B pmlogger
-runtime may be limited by specifying a PID via the
+runtime may be limited to the lifetime of another process by using the
 .B \-p
 or
 .B \-\-PID
-trigger.  In which the
+option to nominate the PID of the process of interest.
+In this case the
 .B pmlogger
-instance will exit when the targeted PID exits.
+will exit when the other process no longer exists.
 .PP
 When
 .B pmlogger

@@ -509,7 +509,7 @@ main(int argc, char **argv)
     int	    		ctx;		/* handle corresponding to ctxp below */
     __pmContext  	*ctxp;		/* pmlogger has just this one context */
     int			niter;
-    pid_t               target_pid;
+    pid_t               target_pid = 0;
 
     __pmGetUsername(&username);
 
