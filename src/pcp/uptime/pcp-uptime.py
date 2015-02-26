@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Copyright (C) 2014 Red Hat.
+# Copyright (C) 2014-2015 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -25,11 +25,11 @@ def print_timestamp(stamp):
 
 def print_uptime(seconds):
     """ Report on system up-time in days, hours and minutes """
-    days = seconds / (60 * 60 * 24)
-    minutes = seconds / 60
-    hours = minutes / 60
-    hours = hours % 24
-    minutes = minutes % 60
+    days = int(seconds / (60 * 60 * 24))
+    minutes = int(seconds / 60)
+    hours = int(minutes / 60)
+    hours = int(hours % 24)
+    minutes = int(minutes % 60)
     result = " up"
     if days > 1:
         result += " %d days," % days
