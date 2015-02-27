@@ -92,7 +92,6 @@ attr "username" "root"
 attr 11 "0"
 desc papi.system.TOT_INS
 store papi.control.auto_enable "5"
-store papi.control.batch "5"
 fetch papi.system.TOT_INS
 fetch papi.control.status
 wait 7
