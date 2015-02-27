@@ -24,7 +24,7 @@ for dir in $PCP_LIB_DIR $PCP_LIB32_DIR
 do
     if [ -d $dir ]
     then
-	find $dir -name libnvidia-ml.$DSO_SUFFIX >$tmp.libs
+	$sudo find $dir -name libnvidia-ml.$DSO_SUFFIX >$tmp.libs
 	if [ -s $tmp.libs ]
 	then
 	    _notrun "Conflicting system NVIDIA library found: `cat $tmp.libs`"
