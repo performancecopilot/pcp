@@ -1105,7 +1105,7 @@ class pmContext(object):
         if status < 0:
             raise pmErr(status)
         if status > 0:
-            childL = list(map(lambda x: str(offspring[x]), range(status)))
+            childL = list(map(lambda x: str(offspring[x].decode()), range(status)))
             LIBC.free(offspring)
         else:
             return None
@@ -1127,7 +1127,7 @@ class pmContext(object):
         if status < 0:
             raise pmErr(status)
         if status > 0:
-            childL = list(map(lambda x: str(offspring[x]), range(status)))
+            childL = list(map(lambda x: str(offspring[x].decode()), range(status)))
             statL = list(map(lambda x: int(childstat[x]), range(status)))
             LIBC.free(offspring)
             LIBC.free(childstat)
@@ -1233,10 +1233,7 @@ class pmContext(object):
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
-        cb = traverseCB_type(callback)
-        if type(name) != type(b''):
-            name = name.encode('utf-8')
-        status = LIBPCP.pmTraversePMNS(name, cb)
+        status = c_api.pmnsTraverse(name, callback)
         if status < 0:
             raise pmErr(status)
 

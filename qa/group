@@ -1011,6 +1011,7 @@ cgroups
 901 libpcp event local
 902 libpcp mem_leak valgrind event local
 903 pmda.papi local
+904 python local
 907 pmlogextract local
 914 pmda.papi local
 919 pmlogger pmstat local
