@@ -1113,6 +1113,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %changelog
 * Mon Mar 02 2015 Dave Brolley <brolley@redhat.com> - 3.10.3-1
+- Update to latest PCP sources.
+- New sub-package for pcp-import-ganglia2pcp.
+- Python3 support, enabled by default in f22 onward (BZ 1194324)
 
 * Fri Jan 23 2015 Dave Brolley <brolley@redhat.com> - 3.10.2-1
 - Update to latest PCP sources.
