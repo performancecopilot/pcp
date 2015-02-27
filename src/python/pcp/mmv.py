@@ -1,7 +1,7 @@
 # pylint: disable=C0103
 """Wrapper module for libpcp_mmv - PCP Memory Mapped Values library
 #
-# Copyright (C) 2013 Red Hat.
+# Copyright (C) 2013,2015 Red Hat.
 #
 # This file is part of the "pcp" module, the python interfaces for the
 # Performance Co-Pilot toolkit.
@@ -85,6 +85,13 @@ class mmv_instance(Structure):
     _fields_ = [("internal", c_int),
                 ("external", c_char * MMV_NAMEMAX)]
 
+    def __init__(self, inst, name):
+        Structure.__init__(self)
+        if type(name) != type(b''):
+            name = name.encode('utf-8')
+        self.external = name
+        self.internal = inst
+
 class mmv_indom(Structure):
     """ Represents an instance domain (for set valued metrics)
         Instance domains have associated instances - integer/string pairs.
@@ -95,6 +102,16 @@ class mmv_indom(Structure):
                 ("instances", POINTER(mmv_instance)),
                 ("shorttext", c_char_p),
                 ("helptext", c_char_p)]
+
+    def __init__(self, serial, shorttext = '', helptext = ''):
+        Structure.__init__(self)
+        if type(helptext) != type(b''):
+            helptext = helptext.encode('utf-8')
+        if type(shorttext) != type(b''):
+            shorttext = shorttext.encode('utf-8')
+        self.shorttext = shorttext
+        self.helptext = shorttext
+        self.serial = serial
 
     def set_instances(self, instances):
         """ Update the instances and counts fields for this indom """
@@ -117,6 +134,20 @@ class mmv_metric(Structure):
                 ("indom", c_uint),
                 ("shorttext", c_char_p),
                 ("helptext", c_char_p)]
+
+    def __init__(self, name, item, typeof, semantics, dimension, indom = 0, shorttext = '', helptext = ''):
+        Structure.__init__(self)
+        if type(name) != type(b''):
+            name = name.encode('utf-8')
+        if type(helptext) != type(b''):
+            helptext = helptext.encode('utf-8')
+        if type(shorttext) != type(b''):
+            shorttext = shorttext.encode('utf-8')
+        self.shorttext = shorttext
+        self.helptext = shorttext
+        self.typeof = typeof
+        self.indom = indom
+        self.item = item
 
 ##
 # PCP Memory Mapped Value Services
@@ -185,6 +216,8 @@ class MemoryMappedValues(object):
     """
 
     def __init__(self, name, flags = 0, cluster = 42):
+        if type(name) != type(b''):
+            name = name.encode('utf-8')
         self._name = name
         self._cluster = cluster  # PMID cluster number (domain is MMV)
         self._flags = flags      # MMV_FLAGS_* flags
@@ -263,6 +296,10 @@ class MemoryMappedValues(object):
             a convenience only for situations where performance will not
             be affected by repeated (linear) name/inst lookups.
         """
+        if type(name) != type(b''):
+            name = name.encode('utf-8')
+        if type(inst) != type(b''):
+            inst = inst.encode('utf-8')
         return LIBPCP_MMV.mmv_lookup_value_desc(self._handle, name, inst)
 
     def add(self, mapping, value):
@@ -279,6 +316,8 @@ class MemoryMappedValues(object):
 
     def set_string(self, mapping, value):
         """ Set the string mapped metric to a given value """
+        if type(value) != type(b''):
+            value = value.encode('utf-8')
         LIBPCP_MMV.mmv_set_string(self._handle, mapping, value, len(value))
 
     def interval_start(self, mapping):
@@ -294,25 +333,47 @@ class MemoryMappedValues(object):
 
     def lookup_add(self, name, inst, value):
         """ Lookup the named metric[instance] and add a value to it """
+        if type(name) != type(b''):
+            name = name.encode('utf-8')
+        if type(inst) != type(b''):
+            inst = inst.encode('utf-8')
         LIBPCP_MMV.mmv_stats_add(self._handle, name, inst, value)
 
     def lookup_inc(self, name, inst):
         """ Lookup the named metric[instance] and add one to it """
+        if type(name) != type(b''):
+            name = name.encode('utf-8')
+        if type(inst) != type(b''):
+            inst = inst.encode('utf-8')
         LIBPCP_MMV.mmv_stats_inc(self._handle, name, inst)
 
     def lookup_set(self, name, inst, value):
         """ Lookup the named metric[instance] and set its value """
+        if type(name) != type(b''):
+            name = name.encode('utf-8')
+        if type(inst) != type(b''):
+            inst = inst.encode('utf-8')
         LIBPCP_MMV.mmv_stats_set(self._handle, name, inst, value)
 
     def lookup_interval_start(self, name, inst):
         """ Lookup the named metric[instance] and start an interval
             The opaque handle returned is passed to interval_end().
         """
+        if type(name) != type(b''):
+            name = name.encode('utf-8')
+        if type(inst) != type(b''):
+            inst = inst.encode('utf-8')
         return LIBPCP_MMV.mmv_stats_interval_start(self._handle,
                                                    None, name, inst)
 
     def lookup_set_string(self, name, inst, s):
         """ Lookup the named metric[instance] and set its string value """
+        if type(name) != type(b''):
+            name = name.encode('utf-8')
+        if type(inst) != type(b''):
+            inst = inst.encode('utf-8')
+        if type(s) != type(b''):
+            s = s.encode('utf-8')
         LIBPCP_MMV.mmv_stats_set_strlen(self._handle, name, inst, s, len(s))
 
     def lookup_add_fallback(self, name, inst, fall, value):
@@ -321,6 +382,10 @@ class MemoryMappedValues(object):
             One example use is: add value to bucketN else use a catch-all
                                 bucket such as "other"
         """
+        if type(name) != type(b''):
+            name = name.encode('utf-8')
+        if type(inst) != type(b''):
+            inst = inst.encode('utf-8')
         LIBPCP_MMV.mmv_stats_add_fallback(self._handle, name, inst, fall, value)
 
     def lookup_inc_fallback(self, name, inst, fallback):
@@ -328,5 +393,9 @@ class MemoryMappedValues(object):
             If instance is not found, fallback to using a second instance
             One sample use is: inc value of BucketA, else inc a catch-all
         """
+        if type(name) != type(b''):
+            name = name.encode('utf-8')
+        if type(inst) != type(b''):
+            inst = inst.encode('utf-8')
         LIBPCP_MMV.mmv_stats_inc_fallback(self._handle, name, inst, fallback)
 

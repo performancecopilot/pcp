@@ -112,6 +112,31 @@ package_totals_after()
 _rpm_pmda_prepare
 _rpm_package_prepare
 
+# give PMDA a chance to get started
+#
+rm -f $tmp.ok
+for i in 1 2 3 4 5 6 7 8 9 10
+do
+    if [ `pmprobe -v rpm.total.bytes | tee -a $seq.full | $PCP_AWK_PROG '{print $2}'` -ge 0 ]
+    then
+	touch $tmp.ok
+	break
+    else
+	sleep 2
+    fi
+done
+
+if [ -f $tmp.ok ]
+then
+    :
+else
+    echo "Arrg ... rpm PMDA failed to get going after 20 seconds ..."
+    pmprobe -v rpm.total.bytes
+    cat $PCP_LOG_DIR/pmcd/rpm.log
+    status=1
+    exit
+fi
+
 package_totals_before
 _rpm_package_install
 _rpm_package_install_await

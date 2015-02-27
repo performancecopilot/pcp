@@ -2,7 +2,7 @@
 # PCP QA Test No. 991
 # Exercise the pcp-free(1) command using an archive
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014-2015 Red Hat.
 #
 
 seq=`basename $0`
@@ -13,15 +13,16 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
-test -x $PCP_BINADM_DIR/pcp-free || _notrun "No pcp-free(1) installed"
-
-archive="-a $here/src/pcp-free -z"
-archive_first="$archive -O +1"
-archive_last="$archive -O -0"
+pcp_free="$PCP_BINADM_DIR/pcp-free"
+test -x $pcp_free || _notrun "No pcp-free(1) installed"
+pcp_free="$python $pcp_free"
 
 # real QA test starts here
 echo && echo === free output, at first sample
-pcp $archive_first free
+PCP_ARCHIVE="src/pcp-free" PCP_HOSTZONE=1 PCP_ORIGIN=1 $pcp_free
+
+archive_first="-a src/pcp-free -z -O +1"
+archive_last="-a src/pcp-free -z -O -0"
 
 echo && echo === free output, at last sample
 pcp $archive_last free

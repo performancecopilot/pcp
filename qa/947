@@ -1,0 +1,46 @@
+#!/bin/sh
+# PCP QA Test No. 947
+# pmlogger --PID functionality
+#
+# Copyright (c) 2015 Red Hat Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# test for-some-thing || _notrun No support for some-thing
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.config
+log mandatory on 1 sec {
+sample.long.one
+}
+End-of-File
+
+# real QA test starts here
+sleep 5 &
+SLEEP_PID=$!
+pmlogger -c $tmp.config -l $tmp.log --PID $SLEEP_PID $tmp >$tmp.err 2>&1
+
+echo "expect 4 x one samples"
+pmdumplog $tmp | _filter_pmdumplog | grep sample
+
+pmdumplog $tmp >>$seq.full
+
+$sudo rm -f $tmp.0 $tmp.index $tmp.meta
+echo "expecting an error from PID selection"
+pmlogger -c $tmp.config -l $tmp.log --PID -666 $tmp >$tmp.err 2>&1
+cat $tmp.err | grep "PID error"
+cat $tmp.err >>$seq.full
+
+# success, all done
+status=0
+
+exit

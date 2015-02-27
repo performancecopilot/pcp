@@ -81,7 +81,7 @@ echo 'pcp://localhost:44321/' >>$tmp.dir/target-host
 echo 'localhost6' >>$tmp.dir/target-host
 echo 'pcp://localhost6:44321/' >>$tmp.dir/target-host
 # note -v -v here is the same as -D appl0,appl1
-$sudo $_valgrind_clean_assert $PCP_BINADM_DIR/pmmgr -v -v -p 5 -l $tmp.out -c $tmp.dir &
+$sudo $_valgrind_clean_assert $PCP_BINADM_DIR/pmmgr -v -v -p 5 -l $tmp.out -c $tmp.dir >$tmp.valout 2>$tmp.valerr &
 pid=$!
 echo "pid=$!" >>$seq.full
 
@@ -230,6 +230,15 @@ echo "=== ZZZ kill pmmgr ===" | tee -a $seq.full
 $sudo kill $pid
 pid=
 sleep 2
+
+echo "=== valgrind stdout ===" | tee -a $seq.full
+# seen on bozo-laptop
+# warning: evaluate_Dwarf3_Expr: unhandled DW_OP_ 0xf3
+#
+sed <$tmp.valout \
+    -e '/evaluate_Dwarf3_Expr: unhandled DW_OP_/d'
+echo "=== valgrind stderr ===" | tee -a $seq.full
+cat $tmp.valerr
 
 echo >>$seq.full
 echo "== collecting full pmmgr logs:" >>$seq.full

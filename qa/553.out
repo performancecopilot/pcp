@@ -1,14 +1,14 @@
 QA output created by 553
 == Testing volume instance domain
-dbpmda> open pipe /usr/bin/python $PCP_PMDAS_DIR/gluster/pmdagluster.python
-Start python PMDA: /usr/bin/python $PCP_PMDAS_DIR/gluster/pmdagluster.python
+dbpmda> open pipe $PCP_PYTHON_PROG $PCP_PMDAS_DIR/gluster/pmdagluster.python
+Start python PMDA: $PCP_PYTHON_PROG $PCP_PMDAS_DIR/gluster/pmdagluster.python
 dbpmda> instance 118.0
 pmInDom: 118.0
 [  0] inst: 0 name: "gv0"
 dbpmda> 
 == Testing volume information metrics
-dbpmda> open pipe /usr/bin/python $PCP_PMDAS_DIR/gluster/pmdagluster.python
-Start python PMDA: /usr/bin/python $PCP_PMDAS_DIR/gluster/pmdagluster.python
+dbpmda> open pipe $PCP_PYTHON_PROG $PCP_PMDAS_DIR/gluster/pmdagluster.python
+Start python PMDA: $PCP_PYTHON_PROG $PCP_PMDAS_DIR/gluster/pmdagluster.python
 dbpmda> getdesc on
 dbpmda> desc gluster.volume.dist.count
 PMID: 118.2.1
@@ -39,8 +39,8 @@ pmResult ... numpmid: 1
     inst [0 or ???] value 3
 dbpmda> 
 == Testing volume control metric store
-dbpmda> open pipe /usr/bin/python $PCP_PMDAS_DIR/gluster/pmdagluster.python
-Start python PMDA: /usr/bin/python $PCP_PMDAS_DIR/gluster/pmdagluster.python
+dbpmda> open pipe $PCP_PYTHON_PROG $PCP_PMDAS_DIR/gluster/pmdagluster.python
+Start python PMDA: $PCP_PYTHON_PROG $PCP_PMDAS_DIR/gluster/pmdagluster.python
 dbpmda> getdesc on
 dbpmda> desc gluster.volume.profile
 PMID: 118.2.0
@@ -67,15 +67,15 @@ dbpmda>
 start gv0 - test 553
 stop gv0 - test 553
 == Testing brick instance domain
-dbpmda> open pipe /usr/bin/python $PCP_PMDAS_DIR/gluster/pmdagluster.python
-Start python PMDA: /usr/bin/python $PCP_PMDAS_DIR/gluster/pmdagluster.python
+dbpmda> open pipe $PCP_PYTHON_PROG $PCP_PMDAS_DIR/gluster/pmdagluster.python
+Start python PMDA: $PCP_PYTHON_PROG $PCP_PMDAS_DIR/gluster/pmdagluster.python
 dbpmda> instance 118.1
 pmInDom: 118.1
 [  0] inst: 0 name: "smash.scott.net.au:/export/brick1/glusterdev1"
 dbpmda> 
 == Testing brick throughput metrics
-dbpmda> open pipe /usr/bin/python $PCP_PMDAS_DIR/gluster/pmdagluster.python
-Start python PMDA: /usr/bin/python $PCP_PMDAS_DIR/gluster/pmdagluster.python
+dbpmda> open pipe $PCP_PYTHON_PROG $PCP_PMDAS_DIR/gluster/pmdagluster.python
+Start python PMDA: $PCP_PYTHON_PROG $PCP_PMDAS_DIR/gluster/pmdagluster.python
 dbpmda> getdesc on
 dbpmda> desc gluster.brick.read_bytes
 PMID: 118.0.0
@@ -97,8 +97,8 @@ pmResult ... numpmid: 1
     inst [0 or ???] value 24
 dbpmda> 
 == Testing brick file operation latency metrics
-dbpmda> open pipe /usr/bin/python $PCP_PMDAS_DIR/gluster/pmdagluster.python
-Start python PMDA: /usr/bin/python $PCP_PMDAS_DIR/gluster/pmdagluster.python
+dbpmda> open pipe $PCP_PYTHON_PROG $PCP_PMDAS_DIR/gluster/pmdagluster.python
+Start python PMDA: $PCP_PYTHON_PROG $PCP_PMDAS_DIR/gluster/pmdagluster.python
 dbpmda> getdesc on
 dbpmda> desc gluster.brick.latency.getxattr.avg
 PMID: 118.1.74

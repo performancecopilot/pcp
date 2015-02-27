@@ -2,24 +2,21 @@
 # PCP QA Test No. 986
 # Exercise the dmcache PMDA using the running kernel.
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014-2015 Red Hat.
 #
 
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.python
 
 status=1	# failure is the default!
 $sudo rm -f $tmp.* $seq.full
 
 which dmsetup >/dev/null 2>&1
 test $? -eq 0 || _notrun "Device Mapper 'dmsetup' binary not found"
-python -c 'from pcp import pmda' 2>/dev/null
-test $? -eq 0 || _notrun 'Python pcp pmda module is not installed'
+$python -c 'from pcp import pmda' 2>/dev/null
+test $? -eq 0 || _notrun "$python pcp pmda module is not installed"
 
 _filter_dmcache()
 {

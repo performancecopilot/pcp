@@ -442,9 +442,9 @@ while(my $rrd_file = readdir(RRD_DIR)){
 	if( $rrd_file =~ /\w+.rrd/ && exists $rrd_pcp_mapping{$rrd_file} ){
 
 		# Debug
-		#my $rrd_file_hash = RRDs::info("$rrd_dir/$rrd_file");
-		#my $ERR=RRDs::error;
-		#die "ERROR in RRDs::info($rrd_dir/$rrd_file) : $ERR\n" if $ERR;
+		my $rrd_file_hash = RRDs::info("$rrd_dir/$rrd_file");
+		my $ERR=RRDs::error;
+		die "ERROR in RRDs::info($rrd_dir/$rrd_file) : $ERR\n" if $ERR;
 		#print "\nOpening: $rrd_dir/$rrd_file\n";
 		#foreach my $key (keys %$rrd_file_hash){
 		#	my $vall = "undef";

@@ -123,7 +123,7 @@ cleanup()
 	fi
 	rm $tmp.setup
     fi
-    [ -f /tmp/syslog.full ] && $sudo mv /tmp/syslog.full $seq.full
+    [ -f /tmp/syslog.full ] && cp /tmp/syslog.full $seq.full
     $sudo rm -f /tmp/syslog.out
     rm -f $tmp.*
 }
@@ -188,45 +188,49 @@ $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '([P]ID)|([s]yslog)' >>/tmp/syslog.full
 
 cat <<'End-of-File' >$tmp.conf
 // errors
-hinv.ncpu > 0 -> syslog "-t";
-hinv.ncpu > 0 -> syslog "-ttag extra";
-hinv.ncpu > 0 -> syslog "-t" "tag extra";
-hinv.ncpu > 0 -> syslog "-p";
-hinv.ncpu > 0 -> syslog "-pinfo extra" "-pinfo [6D]" "{1}";
-hinv.ncpu > 0 -> syslog "-p" "info extra" "-pinfo [6D]" "{2}";
-hinv.ncpu > 0 -> syslog "-p" "evil" "-t" "bogus" "bad -p evil and -t" "{3}";
-hinv.ncpu > 0 -> syslog "-p" "evil.info" "bad facil for -p evil.info [6D]" "{4}";
-hinv.ncpu > 0 -> syslog "-p" "user.evil" "bad pri for -p user.evil [5B]" "{5}";
+e1 = hinv.ncpu > 0 -> syslog "-t";
+e2 = hinv.ncpu > 0 -> syslog "-ttag extra";
+e3 = hinv.ncpu > 0 -> syslog "-t" "tag extra";
+e4 = hinv.ncpu > 0 -> syslog "-p";
+e5 = hinv.ncpu > 0 -> syslog "-pinfo extra" "-pinfo [6D]" "{1}";
+e6 = hinv.ncpu > 0 -> syslog "-p" "info extra" "-pinfo [6D]" "{2}";
+e7 = hinv.ncpu > 0 -> syslog "-p" "evil" "-t" "bogus" "bad -p evil and -t" "{3}";
+e8 = hinv.ncpu > 0 -> syslog "-p" "evil.info" "bad facil for -p evil.info [6D]" "{4}";
+e9 = hinv.ncpu > 0 -> syslog "-p" "user.evil" "bad pri for -p user.evil [5B]" "{5}";
 
 // OK
-hinv.ncpu > 0 -> syslog "-t" "foo" "-p" "user.notice" "-t & -pinfo, 4 args [5B]" "{6}";
-hinv.ncpu > 0 -> syslog "-t" "foo" "-puser.notice" "-t & -pinfo, 3 args [5B]" "{7}";
-hinv.ncpu > 0 -> syslog "-tfoo" "-pinfo" "-t & -pinfo, 2 args [6D]" "{8}";
-hinv.ncpu > 0 -> syslog "-p" "user.info" "-p user.info, 2 args [6B]" "{9}";
-hinv.ncpu > 0 -> syslog "-pdaemon.info" "-pdaemon.info, 1 arg [6D]" "{10}";
-hinv.ncpu > 0 -> syslog "-t" "foo" "-t 2 args" "{11}";
-hinv.ncpu > 0 -> syslog "-tfoo" "-t 1 arg" "{12}";
-hinv.ncpu > 0 -> syslog "no -t or -p args" "{13}";
+o1 = hinv.ncpu > 0 -> syslog "-t" "foo" "-p" "user.notice" "-t & -pinfo, 4 args [5B]" "{6}";
+o2 = hinv.ncpu > 0 -> syslog "-t" "foo" "-puser.notice" "-t & -pinfo, 3 args [5B]" "{7}";
+o3 = hinv.ncpu > 0 -> syslog "-tfoo" "-pinfo" "-t & -pinfo, 2 args [6D]" "{8}";
+o4 = hinv.ncpu > 0 -> syslog "-p" "user.info" "-p user.info, 2 args [6B]" "{9}";
+o5 = hinv.ncpu > 0 -> syslog "-pdaemon.info" "-pdaemon.info, 1 arg [6D]" "{10}";
+o6 = hinv.ncpu > 0 -> syslog "-t" "foo" "-t 2 args" "{11}";
+o7 = hinv.ncpu > 0 -> syslog "-tfoo" "-t 1 arg" "{12}";
+o8 = hinv.ncpu > 0 -> syslog "no -t or -p args" "{13}";
 
 
 // OK + holdoff
-hinv.ncpu > 0 -> syslog 1 min "-t" "foo" "-p" "local0.notice" "-t & -pinfo, 4 args [5Q] + holdoff" "{14}";
-hinv.ncpu > 0 -> syslog 1 min "-t" "foo" "-plocal0.notice" "-t & -pinfo, 3 args [5Q] + holdoff" "{14}";
-hinv.ncpu > 0 -> syslog 1 min "-tfoo" "-pinfo" "-t & -pinfo, 2 args [6D] + holdoff" "{15}";
-hinv.ncpu > 0 -> syslog 1 min "-p" "local0.info" "-p user.info, 2 args [6Q] + holdoff" "{16}";
-hinv.ncpu > 0 -> syslog 1 min "-pdaemon.info" "-pdaemon.info, 1 arg [6D] + holdoff" "{17}";
-hinv.ncpu > 0 -> syslog 1 min "-t" "foo" "-t 2 args + holdoff" "{18}";
-hinv.ncpu > 0 -> syslog 1 min "-tfoo" "-t 1 arg + holdoff" "{19}";
-hinv.ncpu > 0 -> syslog 1 min "no -t or -p args + holdoff" "{20}";
+h1 = hinv.ncpu > 0 -> syslog 1 min "-t" "foo" "-p" "local0.notice" "-t & -pinfo, 4 args [5Q] + holdoff" "{14}";
+h2 = hinv.ncpu > 0 -> syslog 1 min "-t" "foo" "-plocal0.notice" "-t & -pinfo, 3 args [5Q] + holdoff" "{14}";
+h3 = hinv.ncpu > 0 -> syslog 1 min "-tfoo" "-pinfo" "-t & -pinfo, 2 args [6D] + holdoff" "{15}";
+h4 = hinv.ncpu > 0 -> syslog 1 min "-p" "local0.info" "-p user.info, 2 args [6Q] + holdoff" "{16}";
+h5 = hinv.ncpu > 0 -> syslog 1 min "-pdaemon.info" "-pdaemon.info, 1 arg [6D] + holdoff" "{17}";
+h6 = hinv.ncpu > 0 -> syslog 1 min "-t" "foo" "-t 2 args + holdoff" "{18}";
+h7 = hinv.ncpu > 0 -> syslog 1 min "-tfoo" "-t 1 arg + holdoff" "{19}";
+h8 = hinv.ncpu > 0 -> syslog 1 min "no -t or -p args + holdoff" "{20}";
 
 End-of-File
 
-pmie -t 2sec -T 5sec >$tmp.log 2>&1 -c $tmp.conf &
+pmie -v -t 2sec -T 5sec >$tmp.log 2>&1 -c $tmp.conf &
 wait
 
 sed <$tmp.log \
+    -e '/^$/d' \
+    -e '/^[a-z][0-9][0-9]*: /d' \
     -e "/Info: evaluator exiting/d" \
     -e "s;$tmp;TMP;;"
+echo "=== pmie output ===" >>/tmp/syslog.full
+cat $tmp.log >>/tmp/syslog.full
 
 sleep 5
 echo

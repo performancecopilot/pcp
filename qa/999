@@ -29,7 +29,9 @@ _filter()
 	-e '/^sampledso\.bad\./d' \
 	-e '/^cgroup.groups: pmLookupName: Unknown metric name/d' \
 	-e '/^proc.psinfo.cgroups: No data available/d' \
-	-e '/^papi.*: No permission to perform requested operation/d'
+	-e '/^papi.*: No permission to perform requested operation/d' \
+	-e '/^zswap.*: Try again. Information not currently available/d' \
+    #end
 }
 
 # real QA test starts here

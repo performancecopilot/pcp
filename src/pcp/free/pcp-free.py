@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Copyright (C) 2014 Red Hat.
+# Copyright (C) 2014-2015 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -18,6 +18,9 @@
 import sys
 from pcp import pmapi
 from cpmapi import PM_TYPE_U64, PM_CONTEXT_ARCHIVE, PM_SPACE_KBYTE
+
+if sys.version >= '3':
+    long = int  # python2 to python3 portability (no long() in python3)
 
 class Free(object):
     """ Gives a short summary of kernel virtual memory information,

@@ -95,6 +95,17 @@
    fun:NSS*
 }
 
+# ==12607==    at 0x482AB7A: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+# ==12607==    by 0x4ADF84E: nss_parse_service_list (nsswitch.c:678)
+# ==12607==    by 0x4ADFFC9: __nss_database_lookup (nsswitch.c:175)
+{
+   nssswitch library leak catch-all
+   Memcheck:Leak
+   fun:malloc
+   fun:nss_parse_service_list
+   fun:__nss_database_lookup
+}
+
 {
    NSPR library leak catch-all
    Memcheck:Leak

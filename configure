@@ -705,6 +705,7 @@ PMDA_PERFEVENT
 PFM_LIBS
 PMDA_PAPI
 PAPI_LIBS
+PAPI_CFLAGS
 PMDA_INFINIBAND
 IB_LIBS
 PMDA_SYSTEMD
@@ -798,6 +799,7 @@ qmake
 enable_qt
 qt_release
 QMAKE
+pcp_python_prog
 enable_python3
 enable_python
 PYTHON3
@@ -1598,7 +1600,10 @@ Optional Packages:
   --with-python3          enable support for tools requiring Python3 (default
                           is on)
   --with-books            enable building of the PCP books (default is off)
-  --with-papi             enable performance api counter pmda (default is on)
+  --with-papi[=DIR]       enable performance api counter pmda (default is on)
+                          The optional DIR argument can be used to supply the
+                          absolute path name for the primary PAPI installation
+                          directory [default=/usr/local]
   --with-perfevent        enable perfevent pmda (default is on)
   --with-manager          enable daemon manager (default is on)
   --with-webapi           enable REST API daemon (default is on)
@@ -6229,6 +6234,14 @@ done
 fi
 
 
+if test "$enable_python3" = "true"
+then
+    pcp_python_prog=$PYTHON3
+else
+    pcp_python_prog=$PYTHON
+fi
+
+
 qmake=$QMAKE
 enable_qt=false
 qt_release=release
@@ -10071,7 +10084,18 @@ if test "x$do_papi" != "xno"; then :
 
     enable_papi=true
 
+    saved_LDFLAGS="$LDFLAGS"
+    saved_CFLAGS="$CFLAGS"
     savedLIBS=$LIBS
+
+    case "$do_papi" in
+      yes|no) PAPI_ROOTDIR=/usr ;;
+           *) PAPI_ROOTDIR=$do_papi;
+	      CFLAGS="-I$PAPI_ROOTDIR/include"
+	      LDFLAGS="-L$PAPI_ROOTDIR/lib"
+	   ;;
+    esac
+
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for PAPI_library_init in -lpapi" >&5
 $as_echo_n "checking for PAPI_library_init in -lpapi... " >&6; }
 if ${ac_cv_lib_papi_PAPI_library_init+:} false; then :
@@ -10109,7 +10133,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_papi_PAPI_library_init" >&5
 $as_echo "$ac_cv_lib_papi_PAPI_library_init" >&6; }
 if test "x$ac_cv_lib_papi_PAPI_library_init" = xyes; then :
-  papi_libs="-lpapi"
+  papi_libs="$LDFLAGS -lpapi"
 else
   enable_papi=false
 fi
@@ -10121,7 +10145,7 @@ if test "x$ac_cv_header_papi_h" = xyes; then :
   cat >>confdefs.h <<_ACEOF
 #define HAVE_PAPI_H 1
 _ACEOF
-
+ papi_cflags="$CFLAGS"
 else
   enable_papi=false
 fi
@@ -10135,6 +10159,10 @@ done
 	pmda_papi=$enable_papi
     fi
     LIBS=$savedLIBS
+    CFLAGS="$saved_CFLAGS"
+    LDFLAGS="$saved_LDFLAGS"
+    PAPI_CFLAGS=$papi_cflags
+
     PAPI_LIBS=$papi_libs
 
 

@@ -108,8 +108,12 @@ AC_ARG_WITH([books],
     [do_books=no])
 
 AC_ARG_WITH([papi],
-    [AC_HELP_STRING([--with-papi],
-		   [enable performance api counter pmda (default is on)])],
+    [AC_HELP_STRING([--with-papi@<:@=DIR@:>@],
+		   [enable performance api counter pmda (default is on)
+		   The optional DIR argument
+		   can be used to supply the absolute path name
+		   for the primary PAPI installation directory
+                   @<:@default=/usr/local@:>@])],
     [do_papi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-papi=$withval"],
     [do_papi=check])
 
@@ -533,6 +537,15 @@ AS_IF([test "x$do_python3" != "xno"], [
     fi
 ])
 AC_SUBST(enable_python3)
+
+dnl choose the prefered python executable (py2 -> py3 transtion)
+if test "$enable_python3" = "true"
+then
+    pcp_python_prog=$PYTHON3
+else
+    pcp_python_prog=$PYTHON
+fi
+AC_SUBST(pcp_python_prog)
 
 qmake=$QMAKE
 enable_qt=false
@@ -1286,11 +1299,22 @@ pmda_papi=false
 AS_IF([test "x$do_papi" != "xno"], [
     enable_papi=true
 
+    saved_LDFLAGS="$LDFLAGS"
+    saved_CFLAGS="$CFLAGS"
     savedLIBS=$LIBS
+
+    case "$do_papi" in
+      yes|no) PAPI_ROOTDIR=/usr ;;
+           *) PAPI_ROOTDIR=$do_papi;
+	      CFLAGS="-I$PAPI_ROOTDIR/include"
+	      LDFLAGS="-L$PAPI_ROOTDIR/lib"
+	   ;;
+    esac
+
     AC_CHECK_LIB([papi], [PAPI_library_init],
-		 [papi_libs="-lpapi"],
+		 [papi_libs="$LDFLAGS -lpapi"],
 		 [enable_papi=false])
-    AC_CHECK_HEADERS([papi.h], [], [enable_papi=false])
+    AC_CHECK_HEADERS([papi.h], [papi_cflags="$CFLAGS"], [enable_papi=false])
     if test "$do_papi" != "check" -a "$enable_papi" != "true"
     then
 	AC_MSG_ERROR(PAPI is not installed, cannot enable the PAPI PMDA)
@@ -1298,6 +1322,9 @@ AS_IF([test "x$do_papi" != "xno"], [
 	pmda_papi=$enable_papi
     fi
     LIBS=$savedLIBS
+    CFLAGS="$saved_CFLAGS"
+    LDFLAGS="$saved_LDFLAGS"
+    AC_SUBST(PAPI_CFLAGS, $papi_cflags)
     AC_SUBST(PAPI_LIBS, $papi_libs)
 ])
 AC_SUBST(PMDA_PAPI, $pmda_papi)

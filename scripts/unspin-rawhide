@@ -23,7 +23,7 @@ while (my $row = <$fh>) {
     if ($state eq 'before-changelog') {
 	# handful of special cases toward the start of the spec
 	$row =~ s#ftp://oss.sgi.com#ftp://ftp.pcp.io#;
-	$row =~ s#^Release: 1%\{\?dist\}#Release: \%\{buildversion}%{?dist}#;
+	$row =~ s#^Release: .*%\{\?dist\}#Release: \%\{buildversion}%{?dist}#;
 	$row =~ s#%{name}-%{version}-.*\.tar\.gz#ftp://ftp.pcp.io/projects/pcp/download/%{name}-%{version}.src.tar.gz#;
 
 	print $row;

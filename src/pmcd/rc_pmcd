@@ -485,6 +485,7 @@ Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
 		    | tr '\012' ' ' `
 
 	    $PMCD $OPTS
+            _start_pmcheck
 	    $RC_STATUS -v
 
 	    $PCP_BINADM_DIR/pmpost "start pmcd from $prog"

@@ -75,16 +75,11 @@ Sending Profile...
 Getting Result Structure...
 126.1.4: 120 -> 5
 Sending Result...
-dbpmda> store papi.control.batch "5"
-PMID: 126.1.6
-Getting description...
-Getting Result Structure...
-126.1.6: 10 -> 5
-Sending Result...
 dbpmda> fetch papi.system.TOT_INS
 PMID(s): 126.0.NUMBER
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  126.0.NUMBER (<noname>): No values returned!
+  126.0.NUMBER (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value NUMBER
 dbpmda> fetch papi.control.status
 PMID(s): 126.1.3
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
@@ -186,7 +181,8 @@ Sending Result...
 dbpmda> fetch papi.system.TOT_INS
 PMID(s): 126.0.NUMBER
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1
-  126.0.NUMBER (<noname>): No values returned!
+  126.0.NUMBER (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value NUMBER
 dbpmda> fetch papi.control.status
 PMID(s): 126.1.3
 pmResult dump from ADDR timestamp: 0.000000 TIME numpmid: 1

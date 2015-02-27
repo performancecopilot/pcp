@@ -3,7 +3,7 @@
 #
 # Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # Portions Copyright (c) 2008 Aconex.  All Rights Reserved.
-# Portions Copyright (c) 2013-2014 Red Hat.
+# Portions Copyright (c) 2013-2015 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -914,17 +914,18 @@ _setup()
     #
     if $python_opt
     then
+	python=${PCP_PYTHON_PROG:-python}
 	python_name="${pmda_dir}/pmda${iam}.python"
 	[ -f "$python_name" ] || python_name="${pmda_dir}/pmda${iam}.py"
 	if [ -f "$python_name" ]
 	then
 	    python_pmns="${pmda_dir}/pmns.python"
 	    python_dom="${pmda_dir}/domain.h.python"
-	    python -c 'from pcp import pmda' 2>/dev/null
+	    $python -c 'from pcp import pmda' 2>/dev/null
 	    if test $? -eq 0
 	    then
-		eval PCP_PYTHON_DOMAIN=1 python "$python_name" > "$python_dom"
-		eval PCP_PYTHON_PMNS=1 python "$python_name" > "$python_pmns"
+		eval PCP_PYTHON_DOMAIN=1 $python "$python_name" > "$python_dom"
+		eval PCP_PYTHON_PMNS=1 $python "$python_name" > "$python_pmns"
 	    elif $dso_opt || $daemon_opt
 	    then
 		:	# we have an alternative, so continue on
@@ -1108,7 +1109,7 @@ _install()
 		    fi
 		elif [ "X$pmda_type" = Xpython ]
 		then
-		    python -c 'from pcp import pmda' 2>/dev/null
+		    $python -c 'from pcp import pmda' 2>/dev/null
 		    if test $? -ne 0
 		    then
 			echo 'Python pcp pmda module is not installed, install it and try again'
@@ -1130,7 +1131,7 @@ _install()
 	    args=""
 	elif [ "$pmda_type" = python ]
 	then
-	    type="pipe	binary		python $python_name $python_args"
+	    type="pipe	binary		$python $python_name $python_args"
 	    args=""
 	else
 	    type="dso	$dso_entry	$dso_name"
