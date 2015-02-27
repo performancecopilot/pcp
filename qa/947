@@ -37,7 +37,7 @@ pmdumplog $tmp >>$seq.full
 $sudo rm -f $tmp.0 $tmp.index $tmp.meta
 echo "expecting an error from PID selection"
 pmlogger -c $tmp.config -l $tmp.log --PID -666 $tmp >$tmp.err 2>&1
-cat $tmp.err | grep "^PID error"
+cat $tmp.err | grep "PID error"
 cat $tmp.err >>$seq.full
 
 # success, all done
