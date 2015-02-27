@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,6 @@
 #include <limits.h>
 #include <sys/stat.h>
 #include "logger.h"
-#include <errno.h>
 
 char		*configfile;
 __pmLogCtl	logctl;
@@ -31,9 +30,9 @@ struct timeval	vol_switch_time;         /* time interval 'til vol switch */
 int		vol_samples_counter;     /* Counts samples - reset for new vol*/
 int		vol_switch_afid = -1;    /* afid of event for vol switch */
 int		vol_switch_flag;         /* sighup received - switch vol now */
-int		vol_switch_alarm = 0;	 /* vol_switch_callback() called */
-int		run_done_alarm = 0;	 /* run_done_callback() called */
-int		log_alarm = 0;	 	 /* log_callback() called */
+int		vol_switch_alarm;	 /* vol_switch_callback() called */
+int		run_done_alarm;		 /* run_done_callback() called */
+int		log_alarm;	 	 /* log_callback() called */
 int		parse_done;
 int		primary;		/* Non-zero for primary pmlogger */
 char	    	*archBase;		/* base name for log files */
@@ -577,13 +576,14 @@ main(int argc, char **argv)
 
 	case 'p':
 	    target_pid = (int)strtol(opts.optarg, &endnum, 10);
-	    if (target_pid){
-		errno = 0;
-		sts = kill(target_pid, 0);
-		if (sts) {
-		    pmprintf("PID error: %s (target pid: %d)\n", strerror(errno), target_pid);
-		    opts.errors++;
-		}
+	    if (*endnum != '\0') {
+		pmprintf("%s: invalid process identifier (%s)\n",
+			 pmProgname, opts.optarg);
+		opts.errors++;
+	    } else if (!__pmProcessExists(target_pid)) {
+		pmprintf("%s: PID error - no such process (%d)\n",
+			 pmProgname, target_pid);
+		opts.errors++;
 	    }
 	    break;
 
@@ -1116,12 +1116,8 @@ main(int argc, char **argv)
 
 	__pmAFunblock();
 
-	if (target_pid) {
-	    errno = 0;
-	    sts = kill(target_pid, 0);
-	    if (sts && errno == ESRCH)
-		exit(PM_ERR_GENERIC);
-	}
+	if (target_pid && !__pmProcessExists(target_pid))
+	    exit(EXIT_SUCCESS);
 
 	if (exit_code)
 	    break;
