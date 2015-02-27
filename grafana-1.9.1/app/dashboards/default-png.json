@@ -26,7 +26,7 @@
                     "type": "text",
                     "loadingEditor": false,
                     "mode": "markdown",
-                    "content": "####Thank you for trying out [PCP](http://www.performancecopilot.org/)+[Grafana](https://github.com/torkelo/grafana)!\n\n- All times are in UTC\n\n- Click on graph title, then click edit to enter metric selector/graph editor.  Click again on edit to exit editor.",
+                    "content": "####Thank you for trying out [PCP](http://www.performancecopilot.org/)+[Grafana](https://github.com/torkelo/grafana)!\n\n- All times are in UTC\n\n- Drag on the time selector row to zoom in.\n\n- Click on graph title, then click edit to enter metric selector/graph editor.  Click again on edit to exit editor.",
                     "style": {
 
                     },
@@ -36,8 +36,67 @@
             "notice": false
         },
         {
+            "title": "timeline",
+            "height": "75px",
+            "editable": true,
+            "collapse": false,
+            "collapsable": false,
+            "panels": [
+                {
+                    "span": 12,
+                    "editable": true,
+                    "type": "graphite",
+                    "x-axis": true,
+                    "y-axis": false,
+                    "scale": 1,
+                    "y_formats": [
+                        "short",
+                        "short"
+                    ],
+                    "grid": {
+                        "max": null,
+                        "min": null
+                    },
+                    "resolution": 100,
+                    "lines": true,
+                    "fill": 1,
+                    "linewidth": 2,
+                    "points": false,
+                    "pointradius": 5,
+                    "bars": false,
+                    "stack": false,
+                    "spyable": true,
+                    "options": false,
+                    "legend": false,
+                    "interactive": true,
+                    "legend_counts": true,
+                    "timezone": "utc",
+                    "percentage": false,
+                    "zerofill": true,
+                    "nullPointMode": "null",
+                    "steppedLine": false,
+                    "tooltip": {
+                        "value_type": "cumulative"
+                    },
+                    "targets": [
+                        {
+                            "target": "*.pmcd.agent.status.pmcd"
+                        }
+                    ],
+                    "aliasColors": {
+
+                    },
+                    "aliasYAxis": {
+
+                    },
+                    "title": "time line selector"
+                }
+            ],
+            "notice": false
+        },
+        {
             "title": "demo",
-            "height": "200px",
+            "height": "300px",
             "editable": true,
             "collapse": false,
             "collapsable": true,
@@ -46,6 +105,7 @@
                     "span": 12,
                     "editable": true,
                     "type": "graphite",
+                    "renderer": "png",
                     "x-axis": true,
                     "y-axis": true,
                     "scale": 1,
@@ -67,7 +127,7 @@
                     "stack": false,
                     "spyable": true,
                     "options": false,
-                    "legend": false,
+                    "legend": true,
                     "interactive": true,
                     "legend_counts": true,
                     "timezone": "utc",
@@ -96,13 +156,14 @@
         },
         {
             "title": "demo2",
-            "height": "200px",
+            "height": "300px",
             "editable": true,
             "collapse": false,
             "collapsable": true,
             "panels": [
                 {
                     "span": 12,
+                    "renderer": "png",
                     "editable": true,
                     "type": "graphite",
                     "x-axis": true,
@@ -126,7 +187,7 @@
                     "stack": false,
                     "spyable": true,
                     "options": false,
-                    "legend": false,
+                    "legend": true,
                     "interactive": true,
                     "legend_counts": true,
                     "timezone": "utc",
@@ -155,13 +216,14 @@
         },
         {
             "title": "demo3",
-            "height": "200px",
+            "height": "300px",
             "editable": true,
             "collapse": false,
             "collapsable": true,
             "panels": [
                 {
                     "span": 12,
+                    "renderer": "png",
                     "editable": true,
                     "type": "graphite",
                     "x-axis": true,
@@ -185,7 +247,7 @@
                     "stack": false,
                     "spyable": true,
                     "options": false,
-                    "legend": false,
+                    "legend": true,
                     "interactive": true,
                     "legend_counts": true,
                     "timezone": "utc",
@@ -216,14 +278,15 @@
             "notice": false
         },
         {
-            "title": "demo3",
-            "height": "200px",
+            "title": "demo4",
+            "height": "300px",
             "editable": true,
             "collapse": false,
             "collapsable": true,
             "panels": [
                 {
                     "span": 12,
+                    "renderer": "png",
                     "editable": true,
                     "type": "graphite",
                     "x-axis": true,
@@ -247,7 +310,7 @@
                     "stack": false,
                     "spyable": true,
                     "options": false,
-                    "legend": false,
+                    "legend": true,
                     "interactive": true,
                     "legend_counts": true,
                     "timezone": "utc",
@@ -338,5 +401,5 @@
         "hide": false
     },
     "timezone": "utc",
-    "refresh": "5m"
+    "refresh": false
 }
