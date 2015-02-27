@@ -24,6 +24,7 @@ trap "cd $here; rm -rf $tmp.*; $sudo rm -f dmcache.log; exit \$status" 0 1 2 3 1
 _filter()
 {
     tee -a $seq.full | \
+    _filter_values | \
     sed \
 	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
 	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
@@ -32,6 +33,23 @@ _filter()
 	-e "s;$python;python;" \
     #end
     test -f dmcache.log && cat dmcache.log >> $seq.full
+}
+
+_filter_values()
+{
+    # filter inst-specific values from sample output into canonical form
+    sed \
+	-e 's/dmcache[12]/dmcacheN/' \
+	-e 's/value 52606976$/value SIZE/' \
+	-e 's/value 52428800$/value SIZE/' \
+	-e 's/value 484$/value READ_HITS/' \
+	-e 's/value 576$/value READ_HITS/' \
+	-e 's/value 32$/value READ_MISSES/' \
+	-e 's/value 35$/value READ_MISSES/' \
+	-e 's/value 330$/value WRITE_HITS/' \
+	-e 's/value 329$/value WRITE_HITS/' \
+	-e 's/value "write.*$/value WRITEMODE/' \
+    #end
 }
 
 # create sample output for the PMDA to consume
@@ -84,7 +102,6 @@ fetch dmcache.write_misses
 fetch dmcache.demotions
 fetch dmcache.promotions
 fetch dmcache.dirty
-fetch dmcache.io_mode_code
 fetch dmcache.io_mode
 End-of-File
 
