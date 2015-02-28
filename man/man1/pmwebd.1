@@ -29,6 +29,7 @@
 [\f3\-L\f1]
 [\f3\-N\f1]
 [\f3\-G\f1]
+[\f3\-i\f1 \f2min-interval\f1]
 [\f3\-K\f1 \f2spec\f1]
 [\f3\-A\f1 \f2archivesdir\f1]
 [\f3\-l\f1 \f2logfile\f1]
@@ -94,6 +95,12 @@ your web browser to
 .nh
 .B http://127.0.0.1:43323/
 .hy
+.TP
+\f3\-i\f1 \f2min-interval\f1
+Set the minimum sampling interval for graphite time series in seconds.
+The default is 60.  Smaller values give higher precision (but not
+necessarily accuracy) data, but may cost extra processing time at pmwebd
+or the web browser; and vice versa.
 .TP
 \f3\-t\f1 \f2timeout\f1
 Set the maximum timeout (in seconds) after the last operation on a pmapi web

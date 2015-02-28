@@ -47,6 +47,7 @@ extern unsigned new_contexts_p;		/* cleared by -N option */
 extern unsigned exit_p;			/* counted by SIG* handler */
 extern unsigned maxtimeout;			/* set by -t option */
 extern unsigned multithread;			/* set by -M option */
+extern unsigned graphite_timestep;              /* set by -i option */
 
 
 struct http_params: public std::multimap <std::string, std::string> {

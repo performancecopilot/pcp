@@ -9,6 +9,8 @@ OPTIONS="-l pmwebd.log"
 
 # Graphite
 OPTIONS="$OPTIONS -R $PCP_SHARE_DIR/webapps -A $PCP_LOG_DIR -G"
+# Shrink minimum graphite metric-sampling interval (to match pmlogger)
+# OPTIONS="$OPTIONS -i 30"
 
 # Assume identity of some user other than "pcp"
 # OPTIONS="$OPTIONS -U nobody"

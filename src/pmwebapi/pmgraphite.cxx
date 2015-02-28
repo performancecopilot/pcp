@@ -827,6 +827,11 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
         goto out;
     }
 
+    if (verbosity > 3) {
+        message << "[" << archive_label.ll_start.tv_sec
+                << "-" << archive_end.tv_sec << "] ";
+    }
+    
     // We need to decide whether the next dotted components represent
     // a metric name, or whether there is an instance name squished at
     // the end.
@@ -963,6 +968,12 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
 
             int sts = pmFetch (1, pmidlist, &result);
             if (sts >= 0) {
+                if (verbosity > 4) {
+                    message << "@" << result->timestamp.tv_sec
+                            << (result->vset[0]->numval == 1 ? "+" : "-")
+                            << " ";
+                }
+                
                 if (result->vset[0]->numval == 1) {
                     pmAtomValue value;
                     sts = pmExtractValue (result->vset[0]->valfmt,
@@ -1218,17 +1229,23 @@ pmgraphite_gather_data (struct MHD_Connection *connection,
     t_start = pmgraphite_parse_timespec (connection, from);
     t_end = pmgraphite_parse_timespec (connection, until);
 
-    // We could hard-code t_step = 60 as in the /rawdata case, since that is the
-    // typical sampling rate for graphite as well as pcp.  But maybe a graphite
-    // webapp (grafana) can't handle as many as that.
+    // sanity-check time interval
+    if (t_start >= t_end) {
+        return -EINVAL;
+    }
+    
+    // Compute t_step.  Because we calculate with integers, the
+    // minimum is 1.  The practical minimum is something dependent on
+    // the archive's sampling rate for this particular metric, since
+    // supersampling wastes CPU.
     int maxdatapt = atoi (params["maxDataPoints"].c_str ());	// ignore failures
     if (maxdatapt <= 0) {
         maxdatapt = 1024;		// a sensible upper limit?
     }
 
-    t_step = 60;		// a default, but ...
+    t_step = graphite_timestep;
+    // make it larger if needed; maxdatapt governs
     if (((t_end - t_start) / t_step) > maxdatapt) {
-        // make it larger if needed
         t_step = ((t_end - t_start) / maxdatapt) + 1;
     }
 
