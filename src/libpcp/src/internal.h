@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -113,6 +113,8 @@ extern pthread_key_t __pmTPDKey _PCP_HIDDEN;
 typedef struct {
     int		curcontext;	/* current context */
     char	*derive_errmsg;	/* derived metric parser error message */
+    __pmnsTree  *curr_pmns;     /* current pmns */
+    int         useExtPMNS;     /* ... was the result of a __pmUsePMNS */
 } __pmTPD;
 
 static inline __pmTPD *
