@@ -41,7 +41,7 @@ __pmSendInstanceReq(int fd, int from, const __pmTimeval *when, pmInDom indom,
     need = sizeof(instance_req_t) - sizeof(int);
     if (name != NULL)
 	need += PM_PDU_SIZE_BYTES(strlen(name));
-    if ((pp = (instance_req_t *)__pmFindPDUBuf(sizeof(need))) == NULL)
+    if ((pp = (instance_req_t *)__pmFindPDUBuf(need)) == NULL)
 	return -oserror();
     pp->hdr.len = need;
     pp->hdr.type = PDU_INSTANCE_REQ;
