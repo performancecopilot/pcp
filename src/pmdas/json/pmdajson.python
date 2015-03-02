@@ -548,6 +548,9 @@ class JsonPMDA(PMDA):
         self.__directory_list = []
 
         # Load config file and process config items.
+        self.__configfile = ("%s/%s/config.json"
+                             % (pmContext.pmGetConfig('PCP_PMDAS_DIR'),
+                                pmda_name))
         self.__load_config_file()
         for (key, value) in self.__config_data.items():
             if key == 'directory_list':
@@ -557,7 +560,7 @@ class JsonPMDA(PMDA):
                 self.__directory_list = value
             # For everything else, just ignore it.
             else:
-                self.__pmda.log("Ignoring unknown config option '%s'" % key)
+                self.log("Ignoring unknown config option '%s'" % key)
 
         # Load all the metadata files and json data.
         self.sources_by_root = {}
@@ -573,9 +576,9 @@ class JsonPMDA(PMDA):
         ''' Load config file. '''
         self.__config_data = {}
         try:
-            fobj = open("config.json")
+            fobj = open(self.__configfile)
         except IOError:
-            self.log("Couldn't open JSON config file")
+            self.log("Couldn't open JSON config file '%s'" % self.__configfile)
             self.log("%s" % traceback.format_exc())
             return
         try:
