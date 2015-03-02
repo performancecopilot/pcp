@@ -1,6 +1,5 @@
 QA output created by 947
-expect 4 x one samples
-TIMESTAMP  29.0.10 (sample.long.one): value 1
+expect 3, 4 or 5 sample lines
 TIMESTAMP  29.0.10 (sample.long.one): value 1
 TIMESTAMP  29.0.10 (sample.long.one): value 1
 TIMESTAMP  29.0.10 (sample.long.one): value 1
