@@ -273,13 +273,21 @@ class JsonSource(object):
             self.__metric_idx += 1
             metric_info.indom = self.__indoms[array_name]
 
+            error_seen = 0
             for (key, value) in item.iteritems():
                 # 'name' (required): Sanity check it and save it.
                 if key == 'name':
                     if not isinstance(value, unicode):
                         self.__pmda.log("Invalid metadata 'name' value")
                         raise TypeError("Invalid metadata 'name' value")
-                    metric_info.name = "%s.%s" % (array_name, value)
+                    try:
+                        metric_info.name = "%s.%s" % (array_name, value)
+                    except RuntimeError:
+                        # If we get an invalid metric name, just skip
+                        # this metric
+                        self.__pmda.log("Skipping metric with invalid"
+                                        " name '%s.%s'" % (array_name, value))
+                        break
                 # 'type' (required): Sanity check it and save it.
                 elif key == 'type':
                     if not isinstance(value, unicode):
@@ -323,14 +331,15 @@ class JsonSource(object):
                     self.__pmda.log("Ignoring unknown attribute in"
                                     " metadata '%s'" % (key))
 
-            # Make sure we have everything we need.
-            if not metric_info.valid() or metric_info.pointer == None:
-                self.__pmda.log("Metadata doesn't have required"
-                                " information for the following entry: %s"
-                                % metric_info.name)
-                raise TypeError("Metadata doesn't have required"
-                                " information for the following entry: %s"
-                                % metric_info.name)
+            # Make sure we have everything we need. If not (or we've
+            # seen an error), just skip this metric.
+            if error_seen or not metric_info.valid() \
+               or metric_info.pointer == None:
+                if error_seen == 0:
+                    self.__pmda.log("Metadata doesn't have required"
+                                    " information for the following entry: %s"
+                                    % metric_info.name)
+                continue
 
             # We have all the required information. Add the metric.
             self.__add_metric(metric_info)
@@ -371,18 +380,30 @@ class JsonSource(object):
                                  self.__pmda)
             self.__metric_idx += 1
 
+            error_seen = 0
             for (key, value) in item.iteritems():
                 # 'name' (required): Sanity check it and save it.
                 if key == 'name':
                     if not isinstance(value, unicode):
-                        self.__pmda.log("Invalid metadata 'name' value")
-                        raise TypeError("Invalid metadata 'name' value")
-                    metric_info.name = value
+                        self.__pmda.log("Skipping metric with invalid"
+                                        " metadata 'name' value")
+                        error_seen = 1
+                        break
+                    try:
+                        metric_info.name = value
+                    except RuntimeError:
+                        # If we get an invalid metric name, just skip
+                        # this metric
+                        self.__pmda.log("Skipping metric with invalid"
+                                        " name '%s'" % value)
+                        error_seen = 1
+                        break
                 # 'type' (required): Sanity check it and save it.
                 elif key == 'type':
                     if not isinstance(value, unicode):
                         self.__pmda.log("Invalid metadata 'type' value")
-                        raise TypeError("Invalid metadata 'type' value")
+                        error_seen = 1
+                        break
                     if value == 'string':
                         metric_info.type = c_api.PM_TYPE_STRING
                         metric_info.sem = c_api.PM_SEM_INSTANT
@@ -395,36 +416,39 @@ class JsonSource(object):
                         # indom. This happens in the 'metrics' handling
                         # below.
                         metric_info.type = c_api.PM_TYPE_NOSUPPORT
+                    # If we get an invalid type value, just skip this
+                    # metric.
                     else:
                         self.__pmda.log("Type attribute has unknown value '%s'"
                                         % value)
-                        raise \
-                            TypeError("Type attribute has unknown value '%s'"
-                                      % value)
+                        error_seen = 1
+                        break
                 # 'pointer' (required): Sanity check it and save it.
                 elif key == 'pointer':
                     if not isinstance(value, unicode):
                         self.__pmda.log("Invalid metadata 'pointer' value")
-                        raise TypeError("Invalid metadata 'pointer' value")
+                        error_seen = 1
+                        break
                     metric_info.pointer = jsonpointer.JsonPointer(value)
                 # 'description' (optional): Type check it and save it.
                 elif key == 'description':
                     if not isinstance(value, unicode):
                         self.__pmda.log("Invalid schema 'description' value")
-                        raise TypeError("Invalid schema 'description' value")
+                        error_seen = 1
+                        break
                     metric_info.desc = value
                 # 'index' (required for arrays): Type check and save it.
                 elif key == 'index':
                     if not isinstance(value, unicode):
                         self.__pmda.log("Invalid schema 'index' value")
-                        raise TypeError("Invalid schema 'index' value")
+                        error_seen = 1
+                        break
                     if metric_info.type != c_api.PM_TYPE_NOSUPPORT:
                         self.__pmda.log("Metadata has an 'index' item"
                                         " for non-array '%s'"
                                         % metric_info.name)
-                        raise TypeError("Metadata has an 'index' item"
-                                        " for non-array '%s'"
-                                        % metric_info.name)
+                        error_seen = 1
+                        break
                     # If we're here, we're processing an array's
                     # metadata
                     metric_info.index_pointer = jsonpointer.JsonPointer(value)
@@ -434,9 +458,8 @@ class JsonSource(object):
                         self.__pmda.log("Metadata has an 'metrics' item"
                                         " for non-array '%s'"
                                         % metric_info.name)
-                        raise TypeError("Metadata has an 'metrics' item"
-                                        " for non-array '%s'"
-                                        % metric_info.name)
+                        error_seen = 1
+                        break
 
                     # If we're here, we're processing an array's
                     # metadata. For arrays, we have to create metrics
@@ -447,21 +470,23 @@ class JsonSource(object):
                 elif key == 'units':
                     if not isinstance(value, unicode):
                         self.__pmda.log("Invalid schema 'units' value")
-                        raise TypeError("Invalid schema 'units' value")
+                        error_seen = 1
+                        break
                     metric_info.units = value
                 # For everything else, just ignore it.
                 else:
                     self.__pmda.log("Ignoring unknown attribute in"
                                     " metadata '%s'" % (key))
 
-            # Make sure we have everything we need.
-            if not metric_info.valid() or metric_info.pointer == None:
+            # Make sure we have everything we need. If not (or we've
+            # seen an error), just skip this metric.
+            if error_seen or not metric_info.valid() \
+               or metric_info.pointer == None:
                 self.__pmda.log("Metadata doesn't have required"
                                 " information for the following entry: %s"
                                 % item)
-                raise TypeError("Metadata doesn't have required"
-                                " information for the following entry: %s"
-                                % item)
+                del metric_info
+                continue
 
             # We have all the required information. Add the metric.
             if self.__pmda.debug:
@@ -500,7 +525,7 @@ class JsonSource(object):
                 # Get the appropriate item from within the desired array entry.
                 return [metric_info.pointer.resolve(metrics_array[array_index]),
                         1]
-            except KeyError:
+            except (KeyError, TypeError):
                 self.__pmda.log("Error while fetching metrics for array %s"
                                 % array_info.name)
                 self.__pmda.log("%s" % traceback.format_exc())
@@ -508,7 +533,7 @@ class JsonSource(object):
         else:
             try:
                 return [metric_info.pointer.resolve(self.__json_data), 1]
-            except KeyError:
+            except (KeyError, TypeError):
                 self.__pmda.log("Error while fetching metric %s"
                                 % metric_info.name)
                 self.__pmda.log("%s" % traceback.format_exc())
@@ -540,8 +565,7 @@ class JsonPMDA(PMDA):
         self.__metrics = {}
         # FIXME: python doesn't have a __pmParseDebug() wrapper. So,
         # if PCP_PYTHON_DEBUG has any value, turn debugging on.
-        #self.debug = os.environ.has_key('PCP_PYTHON_DEBUG')
-        self.debug = 1
+        self.debug = os.environ.has_key('PCP_PYTHON_DEBUG')
         self.__add_static_metrics()
 
         # Set up defaults for config variables.
