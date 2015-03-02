@@ -286,7 +286,7 @@ vector <string> pmgraphite_enumerate_metrics (struct MHD_Connection * connection
     }
     for (FTSENT * ent = fts_read (f); ent != NULL; ent = fts_read (f)) {
         if (exit_p) {
-            goto out;
+            break; // don't bypass the fts_close()
         }
 
         if (ent->fts_info == FTS_SL) {
