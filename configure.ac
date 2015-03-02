@@ -1,5 +1,5 @@
 dnl
-dnl Copyright (c) 2012-2014 Red Hat.
+dnl Copyright (c) 2012-2015 Red Hat.
 dnl Copyright (c) 2008 Aconex.  All Rights Reserved.
 dnl Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 dnl 
@@ -1302,7 +1302,7 @@ AS_IF([test "x$do_papi" != "xno"], [
     savedLIBS=$LIBS
 
     case "$do_papi" in
-      yes|no) ;;
+      yes|no|check) ;;
 	 */*) PAPI_ROOTDIR=$do_papi;
 	      CFLAGS="-I$PAPI_ROOTDIR/include"
 	      LDFLAGS="-L$PAPI_ROOTDIR/lib" ;;
