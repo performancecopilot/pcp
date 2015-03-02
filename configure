@@ -10095,7 +10095,7 @@ if test "x$do_papi" != "xno"; then :
     savedLIBS=$LIBS
 
     case "$do_papi" in
-      yes|no) ;;
+      yes|no|check) ;;
 	 */*) PAPI_ROOTDIR=$do_papi;
 	      CFLAGS="-I$PAPI_ROOTDIR/include"
 	      LDFLAGS="-L$PAPI_ROOTDIR/lib" ;;
