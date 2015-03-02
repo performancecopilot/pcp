@@ -44,13 +44,11 @@ trap "cleanup; exit \$status" 0 1 2 3 15
 # Handle these spurious lines from deep inside SASL code ...
 #
 # [Mon Mar  2 17:58:40] pmcd_wait(16622) Alert: Parameter Error in ../plugins/plugin_common.c near line 357
-# send-mail: Cannot open mail:25
 #
 _filter()
 {
     sed \
 	-e 's/\[[^]]*] .* Alert: Parameter Error .* line [0-9][0-9]*//' \
-	-e '/send-mail: Cannot open mail:25/d' \
 	-e '/^[ 	]*$/d' \
     # end
 }
