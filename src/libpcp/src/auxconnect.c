@@ -1305,12 +1305,15 @@ __pmSecureClientHandshake(int fd, int flags, const char *hostname, __pmHashCtl *
      *
      * But we can still talk to a pmcd that requires credentials, provided
      * we are using unix domain sockets (the kernel provides the auth info
-     * to pmcd in this case, with no other special sauce required).
+     * to pmcd in this case, with no other special sauce required).  We're
+     * also able to communicate container attributes.
      */
-    if (flags == PDU_FLAG_CREDS_REQD)
-	if (__pmHashSearch(PCP_ATTR_UNIXSOCK, attrs) != NULL)
-	    return 0;
-    return -EOPNOTSUPP;
+    if (flags & PDU_FLAG_CREDS_REQD)
+	if (__pmHashSearch(PCP_ATTR_UNIXSOCK, attrs) == NULL)
+	    return -EOPNOTSUPP;
+    if (flags & (PDU_FLAG_SECURE|PDU_FLAG_AUTH|PDU_FLAG_COMPRESS))
+	return -EOPNOTSUPP;
+    return 0;
 }
 
 int
