@@ -1,5 +1,5 @@
 dnl
-dnl Copyright (c) 2012-2014 Red Hat.
+dnl Copyright (c) 2012-2015 Red Hat.
 dnl Copyright (c) 2008 Aconex.  All Rights Reserved.
 dnl Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 dnl 
@@ -108,12 +108,10 @@ AC_ARG_WITH([books],
     [do_books=no])
 
 AC_ARG_WITH([papi],
-    [AC_HELP_STRING([--with-papi@<:@=DIR@:>@],
+    [AC_HELP_STRING([--with-papi@<:@=DIR|=MODULE@:>@],
 		   [enable performance api counter pmda (default is on)
-		   The optional DIR argument
-		   can be used to supply the absolute path name
-		   for the primary PAPI installation directory
-                   @<:@default=/usr/local@:>@])],
+		   The optional argument may be a full path of a PAPI installation prefix,
+		   or a pkgconfig module name.])],
     [do_papi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-papi=$withval"],
     [do_papi=check])
 
@@ -1304,11 +1302,14 @@ AS_IF([test "x$do_papi" != "xno"], [
     savedLIBS=$LIBS
 
     case "$do_papi" in
-      yes|no) PAPI_ROOTDIR=/usr ;;
-           *) PAPI_ROOTDIR=$do_papi;
+      yes|no|check) ;;
+	 */*) PAPI_ROOTDIR=$do_papi;
 	      CFLAGS="-I$PAPI_ROOTDIR/include"
-	      LDFLAGS="-L$PAPI_ROOTDIR/lib"
-	   ;;
+	      LDFLAGS="-L$PAPI_ROOTDIR/lib" ;;
+	 *)   PKG_CHECK_MODULES(papi,[$do_papi],[
+		CFLAGS="$papi_CFLAGS"
+		LDFLAGS="$papi_LIBS"]) ;;
+                # $papi_LIBS will include -lpapi harmlessly redudantly with AC_CHECK_LIB
     esac
 
     AC_CHECK_LIB([papi], [PAPI_library_init],

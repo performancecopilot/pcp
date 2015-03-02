@@ -34,15 +34,17 @@ def test_pmnswalk(self):
 
     # pmGetChildren
     gcs = ctx.pmGetChildren("sample.long")
-    print("pmGetChildren:", gcs)
+    print("pmGetChildren:")
+    print(gcs)
 
     # pmGetChildrenStatus
     gcs = ctx.pmGetChildrenStatus("sample.long")
-    print("pmGetChildrenStatus:", gcs)
+    print("pmGetChildrenStatus:")
+    print(gcs)
 
     # pmTraversePMNS
     ctx.pmTraversePMNS("sample.long", traverse_callback)
-    print("pmTraversePMNS:", TRAVERSE_CALLBACK_COUNT)
+    print("pmTraversePMNS: %d" % TRAVERSE_CALLBACK_COUNT)
     self.assertTrue(TRAVERSE_CALLBACK_COUNT > 0)
 
     del ctx
