@@ -1,10 +1,14 @@
 pcp-3.10.3 (2 March 2015)
-    - enhancement: Support for using PCP with containers.
+    - enhancement: ongoing improvements to the native containers support
+	http://pcp.io/docs/lab.containers.html
+    - enhancement: pmlogger on-the-fly one-shot recording
+	http://oss.sgi.com/bugzilla/show_bug.cgi?id=1073
     - doc: containers tutorial.
     - build: new scripts directory. Contains useful scripts for project
       management tasks.
     - build: python-pcp no longer required.
     - build: python3 now used where available.
+	https://bugzilla.redhat.com/show_bug.cgi?id=1194324
     - build: new --with-papi configure option.
     - qa: lots of improvements for robustness, portablity and determinism.
     - qa: duplicate PMNS names allowed by default.
@@ -27,11 +31,10 @@ pcp-3.10.3 (2 March 2015)
     - pmchart: add an extra optional chart colour scheme.
     - solaris PMDA: duplicate PMNS names allowed by default.
     - ganglia2pcp: new utility.
-    - bug fix: http://oss.sgi.com/bugzilla/show_bug.cgi?id=1104
-    - bug fix: http://oss.sgi.com/bugzilla/show_bug.cgi?id=1069
-    - enhancement: http://oss.sgi.com/bugzilla/show_bug.cgi?id=1073
-    - https://bugzilla.redhat.com/show_bug.cgi?id=1169226
-    - https://bugzilla.redhat.com/show_bug.cgi?id=1194324
+    - bug fix: pmlogger: signal delivery may lead to deadlock
+	http://oss.sgi.com/bugzilla/show_bug.cgi?id=1104
+    - bug fix: libpcp: AF functionality has posix-signal-unsafe elements
+	http://oss.sgi.com/bugzilla/show_bug.cgi?id=1069
 
 pcp-3.10.2 (23 January 2015)
     - PMAPI extension: pmParseUnitsStr. Includes python binding
