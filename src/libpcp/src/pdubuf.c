@@ -25,6 +25,16 @@
 #include <search.h>
 
 
+/* Microoptimize with branch prediction hints. */
+#ifdef __GNUC__
+#define likely(x)       __builtin_expect(!!(x),1)
+#define unlikely(x)     __builtin_expect(!!(x),0)
+#else
+#define likely(x) (x)
+#define unlikely(x) (x)
+#endif
+
+
 typedef struct bufctl
 {
     int bc_pincnt;
@@ -51,8 +61,9 @@ pdubufdump1(const void *nodep, const VISIT which, const int depth)
 static void
 pdubufdump(void)
 {
-    /* Assume already locked. */
+    PM_LOCK(__pmLock_libpcp);
     twalk(buf_tree, &pdubufdump1);
+    PM_UNLOCK(__pmLock_libpcp);
     fprintf(stderr, "\n");
 }
 #endif
@@ -85,19 +96,17 @@ __pmFindPDUBuf(int need)
     void *sts2;
 
     PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
-    if (need < 0) {
+    
+    if (unlikely(need < 0)) {
 	/* special diagnostic case ... dump buffer state */
 #ifdef PCP_DEBUG
 	fprintf(stderr, "__pmFindPDUBuf(DEBUG)\n");
 	pdubufdump();
 #endif
-	PM_UNLOCK(__pmLock_libpcp);
 	return NULL;
     }
 
     if ((pcp = (bufctl_t *) malloc(sizeof(*pcp)+need)) == NULL) {
-	PM_UNLOCK(__pmLock_libpcp);
 	return NULL;
     }
 
@@ -105,23 +114,24 @@ __pmFindPDUBuf(int need)
     pcp->bc_size = need;
     pcp->bc_buf = ((char*)pcp) + sizeof(*pcp);
 
+    PM_LOCK(__pmLock_libpcp);
     /* Insert the node in the tree. */
     sts2 = tsearch((void *) pcp, &buf_tree, &bufctl_t_compare);
-    if (sts2 == NULL) {		/* ENOMEM */
-	free(pcp);
+    if (unlikely(sts2 == NULL)) {		/* ENOMEM */
 	PM_UNLOCK(__pmLock_libpcp);
+	free(pcp);
 	return NULL;
     }
+    PM_UNLOCK(__pmLock_libpcp);
 
 #ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PDUBUF) {
+    if (unlikely(pmDebug & DBG_TRACE_PDUBUF)) {
 	fprintf(stderr, "__pmFindPDUBuf(%d) -> " PRINTF_P_PFX "%p\n", need, pcp->bc_buf);
-	pdubufdump();
+        pdubufdump();
     }
 #endif
 
     sts = (__pmPDU *) pcp->bc_buf;
-    PM_UNLOCK(__pmLock_libpcp);
     return sts;
 }
 
@@ -144,8 +154,11 @@ __pmPinPDUBuf(void *handle)
 
     res = tfind(&pcp_search, &buf_tree, &bufctl_t_compare);
     pcp = (res ? (*(bufctl_t **) res) : NULL);
+    
+    /* NB: don't release the lock until final disposition of this object;
+       we don't want to play TOCTOU. */
 
-    if (pcp != NULL)
+    if (likely(pcp != NULL))
 	pcp->bc_pincnt++;
     else {
 	__pmNotifyErr(LOG_WARNING, "__pmPinPDUBuf: 0x%lx not in pool!", (unsigned long) handle);
@@ -158,7 +171,7 @@ __pmPinPDUBuf(void *handle)
     }
 
 #ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PDUBUF)
+    if (unlikely(pmDebug & DBG_TRACE_PDUBUF))
 	fprintf(stderr, "__pmPinPDUBuf(" PRINTF_P_PFX "%p) -> pdubuf=" PRINTF_P_PFX "%p, pincnt=%d\n", handle,
 		pcp->bc_buf, pcp->bc_pincnt);
 #endif
@@ -186,8 +199,11 @@ __pmUnpinPDUBuf(void *handle)
 
     res = tfind(&pcp_search, &buf_tree, &bufctl_t_compare);
     pcp = (res ? (*(bufctl_t **) res) : NULL);
-
-    if (pcp == NULL) {
+    
+    /* NB: don't release the lock until final disposition of this object;
+       we don't want to play TOCTOU. */
+    
+    if (unlikely(pcp == NULL)) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PDUBUF) {
 	    fprintf(stderr, "__pmUnpinPDUBuf(" PRINTF_P_PFX "%p) -> fails\n", handle);
@@ -199,17 +215,19 @@ __pmUnpinPDUBuf(void *handle)
     }
 
 #ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_PDUBUF)
+    if (unlikely(pmDebug & DBG_TRACE_PDUBUF))
 	fprintf(stderr, "__pmUnpinPDUBuf(" PRINTF_P_PFX "%p) -> pdubuf=" PRINTF_P_PFX "%p, pincnt=%d\n", handle,
 		pcp->bc_buf, pcp->bc_pincnt - 1);
 #endif
 
-    if (--pcp->bc_pincnt == 0) {
+    if (likely(--pcp->bc_pincnt == 0)) {
 	tdelete(pcp, &buf_tree, &bufctl_t_compare);
+        PM_UNLOCK(__pmLock_libpcp);
 	free(pcp);
+    } else {
+        PM_UNLOCK(__pmLock_libpcp);
     }
 
-    PM_UNLOCK(__pmLock_libpcp);
     return 1;
 }
 
