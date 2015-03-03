@@ -65,14 +65,6 @@ BuildRequires: rpm-devel
 BuildRequires: avahi-devel
 %if !%{disable_python2}
 BuildRequires: python-devel
-# systemtap dtrace utility requires python2, so only use it if we can
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
-BuildRequires: systemtap-sdt-devel
-%else
-%ifnarch ppc ppc64
-BuildRequires: systemtap-sdt-devel
-%endif
-%endif
 %endif
 %if !%{disable_python3}
 BuildRequires: python3-devel
@@ -91,6 +83,13 @@ BuildRequires: libmicrohttpd-devel
 %endif
 %if !%{disable_cairo}
 BuildRequires: cairo-devel
+%endif
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+BuildRequires: systemtap-sdt-devel
+%else
+%ifnarch ppc ppc64
+BuildRequires: systemtap-sdt-devel
+%endif
 %endif
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: initscripts man
@@ -1116,6 +1115,13 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 - Update to latest PCP sources.
 - New sub-package for pcp-import-ganglia2pcp.
 - Python3 support, enabled by default in f22 onward (BZ 1194324)
+
+* Mon Feb 23 2015 Slavek Kabrda <bkabrda@redhat.com> - 3.10.2-3
+- Only use Python 3 in Fedora >= 23, more info at
+  https://bugzilla.redhat.com/show_bug.cgi?id=1194324#c4
+
+* Mon Feb 23 2015 Nathan Scott <nathans@redhat.com> - 3.10.2-2
+- Initial changes to support python3 as default (BZ 1194324)
 
 * Fri Jan 23 2015 Dave Brolley <brolley@redhat.com> - 3.10.2-1
 - Update to latest PCP sources.
