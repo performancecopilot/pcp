@@ -133,13 +133,17 @@ class JsonSource(object):
         self.__path = path
         self.cluster = cluster
         self.__pmda = pmda
+
+        # Note that this is the default root name. It can be
+        # overridden with the metadata 'prefix' attribute.
         self.__root_name = os.path.basename(path)
+
+        # Note that this is the default data path. It can be
+        # overridden with the metadata 'data-path' attribute.
+        self.__data_path = "%s/data.json" % path
+
         self.__metadata_path = "%s/%s" % (path, pmda.metadata_name)
         self.__metadata = {}
-        # Note that this is the default data path.
-        # FIXME: in the future, we'll support overriding this with
-        # "payload-file", "payload-exec", and/or "payload-url".
-        self.__data_path = "%s/data.json" % path
         self.__json_data = {}
         self.__metrics = {}
         self.__metrics_by_name = {}
@@ -358,19 +362,35 @@ class JsonSource(object):
             # 'prefix' (optional): Sanity check it and save it.
             elif key == 'prefix':
                 if not isinstance(value, unicode):
-                    self.__pmda.log("Invalid metadata 'prefix' value")
-                    raise TypeError("Invalid metadata 'prefix' value")
+                    self.__pmda.log("Invalid metadata 'prefix'"
+                                    " value from file %s: %s"
+                                    % (self.__path, value))
+                    continue
                 # FIXME: need to validate name and make sure it
                 # doesn't already exist.
                 self.__root_name = value
+            # 'data-path' (optional): Sanity check it and save it.
+            elif key == 'data-path':
+                if not isinstance(value, unicode):
+                    self.__pmda.log("Invalid metadata 'data-path'"
+                                    " value from file %s: %s"
+                                    % (self.__path, value))
+                    continue
+                # FIXME: should we validate the path and make sure the
+                # file exists?
+                self.__data_path = value
             # For everything else, just ignore it.
             else:
-                self.__pmda.log("Ignoring unknown attribute in"
-                                " metadata '%s'" % (key))
+                self.__pmda.log("Ignoring unknown metadata attribute"
+                                " from file %s: %s" % (self.__path, key))
 
         if not metrics_array:
-            self.__pmda.log("Metadata has no 'metrics' array")
-            raise TypeError("Metadata has no 'metrics' array")
+            self.__pmda.log("Metadata has no 'metrics' array in file %s"
+                            % self.__path)
+            # FIXME: Hmm, we probably shouldn't error here, but just
+            # skip this source.
+            raise TypeError("Metadata has no 'metrics' array in file %s"
+                            % self.__path)
 
         # Process the metrics array.
         for item in metrics_array:
