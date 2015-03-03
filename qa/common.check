@@ -834,7 +834,7 @@ _run_valgrind()
 	__extra=''
     fi
     valgrind \
-	--leak-check=full --read-var-info=yes \
+	--leak-check=full --read-var-info=yes --gen-suppressions=all \
 	--suppressions=$here/valgrind-suppress $__extra \
 	--log-file=$tmp._valgrind \
 	    $* 2>$tmp._valgrind.err >$tmp._valgrind.out
@@ -876,7 +876,7 @@ if which valgrind >/dev/null 2>&1; then
 	__extra="$__extra --vgdb=no"
     fi
     _valgrind_clean_assert="valgrind -q \
-    	     --leak-check=full --read-var-info=yes \
+    	     --leak-check=full --read-var-info=yes --gen-suppressions=all \
 	     --suppressions=$here/valgrind-suppress $__extra \
              --log-fd=1"
 fi
