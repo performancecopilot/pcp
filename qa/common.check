@@ -774,6 +774,8 @@ _check_containers()
     [ $PCP_PLATFORM = linux ] || _notrun "Linux-specific containers testing"
     _contain=`pmprobe -v pmcd.feature.containers | awk '{ print $3 }'`
     [ $_contain = 1 ] || _notrun "Running kernel does not support containers"
+    pminfo -f pmcd.agent.type 2>/dev/null | grep linux | grep -q 'value 4'
+    [ $? = 0 ] || _notrun "pmdalinux has insufficient privileges as a DSO"
 }
 
 # valgrind support
