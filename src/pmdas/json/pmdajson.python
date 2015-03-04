@@ -11,8 +11,9 @@ from pcp.pmapi import pmUnits, pmContext, pmErr
 from ctypes import c_int, POINTER, cast
 import os
 import re
-
 import traceback
+import subprocess
+import shlex
 
 class Metric(object):
     ''' Metric information class '''
@@ -138,6 +139,10 @@ class JsonSource(object):
         # overridden with the metadata 'prefix' attribute.
         self.__root_name = os.path.basename(path)
 
+        # Note that this is the default data exec command. It can be
+        # overridden with the metadata 'data-exec' attribute.
+        self.__data_exec = ""
+
         # Note that this is the default data path. It can be
         # overridden with the metadata 'data-path' attribute.
         self.__data_path = "%s/data.json" % path
@@ -171,20 +176,45 @@ class JsonSource(object):
     def __load_json_data(self):
         ''' Load the JSON data file for this JSON source. '''
         self.__json_data = {}
-        try:
-            fobj = open(self.__data_path)
-        except IOError:
-            self.__pmda.log("Couldn't open JSON data file: %s"
-                            % self.__data_path)
-            self.__pmda.log("%s" % traceback.format_exc())
-            return
-        try:
-            self.__json_data = json.load(fobj, object_pairs_hook=OrderedDict)
-        except ValueError:
-            self.__pmda.log("Couldn't parse JSON data from %s"
-                            % self.__data_path)
-            self.__pmda.log("%s" % traceback.format_exc())
-        fobj.close()
+        if self.__data_exec != "":
+            if self.__pmda.debug:
+                self.__pmda.log("About to run data-exec command '%s'"
+                                % self.__data_exec)
+            try:
+                args = shlex.split(self.__data_exec)
+                pobj = subprocess.Popen(args, close_fds=True,
+                                        stdout=subprocess.PIPE)
+                (out, dummy) = pobj.communicate()
+            except (OSError, ValueError):
+                self.__pmda.log("Couldn't run JSON data command: %s"
+                                % self.__data_exec)
+                self.__pmda.log("%s" % traceback.format_exc())
+                return
+            try:
+                self.__json_data = json.loads(out,
+                                              object_pairs_hook=OrderedDict)
+            except ValueError:
+                self.__pmda.log("Couldn't parse JSON data from"
+                                " command output '%s'"
+                                % self.__data_exec)
+                self.__pmda.log("%s" % traceback.format_exc())
+        else:
+            self.__pmda.log("Found data-path %s" % self.__data_path)
+            try:
+                fobj = open(self.__data_path)
+            except IOError:
+                self.__pmda.log("Couldn't open JSON data file: %s"
+                                % self.__data_path)
+                self.__pmda.log("%s" % traceback.format_exc())
+                return
+            try:
+                self.__json_data = json.load(fobj,
+                                             object_pairs_hook=OrderedDict)
+            except ValueError:
+                self.__pmda.log("Couldn't parse JSON data from %s"
+                                % self.__data_path)
+                self.__pmda.log("%s" % traceback.format_exc())
+            fobj.close()
 
     def load(self):
         '''
@@ -194,6 +224,7 @@ class JsonSource(object):
         if self.__pmda.debug:
             self.__pmda.log("Loading JSON source %s" % self.__root_name)
         self.__load_json_metadata()
+        self.__preparse_metadata()
         self.__load_json_data()
 
         # If either loading the metadata or data failed, quit.
@@ -348,19 +379,14 @@ class JsonSource(object):
             # We have all the required information. Add the metric.
             self.__add_metric(metric_info)
 
-    def __parse_metadata(self):
+    def __preparse_metadata(self):
         '''
-        Go through the meta, looking for information we can use to
-        create the pcp representation of the metadata.
+        Go through the metadata, looking for information about the
+        data source.
         '''
-        # Look for the "metrics" array.
-        metrics_array = None
         for (key, value) in self.__metadata.items():
-            # 'metrics' (required): Save it.
-            if key == 'metrics':
-                metrics_array = value
             # 'prefix' (optional): Sanity check it and save it.
-            elif key == 'prefix':
+            if key == 'prefix':
                 if not isinstance(value, unicode):
                     self.__pmda.log("Invalid metadata 'prefix'"
                                     " value from file %s: %s"
@@ -379,6 +405,35 @@ class JsonSource(object):
                 # FIXME: should we validate the path and make sure the
                 # file exists?
                 self.__data_path = value
+            # 'data-exec' (optional): Sanity check it and save it.
+            elif key == 'data-exec':
+                if not isinstance(value, unicode):
+                    self.__pmda.log("Invalid metadata 'data-exec'"
+                                    " value from file %s: %s"
+                                    % (self.__path, value))
+                    continue
+                # FIXME: I'm not sure what other validation we could
+                # do here.
+                self.__data_exec = value
+            # For everything else, just silently ignore
+            # it. __parse_metadata will complain if needed.
+
+    def __parse_metadata(self):
+        '''
+        Go through the meta, looking for information we can use to
+        create the pcp representation of the metadata.
+        '''
+        # Look for the "metrics" array.
+        metrics_array = None
+        for (key, value) in self.__metadata.items():
+            # 'metrics' (required): Save it.
+            if key == 'metrics':
+                metrics_array = value
+            # The following optional items were handled above in
+            # __preparse_metadata(): 'prefix', 'data-exec'
+            elif key == 'prefix' or key == 'data-path' or key == 'data-exec':
+                # Silently ignore these
+                continue
             # For everything else, just ignore it.
             else:
                 self.__pmda.log("Ignoring unknown metadata attribute"
@@ -595,6 +650,7 @@ class JsonPMDA(PMDA):
         self.__configfile = ("%s/%s/config.json"
                              % (pmContext.pmGetConfig('PCP_PMDAS_DIR'),
                                 pmda_name))
+        self.__config_data = {}
         self.__load_config_file()
         for (key, value) in self.__config_data.items():
             if key == 'directory_list':
@@ -658,7 +714,7 @@ class JsonPMDA(PMDA):
                         metric_info.desc)
         self.__metrics[metric_info.idx] = metric_info
 
-    def __remove_JSON_sources(self, removed_sources):
+    def __remove_json_sources(self, removed_sources):
         ''' Clean up a list of removed JSON sources. '''
         if len(removed_sources):
             for root in removed_sources:
@@ -678,8 +734,8 @@ class JsonPMDA(PMDA):
         if self.debug:
             self.log("load_all_json entry")
         sources_seen = {}
-        for dir in self.__directory_list:
-            for root, dummy, files in os.walk(dir):
+        for directory in self.__directory_list:
+            for root, dummy, files in os.walk(directory):
                 # Make sure we have the metadata file.
                 if self.metadata_name in files:
                     if not self.sources_by_root.has_key(root):
@@ -687,14 +743,14 @@ class JsonPMDA(PMDA):
                         self.sources_by_root[root] = source
                         self.sources_by_cluster[self.cluster_idx] = source
                         self.cluster_idx += 1
-                    
+
                     self.sources_by_root[root].load()
                     sources_seen[root] = 1
 
         # Cleanup all removed JSON sources.
         removed_sources = [k for k in self.sources_by_root \
                            if k not in sources_seen]
-        self.__remove_JSON_sources(removed_sources)
+        self.__remove_json_sources(removed_sources)
         if self.debug:
             self.log("load_all_json exit")
 
@@ -709,8 +765,8 @@ class JsonPMDA(PMDA):
         # FIXME: why do we need 'load_all_json()' and 'load_all_json_data()'?
         sources_seen = {}
         refresh_metrics = 0
-        for dir in self.__directory_list:
-            for root, dummy, files in os.walk(dir):
+        for directory in self.__directory_list:
+            for root, dummy, files in os.walk(directory):
                 # Make sure we have the metadata file.
                 if self.metadata_name in files:
                     if not self.sources_by_root.has_key(root):
@@ -733,7 +789,7 @@ class JsonPMDA(PMDA):
             if self.debug:
                 self.log("load_all_json_data: removed JSON sources found")
             refresh_metrics = 1
-            self.__remove_JSON_sources(removed_sources)
+            self.__remove_json_sources(removed_sources)
 
         # If we've got a new or removed JSON source, we need to recreate
         # the metrics.
