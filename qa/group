@@ -1001,6 +1001,7 @@ cgroups
 860 pmda pmda.proc ostest local
 861 pmcd pmda.pmcd local
 873 pmda.linux local
+874 valgrind pmval libpcp local
 875 libpcp local valgrind
 876 pmda.xfs local
 885 pmda.linux local

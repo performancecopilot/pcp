@@ -44,11 +44,11 @@ s/[0-9]*\.[0-9]*\.[0-9]*/PMID/
 echo "=== just bin.sample ==="
 $sudo rm -f $tmp.*
 _start_up_pmlogger -s4 -L -c /dev/null -l $tmp.log $tmp >$tmp.err 2>&1
-pmsleep 1.1
+sleep 2
 
 pmlc -ie <<End-of-File 2>&1 | _filter_pmlc
 connect $pid
-log mandatory on 20 msec sample.bin
+log mandatory on 200 msec sample.bin
 End-of-File
 _wait_pmlogger_end $pid
 
@@ -61,12 +61,12 @@ echo
 echo "=== hinv.ndisk, then bin.sample ==="
 $sudo rm -f $tmp.*
 _start_up_pmlogger -s5 -L -c /dev/null -l $tmp.log $tmp
-pmsleep 1.1
+sleep 2
 
 pmlc -ie <<End-of-File 2>&1 | _filter_pmlc
 connect $pid
 log mandatory on once hinv.ndisk
-log mandatory on 20 msec sample.bin
+log mandatory on 200 msec sample.bin
 End-of-File
 _wait_pmlogger_end $pid
 

@@ -57,9 +57,9 @@ End-of-File
     echo "d=delta($metric)" >$tmp.config
     echo "r=rate($metric)" >>$tmp.config
     echo "+++ delta +++" >>$seq.full
-    pmval -t 0.5 -f 1 -s 2 d | _filter $metric
+    pmval -t 0.5 -f 0 -s 2 d | _filter $metric
     echo "+++ rate +++" >>$seq.full
-    pmval -t 0.5 -f 1 -s 2 r | _filter $metric
+    pmval -t 0.5 -f 0 -s 2 r | _filter $metric
 done
 
 # success, all done

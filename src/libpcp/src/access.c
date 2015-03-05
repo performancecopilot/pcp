@@ -1292,7 +1292,6 @@ getClientIds(const __pmSockAddr *hostid, int *sts)
 	    need = clientSize * sizeof(*clientIds);
 	    clientIds = realloc(clientIds, need);
 	    if (clientIds == NULL) {
-		PM_UNLOCK(__pmLock_libpcp);
 		__pmNoMem("Client Ids", need, PM_FATAL_ERR);
 	    }
 	}

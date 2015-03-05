@@ -11,7 +11,6 @@ PMWEBD error, XXX
 PMWEBD error, XXX
 
 +++ should fail with a different error (insufficient elements; ie pmFetch failed)
-*   Trying LOCALADDR...
 * Connected to LOCALHOST (LOCALADDR) port 44323 (####)
 > GET /pmapi/2222/_fetch?names= HTTP/1.1
 > User-Agent: FOO
@@ -32,7 +31,6 @@ PMWEBD error, XXX
 PMWEBD error, XXX
 
 +++ should fail due to suspicious pmresapi path name
-*   Trying LOCALADDR...
 * Connected to LOCALHOST (LOCALADDR) port 44323 (####)
 > GET /etc/passwd HTTP/1.1
 > User-Agent: FOO
@@ -50,7 +48,6 @@ PMWEBD error, XXX
 PMWEBD error, XXX
 
 +++ should fail due to non-enablement of graphite
-*   Trying LOCALADDR...
 * Connected to LOCALHOST (LOCALADDR) port 44323 (####)
 > GET /graphite/render?target=* HTTP/1.1
 > User-Agent: FOO

@@ -131,7 +131,14 @@ echo "pmie count at start of QA testing: $?"
 echo
 
 echo === check default install operation ===
-$sudo $PCP_RC_DIR/pmie restart 2>&1 | _filter_pmie_start
+if [ -f /etc/gentoo-release ]
+then
+    # chconfig controls just don't work on some platforms ...
+    # so do nothing to make the number of pmies change
+    :
+else
+    $sudo $PCP_RC_DIR/pmie restart 2>&1 | _filter_pmie_start
+fi
 _count_pmies
 echo "pmie count after chkconfig pmie off: $?"
 echo

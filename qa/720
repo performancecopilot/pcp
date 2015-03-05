@@ -39,6 +39,8 @@ _filter_auth()
     # Error: Authentication - user not found
     # and
     # pminfo: ...notApassword": Authentication - authentication failure
+    # and
+    # pminfo: ...notApassword": Operation not supported
     # are considered equivalent to
     # Error: Authentication - authentication failure
     #
@@ -46,9 +48,11 @@ _filter_auth()
     sed \
 	-e '/GSSAPI Error:/d' \
 	-e 's/^pminfo: .*Authentication -/Error: Authentication -/g' \
+	-e 's/^pminfo: .*Operation/Error: Authentication -/g' \
 	-e '/Error: Authentication/s/ - generic failure/ - authentication failure/g' \
 	-e '/Error: Authentication/s/ - no mechanism available/ - authentication failure/g' \
 	-e '/Error: Authentication/s/ - user not found/ - authentication failure/g' \
+	-e '/Error: Authentication/s/ - not supported/ - authentication failure/g' \
     # end
 }
 

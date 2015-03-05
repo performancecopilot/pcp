@@ -1,0 +1,30 @@
+#!/bin/sh
+# PCP QA Test No. 874
+# Frank's memory corruption bug fix, libpcp p_instance.c
+#
+# Copyright (c) 2015 Ken McDonell and Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_check_valgrind
+
+# real QA test starts here
+args=`awk 'BEGIN { for (i=0;i<3000;i++) { printf "x" } }'`
+
+_run_valgrind pmval -i "$args" -s 1 pmcd.buf.alloc
+
+# success, all done
+status=0
+
+exit

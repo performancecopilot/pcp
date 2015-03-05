@@ -83,6 +83,7 @@ then
 else
     echo >>/tmp/msg
     echo "Details ..." >>/tmp/msg
+    echo >>/tmp/msg
     git log --no-merges $range >>/tmp/msg
 fi
 
@@ -157,7 +158,7 @@ else
     in
 	kenj)
 	    echo "To send commit mail ..."
-	    echo 'thunderbird -compose to=pcp@oss.sgi.com,subject="pcp updates",body="`cat /tmp/msg`"'
+	    echo '$ sendcommitmail'
 	    ;;
     esac
 fi
