@@ -1,4 +1,3 @@
-#!/usr/bin/perl 
 #
 # Copyright (c) 2014 Aconex
 # 
