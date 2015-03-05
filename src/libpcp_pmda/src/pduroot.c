@@ -74,7 +74,7 @@ __pmdaSendRootPDUContainer(int fd, int pdutype,
     if (len >= MAXPATHLEN)
 	return -E2BIG;
 
-    length = sizeof(__pmdaRootPDUContainer) + len;
+    length = sizeof(__pmdaRootPDUContainer) - sizeof(pdu.name) + len;
     pdu.hdr.type = pdutype;
     pdu.hdr.length = length;
     pdu.hdr.status = status;
@@ -94,11 +94,12 @@ int
 __pmdaRecvRootPDUContainer(int fd, int type, void *buffer, int buflen)
 {
     __pmdaRootPDUContainer *pdu = (__pmdaRootPDUContainer *)buffer;
+    size_t minlength = sizeof(*pdu) - sizeof(pdu->name);
     int sts;
 
     if ((sts = recv(fd, buffer, buflen, 0)) < 0)
 	return -oserror();
-    if (sts < sizeof(__pmdaRootPDUContainer))
+    if (sts < minlength)
 	return -EINVAL;
     if (pdu->hdr.type != type)
 	return -ESRCH;
@@ -106,7 +107,7 @@ __pmdaRecvRootPDUContainer(int fd, int type, void *buffer, int buflen)
 	return -ENOTSUP;
     if (pdu->hdr.status != 0)
 	return pdu->hdr.status;
-    if (pdu->hdr.length < sizeof(__pmdaRootPDUContainer))
+    if (pdu->hdr.length < minlength + pdu->namelen)
 	return -E2BIG;
     return sts;
 }

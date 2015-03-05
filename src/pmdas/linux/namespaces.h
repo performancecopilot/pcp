@@ -28,6 +28,12 @@ enum {
 #define LINUX_NAMESPACE_MNT      (1<<LINUX_NAMESPACE_MNT_INDEX)
 #define LINUX_NAMESPACE_USER     (1<<LINUX_NAMESPACE_USER_INDEX)
 
-extern int container_enter_namespaces(int, const char *, int, int);
+typedef struct {
+    int		pid;
+    int		length;
+    char	*name;
+} linux_container_t;
+
+extern int container_enter_namespaces(int, linux_container_t *, int);
 extern int container_leave_namespaces(int, int);
 

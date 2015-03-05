@@ -35,13 +35,18 @@ enum {
 };
 
 typedef struct {
+    int			pid;
+    int			length;
+    char		*name;
+} proc_container_t;
+
+typedef struct {
     unsigned int	state;
     uid_t		uid;
     gid_t		gid;
     unsigned int	threads;
     const char		*cgroups;
-    const char		*container;
-    unsigned int	length;
+    proc_container_t	container;
 } proc_perctx_t;
 
 extern void proc_ctx_init(void);
@@ -52,7 +57,7 @@ extern int proc_ctx_getuid(int);
 extern int proc_ctx_access(int);
 extern int proc_ctx_revert(int);
 
-extern const char *proc_ctx_container(int, int *);
+extern proc_container_t *proc_ctx_container(int);
 
 extern unsigned int proc_ctx_threads(int, unsigned int);
 extern int proc_ctx_set_threads(int, unsigned int);

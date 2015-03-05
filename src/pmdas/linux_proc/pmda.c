@@ -1305,11 +1305,12 @@ static int
 proc_refresh(pmdaExt *pmda, int *need_refresh)
 {
     char cgroup[MAXPATHLEN];
-    const char *container;
-    int sts, namelen = 0, cgrouplen = 0;
+    proc_container_t *container;
+    int sts, cgrouplen = 0;
 
-    if ((container = proc_ctx_container(pmda->e_context, &namelen)) != NULL) {
-	if ((sts = pmdaRootContainerCGroupName(rootfd, container, namelen,
+    if ((container = proc_ctx_container(pmda->e_context)) != NULL) {
+	if ((sts = pmdaRootContainerCGroupName(rootfd,
+				container->name, container->length,
 				cgroup, sizeof(cgroup))) < 0)
 	    return sts;
 	cgrouplen = sts;

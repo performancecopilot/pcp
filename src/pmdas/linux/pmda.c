@@ -3867,8 +3867,7 @@ static pmdaMetric metrictab[] = {
 };
 
 typedef struct {
-    char        *container;
-    int		length;
+    linux_container_t	container;
 } perctx_t;
 
 static perctx_t *ctxtab;
@@ -3978,23 +3977,21 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int pid)
 	pmdaDynamicMetricTable(pmda);
 }
 
-static char *
-linux_ctx_container(int ctx, int *length)
+static linux_container_t *
+linux_ctx_container(int ctx)
 {
-    if (ctx < num_ctx && ctx >= 0 && ctxtab[ctx].container) {
-	*length = ctxtab[ctx].length;
-	return ctxtab[ctx].container;
-    }
+    if (ctx < num_ctx && ctx >= 0 && ctxtab[ctx].container.name)
+	return &ctxtab[ctx].container;
     return NULL;
 }
 
 static int
 linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
 {
+    linux_container_t	*container = NULL;
     __pmInDom_int	*indomp = (__pmInDom_int *)&indom;
     int			need_refresh[NUM_CLUSTERS] = {0};
-    int			sts, pid = 0, length = 0, ns_flags = 0;
-    char		*container = NULL;
+    int			sts, pid = 0, ns_flags = 0;
 
     switch (indomp->serial) {
     case DISK_INDOM:
@@ -4052,8 +4049,8 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
     /* no default label : pmdaInstance will pick up errors */
     }
 
-    if ((container = linux_ctx_container(pmda->e_context, &length)) != NULL) {
-	sts = container_enter_namespaces(rootfd, container, length, ns_flags);
+    if ((container = linux_ctx_container(pmda->e_context)) != NULL) {
+	sts = container_enter_namespaces(rootfd, container, ns_flags);
 	if (sts < 0)
 	    return sts;
 	pid = sts;
@@ -5652,9 +5649,9 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 static int
 linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
-    int		need_refresh[NUM_CLUSTERS] = {0};
-    int		i, sts, pid = 0, length = 0, ns_flags = 0;
-    char	*container = NULL;
+    linux_container_t	*container = NULL;
+    int			need_refresh[NUM_CLUSTERS] = {0};
+    int			i, sts, pid = 0, ns_flags = 0;
 
     for (i = 0; i < numpmid; i++) {
 	__pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
@@ -5707,8 +5704,8 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	}
     }
 
-    if ((container = linux_ctx_container(pmda->e_context, &length)) != NULL) {
-	sts = container_enter_namespaces(rootfd, container, length, ns_flags);
+    if ((container = linux_ctx_container(pmda->e_context)) != NULL) {
+	sts = container_enter_namespaces(rootfd, container, ns_flags);
 	if (sts < 0)
 	    return sts;
 	pid = sts;
@@ -5762,19 +5759,19 @@ linux_grow_ctxtab(int ctx)
 	/*NOTREACHED*/
     }
     while (num_ctx <= ctx) {
-	ctxtab[num_ctx].container = NULL;
+	memset(&ctxtab[num_ctx], 0, sizeof(perctx_t));
 	num_ctx++;
     }
-    ctxtab[ctx].container = NULL;
+    memset(&ctxtab[ctx], 0, sizeof(perctx_t));
 }
 
 static void
 linux_end_context(int ctx)
 {
     if (ctx >= 0 && ctx < num_ctx) {
-	if (ctxtab[ctx].container)
-	    free(ctxtab[ctx].container);
-	ctxtab[ctx].container = NULL;
+	if (ctxtab[ctx].container.name)
+	    free(ctxtab[ctx].container.name);
+	memset(&ctxtab[ctx], 0, sizeof(perctx_t));
     }
 }
 
@@ -5784,11 +5781,12 @@ linux_attribute(int ctx, int attr, const char *value, int len, pmdaExt *pmda)
     if (attr == PCP_ATTR_CONTAINER) {
 	if (ctx >= num_ctx)
 	    linux_grow_ctxtab(ctx);
-	if (ctxtab[ctx].container)
-	    free(ctxtab[ctx].container);
-	if ((ctxtab[ctx].container = strdup(value)) == NULL)
+	if (ctxtab[ctx].container.name)
+	    free(ctxtab[ctx].container.name);
+	if ((ctxtab[ctx].container.name = strdup(value)) == NULL)
 	    return -ENOMEM;
-	ctxtab[ctx].length = len;
+	ctxtab[ctx].container.length = len;
+	ctxtab[ctx].container.pid = 0;
     }
     return pmdaAttribute(ctx, attr, value, len, pmda);
 }
