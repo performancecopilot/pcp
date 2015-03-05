@@ -1394,6 +1394,15 @@ DoAttributes(AgentInfo *ap, int clientID)
 		break;
 	}
     }
+    if (sts < 0) {
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_APPL0)
+	    fprintf(stderr, "ATTR error: \"%s\" agent : %s\n",
+		    ap->pmDomainLabel, pmErrStr(sts));
+#endif
+	CleanupAgent(ap, AT_COMM, ap->inFd);
+	return PM_ERR_AGAIN;
+    }
     return sts;
 }
 
