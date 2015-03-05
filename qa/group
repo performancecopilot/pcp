@@ -1027,6 +1027,7 @@ cgroups
 947 pmlogger local
 950 avahi local
 955 pmda.linux local
+956 pmcd local
 957 pmda.linux local valgrind
 958 archive local
 959 pmda.sample pmstore local
