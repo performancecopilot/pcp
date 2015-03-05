@@ -322,6 +322,9 @@ _test_pmda()
     _agent_remove simple
     pminfo -f pmcd.openfds >>$tmp.pminfo
 
+    echo "=== pminfo output ===" >>$here/$seq.full
+    cat $tmp.pminfo >>$here/$seq.full
+
     cat $tmp.pminfo | _filter_openfds_value
 }
 
