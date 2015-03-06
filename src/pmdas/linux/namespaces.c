@@ -192,7 +192,7 @@ container_leave_namespaces(int fd, int nsflags)
 
 #else
 int
-container_enter_namespaces(int fd, linux_container_t *lcp, int nsflags);
+container_enter_namespaces(int fd, linux_container_t *lcp, int nsflags)
 {
     (void)fd;
     (void)lcp;
