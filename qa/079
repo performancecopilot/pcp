@@ -30,11 +30,8 @@ _filter()
 # od(1) differs ... we don't really care too much about the first few
 # bytes, so the tr(1) mapping is OK ...
 #
-echo "Dump first 128 bytes ..."
-dd bs=128 count=1 if=$ARCH.0 2>/dev/null \
-| tr '\204\375\272' '\004\175\072' \
-| od -c \
-| sed -e 's/^\([0-7][0-7]*\)  */\1 /'
+echo "Dump first 128 bytes ..." > $seq.full
+dd bs=128 count=1 if=$ARCH.0 2>/dev/null | od -c >> $seq.full
 
 echo ""
 TZ=EST-10
