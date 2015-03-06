@@ -969,6 +969,7 @@ cgroups
 781 logutil local
 782 pmwebapi local
 783 pmda.rpm local valgrind
+784 python local
 786 context context_local libpcp local
 787 archive local pmie pmlogrewrite pmdumplog pmval flakey
 789 pmda.papi local
