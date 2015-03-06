@@ -50,7 +50,8 @@ pipepmda=$PCP_PMDAS_DIR/papi/pmdapapi
 [ ! -f $pipepmda ] && echo "FATAL ERROR Could not find \"$pipepmda\"" && exit 1
 
 # Check if pmu's are present, else, _notrun the test
-$sudo dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _pmu_present
+echo "Check if pmus's are present ..." >>$here/$seq.full
+$sudo dbpmda -n $papirootpmns -ie <<EOF 2>&1 | tee -a $here/$seq.full | _pmu_present
 open pipe $pipepmda -d 126
 getdesc on
 attr "username" "root"
@@ -59,8 +60,8 @@ children papi.system
 EOF
 
 # real QA test starts here
-echo "=== Daemon PMDA papi test ==="
-$sudo dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _filter
+echo "=== Daemon PMDA papi test ===" | tee -a $here/$seq.full
+$sudo dbpmda -n $papirootpmns -ie <<EOF 2>&1 | tee -a $here/$seq.full | _filter
 open pipe $pipepmda -d 126
 getdesc on
 attr "username" "root"
