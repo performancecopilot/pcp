@@ -95,7 +95,8 @@ Basic getting started
     should suffice.
 
     If the avahi services are to be tested, then the firewall also needs
-    to allow mDNS traffic (UDP, port 5353).
+    to allow mDNS traffic (UDP, port 5353), for both external and
+    internal connections.
 
 
 Doing the Real Work

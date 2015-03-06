@@ -95,7 +95,7 @@ main(int argc, char **argv)
     int		n;
     pmLogLabel	loglabel;
     pmResult	*resp;
-    pmResult	**resvec = (pmResult **)0;
+    pmResult	**resvec = malloc(0);
     int		resnum = 0;
     struct timeval	when;
 
@@ -291,12 +291,19 @@ main(int argc, char **argv)
 	}
 	cmpres(n, resvec[n], resp);
 	pmFreeResult(resvec[n]);
+	resvec[n] = NULL;
 	pmFreeResult(resp);
     }
     fflush(stderr);
     printf("Found %d samples\n", n);
     fflush(stdout);
-    free(resvec);
+    if (resvec != NULL) {
+	for (i = 0; i < resnum; i++) {
+	    if (resvec[i] != NULL) 
+		pmFreeResult(resvec[i]);
+	}
+	free(resvec);
+    }
 
     exit(0);
 }
