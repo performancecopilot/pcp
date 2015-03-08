@@ -1749,6 +1749,10 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
     // Gather up all the data.  We need several passes over it, so gather it into a vector<vector<> >.
     all_results = pmgraphite_fetch_all_series (connection, targets, t_start, t_end, t_step);
 
+    if (exit_p) {
+        return MHD_NO;
+    }
+
     // Compute vertical bounds.
     float ymin;
     if (params["yMin"] != "") {
