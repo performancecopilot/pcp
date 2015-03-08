@@ -54,17 +54,23 @@ pdubufdump1(const void *nodep, const VISIT which, const int depth)
 {
     const bufctl_t *pcp = *(bufctl_t **) nodep;
     if (which == postorder || which == leaf)	/* called once per node */
-	fprintf(stderr, " " PRINTF_P_PFX "%p[%d](%d)", pcp->bc_buf, pcp->bc_size, pcp->bc_pincnt);
+	fprintf(stderr, " " PRINTF_P_PFX "%p...%p[%d](%d)", pcp->bc_buf, &pcp->bc_buf[pcp->bc_size - 1], pcp->bc_size,
+		pcp->bc_pincnt);
 }
 
 
 static void
 pdubufdump(void)
 {
+    /* no free list, ergo no
+       fprintf(stderr, "   free pdubuf[size]:\n"); */
     PM_LOCK(__pmLock_libpcp);
-    twalk(buf_tree, &pdubufdump1);
+    if (buf_tree != NULL) {
+	fprintf(stderr, "   pinned pdubuf[size](pincnt):");
+	twalk(buf_tree, &pdubufdump1);
+	fprintf(stderr, "\n");
+    }
     PM_UNLOCK(__pmLock_libpcp);
-    fprintf(stderr, "\n");
 }
 #endif
 
@@ -96,7 +102,7 @@ __pmFindPDUBuf(int need)
     void *sts2;
 
     PM_INIT_LOCKS();
-    
+
     if (unlikely(need < 0)) {
 	/* special diagnostic case ... dump buffer state */
 #ifdef PCP_DEBUG
@@ -106,18 +112,18 @@ __pmFindPDUBuf(int need)
 	return NULL;
     }
 
-    if ((pcp = (bufctl_t *) malloc(sizeof(*pcp)+need)) == NULL) {
+    if ((pcp = (bufctl_t *) malloc(sizeof(*pcp) + need)) == NULL) {
 	return NULL;
     }
 
     pcp->bc_pincnt = 1;
     pcp->bc_size = need;
-    pcp->bc_buf = ((char*)pcp) + sizeof(*pcp);
+    pcp->bc_buf = ((char *) pcp) + sizeof(*pcp);
 
     PM_LOCK(__pmLock_libpcp);
     /* Insert the node in the tree. */
     sts2 = tsearch((void *) pcp, &buf_tree, &bufctl_t_compare);
-    if (unlikely(sts2 == NULL)) {		/* ENOMEM */
+    if (unlikely(sts2 == NULL)) {	/* ENOMEM */
 	PM_UNLOCK(__pmLock_libpcp);
 	free(pcp);
 	return NULL;
@@ -127,7 +133,7 @@ __pmFindPDUBuf(int need)
 #ifdef PCP_DEBUG
     if (unlikely(pmDebug & DBG_TRACE_PDUBUF)) {
 	fprintf(stderr, "__pmFindPDUBuf(%d) -> " PRINTF_P_PFX "%p\n", need, pcp->bc_buf);
-        pdubufdump();
+	pdubufdump();
     }
 #endif
 
@@ -154,7 +160,7 @@ __pmPinPDUBuf(void *handle)
 
     res = tfind(&pcp_search, &buf_tree, &bufctl_t_compare);
     pcp = (res ? (*(bufctl_t **) res) : NULL);
-    
+
     /* NB: don't release the lock until final disposition of this object;
        we don't want to play TOCTOU. */
 
@@ -199,10 +205,10 @@ __pmUnpinPDUBuf(void *handle)
 
     res = tfind(&pcp_search, &buf_tree, &bufctl_t_compare);
     pcp = (res ? (*(bufctl_t **) res) : NULL);
-    
+
     /* NB: don't release the lock until final disposition of this object;
        we don't want to play TOCTOU. */
-    
+
     if (unlikely(pcp == NULL)) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PDUBUF) {
@@ -222,10 +228,11 @@ __pmUnpinPDUBuf(void *handle)
 
     if (likely(--pcp->bc_pincnt == 0)) {
 	tdelete(pcp, &buf_tree, &bufctl_t_compare);
-        PM_UNLOCK(__pmLock_libpcp);
+	PM_UNLOCK(__pmLock_libpcp);
 	free(pcp);
-    } else {
-        PM_UNLOCK(__pmLock_libpcp);
+    }
+    else {
+	PM_UNLOCK(__pmLock_libpcp);
     }
 
     return 1;
