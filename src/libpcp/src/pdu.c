@@ -307,7 +307,7 @@ __pmXmitPDU(int fd, __pmPDU *pdubuf)
 	int	jend = PM_PDU_SIZE(php->len);
 	char	strbuf[20];
 
-	/* for Purify ... */
+        /* clear the padding bytes, lest they contain garbage */
 	p = (char *)pdubuf + php->len;
 	while (p < (char *)pdubuf + jend*sizeof(__pmPDU))
 	    *p++ = '~';	/* buffer end */
@@ -521,7 +521,7 @@ check_read_len:
 	int	jend = PM_PDU_SIZE(php->len);
 	char	strbuf[20];
 
-	/* for Purify ... */
+        /* clear the padding bytes, lest they contain garbage */
 	p = (char *)*result + php->len;
 	while (p < (char *)*result + jend*sizeof(__pmPDU))
 	    *p++ = '~';	/* buffer end */
