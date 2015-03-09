@@ -122,15 +122,13 @@ __pmEncodeResult(int targetfd, const pmResult *result, __pmPDU **pdubuf)
 		int	nb;
 		nb = vsp->vlist[j].value.pval->vlen;
 		memcpy((void *)vbp, (void *)vsp->vlist[j].value.pval, nb);
-#ifdef PCP_DEBUG
 		if ((nb % sizeof(__pmPDU)) != 0) {
-		    /* for Purify */
+		    /* clear the padding bytes, lest they contain garbage */
 		    int	pad;
 		    char	*padp = (char *)vbp + nb;
 		    for (pad = sizeof(__pmPDU) - 1; pad >= (nb % sizeof(__pmPDU)); pad--)
 			*padp++ = '~';	/* buffer end */
 		}
-#endif
 		__htonpmValueBlock((pmValueBlock *)vbp);
 		/* point to the value block at the end of the PDU */
 		vlp->vlist[j].value.lval = htonl((int)(vbp - _pdubuf));
