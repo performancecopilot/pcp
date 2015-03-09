@@ -16,7 +16,7 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 IAM	= mic
-PYSCRIPT = pmda$(IAM).py
+PYSCRIPT = pmda$(IAM).python
 LDIRT	= domain.h root pmns $(IAM).log
 
 MAN_SECTION = 1
