@@ -260,7 +260,7 @@ _host_to_fqdn()
     then
 	if which domainname >/dev/null 2>&1
 	then
-	    ans=`domainname`
+	    ans=`domainname | fgrep -v '(none)'`
 	    [ -z "$ans" ] || ans="$1.$ans"
 	fi
     fi
