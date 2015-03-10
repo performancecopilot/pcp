@@ -1,8 +1,8 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-TESTDIR = $(PCP_VAR_DIR)/testsuite/ganglia/gangliatest.64
-QAFILES = $(shell echo *.rrd)
+TESTDIR = $(PCP_VAR_DIR)/testsuite/ganglia/gangliatest.xml
+QAFILES = $(shell echo *.xml)
 
 default default_pcp setup: 
 
