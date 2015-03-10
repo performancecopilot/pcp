@@ -771,17 +771,11 @@ _check_display()
 
 _check_containers()
 {
-    if pminfo -v --container=test >/dev/null 2>$tmp.err
-    then
-	:
-    else
-	if grep 'Operation not supported' $tmp.err >/dev/null
-	then
-	    _notrun "No container support"
-	else
-	    _notrun "`cat $tmp.err`"
-	fi
-    fi
+    [ $PCP_PLATFORM = linux ] || _notrun "Linux-specific containers testing"
+    _contain=`pmprobe -v pmcd.feature.containers | awk '{ print $3 }'`
+    [ $_contain = 1 ] || _notrun "Running kernel does not support containers"
+    pminfo -f pmcd.agent.type 2>/dev/null | grep linux | grep -q 'value 4'
+    [ $? = 0 ] || _notrun "pmdalinux has insufficient privileges as a DSO"
 }
 
 # valgrind support
@@ -842,7 +836,7 @@ _run_valgrind()
 	__extra=''
     fi
     valgrind \
-	--leak-check=full --read-var-info=yes \
+	--leak-check=full --read-var-info=yes --gen-suppressions=all \
 	--suppressions=$here/valgrind-suppress $__extra \
 	--log-file=$tmp._valgrind \
 	    $* 2>$tmp._valgrind.err >$tmp._valgrind.out
@@ -884,7 +878,7 @@ if which valgrind >/dev/null 2>&1; then
 	__extra="$__extra --vgdb=no"
     fi
     _valgrind_clean_assert="valgrind -q \
-    	     --leak-check=full --read-var-info=yes \
+    	     --leak-check=full --read-var-info=yes --gen-suppressions=all \
 	     --suppressions=$here/valgrind-suppress $__extra \
              --log-fd=1"
 fi

@@ -29,6 +29,7 @@ Source1: ftp://ftp.pcp.io/projects/pcp/download/pcp-webjs.src.tar.gz
 
 %define disable_microhttpd 0
 %define disable_cairo 0
+
 # Python development environment before el6 is pre-2.6 (too old)
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %define disable_python2 0
@@ -38,9 +39,18 @@ Source1: ftp://ftp.pcp.io/projects/pcp/download/pcp-webjs.src.tar.gz
 # No python3 development environment before el7
 %if 0%{?rhel} == 0 || 0%{?rhel} > 6
 %define disable_python3 0
+# Do we wish to mandate python3 use in pcp?  (f22+ and el8+)
+%if 0%{?fedora} >= 22 || 0%{?rhel} > 7
+%define default_python3 1
+%else
+%define default_python3 0
+%define
+%endif
 %else
 %define disable_python3 1
+%define default_python3 0
 %endif
+
 # Qt development and runtime environment missing components before el6
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %define disable_qt 0
@@ -92,7 +102,7 @@ BuildRequires: qt4-devel >= 4.4
 %endif
 
 Requires: bash gawk sed grep fileutils findutils initscripts perl which
-%if !%{disable_python2}
+%if !%{disable_python2} && !%{default_python3}
 %if 0%{?rhel} <= 5
 Requires: python-ctypes
 %endif
@@ -100,7 +110,10 @@ Requires: python
 %endif
 
 Requires: pcp-libs = %{version}-%{release}
-%if !%{disable_python2}
+%if %{default_python3}
+Requires: python3-pcp = %{version}-%{release}
+%endif
+%if !%{disable_python2} && !%{default_python3}
 Requires: python-pcp = %{version}-%{release}
 %endif
 Requires: perl-PCP-PMDA = %{version}-%{release}
@@ -612,6 +625,13 @@ for f in $RPM_BUILD_ROOT/%{_initddir}/{pcp,pmcd,pmlogger,pmie,pmwebd,pmmgr,pmpro
 	sed -i -e '/^# chkconfig/s/:.*$/: - 95 05/' -e '/^# Default-Start:/s/:.*$/:/' $f
 done
 
+%if %{default_python3}
+# defaulting to python3 requires /usr/bin/python3 hashbang lines, make it so
+for f in `find $RPM_BUILD_ROOT -type f -print`; do
+	sed -i -e "1 s|^#!/usr/bin/python\b|#!/usr/bin/python3|" $f
+done
+%endif
+
 # list of PMDAs in the base pkg
 ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   grep -E -v 'simple|sample|trivial|txmon' |\
@@ -1091,7 +1111,20 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root,-)
 
 %changelog
+* Wed Mar 04 2015 Dave Brolley <brolley@redhat.com> - 3.10.3-2
+- papi 5.4.1 rebuild
+
 * Mon Mar 02 2015 Dave Brolley <brolley@redhat.com> - 3.10.3-1
+- Update to latest PCP sources.
+- New sub-package for pcp-import-ganglia2pcp.
+- Python3 support, enabled by default in f22 onward (BZ 1194324)
+
+* Mon Feb 23 2015 Slavek Kabrda <bkabrda@redhat.com> - 3.10.2-3
+- Only use Python 3 in Fedora >= 23, more info at
+  https://bugzilla.redhat.com/show_bug.cgi?id=1194324#c4
+
+* Mon Feb 23 2015 Nathan Scott <nathans@redhat.com> - 3.10.2-2
+- Initial changes to support python3 as default (BZ 1194324)
 
 * Fri Jan 23 2015 Dave Brolley <brolley@redhat.com> - 3.10.2-1
 - Update to latest PCP sources.

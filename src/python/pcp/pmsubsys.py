@@ -1,7 +1,7 @@
 #
 # Performance Co-Pilot subsystem classes
 #
-# Copyright (C) 2013 Red Hat Inc.
+# Copyright (C) 2013-2015 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -31,7 +31,7 @@ http://www.performancecopilot.org
 
 import copy
 import cpmapi as c_api
-from pcp.pmapi import pmErr
+from pcp.pmapi import pmErr, timeval
 from ctypes import c_char_p
 
 # python version information and compatibility
@@ -48,12 +48,18 @@ else:
 class Subsystem(object):
     def __init__(self):
         self.metrics = []
+        self._timestamp = timeval(0, 0)
         self.diff_metrics = []
         self.metric_pmids = []
         self.metric_descs = []
         self.metric_values = []
         self.metrics_dict = {}
-        self.old_metric_values = []
+        self._last_values = []
+
+    def _R_timestamp(self):
+        return self._timestamp
+
+    timestamp = property(_R_timestamp, None, None, None)
 
     def setup_metrics(self, pcp):
         # remove any unsupported metrics
@@ -70,7 +76,7 @@ class Subsystem(object):
         self.metric_pmids = pcp.pmLookupName(self.metrics)
         self.metric_descs = pcp.pmLookupDescs(self.metric_pmids)
         self.metric_values = [0 for i in range(len(self.metrics))]
-        self.old_metric_values = [0 for i in range(len(self.metrics))]
+        self._last_values = [0 for i in range(len(self.metrics))]
 
     def dump_metrics(self):
         metrics_string = ""
@@ -80,7 +86,7 @@ class Subsystem(object):
         return metrics_string
 
     def get_scalar_value(self, var, idx):
-        if type(var) == type(str()):
+        if type(var) == type('') or type(var) == type(b''):
             value = self.get_metric_value(var)
         else:
             value = self.metric_values[var]
@@ -99,7 +105,7 @@ class Subsystem(object):
         aidx = 0
         if var in self.metrics:
             aidx = self.metrics_dict[var]
-            aval = self.old_metric_values[aidx]
+            aval = self._last_values[aidx]
         else:
             return 0
         val = self.get_atom_value(aval[idx], None, self.metric_descs[aidx], False)
@@ -151,7 +157,7 @@ class Subsystem(object):
                 return atom1.d 
         elif atom_type == c_api.PM_TYPE_STRING:
             atom_str = c_char_p(atom1.cp)
-            return str(atom_str.value)
+            return str(atom_str.value.decode())
         else:
             return 0
 
@@ -160,13 +166,17 @@ class Subsystem(object):
             raise pmErr
     
         list_type = type([])
-
-        metric_result = pcp.pmFetch(self.metric_pmids)
-
-        if max(self.old_metric_values) == 0:
+        if self._timestamp.tv_sec == 0:
             first = True
         else:
             first = False
+
+        try:
+            metric_result = pcp.pmFetch(self.metric_pmids)
+            self._timestamp = metric_result.contents.timestamp
+        except pmErr as e:
+            self._timestamp = timeval(0, 0)
+            raise e
 
         # list of metric names
         for i in range(len(self.metrics)):
@@ -184,13 +194,13 @@ class Subsystem(object):
                 value = []
                 # metric may require a diff to get a per interval value
                 for k in range(metric_result.contents.get_numval(j)):
-                    if type(self.old_metric_values[j]) == list_type:
+                    if type(self._last_values[j]) == list_type:
                         try:
-                            old_val = self.old_metric_values[j][k]
+                            lastval = self._last_values[j][k]
                         except IndexError:
-                            old_val = None
+                            lastval = None
                     else:
-                        old_val = self.old_metric_values[j]
+                        lastval = self._last_values[j]
                     if first:
                         want_diff = False
                     elif self.metrics[j] in self.diff_metrics:
@@ -200,9 +210,9 @@ class Subsystem(object):
                         want_diff = False
                     else:
                         want_diff = True
-                    value.append(self.get_atom_value(atomlist[k], old_val, self.metric_descs[j], want_diff))
+                    value.append(self.get_atom_value(atomlist[k], lastval, self.metric_descs[j], want_diff))
 
-                self.old_metric_values[j] = copy.copy(atomlist)
+                self._last_values[j] = copy.copy(atomlist)
                 if metric_result.contents.get_numval(j) == 1:
                     if len(value) == 1:
                         self.metric_values[j] = copy.copy(value[0])

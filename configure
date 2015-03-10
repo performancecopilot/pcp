@@ -705,6 +705,9 @@ PMDA_PERFEVENT
 PFM_LIBS
 PMDA_PAPI
 PAPI_LIBS
+PAPI_CFLAGS
+papi_LIBS
+papi_CFLAGS
 PMDA_INFINIBAND
 IB_LIBS
 PMDA_SYSTEMD
@@ -798,6 +801,7 @@ qmake
 enable_qt
 qt_release
 QMAKE
+pcp_python_prog
 enable_python3
 enable_python
 PYTHON3
@@ -950,6 +954,8 @@ YACC
 YFLAGS
 SYSTEMD_CFLAGS
 SYSTEMD_LIBS
+papi_CFLAGS
+papi_LIBS
 libmicrohttpd_CFLAGS
 libmicrohttpd_LIBS
 cairo_CFLAGS
@@ -1598,7 +1604,10 @@ Optional Packages:
   --with-python3          enable support for tools requiring Python3 (default
                           is on)
   --with-books            enable building of the PCP books (default is off)
-  --with-papi             enable performance api counter pmda (default is on)
+  --with-papi[=DIR|=MODULE]
+                          enable performance api counter pmda (default is on)
+                          The optional argument may be a full path of a PAPI
+                          installation prefix, or a pkgconfig module name.
   --with-perfevent        enable perfevent pmda (default is on)
   --with-manager          enable daemon manager (default is on)
   --with-webapi           enable REST API daemon (default is on)
@@ -1647,6 +1656,8 @@ Some influential environment variables:
               C compiler flags for SYSTEMD, overriding pkg-config
   SYSTEMD_LIBS
               linker flags for SYSTEMD, overriding pkg-config
+  papi_CFLAGS C compiler flags for papi, overriding pkg-config
+  papi_LIBS   linker flags for papi, overriding pkg-config
   libmicrohttpd_CFLAGS
               C compiler flags for libmicrohttpd, overriding pkg-config
   libmicrohttpd_LIBS
@@ -6229,6 +6240,14 @@ done
 fi
 
 
+if test "$enable_python3" = "true"
+then
+    pcp_python_prog=$PYTHON3
+else
+    pcp_python_prog=$PYTHON
+fi
+
+
 qmake=$QMAKE
 enable_qt=false
 qt_release=release
@@ -10071,7 +10090,111 @@ if test "x$do_papi" != "xno"; then :
 
     enable_papi=true
 
+    saved_LDFLAGS="$LDFLAGS"
+    saved_CFLAGS="$CFLAGS"
     savedLIBS=$LIBS
+
+    case "$do_papi" in
+      yes|no|check) ;;
+	 */*) PAPI_ROOTDIR=$do_papi;
+	      CFLAGS="-I$PAPI_ROOTDIR/include"
+	      LDFLAGS="-L$PAPI_ROOTDIR/lib" ;;
+	 *)
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for papi" >&5
+$as_echo_n "checking for papi... " >&6; }
+
+if test -n "$papi_CFLAGS"; then
+    pkg_cv_papi_CFLAGS="$papi_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"\$do_papi\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "$do_papi") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_papi_CFLAGS=`$PKG_CONFIG --cflags "$do_papi" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$papi_LIBS"; then
+    pkg_cv_papi_LIBS="$papi_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"\$do_papi\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "$do_papi") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_papi_LIBS=`$PKG_CONFIG --libs "$do_papi" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        papi_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "$do_papi" 2>&1`
+        else
+	        papi_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "$do_papi" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$papi_PKG_ERRORS" >&5
+
+	as_fn_error $? "Package requirements ($do_papi) were not met:
+
+$papi_PKG_ERRORS
+
+Consider adjusting the PKG_CONFIG_PATH environment variable if you
+installed software in a non-standard prefix.
+
+Alternatively, you may set the environment variables papi_CFLAGS
+and papi_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details." "$LINENO" 5
+elif test $pkg_failed = untried; then
+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	{ { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
+is in your PATH or set the PKG_CONFIG environment variable to the full
+path to pkg-config.
+
+Alternatively, you may set the environment variables papi_CFLAGS
+and papi_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details.
+
+To get pkg-config, see <http://pkg-config.freedesktop.org/>.
+See \`config.log' for more details" "$LINENO" 5; }
+else
+	papi_CFLAGS=$pkg_cv_papi_CFLAGS
+	papi_LIBS=$pkg_cv_papi_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+
+		CFLAGS="$papi_CFLAGS"
+		LDFLAGS="$papi_LIBS"
+fi ;;
+                # $papi_LIBS will include -lpapi harmlessly redudantly with AC_CHECK_LIB
+    esac
+
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for PAPI_library_init in -lpapi" >&5
 $as_echo_n "checking for PAPI_library_init in -lpapi... " >&6; }
 if ${ac_cv_lib_papi_PAPI_library_init+:} false; then :
@@ -10109,7 +10232,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_papi_PAPI_library_init" >&5
 $as_echo "$ac_cv_lib_papi_PAPI_library_init" >&6; }
 if test "x$ac_cv_lib_papi_PAPI_library_init" = xyes; then :
-  papi_libs="-lpapi"
+  papi_libs="$LDFLAGS -lpapi"
 else
   enable_papi=false
 fi
@@ -10121,7 +10244,7 @@ if test "x$ac_cv_header_papi_h" = xyes; then :
   cat >>confdefs.h <<_ACEOF
 #define HAVE_PAPI_H 1
 _ACEOF
-
+ papi_cflags="$CFLAGS"
 else
   enable_papi=false
 fi
@@ -10135,6 +10258,10 @@ done
 	pmda_papi=$enable_papi
     fi
     LIBS=$savedLIBS
+    CFLAGS="$saved_CFLAGS"
+    LDFLAGS="$saved_LDFLAGS"
+    PAPI_CFLAGS=$papi_cflags
+
     PAPI_LIBS=$papi_libs
 
 

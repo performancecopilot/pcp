@@ -35,6 +35,7 @@
 . $PCP_SHARE_DIR/lib/rc-proc.sh
 
 PMIECTRL=$PCP_PMIECONTROL_PATH
+rcprog=$PCP_DIR/etc/init.d/pmie
 pmprog=$PCP_RC_DIR/pmie
 prog=$PCP_RC_DIR/`basename $0`
 
@@ -54,7 +55,7 @@ tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
 status=1
 trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 
-if [ $pmprog = $prog ]
+if [ $pmprog = $prog -o $rcprog = $prog ]
 then
     VERBOSE_CTL=on
 else
@@ -236,7 +237,7 @@ Error: PCP inference engine control file '$PMIECTRL'
 			$RC_STATUS -v
 		    fi
 		fi
-	    elif [ "$0" = "$PCP_RC_DIR/pmie" ]
+	    elif [ "$0" = "$pmprog" -o "$0" = "$rcprog" ]
 	    then
 		echo "$prog: Warning: Performance Co-Pilot Inference Engine (pmie) is disabled."
 		chkconfig_on_msg pmie

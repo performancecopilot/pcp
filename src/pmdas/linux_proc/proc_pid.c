@@ -1003,7 +1003,9 @@ refresh_proc_pid(proc_pid_t *proc_pid, proc_runq_t *proc_runq,
      */
     if (container) {
 	length = cgroup_mounts_subsys("memory", path, sizeof(path));
-	length = sizeof(path) - length;
+	if (length > sizeof(path)-1)
+	    length = sizeof(path)-1;
+	length = (length <= 0) ? 0 : sizeof(path) - length;
 	strncat(path, container, length);
 	filter = path;
     }

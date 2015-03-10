@@ -35,6 +35,7 @@ trees=`pminfo cgroup | awk -F. '{ print $2 }' | sort -u`
 
 for tgz in $here/linux/cgroups-*.tgz
 do
+    cd $here
     $sudo rm -fr $root
     mkdir $root || _fail "root in use when processing $tgz"
     cd $root
@@ -66,7 +67,6 @@ do
     done
 
     echo && echo "== done" && echo
-    cd $here
 done
 
 # success, all done

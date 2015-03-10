@@ -1,4 +1,42 @@
+pcp-3.10.4 (1 April 2015)
+
 pcp-3.10.3 (2 March 2015)
+    - enhancement: ongoing improvements to the native containers support
+	http://pcp.io/docs/lab.containers.html
+    - enhancement: pmlogger on-the-fly one-shot recording
+	http://oss.sgi.com/bugzilla/show_bug.cgi?id=1073
+    - doc: containers tutorial.
+    - build: new scripts directory. Contains useful scripts for project
+      management tasks.
+    - build: python-pcp no longer required.
+    - build: python3 now used where available.
+	https://bugzilla.redhat.com/show_bug.cgi?id=1194324
+    - build: new --with-papi configure option.
+    - qa: lots of improvements for robustness, portablity and determinism.
+    - qa: duplicate PMNS names allowed by default.
+    - pmdapapi: add papi refresh/read batching: papi.control.batch.
+    - pmdalinux: improve /proc/cpuinfo parser for irregular formats.
+    - services: ensure that they start after pmcd.
+    - libpcp: allow duplicate names to map to the same PMID by default.
+    - libpcp: duplicate PMNS names allowed by default.
+    - pminfo: duplicate PMNS names allowed by default. Reverse the semantics of
+      the -n and -N options.
+    - pmlogger: duplicate PMNS names allowed by default
+    - dbpmda: duplicate PMNS names allowed by default
+    - pmcd: duplicate PMNS names allowed by default. Reverse the semantics of
+      the -n and -N options.
+    - pmdumplog: duplicate PMNS names allowed by default.
+    - pmlogreduce: duplicate PMNS names allowed by default.
+    - pmlogsummary: duplicate PMNS names allowed by default.
+    - pmlogcheck: duplicate PMNS names allowed by default.
+    - pmevent: duplicate PMNS names allowed by default.
+    - pmchart: add an extra optional chart colour scheme.
+    - solaris PMDA: duplicate PMNS names allowed by default.
+    - ganglia2pcp: new utility.
+    - bug fix: pmlogger: signal delivery may lead to deadlock
+	http://oss.sgi.com/bugzilla/show_bug.cgi?id=1104
+    - bug fix: libpcp: AF functionality has posix-signal-unsafe elements
+	http://oss.sgi.com/bugzilla/show_bug.cgi?id=1069
 
 pcp-3.10.2 (23 January 2015)
     - PMAPI extension: pmParseUnitsStr. Includes python binding

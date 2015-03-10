@@ -55,9 +55,19 @@ sleep 2
 # map = -> '= ' and )$ -> ' )' for evaluations line
 # map rules) -> rule) to dodge pluralization
 #
+# wrinkle is line breaks in the output formatting of pcp(1) ...
+#     pmie: bozo-laptop: /var/log/pcp/pmmgr/bozo-laptop/config.pmie
+#           (12 rules)
+#
 debug=false
 pcp -P \
 | tee -a $seq.full \
+| sed \
+    -e '/:/{
+:loop
+N
+s/\n[ 	]*\(.*([0-9][0-9]* rules\)/ \1/
+}' \
 | sed \
     -e '/^  *evaluations / {
 s/=/= /g

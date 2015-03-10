@@ -272,11 +272,16 @@ static whoami_t		*whoamis;
 static unsigned int	nwhoamis;
 
 typedef struct {
-    int		state;
+    int		pid;
     int		length;
-    char	*container;
-    double	last_cputime;
-    __uint64_t	last_pdu_in;
+    char	*name;
+} pmcd_container_t;
+
+typedef struct {
+    int			state;
+    pmcd_container_t	container;
+    double		last_cputime;
+    __uint64_t		last_pdu_in;
 } perctx_t;
 
 /* utilization values for per context state */
@@ -300,11 +305,11 @@ grow_ctxtab(int ctx)
     }
     while (num_ctx <= ctx) {
         ctxtab[num_ctx].state = CTX_INACTIVE;
-	ctxtab[num_ctx].container = NULL;
+	ctxtab[num_ctx].container.name = NULL;
         num_ctx++;
     }
     ctxtab[ctx].state = CTX_INACTIVE;
-    ctxtab[ctx].container = NULL;
+    ctxtab[ctx].container.name = NULL;
 }
 
 /*
@@ -1124,22 +1129,20 @@ fetch_feature(int item, pmAtomValue *avp)
     return 0;
 }
 
-static char *
-ctx_container(int ctx, int *length)
+static pmcd_container_t *
+ctx_container(int ctx)
 {
-    if (ctx < num_ctx && ctx >= 0 && ctxtab[ctx].container) {
-	*length = ctxtab[ctx].length;
-	return ctxtab[ctx].container;
-    }
+    if (ctx < num_ctx && ctx >= 0 && ctxtab[ctx].container.name)
+	return &ctxtab[ctx].container;
     return NULL;
 }
 
 static char *
 fetch_hostname(int ctx, pmAtomValue *avp, char *hostname)
 {
-    static char	host[MAXHOSTNAMELEN];
-    char	*container;
-    int		length, sts;
+    static char		host[MAXHOSTNAMELEN];
+    pmcd_container_t	*container;
+    int			sts;
 
     if (hostname) {	/* ensure we only ever refresh once-per-fetch */
 	avp->cp = hostname;
@@ -1147,8 +1150,10 @@ fetch_hostname(int ctx, pmAtomValue *avp, char *hostname)
     }
 
     /* see if we're dealing with a request within a container */
-    if ((container = ctx_container(ctx, &length)) != NULL &&
-	((sts = pmdaRootContainerHostName(rootfd, container, length,
+    if ((container = ctx_container(ctx)) != NULL &&
+	((sts = pmdaRootContainerHostName(rootfd,
+					container->name,
+					container->length,
 					host, sizeof(host)) >= 0))) {
 	avp->cp = hostname = host;
 	return hostname;
@@ -1214,9 +1219,9 @@ end_context(int ctx)
     if (ctx >= 0 && ctx < num_ctx) {
 	if (ctxtab[ctx].state == CTX_ACTIVE)
 	    ctxtab[ctx].state = CTX_INACTIVE;
-	if (ctxtab[ctx].container)
-	    free(ctxtab[ctx].container);
-	ctxtab[ctx].container = NULL;
+	if (ctxtab[ctx].container.name)
+	    free(ctxtab[ctx].container.name);
+	ctxtab[ctx].container.name = NULL;
     }
 }
 
@@ -1896,11 +1901,12 @@ pmcd_attribute(int ctx, int attr, const char *value, int len, pmdaExt *pmda)
     if (ctx >= num_ctx)
 	grow_ctxtab(ctx);
     if (attr == PCP_ATTR_CONTAINER) {
-	if (ctxtab[ctx].container)
-	    free(ctxtab[ctx].container);
-	if ((ctxtab[ctx].container = strdup(value)) == NULL)
+	if (ctxtab[ctx].container.name)
+	    free(ctxtab[ctx].container.name);
+	if ((ctxtab[ctx].container.name = strdup(value)) == NULL)
 	    return -ENOMEM;
-	ctxtab[ctx].length = len;
+	ctxtab[ctx].container.length = len;
+	ctxtab[ctx].container.pid = 0;
     }
     return pmdaAttribute(ctx, attr, value, len, pmda);
 }

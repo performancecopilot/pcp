@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -30,9 +30,9 @@ struct timeval	vol_switch_time;         /* time interval 'til vol switch */
 int		vol_samples_counter;     /* Counts samples - reset for new vol*/
 int		vol_switch_afid = -1;    /* afid of event for vol switch */
 int		vol_switch_flag;         /* sighup received - switch vol now */
-int		vol_switch_alarm = 0;	 /* vol_switch_callback() called */
-int		run_done_alarm = 0;	 /* run_done_callback() called */
-int		log_alarm = 0;	 	 /* log_callback() called */
+int		vol_switch_alarm;	 /* vol_switch_callback() called */
+int		run_done_alarm;		 /* run_done_callback() called */
+int		log_alarm;	 	 /* log_callback() called */
 int		parse_done;
 int		primary;		/* Non-zero for primary pmlogger */
 char	    	*archBase;		/* base name for log files */
@@ -464,6 +464,7 @@ static pmLongOptions longopts[] = {
     { "linger", 0, 'L', 0, "run even if not primary logger instance and nothing to log" },
     { "note", 1, 'm', "MSG", "descriptive note to be added to the port map file" },
     PMOPT_NAMESPACE,
+    { "PID", 1, 'p', "PID", "Log specified metric for the lifetime of the pid" },
     { "primary", 0, 'P', 0, "execute as primary logger instance" },
     { "report", 0, 'r', 0, "report record sizes and archive growth rate" },
     { "size", 1, 's', "SIZE", "terminate after endsize has been accumulated" },
@@ -480,7 +481,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "c:D:h:l:Lm:n:Prs:T:t:uU:v:V:x:y?",
+    .short_options = "c:D:h:l:Lm:n:p:Prs:T:t:uU:v:V:x:y?",
     .long_options = longopts,
     .short_usage = "[options] archive",
 };
@@ -507,6 +508,7 @@ main(int argc, char **argv)
     int	    		ctx;		/* handle corresponding to ctxp below */
     __pmContext  	*ctxp;		/* pmlogger has just this one context */
     int			niter;
+    pid_t               target_pid = 0;
 
     __pmGetUsername(&username);
 
@@ -570,6 +572,19 @@ main(int argc, char **argv)
 
 	case 'n':		/* alternative name space file */
 	    pmnsfile = opts.optarg;
+	    break;
+
+	case 'p':
+	    target_pid = (int)strtol(opts.optarg, &endnum, 10);
+	    if (*endnum != '\0') {
+		pmprintf("%s: invalid process identifier (%s)\n",
+			 pmProgname, opts.optarg);
+		opts.errors++;
+	    } else if (!__pmProcessExists(target_pid)) {
+		pmprintf("%s: PID error - no such process (%d)\n",
+			 pmProgname, target_pid);
+		opts.errors++;
+	    }
 	    break;
 
 	case 'P':		/* this is the primary pmlogger */
@@ -1100,6 +1115,9 @@ main(int argc, char **argv)
 	    fprintf(stderr, "Error: select: %s\n", netstrerror());
 
 	__pmAFunblock();
+
+	if (target_pid && !__pmProcessExists(target_pid))
+	    exit(EXIT_SUCCESS);
 
 	if (exit_code)
 	    break;

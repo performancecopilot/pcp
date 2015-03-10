@@ -2,7 +2,7 @@
 # PCP QA Test No. 754
 # Exercise the Unbound PMDA.
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014-2015 Red Hat.
 #
 
 seq=`basename $0`
@@ -10,6 +10,7 @@ echo "QA output created by $seq"
 
 . ./common.python
 
+python_path=`which $python`
 pmda_path="$PCP_PMDAS_DIR/unbound"
 pmda_script="$pmda_path/pmdaunbound.python"
 test -f "$pmda_script" || _notrun "pmdaunbound not supported"
@@ -31,12 +32,12 @@ _filter()
 {
     tee -a $seq.full | \
     sed \
-	-e "s;$python;\$PYTHON;" \
 	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
 	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
 	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*/TIMESTAMP/' \
-
-    test -f unbound.log && cat unbound.log >> $seq.full
+	-e "s;$python_path;\$PCP_PYTHON_PROG;" \
+	-e "s;$python;python;" \
+    #end
 }
 
 _filter_result()
@@ -46,7 +47,7 @@ _filter_result()
 
 domain=132
 test="$here/unbound"
-$sudo rm -f /tmp/unbound-qa.txt		# from test.sh
+$sudo rm -f unbound.log /tmp/unbound-qa.txt	 # the latter from test.sh
 export UNBOUND_STATS="$here/unbound/test.sh"
 
 # real QA test starts here
@@ -54,7 +55,7 @@ PCP_PYTHON_PMNS=root $python "$pmda_script" > $tmp.root
 
 echo "== Testing unbound metric values" | tee -a $seq.full
 cat > $tmp.fetch <<End-of-File
-open pipe $python $pmda_script
+open pipe $python_path $pmda_script
 getdesc on
 End-of-File
 cat $here/unbound/metrics.list | \
@@ -62,7 +63,8 @@ while read metric
 do
     echo fetch $metric >> $tmp.fetch
 done
-$sudo dbpmda -n $tmp.root -ie < $tmp.fetch 2>&1 | _filter
+dbpmda -n $tmp.root -ie < $tmp.fetch 2>&1 | _filter
+test -f unbound.log && cat unbound.log >> $seq.full
 
 status=0
 exit

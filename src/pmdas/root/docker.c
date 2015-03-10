@@ -201,9 +201,9 @@ docker_values_extract(const char *js, jsmntok_t *t, size_t count,
 		if (jsmneq(js, t, "Name") == 0)
 		    jsmnstrdup(js, value, &values->name);
 		if (jsmneq(js, t, "State") == 0)
-		    State = t->start;
+		    State = (value->type == JSMN_OBJECT);
 	    }
-	    if (t->parent == State) {	/* pick out various stateful values */
+	    else if (State != 0) {	/* pick out various stateful values */
 		int 	*flag = &values->status;
 
 		if (pmDebug & DBG_TRACE_ATTR)
@@ -229,6 +229,7 @@ docker_values_extract(const char *js, jsmntok_t *t, size_t count,
 	    j += docker_values_extract(js, t+1+j, count-j, 1, values); /* key */
 	    j += docker_values_extract(js, t+1+j, count-j, 0, values); /*value*/
 	}
+	State = 0;
 	return j + 1;
     case JSMN_ARRAY:
 	for (i = j = 0; i < t->size; i++)

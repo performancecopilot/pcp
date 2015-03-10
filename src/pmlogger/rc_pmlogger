@@ -38,6 +38,8 @@
 
 PMLOGCTRL=$PCP_PMLOGGERCONTROL_PATH
 PMLOGGER=$PCP_BINADM_DIR/pmlogger
+rcprog=$PCP_DIR/etc/init.d/pmlogger
+pmprog=$PCP_RC_DIR/pmlogger
 prog=$PCP_RC_DIR/`basename $0`
 
 # search for your mail agent of choice ...
@@ -56,14 +58,12 @@ tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
 status=1
 trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 
-if is_chkconfig_on pmlogger
+if [ $pmprog = $prog -o $rcprog = $prog ]
 then
-    PMLOGGER_CTL=on
+    VERBOSE_CTL=on
 else
-    PMLOGGER_CTL=off
+    VERBOSE_CTL=off
 fi
-
-VERBOSE_CTL=on
 
 case "$PCP_PLATFORM"
 in
@@ -258,15 +258,19 @@ case "$1" in
 	fi
 	_shutdown quietly
 
-	# pmlogger messages should go to stderr, not the GUI notifiers
+	# messages should go to stderr, not the GUI notifiers
 	#
 	unset PCP_STDERR
 
 	if [ -x $PMLOGGER ]
 	then
-	    if [ "$PMLOGGER_CTL" = on ]
+	    if is_chkconfig_on pmlogger
 	    then
 		_start_pmlogger
+	    elif [ "$0" = "$pmprog" -o "$0" = "$rcprog" ]
+	    then
+		echo "$prog: Warning: Performance Co-Pilot archive logger(s) are disabled."
+		chkconfig_on_msg pmlogger
 	    fi
 	fi
 

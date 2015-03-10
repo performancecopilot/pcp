@@ -1,9 +1,6 @@
 #!/usr/bin/python
-
 #
-# pmatop.py
-#
-# Copyright (C) 2013, 2014 Red Hat Inc.
+# Copyright (C) 2013-2015 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -227,9 +224,11 @@ class _AtopPrint(object):
 
     def end_of_screen(self):
         return self.p_stdscr.getyx()[0] >= self.apyx[0]-1
+
     def set_line(self):
         self.command_line = self.p_stdscr.getyx()[0]
         self.p_stdscr.addstr('\n')
+
     def next_line(self):
         if self.p_stdscr.stdout:
             print('')
@@ -240,7 +239,12 @@ class _AtopPrint(object):
             apy += 1
         self.p_stdscr.addstr(' ' * (self.apyx[1] - line[1]))
         self.p_stdscr.move(apy, 0)
-    def valstr(self, value, width, avg_secs=0):
+
+    def cpupct(self, value):
+        ''' Return integer percentage of aggregate CPU utilization '''
+        return int(100 * value / self.ss.cpu_total)
+
+    def valstr(self, value, width, avg_secs = 0):
         '''
         Function valstr() converts 'value' to a string of 'width' fixed
         number of positions.  If 'value' does not fit, it will be formatted to
@@ -300,8 +304,8 @@ class _AtopPrint(object):
                 fractional = str(value%1)[1:width]
                 if fractional == ".":
                     fractional = ""
-                prval = "%d%s" % (value * sign, fractional)
-                strvalue = "%*se-%d%s" % (width, prval, exp, suffix)
+                prval = "%d%s" % (int(value * sign), fractional)
+                strvalue = "%*se-%d%s" % (width, prval, int(exp), suffix)
             else:
                 # E format not needed: reduce precision, remove trailing 0s
                 svalue = str(value * sign).replace("0.",".")[0:width]
@@ -347,15 +351,15 @@ class _AtopPrint(object):
             aformat = pformat
 
         if aformat == self.ANYFORMAT:
-            strvalue = "%s%s" % (self.valstr((value), width), suffix)
+            strvalue = "%s%s" % (self.valstr(int(value), width), suffix)
         elif aformat == self.KBFORMAT:
-            strvalue = "%sK%s" % (self.valstr((value/self.ONEKBYTE), width-1), suffix)
+            strvalue = "%sK%s" % (self.valstr(int(value/self.ONEKBYTE), width-1), suffix)
         elif aformat == self.MBFORMAT:
-            strvalue = "%sM%s" % (self.valstr((value/self.ONEMBYTE), width-1), suffix)
+            strvalue = "%sM%s" % (self.valstr(int(value/self.ONEMBYTE), width-1), suffix)
         elif aformat == self.GBFORMAT:
-            strvalue = "%sG%s" % (self.valstr((value/self.ONEGBYTE), width-1), suffix)
+            strvalue = "%sG%s" % (self.valstr(int(value/self.ONEGBYTE), width-1), suffix)
         elif aformat == self.TBFORMAT:
-            strvalue = "%sT%s" % (self.valstr((value/self.ONETBYTE), width-1), suffix)
+            strvalue = "%sT%s" % (self.valstr(int(value/self.ONETBYTE), width-1), suffix)
         else:
             strvalue = "*****"
 
@@ -384,32 +388,44 @@ class _ProcessorPrint(_AtopPrint):
 # Missing: curscal (current current scaling percentage)
     def cpu(self):
         self.ss.get_total()
+        sys = self.cpupct(self.ss.get_metric_value('kernel.all.cpu.sys'))
+        user = self.cpupct(self.ss.get_metric_value('kernel.all.cpu.user'))
+        irq = self.cpupct(self.ss.get_metric_value('kernel.all.cpu.irq.hard')
+              + self.ss.get_metric_value('kernel.all.cpu.irq.soft'))
+        idle = self.cpupct(self.ss.get_metric_value('kernel.all.cpu.idle'))
+        io = self.cpupct(self.ss.get_metric_value('kernel.all.cpu.wait.total'))
         self.p_stdscr.addstr('CPU |')
-        self.p_stdscr.addstr(' sys %s%% |' % self.valstr(100 * self.ss.get_metric_value('kernel.all.cpu.sys') / self.ss.cpu_total, 7))
-        self.p_stdscr.addstr(' user %s%% |' % self.valstr(100 * self.ss.get_metric_value('kernel.all.cpu.user') / self.ss.cpu_total, 6))
-        self.p_stdscr.addstr(' irq %7d%% |' % (
-                100 * self.ss.get_metric_value('kernel.all.cpu.irq.hard') / self.ss.cpu_total +
-                100 * self.ss.get_metric_value('kernel.all.cpu.irq.soft') / self.ss.cpu_total))
-        self.p_stdscr.addstr(' idle %s%% |' % self.valstr(100 * self.ss.get_metric_value('kernel.all.cpu.idle') / self.ss.cpu_total, 6))
-        self.p_stdscr.addstr(' wait %s%% |' % self.valstr(100 * self.ss.get_metric_value('kernel.all.cpu.wait.total') / self.ss.cpu_total, 6))
+        self.p_stdscr.addstr(' sys %s%% |' % self.valstr(sys, 7))
+        self.p_stdscr.addstr(' user %s%% |' % self.valstr(user, 6))
+        self.p_stdscr.addstr(' irq %7d%% |' % irq)
+        self.p_stdscr.addstr(' idle %s%% |' % self.valstr(idle, 6))
+        self.p_stdscr.addstr(' wait %s%% |' % self.valstr(io, 6))
         self.next_line()
         ncpu = self.ss.get_metric_value('hinv.ncpu')
-        max_display_cpus = self.apyx[0] / 4
+        max_display_cpus = int(self.apyx[0] / 4)
         for k in range(ncpu):
-            percpu_sys = (100 * self.ss.get_scalar_value('kernel.percpu.cpu.sys', k) / self.ss.cpu_total)
-            percpu_user = (100 * self.ss.get_scalar_value('kernel.percpu.cpu.user', k) / self.ss.cpu_total)
-            if percpu_sys == 0 and percpu_user == 0:
+            sys = self.ss.get_scalar_value('kernel.percpu.cpu.sys', k)
+            user = self.ss.get_scalar_value('kernel.percpu.cpu.user', k)
+            sys = self.cpupct(sys)
+            user = self.cpupct(user)
+            if sys == 0 and user == 0:
                 continue
+            irq = (self.ss.get_scalar_value('kernel.percpu.cpu.irq.hard', k)
+                 + self.ss.get_scalar_value('kernel.percpu.cpu.irq.soft', k))
+            idle = self.ss.get_scalar_value('kernel.percpu.cpu.idle', k)
+            wait = self.ss.get_scalar_value('kernel.percpu.cpu.wait.total', k)
+            irq = self.cpupct(irq)
+            idle = self.cpupct(idle)
+            wait = self.cpupct(wait)
             self.p_stdscr.addstr('cpu |')
-            self.p_stdscr.addstr(' sys %7d%% |' % percpu_sys)
-            self.p_stdscr.addstr(' user %6d%% |' % percpu_user)
-            self.p_stdscr.addstr(' irq %7d%% |' % (
-                    100 * self.ss.get_scalar_value('kernel.percpu.cpu.irq.hard', k) / self.ss.cpu_total +
-                    100 * self.ss.get_scalar_value('kernel.percpu.cpu.irq.soft', k) / self.ss.cpu_total))
-            self.p_stdscr.addstr(' idle %6d%% |' % (100 * self.ss.get_scalar_value('kernel.percpu.cpu.idle', k) / self.ss.cpu_total))
-            self.p_stdscr.addstr(' cpu%02d %5d%% |' % (k, 100 * self.ss.get_scalar_value('kernel.percpu.cpu.wait.total', k) / self.ss.cpu_total))
+            self.p_stdscr.addstr(' sys %7d%% |' % sys)
+            self.p_stdscr.addstr(' user %6d%% |' % user)
+            self.p_stdscr.addstr(' irq %7d%% |' % irq)
+            self.p_stdscr.addstr(' idle %6d%% |' % idle)
+            self.p_stdscr.addstr(' cpu%02d %5d%% |' % (k, wait))
             if self.apyx[1] >= 95:
-                self.p_stdscr.addstr(' curf %sMHz |' % (self.valstr(scale(self.ss.get_scalar_value('hinv.cpu.clock', k), 1000), 4)))
+                mhz = scale(self.ss.get_scalar_value('hinv.cpu.clock', k), 1000)
+                self.p_stdscr.addstr(' curf %sMHz |' % (self.valstr(mhz), 4))
             self.next_line()
             if ncpu > max_display_cpus and k >= max_display_cpus:
                 break
@@ -445,29 +461,19 @@ class _DiskPrint(_AtopPrint):
     replay_archive = property(None, replay_archive_write, None, None)
 
     def disk(self, context):
+        desc = self.ss.metric_descs[self.ss.metrics_dict['disk.partitions.read']]
         try:
-            (inst, iname) = context.pmGetInDom(self.ss.metric_descs[self.ss.metrics_dict['disk.partitions.read']])
+            (inst, iname) = context.pmGetInDom(desc)
         except pmapi.pmErr as e:
             iname = iname = "X"
 
-# Missing: LVM avq (average queue depth)
+        # Missing: LVM avq (average queue depth)
+        # TODO: switch to using disk.dm metrics?
 
-        try:
-	    lvms = dict(map(lambda x: (os.path.realpath("/dev/mapper/" + x)[5:], x),
-                         (os.listdir("/dev/mapper"))))
-	except Exception as e:
-	    # if /dev/mapper does not exist, charge on McDuff
-	    lvms = ''
-
-        for j in xrange(self.ss.get_len(self.ss.get_metric_value('disk.partitions.read'))):
-            if self._replay_archive == True:
-                if iname[j][:2] != "dm":
-                    continue
-                lvm = iname[j]
-            else:
-                if iname[j] not in lvms:
-                    continue
-                lvm = lvms[iname[j]]
+        for j in range(self.ss.get_len(self.ss.get_metric_value('disk.partitions.read'))):
+            if iname[j][:2] != "dm":
+                continue
+            lvm = iname[j]
             partitions_read = self.ss.get_scalar_value('disk.partitions.read', j)
             partitions_write = self.ss.get_scalar_value('disk.partitions.write', j)
             if partitions_read == 0 and partitions_write == 0:
@@ -494,8 +500,7 @@ class _DiskPrint(_AtopPrint):
         except pmapi.pmErr as e:
             iname = iname = "X"
 
-
-        for j in xrange(self.ss.get_len(self.ss.get_metric_value('disk.dev.read_bytes'))):
+        for j in range(self.ss.get_len(self.ss.get_metric_value('disk.dev.read_bytes'))):
             self.p_stdscr.addstr('DSK |')
             self.p_stdscr.addstr(' %-12s |' % (iname[j]))
             busy = (float(self.ss.get_scalar_value('disk.dev.avactive', j)) / float(self._interval * 1000)) * 100
@@ -592,7 +597,7 @@ class _NetPrint(_AtopPrint):
             iname = iname = "X"
         net_metric = self.ss.get_metric_value('network.interface.in.bytes')
         if type(net_metric) == type([]):
-            for j in xrange(len(self.ss.get_metric_value('network.interface.in.bytes'))):
+            for j in range(len(self.ss.get_metric_value('network.interface.in.bytes'))):
                 pcki = self.ss.get_scalar_value('network.interface.in.packets', j)
                 pcko = self.ss.get_scalar_value('network.interface.out.packets', j)
                 if pcki == 0 and pcko == 0:
@@ -620,14 +625,6 @@ class _ProcPrint(_AtopPrint):
         self._output_type = value
     output_type = property(None, type_write, None, None)
 
-    @staticmethod
-    def sort_l(l1, l2):
-        if l1[1] < l2[1]:
-            return -1
-        elif l1[1] > l2[1]:
-            return 1
-        else: return 0
-
     def proc(self):
         if self._output_type in ['g']:
             self.p_stdscr.addstr('  PID  SYSCPU USRCPU   VGROW  RGROW RUID    THR ST EXC S CPU  CMD')
@@ -644,12 +641,12 @@ class _ProcPrint(_AtopPrint):
 
         # TODO Remember this state for Next/Previous Page
         cpu_time_sorted = list()
-        for j in xrange(self.ss.get_metric_value('proc.nprocs')):
+        for j in range(self.ss.get_metric_value('proc.nprocs')):
             cpu_time_sorted.append((j, self.ss.get_scalar_value('proc.psinfo.utime', j)
                                     +  self.ss.get_scalar_value('proc.psinfo.stime', j)))
-        cpu_time_sorted.sort(self.sort_l, reverse=True)
+        cpu_time_sorted.sort(key=lambda proc: proc[1], reverse=True)
 
-        for i in xrange(len(cpu_time_sorted)):
+        for i in range(len(cpu_time_sorted)):
             j = cpu_time_sorted[i][0]
             if self._output_type in ['g', 'm']:
                 self.p_stdscr.addstr('%5d  ' % (self.ss.get_scalar_value('proc.psinfo.pid', j)))
@@ -667,13 +664,15 @@ class _ProcPrint(_AtopPrint):
                     state = 'S'
                 self.p_stdscr.addstr('%2s ' % (state))
                 cpu_total = float(self.ss.cpu_total - self.ss.get_metric_value('kernel.all.cpu.idle'))
-                proc_cpu_total = (self.ss.get_scalar_value('proc.psinfo.utime', j) + self.ss.get_scalar_value('proc.psinfo.stime', j))
+                proc_cpu_total = (self.ss.get_scalar_value('proc.psinfo.utime', j)
+                                + self.ss.get_scalar_value('proc.psinfo.stime', j))
                 if proc_cpu_total > cpu_total:
                     proc_percent = 0
                 else:
                     proc_percent = (100 * proc_cpu_total / cpu_total)
+                proc_command = self.ss.get_scalar_value('proc.psinfo.cmd', j)
                 self.p_stdscr.addstr('%2d%% ' % proc_percent)
-                self.p_stdscr.addstr('%-15s ' % (self.ss.get_scalar_value('proc.psinfo.cmd', j)))
+                self.p_stdscr.addstr('%-15s ' % proc_command)
             if self._output_type in ['m']:
                 # Missing: SWAPSZ, proc.psinfo.nswap frequently returns -1
                 if self.apyx[1] >= 110:
@@ -706,10 +705,8 @@ class _ProcPrint(_AtopPrint):
 
 class _Options(object):
     def __init__(self):
-        self.input_file = ""
         self.output_file = ""
         self.output_type = "g"
-        self.host = "local:"
         self.create_archive = False
         self.replay_archive = False
         self.have_interval_arg = False
@@ -724,16 +721,28 @@ class _Options(object):
         opts.pmSetOptionCallback(self.option_callback)
         opts.pmSetOverrideCallback(self.override)
         # leading - returns args that are not options with leading ^A
-        opts.pmSetShortOptions("-gmw:r:L:h:V?")
-        opts.pmSetLongOptionHeader("Options")
+        opts.pmSetShortOptions("-gmw:r:L:h:a:V?")
+        opts.pmSetLongOptionText("Interactive: [-g|-m] [-L linelen] [-h host | -a archive] [ interval [ samples ]]")
+        opts.pmSetLongOptionText("Write folio: pmatop -w folio [ interval [ samples ]]")
+        opts.pmSetLongOptionText("Read folio: pmatop -r folio [-g|-m] [-L linelen] [-h host]")
+        opts.pmSetLongOptionHeader("Reporting Options")
         opts.pmSetLongOption("generic", 0, 'g', '', "Display generic metrics")
         opts.pmSetLongOption("memory", 0, 'm', '', "Display memory metrics")
-        opts.pmSetLongOption("write", 1, 'w', 'FILENAME', "Write metric data to file")
-        opts.pmSetLongOption("read", 1, 'r', 'FILENAME', "Read metric data from file")
         opts.pmSetLongOption("width", 1, 'L', 'WIDTH', "Width of the output")
-        opts.pmSetShortUsage("[options]\nInteractive: [-g|-m] [-L linelen] [-h host] [ interval [ samples ]]\nWrite raw logfile: pmatop -w rawfile [ interval [ samples ]]\nRead raw logfile: pmatop -r [ rawfile ] [-g|-m] [-L linelen] [-h host]")
+        opts.pmSetLongOptionHeader("Folio Options")
+        opts.pmSetLongOption("write", 1, 'w', 'FILENAME', "Write metric data to PCP archive folio")
+        opts.pmSetLongOption("read", 1, 'r', 'FILENAME', "Read metric data from PCP archive folio")
+        opts.pmSetLongOptionHeader("General Options")
+        opts.pmSetLongOptionAlign()
+        opts.pmSetLongOptionArchive()
+        opts.pmSetLongOptionDebug()
         opts.pmSetLongOptionHost()
+        opts.pmSetLongOptionOrigin()
+        opts.pmSetLongOptionStart()
+        opts.pmSetLongOptionFinish()
         opts.pmSetLongOptionVersion()
+        opts.pmSetLongOptionTimeZone()
+        opts.pmSetLongOptionHostZone()
         opts.pmSetLongOptionHelp()
         return opts
 
@@ -743,6 +752,8 @@ class _Options(object):
         # pylint: disable=R0201
         if opt == 'g':
             return 1
+        elif opt == "a":
+            self.replay_archive = True
         elif opt == 'L':
             return 1
         return 0
@@ -760,12 +771,9 @@ class _Options(object):
             self.create_archive = True
         elif opt == "r":
             self.opts.pmSetOptionArchiveFolio(optarg)
-            self.input_file = optarg
             self.replay_archive = True
         elif opt == "L":
             self.width = int(optarg)
-        elif opt == 'h':
-            self.host = optarg
         elif opt == "":
             if self.have_interval_arg == False:
                 self.interval_arg = optarg
@@ -801,13 +809,11 @@ def main(stdscr_p):
     stdscr.width = opts.width
 
     pmc = pmapi.pmContext.fromOptions(opts.opts, sys.argv)
+    (delta, errmsg) = pmc.pmParseInterval(str(opts.interval_arg) + " seconds")
     if pmc.type == c_api.PM_CONTEXT_ARCHIVE:
-        pmc.pmSetMode(c_api.PM_MODE_FORW, pmapi.timeval(0, 0), 0)
-
+        pmc.pmSetMode(c_api.PM_MODE_FORW, delta, 0)
 
     host = pmc.pmGetContextHostName()
-
-    (delta, errmsg) = pmc.pmParseInterval(str(opts.interval_arg) + " seconds")
 
     ss.setup_metrics(pmc)
 
@@ -836,10 +842,10 @@ def main(stdscr_p):
         elapsed = ss.get_metric_value('kernel.all.uptime')
         while (i_samples < opts.n_samples) or (opts.n_samples == 0):
             ss.get_stats(pmc)
+            stamp = pmc.pmCtime(ss.timestamp)
             stdscr.move(0, 0)
             stdscr.addstr('ATOP - %s                %s elapsed\n\n' % (
-                    time.strftime("%c"),
-                    datetime.timedelta(0, elapsed)))
+                    stamp.rstrip(), datetime.timedelta(0, elapsed)))
             elapsed = delta.tv_sec
             stdscr.move(2, 0)
 

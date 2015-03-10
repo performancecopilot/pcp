@@ -33,6 +33,42 @@ _cleanup()
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+#
+# on one QA host (bozo) where bind is running (may or not be related)
+# the test emits
+# * Hostname was NOT found in DNS cache
+# instead of
+# * About to connect() to LOCALHOST port 44323 (####)
+# but otherwise works.
+# This error message apparently comes from deep inside the non-PCP code.
+# So filter to remove both variants to ensure the test is deemed to
+# have passed.
+#
+# Also there is some other noise from a similar source but different
+# causes, e.g.
+#
+# * HTTP 1.1 or later with persistent connection, pipelining supported
+# * additional stuff not fine transfer.c:1037: 0 0
+# *   Trying LOCALADDR...
+# * Connection refused
+# WARNING: gnome-keyring:: couldn't connect to: ...
+# * [othewise blank line]
+# [blank line]
+#
+_filter()
+{
+    sed \
+	-e '/Hostname was NOT found in DNS cache/d' \
+	-e '/About to connect() to LOCALHOST port 44323 (####)/d' \
+	-e '/^\* HTTP 1.1 or later with persistent connection/d' \
+	-e '/^\* additional stuff not fine/d' \
+	-e '/^\*  *Trying LOCALADDR/d' \
+	-e '/^\* Connection refused/d' \
+	-e '/WARNING: gnome-keyring::/d' \
+	-e '/^\*$/d' \
+	-e '/^[ 	]*$/d'
+}
+
 ipv6local=`_ipv6_localhost`
 echo "ipv6local=$ipv6local" >>$seq.full
 
@@ -77,22 +113,31 @@ $PCP_BINADM_DIR/pmwebd $webargs -R `pwd` -c 2222 -L -h localhost -N -vv -l $tmp.
 sleep 2		# let it start up
 cat $tmp.err >> $seq.full
 
-# should fail due to -N
-curl -s -S "http://localhost:44323/pmapi/context?local=anything" | _webapi_response_filter
-echo
+echo "+++ should fail due to -N" | tee -a $seq.full
+curl -s -S "http://localhost:44323/pmapi/context?local=anything" \
+| tee -a $seq.full \
+| _webapi_response_filter
+echo | tee -a $seq.full
 
-# should fail due to nonexistent context#
-curl -s -S "http://localhost:44323/pmapi/2225/_fetch" | _webapi_response_filter
-echo
+echo "+++ should fail due to nonexistent context#" | tee -a $seq.full
+curl -s -S "http://localhost:44323/pmapi/2225/_fetch" \
+| tee -a $seq.full \
+| _webapi_response_filter
+echo | tee -a $seq.full
 
-# should fail with a different error (insufficient elements; ie pmFetch failed) 
+echo "+++ should fail with a different error (insufficient elements; ie pmFetch failed)" | tee -a $seq.full
 # NB: the curl -v part reports http headers too, for ACAO presence assertion
-curl -s -v -S "http://localhost:44323/pmapi/2222/_fetch?names=" 2>&1 | _webapi_response_filter
-echo
+curl -s -v -S "http://localhost:44323/pmapi/2222/_fetch?names=" 2>&1 \
+| tee -a $seq.full \
+| _webapi_response_filter \
+| _filter
+echo | tee -a $seq.full
 
-# should fail with a different error (insufficient elements; ie pmFetch failed) 
-curl -s -S "http://localhost:44323/pmapi/2223/_fetch?pmids=" | _webapi_response_filter
-echo
+echo "+++ should fail with a different error (insufficient elements; ie pmFetch failed)" | tee -a $seq.full
+curl -s -S "http://localhost:44323/pmapi/2223/_fetch?pmids=" \
+| tee -a $seq.full \
+| _webapi_response_filter
+echo | tee -a $seq.full
 
 # filter for responses from newer microhttpd libraries, where
 # symlink paths are rewritten (with verbose diagnostics that
@@ -106,15 +151,22 @@ _symlink_response_filter()
     #end
 }
 
-# should fail due to suspicious pmresapi path name
-curl -s -v -S "http://localhost:44323/../../etc/passwd" 2>&1 | _webapi_response_filter | _symlink_response_filter
+echo "+++ should fail due to suspicious pmresapi path name" | tee -a $seq.full
+curl -s -v -S "http://localhost:44323/../../etc/passwd" 2>&1 \
+| tee -a $seq.full \
+| _webapi_response_filter \
+| _symlink_response_filter \
+| _filter
+echo | tee -a $seq.full
 
-echo
-# should fail due to non-enablement of graphite
-curl -s -v -S "http://localhost:44323/graphite/render?target=*" 2>&1 | _webapi_response_filter
-echo
+echo "+++ should fail due to non-enablement of graphite" | tee -a $seq.full
+curl -s -v -S "http://localhost:44323/graphite/render?target=*" 2>&1 \
+| tee -a $seq.full \
+| _webapi_response_filter \
+| _filter
 
-# should pass, feed this very script
+echo | tee -a $seq.full
+echo "+++ should pass, feed this very script" | tee -a $seq.full
 curl -s -S "http://localhost:44323/$seq" > $tmp.out2
 diff $tmp.out2 $0 && echo file service ok
 

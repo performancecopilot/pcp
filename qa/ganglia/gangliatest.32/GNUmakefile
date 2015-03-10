@@ -1,7 +1,7 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-GTEST = gangliatest
+GTEST = gangliatest.32
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/ganglia/$(GTEST)
 

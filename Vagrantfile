@@ -35,17 +35,17 @@ yum --enablerepo=epel -y install epel-release
 rm -f /etc/yum.repos.d/epel-bootstrap.repo
 
 yum -y groupinstall 'Development Tools'
-yum -y install git ncurses-devel readline-devel man libmicrohttpd-devel qt4-devel python26 perl-JSON sysstat perl-TimeDate \
+yum -y install git ncurses-devel readline-devel man libmicrohttpd-devel qt4-devel python26 python26-devel perl-JSON sysstat perl-TimeDate \
 		perl-XML-TokeParser perl-ExtUtils-MakeMaker perl-Time-HiRes systemd-devel bc cairo-devel cyrus-sasl-devel \
 		systemd-devel libibumad-devel libibmad-devel papi-devel libpfm-devel rpm-devel perl-Spreadsheet-WriteExcel \
 		perl-Text-CSV_XS bind-utils httpd python-devel nspr-devel nss-devel python-ctypes nss-tools perl-Spreadsheet-XLSX \
-		ed cpan valgrind time xdpyinfo
+		ed cpan valgrind time xdpyinfo rrdtool-perl
 
 # Lots of avahi errors on Centos511, likely due to my environment
 # avahi-devel
 
 cd /vagrant
-sudo -H -u vagrant ./Makepkgs
+sudo -H -u vagrant env PYTHON=python2.6 ./Makepkgs
 rpm -ivh  pcp-*/build/rpm/*.rpm
 
 # Doesn't start automatically on all distributions
@@ -205,15 +205,21 @@ pcp_hosts = {
                 :box => "chef/centos-5.11",
                 :script => "#{$script_centos}"
         },
+	:centos511_32 => {
+                :hostname => "centos511-32",
+                :ipaddress => "10.100.10.21",
+                :box => "chef/centos-5.11-i386",
+                :script => "#{$script_centos}"
+        },
         :centos65 => {
                 :hostname => "centos65",
-                :ipaddress => "10.100.10.21",
+                :ipaddress => "10.100.10.22",
                 :box => "chef/centos-6.5",
                 :script => "#{$script_centos}"
         },
         :centos7 => {
                 :hostname => "centos7",
-                :ipaddress => "10.100.10.22",
+                :ipaddress => "10.100.10.23",
                 :box => "chef/centos-7.0",
                 :script => "#{$script_centos}"
         },
@@ -267,7 +273,8 @@ $script_common << "echo \"127.0.0.1 localhost.localdomain localhost\" >> /etc/ho
 
 pcp_hosts.each_pair do |name, options|
         ipaddr = options[:ipaddress]
-        $script_common << "echo \"#{ipaddr} #{name} #{name}.localdomain\" >> /etc/hosts\n"
+	hostname = options[:hostname]
+        $script_common << "echo \"#{ipaddr} #{hostname} #{hostname}.localdomain\" >> /etc/hosts\n"
 end
 
 $script_common << "domainname localdomain"
@@ -322,7 +329,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |global_config|
 	   # VM specific shared folder for qa results
   	   config.vm.synced_folder "./qaresults/#{name}", "/qaresults", mount_options: ["dmode=777", "fmode=666"], create: true
 
-	   config.vm.hostname = "#{name}"
+	   #config.vm.hostname = "#{name}"
+	   config.vm.hostname = "#{options[:hostname]}"
            config.vm.network :private_network, ip: options[:ipaddress]
 
 	   # Setup networking etc

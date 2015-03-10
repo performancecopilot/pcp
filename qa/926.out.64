@@ -1,10 +1,10 @@
 QA output created by 926
 
-=== ./ganglia/gangliatest ===
-Note: timezone set to local timezone of host "gangliatest" from archive
+=== ./ganglia/gangliatest.64 ===
+Note: timezone set to local timezone of host "gangliatest.64" from archive
 
 Log Label (Log Format Version 2)
-Performance metrics from host gangliatest
+Performance metrics from host gangliatest.64
   commencing Wed Feb 11 17:02:00.000 2015
   ending     Wed Feb 11 17:21:00.000 2015
 

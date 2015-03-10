@@ -27,7 +27,6 @@ papi.control {
     status		PAPI:1:3
     auto_enable		PAPI:1:4
     multiplex		PAPI:1:5
-    batch		PAPI:1:6
 }
 
 papi.available {

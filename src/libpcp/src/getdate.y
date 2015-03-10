@@ -314,12 +314,12 @@ zone:
 day:
     tDAY
       {
-	pc->day_ordinal = 1;
+	pc->day_ordinal = 0;
 	pc->day_number = $1;
       }
   | tDAY ','
       {
-	pc->day_ordinal = 1;
+	pc->day_ordinal = 0;
 	pc->day_number = $1;
       }
   | tORDINAL tDAY
@@ -1186,7 +1186,9 @@ __pmGlibGetDate(struct timespec *result, char const *p,
 
 	if (pc.days_seen && !pc.dates_seen) {
 	    tm.tm_mday += ((pc.day_number - tm.tm_wday + 7) % 7
-			   + 7 * (pc.day_ordinal - (0 < pc.day_ordinal && tm.tm_wday != pc.day_number)));
+			   + 7 * (pc.day_ordinal 
+				  - (0 < pc.day_ordinal 
+				     && tm.tm_wday != pc.day_number)));
 	    tm.tm_isdst = -1;
 	    Start = __pmMktime(&tm);
 	    if (Start == (time_t) - 1)

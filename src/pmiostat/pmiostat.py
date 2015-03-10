@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Copyright (C) 2014 Red Hat.
+# Copyright (C) 2014-2015 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -19,19 +19,19 @@ import sys
 from pcp import pmapi, pmcc
 from cpmapi import PM_TYPE_U64, PM_CONTEXT_ARCHIVE, PM_SPACE_KBYTE
 
-IOSTAT_SD_METRICS = [ b'disk.dev.read', b'disk.dev.read_bytes',
-                 b'disk.dev.write', b'disk.dev.write_bytes',
-                 b'disk.dev.read_merge', b'disk.dev.write_merge',
-                 b'disk.dev.blkread', b'disk.dev.blkwrite',
-                 b'disk.dev.read_rawactive', b'disk.dev.write_rawactive',
-                 b'disk.dev.avactive']
+IOSTAT_SD_METRICS = [ 'disk.dev.read', 'disk.dev.read_bytes',
+                 'disk.dev.write', 'disk.dev.write_bytes',
+                 'disk.dev.read_merge', 'disk.dev.write_merge',
+                 'disk.dev.blkread', 'disk.dev.blkwrite',
+                 'disk.dev.read_rawactive', 'disk.dev.write_rawactive',
+                 'disk.dev.avactive']
 
-IOSTAT_DM_METRICS = [ b'disk.dm.read', b'disk.dm.read_bytes',
-                 b'disk.dm.write', b'disk.dm.write_bytes',
-                 b'disk.dm.read_merge', b'disk.dm.write_merge',
-                 b'disk.dm.blkread', b'disk.dm.blkwrite',
-                 b'disk.dm.read_rawactive', b'disk.dm.write_rawactive',
-                 b'disk.dm.avactive']
+IOSTAT_DM_METRICS = [ 'disk.dm.read', 'disk.dm.read_bytes',
+                 'disk.dm.write', 'disk.dm.write_bytes',
+                 'disk.dm.read_merge', 'disk.dm.write_merge',
+                 'disk.dm.blkread', 'disk.dm.blkwrite',
+                 'disk.dm.read_rawactive', 'disk.dm.write_rawactive',
+                 'disk.dm.avactive']
 
 class IostatReport(pmcc.MetricGroupPrinter):
     Hcount = 0
@@ -51,45 +51,45 @@ class IostatReport(pmcc.MetricGroupPrinter):
 
     def report(self, manager):
         if 'dm' in IostatOptions.xflag:
-            subtree = b'disk.dm'
+            subtree = 'disk.dm'
         else:
-            subtree = b'disk.dev'
+            subtree = 'disk.dev'
         group = manager["iostat"]
 
-        if group[subtree + b'.read_merge'].netPrevValues == None:
+        if group[subtree + '.read_merge'].netPrevValues == None:
             # need two fetches to report rate converted counter metrics
             return
 
-        instlist = self.instlist(group, subtree + b'.read')
+        instlist = self.instlist(group, subtree + '.read')
         dt = self.timeStampDelta(group)
         timestamp = group.contextCache.pmCtime(int(group.timestamp)).rstrip()
 
-        c_rrqm = self.curVals(group, subtree + b'.read_merge')
-        p_rrqm = self.prevVals(group, subtree + b'.read_merge')
+        c_rrqm = self.curVals(group, subtree + '.read_merge')
+        p_rrqm = self.prevVals(group, subtree + '.read_merge')
 
-        c_wrqm = self.curVals(group, subtree + b'.write_merge')
-        p_wrqm = self.prevVals(group, subtree + b'.write_merge')
+        c_wrqm = self.curVals(group, subtree + '.write_merge')
+        p_wrqm = self.prevVals(group, subtree + '.write_merge')
 
-        c_r = self.curVals(group, subtree + b'.read')
-        p_r = self.prevVals(group, subtree + b'.read')
+        c_r = self.curVals(group, subtree + '.read')
+        p_r = self.prevVals(group, subtree + '.read')
 
-        c_w = self.curVals(group, subtree + b'.write')
-        p_w = self.prevVals(group, subtree + b'.write')
+        c_w = self.curVals(group, subtree + '.write')
+        p_w = self.prevVals(group, subtree + '.write')
 
-        c_rkb = self.curVals(group, subtree + b'.read_bytes')
-        p_rkb = self.prevVals(group, subtree + b'.read_bytes')
+        c_rkb = self.curVals(group, subtree + '.read_bytes')
+        p_rkb = self.prevVals(group, subtree + '.read_bytes')
 
-        c_wkb = self.curVals(group, subtree + b'.write_bytes')
-        p_wkb = self.prevVals(group, subtree + b'.write_bytes')
+        c_wkb = self.curVals(group, subtree + '.write_bytes')
+        p_wkb = self.prevVals(group, subtree + '.write_bytes')
 
-        c_ractive = self.curVals(group, subtree + b'.read_rawactive')
-        p_ractive = self.prevVals(group, subtree + b'.read_rawactive')
+        c_ractive = self.curVals(group, subtree + '.read_rawactive')
+        p_ractive = self.prevVals(group, subtree + '.read_rawactive')
 
-        c_wactive = self.curVals(group, subtree + b'.write_rawactive')
-        p_wactive = self.prevVals(group, subtree + b'.write_rawactive')
+        c_wactive = self.curVals(group, subtree + '.write_rawactive')
+        p_wactive = self.prevVals(group, subtree + '.write_rawactive')
 
-        c_avactive = self.curVals(group, subtree + b'.avactive')
-        p_avactive = self.prevVals(group, subtree + b'.avactive')
+        c_avactive = self.curVals(group, subtree + '.avactive')
+        p_avactive = self.prevVals(group, subtree + '.avactive')
 
         # check availability
         if p_rrqm == {} or p_wrqm == {} or p_r == {} or p_w == {} or p_rkb == {} \
@@ -111,7 +111,7 @@ class IostatReport(pmcc.MetricGroupPrinter):
                                'avgrq-sz', 'avgqu-sz', 'await', 'r_await', 'w_await', '%util')
                     print("%-12s %7s %7s %6s %6s %8s %8s %8s %8s %7s %7s %7s %5s" % heading)
 
-        for inst in instlist:
+        for inst in sorted(instlist):
             # basic stats
             rrqm = (c_rrqm[inst] - p_rrqm[inst]) / dt
             wrqm = (c_wrqm[inst] - p_wrqm[inst]) / dt
@@ -151,7 +151,7 @@ class IostatReport(pmcc.MetricGroupPrinter):
             if tot_active:
                     util = 100.0 * tot_active / dt
 
-            device = inst.decode('utf-8')	# prepare name for printing
+            device = inst	# prepare name for printing
             if "t" in IostatOptions.xflag:
                 print("%-24s %-12s %7.1f %7.1f %6.1f %6.1f %8.1f %8.1f %8.2f %8.2f %7.1f %7.1f %7.1f %5.1f" \
                 % (timestamp, device, rrqm, wrqm, r, w, rkb, wkb, avgrqsz, avgqsz, await, r_await, w_await, util))

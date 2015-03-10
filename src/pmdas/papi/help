@@ -38,8 +38,6 @@
 
 @ papi.control.multiplex Switch for enabling PAPI multiplexing
 
-@ papi.control.batch Maximum number of counters per fetch to enable without batching
-
 @ papi.available.num_counters Number of hardware counters available for use
 
 @ papi.available.version The current PAPI version number in use

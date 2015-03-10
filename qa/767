@@ -1,0 +1,38 @@
+#!/bin/sh
+# PCP QA Test No. 767
+# Exercise Linux kernel PMDA containers error handling.
+#
+# Copyright (c) 2015 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_containers
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+container=NoSuchContainer
+
+echo "== kernel PMDA"
+metrics="kernel.all.load network.interface.in.bytes"
+pmprobe --external --container=$container $metrics
+pminfo --fetch --container=$container $metrics
+echo
+
+echo "== procfs PMDA"
+metrics="proc.memory.rss cgroup.memory.stat.rss"
+pmprobe --external --container=$container $metrics
+pminfo --fetch --container=$container $metrics
+
+# success, all done
+status=0
+exit

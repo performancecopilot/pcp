@@ -95,6 +95,17 @@
    fun:NSS*
 }
 
+# ==12607==    at 0x482AB7A: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+# ==12607==    by 0x4ADF84E: nss_parse_service_list (nsswitch.c:678)
+# ==12607==    by 0x4ADFFC9: __nss_database_lookup (nsswitch.c:175)
+{
+   nssswitch library leak catch-all
+   Memcheck:Leak
+   fun:malloc
+   fun:nss_parse_service_list
+   fun:__nss_database_lookup
+}
+
 {
    NSPR library leak catch-all
    Memcheck:Leak
@@ -104,23 +115,24 @@
 }
 
 {
-   cyrus-sasl callback leak, RHBZ1191183, variant #1
+   cyrus-sasl callback leak, RHBZ1191183, common case variant
    Memcheck:Leak
    fun:calloc
-   fun:__pmAuthSecretCB
+   ...
    fun:_plug_get_password
    ...
    fun:sasl_client_step
-   fun:__pmAuthClientNegotiation
    ...
 }
 
 {
-   cyrus-sasl callback leak, RHBZ1191183, variant #2
-   Memcheck:Leak
-   fun:calloc
-   fun:__pmAuthSecretCB
-   fun:_plug_get_password
+   RHEL6.3 GSS/kerberos libraries via cyrus-sasl, uninit'd access
+   Memcheck:Addr8
+   ...
+   fun:krb5int_clean_hostname
+   fun:krb5_get_host_realm
+   ...
+   fun:gss_init_sec_context
    ...
    fun:sasl_client_step
    fun:sasl_client_start
