@@ -1109,6 +1109,8 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %defattr(-,root,root,-)
 
 %changelog
+* Wed Apr 15 2015 Nathan Scott <nathans@redhat.com> - 3.10.4-1
+
 * Wed Mar 04 2015 Dave Brolley <brolley@redhat.com> - 3.10.3-2
 - papi 5.4.1 rebuild
 
