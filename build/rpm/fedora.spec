@@ -30,25 +30,20 @@ Source1: ftp://ftp.pcp.io/projects/pcp/download/pcp-webjs.src.tar.gz
 %define disable_microhttpd 0
 %define disable_cairo 0
 
-# Python development environment before el6 is pre-2.6 (too old)
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %define disable_python2 0
-%else
-%define disable_python2 1
+# Default for epel5 is python24, so use the (optional) python26 packages
+%if 0%{?rhel} == 5
+%define default_python 26
 %endif
 # No python3 development environment before el7
 %if 0%{?rhel} == 0 || 0%{?rhel} > 6
 %define disable_python3 0
 # Do we wish to mandate python3 use in pcp?  (f22+ and el8+)
 %if 0%{?fedora} >= 22 || 0%{?rhel} > 7
-%define default_python3 1
-%else
-%define default_python3 0
-%define
+%define default_python 3
 %endif
 %else
 %define disable_python3 1
-%define default_python3 0
 %endif
 
 # Qt development and runtime environment missing components before el6
@@ -64,7 +59,11 @@ BuildRequires: nss-devel
 BuildRequires: rpm-devel
 BuildRequires: avahi-devel
 %if !%{disable_python2}
+%if 0%{?default_python} != 3
+BuildRequires: python%{?default_python}-devel
+%else
 BuildRequires: python-devel
+%endif
 %endif
 %if !%{disable_python3}
 BuildRequires: python3-devel
@@ -102,18 +101,12 @@ BuildRequires: qt4-devel >= 4.4
 %endif
 
 Requires: bash gawk sed grep fileutils findutils initscripts perl which
-%if !%{disable_python2} && !%{default_python3}
-%if 0%{?rhel} <= 5
-Requires: python-ctypes
-%endif
-Requires: python
-%endif
-
+Requires: python%{?default_python}
 Requires: pcp-libs = %{version}-%{release}
-%if %{default_python3}
+%if 0%{?default_python} == 3
 Requires: python3-pcp = %{version}-%{release}
 %endif
-%if !%{disable_python2} && !%{default_python3}
+%if !%{disable_python2} && 0%{?default_python} != 3
 Requires: python-pcp = %{version}-%{release}
 %endif
 Requires: perl-PCP-PMDA = %{version}-%{release}
@@ -568,6 +561,9 @@ PCP utilities and daemons, and the PCP graphical tools.
 rm -Rf $RPM_BUILD_ROOT
 
 %build
+%if !%{disable_python2} && 0%{?default_python} != 3
+export PYTHON=python%{?default_python}
+%endif
 %configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_perfevent}
 make default_pcp
 
@@ -625,10 +621,12 @@ for f in $RPM_BUILD_ROOT/%{_initddir}/{pcp,pmcd,pmlogger,pmie,pmwebd,pmmgr,pmpro
 	sed -i -e '/^# chkconfig/s/:.*$/: - 95 05/' -e '/^# Default-Start:/s/:.*$/:/' $f
 done
 
-%if %{default_python3}
-# defaulting to python3 requires /usr/bin/python3 hashbang lines, make it so
-for f in `find $RPM_BUILD_ROOT -type f -print`; do
-	sed -i -e "1 s|^#!/usr/bin/python\b|#!/usr/bin/python3|" $f
+%if 0%{?default_python} != 0
+# defaulting to explicit python version requires /usr/bin/pythonN hashbang
+# lines (for either python3 or python26 on epel5), make it so:
+for f in `find $RPM_BUILD_ROOT -type f -print`
+do
+    sed -i -e "1 s|^#!/usr/bin/python\b|#!/usr/bin/python%{default_python}|" $f
 done
 %endif
 
