@@ -20,7 +20,7 @@ cat >$tmp.c <<End-of-File
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
-main()
+int main()
 {
     fetchctl_t	*root = (fetchctl_t *)0;
 
