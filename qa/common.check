@@ -792,11 +792,14 @@ _check_papi()
     [ -f $PCP_PMDAS_DIR/papi/pmdapapi ] || _notrun "no executable for the papi PMDA"
     [ -f $PCP_PMDAS_DIR/papi/root ] || _notrun "no PMNS for the papi PMDA"
     $sudo dbpmda -n $PCP_PMDAS_DIR/papi/root -ie <<EOF >$tmp.papi.check
-open pipe $PCP_PMDAS_DIR/papi/pmdapapi -d 126
+open pipe $PCP_PMDAS_DIR/papi/pmdapapi -d 126 -l $tmp.papi.log
 attr "username" "root"
 attr 11 "0"
 fetch papi.system.TOT_INS
 EOF
+    echo "papi.log ..." >>$here/$seq.full
+    cat $tmp.papi.log >>$here/$seq.full
+    $sudo rm $tmp.papi.log
     echo "_check_papi ..." >>$here/$seq.full
     cat $tmp.papi.check >>$here/$seq.full
     if grep ' value [0-9][0-9]*$' <$tmp.papi.check >/dev/null
