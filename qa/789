@@ -45,6 +45,7 @@ pipepmda=$PCP_PMDAS_DIR/papi/pmdapapi
 
 # check if papi PMDA is going to work on this platform
 _check_papi
+_check_papi_native
 
 echo "=== Daemon PMDA papi native events test ==="
 $sudo dbpmda -n $papirootpmns -ie <<EOF | _filter
