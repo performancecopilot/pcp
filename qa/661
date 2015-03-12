@@ -8,6 +8,7 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 . ./common.webapi
+. ./common.python
 
 test -d "$PCP_SHARE_DIR/webapps/graphite" || \
 	_notrun "graphite webapp is not installed"

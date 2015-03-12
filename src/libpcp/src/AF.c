@@ -229,6 +229,26 @@ enqueue(qelt *qp)
     }
 }
 
+/*
+ * must be async-signal-safe
+ *
+ * called routines (for POSIX variant of libpcp code)
+ *
+ * AFhold
+ *   sighold		- problem, should use sigaction()
+ * __pmtimevalNow
+ *  gettimeofday	- problem
+ *  qp->q_func		- potential problem if application func() does
+ *  			  not restrict itself to async-signal-safe routines
+ *  free		- problem
+ * __pmtimevalInc	- ok
+ * __pmtimevalDec	- ok
+ *
+ * in PCP_DEBUG code
+ *   fprintf	- problem, but we are not going to rewrite all of debug code,
+ *   		  so accept that if pmDebug != 0 this code is no longer
+ *   		  thread-safe
+ */
 static void
 onalarm(int dummy)
 {

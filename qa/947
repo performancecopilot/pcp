@@ -29,8 +29,11 @@ sleep 5 &
 SLEEP_PID=$!
 pmlogger -c $tmp.config -l $tmp.log --PID $SLEEP_PID $tmp >$tmp.err 2>&1
 
-echo "expect 4 x one samples"
-pmdumplog $tmp | _filter_pmdumplog | grep sample
+echo "expect 3, 4 or 5 sample lines"
+pmdumplog $tmp \
+| _filter_pmdumplog \
+| grep sample \
+| sed -e 4d -e 5d
 
 pmdumplog $tmp >>$seq.full
 

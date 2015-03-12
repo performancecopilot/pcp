@@ -38,17 +38,13 @@ _filter()
     | _filter_papi_errors
 }
 
-_pmu_present()
-{
-    grep "Error: papi.system.TOT_INS: Unknown metric name" $@; if [ $? -eq 0 ]; then _notrun "PAPI metrics not found on hardware"; fi
-}
-
 # real QA test starts here
 pmns=$PCP_PMDAS_DIR/papi/root
 pmda=$PCP_PMDAS_DIR/papi/pmda_papi.$DSO_SUFFIX,papi_init
 
-#test PAPI availability
-pminfo -L -K clear -K add,126,$pmda -f -n $pmns papi.system.TOT_INS papi.system.TOT_CYC 2>&1 | _pmu_present
+# check if papi PMDA is going to work on this platform
+_check_papi
+
 echo
 echo "== PAPI library behaviour, total instructions/cycles, non-root"
 pminfo -L -K clear -K add,126,$pmda -f -n $pmns papi.system.TOT_INS papi.system.TOT_CYC 2>&1 | _filter

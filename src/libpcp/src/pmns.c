@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -71,13 +71,25 @@ static time_t	last_mtim;
 !bozo!
 #endif
 
-/* The curr_pmns points to PMNS to use for API ops.
+
+/* The PM_TPD(curr_pmns) points to PMNS to use for API ops.
  * Curr_pmns will point to either the main_pmns or
  * a pmns from a version 2 archive context.
  */
-static __pmnsTree *curr_pmns;
+#ifdef PM_MULTI_THREAD
+#ifdef HAVE___THREAD
+/* using a gcc construct here to make curcontext thread-private */
+static __thread __pmnsTree*	curr_pmns = NULL;
+static __thread int             useExtPMNS = 0;
+#endif
+#else
+static __pmnsTree*              curr_pmns = NULL;
+static int                      useExtPMNS = 0;
+#endif
 
-/* The main_pmns points to the loaded PMNS (not from archive). */
+
+/* The main_pmns points to the single global loaded PMNS (not from
+   archive).  It is not generally modified after being loaded. */
 static __pmnsTree *main_pmns;
 
 
@@ -85,7 +97,6 @@ static __pmnsTree *main_pmns;
 static int export;
 
 static int havePmLoadCall;
-static int useExtPMNS;	/* set by __pmUsePMNS() */
 
 static int load(const char *filename, int dupok);
 static __pmnsNode *locate(const char *name, __pmnsNode *root);
@@ -120,10 +131,8 @@ void
 __pmUsePMNS(__pmnsTree *t)
 {
     PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
-    useExtPMNS = 1;
-    curr_pmns = t;
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_TPD(useExtPMNS) = 1;
+    PM_TPD(curr_pmns) = t;
 }
 
 static char *
@@ -175,13 +184,10 @@ pmGetPMNSLocation(void)
     int sts;
 
     PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
-    if (useExtPMNS) {
-	PM_UNLOCK(__pmLock_libpcp);
+    if (PM_TPD(useExtPMNS)) {
 	pmns_location = PMNS_LOCAL;
 	goto done;
     }
-    PM_UNLOCK(__pmLock_libpcp);
 
     /* 
      * Determine if we are to use PDUs or local PMNS file.
@@ -230,9 +236,7 @@ pmGetPMNSLocation(void)
 		    version = ctxp->c_archctl->ac_log->l_label.ill_magic & 0xff;
 		    if (version == PM_LOG_VERS02) {
 			pmns_location = PMNS_ARCHIVE;
-			PM_LOCK(__pmLock_libpcp);
-			curr_pmns = ctxp->c_archctl->ac_log->l_pmns; 
-			PM_UNLOCK(__pmLock_libpcp);
+			PM_TPD(curr_pmns) = ctxp->c_archctl->ac_log->l_pmns; 
 		    }
 		    else {
 			__pmNotifyErr(LOG_ERR, "pmGetPMNSLocation: bad archive "
@@ -276,7 +280,7 @@ pmGetPMNSLocation(void)
 
     /* fix up curr_pmns for API ops */
     if (pmns_location == PMNS_LOCAL)
-	curr_pmns = main_pmns;
+	PM_TPD(curr_pmns) = main_pmns;
     PM_UNLOCK(__pmLock_libpcp);
 
 done:
@@ -1505,9 +1509,7 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	     * if we locate the name and it is a leaf in the PMNS
 	     * this is good
 	     */
-	    PM_LOCK(__pmLock_libpcp);
-	    np = locate(namelist[i], curr_pmns->root);
-	    PM_UNLOCK(__pmLock_libpcp);
+	    np = locate(namelist[i], PM_TPD(curr_pmns)->root);
 	    if (np != NULL ) {
 		if (np->first == NULL)
 		    pmidlist[i] = np->pmid;
@@ -1533,9 +1535,7 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	    while ((xp = rindex(xname, '.')) != NULL) {
 		*xp = '\0';
 		lsts = 0;
-		PM_LOCK(__pmLock_libpcp);
-		np = locate(xname, curr_pmns->root);
-		PM_UNLOCK(__pmLock_libpcp);
+		np = locate(xname, PM_TPD(curr_pmns)->root);
 		if (np != NULL && np->first == NULL &&
 		    pmid_domain(np->pmid) == DYNAMIC_PMID &&
 		    pmid_item(np->pmid) == 0) {
@@ -1883,11 +1883,10 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 	  *statuslist = NULL;
 
 	PM_INIT_LOCKS();
-	PM_LOCK(__pmLock_libpcp);
 	if (*name == '\0')
-	    np = curr_pmns->root; /* use "" to name the root of the PMNS */
+	    np = PM_TPD(curr_pmns)->root; /* use "" to name the root of the PMNS */
 	else
-	    np = locate(name, curr_pmns->root);
+	    np = locate(name, PM_TPD(curr_pmns)->root);
 	if (np == NULL) {
 	    if (ctxp != NULL && ctxp->c_type == PM_CONTEXT_LOCAL) {
 		/*
@@ -1901,12 +1900,11 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 		if (xname == NULL) {
 		    __pmNoMem("pmGetChildrenStatus", strlen(name)+1, PM_RECOV_ERR);
 		    num = -oserror();
-		    PM_UNLOCK(__pmLock_libpcp);
 		    goto report;
 		}
 		while ((xp = rindex(xname, '.')) != NULL) {
 		    *xp = '\0';
-		    np = locate(xname, curr_pmns->root);
+		    np = locate(xname, PM_TPD(curr_pmns)->root);
 		    if (np != NULL && np->first == NULL &&
 			pmid_domain(np->pmid) == DYNAMIC_PMID &&
 			pmid_item(np->pmid) == 0) {
@@ -1915,7 +1913,6 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 			if ((dp = __pmLookupDSO(domain)) == NULL) {
 			    num = PM_ERR_NOAGENT;
 			    free(xname);
-			    PM_UNLOCK(__pmLock_libpcp);
 			    goto check;
 			}
 			if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
@@ -1936,14 +1933,12 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 				free(x_statuslist);
 			    }
 			    free(xname);
-			    PM_UNLOCK(__pmLock_libpcp);
 			    goto check;
 			}
 			else {
 			    /* Not PMDA_INTERFACE_4 or later */
 			    num = PM_ERR_NAME;
 			    free(xname);
-			    PM_UNLOCK(__pmLock_libpcp);
 			    goto check;
 			}
 		    }
@@ -1951,10 +1946,8 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 		free(xname);
 	    }
 	   num = PM_ERR_NAME;
-	   PM_UNLOCK(__pmLock_libpcp);
 	   goto check;
 	}
-	PM_UNLOCK(__pmLock_libpcp);
 
 	if (np != NULL && np->first == NULL) {
 	    /*
@@ -2069,7 +2062,9 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 
 check:
     if (ctxp != NULL)
-	PM_UNLOCK(ctxp->c_lock);
+        PM_UNLOCK(ctxp->c_lock);
+    
+
     /*
      * see if there are derived metrics that qualify
      */
@@ -2198,8 +2193,9 @@ pmNameID(pmID pmid, char **name)
 
     if (pmns_location == PMNS_LOCAL) {
     	__pmnsNode	*np;
-	PM_LOCK(__pmLock_libpcp);
-	for (np = curr_pmns->htab[pmid % curr_pmns->htabsize]; np != NULL; np = np->hash) {
+	for (np = PM_TPD(curr_pmns)->htab[pmid % PM_TPD(curr_pmns)->htabsize];
+             np != NULL;
+             np = np->hash) {
 	    if (np->pmid == pmid) {
 		int	sts;
 		if (pmid_domain(np->pmid) != DYNAMIC_PMID ||
@@ -2207,11 +2203,9 @@ pmNameID(pmID pmid, char **name)
 		    sts = backname(np, name);
 		else
 		    sts = PM_ERR_PMID;
-		PM_UNLOCK(__pmLock_libpcp);
 		return sts;
 	    }
 	}
-	PM_UNLOCK(__pmLock_libpcp);
 	/* not found so far, try derived metrics ... */
     	return __dmgetname(pmid, name);
     }
@@ -2261,8 +2255,9 @@ pmNameAll(pmID pmid, char ***namelist)
 	     */
 	    return PM_ERR_PMID;
 	}
-	PM_LOCK(__pmLock_libpcp);
-	for (np = curr_pmns->htab[pmid % curr_pmns->htabsize]; np != NULL; np = np->hash) {
+	for (np = PM_TPD(curr_pmns)->htab[pmid % PM_TPD(curr_pmns)->htabsize];
+             np != NULL;
+             np = np->hash) {
 	    if (np->pmid == pmid) {
 		n++;
 		if ((tmp = (char **)realloc(tmp, n * sizeof(tmp[0]))) == NULL) {
@@ -2279,7 +2274,6 @@ pmNameAll(pmID pmid, char ***namelist)
 		len += strlen(tmp[n-1])+1;
 	    }
 	}
-	PM_UNLOCK(__pmLock_libpcp);
 	if (sts < 0)
 	    return sts;
 
@@ -2530,9 +2524,7 @@ pmTrimNameSpace(void)
 
     if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
 	/* unset all of the marks */
-	PM_LOCK(__pmLock_libpcp);
-	mark_all(curr_pmns, 0);
-	PM_UNLOCK(__pmLock_libpcp);
+	mark_all(PM_TPD(curr_pmns), 0);
 	PM_UNLOCK(ctxp->c_lock);
 	return 0;
     }
@@ -2540,22 +2532,20 @@ pmTrimNameSpace(void)
     /* Don't do any trimming for archives.
      * Exception: if an explicit load PMNS call was made.
      */
-    PM_LOCK(__pmLock_libpcp);
     if (havePmLoadCall) {
 	/*
 	 * (1) set all of the marks, and
 	 * (2) clear the marks for those metrics defined in the archive
 	 */
-	mark_all(curr_pmns, 1);
+	mark_all(PM_TPD(curr_pmns), 1);
 	hcp = &ctxp->c_archctl->ac_log->l_hashpmid;
 
 	for (i = 0; i < hcp->hsize; i++) {
 	    for (hp = hcp->hash[i]; hp != NULL; hp = hp->next) {
-		mark_one(curr_pmns, (pmID)hp->key, 0);
+		mark_one(PM_TPD(curr_pmns), (pmID)hp->key, 0);
 	    }
 	}
     }
-    PM_UNLOCK(__pmLock_libpcp);
     PM_UNLOCK(ctxp->c_lock);
 
     return 0;
@@ -2572,9 +2562,7 @@ __pmDumpNameSpace(FILE *f, int verbosity)
 	fprintf(f, "__pmDumpNameSpace: Name Space is remote !\n");
 
     PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
-    dumptree(f, 0, curr_pmns->root, verbosity);
-    PM_UNLOCK(__pmLock_libpcp);
+    dumptree(f, 0, PM_TPD(curr_pmns)->root, verbosity);
 }
 
 void

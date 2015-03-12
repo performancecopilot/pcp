@@ -1600,7 +1600,7 @@ again:
 	    char	*p;
 	    int	jend = PM_PDU_SIZE(header->len);
 
-	    /* for Purify ... */
+	    /* clear the padding bytes, lest they contain garbage */
 	    p = (char *)pb + header->len;
 	    while (p < (char *)pb + jend*sizeof(__pmPDU))
 		*p++ = '~';	/* buffer end */

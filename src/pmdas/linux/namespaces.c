@@ -116,9 +116,9 @@ process_enter_namespaces(int pid, int nsflags)
 }
 
 int
-container_enter_namespaces(int fd, const char *name, int namelen, int nsflags)
+container_enter_namespaces(int fd, linux_container_t *cp, int nsflags)
 {
-    char pdubuf[BUFSIZ];
+    char pdubuf[BUFSIZ], name[MAXPATHLEN], *np;
     int	sts, pid = 0;
 
     if (fd < 0)
@@ -126,15 +126,22 @@ container_enter_namespaces(int fd, const char *name, int namelen, int nsflags)
 
     /* get container process identifier from pmdaroot */
     if ((sts = __pmdaSendRootPDUContainer(fd, PDUROOT_PROCESSID_REQ,
-			pid, name, namelen, 0)) < 0)
+			pid, cp->name, cp->length, 0)) < 0)
 	return sts;
     if ((sts = __pmdaRecvRootPDUContainer(fd, PDUROOT_PROCESSID,
                         pdubuf, sizeof(pdubuf))) < 0)
 	return sts;
-    if ((sts = __pmdaDecodeRootPDUContainer(pdubuf, sts, &pid, NULL, 0)) < 0)
+    if ((sts = __pmdaDecodeRootPDUContainer(pdubuf, sts,
+			&pid, name, sizeof(name))) < 0)
 	return sts;
 
-    /* process the results */
+    /* process the results - stash current container details */
+    if (sts > cp->length && (np = strdup(name)) != NULL) {
+	cp->length = sts;
+	free(cp->name);
+	cp->name = np;
+    }
+    cp->pid = pid;
     if ((sts = process_enter_namespaces(pid, nsflags)) < 0)
 	return sts;
 
@@ -185,11 +192,10 @@ container_leave_namespaces(int fd, int nsflags)
 
 #else
 int
-container_enter_namespaces(int fd, const char *name, int namelen, int nsflags)
+container_enter_namespaces(int fd, linux_container_t *lcp, int nsflags)
 {
     (void)fd;
-    (void)name;
-    (void)namelen;
+    (void)lcp;
     (void)nsflags;
     return PM_ERR_APPVERSION;
 }

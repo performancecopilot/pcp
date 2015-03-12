@@ -50,6 +50,7 @@ __pmSendLogStatus(int fd, __pmLoggerStatus *status)
     pp->hdr.type = PDU_LOG_STATUS;
     pp->hdr.from = FROM_ANON;		/* context does not matter here */
     memcpy(&pp->status, status, sizeof(__pmLoggerStatus));
+    memset(&pp->pad, '~', sizeof(pp->pad));  /* initialize padding */
 
     /* Conditional convertion from host to network byteorder HAVE to be
      * unconditional if one cares about endianess compatibiltity at all!

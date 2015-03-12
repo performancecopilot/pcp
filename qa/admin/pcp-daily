@@ -883,7 +883,7 @@ End-of-File
 		    echo "Warning: Already shutdown"
 		fi
 	    else
-		ssh -t -q $host sudo poweroff -f </dev/null >/dev/null 2>&1 &
+		ssh -t -q $host "sync; sleep 2; sync; ( sudo poweroff || sudo halt )" -f </dev/null >/dev/null 2>&1 &
 		sleep 20
 		sudo virsh shutdown $domain >/dev/null 2>&1
 		sleep 10

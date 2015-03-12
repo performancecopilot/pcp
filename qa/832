@@ -41,9 +41,16 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cleanup; exit \$status" 0 1 2 3 15
 
+# Handle these spurious lines from deep inside SASL code ...
+#
+# [Mon Mar  2 17:58:40] pmcd_wait(16622) Alert: Parameter Error in ../plugins/plugin_common.c near line 357
+#
 _filter()
 {
-    sed -e '/Parameter Error/d'
+    sed \
+	-e 's/\[[^]]*] .* Alert: Parameter Error .* line [0-9][0-9]*//' \
+	-e '/^[ 	]*$/d' \
+    # end
 }
 
 # real QA test starts here
@@ -60,9 +67,12 @@ End-Of-File
 $sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
 
 echo "Start pmcd with modified \$PCP_PMCDOPTIONS_PATH (pmcd.options)" | tee -a $seq.full
-$sudo $PCP_RC_DIR/pcp restart | tee -a $seq.full >$tmp.out
-_wait_for_pmcd 5 unix:
-grep -i 'starting pmcd' $tmp.out | sed -e "s/$$/MYPID/" | _filter_pcp_start
+$sudo $PCP_RC_DIR/pcp restart 2>&1 | tee -a $seq.full >$tmp.out
+_wait_for_pmcd 5 unix: 2>&1 | tee -a $seq.full | _filter
+grep -i 'starting pmcd' $tmp.out \
+| _filter \
+| sed -e "s/$$/MYPID/" \
+| _filter_pcp_start
 
 # should now be running in enforced-credentials mode, check it out.
 # unix domain access should always succeed - no matter how binaries

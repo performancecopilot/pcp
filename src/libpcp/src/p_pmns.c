@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -251,15 +251,13 @@ __pmSendNameList(int fd, int from, int numnames, char *namelist[],
 	    nt = (name_t*)&nlistp->names[j/sizeof(__pmPDU)];
 	    namelen = (int)strlen(namelist[i]);
 	    memcpy(nt->name, namelist[i], namelen);
-#ifdef PCP_DEBUG
 	    if ((namelen % sizeof(__pmPDU)) != 0) {
-		/* for Purify */
+		/* clear the padding bytes, lest they contain garbage */
 		int	pad;
 		char	*padp = nt->name + namelen;
 		for (pad = sizeof(__pmPDU) - 1; pad >= (namelen % sizeof(__pmPDU)); pad--)
 		    *padp++ = '~';	/* buffer end */
 	    }
-#endif
 	    j += sizeof(namelen) + PM_PDU_SIZE_BYTES(namelen);
 	    nt->namelen = htonl(namelen);
 	}
@@ -272,15 +270,13 @@ __pmSendNameList(int fd, int from, int numnames, char *namelist[],
 	    nst->status = htonl(statuslist[i]);
 	    namelen = (int)strlen(namelist[i]);
 	    memcpy(nst->name, namelist[i], namelen);
-#ifdef PCP_DEBUG
 	    if ((namelen % sizeof(__pmPDU)) != 0) {
-		/* for Purify */
+		/* clear the padding bytes, lest they contain garbage */
 		int	pad;
 		char	*padp = nst->name + namelen;
 		for (pad = sizeof(__pmPDU) - 1; pad >= (namelen % sizeof(__pmPDU)); pad--)
 		    *padp++ = '~';	/* buffer end */
 	    }
-#endif
 	    j += sizeof(nst->status) + sizeof(namelen) +
 	         PM_PDU_SIZE_BYTES(namelen);
 	    nst->namelen = htonl(namelen);
@@ -462,6 +458,7 @@ SendNameReq(int fd, int from, const char *name, int pdu_type, int subtype)
     int		namelen;
     int		alloc_len; /* length allocated for name */
     int		sts;
+    char        *p;
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PMNS) {
@@ -483,6 +480,9 @@ SendNameReq(int fd, int from, const char *name, int pdu_type, int subtype)
     nreq->subtype = htonl(subtype);
     nreq->namelen = htonl(namelen);
     memcpy(&nreq->name[0], name, namelen);
+    /* clear the padding bytes, lest they contain garbage */
+    for (p = & (nreq->name[namelen]); p < & ((char*)nreq)[need]; p++)
+        *p = '~';
 
     sts = __pmXmitPDU(fd, (__pmPDU *)nreq);
     __pmUnpinPDUBuf(nreq);

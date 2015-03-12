@@ -14,6 +14,10 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+# chconfig controls just don't work on some platforms ...
+#
+[ -f /etc/gentoo-release ] && _notrun "chkconfig does not work for Gentoo"
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15

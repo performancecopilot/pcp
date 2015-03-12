@@ -92,7 +92,8 @@ Options""")
                 self.prefix,
                 "pickled" if self.pickle else "text",
                 self.graphite_host, self.graphite_port,
-                self.interval), flush=True)
+                self.interval))
+        sys.stdout.flush()
 
     def option_override(self, opt):
         if (opt == 'p') or (opt == 'g'):

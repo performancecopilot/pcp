@@ -49,6 +49,8 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 #
 # * HTTP 1.1 or later with persistent connection, pipelining supported
 # * additional stuff not fine transfer.c:1037: 0 0
+# *   Trying LOCALADDR...
+# * Connection refused
 # WARNING: gnome-keyring:: couldn't connect to: ...
 # * [othewise blank line]
 # [blank line]
@@ -60,6 +62,8 @@ _filter()
 	-e '/About to connect() to LOCALHOST port 44323 (####)/d' \
 	-e '/^\* HTTP 1.1 or later with persistent connection/d' \
 	-e '/^\* additional stuff not fine/d' \
+	-e '/^\*  *Trying LOCALADDR/d' \
+	-e '/^\* Connection refused/d' \
 	-e '/WARNING: gnome-keyring::/d' \
 	-e '/^\*$/d' \
 	-e '/^[ 	]*$/d'

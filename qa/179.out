@@ -23,7 +23,7 @@ pmlc commands
   _metric-spec is  <metric-name> | <metric-name> [ <instance> ... ]
 
 pmlc> connect PID
-pmlc> log mandatory on 20 msec sample.bin
+pmlc> log mandatory on 200 msec sample.bin
 pmlc> 
 
 Instance Domains in the Log ...
@@ -133,7 +133,7 @@ pmlc commands
 
 pmlc> connect PID
 pmlc> log mandatory on once hinv.ndisk
-pmlc> log mandatory on 20 msec sample.bin
+pmlc> log mandatory on 200 msec sample.bin
 pmlc> 
 
 Instance Domains in the Log ...
