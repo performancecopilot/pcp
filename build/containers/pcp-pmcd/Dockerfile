@@ -13,7 +13,7 @@ RUN yum -y install pcp && yum clean all
 
 # souce the pcp config environment and setup a few directories
 # rc.pause tells the pmcd start script we're in a container and so do not exit
-RUN . /etc/pcp.conf && touch $PCP_ETC_DIR/pcp/rc.pause && mkdir -p $PCP_RUN_DIR $PCP_TMP_DIR/pmcd $PCP_LOG_DIR/pmcd
+RUN . /etc/pcp.conf && touch $PCP_ETC_DIR/pcp/rc.pause
 
 # we expose pmcd's main port on the host interfaces. Other ports can be added here as needed.
 EXPOSE 44321
