@@ -259,19 +259,24 @@ case "$1" in
 	_shutdown quietly
 
 	# messages should go to stderr, not the GUI notifiers
-	#
 	unset PCP_STDERR
 
 	if [ -x $PMLOGGER ]
 	then
+	    # issue a warning if there's no chkconfig/crontab support
 	    if is_chkconfig_on pmlogger
 	    then
-		_start_pmlogger
+		:
 	    elif [ "$0" = "$pmprog" -o "$0" = "$rcprog" ]
 	    then
-		echo "$prog: Warning: Performance Co-Pilot archive logger(s) are disabled."
+		echo "$prog: Warning: Performance Co-Pilot archive logger(s) not permanently enabled."
 		chkconfig_on_msg pmlogger
 	    fi
+
+	    _start_pmlogger
+
+	    # finally, stop here if running in a container
+	    [ -f $PCP_SYSCONF_DIR/rc.container ] && exec $PCP_BINADM_DIR/pmpause
 	fi
 
 	status=0
@@ -305,6 +310,7 @@ case "$1" in
 	;;
 
   *)
+	[ -f $PCP_SYSCONF_DIR/rc.container ] && exec "$@"
 	_usage
         ;;
 esac

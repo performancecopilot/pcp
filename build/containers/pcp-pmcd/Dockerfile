@@ -5,43 +5,57 @@
 FROM fedora:latest
 MAINTAINER Mark Goodwin <mgoodwin@redhat.com>
 
-# update the fedora base image and clean the yum cache (we don't want to ship the cache!)
+# update the fedora base image and clean the yum cache
+# (we don't want to ship the cache!)
 RUN yum -y update && yum clean all
 
 # install pcp and it's dependencies, clean the cache.
 RUN yum -y install pcp && yum clean all
 
-# souce the pcp config environment and setup a few directories
-# rc.pause tells the pmcd start script we're in a container and so do not exit
-RUN . /etc/pcp.conf && touch $PCP_SYSCONF_DIR/rc.pause
+# debug: install any local RPMs for testing
+COPY *.rpm /upgrade/
+RUN rpm -Uvh --force /upgrade/*.rpm && rm -fr /upgrade
 
-# we expose pmcd's main port on the host interfaces. Other ports can be added here as needed.
+# denote this as a container environment, for rc scripts
+RUN . /etc/pcp.conf && touch $PCP_SYSCONF_DIR/rc.container
+
+# disable service advertising - no avahi daemon in the container
+# (dodges warnings from pmcd attempting to connect during startup)
+RUN . /etc/pcp.conf && echo "-A" >> $PCP_PMCDOPTIONS_PATH
+
+# expose pmcd's main port on the host interfaces.
 EXPOSE 44321
 
 # the command to run - in this case the pmcd service script.
-# If this command exits, then the container exits.
-CMD . /etc/pcp.conf && $PCP_RC_DIR/pmcd start
+# when this command exits, then the container exits.
+ENV PATH /usr/share/pcp/lib:$PATH
+ENTRYPOINT ["pmcd"]
+CMD ["start"]
 
 # Example command to deploy this container on a docker server :
-#   docker run -d --privileged --net=host -v /proc:/proc:ro -v /sys:/sys:ro \
-#   -v /run:/run -v /var/run:/var/run -v /var/lib/docker:/var/lib/docker:ro \
-#   -v /var/log/pcp:/var/log/pcp -v /etc/cron.d:/etc/cron.d:ro IMAGE-ID
+#   docker run -d \
+#   --privileged --net=host \
+#   -v /sys:/sys:ro \
+#   -v /proc:/proc:ro \
+#   -v /etc/cron.d:/etc/cron.d \
+#   -v /etc/localtime:/etc/localtime:ro \
+#   -v /var/lib/docker:/var/lib/docker:ro \
+#   -v /var/run/pcp:/var/run/pcp \
+#   -v /var/log/pcp:/var/log/pcp \
+#   IMAGE-ID
 #
-# -d means to detach and run in the background. Use -it (instead of -d) if you want
-#    a pty and "bash" as the command to run after IMAGE-ID on the command line.
+# -d means to detach and run in the background. Use -it (instead of -d) if you
+#    need a pty and "bash" as the command to run after IMAGE-ID on the command
+#    line - useful for debugging.
 #
-# --privileged and --net=host  allow pmcd to bind to port 44321 on the host interfaces
+# --privileged and --net=host  allow pmcd access to host network/ipc namespaces
 #
-# -v /proc:/proc:ro -v /sys:/sys:ro  allows pmcd to see the global /proc and /sys pseudo filesystems
-#
-# -v /run:/run -v /var/run:/var/run  for pid files and unix domain sockets
-#
-# -v /var/lib/docker:/var/lib/docker:ro  so the root PMDA can see /var/lib/docker/*
-#
-# -v /var/log/pcp:/var/log/pcp  for pmcd.log and pmda log files
-#    (this would also be used by a pcp-pmlogger container to write PCP archives)
-#
-# -v /etc/cron.d:/etc/cron.d:ro  PCP cron services, e.g. pmlogger_daily etc
+# -v /proc:/proc:ro -v /sys:/sys:ro  allows PMDAs to see the global /proc and /sys
+# -v /var/lib/docker:/var/lib/docker:ro  so pmdaroot can inspect /var/lib/docker
+# -v /var/run/pcp:/var/run/pcp  for pid files and unix domain sockets
+# -v /var/log/pcp:/var/log/pcp  for pmcd and PMDA log files
+# -v /etc/cron.d:/etc/cron.d  PCP cron services
+# -v /etc/localtime:/etc/localtime:ro  for correct local timezone reporting
 #
 # IMAGE-ID is the pcp-pmcd image id. Use "docker images" to list images.
 #

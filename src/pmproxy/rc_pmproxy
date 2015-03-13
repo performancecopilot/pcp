@@ -260,6 +260,8 @@ END			{ if (exports != "") print "export", exports }'`
 
 	    $PCP_BINADM_DIR/pmpost "start pmproxy from $pmprog"
 
+	    # finally, stop here if running in a container
+	    [ -f $PCP_SYSCONF_DIR/rc.container ] && exec $PCP_BINADM_DIR/pmpause
 	fi
 	status=0
         ;;
@@ -292,6 +294,7 @@ END			{ if (exports != "") print "export", exports }'`
 	;;
 
   *)
+	[ -f $PCP_SYSCONF_DIR/rc.container ] && exec "$@"
 	_usage
         ;;
 esac
