@@ -35,6 +35,7 @@
 . $PCP_SHARE_DIR/lib/rc-proc.sh
 
 PMIECTRL=$PCP_PMIECONTROL_PATH
+rcprog=$PCP_DIR/etc/init.d/pmie
 pmprog=$PCP_RC_DIR/pmie
 prog=$PCP_RC_DIR/`basename $0`
 
@@ -54,7 +55,7 @@ tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
 status=1
 trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 
-if [ $pmprog = $prog ]
+if [ $pmprog = $prog -o $rcprog = $prog ]
 then
     VERBOSE_CTL=on
 else
@@ -221,26 +222,32 @@ case "$1" in
 
 	if which pmie >/dev/null 2>&1
 	then
+	    # issue a warning if there's no chkconfig/crontab support
 	    if is_chkconfig_on pmie
 	    then
-		if which pmie_check >/dev/null 2>&1
-		then
-		    if [ ! -f $PMIECTRL ]
-		    then
-			echo "$prog:"'
-Error: PCP inference engine control file '$PMIECTRL'
-       is missing!  Cannot start any Performance Co-Pilot inference engine(s).'
-		    else
-			$ECHO $PCP_ECHO_N "Starting pmie ..." "$PCP_ECHO_C"
-			_start_pmie &
-			$RC_STATUS -v
-		    fi
-		fi
-	    elif [ "$0" = "$PCP_RC_DIR/pmie" ]
+		:
+	    elif [ "$0" = "$pmprog" -o "$0" = "$rcprog" ]
 	    then
-		echo "$prog: Warning: Performance Co-Pilot Inference Engine (pmie) is disabled."
+		echo "$prog: Warning: Performance Co-Pilot Inference Engine (pmie) not permanently enabled."
 		chkconfig_on_msg pmie
 	    fi
+
+	    if which pmie_check >/dev/null 2>&1
+	    then
+		if [ ! -f $PMIECTRL ]
+		then
+		    echo "$prog:"'
+Error: PCP inference engine control file '$PMIECTRL'
+       is missing!  Cannot start any Performance Co-Pilot inference engine(s).'
+		else
+		    $ECHO $PCP_ECHO_N "Starting pmie ..." "$PCP_ECHO_C"
+		    _start_pmie &
+		    $RC_STATUS -v
+		fi
+	    fi
+
+	    # finally, stop here if running in a container
+	    [ -f $PCP_SYSCONF_DIR/rc.container ] && exec $PCP_BINADM_DIR/pmpause
 	fi
 	status=0
         ;;
@@ -272,6 +279,7 @@ Error: PCP inference engine control file '$PMIECTRL'
         fi
         ;;
   *)
+	[ -f $PCP_SYSCONF_DIR/rc.container ] && exec "$@"
 	_usage
         ;;
 esac

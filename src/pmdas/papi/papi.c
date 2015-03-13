@@ -40,7 +40,6 @@ enum {
     CONTROL_STATUS,	 // papi.control.status
     CONTROL_AUTO_ENABLE, // papi.control.auto_enable
     CONTROL_MULTIPLEX,	 // papi.control.multiplex
-    CONTROL_BATCH,	 // papi.control.batch
 };
 
 enum {
@@ -61,7 +60,6 @@ typedef struct {
 static __uint32_t auto_enable_time = 120; /* seconds; 0:disabled */
 static int auto_enable_afid = -1; /* pmaf(3) identifier for periodic callback */
 static int enable_multiplexing = 1; /* on by default */
-static __uint32_t refresh_batch = 10; /* max. number of pmids to refresh individually */
 
 static papi_m_user_tuple *papi_info;
 static unsigned int number_of_events; /* cardinality of papi_info[] */
@@ -181,24 +179,17 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_PAPI:
 	if (idp->item >= 0 && idp->item <= number_of_events) {
 	    // the 'case' && 'idp->item' value we get is the pmns_position
-	    if (papi_info[idp->item].position >= 0) {
+	    if (papi_info[idp->item].position >= 0) { // live counter?
 		atom->ll = papi_info[idp->item].prev_value + values[papi_info[idp->item].position];
-		// if previously auto-enabled, extend the timeout
-		if (papi_info[idp->item].metric_enabled != METRIC_ENABLED_FOREVER &&
-		    auto_enable_time)
-		    papi_info[idp->item].metric_enabled = now + auto_enable_time;
 		return PMDA_FETCH_STATIC;
 	    }
-	    else {
-		if (auto_enable_time) {
-		    // auto-enable this metric for a while
-		    papi_info[idp->item].metric_enabled = now + auto_enable_time;
-		    sts = refresh_metrics(0);
-		    if (sts < 0)
-			return sts;
-		}
-		return PMDA_FETCH_NOVALUES;
-	    }
+	    else { // inactive counter?
+                if (papi_info[idp->item].metric_enabled) { // but requested?
+                    papi_info[idp->item].metric_enabled = 0; // give up
+                    return PM_ERR_VALUE; // i.e., expect no values ever
+                }
+                return PMDA_FETCH_NOVALUES;
+            }
 	}
 
 	return PM_ERR_PMID;
@@ -268,10 +259,6 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->ul = enable_multiplexing;
 	    return PMDA_FETCH_STATIC;
 
-	case CONTROL_BATCH:
-	    atom->ul = refresh_batch;
-	    return PMDA_FETCH_STATIC;
-
 	default:
 	    return PM_ERR_PMID;
 	}
@@ -296,11 +283,6 @@ papi_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 }
 
 
-/* Flags to communicate with refresh_metrics() for batching control. */
-static int temp_suppress_refresh = 0;
-static int temp_suppress_refresh_count = 0;
-
-
 static int
 papi_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
@@ -309,10 +291,39 @@ papi_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     __pmAFblock();
     auto_enable_expiry_cb(0, NULL); // run auto-expiry
 
+    /* In auto-enable mode, handle a mass-refresh of the papi counter
+       state in a big batch here, ahead of individual attempts to 
+       confirm the counters' activation & read (initial) values. */
+    if (auto_enable_time) {
+        int need_refresh_p = 0;
+        time_t now = time (NULL);
+
+        for (i=0; i<numpmid; i++) {
+            __pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
+            if (idp->cluster == CLUSTER_PAPI) {
+                if (papi_info[idp->item].position < 0) { // new counter?
+                    need_refresh_p = 1;
+                }
+                // update or initialize remaining lifetime
+                if (papi_info[idp->item].metric_enabled != METRIC_ENABLED_FOREVER)
+                    papi_info[idp->item].metric_enabled = now + auto_enable_time;
+            }
+        }
+        if (need_refresh_p) {
+            refresh_metrics(1);
+            // NB: A non-0 sts here would not be a big problem; no
+            // need to abort the whole fetch sequence just for that.
+            // Each individual CLUSTER_PAPI fetch will get a
+            // PM_ERR_VALUE to let the user know something's up.
+        }
+            
+    }
+
     /* Update our copy of the papi counter values, so that we do so
        only once per pcp-fetch batch.  Though it's relatively cheap,
        and harmless even if the incoming pcp-fetch is for non-counter
-       pcp metrics, we do this only for CLUSTER_PAPI pmids. */
+       pcp metrics, we do this only for CLUSTER_PAPI pmids.  This is
+       independent of auto-enable mode. */
     for (i=0; i<numpmid; i++) {
         __pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
         if (idp->cluster == CLUSTER_PAPI) {
@@ -329,23 +340,6 @@ papi_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     }
     sts = 0; /* clear out any PAPI remnant flags */
 
-    /* If we get a lot of pmids in the papi auto-enable region, we can
-       suffer from arithmetic increases in runtime per fetch
-       (auto-enable invocation), due to complete PAPI refreshes for
-       each metric.  While this e.g. gives us precise errors (for the
-       failing pmids), the runtime can be too high.  So, depending on
-       whether numpmid is large or small, we'll either refresh per
-       pmid, or once at the end of a batch.  In the latter case, we
-       won't be able to communicate to the client which counter might
-       fail (if any).
-
-       What's too many?	 Let users parametrize; the default should be
-       below where noticeable papi delays have been reported. */
-    if (numpmid > refresh_batch) {
-	temp_suppress_refresh_count = 0;
-	temp_suppress_refresh = 1;
-    }
-
     for (i = 0; i < numpmid; i++) {
 	__pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
 	if (idp->cluster != CLUSTER_AVAILABLE)
@@ -355,15 +349,6 @@ papi_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	sts = pmdaFetch(numpmid, pmidlist, resp, pmda);
     else
 	sts = PM_ERR_PERMISSION;
-
-    temp_suppress_refresh = 0;
-    if (temp_suppress_refresh_count) {
-	/* catch up on deferred refresh, regardless of sts so far */
-	int sts2 = refresh_metrics(1);
-	 /* copy new error over if appropriate */
-	if (sts == 0)
-	    sts = sts2;
-    }
 
     __pmAFunblock();
     return sts;
@@ -384,6 +369,9 @@ handle_papi_error(int error, int logged)
  * necessary because PAPI doesn't let one modify a PAPI_RUNNING
  * EventSet, nor (due to a bug) subtract even from a PAPI_STOPPED one.)
  *
+ * NB: in case of a partial success (some counters enabled, some not),
+ * the rc here will be 0 (success).
+ *
  * "log" parameter indicates whether errors are to be recorded in the
  * papi.log file, or if there is a calling process we can send 'em to
  * (in which case, they are not logged).
@@ -397,11 +385,6 @@ refresh_metrics(int log)
     int i;
     int number_of_active_counters = 0;
     time_t now;
-
-    if (temp_suppress_refresh) { /* batching in effect */
-	temp_suppress_refresh_count ++;
-	return 0;
-    }
 
     now = time(NULL);
 
@@ -466,14 +449,13 @@ refresh_metrics(int log)
 				  eventname, PAPI_strerror(sts));
 		}
 		handle_papi_error(sts, log);
-		/*
-		 * This is where we'd see if a requested counter was
-		 * "one too many".  We must leave a note for the
-		 * function to return an error, but must continue (so
-		 * that reactivating other counters is still
-		 * attempted).	
-		 */
-		sts = PM_ERR_VALUE;
+                /*
+                 * We may be called to make drastic changes to the PAPI
+                 * eventset.  Partial successes/failures are quite reasonable,
+                 * as a user may be asking to activate a mix of good and bad
+                 * counters.  Diagnosing the partial failure is left to the 
+                 * caller, by examining the papi_info[i].position value
+                 * after this function returns. */
 		continue;
 	    }
 	    papi_info[i].position = number_of_active_counters++;
@@ -536,8 +518,8 @@ papi_setup_auto_af(void)
 static int
 papi_store(pmResult *result, pmdaExt *pmda)
 {
-    int sts;
-    int sts2;
+    int sts = 0;
+    int sts2 = 0;
     int i, j;
     const char *delim = " ,";
     char *substring;
@@ -550,7 +532,6 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	pmAtomValue av;
 
 	if (idp->cluster != CLUSTER_CONTROL) {
-	    //	    return PM_ERR_PERMISSION;
 	    sts2 = PM_ERR_PERMISSION;
 	    continue;
 	}
@@ -567,7 +548,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
 		for (j = 0; j < number_of_events; j++) {
 		    if (!strcmp(substring, papi_info[j].papi_string_code)) {
 			papi_info[j].metric_enabled =
-			    (idp->item == 0 /* papi.enable */) ? METRIC_ENABLED_FOREVER : 0;
+			    (idp->item == CONTROL_ENABLE) ? METRIC_ENABLED_FOREVER : 0;
 			break;
 		    }
 		}
@@ -586,6 +567,9 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	    } else {
 		sts = refresh_metrics(0);
 	    }
+            // NB: We could iterate the affected papi_info[j]'s again to see which
+            // counters were successfully activated (position >= 0).  Then again,
+            // the user will find out soon enough, when attempting to fetch them.
 	    sts2 = sts;
 	    continue;
 
@@ -603,6 +587,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	    }
 	    auto_enable_time = av.ul;
 	    sts = papi_setup_auto_af();
+	    sts2 = sts;
 	    continue;
 
 	case CONTROL_MULTIPLEX:
@@ -613,16 +598,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	    }
 	    enable_multiplexing = av.ul;
 	    sts = refresh_metrics(0);
-	    continue;
-
-	case CONTROL_BATCH:
-	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
-				      PM_TYPE_U32, &av, PM_TYPE_U32)) < 0) {
-		sts2 = sts;
-		continue;
-	    }
-	    refresh_batch = av.ul;
-	    sts = 0;
+	    sts2 = sts;
 	    continue;
 
 	default:
@@ -673,7 +649,6 @@ papi_desc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 	    sts = 0;
 	    break;
 	case CONTROL_MULTIPLEX:
-	case CONTROL_BATCH:
 	    desc->pmid = pmid;
 	    desc->type = PM_TYPE_U32;
 	    desc->indom = PM_INDOM_NULL;

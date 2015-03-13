@@ -970,7 +970,7 @@ cgroups
 782 pmwebapi local
 783 pmda.rpm local valgrind
 786 context context_local libpcp local
-787 archive local pmie pmlogrewrite pmdumplog pmval
+787 archive local pmie pmlogrewrite pmdumplog pmval flakey
 789 pmda.papi local
 798 pmda.nfsclient local
 799:retired pmda.papi local
@@ -1001,6 +1001,7 @@ cgroups
 860 pmda pmda.proc ostest local
 861 pmcd pmda.pmcd local
 873 pmda.linux local
+874 valgrind pmval libpcp local
 875 libpcp local valgrind
 876 pmda.xfs local
 885 pmda.linux local
@@ -1011,6 +1012,7 @@ cgroups
 901 libpcp event local
 902 libpcp mem_leak valgrind event local
 903 pmda.papi local
+904 python local
 907 pmlogextract local
 914 pmda.papi local
 919 pmlogger pmstat local
@@ -1026,6 +1028,7 @@ cgroups
 947 pmlogger local
 950 avahi local
 955 pmda.linux local
+956 pmcd local
 957 pmda.linux local valgrind
 958 archive local
 959 pmda.sample pmstore local

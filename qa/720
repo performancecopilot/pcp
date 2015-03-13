@@ -32,6 +32,7 @@ _filter_auth()
     #
     # Noise ...
     # [Fri Feb 13 23:00:29] pminfo(9819) Alert: GSSAPI Error: Unspecified GSS failure.  Minor code may provide more information (Credentials cache file '/tmp/krb5cc_1000' not found)
+    # [Fri Mar  6 19:14:35] pminfo(20207) Alert: No worthy mechs found
     #
     # equivalence ...
     # pminfo: ...notApassword": Authentication - generic failure
@@ -39,16 +40,21 @@ _filter_auth()
     # Error: Authentication - user not found
     # and
     # pminfo: ...notApassword": Authentication - authentication failure
+    # and
+    # pminfo: ...notApassword": Operation not supported
     # are considered equivalent to
     # Error: Authentication - authentication failure
     #
     tee -a $seq.full | \
     sed \
-	-e '/GSSAPI Error:/d' \
+	-e '/pminfo.* GSSAPI Error:/d' \
+	-e '/pminfo.* No worthy mechs found/d' \
 	-e 's/^pminfo: .*Authentication -/Error: Authentication -/g' \
+	-e 's/^pminfo: .*Operation/Error: Authentication -/g' \
 	-e '/Error: Authentication/s/ - generic failure/ - authentication failure/g' \
 	-e '/Error: Authentication/s/ - no mechanism available/ - authentication failure/g' \
 	-e '/Error: Authentication/s/ - user not found/ - authentication failure/g' \
+	-e '/Error: Authentication/s/ - not supported/ - authentication failure/g' \
     # end
 }
 

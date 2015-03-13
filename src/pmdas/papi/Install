@@ -23,9 +23,13 @@ pmda_interface=6
 forced_restart=true
 
 pmdaSetup
+# NB: Some number of warnings from the "pmprobe -i papi" embedded
+# within pmdaInstall is expected.  Not all papi counters can possibly
+# be activated at the same time, even with multiplexing: the excess will
+# come back with PM_ERR_VALUE.
 pmdaInstall
-
 # Shut down any counters auto-enabled during the pmdaInstall step
 pmstore papi.control.reset "" >/dev/null
-
+echo "Note: Some warnings are expected as the number of available hardware Metrics"
+echo "may exceed the maximum concurrently countable metrics."
 exit 0

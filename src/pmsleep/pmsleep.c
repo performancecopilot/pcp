@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2015 Red Hat.  All Rights Reserved.
  * Copyright (c) 2007 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -12,32 +13,49 @@
  * for more details.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 #include "pmapi.h"
+#include "impl.h"
+
+static int
+pmpause(void)
+{
+    sigset_t sigset;
+    sigfillset(&sigset);
+    sigprocmask(SIG_BLOCK, &sigset, NULL);
+    pause();
+    return 0;
+}
+
+static int
+pmsleep(const char *interval)
+{
+    struct timespec rqt;
+    struct timeval delta;
+    char *msg;
+    
+    if (pmParseInterval(interval, &delta, &msg) < 0) {
+	fputs(msg, stderr);
+	free(msg);
+    } else {
+	rqt.tv_sec  = delta.tv_sec;
+	rqt.tv_nsec = delta.tv_usec * 1000;
+	if (0 != nanosleep(&rqt, NULL))
+	    return oserror();
+    }
+    return 0;
+}
 
 int
 main(int argc, char **argv)
 {
-    struct timespec rqt;
-    struct timeval delta;
-    int r = 0;
-    char *msg;
+    int sts = 1;
 
-    if (argc == 2) {
-	if (pmParseInterval(argv[1], &delta, &msg) < 0) {
-	    fputs(msg, stderr);
-	    free(msg);
-	} else {
-	    rqt.tv_sec  = delta.tv_sec;
-	    rqt.tv_nsec = delta.tv_usec * 1000;
-	    if (0 != nanosleep(&rqt, NULL))
-		r = oserror();
-
-	    exit(r);
-	}
-    }
-    fprintf(stderr, "Usage: pmsleep interval\n");
-    exit(1);
+    __pmSetProgname(argv[0]);
+    if (strcmp(pmProgname, "pmpause") == 0)
+	sts = pmpause();
+    else if (argc == 2)
+	sts = pmsleep(argv[1]);
+    else
+	fprintf(stderr, "Usage: %s interval\n", pmProgname);
+    exit(sts);
 }

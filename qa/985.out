@@ -6,8 +6,8 @@ Start python PMDA: $PCP_PYTHON_PROG $PCP_PMDAS_DIR/dmcache/pmdadmcache.python
 dbpmda> getdesc on
 dbpmda> instance 129.0
 pmInDom: 129.0
-[  0] inst: 0 name: "dmcache2"
-[  1] inst: 1 name: "dmcache1"
+[  0] inst: 0 name: "dmcacheN"
+[  1] inst: 1 name: "dmcacheN"
 dbpmda> desc dmcache.size
 PMID: 129.0.0
     Data Type: 64-bit unsigned int  InDom: 129.0 0x20400000
@@ -76,8 +76,8 @@ dbpmda> fetch dmcache.size
 PMID(s): 129.0.0
 pmResult ... numpmid: 1
   129.0.0 (<noname>): numval: 2 valfmt: 1 vlist[]:
-    inst [0 or ???] value 52606976
-    inst [1 or ???] value 52428800
+    inst [0 or ???] value SIZE
+    inst [1 or ???] value SIZE
 dbpmda> fetch dmcache.metadata.block_size
 PMID(s): 129.0.1
 pmResult ... numpmid: 1
@@ -118,20 +118,20 @@ dbpmda> fetch dmcache.read_hits
 PMID(s): 129.0.7
 pmResult ... numpmid: 1
   129.0.7 (<noname>): numval: 2 valfmt: 0 vlist[]:
-    inst [0 or ???] value 484
-    inst [1 or ???] value 576
+    inst [0 or ???] value READ_HITS
+    inst [1 or ???] value READ_HITS
 dbpmda> fetch dmcache.read_misses
 PMID(s): 129.0.8
 pmResult ... numpmid: 1
   129.0.8 (<noname>): numval: 2 valfmt: 0 vlist[]:
-    inst [0 or ???] value 32
-    inst [1 or ???] value 35
+    inst [0 or ???] value READ_MISSES
+    inst [1 or ???] value READ_MISSES
 dbpmda> fetch dmcache.write_hits
 PMID(s): 129.0.9
 pmResult ... numpmid: 1
   129.0.9 (<noname>): numval: 2 valfmt: 0 vlist[]:
-    inst [0 or ???] value 330
-    inst [1 or ???] value 329
+    inst [0 or ???] value WRITE_HITS
+    inst [1 or ???] value WRITE_HITS
 dbpmda> fetch dmcache.write_misses
 PMID(s): 129.0.10
 pmResult ... numpmid: 1
@@ -156,16 +156,10 @@ pmResult ... numpmid: 1
   129.0.13 (<noname>): numval: 2 valfmt: 1 vlist[]:
     inst [0 or ???] value 0
     inst [1 or ???] value 0
-dbpmda> fetch dmcache.io_mode_code
-PMID(s): 129.0.14
-pmResult ... numpmid: 1
-  129.0.14 (<noname>): numval: 2 valfmt: 0 vlist[]:
-    inst [0 or ???] value 2
-    inst [1 or ???] value 1
 dbpmda> fetch dmcache.io_mode
 PMID(s): 129.1.0
 pmResult ... numpmid: 1
   129.1.0 (<noname>): numval: 2 valfmt: 1 vlist[]:
-    inst [0 or ???] value "writethrough"
-    inst [1 or ???] value "writeback"
+    inst [0 or ???] value WRITEMODE
+    inst [1 or ???] value WRITEMODE
 dbpmda> 

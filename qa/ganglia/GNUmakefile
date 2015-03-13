@@ -3,7 +3,7 @@ include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/ganglia
 
-SUBDIRS = gangliatest
+SUBDIRS = gangliatest.32 gangliatest.64 gangliatest.xml
 
 default setup default_pcp: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)

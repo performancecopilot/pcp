@@ -41,7 +41,7 @@ __pmSendInstanceReq(int fd, int from, const __pmTimeval *when, pmInDom indom,
     need = sizeof(instance_req_t) - sizeof(int);
     if (name != NULL)
 	need += PM_PDU_SIZE_BYTES(strlen(name));
-    if ((pp = (instance_req_t *)__pmFindPDUBuf(sizeof(need))) == NULL)
+    if ((pp = (instance_req_t *)__pmFindPDUBuf(need)) == NULL)
 	return -oserror();
     pp->hdr.len = need;
     pp->hdr.type = PDU_INSTANCE_REQ;
@@ -55,16 +55,14 @@ __pmSendInstanceReq(int fd, int from, const __pmTimeval *when, pmInDom indom,
     else {
 	pp->namelen = (int)strlen(name);
 	memcpy((void *)pp->name, (void *)name, pp->namelen);
-#ifdef PCP_DEBUG
 	if ((pp->namelen % sizeof(__pmPDU)) != 0) {
-	    /* for Purify */
+            /* clear the padding bytes, lest they contain garbage */
 	    int	pad;
 	    char	*padp = pp->name + pp->namelen;
 
 	    for (pad = sizeof(__pmPDU) - 1; pad >= (pp->namelen % sizeof(__pmPDU)); pad--)
 		*padp++ = '~';	/* buffer end */
 	}
-#endif
 	pp->namelen = htonl(pp->namelen);
     }
 
@@ -166,15 +164,13 @@ __pmSendInstance(int fd, int from, __pmInResult *result)
 	if (result->namelist != NULL) {
 	    ip->namelen = (int)strlen(result->namelist[i]);
 	    memcpy((void *)ip->name, (void *)result->namelist[i], ip->namelen);
-#ifdef PCP_DEBUG
 	    if ((ip->namelen % sizeof(__pmPDU)) != 0) {
-		/* for Purify */
+                /* clear the padding bytes, lest they contain garbage */
 		int	pad;
 		char	*padp = ip->name + ip->namelen;
 		for (pad = sizeof(__pmPDU) - 1; pad >= (ip->namelen % sizeof(__pmPDU)); pad--)
 		    *padp++ = '~';	/* buffer end */
 	    }
-#endif
 	    j += sizeof(*ip) - sizeof(ip->name) + PM_PDU_SIZE_BYTES(ip->namelen);
 	    ip->namelen = htonl(ip->namelen);
 	}

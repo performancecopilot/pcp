@@ -78,6 +78,7 @@ Options""")
                     self.context.pmTraversePMNS(m, self.handle_candidate_metric)
                 except pmapi.pmErr as error:
                     sys.stderr.write("Excluding metric %s (%s)\n" % (m, str(error)))
+            sys.stderr.flush()
 
         if len(self.metrics) == 0:
             sys.stderr.write("No acceptable metrics specified.\n")
@@ -92,6 +93,7 @@ Options""")
                 "pickled" if self.pickle else "text",
                 self.graphite_host, self.graphite_port,
                 self.interval))
+        sys.stdout.flush()
 
     def option_override(self, opt):
         if (opt == 'p') or (opt == 'g'):
@@ -187,7 +189,8 @@ Options""")
                 try:
                     s = socket.create_connection((self.graphite_host, self.graphite_port))
 
-                    s.send("%s %s %s\n" % (metric, value, timestamp))
+                    message = ("%s %s %s\n" % (metric, value, timestamp))
+                    s.send(str.encode(message))
                     s.close()
                 except IOError as err:
                     sys.stderr.write("cannot send message to %s:%d, %s, continuing\n" %
@@ -263,4 +266,4 @@ if __name__ == '__main__':
     except Exception as error:
         import traceback
         sys.stderr.write(str(error) + "\n") # init error: stop now
-        sys.stderr.write(traceback.format_exc() + "\n")
+        sys.stderr.write(traceback.format_exc() + "\n", flush=True)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014-2015 Red Hat.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -41,6 +41,9 @@ static struct sysinfo {
 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 
 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '9', '[', ']', '.' 
 } };
+#endif
+#ifndef roundup
+#define roundup(x,y) ((((x) + ((y) - 1)) / (y)) * (y))
 #endif
 
 static int need_mirage;	/* only do mirage glop is someone asks for it */
@@ -1042,11 +1045,11 @@ nextinst(int *inst)
 static void
 init_tables(int dom)
 {
-    int		i;
+    int			i, allocsz;
     __pmInDom_int	b_indom;
     __pmInDom_int	*indomp;
-    __pmID_int	*pmidp;
-    pmDesc	*dp;
+    __pmID_int		*pmidp;
+    pmDesc		*dp;
 
     /* serial numbering is arbitrary, but must be unique in this PMD */
     b_indom.flag = 0;
@@ -1159,16 +1162,20 @@ init_tables(int dom)
     pmidp->domain = dom;
 
     /* local hacks */
-    _string = (char *)calloc(1, 8);
+    allocsz = roundup(sizeof("13"), 8);
+    _string = (char *)calloc(1, allocsz);
     strncpy(_string, "13", sizeof("13"));
-    _aggr33 = (pmValueBlock *)malloc(PM_VAL_HDR_SIZE);
+    allocsz = roundup(PM_VAL_HDR_SIZE, 8);
+    _aggr33 = (pmValueBlock *)malloc(allocsz);
     _aggr33->vlen = PM_VAL_HDR_SIZE + 0;
     _aggr33->vtype = PM_TYPE_AGGREGATE;
-    _aggr34 = (pmValueBlock *)malloc(PM_VAL_HDR_SIZE+strlen("hullo world!"));
+    allocsz = roundup(PM_VAL_HDR_SIZE + strlen("hullo world!"), 8);
+    _aggr34 = (pmValueBlock *)malloc(allocsz);
     _aggr34->vlen = PM_VAL_HDR_SIZE + strlen("hullo world!");
     _aggr34->vtype = PM_TYPE_AGGREGATE;
     memcpy(_aggr34->vbuf, "hullo world!", strlen("hullo world!"));
-    _aggr35 = (pmValueBlock *)malloc(PM_VAL_HDR_SIZE+strlen("13"));
+    allocsz = roundup(PM_VAL_HDR_SIZE + strlen("13"), 8);
+    _aggr35 = (pmValueBlock *)malloc(allocsz);
     _aggr35->vlen = PM_VAL_HDR_SIZE + strlen("13");
     _aggr35->vtype = PM_TYPE_AGGREGATE;
     memcpy(_aggr35->vbuf, "13", strlen("13"));

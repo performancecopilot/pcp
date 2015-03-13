@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2014 Red Hat.
+.\" Copyright (c) 2014-2015 Red Hat.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -116,9 +116,7 @@ possible to count some native metrics and preset metrics concurrently.
 .ft CW
 .nf
 .in +0.5i
-# pmstore papi.control.enable "perf.BRANCH.LOADS,perf.BRANCH.MISSES"
-papi.control.enable old value="" new value="perf.BRANCH.LOADS,perf.BRANCH.MISSES"
-
+# true -- automatically-enabled counters
 # pmval -s3 papi.system.perf.BRANCH.LOADS
 metric:    papi.system.perf.BRANCH.LOADS
 host:      HOSTNAME
@@ -141,7 +139,13 @@ interval:  1.00 sec
              590.8   
              651.8
 
-# pmstore papi.control.disable "perf.BRANCH.LOADS,perf.BRANCH.MISSES"
+# true -- quick overview
+# pminfo -f papi.control.status
+papi.control.status
+    value "Papi is running, has multiplexing enabled, perf.BRANCH.MISSES(114): 8960, perf.BRANCH.LOADS(110): 158400"
+
+# true -- optional instant disable
+# pmstore papi.control.disable "perf.BRANCH.LOADS,perf.BRANCH.MISSES"  
 papi.control.disable old value="" new value="perf.BRANCH.LOADS,perf.BRANCH.MISSES"
 .PP
 .SH INSTALLATION

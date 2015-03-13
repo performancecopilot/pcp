@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2014 Red Hat.
+ * Copyright (C) 2012-2015 Red Hat.
  * Copyright (C) 2009-2012 Michael T. Werner
  *
  * This file is part of the "pcp" module, the python interfaces for the
@@ -774,6 +774,46 @@ setContextOptions(PyObject *self, PyObject *args, PyObject *keywords)
     return Py_BuildValue("i", sts);
 }
 
+static void
+pmnsDecodeCallback(const char *name, void *closure)
+{
+    PyObject *arglist, *result;
+
+    arglist = Py_BuildValue("(s)", name);
+    if (arglist == NULL)
+        return;
+    result = PyEval_CallObject(closure, arglist);
+    Py_DECREF(arglist);
+    if (!result)
+        PyErr_Print();
+    else
+	Py_DECREF(result);
+}
+
+/*
+ * This pmTraversePMNS_r wrapper is specifically so that python3
+ * installs can pass out correctly decoded python strings rather
+ * than byte arrays.
+ */
+static PyObject *
+pmnsTraverse(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    PyObject *func;
+    char *keyword_list[] = {"name", "callback", NULL};
+    char *name;
+    int sts;
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+		"sO:pmnsTraverse", keyword_list, &name, &func))
+	return NULL;
+    if (!PyCallable_Check(func)) {
+	PyErr_SetString(PyExc_TypeError, "pmnsTraverse needs a callable");
+	return NULL;
+    }
+    sts = pmTraversePMNS_r(name, pmnsDecodeCallback, func);
+    return Py_BuildValue("i", sts);
+}
+
 static PyObject *
 usageMessage(PyObject *self, PyObject *args)
 {
@@ -1172,6 +1212,9 @@ static PyMethodDef methods[] = {
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "pmSetOptionHostList",
 	.ml_meth = (PyCFunction) setOptionHostList,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmnsTraverse",
+	.ml_meth = (PyCFunction) pmnsTraverse,
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { NULL }
 };

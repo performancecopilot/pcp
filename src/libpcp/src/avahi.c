@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2015 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -307,7 +307,7 @@ cleanup(__pmServerAvahiPresence *s)
     }
 }
 
-/* Publish a new service. */
+/* Add a new serice to the active services list. */
 static void
 addService(__pmServerPresence *s)
 {
@@ -336,7 +336,7 @@ addService(__pmServerPresence *s)
     ++nActiveServices;
 }
 
-/* Publish a new service. */
+/* Remove a service from the active services list. */
 static void
 removeService(__pmServerPresence *s)
 {
@@ -406,8 +406,10 @@ publishService(__pmServerPresence *s)
     return;
 
  fail:
+    removeService(s);
     cleanup(s->avahi);
     free(s->avahi);
+    s->avahi = NULL;
 }
 
 void

@@ -116,15 +116,8 @@ cat <<'End-of-File' >$NEW
  *
  * Domain Number Range		Use
  *	  0			reserved -- DO NOT USE
- *	  1-31			production PMDAs from PCP packages (#1)
- *	 32-39			ORACLE DBMS PMDAs
- *	 40-47			Sybase DBMS PMDAs
- *	 48-55			Informix DBMS PMDAs
- *	 56-58			SNMP Gateway PMDA
- *	 59-63			Linux PMDAs
- *	 64-69			ISV PMDAs
- *	 70-128			production PMDAs from PCP packages (#2)
- *	129-510			End-User PMDAs and demo PMDAs
+ *	  1-384			production PMDAs from PCP packages
+ *	385-510			end-user PMDAs (allocate from high to low)
  *	511			reserved for dynamic PMNS entries -- DO NOT USE
  *
  * A Performance Metrics Identifier (PMID) is internally encoded as

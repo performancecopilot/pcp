@@ -266,6 +266,8 @@ Error: pmwebd control file "$PCP_PMWEBDCONF_PATH" is missing, cannot start pmweb
 
 	    $PCP_BINADM_DIR/pmpost "start pmwebd from $pmprog"
 
+	    # finally, stop here if running in a container
+	    [ -f $PCP_SYSCONF_DIR/rc.container ] && exec $PCP_BINADM_DIR/pmpause
 	fi
 	status=0
         ;;
@@ -298,6 +300,7 @@ Error: pmwebd control file "$PCP_PMWEBDCONF_PATH" is missing, cannot start pmweb
 	;;
 
   *)
+	[ -f $PCP_SYSCONF_DIR/rc.container ] && exec "$@"
 	_usage
         ;;
 esac

@@ -1,5 +1,5 @@
 dnl
-dnl Copyright (c) 2012-2014 Red Hat.
+dnl Copyright (c) 2012-2015 Red Hat.
 dnl Copyright (c) 2008 Aconex.  All Rights Reserved.
 dnl Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 dnl 
@@ -108,12 +108,10 @@ AC_ARG_WITH([books],
     [do_books=no])
 
 AC_ARG_WITH([papi],
-    [AC_HELP_STRING([--with-papi@<:@=DIR@:>@],
+    [AC_HELP_STRING([--with-papi@<:@=DIR|=MODULE@:>@],
 		   [enable performance api counter pmda (default is on)
-		   The optional DIR argument
-		   can be used to supply the absolute path name
-		   for the primary PAPI installation directory
-                   @<:@default=/usr/local@:>@])],
+		   The optional argument may be a full path of a PAPI installation prefix,
+		   or a pkgconfig module name.])],
     [do_papi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-papi=$withval"],
     [do_papi=check])
 
@@ -185,7 +183,7 @@ dnl src/include/builddefs.in ... need to be the same in both places
 target_distro=$target_os
 if test $target_os = linux
 then
-    AC_DEFINE(IS_LINUX)
+    AC_DEFINE(IS_LINUX, [1], [Platform is Linux])
     test -f /etc/SuSE-release && target_distro=suse
     test -f /etc/fedora-release && target_distro=fedora
     test -f /etc/redhat-release && target_distro=redhat
@@ -196,7 +194,7 @@ then
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
 elif test $target_os = darwin
 then
-    AC_DEFINE(IS_DARWIN)
+    AC_DEFINE(IS_DARWIN, [1], [Platform is Darwin (Mac OS X)])
     target_distro=macosx
     version=`sw_vers -productVersion | sed -e 's/\.//' -e 's/\..*//g'`
     CFLAGS="-fPIC -no-cpp-precomp -fno-strict-aliasing -arch i386"
@@ -208,32 +206,32 @@ then
     export CFLAGS
 elif test $target_os = mingw
 then
-    AC_DEFINE(IS_MINGW)
+    AC_DEFINE(IS_MINGW, [1], [Platform is MinGW (Windows)])
     CFLAGS="-fno-strict-aliasing"
 elif test $target_os = solaris
 then
-    AC_DEFINE(IS_SOLARIS)
+    AC_DEFINE(IS_SOLARIS, [1], [Platform is Solaris])
     export PATH="$PATH:/opt/SunStudioExpress/bin"
     export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing"
     export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any"
 elif test $target_os = aix
 then
-    AC_DEFINE(IS_AIX)
+    AC_DEFINE(IS_AIX, [1], [Platform is AIX])
     export CFLAGS="-qcpluscmt"
 elif test $target_os = freebsd || test $target_os = kfreebsd
 then
-    AC_DEFINE(IS_FREEBSD)
+    AC_DEFINE(IS_FREEBSD, [1], [Platform is FreeBSD])
     test -f /etc/debian_version && target_distro=debian
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
 elif test $target_os = gnu
 then
-    AC_DEFINE(IS_GNU)
+    AC_DEFINE(IS_GNU, [1], [Platform is GNU Hurd])
     test -f /etc/debian_version && target_distro=debian
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
 elif test $target_os = netbsdelf
 then
     target_os=netbsd
-    AC_DEFINE(IS_NETBSD)
+    AC_DEFINE(IS_NETBSD, [1], [Platform is NetBSD])
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE -D_NETBSD_SOURCE"
 else
     echo
@@ -357,7 +355,7 @@ End-of-File
 
     if test "$enable_probes" = "true"
     then
-        AC_DEFINE(HAVE_STATIC_PROBES)
+        AC_DEFINE(HAVE_STATIC_PROBES, [1], [Static probes (dtrace, systemtap)])
     fi
     AC_SUBST(enable_probes)
     AC_SUBST(DTRACE)
@@ -381,7 +379,7 @@ AS_IF([test "x$do_discovery" != "xno"], [
     then
 	AC_SUBST(lib_for_avahi)
 	AC_SUBST(avahi_CFLAGS)
-	AC_DEFINE(HAVE_AVAHI)
+	AC_DEFINE(HAVE_AVAHI, [1], [Service discovery via Avahi])
 	enable_discovery=true
     fi
 
@@ -391,7 +389,7 @@ AS_IF([test "x$do_discovery" != "xno"], [
     fi
     if test "$enable_discovery" = "true"
     then
-	AC_DEFINE(HAVE_SERVICE_DISCOVERY)
+	AC_DEFINE(HAVE_SERVICE_DISCOVERY, [1], [Service discovery mechanisms])
     fi
 ])
 AC_SUBST(enable_discovery)
@@ -1178,7 +1176,7 @@ fi
 if $have_procfs
 then
     AC_MSG_RESULT(yes)
-    AC_DEFINE(HAVE_PROCFS)
+    AC_DEFINE(HAVE_PROCFS, [1], [Support for /proc pseudo-filesystem])
 else
     AC_MSG_RESULT(no)
 fi
@@ -1210,7 +1208,7 @@ AC_TRY_COMPILE(
     #include <sys/endian.h> 
 ],
 [
-], AC_DEFINE(HAVE_SYS_ENDIAN_H) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+], AC_DEFINE(HAVE_SYS_ENDIAN_H, [1], [sys/endian.h]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
 dnl Check if we have <machine/endian.h> ... MacOSX way
 AC_MSG_CHECKING([for machine/endian.h ])
@@ -1219,7 +1217,7 @@ AC_TRY_COMPILE(
     #include <machine/endian.h> 
 ],
 [
-], AC_DEFINE(HAVE_MACHINE_ENDIAN_H) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+], AC_DEFINE(HAVE_MACHINE_ENDIAN_H, [1], [machine/endian.h]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
 dnl Check if we have <sys/endian.h> ... IRIX strangeness
 AC_MSG_CHECKING([for sys/endian.h (IRIX variant) ])
@@ -1229,7 +1227,7 @@ AC_TRY_COMPILE(
     #include <sys/endian.h> 
 ],
 [
-], AC_DEFINE(HAVE_SYS_ENDIAN_H) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+], AC_DEFINE(HAVE_SYS_ENDIAN_H, [1], [IRIX sys/endian.h]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -1268,14 +1266,14 @@ AS_IF([test "x$do_infiniband" != "xno"], [
 	LIBS="$IB_LIBS"
 	AC_MSG_CHECKING([for port_performance_query_via])
 	AC_TRY_LINK_FUNC(port_performance_query_via,
-                AC_DEFINE(HAVE_PORT_PERFORMANCE_QUERY_VIA)
+                AC_DEFINE(HAVE_PORT_PERFORMANCE_QUERY_VIA, [1], [port_performance_query_via API])
 		have_port_performance_query_via=true
 		AC_MSG_RESULT(yes),
                 have_port_performance_query_via=false
 		AC_MSG_RESULT(no))
 	AC_MSG_CHECKING([for pma_query_via])
 	AC_TRY_LINK_FUNC(pma_query_via,
-		AC_DEFINE(HAVE_PMA_QUERY_VIA)
+		AC_DEFINE(HAVE_PMA_QUERY_VIA, [1], [pma_query_via API])
                 have_pma_query_via=true
 		AC_MSG_RESULT(yes),
                 have_pma_query_via=false
@@ -1304,11 +1302,14 @@ AS_IF([test "x$do_papi" != "xno"], [
     savedLIBS=$LIBS
 
     case "$do_papi" in
-      yes|no) PAPI_ROOTDIR=/usr ;;
-           *) PAPI_ROOTDIR=$do_papi;
+      yes|no|check) ;;
+	 */*) PAPI_ROOTDIR=$do_papi;
 	      CFLAGS="-I$PAPI_ROOTDIR/include"
-	      LDFLAGS="-L$PAPI_ROOTDIR/lib"
-	   ;;
+	      LDFLAGS="-L$PAPI_ROOTDIR/lib" ;;
+	 *)   PKG_CHECK_MODULES(papi,[$do_papi],[
+		CFLAGS="$papi_CFLAGS"
+		LDFLAGS="$papi_LIBS"]) ;;
+                # $papi_LIBS will include -lpapi harmlessly redudantly with AC_CHECK_LIB
     esac
 
     AC_CHECK_LIB([papi], [PAPI_library_init],
@@ -1342,7 +1343,7 @@ End-of-File
     	then
 	   AC_MSG_RESULT(no)
     	else
-    	   AC_DEFINE(HAVE_PAPI_DISABLED_COMP)
+    	   AC_DEFINE(HAVE_PAPI_DISABLED_COMP, [1], [PAPI_component_info_t field])
     	   AC_MSG_RESULT(yes)
 
     	fi
@@ -1471,7 +1472,7 @@ AC_TRY_COMPILE(
     #include <stdlib.h> 
     #include <stddef.h>
 ], [ __psint_t psint; ],
-AC_DEFINE(HAVE___PSINT_T) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+AC_DEFINE(HAVE___PSINT_T, [1], [__psint_t type]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
 dnl check if we have a type for pointer difference (ptrdiff_t)
 AC_MSG_CHECKING([for ptrdiff_t ])
@@ -1481,7 +1482,7 @@ AC_TRY_COMPILE([
     #include <malloc.h>
     #endif
 ], [ ptrdiff_t ptrdiff; ],
-AC_DEFINE(HAVE_PTRDIFF_T) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+AC_DEFINE(HAVE_PTRDIFF_T, [1], [ptrdiff_t type]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
 dnl check if we have types for uid_t, gid_t (POSIX) or SID (Win32)
 AC_MSG_CHECKING([for uid_t ])
@@ -1491,7 +1492,7 @@ AC_TRY_COMPILE([
     #include <pwd.h>
     #endif
 ], [ uid_t uid; ],
-AC_DEFINE(HAVE_UID_T) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+AC_DEFINE(HAVE_UID_T, [1], [uid_t type]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 AC_MSG_CHECKING([for gid_t ])
 AC_TRY_COMPILE([
     #include <sys/types.h>
@@ -1499,14 +1500,14 @@ AC_TRY_COMPILE([
     #include <grp.h>
     #endif
 ], [ gid_t gid; ],
-AC_DEFINE(HAVE_GID_T) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+AC_DEFINE(HAVE_GID_T, [1], [gid_t type]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 AC_MSG_CHECKING([for SID ])
 AC_TRY_COMPILE([
     #ifdef HAVE_WINDOWS_H
     #include <windows.h>
     #endif
 ], [ SID sid; ],
-AC_DEFINE(HAVE_SID) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+AC_DEFINE(HAVE_SID, [1], [sid type]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
 dnl check if we have a type for socklen_t
 AC_MSG_CHECKING([for socklen_t ])
@@ -1516,37 +1517,37 @@ AC_TRY_COMPILE([
     #include <sys/socket.h>
     #endif
 ], [ socklen_t len; ],
-AC_DEFINE(HAVE_SOCKLEN_T) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+AC_DEFINE(HAVE_SOCKLEN_T, [1], [socklen_t type]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
 dnl check if LL suffix on constants is supported
 AC_TRY_COMPILE([
     #include <stdio.h>
 ], [ long long x = 0LL; ],
-AC_DEFINE(HAVE_CONST_LONGLONG))
+AC_DEFINE(HAVE_CONST_LONGLONG, [1], [LL suffix on constants]))
 
 dnl check if _environ is declared globally
 AC_TRY_LINK([
     #include <stdlib.h>
     #include <unistd.h>
 ], [ char **x = _environ; ],
-AC_DEFINE(HAVE_UNDERBAR_ENVIRON))
+AC_DEFINE(HAVE_UNDERBAR_ENVIRON, [1], [_environ declared globally]))
 
 dnl check for PR_TERMCHILD and PR_SET_PDEATHSIG in <sys/prctl.h>
-AC_MSG_CHECKING([for PR_TERMCHILD constants in sys/prctl.h])
+AC_MSG_CHECKING([for PR_TERMCHILD constant in sys/prctl.h])
 AC_TRY_COMPILE([
     #ifdef HAVE_SYS_PRCTL_H
     #include <sys/prctl.h>
     #endif
 ], [ int i = PR_TERMCHILD; ],
-AC_DEFINE(HAVE_PR_TERMCHILD) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+AC_DEFINE(HAVE_PR_TERMCHILD, [1], [PR_TERMCHILD constant]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
-AC_MSG_CHECKING([for PR_SET_PDEATHSIG constants in sys/prctl.h])
+AC_MSG_CHECKING([for PR_SET_PDEATHSIG constant in sys/prctl.h])
 AC_TRY_COMPILE([
     #ifdef HAVE_SYS_PRCTL_H
     #include <sys/prctl.h>
     #endif
 ], [ int i = PR_SET_PDEATHSIG; ],
-AC_DEFINE(HAVE_PR_SET_PDEATHSIG) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+AC_DEFINE(HAVE_PR_SET_PDEATHSIG, [1], [PR_SET_PDEATHSIG constant]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
 AC_HEADER_TIOCGWINSZ
 
@@ -1582,7 +1583,7 @@ if test -s conftest.out
 then
     AC_MSG_RESULT(no)
 else
-    AC_DEFINE(HAVE_CONST_DIRENT)
+    AC_DEFINE(HAVE_CONST_DIRENT, [1], [const arg for scandir() select method])
     AC_MSG_RESULT(yes)
 fi
 rm -f conftest.*
@@ -1601,7 +1602,7 @@ if test -s conftest.out
 then
     AC_MSG_RESULT(no)
 else
-    AC_DEFINE(HAVE_DIRENT_D_OFF)
+    AC_DEFINE(HAVE_DIRENT_D_OFF, [1], [struct dirent d_off field])
     AC_MSG_RESULT(yes)
 fi
 rm -f conftest.*
@@ -1624,7 +1625,7 @@ fi
 case "$ans"
 in
     0x*)
-	AC_DEFINE(HAVE_PRINTF_P_PFX)
+	AC_DEFINE(HAVE_PRINTF_P_PFX, [1], [printf %p produces 0x])
 	AC_MSG_RESULT(yes)
 	;;
     *)
@@ -1768,7 +1769,7 @@ then
     AC_MSG_CHECKING([for pthread_mutex_t in pthread.h])
     AC_TRY_COMPILE(
 	[#include <pthread.h>], [pthread_mutex_t mymutex;],
-	AC_DEFINE(HAVE_PTHREAD_MUTEX_T) AC_MSG_RESULT(yes),
+	AC_DEFINE(HAVE_PTHREAD_MUTEX_T, [1], [pthread_mutex_t type]) AC_MSG_RESULT(yes),
 	[
 	    if test "$do_threads" = "yes"
 	    then
@@ -1830,17 +1831,17 @@ broken!
 #else
 __thread int x;
 #endif], [],
-		AC_DEFINE(HAVE___THREAD) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+		AC_DEFINE(HAVE___THREAD, [1], [__thread private data]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 	else
 	    AC_TRY_COMPILE([#include <pthread.h>
 __thread int x;], [],
-		AC_DEFINE(HAVE___THREAD) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+		AC_DEFINE(HAVE___THREAD, [1], [__thread private data]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 	fi
 
 	dnl Check if pthread_barrier_t is defined in pthread.h
 	AC_MSG_CHECKING([for pthread_barrier_t in pthread.h])
 	AC_TRY_COMPILE([#include <pthread.h>], [pthread_barrier_t mybarrier;],
-	    AC_DEFINE(HAVE_PTHREAD_BARRIER_T) AC_MSG_RESULT(yes),
+	    AC_DEFINE(HAVE_PTHREAD_BARRIER_T, [1], [pthread_barrier_t type]) AC_MSG_RESULT(yes),
 	    AC_MSG_RESULT(no))
     fi
 fi
@@ -1862,9 +1863,9 @@ End-of-File
 fi
 AC_MSG_RESULT($ans)
 if test "$ans" = 4; then
-    AC_DEFINE(HAVE_32BIT_LONG)
+    AC_DEFINE(HAVE_32BIT_LONG, [1], [sizeof long])
 elif test "$ans" = 8; then
-    AC_DEFINE(HAVE_64BIT_LONG)
+    AC_DEFINE(HAVE_64BIT_LONG, [1], [sizeof long])
 else
     echo
     echo "FATAL ERROR: size of long is not 32 or 64 bits, cannot proceed."
@@ -1891,10 +1892,10 @@ End-of-File
 fi
 AC_MSG_RESULT($ans)
 if test "$ans" = 4; then
-    AC_DEFINE(HAVE_32BIT_PTR)
+    AC_DEFINE(HAVE_32BIT_PTR, [1], [pointer size])
     PCP_PTR_SIZE=32
 elif test "$ans" = 8; then
-    AC_DEFINE(HAVE_64BIT_PTR)
+    AC_DEFINE(HAVE_64BIT_PTR, [1], [pointer size])
     PCP_PTR_SIZE=64
 else
     echo
@@ -1952,7 +1953,7 @@ in
     1200*|*0012)
 	# left-to-right starting from MSB (SGI cc on MIPS), or
 	# left-to-right ending at LSB
-	AC_DEFINE(HAVE_BITFIELDS_LTOR)
+	AC_DEFINE(HAVE_BITFIELDS_LTOR, [1], [left-to-right bitfield ordering])
 	AC_MSG_RESULT(yes)
 	;;
     2100*|*0021)
@@ -1969,7 +1970,7 @@ in
 esac
 rm -rf conftest conftest.*
 
-dnl check if compile can cast __uint64_t to double
+dnl check if compiler can cast __uint64_t to double
 AC_TRY_LINK(
 [
     #include <stdlib.h>
@@ -1978,22 +1979,22 @@ AC_TRY_LINK(
 [
     __uint64_t x = 0;
     double y = (double)x;
-], AC_DEFINE(HAVE_CAST_U64_DOUBLE))
+], AC_DEFINE(HAVE_CAST_U64_DOUBLE, [1], [compiler casts u64 to double]))
 
 dnl check if basename and dirname need -lgen, -lpcp or nothing to work
 dnl (assume both go together)
 AC_CHECK_FUNCS(basename)
 if test $ac_cv_func_basename = yes
 then
-    AC_DEFINE(HAVE_BASENAME)
-    AC_DEFINE(HAVE_DIRNAME)
+    AC_DEFINE(HAVE_BASENAME, [1], [basename API])
+    AC_DEFINE(HAVE_DIRNAME, [1], [dirname API])
     lib_for_basename=""
 else
     AC_CHECK_LIB(gen, basename)
     if test $ac_cv_lib_gen_basename = yes
     then
-	AC_DEFINE(HAVE_BASENAME)
-	AC_DEFINE(HAVE_DIRNAME)
+	AC_DEFINE(HAVE_BASENAME, [1], [basename API])
+	AC_DEFINE(HAVE_DIRNAME, [1], [dirname API])
 	lib_for_basename="-lgen"
     else
 	lib_for_basename="-lpcp"
@@ -2009,7 +2010,7 @@ then
     AC_CHECK_LIB(rt, clock_gettime)
     if test $ac_cv_lib_rt_clock_gettime = yes
     then
-	AC_DEFINE(HAVE_CLOCK_GETTIME)
+	AC_DEFINE(HAVE_CLOCK_GETTIME, [1], [clock_gettime API])
 	lib_for_rt=-lrt
     fi
 fi
@@ -2023,7 +2024,7 @@ then
     AC_CHECK_LIB(dl, dlopen)
     if test $ac_cv_lib_dl_dlopen = yes
     then
-	AC_DEFINE(HAVE_DLOPEN)
+	AC_DEFINE(HAVE_DLOPEN, [1], [dlopen API])
 	lib_for_dlopen=-ldl
     fi
 fi
@@ -2038,11 +2039,11 @@ then
     AC_CHECK_LIB(m, flog10)
     if test $ac_cv_lib_m_flog10 = yes
     then
-	AC_DEFINE(HAVE_FLOG10)
+	AC_DEFINE(HAVE_FLOG10, [1], [flog10 math API])
 	lib_for_math=-lm
     fi
 else
-    AC_DEFINE(HAVE_FLOG10)
+    AC_DEFINE(HAVE_FLOG10, [1], [flog10 math API])
 fi
 AC_CHECK_FUNCS(pow)
 if test $ac_cv_func_pow = no
@@ -2050,11 +2051,11 @@ then
     AC_CHECK_LIB(m, pow)
     if test $ac_cv_lib_m_pow = yes
     then
-	AC_DEFINE(HAVE_POW)
+	AC_DEFINE(HAVE_POW, [1], [pow math API])
 	lib_for_math=-lm
     fi
 else
-    AC_DEFINE(HAVE_POW)
+    AC_DEFINE(HAVE_POW, [1], [pow math API])
 fi
 AC_MSG_CHECKING([for fpclassify()])
 ac_cv_func_fpclassify=no
@@ -2090,7 +2091,7 @@ then
 fi
 if test $ac_cv_func_fpclassify = yes
 then
-    AC_DEFINE(HAVE_FPCLASSIFY)
+    AC_DEFINE(HAVE_FPCLASSIFY, [1], [fpclassify math API])
 else
     dnl prefer fpclassify() but will take isnan() and isnanf() as
     dnl possible alternates
@@ -2100,7 +2101,7 @@ else
 	AC_CHECK_LIB(m, isnan)
 	if test $ac_cv_lib_m_isnan = yes
 	then
-	    AC_DEFINE(HAVE_ISNAN)
+	    AC_DEFINE(HAVE_ISNAN, [1], [isnan math API])
 	    lib_for_math=-lm
 	fi
     fi
@@ -2110,7 +2111,7 @@ else
 	AC_CHECK_LIB(m, isnanf)
 	if test $ac_cv_lib_m_isnanf = yes
 	then
-	    AC_DEFINE(HAVE_ISNANF)
+	    AC_DEFINE(HAVE_ISNANF, [1], [isnanf math API])
 	    lib_for_math=-lm
 	fi
     fi
@@ -2118,26 +2119,30 @@ fi
 AC_SUBST(lib_for_math)
 
 dnl check if we have the SIG_PF typedef
-AC_TRY_LINK([#include <signal.h>], [SIG_PF x;], AC_DEFINE(HAVE_SIGPF))
+AC_TRY_LINK([#include <signal.h>], [SIG_PF x;],
+    AC_DEFINE(HAVE_SIGPF, [1], [SIG_PF typedef]))
 
 dnl check if we have the SA_SIGINFO #define
 AC_TRY_LINK([#include <signal.h>], [int x = SA_SIGINFO;],
-    AC_DEFINE(HAVE_SA_SIGINFO))
+    AC_DEFINE(HAVE_SA_SIGINFO, [1], [SA_SIGINFO macro]))
 
 dnl check if we support the SIGPIPE signal
-AC_TRY_LINK([#include <signal.h>], [int x = SIGPIPE;], AC_DEFINE(HAVE_SIGPIPE))
+AC_TRY_LINK([#include <signal.h>], [int x = SIGPIPE;],
+    AC_DEFINE(HAVE_SIGPIPE, [1], [SIGPIPE signal]))
 
 dnl check if we support the SIGHUP signal
-AC_TRY_LINK([#include <signal.h>], [int x = SIGHUP;], AC_DEFINE(HAVE_SIGHUP))
+AC_TRY_LINK([#include <signal.h>], [int x = SIGHUP;],
+    AC_DEFINE(HAVE_SIGHUP, [1], [SIGHUP signal]))
 
 dnl check if we support the SIGBUS signal
-AC_TRY_LINK([#include <signal.h>], [int x = SIGBUS;], AC_DEFINE(HAVE_SIGBUS))
+AC_TRY_LINK([#include <signal.h>], [int x = SIGBUS;],
+    AC_DEFINE(HAVE_SIGBUS, [1], [SIGBUS signal]))
 
 dnl check if we need to explicitly include signal.h
 AC_TRY_LINK([#include <sys/wait.h>],
 [   typedef void (*SIGRET)(int);
     SIGRET x = SIG_IGN;
-], AC_DEFINE(HAVE_WAIT_INCLUDES_SIGNAL))
+], AC_DEFINE(HAVE_WAIT_INCLUDES_SIGNAL, [1], [indirect signal.h]))
 
 dnl check for name and type of time fields in struct stat
 dnl IRIX example	timespec_t st_mtim;	
@@ -2156,37 +2161,43 @@ if test $have_stat_name = false
 then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<[ 	]st_mtimespec>>changequote([, ]),
-    sys/stat.h, [ have_stat_name=true; AC_DEFINE(HAVE_ST_MTIME_WITH_SPEC) ])
+    sys/stat.h, [ have_stat_name=true;
+    AC_DEFINE(HAVE_ST_MTIME_WITH_SPEC, [1], [st_mtimespec stat field]) ])
 fi
 if test $have_stat_name = false -a $target_os != darwin -a $target_os != linux -a $target_os != kfreebsd -a $target_os != netbsd
 then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<[ 	]st_mtime>>changequote([, ]),
-    sys/stat.h, [ have_stat_name=true; AC_DEFINE(HAVE_ST_MTIME_WITH_E) ])
+    sys/stat.h, [ have_stat_name=true;
+    AC_DEFINE(HAVE_ST_MTIME_WITH_E, [1], [st_mtime stat field]) ])
 fi
 if test $have_stat_type = false
 then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<timestruc_t[ 	][ 	]*st_mtim>>changequote([, ]),
-    sys/stat.h, [ have_stat_type=true; AC_DEFINE(HAVE_STAT_TIMESTRUC) ])
+    sys/stat.h, [ have_stat_type=true;
+    AC_DEFINE(HAVE_STAT_TIMESTRUC, [1], [timestruc_t type]) ])
 fi
 if test $have_stat_type = false
 then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<timespec_t[ 	][ 	]*st_mtim>>changequote([, ]),
-    sys/stat.h, [ have_stat_type=true; AC_DEFINE(HAVE_STAT_TIMESPEC_T) ])
+    sys/stat.h, [ have_stat_type=true;
+    AC_DEFINE(HAVE_STAT_TIMESPEC_T, [1], [timespec_t type]) ])
 fi
 if test $have_stat_type = false
 then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<timespec[ 	][ 	]*st_mtim>>changequote([, ]),
-    sys/stat.h, [ have_stat_type=true; AC_DEFINE(HAVE_STAT_TIMESPEC) ])
+    sys/stat.h, [ have_stat_type=true;
+    AC_DEFINE(HAVE_STAT_TIMESPEC, [1], [timespec type]) ])
 fi
 if test $have_stat_type = false
 then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<time_t[ 	][ 	]*st_mtim>>changequote([, ]),
-    sys/stat.h, [ have_stat_type=true; AC_DEFINE(HAVE_STAT_TIME_T) ])
+    sys/stat.h, [ have_stat_type=true;
+    AC_DEFINE(HAVE_STAT_TIME_T, [1], [time_t type]) ])
 fi
 if test $have_stat_type = false
 then
@@ -2459,7 +2470,7 @@ then
 	],
 	[
 	    int i = FNDELAY;
-	], AC_DEFINE(HAVE_FNDELAY) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+	], AC_DEFINE(HAVE_FNDELAY, [1], [FNDELAY macro]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 fi
 
 dnl Check for Network Security Services (NSS) and
@@ -2550,7 +2561,7 @@ then
 
     if test "$enable_secure" = "true"
     then
-	AC_DEFINE(HAVE_SECURE_SOCKETS)
+	AC_DEFINE(HAVE_SECURE_SOCKETS, [1], [Encrypted sockets])
     fi
     AC_SUBST(enable_secure)
 
@@ -2582,7 +2593,7 @@ AC_TRY_COMPILE([
     #include <sys/un.h>
     #endif
 ], [ struct sockaddr_un sa; sa.sun_family = AF_UNIX; ],
-AC_DEFINE(HAVE_STRUCT_SOCKADDR_UN) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+AC_DEFINE(HAVE_STRUCT_SOCKADDR_UN, [1], [sockaddr_un type]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
 dnl check for Linux Unix Domain socket credential structure
 AC_MSG_CHECKING([for struct ucred in sys/socket.h])
@@ -2595,21 +2606,21 @@ AC_TRY_COMPILE([
     #include <sys/un.h>
     #endif
 ], [ struct ucred ucred; ucred.uid = 0; ],
-AC_DEFINE(HAVE_STRUCT_UCRED) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+AC_DEFINE(HAVE_STRUCT_UCRED, [1], [ucred type]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
 dnl check for struct timespec in <time.h>
 AC_MSG_CHECKING([for struct timespec in time.h])
 AC_TRY_COMPILE([
     #include <time.h>
 ], [ struct timespec foo; ],
-AC_DEFINE(HAVE_STRUCT_TIMESPEC) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+AC_DEFINE(HAVE_STRUCT_TIMESPEC, [1], [timespec type]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
 dnl check if we have IRIX style altzone 
 AC_MSG_CHECKING([for altzone in time.h])
 AC_TRY_COMPILE([
     #include <time.h>
 ], [ time_t az = altzone; ],
-AC_DEFINE(HAVE_ALTZONE) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+AC_DEFINE(HAVE_ALTZONE, [1], [altzone global]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
 dnl If there is no altzone, check if strftime can handle %z
 AC_MSG_CHECKING([if strftime knows about %z])
@@ -2626,14 +2637,14 @@ int main () {
        return(1);
     return (0);
 }
-], AC_DEFINE(HAVE_STRFTIME_z) AC_MSG_RESULT(yes), AC_MSG_RESULT(no), AC_MSG_RESULT(no))
+], AC_DEFINE(HAVE_STRFTIME_z, [1], [strftime with %z]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no), AC_MSG_RESULT(no))
 
 dnl does strerror_r return char * a la GNU
 dnl (as opposed to the int return for XSI-compliant variants)
 AC_MSG_CHECKING([if strerror_r returns char *])
 AC_TRY_COMPILE(
     [#include <string.h>], [strerror_r(0, NULL, 0)[0];],
-    AC_DEFINE(HAVE_STRERROR_R_PTR) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+    AC_DEFINE(HAVE_STRERROR_R_PTR, [1], [strerror_r return]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
 dnl first check for readline on its own then with curses
 savedLIBS=$LIBS
@@ -2651,14 +2662,14 @@ AC_CHECK_FUNC(readline,,
     ])
 if test $ac_cv_func_readline = yes
 then
-    AC_DEFINE(HAVE_READLINE)
+    AC_DEFINE(HAVE_READLINE, [1], [readline API])
 elif test $ac_cv_lib_readline_readline = yes
 then
-    AC_DEFINE(HAVE_READLINE)
+    AC_DEFINE(HAVE_READLINE, [1], [readline API])
     lib_for_readline=-lreadline
 elif test $ac_cv_lib_readline_add_history = yes
 then
-    AC_DEFINE(HAVE_READLINE)
+    AC_DEFINE(HAVE_READLINE, [1], [readline API])
     lib_for_curses=-lcurses
     lib_for_readline=-lreadline
 fi
@@ -2674,7 +2685,7 @@ AC_TRY_COMPILE(
     int test = AI_ADDRCONFIG;
 ],
 [
-], AC_DEFINE(HAVE_AI_ADDRCONFIG) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+], AC_DEFINE(HAVE_AI_ADDRCONFIG, [1], [AI_ADDRCONFIG macro]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
 dnl Capture special options passed to configure
 AC_SUBST(PACKAGE_CONFIGURE)

@@ -706,6 +706,8 @@ PFM_LIBS
 PMDA_PAPI
 PAPI_LIBS
 PAPI_CFLAGS
+papi_LIBS
+papi_CFLAGS
 PMDA_INFINIBAND
 IB_LIBS
 PMDA_SYSTEMD
@@ -952,6 +954,8 @@ YACC
 YFLAGS
 SYSTEMD_CFLAGS
 SYSTEMD_LIBS
+papi_CFLAGS
+papi_LIBS
 libmicrohttpd_CFLAGS
 libmicrohttpd_LIBS
 cairo_CFLAGS
@@ -1600,10 +1604,10 @@ Optional Packages:
   --with-python3          enable support for tools requiring Python3 (default
                           is on)
   --with-books            enable building of the PCP books (default is off)
-  --with-papi[=DIR]       enable performance api counter pmda (default is on)
-                          The optional DIR argument can be used to supply the
-                          absolute path name for the primary PAPI installation
-                          directory [default=/usr/local]
+  --with-papi[=DIR|=MODULE]
+                          enable performance api counter pmda (default is on)
+                          The optional argument may be a full path of a PAPI
+                          installation prefix, or a pkgconfig module name.
   --with-perfevent        enable perfevent pmda (default is on)
   --with-manager          enable daemon manager (default is on)
   --with-webapi           enable REST API daemon (default is on)
@@ -1652,6 +1656,8 @@ Some influential environment variables:
               C compiler flags for SYSTEMD, overriding pkg-config
   SYSTEMD_LIBS
               linker flags for SYSTEMD, overriding pkg-config
+  papi_CFLAGS C compiler flags for papi, overriding pkg-config
+  papi_LIBS   linker flags for papi, overriding pkg-config
   libmicrohttpd_CFLAGS
               C compiler flags for libmicrohttpd, overriding pkg-config
   libmicrohttpd_LIBS
@@ -2872,7 +2878,8 @@ fi
 target_distro=$target_os
 if test $target_os = linux
 then
-    $as_echo "#define IS_LINUX 1" >>confdefs.h
+
+$as_echo "#define IS_LINUX 1" >>confdefs.h
 
     test -f /etc/SuSE-release && target_distro=suse
     test -f /etc/fedora-release && target_distro=fedora
@@ -2884,7 +2891,8 @@ then
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
 elif test $target_os = darwin
 then
-    $as_echo "#define IS_DARWIN 1" >>confdefs.h
+
+$as_echo "#define IS_DARWIN 1" >>confdefs.h
 
     target_distro=macosx
     version=`sw_vers -productVersion | sed -e 's/\.//' -e 's/\..*//g'`
@@ -2897,37 +2905,43 @@ then
     export CFLAGS
 elif test $target_os = mingw
 then
-    $as_echo "#define IS_MINGW 1" >>confdefs.h
+
+$as_echo "#define IS_MINGW 1" >>confdefs.h
 
     CFLAGS="-fno-strict-aliasing"
 elif test $target_os = solaris
 then
-    $as_echo "#define IS_SOLARIS 1" >>confdefs.h
+
+$as_echo "#define IS_SOLARIS 1" >>confdefs.h
 
     export PATH="$PATH:/opt/SunStudioExpress/bin"
     export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing"
     export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any"
 elif test $target_os = aix
 then
-    $as_echo "#define IS_AIX 1" >>confdefs.h
+
+$as_echo "#define IS_AIX 1" >>confdefs.h
 
     export CFLAGS="-qcpluscmt"
 elif test $target_os = freebsd || test $target_os = kfreebsd
 then
-    $as_echo "#define IS_FREEBSD 1" >>confdefs.h
+
+$as_echo "#define IS_FREEBSD 1" >>confdefs.h
 
     test -f /etc/debian_version && target_distro=debian
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
 elif test $target_os = gnu
 then
-    $as_echo "#define IS_GNU 1" >>confdefs.h
+
+$as_echo "#define IS_GNU 1" >>confdefs.h
 
     test -f /etc/debian_version && target_distro=debian
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
 elif test $target_os = netbsdelf
 then
     target_os=netbsd
-    $as_echo "#define IS_NETBSD 1" >>confdefs.h
+
+$as_echo "#define IS_NETBSD 1" >>confdefs.h
 
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE -D_NETBSD_SOURCE"
 else
@@ -4342,7 +4356,8 @@ done
 
     if test "$enable_probes" = "true"
     then
-        $as_echo "#define HAVE_STATIC_PROBES 1" >>confdefs.h
+
+$as_echo "#define HAVE_STATIC_PROBES 1" >>confdefs.h
 
     fi
 
@@ -4621,7 +4636,8 @@ done
     then
 
 
-	$as_echo "#define HAVE_AVAHI 1" >>confdefs.h
+
+$as_echo "#define HAVE_AVAHI 1" >>confdefs.h
 
 	enable_discovery=true
     fi
@@ -4632,7 +4648,8 @@ done
     fi
     if test "$enable_discovery" = "true"
     then
-	$as_echo "#define HAVE_SERVICE_DISCOVERY 1" >>confdefs.h
+
+$as_echo "#define HAVE_SERVICE_DISCOVERY 1" >>confdefs.h
 
     fi
 
@@ -8927,7 +8944,8 @@ if $have_procfs
 then
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
-    $as_echo "#define HAVE_PROCFS 1" >>confdefs.h
+
+$as_echo "#define HAVE_PROCFS 1" >>confdefs.h
 
 else
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
@@ -9457,7 +9475,8 @@ main ()
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
-  $as_echo "#define HAVE_SYS_ENDIAN_H 1" >>confdefs.h
+
+$as_echo "#define HAVE_SYS_ENDIAN_H 1" >>confdefs.h
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
@@ -9483,7 +9502,8 @@ main ()
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
-  $as_echo "#define HAVE_MACHINE_ENDIAN_H 1" >>confdefs.h
+
+$as_echo "#define HAVE_MACHINE_ENDIAN_H 1" >>confdefs.h
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
@@ -9510,7 +9530,8 @@ main ()
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
-  $as_echo "#define HAVE_SYS_ENDIAN_H 1" >>confdefs.h
+
+$as_echo "#define HAVE_SYS_ENDIAN_H 1" >>confdefs.h
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
@@ -10017,7 +10038,8 @@ return port_performance_query_via ();
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  $as_echo "#define HAVE_PORT_PERFORMANCE_QUERY_VIA 1" >>confdefs.h
+
+$as_echo "#define HAVE_PORT_PERFORMANCE_QUERY_VIA 1" >>confdefs.h
 
 		have_port_performance_query_via=true
 		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
@@ -10050,7 +10072,8 @@ return pma_query_via ();
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  $as_echo "#define HAVE_PMA_QUERY_VIA 1" >>confdefs.h
+
+$as_echo "#define HAVE_PMA_QUERY_VIA 1" >>confdefs.h
 
                 have_pma_query_via=true
 		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
@@ -10089,11 +10112,104 @@ if test "x$do_papi" != "xno"; then :
     savedLIBS=$LIBS
 
     case "$do_papi" in
-      yes|no) PAPI_ROOTDIR=/usr ;;
-           *) PAPI_ROOTDIR=$do_papi;
+      yes|no|check) ;;
+	 */*) PAPI_ROOTDIR=$do_papi;
 	      CFLAGS="-I$PAPI_ROOTDIR/include"
-	      LDFLAGS="-L$PAPI_ROOTDIR/lib"
-	   ;;
+	      LDFLAGS="-L$PAPI_ROOTDIR/lib" ;;
+	 *)
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for papi" >&5
+$as_echo_n "checking for papi... " >&6; }
+
+if test -n "$papi_CFLAGS"; then
+    pkg_cv_papi_CFLAGS="$papi_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"\$do_papi\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "$do_papi") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_papi_CFLAGS=`$PKG_CONFIG --cflags "$do_papi" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$papi_LIBS"; then
+    pkg_cv_papi_LIBS="$papi_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"\$do_papi\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "$do_papi") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_papi_LIBS=`$PKG_CONFIG --libs "$do_papi" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        papi_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "$do_papi" 2>&1`
+        else
+	        papi_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "$do_papi" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$papi_PKG_ERRORS" >&5
+
+	as_fn_error $? "Package requirements ($do_papi) were not met:
+
+$papi_PKG_ERRORS
+
+Consider adjusting the PKG_CONFIG_PATH environment variable if you
+installed software in a non-standard prefix.
+
+Alternatively, you may set the environment variables papi_CFLAGS
+and papi_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details." "$LINENO" 5
+elif test $pkg_failed = untried; then
+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	{ { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
+is in your PATH or set the PKG_CONFIG environment variable to the full
+path to pkg-config.
+
+Alternatively, you may set the environment variables papi_CFLAGS
+and papi_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details.
+
+To get pkg-config, see <http://pkg-config.freedesktop.org/>.
+See \`config.log' for more details" "$LINENO" 5; }
+else
+	papi_CFLAGS=$pkg_cv_papi_CFLAGS
+	papi_LIBS=$pkg_cv_papi_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+
+		CFLAGS="$papi_CFLAGS"
+		LDFLAGS="$papi_LIBS"
+fi ;;
+                # $papi_LIBS will include -lpapi harmlessly redudantly with AC_CHECK_LIB
     esac
 
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for PAPI_library_init in -lpapi" >&5
@@ -10185,7 +10301,8 @@ End-of-File
 	   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
     	else
-    	   $as_echo "#define HAVE_PAPI_DISABLED_COMP 1" >>confdefs.h
+
+$as_echo "#define HAVE_PAPI_DISABLED_COMP 1" >>confdefs.h
 
     	   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
@@ -10915,7 +11032,8 @@ main ()
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
-  $as_echo "#define HAVE___PSINT_T 1" >>confdefs.h
+
+$as_echo "#define HAVE___PSINT_T 1" >>confdefs.h
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
@@ -10943,7 +11061,8 @@ main ()
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
-  $as_echo "#define HAVE_PTRDIFF_T 1" >>confdefs.h
+
+$as_echo "#define HAVE_PTRDIFF_T 1" >>confdefs.h
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
@@ -10971,7 +11090,8 @@ main ()
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
-  $as_echo "#define HAVE_UID_T 1" >>confdefs.h
+
+$as_echo "#define HAVE_UID_T 1" >>confdefs.h
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
@@ -10998,7 +11118,8 @@ main ()
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
-  $as_echo "#define HAVE_GID_T 1" >>confdefs.h
+
+$as_echo "#define HAVE_GID_T 1" >>confdefs.h
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
@@ -11024,7 +11145,8 @@ main ()
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
-  $as_echo "#define HAVE_SID 1" >>confdefs.h
+
+$as_echo "#define HAVE_SID 1" >>confdefs.h
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
@@ -11052,7 +11174,8 @@ main ()
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
-  $as_echo "#define HAVE_SOCKLEN_T 1" >>confdefs.h
+
+$as_echo "#define HAVE_SOCKLEN_T 1" >>confdefs.h
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
@@ -11075,7 +11198,8 @@ main ()
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
-  $as_echo "#define HAVE_CONST_LONGLONG 1" >>confdefs.h
+
+$as_echo "#define HAVE_CONST_LONGLONG 1" >>confdefs.h
 
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
@@ -11095,14 +11219,15 @@ main ()
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  $as_echo "#define HAVE_UNDERBAR_ENVIRON 1" >>confdefs.h
+
+$as_echo "#define HAVE_UNDERBAR_ENVIRON 1" >>confdefs.h
 
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for PR_TERMCHILD constants in sys/prctl.h" >&5
-$as_echo_n "checking for PR_TERMCHILD constants in sys/prctl.h... " >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for PR_TERMCHILD constant in sys/prctl.h" >&5
+$as_echo_n "checking for PR_TERMCHILD constant in sys/prctl.h... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -11119,7 +11244,8 @@ main ()
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
-  $as_echo "#define HAVE_PR_TERMCHILD 1" >>confdefs.h
+
+$as_echo "#define HAVE_PR_TERMCHILD 1" >>confdefs.h
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
@@ -11128,8 +11254,8 @@ $as_echo "no" >&6; }
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for PR_SET_PDEATHSIG constants in sys/prctl.h" >&5
-$as_echo_n "checking for PR_SET_PDEATHSIG constants in sys/prctl.h... " >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for PR_SET_PDEATHSIG constant in sys/prctl.h" >&5
+$as_echo_n "checking for PR_SET_PDEATHSIG constant in sys/prctl.h... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -11146,7 +11272,8 @@ main ()
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
-  $as_echo "#define HAVE_PR_SET_PDEATHSIG 1" >>confdefs.h
+
+$as_echo "#define HAVE_PR_SET_PDEATHSIG 1" >>confdefs.h
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
@@ -11263,7 +11390,8 @@ then
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
 else
-    $as_echo "#define HAVE_CONST_DIRENT 1" >>confdefs.h
+
+$as_echo "#define HAVE_CONST_DIRENT 1" >>confdefs.h
 
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
@@ -11285,7 +11413,8 @@ then
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
 else
-    $as_echo "#define HAVE_DIRENT_D_OFF 1" >>confdefs.h
+
+$as_echo "#define HAVE_DIRENT_D_OFF 1" >>confdefs.h
 
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
@@ -11310,7 +11439,8 @@ fi
 case "$ans"
 in
     0x*)
-	$as_echo "#define HAVE_PRINTF_P_PFX 1" >>confdefs.h
+
+$as_echo "#define HAVE_PRINTF_P_PFX 1" >>confdefs.h
 
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
@@ -11475,7 +11605,8 @@ pthread_mutex_t mymutex;
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
-  $as_echo "#define HAVE_PTHREAD_MUTEX_T 1" >>confdefs.h
+
+$as_echo "#define HAVE_PTHREAD_MUTEX_T 1" >>confdefs.h
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
@@ -11568,7 +11699,8 @@ main ()
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
-  $as_echo "#define HAVE___THREAD 1" >>confdefs.h
+
+$as_echo "#define HAVE___THREAD 1" >>confdefs.h
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
@@ -11590,7 +11722,8 @@ main ()
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
-  $as_echo "#define HAVE___THREAD 1" >>confdefs.h
+
+$as_echo "#define HAVE___THREAD 1" >>confdefs.h
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
@@ -11614,7 +11747,8 @@ pthread_barrier_t mybarrier;
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
-  $as_echo "#define HAVE_PTHREAD_BARRIER_T 1" >>confdefs.h
+
+$as_echo "#define HAVE_PTHREAD_BARRIER_T 1" >>confdefs.h
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
@@ -11643,10 +11777,12 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
 $as_echo "$ans" >&6; }
 if test "$ans" = 4; then
-    $as_echo "#define HAVE_32BIT_LONG 1" >>confdefs.h
+
+$as_echo "#define HAVE_32BIT_LONG 1" >>confdefs.h
 
 elif test "$ans" = 8; then
-    $as_echo "#define HAVE_64BIT_LONG 1" >>confdefs.h
+
+$as_echo "#define HAVE_64BIT_LONG 1" >>confdefs.h
 
 else
     echo
@@ -11675,11 +11811,13 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
 $as_echo "$ans" >&6; }
 if test "$ans" = 4; then
-    $as_echo "#define HAVE_32BIT_PTR 1" >>confdefs.h
+
+$as_echo "#define HAVE_32BIT_PTR 1" >>confdefs.h
 
     PCP_PTR_SIZE=32
 elif test "$ans" = 8; then
-    $as_echo "#define HAVE_64BIT_PTR 1" >>confdefs.h
+
+$as_echo "#define HAVE_64BIT_PTR 1" >>confdefs.h
 
     PCP_PTR_SIZE=64
 else
@@ -11739,7 +11877,8 @@ in
     1200*|*0012)
 	# left-to-right starting from MSB (SGI cc on MIPS), or
 	# left-to-right ending at LSB
-	$as_echo "#define HAVE_BITFIELDS_LTOR 1" >>confdefs.h
+
+$as_echo "#define HAVE_BITFIELDS_LTOR 1" >>confdefs.h
 
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
@@ -11778,7 +11917,8 @@ main ()
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  $as_echo "#define HAVE_CAST_U64_DOUBLE 1" >>confdefs.h
+
+$as_echo "#define HAVE_CAST_U64_DOUBLE 1" >>confdefs.h
 
 fi
 rm -f core conftest.err conftest.$ac_objext \
@@ -11797,9 +11937,11 @@ done
 
 if test $ac_cv_func_basename = yes
 then
-    $as_echo "#define HAVE_BASENAME 1" >>confdefs.h
 
-    $as_echo "#define HAVE_DIRNAME 1" >>confdefs.h
+$as_echo "#define HAVE_BASENAME 1" >>confdefs.h
+
+
+$as_echo "#define HAVE_DIRNAME 1" >>confdefs.h
 
     lib_for_basename=""
 else
@@ -11850,9 +11992,11 @@ fi
 
     if test $ac_cv_lib_gen_basename = yes
     then
-	$as_echo "#define HAVE_BASENAME 1" >>confdefs.h
 
-	$as_echo "#define HAVE_DIRNAME 1" >>confdefs.h
+$as_echo "#define HAVE_BASENAME 1" >>confdefs.h
+
+
+$as_echo "#define HAVE_DIRNAME 1" >>confdefs.h
 
 	lib_for_basename="-lgen"
     else
@@ -11922,7 +12066,8 @@ fi
 
     if test $ac_cv_lib_rt_clock_gettime = yes
     then
-	$as_echo "#define HAVE_CLOCK_GETTIME 1" >>confdefs.h
+
+$as_echo "#define HAVE_CLOCK_GETTIME 1" >>confdefs.h
 
 	lib_for_rt=-lrt
     fi
@@ -11990,7 +12135,8 @@ fi
 
     if test $ac_cv_lib_dl_dlopen = yes
     then
-	$as_echo "#define HAVE_DLOPEN 1" >>confdefs.h
+
+$as_echo "#define HAVE_DLOPEN 1" >>confdefs.h
 
 	lib_for_dlopen=-ldl
     fi
@@ -12058,12 +12204,14 @@ fi
 
     if test $ac_cv_lib_m_flog10 = yes
     then
-	$as_echo "#define HAVE_FLOG10 1" >>confdefs.h
+
+$as_echo "#define HAVE_FLOG10 1" >>confdefs.h
 
 	lib_for_math=-lm
     fi
 else
-    $as_echo "#define HAVE_FLOG10 1" >>confdefs.h
+
+$as_echo "#define HAVE_FLOG10 1" >>confdefs.h
 
 fi
 for ac_func in pow
@@ -12126,12 +12274,14 @@ fi
 
     if test $ac_cv_lib_m_pow = yes
     then
-	$as_echo "#define HAVE_POW 1" >>confdefs.h
+
+$as_echo "#define HAVE_POW 1" >>confdefs.h
 
 	lib_for_math=-lm
     fi
 else
-    $as_echo "#define HAVE_POW 1" >>confdefs.h
+
+$as_echo "#define HAVE_POW 1" >>confdefs.h
 
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for fpclassify()" >&5
@@ -12197,7 +12347,8 @@ $as_echo "$ac_cv_func_fpclassify" >&6; }
 fi
 if test $ac_cv_func_fpclassify = yes
 then
-    $as_echo "#define HAVE_FPCLASSIFY 1" >>confdefs.h
+
+$as_echo "#define HAVE_FPCLASSIFY 1" >>confdefs.h
 
 else
             for ac_func in isnan
@@ -12260,7 +12411,8 @@ fi
 
 	if test $ac_cv_lib_m_isnan = yes
 	then
-	    $as_echo "#define HAVE_ISNAN 1" >>confdefs.h
+
+$as_echo "#define HAVE_ISNAN 1" >>confdefs.h
 
 	    lib_for_math=-lm
 	fi
@@ -12325,7 +12477,8 @@ fi
 
 	if test $ac_cv_lib_m_isnanf = yes
 	then
-	    $as_echo "#define HAVE_ISNANF 1" >>confdefs.h
+
+$as_echo "#define HAVE_ISNANF 1" >>confdefs.h
 
 	    lib_for_math=-lm
 	fi
@@ -12345,7 +12498,8 @@ SIG_PF x;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  $as_echo "#define HAVE_SIGPF 1" >>confdefs.h
+
+$as_echo "#define HAVE_SIGPF 1" >>confdefs.h
 
 fi
 rm -f core conftest.err conftest.$ac_objext \
@@ -12363,7 +12517,8 @@ int x = SA_SIGINFO;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  $as_echo "#define HAVE_SA_SIGINFO 1" >>confdefs.h
+
+$as_echo "#define HAVE_SA_SIGINFO 1" >>confdefs.h
 
 fi
 rm -f core conftest.err conftest.$ac_objext \
@@ -12381,7 +12536,8 @@ int x = SIGPIPE;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  $as_echo "#define HAVE_SIGPIPE 1" >>confdefs.h
+
+$as_echo "#define HAVE_SIGPIPE 1" >>confdefs.h
 
 fi
 rm -f core conftest.err conftest.$ac_objext \
@@ -12399,7 +12555,8 @@ int x = SIGHUP;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  $as_echo "#define HAVE_SIGHUP 1" >>confdefs.h
+
+$as_echo "#define HAVE_SIGHUP 1" >>confdefs.h
 
 fi
 rm -f core conftest.err conftest.$ac_objext \
@@ -12417,7 +12574,8 @@ int x = SIGBUS;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  $as_echo "#define HAVE_SIGBUS 1" >>confdefs.h
+
+$as_echo "#define HAVE_SIGBUS 1" >>confdefs.h
 
 fi
 rm -f core conftest.err conftest.$ac_objext \
@@ -12437,7 +12595,8 @@ main ()
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  $as_echo "#define HAVE_WAIT_INCLUDES_SIGNAL 1" >>confdefs.h
+
+$as_echo "#define HAVE_WAIT_INCLUDES_SIGNAL 1" >>confdefs.h
 
 fi
 rm -f core conftest.err conftest.$ac_objext \
@@ -12454,7 +12613,9 @@ then
 _ACEOF
 if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
   $EGREP "[ 	]st_mtimespec" >/dev/null 2>&1; then :
-   have_stat_name=true; $as_echo "#define HAVE_ST_MTIME_WITH_SPEC 1" >>confdefs.h
+   have_stat_name=true;
+
+$as_echo "#define HAVE_ST_MTIME_WITH_SPEC 1" >>confdefs.h
 
 fi
 rm -f conftest*
@@ -12469,7 +12630,9 @@ then
 _ACEOF
 if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
   $EGREP "[ 	]st_mtime" >/dev/null 2>&1; then :
-   have_stat_name=true; $as_echo "#define HAVE_ST_MTIME_WITH_E 1" >>confdefs.h
+   have_stat_name=true;
+
+$as_echo "#define HAVE_ST_MTIME_WITH_E 1" >>confdefs.h
 
 fi
 rm -f conftest*
@@ -12484,7 +12647,9 @@ then
 _ACEOF
 if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
   $EGREP "timestruc_t[ 	][ 	]*st_mtim" >/dev/null 2>&1; then :
-   have_stat_type=true; $as_echo "#define HAVE_STAT_TIMESTRUC 1" >>confdefs.h
+   have_stat_type=true;
+
+$as_echo "#define HAVE_STAT_TIMESTRUC 1" >>confdefs.h
 
 fi
 rm -f conftest*
@@ -12499,7 +12664,9 @@ then
 _ACEOF
 if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
   $EGREP "timespec_t[ 	][ 	]*st_mtim" >/dev/null 2>&1; then :
-   have_stat_type=true; $as_echo "#define HAVE_STAT_TIMESPEC_T 1" >>confdefs.h
+   have_stat_type=true;
+
+$as_echo "#define HAVE_STAT_TIMESPEC_T 1" >>confdefs.h
 
 fi
 rm -f conftest*
@@ -12514,7 +12681,9 @@ then
 _ACEOF
 if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
   $EGREP "timespec[ 	][ 	]*st_mtim" >/dev/null 2>&1; then :
-   have_stat_type=true; $as_echo "#define HAVE_STAT_TIMESPEC 1" >>confdefs.h
+   have_stat_type=true;
+
+$as_echo "#define HAVE_STAT_TIMESPEC 1" >>confdefs.h
 
 fi
 rm -f conftest*
@@ -12529,7 +12698,9 @@ then
 _ACEOF
 if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
   $EGREP "time_t[ 	][ 	]*st_mtim" >/dev/null 2>&1; then :
-   have_stat_type=true; $as_echo "#define HAVE_STAT_TIME_T 1" >>confdefs.h
+   have_stat_type=true;
+
+$as_echo "#define HAVE_STAT_TIME_T 1" >>confdefs.h
 
 fi
 rm -f conftest*
@@ -13559,7 +13730,8 @@ main ()
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
-  $as_echo "#define HAVE_FNDELAY 1" >>confdefs.h
+
+$as_echo "#define HAVE_FNDELAY 1" >>confdefs.h
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
@@ -14007,7 +14179,8 @@ fi
 
     if test "$enable_secure" = "true"
     then
-	$as_echo "#define HAVE_SECURE_SOCKETS 1" >>confdefs.h
+
+$as_echo "#define HAVE_SECURE_SOCKETS 1" >>confdefs.h
 
     fi
 
@@ -14088,7 +14261,8 @@ main ()
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
-  $as_echo "#define HAVE_STRUCT_SOCKADDR_UN 1" >>confdefs.h
+
+$as_echo "#define HAVE_STRUCT_SOCKADDR_UN 1" >>confdefs.h
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
@@ -14119,7 +14293,8 @@ main ()
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
-  $as_echo "#define HAVE_STRUCT_UCRED 1" >>confdefs.h
+
+$as_echo "#define HAVE_STRUCT_UCRED 1" >>confdefs.h
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
@@ -14144,7 +14319,8 @@ main ()
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
-  $as_echo "#define HAVE_STRUCT_TIMESPEC 1" >>confdefs.h
+
+$as_echo "#define HAVE_STRUCT_TIMESPEC 1" >>confdefs.h
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
@@ -14169,7 +14345,8 @@ main ()
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
-  $as_echo "#define HAVE_ALTZONE 1" >>confdefs.h
+
+$as_echo "#define HAVE_ALTZONE 1" >>confdefs.h
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
@@ -14201,7 +14378,8 @@ int main () {
 
 _ACEOF
 if ac_fn_c_try_run "$LINENO"; then :
-  $as_echo "#define HAVE_STRFTIME_z 1" >>confdefs.h
+
+$as_echo "#define HAVE_STRFTIME_z 1" >>confdefs.h
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
@@ -14227,7 +14405,8 @@ strerror_r(0, NULL, 0)[0];
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
-  $as_echo "#define HAVE_STRERROR_R_PTR 1" >>confdefs.h
+
+$as_echo "#define HAVE_STRERROR_R_PTR 1" >>confdefs.h
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
@@ -14343,16 +14522,19 @@ fi
 
 if test $ac_cv_func_readline = yes
 then
-    $as_echo "#define HAVE_READLINE 1" >>confdefs.h
+
+$as_echo "#define HAVE_READLINE 1" >>confdefs.h
 
 elif test $ac_cv_lib_readline_readline = yes
 then
-    $as_echo "#define HAVE_READLINE 1" >>confdefs.h
+
+$as_echo "#define HAVE_READLINE 1" >>confdefs.h
 
     lib_for_readline=-lreadline
 elif test $ac_cv_lib_readline_add_history = yes
 then
-    $as_echo "#define HAVE_READLINE 1" >>confdefs.h
+
+$as_echo "#define HAVE_READLINE 1" >>confdefs.h
 
     lib_for_curses=-lcurses
     lib_for_readline=-lreadline
@@ -14379,7 +14561,8 @@ main ()
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
-  $as_echo "#define HAVE_AI_ADDRCONFIG 1" >>confdefs.h
+
+$as_echo "#define HAVE_AI_ADDRCONFIG 1" >>confdefs.h
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else

@@ -361,6 +361,7 @@ dynamic_init(pmdaInterface *dp)
 {
     if (dp->status != 0)
 	return;
+    dp->comm.flags |= PDU_FLAG_AUTH;
 
     dp->version.two.fetch = dynamic_fetch;
     dp->version.two.store = dynamic_store;

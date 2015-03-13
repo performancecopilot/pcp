@@ -30,8 +30,7 @@ proc_ctx_clear(int ctx)
     ctxtab[ctx].gid = -1;
     ctxtab[ctx].threads = 1;
     ctxtab[ctx].cgroups = NULL;
-    ctxtab[ctx].container = NULL;
-    ctxtab[ctx].length = 0;
+    memset(&ctxtab[ctx].container, 0, sizeof(proc_container_t));
 }
 
 void
@@ -40,7 +39,7 @@ proc_ctx_end(int ctx)
     if (ctx < 0 || ctx >= num_ctx || ctxtab[ctx].state == CTX_INACTIVE)
 	return;
     if (ctxtab[ctx].state & CTX_CONTAINER)
-	free((void *)ctxtab[ctx].container);
+	free((void *)ctxtab[ctx].container.name);
     if (ctxtab[ctx].state & CTX_CGROUPS)
 	free((void *)ctxtab[ctx].cgroups);
     proc_ctx_clear(ctx);
@@ -82,8 +81,9 @@ static void
 proc_ctx_set_container(int ctx, const char *value, int length)
 {
     proc_ctx_growtab(ctx);
-    ctxtab[ctx].length = length;
-    ctxtab[ctx].container = strndup(value, length);
+    ctxtab[ctx].container.pid = 0;
+    ctxtab[ctx].container.length = length;
+    ctxtab[ctx].container.name = strndup(value, length);
     ctxtab[ctx].state |= (CTX_ACTIVE | CTX_CONTAINER);
 }
 
@@ -228,8 +228,8 @@ proc_ctx_set_threads(int ctx, unsigned int threads)
     return 0;
 }
 
-const char *
-proc_ctx_container(int ctx, int *length)
+proc_container_t *
+proc_ctx_container(int ctx)
 {
     proc_perctx_t *pp;
 
@@ -238,10 +238,8 @@ proc_ctx_container(int ctx, int *length)
     pp = &ctxtab[ctx];
     if (pp->state == CTX_INACTIVE)
 	return NULL;
-    if (pp->state & CTX_CONTAINER) {
-	*length = pp->length;
-	return pp->container;
-    }
+    if (pp->state & CTX_CONTAINER)
+	return &pp->container;
     return NULL;
 }
 
