@@ -1,3 +1,8 @@
+%if "@enable_python3@" == "true" || "@enable_python2@" == "true"
+%global with_python 1
+%else
+%global with_python 0
+%endif
 Summary: System-level performance monitoring and performance management
 Name: @package_name@
 Version: @package_version@
@@ -9,7 +14,7 @@ Source: @package_name@-@package_version@.src.tar.gz
 BuildRoot: @build_root@ 
 Distribution: @package_distribution@
 BuildRequires: procps bison flex
-%if "@enable_python@" == "true"
+%if "@enable_python2@" == "true"
 BuildRequires: python-devel
 %endif
 BuildRequires: ncurses-devel
@@ -58,7 +63,7 @@ Conflicts: pcp-pro < 2.2
 
 # Utilities used indirectly e.g. by scripts we install
 Requires: bash gawk sed grep fileutils findutils
-%if "@enable_python@" == "true"
+%if "@enable_python2@" == "true"
 %if "%{_vendor}" == "redhat" && 0%{?rhel} <= 5
 Requires: python-ctypes
 %endif
@@ -98,7 +103,7 @@ Requires: initscripts
 %define __find_requires %{_builddir}/%{?buildsubdir}/build/rpm/filter-requires -v %{_vendor} -f 0%{?fedora} -r 0%{?rhel} %{__find_requires_save}
 
 Requires: pcp-libs = @package_version@
-%if "@enable_python@" == "true"
+%if "@enable_python2@" == "true"
 Requires: python-pcp = @package_version@
 %endif
 Obsoletes: pcp-gui-debuginfo
@@ -361,7 +366,7 @@ Requires: pcp-libs >= %{version}-%{release}
 Performance Co-Pilot (PCP) front-end tools for importing collectl data
 into standard PCP archive logs for replay with any PCP monitoring tool.
 
-%if "@enable_python@" == "true"
+%if "@enable_python2@" == "true"
 #
 # python-pcp. This is the PCP library bindings for python.
 #
@@ -925,6 +930,85 @@ collecting metrics about Zimra.  The PMDA is written
 in Perl.
 #end pcp-pmda-zimbra
    
+%if %{with_python}   
+#
+# pcp-pmda-dmcache
+#
+%package pmda-dmcache
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for the Device Mapper Cache
+URL: http://www.pcp.io
+%if "@enable_python3@" == "true"
+Requires: python3-pcp
+%else
+Requires: python-pcp
+%endif
+%description pmda-dmcache
+This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about the Device Mapper Cache.  The PMDA is written
+in Python.
+# end pcp-pmda-dmcache
+
+#
+# pcp-pmda-gluster
+#
+%package pmda-gluster
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for the Gluster filesystem
+URL: http://www.pcp.io
+%if "@enable_python3@" == "true"
+Requires: python3-pcp
+%else
+Requires: python-pcp
+%endif
+%description pmda-gluster
+This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about the gluster filesystem.  The PMDA is written
+in Python.
+# end pcp-pmda-gluster
+   
+#
+# pcp-pmda-zswap
+#
+%package pmda-zswap
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for compressed swap
+URL: http://www.pcp.io
+%if "@enable_python3@" == "true"
+Requires: python3-pcp
+%else
+Requires: python-pcp
+%endif
+%description pmda-zswap
+This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about compressed swap.  The PMDA is written
+in Python.
+# end pcp-pmda-zswap
+
+#
+# pcp-pmda-unbound
+#
+%package pmda-unbound
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for the Unbound DNS Resolver
+URL: http://www.pcp.io
+%if "@enable_python3@" == "true"
+Requires: python3-pcp
+%else
+Requires: python-pcp
+%endif
+%description pmda-unbound
+This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about the Unbound DNS Resolver.  The PMDA is written
+in Python.
+# end pcp-pmda-unbound
+
+%endif 
+
 %prep
 %setup -q
 
@@ -1074,6 +1158,12 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'snmp|pmdas/snmp' > pmda_snmp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'systemtap|pmdas/systemtap' > pmda_systemtap_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'vmware|pmdas/vmware' > pmda_vmware_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'zimbra|pmdas/zimbra' > pmda_zimbra_files
+%if %{with_python}
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'dmcache|pmdas/dmcache' > pmda_dmcache_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'gluster|pmdas/gluster' > pmda_gluster_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'zswap|pmdas/zswap' > pmda_zswap_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'unbound|pmdas/unbound' > pmda_unbound_files
+%endif
 touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files \
       pmda_perfevent_files pmda_activemq_files pmda_bonding_files pmda_dbping_files \
       pmda_ds389_files pmda_ds389log_files pmda_elasticsearch_files pmda_gpfs_files \
@@ -1083,6 +1173,9 @@ touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files
       pmda_rsyslog_files pmda_samba_files pmda_snmp_files pmda_systemtap_files \
       pmda_vmware_files pmda_zimbra_files
 
+%if %{with_python}
+touch pmda_gluster_files pmda_dmcache_files pmda_zswap_files pmda_unbound_files
+%endif
 rm -f *_files.rpm
 sort -u $DIST_MANIFEST | $PCP_AWK_PROG ' 
 BEGIN {
@@ -1123,6 +1216,12 @@ BEGIN {
     while( getline < "pmda_systemtap_files") pmda_systemtap[$0]=1;
     while( getline < "pmda_vmware_files") pmda_vmware[$0]=1;
     while( getline < "pmda_zimbra_files") pmda_zimbra[$0]=1;
+%if %{with_python}
+    while( getline < "pmda_dmcache_files") pmda_dmcache[$0]=1;
+    while( getline < "pmda_gluster_files") pmda_gluster[$0]=1;
+    while( getline < "pmda_zswap_files") pmda_zswap[$0]=1;
+    while( getline < "pmda_unbound_files") pmda_unbound[$0]=1;
+%endif
     while( getline < "import_sar2pcp_files") import_sar2pcp[$0]=1;
     while( getline < "import_iostat2pcp_files") import_iostat2pcp[$0]=1;
     while( getline < "import_sheet2pcp_files") import_sheet2pcp[$0]=1;
@@ -1170,6 +1269,12 @@ BEGIN {
     else if (pmda_systemtap[$NF]) f="pmda_systemtap_files.rpm";
     else if (pmda_vmware[$NF]) f="pmda_vmware_files.rpm";
     else if (pmda_zimbra[$NF]) f="pmda_zimbra_files.rpm";
+%if %{with_python}
+    else if (pmda_dmcache[$NF]) f="pmda_dmcache_files.rpm";
+    else if (pmda_gluster[$NF]) f="pmda_gluster_files.rpm";
+    else if (pmda_zswap[$NF]) f="pmda_zswap_files.rpm";
+    else if (pmda_unbound[$NF]) f="pmda_unbound_files.rpm";
+%endif
     else if (import_sar2pcp[$NF]) f="import_sar2pcp_files.rpm";
     else if (import_iostat2pcp[$NF]) f="import_iostat2pcp_files.rpm";
     else if (import_sheet2pcp[$NF]) f="import_sheet2pcp_files.rpm";
@@ -1522,6 +1627,20 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %files pmda-zimbra -f pmda_zimbra_files.rpm
 %defattr(-,root,root)
 
+%if %{with_python}
+%files pmda-dmcache -f pmda_dmcache_files.rpm
+%defattr(-,root,root)
+
+%files pmda-gluster -f pmda_gluster_files.rpm
+%defattr(-,root,root)
+
+%files pmda-zswap -f pmda_zswap_files.rpm
+%defattr(-,root,root)
+
+%files pmda-unbound -f pmda_unbound_files.rpm
+%defattr(-,root,root)
+%endif
+
 %files import-sar2pcp -f import_sar2pcp_files.rpm
 %defattr(-,root,root)
 
@@ -1552,7 +1671,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %files -n perl-PCP-LogSummary -f perl-pcp-logsummary.list
 %defattr(-,root,root)
 
-%if "@enable_python@" == "true"
+%if "@enable_python2@" == "true"
 %files -n python-pcp -f python-pcp.list.rpm
 %defattr(-,root,root)
 %endif

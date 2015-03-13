@@ -23,7 +23,7 @@ default:
 include $(BUILDRULES)
 
 install: default
-ifeq "$(ENABLE_PYTHON)" "true"
+ifeq "$(ENABLE_PYTHON2)" "true"
 	$(INSTALL) -m 755 $(CMDTARGET).py $(PCP_BIN_DIR)/$(CMDTARGET)
 endif
 

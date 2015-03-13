@@ -467,12 +467,12 @@ AC_CHECK_PROGS(PYTHON3, python3)
 AC_SUBST(PYTHON3)
 
 dnl check if python tools/packages wanted (need python >= 2.6)
-enable_python=false
+enable_python2=false
 AS_IF([test "x$do_python" != "xno"], [
-    enable_python=true
+    enable_python2=true
     if test -z "$PYTHON"
     then
-	enable_python=false
+	enable_python2=false
     else
 	AC_MSG_CHECKING([Python version])
 	eval `$PYTHON -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
@@ -480,26 +480,26 @@ AS_IF([test "x$do_python" != "xno"], [
 	if test "$PY_MAJOR" -lt 2; then
 	    echo WARNING: Python version 2.6 or later does not seem to be installed.
 	    echo Cannot proceed with the Python $PY_MAJOR installation found.
-	    enable_python=false
+	    enable_python2=false
 	fi
 	if test "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -lt 6 ; then
 	    echo WARNING: Python version 2.$PY_MINOR is too old.
 	    echo Python version 2.6 or later is required for Python builds.
-	    enable_python=false
+	    enable_python2=false
 	fi
 	AC_CHECK_HEADERS([python${PY_MAJOR}.${PY_MINOR}/Python.h], [], [
 	    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
 	    echo Cannot proceed with the Python $PY_MAJOR installation found.
-	    enable_python=false
+	    enable_python2=false
 	])
     fi
 
-    if test "$do_python" != "check" -a "$enable_python" != "true"
+    if test "$do_python" != "check" -a "$enable_python2" != "true"
     then
 	AC_MSG_ERROR(cannot enable Python - no supported version found)
     fi
 ])
-AC_SUBST(enable_python)
+AC_SUBST(enable_python2)
 
 dnl check if python3 tools/packages wanted (need python >= 3.3)
 enable_python3=false
