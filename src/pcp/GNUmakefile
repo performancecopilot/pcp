@@ -17,7 +17,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 LSRCFILES = pcp.sh
-SUBDIRS = free uptime numastat dmcache atop iostat collectl
+SUBDIRS = free uptime numastat dmcache atop iostat collectl 2graphite
 
 default :: default_pcp
 

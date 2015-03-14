@@ -12,10 +12,10 @@
 # for more details.
 #
 
-TOPDIR = ../..
+TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-CMDTARGET = pcp2graphite
+CMDTARGET = pcp-2graphite
 LDIRT = $(CMDTARGET)
 
 default:
@@ -24,7 +24,7 @@ include $(BUILDRULES)
 
 install: default
 ifeq "$(ENABLE_PYTHON2)" "true"
-	$(INSTALL) -m 755 $(CMDTARGET).py $(PCP_BIN_DIR)/$(CMDTARGET)
+	$(INSTALL) -m 755 $(CMDTARGET).py $(PCP_BINADM_DIR)/$(CMDTARGET)
 endif
 
 default_pcp: default

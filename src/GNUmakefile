@@ -98,7 +98,6 @@ OTHER_SUBDIRS = \
 	sheet2pcp \
 	ganglia2pcp \
 	win32ctl \
-	pcp2graphite \
 	#
 
 SUBDIRS = \
