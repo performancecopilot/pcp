@@ -12,10 +12,10 @@
 # for more details.
 #
 
-TOPDIR = ../..
+TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-TARGET = pmcollectl
+TARGET = pcp-collectl
 PYFILES	= $(TARGET).py
 
 default default_pcp: $(PYFILES)
@@ -24,5 +24,5 @@ include $(BUILDRULES)
 
 install install_pcp: $(PYFILES)
 ifeq "$(ENABLE_PYTHON2)" "true"
-	$(INSTALL) -m 755 $(PYFILES) $(PCP_BIN_DIR)/$(TARGET)
+	$(INSTALL) -m 755 $(PYFILES) $(PCP_BINADM_DIR)/$(TARGET)
 endif
