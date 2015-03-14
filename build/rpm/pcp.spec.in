@@ -400,6 +400,25 @@ Performance Metric API (PMAPI) monitor tools and Performance
 Metric Domain Agent (PMDA) collector tools written in Python3.
 %endif
 
+%if %{with_python}
+#
+# pcp-system-tools
+#
+%package -n pcp-system-tools
+License: GPLv2+
+Group: Development/Libraries
+Summary: Performance Co-Pilot (PCP) System and Monitoring Tools
+URL: http://www.pcp.io
+%if "@enable_python2@" == "true"
+Requires: python-pcp = @package_version@
+%else
+Requires: python3-pcp = @package_version@
+%endif
+%description -n pcp-system-tools
+This PCP module contains additional system monitoring tools written
+in python.
+%endif #pcp-system-tools
+
 %if "@enable_qt@" == "true"
 #
 # pcp-gui package for Qt tools
@@ -1159,10 +1178,15 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'systemtap|pmdas/systemtap' > pmda_s
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'vmware|pmdas/vmware' > pmda_vmware_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'zimbra|pmdas/zimbra' > pmda_zimbra_files
 %if %{with_python}
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'dmcache|pmdas/dmcache' > pmda_dmcache_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/dmcache' > pmda_dmcache_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'gluster|pmdas/gluster' > pmda_gluster_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'zswap|pmdas/zswap' > pmda_zswap_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'unbound|pmdas/unbound' > pmda_unbound_files
+%endif
+%if %{with_python}
+awk '{print $NF}' $DIST_MANIFEST | egrep -e '2graphite|atop|collectl|dmcache|free|iostat|numastat|uptime' \
+    | egrep -v 'collectl2pcp|pmda|pmdas/pmcache|iostat2pcp|testsuite' \
+	    >system_tools_files
 %endif
 touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files \
       pmda_perfevent_files pmda_activemq_files pmda_bonding_files pmda_dbping_files \
@@ -1174,7 +1198,8 @@ touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files
       pmda_vmware_files pmda_zimbra_files
 
 %if %{with_python}
-touch pmda_gluster_files pmda_dmcache_files pmda_zswap_files pmda_unbound_files
+touch pmda_gluster_files pmda_dmcache_files pmda_zswap_files pmda_unbound_files \
+      system_tools_files
 %endif
 rm -f *_files.rpm
 sort -u $DIST_MANIFEST | $PCP_AWK_PROG ' 
@@ -1217,6 +1242,7 @@ BEGIN {
     while( getline < "pmda_vmware_files") pmda_vmware[$0]=1;
     while( getline < "pmda_zimbra_files") pmda_zimbra[$0]=1;
 %if %{with_python}
+    while( getline < "system_tools_files") system_tools[$0]=1;
     while( getline < "pmda_dmcache_files") pmda_dmcache[$0]=1;
     while( getline < "pmda_gluster_files") pmda_gluster[$0]=1;
     while( getline < "pmda_zswap_files") pmda_zswap[$0]=1;
@@ -1270,6 +1296,7 @@ BEGIN {
     else if (pmda_vmware[$NF]) f="pmda_vmware_files.rpm";
     else if (pmda_zimbra[$NF]) f="pmda_zimbra_files.rpm";
 %if %{with_python}
+    else if (system_tools[$NF]) f="system_tools_files.rpm";
     else if (pmda_dmcache[$NF]) f="pmda_dmcache_files.rpm";
     else if (pmda_gluster[$NF]) f="pmda_gluster_files.rpm";
     else if (pmda_zswap[$NF]) f="pmda_zswap_files.rpm";
@@ -1679,4 +1706,20 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %if "@enable_python3@" == "true"
 %files -n python3-pcp -f python3-pcp.list.rpm
 %defattr(-,root,root)
+%endif
+
+%if %{with_python}
+%files -n pcp-system-tools -f system_tools_files.rpm
+%defattr(-,root,root)
+
+%post system-tools
+ln -sf %{_libexecdir}/pcp/bin/pcp-collectl %{_bindir}/pmcollectl
+ln -sf %{_libexecdir}/pcp/bin/pcp-iostat %{_bindir}/pmiostat
+ln -sf %{_libexecdir}/pcp/bin/pcp-atop %{_bindir}/pmatop
+ln -sf %{_libexecdir}/pcp/bin/pcp-2graphite %{_bindir}/pcp2graphite
+%postun system-tools
+rm %{_bindir}/pmcollectl
+rm %{_bindir}/pmiostat
+rm %{_bindir}/pmatop
+rm %{_bindir}/pcp2graphite
 %endif
