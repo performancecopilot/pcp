@@ -42,7 +42,6 @@ OTHER_SUBDIRS = \
 	newhelp \
 	pcp \
 	pmafm \
-	pmatop \
 	pmcollectl \
 	pmfind \
 	pmcpp \

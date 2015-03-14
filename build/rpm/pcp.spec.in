@@ -939,10 +939,10 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Device Mapper Cache
 URL: http://www.pcp.io
-%if "@enable_python3@" == "true"
-Requires: python3-pcp
-%else
+%if "@enable_python2@" == "true"
 Requires: python-pcp
+%else
+Requires: python3-pcp
 %endif
 %description pmda-dmcache
 This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -958,10 +958,10 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Gluster filesystem
 URL: http://www.pcp.io
-%if "@enable_python3@" == "true"
-Requires: python3-pcp
-%else
+%if "@enable_python2@" == "true"
 Requires: python-pcp
+%else
+Requires: python3-pcp
 %endif
 %description pmda-gluster
 This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -977,10 +977,10 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for compressed swap
 URL: http://www.pcp.io
-%if "@enable_python3@" == "true"
-Requires: python3-pcp
-%else
+%if "@enable_python2@" == "true"
 Requires: python-pcp
+%else
+Requires: python3-pcp
 %endif
 %description pmda-zswap
 This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -996,10 +996,10 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Unbound DNS Resolver
 URL: http://www.pcp.io
-%if "@enable_python3@" == "true"
-Requires: python3-pcp
-%else
+%if "@enable_python2@" == "true"
 Requires: python-pcp
+%else
+Requires: python3-pcp
 %endif
 %description pmda-unbound
 This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
