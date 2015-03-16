@@ -10,6 +10,8 @@
 . ./common.filter
 . ./common.check
 
+[ -f ${PCP_PMDAS_DIR}/snmp/pmdasnmp.pl ] || _notrun "snmp pmda not installed"
+
 seq=`basename $0`
 echo "QA output created by $seq"
 
