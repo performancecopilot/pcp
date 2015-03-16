@@ -150,13 +150,13 @@ archives/badlen-9.index: start pass0
 archives/badlen-9.meta: start pass0
 archives/badlen-9.meta[record 11]: unexpected EOF in record body
 
-src/badti-1:
+archives/badti-1:
 Due to earlier errors, cannot continue ... bye
-Scanning for components of archive "src/badti-1"
-src/badti-1.0: start pass0
-src/badti-1.index: start pass0
-src/badti-1.index[record 2]: unexpected EOF in index entry
-src/badti-1.meta: start pass0
+Scanning for components of archive "archives/badti-1"
+archives/badti-1.0: start pass0
+archives/badti-1.index: start pass0
+archives/badti-1.index[record 2]: unexpected EOF in index entry
+archives/badti-1.meta: start pass0
 
 archives/badlabel-1.meta:
 Due to earlier errors, cannot continue ... bye
@@ -166,26 +166,34 @@ archives/badlabel-1.index: start pass0
 archives/badlabel-1.meta: bad label magic number: 0xdeadbe00 not 0x50052600 as expected
 archives/badlabel-1.meta: start pass0
 
+archives/badlabel-2.meta:
+Due to earlier errors, cannot continue ... bye
+Scanning for components of archive "archives/badlabel-2.meta"
+archives/badlabel-2.0: start pass0
+archives/badlabel-2.index: bad label version: 0 not 2 as expected
+archives/badlabel-2.index: start pass0
+archives/badlabel-2.meta: start pass0
+
 === pass 1 failures ===
 
-src/badti-2.meta:
+archives/badti-2.meta:
 Processed 9 pmResult records
-Scanning for components of archive "src/badti-2.meta"
-src/badti-2.0: start pass0
-src/badti-2.index: start pass0
-src/badti-2.meta.index: timestamp went backwards in time 902428473.248687[entry 2]-> -2.-00004[entry 3]
-src/badti-2.meta.index[entry 1]: illegal timestamp usec value (902428472 sec, 1000000 usec)
-src/badti-2.meta.index[entry 1]: illegal volume number -1
-src/badti-2.meta.index[entry 3]: illegal negative timestamp value (-2 sec, -4 usec)
-src/badti-2.meta: start pass0
-src/badti-2.meta: start pass1 (check temporal index)
+Scanning for components of archive "archives/badti-2.meta"
+archives/badti-2.0: start pass0
+archives/badti-2.index: start pass0
+archives/badti-2.meta.index: timestamp went backwards in time 902428473.248687[entry 2]-> -2.-00004[entry 3]
+archives/badti-2.meta.index[entry 1]: illegal negative volume number -1
+archives/badti-2.meta.index[entry 1]: illegal timestamp usec value (902428472 sec, 1000000 usec)
+archives/badti-2.meta.index[entry 3]: illegal negative timestamp value (-2 sec, -4 usec)
+archives/badti-2.meta: start pass0
+archives/badti-2.meta: start pass1 (check temporal index)
 
-src/badti-3.meta:
+archives/badti-3.meta:
 Processed 10 pmResult records
-Scanning for components of archive "src/badti-3.meta"
-src/badti-3.0: start pass0
-src/badti-3.index: start pass0
-src/badti-3.meta.index[entry 3]: offset to log (1977) past end of file (1976)
-src/badti-3.meta.index[entry 3]: offset to metadata (852) past end of file (851)
-src/badti-3.meta: start pass0
-src/badti-3.meta: start pass1 (check temporal index)
+Scanning for components of archive "archives/badti-3.meta"
+archives/badti-3.0: start pass0
+archives/badti-3.index: start pass0
+archives/badti-3.meta.index[entry 3]: offset to log (1977) past end of file (1976)
+archives/badti-3.meta.index[entry 3]: offset to metadata (852) past end of file (851)
+archives/badti-3.meta: start pass0
+archives/badti-3.meta: start pass1 (check temporal index)

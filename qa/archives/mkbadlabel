@@ -31,15 +31,28 @@ fi
 
 case $X
 in
-    1)	# bad magic in label
-	if cp ../src/foo.meta badlabel-$X.meta
+    1)	# bad magic in metadata label
+	vol=meta
+	if cp ../src/foo.$vol badlabel-$X.$vol
 	then
 	    :
 	else
-	    echo "Failed: cp ../src/foo.meta badlabel-$X.meta"
+	    echo "Failed: cp ../src/foo.$vol badlabel-$X.$vol"
 	    exit 1
 	fi
-	echo '4s\\....\\deadbeef\\' >$tmp.ex
+	echo '4s\\...\\deadbe\\' >$tmp.ex
+	;;
+
+    2)	# bad version in index label
+	vol=index
+	if cp ../src/foo.$vol badlabel-$X.$vol
+	then
+	    :
+	else
+	    echo "Failed: cp ../src/foo.$vol badlabel-$X.$vol"
+	    exit 1
+	fi
+	echo '7s\\.\\00\\' >$tmp.ex
 	;;
 
     *)

@@ -79,7 +79,7 @@ cd $here
 
 echo | tee -a $seq.full
 echo "=== pass 0 failures ===" | tee -a $seq.full
-for arch in archives/badlen-*.meta src/badti-1 archives/badlabel-*.meta
+for arch in archives/badlen-*.meta archives/badti-1 archives/badlabel-*.meta
 do
     # some of the bad archives do not have pass 0 style corruption,
     # so skip these ones for now
@@ -98,14 +98,14 @@ done
 
 echo | tee -a $seq.full
 echo "=== pass 1 failures ===" | tee -a $seq.full
-for arch in src/badti-*.meta
+for arch in archives/badti-*.meta
 do
     # some of the bad archives do not have pass 1 style corruption,
     # so skip these ones for now
     #
     case $arch
     in
-	src/badti-1.meta)
+	archives/badti-1.meta)
 		;;
 	*)
  		( echo; echo "$arch:" ) | tee -a $seq.full
