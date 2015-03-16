@@ -13,8 +13,8 @@ RUN yum -y update && yum clean all
 RUN yum -y install pcp && yum clean all
 
 # debug: install any local RPMs for testing
-COPY *.rpm /upgrade/
-RUN rpm -Uvh --force /upgrade/*.rpm && rm -fr /upgrade
+# COPY *.rpm /upgrade/
+# RUN rpm -Uvh --force /upgrade/*.rpm && rm -fr /upgrade
 
 # denote this as a container environment, for rc scripts
 RUN . /etc/pcp.conf && touch $PCP_SYSCONF_DIR/rc.container
