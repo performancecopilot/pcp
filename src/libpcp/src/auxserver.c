@@ -618,8 +618,9 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 	}
 	if (portsOpened > 0) {
 	    /* Advertise our presence on the network, if requested. */
-	    if (serviceSpec != NULL) {
-		rp->presence =  __pmServerAdvertisePresence(serviceSpec,
+	    if (serviceSpec != NULL &&
+		__pmServerHasFeature(PM_SERVER_FEATURE_DISCOVERY)) {
+		rp->presence = __pmServerAdvertisePresence(serviceSpec,
 							    rp->port);
 	    }
 	}

@@ -15,14 +15,60 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include <sys/wait.h>
+
+static int finished;
+
+static void
+sigterm(int sig)
+{
+    (void)sig;
+    finished = 1;
+}
+
+static void
+sigchld(int sig)
+{
+    int sts;
+
+    (void)sig;
+    do {
+	sts = waitpid(-1, NULL, WNOHANG);
+	if (sts < 0 && errno == ECHILD)
+	    finished = 1;
+    } while (sts > 0);
+}
 
 static int
 pmpause(void)
 {
+    struct sigaction sigact;
     sigset_t sigset;
+
+    memset(&sigact, 0, sizeof(sigact));
+    sigact.sa_handler = &sigchld;
+    sigemptyset(&sigact.sa_mask);
+    sigact.sa_flags = SA_RESTART | SA_NOCLDSTOP;
+    if (sigaction(SIGCHLD, &sigact, 0) == -1) {
+	perror(pmProgname);
+	return 1;
+    }
+
+    memset(&sigact, 0, sizeof(sigact));
+    sigact.sa_handler = &sigterm;
+    sigemptyset(&sigact.sa_mask);
+    sigact.sa_flags = SA_RESTART;
+    if (sigaction(SIGTERM, &sigact, 0) == -1) {
+	perror(pmProgname);
+	return 1;
+    }
+
     sigfillset(&sigset);
+    sigdelset(&sigset, SIGTERM);
+    sigdelset(&sigset, SIGCHLD);
     sigprocmask(SIG_BLOCK, &sigset, NULL);
-    pause();
+    while (!finished)
+	pause();
     return 0;
 }
 
