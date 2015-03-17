@@ -124,7 +124,7 @@ cleanup()
 	rm $tmp.setup
     fi
     [ -f /tmp/syslog.full ] && cp /tmp/syslog.full $seq.full
-    $sudo rm -f /tmp/syslog.out
+    $sudo rm -f /tmp/syslog.out /tmp/syslog.full
     rm -f $tmp.*
 }
 trap "cleanup; exit \$status" 0 1 2 3 15

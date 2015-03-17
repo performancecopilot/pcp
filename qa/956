@@ -24,6 +24,7 @@ _cleanup()
         $sudo ./Remove >>$here/$seq.full 2>&1
         cd $here
     fi
+    $sudo rm -f $tmp.*
 }
 
 status=1	# failure is the default!

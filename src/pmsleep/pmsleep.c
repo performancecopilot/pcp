@@ -42,8 +42,12 @@ sigchld(int sig)
 static int
 pmpause(void)
 {
-    struct sigaction sigact;
     sigset_t sigset;
+    struct sigaction sigact;
+    int i, finish[] = { SIGINT, SIGQUIT, SIGTERM };
+
+    sigfillset(&sigset);
+    sigdelset(&sigset, SIGCHLD);
 
     memset(&sigact, 0, sizeof(sigact));
     sigact.sa_handler = &sigchld;
@@ -54,18 +58,18 @@ pmpause(void)
 	return 1;
     }
 
-    memset(&sigact, 0, sizeof(sigact));
-    sigact.sa_handler = &sigterm;
-    sigemptyset(&sigact.sa_mask);
-    sigact.sa_flags = SA_RESTART;
-    if (sigaction(SIGTERM, &sigact, 0) == -1) {
-	perror(pmProgname);
-	return 1;
+    for (i = 0; i < sizeof(finish) / sizeof(int); i++) {
+	memset(&sigact, 0, sizeof(sigact));
+	sigact.sa_handler = &sigterm;
+	sigemptyset(&sigact.sa_mask);
+	sigact.sa_flags = SA_RESTART;
+	if (sigaction(finish[i], &sigact, 0) == -1) {
+	    perror(pmProgname);
+	    return 1;
+	}
+	sigdelset(&sigset, finish[i]);
     }
 
-    sigfillset(&sigset);
-    sigdelset(&sigset, SIGTERM);
-    sigdelset(&sigset, SIGCHLD);
     sigprocmask(SIG_BLOCK, &sigset, NULL);
     while (!finished)
 	pause();
