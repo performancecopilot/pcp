@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012-2015 Red Hat.
 # Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -247,7 +247,7 @@ Error: PCP inference engine control file '$PMIECTRL'
 	    fi
 
 	    # finally, stop here if running in a container
-	    [ -f $PCP_SYSCONF_DIR/rc.container ] && exec $PCP_BINADM_DIR/pmpause
+	    [ -z "$PCP_CONTAINER_IMAGE" ] || exec $PCP_BINADM_DIR/pmpause
 	fi
 	status=0
         ;;
@@ -279,7 +279,7 @@ Error: PCP inference engine control file '$PMIECTRL'
         fi
         ;;
   *)
-	[ -f $PCP_SYSCONF_DIR/rc.container ] && exec "$@"
+	[ -z "$PCP_CONTAINER_IMAGE" ] || exec "$@"
 	_usage
         ;;
 esac

@@ -16,15 +16,15 @@ RUN yum -y install pcp && yum clean all
 # COPY *.rpm /upgrade/
 # RUN rpm -Uvh --force /upgrade/*.rpm && rm -fr /upgrade
 
-# denote this as a container environment, for rc scripts
-RUN . /etc/pcp.conf && touch $PCP_SYSCONF_DIR/rc.container
-
 # disable service advertising - no avahi daemon in the container
 # (dodges warnings from pmcd attempting to connect during startup)
 RUN . /etc/pcp.conf && echo "-A" >> $PCP_PMCDOPTIONS_PATH
 
 # expose pmcd's main port on the host interfaces.
 EXPOSE 44321
+
+# denote this as a container environment, for rc scripts
+ENV PCP_CONTAINER_IMAGE pcp-pmcd
 
 # the command to run - in this case the pmcd service script.
 # when this command exits, then the container exits.
