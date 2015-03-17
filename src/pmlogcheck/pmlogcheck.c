@@ -15,8 +15,19 @@
 
 #include <math.h>
 #include <limits.h>
+#include <ctype.h>
 #include "pmapi.h"
 #include "impl.h"
+#include "logcheck.h"
+
+char		sep;
+int		vflag;		/* verbose off by default */
+int		index_state = STATE_MISSING;
+int		meta_state = STATE_MISSING;
+int		log_state = STATE_MISSING;
+char		*archbasename;	/* after basename() */
+char		*archdirname;	/* after dirname() */
+__pmLogLabel	log_label;
 
 typedef struct {
     int			inst;
@@ -34,6 +45,7 @@ typedef struct {
 static __pmHashCtl	hashlist;	/* hash statistics about each metric */
 static int		dayflag;
 static char		timebuf[32];	/* for pmCtime result + .xxx */
+static char		*archpathname;	/* from the command line */
 
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),
@@ -141,21 +153,21 @@ unwrap(double current, struct timeval *curtime, checkData *checkdata, int index)
     }
 
     if (wrapflag) {
-	printf("[");
-	print_stamp(stdout, curtime);
-	printf("]: ");
-	print_metric(stdout, checkdata->desc.pmid);
+	fprintf(stderr, "[");
+	print_stamp(stderr, curtime);
+	fprintf(stderr, "]: ");
+	print_metric(stderr, checkdata->desc.pmid);
 	if (pmNameInDom(checkdata->desc.indom, checkdata->instlist[index]->inst, &str) < 0)
-	    printf(": %s wrap", typeStr(checkdata->desc.type));
+	    fprintf(stderr, ": %s wrap", typeStr(checkdata->desc.type));
 	else {
-	    printf("[%s]: %s wrap", str, typeStr(checkdata->desc.type));
+	    fprintf(stderr, "[%s]: %s wrap", str, typeStr(checkdata->desc.type));
 	    free(str);
 	}
-	printf("\n\tvalue %.0f at ", checkdata->instlist[index]->lastval);
-	print_stamp(stdout, &checkdata->instlist[index]->lasttime);
-	printf("\n\tvalue %.0f at ", current);
-	print_stamp(stdout, curtime);
-	putchar('\n');
+	fprintf(stderr, "\n\tvalue %.0f at ", checkdata->instlist[index]->lastval);
+	print_stamp(stderr, &checkdata->instlist[index]->lasttime);
+	fprintf(stderr, "\n\tvalue %.0f at ", current);
+	print_stamp(stderr, curtime);
+	fputc('\n', stderr);
     }
 
     return outval;
@@ -173,13 +185,13 @@ newHashInst(pmValue *vp,
     pmAtomValue av;
 
     if ((sts = pmExtractValue(valfmt, vp, checkdata->desc.type, &av, PM_TYPE_DOUBLE)) < 0) {
-	printf("[");
-	print_stamp(stdout, timestamp);
-	printf("] ");
-	print_metric(stdout, checkdata->desc.pmid);
-	printf(": pmExtractValue failed: %s\n", pmErrStr(sts));
+	fprintf(stderr, "[");
+	print_stamp(stderr, timestamp);
+	fprintf(stderr, "] ");
+	print_metric(stderr, checkdata->desc.pmid);
+	fprintf(stderr, ": pmExtractValue failed: %s\n", pmErrStr(sts));
 	fprintf(stderr, "%s: possibly corrupt archive?\n", pmProgname);
-	exit(1);
+	exit(EXIT_FAILURE);
     }
     size = (pos+1)*sizeof(instData*);
     checkdata->instlist = (instData**) realloc(checkdata->instlist, size);
@@ -197,18 +209,18 @@ newHashInst(pmValue *vp,
     if (pmDebug & DBG_TRACE_APPL1) {
 	char	*name;
 
-	printf("[");
-	print_stamp(stdout, timestamp);
-	printf("] ");
-	print_metric(stdout, checkdata->desc.pmid);
+	fprintf(stderr, "[");
+	print_stamp(stderr, timestamp);
+	fprintf(stderr, "] ");
+	print_metric(stderr, checkdata->desc.pmid);
 	if (vp->inst == PM_INDOM_NULL)
-	    printf(": new singular metric\n");
+	    fprintf(stderr, ": new singular metric\n");
 	else {
-	    printf(": new metric-instance pair ");
+	    fprintf(stderr, ": new metric-instance pair ");
 	    if (pmNameInDom(checkdata->desc.indom, vp->inst, &name) < 0)
-		printf("%d\n", vp->inst);
+		fprintf(stderr, "%d\n", vp->inst);
 	    else {
-		printf("\"%s\"\n", name);
+		fprintf(stderr, "\"%s\"\n", name);
 		free(name);
 	    }
 	}
@@ -269,19 +281,19 @@ docheck(pmResult *result)
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL1) {
 	    if (vsp->numval == 0) {
-		printf("[");
-		print_stamp(stdout, &result->timestamp);
-		printf("] ");
-		print_metric(stdout, vsp->pmid);
-		printf(": No values returned\n");
+		fprintf(stderr, "[");
+		print_stamp(stderr, &result->timestamp);
+		fprintf(stderr, "] ");
+		print_metric(stderr, vsp->pmid);
+		fprintf(stderr, ": no values returned\n");
 		continue;
 	    }
 	    else if (vsp->numval < 0) {
-		printf("[");
-		print_stamp(stdout, &result->timestamp);
-		printf("] ");
-		print_metric(stdout, vsp->pmid);
-		printf(": Error from numval: %s\n", pmErrStr(vsp->numval));
+		fprintf(stderr, "[");
+		print_stamp(stderr, &result->timestamp);
+		fprintf(stderr, "] ");
+		print_metric(stderr, vsp->pmid);
+		fprintf(stderr, ": error from numval: %s\n", pmErrStr(vsp->numval));
 		continue;
 	    }
 	}
@@ -292,11 +304,11 @@ docheck(pmResult *result)
 	/* check if pmid already in hash list */
 	if ((hptr = __pmHashSearch(vsp->pmid, &hashlist)) == NULL) {
 	    if ((sts = pmLookupDesc(vsp->pmid, &desc)) < 0) {
-		printf("[");
-		print_stamp(stdout, &result->timestamp);
-		printf("] ");
-		print_metric(stdout, vsp->pmid);
-		printf(": pmLookupDesc failed: %s\n", pmErrStr(sts));
+		fprintf(stderr, "[");
+		print_stamp(stderr, &result->timestamp);
+		fprintf(stderr, "] ");
+		print_metric(stderr, vsp->pmid);
+		fprintf(stderr, ": pmLookupDesc failed: %s\n", pmErrStr(sts));
 		continue;
 	    }
 
@@ -310,11 +322,11 @@ docheck(pmResult *result)
 	    checkdata = (checkData*) malloc(sizeof(checkData));
 	    newHashItem(vsp, &desc, checkdata, &result->timestamp);
 	    if (__pmHashAdd(checkdata->desc.pmid, (void*)checkdata, &hashlist) < 0) {
-		printf("[");
-		print_stamp(stdout, &result->timestamp);
-		printf("] ");
-		print_metric(stdout, vsp->pmid);
-		printf(": __pmHashAdd failed (internal pmlogcheck error)\n");
+		fprintf(stderr, "[");
+		print_stamp(stderr, &result->timestamp);
+		fprintf(stderr, "] ");
+		print_metric(stderr, vsp->pmid);
+		fprintf(stderr, ": __pmHashAdd failed (internal pmlogcheck error)\n");
 		/* free memory allocated above on insert failure */
 		for (j = 0; j < vsp->numval; j++) {
 		    if (checkdata->instlist[j] != NULL)
@@ -364,11 +376,11 @@ docheck(pmResult *result)
 		}
 		diff = __pmtimevalToReal(&timediff);
 		if ((sts = pmExtractValue(vsp->valfmt, vp, checkdata->desc.type, &av, PM_TYPE_DOUBLE)) < 0) {
-		    printf("[");
-		    print_stamp(stdout, &result->timestamp);
-		    printf("] ");
-		    print_metric(stdout, vsp->pmid);
-		    printf(": pmExtractValue failed: %s\n", pmErrStr(sts));
+		    fprintf(stderr, "[");
+		    print_stamp(stderr, &result->timestamp);
+		    fprintf(stderr, "] ");
+		    print_metric(stderr, vsp->pmid);
+		    fprintf(stderr, ": pmExtractValue failed: %s\n", pmErrStr(sts));
 		    continue;
 		}
 		if (checkdata->desc.sem == PM_SEM_COUNTER) {
@@ -376,11 +388,11 @@ docheck(pmResult *result)
 		    diff *= checkdata->scale;
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_APPL2) {
-			printf("[");
-			print_stamp(stdout, &result->timestamp);
-			printf("] ");
-			print_metric(stdout, checkdata->desc.pmid);
-			printf(": current counter value is %.0f\n", av.d);
+			fprintf(stderr, "[");
+			print_stamp(stderr, &result->timestamp);
+			fprintf(stderr, "] ");
+			print_metric(stderr, checkdata->desc.pmid);
+			fprintf(stderr, ": current counter value is %.0f\n", av.d);
 		    }
 #endif
 		    unwrap(av.d, &(result->timestamp), checkdata, k);
@@ -401,43 +413,74 @@ dumpLabel(void)
     int		sts;
 
     if ((sts = pmGetArchiveLabel(&label)) < 0) {
-	fprintf(stderr, "%s: Cannot get archive label record: %s\n",
+	fprintf(stderr, "%s: cannot get archive label record: %s\n",
 		pmProgname, pmErrStr(sts));
-	exit(1);
+	exit(EXIT_FAILURE);
     }
 
-    printf("Log Label (Log Format Version %d)\n", label.ll_magic & 0xff);
-    printf("Performance metrics from host %s\n", label.ll_hostname);
+    fprintf(stderr, "Log Label (Log Format Version %d)\n", label.ll_magic & 0xff);
+    fprintf(stderr, "Performance metrics from host %s\n", label.ll_hostname);
 
     ddmm = pmCtime(&label.ll_start.tv_sec, timebuf);
     ddmm[10] = '\0';
     yr = &ddmm[20];
-    printf("  commencing %s ", ddmm);
-    __pmPrintStamp(stdout, &label.ll_start);
-    printf(" %4.4s\n", yr);
+    fprintf(stderr, "  commencing %s ", ddmm);
+    __pmPrintStamp(stderr, &label.ll_start);
+    fprintf(stderr, " %4.4s\n", yr);
 
     if (opts.finish.tv_sec == INT_MAX) {
         /* pmGetArchiveEnd() failed! */
-        printf("  ending     UNKNOWN\n");
+        fprintf(stderr, "  ending     UNKNOWN\n");
     }
     else {
         ddmm = pmCtime(&opts.finish.tv_sec, timebuf);
         ddmm[10] = '\0';
         yr = &ddmm[20];
-        printf("  ending     %s ", ddmm);
-        __pmPrintStamp(stdout, &opts.finish);
-        printf(" %4.4s\n", yr);
+        fprintf(stderr, "  ending     %s ", ddmm);
+        __pmPrintStamp(stderr, &opts.finish);
+        fprintf(stderr, " %4.4s\n", yr);
     }
+}
+
+static int
+filter(const_dirent *dp)
+{
+    static int	len = -1;
+
+    if (len == -1)
+	len = strlen(archbasename);
+    if (strncmp(dp->d_name, archbasename, len) != 0)
+	return 0;
+    if (strcmp(&dp->d_name[len], ".meta") == 0)
+	return 1;
+    if (strcmp(&dp->d_name[len], ".index") == 0)
+	return 1;
+    if (dp->d_name[len] == '.' && isdigit(dp->d_name[len+1])) {
+	const char	*p = &dp->d_name[len+2];
+	for ( ; *p; p++) {
+	    if (!isdigit(*p))
+		return 0;
+	}
+	return 1;
+    }
+    return 0;
 }
 
 int
 main(int argc, char *argv[])
 {
-    int			c, sts, ctx;
+    int			c;
+    int			sts;
+    int			ctx;
+    int			i;
     int			lflag = 0;	/* no label by default */
-    int			vflag = 0;	/* verbose off by default */
+    int			nfile;
     int			mark_count = 0;
     int			result_count = 0;
+    int			n;
+    char		*p;
+    struct dirent	**namelist;
+    __pmContext		*ctxp;
     pmResult		*result;
     struct timeval	timespan;
     struct timeval	last_stamp;
@@ -461,16 +504,81 @@ main(int argc, char *argv[])
 
     if (opts.errors) {
 	pmUsageMessage(&opts);
-	exit(1);
+	exit(EXIT_FAILURE);
     }
+
+    sep = __pmPathSeparator();
+    setlinebuf(stderr);
 
     __pmAddOptArchive(&opts, argv[opts.optind]);
     opts.flags &= ~PM_OPTFLAG_DONE;
     __pmEndOptions(&opts);
 
-    if ((sts = ctx = pmNewContext(PM_CONTEXT_ARCHIVE, opts.archives[0])) < 0) {
-	fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
-		pmProgname, opts.archives[0], pmErrStr(sts));
+    archpathname = argv[opts.optind];
+    archbasename = strdup(basename(strdup(archpathname)));
+    /*
+     * treat foo, foo.index, foo.meta, foo.NNN as all equivalent
+     * to "foo"
+     */
+    p = strrchr(archbasename, '.');
+    if (p != NULL) {
+	if (strcmp(p, ".index") == 0 || strcmp(p, ".meta") == 0)
+	    *p = '\0';
+	else {
+	    char	*q = ++p;
+	    if (isdigit(*q)) {
+		q++;
+		while (*q && isdigit(*q))
+		    q++;
+		if (*q == '\0')
+		    *p = '\0';
+	    }
+	}
+    }
+    archdirname = dirname(strdup(archpathname));
+    if (vflag)
+	fprintf(stderr, "Scanning for components of archive \"%s\"\n", archpathname);
+    nfile = scandir(archdirname, &namelist, filter, NULL);
+    if (nfile < 1) {
+	fprintf(stderr, "%s: no PCP archive files match \"%s\"\n", pmProgname, archpathname);
+	exit(EXIT_FAILURE);
+    }
+
+    /*
+     * Pass 0 for data, metadata and index files ... check physical
+     * archive record structure, then label record
+     */
+    sts = STS_OK;
+    for (i = 0; i < nfile; i++) {
+	char	path[MAXPATHLEN];
+	if (strcmp(archdirname, ".") == 0) {
+	    /* skip ./ prefix */
+	    strncpy(path, namelist[i]->d_name, sizeof(path));
+	}
+	else {
+	    snprintf(path, sizeof(path), "%s%c%s", archdirname, sep, namelist[i]->d_name);
+	}
+	if (pass0(path) == STS_FATAL)
+	    /* unrepairable or unrepaired error */
+	    sts = STS_FATAL;
+    }
+    if (meta_state == STATE_MISSING) {
+	fprintf(stderr, "%s%c%s.meta: missing metadata file\n", archdirname, sep, archbasename);
+	sts = STS_FATAL;
+    }
+    if (log_state == STATE_MISSING) {
+	fprintf(stderr, "%s%c%s.0 (or similar): missing log file \n", archdirname, sep, archbasename);
+	sts = STS_FATAL;
+    }
+
+    if (sts == STS_FATAL) {
+	if (vflag) fprintf(stderr, "Due to earlier errors, cannot continue ... bye\n");
+	exit(EXIT_FAILURE);
+    }
+
+    if ((sts = ctx = pmNewContext(PM_CONTEXT_ARCHIVE, archpathname)) < 0) {
+	fprintf(stderr, "%s: cannot open archive \"%s\": %s\n", pmProgname, archpathname, pmErrStr(sts));
+	fprintf(stderr, "Checking abandoned.\n");
 	exit(EXIT_FAILURE);
     }
 
@@ -479,13 +587,39 @@ main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
+    if (lflag)
+	dumpLabel();
+
+    /*
+     * Note: ctxp->c_lock remains locked throughout ... __pmHandleToPtr()
+     *       is only called once, and a single context is used throughout
+     *       ... so there is no PM_UNLOCK(ctxp->c_lock) anywhere in the
+     *       pmchecklog code.
+     *       This works because ctxp->c_lock is a recursive lock and
+     *       pmchecklog is single-threaded.
+     */
+    if ((n = pmWhichContext()) >= 0) {
+	if ((ctxp = __pmHandleToPtr(n)) == NULL) {
+	    fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", pmProgname, n);
+	    exit(EXIT_FAILURE);
+	}
+    }
+    else {
+	fprintf(stderr, "%s: botch: %s!\n", pmProgname, pmErrStr(PM_ERR_NOCONTEXT));
+	exit(EXIT_FAILURE);
+    }
+
+    pass1(ctxp, archpathname);
+
+    if (index_state == STATE_BAD) {
+	/* prevent subsequent use of bad temporal index */
+	ctxp->c_archctl->ac_log->l_numti = 0;
+    }
+
     if ((sts = pmSetMode(PM_MODE_FORW, &opts.start, 0)) < 0) {
 	fprintf(stderr, "%s: pmSetMode failed: %s\n", pmProgname, pmErrStr(sts));
 	exit(EXIT_FAILURE);
     }
-
-    if (lflag)
-	dumpLabel();
 
     /* check which timestamp print format we should be using */
     timespan = opts.finish;
@@ -509,8 +643,8 @@ main(int argc, char *argv[])
 	    int		cnt_err = 0;
 	    pmValueSet	*vsp;
 
-	    printf("[");
-	    print_stamp(stdout, &result->timestamp);
+	    fprintf(stderr, "[");
+	    print_stamp(stderr, &result->timestamp);
 	    for (i = 0; i < result->numpmid; i++) {
 		vsp = result->vset[i];
 		if (vsp->numval > 0)
@@ -520,22 +654,22 @@ main(int argc, char *argv[])
 		else
 		    cnt_err++;
 	    }
-	    printf("] delta(stamp)=%.3fsec", __pmtimevalToReal(&delta_stamp));
-	    printf(" numpmid=%d sum(numval)=%d", result->numpmid, sum_val);
+	    fprintf(stderr, "] delta(stamp)=%.3fsec", __pmtimevalToReal(&delta_stamp));
+	    fprintf(stderr, " numpmid=%d sum(numval)=%d", result->numpmid, sum_val);
 	    if (cnt_noval > 0)
-		printf(" count(numval=0)=%d", cnt_noval);
+		fprintf(stderr, " count(numval=0)=%d", cnt_noval);
 	    if (cnt_err > 0)
-		printf(" count(numval<0)=%d", cnt_err);
-	    fputc('\n', stdout);
+		fprintf(stderr, " count(numval<0)=%d", cnt_err);
+	    fputc('\n', stderr);
 	}
 #endif
 	if (delta_stamp.tv_sec < 0) {
 	    /* time went backwards! */
-	    printf("[");
-	    print_stamp(stdout, &result->timestamp);
-	    printf("]: timestamp went backwards, prior timestamp: ");
-	    print_stamp(stdout, &last_stamp);
-	    printf("\n");
+	    fprintf(stderr, "[");
+	    print_stamp(stderr, &result->timestamp);
+	    fprintf(stderr, "]: timestamp went backwards, prior timestamp: ");
+	    print_stamp(stderr, &last_stamp);
+	    fprintf(stderr, "\n");
 	}
 
 	last_stamp = result->timestamp;
@@ -572,15 +706,17 @@ main(int argc, char *argv[])
 	}
     }
     if (sts != PM_ERR_EOL) {
-	printf("[after ");
-	print_stamp(stdout, &last_stamp);
-	printf("]: pmFetch: Error: %s\n", pmErrStr(sts));
-	exit(1);
+	fprintf(stderr, "[after ");
+	print_stamp(stderr, &last_stamp);
+	fprintf(stderr, "]: pmFetch: error: %s\n", pmErrStr(sts));
+	exit(EXIT_FAILURE);
     }
 
     if (vflag) {
-	printf("Processed %d pmResult records\n", result_count);
-	printf("Processed %d <mark> records\n", mark_count);
+	if (result_count > 0)
+	    fprintf(stderr, "Processed %d pmResult records\n", result_count);
+	if (mark_count > 0)
+	    fprintf(stderr, "Processed %d <mark> records\n", mark_count);
     }
 
     return 0;

@@ -98,14 +98,14 @@ done
 
 echo | tee -a $seq.full
 echo "=== pass 1 failures ===" | tee -a $seq.full
-for arch in archives/badti-*.meta
+for arch in archives/badti-*.index
 do
     # some of the bad archives do not have pass 1 style corruption,
     # so skip these ones for now
     #
     case $arch
     in
-	archives/badti-1.meta)
+	archives/badti-1.index)
 		;;
 	*)
  		( echo; echo "$arch:" ) | tee -a $seq.full
