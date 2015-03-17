@@ -13,7 +13,17 @@ export DISPLAY=$PCPQA_CLOSE_X_SERVER
 
 # hackery for dbus-based environments
 #
+unset DBUS_SESSION_BUS_PID DBUS_SESSION_BUS_ADDRESS
 if which dbus-launch >/dev/null 2>&1
 then
-    eval `dbus-launch 2>/dev/null | grep 'BUS_ADDRESS='`
+    eval `dbus-launch 2>/dev/null | grep '^DBUS_SESSION_BUS'`
 fi
+
+# general trap handler cleanup routine for qt checkers
+_cleanup_qt()
+{
+    # if we started a dbus-daemon above, we should clean it up
+    [ -z "$DBUS_SESSION_BUS_PID" ] || kill $DBUS_SESSION_BUS_PID
+    unset DBUS_SESSION_BUS_PID DBUS_SESSION_BUS_ADDRESS
+    $sudo rm -rf $tmp.*
+}
