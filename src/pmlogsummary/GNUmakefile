@@ -15,15 +15,12 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES	= pmlogcheck.c pmlogsummary.c
-TARGETS	= pmlogcheck$(EXECSUFFIX) pmlogsummary$(EXECSUFFIX)
+CFILES	= pmlogsummary.c
+TARGETS	= pmlogsummary$(EXECSUFFIX)
 LLDLIBS	= $(PCPLIB) $(LIB_FOR_MATH)
 LDIRT += $(TARGETS)
 
 default:	$(TARGETS)
-
-pmlogcheck$(EXECSUFFIX):	pmlogcheck.o
-	$(CCF) -o $@ $(LDFLAGS) pmlogcheck.o $(LDLIBS)
 
 pmlogsummary$(EXECSUFFIX):	pmlogsummary.o
 	$(CCF) -o $@ $(LDFLAGS) pmlogsummary.o $(LDLIBS)
