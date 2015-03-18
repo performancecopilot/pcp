@@ -14,12 +14,8 @@ Source: @package_name@-@package_version@.src.tar.gz
 BuildRoot: @build_root@ 
 Distribution: @package_distribution@
 BuildRequires: procps bison flex
-%if "@enable_python2@" == "true"
-BuildRequires: python-devel
-%endif
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
-BuildRequires: perl(ExtUtils::MakeMaker)
 %if "@enable_avahi@" == "true"
 BuildRequires: avahi-devel
 %endif
@@ -63,12 +59,6 @@ Conflicts: pcp-pro < 2.2
 
 # Utilities used indirectly e.g. by scripts we install
 Requires: bash gawk sed grep fileutils findutils
-%if "@enable_python2@" == "true"
-%if "%{_vendor}" == "redhat" && 0%{?rhel} <= 5
-Requires: python-ctypes
-%endif
-Requires: python
-%endif
 %if "%{_vendor}" == "suse"
 Requires: sysconfig
 %define _rcdir /etc/init.d
@@ -103,9 +93,6 @@ Requires: initscripts
 %define __find_requires %{_builddir}/%{?buildsubdir}/build/rpm/filter-requires -v %{_vendor} -f 0%{?fedora} -r 0%{?rhel} %{__find_requires_save}
 
 Requires: pcp-libs = @package_version@
-%if "@enable_python2@" == "true"
-Requires: python-pcp = @package_version@
-%endif
 Obsoletes: pcp-gui-debuginfo
 Obsoletes: pcp-pmda-nvidia
 
@@ -221,6 +208,7 @@ License: GPLv2+
 Group: Development/Languages
 Summary: Performance Co-Pilot (PCP) Perl bindings and documentation
 URL: http://www.pcp.io
+BuildRequires: perl(ExtUtils::MakeMaker)
 Requires: pcp-libs = @package_version@
 Requires: perl
 
@@ -375,7 +363,12 @@ License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python bindings and documentation
 URL: http://www.pcp.io
+BuildRequires: python-devel
+%if "%{_vendor}" == "redhat" && 0%{?rhel} <= 5
+Requires: python-ctypes
+%endif
 Requires: pcp-libs = @package_version@
+Requires: python
 
 %description -n python-pcp
 This python PCP module contains the language bindings for
@@ -393,6 +386,7 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python3 bindings and documentation
 URL: http://www.pcp.io
 Requires: pcp-libs = @package_version@
+Requires: python python-devel
 
 %description -n python3-pcp
 This python PCP module contains the language bindings for
