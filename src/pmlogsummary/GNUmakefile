@@ -16,19 +16,18 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 CFILES	= pmlogsummary.c
-TARGETS	= pmlogsummary$(EXECSUFFIX)
+CMDTARGET = pmlogsummary$(EXECSUFFIX)
 LLDLIBS	= $(PCPLIB) $(LIB_FOR_MATH)
-LDIRT += $(TARGETS)
 
-default:	$(TARGETS)
+default:	$(CMDTARGET)
 
 pmlogsummary$(EXECSUFFIX):	pmlogsummary.o
 	$(CCF) -o $@ $(LDFLAGS) pmlogsummary.o $(LDLIBS)
 
 include $(BUILDRULES)
 
-install:	$(TARGETS)
-	$(INSTALL) -m 755 $(TARGETS) $(PCP_BIN_DIR)
+install:	$(CMDTARGET)
+	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
 	$(INSTALL) -m 755 pmdiff.sh $(PCP_BIN_DIR)/pmdiff
 	$(INSTALL) -S $(PCP_BIN_DIR)/pmdiff $(PCP_BINADM_DIR)/pmwtf
 
