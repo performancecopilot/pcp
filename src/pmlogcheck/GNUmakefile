@@ -15,7 +15,7 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES = pmlogcheck.c pass0.c pass1.c
+CFILES = pmlogcheck.c pass0.c pass1.c pass2.c pass3.c
 HFILES = logcheck.h
 CMDTARGET = pmlogcheck$(EXECSUFFIX)
 LLDLIBS	= $(PCPLIB) $(LIB_FOR_MATH)
