@@ -81,7 +81,7 @@ echo | tee -a $seq.full
 echo "=== pass 0 failures ===" | tee -a $seq.full
 for arch in archives/badlen-*.meta archives/badti-1 archives/badlabel-*.meta
 do
-    # some of the bad archives do not have pass 0 style corruption,
+    # some of the bad archives may not have pass 0 style corruption,
     # so skip these ones for now
     #
     case $arch
@@ -100,13 +100,30 @@ echo | tee -a $seq.full
 echo "=== pass 1 failures ===" | tee -a $seq.full
 for arch in archives/badti-*.index
 do
-    # some of the bad archives do not have pass 1 style corruption,
+    # some of the bad archives may not have pass 1 style corruption,
     # so skip these ones for now
     #
     case $arch
     in
 	archives/badti-1.index)
 		;;
+	*)
+ 		( echo; echo "$arch:" ) | tee -a $seq.full
+		pmlogcheck -v $arch >$tmp.out 2>$tmp.err
+		_filter
+		;;
+    esac
+done
+
+echo | tee -a $seq.full
+echo "=== pass 3 failures ===" | tee -a $seq.full
+for arch in archives/badlog-*.0
+do
+    # some of the bad archives may not have pass 3 style corruption,
+    # so skip these ones for now
+    #
+    case $arch
+    in
 	*)
  		( echo; echo "$arch:" ) | tee -a $seq.full
 		pmlogcheck -v $arch >$tmp.out 2>$tmp.err
