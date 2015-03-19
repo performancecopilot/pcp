@@ -21,10 +21,10 @@
 static struct timeval	tv;
 
 /*
- * check the temporal index
+ * check the temporal archname.index
  */
-void
-pass1(__pmContext *ctxp, char *fname)
+int
+pass1(__pmContext *ctxp, char *archname)
 {
     int		i;
     char	path[MAXPATHLEN];
@@ -35,11 +35,11 @@ pass1(__pmContext *ctxp, char *fname)
     __pmLogTI	*lastp;
 
     if (vflag)
-	fprintf(stderr, "%s: start pass1 (check temporal index)\n", fname);
+	fprintf(stderr, "%s: start pass1 (check temporal index)\n", archname);
 
     if (ctxp->c_archctl->ac_log->l_numti <= 0) {
-	fprintf(stderr, "%s: warning temporal index is missing\n", fname);
-	return;
+	fprintf(stderr, "%s: warning temporal index is missing\n", archname);
+	return STS_WARNING;
     }
 
     lastp = NULL;
@@ -67,11 +67,7 @@ pass1(__pmContext *ctxp, char *fname)
 	tv.tv_sec = tip->ti_stamp.tv_sec;
 	tv.tv_usec = tip->ti_stamp.tv_usec;
 	if (i == 1) {
-	    if (strcmp(archdirname, ".") == 0)
-		/* skip ./ prefix */
-		snprintf(path, sizeof(path), "%s.meta", archbasename);
-	    else
-		snprintf(path, sizeof(path), "%s%c%s.meta", archdirname, sep, archbasename);
+	    snprintf(path, sizeof(path), "%s.meta", archname);
 	    if (stat(path, &sbuf) == 0)
 		meta_size = sbuf.st_size;
 	    else {
@@ -82,16 +78,12 @@ pass1(__pmContext *ctxp, char *fname)
 	}
 	if (tip->ti_vol < 0) {
 	    fprintf(stderr, "%s.index[entry %d]: illegal negative volume number %d\n",
-		    fname, i, tip->ti_vol);
+		    archname, i, tip->ti_vol);
 	    index_state = STATE_BAD;
 	    log_size = -1;
 	}
 	else if (lastp == NULL || tip->ti_vol != lastp->ti_vol) { 
-	    if (strcmp(archdirname, ".") == 0)
-		/* skip ./ prefix */
-		snprintf(path, sizeof(path), "%s.%d", archbasename, tip->ti_vol);
-	    else
-		snprintf(path, sizeof(path), "%s%c%s.%d", archdirname, sep, archbasename, tip->ti_vol);
+	    snprintf(path, sizeof(path), "%s.%d", archname, tip->ti_vol);
 	    if (stat(path, &sbuf) == 0)
 		log_size = sbuf.st_size;
 	    else {
@@ -101,38 +93,38 @@ pass1(__pmContext *ctxp, char *fname)
 	}
 	if (tip->ti_stamp.tv_sec < 0 || tip->ti_stamp.tv_usec < 0) {
 	    fprintf(stderr, "%s.index[entry %d]: illegal negative timestamp value (%d sec, %d usec)\n",
-		fname, i, tip->ti_stamp.tv_sec, tip->ti_stamp.tv_usec);
+		archname, i, tip->ti_stamp.tv_sec, tip->ti_stamp.tv_usec);
 	    index_state = STATE_BAD;
 	}
 	if (tip->ti_stamp.tv_usec > 999999) {
 	    fprintf(stderr, "%s.index[entry %d]: illegal timestamp usec value (%d sec, %d usec)\n",
-		fname, i, tip->ti_stamp.tv_sec, tip->ti_stamp.tv_usec);
+		archname, i, tip->ti_stamp.tv_sec, tip->ti_stamp.tv_usec);
 	    index_state = STATE_BAD;
 	}
 	if (tip->ti_meta < sizeof(__pmLogLabel)+2*sizeof(int)) {
 	    fprintf(stderr, "%s.index[entry %d]: offset to metadata (%ld) before end of label record (%ld)\n",
-		fname, i, (long)tip->ti_meta, (long)(sizeof(__pmLogLabel)+2*sizeof(int)));
+		archname, i, (long)tip->ti_meta, (long)(sizeof(__pmLogLabel)+2*sizeof(int)));
 	    index_state = STATE_BAD;
 	}
 	if (meta_size != -1 && tip->ti_meta > meta_size) {
 	    fprintf(stderr, "%s.index[entry %d]: offset to metadata (%ld) past end of file (%ld)\n",
-		fname, i, (long)tip->ti_meta, (long)meta_size);
+		archname, i, (long)tip->ti_meta, (long)meta_size);
 	    index_state = STATE_BAD;
 	}
 	if (tip->ti_log < sizeof(__pmLogLabel)+2*sizeof(int)) {
 	    fprintf(stderr, "%s.index[entry %d]: offset to log (%ld) before end of label record (%ld)\n",
-		fname, i, (long)tip->ti_log, (long)(sizeof(__pmLogLabel)+2*sizeof(int)));
+		archname, i, (long)tip->ti_log, (long)(sizeof(__pmLogLabel)+2*sizeof(int)));
 	    index_state = STATE_BAD;
 	}
 	if (log_size != -1 && tip->ti_log > log_size) {
 	    fprintf(stderr, "%s.index[entry %d]: offset to log (%ld) past end of file (%ld)\n",
-		fname, i, (long)tip->ti_log, (long)log_size);
+		archname, i, (long)tip->ti_log, (long)log_size);
 	    index_state = STATE_BAD;
 	}
 	if (log_label.ill_start.tv_sec != 0) {
 	    if (__pmTimevalSub(&tip->ti_stamp, &log_label.ill_start) < 0) {
 		fprintf(stderr, "%s.index[entry %d]: timestamp (%d.%06d) less than log label timestamp (%d.%06d)\n",
-			fname, i,
+			archname, i,
 			(int)tip->ti_stamp.tv_sec, (int)tip->ti_stamp.tv_usec,
 			(int)log_label.ill_start.tv_sec, (int)log_label.ill_start.tv_usec);
 		index_state = STATE_BAD;
@@ -141,29 +133,31 @@ pass1(__pmContext *ctxp, char *fname)
 	if (lastp != NULL) {
 	    if (__pmTimevalSub(&tip->ti_stamp, &lastp->ti_stamp) < 0) {
 		fprintf(stderr, "%s.index[entry %d]: timestamp (%d.%06d) went backwards in time (from %d.%06d at [entry %d])\n",
-			fname, i,
+			archname, i,
 			(int)tip->ti_stamp.tv_sec, (int)tip->ti_stamp.tv_usec,
 			(int)lastp->ti_stamp.tv_sec, (int)lastp->ti_stamp.tv_usec, i-1);
 		index_state = STATE_BAD;
 	    }
 	    if (tip->ti_vol < lastp->ti_vol) {
 		fprintf(stderr, "%s.index[entry %d]: volume number (%d) decreased (from %d at [entry %d])\n",
-			fname, i, tip->ti_vol, lastp->ti_vol, i-1);
+			archname, i, tip->ti_vol, lastp->ti_vol, i-1);
 		index_state = STATE_BAD;
 	    }
 	    if (tip->ti_vol == lastp->ti_vol && tip->ti_meta < lastp->ti_meta) {
 		fprintf(stderr, "%s.index[entry %d]: offset to metadata (%ld) decreased (from %ld at [entry %d])\n",
-			fname, i, (long)tip->ti_meta, (long)lastp->ti_meta, i-1);
+			archname, i, (long)tip->ti_meta, (long)lastp->ti_meta, i-1);
 		index_state = STATE_BAD;
 	    }
 	    if (tip->ti_vol == lastp->ti_vol && tip->ti_log < lastp->ti_log) {
 		fprintf(stderr, "%s.index[entry %d]: offset to log (%ld) decreased (from %ld at [entry %d])\n",
-			fname, i, (long)tip->ti_log, (long)lastp->ti_log, i-1);
+			archname, i, (long)tip->ti_log, (long)lastp->ti_log, i-1);
 		index_state = STATE_BAD;
 	    }
 	}
 	lastp = tip;
     }
+
+    return STS_OK;
 
 }
 
