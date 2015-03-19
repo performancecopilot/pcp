@@ -28,7 +28,7 @@ pmlogsummary$(EXECSUFFIX):	pmlogsummary.o
 include $(BUILDRULES)
 
 install:	$(TARGETS)
-	$(INSTALL) -m 755 $(TARGETS) $(PCP_BIN_DIR)
+	$(INSTALL) -m 755 $(TARGETS) $(PCP_BIN_DIR)/$(TARGETS)
 	$(INSTALL) -m 755 pmdiff.sh $(PCP_BIN_DIR)/pmdiff
 	$(INSTALL) -S $(PCP_BIN_DIR)/pmdiff $(PCP_BINADM_DIR)/pmwtf
 
