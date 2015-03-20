@@ -79,7 +79,9 @@ cd $here
 
 echo | tee -a $seq.full
 echo "=== pass 0 failures ===" | tee -a $seq.full
-for arch in archives/badlen-*.meta archives/badti-1 archives/badlabel-*.meta
+echo archives/badlen-*.meta archives/badti-1 archives/badlabel-*.meta | \
+    tr ' ' '\n' | LC_COLLATE=POSIX sort -n | \
+while read arch
 do
     # some of the bad archives may not have pass 0 style corruption,
     # so skip these ones for now
@@ -98,7 +100,9 @@ done
 
 echo | tee -a $seq.full
 echo "=== pass 1 failures ===" | tee -a $seq.full
-for arch in archives/badti-*.index
+echo archives/badti-*.index | \
+    tr ' ' '\n' | LC_COLLATE=POSIX sort -n | \
+while read arch
 do
     # some of the bad archives may not have pass 1 style corruption,
     # so skip these ones for now

@@ -260,7 +260,7 @@ _host_to_fqdn()
     then
 	if which domainname >/dev/null 2>&1
 	then
-	    ans=`domainname`
+	    ans=`domainname | fgrep -v '(none)'`
 	    [ -z "$ans" ] || ans="$1.$ans"
 	fi
     fi
@@ -791,6 +791,7 @@ _check_papi()
 {
     [ -f $PCP_PMDAS_DIR/papi/pmdapapi ] || _notrun "no executable for the papi PMDA"
     [ -f $PCP_PMDAS_DIR/papi/root ] || _notrun "no PMNS for the papi PMDA"
+
     $sudo dbpmda -n $PCP_PMDAS_DIR/papi/root -ie <<EOF >$tmp.papi.check
 open pipe $PCP_PMDAS_DIR/papi/pmdapapi -d 126 -l $tmp.papi.log
 attr "username" "root"
@@ -806,7 +807,23 @@ EOF
     then
 	:
     else
-	_notrun "papi counters not available on this platform"
+	_notrun "PAPI counters not available on this platform"
+    fi
+}
+
+_check_papi_native()
+{
+    $sudo dbpmda -n $PCP_PMDAS_DIR/papi/root -ie <<EOF >$tmp.papi.check
+open pipe $PCP_PMDAS_DIR/papi/pmdapapi -d 126
+attr "username" "root"
+attr 11 "0"
+traverse papi.system.perf
+EOF
+    echo "_check_papi_native ..." >>$here/$seq.full
+    cat $tmp.papi.check >>$here/$seq.full
+    if grep "Error PDU: Unknown metric name" <$tmp.papi.check >/dev/null
+    then
+	_notrun "PAPI native metrics not available on this platform"
     fi
 }
 

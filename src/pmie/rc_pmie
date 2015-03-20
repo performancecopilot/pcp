@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012-2015 Red Hat.
 # Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -222,26 +222,32 @@ case "$1" in
 
 	if which pmie >/dev/null 2>&1
 	then
+	    # issue a warning if there's no chkconfig/crontab support
 	    if is_chkconfig_on pmie
 	    then
-		if which pmie_check >/dev/null 2>&1
-		then
-		    if [ ! -f $PMIECTRL ]
-		    then
-			echo "$prog:"'
-Error: PCP inference engine control file '$PMIECTRL'
-       is missing!  Cannot start any Performance Co-Pilot inference engine(s).'
-		    else
-			$ECHO $PCP_ECHO_N "Starting pmie ..." "$PCP_ECHO_C"
-			_start_pmie &
-			$RC_STATUS -v
-		    fi
-		fi
+		:
 	    elif [ "$0" = "$pmprog" -o "$0" = "$rcprog" ]
 	    then
-		echo "$prog: Warning: Performance Co-Pilot Inference Engine (pmie) is disabled."
+		echo "$prog: Warning: Performance Co-Pilot Inference Engine (pmie) not permanently enabled."
 		chkconfig_on_msg pmie
 	    fi
+
+	    if which pmie_check >/dev/null 2>&1
+	    then
+		if [ ! -f $PMIECTRL ]
+		then
+		    echo "$prog:"'
+Error: PCP inference engine control file '$PMIECTRL'
+       is missing!  Cannot start any Performance Co-Pilot inference engine(s).'
+		else
+		    $ECHO $PCP_ECHO_N "Starting pmie ..." "$PCP_ECHO_C"
+		    _start_pmie &
+		    $RC_STATUS -v
+		fi
+	    fi
+
+	    # finally, stop here if running in a container
+	    [ -z "$PCP_CONTAINER_IMAGE" ] || exec $PCP_BINADM_DIR/pmpause
 	fi
 	status=0
         ;;
@@ -273,6 +279,7 @@ Error: PCP inference engine control file '$PMIECTRL'
         fi
         ;;
   *)
+	[ -z "$PCP_CONTAINER_IMAGE" ] || exec "$@"
 	_usage
         ;;
 esac

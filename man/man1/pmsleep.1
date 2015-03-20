@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2015 Red Hat.
 .\" Copyright (c) 2007 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -15,15 +16,21 @@
 .\"
 .TH PMSLEEP 1 "PCP" "Performance Co-Pilot"
 .SH NAME
+\f3pmpause\f1,
 \f3pmsleep\f1 \- portable subsecond-capable sleep
 .\" literals use .B or \f3
 .\" arguments use .I or \f2
 .SH SYNOPSIS
+.B $PCP_BINADM_DIR/pmpause
+.br
 .B $PCP_BINADM_DIR/pmsleep
 .I interval
 .SH DESCRIPTION
+.B pmpause
+sleeps indefinitely, until interrupted by SIGKILL.
+.PP
 .B pmsleep
-sleeps for 
+sleeps for the specified
 .I interval.
 The
 .I interval
@@ -37,8 +44,10 @@ or floating point constant
 .SH DIAGNOSTICS
 The exit status is 0 for success, or 1 for a malformed command line.
 If the underlying
-.B nanosleep (2)
+.BR nanosleep (2)
 system call fails, an errno is returned.
 .SH SEE ALSO
 .BR sleep (1),
-.BR nanosleep (3).
+.BR pause (2)
+and
+.BR nanosleep (2).
