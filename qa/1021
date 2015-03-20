@@ -4,7 +4,10 @@
 #
 seq=`basename $0`
 echo "QA output created by $seq"
+
+status=1	# failure is the default!
 . ./common.qt
+trap "_cleanup_qt; exit \$status" 0 1 2 3 15
 
 [ -x qt/qmc_hosts/qmc_hosts ] || _notrun "qmc_hosts not built or installed"
 
@@ -12,4 +15,5 @@ echo "QA output created by $seq"
 
 qt/qmc_hosts/qmc_hosts -DPMC 2>&1 \
 	| sed -e 's/: Line [0-9][0-9]*/: Line <N>/'
-exit $?
+status=$?
+exit

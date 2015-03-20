@@ -4,9 +4,9 @@
 #
 seq=`basename $0`
 echo "QA output created by $seq"
-. ./common.qt
 
-[ -x qt/qmc_dynamic/qmc_dynamic ] || _notrun "qmc_dynamic not built or installed"
+status=1	# failure is the default!
+. ./common.qt
 
 _cleanup()
 {
@@ -17,11 +17,12 @@ _cleanup()
 	cd $here
 	touch $tmp.done
     fi
+    _cleanup_qt
 }
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
-status=1	# failure is the default!
+[ -x qt/qmc_dynamic/qmc_dynamic ] || _notrun "qmc_dynamic not built or installed"
 rm -f $seq.full
-trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter2()
 {

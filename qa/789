@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 [ -d $PCP_PMDAS_DIR/papi ] || _notrun "PAPI PMDA is not installed"
 
 $sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter_papi_errors()
 {
@@ -36,33 +36,21 @@ _filter()
 	-e 's/0x[0-9a-f]*/ADDR/g' \
 	-e 's/[0-2][0-9]:00:00.000/TIME/' \
 	-e 's/126.0.[0-9][0-9]*/126.0.NUMBER/' \
+	-e "s,$tmp,TMP," \
     | _filter_papi_errors
-}
-
-_pmu_present()
-{
-    grep "Error*" $@; if [ $? -eq 0 ]; then _notrun "PAPI native metrics not found on hardware"; fi
 }
 
 # vars and checks
 papirootpmns=$PCP_PMDAS_DIR/papi/root
 pipepmda=$PCP_PMDAS_DIR/papi/pmdapapi
-[ ! -f $papirootpmns ] && echo "FATAL ERROR Could not find \"$papirootpmns\"" && exit 1
-[ ! -f $pipepmda ] && echo "FATAL ERROR Could not find \"$pipepmda\"" && exit 1
 
-# Check if native pmu's are present, else, _notrun the test
-$sudo dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _pmu_present
-open pipe $pipepmda -d 126
-getdesc on
-attr "username" "root"
-attr 11 "0"
-traverse papi.system.perf
-EOF
-
+# check if papi PMDA is going to work on this platform
+_check_papi
+_check_papi_native
 
 echo "=== Daemon PMDA papi native events test ==="
 $sudo dbpmda -n $papirootpmns -ie <<EOF | _filter
-open pipe $pipepmda -d 126
+open pipe $pipepmda -d 126 -l $tmp.log
 getdesc on
 attr "username" "root"
 attr 11 "0"

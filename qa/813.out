@@ -1,7 +1,7 @@
 QA output created by 813
 === Daemon PMDA papi test ===
-dbpmda> open pipe PCP_PMDAS_DIR/papi/pmdapapi -d 126
-Start pmdapapi PMDA: PCP_PMDAS_DIR/papi/pmdapapi -d 126
+dbpmda> open pipe PCP_PMDAS_DIR/papi/pmdapapi -d 126 -l TMP.log
+Start pmdapapi PMDA: PCP_PMDAS_DIR/papi/pmdapapi -d 126 -l TMP.log
 dbpmda> getdesc on
 dbpmda> attr "username" "root"
 Attribute: username=root

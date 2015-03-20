@@ -1,7 +1,7 @@
 #
 # Common sh(1) procedures to be used in PCP rc scripts
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014-2015 Red Hat.
 # Copyright (c) 2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -30,7 +30,6 @@
 #
 
 VERBOSE_CONFIG=${VERBOSE_CONFIG-false}
-[ -z "$tmp" ] && tmp=`pwd`/rc-proc-tmp
 
 #
 # private functions
@@ -142,20 +141,19 @@ is_chkconfig_on()
     elif $_have_systemctl
     then
 	$VERBOSE_CONFIG && echo "is_chkconfig_on: using systemctl"
-	systemctl is-enabled "$_flag".service >$tmp.tmp 2>&1
-	_ret=$?
 	# if redirected to chkconfig, the answer is buried in stdout
-	# not in the exit status of the systemctl command
+	# otherwise it is in the exit status of the systemctl command
 	#
-	if grep 'redirecting to /sbin/chkconfig' $tmp.tmp >/dev/null 2>&1
+	if systemctl is-enabled "$_flag".service 2>&1 | grep -q 'redirecting to /sbin/chkconfig'
 	then
 	    $VERBOSE_CONFIG && echo "is_chkconfig_on: redirected to chkconfig"
-	    if grep "^$_flag[ 	][ 	]*on" $tmp.tmp >/dev/null 2>&1
+	    if systemctl is-enabled "$_flag".service 2>&1 | grep -q "^$_flag[ 	][ 	]*on"
 	    then
 		_ret=0
-	    else
-		_ret=1
 	    fi
+	else
+	    systemctl -q is-enabled "$_flag".service
+	    _ret=$?
 	fi
     elif $_have_chkconfig
     then

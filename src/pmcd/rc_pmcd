@@ -499,9 +499,10 @@ Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
 	    rm -f "$PCP_TMP_DIR/pmlogger/primary"
 
 	    # site-local customisations after PMCD startup
-	    #
 	    [ -x $PCPLOCAL ] && $PCPLOCAL $VFLAG start
-	    
+
+	    # finally, stop here if running in a container
+	    [ -z "$PCP_CONTAINER_IMAGE" ] || exec $PCP_BINADM_DIR/pmpause
 	fi
 	status=0
         ;;
@@ -537,6 +538,7 @@ Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
 	;;
 
   *)
+	[ -z "$PCP_CONTAINER_IMAGE" ] || exec "$@"
 	_usage
         ;;
 esac

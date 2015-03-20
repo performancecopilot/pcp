@@ -4,6 +4,12 @@
 #
 # Copyright (c) 2015 Martins Innus.  All Rights Reserved.
 #
+# The test archives are machine specific. If a set of 
+# files for your architecture is not present, please: 
+#
+# cd  qa/ganglia && mk-gangliatest
+#
+# and submit the results.
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -26,8 +32,19 @@ perl -e "use RRDs" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl RRDs module not installed"
 
 rm -f $seq.out
-size=`_get_word_size`
-ln $seq.out.$size $seq.out || exit 1
+machine=`uname -m`
+case "$machine"
+in
+i?86|athlon)
+    machine=32
+    ;;
+amd64|x86_64)
+    machine=64
+    ;;
+esac
+[ -f $seq.out.$machine ] || \
+	_notrun No qualified output for `uname -m` architecture. Please run mk-gangliatest and submit the new files.
+ln $seq.out.$machine $seq.out || exit 1
 
 status=0        # success is the default!
 $sudo rm -rf $tmp.* $seq.full
@@ -37,7 +54,7 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 # only one dir for now, add more if we get more sample data
 # rrdtool can't read data from different architectures
 
-indir=./ganglia/gangliatest.$size
+indir=./ganglia/gangliatest.$machine
 
 echo
 echo "=== $indir ==="

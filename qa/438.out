@@ -1,9 +1,9 @@
 QA output created by 438
 
---- src/badlen-1 ---
-__pmLogOpen: inspect file "src/badlen-1.0"
-__pmLogOpen: inspect file "src/badlen-1.index"
-__pmLogOpen: inspect file "src/badlen-1.meta"
+--- archives/badlen-1 ---
+__pmLogOpen: inspect file "archives/badlen-1.0"
+__pmLogOpen: inspect file "archives/badlen-1.index"
+__pmLogOpen: inspect file "archives/badlen-1.meta"
 __pmLogChkLabel: fd=N vol=0 [magic=50052602 version=2 vol=0 pid=PID host=HOST]
 __pmLogChangeVol: change to volume 0
 __pmLogChkLabel: fd=N vol=-2 [magic=50052602 version=2 vol=-2 pid=PID host=HOST]
@@ -15,24 +15,24 @@ __pmLogRead: fd=3 mode=forw vol=0 posn=132
 Error: record length mismatch: header (132) != trailer (128)
 pmdumplog: pmFetch: Corrupted record in a PCP archive log
 
---- src/badlen-10 ---
-__pmLogOpen: inspect file "src/badlen-10.0"
-__pmLogOpen: inspect file "src/badlen-10.index"
-__pmLogOpen: inspect file "src/badlen-10.meta"
+--- archives/badlen-10 ---
+__pmLogOpen: inspect file "archives/badlen-10.0"
+__pmLogOpen: inspect file "archives/badlen-10.index"
+__pmLogOpen: inspect file "archives/badlen-10.meta"
 __pmLogChkLabel: fd=N vol=0 trailer read -> 3 (expect 4) or bad trailer len=0 (expected 132)
-pmdumplog: Cannot open archive "src/badlen-10": Illegal label record at start of a PCP archive log file
+pmdumplog: Cannot open archive "archives/badlen-10": Illegal label record at start of a PCP archive log file
 
---- src/badlen-11 ---
-__pmLogOpen: inspect file "src/badlen-11.0"
-__pmLogOpen: inspect file "src/badlen-11.index"
-__pmLogOpen: inspect file "src/badlen-11.meta"
+--- archives/badlen-11 ---
+__pmLogOpen: inspect file "archives/badlen-11.0"
+__pmLogOpen: inspect file "archives/badlen-11.index"
+__pmLogOpen: inspect file "archives/badlen-11.meta"
 __pmLogChkLabel: fd=N vol=0 [magic=50052602 version=2 vol=0 pid=PID host=HOST]
 __pmLogChangeVol: change to volume 0
 __pmLogChkLabel: fd=N vol=-2 [magic=50052602 version=2 vol=-2 pid=PID host=HOST]
 __pmLogChkLabel: fd=N vol=-1 [magic=50052602 version=2 vol=-1 pid=PID host=HOST]
 __pmLogRead: fd=3 (peek) mode=back vol=0 posn=133 
 Error: truncated log? rlen=33784 (offset 133)
-pmdumplog: Cannot locate end of archive src/badlen-11: Corrupted record in a PCP archive log
+pmdumplog: Cannot locate end of archive archives/badlen-11: Corrupted record in a PCP archive log
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
@@ -41,17 +41,17 @@ __pmLogSetTime(0) TIME delta=0 at ti[0]@TIME vol=0 posn=132 serial=1
 __pmLogSetTime(0) TIME delta=0 before start ti@TIME vol=0 posn=132 serial=1
 __pmLogRead: fd=3 mode=forw vol=0 posn=132 AFTER end
 
---- src/badlen-2 ---
-__pmLogOpen: inspect file "src/badlen-2.0"
-__pmLogOpen: inspect file "src/badlen-2.index"
-__pmLogOpen: inspect file "src/badlen-2.meta"
+--- archives/badlen-2 ---
+__pmLogOpen: inspect file "archives/badlen-2.0"
+__pmLogOpen: inspect file "archives/badlen-2.index"
+__pmLogOpen: inspect file "archives/badlen-2.meta"
 __pmLogChkLabel: fd=N vol=0 [magic=50052602 version=2 vol=0 pid=PID host=HOST]
 __pmLogChangeVol: change to volume 0
 __pmLogChkLabel: fd=N vol=-2 [magic=50052602 version=2 vol=-2 pid=PID host=HOST]
 __pmLogChkLabel: fd=N vol=-1 [magic=50052602 version=2 vol=-1 pid=PID host=HOST]
 __pmLogRead: fd=3 (peek) mode=back vol=0 posn=260 
 Error: truncated log? rlen=8289910 (offset 260)
-pmdumplog: Cannot locate end of archive src/badlen-2: Corrupted record in a PCP archive log
+pmdumplog: Cannot locate end of archive archives/badlen-2: Corrupted record in a PCP archive log
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
@@ -62,17 +62,17 @@ __pmLogRead: fd=3 mode=forw vol=0 posn=132
 Error: trailer fread got 0 expected 4
 pmdumplog: pmFetch: Corrupted record in a PCP archive log
 
---- src/badlen-3 ---
-__pmLogOpen: inspect file "src/badlen-3.0"
-__pmLogOpen: inspect file "src/badlen-3.index"
-__pmLogOpen: inspect file "src/badlen-3.meta"
+--- archives/badlen-3 ---
+__pmLogOpen: inspect file "archives/badlen-3.0"
+__pmLogOpen: inspect file "archives/badlen-3.index"
+__pmLogOpen: inspect file "archives/badlen-3.meta"
 __pmLogChkLabel: fd=N vol=0 [magic=50052602 version=2 vol=0 pid=PID host=HOST]
 __pmLogChangeVol: change to volume 0
 __pmLogChkLabel: fd=N vol=-2 [magic=50052602 version=2 vol=-2 pid=PID host=HOST]
 __pmLogChkLabel: fd=N vol=-1 [magic=50052602 version=2 vol=-1 pid=PID host=HOST]
 __pmLogRead: fd=3 (peek) mode=back vol=0 posn=252 
 Error: truncated log? rlen=762278763 (offset 252)
-pmdumplog: Cannot locate end of archive src/badlen-3: Corrupted record in a PCP archive log
+pmdumplog: Cannot locate end of archive archives/badlen-3: Corrupted record in a PCP archive log
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
@@ -83,47 +83,47 @@ __pmLogRead: fd=3 mode=forw vol=0 posn=132
 Error: data fread got 116 expected 124
 pmdumplog: pmFetch: Corrupted record in a PCP archive log
 
---- src/badlen-4 ---
-__pmLogOpen: inspect file "src/badlen-4.0"
-__pmLogOpen: inspect file "src/badlen-4.index"
-__pmLogOpen: inspect file "src/badlen-4.meta"
+--- archives/badlen-4 ---
+__pmLogOpen: inspect file "archives/badlen-4.0"
+__pmLogOpen: inspect file "archives/badlen-4.index"
+__pmLogOpen: inspect file "archives/badlen-4.meta"
 __pmLogChkLabel: fd=N vol=0 file is empty
-pmdumplog: Cannot open archive "src/badlen-4": Empty archive log file
+pmdumplog: Cannot open archive "archives/badlen-4": Empty archive log file
 
---- src/badlen-5 ---
-__pmLogOpen: inspect file "src/badlen-5.0"
-__pmLogOpen: inspect file "src/badlen-5.index"
-__pmLogOpen: inspect file "src/badlen-5.meta"
+--- archives/badlen-5 ---
+__pmLogOpen: inspect file "archives/badlen-5.0"
+__pmLogOpen: inspect file "archives/badlen-5.index"
+__pmLogOpen: inspect file "archives/badlen-5.meta"
 __pmLogChkLabel: fd=N vol=0 bad label len=38: expected 124
-pmdumplog: Cannot open archive "src/badlen-5": Illegal label record at start of a PCP archive log file
+pmdumplog: Cannot open archive "archives/badlen-5": Illegal label record at start of a PCP archive log file
 
---- src/badlen-6 ---
-__pmLogOpen: inspect file "src/badlen-6.0"
-__pmLogOpen: inspect file "src/badlen-6.index"
-__pmLogOpen: inspect file "src/badlen-6.meta"
+--- archives/badlen-6 ---
+__pmLogOpen: inspect file "archives/badlen-6.0"
+__pmLogOpen: inspect file "archives/badlen-6.index"
+__pmLogOpen: inspect file "archives/badlen-6.meta"
 __pmLogChkLabel: fd=N vol=0 header read -> 4 (expect 4) or bad header len=64 (expected 132)
-pmdumplog: Cannot open archive "src/badlen-6": Illegal label record at start of a PCP archive log file
+pmdumplog: Cannot open archive "archives/badlen-6": Illegal label record at start of a PCP archive log file
 
---- src/badlen-7 ---
-__pmLogOpen: inspect file "src/badlen-7.0"
-__pmLogOpen: inspect file "src/badlen-7.index"
-__pmLogOpen: inspect file "src/badlen-7.meta"
+--- archives/badlen-7 ---
+__pmLogOpen: inspect file "archives/badlen-7.0"
+__pmLogOpen: inspect file "archives/badlen-7.index"
+__pmLogOpen: inspect file "archives/badlen-7.meta"
 __pmLogChkLabel: fd=N vol=0 trailer read -> 4 (expect 4) or bad trailer len=64 (expected 132)
-pmdumplog: Cannot open archive "src/badlen-7": Illegal label record at start of a PCP archive log file
+pmdumplog: Cannot open archive "archives/badlen-7": Illegal label record at start of a PCP archive log file
 
---- src/badlen-8 ---
-__pmLogOpen: inspect file "src/badlen-8.0"
-__pmLogOpen: inspect file "src/badlen-8.index"
-__pmLogOpen: inspect file "src/badlen-8.meta"
+--- archives/badlen-8 ---
+__pmLogOpen: inspect file "archives/badlen-8.0"
+__pmLogOpen: inspect file "archives/badlen-8.index"
+__pmLogOpen: inspect file "archives/badlen-8.meta"
 __pmLogChkLabel: fd=N vol=0 label version 255 not supported
-pmdumplog: Cannot open archive "src/badlen-8": Illegal label record at start of a PCP archive log file
+pmdumplog: Cannot open archive "archives/badlen-8": Illegal label record at start of a PCP archive log file
 
---- src/badlen-9 ---
-__pmLogOpen: inspect file "src/badlen-9.0"
-__pmLogOpen: inspect file "src/badlen-9.index"
-__pmLogOpen: inspect file "src/badlen-9.meta"
+--- archives/badlen-9 ---
+__pmLogOpen: inspect file "archives/badlen-9.0"
+__pmLogOpen: inspect file "archives/badlen-9.index"
+__pmLogOpen: inspect file "archives/badlen-9.meta"
 __pmLogChkLabel: fd=N vol=0 [magic=50052602 version=2 vol=0 pid=PID host=HOST-laptop]
 __pmLogChangeVol: change to volume 0
 __pmLogChkLabel: fd=N vol=-2 [magic=50052602 version=2 vol=-2 pid=PID host=HOST-laptop]
 __pmLogChkLabel: fd=N vol=-1 [magic=50052602 version=2 vol=-1 pid=PID host=HOST-laptop]
-pmdumplog: Cannot open archive "src/badlen-9": Corrupted record in a PCP archive log
+pmdumplog: Cannot open archive "archives/badlen-9": Corrupted record in a PCP archive log
