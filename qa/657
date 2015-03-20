@@ -1,0 +1,86 @@
+#! /bin/sh
+# PCP QA Test No. 657
+# checks pmdadmthin functionality
+# Requires dmsetup utility to be installed, else the test will
+# not run (PMDA will fail to install).
+#
+# Copyright (c) 2015 Red Hat, Inc. All Rights Reserved.
+#
+seq=`basename $0`
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+echo "QA output created by $seq"
+
+[ $PCP_PLATFORM = linux ] || _notrun "Device Mapper is Linux-specific (dmthin)"
+
+root=$tmp.root
+export DMTHIN_STATSPATH=$root
+
+# helper functions
+
+_install_pmda()
+{
+    # install the PMDA
+    cd $PCP_PMDAS_DIR/$iam
+    $sudo ./Remove < /dev/null >/dev/null 2>&1
+    $sudo ./Install < /dev/null >$tmp.out 2>&1
+    cat $tmp.out | _filter_pmda_install | sed \
+    -e '/.*pmcd.*/d' \
+    -e '/.*pmlogger.*/d' \
+    -e '/Latest.*/d' \
+    -e '/Duplicate.*/d'
+}
+
+_remove_pmda()
+{
+    cd $PCP_PMDAS_DIR/$iam
+    $sudo ./Remove < /dev/null > /dev/null 2>&1
+}
+
+_cleanup()
+{
+    $sudo rm -fr $root
+    $sudo rm -fr $tmp.*.dir
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+iam=dmthin
+status=1 # failure is the default!
+trap "_cleanup $iam" 0 1 2 3 15
+
+$sudo rm -fr $root
+$sudo rm -fr $tmp.*.dir
+$sudo rm -f $tmp.* $seq.full
+touch $here/$seq.full
+
+# real QA test starts here
+cd $here
+
+echo
+echo "=== Setting up QA fakeroot testing data ==="
+$sudo rm -fr $root
+mkdir $root || _fail "root in use when processing fakeroot"
+cd $root
+echo -e "yy_pool: 0 409600 thin-pool 0 13/65536 0/3200 - rw no_discard_passdown queue_if_no_space" > $root/dmthin-pool
+echo -e "vg_1-lv3: 0 8388608 thin 7000704 8388607\nvg_1-lv2: 0 8388608 thin 6832768 8388607" > $root/dmthin-thin
+cd $here
+
+echo
+echo "=== Installing DMTHIN PMDA ==="
+_prepare_pmda_install $iam
+_install_pmda
+
+echo
+echo "=== Check dmthin pool metrics for all metrics ==="
+pminfo -dfmtT dmthin
+
+# cleanup
+_remove_pmda
+
+status=0
+exit
