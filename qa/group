@@ -779,7 +779,6 @@ cgroups
 501 pmie local
 502 pmlogrewrite local
 503 logutil pmlogrewrite local pmlogextract
-504 pmie remote pmsocks
 505 pmlogrewrite local
 506 pmlogrewrite local
 507 other local

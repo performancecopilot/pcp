@@ -1051,6 +1051,8 @@ extract_service(const char *path, char *name, pid_t *pid)
     if (sep != 1)
 	return 0;
     *pid = atoi(buffer);
+    if (!__pmProcessExists(*pid))
+	return 0;
 
     /* finally setup service name to return */
     name[length] = '\0';
