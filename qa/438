@@ -36,9 +36,9 @@ $1 == "__pmLogOpen:"	{ print >"'$tmp'.0"; next }
 }
 
 # real QA test starts here
-for i in src/badlen-*.0
+for i in archives/badlen-*.0
 do
-    [ "$i" = "src/badlen-0.0" ] && continue
+    [ "$i" = "archives/badlen-0.0" ] && continue
     i=`echo $i | sed -e 's/\.0$//'`
     echo | tee -a $seq.full
     echo "--- $i ---" | tee -a $seq.full

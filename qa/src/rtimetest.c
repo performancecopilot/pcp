@@ -64,7 +64,7 @@ main(int argc, char *argv[])
     char *tmtmp_str;
     char *tz;
     int errflag = 0;
-    char c;
+    int c;
     int sts;
 
     __pmSetProgname(argv[0]);

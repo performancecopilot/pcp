@@ -27,8 +27,8 @@
 .SH DESCRIPTION
 .B pmlogcheck
 prints information about the nature of any invalid data which it detects
-in a PCP archive.  Of particular interest are wrapped values for metrics
-which are expected to have monotonically increasing values.
+in the files of a PCP archive.
+.PP
 The archive has the base name
 .I archive
 and must have been previously created using
@@ -48,7 +48,8 @@ The command line options
 .B \-S
 and
 .B \-T
-can be used to specify a time window over which metrics should be summarized.
+can be used to specify a time window over which metrics should be checked
+in Pass 3 (see below).
 These options are common to many Performance Co-Pilot tools and are fully
 described in
 .BR PCPIntro (1).
@@ -78,7 +79,56 @@ The
 option changes the timezone to the local timezone at the
 host that is the source of the performance metrics, as specified in
 the label record of the archive log.
-.SH OUTPUT FORMAT
+.PP
+The checking proceeds in a number of passes, each designed to validate
+progressively more complex semantic relationships between the information
+in a PCP archive.
+.SH Pass 0
+Each physical file of the PCP archive is processed to ensure the label
+records are valid and consistent, and that each file contains an
+integral number of physical records with correct header and trailer
+fields.
+.PP
+Any errors at this stage are usually fatal.  The PCP archive is
+probably damaged beyond repair, and no more passes of
+.B pmlogcheck
+are attempted.
+.SH Pass 1
+Validates the integrity of the temporal index, usually
+.IB archive .index\c
+\&.
+.PP
+As the temporal index is (strictly speaking) optional, errors at this
+stage are handled by marking the index as bad and ignoring it for
+the remainder of the
+.B pmlogcheck
+passes.
+.PP
+Permanent repair can be achieved by removing the temporal index file
+and then making a copy of the PCP archive using
+.BR pmlogrewrite (1)
+or
+.BR pmlogextract (1).
+This will create a new temporal index for the copied archive as a side-effect.
+.SH Pass 2
+Validates the integrity of the metadata file, usually
+.IB archive .meta\c
+\&.
+.SH Pass 3
+Validates the integrity of each of the log volumes of the PCP archive, usually
+.IB archive .0\c
+,
+.IB archive .1\c
+, etc.
+.PP
+Of particular interest are wrapped values for counter metrics (\c
+.I type
+from
+.BR pmLookupDesc (3)
+is
+.BR PM_SEM_COUNTER )
+which are expected to have monotonically increasing values.
+.PP
 For each metric having ``counter'' semantics (i.e. the metric is expected to
 increase monotonically) which has been detected as having wrapped at some
 point in the archive,
@@ -126,9 +176,10 @@ as described in
 .BR pmdumplog (1),
 .BR pmlogextract (1),
 .BR pmlogger (1),
-.BR pmlogextract (1),
+.BR pmlogrewrite (1),
 .BR pmlogsummary (1),
 .BR pmval (1),
+.BR pmLookupDesc (3),
 .BR pcp.conf (5),
 .BR pcp.env (5)
 and
