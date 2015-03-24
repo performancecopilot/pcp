@@ -18,13 +18,13 @@
 \f3pmdadmthin\f1 \- Device Mapper - Thin Provisioning (dm-thin) PMDA
 .SH DESCRIPTION
 .B pmdadmthin
-
 is a Performance Metrics Domain Agent (PMDA) which exports
 metric values for Thin Provisioning pools and volumes
 attached to the local system.
-
-This PMDA collects its data through the dmsetup utility and
-requires that the program is installed in order to function. 
+.PP
+This PMDA collects its data through the
+.BR dmsetup (8)
+utility and requires that the program is installed in order to function. 
 .PP
 Further details on thin provisioning can be found at
 http://redhat.com
@@ -50,7 +50,7 @@ The Install and Remove scripts notify
 when the agent is installed or removed.
 .SH FILES
 .IP "\fB$PCP_PMDAS_DIR/dmthin/help\fR" 4
-default help text file for the CIFS metrics
+default help text file for the dmthin metrics
 .IP "\fB$PCP_PMDAS_DIR/dmthin/Install\fR" 4 
 installation script for the \fBpmdadmthin\fR agent 
 .IP "\fB$PCP_PMDAS_DIR/dmthin/Remove\fR" 4 

@@ -88,7 +88,7 @@ metrictable_size(void)
 
 /*
  * Update the thin provisioning pool instance domain. This will change
- * as are created, activated and removed.
+ * as volumes are created, activated and removed.
  *
  * Using the pmdaCache interfaces simplifies things and provides us
  * with guarantees around consistent instance numbering in all of
