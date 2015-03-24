@@ -100,6 +100,7 @@ Requires: initscripts
 Requires: pcp-libs = @package_version@
 %if "@enable_python@" == "true"
 Requires: python-pcp = @package_version@
+Requires: python-jsonpointer
 %endif
 Requires: perl-PCP-PMDA = @package_version@
 Obsoletes: pcp-gui-debuginfo
