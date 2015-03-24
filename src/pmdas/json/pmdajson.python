@@ -173,14 +173,14 @@ class JsonSource(object):
             fobj = open(self.__metadata_path)
         except IOError:
             self.log("Couldn't open JSON metadata file: %s"
-                            % self.__metadata_path)
+                     % self.__metadata_path)
             self.log("%s" % traceback.format_exc())
             return
         try:
             self.__metadata = json.load(fobj, object_pairs_hook=OrderedDict)
         except ValueError:
             self.log("Couldn't parse JSON metadata from %s"
-                            % self.__metadata_path)
+                     % self.__metadata_path)
             self.log("%s" % traceback.format_exc())
         fobj.close()
 
@@ -190,7 +190,7 @@ class JsonSource(object):
         if self.__data_exec != "":
             if self.__pmda.debug:
                 self.log("About to run data-exec command '%s'"
-                                % self.__data_exec)
+                         % self.__data_exec)
             try:
                 args = shlex.split(self.__data_exec)
                 pobj = subprocess.Popen(args, close_fds=True,
@@ -198,24 +198,22 @@ class JsonSource(object):
                 (out, dummy) = pobj.communicate()
             except (OSError, ValueError):
                 self.log("Couldn't run JSON data command: %s"
-                                % self.__data_exec)
+                         % self.__data_exec)
                 self.log("%s" % traceback.format_exc())
                 return
             try:
                 self.__json_data = json.loads(out,
                                               object_pairs_hook=OrderedDict)
             except ValueError:
-                self.log("Couldn't parse JSON data from"
-                                " command output '%s'"
-                                % self.__data_exec)
+                self.log("Couldn't parse JSON data from command output '%s'"
+                         % self.__data_exec)
                 self.log("%s" % traceback.format_exc())
         else:
             self.log("Found data-path %s" % self.__data_path)
             try:
                 fobj = open(self.__data_path)
             except IOError:
-                self.log("Couldn't open JSON data file: %s"
-                                % self.__data_path)
+                self.log("Couldn't open JSON data file: %s" % self.__data_path)
                 self.log("%s" % traceback.format_exc())
                 return
             try:
@@ -223,7 +221,7 @@ class JsonSource(object):
                                              object_pairs_hook=OrderedDict)
             except ValueError:
                 self.log("Couldn't parse JSON data from %s"
-                                % self.__data_path)
+                         % self.__data_path)
                 self.log("%s" % traceback.format_exc())
             fobj.close()
 
@@ -284,7 +282,7 @@ class JsonSource(object):
                     index += 1
             except KeyError:
                 self.log("Error while refreshing indom for array %s"
-                                % array_name)
+                         % array_name)
                 self.log("%s" % traceback.format_exc())
                 continue
             self.__pmda.replace_indom(self.__indoms[array_name].obj,
@@ -331,8 +329,8 @@ class JsonSource(object):
                     except RuntimeError:
                         # If we get an invalid metric name, just skip
                         # this metric
-                        self.log("Skipping metric with invalid"
-                                        " name '%s.%s'" % (array_name, value))
+                        self.log("Skipping metric with invalid name '%s.%s'"
+                                 % (array_name, value))
                         break
                 # 'type' (required): Sanity check it and save it.
                 elif key == 'type':
@@ -351,7 +349,7 @@ class JsonSource(object):
                         raise TypeError("Arrays can't contain arrays")
                     else:
                         self.log("Type attribute has unknown value '%s'"
-                                        % value)
+                                 % value)
                         raise TypeError("Type attribute has unknown value '%s'"
                                         % value)
                 # 'pointer' (required): Sanity check it and save it.
@@ -374,8 +372,8 @@ class JsonSource(object):
                     metric_info.units = value
                 # For everything else, just ignore it.
                 else:
-                    self.log("Ignoring unknown attribute in"
-                                    " metadata '%s'" % (key))
+                    self.log("Ignoring unknown attribute in metadata '%s'"
+                             % (key))
 
             # Make sure we have everything we need. If not (or we've
             # seen an error), just skip this metric.
@@ -383,8 +381,8 @@ class JsonSource(object):
                or metric_info.pointer == None:
                 if error_seen == 0:
                     self.log("Metadata doesn't have required"
-                                    " information for the following entry: %s"
-                                    % metric_info.name)
+                             " information for the following entry: %s"
+                             % metric_info.name)
                 continue
 
             # We have all the required information. Add the metric.
@@ -399,9 +397,8 @@ class JsonSource(object):
             # 'prefix' (optional): Sanity check it and save it.
             if key == 'prefix':
                 if not isinstance(value, unicode):
-                    self.log("Invalid metadata 'prefix'"
-                                    " value from file %s: %s"
-                                    % (self.__path, value))
+                    self.log("Invalid metadata 'prefix' value from file %s: %s"
+                             % (self.__path, value))
                     continue
                 # FIXME: need to validate name and make sure it
                 # doesn't already exist.
@@ -409,9 +406,8 @@ class JsonSource(object):
             # 'data-path' (optional): Sanity check it and save it.
             elif key == 'data-path':
                 if not isinstance(value, unicode):
-                    self.log("Invalid metadata 'data-path'"
-                                    " value from file %s: %s"
-                                    % (self.__path, value))
+                    self.log("Invalid metadata 'data-path' value from"
+                             " file %s: %s" % (self.__path, value))
                     continue
                 # FIXME: should we validate the path and make sure the
                 # file exists?
@@ -419,9 +415,8 @@ class JsonSource(object):
             # 'data-exec' (optional): Sanity check it and save it.
             elif key == 'data-exec':
                 if not isinstance(value, unicode):
-                    self.log("Invalid metadata 'data-exec'"
-                                    " value from file %s: %s"
-                                    % (self.__path, value))
+                    self.log("Invalid metadata 'data-exec' value"
+                             " from file %s: %s" % (self.__path, value))
                     continue
                 # FIXME: I'm not sure what other validation we could
                 # do here.
@@ -448,11 +443,11 @@ class JsonSource(object):
             # For everything else, just ignore it.
             else:
                 self.log("Ignoring unknown metadata attribute"
-                                " from file %s: %s" % (self.__path, key))
+                         " from file %s: %s" % (self.__path, key))
 
         if not metrics_array:
             self.log("Metadata has no 'metrics' array in file %s"
-                            % self.__path)
+                     % self.__path)
             # FIXME: Hmm, we probably shouldn't error here, but just
             # skip this source.
             raise TypeError("Metadata has no 'metrics' array in file %s"
@@ -472,7 +467,7 @@ class JsonSource(object):
                 if key == 'name':
                     if not isinstance(value, unicode):
                         self.log("Skipping metric with invalid"
-                                        " metadata 'name' value")
+                                 " metadata 'name' value")
                         error_seen = 1
                         break
                     try:
@@ -480,8 +475,8 @@ class JsonSource(object):
                     except RuntimeError:
                         # If we get an invalid metric name, just skip
                         # this metric
-                        self.log("Skipping metric with invalid"
-                                        " name '%s'" % value)
+                        self.log("Skipping metric with invalid name '%s'"
+                                 % value)
                         error_seen = 1
                         break
                 # 'type' (required): Sanity check it and save it.
@@ -506,7 +501,7 @@ class JsonSource(object):
                     # metric.
                     else:
                         self.log("Type attribute has unknown value '%s'"
-                                        % value)
+                                 % value)
                         error_seen = 1
                         break
                 # 'pointer' (required): Sanity check it and save it.
@@ -531,8 +526,7 @@ class JsonSource(object):
                         break
                     if metric_info.type != c_api.PM_TYPE_NOSUPPORT:
                         self.log("Metadata has an 'index' item"
-                                        " for non-array '%s'"
-                                        % metric_info.name)
+                                 " for non-array '%s'" % metric_info.name)
                         error_seen = 1
                         break
                     # If we're here, we're processing an array's
@@ -542,8 +536,7 @@ class JsonSource(object):
                 elif key == 'metrics':
                     if metric_info.type != c_api.PM_TYPE_NOSUPPORT:
                         self.log("Metadata has an 'metrics' item"
-                                        " for non-array '%s'"
-                                        % metric_info.name)
+                                 " for non-array '%s'" % metric_info.name)
                         error_seen = 1
                         break
 
@@ -561,16 +554,16 @@ class JsonSource(object):
                     metric_info.units = value
                 # For everything else, just ignore it.
                 else:
-                    self.log("Ignoring unknown attribute in"
-                                    " metadata '%s'" % (key))
+                    self.log("Ignoring unknown attribute in metadata '%s'"
+                             % (key))
 
             # Make sure we have everything we need. If not (or we've
             # seen an error), just skip this metric.
             if error_seen or not metric_info.valid() \
                or metric_info.pointer == None:
                 self.log("Metadata doesn't have required"
-                                " information for the following entry: %s"
-                                % item)
+                         " information for the following entry: %s"
+                         % item)
                 del metric_info
                 continue
 
@@ -583,7 +576,7 @@ class JsonSource(object):
         ''' Fetch value for this item and instance.  '''
         if not self.__metrics.has_key(item):
             self.log("JSON source '%s' has no item %d instance %d"
-                            % (self.__root_name, item, inst))
+                     % (self.__root_name, item, inst))
             return [c_api.PM_ERR_PMID, 0]
         metric_info = self.__metrics[item]
 
@@ -593,14 +586,14 @@ class JsonSource(object):
             array_index = metric_info.indom.lookup_inst(inst)
             if array_index == None:
                 self.log("JSON source %s has no indom %d"
-                                % (self.__root_name, inst))
+                         % (self.__root_name, inst))
                 return [c_api.PM_ERR_INST, 0]
 
             # Split the full name into the array name and metric
             (array, dummy) = metric_info.name.split('.', 2)
             if not self.__metrics_by_name.has_key(array):
                 self.log("JSON source '%s' has no item '%s'"
-                                % (self.__root_name, array))
+                         % (self.__root_name, array))
                 return [c_api.PM_ERR_PMID, 0]
             array_info = self.__metrics_by_name[array]
 
@@ -613,19 +606,17 @@ class JsonSource(object):
                         1]
             except (KeyError, TypeError):
                 self.log("Error while fetching metrics for array %s"
-                                % array_info.name)
+                         % array_info.name)
                 self.log("%s" % traceback.format_exc())
         # Handle single-valued metrics.
         else:
             try:
                 return [metric_info.pointer.resolve(self.__json_data), 1]
             except (KeyError, TypeError):
-                self.log("Error while fetching metric %s"
-                                % metric_info.name)
+                self.log("Error while fetching metric %s" % metric_info.name)
                 self.log("%s" % traceback.format_exc())
-        self.log("JSON source %s couldn't fetch value for"
-                        " item %d instance %d"
-                        % (self.__root_name, item, inst))
+        self.log("JSON source %s couldn't fetch value for item %d instance %d"
+                 % (self.__root_name, item, inst))
         return [c_api.PM_ERR_TYPE, 0]
 
     def refresh_metrics(self):
