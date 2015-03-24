@@ -21,9 +21,6 @@ LLDLIBS	= $(PCPLIB) $(LIB_FOR_MATH)
 
 default:	$(CMDTARGET)
 
-pmlogsummary$(EXECSUFFIX):	pmlogsummary.o
-	$(CCF) -o $@ $(LDFLAGS) pmlogsummary.o $(LDLIBS)
-
 include $(BUILDRULES)
 
 install:	$(CMDTARGET)

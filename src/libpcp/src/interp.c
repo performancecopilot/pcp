@@ -52,18 +52,26 @@ typedef union {				/* value from pmResult */
 } value;
 
 /*
- * state values for s_prior and s_next
+ * state values for s_prior and s_next ...
+ * first 3 are mutually exclusive and setting any of them clears
+ * S_SCANNED ... S_SCANNED maybe set independently
  */
-#define S_UNDEFINED	0	/* no searching done yet */
-#define S_NOTFOUND	1	/* searched to end or start of archive and
-				   did not find a value or a <mark> */
-#define S_MARK		2	/* searched and found <mark> at t_prior or
-				   t_next before a value was found */
-#define S_VALUE		3	/* searched and found value at t_prior or
-				   t_next */
+#define S_UNDEFINED	1	/* no searching done yet */
+#define S_MARK		2	/* found <mark> at t_prior or t_next before
+				   a value was found */
+#define S_VALUE		4	/* found value at t_prior or t_next */
+#define S_SCANNED	16	/* region between t_req and t_prior or
+				   t_next has been scanned already */
 
-static const char *statestr[] = { "<undefined>", "<notfound>", "<mark>", "" };
+#define SET_UNDEFINED(state) state = S_UNDEFINED
+#define SET_MARK(state) state = S_MARK
+#define SET_VALUE(state) state = S_VALUE
+#define SET_SCANNED(state) state |= S_SCANNED
 
+#define IS_UNDEFINED(state) ((state & S_UNDEFINED) == S_UNDEFINED)
+#define IS_MARK(state) ((state & S_MARK) == S_MARK)
+#define IS_VALUE(state) ((state & S_VALUE) == S_VALUE)
+#define IS_SCANNED(state) ((state & S_SCANNED) == S_SCANNED)
 
 typedef struct instcntl {		/* metric-instance control */
     struct instcntl	*next;		/* next for this metric control */
@@ -270,8 +278,12 @@ dumpval(FILE *f, int type, int valfmt, int prior, instcntl_t *icp)
 	state = icp->s_next;
 	vp = &icp->v_next;
     }
-    if (state != S_VALUE) {
-	fprintf(f, " state=%s", statestr[state]);
+    if (!IS_VALUE(state)) {
+	fprintf(f, " state=");
+	if (IS_UNDEFINED(state)) fprintf(f, "<undefined>");
+	else if (IS_MARK(state)) fprintf(f, "<mark>");
+	else fprintf(f, "<botch=%d>", state);
+	if (IS_SCANNED(state)) fprintf(f, "&scanned");
 	return;
     }
     if (type == PM_TYPE_32 || type == PM_TYPE_U32)
@@ -350,7 +362,10 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		(t_this >= icp->t_prior || icp->t_prior > t_req)) {
 		/* <mark> is closer than best lower bound to date */
 		icp->t_prior = t_this;
-		icp->s_prior = S_MARK;
+		SET_MARK(icp->s_prior);
+		if (do_mark == UPD_MARK_BACK)
+		    SET_SCANNED(icp->s_prior);
+
 		if (icp->metric->valfmt != PM_VAL_INSITU) {
 		    if (icp->v_prior.pval != NULL)
 			__pmUnpinPDUBuf((void *)icp->v_prior.pval);
@@ -370,7 +385,9 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		  icp->t_next < t_req)) {
 		/* <mark> is closer than best upper bound to date */
 		icp->t_next = t_this;
-		icp->s_next = S_MARK;
+		SET_MARK(icp->s_next);
+		if (do_mark == UPD_MARK_FORW)
+		    SET_SCANNED(icp->s_next);
 		if (icp->metric->valfmt != PM_VAL_INSITU) {
 		    if (icp->v_next.pval != NULL)
 			__pmUnpinPDUBuf((void *)icp->v_next.pval);
@@ -426,7 +443,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 			    }
 			}
 			icp->t_prior = t_this;
-			icp->s_prior = S_VALUE;
+			SET_VALUE(icp->s_prior);
 			if (pcp->valfmt == PM_VAL_INSITU)
 			    icp->v_prior.lval = logrp->vset[k]->vlist[i].value.lval;
 			else {
@@ -462,7 +479,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 			    }
 			}
 			icp->t_next = t_this;
-			icp->s_next = S_VALUE;
+			SET_VALUE(icp->s_next);
 			if (pcp->valfmt == PM_VAL_INSITU)
 			    icp->v_next.lval = logrp->vset[k]->vlist[i].value.lval;
 			else {
@@ -714,7 +731,8 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		    icp->next = icp->want = icp->unbound = NULL;
 		    icp->inst = instlist[i];
 		    icp->t_prior = icp->t_next = icp->t_first = icp->t_last = -1;
-		    icp->s_prior = icp->s_next = S_MARK;
+		    SET_MARK(icp->s_prior);
+		    SET_MARK(icp->s_next);
 		    icp->v_prior.pval = icp->v_next.pval = NULL;
 		}
 		if (instlist != NULL)
@@ -837,7 +855,7 @@ retry_back:
 		 *  to search back also
 		 */
 		if (icp->t_prior < 0 || icp->t_prior > t_req ||
-		    (icp->t_next >= 0 && icp->s_next == S_MARK && icp->t_next > t_req)) {
+		    (icp->t_next >= 0 && IS_MARK(icp->s_next) && !IS_SCANNED(icp->s_next) && icp->t_next > t_req)) {
 		    if (back == 0 && !done_roll) {
 			done_roll = 1;
 			if (ctxp->c_delta > 0)  {
@@ -944,7 +962,7 @@ retry_forw:
 		 *  to search forward also
 		 */
 		if (icp->t_next < 0 || icp->t_next < t_req ||
-		    (icp->t_prior >= 0 && icp->s_prior == S_MARK && icp->t_prior < t_req)) {
+		    (icp->t_prior >= 0 && IS_MARK(icp->s_prior) && !IS_SCANNED(icp->s_prior) && icp->t_prior < t_req)) {
 		    if (forw == 0 && !done_roll) {
 			done_roll = 1;
 			if (ctxp->c_delta < 0)  {
@@ -1038,7 +1056,7 @@ retry_forw:
 	    if (!icp->inresult)
 		continue;
 	    if (pcp->desc.sem == PM_SEM_DISCRETE) {
-		if (icp->s_prior == S_MARK || icp->t_prior == -1 ||
+		if (IS_MARK(icp->s_prior) || icp->t_prior == -1 ||
 		    icp->t_prior > t_req) {
 		    /* no earlier value, so no value */
 		    pcp->numval--;
@@ -1047,9 +1065,9 @@ retry_forw:
 	    }
 	    else {
 		/* assume COUNTER or INSTANT */
-		if (icp->s_prior == S_MARK || icp->t_prior == -1 ||
+		if (IS_MARK(icp->s_prior) || icp->t_prior == -1 ||
 		    icp->t_prior > t_req ||
-		    icp->s_next == S_MARK || icp->t_next == -1 || icp->t_next < t_req) {
+		    IS_MARK(icp->s_next) || icp->t_next == -1 || icp->t_next < t_req) {
 		    /* in mid-range, and no bound, so no value */
 		    pcp->numval--;
 		    icp->inresult = 0;
