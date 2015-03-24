@@ -31,6 +31,19 @@ _filter()
     sed $tmp.err -e "s;$tmp;TMP;g" | LC_COLLATE=POSIX sort
 }
 
+# this sort of error is not deterministic unfortunately because it is
+# sensitive to the directory order of the files that make up the
+# archive
+#
+# archives/badlabel-2.index: mismatched label version: 0 not 2 as expected from archives/badlabel-2.meta
+#
+_filter_pass0()
+{
+    sed \
+	-e '/^archives\/badlabel-2.* mismatched label/d' \
+    # end
+}
+
 # real QA test starts here
 echo "=== directory traversal and file checks ===" | tee -a $seq.full
 cp src/foo.index $tmp
@@ -79,16 +92,33 @@ cd $here
 
 echo | tee -a $seq.full
 echo "=== pass 0 failures ===" | tee -a $seq.full
-echo archives/badlen-*.meta archives/badti-1 archives/badlabel-*.meta | \
-    tr ' ' '\n' | LC_COLLATE=POSIX sort -n | \
-while read arch
+for arch in `ls archives/badlen-*.meta` archives/badti-1 `ls archives/badlabel-*.meta`
 do
-    # some of the bad archives do not have pass 0 style corruption,
+    # some of the bad archives may not have pass 0 style corruption,
     # so skip these ones for now
     #
     case $arch
     in
 	archives/badlen-0.meta|archives/badlen-8.meta|archives/badlabel-0.meta)
+		;;
+	*)
+ 		( echo; echo "$arch:" ) | tee -a $seq.full
+		pmlogcheck -v $arch >$tmp.out 2>$tmp.err
+		_filter | _filter_pass0
+		;;
+    esac
+done
+
+echo | tee -a $seq.full
+echo "=== pass 1 failures ===" | tee -a $seq.full
+for arch in `ls archives/badti-*.index`
+do
+    # some of the bad archives may not have pass 1 style corruption,
+    # so skip these ones for now
+    #
+    case $arch
+    in
+	archives/badti-1.index)
 		;;
 	*)
  		( echo; echo "$arch:" ) | tee -a $seq.full
@@ -99,18 +129,14 @@ do
 done
 
 echo | tee -a $seq.full
-echo "=== pass 1 failures ===" | tee -a $seq.full
-echo archives/badti-*.index | \
-    tr ' ' '\n' | LC_COLLATE=POSIX sort -n | \
-while read arch
+echo "=== pass 3 failures ===" | tee -a $seq.full
+for arch in `ls archives/badlog-*.0`
 do
-    # some of the bad archives do not have pass 1 style corruption,
+    # some of the bad archives may not have pass 3 style corruption,
     # so skip these ones for now
     #
     case $arch
     in
-	archives/badti-1.index)
-		;;
 	*)
  		( echo; echo "$arch:" ) | tee -a $seq.full
 		pmlogcheck -v $arch >$tmp.out 2>$tmp.err

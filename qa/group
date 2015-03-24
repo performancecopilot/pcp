@@ -779,7 +779,6 @@ cgroups
 501 pmie local
 502 pmlogrewrite local
 503 logutil pmlogrewrite local pmlogextract
-504 pmie remote pmsocks
 505 pmlogrewrite local
 506 pmlogrewrite local
 507 other local
@@ -888,6 +887,7 @@ cgroups
 654 pmda.gfs2 local
 655 pmda.gfs2 local
 656 pmda.cifs local valgrind
+657 pmda.dmthin local
 660 pmwebapi local
 661 pmwebapi local
 666 pmmgr local
@@ -1026,7 +1026,7 @@ cgroups
 945 pmlogrewrite pmda.xfs local
 946 pmfind avahi local
 947 pmlogger local
-950 avahi local
+950 pmproxy avahi local
 955 pmda.linux local
 956 pmcd local
 957 pmda.linux local valgrind

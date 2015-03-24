@@ -1,0 +1,96 @@
+QA output created by 657
+
+=== Setting up QA fakeroot testing data ===
+
+=== Installing DMTHIN PMDA ===
+You will need to choose an appropriate configuration for installation of
+the "dmthin" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check dmthin metrics have appeared ... 10 metrics and 12 values
+
+=== Check dmthin pool metrics for all metrics ===
+
+dmthin.pool.metadata_used PMID: 139.0.0 [Number of metadata blocks used]
+    Data Type: 64-bit unsigned int  InDom: 139.0 0x22c00000
+    Semantics: instant  Units: count
+Help:
+The number of metadata blocks which are currently in use.
+    inst [0 or "yy_pool"] value 13
+
+dmthin.pool.metadata_total PMID: 139.0.1 [Total number of metadata blocks]
+    Data Type: 64-bit unsigned int  InDom: 139.0 0x22c00000
+    Semantics: instant  Units: count
+Help:
+The total number of metadata blocks for the given thin storage pool.
+    inst [0 or "yy_pool"] value 65536
+
+dmthin.pool.data_used PMID: 139.0.2 [Number of data blocks used]
+    Data Type: 64-bit unsigned int  InDom: 139.0 0x22c00000
+    Semantics: instant  Units: count
+Help:
+The number of data blocks which are currently in use.
+    inst [0 or "yy_pool"] value 0
+
+dmthin.pool.data_total PMID: 139.0.3 [Total number of data blocks]
+    Data Type: 64-bit unsigned int  InDom: 139.0 0x22c00000
+    Semantics: instant  Units: count
+Help:
+The total number of data blocks for the given thin storage pool.
+    inst [0 or "yy_pool"] value 3200
+
+dmthin.pool.held_root PMID: 139.0.4 [Location of metadata root]
+    Data Type: string  InDom: 139.0 0x22c00000
+    Semantics: instant  Units: count
+Help:
+The location in blocks of the metadata root that has been 'held' for
+userspace read access. "-" indicates that there is no held root.
+    inst [0 or "yy_pool"] value "-"
+
+dmthin.pool.discard_passdown PMID: 139.0.5 [Discards passed or not]
+    Data Type: string  InDom: 139.0 0x22c00000
+    Semantics: instant  Units: count
+Help:
+Whether or not discards are being passed down to the underlying device. 
+    inst [0 or "yy_pool"] value "no_discard_passdown"
+
+dmthin.pool.read_mode PMID: 139.0.6 [Read mode of the thin pool]
+    Data Type: string  InDom: 139.0 0x22c00000
+    Semantics: instant  Units: count
+Help:
+Indication of whether the pool is in read/write mode or read only mode.
+In the event that the pool encounters certain types of device failures
+it will drop into read-only metadata mode. 
+    inst [0 or "yy_pool"] value "rw"
+
+dmthin.pool.no_space_mode PMID: 139.0.7 [Mode used when pool is out of space]
+    Data Type: string  InDom: 139.0 0x22c00000
+    Semantics: instant  Units: count
+Help:
+If the pool runs out of data or metadata space, the pool will fallback
+to either queuing or error any IO destined to the data device. The
+default is to queue until more space is added to the pool. 
+    inst [0 or "yy_pool"] value "queue_if_no_space"
+
+dmthin.vol.num_mapped_sectors PMID: 139.1.0 [Number of sectors mapped]
+    Data Type: 64-bit unsigned int  InDom: 139.1 0x22c00001
+    Semantics: instant  Units: count
+Help:
+The total number of mapped sectors to the thin volume.
+    inst [0 or "vg_1-lv3"] value 7000704
+    inst [1 or "vg_1-lv2"] value 6832768
+
+dmthin.vol.highest_mapped_sector PMID: 139.1.1 [Highest mapped sector]
+    Data Type: 64-bit unsigned int  InDom: 139.1 0x22c00001
+    Semantics: instant  Units: count
+Help:
+The highest mapped sector of the thin volume.
+    inst [0 or "vg_1-lv3"] value 8388607
+    inst [1 or "vg_1-lv2"] value 8388607
