@@ -128,6 +128,9 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot run-time libraries
 URL: http://www.pcp.io
 Requires: pcp-conf = @package_version@
+%if 0%{?fedora} <= 22 || 0%{?rhel} <= 7
+Requires: pcp-compat
+%endif
 Obsoletes: pcp < 3.0
 
 %description libs
@@ -1265,8 +1268,30 @@ Requires: pcp-libs = @package_version@
 This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about web server logs.  The PMDA is written in C.
 # end pcp-pmda-weblog
-
 # end C pmdas
+
+# pcp-compat
+%if 0%{?fedora} <= 22 || 0%{?rhel} <= 7
+%package compat
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) compat package for existing systems
+URL: http://www.pcp.io
+Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
+Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pmda-lustre
+Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
+Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql
+Requires: pcp-pmda-samba pcp-pmda-snmp pcp-pmda-systemtap pcp-pmda-vmware pcp-pmda-zimbra
+Requires: pcp-pmda-dmcache pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-apache
+Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
+Requires: pcp-pmda-nvidia pcp-pmda-roomtemp pcp-pmda-rpm pcp-pmda-sendmail pcp-pmda-shping
+Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
+%description compat
+This package contains the PCP compatibility dependencies for pmdas on existing
+systems.  This is not a package that should be depended on, and will be removed
+in future releases of Fedora.
+%endif #compat
+
 %prep
 %setup -q
 
@@ -2069,4 +2094,9 @@ rm %{_bindir}/pmcollectl
 rm %{_bindir}/pmiostat
 rm %{_bindir}/pmatop
 rm %{_bindir}/pcp2graphite
+%endif
+
+%if 0%{?fedora} <= 22 || 0%{?rhel} <= 7
+%files -n pcp-compat
+%defattr(-,root,root)
 %endif
