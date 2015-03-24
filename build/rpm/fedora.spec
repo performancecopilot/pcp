@@ -105,9 +105,11 @@ Requires: python%{?default_python}
 Requires: pcp-libs = %{version}-%{release}
 %if 0%{?default_python} == 3
 Requires: python3-pcp = %{version}-%{release}
+Requires: python3-jsonpointer
 %endif
 %if !%{disable_python2} && 0%{?default_python} != 3
 Requires: python-pcp = %{version}-%{release}
+Requires: python-jsonpointer
 %endif
 Requires: perl-PCP-PMDA = %{version}-%{release}
 Obsoletes: pcp-gui-debuginfo
