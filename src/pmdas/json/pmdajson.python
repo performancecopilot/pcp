@@ -856,4 +856,4 @@ class JsonPMDA(PMDA):
 if __name__ == '__main__':
     #os.environ["PCP_PYTHON_DEBUG"] = "ALL"
     #os.environ["PCP_PYTHON_DEBUG"] = "APPL0|LIBPMDA"
-    JsonPMDA('json', 136).run()
+    JsonPMDA('json', 137).run()
