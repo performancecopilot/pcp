@@ -2,6 +2,7 @@
 # PCP QA Test No. 154
 # what the hell is chkhelp supposed to do?
 #
+# Copyright (c) 2015 Red Hat.
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
@@ -12,6 +13,8 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+
+[ -f $PCP_PMDAS_DIR/cisco/pmdacisco ] || _notrun "cisco pmda not installed"
 
 # New cisco metrics in pcp2.2 
 if [ $PCP_VER -ge 20200 ]
