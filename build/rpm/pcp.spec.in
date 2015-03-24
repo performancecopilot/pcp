@@ -1286,6 +1286,7 @@ Requires: pcp-pmda-dmcache pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia pcp-pmda-roomtemp pcp-pmda-rpm pcp-pmda-sendmail pcp-pmda-shping
 Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
+Requires: pcp-system-tools
 %description compat
 This package contains the PCP compatibility dependencies for pmdas on existing
 systems.  This is not a package that should be depended on, and will be removed
