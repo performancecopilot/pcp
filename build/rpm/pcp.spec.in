@@ -1387,7 +1387,7 @@ PFMEOF
 # Files for the various subpackages.  We use these subpackages
 # to isolate the (somewhat exotic) dependencies for these tools.
 # Likewise, for the pcp-pmda and pcp-testsuite subpackages.
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp-doc' >docs_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp-doc|man.*\.[1-9].*' | egrep -v 'out' >docs_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'tutorials' >>docs_files
 %if "@enable_qt@" == "true"
 PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
