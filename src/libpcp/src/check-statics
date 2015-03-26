@@ -218,7 +218,6 @@ interp.o
     dowrap			# guarded by __pmLock_libpcp mutex
     nr				# diag counters, no atomic updates
     nr_cache			# diag counters, no atomic updates
-    statestr			# const
 ipc.o
     __pmIPCTable		# guarded by __pmLock_libpcp mutex
     __pmLastUsedFd		# guarded by __pmLock_libpcp mutex
