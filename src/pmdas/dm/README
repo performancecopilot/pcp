@@ -1,7 +1,6 @@
-Performance Co-Pilot PMDA for Monitoring Thin Provisioning
-==========================================================
-This PMDA is capable of collecting statistics for Thin Provisioning attached
-to the local system.
+Performance Co-Pilot PMDA for Monitoring Device Mapper Stats
+============================================================
+This PMDA is capable of collecting statistics from Device Mapper
 
 The PMDA collects its data through the dmsetup utility and requires that the
 program is installed in order to function. 
@@ -15,12 +14,12 @@ exposed by this PMDA.
 Once the PMDA has been installed, the following command will list all of
 the available metrics and their explanatory “help” text:
 
-    + # $ pminfo -fT dmthin
+    + # $ pminfo -fT dm
 
 Installation
 ============
 
-    + # cd $PCP_PMDAS_DIR/dmthin
+    + # cd $PCP_PMDAS_DIR/dm
 
     + Check that there is no clash in the Performance Metrics Domain
       defined in ./domain.h and the other PMDA's currently in use (see
@@ -34,15 +33,12 @@ Installation
  	and choose both the “collector” and “monitor” installation
         configuration options.
 
-        followed by choosing to install either as a "daemon" or "dso"
-        agent.
-
 De-Installation
 ===============
 
     + Simply use
 
-        # cd $PCP_PMDAS_DIR/dmthin
+        # cd $PCP_PMDAS_DIR/dm
         #./Remove
 
 Troubleshooting
@@ -50,7 +46,7 @@ Troubleshooting
 
     + After installing or restarting the agent, the PMCD log file
       ($PCP_LOG_DIR/pmcd/pmcd.log) and the PMDA log file
-      ($PCP_LOG_DIR/PMCD/dmthin.log) should be checked for any warnings or
+      ($PCP_LOG_DIR/PMCD/dm.log) should be checked for any warnings or
       errors.
 
     + In an event where no values are being returned for most of the
@@ -60,5 +56,7 @@ Troubleshooting
 
           $ dmsetup status --target thin-pool
 
-          $ dmsteup status --target thin
+          $ dmsetup status --target thin
+
+          $ dmsetup status --target cache
 

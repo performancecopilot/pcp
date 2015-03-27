@@ -1,5 +1,5 @@
 /*
- * dm-thin stats derrived from dmsetup status
+ * Device Mapper PMDA - Thin Provisioning (dm-thin) Stats
  *
  * Copyright (c) 2015 Red Hat.
  * 
@@ -18,7 +18,7 @@
 #include "impl.h"
 #include "pmda.h"
 
-#include "stats.h"
+#include "dmthin.h"
 
 #include <inttypes.h>
 
@@ -27,12 +27,18 @@
  * We check to see if item is in valid range for the metric.
  */
 int
-dmthin_pool_fetch(int item, struct pool_stats *pool_stats, pmAtomValue *atom)
+dm_thin_pool_fetch(int item, struct pool_stats *pool_stats, pmAtomValue *atom)
 {
     if (item < 0 || item >= NUM_POOL_STATS)
 	return PM_ERR_PMID;
 
     switch(item) {
+        case POOL_SIZE:
+            atom->ull = pool_stats->size;
+            break;
+        case POOL_TRANS_ID:
+            atom->ull = pool_stats->trans_id;
+            break;
         case POOL_META_USED:
             atom->ull = pool_stats->meta_used;
             break;
@@ -66,12 +72,15 @@ dmthin_pool_fetch(int item, struct pool_stats *pool_stats, pmAtomValue *atom)
  * We check to see if item is in valid range for the metric.
  */
 int
-dmthin_vol_fetch(int item, struct vol_stats *vol_stats, pmAtomValue *atom)
+dm_thin_vol_fetch(int item, struct vol_stats *vol_stats, pmAtomValue *atom)
 {
     if (item < 0 || item >= NUM_VOL_STATS)
 	return PM_ERR_PMID;
 
     switch(item) {
+        case VOL_SIZE:
+            atom->ull = vol_stats->size;
+            break;
         case VOL_NUM_MAPPED_SECTORS:
             atom->ull = vol_stats->num_mapped_sectors;
             break;
@@ -83,27 +92,24 @@ dmthin_vol_fetch(int item, struct vol_stats *vol_stats, pmAtomValue *atom)
 }
 
 /* 
- * Grab output from dmsetup status (or read in from testfile under QA),
+ * Grab output from dmsetup status (or read in from cat when under QA),
  * Match the data to the pool which we wish to update the metrics and
  * assign the values to pool_stats. 
  */
 int
-dmthin_refresh_pool(const int _isQA, const char *statspath, const char *pool_name, struct pool_stats *pool_stats){
-    char buffer[PATH_MAX], *token;
+dm_refresh_thin_pool(const int _isQA, const char *dm_statspath, const char *pool_name, struct pool_stats *pool_stats){
+    char buffer[PATH_MAX] = "dmsetup status --target thin-pool";
+    char *token;
+    uint64_t size_start, size_end;
     FILE *fp;
 
-    /* _isQA is set if statspath has been set during pmda init */
     if (_isQA) {
-        snprintf(buffer, sizeof(buffer), "%s/dmthin-pool", statspath);
+        snprintf(buffer, sizeof(buffer),"/bin/cat %s/dmthin-pool", dm_statspath);
         buffer[sizeof(buffer)-1] = '\0';
-
-        if ((fp = fopen(buffer, "r")) == NULL )
-            return -oserror();
-
-    } else {
-        if ((fp = popen("dmsetup status --target thin-pool", "r")) == NULL)
-            return -oserror();
     }
+
+    if ((fp = popen(buffer, "r")) == NULL )
+        return - oserror();
 
     while (fgets(buffer, sizeof(buffer) -1, fp)) {
         if (!strstr(buffer, ":") || strstr(buffer, "Fail"))
@@ -122,7 +128,10 @@ dmthin_refresh_pool(const int _isQA, const char *statspath, const char *pool_nam
              *     <used data blocks>/<total data blocks> <held metadata root>
              *     ro|rw [no_]discard_passdown  [error|queue]_if_no_space
              */
-            sscanf(token, " %*d %*d thin-pool %*d %"SCNu64"/%"SCNu64" %"SCNu64"/%"SCNu64" %s %s %s %s",
+            sscanf(token, " %"SCNu64" %"SCNu64" thin-pool %"SCNu64" %"SCNu64"/%"SCNu64" %"SCNu64"/%"SCNu64" %s %s %s %s",
+                &size_start,
+                &size_end,
+                &pool_stats->trans_id,
                 &pool_stats->meta_used,
                 &pool_stats->meta_total,
                 &pool_stats->data_used,
@@ -132,41 +141,35 @@ dmthin_refresh_pool(const int _isQA, const char *statspath, const char *pool_nam
                 pool_stats->discard_passdown,
                 pool_stats->no_space_mode
             );
+            pool_stats->size = (size_end - size_start);
         }
     }
 
-    /* Close process (or file if _isQA) */
-    if (_isQA) {
-        fclose(fp);
-    } else {
-        if (pclose(fp) != 0)
-            return -oserror(); 
-    }
+    if (pclose(fp) != 0)
+        return -oserror(); 
+
     return 0;
 }
 
 /* 
- * Grab output from dmsetup status (or read in from testfile under QA),
+ * Grab output from dmsetup status (or read in from cat when under QA),
  * Match the data to the volume which we wish to update the metrics and
  * assign the values to vol_stats. 
  */
 int
-dmthin_refresh_vol(const int _isQA, const char *statspath, const char *vol_name, struct vol_stats *vol_stats){
-    char buffer[PATH_MAX], *token;
+dm_refresh_thin_vol(const int _isQA, const char *dm_statspath, const char *vol_name, struct vol_stats *vol_stats){
+    char buffer[PATH_MAX] = "dmsetup status --target thin";
+    char *token;
+    uint64_t size_start, size_end;
     FILE *fp;
 
-    /* _isQA is set if statspath has been set during pmda init */
     if (_isQA) {
-        snprintf(buffer, sizeof(buffer), "%s/dmthin-thin", statspath);
+        snprintf(buffer, sizeof(buffer),"/bin/cat %s/dmthin-thin", dm_statspath);
         buffer[sizeof(buffer)-1] = '\0';
-
-        if ((fp = fopen(buffer, "r")) == NULL )
-            return -oserror();
-
-    } else {
-        if ((fp = popen("dmsetup status --target thin", "r")) == NULL)
-            return -oserror();
     }
+
+    if ((fp = popen(buffer, "r")) == NULL )
+        return - oserror();
 
     while (fgets(buffer, sizeof(buffer) -1, fp)) {
         if (!strstr(buffer, ":") || strstr(buffer, "Fail"))
@@ -183,19 +186,19 @@ dmthin_refresh_vol(const int _isQA, const char *statspath, const char *vol_name,
              * <name>:<start> <end> <target>
              *     <nr mapped sectors> <highest mapped sector>
              */
-            sscanf(token, " %*d %*d thin %"SCNu64" %"SCNu64"",
+            sscanf(token, " %"SCNu64" %"SCNu64" thin %"SCNu64" %"SCNu64"",
+                &size_start,
+                &size_end,
                 &vol_stats->num_mapped_sectors,
                 &vol_stats->high_mapped_sector
             );
+            vol_stats->size = (size_end - size_start);
         }
     }
 
-    /* Close process (or file if _isQA) */
-    if (_isQA) {
-        fclose(fp);
-    } else {
-        if (pclose(fp) != 0)
-            return -oserror(); 
-    }
+    if (pclose(fp) != 0)
+        return -oserror(); 
+
     return 0;
 }
+

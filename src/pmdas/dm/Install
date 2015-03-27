@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2015 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -12,16 +12,15 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# Install the Device Mapper Cache PMDA
+# Install the DM PMDA
 #
 
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
-iam=dmcache
-python_opt=true
-daemon_opt=false
+iam=dm
 forced_restart=true
+pmda_interface=4
 
 which dmsetup >/dev/null 2>&1
 if [ $? -ne 0 ]

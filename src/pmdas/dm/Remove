@@ -12,23 +12,13 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# Install the DMTHIN PMDA
+# Remove the DMTHIN PMDA
 #
 
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
-iam=dmthin
-forced_restart=true
-pmda_interface=4
-
-which dmsetup >/dev/null 2>&1
-if [ $? -ne 0 ]
-then
-    echo "Device Mapper 'dmsetup' binary not found, cannot proceed"
-    exit 1
-fi
-
+iam=dm
 pmdaSetup
-pmdaInstall
+pmdaRemove
 exit 0

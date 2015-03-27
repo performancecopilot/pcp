@@ -25,7 +25,7 @@ CPMDAS = root pmcd \
 	mmv lmsensors process roomtemp summary etw \
 	lustrecomm infiniband logger bash systemd \
 	gfs2 jbd2 cifs rpm nvidia papi perfevent \
-        dmthin
+        dm
 
 PLPMDAS = bonding netfilter zimbra postgresql \
 	dbping memcache systemtap mysql vmware kvm \
@@ -34,7 +34,7 @@ PLPMDAS = bonding netfilter zimbra postgresql \
 	ds389 ds389log activemq lustre gpfs
 
 ifeq "$(ENABLE_PYTHON)" "true"
-PYPMDAS = gluster zswap dmcache unbound
+PYPMDAS = gluster zswap unbound
 else
 PYPMDAS =
 endif

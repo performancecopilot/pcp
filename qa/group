@@ -151,8 +151,9 @@ pmda.install
 ## Assorted PMDAs
 pmda.activemq
 pmda.apache
+pmda.cifs
 pmda.cisco
-pmda.dmcache
+pmda.dm
 pmda.ds389
 pmda.environ
 pmda.gfs2
@@ -889,7 +890,7 @@ cgroups
 654 pmda.gfs2 local
 655 pmda.gfs2 local
 656 pmda.cifs local valgrind
-657 pmda.dmthin local
+657 pmda.dm local
 660 pmwebapi local
 661 pmwebapi local
 666 pmmgr local
@@ -1049,8 +1050,6 @@ cgroups
 980 python local
 981 dbpmda perl pmda.gpfs local
 984 cgroups local
-985 pmda.dmcache dbpmda local
-986 pmda.dmcache pmda.install local
 987 pmda.xfs local
 988 pmda.xfs local valgrind
 991 pcp python local

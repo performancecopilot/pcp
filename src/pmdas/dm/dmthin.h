@@ -1,5 +1,5 @@
 /*
- * dm-thin stats derrived from dmsetup status
+ * Device Mapper PMDA - Thin Provisioning (dm-thin) Stats
  *
  * Copyright (c) 2015 Red Hat.
  * 
@@ -14,11 +14,13 @@
  * for more details.
  */
 
-#ifndef STATS_H
-#define STATS_H
+#ifndef DMTHIN_H
+#define DMTHIN_H
 
 enum {
-    POOL_META_USED = 0,
+    POOL_SIZE = 0,
+    POOL_TRANS_ID,
+    POOL_META_USED,
     POOL_META_TOTAL,
     POOL_DATA_USED,
     POOL_DATA_TOTAL,
@@ -30,12 +32,15 @@ enum {
 };
 
 enum {
-    VOL_NUM_MAPPED_SECTORS = 0,
+    VOL_SIZE = 0,
+    VOL_NUM_MAPPED_SECTORS,
     VOL_HIGHEST_MAPPED_SECTORS,
     NUM_VOL_STATS
 };
 
 struct pool_stats {
+    __uint64_t size;
+    __uint64_t trans_id;
     __uint64_t meta_used;
     __uint64_t meta_total;
     __uint64_t data_used;
@@ -47,13 +52,14 @@ struct pool_stats {
 };
 
 struct vol_stats {
+    __uint64_t size;
     __uint64_t num_mapped_sectors;
     __uint64_t high_mapped_sector;
 };
 
-extern int dmthin_pool_fetch(int, struct pool_stats *, pmAtomValue *);
-extern int dmthin_vol_fetch(int, struct vol_stats *, pmAtomValue *);
-extern int dmthin_refresh_pool(const int, const char *, const char *, struct pool_stats *);
-extern int dmthin_refresh_vol(const int, const char *, const char *, struct vol_stats *);
+extern int dm_thin_pool_fetch(int, struct pool_stats *, pmAtomValue *);
+extern int dm_thin_vol_fetch(int, struct vol_stats *, pmAtomValue *);
+extern int dm_refresh_thin_pool(const int, const char *, const char *, struct pool_stats *);
+extern int dm_refresh_thin_vol(const int, const char *, const char *, struct vol_stats *);
 
-#endif /* STATS_H */
+#endif /* DMTHIN_H */

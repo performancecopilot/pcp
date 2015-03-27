@@ -4,6 +4,6 @@
 
 #include <stdpmid>
 
-root { dmthin }
+root { dm }
 
 #include "pmns"
