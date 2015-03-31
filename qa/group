@@ -995,7 +995,7 @@ cgroups
 836 pmlogsummary local pmdiff
 837 pmda.sample containers local
 838 pmns local
-839 pcp local
+839 pcp python local
 840 avahi local
 841 pmda local
 842 python local

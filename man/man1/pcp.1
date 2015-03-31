@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2014 Red Hat.
+.\" Copyright (c) 2014-2015 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -16,7 +16,8 @@
 .\"
 .TH PCP 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pcp\f1 \- run a command or summarize an installation
+\f3pcp\f1,
+\f3pcp-summary\f1 \- run a command or summarize an installation
 .SH SYNOPSIS
 .ft 3
 \f3pcp\f1
@@ -40,6 +41,10 @@ This mode can also be used to summarize the installation from a remote
 .IR host ,
 or a historical installation from a PCP
 .IR archive .
+This mode indirectly invokes the
+.B pcp-summary
+.I command
+(in the absence of any other requested command).
 .PP
 Alternatively, a
 .I command
@@ -186,8 +191,9 @@ as described in
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pcp-free (1),
-.BR pcp-uptime (1),
 .BR pcp-numastat (1),
+.BR pcp-uptime (1),
+.BR pcp-verify (1),
 .BR pmcd (1),
 .BR pmie (1),
 .BR pmlogconf (1),

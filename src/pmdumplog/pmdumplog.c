@@ -752,7 +752,7 @@ main(int argc, char *argv[])
 
     if (opts.errors ||
 	(vflag && opts.optind != argc) ||
-	(!vflag && opts.optind > argc - 1)) {
+	(!vflag && opts.optind > argc - 1 && !opts.narchives)) {
 	pmUsageMessage(&opts);
 	exit(1);
     }
@@ -772,13 +772,14 @@ main(int argc, char *argv[])
 	mflag = 1;	/* default */
 
     /* delay option end processing until now that we have the archive name */
-    __pmAddOptArchive(&opts, argv[opts.optind]);
+    if (opts.narchives == 0)
+	__pmAddOptArchive(&opts, argv[opts.optind++]);
     opts.flags &= ~PM_OPTFLAG_DONE;
     __pmEndOptions(&opts);
 
     if ((sts = ctxid = pmNewContext(PM_CONTEXT_ARCHIVE, opts.archives[0])) < 0) {
 	fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",
-		pmProgname, argv[opts.optind], pmErrStr(sts));
+		pmProgname, opts.archives[0], pmErrStr(sts));
 	exit(1);
     }
     /* complete TZ and time window option (origin) setup */
@@ -787,7 +788,6 @@ main(int argc, char *argv[])
 	exit(1);
     }
 
-    opts.optind++;
     numpmid = argc - opts.optind;
     if (numpmid) {
 	numpmid = 0;
