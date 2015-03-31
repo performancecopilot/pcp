@@ -117,6 +117,7 @@ private:
   pmMetricSpec* parse_metric_spec(const std::string&);
 
   pmmgr_hostid compute_hostid (const pcp_context_spec&);
+  std::set<std::string> find_containers (const pcp_context_spec&);
   std::map<pmmgr_hostid,pcp_context_spec> known_targets;
 
   void note_new_hostid(const pmmgr_hostid&, const pcp_context_spec&);

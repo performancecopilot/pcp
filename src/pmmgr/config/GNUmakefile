@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2014 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -15,7 +15,7 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-CONFIGS = pmie pmieconf pmlogconf pmlogger \
+CONFIGS = pmie pmieconf pmlogconf pmlogger subtarget-containers \
 	pmlogmerge pmlogmerge-rewrite pmlogmerge-granular \
 	README target-discovery.example-avahi 
 

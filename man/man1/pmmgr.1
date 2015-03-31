@@ -1,7 +1,7 @@
 '\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2013-2014 Red Hat, Inc.  All Rights Reserved.
+.\" Copyright (c) 2013-2015 Red Hat, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -151,6 +151,16 @@ Consider including
 .IR avahi,timeout=5
 to rely in pmcd self-announcements on the local network (searching for up to
 five seconds each time).
+
+.TP
+subtarget\-containers
+If this file exists, pmmgr will scan each host that is found for
+running containers.  For each running container, it will create
+independent subtargets for running pmlogger instances.
+The host-id string for these subtargets is the host's host-id
+string, followed by a double-hyphen, then the full unique container
+instance-name string.  (Temporarily, pmie instances are not attempted
+for these subtargets, due to PCP bug PR1105.)
 
 .TP
 log\-subdirectory\-gc
