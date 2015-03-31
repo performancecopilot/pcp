@@ -91,6 +91,11 @@ differ between engines, so we will skip over them here.
 are in a position to begin analysing those containers with PCP tools.
 </P>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Check local PCP collector installation (requires the <I>pcp-verify</I> utility):<BR>
+<PRE><B>$ pcp verify --containers</B></PRE>
+</TD></TR>
+</TABLE>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Request networking metrics for a host and then a container running on the host:<BR>
 <PRE><B>$ pminfo --fetch containers.name containers.state.running
 
