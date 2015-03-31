@@ -8,4 +8,10 @@
 #define DM	129
 #endif
 
-#include "pmns"
+root {
+    dmcache
+    dmthin
+}
+
+#include "pmns.dmcache"
+#include "pmns.dmthin"
