@@ -1,7 +1,7 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
 Version: 3.10.4
-%define buildversion 1
+%global buildversion 1
 
 Release: %{buildversion}%{?dist}
 License: GPLv2+ and LGPLv2.1+ and CC-BY
@@ -12,45 +12,45 @@ Source1: ftp://ftp.pcp.io/projects/pcp/download/pcp-webjs.src.tar.gz
 
 # There are no papi/libpfm devel packages for s390 nor for some rhels, disable
 %ifarch s390 s390x
-%define disable_papi 1
-%define disable_perfevent 1
+%global disable_papi 1
+%global disable_perfevent 1
 %else
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
-%define disable_papi 0
+%global disable_papi 0
 %else
-%define disable_papi 1
+%global disable_papi 1
 %endif
 %if 0%{?fedora} >= 20 || 0%{?rhel} > 6
-%define disable_perfevent 0
+%global disable_perfevent 0
 %else
-%define disable_perfevent 1
+%global disable_perfevent 1
 %endif
 %endif
 
-%define disable_microhttpd 0
-%define disable_cairo 0
+%global disable_microhttpd 0
+%global disable_cairo 0
 
-%define disable_python2 0
+%global disable_python2 0
 # Default for epel5 is python24, so use the (optional) python26 packages
 %if 0%{?rhel} == 5
-%define default_python 26
+%global default_python 26
 %endif
 # No python3 development environment before el7
 %if 0%{?rhel} == 0 || 0%{?rhel} > 6
-%define disable_python3 0
+%global disable_python3 0
 # Do we wish to mandate python3 use in pcp?  (f22+ and el8+)
-%if 0%{?fedora} >= 22 || 0%{?rhel} > 7
-%define default_python 3
+%if 0%{?fedora} >= 22 || 0%{?rhel} >= 8
+%global default_python 3
 %endif
 %else
-%define disable_python3 1
+%global disable_python3 1
 %endif
 
 # Qt development and runtime environment missing components before el6
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
-%define disable_qt 0
+%global disable_qt 0
 %else
-%define disable_qt 1
+%global disable_qt 1
 %endif
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -115,49 +115,49 @@ Obsoletes: pcp-pmda-nvidia
 
 %global tapsetdir      %{_datadir}/systemtap/tapset
 
-%define _confdir  %{_sysconfdir}/pcp
-%define _logsdir  %{_localstatedir}/log/pcp
-%define _pmnsdir  %{_localstatedir}/lib/pcp/pmns
-%define _tempsdir %{_localstatedir}/lib/pcp/tmp
-%define _pmdasdir %{_localstatedir}/lib/pcp/pmdas
-%define _testsdir %{_localstatedir}/lib/pcp/testsuite
-%define _pixmapdir %{_datadir}/pcp-gui/pixmaps
-%define _booksdir %{_datadir}/doc/pcp-doc
+%global _confdir  %{_sysconfdir}/pcp
+%global _logsdir  %{_localstatedir}/log/pcp
+%global _pmnsdir  %{_localstatedir}/lib/pcp/pmns
+%global _tempsdir %{_localstatedir}/lib/pcp/tmp
+%global _pmdasdir %{_localstatedir}/lib/pcp/pmdas
+%global _testsdir %{_localstatedir}/lib/pcp/testsuite
+%global _pixmapdir %{_datadir}/pcp-gui/pixmaps
+%global _booksdir %{_datadir}/doc/pcp-doc
 
-%if 0%{?fedora} >= 20
-%define _with_doc --with-docdir=%{_docdir}/%{name}
+%if 0%{?fedora} >= 20 || 0%{?rhel} >= 8
+%global _with_doc --with-docdir=%{_docdir}/%{name}
 %endif
 %if 0%{?fedora} >= 19 || 0%{?rhel} >= 7
-%define _initddir %{_datadir}/pcp/lib
-%define disable_systemd 0
+%global _initddir %{_datadir}/pcp/lib
+%global disable_systemd 0
 %else
-%define _initddir %{_sysconfdir}/rc.d/init.d
-%define _with_initd --with-rcdir=%{_initddir}
-%define disable_systemd 1
+%global _initddir %{_sysconfdir}/rc.d/init.d
+%global _with_initd --with-rcdir=%{_initddir}
+%global disable_systemd 1
 %endif
 
 # we never want Infiniband on s390 platforms
 %ifarch s390 s390x
-%define disable_infiniband 1
+%global disable_infiniband 1
 %else
 # we never want Infiniband on RHEL5 or earlier
 %if 0%{?rhel} != 0 && 0%{?rhel} < 6
-%define disable_infiniband 1
+%global disable_infiniband 1
 %else
-%define disable_infiniband 0
+%global disable_infiniband 0
 %endif
 %endif
 
 %if %{disable_infiniband}
-%define _with_ib --with-infiniband=no
+%global _with_ib --with-infiniband=no
 %endif
 
 %if !%{disable_papi}
-%define _with_papi --with-papi=yes
+%global _with_papi --with-papi=yes
 %endif
 
 %if !%{disable_perfevent}
-%define _with_perfevent --with-perfevent=yes
+%global _with_perfevent --with-perfevent=yes
 %endif
 
 
@@ -174,7 +174,7 @@ applications to easily retrieve and process any subset of that data.
 #
 %package conf
 License: LGPLv2+
-Group: Development/Libraries
+Group: System Environment/Libraries
 Summary: Performance Co-Pilot run-time configuration
 URL: http://www.pcp.io
 
@@ -189,7 +189,7 @@ Performance Co-Pilot (PCP) run-time configuration
 #
 %package libs
 License: LGPLv2+
-Group: Development/Libraries
+Group: System Environment/Libraries
 Summary: Performance Co-Pilot run-time libraries
 URL: http://www.pcp.io
 Requires: pcp-conf = %{version}-%{release}
@@ -205,6 +205,7 @@ License: GPLv2+ and LGPLv2.1+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) development headers and documentation
 URL: http://www.pcp.io
+Requires: pcp = %{version}-%{release}
 Requires: pcp-libs = %{version}-%{release}
 
 %description libs-devel
@@ -234,8 +235,7 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) manager daemon
 URL: http://www.pcp.io
-Requires: pcp = %{version}-%{release}
-Requires: pcp-libs = %{version}-%{release}
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 
 %description manager
 An optional daemon (pmmgr) that manages a collection of pmlogger and
@@ -254,7 +254,7 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) web API service
 URL: http://www.pcp.io
-Requires: pcp-libs = %{version}-%{release}
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 
 %description webapi
 Provides a daemon (pmwebd) that binds a large subset of the Performance
@@ -433,7 +433,7 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for Performance API and hardware counters
 URL: http://www.pcp.io
-Requires: pcp-libs = %{version}-%{release}
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 BuildRequires: papi-devel
 
 %description pmda-papi
@@ -450,7 +450,7 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for hardware counters
 URL: http://www.pcp.io
-Requires: pcp-libs = %{version}-%{release}
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 Requires: libpfm >= 4.4
 BuildRequires: libpfm-devel >= 4.4
 
@@ -468,7 +468,7 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for Infiniband HCAs and switches
 URL: http://www.pcp.io
-Requires: pcp-libs = %{version}-%{release}
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 Requires: libibmad >= 1.3.7 libibumad >= 1.3.7
 BuildRequires: libibmad-devel >= 1.3.7 libibumad-devel >= 1.3.7
 
@@ -487,7 +487,7 @@ License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python bindings and documentation
 URL: http://www.pcp.io
-Requires: pcp-libs = %{version}-%{release}
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 
 %description -n python-pcp
 This python PCP module contains the language bindings for
@@ -504,7 +504,7 @@ License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python3 bindings and documentation
 URL: http://www.pcp.io
-Requires: pcp-libs = %{version}-%{release}
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 
 %description -n python3-pcp
 This python PCP module contains the language bindings for
@@ -521,7 +521,7 @@ License: GPLv2+ and LGPLv2+ and LGPLv2+ with exceptions
 Group: Applications/System
 Summary: Visualization tools for the Performance Co-Pilot toolkit
 URL: http://www.pcp.io
-Requires: pcp-libs = %{version}-%{release}
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 
 %description -n pcp-gui
 Visualization tools for the Performance Co-Pilot toolkit.
@@ -578,7 +578,7 @@ PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
 rm -f $RPM_BUILD_ROOT/%{_libdir}/*.a
 
 # remove sheet2pcp until BZ 830923 and BZ 754678 are resolved.
-rm -f $RPM_BUILD_ROOT/%{_bindir}/sheet2pcp $RPM_BUILD_ROOT/%{_mandir}/man1/sheet2pcp.1.gz
+rm -f $RPM_BUILD_ROOT/%{_bindir}/sheet2pcp $RPM_BUILD_ROOT/%{_mandir}/man1/sheet2pcp.1*
 
 # remove configsz.h as this is not multilib friendly.
 rm -f $RPM_BUILD_ROOT/%{_includedir}/pcp/configsz.h
@@ -598,7 +598,7 @@ rmdir pcp-webjs
 %if %{disable_infiniband}
 # remove pmdainfiniband on platforms lacking IB devel packages.
 rm -f $RPM_BUILD_ROOT/%{_pmdasdir}/ib
-rm -f $RPM_BUILD_ROOT/%{_mandir}/man1/pmdaib.1.gz
+rm -f $RPM_BUILD_ROOT/%{_mandir}/man1/pmdaib.1*
 rm -fr $RPM_BUILD_ROOT/%{_pmdasdir}/infiniband
 %endif
 
@@ -866,7 +866,6 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 # C source files that rpmlint complains about. These are not devel files,
 # but rather they are (slightly obscure) PMDA config files.
 #
-%defattr(-,root,root)
 %doc CHANGELOG COPYING INSTALL README VERSION.pcp pcp.lsm
 
 %dir %{_confdir}
@@ -944,16 +943,12 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %endif
 
 %files conf
-%defattr(-,root,root)
-
 %dir %{_includedir}/pcp
 %{_includedir}/pcp/builddefs
 %{_includedir}/pcp/buildrules
 %config %{_sysconfdir}/pcp.conf
 
 %files libs
-%defattr(-,root,root)
-
 %{_libdir}/libpcp.so.3
 %{_libdir}/libpcp_gui.so.2
 %{_libdir}/libpcp_mmv.so.1
@@ -962,15 +957,10 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %{_libdir}/libpcp_import.so.1
 
 %files libs-devel -f devel.list
-%defattr(-,root,root)
-
 %{_libdir}/libpcp.so
-%{_libdir}/libpcp.so.2
 %{_libdir}/libpcp_gui.so
-%{_libdir}/libpcp_gui.so.1
 %{_libdir}/libpcp_mmv.so
 %{_libdir}/libpcp_pmda.so
-%{_libdir}/libpcp_pmda.so.2
 %{_libdir}/libpcp_trace.so
 %{_libdir}/libpcp_import.so
 %{_includedir}/pcp/*.h
@@ -989,7 +979,6 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %if !%{disable_microhttpd}
 %files webapi
-%defattr(-,root,root)
 %{_initddir}/pmwebd
 %if !%{disable_systemd}
 %{_unitdir}/pmwebd.service
@@ -999,18 +988,16 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %{_confdir}/pmwebd
 %config(noreplace) %{_confdir}/pmwebd/pmwebd.options
 %dir %{_datadir}/pcp/webapps
-%{_mandir}/man1/pmwebd.1.gz
-%{_mandir}/man3/PMWEBAPI.3.gz
+%{_mandir}/man1/pmwebd.1*
+%{_mandir}/man3/PMWEBAPI.3*
 %endif
 
 %if !%{disable_microhttpd}
 %files webjs
-%defattr(-,root,root)
 %{_datadir}/pcp/webapps/*
 %endif
 
 %files manager
-%defattr(-,root,root)
 %{_initddir}/pmmgr
 %if !%{disable_systemd}
 %{_unitdir}/pmmgr.service
@@ -1019,83 +1006,68 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %attr(0775,pcp,pcp) %{_logsdir}/pmmgr
 %config(missingok,noreplace) %{_confdir}/pmmgr
 %config(noreplace) %{_confdir}/pmmgr/pmmgr.options
-%{_mandir}/man1/pmmgr.1.gz
+%{_mandir}/man1/pmmgr.1*
 
 %files import-sar2pcp
-%defattr(-,root,root)
 %{_bindir}/sar2pcp
-%{_mandir}/man1/sar2pcp.1.gz
+%{_mandir}/man1/sar2pcp.1*
 
 %files import-iostat2pcp
-%defattr(-,root,root)
 %{_bindir}/iostat2pcp
-%{_mandir}/man1/iostat2pcp.1.gz
+%{_mandir}/man1/iostat2pcp.1*
 
 %files import-mrtg2pcp
-%defattr(-,root,root)
 %{_bindir}/mrtg2pcp
-%{_mandir}/man1/mrtg2pcp.1.gz
+%{_mandir}/man1/mrtg2pcp.1*
 
 %files import-ganglia2pcp
-%defattr(-,root,root)
 %{_bindir}/ganglia2pcp
-%{_mandir}/man1/ganglia2pcp.1.gz
+%{_mandir}/man1/ganglia2pcp.1*
 
 %files import-collectl2pcp
-%defattr(-,root,root)
 %{_bindir}/collectl2pcp
-%{_mandir}/man1/collectl2pcp.1.gz
+%{_mandir}/man1/collectl2pcp.1*
 
 %if !%{disable_papi}
 %files pmda-papi
-%defattr(-,root,root)
 %{_pmdasdir}/papi
-%{_mandir}/man1/pmdapapi.1.gz
+%{_mandir}/man1/pmdapapi.1*
 %endif
 
 %if !%{disable_perfevent}
 %files pmda-perfevent
-%defattr(-,root,root)
 %{_pmdasdir}/perfevent
 %config(noreplace) %{_pmdasdir}/perfevent/perfevent.conf
-%{_mandir}/man1/perfalloc.1.gz
-%{_mandir}/man1/pmdaperfevent.1.gz
-%{_mandir}/man5/perfevent.conf.5.gz
+%{_mandir}/man1/perfalloc.1*
+%{_mandir}/man1/pmdaperfevent.1*
+%{_mandir}/man5/perfevent.conf.5*
 %endif
 
 %if !%{disable_infiniband}
 %files pmda-infiniband
-%defattr(-,root,root)
 %{_pmdasdir}/ib
 %{_pmdasdir}/infiniband
-%{_mandir}/man1/pmdaib.1.gz
+%{_mandir}/man1/pmdaib.1*
 %endif
 
 %files -n perl-PCP-PMDA -f perl-pcp-pmda.list
-%defattr(-,root,root)
 
 %files -n perl-PCP-MMV -f perl-pcp-mmv.list
-%defattr(-,root,root)
 
 %files -n perl-PCP-LogImport -f perl-pcp-logimport.list
-%defattr(-,root,root)
 
 %files -n perl-PCP-LogSummary -f perl-pcp-logsummary.list
-%defattr(-,root,root)
 
 %if !%{disable_python2}
 %files -n python-pcp -f python-pcp.list.rpm
-%defattr(-,root,root)
 %endif
 
 %if !%{disable_python3}
 %files -n python3-pcp -f python3-pcp.list.rpm
-%defattr(-,root,root)
 %endif
 
 %if !%{disable_qt}
 %files -n pcp-gui -f pcp-gui.list
-%defattr(-,root,root,-)
 
 %{_confdir}/pmsnap
 %config(noreplace) %{_confdir}/pmsnap/control
@@ -1106,7 +1078,6 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %endif
 
 %files -n pcp-doc -f pcp-doc.list
-%defattr(-,root,root,-)
 
 %changelog
 * Wed Apr 15 2015 Nathan Scott <nathans@redhat.com> - 3.10.4-1
