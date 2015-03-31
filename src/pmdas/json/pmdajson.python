@@ -808,16 +808,21 @@ class JsonPMDA(PMDA):
             self.__remove_json_sources(removed_sources)
 
             # If we've removed a JSON source, we need to recreate
-            # the metrics.
+            # the metrics from scratch, since you can't remove one
+            # metric, you have to remove them all.
             if self.debug:
                 self.log("__refresh_metrics: clearing/recreating metrics")
+
+            # First clear out all existing metrics.
             self.clear_metrics()
 
-            # First refresh static metrics.
+            # Recreate our static metrics.
             for (dummy, metric) in self.__metrics.items():
                 self.add_metric(metric.full_name, metric.obj, metric.desc)
 
-            # Now ask each JSON source to refresh its metrics.
+            # Now ask each JSON source to refresh its own
+            # metrics. This recreates them from cached info we got
+            # from the last time we read the source's metadata file.
             for (root, source) in self.sources_by_root.items():
                 source.refresh_metrics()
 
