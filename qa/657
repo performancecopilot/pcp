@@ -78,15 +78,15 @@ _install_pmda
 
 echo
 echo "=== Check dm-cache metrics ==="
-pminfo -dfmtT dm.cache
+pminfo -dfmtT dmcache
 
 echo
 echo "=== Check dm-thin metrics for thin pool metrics ==="
-pminfo -dfmtT dm.thin.pool
+pminfo -dfmtT dmthin.pool
 
 echo
 echo "=== Check dm-thin metrics for thin vol metrics ==="
-pminfo -dfmtT dm.thin.vol
+pminfo -dfmtT dmthin.vol
 
 # cleanup
 _remove_pmda

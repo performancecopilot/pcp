@@ -28,92 +28,95 @@
 #
 @ DM.0 Instance domain for device mapper.
 
-@ dm.cache.size Size of each cache device
+@ dmcache.size Size of each cache device
 The total size of each cache device in Kbytes.
 
-@ dm.cache.metadata_blocksize Block size for metadata
+@ dmcache.metadata.block_size Block size for metadata
 The fixed block size for each metadata block in bytes.
 
-@ dm.cache.metadata_used Metadata block used
+@ dmcache.metadata.used Metadata block used
 The number of metadata blocks used.
 
-@ dm.cache.metadata_total Total metadata blocks
+@ dmcache.metadata.total Total metadata blocks
 The total number of metadata blocks.
 
-@ dm.cache.cache_blocksize Block size for cache
+@ dmcache.cache.block_size Block size for cache
 The fixed block size of each cache block in bytes.
 
-@ dm.cache.cache_used Cache blocks used
+@ dmcache.cache.used Cache blocks used
 The number of cache blocks used.
 
-@ dm.cache.cache_total Total cache blocks
+@ dmcache.cache.total Total cache blocks
 The total number of cache blocks.
 
-@ dm.cache.read_hits Read bio mapping cache
+@ dmcache.read_hits Read bio mapping cache
 Number of times a READ bio has been mapped to the cache.
 
-@ dm.cache.read_misses Read bio mapping origin
+@ dmcache.read_misses Read bio mapping origin
 Number of times a READ bio has been mapped to the origin.
 
-@ dm.cache.write_hits Write bio mapping cache
+@ dmcache.write_hits Write bio mapping cache
 Number of times a WRITE bio has been mapped to the cache.
 
-@ dm.cache.write_misses Write bio mapping origin
+@ dmcache.write_misses Write bio mapping origin
 Number of times a WRITE bio has been mapped to the origin.
 
-@ dm.cache.demotions Block removed from cache
+@ dmcache.demotions Block removed from cache
 Number of times a block has been removed from the cache.
 
-@ dm.cache.promotions Block moved to cache
+@ dmcache.promotions Block moved to cache
 Number of times a block has been moved to the cache.
 
-@ dm.cache.dirty Blocks different to origin
+@ dmcache.dirty Blocks different to origin
 Number of blocks in the cache that differ from the origin.
 
-@ dm.cache.io_mode Cache mode
+@ dmcache.io_mode_code Cache mode
+Cache mode code - writeback, writethrough, passthrough.
+
+@ dmcache.io_mode Cache mode
 Cache mode string - writeback, writethrough or passthrough.
 
-@ dm.thin.pool.size Size of each pool device
+@ dmthin.pool.size Size of each pool device
 The total size of each pool device in Kbytes.
 
-@ dm.thin.pool.transaction_id Sync number with volume manager
+@ dmthin.pool.transaction_id Sync number with volume manager
 Number used by userspace to help synchronise with metadata
 from volume managers.
 
-@ dm.thin.pool.metadata_used Number of metadata blocks used
+@ dmthin.pool.metadata.used Number of metadata blocks used
 The number of metadata blocks which are currently in use.
 
-@ dm.thin.pool.metadata_total Total number of metadata blocks
+@ dmthin.pool.metadata.total Total number of metadata blocks
 The total number of metadata blocks for the given thin storage pool.
 
-@ dm.thin.pool.data_used Number of data blocks used
+@ dmthin.pool.data.used Number of data blocks used
 The number of data blocks which are currently in use.
 
-@ dm.thin.pool.data_total Total number of data blocks
+@ dmthin.pool.data.total Total number of data blocks
 The total number of data blocks for the given thin storage pool.
 
-@ dm.thin.pool.held_root Location of metadata root
+@ dmthin.pool.held_root Location of metadata root
 The location in blocks of the metadata root that has been 'held' for
 userspace read access. "-" indicates that there is no held root.
 
-@ dm.thin.pool.discard_passdown Discards passed or not
+@ dmthin.pool.discard_passdown Discards passed or not
 Whether or not discards are being passed down to the underlying device. 
 
-@ dm.thin.pool.read_mode Read mode of the thin pool
+@ dmthin.pool.read_mode Read mode of the thin pool
 Indication of whether the pool is in read/write mode or read only mode.
 In the event that the pool encounters certain types of device failures
 it will drop into read-only metadata mode. 
 
-@ dm.thin.pool.no_space_mode Mode used when pool is out of space
+@ dmthin.pool.no_space_mode Mode used when pool is out of space
 If the pool runs out of data or metadata space, the pool will fallback
 to either queuing or error any IO destined to the data device. The
 default is to queue until more space is added to the pool. 
 
-@ dm.thin.vol.size Size of each thin volume
+@ dmthin.vol.size Size of each thin volume
 The total size of each thin volume in Kbytes.
 
-@ dm.thin.vol.num_mapped_sectors Number of sectors mapped
+@ dmthin.vol.num_mapped_sectors Number of sectors mapped
 The total number of mapped sectors to the thin volume.
 
-@ dm.thin.vol.highest_mapped_sector Highest mapped sector
+@ dmthin.vol.highest_mapped_sector Highest mapped sector
 The highest mapped sector of the thin volume.

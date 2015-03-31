@@ -95,9 +95,13 @@ pmdaMetric metrictable[] = {
         PM_TYPE_U32, DM_CACHE_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
     { .m_desc =  {
+        PMDA_PMID(CLUSTER_CACHE, CACHE_IOMODE_CODE),
+        PM_TYPE_U32, DM_CACHE_INDOM, PM_SEM_DISCRETE,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { .m_desc =  {
         PMDA_PMID(CLUSTER_CACHE, CACHE_IOMODE),
-        PM_TYPE_STRING, DM_CACHE_INDOM, PM_SEM_INSTANT,
-        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+        PM_TYPE_STRING, DM_CACHE_INDOM, PM_SEM_DISCRETE,
+        PMDA_PMUNITS(0,0,1,0,0,0) }, },
     /* DMTHIN_POOL_STATS */
     { .m_desc =  {
         PMDA_PMID(CLUSTER_POOL, POOL_SIZE),

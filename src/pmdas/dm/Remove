@@ -12,13 +12,14 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# Remove the DMTHIN PMDA
+# Remove the Device Mapper PMDA
 #
 
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=dm
+pmns_name="dmcache dmthin"
 pmdaSetup
 pmdaRemove
 exit 0

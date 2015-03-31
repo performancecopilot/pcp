@@ -32,6 +32,7 @@ enum {
     CACHE_DEMOTIONS,
     CACHE_PROMOTIONS,
     CACHE_DIRTY,
+    CACHE_IOMODE_CODE,
     CACHE_IOMODE,
     NUM_CACHE_STATS
 };
@@ -51,6 +52,7 @@ struct cache_stats {
     __uint32_t demotions;
     __uint32_t promotions;
     __uint64_t dirty;
+    __uint32_t io_mode_code;
     char io_mode[13];
 };
 

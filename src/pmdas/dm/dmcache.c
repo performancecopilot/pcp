@@ -75,6 +75,9 @@ dm_cache_fetch(int item, struct cache_stats *cache_stats, pmAtomValue *atom)
         case CACHE_DIRTY:
             atom->ull = cache_stats->dirty;
             break;
+        case CACHE_IOMODE_CODE:
+            atom->ull = cache_stats->io_mode_code;
+            break;
         case CACHE_IOMODE:
             atom->cp = cache_stats->io_mode;
             break;
@@ -121,7 +124,7 @@ dm_refresh_cache(const int _isQA, const char *dm_statspath, const char *cache_na
              *     <read misses> <write hits> <write misses> <demotions> <promotions>
              *     <dirty> <#features> <features>*
              */
-            sscanf(token, " %"SCNu64" %"SCNu64" cache %"SCNu32" %"SCNu64"/%"SCNu64" %"SCNu32" %"SCNu64"/%"SCNu64" %"SCNu32" %"SCNu32" %"SCNu32" %"SCNu32" %"SCNu32" %"SCNu32" %"SCNu64" %*d %s %*d",
+            sscanf(token, " %"SCNu64" %"SCNu64" cache %"SCNu32" %"SCNu64"/%"SCNu64" %"SCNu32" %"SCNu64"/%"SCNu64" %"SCNu32" %"SCNu32" %"SCNu32" %"SCNu32" %"SCNu32" %"SCNu32" %"SCNu64" %"SCNu32" %s %*d",
                 &size_start,
                 &size_end,
                 &cache_stats->meta_blocksize,
@@ -137,6 +140,7 @@ dm_refresh_cache(const int _isQA, const char *dm_statspath, const char *cache_na
                 &cache_stats->demotions,
                 &cache_stats->promotions,
                 &cache_stats->dirty,
+                &cache_stats->io_mode_code,
                 cache_stats->io_mode
             );
             cache_stats->size = (size_end - size_start);

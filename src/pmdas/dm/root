@@ -4,6 +4,8 @@
 
 #include <stdpmid>
 
-root { dm }
+#ifndef DM
+#define DM	129
+#endif
 
 #include "pmns"
