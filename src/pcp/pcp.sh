@@ -215,4 +215,6 @@ $Tflag && export PCP_FINISH_TIME="$pcp_finish_time"
 $tflag && export PCP_INTERVAL="$pcp_interval"
 $Zflag && export PCP_TIMEZONE="$pcp_timezone"
 $zflag && export PCP_HOSTZONE=true
+
+rm -rf $tmp	# cleanup now, no trap handler post-exec
 exec $command $opts $@
