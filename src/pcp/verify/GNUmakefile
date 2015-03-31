@@ -1,6 +1,5 @@
 #
-# Copyright (c) 2014-2015 Red Hat.
-# Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2015 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -13,21 +12,24 @@
 # for more details.
 # 
 
-TOPDIR = ../..
+TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-LSRCFILES = pcp.sh
-SUBDIRS = free uptime numastat dmcache verify
+TARGET = pcp-verify
+MAN_SECTION = 1
+MAN_PAGES = $(TARGET).$(MAN_SECTION)
+MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-default :: default_pcp
-
-default_pcp : $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
-
-install :: install_pcp
-
-install_pcp : $(SUBDIRS)
-	$(INSTALL) -m 755 pcp.sh $(PCP_BIN_DIR)/pcp$(SHELLSUFFIX)
-	$(SUBDIRS_MAKERULE)
+default: $(TARGET).py $(MAN_PAGES)
 
 include $(BUILDRULES)
+
+install: default
+ifeq "$(ENABLE_PYTHON)" "true"
+	$(INSTALL) -m 755 $(TARGET).py $(PCP_BINADM_DIR)/$(TARGET)
+	@$(INSTALL_MAN)
+endif
+
+default_pcp : default
+
+install_pcp : install

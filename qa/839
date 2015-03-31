@@ -1,0 +1,30 @@
+#!/bin/sh
+# PCP QA Test No. 839
+# Exercise the pcp-verify(1) command 
+#
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+pcp_verify="$PCP_BINADM_DIR/pcp-verify"
+test -x $pcp_verify || _notrun "No pcp-verify(1) installed"
+pcp_verify="$python $pcp_verify"
+
+# real QA test starts here
+echo 'Basic verification'
+pcp --archive archives/pcp-verify verify -v
+echo 'Secure verification'
+$pcp_verify -a archives/pcp-verify --secure --verbose
+echo 'Containers verification'
+$pcp_verify --archive archives/pcp-verify --containers -v
+
+# success, all done
+status=0
+exit
