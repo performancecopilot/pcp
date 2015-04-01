@@ -295,38 +295,6 @@ dm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     return 1;
 }
 
-static int
-dm_text(int ident, int type, char **buf, pmdaExt *pmda)
-{
-    if ((type & PM_TEXT_PMID) == PM_TEXT_PMID) {
-	int sts = pmdaDynamicLookupText(ident, type, buf, pmda);
-	if (sts != -ENOENT)
-	    return sts;
-    }
-    return pmdaText(ident, type, buf, pmda);
-}
-
-static int
-dm_pmid(const char *name, pmID *pmid, pmdaExt *pmda)
-{
-    __pmnsTree *tree = pmdaDynamicLookupName(pmda, name);
-    return pmdaTreePMID(tree, name, pmid);
-}
-
-static int
-dm_name(pmID pmid, char ***nameset, pmdaExt *pmda)
-{
-    __pmnsTree *tree = pmdaDynamicLookupPMID(pmda, pmid);
-    return pmdaTreeName(tree, pmid, nameset);
-}
-
-static int
-dm_children(const char *name, int flag, char ***kids, int **sts, pmdaExt *pmda)
-{
-    __pmnsTree *tree = pmdaDynamicLookupName(pmda, name);
-    return pmdaTreeChildren(tree, name, flag, kids, sts);
-}
-
 /*
  * Initialise the agent (both daemon and DSO).
  */
@@ -346,10 +314,6 @@ dm_init(pmdaInterface *dp)
 
     dp->version.four.instance = dm_instance;
     dp->version.four.fetch = dm_fetch;
-    dp->version.four.text = dm_text;
-    dp->version.four.pmid = dm_pmid;
-    dp->version.four.name = dm_name;
-    dp->version.four.children = dm_children;
     pmdaSetFetchCallBack(dp, dm_fetchCallBack);
 
     pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
