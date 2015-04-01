@@ -1,0 +1,144 @@
+#! /bin/sh
+# PCP QA Test No. 666
+# checks container-related pmmgr functionality
+#
+# Copyright (c) 2015 Red Hat, Inc.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which pmmgr >/dev/null 2>&1 || _notrun "No pmmgr binary installed"
+echo pmmgr ok
+
+which docker >/dev/null 2>&1 || _notrun "No docker binary installed"
+docker ps >/dev/null 2>&1 || _notrun "missing docker permissions or service"
+docker run --rm busybox true || _notrun "failed docker smoke-test"
+echo docker ok
+
+$sudo rm -fr $tmp.dir
+$sudo rm -f $tmp.*
+rm -f $seq.full
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+hostname=`hostname`
+trap "_cleanup" 0 1 2 3 15
+
+# Shorten timeouts because of the rapid-fire pmcd/pmmgr-daemon lifespan tests
+PMCD_WAIT_TIMEOUT=1
+PMCD_CONNECT_TIMEOUT=1
+PMCD_RECONNECT_TIMEOUT=1
+export PMCD_WAIT_TIMEOUT PMCD_CONNECT_TIMEOUT PMCD_RECONNECT_TIMEOUT
+
+_cleanup()
+{
+    if [ -n "$pid" ]; then $sudo kill $pid; fi
+    # restart pmcd and primary pmlogger
+    $sudo $PCP_RC_DIR/pcp restart >>$seq.full 2>&1
+    _wait_for_pmcd
+    # no need for _wait_for_pmlogger
+    $sudo rm -fr $tmp.dir
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+_filter()
+{
+    tee -a $seq.full |
+    sed -e 's,^\[.*\],TIMESTAMP,' \
+        -e 's,pmmgr.[0-9]*/[0-9]*.,pmmgr(PID/TID),' \
+        -e 's,hostid [a-zA-Z0-9_-.]*,hostid HOSTID,' \
+        -e 's,at [a-zA-Z0-9_-.:]*,at LOCAL,' \
+        -e 's,'$tmp.dir',TMPDIR,'
+}
+
+echo "hostname=$hostname" >>$seq.full
+id >>$seq.full
+
+date >>$seq.full
+echo "=== 1. prepare pmmgr config directory  ===" | tee -a $seq.full
+$sudo rm -rf $tmp.dir
+mkdir $tmp.dir
+$sudo chown pcp.pcp $tmp.dir
+$sudo chmod 777 $tmp.dir
+echo 'local:' >$tmp.dir/target-host         # evoke ?container=FOO
+echo 'local:?dummy' >>$tmp.dir/target-host  # evoke &container=FOO
+# NB: other hostspec syntaxes (ip addresses, hostnames, etc.) also
+# seem to work with the [?&]container=XXX suffix; testing each of
+# them here would make the test much longer.  As it is, pmmgr will
+# semirandomly pick one or the other.
+echo '-t 5' >$tmp.dir/pmlogger
+touch $tmp.dir/pmlogconf
+touch $tmp.dir/pmie
+touch $tmp.dir/pmieconf
+touch $tmp.dir/subtarget-containers
+echo $tmp.dir >$tmp.dir/log-directory  # same dir
+ls -ld $tmp.dir >>$seq.full
+
+$PCP_BINADM_DIR/pmmgr -U `whoami` -v -v -p 1 -c $tmp.dir -l $tmp.out &
+pid=$!
+echo "pid=$!" >>$seq.full
+
+date >>$seq.full
+echo "=== 2. cycle some short-lived containers ===" | tee -a $seq.full
+# 30 seconds should be long enough to get enough docker instances started,
+# ... and then to run pmlogconf on each found container (in parallel)
+# ... and then to run a pmlogger
+(for i in `seq 5`; do
+     docker run --rm busybox sleep 30 &
+ done
+ docker ps >>$seq.full
+ wait)
+
+date >>$seq.full
+echo "=== 3. check that the containers were found ===" | tee -a $seq.full
+num=`ls $tmp.dir/$hostname--*/*.meta | wc -l`
+if [ "$num" -ge 5 ]; then
+    echo "enough .meta files" | tee -a $seq.full;
+else
+    echo "not enough .meta files $num" | tee -a $seq.full;    
+fi
+# might be more than ten if the machine's already running other containers
+num=`ls $tmp.dir/$hostname--*/config.pmie 2>/dev/null | wc -l`
+if [ "$num" -eq 0 ]; then
+    echo "no config.pmie files" | tee -a $seq.full;
+else
+    echo "too many config.pmie files $num" | tee -a $seq.full;
+fi
+
+date >>$seq.full
+echo "=== 4. kill pmmgr ===" | tee -a $seq.full
+$sudo kill $pid
+pid=
+sleep 2
+
+echo >>$seq.full
+echo "== collecting full pmmgr logs:" >>$seq.full
+cat $tmp.out >>$seq.full
+
+echo >>$seq.full
+echo "== collecting container logs/configs:" >>$seq.full
+for log in $tmp.dir/$hostname--*/*.log $tmp.dir/$hostname--*/config.*
+do
+    if [ -f "$log" ]
+    then
+	echo "-- $log --" >>$seq.full
+	cat $log >>$seq.full
+    fi
+done
+
+echo >>$seq.full
+echo "== container archive data dump:" >>$seq.full
+ls -lR $tmp.dir >>$seq.full # for reference
+for f in $tmp.dir/$hostname--*/*.meta; do
+    echo == $f == >>$seq.full
+    pmdumplog -a $f >>$seq.full
+done
+
+status=0
+exit
