@@ -18,7 +18,9 @@ echo "QA output created by $seq"
 [ $PCP_PLATFORM = linux ] || _notrun "Device Mapper is Linux-specific (dm)"
 
 root=$tmp.root
-export DM_STATSPATH=$root
+export DM_SETUP_CACHE="cat $root/dmcache-caches"
+export DM_SETUP_THINPOOL="cat $root/dmthin-pool"
+export DM_SETUP_THIN="cat $root/dmthin-thin"
 
 # helper functions
 

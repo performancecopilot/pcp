@@ -1,5 +1,5 @@
 /*
- * Device Mapper PMDA
+ * Device Mapper PMDA instance domains
  *
  * Copyright (c) 2015 Red Hat.
  * 
@@ -14,18 +14,8 @@
  * for more details.
  */
 
-#ifndef PMDADM_H
-#define PMDADM_H
-
-#include "dmcache.h"
-#include "dmthin.h"
-
-enum {
-    CLUSTER_CACHE = 0,		/* DM-Cache Caches */
-    CLUSTER_POOL = 1,		/* DM-Thin Pools */
-    CLUSTER_VOL = 2,		/* DM-Thin Volumes */
-    NUM_CLUSTERS
-};
+#ifndef INDOM_H
+#define INDOM_H
 
 enum {
     DM_CACHE_INDOM = 0,		/* 0 -- Caches */
@@ -34,22 +24,6 @@ enum {
     NUM_INDOMS
 };
 
-struct dm_cache {
-    char name[PATH_MAX];
-    struct cache_stats cache_stats;
-};
+extern pmInDom dm_indom(int);
 
-struct dm_thin_pool {
-    char name[PATH_MAX];
-    struct pool_stats pool_stats;
-};
-
-struct dm_thin_vol {
-    char name[PATH_MAX];
-    struct vol_stats vol_stats;
-};
-
-extern pmdaMetric metrictable[];
-extern int metrictable_size();
-
-#endif /* PMDADM_H */
+#endif /* INDOM_H */

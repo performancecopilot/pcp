@@ -16,7 +16,7 @@ TOPDIR = ../../..
 include	$(TOPDIR)/src/include/builddefs
 
 CFILES		= pmda.c dmthin.c dmcache.c
-HFILES		= pmdadm.h dmthin.h dmcache.h
+HFILES		= indom.h dmthin.h dmcache.h
 CMDTARGET	= pmdadm
 
 LLDLIBS		= $(PCP_PMDALIB)
@@ -56,6 +56,6 @@ install_pcp : install
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
-pmda.o:			pmdadm.h
-pmda.o dmcache.o:	dmcache.h
-pmda.o dmthin.o:	dmthin.h
+pmda.o dmcache.o dmthin.o: indom.h
+pmda.o dmcache.o: dmcache.h
+pmda.o dmthin.o: dmthin.h

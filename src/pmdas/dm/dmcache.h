@@ -57,6 +57,8 @@ struct cache_stats {
 };
 
 extern int dm_cache_fetch(int, struct cache_stats *, pmAtomValue *);
-extern int dm_refresh_cache(const int, const char *, const char *, struct cache_stats *);
+extern int dm_refresh_cache(const char *, struct cache_stats *);
+extern int dm_cache_instance_refresh(void);
+extern void dm_cache_setup(void);
 
 #endif /* DMCACHE_H */

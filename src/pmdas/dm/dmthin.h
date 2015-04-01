@@ -59,7 +59,10 @@ struct vol_stats {
 
 extern int dm_thin_pool_fetch(int, struct pool_stats *, pmAtomValue *);
 extern int dm_thin_vol_fetch(int, struct vol_stats *, pmAtomValue *);
-extern int dm_refresh_thin_pool(const int, const char *, const char *, struct pool_stats *);
-extern int dm_refresh_thin_vol(const int, const char *, const char *, struct vol_stats *);
+extern int dm_refresh_thin_pool(const char *, struct pool_stats *);
+extern int dm_refresh_thin_vol(const char *, struct vol_stats *);
+extern int dm_thin_pool_instance_refresh(void);
+extern int dm_thin_vol_instance_refresh(void);
+extern void dm_thin_setup(void);
 
 #endif /* DMTHIN_H */

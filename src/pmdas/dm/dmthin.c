@@ -18,9 +18,13 @@
 #include "impl.h"
 #include "pmda.h"
 
+#include "indom.h"
 #include "dmthin.h"
 
 #include <inttypes.h>
+
+static char *dm_setup_thin;
+static char *dm_setup_thinpool;
 
 /*
  * Fetches the value for the given metric item and then assigns to pmAtomValue.
@@ -97,18 +101,14 @@ dm_thin_vol_fetch(int item, struct vol_stats *vol_stats, pmAtomValue *atom)
  * assign the values to pool_stats. 
  */
 int
-dm_refresh_thin_pool(const int _isQA, const char *dm_statspath, const char *pool_name, struct pool_stats *pool_stats){
-    char buffer[PATH_MAX] = "dmsetup status --target thin-pool";
+dm_refresh_thin_pool(const char *pool_name, struct pool_stats *pool_stats)
+{
     char *token;
     uint64_t size_start, size_end;
+    char buffer[BUFSIZ];
     FILE *fp;
 
-    if (_isQA) {
-        snprintf(buffer, sizeof(buffer),"/bin/cat %s/dmthin-pool", dm_statspath);
-        buffer[sizeof(buffer)-1] = '\0';
-    }
-
-    if ((fp = popen(buffer, "r")) == NULL )
+    if ((fp = popen(dm_setup_thinpool, "r")) == NULL)
         return - oserror();
 
     while (fgets(buffer, sizeof(buffer) -1, fp)) {
@@ -116,19 +116,19 @@ dm_refresh_thin_pool(const int _isQA, const char *dm_statspath, const char *pool
             continue;
 
         token = strtok(buffer, ":");
+        if (strcmp(token, pool_name) != 0)
+            continue;
+        token = strtok(NULL, ":");
 
-        if (strcmp(token, pool_name) == 0) {
-            token = strtok(NULL, ":");
-
-            /* Pattern match our output to the given thin-pool status
-             * output (minus pool name). 
-             * The format is:
-             * <name>:<start> <end> <target>
-             *     <transaction id> <used metadata blocks>/<total metadata blocks>
-             *     <used data blocks>/<total data blocks> <held metadata root>
-             *     ro|rw [no_]discard_passdown  [error|queue]_if_no_space
-             */
-            sscanf(token, " %"SCNu64" %"SCNu64" thin-pool %"SCNu64" %"SCNu64"/%"SCNu64" %"SCNu64"/%"SCNu64" %s %s %s %s",
+        /* Pattern match our output to the given thin-pool status
+         * output (minus pool name). 
+         * The format is:
+         * <name>:<start> <end> <target>
+         *   <transaction id> <used metadata blocks>/<total metadata blocks>
+         *   <used data blocks>/<total data blocks> <held metadata root>
+         *   ro|rw [no_]discard_passdown  [error|queue]_if_no_space
+         */
+        sscanf(token, " %"SCNu64" %"SCNu64" thin-pool %"SCNu64" %"SCNu64"/%"SCNu64" %"SCNu64"/%"SCNu64" %s %s %s %s",
                 &size_start,
                 &size_end,
                 &pool_stats->trans_id,
@@ -139,10 +139,8 @@ dm_refresh_thin_pool(const int _isQA, const char *dm_statspath, const char *pool
                 pool_stats->held_root,
                 pool_stats->read_mode,
                 pool_stats->discard_passdown,
-                pool_stats->no_space_mode
-            );
-            pool_stats->size = (size_end - size_start);
-        }
+                pool_stats->no_space_mode);
+        pool_stats->size = (size_end - size_start);
     }
 
     if (pclose(fp) != 0)
@@ -157,43 +155,37 @@ dm_refresh_thin_pool(const int _isQA, const char *dm_statspath, const char *pool
  * assign the values to vol_stats. 
  */
 int
-dm_refresh_thin_vol(const int _isQA, const char *dm_statspath, const char *vol_name, struct vol_stats *vol_stats){
-    char buffer[PATH_MAX] = "dmsetup status --target thin";
+dm_refresh_thin_vol(const char *vol_name, struct vol_stats *vol_stats)
+{
     char *token;
     uint64_t size_start, size_end;
+    char buffer[BUFSIZ];
     FILE *fp;
 
-    if (_isQA) {
-        snprintf(buffer, sizeof(buffer),"/bin/cat %s/dmthin-thin", dm_statspath);
-        buffer[sizeof(buffer)-1] = '\0';
-    }
-
-    if ((fp = popen(buffer, "r")) == NULL )
-        return - oserror();
+    if ((fp = popen(dm_setup_thin, "r")) == NULL)
+        return -oserror();
 
     while (fgets(buffer, sizeof(buffer) -1, fp)) {
         if (!strstr(buffer, ":") || strstr(buffer, "Fail"))
             continue;
 
         token = strtok(buffer, ":");
+        if (strcmp(token, vol_name) != 0)
+            continue;
+        token = strtok(NULL, ":");
 
-        if (strcmp(token, vol_name) == 0) {
-            token = strtok(NULL, ":");
-
-            /* Pattern match our output to the given thin-volume status
-             * output (minus volume name). 
-             * The format is:
-             * <name>:<start> <end> <target>
-             *     <nr mapped sectors> <highest mapped sector>
-             */
-            sscanf(token, " %"SCNu64" %"SCNu64" thin %"SCNu64" %"SCNu64"",
+        /* Pattern match our output to the given thin-volume status
+         * output (minus volume name). 
+         * The format is:
+         * <name>:<start> <end> <target>
+         *     <nr mapped sectors> <highest mapped sector>
+         */
+        sscanf(token, " %"SCNu64" %"SCNu64" thin %"SCNu64" %"SCNu64"",
                 &size_start,
                 &size_end,
                 &vol_stats->num_mapped_sectors,
-                &vol_stats->high_mapped_sector
-            );
-            vol_stats->size = (size_end - size_start);
-        }
+                &vol_stats->high_mapped_sector);
+        vol_stats->size = (size_end - size_start);
     }
 
     if (pclose(fp) != 0)
@@ -202,3 +194,134 @@ dm_refresh_thin_vol(const int _isQA, const char *dm_statspath, const char *vol_n
     return 0;
 }
 
+/*
+ * Update the thin provisioning pool instance domain. This will change
+ * as volumes are created, activated and removed.
+ *
+ * Using the pmdaCache interfaces simplifies things and provides us
+ * with guarantees around consistent instance numbering in all of
+ * those interesting corner cases.
+ */
+int
+dm_thin_pool_instance_refresh(void)
+{
+    int sts;
+    FILE *fp;
+    char buffer[BUFSIZ];
+    struct pool_stats *pool;
+    pmInDom indom = dm_indom(DM_THIN_POOL_INDOM);
+
+    pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
+
+    /* 
+     * update indom cache based off of thin pools listed by dmsetup
+     */
+    if ((fp = popen(dm_setup_thinpool, "r")) == NULL)
+        return -oserror();
+
+    while (fgets(buffer, sizeof(buffer) -1, fp)) {
+        if (!strstr(buffer, ":"))
+            continue;
+        strtok(buffer, ":");
+
+        /*
+         * at this point buffer contains our thin pool lvm names
+         * this will be used to map stats to file-system instances
+         */
+
+	sts = pmdaCacheLookupName(indom, buffer, NULL, (void **)&pool);
+	if (sts == PM_ERR_INST || (sts >= 0 && pool == NULL)){
+	    pool = calloc(1, sizeof(*pool));
+            if (pool == NULL) {
+                if (pclose(fp) != 0)
+                    return -oserror();
+                return PM_ERR_AGAIN;
+            }
+        }   
+	else if (sts < 0)
+	    continue;
+
+	/* (re)activate this entry for the current query */
+	pmdaCacheStore(indom, PMDA_CACHE_ADD, buffer, (void *)pool);
+    }
+
+    if (pclose(fp) != 0)
+        return -oserror(); 
+
+    return 0;
+}
+
+/*
+ * Update the thin provisioning volume instance domain. This will change
+ * as are created, activated and removed.
+ *
+ * Using the pmdaCache interfaces simplifies things and provides us
+ * with guarantees around consistent instance numbering in all of
+ * those interesting corner cases.
+ */
+int
+dm_thin_vol_instance_refresh(void)
+{
+    int sts;
+    FILE *fp;
+    char buffer[BUFSIZ];
+    struct vol_stats *vol;
+    pmInDom indom = dm_indom(DM_THIN_VOL_INDOM);
+
+    pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
+
+    /* 
+     * update indom cache based off of thin pools listed by dmsetup
+     */
+    if ((fp = popen(dm_setup_thin, "r")) == NULL)
+        return -oserror();
+
+    while (fgets(buffer, sizeof(buffer) -1, fp)) {
+        if (!strstr(buffer, ":"))
+            continue;
+
+        strtok(buffer, ":");
+
+        /*
+         * at this point buffer contains our thin volume names
+         * this will be used to map stats to file-system instances
+         */
+        sts = pmdaCacheLookupName(indom, buffer, NULL, (void **)&vol);
+        if (sts == PM_ERR_INST || (sts >= 0 && vol == NULL)){
+            vol = calloc(1, sizeof(*vol));
+            if (vol == NULL) {
+                if (pclose(fp) != 0)
+                    return -oserror();
+                return PM_ERR_AGAIN;
+            }
+        }   
+	else if (sts < 0)
+	    continue;
+
+	/* (re)activate this entry for the current query */
+	pmdaCacheStore(indom, PMDA_CACHE_ADD, buffer, (void *)vol);
+    }
+
+    if (pclose(fp) != 0)
+        return -oserror(); 
+
+    return 0;
+}
+
+void
+dm_thin_setup(void)
+{
+    static char dmthin_command[] = "dmsetup status --target thin";
+    static char dmpool_command[] = "dmsetup status --target thin-pool";
+    char *env_command;
+
+    /* allow override at startup for QA testing */
+    if ((env_command = getenv("DM_SETUP_THIN")) != NULL)
+        dm_setup_thin = env_command;
+    else
+        dm_setup_thin = dmthin_command;
+    if ((env_command = getenv("DM_SETUP_THINPOOL")) != NULL)
+        dm_setup_thinpool = env_command;
+    else
+        dm_setup_thinpool = dmpool_command;
+}

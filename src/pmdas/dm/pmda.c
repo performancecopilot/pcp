@@ -17,26 +17,24 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+
+#include "indom.h"
 #include "domain.h"
+#include "dmthin.h"
+#include "dmcache.h"
 
-#include "pmdadm.h"
-
-static int _isQA = 0;
-static char *dm_statspath = "";
-
-pmdaIndom indomtable[] = {
-    { .it_indom = DM_CACHE_INDOM }, 
-    { .it_indom = DM_THIN_POOL_INDOM },
-    { .it_indom = DM_THIN_VOL_INDOM },
+enum {
+    CLUSTER_CACHE = 0,		/* DM-Cache Caches */
+    CLUSTER_POOL = 1,		/* DM-Thin Pools */
+    CLUSTER_VOL = 2,		/* DM-Thin Volumes */
+    NUM_CLUSTERS
 };
-
-#define INDOM(x) (indomtable[x].it_indom)
 
 /*
  * all metrics supported in this PMDA - one table entry for each
  *
  */
-pmdaMetric metrictable[] = { 
+static pmdaMetric metrictable[] = { 
     /* DMCACHE_STATS */
     { .m_desc =  {
         PMDA_PMID(CLUSTER_CACHE, CACHE_SIZE),
@@ -158,202 +156,16 @@ pmdaMetric metrictable[] = {
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 };
 
-int
-metrictable_size(void)
+static pmdaIndom indomtable[] = {
+    { .it_indom = DM_CACHE_INDOM }, 
+    { .it_indom = DM_THIN_POOL_INDOM },
+    { .it_indom = DM_THIN_VOL_INDOM },
+};
+
+pmInDom
+dm_indom(int serial)
 {
-    return sizeof(metrictable)/sizeof(metrictable[0]);
-}
-
-/*
- * Update the device mapper cache instance domain. This will change
- * as volumes are created, activated and removed.
- *
- * Using the pmdaCache interfaces simplifies things and provides us
- * with guarantees around consistent instance numbering in all of
- * those interesting corner cases.
- */
-static int
-dm_cache_instance_refresh(void)
-{
-    int sts;
-    char buffer[PATH_MAX] = "dmsetup status --target cache";
-    FILE *fp;
-    pmInDom indom = INDOM(DM_CACHE_INDOM);
-
-    pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
-
-    /* 
-     * update indom cache based off of thin pools listed by dmsetup
-     * _isQA is set if statspath has been set during pmda init
-     */
-    if (_isQA) {
-        snprintf(buffer, sizeof(buffer),"/bin/cat %s/dmcache-caches", dm_statspath);
-        buffer[sizeof(buffer)-1] = '\0';
-    }
-
-    if ((fp = popen(buffer, "r")) == NULL )
-        return - oserror();
-
-    while (fgets(buffer, sizeof(buffer) -1, fp)) {
-        if (!strstr(buffer, ":"))
-            continue;
-
-        strtok(buffer, ":");
-
-        /* at this point buffer contains our thin volume names
-           this will be used to map stats to file-system instances */
-
-        struct dm_cache *cache;
-
-	sts = pmdaCacheLookupName(indom, buffer, NULL, (void **)&cache);
-	if (sts == PM_ERR_INST || (sts >= 0 && cache == NULL)){
-	    cache = calloc(1, sizeof(struct dm_cache));
-            if (cache == NULL) {
-                if (pclose(fp) != 0)
-                    return -oserror();
-                return PM_ERR_AGAIN;
-            }
-            strcpy(cache->name, buffer);
-        }   
-	else if (sts < 0)
-	    continue;
-
-	/* (re)activate this entry for the current query */
-	pmdaCacheStore(indom, PMDA_CACHE_ADD, buffer, (void *)cache);
-    }
-
-    if (pclose(fp) != 0)
-        return -oserror(); 
-
-    return 0;
-}
-
-/*
- * Update the thin provisioning pool instance domain. This will change
- * as volumes are created, activated and removed.
- *
- * Using the pmdaCache interfaces simplifies things and provides us
- * with guarantees around consistent instance numbering in all of
- * those interesting corner cases.
- */
-static int
-dm_thin_pool_instance_refresh(void)
-{
-    int sts;
-    char buffer[PATH_MAX] = "dmsetup status --target thin-pool";
-    FILE *fp;
-    pmInDom indom = INDOM(DM_THIN_POOL_INDOM);
-
-    pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
-
-    /* 
-     * update indom cache based off of thin pools listed by dmsetup
-     * _isQA is set if statspath has been set during pmda init
-     */
-    if (_isQA) {
-        snprintf(buffer, sizeof(buffer),"/bin/cat %s/dmthin-pool", dm_statspath);
-        buffer[sizeof(buffer)-1] = '\0';
-    }
-
-    if ((fp = popen(buffer, "r")) == NULL )
-        return - oserror();
-
-    while (fgets(buffer, sizeof(buffer) -1, fp)) {
-        if (!strstr(buffer, ":"))
-            continue;
-
-        strtok(buffer, ":");
-
-        /* at this point buffer contains our thin pool lvm names
-           this will be used to map stats to file-system instances */
-
-        struct dm_thin_pool *pool;
-
-	sts = pmdaCacheLookupName(indom, buffer, NULL, (void **)&pool);
-	if (sts == PM_ERR_INST || (sts >= 0 && pool == NULL)){
-	    pool = calloc(1, sizeof(struct dm_thin_pool));
-            if (pool == NULL) {
-                if (pclose(fp) != 0)
-                    return -oserror();
-                return PM_ERR_AGAIN;
-            }
-            strcpy(pool->name, buffer);
-        }   
-	else if (sts < 0)
-	    continue;
-
-	/* (re)activate this entry for the current query */
-	pmdaCacheStore(indom, PMDA_CACHE_ADD, buffer, (void *)pool);
-    }
-
-    if (pclose(fp) != 0)
-        return -oserror(); 
-
-    return 0;
-}
-
-/*
- * Update the thin provisioning volume instance domain. This will change
- * as are created, activated and removed.
- *
- * Using the pmdaCache interfaces simplifies things and provides us
- * with guarantees around consistent instance numbering in all of
- * those interesting corner cases.
- */
-static int
-dm_thin_vol_instance_refresh(void)
-{
-    int sts;
-    char buffer[PATH_MAX] = "dmsetup status --target thin";
-    FILE *fp;
-    pmInDom indom = INDOM(DM_THIN_VOL_INDOM);
-
-    pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
-
-    /* 
-     * update indom cache based off of thin pools listed by dmsetup
-     * _isQA is set if statspath has been set during pmda init
-     */
-    if (_isQA) {
-        snprintf(buffer, sizeof(buffer),"/bin/cat %s/dmthin-thin", dm_statspath);
-        buffer[sizeof(buffer)-1] = '\0';
-    }
-
-    if ((fp = popen(buffer, "r")) == NULL )
-        return - oserror();
-
-    while (fgets(buffer, sizeof(buffer) -1, fp)) {
-        if (!strstr(buffer, ":"))
-            continue;
-
-        strtok(buffer, ":");
-
-        /* at this point buffer contains our thin volume names
-           this will be used to map stats to file-system instances */
-
-        struct dm_thin_vol *vol;
-
-	sts = pmdaCacheLookupName(indom, buffer, NULL, (void **)&vol);
-	if (sts == PM_ERR_INST || (sts >= 0 && vol == NULL)){
-	    vol = calloc(1, sizeof(struct dm_thin_vol));
-            if (vol == NULL) {
-                if (pclose(fp) != 0)
-                    return -oserror();
-                return PM_ERR_AGAIN;
-            }
-            strcpy(vol->name, buffer);
-        }   
-	else if (sts < 0)
-	    continue;
-
-	/* (re)activate this entry for the current query */
-	pmdaCacheStore(indom, PMDA_CACHE_ADD, buffer, (void *)vol);
-    }
-
-    if (pclose(fp) != 0)
-        return -oserror(); 
-
-    return 0;
+    return indomtable[serial].it_indom;
 }
 
 static int
@@ -370,63 +182,60 @@ dm_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 {
     pmInDom indom;
     char *name;
-    int i;
+    int inst;
     int sts = 0;
 
     if (need_refresh[CLUSTER_CACHE]) {
-        struct dm_cache *cache;
+        struct cache_stats *cache;
 
         if ((sts = dm_cache_instance_refresh()) < 0)
 	    return sts;
 
-        indom = INDOM(DM_CACHE_INDOM);
+        indom = dm_indom(DM_CACHE_INDOM);
 
         for (pmdaCacheOp(indom, PMDA_CACHE_WALK_REWIND);;) {
-	    if ((i = pmdaCacheOp(indom, PMDA_CACHE_WALK_NEXT)) < 0)
+	    if ((inst = pmdaCacheOp(indom, PMDA_CACHE_WALK_NEXT)) < 0)
 	        break;
-	    if (!pmdaCacheLookup(indom, i, &name, (void **)&cache) || !cache)
+	    if (!pmdaCacheLookup(indom, inst, &name, (void **)&cache) || !cache)
 	        continue;
-
             if (need_refresh[CLUSTER_CACHE])
-                dm_refresh_cache(_isQA, dm_statspath, name, &cache->cache_stats);
+                dm_refresh_cache(name, cache);
         }
     }
 
     if (need_refresh[CLUSTER_POOL]) {
-        struct dm_thin_pool *pool;
+        struct pool_stats *pool;
 
         if ((sts = dm_thin_pool_instance_refresh()) < 0)
 	    return sts;
 
-        indom = INDOM(DM_THIN_POOL_INDOM);
+        indom = dm_indom(DM_THIN_POOL_INDOM);
 
         for (pmdaCacheOp(indom, PMDA_CACHE_WALK_REWIND);;) {
-	    if ((i = pmdaCacheOp(indom, PMDA_CACHE_WALK_NEXT)) < 0)
+	    if ((inst = pmdaCacheOp(indom, PMDA_CACHE_WALK_NEXT)) < 0)
 	        break;
-	    if (!pmdaCacheLookup(indom, i, &name, (void **)&pool) || !pool)
+	    if (!pmdaCacheLookup(indom, inst, &name, (void **)&pool) || !pool)
 	        continue;
-
             if (need_refresh[CLUSTER_POOL])
-                dm_refresh_thin_pool(_isQA, dm_statspath, name, &pool->pool_stats);
+                dm_refresh_thin_pool(name, pool);
         }
     }
 
     if (need_refresh[CLUSTER_VOL]) {
-        struct dm_thin_vol *vol;
+        struct vol_stats *vol;
 
         if ((sts = dm_thin_vol_instance_refresh()) < 0)
 	    return sts;
 
-        indom = INDOM(DM_THIN_VOL_INDOM);
+        indom = dm_indom(DM_THIN_VOL_INDOM);
 
         for (pmdaCacheOp(indom, PMDA_CACHE_WALK_REWIND);;) {
-	    if ((i = pmdaCacheOp(indom, PMDA_CACHE_WALK_NEXT)) < 0)
+	    if ((inst = pmdaCacheOp(indom, PMDA_CACHE_WALK_NEXT)) < 0)
 	        break;
-	    if (!pmdaCacheLookup(indom, i, &name, (void **)&vol) || !vol)
+	    if (!pmdaCacheLookup(indom, inst, &name, (void **)&vol) || !vol)
 	        continue;
-
             if (need_refresh[CLUSTER_VOL])
-                dm_refresh_thin_vol(_isQA, dm_statspath, name, &vol->vol_stats);
+                dm_refresh_thin_vol(name, vol);
         }
     }
     return sts;
@@ -456,30 +265,29 @@ static int
 dm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     __pmID_int *idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+    struct cache_stats *cache;
+    struct pool_stats *pool;
+    struct vol_stats *vol;
     int sts;
-
-    struct dm_cache *cache;
-    struct dm_thin_pool *pool;
-    struct dm_thin_vol *vol;
 
     switch (idp->cluster) {
         case CLUSTER_CACHE:
-            sts = pmdaCacheLookup(INDOM(DM_CACHE_INDOM), inst, NULL, (void **)&cache);
+            sts = pmdaCacheLookup(dm_indom(DM_CACHE_INDOM), inst, NULL, (void **)&cache);
             if (sts < 0)
                 return sts;
-            return dm_cache_fetch(idp->item, &cache->cache_stats, atom);
+            return dm_cache_fetch(idp->item, cache, atom);
 
         case CLUSTER_POOL:
-	    sts = pmdaCacheLookup(INDOM(DM_THIN_POOL_INDOM), inst, NULL, (void **)&pool);
+	    sts = pmdaCacheLookup(dm_indom(DM_THIN_POOL_INDOM), inst, NULL, (void **)&pool);
 	    if (sts < 0)
 	        return sts;
-	    return dm_thin_pool_fetch(idp->item, &pool->pool_stats, atom);
+	    return dm_thin_pool_fetch(idp->item, pool, atom);
 
         case CLUSTER_VOL:
-	    sts = pmdaCacheLookup(INDOM(DM_THIN_VOL_INDOM), inst, NULL, (void **)&vol);
+	    sts = pmdaCacheLookup(dm_indom(DM_THIN_VOL_INDOM), inst, NULL, (void **)&vol);
 	    if (sts < 0)
 	        return sts;
-	    return dm_thin_vol_fetch(idp->item, &vol->vol_stats, atom);
+	    return dm_thin_vol_fetch(idp->item, vol, atom);
 
         default: /* unknown cluster */
 	    return PM_ERR_PMID;
@@ -526,13 +334,9 @@ void
 __PMDA_INIT_CALL
 dm_init(pmdaInterface *dp)
 {
-    char *envpath;
-
-    /* Check for environment variable to signify if we are under QA testing */
-    if ((envpath = getenv("DM_STATSPATH")) != NULL) {
-	dm_statspath = envpath;
-        _isQA = 1;
-    }
+    /* Check for environment variables allowing test injection */
+    dm_cache_setup();
+    dm_thin_setup();
 
     int	nindoms = sizeof(indomtable)/sizeof(indomtable[0]);
     int	nmetrics = sizeof(metrictable)/sizeof(metrictable[0]);
