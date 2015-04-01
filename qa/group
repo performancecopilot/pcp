@@ -895,6 +895,7 @@ cgroups
 661 pmwebapi local
 666 pmmgr local
 667 python local
+668 pmmgr local containers
 670 libpcp local
 701 pmlogcheck local
 702 python libpcp local

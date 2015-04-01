@@ -540,7 +540,7 @@ pmmgr_job_spec::poll()
               }
           }
       // XXX: what if there are nested containers?  oh well, libpcp
-      // doesn't handle &container=FOO/BAR or something like that.
+      // doesn't handle &container=FOO/BAR
   }
 
   
