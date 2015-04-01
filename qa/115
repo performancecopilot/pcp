@@ -14,11 +14,6 @@ echo "QA output created by $seq"
 . ./common.filter
 
 [ -f /etc/gentoo-release ] && _notrun "Gentoo is lacking chkconfig support"
-lhost=`hostname | sed -e 's/\..*//'`
-host=`_get_fqdn`
-remote=`./getpmcdhosts -n 1 -L 2>$tmp.out`
-rhost=`echo $remote | sed -e 's/\..*//'`
-[ -z "$remote" ] && _notrun `cat $tmp.out`
 if [ -z "$PCP_PMIECONTROL_PATH" ]
 then
     echo "Error: botched installation - PCP_PMIECONTROL_PATH not defined"
@@ -39,6 +34,12 @@ status=1	# failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 needclean=false
 trap "_cleanup; exit \$status" 0 1 2 3 15
+
+lhost=`hostname | sed -e 's/\..*//'`
+host=`_get_fqdn`
+remote=`./getpmcdhosts -n 1 -L 2>$tmp.out`
+rhost=`echo $remote | sed -e 's/\..*//'`
+[ -z "$remote" ] && _notrun `cat $tmp.out`
 
 # Now that we have pmmgr in the mix, there is more than one pmie
 # potentially running, so lines like this
