@@ -67,6 +67,7 @@ typedef union {				/* value from pmResult */
 #define SET_MARK(state) state = S_MARK
 #define SET_VALUE(state) state = S_VALUE
 #define SET_SCANNED(state) state |= S_SCANNED
+#define CLEAR_SCANNED(state) state &= ~S_SCANNED
 
 #define IS_UNDEFINED(state) ((state & S_UNDEFINED) == S_UNDEFINED)
 #define IS_MARK(state) ((state & S_MARK) == S_MARK)
@@ -283,9 +284,10 @@ dumpval(FILE *f, int type, int valfmt, int prior, instcntl_t *icp)
 	if (IS_UNDEFINED(state)) fprintf(f, "<undefined>");
 	else if (IS_MARK(state)) fprintf(f, "<mark>");
 	else fprintf(f, "<botch=%d>", state);
-	if (IS_SCANNED(state)) fprintf(f, "&scanned");
+	if (IS_SCANNED(state)) fprintf(f, "&<scanned>");
 	return;
     }
+    if (IS_SCANNED(state)) fprintf(f, " state=<scanned>");
     if (type == PM_TYPE_32 || type == PM_TYPE_U32)
 	fprintf(f, " v=%d", vp->lval);
     else if (type == PM_TYPE_FLOAT && valfmt == PM_VAL_INSITU) {
@@ -332,8 +334,19 @@ dumpicp(const char *tag, instcntl_t *icp)
 }
 #endif
 
+/*
+ * Update the upper (next) and lower (prior) bounds.
+ * Parameters do_mark and done control the context in which this is
+ * being done:
+ * UPD_MARK_FORW, NULL - roll forwards getting to t_req
+ * UPD_MARK_BACK, NULL - roll backwards getting to t_req
+ * UPD_MARK_NONE, NULL - fine positioning (forwards or backwards) after
+ * 			 seeking into the archive using the index
+ * UPD_MARK_BACK, &done - specifically looking for lower bound
+ * UPD_MARK_BACK, &done - specifically looking for upper bound
+ */
 static void
-update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int *done_prior, int *done_next)
+update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int *done)
 {
     /*
      * for every metric in the result from the log
@@ -363,8 +376,15 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		/* <mark> is closer than best lower bound to date */
 		icp->t_prior = t_this;
 		SET_MARK(icp->s_prior);
-		if (do_mark == UPD_MARK_BACK)
-		    SET_SCANNED(icp->s_prior);
+		if (do_mark == UPD_MARK_BACK) {
+		    if (icp->search && done != NULL) {
+			/* stop searching for this one */
+			icp->search = 0;
+			(*done)++;
+			/* don't need to scan again to this <mark> */
+			SET_SCANNED(icp->s_prior);
+		    }
+		}
 
 		if (icp->metric->valfmt != PM_VAL_INSITU) {
 		    if (icp->v_prior.pval != NULL)
@@ -375,10 +395,6 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		if (pmDebug & DBG_TRACE_INTERP)
 		    dumpicp("update_bounds: mark@prior", icp);
 #endif
-		if (icp->search && done_prior != NULL) {
-		    icp->search = 0;
-		    (*done_prior)++;
-		}
 	    }
 	    if (t_this >= t_req &&
 		((t_this <= icp->t_next || icp->t_next < 0) ||
@@ -386,8 +402,15 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		/* <mark> is closer than best upper bound to date */
 		icp->t_next = t_this;
 		SET_MARK(icp->s_next);
-		if (do_mark == UPD_MARK_FORW)
-		    SET_SCANNED(icp->s_next);
+		if (do_mark == UPD_MARK_FORW) {
+		    if (icp->search && done != NULL) {
+			/* stop searching for this one */
+			icp->search = 0;
+			(*done)++;
+			/* don't need to scan again to this <mark> */
+			SET_SCANNED(icp->s_next);
+		    }
+		}
 		if (icp->metric->valfmt != PM_VAL_INSITU) {
 		    if (icp->v_next.pval != NULL)
 			__pmUnpinPDUBuf((void *)icp->v_next.pval);
@@ -397,10 +420,6 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		if (pmDebug & DBG_TRACE_INTERP)
 		    dumpicp("update_bounds: mark@next", icp);
 #endif
-		if (icp->search && done_next != NULL) {
-		    icp->search = 0;
-		    (*done_next)++;
-		}
 	    }
 	}
 	return;
@@ -452,11 +471,11 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 			    icp->v_prior.pval = logrp->vset[k]->vlist[i].value.pval;
 			    __pmPinPDUBuf((void *)icp->v_prior.pval);
 			}
-			if (icp->search && done_prior != NULL) {
+			if (do_mark == UPD_MARK_BACK && icp->search && done != NULL) {
 			    /* one we were looking for */
 			    changed |= 2;
 			    icp->search = 0;
-			    (*done_prior)++;
+			    (*done)++;
 			}
 		    }
 		    if (t_this >= t_req &&
@@ -488,11 +507,11 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 			    icp->v_next.pval = logrp->vset[k]->vlist[i].value.pval;
 			    __pmPinPDUBuf((void *)icp->v_next.pval);
 			}
-			if (icp->search && done_next != NULL) {
+			if (do_mark == UPD_MARK_FORW && icp->search && done != NULL) {
 			    /* one we were looking for */
 			    changed |= 2;
 			    icp->search = 0;
-			    (*done_next)++;
+			    (*done)++;
 			}
 		    }
 #ifdef PCP_DEBUG
@@ -541,7 +560,7 @@ do_roll(__pmContext *ctxp, double t_req)
 	    ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
 	    assert(ctxp->c_archctl->ac_offset >= 0);
 	    ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
-	    update_bounds(ctxp, t_req, logrp, UPD_MARK_FORW, NULL, NULL);
+	    update_bounds(ctxp, t_req, logrp, UPD_MARK_FORW, NULL);
 	}
     }
     else {
@@ -560,7 +579,7 @@ do_roll(__pmContext *ctxp, double t_req)
 	    ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
 	    assert(ctxp->c_archctl->ac_offset >= 0);
 	    ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
-	    update_bounds(ctxp, t_req, logrp, UPD_MARK_BACK, NULL, NULL);
+	    update_bounds(ctxp, t_req, logrp, UPD_MARK_BACK, NULL);
 	}
     }
 }
@@ -793,7 +812,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
 		assert(ctxp->c_archctl->ac_offset >= 0);
 		ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
-		update_bounds(ctxp, t_req, logrp, UPD_MARK_NONE, NULL, NULL);
+		update_bounds(ctxp, t_req, logrp, UPD_MARK_NONE, NULL);
 	    }
 	}
 	else {
@@ -807,7 +826,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
 		assert(ctxp->c_archctl->ac_offset >= 0);
 		ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
-		update_bounds(ctxp, t_req, logrp, UPD_MARK_NONE, NULL, NULL);
+		update_bounds(ctxp, t_req, logrp, UPD_MARK_NONE, NULL);
 	    }
 	}
 	ctxp->c_archctl->ac_serial = 1;
@@ -843,7 +862,17 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		if (icp->t_first >= 0 && t_req < icp->t_first)
 		    /* before earliest, don't bother */
 		    continue;
-retry_back:
+
+		if (icp->t_prior < 0 || icp->t_prior > t_req) {
+		    if (back == 0 && !done_roll) {
+			done_roll = 1;
+			if (ctxp->c_delta > 0)  {
+			    /* forwards before scanning back */
+			    do_roll(ctxp, t_req);
+			}
+		    }
+		}
+
 		/*
 		 *  At this stage there _may_ be a value earlier in the
 		 *  archive of interest ...
@@ -852,18 +881,11 @@ retry_back:
 		 *  t_prior > t_req => need to push t_prior to be <= t_req
 		 *  	if possible, so go back
 		 *  t_next is valid and a mark and t_next > t_req => need
-		 *  to search back also
+		 *  to search back also (unless we've already scanned this
+		 *  region)
 		 */
 		if (icp->t_prior < 0 || icp->t_prior > t_req ||
 		    (icp->t_next >= 0 && IS_MARK(icp->s_next) && !IS_SCANNED(icp->s_next) && icp->t_next > t_req)) {
-		    if (back == 0 && !done_roll) {
-			done_roll = 1;
-			if (ctxp->c_delta > 0)  {
-			    /* forwards before scanning back */
-			    do_roll(ctxp, t_req);
-			    goto retry_back;
-			}
-		    }
 		    back++;
 		    icp->search = 1;
 		    icp->unbound = (instcntl_t *)ctxp->c_archctl->ac_unbound;
@@ -906,7 +928,7 @@ retry_back:
 		assert(ctxp->c_archctl->ac_offset >= 0);
 		ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 	    }
-	    update_bounds(ctxp, t_req, logrp, UPD_MARK_BACK, &done, NULL);
+	    update_bounds(ctxp, t_req, logrp, UPD_MARK_BACK, &done);
 
 	    /*
 	     * forget about those that can never be found from here
@@ -950,7 +972,17 @@ retry_back:
 		if (icp->t_last >= 0 && t_req > icp->t_last)
 		    /* after latest, don't bother */
 		    continue;
-retry_forw:
+
+		if (icp->t_next < 0 || icp->t_next < t_req) {
+		    if (forw == 0 && !done_roll) {
+			done_roll = 1;
+			if (ctxp->c_delta < 0)  {
+			    /* backwards before scanning forwards */
+			    do_roll(ctxp, t_req);
+			}
+		    }
+		}
+
 		/*
 		 *  At this stage there _may_ be a value later in the
 		 *  archive of interest ...
@@ -959,18 +991,11 @@ retry_forw:
 		 *  t_next < t_req => need to push t_next to be >= t_req
 		 *  	if possible, so go forward
 		 *  t_prior is valid and a mark and t_prior < t_req => need
-		 *  to search forward also
+		 *  to search forwards also (unless we've already scanned this
+		 *  region)
 		 */
 		if (icp->t_next < 0 || icp->t_next < t_req ||
 		    (icp->t_prior >= 0 && IS_MARK(icp->s_prior) && !IS_SCANNED(icp->s_prior) && icp->t_prior < t_req)) {
-		    if (forw == 0 && !done_roll) {
-			done_roll = 1;
-			if (ctxp->c_delta < 0)  {
-			    /* backwards before scanning forwards */
-			    do_roll(ctxp, t_req);
-			    goto retry_forw;
-			}
-		    }
 		    forw++;
 		    icp->search = 1;
 		    icp->unbound = (instcntl_t *)ctxp->c_archctl->ac_unbound;
@@ -1013,7 +1038,7 @@ retry_forw:
 		assert(ctxp->c_archctl->ac_offset >= 0);
 		ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 	    }
-	    update_bounds(ctxp, t_req, logrp, UPD_MARK_FORW, NULL, &done);
+	    update_bounds(ctxp, t_req, logrp, UPD_MARK_FORW, &done);
 
 	    /*
 	     * forget about those that can never be found from here
