@@ -453,6 +453,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 			    /* shuffle prior to next */
 			    icp->t_next = icp->t_prior;
 			    icp->s_next = icp->s_prior;
+			    CLEAR_SCANNED(icp->s_next);
 			    if (pcp->valfmt == PM_VAL_INSITU)
 				icp->v_next.lval = icp->v_prior.lval;
 			    else {
@@ -489,6 +490,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 			    /* shuffle next to prior */
 			    icp->t_prior = icp->t_next;
 			    icp->s_prior = icp->s_next;
+			    CLEAR_SCANNED(icp->s_prior);
 			    if (pcp->valfmt == PM_VAL_INSITU)
 				icp->v_prior.lval = icp->v_next.lval;
 			    else {
@@ -749,9 +751,10 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		    icp->inresult = icp->search = 0;
 		    icp->next = icp->want = icp->unbound = NULL;
 		    icp->inst = instlist[i];
-		    icp->t_prior = icp->t_next = icp->t_first = icp->t_last = -1;
-		    SET_MARK(icp->s_prior);
-		    SET_MARK(icp->s_next);
+		    icp->t_first = icp->t_last = -1;
+		    icp->t_prior = icp->t_next = -1;
+		    SET_UNDEFINED(icp->s_prior);
+		    SET_UNDEFINED(icp->s_next);
 		    icp->v_prior.pval = icp->v_next.pval = NULL;
 		}
 		if (instlist != NULL)
@@ -876,16 +879,18 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		/*
 		 *  At this stage there _may_ be a value earlier in the
 		 *  archive of interest ...
-		 *  t_prior = -1 => have not explored in this direction,
-		 *  	so need to go back
+		 *  s_prior undefined => have not explored in this direction,
+		 *  	so need to go back (unless we've already scanned in
+		 *  	this direction)
 		 *  t_prior > t_req => need to push t_prior to be <= t_req
 		 *  	if possible, so go back
 		 *  t_next is valid and a mark and t_next > t_req => need
-		 *  to search back also (unless we've already scanned this
-		 *  region)
+		 *  to search back also (unless we've already scanned to
+		 *  this mark)
 		 */
-		if (icp->t_prior < 0 || icp->t_prior > t_req ||
-		    (icp->t_next >= 0 && IS_MARK(icp->s_next) && !IS_SCANNED(icp->s_next) && icp->t_next > t_req)) {
+		if ((IS_UNDEFINED(icp->s_prior) && !IS_SCANNED(icp->s_prior)) ||
+		    icp->t_prior > t_req ||
+		    (IS_MARK(icp->s_next) && !IS_SCANNED(icp->s_next) && icp->t_next > t_req)) {
 		    back++;
 		    icp->search = 1;
 		    icp->unbound = (instcntl_t *)ctxp->c_archctl->ac_unbound;
@@ -937,13 +942,14 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    for (icp = (instcntl_t *)ctxp->c_archctl->ac_unbound; icp != NULL; icp = icp->unbound) {
 		if (icp->search && t_this <= icp->t_first) {
 		    icp->search = 0;
+		    SET_SCANNED(icp->s_prior);
 		    done++;
 		}
 	    }
 	}
 	/* end of search, trim t_first as required */
 	for (icp = (instcntl_t *)ctxp->c_archctl->ac_unbound; icp != NULL; icp = icp->unbound) {
-	    if ((icp->t_prior == -1 || icp->t_prior > t_req) &&
+	    if ((IS_UNDEFINED(icp->s_prior) || icp->t_prior > t_req) &&
 		icp->t_first < t_req) {
 		icp->t_first = t_req;
 #ifdef PCP_DEBUG
@@ -986,16 +992,18 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		/*
 		 *  At this stage there _may_ be a value later in the
 		 *  archive of interest ...
-		 *  t_next = -1 => have not explored in this direction,
-		 *  	so need to go forward
+		 *  s_next undefined => have not explored in this direction,
+		 *  	so need to go back (unless we've already scanned in
+		 *  	this direction)
 		 *  t_next < t_req => need to push t_next to be >= t_req
 		 *  	if possible, so go forward
 		 *  t_prior is valid and a mark and t_prior < t_req => need
-		 *  to search forwards also (unless we've already scanned this
-		 *  region)
+		 *  to search forwards also (unless we've already scanned to
+		 *  this mark)
 		 */
-		if (icp->t_next < 0 || icp->t_next < t_req ||
-		    (icp->t_prior >= 0 && IS_MARK(icp->s_prior) && !IS_SCANNED(icp->s_prior) && icp->t_prior < t_req)) {
+		if ((IS_UNDEFINED(icp->s_next) && !IS_SCANNED(icp->s_next)) ||
+		    icp->t_next < t_req ||
+		    (IS_MARK(icp->s_prior) && !IS_SCANNED(icp->s_prior) && icp->t_prior < t_req)) {
 		    forw++;
 		    icp->search = 1;
 		    icp->unbound = (instcntl_t *)ctxp->c_archctl->ac_unbound;
@@ -1047,6 +1055,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    for (icp = (instcntl_t *)ctxp->c_archctl->ac_unbound; icp != NULL; icp = icp->unbound) {
 		if (icp->search && icp->t_last >= 0 && t_this >= icp->t_last) {
 		    icp->search = 0;
+		    SET_SCANNED(icp->s_next);
 		    done++;
 		}
 	    }
@@ -1081,7 +1090,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    if (!icp->inresult)
 		continue;
 	    if (pcp->desc.sem == PM_SEM_DISCRETE) {
-		if (IS_MARK(icp->s_prior) || icp->t_prior == -1 ||
+		if (IS_MARK(icp->s_prior) || IS_UNDEFINED(icp->s_prior) ||
 		    icp->t_prior > t_req) {
 		    /* no earlier value, so no value */
 		    pcp->numval--;
@@ -1090,9 +1099,9 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    }
 	    else {
 		/* assume COUNTER or INSTANT */
-		if (IS_MARK(icp->s_prior) || icp->t_prior == -1 ||
+		if (IS_MARK(icp->s_prior) || IS_UNDEFINED(icp->s_prior) ||
 		    icp->t_prior > t_req ||
-		    IS_MARK(icp->s_next) || icp->t_next == -1 || icp->t_next < t_req) {
+		    IS_MARK(icp->s_next) || IS_UNDEFINED(icp->s_next) || icp->t_next < t_req) {
 		    /* in mid-range, and no bound, so no value */
 		    pcp->numval--;
 		    icp->inresult = 0;
@@ -1614,6 +1623,8 @@ __pmLogResetInterp(__pmContext *ctxp)
 	    for (icp = pcp->first; icp != NULL; icp = icp->next) {
 		if (icp->t_prior > t_req || icp->t_next < t_req) {
 		    icp->t_prior = icp->t_next = -1;
+		    SET_UNDEFINED(icp->s_prior);
+		    SET_UNDEFINED(icp->s_next);
 		    if (pcp->valfmt != PM_VAL_INSITU) {
 			if (icp->v_prior.pval != NULL)
 			    __pmUnpinPDUBuf((void *)icp->v_prior.pval);

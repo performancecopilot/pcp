@@ -41,7 +41,7 @@ _pmFetchInterp 58-60 calls
 
 === pmval -t 0.4 ===
 13-17 samples
-__pmLogRead-back 5-20 calls
+__pmLogRead-back 1-5 calls
 __pmLogRead-forw 51-57 calls
 __pmLogRead-peek 1-1 calls
 _pmFetchInterp 29-30 calls
