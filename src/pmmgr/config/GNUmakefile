@@ -15,7 +15,7 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-CONFIGS = pmie pmieconf pmlogconf pmlogger subtarget-containers \
+CONFIGS = pmie pmieconf pmlogconf pmlogger \
 	pmlogmerge pmlogmerge-rewrite pmlogmerge-granular \
 	README target-discovery.example-avahi 
 
