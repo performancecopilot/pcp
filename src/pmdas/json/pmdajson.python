@@ -9,11 +9,22 @@ from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
 import cpmapi as c_api
 from pcp.pmapi import pmUnits, pmContext, pmErr
 from ctypes import c_int, POINTER, cast
-import os
+import os, stat, pwd
 import re
 import traceback
 import subprocess
 import shlex
+
+NOBODY_UID = -1
+NOBODY_GID = -1
+
+def preexec():
+    '''
+    Function to be run before running non-trusted 'data-exec' commands.
+    '''
+    os.setgid(NOBODY_GID)
+    os.setuid(NOBODY_UID)
+    return
 
 class Metric(object):
     ''' Metric information class '''
@@ -138,7 +149,7 @@ class JsonSource(object):
     JSON Source class. Contains all metrics and data needed by a
     single JSON source.
     '''
-    def __init__(self, path, cluster, pmda):
+    def __init__(self, path, cluster, pmda, trusted):
         self.__path = path
         self.cluster = cluster
         self.__pmda = pmda
@@ -154,6 +165,15 @@ class JsonSource(object):
         # Note that this is the default data path. It can be
         # overridden with the metadata 'data-path' attribute.
         self.__data_path = "%s/data.json" % path
+
+        # JSON sources that come from "directory_list" aren't
+        # "trusted", and any command that needs to be run to get JSON
+        # data is run as user "nobody".
+        #
+        # JSON sources that come from "trusted_directory_list' are
+        # trusted, and any command that needs to be run to get JSON
+        # data is run as user "root".
+        self.__trusted = trusted
 
         self.__metadata_path = "%s/%s" % (path, pmda.metadata_name)
         self.__metadata = {}
@@ -191,14 +211,33 @@ class JsonSource(object):
         self.__lastfetch = self.__pmda.numfetch
         self.__json_data = {}
         if self.__data_exec != "":
+            if not self.__trusted and (NOBODY_UID == -1 or NOBODY_GID == -1):
+                self.log("Couldn't run JSON data command: %s"
+                         % self.__data_exec)
+                self.log("Couldn't find user 'nobody'")
+                return
             if self.__pmda.debug:
                 self.log("About to run data-exec command '%s'"
                          % self.__data_exec)
             try:
                 args = shlex.split(self.__data_exec)
-                pobj = subprocess.Popen(args, close_fds=True,
-                                        stdout=subprocess.PIPE)
+
+                # If this data source didn't come from a "trusted"
+                # directory, we have to setuid/setguid to user
+                # "nobody" before running the command by using the
+                # 'preexec_fn'.
+                if not self.__trusted:
+                    pobj = subprocess.Popen(args, preexec_fn=preexec,
+                                            close_fds=True,
+                                            stdout=subprocess.PIPE)
+                else:
+                    pobj = subprocess.Popen(args, close_fds=True,
+                                            stdout=subprocess.PIPE)
                 (out, dummy) = pobj.communicate()
+                if pobj.returncode != 0:
+                    self.log("Warning: data-exec command '%s' returned"
+                             " a non-zero return code: %d" \
+                             % (self.__data_exec, pobj.returncode))
             except (OSError, ValueError):
                 self.log("Couldn't run JSON data command: %s"
                          % self.__data_exec)
@@ -656,6 +695,7 @@ class JsonPMDA(PMDA):
 
         # Set up defaults for config variables.
         self.__directory_list = []
+        self.__trusted_directory_list = []
 
         # Load config file and process config items.
         self.__configfile = ("%s/%s/config.json"
@@ -669,6 +709,12 @@ class JsonPMDA(PMDA):
                     self.log("Invalid config file 'directory_list' value")
                     continue
                 self.__directory_list = value
+            elif key == 'trusted_directory_list':
+                if not isinstance(value, list):
+                    self.log("Invalid config file 'trusted_directory_list'"
+                             " value")
+                    continue
+                self.__trusted_directory_list = value
             # For everything else, just ignore it.
             else:
                 self.log("Ignoring unknown config option '%s'" % key)
@@ -738,6 +784,66 @@ class JsonPMDA(PMDA):
                 del self.sources_by_root[root]
                 del self.sources_by_cluster[cluster]
 
+    def __valid_perms(self, path, desc):
+        '''
+        Check path and make sure it is owned by root and isn't
+        group or world writable.
+        '''
+        try:
+            stat_result = os.stat(path)
+        except OSError:
+            self.log("Error while getting information about"
+                     " %s '%s'" % (desc, path))
+            self.log("%s" % traceback.format_exc())
+            return False
+        if stat_result.st_uid != 0 \
+           or (stat_result.st_mode & (stat.S_IWGRP|stat.S_IWOTH)) != 0:
+            self.log("The %s '%s' must be owned by root and"
+                     " not group or world-writable." % (desc, path))
+            return False
+        return True
+
+    def __load_directory_list(self, trusted, sources_seen):
+        '''
+        Load the JSON metadata/data for new sources found in either
+        the 'trusted_directory_list' or the 'directory_list'.
+        '''
+        if trusted:
+            dir_list = self.__trusted_directory_list
+        else:
+            dir_list = self.__directory_list
+        for directory in dir_list:
+            for root, dummy, files in os.walk(directory):
+                # Make sure we have the metadata file.
+                if self.metadata_name in files:
+                    # If we haven't seen this source before...
+                    if root not in self.sources_by_root:
+                        # If we're processing a "trusted" directory, make
+                        # sure the root directory and metadata file are
+                        # owned by root and aren't group or
+                        # world-writable.
+                        metadata_path = "%s/%s" % (root, self.metadata_name)
+                        if trusted \
+                           and (not self.__valid_perms(root, "directory")
+                                or not self.__valid_perms(metadata_path,
+                                                          "file")):
+                            continue
+
+                        # Add the new source.
+                        source = JsonSource(root, self.cluster_idx,
+                                            self, trusted)
+                        self.sources_by_root[root] = source
+                        self.sources_by_cluster[self.cluster_idx] = source
+                        self.cluster_idx += 1
+
+                        # Notice we're going ahead and loading the
+                        # JSON data for new sources. If we're
+                        # fetching, this fetch might not be for this
+                        # new data source, but we need the metadata
+                        # (for metrics) and data (for indoms).
+                        self.sources_by_root[root].load()
+                    sources_seen[root] = 1
+
     def __load_all_json(self):
         '''
         Walk the filesystem and load the JSON metadata/data for every
@@ -746,23 +852,8 @@ class JsonPMDA(PMDA):
         if self.debug:
             self.log("load_all_json entry")
         sources_seen = {}
-        for directory in self.__directory_list:
-            for root, dummy, files in os.walk(directory):
-                # Make sure we have the metadata file.
-                if self.metadata_name in files:
-                    if root not in self.sources_by_root:
-                        source = JsonSource(root, self.cluster_idx, self)
-                        self.sources_by_root[root] = source
-                        self.sources_by_cluster[self.cluster_idx] = source
-                        self.cluster_idx += 1
-
-                    self.sources_by_root[root].load()
-                    sources_seen[root] = 1
-
-        # Cleanup all removed JSON sources.
-        removed_sources = [k for k in self.sources_by_root \
-                           if k not in sources_seen]
-        self.__remove_json_sources(removed_sources)
+        self.__load_directory_list(True, sources_seen)
+        self.__load_directory_list(False, sources_seen)
         if self.debug:
             self.log("load_all_json exit")
 
@@ -780,25 +871,8 @@ class JsonPMDA(PMDA):
         '''
         # Update our list of sources.
         sources_seen = {}
-        for directory in self.__directory_list:
-            for root, dummy, files in os.walk(directory):
-                # Make sure we have the metadata file.
-                if self.metadata_name in files:
-                    # If we haven't seen this source before...
-                    if root not in self.sources_by_root:
-                        source = JsonSource(root, self.cluster_idx, self)
-                        self.sources_by_root[root] = source
-                        self.sources_by_cluster[self.cluster_idx] = source
-                        self.cluster_idx += 1
-
-                        # Notice we're going ahead and loading the
-                        # JSON data for new sources. This fetch might
-                        # not be for this new data source, but we need
-                        # the metadata (for metrics) and data (for
-                        # indoms).
-                        self.sources_by_root[root].load()
-
-                    sources_seen[root] = 1
+        self.__load_directory_list(True, sources_seen)
+        self.__load_directory_list(False, sources_seen)
 
         # Cleanup all removed JSON sources.
         removed_sources = [k for k in self.sources_by_root \
@@ -824,7 +898,7 @@ class JsonPMDA(PMDA):
             # Now ask each JSON source to refresh its own
             # metrics. This recreates them from cached info we got
             # from the last time we read the source's metadata file.
-            for (root, source) in self.sources_by_root.items():
+            for (dummy, source) in self.sources_by_root.items():
                 source.refresh_metrics()
 
     def __fetch_callback(self, cluster, item, inst):
@@ -849,6 +923,18 @@ class JsonPMDA(PMDA):
         return source.fetch(item, inst)
 
 if __name__ == '__main__':
+    # Find the uid/gid of "nobody" for use by non-trusted "data-exec"
+    # commands.
+    try:
+        PW_RECORD = pwd.getpwnam('nobody')
+        NOBODY_UID = PW_RECORD.pw_uid
+        NOBODY_GID = PW_RECORD.pw_gid
+    except KeyError:
+        # We can't log errors yet since the JsonPMDA isn't created
+        # yet. But, we'll log an error when we try to use the
+        # uid/gid.
+        pass
+
     #os.environ["PCP_PYTHON_DEBUG"] = "ALL"
     #os.environ["PCP_PYTHON_DEBUG"] = "APPL0|LIBPMDA"
     JsonPMDA('json', 137).run()
