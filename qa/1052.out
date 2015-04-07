@@ -1,0 +1,96 @@
+QA output created by 1052
+dbpmda> open pipe $PCP_PYTHON_PROG $PCP_PMDAS_DIR/json/pmdajson.python
+Start python PMDA: $PCP_PYTHON_PROG $PCP_PMDAS_DIR/json/pmdajson.python
+dbpmda> getdesc on
+dbpmda> desc json.nsources
+PMID: 137.0.0
+Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+Semantics: counter  Units: none
+dbpmda> fetch json.nsources
+PMID(s): 137.0.0
+pmResult ... numpmid: 1
+137.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
+value 0
+dbpmda> children json
+Metric: json
+leaf debug
+leaf nsources
+
+fetch json.nsources
+PMID(s): 137.0.0
+pmResult ... numpmid: 1
+137.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
+value 1
+dbpmda> children json
+Metric: json
+non-leaf s1
+leaf debug
+leaf nsources
+dbpmda> children json.s1
+Metric: json.s1
+leaf value
+leaf string
+dbpmda> fetch json.s1.string
+PMID(s): 137.1.0
+pmResult ... numpmid: 1
+137.1.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
+value "original value"
+dbpmda> fetch json.s1.value
+PMID(s): 137.1.1
+pmResult ... numpmid: 1
+137.1.1 (<noname>): numval: 1 valfmt: 1 vlist[]:
+value 0
+
+fetch json.nsources
+PMID(s): 137.0.0
+pmResult ... numpmid: 1
+137.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
+value 1
+dbpmda> fetch json.s1.string
+PMID(s): 137.1.0
+pmResult ... numpmid: 1
+137.1.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
+value "new value"
+dbpmda> fetch json.s1.value
+PMID(s): 137.1.1
+pmResult ... numpmid: 1
+137.1.1 (<noname>): numval: 1 valfmt: 1 vlist[]:
+value 99
+
+fetch json.nsources
+PMID(s): 137.0.0
+pmResult ... numpmid: 1
+137.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
+value 2
+dbpmda> children json
+Metric: json
+non-leaf s1
+non-leaf s2
+leaf debug
+leaf nsources
+dbpmda> children json.s1
+Metric: json.s1
+leaf string
+leaf value
+dbpmda> children json.s2
+Metric: json.s2
+non-leaf array_data
+dbpmda> instance 137.0
+pmInDom: 137.0
+[  0] inst: 0 name: "second"
+[  1] inst: 1 name: "first"
+dbpmda> fetch json.s2.array_data.count
+PMID(s): 137.2.1
+pmResult ... numpmid: 1
+137.2.1 (<noname>): numval: 2 valfmt: 1 vlist[]:
+inst [0 or ???] value 99
+inst [1 or ???] value 0
+dbpmda> fetch json.s2.array_data.value
+PMID(s): 137.2.2
+pmResult ... numpmid: 1
+137.2.2 (<noname>): numval: 2 valfmt: 1 vlist[]:
+inst [0 or ???] value 2048
+inst [1 or ???] value 1024
+
+quit
+
