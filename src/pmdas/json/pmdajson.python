@@ -5,7 +5,7 @@ Performance Metrics Domain Agent exporting JSON metrics.
 import json
 import jsonpointer
 from collections import OrderedDict
-from pcp.pmda import PMDA, pmdaMetric
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
 import cpmapi as c_api
 from pcp.pmapi import pmUnits, pmContext, pmErr
 from ctypes import c_int, POINTER, cast
@@ -111,6 +111,7 @@ class Indom(object):
         self.idx = idx
         self.obj = pmda.indom(self.idx)
         self.values = {}
+        self.__pmda.add_indom(pmdaIndom(self.obj, self.values))
 
     def log(self, string):
         ''' Log an informational message '''
@@ -243,15 +244,15 @@ class JsonSource(object):
             self.cleanup()
             return
 
-        # Update the indom list.
-        self.__refresh_indoms()
-
         # Parse the metadata, creating metrics as needed.
         try:
             self.__parse_metadata()
         except TypeError:
             self.log("Couldn't parse JSON metadata")
             self.log("%s" % traceback.format_exc())
+
+        # Update the indom list (after we've parsed the metadata).
+        self.__refresh_indoms()
 
     def refresh_json_data(self):
         ''' Reload the JSON data and update indoms. '''
