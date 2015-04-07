@@ -85,6 +85,11 @@ PCP_GUIFLAG=true $here/src/getoptions
 echo '== Arguments: allow mixed hosts and archives'
 PM_OPTFLAG_MIXED=true PCP_HOST=acme.com PCP_ARCHIVE=log $here/src/getoptions
 
+echo '== Arguments: hosts file'
+echo foo.bar.com > $tmp.hosts
+echo acme.com   >> $tmp.hosts
+PM_OPTFLAG_MULTI=true $here/src/getoptions -H $tmp.hosts
+
 # success, all done
 status=0
 exit

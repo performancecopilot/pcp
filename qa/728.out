@@ -785,3 +785,28 @@ Options structure dump:
     guiflag: 0
     tzflag: 0
     Lflag: 0
+== Arguments: hosts file
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x7 (init,done,multi)
+    errors: 0
+    context: 0x1 (host)
+    nhosts: 2
+    hosts: foo.bar.com,acme.com
+    narchives: 0
+    start: -
+    finish: -
+    origin: -
+    interval: -
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
