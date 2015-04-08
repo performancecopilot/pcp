@@ -2299,6 +2299,12 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
     __pm_off_t	physend = 0;
 
     /*
+     * default, when all else fails ...
+     */
+    tp->tv_sec = INT_MAX;
+    tp->tv_usec = 0;
+
+    /*
      * expect things to be stable, so l_maxvol is not empty, and
      * l_physend does not change for l_maxvol ... the ugliness is
      * to handle situations where these expectations are not met
@@ -2313,13 +2319,15 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
 	    assert(save >= 0);
 	}
 	else if ((f = _logpeek(lcp, vol)) == NULL) {
-	    sts = -oserror();
-	    break;
+	    /* failed to open this one, try previous volume(s) */
+	    continue;
 	}
 
 	if (fstat(fileno(f), &sbuf) < 0) {
-	    sts = -oserror();
-	    break;
+	    /* if we can't stat() this one, then try previous volume(s) */
+	    fclose(f);
+	    f = NULL;
+	    continue;
 	}
 
 	if (vol == lcp->l_maxvol && sbuf.st_size == lcp->l_physend) {
