@@ -22,9 +22,9 @@ postgres=`pmprobe postgresql.stat.all_tables.seq_scan | awk '{ print $2 }'`
 rm -f $seq.out
 if [ $PCP_PLATFORM = darwin ]
 then
-    ln $seq.darwin.$suffix $seq.out || exit 1
+    ln $seq.darwin $seq.out || exit 1
 else
-    ln $seq.other.$suffix $seq.out || exit 1
+    ln $seq.other $seq.out || exit 1
 fi
 
 status=0	# success is the default!
