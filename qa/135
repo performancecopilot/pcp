@@ -63,7 +63,7 @@ s/P-.*/P-LAST\//
 }
 
 # real QA test starts here
-$sudo rm -f $tmp.*
+$sudo rm -f $tmp.* $seq.full
 
 echo 's/ [A-Z][a-z][a-z] [A-Z][a-z][a-z] .. / month-day /g' >$tmp.sed
 echo 's/ [12][0-9][0-9][0-9]/ year/' >>$tmp.sed
@@ -104,6 +104,15 @@ sed -e '/dump in reverse order/d' $tmp.rev \
 
 echo
 echo "=== expect no differences ==="
-diff $tmp.list $tmp.rev
+if diff $tmp.list $tmp.rev
+then
+    :
+else
+    echo "+++ forward +++" >>$seq.full
+    cat $tmp.list >>$seq.full
+    echo >>$seq.full
+    echo "+++ backward +++" >>$seq.full
+    cat $tmp.rev >>$seq.full
+fi
 
 exit 0
