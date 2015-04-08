@@ -27,6 +27,7 @@ static pmID		pmid_flags;
 static pmID		pmid_missed;
 static int		sflag;
 static int		xflag;		/* for -x (long timestamps) */
+static pmLogLabel	label;
 
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),
@@ -54,7 +55,7 @@ static pmLongOptions longopts[] = {
 static int overrides(int, pmOptions *);
 static pmOptions opts = {
     .flags = PM_OPTFLAG_DONE | PM_OPTFLAG_STDOUT_TZ | PM_OPTFLAG_BOUNDARIES,
-    .short_options = "aD:dilLmn:rS:sT:tv:xZ:z?",
+    .short_options = "aD:dilLmMn:rS:sT:tv:xZ:z?",
     .long_options = longopts,
     .short_usage = "[options] [archive [metricname ...]]",
     .override = overrides,
@@ -372,6 +373,8 @@ dump_result(pmResult *resp)
 	printf("%s ", ddmm);
 	__pmPrintStamp(stdout, &resp->timestamp);
 	printf(" %4.4s", yr);
+	if (xflag >= 2)
+	    printf(" (%.6f)", __pmtimevalSub(&resp->timestamp, &label.ll_start));
     }
     else
 	__pmPrintStamp(stdout, &resp->timestamp);
@@ -569,16 +572,8 @@ dumpTI(__pmContext *ctxp)
 static void
 dumpLabel(int verbose)
 {
-    pmLogLabel	label;
     char	*ddmm;
     char	*yr;
-    int		sts;
-
-    if ((sts = pmGetArchiveLabel(&label)) < 0) {
-	fprintf(stderr, "%s: Cannot get archive label record: %s\n",
-		pmProgname, pmErrStr(sts));
-	exit(1);
-    }
 
     printf("Log Label (Log Format Version %d)\n", label.ll_magic & 0xff);
     printf("Performance metrics from host %s\n", label.ll_hostname);
@@ -691,11 +686,14 @@ main(int argc, char *argv[])
     int			iflag = 0;
     int			Lflag = 0;
     int			lflag = 0;
+    int			Mflag = 0;
     int			mflag = 0;
     int			tflag = 0;
     int			vflag = 0;
     int			mode = PM_MODE_FORW;
     __pmContext		*ctxp;
+    pmResult		*raw_result;
+    pmResult		*skel_result = NULL;
     pmResult		*result;
     struct timeval	done;
 
@@ -727,6 +725,10 @@ main(int argc, char *argv[])
 	    mflag = 1;
 	    break;
 
+	case 'M':	/* report <mark> records */
+	    Mflag = 1;
+	    break;
+
 	case 'r':	/* read log in reverse chornological order */
 	    mode = PM_MODE_BACK;
 	    break;
@@ -745,7 +747,8 @@ main(int argc, char *argv[])
 	    break;
 
 	case 'x':	/* report Ddd Mmm DD <timestamp> YYYY */
-	    xflag = 1;
+			/* -xx reports numeric timeval also */
+	    xflag++;
 	    break;
 	}
     }
@@ -815,6 +818,24 @@ main(int argc, char *argv[])
 	}
     }
 
+    if ((sts = pmGetArchiveLabel(&label)) < 0) {
+	fprintf(stderr, "%s: Cannot get archive label record: %s\n",
+		pmProgname, pmErrStr(sts));
+	exit(1);
+    }
+
+    if (numpmid > 0) {
+	/*
+	 * setup dummy pmResult
+	 */
+	skel_result = (pmResult *)malloc(sizeof(pmResult)+(numpmid-1)*sizeof(pmValueSet *));
+	if (skel_result == NULL) {
+	    fprintf(stderr, "%s: malloc(skel_result): %s\n", pmProgname, osstrerror());
+	    exit(1);
+
+	}
+    }
+
     /*
      * Note: ctxp->c_lock remains locked throughout ... __pmHandleToPtr()
      *       is only called once, and a single context is used throughout
@@ -880,12 +901,56 @@ main(int argc, char *argv[])
 	}
 	sts = 0;
 	for ( ; ; ) {
-	    if (numpmid == 0)
-		sts = pmFetchArchive(&result);
-	    else
-		sts = pmFetch(numpmid, pmid, &result);
+	    sts = __pmLogFetch(ctxp, 0, NULL, &raw_result);
 	    if (sts < 0)
 		break;
+	    if (numpmid == 0 || (raw_result->numpmid == 0 && Mflag)) {
+		/*
+		 * want 'em all or <mark> record ...
+		 */
+		result = raw_result;
+	    }
+	    else if (numpmid > 0) {
+		/*
+		 * cherry pick from raw_result if pmid matches one
+		 * of interest
+		 */
+		int	picked = 0;
+		int	j;
+		skel_result->timestamp = raw_result->timestamp;
+		for (j = 0; j < numpmid; j++)
+		    skel_result->vset[j] = NULL;
+		for (i = 0; i < raw_result->numpmid; i++) {
+		    for (j = 0; j < numpmid; j++) {
+			if (pmid[j] == raw_result->vset[i]->pmid) {
+			    skel_result->vset[j] = raw_result->vset[i];
+			    picked++;
+			    break;
+			}
+		    }
+		}
+		if (picked == 0) {
+		    /* no metrics of interest, skip this record */
+		    pmFreeResult(raw_result);
+		    continue;
+		}
+		skel_result->numpmid = picked;
+		if (picked != numpmid) {
+		    /* did not find 'em all ... shuffle time */
+		    int		j;
+		    i = 0;
+		    for (j = 0; j < numpmid; j++) {
+			if (skel_result->vset[j] != NULL)
+			    skel_result->vset[i++] = skel_result->vset[j];
+		    }
+		}
+		result = skel_result;
+	    }
+	    else {
+		/* not interesting */
+		pmFreeResult(raw_result);
+		continue;
+	    }
 	    if (first && mode == PM_MODE_BACK) {
 		first = 0;
 		printf("\nLog finished at %24.24s - dump in reverse order\n",
@@ -898,7 +963,7 @@ main(int argc, char *argv[])
 	    }
 	    putchar('\n');
 	    dump_result(result);
-	    pmFreeResult(result);
+	    pmFreeResult(raw_result);
 	}
 	if (sts != PM_ERR_EOL) {
 	    fprintf(stderr, "%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
