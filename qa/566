@@ -20,11 +20,11 @@ mkdir $tmp
 
 _filter()
 {
-    echo >>$seq.full
-    echo "stdout" >>$seq.full
-    cat $tmp.out >>$seq.full
-    echo "stderr" >>$seq.full
-    cat $tmp.err >>$seq.full
+    echo >>$here/$seq.full
+    echo "stdout" >>$here/$seq.full
+    cat $tmp.out >>$here/$seq.full
+    echo "stderr" >>$here/$seq.full
+    cat $tmp.err >>$here/$seq.full
     # need sort because order files are processed in not deterministic
     #
     sed $tmp.out -e "s;$tmp;TMP;g" | LC_COLLATE=POSIX sort
@@ -45,23 +45,23 @@ _filter_pass0()
 }
 
 # real QA test starts here
-echo "=== directory traversal and file checks ===" | tee -a $seq.full
+echo "=== directory traversal and file checks ===" | tee -a $here/$seq.full
 cp src/foo.index $tmp
-( echo; echo "TMP/foo.index alone:" ) | tee -a $seq.full
+( echo; echo "TMP/foo.index alone:" ) | tee -a $here/$seq.full
 pmlogcheck -v $tmp/foo >$tmp.out 2>$tmp.err
 _filter
 cp src/foo.0 $tmp
-( echo; echo "TMP/foo.meta missing:" ) | tee -a $seq.full
+( echo; echo "TMP/foo.meta missing:" ) | tee -a $here/$seq.full
 pmlogcheck -v $tmp/foo >$tmp.out 2>$tmp.err
 _filter
 rm $tmp/foo.0
 cp src/foo.meta $tmp
-( echo; echo "TMP/foo.0 missing:" ) | tee -a $seq.full
+( echo; echo "TMP/foo.0 missing:" ) | tee -a $here/$seq.full
 pmlogcheck -v $tmp/foo >$tmp.out 2>$tmp.err
 _filter
 rm $tmp/foo.index
 cp src/foo.0 $tmp
-( echo; echo "TMP/foo.index missing:" ) | tee -a $seq.full
+( echo; echo "TMP/foo.index missing:" ) | tee -a $here/$seq.full
 pmlogcheck -v $tmp/foo >$tmp.out 2>$tmp.err
 _filter
 cp src/foo.index $tmp
@@ -74,24 +74,24 @@ touch $tmp/foo.1
 chmod 0 $tmp/foo.1
 touch $tmp/foo.bar
 touch $tmp/foo.9x9
-( echo; echo "TMP/bar:" ) | tee -a $seq.full
+( echo; echo "TMP/bar:" ) | tee -a $here/$seq.full
 pmlogcheck -v $tmp/bar >$tmp.out 2>$tmp.err
 _filter
-( echo; echo "TMP/foo:" ) | tee -a $seq.full
+( echo; echo "TMP/foo:" ) | tee -a $here/$seq.full
 pmlogcheck -v $tmp/foo >$tmp.out 2>$tmp.err
 _filter
 cd $tmp
-( echo; echo "foo:" ) | tee -a $seq.full
+( echo; echo "foo:" ) | tee -a $here/$seq.full
 pmlogcheck -v foo >$tmp.out 2>$tmp.err
 _filter
-chmod 644 $tmp/foo.1
-( echo; echo "foo.index:" ) | tee -a $seq.full
+chmod 644 foo.1
+( echo; echo "foo.index:" ) | tee -a $here/$seq.full
 pmlogcheck -v foo.index >$tmp.out 2>$tmp.err
 _filter
 cd $here
 
-echo | tee -a $seq.full
-echo "=== pass 0 failures ===" | tee -a $seq.full
+echo | tee -a $here/$seq.full
+echo "=== pass 0 failures ===" | tee -a $here/$seq.full
 for arch in `ls archives/badlen-*.meta` archives/badti-1 `ls archives/badlabel-*.meta`
 do
     # some of the bad archives may not have pass 0 style corruption,
@@ -102,15 +102,15 @@ do
 	archives/badlen-0.meta|archives/badlen-8.meta|archives/badlabel-0.meta)
 		;;
 	*)
- 		( echo; echo "$arch:" ) | tee -a $seq.full
+ 		( echo; echo "$arch:" ) | tee -a $here/$seq.full
 		pmlogcheck -v $arch >$tmp.out 2>$tmp.err
 		_filter | _filter_pass0
 		;;
     esac
 done
 
-echo | tee -a $seq.full
-echo "=== pass 1 failures ===" | tee -a $seq.full
+echo | tee -a $here/$seq.full
+echo "=== pass 1 failures ===" | tee -a $here/$seq.full
 for arch in `ls archives/badti-*.index`
 do
     # some of the bad archives may not have pass 1 style corruption,
@@ -121,15 +121,15 @@ do
 	archives/badti-1.index)
 		;;
 	*)
- 		( echo; echo "$arch:" ) | tee -a $seq.full
+ 		( echo; echo "$arch:" ) | tee -a $here/$seq.full
 		pmlogcheck -v $arch >$tmp.out 2>$tmp.err
 		_filter
 		;;
     esac
 done
 
-echo | tee -a $seq.full
-echo "=== pass 3 failures ===" | tee -a $seq.full
+echo | tee -a $here/$seq.full
+echo "=== pass 3 failures ===" | tee -a $here/$seq.full
 for arch in `ls archives/badlog-*.0`
 do
     # some of the bad archives may not have pass 3 style corruption,
@@ -138,7 +138,7 @@ do
     case $arch
     in
 	*)
- 		( echo; echo "$arch:" ) | tee -a $seq.full
+ 		( echo; echo "$arch:" ) | tee -a $here/$seq.full
 		pmlogcheck -v $arch >$tmp.out 2>$tmp.err
 		_filter
 		;;
