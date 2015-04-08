@@ -142,6 +142,23 @@
    fun:pmFetch
 }
 
+# also on vm11, similar to above
+# Command: pmlogreduce -t 30sec src/20101004-trunc TMP
+# 178,372 bytes in 2,347 blocks are possibly lost in loss record 77 of 77at 0x4023F50: malloc (vg_replace_malloc.c:236)
+#	by 0x406C50A: __pmLogFetchInterp (in /usr/lib/libpcp.so.3)
+#	by 0x4067447: __pmLogFetch (in /usr/lib/libpcp.so.3)
+#	by 0x4049E35: pmFetch (in /usr/lib/libpcp.so.3)
+#	by 0x804A04E: ??? (in /usr/lib/pcp/bin/pmlogreduce)
+#	by 0x40C1C95: (below main) (libc-start.c:228)
+{
+   Valgrind 3.6.0.SVN-Debian botch
+   Memcheck:Leak
+   fun:malloc
+   fun:__pmLogFetchInterp
+   fun:__pmLogFetch
+   fun:pmFetch
+}
+
 # dlopen issues seen with valgrind 3.6.0 on i586 Debian 6.0.x (vm11)
 {
    dlopen -> local_strdup
@@ -152,12 +169,6 @@
    fun:dl_open_worker
    fun:_dl_catch_error
    fun:_dl_open
-   fun:dlopen_doit
-   fun:_dl_catch_error
-   fun:_dlerror_run
-   fun:dlopen@@GLIBC_2.1
-   fun:__pmConnectLocal
-   fun:pmNewContext
 }
 
 {
@@ -168,13 +179,6 @@
    fun:dl_open_worker
    fun:_dl_catch_error
    fun:_dl_open
-   fun:dlopen_doit
-   fun:_dl_catch_error
-   fun:_dlerror_run
-   fun:dlopen@@GLIBC_2.1
-   fun:__pmConnectLocal
-   fun:pmNewContext
-   obj:*
 }
 
 {
@@ -185,11 +189,60 @@
    fun:dl_open_worker
    fun:_dl_catch_error
    fun:_dl_open
-   fun:dlopen_doit
+}
+
+{
+   dlopen -> _dl_map_object
+   Memcheck:Leak
+   fun:malloc
+   fun:local_strdup
+   fun:_dl_map_object
+   fun:openaux
    fun:_dl_catch_error
-   fun:_dlerror_run
-   fun:dlopen@@GLIBC_2.1
-   fun:__pmConnectLocal
-   fun:pmNewContext
-   obj:*
+   fun:_dl_map_object_deps
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+}
+
+{
+   dlopen -> _dl_new_object
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_new_object
+   fun:_dl_map_object_from_fd
+   fun:_dl_map_object
+   fun:openaux
+   fun:_dl_catch_error
+   fun:_dl_map_object_deps
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+}
+
+{
+   dlopen -> _dl_new_object
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_new_object
+   fun:_dl_map_object_from_fd
+   fun:_dl_map_object
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+}
+
+{
+   dlopen -> _dl_new_object
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_new_object
+   fun:_dl_map_object_from_fd
+   fun:_dl_map_object
+   fun:openaux
+   fun:_dl_catch_error
+   fun:_dl_map_object_deps
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
 }
