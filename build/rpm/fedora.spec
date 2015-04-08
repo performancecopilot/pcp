@@ -1081,6 +1081,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %changelog
 * Wed Apr 15 2015 Nathan Scott <nathans@redhat.com> - 3.10.4-1
+- Update to latest PCP sources.
+- Packaging improvements after re-review (BZ 1204467)
+- Start pmlogger/pmie independent of persistent state (BZ 1185755)
 
 * Wed Mar 04 2015 Dave Brolley <brolley@redhat.com> - 3.10.3-2
 - papi 5.4.1 rebuild

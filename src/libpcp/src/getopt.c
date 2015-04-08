@@ -508,9 +508,10 @@ __pmAddOptHostFile(pmOptions *opts, char *arg)
 		    continue;
 		host = p;
 		length = 0;
-		while (*p != '\n' && *p != '#' && !isspace((int)*p))
+		while (*p != '\n' && *p != '#' && !isspace((int)*p)) {
 		    length++;
-		p += length;
+		    p++;
+		}
 		*p = '\0';
 		if ((hosts = realloc(hosts, size)) != NULL) {
 		    if ((host = strndup(host, length)) != NULL) {
