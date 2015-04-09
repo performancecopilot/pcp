@@ -10270,7 +10270,7 @@ done
 
     if test "$do_papi" != "check" -a "$enable_papi" != "true"
     then
-	as_fn_error cannot enable the PAPI PMDA "PAPI is not installed" "$LINENO" 5
+	as_fn_error $? "PAPI is not installed, cannot enable the PAPI PMDA" "$LINENO" 5
     else
 	pmda_papi=$enable_papi
     fi
@@ -10376,7 +10376,7 @@ done
 
     if test "$do_perfevent" != "check" -a "$enable_papi" != "true"
     then
-	as_fn_error cannot enable the perfevent PMDA "libpfm is not installed" "$LINENO" 5
+	as_fn_error $? "libpfm is not installed, cannot enable the perfevent PMDA" "$LINENO" 5
     else
 	pmda_perfevent=$enable_perfevent
     fi
@@ -10571,10 +10571,10 @@ if test "x$do_webapi" != "xno"; then :
 
     if test "$do_webapi" != "check" -a "$have_libmicrohttpd" != "true"
     then
-	as_fn_error cannot enable the web API "libmicrohttpd is not installed" "$LINENO" 5
+	as_fn_error $? "libmicrohttpd is not installed, cannot enable the web API" "$LINENO" 5
     elif test "$do_webapi" != "check" -a "x$cxx" = "x"
     then
-	as_fn_error cannot enable the web API "C++ compiler unavailable" "$LINENO" 5
+	as_fn_error $? "C++ compiler unavailable, cannot enable the web API" "$LINENO" 5
     else
 	enable_webapi=$have_libmicrohttpd
     fi
@@ -10589,10 +10589,10 @@ if test "x$do_manager" != "xno"; then :
 
     if test "$do_manager" != "check" -a $target_os = mingw
     then
-	as_fn_error cannot enable daemon manager "Target platform is MinGW" "$LINENO" 5
+	as_fn_error $? "Target platform is MinGW, cannot enable daemon manager" "$LINENO" 5
     elif test "$do_manager" != "check" -a "x$cxx" = "x"
     then
-	as_fn_error cannot enable daemon manager "C++ compiler unavailable" "$LINENO" 5
+	as_fn_error $? "C++ compiler unavailable, cannot enable daemon manager" "$LINENO" 5
     fi
 
 fi
