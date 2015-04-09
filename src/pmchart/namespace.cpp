@@ -58,26 +58,28 @@ NameSpace::NameSpace(NameSpace *parent, const QString &name, bool inst)
 NameSpace::NameSpace(QTreeWidget *list, const QmcContext *context)
     : QTreeWidgetItem(list, QTreeWidgetItem::UserType)
 {
+    QmcSource source = context->source();
+
+    my.basename = source.hostLabel();
+    my.context = (QmcContext *)context;
+    memset(&my.desc, 0, sizeof(my.desc));
     my.expanded = false;
     my.back = this;
-    memset(&my.desc, 0, sizeof(my.desc));
-    my.context = (QmcContext *)context;
-    switch (my.context->source().type()) {
-    case PM_CONTEXT_ARCHIVE:
-	my.basename = context->source().source();
+
+    if (source.isArchive()) {
+	my.basename = source.source();
 	my.icon = QIcon(":/images/archive.png");
 	my.type = ArchiveRoot;
-	break;
-    case PM_CONTEXT_LOCAL:
+    } else if (source.isContainer()) {
+	my.icon = QIcon(":/images/container.png");
+	my.type = ContainerRoot;
+    } else if (source.type() == PM_CONTEXT_LOCAL) {
 	my.basename = QString("Local context");
 	my.icon = QIcon(":/images/emblem-system.png");
 	my.type = LocalRoot;
-	break;
-    default:
-	my.basename = context->source().source();
+    } else {
 	my.icon = QIcon(":/images/computer.png");
 	my.type = HostRoot;
-	break;
     }
     setToolTip(0, sourceTip());
     setText(0, my.basename);
@@ -93,7 +95,7 @@ QString NameSpace::sourceTip()
     QmcSource source = my.context->source();
 
     tooltip = "Performance metrics from host ";
-    tooltip.append(source.host());
+    tooltip.append(source.hostLabel());
 
     if (source.type() == PM_CONTEXT_ARCHIVE) {
 	tooltip.append("\n  commencing ");
@@ -115,9 +117,14 @@ int NameSpace::sourceType()
     return my.context->source().type();
 }
 
-QString NameSpace::sourceName()
+QString NameSpace::source()
 {
     return my.context->source().source();
+}
+
+QString NameSpace::sourceName()
+{
+    return my.context->source().hostLabel();
 }
 
 QString NameSpace::metricName()

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Red Hat.
+ * Copyright (c) 2014-2015, Red Hat.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -23,7 +23,7 @@ class QedFileIconProvider : public QFileIconProvider
 public:
     QedFileIconProvider();
 
-    typedef enum { View, Folio, Archive, Html, Image,	// IconType++
+    typedef enum { View, Folio, Archive, Container, Html, Image,
 		   Package, SpreadSheet, WordProcessor } FileIconType;
     QIcon icon(FileIconType type) const;
 
@@ -36,6 +36,7 @@ private:
 	QIcon file;
 	QIcon folder;
 	QIcon computer;
+	QIcon container;
 
 	QIcon fileView;		// pmchart view
 	QIcon fileFolio;	// PCP folio
