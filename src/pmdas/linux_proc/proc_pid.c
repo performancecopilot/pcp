@@ -1160,6 +1160,9 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
     }
     proc_pid_entry_t *ep;
     char buf[1024];
+    char *p;
+    ssize_t nread;
+
 
     *sts = 0;
     if (node == NULL) {
@@ -1478,7 +1481,7 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
 			    goto nomatch;
 			break;
                     case 'C':
-		        if (strncmp(curline, "Cpus_allowed_list:", 18) == 0) {
+		        if (strncmp(curline, "Cpus_allowed_list:", 18) == 0)
 		            ep->status_lines.cpusallowed = strsep(&curline, "\n");
 			else
 			    goto nomatch;

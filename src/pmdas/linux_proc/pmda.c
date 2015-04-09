@@ -2066,6 +2066,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case PROC_PID_STATUS_CPUSALLOWED:
 	if ((atom->cp = _pm_getfield(entry->status_lines.cpusallowed, 1)) == NULL)
 	    return PM_ERR_INST;
+	break;
 
 	default:
 	    return PM_ERR_PMID;

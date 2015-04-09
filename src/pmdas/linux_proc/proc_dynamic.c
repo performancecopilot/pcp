@@ -118,7 +118,7 @@ static dynproc_metric_t psinfo_metrics[] = {
 	{ .name = "delayacct_blkio_time",   .cluster = CLUSTER_PID_STAT,.item=44 },
 	{ .name = "guest_time",	    .cluster = CLUSTER_PID_STAT,	.item=45 },
 	{ .name = "cguest_time",    .cluster = CLUSTER_PID_STAT,	.item=46 },
-	{ .name = "environ",        .cluster = CLUSTER_PID_STAT,	.item=46 },
+	{ .name = "environ",        .cluster = CLUSTER_PID_STAT,	.item=47 },
 	{ .name = "signal_s",	    .cluster = CLUSTER_PID_STATUS,	.item=16 },
 	{ .name = "blocked_s",	    .cluster = CLUSTER_PID_STATUS,	.item=17 },
 	{ .name = "sigignore_s",    .cluster = CLUSTER_PID_STATUS,	.item=18 },
