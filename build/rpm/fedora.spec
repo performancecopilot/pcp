@@ -271,6 +271,8 @@ License: ASL2.0 and MIT and CC-BY
 Group: Applications/System
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 BuildArch: noarch
+# pcp-webapi provides the .../webapps base path relied on here
+Requires: pcp-webapi = %{version}-%{release}
 %endif
 Summary: Performance Co-Pilot (PCP) web applications
 URL: http://www.pcp.io
