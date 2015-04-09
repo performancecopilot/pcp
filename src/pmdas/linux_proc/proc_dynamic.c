@@ -118,6 +118,7 @@ static dynproc_metric_t psinfo_metrics[] = {
 	{ .name = "delayacct_blkio_time",   .cluster = CLUSTER_PID_STAT,.item=44 },
 	{ .name = "guest_time",	    .cluster = CLUSTER_PID_STAT,	.item=45 },
 	{ .name = "cguest_time",    .cluster = CLUSTER_PID_STAT,	.item=46 },
+	{ .name = "environ",        .cluster = CLUSTER_PID_STAT,	.item=46 },
 	{ .name = "signal_s",	    .cluster = CLUSTER_PID_STATUS,	.item=16 },
 	{ .name = "blocked_s",	    .cluster = CLUSTER_PID_STATUS,	.item=17 },
 	{ .name = "sigignore_s",    .cluster = CLUSTER_PID_STATUS,	.item=18 },
@@ -127,6 +128,7 @@ static dynproc_metric_t psinfo_metrics[] = {
 	{ .name = "labels",	    .cluster = CLUSTER_PID_LABEL,	.item=0 },
 	{ .name = "vctxsw",	    .cluster = CLUSTER_PID_STATUS,	.item=29 },
 	{ .name = "nvctxsw",	    .cluster = CLUSTER_PID_STATUS,	.item=30 },
+	{ .name = "cpusallowed",	.cluster = CLUSTER_PID_STATUS,	.item=31 },
 };
 
 static dynproc_metric_t id_metrics[] = {
