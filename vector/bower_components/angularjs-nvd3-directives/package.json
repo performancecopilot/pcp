@@ -1,0 +1,60 @@
+{
+  "name": "angularjs-nvd3-directives",
+  "version": "0.0.7",
+  "homepage": "http://cmaurer.github.io/angularjs-nvd3-directives",
+  "description": "Angular.js directives for nvd3",
+  "main": "dist/angularjs-nvd3-directives.js",
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cmaurer/angularjs-nvd3-directives.git"
+  },
+  "keywords": [
+    "angular.js",
+    "nvd3.js",
+    "d3.js",
+    "directives",
+    "d3",
+    "nvd3",
+    "angular",
+    "visualization",
+    "svg",
+    "charts"
+  ],
+  "author": {
+    "name": "Christian Maurer"
+  },
+  "license": "Apache License, v2.0",
+  "readmeFilename": "README.md",
+  "gitHead": "82273b2c5a38c9e5841e767da4f3252ba31927e8",
+  "bugs": {
+    "url": "https://github.com/cmaurer/angularjs-nvd3-directives/issues"
+  },
+  "devDependencies": {
+    "grunt": "^0.4.2",
+    "grunt-contrib-concat": "^0.4.0",
+    "grunt-contrib-uglify": "^0.4.0",
+    "grunt-contrib-jshint": "^0.10.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-contrib-clean": "^0.5.0",
+    "grunt-cli": "^0.1.11",
+    "grunt-bower-task": "^0.3.4",
+    "grunt-contrib-copy": "^0.5.0",
+    "grunt-karma-coveralls": "^2.4.0",
+    "grunt-jsbeautifier": "^0.2.6",
+    "grunt-ngmin": "^0.0.3",
+    "grunt-release": "^0.7.0",
+	  "conventional-changelog": "^0.0.6",
+    "grunt-templated-changelog": "^0.1.3"
+  },
+  "engines": {
+    "node": ">=0.10.0",
+    "npm": ">=1.4.3"
+  }
+}

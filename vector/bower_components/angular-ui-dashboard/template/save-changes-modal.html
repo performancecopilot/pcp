@@ -1,0 +1,13 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="cancel()">&times;</button>
+  <h3>Unsaved Changes to "{{layout.title}}"</h3>
+</div>
+
+<div class="modal-body">
+    <p>You have {{layout.dashboard.unsavedChangeCount}} unsaved changes on this dashboard. Would you like to save them?</p>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" ng-click="cancel()">Don't Save</button>
+    <button type="button" class="btn btn-primary" ng-click="ok()">Save</button>
+</div>

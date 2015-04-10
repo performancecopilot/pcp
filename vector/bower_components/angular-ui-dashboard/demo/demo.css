@@ -1,0 +1,24 @@
+body {
+    margin: 15px;
+    padding-top: 50px;
+}
+a {
+    cursor: pointer;
+}
+.layout-tabs {
+    margin-bottom: 10px;
+}
+
+.demo-widget-fluid {
+    border: 1px solid blue;
+    height: 100%;
+}
+
+.demo-widget-fluid > div {
+    border: 1px solid red;
+    position: relative;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
