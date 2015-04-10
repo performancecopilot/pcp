@@ -700,6 +700,17 @@ getent passwd pcp >/dev/null || \
 PCP_SYSCONF_DIR=@pcp_sysconf_dir@
 PCP_LOG_DIR=@pcp_log_dir@
 PCP_ETC_DIR=@pcp_etc_dir@
+
+# transition pmdadmcache over to pmdadm (device mapper)
+PCP_PMCDCONF_PATH=@pcp_pmcdconf_path@
+PCP_PMDAS_DIR=@pcp_pmdas_dir@
+if grep -q ^dmcache "$PCP_PMCDCONF_PATH" 2>/dev/null
+then
+    mkdir -p -m 755 "$PCP_PMDAS_DIR/dm"
+    touch "$PCP_PMDAS_DIR/dm/.NeedInstall"
+    touch "$PCP_PMDAS_DIR/dmcache/.NeedRemove"
+fi
+
 # rename crontab files to align with current Fedora packaging guidelines
 for crontab in pmlogger pmie
 do
