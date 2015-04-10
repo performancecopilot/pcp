@@ -1,76 +1,111 @@
-/** @scratch /configuration/config.js/1
- * == Configuration
- * config.js is where you will find the core Grafana configuration. This file contains parameter that
- * must be set before Grafana is run for the first time.
- */
-define(['settings'],
-function (Settings) {
+// == Configuration
+// config.js is where you will find the core Grafana configuration. This file contains parameter that
+// must be set before Grafana is run for the first time.
+
+define(['settings'], function(Settings) {
   
 
   return new Settings({
 
-    /**
-     * elasticsearch url:
-     * For Basic authentication use: http://username:password@domain.com:9200
-     */
-    elasticsearch: "http://"+window.location.hostname+":9200",
+      /* Data sources
+      * ========================================================
+      * Datasources are used to fetch metrics, annotations, and serve as dashboard storage
+      *  - You can have multiple of the same type.
+      *  - grafanaDB: true    marks it for use for dashboard storage
+      *  - default: true      marks the datasource as the default metric source (if you have multiple)
+      *  - basic authentication: use url syntax http://username:password@domain:port
+      */
 
-    /**
-     * graphite-web url:
-     * For Basic authentication use: http://username:password@domain.com
-     * Basic authentication requires special HTTP headers to be configured
-     * in nginx or apache for cross origin domain sharing to work (CORS).
-     * Check install documentation on github
-     */
-    graphiteUrl: "http://"+window.location.hostname+":8080",
-
-    /**
-     * Multiple graphite servers? Comment out graphiteUrl and replace with something like this:
-
+      // InfluxDB example setup (the InfluxDB databases specified need to exist)
+      /*
       datasources: {
-        data_center_us: {
-          type: 'graphite',
-          url: 'http://<graphite_url>',
-          default: true
+        influxdb: {
+          type: 'influxdb',
+          url: "http://my_influxdb_server:8086/db/database_name",
+          username: 'admin',
+          password: 'admin',
         },
-        data_center_eu: {
+        grafana: {
+          type: 'influxdb',
+          url: "http://my_influxdb_server:8086/db/grafana",
+          username: 'admin',
+          password: 'admin',
+          grafanaDB: true
+        },
+      },
+      */
+
+      // Graphite & Elasticsearch example setup
+      /*
+      datasources: {
+        graphite: {
           type: 'graphite',
-          url: 'http://<graphite_url>',
-          render_method: 'GET' // optional, use this to change render calls from POST to GET
+          url: "http://my.graphite.server.com:8080",
+        },
+        elasticsearch: {
+          type: 'elasticsearch',
+          url: "http://my.elastic.server.com:9200",
+          index: 'grafana-dash',
+          grafanaDB: true,
         }
       },
+      */
 
-     */
+      // OpenTSDB & Elasticsearch example setup
+      /*
+      datasources: {
+        opentsdb: {
+          type: 'opentsdb',
+          url: "http://opentsdb.server:4242",
+        },
+        elasticsearch: {
+          type: 'elasticsearch',
+          url: "http://my.elastic.server.com:9200",
+          index: 'grafana-dash',
+          grafanaDB: true,
+        }
+      },
+      */
 
-    default_route: '/dashboard/file/default.json',
+      /* Global configuration options
+      * ========================================================
+      */
 
-    /**
-     * If you experiance problems with zoom, it is probably caused by timezone diff between
-     * your browser and the graphite-web application. timezoneOffset setting can be used to have Grafana
-     * translate absolute time ranges to the graphite-web timezone.
-     * Example:
-     *   If TIME_ZONE in graphite-web config file local_settings.py is set to America/New_York, then set
-     *   timezoneOffset to "-0500" (for UTC - 5 hours)
-     * Example:
-     *   If TIME_ZONE is set to UTC, set this to "0000"
-     */
+      // specify the limit for dashboard search results
+      search: {
+        max_results: 100
+      },
 
-    timezoneOffset: null,
+      // default home dashboard
+      default_route: '/dashboard/file/default.json',
 
-    /**
-     * Elasticsearch index for storing dashboards
-     *
-     */
-    grafana_index: "grafana-dash",
+      // set to false to disable unsaved changes warning
+      unsaved_changes_warning: true,
 
-    /**
-     * set to false to disable unsaved changes warning
-     */
-    unsaved_changes_warning: true,
+      // set the default timespan for the playlist feature
+      // Example: "1m", "1h"
+      playlist_timespan: "1m",
 
-    panel_names: [
-      'text',
-      'graphite'
-    ]
-  });
+      // If you want to specify password before saving, please specify it below
+      // The purpose of this password is not security, but to stop some users from accidentally changing dashboards
+      admin: {
+        password: ''
+      },
+
+      // Change window title prefix from 'Grafana - <dashboard title>'
+      window_title_prefix: 'Grafana - ',
+
+      // Add your own custom panels
+      plugins: {
+        // list of plugin panels
+        panels: [],
+        // requirejs modules in plugins folder that should be loaded
+        // for example custom datasources
+        dependencies: [],
+      }
+
+    });
 });
+
+
+
