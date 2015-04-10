@@ -240,6 +240,17 @@ else
     exit 1
 fi
 
+PKG_PROG_PKG_CONFIG
+if test -z "$PKG_CONFIG"
+then
+    echo
+    echo "FATAL ERROR: did not find a pkg-config executable."
+    echo "You can either set \$PKG_CONFIG as the full path to pkg-config"
+    echo "in the environment, or install the pkgconfig package."
+    rm -rf conftest conftest.*
+    exit 1
+fi
+
 # Add some security-related gcc flags
 AC_ARG_ENABLE([ssp],
   [AS_HELP_STRING([--disable-ssp], [disable gcc stack-protector])])
