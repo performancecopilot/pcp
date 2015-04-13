@@ -125,7 +125,7 @@ def test_pcp(self):
                               api.PM_TYPE_STRING)
     machine_vp = atom.vp
     self.assertTrue(machine_u32 != machine_vp)
-    self.assertTrue(type(atom.cp) == type('') or type(atom.cp) == type(b''))
+    self.assertTrue(type(atom.cp) == type(u'') or type(atom.cp) == type(b''))
 
     # pmGetChildren
     if not self.archive_type:
