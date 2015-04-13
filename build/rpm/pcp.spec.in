@@ -593,7 +593,7 @@ PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
 awk '{print $NF}' $DIST_MANIFEST | egrep "$PCP_GUI|pixmaps" > gui_files
 %endif
 %if "@enable_webapi@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pmweb|PMWEBAPI' >webapi_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pmwebd|webapps|PMWEBAPI' >webapi_files
 %endif
 %if "@enable_manager@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pmmgr' >manager_files
