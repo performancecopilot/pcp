@@ -8,7 +8,8 @@ License: GPLv2+ and LGPLv2.1+ and CC-BY
 URL: http://www.pcp.io
 Group: Applications/System
 Source0: ftp://ftp.pcp.io/projects/pcp/download/%{name}-%{version}.src.tar.gz
-Source1: ftp://ftp.pcp.io/projects/pcp/download/pcp-webjs.src.tar.gz
+# From: git://sourceware.org/git/pcpfans.git --branch=webjs
+Source1: pcp-webjs.src.tar.gz
 
 # There are no papi/libpfm devel packages for s390 nor for some rhels, disable
 %ifarch s390 s390x
@@ -271,8 +272,6 @@ License: ASL2.0 and MIT and CC-BY
 Group: Applications/System
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 BuildArch: noarch
-# pcp-webapi provides the .../webapps base path relied on here
-Requires: pcp-webapi = %{version}-%{release}
 %endif
 Summary: Performance Co-Pilot (PCP) web applications
 URL: http://www.pcp.io
@@ -989,6 +988,8 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %attr(0775,pcp,pcp) %{_logsdir}/pmwebd
 %{_confdir}/pmwebd
 %config(noreplace) %{_confdir}/pmwebd/pmwebd.options
+# duplicate directories from pcp and pcp-webjs, but rpm copes with that.
+%dir %{_datadir}/pcp
 %dir %{_datadir}/pcp/webapps
 %{_mandir}/man1/pmwebd.1*
 %{_mandir}/man3/PMWEBAPI.3*
@@ -996,6 +997,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %if !%{disable_microhttpd}
 %files webjs
+# duplicate directories from pcp and pcp-webapi, but rpm copes with that.
+%dir %{_datadir}/pcp
+%dir %{_datadir}/pcp/webapps
 %{_datadir}/pcp/webapps/*
 %endif
 
