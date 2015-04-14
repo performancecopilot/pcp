@@ -16,6 +16,9 @@ import traceback
 import subprocess
 import shlex
 
+MAX_CLUSTER = 0xfff             # 12 bits, see pcp/impl.h
+MAX_ITEM = 0x3ff                # 10 bits, see pcp/impl.h
+
 NOBODY_UID = -1
 NOBODY_GID = -1
 
@@ -352,11 +355,14 @@ class JsonSource(object):
             self.__pmda.indom_idx += 1
 
         # Process the array's metrics array.
+        metric_prefix = "%s.%s" % (self.__pmda.pmda_name, self.__root_name)
         for item in metrics_array:
-            metric_info = Metric("%s.%s" % (self.__pmda.pmda_name,
-                                            self.__root_name),
-                                 self.cluster, self.__metric_idx,
-                                 self.__pmda)
+            if self.__metric_idx > MAX_ITEM:
+                self.log("Skipping metrics in '%s' - max metric reached"
+                         % metric_prefix)
+                break
+            metric_info = Metric(metric_prefix, self.cluster,
+                                 self.__metric_idx, self.__pmda)
             self.__metric_idx += 1
             metric_info.indom = self.__indoms[array_name]
 
@@ -500,11 +506,14 @@ class JsonSource(object):
                             % self.__path)
 
         # Process the metrics array.
+        metric_prefix = "%s.%s" % (self.__pmda.pmda_name, self.__root_name)
         for item in metrics_array:
-            metric_info = Metric("%s.%s" % (self.__pmda.pmda_name,
-                                            self.__root_name),
-                                 self.cluster, self.__metric_idx,
-                                 self.__pmda)
+            if self.__metric_idx > MAX_ITEM:
+                self.log("Skipping metrics in '%s' - max metric reached"
+                         % metric_prefix)
+                break
+            metric_info = Metric(metric_prefix, self.cluster,
+                                 self.__metric_idx, self.__pmda)
             self.__metric_idx += 1
 
             error_seen = 0
@@ -837,6 +846,10 @@ class JsonPMDA(PMDA):
                             continue
 
                         # Add the new source.
+                        if self.cluster_idx > MAX_CLUSTER:
+                            self.log("Skipping source '%s' -"
+                                     " max cluster reached" % root)
+                            continue
                         source = JsonSource(root, self.cluster_idx,
                                             self, trusted)
                         self.sources_by_root[root] = source
