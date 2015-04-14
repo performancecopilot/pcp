@@ -16,17 +16,22 @@
 Python implementation of an Intel "mic" Performance Metrics Domain Agent.
 '''
 
-import os
-import time
-import ctypes
-import sys
+import sys, os
 from ctypes import c_int, c_uint, c_float, c_ulonglong, POINTER, cast, Structure
 import cpmapi as c_api
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
 from pcp.pmapi import pmUnits, pmContext as PCP
 
+
+conf_file = os.environ.get('PMDAMIC_CONFIG_FILE')
+
+if conf_file == None:
+    conf_file = PCP.pmGetConfig('PCP_PMDAS_DIR') + '/pmdamic_conf.py'
+    print "Setting conf file default: %s" % conf_file
+
 # mpss 3.3 rpm puts the python files in /usr/src
-sys.path.append('/usr/src')
+#sys.path.append('/usr/src')
+sys.path.append('/projects/viz/minnus/Git/github/pcp/src/pmdas/mic')
 from micmgmt import *
 
 class MicDevInfo(Structure):
