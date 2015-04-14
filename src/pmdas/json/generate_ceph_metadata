@@ -39,13 +39,9 @@ def decode_type(indent, type_val):
     if type_val & PERFCOUNTER_TIME:
         # When this one is specififed, the current item has a subitem
         # named 'sum' which is a float.
-        #
-        # FIXME: We don't handle floats yet. For now, just raise an
-        # error.
         type_val &= ~PERFCOUNTER_TIME
-        #names.append('sum')
-        #output.append("%s\"type\": \"FLOAT?\"\n" % indent)
-        raise TypeError
+        names.append('sum')
+        output.append("%s\"type\": \"double\"\n" % indent)
     if type_val & PERFCOUNTER_U64:
         type_val &= ~PERFCOUNTER_U64
         names.append('sum')

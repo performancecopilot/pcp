@@ -1,3 +1,4 @@
+# -*-Python-*-
 # pylint: disable=too-many-public-methods, too-many-instance-attributes
 '''
 Performance Metrics Domain Agent exporting JSON metrics.
@@ -385,6 +386,9 @@ class JsonSource(object):
                     elif value == 'integer':
                         metric_info.type = c_api.PM_TYPE_64
                         metric_info.sem = c_api.PM_SEM_COUNTER
+                    elif value == 'double':
+                        metric_info.type = c_api.PM_TYPE_DOUBLE
+                        metric_info.sem = c_api.PM_SEM_INSTANT
                     elif value == 'array':
                         # We don't allow arrays to have sub-arrays.
                         self.log("Arrays can't contain arrays")
@@ -533,6 +537,9 @@ class JsonSource(object):
                     elif value == 'integer':
                         metric_info.type = c_api.PM_TYPE_64
                         metric_info.sem = c_api.PM_SEM_COUNTER
+                    elif value == 'double':
+                        metric_info.type = c_api.PM_TYPE_DOUBLE
+                        metric_info.sem = c_api.PM_SEM_INSTANT
                     elif value == 'array':
                         # For arrays, we have to create metrics for
                         # each subitem in the array, using the same
