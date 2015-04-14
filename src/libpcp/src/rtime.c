@@ -291,7 +291,7 @@ __pmParseCtime(
     struct tm *rslt,		/* result stored here */
     char **errmsg)		/* error message */
 {
-    struct tm	tm = {-1, -1, -1, -1, -1, -1, NO_OFFSET, -1, -1};
+    struct tm	tm;
     double	d;
     const char	*scan = spec;
     int		pm = -1;
@@ -299,7 +299,7 @@ __pmParseCtime(
     int		dflt;
 
     memset(&tm, -1, sizeof(tm));
-    tm.tm_isdst = NO_OFFSET;
+    tm.tm_wday = NO_OFFSET;
 
     /* parse time spec */
     parse3char(&scan, wdays, N_WDAYS, &ignored);
