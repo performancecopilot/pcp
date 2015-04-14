@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat Inc.
+ * Copyright (c) 2013-2015 Red Hat Inc.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -45,6 +45,20 @@ main(int argc, char *argv[])
     char *p;
     pmID pmid;
     pmDesc desc;
+
+    if (isatty(fileno(stdin))) {
+    	fprintf(stderr,
+	    "Usage: pminfo metric ... | pmdesc\n\n"
+	    "Reads metric names on stdin and prints a descriptor for each in a table.\n"
+	    "The metric descriptor table should be defined in \"./metrics.h\" as follows :\n"
+	    "    typedef struct {\n"
+	    "        char *name;\n"
+            "        pmDesc desc;\n"
+            "    } metric_t;\n"
+	    "\n"
+	    "    extern metric_t metrics[];\n");
+	exit(1);
+    }
 
     ctx = pmNewContext(PM_CONTEXT_HOST, "local:");
     if (ctx < 0) {
