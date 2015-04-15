@@ -88,6 +88,13 @@ chmod 644 foo.1
 ( echo; echo "foo.index:" ) | tee -a $here/$seq.full
 pmlogcheck -v foo.index >$tmp.out 2>$tmp.err
 _filter
+( echo; echo "archive-20150415.044829:" ) | tee -a $here/$seq.full
+ln foo.0 archive-20150415.044829.0
+ln foo.meta archive-20150415.044829.meta
+ln foo.index archive-20150415.044829.index
+pmlogcheck -v archive-20150415.044829 >$tmp.out 2>$tmp.err
+_filter
+
 cd $here
 
 echo | tee -a $here/$seq.full
