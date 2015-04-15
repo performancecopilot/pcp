@@ -76,7 +76,7 @@ BuildRequires: cyrus-sasl-devel
 BuildRequires: papi-devel
 %endif
 %if !%{disable_perfevent}
-BuildRequires: libpfm-devel >= 4.4
+BuildRequires: libpfm-devel >= 4
 %endif
 %if !%{disable_microhttpd}
 BuildRequires: libmicrohttpd-devel
@@ -499,8 +499,8 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for hardware counters
 URL: http://www.pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-Requires: libpfm >= 4.4
-BuildRequires: libpfm-devel >= 4.4
+Requires: libpfm >= 4
+BuildRequires: libpfm-devel >= 4
 
 %description pmda-perfevent
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -729,6 +729,7 @@ exit 0
 getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
   useradd -c "Performance Co-Pilot" -g pcp -d %{_localstatedir}/lib/pcp -M -r -s /sbin/nologin pcp
+PCP_CONFIG_DIR=%{_localstatedir}/lib/pcp/config
 PCP_SYSCONF_DIR=%{_confdir}
 PCP_LOG_DIR=%{_logsdir}
 PCP_ETC_DIR=%{_sysconfdir}
@@ -751,6 +752,7 @@ save_configs_script()
             ( cd "$_dir" ; find . -type f -print ) | sed -e 's/^\.\///' \
             | while read _file
             do
+                [ "$_file" = "control" ] && continue
                 _want=true
                 if [ -f "$_new/$_file" ]
                 then
@@ -767,10 +769,15 @@ save_configs_script()
 # migrate and clean configs if we have had a previous in-use installation
 [ -d "$PCP_LOG_DIR" ] || exit 0	# no configuration file upgrades required
 rm -f "$PCP_LOG_DIR/configs.sh"
-for daemon in pmcd pmie pmlogger pmproxy
+for daemon in pmie pmlogger
 do
-    save_configs_script >> "$PCP_LOG_DIR/configs.sh" "$PCP_SYSCONF_DIR/$daemon" \
-        /var/lib/pcp/config/$daemon /etc/$daemon /etc/pcp/$daemon /etc/sysconfig/$daemon
+    save_configs_script >> "$PCP_LOG_DIR/configs.sh" "$PCP_CONFIG_DIR/$daemon" \
+        "$PCP_SYSCONF_DIR/$daemon"
+done
+for daemon in pmcd pmproxy
+do
+    save_configs_script >> "$PCP_LOG_DIR/configs.sh" "$PCP_SYSCONF_DIR/$daemon"\
+        "$PCP_CONFIG_DIR/$daemon" /etc/$daemon /etc/sysconfig/$daemon
 done
 exit 0
 
