@@ -46,15 +46,8 @@ root filesystem.
 
 == A.2 Mac OS X Installation
 
-The only unusual step in installing PCP on Mac OS X is the additional
-dependency on the developer tools (XCode package).  The specific need
-PCP has is to have a C preprocessor available for managing the metric
-namespace, which on Mac OS X is a frontend to gcc and not installed by
-default.
-
-Once this is installed, installing PCP from the DMG file is as simple
-as clicking on the icon in a Finder window, and following the prompts
-from the installer.
+Installing PCP from the DMG file is as simple as clicking on the icon
+in a Finder window, and following the prompts from the installer.
 
 == A.3 AIX Installation
 

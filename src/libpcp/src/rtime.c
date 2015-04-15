@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014-2015 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -291,12 +291,15 @@ __pmParseCtime(
     struct tm *rslt,		/* result stored here */
     char **errmsg)		/* error message */
 {
-    struct tm	tm = {-1, -1, -1, -1, -1, -1, NO_OFFSET, -1, -1};
+    struct tm	tm;
     double	d;
     const char	*scan = spec;
     int		pm = -1;
     int		ignored = -1;
     int		dflt;
+
+    memset(&tm, -1, sizeof(tm));
+    tm.tm_wday = NO_OFFSET;
 
     /* parse time spec */
     parse3char(&scan, wdays, N_WDAYS, &ignored);

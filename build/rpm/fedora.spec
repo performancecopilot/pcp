@@ -8,7 +8,8 @@ License: GPLv2+ and LGPLv2.1+ and CC-BY
 URL: http://www.pcp.io
 Group: Applications/System
 Source0: ftp://ftp.pcp.io/projects/pcp/download/%{name}-%{version}.src.tar.gz
-Source1: ftp://ftp.pcp.io/projects/pcp/download/pcp-webjs.src.tar.gz
+# From: git://sourceware.org/git/pcpfans.git --branch=webjs
+Source1: pcp-webjs.src.tar.gz
 
 # There are no papi/libpfm devel packages for s390 nor for some rhels, disable
 %ifarch s390 s390x
@@ -262,25 +263,70 @@ Co-Pilot (PCP) client API (PMAPI) to RESTful web applications using the
 HTTP (PMWEBAPI) protocol.
 %endif
 
-%if !%{disable_microhttpd}
 #
-# pcp-webjs
+# pcp-webjs and pcp-webapp packages
 #
 %package webjs
 License: ASL2.0 and MIT and CC-BY
-Group: Applications/System
+Group: Applications/Internet
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 BuildArch: noarch
-# pcp-webapi provides the .../webapps base path relied on here
-Requires: pcp-webapi = %{version}-%{release}
 %endif
+Requires: pcp-webapp-graphite pcp-webapp-grafana pcp-webapp-vector
 Summary: Performance Co-Pilot (PCP) web applications
 URL: http://www.pcp.io
 
 %description webjs
 Javascript web application content for the Performance Co-Pilot (PCP)
 web service.
+
+%package webapp-vector
+License: ASL2.0
+Group: Applications/Internet
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+BuildArch: noarch
 %endif
+Summary: Vector web application for Performance Co-Pilot (PCP)
+URL: https://github.com/Netflix/vector
+
+%description webapp-vector
+Vector web application for the Performance Co-Pilot (PCP).
+
+%package webapp-grafana
+License: ASL2.0
+Group: Applications/Internet
+Conflicts: pcp-webjs < 3.10.4
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+BuildArch: noarch
+%endif
+Summary: Grafana web application for Performance Co-Pilot (PCP)
+URL: https://grafana.org
+
+%description webapp-grafana
+Grafana is an open source, feature rich metrics dashboard and graph
+editor.  This package provides a Grafana that uses the Performance
+Co-Pilot (PCP) as the data repository.  Other Grafana backends are
+not used.
+
+Grafana can render time series dashboards at the browser via flot.js
+(more interactive, slower, for beefy browsers) or alternately at the
+server via png (less interactive, faster).
+
+%package webapp-graphite
+License: ASL2.0
+Group: Applications/Internet
+Conflicts: pcp-webjs < 3.10.4
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+BuildArch: noarch
+%endif
+Summary: Graphite web application for Performance Co-Pilot (PCP)
+URL: http://graphite.readthedocs.org
+
+%description webapp-graphite
+Graphite is a highly scalable real-time graphing system. This package
+provides a graphite version that uses the Performance Co-Pilot (PCP)
+as the data repository, and Graphites web interface renders it. The
+Carbon and Whisper subsystems of Graphite are not included nor used.
 
 #
 # perl-PCP-PMDA. This is the PCP agent perl binding.
@@ -592,10 +638,9 @@ rm -fr $RPM_BUILD_ROOT/%{_confdir}/pmwebd
 rm -fr $RPM_BUILD_ROOT/%{_initddir}/pmwebd
 rm -fr $RPM_BUILD_ROOT/%{_unitdir}/pmwebd.service
 rm -f $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin/pmwebd
-%else
+%endif
 mv pcp-webjs/* $RPM_BUILD_ROOT/%{_datadir}/pcp/webapps
 rmdir pcp-webjs
-%endif
 
 %if %{disable_infiniband}
 # remove pmdainfiniband on platforms lacking IB devel packages.
@@ -989,15 +1034,36 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %attr(0775,pcp,pcp) %{_logsdir}/pmwebd
 %{_confdir}/pmwebd
 %config(noreplace) %{_confdir}/pmwebd/pmwebd.options
+# duplicate directories from pcp and pcp-webjs, but rpm copes with that.
+%dir %{_datadir}/pcp
 %dir %{_datadir}/pcp/webapps
 %{_mandir}/man1/pmwebd.1*
 %{_mandir}/man3/PMWEBAPI.3*
 %endif
 
-%if !%{disable_microhttpd}
 %files webjs
-%{_datadir}/pcp/webapps/*
-%endif
+# duplicate directories from pcp and pcp-webapi, but rpm copes with that.
+%dir %{_datadir}/pcp
+%dir %{_datadir}/pcp/webapps
+%{_datadir}/pcp/webapps/*.png
+%{_datadir}/pcp/webapps/*.ico
+%{_datadir}/pcp/webapps/*.html
+%{_datadir}/pcp/webapps/blinkenlights
+
+%files webapp-grafana
+%dir %{_datadir}/pcp
+%dir %{_datadir}/pcp/webapps
+%{_datadir}/pcp/webapps/grafana
+
+%files webapp-graphite
+%dir %{_datadir}/pcp
+%dir %{_datadir}/pcp/webapps
+%{_datadir}/pcp/webapps/graphite
+
+%files webapp-vector
+%dir %{_datadir}/pcp
+%dir %{_datadir}/pcp/webapps
+%{_datadir}/pcp/webapps/vector
 
 %files manager
 %{_initddir}/pmmgr
@@ -1083,9 +1149,12 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %changelog
 * Wed Apr 15 2015 Nathan Scott <nathans@redhat.com> - 3.10.4-1
-- Update to latest PCP sources.
+- Update to latest PCP, pcp-webjs and Vector sources.
 - Packaging improvements after re-review (BZ 1204467)
 - Start pmlogger/pmie independent of persistent state (BZ 1185755)
+- Fix cron error reports for disabled pmlogger service (BZ 1208699)
+- Incorporate Vector from Netflix (https://github.com/Netflix/vector)
+a Sub-packages for pcp-webjs allowing choice and reducing used space.
 
 * Wed Mar 04 2015 Dave Brolley <brolley@redhat.com> - 3.10.3-2
 - papi 5.4.1 rebuild

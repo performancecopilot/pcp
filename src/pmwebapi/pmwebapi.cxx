@@ -1,7 +1,7 @@
 /*
  * JSON web bridge for PMAPI.
  *
- * Copyright (c) 2011-2014 Red Hat Inc.
+ * Copyright (c) 2011-2015 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -893,7 +893,7 @@ pmwebapi_respond_instance_list (struct MHD_Connection *connection,
     }
 
     /* Pessimistically overestimate maximum number of instance IDs needed. */
-    max_num_instances = strlen (val_indom) + strlen (val_name);
+    max_num_instances = strlen (val_instance) + strlen (val_iname);
     num_instances = 0;
     instances = (int *) calloc ((size_t) max_num_instances, sizeof (int));
     if (instances == NULL) {
