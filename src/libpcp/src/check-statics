@@ -264,7 +264,7 @@ pdubuf.o
     pdu_bufcnt			# guarded by __pmLock_libpcp mutex
 pdu.o
     done_default		# guarded by __pmLock_libpcp mutex
-    def_timeout			# guarded by __pmLock_libpcp mutex
+    ?def_timeout		# guarded by __pmLock_libpcp mutex
     def_wait			# guarded by __pmLock_libpcp mutex
     pmDebug			# set-once in main(), read-only elsewhere
     ceiling			# no unsafe side-effects
@@ -422,13 +422,15 @@ do
 		# Need some nm special case logic ...
 		# for darwin
 		# + const data and text symbols both appear as "S", but
-		#   the latter have .eh appended to the name
+		#   the latter have .eh/.stv appended to the name
 		# + static arrays and some debug (?) symbols appear as
 		#   "s", but the latter have _.NNN appended, or start
-		#   with LC, or have .eh appended, or start with EH_
+		#   with LC, or have .eh/.stv appended, or start with EH_
                 # + __func__ macro expansion results in L___func__.<FName>
 		#   entries
-                # + scoped static could has scope name prepended
+                # + LLVM compiler generates l_switch.<table[NNN]> entries
+		#   for some (large?) switch/case blocks
+                # + scoped static could have scope name prepended
 		# + older versions insert get_pc_thunk symbols in all
 		#   object files
 		# for MinGW
@@ -445,10 +447,12 @@ do
 		| sed -n >$tmp/out \
 		    -e '/ S ___i686.get_pc_thunk.[bc]x/d' \
 		    -e '/ [sS] .*\.eh$/d' \
+		    -e '/ [sS] .*\.stv$/d' \
 		    -e '/ s .*_\.[0-9][0-9]*$/d' \
 		    -e '/ s LC[0-9][0-9]*$/d' \
 		    -e '/ s L_\.str[0-9][0-9]*$/d' -e '/ s L_\.str$/d' \
 		    -e '/ s L___func__\./d' \
+		    -e '/ s l_switch\./d' \
 		    -e '/ s .*\$tlv\$init$/d' \
 		    -e 's/b \([_a-zA-Z][_a-zA-Z0-9]*\)\.b$/b \1/' \
 		    -e 's/b \([_a-zA-Z][_a-zA-Z0-9]*\)\.[0-9]*.[0b]$/b \1/' \
