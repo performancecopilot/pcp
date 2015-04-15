@@ -2,7 +2,7 @@ QA output created by 544
 ## Testing RHEL6.4 inst/value extraction, checksums:
 40722 TMP.out.cpus
 44436 TMP.out.disks
-34420 TMP.out.general
+45676 TMP.out.general
 44436 TMP.out.nets
 42863 TMP.out.procs
 ## Testing Debian inst/value extraction, checksums:
