@@ -697,6 +697,7 @@ getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
     useradd -c "Performance Co-Pilot" -g pcp -d @pcp_var_dir@ -M -r -s /sbin/nologin pcp
 # new directories; they should match /etc/pcp.conf settings after install
+PCP_CONFIG_DIR=@pcp_var_dir@/config
 PCP_SYSCONF_DIR=@pcp_sysconf_dir@
 PCP_LOG_DIR=@pcp_log_dir@
 PCP_ETC_DIR=@pcp_etc_dir@
@@ -730,6 +731,7 @@ save_configs_script()
             ( cd "$_dir" ; find . -type f -print ) | sed -e 's/^\.\///' \
             | while read _file
             do
+                [ "$_file" = "control" ] && continue
                 _want=true
                 if [ -f "$_new/$_file" ]
                 then
@@ -746,10 +748,15 @@ save_configs_script()
 # migrate and clean configs if we have had a previous in-use installation
 [ -d "$PCP_LOG_DIR" ] || exit 0	# no configuration file upgrades required
 rm -f "$PCP_LOG_DIR/configs.sh"
-for daemon in pmcd pmie pmlogger pmproxy
+for daemon in pmie pmlogger
 do
-    save_configs_script >> "$PCP_LOG_DIR/configs.sh" "$PCP_SYSCONF_DIR/$daemon" \
-        /var/lib/pcp/config/$daemon/control /etc/$daemon /etc/pcp/$daemon /etc/sysconfig/$daemon
+    save_configs_script >> "$PCP_LOG_DIR/configs.sh" "$PCP_CONFIG_DIR/$daemon" \
+        "$PCP_SYSCONF_DIR/$daemon"
+done
+for daemon in pmcd pmproxy
+do
+    save_configs_script >> "$PCP_LOG_DIR/configs.sh" "$PCP_SYSCONF_DIR/$daemon"\
+        "$PCP_CONFIG_DIR/$daemon" /etc/$daemon /etc/sysconfig/$daemon
 done
 exit 0
 
