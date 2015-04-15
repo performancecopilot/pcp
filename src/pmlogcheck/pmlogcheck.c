@@ -15,6 +15,7 @@
 
 #include <limits.h>
 #include <ctype.h>
+#include <unistd.h>
 #include "pmapi.h"
 #include "impl.h"
 #include "logcheck.h"
@@ -95,22 +96,44 @@ filter(const_dirent *dp)
 {
     static int	len = -1;
 
-    if (len == -1)
+    if (len == -1) {
 	len = strlen(archbasename);
-    if (strncmp(dp->d_name, archbasename, len) != 0)
+	if (vflag > 2) {
+	    fprintf(stderr, "archbasename=\"%s\" len=%d\n", archbasename, len);
+	}
+    }
+    if (vflag > 2)
+	fprintf(stderr, "d_name=\"%s\"? ", dp->d_name);
+    if (strncmp(dp->d_name, archbasename, len) != 0) {
+	if (vflag > 2)
+	    fprintf(stderr, "no (first %d chars not matched)\n", len);
 	return 0;
-    if (strcmp(&dp->d_name[len], ".meta") == 0)
+    }
+    if (strcmp(&dp->d_name[len], ".meta") == 0) {
+	if (vflag > 2)
+	    fprintf(stderr, "yes\n");
 	return 1;
-    if (strcmp(&dp->d_name[len], ".index") == 0)
+    }
+    if (strcmp(&dp->d_name[len], ".index") == 0) {
+	if (vflag > 2)
+	    fprintf(stderr, "yes\n");
 	return 1;
+    }
     if (dp->d_name[len] == '.' && isdigit(dp->d_name[len+1])) {
 	const char	*p = &dp->d_name[len+2];
 	for ( ; *p; p++) {
-	    if (!isdigit(*p))
+	    if (!isdigit(*p)) {
+		if (vflag > 2)
+		    fprintf(stderr, "no (non-digit after basename)\n");
 		return 0;
+	    }
 	}
+	if (vflag > 2)
+	    fprintf(stderr, "yes\n");
 	return 1;
     }
+    if (vflag > 2)
+	fprintf(stderr, "no (not expected extension after basename)\n");
     return 0;
 }
 
@@ -173,11 +196,20 @@ main(int argc, char *argv[])
 	    char	*q = p;
 	    q++;
 	    if (isdigit(*q)) {
-		q++;
-		while (*q && isdigit(*q))
+		/*
+		 * foo.<digit> ... if archpathname does exist, then
+		 * safe to strip digits, else leave as is for the
+		 * case of, e.g. archive-20150415.041154 which is the
+		 * pmmgr basename for an archive with a first volume
+		 * named archive-20150415.041154.0
+		 */
+		if (access(archpathname, F_OK) == 0) {
 		    q++;
-		if (*q == '\0')
-		    *p = '\0';
+		    while (*q && isdigit(*q))
+			q++;
+		    if (*q == '\0')
+			*p = '\0';
+		}
 	    }
 	}
     }
