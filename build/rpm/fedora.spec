@@ -76,7 +76,7 @@ BuildRequires: cyrus-sasl-devel
 BuildRequires: papi-devel
 %endif
 %if !%{disable_perfevent}
-BuildRequires: libpfm-devel >= 4.4
+BuildRequires: libpfm-devel >= 4
 %endif
 %if !%{disable_microhttpd}
 BuildRequires: libmicrohttpd-devel
@@ -499,8 +499,8 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for hardware counters
 URL: http://www.pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-Requires: libpfm >= 4.4
-BuildRequires: libpfm-devel >= 4.4
+Requires: libpfm >= 4
+BuildRequires: libpfm-devel >= 4
 
 %description pmda-perfevent
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
