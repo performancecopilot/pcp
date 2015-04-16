@@ -31,7 +31,7 @@ PLPMDAS = bonding netfilter zimbra postgresql \
 	dbping memcache systemtap mysql vmware kvm \
 	named news pdns samba dtsrun postfix gpsd \
 	rsyslog elasticsearch snmp nginx nfsclient \
-	ds389 ds389log activemq lustre gpfs
+	ds389 ds389log activemq lustre gpfs slurm
 
 ifeq "$(ENABLE_PYTHON)" "true"
 PYPMDAS = gluster zswap unbound
