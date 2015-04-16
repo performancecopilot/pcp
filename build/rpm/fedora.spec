@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.10.4
+Version: 3.10.5
 %global buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -37,10 +37,10 @@ Source1: pcp-webjs.src.tar.gz
 %global default_python 26
 %endif
 # No python3 development environment before el7
-%if 0%{?rhel} == 0 || 0%{?rhel} > 6
+%if 0%{?rhel} == 0 || 0%{?rhel} > 7
 %global disable_python3 0
 # Do we wish to mandate python3 use in pcp?  (f22+ and el8+)
-%if 0%{?fedora} >= 22 || 0%{?rhel} >= 8
+%if 0%{?fedora} >= 22 || 0%{?rhel} > 7
 %global default_python 3
 %endif
 %else
@@ -1155,13 +1155,15 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %files -n pcp-doc -f pcp-doc.list
 
 %changelog
+* Wed Jun 03 2015 Mark Goodwin <mgoodwin@redhat.com> - 3.10.5-1
+
 * Wed Apr 15 2015 Nathan Scott <nathans@redhat.com> - 3.10.4-1
 - Update to latest PCP, pcp-webjs and Vector sources.
 - Packaging improvements after re-review (BZ 1204467)
 - Start pmlogger/pmie independent of persistent state (BZ 1185755)
 - Fix cron error reports for disabled pmlogger service (BZ 1208699)
 - Incorporate Vector from Netflix (https://github.com/Netflix/vector)
-a Sub-packages for pcp-webjs allowing choice and reducing used space.
+- Sub-packages for pcp-webjs allowing choice and reducing used space.
 
 * Wed Mar 04 2015 Dave Brolley <brolley@redhat.com> - 3.10.3-2
 - papi 5.4.1 rebuild
