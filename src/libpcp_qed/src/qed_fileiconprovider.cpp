@@ -27,6 +27,7 @@ QedFileIconProvider::QedFileIconProvider() : QFileIconProvider()
     my.computer = QIcon(":/images/computer.png");
 
     // PCP GUI specific images
+    my.container = QIcon(":/images/container.png");
     my.fileView = QIcon(":/images/fileview.png");
     my.fileFolio = QIcon(":/images/filefolio.png");
     my.fileArchive = QIcon(":/images/filearchive.png");
@@ -49,6 +50,8 @@ QIcon QedFileIconProvider::icon(FileIconType type) const
 	return my.fileFolio;
     case Archive:
 	return my.fileArchive;
+    case Container:
+	return my.container;
     case Html:
 	return my.fileHtml;
     case Image:

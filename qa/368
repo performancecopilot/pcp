@@ -15,23 +15,16 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ -f $PCP_BINADM_DIR/pmlogconf-setup ] || _notrun "pmlogconf v2.0 is not installed"
+[ -f $PCP_BINADM_DIR/pmlogconf-setup ] || _notrun pmlogconf-setup not installed
+postgres=`pmprobe postgresql.stat.all_tables.seq_scan | awk '{ print $2 }'`
+[ "$postgres" -gt 0 ] && _notrun "Test $seq sensitive to local postgres install"
 
 rm -f $seq.out
-if [ $PCP_VER -ge 30901 ]
-then
-    suffix=3
-elif [ $PCP_VER -ge 30802 ]
-then
-    suffix=2
-else
-    suffix=1
-fi
 if [ $PCP_PLATFORM = darwin ]
 then
-    ln $seq.darwin.$suffix $seq.out || exit 1
+    ln $seq.darwin $seq.out || exit 1
 else
-    ln $seq.other.$suffix $seq.out || exit 1
+    ln $seq.other $seq.out || exit 1
 fi
 
 status=0	# success is the default!

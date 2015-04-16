@@ -1,0 +1,69 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2015 Red Hat.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDADM 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdadm\f1 \- Device Mapper PMDA
+.SH DESCRIPTION
+.B pmdadm
+is a Performance Metrics Domain Agent (PMDA) which exports
+metric values for Devic Mapper on the local system.
+.PP
+This PMDA collects its data through the
+.BR dmsetup (8)
+utility and requires that the program is installed in order to function. 
+.PP
+Further details on device mapper can be found at
+http://redhat.com
+.SH INSTALLATION
+Install the DM PMDA by using the Install script as root:
+.PP
+      # cd $PCP_PMDAS_DIR/dm
+.br
+      # ./Install
+.PP
+To uninstall, do the following as root:
+.PP
+      # cd $PCP_PMDAS_DIR/dm
+.br
+      # ./Remove
+.PP
+.B pmdadm
+is launched by 
+.BR pmcd (1)
+and should never be executed directly.
+The Install and Remove scripts notify
+.B pmcd
+when the agent is installed or removed.
+.SH FILES
+.IP "\fB$PCP_PMDAS_DIR/dm/help\fR" 4
+default help text file for the dm metrics
+.IP "\fB$PCP_PMDAS_DIR/dm/Install\fR" 4 
+installation script for the \fBpmdadm\fR agent 
+.IP "\fB$PCP_PMDAS_DIR/dm/Remove\fR" 4 
+undo installation script for the \fBpmdadm\fR agent 
+.IP "\fB$PCP_LOG_DIR/pmcd/dm.log\fR" 4 
+default log file for error messages from \fBpmdadm\fR 
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fR are used to parameterize
+the file and directory names used by \fBPCP\fR. On each installation, the
+file \fB/etc/pcp.conf\fR contains the local values for these variables. 
+The \fB$PCP_CONF\fR variable may be used to specify an alternative 
+configuration file, as described in \fIpcp.conf\fR(5).
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pmstore (1),
+and
+.BR dmsetup (8).

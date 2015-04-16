@@ -28,7 +28,31 @@ QmcSource::QmcSource(int type, QString &source, int flags)
 	localHost = buf;
     }
 
+    my.attrs = QString::null;
+    my.context_hostname = QString::null;
+    my.context_container = QString::null;
+
     this->retryConnect(type, source);
+}
+
+QString
+QmcSource::hostLabel(void) const
+{
+    if (my.context_container != QString::null) {
+	QString label;
+	label.append(my.host);
+	label.append(":");
+	label.append(my.context_container);
+	if (my.context_container != my.context_hostname) {
+	    label.append("::");
+	    label.append(my.context_hostname);
+	}
+	return label;
+    }
+    if (my.context_hostname != QString::null)
+	return my.context_hostname;
+    // fallback to the name extracted from the hostspec string
+    return my.host;
 }
 
 void
@@ -39,10 +63,10 @@ QmcSource::retryConnect(int type, QString &source)
     int offset;
     int sts;
     char *tzs;
+    QString name;
     QString hostSpec;
 
-    my.attrs = QString::null;
-    switch(type) {
+    switch (type) {
     case PM_CONTEXT_LOCAL:
 	my.desc = "Local context";
 	my.host = my.source = localHost;
@@ -59,6 +83,10 @@ QmcSource::retryConnect(int type, QString &source)
 	    my.attrs = my.host;
 	    my.attrs.remove(0, offset+1);
 	    my.host.truncate(offset);
+	    name = my.attrs.section(QString("container="), -1);
+	    if (name != QString::null && (offset = name.indexOf(',')) > 0)
+		name.truncate(offset);
+	    my.context_container = name;
 	}
 	if ((offset = my.host.indexOf('@')) >= 0) {
 	    my.proxy = my.host;
@@ -83,7 +111,7 @@ QmcSource::retryConnect(int type, QString &source)
 	my.handles.append(my.status);
 
         // Fetch the server-side host name for this context, properly as of pcp 3.8.3+.
-        my.context_hostname = pmGetContextHostName (my.status); // NB: may leak memory
+        my.context_hostname = pmGetContextHostName(my.status); // NB: may leak memory
         if (my.context_hostname == "") // may be returned for errors or PM_CONTEXT_LOCAL
             my.context_hostname = localHost;
 

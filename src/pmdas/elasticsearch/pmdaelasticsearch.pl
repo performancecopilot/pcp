@@ -49,8 +49,14 @@ $http->timeout($http_timeout);	# if elasticsearch not timely, no soup for you
 # http GET of elasticsearch json from a given url
 sub es_agent_get
 {
-    my $response = $http->get(shift);
-    return undef unless $response->is_success;
+    my $request = shift;
+
+    # $pmda->log("es_agent_get request: $request");
+    my $response = $http->get($request);
+    my $success = $response->is_success;
+    # $pmda->log("es_agent_get success: $success");
+
+    return undef unless $success;
     return $response->decoded_content;
 }
 
@@ -369,6 +375,7 @@ sub es_fetch_callback
 }
 
 $pmda = PCP::PMDA->new('elasticsearch', 108);
+$pmda->connect_pmcd;
 
 # cluster stats
 $pmda->add_metric(pmda_pmid(0,0), PM_TYPE_STRING, PM_INDOM_NULL,

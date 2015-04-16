@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 300
-# Change in handling of .NeedInstall protocols
+# Change in handling of .NeedInstall and .NeedRemove protocols
 #
 # Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -28,7 +28,9 @@ exit 0
 End-of-File
 
 $sudo cp $tmp.sh $PCP_VAR_DIR/pmdas/bozo/Install
+$sudo cp $tmp.sh $PCP_VAR_DIR/pmdas/bozo/Remove
 $sudo chmod 755 $PCP_VAR_DIR/pmdas/bozo/Install
+$sudo chmod 755 $PCP_VAR_DIR/pmdas/bozo/Remove
 $sudo touch $PCP_VAR_DIR/pmdas/bozo/.NeedInstall
 $sudo touch $PCP_VAR_DIR/pmdas/bozo/fail
 $sudo rm -f $PCP_LOG_DIR/NOTICES
@@ -55,6 +57,32 @@ then
     echo ".NeedInstall present"
 else
     echo ".NeedInstall missing"
+fi
+
+echo
+echo "Remove should fail"
+$sudo touch $PCP_VAR_DIR/pmdas/bozo/fail
+$sudo touch $PCP_VAR_DIR/pmdas/bozo/.NeedRemove
+$sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_start
+pmsleep 0.5	# give script time to execute
+if [ -f $PCP_VAR_DIR/pmdas/bozo/.NeedRemove ]
+then
+    echo ".NeedRemove present"
+else
+    echo ".NeedRemove missing"
+fi
+
+echo
+echo "Remove should succeed"
+$sudo rm -f $PCP_VAR_DIR/pmdas/bozo/fail
+$sudo touch $PCP_VAR_DIR/pmdas/bozo/.NeedRemove
+$sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_start
+pmsleep 0.5	# give script time to execute
+if [ -f $PCP_VAR_DIR/pmdas/bozo/.NeedRemove ]
+then
+    echo ".NeedRemove present"
+else
+    echo ".NeedRemove missing"
 fi
 
 echo

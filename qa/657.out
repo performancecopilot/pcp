@@ -2,9 +2,9 @@ QA output created by 657
 
 === Setting up QA fakeroot testing data ===
 
-=== Installing DMTHIN PMDA ===
+=== Installing Device Mapper PMDA ===
 You will need to choose an appropriate configuration for installation of
-the "dmthin" Performance Metrics Domain Agent (PMDA).
+the "dm" Performance Metrics Domain Agent (PMDA).
 
   collector	collect performance statistics on this system
   monitor	allow this system to monitor local and/or remote systems
@@ -14,55 +14,157 @@ Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Met
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
-Check dmthin metrics have appeared ... 10 metrics and 12 values
+Check dmcache metrics have appeared ... 16 metrics and 16 values
+Check dmthin metrics have appeared ... 13 metrics and 16 values
 
-=== Check dmthin pool metrics for all metrics ===
+=== Check dm-cache metrics ===
 
-dmthin.pool.metadata_used PMID: 139.0.0 [Number of metadata blocks used]
-    Data Type: 64-bit unsigned int  InDom: 139.0 0x22c00000
+dmcache.size PMID: 129.0.0 [Size of each cache device]
+    Data Type: 64-bit unsigned int  InDom: 129.0 0x20400000
+    Semantics: discrete  Units: Kbyte
+Help:
+The total size of each cache device in Kbytes.
+    inst [0 or "zz_cache"] value 1677721600
+
+dmcache.read_hits PMID: 129.0.7 [Read bio mapping cache]
+    Data Type: 32-bit unsigned int  InDom: 129.0 0x20400000
+    Semantics: counter  Units: count
+Help:
+Number of times a READ bio has been mapped to the cache.
+    inst [0 or "zz_cache"] value 1087840
+
+dmcache.read_misses PMID: 129.0.8 [Read bio mapping origin]
+    Data Type: 32-bit unsigned int  InDom: 129.0 0x20400000
+    Semantics: counter  Units: count
+Help:
+Number of times a READ bio has been mapped to the origin.
+    inst [0 or "zz_cache"] value 821795
+
+dmcache.write_hits PMID: 129.0.9 [Write bio mapping cache]
+    Data Type: 32-bit unsigned int  InDom: 129.0 0x20400000
+    Semantics: counter  Units: count
+Help:
+Number of times a WRITE bio has been mapped to the cache.
+    inst [0 or "zz_cache"] value 116320
+
+dmcache.write_misses PMID: 129.0.10 [Write bio mapping origin]
+    Data Type: 32-bit unsigned int  InDom: 129.0 0x20400000
+    Semantics: counter  Units: count
+Help:
+Number of times a WRITE bio has been mapped to the origin.
+    inst [0 or "zz_cache"] value 2057235
+
+dmcache.demotions PMID: 129.0.11 [Block removed from cache]
+    Data Type: 32-bit unsigned int  InDom: 129.0 0x20400000
+    Semantics: counter  Units: count
+Help:
+Number of times a block has been removed from the cache.
+    inst [0 or "zz_cache"] value 0
+
+dmcache.promotions PMID: 129.0.12 [Block moved to cache]
+    Data Type: 32-bit unsigned int  InDom: 129.0 0x20400000
+    Semantics: counter  Units: count
+Help:
+Number of times a block has been moved to the cache.
+    inst [0 or "zz_cache"] value 39835
+
+dmcache.dirty PMID: 129.0.13 [Blocks different to origin]
+    Data Type: 32-bit unsigned int  InDom: 129.0 0x20400000
+    Semantics: instant  Units: Kbyte
+Help:
+Number of blocks in the cache that differ from the origin.
+    inst [0 or "zz_cache"] value 0
+
+dmcache.io_mode_code PMID: 129.0.14 [Cache mode]
+    Data Type: 32-bit unsigned int  InDom: 129.0 0x20400000
+    Semantics: discrete  Units: none
+Help:
+Cache mode code - writeback, writethrough, passthrough.
+    inst [0 or "zz_cache"] value 1
+
+dmcache.io_mode PMID: 129.0.15 [Cache mode]
+    Data Type: string  InDom: 129.0 0x20400000
+    Semantics: discrete  Units: count
+Help:
+Cache mode string - writeback, writethrough or passthrough.
+    inst [0 or "zz_cache"] value "writeback"
+
+dmcache.metadata.block_size PMID: 129.0.1 [Block size for metadata]
+    Data Type: 32-bit unsigned int  InDom: 129.0 0x20400000
+    Semantics: discrete  Units: byte
+Help:
+The fixed block size for each metadata block in bytes.
+    inst [0 or "zz_cache"] value 8
+
+dmcache.metadata.used PMID: 129.0.2 [Metadata block used]
+    Data Type: 64-bit unsigned int  InDom: 129.0 0x20400000
+    Semantics: instant  Units: Kbyte
+Help:
+The number of metadata blocks used.
+    inst [0 or "zz_cache"] value 40648
+
+dmcache.metadata.total PMID: 129.0.3 [Total metadata blocks]
+    Data Type: 64-bit unsigned int  InDom: 129.0 0x20400000
+    Semantics: discrete  Units: Kbyte
+Help:
+The total number of metadata blocks.
+    inst [0 or "zz_cache"] value 1048576
+
+dmcache.cache.block_size PMID: 129.0.4 [Block size for cache]
+    Data Type: 32-bit unsigned int  InDom: 129.0 0x20400000
+    Semantics: instant  Units: byte
+Help:
+The fixed block size of each cache block in bytes.
+    inst [0 or "zz_cache"] value 128
+
+dmcache.cache.used PMID: 129.0.5 [Cache blocks used]
+    Data Type: 64-bit unsigned int  InDom: 129.0 0x20400000
+    Semantics: instant  Units: Kbyte
+Help:
+The number of cache blocks used.
+    inst [0 or "zz_cache"] value 2549696
+
+dmcache.cache.total PMID: 129.0.6 [Total cache blocks]
+    Data Type: 64-bit unsigned int  InDom: 129.0 0x20400000
+    Semantics: discrete  Units: Kbyte
+Help:
+The total number of cache blocks.
+    inst [0 or "zz_cache"] value 209715200
+
+=== Check dm-thin metrics for thin pool metrics ===
+
+dmthin.pool.size PMID: 129.1.0 [Size of each pool device]
+    Data Type: 64-bit unsigned int  InDom: 129.1 0x20400001
+    Semantics: discrete  Units: Kbyte
+Help:
+The total size of each pool device in Kbytes.
+    inst [0 or "yy_pool"] value 409600
+
+dmthin.pool.transaction_id PMID: 129.1.1 [Sync number with volume manager]
+    Data Type: 64-bit unsigned int  InDom: 129.1 0x20400001
     Semantics: instant  Units: count
 Help:
-The number of metadata blocks which are currently in use.
-    inst [0 or "yy_pool"] value 13
-
-dmthin.pool.metadata_total PMID: 139.0.1 [Total number of metadata blocks]
-    Data Type: 64-bit unsigned int  InDom: 139.0 0x22c00000
-    Semantics: instant  Units: count
-Help:
-The total number of metadata blocks for the given thin storage pool.
-    inst [0 or "yy_pool"] value 65536
-
-dmthin.pool.data_used PMID: 139.0.2 [Number of data blocks used]
-    Data Type: 64-bit unsigned int  InDom: 139.0 0x22c00000
-    Semantics: instant  Units: count
-Help:
-The number of data blocks which are currently in use.
+Number used by userspace to help synchronise with metadata
+from volume managers.
     inst [0 or "yy_pool"] value 0
 
-dmthin.pool.data_total PMID: 139.0.3 [Total number of data blocks]
-    Data Type: 64-bit unsigned int  InDom: 139.0 0x22c00000
-    Semantics: instant  Units: count
-Help:
-The total number of data blocks for the given thin storage pool.
-    inst [0 or "yy_pool"] value 3200
-
-dmthin.pool.held_root PMID: 139.0.4 [Location of metadata root]
-    Data Type: string  InDom: 139.0 0x22c00000
+dmthin.pool.held_root PMID: 129.1.6 [Location of metadata root]
+    Data Type: string  InDom: 129.1 0x20400001
     Semantics: instant  Units: count
 Help:
 The location in blocks of the metadata root that has been 'held' for
 userspace read access. "-" indicates that there is no held root.
     inst [0 or "yy_pool"] value "-"
 
-dmthin.pool.discard_passdown PMID: 139.0.5 [Discards passed or not]
-    Data Type: string  InDom: 139.0 0x22c00000
+dmthin.pool.discard_passdown PMID: 129.1.7 [Discards passed or not]
+    Data Type: string  InDom: 129.1 0x20400001
     Semantics: instant  Units: count
 Help:
 Whether or not discards are being passed down to the underlying device. 
     inst [0 or "yy_pool"] value "no_discard_passdown"
 
-dmthin.pool.read_mode PMID: 139.0.6 [Read mode of the thin pool]
-    Data Type: string  InDom: 139.0 0x22c00000
+dmthin.pool.read_mode PMID: 129.1.8 [Read mode of the thin pool]
+    Data Type: string  InDom: 129.1 0x20400001
     Semantics: instant  Units: count
 Help:
 Indication of whether the pool is in read/write mode or read only mode.
@@ -70,8 +172,8 @@ In the event that the pool encounters certain types of device failures
 it will drop into read-only metadata mode. 
     inst [0 or "yy_pool"] value "rw"
 
-dmthin.pool.no_space_mode PMID: 139.0.7 [Mode used when pool is out of space]
-    Data Type: string  InDom: 139.0 0x22c00000
+dmthin.pool.no_space_mode PMID: 129.1.9 [Mode used when pool is out of space]
+    Data Type: string  InDom: 129.1 0x20400001
     Semantics: instant  Units: count
 Help:
 If the pool runs out of data or metadata space, the pool will fallback
@@ -79,16 +181,54 @@ to either queuing or error any IO destined to the data device. The
 default is to queue until more space is added to the pool. 
     inst [0 or "yy_pool"] value "queue_if_no_space"
 
-dmthin.vol.num_mapped_sectors PMID: 139.1.0 [Number of sectors mapped]
-    Data Type: 64-bit unsigned int  InDom: 139.1 0x22c00001
+dmthin.pool.metadata.used PMID: 129.1.2 [Number of metadata blocks used]
+    Data Type: 64-bit unsigned int  InDom: 129.1 0x20400001
+    Semantics: instant  Units: count
+Help:
+The number of metadata blocks which are currently in use.
+    inst [0 or "yy_pool"] value 13
+
+dmthin.pool.metadata.total PMID: 129.1.3 [Total number of metadata blocks]
+    Data Type: 64-bit unsigned int  InDom: 129.1 0x20400001
+    Semantics: discrete  Units: count
+Help:
+The total number of metadata blocks for the given thin storage pool.
+    inst [0 or "yy_pool"] value 65536
+
+dmthin.pool.data.used PMID: 129.1.4 [Number of data blocks used]
+    Data Type: 64-bit unsigned int  InDom: 129.1 0x20400001
+    Semantics: instant  Units: count
+Help:
+The number of data blocks which are currently in use.
+    inst [0 or "yy_pool"] value 0
+
+dmthin.pool.data.total PMID: 129.1.5 [Total number of data blocks]
+    Data Type: 64-bit unsigned int  InDom: 129.1 0x20400001
+    Semantics: discrete  Units: count
+Help:
+The total number of data blocks for the given thin storage pool.
+    inst [0 or "yy_pool"] value 3200
+
+=== Check dm-thin metrics for thin vol metrics ===
+
+dmthin.vol.size PMID: 129.2.0 [Size of each thin volume]
+    Data Type: 64-bit unsigned int  InDom: 129.2 0x20400002
+    Semantics: discrete  Units: Kbyte
+Help:
+The total size of each thin volume in Kbytes.
+    inst [0 or "vg_1-lv3"] value 8388608
+    inst [1 or "vg_1-lv2"] value 8388608
+
+dmthin.vol.num_mapped_sectors PMID: 129.2.1 [Number of sectors mapped]
+    Data Type: 64-bit unsigned int  InDom: 129.2 0x20400002
     Semantics: instant  Units: count
 Help:
 The total number of mapped sectors to the thin volume.
     inst [0 or "vg_1-lv3"] value 7000704
     inst [1 or "vg_1-lv2"] value 6832768
 
-dmthin.vol.highest_mapped_sector PMID: 139.1.1 [Highest mapped sector]
-    Data Type: 64-bit unsigned int  InDom: 139.1 0x22c00001
+dmthin.vol.highest_mapped_sector PMID: 129.2.2 [Highest mapped sector]
+    Data Type: 64-bit unsigned int  InDom: 129.2 0x20400002
     Semantics: instant  Units: count
 Help:
 The highest mapped sector of the thin volume.

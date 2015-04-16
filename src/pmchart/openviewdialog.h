@@ -64,8 +64,8 @@ private:
     void hostAdd();
     void archiveAdd();
 
-    bool useLiveContext(QString);
-    bool useArchiveContext(QString);
+    bool useLiveContext(int);
+    bool useArchiveContext(int);
     bool useComboBoxContext(bool);
     bool openViewFiles(const QStringList &);
 };

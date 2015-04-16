@@ -1,9 +1,0 @@
-/*
- * fake "root" for validating the local PMNS subtree
- */
-
-#include <stdpmid>
-
-root { dmthin }
-
-#include "pmns"

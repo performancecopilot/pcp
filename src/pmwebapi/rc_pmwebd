@@ -215,8 +215,19 @@ case "$1" in
 Error: pmwebd control file "$PCP_PMWEBDCONF_PATH" is missing, cannot start pmwebd.'
 		exit
 	    fi
-	    [ ! -d $RUNDIR ] && mkdir -p $RUNDIR
-	    cd $RUNDIR
+	    # create directory housing daemon pid file
+	    if [ ! -d "$PCP_RUN_DIR" ]
+	    then
+		mkdir -p -m 775 "$PCP_RUN_DIR"
+		chown $PCP_USER:$PCP_GROUP "$PCP_RUN_DIR"
+	    fi
+	    # create directory which will serve as cwd
+	    if [ ! -d "$RUNDIR" ]
+	    then
+		mkdir -p -m 775 "$RUNDIR"
+		chown $PCP_USER:$PCP_GROUP "$RUNDIR"
+	    fi
+	    cd "$RUNDIR"
 
 	    # salvage the previous versions of any pmwebd
 	    #

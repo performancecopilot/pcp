@@ -18,7 +18,7 @@
 \f3pmdumplog\f1 \- dump internal details of a performance metrics archive log
 .SH SYNOPSIS
 \f3pmdumplog\f1
-[\f3\-adiLlmrstxz\f1]
+[\f3\-adilLmMrstxz\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-S\f1 \f2starttime\f1]
 [\f3\-T\f1 \f2endtime\f1]
@@ -116,6 +116,26 @@ The \fItimestamp\fR is only reported for the first metric in
 a group of metrics sharing the same timestamp.
 .RE
 .TP
+.B \-M
+If no
+.I metricname
+is specified then
+.I <mark> 
+records are reported when they are found in the
+.IR archive .
+If
+.I metricname
+arguments are specified, then
+.I <mark>
+records are not reported by default.
+The
+.B \-M
+option forces
+.I <mark>
+records to be reported, even when
+.I metricname
+arguments are specified.
+.TP
 .B \-r
 Process the archive in reverse order, from most recent to oldest
 recorded metric values.
@@ -180,6 +200,16 @@ precludes the use of all other options and arguments.
 Extended timestamp reporting format that includes the day of the week, day of the month,
 month and year in addition to the (default) hours, minutes and seconds time.
 This is useful for archives that span multiple days.
+.RS +5n
+.PP
+A second
+\-x
+option will also report the timestamp as an offset from the start of the
+archive in units of seconds.
+This is useful in conjunction with debug diagnostics from the
+archive handling routines in
+.IR libpcp .
+.RE
 .PP
 By default,
 .B pmdumplog

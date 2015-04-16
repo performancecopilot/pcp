@@ -240,6 +240,17 @@ else
     exit 1
 fi
 
+PKG_PROG_PKG_CONFIG
+if test -z "$PKG_CONFIG"
+then
+    echo
+    echo "FATAL ERROR: did not find a pkg-config executable."
+    echo "You can either set \$PKG_CONFIG as the full path to pkg-config"
+    echo "in the environment, or install the pkgconfig package."
+    rm -rf conftest conftest.*
+    exit 1
+fi
+
 # Add some security-related gcc flags
 AC_ARG_ENABLE([ssp],
   [AS_HELP_STRING([--disable-ssp], [disable gcc stack-protector])])
@@ -307,7 +318,7 @@ then
     then
 	if test "$do_probes" = "yes"
 	then
-	    AC_MSG_ERROR(cannot enable static probes - no dtrace executable)
+	    AC_MSG_ERROR([cannot enable static probes - no dtrace executable])
 	fi
 	enable_probes=false
     fi
@@ -333,14 +344,14 @@ End-of-File
 			enable_probes=false
 			if test "$do_probes" = "yes"
 			then
-			    AC_MSG_ERROR(cannot enable static probes - no .h from dtrace -h)
+			    AC_MSG_ERROR([cannot enable static probes - no .h from dtrace -h])
 			fi
 		    fi
 		else
 		    enable_probes=false
 		    if test "$do_probes" = "yes"
 		    then
-			AC_MSG_ERROR(cannot enable static probes - dtrace failed)
+			AC_MSG_ERROR([cannot enable static probes - dtrace failed])
 		    fi
 		fi
 	    fi
@@ -349,7 +360,7 @@ End-of-File
 	enable_probes=false
 	if test "$do_probes" = "yes"
 	then
-	    AC_MSG_ERROR(cannot enable static probes - no SDT header)
+	    AC_MSG_ERROR([cannot enable static probes - no SDT header])
 	fi
     ])
 
@@ -385,7 +396,7 @@ AS_IF([test "x$do_discovery" != "xno"], [
 
     if test "$do_discovery" != "check" -a "$enable_discovery" != "true"
     then
-	AC_MSG_ERROR(cannot enable service discovery - no supported mechanisms)
+	AC_MSG_ERROR([cannot enable service discovery - no supported mechanisms])
     fi
     if test "$enable_discovery" = "true"
     then
@@ -407,7 +418,7 @@ AS_IF([test "x$do_systemd" != "xno"], [
     then
 	if test "$do_systemd" = "yes"
 	then
-	    AC_MSG_ERROR(cannot enable systemd support - no systemunitdir path)
+	    AC_MSG_ERROR([cannot enable systemd support - no systemunitdir path])
 	fi
 	enable_systemd=false
     fi
@@ -496,7 +507,7 @@ AS_IF([test "x$do_python" != "xno"], [
 
     if test "$do_python" != "check" -a "$enable_python2" != "true"
     then
-	AC_MSG_ERROR(cannot enable Python - no supported version found)
+	AC_MSG_ERROR([cannot enable Python - no supported version found])
     fi
 ])
 AC_SUBST(enable_python2)
@@ -531,7 +542,7 @@ AS_IF([test "x$do_python3" != "xno"], [
 
     if test "$do_python3" != "check" -a "$enable_python3" != "true"
     then
-	AC_MSG_ERROR(cannot enable Python3 - no supported version found)
+	AC_MSG_ERROR([cannot enable Python3 - no supported version found])
     fi
 ])
 AC_SUBST(enable_python3)
@@ -577,7 +588,7 @@ AS_IF([test "x$do_qt" != "xno"], [
 
     if test "$do_qt" != "check" -a "$enable_qt" != "true"
     then
-	AC_MSG_ERROR(cannot enable Qt - no supported Qt installation found)
+	AC_MSG_ERROR([cannot enable Qt - no supported Qt installation found])
     elif test "$do_qt" = "debug"
     then
 	dnl Debug/release style build? (non-debug by default)
@@ -781,7 +792,11 @@ if test -z "$PACKAGE_MAKER"
 then
     if test $target_os = darwin
     then
-	if test -x /Developer/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
+	if test -x /Applications/PackageMaker.app/Contents/MacOS/PackageMaker
+	then # local XCode extras install
+	    package_maker=/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
+	    AC_MSG_RESULT([ yes (local install)])
+	elif test -x /Developer/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
 	then # Darwin 6.x
 	    package_maker=/Developer/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
 	    AC_MSG_RESULT([ yes (darwin 6.x)])
@@ -935,7 +950,7 @@ then
         book_toolchain=xmlto
     elif test "$do_books" = "yes"
     then
-	AC_MSG_ERROR(cannot enable books build - no toolchain found)
+	AC_MSG_ERROR([cannot enable books build - no toolchain found])
     fi
 fi
 AC_SUBST(book_toolchain)
@@ -1318,7 +1333,7 @@ AS_IF([test "x$do_papi" != "xno"], [
     AC_CHECK_HEADERS([papi.h], [papi_cflags="$CFLAGS"], [enable_papi=false])
     if test "$do_papi" != "check" -a "$enable_papi" != "true"
     then
-	AC_MSG_ERROR(PAPI is not installed, cannot enable the PAPI PMDA)
+	AC_MSG_ERROR([PAPI is not installed, cannot enable the PAPI PMDA])
     else
 	pmda_papi=$enable_papi
     fi
@@ -1361,7 +1376,7 @@ AS_IF([test "x$do_perfevent" != "xno" ], [
     AC_CHECK_HEADERS([perfmon/pfmlib_perf_event.h], [], [enable_perfevent=false])
     if test "$do_perfevent" != "check" -a "$enable_papi" != "true"
     then
-	AC_MSG_ERROR(libpfm is not installed, cannot enable the perfevent PMDA)
+	AC_MSG_ERROR([libpfm is not installed, cannot enable the perfevent PMDA])
     else
 	pmda_perfevent=$enable_perfevent
     fi
@@ -1397,10 +1412,10 @@ AS_IF([test "x$do_webapi" != "xno"], [
 
     if test "$do_webapi" != "check" -a "$have_libmicrohttpd" != "true"
     then
-	AC_MSG_ERROR(libmicrohttpd is not installed, cannot enable the web API)
+	AC_MSG_ERROR([libmicrohttpd is not installed, cannot enable the web API])
     elif test "$do_webapi" != "check" -a "x$cxx" = "x"
     then
-	AC_MSG_ERROR(C++ compiler unavailable, cannot enable the web API)
+	AC_MSG_ERROR([C++ compiler unavailable, cannot enable the web API])
     else
 	enable_webapi=$have_libmicrohttpd
     fi
@@ -1413,10 +1428,10 @@ AS_IF([test "x$do_manager" != "xno"], [
 
     if test "$do_manager" != "check" -a $target_os = mingw
     then
-	AC_MSG_ERROR(Target platform is MinGW, cannot enable daemon manager)
+	AC_MSG_ERROR([Target platform is MinGW, cannot enable daemon manager])
     elif test "$do_manager" != "check" -a "x$cxx" = "x"
     then
-	AC_MSG_ERROR(C++ compiler unavailable, cannot enable daemon manager)
+	AC_MSG_ERROR([C++ compiler unavailable, cannot enable daemon manager])
     fi
 ])
 AC_SUBST(enable_manager)
@@ -1758,7 +1773,7 @@ then
 	[
 	    if test "$do_threads" = "yes"
 	    then
-		AC_MSG_ERROR(cannot enable multi-threaded mode - no pthread.h)
+		AC_MSG_ERROR([cannot enable multi-threaded mode - no pthread.h])
 	    fi
 	])
 
@@ -1773,7 +1788,7 @@ then
 	[
 	    if test "$do_threads" = "yes"
 	    then
-		AC_MSG_ERROR(cannot enable multi-threaded mode - no mutexes)
+		AC_MSG_ERROR([cannot enable multi-threaded mode - no mutexes])
 	    else
 		AC_MSG_RESULT(no)
 	    fi
@@ -2491,7 +2506,7 @@ then
 	    enable_secure=false
 	    if test "$do_secure" = "yes"
 	    then
-		AC_MSG_ERROR(cannot enable secure sockets mode - no NSS header)
+		AC_MSG_ERROR([cannot enable secure sockets mode - no NSS header])
 	    fi
 	])
     ])
@@ -2502,7 +2517,7 @@ then
 	    enable_secure=false
 	    if test "$do_secure" = "yes"
 	    then
-		AC_MSG_ERROR(cannot enable secure sockets mode - no NSPR header)
+		AC_MSG_ERROR([cannot enable secure sockets mode - no NSPR header])
 	    fi
 	])
     ])
@@ -2512,7 +2527,7 @@ then
 	enable_secure=false
 	if test "$do_secure" = "yes"
 	then
-	    AC_MSG_ERROR(cannot enable secure sockets mode - no SASL header)
+	    AC_MSG_ERROR([cannot enable secure sockets mode - no SASL header])
 	fi
     ])
     AC_SUBST(SASLCFLAGS)
@@ -2521,7 +2536,7 @@ then
 	enable_secure=false
 	if test "$do_secure" = "yes"
 	then
-	    AC_MSG_ERROR(cannot enable secure sockets mode - no SASL library)
+	    AC_MSG_ERROR([cannot enable secure sockets mode - no SASL library])
 	fi
     ])
     AC_SUBST(lib_for_sasl)
@@ -2531,7 +2546,7 @@ then
 	    enable_secure=false
 	    if test "$do_secure" = "yes"
 	    then
-		AC_MSG_ERROR(cannot enable secure sockets mode - no SSL library)
+		AC_MSG_ERROR([cannot enable secure sockets mode - no SSL library])
 	    fi
 	])
     ])
@@ -2542,7 +2557,7 @@ then
 	    enable_secure=false
 	    if test "$do_secure" = "yes"
 	    then
-		AC_MSG_ERROR(cannot enable secure sockets mode - no NSS library)
+		AC_MSG_ERROR([cannot enable secure sockets mode - no NSS library])
 	    fi
 	])
     ])
@@ -2553,7 +2568,7 @@ then
 	    enable_secure=false
 	    if test "$do_secure" = "yes"
 	    then
-		AC_MSG_ERROR(cannot enable secure sockets mode - no NSPR library)
+		AC_MSG_ERROR([cannot enable secure sockets mode - no NSPR library])
 	    fi
 	])
     ])

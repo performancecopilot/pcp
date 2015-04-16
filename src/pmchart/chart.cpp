@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014, Red Hat.
+ * Copyright (c) 2012-2015, Red Hat.
  * Copyright (c) 2012, Nathan Scott.  All Rights Reserved.
  * Copyright (c) 2006-2010, Aconex.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
@@ -166,8 +166,7 @@ ChartItem::expandLegendLabel(const QString &legend)
 QString
 ChartItem::hostname(void) const
 {
-    return my.metric->context()->source().context_hostname();
-
+    return my.metric->context()->source().hostLabel();
 }
 
 QString
@@ -177,9 +176,9 @@ ChartItem::shortHostName(void) const
     int index;
 
     if ((index = hostName.indexOf(QChar('.'))) != -1) {
-	// no change if it looks even vaguely like an IP address
+	// no change if it looks even vaguely like an IP address or container
 	if (!hostName.contains(QRegExp("^\\d+\\.")) &&	// IPv4
-	    !hostName.contains(QChar(':')))		// IPv6
+	    !hostName.contains(QChar(':')))		// IPv6 or container
 	    hostName.truncate(index);
     }
     return hostName;
@@ -475,20 +474,15 @@ Chart::hostNameString(bool shortened)
         if ((*item)->removed())
 	    continue;
 
-	// QString host = (*item)->metricContext()->source().host();
-	// ... but .host() is a possibly-munged of the pmchart -h STRING 
-	// argument, not the actual host name.  So get the data source's
-	// self-declared host name.  This string will not have pmproxy @
-	// stuff, or pcp://....&attr=... miscellanea.
-	QString hostName = (*item)->metricContext()->source().context_hostname();
+	QString hostName = (*item)->metricContext()->source().hostLabel();
 
 	// decide whether or not to truncate this hostname
 	if (shortened)
 	    dot = hostName.indexOf(QChar('.'));
 	if (dot != -1) {
-	    // no change if it looks even vaguely like an IP address
+	    // no change if it looks even vaguely like an IP address or container
 	    if (!hostName.contains(QRegExp("^\\d+\\.")) &&	// IPv4
-		!hostName.contains(QChar(':')))		// IPv6
+		!hostName.contains(QChar(':')))		// IPv6 or container
 		hostName.truncate(dot);
 	}
 	hostNameSet.insert(hostName);

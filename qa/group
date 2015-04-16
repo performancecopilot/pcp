@@ -81,6 +81,8 @@ diskstat
 pmpost
 # pmdate
 pmdate
+# pcp and sub-commands
+pcp
 
 # general PDU encode/decode
 pdu
@@ -149,8 +151,9 @@ pmda.install
 ## Assorted PMDAs
 pmda.activemq
 pmda.apache
+pmda.cifs
 pmda.cisco
-pmda.dmcache
+pmda.dm
 pmda.ds389
 pmda.environ
 pmda.gfs2
@@ -781,7 +784,7 @@ cgroups
 503 logutil pmlogrewrite local pmlogextract
 505 pmlogrewrite local
 506 pmlogrewrite local
-507 other local
+507 pcp local
 508 archive pmlogreduce pmlogextract local
 509 derive pmns local
 510 pmlogger pmlc local
@@ -792,7 +795,7 @@ cgroups
 515 pmie local
 516 pmie local
 517 other local
-518 other local flakey pmie
+518 pcp local flakey pmie
 519 pmie remote
 520 pmie local
 521 pmie local
@@ -887,7 +890,7 @@ cgroups
 654 pmda.gfs2 local
 655 pmda.gfs2 local
 656 pmda.cifs local valgrind
-657 pmda.dmthin local
+657 pmda.dm local
 660 pmwebapi local
 661 pmwebapi local
 666 pmmgr local
@@ -934,8 +937,8 @@ cgroups
 739 python getopt local
 740 pmda.sample pmstore secure local
 741 python getopt local
-742 python local
-743 python local
+742 pcp python local
+743 pcp python local
 744 pmda.nvidia local
 745 pmda.nvidia local valgrind
 746 valgrind libpcp local
@@ -983,7 +986,7 @@ cgroups
 825 pmda.ds389 local
 827 pmlogrewrite pmda.linux local
 828 valgrind archive context local
-829 python local
+829 pcp python local
 830 other local
 831 pmda.sample pmstore secure local
 832 pmda.sample pmstore secure local
@@ -993,6 +996,7 @@ cgroups
 836 pmlogsummary local pmdiff
 837 pmda.sample containers local
 838 pmns local
+839 pcp python local
 840 avahi local
 841 pmda local
 842 python local
@@ -1013,9 +1017,10 @@ cgroups
 902 libpcp mem_leak valgrind event local
 903 pmda.papi local
 904 python local
-907 pmlogextract local
+907 pmlogextract local pmdumplog
 914 pmda.papi local
 919 pmlogger pmstat local
+921 pmdumplog local
 922 derive pmie pmval local
 926 other local
 928 archive local
@@ -1046,11 +1051,9 @@ cgroups
 980 python local
 981 dbpmda perl pmda.gpfs local
 984 cgroups local
-985 pmda.dmcache dbpmda local
-986 pmda.dmcache pmda.install local
 987 pmda.xfs local
 988 pmda.xfs local valgrind
-991 python local
+991 pcp python local
 993 pmlogger pmdumplog local
 994 other verify
 996 pmdiff local

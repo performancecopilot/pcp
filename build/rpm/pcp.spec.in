@@ -46,7 +46,7 @@ BuildRequires: rpm-devel
 BuildRequires: papi-devel
 %endif
 %if "@pmda_perfevent@" == "true"
-BuildRequires: libpfm-devel >= 4.4
+BuildRequires: libpfm-devel >= 4
 %endif
 %if "@have_cairo@" == "true"
 BuildRequires: cairo-devel
@@ -61,17 +61,17 @@ Conflicts: pcp-pro < 2.2
 Requires: bash gawk sed grep fileutils findutils
 %if "%{_vendor}" == "suse"
 Requires: sysconfig
-%define _rcdir /etc/init.d
+%global _rcdir /etc/init.d
 %else
 Requires: initscripts
-%define _rcdir /etc/rc.d/init.d
+%global _rcdir /etc/rc.d/init.d
 %endif
 %if "@enable_systemd@" == "true"
-%define _configure_rcdir %{nil}
+%global _configure_rcdir %{nil}
 %else
-%define _configure_rcdir --with-rcdir=%{_rcdir}
+%global _configure_rcdir --with-rcdir=%{_rcdir}
 %endif
-%define _tmpdir %{_localstatedir}/lib/pcp/tmp
+%global _tmpdir %{_localstatedir}/lib/pcp/tmp
 
 # There is a problem here ... some distros are resisting adding more
 # repackaged perl-Foo-Bar rpms, but the default find-requires script
@@ -109,7 +109,7 @@ applications to easily retrieve and process any subset of that data.
 #
 %package conf
 License: LGPLv2.1+
-Group: Development/Libraries
+Group: System Environment/Libraries
 Summary: Performance Co-Pilot run-time configuration
 URL: http://www.pcp.io
 
@@ -124,7 +124,7 @@ Performance Co-Pilot (PCP) run-time configuration
 #
 %package libs
 License: LGPLv2.1+
-Group: Development/Libraries
+Group: System Environment/Libraries
 Summary: Performance Co-Pilot run-time libraries
 URL: http://www.pcp.io
 Requires: pcp-conf = @package_version@
@@ -144,6 +144,7 @@ License: GPLv2+ and LGPLv2.1+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) development headers and documentation
 URL: http://www.pcp.io
+Requires: pcp = @package_version@
 Requires: pcp-libs = @package_version@
 
 %description libs-devel
@@ -174,8 +175,7 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) manager daemon
 URL: http://www.pcp.io
-Requires: pcp = @package_version@
-Requires: pcp-libs = @package_version@
+Requires: pcp = @package_version@ pcp-libs = @package_version@
 
 %description manager
 An optional daemon (pmmgr) that manages a collection of pmlogger and
@@ -230,7 +230,7 @@ License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for PCP Memory Mapped Values
 URL: http://www.pcp.io
-Requires: pcp >= @package_version@
+Requires: pcp = @package_version@
 
 %description -n perl-PCP-MMV
 The PCP::MMV module contains the Perl language bindings for
@@ -248,7 +248,7 @@ License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for importing external data into PCP archives
 URL: http://www.pcp.io
-Requires: pcp >= @package_version@
+Requires: pcp = @package_version@
 
 %description -n perl-PCP-LogImport
 The PCP::LogImport module contains the Perl language bindings for
@@ -263,7 +263,7 @@ License: GPLv2+
 Group: Development/Languages
 Summary: Performance Co-Pilot (PCP) Perl bindings for post-processing output of pmlogsummary
 URL: http://www.pcp.io
-Requires: pcp >= @package_version@
+Requires: pcp = @package_version@
 
 %description -n perl-PCP-LogSummary
 The PCP::LogSummary module provides a Perl module for using the
@@ -281,7 +281,7 @@ License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing sar data into PCP archive logs
 URL: http://www.pcp.io
-Requires: pcp-libs >= @package_version@ perl-PCP-LogImport >= @package_version@ sysstat
+Requires: pcp-libs = @package_version@ perl-PCP-LogImport = @package_version@ sysstat
 
 %description import-sar2pcp
 Performance Co-Pilot (PCP) front-end tools for importing sar data
@@ -295,7 +295,7 @@ License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing iostat data into PCP archive logs
 URL: http://www.pcp.io
-Requires: pcp-libs >= @package_version@ perl-PCP-LogImport >= @package_version@ sysstat
+Requires: pcp-libs = @package_version@ perl-PCP-LogImport = @package_version@ sysstat
 
 %description import-iostat2pcp
 Performance Co-Pilot (PCP) front-end tools for importing iostat data
@@ -1105,12 +1105,11 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Lmsensors shell
 URL: http://www.pcp.io
-Requires: pcp-libs = @package_version@
-%description pmda-lmsensors
-This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Linux hardware monitoring sensors.  The PMDA
-is written in C.
-# end pcp-pmda-lmsensors
+Requires: pcp-libs = @package_version@ perl-PCP-LogImport = @package_version@
+
+%description import-sheet2pcp
+Performance Co-Pilot (PCP) front-end tools for importing spreadsheet data
+into standard PCP archive logs for replay with any PCP monitoring tool.
 
 #
 # pcp-pmda-mailq
@@ -1120,12 +1119,11 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Mailq shell
 URL: http://www.pcp.io
-Requires: pcp-libs = @package_version@
-%description pmda-mailq
-This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about email queues managed by sendmail.  The PMDA is
-written in C.
-# end pcp-pmda-mailq
+Requires: pcp-libs = @package_version@ perl-PCP-LogImport = @package_version@
+
+%description import-mrtg2pcp
+Performance Co-Pilot (PCP) front-end tools for importing MTRG data
+into standard PCP archive logs for replay with any PCP monitoring tool.
 
 #
 # pcp-pmda-mounts
@@ -1135,11 +1133,11 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Mounts shell
 URL: http://www.pcp.io
-Requires: pcp-libs = @package_version@
-%description pmda-mounts
-This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about filesystem mounts.  The PMDA is written in C.
-# end pcp-pmda-mounts
+Requires: pcp-libs = @package_version@ perl-PCP-LogImport = @package_version@
+
+%description import-ganglia2pcp
+Performance Co-Pilot (PCP) front-end tools for importing ganglia data
+into standard PCP archive logs for replay with any PCP monitoring tool.
 
 #
 # pcp-pmda-nvidia
@@ -1150,10 +1148,10 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Nvidia shell
 URL: http://www.pcp.io
 Requires: pcp-libs = @package_version@
-%description pmda-nvidia
-This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Nvidia gpu metrics.  The PMDA is written in C.
-# end pcp-pmda-nvidia
+
+%description import-collectl2pcp
+Performance Co-Pilot (PCP) front-end tools for importing collectl data
+into standard PCP archive logs for replay with any PCP monitoring tool.
 
 #
 # pcp-pmda-roomtemp
@@ -1163,11 +1161,7 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Roomtemp shell
 URL: http://www.pcp.io
-Requires: pcp-libs = @package_version@
-%description pmda-roomtemp
-This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Room temperature metrics.  The PMDA is written in C.
-# end pcp-pmda-roomtemp
+Requires: pcp = @package_version@ pcp-libs = @package_version@
 
 #
 # pcp-pmda-rpm
@@ -1177,11 +1171,7 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Rpm shell
 URL: http://www.pcp.io
-Requires: pcp-libs = @package_version@
-%description pmda-rpm
-This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the rpms.  The PMDA is written in C.
-# end pcp-pmda-rpm
+Requires: pcp = @package_version@ pcp-libs = @package_version@
 
 #
 # pcp-pmda-sendmail
@@ -1191,11 +1181,14 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Sendmail shell
 URL: http://www.pcp.io
-Requires: pcp-libs = @package_version@
-%description pmda-sendmail
-This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about Sendmail traffic metrics.  The PMDA is written in C.
-# end pcp-pmda-sendmail
+Requires: pcp = @package_version@ pcp-libs = @package_version@
+
+%description -n pcp-gui
+Visualization tools for the Performance Co-Pilot toolkit.
+The pcp-gui package primarily includes visualization tools for
+monitoring systems using live and archived Performance Co-Pilot
+(PCP) sources.
+%endif
 
 #
 # pcp-pmda-shping
@@ -1220,11 +1213,8 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Summary shell
 URL: http://www.pcp.io
-Requires: pcp-libs = @package_version@
-%description pmda-summary
-This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about other installed pmdas.  The PMDA is written in C.
-# end pcp-pmda-summary
+Requires: pcp = @package_version@ pcp-libs = @package_version@
+BuildRequires: papi-devel
 
 #
 # pcp-pmda-systemd
@@ -1248,12 +1238,9 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Trace shell
 URL: http://www.pcp.io
-Requires: pcp-libs = @package_version@
-%description pmda-trace
-This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about transaction performance metrics from applications.
-The PMDA is written in C.
-# end pcp-pmda-trace
+Requires: pcp = @package_version@ pcp-libs = @package_version@
+Requires: libibmad >= 1.1.7 libibumad >= 1.1.7
+BuildRequires: libibmad-devel >= 1.1.7 libibumad-devel >= 1.1.7
 
 #
 # pcp-pmda-weblog
@@ -1263,35 +1250,14 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Weblog shell
 URL: http://www.pcp.io
-Requires: pcp-libs = @package_version@
-%description pmda-weblog
-This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about web server logs.  The PMDA is written in C.
-# end pcp-pmda-weblog
-# end C pmdas
+Requires: pcp = @package_version@ pcp-libs = @package_version@
+Requires: libpfm >= 4
+BuildRequires: libpfm-devel >= 4
 
-# pcp-compat
-%if 0%{?fedora} <= 22 || 0%{?rhel} <= 7
-%package compat
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) compat package for existing systems
-URL: http://www.pcp.io
-Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
-Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pmda-lustre
-Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
-Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql
-Requires: pcp-pmda-samba pcp-pmda-snmp pcp-pmda-systemtap pcp-pmda-vmware pcp-pmda-zimbra
-Requires: pcp-pmda-dmcache pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-apache
-Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
-Requires: pcp-pmda-nvidia pcp-pmda-roomtemp pcp-pmda-rpm pcp-pmda-sendmail pcp-pmda-shping
-Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
-Requires: pcp-system-tools
-%description compat
-This package contains the PCP compatibility dependencies for pmdas on existing
-systems.  This is not a package that should be depended on, and will be removed
-in future releases of Fedora.
-%endif #compat
+%description pmda-perfevent
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting hardware counters statistics through libpfm.
+%endif
 
 %prep
 %setup -q
@@ -1394,7 +1360,7 @@ PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
 awk '{print $NF}' $DIST_MANIFEST | egrep "$PCP_GUI|pixmaps" > gui_files
 %endif
 %if "@enable_webapi@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pmweb|PMWEBAPI' >webapi_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pmwebd|webapps|PMWEBAPI' >webapi_files
 %endif
 %if "@enable_manager@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pmmgr' >manager_files
@@ -1670,9 +1636,21 @@ getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
     useradd -c "Performance Co-Pilot" -g pcp -d @pcp_var_dir@ -M -r -s /sbin/nologin pcp
 # new directories; they should match /etc/pcp.conf settings after install
+PCP_CONFIG_DIR=@pcp_var_dir@/config
 PCP_SYSCONF_DIR=@pcp_sysconf_dir@
 PCP_LOG_DIR=@pcp_log_dir@
 PCP_ETC_DIR=@pcp_etc_dir@
+
+# transition pmdadmcache over to pmdadm (device mapper)
+PCP_PMCDCONF_PATH=@pcp_pmcdconf_path@
+PCP_PMDAS_DIR=@pcp_pmdas_dir@
+if grep -q ^dmcache "$PCP_PMCDCONF_PATH" 2>/dev/null
+then
+    mkdir -p -m 755 "$PCP_PMDAS_DIR/dm"
+    touch "$PCP_PMDAS_DIR/dm/.NeedInstall"
+    touch "$PCP_PMDAS_DIR/dmcache/.NeedRemove"
+fi
+
 # rename crontab files to align with current Fedora packaging guidelines
 for crontab in pmlogger pmie
 do
@@ -1692,6 +1670,7 @@ save_configs_script()
             ( cd "$_dir" ; find . -type f -print ) | sed -e 's/^\.\///' \
             | while read _file
             do
+                [ "$_file" = "control" ] && continue
                 _want=true
                 if [ -f "$_new/$_file" ]
                 then
@@ -1708,10 +1687,15 @@ save_configs_script()
 # migrate and clean configs if we have had a previous in-use installation
 [ -d "$PCP_LOG_DIR" ] || exit 0	# no configuration file upgrades required
 rm -f "$PCP_LOG_DIR/configs.sh"
-for daemon in pmcd pmie pmlogger pmproxy
+for daemon in pmie pmlogger
 do
-    save_configs_script >> "$PCP_LOG_DIR/configs.sh" "$PCP_SYSCONF_DIR/$daemon" \
-        /var/lib/pcp/config/$daemon/control /etc/$daemon /etc/pcp/$daemon /etc/sysconfig/$daemon
+    save_configs_script >> "$PCP_LOG_DIR/configs.sh" "$PCP_CONFIG_DIR/$daemon" \
+        "$PCP_SYSCONF_DIR/$daemon"
+done
+for daemon in pmcd pmproxy
+do
+    save_configs_script >> "$PCP_LOG_DIR/configs.sh" "$PCP_SYSCONF_DIR/$daemon"\
+        "$PCP_CONFIG_DIR/$daemon" /etc/$daemon /etc/sysconfig/$daemon
 done
 exit 0
 
@@ -1852,33 +1836,25 @@ cd
 %postun libs -p /sbin/ldconfig
 
 %files -f base_files.rpm
-%defattr(-,root,root)
 
 %files conf -f cfg_files.rpm
-%defattr(-,root,root)
 
 %files libs -f libs_files.rpm
-%defattr(-,root,root)
 
 %files libs-devel -f devel_files.rpm
-%defattr(-,root,root)
 
 %files doc -f docs_files.rpm
-%defattr(-,root,root)
 
 %if "@enable_qt@" == "true"
 %files gui -f gui_files.rpm
-%defattr(-,root,root)
 %endif
 
 %if "@enable_webapi@" == "true"
 %files webapi -f webapi_files.rpm
-%defattr(-,root,root)
 %endif
 
 %if "@enable_manager@" == "true"
 %files manager -f manager_files.rpm
-%defattr(-,root,root)
 # %config(missingok,noreplace) /etc/pcp/pmmgr
 # set via awk processing above
 %endif
@@ -1888,17 +1864,14 @@ cd
 
 %if "@pmda_papi@" == "true"
 %files pmda-papi -f pmda_papi_files.rpm
-%defattr(-,root,root)
 %endif
 
 %if "@pmda_infiniband@" == "true"
 %files pmda-infiniband -f pmda_infiniband_files.rpm
-%defattr(-,root,root)
 %endif
 
 %if "@pmda_perfevent@" == "true"
 %files pmda-perfevent -f pmda_perfevent_files.rpm
-%defattr(-,root,root)
 %endif
 
 %files pmda-activemq -f pmda_activemq_files.rpm
@@ -2045,43 +2018,31 @@ cd
 %defattr(-,root,root)
 
 %files import-sar2pcp -f import_sar2pcp_files.rpm
-%defattr(-,root,root)
 
 %files import-iostat2pcp -f import_iostat2pcp_files.rpm
-%defattr(-,root,root)
 
 %files import-sheet2pcp -f import_sheet2pcp_files.rpm
-%defattr(-,root,root)
 
 %files import-mrtg2pcp -f import_mrtg2pcp_files.rpm
-%defattr(-,root,root)
 
 %files import-ganglia2pcp -f import_ganglia2pcp_files.rpm
-%defattr(-,root,root)
 
 %files import-collectl2pcp -f import_collectl2pcp_files.rpm
-%defattr(-,root,root)
 
 %files -n perl-PCP-PMDA -f perl-pcp-pmda.list
-%defattr(-,root,root)
 
 %files -n perl-PCP-MMV -f perl-pcp-mmv.list
-%defattr(-,root,root)
 
 %files -n perl-PCP-LogImport -f perl-pcp-logimport.list
-%defattr(-,root,root)
 
 %files -n perl-PCP-LogSummary -f perl-pcp-logsummary.list
-%defattr(-,root,root)
 
 %if "@enable_python2@" == "true"
 %files -n python-pcp -f python-pcp.list.rpm
-%defattr(-,root,root)
 %endif
 
 %if "@enable_python3@" == "true"
 %files -n python3-pcp -f python3-pcp.list.rpm
-%defattr(-,root,root)
 %endif
 
 %if %{with_python}

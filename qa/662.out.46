@@ -251,6 +251,9 @@ indom:121634825
 context #### indom name=sample.many.int&instance=1,4 response code 200
 indom:121634824
   with instances
+context #### indom name=sample.many.int&instance=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21 response code 200
+indom:121634824
+  with instances
 context #### indom indom=0x7400008&iname=i-2,,,i-3 response code 200
 indom:121634824
   with instances
@@ -511,6 +514,9 @@ context #### indom indom=0x7400009 response code 200
 indom:121634825
   with instances
 context #### indom name=sample.many.int&instance=1,4 response code 200
+indom:121634824
+  with instances
+context #### indom name=sample.many.int&instance=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21 response code 200
 indom:121634824
   with instances
 context #### indom indom=0x7400008&iname=i-2,,,i-3 response code 200

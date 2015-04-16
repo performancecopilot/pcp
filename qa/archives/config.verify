@@ -1,0 +1,11 @@
+#
+# this one is to make the "pcp-verify" archive for PCP QA suite
+#
+
+log mandatory on once {
+	pmcd.agent.type
+	pmcd.agent.status
+	pmcd.feature.secure
+	pmcd.feature.authentication
+	pmcd.feature.containers
+}

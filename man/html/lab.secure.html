@@ -71,6 +71,11 @@ which is FIPS 140-2 certified.</P>
 TLS/SSL and non-SSL communications.  This means that you do not have to choose
 between TLS/SSL or non-SSL communications for your PCP Collector systems; both
 can be used at the same time.</P>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Check local PCP collector installation (requires the <I>pcp-verify</I> utility):<BR>
+<PRE><B>$ pcp verify --secure</B></PRE>
+</TD></TR>
+</TABLE>
 
 <P><BR></P>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
@@ -130,8 +135,7 @@ It must be set as read-only for this user and allow no access to others
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Create a system-wide NSS database in a privileged (root) shell, <B><I>only if it does not exist already</I></B>:<BR>
-<PRE><B>
-# ls /etc/pki/nssdb
+<PRE><B># ls /etc/pki/nssdb
 ls: cannot access /etc/pki/nssdb: No such file or directory
 # mkdir -p -m 0755 /etc/pki/nssdb
 # echo > /tmp/empty
@@ -152,8 +156,7 @@ option to <I>certutil</I>, as follows.
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;List certificates in system-wide NSS database:<BR>
-<PRE><B>
-$ certutil -d sql:/etc/pki/nssdb -L
+<PRE><B>$ certutil -d sql:/etc/pki/nssdb -L
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI
@@ -169,8 +172,7 @@ using the <B>-x</B> option to <I>certutil</I>.
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;After customising the certificate subject names (<B>-s</B> and <B>-8</B> options below), in a privileged shell enter:<BR>
-<PRE><B>
-# certutil -d sql:/etc/pki/nssdb -S -x \
+<PRE><B># certutil -d sql:/etc/pki/nssdb -S -x \
 	-n &quot;Local CA certificate&quot; -s &quot;cn=Local PCP Installation, dc=<SPAN>YOUR</SPAN>,dc=<SPAN>DOMAIN</SPAN>,dc=<SPAN>NAME</SPAN>&quot; \
 	-t &quot;CT,,&quot; -v 120
 
@@ -227,8 +229,7 @@ collector systems that are configured, fallback to insecure connections if not&q
 and certificate will be automatically setup in the correct location on your behalf.
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To establish a secure connection, in a shell enter:<BR>
-<PRE><B>
-$ export PCP_SECURE_SOCKETS=enforce
+<PRE><B>$ export PCP_SECURE_SOCKETS=enforce
 $ pminfo --host <SPAN>YOUR.HOST.NAME</SPAN> -f kernel.all.load
 WARNING: issuer of certificate received from host YOUR.HOST.NAME is not trusted.
 SHA1 fingerprint is 34:92:D2:DC:DE:28:3A:2D:DD:B9:1A:6C:C9:51:1E:B8:FA:CE:63:51
@@ -246,8 +247,7 @@ kernel.all.load
 for remote collector hosts.
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To list the locally installed server certificates, in a shell enter:<BR>
-<PRE><B>
-$ certutil -d sql:$HOME/.pki/nssdb -L
+<PRE><B>$ certutil -d sql:$HOME/.pki/nssdb -L
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI
@@ -271,8 +271,7 @@ in ASCII format for the PCP Collector system we wish to monitor and
 finally import it into the user database.
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Step 1: Create a local user NSS database in a command shell, <B><I>only if it does not exist already</I></B>:<BR>
-<PRE><B>
-$ ls $HOME/.pki/nssdb
+<PRE><B>$ ls $HOME/.pki/nssdb
 ls: cannot access .pki/nssdb: No such file or directory
 $ mkdir -p -m 0755 $HOME/.pki/nssdb
 $ test -f /tmp/empty || echo > /tmp/empty
@@ -280,13 +279,11 @@ $ certutil -d sql:$HOME/.pki/nssdb -N -f /tmp/empty
 </B></PRE>
 </TD></TR>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Step 2: To export the <I>collector</I> system CA certificate as ASCII, in a shell enter:<BR>
-<PRE><B>
-$ certutil -d sql:/etc/pki/nssdb -L -n "Local CA certificate" -a > /tmp/ca-certificate.asc
+<PRE><B>$ certutil -d sql:/etc/pki/nssdb -L -n "Local CA certificate" -a > /tmp/ca-certificate.asc
 </B></PRE>
 </TD></TR>
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Step 3: To import the certificate as ASCII on a <I>monitor</I> system, in a shell enter:<BR>
-<PRE><B>
-$ certutil -d sql:$HOME/.pki/nssdb -A -n "Local CA certificate" -t "CT,," -a -i /tmp/ca-certificate.asc
+<PRE><B>$ certutil -d sql:$HOME/.pki/nssdb -A -n "Local CA certificate" -t "CT,," -a -i /tmp/ca-certificate.asc
 </B></PRE>
 </TD></TR>
 </TABLE>
@@ -317,7 +314,7 @@ can be used to inspect and administer locally installed security certificates.
 <CENTER>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0>
 	<TR> <TD WIDTH="50%"><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc</FONT></A></P></TD>
-	<TD WIDTH="50%"><P ALIGN=RIGHT><A HREF="http://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2014 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></A></P></TD></TR>
+	<TD WIDTH="50%"><P ALIGN=RIGHT><A HREF="http://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2015 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></A></P></TD></TR>
 </TABLE>
 </CENTER>
 </BODY>

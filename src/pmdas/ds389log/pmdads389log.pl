@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2014 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2014-2015 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -106,7 +106,6 @@ sub ds389log_fetch {
         my $errors = 0; # combined
         foreach my $line (@stats) {
                 my $key;
-                my @metric;
 
                 if ($line =~ /^.*:/ || $line =~ /^U1/ || $line =~ /^B1/) {
                         $key = $&;
@@ -132,14 +131,13 @@ sub ds389log_fetch {
                                 my $id = 'ds389log.' . $data{$key}[1] . '.' . $data{$key}[0];
 
                                 if ($data{$key}[4] eq 1) {
-                                        my $prev = $metrics{$id}[1];
+                                        my $prev = $metrics{$id};
                                         $value = $prev if $prev > $value;
                                 } else {
-                                        $value = $metrics{$id}[1] + $value;
+                                        $value = $metrics{$id} + $value;
                                 }
 
-                                @metric = ($id , $value);
-                                $metrics{$id} = \@metric;
+                                $metrics{$id} = $value;
                         }
                 }
         }
@@ -155,7 +153,7 @@ sub ds389log_fetch_callback {
 
         if (!defined($value))                { return (PM_ERR_APPVERSION, 0); }
 
-        return ($value->[1], 1);
+        return ($value, 1);
 }
 
 $pmda = PCP::PMDA->new('ds389log', 131);
@@ -167,8 +165,7 @@ foreach my $key (keys %data) {
                         PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
                         pmda_units(0,0,1,0,0,PM_COUNT_ONE),
                         $name, '', '');
-        my @value = ($name, 0);
-        $metrics{$name} = \@value;
+        $metrics{$name} = 0;
 }
 
 $pmda->set_refresh(\&ds389log_fetch);

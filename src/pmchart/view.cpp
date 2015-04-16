@@ -961,8 +961,7 @@ done_tab:
 			    goto skip;
 			}
 			QmcSource source = archiveGroup->context()->source();
-			pms.source = strdup((const char *)
-					source.source().toAscii());
+			pms.source = source.sourceAscii();
 		    }
 		    else {
 			pms.source = strdup(host);

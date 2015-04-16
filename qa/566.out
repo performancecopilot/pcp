@@ -72,6 +72,16 @@ foo: start pass1 (check temporal index)
 foo: start pass2
 foo: start pass3
 
+archive-20150415.044829:
+Processed 9 pmResult records
+Scanning for components of archive "archive-20150415.044829"
+archive-20150415.044829.0: start pass0
+archive-20150415.044829.index: start pass0
+archive-20150415.044829.meta: start pass0
+archive-20150415.044829: start pass1 (check temporal index)
+archive-20150415.044829: start pass2
+archive-20150415.044829: start pass3
+
 === pass 0 failures ===
 
 archives/badlen-10.meta:

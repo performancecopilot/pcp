@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2014 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2014-2015 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -66,7 +66,6 @@ sub ds389_process_entry {
 	my $currtime;
 
 	foreach my $attr ($entry->attributes) {
-		my @metric;
 		my $value = $entry->get_value($attr);
 
 		if ($attr eq 'currenttime') {
@@ -80,8 +79,7 @@ sub ds389_process_entry {
 			$attr = 'uptime';
 		}
 
-		@metric = ('ds389.' . $prefix . $attr, $value);
-		$metrics{$metric[0]} = \@metric;
+		$metrics{'ds389.' . $prefix . $attr} = $value;
 	}
 }
 
@@ -131,7 +129,7 @@ sub ds389_fetch_callback {
 
 	if (!defined($value))		{ return (PM_ERR_APPVERSION, 0); }
 
-	return ($value->[1], 1);
+	return ($value, 1);
 }
 
 $pmda = PCP::PMDA->new('ds389', 130);

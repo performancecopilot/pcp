@@ -1,7 +1,7 @@
 /*
  * PMWEBD graphite-api emulation
  *
- * Copyright (c) 2014 Red Hat Inc.
+ * Copyright (c) 2014-2015 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,7 +33,6 @@ using namespace std;
 extern "C"
 {
 #include <ctype.h>
-#include <math.h>
 #ifdef HAVE_FTS_H
 #include <fts.h>
 #endif
@@ -42,11 +41,54 @@ extern "C"
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif
+#ifdef HAVE_IEEEFP_H
+#include <ieeefp.h>
+#endif
+#ifdef HAVE_MATH_H
+#include <math.h>
+#endif
 #ifdef HAVE_CAIRO
 #include <cairo/cairo.h>
 #endif
 };
 
+
+/*
+ * Platform-independent not-a-number helpers (based on libpcp code).
+ */
+int
+pmgraphite_isnanf (float value)
+{
+    int fp_bad = 0;
+
+#ifdef HAVE_FPCLASSIFY
+    fp_bad = fpclassify (value) == FP_NAN;
+#else
+#ifdef HAVE_ISNANF
+    fp_bad = isnanf (value);
+#else
+# warning "This platform has no isnan for float"
+#endif
+#endif
+    return fp_bad;
+}
+
+int
+pmgraphite_isnand (double value)
+{
+    int fp_bad = 0;
+
+#ifdef HAVE_FPCLASSIFY
+    fp_bad = fpclassify (value) == FP_NAN;
+#else
+#ifdef HAVE_ISNAN
+    fp_bad = isnan (value);
+#else
+# warning "This platform has no isnan for double"
+#endif
+#endif
+    return fp_bad;
+}
 
 /*
  * We need a reversible encoding from arbitrary non-empty strings
@@ -966,7 +1008,7 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
                 delta = 1;    // some token protection against div-by-zero
             }
 
-            if (isnanf (last_value) || isnanf (this_value)) {
+            if (pmgraphite_isnanf (last_value) || pmgraphite_isnanf (this_value)) {
                 output[i].what = nanf ("");
             } else {
                 // avoid loss of significance risk of naively calculating
@@ -1698,10 +1740,10 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
         ymin = nanf ("");
         for (unsigned i=0; i<all_results.size (); i++)
             for (unsigned j=0; j<all_results[i].size (); j++) {
-                if (isnanf (all_results[i][j].what)) {
+                if (pmgraphite_isnanf (all_results[i][j].what)) {
                     continue;
                 }
-                if (isnanf (ymin)) {
+                if (pmgraphite_isnanf (ymin)) {
                     ymin = all_results[i][j].what;
                 } else {
                     ymin = min (ymin, all_results[i][j].what);
@@ -1715,10 +1757,10 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
         ymax = nanf ("");
         for (unsigned i=0; i<all_results.size (); i++)
             for (unsigned j=0; j<all_results[i].size (); j++) {
-                if (isnanf (all_results[i][j].what)) {
+                if (pmgraphite_isnanf (all_results[i][j].what)) {
                     continue;
                 }
-                if (isnanf (ymax)) {
+                if (pmgraphite_isnanf (ymax)) {
                     ymax = all_results[i][j].what;
                 } else {
                     ymax = max (ymax, all_results[i][j].what);
@@ -1727,7 +1769,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
     }
 
     // Any data to show?
-    if (isnanf (ymin) || isnanf (ymax) || all_results.empty ()) {
+    if (pmgraphite_isnanf (ymin) || pmgraphite_isnanf (ymax) || all_results.empty ()) {
         cairo_text_extents_t ext;
         string message = "no data in range";
         cairo_save (cr);
@@ -1826,7 +1868,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
         total_visibility_score.push_back (0);
         const vector<timestamped_float>& f = all_results[i];
         for (unsigned j=0; j<f.size (); j++) {
-            if (isnan (f[j].what)) {
+            if (pmgraphite_isnand (f[j].what)) {
                 continue;
             }
             total_visibility_score[i] ++;
@@ -1842,7 +1884,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
                 if (i == k) {
                     continue;
                 }
-                if (isnan (f2[j].what)) {
+                if (pmgraphite_isnand (f2[j].what)) {
                     continue;
                 }
                 assert (f2[j].when.tv_sec == f[j].when.tv_sec);
@@ -2056,10 +2098,10 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
 
             // clog << "(" << lastx << "," << lasty << ")";
 
-            if (isnanf (thisy)) {
+            if (pmgraphite_isnanf (thisy)) {
                 // This data slot is missing, so put a circle at the previous end, if
                 // possible, to indicate the discontinuity
-                if (! isnan (lastx) && ! isnan (lasty)) {
+                if (! pmgraphite_isnand (lastx) && ! pmgraphite_isnand (lasty)) {
                     cairo_move_to (cr, lastx, lasty);
                     cairo_arc (cr, lastx, lasty, line_width*0.5, 0., 2*M_PI);
                     cairo_stroke (cr);
@@ -2081,7 +2123,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
             // clog << "-(" << x << "," << y << ") ";
 
             cairo_move_to (cr, x, y);
-            if (! isnan (lastx) && ! isnan (lasty)) {
+            if (! pmgraphite_isnand (lastx) && ! pmgraphite_isnand (lasty)) {
                 // draw it as a line
                 cairo_line_to (cr, lastx, lasty);
             } else {
@@ -2231,7 +2273,7 @@ pmgraphite_respond_render_json (struct MHD_Connection *connection,
                     output << ",";
                 }
                 output << "[";
-                if (isnanf (results[i].what)) {
+                if (pmgraphite_isnanf (results[i].what)) {
                     output << "null";
                 } else {
                     output << results[i].what;

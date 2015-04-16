@@ -1,7 +1,7 @@
 /*
  * General Utility Routines
  *
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -1509,7 +1509,7 @@ __pmSetClientId(const char *id)
     char		*name = "pmcd.client.whoami";
     pmID		pmid;
     int			sts;
-    pmResult		store = { .numpmid = 1 };
+    pmResult		store;
     pmValueSet		pmvs;
     pmValueBlock	*pmvb;
     char        	host[MAXHOSTNAMELEN];
@@ -1592,6 +1592,8 @@ __pmSetClientId(const char *id)
     pmvs.vlist[0].value.pval = pmvb;
     pmvs.vlist[0].inst = PM_IN_NULL;
 
+    memset(&store, 0, sizeof(store));
+    store.numpmid = 1;
     store.vset[0] = &pmvs;
     sts = pmStore(&store);
     free(pmvb);
