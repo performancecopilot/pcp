@@ -1845,6 +1845,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
     /sbin/service pmproxy condrestart
 %endif
 
+cd $PCP_PMNS_DIR && ./Rebuild -s && rm .NeedRebuild
+cd
+
 %post libs -p /sbin/ldconfig
 %postun libs -p /sbin/ldconfig
 
