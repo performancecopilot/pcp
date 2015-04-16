@@ -272,7 +272,7 @@
                     "aliasYAxis": {
 
                     },
-                    "title": "available/used memory bytes"
+                    "title": "available/used memory kbytes"
                 }
             ],
             "notice": false
