@@ -458,6 +458,7 @@ __pmAddOptArchive(pmOptions *opts, char *arg)
     }
 
     opts->archives = archives;
+    opts->narchives++;
     return;
 
  noMem:
