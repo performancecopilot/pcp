@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Red Hat.
+ * Copyright (c) 2014-2015, Red Hat.
  * Copyright (c) 2008, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -35,7 +35,7 @@ QStringList Gadget::hosts()
 
 QString Gadget::pmloggerMetricSyntax(int m)
 {
-    QmcMetric *mp = metric(m);
+    QmcMetric *mp = metricPtr(m);
     QString config = mp->name();
 
     if (mp->numInst() == 1) {
