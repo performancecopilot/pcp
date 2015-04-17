@@ -288,21 +288,54 @@ void
 __pmAddOptArchive(pmOptions *opts, char *arg)
 {
     char **archives = opts->archives;
-    size_t size = sizeof(char *) * (opts->narchives + 1);
+    size_t size;
 
-    if (opts->narchives && !(opts->flags & PM_OPTFLAG_MULTI)) {
-	pmprintf("%s: too many archives requested: %s\n", pmProgname, arg);
-	opts->errors++;
-    } else if (opts->nhosts && !(opts->flags & PM_OPTFLAG_MIXED)) {
+    if (opts->nhosts && !(opts->flags & PM_OPTFLAG_MIXED)) {
 	pmprintf("%s: only one host or archive allowed\n", pmProgname);
 	opts->errors++;
-    } else if ((archives = realloc(archives, size)) != NULL) {
-	archives[opts->narchives] = arg;
-	opts->archives = archives;
-	opts->narchives++;
-    } else {
-	__pmNoMem("pmGetOptions(archive)", size, PM_FATAL_ERR);
+	return;
     }
+
+    if ((opts->flags & PM_OPTFLAG_MULTI)) {
+	/*
+	 * Multiple contexts for multiple archives. See pmstat(1).
+	 * We will maintain an array fo archive names.
+	 */
+	size = sizeof(char *) * (opts->narchives + 1);
+	if ((archives = realloc(archives, size)) == NULL)
+	    goto noMem;
+	archives[opts->narchives] = arg;
+    }
+    else {
+	/*
+	 * One context for multiple archives. We will maintain a single,
+	 * comma-separated list of archive names.
+	 */
+	if (archives == NULL) {
+	    /* The initial name. */
+	    size = sizeof (*archives);
+	    if ((archives = malloc(size)) == NULL)
+		goto noMem;
+	    size = strlen(arg); /* for noMem below */
+	    if ((*archives = strdup(arg)) == NULL)
+		goto noMem;
+	}
+	else {
+	    /* Add a comma plus the additional name. */
+	    size = strlen (*archives) + 1 + strlen (arg) + 1;
+	    if ((*archives = realloc(*archives, size)) == NULL)
+		goto noMem;
+	    strcat (*archives, ",");
+	    strcat (*archives, arg);
+	}
+    }
+
+    opts->archives = archives;
+    opts->narchives++;
+    return;
+
+ noMem:
+    __pmNoMem("pmGetOptions(archive)", size, PM_FATAL_ERR);
 }
 
 static char *
@@ -322,37 +355,30 @@ void
 __pmAddOptArchiveList(pmOptions *opts, char *arg)
 {
     char *start = arg, *end;
+    char saveend;
 
-    if (!(opts->flags & PM_OPTFLAG_MULTI)) {
-	pmprintf("%s: too many archives requested: %s\n", pmProgname, arg);
-	opts->errors++;
-    } else if (opts->nhosts && !(opts->flags & PM_OPTFLAG_MIXED)) {
+    if (opts->nhosts && !(opts->flags & PM_OPTFLAG_MIXED)) {
 	pmprintf("%s: only one of hosts or archives allowed\n", pmProgname);
 	opts->errors++;
-    } else {
-	while ((end = comma_or_end(start)) != NULL) {
-	    size_t size = sizeof(char *) * (opts->narchives + 1);
-	    size_t length = end - start;
-	    char **archives = opts->archives;
-	    char *archive;
+	return;
+    }
 
-	    if (length == 0)
-		goto next;
+    if (!(opts->flags & PM_OPTFLAG_MULTI)) {
+	/*
+	 * Add it all at once, since we're maintaining a single comma-separated
+	 * list of archive names anyway.
+	*/
+	__pmAddOptArchive(opts, arg);
+	return;
+    }
 
-	    if ((archives = realloc(archives, size)) != NULL) {
-		if ((archive = strndup(start, length)) != NULL) {
-		    archives[opts->narchives] = archive;
-		    opts->archives = archives;
-		    opts->narchives++;
-		} else {
-		    __pmNoMem("pmGetOptions(archive)", length, PM_FATAL_ERR);
-		}
-	    } else {
-		__pmNoMem("pmGetOptions(archives)", size, PM_FATAL_ERR);
-	    }
-	next:
-	    start = (*end == '\0') ? end : end + 1;
-	}
+    /* Add the names one at a time. */
+    while ((end = comma_or_end(start)) != NULL) {
+	saveend = *end;
+	*end = '\0';
+	__pmAddOptArchive(opts, start);
+	*end = saveend;
+	start = (*end == '\0') ? end : end + 1;
     }
 }
 
