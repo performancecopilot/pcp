@@ -46,15 +46,8 @@ root filesystem.
 
 == A.2 Mac OS X Installation
 
-The only unusual step in installing PCP on Mac OS X is the additional
-dependency on the developer tools (XCode package).  The specific need
-PCP has is to have a C preprocessor available for managing the metric
-namespace, which on Mac OS X is a frontend to gcc and not installed by
-default.
-
-Once this is installed, installing PCP from the DMG file is as simple
-as clicking on the icon in a Finder window, and following the prompts
-from the installer.
+Installing PCP from the DMG file is as simple as clicking on the icon
+in a Finder window, and following the prompts from the installer.
 
 == A.3 AIX Installation
 
@@ -115,6 +108,33 @@ PCP internet resources, and the pmchart utility.
 
 == B. Building from source
 
+0. Preliminaries
+
+   The PCP code base is targeted for many different operating
+   systems and many different combinations of related packages,
+   so a little planning is needed before launching into a build
+   from source.
+
+   Package dependencies come in several flavours:
+
+   (a) hard build dependencies - without these PCP cannot be
+       build from source, and the build will fail in various
+       ways at the compilation or packaging stages, e.g. gmake,
+       autoconf, flex, bison, ...;
+
+   (b) optional build dependences - if these components are not
+       installed the build will work, but the resultant packages
+       may be missing some features or entire applications, e.g.
+       extended authentication, secure connections, service
+       discovery, pmwebd, ...;
+
+   (c) QA dependencies - you can ignore these unless you want to
+       run the (extensive) PCP QA suite.
+
+   It is strongly recommended that you run the script:
+	$ qa/admin/check-vm
+   and review the output before commencing a build.
+
 1. Configure, build and install the package
 
    The pcp package uses autoconf/configure and expects a GNU build
@@ -153,9 +173,11 @@ PCP internet resources, and the pmchart utility.
    users "pcp" with home directory /var/lib/pcp, and "pcpqa" with home
    directory such as /var/lib/pcp/testsuite, or as appropriate, or
    designate other userids in the pcp.conf file.
+
    Note 1: that there are so many "install" variants out there that we
    wrote our own script (see "install-sh" in the top level directory),
    which works on every platform supported by PCP.
+
    Note 2: the Windows build is particularly involved to setup, this
    is primarily due to build tools not being available by default on
    that platform.  See the PCP Glider scripts and notes in the pcpweb

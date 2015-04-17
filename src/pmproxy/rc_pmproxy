@@ -215,6 +215,13 @@ case "$1" in
 Error: pmproxy options file "$PMPROXYOPTS" is missing, cannot start pmproxy.'
 		exit
 	    fi
+	    # create directory housing daemon pid file
+	    if [ ! -d "$PCP_RUN_DIR" ]
+	    then
+		mkdir -p -m 775 "$PCP_RUN_DIR"
+		chown $PCP_USER:$PCP_GROUP "$PCP_RUN_DIR"
+	    fi
+	    # create directory which will serve as cwd
 	    if [ ! -d "$RUNDIR" ]
 	    then
 		mkdir -p -m 775 "$RUNDIR"

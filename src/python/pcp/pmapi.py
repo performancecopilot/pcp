@@ -1170,12 +1170,12 @@ class pmContext(object):
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
-        if type(nameA) == type('') or type(nameA) == type(b''):
+        if type(nameA) == type(u'') or type(nameA) == type(b''):
             n = 1
         else:
             n = len(nameA)
         names = (c_char_p * n)()
-        if type(nameA) == type(''):
+        if type(nameA) == type(u''):
             names[0] = c_char_p(nameA.encode('utf-8'))
         elif type(nameA) == type(b''):
             names[0] = c_char_p(nameA)
@@ -1923,7 +1923,7 @@ class pmContext(object):
 
     @staticmethod
     def pmParseUnitsStr(string):
-        if type(string) != type('') and type(string) != type(b''):
+        if type(string) != type(u'') and type(string) != type(b''):
             raise pmErr(c_api.PM_ERR_CONV, str(string))
         if type(string) != type(b''):
             string = string.encode('utf-8')

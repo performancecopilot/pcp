@@ -45,7 +45,7 @@ BuildRequires: rpm-devel
 BuildRequires: papi-devel
 %endif
 %if "@pmda_perfevent@" == "true"
-BuildRequires: libpfm-devel >= 4.4
+BuildRequires: libpfm-devel >= 4
 %endif
 %if "@have_cairo@" == "true"
 BuildRequires: cairo-devel
@@ -484,8 +484,8 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for hardware counters
 URL: http://www.pcp.io
 Requires: pcp = @package_version@ pcp-libs = @package_version@
-Requires: libpfm >= 4.4
-BuildRequires: libpfm-devel >= 4.4
+Requires: libpfm >= 4
+BuildRequires: libpfm-devel >= 4
 
 %description pmda-perfevent
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -593,7 +593,7 @@ PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
 awk '{print $NF}' $DIST_MANIFEST | egrep "$PCP_GUI|pixmaps" > gui_files
 %endif
 %if "@enable_webapi@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pmweb|PMWEBAPI' >webapi_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pmwebd|webapps|PMWEBAPI' >webapi_files
 %endif
 %if "@enable_manager@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pmmgr' >manager_files
@@ -697,9 +697,21 @@ getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
     useradd -c "Performance Co-Pilot" -g pcp -d @pcp_var_dir@ -M -r -s /sbin/nologin pcp
 # new directories; they should match /etc/pcp.conf settings after install
+PCP_CONFIG_DIR=@pcp_var_dir@/config
 PCP_SYSCONF_DIR=@pcp_sysconf_dir@
 PCP_LOG_DIR=@pcp_log_dir@
 PCP_ETC_DIR=@pcp_etc_dir@
+
+# transition pmdadmcache over to pmdadm (device mapper)
+PCP_PMCDCONF_PATH=@pcp_pmcdconf_path@
+PCP_PMDAS_DIR=@pcp_pmdas_dir@
+if grep -q ^dmcache "$PCP_PMCDCONF_PATH" 2>/dev/null
+then
+    mkdir -p -m 755 "$PCP_PMDAS_DIR/dm"
+    touch "$PCP_PMDAS_DIR/dm/.NeedInstall"
+    touch "$PCP_PMDAS_DIR/dmcache/.NeedRemove"
+fi
+
 # rename crontab files to align with current Fedora packaging guidelines
 for crontab in pmlogger pmie
 do
@@ -719,6 +731,7 @@ save_configs_script()
             ( cd "$_dir" ; find . -type f -print ) | sed -e 's/^\.\///' \
             | while read _file
             do
+                [ "$_file" = "control" ] && continue
                 _want=true
                 if [ -f "$_new/$_file" ]
                 then
@@ -735,10 +748,15 @@ save_configs_script()
 # migrate and clean configs if we have had a previous in-use installation
 [ -d "$PCP_LOG_DIR" ] || exit 0	# no configuration file upgrades required
 rm -f "$PCP_LOG_DIR/configs.sh"
-for daemon in pmcd pmie pmlogger pmproxy
+for daemon in pmie pmlogger
 do
-    save_configs_script >> "$PCP_LOG_DIR/configs.sh" "$PCP_SYSCONF_DIR/$daemon" \
-        /var/lib/pcp/config/$daemon/control /etc/$daemon /etc/pcp/$daemon /etc/sysconfig/$daemon
+    save_configs_script >> "$PCP_LOG_DIR/configs.sh" "$PCP_CONFIG_DIR/$daemon" \
+        "$PCP_SYSCONF_DIR/$daemon"
+done
+for daemon in pmcd pmproxy
+do
+    save_configs_script >> "$PCP_LOG_DIR/configs.sh" "$PCP_SYSCONF_DIR/$daemon"\
+        "$PCP_CONFIG_DIR/$daemon" /etc/$daemon /etc/sysconfig/$daemon
 done
 exit 0
 
