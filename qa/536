@@ -72,8 +72,11 @@ collectl2pcp -F $C/some_host.raw $TA
 pmval -z -r -t 10 -a $TA kernel.percpu.cpu.user'[cpu0]'
 awk '/cpu0/ {print "cpu0 raw msec value", $2 * 1000 / 100}' $C/some_host.raw
 
-echo '## Testing pmiostat'
+echo '## Testing pmiostat with disk.dev metrics'
 pmiostat -t 10 -a $TA
+
+echo '## Testing pmiostat with deice-mapper metrics'
+pmiostat -t 10 -a $TA -x dm
 
 # success, all done
 status=0
