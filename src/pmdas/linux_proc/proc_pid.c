@@ -959,6 +959,8 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 		    free(ep->io_buf);
 		if (ep->wchan_buf != NULL)
 		    free(ep->wchan_buf);
+		if (ep->environ_buf != NULL)
+		    free(ep->environ_buf);
 
 	    	if (prev == NULL)
 		    proc_pid->pidhash.hash[i] = node->next;
@@ -1158,6 +1160,9 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
     }
     proc_pid_entry_t *ep;
     char buf[1024];
+    char *p;
+    ssize_t nread;
+
 
     *sts = 0;
     if (node == NULL) {
@@ -1249,6 +1254,40 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
 	    close(fd);
 	ep->flags |= PROC_PID_FLAG_WCHAN_FETCHED;
     }
+
+    if (!(ep->flags & PROC_PID_FLAG_ENVIRON_FETCHED)) {
+	if ((fd = proc_open("environ", ep)) >= 0) {
+	    nread = 0;
+	    while ( (n = read(fd, buf, sizeof(buf))) > 0) {
+
+		if ( ( nread + n ) >= ep->environ_buflen ) {
+		    ep->environ_buflen = nread + n + 1;
+		    ep->environ_buf = realloc(ep->environ_buf, ep->environ_buflen);
+		}
+
+		/* Replace nulls with spaces */
+		for(p = memchr(buf, '\0', n); p; p = memchr(p, '\0', buf + n - p) ) {
+		    *p = ' ';
+		}
+
+		memcpy( &ep->environ_buf[nread], buf, n);
+		nread += n;
+	    }
+	    if (ep->environ_buf) {
+		ep->environ_buf[nread] = '\0';
+	    }
+	    close(fd);
+	}
+    else {
+#ifdef PCP_DEBUG
+        if (pmDebug & DBG_TRACE_APPL0 ) {
+		    fprintf(stderr, "fetch_proc_pid_stat: error opening environ for pid %d (error is %s)\n", ep->id, strerror(errno) );
+        }
+#endif
+	}
+	ep->flags |= PROC_PID_FLAG_ENVIRON_FETCHED;
+    }
+
 
     if (*sts < 0)
     	return NULL;
@@ -1438,6 +1477,12 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
 		    case 'n':
 			if (strncmp(curline, "nonvoluntary_ctxt_switches:", 27) == 0)
 			    ep->status_lines.nvctxsw = strsep(&curline, "\n");
+			else
+			    goto nomatch;
+			break;
+                    case 'C':
+		        if (strncmp(curline, "Cpus_allowed_list:", 18) == 0)
+		            ep->status_lines.cpusallowed = strsep(&curline, "\n");
 			else
 			    goto nomatch;
 			break;
