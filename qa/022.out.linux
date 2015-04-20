@@ -50,11 +50,13 @@ proc.psinfo.cmaj_flt
 proc.psinfo.cmd
 proc.psinfo.cmin_flt
 proc.psinfo.cnswap
+proc.psinfo.cpusallowed
 proc.psinfo.cstime
 proc.psinfo.cutime
 proc.psinfo.delayacct_blkio_time
 proc.psinfo.eip
 proc.psinfo.end_code
+proc.psinfo.environ
 proc.psinfo.esp
 proc.psinfo.exit_signal
 proc.psinfo.flags

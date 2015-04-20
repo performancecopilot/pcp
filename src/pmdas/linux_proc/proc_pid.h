@@ -71,9 +71,10 @@
 #define PROC_PID_STAT_DELAYACCT_BLKIO_TICKS    44
 #define PROC_PID_STAT_GUEST_TIME     45
 #define PROC_PID_STAT_CGUEST_TIME    46
+#define PROC_PID_STAT_ENVIRON        47
 
 /* number of fields in proc_pid_stat_entry_t */
-#define NR_PROC_PID_STAT             47
+#define NR_PROC_PID_STAT             48
 
 /*
  * metrics in /proc/<pid>/status
@@ -110,9 +111,10 @@
 #define PROC_PID_STATUS_THREADS	     28
 #define PROC_PID_STATUS_VCTXSW       29
 #define PROC_PID_STATUS_NVCTXSW      30
+#define PROC_PID_STATUS_CPUSALLOWED  31
 
 /* number of metrics from /proc/<pid>/status */
-#define NR_PROC_PID_STATUS           31
+#define NR_PROC_PID_STATUS           32
 
 /*
  * metrics in /proc/<pid>/statm & /proc/<pid>/maps
@@ -182,6 +184,7 @@ typedef struct {	/* /proc/<pid>/status */
     char *threads;
     char *vctxsw;
     char *nvctxsw;
+    char *cpusallowed;
 } status_lines_t;
 
 typedef struct {	/* /proc/<pid>/io */
@@ -206,6 +209,7 @@ enum {
     PROC_PID_FLAG_FD_FETCHED		= 1<<8,
     PROC_PID_FLAG_CGROUP_FETCHED	= 1<<9,
     PROC_PID_FLAG_LABEL_FETCHED		= 1<<10,
+    PROC_PID_FLAG_ENVIRON_FETCHED	= 1<<11,
 };
 
 typedef struct {
@@ -240,6 +244,10 @@ typedef struct {
     /* /proc/<pid>/wchan cluster */
     int			wchan_buflen;
     char		*wchan_buf;
+
+    /* /proc/<pid>/environ cluster */
+    int 		environ_buflen;
+    char		*environ_buf;
 
     /* /proc/<pid>/fd cluster */
     int			fd_buflen;
