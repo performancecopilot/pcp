@@ -2,7 +2,7 @@
 # PCP QA Test No. 661
 # checks pmwebd graphite (web application) functionality
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014-2015 Red Hat.
 #
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -42,7 +42,7 @@ echo "=== pmwebd graphite capabilities ===" | tee -a $seq.full
 $sudo $signal -a pmwebd >/dev/null 2>&1
 sleep 2		# let it shut down
 
-$PCP_BINADM_DIR/pmwebd $webargs -G -R $PCP_SHARE_DIR/webapps -i 15 -A `pwd` -N -M0 -x/dev/tty -d1 -vvv -l $tmp.out &
+$PCP_BINADM_DIR/pmwebd $webargs -G -R $PCP_SHARE_DIR/webapps -i 15 -A `pwd` -N -M8 -x/dev/tty -d1 -vvvvv -l $tmp.out &
 sleep 2		# let it start up
 
 echo "crashers"
@@ -89,6 +89,7 @@ curl -s -S "http://localhost:44323/graphite/rawdata?target=*-2F-node_archive-2E-
 echo
 echo "metric gfx rendering" 
 curl -s -S "http://localhost:44323/graphite/render?width=999&height=999&hideLegend=false&bgcolor=%23FF0&title=hello&format=png&target=*-chartqa1-2E-meta.sample.*byte*&target=*-chartqa1-2E-meta.*NOSUCH*&target=*-chartqa1-2E-meta.sample.dodgey.value.NOSUCH&from=22:31_20071010&until=22:36_20071010" | tee $seq.png | _webapi_img_pretty
+curl -s -S "http://localhost:44323/graphite/render?width=999&height=999&target=*archive*20150417*.proc.nprocs&from=09:30_20150417&until=23:00_20150417" | tee $seq.png | _webapi_img_pretty
 
 # tidy up
 cat $tmp.out >> $seq.full

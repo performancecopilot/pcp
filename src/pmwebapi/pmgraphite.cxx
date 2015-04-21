@@ -626,10 +626,10 @@ struct timestamped_float {
 
 // parameters for fetching a series
 struct fetch_series_jobspec {
-    vector<timestamped_float> output;
+    vector<timestamped_float> output; // maybe empty if encountered bad error
     string target;
     time_t t_start, t_end, t_step;
-    string message;
+    string message; // may have error or verbose message
 };
 
 
@@ -773,12 +773,12 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
 
     vector <string> target_tok = split (target, '.');
     if (target_tok.size () < 2) {
-        message << "not enough target components";
+        message << target << ": not enough target components";
         goto out0;
     }
     for (unsigned i = 0; i < target_tok.size (); i++)
         if (target_tok[i] == "") {
-            message << "empty target components";
+            message << target << ": empty target components";
             goto out0;
         }
     // Extract the archive file/directory name
@@ -804,9 +804,6 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
     if (pmc < 0) {
         // error already noted
         goto out0;
-    }
-    if (verbosity > 2) {
-        message << "opened archive " << archive << ", ";
     }
 
     // NB: past this point, exit via 'goto out;' to release pmc
@@ -1032,11 +1029,7 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
         output[0].what = nanf ("");
     }
 
-    if ((verbosity) == 3 && (entries_good == 0)) {
-         // drop the "opened archive ...," partial message
-        message.str(string());
-        message.clear();
-    } else if ((verbosity > 3) || (verbosity > 2 && entries_good > 0)) {
+    if ((verbosity > 3) || (verbosity > 2 && entries_good > 0)) {
         string instance_spec;
         if (instance_name != "") {
             instance_spec = string ("[\"") + instance_name + string ("\"]");
@@ -1046,13 +1039,16 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
     }
 
     // Done!
-
 out:
     pmDestroyContext (pmc);
 out0:
     // vector output already returned via jobspec pointer
-    // pass back message
-    spec->message = message.str ();
+
+    spec->message = message.str (); // pass back message
+    // ... but prefix it with archive name
+    if (spec->message.size() > 0 && // have -some- message
+        (output.size() == 0 || verbosity > 2)) // big fetch error or verbosity
+        spec->message = archive + ": " + spec->message;
 }
 
 
@@ -1060,8 +1056,8 @@ out0:
 // A parallelizable version of the above.
 
 vector<vector <timestamped_float> >
-                                pmgraphite_fetch_all_series (struct MHD_Connection* connection, const vector<string>& targets,
-                                        time_t t_start, time_t t_end, time_t t_step)
+pmgraphite_fetch_all_series (struct MHD_Connection* connection, const vector<string>& targets,
+                             time_t t_start, time_t t_end, time_t t_step)
 {
     // XXX: peephole optimize: for fetches of different metrics/instances
     // from the same archive, it could be faster to have one thread fetch
@@ -1090,7 +1086,7 @@ vector<vector <timestamped_float> >
     // propagate any output, messages
     vector <vector <timestamped_float> > all_outputs;
     for (unsigned i = 0; i < q.jobs.size (); i++) {
-        all_outputs.push_back (q.jobs[i].output);
+        all_outputs.push_back (q.jobs[i].output); // even if encountered error, so output-empty
         const string& message = q.jobs[i].message;
         if (message != "") {
             connstamp (clog, connection) << message << endl;
@@ -1902,12 +1898,15 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
 
             for (unsigned k=0; k<all_results.size (); k++) {
                 const vector<timestamped_float>& f2 = all_results[k];
-                if (i == k) {
+                if (i == k) // same time series?
                     continue;
-                }
-                if (pmgraphite_isnand (f2[j].what)) {
+
+                if (f2.size() <= j) // small vector due to fetch errors?
                     continue;
-                }
+
+                if (pmgraphite_isnand (f2[j].what)) // missing data item?
+                    continue;
+
                 assert (f2[j].when.tv_sec == f[j].when.tv_sec);
                 float delta = f2[j].what - f[j].what;
                 float reldelta = fabs (delta / (ymax - ymin)); // compare delta to height of graph
