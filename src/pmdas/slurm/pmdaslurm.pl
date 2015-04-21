@@ -18,7 +18,7 @@ use warnings;
 
 use PCP::PMDA;
 use Slurm;
-use Net::Domain;
+use Net::Domain qw( hostname );
 
 use vars qw( $pmda $slurm );
 
