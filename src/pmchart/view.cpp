@@ -1240,7 +1240,7 @@ void SaveViewDialog::saveChart(FILE *f, Chart *cp, bool hostDynamic)
 			cp->metricContext(m)->source().host().toAscii());
         fprintf(f, " metric %s", (const char *)
                 cp->metricName(m).toAscii());
-	if (cp->metric(m)->explicitInsts())
+	if (cp->metricPtr(m)->explicitInsts())
             fprintf(f, " instance \"%s\"", (const char*)cp->metricInstance(m).toAscii());
 	fputc('\n', f);
     }

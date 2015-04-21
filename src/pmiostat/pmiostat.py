@@ -172,7 +172,8 @@ class IostatOptions(pmapi.pmOptions):
 
     def __init__(self):
         pmapi.pmOptions.__init__(self, "A:a:D:h:O:S:s:T:t:VZ:z?x:")
-        self.pmSetLongOptionHeader("General options:")
+        self.pmSetOptionCallback(self.extraOptions)
+        self.pmSetLongOptionHeader("General options")
         self.pmSetLongOptionAlign()
         self.pmSetLongOptionArchive()
         self.pmSetLongOptionDebug()
@@ -186,11 +187,11 @@ class IostatOptions(pmapi.pmOptions):
         self.pmSetLongOptionTimeZone()
         self.pmSetLongOptionHostZone()
         self.pmSetLongOptionHelp()
-        self.pmSetOptionCallback(self.extraOptions)
-        self.pmSetLongOptionText("  -x comma separated extended options: [dm][,t][,h]")
-        self.pmSetLongOptionText("     dm show device-mapper statistics (default is sd devices)")
-        self.pmSetLongOptionText("     t precede every line with a timestamp in ctime format");
-        self.pmSetLongOptionText("     h suppress headings");
+        self.pmSetLongOptionHeader("Extended options")
+        self.pmSetLongOption("", 1, 'x', "LIST", "comma separated extended options: [[dm],[t],[h]]")
+        self.pmSetLongOptionText("\t\tdm\tshow device-mapper statistics (default is sd devices)")
+        self.pmSetLongOptionText("\t\tt\tprecede every line with a timestamp in ctime format");
+        self.pmSetLongOptionText("\t\th\tsuppress headings");
 
 if __name__ == '__main__':
     try:
@@ -205,7 +206,7 @@ if __name__ == '__main__':
     except pmapi.pmErr as error:
         print('%s: %s\n' % (error.progname(), error.message()))
     except pmapi.pmUsageErr as usage:
-        print(usage.message())
+        usage.message()
         sys.exit(1)
     except KeyboardInterrupt:
         pass

@@ -540,14 +540,14 @@ Chart::scheme() const
 }
 
 void
-Chart::setScheme(QString scheme)
+Chart::setScheme(const QString &scheme)
 {
     my.sequence = 0;
     my.scheme = scheme;
 }
 
 void
-Chart::setScheme(QString scheme, int sequence)
+Chart::setScheme(const QString &scheme, int sequence)
 {
     my.sequence = sequence;
     my.scheme = scheme;
@@ -912,9 +912,9 @@ QmcContext *Chart::metricContext(int index) const
     return my.items[index]->metricContext();
 }
 
-QmcMetric *Chart::metric(int index) const
+QmcMetric *Chart::metricPtr(int index) const
 {
-    return my.items[index]->metric();
+    return my.items[index]->metricPtr();
 }
 
 QSize Chart::minimumSizeHint() const
@@ -1041,11 +1041,12 @@ ChartCurve::drawLegendIdentifier(QPainter *painter, const QRectF &rect) const
     QRectF r(0, 0, rect.width()-1, rect.height()-1);
     r.moveCenter(rect.center());
 
-    QPen pen(QColor(Qt::black));
+    const QBrush brush(legendColor, Qt::SolidPattern);
+    const QColor black(Qt::black);
+    QPen pen(black);
     pen.setCapStyle(Qt::FlatCap);
-    QBrush brush(legendColor, Qt::SolidPattern);
 
-    painter->setPen(pen);
+    painter->setPen((const QPen &)pen);
     painter->setBrush(brush);
     painter->setRenderHint(QPainter::Antialiasing, false);
     painter->drawRect(r.x(), r.y(), r.width(), r.height());

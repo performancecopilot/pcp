@@ -39,7 +39,7 @@ sleep 2
 # 518.out expects exactly three evaluation rounds to be complete by the
 # time the following operation is invoked.  If sudo/pmie is too slow,
 # it'll lose the race (actions<5).  If this thread is too slow, pmie
-# will go ahead (actions>5).  So we tolerate values in the range 4,5,6
+# will go ahead (actions>5).  So we tolerate values in the range 4,5,6-9
 # for the true, false and action counts, but the counts for each must
 # be equal.
 
@@ -79,9 +79,9 @@ s/)$/ )/
 '$debug' == "true"		{ print "state=" state " want=" want ": " $0 }
 state==1 && /'`echo $tmp.pmie | sed -e s@/@\\\\\\\\/@g`' \(2 rule\)/	{ print; want = 1; next }
 state==1 && / \(actions=/	{ if ($3 == $5 && $5 == $9) {
-				      if ($3 >= 4 && $3 <= 6) $3 = "OK"
-				      if ($5 >= 4 && $5 <= 6) $5 = "OK"
-				      if ($9 >= 4 && $9 <= 6) $9 = "OK"
+				      if ($3 >= 4 && $3 <= 9) $3 = "OK"
+				      if ($5 >= 4 && $5 <= 9) $5 = "OK"
+				      if ($9 >= 4 && $9 <= 9) $9 = "OK"
 				  }
 				}
 state==1 && / rule\)/		{ want = 0 }
