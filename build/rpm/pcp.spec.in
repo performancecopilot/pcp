@@ -94,7 +94,6 @@ Requires: initscripts
 
 Requires: pcp-libs = @package_version@
 Obsoletes: pcp-gui-debuginfo
-Obsoletes: pcp-pmda-nvidia
 
 %description
 Performance Co-Pilot (PCP) provides a framework and services to support
@@ -945,27 +944,23 @@ This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about Zimra.  The PMDA is written
 in Perl.
 #end pcp-pmda-zimbra
-   
-%if %{with_python}   
+
 #
-# pcp-pmda-dmcache
+# pcp-pmda-dm
 #
-%package pmda-dmcache
+%package pmda-dm
 License: GPLv2+
 Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for the Device Mapper Cache
+Summary: Performance Co-Pilot (PCP) metrics for the Device Mapper Cache and Thin Client
 URL: http://www.pcp.io
-%if "@enable_python2@" == "true"
-Requires: python-pcp
-%else
-Requires: python3-pcp
-%endif
-%description pmda-dmcache
+Requires: pcp-libs = @package_version@
+%description pmda-dm
 This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Device Mapper Cache.  The PMDA is written
-in Python.
-# end pcp-pmda-dmcache
-
+collecting metrics about the Device Mapper Cache and Thin Client.  The PMDA
+is written in Python.
+# end pcp-pmda-dm
+   
+%if %{with_python}   
 #
 # pcp-pmda-gluster
 #
@@ -1105,11 +1100,12 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Lmsensors shell
 URL: http://www.pcp.io
-Requires: pcp-libs = @package_version@ perl-PCP-LogImport = @package_version@
-
-%description import-sheet2pcp
-Performance Co-Pilot (PCP) front-end tools for importing spreadsheet data
-into standard PCP archive logs for replay with any PCP monitoring tool.
+Requires: pcp-libs = @package_version@
+%description pmda-lmsensors
+This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about the Linux hardware monitoring sensors.  The PMDA
+is written in C.
+# end pcp-pmda-lmsensors
 
 #
 # pcp-pmda-mailq
@@ -1119,11 +1115,12 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Mailq shell
 URL: http://www.pcp.io
-Requires: pcp-libs = @package_version@ perl-PCP-LogImport = @package_version@
-
-%description import-mrtg2pcp
-Performance Co-Pilot (PCP) front-end tools for importing MTRG data
-into standard PCP archive logs for replay with any PCP monitoring tool.
+Requires: pcp-libs = @package_version@
+%description pmda-mailq
+This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about email queues managed by sendmail.  The PMDA is
+written in C.
+# end pcp-pmda-mailq
 
 #
 # pcp-pmda-mounts
@@ -1133,11 +1130,11 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Mounts shell
 URL: http://www.pcp.io
-Requires: pcp-libs = @package_version@ perl-PCP-LogImport = @package_version@
-
-%description import-ganglia2pcp
-Performance Co-Pilot (PCP) front-end tools for importing ganglia data
-into standard PCP archive logs for replay with any PCP monitoring tool.
+Requires: pcp-libs = @package_version@
+%description pmda-mounts
+This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about filesystem mounts.  The PMDA is written in C.
+# end pcp-pmda-mounts
 
 #
 # pcp-pmda-nvidia
@@ -1148,10 +1145,10 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Nvidia shell
 URL: http://www.pcp.io
 Requires: pcp-libs = @package_version@
-
-%description import-collectl2pcp
-Performance Co-Pilot (PCP) front-end tools for importing collectl data
-into standard PCP archive logs for replay with any PCP monitoring tool.
+%description pmda-nvidia
+This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about the Nvidia gpu metrics.  The PMDA is written in C.
+# end pcp-pmda-nvidia
 
 #
 # pcp-pmda-roomtemp
@@ -1161,7 +1158,11 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Roomtemp shell
 URL: http://www.pcp.io
-Requires: pcp = @package_version@ pcp-libs = @package_version@
+Requires: pcp = @package_version@
+%description pmda-roomtemp
+This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about the Room temperature metrics.  The PMDA is written in C.
+# end pcp-pmda-roomtemp
 
 #
 # pcp-pmda-rpm
@@ -1171,7 +1172,12 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Rpm shell
 URL: http://www.pcp.io
-Requires: pcp = @package_version@ pcp-libs = @package_version@
+Requires: pcp = @package_version@
+%description pmda-rpm
+This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about the rpms.  The PMDA is written in C.
+# end pcp-pmda-rpm
+
 
 #
 # pcp-pmda-sendmail
@@ -1181,14 +1187,11 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Sendmail shell
 URL: http://www.pcp.io
-Requires: pcp = @package_version@ pcp-libs = @package_version@
-
-%description -n pcp-gui
-Visualization tools for the Performance Co-Pilot toolkit.
-The pcp-gui package primarily includes visualization tools for
-monitoring systems using live and archived Performance Co-Pilot
-(PCP) sources.
-%endif
+Requires: pcp = @package_version@
+%description pmda-sendmail
+This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about Sendmail traffic metrics.  The PMDA is written in C.
+# end pcp-pmda-sendmail
 
 #
 # pcp-pmda-shping
@@ -1213,8 +1216,11 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Summary shell
 URL: http://www.pcp.io
-Requires: pcp = @package_version@ pcp-libs = @package_version@
-BuildRequires: papi-devel
+Requires: pcp = @package_version@
+%description pmda-summary
+This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about other installed pmdas.  The PMDA is written in C.
+# end pcp-pmda-summary
 
 #
 # pcp-pmda-systemd
@@ -1238,9 +1244,12 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Trace shell
 URL: http://www.pcp.io
-Requires: pcp = @package_version@ pcp-libs = @package_version@
-Requires: libibmad >= 1.1.7 libibumad >= 1.1.7
-BuildRequires: libibmad-devel >= 1.1.7 libibumad-devel >= 1.1.7
+Requires: pcp-libs = @package_version@
+%description pmda-trace
+This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about transaction performance metrics from applications.
+The PMDA is written in C.
+# end pcp-pmda-trace
 
 #
 # pcp-pmda-weblog
@@ -1250,14 +1259,36 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Weblog shell
 URL: http://www.pcp.io
-Requires: pcp = @package_version@ pcp-libs = @package_version@
-Requires: libpfm >= 4
-BuildRequires: libpfm-devel >= 4
+Requires: pcp = @package_version@
+%description pmda-weblog
+This package conatains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about web server logs.  The PMDA is written in C.
+# end pcp-pmda-weblog
+# end C pmdas
 
-%description pmda-perfevent
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting hardware counters statistics through libpfm.
-%endif
+# pcp-compat
+%if 0%{?fedora} <= 22 || 0%{?rhel} <= 7
+%package compat
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) compat package for existing systems
+URL: http://www.pcp.io
+Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
+Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pmda-lustre
+Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
+Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql
+Requires: pcp-pmda-samba pcp-pmda-snmp pcp-pmda-systemtap pcp-pmda-vmware pcp-pmda-zimbra
+Requires: pcp-pmda-dm pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-apache
+Requires: pcp-pmda-dm pcp-pmda-gluster pcp-pmda-unbound pcp-pmda-apache
+Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
+Requires: pcp-pmda-nvidia pcp-pmda-roomtemp pcp-pmda-rpm pcp-pmda-sendmail pcp-pmda-shping
+Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
+Requires: pcp-system-tools
+%description compat
+This package contains the PCP compatibility dependencies for pmdas on existing
+systems.  This is not a package that should be depended on, and will be removed
+in future releases of Fedora.
+%endif #compat
 
 %prep
 %setup -q
@@ -1408,15 +1439,15 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'snmp|pmdas/snmp' > pmda_snmp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'systemtap|pmdas/systemtap' > pmda_systemtap_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'vmware|pmdas/vmware' > pmda_vmware_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'zimbra|pmdas/zimbra' > pmda_zimbra_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/dm' > pmda_dm_files
 %if %{with_python}
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/dmcache' > pmda_dmcache_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'gluster|pmdas/gluster' > pmda_gluster_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'zswap|pmdas/zswap' > pmda_zswap_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'unbound|pmdas/unbound' > pmda_unbound_files
-%endif
-%if %{with_python}
+#%endif
+#%if %{with_python}
 awk '{print $NF}' $DIST_MANIFEST | egrep -e '2graphite|atop|collectl|dmcache|free|iostat|numastat|uptime' \
-    | egrep -v 'collectl2pcp|pmda|pmdas/pmcache|iostat2pcp|testsuite' \
+    | egrep -v 'collectl2pcp|pmda|pmdas/pmcache|iostat2pcp|testsuite|pmdas/dmcache' \
 	    >system_tools_files
 %endif
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'apache|pmdas/apache' > pmda_apache_files
@@ -1448,13 +1479,14 @@ touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files
       pmda_cifs_files pmda_cisco_files pmda_gfs2_files pmda_lmsensors_files \
       pmda_mailq_files pmda_mounts_files pmda_nvidia_files pmda_roomtemp_files \
       pmda_rpm_files pmda_sendmail_files pmda_shping_files pmda_summary_files \
-      pmda_trace_files pmda_weblog_files
+      pmda_trace_files pmda_weblog_files pmda_dm_files
 #     pmda_systemd_files pmda_trace_files pmda_weblog_files
 
 %if %{with_python}
-touch pmda_gluster_files pmda_dmcache_files pmda_zswap_files pmda_unbound_files \
+touch pmda_gluster_files pmda_zswap_files pmda_unbound_files \
       system_tools_files
 %endif
+
 rm -f *_files.rpm
 sort -u $DIST_MANIFEST | $PCP_AWK_PROG ' 
 BEGIN {
@@ -1495,9 +1527,9 @@ BEGIN {
     while( getline < "pmda_systemtap_files") pmda_systemtap[$0]=1;
     while( getline < "pmda_vmware_files") pmda_vmware[$0]=1;
     while( getline < "pmda_zimbra_files") pmda_zimbra[$0]=1;
+    while( getline < "pmda_dm_files") pmda_dm[$0]=1;
 %if %{with_python}
     while( getline < "system_tools_files") system_tools[$0]=1;
-    while( getline < "pmda_dmcache_files") pmda_dmcache[$0]=1;
     while( getline < "pmda_gluster_files") pmda_gluster[$0]=1;
     while( getline < "pmda_zswap_files") pmda_zswap[$0]=1;
     while( getline < "pmda_unbound_files") pmda_unbound[$0]=1;
@@ -1566,9 +1598,9 @@ BEGIN {
     else if (pmda_systemtap[$NF]) f="pmda_systemtap_files.rpm";
     else if (pmda_vmware[$NF]) f="pmda_vmware_files.rpm";
     else if (pmda_zimbra[$NF]) f="pmda_zimbra_files.rpm";
+    else if (pmda_dm[$NF]) f="pmda_dm_files.rpm";
 %if %{with_python}
     else if (system_tools[$NF]) f="system_tools_files.rpm";
-    else if (pmda_dmcache[$NF]) f="pmda_dmcache_files.rpm";
     else if (pmda_gluster[$NF]) f="pmda_gluster_files.rpm";
     else if (pmda_zswap[$NF]) f="pmda_zswap_files.rpm";
     else if (pmda_unbound[$NF]) f="pmda_unbound_files.rpm";
@@ -1875,147 +1907,101 @@ cd
 %endif
 
 %files pmda-activemq -f pmda_activemq_files.rpm
-%defattr(-,root,root)
 
 %files pmda-bonding -f pmda_bonding_files.rpm
-%defattr(-,root,root)
 
 %files pmda-dbping -f pmda_dbping_files.rpm
-%defattr(-,root,root)
 
 %files pmda-ds389log -f pmda_ds389log_files.rpm
-%defattr(-,root,root)
 
 %files pmda-ds389 -f pmda_ds389_files.rpm
-%defattr(-,root,root)
 
 %files pmda-elasticsearch -f pmda_elasticsearch_files.rpm
-%defattr(-,root,root)
 
 %files pmda-gpfs -f pmda_gpfs_files.rpm
-%defattr(-,root,root)
 
 %files pmda-gpsd -f pmda_gpsd_files.rpm
-%defattr(-,root,root)
 
 %files pmda-kvm -f pmda_kvm_files.rpm
-%defattr(-,root,root)
 
 %files pmda-lustre -f pmda_lustre_files.rpm
-%defattr(-,root,root)
 
 %files pmda-memcache -f pmda_memcache_files.rpm
-%defattr(-,root,root)
 
 %files pmda-mysql -f pmda_mysql_files.rpm
-%defattr(-,root,root)
 
 %files pmda-named -f pmda_named_files.rpm
-%defattr(-,root,root)
 
 %files pmda-netfilter -f pmda_netfilter_files.rpm
-%defattr(-,root,root)
 
 %files pmda-news -f pmda_news_files.rpm
-%defattr(-,root,root)
 
 %files pmda-nginx -f pmda_nginx_files.rpm
-%defattr(-,root,root)
 
 %files pmda-nfsclient -f pmda_nfsclient_files.rpm
-%defattr(-,root,root)
 
 %files pmda-pdns -f pmda_pdns_files.rpm
-%defattr(-,root,root)
 
 %files pmda-postfix -f pmda_postfix_files.rpm
-%defattr(-,root,root)
 
 %files pmda-postgresql -f pmda_postgresql_files.rpm
-%defattr(-,root,root)
 
 %files pmda-rsyslog -f pmda_rsyslog_files.rpm
-%defattr(-,root,root)
 
 %files pmda-samba -f pmda_samba_files.rpm
-%defattr(-,root,root)
 
 %files pmda-snmp -f pmda_snmp_files.rpm
-%defattr(-,root,root)
 
 %files pmda-systemtap -f pmda_systemtap_files.rpm
-%defattr(-,root,root)
 
 %files pmda-vmware -f pmda_vmware_files.rpm
-%defattr(-,root,root)
 
 %files pmda-zimbra -f pmda_zimbra_files.rpm
-%defattr(-,root,root)
+
+%files pmda-dm -f pmda_dm_files.rpm
 
 %if %{with_python}
-%files pmda-dmcache -f pmda_dmcache_files.rpm
-%defattr(-,root,root)
-
 %files pmda-gluster -f pmda_gluster_files.rpm
-%defattr(-,root,root)
 
 %files pmda-zswap -f pmda_zswap_files.rpm
-%defattr(-,root,root)
 
 %files pmda-unbound -f pmda_unbound_files.rpm
-%defattr(-,root,root)
 %endif
 
 %files pmda-apache -f pmda_apache_files.rpm
-%defattr(-,root,root)
 
 %files pmda-bash -f pmda_bash_files.rpm
-%defattr(-,root,root)
 
 %files pmda-cifs -f pmda_cifs_files.rpm
-%defattr(-,root,root)
 
 %files pmda-cisco -f pmda_cisco_files.rpm
-%defattr(-,root,root)
 
 %files pmda-gfs2 -f pmda_gfs2_files.rpm
-%defattr(-,root,root)
 
 %files pmda-lmsensors -f pmda_lmsensors_files.rpm
-%defattr(-,root,root)
 
 %files pmda-mailq -f pmda_mailq_files.rpm
-%defattr(-,root,root)
 
 %files pmda-mounts -f pmda_mounts_files.rpm
-%defattr(-,root,root)
 
 %files pmda-nvidia -f pmda_nvidia_files.rpm
-%defattr(-,root,root)
 
 %files pmda-roomtemp -f pmda_roomtemp_files.rpm
-%defattr(-,root,root)
 
 %files pmda-rpm -f pmda_rpm_files.rpm
-%defattr(-,root,root)
 
 %files pmda-sendmail -f pmda_sendmail_files.rpm
-%defattr(-,root,root)
 
 %files pmda-shping -f pmda_shping_files.rpm
-%defattr(-,root,root)
 
 %files pmda-summary -f pmda_summary_files.rpm
-%defattr(-,root,root)
 
 #%files pmda-systemd -f pmda_systemd_files.rpm
 #%defattr(-,root,root)
 
 %files pmda-trace -f pmda_trace_files.rpm
-%defattr(-,root,root)
 
 %files pmda-weblog -f pmda_weblog_files.rpm
-%defattr(-,root,root)
 
 %files import-sar2pcp -f import_sar2pcp_files.rpm
 
