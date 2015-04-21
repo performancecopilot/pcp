@@ -62,11 +62,13 @@ interval:  10.00 sec
 15:13:10.001            244885960 
 cpu0 raw msec value 244885950
 cpu0 raw msec value 244885960
-## Testing pmiostat
+## Testing pmiostat with disk.dev metrics
+# Device      rrqm/s  wrqm/s    r/s    w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await %util
+sda              0.0     1.1    0.0    1.4      0.0      9.2     6.57     0.02    15.1     0.0    15.1   2.1
+sdb              0.0     0.0    0.0    0.0      0.0      0.0     0.00     0.00     0.0     0.0     0.0   0.0
+## Testing pmiostat with deice-mapper metrics
 # Device      rrqm/s  wrqm/s    r/s    w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await %util
 dm-0             0.0     0.0    0.0    0.0      0.0      0.0     0.00     0.00     0.0     0.0     0.0   0.0
 dm-1             0.0     0.0    0.0    0.3      0.0      1.2     4.00     0.01    22.0     0.0    22.0   0.7
 dm-2             0.0     0.0    0.0    2.0      0.0      8.0     4.00     0.02     7.8     0.0     7.8   1.4
 dm-3             0.0     0.0    0.0    0.0      0.0      0.0     0.00     0.00     0.0     0.0     0.0   0.0
-sda              0.0     1.1    0.0    1.4      0.0      9.2     6.57     0.02    15.1     0.0    15.1   2.1
-sdb              0.0     0.0    0.0    0.0      0.0      0.0     0.00     0.00     0.0     0.0     0.0   0.0

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014, Red Hat.
+ * Copyright (c) 2012-2015, Red Hat.
  * Copyright (c) 2012, Nathan Scott.  All Rights Reserved.
  * Copyright (c) 2006-2010, Aconex.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
@@ -58,7 +58,7 @@ public:
     virtual void resetFont();
     virtual void setCurrent(bool);
     virtual QString scheme() const;	// return chart color scheme
-    virtual void setScheme(QString);	// set the chart color scheme
+    virtual void setScheme(const QString &);	// set chart color scheme
 
     int addItem(pmMetricSpec *, const QString &);
     bool activeItem(int) const;
@@ -75,7 +75,7 @@ public:
     QColor color(int);			// return color for ith plot
     static QColor schemeColor(QString, int *);
     void setStroke(int, Style, QColor);	// set chart style and color
-    void setScheme(QString, int);	// set the chart scheme and position
+    void setScheme(const QString &, int);	// set chart scheme and position
 
     int sequence()			// return chart color scheme position
 	{ return my.sequence; }
@@ -113,7 +113,7 @@ public:
     virtual bool activeMetric(int) const;
     virtual QString name(int) const;
     virtual QString legend(int) const;
-    virtual QmcMetric *metric(int) const;
+    virtual QmcMetric *metricPtr(int) const;
     virtual QString metricName(int) const;
     virtual QmcDesc *metricDesc(int) const;
     virtual QString metricInstance(int) const;
@@ -293,7 +293,7 @@ public:
     bool metricHasInstances(void) const { return my.metric->hasInstances(); }
     QmcDesc *metricDesc(void) const { return (QmcDesc *)&my.metric->desc(); }
     QmcContext *metricContext(void) const { return my.metric->context(); }
-    QmcMetric *metric(void) const { return my.metric; }
+    QmcMetric *metricPtr(void) const { return my.metric; }
     QColor color(void) const { return my.color; }
 
     void setColor(QColor color) { my.color = color; }

@@ -328,7 +328,10 @@ static pmdaMetric metrictab[] = {
   { NULL,
     { PMDA_PMID(CLUSTER_PID_STAT,46), PM_TYPE_U32, PROC_INDOM, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
-
+/* proc.psinfo.environ */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STAT,47), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
 /*
  * proc/<pid>/status cluster
  * Cluster added by Mike Mason <mmlnx@us.ibm.com>
@@ -488,7 +491,10 @@ static pmdaMetric metrictab[] = {
   { NULL,
     { PMDA_PMID(CLUSTER_PID_STATUS,30), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
-
+/* proc.psinfo.cpusallowed */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS,31), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
 /* proc.psinfo.cgroups */
   { NULL,
     { PMDA_PMID(CLUSTER_PID_CGROUP,0), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
@@ -1720,6 +1726,10 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 #endif
 		break;
+ 
+	    case PROC_PID_STAT_ENVIRON:
+		atom->cp = entry->environ_buf ? entry->environ_buf : "";
+		break;
 
 	    case PROC_PID_STAT_WCHAN_SYMBOL:
 		if (entry->wchan_buf)	/* 2.6 kernel, /proc/<pid>/wchan */
@@ -2051,6 +2061,11 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->ul = 0;
 	else
 	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+	break;
+
+	case PROC_PID_STATUS_CPUSALLOWED:
+	if ((atom->cp = _pm_getfield(entry->status_lines.cpusallowed, 1)) == NULL)
+	    return PM_ERR_INST;
 	break;
 
 	default:

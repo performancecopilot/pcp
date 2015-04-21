@@ -1,3 +1,5 @@
+pcp-3.10.5 (3 June 2015)
+
 pcp-3.10.4 (15 April 2015)
     - pmdalinux: fixed kernel.pernode.cpu.* for systems with only one CPU.
     - pmdadm: merged in pmdadmcache, added thin provisioning metrics
