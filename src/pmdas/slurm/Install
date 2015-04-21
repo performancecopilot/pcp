@@ -19,6 +19,7 @@
 iam=slurm
 pmda_interface=2
 dso_opt=false
+daemon_opt=false
 perl_opt=true
 socket_opt=false
 
