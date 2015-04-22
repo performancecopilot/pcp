@@ -210,6 +210,7 @@ _pmda_enact()
 		$PCP_BINADM_DIR/pmpost "PMDA setup: automated $action FAILED (exit=$?): $pmda"
 		mv .Need$action.sav .Need$action
 	    fi
+	    cd "$PCP_PMDAS_DIR"
 	fi
     done
     # move back into PMDA dir as expected by _pmda_setup()
