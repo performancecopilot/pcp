@@ -947,7 +947,7 @@ sample 63, delta time=-3600.000 secs
 pmcd.numagents: no current values no prior values 
 sample[64] pmFetch: End of PCP archive log
 
-64 samples required ** expect 7500-15000 approx except for bug 1044 * 47453 log reads
+64 samples required 12911 log reads
 
 === pmcd.numagents converted to discrete semantics ===
 Note: timezone set to local timezone of host "super.elastic.org" from archive

@@ -889,14 +889,11 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		 *  t_prior > t_req and reading backwards or not already
 		 *  	scanned in this direction => need to push t_prior to
 		 *  	be <= t_req if possible
-		 *  t_next is a mark and t_next > t_req => need to search
-		 *  	back also (unless we've already scanned to this mark)
 		 *  t_next is mark and t_prior == t_req => search back
 		 *  	to try and bound t_req with valid values
 		 */
 		if ((IS_UNDEFINED(icp->s_prior) && !IS_SCANNED(icp->s_prior)) ||
 		    (icp->t_prior > t_req && (ctxp->c_delta < 0 || !IS_SCANNED(icp->s_prior))) ||
-		    (IS_MARK(icp->s_next) && !IS_SCANNED(icp->s_next) && icp->t_next > t_req) ||
 		    (IS_MARK(icp->s_next) && icp->t_prior == t_req)) {
 		    back++;
 		    icp->search = 1;
@@ -1006,15 +1003,11 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		 *  t_next < t_req and reading forwards or not already
 		 *  	scanned in this direction => need to push t_next to
 		 *  	be >= t_req if possible
-		 *  t_prior is a mark and t_prior < t_req => need to search
-		 *  	forwards also (unless we've already scanned to this
-		 *  	mark)
 		 *  t_prior is mark and t_next == t_req => search forward
 		 *  	to try and bound t_req with valid values
 		 */
 		if ((IS_UNDEFINED(icp->s_next) && !IS_SCANNED(icp->s_next)) ||
 		    (icp->t_next < t_req && (ctxp->c_delta > 0 || !IS_SCANNED(icp->s_next))) ||
-		    (IS_MARK(icp->s_prior) && !IS_SCANNED(icp->s_next) && icp->t_prior < t_req) ||
 		    (IS_MARK(icp->s_prior) && icp->t_next == t_req)) {
 		    forw++;
 		    icp->search = 1;
