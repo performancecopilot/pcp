@@ -14,8 +14,8 @@
  * for more details.
  */
 
-#ifndef _IMPL_H
-#define _IMPL_H
+#ifndef PCP_IMPL_H
+#define PCP_IMPL_H
 
 #include <time.h>
 #include <fcntl.h>
@@ -1497,4 +1497,4 @@ extern int __pmDiscoverServicesWithOptions(const char *,
 }
 #endif
 
-#endif /* _IMPL_H */
+#endif /* PCP_IMPL_H */

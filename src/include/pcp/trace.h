@@ -11,8 +11,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#ifndef _TRACE_H
-#define _TRACE_H
+#ifndef PCP_TRACE_H
+#define PCP_TRACE_H
 
 /*
  * Transaction monitoring PMDA (trace) public interface.
@@ -107,4 +107,4 @@ extern int pmtracestate(int code);
 }
 #endif
 
-#endif /* _TRACE_H */
+#endif /* PCP_TRACE_H */
