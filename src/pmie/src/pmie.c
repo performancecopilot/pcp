@@ -707,7 +707,7 @@ getargs(int argc, char *argv[])
     }
 
     /* initialize time */
-    now = archives ? first : getReal() + 1.0;
+    now = archives ? first : getReal() + 0.000000001;
     zoneInit();
     reflectTime(dfltDelta);
 
@@ -775,7 +775,7 @@ getargs(int argc, char *argv[])
 
     /* really parse time window */
     if (!archives) {
-	now = getReal() + 1.0;
+	now = getReal() + 0.000000001;
 	reflectTime(dfltDelta);
     }
     __pmtimevalFromReal(now, &tv1);

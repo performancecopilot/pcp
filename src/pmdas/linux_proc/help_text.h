@@ -72,7 +72,7 @@ help_text_t  help_text[] = {
 { .name = "psinfo.stime",            .shorthelp = "time (in ms) spent executing system code (calls) since process started",        .longhelp = "" },
 { .name = "psinfo.policy",            .shorthelp = "Scheduling policy",        .longhelp = "" },
 { .name = "psinfo.cguest_time",            .shorthelp = "Guest time of the process’s children",        .longhelp = "" },
-{ .name = "psinfo.environ",           .shorthelp = "the process environment read from /proc/<pid>/environ with the null bytes replaced with ascii space.",        .longhelp = "" },
+{ .name = "psinfo.environ",           .shorthelp = "process environment (from /proc/<pid>/environ ascii space replaces null).",        .longhelp = "" },
 { .name = "runq.stopped",            .shorthelp = "number of traced, stopped or suspended processes",        .longhelp = "Instantaneous number of traced, stopped or suspended processes, state\n'T' in ps\n" },
 { .name = "psinfo.labels",            .shorthelp = "list of processes security labels (from /proc/<pid>/attr/current)",        .longhelp = "" },
 { .name = "psinfo.blocked",            .shorthelp = "the value in the blocked field of struct task_struct for the process",        .longhelp = "" },
