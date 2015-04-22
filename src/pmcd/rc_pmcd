@@ -213,8 +213,6 @@ _pmda_enact()
 	    cd "$PCP_PMDAS_DIR"
 	fi
     done
-    # move back into PMDA dir as expected by _pmda_setup()
-    cd "$PCP_PMDAS_DIR"
 }
 
 _start_pmcheck()
