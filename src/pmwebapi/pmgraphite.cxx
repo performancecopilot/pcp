@@ -1972,7 +1972,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
             }
             notcairo_parse_color (fgcolor, r, g, b);
             cairo_set_source_rgb (cr, r, g, b);
-            cairo_select_font_face (cr, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+            cairo_select_font_face (cr, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
             cairo_set_font_size (cr, spacing);
             cairo_move_to (cr, leftedge + spacing*1.5, baseline);
             cairo_show_text (cr, name.c_str ());
@@ -1983,7 +1983,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
             if (graphyhigh > baseline) {
                 graphyhigh = baseline - spacing;
             }
-            if (graphyhigh < height*0.5) { // forget it, too many
+            if (graphyhigh < height*0.6) { // forget it, don't go beyond 40%
                 break;
             }
         }
@@ -2024,7 +2024,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
             string lstr = label.str ();
             cairo_text_extents_t ext;
             cairo_save (cr);
-            cairo_select_font_face (cr, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+            cairo_select_font_face (cr, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
             cairo_set_font_size (cr, 8.0);
             string fgcolor = params["fgcolor"];
             if (fgcolor == "") {
