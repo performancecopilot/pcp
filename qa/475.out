@@ -1,10 +1,10 @@
 QA output created by 475
 Only one context ...
-Warning: pmLookupName -> Metric name is not a leaf in PMNS
-    sample.secret -> PM_ID_NULL
+Warning: pmLookupName returned 2, expected 4
+    sample.secret -> PM_ID_NULL: Unknown metric name
     sampledso.bin -> 30.0.6
     sample.longlong.one -> 29.0.20
-    pmcd.pmlogger -> PM_ID_NULL
+    pmcd.pmlogger -> PM_ID_NULL: Metric name is not a leaf in PMNS
  100 func1: pmcd.pmlogger ... pmLookupName OK
  100 func1: pmcd.pmlogger pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func1: sample.longlong.one ... pmLookupName OK
@@ -31,11 +31,11 @@ Warning: pmLookupName -> Metric name is not a leaf in PMNS
  100 func3: sampledso.bin pmNameAll OK pmNameID OK
 
 Two contexts, same host, different fd's ...
-Warning: pmLookupName -> Metric name is not a leaf in PMNS
-    sample.secret -> PM_ID_NULL
+Warning: pmLookupName returned 2, expected 4
+    sample.secret -> PM_ID_NULL: Unknown metric name
     sampledso.bin -> 30.0.6
     sample.longlong.one -> 29.0.20
-    pmcd.pmlogger -> PM_ID_NULL
+    pmcd.pmlogger -> PM_ID_NULL: Metric name is not a leaf in PMNS
  100 func1: pmcd.pmlogger ... pmLookupName OK
  100 func1: pmcd.pmlogger pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func1: sample.longlong.one ... pmLookupName OK
@@ -62,11 +62,11 @@ Warning: pmLookupName -> Metric name is not a leaf in PMNS
  100 func3: sampledso.bin pmNameAll OK pmNameID OK
 
 Two contexts, same host, same fd's ...
-Warning: pmLookupName -> Metric name is not a leaf in PMNS
-    sample.secret -> PM_ID_NULL
+Warning: pmLookupName returned 2, expected 4
+    sample.secret -> PM_ID_NULL: Unknown metric name
     sampledso.bin -> 30.0.6
     sample.longlong.one -> 29.0.20
-    pmcd.pmlogger -> PM_ID_NULL
+    pmcd.pmlogger -> PM_ID_NULL: Metric name is not a leaf in PMNS
  100 func1: pmcd.pmlogger ... pmLookupName OK
  100 func1: pmcd.pmlogger pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func1: sample.longlong.one ... pmLookupName OK
@@ -93,11 +93,11 @@ Warning: pmLookupName -> Metric name is not a leaf in PMNS
  100 func3: sampledso.bin pmNameAll OK pmNameID OK
 
 Three contexts, same host, different fd's ...
-Warning: pmLookupName -> Metric name is not a leaf in PMNS
-    sample.secret -> PM_ID_NULL
+Warning: pmLookupName returned 2, expected 4
+    sample.secret -> PM_ID_NULL: Unknown metric name
     sampledso.bin -> 30.0.6
     sample.longlong.one -> 29.0.20
-    pmcd.pmlogger -> PM_ID_NULL
+    pmcd.pmlogger -> PM_ID_NULL: Metric name is not a leaf in PMNS
  100 func1: pmcd.pmlogger ... pmLookupName OK
  100 func1: pmcd.pmlogger pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func1: sample.longlong.one ... pmLookupName OK
@@ -124,11 +124,11 @@ Warning: pmLookupName -> Metric name is not a leaf in PMNS
  100 func3: sampledso.bin pmNameAll OK pmNameID OK
 
 Three contexts, same host, same fd's ...
-Warning: pmLookupName -> Metric name is not a leaf in PMNS
-    sample.secret -> PM_ID_NULL
+Warning: pmLookupName returned 2, expected 4
+    sample.secret -> PM_ID_NULL: Unknown metric name
     sampledso.bin -> 30.0.6
     sample.longlong.one -> 29.0.20
-    pmcd.pmlogger -> PM_ID_NULL
+    pmcd.pmlogger -> PM_ID_NULL: Metric name is not a leaf in PMNS
  100 func1: pmcd.pmlogger ... pmLookupName OK
  100 func1: pmcd.pmlogger pmGetChildrenStatus OK pmGetChildren OK pmTraversePMNS_r OK
  100 func1: sample.longlong.one ... pmLookupName OK
