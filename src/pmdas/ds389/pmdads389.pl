@@ -40,13 +40,18 @@ my $ts_ur = 0;
 
 sub ds389_connection_setup {
 	if (!defined($ldap)) {
+		$pmda->log("binding to $server");
 		$ldap = Net::LDAP->new($server);
-		return if (!defined($ldap));
+		if (!defined($ldap)) {
+			$pmda->log("bind failed, server down?");
+			return;
+		}
 		my $mesg = $ldap->bind($binddn, password => $bindpw);
 		if ($mesg->code) {
 			$pmda->log("bind failed: " . $mesg->error);
-			die;
+			return;
 		}
+		$pmda->log("bind to $server ok");
 	}
 }
 
@@ -99,6 +104,7 @@ sub ds389_fetch {
 			$mesg = $ldap->search(scope => $scope, base => $cnbase, filter => $filter);
 			if ($mesg->code) {
 				$pmda->log("search failed: " . $mesg->error);
+				undef $ldap;
 				return;
 			}
 			ds389_process_entry($mesg->entry, 'cn.', 0);
@@ -112,6 +118,7 @@ sub ds389_fetch {
 			$mesg = $ldap->search(scope => $scope, base => $urbase, filter => $filter);
 			if ($mesg->code) {
 				$pmda->log("search failed: " . $mesg->error);
+				undef $ldap;
 				return;
 			}
 			ds389_process_entry($mesg->entry, 'userroot.', 1);
