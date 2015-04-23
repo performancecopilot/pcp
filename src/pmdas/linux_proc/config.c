@@ -59,7 +59,7 @@ set_conf_buffer(char *buf)
 char *
 get_conf_buffer(void)
 {
-    return conf_buffer;
+    return pred_buffer;
 }
 
 FILE *
