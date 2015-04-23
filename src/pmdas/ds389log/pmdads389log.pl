@@ -158,14 +158,14 @@ sub ds389log_fetch_callback {
 
 $pmda = PCP::PMDA->new('ds389log', 131);
 
-# Add and zero metrics
+# Add and init metrics
 foreach my $key (keys %data) {
 	my $name = 'ds389log.' . $data{$key}->[1] . '.' . $data{$key}->[0];
 	$pmda->add_metric(pmda_pmid($data{$key}->[2], $data{$key}->[3]),
 			PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
 			pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 			$name, '', '');
-	$metrics{$name} = 0;
+	$metrics{$name} = PM_ERR_AGAIN;
 }
 
 $pmda->set_refresh(\&ds389log_fetch);
