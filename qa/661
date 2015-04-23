@@ -44,7 +44,7 @@ echo "=== pmwebd graphite capabilities ===" | tee -a $seq.full
 $sudo $signal -a pmwebd >/dev/null 2>&1
 sleep 2		# let it shut down
 
-$PCP_BINADM_DIR/pmwebd $webargs -G -R $PCP_SHARE_DIR/webapps -i 15 -A `pwd` -N -M8 -x/dev/tty -d1 -vvvvv -l $tmp.out &
+$PCP_BINADM_DIR/pmwebd $webargs -G -R $PCP_SHARE_DIR/webapps -I -i 15 -A `pwd` -N -M8 -x/dev/tty -d1 -vvvvv -l $tmp.out &
 sleep 2		# let it start up
 
 echo "crashers"

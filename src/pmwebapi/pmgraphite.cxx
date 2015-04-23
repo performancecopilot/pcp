@@ -293,15 +293,22 @@ vector <string> pmgraphite_enumerate_metrics (struct MHD_Connection * connection
         if (ent->fts_info == FTS_SL) {
             // follow symlinks (unlikely)
             (void) fts_set (f, ent, FTS_FOLLOW);
+            continue;
         }
 
-        if (fnmatch ("*.meta", ent->fts_path, FNM_NOESCAPE) != 0) {
-            continue;
-        }
+        // Skip if suspiciously named
         string archive = string (ent->fts_path);
-        if (cursed_path_p (archivesdir, archive)) {
+        if (cursed_path_p (archivesdir, archive))
             continue;
-        }
+
+        // Skip if uninteresting directory
+        if ((ent->fts_info == FTS_D) && !graphite_archivedir)
+            continue;
+
+        // Skip if uninteresting file
+        if ((ent->fts_info == FTS_F) &&
+            fnmatch ("*.meta", ent->fts_path, FNM_NOESCAPE) != 0)
+            continue;
 
         // Abbrevate archive to clip off the archivesdir prefix (if
         // it's there).
@@ -321,20 +328,21 @@ vector <string> pmgraphite_enumerate_metrics (struct MHD_Connection * connection
             continue;
         }
 
-        // PR1099: compressed archives can take too long to open &
-        // check, because libpcp completely decompresses them into a
-        // temporary directory ... every time a context is created for
-        // them.  Perhaps we could tolerate very small ones, but for
-        // now let's just skip them completely.
-        //
-        // We use a heuristic to determine whether the archive's
-        // compressed or not: simply whether there is a .0 file for a
-        // .meta.
-        string vol0 = archive.substr(0, archive.size()-strlen(".meta")) + ".0";
-        if (access (vol0.c_str(), R_OK) != 0) {
-            continue;
+        if (ent->fts_info == FTS_F) {
+            // PR1099: compressed archives can take too long to open &
+            // check, because libpcp completely decompresses them into a
+            // temporary directory ... every time a context is created for
+            // them.  Perhaps we could tolerate very small ones, but for
+            // now let's just skip them completely.
+            //
+            // We use a heuristic to determine whether the archive's
+            // compressed or not: simply whether there is a .0 file for a
+            // .meta.
+            string vol0 = archive.substr(0, archive.size()-strlen(".meta")) + ".0";
+            if (access (vol0.c_str(), R_OK) != 0) {
+                continue;
+            }
         }
-
         int ctx = pmNewContext (PM_CONTEXT_ARCHIVE, archive.c_str ());
         if (ctx < 0) {
             continue;
@@ -350,6 +358,10 @@ vector <string> pmgraphite_enumerate_metrics (struct MHD_Connection * connection
         (void) pmTraversePMNS_r ("", &pmg_enumerate_pmns, &c);
 
         pmDestroyContext (ctx);
+
+        // Don't recurse if this was a successfully opened archive-directory
+        if ((ent->fts_info == FTS_D) && graphite_archivedir)
+            (void) fts_set (f, ent, FTS_SKIP);
     }
     fts_close (f);
 
