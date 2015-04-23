@@ -18,21 +18,21 @@ use PCP::PMDA;
 use Net::LDAP;
 use POSIX;
 
-my $server = 'localhost';
-my $binddn = 'cn=Directory Manager';
-my $bindpw = 'Manager12';
-my $scope  = 'base';
-my $cnbase = 'cn=monitor';
-my $urbase = 'cn=monitor,cn=userRoot,cn=ldbm database,cn=plugins,cn=config';
-my $filter = '(objectclass=*)';
-my $query_interval = 2; # seconds
-
-use vars qw( $ldap $pmda %metrics );
+our $server = 'localhost';
+our $binddn = 'cn=Directory Manager';
+our $bindpw = 'Manager12';
+our $scope  = 'base';
+our $cnbase = 'cn=monitor';
+our $urbase = 'cn=monitor,cn=userRoot,cn=ldbm database,cn=plugins,cn=config';
+our $filter = '(objectclass=*)';
+our $query_interval = 2; # seconds
 
 # Configuration files for overriding the above settings
 for my $file (pmda_config('PCP_PMDAS_DIR') . '/ds389/ds389.conf', './ds389.conf') {
 	eval `cat $file` unless ! -f $file;
 }
+
+use vars qw( $ldap $pmda %metrics );
 
 # Timestamps
 my $ts_cn = 0;
