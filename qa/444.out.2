@@ -30,15 +30,20 @@ pmResult ... numpmid: 1
     inst [1 or "bogus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
 pmXmitPDU: INSTANCE_REQ fd=<fd> len=32
 pmGetPDU: INSTANCE fd=<fd> len=36 from=0
+pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
 sample.event.records[fungus]: 0 event records
 pmXmitPDU: PMNS_NAMES fd=<fd> len=40
-pmGetPDU: PMNS_IDS fd=<fd> len=24 from=0
+pmGetPDU: ERROR fd=<fd> len=16 from=0
+__dmgetpmid: metric "event.flags" -> PMID 511.0.1
 pmXmitPDU: PMNS_NAMES fd=<fd> len=40
-pmGetPDU: PMNS_IDS fd=<fd> len=24 from=0
+pmGetPDU: ERROR fd=<fd> len=16 from=0
+__dmgetpmid: metric "event.missed" -> PMID 511.0.2
 pmXmitPDU: INSTANCE_REQ fd=<fd> len=32
 pmGetPDU: INSTANCE fd=<fd> len=36 from=0
 pmXmitPDU: PMNS_NAMES fd=<fd> len=40
-pmGetPDU: PMNS_IDS fd=<fd> len=24 from=0
+pmGetPDU: ERROR fd=<fd> len=16 from=0
+__dmgetpmid: metric "event.flags" -> PMID 511.0.1
 sample.event.records[bogus]: 2 event records
 pmXmitPDU: PMNS_IDS fd=<fd> len=24
 pmGetPDU: ERROR fd=<fd> len=16 from=0
@@ -91,7 +96,8 @@ pmResult ... numpmid: 1
     inst [0 or "fungus"] value [5 event records (7 missed) timestamps TIMESTAMP...TIMESTAMP]
     inst [1 or "bogus"] value [2 event records timestamps TIMESTAMP...TIMESTAMP]
 pmXmitPDU: PMNS_NAMES fd=<fd> len=40
-pmGetPDU: PMNS_IDS fd=<fd> len=24 from=0
+pmGetPDU: ERROR fd=<fd> len=16 from=0
+__dmgetpmid: metric "event.missed" -> PMID 511.0.2
 sample.event.records[fungus]: 5 event records
   TIMESTAMP --- event record [0] flags 0x1a (start,id,parent) ---
     sample.event.type 4
