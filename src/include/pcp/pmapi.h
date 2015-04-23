@@ -13,8 +13,8 @@
  * for more details.
  */
 
-#ifndef _PMAPI_H
-#define _PMAPI_H
+#ifndef PCP_PMAPI_H
+#define PCP_PMAPI_H
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -888,4 +888,4 @@ extern int pmParseUnitsStr(const char *, pmUnits *, double *, char **);
 }
 #endif
 
-#endif /* _PMAPI_H */
+#endif /* PCP_PMAPI_H */

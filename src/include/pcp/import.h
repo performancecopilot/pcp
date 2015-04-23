@@ -12,8 +12,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#ifndef _IMPORT_H
-#define _IMPORT_H
+#ifndef PCP_IMPORT_H
+#define PCP_IMPORT_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -64,4 +64,4 @@ extern void pmiDump(void);
 }
 #endif
 
-#endif /* _IMPORT_H */
+#endif /* PCP_IMPORT_H */

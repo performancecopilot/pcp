@@ -2,7 +2,7 @@
  * pmie.c - performance inference engine
  ***********************************************************************
  *
- * Copyright (c) 2013-2014 Red Hat, Inc.
+ * Copyright (c) 2013-2015 Red Hat, Inc.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -707,7 +707,7 @@ getargs(int argc, char *argv[])
     }
 
     /* initialize time */
-    now = archives ? first : getReal() + 0.000000001;
+    now = archives ? first : getReal();
     zoneInit();
     reflectTime(dfltDelta);
 
@@ -773,11 +773,6 @@ getargs(int argc, char *argv[])
     if (agent)
 	agentInit();			/* initialize secret agent stuff */
 
-    /* really parse time window */
-    if (!archives) {
-	now = getReal() + 0.000000001;
-	reflectTime(dfltDelta);
-    }
     __pmtimevalFromReal(now, &tv1);
     if (archives) {
 	__pmtimevalFromReal(last, &tv2);

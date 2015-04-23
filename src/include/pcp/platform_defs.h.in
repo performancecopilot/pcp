@@ -1,8 +1,8 @@
 /*
  * @configure_input@
  */
-#ifndef _PCP_PLATFORM_DEFS_H
-#define _PCP_PLATFORM_DEFS_H
+#ifndef PCP_PLATFORM_DEFS_H
+#define PCP_PLATFORM_DEFS_H
 
 #include "config.h"
 
@@ -10,4 +10,4 @@
 #define FMT_PID @fmt_pid@
 #define FMT_PTHREAD @fmt_pthread@
 
-#endif /* _PCP_PLATFORM_DEFS_H */
+#endif /* PCP_PLATFORM_DEFS_H */
