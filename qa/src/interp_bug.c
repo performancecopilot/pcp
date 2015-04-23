@@ -254,7 +254,10 @@ Options\n\
 	printf("metrics_a[%d]: %s %s\n", i, metrics_a[i], pmIDStr(pmid_a[i])); 
     }
     if (sts != N_PMID_A) {
-	fprintf(stderr, "%s: pmLookupName: %s\n", pmProgname, pmErrStr(sts));
+	if (sts < 0)
+	    fprintf(stderr, "%s: pmLookupName: %s\n", pmProgname, pmErrStr(sts));
+	else
+	    fprintf(stderr, "%s: pmLookupName: expecting %d, got %d\n", pmProgname, (int)(N_PMID_A), sts);
 	exit(1);
     }
 
@@ -263,7 +266,10 @@ Options\n\
 	printf("metrics_b[%d]: %s %s\n", i, metrics_b[i], pmIDStr(pmid_b[i])); 
     }
     if (sts != N_PMID_B) {
-	fprintf(stderr, "%s: pmLookupName: %s\n", pmProgname, pmErrStr(sts));
+	if (sts < 0)
+	    fprintf(stderr, "%s: pmLookupName: %s\n", pmProgname, pmErrStr(sts));
+	else
+	    fprintf(stderr, "%s: pmLookupName: expecting %d, got %d\n", pmProgname, (int)(N_PMID_B), sts);
 	exit(1);
     }
 

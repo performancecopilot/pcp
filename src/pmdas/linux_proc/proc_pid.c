@@ -642,7 +642,7 @@ hotproc_eval_procs(void)
 
 	    strncpy(vars.fname, cmd, sizeof(vars.fname));
 	    if (len < sizeof(vars.fname))
-		vars.fname[len] = '\0';
+		vars.fname[len-1] = '\0'; /* Skip the closing parenthesis */
 	    vars.fname[sizeof(vars.fname) - 1] = '\0';
 	}
 

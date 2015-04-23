@@ -174,6 +174,9 @@ Options\n\
     n = pmLookupName(numpmid, namelist, pmidlist);
     if (n < 0) {
 	fprintf(stderr, "pmLookupName: %s\n", pmErrStr(n));
+	exit(1);
+    }
+    if (n != numpmid) {
 	for (i = 0; i < numpmid; i++) {
 	    if (pmidlist[i] == PM_ID_NULL)
 		printf("	%s - not known\n", namelist[i]);

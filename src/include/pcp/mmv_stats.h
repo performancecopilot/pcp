@@ -13,8 +13,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
  */
-#ifndef _MMV_STATS_H
-#define _MMV_STATS_H
+#ifndef PCP_MMV_STATS_H
+#define PCP_MMV_STATS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -105,4 +105,4 @@ extern void mmv_stats_set_strlen(void *, const char *,
 }
 #endif
 
-#endif /* _MMV_STATS_H */
+#endif /* PCP_MMV_STATS_H */

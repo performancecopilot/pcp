@@ -477,6 +477,8 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 			    changed |= 2;
 			    icp->search = 0;
 			    (*done)++;
+			    /* don't need to scan this region again */
+			    SET_SCANNED(icp->s_prior);
 			}
 		    }
 		    if (t_this >= t_req &&
@@ -514,6 +516,8 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 			    changed |= 2;
 			    icp->search = 0;
 			    (*done)++;
+			    /* don't need to scan this region again */
+			    SET_SCANNED(icp->s_next);
 			}
 		    }
 #ifdef PCP_DEBUG
@@ -882,15 +886,15 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		 *  s_prior undefined => have not explored in this direction,
 		 *  	so need to go back (unless we've already scanned in
 		 *  	this direction)
-		 *  t_prior > t_req => need to push t_prior to be <= t_req
-		 *  	if possible, so go back
-		 *  t_next is valid and a mark and t_next > t_req => need
-		 *  to search back also (unless we've already scanned to
-		 *  this mark)
+		 *  t_prior > t_req and reading backwards or not already
+		 *  	scanned in this direction => need to push t_prior to
+		 *  	be <= t_req if possible
+		 *  t_next is mark and t_prior == t_req => search back
+		 *  	to try and bound t_req with valid values
 		 */
 		if ((IS_UNDEFINED(icp->s_prior) && !IS_SCANNED(icp->s_prior)) ||
-		    icp->t_prior > t_req ||
-		    (IS_MARK(icp->s_next) && !IS_SCANNED(icp->s_next) && icp->t_next > t_req)) {
+		    (icp->t_prior > t_req && (ctxp->c_delta < 0 || !IS_SCANNED(icp->s_prior))) ||
+		    (IS_MARK(icp->s_next) && icp->t_prior == t_req)) {
 		    back++;
 		    icp->search = 1;
 		    icp->unbound = (instcntl_t *)ctxp->c_archctl->ac_unbound;
@@ -952,6 +956,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    if ((IS_UNDEFINED(icp->s_prior) || icp->t_prior > t_req) &&
 		icp->t_first < t_req) {
 		icp->t_first = t_req;
+		SET_SCANNED(icp->s_prior);
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_INTERP)
 		    dumpicp("no values before t_first", icp);
@@ -995,15 +1000,15 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		 *  s_next undefined => have not explored in this direction,
 		 *  	so need to go back (unless we've already scanned in
 		 *  	this direction)
-		 *  t_next < t_req => need to push t_next to be >= t_req
-		 *  	if possible, so go forward
-		 *  t_prior is valid and a mark and t_prior < t_req => need
-		 *  to search forwards also (unless we've already scanned to
-		 *  this mark)
+		 *  t_next < t_req and reading forwards or not already
+		 *  	scanned in this direction => need to push t_next to
+		 *  	be >= t_req if possible
+		 *  t_prior is mark and t_next == t_req => search forward
+		 *  	to try and bound t_req with valid values
 		 */
 		if ((IS_UNDEFINED(icp->s_next) && !IS_SCANNED(icp->s_next)) ||
-		    icp->t_next < t_req ||
-		    (IS_MARK(icp->s_prior) && !IS_SCANNED(icp->s_prior) && icp->t_prior < t_req)) {
+		    (icp->t_next < t_req && (ctxp->c_delta > 0 || !IS_SCANNED(icp->s_next))) ||
+		    (IS_MARK(icp->s_prior) && icp->t_next == t_req)) {
 		    forw++;
 		    icp->search = 1;
 		    icp->unbound = (instcntl_t *)ctxp->c_archctl->ac_unbound;
@@ -1065,6 +1070,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    if (icp->t_next < t_req &&
 		(icp->t_last < 0 || t_req < icp->t_last)) {
 		icp->t_last = t_req;
+		SET_SCANNED(icp->s_next);
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_INTERP) {
 		    char	strbuf[20];

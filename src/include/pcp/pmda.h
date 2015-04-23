@@ -12,8 +12,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#ifndef _PMDA_H
-#define _PMDA_H
+#ifndef PCP_PMDA_H
+#define PCP_PMDA_H
 
 #include <stdarg.h>
 
@@ -773,4 +773,4 @@ extern int __pmdaDecodeRootPDUContainer(void *, int, int *, char *, int);
 }
 #endif
 
-#endif /* _PMDA_H */
+#endif /* PCP_PMDA_H */

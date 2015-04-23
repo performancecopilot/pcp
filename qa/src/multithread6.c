@@ -252,7 +252,10 @@ main(int argc, char **argv)
 
     sts = pmLookupName(NMETRIC, namelist, pmidlist);
     if (sts != NMETRIC) {
-	printf("Error: pmLookupName -> %s\n", pmErrStr(sts));
+	if (sts < 0)
+	    printf("Error: pmLookupName -> %s\n", pmErrStr(sts));
+	else
+	    printf("Error: pmLookupName returned %d, expected %d\n", sts, NMETRIC);
 	for (i = 0; i < NMETRIC; i++) {
 	    printf("    %s -> %s\n", namelist[i], pmIDStr(pmidlist[i]));
 	}
