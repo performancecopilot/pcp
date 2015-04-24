@@ -2252,6 +2252,9 @@ pmNameID(pmID pmid, char **name)
 	    if (np->pmid == pmid)
 		return backname(np, name);
 	}
+	/* not found in PMNS ... try some other options */
+	sts = PM_ERR_PMID;
+
 	if (c_type == PM_CONTEXT_LOCAL) {
 	    /* have PM_CONTEXT_LOCAL ... try to ship request to PMDA */
 	    int		domain = pmid_domain(pmid);
@@ -2392,6 +2395,8 @@ pmNameAll(pmID pmid, char ***namelist)
 	    *namelist = tmp;
 	    return n;
 	}
+	/* not found in PMNS ... try some other options */
+	sts = PM_ERR_PMID;
 
 	if (c_type == PM_CONTEXT_LOCAL) {
 	    /* have PM_CONTEXT_LOCAL ... try to ship request to PMDA */
