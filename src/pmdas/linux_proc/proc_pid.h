@@ -78,43 +78,53 @@
 
 /*
  * metrics in /proc/<pid>/status
- * Added by Mike Mason <mmlnx@us.ibm.com>
  */
-#define PROC_PID_STATUS_UID          0
-#define PROC_PID_STATUS_EUID         1
-#define PROC_PID_STATUS_SUID         2
-#define PROC_PID_STATUS_FSUID        3
-#define PROC_PID_STATUS_GID          4
-#define PROC_PID_STATUS_EGID         5
-#define PROC_PID_STATUS_SGID         6
-#define PROC_PID_STATUS_FSGID        7
-#define PROC_PID_STATUS_UID_NM       8
-#define PROC_PID_STATUS_EUID_NM      9
-#define PROC_PID_STATUS_SUID_NM      10
-#define PROC_PID_STATUS_FSUID_NM     11
-#define PROC_PID_STATUS_GID_NM       12
-#define PROC_PID_STATUS_EGID_NM      13
-#define PROC_PID_STATUS_SGID_NM      14
-#define PROC_PID_STATUS_FSGID_NM     15
-#define PROC_PID_STATUS_SIGNAL       16
-#define PROC_PID_STATUS_BLOCKED      17
-#define PROC_PID_STATUS_SIGIGNORE    18
-#define PROC_PID_STATUS_SIGCATCH     19
-#define PROC_PID_STATUS_VMSIZE       20
-#define PROC_PID_STATUS_VMLOCK       21
-#define PROC_PID_STATUS_VMRSS        22
-#define PROC_PID_STATUS_VMDATA       23
-#define PROC_PID_STATUS_VMSTACK      24
-#define PROC_PID_STATUS_VMEXE        25
-#define PROC_PID_STATUS_VMLIB        26
-#define PROC_PID_STATUS_VMSWAP	     27
-#define PROC_PID_STATUS_THREADS	     28
-#define PROC_PID_STATUS_VCTXSW       29
-#define PROC_PID_STATUS_NVCTXSW      30
-#define PROC_PID_STATUS_CPUSALLOWED  31
+enum {
+    PROC_PID_STATUS_UID = 0,
+    PROC_PID_STATUS_EUID,
+    PROC_PID_STATUS_SUID,
+    PROC_PID_STATUS_FSUID,
+    PROC_PID_STATUS_GID,
+    PROC_PID_STATUS_EGID,
+    PROC_PID_STATUS_SGID,
+    PROC_PID_STATUS_FSGID,
+    PROC_PID_STATUS_UID_NM,
+    PROC_PID_STATUS_EUID_NM,
+    PROC_PID_STATUS_SUID_NM,
+    PROC_PID_STATUS_FSUID_NM,
+    PROC_PID_STATUS_GID_NM,
+    PROC_PID_STATUS_EGID_NM,
+    PROC_PID_STATUS_SGID_NM,
+    PROC_PID_STATUS_FSGID_NM,
+    PROC_PID_STATUS_SIGNAL,
+    PROC_PID_STATUS_BLOCKED,
+    PROC_PID_STATUS_SIGIGNORE,
+    PROC_PID_STATUS_SIGCATCH,
+    PROC_PID_STATUS_VMSIZE,
+    PROC_PID_STATUS_VMLOCK,
+    PROC_PID_STATUS_VMRSS,
+    PROC_PID_STATUS_VMDATA,
+    PROC_PID_STATUS_VMSTACK,
+    PROC_PID_STATUS_VMEXE,
+    PROC_PID_STATUS_VMLIB,
+    PROC_PID_STATUS_VMSWAP,
+    PROC_PID_STATUS_THREADS,
+    PROC_PID_STATUS_VCTXSW,
+    PROC_PID_STATUS_NVCTXSW,
+    PROC_PID_STATUS_CPUSALLOWED,
+    PROC_PID_STATUS_NGID,
+    PROC_PID_STATUS_VMPEAK,
+    PROC_PID_STATUS_VMPIN,
+    PROC_PID_STATUS_VMHWN,
+    PROC_PID_STATUS_VMPTE,
+    PROC_PID_STATUS_NSTGID,
+    PROC_PID_STATUS_NSPID,
+    PROC_PID_STATUS_NSPGID,
+    PROC_PID_STATUS_NSSID,
 
-/* number of metrics from /proc/<pid>/status */
-#define NR_PROC_PID_STATUS           32
+    /* number of metrics from /proc/<pid>/status */
+    NR_PROC_PID_STATUS
+};
 
 /*
  * metrics in /proc/<pid>/statm & /proc/<pid>/maps
@@ -159,27 +169,40 @@
 /*
  * metrics in /proc/<pid>/cgroup
  */
-#define PROC_PID_CGROUP			0
+enum {
+    PROC_PID_CGROUP = 0,
+};
 
 /*
  * metrics in /proc/<pid>/attr/current
  */
-#define PROC_PID_LABEL			0
+enum {
+    PROC_PID_LABEL = 0,
+};
 
 typedef struct {	/* /proc/<pid>/status */
+    char *ngid;
     char *uid;
     char *gid;
+    char *nstgid;
+    char *nspid;
+    char *nspgid;
+    char *nssid;
     char *sigpnd;
     char *sigblk;
     char *sigign;
     char *sigcgt;
+    char *vmpeak;
     char *vmsize;
     char *vmlck;
+    char *vmpin;
+    char *vmhwn;
     char *vmrss;
     char *vmdata;
     char *vmstk;
     char *vmexe;
     char *vmlib;
+    char *vmpte;
     char *vmswap;
     char *threads;
     char *vctxsw;

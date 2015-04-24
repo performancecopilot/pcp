@@ -487,7 +487,8 @@ hotproc_eval_procs(void)
 	ioentry = fetch_proc_pid_io(pid, hotproc_poss_pid, &sts);
 	schedstatentry = fetch_proc_pid_schedstat(pid, hotproc_poss_pid, &sts);
 
-	if (!statentry || !statusentry || !ioentry /*|| !schedstatentry */ ) { /* schedstat not available everywhere */
+        /* Note: /proc/pid/schedstat and /proc/pid/io not on all platforms */
+	if (!statentry || !statusentry /*|| !ioentry || !schedstatentry */) {
 	    /* Can happen if the process was exiting during
 	     * refresh_proc_pidlist then the above fetch's will fail.
 	     * Would be best if they were not in the list at all
@@ -1297,8 +1298,31 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
 }
 
 /*
+ * Skip an initial colon-terminated header and whitespace, then comma-separate
+ * the remainder of the line by overwriting any whitespace.
+ */
+static char *
+commasep(char **buf)
+{
+    char *start, *p = *buf;
+
+    for (; *p && *p != ':'; p++);	/* skip header */
+    if (*p) p++;
+    for (; *p && isspace(*p); p++);	/* skip initial whitespace */
+    start = *buf = p;
+    for (; *p; p++) {
+	if (*p == '\n') {
+	    *p = '\0';	/* replace end of line */
+	    *buf = p + 1;
+	    break;
+	}
+	if (isspace(*p)) *p = ',';	/* replace whitespace */
+    }
+    return start;
+}
+
+/*
  * fetch a proc/<pid>/status entry for pid
- * Added by Mike Mason <mmlnx@us.ibm.com>
  */
 proc_pid_entry_t *
 fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
@@ -1417,7 +1441,6 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
 	     * nonvoluntary_ctxt_switches:	56
 	     */
 	    while (curline) {
-		/* TODO VmPeak: VmPin: VmHWM: VmPTE: ... */
 		/* small optimization ... peek at first character */
 		switch (*curline) {
 		    case 'U':
@@ -1433,10 +1456,16 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
 			    goto nomatch;
 			break;
 		    case 'V':
-			if (strncmp(curline, "VmSize:", 7) == 0)
+			if (strncmp(curline, "VmPeak:", 7) == 0)
+			    ep->status_lines.vmpeak = strsep(&curline, "\n");
+			else if (strncmp(curline, "VmSize:", 7) == 0)
 			    ep->status_lines.vmsize = strsep(&curline, "\n");
 			else if (strncmp(curline, "VmLck:", 6) == 0)
 			    ep->status_lines.vmlck = strsep(&curline, "\n");
+			else if (strncmp(curline, "VmPin:", 6) == 0)
+			    ep->status_lines.vmpin = strsep(&curline, "\n");
+			else if (strncmp(curline, "VmHWN:", 6) == 0)
+			    ep->status_lines.vmhwn = strsep(&curline, "\n");
 			else if (strncmp(curline, "VmRSS:", 6) == 0)
 			    ep->status_lines.vmrss = strsep(&curline, "\n");
 			else if (strncmp(curline, "VmData:", 7) == 0)
@@ -1447,6 +1476,8 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
 			    ep->status_lines.vmexe = strsep(&curline, "\n");
 			else if (strncmp(curline, "VmLib:", 6) == 0)
 			    ep->status_lines.vmlib = strsep(&curline, "\n");
+			else if (strncmp(curline, "VmPTE:", 6) == 0)
+			    ep->status_lines.vmpte = strsep(&curline, "\n");
 			else if (strncmp(curline, "VmSwap:", 7) == 0)
 			    ep->status_lines.vmswap = strsep(&curline, "\n");
 			else
@@ -1473,6 +1504,22 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
 		    case 'v':
 			if (strncmp(curline, "voluntary_ctxt_switches:", 24) == 0)
 			    ep->status_lines.vctxsw = strsep(&curline, "\n");
+			else
+			    goto nomatch;
+			break;
+		    case 'N':
+			if (strncmp(curline, "Ngid:", 5) == 0)
+			    ep->status_lines.ngid = strsep(&curline, "\n");
+			else if (strncmp(curline, "NStgid:", 7) == 0) {
+			    ep->status_lines.nstgid = commasep(&curline);
+			}
+			else if (strncmp(curline, "NSpid:", 6) == 0) {
+			    ep->status_lines.nspid = commasep(&curline);
+			}
+			else if (strncmp(curline, "NSpgid:", 7) == 0)
+			    ep->status_lines.nspgid = commasep(&curline);
+			else if (strncmp(curline, "NSsid:", 6) == 0)
+			    ep->status_lines.nssid = commasep(&curline);
 			else
 			    goto nomatch;
 			break;

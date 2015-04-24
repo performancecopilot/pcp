@@ -339,170 +339,260 @@ static pmdaMetric metrictab[] = {
 
 /* proc.id.uid */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,0), PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_UID),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.euid */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,1), PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_EUID),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.suid */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,2), PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_SUID),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.fsuid */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,3), PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_FSUID),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.gid */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,4), PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_GID),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.egid */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,5), PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_EGID),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.sgid */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,6), PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_SGID),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.fsgid */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,7), PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_FSGID),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.uid_nm */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,8), PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_UID_NM),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.euid_nm */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,9), PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_EUID_NM),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.suid_nm */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,10), PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_SUID_NM),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.fsuid_nm */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,11), PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_FSUID_NM),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.gid_nm */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,12), PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_GID_NM),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.egid_nm */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,13), PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_EGID_NM),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.sgid_nm */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,14), PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_SGID_NM),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.fsgid_nm */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,15), PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_FSGID_NM),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.psinfo.signal_s */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,16), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_SIGNAL),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.psinfo.blocked_s */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,17), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_BLOCKED),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.psinfo.sigignore_s */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,18), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_SIGIGNORE),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.psinfo.sigcatch_s */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,19), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_SIGCATCH),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.memory.vmsize */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,20), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMSIZE),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
 /* proc.memory.vmlock */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,21), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMLOCK),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
 /* proc.memory.vmrss */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,22), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMRSS),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
 /* proc.memory.vmdata */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,23), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMDATA),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
 /* proc.memory.vmstack */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,24), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMSTACK),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
 /* proc.memory.vmexe */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,25), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMEXE),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
 /* proc.memory.vmlib */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,26), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMLIB),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
 /* proc.memory.vmswap */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,27), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMSWAP),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
 /* proc.psinfo.threads */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,28), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_THREADS),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.psinfo.vctxsw */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,29), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VCTXSW),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.psinfo.nvctxsw */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,30), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_NVCTXSW),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
+
 /* proc.psinfo.cpusallowed */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,31), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_CPUSALLOWED),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* proc.id.ngid */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_NGID),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* proc.memory.vmpeak */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMPEAK),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+
+/* proc.memory.vmpin */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMPIN),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+
+/* proc.memory.vmhwn */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMHWN),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+
+/* proc.memory.vmpte */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMPTE),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+
 /* proc.psinfo.cgroups */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_CGROUP,0), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_CGROUP, PROC_PID_CGROUP),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.psinfo.labels */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_LABEL,0), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_LABEL, PROC_PID_LABEL),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* proc.namespaces.tpid */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_NSTGID),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* proc.namespaces.pid */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_NSPID),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* proc.namespaces.pgid */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_NSPGID),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* proc.namespaces.sid */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_NSSID),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE,
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 
@@ -875,6 +965,21 @@ static pmdaMetric metrictab[] = {
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_RECENT_SCANNED_FILE), PM_TYPE_U64,
     CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+
+/* cgroup.memory.usage */
+  { NULL,
+    { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_USAGE_IN_BYTES), PM_TYPE_U64,
+    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+
+/* cgroup.memory.limit */
+  { NULL,
+    { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_LIMIT_IN_BYTES), PM_TYPE_U64,
+    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+
+/* cgroup.memory.failcnt */
+  { NULL,
+    { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_FAILCNT), PM_TYPE_U64,
+    CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* cgroup.netclass.classid */
   { NULL,
@@ -1907,9 +2012,6 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 	break;
 
-	/*
-	 * Cluster added by Mike Mason <mmlnx@us.ibm.com>
-	 */
     case CLUSTER_HOTPROC_PID_STATUS:
 	active_proc_pid = &hotproc_pid;
 	/*FALLTHROUGH*/
@@ -1986,8 +2088,36 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return 0;
 	break;
 
+	case PROC_PID_STATUS_VMPEAK:
+	if ((f = _pm_getfield(entry->status_lines.vmpeak, 1)) == NULL)
+	    atom->ul = 0;
+	else
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+	break;
+
 	case PROC_PID_STATUS_VMSIZE:
 	if ((f = _pm_getfield(entry->status_lines.vmsize, 1)) == NULL)
+	    atom->ul = 0;
+	else
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+	break;
+
+	case PROC_PID_STATUS_VMPIN:
+	if ((f = _pm_getfield(entry->status_lines.vmpin, 1)) == NULL)
+	    atom->ul = 0;
+	else
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+	break;
+
+	case PROC_PID_STATUS_VMHWN:
+	if ((f = _pm_getfield(entry->status_lines.vmhwn, 1)) == NULL)
+	    atom->ul = 0;
+	else
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+	break;
+
+	case PROC_PID_STATUS_VMPTE:
+	if ((f = _pm_getfield(entry->status_lines.vmpte, 1)) == NULL)
 	    atom->ul = 0;
 	else
 	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
@@ -2066,6 +2196,31 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case PROC_PID_STATUS_CPUSALLOWED:
 	if ((atom->cp = _pm_getfield(entry->status_lines.cpusallowed, 1)) == NULL)
 	    return PM_ERR_INST;
+	break;
+
+	case PROC_PID_STATUS_NGID:
+	if ((atom->cp = _pm_getfield(entry->status_lines.ngid, 1)) == NULL)
+	    return PM_ERR_INST;
+	break;
+
+	case PROC_PID_STATUS_NSTGID:
+	if ((atom->cp = entry->status_lines.nstgid) == NULL)
+	    return PM_ERR_APPVERSION;
+	break;
+
+	case PROC_PID_STATUS_NSPID:
+	if ((atom->cp = entry->status_lines.nspid) == NULL)
+	    return PM_ERR_APPVERSION;
+	break;
+
+	case PROC_PID_STATUS_NSPGID:
+	if ((atom->cp = entry->status_lines.nspgid) == NULL)
+	    return PM_ERR_APPVERSION;
+	break;
+
+	case PROC_PID_STATUS_NSSID:
+	if ((atom->cp = entry->status_lines.nssid) == NULL)
+	    return PM_ERR_APPVERSION;
 	break;
 
 	default:
@@ -2305,6 +2460,15 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case CG_MEMORY_STAT_RECENT_SCANNED_FILE:
 	    atom->ull = memory->recent_scanned_file;
+	    break;
+	case CG_MEMORY_USAGE_IN_BYTES:
+	    atom->ull = memory->usage;
+	    break;
+	case CG_MEMORY_LIMIT_IN_BYTES:
+	    atom->ull = memory->limit;
+	    break;
+	case CG_MEMORY_FAILCNT:
+	    atom->ull = memory->failcnt;
 	    break;
 	default:
 	    return PM_ERR_PMID;
