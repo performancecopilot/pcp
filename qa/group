@@ -965,6 +965,7 @@ cgroups
 767 pmda.linux local containers
 768 pmlogextract local
 769 other local
+774 pmdumplog local
 775 sanity pmfind local
 776 pmfind local
 779 pmda local
@@ -1057,7 +1058,6 @@ cgroups
 991 pcp python local
 993 pmlogger pmdumplog local
 994 other verify
-995 pmdumplog local
 996 pmdiff local
 997 pmlogextract local
 999 pmns local
