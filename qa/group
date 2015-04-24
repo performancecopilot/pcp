@@ -166,6 +166,7 @@ pmda.lustre
 pmda.mailq
 pmda.memcache
 pmda.mmv
+pmda.mounts
 pmda.mpi
 pmda.news
 pmda.nvidia
@@ -1002,6 +1003,7 @@ cgroups
 842 python local
 843 pmda local python
 844 pmda.linux local
+845 pmda.mounts local
 860 pmda pmda.proc ostest local
 861 pmcd pmda.pmcd local
 873 pmda.linux local

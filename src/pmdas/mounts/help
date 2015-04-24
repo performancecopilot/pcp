@@ -1,8 +1,8 @@
 #
-#  Copyright (c) 2001 Alan Bailey (bailey@mcs.anl.gov or abailey@ncsa.uiuc.edu) 
-#  for the portions of the code supporting the initial agent functionality.
-#  All rights reserved. 
-# Copyright (c)  2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2015 Red Hat.
+# Copyright (c) 2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2001 Alan Bailey (bailey@mcs.anl.gov or abailey@ncsa.uiuc.edu) 
+# All rights reserved. 
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -14,10 +14,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#
 # mounts PMDA help file in the ASCII format
 #
 # lines beginning with a # are ignored
@@ -34,14 +30,7 @@
 # blank lines before the @ line are ignored
 #
 
-@ mounts.device Tracks the current mounts
-Tracks the current mounts
-
-@ mounts.type Tracks the types of current mounts
-Tracks the types of current mounts
-
-@ mounts.options Tracks the mount options of current mounts
-Tracks the mount options of current mounts
-
-@ mounts.up Simply tells that the mount is up
-Simply tells that the mount is up
+@ mounts.device the currently mounted devices from mounts.conf
+@ mounts.type the filesystem types of current mounts from mounts.conf
+@ mounts.options the mount options of current mounts from mounts.conf
+@ mounts.up whether a tracked mount is currently up (one or zero)
