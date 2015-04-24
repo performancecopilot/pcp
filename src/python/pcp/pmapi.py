@@ -142,10 +142,12 @@ class pmErr(Exception):
         return str(errStr.decode())
 
     def progname(self):
-        return c_char_p.in_dll(LIBPCP, "pmProgname").value
+        return str(c_char_p.in_dll(LIBPCP, "pmProgname").value.decode())
 
 class pmUsageErr(Exception):
     def message(self):
+        for index in range(0, len(self.args)):
+            LIBPCP.pmprintf(str(self.args[index]).encode('utf-8'))
         return c_api.pmUsageMessage()
 
 

@@ -166,9 +166,7 @@ class IostatOptions(pmapi.pmOptions):
 
     def extraOptions(self, opt, optarg, index):
         if opt == "x":
-            IostatOptions.xflag = optarg.replace(',', ' ').split(' ')
-        else:
-            print("Warning: option '%s' not recognised" % opt)
+            IostatOptions.xflag += optarg.replace(',', ' ').split(' ')
 
     def __init__(self):
         pmapi.pmOptions.__init__(self, "A:a:D:h:O:S:s:T:t:VZ:z?x:")

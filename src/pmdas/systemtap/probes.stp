@@ -1,6 +1,0 @@
-probe kernel.function("vfs_readdir") {
-  printf ("readdir: (%d) %s\n", pid(), execname())
-}
-probe kernel.function("sys_sync") {
-  printf ("sync: (%d) %s\n", pid(), execname())
-}

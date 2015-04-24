@@ -1,0 +1,14 @@
+QA output created by 982
+hotproc.control.refresh new value=1
+hotproc.control.config new value="fname == "pmdaproc""
+
+hotproc.nprocs
+    value 1
+
+hotproc.control.refresh
+    value 1
+
+hotproc.control.config
+    value "(fname == "pmdaproc")"
+hotproc.control.refresh new value=10
+hotproc.control.config new value=""

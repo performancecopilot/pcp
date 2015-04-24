@@ -12,8 +12,8 @@
  * License for more details.
  */
 
-#ifndef _PMAFM_H
-#define _PMAFM_H
+#ifndef PCP_PMAFM_H
+#define PCP_PMAFM_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,4 +44,4 @@ extern int pmRecordControl(pmRecordHost *, int, const char *);
 }
 #endif
 
-#endif	/* _PMAFM_H */
+#endif	/* PCP_PMAFM_H */

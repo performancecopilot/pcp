@@ -12,8 +12,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
  */
-#ifndef _MMV_DEV_H
-#define _MMV_DEV_H
+#ifndef PCP_MMV_DEV_H
+#define PCP_MMV_DEV_H
 
 #define MMV_VERSION	1
 
@@ -81,4 +81,4 @@ typedef struct {
     __int32_t		cluster;	/* preferred PMDA cluster identifier */
 } mmv_disk_header_t;
 
-#endif /* _MMV_DEV_H */
+#endif /* PCP_MMV_DEV_H */
