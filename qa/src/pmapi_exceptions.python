@@ -23,6 +23,8 @@ except pmapi.pmUsageErr as usage:
     usage.message()
 except:
     print('-- unexpected exception, wanted pmUsageErr')
+sys.stdout.flush()
+sys.stderr.flush()
 
 try:
     raise pmapi.pmUsageErr
@@ -31,6 +33,8 @@ except pmapi.pmUsageErr as usage:
     usage.message()
 except:
     print('-- unexpected exception, wanted pmUsageErr')
+sys.stdout.flush()
+sys.stderr.flush()
 
 try:
     raise pmapi.pmErr(cpmapi.PM_ERR_GENERIC)
@@ -39,6 +43,8 @@ except pmapi.pmErr as error:
     print('%s: %s' % (error.progname(), error.message()))
 except:
     print('-- unexpected exception, wanted pmErr')
+sys.stdout.flush()
+sys.stderr.flush()
 
 try:
     raise pmapi.pmErr(cpmapi.PM_ERR_GENERIC, '[extra information]')
@@ -47,3 +53,5 @@ except pmapi.pmErr as error:
     print('%s: %s' % (error.progname(), error.message()))
 except:
     print('-- unexpected exception, wanted pmErr')
+sys.stdout.flush()
+sys.stderr.flush()
