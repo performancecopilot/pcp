@@ -1060,6 +1060,7 @@ cgroups
 991 pcp python local
 993 pmlogger pmdumplog local
 994 other verify
+995 python local
 996 pmdiff local
 997 pmlogextract local
 999 pmns local
