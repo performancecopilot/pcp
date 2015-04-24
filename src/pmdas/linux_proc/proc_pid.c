@@ -545,7 +545,9 @@ hotproc_eval_procs(void)
 	/* IO demand */
 	/* Read */
 	
-	if ((f = _pm_getfield(ioentry->io_lines.readb, 1)) == NULL)
+        if( !ioentry ) /* ioentry is not enabled on all kernels */
+            ull = 0;
+	else if ((f = _pm_getfield(ioentry->io_lines.readb, 1)) == NULL)
 	    ull = 0;
 	else
 	    ull = (__uint64_t)strtoull(f, &tail, 0);
@@ -554,7 +556,9 @@ hotproc_eval_procs(void)
 
 	/* Write */
 
-	if ((f = _pm_getfield(ioentry->io_lines.writeb, 1)) == NULL)
+        if( !ioentry ) /* ioentry is not enabled on all kernels */
+            ull = 0;
+	else if ((f = _pm_getfield(ioentry->io_lines.writeb, 1)) == NULL)
 	    ull = 0;
 	else
 	    ull = (__uint64_t)strtoull(f, &tail, 0);
