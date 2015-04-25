@@ -47,6 +47,14 @@
 #define PMID_MASK	0x7fffffff	/* 31 bits of PMID */
 #define MARK_BIT	0x80000000	/* mark bit */
 
+/*
+ * conditional controls
+ */
+#define NO_DUPS		0
+#define DUPS_OK		1
+#define NO_CPP		0
+#define USE_CPP		1
+
 
 static int	lineno;
 static char	linebuf[256];
@@ -98,8 +106,8 @@ static int export;
 
 static int havePmLoadCall;
 
-static int load(const char *filename, int dupok);
-static __pmnsNode *locate(const char *name, __pmnsNode *root);
+static int load(const char *, int, int);
+static __pmnsNode *locate(const char *, __pmnsNode *);
 
 /*
  * Helper routine to report all the names for a metric ...
@@ -154,7 +162,7 @@ pmPMNSLocationStr(int location)
 
 
 static int
-LoadDefault(char *reason_msg)
+LoadDefault(char *reason_msg, int use_cpp)
 {
     if (main_pmns == NULL) {
 #ifdef PCP_DEBUG
@@ -165,7 +173,7 @@ LoadDefault(char *reason_msg)
 	}
 #endif
 	/* duplicate names in the PMNS are OK now ... */
-	if (load(PM_NS_DEFAULT, 1) < 0)
+	if (load(PM_NS_DEFAULT, DUPS_OK, NO_CPP) < 0)
 	    return PM_ERR_NOPMNS;
 	else
 	    return PMNS_LOCAL;
@@ -229,7 +237,7 @@ pmGetPMNSLocation(void)
 			/* Local context requires single-threaded applications */
 			pmns_location = PM_ERR_THREAD;
 		    else
-			pmns_location = LoadDefault("local");
+			pmns_location = LoadDefault("local", 0);
 		    break;
 
 		case PM_CONTEXT_ARCHIVE:
@@ -374,11 +382,15 @@ err(char *s)
 
 /*
  * lexical analyser for loading the ASCII pmns
+ * reset == 0 => get next token
+ * reset == 1 => initialize to pre-process with pmcpp
+ * reset == 2 => initialize without pmcpp, e.g. for PM_CONTEXT_LOCAL
  */
 static int
 lex(int reset)
 {
     static int	first = 1;
+    static int	use_cpp;
     static FILE	*fin;
     static char	*lp;
     char	*tp;
@@ -388,31 +400,41 @@ lex(int reset)
     __pmID_int	pmid_int;
 
     if (reset) {
-	/* reset! */
+	/* reset/initialize */
 	linep = NULL;
 	first = 1;
+	if (reset == 2)
+	    use_cpp = NO_CPP;
+	else
+	    use_cpp = USE_CPP;
 	return 0;
     }
 
     if (first) {
-	char	*alt;
-	char	cmd[80+MAXPATHLEN];
+	if (use_cpp == USE_CPP) {
+	    char	*alt;
+	    char	cmd[80+MAXPATHLEN];
 
-	first = 0;
-	if ((alt = getenv("PCP_ALT_CPP")) != NULL) {
-	    /* $PCP_ALT_CPP used in the build before pmcpp installed */
-	    snprintf(cmd, sizeof(cmd), "%s %s", alt, fname);
+	    first = 0;
+	    if ((alt = getenv("PCP_ALT_CPP")) != NULL) {
+		/* $PCP_ALT_CPP used in the build before pmcpp installed */
+		snprintf(cmd, sizeof(cmd), "%s %s", alt, fname);
+	    }
+	    else {
+		/* the normal case ... */
+		int		sep = __pmPathSeparator();
+		char	*bin_dir = pmGetConfig("PCP_BINADM_DIR");
+		snprintf(cmd, sizeof(cmd), "%s%c%s %s", bin_dir, sep, "pmcpp" EXEC_SUFFIX, fname);
+	    }
+
+	    fin = popen(cmd, "r");
+	    if (fin == NULL)
+		return -oserror();
 	}
 	else {
-	    /* the normal case ... */
-	    int		sep = __pmPathSeparator();
-	    char	*bin_dir = pmGetConfig("PCP_BINADM_DIR");
-	    snprintf(cmd, sizeof(cmd), "%s%c%s %s", bin_dir, sep, "pmcpp" EXEC_SUFFIX, fname);
+	    if ((fin = fopen(fname, "r")) == NULL)
+		return -oserror();
 	}
-
-	fin = popen(cmd, "r");
-	if (fin == NULL)
-	    return -oserror();
 
 	lp = linebuf;
 	*lp = '\0';
@@ -427,13 +449,20 @@ lex(int reset)
 	    int		inspace = 0;
 
 	    if (fgets(linebuf, sizeof(linebuf), fin) == NULL) {
-		if (pclose(fin) != 0) {
-		    lineno = -1; /* We're outside of line counting range now */
-		    err("pmcpp returned non-zero exit status");
-		    return PM_ERR_PMNS;
-		} else {
-		    return 0;
+		lineno = -1; /* We're outside of line counting range now */
+		if (use_cpp == USE_CPP) {
+		    if (pclose(fin) != 0) {
+			err("pmcpp returned non-zero exit status");
+			return PM_ERR_PMNS;
+		    }
 		}
+		else {
+		    if (fclose(fin) != 0) {
+			err("fclose returned non-zero exit status");
+			return PM_ERR_PMNS;
+		    }
+		}
+		return 0;
 	    }
 	    for (q = p = linebuf; *p; p++) {
 		if (isspace((int)*p)) {
@@ -699,7 +728,7 @@ backlink(__pmnsTree *tree, __pmnsNode *root, int dupok)
 	    __pmnsNode	*xp;
 	    i = np->pmid % tree->htabsize;
 	    for (xp = tree->htab[i]; xp != NULL; xp = xp->hash) {
-		if (xp->pmid == np->pmid && !dupok &&
+		if (xp->pmid == np->pmid && dupok == NO_DUPS &&
 		    (pmid_domain(np->pmid) != DYNAMIC_PMID || pmid_item(np->pmid) != 0)) {
 		    char	*nn, *xn;
 		    char	strbuf[20];
@@ -1017,7 +1046,7 @@ __pmAddPMNSNode(__pmnsTree *tree, int pmid, const char *name)
  *	3	RBRACE	0
  */
 static int
-loadascii(int dupok)
+loadascii(int dupok, int use_cpp)
 {
     int		state = 0;
     int		type;
@@ -1025,12 +1054,17 @@ loadascii(int dupok)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PMNS)
-	fprintf(stderr, "loadascii(file=%s)\n", fname);
+	fprintf(stderr, "loadascii(dupok=%d, use_cpp=%d) fname=%s\n", dupok, use_cpp, fname);
 #endif
 
 
-    /* do some resets */
-    lex(1);      /* reset analyzer */
+    /* do some lexical scanner resets */
+    if (fname == PM_NS_DEFAULT)
+	/* default PMNS, skip pmcpp if asked to do so */
+	lex(1+use_cpp);
+    else
+	/* use pmcpp unconditionally */
+	lex(1);
     seen = NULL; /* make seen-list empty */
     seenpmid = 0;
 
@@ -1265,7 +1299,7 @@ done:
 }
 
 static int
-load(const char *filename, int dupok)
+load(const char *filename, int dupok, int use_cpp)
 {
     int 	i = 0;
 
@@ -1289,8 +1323,8 @@ load(const char *filename, int dupok)
  
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PMNS)
-	fprintf(stderr, "load(name=%s, dupok=%d) lic case=%d fname=%s\n",
-		filename, dupok, i, fname);
+	fprintf(stderr, "load(name=%s, dupok=%d, use_cpp=%d) lic case=%d fname=%s\n",
+		filename, dupok, use_cpp, i, fname);
 #endif
 
     /* Note modification time of pmns file */
@@ -1309,9 +1343,17 @@ load(const char *filename, int dupok)
     }
 
     /*
+     * use_cpp passed in is a hint ... if it is USE_CPP and filename
+     * is PM_NS_DEFAULT (NULL) then we can safely change to NO_CPP
+     * because the PMNS file contains no cpp-style controls or macros
+     */
+    if (use_cpp == USE_CPP && filename == PM_NS_DEFAULT)
+	use_cpp = NO_CPP;
+
+    /*
      * load ASCII PMNS
      */
-    return loadascii(dupok);
+    return loadascii(dupok, use_cpp);
 }
 
 /*
@@ -1373,7 +1415,14 @@ locate(const char *name, __pmnsNode *root)
 int
 pmLoadNameSpace(const char *filename)
 {
-    return pmLoadASCIINameSpace(filename, 1);
+    int	sts;
+
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+    havePmLoadCall = 1;
+    sts = load(filename, DUPS_OK, NO_CPP);
+    PM_UNLOCK(__pmLock_libpcp);
+    return sts;
 }
 
 int
@@ -1384,7 +1433,7 @@ pmLoadASCIINameSpace(const char *filename, int dupok)
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     havePmLoadCall = 1;
-    sts = load(filename, dupok);
+    sts = load(filename, dupok, USE_CPP);
     PM_UNLOCK(__pmLock_libpcp);
     return sts;
 }
