@@ -34,6 +34,13 @@ or
 If the application is to use a distributed PMNS, then it should NOT
 make a call to load the PMNS explicitly.
 .PP
+Most applications using a
+Performance Metrics Application Programming Interface (PMAPI)
+context
+(of any type, so PM_CONTEXT_HOST or PM_CONTEXT_ARCHIVE or PM_CONTEXT_LOCAL)
+should not need to call
+.BR pmLoadNameSpace .
+.PP
 The
 .I filename
 argument designates the PMNS of interest.
@@ -55,16 +62,26 @@ to the file containing the default local PMNS.
 Externally a PMNS is stored in an ASCII format as
 described in
 .BR pmns (5).
+However, note that
+.B pmLoadNameSpace
+assumes
+.I filename
+does not contain any C-style comments, pre-processor directives or
+macros; if this is not the case,
+.BR pmLoadASCIINameSpace (3)
+should be used instead.
 .PP
 As of Version 3.10.3 of PCP, by default,
 multiple names in the PMNS
 .B are
 allowed to be
 associated with a single Performance
-Metrics Identifier (PMID).
+Metrics Identifier (PMID) and this is unconditionally allowed
+by
+.BR pmLoadNameSpace .
 .BR pmLoadASCIINameSpace (3)
 provides an alternative interface with user-defined control
-over the processing of duplicate names for the same PMID in the PMNS.
+over the handling of duplicate names for the same PMID in the PMNS.
 .PP
 .B pmLoadNameSpace
 returns zero on success.
