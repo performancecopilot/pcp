@@ -156,7 +156,7 @@ main(int argc, char **argv)
     int			sep = __pmPathSeparator();
     pmdaInterface	desc;
     int			c;
-    char		*namespace = NULL;
+    char		*namespace = PM_NS_DEFAULT;
 
     _isDSO = 0;
     __pmSetProgname(argv[0]);
@@ -179,9 +179,12 @@ main(int argc, char **argv)
     if (err)
 	usage();
 
-    if (namespace) {
-	if (pmLoadNameSpace(namespace))
+    if (namespace != PM_NS_DEFAULT) {
+	int	sts;
+	if ((sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
+	    fprintf(stderr, "Error: pmLoadASCIINameSpace: %s\n", pmErrStr(sts));
 	    exit(1);
+	}
 
 	for (c = 0; c < metrictab_sz; c++) {
 	    char **names;
