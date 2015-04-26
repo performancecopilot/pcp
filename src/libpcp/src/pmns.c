@@ -383,8 +383,8 @@ err(char *s)
 /*
  * lexical analyser for loading the ASCII pmns
  * reset == 0 => get next token
- * reset == 1 => initialize to pre-process with pmcpp
- * reset == 2 => initialize without pmcpp, e.g. for PM_CONTEXT_LOCAL
+ * reset == 1+NO_CPP => initialize to pre-process with pmcpp and popen()
+ * reset == 1+USE_CPP => initialize to use fopen() not popen()
  */
 static int
 lex(int reset)
@@ -399,13 +399,14 @@ lex(int reset)
     int		d, c, i;
     __pmID_int	pmid_int;
 
-    if (reset) {
+    if (reset == 1+NO_CPP || reset == 1+USE_CPP) {
 	/* reset/initialize */
 	linep = NULL;
 	first = 1;
-	if (reset == 2)
+	if (reset == 1+NO_CPP)
 	    use_cpp = NO_CPP;
 	else
+	    /* else assume pmcpp(1) needed */
 	    use_cpp = USE_CPP;
 	return 0;
     }
@@ -415,7 +416,6 @@ lex(int reset)
 	    char	*alt;
 	    char	cmd[80+MAXPATHLEN];
 
-	    first = 0;
 	    if ((alt = getenv("PCP_ALT_CPP")) != NULL) {
 		/* $PCP_ALT_CPP used in the build before pmcpp installed */
 		snprintf(cmd, sizeof(cmd), "%s %s", alt, fname);
@@ -427,8 +427,7 @@ lex(int reset)
 		snprintf(cmd, sizeof(cmd), "%s%c%s %s", bin_dir, sep, "pmcpp" EXEC_SUFFIX, fname);
 	    }
 
-	    fin = popen(cmd, "r");
-	    if (fin == NULL)
+	    if ((fin = popen(cmd, "r")) == NULL)
 		return -oserror();
 	}
 	else {
@@ -436,6 +435,7 @@ lex(int reset)
 		return -oserror();
 	}
 
+	first = 0;
 	lp = linebuf;
 	*lp = '\0';
     }
@@ -1044,6 +1044,16 @@ __pmAddPMNSNode(__pmnsTree *tree, int pmid, const char *name)
  *	3	NAME	3
  *	3	PMID	2
  *	3	RBRACE	0
+ *
+ * dupok
+ *	NO_DUPS	duplicate names are not allowed
+ *	DUPS_OK	duplicate names are allowed
+ *
+ * use_cpp
+ *	NO_CPP	just fopen() the PMNS file
+ *	USE_CPP	pre-process the PMNS file with pmcpp(1)
+ *
+ * PMNS file (fname) set up before we get here ...
  */
 static int
 loadascii(int dupok, int use_cpp)
@@ -1058,13 +1068,9 @@ loadascii(int dupok, int use_cpp)
 #endif
 
 
-    /* do some lexical scanner resets */
-    if (fname == PM_NS_DEFAULT)
-	/* default PMNS, skip pmcpp if asked to do so */
-	lex(1+use_cpp);
-    else
-	/* use pmcpp unconditionally */
-	lex(1);
+    /* reset the lexical scanner */
+    lex(1+use_cpp);
+
     seen = NULL; /* make seen-list empty */
     seenpmid = 0;
 
