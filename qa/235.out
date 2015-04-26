@@ -33,7 +33,7 @@ pmnsmerge: Error: cannot create output PMNS file "out-pmns": Permission denied
 [in:2] Error Parsing ASCII PMNS: Expected NAME, PMID or }
     bogus - this is not correct
           ^
-pmnsmerge: Error: pmLoadNameSpace(in): Problems parsing PMNS definitions
+pmnsmerge: Error: pmLoadASCIINameSpace(in, 1): Problems parsing PMNS definitions
 
 === duplicate PMID in same group ==
 

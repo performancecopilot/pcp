@@ -50,7 +50,7 @@ required 1 log reads
 required 1 log reads
 required 2 log reads
 required 9 log reads
-load(name=(null), dupok=1, use_cpp=0) lic case=0 fname=PCP_VAR_DIR/pmns/root
+load(name=(null), dupok=1, use_cpp=1) lic case=0 fname=PCP_VAR_DIR/pmns/root
 loadascii(dupok=1, use_cpp=0) fname=PCP_VAR_DIR/pmns/root
 
 PM_CONTEXT_HOST, PM_NS_DEFAULT, pmLoadASCIINameSpace case ...

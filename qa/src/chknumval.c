@@ -112,8 +112,8 @@ Options\n\
 	exit(1);
     }
 
-    if ((sts = pmLoadNameSpace(namespace)) < 0) {
-	printf("%s: pmLoadNameSpace: %s\n", pmProgname, pmErrStr(sts));
+    if (namespace != PM_NS_DEFAULT && (sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
+	printf("%s: pmLoadASCIINameSpace: %s\n", pmProgname, pmErrStr(sts));
 	exit(1);
     }
 

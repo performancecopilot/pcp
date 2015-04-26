@@ -122,7 +122,7 @@ Options\n\
 	}
     }
 
-    if ((sts = pmLoadNameSpace(namespace)) < 0) {
+    if (namespace != PM_NS_DEFAULT && (sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
 	printf("%s: Cannot load namespace from \"%s\": %s\n", cmd, namespace, pmErrStr(sts));
 	exit(1);
     }
