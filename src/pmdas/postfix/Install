@@ -21,7 +21,7 @@
 iam=postfix
 perl_opt=true
 daemon_opt=false
-forced_restart=false
+forced_restart=true
 
 which qshape >/dev/null 2>&1
 if test $? -ne 0; then
