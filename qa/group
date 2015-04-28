@@ -1047,6 +1047,7 @@ cgroups
 967 pmda.papi local
 972 pmda.zswap dbpmda local
 973 pmda.zswap pmda.install local
+974 pmda.proc local
 976 dbpmda perl pmda.lustre local
 977 libpcp valgrind local containers
 978 libpcp getopt sanity local
