@@ -205,7 +205,7 @@ _filter_optional_pmdas()
 	-e '/pmdabrocade/d' \
 	-e '/pmdacisco/d' \
 	-e '/pmdadbping/d' \
-	-e '/pmdadmcache/d' \
+	-e '/pmdadm/d' \
 	-e '/pmdadmf/d' \
 	-e '/pmdads389/d' \
 	-e '/pmda_environ/d' \
@@ -299,6 +299,7 @@ _filter_top_pmns()
 	-e '/^    datatape /d' \
 	-e '/^    dbping /d' \
 	-e '/^    dmcache /d' \
+	-e '/^    dmthin /d' \
 	-e '/^    dmf /d' \
 	-e '/^    ds389 /d' \
 	-e '/^    elasticsearch /d' \
