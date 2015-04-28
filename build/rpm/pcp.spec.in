@@ -3,6 +3,11 @@
 %else
 %global with_python 0
 %endif
+%if 0%{?fedora} > 22 || 0%{?rhel} > 7
+%global with_compat 0
+%else
+%global with_compat 1
+%endif
 Summary: System-level performance monitoring and performance management
 Name: @package_name@
 Version: @package_version@
@@ -127,7 +132,7 @@ Group: System Environment/Libraries
 Summary: Performance Co-Pilot run-time libraries
 URL: http://www.pcp.io
 Requires: pcp-conf = @package_version@
-%if 0%{?fedora} <= 22 || 0%{?rhel} <= 7
+%if %{with_compat}
 Requires: pcp-compat
 %endif
 Obsoletes: pcp < 3.0
@@ -1267,7 +1272,7 @@ collecting metrics about web server logs.  The PMDA is written in C.
 # end C pmdas
 
 # pcp-compat
-%if 0%{?fedora} <= 22 || 0%{?rhel} <= 7
+%if %{with_compat}
 %package compat
 License: GPLv2+
 Group: Applications/System
@@ -1289,6 +1294,43 @@ This package contains the PCP compatibility dependencies for pmdas on existing
 systems.  This is not a package that should be depended on, and will be removed
 in future releases of Fedora.
 %endif #compat
+
+# pcp-collector metapackage
+%if !%{with_compat}
+%package collector
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) Collection meta Package
+URL: http://www.pcp.io
+Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
+Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pmda-lustre
+Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
+Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql
+Requires: pcp-pmda-samba pcp-pmda-snmp pcp-pmda-systemtap pcp-pmda-vmware pcp-pmda-zimbra
+Requires: pcp-pmda-dm pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-apache
+Requires: pcp-pmda-dm pcp-pmda-gluster pcp-pmda-unbound pcp-pmda-apache
+Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
+Requires: pcp-pmda-nvidia pcp-pmda-roomtemp pcp-pmda-rpm pcp-pmda-sendmail pcp-pmda-shping
+Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
+%description collector
+This package contains the PCP metric collection dependencies.  This includes all possible packages used
+to collect PCP metrics.
+%endif
+# collector
+
+# pcp-monitor metapackage
+%if !%{with_compat}
+%package monitor
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) Monitoring meta Package
+URL: http://www.pcp.io
+Requires: pcp-gui pcp-system-tools pcp-webapi
+%description monitor
+This package contains the PCP metric monitoring dependencies. This includes all possible packages used
+to monitor PCP metrics in various ways.
+%endif
+# monitor
 
 %prep
 %setup -q
@@ -2033,7 +2075,6 @@ cd
 
 %if %{with_python}
 %files -n pcp-system-tools -f system_tools_files.rpm
-%defattr(-,root,root)
 
 %post system-tools
 ln -sf %{_libexecdir}/pcp/bin/pcp-collectl %{_bindir}/pmcollectl
@@ -2047,7 +2088,12 @@ rm %{_bindir}/pmatop
 rm %{_bindir}/pcp2graphite
 %endif
 
-%if 0%{?fedora} <= 22 || 0%{?rhel} <= 7
+%if %{with_compat}
 %files -n pcp-compat
-%defattr(-,root,root)
+%endif
+
+%if !%{with_compat}
+%files -n pcp-collector
+
+%files -n pcp-monitor
 %endif
