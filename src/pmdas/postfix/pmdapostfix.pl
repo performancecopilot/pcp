@@ -95,10 +95,18 @@ sub postfix_do_refresh
 sub postfix_log_parser
 {
     ( undef, $_ ) = @_;
+    my $do_sent = 0;
 
     if (/status=sent/) {
 	return unless (/ postfix\//);
+	$do_sent = 1;
+    }
+    elsif (/stat=Sent/) {
+	return unless (/relay=[^,]+/);
+	$do_sent = 1;
+    }
 
+    if ($do_sent == 1) {
 	my $relay = "";
 
 	if (/relay=([^,]+)/o) {
