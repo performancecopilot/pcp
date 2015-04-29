@@ -294,6 +294,7 @@ hotproc.control {
     refresh PROC:60:1
     config  PROC:60:8
     config_gen  PROC:60:9
+    reload_config PROC:60:10
 }
 
 hotproc.total {

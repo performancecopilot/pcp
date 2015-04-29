@@ -1351,6 +1351,9 @@ static pmdaMetric metrictab[] = {
     /* hotproc.control.config_gen */
     { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_CONFIG_GEN),
       PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
+    /* hotproc.control.reload_config */
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_RELOAD_CONFIG),
+      PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
     /* hotproc.total.cpuidle */
     { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_CPUIDLE),
       PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
@@ -1663,6 +1666,9 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case ITEM_HOTPROC_G_CONFIG_GEN:
 	    atom->ul = conf_gen;
+	    break;
+	case ITEM_HOTPROC_G_RELOAD_CONFIG:
+	    atom->ul = 0;
 	    break;
 	case ITEM_HOTPROC_G_CPUIDLE:
 	    atom->f = have_totals ? tci : 0;
@@ -2892,6 +2898,13 @@ proc_store(pmResult *result, pmdaExt *pmda)
 		}
 		break;
 	    }
+            case ITEM_HOTPROC_G_RELOAD_CONFIG:
+		if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+				PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
+                    hotproc_init();
+                    reset_hotproc_timer();
+		}
+		break;
 
 	    default:
 		sts = PM_ERR_PERMISSION;
