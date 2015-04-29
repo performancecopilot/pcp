@@ -166,6 +166,7 @@ pmda.lustre
 pmda.mailq
 pmda.memcache
 pmda.mmv
+pmda.mounts
 pmda.mpi
 pmda.news
 pmda.nvidia
@@ -965,6 +966,8 @@ cgroups
 767 pmda.linux local containers
 768 pmlogextract local
 769 other local
+770 libpcp pdu fault local
+774 pmdumplog local
 775 sanity pmfind local
 776 pmfind local
 779 pmda local
@@ -1002,6 +1005,7 @@ cgroups
 842 python local
 843 pmda local python
 844 pmda.linux local
+845 pmda.mounts local
 860 pmda pmda.proc ostest local
 861 pmcd pmda.pmcd local
 873 pmda.linux local
@@ -1058,6 +1062,7 @@ cgroups
 991 pcp python local
 993 pmlogger pmdumplog local
 994 other verify
+995 python local
 996 pmdiff local
 997 pmlogextract local
 999 pmns local
@@ -1097,4 +1102,5 @@ cgroups
 1049 pmie pmieconf local
 1050 pmieconf local
 1051 pmieconf #696008 local
+1091 pmns libpcp context local
 1108 logutil local folio pmlogextract

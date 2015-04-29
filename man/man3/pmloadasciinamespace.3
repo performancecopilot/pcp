@@ -34,17 +34,12 @@ or
 If the application wants to use a distributed PMNS, then it should NOT
 make a call to load the PMNS explicitly.
 .PP
-.B pmLoadASCIINameSpace
-is a variant of
-.BR pmLoadNameSpace (3)
-in which the
-.I dupok
-argument may be used to control the handling of multiple names
-in the PMNS that may be associated with a single Performance Metric
-Identifier (PMID).  A value of 0 disallows duplicates, any other value allows
-duplicates and the latter is the default behaviour of
-.BR pmLoadNameSpace (3)
-as of Version 3.10.3 of PCP.
+Most applications using a
+Performance Metrics Application Programming Interface (PMAPI)
+context
+(of any type, so PM_CONTEXT_HOST or PM_CONTEXT_ARCHIVE or PM_CONTEXT_LOCAL)
+should not need to call
+.BR pmLoadASCIINameSpace .
 .PP
 The
 .I filename
@@ -63,6 +58,33 @@ unless the environment variable
 .B PMNS_DEFAULT
 is set, in which case the value is assumed to be the pathname
 to the file containing the default local PMNS.
+.PP
+.B pmLoadASCIINameSpace
+is a variant of
+.BR pmLoadNameSpace (3)
+in which the
+.I dupok
+argument may be used to control the handling of multiple names
+in the PMNS that may be associated with a single Performance Metric
+Identifier (PMID).  A value of 0 disallows duplicates, any other value allows
+duplicates and the latter is the default behaviour of
+.BR pmLoadNameSpace (3)
+as of Version 3.10.3 of PCP.
+.PP
+The other difference is that when
+.B pmLoadASCIINameSpace
+is used and
+.I filename
+is 
+.B not
+PM_NS_DEFAULT, the PMNS file will always be pre-processed
+with
+.BR pmcpp (1)
+as described in
+.BR pmns (5).
+This allows a PMNS file that contains
+C-style comments, pre-processor directives or
+macros to be processed correctly before the PMNS is parsed.
 .PP
 .B pmLoadASCIINameSpace
 returns zero on success.

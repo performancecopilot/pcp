@@ -291,6 +291,7 @@ pmns.o
     export			# guarded by __pmLock_libpcp mutex
     fin				# guarded by __pmLock_libpcp mutex
     first			# guarded by __pmLock_libpcp mutex
+    use_cpp			# guarded by __pmLock_libpcp mutex
     fname			# guarded by __pmLock_libpcp mutex
     havePmLoadCall		# guarded by __pmLock_libpcp mutex
     last_mtim			# guarded by __pmLock_libpcp mutex

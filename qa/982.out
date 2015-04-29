@@ -9,6 +9,6 @@ hotproc.control.refresh
     value 1
 
 hotproc.control.config
-    value "fname == "pmdaproc""
+    value "(fname == "pmdaproc")"
 hotproc.control.refresh new value=10
 hotproc.control.config new value=""

@@ -487,7 +487,7 @@ hotproc_eval_procs(void)
 	ioentry = fetch_proc_pid_io(pid, hotproc_poss_pid, &sts);
 	schedstatentry = fetch_proc_pid_schedstat(pid, hotproc_poss_pid, &sts);
 
-	if (!statentry || !statusentry || !ioentry || !schedstatentry) {
+	if (!statentry || !statusentry || !ioentry /*|| !schedstatentry */ ) { /* schedstat not available everywhere */
 	    /* Can happen if the process was exiting during
 	     * refresh_proc_pidlist then the above fetch's will fail.
 	     * Would be best if they were not in the list at all
@@ -570,7 +570,9 @@ hotproc_eval_procs(void)
 	newnode->r_bwtime = (double)ul / hz;
 
 	/* Schedwait (run_delay) */
-	if ((f = _pm_getfield(schedstatentry->schedstat_buf, 1)) == NULL)
+        if( !schedstatentry ) /* schedstat is not enabled on all kernels */
+            ull =0;
+        else if ((f = _pm_getfield(schedstatentry->schedstat_buf, 1)) == NULL)
 	    ull = 0;
 	else
 	    ull  = (__uint64_t)strtoull(f, &tail, 0);

@@ -278,8 +278,8 @@ main(int argc, char **argv)
 	if (verbose)
 	    printf("%s:\n", argv[j]);
 
-	if ((sts = pmLoadNameSpace(argv[j])) < 0) {
-	    fprintf(stderr, "%s: Error: pmLoadNameSpace(%s): %s\n",
+	if ((sts = pmLoadASCIINameSpace(argv[j], 1)) < 0) {
+	    fprintf(stderr, "%s: Error: pmLoadASCIINameSpace(%s, 1): %s\n",
 		pmProgname, argv[j], pmErrStr(sts));
 	    exit(1);
 	}
@@ -310,8 +310,8 @@ main(int argc, char **argv)
     /*
      * now load the merged PMNS to check for errors ...
      */
-    if ((sts = pmLoadNameSpace(argv[argc-1])) < 0) {
-	fprintf(stderr, "%s: Error: pmLoadNameSpace(%s): %s\n",
+    if ((sts = pmLoadASCIINameSpace(argv[argc-1], 1)) < 0) {
+	fprintf(stderr, "%s: Error: pmLoadASCIINameSpace(%s, 1): %s\n",
 	    pmProgname, argv[argc-1], pmErrStr(sts));
 	exit(1);
     }

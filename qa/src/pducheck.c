@@ -94,6 +94,7 @@ foorand(void)
 static void
 _z(void)
 {
+    int			fatal = 0;	/* exit if set */
     __pmPDU		*pb;
     __pmTracePDU	*tpb;
     int			i;
@@ -101,7 +102,7 @@ _z(void)
     int			k;
     int			n;
     pmID		pmid;
-    pmResult		*rp;
+    pmResult		*rp = NULL;
     pmValueBlock	myvb;
     pmValueBlock	*gvbp;
     pmValueBlock	*xvbp;
@@ -153,26 +154,31 @@ _z(void)
     for (i = -1; i < 2; i += 2) {
 	if ((e = __pmSendError(fd[1], mypid, i * PM_ERR_GENERIC)) < 0) {
 	    fprintf(stderr, "Error: SendError: %s\n", pmErrStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else {
 	    if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 		fprintf(stderr, "Error: RecvError: %s\n", pmErrStr(e));
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else if (e == 0) {
 		fprintf(stderr, "Error: RecvError: end-of-file!\n");
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else if (e != PDU_ERROR) {
 		fprintf(stderr, "Error: RecvError: %s wrong type PDU!\n", __pmPDUTypeStr(e));
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else {
 		__pmOverrideLastFd(PDU_OVERRIDE2);
 		if ((e = __pmDecodeError(pb, &code)) < 0) {
 		    fprintf(stderr, "Error: DecodeError: %s\n", pmErrStr(e));
-		    exit(1);
+		    fatal = 1;
+		    goto cleanup;
 		}
 		else {
 		    if (code != i * PM_ERR_GENERIC)
@@ -187,109 +193,119 @@ _z(void)
     resp = NULL;
     num = 7;		/* the _maximum_ number of merics we have */
     rp = (pmResult *)malloc(sizeof(*rp) + (num -1)*sizeof(pmValueSet *));
+    rp->numpmid = 0;
     rp->timestamp.tv_sec = 30 * 60 * 60;	/* 30 hrs after the epoch */
     rp->timestamp.tv_usec = 123456;		/* plus a gnat */
-    i = 0;
     /* singular instance, insitu value */
-    rp->vset[i] = (pmValueSet *)malloc(sizeof(*rp->vset[0]));
-    rp->vset[i]->pmid = 0xdead;
-    rp->vset[i]->numval = 1;
-    rp->vset[i]->valfmt = PM_VAL_INSITU;
-    rp->vset[i]->vlist[0].inst = PM_IN_NULL;
-    rp->vset[i]->vlist[0].value.lval = 1234;
-    i++;
+    rp->vset[0] = (pmValueSet *)malloc(sizeof(*rp->vset[0]));
+    rp->numpmid = 1;
+    rp->vset[0]->pmid = 0xdead;
+    rp->vset[0]->numval = 1;
+    rp->vset[0]->valfmt = PM_VAL_INSITU;
+    rp->vset[0]->vlist[0].inst = PM_IN_NULL;
+    rp->vset[0]->vlist[0].value.lval = 1234;
     /* 3 instances, all values insitu */
-    rp->vset[i] = (pmValueSet *)malloc(sizeof(*rp->vset[1])+2*sizeof(pmValue));
-    rp->vset[i]->pmid = 0xbeef;
-    rp->vset[i]->numval = 3;
-    rp->vset[i]->valfmt = PM_VAL_INSITU;
-    rp->vset[i]->vlist[0].inst = 2;
-    rp->vset[i]->vlist[0].value.lval = 2345;
-    rp->vset[i]->vlist[1].inst = 4;
-    rp->vset[i]->vlist[1].value.lval = 3456;
-    rp->vset[i]->vlist[2].inst = 8;
-    rp->vset[i]->vlist[2].value.lval = 4567;
-    i++;
+    rp->vset[1] = (pmValueSet *)malloc(sizeof(*rp->vset[1])+2*sizeof(pmValue));
+    rp->numpmid = 2;
+    rp->vset[1]->pmid = 0xbeef;
+    rp->vset[1]->numval = 3;
+    rp->vset[1]->valfmt = PM_VAL_INSITU;
+    rp->vset[1]->vlist[0].inst = 2;
+    rp->vset[1]->vlist[0].value.lval = 2345;
+    rp->vset[1]->vlist[1].inst = 4;
+    rp->vset[1]->vlist[1].value.lval = 3456;
+    rp->vset[1]->vlist[2].inst = 8;
+    rp->vset[1]->vlist[2].value.lval = 4567;
     /* singular instance, STRING value in pmValueBlock */
-    rp->vset[i] = (pmValueSet *)malloc(sizeof(*rp->vset[0]));
-    rp->vset[i]->pmid = pmidlist[0];
-    rp->vset[i]->numval = 1;
-    rp->vset[i]->valfmt = PM_VAL_DPTR;
-    rp->vset[i]->vlist[0].inst = PM_IN_NULL;
-    rp->vset[i]->vlist[0].value.pval = &myvb;
-    rp->vset[i]->vlist[0].value.pval->vtype = PM_TYPE_STRING;
-    rp->vset[i]->vlist[0].value.pval->vlen = PM_VAL_HDR_SIZE + 2;
+    rp->vset[2] = (pmValueSet *)malloc(sizeof(*rp->vset[0]));
+    rp->numpmid = 3;
+    rp->vset[2]->pmid = pmidlist[0];
+    rp->vset[2]->numval = 1;
+    rp->vset[2]->valfmt = PM_VAL_DPTR;
+    rp->vset[2]->vlist[0].inst = PM_IN_NULL;
+    rp->vset[2]->vlist[0].value.pval = &myvb;
+    rp->vset[2]->vlist[0].value.pval->vtype = PM_TYPE_STRING;
+    rp->vset[2]->vlist[0].value.pval->vlen = PM_VAL_HDR_SIZE + 2;
     av.cp = "0";
-    if ((e = __pmStuffValue(&av, &rp->vset[i]->vlist[0], PM_TYPE_STRING)) < 0) {
+    rp->vset[2]->vlist[0].value.pval = NULL;
+    if ((e = __pmStuffValue(&av, &rp->vset[2]->vlist[0], PM_TYPE_STRING)) < 0) {
 	fprintf(stderr, "Error: __pmStuffValue vset[%d] PM_TYPE_STRING: %s\n", i, pmErrStr(e));
-	exit(1);
+	fatal = 1;
+	goto cleanup;
     }
-    rp->vset[i]->vlist[0].value.pval->vbuf[0] = '0' + pass;
-    i++;
+    rp->vset[2]->vlist[0].value.pval->vbuf[0] = '0' + pass;
     /* singular instance, U64 value in pmValueBlock */
-    rp->vset[i] = (pmValueSet *)malloc(sizeof(*rp->vset[0]));
-    rp->vset[i]->pmid = pmidlist[1];
-    rp->vset[i]->numval = 1;
-    rp->vset[i]->vlist[0].inst = PM_IN_NULL;
+    rp->vset[3] = (pmValueSet *)malloc(sizeof(*rp->vset[0]));
+    rp->numpmid = 4;
+    rp->vset[3]->pmid = pmidlist[1];
+    rp->vset[3]->numval = 1;
+    rp->vset[3]->vlist[0].inst = PM_IN_NULL;
     av.ull = 0x8765432112345678LL;
-    if ((e = __pmStuffValue(&av, &rp->vset[i]->vlist[0], PM_TYPE_U64)) < 0) {
+    if ((e = __pmStuffValue(&av, &rp->vset[3]->vlist[0], PM_TYPE_U64)) < 0) {
 	fprintf(stderr, "Error: __pmStuffValue vset[%d] PM_TYPE_U64: %s\n", i, pmErrStr(e));
-	exit(1);
+	fatal = 1;
+	goto cleanup;
     }
-    rp->vset[i]->valfmt = e;
-    i++;
+    rp->vset[3]->valfmt = e;
     /* singular instance, FLOAT value in pmValueBlock */
-    rp->vset[i] = (pmValueSet *)malloc(sizeof(*rp->vset[0]));
-    rp->vset[i]->pmid = pmidlist[2];
-    rp->vset[i]->numval = 1;
-    rp->vset[i]->vlist[0].inst = PM_IN_NULL;
+    rp->vset[4] = (pmValueSet *)malloc(sizeof(*rp->vset[0]));
+    rp->numpmid = 5;
+    rp->vset[4]->pmid = pmidlist[2];
+    rp->vset[4]->numval = 1;
+    rp->vset[4]->vlist[0].inst = PM_IN_NULL;
     av.f = 4.3E+21;
-    if ((e = __pmStuffValue(&av, &rp->vset[i]->vlist[0], PM_TYPE_FLOAT)) < 0) {
+    if ((e = __pmStuffValue(&av, &rp->vset[4]->vlist[0], PM_TYPE_FLOAT)) < 0) {
 	fprintf(stderr, "Error: __pmStuffValue vset[%d] PM_TYPE_FLOAT: %s\n", i, pmErrStr(e));
-	exit(1);
+	fatal = 1;
+	goto cleanup;
     }
-    rp->vset[i]->valfmt = e;
-    i++;
+    rp->vset[4]->valfmt = e;
     /* singular instance, DOUBLE value in pmValueBlock */
-    rp->vset[i] = (pmValueSet *)malloc(sizeof(*rp->vset[0]));
-    rp->vset[i]->pmid = pmidlist[3];
-    rp->vset[i]->numval = 1;
-    rp->vset[i]->vlist[0].inst = PM_IN_NULL;
+    rp->vset[5] = (pmValueSet *)malloc(sizeof(*rp->vset[0]));
+    rp->numpmid = 6;
+    rp->vset[5]->pmid = pmidlist[3];
+    rp->vset[5]->numval = 1;
+    rp->vset[5]->vlist[0].inst = PM_IN_NULL;
     av.d = 4.56E+123;
-    if ((e = __pmStuffValue(&av, &rp->vset[i]->vlist[0], PM_TYPE_DOUBLE)) < 0) {
+    if ((e = __pmStuffValue(&av, &rp->vset[5]->vlist[0], PM_TYPE_DOUBLE)) < 0) {
 	fprintf(stderr, "Error: __pmStuffValue vset[%d] PM_TYPE_DOUBLE: %s\n", i, pmErrStr(e));
-	exit(1);
+	fatal = 1;
+	goto cleanup;
     }
-    rp->vset[i]->valfmt = e;
-    i++;
+    rp->vset[5]->valfmt = e;
     /* no values */
-    rp->vset[i] = (pmValueSet *)malloc(sizeof(*rp->vset[0]));
-    rp->vset[i]->pmid = 0xdeadcafe;
-    rp->vset[i]->numval = PM_ERR_GENERIC;
-    i++;
+    rp->vset[6] = (pmValueSet *)malloc(sizeof(*rp->vset[0]));
+    rp->numpmid = 7;
+    rp->vset[6]->pmid = 0xdeadcafe;
+    rp->vset[6]->numval = PM_ERR_GENERIC;
+
     /* done with setup, do it! */
-    rp->numpmid = i;
     if ((e = __pmSendResult(fd[1], mypid, rp)) < 0) {
 	fprintf(stderr, "Error: SendResult: %s\n", pmErrStr(e));
-	exit(1);
+	fatal = 1;
+	goto cleanup;
     }
     else {
 	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvResult: %s\n", pmErrStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e == 0) {
 	    fprintf(stderr, "Error: RecvResult: end-of-file!\n");
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e != PDU_RESULT) {
 	    fprintf(stderr, "Error: RecvResult: %s wrong type PDU!\n", __pmPDUTypeStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else {
 	    if ((e = __pmDecodeResult(pb, &resp)) < 0) {
 		fprintf(stderr, "Error: DecodeResult: %s\n", pmErrStr(e));
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	}
     }
@@ -394,26 +410,31 @@ _z(void)
     /* context no == 42 ... hack */
     if ((e = __pmSendProfile(fd[1], mypid, 42, &curprof)) < 0) {
 	fprintf(stderr, "Error: SendProfile: %s\n", pmErrStr(e));
-	exit(1);
+	fatal = 1;
+	goto cleanup;
     }
     else {
 	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvProfile: %s\n", pmErrStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e == 0) {
 	    fprintf(stderr, "Error: RecvProfile: end-of-file!\n");
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e != PDU_PROFILE) {
 	    fprintf(stderr, "Error: RecvProfile: %s wrong type PDU!\n", __pmPDUTypeStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else {
 	    profp = NULL;
 	    if ((e = __pmDecodeProfile(pb, &ctxnum, &profp)) < 0) {
 		fprintf(stderr, "Error: DecodeProfile: %s\n", pmErrStr(e));
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else {
 		if (ctxnum != 42)
@@ -466,25 +487,30 @@ _z(void)
 	n = 1 + (foorand() % n);
     if ((e = __pmSendFetch(fd[1], mypid, 43, (__pmTimeval *)0, n, pmidlist)) < 0) {
 	fprintf(stderr, "Error: SendFetch: %s\n", pmErrStr(e));
-	exit(1);
+	fatal = 1;
+	goto cleanup;
     }
     else {
 	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvFetch: %s\n", pmErrStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e == 0) {
 	    fprintf(stderr, "Error: RecvFetch: end-of-file!\n");
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e != PDU_FETCH) {
 	    fprintf(stderr, "Error: RecvFetch: %s wrong type PDU!\n", __pmPDUTypeStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else {
 	    if ((e = __pmDecodeFetch(pb, &ctxnum, &now, &num, &pmidp)) < 0) {
 		fprintf(stderr, "Error: DecodeFetch: %s\n", pmErrStr(e));
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else {
 		if (ctxnum != 43)
@@ -508,25 +534,30 @@ _z(void)
 /* PDU_DESC_REQ */
     if ((e = __pmSendDescReq(fd[1], mypid, 0xdeadbeef)) < 0) {
 	fprintf(stderr, "Error: SendDescReq: %s\n", pmErrStr(e));
-	exit(1);
+	fatal = 1;
+	goto cleanup;
     }
     else {
 	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvDescReq: %s\n", pmErrStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e == 0) {
 	    fprintf(stderr, "Error: RecvDescReq: end-of-file!\n");
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e != PDU_DESC_REQ) {
 	    fprintf(stderr, "Error: RecvDescReq: %s wrong type PDU!\n", __pmPDUTypeStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else {
 	    if ((e = __pmDecodeDescReq(pb, &pmid)) < 0) {
 		fprintf(stderr, "Error: DecodeDescReq: %s\n", pmErrStr(e));
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else {
 		if (pmid != 0xdeadbeef)
@@ -539,25 +570,30 @@ _z(void)
 /* PDU_DESC */
     if ((e = __pmSendDesc(fd[1], mypid, &desc)) < 0) {
 	fprintf(stderr, "Error: SendDesc: %s\n", pmErrStr(e));
-	exit(1);
+	fatal = 1;
+	goto cleanup;
     }
     else {
 	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvDesc: %s\n", pmErrStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e == 0) {
 	    fprintf(stderr, "Error: RecvDesc: end-of-file!\n");
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e != PDU_DESC) {
 	    fprintf(stderr, "Error: RecvDesc: %s wrong type PDU!\n", __pmPDUTypeStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else {
 	    if ((e = __pmDecodeDesc(pb, descp)) < 0) {
 		fprintf(stderr, "Error: DecodeDesc: %s\n", pmErrStr(e));
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else {
 		if (descp->pmid != desc.pmid)
@@ -604,25 +640,30 @@ _z(void)
 	__pmTimeval	tmp;
 	if ((e = __pmSendInstanceReq(fd[1], mypid, &now, 0xface, indomlist[i].inst, indomlist[i].name)) < 0) {
 	    fprintf(stderr, "Error: SendInstanceReq: %s\n", pmErrStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else {
 	    if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 		fprintf(stderr, "Error: RecvInstanceReq: %s\n", pmErrStr(e));
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else if (e == 0) {
 		fprintf(stderr, "Error: RecvInstanceReq: end-of-file!\n");
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else if (e != PDU_INSTANCE_REQ) {
 		fprintf(stderr, "Error: RecvInstanceReq: %s wrong type PDU!\n", __pmPDUTypeStr(e));
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else {
 		if ((e = __pmDecodeInstanceReq(pb, &tmp, &indom, &inst, &resname)) < 0) {
 		    fprintf(stderr, "Error: DecodeInstanceReq: %s\n", pmErrStr(e));
-		    exit(1);
+		    fatal = 1;
+		    goto cleanup;
 		}
 		else {
 		    if (tmp.tv_sec != now.tv_sec || tmp.tv_usec != now.tv_usec)
@@ -672,25 +713,30 @@ _z(void)
 	inresp = NULL;
 	if ((e = __pmSendInstance(fd[1], mypid, &inres)) < 0) {
 	    fprintf(stderr, "Error: SendInstance: %s\n", pmErrStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else {
 	    if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 		fprintf(stderr, "Error: RecvInstance: %s\n", pmErrStr(e));
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else if (e == 0) {
 		fprintf(stderr, "Error: RecvInstance: end-of-file!\n");
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else if (e != PDU_INSTANCE) {
 		fprintf(stderr, "Error: RecvInstance: %s wrong type PDU!\n", __pmPDUTypeStr(e));
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else {
 		if ((e = __pmDecodeInstance(pb, &inresp)) < 0) {
 		    fprintf(stderr, "Error: DecodeInstance: %s\n", pmErrStr(e));
-		    exit(1);
+		    fatal = 1;
+		    goto cleanup;
 		}
 		else {
 		    if (inresp->indom != inres.indom)
@@ -721,25 +767,30 @@ _z(void)
 /* PDU_TEXT_REQ */
     if ((e = __pmSendTextReq(fd[1], mypid, 0x12341234, PM_TEXT_PMID|PM_TEXT_ONELINE)) < 0) {
 	fprintf(stderr, "Error: SendTextReq: %s\n", pmErrStr(e));
-	exit(1);
+	fatal = 1;
+	goto cleanup;
     }
     else {
 	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvTextReq: %s\n", pmErrStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e == 0) {
 	    fprintf(stderr, "Error: RecvTextReq: end-of-file!\n");
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e != PDU_TEXT_REQ) {
 	    fprintf(stderr, "Error: RecvTextReq: %s wrong type PDU!\n", __pmPDUTypeStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else {
 	    if ((e = __pmDecodeTextReq(pb, &ident, &type)) < 0) {
 		fprintf(stderr, "Error: DecodeTextReq: %s\n", pmErrStr(e));
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else {
 		if (ident != 0x12341234)
@@ -756,26 +807,31 @@ _z(void)
 #define MARY "mary had a little lamb\nits fleece was white as snow\n"
     if ((e = __pmSendText(fd[1], mypid, 0x43214321, MARY)) < 0) {
 	fprintf(stderr, "Error: SendText: %s\n", pmErrStr(e));
-	exit(1);
+	fatal = 1;
+	goto cleanup;
     }
     else {
 	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvText: %s\n", pmErrStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e == 0) {
 	    fprintf(stderr, "Error: RecvText: end-of-file!\n");
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e != PDU_TEXT) {
 	    fprintf(stderr, "Error: RecvText: %s wrong type PDU!\n", __pmPDUTypeStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else {
 	    buffer = NULL;
 	    if ((e = __pmDecodeText(pb, &ident, &buffer)) < 0) {
 		fprintf(stderr, "Error: DecodeText: %s\n", pmErrStr(e));
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else {
 		if (ident != 0x43214321)
@@ -798,26 +854,31 @@ _z(void)
 #define USERNAME "pcpqa"
     if ((e = __pmSendAuth(fd[1], mypid, PCP_ATTR_USERNAME, USERNAME, sizeof(USERNAME))) < 0) {
 	fprintf(stderr, "Error: SendAuth: %s\n", pmErrStr(e));
-	exit(1);
+	fatal = 1;
+	goto cleanup;
     }
     else {
 	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvAuth: %s\n", pmErrStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e == 0) {
 	    fprintf(stderr, "Error: RecvAuth: end-of-file!\n");
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e != PDU_AUTH) {
 	    fprintf(stderr, "Error: RecvAuth: %s wrong type PDU!\n", __pmPDUTypeStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else {
 	    buffer = NULL;
 	    if ((e = __pmDecodeAuth(pb, &attr, &buffer, &count)) < 0) {
 		fprintf(stderr, "Error: DecodeAuth: %s\n", pmErrStr(e));
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else {
 		if (attr != PCP_ATTR_USERNAME)
@@ -853,26 +914,31 @@ _z(void)
 #endif
     if ((e = __pmSendCreds(fd[1], mypid, 1, increds)) < 0) {
 	fprintf(stderr, "Error: SendCreds: %s\n", pmErrStr(e));
-	exit(1);
+	fatal = 1;
+	goto cleanup;
     }
     else {
 	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvCreds: %s\n", pmErrStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e == 0) {
 	    fprintf(stderr, "Error: RecvCreds: end-of-file!\n");
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e != PDU_CREDS) {
 	    fprintf(stderr, "Error: RecvCreds: %s wrong type PDU!\n", __pmPDUTypeStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else {
 	    outcreds = NULL;
 	    if ((e = __pmDecodeCreds(pb, &sender, &count, &outcreds)) < 0) {
 		fprintf(stderr, "Error: DecodeCreds: %s\n", pmErrStr(e));
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else if (outcreds == NULL)
 		fprintf(stderr, "Botch: DecodeCreds: outcreds is NULL!\n");
@@ -906,26 +972,31 @@ _z(void)
 	n = 1 + (foorand() % n);
     if ((e = __pmSendIDList(fd[1], mypid, n, pmidlist, 43)) < 0) {
 	fprintf(stderr, "Error: SendIDList: %s\n", pmErrStr(e));
-	exit(1);
+	fatal = 1;
+	goto cleanup;
     }
     else {
 	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvIDList: %s\n", pmErrStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e == 0) {
 	    fprintf(stderr, "Error: RecvIDList: end-of-file!\n");
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e != PDU_PMNS_IDS) {
 	    fprintf(stderr, "Error: RecvIDList: %s wrong type PDU!\n", __pmPDUTypeStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else {
 	    pmID	mylist[6];
 	    if ((e = __pmDecodeIDList(pb, n, mylist, &k)) < 0) {
 		fprintf(stderr, "Error: DecodeIDList: %s\n", pmErrStr(e));
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else {
 		for (i = 0; i < n; i++) {
@@ -946,27 +1017,32 @@ _z(void)
 	n = 1 + (foorand() % n);
     if ((e = __pmSendNameList(fd[1], mypid, n, namelist, statlist)) < 0) {
 	fprintf(stderr, "Error: SendNameList: %s\n", pmErrStr(e));
-	exit(1);
+	fatal = 1;
+	goto cleanup;
     }
     else {
 	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvNameList: %s\n", pmErrStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e == 0) {
 	    fprintf(stderr, "Error: RecvNameList: end-of-file!\n");
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e != PDU_PMNS_NAMES) {
 	    fprintf(stderr, "Error: RecvNameList: %s wrong type PDU!\n", __pmPDUTypeStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else {
 	    resnamelist = NULL;
 	    resstatlist = NULL;
 	    if ((e = __pmDecodeNameList(pb, &num, &resnamelist, &resstatlist)) < 0) {
 		fprintf(stderr, "Error: DecodeNameList: %s\n", pmErrStr(e));
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else {
 		if (num != n)
@@ -994,27 +1070,32 @@ _z(void)
     /* and again, with NULL statlist */
     if ((e = __pmSendNameList(fd[1], mypid, n, namelist, NULL)) < 0) {
 	fprintf(stderr, "Error: SendNameList-2: %s\n", pmErrStr(e));
-	exit(1);
+	fatal = 1;
+	goto cleanup;
     }
     else {
 	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvNameList-2: %s\n", pmErrStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e == 0) {
 	    fprintf(stderr, "Error: RecvNameList-2: end-of-file!\n");
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e != PDU_PMNS_NAMES) {
 	    fprintf(stderr, "Error: RecvNameList-2: %s wrong type PDU!\n", __pmPDUTypeStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else {
 	    resnamelist = NULL;
 	    resstatlist = NULL;
 	    if ((e = __pmDecodeNameList(pb, &num, &resnamelist, &resstatlist)) < 0) {
 		fprintf(stderr, "Error: DecodeNameList-2: %s\n", pmErrStr(e));
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else {
 		if (num != n)
@@ -1041,26 +1122,31 @@ _z(void)
 /* PDU_PMNS_CHILD */
     if ((e = __pmSendChildReq(fd[1], mypid, "mumble.fumble", 1)) < 0) {
 	fprintf(stderr, "Error: SendChildReq: %s\n", pmErrStr(e));
-	exit(1);
+	fatal = 1;
+	goto cleanup;
     }
     else {
 	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvChildReq: %s\n", pmErrStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e == 0) {
 	    fprintf(stderr, "Error: RecvChildReq: end-of-file!\n");
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e != PDU_PMNS_CHILD) {
 	    fprintf(stderr, "Error: RecvChildReq: %s wrong type PDU!\n", __pmPDUTypeStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else {
 	    resname = NULL;
 	    if ((e = __pmDecodeChildReq(pb, &resname, &k)) < 0) {
 		fprintf(stderr, "Error: DecodeChildReq: %s\n", pmErrStr(e));
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else {
 		if (resname == NULL)
@@ -1081,26 +1167,31 @@ _z(void)
 /* PDU_PMNS_TRAVERSE */
     if ((e = __pmSendTraversePMNSReq(fd[1], mypid, "foo.bar.snort")) < 0) {
 	fprintf(stderr, "Error: SendTraversePMNSReq: %s\n", pmErrStr(e));
-	exit(1);
+	fatal = 1;
+	goto cleanup;
     }
     else {
 	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvTraversePMNSReq: %s\n", pmErrStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e == 0) {
 	    fprintf(stderr, "Error: RecvTraversePMNSReq: end-of-file!\n");
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e != PDU_PMNS_TRAVERSE) {
 	    fprintf(stderr, "Error: RecvTraversePMNSReq: %s wrong type PDU!\n", __pmPDUTypeStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else {
 	    resname = NULL;
 	    if ((e = __pmDecodeTraversePMNSReq(pb, &resname)) < 0) {
 		fprintf(stderr, "Error: DecodeTraversePMNSReq: %s\n", pmErrStr(e));
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else {
 		if (resname == NULL)
@@ -1123,25 +1214,30 @@ _z(void)
 	rp->vset[0]->numval  = nv;
 	if ((e = __pmSendLogControl(fd[1], rp, PM_LOG_MANDATORY, PM_LOG_MAYBE, 1000)) < 0) {
 	    fprintf(stderr, "Error: SendLogControl: numval=%d %s\n", nv, pmErrStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else {
 	    if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 		fprintf(stderr, "Error: RecvLogControl: numval=%d %s\n", nv, pmErrStr(e));
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else if (e == 0) {
 		fprintf(stderr, "Error: RecvLogControl: end-of-file!\n");
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else if (e != PDU_LOG_CONTROL) {
 		fprintf(stderr, "Error: RecvLogControl: numval=%d %s wrong type PDU!\n", nv, __pmPDUTypeStr(e));
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else {
 		if ((e = __pmDecodeLogControl(pb, &resp, &control, &state, &rate)) < 0) {
 		    fprintf(stderr, "Error: DecodeLogControl: numval=%d %s\n", nv, pmErrStr(e));
-		    exit(1);
+		    fatal = 1;
+		    goto cleanup;
 		}
 		else {
 		    if (state != PM_LOG_MAYBE)
@@ -1203,25 +1299,30 @@ _z(void)
     strcpy(logstat.ls_tzlogger, "TZ-HERE");
     if ((e = __pmSendLogStatus(fd[1], &logstat)) < 0) {
 	fprintf(stderr, "Error: SendLogStatus: %s\n", pmErrStr(e));
-	exit(1);
+	fatal = 1;
+	goto cleanup;
     }
     else {
 	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvLogStatus: %s\n", pmErrStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e == 0) {
 	    fprintf(stderr, "Error: RecvLogStatus: end-of-file!\n");
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e != PDU_LOG_STATUS) {
 	    fprintf(stderr, "Error: RecvLogStatus: %s wrong type PDU!\n", __pmPDUTypeStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else {
 	    if ((e = __pmDecodeLogStatus(pb, &lsp)) < 0) {
 		fprintf(stderr, "Error: DecodeLogStatus: %s\n", pmErrStr(e));
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else {
 		if (lsp->ls_start.tv_sec != logstat.ls_start.tv_sec)
@@ -1271,25 +1372,30 @@ _z(void)
 /* PDU_LOG_REQUEST */
     if ((e = __pmSendLogRequest(fd[1], LOG_REQUEST_SYNC)) < 0) {
 	fprintf(stderr, "Error: SendLogRequest: %s\n", pmErrStr(e));
-	exit(1);
+	fatal = 1;
+	goto cleanup;
     }
     else {
 	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
 	    fprintf(stderr, "Error: RecvLogRequest: %s\n", pmErrStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e == 0) {
 	    fprintf(stderr, "Error: RecvLogRequest: end-of-file!\n");
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e != PDU_LOG_REQUEST) {
 	    fprintf(stderr, "Error: RecvLogRequest: %s wrong type PDU!\n", __pmPDUTypeStr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else {
 	    if ((e = __pmDecodeLogRequest(pb, &k)) < 0) {
 		fprintf(stderr, "Error: DecodeLogRequest: %s\n", pmErrStr(e));
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else {
 		if (k != LOG_REQUEST_SYNC)
@@ -1302,25 +1408,30 @@ _z(void)
 /* TRACE_PDU_ACK */
     if ((e = __pmtracesendack(fd[1], 0x41)) < 0) {
 	fprintf(stderr, "Error: tracesendack: %s\n", pmtraceerrstr(e));
-	exit(1);
+	fatal = 1;
+	goto cleanup;
     }
     else {
 	if ((e = __pmtracegetPDU(fd[0], TRACE_TIMEOUT_DEFAULT, &tpb)) < 0) {
 	    fprintf(stderr, "Error: tracegetPDU: %s\n", pmtraceerrstr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e == 0) {
 	    fprintf(stderr, "Error: tracegetPDU: end-of-file!\n");
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else if (e != TRACE_PDU_ACK) {
 	    fprintf(stderr, "Error: tracegetPDU: 0x%x wrong type PDU!\n", e);
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else {
 	    if ((e = __pmtracedecodeack(tpb, &k)) < 0) {
 		fprintf(stderr, "Error: tracedecodeack: %s\n", pmtraceerrstr(e));
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else {
 		if (k != 0x41)
@@ -1338,25 +1449,30 @@ _z(void)
 	mytag[i] = '\0';
 	if ((e = __pmtracesenddata(fd[1], mytag, i+1, TRACE_TYPE_OBSERVE, i * pi)) < 0) {
 	    fprintf(stderr, "Error: tracesenddata: %s\n", pmtraceerrstr(e));
-	    exit(1);
+	    fatal = 1;
+	    goto cleanup;
 	}
 	else {
 	    if ((e = __pmtracegetPDU(fd[0], TRACE_TIMEOUT_DEFAULT, &tpb)) < 0) {
 		fprintf(stderr, "Error: tracegetPDU: %s\n", pmtraceerrstr(e));
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else if (e == 0) {
 		fprintf(stderr, "Error: tracegetPDU: end-of-file!\n");
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else if (e != TRACE_PDU_DATA) {
 		fprintf(stderr, "Error: tracegetPDU: 0x%x wrong type PDU!\n", e);
-		exit(1);
+		fatal = 1;
+		goto cleanup;
 	    }
 	    else {
 		if ((e = __pmtracedecodedata(tpb, &vp, &j, &k, &proto, &d)) < 0) {
 		    fprintf(stderr, "Error: tracedecodedata: %s\n", pmtraceerrstr(e));
-		    exit(1);
+		    fatal = 1;
+		    goto cleanup;
 		}
 		else {
 		    if (strcmp(vp, mytag) != 0)
@@ -1377,17 +1493,24 @@ _z(void)
 	}
     }
 
+cleanup:
+
     /* done with rp by now */
-    for (i = 0; i < rp->numpmid; i++) {
-	if (rp->vset[i]->numval > 0 && rp->vset[i]->valfmt == PM_VAL_DPTR) {
-	    for (j = 0; j < rp->vset[i]->numval; j++) {
-		if (rp->vset[i]->vlist[j].value.pval != NULL)
-		    free(rp->vset[i]->vlist[j].value.pval);
+    if (rp != NULL) {
+	for (i = 0; i < rp->numpmid; i++) {
+	    if (rp->vset[i]->numval > 0 && rp->vset[i]->valfmt == PM_VAL_DPTR) {
+		for (j = 0; j < rp->vset[i]->numval; j++) {
+		    if (rp->vset[i]->vlist[j].value.pval != NULL)
+			free(rp->vset[i]->vlist[j].value.pval);
+		}
 	    }
+	    free(rp->vset[i]);
 	}
-	free(rp->vset[i]);
+	free(rp);
     }
-    free(rp);
+
+    if (fatal)
+	exit(1);
 
 }
 

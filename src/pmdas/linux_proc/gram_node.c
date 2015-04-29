@@ -181,7 +181,14 @@ dump_var(FILE *f, bool_node *var)
     switch (var->tag) {
 	case N_str: fprintf(f, "\"%s\"", var->data.str_val); break;
 	case N_pat: fprintf(f, "\"%s\"", var->data.str_val); break;
-	case N_number: fprintf(f, "%f", var->data.num_val); break;
+	case N_number: {
+	    int val = (int)var->data.num_val;
+	    if ((double)val == var->data.num_val)
+		fprintf(f, "%d", val);
+	    else
+		fprintf(f, "%f", var->data.num_val);
+	    break;
+	}
 	case N_uid: fprintf(f, "uid"); break;
 	case N_gid: fprintf(f, "gid"); break;
 	case N_uname: fprintf(f, "uname"); break;
