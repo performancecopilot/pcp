@@ -135,6 +135,8 @@ static const struct {
         "Operation not supported for multi-threaded applications" },
     { PM_ERR_NOCONTAINER,	"PM_ERR_NOCONTAINER",
         "Container not found" },
+    { PM_ERR_STORE_FMT,	"PM_ERR_STORE_FMT",
+        "Bad input to pmstore" },
     /* insert new libpcp error codes here */
     { PM_ERR_NYI,		"PM_ERR_NYI",
 	"Functionality not yet implemented" },

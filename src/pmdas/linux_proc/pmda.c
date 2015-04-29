@@ -2876,7 +2876,7 @@ proc_store(pmResult *result, pmdaExt *pmda)
                         /* Bad config */
 			if (savebuffer)
 			    set_conf_buffer(savebuffer);
-                        sts = PM_ERR_CONV;
+                        sts = PM_ERR_STORE_FMT;
 		    }
                     else if ( lsts == 0 ){
                         /* Empty Config */
