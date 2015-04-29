@@ -53,6 +53,8 @@ extern FILE *yyin;
 void
 set_conf_buffer(char *buf)
 {
+    if(conf_buffer != NULL)
+        free(conf_buffer);
     conf_buffer = strdup(buf);
 }
 
@@ -82,6 +84,7 @@ open_config(char configfile[])
 int
 parse_config(bool_node **tree)
 {
+    /* Return 1 on success, 0 on empty config, sts on error (negative)*/
     int sts;
     FILE *file = NULL;
     char tmpname[] = "/var/tmp/pcp.XXXXXX";
@@ -93,7 +96,15 @@ parse_config(bool_node **tree)
 
     if ((sts = parse_predicate(tree)) != 0) {
 	fprintf(stderr, "%s: Failed to parse configuration file\n", pmProgname);
-	return sts;
+	return -sts;
+    }
+
+    if( *tree == NULL ){
+        /* Parsed as empty config, so we should disable */
+        if (pred_buffer != NULL)
+            free(pred_buffer);
+        pred_buffer = NULL;
+        return 0;
     }
 
     /* --- dump to tmp file & read to buffer --- */
@@ -143,7 +154,7 @@ parse_config(bool_node **tree)
 	free(pred_buffer);
     pred_buffer = ptr; 
     pred_buffer[size] = '\0';
-    return 0;
+    return 1;
 
 error:
     if (ptr)
@@ -197,10 +208,7 @@ read_config(FILE *conf)
     }
     conf_buffer[size] = '\0'; /* terminate the buffer */
 
-    if (parse_config(&the_tree) != 0)
-        return 0;
-
-    return 1;
+    return parse_config(&the_tree);
 }
 
 void

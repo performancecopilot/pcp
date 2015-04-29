@@ -2859,15 +2859,23 @@ proc_store(pmResult *result, pmdaExt *pmda)
 	    case ITEM_HOTPROC_G_CONFIG: {
 		bool_node *tree = NULL;
 		char *savebuffer;
+                int lsts;
 
 		if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0) {
 		    savebuffer = get_conf_buffer() ? strdup(get_conf_buffer()) : NULL;
 		    set_conf_buffer(av.cp);
-		    if (parse_config(&tree) != 0) {
+                    lsts = parse_config(&tree);
+		    if (lsts < 0) {
+                        /* Bad config */
 			if (savebuffer)
 			    set_conf_buffer(savebuffer);
+                        sts = PM_ERR_CONV;
 		    }
+                    else if ( lsts == 0 ){
+                        /* Empty Config */
+                        disable_hotproc();
+                    }
 		    else {
 			conf_gen++;
 			new_tree(tree);

@@ -806,6 +806,16 @@ reset_hotproc_timer(void)
     hotproc_timer_id = __pmAFregister(&hotproc_update_interval, NULL, hotproc_timer);
 }
 
+void
+disable_hotproc()
+{
+    /* Clear out the hotlist */
+    init_hot_active_list();
+    /* Disable the timer */
+    __pmAFunregister(hotproc_timer_id);
+    conf_gen = 0;
+}
+
 static void
 refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 {

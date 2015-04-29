@@ -299,13 +299,23 @@ typedef struct {
 /* refresh the proc indom, reset all "fetched" flags */
 extern int refresh_proc_pid(proc_pid_t *, proc_runq_t *, int, const char *, const char *, int);
 
+/* refresh the hotproc indom, checking against the current configuration */
 extern int refresh_hotproc_pid(proc_pid_t *, int, const char *);
 
+/* return aggregate statistics about the hotproc metrics */
 extern int get_hot_totals(double * ta, double * ti, double * tt, double * tci );
 
+/* get the hotproc statistics for a pid if it is currently "hot" */
 extern int get_hotproc_node(pid_t pid, process_t **getnode);
 
+/* restart the timer that calculates the hotproc statistics for each process */
 extern void reset_hotproc_timer(void);
+
+/* clear the hotlist and stop the timer */
+extern void disable_hotproc();
+
+/* init the hotproc data structures */
+extern void init_hotproc_pid(proc_pid_t *);
 
 /* fetch a proc/<pid>/stat entry for pid */
 extern proc_pid_entry_t *fetch_proc_pid_stat(int, proc_pid_t *, int *);
@@ -336,7 +346,5 @@ extern proc_pid_entry_t *fetch_proc_pid_label(int, proc_pid_t *, int *);
 
 /* extract the ith space separated field from a buffer */
 extern char *_pm_getfield(char *, int);
-
-extern void init_hotproc_pid(proc_pid_t *);
 
 #endif /* _PROC_PID_H */

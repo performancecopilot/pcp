@@ -16,12 +16,13 @@
 #include <stdio.h>
 #include "./gram_node.h"
 
-extern void yyerror(char *s);
+extern void yyerror(const char *s);
 extern int yylex(void);
 extern int yyparse(void);
 
 extern int yy_scan_string(const char *);
 #define YYDEBUG 0
+#define YYERROR_VERBOSE 0
 
 int need_psusage;
 int need_accounting;
@@ -66,10 +67,13 @@ extern char *conf_buffer;
 %left AND
 %left NOT
 
+%token END 0 "end of file"
+
 %%
 
-pred_tree: predicate { pred_tree = $1;}
-	| version predicate { pred_tree = $2;}
+pred_tree: END { pred_tree = NULL; }
+	| predicate END { pred_tree = $1;}
+	| version predicate END { pred_tree = $2;}
 	;
 
 version: VERSION NUMBER { 
@@ -138,7 +142,6 @@ pattern_compar:
 	| strvar NMATCH PATTERN { $$ = create_tnode(N_nmatch, $1, create_pat_node($3)); }
 	;
 
-
 %%
 
 int
@@ -151,6 +154,7 @@ parse_predicate(bool_node **tree)
 
     start_tree();
     yy_scan_string( conf_buffer );
+    /* yyparse returns 0 on success, 1 on parse error, 2 on memory error */
     sts = yyparse();
 
     /* free any partial trees */
