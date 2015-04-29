@@ -64,10 +64,12 @@ trap "_cleanup_pmda postfix; exit \$status" 0 1 2 3 15
 # real QA test starts here
 pmdapostfix_install
 
+metrics=`pminfo postfix | LC_COLLATE=POSIX sort`
+
 # TODO: add code for manipulating values and verifying 'em
 # Currently, we just accept any old values from qshape(1).
 echo "=== verify postfix values ==="
-if pminfo -f postfix > $tmp.info 2> $tmp.err
+if pminfo -f $metrics > $tmp.info 2> $tmp.err
 then
     :
 else

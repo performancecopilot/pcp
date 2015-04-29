@@ -18,52 +18,6 @@ Starting pmlogger ...
 Check postfix metrics have appeared ... X metrics and Y values
 === verify postfix values ===
 
-postfix.sent
-    inst [0 or "smtp"] value VALUE
-
-postfix.received
-    inst [0 or "local"] value VALUE
-    inst [1 or "smtp"] value VALUE
-
-postfix.queues.incoming
-    inst [0 or "total"] value VALUE
-    inst [1 or "0-5 mins"] value VALUE
-    inst [2 or "5-10 mins"] value VALUE
-    inst [3 or "10-20 mins"] value VALUE
-    inst [4 or "20-40 mins"] value VALUE
-    inst [5 or "40-80 mins"] value VALUE
-    inst [6 or "80-160 mins"] value VALUE
-    inst [7 or "160-320 mins"] value VALUE
-    inst [8 or "320-640 mins"] value VALUE
-    inst [9 or "640-1280 mins"] value VALUE
-    inst [10 or "1280+ mins"] value VALUE
-
-postfix.queues.hold
-    inst [0 or "total"] value VALUE
-    inst [1 or "0-5 mins"] value VALUE
-    inst [2 or "5-10 mins"] value VALUE
-    inst [3 or "10-20 mins"] value VALUE
-    inst [4 or "20-40 mins"] value VALUE
-    inst [5 or "40-80 mins"] value VALUE
-    inst [6 or "80-160 mins"] value VALUE
-    inst [7 or "160-320 mins"] value VALUE
-    inst [8 or "320-640 mins"] value VALUE
-    inst [9 or "640-1280 mins"] value VALUE
-    inst [10 or "1280+ mins"] value VALUE
-
-postfix.queues.maildrop
-    inst [0 or "total"] value VALUE
-    inst [1 or "0-5 mins"] value VALUE
-    inst [2 or "5-10 mins"] value VALUE
-    inst [3 or "10-20 mins"] value VALUE
-    inst [4 or "20-40 mins"] value VALUE
-    inst [5 or "40-80 mins"] value VALUE
-    inst [6 or "80-160 mins"] value VALUE
-    inst [7 or "160-320 mins"] value VALUE
-    inst [8 or "320-640 mins"] value VALUE
-    inst [9 or "640-1280 mins"] value VALUE
-    inst [10 or "1280+ mins"] value VALUE
-
 postfix.queues.active
     inst [0 or "total"] value VALUE
     inst [1 or "0-5 mins"] value VALUE
@@ -89,6 +43,52 @@ postfix.queues.deferred
     inst [8 or "320-640 mins"] value VALUE
     inst [9 or "640-1280 mins"] value VALUE
     inst [10 or "1280+ mins"] value VALUE
+
+postfix.queues.hold
+    inst [0 or "total"] value VALUE
+    inst [1 or "0-5 mins"] value VALUE
+    inst [2 or "5-10 mins"] value VALUE
+    inst [3 or "10-20 mins"] value VALUE
+    inst [4 or "20-40 mins"] value VALUE
+    inst [5 or "40-80 mins"] value VALUE
+    inst [6 or "80-160 mins"] value VALUE
+    inst [7 or "160-320 mins"] value VALUE
+    inst [8 or "320-640 mins"] value VALUE
+    inst [9 or "640-1280 mins"] value VALUE
+    inst [10 or "1280+ mins"] value VALUE
+
+postfix.queues.incoming
+    inst [0 or "total"] value VALUE
+    inst [1 or "0-5 mins"] value VALUE
+    inst [2 or "5-10 mins"] value VALUE
+    inst [3 or "10-20 mins"] value VALUE
+    inst [4 or "20-40 mins"] value VALUE
+    inst [5 or "40-80 mins"] value VALUE
+    inst [6 or "80-160 mins"] value VALUE
+    inst [7 or "160-320 mins"] value VALUE
+    inst [8 or "320-640 mins"] value VALUE
+    inst [9 or "640-1280 mins"] value VALUE
+    inst [10 or "1280+ mins"] value VALUE
+
+postfix.queues.maildrop
+    inst [0 or "total"] value VALUE
+    inst [1 or "0-5 mins"] value VALUE
+    inst [2 or "5-10 mins"] value VALUE
+    inst [3 or "10-20 mins"] value VALUE
+    inst [4 or "20-40 mins"] value VALUE
+    inst [5 or "40-80 mins"] value VALUE
+    inst [6 or "80-160 mins"] value VALUE
+    inst [7 or "160-320 mins"] value VALUE
+    inst [8 or "320-640 mins"] value VALUE
+    inst [9 or "640-1280 mins"] value VALUE
+    inst [10 or "1280+ mins"] value VALUE
+
+postfix.received
+    inst [0 or "local"] value VALUE
+    inst [1 or "smtp"] value VALUE
+
+postfix.sent
+    inst [0 or "smtp"] value VALUE
 
 === remove postfix agent ===
 Culling the Performance Metrics Name Space ...
