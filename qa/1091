@@ -1,0 +1,73 @@
+#!/bin/sh
+# PCP QA Test No. 1091
+# no pmcpp for PM_CONTEXT_LOCAL
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# want these ones from stderr
+#
+# pmGetPMNSLocation: Loading local PMNS for local PMAPI context
+# load(name=(null), dupok=1) lic case=0 fname=/var/lib/pcp/pmns/root
+# loadascii(file=/var/lib/pcp/pmns/root)
+#
+_filter()
+{
+    egrep '^(load|pmGetPMNSLocation:)' $tmp.err \
+    | sed \
+	-e "s@$PCP_VAR_DIR@PCP_VAR_DIR@g" \
+	-e "s@$tmp@TMP@g" \
+    # end
+
+}
+    
+cat <<End-of-File >$tmp.pmns
+#include <stdpmid>
+
+root {
+	test	SAMPLE:0:0
+}
+End-of-File
+
+# real QA test starts here
+echo "PM_CONTEXT_LOCAL, default PMNS ..."
+pminfo -Dpmns -L disk.dev >$tmp.out 2>$tmp.err
+cat $tmp.out
+_filter
+echo
+echo "PM_CONTEXT_LOCAL, \$PCP_VAR_DIR/pmns/root PMNS ..."
+pminfo -Dpmns -n $PCP_VAR_DIR/pmns/root -L disk.dev >$tmp.out 2>$tmp.err
+cat $tmp.out
+_filter
+echo
+echo "PM_CONTEXT_LOCAL, test PMNS ..."
+pminfo -Dpmns -n $tmp.pmns -m -L >$tmp.out 2>$tmp.err
+cat $tmp.out
+_filter
+echo
+echo "PM_CONTEXT_ARCHIVE, PM_NS_DEFAULT case ..."
+src/eol -Dpmns -a src/foo >$tmp.out 2>$tmp.err
+grep required $tmp.out
+_filter
+echo
+echo "PM_CONTEXT_HOST, PM_NS_DEFAULT, pmLoadASCIINameSpace case ..."
+src/nameall -Dpmns >$tmp.out 2>$tmp.err
+sed -e '/Name space load:/s/load: .*/load: .../' <$tmp.out
+_filter
+
+# success, all done
+status=0
+
+exit

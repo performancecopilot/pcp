@@ -1,0 +1,53 @@
+#!/bin/sh
+# PCP QA Test No. 770
+# Check for mem leaks in __pmDecodeProfile as per
+# http://oss.sgi.com/bugzilla/show_bug.cgi?id=871
+#
+# Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+src/check_fault_injection >/dev/null 2>&1 || \
+    _notrun "libpcp not built with fault injection enabled"
+
+_check_valgrind
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+export PM_FAULT_CONTROL=$tmp.control
+export LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so
+
+# real QA test starts here
+
+echo "force first alloc fail - instprof"
+cat >$tmp.control <<End-of-File
+libpcp/p_profile.c:1	> 0
+End-of-File
+_run_valgrind src/pducheck
+
+echo
+echo "force second alloc fail - instprof->profile"
+cat >$tmp.control <<End-of-File
+libpcp/p_profile.c:2	> 0
+End-of-File
+_run_valgrind src/pducheck
+
+echo
+echo "force third alloc fail - instprof->profile->instances"
+cat >$tmp.control <<End-of-File
+libpcp/p_profile.c:3	> 1
+End-of-File
+_run_valgrind src/pducheck
+
+# all done
+exit

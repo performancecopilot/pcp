@@ -498,6 +498,9 @@ dumpTI(__pmContext *ctxp)
     struct stat	sbuf;
     __pmLogTI	*tip;
     __pmLogTI	*lastp;
+    __pmLogCtl  *lcp;
+    
+    lcp = ctxp->c_archctl->ac_log;
 
     printf("\nTemporal Index\n");
     printf("             Log Vol    end(meta)     end(log)\n");
@@ -509,14 +512,14 @@ dumpTI(__pmContext *ctxp)
 	__pmPrintStamp(stdout, &tv);
 	printf("    %4d  %11d  %11d\n", tip->ti_vol, tip->ti_meta, tip->ti_log);
 	if (i == 0) {
-	    sprintf(path, "%s.meta", opts.archives[0]);
+	    sprintf(path, "%s.meta", lcp->l_name);
 	    if (stat(path, &sbuf) == 0)
 		meta_size = sbuf.st_size;
 	    else
 		meta_size = -1;
 	}
 	if (lastp == NULL || tip->ti_vol != lastp->ti_vol) { 
-	    sprintf(path, "%s.%d", opts.archives[0], tip->ti_vol);
+	    sprintf(path, "%s.%d", lcp->l_name, tip->ti_vol);
 	    if (stat(path, &sbuf) == 0)
 		log_size = sbuf.st_size;
 	    else {

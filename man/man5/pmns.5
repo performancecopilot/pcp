@@ -102,6 +102,18 @@ When
 .BR pmcpp (1)
 is executed, the ``standard'' include directories are the current directory and
 .IR $PCP_VAR_DIR/pmns .
+.PP
+The pre-processing with
+.BR pmcpp (1)
+may be omitted in some cases where the PMNS is known to
+.B not
+contain any
+C-style comments, preprocessor directives or macros.  Refer to the
+descriptions of
+.BR pmLoadASCIINameSpace (3)
+and
+.BR pmLoadNameSpace (3)
+for details.
 .SH SYNTAX
 The general syntax for a non-leaf node in the PMNS is as follows
 .PP

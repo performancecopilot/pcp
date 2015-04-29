@@ -249,7 +249,7 @@ load_namespace(char *namespace)
 
     gettimeofday(&then, (struct timezone *)0);
     _op++;
-    if ((sts = pmLoadNameSpace(namespace)) < 0) {
+    if ((sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
 	_err++;
 	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
 	exit(1);

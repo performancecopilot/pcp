@@ -327,8 +327,8 @@ main(int argc, char **argv)
 	exit(2);
     }
 
-    if ((n = pmLoadNameSpace(pmnsfile)) < 0) {
-	fprintf(stderr, "%s: pmLoadNameSpace: %s\n", pmProgname, pmErrStr(n));
+    if ((n = pmLoadASCIINameSpace(pmnsfile, 1)) < 0) {
+	fprintf(stderr, "%s: pmLoadASCIINameSpace(%s, 1): %s\n", pmProgname, pmnsfile, pmErrStr(n));
 	exit(2);
     }
 
