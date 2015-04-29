@@ -334,6 +334,7 @@ _filter_top_pmns()
 	-e '/^    oracle /d' \
 	-e '/^    oraping /d' \
 	-e '/^    pdns /d' \
+	-e '/^    postfix /d' \
 	-e '/^    postgresql /d' \
 	-e '/^    proc /d' \
 	-e '/^    rpm /d' \

@@ -172,6 +172,7 @@ pmda.news
 pmda.nvidia
 pmda.papi
 pmda.pmcd
+pmda.postfix
 pmda.proc
 pmda.rsyslog
 pmda.sample
@@ -981,6 +982,7 @@ cgroups
 798 pmda.nfsclient local
 799:retired pmda.papi local
 800 pmda.proc local
+805 pmda.postfix local
 813 pmda.papi local
 815 pmie local
 822:reserved pmlogrewrite
