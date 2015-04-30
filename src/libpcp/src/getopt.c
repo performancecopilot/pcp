@@ -304,7 +304,9 @@ __pmAddOptArchive(pmOptions *opts, char *arg)
 	size = sizeof(char *) * (opts->narchives + 1);
 	if ((archives = realloc(archives, size)) == NULL)
 	    goto noMem;
-	archives[opts->narchives] = arg;
+	if ((archives[opts->narchives] = strdup(arg)) == NULL)
+	    goto noMem;
+	opts->narchives++;
     }
     else {
 	/*
@@ -319,6 +321,7 @@ __pmAddOptArchive(pmOptions *opts, char *arg)
 	    size = strlen(arg); /* for noMem below */
 	    if ((*archives = strdup(arg)) == NULL)
 		goto noMem;
+	    opts->narchives = 1;
 	}
 	else {
 	    /* Add a comma plus the additional name. */
@@ -331,7 +334,6 @@ __pmAddOptArchive(pmOptions *opts, char *arg)
     }
 
     opts->archives = archives;
-    opts->narchives++;
     return;
 
  noMem:
