@@ -426,11 +426,11 @@ initarchive(__pmContext	*ctxp, const char *name)
     char		*namelist = NULL;
     const char		*current;
     char		*end;
-    __pmArchCtl		*archctl = NULL;
+    __pmArchCtl		*acp = NULL;
     __pmLogCtl		**loglist = NULL;
     int			numlogs = 0;
     const __pmContext	*ctxp2;
-    const __pmArchCtl	*archctl2;
+    const __pmArchCtl	*acp2;
     __pmLogCtl		**loglist2;
     int			numlogs2;
 
@@ -446,10 +446,10 @@ initarchive(__pmContext	*ctxp, const char *name)
 	sts = -oserror();
 	goto error;
     }
-    archctl = ctxp->c_archctl;
-    archctl->ac_num_logs = 0;
-    archctl->ac_log_list = NULL;
-    archctl->ac_log = NULL;
+    acp = ctxp->c_archctl;
+    acp->ac_num_logs = 0;
+    acp->ac_log_list = NULL;
+    acp->ac_log = NULL;
 
     /* We need a copy of the names to work with. */
     if ((namelist = strdup(name)) == NULL) {
@@ -484,9 +484,9 @@ initarchive(__pmContext	*ctxp, const char *name)
 	    /* See if there is already an archive opened with this name. */
 	    ctxp2 = contexts[i];
 	    if (ctxp2->c_type == PM_CONTEXT_ARCHIVE) {
-		archctl2 = ctxp2->c_archctl;
-		numlogs2 = archctl2->ac_num_logs;
-		loglist2 = archctl2->ac_log_list;
+		acp2 = ctxp2->c_archctl;
+		numlogs2 = acp2->ac_num_logs;
+		loglist2 = acp2->ac_log_list;
 		for (j = 0; j < numlogs2; j++) {
 		    if (strcmp(current, loglist2[j]->l_name) == 0)
 			break;
@@ -530,56 +530,56 @@ initarchive(__pmContext	*ctxp, const char *name)
     }
 
     /* Set the arch controls to refer to the first archive in the list. */
-    archctl->ac_num_logs = numlogs;
-    archctl->ac_log_list = loglist;
-    archctl->ac_log = archctl->ac_log_list[0];
+    acp->ac_num_logs = numlogs;
+    acp->ac_log_list = loglist;
+    acp->ac_log = acp->ac_log_list[0];
 
     /*
      * In order to maintain API semantics with the old single archive
      * implementation, open the current archive (first archive in the list).
      */
     if (loglist != NULL) {
-	if (archctl->ac_log->l_refcnt == 0) {
+	if (acp->ac_log->l_refcnt == 0) {
 	    /*
-	     * __pmLogOpen() will overwrite archctl->ac_log->l_name, so free it
+	     * __pmLogOpen() will overwrite acp->ac_log->l_name, so free it
 	     * here in order to plug the resulting leak.
 	     */
-	    char *tmp = archctl->ac_log->l_name;
+	    char *tmp = acp->ac_log->l_name;
 	    sts = __pmLogOpen(tmp, ctxp);
 	    free(tmp);
 	    if (sts < 0) {
 		--numlogs;
 		goto error;
 	    }
-	    archctl->ac_log->l_refcnt = 1;
+	    acp->ac_log->l_refcnt = 1;
 	}
 	else {
 	    /*
 	     * Archive already open, set default starting state as per
 	     * __pmLogOpen */
-	    ctxp->c_origin.tv_sec = (__int32_t)archctl->ac_log->l_label.ill_start.tv_sec;
-	    ctxp->c_origin.tv_usec = (__int32_t)archctl->ac_log->l_label.ill_start.tv_usec;
+	    ctxp->c_origin.tv_sec = (__int32_t)acp->ac_log->l_label.ill_start.tv_sec;
+	    ctxp->c_origin.tv_usec = (__int32_t)acp->ac_log->l_label.ill_start.tv_usec;
 	    ctxp->c_mode = (ctxp->c_mode & 0xffff0000) | PM_MODE_FORW;
 	}
 
 	/* start after header + label record + trailer */
-	archctl->ac_offset = sizeof(__pmLogLabel) + 2*sizeof(int);
-	archctl->ac_vol = archctl->ac_log->l_curvol;
-	archctl->ac_serial = 0;		/* not serial access, yet */
-	archctl->ac_pmid_hc.nodes = 0;	/* empty hash list */
-	archctl->ac_pmid_hc.hsize = 0;
-	archctl->ac_end = 0.0;
-	archctl->ac_want = NULL;
-	archctl->ac_unbound = NULL;
-	archctl->ac_cache = NULL;
+	acp->ac_offset = sizeof(__pmLogLabel) + 2*sizeof(int);
+	acp->ac_vol = acp->ac_log->l_curvol;
+	acp->ac_serial = 0;		/* not serial access, yet */
+	acp->ac_pmid_hc.nodes = 0;	/* empty hash list */
+	acp->ac_pmid_hc.hsize = 0;
+	acp->ac_end = 0.0;
+	acp->ac_want = NULL;
+	acp->ac_unbound = NULL;
+	acp->ac_cache = NULL;
     }
 
     free(namelist);
     return 0; /* success */
 
  error:
-    if (archctl)
-	free(archctl);
+    if (acp)
+	free(acp);
     if (namelist)
 	free(namelist);
     if (loglist) {
