@@ -685,7 +685,8 @@ extern void __pmServerUnadvertisePresence(__pmServerPresence *);
  * Per-context controls for archives and logs
  */
 typedef struct {
-    __pmLogCtl		*ac_log;	/* global logging and archive control */
+    __pmLogCtl		*ac_log;	/* Current global logging and archive
+					   control */
     long		ac_offset;	/* fseek ptr for archives */
     int			ac_vol;		/* volume for ac_offset */
     int			ac_serial;	/* serial access pattern for archives */
@@ -695,6 +696,14 @@ typedef struct {
     void		*ac_unbound;	/* used in interp.c */
     void		*ac_cache;	/* used in interp.c */
     int			ac_cache_idx;	/* used in interp.c */
+    /*
+     * There were added to the ABI in order to support multiple archives
+     * in a single context. In order to maintain ABI compatibility they must
+     * be at the end of this structure.
+     */
+    int			ac_num_logs;	/* The number of logs in ac_log_list. */
+    __pmLogCtl		**ac_log_list;	/* List of active logging and archive
+					   controls */
 } __pmArchCtl;
 
 /*
@@ -1061,6 +1070,7 @@ extern void __pmFreeInterpData(__pmContext *);
 extern int __pmLogChangeVol(__pmLogCtl *, int);
 extern int __pmLogChkLabel(__pmLogCtl *, FILE *, __pmLogLabel *, int);
 extern int __pmGetArchiveEnd(__pmLogCtl *, struct timeval *);
+extern void __pmArchCtlFree (__pmArchCtl *);
 
 /* struct for maintaining information about pmlogger ports */
 typedef struct {

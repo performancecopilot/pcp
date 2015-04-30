@@ -2470,3 +2470,31 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
 
     return sts;
 }
+
+void
+__pmArchCtlFree(__pmArchCtl *acp)
+{
+    /* We need to clean up the archive list first. */
+    if (acp->ac_log_list != NULL) {
+	int logix = acp->ac_num_logs;
+	while (--logix >= 0) {
+	    /*
+	     * If this is the last ref, then close the archive.
+	     * refcnt == 0 means the log is not open.
+	     */
+	    __pmLogCtl *lcp = acp->ac_log_list[logix];
+	    if (--lcp->l_refcnt == 0) {
+		__pmLogClose(lcp);
+		free(lcp);
+	    }
+	}
+	free(acp->ac_log_list);
+    }
+
+    /* And the cache. */
+    if (acp->ac_cache != NULL)
+	free(acp->ac_cache);
+
+    /* Now we can free it. */
+    free(acp);
+}
