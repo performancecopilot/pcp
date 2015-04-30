@@ -36,8 +36,13 @@ $sudo pmstore hotproc.control.config 'fname == "pmdaproc"' | _filter_store
 pmsleep 2.1
 pminfo -f hotproc.nprocs hotproc.control.refresh hotproc.control.config
 
+# Check that we handle bad input properly
+$sudo pmstore hotproc.control.config "foo==42" | _filter_store
+pminfo -f hotproc.control.config
+
 # restore defaults
 $sudo pmstore hotproc.control.refresh 10 | _filter_store
+$sudo pmstore hotproc.control.config "" | _filter_store
 $sudo pmstore hotproc.control.config "" | _filter_store
 
 status=0

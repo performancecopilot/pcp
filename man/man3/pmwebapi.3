@@ -1,7 +1,7 @@
 '\"! tbl | nroff \-man
 '\" t macro stdmacro
 .\"
-.\" Copyright (c) 2013-2014 Red Hat, Inc.  All Rights Reserved.
+.\" Copyright (c) 2013-2015 Red Hat, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -289,7 +289,7 @@ N+2	1	instance name of the metric (if any)
 Since glob wildcarding is supported within metric name components,
 using them in the first component (an encoding of the archive name) is
 a good way to identify machines, or to match multiple archives
-spanning times of interest.
+spanning times of interest.  Compressed archives are excluded.
 
 We list here only the broadest outline of the supported calls.  pmwebd
 does not support every graphite web-api option, so many querystring
