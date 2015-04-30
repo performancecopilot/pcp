@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2013-2014 Red Hat, Inc.  All Rights Reserved.
+.\" Copyright (c) 2013-2015 Red Hat, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -29,6 +29,8 @@
 [\f3\-L\f1]
 [\f3\-N\f1]
 [\f3\-G\f1]
+[\f3\-i\f1 \f2min-interval\f1]
+[\f3\-I\f1
 [\f3\-K\f1 \f2spec\f1]
 [\f3\-A\f1 \f2archivesdir\f1]
 [\f3\-l\f1 \f2logfile\f1]
@@ -94,6 +96,22 @@ your web browser to
 .nh
 .B http://127.0.0.1:43323/
 .hy
+.TP
+\f3\-i\f1 \f2min-interval\f1
+Set the minimum sampling interval for graphite time series in seconds.
+The default is 60.  Smaller values give higher precision (but not
+necessarily accuracy) data, but may cost extra processing time at pmwebd
+or the web browser; and vice versa.
+.TP
+\f3\-I\f1
+Attempt to open an entire directory as an archive when traversing the
+\-A DIR paths to serve graphite-api metrics.  If successful, it can make the
+metric names much shorter (omitting individual encoded file names) and span
+across time.  If the attempt fails, pmwebd will recurse to each individual
+archive file, just as though \-I were not given.  The difference is that if
+the \-I attempt succeeds, a subdirectory is not recursed further, so if any
+other archives or subdirectories are present, they won't be exposed to
+graphite-api clients.
 .TP
 \f3\-t\f1 \f2timeout\f1
 Set the maximum timeout (in seconds) after the last operation on a pmapi web

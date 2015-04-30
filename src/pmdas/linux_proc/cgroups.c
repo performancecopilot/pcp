@@ -663,6 +663,12 @@ refresh_memory(const char *path, const char *name)
     }
     snprintf(file, sizeof(file), "%s/memory.stat", path);
     read_memory_stats(file, memory);
+    snprintf(file, sizeof(file), "%s/memory.limit_in_bytes", path);
+    memory->limit = read_oneline_ull(file);
+    snprintf(file, sizeof(file), "%s/memory.usage_in_bytes", path);
+    memory->usage = read_oneline_ull(file);
+    snprintf(file, sizeof(file), "%s/memory.failcnt", path);
+    memory->failcnt = read_oneline_ull(file);
 
     pmdaCacheStore(indom, PMDA_CACHE_ADD, name, memory);
 }

@@ -120,4 +120,13 @@ help_text_t  help_text[] = {
 { .name = "psinfo.nvctxsw",            .shorthelp = "number of non-voluntary context switches (from /proc/<pid>/status)",        .longhelp = "" },
 { .name = "psinfo.cpusallowed",   .shorthelp = "the cpus allowed list (from /proc/<pid>/status)", .longhelp = "" },
 { .name = "control.perclient.threads",            .shorthelp = "for a client, process indom includes threads",        .longhelp = "If set to one, the process instance domain as reported by pmdaproc\ncontains all threads as well as the processes that started them.\nIf set to zero, the process instance domain contains only processes.\nThis setting is only visible to the active client context.  In other\nwords, storing into this metric has no effect for other monitoring\ntools.  See proc.control.all.threads, if that is the desired outcome.\nOnly pmStore(3) can effectively set this metric (pmstore(1) cannot).\n" },
+{ .name = "psinfo.ngid",   .shorthelp = "NUMA group identifier (from /proc/<pid>/status)", .longhelp = "" },
+{ .name = "memory.vmpeak",	.shorthelp = "peak virtual memory size (from /proc/<pid>/status)",        .longhelp = "" },
+{ .name = "memory.vmpin",	.shorthelp = "fixed physical address unswappable pages (from /proc/<pid>/status)",        .longhelp = "" },
+{ .name = "memory.vmhwn",	.shorthelp = "peak usage of physical memory (from /proc/<pid>/status)",        .longhelp = "" },
+{ .name = "memory.vmpte",	.shorthelp = "memory occupied by page table entries (from /proc/<pid>/status)",        .longhelp = "" },
+{ .name = "namespaces.tgid",   .shorthelp = "descendant namespace thread group ID hierarchy (/proc/<pid>/status)", .longhelp = "" },
+{ .name = "namespaces.pid",   .shorthelp = "descendant namespace process ID hierarchy (/proc/<pid>/status)", .longhelp = "" },
+{ .name = "namespaces.pgid",   .shorthelp = "descendant namespace process group ID hierarchy (/proc/<pid>/status)", .longhelp = "" },
+{ .name = "namespaces.sid",   .shorthelp = "descendant namespace session ID hierarchy (/proc/<pid>/status)", .longhelp = "" },
 };
