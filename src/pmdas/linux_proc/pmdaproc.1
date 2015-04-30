@@ -1,6 +1,7 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2014 Red Hat.
+.\" Copyright (c) 2014-2015 Red Hat.
+.\" Copyright (c) 2015 Martins Innus.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -102,31 +103,32 @@ seteuid (2)
 and
 setegid (2)
 switching for accessing most information.
-.SH HOTPROC
-Included inside of the standard
+.SH HOTPROC OVERVIEW
+The
 .B pmdaproc
-Performance Metrics Domain Agent (PMDA) are an aditional set of
+Performance Metrics Domain Agent (PMDA) includes an additional set of
+per-process metrics with an instance domain of processes restricted
+to an "interesting" or "hot" set.
+Unlike the stock metrics exported by the
 .B proc
-performance metrics from an instance domain of processes restricted
-to an "interesting" or "hot" set. Unlike the stock metrics exported by the
-.B proc
-PMDA which have an instance domain equal to the current processes,
+PMDA, which have an instance domain equal to the current processes,
 .B hot
-metrics have an instance domain which is a subset of this and is
-determined by a configuration file and a refresh interval.
+metrics have an instance domain which is a subset of this.
+This
+.B hotproc
+instance domain is determined by a configurable predicate evaluated
+over some refresh interval.
 .P
-As well as
-the
+As well as the equivalent per-process
 .B proc
 metrics,
 .B hotproc
-provides a \f3cpuburn\f1 metric which specifies the cpu utilization
+provides a \f3cpuburn\f1 metric which specifies the CPU utilization
 of the process over the refresh interval, \f3total\f1 metrics which
-indicate how much of the cpu that the "interesting" processes are
-accounting for, \f3predicate\f1 metrics which show the values of
-the reserved variables (see below) that
-are being used in the hotproc predicate and \f3control\f1 metrics
-for controlling the agent.
+indicate how much of the available CPU time the "interesting" processes
+account for, \f3predicate\f1 metrics which show the values of
+the reserved variables (see below) that are being used in the hotproc
+predicate, and \f3control\f1 metrics for controlling the agent.
 .PP
 .SH HOTPROC CONFIGURATION
 The configuration file consists of one predicate used to determine if
@@ -140,15 +142,17 @@ This file with any modifications can be copied to
 in order to configure the
 .B hot
 metrics. The
-.B pmstore
-interface can be used as well (described below)
-.PP
-The predicate is described
-using the language specified below. The symbols are based on those
-used by
-.BR c (1)
+.BR pmstore (1)
 and
-.BR awk (1) .
+.BR pmStore (3)
+interfaces can be used as well (described below).
+.PP
+The predicate is described using the language specified below.
+The symbols are based on those used by the
+.BR C (1)
+and
+.BR awk (1)
+languages.
 .TP
 Boolean Connectives
 .B &&
@@ -248,12 +252,14 @@ already exported elsewhere. A \f3hotproc.predicate\f1 metric
 may not have a value if it is not referenced in the configuration
 predicate.
 
-.SH HOTPROC PMSTORE
+.SH DYNAMIC CONFIGURATION
 The
 .B hot
-metrics can also be configured through the
-.B pmstore(1)
-interface
+metrics can also be configured at runtime through the
+.BR pmstore (1)
+interface (and, implicitly, the
+.BR pmStore (3)
+API)
 .TP
 Examples
   pmstore hotproc.control.config 'fname == "mingetty"'
@@ -321,6 +327,9 @@ default log file for error messages and other information from
 .TP 10
 .B $PCP_PMDAS_DIR/proc/samplehotproc.conf
 simple sample hotproc configuration
+.TP 10
+.B $PCP_PMDAS_DIR/proc/hotproc.conf
+default hotproc configuration file
 .PD
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
