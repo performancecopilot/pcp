@@ -791,11 +791,7 @@ init_hotproc_pid(proc_pid_t * _hotproc_poss_pid)
 
     /* Only if we have a valid config file.  Set all the other stuff up in case we enable later */
     if( conf_gen ){
-        if ((hotproc_timer_id = __pmAFregister(&hotproc_update_interval, NULL, hotproc_timer)) < 0) {
-	    __pmNotifyErr(LOG_ERR, "error registering hotproc timer");
-	    /* OK to exit here?  Assume something really bad has happened */
-	    exit(1);
-	}
+        reset_hotproc_timer();
     }
 }
 
@@ -803,7 +799,22 @@ void
 reset_hotproc_timer(void)
 {
     __pmAFunregister(hotproc_timer_id);
-    hotproc_timer_id = __pmAFregister(&hotproc_update_interval, NULL, hotproc_timer);
+
+    if ((hotproc_timer_id = __pmAFregister(&hotproc_update_interval, NULL, hotproc_timer)) < 0) {
+        __pmNotifyErr(LOG_ERR, "error registering hotproc timer");
+	    /* OK to exit here?  Assume something really bad has happened */
+        exit(1);
+    }
+}
+
+void
+disable_hotproc()
+{
+    /* Clear out the hotlist */
+    init_hot_active_list();
+    /* Disable the timer */
+    __pmAFunregister(hotproc_timer_id);
+    conf_gen = 0;
 }
 
 static void

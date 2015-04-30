@@ -1351,6 +1351,9 @@ static pmdaMetric metrictab[] = {
     /* hotproc.control.config_gen */
     { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_CONFIG_GEN),
       PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
+    /* hotproc.control.reload_config */
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_RELOAD_CONFIG),
+      PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
     /* hotproc.total.cpuidle */
     { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_CPUIDLE),
       PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
@@ -1663,6 +1666,9 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case ITEM_HOTPROC_G_CONFIG_GEN:
 	    atom->ul = conf_gen;
+	    break;
+	case ITEM_HOTPROC_G_RELOAD_CONFIG:
+	    atom->ul = 0;
 	    break;
 	case ITEM_HOTPROC_G_CPUIDLE:
 	    atom->f = have_totals ? tci : 0;
@@ -2859,15 +2865,23 @@ proc_store(pmResult *result, pmdaExt *pmda)
 	    case ITEM_HOTPROC_G_CONFIG: {
 		bool_node *tree = NULL;
 		char *savebuffer;
+                int lsts;
 
 		if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0) {
 		    savebuffer = get_conf_buffer() ? strdup(get_conf_buffer()) : NULL;
 		    set_conf_buffer(av.cp);
-		    if (parse_config(&tree) != 0) {
+                    lsts = parse_config(&tree);
+		    if (lsts < 0) {
+                        /* Bad config */
 			if (savebuffer)
 			    set_conf_buffer(savebuffer);
+                        sts = PM_ERR_STORE_FMT;
 		    }
+                    else if ( lsts == 0 ){
+                        /* Empty Config */
+                        disable_hotproc();
+                    }
 		    else {
 			conf_gen++;
 			new_tree(tree);
@@ -2884,6 +2898,13 @@ proc_store(pmResult *result, pmdaExt *pmda)
 		}
 		break;
 	    }
+            case ITEM_HOTPROC_G_RELOAD_CONFIG:
+		if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+				PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
+                    hotproc_init();
+                    reset_hotproc_timer();
+		}
+		break;
 
 	    default:
 		sts = PM_ERR_PERMISSION;

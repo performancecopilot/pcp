@@ -32,7 +32,7 @@ hotproc_init(void)
 
     /* Hotproc configured */
     if (conf != NULL) {
-	if (read_config(conf)) {
+	if (read_config(conf) == 1 ) {
 	    conf_gen = 1;
 	}
 	fclose(conf);
