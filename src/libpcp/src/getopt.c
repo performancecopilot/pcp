@@ -71,6 +71,29 @@ __pmUpdateBounds(pmOptions *opts, int index, struct timeval *begin, struct timev
     return 0;
 }
 
+/* Return:
+ * -1 if begin1 and end1 are less than begin2 and end2 without overlapping
+ *  1 if begin1 and end1 are greater than begin2 and end2 without overlapping
+ *  0 if begin1 and end1 overlap begin2 and end2.
+ */
+static int
+compareTimeSpans(
+  const struct timeval *begin1,
+  const struct timeval *end1,
+  const struct timeval *begin2,
+  const struct timeval *end2
+) {
+    if (__pmtimevalSub(begin2, begin1) >= 0.0) {
+	if (__pmtimevalSub(begin2, end1) >= 0.0)
+	    return 1; /* begin1/end1 > begin2/end2 */
+	return 0; /* overlap */
+    }
+    if (__pmtimevalSub(end2, begin1) > 0.0)
+	return 0; /* overlap */
+
+    return -1; /* begin1/end1 < begin2/end2 */
+}
+
 /*
  * Calculate time window boundaries depending on context type.
  * In multi-archive context, this means opening all of them and
@@ -80,9 +103,18 @@ __pmUpdateBounds(pmOptions *opts, int index, struct timeval *begin, struct timev
  * Note - called with an active context via pmGetContextOptions.
  */
 static int
-__pmBoundaryOptions(pmOptions *opts, struct timeval *begin, struct timeval *end)
-{
-    int i, ctx, sts = 0;
+__pmBoundaryOptions(
+  pmOptions *opts,
+  int ctxid,
+  struct timeval *begin,
+  struct timeval *end
+) {
+    int			i, j;
+    int			ctx, sts = 0;
+    size_t		size = 0;
+    __pmContext		*ctxp;
+    __pmArchCtl		*acp;
+    struct timeval	*begintimes = NULL, *endtimes = NULL;
 
     if (opts->context != PM_CONTEXT_ARCHIVE) {
 	/* live/local context, open ended - start now, never end */
@@ -90,10 +122,92 @@ __pmBoundaryOptions(pmOptions *opts, struct timeval *begin, struct timeval *end)
 	end->tv_sec = INT_MAX;
 	end->tv_usec = 0;
     } else if (opts->narchives == 1) {
-	/* singular archive context, make use of current context */
-	sts = __pmUpdateBounds(opts, 0, begin, end);
+	/*
+	 * Singular archive context, make use of current context. Check the
+	 * time span of each archive in the context, sorting the archives
+	 * by start time, checking for overlap and updating the bounds as we go.
+	 * First, allocate space for the time stamps.
+	 */
+	if ((ctxp = __pmHandleToPtr(ctxid)) == NULL) {
+	    sts =  PM_ERR_NOCONTEXT;
+	    goto done;
+	}
+	acp = ctxp->c_archctl;
+	size = acp->ac_num_logs * sizeof(*begintimes);
+	if ((begintimes = malloc(size)) == NULL)
+	    goto noMem;
+	if ((endtimes = malloc(size)) == NULL)
+	    goto noMem;
+
+	/*
+	 * Handle the first archive separately for simplicity.
+	 */
+	if ((sts = __pmLogChangeArchive(ctxp, 0)) < 0)
+	    return sts;
+	if ((sts = __pmUpdateBounds(opts, 0, &begintimes[0], &endtimes[0])) < 0)
+	    return sts;
+
+	/* Now process the other archives, if any. */
+	for (i = 1; i < acp->ac_num_logs; i++) {
+	    /* Open this archive, if it is not already open. */
+	    if ((sts = __pmLogChangeArchive(ctxp, i)) < 0)
+		break;
+
+	    /* Get the time span of this archive, as if it is the only one. */
+	    sts = __pmUpdateBounds(opts, 0, &begintimes[i], &endtimes[i]);
+	    if (sts < 0)
+		break;
+
+	    /*
+	     * Check the time span of this archive against the time spans of
+	     * the previous ones. Check for overlap and sort by begin time as we
+	     * go. Also sort the list of archives as we go. */
+	    for (j = 0; j < i; j++) {
+		sts = compareTimeSpans (&begintimes[j], &endtimes[j],
+					&begintimes[i], &endtimes[i]);
+		if (sts < 0) /* found insertion point */
+		    break;
+		if (sts == 0) { /* overlap */
+		    sts = PM_ERR_LOGREC;
+		    goto done;
+		}
+		/* Keep checking */
+	    }
+
+	    /*
+	     * If we found the insertion point, then insert the current archive
+	     * and its time span into this slot. Otherwise they are already in
+	     * the correct slot.
+	     */
+	    if (j < i) {
+		struct timeval tmp1 = begintimes[i];
+		struct timeval tmp2 = endtimes[i];
+		__pmLogCtl *tmp3 = acp->ac_log_list[i];
+		memmove (&begintimes[j + 1], &begintimes[j],
+			 (i - j) * sizeof(*begintimes));
+		begintimes[j] = tmp1;
+		memmove (&endtimes[j + 1], &endtimes[j],
+			 (i - j) * sizeof(*endtimes));
+		endtimes[j] = tmp2;
+		memmove (&acp->ac_log_list[j + 1], &acp->ac_log_list[j],
+			 (i - j) * sizeof(*acp->ac_log_list));
+		acp->ac_log_list[j] = tmp3;
+	    }
+	}
+
+	/*
+	 * The archives are sorted by time span and there are no overlaps.
+	 * Report the start time of the first archive and the end time of the
+	 * last archive.
+	 */
+	*begin = begintimes[0];
+	*end = endtimes[i];
+
+	/* Make the first archive the current one. */
+	if ((sts = __pmLogChangeArchive(ctxp, 0)) < 0)
+	    return sts;
     } else {
-	/* multiple archives - figure out combined start and end */
+	/* Multiple archive contexts - figure out combined start and end */
 	for (i = 0; i < opts->narchives; i++) {
 	    sts = pmNewContext(PM_CONTEXT_ARCHIVE, opts->archives[i]);
 	    if (sts < 0) {
@@ -108,7 +222,17 @@ __pmBoundaryOptions(pmOptions *opts, struct timeval *begin, struct timeval *end)
 		break;
 	}
     }
+
+ done:
+    if (begintimes)
+	free(begintimes);
+    if (endtimes)
+	free(endtimes);
     return sts;
+
+ noMem:
+    __pmNoMem("pmGetOptions(archive)", size, PM_FATAL_ERR);
+    return 0; /* keep the compiler happy */
 }
 
 /*
@@ -155,7 +279,7 @@ pmGetContextOptions(int ctxid, pmOptions *opts)
 	struct timeval first_boundary, last_boundary;
 	char *msg;
 
-	if (__pmBoundaryOptions(opts, &first_boundary, &last_boundary) < 0)
+	if (__pmBoundaryOptions(opts, ctxid, &first_boundary, &last_boundary) < 0)
 	    opts->errors++;
 	else if (pmParseTimeWindow(
 			opts->start_optarg, opts->finish_optarg,
