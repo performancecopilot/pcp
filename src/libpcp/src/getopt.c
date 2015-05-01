@@ -201,7 +201,7 @@ __pmBoundaryOptions(
 	 * last archive.
 	 */
 	*begin = begintimes[0];
-	*end = endtimes[i];
+	*end = endtimes[i - 1];
 
 	/* Make the first archive the current one. */
 	if ((sts = __pmLogChangeArchive(ctxp, 0)) < 0)
