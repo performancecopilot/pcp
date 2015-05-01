@@ -1074,7 +1074,6 @@ extern void __pmFreeInterpData(__pmContext *);
 extern int __pmLogChangeVol(__pmLogCtl *, int);
 extern int __pmLogChkLabel(__pmLogCtl *, FILE *, __pmLogLabel *, int);
 extern int __pmGetArchiveEnd(__pmLogCtl *, struct timeval *);
-extern void __pmArchCtlFree (__pmArchCtl *);
 
 /* struct for maintaining information about pmlogger ports */
 typedef struct {
