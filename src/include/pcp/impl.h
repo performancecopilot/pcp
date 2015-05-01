@@ -1052,6 +1052,10 @@ extern int __pmLogLoadMeta(__pmLogCtl *);
 extern void __pmLogClose(__pmLogCtl *);
 extern void __pmLogCacheClear(FILE *);
 
+extern int __pmLogChangeArchive(__pmContext *, int);
+extern void __pmLogInitialState(__pmArchCtl *);
+extern void __pmArchCtlFree (__pmArchCtl *);
+
 extern int __pmLogPutDesc(__pmLogCtl *, const pmDesc *, int, char **);
 extern int __pmLogLookupDesc(__pmLogCtl *, pmID, pmDesc *);
 extern int __pmLogPutInDom(__pmLogCtl *, pmInDom, const __pmTimeval *, int, int *, char **);
@@ -1070,7 +1074,6 @@ extern void __pmFreeInterpData(__pmContext *);
 extern int __pmLogChangeVol(__pmLogCtl *, int);
 extern int __pmLogChkLabel(__pmLogCtl *, FILE *, __pmLogLabel *, int);
 extern int __pmGetArchiveEnd(__pmLogCtl *, struct timeval *);
-extern void __pmArchCtlFree (__pmArchCtl *);
 
 /* struct for maintaining information about pmlogger ports */
 typedef struct {

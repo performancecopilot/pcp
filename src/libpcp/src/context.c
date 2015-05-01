@@ -539,39 +539,11 @@ initarchive(__pmContext	*ctxp, const char *name)
      * implementation, open the current archive (first archive in the list).
      */
     if (loglist != NULL) {
-	if (acp->ac_log->l_refcnt == 0) {
-	    /*
-	     * __pmLogOpen() will overwrite acp->ac_log->l_name, so free it
-	     * here in order to plug the resulting leak.
-	     */
-	    char *tmp = acp->ac_log->l_name;
-	    sts = __pmLogOpen(tmp, ctxp);
-	    free(tmp);
-	    if (sts < 0) {
-		--numlogs;
-		goto error;
-	    }
-	    acp->ac_log->l_refcnt = 1;
+	sts = __pmLogChangeArchive(ctxp, 0);
+	if (sts < 0) {
+	    --numlogs;
+	    goto error;
 	}
-	else {
-	    /*
-	     * Archive already open, set default starting state as per
-	     * __pmLogOpen */
-	    ctxp->c_origin.tv_sec = (__int32_t)acp->ac_log->l_label.ill_start.tv_sec;
-	    ctxp->c_origin.tv_usec = (__int32_t)acp->ac_log->l_label.ill_start.tv_usec;
-	    ctxp->c_mode = (ctxp->c_mode & 0xffff0000) | PM_MODE_FORW;
-	}
-
-	/* start after header + label record + trailer */
-	acp->ac_offset = sizeof(__pmLogLabel) + 2*sizeof(int);
-	acp->ac_vol = acp->ac_log->l_curvol;
-	acp->ac_serial = 0;		/* not serial access, yet */
-	acp->ac_pmid_hc.nodes = 0;	/* empty hash list */
-	acp->ac_pmid_hc.hsize = 0;
-	acp->ac_end = 0.0;
-	acp->ac_want = NULL;
-	acp->ac_unbound = NULL;
-	acp->ac_cache = NULL;
     }
 
     free(namelist);
