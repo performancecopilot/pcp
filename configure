@@ -809,6 +809,7 @@ PYTHON
 GIT
 LTLIBOBJS
 LIBOBJS
+pm_version_current
 PACKAGE_DISTRIBUTION
 PACKAGE_BUILD_DATE
 PACKAGE_BUILD
@@ -4745,6 +4746,9 @@ fi
 if test -z "$PACKAGE_DISTRIBUTION" ; then
     PACKAGE_DISTRIBUTION=$target_distro
 fi
+
+
+pm_version_current=`awk </dev/null "BEGIN { print (${PACKAGE_MAJOR}*256+${PACKAGE_MINOR})*256+${PACKAGE_REVISION} }"`
 
 
 ac_config_headers="$ac_config_headers src/include/pcp/config.h src/include/pcp/configsz.h"

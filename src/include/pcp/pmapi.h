@@ -618,6 +618,8 @@ extern int pmflush(void);
  */
 extern char *pmGetConfig(const char *);
 
+extern int pmGetVersion(void);
+
 /*
  * Common command line argument parsing interfaces
  */

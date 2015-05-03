@@ -1106,4 +1106,5 @@ cgroups
 1050 pmieconf local
 1051 pmieconf #696008 local
 1091 pmns libpcp context local
+1092 libpcp local
 1108 logutil local folio pmlogextract
