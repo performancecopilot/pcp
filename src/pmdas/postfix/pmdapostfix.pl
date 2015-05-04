@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012,2014 Red Hat.
+# Copyright (c) 2012-2015 Red Hat.
 # Copyright (c) 2009-2010 Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -204,6 +204,9 @@ foreach my $file ( @logfiles ) {
 	$logfile = $file;
     }
 }
+if (defined($ENV{'PMDA_POSTFIX_LOG'})) { $logfile = $ENV{'PMDA_POSTFIX_LOG'}; }
+if (defined($ENV{'PMDA_POSTFIX_QSHAPE'})) { $qshape = $ENV{'PMDA_POSTFIX_QSHAPE'}; }
+if (defined($ENV{'PMDA_POSTFIX_REFRESH'})) { $refresh = $ENV{'PMDA_POSTFIX_REFRESH'}; }
 die 'No Postfix log file found' unless defined($logfile);
 
 $pmda->add_indom($postfix_queues_indom, \@postfix_queues_dom, '', '');
