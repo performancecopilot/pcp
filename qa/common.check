@@ -1399,7 +1399,18 @@ _change_config()
 	pat=$1
 	[ "$1" = "verbose" ] && pat=""
 
-	if which systemctl >/dev/null 2>&1
+	_have_systemctl=false
+	which systemctl >/dev/null 2>&1 && _have_systemctl=true
+	if [ -z "$pat" ]
+	then
+	    _have_service=true
+	elif [ -n "$PCP_SYSTEMDUNIT" -a -f $PCP_SYSTEMDUNIT_DIR/$pat.service ]
+	then
+	    _have_service=true
+	else
+	    _have_service=false
+	fi
+	if $_have_systemctl && $_have_service
 	then
 	    # Run with systemd whenever it is available now
 	    #
@@ -1551,7 +1562,18 @@ _get_config()
 	    *)	pat=$1 ;;
 	esac
 
-	if which systemctl >/dev/null 2>&1
+	_have_systemctl=false
+	which systemctl >/dev/null 2>&1 && _have_systemctl=true
+	if [ -z "$pat" ]
+	then
+	    _have_service=true
+	elif [ -n "$PCP_SYSTEMDUNIT" -a -f $PCP_SYSTEMDUNIT_DIR/$pat.service ]
+	then
+	    _have_service=true
+	else
+	    _have_service=false
+	fi
+	if $_have_systemctl && $_have_service
 	then
 	    # Run with systemd whenever it is available now
 	    #
