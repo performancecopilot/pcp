@@ -18,14 +18,16 @@ which qshape >/dev/null 2>&1 || _notrun "No qshape binary installed"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
-_filter_postfix()
-{
-    sed \
-	-e 's/ value .*$/ value VALUE/g' \
-    #end
-}
+# prepare the PMDAs test environment
+cp $here/postfix/qshape.sh $tmp.qshape
+$sudo chown root:root $tmp.qshape
+$sudo chmod 755 $tmp.qshape
+touch $tmp.logfile
+
+export PMDA_POSTFIX_LOG=$tmp.logfile
+export PMDA_POSTFIX_REFRESH=1
+export PMDA_POSTFIX_QSHAPE=$tmp.qshape
 
 pmdapostfix_remove()
 {
@@ -66,17 +68,18 @@ pmdapostfix_install
 
 metrics=`pminfo postfix | LC_COLLATE=POSIX sort`
 
-# TODO: add code for manipulating values and verifying 'em
-# Currently, we just accept any old values from qshape(1).
-echo "=== verify postfix values ==="
-if pminfo -f $metrics > $tmp.info 2> $tmp.err
-then
-    :
-else
-    echo "... failed! ... here is the Install log ..."
-    cat $tmp.out
-fi
-cat $tmp.info $tmp.err | _filter_postfix
+for file in $here/postfix/*-log-*gz
+do
+    pmsleep 1.25
+    logfile=`basename $file`
+    gunzip < $file > $tmp.logfile
+
+    echo "=== verify postfix values - $logfile ==="
+    pminfo -f $metrics
+    echo "=== done ==="
+    echo
+done
+$sudo rm -f $tmp.logfile $tmp.qshape
 
 pmdapostfix_remove
 status=0

@@ -107,6 +107,12 @@ AC_ARG_WITH([books],
     [do_books=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books=$withval"],
     [do_books=no])
 
+AC_ARG_WITH([books-brand],
+    [AC_HELP_STRING([--with-books-brand=BRAND],
+                    [choose the docbook brand when building the PCP books (default is common)])],
+    [do_books_brand=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books-brand=$withval"],
+    [do_books_brand=common])
+
 AC_ARG_WITH([papi],
     [AC_HELP_STRING([--with-papi@<:@=DIR|=MODULE@:>@],
 		   [enable performance api counter pmda (default is on)
@@ -958,6 +964,13 @@ then
     fi
 fi
 AC_SUBST(book_toolchain)
+
+book_brand="common"
+if test "$do_books_brand" != ""
+then
+    book_brand=$do_books_brand
+fi
+AC_SUBST(book_brand)
 
 dnl check if symbolic links are supported
 AC_PROG_LN_S
