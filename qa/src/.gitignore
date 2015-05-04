@@ -90,6 +90,7 @@ gap.meta
 getconfig
 getcontexthost
 getoptions
+getversion
 grind_conv
 grind_ctx
 hashwalk
