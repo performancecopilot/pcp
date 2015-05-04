@@ -222,5 +222,4 @@ $pmda->add_indom($postfix_sent_indom, \@postfix_sent_dom, '', '');
 $pmda->add_indom($postfix_received_indom, \@postfix_received_dom, '', '');
 $pmda->add_tail($logfile, \&postfix_log_parser, 0);
 $pmda->set_fetch_callback(\&postfix_fetch_callback);
-$pmda->set_user('postfix');
 $pmda->run;
