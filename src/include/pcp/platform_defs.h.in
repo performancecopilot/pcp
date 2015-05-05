@@ -10,4 +10,8 @@
 #define FMT_PID @fmt_pid@
 #define FMT_PTHREAD @fmt_pthread@
 
+/* build version macros */
+#define PM_VERSION(a,b,c) (((a)<<16)|((b)<<8)|(c))
+#define PM_VERSION_CURRENT @pm_version_current@
+
 #endif /* PCP_PLATFORM_DEFS_H */

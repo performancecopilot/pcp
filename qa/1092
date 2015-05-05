@@ -1,0 +1,26 @@
+#!/bin/sh
+# PCP QA Test No. 1092
+# Check pmGetVersion()
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+src/getversion
+
+# success, all done
+status=0
+
+exit
