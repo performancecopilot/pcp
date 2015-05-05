@@ -488,3 +488,8 @@ PCP_3.10 {
   global:
     __pmPrintMetricNames;
 } PCP_3.9;
+
+PCP_3.11 {
+  global:
+    pmGetVersion;
+} PCP_3.10;

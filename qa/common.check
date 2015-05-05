@@ -1404,7 +1404,7 @@ _change_config()
 	if [ -z "$pat" ]
 	then
 	    _have_service=true
-	elif [ -n "$PCP_SYSTEMDUNIT" -a -f $PCP_SYSTEMDUNIT_DIR/$pat.service ]
+	elif [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$pat.service ]
 	then
 	    _have_service=true
 	else
@@ -1567,7 +1567,7 @@ _get_config()
 	if [ -z "$pat" ]
 	then
 	    _have_service=true
-	elif [ -n "$PCP_SYSTEMDUNIT" -a -f $PCP_SYSTEMDUNIT_DIR/$pat.service ]
+	elif [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$pat.service ]
 	then
 	    _have_service=true
 	else

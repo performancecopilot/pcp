@@ -468,6 +468,10 @@ if test -z "$PACKAGE_DISTRIBUTION" ; then
 fi
 AC_SUBST(PACKAGE_DISTRIBUTION)
 
+dnl generate PM_VERSION_CURRENT for header
+pm_version_current=`awk </dev/null "BEGIN { print (${PACKAGE_MAJOR}*256+${PACKAGE_MINOR})*256+${PACKAGE_REVISION} }"`
+AC_SUBST(pm_version_current)
+
 dnl output header files with cpp defs HAVE_*, etc
 AC_CONFIG_HEADERS(src/include/pcp/config.h src/include/pcp/configsz.h)
 AC_OUTPUT(src/include/pcp/platform_defs.h)
