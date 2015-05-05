@@ -2024,7 +2024,9 @@ cd
 
 %files pmda-roomtemp -f pmda_roomtemp_files.rpm
 
+%if "@pmda_rpm@" == "true"
 %files pmda-rpm -f pmda_rpm_files.rpm
+%endif
 
 %files pmda-sendmail -f pmda_sendmail_files.rpm
 
