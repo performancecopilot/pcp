@@ -32,6 +32,7 @@ _filter()
 	-e '/^papi.*: No permission to perform requested operation/d' \
 	-e '/^elasticsearch.*: Try again. Information not currently /d' \
 	-e '/^zswap.*: Try again. Information not currently available/d' \
+	-e '/^hotproc.psinfo.cgroups: No data available/d' \
     #end
 }
 
