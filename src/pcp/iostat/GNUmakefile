@@ -18,7 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 CMDTARGET = pcp-iostat
 LDIRT = $(CMDTARGET)
 
-default:
+default: $(CMDTARGET).py
 
 include $(BUILDRULES)
 
