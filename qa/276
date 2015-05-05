@@ -31,7 +31,10 @@ $sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-export DISPLAY=$PCPQA_CLOSE_X_SERVER
+if [ -z "$DISPLAY" ]
+then
+    export DISPLAY=$PCPQA_CLOSE_X_SERVER
+fi
 src/grind-tools -v -a src/fcsw_indom fcsw.port.bytes_out 2>&1 | _filter_views
 status=$?
 exit

@@ -9,7 +9,10 @@ here=`pwd`
 sudo=sudo
 host=`hostname`
 
-export DISPLAY=$PCPQA_CLOSE_X_SERVER
+if [ -z "$DISPLAY" ]
+then
+    export DISPLAY=$PCPQA_CLOSE_X_SERVER
+fi
 
 # hackery for dbus-based environments
 #
