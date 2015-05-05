@@ -137,7 +137,7 @@ class SimplePMDA(PMDA):
         ''' Helper for the store callback, handles simple.numfetch '''
         sts = 0
         if (val < 0):
-            sts = c_api.PM_ERR_SIGN
+            sts = c_api.PM_ERR_BADSTORE
             val = 0
         self.numfetch = val
         return sts
@@ -146,10 +146,10 @@ class SimplePMDA(PMDA):
         ''' Helper for the store callback, handles simple.color '''
         sts = 0
         if (val < 0):
-            sts = c_api.PM_ERR_SIGN
+            sts = c_api.PM_ERR_BADSTORE
             val = 0
         elif (val > 255):
-            sts = c_api.PM_ERR_CONV
+            sts = c_api.PM_ERR_BADSTORE
             val = 255
 
         if (inst == 0):

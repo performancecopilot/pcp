@@ -776,7 +776,7 @@ mmv_store(pmResult *result, pmdaExt *ep)
 		    int sts;
 
 		    if (vsp->numval != 1 )
-			return PM_ERR_CONV;
+			return PM_ERR_BADSTORE;
 
 		    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 					PM_TYPE_32, &atom, PM_TYPE_32)) < 0)

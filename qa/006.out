@@ -54,7 +54,7 @@ QA output created by 006
 -12397 Unknown or illegal metric type
 -12398 Operation not supported for multi-threaded applications
 -12399 Container not found
--12400 No such PMAPI error code (-12400)
+-12400 Bad input to pmstore
 -12401 No such PMAPI error code (-12401)
 -12402 No such PMAPI error code (-12402)
 -12403 No such PMAPI error code (-12403)

@@ -187,6 +187,7 @@ typedef struct {
 #define PM_ERR_TYPE		(-PM_ERR_BASE-52)   /* Unknown or illegal metric type */
 #define PM_ERR_THREAD		(-PM_ERR_BASE-53)   /* Operation not supported for multi-threaded applications */
 #define PM_ERR_NOCONTAINER	(-PM_ERR_BASE-54)   /* Container not found */
+#define PM_ERR_BADSTORE		(-PM_ERR_BASE-55)   /* Bad input to pmstore */
 
 /* retired PM_ERR_CTXBUSY (-PM_ERR_BASE-97) Context is busy */
 #define PM_ERR_TOOSMALL		(-PM_ERR_BASE-98)   /* Insufficient elements in list */
