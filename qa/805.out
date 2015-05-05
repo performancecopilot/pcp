@@ -163,7 +163,7 @@ postfix.received
     inst [1 or "smtp"] value 0
 
 postfix.sent
-    inst [0 or "smtp"] value 0
+    inst [0 or "smtp"] value 1
     inst [1 or "local"] value 1
 === done ===
 
