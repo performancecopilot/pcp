@@ -125,8 +125,12 @@ defines(void)
     printf("PM_ERR_NEEDPORT=%d\n", PM_ERR_NEEDPORT);
     printf("PM_ERR_NONLEAF=%d\n", PM_ERR_NONLEAF);
     printf("PM_ERR_TYPE=%d\n", PM_ERR_TYPE);
+    printf("PM_ERR_THREAD=%d\n", PM_ERR_THREAD);
+    printf("PM_ERR_NOCONTAINER=%d\n", PM_ERR_NOCONTAINER);
+    printf("PM_ERR_BADSTORE=%d\n", PM_ERR_BADSTORE);
     printf("PM_ERR_TOOSMALL=%d\n", PM_ERR_TOOSMALL);
     printf("PM_ERR_TOOBIG=%d\n", PM_ERR_TOOBIG);
+    printf("PM_ERR_FAULT=%d\n", PM_ERR_FAULT);
     printf("PM_ERR_PMDAREADY=%d\n", PM_ERR_PMDAREADY);
     printf("PM_ERR_PMDANOTREADY=%d\n", PM_ERR_PMDANOTREADY);
     printf("PM_ERR_NYI=%d\n", PM_ERR_NYI);

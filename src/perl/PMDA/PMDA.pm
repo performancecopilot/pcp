@@ -27,9 +27,10 @@ require DynaLoader;
 	PM_ERR_NOTARCHIVE PM_ERR_NOCONTEXT PM_ERR_PROFILESPEC PM_ERR_PMID_LOG
 	PM_ERR_INDOM_LOG PM_ERR_INST_LOG PM_ERR_NOPROFILE PM_ERR_NOAGENT
 	PM_ERR_PERMISSION PM_ERR_CONNLIMIT PM_ERR_AGAIN PM_ERR_ISCONN
-	PM_ERR_NOTCONN PM_ERR_NEEDPORT PM_ERR_NONLEAF
+	PM_ERR_NOTCONN PM_ERR_NEEDPORT PM_ERR_NONLEAF PM_ERR_TYPE
+	PM_ERR_THREAD PM_ERR_NOCONTAINER PM_ERR_BADSTORE
 	PM_ERR_PMDANOTREADY PM_ERR_PMDAREADY
-	PM_ERR_TOOSMALL PM_ERR_TOOBIG PM_ERR_NYI
+	PM_ERR_TOOSMALL PM_ERR_TOOBIG PM_ERR_FAULT PM_ERR_NYI
 );
 @EXPORT_OK = qw();
 $VERSION = '1.15';
@@ -123,10 +124,15 @@ sub PM_ERR_ISCONN	{ -12390; }	# Already Connected
 sub PM_ERR_NOTCONN	{ -12391; }	# Not Connected
 sub PM_ERR_NEEDPORT	{ -12392; }	# A non-null port name is required
 sub PM_ERR_NONLEAF	{ -12394; }	# Metric name is not a leaf in PMNS
+sub PM_ERR_TYPE		{ -12397; }	# Unknown or illegal metric type
+sub PM_ERR_THREAD	{ -12398; }	# Operation not supported for multi-threaded applications
+sub PM_ERR_NOCONTAINER	{ -12399; }	# Container not found 
+sub PM_ERR_BADSTORE	{ -12400; }	# Bad input to pmstore
 sub PM_ERR_PMDANOTREADY	{ -13394; }	# PMDA is not yet ready to respond to requests
 sub PM_ERR_PMDAREADY	{ -13393; }	# PMDA is now responsive to requests
 sub PM_ERR_TOOSMALL	{ -12443; }	# Insufficient elements in list
 sub PM_ERR_TOOBIG	{ -12444; }	# Result size exceeded
+sub PM_ERR_FAULT	{ -12445; }	# QA fault injected
 sub PM_ERR_NYI		{ -21344; }	# Functionality not yet implemented
 
 
