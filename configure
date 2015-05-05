@@ -738,6 +738,7 @@ LEXLIB
 LEX_OUTPUT_ROOT
 LEX
 LN_S
+book_brand
 book_toolchain
 xmlto
 XMLTO
@@ -911,6 +912,7 @@ with_qt
 with_python
 with_python3
 with_books
+with_books_brand
 with_papi
 with_perfevent
 with_manager
@@ -1604,6 +1606,9 @@ Optional Packages:
   --with-python3          enable support for tools requiring Python3 (default
                           is on)
   --with-books            enable building of the PCP books (default is off)
+  --with-books-brand=BRAND
+                          choose the docbook brand when building the PCP books
+                          (default is common)
   --with-papi[=DIR|=MODULE]
                           enable performance api counter pmda (default is on)
                           The optional argument may be a full path of a PAPI
@@ -2655,6 +2660,15 @@ if test "${with_books+set}" = set; then :
   withval=$with_books; do_books=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books=$withval"
 else
   do_books=no
+fi
+
+
+
+# Check whether --with-books-brand was given.
+if test "${with_books_brand+set}" = set; then :
+  withval=$with_books_brand; do_books_brand=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books-brand=$withval"
+else
+  do_books_brand=common
 fi
 
 
@@ -8343,6 +8357,13 @@ then
     then
 	as_fn_error $? "cannot enable books build - no toolchain found" "$LINENO" 5
     fi
+fi
+
+
+book_brand="common"
+if test "$do_books_brand" != ""
+then
+    book_brand=$do_books_brand
 fi
 
 

@@ -204,6 +204,7 @@ XMLTO	= @xmlto@
 DBLATEX	= @dblatex@
 PUBLICAN = @publican@
 BOOK_TOOLCHAIN = @book_toolchain@
+BOOK_BRAND = @book_brand@
 
 HAVE_GZIPPED_MANPAGES = @have_gzipped_manpages@
 HAVE_BZIP2ED_MANPAGES = @have_bzip2ed_manpages@
