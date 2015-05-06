@@ -71,7 +71,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@enable_probes@|$(ENABLE_PROBES)|g' \
 	    -e's|@enable_avahi@|$(ENABLE_AVAHI)|g' \
 	    -e's|@enable_qt@|$(ENABLE_QT)|g' \
-	    -e's|@enable_python@|$(ENABLE_PYTHON)|g' \
+	    -e's|@enable_python2@|$(ENABLE_PYTHON2)|g' \
 	    -e's|@enable_python3@|$(ENABLE_PYTHON3)|g' \
 	    -e's|@enable_manager@|$(ENABLE_MANAGER)|g' \
 	    -e's|@enable_webapi@|$(ENABLE_WEBAPI)|g' \

@@ -10,7 +10,7 @@ TESTDIR = $(PCP_VAR_DIR)/testsuite/pmdas
 SUBDIRS = broken bigun dynamic slow test_perl \
 	  schizo
 
-ifeq "$(ENABLE_PYTHON)" "true"
+ifeq "$(ENABLE_PYTHON2)" "true"
 SUBDIRS += slow_python memory_python
 endif
 

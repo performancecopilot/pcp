@@ -42,8 +42,6 @@ OTHER_SUBDIRS = \
 	newhelp \
 	pcp \
 	pmafm \
-	pmatop \
-	pmcollectl \
 	pmfind \
 	pmcpp \
 	pmcd \
@@ -64,7 +62,6 @@ OTHER_SUBDIRS = \
 	pmie \
 	pmieconf \
 	pmiestatus \
-	pmiostat \
 	pmlc \
 	pmlock \
 	pmlogextract \
@@ -102,7 +99,6 @@ OTHER_SUBDIRS = \
 	sheet2pcp \
 	ganglia2pcp \
 	win32ctl \
-	pcp2graphite \
 	#
 
 SUBDIRS = \

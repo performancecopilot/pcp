@@ -31,7 +31,7 @@ endif
 
 default default_pcp: build_python build_python3
 
-ifeq "$(ENABLE_PYTHON)" "true"
+ifeq "$(ENABLE_PYTHON2)" "true"
 PY_BUILD_OPTS = $(SETUP_PY_BUILD_OPTIONS)
 PY_INSTALL_OPTS = $(SETUP_PY_INSTALL_OPTIONS) --record=$(TOPDIR)/python-pcp.list
 build_python: setup.py $(CFILES)

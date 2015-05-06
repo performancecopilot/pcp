@@ -2,7 +2,7 @@
 # PCP QA Test No. 827
 # Check log rewriting of Linux /proc/net/snmp metric types
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013, 2015 Red Hat.
 #
 
 # get standard environment, filters and checks
@@ -12,6 +12,8 @@
 
 seq=`basename $0`
 echo "QA output created by $seq"
+
+[ -f ${PCP_PMDAS_DIR}/snmp/pmdasnmp.pl ] || _notrun "snmp pmda not installed"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full

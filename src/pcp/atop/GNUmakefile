@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014 Red Hat, Inc.  All Rights Reserved.
+# Copyright (c) 2013 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -12,21 +12,17 @@
 # for more details.
 #
 
-TOPDIR = ../..
+TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-CMDTARGET = pmiostat
-LDIRT = $(CMDTARGET)
+TARGET = pcp-atop
+PYFILES	= $(TARGET).py
 
-default:
+default default_pcp: $(PYFILES)
 
 include $(BUILDRULES)
 
-install: default
-ifeq "$(ENABLE_PYTHON)" "true"
-	$(INSTALL) -m 755 $(CMDTARGET).py $(PCP_BIN_DIR)/$(CMDTARGET)
+install install_pcp: $(PYFILES)
+ifeq "$(ENABLE_PYTHON2)" "true"
+	$(INSTALL) -m 755 $(PYFILES) $(PCP_BINADM_DIR)/$(TARGET)
 endif
-
-default_pcp: default
-
-install_pcp: install

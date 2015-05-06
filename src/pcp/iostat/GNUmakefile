@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2015 Red Hat, Inc.  All Rights Reserved.
+# Copyright (c) 2014 Red Hat, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -12,19 +12,19 @@
 # for more details.
 #
 
-TOPDIR = ../..
+TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-CMDTARGET = pcp2graphite
+CMDTARGET = pcp-iostat
 LDIRT = $(CMDTARGET)
 
-default:
+default: $(CMDTARGET).py
 
 include $(BUILDRULES)
 
 install: default
-ifeq "$(ENABLE_PYTHON)" "true"
-	$(INSTALL) -m 755 $(CMDTARGET).py $(PCP_BIN_DIR)/$(CMDTARGET)
+ifeq "$(ENABLE_PYTHON2)" "true"
+	$(INSTALL) -m 755 $(CMDTARGET).py $(PCP_BINADM_DIR)/$(CMDTARGET)
 endif
 
 default_pcp: default
