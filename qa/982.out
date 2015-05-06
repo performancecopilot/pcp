@@ -11,7 +11,7 @@ hotproc.control.refresh
 hotproc.control.config
     value "(fname == "pmdaproc")"
 hotproc.control.config new value="foo==42"
-hotproc.control.config: pmStore: Impossible value or scale conversion
+hotproc.control.config: pmStore: Bad input to pmstore
 
 hotproc.control.config
     value "(fname == "pmdaproc")"

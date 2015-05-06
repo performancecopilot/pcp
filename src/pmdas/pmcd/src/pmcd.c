@@ -1773,7 +1773,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		else if (val == 1)
 		    _pmcd_trace_mask |= TR_MASK_CONN;
 		else {
-		    sts = PM_ERR_CONV;
+		    sts = PM_ERR_BADSTORE;
 		    break;
 		}
 	    }
@@ -1784,7 +1784,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		else if (val == 1)
 		    _pmcd_trace_mask |= TR_MASK_PDU;
 		else {
-		    sts = PM_ERR_CONV;
+		    sts = PM_ERR_BADSTORE;
 		    break;
 		}
 	    }
@@ -1812,7 +1812,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		else if (val == 1)
 		    _pmcd_trace_mask |= TR_MASK_NOBUF;
 		else {
-		    sts = PM_ERR_CONV;
+		    sts = PM_ERR_BADSTORE;
 		    break;
 		}
 	    }

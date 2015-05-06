@@ -2827,7 +2827,7 @@ proc_store(pmResult *result, pmdaExt *pmda)
 		else if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
 		    if (av.ul > 1)	/* only zero or one allowed */
-			sts = PM_ERR_CONV;
+			sts = PM_ERR_BADSTORE;
 		    else
 			threads = av.ul;
 		}
@@ -2876,7 +2876,7 @@ proc_store(pmResult *result, pmdaExt *pmda)
                         /* Bad config */
 			if (savebuffer)
 			    set_conf_buffer(savebuffer);
-                        sts = PM_ERR_CONV;
+                        sts = PM_ERR_BADSTORE;
 		    }
                     else if ( lsts == 0 ){
                         /* Empty Config */

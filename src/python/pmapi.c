@@ -1395,6 +1395,8 @@ MOD_INIT(cpmapi)
     edict_add(dict, edict, "PM_ERR_NONLEAF", PM_ERR_NONLEAF);
     edict_add(dict, edict, "PM_ERR_TYPE", PM_ERR_TYPE);
     edict_add(dict, edict, "PM_ERR_THREAD", PM_ERR_THREAD);
+    edict_add(dict, edict, "PM_ERR_NOCONTAINER", PM_ERR_NOCONTAINER);
+    edict_add(dict, edict, "PM_ERR_BADSTORE", PM_ERR_BADSTORE);
     edict_add(dict, edict, "PM_ERR_TOOSMALL", PM_ERR_TOOSMALL);
     edict_add(dict, edict, "PM_ERR_TOOBIG", PM_ERR_TOOBIG);
     edict_add(dict, edict, "PM_ERR_FAULT", PM_ERR_FAULT);

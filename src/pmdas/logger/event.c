@@ -486,7 +486,7 @@ event_regex_alloc(const char *string, void **filter)
 	return -ENOMEM;
     if (regcomp(regex, string, REG_EXTENDED|REG_NOSUB) != 0) {
 	free(regex);
-	return PM_ERR_CONV;
+	return PM_ERR_BADSTORE;
     }
     *filter = (void *)regex;
     return 0;
