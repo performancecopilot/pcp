@@ -1159,18 +1159,18 @@ collecting metrics about filesystem mounts.  The PMDA is written in C.
 # end pcp-pmda-mounts
 
 #
-# pcp-pmda-nvidia
+# pcp-pmda-nvidia-gpu
 #
-%package pmda-nvidia
+%package pmda-nvidia-gpu
 License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Nvidia shell
 URL: http://www.pcp.io
 Requires: pcp-libs = @package_version@
-%description pmda-nvidia
+%description pmda-nvidia-gpu
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Nvidia gpu metrics.  The PMDA is written in C.
-# end pcp-pmda-nvidia
+# end pcp-pmda-nvidia-gpu
 
 #
 # pcp-pmda-roomtemp
@@ -1305,7 +1305,7 @@ Requires: pcp-pmda-samba pcp-pmda-snmp pcp-pmda-systemtap pcp-pmda-vmware pcp-pm
 Requires: pcp-pmda-dm pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-apache
 Requires: pcp-pmda-dm pcp-pmda-gluster pcp-pmda-unbound pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
-Requires: pcp-pmda-nvidia pcp-pmda-roomtemp pcp-pmda-rpm pcp-pmda-sendmail pcp-pmda-shping
+Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-rpm pcp-pmda-sendmail pcp-pmda-shping
 Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
 Requires: pcp-system-tools
 %description compat
@@ -1328,7 +1328,7 @@ Requires: pcp-pmda-samba pcp-pmda-snmp pcp-pmda-systemtap pcp-pmda-vmware pcp-pm
 Requires: pcp-pmda-dm pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-apache
 Requires: pcp-pmda-dm pcp-pmda-gluster pcp-pmda-unbound pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
-Requires: pcp-pmda-nvidia pcp-pmda-roomtemp pcp-pmda-rpm pcp-pmda-sendmail pcp-pmda-shping
+Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-rpm pcp-pmda-sendmail pcp-pmda-shping
 Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
 %description collector
 This package contains the PCP metric collection dependencies.  This includes
@@ -2045,7 +2045,7 @@ cd
 
 %files pmda-mounts -f pmda_mounts_files.rpm
 
-%files pmda-nvidia -f pmda_nvidia_files.rpm
+%files pmda-nvidia-gpu -f pmda_nvidia_files.rpm
 
 %files pmda-roomtemp -f pmda_roomtemp_files.rpm
 
