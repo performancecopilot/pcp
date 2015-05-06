@@ -41,6 +41,7 @@ OTHER_SUBDIRS = \
 	genpmda \
 	newhelp \
 	pcp \
+	pcp2graphite \
 	pmafm \
 	pmfind \
 	pmcpp \

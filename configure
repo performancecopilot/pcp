@@ -803,6 +803,7 @@ enable_qt
 qt_release
 QMAKE
 pcp_python_prog
+have_python
 enable_python3
 enable_python2
 PYTHON3
@@ -6276,6 +6277,13 @@ done
 	as_fn_error $? "cannot enable Python3 - no supported version found" "$LINENO" 5
     fi
 
+fi
+
+
+have_python=false
+if test "$enable_python2" = "true" -o "$enable_python3" = "true"
+then
+    have_python=true
 fi
 
 

@@ -231,6 +231,9 @@ ENABLE_SYSTEMD = @enable_systemd@
 ENABLE_MANAGER = @enable_manager@
 ENABLE_WEBAPI = @enable_webapi@
 
+# for code supporting both/either python2 and/or python3
+HAVE_PYTHON = @have_python@
+
 # additional libraries needed for particular functions
 LIB_FOR_BASENAME = @lib_for_basename@
 LIB_FOR_DLOPEN = @lib_for_dlopen@

@@ -33,12 +33,8 @@ PLPMDAS = bonding netfilter zimbra postgresql \
 	rsyslog elasticsearch snmp nginx nfsclient \
 	ds389 ds389log activemq lustre gpfs
 
-ifeq "$(ENABLE_PYTHON2)" "true"
+ifeq "$(HAVE_PYTHON)" "true"
 PYPMDAS = gluster zswap unbound
-else ifeq "$(ENABLE_PYTHON3)" "true"
-PYPMDAS = gluster zswap unbound
-else
-PYPMDAS =
 endif
 
 SUBDIRS = $(CPMDAS) $(PLPMDAS) $(PYPMDAS)

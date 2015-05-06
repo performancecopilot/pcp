@@ -27,7 +27,7 @@ default: $(TARGET).py $(MAN_PAGES)
 include $(BUILDRULES)
 
 install: default
-ifeq "$(ENABLE_PYTHON2)" "true"
+ifeq "$(HAVE_PYTHON)" "true"
 	$(INSTALL) -m 755 $(TARGET).py $(PCP_BINADM_DIR)/$(TARGET)
 	$(INSTALL) -S $(PCP_BINADM_DIR)/$(TARGET) $(PCP_BINADM_DIR)/$(LVTARGET)
 	@$(INSTALL_MAN)

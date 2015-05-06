@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014 Red Hat, Inc.  All Rights Reserved.
+# Copyright (c) 2014-2015 Red Hat, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -23,8 +23,9 @@ default: $(CMDTARGET).py
 include $(BUILDRULES)
 
 install: default
-ifeq "$(ENABLE_PYTHON2)" "true"
+ifeq "$(HAVE_PYTHON)" "true"
 	$(INSTALL) -m 755 $(CMDTARGET).py $(PCP_BINADM_DIR)/$(CMDTARGET)
+	$(INSTALL) -S $(PCP_BINADM_DIR)/$(CMDTARGET) $(PCP_BIN_DIR)/pmiostat
 endif
 
 default_pcp: default

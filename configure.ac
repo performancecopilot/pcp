@@ -557,6 +557,14 @@ AS_IF([test "x$do_python3" != "xno"], [
 ])
 AC_SUBST(enable_python3)
 
+dnl convenience macro to determine if either python is available
+have_python=false
+if test "$enable_python2" = "true" -o "$enable_python3" = "true"
+then
+    have_python=true
+fi
+AC_SUBST(have_python)
+
 dnl choose the prefered python executable (py2 -> py3 transtion)
 if test "$enable_python3" = "true"
 then

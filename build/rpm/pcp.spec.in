@@ -1,13 +1,3 @@
-%if "@enable_python3@" == "true" || "@enable_python2@" == "true"
-%global with_python 1
-%else
-%global with_python 0
-%endif
-%if 0%{?fedora} > 22 || 0%{?rhel} > 7
-%global with_compat 0
-%else
-%global with_compat 1
-%endif
 Summary: System-level performance monitoring and performance management
 Name: @package_name@
 Version: @package_version@
@@ -18,6 +8,11 @@ Group: Applications/System
 Source: @package_name@-@package_version@.src.tar.gz
 BuildRoot: @build_root@ 
 Distribution: @package_distribution@
+%if 0%{?fedora} > 22 || 0%{?rhel} > 7
+%global with_compat 0
+%else
+%global with_compat 1
+%endif
 BuildRequires: procps bison flex
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
@@ -41,9 +36,6 @@ BuildRequires: qt4-devel >= 4.4
 %if "%{_vendor}" == "redhat"
 BuildRequires: initscripts man /bin/hostname
 %endif
-%if 0%{?fedora} >= 18 || 0%{?rhel} >= 7
-BuildRequires: systemd-devel
-%endif
 %if "@pmda_rpm@" == "true"
 BuildRequires: rpm-devel
 %endif
@@ -52,6 +44,9 @@ BuildRequires: papi-devel
 %endif
 %if "@pmda_perfevent@" == "true"
 BuildRequires: libpfm-devel >= 4
+%endif
+%if "@pmda_systemd@" == "true"
+BuildRequires: systemd-devel
 %endif
 %if "@have_cairo@" == "true"
 BuildRequires: cairo-devel
@@ -361,6 +356,27 @@ Requires: pcp-libs >= %{version}-%{release}
 Performance Co-Pilot (PCP) front-end tools for importing collectl data
 into standard PCP archive logs for replay with any PCP monitoring tool.
 
+%if "@have_python@" == "true"
+#
+# pcp-export-pcp2graphite
+#
+%package export-pcp2graphite
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for exporting PCP metrics to Graphite
+URL: http://www.pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if "@enable_python3@" == "true"
+Requires: python3-pcp = @package_version@
+%else
+Requires: python-pcp = @package_version@
+%endif
+
+%description export-pcp2graphite
+Performance Co-Pilot (PCP) front-end tools for exporting metric values
+to graphite (http://graphite.readthedocs.org).
+%endif
+
 %if "@enable_python2@" == "true"
 #
 # python-pcp. This is the PCP library bindings for python.
@@ -401,7 +417,7 @@ Performance Metric API (PMAPI) monitor tools and Performance
 Metric Domain Agent (PMDA) collector tools written in Python3.
 %endif
 
-%if %{with_python}
+%if "@have_python@" == "true"
 #
 # pcp-system-tools
 #
@@ -410,10 +426,10 @@ License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) System and Monitoring Tools
 URL: http://www.pcp.io
-%if "@enable_python2@" == "true"
-Requires: python-pcp = @package_version@
-%else
+%if "@enable_python3@" == "true"
 Requires: python3-pcp = @package_version@
+%else
+Requires: python-pcp = @package_version@
 %endif
 %description -n pcp-system-tools
 This PCP module contains additional system monitoring tools written
@@ -966,7 +982,7 @@ collecting metrics about the Device Mapper Cache and Thin Client.  The PMDA
 is written in Python.
 # end pcp-pmda-dm
    
-%if %{with_python}   
+%if "@have_python@" == "true"
 #
 # pcp-pmda-gluster
 #
@@ -975,10 +991,10 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Gluster filesystem
 URL: http://www.pcp.io
-%if "@enable_python2@" == "true"
-Requires: python-pcp
-%else
+%if "@enable_python3@" == "true"
 Requires: python3-pcp
+%else
+Requires: python-pcp
 %endif
 %description pmda-gluster
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -994,10 +1010,10 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for compressed swap
 URL: http://www.pcp.io
-%if "@enable_python2@" == "true"
-Requires: python-pcp
-%else
+%if "@enable_python3@" == "true"
 Requires: python3-pcp
+%else
+Requires: python-pcp
 %endif
 %description pmda-zswap
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1013,10 +1029,10 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Unbound DNS Resolver
 URL: http://www.pcp.io
-%if "@enable_python2@" == "true"
-Requires: python-pcp
-%else
+%if "@enable_python3@" == "true"
 Requires: python3-pcp
+%else
+Requires: python-pcp
 %endif
 %description pmda-unbound
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1228,6 +1244,7 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about other installed pmdas.  The PMDA is written in C.
 # end pcp-pmda-summary
 
+%if "@pmda_systemd@" == "true"
 #
 # pcp-pmda-systemd
 #
@@ -1241,6 +1258,7 @@ Requires: pcp-libs = @package_version@
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Systemd shell.  The PMDA is written in C.
 # end pcp-pmda-systemd
+%endif
 
 #
 # pcp-pmda-trace
@@ -1442,6 +1460,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'sheet2pcp' >import_sheet2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'mrtg2pcp' >import_mrtg2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'ganglia2pcp' >import_ganglia2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'collectl2pcp' >import_collectl2pcp_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2graphite' >export_pcp2graphite_files
 %if "@pmda_infiniband@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'infiniband|pmdaib|pmdas/ib' >pmda_infiniband_files
 %endif
@@ -1449,7 +1468,10 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'infiniband|pmdaib|pmdas/ib' >pmda_infi
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdapapi|pmdas/papi' >pmda_papi_files
 %endif
 %if "@pmda_perfevent@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | fgrep -e 'perfevent' -e 'perfalloc.1' > pmda_perfevent_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'perfevent|perfalloc.1' > pmda_perfevent_files
+%endif
+%if "@pmda_systemd@" == "true"
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdasystemd|pmdas/systemd' > pmda_systemd_files
 %endif
 
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'activemq|pmdas/activemq' > pmda_activemq_files
@@ -1479,11 +1501,11 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'systemtap|pmdas/systemtap' > pmda_s
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'vmware|pmdas/vmware' > pmda_vmware_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'zimbra|pmdas/zimbra' > pmda_zimbra_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/dm' > pmda_dm_files
-%if %{with_python}
+%if "@have_python@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'gluster|pmdas/gluster' > pmda_gluster_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'zswap|pmdas/zswap' > pmda_zswap_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'unbound|pmdas/unbound' > pmda_unbound_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e '2graphite|atop|collectl|dmcache|free|iostat|numastat|verify|uptime' \
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'atop|collectl|dmcache|free|iostat|numastat|verify|uptime' \
     | egrep -v 'collectl2pcp|pmda|pmdas/pmcache|iostat2pcp|testsuite|pmdas/dmcache' \
 	    > system_tools_files
 %endif
@@ -1501,7 +1523,6 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'rpm|pmdas/rpm' > pmda_rpm_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'sendmail|pmdas/sendmail' > pmda_sendmail_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'shping|pmdas/shping' > pmda_shping_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/summary' > pmda_summary_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdasystemd|pmdas/systemd' > pmda_systemd_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/trace' > pmda_trace_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'weblog|pmdas/weblog' > pmda_weblog_files
 
@@ -1518,7 +1539,7 @@ touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files
       pmda_rpm_files pmda_sendmail_files pmda_shping_files pmda_summary_files \
       pmda_trace_files pmda_weblog_files pmda_dm_files pmda_systemd_files
 
-%if %{with_python}
+%if "@have_python@" == "true"
 touch pmda_gluster_files pmda_zswap_files pmda_unbound_files \
       system_tools_files
 %endif
@@ -1564,11 +1585,12 @@ BEGIN {
     while( getline < "pmda_vmware_files") pmda_vmware[$0]=1;
     while( getline < "pmda_zimbra_files") pmda_zimbra[$0]=1;
     while( getline < "pmda_dm_files") pmda_dm[$0]=1;
-%if %{with_python}
+%if "@have_python@" == "true"
     while( getline < "system_tools_files") system_tools[$0]=1;
     while( getline < "pmda_gluster_files") pmda_gluster[$0]=1;
     while( getline < "pmda_zswap_files") pmda_zswap[$0]=1;
     while( getline < "pmda_unbound_files") pmda_unbound[$0]=1;
+    while( getline < "export_pcp2graphite_files") export_pcp2graphite[$0]=1;
 %endif
     while( getline < "pmda_apache_files") pmda_apache[$0]=1;
     while( getline < "pmda_bash_files") pmda_bash[$0]=1;
@@ -1635,11 +1657,12 @@ BEGIN {
     else if (pmda_vmware[$NF]) f="pmda_vmware_files.rpm";
     else if (pmda_zimbra[$NF]) f="pmda_zimbra_files.rpm";
     else if (pmda_dm[$NF]) f="pmda_dm_files.rpm";
-%if %{with_python}
+%if "@have_python@" == "true"
     else if (system_tools[$NF]) f="system_tools_files.rpm";
     else if (pmda_gluster[$NF]) f="pmda_gluster_files.rpm";
     else if (pmda_zswap[$NF]) f="pmda_zswap_files.rpm";
     else if (pmda_unbound[$NF]) f="pmda_unbound_files.rpm";
+    else if (export_pcp2graphite[$NF]) f="export_pcp2graphite_files.rpm";
 %endif
     else if (pmda_apache[$NF]) f="pmda_apache_files.rpm";
     else if (pmda_bash[$NF]) f="pmda_bash_files.rpm";
@@ -1996,12 +2019,14 @@ cd
 
 %files pmda-dm -f pmda_dm_files.rpm
 
-%if %{with_python}
+%if "@have_python@" == "true"
 %files pmda-gluster -f pmda_gluster_files.rpm
 
 %files pmda-zswap -f pmda_zswap_files.rpm
 
 %files pmda-unbound -f pmda_unbound_files.rpm
+
+%files export-pcp2graphite -f export_pcp2graphite_files.rpm
 %endif
 
 %files pmda-apache -f pmda_apache_files.rpm
@@ -2034,7 +2059,9 @@ cd
 
 %files pmda-summary -f pmda_summary_files.rpm
 
+%if "@pmda_systemd@" == "true"
 %files pmda-systemd -f pmda_systemd_files.rpm
+%endif
 
 %files pmda-trace -f pmda_trace_files.rpm
 
@@ -2068,19 +2095,8 @@ cd
 %files -n python3-pcp -f python3-pcp.list.rpm
 %endif
 
-%if %{with_python}
+%if "@have_python@" == "true"
 %files -n pcp-system-tools -f system_tools_files.rpm
-
-%post system-tools
-ln -sf %{_libexecdir}/pcp/bin/pcp-collectl %{_bindir}/pmcollectl
-ln -sf %{_libexecdir}/pcp/bin/pcp-iostat %{_bindir}/pmiostat
-ln -sf %{_libexecdir}/pcp/bin/pcp-atop %{_bindir}/pmatop
-ln -sf %{_libexecdir}/pcp/bin/pcp-2graphite %{_bindir}/pcp2graphite
-%postun system-tools
-rm %{_bindir}/pmcollectl
-rm %{_bindir}/pmiostat
-rm %{_bindir}/pmatop
-rm %{_bindir}/pcp2graphite
 %endif
 
 %if %{with_compat}
