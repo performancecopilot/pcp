@@ -17,6 +17,7 @@
 #include <limits.h>
 #include <sys/stat.h>
 #include "logger.h"
+#include <errno.h>
 
 char		*configfile;
 __pmLogCtl	logctl;

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2012 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -12,10 +12,10 @@
 # for more details.
 #
 
-TOPDIR = ../..
+TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-TARGET = pmatop
+TARGET = pcp-collectl
 PYFILES	= $(TARGET).py
 
 default default_pcp: $(PYFILES)
@@ -23,6 +23,7 @@ default default_pcp: $(PYFILES)
 include $(BUILDRULES)
 
 install install_pcp: $(PYFILES)
-ifeq "$(ENABLE_PYTHON)" "true"
-	$(INSTALL) -m 755 $(PYFILES) $(PCP_BIN_DIR)/$(TARGET)
+ifeq "$(HAVE_PYTHON)" "true"
+	$(INSTALL) -m 755 $(PYFILES) $(PCP_BINADM_DIR)/$(TARGET)
+	$(INSTALL) -S $(PCP_BINADM_DIR)/$(CMDTARGET) $(PCP_BIN_DIR)/pmcollectl
 endif

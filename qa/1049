@@ -2,6 +2,7 @@
 # PCP QA Test No. 1049 (formerly 552)
 # make sure that installed pmie rule files are syntactically OK.
 #
+# Copyright (c) 2015 Red Hat.
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
@@ -14,6 +15,8 @@ echo "QA output created by $seq"
 . ./common.check
 . ./localconfig
 
+[ -f $PCP_PMDAS_DIR/shping/pmdashping ] || _notrun "shping pmda not installed"
+[ -f $PCP_PMDAS_DIR/cisco/pmdacisco ] || _notrun "cisco pmda not installed"
 which pmieconf >/dev/null 2>&1 || _notrun "No pmieconf binary installed"
 
 status=1	# failure is the default!

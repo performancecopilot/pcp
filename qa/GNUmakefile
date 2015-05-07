@@ -17,7 +17,7 @@ TESTS	= $(shell sed -n -e '/^[0-9]/s/:retired//' -e '/^[0-9]/s/:reserved//' -e '
 SUBDIRS = src pmdas cisco gluster pconf sadist collectl secure nfsclient \
 	  archives views qt linux perfevent unbound cifs gpfs lustre ganglia \
 	  postfix perl
-ifeq "$(ENABLE_PYTHON)" "true"
+ifeq "$(HAVE_PYTHON)" "true"
 SUBDIRS += secure
 endif
 LCONFIG = localconfig
@@ -56,7 +56,7 @@ COMMON = common.check common.config common.filter \
 	 common.secure common.gfs2 common.rpm \
 	 common.sh common.qt common.avahi \
 	 common.discovery common.compress common.webapi
-ifeq "$(ENABLE_PYTHON)" "true"
+ifeq "$(HAVE_PYTHON)" "true"
 COMMON += common.python 
 endif
 

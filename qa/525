@@ -5,6 +5,7 @@
 # From a report by Jun Wang, junwang123@gmail.com
 #
 # Copyright (c) 2013 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2015 Red Hat.
 #
 
 seq=`basename $0`
@@ -14,6 +15,8 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+
+[ -f $PCP_PMDAS_DIR/summary/pmdasummary ] || _notrun "summary pmda not installed"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
