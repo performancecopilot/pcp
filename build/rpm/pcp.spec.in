@@ -1177,6 +1177,7 @@ collecting metrics about the Room temperature metrics.  The PMDA is written in C
 #
 # pcp-pmda-rpm
 #
+%if "@pmda_rpm@" == "true"
 %package pmda-rpm
 License: GPLv2+
 Group: Applications/System
@@ -1186,6 +1187,7 @@ Requires: pcp = @package_version@
 %description pmda-rpm
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the rpms.  The PMDA is written in C.
+%endif
 # end pcp-pmda-rpm
 
 
@@ -1293,7 +1295,10 @@ Requires: pcp-pmda-samba pcp-pmda-snmp pcp-pmda-vmware pcp-pmda-zimbra
 Requires: pcp-pmda-dm pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-apache
 Requires: pcp-pmda-dm pcp-pmda-gluster pcp-pmda-unbound pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
-Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-rpm pcp-pmda-sendmail pcp-pmda-shping
+Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
+%if "@pmda_rpm@" == "true"
+Requires: pcp-pmda-rpm
+%endif
 Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
 Requires: pcp-system-tools pcp-doc
 %description compat
@@ -1316,7 +1321,10 @@ Requires: pcp-pmda-samba pcp-pmda-snmp pcp-pmda-vmware pcp-pmda-zimbra
 Requires: pcp-pmda-dm pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-apache
 Requires: pcp-pmda-dm pcp-pmda-gluster pcp-pmda-unbound pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
-Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-rpm pcp-pmda-sendmail pcp-pmda-shping
+Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
+%if "@pmda_rpm@" == "true"
+Requires: pcp-pmda-rpm
+%endif
 Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
 %description collector
 This package contains the PCP metric collection dependencies.  This includes
@@ -1329,7 +1337,10 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) Monitoring meta Package
 URL: http://www.pcp.io
-Requires: pcp-gui pcp-system-tools pcp-webapi
+Requires: pcp-system-tools pcp-webapi
+%if "@enable_qt@" == "true"
+Requires: pcp-gui
+%endif
 %description monitor
 This package contains the PCP metric monitoring dependencies. This includes all possible packages used
 to monitor PCP metrics in various ways.
