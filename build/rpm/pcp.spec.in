@@ -919,22 +919,6 @@ collecting metrics about SNMP.  The PMDA is written in Perl.
 #end pcp-pmda-snmp
 
 #
-# pcp-pmda-systemtap
-#
-%package pmda-systemtap
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for Systemtap
-URL: http://www.pcp.io
-Requires: perl-PCP-PMDA = @package_version@
-
-%description pmda-systemtap
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics for Systemtap.  The PMDA is written in Perl.
-
-#end pcp-pmda-systemtap
-
-#
 # pcp-pmda-vmware
 #
 %package pmda-vmware
@@ -1301,7 +1285,7 @@ Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-
 Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pmda-lustre
 Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
 Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql
-Requires: pcp-pmda-samba pcp-pmda-snmp pcp-pmda-systemtap pcp-pmda-vmware pcp-pmda-zimbra
+Requires: pcp-pmda-samba pcp-pmda-snmp pcp-pmda-vmware pcp-pmda-zimbra
 Requires: pcp-pmda-dm pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-apache
 Requires: pcp-pmda-dm pcp-pmda-gluster pcp-pmda-unbound pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
@@ -1324,7 +1308,7 @@ Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-
 Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pmda-lustre
 Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
 Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql
-Requires: pcp-pmda-samba pcp-pmda-snmp pcp-pmda-systemtap pcp-pmda-vmware pcp-pmda-zimbra
+Requires: pcp-pmda-samba pcp-pmda-snmp pcp-pmda-vmware pcp-pmda-zimbra
 Requires: pcp-pmda-dm pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-apache
 Requires: pcp-pmda-dm pcp-pmda-gluster pcp-pmda-unbound pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
@@ -1497,7 +1481,6 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'postgresql|pmdas/postgresql' > pmda
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'rsyslog|pmdas/rsyslog' > pmda_rsyslog_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'samba|pmdas/samba' > pmda_samba_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'snmp|pmdas/snmp' > pmda_snmp_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'systemtap|pmdas/systemtap' > pmda_systemtap_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'vmware|pmdas/vmware' > pmda_vmware_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'zimbra|pmdas/zimbra' > pmda_zimbra_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/dm' > pmda_dm_files
@@ -1532,7 +1515,7 @@ touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files
       pmda_gpsd_files pmda_kvm_files pmda_lustre_files pmda_memcache_files pmda_mysql_files \
       pmda_named_files pmda_netfilter_files pmda_news_files pmda_nfsclient_files \
       pmda_nginx_files pmda_pdns_files pmda_postfix_files pmda_postgresql_files \
-      pmda_rsyslog_files pmda_samba_files pmda_snmp_files pmda_systemtap_files \
+      pmda_rsyslog_files pmda_samba_files pmda_snmp_files \
       pmda_vmware_files pmda_zimbra_files pmda_apache_files pmda_bash_files \
       pmda_cifs_files pmda_cisco_files pmda_gfs2_files pmda_lmsensors_files \
       pmda_mailq_files pmda_mounts_files pmda_nvidia_files pmda_roomtemp_files \
@@ -1581,7 +1564,6 @@ BEGIN {
     while( getline < "pmda_rsyslog_files") pmda_rsyslog[$0]=1;
     while( getline < "pmda_samba_files") pmda_samba[$0]=1;
     while( getline < "pmda_snmp_files") pmda_snmp[$0]=1;
-    while( getline < "pmda_systemtap_files") pmda_systemtap[$0]=1;
     while( getline < "pmda_vmware_files") pmda_vmware[$0]=1;
     while( getline < "pmda_zimbra_files") pmda_zimbra[$0]=1;
     while( getline < "pmda_dm_files") pmda_dm[$0]=1;
@@ -1653,7 +1635,6 @@ BEGIN {
     else if (pmda_rsyslog[$NF]) f="pmda_rsyslog_files.rpm";
     else if (pmda_samba[$NF]) f="pmda_samba_files.rpm";
     else if (pmda_snmp[$NF]) f="pmda_snmp_files.rpm";
-    else if (pmda_systemtap[$NF]) f="pmda_systemtap_files.rpm";
     else if (pmda_vmware[$NF]) f="pmda_vmware_files.rpm";
     else if (pmda_zimbra[$NF]) f="pmda_zimbra_files.rpm";
     else if (pmda_dm[$NF]) f="pmda_dm_files.rpm";
@@ -2010,8 +1991,6 @@ cd
 %files pmda-samba -f pmda_samba_files.rpm
 
 %files pmda-snmp -f pmda_snmp_files.rpm
-
-%files pmda-systemtap -f pmda_systemtap_files.rpm
 
 %files pmda-vmware -f pmda_vmware_files.rpm
 
