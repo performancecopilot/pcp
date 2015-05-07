@@ -46,6 +46,7 @@ _filter()
 	-e '/^logger\.perfile\.fifo\.records: Try again./d' \
 	-e '/^logger\.perfile\.reg\.records: Try again./d' \
 	-e '/^containers\..*: pmLookupDesc: Unknown or illegal metric/d' \
+	-e '/^elasticsearch\..*: Try again./d' \
 	-e '/^zswap\..*: Try again./d' \
 	-e '/Container not found/d' \
     #endif
