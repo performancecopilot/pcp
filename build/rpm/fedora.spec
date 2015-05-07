@@ -54,6 +54,9 @@ Source1: pcp-webjs.src.tar.gz
 %global disable_qt 1
 %endif
 
+# prevent conflicting binary and man page install for pcp(1)
+Conflicts: librapi
+
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: procps autoconf bison flex
 BuildRequires: nss-devel

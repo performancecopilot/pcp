@@ -55,7 +55,11 @@ BuildRequires: cairo-devel
 BuildRequires: libmicrohttpd-devel
 %endif
 
+# prevent conflicting SGI package installation
 Conflicts: pcp-pro < 2.2
+
+# prevent conflicting binary and man page install for pcp(1)
+Conflicts: librapi
 
 # Utilities used indirectly e.g. by scripts we install
 Requires: bash gawk sed grep fileutils findutils
