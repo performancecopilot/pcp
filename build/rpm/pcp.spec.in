@@ -847,7 +847,12 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Postfix (MTA)
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = @package_version@
+%if "%{_vendor}" == "redhat"
 Requires: postfix-perl-scripts
+%endif
+%if "%{_vendor}" == "suse"
+Requires: postfix-doc
+%endif
 
 %description pmda-postfix
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
