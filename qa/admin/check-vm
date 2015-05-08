@@ -172,6 +172,9 @@ cat <<End-of-File >$tmp.control
 # text after [ is treated as annotation
 #
 # executables
+bash
+sed
+grep
 ed
 git
 make
@@ -216,6 +219,8 @@ rpm?	g++				[gcc-c++]
 dpkg?	/usr/include/readline/readline.h	[libreadline-dev]
 rpm?	/usr/include/readline/readline.h	[readline-devel]
 rpm?	/usr/include/ncurses.h	[ncurses-devel] # is this a bug in the spec file?
+# run-time prerequisites
+rpm?	/usr/sbin/qshape		[postfix-perl-scripts]
 # perl modules
 Time::HiRes			[Perl Time-HiRes perl-Time-HiRes(rpm)]
 Date::Format			[Perl TimeDate perl-TimeDate(rpm)]
