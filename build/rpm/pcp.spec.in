@@ -847,8 +847,11 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Postfix (MTA)
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = @package_version@
-%if "%{_vendor}" == "redhat"
+%if 0%{?fedora} > 16 || 0%{?rhel} > 5
 Requires: postfix-perl-scripts
+%endif
+%if 0%{?rhel} <= 5
+Requires: postfix
 %endif
 %if "%{_vendor}" == "suse"
 Requires: postfix-doc
@@ -1296,16 +1299,17 @@ Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-
 Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pmda-lustre
 Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
 Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql
-Requires: pcp-pmda-samba pcp-pmda-snmp pcp-pmda-vmware pcp-pmda-zimbra
-Requires: pcp-pmda-dm pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-apache
-Requires: pcp-pmda-dm pcp-pmda-gluster pcp-pmda-unbound pcp-pmda-apache
+Requires: pcp-pmda-dm pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
+%if "@have_python@" == "true"
+Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-system-tools 
+%endif
 %if "@pmda_rpm@" == "true"
 Requires: pcp-pmda-rpm
 %endif
 Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
-Requires: pcp-system-tools pcp-doc
+Requires: pcp-doc
 %description compat
 This package contains the PCP compatibility dependencies for existing PCP
 installations.  This is not a package that should be depended on, and will
@@ -1323,10 +1327,12 @@ Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pm
 Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
 Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql
 Requires: pcp-pmda-samba pcp-pmda-snmp pcp-pmda-vmware pcp-pmda-zimbra
-Requires: pcp-pmda-dm pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-apache
-Requires: pcp-pmda-dm pcp-pmda-gluster pcp-pmda-unbound pcp-pmda-apache
+Requires: pcp-pmda-dm pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
+%if "@have_python@" == "true"
+Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound 
+%endif
 %if "@pmda_rpm@" == "true"
 Requires: pcp-pmda-rpm
 %endif
@@ -1342,7 +1348,12 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) Monitoring meta Package
 URL: http://www.pcp.io
-Requires: pcp-system-tools pcp-webapi
+%if "@enable_webapi@" == "true"
+Requires: pcp-webapi
+%endif
+%if "@have_python@" == "true"
+Requires: pcp-system-tools 
+%endif
 %if "@enable_qt@" == "true"
 Requires: pcp-gui
 %endif
@@ -1921,7 +1932,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
     /sbin/service pmproxy condrestart
 %endif
 
-cd $PCP_PMNS_DIR && ./Rebuild -s && rm .NeedRebuild
+cd $PCP_PMNS_DIR && ./Rebuild -s && rm -f .NeedRebuild
 cd
 
 %post libs -p /sbin/ldconfig
