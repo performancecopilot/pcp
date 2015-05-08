@@ -219,8 +219,6 @@ rpm?	g++				[gcc-c++]
 dpkg?	/usr/include/readline/readline.h	[libreadline-dev]
 rpm?	/usr/include/readline/readline.h	[readline-devel]
 rpm?	/usr/include/ncurses.h	[ncurses-devel] # is this a bug in the spec file?
-# run-time prerequisites
-rpm?	/usr/sbin/qshape		[postfix-perl-scripts]
 # perl modules
 Time::HiRes			[Perl Time-HiRes perl-Time-HiRes(rpm)]
 Date::Format			[Perl TimeDate perl-TimeDate(rpm)]
@@ -253,7 +251,6 @@ crontab				[from vixie-cron?]
 valgrind			[(QA optional)]
 dpkg?	mail			[bsd-mailx (QA optional)]
 rpm?	mail			[mailx (QA optional)]
-host				[bind-utils(redhat)]
 dpkg?	apache2			[apache2 (QA optional)]
 rpm?	httpd			[httpd (QA optional)]
 dpkg?	realpath		[realpath]
@@ -298,6 +295,24 @@ then
 	[ -f $tmp.need ] && \
 	    echo "rpm?	/usr/share/doc/python-ctypes*	[python-ctypes]" >>$tmp.control
     fi
+fi
+
+# platform specific cases
+#
+# tests here are copied from $(TOPDIR)/configure.ac
+#
+if [ -f /etc/fedora-release ]
+then
+    # Fedora
+    echo "/usr/sbin/qshape		[postfix-perl-scripts]" >>$tmp.control
+elif [ -f /etc/redhat-release ]
+then
+    # Redhat or CentOS
+    echo "/usr/sbin/qshape		[postfix-perl-scripts]" >>$tmp.control
+    echo "host				[bind-utils]" >>$tmp.control
+elif [ -f /etc/SuSE-release ]
+then
+    echo "/usr/share/doc/packages/postfix-doc/auxiliary/qshape/qshape.pl		[postfix-doc]" >>$tmp.control
 fi
 
 cat $tmp.control \
