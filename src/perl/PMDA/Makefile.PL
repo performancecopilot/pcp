@@ -29,6 +29,23 @@ if ($ENV{TARGET_OS} eq "solaris") {
     $cccdlflags = "-fPIC"
 } 
 
+# Don't even think about this ... for some platforms the default
+# test_via_script from MakeMaker pre-pends the perl invocation lines
+# for the "make test" rules with "PERL_DL_NONLAZY=1" which makes the
+# test fail ... at least on Ubuntu 14.10
+# I found the basics of this hack on the web ...
+# http://www.perlmonks.org/bare/?node_id=443998
+# and the explanation in the An ExtUtils::MakeMaker Example section
+# here helps
+# http://chimera.labs.oreilly.com/books/1234000001527/ch10.html
+# - Ken McDonell Thu May 7 2015
+#
+sub MY::test_via_script {
+    local $_ = shift()->MM::test_via_harness( @_ );
+    s/\bPERL_DL_NONLAZY=1 +//g;
+    return $_;
+}
+
 WriteMakefile(
     NAME		=> 'PCP::PMDA',
     AUTHOR		=> 'Nathan Scott <nathans@debian.org>',

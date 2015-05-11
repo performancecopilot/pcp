@@ -13,8 +13,8 @@
  * for more details.
  */
 
-#ifndef _PMAPI_H
-#define _PMAPI_H
+#ifndef PCP_PMAPI_H
+#define PCP_PMAPI_H
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -187,6 +187,7 @@ typedef struct {
 #define PM_ERR_TYPE		(-PM_ERR_BASE-52)   /* Unknown or illegal metric type */
 #define PM_ERR_THREAD		(-PM_ERR_BASE-53)   /* Operation not supported for multi-threaded applications */
 #define PM_ERR_NOCONTAINER	(-PM_ERR_BASE-54)   /* Container not found */
+#define PM_ERR_BADSTORE		(-PM_ERR_BASE-55)   /* Bad input to pmstore */
 
 /* retired PM_ERR_CTXBUSY (-PM_ERR_BASE-97) Context is busy */
 #define PM_ERR_TOOSMALL		(-PM_ERR_BASE-98)   /* Insufficient elements in list */
@@ -618,6 +619,8 @@ extern int pmflush(void);
  */
 extern char *pmGetConfig(const char *);
 
+extern int pmGetVersion(void);
+
 /*
  * Common command line argument parsing interfaces
  */
@@ -888,4 +891,4 @@ extern int pmParseUnitsStr(const char *, pmUnits *, double *, char **);
 }
 #endif
 
-#endif /* _PMAPI_H */
+#endif /* PCP_PMAPI_H */

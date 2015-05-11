@@ -168,41 +168,51 @@ _pmda_setup()
 {
     # Auto-Install PMDAs?
     #
-    if [ -d $PCP_PMDAS_DIR ]
+    if [ -d "$PCP_PMDAS_DIR" ]
     then
 	here=`pwd`
-	cd $PCP_PMDAS_DIR
-	for file in */.NeedInstall
-	do
-	    [ "$file" = '*/.NeedInstall' ] && break
-	    pmda=`dirname $file`
-	    if [ -d "$pmda" -a -f "$pmda/.NeedInstall" ]
-	    then
-		cd $pmda
-		$PCP_ECHO_PROG "Installing $pmda PMDA ..."
-
-		# rename .NeedInstall _before_ calling Install because
-		# Install can call this start script (recursively) and
-		# we don't want to get stuck in an infinite loop.
-		# 
-		rm -f .NeedInstall.sav
-		mv .NeedInstall .NeedInstall.sav
-		if ./Install </dev/null >/dev/null
-		then
-		    # success
-		    $PCP_BINADM_DIR/pmpost "PMDA setup: automated install: $pmda"
-		    rm -f .NeedInstall.sav
-		else
-		    # put the file back, maybe we'll be luckier next time
-		    $PCP_BINADM_DIR/pmpost "PMDA setup: automated install FAILED (exit=$?): $pmda"
-		    mv .NeedInstall.sav .NeedInstall
-		fi
-
-		cd $PCP_PMDAS_DIR
-	    fi
-	done
+	cd "$PCP_PMDAS_DIR"
+	_pmda_enact Remove Removing
+	_pmda_enact Install Installing
 	cd "$here"
     fi
+}
+
+# Take automated setup action (Install or Remove) for PMDAs
+#
+_pmda_enact()
+{
+    action=$1
+    verb=$2
+
+    for file in */.Need$action
+    do
+	[ "$file" = "*/.Need$action" ] && break
+	pmda=`dirname $file`
+	if [ -d "$pmda" -a -f "$pmda/.Need$action" ]
+	then
+	    cd $pmda
+	    $PCP_ECHO_PROG "$verb $pmda PMDA ..."
+
+	    # rename marker file _before_ calling action script because
+	    # that script might call this start script recursively, and
+	    # we don't want to get stuck in an infinite loop.
+	    # 
+	    rm -f .Need${action}.sav
+	    mv .Need${action} .Need${action}.sav
+	    if ./${action} </dev/null >/dev/null
+	    then
+		# success
+		$PCP_BINADM_DIR/pmpost "PMDA setup: automated $action: $pmda"
+		rm -f .Need$action.sav
+	    else
+		# put the file back, maybe we'll be luckier next time
+		$PCP_BINADM_DIR/pmpost "PMDA setup: automated $action FAILED (exit=$?): $pmda"
+		mv .Need$action.sav .Need$action
+	    fi
+	    cd "$PCP_PMDAS_DIR"
+	fi
+    done
 }
 
 _start_pmcheck()

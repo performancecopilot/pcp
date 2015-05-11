@@ -17,6 +17,7 @@
 #include <limits.h>
 #include <sys/stat.h>
 #include "logger.h"
+#include <errno.h>
 
 char		*configfile;
 __pmLogCtl	logctl;
@@ -727,7 +728,7 @@ main(int argc, char **argv)
     }
 
     if (pmnsfile != PM_NS_DEFAULT) {
-	if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
+	if ((sts = pmLoadASCIINameSpace(pmnsfile, 1)) < 0) {
 	    fprintf(stderr, "%s: Cannot load namespace from \"%s\": %s\n", pmProgname, pmnsfile, pmErrStr(sts));
 	    exit(1);
 	}

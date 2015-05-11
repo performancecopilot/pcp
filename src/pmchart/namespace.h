@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2015, Red Hat
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
@@ -32,6 +33,7 @@ public:
 	ArchiveRoot,
 	LocalRoot,
 	HostRoot,
+	ContainerRoot,
 	NonLeafName,
 	LeafNullIndom,
 	LeafWithIndom,
@@ -49,6 +51,7 @@ public:
 
     pmDesc desc() const { return my.desc; }
     int sourceType();
+    QString source();
     QString sourceName();
     QString metricName();
     QString metricInstance();
@@ -56,6 +59,7 @@ public:
 
     void setType(Type type) { my.type = type; }
     bool isRoot() { return my.type == HostRoot ||
+				my.type == ContainerRoot ||
 				my.type == LocalRoot ||
 				my.type == ArchiveRoot; }
     bool isLeaf() { return my.type == InstanceName ||
@@ -63,6 +67,7 @@ public:
     bool isMetric() { return my.type == LeafWithIndom ||
 				my.type == LeafNullIndom; }
     bool isNonLeaf() { return my.type == HostRoot ||
+				my.type == ContainerRoot ||
 				my.type == LocalRoot ||
 				my.type == ArchiveRoot ||
 				my.type == NonLeafName; }

@@ -204,6 +204,7 @@ XMLTO	= @xmlto@
 DBLATEX	= @dblatex@
 PUBLICAN = @publican@
 BOOK_TOOLCHAIN = @book_toolchain@
+BOOK_BRAND = @book_brand@
 
 HAVE_GZIPPED_MANPAGES = @have_gzipped_manpages@
 HAVE_BZIP2ED_MANPAGES = @have_bzip2ed_manpages@
@@ -224,11 +225,14 @@ ENABLE_SECURE = @enable_secure@
 ENABLE_PROBES = @enable_probes@
 ENABLE_AVAHI = @enable_avahi@
 ENABLE_QT = @enable_qt@
-ENABLE_PYTHON = @enable_python@
+ENABLE_PYTHON2 = @enable_python2@
 ENABLE_PYTHON3 = @enable_python3@
 ENABLE_SYSTEMD = @enable_systemd@
 ENABLE_MANAGER = @enable_manager@
 ENABLE_WEBAPI = @enable_webapi@
+
+# for code supporting both/either python2 and/or python3
+HAVE_PYTHON = @have_python@
 
 # additional libraries needed for particular functions
 LIB_FOR_BASENAME = @lib_for_basename@

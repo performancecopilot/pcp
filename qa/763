@@ -14,6 +14,9 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+perl -e "use PCP::PMDA" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
+
 _cleanup()
 {
     if pmprobe -I pmcd.agent.status | grep '"slow"' >/dev/null

@@ -1,0 +1,122 @@
+#!/bin/sh
+# PCP QA Test No. 909
+# exercise pmLookupName(), especially with dynamic metrics as
+# per email enquiry from Martins Innus circa 03 Apr 2015
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+host=`pmhostname`
+
+_filter_host()
+{
+    sed \
+	-e "s/$host/HOST/g" \
+    # end
+}
+
+_filter_tmp()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+cat >$tmp.pmns <<End-of-File
+root {
+    sampledso
+    noagent	246:*:*
+}
+sampledso {
+    bin		30:0:6
+    drift	30:0:7
+    long
+    secret	30:*:*
+}
+sampledso.long {
+    one		30:0:10
+    ten		30:0:11
+}
+End-of-File
+
+# real QA test starts here
+
+echo "simple error cases ..."
+src/lookupnametest
+echo
+src/lookupnametest sampledso.no.such.name
+echo
+src/lookupnametest bad.metric.name
+echo
+src/lookupnametest sampledso.long.one sampledso.no.such.name sampledso.long.ten bad.metric.name
+echo
+src/lookupnametest -n $tmp.pmns sampledso.long.one sampledso.no.such.name sampledso.long.ten bad.metric.name | _filter_tmp
+
+echo
+echo "simple cases ..."
+src/lookupnametest sampledso.drift
+echo
+src/lookupnametest -L sampledso.drift
+echo
+src/lookupnametest -h $host sampledso.drift | _filter_host
+echo
+src/lookupnametest -a archives/dynmetric sampledso.drift
+echo
+src/lookupnametest -n $tmp.pmns sampledso.drift | _filter_tmp
+
+echo
+echo "add non-terminal ..."
+src/lookupnametest sampledso.drift sampledso sampledso.bin
+echo
+src/lookupnametest -L sampledso.drift sampledso sampledso.bin
+echo
+src/lookupnametest -h $host sampledso.drift sampledso sampledso.bin | _filter_host
+echo
+src/lookupnametest -a archives/dynmetric sampledso.drift sampledso sampledso.bin
+
+echo
+echo "swap non-terminal for valid dynamic metric ..."
+src/lookupnametest sampledso.drift sampledso.secret.bar sampledso.bin
+echo
+src/lookupnametest -L sampledso.drift sampledso.secret.bar sampledso.bin
+echo
+src/lookupnametest -h $host sampledso.drift sampledso.secret.bar sampledso.bin | _filter_host
+echo
+src/lookupnametest -a archives/dynmetric sampledso.drift sampledso.secret.bar sampledso.bin
+
+echo
+echo "swap valid dynamic metric for invalid dynamic metrics ..."
+src/lookupnametest sampledso.drift sampledso.secret sampledso.secret.foo.zero sampledso.bin
+echo
+src/lookupnametest -L sampledso.drift sampledso.secret sampledso.secret.foo.zero sampledso.bin
+echo
+src/lookupnametest -h $host sampledso.drift sampledso.secret sampledso.secret.foo.zero sampledso.bin | _filter_host
+echo
+src/lookupnametest -a archives/dynmetric sampledso.secret sampledso.drift sampledso.secret.foo.zero sampledso.bin
+
+echo
+echo "some no agent cases ..."
+echo
+src/lookupnametest -L sampledso.secret.bar sample.secret.bar
+echo
+src/lookupnametest -n $tmp.pmns noagent sampledso.bin sampledso.secret.bar | _filter_tmp
+#echo
+#src/lookupnametest -L -n $tmp.pmns noagent | _filter_tmp
+
+
+# success, all done
+status=0
+
+exit

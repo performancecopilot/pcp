@@ -738,6 +738,7 @@ LEXLIB
 LEX_OUTPUT_ROOT
 LEX
 LN_S
+book_brand
 book_toolchain
 xmlto
 XMLTO
@@ -802,13 +803,15 @@ enable_qt
 qt_release
 QMAKE
 pcp_python_prog
+have_python
 enable_python3
-enable_python
+enable_python2
 PYTHON3
 PYTHON
 GIT
 LTLIBOBJS
 LIBOBJS
+pm_version_current
 PACKAGE_DISTRIBUTION
 PACKAGE_BUILD_DATE
 PACKAGE_BUILD
@@ -824,9 +827,6 @@ enable_discovery
 lib_for_avahi
 avahi_LIBS
 avahi_CFLAGS
-PKG_CONFIG_LIBDIR
-PKG_CONFIG_PATH
-PKG_CONFIG
 enable_probes
 EGREP
 GREP
@@ -843,6 +843,9 @@ CPPFLAGS
 LDFLAGS
 CFLAGS
 CC
+PKG_CONFIG_LIBDIR
+PKG_CONFIG_PATH
+PKG_CONFIG
 target_os
 target_vendor
 target_cpu
@@ -911,6 +914,7 @@ with_qt
 with_python
 with_python3
 with_books
+with_books_brand
 with_papi
 with_perfevent
 with_manager
@@ -935,15 +939,15 @@ with_demosdir
       ac_precious_vars='build_alias
 host_alias
 target_alias
+PKG_CONFIG
+PKG_CONFIG_PATH
+PKG_CONFIG_LIBDIR
 CC
 CFLAGS
 LDFLAGS
 LIBS
 CPPFLAGS
 CPP
-PKG_CONFIG
-PKG_CONFIG_PATH
-PKG_CONFIG_LIBDIR
 avahi_CFLAGS
 avahi_LIBS
 SYSTEMD_SYSTEMUNITDIR
@@ -1604,6 +1608,9 @@ Optional Packages:
   --with-python3          enable support for tools requiring Python3 (default
                           is on)
   --with-books            enable building of the PCP books (default is off)
+  --with-books-brand=BRAND
+                          choose the docbook brand when building the PCP books
+                          (default is common)
   --with-papi[=DIR|=MODULE]
                           enable performance api counter pmda (default is on)
                           The optional argument may be a full path of a PAPI
@@ -1626,6 +1633,11 @@ Optional Packages:
   --with-demosdir         run directory [DATADIR/pcp/demos]
 
 Some influential environment variables:
+  PKG_CONFIG  path to pkg-config utility
+  PKG_CONFIG_PATH
+              directories to add to pkg-config's search path
+  PKG_CONFIG_LIBDIR
+              path overriding pkg-config's built-in search path
   CC          C compiler command
   CFLAGS      C compiler flags
   LDFLAGS     linker flags, e.g. -L<lib dir> if you have libraries in a
@@ -1634,11 +1646,6 @@ Some influential environment variables:
   CPPFLAGS    (Objective) C/C++ preprocessor flags, e.g. -I<include dir> if
               you have headers in a nonstandard directory <include dir>
   CPP         C preprocessor
-  PKG_CONFIG  path to pkg-config utility
-  PKG_CONFIG_PATH
-              directories to add to pkg-config's search path
-  PKG_CONFIG_LIBDIR
-              path overriding pkg-config's built-in search path
   avahi_CFLAGS
               C compiler flags for avahi, overriding pkg-config
   avahi_LIBS  linker flags for avahi, overriding pkg-config
@@ -2659,6 +2666,15 @@ fi
 
 
 
+# Check whether --with-books-brand was given.
+if test "${with_books_brand+set}" = set; then :
+  withval=$with_books_brand; do_books_brand=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books-brand=$withval"
+else
+  do_books_brand=common
+fi
+
+
+
 # Check whether --with-papi was given.
 if test "${with_papi+set}" = set; then :
   withval=$with_papi; do_papi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-papi=$withval"
@@ -2947,6 +2963,136 @@ $as_echo "#define IS_NETBSD 1" >>confdefs.h
 else
     echo
     echo "FATAL ERROR: need platform-specific customization for \"$target_os\""
+    rm -rf conftest conftest.*
+    exit 1
+fi
+
+
+
+
+
+
+
+
+if test "x$ac_cv_env_PKG_CONFIG_set" != "xset"; then
+	if test -n "$ac_tool_prefix"; then
+  # Extract the first word of "${ac_tool_prefix}pkg-config", so it can be a program name with args.
+set dummy ${ac_tool_prefix}pkg-config; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_PKG_CONFIG+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $PKG_CONFIG in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_PKG_CONFIG="$PKG_CONFIG" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+PKG_CONFIG=$ac_cv_path_PKG_CONFIG
+if test -n "$PKG_CONFIG"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PKG_CONFIG" >&5
+$as_echo "$PKG_CONFIG" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+fi
+if test -z "$ac_cv_path_PKG_CONFIG"; then
+  ac_pt_PKG_CONFIG=$PKG_CONFIG
+  # Extract the first word of "pkg-config", so it can be a program name with args.
+set dummy pkg-config; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_ac_pt_PKG_CONFIG+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $ac_pt_PKG_CONFIG in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_ac_pt_PKG_CONFIG="$ac_pt_PKG_CONFIG" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_ac_pt_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+ac_pt_PKG_CONFIG=$ac_cv_path_ac_pt_PKG_CONFIG
+if test -n "$ac_pt_PKG_CONFIG"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_pt_PKG_CONFIG" >&5
+$as_echo "$ac_pt_PKG_CONFIG" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+  if test "x$ac_pt_PKG_CONFIG" = x; then
+    PKG_CONFIG=""
+  else
+    case $cross_compiling:$ac_tool_warned in
+yes:)
+{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
+$as_echo "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
+ac_tool_warned=yes ;;
+esac
+    PKG_CONFIG=$ac_pt_PKG_CONFIG
+  fi
+else
+  PKG_CONFIG="$ac_cv_path_PKG_CONFIG"
+fi
+
+fi
+if test -n "$PKG_CONFIG"; then
+	_pkg_min_version=0.9.0
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking pkg-config is at least version $_pkg_min_version" >&5
+$as_echo_n "checking pkg-config is at least version $_pkg_min_version... " >&6; }
+	if $PKG_CONFIG --atleast-pkgconfig-version $_pkg_min_version; then
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	else
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+		PKG_CONFIG=""
+	fi
+fi
+if test -z "$PKG_CONFIG"
+then
+    echo
+    echo "FATAL ERROR: did not find a pkg-config executable."
+    echo "You can either set \$PKG_CONFIG as the full path to pkg-config"
+    echo "in the environment, or install the pkgconfig package."
     rm -rf conftest conftest.*
     exit 1
 fi
@@ -4364,126 +4510,6 @@ $as_echo "#define HAVE_STATIC_PROBES 1" >>confdefs.h
 
 fi
 
-
-
-
-
-
-
-
-if test "x$ac_cv_env_PKG_CONFIG_set" != "xset"; then
-	if test -n "$ac_tool_prefix"; then
-  # Extract the first word of "${ac_tool_prefix}pkg-config", so it can be a program name with args.
-set dummy ${ac_tool_prefix}pkg-config; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_path_PKG_CONFIG+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  case $PKG_CONFIG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_PKG_CONFIG="$PKG_CONFIG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-PKG_CONFIG=$ac_cv_path_PKG_CONFIG
-if test -n "$PKG_CONFIG"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PKG_CONFIG" >&5
-$as_echo "$PKG_CONFIG" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-fi
-if test -z "$ac_cv_path_PKG_CONFIG"; then
-  ac_pt_PKG_CONFIG=$PKG_CONFIG
-  # Extract the first word of "pkg-config", so it can be a program name with args.
-set dummy pkg-config; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_path_ac_pt_PKG_CONFIG+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  case $ac_pt_PKG_CONFIG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_ac_pt_PKG_CONFIG="$ac_pt_PKG_CONFIG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_ac_pt_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-ac_pt_PKG_CONFIG=$ac_cv_path_ac_pt_PKG_CONFIG
-if test -n "$ac_pt_PKG_CONFIG"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_pt_PKG_CONFIG" >&5
-$as_echo "$ac_pt_PKG_CONFIG" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-  if test "x$ac_pt_PKG_CONFIG" = x; then
-    PKG_CONFIG=""
-  else
-    case $cross_compiling:$ac_tool_warned in
-yes:)
-{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
-$as_echo "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
-ac_tool_warned=yes ;;
-esac
-    PKG_CONFIG=$ac_pt_PKG_CONFIG
-  fi
-else
-  PKG_CONFIG="$ac_cv_path_PKG_CONFIG"
-fi
-
-fi
-if test -n "$PKG_CONFIG"; then
-	_pkg_min_version=0.9.0
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking pkg-config is at least version $_pkg_min_version" >&5
-$as_echo_n "checking pkg-config is at least version $_pkg_min_version... " >&6; }
-	if $PKG_CONFIG --atleast-pkgconfig-version $_pkg_min_version; then
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-	else
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-		PKG_CONFIG=""
-	fi
-fi
 if test "x$do_discovery" != "xno"; then :
 
     # on Mac OS X, dns_sd.h
@@ -4735,6 +4761,9 @@ fi
 if test -z "$PACKAGE_DISTRIBUTION" ; then
     PACKAGE_DISTRIBUTION=$target_distro
 fi
+
+
+pm_version_current=`awk </dev/null "BEGIN { print (${PACKAGE_MAJOR}*256+${PACKAGE_MINOR})*256+${PACKAGE_REVISION} }"`
 
 
 ac_config_headers="$ac_config_headers src/include/pcp/config.h src/include/pcp/configsz.h"
@@ -6147,13 +6176,13 @@ done
 
 
 
-enable_python=false
+enable_python2=false
 if test "x$do_python" != "xno"; then :
 
-    enable_python=true
+    enable_python2=true
     if test -z "$PYTHON"
     then
-	enable_python=false
+	enable_python2=false
     else
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Python version" >&5
 $as_echo_n "checking Python version... " >&6; }
@@ -6163,12 +6192,12 @@ $as_echo "$PY_MAJOR.$PY_MINOR.$PY_POINT" >&6; }
 	if test "$PY_MAJOR" -lt 2; then
 	    echo WARNING: Python version 2.6 or later does not seem to be installed.
 	    echo Cannot proceed with the Python $PY_MAJOR installation found.
-	    enable_python=false
+	    enable_python2=false
 	fi
 	if test "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -lt 6 ; then
 	    echo WARNING: Python version 2.$PY_MINOR is too old.
 	    echo Python version 2.6 or later is required for Python builds.
-	    enable_python=false
+	    enable_python2=false
 	fi
 	for ac_header in python${PY_MAJOR}.${PY_MINOR}/Python.h
 do :
@@ -6183,7 +6212,7 @@ else
 
 	    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
 	    echo Cannot proceed with the Python $PY_MAJOR installation found.
-	    enable_python=false
+	    enable_python2=false
 
 fi
 
@@ -6191,7 +6220,7 @@ done
 
     fi
 
-    if test "$do_python" != "check" -a "$enable_python" != "true"
+    if test "$do_python" != "check" -a "$enable_python2" != "true"
     then
 	as_fn_error $? "cannot enable Python - no supported version found" "$LINENO" 5
     fi
@@ -6248,6 +6277,13 @@ done
 	as_fn_error $? "cannot enable Python3 - no supported version found" "$LINENO" 5
     fi
 
+fi
+
+
+have_python=false
+if test "$enable_python2" = "true" -o "$enable_python3" = "true"
+then
+    have_python=true
 fi
 
 
@@ -7591,7 +7627,12 @@ if test -z "$PACKAGE_MAKER"
 then
     if test $target_os = darwin
     then
-	if test -x /Developer/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
+	if test -x /Applications/PackageMaker.app/Contents/MacOS/PackageMaker
+	then # local XCode extras install
+	    package_maker=/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
+	    { $as_echo "$as_me:${as_lineno-$LINENO}: result:  yes (local install)" >&5
+$as_echo " yes (local install)" >&6; }
+	elif test -x /Developer/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
 	then # Darwin 6.x
 	    package_maker=/Developer/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
 	    { $as_echo "$as_me:${as_lineno-$LINENO}: result:  yes (darwin 6.x)" >&5
@@ -8331,6 +8372,13 @@ then
 fi
 
 
+book_brand="common"
+if test "$do_books_brand" != ""
+then
+    book_brand=$do_books_brand
+fi
+
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ln -s works" >&5
 $as_echo_n "checking whether ln -s works... " >&6; }
 LN_S=$as_ln_s
@@ -8857,6 +8905,8 @@ NR == 1			{ if ($1 != "UID" && $1 != "USER") exit
 # Unix variants
 $2 == 1 && / init/	{ print "OK"; exit }
 $2 == 1 && / \/etc\/init/ { print "OK"; exit }
+# Open Build Service
+$2 == 1 && / \/bin\/bash/ { print "OK"; exit }
 # Fedora 9
 $2 == 1 && / \/sbin\/init/ { print "OK"; exit }
 # Fedora 15
@@ -10270,7 +10320,7 @@ done
 
     if test "$do_papi" != "check" -a "$enable_papi" != "true"
     then
-	as_fn_error cannot enable the PAPI PMDA "PAPI is not installed" "$LINENO" 5
+	as_fn_error $? "PAPI is not installed, cannot enable the PAPI PMDA" "$LINENO" 5
     else
 	pmda_papi=$enable_papi
     fi
@@ -10376,7 +10426,7 @@ done
 
     if test "$do_perfevent" != "check" -a "$enable_papi" != "true"
     then
-	as_fn_error cannot enable the perfevent PMDA "libpfm is not installed" "$LINENO" 5
+	as_fn_error $? "libpfm is not installed, cannot enable the perfevent PMDA" "$LINENO" 5
     else
 	pmda_perfevent=$enable_perfevent
     fi
@@ -10571,10 +10621,10 @@ if test "x$do_webapi" != "xno"; then :
 
     if test "$do_webapi" != "check" -a "$have_libmicrohttpd" != "true"
     then
-	as_fn_error cannot enable the web API "libmicrohttpd is not installed" "$LINENO" 5
+	as_fn_error $? "libmicrohttpd is not installed, cannot enable the web API" "$LINENO" 5
     elif test "$do_webapi" != "check" -a "x$cxx" = "x"
     then
-	as_fn_error cannot enable the web API "C++ compiler unavailable" "$LINENO" 5
+	as_fn_error $? "C++ compiler unavailable, cannot enable the web API" "$LINENO" 5
     else
 	enable_webapi=$have_libmicrohttpd
     fi
@@ -10589,10 +10639,10 @@ if test "x$do_manager" != "xno"; then :
 
     if test "$do_manager" != "check" -a $target_os = mingw
     then
-	as_fn_error cannot enable daemon manager "Target platform is MinGW" "$LINENO" 5
+	as_fn_error $? "Target platform is MinGW, cannot enable daemon manager" "$LINENO" 5
     elif test "$do_manager" != "check" -a "x$cxx" = "x"
     then
-	as_fn_error cannot enable daemon manager "C++ compiler unavailable" "$LINENO" 5
+	as_fn_error $? "C++ compiler unavailable, cannot enable daemon manager" "$LINENO" 5
     fi
 
 fi

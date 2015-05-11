@@ -57,7 +57,7 @@ done
 
 if $arch
 then
-    srclist="`echo src/*.0`"
+    srclist="`echo src/*.0 archives/*.0`"
 else
     srclist='ignoreme'
 fi

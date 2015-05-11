@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -542,7 +542,7 @@ HandleReadyAgents(__pmFdSet *readyFds)
 		    }
 		    else {
 			/* sts is the status code from the error PDU */
-			if (pmDebug && DBG_TRACE_APPL0)
+			if (pmDebug & DBG_TRACE_APPL0)
 			    __pmNotifyErr(LOG_INFO,
 				 "%s agent (not ready) sent %s status(%d)\n",
 				 ap->pmDomainLabel,

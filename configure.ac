@@ -107,6 +107,12 @@ AC_ARG_WITH([books],
     [do_books=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books=$withval"],
     [do_books=no])
 
+AC_ARG_WITH([books-brand],
+    [AC_HELP_STRING([--with-books-brand=BRAND],
+                    [choose the docbook brand when building the PCP books (default is common)])],
+    [do_books_brand=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books-brand=$withval"],
+    [do_books_brand=common])
+
 AC_ARG_WITH([papi],
     [AC_HELP_STRING([--with-papi@<:@=DIR|=MODULE@:>@],
 		   [enable performance api counter pmda (default is on)
@@ -240,6 +246,17 @@ else
     exit 1
 fi
 
+PKG_PROG_PKG_CONFIG
+if test -z "$PKG_CONFIG"
+then
+    echo
+    echo "FATAL ERROR: did not find a pkg-config executable."
+    echo "You can either set \$PKG_CONFIG as the full path to pkg-config"
+    echo "in the environment, or install the pkgconfig package."
+    rm -rf conftest conftest.*
+    exit 1
+fi
+
 # Add some security-related gcc flags
 AC_ARG_ENABLE([ssp],
   [AS_HELP_STRING([--disable-ssp], [disable gcc stack-protector])])
@@ -307,7 +324,7 @@ then
     then
 	if test "$do_probes" = "yes"
 	then
-	    AC_MSG_ERROR(cannot enable static probes - no dtrace executable)
+	    AC_MSG_ERROR([cannot enable static probes - no dtrace executable])
 	fi
 	enable_probes=false
     fi
@@ -333,14 +350,14 @@ End-of-File
 			enable_probes=false
 			if test "$do_probes" = "yes"
 			then
-			    AC_MSG_ERROR(cannot enable static probes - no .h from dtrace -h)
+			    AC_MSG_ERROR([cannot enable static probes - no .h from dtrace -h])
 			fi
 		    fi
 		else
 		    enable_probes=false
 		    if test "$do_probes" = "yes"
 		    then
-			AC_MSG_ERROR(cannot enable static probes - dtrace failed)
+			AC_MSG_ERROR([cannot enable static probes - dtrace failed])
 		    fi
 		fi
 	    fi
@@ -349,7 +366,7 @@ End-of-File
 	enable_probes=false
 	if test "$do_probes" = "yes"
 	then
-	    AC_MSG_ERROR(cannot enable static probes - no SDT header)
+	    AC_MSG_ERROR([cannot enable static probes - no SDT header])
 	fi
     ])
 
@@ -385,7 +402,7 @@ AS_IF([test "x$do_discovery" != "xno"], [
 
     if test "$do_discovery" != "check" -a "$enable_discovery" != "true"
     then
-	AC_MSG_ERROR(cannot enable service discovery - no supported mechanisms)
+	AC_MSG_ERROR([cannot enable service discovery - no supported mechanisms])
     fi
     if test "$enable_discovery" = "true"
     then
@@ -407,7 +424,7 @@ AS_IF([test "x$do_systemd" != "xno"], [
     then
 	if test "$do_systemd" = "yes"
 	then
-	    AC_MSG_ERROR(cannot enable systemd support - no systemunitdir path)
+	    AC_MSG_ERROR([cannot enable systemd support - no systemunitdir path])
 	fi
 	enable_systemd=false
     fi
@@ -451,6 +468,10 @@ if test -z "$PACKAGE_DISTRIBUTION" ; then
 fi
 AC_SUBST(PACKAGE_DISTRIBUTION)
 
+dnl generate PM_VERSION_CURRENT for header
+pm_version_current=`awk </dev/null "BEGIN { print (${PACKAGE_MAJOR}*256+${PACKAGE_MINOR})*256+${PACKAGE_REVISION} }"`
+AC_SUBST(pm_version_current)
+
 dnl output header files with cpp defs HAVE_*, etc
 AC_CONFIG_HEADERS(src/include/pcp/config.h src/include/pcp/configsz.h)
 AC_OUTPUT(src/include/pcp/platform_defs.h)
@@ -467,12 +488,12 @@ AC_CHECK_PROGS(PYTHON3, python3)
 AC_SUBST(PYTHON3)
 
 dnl check if python tools/packages wanted (need python >= 2.6)
-enable_python=false
+enable_python2=false
 AS_IF([test "x$do_python" != "xno"], [
-    enable_python=true
+    enable_python2=true
     if test -z "$PYTHON"
     then
-	enable_python=false
+	enable_python2=false
     else
 	AC_MSG_CHECKING([Python version])
 	eval `$PYTHON -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
@@ -480,26 +501,26 @@ AS_IF([test "x$do_python" != "xno"], [
 	if test "$PY_MAJOR" -lt 2; then
 	    echo WARNING: Python version 2.6 or later does not seem to be installed.
 	    echo Cannot proceed with the Python $PY_MAJOR installation found.
-	    enable_python=false
+	    enable_python2=false
 	fi
 	if test "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -lt 6 ; then
 	    echo WARNING: Python version 2.$PY_MINOR is too old.
 	    echo Python version 2.6 or later is required for Python builds.
-	    enable_python=false
+	    enable_python2=false
 	fi
 	AC_CHECK_HEADERS([python${PY_MAJOR}.${PY_MINOR}/Python.h], [], [
 	    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
 	    echo Cannot proceed with the Python $PY_MAJOR installation found.
-	    enable_python=false
+	    enable_python2=false
 	])
     fi
 
-    if test "$do_python" != "check" -a "$enable_python" != "true"
+    if test "$do_python" != "check" -a "$enable_python2" != "true"
     then
-	AC_MSG_ERROR(cannot enable Python - no supported version found)
+	AC_MSG_ERROR([cannot enable Python - no supported version found])
     fi
 ])
-AC_SUBST(enable_python)
+AC_SUBST(enable_python2)
 
 dnl check if python3 tools/packages wanted (need python >= 3.3)
 enable_python3=false
@@ -531,10 +552,18 @@ AS_IF([test "x$do_python3" != "xno"], [
 
     if test "$do_python3" != "check" -a "$enable_python3" != "true"
     then
-	AC_MSG_ERROR(cannot enable Python3 - no supported version found)
+	AC_MSG_ERROR([cannot enable Python3 - no supported version found])
     fi
 ])
 AC_SUBST(enable_python3)
+
+dnl convenience macro to determine if either python is available
+have_python=false
+if test "$enable_python2" = "true" -o "$enable_python3" = "true"
+then
+    have_python=true
+fi
+AC_SUBST(have_python)
 
 dnl choose the prefered python executable (py2 -> py3 transtion)
 if test "$enable_python3" = "true"
@@ -577,7 +606,7 @@ AS_IF([test "x$do_qt" != "xno"], [
 
     if test "$do_qt" != "check" -a "$enable_qt" != "true"
     then
-	AC_MSG_ERROR(cannot enable Qt - no supported Qt installation found)
+	AC_MSG_ERROR([cannot enable Qt - no supported Qt installation found])
     elif test "$do_qt" = "debug"
     then
 	dnl Debug/release style build? (non-debug by default)
@@ -781,7 +810,11 @@ if test -z "$PACKAGE_MAKER"
 then
     if test $target_os = darwin
     then
-	if test -x /Developer/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
+	if test -x /Applications/PackageMaker.app/Contents/MacOS/PackageMaker
+	then # local XCode extras install
+	    package_maker=/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
+	    AC_MSG_RESULT([ yes (local install)])
+	elif test -x /Developer/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
 	then # Darwin 6.x
 	    package_maker=/Developer/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
 	    AC_MSG_RESULT([ yes (darwin 6.x)])
@@ -935,10 +968,17 @@ then
         book_toolchain=xmlto
     elif test "$do_books" = "yes"
     then
-	AC_MSG_ERROR(cannot enable books build - no toolchain found)
+	AC_MSG_ERROR([cannot enable books build - no toolchain found])
     fi
 fi
 AC_SUBST(book_toolchain)
+
+book_brand="common"
+if test "$do_books_brand" != ""
+then
+    book_brand=$do_books_brand
+fi
+AC_SUBST(book_brand)
 
 dnl check if symbolic links are supported
 AC_PROG_LN_S
@@ -1090,6 +1130,8 @@ NR == 1			{ if ($1 != "UID" && $1 != "USER") exit
 # Unix variants
 $2 == 1 && / init/	{ print "OK"; exit }
 $2 == 1 && / \/etc\/init/ { print "OK"; exit }
+# Open Build Service
+$2 == 1 && / \/bin\/bash/ { print "OK"; exit }
 # Fedora 9
 $2 == 1 && / \/sbin\/init/ { print "OK"; exit }
 # Fedora 15
@@ -1318,7 +1360,7 @@ AS_IF([test "x$do_papi" != "xno"], [
     AC_CHECK_HEADERS([papi.h], [papi_cflags="$CFLAGS"], [enable_papi=false])
     if test "$do_papi" != "check" -a "$enable_papi" != "true"
     then
-	AC_MSG_ERROR(PAPI is not installed, cannot enable the PAPI PMDA)
+	AC_MSG_ERROR([PAPI is not installed, cannot enable the PAPI PMDA])
     else
 	pmda_papi=$enable_papi
     fi
@@ -1361,7 +1403,7 @@ AS_IF([test "x$do_perfevent" != "xno" ], [
     AC_CHECK_HEADERS([perfmon/pfmlib_perf_event.h], [], [enable_perfevent=false])
     if test "$do_perfevent" != "check" -a "$enable_papi" != "true"
     then
-	AC_MSG_ERROR(libpfm is not installed, cannot enable the perfevent PMDA)
+	AC_MSG_ERROR([libpfm is not installed, cannot enable the perfevent PMDA])
     else
 	pmda_perfevent=$enable_perfevent
     fi
@@ -1397,10 +1439,10 @@ AS_IF([test "x$do_webapi" != "xno"], [
 
     if test "$do_webapi" != "check" -a "$have_libmicrohttpd" != "true"
     then
-	AC_MSG_ERROR(libmicrohttpd is not installed, cannot enable the web API)
+	AC_MSG_ERROR([libmicrohttpd is not installed, cannot enable the web API])
     elif test "$do_webapi" != "check" -a "x$cxx" = "x"
     then
-	AC_MSG_ERROR(C++ compiler unavailable, cannot enable the web API)
+	AC_MSG_ERROR([C++ compiler unavailable, cannot enable the web API])
     else
 	enable_webapi=$have_libmicrohttpd
     fi
@@ -1413,10 +1455,10 @@ AS_IF([test "x$do_manager" != "xno"], [
 
     if test "$do_manager" != "check" -a $target_os = mingw
     then
-	AC_MSG_ERROR(Target platform is MinGW, cannot enable daemon manager)
+	AC_MSG_ERROR([Target platform is MinGW, cannot enable daemon manager])
     elif test "$do_manager" != "check" -a "x$cxx" = "x"
     then
-	AC_MSG_ERROR(C++ compiler unavailable, cannot enable daemon manager)
+	AC_MSG_ERROR([C++ compiler unavailable, cannot enable daemon manager])
     fi
 ])
 AC_SUBST(enable_manager)
@@ -1758,7 +1800,7 @@ then
 	[
 	    if test "$do_threads" = "yes"
 	    then
-		AC_MSG_ERROR(cannot enable multi-threaded mode - no pthread.h)
+		AC_MSG_ERROR([cannot enable multi-threaded mode - no pthread.h])
 	    fi
 	])
 
@@ -1773,7 +1815,7 @@ then
 	[
 	    if test "$do_threads" = "yes"
 	    then
-		AC_MSG_ERROR(cannot enable multi-threaded mode - no mutexes)
+		AC_MSG_ERROR([cannot enable multi-threaded mode - no mutexes])
 	    else
 		AC_MSG_RESULT(no)
 	    fi
@@ -2491,7 +2533,7 @@ then
 	    enable_secure=false
 	    if test "$do_secure" = "yes"
 	    then
-		AC_MSG_ERROR(cannot enable secure sockets mode - no NSS header)
+		AC_MSG_ERROR([cannot enable secure sockets mode - no NSS header])
 	    fi
 	])
     ])
@@ -2502,7 +2544,7 @@ then
 	    enable_secure=false
 	    if test "$do_secure" = "yes"
 	    then
-		AC_MSG_ERROR(cannot enable secure sockets mode - no NSPR header)
+		AC_MSG_ERROR([cannot enable secure sockets mode - no NSPR header])
 	    fi
 	])
     ])
@@ -2512,7 +2554,7 @@ then
 	enable_secure=false
 	if test "$do_secure" = "yes"
 	then
-	    AC_MSG_ERROR(cannot enable secure sockets mode - no SASL header)
+	    AC_MSG_ERROR([cannot enable secure sockets mode - no SASL header])
 	fi
     ])
     AC_SUBST(SASLCFLAGS)
@@ -2521,7 +2563,7 @@ then
 	enable_secure=false
 	if test "$do_secure" = "yes"
 	then
-	    AC_MSG_ERROR(cannot enable secure sockets mode - no SASL library)
+	    AC_MSG_ERROR([cannot enable secure sockets mode - no SASL library])
 	fi
     ])
     AC_SUBST(lib_for_sasl)
@@ -2531,7 +2573,7 @@ then
 	    enable_secure=false
 	    if test "$do_secure" = "yes"
 	    then
-		AC_MSG_ERROR(cannot enable secure sockets mode - no SSL library)
+		AC_MSG_ERROR([cannot enable secure sockets mode - no SSL library])
 	    fi
 	])
     ])
@@ -2542,7 +2584,7 @@ then
 	    enable_secure=false
 	    if test "$do_secure" = "yes"
 	    then
-		AC_MSG_ERROR(cannot enable secure sockets mode - no NSS library)
+		AC_MSG_ERROR([cannot enable secure sockets mode - no NSS library])
 	    fi
 	])
     ])
@@ -2553,7 +2595,7 @@ then
 	    enable_secure=false
 	    if test "$do_secure" = "yes"
 	    then
-		AC_MSG_ERROR(cannot enable secure sockets mode - no NSPR library)
+		AC_MSG_ERROR([cannot enable secure sockets mode - no NSPR library])
 	    fi
 	])
     ])

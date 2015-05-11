@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014, Red Hat.
+ * Copyright (c) 2012-2015, Red Hat.
  * Copyright (c) 2008, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -27,7 +27,7 @@ public:
     virtual ~Gadget() { }
     virtual void resetFont() { }
     virtual void setCurrent(bool) { }
-    virtual void setScheme(QString &s) { my.scheme = s; }
+    virtual void setScheme(const QString &s) { my.scheme = s; }
     virtual QString scheme() const { return my.scheme; }
 
     virtual void updateBackground(QColor) { }
@@ -52,7 +52,7 @@ public:
 
     virtual int metricCount() const { return 0; }
     virtual bool activeMetric(int) const { return true; }
-    virtual QmcMetric *metric(int) const { return NULL; }
+    virtual QmcMetric *metricPtr(int) const { return NULL; }
     virtual QmcDesc *metricDesc(int) const { return NULL; }
     virtual QString metricInstance(int) const { return QString::null; }
     virtual QmcContext *metricContext(int) const { return NULL; }

@@ -103,7 +103,7 @@ Options\n\
     }
 
     if (namespace != PM_NS_DEFAULT) {
-	if ((sts = pmLoadNameSpace(namespace)) < 0) {
+	if ((sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
 	    printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
 	    exit(1);
 	}

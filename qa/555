@@ -65,7 +65,7 @@ then
 	upstart=false
 	init=/etc/init.d/syslog
     else
-	if `which systemctl >/dev/null 2>&1`
+	if `which systemctl >/dev/null 2>&1` && [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/rsyslog.service ]
 	then
 	    systemctl=true
 	else

@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2013-2014 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 # Copyright (c) 1995-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -382,12 +382,14 @@ fi
 # it may not exist, so create it here before it is used to create
 # any pid/lock files
 #
-# $PCP_RUN_DIR creation is also done in pmcd startup, but pmcd may
-# not be running on this system
+# $PCP_RUN_DIR creation is also done in other daemons startup, but we
+# have no guarantee any other daemons are running on this system.
 #
 if [ ! -d "$PCP_RUN_DIR" ]
 then
-    mkdir -p -m 775 "$PCP_RUN_DIR"
+    mkdir -p -m 775 "$PCP_RUN_DIR" 2>/dev/null
+    # might be running from cron as unprivileged user
+    [ $? -ne 0 -a "$PMLOGGER_CTL" = "off" ] && exit 0
     chown $PCP_USER:$PCP_GROUP "$PCP_RUN_DIR"
 fi
 echo $$ >"$PCP_RUN_DIR"/pmlogger_daily.pid

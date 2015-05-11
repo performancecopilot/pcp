@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Red Hat.
+ * Copyright (c) 2013-2015, Red Hat.
  * Copyright (c) 2007-2008, Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -831,7 +831,7 @@ void ChartDialog::createChartPlot(Chart *cp, NameSpace *name)
     label = name->label().isEmpty() ? QString::null : name->label();
     pms.isarch = (name->sourceType() == PM_CONTEXT_LOCAL) ? 2 :
 		((name->sourceType() == PM_CONTEXT_ARCHIVE) ? 1 : 0);
-    pms.source = strdup((const char *)name->sourceName().toAscii());
+    pms.source = strdup((const char *)name->source().toAscii());
     pms.metric = strdup((const char *)name->metricName().toAscii());
     if (!pms.source || !pms.metric)
 	nomem();

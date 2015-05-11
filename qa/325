@@ -55,7 +55,10 @@ unset PCP_STDERR
 src/pmprintf foo bee doo
 
 # Expect something in an xconfirm
-export DISPLAY=$PCPQA_CLOSE_X_SERVER
+if [ -z "$DISPLAY" ]
+then
+    export DISPLAY=$PCPQA_CLOSE_X_SERVER
+fi
 echo "DISPLAY=$DISPLAY" >>$seq.full
 export PCP_STDERR=DISPLAY
 if [ -z "$PCP_XCONFIRM_PROG" ]

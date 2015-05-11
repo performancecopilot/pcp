@@ -19,10 +19,13 @@ echo "QA output created by $seq"
 [ -f /etc/gentoo-release ] && _notrun "chkconfig does not work for Gentoo"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
+$sudo rm -rf $tmp.* $seq.full $seq.out
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 VERBOSE_CONFIG=false
+PMWEBD_INSTALLED=false
+PMMGR_INSTALLED=false
+FULL_LIST="pmcd pmie pmlogger pmproxy"
 
 . $PCP_SHARE_DIR/lib/rc-proc.sh
 
@@ -36,13 +39,34 @@ _check_chk()
     fi
 }
 
+ln -f $seq.out.1 $seq.out || exit 1
+if [ -f $PCP_BINADM_DIR/pmwebd ]
+then
+    PMWEBD_INSTALLED=true
+    FULL_LIST="pmcd pmie pmlogger pmproxy pmwebd"
+    ln -f $seq.out.2 $seq.out || exit 1
+fi
+if [ -f $PCP_BINADM_DIR/pmmgr ]
+then
+    PMMGR_INSTALLED=true
+    if $PMWEBD_INSTALLED ;
+    then
+	FULL_LIST="pmcd pmie pmlogger pmmgr pmproxy pmwebd"
+	ln -f $seq.out.4 $seq.out || exit 1
+    else
+	FULL_LIST="pmcd pmie pmlogger pmmgr pmproxy"
+	ln -f $seq.out.3 $seq.out || exit 1
+    fi
+    
+fi
+
 # real QA test starts here
 
 VERBOSE_CONFIG=true
 is_chkconfig_on pmie >>$seq.full
 VERBOSE_CONFIG=false
 
-for svc in pmcd pmie pmlogger pmmgr pmproxy pmwebd
+for svc in $FULL_LIST
 do
     save=off
     is_chkconfig_on $svc && save=on

@@ -2,6 +2,7 @@
 # PCP QA Test No. 703
 # weblog PMDA install/remove test
 #
+# Copyright (c) 2015 Red Hat.
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
@@ -13,7 +14,7 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.pcpweb
 
-[ -d $PCP_PMDAS_DIR/weblog ] || _notrun "weblog PMDA not installed"
+[ -f $PCP_PMDAS_DIR/weblog/pmdaweblog ] || _notrun "weblog PMDA not installed"
 
 if [ $PCP_PLATFORM = solaris ]
 then

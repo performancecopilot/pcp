@@ -79,12 +79,12 @@ sub simple_store_callback	# must return a single value (scalar context)
 
     if ($cluster == 0) {
 	if ($item == 0) {
-	    if ($val < 0)	{ $val = 0; $sts = PM_ERR_SIGN; }
+	    if ($val < 0)	{ $val = 0; $sts = PM_ERR_BADSTORE; }
 	    $numfetch = $val;
 	}
 	elsif ($item == 1) {
-	    if ($val < 0)	{ $sts = PM_ERR_SIGN; $val = 0; }
-	    elsif ($val > 255)	{ $sts = PM_ERR_CONV; $val = 255; }
+	    if ($val < 0)	{ $sts = PM_ERR_BADSTORE; $val = 0; }
+	    elsif ($val > 255)	{ $sts = PM_ERR_BADSTORE; $val = 255; }
 
 	    if ($inst == 0)	{ $red = $val; }
 	    elsif ($inst == 1)	{ $green = $val; }

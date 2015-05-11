@@ -24,18 +24,17 @@ CPMDAS = root pmcd \
 	apache cisco trace shping mounts weblog \
 	mmv lmsensors process roomtemp summary etw \
 	lustrecomm infiniband logger bash systemd \
-	gfs2 jbd2 cifs rpm nvidia papi perfevent
+	gfs2 jbd2 cifs rpm nvidia papi perfevent \
+        dm
 
 PLPMDAS = bonding netfilter zimbra postgresql \
-	dbping memcache systemtap mysql vmware kvm \
+	dbping memcache mysql vmware kvm \
 	named news pdns samba dtsrun postfix gpsd \
 	rsyslog elasticsearch snmp nginx nfsclient \
 	ds389 ds389log activemq lustre gpfs
 
-ifeq "$(ENABLE_PYTHON)" "true"
-PYPMDAS = gluster zswap dmcache unbound json
-else
-PYPMDAS =
+ifeq "$(HAVE_PYTHON)" "true"
+PYPMDAS = gluster zswap unbound json
 endif
 
 SUBDIRS = $(CPMDAS) $(PLPMDAS) $(PYPMDAS)

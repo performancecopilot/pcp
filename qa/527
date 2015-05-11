@@ -16,6 +16,11 @@ echo "QA output created by $seq"
 . ./common.check
 
 [ $PCP_VER -ge 30801 ] || _notrun libpcp_import fix is in PCP 3.8.1
+[ -f ${PCP_LIB_DIR}/libpcp_import.${DSO_SUFFIX} ] || \
+        _notrun "No support for libpcp_import"
+perl -e "use PCP::LogImport" 2>/dev/null || \
+        _notrun "Perl PCP::LogImport module is not installed"
+
 
 _filter()
 {

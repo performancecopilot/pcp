@@ -1,7 +1,7 @@
 /*
  * PMWEBD graphite-api emulation
  *
- * Copyright (c) 2014 Red Hat Inc.
+ * Copyright (c) 2014-2015 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -32,8 +32,8 @@ using namespace std;
 
 extern "C"
 {
+#include <unistd.h>
 #include <ctype.h>
-#include <math.h>
 #ifdef HAVE_FTS_H
 #include <fts.h>
 #endif
@@ -42,11 +42,54 @@ extern "C"
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif
+#ifdef HAVE_IEEEFP_H
+#include <ieeefp.h>
+#endif
+#ifdef HAVE_MATH_H
+#include <math.h>
+#endif
 #ifdef HAVE_CAIRO
 #include <cairo/cairo.h>
 #endif
 };
 
+
+/*
+ * Platform-independent not-a-number helpers (based on libpcp code).
+ */
+int
+pmgraphite_isnanf (float value)
+{
+    int fp_bad = 0;
+
+#ifdef HAVE_FPCLASSIFY
+    fp_bad = fpclassify (value) == FP_NAN;
+#else
+#ifdef HAVE_ISNANF
+    fp_bad = isnanf (value);
+#else
+# warning "This platform has no isnan for float"
+#endif
+#endif
+    return fp_bad;
+}
+
+int
+pmgraphite_isnand (double value)
+{
+    int fp_bad = 0;
+
+#ifdef HAVE_FPCLASSIFY
+    fp_bad = fpclassify (value) == FP_NAN;
+#else
+#ifdef HAVE_ISNAN
+    fp_bad = isnan (value);
+#else
+# warning "This platform has no isnan for double"
+#endif
+#endif
+    return fp_bad;
+}
 
 /*
  * We need a reversible encoding from arbitrary non-empty strings
@@ -244,21 +287,28 @@ vector <string> pmgraphite_enumerate_metrics (struct MHD_Connection * connection
     }
     for (FTSENT * ent = fts_read (f); ent != NULL; ent = fts_read (f)) {
         if (exit_p) {
-            goto out;
+            break; // don't bypass the fts_close()
         }
 
         if (ent->fts_info == FTS_SL) {
             // follow symlinks (unlikely)
             (void) fts_set (f, ent, FTS_FOLLOW);
+            continue;
         }
 
-        if (fnmatch ("*.meta", ent->fts_path, FNM_NOESCAPE) != 0) {
-            continue;
-        }
+        // Skip if suspiciously named
         string archive = string (ent->fts_path);
-        if (cursed_path_p (archivesdir, archive)) {
+        if (cursed_path_p (archivesdir, archive))
             continue;
-        }
+
+        // Skip if uninteresting directory
+        if ((ent->fts_info == FTS_D) && !graphite_archivedir)
+            continue;
+
+        // Skip if uninteresting file
+        if ((ent->fts_info == FTS_F) &&
+            fnmatch ("*.meta", ent->fts_path, FNM_NOESCAPE) != 0)
+            continue;
 
         // Abbrevate archive to clip off the archivesdir prefix (if
         // it's there).
@@ -272,12 +322,27 @@ vector <string> pmgraphite_enumerate_metrics (struct MHD_Connection * connection
         // Filter out mismatches of the first pattern component.
         // (note that this applies after _metric_encode().)
         if (patterns_tok.size () >= 1 &&	// have -some- specification
-                ((patterns_tok[0] != archivepart) &&	// not identical
-                 (fnmatch (patterns_tok[0].c_str (), archivepart.c_str (), FNM_NOESCAPE) != 0))) {
+            ((patterns_tok[0] != archivepart) &&	// not identical
+             (fnmatch (patterns_tok[0].c_str (), archivepart.c_str (), FNM_NOESCAPE) != 0))) {
             // mismatches?
             continue;
         }
 
+        if (ent->fts_info == FTS_F) {
+            // PR1099: compressed archives can take too long to open &
+            // check, because libpcp completely decompresses them into a
+            // temporary directory ... every time a context is created for
+            // them.  Perhaps we could tolerate very small ones, but for
+            // now let's just skip them completely.
+            //
+            // We use a heuristic to determine whether the archive's
+            // compressed or not: simply whether there is a .0 file for a
+            // .meta.
+            string vol0 = archive.substr(0, archive.size()-strlen(".meta")) + ".0";
+            if (access (vol0.c_str(), R_OK) != 0) {
+                continue;
+            }
+        }
         int ctx = pmNewContext (PM_CONTEXT_ARCHIVE, archive.c_str ());
         if (ctx < 0) {
             continue;
@@ -293,6 +358,10 @@ vector <string> pmgraphite_enumerate_metrics (struct MHD_Connection * connection
         (void) pmTraversePMNS_r ("", &pmg_enumerate_pmns, &c);
 
         pmDestroyContext (ctx);
+
+        // Don't recurse if this was a successfully opened archive-directory
+        if ((ent->fts_info == FTS_D) && graphite_archivedir)
+            (void) fts_set (f, ent, FTS_SKIP);
     }
     fts_close (f);
 
@@ -584,10 +653,10 @@ struct timestamped_float {
 
 // parameters for fetching a series
 struct fetch_series_jobspec {
-    vector<timestamped_float> output;
+    vector<timestamped_float> output; // maybe empty if encountered bad error
     string target;
     time_t t_start, t_end, t_step;
-    string message;
+    string message; // may have error or verbose message
 };
 
 
@@ -731,12 +800,12 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
 
     vector <string> target_tok = split (target, '.');
     if (target_tok.size () < 2) {
-        message << "not enough target components";
+        message << target << ": not enough target components";
         goto out0;
     }
     for (unsigned i = 0; i < target_tok.size (); i++)
         if (target_tok[i] == "") {
-            message << "empty target components";
+            message << target << ": empty target components";
             goto out0;
         }
     // Extract the archive file/directory name
@@ -763,9 +832,6 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
         // error already noted
         goto out0;
     }
-    if (verbosity > 2) {
-        message << "opened archive " << archive << ", ";
-    }
 
     // NB: past this point, exit via 'goto out;' to release pmc
 
@@ -785,6 +851,11 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
         goto out;
     }
 
+    if (verbosity > 3) {
+        message << "[" << archive_label.ll_start.tv_sec
+                << "-" << archive_end.tv_sec << "] ";
+    }
+    
     // We need to decide whether the next dotted components represent
     // a metric name, or whether there is an instance name squished at
     // the end.
@@ -921,6 +992,12 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
 
             int sts = pmFetch (1, pmidlist, &result);
             if (sts >= 0) {
+                if (verbosity > 4) {
+                    message << "@" << result->timestamp.tv_sec
+                            << (result->vset[0]->numval == 1 ? "+" : "-")
+                            << " ";
+                }
+                
                 if (result->vset[0]->numval == 1) {
                     pmAtomValue value;
                     sts = pmExtractValue (result->vset[0]->valfmt,
@@ -966,7 +1043,7 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
                 delta = 1;    // some token protection against div-by-zero
             }
 
-            if (isnanf (last_value) || isnanf (this_value)) {
+            if (pmgraphite_isnanf (last_value) || pmgraphite_isnanf (this_value)) {
                 output[i].what = nanf ("");
             } else {
                 // avoid loss of significance risk of naively calculating
@@ -979,11 +1056,7 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
         output[0].what = nanf ("");
     }
 
-    if ((verbosity) == 3 && (entries_good == 0)) {
-         // drop the "opened archive ...," partial message
-        message.str(string());
-        message.clear();
-    } else if ((verbosity > 3) || (verbosity > 2 && entries_good > 0)) {
+    if ((verbosity > 3) || (verbosity > 2 && entries_good > 0)) {
         string instance_spec;
         if (instance_name != "") {
             instance_spec = string ("[\"") + instance_name + string ("\"]");
@@ -993,13 +1066,16 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
     }
 
     // Done!
-
 out:
     pmDestroyContext (pmc);
 out0:
     // vector output already returned via jobspec pointer
-    // pass back message
-    spec->message = message.str ();
+
+    spec->message = message.str (); // pass back message
+    // ... but prefix it with archive name
+    if (spec->message.size() > 0 && // have -some- message
+        (output.size() == 0 || verbosity > 2)) // big fetch error or verbosity
+        spec->message = archive + ": " + spec->message;
 }
 
 
@@ -1007,8 +1083,8 @@ out0:
 // A parallelizable version of the above.
 
 vector<vector <timestamped_float> >
-                                pmgraphite_fetch_all_series (struct MHD_Connection* connection, const vector<string>& targets,
-                                        time_t t_start, time_t t_end, time_t t_step)
+pmgraphite_fetch_all_series (struct MHD_Connection* connection, const vector<string>& targets,
+                             time_t t_start, time_t t_end, time_t t_step)
 {
     // XXX: peephole optimize: for fetches of different metrics/instances
     // from the same archive, it could be faster to have one thread fetch
@@ -1037,7 +1113,7 @@ vector<vector <timestamped_float> >
     // propagate any output, messages
     vector <vector <timestamped_float> > all_outputs;
     for (unsigned i = 0; i < q.jobs.size (); i++) {
-        all_outputs.push_back (q.jobs[i].output);
+        all_outputs.push_back (q.jobs[i].output); // even if encountered error, so output-empty
         const string& message = q.jobs[i].message;
         if (message != "") {
             connstamp (clog, connection) << message << endl;
@@ -1176,17 +1252,23 @@ pmgraphite_gather_data (struct MHD_Connection *connection,
     t_start = pmgraphite_parse_timespec (connection, from);
     t_end = pmgraphite_parse_timespec (connection, until);
 
-    // We could hard-code t_step = 60 as in the /rawdata case, since that is the
-    // typical sampling rate for graphite as well as pcp.  But maybe a graphite
-    // webapp (grafana) can't handle as many as that.
+    // sanity-check time interval
+    if (t_start >= t_end) {
+        return -EINVAL;
+    }
+    
+    // Compute t_step.  Because we calculate with integers, the
+    // minimum is 1.  The practical minimum is something dependent on
+    // the archive's sampling rate for this particular metric, since
+    // supersampling wastes CPU.
     int maxdatapt = atoi (params["maxDataPoints"].c_str ());	// ignore failures
     if (maxdatapt <= 0) {
         maxdatapt = 1024;		// a sensible upper limit?
     }
 
-    t_step = 60;		// a default, but ...
+    t_step = graphite_timestep;
+    // make it larger if needed; maxdatapt governs
     if (((t_end - t_start) / t_step) > maxdatapt) {
-        // make it larger if needed
         t_step = ((t_end - t_start) / maxdatapt) + 1;
     }
 
@@ -1690,6 +1772,10 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
     // Gather up all the data.  We need several passes over it, so gather it into a vector<vector<> >.
     all_results = pmgraphite_fetch_all_series (connection, targets, t_start, t_end, t_step);
 
+    if (exit_p) {
+        return MHD_NO;
+    }
+
     // Compute vertical bounds.
     float ymin;
     if (params["yMin"] != "") {
@@ -1698,10 +1784,10 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
         ymin = nanf ("");
         for (unsigned i=0; i<all_results.size (); i++)
             for (unsigned j=0; j<all_results[i].size (); j++) {
-                if (isnanf (all_results[i][j].what)) {
+                if (pmgraphite_isnanf (all_results[i][j].what)) {
                     continue;
                 }
-                if (isnanf (ymin)) {
+                if (pmgraphite_isnanf (ymin)) {
                     ymin = all_results[i][j].what;
                 } else {
                     ymin = min (ymin, all_results[i][j].what);
@@ -1715,10 +1801,10 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
         ymax = nanf ("");
         for (unsigned i=0; i<all_results.size (); i++)
             for (unsigned j=0; j<all_results[i].size (); j++) {
-                if (isnanf (all_results[i][j].what)) {
+                if (pmgraphite_isnanf (all_results[i][j].what)) {
                     continue;
                 }
-                if (isnanf (ymax)) {
+                if (pmgraphite_isnanf (ymax)) {
                     ymax = all_results[i][j].what;
                 } else {
                     ymax = max (ymax, all_results[i][j].what);
@@ -1727,7 +1813,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
     }
 
     // Any data to show?
-    if (isnanf (ymin) || isnanf (ymax) || all_results.empty ()) {
+    if (pmgraphite_isnanf (ymin) || pmgraphite_isnanf (ymax) || all_results.empty ()) {
         cairo_text_extents_t ext;
         string message = "no data in range";
         cairo_save (cr);
@@ -1826,7 +1912,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
         total_visibility_score.push_back (0);
         const vector<timestamped_float>& f = all_results[i];
         for (unsigned j=0; j<f.size (); j++) {
-            if (isnan (f[j].what)) {
+            if (pmgraphite_isnand (f[j].what)) {
                 continue;
             }
             total_visibility_score[i] ++;
@@ -1839,12 +1925,15 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
 
             for (unsigned k=0; k<all_results.size (); k++) {
                 const vector<timestamped_float>& f2 = all_results[k];
-                if (i == k) {
+                if (i == k) // same time series?
                     continue;
-                }
-                if (isnan (f2[j].what)) {
+
+                if (f2.size() <= j) // small vector due to fetch errors?
                     continue;
-                }
+
+                if (pmgraphite_isnand (f2[j].what)) // missing data item?
+                    continue;
+
                 assert (f2[j].when.tv_sec == f[j].when.tv_sec);
                 float delta = f2[j].what - f[j].what;
                 float reldelta = fabs (delta / (ymax - ymin)); // compare delta to height of graph
@@ -1895,7 +1984,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
             }
             notcairo_parse_color (fgcolor, r, g, b);
             cairo_set_source_rgb (cr, r, g, b);
-            cairo_select_font_face (cr, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+            cairo_select_font_face (cr, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
             cairo_set_font_size (cr, spacing);
             cairo_move_to (cr, leftedge + spacing*1.5, baseline);
             cairo_show_text (cr, name.c_str ());
@@ -1906,7 +1995,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
             if (graphyhigh > baseline) {
                 graphyhigh = baseline - spacing;
             }
-            if (graphyhigh < height*0.5) { // forget it, too many
+            if (graphyhigh < height*0.6) { // forget it, don't go beyond 40%
                 break;
             }
         }
@@ -1947,7 +2036,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
             string lstr = label.str ();
             cairo_text_extents_t ext;
             cairo_save (cr);
-            cairo_select_font_face (cr, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+            cairo_select_font_face (cr, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
             cairo_set_font_size (cr, 8.0);
             string fgcolor = params["fgcolor"];
             if (fgcolor == "") {
@@ -2056,10 +2145,10 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
 
             // clog << "(" << lastx << "," << lasty << ")";
 
-            if (isnanf (thisy)) {
+            if (pmgraphite_isnanf (thisy)) {
                 // This data slot is missing, so put a circle at the previous end, if
                 // possible, to indicate the discontinuity
-                if (! isnan (lastx) && ! isnan (lasty)) {
+                if (! pmgraphite_isnand (lastx) && ! pmgraphite_isnand (lasty)) {
                     cairo_move_to (cr, lastx, lasty);
                     cairo_arc (cr, lastx, lasty, line_width*0.5, 0., 2*M_PI);
                     cairo_stroke (cr);
@@ -2081,7 +2170,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
             // clog << "-(" << x << "," << y << ") ";
 
             cairo_move_to (cr, x, y);
-            if (! isnan (lastx) && ! isnan (lasty)) {
+            if (! pmgraphite_isnand (lastx) && ! pmgraphite_isnand (lasty)) {
                 // draw it as a line
                 cairo_line_to (cr, lastx, lasty);
             } else {
@@ -2231,7 +2320,7 @@ pmgraphite_respond_render_json (struct MHD_Connection *connection,
                     output << ",";
                 }
                 output << "[";
-                if (isnanf (results[i].what)) {
+                if (pmgraphite_isnanf (results[i].what)) {
                     output << "null";
                 } else {
                     output << results[i].what;

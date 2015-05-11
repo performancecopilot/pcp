@@ -375,3 +375,12 @@ __pmGetAPIConfig(const char *name)
 	    return features[i].detector();
     return NULL;
 }
+
+/*
+ * binary encoding of current PCP version
+ */
+int
+pmGetVersion(void)
+{
+    return PM_VERSION_CURRENT;
+}

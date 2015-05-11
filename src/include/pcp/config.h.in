@@ -14,8 +14,8 @@
  * for more details.
  */
 
-#ifndef _PCP_CONFIG_H
-#define _PCP_CONFIG_H
+#ifndef PCP_CONFIG_H
+#define PCP_CONFIG_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -691,4 +691,4 @@ extern int alphasort(const_dirent **, const_dirent **);
 }
 #endif
 
-#endif /* _PCP_CONFIG_H */
+#endif /* PCP_CONFIG_H */

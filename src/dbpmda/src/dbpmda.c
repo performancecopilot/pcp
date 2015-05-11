@@ -149,15 +149,19 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
-	if (pmnsfile == PM_NS_DEFAULT) {
+    if (pmnsfile == PM_NS_DEFAULT) {
+	if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
 		fprintf(stderr, "%s: Cannot load default namespace: %s\n",
 			pmProgname, pmErrStr(sts));
-	} else {
+	    exit(1);
+	}
+    }
+    else {
+	if ((sts = pmLoadASCIINameSpace(pmnsfile, 1)) < 0) {
 		fprintf(stderr, "%s: Cannot load namespace from \"%s\": %s\n",
 			pmProgname, pmnsfile, pmErrStr(sts));
+	    exit(1);
 	}
-	exit(1);
     }
 
     /* initialize the "fake context" ... */
@@ -312,7 +316,7 @@ main(int argc, char **argv)
 		}
 		pmUnloadNameSpace();
 		strcpy(cmd_namespace, param.name);
-		if ((sts = pmLoadNameSpace(cmd_namespace)) < 0) {
+		if ((sts = pmLoadASCIINameSpace(cmd_namespace, 1)) < 0) {
 		    fprintf(stderr, "%s: Cannot load namespace from \"%s\": %s\n",
 			    pmProgname, cmd_namespace, pmErrStr(sts));
 
@@ -320,22 +324,23 @@ main(int argc, char **argv)
 		    if (pmnsfile == PM_NS_DEFAULT) {
 			fprintf(stderr, "%s: Reload default namespace\n",
 				pmProgname);
-		    } else {
-			fprintf(stderr, "%s: Reload namespace from \"%s\"\n",
-				pmProgname, pmnsfile);
-		    }
-		    if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
-			if (pmnsfile == PM_NS_DEFAULT) {
+			if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
 			    fprintf(stderr,
 				    "%s: Cannot load default namespace: %s\n",
 				    pmProgname, pmErrStr(sts));
-			} else {
+			    exit(1);
+			}
+		    }
+		    else {
+			fprintf(stderr, "%s: Reload namespace from \"%s\"\n",
+				pmProgname, pmnsfile);
+			if ((sts = pmLoadASCIINameSpace(pmnsfile, 1)) < 0) {
 			    fprintf(stderr,
 				    "%s: Cannot load namespace from \"%s\""
 				    ": %s\n",
 				    pmProgname, pmnsfile, pmErrStr(sts));
+			    exit(1);
 			}
-			exit(1);
 		    }
 		}
 		break;

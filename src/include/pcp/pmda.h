@@ -12,8 +12,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#ifndef _PMDA_H
-#define _PMDA_H
+#ifndef PCP_PMDA_H
+#define PCP_PMDA_H
 
 #include <stdarg.h>
 
@@ -263,8 +263,12 @@ typedef struct {
 
 extern __pmDSO *__pmLookupDSO(int /*domain*/);
 
-/* Macro that can be used to create each metrics' PMID. */
-#define PMDA_PMID(x,y) 	(((x)<<10)|(y))
+/*
+ * Macro that can be used to create each metrics' PMID.
+ * cluster has a maximum value of 2^12-1
+ * item has a maximum value of 2^10-1
+ */
+#define PMDA_PMID(cluster,item) ((((cluster)&0xfff)<<10)|((item)&0x3ff))
 
 /* Macro for pmUnits bitmap in a pmDesc declaration */
 #ifdef HAVE_BITFIELDS_LTOR
@@ -773,4 +777,4 @@ extern int __pmdaDecodeRootPDUContainer(void *, int, int *, char *, int);
 }
 #endif
 
-#endif /* _PMDA_H */
+#endif /* PCP_PMDA_H */

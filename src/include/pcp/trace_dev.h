@@ -12,8 +12,8 @@
  * for more details.
  */
 
-#ifndef _TRACE_DEV_H
-#define _TRACE_DEV_H
+#ifndef PCP_TRACE_DEV_H
+#define PCP_TRACE_DEV_H
 
 #ifndef _PLATFORM_DEFS_H
 #include "platform_defs.h"
@@ -92,4 +92,4 @@ extern int __pmstate;
 }
 #endif
 
-#endif /* _TRACE_DEV_H */
+#endif /* PCP_TRACE_DEV_H */

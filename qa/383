@@ -3,6 +3,7 @@
 # command line option parsing for cisco PMDA
 #
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2015 Red Hat.
 #
 
 seq=`basename $0`
@@ -13,6 +14,8 @@ status=0	# success is the default!
 . ./common.product
 . ./common.filter
 . ./common.check
+
+[ -f $PCP_PMDAS_DIR/cisco/pmdacisco ] || _notrun "cisco pmda not installed"
 
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

@@ -55,7 +55,7 @@ BEGIN           {
 		  min["0.2-peek"] = 1; max["0.2-peek"] = 1
 
 		  min["0.4-interp"] = 29; max["0.4-interp"] = 30
-		  min["0.4-back"] = 5; max["0.4-back"] = 20
+		  min["0.4-back"] = 1; max["0.4-back"] = 5
 		  min["0.4-forw"] = 51; max["0.4-forw"] = 57
 		  min["0.4-peek"] = 1; max["0.4-peek"] = 1
 		  xx = "'$1'"

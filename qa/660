@@ -10,6 +10,7 @@ echo "QA output created by $seq"
 . ./common.webapi
 
 which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
+[ -f ${PCP_BINADM_DIR}/pmwebd ] || _notrun "pmwebd package not installed"
 # nb: wget dispreferred because of its processing of .. relative links,
 # so it's harder to stress pmwebd's base-directory-escaping logic
 

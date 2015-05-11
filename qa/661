@@ -2,7 +2,7 @@
 # PCP QA Test No. 661
 # checks pmwebd graphite (web application) functionality
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014-2015 Red Hat.
 #
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -39,10 +39,12 @@ webargs="-U $username"
 
 echo
 echo "=== pmwebd graphite capabilities ===" | tee -a $seq.full
+
+# NB: this kills all pmwebd processes on the machine
 $sudo $signal -a pmwebd >/dev/null 2>&1
 sleep 2		# let it shut down
 
-$PCP_BINADM_DIR/pmwebd $webargs -G -R $PCP_SHARE_DIR/webapps -A `pwd` -N -M0 -x/dev/tty -d1 -vvv -l $tmp.out &
+$PCP_BINADM_DIR/pmwebd $webargs -G -R $PCP_SHARE_DIR/webapps -I -i 15 -A `pwd` -N -M8 -x/dev/tty -d1 -vvvvv -l $tmp.out &
 sleep 2		# let it start up
 
 echo "crashers"
@@ -52,11 +54,17 @@ echo "crashers"
 #echo "GET  HTTP/1.0
 # | $PCP_BINADM_DIR/telnet-probe localhost 44323
 
+function _filter_curl_i() {
+    tr -d '\r' |                      # drop ^M from httpd results
+    sed -e 's,^Date:.*$,Date: XXX,' |
+    grep -v 'Connection:.*Alive'      # some microhttpd versions add this
+}
+
 echo "the catalog"
-curl -s -i "http://localhost:44323/?zoo=poo&phantasm" | sed -e 's,^Date:.*$,Date: XXX,'  # test forwarding
-curl -s -i "http://localhost:44323/blinkenlights" | sed -e 's,^Date:.*$,Date: XXX,'  # test forwarding
-curl -s -i "http://localhost:44323/blinkenlights/" | sed -e 's,^Date:.*$,Date: XXX,'  # test forwarding
-curl -s -S "http://localhost:44323/index.html?foo=bar&ectoplasm=egon"
+curl -s -i "http://localhost:44323/?zoo=poo&phantasm" | _filter_curl_i
+curl -s -i "http://localhost:44323/blinkenlights" | _filter_curl_i
+curl -s -i "http://localhost:44323/blinkenlights/" | _filter_curl_i
+curl -s -S "http://localhost:44323/graphite/index.html?foo=bar&ectoplasm=egon"
 
 echo
 echo "metric name breakage" 
@@ -75,8 +83,8 @@ echo
 echo "metric regex grep 1" 
 curl -s -S "http://localhost:44323/graphite/graphlot/findmetric?q=.*960624.*disk.*dks131.*"
 echo
-echo "metric regex grep 2" 
-curl -s -S "http://localhost:44323/graphite/browser/search?query=2013+hinv+n.*"
+echo "metric regex grep 2"
+curl -s -S "http://localhost:44323/graphite/browser/search?query=2014+hinv+n.*"
 echo # not \n terminated
 
 echo
@@ -84,11 +92,15 @@ echo "metric value dump 1"
 curl -s -S "http://localhost:44323/graphite/render?format=json&target=*-2F-node_archive-2E-meta.proc.psinfo.pid.*&from=15:50_20131127&until=1385585880&maxDataPoints=100" | _webapi_json_pretty
 echo
 echo "metric value dump 2" 
-curl -s -S "http://localhost:44323/graphite/rawdata?target=*-2F-node_archive-2E-meta.proc.psinfo.pid.*&from=15:50_20131127&until=20131129&maxDataPoints=300" | _webapi_json_pretty
+curl -s -S "http://localhost:44323/graphite/rawdata?target=*-2F-node_archive-2E-meta.proc.psinfo.pid.*&from=00:00_20131127&until=00:00_20131129&maxDataPoints=300" | _webapi_json_pretty
+
+echo PR1099 workaround, expect empty result
+curl -s -S "http://localhost:44323/graphite/rawdata?target=*20130706-2E-meta.kernel.all.nprocs&from=00:00_20130705&until=23:59_20130705" | _webapi_json_pretty
 
 echo
 echo "metric gfx rendering" 
 curl -s -S "http://localhost:44323/graphite/render?width=999&height=999&hideLegend=false&bgcolor=%23FF0&title=hello&format=png&target=*-chartqa1-2E-meta.sample.*byte*&target=*-chartqa1-2E-meta.*NOSUCH*&target=*-chartqa1-2E-meta.sample.dodgey.value.NOSUCH&from=22:31_20071010&until=22:36_20071010" | tee $seq.png | _webapi_img_pretty
+curl -s -S "http://localhost:44323/graphite/render?width=999&height=999&target=*archive*20150417*.proc.nprocs&from=09:30_20150417&until=23:00_20150417" | tee $seq.png | _webapi_img_pretty
 
 # tidy up
 cat $tmp.out >> $seq.full

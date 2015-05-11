@@ -2,7 +2,9 @@ QA output created by 115
 pmie count at start of QA testing: 0
 
 === check default install operation ===
-pmie count after chkconfig pmie off: 0
+$PCP_RC_DIR/pmie: Warning: Performance Co-Pilot Inference Engine (pmie) not permanently enabled.
+Starting pmie ... 
+pmie count after chkconfig pmie off: 1
 
 === check for missing control file ===
 $PCP_RC_DIR/pmie:

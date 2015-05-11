@@ -73,20 +73,20 @@ p
 			echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
 			;;
 		    *)
-			echo >&2 "_getnetworkaddr: cannot handle network mask: $mask"
+			echo >&2 "_getnetworkaddr: Warning: cannot handle network mask: $mask"
 			;;
 		esac
 		;;
 	    0)	# none?
-		echo >&2 "_getnetworkaddr: cannot get network address"
+		echo >&2 "_getnetworkaddr: Warning: cannot get network address"
 		;;
 	    *)	# multiple?
-		echo >&2 "_getnetworkaddr: cannot handle multiple network addresses:"
+		echo >&2 "_getnetworkaddr: Warning: cannot handle multiple network addresses:"
 		cat >&2 $tmp.addr
 		;;
 	esac
     else
-	echo >&2 '_getnetworkaddr: no ifconfig?'
+	echo >&2 '_getnetworkaddr: Warning: no ifconfig?'
     fi
 }
 
@@ -172,6 +172,9 @@ cat <<End-of-File >$tmp.control
 # text after [ is treated as annotation
 #
 # executables
+bash
+sed
+grep
 ed
 git
 make
@@ -248,7 +251,6 @@ crontab				[from vixie-cron?]
 valgrind			[(QA optional)]
 dpkg?	mail			[bsd-mailx (QA optional)]
 rpm?	mail			[mailx (QA optional)]
-host				[bind-utils(redhat)]
 dpkg?	apache2			[apache2 (QA optional)]
 rpm?	httpd			[httpd (QA optional)]
 dpkg?	realpath		[realpath]
@@ -293,6 +295,24 @@ then
 	[ -f $tmp.need ] && \
 	    echo "rpm?	/usr/share/doc/python-ctypes*	[python-ctypes]" >>$tmp.control
     fi
+fi
+
+# platform specific cases
+#
+# tests here are copied from $(TOPDIR)/configure.ac
+#
+if [ -f /etc/fedora-release ]
+then
+    # Fedora
+    echo "/usr/sbin/qshape		[postfix-perl-scripts]" >>$tmp.control
+elif [ -f /etc/redhat-release ]
+then
+    # Redhat or CentOS
+    echo "/usr/sbin/qshape		[postfix-perl-scripts]" >>$tmp.control
+    echo "host				[bind-utils]" >>$tmp.control
+elif [ -f /etc/SuSE-release ]
+then
+    echo "/usr/share/doc/packages/postfix-doc/auxiliary/qshape/qshape.pl		[postfix-doc]" >>$tmp.control
 fi
 
 cat $tmp.control \
@@ -583,6 +603,9 @@ then
 	else
 	    echo "Warning: \"$PCP_VAR_DIR/config/pcp/pmlogger/config.default\" is missing"
 	fi
+    else
+	echo "Please ignore Warnings from _getnetworkaddr unless you wish to run the"
+	echo "full PCP QA suite."
     fi
 else
     echo "Warning: \"/etc/pcp.conf\" is missing"

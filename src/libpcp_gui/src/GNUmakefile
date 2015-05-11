@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 # Copyright (c) 2006 Aconex.  All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it
@@ -23,13 +23,10 @@ STATICLIBTARGET = libpcp_gui.a
 
 DSOVERSION = 2
 LIBTARGET = libpcp_gui.$(DSOSUFFIX).$(DSOVERSION)
-SYMTARGET = libpcp_gui.$(DSOSUFFIX) libpcp_gui.$(DSOSUFFIX).1
+SYMTARGET = libpcp_gui.$(DSOSUFFIX)
 
 VERSION_SCRIPT = exports
 
-ifeq "$(PACKAGE_DISTRIBUTION)" "debian"
-SYMTARGET = libpcp_gui.$(DSOSUFFIX)
-endif
 ifeq "$(TARGET_OS)" "darwin"
 LIBTARGET = libpcp_gui.$(DSOVERSION).$(DSOSUFFIX)
 endif

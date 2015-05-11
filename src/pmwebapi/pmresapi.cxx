@@ -158,6 +158,10 @@ pmwebres_respond (struct MHD_Connection *connection, const http_params& params, 
             if (rc != MHD_YES) {
                 connstamp (cerr, connection) << "MHD_add_response_header Location: failed" << endl;
             }
+
+            /* Adding ACAO header */
+            (void) MHD_add_response_header (resp, "Access-Control-Allow-Origin", "*");
+
             rc = MHD_queue_response (connection, MHD_HTTP_FOUND /* 302 */ , resp);
             if (rc != MHD_YES) {
                 connstamp (cerr, connection) << "MHD_queue_response failed" << endl;
@@ -210,6 +214,9 @@ pmwebres_respond (struct MHD_Connection *connection, const http_params& params, 
 #endif
 
     (void) MHD_add_response_header (resp, "Cache-Control", "public");
+
+    /* Adding ACAO header */
+    (void) MHD_add_response_header (resp, "Access-Control-Allow-Origin", "*");
 
     rc = MHD_queue_response (connection, resp_code, resp);
     MHD_destroy_response (resp);

@@ -11,8 +11,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
  */
-#ifndef PMTIME_H
-#define PMTIME_H
+#ifndef PCP_PMTIME_H
+#define PCP_PMTIME_H
 
 #include <sys/time.h>
 
@@ -104,4 +104,4 @@ extern void pmTimeStateMode(int, struct timeval, struct timeval *);
 extern int pmTimeStateVector(pmTimeControls *, pmTime *);
 extern void pmTimeStateBounds(pmTimeControls *, pmTime *);
 
-#endif	/* PMTIME_H */
+#endif	/* PCP_PMTIME_H */

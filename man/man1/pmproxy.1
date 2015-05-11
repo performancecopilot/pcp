@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2013 Red Hat.
+.\" Copyright (c) 2013-2015 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -19,8 +19,8 @@
 \f3pmproxy\f1 \- proxy for performance metrics collector daemon
 .SH SYNOPSIS
 \f3pmproxy\f1
+[\f3\-Af\f1]
 [\f3\-C\f1 \f2dirname\f1]
-[\f3\-f\f1]
 [\f3\-i\f1 \f2ipaddress\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-L\f1 \f2bytes\f1]
@@ -77,6 +77,14 @@ indirectly through the protocol proxy services of
 The options to
 .B pmproxy
 are as follows.
+.TP
+.B \-A
+Disable service advertisement.
+By default,
+.B pmproxy
+will advertise its presence on the network using any available mechanisms
+(such as Avahi/DNS-SD), assisting remote monitoring tools with finding it.
+These mechanisms are disabled with this option.
 .TP
 \f3\-C\f1 \f2dirname\f1
 Specify the path to the Network Security Services certificate database,

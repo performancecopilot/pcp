@@ -21,15 +21,19 @@ require DynaLoader;
     PM_ERR_GENERIC PM_ERR_PMNS PM_ERR_NOPMNS PM_ERR_DUPPMNS PM_ERR_TEXT
 	PM_ERR_APPVERSION PM_ERR_VALUE PM_ERR_TIMEOUT
 	PM_ERR_NODATA PM_ERR_RESET PM_ERR_NAME PM_ERR_PMID
-	PM_ERR_INDOM PM_ERR_INST PM_ERR_UNIT PM_ERR_CONV PM_ERR_TRUNC
+	PM_ERR_INDOM PM_ERR_INST PM_ERR_TYPE
+	PM_ERR_UNIT PM_ERR_CONV PM_ERR_TRUNC
 	PM_ERR_SIGN PM_ERR_PROFILE PM_ERR_IPC PM_ERR_EOF
 	PM_ERR_NOTHOST PM_ERR_EOL PM_ERR_MODE PM_ERR_LABEL PM_ERR_LOGREC
-	PM_ERR_NOTARCHIVE PM_ERR_NOCONTEXT PM_ERR_PROFILESPEC PM_ERR_PMID_LOG
+	PM_ERR_LOGFILE PM_ERR_NOTARCHIVE
+	PM_ERR_NOCONTEXT PM_ERR_PROFILESPEC PM_ERR_PMID_LOG
 	PM_ERR_INDOM_LOG PM_ERR_INST_LOG PM_ERR_NOPROFILE PM_ERR_NOAGENT
 	PM_ERR_PERMISSION PM_ERR_CONNLIMIT PM_ERR_AGAIN PM_ERR_ISCONN
 	PM_ERR_NOTCONN PM_ERR_NEEDPORT PM_ERR_NONLEAF
 	PM_ERR_PMDANOTREADY PM_ERR_PMDAREADY
-	PM_ERR_TOOSMALL PM_ERR_TOOBIG PM_ERR_NYI
+	PM_ERR_TOOSMALL PM_ERR_TOOBIG PM_ERR_FAULT
+	PM_ERR_THREAD PM_ERR_NOCONTAINER PM_ERR_BADSTORE
+	PM_ERR_NYI
 );
 @EXPORT_OK = qw();
 $VERSION = '1.15';
@@ -81,6 +85,9 @@ sub PM_SEM_INSTANT	{ 3; }	# instantaneous value, continuous domain
 sub PM_SEM_DISCRETE	{ 4; }	# instantaneous value, discrete domain
 
 # error codes
+# for ease of maintenance make the order of the error codes
+# here the same as the output from pmerr -l
+#
 sub PM_ERR_GENERIC	{ -12345; }	# Generic error, already reported above
 sub PM_ERR_PMNS		{ -12346; }	# Problems parsing PMNS definitions
 sub PM_ERR_NOPMNS	{ -12347; }	# PMNS not accessible
@@ -95,6 +102,7 @@ sub PM_ERR_NAME		{ -12357; }	# Unknown metric name
 sub PM_ERR_PMID		{ -12358; }	# Unknown or illegal metric identifier
 sub PM_ERR_INDOM	{ -12359; }	# Unknown or illegal instance domain identifier
 sub PM_ERR_INST		{ -12360; }	# Unknown or illegal instance identifier
+sub PM_ERR_TYPE		{ -12397; }	# Unknown or illegal metric type
 sub PM_ERR_UNIT		{ -12361; }	# Illegal pmUnits specification
 sub PM_ERR_CONV		{ -12362; }	# Impossible value or scale conversion
 sub PM_ERR_TRUNC	{ -12363; }	# Truncation in value conversion
@@ -107,6 +115,7 @@ sub PM_ERR_EOL		{ -12370; }	# End of PCP archive log
 sub PM_ERR_MODE		{ -12371; }	# Illegal mode specification
 sub PM_ERR_LABEL	{ -12372; }	# Illegal label record at start of a PCP archive log file
 sub PM_ERR_LOGREC	{ -12373; }	# Corrupted record in a PCP archive log
+sub PM_ERR_LOGFILE	{ -12375; }	# Missing PCP archive log file
 sub PM_ERR_NOTARCHIVE	{ -12374; }	# Operation requires context with archive source of metrics
 sub PM_ERR_NOCONTEXT	{ -12376; }	# Attempt to use an illegal context
 sub PM_ERR_PROFILESPEC	{ -12377; }	# NULL pmInDom with non-NULL instlist
@@ -116,7 +125,6 @@ sub PM_ERR_INST_LOG	{ -12380; }	# Instance identifier not defined in the PCP arc
 sub PM_ERR_NOPROFILE	{ -12381; }	# Missing profile - protocol botch
 sub PM_ERR_NOAGENT	{ -12386; }	# No PMCD agent for domain of request
 sub PM_ERR_PERMISSION	{ -12387; }	# No permission to perform requested operation
-
 sub PM_ERR_CONNLIMIT	{ -12388; }	# PMCD connection limit for this host exceeded
 sub PM_ERR_AGAIN	{ -12389; }	# Try again. Information not currently available
 sub PM_ERR_ISCONN	{ -12390; }	# Already Connected
@@ -127,6 +135,10 @@ sub PM_ERR_PMDANOTREADY	{ -13394; }	# PMDA is not yet ready to respond to reques
 sub PM_ERR_PMDAREADY	{ -13393; }	# PMDA is now responsive to requests
 sub PM_ERR_TOOSMALL	{ -12443; }	# Insufficient elements in list
 sub PM_ERR_TOOBIG	{ -12444; }	# Result size exceeded
+sub PM_ERR_FAULT	{ -12445; }	# QA fault injected
+sub PM_ERR_THREAD	{ -12398; }	# Operation not supported for multi-threaded applications
+sub PM_ERR_NOCONTAINER	{ -12399; }	# Container not found 
+sub PM_ERR_BADSTORE	{ -12400; }	# Bad input to pmstore
 sub PM_ERR_NYI		{ -21344; }	# Functionality not yet implemented
 
 

@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # typical usage:
-# push-pcp -b dev -t pcp -r 6bad98e4b0537c2e99b3906ca7a36f4998ea3419..
+# push-pcp -b master -t pcp -r 6bad98e4b0537c2e99b3906ca7a36f4998ea3419..
 #
 
 tmp=/var/tmp/$$
@@ -12,7 +12,7 @@ _usage()
     echo >&2 "Usage: pcp-push [options]"
     echo >&2
     echo >&2 "options:"
-    echo >&2 "  -b branch           [defaults to dev]"
+    echo >&2 "  -b branch           [defaults to master]"
     echo >&2 "  -n                  dryrun"
     echo >&2 "  -r range            [defaults to \$(cat pushed.sha)..)]"
     echo >&2 "  -t tree             [defaults to pcp]"
@@ -22,7 +22,7 @@ _usage()
 
 dryrun=false
 GIT=git
-branch=dev
+branch=master
 tree=pcp
 short=false
 if [ -f pushed.sha ]

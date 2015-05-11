@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2014 Red Hat.
+# Copyright (c) 2012-2015 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -77,11 +77,8 @@ LCFLAGS += -DLIBPCP_INTERNAL '-DEXEC_SUFFIX="$(EXECSUFFIX)"' \
 DSOVERSION = 3
 STATICLIBTARGET = libpcp.a
 LIBTARGET = libpcp.$(DSOSUFFIX).$(DSOVERSION)
-SYMTARGET = libpcp.$(DSOSUFFIX) libpcp.$(DSOSUFFIX).2
-
-ifeq "$(PACKAGE_DISTRIBUTION)" "debian"
 SYMTARGET = libpcp.$(DSOSUFFIX)
-endif
+
 ifeq "$(TARGET_OS)" "darwin"
 LIBTARGET = libpcp.$(DSOVERSION).$(DSOSUFFIX)
 SYMTARGET = libpcp.$(DSOSUFFIX)

@@ -397,7 +397,7 @@ simple_store(pmResult *result, pmdaExt *pmda)
 	    	case 0:					/* simple.numfetch */
 		    val = vsp->vlist[0].value.lval;
 		    if (val < 0) {
-			sts = PM_ERR_SIGN;
+			sts = PM_ERR_BADSTORE;
 			val = 0;
 		    }
 		    numfetch = val;
@@ -409,11 +409,11 @@ simple_store(pmResult *result, pmdaExt *pmda)
 
 			val = vsp->vlist[j].value.lval;
 			if (val < 0) {
-			    sts = PM_ERR_SIGN;
+			    sts = PM_ERR_BADSTORE;
 			    val = 0;
 			}
 			if (val > 255) {
-			    sts = PM_ERR_CONV;
+			    sts = PM_ERR_BADSTORE;
 			    val = 255;
 			}
 

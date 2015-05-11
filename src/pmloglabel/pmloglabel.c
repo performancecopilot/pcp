@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014-2015 Red Hat.
  * Copyright (c) 2008 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -240,7 +240,7 @@ main(int argc, char *argv[])
 	}
     }
 
-    if (opts.optind != argc - 1) {
+    if (opts.optind != argc - 1 && opts.narchives == 0) {
 	pmprintf("%s: insufficient arguments\n", pmProgname);
 	opts.errors++;
     }
@@ -250,7 +250,7 @@ main(int argc, char *argv[])
 	exit(1);
     }
 
-    archive = argv[opts.optind];
+    archive = opts.narchives > 0? opts.archives[0] : argv[opts.optind];
     warnings = (readonly || verbose);
 
     if (verbose)

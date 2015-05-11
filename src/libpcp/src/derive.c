@@ -145,7 +145,7 @@ initialize_mutex(void)
     char			errmsg[PM_MAXERRMSGLEN];
     if ((psts = pthread_mutex_lock(&init)) != 0) {
 	strerror_r(psts, errmsg, sizeof(errmsg));
-	fprintf(stderr, "initializ_mutex: pthread_mutex_lock failed: %s", errmsg);
+	fprintf(stderr, "initialize_mutex: pthread_mutex_lock failed: %s", errmsg);
 	exit(4);
     }
     if (!done) {

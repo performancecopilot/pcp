@@ -71,6 +71,8 @@ cgroup.cpuacct.usage_percpu
 cgroup.cpusched.shares
 cgroup.cpuset.cpus
 cgroup.cpuset.mems
+cgroup.memory.failcnt
+cgroup.memory.limit
 cgroup.memory.stat.active_anon
 cgroup.memory.stat.active_file
 cgroup.memory.stat.cache
@@ -105,6 +107,7 @@ cgroup.memory.stat.total.unevictable
 cgroup.memory.stat.total.writeback
 cgroup.memory.stat.unevictable
 cgroup.memory.stat.writeback
+cgroup.memory.usage
 cgroup.mounts.count
 cgroup.mounts.subsys
 cgroup.netclass.classid
@@ -630,6 +633,20 @@ cgroup.cpuset.mems
     inst [N or "/libvirt"] value "0"
     inst [N or "/libvirt/lxc"] value "0"
 
+cgroup.memory.failcnt
+    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+    Semantics: counter  Units: count
+    inst [N or "/"] value 0
+    inst [N or "/libvirt"] value 0
+    inst [N or "/libvirt/lxc"] value 0
+
+cgroup.memory.limit
+    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+    Semantics: instant  Units: byte
+    inst [N or "/"] value 9223372036854775807
+    inst [N or "/libvirt"] value 9223372036854775807
+    inst [N or "/libvirt/lxc"] value 9223372036854775807
+
 cgroup.memory.stat.active_anon
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
     Semantics: instant  Units: byte
@@ -865,6 +882,13 @@ cgroup.memory.stat.writeback
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
     Semantics: instant  Units: byte
     inst [N or "/"] value 0
+    inst [N or "/libvirt"] value 0
+    inst [N or "/libvirt/lxc"] value 0
+
+cgroup.memory.usage
+    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+    Semantics: instant  Units: byte
+    inst [N or "/"] value 1389240320
     inst [N or "/libvirt"] value 0
     inst [N or "/libvirt/lxc"] value 0
 
@@ -1028,6 +1052,8 @@ cgroup.cpuacct.usage_percpu
 cgroup.cpusched.shares
 cgroup.cpuset.cpus
 cgroup.cpuset.mems
+cgroup.memory.failcnt
+cgroup.memory.limit
 cgroup.memory.stat.active_anon
 cgroup.memory.stat.active_file
 cgroup.memory.stat.cache
@@ -1062,6 +1088,7 @@ cgroup.memory.stat.total.unevictable
 cgroup.memory.stat.total.writeback
 cgroup.memory.stat.unevictable
 cgroup.memory.stat.writeback
+cgroup.memory.usage
 cgroup.mounts.count
 cgroup.mounts.subsys
 cgroup.netclass.classid
@@ -1461,6 +1488,16 @@ cgroup.cpuset.mems
     Semantics: instant  Units: none
     inst [N or "/"] value "0"
 
+cgroup.memory.failcnt
+    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+    Semantics: counter  Units: count
+    inst [N or "/"] value 0
+
+cgroup.memory.limit
+    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+    Semantics: instant  Units: byte
+    inst [N or "/"] value 18446744073709551615
+
 cgroup.memory.stat.active_anon
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
     Semantics: instant  Units: byte
@@ -1631,6 +1668,11 @@ cgroup.memory.stat.writeback
     Semantics: instant  Units: byte
     inst [N or "/"] value 0
 
+cgroup.memory.usage
+    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+    Semantics: instant  Units: byte
+    inst [N or "/"] value 2404196352
+
 cgroup.mounts.count
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
@@ -1781,6 +1823,8 @@ cgroup.cpuacct.usage_percpu
 cgroup.cpusched.shares
 cgroup.cpuset.cpus
 cgroup.cpuset.mems
+cgroup.memory.failcnt
+cgroup.memory.limit
 cgroup.memory.stat.active_anon
 cgroup.memory.stat.active_file
 cgroup.memory.stat.cache
@@ -1815,6 +1859,7 @@ cgroup.memory.stat.total.unevictable
 cgroup.memory.stat.total.writeback
 cgroup.memory.stat.unevictable
 cgroup.memory.stat.writeback
+cgroup.memory.usage
 cgroup.mounts.count
 cgroup.mounts.subsys
 cgroup.netclass.classid
@@ -5473,6 +5518,20 @@ cgroup.cpuset.mems
     Semantics: instant  Units: none
     inst [N or "/"] value "0"
 
+cgroup.memory.failcnt
+    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+    Semantics: counter  Units: count
+    inst [N or "/"] value 0
+    inst [N or "/system.slice"] value 0
+    inst [N or "/system.slice/docker-f4d3b90bea1585f216da780c97cc4675827296e1c90fdc957fb2ea0c1db85a6a.scope"] value 0
+
+cgroup.memory.limit
+    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+    Semantics: instant  Units: byte
+    inst [N or "/"] value 18446744073709551615
+    inst [N or "/system.slice"] value 18446744073709551615
+    inst [N or "/system.slice/docker-f4d3b90bea1585f216da780c97cc4675827296e1c90fdc957fb2ea0c1db85a6a.scope"] value 18446744073709551615
+
 cgroup.memory.stat.active_anon
     Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
     Semantics: instant  Units: byte
@@ -5710,6 +5769,13 @@ cgroup.memory.stat.writeback
     inst [N or "/"] value 0
     inst [N or "/system.slice"] value 0
     inst [N or "/system.slice/docker-f4d3b90bea1585f216da780c97cc4675827296e1c90fdc957fb2ea0c1db85a6a.scope"] value 0
+
+cgroup.memory.usage
+    Data Type: 64-bit unsigned int  InDom: 3.24 0xc00018
+    Semantics: instant  Units: byte
+    inst [N or "/"] value 2437607424
+    inst [N or "/system.slice"] value 9977856
+    inst [N or "/system.slice/docker-f4d3b90bea1585f216da780c97cc4675827296e1c90fdc957fb2ea0c1db85a6a.scope"] value 7364608
 
 cgroup.mounts.count
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff

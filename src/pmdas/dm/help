@@ -1,0 +1,122 @@
+#
+# Copyright (c) 2015 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# DMTHIN PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help test goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+@ DM.0 Instance domain for device mapper.
+
+@ dmcache.size Size of each cache device
+The total size of each cache device in Kbytes.
+
+@ dmcache.metadata.block_size Block size for metadata
+The fixed block size for each metadata block in bytes.
+
+@ dmcache.metadata.used Metadata block used
+The number of metadata blocks used.
+
+@ dmcache.metadata.total Total metadata blocks
+The total number of metadata blocks.
+
+@ dmcache.cache.block_size Block size for cache
+The fixed block size of each cache block in bytes.
+
+@ dmcache.cache.used Cache blocks used
+The number of cache blocks used.
+
+@ dmcache.cache.total Total cache blocks
+The total number of cache blocks.
+
+@ dmcache.read_hits Read bio mapping cache
+Number of times a READ bio has been mapped to the cache.
+
+@ dmcache.read_misses Read bio mapping origin
+Number of times a READ bio has been mapped to the origin.
+
+@ dmcache.write_hits Write bio mapping cache
+Number of times a WRITE bio has been mapped to the cache.
+
+@ dmcache.write_misses Write bio mapping origin
+Number of times a WRITE bio has been mapped to the origin.
+
+@ dmcache.demotions Block removed from cache
+Number of times a block has been removed from the cache.
+
+@ dmcache.promotions Block moved to cache
+Number of times a block has been moved to the cache.
+
+@ dmcache.dirty Blocks different to origin
+Number of blocks in the cache that differ from the origin.
+
+@ dmcache.io_mode_code Cache mode
+Cache mode code - writeback, writethrough, passthrough.
+
+@ dmcache.io_mode Cache mode
+Cache mode string - writeback, writethrough or passthrough.
+
+@ dmthin.pool.size Size of each pool device
+The total size of each pool device in Kbytes.
+
+@ dmthin.pool.transaction_id Sync number with volume manager
+Number used by userspace to help synchronise with metadata
+from volume managers.
+
+@ dmthin.pool.metadata.used Number of metadata blocks used
+The number of metadata blocks which are currently in use.
+
+@ dmthin.pool.metadata.total Total number of metadata blocks
+The total number of metadata blocks for the given thin storage pool.
+
+@ dmthin.pool.data.used Number of data blocks used
+The number of data blocks which are currently in use.
+
+@ dmthin.pool.data.total Total number of data blocks
+The total number of data blocks for the given thin storage pool.
+
+@ dmthin.pool.held_root Location of metadata root
+The location in blocks of the metadata root that has been 'held' for
+userspace read access. "-" indicates that there is no held root.
+
+@ dmthin.pool.discard_passdown Discards passed or not
+Whether or not discards are being passed down to the underlying device. 
+
+@ dmthin.pool.read_mode Read mode of the thin pool
+Indication of whether the pool is in read/write mode or read only mode.
+In the event that the pool encounters certain types of device failures
+it will drop into read-only metadata mode. 
+
+@ dmthin.pool.no_space_mode Mode used when pool is out of space
+If the pool runs out of data or metadata space, the pool will fallback
+to either queuing or error any IO destined to the data device. The
+default is to queue until more space is added to the pool. 
+
+@ dmthin.vol.size Size of each thin volume
+The total size of each thin volume in Kbytes.
+
+@ dmthin.vol.num_mapped_sectors Number of sectors mapped
+The total number of mapped sectors to the thin volume.
+
+@ dmthin.vol.highest_mapped_sector Highest mapped sector
+The highest mapped sector of the thin volume.

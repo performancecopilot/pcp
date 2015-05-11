@@ -71,7 +71,8 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	grind_conv.c getconfig.c err.c torture_logmeta.c keycache.c \
 	keycache2.c pmdaqueue.c drain-server.c template.c anon-sa.c \
 	username.c rtimetest.c getcontexthost.c badpmda.c chkputlogresult.c \
-	churnctx.c badUnitsStr_r.c units-parse.c rootclient.c
+	churnctx.c badUnitsStr_r.c units-parse.c rootclient.c \
+	lookupnametest.c getversion.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
@@ -155,13 +156,14 @@ PERLFILES = \
 # not installed:
 PLFILES = $(shell echo $(PERLFILES) | sed -e 's/\.perl/.pl/g')
 
-ifeq "$(ENABLE_PYTHON)" "true"
+ifeq "$(HAVE_PYTHON)" "true"
 PYTHONFILES = \
 	test_pcp.python test_pmcc.python \
 	test_pmi.python check_import.python \
 	test_mmv.python test_webapi.python \
 	test_pcp_options.python test_pcp_getopts.python \
-	test_pcp_time.python test_pmnswalk.python
+	test_pcp_time.python test_pmnswalk.python \
+	pmapi_exceptions.python
 # not installed:
 PYFILES = $(shell echo $(PYTHONFILES) | sed -e 's/\.python/.py/g')
 else

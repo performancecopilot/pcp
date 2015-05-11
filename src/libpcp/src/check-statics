@@ -143,7 +143,7 @@ context.o
     contexts			# guarded by __pmLock_libpcp mutex
     contexts_len		# guarded by __pmLock_libpcp mutex
     hostbuf			# single-threaded
-    ?curcontext			# thread private
+    ?curcontext			# thread private (no __thread symbols for Mac OS X)
     ?__emutls_t.curcontext	# thread private (MinGW)
     ?__emutls_v.curcontext	# thread private (MinGW)
 derive_fetch.o
@@ -164,7 +164,7 @@ derive.o
     this			# guarded by registered.mutex
     ?registered			# guarded by registered.mutex
     pmid			# guarded by registered.mutex
-    ?derive_errmsg		# thread private
+    ?derive_errmsg		# thread private (no __thread symbols for Mac OS X)
     ?__emutls_v.derive_errmsg	# thread private (MinGW)
     ?func			# const (MinGW)
     ?promote			# const (MinGW)
@@ -218,7 +218,6 @@ interp.o
     dowrap			# guarded by __pmLock_libpcp mutex
     nr				# diag counters, no atomic updates
     nr_cache			# diag counters, no atomic updates
-    statestr			# const
 ipc.o
     __pmIPCTable		# guarded by __pmLock_libpcp mutex
     __pmLastUsedFd		# guarded by __pmLock_libpcp mutex
@@ -265,7 +264,7 @@ pdubuf.o
     pdu_bufcnt			# guarded by __pmLock_libpcp mutex
 pdu.o
     done_default		# guarded by __pmLock_libpcp mutex
-    def_timeout			# guarded by __pmLock_libpcp mutex
+    ?def_timeout		# guarded by __pmLock_libpcp mutex
     def_wait			# guarded by __pmLock_libpcp mutex
     pmDebug			# set-once in main(), read-only elsewhere
     ceiling			# no unsafe side-effects
@@ -292,6 +291,7 @@ pmns.o
     export			# guarded by __pmLock_libpcp mutex
     fin				# guarded by __pmLock_libpcp mutex
     first			# guarded by __pmLock_libpcp mutex
+    use_cpp			# guarded by __pmLock_libpcp mutex
     fname			# guarded by __pmLock_libpcp mutex
     havePmLoadCall		# guarded by __pmLock_libpcp mutex
     last_mtim			# guarded by __pmLock_libpcp mutex
@@ -303,10 +303,10 @@ pmns.o
     seenpmid			# guarded by __pmLock_libpcp mutex
     tokbuf			# guarded by __pmLock_libpcp mutex
     tokpmid			# guarded by __pmLock_libpcp mutex
-    useExtPMNS			# guarded by __pmLock_libpcp mutex
+    ?useExtPMNS			# thread private (no __thread symbols for Mac OS X)
     repname			# guarded by __pmLock_libpcp mutex
     main_pmns			# guarded by __pmLock_libpcp mutex
-    curr_pmns			# guarded by __pmLock_libpcp mutex
+    ?curr_pmns			# thread private (no __thread symbols for Mac OS X)
     locerr			# no unsafe side-effects, see notes in pmns.c
 p_pmns.o
 p_profile.o
@@ -423,13 +423,15 @@ do
 		# Need some nm special case logic ...
 		# for darwin
 		# + const data and text symbols both appear as "S", but
-		#   the latter have .eh appended to the name
+		#   the latter have .eh/.stv appended to the name
 		# + static arrays and some debug (?) symbols appear as
 		#   "s", but the latter have _.NNN appended, or start
-		#   with LC, or have .eh appended, or start with EH_
+		#   with LC, or have .eh/.stv appended, or start with EH_
                 # + __func__ macro expansion results in L___func__.<FName>
 		#   entries
-                # + scoped static could has scope name prepended
+                # + LLVM compiler generates l_switch.<table[NNN]> entries
+		#   for some (large?) switch/case blocks
+                # + scoped static could have scope name prepended
 		# + older versions insert get_pc_thunk symbols in all
 		#   object files
 		# for MinGW
@@ -446,10 +448,12 @@ do
 		| sed -n >$tmp/out \
 		    -e '/ S ___i686.get_pc_thunk.[bc]x/d' \
 		    -e '/ [sS] .*\.eh$/d' \
+		    -e '/ [sS] .*\.stv$/d' \
 		    -e '/ s .*_\.[0-9][0-9]*$/d' \
 		    -e '/ s LC[0-9][0-9]*$/d' \
 		    -e '/ s L_\.str[0-9][0-9]*$/d' -e '/ s L_\.str$/d' \
 		    -e '/ s L___func__\./d' \
+		    -e '/ s l_switch\./d' \
 		    -e '/ s .*\$tlv\$init$/d' \
 		    -e 's/b \([_a-zA-Z][_a-zA-Z0-9]*\)\.b$/b \1/' \
 		    -e 's/b \([_a-zA-Z][_a-zA-Z0-9]*\)\.[0-9]*.[0b]$/b \1/' \

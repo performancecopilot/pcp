@@ -112,7 +112,7 @@ Options:\n\
 	exit(1);
     }
 
-    if ((sts = pmLoadNameSpace(namespace)) < 0) {
+    if (namespace != PM_NS_DEFAULT && (sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
 	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
 	exit(1);
     }
@@ -154,7 +154,7 @@ Options:\n\
 	    if (sts < 0)
 		fprintf(stderr, "%s: pmLookupName: %s\n", pmProgname, pmErrStr(sts));
 	    else
-		fprintf(stderr, "%s: pmLookupName: ...\n", pmProgname);
+		fprintf(stderr, "%s: pmLookupName: returned %d, expected %d\n", pmProgname, sts, todolist[todo].numpmid);
 	    for (i = 0; i < todolist[todo].numpmid; i++) {
 		if (todolist[todo].pmidlist[i] == PM_ID_NULL)
 		    fprintf(stderr, "   %s is bad\n", todolist[todo].namelist[i]);

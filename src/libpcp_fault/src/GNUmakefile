@@ -22,20 +22,19 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES = connect.c context.c desc.c err.c fetch.c freeresult.c \
 	help.c instance.c p_desc.c p_error.c p_fetch.c p_instance.c \
-	p_profile.c p_result.c p_text.c p_pmns.c p_creds.c p_auth.c \
-        pdu.c pdubuf.c pmns.c profile.c store.c units.c util.c ipc.c \
+	p_profile.c p_result.c p_text.c p_pmns.c p_creds.c p_attr.c \
+	pdu.c pdubuf.c pmns.c profile.c store.c units.c util.c ipc.c \
 	sortinst.c logmeta.c logportmap.c logutil.c tz.c interp.c \
 	checksum.c rtime.c tv.c spec.c fetchlocal.c optfetch.c AF.c \
 	stuffvalue.c endian.c config.c auxconnect.c auxserver.c discovery.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
 	connectlocal.c derive.c derive_fetch.c events.c lock.c hash.c \
-	fault.c access.c probe.c
+	fault.c access.c getopt.c probe.c
 HFILES = derive.h internal.h avahi.h probe.h
+YFILES = getdate.y
 VERSION_SCRIPT = exports
 
 LSRCFILES = check-statics $(VERSION_SCRIPT)
-
-LLDLIBS	+= $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS) -lpcp_pmda
 
 ifeq "$(ENABLE_SECURE)" "true"
 LLDLIBS += $(LIB_FOR_SSL) $(LIB_FOR_NSS) $(LIB_FOR_NSPR) $(LIB_FOR_SASL)
@@ -59,7 +58,7 @@ LSRCFILES += win32.c
 else
 CFILES += win32.c
 LSRCFILES += accounts.c
-LLDLIBS	+= -lpsapi
+LLDLIBS	+= -lpsapi -lws2_32
 endif
 
 ifeq "$(TARGET_OS)" "solaris"
@@ -72,7 +71,8 @@ ifeq "$(LIB_FOR_BASENAME)" "-lpcp"
 LIB_FOR_BASENAME =
 endif
 
-LLDLIBS	+= $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS)
+LLDLIBS	+= $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS) $(LIB_FOR_RT)
+LLDLIBS	+= -lpcp_pmda
 
 LCFLAGS += -DLIBPCP_INTERNAL '-DEXEC_SUFFIX="$(EXECSUFFIX)"' \
 	'-DDSO_SUFFIX="$(DSOSUFFIX)"'
@@ -80,11 +80,8 @@ LCFLAGS += -DLIBPCP_INTERNAL '-DEXEC_SUFFIX="$(EXECSUFFIX)"' \
 DSOVERSION = 3
 STATICLIBTARGET = libpcp_fault.a
 LIBTARGET = libpcp_fault.$(DSOSUFFIX).$(DSOVERSION)
-SYMTARGET = libpcp_fault.$(DSOSUFFIX) libpcp_fault.$(DSOSUFFIX).2
-
-ifeq "$(PACKAGE_DISTRIBUTION)" "debian"
 SYMTARGET = libpcp_fault.$(DSOSUFFIX)
-endif
+
 ifeq "$(TARGET_OS)" "darwin"
 LIBTARGET = libpcp_fault.$(DSOVERSION).$(DSOSUFFIX)
 SYMTARGET = libpcp_fault.$(DSOSUFFIX)
@@ -99,7 +96,7 @@ LIBTARGET =
 SYMTARGET =
 endif
 
-LDIRT += $(SYMTARGET) $(LIBTARGET) $(STATICLIBTARGET) $(VERSION_SCRIPT) $(HFILES) $(CFILES)
+LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) getdate.h check.done
 
 base default : $(HFILES) $(CFILES) $(VERSION_SCRIPT) $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
 
@@ -114,6 +111,7 @@ endif
 include $(BUILDRULES)
 
 *.o: internal.h
+rtime.o: getdate.h
 derive.o derive_fetch.o: derive.h
 util.o:	$(TOPDIR)/src/include/pcp/pmdbg.h
 fault.o:	$(TOPDIR)/src/include/pcp/fault.h
@@ -121,6 +119,10 @@ fault.o:	$(TOPDIR)/src/include/pcp/fault.h
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
 		$(TOPDIR)/src/include/pcp/impl.h \
 		$(TOPDIR)/src/include/pcp/platform_defs.h
+
+.NOTPARALLEL:
+getdate.h getdate.tab.c: getdate.y
+	$(YACC) -d -b `basename $< .y` $< && cp `basename $@ .h`.tab.h $@
 
 ifeq "$(TARGET_OS)" "mingw"
 kernel_pmda_dso	= windows
@@ -142,7 +144,7 @@ ifneq ($(STATICLIBTARGET),)
 endif
 	$(INSTALL) -m 644 $(TOPDIR)/src/include/pcp/fault.h $(PCP_INC_DIR)/fault.h
 
-$(HFILES) $(CFILES):
+$(HFILES) $(CFILES) $(YFILES):
 	ln -s ../../libpcp/src/$@ .
 
 $(VERSION_SCRIPT): ../../libpcp/src/$(VERSION_SCRIPT) mk.exports

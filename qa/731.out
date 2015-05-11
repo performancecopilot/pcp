@@ -73,6 +73,8 @@ cgroup.cpuacct.usage_percpu
 cgroup.cpusched.shares
 cgroup.cpuset.cpus
 cgroup.cpuset.mems
+cgroup.memory.failcnt
+cgroup.memory.limit
 cgroup.memory.stat.active_anon
 cgroup.memory.stat.active_file
 cgroup.memory.stat.cache
@@ -107,6 +109,7 @@ cgroup.memory.stat.total.unevictable
 cgroup.memory.stat.total.writeback
 cgroup.memory.stat.unevictable
 cgroup.memory.stat.writeback
+cgroup.memory.usage
 cgroup.mounts.count
 cgroup.mounts.subsys
 cgroup.netclass.classid
@@ -115,7 +118,7 @@ cgroup.subsys.enabled
 cgroup.subsys.hierarchy
 cgroup.subsys.num_cgroups
 
-and 374 instance values.
+and 383 instance values.
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
@@ -209,6 +212,8 @@ cgroup.cpuacct.usage_percpu
 cgroup.cpusched.shares
 cgroup.cpuset.cpus
 cgroup.cpuset.mems
+cgroup.memory.failcnt
+cgroup.memory.limit
 cgroup.memory.stat.active_anon
 cgroup.memory.stat.active_file
 cgroup.memory.stat.cache
@@ -243,6 +248,7 @@ cgroup.memory.stat.total.unevictable
 cgroup.memory.stat.total.writeback
 cgroup.memory.stat.unevictable
 cgroup.memory.stat.writeback
+cgroup.memory.usage
 cgroup.mounts.count
 cgroup.mounts.subsys
 cgroup.netclass.classid
@@ -251,7 +257,7 @@ cgroup.subsys.enabled
 cgroup.subsys.hierarchy
 cgroup.subsys.num_cgroups
 
-and 182 instance values.
+and 185 instance values.
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
@@ -334,6 +340,8 @@ cgroup.cpuacct.usage_percpu
 cgroup.cpusched.shares
 cgroup.cpuset.cpus
 cgroup.cpuset.mems
+cgroup.memory.failcnt
+cgroup.memory.limit
 cgroup.memory.stat.active_anon
 cgroup.memory.stat.active_file
 cgroup.memory.stat.cache
@@ -368,6 +376,7 @@ cgroup.memory.stat.total.unevictable
 cgroup.memory.stat.total.writeback
 cgroup.memory.stat.unevictable
 cgroup.memory.stat.writeback
+cgroup.memory.usage
 cgroup.mounts.count
 cgroup.mounts.subsys
 cgroup.netclass.classid
@@ -376,7 +385,7 @@ cgroup.subsys.enabled
 cgroup.subsys.hierarchy
 cgroup.subsys.num_cgroups
 
-and 3509 instance values.
+and 3518 instance values.
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector

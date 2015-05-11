@@ -70,6 +70,7 @@ usr/share/man/man3/pmGetOptions.3.gz
 usr/share/man/man3/pmGetOptions.3.gz
 usr/share/man/man3/pmgetopt_r.3.gz
 usr/share/man/man3/pmGetPMNSLocation.3.gz
+usr/share/man/man3/pmGetVersion.3.gz
 usr/share/man/man3/pmiAddInstance.3.gz
 usr/share/man/man3/pmiAddMetric.3.gz
 usr/share/man/man3/pmIDStr.3.gz

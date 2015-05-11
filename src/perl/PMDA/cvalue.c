@@ -24,12 +24,26 @@
 void
 ids(void)
 {
-    printf("PMDA_PMID: 0,0 = %d\n", PMDA_PMID(0,0));
-    printf("PMDA_PMID: 1,1 = %d\n", PMDA_PMID(1,1));
-    printf("PMDA_PMID: 27,13 = %d\n", PMDA_PMID(27,13));
-    printf("PMDA_PMID: %d,0 = %d\n", MAXINT, PMDA_PMID(MAXINT,0));
-    printf("PMDA_PMID: 0,%d = %d\n", MAXINT, PMDA_PMID(0,MAXINT));
-    printf("PMDA_PMID: %d,%d = %d\n", MAXINT,MAXINT, PMDA_PMID(MAXINT,MAXINT));
+    struct {
+	int	cluster;
+	int	item;
+    } data[] = {
+	{ 0, 0 },
+	{ 1, 1 },
+	{ 37, 13 },
+	{ MAXINT, 0 },
+	{ 0, MAXINT },
+	{ MAXINT, MAXINT }
+    };
+    int		i;
+
+    for (i = 0; i < sizeof(data)/sizeof(data[0]); i++) {
+	if (PMDA_PMID(data[i].cluster,data[i].item) != pmid_build(0,data[i].cluster,data[i].item)) {
+	    fprintf(stderr, "botch: PMDA_PMID(%d,%d) -> %x", data[i].cluster, data[i].item, PMDA_PMID(data[i].cluster,data[i].item));
+	    fprintf(stderr, " pmid_build(0,%d,%d) -> %x\n", data[i].cluster, data[i].item, pmid_build(0,data[i].cluster,data[i].item));
+	}
+	printf("PMDA_PMID: %d,%d = %d\n", data[i].cluster, data[i].item, PMDA_PMID(data[i].cluster,data[i].item));
+    }
 }
 
 void
@@ -82,6 +96,10 @@ defines(void)
     printf("PM_SEM_INSTANT=%u\n", PM_SEM_INSTANT);
     printf("PM_SEM_DISCRETE=%u\n", PM_SEM_DISCRETE);
 
+    /*
+     * for ease of maintenance make the order of the error codes
+     * here the same as the output from pmerr -l
+     */
     printf("PM_ERR_GENERIC=%d\n", PM_ERR_GENERIC);
     printf("PM_ERR_PMNS=%d\n", PM_ERR_PMNS);
     printf("PM_ERR_NOPMNS=%d\n", PM_ERR_NOPMNS);
@@ -96,6 +114,7 @@ defines(void)
     printf("PM_ERR_PMID=%d\n", PM_ERR_PMID);
     printf("PM_ERR_INDOM=%d\n", PM_ERR_INDOM);
     printf("PM_ERR_INST=%d\n", PM_ERR_INST);
+    printf("PM_ERR_TYPE=%d\n", PM_ERR_TYPE);
     printf("PM_ERR_UNIT=%d\n", PM_ERR_UNIT);
     printf("PM_ERR_CONV=%d\n", PM_ERR_CONV);
     printf("PM_ERR_TRUNC=%d\n", PM_ERR_TRUNC);
@@ -108,8 +127,8 @@ defines(void)
     printf("PM_ERR_MODE=%d\n", PM_ERR_MODE);
     printf("PM_ERR_LABEL=%d\n", PM_ERR_LABEL);
     printf("PM_ERR_LOGREC=%d\n", PM_ERR_LOGREC);
-    printf("PM_ERR_NOTARCHIVE=%d\n", PM_ERR_NOTARCHIVE);
     printf("PM_ERR_LOGFILE=%d\n", PM_ERR_LOGFILE);
+    printf("PM_ERR_NOTARCHIVE=%d\n", PM_ERR_NOTARCHIVE);
     printf("PM_ERR_NOCONTEXT=%d\n", PM_ERR_NOCONTEXT);
     printf("PM_ERR_PROFILESPEC=%d\n", PM_ERR_PROFILESPEC);
     printf("PM_ERR_PMID_LOG=%d\n", PM_ERR_PMID_LOG);
@@ -124,11 +143,14 @@ defines(void)
     printf("PM_ERR_NOTCONN=%d\n", PM_ERR_NOTCONN);
     printf("PM_ERR_NEEDPORT=%d\n", PM_ERR_NEEDPORT);
     printf("PM_ERR_NONLEAF=%d\n", PM_ERR_NONLEAF);
-    printf("PM_ERR_TYPE=%d\n", PM_ERR_TYPE);
-    printf("PM_ERR_TOOSMALL=%d\n", PM_ERR_TOOSMALL);
-    printf("PM_ERR_TOOBIG=%d\n", PM_ERR_TOOBIG);
     printf("PM_ERR_PMDAREADY=%d\n", PM_ERR_PMDAREADY);
     printf("PM_ERR_PMDANOTREADY=%d\n", PM_ERR_PMDANOTREADY);
+    printf("PM_ERR_TOOSMALL=%d\n", PM_ERR_TOOSMALL);
+    printf("PM_ERR_TOOBIG=%d\n", PM_ERR_TOOBIG);
+    printf("PM_ERR_FAULT=%d\n", PM_ERR_FAULT);
+    printf("PM_ERR_THREAD=%d\n", PM_ERR_THREAD);
+    printf("PM_ERR_NOCONTAINER=%d\n", PM_ERR_NOCONTAINER);
+    printf("PM_ERR_BADSTORE=%d\n", PM_ERR_BADSTORE);
     printf("PM_ERR_NYI=%d\n", PM_ERR_NYI);
 }
 

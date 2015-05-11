@@ -78,8 +78,8 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    if ((sts = pmLoadNameSpace(namespace)) < 0) {
-	fprintf(stderr, "pmLoadNameSpace(%s): %s\n", namespace, pmErrStr(sts));
+    if ((sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
+	fprintf(stderr, "pmLoadASCIINameSpace(%s, 1): %s\n", namespace, pmErrStr(sts));
 	exit(1);
     }
 

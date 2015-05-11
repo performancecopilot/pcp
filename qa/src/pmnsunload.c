@@ -125,7 +125,7 @@ main(int argc, char **argv)
 	do_PMNS_op("pre-unload");
 	pmUnloadNameSpace();
 	do_PMNS_op("post-unload");
-	if ((sts = pmLoadNameSpace(namespace)) < 0) {
+	if ((sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
 	    printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
 	    exit(1);
 	}
