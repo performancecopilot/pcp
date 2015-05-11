@@ -206,6 +206,15 @@ __pmBoundaryOptions(
 	/* Make the first archive the current one. */
 	if ((sts = __pmLogChangeArchive(ctxp, 0)) < 0)
 	    return sts;
+
+	/* Initialize the global archive state. */
+	acp->ac_serial = 0;		/* not serial access, yet */
+	acp->ac_pmid_hc.nodes = 0;	/* empty hash list */
+	acp->ac_pmid_hc.hsize = 0;
+	acp->ac_end = 0.0;
+	acp->ac_want = NULL;
+	acp->ac_unbound = NULL;
+	acp->ac_cache = NULL;
     } else {
 	/* Multiple archive contexts - figure out combined start and end */
 	for (i = 0; i < opts->narchives; i++) {

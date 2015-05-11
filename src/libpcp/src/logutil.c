@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -1398,10 +1398,10 @@ paranoidLogRead(__pmLogCtl *lcp, int mode, FILE *peekf, pmResult **result)
 /*
  * read next forward or backward from the log
  *
- * by default (peekf == NULL) use lcp->l_mfp and roll volume
- * at end of file if another volume is available
+ * by default (peekf == NULL) use lcp->l_mfp and roll volume or archive
+ * at end of file if another volume or archive is available
  *
- * if peekf != NULL, use this stream, and do not roll volume
+ * if peekf != NULL, use this stream, and do not roll volume or archive
  */
 int
 __pmLogRead(__pmLogCtl *lcp, int mode, FILE *peekf, pmResult **result, int option)
@@ -1487,6 +1487,7 @@ again:
 #endif
 	    fseek(f, offset, SEEK_SET);
 	    if (peekf == NULL) {
+		/* Try the next volume. */
 		int	vol = lcp->l_curvol+1;
 		while (vol <= lcp->l_maxvol) {
 		    if (__pmLogChangeVol(lcp, vol) >= 0) {
@@ -1494,6 +1495,19 @@ again:
 			goto again;
 		    }
 		    vol++;
+		}
+		/* No more volumes. Try the next archive, if any. */
+		if ((lcp = __pmLogChangeToNextArchive(lcp)) != NULL) {
+		    f = lcp->l_mfp;
+		    offset = ftell(f);
+		    assert(offset >= 0);
+#ifdef PCP_DEBUG
+		    if (pmDebug & DBG_TRACE_LOG) {
+			fprintf(stderr, "arch=%s vol=%d posn=%ld ",
+				lcp->l_name, lcp->l_curvol, (long)offset);
+		    }
+#endif
+		    goto again;
 		}
 	    }
 	    return PM_ERR_EOL;
@@ -2474,13 +2488,6 @@ __pmLogInitialState(__pmArchCtl *acp)
     /* start after header + label record + trailer */
     acp->ac_offset = sizeof(__pmLogLabel) + 2*sizeof(int);
     acp->ac_vol = acp->ac_log->l_curvol;
-    acp->ac_serial = 0;		/* not serial access, yet */
-    acp->ac_pmid_hc.nodes = 0;	/* empty hash list */
-    acp->ac_pmid_hc.hsize = 0;
-    acp->ac_end = 0.0;
-    acp->ac_want = NULL;
-    acp->ac_unbound = NULL;
-    acp->ac_cache = NULL;
 }
 
 int
@@ -2516,6 +2523,41 @@ __pmLogChangeArchive(__pmContext *ctxp, int arch)
 
     __pmLogInitialState(acp);
     return sts;
+}
+
+/* Advance forward to the next archive in the context, if any. */
+__pmLogCtl *
+__pmLogChangeToNextArchive(__pmLogCtl *lcp)
+{
+    __pmContext	*ctxp;
+    __pmArchCtl	*acp;
+    int		i;
+
+    /* Get the current context. It must be an archive context. */
+    ctxp = __pmHandleToPtr(pmWhichContext());
+    if (ctxp == NULL || ctxp->c_type != PM_CONTEXT_ARCHIVE)
+	return NULL;
+
+    /* Now identify the current archive in the list of archives. */
+    acp = ctxp->c_archctl;
+    for (i = 0; i < acp->ac_num_logs; i++) {
+	if (acp->ac_log_list[i] == lcp)
+	    break; /* found it */
+    }
+    if (i >= acp->ac_num_logs)
+	return NULL; /* current archive not found. */
+    if (i + 1 == acp->ac_num_logs)
+	return NULL; /* final archive in the context. */
+
+    /* Switch to the next archive. */
+    __pmLogChangeArchive(ctxp, i + 1);
+    return acp->ac_log;
+}
+
+__pmTimeval *
+__pmLogStartTime(__pmArchCtl *acp)
+{
+    return &acp->ac_log_list[0]->l_label.ill_start;
 }
 
 void

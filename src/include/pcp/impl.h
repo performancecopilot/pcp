@@ -1052,8 +1052,10 @@ extern int __pmLogLoadMeta(__pmLogCtl *);
 extern void __pmLogClose(__pmLogCtl *);
 extern void __pmLogCacheClear(FILE *);
 
-extern int __pmLogChangeArchive(__pmContext *, int);
 extern void __pmLogInitialState(__pmArchCtl *);
+extern __pmTimeval *__pmLogStartTime(__pmArchCtl *);
+extern int __pmLogChangeArchive(__pmContext *, int);
+extern __pmLogCtl *__pmLogChangeToNextArchive(__pmLogCtl *);
 extern void __pmArchCtlFree (__pmArchCtl *);
 
 extern int __pmLogPutDesc(__pmLogCtl *, const pmDesc *, int, char **);
