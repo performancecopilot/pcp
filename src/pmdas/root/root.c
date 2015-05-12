@@ -523,7 +523,7 @@ static int
 root_processid_request(root_client_t *cp, void *pdu, int pdulen)
 {
     container_t *container;
-    char	buffer[MAXHOSTNAMELEN], *name = &buffer[0];
+    char	buffer[MAXPATHLEN], *name = &buffer[0];
     int		sts, pid;
 
     sts = __pmdaDecodeRootPDUContainer(pdu, pdulen, &pid, name, sizeof(buffer));

@@ -95,6 +95,7 @@ struct ethtool_cmd {
 #define IPV6_ADDR_SITELOCAL     0x0040U
 #define IPV6_ADDR_COMPATv4      0x0080U
 
-extern int refresh_proc_net_dev(pmInDom);
-extern int refresh_net_dev_addr(pmInDom);
+struct linux_container;
+extern int refresh_proc_net_dev(pmInDom, struct linux_container *);
+extern int refresh_net_dev_addr(pmInDom, struct linux_container *);
 extern char *lookup_ipv6_scope(int);
