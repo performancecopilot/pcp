@@ -13,6 +13,8 @@
 	<key>CFBundleExecutable</key>
 	<string>pmchart</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.aconex.pmchart</string>
+	<string>io.pcp.pmchart</string>
+	<key>NSAppSleepDisabled</key>
+	<true/>
 </dict>
 </plist>
