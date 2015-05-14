@@ -193,8 +193,8 @@ static pmdaMetric metrictab[] = {
 
 /* proc.psinfo.start_time */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STAT,21), PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
-    PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) } },
+    { PMDA_PMID(CLUSTER_PID_STAT,21), PM_TYPE_U64, PROC_INDOM, PM_SEM_DISCRETE, 
+    PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
 
 /* proc.psinfo.vsize */
   { NULL,
@@ -257,17 +257,9 @@ static pmdaMetric metrictab[] = {
     PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /* proc.psinfo.wchan */
-#if defined(HAVE_64BIT_PTR)
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STAT,34), PM_TYPE_U64, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STAT,34), KERNEL_ULONG, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0) } },
-#elif defined(HAVE_32BIT_PTR)
-  { NULL,
-    { PMDA_PMID(CLUSTER_PID_STAT,34), PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
-    PMDA_PMUNITS(0,0,0,0,0,0) } },
-#else
-    error! unsupported pointer size
-#endif
 
 /* proc.psinfo.nswap */
   { NULL,
@@ -316,17 +308,17 @@ static pmdaMetric metrictab[] = {
 
 /* proc.psinfo.delayacct_blkio_time */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STAT,44), PM_TYPE_U32, PROC_INDOM, PM_SEM_COUNTER,
+    { PMDA_PMID(CLUSTER_PID_STAT,44), PM_TYPE_U64, PROC_INDOM, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
 
 /* proc.psinfo.guest_time */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STAT,45), PM_TYPE_U32, PROC_INDOM, PM_SEM_COUNTER,
+    { PMDA_PMID(CLUSTER_PID_STAT,45), PM_TYPE_U64, PROC_INDOM, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
 
 /* proc.psinfo.cguest_time */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STAT,46), PM_TYPE_U32, PROC_INDOM, PM_SEM_COUNTER,
+    { PMDA_PMID(CLUSTER_PID_STAT,46), PM_TYPE_U64, PROC_INDOM, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
 /* proc.psinfo.environ */
   { NULL,
@@ -1605,6 +1597,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     int			sts;
     int			have_totals;
     unsigned long	ul;
+    unsigned long long	ull;
     const char		*cp;
     char		*f;
     proc_pid_entry_t	*entry;
@@ -1816,7 +1809,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			f = _pm_getfield(entry->stat_buf, idp->item);
 			if (f == NULL)
 			    return 0;
-			ul = (__uint32_t)strtoul(f, &tail, 0);
+			ul = (__pm_kernel_ulong_t)strtoul(f, &tail, 0);
 			_pm_assign_ulong(atom, 1000 * (double)ul / hz);
 			break;
 
@@ -1831,11 +1824,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		    case PROC_PID_STAT_WCHAN: /* proc.psinfo.wchan */
 		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
 			return 0;
-#if defined(HAVE_64BIT_PTR)
-		atom->ull = (__uint64_t)strtoull(f, &tail, 0);
-#else
-		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
-#endif
+		_pm_assign_ulong(atom, (__pm_kernel_ulong_t)strtoull(f, &tail, 0));
 		break;
  
 	    case PROC_PID_STAT_ENVIRON: /* proc.psinfo.environ */
@@ -1854,14 +1843,13 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		    f = _pm_getfield(entry->stat_buf, PROC_PID_STAT_WCHAN);
 		    if (f == NULL)
 			return 0;
-#if defined(HAVE_64BIT_PTR)
-		    atom->ull = (__uint64_t)strtoull(f, &tail, 0);
+		    _pm_assign_ulong(atom, (__pm_kernel_ulong_t)strtoull(f, &tail, 0));
+#if defined(HAVE_64BIT_LONG)
 		    if ((wc = wchan(atom->ull)))
 			atom->cp = wc;
 		    else
 			atom->cp = atom->ull ? f : "";
 #else
-		    atom->ul  = (__uint32_t)strtoul(f, &tail, 0);
 		    if ((wc = wchan((__psint_t)atom->ul)))
 			atom->cp = wc;
 		    else
@@ -1887,8 +1875,18 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		if ((f = _pm_getfield(entry->stat_buf, idp->item - 3)) == NULL)  /* Note the offset */
 		    return 0;
 
-		ul = (__uint32_t)strtoul(f, &tail, 0);
-		_pm_assign_ulong(atom, 1000 * (double)ul / hz);
+		ull = (__uint64_t)strtoull(f, &tail, 0);
+		atom->ull = 1000 * (double)ull / hz;
+	    	break;
+	    case PROC_PID_STAT_START_TIME: /* proc.psinfo.start_time */
+	    	/*
+		 * unsigned jiffies converted to unsigned milliseconds
+		 */
+		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
+		    return 0;
+
+		ull = (__uint64_t)strtoull(f, &tail, 0);
+		atom->ull = 1000 * (double)ull / hz;
 	    	break;
 
 	    default: /* All the rest. Direct index by item */
@@ -1945,15 +1943,10 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (idp->item < NR_PROC_PID_SCHED) {
 	    if ((f = _pm_getfield(entry->schedstat_buf, idp->item)) == NULL)
 		return 0;
-	    if (idp->item == PROC_PID_SCHED_PCOUNT &&
-		mdesc->m_desc.type == PM_TYPE_U32)
-		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+	    if (idp->item == PROC_PID_SCHED_PCOUNT)
+		_pm_assign_ulong(atom, (__pm_kernel_ulong_t)strtoul(f, &tail, 0));
 	    else
-#if defined(HAVE_64BIT_PTR)
 		atom->ull  = (__uint64_t)strtoull(f, &tail, 0);
-#else
-	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
-#endif
 	}
 	else
 	    return PM_ERR_PMID;
