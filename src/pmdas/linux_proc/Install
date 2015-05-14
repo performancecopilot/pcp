@@ -23,6 +23,7 @@ pmda_interface=6
 daemon_opt=true
 pipe_opt=true
 pmns_source=root_proc
+pmns_dupok=true
 
 pmdaSetup
 pmdaInstall
