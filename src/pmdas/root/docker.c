@@ -337,13 +337,18 @@ docker_value_refresh(container_engine_t *dp,
     if (!docker_values_changed(path, values))
 	return 0;
     if (pmDebug & DBG_TRACE_ATTR)
-	__pmNotifyErr(LOG_DEBUG, "docker_values_refresh: file=%s\n", path);
+	__pmNotifyErr(LOG_DEBUG, "docker_value_refresh: file=%s\n", path);
     if ((fp = fopen(path, "r")) == NULL)
 	return -oserror();
     sts = docker_values_parse(fp, name, values);
     fclose(fp);
     if (sts < 0)
 	return sts;
+
+    if (pmDebug & DBG_TRACE_ATTR)
+	__pmNotifyErr(LOG_DEBUG, "docker_value_refresh: uptodate=%d of %d\n",
+	    values->uptodate, NUM_UPTODATE);
+
     return values->uptodate == NUM_UPTODATE ? 0 : PM_ERR_AGAIN;
 }
 
