@@ -972,6 +972,7 @@ cgroups
 769 other local
 770 libpcp pdu fault local
 771 perl local
+772 pmns local
 774 pmdumplog local
 775 sanity pmfind local
 776 pmfind local
