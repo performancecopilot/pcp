@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -288,8 +288,11 @@ fopen_compress(const char *fname)
 
     cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
 #if HAVE_MKSTEMP
-    snprintf(tmpname, sizeof(tmpname),
-		"%s/XXXXXX", pmGetConfig("PCP_TMPFILE_DIR"));
+    if ((msg = pmGetOptionalConfig("PCP_TMPFILE_DIR")) == NULL) {
+	umask(cur_umask);
+	return NULL;
+    }
+    snprintf(tmpname, sizeof(tmpname), "%s/XXXXXX", msg);
     msg = tmpname;
     fd = mkstemp(tmpname);
 #else

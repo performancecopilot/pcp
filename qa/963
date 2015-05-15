@@ -1,8 +1,8 @@
 #!/bin/sh
-# PCP QA Test No. 448
-# pmGetConfig exerciser
+# PCP QA Test No. 963
+# Exercise pmGetOptionalConfig(3)
 #
-# Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2015 Red Hat.
 #
 
 seq=`basename $0`
@@ -13,31 +13,27 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-status=0	# success is the default!
+status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 echo "error cases ..."
 echo "bad variable"
-src/getconfig NO_SUCH_VAR
+src/getconfig -o NO_SUCH_VAR
 echo "exit status=$?"
+
+unset PCP_BIN_DIR
 
 echo
 echo "bad \$PCP_CONF"
-PCP_CONF=/no/such/file src/getconfig PCP_BIN_DIR
+PCP_CONF=/no/such/file src/getconfig -o PCP_BIN_DIR
 echo "exit status=$?"
 
 echo
 echo "bad \$PCP_DIR"
-PCP_DIR=/no/such/directory src/getconfig PCP_BIN_DIR
+PCP_DIR=/no/such/directory src/getconfig -o PCP_BIN_DIR
 echo "exit status=$?"
-
-if [ ! -r $PCP_DIR/etc/pcp.conf ]
-then
-    echo "Error: unable to read $PCP_DIR/etc/pcp.conf!"
-    exit 1
-fi
 
 echo
 echo "all vars in pcp.conf ... report only errors"
@@ -51,7 +47,7 @@ sed <$PCP_DIR/etc/pcp.conf \
     -e 's/\\/<backslash>/g' \
 | while read var value
 do
-    xvalue=`src/getconfig "$var" | sed -e 's/.* -> //' -e 's/[ 	]*$//' -e 's/\\\\/<backslash>/g'`
+    xvalue=`src/getconfig -o "$var" | sed -e 's/.* -> //' -e 's/[ 	]*$//' -e 's/\\\\/<backslash>/g'`
     #debug# echo "$var: $value ? $xvalue"
     if [ "X${value}X" != "X${xvalue}X" ]
     then
@@ -60,4 +56,5 @@ do
 done
 
 # success, all done
+status=0
 exit

@@ -12,8 +12,9 @@
    fun:malloc
    fun:strdup
    fun:posix_formatter
+   fun:__pmconfig
    fun:__pmConfig
-   fun:pmGetConfig
+   fun:pm*Config
 }
 
 {

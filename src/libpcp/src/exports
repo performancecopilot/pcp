@@ -492,4 +492,5 @@ PCP_3.10 {
 PCP_3.11 {
   global:
     pmGetVersion;
+    pmGetOptionalConfig;
 } PCP_3.10;

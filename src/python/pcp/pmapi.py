@@ -657,8 +657,8 @@ LIBPCP.pmFetchArchive.argtypes = [POINTER(POINTER(pmResult))]
 # PMAPI Ancilliary Support Services
 
 
-LIBPCP.pmGetConfig.restype = c_char_p
-LIBPCP.pmGetConfig.argtypes = [c_char_p]
+LIBPCP.pmGetOptionalConfig.restype = c_char_p
+LIBPCP.pmGetOptionalConfig.argtypes = [c_char_p]
 
 LIBPCP.pmErrStr_r.restype = c_char_p
 LIBPCP.pmErrStr_r.argtypes = [c_int, c_char_p, c_int]
@@ -1772,7 +1772,9 @@ class pmContext(object):
         """PMAPI - Return value from environment or pcp config file """
         if type(variable) != type(b''):
             variable = variable.encode('utf-8')
-        result = LIBPCP.pmGetConfig(variable)
+        result = LIBPCP.pmGetOptionalConfig(variable)
+        if result == None:
+            return result
         return str(result.decode())
 
     @staticmethod
