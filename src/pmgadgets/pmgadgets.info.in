@@ -13,6 +13,8 @@
 	<key>CFBundleExecutable</key>
 	<string>pmgadgets</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.redhat.pmgadgets</string>
+	<string>io.pcp.pmgadgets</string>
+	<key>NSAppSleepDisabled</key>
+	<true/>
 </dict>
 </plist>

@@ -172,6 +172,9 @@ cat <<End-of-File >$tmp.control
 # text after [ is treated as annotation
 #
 # executables
+bash
+sed
+grep
 ed
 git
 make
@@ -248,7 +251,6 @@ crontab				[from vixie-cron?]
 valgrind			[(QA optional)]
 dpkg?	mail			[bsd-mailx (QA optional)]
 rpm?	mail			[mailx (QA optional)]
-host				[bind-utils(redhat)]
 dpkg?	apache2			[apache2 (QA optional)]
 rpm?	httpd			[httpd (QA optional)]
 dpkg?	realpath		[realpath]
@@ -293,6 +295,24 @@ then
 	[ -f $tmp.need ] && \
 	    echo "rpm?	/usr/share/doc/python-ctypes*	[python-ctypes]" >>$tmp.control
     fi
+fi
+
+# platform specific cases
+#
+# tests here are copied from $(TOPDIR)/configure.ac
+#
+if [ -f /etc/fedora-release ]
+then
+    # Fedora
+    echo "/usr/sbin/qshape		[postfix-perl-scripts]" >>$tmp.control
+elif [ -f /etc/redhat-release ]
+then
+    # Redhat or CentOS
+    echo "/usr/sbin/qshape		[postfix-perl-scripts]" >>$tmp.control
+    echo "host				[bind-utils]" >>$tmp.control
+elif [ -f /etc/SuSE-release ]
+then
+    echo "/usr/share/doc/packages/postfix-doc/auxiliary/qshape/qshape.pl		[postfix-doc]" >>$tmp.control
 fi
 
 cat $tmp.control \

@@ -73,7 +73,7 @@ then
     status=0
 else
     echo "Instance domain for hinv.map.lvname incorrect:"
-    echo "diff output (PCP first, then ifconfig):"
+    echo "diff output (PCP first, then /dev/mapper):"
     cat $tmp.indom.diff
 fi
 
