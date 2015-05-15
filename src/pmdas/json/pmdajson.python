@@ -205,7 +205,12 @@ class IndomCache(pmdaIndom):
         ''' Load indom cache values. '''
         if self.__pmda.debug:
             self.log("Loading cache %d..." % self.serial)
-        self.cache_load()
+        try:
+            # Notice we're ignoring cache_load() errors. The biggest
+            # one we're ignoring is a non-existent cache.
+            self.cache_load()
+        except pmErr:
+            return
         self.cache_mark_active()
         for (inst, name) in self:
             self.add_value(name, inst)
