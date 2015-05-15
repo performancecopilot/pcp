@@ -596,6 +596,9 @@ extern pmnsNode * pmdaNodeLookup(pmnsNode *, const char *);
  * 
  * pmdaCachePurge
  *	cull inactive entries
+ *
+ * pmdaCacheResize
+ *	set the maximum instance identifier
  */
 extern int pmdaCacheStore(pmInDom, int, const char *, void *);
 extern int pmdaCacheStoreKey(pmInDom, int, const char *, int, const void *, void *);
@@ -604,6 +607,7 @@ extern int pmdaCacheLookupName(pmInDom, const char *, int *, void **);
 extern int pmdaCacheLookupKey(pmInDom, const char *, int, const void *, char **, int *, void **);
 extern int pmdaCacheOp(pmInDom, int);
 extern int pmdaCachePurge(pmInDom, time_t);
+extern int pmdaCacheResize(pmInDom, int);
 
 #define PMDA_CACHE_LOAD			1
 #define PMDA_CACHE_ADD			2

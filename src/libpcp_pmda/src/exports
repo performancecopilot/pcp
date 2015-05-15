@@ -131,3 +131,9 @@ PCP_PMDA_3.4 {
     __pmdaRecvRootPDUContainer;
     __pmdaDecodeRootPDUContainer;
 } PCP_PMDA_3.3;
+
+PCP_PMDA_3.5 {
+  global:
+    pmdaCacheResize;
+
+} PCP_PMDA_3.4;
