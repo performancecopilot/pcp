@@ -853,7 +853,10 @@ class JsonSource(object):
         the PMDA.
         '''
         for (dummy, metric) in self.__metrics.items():
-            self.__pmda.add_metric(metric.full_name, metric.obj, metric.desc)
+            # Skip array metrics.
+            if metric.type != c_api.PM_TYPE_NOSUPPORT:
+                self.__pmda.add_metric(metric.full_name, metric.obj,
+                                       metric.desc)
 
 class JsonPMDA(PMDA):
     ''' JSON PMDA class '''
