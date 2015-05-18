@@ -46,7 +46,7 @@ default :: default_pcp
 pcp : default_pcp
 
 default_pcp : $(CONFIGURE_GENERATED)
-	@for d in `echo $(SUBDIRS)`; do \
+	+for d in `echo $(SUBDIRS)`; do \
 	    if test -d "$$d" ; then \
 		echo === $$d ===; \
 		$(MAKE) -C $$d $@ || exit $$?; \

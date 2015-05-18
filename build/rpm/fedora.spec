@@ -616,7 +616,7 @@ rm -Rf $RPM_BUILD_ROOT
 export PYTHON=python%{?default_python}
 %endif
 %configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_perfevent}
-make default_pcp
+make %{?_smp_mflags} default_pcp
 
 %install
 rm -Rf $RPM_BUILD_ROOT
