@@ -12,7 +12,7 @@ include $(BUILDRULES)
 
 ifeq "$(ENABLE_QT)" "true"
 build-me: $(PROJECT)
-	$(QTMAKE)
+	+$(QTMAKE)
 else
 build-me:
 endif

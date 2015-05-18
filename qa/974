@@ -37,6 +37,7 @@ pmda=$PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init
 
 for tgz in $here/linux/procpid-*-root-*.tgz
 do
+    cd $here
     $sudo rm -fr $root
     mkdir $root || _fail "root in use when processing $tgz"
     cd $root
