@@ -836,7 +836,7 @@ _install_views()
     viewer="$1"
     have_views=false
 
-    [ `echo *.$viewer` != "*.$viewer" ] && have_views=true
+    [ "`echo *.$viewer`" != "*.$viewer" ] && have_views=true
     if [ -d $PCP_VAR_DIR/config/$viewer ]
     then
 	$have_views && echo "Installing $viewer view(s) ..."
