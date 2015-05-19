@@ -836,7 +836,7 @@ _install_views()
     viewer="$1"
     have_views=false
 
-    [ `echo *.$viewer` != "*.$viewer" ] && have_views=true
+    [ "`echo *.$viewer`" != "*.$viewer" ] && have_views=true
     if [ -d $PCP_VAR_DIR/config/$viewer ]
     then
 	$have_views && echo "Installing $viewer view(s) ..."
@@ -1099,7 +1099,7 @@ _install()
     elif [ -f pmns ]
     then
 	# have pmns file, synthesize a root PMNS file
-	__root=$pcptmp.root
+	__root=$__tmp.root
 	echo 'root {' >$__root
 	echo '#include "pmns"' >>$__root
 	echo '}' >>$__root
@@ -1112,13 +1112,13 @@ _install()
 	else
 	    __n=-N
 	fi
-	if pminfo $__n $__root 2>$pcptmp.err >/dev/null
+	if pminfo $__n $__root 2>$__tmp.err >/dev/null
 	then
 	    :
 	else
-	    cat $pcptmp.err
+	    cat $__tmp.err
 	    echo "Error: PMDA's PMNS is bad"
-	    if grep 'Duplicate metric' $pcptmp.err >/dev/null
+	    if grep 'Duplicate metric' $__tmp.err >/dev/null
 	    then
 		echo "Hint: set pmns_dupok=true in the PMDA's Install script if duplicate names are"
 		echo "      expected in the PMNS"

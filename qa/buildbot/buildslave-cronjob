@@ -1,0 +1,19 @@
+#!/bin/sh
+
+PWD=`pwd`
+BSPATH=`echo $PWD/pcp-slave/slave`
+echo "Run this script as the same user running the buildslave process!"
+echo "By default this script assumes it is being run in the same directory"
+echo "as the 'setup-buildslave' script and that the buildslave directory is"
+echo "named 'pcp-slave/slave'.  If not, please provide the full path to the"
+echo "buildslave dir of choice."
+echo ""
+if [ "$#" -eq 1 ]; then
+    #buildslave path
+    BSPATH=`readlink -f $1`
+fi
+echo "running: \`(crontab -l; echo \"@reboot buildslave start $BSPATH\") | sort - | uniq - | crontab - \`"
+echo ""
+echo "Please ensure this entry has been correctly to your list of cron jobs"
+
+(crontab -l; echo "@reboot buildslave start $BSPATH") | sort - | uniq - | crontab - 

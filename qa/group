@@ -988,6 +988,7 @@ cgroups
 799:retired pmda.papi local
 800 pmda.proc local
 805 pmda.postfix local
+807 pcp local
 813 pmda.papi local
 815 pmie local
 822:reserved pmlogrewrite
@@ -1052,6 +1053,7 @@ cgroups
 960 pmda.ds389 local
 961 pmlogextract local
 962 archive local
+963 libpcp local
 966 secure local
 967 pmda.papi local
 972 pmda.zswap dbpmda local

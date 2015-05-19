@@ -29,6 +29,7 @@ int
 pmdaRootConnect(const char *path)
 {
     __pmSockAddr	*addr;
+    char		*tmpdir;
     char		socketpath[MAXPATHLEN];
     char		errmsg[PM_MAXERRMSGLEN];
     int			fd, sts, version, features;
@@ -37,10 +38,11 @@ pmdaRootConnect(const char *path)
     if ((addr = __pmSockAddrAlloc()) == NULL)
 	return -ENOMEM;
 
-    if (path == NULL)
-	snprintf(socketpath, sizeof(socketpath), "%s/pmcd/root.socket",
-		pmGetConfig("PCP_TMP_DIR"));
-    else
+    if (path == NULL) {
+	if ((tmpdir = pmGetOptionalConfig("PCP_TMP_DIR")) == NULL)
+	    return PM_ERR_GENERIC;
+	snprintf(socketpath, sizeof(socketpath), "%s/pmcd/root.socket", tmpdir);
+    } else
 	strncpy(socketpath, path, sizeof(socketpath));
     socketpath[sizeof(socketpath)-1] = '\0';
 

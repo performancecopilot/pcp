@@ -9,7 +9,7 @@ SRCIDX = $(subst .0,.index,$(SRCARCH))
 
 SCRIPTS = mk.diff.sh mk.gap.sh mk.mysql.sh mk.schizo.sh mk.foo+.sh \
 	mkbadlen mkbadti mkbadlabel mkbadlog
-CONFIGS = config.verify
+CONFIGS = config.verify config.shping
 OTHERS = GNUmakefile.install ds390-access.gz
 
 default default_pcp setup:
