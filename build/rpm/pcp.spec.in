@@ -1371,7 +1371,7 @@ rm -Rf $RPM_BUILD_ROOT
 
 %build
 %configure @package_configure@ %{_configure_rcdir}
-@make@ default_pcp
+@make@ %{?_smp_mflags} default_pcp
 
 %install
 rm -Rf $RPM_BUILD_ROOT
