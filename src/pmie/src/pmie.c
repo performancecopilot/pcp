@@ -613,6 +613,22 @@ getargs(int argc, char *argv[])
     	pmUsageMessage(&opts);
 	exit(1);
     }
+    /* check if archives/hosts available in the environment */
+    if (!dfltConn && opts.narchives) {
+	dfltConn = opts.context = PM_CONTEXT_ARCHIVE;
+	for (c = 0; c < opts.narchives; c++) {
+	    a = (Archive *)zalloc(sizeof(Archive));
+	    a->fname = opts.archives[c];
+	    if (!initArchive(a))
+		exit(1);
+	}
+	foreground = 1;
+    }
+    if (!dfltConn && opts.nhosts) {
+	dfltConn = opts.context = PM_CONTEXT_HOST;
+	dfltHostConn = opts.hosts[c];
+        dfltHostName = ""; /* unknown until newContext */
+    }
 
     if (foreground)
 	isdaemon = 0;

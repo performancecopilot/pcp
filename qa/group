@@ -988,6 +988,7 @@ cgroups
 799:retired pmda.papi local
 800 pmda.proc local
 805 pmda.postfix local
+807 pcp local
 813 pmda.papi local
 815 pmie local
 822:reserved pmlogrewrite

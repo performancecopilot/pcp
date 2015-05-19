@@ -1,0 +1,32 @@
+#!/bin/sh
+# PCP QA Test No. 807
+# Exercise the pcp-shping(1) command
+#
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+test -x $PCP_BINADM_DIR/pcp-shping || _notrun "No pcp-shping(1) installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "Reporting specific tag"
+pcp --archive archives/pcp-shping --interval 30 -z shping http
+echo "Reporting all tags"
+pcp --archive archives/pcp-shping --interval 30 -z shping
+echo "Reporting status"
+pcp --archive archives/pcp-shping shping --status
+
+# success, all done
+status=0
+exit
