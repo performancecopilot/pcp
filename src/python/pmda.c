@@ -505,13 +505,32 @@ fetch_callback(pmdaMetric *metric, unsigned int inst, pmAtomValue *atom)
         default:
             __pmNotifyErr(LOG_ERR, "unsupported metric type in fetch callback");
             sts = -ENOTSUP;
+	    rc = code = 1;		/* Don't fall into code below. */
+	    break;
     }
 
     if (!rc || !code) {    /* tuple not parsed or atom contains bad value */
+	/* If PyArg_Parse() failed above, it could be because the
+	 * calling code returned a error code tuple that didn't look
+	 * like what we were looking for. An error code tuple looks
+	 * like '[PM_ERR_VALUE, 0]' (for example). In this case, we
+	 * don't want PyArg_Parse() to raise an error, so we'll clear
+	 * it out. */
+	PyErr_Clear();
+
         if (!PyArg_Parse(result, "(ii):fetch_cb_error", &sts, &code)) {
             __pmNotifyErr(LOG_ERR, "extracting error code in fetch callback");
             sts = -EINVAL;
         }
+	/* If we got a code of 1, that's means the fetch
+	 * worked. However, if we're here, the fetch didn't really
+	 * work. For example, we could have been expecting a string
+	 * value and instead got a numeric value. So, force an
+	 * error. */
+	else if (code == 1) {
+            __pmNotifyErr(LOG_ERR, "forcing error code in fetch callback");
+	    sts = PM_ERR_TYPE;
+	}
     }
     Py_DECREF(result);
     return sts;
