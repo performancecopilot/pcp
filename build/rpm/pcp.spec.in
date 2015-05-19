@@ -1519,8 +1519,9 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/dm' > pmda_dm_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'gluster|pmdas/gluster' > pmda_gluster_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'zswap|pmdas/zswap' > pmda_zswap_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'unbound|pmdas/unbound' > pmda_unbound_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'atop|collectl|dmcache|free|iostat|numastat|verify|uptime' \
-    | egrep -v 'collectl2pcp|pmda|pmdas/pmcache|iostat2pcp|testsuite|pmdas/dmcache' \
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pcp-|pmlogconf/tools/' | \
+egrep -e 'atop|collectl|dmcache|free|iostat|numastat|verify|uptime|shping' | \
+egrep -v 'testsuite' \
 	    > system_tools_files
 %endif
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'apache|pmdas/apache' > pmda_apache_files
