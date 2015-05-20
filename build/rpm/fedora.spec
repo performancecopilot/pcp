@@ -616,7 +616,7 @@ rm -Rf $RPM_BUILD_ROOT
 export PYTHON=python%{?default_python}
 %endif
 %configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_perfevent}
-make default_pcp
+make %{?_smp_mflags} default_pcp
 
 %install
 rm -Rf $RPM_BUILD_ROOT
@@ -1159,6 +1159,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %changelog
 * Wed Jun 03 2015 Mark Goodwin <mgoodwin@redhat.com> - 3.10.5-1
+- Provide and use non-exit(1)ing pmGetConfig(3) variant (BZ 1187588)
 
 * Wed Apr 15 2015 Nathan Scott <nathans@redhat.com> - 3.10.4-1
 - Update to latest PCP, pcp-webjs and Vector sources.

@@ -1,0 +1,29 @@
+QA output created by 807
+Reporting specific tag
+                            sts_http  time_http
+Tue May 19 15:49:26 2015           ?          ?
+Tue May 19 15:49:56 2015       1.000      0.009
+Tue May 19 15:50:26 2015       1.000      0.009
+Tue May 19 15:50:56 2015       1.000      0.011
+Reporting all tags
+                            sts_null  time_null   sts_date  time_date     sts_cc    time_cc    sts_dns   time_dns sts_dns-se time_dns-s sts_dns-er time_dns-e sts_ypserv time_ypser sts_rpcbin time_rpcbi   sts_smtp  time_smtp   sts_http  time_http
+Tue May 19 15:49:26 2015           ?          ?          ?          ?          ?          ?          ?          ?          ?          ?          ?          ?          ?          ?          ?          ?          ?          ?          ?          ?
+Tue May 19 15:49:56 2015       0.000      0.002      0.000      0.002      0.000      0.040      1.000      0.009      1.000      0.166      0.000      0.060      1.000      0.006      0.000      0.006      1.000      0.002      1.000      0.009
+Tue May 19 15:50:26 2015       0.000      0.006      0.000      0.005      0.000      0.043      1.000      0.009      1.000      0.390      0.000      0.067      1.000      0.007      0.000      0.007      1.000      0.003      1.000      0.009
+Tue May 19 15:50:56 2015       0.000      0.004      0.000      0.005      0.000      0.054      1.000      0.010      1.000      0.164      0.000      0.067      1.000      0.009      0.000      0.007      1.000      0.004      1.000      0.011
+Reporting status
+Duty cycles:       85
+Refresh interval:  30 secs
+Check timeout:     10 secs
+
+Tags and command lines:
+ [null] "exit 0"
+ [date] "date"
+ [cc] "cd /tmp; rm -f $$.[oc] $$; echo "main(){printf(\"g'day world\\\\n\");}" >/tmp/$$.c; cc -o $$ $$.c; ./$$; rm -f $$.[oc] $$"
+ [dns] "/bin/nslookup - 10.64.63.6 </dev/null"
+ [dns-self] "/bin/nslookup `hostname`"
+ [dns-err] "/bin/nslookup foo.bar.no.host.com"
+ [ypserv] "ypcat hosts | grep `hostname`"
+ [rpcbind] "rpcinfo -p"
+ [smtp] "( echo "expn root"; echo quit ) | telnet-probe localhost 25"
+ [http] "curl http://localhost:80/"

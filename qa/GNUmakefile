@@ -16,7 +16,7 @@ TESTS	= $(shell sed -n -e '/^[0-9]/s/:retired//' -e '/^[0-9]/s/:reserved//' -e '
 
 SUBDIRS = src pmdas cisco gluster pconf sadist collectl secure nfsclient \
 	  archives views qt linux perfevent unbound cifs gpfs lustre ganglia \
-	  postfix
+	  postfix perl
 ifeq "$(HAVE_PYTHON)" "true"
 SUBDIRS += secure
 endif
@@ -54,7 +54,7 @@ COMMON_SCRIPTS = common.install.cisco common.pcpweb
 COMMON = common.check common.config common.filter \
 	 common.product common.rc common.setup \
 	 common.secure common.gfs2 common.rpm \
-	 common.sh common.qt common.avahi \
+	 common.sh common.qt common.avahi common.docker \
 	 common.discovery common.compress common.webapi
 ifeq "$(HAVE_PYTHON)" "true"
 COMMON += common.python 

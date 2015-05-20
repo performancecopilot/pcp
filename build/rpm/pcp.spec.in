@@ -847,7 +847,15 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Postfix (MTA)
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = @package_version@
+%if 0%{?fedora} > 16 || 0%{?rhel} > 5
 Requires: postfix-perl-scripts
+%endif
+%if 0%{?rhel} <= 5
+Requires: postfix
+%endif
+%if "%{_vendor}" == "suse"
+Requires: postfix-doc
+%endif
 
 %description pmda-postfix
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1177,6 +1185,7 @@ collecting metrics about the Room temperature metrics.  The PMDA is written in C
 #
 # pcp-pmda-rpm
 #
+%if "@pmda_rpm@" == "true"
 %package pmda-rpm
 License: GPLv2+
 Group: Applications/System
@@ -1186,6 +1195,7 @@ Requires: pcp = @package_version@
 %description pmda-rpm
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the rpms.  The PMDA is written in C.
+%endif
 # end pcp-pmda-rpm
 
 
@@ -1289,13 +1299,17 @@ Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-
 Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pmda-lustre
 Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
 Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql
-Requires: pcp-pmda-samba pcp-pmda-snmp pcp-pmda-vmware pcp-pmda-zimbra
-Requires: pcp-pmda-dm pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-apache
-Requires: pcp-pmda-dm pcp-pmda-gluster pcp-pmda-unbound pcp-pmda-apache
+Requires: pcp-pmda-dm pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
-Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-rpm pcp-pmda-sendmail pcp-pmda-shping
+Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
+%if "@have_python@" == "true"
+Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-system-tools 
+%endif
+%if "@pmda_rpm@" == "true"
+Requires: pcp-pmda-rpm
+%endif
 Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
-Requires: pcp-system-tools pcp-doc
+Requires: pcp-doc
 %description compat
 This package contains the PCP compatibility dependencies for existing PCP
 installations.  This is not a package that should be depended on, and will
@@ -1313,10 +1327,15 @@ Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pm
 Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
 Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql
 Requires: pcp-pmda-samba pcp-pmda-snmp pcp-pmda-vmware pcp-pmda-zimbra
-Requires: pcp-pmda-dm pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-apache
-Requires: pcp-pmda-dm pcp-pmda-gluster pcp-pmda-unbound pcp-pmda-apache
+Requires: pcp-pmda-dm pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
-Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-rpm pcp-pmda-sendmail pcp-pmda-shping
+Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
+%if "@have_python@" == "true"
+Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound 
+%endif
+%if "@pmda_rpm@" == "true"
+Requires: pcp-pmda-rpm
+%endif
 Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
 %description collector
 This package contains the PCP metric collection dependencies.  This includes
@@ -1329,7 +1348,15 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) Monitoring meta Package
 URL: http://www.pcp.io
-Requires: pcp-gui pcp-system-tools pcp-webapi
+%if "@enable_webapi@" == "true"
+Requires: pcp-webapi
+%endif
+%if "@have_python@" == "true"
+Requires: pcp-system-tools 
+%endif
+%if "@enable_qt@" == "true"
+Requires: pcp-gui
+%endif
 %description monitor
 This package contains the PCP metric monitoring dependencies. This includes all possible packages used
 to monitor PCP metrics in various ways.
@@ -1344,7 +1371,7 @@ rm -Rf $RPM_BUILD_ROOT
 
 %build
 %configure @package_configure@ %{_configure_rcdir}
-@make@ default_pcp
+@make@ %{?_smp_mflags} default_pcp
 
 %install
 rm -Rf $RPM_BUILD_ROOT
@@ -1492,8 +1519,9 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/dm' > pmda_dm_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'gluster|pmdas/gluster' > pmda_gluster_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'zswap|pmdas/zswap' > pmda_zswap_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'unbound|pmdas/unbound' > pmda_unbound_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'atop|collectl|dmcache|free|iostat|numastat|verify|uptime' \
-    | egrep -v 'collectl2pcp|pmda|pmdas/pmcache|iostat2pcp|testsuite|pmdas/dmcache' \
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pcp-|pmlogconf/tools/' | \
+egrep -e 'atop|collectl|dmcache|free|iostat|numastat|verify|uptime|shping' | \
+egrep -v 'testsuite' \
 	    > system_tools_files
 %endif
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'apache|pmdas/apache' > pmda_apache_files
@@ -1905,7 +1933,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
     /sbin/service pmproxy condrestart
 %endif
 
-cd $PCP_PMNS_DIR && ./Rebuild -s && rm .NeedRebuild
+cd $PCP_PMNS_DIR && ./Rebuild -s && rm -f .NeedRebuild
 cd
 
 %post libs -p /sbin/ldconfig

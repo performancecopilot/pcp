@@ -112,14 +112,17 @@ root_refresh_container_indom(void)
 	dp->insts_refresh(dp, indom);
 }
 
-static void
+static int
 root_refresh_container_values(char *container, container_t *values)
 {
     container_engine_t *dp;
 
-    for (dp = &engines[0]; dp->name != NULL; dp++)
-	if (values->engine == dp)
-	    dp->value_refresh(dp, container, values);
+    for (dp = &engines[0]; dp->name != NULL; dp++) {
+	if (values->engine != dp)
+	    continue;
+	return dp->value_refresh(dp, container, values);
+    }
+    return PM_ERR_INST;
 }
 
 container_t *
@@ -136,7 +139,8 @@ root_container_search(const char *query)
 	    break;
 	if (!pmdaCacheLookup(indom, inst, &name, (void **)&cp) || !cp)
 	    continue;
-	root_refresh_container_values(name, cp);
+	if (root_refresh_container_values(name, cp) < 0 || !query)
+	    continue;
 	for (dp = &engines[0]; dp->name != NULL; dp++) {
 	    if ((fuzzy = dp->name_matching(dp, query, cp->name, name)) <= best)
 		continue;
@@ -151,9 +155,9 @@ root_container_search(const char *query)
     if (pmDebug & DBG_TRACE_ATTR) {
 	if (found)
 	    __pmNotifyErr(LOG_DEBUG, "found container: %s (%s/%d) pid=%d\n",
-				name, query, best, found->pid);
+				name, query ? query : "NULL", best, found->pid);
 	else
-	    __pmNotifyErr(LOG_DEBUG, "container %s not matched\n", query);
+	    __pmNotifyErr(LOG_DEBUG, "container %s not matched\n", query ? query : "NULL");
     }
 
     return found;
@@ -193,7 +197,8 @@ root_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return sts;
 	if (sts != PMDA_CACHE_ACTIVE)
 	    return PM_ERR_INST;
-	root_refresh_container_values(name, cp);
+	if (root_refresh_container_values(name, cp) < 0)
+	    return PM_ERR_INST;
 	switch (idp->item) {
 	case 0:		/* containers.engine */
 	    atom->cp = cp->engine->name;
@@ -205,13 +210,13 @@ root_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->ul = cp->pid;
 	    break;
 	case 3:		/* containers.state.running */
-	    atom->ul = (cp->status & CONTAINER_FLAG_RUNNING) != 0;
+	    atom->ul = (cp->flags & CONTAINER_FLAG_RUNNING) != 0;
 	    break;
 	case 4:		/* containers.state.paused */
-	    atom->ul = (cp->status & CONTAINER_FLAG_PAUSED) != 0;
+	    atom->ul = (cp->flags & CONTAINER_FLAG_PAUSED) != 0;
 	    break;
 	case 5:		/* containers.state.restarting */
-	    atom->ul = (cp->status & CONTAINER_FLAG_RESTARTING) != 0;
+	    atom->ul = (cp->flags & CONTAINER_FLAG_RESTARTING) != 0;
 	    break;
 	default:
 	    return PM_ERR_PMID;
@@ -523,7 +528,7 @@ static int
 root_processid_request(root_client_t *cp, void *pdu, int pdulen)
 {
     container_t *container;
-    char	buffer[MAXHOSTNAMELEN], *name = &buffer[0];
+    char	buffer[MAXPATHLEN], *name = &buffer[0];
     int		sts, pid;
 
     sts = __pmdaDecodeRootPDUContainer(pdu, pdulen, &pid, name, sizeof(buffer));
@@ -709,6 +714,7 @@ root_init(pmdaInterface *dp)
 {
     root_check_user();
     root_setup_containers();
+    root_container_search(NULL);	/* potentially costly early scan */
     root_setup_socket();
     atexit(root_close_socket);
 
@@ -762,8 +768,8 @@ main(int argc, char **argv)
     }
 
     pmdaOpenLog(&dispatch);
-    root_init(&dispatch);
     pmdaConnect(&dispatch);
+    root_init(&dispatch);
     root_main(&dispatch);
     exit(0);
 }

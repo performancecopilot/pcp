@@ -18,7 +18,7 @@
 \f3pmnsmerge\f1 \- merge multiple versions of a Performance Co-Pilot PMNS
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmnsmerge
-[\f3\-afv\f1]
+[\f3\-adfxv\f1]
 .I infile
 [...]
 .I outfile
@@ -124,9 +124,25 @@ is expected to not exist when
 starts.
 The
 .B \-f
-option forces the removal of
+option allows an existing
 .I outfile
-(if it exists), before the check is made.
+to be unlinked (if possible) and truncated before writing starts.
+.PP
+Normally
+duplicate names for the same Performance Metric Identifier (PMID) in
+a PMNS are allowed.  The
+.B \-d
+option is the default option and is included for backwards compatibility.
+The
+.B \-x
+option reverses the default and
+.B pmnsmerge
+will report an error and exit with a non-zero status if a duplicate
+name is found for a PMID in any of the
+.I input
+PMNS files or in the merged
+.I output
+PMNS.
 .PP
 The
 .B \-v
@@ -144,6 +160,16 @@ the resultant namespace using
 will still be created, but
 .B pmnsmerge
 will report the problem and exit with non-zero status.
+.PP
+Using
+.B pmnsmerge
+with a single
+.I input
+argument allows that PMNS file to be checked.
+In addition to
+syntactic checking, specifying
+.B \-x
+will also enable a check for duplicate names for all PMIDs.
 .SH CAVEAT
 Once the writing of the new
 .I outfile

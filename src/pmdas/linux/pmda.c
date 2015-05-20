@@ -3884,7 +3884,7 @@ linux_statsfile(const char *path, char *buffer, int size)
 }
 
 static void
-linux_refresh(pmdaExt *pmda, int *need_refresh, int pid)
+linux_refresh(pmdaExt *pmda, int *need_refresh, linux_container_t *cp)
 {
     int need_refresh_mtab = 0;
 
@@ -3909,13 +3909,13 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int pid)
 	refresh_proc_loadavg(&proc_loadavg);
 
     if (need_refresh[CLUSTER_NET_DEV])
-	refresh_proc_net_dev(INDOM(NET_DEV_INDOM));
+	refresh_proc_net_dev(INDOM(NET_DEV_INDOM), cp);
 
     if (need_refresh[CLUSTER_NET_ADDR])
-	refresh_net_dev_addr(INDOM(NET_ADDR_INDOM));
+	refresh_net_dev_addr(INDOM(NET_ADDR_INDOM), cp);
 
     if (need_refresh[CLUSTER_FILESYS] || need_refresh[CLUSTER_TMPFS])
-	refresh_filesys(INDOM(FILESYS_INDOM), INDOM(TMPFS_INDOM), pid);
+	refresh_filesys(INDOM(FILESYS_INDOM), INDOM(TMPFS_INDOM), cp);
 
     if (need_refresh[CLUSTER_INTERRUPTS] ||
 	need_refresh[CLUSTER_INTERRUPT_LINES] ||
@@ -3991,7 +3991,7 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
     linux_container_t	*container = NULL;
     __pmInDom_int	*indomp = (__pmInDom_int *)&indom;
     int			need_refresh[NUM_CLUSTERS] = {0};
-    int			sts, pid = 0, ns_flags = 0;
+    int			sts, ns_flags = 0;
 
     switch (indomp->serial) {
     case DISK_INDOM:
@@ -4053,12 +4053,13 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
 	sts = container_enter_namespaces(rootfd, container, ns_flags);
 	if (sts < 0)
 	    return sts;
-	pid = sts;
     }
-    linux_refresh(pmda, need_refresh, pid);
+    linux_refresh(pmda, need_refresh, container);
     sts = pmdaInstance(indom, inst, name, result, pmda);
-    if (container)
+    if (container) {
+	container_close_network(container);
 	container_leave_namespaces(rootfd, ns_flags);
+    }
     return sts;
 }
 
@@ -5651,7 +5652,7 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
     linux_container_t	*container = NULL;
     int			need_refresh[NUM_CLUSTERS] = {0};
-    int			i, sts, pid = 0, ns_flags = 0;
+    int			i, sts, ns_flags = 0;
 
     for (i = 0; i < numpmid; i++) {
 	__pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
@@ -5688,6 +5689,7 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	case CLUSTER_NET_DEV:
 	case CLUSTER_NET_ADDR:
 	    ns_flags |= LINUX_NAMESPACE_NET;
+	    ns_flags |= LINUX_NAMESPACE_MNT;	/* for /sys access */
 	    break;
 
 	case CLUSTER_NET_NFS:
@@ -5708,12 +5710,13 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	sts = container_enter_namespaces(rootfd, container, ns_flags);
 	if (sts < 0)
 	    return sts;
-	pid = sts;
     }
-    linux_refresh(pmda, need_refresh, pid);
+    linux_refresh(pmda, need_refresh, container);
     sts = pmdaFetch(numpmid, pmidlist, resp, pmda);
-    if (container)
+    if (container) {
+	container_close_network(container);
 	container_leave_namespaces(rootfd, ns_flags);
+    }
     return sts;
 }
 
@@ -5771,6 +5774,8 @@ linux_end_context(int ctx)
     if (ctx >= 0 && ctx < num_ctx) {
 	if (ctxtab[ctx].container.name)
 	    free(ctxtab[ctx].container.name);
+	if (ctxtab[ctx].container.netfd)
+	    close(ctxtab[ctx].container.netfd);
 	memset(&ctxtab[ctx], 0, sizeof(perctx_t));
     }
 }
@@ -5786,6 +5791,7 @@ linux_attribute(int ctx, int attr, const char *value, int len, pmdaExt *pmda)
 	if ((ctxtab[ctx].container.name = strdup(value)) == NULL)
 	    return -ENOMEM;
 	ctxtab[ctx].container.length = len;
+	ctxtab[ctx].container.netfd = -1;
 	ctxtab[ctx].container.pid = 0;
     }
     return pmdaAttribute(ctx, attr, value, len, pmda);

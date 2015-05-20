@@ -1,0 +1,15 @@
+QA output created by 963
+error cases ...
+bad variable
+NO_SUCH_VAR -> NULL
+exit status=1
+
+bad $PCP_CONF
+PCP_BIN_DIR -> NULL
+exit status=1
+
+bad $PCP_DIR
+PCP_BIN_DIR -> NULL
+exit status=1
+
+all vars in pcp.conf ... report only errors

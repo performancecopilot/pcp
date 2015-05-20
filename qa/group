@@ -174,6 +174,7 @@ pmda.papi
 pmda.pmcd
 pmda.postfix
 pmda.proc
+pmda.root
 pmda.rsyslog
 pmda.sample
 pmda.sendmail
@@ -327,10 +328,12 @@ cgroups
 039 pmlogger archive local ostest pmdumplog
 040 pmlogger mem_leak local ostest
 041 pmcd local ostest
+042 pmcd local ostest containers pmda.linux pmda.proc pmda.root
 043 libpcp fetch local ostest pmstore
 044 fetch pmval local ostest
 045 libpcp pmda local ostest pmstore
 046 archive pmlogger pmdumplog local ostest
+047 pmcd local ostest containers pmda.linux pmda.root
 048 archive local ostest sanity
 049 archive local ostest
 050 archive local ostest
@@ -964,10 +967,12 @@ cgroups
 764 pmie local
 765 pmlogsummary local
 766 pmfind local
-767 pmda.linux local containers
+767 pmda.linux pmda.proc pmda.root local containers
 768 pmlogextract local
 769 other local
 770 libpcp pdu fault local
+771 perl local
+772 pmns local
 774 pmdumplog local
 775 sanity pmfind local
 776 pmfind local
@@ -983,6 +988,7 @@ cgroups
 799:retired pmda.papi local
 800 pmda.proc local
 805 pmda.postfix local
+807 pcp local
 813 pmda.papi local
 815 pmie local
 822:reserved pmlogrewrite
@@ -1047,6 +1053,7 @@ cgroups
 960 pmda.ds389 local
 961 pmlogextract local
 962 archive local
+963 libpcp local
 966 secure local
 967 pmda.papi local
 972 pmda.zswap dbpmda local

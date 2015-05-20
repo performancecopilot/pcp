@@ -15,7 +15,7 @@ include $(BUILDRULES)
 
 ifeq "$(ENABLE_QT)" "true"
 build-me:
-	$(QTMAKE)
+	+$(QTMAKE)
 	$(LNMAKE)
 
 install: default
