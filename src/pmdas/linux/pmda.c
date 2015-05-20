@@ -53,9 +53,6 @@
 #include "proc_scsi.h"
 #include "proc_slabinfo.h"
 #include "proc_uptime.h"
-#include "sem_limits.h"
-#include "msg_limits.h"
-#include "shm_limits.h"
 #include "proc_sys_fs.h"
 #include "proc_vmstat.h"
 #include "sysfs_kernel.h"
@@ -64,6 +61,7 @@
 #include "namespaces.h"
 #include "interrupts.h"
 #include "devmapper.h"
+#include "ipc.h"
 
 static proc_stat_t		proc_stat;
 static proc_meminfo_t		proc_meminfo;
