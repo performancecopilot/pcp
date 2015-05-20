@@ -104,6 +104,7 @@ static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Reporting options"),
     { "buffer", 0, 'b', 0, "one line buffered output stream, stdout on stderr" },
     { "timestamp", 0, 'e', 0, "force timestamps to be reported with -V, -v or -W" },
+    { "quiet", 0, 'q', 0, "quiet mode, default diagnostics suppressed" },
     { "", 0, 'v', 0, "verbose mode, expression values printed" },
     { "verbose", 0, 'V', 0, "verbose mode, annotated expression values printed" },
     { "", 0, 'W', 0, "verbose mode, satisfying expression values printed" },
@@ -114,7 +115,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "a:A:bc:CdD:efHh:j:l:n:O:S:t:T:U:vVWXxzZ:?",
+    .short_options = "a:A:bc:CdD:efHh:j:l:n:O:qS:t:T:U:vVWXxzZ:?",
     .long_options = longopts,
     .short_usage = "[options] [filename ...]",
     .override = override,
@@ -571,6 +572,10 @@ getargs(int argc, char *argv[])
 	case 'U': 			/* run as named user */
 	    username = opts.optarg;
 	    isdaemon = 1;
+	    break;
+
+	case 'q': 			/* suppress default diagnostics */
+	    quiet = 1;
 	    break;
 
 	case 'v': 			/* print values */

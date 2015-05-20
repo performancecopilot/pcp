@@ -70,7 +70,7 @@ do
     shift	# finished with this option now, next!
 done
 
-pmprobe -I shping.cmd > $tmp/cmd 2> $tmp/err
+pmprobe -I shping.cmd | grep -v 'Note: timezone' > $tmp/cmd 2> $tmp/err
 if grep "^pmprobe:" $tmp/err > /dev/null 2>&1
 then
     $PCP_ECHO_PROG $PCP_ECHO_N "$progname: ""$PCP_ECHO_C"
@@ -147,6 +147,6 @@ then
     exit
 fi
 
-cat $tmp/pmie | pmie -v -e | pmie2col -p 3 -w 10
+cat $tmp/pmie | pmie -v -e -q | pmie2col -p 3 -w 10
 sts=0
 exit
