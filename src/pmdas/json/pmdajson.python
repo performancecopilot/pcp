@@ -617,8 +617,9 @@ class JsonSource(object):
                     self.log("Invalid metadata 'data-exec' value"
                              " from file %s: %s" % (self.__path, value))
                     continue
-                # FIXME: I'm not sure what other validation we could
-                # do here.
+                # There really isn't any validation we could do
+                # here. If we run the command and it fails, we'll log
+                # an error then.
                 self.__data_exec = value
             # For everything else, just silently ignore
             # it. __parse_metadata will complain if needed.
@@ -652,10 +653,8 @@ class JsonSource(object):
         if not metrics_array:
             self.log("Metadata has no 'metrics' array in file %s"
                      % self.__path)
-            # FIXME: Hmm, we probably shouldn't error here, but just
-            # skip this source.
-            raise TypeError("Metadata has no 'metrics' array in file %s"
-                            % self.__path)
+            # If no metrics array, just skip this source.
+            return
 
         # Process the metrics array.
         metric_prefix = "%s.%s" % (self.__pmda.pmda_name, self.__root_name)
@@ -874,8 +873,9 @@ class JsonPMDA(PMDA):
         # to the cache start with 1.
         self.__cluster_cache = IndomCache(0, MAX_CLUSTER, self)
 
-        # FIXME: python doesn't have a __pmParseDebug() wrapper. So,
-        # if PCP_PYTHON_DEBUG has any value, turn debugging on.
+        # The pcp python support doesn't have a __pmParseDebug()
+        # wrapper. So, if PCP_PYTHON_DEBUG has any value, turn
+        # debugging on.
         self.debug = ('PCP_PYTHON_DEBUG' in os.environ)
 
         # Try loading old cluster cache values.
@@ -1100,6 +1100,8 @@ class JsonPMDA(PMDA):
         Called before callbacks. This allows us to update the list of
         metrics if needed.
         '''
+        if self.debug:
+            self.log("__refresh_metrics: entry")
         # Update our list of sources.
         sources_seen = {}
         self.__load_directory_list(True, sources_seen)
@@ -1131,6 +1133,8 @@ class JsonPMDA(PMDA):
             # from the last time we read the source's metadata file.
             for (dummy, source) in self.sources_by_root.items():
                 source.refresh_metrics()
+        if self.debug:
+            self.log("__refresh_metrics: exit")
 
     def __fetch_callback(self, cluster, item, inst):
         '''
