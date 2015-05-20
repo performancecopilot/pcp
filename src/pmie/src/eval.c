@@ -123,7 +123,9 @@ host_state_changed(char *host, int state)
 
     if (state == hsp->state) return 0;
 
-    if (state == STATE_FAILINIT)
+    if (quiet)
+	; /* be quiet */
+    else if (state == STATE_FAILINIT)
 	__pmNotifyErr(LOG_INFO, "Cannot connect to pmcd on host %s\n", host);
     else if (state == STATE_RECONN && hsp->state != STATE_INIT)
 	__pmNotifyErr(LOG_INFO, "Re-established connection to pmcd on host %s\n", host);
@@ -781,7 +783,9 @@ run(void)
 	enque(t);
 	t = taskq;
     }
-    __pmNotifyErr(LOG_INFO, "evaluator exiting\n");
+
+    if (!quiet)
+	__pmNotifyErr(LOG_INFO, "evaluator exiting\n");
 }
 
 

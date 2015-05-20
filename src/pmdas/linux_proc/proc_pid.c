@@ -1274,6 +1274,8 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
     }
 
     if (!(ep->flags & PROC_PID_FLAG_ENVIRON_FETCHED)) {
+	if (ep->environ_buflen > 0)
+	    ep->environ_buf[0] = '\0';
 	if ((fd = proc_open("environ", ep)) >= 0) {
 	    nread = 0;
 	    while ( (n = read(fd, buf, sizeof(buf))) > 0) {

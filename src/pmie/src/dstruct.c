@@ -62,6 +62,7 @@ char		*offsetFlag;			/* offset time specified? */
 RealTime	runTime;			/* run time interval */
 int		hostZone;			/* timezone from host? */
 char		*timeZone;			/* timezone from command line */
+int		quiet;				/* suppress default diagnostics */
 int		verbose;			/* verbosity 0, 1 or 2 */
 int		interactive;			/* interactive mode, -d */
 int		isdaemon;			/* run as a daemon */

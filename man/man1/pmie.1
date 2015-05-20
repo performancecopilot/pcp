@@ -19,7 +19,7 @@
 \f3pmie\f1 \- inference engine for performance metrics
 .SH SYNOPSIS
 \f3pmie\f1
-[\f3\-bCdefHVvWxz\f1]
+[\f3\-bCdefHqVvWxz\f1]
 [\f3\-A\f1 \f2align\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-c\f1 \f2filename\f1]
@@ -170,6 +170,11 @@ will be used.
 .B \-n
 An alternative Performance Metrics Name Space (PMNS) is loaded from the file
 .IR pmnsfile .
+.TP
+.B \-q
+Suppresses diagnostic messages that would be printed to standard
+output by default, especially the "evaluator exiting" message as
+this can confuse scripts.
 .TP
 .B \-t
 The
