@@ -155,9 +155,9 @@ root_container_search(const char *query)
     if (pmDebug & DBG_TRACE_ATTR) {
 	if (found)
 	    __pmNotifyErr(LOG_DEBUG, "found container: %s (%s/%d) pid=%d\n",
-				name, query, best, found->pid);
+				name, query ? query : "NULL", best, found->pid);
 	else
-	    __pmNotifyErr(LOG_DEBUG, "container %s not matched\n", query);
+	    __pmNotifyErr(LOG_DEBUG, "container %s not matched\n", query ? query : "NULL");
     }
 
     return found;
