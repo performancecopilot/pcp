@@ -9,3 +9,7 @@ pmdaproc.1.lzma
 pmdaproc.1.xz
 pmdaproc.1.bz2
 gram.tab.h
+lex.yy.c
+proc_jiffies.conf
+proc_kernel_ulong.conf
+
