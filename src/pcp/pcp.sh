@@ -66,14 +66,14 @@ _usage()
 	basename "$command" | sed -e 's/^pcp-//g' >> $tmp/cmds
     done
 
-    if [ -n "$tmp/cmds" ];
+    if [ ! -z "$@" -a -s "$tmp/cmds" ]
     then
 	echo >> $tmp/usage
 	echo "Please install pcp system tools package"
     else
 	echo >> $tmp/usage
-	( $PCP_ECHO_PROG $PCP_ECHO_N "Available Commands:     ""$PCP_ECHO_C" && \
-		sort -u < $tmp/cmds ) | _fmt >> $tmp/usage
+	( $PCP_ECHO_PROG $PCP_ECHO_N "Available Commands:     ""$PCP_ECHO_C" \
+		&& sort -u < $tmp/cmds ) | _fmt >> $tmp/usage
 	pmgetopt --progname=$progname --usage --config=$tmp/usage
     fi
     exit 1

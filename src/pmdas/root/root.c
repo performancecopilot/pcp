@@ -139,7 +139,7 @@ root_container_search(const char *query)
 	    break;
 	if (!pmdaCacheLookup(indom, inst, &name, (void **)&cp) || !cp)
 	    continue;
-	if (root_refresh_container_values(name, cp) < 0)
+	if (root_refresh_container_values(name, cp) < 0 || !query)
 	    continue;
 	for (dp = &engines[0]; dp->name != NULL; dp++) {
 	    if ((fuzzy = dp->name_matching(dp, query, cp->name, name)) <= best)
@@ -155,9 +155,9 @@ root_container_search(const char *query)
     if (pmDebug & DBG_TRACE_ATTR) {
 	if (found)
 	    __pmNotifyErr(LOG_DEBUG, "found container: %s (%s/%d) pid=%d\n",
-				name, query, best, found->pid);
+				name, query ? query : "NULL", best, found->pid);
 	else
-	    __pmNotifyErr(LOG_DEBUG, "container %s not matched\n", query);
+	    __pmNotifyErr(LOG_DEBUG, "container %s not matched\n", query ? query : "NULL");
     }
 
     return found;
@@ -714,6 +714,7 @@ root_init(pmdaInterface *dp)
 {
     root_check_user();
     root_setup_containers();
+    root_container_search(NULL);	/* potentially costly early scan */
     root_setup_socket();
     atexit(root_close_socket);
 
@@ -767,8 +768,8 @@ main(int argc, char **argv)
     }
 
     pmdaOpenLog(&dispatch);
-    root_init(&dispatch);
     pmdaConnect(&dispatch);
+    root_init(&dispatch);
     root_main(&dispatch);
     exit(0);
 }

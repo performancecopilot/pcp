@@ -615,9 +615,12 @@ extern int pmflush(void);
 /*
  * Wrapper for config/environment variables. Warning: this will exit() with
  * a FATAL error if /etc/pcp.conf does not exist and $PCP_CONF is not set.
- * Return values point to strings in the environment.
+ * Use the pmGetOptionalConfig variant if this behaviour is not sought.
+ * Return values point to strings in the environment, or NULL in the optional
+ * case when the requested configuration variable was not found.
  */
 extern char *pmGetConfig(const char *);
+extern char *pmGetOptionalConfig(const char *);
 
 extern int pmGetVersion(void);
 

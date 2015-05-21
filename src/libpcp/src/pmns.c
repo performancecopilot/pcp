@@ -422,8 +422,11 @@ lex(int reset)
 	    }
 	    else {
 		/* the normal case ... */
-		int		sep = __pmPathSeparator();
-		char	*bin_dir = pmGetConfig("PCP_BINADM_DIR");
+		int	sep = __pmPathSeparator();
+		char	*bin_dir = pmGetOptionalConfig("PCP_BINADM_DIR");
+
+		if (bin_dir == NULL)
+		    return PM_ERR_GENERIC;
 		snprintf(cmd, sizeof(cmd), "%s%c%s %s", bin_dir, sep, "pmcpp" EXEC_SUFFIX, fname);
 	    }
 
@@ -1211,8 +1214,11 @@ getfname(const char *filename)
 	else {
 	    static char repname[MAXPATHLEN];
 	    int sep = __pmPathSeparator();
+
+	    if ((def_pmns = pmGetOptionalConfig("PCP_VAR_DIR")) == NULL)
+		return NULL;
 	    snprintf(repname, sizeof(repname), "%s%c" "pmns" "%c" "root",
-		     pmGetConfig("PCP_VAR_DIR"), sep, sep);
+		     def_pmns, sep, sep);
 	    return repname;
 	}
     }
@@ -1306,6 +1312,7 @@ done:
 static int
 load(const char *filename, int dupok, int use_cpp)
 {
+    const char	*f;
     int 	i = 0;
 
     if (main_pmns != NULL) {
@@ -1324,7 +1331,10 @@ load(const char *filename, int dupok, int use_cpp)
 	}
     }
 
-    strcpy(fname, getfname(filename));
+    if ((f = getfname(filename)) == NULL)
+	return PM_ERR_GENERIC;
+    strncpy(fname, f, sizeof(fname));
+    fname[sizeof(fname)-1] = '\0';
  
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PMNS)
