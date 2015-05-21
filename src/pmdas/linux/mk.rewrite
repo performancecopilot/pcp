@@ -54,6 +54,10 @@ metric disk.dm.write_merge { type -> $KERNEL_ULONG }
 # miscellaneous group
 #
 metric kernel.all.sysfork { type -> $KERNEL_ULONG }
+
+# and this one was KERNEL_ULONG but that was incorrect
+#
+metric disk.dm.total { type -> U64 }
 End-of-File
 
 exit 0
