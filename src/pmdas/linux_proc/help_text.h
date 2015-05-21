@@ -92,7 +92,7 @@ help_text_t  help_text[] = {
 { .name = "memory.vmrss",            .shorthelp = "resident virtual memory (from /proc/<pid>/status)",        .longhelp = "" },
 { .name = "psinfo.end_code",            .shorthelp = "address of the end of the code segment for the process",        .longhelp = "" },
 { .name = "io.read_bytes",            .shorthelp = "physical device read bytes",        .longhelp = "Number of bytes physically read on by devices on behalf of this process.\n" },
-{ .name = "psinfo.start_time",            .shorthelp = "start time of the process relative to system boot time in miliseconds",        .longhelp = "" },
+{ .name = "psinfo.start_time",            .shorthelp = "start time of the process relative to system boot time (in ms)",        .longhelp = "" },
 { .name = "psinfo.psargs",            .shorthelp = "full command string",        .longhelp = "" },
 { .name = "memory.librss",            .shorthelp = "instantaneous resident size of library code mapped by the process, in Kbytes",        .longhelp = "" },
 { .name = "memory.rss",            .shorthelp = "instantaneous resident size of process, excluding page table and task structure.",        .longhelp = "" },
