@@ -60,6 +60,33 @@ static char *			cgroups;	/* control.all.cgroups */
 int				conf_gen;	/* hotproc config version, if zero hotproc not configured yet */
 long				hz;
 
+/*
+ * Note on "jiffies".
+ * In the Linux kernel jiffies are always "unsigned long" (aka
+ * KERNEL_ULONG), so to scale from jiffies to milliseconds, the multiplier
+ * is 1000 / hz.
+ * Unfortunately this presents some overflow and precision challenges.
+ * 1. Variables used to hold an intermediate jiffies value should
+ *    be declared __pm_kernel_ulong_t
+ * 2. If this value is instantiated from a string (as in the /proc
+ *    stats files, it is safe to use strtoul().
+ * 3. The resultant PCP metric should be in units of msec and may be
+ *    of type KERNEL_ULONG or PM_TYPE_U64 or PM_TYPE_U32.  KERNEL_ULONG
+ *    will become one of the other types depending on the platform. In
+ *    the case of PM_TYPE+_32 overflow would occur in
+ *    (2^32-1)/(1000/hz)/(3600*24) days, and for current settings of
+ *    hz (100) this means 4971+ days or more than 13.5 years, so this is
+ *    not a practical issue nor a reason to mandate PM_TYPE_U64.
+ * 4. But if the calculation is done in 32-bit integer arithmetic we
+ *    risk earlier overflow much earlier (49+ days) because the *1000
+ *    exceeds 32-bits ... so the arithmetic should always be forced
+ *    to 64-bits by
+ *    (a) explicit cast of the jiffies (__int64_t)jiffies * 1000 / hz or
+ *    (b) declaring the variable holding the jiffies to be of type
+ *        __int64_t
+ *    we choose option (b).
+ */
+
 extern struct timeval   hotproc_update_interval;
 
 char *proc_statspath = "";	/* optional path prefix for all stats files */
@@ -1596,8 +1623,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     pmInDom		indom;
     int			sts;
     int			have_totals;
-    unsigned long	ul;
-    unsigned long long	ull;
+    __int64_t		jiffies;
     const char		*cp;
     char		*f;
     proc_pid_entry_t	*entry;
@@ -1809,8 +1835,8 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			f = _pm_getfield(entry->stat_buf, idp->item);
 			if (f == NULL)
 			    return 0;
-			ul = (__pm_kernel_ulong_t)strtoul(f, &tail, 0);
-			_pm_assign_ulong(atom, 1000 * (double)ul / hz);
+			jiffies = (__int64_t)strtoul(f, &tail, 0);
+			_pm_assign_ulong(atom, jiffies * 1000 / hz);
 			break;
 
 		    case PROC_PID_STAT_PRIORITY: /* proc.psinfo.priority */
@@ -1875,8 +1901,8 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		if ((f = _pm_getfield(entry->stat_buf, idp->item - 3)) == NULL)  /* Note the offset */
 		    return 0;
 
-		ull = (__uint64_t)strtoull(f, &tail, 0);
-		atom->ull = 1000 * (double)ull / hz;
+		jiffies = (__uint64_t)strtoul(f, &tail, 0);
+		atom->ull = jiffies * 1000 / hz;
 	    	break;
 	    case PROC_PID_STAT_START_TIME: /* proc.psinfo.start_time */
 	    	/*
@@ -1885,8 +1911,8 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
 		    return 0;
 
-		ull = (__uint64_t)strtoull(f, &tail, 0);
-		atom->ull = 1000 * (double)ull / hz;
+		jiffies = (__uint64_t)strtoul(f, &tail, 0);
+		atom->ull = jiffies * 1000 / hz;
 	    	break;
 
 	    default: /* All the rest. Direct index by item */
@@ -2605,7 +2631,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case CG_PERDEVBLKIO_TIME: /* cgroup.blkio.dev.time */
 	    /* unsigned jiffies converted to unsigned milliseconds */
-	    atom->ull = 1000 * (double)blkdev->stats.time / hz;
+	    atom->ull = (__uint64_t)blkdev->stats.time * 1000 / hz;
 	    break;
 
 	case CG_BLKIO_IOMERGED_READ: /* cgroup.blkio.all.io_merged.read */
@@ -2704,7 +2730,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case CG_BLKIO_TIME: /* cgroup.blkio.all.time */
 	    /* unsigned jiffies converted to unsigned milliseconds */
-	    atom->ull = 1000 * (double)blkio->total.time / hz;
+	    atom->ull = (__uint64_t)blkio->total.time * 1000 / hz;
 	    break;
 
 	default:
