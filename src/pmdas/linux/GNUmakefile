@@ -77,7 +77,7 @@ install: default
 	$(INSTALL) -m 644 domain.h help $(HELPTARGETS) $(PMDADIR)
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
 	$(INSTALL) -m 644 root_linux $(PCP_VAR_DIR)/pmns/root_linux
-	$(INSTALL) -m 644 proc_net_snmp_migrate.conf $(LOGREWRITEDIR)/proc_net_snmp_migrate.conf
+	$(INSTALL) -m 644 proc_net_snmp_migrate.conf $(LOGREWRITEDIR)/linux_proc_net_snmp_migrate.conf
 	$(INSTALL) -m 644 linux_kernel_ulong.conf $(LOGREWRITEDIR)/linux_kernel_ulong.conf
 else
 build-me:
