@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2014 Red Hat.
+# Copyright (c) 2012-2015 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -117,6 +117,7 @@ NSPRCFLAGS = @NSPRCFLAGS@
 SASLCFLAGS = @SASLCFLAGS@
 AVAHICFLAGS = @avahi_CFLAGS@
 CAIROCFLAGS = @cairo_CFLAGS@
+NCURSESCFLAGS = @ncurses_CFLAGS@
 LIBMICROHTTPDCFLAGS = @libmicrohttpd_CFLAGS@
 
 LDFLAGS += $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
@@ -252,6 +253,8 @@ LIB_FOR_ATOMIC = @lib_for_atomic@
 
 HAVE_CAIRO = @HAVE_CAIRO@
 LIB_FOR_CAIRO = @cairo_LIBS@
+HAVE_NCURSES = @HAVE_NCURSES@
+LIB_FOR_NCURSES = @ncurses_LIBS@
 HAVE_LIBMICROHTTPD = @HAVE_LIBMICROHTTPD@
 LIB_FOR_MICROHTTPD = @libmicrohttpd_LIBS@
 
