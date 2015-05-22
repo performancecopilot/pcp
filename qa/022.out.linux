@@ -45,6 +45,7 @@ proc.memory.vmrss
 proc.memory.vmsize
 proc.memory.vmstack
 proc.memory.vmswap
+proc.namespaces.envid
 proc.namespaces.pgid
 proc.namespaces.pid
 proc.namespaces.sid
@@ -98,6 +99,7 @@ proc.psinfo.start_code
 proc.psinfo.start_stack
 proc.psinfo.start_time
 proc.psinfo.stime
+proc.psinfo.tgid
 proc.psinfo.threads
 proc.psinfo.tty
 proc.psinfo.tty_pgrp

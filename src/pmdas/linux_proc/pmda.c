@@ -548,9 +548,21 @@ static pmdaMetric metrictab[] = {
     PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
-/* proc.id.ngid */
+/* proc.psinfo.ngid */
   { NULL,
     { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_NGID),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* proc.psinfo.tgid */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_TGID),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* proc.namespaces.envid */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_ENVID),
     PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
@@ -1777,79 +1789,79 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return sts;
 
 	    switch (idp->item) {
-		case PROC_PID_STAT_PID: /* proc.psinfo.pid */
-		    atom->ul = entry->id;
-		    break;
+	    case PROC_PID_STAT_PID: /* proc.psinfo.pid */
+		atom->ul = entry->id;
+		break;
 
-		case PROC_PID_STAT_TTYNAME: /* proc.psinfo.tty */
-		    f = _pm_getfield(entry->stat_buf, PROC_PID_STAT_TTY);
-		    if (f == NULL)
-			atom->cp = "?";
-		    else {
-			dev_t dev = (dev_t)atoi(f);
-			atom->cp = get_ttyname_info(inst, dev, ttyname);
-		    }
-		    break;
+	    case PROC_PID_STAT_TTYNAME: /* proc.psinfo.tty */
+		f = _pm_getfield(entry->stat_buf, PROC_PID_STAT_TTY);
+		if (f == NULL)
+		    atom->cp = "?";
+		else {
+		    dev_t dev = (dev_t)atoi(f);
+		    atom->cp = get_ttyname_info(inst, dev, ttyname);
+		}
+		break;
 
-		case PROC_PID_STAT_CMD: /* proc.psinfo.cmd */
-		    f = _pm_getfield(entry->stat_buf, idp->item);
-		    if (f == NULL)
-			return 0;
-		    atom->cp = f + 1;
-		    atom->cp[strlen(atom->cp)-1] = '\0';
-		    break;
+	    case PROC_PID_STAT_CMD: /* proc.psinfo.cmd */
+		f = _pm_getfield(entry->stat_buf, idp->item);
+		if (f == NULL)
+		    return 0;
+		atom->cp = f + 1;
+		atom->cp[strlen(atom->cp)-1] = '\0';
+		break;
 
-		case PROC_PID_STAT_PSARGS: /* proc.psinfo.psargs */
-		    atom->cp = entry->name + 7;
-		    break;
+	    case PROC_PID_STAT_PSARGS: /* proc.psinfo.psargs */
+		atom->cp = entry->name + 7;
+		break;
 
-		case PROC_PID_STAT_STATE: /* string */ /* proc.psinfo.sname */
-		    f = _pm_getfield(entry->stat_buf, idp->item);
-		    if (f == NULL)
-			return 0;
-	    	    atom->cp = f;
-		    break;
+	    case PROC_PID_STAT_STATE: /* string */ /* proc.psinfo.sname */
+		f = _pm_getfield(entry->stat_buf, idp->item);
+		if (f == NULL)
+		    return 0;
+	    	atom->cp = f;
+		break;
 
-		case PROC_PID_STAT_VSIZE: /* proc.psinfo.vsize */
-		case PROC_PID_STAT_RSS_RLIM: /* bytes converted to kbytes */ /* proc.psinfo.rss_rlim */
-		    f = _pm_getfield(entry->stat_buf, idp->item);
-		    if (f == NULL)
-			return 0;
-		    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
-		    atom->ul /= 1024;
-		    break;
+	    case PROC_PID_STAT_VSIZE: /* proc.psinfo.vsize */
+	    case PROC_PID_STAT_RSS_RLIM: /* bytes converted to kbytes */ /* proc.psinfo.rss_rlim */
+		f = _pm_getfield(entry->stat_buf, idp->item);
+		if (f == NULL)
+		    return 0;
+		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+		atom->ul /= 1024;
+		break;
 
-		case PROC_PID_STAT_RSS: /* pages converted to kbytes */ /* proc.psinfo.rss */
-			f = _pm_getfield(entry->stat_buf, idp->item);
-			if (f == NULL)
-			    return 0;
-			atom->ul = (__uint32_t)strtoul(f, &tail, 0);
-			atom->ul *= _pm_system_pagesize / 1024;
-			break;
+	    case PROC_PID_STAT_RSS: /* pages converted to kbytes */ /* proc.psinfo.rss */
+		f = _pm_getfield(entry->stat_buf, idp->item);
+		if (f == NULL)
+		    return 0;
+		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+		atom->ul *= _pm_system_pagesize / 1024;
+		break;
 
-		    case PROC_PID_STAT_UTIME: /* proc.psinfo.utime */
-		    case PROC_PID_STAT_STIME: /* proc.psinfo.stime */
-		    case PROC_PID_STAT_CUTIME: /* proc.psinfo.cutime */
-		    case PROC_PID_STAT_CSTIME: /* proc.psinfo.cstime */
-			/* unsigned jiffies converted to unsigned msecs */
-			f = _pm_getfield(entry->stat_buf, idp->item);
-			if (f == NULL)
-			    return 0;
-			jiffies = (__int64_t)strtoul(f, &tail, 0);
-			_pm_assign_ulong(atom, jiffies * 1000 / hz);
-			break;
+	    case PROC_PID_STAT_UTIME: /* proc.psinfo.utime */
+	    case PROC_PID_STAT_STIME: /* proc.psinfo.stime */
+	    case PROC_PID_STAT_CUTIME: /* proc.psinfo.cutime */
+	    case PROC_PID_STAT_CSTIME: /* proc.psinfo.cstime */
+		/* unsigned jiffies converted to unsigned msecs */
+		f = _pm_getfield(entry->stat_buf, idp->item);
+		if (f == NULL)
+		    return 0;
+		jiffies = (__int64_t)strtoul(f, &tail, 0);
+		_pm_assign_ulong(atom, jiffies * 1000 / hz);
+		break;
 
-		    case PROC_PID_STAT_PRIORITY: /* proc.psinfo.priority */
-		    case PROC_PID_STAT_NICE: /* signed decimal int */ /* proc.psinfo.nice */
-			f = _pm_getfield(entry->stat_buf, idp->item);
-			if (f == NULL)
-			    return 0;
-			atom->l = (__int32_t)strtol(f, &tail, 0);
-			break;
+	    case PROC_PID_STAT_PRIORITY: /* proc.psinfo.priority */
+	    case PROC_PID_STAT_NICE: /* signed decimal int */ /* proc.psinfo.nice */
+		f = _pm_getfield(entry->stat_buf, idp->item);
+		if (f == NULL)
+		    return 0;
+		atom->l = (__int32_t)strtol(f, &tail, 0);
+		break;
 
-		    case PROC_PID_STAT_WCHAN: /* proc.psinfo.wchan */
+	    case PROC_PID_STAT_WCHAN: /* proc.psinfo.wchan */
 		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
-			return 0;
+		    return 0;
 		_pm_assign_ulong(atom, (__pm_kernel_ulong_t)strtoull(f, &tail, 0));
 		break;
  
@@ -2224,8 +2236,24 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
 	case PROC_PID_STATUS_NGID: /* proc.psinfo.ngid */
-	if ((atom->cp = _pm_getfield(entry->status_lines.ngid, 1)) == NULL)
+	if ((f = _pm_getfield(entry->status_lines.ngid, 1)) == NULL)
+	    atom->ul = 0;	/* default to NUMA group zero */
+	else
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+	break;
+
+	case PROC_PID_STATUS_TGID: /* proc.psinfo.tgid */
+	if ((f = _pm_getfield(entry->status_lines.tgid, 1)) == NULL)
 	    return PM_ERR_APPVERSION;
+	else
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+	break;
+
+	case PROC_PID_STATUS_ENVID: /* proc.psinfo.envid */
+	if ((f = _pm_getfield(entry->status_lines.envid, 1)) == NULL)
+	    return PM_ERR_APPVERSION;
+	else
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
 	case PROC_PID_STATUS_NSTGID: /* proc.namespaces.tgid */
