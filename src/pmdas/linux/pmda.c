@@ -439,12 +439,12 @@ static pmdaMetric metrictab[] = {
 
 /* disk.dev.blkread */
     { NULL, 
-      { PMDA_PMID(CLUSTER_STAT,6), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_STAT,6), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* disk.dev.blkwrite */
     { NULL, 
-      { PMDA_PMID(CLUSTER_STAT,7), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_STAT,7), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* disk.dev.avactive */
@@ -1825,12 +1825,12 @@ static pmdaMetric metrictab[] = {
 
 /* disk.partitions.read */
     { NULL, 
-      { PMDA_PMID(CLUSTER_PARTITIONS,0), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_PARTITIONS,0), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* disk.partitions.write */
     { NULL, 
-      { PMDA_PMID(CLUSTER_PARTITIONS,1), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_PARTITIONS,1), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* disk.partitions.total */
@@ -1840,12 +1840,12 @@ static pmdaMetric metrictab[] = {
 
 /* disk.partitions.blkread */
     { NULL, 
-      { PMDA_PMID(CLUSTER_PARTITIONS,3), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_PARTITIONS,3), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* disk.partitions.blkwrite */
     { NULL, 
-      { PMDA_PMID(CLUSTER_PARTITIONS,4), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_PARTITIONS,4), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* disk.partitions.blktotal */
@@ -3795,17 +3795,17 @@ static pmdaMetric metrictab[] = {
 
     /* disk.dm.total */
     { NULL, 
-      { PMDA_PMID(CLUSTER_DM,2), KERNEL_ULONG, DM_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_DM,2), PM_TYPE_U64, DM_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* disk.dm.blkread */
     { NULL, 
-      { PMDA_PMID(CLUSTER_DM,3), PM_TYPE_U64, DM_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_DM,3), KERNEL_ULONG, DM_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* disk.dm.blkwrite */
     { NULL, 
-      { PMDA_PMID(CLUSTER_DM,4), PM_TYPE_U64, DM_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_DM,4), KERNEL_ULONG, DM_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* disk.dm.blktotal */
@@ -4261,37 +4261,37 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			/ proc_stat.hz);
 	    break;
 
-	case 8: /* pagesin */
+	case 8: /* swap.pagesin */
 	    if (_pm_have_proc_vmstat)
 		atom->ul = _pm_proc_vmstat.pswpin;
 	    else
 		atom->ul = proc_stat.swap[0];
 	    break;
-	case 9: /* pagesout */
+	case 9: /* swap.pagesout */
 	    if (_pm_have_proc_vmstat)
 		atom->ul = _pm_proc_vmstat.pswpout;
 	    else
 		atom->ul = proc_stat.swap[1];
 	    break;
-	case 10: /* in */
+	case 10: /* swap.in */
 	    if (_pm_have_proc_vmstat)
 		return PM_ERR_APPVERSION; /* no swap operation counts in 2.6 */
 	    else
 		atom->ul = proc_stat.page[0];
 	    break;
-	case 11: /* out */
+	case 11: /* swap.out */
 	    if (_pm_have_proc_vmstat)
 		return PM_ERR_APPVERSION; /* no swap operation counts in 2.6 */
 	    else
 		atom->ul = proc_stat.page[1];
 	    break;
-	case 12: /* intr */
+	case 12: /* kernel.all.intr */
 	    _pm_assign_utype(_pm_intr_size, atom, proc_stat.intr);
 	    break;
-	case 13: /* ctxt */
+	case 13: /* kernel.all.pswitch */
 	    _pm_assign_utype(_pm_ctxt_size, atom, proc_stat.ctxt);
 	    break;
-	case 14: /* processes */
+	case 14: /* kernel.all.sysfork */
 	    _pm_assign_ulong(atom, proc_stat.processes);
 	    break;
 
