@@ -7,8 +7,7 @@ Release: %{buildversion}%{?dist}
 License: GPLv2+ and LGPLv2.1+ and CC-BY
 URL: http://www.pcp.io
 Group: Applications/System
-#Source0: ftp://ftp.pcp.io/projects/pcp/download/%{name}-%{version}.src.tar.gz
-Source0: %{name}-%{version}-%{buildversion}.tar.gz
+Source0: ftp://ftp.pcp.io/projects/pcp/download/%{name}-%{version}.src.tar.gz
 # From: git://sourceware.org/git/pcpfans.git --branch=webjs
 Source1: pcp-webjs.src.tar.gz
 
