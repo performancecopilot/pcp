@@ -941,6 +941,11 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_MEMINFO,58), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
+/* hinv.hugepagesize */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_MEMINFO,59), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
 /* mem.numa.util.total */
     { NULL,
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,0), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
@@ -4708,6 +4713,11 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return 0; /* no values available */
 	   atom->ull = proc_meminfo.MemAvailable >> 10;
 	   break;
+	case 59: /* hinv.hugepagesize (in bytes) */
+	    if (!MEMINFO_VALID_VALUE(proc_meminfo.Hugepagesize))
+	    	return 0; /* no values available */
+	    atom->ul = proc_meminfo.Hugepagesize;
+	    break;
 	default:
 	    return PM_ERR_PMID;
 	}
