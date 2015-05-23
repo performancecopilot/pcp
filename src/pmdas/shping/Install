@@ -42,17 +42,13 @@ umask 022
 
 # PMDA variables
 #
-tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 configfile=""
 cycle=120
 timeout=20
 debug=0
 
-trap "rm -rf $tmp; exit" 0 1 2 3 15
-
 _quit()
 {
-    rm -rf $tmp
     exit $1
 }
 
@@ -111,11 +107,11 @@ $1 == "'$iam'"	{ printf "%s",$6
 	else
 	    my_dns_server=`hostname`
 	fi
-	sed <$default_configfile >$tmp/tmp \
+	sed <$default_configfile >$__tmp.tmp \
 	    -e '/CONFIGURE-ME-PLEASE/d' \
 	    -e "s@DEFAULT-DNS-SERVER@$my_dns_server@" \
 	    -e "s@NSLOOKUP@$nslookup@"
-	cp $tmp/tmp $default_configfile
+	cp $__tmp.tmp $default_configfile
     fi
 
     # go figure out which configuration file to use ...
