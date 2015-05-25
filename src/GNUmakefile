@@ -84,7 +84,6 @@ OTHER_SUBDIRS = \
 	pmsignal \
 	pmsleep \
 	pmsnap \
-	pmtop \
 	pmtime \
 	pmval \
 	pmwebapi \
