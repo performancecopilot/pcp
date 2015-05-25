@@ -6,12 +6,7 @@
 **
 ** This source-file contains various functions to a.o. format the
 ** time-of-day, the cpu-time consumption and the memory-occupation. 
-** ==========================================================================
-** Author:      Gerlof Langeveld
-** E-mail:      gerlof.langeveld@atoptool.nl
-** Date:        November 1996
-** LINUX-port:  June 2000
-** --------------------------------------------------------------------------
+**
 ** Copyright (C) 2000-2010 Gerlof Langeveld
 **
 ** This program is free software; you can redistribute it and/or modify it
@@ -23,99 +18,15 @@
 ** WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ** See the GNU General Public License for more details.
-**
-** You should have received a copy of the GNU General Public License
-** along with this program; if not, write to the Free Software
-** Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-** --------------------------------------------------------------------------
-**
-** $Log: various.c,v $
-** Revision 1.21  2010/11/12 06:16:16  gerlof
-** Show all parts of timestamp in header line, even when zero.
-**
-** Revision 1.20  2010/05/18 19:21:08  gerlof
-** Introduce CPU frequency and scaling (JC van Winkel).
-**
-** Revision 1.19  2010/04/28 18:21:11  gerlof
-** Cast value larger than 4GB to long long.
-**
-** Revision 1.18  2010/04/23 12:19:35  gerlof
-** Modified mail-address in header.
-**
-** Revision 1.17  2010/03/26 11:52:45  gerlof
-** Introduced unit of Tbytes for memory-usage.
-**
-** Revision 1.16  2009/12/17 08:28:38  gerlof
-** Express CPU-time usage in days and hours for large values.
-**
-** Revision 1.15  2009/12/10 08:50:39  gerlof
-** Introduction of a new function to convert number of seconds
-** to a string indicating days, hours, minutes and seconds.
-**
-** Revision 1.14  2007/02/13 10:32:47  gerlof
-** Removal of external declarations.
-** Removal of function getpagesz().
-**
-** Revision 1.13  2006/02/07 08:27:21  gerlof
-** Add possibility to show counters per second.
-** Modify presentation of CPU-values.
-**
-** Revision 1.12  2005/10/31 12:26:09  gerlof
-** Modified date-format to yyyy/mm/dd.
-**
-** Revision 1.11  2005/10/21 09:51:29  gerlof
-** Per-user accumulation of resource consumption.
-**
-** Revision 1.10  2004/05/06 09:46:24  gerlof
-** Ported to kernel-version 2.6.
-**
-** Revision 1.9  2003/07/07 09:27:46  gerlof
-** Cleanup code (-Wall proof).
-**
-** Revision 1.8  2003/07/03 11:16:59  gerlof
-** Minor bug solutions.
-**
-** Revision 1.7  2003/06/30 11:31:17  gerlof
-** Enlarge counters to 'long long'.
-**
-** Revision 1.6  2003/06/24 06:22:24  gerlof
-** Limit number of system resource lines.
-**
-** Revision 1.5  2002/08/30 07:49:09  gerlof
-** Convert a hh:mm string into a number of seconds since 00:00.
-**
-** Revision 1.4  2002/08/27 12:08:37  gerlof
-** Modified date format (from yyyy/mm/dd to mm/dd/yyyy).
-**
-** Revision 1.3  2002/07/24 11:14:05  gerlof
-** Changed to ease porting to other UNIX-platforms.
-**
-** Revision 1.2  2002/07/11 09:43:36  root
-** Modified HZ into sysconf(_SC_CLK_TCK).
-**
-** Revision 1.1  2001/10/02 10:43:36  gerlof
-** Initial revision
-**
 */
 
-static const char rcsid[] = "$Id: various.c,v 1.21 2010/11/12 06:16:16 gerlof Exp $";
-
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/stat.h>
-#include <sys/times.h>
-#include <signal.h>
-#include <time.h>
-#include <math.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <ctype.h>
-#include <stdlib.h>
-#include <errno.h>
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
 #include <stdarg.h>
+#include <ctype.h>
+#include <math.h>
 
 #include "atop.h"
-#include "acctproc.h"
 
 /*
 ** Function convtime() converts a value (number of seconds since
@@ -123,13 +34,14 @@ static const char rcsid[] = "$Id: various.c,v 1.21 2010/11/12 06:16:16 gerlof Ex
 ** chartim (9 bytes long).
 */
 char *
-convtime(time_t utime, char *chartim)
+convtime(double timed, char *chartim)
 {
-	struct tm 	*tt;
+	time_t		utime = (time_t) timed;
+	struct tm 	tt;
 
-	tt = localtime(&utime);
+	pmLocaltime(&utime, &tt);
 
-	sprintf(chartim, "%02d:%02d:%02d", tt->tm_hour, tt->tm_min, tt->tm_sec);
+	sprintf(chartim, "%02d:%02d:%02d", tt.tm_hour, tt.tm_min, tt.tm_sec);
 
 	return chartim;
 }
@@ -140,14 +52,15 @@ convtime(time_t utime, char *chartim)
 ** chardat (11 bytes long).
 */
 char *
-convdate(time_t utime, char *chardat)
+convdate(double timed, char *chardat)
 {
-	struct tm 	*tt;
+	time_t		utime = (time_t) timed;
+	struct tm 	tt;
 
-	tt = localtime(&utime);
+	pmLocaltime(&utime, &tt);
 
 	sprintf(chardat, "%04d/%02d/%02d",
-		tt->tm_year+1900, tt->tm_mon+1, tt->tm_mday);
+		tt.tm_year+1900, tt.tm_mon+1, tt.tm_mday);
 
 	return chardat;
 }
@@ -183,22 +96,6 @@ hhmm2secs(char *itim, unsigned int *otim)
 		*otim = SECSDAY-1;
 
 	return(1);
-}
-
-
-/*
-** Return number of seconds since midnight according local clock time
-**
-** Return-value:        Number of seconds
-*/
-int
-daysecs(time_t itime)
-{
-	struct tm *tt;
-
-	tt = localtime(&itime);
-
-	return( (tt->tm_hour*3600) + (tt->tm_min*60) );
 }
 
 
@@ -517,23 +414,6 @@ numeric(char *ns)
 	return(1);				/* true  */
 }
 
-
-/*
-** Function getboot() returns the boot-time of this system 
-** as number of jiffies since 1-1-1970.
-*/
-unsigned long long
-getboot(void)
-{
-	static unsigned long long	boottime;
-	unsigned long long		getbootlinux(long);
-
-	if (!boottime)		/* do this only once */
-		boottime = getbootlinux(hertz);
-
-	return boottime;
-}
-
 /*
 ** generic pointer verification after malloc
 */
@@ -573,27 +453,215 @@ cleanstop(exitcode)
 }
 
 /*
-** drop the root privileges that might be obtained via setuid-bit
-**
-** this action may only fail with errno EPERM (normal situation when
-** atop has not been started with setuid-root privs); when this
-** action fails with EAGAIN or ENOMEM, atop should not continue
-** without root privs being dropped...
+** establish an async timer alarm with microsecond-level precision
 */
-int
-droprootprivs(void)
+void
+setalarm(struct timeval *interval)
 {
-	if (seteuid( getuid() ) == -1 && errno != EPERM)
-		return 0;	/* false */
-	else
-		return 1;	/* true  */
+	struct itimerval val;
+
+	val.it_value = *interval;
+	val.it_interval.tv_sec = val.it_interval.tv_usec = 0;
+	setitimer(ITIMER_REAL, &val, NULL);
+}
+
+void
+setalarm2(int sec, int usec)
+{
+	struct timeval interval;
+
+	interval.tv_sec = sec;
+	interval.tv_usec = usec;
+	setalarm(&interval);
 }
 
 /*
-** regain the root privileges that might be dropped earlier
+** extract values from a pmResult structure using given offset(s)
+** "value" is always a macro identifier from a metric map file.
 */
-void
-regainrootprivs(void)
+int
+extract_integer_index(pmResult *result, pmDesc *descs, int value, int i)
 {
-	seteuid(0);
+	pmAtomValue atom = { 0 };
+	pmValueSet *values = result->vset[value];
+
+	if (values->numval <= 0 || values->numval <= i)
+		return -1;
+	pmExtractValue(values->valfmt, &values->vlist[i],
+			descs[value].type, &atom, PM_TYPE_32);
+	return atom.l;
+}
+
+int
+extract_integer(pmResult *result, pmDesc *descs, int value)
+{
+	return extract_integer_index(result, descs, value, 0);
+}
+
+int
+extract_integer_inst(pmResult *result, pmDesc *descs, int value, int inst)
+{
+	pmAtomValue atom = { 0 };
+	pmValueSet *values = result->vset[value];
+	int i;
+
+	for (i = 0; i < values->numval; i++)
+	{
+		if (values->vlist[i].inst != inst)
+			continue;
+		pmExtractValue(values->valfmt, &values->vlist[i],
+			descs[value].type, &atom, PM_TYPE_32);
+		break;
+	}
+	if (values->numval <= 0 || i == values->numval)
+		return -1;
+	return atom.l;
+}
+
+count_t
+extract_count_t(pmResult *result, pmDesc *descs, int value)
+{
+	return extract_count_t_index(result, descs, value, 0);
+}
+
+count_t
+extract_count_t_index(pmResult *result, pmDesc *descs, int value, int i)
+{
+	pmAtomValue atom = { 0 };
+	pmValueSet *values = result->vset[value];
+
+	if (values->numval <= 0 || values->numval <= i)
+		return -1;
+
+	pmExtractValue(values->valfmt, &values->vlist[i],
+			descs[value].type, &atom, PM_TYPE_64);
+	return atom.ll;
+}
+
+count_t
+extract_count_t_inst(pmResult *result, pmDesc *descs, int value, int inst)
+{
+	pmAtomValue atom = { 0 };
+	pmValueSet *values = result->vset[value];
+	int i;
+
+	for (i = 0; i < values->numval; i++)
+	{
+		if (values->vlist[i].inst != inst)
+			continue;
+		pmExtractValue(values->valfmt, &values->vlist[i],
+			descs[value].type, &atom, PM_TYPE_64);
+		break;
+	}
+	if (values->numval <= 0 || i == values->numval)
+		return -1;
+	return atom.ll;
+}
+
+char *
+extract_string_index(pmResult *result, pmDesc *descs, int value, char *buffer, int buflen, int i)
+{
+	pmAtomValue atom = { 0 };
+	pmValueSet *values = result->vset[value];
+
+	if (values->numval <= 0 || values->numval <= i)
+		return NULL;
+
+	pmExtractValue(values->valfmt, &values->vlist[i],
+			descs[value].type, &atom, PM_TYPE_STRING);
+	strncpy(buffer, atom.cp, buflen);
+	free(atom.cp);
+	if (buflen > 1)	/* might be a single character - e.g. process state */
+	    buffer[buflen-1] = '\0';
+	return buffer;
+}
+
+char *
+extract_string(pmResult *result, pmDesc *descs, int value, char *buffer, int buflen)
+{
+	return extract_string_index(result, descs, value, buffer, buflen, 0);
+}
+
+char *
+extract_string_inst(pmResult *result, pmDesc *descs, int value, char *buffer, int buflen, int inst)
+{
+	pmAtomValue atom = { 0 };
+	pmValueSet *values = result->vset[value];
+	int i;
+
+	for (i = 0; i < values->numval; i++)
+	{
+		if (values->vlist[i].inst != inst)
+			continue;
+		pmExtractValue(values->valfmt, &values->vlist[i],
+			descs[value].type, &atom, PM_TYPE_STRING);
+		break;
+	}
+	if (values->numval <= 0 || values->numval == i)
+		return NULL;
+	strncpy(buffer, atom.cp, buflen);
+	free(atom.cp);
+	if (buflen > 1)	/* might be a single character - e.g. process state */
+	    buffer[buflen-1] = '\0';
+	return buffer;
+}
+
+float
+extract_float_inst(pmResult *result, pmDesc *descs, int value, int inst)
+{
+	pmAtomValue atom = { 0 };
+	pmValueSet *values = result->vset[value];
+	int i;
+
+	for (i = 0; i < values->numval; i++)
+	{
+		if (values->vlist[i].inst != inst)
+			continue;
+		pmExtractValue(values->valfmt, &values->vlist[i],
+			descs[value].type, &atom, PM_TYPE_FLOAT);
+		break;
+	}
+	if (values->numval <= 0 || i == values->numval)
+		return -1;
+	return atom.f;
+}
+
+
+void
+setup_metrics(char **metrics, pmID *pmidlist, pmDesc *desclist, int nmetrics)
+{
+	int	i, sts;
+
+	if ((sts = pmLookupName(nmetrics, metrics, pmidlist)) < 0)
+	{
+		fprintf(stderr, "%s: pmLookupName: %s\n",
+			pmProgname, pmErrStr(sts));
+		cleanstop(1);
+	}
+	if (nmetrics != sts)
+	{
+		for (i=0; i < nmetrics; i++)
+		{
+			if (pmidlist[i] != PM_ID_NULL)
+				continue;
+			if (pmDebug & DBG_TRACE_APPL0)
+				fprintf(stderr,
+					"%s: pmLookupName failed for %s\n",
+					pmProgname, metrics[i]);
+		}
+	}
+
+	for (i=0; i < nmetrics; i++)
+	{
+		if (pmidlist[i] == PM_ID_NULL)
+			continue;
+		if ((sts = pmLookupDesc(pmidlist[i], &desclist[i])) < 0)
+		{
+			if (pmDebug & DBG_TRACE_APPL0)
+				fprintf(stderr,
+					"%s: pmLookupDesc failed for %s: %s\n",
+					pmProgname, metrics[i], pmErrStr(sts));
+			pmidlist[i] = desclist[i].pmid = PM_ID_NULL;
+		}
+	}
 }

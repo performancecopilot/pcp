@@ -24,6 +24,8 @@
 #define	EQ		0
 #define SECSDAY		86400
 #define RAWNAMESZ	256
+#define	PROCCHUNK	100	/* process-entries for future expansion  */
+#define	PROCMIN		256     /* minimum number of processes allocated */
 
 /*
 ** memory-size formatting possibilities
@@ -37,9 +39,12 @@
 
 typedef	long long	count_t;
 
+struct pmDesc;
+struct pmResult;
+struct pmOptions;
+
 struct tstat;
 struct sstat;
-struct netpertask;
 
 /* 
 ** miscellaneous flags
@@ -50,7 +55,7 @@ struct netpertask;
 #define RRNETATOPD	0x0008
 
 struct visualize {
-	char	(*show_samp)  (time_t, int,
+	char	(*show_samp)  (double, double,
 	                struct sstat *, struct tstat *, struct tstat **,
 			int, int, int, int, int, int, int, int, 
 			int, unsigned int, char);
@@ -59,14 +64,21 @@ struct visualize {
 	void	(*show_usage) (void);
 };
 
+struct sysname {
+	char	nodename[MAXHOSTNAMELEN];
+	char	release[16];
+	char	version[16];
+	char	machine[256];
+};
+
 /*
 ** external values
 */
-extern struct utsname   utsname;
-extern int              utsnodenamelen;
-extern time_t   	pretime;
-extern time_t   	curtime;
-extern unsigned long    interval;
+extern struct sysname	sysname;
+extern int              nodenamelen;
+extern struct timeval   pretime;
+extern struct timeval   curtime;
+extern struct timeval   interval;
 extern unsigned long	sampcnt;
 extern char      	screen;
 extern int      	linelen;
@@ -109,7 +121,7 @@ extern int		almostcrit;
 /*
 ** structure containing the start-addresses of functions for visualization
 */
-char		generic_samp (time_t, int,
+char		generic_samp (double, double,
 		            struct sstat *, struct tstat *, struct tstat **,
 		            int, int, int, int, int, int, int, int,
 		            int, unsigned int, char);
@@ -121,10 +133,9 @@ void		generic_usage(void);
 ** miscellaneous prototypes
 */
 int		atopsar(int, char *[]);
-char   		*convtime(time_t, char *);
-char   		*convdate(time_t, char *);
+char   		*convtime(double, char *);
+char   		*convdate(double, char *);
 int   		hhmm2secs(char *, unsigned int *);
-int		daysecs(time_t);
 
 char   		*val2valstr(count_t, char *, int, int, int);
 char   		*val2memstr(count_t, char *, int, int, int);
@@ -145,23 +156,42 @@ int		intfcompar(const void *, const void *);
 
 count_t		subcount(count_t, count_t);
 void  		rawread(void);
-char		rawwrite(time_t, int, struct sstat *, struct tstat *,
+char		rawwrite(double, double, struct sstat *, struct tstat *,
 			struct tstat **, int, int, int, int, int, int,
 			int, int, int, unsigned int, char);
 
 int 		numeric(char *);
 void		getalarm(int);
-unsigned long long	getboot(void);
+void		setalarm(struct timeval *);
+void		setalarm2(int, int);
 char 		*getstrvers(void);
 unsigned short 	getnumvers(void);
 void		ptrverify(const void *, const char *, ...);
 void		cleanstop(int);
 void		prusage(char *);
 
+void		setup_globals(struct pmOptions *);
+void		setup_metrics(char **, unsigned int *, struct pmDesc *, int);
+void		setup_process(void);
+
+float		extract_float_inst(struct pmResult *, struct pmDesc *, int, int);
+int		extract_integer(struct pmResult *, struct pmDesc *, int);
+int		extract_integer_inst(struct pmResult *, struct pmDesc *, int, int);
+int		extract_integer_index(struct pmResult *, struct pmDesc *, int, int);
+count_t		extract_count_t(struct pmResult *, struct pmDesc *, int);
+count_t		extract_count_t_inst(struct pmResult *, struct pmDesc *, int, int);
+count_t		extract_count_t_index(struct pmResult *, struct pmDesc *, int, int);
+char *		extract_string(struct pmResult *, struct pmDesc *, int, char *, int);
+char *		extract_string_inst(struct pmResult *, struct pmDesc *, int, char *, int, int);
+char *		extract_string_index(struct pmResult *, struct pmDesc *, int, char *, int, int);
+
 int		droprootprivs(void);
 void		regainrootprivs(void);
 FILE 		*fopen_tryroot(const char *, const char *);
 
+/*
+** Optional netatop module interfaces
+ */
 void		netatop_ipopen(void);
 void		netatop_probe(void);
 void		netatop_signoff(void);
@@ -170,3 +200,14 @@ unsigned int	netatop_exitstore(void);
 void		netatop_exiterase(void);
 void		netatop_exithash(char);
 void		netatop_exitfind(unsigned long, struct tstat *, struct tstat *);
+
+/*
+** Optional process accounting module interfaces
+ */
+#define MAXACCTPROCS	(50*1024*1024/sizeof(struct tstat))
+int 		acctswon(void);
+void		acctswoff(void);
+unsigned long 	acctprocnt(void);
+int 		acctphotoproc(struct tstat *, int);
+void 		acctrepos(unsigned int);
+void		do_pacctdir(char *, char *);

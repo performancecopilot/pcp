@@ -50,13 +50,12 @@ struct tstat {
 		char 	state;		/* process state ('E' = exited)	*/
 		int	excode;		/* process exit status		*/
 		time_t 	btime;		/* process start time (epoch)	*/
-		time_t 	elaps;		/* process elaps time (hertz)	*/
+		time_t 	elaps;		/* process elaps time (pacct)	*/
 		char	cmdline[CMDLEN+1];/* command-line string       	*/
 		int	nthrslpi;	/* # threads in state 'S'       */
 		int	nthrslpu;	/* # threads in state 'D'       */
 		int	nthrrun;	/* # threads in state 'R'       */
 		int	envid;		/* OpenVZ support		*/
-		int	ifuture[4];     /* reserved                     */
 	} gen;
 
 	/* CPU STATISTICS						*/
@@ -68,9 +67,6 @@ struct tstat {
 		int	rtprio;		/* realtime priority            */
 		int	policy;		/* scheduling policy            */
 		int	curcpu;		/* current processor            */
-		int	sleepavg;       /* sleep average percentage     */
-		int	ifuture[4];	/* reserved for future use	*/
-		count_t	cfuture[4];	/* reserved for future use	*/
 	} cpu;
 
 	/* DISK STATISTICS						*/
@@ -81,7 +77,6 @@ struct tstat {
 		count_t	wsz;		/* cumulative # sectors written	*/
 		count_t	cwsz;		/* cumulative # written sectors */
 					/* being cancelled              */
-		count_t	cfuture[4];	/* reserved for future use	*/
 	} dsk;
 
 	/* MEMORY STATISTICS						*/
@@ -98,7 +93,6 @@ struct tstat {
 		count_t vstack;		/* virtmem stack    (Kb)     	*/
 		count_t vlibs;		/* virtmem libexec  (Kb)     	*/
 		count_t vswap;		/* swap space used  (Kb)     	*/
-		count_t	cfuture[4];	/* reserved for future use	*/
 	} mem;
 
 	/* NETWORK STATISTICS						*/
@@ -111,9 +105,6 @@ struct tstat {
 		count_t udpssz;		/* cumulative size packets sent	*/
 		count_t	udprcv;		/* number of UDP-packets recved	*/
 		count_t udprsz;		/* cumulative size packets sent	*/
-		count_t	avail1;		/* */
-		count_t	avail2;		/* */
-		count_t	cfuture[4];	/* reserved for future use	*/
 	} net;
 };
 
@@ -138,11 +129,9 @@ int		pdb_srchresidue(struct tstat *, struct pinfo **);
 /*
 ** prototypes for raw process-statistics functions
 */
-struct netpertask;
-
 int		deviattask(struct tstat *, int, struct tstat *, int, int,
 				struct tstat *, struct sstat *, unsigned int *,
 				int *, int *, int *, int *, int *);
 
-int		photoproc(struct tstat *, int);
+int		photoproc(struct tstat *, int *);
 unsigned int	countprocs(void);

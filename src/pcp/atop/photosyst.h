@@ -23,11 +23,8 @@
 */
 #include "netstats.h"
 
-#define	MAXCPU		2048
-#define	MAXDSK		1024
 #define	MAXLVM		2048
 #define	MAXMDD		256
-#define	MAXINTF		128
 
 #define	MAXDKNAM	32
 
@@ -64,8 +61,6 @@ struct	memstat {
 	count_t	hugepagesz;	// huge page size (bytes)
 
 	count_t	vmwballoon;	// vmware claimed balloon pages
-
-	count_t	cfuture[8];	// reserved for future use
 };
 
 /************************************************************************/
@@ -103,7 +98,6 @@ struct percpu {
 	count_t		steal;	/* steal   time in clock ticks		*/
 	count_t		guest;	/* guest   time in clock ticks		*/
         struct freqcnt	freqcnt;/* frequency scaling info  		*/
-	count_t		cfuture[4];	/* reserved for future use	*/
 };
 
 struct	cpustat {
@@ -114,10 +108,9 @@ struct	cpustat {
 	float	lavg1;	/* load average last    minute          */
 	float	lavg5;	/* load average last  5 minutes         */
 	float	lavg15;	/* load average last 15 minutes         */
-	count_t	cfuture[4];	/* reserved for future use	*/
 
 	struct percpu   all;
-	struct percpu   cpu[MAXCPU];
+	struct percpu   *cpu;
 };
 
 /************************************************************************/
@@ -130,16 +123,15 @@ struct	perdsk {
         count_t	nwsect;	/* number of sectors written            */
         count_t	io_ms;	/* number of millisecs spent for I/O    */
         count_t	avque;	/* average queue length                 */
-	count_t	cfuture[4];	/* reserved for future use	*/
 };
 
 struct dskstat {
 	int		ndsk;	/* number of physical disks	*/
 	int		nmdd;	/* number of md volumes		*/
 	int		nlvm;	/* number of logical volumes	*/
-	struct perdsk	dsk[MAXDSK];
-	struct perdsk	mdd[MAXMDD];
-	struct perdsk	lvm[MAXLVM];
+	struct perdsk	*dsk;	/* dynamically sized		*/
+	struct perdsk	*mdd;	/* dynamically sized		*/
+	struct perdsk	*lvm;	/* dynamically sized		*/
 };
 
 /************************************************************************/
@@ -155,7 +147,6 @@ struct	perintf {
 	count_t rframe; /* receive framing errors               */
 	count_t rcompr; /* receive compressed                   */
 	count_t rmultic;/* receive multicast                    */
-	count_t	rfuture[4];	/* reserved for future use	*/
 
         count_t	sbyte;	/* number of written bytes              */
         count_t	spack;	/* number of written packets            */
@@ -165,16 +156,14 @@ struct	perintf {
 	count_t scollis;/* collisions                           */
 	count_t scarrier;/* transmit carrier                    */
 	count_t scompr; /* transmit compressed                  */
-	count_t	sfuture[4];	/* reserved for future use	*/
 
 	long 	speed;	/* interface speed in megabits/second	*/
 	char	duplex;	/* full duplex (boolean) 		*/
-	count_t	cfuture[4];	/* reserved for future use	*/
 };
 
 struct intfstat {
 	int		nrintf;
-	struct perintf	intf[MAXINTF];
+	struct perintf	*intf;
 };
 
 /************************************************************************/
@@ -197,6 +186,8 @@ int	getwwwstat(unsigned short, struct wwwstat *);
 /************************************************************************/
 
 struct	sstat {
+	struct timeval	stamp;
+
 	struct cpustat	cpu;
 	struct memstat	mem;
 	struct netstat	net;

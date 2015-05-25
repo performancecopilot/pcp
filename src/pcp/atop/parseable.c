@@ -4,11 +4,6 @@
 ** The program 'atop' offers the possibility to view the activity of
 ** the system on system-level as well as process-level.
 **
-** ==========================================================================
-** Author:      Gerlof Langeveld
-** E-mail:      gerlof.langeveld@atoptool.nl
-** Date:        February 2007
-** --------------------------------------------------------------------------
 ** Copyright (C) 2007-2010 Gerlof Langeveld
 **
 ** This program is free software; you can redistribute it and/or modify it
@@ -20,62 +15,8 @@
 ** WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ** See the GNU General Public License for more details.
-**
-** You should have received a copy of the GNU General Public License
-** along with this program; if not, write to the Free Software
-** Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-** --------------------------------------------------------------------------
-**
-** $Id: parseable.c,v 1.13 2010/10/23 14:02:19 gerlof Exp $
-** $Log: parseable.c,v $
-** Revision 1.13  2010/10/23 14:02:19  gerlof
-** Show counters for total number of running and sleep (S and D) threads.
-**
-** Revision 1.12  2010/05/18 19:20:55  gerlof
-** Introduce CPU frequency and scaling (JC van Winkel).
-**
-** Revision 1.11  2010/04/23 12:19:35  gerlof
-** Modified mail-address in header.
-**
-** Revision 1.10  2010/03/04 10:52:21  gerlof
-** Support I/O-statistics on logical volumes and MD devices.
-**
-** Revision 1.9  2010/01/08 14:46:42  gerlof
-** Added label RESET in case of a sample with values since boot.
-**
-** Revision 1.8  2009/12/19 22:32:14  gerlof
-** Add new counters to parseable output.
-**
-** Revision 1.7  2008/03/06 09:08:29  gerlof
-** Bug-solution regarding parseable output of PPID.
-**
-** Revision 1.6  2008/03/06 08:38:03  gerlof
-** Register/show ppid of a process.
-**
-** Revision 1.5  2008/01/18 08:03:40  gerlof
-** Show information about the number of threads in state 'running',
-** 'interruptible sleeping' and 'non-interruptible sleeping'.
-**
-** Revision 1.4  2007/12/11 13:33:12  gerlof
-** Cosmetic change.
-**
-** Revision 1.3  2007/08/16 12:00:11  gerlof
-** Add support for atopsar reporting.
-** Concerns networking-counters that have been changed.
-**
-** Revision 1.2  2007/03/20 13:01:12  gerlof
-** Introduction of variable supportflags.
-**
-** Revision 1.1  2007/02/19 11:55:43  gerlof
-** Initial revision
-**
 */
-#include <sys/types.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/utsname.h>
+#include <pcp/pmapi.h>
 
 #include "atop.h"
 #include "photosyst.h"
@@ -207,7 +148,7 @@ parsedef(char *pd)
 ** produce parseable output for an interval
 */
 char
-parseout(time_t curtime, int numsecs,
+parseout(double timed, double delta,
 	 struct sstat *ss, struct tstat *ts, struct tstat **proclist,
 	 int ndeviat, int ntask, int nactproc,
          int totproc, int totrun, int totslpi, int totslpu, int totzomb,
@@ -232,14 +173,15 @@ parseout(time_t curtime, int numsecs,
 			/*
 			** prepare generic columns
 			*/
-			convdate(curtime, datestr);
-			convtime(curtime, timestr);
+			convdate(timed, datestr);
+			convtime(timed, timestr);
 
 			snprintf(header, sizeof header, "%s %s %ld %s %s %d",
 				labeldef[i].label,
-				utsname.nodename,
-				curtime,
-				datestr, timestr, numsecs);
+				sysname.nodename,
+				(long)timed,
+				datestr, timestr,
+				(int)delta);
 
 			/*
 			** call a selected print-function
@@ -569,7 +511,7 @@ print_PRC(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 				ps->cpu.rtprio,
 				ps->cpu.policy,
 				ps->cpu.curcpu,
-				ps->cpu.sleepavg,
+				0, /* ps->cpu.sleepavg - not in kernel now */
 				ps->gen.tgid,
 				ps->gen.isproc ? 'y':'n');
 	}

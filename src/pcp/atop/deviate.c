@@ -6,12 +6,8 @@
 **
 ** This source-file contains functions to calculate the differences for
 ** the system-level and process-level counters since the previous sample.
-** ==========================================================================
-** Author:      Gerlof Langeveld
-** E-mail:      gerlof.langeveld@atoptool.nl
-** Date:        November 1996
-** LINUX-port:  June 2000
-** --------------------------------------------------------------------------
+**
+** Copyright (C) 2015 Red Hat.
 ** Copyright (C) 2000-2010 Gerlof Langeveld
 **
 ** This program is free software; you can redistribute it and/or modify it
@@ -23,165 +19,10 @@
 ** WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ** See the GNU General Public License for more details.
-**
-** You should have received a copy of the GNU General Public License
-** along with this program; if not, write to the Free Software
-** Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-** --------------------------------------------------------------------------
-**
-** $Log: deviate.c,v $
-** Revision 1.45  2010/10/23 14:02:03  gerlof
-** Show counters for total number of running and sleep (S and D) threads.
-**
-** Revision 1.44  2010/05/18 19:19:43  gerlof
-** Introduce CPU frequency and scaling (JC van Winkel).
-**
-** Revision 1.43  2010/04/23 12:19:35  gerlof
-** Modified mail-address in header.
-**
-** Revision 1.42  2010/03/04 10:52:08  gerlof
-** Support I/O-statistics on logical volumes and MD devices.
-**
-** Revision 1.41  2009/12/31 11:34:21  gerlof
-** Sanity-check to bypass kernel-bug showing 497 days of CPU-consumption.
-**
-** Revision 1.40  2009/12/17 11:58:25  gerlof
-** Gather and display new counters: dirty cache and guest cpu usage.
-**
-** Revision 1.39  2008/02/25 14:51:18  gerlof
-** Experimental code for HTTP-statistics.
-**
-** Revision 1.38  2008/01/07 11:33:43  gerlof
-** Cosmetic changes.
-**
-** Revision 1.37  2008/01/07 10:17:24  gerlof
-** Implement possibility to make summaries.
-**
-** Revision 1.36  2007/11/05 12:13:16  gerlof
-** Match processes not only on pid, but also on start time.
-**
-** Revision 1.35  2007/11/05 11:42:47  gerlof
-** Bug-solution for new-process indicator on 64-bits machines.
-**
-** Revision 1.34  2007/08/17 09:44:59  gerlof
-** Experimental: gather info about HTTP statistics.
-**
-** Revision 1.33  2007/08/16 11:59:32  gerlof
-** Add support for atopsar reporting.
-** Concerns addition of lots of counters.
-**
-** Revision 1.32  2007/07/03 09:01:07  gerlof
-** Support Apache-statistics.
-**
-** Revision 1.31  2007/03/20 13:02:03  gerlof
-** Introduction of variable supportflags.
-**
-** Revision 1.30  2007/03/20 11:18:57  gerlof
-** Add counter for cancelled writes.
-**
-** Revision 1.29  2007/02/13 09:21:04  gerlof
-** Removed external declarations.
-**
-** Revision 1.28  2007/01/22 08:28:18  gerlof
-** Support steal-time from /proc/stat.
-**
-** Revision 1.27  2007/01/18 10:43:18  gerlof
-** Support for network-interface busy-percentage (speed and duplex).
-**
-** Revision 1.26  2006/11/13 13:47:26  gerlof
-** Implement load-average counters, context-switches and interrupts.
-**
-** Revision 1.25  2006/02/07 06:45:33  gerlof
-** Removed swap-counter.
-**
-** Revision 1.24  2006/01/30 09:13:33  gerlof
-** Extend memory counters (a.o. page scans).
-**
-** Revision 1.23  2005/10/31 12:45:29  gerlof
-** Support account-record version 3 (used by Mandriva).
-**
-** Revision 1.22  2005/10/21 09:49:38  gerlof
-** Per-user accumulation of resource consumption.
-**
-** Revision 1.21  2004/12/14 15:05:47  gerlof
-** Implementation of patch-recognition for disk and network-statistics.
-**
-** Revision 1.20  2004/10/28 08:30:51  gerlof
-** New counter: vm committed space
-**
-** Revision 1.19  2004/09/24 10:02:01  gerlof
-** Wrong cpu-numbers for system level statistics.
-**
-** Revision 1.18  2004/09/02 10:49:18  gerlof
-** Added sleep-average to process-info.
-**
-** Revision 1.17  2004/08/31 13:27:04  gerlof
-** Add new info for threading.
-**
-** Revision 1.16  2004/05/07 05:49:40  gerlof
-** *** empty log message ***
-**
-** Revision 1.15  2004/05/06 09:46:55  gerlof
-** Ported to kernel-version 2.6.
-**
-** Revision 1.14  2003/07/07 09:26:33  gerlof
-** Cleanup code (-Wall proof).
-**
-** Revision 1.13  2003/07/03 11:17:49  gerlof
-** Corrected calculations for exited processes.
-**
-** Revision 1.12  2003/06/30 11:30:57  gerlof
-** Enlarge counters to 'long long'.
-**
-** Revision 1.11  2003/06/24 06:21:12  gerlof
-** Limit number of system resource lines.
-**
-** Revision 1.10  2003/01/24 14:20:16  gerlof
-** If possible, also show commandline when process has exited.
-**
-** Revision 1.9  2002/09/16 08:58:08  gerlof
-** Add indicator for newly created processes.
-**
-** Revision 1.8  2002/08/27 04:47:46  gerlof
-** Minor comment updates.
-**
-** Revision 1.7  2002/07/24 11:12:20  gerlof
-** Redesigned to ease porting to other UNIX-platforms.
-**
-** Revision 1.6  2002/07/10 04:59:37  root
-** Counters pin/pout renamed to swin/swout (Linux conventions).
-**
-** Revision 1.5  2002/01/22 13:39:20  gerlof
-** Support for number of cpu's.
-**
-** Revision 1.4  2001/11/22 08:33:10  gerlof
-** Add priority per process.
-**
-** Revision 1.3  2001/11/07 09:18:22  gerlof
-** Use /proc instead of /dev/kmem for process-level statistics.
-**
-** Revision 1.2  2001/10/03 08:58:41  gerlof
-** Improved subtraction which is overflow-proof
-**
-** Revision 1.1  2001/10/02 10:43:23  gerlof
-** Initial revision
-**
 */
 
-static const char rcsid[] = "$Id: deviate.c,v 1.45 2010/10/23 14:02:03 gerlof Exp $";
-
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/stat.h>
-#include <signal.h>
-#include <time.h>
-#include <stdio.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <limits.h>
-#include <memory.h>
-#include <string.h>
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
 
 #include "atop.h"
 #include "ifprop.h"
@@ -378,7 +219,7 @@ deviattask(struct tstat *curtpres, int ntaskpres,
 		}
 		else
 		{
-			if ( curstat->gen.btime > pretime )
+			if ( curstat->gen.btime > pretime.tv_sec )
 			{
 				/*
 				** process-start and -finish in same interval
@@ -454,7 +295,6 @@ deviattask(struct tstat *curtpres, int ntaskpres,
 
 			netatop_exitfind(val, devstat, &prestat);
 		}
-
 		d++;
 		(*nprocdev)++;
 
@@ -488,7 +328,6 @@ calcdiff(struct tstat *devstat, struct tstat *curstat, struct tstat *prestat,
 	devstat->cpu.rtprio   = curstat->cpu.rtprio;
 	devstat->cpu.policy   = curstat->cpu.policy;
 	devstat->cpu.curcpu   = curstat->cpu.curcpu;
-	devstat->cpu.sleepavg = curstat->cpu.sleepavg;
 
 	devstat->cpu.stime  = 
 		subcount(curstat->cpu.stime, prestat->cpu.stime);
@@ -597,7 +436,24 @@ void
 deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
 {
 	register int	i, j;
+	size_t		size;
 	count_t		*cdev, *ccur, *cpre;
+
+	if (cur->cpu.nrcpu != dev->cpu.nrcpu)
+	{
+		size = cur->cpu.nrcpu * sizeof(struct percpu);
+		dev->cpu.cpu = (struct percpu *)realloc(dev->cpu.cpu, size);
+		if (!dev->cpu.cpu)
+			__pmNoMem("deviatsyst cpus", size, PM_FATAL_ERR);
+	}
+	if (cur->cpu.nrcpu > pre->cpu.nrcpu)
+	{
+		free(pre->cpu.cpu);
+		size = cur->cpu.nrcpu * sizeof(struct percpu);
+		pre->cpu.cpu = (struct percpu *)calloc(1, size);
+		if (!pre->cpu.cpu)
+			__pmNoMem("deviatsyst precpus", size, PM_FATAL_ERR);
+	}
 
 	dev->cpu.nrcpu     = cur->cpu.nrcpu;
 	dev->cpu.devint    = subcount(cur->cpu.devint, pre->cpu.devint);
@@ -773,9 +629,23 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
 	/*
 	** calculate deviations for interfaces
 	*/
-	if (pre->intf.intf[0].name[0] == '\0')	/* first sample? */
+	if (cur->intf.nrintf != dev->intf.nrintf)
+	{
+		size = (cur->intf.nrintf + 1) * sizeof(struct perintf);
+		dev->intf.intf = (struct perintf *)realloc(dev->intf.intf, size);
+		if (!dev->intf.intf)
+			__pmNoMem("deviatsyst intf", size, PM_FATAL_ERR);
+	}
+
+	if (pre->intf.nrintf < cur->intf.nrintf)	/* first sample? */
 	{
 		struct ifprop	ifprop;
+
+		free(pre->intf.intf);
+		size = (cur->intf.nrintf + 1) * sizeof(struct perintf);
+		pre->intf.intf = (struct perintf *)calloc(1, size);
+		if (!pre->intf.intf)
+			__pmNoMem("deviatsyst preintf", size, PM_FATAL_ERR);
 
 		for (i=0; cur->intf.intf[i].name[0]; i++)
 		{
@@ -788,9 +658,10 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
 			pre->intf.intf[i].speed         = ifprop.speed;
 			pre->intf.intf[i].duplex        = ifprop.fullduplex;
  		}
+		pre->intf.intf[i].name[0] = '\0';
 	}
-	
-	for (i=0; cur->intf.intf[i].name[0]; i++)
+
+	for (i=0; cur->intf.intf && cur->intf.intf[i].name[0]; i++)
 	{
 		/*
 		** check if an interface has been added or removed;
@@ -805,12 +676,7 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
 			** take care that interface properties are
 			** corrected for future samples
 			*/
-                        regainrootprivs();	/* get root privileges      */
-
 		        initifprop();		/* refresh interface info   */
-
-			if (! droprootprivs())  /* drop setuid-root privs   */
-				cleanstop(42);
 
 			for (j=0; cur->intf.intf[j].name[0]; j++)
 			{
@@ -880,7 +746,21 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
 	/*
 	** calculate deviations for disks
 	*/
-	for (i=j=0; cur->dsk.dsk[i].name[0]; i++)
+	if (cur->dsk.ndsk != dev->dsk.ndsk)
+	{
+		size = (cur->dsk.ndsk + 1) * sizeof(struct perdsk);
+		dev->dsk.dsk = (struct perdsk *)realloc(dev->dsk.dsk, size);
+		if (!dev->dsk.dsk)
+			__pmNoMem("deviatsyst disk", size, PM_FATAL_ERR);
+	}
+	if (!pre->dsk.ndsk)
+	{
+		size = (cur->dsk.ndsk + 1) * sizeof(struct perdsk);
+		pre->dsk.dsk = (struct perdsk *)calloc(1, size);
+		if (!pre->dsk.dsk)
+			__pmNoMem("deviatsyst predisk", size, PM_FATAL_ERR);
+	}
+	for (i=j=0; cur->dsk.dsk && cur->dsk.dsk[i].name[0]; i++)
 	{
 		int	realj = j;
 
@@ -936,7 +816,21 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
 	/*
 	** calculate deviations for multiple devices
 	*/
-	for (i=j=0; cur->dsk.mdd[i].name[0]; i++)
+	if (cur->dsk.nmdd != dev->dsk.nmdd || !dev->dsk.nmdd)
+	{
+		size = (cur->dsk.nmdd + 1) * sizeof(struct perdsk);
+		dev->dsk.mdd = (struct perdsk *)realloc(dev->dsk.mdd, size);
+		if (!dev->dsk.mdd)
+			__pmNoMem("deviatsyst mdd", size, PM_FATAL_ERR);
+	}
+	if (!pre->dsk.mdd)
+	{
+		size = (cur->dsk.nmdd + 1) * sizeof(struct perdsk);
+		pre->dsk.mdd = (struct perdsk *)calloc(1, size);
+		if (!pre->dsk.mdd)
+			__pmNoMem("deviatsyst premdd", size, PM_FATAL_ERR);
+	}
+	for (i=j=0; cur->dsk.mdd && cur->dsk.mdd[i].name[0]; i++)
 	{
 		int	realj = j;
 
@@ -992,7 +886,21 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
 	/*
 	** calculate deviations for LVM logical volumes
 	*/
-	for (i=j=0; cur->dsk.lvm[i].name[0]; i++)
+	if (cur->dsk.nlvm != dev->dsk.nlvm || !dev->dsk.lvm)
+	{
+		size = (cur->dsk.nlvm + 1) * sizeof(struct perdsk);
+		dev->dsk.lvm = (struct perdsk *)realloc(dev->dsk.lvm, size);
+		if (!dev->dsk.lvm)
+			__pmNoMem("deviatsyst lvm", size, PM_FATAL_ERR);
+	}
+	if (!pre->dsk.lvm)
+	{
+		size = (cur->dsk.nlvm + 1) * sizeof(struct perdsk);
+		pre->dsk.lvm = (struct perdsk *)calloc(1, size);
+		if (!pre->dsk.lvm)
+			__pmNoMem("deviatsyst prelvm", size, PM_FATAL_ERR);
+	}
+	for (i=j=0; cur->dsk.lvm && cur->dsk.lvm[i].name[0]; i++)
 	{
 		int	realj = j;
 
@@ -1048,7 +956,6 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
 	/*
 	** application-specific counters
 	*/
-#if	HTTPSTATS
 	if (cur->www.uptime >= pre->www.uptime)
 	{
 		dev->www.accesses  = subcount(cur->www.accesses,
@@ -1064,7 +971,6 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
 
 	dev->www.bworkers  = cur->www.bworkers;
 	dev->www.iworkers  = cur->www.iworkers;
-#endif
 }
 
 /*
@@ -1272,12 +1178,10 @@ totalsyst(char category, struct sstat *new, struct sstat *tot)
 		tot->intf.intf[i].name[0] = '\0';
 		tot->intf.nrintf          = i;
 
-#if		HTTPSTATS
 		tot->www.accesses  += new->www.accesses;
 		tot->www.totkbytes += new->www.totkbytes;
 		tot->www.bworkers   = new->www.bworkers;
 		tot->www.iworkers   = new->www.iworkers;
-#endif
 		break;
 
 	   case 'd':	/* accumulate disk-related counters */

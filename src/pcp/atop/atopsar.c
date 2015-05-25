@@ -6,12 +6,9 @@
 **
 ** This source-file contains the 'atopsar'-functionality, that makes use
 ** of the 'atop'-framework.
-** ==========================================================================
-** Author:      Gerlof Langeveld
-** E-mail:      gerlof.langeveld@atoptool.nl
-** Date:        July 2007
-** --------------------------------------------------------------------------
+** 
 ** Copyright (C) 2007-2010 Gerlof Langeveld
+** Copyright (C) 2015 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -22,31 +19,11 @@
 ** WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ** See the GNU General Public License for more details.
-**
-** You should have received a copy of the GNU General Public License
-** along with this program; if not, write to the Free Software
-** Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ** --------------------------------------------------------------------------
 */
 
-static const char rcsid[] = "$Id: atopsar.c,v 1.28 2010/11/26 06:19:43 gerlof Exp $";
-
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
-#include <time.h>
-#include <stdio.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <sys/utsname.h>
-#include <string.h>
-#include <sys/time.h>
-#include <sys/resource.h>
-#include <regex.h>
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
 #include <sys/ioctl.h>
 
 #include "atop.h"
@@ -107,78 +84,81 @@ static char 		coloron;       /* boolean: colors active now      */
 */
 static void	engine(void);
 static void	pratopsaruse(char *);
-static void	reportlive(time_t, int, struct sstat *);
-static char	reportraw (time_t, int,
+static void	reportlive(double, double, struct sstat *);
+static char	reportraw (double, double,
 		           struct sstat *, struct tstat *, struct tstat **,
 		           int, int, int, int, int, int, int, int,
 		           int, unsigned int, char);
-static void	reportheader(struct utsname *, time_t);
+static void	reportheader(struct sysname *, time_t);
 static time_t	daylimit(time_t);
 
 int
 atopsar(int argc, char *argv[])
 {
 	register int	i, c;
-	struct rlimit	rlim;
-	char		*p, *flaglist;
+	char		*flaglist;
+	pmOptions	opts = { 0 };
 
 	usecolors = 't';
+
+	/* 
+	** gather all flags for the print-functions
+	*/
+	flaglist = malloc(pricnt+32);
+
+	ptrverify(flaglist, "Malloc failed for %d flags\n", pricnt+32);
+
+	for (i=0; i < pricnt; i++)
+		flaglist[i] = pridef[i].flag;
+
+	flaglist[i] = 0;
+
+	/*
+	** add generic flags
+	*/
+	strcat(flaglist, "b:e:SxCMHr:R:aA");
+
+	opts.short_options = flaglist;
+	__pmStartOptions(&opts);
 
 	/* 
 	** interpret command-line arguments & flags 
 	*/
 	if (argc > 1)
 	{
-		/* 
-		** gather all flags for the print-functions
-		*/
-		flaglist = malloc(pricnt+32);
-
-		ptrverify(flaglist, "Malloc failed for %d flags\n", pricnt+32);
-
-		for (i=0; i < pricnt; i++)
-			flaglist[i] = pridef[i].flag;
-
-		flaglist[i] = 0;
-
-		/*
-		** add generic flags
-		*/
-		strcat(flaglist, "b:e:SxCMHr:R:aA");
-
-		while ((c=getopt(argc, argv, flaglist)) != EOF)
+		while ((c = pmgetopt_r(argc, argv, &opts)) != EOF)
 		{
 			switch (c)
 			{
 			   case '?':		/* usage wanted ?        */
-				pratopsaruse(argv[0]);
+				pratopsaruse(pmProgname);
 				break;
 
                            case 'b':		/* begin time ?          */
-				if ( !hhmm2secs(optarg, &begintime) )
-					pratopsaruse(argv[0]);
+				if ( !hhmm2secs(opts.optarg, &begintime) )
+					pratopsaruse(pmProgname);
 
 				saved_begintime = begintime;
 				break;
 
                            case 'e':		/* end   time ?          */
-				if ( !hhmm2secs(optarg, &endtime) )
-					pratopsaruse(argv[0]);
+				if ( !hhmm2secs(opts.optarg, &endtime) )
+					pratopsaruse(pmProgname);
 				break;
 
 			   case 'r':		/* reading of file data ? */
-				strncpy(rawname, optarg, RAWNAMESZ-1);
+				__pmAddOptArchiveFolio(&opts, opts.optarg);
 				rawreadflag++;
 				break;
 
 			   case 'R':		/* summarize samples */
-				if (!numeric(optarg))
-					pratopsaruse(argv[0]);
+				if (!numeric(opts.optarg))
+					pratopsaruse(pmProgname);
 
-				summarycnt = atoi(optarg);
+				summarycnt = atoi(opts.optarg);
 
 				if (summarycnt < 1)
-					pratopsaruse(argv[0]);
+					pratopsaruse(pmProgname);
 				break;
 
 			   case 'S':		/* timestamp on every line */
@@ -241,25 +221,36 @@ atopsar(int argc, char *argv[])
 		** get optional interval-value and
 		** optional number of samples	
 		*/
-		if (optind < argc && optind < MAXFL)
+		if (opts.optind < argc && opts.optind < MAXFL)
 		{
+			char	*endnum, *arg;
+
 			if (rawreadflag)
-				pratopsaruse(argv[0]);
+				pratopsaruse(pmProgname);
 
-			if (!numeric(argv[optind]))
-				pratopsaruse(argv[0]);
+			arg = argv[opts.optind++];
+			if (!numeric(arg))
+				pratopsaruse(pmProgname);
 	
-			interval = atoi(argv[optind]);
-	
-			optind++;
-	
-			if (optind < argc)
+			if (pmParseInterval(arg, &opts.interval, &endnum) < 0)
 			{
-				if (!numeric(argv[optind]) )
-					pratopsaruse(argv[0]);
-
-				if ( (nsamples = atoi(argv[optind])) < 1)
-					pratopsaruse(argv[0]);
+				pmprintf(
+			"%s: %s option not in pmParseInterval(3) format:\n%s\n",
+					pmProgname, arg, endnum);
+				free(endnum);
+				opts.errors++;
+			}
+			else
+				interval = opts.interval;
+	
+			if (opts.optind < argc)
+			{
+				arg = argv[opts.optind];
+				if (!numeric(arg))
+					pratopsaruse(pmProgname);
+				if ((opts.samples = atoi(arg)) < 1)
+					pratopsaruse(pmProgname);
+				nsamples = opts.samples;
 			}
 		}
 		else	/* if no interval specified, read from logfile */
@@ -271,6 +262,8 @@ atopsar(int argc, char *argv[])
 	{
 		rawreadflag++;
 	}
+	if (opts.errors)
+		prusage(pmProgname);
 
 	/*
 	** if no report-flags have been specified, take the first
@@ -315,7 +308,8 @@ atopsar(int argc, char *argv[])
 				prinow    = i;
 				daylim    = 0;
 				begintime = saved_begintime;
-				rawread();
+				// TODO: PMAPI reading
+				// rawread();
 				printf("\n");
 			}
 		}
@@ -329,59 +323,12 @@ atopsar(int argc, char *argv[])
 	** determine the name of this node (without domain-name)
 	** and the kernel-version
 	*/
-	(void) uname(&utsname);
+	setup_globals(&opts);
 
-	if ( (p = strchr(utsname.nodename, '.')) )
-		*p = '\0';
-
-	sscanf(utsname.release, "%d.%d.%d", &osrel, &osvers, &ossub);
-
-	/*
-	** determine the clock rate and memory page size for this machine
-	*/
-	hertz		= sysconf(_SC_CLK_TCK);
-	pagesize	= sysconf(_SC_PAGESIZE);
-
-	/*
-	** determine start-time for gathering current statistics
-	*/
-	curtime = time(0);
-
-        /*
-	** regain the root-priviliges that we dropped at the beginning
-	** to do some priviliged work now
-	*/
-        regainrootprivs();
-
-	/*
-	** lock in memory to get reliable samples (also when
-	** memory is low);
-	** ignored if not running under superuser privileges!
-	*/
-	rlim.rlim_cur	= RLIM_INFINITY;
-	rlim.rlim_max	= RLIM_INFINITY;
-	(void) setrlimit(RLIMIT_MEMLOCK, &rlim);
-	(void) mlockall(MCL_CURRENT|MCL_FUTURE);
-
-	/*
-	** increment CPU scheduling-priority to get reliable samples (also
-	** during heavy CPU load);
-	** ignored if not running under superuser privileges!
-	*/
-	if ( nice(-20) == -1)
-		;
 	/*
 	** determine properties (like speed) of all interfaces
 	*/
 	initifprop();
-
-	/*
-	** since privileged activities are finished now, there is no
-	** need to keep running under root-privileges, so switch
-	** effective user-id to real user-id
-	*/
-	if (! droprootprivs() )
-		cleanstop(42);
 
 	/*
 	** start live reporting
@@ -398,6 +345,8 @@ static void
 engine(void)
 {
 	struct sigaction 	sigact;
+	double			timed;
+	double			delta;
 	void			getusr1(int);
 
 	/*
@@ -431,13 +380,13 @@ engine(void)
 	sigact.sa_handler = getalarm;
 	sigaction(SIGALRM, &sigact, (struct sigaction *)0);
 
-	if (interval > 0)
-		alarm(interval);
+	if (interval.tv_sec || interval.tv_usec)
+		setalarm(&interval);
 
 	/*
 	** print overall report header
 	*/
-	reportheader(&utsname, time(0));
+	reportheader(&sysname, time(0));
 
 	/*
 	** MAIN-LOOP:
@@ -459,12 +408,6 @@ engine(void)
 			pause();
 
 		/*
-		** gather time info for this sample
-		*/
-		pretime  = curtime;
-		curtime  = time(0);		/* seconds since 1-1-1970 */
-
-		/*
 		** take a snapshot of the current system-level statistics 
 		** and calculate the deviations (i.e. calculate the activity
 		** during the last sample)
@@ -475,13 +418,18 @@ engine(void)
 
 		photosyst(cursstat);	/* obtain new counters      */
 
+		pretime  = curtime;	/* timestamp for previous sample */
+		curtime  = cursstat->stamp; /* timestamp for this sample */
+
 		deviatsyst(cursstat, presstat, devsstat);
+
+		timed = __pmtimevalToReal(&curtime);
+		delta = timed - __pmtimevalToReal(&pretime);
 
 		/*
 		** activate the report-function to visualize the deviations
 		*/
-		reportlive(curtime,
-			curtime-pretime > 0 ? curtime-pretime : 1, devsstat);
+		reportlive(timed, delta > 1.0 ? delta : 1.0, devsstat);
 	} /* end of main-loop */
 }
 
@@ -489,7 +437,7 @@ engine(void)
 ** report function to print a new sample in case of live measurements
 */
 static void
-reportlive(time_t curtime, int numsecs, struct sstat *ss)
+reportlive(double curtime, double numsecs, struct sstat *ss)
 {
 	char			timebuf[16], datebuf[16];
 	int			i, nr = numreports, rv;
@@ -648,7 +596,7 @@ reportlive(time_t curtime, int numsecs, struct sstat *ss)
 ** report function to print a new sample in case of logged measurements
 */
 static char
-reportraw(time_t curtime, int numsecs,
+reportraw(double curtime, double numsecs,
          	struct sstat *ss, struct tstat *ts, struct tstat **proclist,
          	int ndeviat, int ntask, int nactproc,
 		int totproc, int totrun, int totslpi, int totslpu, int totzomb,
@@ -656,11 +604,12 @@ reportraw(time_t curtime, int numsecs,
 {
 	static char		firstcall = 1;
 	char			timebuf[16], datebuf[16];
+	double			timed;
 	unsigned int		rv;
 	static unsigned int	curline, headline, sampsum,
 				totalsec, totalexit, lastnpres,
 				lastntrun, lastntslpi, lastntslpu, lastnzomb;
-	static time_t		lasttime;
+	static double		lasttime;
 	static struct sstat	totsyst;
 
 	/*
@@ -675,7 +624,7 @@ reportraw(time_t curtime, int numsecs,
 	*/
 	if (firstcall)
 	{
-		reportheader(&utsname, time(0));
+		reportheader(&sysname, time(0));
 		firstcall = 0;
 	}
 
@@ -698,7 +647,7 @@ reportraw(time_t curtime, int numsecs,
 		/*
 		** initialize variables for new report
 		*/
-		pretime = curtime;
+		__pmtimevalFromReal(curtime, &pretime);
 
 		curline   = 1;
 		headline  = 0;
@@ -724,7 +673,8 @@ reportraw(time_t curtime, int numsecs,
 		if (usecolors)
 			printf(COLSETHEAD);
 
-		printf("\n%s  ", convtime(pretime, timebuf));
+		timed = __pmtimevalToReal(&pretime);
+		printf("\n%s  ", convtime(timed, timebuf));
 
 		(pridef[prinow].prihead)(osvers, osrel, ossub);
 
@@ -780,7 +730,7 @@ reportraw(time_t curtime, int numsecs,
 		printf("......................... logging restarted "
 		       ".........................\n");
 
-		pretime = curtime;
+		__pmtimevalFromReal(curtime, &pretime);
 		curline++;
 
 		/*
@@ -903,7 +853,7 @@ reportraw(time_t curtime, int numsecs,
 			cleanstop(1);
 	}
 
-	pretime = curtime;
+	__pmtimevalFromReal(curtime, &pretime);
 
 	return '\0';
 }
@@ -912,15 +862,15 @@ reportraw(time_t curtime, int numsecs,
 ** print overall header
 */
 static void
-reportheader(struct utsname *uname, time_t mtime)
+reportheader(struct sysname *sysname, time_t mtime)
 {
         char            cdate[16];
 
         printf("\n%s  %s  %s  %s  %s\n\n",
-                uname->nodename,
-                uname->release,
-                uname->version,
-                uname->machine,
+                sysname->nodename,
+                sysname->release,
+                sysname->version,
+                sysname->machine,
         	convdate(mtime, cdate));
 }
 
@@ -1333,14 +1283,14 @@ memline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 	preprint(mbadness >= sbadness ? mbadness : sbadness);
 
 	printf("%7lldM %6lldM %6lldM %5lldM %4lldM %6lldM  %7lldM %6lldM",
-		ss->mem.physmem   * (pagesize / 1024) /1024,
-		ss->mem.freemem   * (pagesize / 1024) /1024,
-		ss->mem.buffermem * (pagesize / 1024) /1024,
-		ss->mem.cachemem  * (pagesize / 1024) /1024,
-		ss->mem.cachedrt  * (pagesize / 1024) /1024,
-		ss->mem.slabmem   * (pagesize / 1024) /1024,
-		ss->mem.totswap   * (pagesize / 1024) /1024,
-		ss->mem.freeswap  * (pagesize / 1024) /1024);
+		ss->mem.physmem   /1024,
+		ss->mem.freemem   /1024,
+		ss->mem.buffermem /1024,
+		ss->mem.cachemem  /1024,
+		ss->mem.cachedrt  /1024,
+		ss->mem.slabmem   /1024,
+		ss->mem.totswap   /1024,
+		ss->mem.freeswap  /1024);
 
 	postprint(mbadness >= sbadness ? mbadness : sbadness);
 
@@ -1388,8 +1338,8 @@ swapline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 		(double)ss->mem.pgscans / deltasec,
 		(double)ss->mem.swins   / deltasec,
 		(double)ss->mem.swouts  / deltasec,
-		        ss->mem.committed * (pagesize / 1024) / 1024,
-		        ss->mem.commitlim * (pagesize / 1024) / 1024);
+		        ss->mem.committed / 1024,
+		        ss->mem.commitlim / 1024);
 
 	postprint(badness);
 
@@ -2021,7 +1971,6 @@ TCPline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 	return 1;
 }
 
-#if	HTTPSTATS
 static void
 httphead(int osvers, int osrel, int ossub)
 {
@@ -2045,7 +1994,6 @@ httpline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 
 	return 1;
 }
-#endif
 
 /*
 ** per-process statistics: top-3 processor consumers
@@ -2127,7 +2075,7 @@ topmline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 	*/
 	qsort(ps, nactproc, sizeof(struct tstat *), compmem);
 
-	availmem  = ss->mem.physmem * pagesize/1024;
+	availmem  = ss->mem.physmem;
 
 	printf("%5d %-8.8s %3.0lf%% | %5d %-8.8s %3.0lf%% | "
 	       "%5d %-8.8s %3.0lf%%\n",
@@ -2325,9 +2273,7 @@ struct pridef pridef[] =
    {0,  "n",  'U',  udpv6head,	udpv6line,  	"udp  v6",                },
    {0,  "n",  't',  tcphead,	tcpline,  	"tcp        (general)",   },
    {0,  "n",  'T',  TCPhead,	TCPline,  	"tcp        (errors)",    },
-#if	HTTPSTATS
    {0,  "n",  'h',  httphead,	httpline,  	"HTTP activity",          },
-#endif
    {0,  "",   'O',  topchead,	topcline,  	"top-3 processes cpu",    },
    {0,  "",   'G',  topmhead,	topmline,  	"top-3 processes memory", },
    {0,  "",   'D',  topdhead,	topdline,  	"top-3 processes disk",   },

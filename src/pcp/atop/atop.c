@@ -10,14 +10,9 @@
 ** indicated interval-time a snapshot is taken of the system-level and
 ** process-level counters and the deviations are calculated and
 ** visualized for the user.
-** ==========================================================================
-** Author:      Gerlof Langeveld
-** E-mail:      gerlof.langeveld@atoptool.nl
-** Date:        November 1996
-** Linux-port:  June 2000
-** Modified: 	May 2001 - Ported to kernel 2.4
-** --------------------------------------------------------------------------
+** 
 ** Copyright (C) 2000-2012 Gerlof Langeveld
+** Copyright (C) 2015 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -28,10 +23,6 @@
 ** WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ** See the GNU General Public License for more details.
-**
-** You should have received a copy of the GNU General Public License
-** along with this program; if not, write to the Free Software
-** Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ** --------------------------------------------------------------------------
 **
 ** After initialization, the main-function calls the ENGINE.
@@ -113,209 +104,41 @@
 ** flags. In this way various representation-layers (ASCII, graphical, ...)
 ** can be linked with 'atop'; the one to use can eventually be chosen
 ** at runtime. 
-**
-** $Log: atop.c,v $
-** Revision 1.49  2010/10/23 14:01:00  gerlof
-** Show counters for total number of running and sleep (S and D) threads.
-**
-** Revision 1.48  2010/10/23 08:18:15  gerlof
-** Catch signal SIGUSR2 to take a final sample and stop.
-** Needed for improved of suspend/hibernate.
-**
-** Revision 1.47  2010/04/23 12:20:19  gerlof
-** Modified mail-address in header.
-**
-** Revision 1.46  2010/04/23 09:57:28  gerlof
-** Version (flag -V) handled earlier after startup.
-**
-** Revision 1.45  2010/04/17 17:19:41  gerlof
-** Allow modifying the layout of the columns in the system lines.
-**
-** Revision 1.44  2010/04/16 13:00:23  gerlof
-** Automatically start another version of atop if the logfile to
-** be read has not been created by the current version.
-**
-** Revision 1.43  2010/03/04 10:51:10  gerlof
-** Support I/O-statistics on logical volumes and MD devices.
-**
-** Revision 1.42  2009/12/31 11:33:33  gerlof
-** Sanity-check to bypass kernel-bug showing 497 days of CPU-consumption.
-**
-** Revision 1.41  2009/12/17 10:51:31  gerlof
-** Allow own defined process line with key 'o' and a definition
-** in the atoprc file.
-**
-** Revision 1.40  2009/12/17 08:15:15  gerlof
-** Introduce branch-key to go to specific time in raw file.
-**
-** Revision 1.39  2009/12/10 13:34:32  gerlof
-** Cosmetical changes.
-**
-** Revision 1.38  2009/12/10 11:55:38  gerlof
-** Introduce -L flag for line length.
-**
-** Revision 1.37  2009/12/10 10:43:33  gerlof
-** Correct calculation of node name.
-**
-** Revision 1.36  2009/12/10 09:19:06  gerlof
-** Various changes related to redesign of user-interface.
-** Made by JC van Winkel.
-**
-** Revision 1.35  2009/11/27 15:11:55  gerlof
-** *** empty log message ***
-**
-** Revision 1.34  2009/11/27 15:07:25  gerlof
-** Give up root-priviliges at a earlier stage.
-**
-** Revision 1.33  2009/11/27 14:01:01  gerlof
-** Introduce system-wide configuration file /etc/atoprc
-**
-** Revision 1.32  2008/01/07 10:16:13  gerlof
-** Implement summaries for atopsar.
-**
-** Revision 1.31  2007/11/06 09:16:05  gerlof
-** Add keyword atopsarflags to configuration-file ~/.atoprc
-**
-** Revision 1.30  2007/08/16 11:58:35  gerlof
-** Add support for atopsar reporting.
-**
-** Revision 1.29  2007/03/20 13:01:36  gerlof
-** Introduction of variable supportflags.
-**
-** Revision 1.28  2007/03/20 12:13:00  gerlof
-** Be sure that all tstat struct's are initialized with binary zeroes.
-**
-** Revision 1.27  2007/02/19 11:55:04  gerlof
-** Bug-fix: flag -S was not recognized any more.
-**
-** Revision 1.26  2007/02/13 10:34:20  gerlof
-** Support parseable output with flag -P
-**
-** Revision 1.25  2007/01/26 12:10:40  gerlof
-** Add configuration-value 'swoutcritsec'.
-**
-** Revision 1.24  2007/01/18 10:29:22  gerlof
-** Improved syntax-checking for ~/.atoprc file.
-** Support for network-interface busy-percentage.
-**
-** Revision 1.23  2006/02/07 08:27:04  gerlof
-** Cosmetic changes.
-**
-** Revision 1.22  2005/10/28 09:50:29  gerlof
-** All flags/subcommands are defined as macro's.
-**
-** Revision 1.21  2005/10/21 09:48:48  gerlof
-** Per-user accumulation of resource consumption.
-**
-** Revision 1.20  2004/12/14 15:05:38  gerlof
-** Implementation of patch-recognition for disk and network-statistics.
-**
-** Revision 1.19  2004/10/26 13:42:49  gerlof
-** Also lock current physical pages in memory.
-**
-** Revision 1.18  2004/09/15 08:23:42  gerlof
-** Set resource limit for locked memory to infinite, because
-** in certain environments it is set to 32K (causes atop-malloc's
-** to fail).
-**
-** Revision 1.17  2004/05/06 09:45:44  gerlof
-** Ported to kernel-version 2.6.
-**
-** Revision 1.16  2003/07/07 09:18:22  gerlof
-** Cleanup code (-Wall proof).
-**
-** Revision 1.15  2003/07/03 11:16:14  gerlof
-** Implemented subcommand `r' (reset).
-**
-** Revision 1.14  2003/06/30 11:29:12  gerlof
-** Handle configuration file ~/.atoprc
-**
-** Revision 1.13  2003/01/14 09:01:10  gerlof
-** Explicit clearing of malloced space for exited processes.
-**
-** Revision 1.12  2002/10/30 13:44:51  gerlof
-** Generate notification for statistics since boot.
-**
-** Revision 1.11  2002/10/08 11:34:52  gerlof
-** Modified storage of raw filename.
-**
-** Revision 1.10  2002/09/26 13:51:47  gerlof
-** Limit header lines by not showing disks.
-**
-** Revision 1.9  2002/09/17 10:42:00  gerlof
-** Copy functions rawread() and rawwrite() to separate source-file rawlog.c
-**
-** Revision 1.8  2002/08/30 07:49:35  gerlof
-** Implement possibility to store and retrieve atop-data in raw format.
-**
-** Revision 1.7  2002/08/27 12:09:16  gerlof
-** Allow raw data file to be written and to be read (with compression).
-**
-** Revision 1.6  2002/07/24 11:12:07  gerlof
-** Redesigned to ease porting to other UNIX-platforms.
-**
-** Revision 1.5  2002/07/11 09:15:53  root
-** *** empty log message ***
-**
-** Revision 1.4  2002/07/08 09:20:45  root
-** Bug solution: flag list overflow.
-**
-** Revision 1.3  2001/11/07 09:17:41  gerlof
-** Use /proc instead of /dev/kmem for process-level statistics.
-**
-** Revision 1.2  2001/10/04 13:03:15  gerlof
-** Separate kopen() function called i.s.o. implicit with first kmem-read
-**
-** Revision 1.1  2001/10/02 10:43:19  gerlof
-** Initial revision
-**
 */
 
-static const char rcsid[] = "$Id: atop.c,v 1.49 2010/10/23 14:01:00 gerlof Exp $";
-
-#include <sys/types.h>
-#include <sys/param.h>
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
-#include <time.h>
-#include <stdio.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <sys/utsname.h>
-#include <string.h>
-#include <sys/time.h>
 #include <sys/resource.h>
 #include <regex.h>
 
 #include "atop.h"
-#include "acctproc.h"
 #include "ifprop.h"
 #include "photoproc.h"
 #include "photosyst.h"
+#include "hostmetrics.h"
 #include "showgeneric.h"
 #include "parseable.h"
 
-#define	allflags  "ab:cde:fghijklmnopqrstuvwxyz1ABCDEFGHIJKL:MNOP:QRSTUVWXYZ"
-#define	PROCCHUNK	100	/* process-entries for future expansion  */
-#define	MAXFL		64      /* maximum number of command-line flags  */
+#define	allflags  "ab:cde:fghijklmnopqr:stuvw:xyz1ABCDEFGHIJKL:MNOP:QRSTUVWXYZ?"
+#define	MAXFL	64      /* maximum number of command-line flags  */
 
 /*
 ** declaration of global variables
 */
-struct utsname	utsname;
-int		utsnodenamelen;
-time_t 		pretime;	/* timing info				*/
-time_t 		curtime;	/* timing info				*/
-unsigned long	interval = 10;
+struct sysname	sysname;
+int		nodenamelen;
+struct timeval	origin;
+struct timeval	pretime;	/* timing info				*/
+struct timeval	curtime;	/* timing info				*/
+struct timeval	interval = { 10, 0 };
 unsigned long 	sampcnt;
-char		screen;
 int		linelen  = 80;
+char		screen;
 char		acctreason;	/* accounting not active (return val) 	*/
-char		rawname[RAWNAMESZ];
 char		rawreadflag;
+char		rawwriteflag;
 unsigned int	begintime, endtime;
 char		flaglist[MAXFL];
 char		deviatonly = 1;
@@ -438,18 +261,10 @@ main(int argc, char *argv[])
 	register int	i;
 	int		c;
 	char		*p;
-	struct rlimit	rlim;
-
-	/*
-	** since priviliged actions will be done later on, at this stage
-	** the root-priviliges are dropped by switching effective user-id
-	** to real user-id (security reasons)
-	*/
-        if (! droprootprivs() )
-	{
-		fprintf(stderr, "not possible to drop root privs\n");
-                exit(42);
-	}
+	pmOptions	opts = {
+		.short_options = allflags,
+		.flags = PM_OPTFLAG_BOUNDARIES,
+	};
 
 	/*
 	** preserve command arguments to allow restart of other version
@@ -463,9 +278,9 @@ main(int argc, char *argv[])
 
 	if ( (p = getenv("HOME")) )
 	{
-		char path[1024];
+		char path[MAXPATHLEN];
 
-		snprintf(path, sizeof path, "%s/.atoprc", p);
+		snprintf(path, sizeof(path), "%s/.atoprc", p);
 
 		readrc(path, 0);
 	}
@@ -474,13 +289,12 @@ main(int argc, char *argv[])
 	** check if we are supposed to behave as 'atopsar'
 	** i.e. system statistics only
 	*/
-	if ( (p = strrchr(argv[0], '/')))
-		p++;
-	else
-		p = argv[0];
+	__pmSetProgname(pmProgname);
 
-	if ( memcmp(p, "atopsar", 7) == 0)
+	if (strcmp(pmProgname, "atopsar") == 0)
 		return atopsar(argc, argv);
+
+	__pmStartOptions(&opts);
 
 	/* 
 	** interpret command-line arguments & flags 
@@ -495,12 +309,12 @@ main(int argc, char *argv[])
 		*/
 		i = 0;
 
-		while (i < MAXFL-1 && (c=getopt(argc, argv, allflags)) != EOF)
+		while (i < MAXFL-1 && (c = pmgetopt_r(argc, argv, &opts)) != EOF)
 		{
 			switch (c)
 			{
 			   case '?':		/* usage wanted ?             */
-				prusage(argv[0]);
+				prusage(pmProgname);
 				break;
 
 			   case 'V':		/* version wanted ?           */
@@ -508,18 +322,12 @@ main(int argc, char *argv[])
 				exit(0);
 
 			   case 'w':		/* writing of raw data ?      */
-				if (optind >= argc)
-					prusage(argv[0]);
-
-				strncpy(rawname, argv[optind++], RAWNAMESZ-1);
-				vis.show_samp = rawwrite;
+				__pmAddOptArchiveFolio(&opts, opts.optarg);
+				rawwriteflag++;
 				break;
 
 			   case 'r':		/* reading of raw data ?      */
-				if (optind < argc && *(argv[optind]) != '-')
-					strncpy(rawname, argv[optind++],
-							RAWNAMESZ-1);
-
+				__pmAddOptArchiveFolio(&opts, opts.optarg);
 				rawreadflag++;
 				break;
 
@@ -537,24 +345,24 @@ main(int argc, char *argv[])
 
                            case 'b':		/* begin time ?               */
 				if ( !hhmm2secs(optarg, &begintime) )
-					prusage(argv[0]);
+					prusage(pmProgname);
 				break;
 
                            case 'e':		/* end   time ?               */
 				if ( !hhmm2secs(optarg, &endtime) )
-					prusage(argv[0]);
+					prusage(pmProgname);
 				break;
 
                            case 'P':		/* parseable output?          */
 				if ( !parsedef(optarg) )
-					prusage(argv[0]);
+					prusage(pmProgname);
 
 				vis.show_samp = parseout;
 				break;
 
                            case 'L':		/* line length                */
 				if ( !numeric(optarg) )
-					prusage(argv[0]);
+					prusage(pmProgname);
 
 				linelen = atoi(optarg);
 				break;
@@ -567,89 +375,55 @@ main(int argc, char *argv[])
 		/*
 		** get optional interval-value and optional number of samples	
 		*/
-			if (optind < argc && optind < MAXFL)
+		if (opts.optind < argc && opts.optind < MAXFL)
 		{
-			if (!numeric(argv[optind]))
-				prusage(argv[0]);
-	
-			interval = atoi(argv[optind]);
-	
-			optind++;
-	
-			if (optind < argc)
-			{
-				if (!numeric(argv[optind]) )
-					prusage(argv[0]);
+			char	*endnum, *arg;
 
-				if ( (nsamples = atoi(argv[optind])) < 1)
-					prusage(argv[0]);
+			arg = argv[opts.optind++];
+			if (pmParseInterval(arg, &opts.interval, &endnum) < 0)
+			{
+				pmprintf(
+			"%s: %s option not in pmParseInterval(3) format:\n%s\n",
+					pmProgname, arg, endnum);
+				free(endnum);
+				opts.errors++;
+			}
+			else
+				interval = opts.interval;
+	
+			if (opts.optind < argc)
+			{
+				arg = argv[opts.optind];
+				if (!numeric(arg))
+					prusage(pmProgname);
+				if ((opts.samples = atoi(arg)) < 1)
+					prusage(pmProgname);
+				nsamples = opts.samples;
 			}
 		}
 	}
+	if (opts.errors)
+		prusage(pmProgname);
 
 	/*
-	** determine the name of this node (without domain-name)
-	** and the kernel-version
+	** find local host details (no privileged access required)
 	*/
-	(void) uname(&utsname);
-
-	if ( (p = strchr(utsname.nodename, '.')) )
-		*p = '\0';
-
-	utsnodenamelen = strlen(utsname.nodename);
-
-	sscanf(utsname.release, "%d.%d.%d", &osrel, &osvers, &ossub);
-
-	/*
-	** determine the clock rate and memory page size for this machine
-	*/
-	hertz		= sysconf(_SC_CLK_TCK);
-	pagesize	= sysconf(_SC_PAGESIZE);
+	setup_globals(&opts);
 
 	/*
 	** check if raw data from a file must be viewed
 	*/
-	if (rawreadflag)
+	if (rawreadflag || rawwriteflag)
 	{
-		rawread();
+		// TODO: read/write archive folios
 		cleanstop(0);
 	}
-
-	/*
-	** determine start-time for gathering current statistics
-	*/
-	curtime = getboot() / hertz;
 
 	/*
 	** catch signals for proper close-down
 	*/
 	signal(SIGHUP,  cleanstop);
 	signal(SIGTERM, cleanstop);
-
-	/*
-	** regain the root-priviliges that we dropped at the beginning
-	** to do some priviliged work
-	*/
-	regainrootprivs();
-
-	/*
-	** lock ATOP in memory to get reliable samples (also when
-	** memory is low);
-	** ignored if not running under superuser priviliges!
-	*/
-	rlim.rlim_cur	= RLIM_INFINITY;
-	rlim.rlim_max	= RLIM_INFINITY;
-	(void) setrlimit(RLIMIT_MEMLOCK, &rlim);
-
-	(void) mlockall(MCL_CURRENT|MCL_FUTURE);
-
-	/*
-	** increment CPU scheduling-priority to get reliable samples (also
-	** during heavy CPU load);
-	** ignored if not running under superuser priviliges!
-	*/
-	if ( nice(-20) == -1)
-		;
 
 	/*
 	** switch-on the process-accounting mechanism to register the
@@ -666,14 +440,6 @@ main(int argc, char *argv[])
  	** open socket to the IP layer to issue getsockopt() calls later on
 	*/
 	netatop_ipopen();
-	
-	/*
-	** since priviliged activities are finished now, there is no
-	** need to keep running under root-priviliges, so switch
-	** effective user-id to real user-id
-	*/
-        if (! droprootprivs() )
-		cleanstop(42);
 
 	/*
 	** start the engine now .....
@@ -685,6 +451,128 @@ main(int argc, char *argv[])
 	return 0;	/* never reached */
 }
 
+static int
+setup_options(int ctx, pmOptions *opts)
+{
+	int		sts, step, mode = 0;
+
+	if ((sts = pmGetContextOptions(ctx, opts)) < 0)
+		return sts;
+
+	curtime = origin = opts->origin;
+
+	/* initial archive mode, position and delta */
+	if (opts->context == PM_CONTEXT_ARCHIVE)
+	{
+		const int SECONDS_IN_24_DAYS = 2073600;
+
+		if (opts->interval.tv_sec || opts->interval.tv_usec)
+			interval = opts->interval;
+
+		if (interval.tv_sec > SECONDS_IN_24_DAYS)
+		{
+			step = interval.tv_sec;
+			mode |= PM_XTB_SET(PM_TIME_SEC);
+		}
+		else
+		{
+			step = interval.tv_sec * 1e3 + interval.tv_usec / 1e3;
+			mode |= PM_XTB_SET(PM_TIME_MSEC);
+		}
+		if ((sts = pmSetMode(mode, &curtime, step)) < 0)
+		{
+			pmprintf(
+		"%s: pmSetMode failure: %s\n", pmProgname, pmErrStr(sts));
+			opts->flags |= PM_OPTFLAG_RUNTIME_ERR;
+			opts->errors++;
+		}
+	}
+
+	return sts;
+}
+
+static int
+setup_context(pmOptions *opts)
+{
+	char		*source;
+	int		sts, ctx;
+
+	if (opts->context == PM_CONTEXT_ARCHIVE)
+		source = opts->archives[0];
+	else if (opts->context == PM_CONTEXT_HOST)
+		source = opts->hosts[0];
+	else if (opts->context == PM_CONTEXT_LOCAL)
+		source = NULL;
+	else
+	{
+		opts->context = PM_CONTEXT_HOST;
+		source = "local:";
+	}
+
+	if ((sts = ctx = pmNewContext(opts->context, source)) < 0)
+	{
+		if (opts->context == PM_CONTEXT_HOST)
+			pmprintf(
+		"%s: Cannot connect to pmcd on host \"%s\": %s\n",
+				pmProgname, source, pmErrStr(sts));
+		else if (opts->context == PM_CONTEXT_LOCAL)
+			pmprintf(
+		"%s: Cannot make standalone connection on localhost: %s\n",
+				pmProgname, pmErrStr(sts));
+		else
+			pmprintf(
+		"%s: Cannot open archive \"%s\": %s\n",
+				pmProgname, source, pmErrStr(sts));
+	}
+	else
+		sts = setup_options(ctx, opts);
+
+	if (sts < 0)
+	{
+		pmflush();
+		cleanstop(1);
+	}
+
+	return ctx;
+}
+
+void
+setup_globals(pmOptions *opts)
+{
+	pmID		pmids[HOST_NMETRICS];
+	pmDesc		descs[HOST_NMETRICS];
+	pmResult	*result;
+	int		sts;
+
+	setup_context(opts);
+
+	setup_metrics(hostmetrics, &pmids[0], &descs[0], HOST_NMETRICS);
+
+	if ((sts = pmFetch(HOST_NMETRICS, pmids, &result)) < 0)
+	{
+		fprintf(stderr, "%s: pmFetch: %s\n",
+			pmProgname, pmErrStr(sts));
+		cleanstop(1);
+	}
+	if (HOST_NMETRICS != result->numpmid)
+	{
+		fprintf(stderr,
+			"%s: pmFetch failed to fetch initial metric value(s)\n",
+			pmProgname);
+		cleanstop(1);
+	}
+
+	hertz = extract_integer(result, descs, HOST_HERTZ);
+	pagesize = extract_integer(result, descs, HOST_PAGESIZE);
+	extract_string(result, descs, HOST_RELEASE, sysname.release, sizeof(sysname.release));
+	extract_string(result, descs, HOST_VERSION, sysname.version, sizeof(sysname.version));
+	extract_string(result, descs, HOST_MACHINE, sysname.machine, sizeof(sysname.machine));
+	extract_string(result, descs, HOST_NODENAME, sysname.nodename, sizeof(sysname.nodename));
+	nodenamelen = strlen(sysname.nodename);
+
+	pmFreeResult(result);
+}
+
 /*
 ** The engine() drives the main-loop of the program
 */
@@ -693,7 +581,7 @@ engine(void)
 {
 	int 			i, j;
 	struct sigaction 	sigact;
-	static time_t		timelimit;
+	double 			timelimit = 0.0, timed, delta;
 	void			getusr1(int), getusr2(int);
 
 	/*
@@ -719,7 +607,6 @@ engine(void)
 	unsigned int		nprocexit;	/* number of exited procs    */
 	unsigned int		nprocexitnet;	/* number of exited procs    */
 						/* via netatopd daemon       */
-
 	unsigned int		ntaskdev;       /* nr of tasks deviated      */
 	unsigned int		nprocdev;       /* nr of procs deviated      */
 	int			nprocpres;	/* nr of procs present       */
@@ -733,7 +620,7 @@ engine(void)
 	presstat = calloc(1, sizeof(struct sstat));
 	devsstat = calloc(1, sizeof(struct sstat));
 
-	curtlen  = countprocs() * 3 / 2;	/* add 50% for threads */
+	curtlen  = PROCMIN * 3 / 2;	/* add 50% for threads */
 	curtpres = calloc(curtlen, sizeof(struct tstat));
 
 	ptrverify(cursstat, "Malloc failed for current sysstats\n");
@@ -757,19 +644,21 @@ engine(void)
 	sigact.sa_handler = getalarm;
 	sigaction(SIGALRM, &sigact, (struct sigaction *)0);
 
-	if (interval > 0)
-		alarm(interval);
+	if (interval.tv_sec || interval.tv_usec)
+		setalarm(&interval);
 
 	if (midnightflag)
 	{
-		time_t		timenow = time(0);
-		struct tm	*tp = localtime(&timenow);
+		time_t		timenow = curtime.tv_sec;
+		struct tm	tm, *tp;
+
+		tp = pmLocaltime(&timenow, &tm);
 
 		tp->tm_hour = 23;
 		tp->tm_min  = 59;
 		tp->tm_sec  = 59;
 
-		timelimit = mktime(tp);
+		timelimit = (double)__pmMktime(tp);
 	}
 
 	/*
@@ -795,7 +684,8 @@ engine(void)
 		**  check if the next sample is expected before midnight;
 		**  if not, stop atop now 
 		*/
-		if (midnightflag && (curtime+interval) > timelimit)
+		if (midnightflag &&
+			__pmtimevalAdd(&curtime, &interval) > timelimit)
 			break;
 
 		/*
@@ -808,12 +698,6 @@ engine(void)
 		awaittrigger = 1;
 
 		/*
-		** gather time info for this sample
-		*/
-		pretime  = curtime;
-		curtime  = time(0);		/* seconds since 1-1-1970 */
-
-		/*
 		** take a snapshot of the current system-level statistics 
 		** and calculate the deviations (i.e. calculate the activity
 		** during the last sample)
@@ -822,7 +706,10 @@ engine(void)
 		cursstat = presstat;
 		presstat = hlpsstat;
 
-		photosyst(cursstat);	/* obtain new counters      */
+		photosyst(cursstat);	/* obtain new counters     */
+
+		pretime  = curtime;	/* timestamp for previous sample */
+		curtime  = cursstat->stamp; /* timestamp for this sample */
 
 		deviatsyst(cursstat, presstat, devsstat);
 
@@ -837,18 +724,7 @@ engine(void)
 		*/
 		memset(curtpres, 0, curtlen * sizeof(struct tstat));
 
-		while ( (ntaskpres = photoproc(curtpres, curtlen)) == curtlen)
-		{
-			curtlen += PROCCHUNK;
-
-			curtpres = realloc(curtpres,
-					curtlen * sizeof(struct tstat));
-
-			ptrverify(curtpres,
-			          "Realloc failed for %d tasks\n", curtlen);
-
-			memset(curtpres, 0, curtlen * sizeof(struct tstat));
-		}
+		ntaskpres = photoproc(curtpres, &curtlen);
 
 		/*
 		** register processes that exited during last sample;
@@ -934,12 +810,15 @@ engine(void)
 				devpstat[j++] = devtstat+i;
 		}
 
+		timed = __pmtimevalToReal(&curtime);
+		delta = timed - __pmtimevalToReal(&pretime);
+
 		/*
 		** activate the installed print-function to visualize
 		** the deviations
 		*/
-		lastcmd = (vis.show_samp)( curtime,
-				     curtime-pretime > 0 ? curtime-pretime : 1,
+		lastcmd = (vis.show_samp)(timed,
+				     delta > 1.0 ? delta : 1.0,
 		           	     devsstat,  devtstat, devpstat,
 		                     ntaskdev,  ntaskpres, nprocdev, nprocpres, 
 		                     totrun, totslpi, totslpu, totzombie, 
@@ -961,7 +840,7 @@ engine(void)
 		{
 			sampcnt = -1;
 
-			curtime = getboot() / hertz;	// reset current time
+			curtime = origin;
 
 			/* set current (will be 'previous') counters to 0 */
 			memset(cursstat, 0,           sizeof(struct sstat));
@@ -1030,8 +909,8 @@ getalarm(int sig)
 {
 	awaittrigger=0;
 
-	if (interval > 0)
-		alarm(interval);	/* restart the timer */
+	if (interval.tv_sec || interval.tv_usec)
+		setalarm(&interval);	/* restart the timer */
 }
 
 /*
@@ -1061,7 +940,8 @@ extern int get_posval(char *name, char *val);
 void
 do_interval(char *name, char *val)
 {
-	interval = get_posval(name, val);
+	interval.tv_sec = get_posval(name, val);
+	interval.tv_usec = 0;
 }
 
 void

@@ -8,12 +8,7 @@
 ** process-database. This database is implemented as a linked list of
 ** all running processes, needed to remember the process-counters from
 ** the previous sample.
-** ==========================================================================
-** Author:      Gerlof Langeveld
-** E-mail:      gerlof.langeveld@atoptool.nl
-** Date:        November 1996
-** LINUX-port:  June 2000
-** --------------------------------------------------------------------------
+**
 ** Copyright (C) 2000-2012 Gerlof Langeveld
 **
 ** This program is free software; you can redistribute it and/or modify it
@@ -25,40 +20,7 @@
 ** WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ** See the GNU General Public License for more details.
-**
-** You should have received a copy of the GNU General Public License
-** along with this program; if not, write to the Free Software
-** Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-** --------------------------------------------------------------------------
-**
-** $Log: procdbase.c,v $
-** Revision 1.8  2010/04/23 12:19:35  gerlof
-** Modified mail-address in header.
-**
-** Revision 1.7  2007/11/05 12:12:31  gerlof
-** Match processes not only on pid, but also on start time.
-**
-** Revision 1.6  2005/10/21 09:50:19  gerlof
-** Per-user accumulation of resource consumption.
-**
-** Revision 1.5  2003/07/07 09:26:40  gerlof
-** Cleanup code (-Wall proof).
-**
-** Revision 1.4  2002/10/03 11:19:58  gerlof
-** Modify (effective) uid/gid to real uid/gid.
-**
-** Revision 1.3  2002/07/24 11:13:50  gerlof
-** Changed to ease porting to other UNIX-platforms.
-**
-** Revision 1.2  2002/07/08 09:29:07  root
-** Call to calloc i.s.o. malloc + memset.
-**
-** Revision 1.1  2001/10/02 10:43:33  gerlof
-** Initial revision
-**
 */
-
-static const char rcsid[] = "$Id: procdbase.c,v 1.8 2010/04/23 12:19:35 gerlof Exp $";
 
 #include <sys/types.h>
 #include <sys/param.h>

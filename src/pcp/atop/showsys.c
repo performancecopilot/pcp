@@ -6,12 +6,9 @@
 **
 ** This source-file contains the Linux-specific functions to calculate
 ** figures to be visualized.
-** ==========================================================================
-** Author:      JC van Winkel - AT Computing, Nijmegen, Holland
-** E-mail:      jc@ATComputing.nl
-** Date:        November 2009
-** --------------------------------------------------------------------------
+**
 ** Copyright (C) 2009 JC van Winkel
+** Copyright (C) 2000-2012 Gerlof Langeveld
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -22,53 +19,7 @@
 ** WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ** See the GNU General Public License for more details.
-**
-** You should have received a copy of the GNU General Public License
-** along with this program; if not, write to the Free Software
-** Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-** --------------------------------------------------------------------------
-**
-** $Log: showsys.c,v $
-** Revision 1.10  2010/11/12 06:06:43  gerlof
-** Sometimes segmentation-fault on particular CPU-types
-** due to memcpy i.s.o. memmove when moving memory in overlap.
-**
-** Revision 1.9  2010/10/23 14:04:20  gerlof
-** Counters for total number of running and sleep threads (JC van Winkel).
-**
-** Revision 1.8  2010/05/18 19:20:02  gerlof
-** Introduce CPU frequency and scaling (JC van Winkel).
-**
-** Revision 1.7  2010/04/23 08:16:58  gerlof
-** Field 'avque' modified to 'avq' to be able to show higher values
-** (especially on LVM-level).
-**
-** Revision 1.6  2010/03/04 10:53:37  gerlof
-** Support I/O-statistics on logical volumes and MD devices.
-**
-** Revision 1.5  2009/12/17 11:59:36  gerlof
-** Gather and display new counters: dirty cache and guest cpu usage.
-**
-** Revision 1.4  2009/12/17 08:53:03  gerlof
-** If no coclors wanted, use bold display for critical resources.
-**
-** Revision 1.3  2009/12/17 07:33:05  gerlof
-** Scale system-statistics properly when modifying window size (JC van Winkel).
-**
-** Revision 1.2  2009/12/10 11:56:08  gerlof
-** Various bug-solutions.
-**
-** Revision 1.1  2009/12/10 09:46:16  gerlof
-** Initial revision
-**
-** Initial revision
-**
-**
-** Initial
-**
 */
-
-static const char rcsid[] = "XXXXXX";
 
 #include <sys/types.h>
 #include <sys/param.h>
@@ -330,7 +281,7 @@ sysprt_PRCSYS(void *notused, void *q, int badness, int *color)
 {
         extraparam *as=q;
         static char buf[15]="sys   ";
-        val2cpustr(as->totst * 1000/hertz, buf+6);
+        val2cpustr(as->totst, buf+6);
         return buf;
 }
 
@@ -341,7 +292,7 @@ sysprt_PRCUSER(void *notused, void *q, int badness, int *color)
 {
         extraparam *as=q;
         static char buf[15]="user  ";
-        val2cpustr(as->totut * 1000/hertz, buf+6);
+        val2cpustr(as->totut, buf+6);
         return buf;
 }
 
@@ -956,7 +907,7 @@ sysprt_MEMTOT(void *p, void *notused, int badness, int *color)
         struct sstat *sstat=p;
         static char buf[16]="tot   ";
 	*color = -1;
-        val2memstr(sstat->mem.physmem   * pagesize, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.physmem, buf+6, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -968,7 +919,7 @@ sysprt_MEMFREE(void *p, void *notused, int badness, int *color)
         struct sstat *sstat=p;
         static char buf[16]="free  ";
 	*color = -1;
-        val2memstr(sstat->mem.freemem   * pagesize, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.freemem, buf+6, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -980,7 +931,7 @@ sysprt_MEMCACHE(void *p, void *notused, int badness, int *color)
         struct sstat *sstat=p;
         static char buf[16]="cache ";
 	*color = -1;
-        val2memstr(sstat->mem.cachemem   * pagesize, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.cachemem, buf+6, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -991,7 +942,7 @@ sysprt_MEMDIRTY(void *p, void *notused, int badness, int *color)
 {
         struct sstat *sstat=p;
         static char buf[16] = "dirty ";
-        val2memstr(sstat->mem.cachedrt   * pagesize, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.cachedrt, buf+6, MBFORMAT, 0, 0);
 
         return buf;
 }
@@ -1004,7 +955,7 @@ sysprt_MEMBUFFER(void *p, void *notused, int badness, int *color)
         struct sstat *sstat=p;
         static char buf[16]="buff  ";
 	*color = -1;
-        val2memstr(sstat->mem.buffermem   * pagesize, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.buffermem, buf+6, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -1016,7 +967,7 @@ sysprt_MEMSLAB(void *p, void *notused, int badness, int *color)
         struct sstat *sstat=p;
         static char buf[16]="slab  ";
 	*color = -1;
-        val2memstr(sstat->mem.slabmem   * pagesize, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.slabmem, buf+6, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -1028,7 +979,7 @@ sysprt_RECSLAB(void *p, void *notused, int badness, int *color)
         struct sstat *sstat=p;
         static char buf[16]="slrec ";
 	*color = -1;
-        val2memstr(sstat->mem.slabreclaim * pagesize, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.slabreclaim, buf+6, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -1040,7 +991,7 @@ sysprt_SHMEM(void *p, void *notused, int badness, int *color)
         struct sstat *sstat=p;
         static char buf[16]="shmem  ";
 	*color = -1;
-        val2memstr(sstat->mem.shmem * pagesize, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.shmem, buf+6, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -1052,7 +1003,7 @@ sysprt_SHMRSS(void *p, void *notused, int badness, int *color)
         struct sstat *sstat=p;
         static char buf[16]="shrss  ";
 	*color = -1;
-        val2memstr(sstat->mem.shmrss * pagesize, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.shmrss, buf+6, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -1064,7 +1015,7 @@ sysprt_SHMSWP(void *p, void *notused, int badness, int *color)
         struct sstat *sstat=p;
         static char buf[16]="shswp  ";
 	*color = -1;
-        val2memstr(sstat->mem.shmswp * pagesize, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.shmswp, buf+6, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -1102,7 +1053,7 @@ sysprt_VMWBAL(void *p, void *notused, int badness, int *color)
         struct sstat *sstat=p;
         static char buf[16]="vmbal  ";
 	*color = -1;
-        val2memstr(sstat->mem.vmwballoon * pagesize, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.vmwballoon, buf+6, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -1114,7 +1065,7 @@ sysprt_SWPTOT(void *p, void *notused, int badness, int *color)
         struct sstat *sstat=p;
         static char buf[16]="tot    ";
 	*color = -1;
-        val2memstr(sstat->mem.totswap   * pagesize, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.totswap, buf+6, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -1126,7 +1077,7 @@ sysprt_SWPFREE(void *p, void *notused, int badness, int *color)
         struct sstat *sstat=p;
         static char buf[16]="free  ";
 	*color = -1;
-        val2memstr(sstat->mem.freeswap   * pagesize, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.freeswap, buf+6, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -1137,7 +1088,7 @@ sysprt_SWPCOMMITTED(void *p, void *notused, int badness, int *color)
 {
         struct sstat *sstat=p;
         static char buf[16]="vmcom  ";
-        val2memstr(sstat->mem.committed   * pagesize, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.committed, buf+6, MBFORMAT, 0, 0);
 
 	if (sstat->mem.commitlim && sstat->mem.committed > sstat->mem.commitlim)
 		*color = COLORALMOST;
@@ -1152,7 +1103,7 @@ sysprt_SWPCOMMITLIM(void *p, void *notused, int badness, int *color)
 {
         struct sstat *sstat=p;
         static char buf[16]="vmlim  ";
-        val2memstr(sstat->mem.commitlim   * pagesize, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.commitlim, buf+6, MBFORMAT, 0, 0);
 
 	if (sstat->mem.commitlim && sstat->mem.committed > sstat->mem.commitlim)
 		*color = COLORINFO;

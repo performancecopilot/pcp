@@ -6,12 +6,7 @@
 ** 
 ** This source-file contains the print-functions to visualize the calculated
 ** figures.
-** ==========================================================================
-** Author:      Gerlof Langeveld
-** E-mail:      gerlof.langeveld@atoptool.nl
-** Date:        November 1996
-** LINUX-port:  June 2000
-** --------------------------------------------------------------------------
+**
 ** Copyright (C) 2000-2010 Gerlof Langeveld
 **
 ** This program is free software; you can redistribute it and/or modify it
@@ -23,258 +18,14 @@
 ** WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ** See the GNU General Public License for more details.
-**
-** You should have received a copy of the GNU General Public License
-** along with this program; if not, write to the Free Software
-** Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-** --------------------------------------------------------------------------
-** 
-** $Log: showgeneric.c,v $
-** Revision 1.71  2010/10/25 19:08:32  gerlof
-** When the number of lines is too small for the system-level
-** lines, limit the number of variable resources automatically
-** to a minimum.
-**
-** Revision 1.70  2010/10/23 14:04:05  gerlof
-** Counters for total number of running and sleep threads (JC van Winkel).
-**
-** Revision 1.69  2010/04/23 12:19:35  gerlof
-** Modified mail-address in header.
-**
-** Revision 1.68  2010/04/23 09:58:11  gerlof
-** Version (flag -V) handled earlier after startup.
-**
-** Revision 1.67  2010/04/23 07:57:32  gerlof
-** Proper sorting of processes when switching from single process view
-** to cumulative view (key 'u' or 'p') and vice versa.
-**
-** Revision 1.66  2010/04/17 17:20:26  gerlof
-** Allow modifying the layout of the columns in the system lines.
-**
-** Revision 1.65  2010/03/16 21:13:38  gerlof
-** Program and user selection can be combined with program and user
-** accumulation.
-**
-** Revision 1.64  2010/03/16 20:18:46  gerlof
-** Show in header-line if user selections and program selection are active.
-**
-** Revision 1.63  2010/03/16 20:08:51  gerlof
-** Performance improvement: only sort system-resources once per interval.
-**
-** Revision 1.62  2010/03/04 10:53:01  gerlof
-** Support I/O-statistics on logical volumes and MD devices.
-**
-** Revision 1.61  2009/12/17 10:55:07  gerlof
-** *** empty log message ***
-**
-** Revision 1.60  2009/12/17 10:50:30  gerlof
-** Allow own defined process line with key 'o' and a definition
-** in the atoprc file.
-**
-** Revision 1.59  2009/12/17 09:03:26  gerlof
-** Center message "....since boot" in status line on first screen.
-**
-** Revision 1.58  2009/12/17 08:55:15  gerlof
-** Show messages on status line in color to draw attention.
-**
-** Revision 1.57  2009/12/17 08:16:14  gerlof
-** Introduce branch-key to go to specific time in raw file.
-**
-** Revision 1.56  2009/12/12 09:06:39  gerlof
-** Corrected cumulated disk I/O per user/program (JC van Winkel).
-**
-** Revision 1.55  2009/12/10 13:34:44  gerlof
-** Show which toggle-keys are active in the header line.
-**
-** Revision 1.54  2009/12/10 11:55:03  gerlof
-** Introduce system-wide /etc/atoprc
-**
-** Revision 1.53  2009/12/10 09:53:08  gerlof
-** Improved display of header-line (JC van Winkel).
-**
-** Revision 1.52  2008/03/06 10:14:01  gerlof
-** Modified help-messages.
-**
-** Revision 1.51  2008/02/25 13:47:21  gerlof
-** Bug-solution: segmentation-fault in case of invalid regular expression.
-**
-** Revision 1.50  2008/01/07 11:33:58  gerlof
-** Cosmetic changes.
-**
-** Revision 1.49  2008/01/07 10:18:24  gerlof
-** Implement possibility to make summaries with atopsar.
-**
-** Revision 1.48  2007/03/22 10:12:17  gerlof
-** Support for io counters (>= kernel 2.6.20).
-**
-** Revision 1.47  2007/03/21 14:22:34  gerlof
-** Handle io counters maintained from 2.6.20
-**
-** Revision 1.46  2007/03/20 11:13:15  gerlof
-** Cosmetic changes.
-**
-** Revision 1.45  2007/03/09 12:39:59  gerlof
-** Do not allow 'N' and 'D' when kernel-patch is not installed.
-**
-** Revision 1.44  2007/02/13 10:31:53  gerlof
-** Removal of external declarations.
-**
-** Revision 1.43  2007/01/18 10:41:45  gerlof
-** Add support for colors.
-** Add support for automatic determination of most critical resource.
-**
-** Revision 1.42  2006/11/13 13:48:36  gerlof
-** Implement load-average counters, context-switches and interrupts.
-**
-** Revision 1.41  2006/04/03 05:42:35  gerlof
-** *** empty log message ***
-**
-** Revision 1.40  2006/02/07 08:28:26  gerlof
-** Improve screen-handling (less flashing) by exchanging clear()
-** by werase() (contribution Folkert van Heusden).
-**
-** Revision 1.39  2005/11/04 14:16:16  gerlof
-** Minor bug-solutions.
-**
-** Revision 1.38  2005/10/28 09:52:03  gerlof
-** All flags/subcommands are defined as macro's.
-** Subcommand 'p' has been changed to 'z' (pause).
-**
-** Revision 1.37  2005/10/24 06:12:17  gerlof
-** Flag -L modified into -l.
-**
-** Revision 1.36  2005/10/21 09:50:46  gerlof
-** Per-user accumulation of resource consumption.
-** Possibility to send signal to process.
-**
-** Revision 1.35  2004/12/14 15:06:41  gerlof
-** Implementation of patch-recognition for disk and network-statistics.
-**
-** Revision 1.34  2004/09/27 11:01:13  gerlof
-** Corrected usage-info as suggested by Edelhard Becker.
-**
-** Revision 1.33  2004/09/13 09:19:14  gerlof
-** Modify subcommands (former 's' -> 'v', 'v' -> 'V', new 's').
-**
-** Revision 1.32  2004/08/31 09:52:47  root
-** information about underlying threads.
-**
-** Revision 1.31  2004/06/01 11:57:58  gerlof
-** Regular expressions for selections on process-name and user-name.
-**
-** Revision 1.30  2003/07/07 09:27:24  gerlof
-** Cleanup code (-Wall proof).
-**
-** Revision 1.29  2003/07/03 11:16:42  gerlof
-** Implemented subcommand `r' (reset).
-**
-** Revision 1.28  2003/06/30 11:29:49  gerlof
-** Handle configuration file ~/.atoprc
-**
-** Revision 1.27  2003/06/24 06:21:57  gerlof
-** Limit number of system resource lines.
-**
-** Revision 1.26  2003/02/07 10:19:18  gerlof
-** Possibility to show the version number and date.
-**
-** Revision 1.25  2003/01/17 07:32:16  gerlof
-** Show the full command-line per process (option 'c').
-**
-** Revision 1.24  2002/10/30 13:47:20  gerlof
-** Generate notification for statistics since boot.
-**
-** Revision 1.23  2002/10/08 12:00:30  gerlof
-** *** empty log message ***
-**
-** Revision 1.22  2002/09/26 14:17:39  gerlof
-** No beep when resizing the window.
-**
-** Revision 1.21  2002/09/26 13:52:26  gerlof
-** Limit header lines by not showing disks.
-**
-** Revision 1.20  2002/09/18 07:15:59  gerlof
-** Modified viewflag to rawreadflag.
-**
-** Revision 1.19  2002/09/17 13:17:39  gerlof
-** Allow key 'T' to be pressed to view previous sample in raw file.
-**
-** Revision 1.18  2002/08/30 07:11:50  gerlof
-** Minor changes to support viewing of raw atop data.
-**
-** Revision 1.17  2002/08/27 12:10:12  gerlof
-** Allow raw data file to be written and to be read (with compression).
-**
-** Revision 1.16  2002/07/24 11:12:46  gerlof
-** Changed to ease porting to other UNIX-platforms.
-**
-** Revision 1.15  2002/07/11 09:12:05  root
-** Some minor updates.
-**
-** Revision 1.14  2002/07/10 05:00:37  root
-** Counters pin/pout renamed to swin/swout (Linux conventions).
-**
-** Revision 1.13  2002/07/08 09:29:49  root
-** Limitation for username and groupname (8 characters truncate).
-**
-** Revision 1.12  2002/07/02 07:14:02  gerlof
-** More positions for the name of the disk-unit in the DSK-line.
-**
-** Revision 1.11  2002/01/22 13:40:42  gerlof
-** Support for number of cpu's.
-** Check if the window is large enough for the system-statistics.
-**
-** Revision 1.10  2001/11/30 09:09:36  gerlof
-** Cosmetic chnage.
-**
-** Revision 1.9  2001/11/29 10:41:44  gerlof
-** *** empty log message ***
-**
-** Revision 1.8  2001/11/29 10:38:16  gerlof
-** Exit-code correctly printed.
-**
-** Revision 1.7  2001/11/26 11:18:45  gerlof
-** Modified generic output in case that the kernel-patch is not installed.
-**
-** Revision 1.6  2001/11/13 08:24:50  gerlof
-** Show blank columns for sockets and disk I/O when no kernel-patch installed.
-**
-** Revision 1.5  2001/11/07 09:19:28  gerlof
-** Use /proc instead of /dev/kmem for process-level statistics.
-**
-** Revision 1.4  2001/10/05 13:46:32  gerlof
-** Implemented paging through the process-list
-**
-** Revision 1.3  2001/10/04 08:47:27  gerlof
-** Improved handling of error-messages
-**
-** Revision 1.2  2001/10/03 08:57:53  gerlof
-** Improved help-screen shown in scrollable window
-**
-** Revision 1.1  2001/10/02 10:43:34  gerlof
-** Initial revision
-**
 */
 
-static const char rcsid[] = "$Id: showgeneric.c,v 1.71 2010/10/25 19:08:32 gerlof Exp $";
-
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/stat.h>
-#include <sys/utsname.h>
-#include <signal.h>
-#include <time.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <string.h>
-#include <termio.h>
-#include <unistd.h>
-#include <stdarg.h>
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
 #include <curses.h>
+#include <regex.h>
 #include <pwd.h>
 #include <grp.h>
-#include <regex.h>
 
 #include "atop.h"
 #include "photoproc.h"
@@ -332,7 +83,7 @@ int	startoffset;
 ** print the deviation-counters on process- and system-level
 */
 char
-generic_samp(time_t curtime, int nsecs,
+generic_samp(double curtime, double delta,
            struct sstat *sstat, struct tstat *tstat, struct tstat **proclist,
            int ndeviat, int ntask, int nactproc,
            int totproc, int totrun, int totslpi, int totslpu, int totzomb,
@@ -341,7 +92,7 @@ generic_samp(time_t curtime, int nsecs,
 	static int	callnr = 0;
 
 	register int	i, curline, statline;
-	int		firstproc = 0, plistsz, alistsz, killpid, killsig;
+	int		firstproc = 0, plistsz, alistsz /*, killpid, killsig */;
 	int		lastchar;
 	char		format1[16], format2[16], hhmm[16];
 	char		*statmsg = NULL, statbuf[80];
@@ -472,14 +223,14 @@ generic_samp(time_t curtime, int nsecs,
 		if (screen)
 			attron(A_REVERSE);
 
-                int seclen	= val2elapstr(nsecs, buf);
+                int seclen	= val2elapstr(delta, buf);
                 int lenavail 	= (screen ? COLS : linelen) -
-						46 - seclen - utsnodenamelen;
+						46 - seclen - nodenamelen;
                 int len1	= lenavail / 3;
                 int len2	= lenavail - len1 - len1; 
 
 		printg("ATOP - %s%*s%s  %s%*s%c%c%c%c%c%c%c%c%c%c%c%*s%s elapsed", 
-			utsname.nodename, len1, "", 
+			sysname.nodename, len1, "", 
 			format1, format2, len1, "",
 			threadview                    ? MTHREAD    : '-',
 			fixedhead  		      ? MSYSFIXED  : '-',
@@ -506,7 +257,7 @@ generic_samp(time_t curtime, int nsecs,
 		*/
 		pricumproc(sstat, proclist, nactproc, ntask,
 			totproc, totrun, totslpi, totslpu, totzomb,
-			nexit, noverflow, avgval, nsecs);
+			nexit, noverflow, avgval, delta);
 
 		if (noverflow)
 		{
@@ -526,7 +277,7 @@ generic_samp(time_t curtime, int nsecs,
 		else
 			autoorder = showorder;
 
-		curline = prisyst(sstat, curline, nsecs, avgval,
+		curline = prisyst(sstat, curline, delta, avgval,
 		                  fixedhead, &syssel, &autoorder,
 		                  maxcpulines, maxdsklines, maxmddlines,
 		                  maxlvmlines, maxintlines);
@@ -546,7 +297,7 @@ generic_samp(time_t curtime, int nsecs,
 
 			limitedlines();
 			
-			curline = prisyst(sstat, curline, nsecs, avgval,
+			curline = prisyst(sstat, curline, delta, avgval,
 					fixedhead,  &syssel, &autoorder,
 					maxcpulines, maxdsklines, maxmddlines,
 					maxlvmlines, maxintlines);
@@ -850,7 +601,7 @@ generic_samp(time_t curtime, int nsecs,
 			*/
 			priproc(curlist, firstproc, nlist, curline+2,
 			        firstproc/plistsz+1, (nlist-1)/plistsz+1,
-			        showtype, curorder, &syscap, nsecs, avgval);
+			        showtype, curorder, &syscap, delta, avgval);
 		}
 
 		alistsz = nlist;	/* preserve size of active list */
@@ -1178,7 +929,7 @@ generic_samp(time_t curtime, int nsecs,
 			   */
 			   case MHELP1:
 			   case MHELP2:
-				alarm(0);	/* stop the clock         */
+				setalarm2(0, 0);	/* stop the clock         */
 
 				move(1, 0);
 				clrtobot();	/* blank the screen */
@@ -1188,8 +939,8 @@ generic_samp(time_t curtime, int nsecs,
 
 				move(statline, 0);
 
-				if (interval && !paused && !rawreadflag)
-					alarm(3); /* force new sample     */
+				if ((interval.tv_sec || interval.tv_usec) && !paused && !rawreadflag)
+					setalarm2(3, 0); /* force new sample     */
 
 				firstproc = 0;
 				break;
@@ -1198,7 +949,12 @@ generic_samp(time_t curtime, int nsecs,
 			   ** send signal to process
 			   */
 			   case MKILLPROC:
-				if (rawreadflag)
+#if 1
+				statmsg = "Not supported in this atop!";
+				beep();
+				break;
+#else
+				if (rawreadflag)	// TODO: or via remote pmcd, or...?
 				{
 					statmsg = "Not possible when viewing "
 					          "raw file!";
@@ -1206,7 +962,7 @@ generic_samp(time_t curtime, int nsecs,
 					break;
 				}
 
-				alarm(0);	/* stop the clock */
+				setalarm2(0, 0);	/* stop the clock */
 
 				killpid = getnumval("Pid of process: ",
 						     0, statline);
@@ -1237,8 +993,9 @@ generic_samp(time_t curtime, int nsecs,
 				}
 
 				if (!paused)
-					alarm(3); /* set short timer */
+					setalarm2(3, 0); /* set short timer */
 
+#endif
 				firstproc = 0;
 				break;
 
@@ -1246,6 +1003,8 @@ generic_samp(time_t curtime, int nsecs,
 			   ** change interval timeout
 			   */
 			   case MINTERVAL:
+				/* TODO: this is possible using PMAPI ... (pmSetMode); */
+				/* but, need different sampling vs reporting intervals */
 				if (rawreadflag)
 				{
 					statmsg = "Not possible when viewing "
@@ -1254,13 +1013,14 @@ generic_samp(time_t curtime, int nsecs,
 					break;
 				}
 
-				alarm(0);	/* stop the clock */
+				setalarm2(0, 0);	/* stop the clock */
 
-				interval = getnumval("New interval in seconds "
+				interval.tv_usec = 0;
+				interval.tv_sec = getnumval("New interval in seconds "
 						     "(now %d): ",
-						     interval, statline);
+						     interval.tv_sec, statline);
 
-				if (interval)
+				if (interval.tv_sec || interval.tv_usec)
 				{
 					if (!paused)
 						alarm(3); /* set short timer */
@@ -1278,7 +1038,7 @@ generic_samp(time_t curtime, int nsecs,
 			   ** focus on specific user
 			   */
 			   case MSELUSER:
-				alarm(0);	/* stop the clock */
+				setalarm2(0, 0);	/* stop the clock */
 				echo();
 
 				move(statline, 0);
@@ -1355,8 +1115,8 @@ generic_samp(time_t curtime, int nsecs,
 					procsel.userid[0] = USERSTUB;
 				}
 
-				if (interval && !paused && !rawreadflag)
-					alarm(3);  /* set short timer */
+				if ((interval.tv_sec || interval.tv_usec) && !paused && !rawreadflag)
+					setalarm2(3, 0);  /* set short timer */
 
 				firstproc = 0;
 				break;
@@ -1365,7 +1125,7 @@ generic_samp(time_t curtime, int nsecs,
 			   ** focus on specific process-name
 			   */
 			   case MSELPROC:
-				alarm(0);	/* stop the clock */
+				setalarm2(0, 0);	/* stop the clock */
 				echo();
 
 				move(statline, 0);
@@ -1397,8 +1157,8 @@ generic_samp(time_t curtime, int nsecs,
 
 				move(statline, 0);
 
-				if (interval && !paused && !rawreadflag)
-					alarm(3);  /* set short timer */
+				if ((interval.tv_sec || interval.tv_usec) && !paused && !rawreadflag)
+					setalarm2(3, 0);  /* set short timer */
 
 				firstproc = 0;
 				break;
@@ -1407,7 +1167,7 @@ generic_samp(time_t curtime, int nsecs,
 			   ** focus on specific system resource
 			   */
 			   case MSELSYS:
-				alarm(0);	/* stop the clock */
+				setalarm2(0, 0);	/* stop the clock */
 				echo();
 
 				move(statline, 0);
@@ -1489,8 +1249,8 @@ generic_samp(time_t curtime, int nsecs,
 
 				move(statline, 0);
 
-				if (interval && !paused && !rawreadflag)
-					alarm(3);  /* set short timer */
+				if ((interval.tv_sec || interval.tv_usec) && !paused && !rawreadflag)
+					setalarm2(3, 0);  /* set short timer */
 
 				firstproc = 0;
 				break;
@@ -1506,14 +1266,14 @@ generic_samp(time_t curtime, int nsecs,
 					refresh();
 
 					if (!rawreadflag)
-						alarm(1);
+						setalarm2(1, 0);
 				}
 				else
 				{
 					paused=1;
 					clrtoeol();
 					refresh();
-					alarm(0);	/* stop the clock */
+					setalarm2(0, 0);	/* stop the clock */
 				}
 				break;
 
@@ -1542,8 +1302,8 @@ generic_samp(time_t curtime, int nsecs,
 					          "will be shown/accumulated...";
 				}
 
-				if (interval && !paused && !rawreadflag)
-					alarm(3);  /* set short timer */
+				if ((interval.tv_sec || interval.tv_usec) && !paused && !rawreadflag)
+					setalarm2(3, 0);  /* set short timer */
 
 				firstproc = 0;
 				break;
@@ -1687,7 +1447,7 @@ generic_samp(time_t curtime, int nsecs,
 			   **	         toggle no or all active disk
 			   */
 			   case MSYSLIMIT:
-				alarm(0);	/* stop the clock */
+				setalarm2(0, 0);	/* stop the clock */
 
 				maxcpulines =
 				  getnumval("Maximum lines for per-cpu "
@@ -1720,8 +1480,8 @@ generic_samp(time_t curtime, int nsecs,
 				            "statistics (now %d): ",
 					    maxintlines, statline);
 
-				if (interval && !paused && !rawreadflag)
-					alarm(3);  /* set short timer */
+				if ((interval.tv_sec || interval.tv_usec) && !paused && !rawreadflag)
+					setalarm2(3, 0);  /* set short timer */
 
 				firstproc = 0;
 				break;

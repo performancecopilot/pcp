@@ -6,18 +6,9 @@
 **
 ** This source-file contains the Linux-specific functions to calculate
 ** figures to be visualized.
-** ==========================================================================
-** Author:      Gerlof Langeveld
-**              Original version.
-** E-mail:      gerlof.langeveld@atoptool.nl
-** Date:        July 2002
-**
-** Author:	JC van Winkel - AT Computing, Nijmegen, Holland
-**              Complete redesign.
-** E-mail:      jc@ATComputing.nl
-** Date:        November 2009
-** --------------------------------------------------------------------------
+** 
 ** Copyright (C) 2009-2010 JC van Winkel
+** Copyright (C) 2000-2012 Gerlof Langeveld
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -28,241 +19,7 @@
 ** WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ** See the GNU General Public License for more details.
-**
-** You should have received a copy of the GNU General Public License
-** along with this program; if not, write to the Free Software
-** Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-** --------------------------------------------------------------------------
-**
-** $Log: showlinux.c,v $
-** Revision 1.70  2010/10/23 14:04:12  gerlof
-** Counters for total number of running and sleep threads (JC van Winkel).
-**
-** Revision 1.69  2010/05/18 19:20:08  gerlof
-** Introduce CPU frequency and scaling (JC van Winkel).
-**
-** Revision 1.68  2010/04/23 12:19:35  gerlof
-** Modified mail-address in header.
-**
-** Revision 1.67  2010/04/17 17:20:33  gerlof
-** Allow modifying the layout of the columns in the system lines.
-**
-** Revision 1.66  2010/03/16 21:14:46  gerlof
-** Program and user selection can be combined with program and user
-** accumulation.
-**
-** Revision 1.65  2010/03/04 10:53:26  gerlof
-** Support I/O-statistics on logical volumes and MD devices.
-**
-** Revision 1.64  2010/01/18 18:06:28  gerlof
-** Modified priorities for system-level columns.
-**
-** Revision 1.63  2010/01/16 12:54:33  gerlof
-** Corrected order of columns.
-**
-** Revision 1.62  2010/01/16 11:38:02  gerlof
-** Corrected counters for patched kernels (JC van Winkel).
-**
-** Revision 1.61  2010/01/08 11:25:56  gerlof
-** Corrected column-width and priorities of network-stats.
-**
-** Revision 1.60  2010/01/03 18:27:19  gerlof
-** *** empty log message ***
-**
-** Revision 1.59  2009/12/19 21:01:28  gerlof
-** Improved syntax checking for ownprocline keyword (JC van Winkel).
-**
-** Revision 1.58  2009/12/17 11:59:28  gerlof
-** Gather and display new counters: dirty cache and guest cpu usage.
-**
-** Revision 1.57  2009/12/17 10:51:19  gerlof
-** Allow own defined process line with key 'o' and a definition
-** in the atoprc file.
-**
-** Revision 1.56  2009/12/17 09:13:19  gerlof
-** Reformatted some fields for better grouping of info.
-**
-** Revision 1.55  2009/12/12 10:11:18  gerlof
-** Register and display end date and end time for process.
-**
-** Revision 1.54  2009/12/12 09:06:48  gerlof
-** \Corrected cumulated disk I/O per user/program (JC van Winkel).
-**
-** Revision 1.53  2009/12/10 14:02:39  gerlof
-** Add EUID, SUID and FSUID (and similar for GID's).
-**
-** Revision 1.52  2009/12/10 11:56:34  gerlof
-** Various bug-solutions.
-**
-** Revision 1.51  2009/12/10 10:08:01  gerlof
-** Major redesign for improved user interface (variable number of columns).
-** Made by JC van Winkel.
-**
-** Revision 1.49  2008/03/06 08:38:28  gerlof
-** Register/show ppid of a process.
-**
-** Revision 1.48  2008/01/18 07:37:05  gerlof
-** Show information about the state of the individual threads
-** in the scheduling report shown with keystroke 's'.
-**
-** Revision 1.47  2008/01/07 11:34:18  gerlof
-** Correct the sort-order of network-interfaces (on busy-percentage).
-**
-** Revision 1.46  2007/11/07 09:23:29  gerlof
-** Modified format for avg1, avg5 and avg15 (CPL) when counters too large.
-**
-** Revision 1.45  2007/11/05 11:43:25  gerlof
-** Bug-solution for new-process indicator on 64-bits machines.
-**
-** Revision 1.44  2007/11/05 10:57:56  gerlof
-** Bug-solution for huge exit code on 64-bits machines.
-**
-** Revision 1.43  2007/08/17 09:45:57  gerlof
-** Experimental: gather info about HTTP statistics.
-**
-** Revision 1.42  2007/08/16 12:02:04  gerlof
-** Add support for atopsar reporting.
-** Concerns modification of networking-counters.
-**
-** Revision 1.41  2007/07/04 10:18:16  gerlof
-** Bug-solution for division by zero.
-**
-** Revision 1.40  2007/07/03 09:02:29  gerlof
-** Support Apache-statistics.
-**
-** Revision 1.39  2007/03/22 10:12:54  gerlof
-** Support for io counters (>= kernel 2.6.20).
-**
-** Revision 1.38  2007/03/21 14:22:24  gerlof
-** Handle io counters maintained from 2.6.20
-**
-** Revision 1.37  2007/02/13 10:36:09  gerlof
-** Removal of external declarations.
-** Use of hertz variable instead of HZ.
-**
-** Revision 1.36  2007/01/26 12:11:07  gerlof
-** Add configuration-value 'swoutcritsec'.
-**
-** Revision 1.35  2007/01/26 10:25:42  gerlof
-** Introduce steal percentage for virtual machines.
-** Correct bug: when one interface is colored all subsequent interfaces
-**              are colored.
-**
-** Revision 1.34  2007/01/18 10:58:45  gerlof
-** Only check for committed limit if it is not zero.
-**
-** Revision 1.33  2007/01/18 10:37:09  gerlof
-** Add support for colors.
-** Add support for automatic determination of most critical resource.
-** Add support for parsing of new arguments in ~/.atoprc
-**
-** Revision 1.32  2006/11/13 13:48:46  gerlof
-** Implement load-average counters, context-switches and interrupts.
-**
-** Revision 1.31  2006/02/07 08:38:49  gerlof
-** Swapped the zombie counter and exit counter in the PRC-line.
-**
-** Revision 1.30  2006/02/07 08:30:07  gerlof
-** Add possibility to show counters per second.
-** Ease parsing of output-lines by fixed number of columns per line.
-**
-** Revision 1.29  2006/01/30 09:24:12  gerlof
-** PRC-line: 'exits' modified to 'exit' to save space.
-**
-** Revision 1.28  2006/01/30 09:14:26  gerlof
-** Extend memory counters (a.o. page scans).
-**
-** Revision 1.27  2005/11/04 14:16:45  gerlof
-** Minor bug-solutions.
-**
-** Revision 1.26  2005/10/28 09:51:29  gerlof
-** All flags/subcommands are defined as macro's.
-** Subcommand 'p' has been changed to 'z' (pause).
-**
-** Revision 1.25  2005/10/21 09:51:11  gerlof
-** Per-user accumulation of resource consumption.
-**
-** Revision 1.24  2004/12/14 15:06:48  gerlof
-** Implementation of patch-recognition for disk and network-statistics.
-**
-** Revision 1.23  2004/10/28 08:31:41  gerlof
-** New counter: vm committed space
-**
-** Revision 1.22  2004/09/24 10:02:46  gerlof
-** Wrong cpu-numbers for system level statistics.
-**
-** Revision 1.21  2004/09/23 08:21:10  gerlof
-** Added wait-percentage per cpu.
-**
-** Revision 1.20  2004/09/23 07:37:34  gerlof
-** Consistent handling of CPU percentages on system-level and process-level.
-**
-** Revision 1.19  2004/09/13 09:20:21  gerlof
-** Modify subcommands (former 's' -> 'v', 'v' -> 'V', new 's').
-**
-** Revision 1.18  2004/09/02 10:55:21  root
-** Added sleep-average to process-info.
-**
-** Revision 1.17  2004/08/31 09:53:31  gerlof
-** Show information about underlying threads.
-**
-** Revision 1.16  2004/06/01 11:58:34  gerlof
-** Regular expressions for selections on process-name and user-name.
-**
-** Revision 1.15  2004/05/06 09:47:59  gerlof
-** Ported to kernel-version 2.6.
-**
-** Revision 1.14  2003/07/07 09:27:34  gerlof
-** Cleanup code (-Wall proof).
-**
-** Revision 1.13  2003/07/03 12:04:25  gerlof
-** Minor bug fixes.
-**
-** Revision 1.12  2003/06/30 11:29:57  gerlof
-** Enlarge counters to 'long long'.
-**
-** Revision 1.11  2003/06/24 06:22:10  gerlof
-** Limit number of system resource lines.
-**
-** Revision 1.10  2003/02/07 10:43:22  gerlof
-** Solved a division-by-zero bug for process-percentage.
-**
-** Revision 1.9  2003/01/24 14:20:57  gerlof
-** If possible, also show commandline when process has exited.
-**
-** Revision 1.8  2003/01/17 07:32:49  gerlof
-** Show the full command-line per process (option 'c').
-**
-** Revision 1.7  2002/10/04 10:05:54  gerlof
-** Bug-solution: New process indicator in static output set when needed.
-**
-** Revision 1.6  2002/10/03 11:14:42  gerlof
-** Modify (effective) uid/gid to real uid/gid.
-**
-** Revision 1.5  2002/09/26 13:52:51  gerlof
-** Limit header lines by not showing disks.
-** Limit header lines by not showing disks.
-**
-** Revision 1.4  2002/09/16 08:59:13  gerlof
-** Change field EXCODE to STATUS for support of indicator of newly created
-** processes.
-**
-** Revision 1.3  2002/09/02 08:42:44  gerlof
-** Bug-solution: blank line after header when more than 999 screens of
-** process-list information.
-**
-** Revision 1.2  2002/08/30 07:11:20  gerlof
-** Minor changes in the header-line of the process list.
-**
-** Revision 1.1  2002/07/24 11:14:16  gerlof
-** Initial revision
-**
-**
-** Initial
-**
 */
-
-static const char rcsid[] = "$Id: showlinux.c,v 1.70 2010/10/23 14:04:12 gerlof Exp $";
 
 #include <sys/types.h>
 #include <sys/param.h>
@@ -742,7 +499,7 @@ totalcap(struct syscap *psc, struct sstat *sstat,
                           sstat->cpu.all.Stime +
                           sstat->cpu.all.steal;
 
-        psc->availmem   = sstat->mem.physmem * pagesize/1024;
+        psc->availmem   = sstat->mem.physmem;
 
 	/*
 	** calculate total transfer issued by the active processes
@@ -1529,7 +1286,7 @@ prisyst(struct sstat *sstat, int curline, int nsecs, int avgval,
         /*
         ** DISK statistics
         */
-        extra.mstot = extra.cputot * 1000 / hertz / sstat->cpu.nrcpu; 
+        extra.mstot = extra.cputot / sstat->cpu.nrcpu; 
 
 	pridisklike(&extra, sstat->dsk.lvm, "LVM", highorderp, maxlvmlines,
 			&highbadness, &curline, fixedhead,
@@ -1642,9 +1399,10 @@ prisyst(struct sstat *sstat, int curline, int nsecs, int avgval,
         ** WWW: notice that we cause one access ourselves by fetching
         **      the statistical counters
         */
-#if     HTTPSTATS
         if (sstat->www.accesses > 1 || fixedhead )
         {
+		char	format1[8], format2[8], format3[8], format4[8], format5[8];
+
 		if (screen)
                		move(curline, 0);
 
@@ -1665,7 +1423,6 @@ prisyst(struct sstat *sstat, int curline, int nsecs, int avgval,
                 }
                 curline++;
         }
-#endif
 
         /*
         ** if the system is hardly loaded, still CPU-ordering of
