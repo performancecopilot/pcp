@@ -79,8 +79,6 @@ configDir=$PCP_VAR_DIR/config/web
 
 # PMDA variables
 #
-tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
-trap "rm -rf $tmp; exit" 0 1 2 3 15
 
 debugFlag=0
 do_debug=false
@@ -191,15 +189,15 @@ _parse_server()
 
 _default_config ()
 {
-    rm -f $tmp/conf
-    touch $tmp/conf
-    _defaultRegex $tmp/conf
-    ./server.sh -q -l $tmp/conf
-    egrep "^server" $tmp/conf > /dev/null 2>&1
+    rm -f $__tmp.conf
+    touch $__tmp.conf
+    _defaultRegex $__tmp.conf
+    ./server.sh -q -l $__tmp.conf
+    egrep "^server" $__tmp.conf > /dev/null 2>&1
     _st=$?
     if [ $_st -eq 0 ] 
     then
-	./pmdaweblog -C $tmp/conf >$tmp/out 2>&1
+	./pmdaweblog -C $__tmp.conf >$__tmp.out 2>&1
         _st=$?
 	if [ $_st -eq 0 ] ; then
 	    if [ -z "$configFile" ]
@@ -207,7 +205,7 @@ _default_config ()
 		configFile=$configDir/$iam.conf
 	    fi
 	    rm -f $configFile
-	    cp $tmp/conf $configFile
+	    cp $__tmp.conf $configFile
 	    args="-D $debugFlag -t $delay -n $chkDelay -S $maxserv $configFile"
 	    socket_opt=false
 	fi
@@ -289,10 +287,10 @@ then
 		    read ans
 		    if [ "X$ans" = X -o "$ans" = "y" -o "$ans" = "Y" ]
 		    then
-			./weblogconv.sh $configFile $tmp/conf
-			if ./pmdaweblog -C $tmp/conf > /dev/null 2>&1
+			./weblogconv.sh $configFile $__tmp.conf
+			if ./pmdaweblog -C $__tmp.conf > /dev/null 2>&1
 			then
-			    cp $tmp/conf $configFile
+			    cp $__tmp.conf $configFile
 			else
 			    echo "Warning: automatic conversion failed."
 			    echo "You can either continue, and use the default configuration file or exit"
@@ -333,16 +331,16 @@ then
 		echo
 		echo "------------------------------------------------------------------------------"
 
-		if ./pmdaweblog -C $configFile >$tmp/out 2>&1
+		if ./pmdaweblog -C $configFile >$__tmp.out 2>&1
 		then
 		    :
 		else
 		    echo "Warning: parsing this configuration file produced the following errors,"
 		    echo "         and this file will be ignored."
 
-		    cat $tmp/out
+		    cat $__tmp.out
 		    echo
-		    if [ "X$configFile" = "X$tmp/default" ]
+		    if [ "X$configFile" = "X$__tmp.default" ]
 		    then
 			echo "Arrgh ... this is the default configuration, I cannot recover from here!"
 			exit 1
@@ -384,21 +382,21 @@ then
 	    then
 		echo "Unable to scan for Web servers as ./server.sh is missing!"
 	    else
-		rm -f $tmp/conf
-		touch $tmp/conf
-		_defaultRegex $tmp/conf
-		./server.sh -l $tmp/conf
-		if egrep "^server" $tmp/conf > /dev/null 2>&1
+		rm -f $__tmp.conf
+		touch $__tmp.conf
+		_defaultRegex $__tmp.conf
+		./server.sh -l $__tmp.conf
+		if egrep "^server" $__tmp.conf > /dev/null 2>&1
 		then
 		    echo
 		    echo "This is a possible configuration file for your system:"
 		    echo
-		    cat $tmp/conf | _parse_server | ${PAGER-more}
+		    cat $__tmp.conf | _parse_server | ${PAGER-more}
 		    echo
 		    echo "------------------------------------------------------------------------------"
 		    echo
 
-		    if ./pmdaweblog -C $tmp/conf > /dev/null 2>&1
+		    if ./pmdaweblog -C $__tmp.conf > /dev/null 2>&1
 		    then
 			if [ "X$configFile" = X ]
 			then
@@ -406,7 +404,7 @@ then
 			    read ans
 			    if [ "X$ans" = "Xy" -o "X$ans" = "XY" -o "X$ans" = X ]
 			    then
-				cp $tmp/conf $configDir/$iam.conf
+				cp $__tmp.conf $configDir/$iam.conf
 				configFile=$configDir/$iam.conf
 			    fi
 			else
@@ -415,7 +413,7 @@ then
 			    read ans
 			    if [ "X$ans" != "Xn" -a "X$and" != "XN" -a "X$ans" != X ]
 			    then
-				cp $tmp/conf $configFile
+				cp $__tmp.conf $configFile
 			    fi
 			fi
 		    else

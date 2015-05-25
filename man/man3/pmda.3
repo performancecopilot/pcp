@@ -93,22 +93,19 @@ when the
 process is started.  A procedural interface referenced through a shared data
 structure is used to handle requests from
 .BR pmcd (1)
-to the
-.BR PMDA .
+to the PMDA .
 .PP
 The preferred approach is for a separate process (daemon) to communicate with 
 .BR pmcd (1)
 using the Performance Data Units (PDU) Inter-Process Communication (IPC)
 protocol.
 .PP
-All
-.BR PMDA s
+All PMDAs
 are launched and controlled by the
 .BR pmcd (1)
 process on the local host.  The requests from the clients are received by
 .BR pmcd (1)
-and forwarded to the appropriate
-.BR PMDA s.
+and forwarded to the appropriate PMDAs.
 Responses, when required, are returned through 
 .BR pmcd (1)
 to the clients.  The requests (PDUs) that may be sent to a
@@ -136,20 +133,18 @@ To allow a consistent framework,
 can be used by a daemon
 PMDA
 to handle the communication protocol using the same callbacks as a DSO
-.BR PMDA .
+PMDA.
 The structure
 .B pmdaInterface
 is used to convey the common procedural interface and state information that is
 used by 
 .BR pmcd (1)
-and a
-.BR PMDA .
+and a PMDA.
 This state information includes tables describing the supported metrics and
 instance domains.
 .PP
 As most of the
-procedural interface is identical for all 
-.BR PMDA s,
+procedural interface is identical for all PMDAs,
 they are provided as part of
 this support library
 .RB ( pmdaProfile (3),
@@ -174,7 +169,7 @@ Three structures are declared in
 .I /usr/include/pcp/pmda.h
 which provide a framework for declaring the metrics and instances supported by
 the 
-.BR PMDA .
+PMDA.
 .PP
 Every instance requires a unique integer identifier and a unique name, as defined by
 the structure
@@ -263,8 +258,7 @@ structure (the
 field is set by
 .BR pmdaInit (3)
 at run-time).  The serial value must be unique for each instance domain
-within the
-.BR PMDA . 
+within the PMDA. 
 .PP
 The indom table shown above which is usually passed to 
 .BR pmdaInit (3)
@@ -274,9 +268,7 @@ See
 .BR pmdaInit (3)
 for more details.
 .SH NAMESPACE
-Every 
-PMDA
-has its own unique 
+Every PMDA has its own unique 
 .B namespace 
 using the format defined in 
 .BR pmns (5). 
@@ -315,8 +307,7 @@ The domain number of
 .I 253
 is obtained from
 .IR $PCP_VAR_DIR /pmns/stdpmid.
-New 
-.BR PMDA s
+New PMDAs
 should specify a unique domain number in this file, and obtain the
 number during installation.  This allows the domain number to change by
 modifying only the file
@@ -458,8 +449,7 @@ that is run as a DSO is opened by
 with
 .BR dlopen (3).
 .BR pmcd (1)
-will call the 
-.BR PMDA "'s"
+will call the PMDA's
 initialization function that is specified in
 .IR $PCP_PMCDCONF_PATH .
 This function is passed a pointer to a
@@ -498,11 +488,8 @@ A
 PMDA
 that is run as a daemon is forked and executed by 
 .BR pmcd (1).
-Therefore, unlike a DSO 
-.BR PMDA ,
-the starting point for a daemon 
-PMDA 
-is
+Therefore, unlike a DSO PMDA,
+the starting point for a daemon PMDA is
 .BR main ().
 The agent should parse the command line arguments, create
 a log file and initialize some data structures that 
@@ -511,8 +498,7 @@ would initialize for a DSO agent.
 .PP
 The
 .B pmdaInterface
-structure must be completely defined by the daemon
-.BR PMDA .
+structure must be completely defined by the daemon PMDA.
 The function
 .BR pmdaDaemon (3)
 can be called at the start of 
@@ -539,14 +525,11 @@ should be the last function called.  This can be seen in
 The
 .BR simple_init ()
 routine is common to an agent that can be run as both a Daemon and DSO
-.BR PMDA .
+PMDA.
 .SH HELP TEXT
-Each 
-PMDA
-must be able to provide 
+Each PMDA must be able to provide 
 .BR pmcd (1)
-with the help text for each metric.  Most 
-.BR PMDA s
+with the help text for each metric.  Most PMDAs
 use specially created files with indexes to support
 efficient retrieval of the help text.
 Tools are provided with PCP to
@@ -555,16 +538,12 @@ create the help text files of appropriate format. See
 .SH INSTALLATION AND REMOVAL
 A series of shell procedures are defined in 
 .IR $PCP_SHARE_DIR /lib/pmdaproc.sh 
-which greatly simplify the installation and removal of a
-.BR PMDA .
+which greatly simplify the installation and removal of a PMDA.
 .PP
 The
 .I Install
-scripts for most
-.BR PMDAs
-should only need to specify the name of the
-PMDA
-in
+scripts for most PMDAs
+should only need to specify the name of the PMDA in
 .BR iam ,
 call
 .B pmdaSetup
@@ -598,10 +577,7 @@ e.g. \c
 The 
 .I Remove
 scripts are even simpler as setting up the communication protocols
-are not required, so set
-the name of the
-PMDA
-in
+are not required, so set the name of the PMDA in
 .IR iam ,
 then call
 .B pmdaSetup
@@ -887,6 +863,36 @@ Default: help
 Full pathname of the Python script for a Python PMDA.
 .br
 Default: \fI$pmda_dir\fP/pmda\fI$iam\fP.python or \fI$pmda_dir\fP/pmda\fI$iam\fP.py
+.PP
+The shell procedures in 
+.IR $PCP_SHARE_DIR /lib/pmdaproc.sh 
+manipulate a number of temporary files using the variable
+.I $__tmp
+as the prefix for the name of the temporary files.
+.I $__tmp
+is a directory that is created, used and removed
+internally within the procedures of
+.IR $PCP_SHARE_DIR /lib/pmdaproc.sh 
+but can also be used as the prefix for temporary files needed by 
+a PMDA's
+.I Install
+or
+.I Remove
+scripts.
+When used in this way, 
+.I $__tmp
+should be followed by a ``.'' and then a suffix, e.g. \c
+.IR $__tmp .myfoo .
+The
+.I Install
+and
+.I Remove
+scripts should not use
+other temporary file name prefixes nor use
+.BR sh (1)
+.B trap
+statements to clean up temporary files as this is all done within
+.IR $PCP_SHARE_DIR /lib/pmdaproc.sh.
 .SH DIAGNOSTICS
 Any 
 PMDA
@@ -941,16 +947,14 @@ and
 .BR pmdaDSO (3)).
 .SH CAVEAT
 Failing to complete any of the data structures or calling any of the library
-routines out of order may cause unexpected behavior in the
-.BR PMDA .
+routines out of order may cause unexpected behavior in the PMDA.
 .PP
 Due to changes to the
 .BR PMAPI (3)
 and
 .BR PMDA (3)
 API in the PCP 2.0 release, as described in the product release notes, 
-.BR PMDA s
-built using PCP 2.0 must specify 
+PMDAs built using PCP 2.0 must specify 
 .B PMDA_INTERFACE_2
 or later and link with
 .I libpcp_pmda.so.2
@@ -997,16 +1001,13 @@ Configuration file for
 .BR pmcd (1).
 .TP
 .IR $PCP_VAR_DIR /pmns
-Location of namespace descriptions for every
-.BR PMDA .
+Location of namespace descriptions for every PMDA.
 .TP
 .IR $PCP_VAR_DIR /pmns/stdpmid
-The unique domain identifiers for each
-.BR PMDA .
+The unique domain identifiers for each PMDA.
 .TP
 .IR $PCP_SHARE_DIR /lib/pmdaproc.sh
-Shell procedures for installing and removing a
-.BR PMDA .
+Shell procedures for installing and removing a PMDA.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
