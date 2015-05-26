@@ -16,7 +16,7 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-CONTAINER = pcp-monitor
+CONTAINER = pcp-testsuite
 LDIRT = $(CONTAINER).tgz RPMS
 
 default default_pcp : RPMS $(CONTAINER).tgz

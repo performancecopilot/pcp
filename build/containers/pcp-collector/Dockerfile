@@ -59,14 +59,13 @@ ENV IMAGE pcp-collector
 # The RUN label is used by 'atomic' command, e.g. atomic run pcp-collector
 # Other platforms without the 'atomic' command can use docker inspect to
 # extract it and use it in a script.
-LABEL RUN docker run -d --privileged --net=host -v /sys:/sys:ro -v /proc:/proc:ro -v /etc/cron.d:/etc/cron.d -v /etc/localtime:/etc/localtime:ro -v /var/lib/docker:/var/lib/docker:ro -v /run:/run -v /etc/pcp:/etc/pcp -v /var/lib/pcp:/var/lib/pcp -v /var/log/pcp:/var/log/pcp --name=pcp-collector pcp-collector
+LABEL RUN docker run -d --privileged --net=host --pid=host --ipc=host -v /sys:/sys:ro -v /proc:/proc:ro -v /etc/localtime:/etc/localtime:ro -v /var/lib/docker:/var/lib/docker:ro -v /run:/run -v /var/log:/var/log --name=pcp-collector pcp-collector
 
 #
-# The command to run - in this case the pmcd service script.
-# when this command exits, then the container exits.
-ENV PATH /usr/share/pcp/lib:$PATH
-ENTRYPOINT ["pmcd"]
-CMD ["start"]
+# The command to run - in this case the pmcd service script. When this command
+# exits, then the container exits. This is the default command and parameters
+# and can be overridden by passing additional parameters to docker run.
+CMD ["/usr/share/pcp/lib/pmcd", "start"]
 
 # Example command to deploy this container on a RHEL Atomic server:
 # atomic run pcp-collector  (this uses the LABEL defined above).

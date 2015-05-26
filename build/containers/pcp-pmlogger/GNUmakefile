@@ -23,7 +23,7 @@ default default_pcp : RPMS $(CONTAINER).tgz
 
 RPMS:
 	# symlink doesnt work with docker build
-	mkdir RPMS && cp -a ../RPMS/* RPMS
+	mkdir RPMS; cp -a ../RPMS/* RPMS
 
 install install_pcp:
 

@@ -16,7 +16,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-SUBDIRS = pcp-collector pcp-monitor pcp-pmlogger 
+SUBDIRS = pcp-collector pcp-monitor pcp-pmlogger pcp-testsuite
 
 default install default_pcp install_pcp : RPMS/repodata $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
