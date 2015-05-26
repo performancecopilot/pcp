@@ -565,6 +565,7 @@ decode_pmns_names(const char *name)
     memset(namelist, 0, sizeof(*namelist));
     sts = __pmDecodeNameList((__pmPDU *)namelist, &numnames, &names, &status);
     fprintf(stderr, "  __pmDecodeNameList: sts = %d (%s)\n", sts, pmErrStr(sts));
+    if (sts >= 0) { free(status); free(names); }
 
     fprintf(stderr, "[%s] checking large numnames field\n", name);
     memset(namelist, 0, sizeof(*namelist));

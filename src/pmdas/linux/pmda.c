@@ -53,9 +53,6 @@
 #include "proc_scsi.h"
 #include "proc_slabinfo.h"
 #include "proc_uptime.h"
-#include "sem_limits.h"
-#include "msg_limits.h"
-#include "shm_limits.h"
 #include "proc_sys_fs.h"
 #include "proc_vmstat.h"
 #include "sysfs_kernel.h"
@@ -64,6 +61,7 @@
 #include "namespaces.h"
 #include "interrupts.h"
 #include "devmapper.h"
+#include "ipc.h"
 
 static proc_stat_t		proc_stat;
 static proc_meminfo_t		proc_meminfo;
@@ -441,12 +439,12 @@ static pmdaMetric metrictab[] = {
 
 /* disk.dev.blkread */
     { NULL, 
-      { PMDA_PMID(CLUSTER_STAT,6), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_STAT,6), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* disk.dev.blkwrite */
     { NULL, 
-      { PMDA_PMID(CLUSTER_STAT,7), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_STAT,7), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* disk.dev.avactive */
@@ -942,6 +940,11 @@ static pmdaMetric metrictab[] = {
     { NULL,
       { PMDA_PMID(CLUSTER_MEMINFO,58), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* hinv.hugepagesize */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_MEMINFO,59), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 
 /* mem.numa.util.total */
     { NULL,
@@ -1827,12 +1830,12 @@ static pmdaMetric metrictab[] = {
 
 /* disk.partitions.read */
     { NULL, 
-      { PMDA_PMID(CLUSTER_PARTITIONS,0), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_PARTITIONS,0), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* disk.partitions.write */
     { NULL, 
-      { PMDA_PMID(CLUSTER_PARTITIONS,1), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_PARTITIONS,1), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* disk.partitions.total */
@@ -1842,12 +1845,12 @@ static pmdaMetric metrictab[] = {
 
 /* disk.partitions.blkread */
     { NULL, 
-      { PMDA_PMID(CLUSTER_PARTITIONS,3), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_PARTITIONS,3), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* disk.partitions.blkwrite */
     { NULL, 
-      { PMDA_PMID(CLUSTER_PARTITIONS,4), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_PARTITIONS,4), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* disk.partitions.blktotal */
@@ -3797,17 +3800,17 @@ static pmdaMetric metrictab[] = {
 
     /* disk.dm.total */
     { NULL, 
-      { PMDA_PMID(CLUSTER_DM,2), KERNEL_ULONG, DM_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_DM,2), PM_TYPE_U64, DM_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* disk.dm.blkread */
     { NULL, 
-      { PMDA_PMID(CLUSTER_DM,3), PM_TYPE_U64, DM_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_DM,3), KERNEL_ULONG, DM_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* disk.dm.blkwrite */
     { NULL, 
-      { PMDA_PMID(CLUSTER_DM,4), PM_TYPE_U64, DM_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_DM,4), KERNEL_ULONG, DM_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* disk.dm.blktotal */
@@ -4263,37 +4266,37 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			/ proc_stat.hz);
 	    break;
 
-	case 8: /* pagesin */
+	case 8: /* swap.pagesin */
 	    if (_pm_have_proc_vmstat)
 		atom->ul = _pm_proc_vmstat.pswpin;
 	    else
 		atom->ul = proc_stat.swap[0];
 	    break;
-	case 9: /* pagesout */
+	case 9: /* swap.pagesout */
 	    if (_pm_have_proc_vmstat)
 		atom->ul = _pm_proc_vmstat.pswpout;
 	    else
 		atom->ul = proc_stat.swap[1];
 	    break;
-	case 10: /* in */
+	case 10: /* swap.in */
 	    if (_pm_have_proc_vmstat)
 		return PM_ERR_APPVERSION; /* no swap operation counts in 2.6 */
 	    else
 		atom->ul = proc_stat.page[0];
 	    break;
-	case 11: /* out */
+	case 11: /* swap.out */
 	    if (_pm_have_proc_vmstat)
 		return PM_ERR_APPVERSION; /* no swap operation counts in 2.6 */
 	    else
 		atom->ul = proc_stat.page[1];
 	    break;
-	case 12: /* intr */
+	case 12: /* kernel.all.intr */
 	    _pm_assign_utype(_pm_intr_size, atom, proc_stat.intr);
 	    break;
-	case 13: /* ctxt */
+	case 13: /* kernel.all.pswitch */
 	    _pm_assign_utype(_pm_ctxt_size, atom, proc_stat.ctxt);
 	    break;
-	case 14: /* processes */
+	case 14: /* kernel.all.sysfork */
 	    _pm_assign_ulong(atom, proc_stat.processes);
 	    break;
 
@@ -4710,6 +4713,11 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return 0; /* no values available */
 	   atom->ull = proc_meminfo.MemAvailable >> 10;
 	   break;
+	case 59: /* hinv.hugepagesize (in bytes) */
+	    if (!MEMINFO_VALID_VALUE(proc_meminfo.Hugepagesize))
+	    	return 0; /* no values available */
+	    atom->ul = proc_meminfo.Hugepagesize;
+	    break;
 	default:
 	    return PM_ERR_PMID;
 	}

@@ -1,0 +1,63 @@
+#!/bin/sh
+#
+# Construct pmlogrewrite rules ...
+# linux_kernel_ulong.conf
+#	Needs to be done dynamically because the type of KERNEL_ULONG is
+#	platform dependent.
+#
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.c
+#include <pcp/config.h>
+#if defined(HAVE_64BIT_LONG)
+KERNEL_ULONG=PM_TYPE_U64
+#else
+KERNEL_ULONG=PM_TYPE_U32
+#endif
+End-of-File
+
+eval `${CPP-cpp} -I${INCDIR-.} $tmp.c \
+      | sed -n -e '/KERNEL_ULONG/s/PM_TYPE_//p'`
+
+cat <<End-of-File >linux_kernel_ulong.conf
+# These metrics are all exported from the linux PMDA
+# using the KERNEL_ULONG type which might be U32
+# or could be U64.
+#
+# disk.dev group
+#
+metric disk.dev.read { type -> $KERNEL_ULONG }
+metric disk.dev.write { type -> $KERNEL_ULONG }
+metric disk.dev.blkread { type -> $KERNEL_ULONG }
+metric disk.dev.blkwrite { type -> $KERNEL_ULONG }
+metric disk.dev.read_merge { type -> $KERNEL_ULONG }
+metric disk.dev.write_merge { type -> $KERNEL_ULONG }
+
+# disk.partitions group
+#
+metric disk.partitions.read { type -> $KERNEL_ULONG }
+metric disk.partitions.write { type -> $KERNEL_ULONG }
+metric disk.partitions.blkread { type -> $KERNEL_ULONG }
+metric disk.partitions.blkwrite { type -> $KERNEL_ULONG }
+
+# disk.dm group
+#
+metric disk.dm.read { type -> $KERNEL_ULONG }
+metric disk.dm.write { type -> $KERNEL_ULONG }
+metric disk.dm.blkread { type -> $KERNEL_ULONG }
+metric disk.dm.blkwrite { type -> $KERNEL_ULONG }
+metric disk.dm.read_merge { type -> $KERNEL_ULONG }
+metric disk.dm.write_merge { type -> $KERNEL_ULONG }
+
+# miscellaneous group
+#
+metric kernel.all.sysfork { type -> $KERNEL_ULONG }
+
+# and this one was KERNEL_ULONG but that was incorrect
+#
+metric disk.dm.total { type -> U64 }
+End-of-File
+
+exit 0

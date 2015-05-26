@@ -92,7 +92,7 @@ help_text_t  help_text[] = {
 { .name = "memory.vmrss",            .shorthelp = "resident virtual memory (from /proc/<pid>/status)",        .longhelp = "" },
 { .name = "psinfo.end_code",            .shorthelp = "address of the end of the code segment for the process",        .longhelp = "" },
 { .name = "io.read_bytes",            .shorthelp = "physical device read bytes",        .longhelp = "Number of bytes physically read on by devices on behalf of this process.\n" },
-{ .name = "psinfo.start_time",            .shorthelp = "start time of the process relative to system boot time in seconds",        .longhelp = "" },
+{ .name = "psinfo.start_time",            .shorthelp = "start time of the process relative to system boot time (in ms)",        .longhelp = "" },
 { .name = "psinfo.psargs",            .shorthelp = "full command string",        .longhelp = "" },
 { .name = "memory.librss",            .shorthelp = "instantaneous resident size of library code mapped by the process, in Kbytes",        .longhelp = "" },
 { .name = "memory.rss",            .shorthelp = "instantaneous resident size of process, excluding page table and task structure.",        .longhelp = "" },
@@ -107,6 +107,7 @@ help_text_t  help_text[] = {
 { .name = "io.syscr",            .shorthelp = "read(), readv() and sendfile() receive system calls",        .longhelp = "Extended accounting information - count of number of calls to the\nread(2), readv(2) and sendfile(2) syscalls by each process.\n" },
 { .name = "psinfo.ppid",            .shorthelp = "parent process identifier",        .longhelp = "" },
 { .name = "psinfo.pgrp",            .shorthelp = "process group identifier",        .longhelp = "" },
+{ .name = "psinfo.tgid",            .shorthelp = "thread group identifier",        .longhelp = "" },
 { .name = "id.fsgid",            .shorthelp = "filesystem group ID from /proc/<pid>/status",        .longhelp = "" },
 { .name = "psinfo.cnswap",            .shorthelp = "count of page swap operations of all exited children",        .longhelp = "" },
 { .name = "memory.size",            .shorthelp = "instantaneous virtual size of process, excluding page table and task structure.",        .longhelp = "" },
@@ -129,4 +130,5 @@ help_text_t  help_text[] = {
 { .name = "namespaces.pid",   .shorthelp = "descendant namespace process ID hierarchy (/proc/<pid>/status)", .longhelp = "" },
 { .name = "namespaces.pgid",   .shorthelp = "descendant namespace process group ID hierarchy (/proc/<pid>/status)", .longhelp = "" },
 { .name = "namespaces.sid",   .shorthelp = "descendant namespace session ID hierarchy (/proc/<pid>/status)", .longhelp = "" },
+{ .name = "namespaces.envid", .shorthelp = "OpenVZ container identifier", .longhelp = "" },
 };

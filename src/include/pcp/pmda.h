@@ -40,7 +40,7 @@ typedef enum {pmdaPipe, pmdaInet, pmdaUnix, pmdaUnknown, pmdaIPv6} pmdaIoType;
 /*
  * Instance description: index and name
  */
-typedef struct {
+typedef struct pmdaInstid {
     int		i_inst;		/* internal instance identifier */
     char	*i_name;	/* external instance identifier */
 } pmdaInstid;
@@ -49,7 +49,7 @@ typedef struct {
  * Instance domain description: unique instance id, number of instances in
  * this domain, and the list of instances (not null terminated).
  */
-typedef struct {
+typedef struct pmdaIndom {
     pmInDom	it_indom;	/* indom, filled in */
     int		it_numinst;	/* number of instances */
     pmdaInstid	*it_set;	/* instance identifiers */
@@ -58,7 +58,7 @@ typedef struct {
 /*
  * Metric description: handle for extending description, and the description.
  */
-typedef struct {
+typedef struct pmdaMetric {
     void	*m_user;	/* for users external use */
     pmDesc	m_desc;		/* metric description */
 } pmdaMetric;
@@ -117,7 +117,7 @@ typedef struct __pmnsNode pmnsNode;
  * pmdaInit().
  * 
  */
-typedef struct {
+typedef struct pmdaExt {
 
     unsigned int e_flags;	/* PMDA_EXT_FLAG_* bit field */
     void	*e_ext;		/* used internally within libpcp_pmda */
@@ -183,7 +183,7 @@ typedef struct {
  * pmdaDaemon and pmdaGetOpt in the case of a Daemon PMDA. It should not be
  * modified.
  */
-typedef struct {
+typedef struct pmdaInterface {
     int	domain;		/* performance metrics domain id */
     struct {
 	unsigned int	pmda_interface : 8;	/* PMDA DSO interface version */
@@ -253,7 +253,7 @@ typedef struct {
 /*
  * PM_CONTEXT_LOCAL support
  */
-typedef struct {
+typedef struct __pmDSO {
     int			domain;
     char		*name;
     char		*init;
@@ -303,10 +303,11 @@ extern __pmDSO *__pmLookupDSO(int /*domain*/);
 #define PMDAOPT_USERNAME { "username",	1, 'U', "USER", \
 			"run the PMDA using the named user account" }
 
-struct __pmdaOptions;
-typedef int (*pmdaOptionOverride)(int, struct __pmdaOptions *);
+struct pmdaOptions;
+#define __pmdaOptions pmdaOptions /* backward-compatibility */
+typedef int (*pmdaOptionOverride)(int, struct pmdaOptions *);
 
-typedef struct __pmdaOptions {
+typedef struct pmdaOptions {
     int			version;
     int			flags;
     const char *	short_options;
