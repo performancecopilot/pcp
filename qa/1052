@@ -14,6 +14,8 @@ python_path=`which $python`
 pmda_path="$PCP_PMDAS_DIR/json"
 pmda_script="$pmda_path/pmdajson.python"
 pmda_config="${pmda_path}/config.json"
+pmda_config_dir="${PCP_VAR_DIR}/config/pmda"
+pmda_saved_config_dir="${pmda_config_dir}/pmdajson.$seq"
 test -f "$pmda_script" || _notrun "pmdajson not supported"
 $python -c "from pcp import pmda" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
@@ -69,6 +71,14 @@ cleanup()
 	if [ -f ${pmda_config}.$seq ]; then
 	    _restore_config ${pmda_config}
 	fi
+
+	# Remove the newly created indom cache files and restore any
+	# old indom cache files.
+	$sudo rm -f ${pmda_config_dir}/${domain}.*
+	if [ -d ${pmda_saved_config_dir} ]; then
+	    $sudo mv ${pmda_saved_config_dir}/* ${pmda_config_dir}/
+	    $sudo rm -rf ${pmda_saved_config_dir}
+	fi
     fi
     $sudo rm -rf $tmp $tmp.*
 }
@@ -82,6 +92,14 @@ _save_config $PCP_PMCDCONF_PATH
 # Ditto for JSON pmda config.
 if [ -f ${pmda_config} ]; then
     _save_config ${pmda_config}
+fi
+
+# We want to get any JSON pmda indom cache files out of the way, so we
+# start with a clean slate. We'll restore these at the end.
+if [ -f "${pmda_config_dir}/${domain}.0" ]; then
+    $sudo rm -rf ${pmda_saved_config_dir}
+    $sudo mkdir ${pmda_saved_config_dir}
+    $sudo mv ${pmda_config_dir}/${domain}.* ${pmda_saved_config_dir}/
 fi
 
 # Create a new JSOM pmda config file and install it
@@ -178,7 +196,6 @@ EOF
 #
 # real QA test starts here
 #
-_change_config pmlogger off
 
 pmns_root="${tmp}/json.root"
 PCP_PYTHON_PMNS=root $python "$pmda_script" > ${pmns_root}

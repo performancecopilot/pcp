@@ -1108,6 +1108,7 @@ cgroups
 1050 pmieconf local
 1051 pmieconf #696008 local
 1052 pmda.json local python
+1053 pmda.json pmda.install local python
 1091 pmns libpcp context local
 1092 libpcp local
 1108 logutil local folio pmlogextract
