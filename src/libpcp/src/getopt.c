@@ -432,7 +432,7 @@ __pmAddOptArchive(pmOptions *opts, char *arg)
     if ((opts->flags & PM_OPTFLAG_MULTI)) {
 	/*
 	 * Multiple contexts for multiple archives. See pmstat(1).
-	 * We will maintain an array fo archive names.
+	 * We will maintain an array of archive names.
 	 */
 	size = sizeof(char *) * (opts->narchives + 1);
 	if ((archives = realloc(archives, size)) == NULL)

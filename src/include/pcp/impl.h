@@ -697,7 +697,7 @@ typedef struct {
     void		*ac_cache;	/* used in interp.c */
     int			ac_cache_idx;	/* used in interp.c */
     /*
-     * There were added to the ABI in order to support multiple archives
+     * These were added to the ABI in order to support multiple archives
      * in a single context. In order to maintain ABI compatibility they must
      * be at the end of this structure.
      */
