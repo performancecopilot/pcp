@@ -134,8 +134,9 @@ static dynproc_metric_t psinfo_metrics[] = {
 	{ .name = "labels",	    .cluster = CLUSTER_PID_LABEL,	.item=0 },
 	{ .name = "vctxsw",	    .cluster = CLUSTER_PID_STATUS,	.item=29 },
 	{ .name = "nvctxsw",	    .cluster = CLUSTER_PID_STATUS,	.item=30 },
-	{ .name = "cpusallowed",.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_CPUSALLOWED },
-	{ .name = "ngid",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_NGID },
+	{ .name = "cpusallowed",    .cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_CPUSALLOWED },
+	{ .name = "ngid",	    .cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_NGID },
+        { .name = "tgid",	    .cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_TGID },
 };
 
 static dynproc_metric_t id_metrics[] = {
@@ -185,6 +186,7 @@ static dynproc_metric_t namespace_metrics[] = {
         { .name = "pid",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_NSPID },
         { .name = "pgid",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_NSPGID },
         { .name = "sid",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_NSSID },
+        { .name = "envid",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_ENVID },
 };
 
 static dynproc_metric_t io_metrics[] = {

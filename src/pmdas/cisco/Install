@@ -73,7 +73,7 @@ A username and/or user-level password may be required for the Cisco
 	    echo "Probing Cisco for list of interfaces ..."
 	    for try in 1 2 3
 	    do
-		intf=`eval ./probe $userarg $passarg $promptarg $host 2>$tmp/err`
+		intf=`eval ./probe $userarg $passarg $promptarg $host 2>$__tmp.err`
 		[ ! -z "$intf" ] && break
 		sleep 2
 	    done
@@ -82,7 +82,7 @@ A username and/or user-level password may be required for the Cisco
 		echo '
 There appears to be a problem ... after three attempts could not get
 interfaces.  Output at the last attempt was:'
-		sed -e 's/^/    /' <$tmp/err
+		sed -e 's/^/    /' <$__tmp.err
 		echo '
 You may wish to try the following commands to identify the configured
 interfaces for this Cisco.

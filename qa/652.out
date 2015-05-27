@@ -1,7 +1,4 @@
 QA output created by 652
-Found journalctl
-Found logger
-Found recent enough journalctl
 You will need to choose an appropriate configuration for installation of
 the "systemd" Performance Metrics Domain Agent (PMDA).
   collector	collect performance statistics on this system

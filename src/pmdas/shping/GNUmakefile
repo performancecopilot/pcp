@@ -25,7 +25,6 @@ OTHERS	= README root help pmns sample.conf
 CHARTS	= shping.CPUTime.pmchart shping.RealTime.pmchart
 PMIECS	= shping.status.pmie shping.response.pmie
 
-LSRCFILES = $(OTHERS) $(CHARTS) $(PMIECS) Install Remove pmlogconf.summary
 LLDLIBS	= $(PCP_PMDALIB) $(LIB_FOR_PTHREADS)
 
 PMDADIR = $(PCP_PMDAS_DIR)/$(IAM)

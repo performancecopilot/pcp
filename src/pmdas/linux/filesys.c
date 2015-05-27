@@ -40,7 +40,8 @@ scan_filesys_options(const char *options, const char *option)
 }
 
 int
-refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom, int pid)
+refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom,
+		struct linux_container *cp)
 {
     char buf[MAXPATHLEN];
     char src[MAXPATHLEN];
@@ -53,9 +54,12 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom, int pid)
     pmdaCacheOp(tmpfs_indom, PMDA_CACHE_INACTIVE);
     pmdaCacheOp(filesys_indom, PMDA_CACHE_INACTIVE);
 
-    /* presence of PID indicates operation within a container namespace */
+    /*
+     * When operating within a container namespace, cannot refer
+     * to "self" due to it being a symlinked pid from the host.
+     */
     snprintf(src, sizeof(src), "%s/proc/%s/mounts",
-				linux_statspath, pid > 0 ? "1" : "self");
+				linux_statspath, cp ? "1" : "self");
     if ((fp = fopen(src, "r")) == NULL)
 	return -oserror();
 

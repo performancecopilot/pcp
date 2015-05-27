@@ -29,6 +29,12 @@ enum {
     NUM_METRICS
 };
 
+enum {
+    CONTAINERS_UPTODATE_NAME,
+    CONTAINERS_UPTODATE_STATE,
+    NUM_UPTODATE
+};
+
 /*
  * General container services, abstracting individual implementations into
  * "engines" which are then instantiated one-per-container-technology.
@@ -59,8 +65,11 @@ typedef struct container_engine {
 
 typedef struct container {
     int			pid;
-    int			status;
-    char		*name;
+    int			flags : 8;	/* CONTAINER_FLAG bitwise */
+    int			state : 8;	/* internal driver states */
+    int			uptodate : 8;	/* refreshed values count */ 
+    int			padding : 8;
+    char		*name;		/* human-presentable name */
     char		cgroup[128];
     struct stat		stat;
     container_engine_t	*engine;

@@ -121,6 +121,8 @@ enum {
     PROC_PID_STATUS_NSPID,
     PROC_PID_STATUS_NSPGID,
     PROC_PID_STATUS_NSSID,
+    PROC_PID_STATUS_TGID,
+    PROC_PID_STATUS_ENVID,	/* OpenVZ kernel, not in mainline */
 
     /* number of metrics from /proc/<pid>/status */
     NR_PROC_PID_STATUS
@@ -182,6 +184,8 @@ enum {
 
 typedef struct {	/* /proc/<pid>/status */
     char *ngid;
+    char *tgid;
+    char *envid;
     char *uid;
     char *gid;
     char *nstgid;

@@ -1274,6 +1274,8 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
     }
 
     if (!(ep->flags & PROC_PID_FLAG_ENVIRON_FETCHED)) {
+	if (ep->environ_buflen > 0)
+	    ep->environ_buf[0] = '\0';
 	if ((fd = proc_open("environ", ep)) >= 0) {
 	    nread = 0;
 	    while ( (n = read(fd, buf, sizeof(buf))) > 0) {
@@ -1501,6 +1503,8 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
 		    case 'T':
 			if (strncmp(curline, "Threads:", 8) == 0)
 			    ep->status_lines.threads = strsep(&curline, "\n");
+			else if (strncmp(curline, "Tgid:", 5) == 0)
+			    ep->status_lines.tgid = strsep(&curline, "\n");
 			else
 			    goto nomatch;
 			break;
@@ -1547,6 +1551,12 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
                     case 'C':
 		        if (strncmp(curline, "Cpus_allowed_list:", 18) == 0)
 		            ep->status_lines.cpusallowed = strsep(&curline, "\n");
+			else
+			    goto nomatch;
+			break;
+                    case 'e':
+		        if (strncmp(curline, "envID:", 6) == 0)
+		            ep->status_lines.envid = strsep(&curline, "\n");
 			else
 			    goto nomatch;
 			break;

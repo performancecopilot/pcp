@@ -732,7 +732,8 @@ load_cache(hdr_t *h)
     char	strbuf[20];
 
     if (vdp == NULL) {
-	vdp = pmGetConfig("PCP_VAR_DIR");
+	if ((vdp = pmGetOptionalConfig("PCP_VAR_DIR")) == NULL)
+	    return PM_ERR_GENERIC;
 	snprintf(filename, sizeof(filename),
 		"%s%c" "config" "%c" "pmda", vdp, sep, sep);
 	mkdir2(filename, 0755);
@@ -893,7 +894,8 @@ save_cache(hdr_t *h, int hstate)
     }
 
     if (vdp == NULL) {
-	vdp = pmGetConfig("PCP_VAR_DIR");
+	if ((vdp = pmGetOptionalConfig("PCP_VAR_DIR")) == NULL)
+	    return PM_ERR_GENERIC;
 	snprintf(filename, sizeof(filename),
 		"%s%c" "config" "%c" "pmda", vdp, sep, sep);
 	mkdir2(filename, 0755);

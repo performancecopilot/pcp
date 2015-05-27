@@ -713,6 +713,9 @@ IB_LIBS
 PMDA_SYSTEMD
 SYSTEMD_LIBS
 SYSTEMD_CFLAGS
+HAVE_NCURSES
+ncurses_LIBS
+ncurses_CFLAGS
 lib_for_regex
 grep
 pcp_syslog_prog
@@ -956,6 +959,8 @@ CXXFLAGS
 CCC
 YACC
 YFLAGS
+ncurses_CFLAGS
+ncurses_LIBS
 SYSTEMD_CFLAGS
 SYSTEMD_LIBS
 papi_CFLAGS
@@ -1659,6 +1664,10 @@ Some influential environment variables:
   YFLAGS      The list of arguments that will be passed by default to $YACC.
               This script will default YFLAGS to the empty string to avoid a
               default value of `-d' given by some make applications.
+  ncurses_CFLAGS
+              C compiler flags for ncurses, overriding pkg-config
+  ncurses_LIBS
+              linker flags for ncurses, overriding pkg-config
   SYSTEMD_CFLAGS
               C compiler flags for SYSTEMD, overriding pkg-config
   SYSTEMD_LIBS
@@ -9867,6 +9876,80 @@ if test $ac_cv_lib_regex_regcomp = yes
 then
     lib_for_regex="-lregex"
 fi
+
+
+
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for ncurses" >&5
+$as_echo_n "checking for ncurses... " >&6; }
+
+if test -n "$ncurses_CFLAGS"; then
+    pkg_cv_ncurses_CFLAGS="$ncurses_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"ncurses\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "ncurses") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_ncurses_CFLAGS=`$PKG_CONFIG --cflags "ncurses" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$ncurses_LIBS"; then
+    pkg_cv_ncurses_LIBS="$ncurses_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"ncurses\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "ncurses") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_ncurses_LIBS=`$PKG_CONFIG --libs "ncurses" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        ncurses_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "ncurses" 2>&1`
+        else
+	        ncurses_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "ncurses" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$ncurses_PKG_ERRORS" >&5
+
+	have_ncurses=false
+elif test $pkg_failed = untried; then
+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	have_ncurses=false
+else
+	ncurses_CFLAGS=$pkg_cv_ncurses_CFLAGS
+	ncurses_LIBS=$pkg_cv_ncurses_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	have_ncurses=true
+fi
+HAVE_NCURSES=$have_ncurses
 
 
 

@@ -174,8 +174,6 @@ docker_values_changed(const char *path, container_t *values)
     return 1;
 }
 
-static int State;
-
 static int
 docker_values_extract(const char *js, jsmntok_t *t, size_t count,
 			int key, container_t *values)
@@ -198,22 +196,27 @@ docker_values_extract(const char *js, jsmntok_t *t, size_t count,
 	    jsmntok_t	*value = t + 1;
 
 	    if (t->parent == 0) {	/* top-level: look for Name & State */
-		if (jsmneq(js, t, "Name") == 0)
+		if (jsmneq(js, t, "Name") == 0) {
 		    jsmnstrdup(js, value, &values->name);
-		if (jsmneq(js, t, "State") == 0)
-		    State = (value->type == JSMN_OBJECT);
+		    values->uptodate++;
+		}
+		if (jsmneq(js, t, "State") == 0) {
+		    values->state = (value->type == JSMN_OBJECT);
+		    values->uptodate++;
+		}
 	    }
-	    else if (State != 0) {	/* pick out various stateful values */
-		int 	*flag = &values->status;
+	    else if (values->state) { /* pick out various stateful values */
+		int 	flag = values->flags;
 
 		if (pmDebug & DBG_TRACE_ATTR)
 		    __pmNotifyErr(LOG_DEBUG, "docker_values_parse: state\n");
+
 		if (jsmneq(js, t, "Running") == 0)
-		    jsmnflag(js, value, flag, CONTAINER_FLAG_RUNNING);
+		    jsmnflag(js, value, &flag, CONTAINER_FLAG_RUNNING);
 		else if (jsmneq(js, t, "Paused") == 0)
-		    jsmnflag(js, value, flag, CONTAINER_FLAG_PAUSED);
+		    jsmnflag(js, value, &flag, CONTAINER_FLAG_PAUSED);
 		else if (jsmneq(js, t, "Restarting") == 0)
-		    jsmnflag(js, value, flag, CONTAINER_FLAG_RESTARTING);
+		    jsmnflag(js, value, &flag, CONTAINER_FLAG_RESTARTING);
 		else if (jsmneq(js, t, "Pid") == 0) {
 		    if (jsmnint(js, value, &values->pid) < 0)
 			values->pid = -1;
@@ -221,6 +224,7 @@ docker_values_extract(const char *js, jsmntok_t *t, size_t count,
 			__pmNotifyErr(LOG_DEBUG, "docker_value PID=%d\n",
 					values->pid);
 		}
+		values->flags = flag;
 	    }
 	}
 	return 1;
@@ -229,7 +233,7 @@ docker_values_extract(const char *js, jsmntok_t *t, size_t count,
 	    j += docker_values_extract(js, t+1+j, count-j, 1, values); /* key */
 	    j += docker_values_extract(js, t+1+j, count-j, 0, values); /*value*/
 	}
-	State = 0;
+	values->state = 0;
 	return j + 1;
     case JSMN_ARRAY:
 	for (i = j = 0; i < t->size; i++)
@@ -264,7 +268,8 @@ docker_values_parse(FILE *fp, const char *name, container_t *values)
 	jslen = 0;
 
     jsmn_init(&p);
-    State = -1;	/* reset State key marker for this iteration */
+    values->uptodate = 0;	/* values for this container not yet visible */
+    values->state = -1;		/* reset State key marker for this iteration */
 
     for (;;) {
 	/* Read another chunk */
@@ -332,12 +337,19 @@ docker_value_refresh(container_engine_t *dp,
     if (!docker_values_changed(path, values))
 	return 0;
     if (pmDebug & DBG_TRACE_ATTR)
-	__pmNotifyErr(LOG_DEBUG, "docker_values_refresh: file=%s\n", path);
+	__pmNotifyErr(LOG_DEBUG, "docker_value_refresh: file=%s\n", path);
     if ((fp = fopen(path, "r")) == NULL)
 	return -oserror();
     sts = docker_values_parse(fp, name, values);
     fclose(fp);
-    return sts;
+    if (sts < 0)
+	return sts;
+
+    if (pmDebug & DBG_TRACE_ATTR)
+	__pmNotifyErr(LOG_DEBUG, "docker_value_refresh: uptodate=%d of %d\n",
+	    values->uptodate, NUM_UPTODATE);
+
+    return values->uptodate == NUM_UPTODATE ? 0 : PM_ERR_AGAIN;
 }
 
 /*
