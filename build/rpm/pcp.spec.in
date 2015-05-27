@@ -1047,9 +1047,11 @@ URL: http://www.pcp.io
 %if "@enable_python3@" == "true"
 Requires: python3-pcp
 Requires: python3-jsonpointer
+Requires: python3-six
 %else
 Requires: python-pcp
 Requires: python-jsonpointer
+Requires: python-six
 %endif
 %description pmda-json
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for

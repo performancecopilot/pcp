@@ -117,10 +117,12 @@ Requires: pcp-libs = %{version}-%{release}
 %if 0%{?default_python} == 3
 Requires: python3-pcp = %{version}-%{release}
 Requires: python3-jsonpointer
+Requires: python3-six
 %endif
 %if !%{disable_python2} && 0%{?default_python} != 3
 Requires: python-pcp = %{version}-%{release}
 Requires: python-jsonpointer
+Requires: python-six
 %endif
 Obsoletes: pcp-gui-debuginfo
 Obsoletes: pcp-pmda-nvidia

@@ -15,6 +15,9 @@ import re
 import traceback
 import subprocess
 import shlex
+# From the six module, load some python 2 vs. 3 compatibility
+# functions.
+from six import iteritems, text_type
 
 MAX_CLUSTER = 0xfff             # 12 bits, see pcp/impl.h
 MAX_METRIC = 0x3ff              # 10 bits, see pcp/impl.h
@@ -446,7 +449,7 @@ class JsonSource(object):
         ''' Refresh the list of indoms. '''
         # Notice we never delete indoms, we just keep adding.
         self.__array_indexes.clear()
-        for (dummy, metric_info) in self.__metrics.iteritems():
+        for (dummy, metric_info) in iteritems(self.__metrics):
             # Skip non-arrays.
             if metric_info.index_pointer == None:
                 continue
@@ -494,10 +497,10 @@ class JsonSource(object):
             metric_info = Metric(metric_prefix, self.cluster, self.__pmda)
             metric_info.indom_cache = self.__indom_cache
             error_seen = 0
-            for (key, value) in item.iteritems():
+            for (key, value) in iteritems(item):
                 # 'name' (required): Sanity check it and save it.
                 if key == 'name':
-                    if not isinstance(value, unicode):
+                    if not isinstance(value, text_type):
                         self.log("Invalid metadata 'name' value")
                         raise TypeError("Invalid metadata 'name' value")
                     try:
@@ -510,7 +513,7 @@ class JsonSource(object):
                         continue
                 # 'type' (required): Sanity check it and save it.
                 elif key == 'type':
-                    if not isinstance(value, unicode):
+                    if not isinstance(value, text_type):
                         self.log("Invalid metadata 'type' value")
                         raise TypeError("Invalid metadata 'type' value")
                     if value == 'string':
@@ -533,19 +536,19 @@ class JsonSource(object):
                                         % value)
                 # 'pointer' (required): Sanity check it and save it.
                 elif key == 'pointer':
-                    if not isinstance(value, unicode):
+                    if not isinstance(value, text_type):
                         self.log("Invalid metadata 'pointer' value")
                         raise TypeError("Invalid metadata 'pointer' value")
                     metric_info.pointer = jsonpointer.JsonPointer(value)
                 # 'description' (optional): Type check it and save it.
                 elif key == 'description':
-                    if not isinstance(value, unicode):
+                    if not isinstance(value, text_type):
                         self.log("Invalid schema 'description' value")
                         raise TypeError("Invalid schema 'description' value")
                     metric_info.desc = value
                 # 'units' (optional): Type check and save it.
                 elif key == 'units':
-                    if not isinstance(value, unicode):
+                    if not isinstance(value, text_type):
                         self.log("Invalid schema 'units' value")
                         raise TypeError("Invalid schema 'units' value")
                     metric_info.units = value
@@ -592,10 +595,10 @@ class JsonSource(object):
         Go through the metadata, looking for information about the
         data source.
         '''
-        for (key, value) in self.__metadata.items():
+        for (key, value) in iteritems(self.__metadata):
             # 'prefix' (optional): Sanity check it and save it.
             if key == 'prefix':
-                if not isinstance(value, unicode):
+                if not isinstance(value, text_type):
                     self.log("Invalid metadata 'prefix' value from file %s: %s"
                              % (self.__path, value))
                     continue
@@ -604,7 +607,7 @@ class JsonSource(object):
                 self.__root_name = value
             # 'data-path' (optional): Sanity check it and save it.
             elif key == 'data-path':
-                if not isinstance(value, unicode):
+                if not isinstance(value, text_type):
                     self.log("Invalid metadata 'data-path' value from"
                              " file %s: %s" % (self.__path, value))
                     continue
@@ -613,7 +616,7 @@ class JsonSource(object):
                 self.__data_path = value
             # 'data-exec' (optional): Sanity check it and save it.
             elif key == 'data-exec':
-                if not isinstance(value, unicode):
+                if not isinstance(value, text_type):
                     self.log("Invalid metadata 'data-exec' value"
                              " from file %s: %s" % (self.__path, value))
                     continue
@@ -636,7 +639,7 @@ class JsonSource(object):
 
         # Look for the "metrics" array.
         metrics_array = None
-        for (key, value) in self.__metadata.items():
+        for (key, value) in iteritems(self.__metadata):
             # 'metrics' (required): Save it.
             if key == 'metrics':
                 metrics_array = value
@@ -661,10 +664,10 @@ class JsonSource(object):
         for item in metrics_array:
             metric_info = Metric(metric_prefix, self.__cluster, self.__pmda)
             error_seen = 0
-            for (key, value) in item.iteritems():
+            for (key, value) in iteritems(item):
                 # 'name' (required): Sanity check it and save it.
                 if key == 'name':
-                    if not isinstance(value, unicode):
+                    if not isinstance(value, text_type):
                         self.log("Skipping metric with invalid"
                                  " metadata 'name' value")
                         error_seen = 1
@@ -680,7 +683,7 @@ class JsonSource(object):
                         continue
                 # 'type' (required): Sanity check it and save it.
                 elif key == 'type':
-                    if not isinstance(value, unicode):
+                    if not isinstance(value, text_type):
                         self.log("Invalid metadata 'type' value")
                         error_seen = 1
                         break
@@ -708,21 +711,21 @@ class JsonSource(object):
                         break
                 # 'pointer' (required): Sanity check it and save it.
                 elif key == 'pointer':
-                    if not isinstance(value, unicode):
+                    if not isinstance(value, text_type):
                         self.log("Invalid metadata 'pointer' value")
                         error_seen = 1
                         break
                     metric_info.pointer = jsonpointer.JsonPointer(value)
                 # 'description' (optional): Type check it and save it.
                 elif key == 'description':
-                    if not isinstance(value, unicode):
+                    if not isinstance(value, text_type):
                         self.log("Invalid schema 'description' value")
                         error_seen = 1
                         break
                     metric_info.desc = value
                 # 'index' (required for arrays): Type check and save it.
                 elif key == 'index':
-                    if not isinstance(value, unicode):
+                    if not isinstance(value, text_type):
                         self.log("Invalid schema 'index' value")
                         error_seen = 1
                         break
@@ -749,7 +752,7 @@ class JsonSource(object):
                     self.__parse_array_metadata(metric_info.name, value)
                 # 'units' (optional): Type check and save it.
                 elif key == 'units':
-                    if not isinstance(value, unicode):
+                    if not isinstance(value, text_type):
                         self.log("Invalid schema 'units' value")
                         error_seen = 1
                         break
@@ -851,7 +854,7 @@ class JsonSource(object):
         Refresh metrics by re-adding all metrics for this JSON source to
         the PMDA.
         '''
-        for (dummy, metric) in self.__metrics.items():
+        for (dummy, metric) in iteritems(self.__metrics):
             # Skip array metrics.
             if metric.type != c_api.PM_TYPE_NOSUPPORT:
                 self.__pmda.add_metric(metric.full_name, metric.obj,
@@ -901,7 +904,7 @@ class JsonPMDA(PMDA):
                                 pmda_name))
         self.__config_data = {}
         self.__load_config_file()
-        for (key, value) in self.__config_data.items():
+        for (key, value) in iteritems(self.__config_data):
             if key == 'directory_list':
                 if not isinstance(value, list):
                     self.log("Invalid config file 'directory_list' value")
@@ -1125,13 +1128,13 @@ class JsonPMDA(PMDA):
             self.clear_metrics()
 
             # Recreate our static metrics.
-            for (dummy, metric) in self.__metrics.items():
+            for (dummy, metric) in iteritems(self.__metrics):
                 self.add_metric(metric.full_name, metric.obj, metric.desc)
 
             # Now ask each JSON source to refresh its own
             # metrics. This recreates them from cached info we got
             # from the last time we read the source's metadata file.
-            for (dummy, source) in self.sources_by_root.items():
+            for (dummy, source) in iteritems(self.sources_by_root):
                 source.refresh_metrics()
         if self.debug:
             self.log("__refresh_metrics: exit")

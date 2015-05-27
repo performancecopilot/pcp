@@ -9,6 +9,11 @@ import traceback
 from collections import OrderedDict
 import subprocess
 
+# From the six module, load some python 2 vs. 3 compatibility
+# functions.
+from six import iteritems
+from six.moves import xrange
+
 COMMA_NEEDED = 0
 VERBOSE = 0
 
@@ -99,7 +104,7 @@ def handle_json_dict(out, indent, root_name, json_dict):
     pcp_root_name = generate_pcp_name(root_name)
     if VERBOSE and pcp_root_name != root_name:
         sys.stderr.write("Changed '%s' to '%s'\n" % (root_name, pcp_root_name))
-    for (key, value) in json_dict.iteritems():
+    for (key, value) in iteritems(json_dict):
         if not isinstance(value, OrderedDict):
             sys.stderr.write("Value isn't an OrderedDict?\n")
             sys.exit(1)
@@ -108,7 +113,7 @@ def handle_json_dict(out, indent, root_name, json_dict):
         error = 0
         names = []
         output = []
-        for (subkey, subvalue) in value.iteritems():
+        for (subkey, subvalue) in iteritems(value):
             if subkey != 'type':
                 sys.stderr.write("Item '%s' value isn't 'type'\n" % subkey)
                 sys.exit(1)
@@ -139,7 +144,13 @@ def handle_json_dict(out, indent, root_name, json_dict):
 
 def usage():
     ''' Print a usage message. '''
-    sys.stderr.write("Usage: %s [-v] [-o FILE] ADMIN_SOCKET\n" % sys.argv[0])
+    sys.stderr.write("Usage: %s [-v] [-o FILE] ADMIN_SOCKET\n"
+                     % sys.argv[0])
+    sys.stderr.write("Options:\n")
+    sys.stderr.write("    -v       Verbose mode.\n")
+    sys.stderr.write("    -o FILE  Instead out the default output file"
+                     " named 'metadata.json,\n")
+    sys.stderr.write("             output to FILE instead.\n")
     sys.stderr.write("Example: %s /var/run/ceph/ceph-osd.0.asok\n"
                      % sys.argv[0])
 
@@ -182,8 +193,12 @@ def main():
     # Run the ceph command to get the JSON schema.
     try:
         cmd_args = ['ceph', '--admin-daemon', args[0], 'perf', 'schema']
+        # Notice we're using the 'universal_newlines' option,
+        # which forces popen to return text streams (instead of
+        # byte streams).
         pobj = subprocess.Popen(cmd_args, close_fds=True,
-                                stdout=subprocess.PIPE)
+                                stdout=subprocess.PIPE,
+                                universal_newlines=True)
         (out, dummy) = pobj.communicate()
     except (OSError, ValueError):
         sys.stderr.write("Couldn't run ceph command: %s\n"
@@ -205,7 +220,7 @@ def main():
     fobj.write("%s\"data-exec\": \"/usr/bin/ceph --admin-daemon"
                " %s perf dump\",\n" % (indent, args[0]))
     fobj.write("%s\"metrics\": [\n" % indent)
-    for (key, value) in json_data.iteritems():
+    for (key, value) in iteritems(json_data):
         if isinstance(value, OrderedDict):
             handle_json_dict(fobj, indent + "  ", key, value)
     fobj.write("\n%s]\n" % indent)
