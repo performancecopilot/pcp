@@ -19,6 +19,8 @@ echo "QA output created by $seq"
 . ./common.check
 . ./localconfig
 
+which netstat >/dev/null 2>&1 || _notrun "netstat not installed"
+
 if [ $PCP_PLATFORM != linux ]
 then
     echo "network.* checks for non-linux done in test 117" >$seq.notrun
