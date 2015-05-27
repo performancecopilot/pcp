@@ -144,11 +144,12 @@ def handle_json_dict(out, indent, root_name, json_dict):
 
 def usage():
     ''' Print a usage message. '''
+    # Notice we're not documenting the testing option '-t'.
     sys.stderr.write("Usage: %s [-v] [-o FILE] ADMIN_SOCKET\n"
                      % sys.argv[0])
     sys.stderr.write("Options:\n")
     sys.stderr.write("    -v       Verbose mode.\n")
-    sys.stderr.write("    -o FILE  Instead out the default output file"
+    sys.stderr.write("    -o FILE  Instead of the default output file"
                      " named 'metadata.json,\n")
     sys.stderr.write("             output to FILE instead.\n")
     sys.stderr.write("Example: %s /var/run/ceph/ceph-osd.0.asok\n"
@@ -166,8 +167,9 @@ def main():
     outfile = "metadata.json"
 
     # Handle options.
+    testing = False
     try:
-        (opts, args) = getopt.getopt(sys.argv[1:], 'o:v')
+        (opts, args) = getopt.getopt(sys.argv[1:], 'o:vt')
     except getopt.GetoptError as err:
         sys.stderr.write("%s\n" % err)
         usage()
@@ -177,6 +179,11 @@ def main():
             outfile = arg
         elif opt == '-v':
             VERBOSE = 1
+        elif opt == '-t':
+            # When the '-t' (testing) option is specified, instead of
+            # running ceph on a ceph admin socket, just grab the file
+            # contents of the argument instead.
+            testing = True
         else:
             sys.stderr.write("Unknown option '%s'\n" % opt)
 
@@ -190,21 +197,33 @@ def main():
         usage()
         sys.exit(1)
 
-    # Run the ceph command to get the JSON schema.
-    try:
-        cmd_args = ['ceph', '--admin-daemon', args[0], 'perf', 'schema']
-        # Notice we're using the 'universal_newlines' option,
-        # which forces popen to return text streams (instead of
-        # byte streams).
-        pobj = subprocess.Popen(cmd_args, close_fds=True,
-                                stdout=subprocess.PIPE,
-                                universal_newlines=True)
-        (out, dummy) = pobj.communicate()
-    except (OSError, ValueError):
-        sys.stderr.write("Couldn't run ceph command: %s\n"
-                         % ' '.join(cmd_args))
-        sys.stderr.write("%s\n" % traceback.format_exc())
-        sys.exit(1)
+    # Run the ceph command to get the JSON schema (unless we're in
+    # testing mode).
+    if not testing:
+        try:
+            cmd_args = ['ceph', '--admin-daemon', args[0], 'perf', 'schema']
+            # Notice we're using the 'universal_newlines' option,
+            # which forces popen to return text streams (instead of
+            # byte streams).
+            pobj = subprocess.Popen(cmd_args, close_fds=True,
+                                    stdout=subprocess.PIPE,
+                                    universal_newlines=True)
+            (out, dummy) = pobj.communicate()
+        except (OSError, ValueError):
+            sys.stderr.write("Couldn't run ceph command: %s\n"
+                             % ' '.join(cmd_args))
+            sys.stderr.write("%s\n" % traceback.format_exc())
+            sys.exit(1)
+    # In testing mode, just grab the file contents.
+    else:
+        try:
+            f = open(args[0])
+            out = f.read()
+        except (OSError, ValueError):
+            sys.stderr.write("Couldn't open/read file: %s\n" % args[0])
+            sys.stderr.write("%s\n" % traceback.format_exc())
+            sys.exit(1)
+        f.close()
 
     # Try to convert the schema to JSON objects.
     try:
@@ -217,8 +236,9 @@ def main():
     # Output the metadata file based on the ceph JSON schema.
     fobj.write("{\n")
     indent = "  "
-    fobj.write("%s\"data-exec\": \"/usr/bin/ceph --admin-daemon"
-               " %s perf dump\",\n" % (indent, args[0]))
+    if not testing:
+        fobj.write("%s\"data-exec\": \"/usr/bin/ceph --admin-daemon"
+                   " %s perf dump\",\n" % (indent, args[0]))
     fobj.write("%s\"metrics\": [\n" % indent)
     for (key, value) in iteritems(json_data):
         if isinstance(value, OrderedDict):

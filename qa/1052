@@ -12,8 +12,11 @@ echo "QA output created by $seq"
 
 python_path=`which $python`
 pmda_path="$PCP_PMDAS_DIR/json"
-pmda_script="$pmda_path/pmdajson.python"
+pmda_script="${pmda_path}/pmdajson.python"
 pmda_config="${pmda_path}/config.json"
+ceph_script="${pmda_path}/generate_ceph_metadata"
+qa_dir=`pwd`
+json_qa_dir="${qa_dir}/json"
 pmda_config_dir="${PCP_VAR_DIR}/config/pmda"
 pmda_saved_config_dir="${pmda_config_dir}/pmdajson.$seq"
 test -f "$pmda_script" || _notrun "pmdajson not supported"
@@ -260,6 +263,29 @@ children json.s2
 instance $domain.0
 fetch json.s2.array_data.count
 fetch json.s2.array_data.value
+EOF
+_drain_output
+
+# Let's test the ceph support by running the 'generate_ceph_metadata'
+# script on some canned data.
+mkdir ${tmp}/ceph
+cp ${json_qa_dir}/ceph_data1.json ${tmp}/ceph/data.json
+# Use the generate_ceph_metadata script to convert the ceph schema
+# into metadata.
+${ceph_script} -o ${tmp}/ceph/metadata.json -t ${json_qa_dir}/ceph_schema1.json
+
+# On this fetch, the 'nsources' static metric should be increased and
+# the new data source should be present. Notice we aren't grabbing all
+# the metrics from the ceph source, just a couple.
+cat >&3 <<EOF
+fetch json.nsources
+children json
+children json.s1
+children json.s2
+children json.ceph
+instance $domain.0
+fetch json.ceph.filestore.journal_wr_bytes.sum
+fetch json.ceph.osd.stat_bytes
 EOF
 _drain_output
 
