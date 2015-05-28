@@ -4,7 +4,7 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 delta	once
 	hinv.ncpu
 	hinv.ndisk
-	hinv.ninterfaces
+	hinv.ninterface
 	hinv.pagesize
 	kernel.all.hz
 	kernel.uname.release
