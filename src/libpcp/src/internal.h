@@ -257,7 +257,7 @@ typedef struct {
 } __pmServiceInfo;
 
 typedef struct {
-    const volatile unsigned	*flags;		/* Service discovery flags */
+    const volatile sig_atomic_t	*flags;		/* Service discovery flags */
     struct timeval		timeout;	/* Global timeout period */
     volatile int		timedOut;	/* Global timeout occurred */
     int				resolve;	/* Resolve discovered addresses */

@@ -15,9 +15,10 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include <signal.h>
 #include <sys/wait.h>
 
-static int finished;
+static volatile sig_atomic_t finished;
 
 static void
 sigterm(int sig)

@@ -161,7 +161,7 @@ int
 __pmDiscoverServicesWithOptions(const char *service,
 				const char *mechanism,
 				const char *optionsString,
-				const volatile unsigned *flags,
+				const volatile sig_atomic_t *flags,
 				char ***urls)
 {
     __pmServiceDiscoveryOptions	options;
