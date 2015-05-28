@@ -1465,6 +1465,9 @@ int pmdaCacheResize(pmInDom indom, int maximum)
 	    return PM_ERR_TOOBIG;
     }
     h->maxinst = maximum;
+    /* The timestamp doesn't really need updating, but the cache
+       header does now that we've modified the maximum value. */
+    h->hstate |= DIRTY_STAMP;
     return 0;
 }
 
