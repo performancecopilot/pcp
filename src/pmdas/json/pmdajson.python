@@ -6,17 +6,17 @@ Performance Metrics Domain Agent exporting JSON metrics.
 
 #
 # Copyright (c) 2014-2015 Red Hat.
-# 
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
+#
 
 import json
 import jsonpointer
@@ -298,6 +298,11 @@ class JsonSource(object):
     def log(self, string):
         ''' Log an informational message '''
         return self.__pmda.log(string)
+
+    @property
+    def path(self):
+        ''' Get JSON source path value. '''
+        return self.__path
 
     @property
     def name(self):
@@ -617,8 +622,8 @@ class JsonSource(object):
                     self.log("Invalid metadata 'prefix' value from file %s: %s"
                              % (self.__path, value))
                     continue
-                # FIXME: need to validate name and make sure it
-                # doesn't already exist.
+                # If a source with this name already exists, we'll
+                # catch it later.
                 self.__root_name = value
             # 'data-path' (optional): Sanity check it and save it.
             elif key == 'data-path':
@@ -936,6 +941,7 @@ class JsonPMDA(PMDA):
                 self.log("Ignoring unknown config option '%s'" % key)
 
         # Load all the metadata files and json data.
+        self.sources_by_name = {}
         self.sources_by_root = {}
         self.sources_by_cluster = {}
         self.__load_all_json()
@@ -999,7 +1005,9 @@ class JsonPMDA(PMDA):
                              % os.path.basename(root))
                 self.sources_by_root[root].cleanup()
                 cluster = self.sources_by_root[root].cluster
+                name = self.sources_by_root[root].name
                 del self.sources_by_root[root]
+                del self.sources_by_name[name]
                 del self.sources_by_cluster[cluster]
 
     def __valid_perms(self, path, desc):
@@ -1054,6 +1062,16 @@ class JsonPMDA(PMDA):
                         # change the name.
                         source = JsonSource(root, self, trusted)
 
+                        # If we've already got a source with this
+                        # name, skip this one.
+                        if source.name in self.sources_by_name:
+                            self.log("Skipping source '%s' (%s) -"
+                                     " already have a source with"
+                                     " the same name (%s)"
+                                     % (source.name, source.path,
+                                        self.sources_by_name[source.name].path))
+                            continue
+
                         # Try looking up the source name in the
                         # cluster cache.
                         try:
@@ -1079,6 +1097,7 @@ class JsonPMDA(PMDA):
                                      % (source.name, cluster_idx))
                         self.__cluster_cache.add_value(source.name, cluster_idx)
                         source.cluster = cluster_idx
+                        self.sources_by_name[source.name] = source
                         self.sources_by_root[root] = source
                         self.sources_by_cluster[cluster_idx] = source
 
