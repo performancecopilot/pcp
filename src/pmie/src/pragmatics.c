@@ -1004,7 +1004,7 @@ reinitMetric(Metric *m)
 		x->op == CND_LT || x->op == CND_LTE ||
 		x->op == CND_GT || x->op == CND_GTE ||
 		x->op == CND_NOT || x->op == CND_AND || x->op == CND_OR ||
-		x->op == CND_RISE || x->op == CND_FALL ||
+		x->op == CND_RISE || x->op == CND_FALL || x->op == CND_INSTANT ||
 		x->op == CND_MATCH || x->op == CND_NOMATCH) {
 		instFetchExpr(x);
 		findEval(x);

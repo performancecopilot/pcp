@@ -503,6 +503,13 @@ findEval(Expr *x)
 	    x->eval = cndRate_n;
 	break;
 
+    case CND_INSTANT:
+	if (arity & 1)
+	    x->eval = cndInstant_1;
+	else
+	    x->eval = cndInstant_n;
+	break;
+
     case CND_NEG:
 	if (arity & 1)
 	    x->eval = cndNeg_1;

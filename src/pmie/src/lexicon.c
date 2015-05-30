@@ -81,6 +81,7 @@ static LexEntry1 optab[] = {
 	{"true",    	TRU},
 	{"false",   	FALS},
 	{"rate",    	RATE},
+	{"instant",    	INSTANT},
 	{"shell",   	SHELL},
 	{"alarm",   	ALARM},
 	{"syslog",  	SYSLOG},
