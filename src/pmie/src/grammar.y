@@ -58,7 +58,7 @@ gramerr(char *phrase, char *pos, char *op)
  * yacc token and operator declarations
  ***********************************************************************/
 
-%expect     184
+%expect     188
 %start      stmnt
 
 %token      ARROW
@@ -140,7 +140,7 @@ gramerr(char *phrase, char *pos, char *op)
 %left  '>' '<' EQ_REL NEQ_REL GEQ_REL LEQ_REL
 %left  '+' '-'
 %left  '*' '/'
-%left  UMINUS RATE
+%left  UMINUS RATE INSTANT
 %left  SUM_AGGR AVG_AGGR MAX_AGGR MIN_AGGR COUNT_AGGR
 %left  SHELL ALARM SYSLOG PRINT STOMP
 %left  ':' '#' '@'
@@ -464,6 +464,9 @@ aexp	: '(' aexp ')'
 		{   $$ = $1; }
 	| RATE aexp
 		{   $$ = numMergeExpr(CND_RATE, $2); }
+	| INSTANT aexp
+		{   $2->sem = PM_SEM_INSTANT;
+		    $$ = unaryExpr(CND_INSTANT, $2); }
 	| '-' aexp		%prec UMINUS
 		{   $$ = unaryExpr(CND_NEG, $2); }
 	| aexp '+' aexp
@@ -478,6 +481,9 @@ aexp	: '(' aexp ')'
 	/* error reporting */
 	| RATE error
 		{   gramerr(aexp_str, follow, opStrings(CND_RATE));
+		    $$ = NULL; }
+	| INSTANT error
+		{   gramerr(aexp_str, follow, opStrings(CND_INSTANT));
 		    $$ = NULL; }
 	| '-' error		%prec UMINUS
 		{   gramerr(aexp_str, follow, opStrings(CND_NEG));

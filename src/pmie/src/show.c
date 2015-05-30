@@ -43,6 +43,7 @@ static struct {
 	{ CND_FETCH,	"<fetch node>" },
 	{ CND_DELAY,	"<delay node>" },
 	{ CND_RATE,	"rate" },
+	{ CND_INSTANT,	"instant" },
 	{ CND_NEG,	"-" },
 	{ CND_ADD,	"+" },
 	{ CND_SUB,	"-" },
@@ -587,7 +588,8 @@ showSyn(FILE *f, Expr *x)
 	else {
 	    paren = 1 -
 		    (x->arg1->op == NOP || x->arg1->op == CND_DELAY ||
-		     x->arg1->op == CND_FETCH || x->arg1->op == CND_RATE ||
+		     x->arg1->op == CND_FETCH ||
+		     x->arg1->op == CND_RATE || x->arg1->op == CND_INSTANT ||
 		     x->arg1->op == CND_SUM_HOST || x->arg1->op == CND_SUM_INST ||
 		     x->arg1->op == CND_SUM_TIME || x->arg1->op == CND_AVG_HOST ||
 		     x->arg1->op == CND_AVG_INST || x->arg1->op == CND_AVG_TIME ||
@@ -595,7 +597,7 @@ showSyn(FILE *f, Expr *x)
 		     x->arg1->op == CND_MAX_TIME || x->arg1->op == CND_MIN_HOST ||
 		     x->arg1->op == CND_MIN_INST || x->arg1->op == CND_MIN_TIME ||
 		     x->arg1->op == CND_COUNT_HOST || x->arg1->op == CND_COUNT_INST ||
-		     x->arg1->op == CND_COUNT_TIME || x->arg1->op == CND_RATE ||
+		     x->arg1->op == CND_COUNT_TIME ||
 		     x->op == RULE);
 	    if (paren)
 		fputc('(', f);
@@ -607,7 +609,8 @@ showSyn(FILE *f, Expr *x)
 	    fputc(' ', f);
 	    paren = 1 -
 		    (x->arg2->op == NOP || x->arg2->op == CND_DELAY ||
-		     x->arg2->op == CND_FETCH || x->arg2->op == CND_RATE ||
+		     x->arg2->op == CND_FETCH ||
+		     x->arg2->op == CND_RATE || x->arg2->op == CND_INSTANT ||
 		     x->arg2->op == CND_SUM_HOST || x->arg2->op == CND_SUM_INST ||
 		     x->arg2->op == CND_SUM_TIME || x->arg2->op == CND_AVG_HOST ||
 		     x->arg2->op == CND_AVG_INST || x->arg2->op == CND_AVG_TIME ||
@@ -615,7 +618,7 @@ showSyn(FILE *f, Expr *x)
 		     x->arg2->op == CND_MAX_TIME || x->arg2->op == CND_MIN_HOST ||
 		     x->arg2->op == CND_MIN_INST || x->arg2->op == CND_MIN_TIME ||
 		     x->arg2->op == CND_COUNT_HOST || x->arg2->op == CND_COUNT_INST ||
-		     x->arg2->op == CND_COUNT_TIME || x->arg2->op == CND_RATE ||
+		     x->arg2->op == CND_COUNT_TIME ||
 		     x->op == RULE);
 	    if (paren)
 		fputc('(', f);
