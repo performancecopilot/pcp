@@ -1489,7 +1489,7 @@ extern void *__pmLock_libpcp;			/* symbol exposure */
 extern int __pmDiscoverServicesWithOptions(const char *,
 					   const char *,
 					   const char *,
-					   const volatile unsigned *,
+					   const volatile sig_atomic_t *,
 					   char ***);
 
 
