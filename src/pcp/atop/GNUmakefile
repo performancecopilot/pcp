@@ -89,4 +89,4 @@ hostmetrics.h:	pmgenmap.sh hostmetrics.map
 photoproc.o:	procmetrics.h
 photosyst.o:	systmetrics.h
 ifprop.o:	ifpropmetrics.h
-atop.o:		hostmetrics.h
+various.o:	hostmetrics.h
