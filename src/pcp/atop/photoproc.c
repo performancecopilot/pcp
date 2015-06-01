@@ -126,6 +126,7 @@ photoproc(struct tstat *tasks, int *taskslen)
 		setup = 1;
 	}
 
+	pmSetMode(fetchmode, &curtime, fetchstep);
 	if ((sts = pmFetch(TASK_NMETRICS, pmids, &result)) < 0)
 	{
 		fprintf(stderr, "%s: pmFetch task metrics: %s\n",
@@ -134,7 +135,11 @@ photoproc(struct tstat *tasks, int *taskslen)
 	}
 
 	/* extract external process names (insts) */
-	if ((sts = pmGetInDom(descs[TASK_GEN_NAME].indom, &pids, &insts)) < 0)
+	if (rawreadflag)
+		sts = pmGetInDomArchive(descs[TASK_GEN_NAME].indom, &pids, &insts);
+	else
+		sts = pmGetInDom(descs[TASK_GEN_NAME].indom, &pids, &insts);
+	if (sts < 0)
 	{
 		fprintf(stderr, "%s: pmGetInDom task metrics: %s\n",
 			pmProgname, pmErrStr(sts));
@@ -149,8 +154,8 @@ photoproc(struct tstat *tasks, int *taskslen)
 		if (count > ents)
 			ents = count;
 		size = ents * sizeof(struct tstat);
-		if ((tasks = (struct tstat *)realloc(tasks, size)) == NULL)
-			__pmNoMem("photoproc", size, PM_FATAL_ERR);
+		tasks = (struct tstat *)realloc(tasks, size);
+		ptrverify(tasks, "photoproc [%ld]\n", (long)size);
 
 		*taskslen = ents;
 	}

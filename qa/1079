@@ -1,0 +1,36 @@
+#!/bin/sh
+# PCP QA Test No. 1079
+# Exercise pcp-atop functionality.
+#
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+ATOP="$PCP_BINADM_DIR/pcp-atop"
+test -f "$ATOP" || _notrun "$ATOP is not installed, skipped"
+
+_notrun "Archive mode atop functionality is WIP"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+# read from the canned pcp-atop archive
+$ATOP -r $here/archives/pcp-atop
+
+# write a new archive, replay with pcp-atop
+$ATOP -w $tmp.atop 1 5
+$ATOP -r $tmp.atop 1 2
+
+# success, all done
+status=0
+exit

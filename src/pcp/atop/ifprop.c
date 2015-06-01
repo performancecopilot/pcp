@@ -75,6 +75,7 @@ initifprop(void)
 		setup = 1;
 	}
 
+	pmSetMode(fetchmode, &curtime, fetchstep);
 	if ((sts = pmFetch(IF_NMETRICS, pmids, &result)) < 0)
 	{
 		fprintf(stderr, "%s: pmFetch: fetching interface values: %s\n",
@@ -90,7 +91,11 @@ initifprop(void)
 	}
 
 	/* extract external interface names */
-	if ((sts = pmGetInDom(descs[IF_SPEED].indom, &id, &insts)) < 0)
+	if (rawreadflag)
+	    sts = pmGetInDomArchive(descs[IF_SPEED].indom, &id, &insts);
+	else
+	    sts = pmGetInDom(descs[IF_SPEED].indom, &id, &insts);
+	if (sts < 0)
 	{
 		fprintf(stderr,
 			"%s: pmGetInDom: failed on interface instances: %s\n",

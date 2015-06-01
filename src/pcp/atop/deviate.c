@@ -443,16 +443,14 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
 	{
 		size = cur->cpu.nrcpu * sizeof(struct percpu);
 		dev->cpu.cpu = (struct percpu *)realloc(dev->cpu.cpu, size);
-		if (!dev->cpu.cpu)
-			__pmNoMem("deviatsyst cpus", size, PM_FATAL_ERR);
+		ptrverify(dev->cpu.cpu, "deviatsyst cpus [%ld]", (long)size);
 	}
 	if (cur->cpu.nrcpu > pre->cpu.nrcpu)
 	{
 		free(pre->cpu.cpu);
 		size = cur->cpu.nrcpu * sizeof(struct percpu);
 		pre->cpu.cpu = (struct percpu *)calloc(1, size);
-		if (!pre->cpu.cpu)
-			__pmNoMem("deviatsyst precpus", size, PM_FATAL_ERR);
+		ptrverify(pre->cpu.cpu, "deviatsyst precpus [%ld]", (long)size);
 	}
 
 	dev->cpu.nrcpu     = cur->cpu.nrcpu;
@@ -633,8 +631,7 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
 	{
 		size = (cur->intf.nrintf + 1) * sizeof(struct perintf);
 		dev->intf.intf = (struct perintf *)realloc(dev->intf.intf, size);
-		if (!dev->intf.intf)
-			__pmNoMem("deviatsyst intf", size, PM_FATAL_ERR);
+		ptrverify(dev->intf.intf, "deviatsyst intf [%ld]\n", (long)size);
 	}
 
 	if (pre->intf.nrintf < cur->intf.nrintf)	/* first sample? */
@@ -644,8 +641,7 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
 		free(pre->intf.intf);
 		size = (cur->intf.nrintf + 1) * sizeof(struct perintf);
 		pre->intf.intf = (struct perintf *)calloc(1, size);
-		if (!pre->intf.intf)
-			__pmNoMem("deviatsyst preintf", size, PM_FATAL_ERR);
+		ptrverify(pre->intf.intf, "deviatsyst preintf [%ld]\n", size);
 
 		for (i=0; cur->intf.intf[i].name[0]; i++)
 		{
@@ -750,15 +746,7 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
 	{
 		size = (cur->dsk.ndsk + 1) * sizeof(struct perdsk);
 		dev->dsk.dsk = (struct perdsk *)realloc(dev->dsk.dsk, size);
-		if (!dev->dsk.dsk)
-			__pmNoMem("deviatsyst disk", size, PM_FATAL_ERR);
-	}
-	if (!pre->dsk.ndsk)
-	{
-		size = (cur->dsk.ndsk + 1) * sizeof(struct perdsk);
-		pre->dsk.dsk = (struct perdsk *)calloc(1, size);
-		if (!pre->dsk.dsk)
-			__pmNoMem("deviatsyst predisk", size, PM_FATAL_ERR);
+		ptrverify(dev->dsk.dsk, "deviatsyst disk [%ld]\n", (long)size);
 	}
 	for (i=j=0; cur->dsk.dsk && cur->dsk.dsk[i].name[0]; i++)
 	{
@@ -770,7 +758,7 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
 		*/
 		if ( strcmp(cur->dsk.dsk[i].name, pre->dsk.dsk[j].name) != 0)
 		{
-			for (j++; pre->dsk.dsk[j].name[0]; j++)
+			for (j=0; pre->dsk.dsk[j].name[0]; j++)
 			{
 				if ( strcmp(cur->dsk.dsk[i].name,
 						pre->dsk.dsk[j].name) == 0)
@@ -816,19 +804,11 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
 	/*
 	** calculate deviations for multiple devices
 	*/
-	if (cur->dsk.nmdd != dev->dsk.nmdd || !dev->dsk.nmdd)
+	if (cur->dsk.nmdd != dev->dsk.nmdd)
 	{
 		size = (cur->dsk.nmdd + 1) * sizeof(struct perdsk);
 		dev->dsk.mdd = (struct perdsk *)realloc(dev->dsk.mdd, size);
-		if (!dev->dsk.mdd)
-			__pmNoMem("deviatsyst mdd", size, PM_FATAL_ERR);
-	}
-	if (!pre->dsk.mdd)
-	{
-		size = (cur->dsk.nmdd + 1) * sizeof(struct perdsk);
-		pre->dsk.mdd = (struct perdsk *)calloc(1, size);
-		if (!pre->dsk.mdd)
-			__pmNoMem("deviatsyst premdd", size, PM_FATAL_ERR);
+		ptrverify(dev->dsk.mdd, "deviatsyst mdd [%ld]\n", (long)size);
 	}
 	for (i=j=0; cur->dsk.mdd && cur->dsk.mdd[i].name[0]; i++)
 	{
@@ -840,7 +820,7 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
 		*/
 		if ( strcmp(cur->dsk.mdd[i].name, pre->dsk.mdd[j].name) != 0)
 		{
-			for (j++; pre->dsk.mdd[j].name[0]; j++)
+			for (j=0; pre->dsk.mdd[j].name[0]; j++)
 			{
 				if ( strcmp(cur->dsk.mdd[i].name,
 						pre->dsk.mdd[j].name) == 0)
@@ -886,19 +866,11 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
 	/*
 	** calculate deviations for LVM logical volumes
 	*/
-	if (cur->dsk.nlvm != dev->dsk.nlvm || !dev->dsk.lvm)
+	if (cur->dsk.nlvm != dev->dsk.nlvm)
 	{
 		size = (cur->dsk.nlvm + 1) * sizeof(struct perdsk);
 		dev->dsk.lvm = (struct perdsk *)realloc(dev->dsk.lvm, size);
-		if (!dev->dsk.lvm)
-			__pmNoMem("deviatsyst lvm", size, PM_FATAL_ERR);
-	}
-	if (!pre->dsk.lvm)
-	{
-		size = (cur->dsk.nlvm + 1) * sizeof(struct perdsk);
-		pre->dsk.lvm = (struct perdsk *)calloc(1, size);
-		if (!pre->dsk.lvm)
-			__pmNoMem("deviatsyst prelvm", size, PM_FATAL_ERR);
+		ptrverify(dev->dsk.lvm, "deviatsyst lvm [%ld]\n", (long)size);
 	}
 	for (i=j=0; cur->dsk.lvm && cur->dsk.lvm[i].name[0]; i++)
 	{
@@ -910,7 +882,7 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
 		*/
 		if ( strcmp(cur->dsk.lvm[i].name, pre->dsk.lvm[j].name) != 0)
 		{
-			for (j++; pre->dsk.lvm[j].name[0]; j++)
+			for (j=0; pre->dsk.lvm[j].name[0]; j++)
 			{
 				if ( strcmp(cur->dsk.lvm[i].name,
 						pre->dsk.lvm[j].name) == 0)

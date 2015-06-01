@@ -218,6 +218,16 @@ systmetrics {
 	disk.dev.avactive			PERDISK_IO_MS
 	disk.dev.aveq				PERDISK_AVEQ
 	hinv.ndisk				NRDISK
+	disk.dm.read				PERDM_NREAD
+        disk.dm.blkread				PERDM_NRSECT
+        disk.dm.write				PERDM_NWRITE
+        disk.dm.blkwrite			PERDM_NWSECT
+	hinv.map.dmname				MAP_DMNAME
+	disk.md.read				PERMD_NREAD
+        disk.md.blkread				PERMD_NRSECT
+        disk.md.write				PERMD_NWRITE
+        disk.md.blkwrite			PERMD_NWSECT
+	hinv.map.mdname				MAP_MDNAME
 
 	# http status
 	apache.total_accesses			WWW_ACCESSES

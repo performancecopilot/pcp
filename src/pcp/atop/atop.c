@@ -117,7 +117,6 @@
 #include "ifprop.h"
 #include "photoproc.h"
 #include "photosyst.h"
-#include "hostmetrics.h"
 #include "showgeneric.h"
 #include "parseable.h"
 
@@ -154,6 +153,9 @@ int 		ossub;
 
 int		supportflags;	/* supported features             	*/
 char		**argvp;
+
+int		fetchmode;
+int		fetchstep;
 
 
 struct visualize vis = {generic_samp, generic_error,
@@ -289,12 +291,13 @@ main(int argc, char *argv[])
 	** check if we are supposed to behave as 'atopsar'
 	** i.e. system statistics only
 	*/
-	__pmSetProgname(pmProgname);
-
+	__pmSetProgname(argv[0]);
 	if (strcmp(pmProgname, "atopsar") == 0)
 		return atopsar(argc, argv);
 
 	__pmStartOptions(&opts);
+	if (opts.narchives > 0)
+		rawreadflag++;
 
 	/* 
 	** interpret command-line arguments & flags 
@@ -402,6 +405,9 @@ main(int argc, char *argv[])
 			}
 		}
 	}
+
+	__pmEndOptions(&opts);
+
 	if (opts.errors)
 		prusage(pmProgname);
 
@@ -411,11 +417,11 @@ main(int argc, char *argv[])
 	setup_globals(&opts);
 
 	/*
-	** check if raw data from a file must be viewed
+	** check if we are in data recording mode
 	*/
-	if (rawreadflag || rawwriteflag)
+	if (rawwriteflag)
 	{
-		// TODO: read/write archive folios
+		rawwrite(&opts);
 		cleanstop(0);
 	}
 
@@ -449,128 +455,6 @@ main(int argc, char *argv[])
 	cleanstop(0);
 
 	return 0;	/* never reached */
-}
-
-static int
-setup_options(int ctx, pmOptions *opts)
-{
-	int		sts, step, mode = 0;
-
-	if ((sts = pmGetContextOptions(ctx, opts)) < 0)
-		return sts;
-
-	curtime = origin = opts->origin;
-
-	/* initial archive mode, position and delta */
-	if (opts->context == PM_CONTEXT_ARCHIVE)
-	{
-		const int SECONDS_IN_24_DAYS = 2073600;
-
-		if (opts->interval.tv_sec || opts->interval.tv_usec)
-			interval = opts->interval;
-
-		if (interval.tv_sec > SECONDS_IN_24_DAYS)
-		{
-			step = interval.tv_sec;
-			mode |= PM_XTB_SET(PM_TIME_SEC);
-		}
-		else
-		{
-			step = interval.tv_sec * 1e3 + interval.tv_usec / 1e3;
-			mode |= PM_XTB_SET(PM_TIME_MSEC);
-		}
-		if ((sts = pmSetMode(mode, &curtime, step)) < 0)
-		{
-			pmprintf(
-		"%s: pmSetMode failure: %s\n", pmProgname, pmErrStr(sts));
-			opts->flags |= PM_OPTFLAG_RUNTIME_ERR;
-			opts->errors++;
-		}
-	}
-
-	return sts;
-}
-
-static int
-setup_context(pmOptions *opts)
-{
-	char		*source;
-	int		sts, ctx;
-
-	if (opts->context == PM_CONTEXT_ARCHIVE)
-		source = opts->archives[0];
-	else if (opts->context == PM_CONTEXT_HOST)
-		source = opts->hosts[0];
-	else if (opts->context == PM_CONTEXT_LOCAL)
-		source = NULL;
-	else
-	{
-		opts->context = PM_CONTEXT_HOST;
-		source = "local:";
-	}
-
-	if ((sts = ctx = pmNewContext(opts->context, source)) < 0)
-	{
-		if (opts->context == PM_CONTEXT_HOST)
-			pmprintf(
-		"%s: Cannot connect to pmcd on host \"%s\": %s\n",
-				pmProgname, source, pmErrStr(sts));
-		else if (opts->context == PM_CONTEXT_LOCAL)
-			pmprintf(
-		"%s: Cannot make standalone connection on localhost: %s\n",
-				pmProgname, pmErrStr(sts));
-		else
-			pmprintf(
-		"%s: Cannot open archive \"%s\": %s\n",
-				pmProgname, source, pmErrStr(sts));
-	}
-	else
-		sts = setup_options(ctx, opts);
-
-	if (sts < 0)
-	{
-		pmflush();
-		cleanstop(1);
-	}
-
-	return ctx;
-}
-
-void
-setup_globals(pmOptions *opts)
-{
-	pmID		pmids[HOST_NMETRICS];
-	pmDesc		descs[HOST_NMETRICS];
-	pmResult	*result;
-	int		sts;
-
-	setup_context(opts);
-
-	setup_metrics(hostmetrics, &pmids[0], &descs[0], HOST_NMETRICS);
-
-	if ((sts = pmFetch(HOST_NMETRICS, pmids, &result)) < 0)
-	{
-		fprintf(stderr, "%s: pmFetch: %s\n",
-			pmProgname, pmErrStr(sts));
-		cleanstop(1);
-	}
-	if (HOST_NMETRICS != result->numpmid)
-	{
-		fprintf(stderr,
-			"%s: pmFetch failed to fetch initial metric value(s)\n",
-			pmProgname);
-		cleanstop(1);
-	}
-
-	hertz = extract_integer(result, descs, HOST_HERTZ);
-	pagesize = extract_integer(result, descs, HOST_PAGESIZE);
-	extract_string(result, descs, HOST_RELEASE, sysname.release, sizeof(sysname.release));
-	extract_string(result, descs, HOST_VERSION, sysname.version, sizeof(sysname.version));
-	extract_string(result, descs, HOST_MACHINE, sysname.machine, sizeof(sysname.machine));
-	extract_string(result, descs, HOST_NODENAME, sysname.nodename, sizeof(sysname.nodename));
-	nodenamelen = strlen(sysname.nodename);
-
-	pmFreeResult(result);
 }
 
 /*
@@ -616,21 +500,17 @@ engine(void)
 	/*
 	** initialization: allocate required memory dynamically
 	*/
-	cursstat = calloc(1, sizeof(struct sstat));
-	presstat = calloc(1, sizeof(struct sstat));
-	devsstat = calloc(1, sizeof(struct sstat));
+	cursstat = sstat_alloc("current sysstats");
+	presstat = sstat_alloc("prev    sysstats");
+	devsstat = sstat_alloc("deviate sysstats");
 
 	curtlen  = PROCMIN * 3 / 2;	/* add 50% for threads */
 	curtpres = calloc(curtlen, sizeof(struct tstat));
-
-	ptrverify(cursstat, "Malloc failed for current sysstats\n");
-	ptrverify(presstat, "Malloc failed for prev    sysstats\n");
-	ptrverify(devsstat, "Malloc failed for deviate sysstats\n");
 	ptrverify(curtpres, "Malloc failed for %d procstats\n", curtlen);
 
 	/*
 	** install the signal-handler for ALARM, USR1 and USR2 (triggers
-	* for the next sample)
+	** for the next sample)
 	*/
 	memset(&sigact, 0, sizeof sigact);
 	sigact.sa_handler = getusr1;
@@ -692,15 +572,13 @@ engine(void)
 		** wait for alarm-signal to arrive (except first sample)
 		** or wait for SIGUSR1/SIGUSR2
 		*/
-		if (sampcnt > 0 && awaittrigger)
+		if (sampcnt > 0 && awaittrigger && !rawreadflag)
 			pause();
 
 		awaittrigger = 1;
 
 		/*
 		** take a snapshot of the current system-level statistics 
-		** and calculate the deviations (i.e. calculate the activity
-		** during the last sample)
 		*/
 		hlpsstat = cursstat;	/* swap current/prev. stats */
 		cursstat = presstat;
@@ -708,15 +586,8 @@ engine(void)
 
 		photosyst(cursstat);	/* obtain new counters     */
 
-		pretime  = curtime;	/* timestamp for previous sample */
-		curtime  = cursstat->stamp; /* timestamp for this sample */
-
-		deviatsyst(cursstat, presstat, devsstat);
-
 		/*
 		** take a snapshot of the current task-level statistics 
-		** and calculate the deviations (i.e. calculate the activity
-		** during the last sample)
 		**
 		** first register active tasks
 		**  --> atop malloc's a minimal amount of space which is
@@ -782,8 +653,16 @@ engine(void)
 		}
 
 		/*
-		** calculate deviations
+		** calculate the deviations (i.e. calculate the activity
+		** during the last sample).  Note for PMAPI calls we had
+		** to delay changing curtime until after sampling due to
+		** the way pmSetMode(3) works.
 		*/
+		pretime  = curtime;	/* timestamp for previous sample */
+		curtime  = cursstat->stamp; /* timestamp for this sample */
+
+		deviatsyst(cursstat, presstat, devsstat);
+
 		devtstat = malloc((ntaskpres+nprocexit) * sizeof(struct tstat));
 
 		ptrverify(devtstat, "Malloc failed for %d modified tasks\n",
@@ -843,8 +722,8 @@ engine(void)
 			curtime = origin;
 
 			/* set current (will be 'previous') counters to 0 */
-			memset(cursstat, 0,           sizeof(struct sstat));
 			memset(curtpres, 0, curtlen * sizeof(struct tstat));
+			sstat_reset(cursstat);
 
 			/* remove all tasks in database */
 			pdb_makeresidue();
@@ -909,7 +788,7 @@ getalarm(int sig)
 {
 	awaittrigger=0;
 
-	if (interval.tv_sec || interval.tv_usec)
+	if (!rawreadflag && (interval.tv_sec || interval.tv_usec))
 		setalarm(&interval);	/* restart the timer */
 }
 

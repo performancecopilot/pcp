@@ -27,6 +27,7 @@
 #include <math.h>
 
 #include "atop.h"
+#include "hostmetrics.h"
 
 /*
 ** Function convtime() converts a value (number of seconds since
@@ -475,6 +476,144 @@ setalarm2(int sec, int usec)
 	setalarm(&interval);
 }
 
+static void
+setup_step_mode(void)
+{
+	const int SECONDS_IN_24_DAYS = 2073600;
+
+	if (rawreadflag)
+		fetchmode = PM_MODE_INTERP;
+	else
+		fetchmode = PM_MODE_LIVE;
+
+	if (interval.tv_sec > SECONDS_IN_24_DAYS)
+	{
+		fetchstep = interval.tv_sec;
+		fetchmode |= PM_XTB_SET(PM_TIME_SEC);
+	}
+	else
+	{
+		fetchstep = interval.tv_sec * 1e3 + interval.tv_usec / 1e3;
+		fetchmode |= PM_XTB_SET(PM_TIME_MSEC);
+	}
+}
+
+/*
+ * Set the origin position and interval for PMAPI context fetching
+ */
+static int
+setup_origin(pmOptions *opts)
+{
+	int		sts = 0;
+
+	curtime = origin = opts->origin;
+
+	/* initial archive mode, position and delta */
+	if (opts->context == PM_CONTEXT_ARCHIVE)
+	{
+		if (opts->interval.tv_sec || opts->interval.tv_usec)
+			interval = opts->interval;
+
+		setup_step_mode();
+
+		if ((sts = pmSetMode(fetchmode, &curtime, fetchstep)) < 0)
+		{
+			pmprintf(
+		"%s: pmSetMode failure: %s\n", pmProgname, pmErrStr(sts));
+			opts->flags |= PM_OPTFLAG_RUNTIME_ERR;
+			opts->errors++;
+		}
+	}
+
+	return sts;
+}
+
+/*
+ * PMAPI context creation and initial command line option handling.
+ */
+static int
+setup_context(pmOptions *opts)
+{
+	char		*source;
+	int		sts, ctx;
+
+	if (opts->context == PM_CONTEXT_ARCHIVE)
+		source = opts->archives[0];
+	else if (opts->context == PM_CONTEXT_HOST)
+		source = opts->hosts[0];
+	else if (opts->context == PM_CONTEXT_LOCAL)
+		source = NULL;
+	else
+	{
+		opts->context = PM_CONTEXT_HOST;
+		source = "local:";
+	}
+
+	if ((sts = ctx = pmNewContext(opts->context, source)) < 0)
+	{
+		if (opts->context == PM_CONTEXT_HOST)
+			pmprintf(
+		"%s: Cannot connect to pmcd on host \"%s\": %s\n",
+				pmProgname, source, pmErrStr(sts));
+		else if (opts->context == PM_CONTEXT_LOCAL)
+			pmprintf(
+		"%s: Cannot make standalone connection on localhost: %s\n",
+				pmProgname, pmErrStr(sts));
+		else
+			pmprintf(
+		"%s: Cannot open archive \"%s\": %s\n",
+				pmProgname, source, pmErrStr(sts));
+	}
+	else if ((sts = pmGetContextOptions(ctx, opts)) == 0)
+		sts = setup_origin(opts);
+
+	if (sts < 0)
+	{
+		pmflush();
+		cleanstop(1);
+	}
+
+	return ctx;
+}
+
+void
+setup_globals(pmOptions *opts)
+{
+	pmID		pmids[HOST_NMETRICS];
+	pmDesc		descs[HOST_NMETRICS];
+	pmResult	*result;
+	int		sts;
+
+	setup_context(opts);
+
+	setup_metrics(hostmetrics, &pmids[0], &descs[0], HOST_NMETRICS);
+
+	pmSetMode(fetchmode, &curtime, fetchstep);
+	if ((sts = pmFetch(HOST_NMETRICS, pmids, &result)) < 0)
+	{
+		fprintf(stderr, "%s: pmFetch: %s\n",
+			pmProgname, pmErrStr(sts));
+		cleanstop(1);
+	}
+	if (HOST_NMETRICS != result->numpmid)
+	{
+		fprintf(stderr,
+			"%s: pmFetch failed to fetch initial metric value(s)\n",
+			pmProgname);
+		cleanstop(1);
+	}
+
+	hertz = extract_integer(result, descs, HOST_HERTZ);
+	pagesize = extract_integer(result, descs, HOST_PAGESIZE);
+	extract_string(result, descs, HOST_RELEASE, sysname.release, sizeof(sysname.release));
+	extract_string(result, descs, HOST_VERSION, sysname.version, sizeof(sysname.version));
+	extract_string(result, descs, HOST_MACHINE, sysname.machine, sizeof(sysname.machine));
+	extract_string(result, descs, HOST_NODENAME, sysname.nodename, sizeof(sysname.nodename));
+	nodenamelen = strlen(sysname.nodename);
+
+	pmFreeResult(result);
+}
+
 /*
 ** extract values from a pmResult structure using given offset(s)
 ** "value" is always a macro identifier from a metric map file.
@@ -654,7 +793,10 @@ setup_metrics(char **metrics, pmID *pmidlist, pmDesc *desclist, int nmetrics)
 	for (i=0; i < nmetrics; i++)
 	{
 		if (pmidlist[i] == PM_ID_NULL)
+		{
+			desclist[i].pmid = PM_ID_NULL;
 			continue;
+		}
 		if ((sts = pmLookupDesc(pmidlist[i], &desclist[i])) < 0)
 		{
 			if (pmDebug & DBG_TRACE_APPL0)
@@ -664,4 +806,10 @@ setup_metrics(char **metrics, pmID *pmidlist, pmDesc *desclist, int nmetrics)
 			pmidlist[i] = desclist[i].pmid = PM_ID_NULL;
 		}
 	}
+}
+
+void
+rawwrite(pmOptions *opts)
+{
+	/* NYI - see pmRecordSetup(3) */
 }

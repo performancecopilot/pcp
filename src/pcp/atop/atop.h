@@ -76,6 +76,7 @@ struct sysname {
 */
 extern struct sysname	sysname;
 extern int              nodenamelen;
+extern struct timeval	origin;
 extern struct timeval   pretime;
 extern struct timeval   curtime;
 extern struct timeval   interval;
@@ -101,6 +102,9 @@ extern unsigned short	hertz;
 extern unsigned int	pagesize;
 
 extern int		supportflags;
+
+extern int		fetchmode;
+extern int		fetchstep;
 
 extern int		cpubadness;
 extern int		membadness;
@@ -155,10 +159,8 @@ int		diskcompar(const void *, const void *);
 int		intfcompar(const void *, const void *);
 
 count_t		subcount(count_t, count_t);
-void  		rawread(void);
-char		rawwrite(double, double, struct sstat *, struct tstat *,
-			struct tstat **, int, int, int, int, int, int,
-			int, int, int, unsigned int, char);
+void  		rawread(struct pmOptions *);
+void		rawwrite(struct pmOptions *);
 
 int 		numeric(char *);
 void		getalarm(int);
@@ -173,6 +175,9 @@ void		prusage(char *);
 void		setup_globals(struct pmOptions *);
 void		setup_metrics(char **, unsigned int *, struct pmDesc *, int);
 void		setup_process(void);
+
+struct sstat	*sstat_alloc(const char *);
+void		sstat_reset(struct sstat *);
 
 float		extract_float_inst(struct pmResult *, struct pmDesc *, int, int);
 int		extract_integer(struct pmResult *, struct pmDesc *, int);

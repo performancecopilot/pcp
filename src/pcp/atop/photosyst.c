@@ -20,43 +20,87 @@
 #include "photosyst.h"
 #include "systmetrics.h"
 
-static void
-update_disk(struct perdsk *dsk, int id, char *name, pmResult *rp, pmDesc *dp)
+/*
+** Allocate the fixes space for system statistics and the associated
+** dynamically-sized buffers (initially either zero length or having
+** one null entry used for name-based-iteration termination).
+*/
+struct sstat *
+sstat_alloc(const char *purpose)
 {
-	strncpy(dsk->name, name, sizeof(dsk->name));
-	dsk->name[sizeof(dsk->name)-1] = '\0';
+	struct sstat *sstat;
+	void *ptr;
 
-	dsk->nread = extract_count_t_inst(rp, dp, PERDISK_NREAD, id);
-	dsk->nrsect = extract_count_t_inst(rp, dp, PERDISK_NRSECT, id);
-	dsk->nwrite = extract_count_t_inst(rp, dp, PERDISK_NWRITE, id);
-	dsk->nwsect = extract_count_t_inst(rp, dp, PERDISK_NWSECT, id);
-	dsk->io_ms = extract_count_t_inst(rp, dp, PERDISK_IO_MS, id);
-	dsk->avque = extract_count_t_inst(rp, dp, PERDISK_AVEQ, id);
+	sstat = (struct sstat *)calloc(1, sizeof(struct sstat));
+	ptrverify(sstat, "Alloc failed for %s\n", purpose);
+
+	ptr = calloc(1, sizeof(struct percpu));
+	ptrverify(ptr, "Alloc failed for %s (processors)\n", purpose);
+	sstat->cpu.cpu = (struct percpu *)ptr;
+
+	ptr = calloc(1, sizeof(struct perintf));
+	ptrverify(ptr, "Alloc failed for %s (interfaces)\n", purpose);
+	sstat->intf.intf = (struct perintf *)ptr;
+
+	ptr = calloc(1, sizeof(struct perdsk));
+	ptrverify(ptr, "Alloc failed for %s (disk devices)\n", purpose);
+	sstat->dsk.dsk = (struct perdsk *)ptr;
+
+	ptr = calloc(1, sizeof(struct perdsk));
+	ptrverify(ptr, "Alloc failed for %s (LVM devices)\n", purpose);
+	sstat->dsk.lvm = (struct perdsk *)ptr;
+
+	ptr = calloc(1, sizeof(struct perdsk));
+	ptrverify(ptr, "Alloc failed for %s (MD devices)\n", purpose);
+	sstat->dsk.mdd = (struct perdsk *)ptr;
+
+	return sstat;
 }
 
-static void
-update_interface(struct perintf *in, int id, char *name, pmResult *rp, pmDesc *dp)
+/*
+** Clear all statistics, maintaining associated dynamically-sized
+** buffers memory allocation (also clearing those buffers contents).
+*/
+void
+sstat_reset(struct sstat *sstat)
 {
-	strncpy(in->name, name, sizeof(in->name));
-	in->name[sizeof(in->name)-1] = '\0';
+	void		*cpu, *intf, *mdd, *lvm, *dsk;
+	unsigned int	nrcpu, nrintf, nrdsk, nrlvm, nrmdd;
 
-	/* /proc/net/dev */
-	in->rbyte = extract_count_t_inst(rp, dp, PERINTF_RBYTE, id);
-	in->rpack = extract_count_t_inst(rp, dp, PERINTF_RPACK, id);
-	in->rerrs = extract_count_t_inst(rp, dp, PERINTF_RERRS, id);
-	in->rdrop = extract_count_t_inst(rp, dp, PERINTF_RDROP, id);
-	in->rfifo = extract_count_t_inst(rp, dp, PERINTF_RFIFO, id);
-	in->rframe = extract_count_t_inst(rp, dp, PERINTF_RFRAME, id);
-	in->rcompr = extract_count_t_inst(rp, dp, PERINTF_RCOMPR, id);
-	in->rmultic = extract_count_t_inst(rp, dp, PERINTF_RMULTIC, id);
-	in->sbyte = extract_count_t_inst(rp, dp, PERINTF_SBYTE, id);
-	in->spack = extract_count_t_inst(rp, dp, PERINTF_SPACK, id);
-	in->serrs = extract_count_t_inst(rp, dp, PERINTF_SERRS, id);
-	in->sdrop = extract_count_t_inst(rp, dp, PERINTF_SDROP, id);
-	in->sfifo = extract_count_t_inst(rp, dp, PERINTF_SFIFO, id);
-	in->scollis = extract_count_t_inst(rp, dp, PERINTF_SCOLLIS, id);
-	in->scarrier = extract_count_t_inst(rp, dp, PERINTF_SCARRIER, id);
-	in->scompr = extract_count_t_inst(rp, dp, PERINTF_SCOMPR, id);
+	cpu = sstat->cpu.cpu;
+	intf = sstat->intf.intf;
+	dsk = sstat->dsk.dsk;
+	lvm = sstat->dsk.lvm;
+	mdd = sstat->dsk.mdd;
+
+	nrcpu = sstat->cpu.nrcpu;
+	nrintf = sstat->intf.nrintf;
+	nrdsk = sstat->dsk.ndsk;
+	nrlvm = sstat->dsk.nlvm;
+	nrmdd = sstat->dsk.nmdd;
+
+	/* clear fixed portion now that pointers/sized are safe */
+	memset(sstat, 0, sizeof(struct sstat));
+
+	/* clear the dynamically-sized buffers and restore ptrs */
+	memset(cpu, 0, sizeof(struct percpu) * nrcpu);
+	memset(intf, 0, sizeof(struct perintf) * nrintf);
+	memset(dsk, 0, sizeof(struct perdsk) * nrdsk);
+	memset(lvm, 0, sizeof(struct perdsk) * nrlvm);
+	memset(mdd, 0, sizeof(struct perdsk) * nrmdd);
+
+	/* stitch the main sstat buffer back together once more */
+	sstat->cpu.cpu = cpu;
+	sstat->intf.intf = intf;
+	sstat->dsk.dsk = dsk;
+	sstat->dsk.lvm = lvm;
+	sstat->dsk.mdd = mdd;
+
+	sstat->cpu.nrcpu = nrcpu;
+	sstat->intf.nrintf = nrintf;
+	sstat->dsk.ndsk = nrdsk;
+	sstat->dsk.nlvm = nrlvm;
+	sstat->dsk.nmdd = nrmdd;
 }
 
 static void
@@ -78,13 +122,81 @@ update_processor(struct percpu *cpu, int id, pmResult *result, pmDesc *descs)
 	cpu->freqcnt.cnt = extract_count_t_inst(result, descs, PERCPU_FREQCNT_CNT, id);
 }
 
+static void
+update_interface(struct perintf *in, int id, char *name, pmResult *rp, pmDesc *dp)
+{
+	strncpy(in->name, name, sizeof(in->name));
+	in->name[sizeof(in->name)-1] = '\0';
+
+	in->rbyte = extract_count_t_inst(rp, dp, PERINTF_RBYTE, id);
+	in->rpack = extract_count_t_inst(rp, dp, PERINTF_RPACK, id);
+	in->rerrs = extract_count_t_inst(rp, dp, PERINTF_RERRS, id);
+	in->rdrop = extract_count_t_inst(rp, dp, PERINTF_RDROP, id);
+	in->rfifo = extract_count_t_inst(rp, dp, PERINTF_RFIFO, id);
+	in->rframe = extract_count_t_inst(rp, dp, PERINTF_RFRAME, id);
+	in->rcompr = extract_count_t_inst(rp, dp, PERINTF_RCOMPR, id);
+	in->rmultic = extract_count_t_inst(rp, dp, PERINTF_RMULTIC, id);
+	in->sbyte = extract_count_t_inst(rp, dp, PERINTF_SBYTE, id);
+	in->spack = extract_count_t_inst(rp, dp, PERINTF_SPACK, id);
+	in->serrs = extract_count_t_inst(rp, dp, PERINTF_SERRS, id);
+	in->sdrop = extract_count_t_inst(rp, dp, PERINTF_SDROP, id);
+	in->sfifo = extract_count_t_inst(rp, dp, PERINTF_SFIFO, id);
+	in->scollis = extract_count_t_inst(rp, dp, PERINTF_SCOLLIS, id);
+	in->scarrier = extract_count_t_inst(rp, dp, PERINTF_SCARRIER, id);
+	in->scompr = extract_count_t_inst(rp, dp, PERINTF_SCOMPR, id);
+}
+
+static void
+update_disk(struct perdsk *dsk, int id, char *name, pmResult *rp, pmDesc *dp)
+{
+	strncpy(dsk->name, name, sizeof(dsk->name));
+	dsk->name[sizeof(dsk->name)-1] = '\0';
+
+	dsk->nread = extract_count_t_inst(rp, dp, PERDISK_NREAD, id);
+	dsk->nrsect = extract_count_t_inst(rp, dp, PERDISK_NRSECT, id);
+	dsk->nwrite = extract_count_t_inst(rp, dp, PERDISK_NWRITE, id);
+	dsk->nwsect = extract_count_t_inst(rp, dp, PERDISK_NWSECT, id);
+	dsk->io_ms = extract_count_t_inst(rp, dp, PERDISK_IO_MS, id);
+	dsk->avque = extract_count_t_inst(rp, dp, PERDISK_AVEQ, id);
+}
+
+static void
+update_lvm(struct perdsk *dsk, int id, char *name, pmResult *rp, pmDesc *dp)
+{
+	strncpy(dsk->name, name, sizeof(dsk->name));
+	dsk->name[sizeof(dsk->name)-1] = '\0';
+
+	dsk->nread = extract_count_t_inst(rp, dp, PERDM_NREAD, id);
+	dsk->nrsect = extract_count_t_inst(rp, dp, PERDM_NRSECT, id);
+	dsk->nwrite = extract_count_t_inst(rp, dp, PERDM_NWRITE, id);
+	dsk->nwsect = extract_count_t_inst(rp, dp, PERDM_NWSECT, id);
+	dsk->io_ms = 0;
+	dsk->avque = 0;
+}
+
+static void
+update_mdd(struct perdsk *dsk, int id, char *name, pmResult *rp, pmDesc *dp)
+{
+	strncpy(dsk->name, name, sizeof(dsk->name));
+	dsk->name[sizeof(dsk->name)-1] = '\0';
+
+	dsk->nread = extract_count_t_inst(rp, dp, PERMD_NREAD, id);
+	dsk->nrsect = extract_count_t_inst(rp, dp, PERMD_NRSECT, id);
+	dsk->nwrite = extract_count_t_inst(rp, dp, PERMD_NWRITE, id);
+	dsk->nwsect = extract_count_t_inst(rp, dp, PERMD_NWSECT, id);
+	dsk->io_ms = 0;
+	dsk->avque = 0;
+}
+
 void
 photosyst(struct sstat *si)
 {
 	static int	setup;
 	count_t		count;
-	unsigned int	nrcpu, nrdisk, nrintf;
-	unsigned int	nrlvm = 0, nrmdd = 0;
+	unsigned int	nrcpu, nrdisk, nrlvm, nrintf;
+	unsigned int	onrcpu, onrdisk, onrintf;
+	unsigned int	nrmdd = 0;
+	unsigned int	onrlvm, onrmdd;
 	static pmID	pmids[SYST_NMETRICS];
 	static pmDesc	descs[SYST_NMETRICS];
 	pmResult	*result;
@@ -98,6 +210,7 @@ photosyst(struct sstat *si)
 		setup = 1;
 	}
 
+	pmSetMode(fetchmode, &curtime, fetchstep);
 	if ((sts = pmFetch(SYST_NMETRICS, pmids, &result)) < 0)
 	{
 		fprintf(stderr, "%s: pmFetch system metrics: %s\n",
@@ -105,7 +218,13 @@ photosyst(struct sstat *si)
 		cleanstop(1);
 	}
 
-	memset(si, 0, sizeof(struct sstat));
+	onrcpu  = si->cpu.nrcpu;
+	onrintf = si->intf.nrintf;
+	onrdisk = si->dsk.ndsk;
+	onrlvm  = si->dsk.nlvm;
+	onrmdd  = si->dsk.nmdd;
+
+	sstat_reset(si);
 	si->stamp = result->timestamp;
 
 	/* /proc/stat */
@@ -125,18 +244,21 @@ photosyst(struct sstat *si)
 	si->cpu.all.steal = extract_count_t(result, descs, CPU_STEAL);
 	si->cpu.all.guest = extract_count_t(result, descs, CPU_GUEST);
 
-	if ((sts = pmGetInDom(descs[PERCPU_UTIME].indom, &ids, &insts)) < 0)
+	if (rawreadflag)
+		sts = pmGetInDomArchive(descs[PERCPU_UTIME].indom, &ids, &insts);
+	else
+		sts = pmGetInDom(descs[PERCPU_UTIME].indom, &ids, &insts);
+	if (sts < 0)
 	{
 		fprintf(stderr, "%s: pmGetInDom processors: %s\n",
 			pmProgname, pmErrStr(sts));
 		cleanstop(1);
 	}
-	if ((nrcpu = sts) > si->cpu.nrcpu)
+	if ((nrcpu = sts) > onrcpu)
 	{
 		size = nrcpu * sizeof(struct percpu);
 		si->cpu.cpu = (struct percpu *)realloc(si->cpu.cpu, size);
-		if (!si->cpu.cpu)
-			__pmNoMem("photosyst cpus", size, PM_FATAL_ERR);
+		ptrverify(si->cpu.cpu, "photosyst cpus [%ld]", (long)size);
 	}
 	for (i=0; i < nrcpu; i++)
 	{
@@ -195,18 +317,25 @@ photosyst(struct sstat *si)
 	si->mem.shmswp = extract_count_t(result, descs, MEM_SHMSWP);
 
 	/* /proc/net/dev */
-	if ((sts = pmGetInDom(descs[PERINTF_RBYTE].indom, &ids, &insts)) < 0)
+	if (descs[PERINTF_RBYTE].pmid == PM_ID_NULL)
+	{
+		ids = NULL; insts = NULL; sts = 0;	/* no interface metrics */
+	}
+	if (rawreadflag)
+		sts = pmGetInDomArchive(descs[PERINTF_RBYTE].indom, &ids, &insts);
+	else
+		sts = pmGetInDom(descs[PERINTF_RBYTE].indom, &ids, &insts);
+	if (sts < 0)
 	{
 		fprintf(stderr, "%s: pmGetInDom interfaces: %s\n",
 			pmProgname, pmErrStr(sts));
 		cleanstop(1);
 	}
-	if ((nrintf = sts) > si->intf.nrintf)
+	if ((nrintf = sts) > onrintf)
 	{
 		size = (nrintf + 1) * sizeof(struct perintf);
 		si->intf.intf = (struct perintf *)realloc(si->intf.intf, size);
-		if (!si->intf.intf)
-			__pmNoMem("photosyst intf", size, PM_FATAL_ERR);
+		ptrverify(si->intf.intf, "photosyst intf [%d]\n", (long)size);
 	}
 	for (i=0; i < nrintf; i++)
 	{
@@ -342,18 +471,29 @@ photosyst(struct sstat *si)
 	si->net.udpv6.Udp6OutDatagrams = extract_count_t(result, descs, UDPV6_OutDatagrams);
 
 	/* /proc/diskstats or /proc/partitions */
-	if ((sts = pmGetInDom(descs[PERDISK_NREAD].indom, &ids, &insts)) < 0)
+	if (descs[PERDISK_NREAD].pmid == PM_ID_NULL)
 	{
-		fprintf(stderr, "%s: pmGetInDom disks: %s\n",
-			pmProgname, pmErrStr(sts));
-		cleanstop(1);
+		ids = NULL; insts = NULL; sts = 0;	/* no device metrics */
 	}
-	if ((nrdisk = sts) > si->dsk.ndsk || !si->dsk.ndsk)
+	else
+	{
+		if (rawreadflag)
+			sts = pmGetInDomArchive(descs[PERDISK_NREAD].indom, &ids, &insts);
+		else
+			sts = pmGetInDom(descs[PERDISK_NREAD].indom, &ids, &insts);
+		if (sts < 0)
+		{
+			fprintf(stderr, "%s: pmGetInDom disks: %s\n",
+				pmProgname, pmErrStr(sts));
+			cleanstop(1);
+		}
+	}
+
+	if ((nrdisk = sts) > onrdisk)
 	{
 		size = (nrdisk + 1) * sizeof(struct perdsk);
 		si->dsk.dsk = (struct perdsk *)realloc(si->dsk.dsk, size);
-		if (!si->dsk.dsk)
-			__pmNoMem("photosyst disk", size, PM_FATAL_ERR);
+		ptrverify(si->dsk.dsk, "photosyst disk [%ld]\n", (long)size);
 	}
 	for (i=0; i < nrdisk; i++)
 	{
@@ -367,25 +507,80 @@ photosyst(struct sstat *si)
 	free(insts);
 	free(ids);
 
-	/* TODO: work out number of LVM devices */
-	if (nrlvm > si->dsk.nlvm || !si->dsk.nlvm)
+	/* Device mapper and logical volume (DM/LVM) devices */
+	if (descs[PERDM_NREAD].pmid == PM_ID_NULL)
+	{
+		ids = NULL; insts = NULL; sts = 0;	/* no device metrics */
+	}
+	else
+	{
+		if (rawreadflag)
+			sts = pmGetInDomArchive(descs[PERDM_NREAD].indom, &ids, &insts);
+		else
+			sts = pmGetInDom(descs[PERDM_NREAD].indom, &ids, &insts);
+		if (sts < 0)
+		{
+			fprintf(stderr, "%s: pmGetInDom lvm: %s\n",
+				pmProgname, pmErrStr(sts));
+			cleanstop(1);
+		}
+	}
+
+	if ((nrlvm = sts) > onrlvm)
 	{
 		size = (nrlvm + 1) * sizeof(struct perdsk);
 		si->dsk.lvm = (struct perdsk *)realloc(si->dsk.lvm, size);
-		if (!si->dsk.lvm)
-			__pmNoMem("photosyst lvm", size, PM_FATAL_ERR);
+		ptrverify(si->dsk.lvm, "photosyst lvm [%ld]\n", (long)size);
 	}
-	si->dsk.lvm[si->dsk.nlvm].name[0] = '\0'; 
+	for (i=0; i < nrlvm; i++)
+	{
+		if (pmDebug & DBG_TRACE_APPL0)
+			fprintf(stderr, "%s: updating lvm %d: %s\n",
+				pmProgname, ids[i], insts[i]);
+		update_lvm(&si->dsk.lvm[i], ids[i], insts[i], result, descs);
+	}
+	si->dsk.lvm[nrlvm].name[0] = '\0'; 
+	si->dsk.nlvm = nrlvm;
+	free(insts);
+	free(ids);
 
-	/* TODO: work out number of MD devices */
-	if (nrmdd > si->dsk.nmdd || !si->dsk.nmdd)
+	/* Multi-device driver (MD) devices */
+	if (descs[PERMD_NREAD].pmid == PM_ID_NULL)
+	{
+		ids = NULL; insts = NULL; sts = 0;	/* no device metrics */
+	}
+	else
+	{
+		if (rawreadflag)
+			sts = pmGetInDomArchive(descs[PERMD_NREAD].indom, &ids, &insts);
+		else
+			sts = pmGetInDom(descs[PERMD_NREAD].indom, &ids, &insts);
+		if (sts < 0)
+		{
+			fprintf(stderr, "%s: pmGetInDom md: %s\n",
+				pmProgname, pmErrStr(sts));
+			cleanstop(1);
+		}
+	}
+
+	if ((nrmdd = sts) > onrmdd)
 	{
 		size = (nrmdd + 1) * sizeof(struct perdsk);
 		si->dsk.mdd = (struct perdsk *)realloc(si->dsk.mdd, size);
-		if (!si->dsk.mdd)
-			__pmNoMem("photosyst mdd", size, PM_FATAL_ERR);
+		ptrverify(si->dsk.mdd, "photosyst md [%ld]\n", (long)size);
 	}
-	si->dsk.mdd[si->dsk.nmdd].name[0] = '\0';
+
+	for (i=0; i < nrmdd; i++)
+	{
+		if (pmDebug & DBG_TRACE_APPL0)
+			fprintf(stderr, "%s: updating md %d: %s\n",
+				pmProgname, ids[i], insts[i]);
+		update_mdd(&si->dsk.mdd[i], ids[i], insts[i], result, descs);
+	}
+	si->dsk.mdd[nrmdd].name[0] = '\0'; 
+	si->dsk.nmdd = nrmdd;
+	free(insts);
+	free(ids);
 
 	/* Apache status */
 	si->www.accesses  = extract_count_t(result, descs, WWW_ACCESSES);
@@ -396,249 +591,3 @@ photosyst(struct sstat *si)
 
 	pmFreeResult(result);
 }
-
-#if 0
-#include <sys/stat.h>
-#include <regex.h>
-#define	MAXCNT	64
-
-/* return value of isdisk() */
-#define	NONTYPE	0
-#define	DSKTYPE	1
-#define	MDDTYPE	2
-#define	LVMTYPE	3
-
-static int	isdisk(unsigned int, unsigned int,
-			char *, struct perdsk *, int);
-
-	/*
-	** check if this line concerns the entire disk
-	** or just one of the partitions of a disk (to be
-	** skipped)
-	*/
-	if (nr == 9)	/* full stats-line ? */
-	{
-		switch ( isdisk(major, minor, diskname,
-					 &tmpdsk, MAXDKNAM) )
-		{
-		   case NONTYPE:
-		       continue;
-
-		   case DSKTYPE:
-			if (si->dsk.ndsk < MAXDSK-1)
-			  si->dsk.dsk[si->dsk.ndsk++] = tmpdsk;
-			break;
-
-		   case MDDTYPE:
-			if (si->dsk.nmdd < MAXMDD-1)
-			  si->dsk.mdd[si->dsk.nmdd++] = tmpdsk;
-			break;
-
-		   case LVMTYPE:
-			if (si->dsk.nlvm < MAXLVM-1)
-			  si->dsk.lvm[si->dsk.nlvm++] = tmpdsk;
-			break;
-		}
-	}
-...
-
-
-/*
-** set of subroutines to determine which disks should be monitored
-** and to translate name strings into (shorter) name strings
-*/
-static void
-nullmodname(unsigned int major, unsigned int minor,
-		char *curname, struct perdsk *px, int maxlen)
-{
-	strncpy(px->name, curname, maxlen-1);
-	*(px->name+maxlen-1) = 0;
-}
-
-static void
-abbrevname1(unsigned int major, unsigned int minor,
-		char *curname, struct perdsk *px, int maxlen)
-{
-	char	cutype[128];
-	int	hostnum, busnum, targetnum, lunnum;
-
-	sscanf(curname, "%[^/]/host%d/bus%d/target%d/lun%d",
-			cutype, &hostnum, &busnum, &targetnum, &lunnum);
-
-	snprintf(px->name, maxlen, "%c-h%db%dt%d", 
-			cutype[0], hostnum, busnum, targetnum);
-}
-
-/*
-** recognize LVM logical volumes
-*/
-#define	NUMDMHASH	64
-#define	DMHASH(x,y)	(((x)+(y))%NUMDMHASH)	
-#define	MAPDIR		"/dev/mapper"
-
-struct devmap {
-	unsigned int	major;
-	unsigned int	minor;
-	char		name[MAXDKNAM];
-	struct devmap	*next;
-};
-
-static void
-lvmmapname(unsigned int major, unsigned int minor,
-		char *curname, struct perdsk *px, int maxlen)
-{
-	static int		firstcall = 1;
-	static struct devmap	*devmaps[NUMDMHASH], *dmp;
-	int			hashix;
-
-	/*
- 	** setup a list of major-minor numbers of dm-devices with their
-	** corresponding name
-	*/
-	if (firstcall)
-	{
-		DIR		*dirp;
-		struct dirent	*dentry;
-		struct stat	statbuf;
-		char		path[64];
-
-		if ( (dirp = opendir(MAPDIR)) )
-		{
-			/*
-	 		** read every directory-entry and search for
-			** block devices
-			*/
-			while ( (dentry = readdir(dirp)) )
-			{
-				snprintf(path, sizeof path, "%s/%s", 
-						MAPDIR, dentry->d_name);
-
-				if ( stat(path, &statbuf) == -1 )
-					continue;
-
-				if ( ! S_ISBLK(statbuf.st_mode) )
-					continue;
-				/*
- 				** allocate struct to store name
-				*/
-				if ( !(dmp = malloc(sizeof (struct devmap))))
-					continue;
-
-				/*
- 				** store info in hash list
-				*/
-				strncpy(dmp->name, dentry->d_name, MAXDKNAM);
-				dmp->name[MAXDKNAM-1] = 0;
-				dmp->major 	= major(statbuf.st_rdev);
-				dmp->minor 	= minor(statbuf.st_rdev);
-
-				hashix = DMHASH(dmp->major, dmp->minor);
-
-				dmp->next	= devmaps[hashix];
-
-				devmaps[hashix]	= dmp;
-			}
-
-			closedir(dirp);
-		}
-
-		firstcall = 0;
-	}
-
-	/*
- 	** find info in hash list
-	*/
-	hashix  = DMHASH(major, minor);
-	dmp	= devmaps[hashix];
-
-	while (dmp)
-	{
-		if (dmp->major == major && dmp->minor == minor)
-		{
-			/*
-		 	** info found in hash list; fill proper name
-			*/
-			strncpy(px->name, dmp->name, maxlen-1);
-			*(px->name+maxlen-1) = 0;
-			return;
-		}
-
-		dmp = dmp->next;
-	}
-
-	/*
-	** info not found in hash list; fill original name
-	*/
-	strncpy(px->name, curname, maxlen-1);
-	*(px->name+maxlen-1) = 0;
-}
-
-/*
-** this table is used in the function isdisk()
-**
-** table contains the names (in regexp format) of disks
-** to be recognized, together with a function to modify
-** the name-strings (i.e. to abbreviate long strings);
-** some frequently found names (like 'loop' and 'ram')
-** are also recognized to skip them as fast as possible
-*/
-static struct {
-	char 	*regexp;
-	regex_t	compreg;
-	void	(*modname)(unsigned int, unsigned int,
-				char *, struct perdsk *, int);
-	int	retval;
-} validdisk[] = {
-	{ "^ram[0-9][0-9]*$",			{0},  (void *)0,   NONTYPE, },
-	{ "^loop[0-9][0-9]*$",			{0},  (void *)0,   NONTYPE, },
-	{ "^sd[a-z][a-z]*$",			{0},  nullmodname, DSKTYPE, },
-	{ "^dm-[0-9][0-9]*$",			{0},  lvmmapname,  LVMTYPE, },
-	{ "^md[0-9][0-9]*$",			{0},  nullmodname, MDDTYPE, },
-	{ "^vd[a-z][a-z]*$",                    {0},  nullmodname, DSKTYPE, },
-	{ "^hd[a-z]$",				{0},  nullmodname, DSKTYPE, },
-	{ "^rd/c[0-9][0-9]*d[0-9][0-9]*$",	{0},  nullmodname, DSKTYPE, },
-	{ "^cciss/c[0-9][0-9]*d[0-9][0-9]*$",	{0},  nullmodname, DSKTYPE, },
-	{ "^fio[a-z][a-z]*$",			{0},  nullmodname, DSKTYPE, },
-	{ "/host.*/bus.*/target.*/lun.*/disc",	{0},  abbrevname1, DSKTYPE, },
-	{ "^xvd[a-z][a-z]*$",			{0},  nullmodname, DSKTYPE, },
-	{ "^dasd[a-z][a-z]*$",			{0},  nullmodname, DSKTYPE, },
-	{ "^mmcblk[0-9][0-9]*$",		{0},  nullmodname, DSKTYPE, },
-	{ "^emcpower[a-z][a-z]*$",		{0},  nullmodname, DSKTYPE, },
-};
-
-static int
-isdisk(unsigned int major, unsigned int minor,
-           char *curname, struct perdsk *px, int maxlen)
-{
-	static int	firstcall = 1;
-	register int	i;
-
-	if (firstcall)		/* compile the regular expressions */
-	{
-		for (i=0; i < sizeof validdisk/sizeof validdisk[0]; i++)
-			regcomp(&validdisk[i].compreg, validdisk[i].regexp,
-								REG_NOSUB);
-		firstcall = 0;
-	}
-
-	/*
-	** try to recognize one of the compiled regular expressions
-	*/
-	for (i=0; i < sizeof validdisk/sizeof validdisk[0]; i++)
-	{
-		if (regexec(&validdisk[i].compreg, curname, 0, NULL, 0) == 0)
-		{
-			/*
-			** name-string recognized; modify name-string
-			*/
-			if (validdisk[i].retval != NONTYPE)
-				(*validdisk[i].modname)(major, minor,
-						curname, px, maxlen);
-
-			return validdisk[i].retval;
-		}
-	}
-
-	return NONTYPE;
-}
-#endif
