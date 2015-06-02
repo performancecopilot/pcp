@@ -12,17 +12,22 @@
 # for more details.
 #
 
-TOPDIR = ../..
+TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-SUBDIRS = pcp-base pcp-collector pcp-monitor pcp-pmlogger pcp-testsuite
+CONTAINER = pcp-base
+LDIRT = $(CONTAINER).tgz RPMS
 
-default install default_pcp install_pcp : RPMS/repodata $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
+default default_pcp : RPMS $(CONTAINER).tgz
 
-RPMS/repodata:
-	# copy locally built RPMS into here and run makerepo RPMS
-	if test ! -d RPMS/repodata; then echo need RPMS/repodata; exit 1; fi
+RPMS:
+	# symlink doesnt work with docker build
+	mkdir RPMS; cp -a ../RPMS/* RPMS
+
+install install_pcp:
+
+# rule to build $(CONTAINER).tgz from Dockerfile
+include ../GNUlocalrules
 
 include $(BUILDRULES)
