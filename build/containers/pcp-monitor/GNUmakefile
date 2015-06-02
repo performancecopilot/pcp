@@ -17,13 +17,9 @@ include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
 CONTAINER = pcp-monitor
-LDIRT = $(CONTAINER).tgz RPMS
+LDIRT = $(CONTAINER).tgz
 
-default default_pcp : RPMS $(CONTAINER).tgz
-
-RPMS:
-	# symlink doesnt work with docker build
-	mkdir RPMS; cp -a ../RPMS/* RPMS
+default default_pcp : $(CONTAINER).tgz
 
 install install_pcp:
 

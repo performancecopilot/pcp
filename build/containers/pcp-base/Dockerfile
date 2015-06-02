@@ -25,7 +25,7 @@ RUN yum -y update && yum clean all
 # during development. Production builds would use the Fedora packages.
 # The build expects build/containers/RPMS to have the PCP RPMS to be
 # installed in the container (and createrepo build/containers/RPMS has
-been run to set up the yum repo).
+# been run to set up the yum repo).
 RUN mkdir -p /tmp/RPMS/repodata; \
 echo -e '[pcp-testing]\nname=PCP Test Yum Repository\n\
 baseurl=file:///tmp/RPMS\ngpgcheck = 0\nenabled = 0'\
@@ -37,9 +37,6 @@ COPY RPMS/repodata/* /tmp/RPMS/repodata/
 # install minimal pcp (i.e. pcp-conf) and it's dependencies, clean the cache.
 # This is intended as the base image for all other PCP containers.
 RUN yum --enablerepo=pcp-testing -y install pcp-conf && yum clean all
-
-# during development only: remove the test repo
-RUN rm -rf /tmp/RPMS
 
 #
 # Run in the container as root - avoids PCP_USER mismatches
