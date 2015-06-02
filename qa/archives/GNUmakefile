@@ -8,7 +8,8 @@ SRCMETA = $(subst .0,.meta,$(SRCARCH))
 SRCIDX = $(subst .0,.index,$(SRCARCH))
 
 SCRIPTS = mk.diff.sh mk.gap.sh mk.mysql.sh mk.schizo.sh mk.foo+.sh \
-	mkbadlen mkbadti mkbadlabel mkbadlog
+	  mk.dynmetric.sh mk.instant.sh \
+	  mkbadlen mkbadti mkbadlabel mkbadlog
 CONFIGS = config.verify config.shping
 OTHERS = GNUmakefile.install ds390-access.gz
 
