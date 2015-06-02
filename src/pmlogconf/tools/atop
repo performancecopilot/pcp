@@ -8,10 +8,10 @@ delta	10 seconds
 	disk.dev.blkwrite
 	disk.dev.aveq
 	disk.dev.avactive
-	disk.partitions.read
-	disk.partitions.write
-	disk.partitions.blkread
-	disk.partitions.blkwrite
+	disk.dm.read
+	disk.dm.write
+	disk.dm.blkread
+	disk.dm.blkwrite
 
 	kernel.all.pswitch
 	kernel.all.intr
