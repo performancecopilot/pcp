@@ -809,7 +809,7 @@ fetch_metrics(const char *purpose, int nmetrics, pmID *pmids, pmResult **result)
 	if ((sts = pmFetch(nmetrics, pmids, result)) < 0)
 	{
 		if (sts != PM_ERR_EOL)
-			fprintf(stderr, "%s: %s pmFetch: %s\n",
+			fprintf(stderr, "%s: %s query: %s\n",
 				pmProgname, purpose, pmErrStr(sts));
 		cleanstop(1);
 	}
@@ -831,34 +831,32 @@ fetch_metrics(const char *purpose, int nmetrics, pmID *pmids, pmResult **result)
 }
 
 int
-get_instances(const char *purpose, int value, pmDesc *descs, int **pids, char ***insts)
+get_instances(const char *purpose, int value, pmDesc *descs, int **ids, char ***insts)
 {
-	int	sts;
+	int	sts, i;
 
 	if (descs[value].pmid == PM_ID_NULL)
 	{
 		/* we have no descriptor for this metric, thus no instances */
 		*insts = NULL;
-		*pids = NULL;
+		*ids = NULL;
 		return 0;
 	}
 
-	if (!rawreadflag)
+	sts = !rawreadflag ? pmGetInDom(descs[value].indom, ids, insts) :
+			pmGetInDomArchive(descs[value].indom, ids, insts);
+	if (sts < 0)
 	{
-		if ((sts = pmGetInDom(descs[value].indom, pids, insts)) < 0)
-		{
-			fprintf(stderr, "%s: pmGetInDom %s indom: %s\n",
-				pmProgname, purpose, pmErrStr(sts));
-			cleanstop(1);
-		}
-		return sts;
-	}
-
-	if ((sts = pmGetInDomArchive(descs[value].indom, pids, insts)) < 0)
-	{
-		fprintf(stderr, "%s: pmGetInDomArchive %s indom: %s\n",
+		fprintf(stderr, "%s: %s instances: %s\n",
 			pmProgname, purpose, pmErrStr(sts));
 		cleanstop(1);
+	}
+	if (pmDebug & DBG_TRACE_APPL1)
+	{
+		fprintf(stderr, "%s: got %d %s instances:\n",
+			pmProgname, sts, purpose);
+		for (i=0; i < sts; i++)
+			fprintf(stderr, "    [%d]  %s\n", (*ids)[i], (*insts)[i]);
 	}
 	return sts;
 }
