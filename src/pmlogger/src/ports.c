@@ -522,7 +522,7 @@ init_ports(void)
 #endif
 	if (sts != 0) {
 	    if (oserror() == EEXIST)
-		fprintf(stderr, "%s: there is already a primary pmlogger running\n", pmProgname);
+		fprintf(stderr, "%s: there is already a primary pmlogger running, ctlfile=%s linkfile=%s\n", pmProgname, ctlfile, linkfile);
 	    else
 		fprintf(stderr, "%s: error creating primary logger link %s: %s\n",
 			pmProgname, linkfile, osstrerror());
@@ -539,7 +539,7 @@ init_ports(void)
 #endif
 	if (sts != 0) {
 	    if (oserror() == EEXIST)
-		fprintf(stderr, "%s: there is already a primary pmlogger running\n", pmProgname);
+		fprintf(stderr, "%s: there is already a primary pmlogger running, socketPath=%s linkSocketPath=%s\n", pmProgname, socketPath, linkSocketPath);
 	    else
 		fprintf(stderr, "%s: error creating primary logger socket link %s: %s\n",
 			pmProgname, linkSocketPath, osstrerror());
