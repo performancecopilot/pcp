@@ -126,27 +126,11 @@ photoproc(struct tstat *tasks, int *taskslen)
 		setup = 1;
 	}
 
-	pmSetMode(fetchmode, &curtime, fetchstep);
-	if ((sts = pmFetch(TASK_NMETRICS, pmids, &result)) < 0)
-	{
-		fprintf(stderr, "%s: pmFetch task metrics: %s\n",
-			pmProgname, pmErrStr(sts));
-		cleanstop(1);
-	}
+	fetch_metrics("task", TASK_NMETRICS, pmids, &result);
 
 	/* extract external process names (insts) */
-	if (rawreadflag)
-		sts = pmGetInDomArchive(descs[TASK_GEN_NAME].indom, &pids, &insts);
-	else
-		sts = pmGetInDom(descs[TASK_GEN_NAME].indom, &pids, &insts);
-	if (sts < 0)
-	{
-		fprintf(stderr, "%s: pmGetInDom task metrics: %s\n",
-			pmProgname, pmErrStr(sts));
-		cleanstop(1);
-	}
-
-	if ((count = sts) > *taskslen)
+	count = get_instances("task", TASK_GEN_NAME, descs, &pids, &insts);
+	if (count > *taskslen)
 	{
 		size_t	size;
 		int	ents = (*taskslen + PROCCHUNK);

@@ -703,6 +703,9 @@ engine(void)
 		                     totrun, totslpi, totslpu, totzombie, 
 		                     nprocexit, noverflow, sampcnt==0);
 
+		if (rawreadflag)
+			__pmtimevalInc(&curtime, &interval);
+
 		/*
 		** release dynamically allocated memory
 		*/
@@ -759,11 +762,11 @@ prusage(char *myname)
 
 	printf("\n");
 	printf("\tspecific flags for raw logfiles:\n");
-	printf("\t  -w  write raw data to   file (compressed)\n");
-	printf("\t  -r  read  raw data from file (compressed)\n");
+	printf("\t  -w  write raw data to PCP archive folio\n");
+	printf("\t  -r  read  raw data from PCP archive folio\n");
 	printf("\t      special file: y[y...] for yesterday (repeated)\n");
-	printf("\t  -S  finish atop automatically before midnight "
-	                "(i.s.o. #samples)\n");
+	printf("\t  -S  finish %s automatically before midnight "
+	                "(i.s.o. #samples)\n", pmProgname);
 	printf("\t  -b  begin showing data from specified time\n");
 	printf("\t  -e  finish showing data after specified time\n");
 	printf("\n");
@@ -772,10 +775,10 @@ prusage(char *myname)
 	printf("\n");
 	printf("If the interval-value is zero, a new sample can be\n");
 	printf("forced manually by sending signal USR1"
-			" (kill -USR1 pid_atop)\n");
+			" (kill -USR1 %s-pid)\n", pmProgname);
 	printf("or with the keystroke '%c' in interactive mode.\n", MSAMPNEXT);
 	printf("\n");
-	printf("Please refer to the man-page of 'atop' for more details.\n");
+	printf("Please refer to the man-page of '%s' for more details.\n", pmProgname);
 
 	cleanstop(1);
 }
@@ -788,7 +791,7 @@ getalarm(int sig)
 {
 	awaittrigger=0;
 
-	if (!rawreadflag && (interval.tv_sec || interval.tv_usec))
+	if (interval.tv_sec || interval.tv_usec)
 		setalarm(&interval);	/* restart the timer */
 }
 

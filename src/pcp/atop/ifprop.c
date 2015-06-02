@@ -65,9 +65,10 @@ initifprop(void)
 	pmID		pmids[IF_NMETRICS];
 	pmDesc		descs[IF_NMETRICS];
 	pmResult	*result;
+	size_t		propsize;
 	char		**insts;
 	int		sts, i;
-	int		*id, count;
+	int		*ids, count;
 
 	if (!setup)
 	{
@@ -75,40 +76,17 @@ initifprop(void)
 		setup = 1;
 	}
 
-	pmSetMode(fetchmode, &curtime, fetchstep);
-	if ((sts = pmFetch(IF_NMETRICS, pmids, &result)) < 0)
-	{
-		fprintf(stderr, "%s: pmFetch: fetching interface values: %s\n",
-			pmProgname, pmErrStr(sts));
-		cleanstop(1);
-	}
-	if (IF_NMETRICS != result->numpmid)
-	{
-		fprintf(stderr,
-			"%s: pmFetch: failed fetching some interface values\n",
-			pmProgname);
-		cleanstop(1);
-	}
+	fetch_metrics("ifprop", IF_NMETRICS, pmids, &result);
 
 	/* extract external interface names */
-	if (rawreadflag)
-	    sts = pmGetInDomArchive(descs[IF_SPEED].indom, &id, &insts);
-	else
-	    sts = pmGetInDom(descs[IF_SPEED].indom, &id, &insts);
-	if (sts < 0)
-	{
-		fprintf(stderr,
-			"%s: pmGetInDom: failed on interface instances: %s\n",
-			pmProgname, pmErrStr(sts));
-		cleanstop(1);
-	}
-	count = sts;
+	count = get_instances("ifprop", IF_SPEED, descs, &ids, &insts);
 
-	if ((ifprops = calloc(count + 1, sizeof(ifprops[0]))) == NULL)
+	propsize = (count + 1) * sizeof(ifprops[0]);
+	if ((ifprops = realloc(ifprops, propsize)) == NULL)
 	{
 		fprintf(stderr,
-			"%s: allocating interface table: %s\n",
-			pmProgname, strerror(errno));
+			"%s: allocating interface table: %s [%ld bytes]\n",
+			pmProgname, strerror(errno), (long)propsize);
 		cleanstop(1);
 	}
 
@@ -120,12 +98,13 @@ initifprop(void)
 		ip->name[MAXINTNM-1] = '\0';
 
 		/* extract duplex/speed from result for given inst id */
-		sts = extract_integer_inst(result, descs, IF_SPEED, id[i]);
+		sts = extract_integer_inst(result, descs, IF_SPEED, ids[i]);
 		ip->speed = sts < 0 ? 0 : sts * 8;
-		sts = extract_integer_inst(result, descs, IF_DUPLEX, id[i]);
+		sts = extract_integer_inst(result, descs, IF_DUPLEX, ids[i]);
 		ip->fullduplex = sts < 0 ? 0 : sts;
 	}
+	ifprops[i].name[0] = '\0';
 	pmFreeResult(result);
 	free(insts);
-	free(id);
+	free(ids);
 }

@@ -200,6 +200,7 @@ photosyst(struct sstat *si)
 	static pmID	pmids[SYST_NMETRICS];
 	static pmDesc	descs[SYST_NMETRICS];
 	pmResult	*result;
+	pmInDom		indom;
 	size_t		size;
 	char		**insts;
 	int		*ids, sts, i;
@@ -210,13 +211,7 @@ photosyst(struct sstat *si)
 		setup = 1;
 	}
 
-	pmSetMode(fetchmode, &curtime, fetchstep);
-	if ((sts = pmFetch(SYST_NMETRICS, pmids, &result)) < 0)
-	{
-		fprintf(stderr, "%s: pmFetch system metrics: %s\n",
-			pmProgname, pmErrStr(sts));
-		cleanstop(1);
-	}
+	fetch_metrics("system", SYST_NMETRICS, pmids, &result);
 
 	onrcpu  = si->cpu.nrcpu;
 	onrintf = si->intf.nrintf;
@@ -244,17 +239,8 @@ photosyst(struct sstat *si)
 	si->cpu.all.steal = extract_count_t(result, descs, CPU_STEAL);
 	si->cpu.all.guest = extract_count_t(result, descs, CPU_GUEST);
 
-	if (rawreadflag)
-		sts = pmGetInDomArchive(descs[PERCPU_UTIME].indom, &ids, &insts);
-	else
-		sts = pmGetInDom(descs[PERCPU_UTIME].indom, &ids, &insts);
-	if (sts < 0)
-	{
-		fprintf(stderr, "%s: pmGetInDom processors: %s\n",
-			pmProgname, pmErrStr(sts));
-		cleanstop(1);
-	}
-	if ((nrcpu = sts) > onrcpu)
+	nrcpu = get_instances("processors", PERCPU_UTIME, descs, &ids, &insts);
+	if (nrcpu > onrcpu)
 	{
 		size = nrcpu * sizeof(struct percpu);
 		si->cpu.cpu = (struct percpu *)realloc(si->cpu.cpu, size);
@@ -317,21 +303,8 @@ photosyst(struct sstat *si)
 	si->mem.shmswp = extract_count_t(result, descs, MEM_SHMSWP);
 
 	/* /proc/net/dev */
-	if (descs[PERINTF_RBYTE].pmid == PM_ID_NULL)
-	{
-		ids = NULL; insts = NULL; sts = 0;	/* no interface metrics */
-	}
-	if (rawreadflag)
-		sts = pmGetInDomArchive(descs[PERINTF_RBYTE].indom, &ids, &insts);
-	else
-		sts = pmGetInDom(descs[PERINTF_RBYTE].indom, &ids, &insts);
-	if (sts < 0)
-	{
-		fprintf(stderr, "%s: pmGetInDom interfaces: %s\n",
-			pmProgname, pmErrStr(sts));
-		cleanstop(1);
-	}
-	if ((nrintf = sts) > onrintf)
+	nrintf = get_instances("interfaces", PERINTF_RBYTE, descs, &ids, &insts);
+	if (nrintf > onrintf)
 	{
 		size = (nrintf + 1) * sizeof(struct perintf);
 		si->intf.intf = (struct perintf *)realloc(si->intf.intf, size);
@@ -471,25 +444,8 @@ photosyst(struct sstat *si)
 	si->net.udpv6.Udp6OutDatagrams = extract_count_t(result, descs, UDPV6_OutDatagrams);
 
 	/* /proc/diskstats or /proc/partitions */
-	if (descs[PERDISK_NREAD].pmid == PM_ID_NULL)
-	{
-		ids = NULL; insts = NULL; sts = 0;	/* no device metrics */
-	}
-	else
-	{
-		if (rawreadflag)
-			sts = pmGetInDomArchive(descs[PERDISK_NREAD].indom, &ids, &insts);
-		else
-			sts = pmGetInDom(descs[PERDISK_NREAD].indom, &ids, &insts);
-		if (sts < 0)
-		{
-			fprintf(stderr, "%s: pmGetInDom disks: %s\n",
-				pmProgname, pmErrStr(sts));
-			cleanstop(1);
-		}
-	}
-
-	if ((nrdisk = sts) > onrdisk)
+	nrdisk = get_instances("disks", PERDISK_NREAD, descs, &ids, &insts);
+	if (nrdisk > onrdisk)
 	{
 		size = (nrdisk + 1) * sizeof(struct perdsk);
 		si->dsk.dsk = (struct perdsk *)realloc(si->dsk.dsk, size);
@@ -508,25 +464,8 @@ photosyst(struct sstat *si)
 	free(ids);
 
 	/* Device mapper and logical volume (DM/LVM) devices */
-	if (descs[PERDM_NREAD].pmid == PM_ID_NULL)
-	{
-		ids = NULL; insts = NULL; sts = 0;	/* no device metrics */
-	}
-	else
-	{
-		if (rawreadflag)
-			sts = pmGetInDomArchive(descs[PERDM_NREAD].indom, &ids, &insts);
-		else
-			sts = pmGetInDom(descs[PERDM_NREAD].indom, &ids, &insts);
-		if (sts < 0)
-		{
-			fprintf(stderr, "%s: pmGetInDom lvm: %s\n",
-				pmProgname, pmErrStr(sts));
-			cleanstop(1);
-		}
-	}
-
-	if ((nrlvm = sts) > onrlvm)
+	nrlvm = get_instances("lvm", PERDM_NREAD, descs, &ids, &insts);
+	if (nrlvm > onrlvm)
 	{
 		size = (nrlvm + 1) * sizeof(struct perdsk);
 		si->dsk.lvm = (struct perdsk *)realloc(si->dsk.lvm, size);
@@ -545,25 +484,8 @@ photosyst(struct sstat *si)
 	free(ids);
 
 	/* Multi-device driver (MD) devices */
-	if (descs[PERMD_NREAD].pmid == PM_ID_NULL)
-	{
-		ids = NULL; insts = NULL; sts = 0;	/* no device metrics */
-	}
-	else
-	{
-		if (rawreadflag)
-			sts = pmGetInDomArchive(descs[PERMD_NREAD].indom, &ids, &insts);
-		else
-			sts = pmGetInDom(descs[PERMD_NREAD].indom, &ids, &insts);
-		if (sts < 0)
-		{
-			fprintf(stderr, "%s: pmGetInDom md: %s\n",
-				pmProgname, pmErrStr(sts));
-			cleanstop(1);
-		}
-	}
-
-	if ((nrmdd = sts) > onrmdd)
+	nrmdd = get_instances("md", PERMD_NREAD, descs, &ids, &insts);
+	if (nrmdd > onrmdd)
 	{
 		size = (nrmdd + 1) * sizeof(struct perdsk);
 		si->dsk.mdd = (struct perdsk *)realloc(si->dsk.mdd, size);

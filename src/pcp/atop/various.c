@@ -582,19 +582,11 @@ setup_globals(pmOptions *opts)
 	pmID		pmids[HOST_NMETRICS];
 	pmDesc		descs[HOST_NMETRICS];
 	pmResult	*result;
-	int		sts;
 
 	setup_context(opts);
-
 	setup_metrics(hostmetrics, &pmids[0], &descs[0], HOST_NMETRICS);
+	fetch_metrics("host", HOST_NMETRICS, pmids, &result);
 
-	pmSetMode(fetchmode, &curtime, fetchstep);
-	if ((sts = pmFetch(HOST_NMETRICS, pmids, &result)) < 0)
-	{
-		fprintf(stderr, "%s: pmFetch: %s\n",
-			pmProgname, pmErrStr(sts));
-		cleanstop(1);
-	}
 	if (HOST_NMETRICS != result->numpmid)
 	{
 		fprintf(stderr,
@@ -806,6 +798,69 @@ setup_metrics(char **metrics, pmID *pmidlist, pmDesc *desclist, int nmetrics)
 			pmidlist[i] = desclist[i].pmid = PM_ID_NULL;
 		}
 	}
+}
+
+int
+fetch_metrics(const char *purpose, int nmetrics, pmID *pmids, pmResult **result)
+{
+	int	sts;
+
+	pmSetMode(fetchmode, &curtime, fetchstep);
+	if ((sts = pmFetch(nmetrics, pmids, result)) < 0)
+	{
+		if (sts != PM_ERR_EOL)
+			fprintf(stderr, "%s: %s pmFetch: %s\n",
+				pmProgname, purpose, pmErrStr(sts));
+		cleanstop(1);
+	}
+	if (pmDebug & DBG_TRACE_APPL1)
+	{
+		pmResult	*rp = *result;
+		struct tm	tmp;
+		time_t		sec;
+
+		sec = (time_t)rp->timestamp.tv_sec;
+		pmLocaltime(&sec, &tmp);
+
+		fprintf(stderr, "%s: got %d %s metrics @%02d:%02d:%02d.%03d\n",
+				pmProgname, rp->numpmid, purpose,
+				tmp.tm_hour, tmp.tm_min, tmp.tm_sec,
+				(int)(rp->timestamp.tv_usec / 1000));
+	}
+	return sts;
+}
+
+int
+get_instances(const char *purpose, int value, pmDesc *descs, int **pids, char ***insts)
+{
+	int	sts;
+
+	if (descs[value].pmid == PM_ID_NULL)
+	{
+		/* we have no descriptor for this metric, thus no instances */
+		*insts = NULL;
+		*pids = NULL;
+		return 0;
+	}
+
+	if (!rawreadflag)
+	{
+		if ((sts = pmGetInDom(descs[value].indom, pids, insts)) < 0)
+		{
+			fprintf(stderr, "%s: pmGetInDom %s indom: %s\n",
+				pmProgname, purpose, pmErrStr(sts));
+			cleanstop(1);
+		}
+		return sts;
+	}
+
+	if ((sts = pmGetInDomArchive(descs[value].indom, pids, insts)) < 0)
+	{
+		fprintf(stderr, "%s: pmGetInDomArchive %s indom: %s\n",
+			pmProgname, purpose, pmErrStr(sts));
+		cleanstop(1);
+	}
+	return sts;
 }
 
 void

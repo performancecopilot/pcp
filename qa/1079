@@ -16,20 +16,39 @@ echo "QA output created by $seq"
 ATOP="$PCP_BINADM_DIR/pcp-atop"
 test -f "$ATOP" || _notrun "$ATOP is not installed, skipped"
 
-_notrun "Archive mode atop functionality is WIP"
-
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
-# real QA test starts here
+# read from the pcp-atop archive with various atop options
+#
+atop()
+{
+    message="$1"
+    shift
+    options="$@"
 
-# read from the canned pcp-atop archive
-$ATOP -r $here/archives/pcp-atop
+    echo "$message"
+
+    pcp_options="pcp -z --origin=+1.1 --archive $here/archives/pcp-atop"
+    $pcp_options atop $options 1 >$tmp.out 2>$tmp.err
+
+    echo "=== std out"
+    cat $tmp.out
+    echo "=== std err"
+    cat $tmp.err
+    echo "=== done" && echo
+}
+
+# real QA test starts here
+atop "General options (default)"
+atop "Memory option" -m
+atop "Disk option" -d
+atop "Scheduling option" -s
 
 # write a new archive, replay with pcp-atop
-$ATOP -w $tmp.atop 1 5
-$ATOP -r $tmp.atop 1 2
+#$ATOP -w $tmp.atop 1 5
+#$ATOP -r $tmp.atop 1 2
 
 # success, all done
 status=0
