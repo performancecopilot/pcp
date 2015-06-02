@@ -10,18 +10,16 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# Dockerfile to build the pcp-collector container image. See docker-build(1).
-# We have to turn the cache off. e.g. docker build --no-cache -t pcp-collector
+# Dockerfile to build the pcp-collector container image, layered on pcp-base.
 #
-FROM fedora:latest
+FROM pcp-base:latest
 MAINTAINER PCP developers <pcp@pcp.io>
-
-# update the Fedora base image and clean the yum cache
-# This is disabled during development.
-# RUN yum -y update && yum clean all
 
 # Set up a repo for the packages to be installed. This is only for use
 # during development. Production builds would use the Fedora packages.
+# The build expects build/containers/RPMS to have the PCP RPMS to be
+# installed in the container (and createrepo build/containers/RPMS has
+been run to set up the yum repo).
 RUN mkdir -p /tmp/RPMS/repodata; \
 echo -e '[pcp-testing]\nname=PCP Test Yum Repository\n\
 baseurl=file:///tmp/RPMS\ngpgcheck = 0\nenabled = 0'\
@@ -30,7 +28,7 @@ COPY RPMS/*.rpm /tmp/RPMS/
 COPY RPMS/repodata/* /tmp/RPMS/repodata/
 
 #
-# install pcp and it's dependencies, clean the cache.
+# install pcp-collector and it's dependencies, clean the cache.
 RUN yum --enablerepo=pcp-testing -y install pcp pcp-collector && yum clean all
 
 # during development only: remove the test repo
@@ -38,7 +36,7 @@ RUN rm -rf /tmp/RPMS
 
 #
 # Run in the container as root - avoids PCP_USER mismatches
-RUN sed -i -e 's/PCP_USER=.*$/PCP_USER=root/' /etc/pcp.conf
+RUN sed -i -e 's/PCP_USER=.*$/PCP_USER=root/' -e 's/PCP_GROUP=.*$/PCP_GROUP=root/' /etc/pcp.conf
 
 #
 # Disable service advertising - no avahi daemon in the container
@@ -65,40 +63,6 @@ LABEL RUN docker run -d --privileged --net=host --pid=host --ipc=host -v /sys:/s
 # The command to run - in this case the pmcd service script. When this command
 # exits, then the container exits. This is the default command and parameters
 # and can be overridden by passing additional parameters to docker run.
-CMD ["/usr/share/pcp/lib/pmcd", "start"]
-
-# Example command to deploy this container on a RHEL Atomic server:
-# atomic run pcp-collector  (this uses the LABEL defined above).
-#
-# Example command to deploy this container on a regular docker server :
-#   docker run -d \
-#   --privileged --net=host \
-#   -v /sys:/sys:ro \
-#   -v /proc:/proc:ro \
-#   -v /etc/cron.d:/etc/cron.d \
-#   -v /etc/localtime:/etc/localtime:ro \
-#   -v /var/lib/docker:/var/lib/docker:ro \
-#   -v /etc/pcp:/etc/pcp \
-#   -v /var/run/pcp:/var/run/pcp \
-#   -v /var/log/pcp:/var/log/pcp \
-#   IMAGE-ID
-#
-# -d means to detach and run in the background. Use -it (instead of -d) if you
-#    need a pty and "bash" as the command to run after IMAGE-ID on the command
-#    line - useful for debugging.
-#
-# --privileged and --net=host  allow pmcd access to host network/ipc namespaces
-#
-# -v /proc:/proc:ro -v /sys:/sys:ro  allows PMDAs to see the global /proc and /sys
-# -v /var/lib/docker:/var/lib/docker:ro  so pmdaroot can inspect /var/lib/docker
-# -v /var/run/pcp:/var/run/pcp  for pid files and unix domain sockets
-# -v /var/log/pcp:/var/log/pcp  for pmcd and PMDA log files
-# -v /etc/cron.d:/etc/cron.d  PCP cron services
-# -v /etc/localtime:/etc/localtime:ro  for correct local timezone reporting
-#
-# IMAGE-ID is the pcp-collector image id. Use "docker images" to list images.
-#
-# After IMAGE-ID you can optionally specify an alternate command to run, e.g. /bin/bash
-# (which would typically be used with -it instead of -d) to run a shell instead of the
-# command specified in the CMD line of the Dockerfile. In this case pmcd would not be
-# started - you'd have to start it manually in the background.
+ENV PATH /usr/share/pcp/lib:/usr/libexec/pcp/bin:$PATH
+ENTRYPOINT ["pmcd"]
+CMD ["start"]

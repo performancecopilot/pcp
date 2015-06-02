@@ -10,18 +10,16 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# Dockerfile to build the pcp-monitor container image. See docker-build(1).
-# e.g. docker build -t pcp-monitor .
+# Dockerfile to build the pcp-monitor container image, layered on pcp-base.
 #
-FROM fedora:latest
+FROM pcp-base:latest
 MAINTAINER PCP developers <pcp@pcp.io>
-
-# update the Fedora base image and clean the yum cache
-# This is disabled during development.
-# RUN yum -y update && yum clean all
 
 # Set up a repo for the packages to be installed. This is only for use
 # during development. Production builds would use the Fedora packages.
+# The build expects build/containers/RPMS to have the PCP RPMS to be
+# installed in the container (and createrepo build/containers/RPMS has
+been run to set up the yum repo).
 RUN mkdir -p /tmp/RPMS/repodata; \
 echo -e '[pcp-testing]\nname=PCP Test Yum Repository\n\
 baseurl=file:///tmp/RPMS\ngpgcheck = 0\nenabled = 0'\
@@ -39,11 +37,11 @@ RUN rm -rf /tmp/RPMS
 
 #
 # Run in the container as root - avoid PCP_USER mismatch with the host
-RUN sed -i -e 's/PCP_USER=.*$/PCP_USER=root/' /etc/pcp.conf
+RUN sed -i -e 's/PCP_USER=.*$/PCP_USER=root/' -e 's/PCP_GROUP=.*$/PCP_GROUP=root/' /etc/pcp.conf
 
 #
 # Since this is an interactive container, set the bash prompt
-RUN echo export PS1='[pcp-monitor] ' >> /root/.bash_profile
+RUN echo export PS1='"[pcp-monitor] "' >> /root/.bash_profile
 
 #
 # denote this as a container environment, for rc scripts
@@ -60,4 +58,4 @@ LABEL RUN docker run -it --privileged --net=host --pid=host --ipc=host -v /sys:/
 # with terminal). An optional argument to the docker run command may be used
 # to start a pcp monitoring tool rather than a shell. When the command exits,
 # the container exits.
-CMD ["/usr/bin/bash" "-l"]
+CMD ["/bin/bash", "-l"]

@@ -10,18 +10,16 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# Dockerfile to build the pcp-pmlogger container image. See docker-build(1).
-# e.g. docker build -t pcp-pmlogger .
+# Dockerfile to build the pcp-pmlogger container image, layered on pcp-base.
 #
-FROM fedora:latest
+FROM pcp-base:latest
 MAINTAINER PCP developers <pcp@pcp.io>
-
-# update the Fedora base image and clean the yum cache
-# This is disabled during development.
-# RUN yum -y update && yum clean all
 
 # Set up a repo for the packages to be installed. This is only for use
 # during development. Production builds would use the Fedora packages.
+# The build expects build/containers/RPMS to have the PCP RPMS to be
+# installed in the container (and createrepo build/containers/RPMS has
+been run to set up the yum repo).
 RUN mkdir -p /tmp/RPMS/repodata; \
 echo -e '[pcp-testing]\nname=PCP Test Yum Repository\n\
 baseurl=file:///tmp/RPMS\ngpgcheck = 0\nenabled = 0'\
@@ -39,11 +37,15 @@ RUN rm -rf /tmp/RPMS
 
 #
 # Run in the container as root - avoid PCP_USER mismatches
-RUN sed -i -e 's/PCP_USER=.*$/PCP_USER=root/' /etc/pcp.conf
+RUN sed -i -e 's/PCP_USER=.*$/PCP_USER=root/' -e 's/PCP_GROUP=.*$/PCP_GROUP=root/' /etc/pcp.conf
 
 #
 # Expose pmloggers/pmlc ports on the host interfaces.
 EXPOSE 4330
+
+#
+# pmlogger start script checks if it's enabled.
+RUN systemctl enable pmlogger.service
 
 #
 # denote this as a container environment, for rc scripts
@@ -58,4 +60,6 @@ LABEL RUN docker run -d --privileged --net=host --pid=host --ipc=host -v /sys:/s
 #
 # The command to run - in this case the pmlogger service script.
 # When this command exits, then the container exits.
-CMD ["/usr/share/pcp/lib/pmlogger", "start"]
+ENV PATH /usr/share/pcp/lib:/usr/libexec/pcp/bin:$PATH
+ENTRYPOINT ["pmlogger"]
+CMD ["start"]

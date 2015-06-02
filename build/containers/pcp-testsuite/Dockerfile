@@ -10,18 +10,19 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# Dockerfile to build the pcp-testsuite container image. See docker-build(1).
-# We have to turn the cache off. e.g. docker build --no-cache -t pcp-testsuite
+# Dockerfile to build the pcp-testsuite container image. For now, this
+# just installs everything, and the default CMD is a bash shell. For
+# future work, QA will need to know how to start/stop the pcp-collector
+# and pcp-pmlogger containers.
 #
-FROM fedora:latest
+FROM pcp-base:latest
 MAINTAINER PCP developers <pcp@pcp.io>
-
-# update the Fedora base image and clean the yum cache
-# This is disabled during development.
-# RUN yum -y update && yum clean all
 
 # Set up a repo for the packages to be installed. This is only for use
 # during development. Production builds would use the Fedora packages.
+# The build expects build/containers/RPMS to have the PCP RPMS to be
+# installed in the container (and createrepo build/containers/RPMS has
+been run to set up the yum repo).
 RUN mkdir -p /tmp/RPMS/repodata; \
 echo -e '[pcp-testing]\nname=PCP Test Yum Repository\n\
 baseurl=file:///tmp/RPMS\ngpgcheck = 0\nenabled = 0'\
@@ -31,14 +32,18 @@ COPY RPMS/repodata/* /tmp/RPMS/repodata/
 
 #
 # install everything and dependencies, clean the cache.
-RUN yum --enablerepo=pcp-testing -y --skip-broken localinstall /tmp/RPMS/*.rpm && yum clean all
+RUN yum --enablerepo=pcp-testing -y --force localinstall /tmp/RPMS/*.rpm && yum clean all
 
 # during development only: remove the test repo
 RUN rm -rf /tmp/RPMS
 
 #
 # Run in the container as root - avoids PCP_USER mismatches
-RUN sed -i -e 's/PCP_USER=.*$/PCP_USER=root/' /etc/pcp.conf
+RUN sed -i -e 's/PCP_USER=.*$/PCP_USER=root/' -e 's/PCP_GROUP=.*$/PCP_GROUP=root/' /etc/pcp.conf
+
+#
+# Since this is an interactive container, set the bash prompt
+RUN echo export PS1='"[pcp-testsuite] "' >> /root/.bash_profile
 
 #
 # Disable service advertising - no avahi daemon in the container
@@ -66,4 +71,4 @@ LABEL RUN docker run -it --privileged --net=host --pid=host --ipc=host -v /sys:/
 # exits, then the container exits. This is the default command and parameters
 # and can be overridden by passing additional parameters to docker run.
 # CMD ["/usr/share/pcp/lib/pmcd", "start"]
-CMD ["/usr/bin/bash", "-l"]
+CMD ["/bin/bash", "-l"]

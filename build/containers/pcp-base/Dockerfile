@@ -14,15 +14,18 @@
 # Fedora rawhide (currently f22) and is intended as the base image
 # for all other PCP containers, i.e. layered.
 #
-FROM fedora:rawhide
+FROM fedora:latest
 MAINTAINER PCP developers <pcp@pcp.io>
 
 # update the Fedora base image and clean the yum cache
-# This is normally disabled during development.
+# (normally disabled during development)
 RUN yum -y update && yum clean all
 
 # Set up a repo for the packages to be installed. This is only for use
 # during development. Production builds would use the Fedora packages.
+# The build expects build/containers/RPMS to have the PCP RPMS to be
+# installed in the container (and createrepo build/containers/RPMS has
+been run to set up the yum repo).
 RUN mkdir -p /tmp/RPMS/repodata; \
 echo -e '[pcp-testing]\nname=PCP Test Yum Repository\n\
 baseurl=file:///tmp/RPMS\ngpgcheck = 0\nenabled = 0'\
