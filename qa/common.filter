@@ -220,6 +220,7 @@ _filter_optional_pmdas()
 	-e '/pmdainfmx7/d' \
 	-e '/pmdainfmxping/d' \
 	-e '/pmdajbd2/d' \
+	-e '/pmdajson/d' \
 	-e '/pmdajstat/d' \
 	-e '/pmdakvm/d' \
 	-e '/pmdalab/d' \
@@ -312,6 +313,7 @@ _filter_top_pmns()
 	-e '/^    infmxping /d' \
 	-e '/^    informix /d' \
 	-e '/^    jbd2 /d' \
+	-e '/^    json /d' \
 	-e '/^    jstat /d' \
 	-e '/^    kvm /d' \
 	-e '/^    lab /d' \

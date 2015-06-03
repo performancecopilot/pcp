@@ -8,3 +8,4 @@ probe	apache.total_accesses exists ? include : exclude
 	apache.bytes_per_requests
 	apache.busy_servers
 	apache.idle_servers
+	apache.uptime

@@ -1,0 +1,9 @@
+#pmlogconf-setup 2.0
+ident   metrics sampled once by the atop command
+probe	apache.uptime exists ? include : exclude
+delta	10 seconds
+	apache.total_accesses
+	apache.total_kbytes
+	apache.uptime
+	apache.busy_servers
+	apache.idle_servers

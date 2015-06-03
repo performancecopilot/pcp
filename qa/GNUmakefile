@@ -16,7 +16,7 @@ TESTS	= $(shell sed -n -e '/^[0-9]/s/:retired//' -e '/^[0-9]/s/:reserved//' -e '
 
 SUBDIRS = src pmdas cisco gluster pconf sadist collectl secure nfsclient \
 	  archives views qt linux perfevent unbound cifs gpfs lustre ganglia \
-	  postfix perl
+	  postfix perl json
 ifeq "$(HAVE_PYTHON)" "true"
 SUBDIRS += secure
 endif

@@ -9,6 +9,7 @@ usr/share/man/man3/pmdaCacheLookupKey.3.gz
 usr/share/man/man3/pmdaCacheLookupName.3.gz
 usr/share/man/man3/pmdaCacheOp.3.gz
 usr/share/man/man3/pmdaCachePurge.3.gz
+usr/share/man/man3/pmdaCacheResize.3.gz
 usr/share/man/man3/pmdaCacheStore.3.gz
 usr/share/man/man3/pmdaCacheStoreKey.3.gz
 usr/share/man/man3/pmdaChildren.3.gz

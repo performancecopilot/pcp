@@ -160,6 +160,7 @@ pmda.gfs2
 pmda.gpfs
 pmda.hotproc
 pmda.jbd2
+pmda.json
 pmda.kvm
 pmda.logger
 pmda.lustre
@@ -1044,6 +1045,7 @@ cgroups
 945 pmlogrewrite pmda.xfs local
 946 pmfind avahi local
 947 pmlogger local
+948 pmlogger context_local local 
 950 pmproxy avahi local
 951 pmie local
 955 pmda.linux local
@@ -1113,6 +1115,10 @@ cgroups
 1049 pmie pmieconf local
 1050 pmieconf local
 1051 pmieconf #696008 local
+1052 pmda.json local python
+1053 pmda.json pmda.install local python
+1079 pcp local
+1080 valgrind pcp local
 1091 pmns libpcp context local
 1092 libpcp local
 1108 logutil local folio pmlogextract
