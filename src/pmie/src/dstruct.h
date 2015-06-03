@@ -230,6 +230,7 @@ typedef int Op;
 #define CND_FETCH	1
 #define CND_DELAY	2
 #define CND_RATE	3
+#define CND_INSTANT	9
 /* arithmetic */
 #define CND_NEG		4
 #define CND_ADD		5

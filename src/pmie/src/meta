@@ -169,6 +169,10 @@ fun=cndNeg
 op="OP(x) -(x)"
 _unary
 
+fun=cndInstant
+op="OP(x) (x)"
+_unary
+
 fun=cndAdd
 op="OP(x,y) ((x) + (y))"
 _binary
