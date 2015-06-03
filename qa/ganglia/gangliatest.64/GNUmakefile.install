@@ -1,4 +1,4 @@
-#!gmake 
+#!gmake
 
 ifdef PCP_CONF
 include $(PCP_CONF)
@@ -8,17 +8,11 @@ endif
 PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
 include $(PCP_INC_DIR)/builddefs
 
-TESTDIR = $(PCP_VAR_DIR)/testsuite/unbound
+TESTDIR = $(PCP_VAR_DIR)/testsuite/ganglia/gangliatest.64
+QAFILES = $(shell echo *.rrd)
 
-SCRIPT = test.sh
-METRICS = metrics.list
-STATSFILES = $(shell echo unbound-control-stats-*)
-
-default default_pcp setup:
+default default_pcp setup: 
 
 install install_pcp:
 
 include $(BUILDRULES)
-
-%.py : %.python
-	(LN_S) $< $@

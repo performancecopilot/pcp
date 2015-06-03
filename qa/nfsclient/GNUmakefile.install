@@ -1,4 +1,4 @@
-#!gmake 
+#!gmake
 
 ifdef PCP_CONF
 include $(PCP_CONF)
@@ -8,17 +8,14 @@ endif
 PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
 include $(PCP_INC_DIR)/builddefs
 
-TESTDIR = $(PCP_VAR_DIR)/testsuite/unbound
+TESTDIR = $(PCP_VAR_DIR)/testsuite/nfsclient
 
-SCRIPT = test.sh
-METRICS = metrics.list
-STATSFILES = $(shell echo unbound-control-stats-*)
+QAFILES = $(shell echo *.qa)
 
-default default_pcp setup:
+LSRCFILES = $(QAFILES)
+
+default default_pcp setup: 
 
 install install_pcp:
 
 include $(BUILDRULES)
-
-%.py : %.python
-	(LN_S) $< $@
