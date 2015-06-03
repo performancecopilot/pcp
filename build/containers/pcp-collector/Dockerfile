@@ -33,6 +33,10 @@ RUN . /etc/pcp.conf && echo "-A" >> $PCP_PMCDOPTIONS_PATH
 EXPOSE 44321
 
 #
+# Since this can be an interactive container (e.g. docker exec), set the bash prompt
+RUN echo export PS1='"[pcp-collector] "' >> /root/.bash_profile
+
+#
 # denote this as a container environment, for rc scripts
 ENV PCP_CONTAINER_IMAGE pcp-collector
 ENV NAME pcp-collector

@@ -32,6 +32,10 @@ EXPOSE 4330
 RUN systemctl enable pmlogger.service
 
 #
+# Since this can be an interactive container, set the bash prompt
+RUN echo export PS1='"[pcp-pmlogger] "' >> /root/.bash_profile
+
+#
 # denote this as a container environment, for rc scripts
 ENV PCP_CONTAINER_IMAGE pcp-pmlogger
 ENV NAME pcp-pmlogger
