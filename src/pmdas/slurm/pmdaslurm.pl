@@ -79,7 +79,11 @@ sub slurm_update_cluster_gen {
     my $nodemsg = $slurm->load_node();
 
     unless($nodemsg) {
-        die "failed to load node info: " . $slurm->strerror();
+        # This can fail if the slurm controller has not come up yet
+        # No good way to figure out if this is just a delay or fatal error
+        # So just log it and try again later
+        warn "Failed to load node info: " . $slurm->strerror();
+        return;
     }
 
     my @nodes = @{ $nodemsg->{node_array} };
@@ -98,6 +102,14 @@ sub slurm_update_jobs {
     # This could take a while
     # Returns a hash ref where the only element we care about is the job_array array
     my $jobmsg = $slurm->load_jobs(0, 0);
+
+    unless($jobmsg) {
+        # This can fail if the slurm controller has not come up yet
+        # No good way to figure out if this is just a delay or fatal error
+        # So just log it and try again later
+        warn "Failed to load job info: " . $slurm->strerror();
+        return;
+    }
 
     # The array holds hash refs that map to: job_info_t from slurm.h
     $all_jobs_ref = \@{ $jobmsg->{job_array} };
