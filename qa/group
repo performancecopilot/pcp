@@ -1045,6 +1045,7 @@ cgroups
 945 pmlogrewrite pmda.xfs local
 946 pmfind avahi local
 947 pmlogger local
+948 pmlogger context_local local 
 950 pmproxy avahi local
 955 pmda.linux local
 956 pmcd local
