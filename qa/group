@@ -1045,6 +1045,7 @@ cgroups
 946 pmfind avahi local
 947 pmlogger local
 950 pmproxy avahi local
+951 pmie local
 955 pmda.linux local
 956 pmcd local
 957 pmda.linux local valgrind

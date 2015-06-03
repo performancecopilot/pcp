@@ -610,7 +610,10 @@ in
 	echo "grundy.sgi.com" >>$tmp.domains
 	# and open up the X server
 	#
-	DISPLAY=localhost:0.0 xhost + >/dev/null
+	# Ubuntu up to 15.04
+	#DISPLAY=localhost:0.0 xhost + >/dev/null
+	# Ubuntu 15.10
+	DISPLAY=:0.0 xhost + >/dev/null
 	;;
 esac
 
