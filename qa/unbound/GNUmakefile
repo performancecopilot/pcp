@@ -1,3 +1,5 @@
+#!gmake 
+
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
@@ -13,6 +15,7 @@ install install_pcp:
 	$(INSTALL) -m 755 -d $(TESTDIR)
 	$(INSTALL) -m 755 $(SCRIPT) $(TESTDIR)/$(SCRIPT)
 	$(INSTALL) -m 644 $(STATSFILES) $(METRICS) $(TESTDIR)
+	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
 
 include $(BUILDRULES)
 
