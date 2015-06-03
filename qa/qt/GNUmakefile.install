@@ -17,11 +17,10 @@ include $(PCP_INC_DIR)/builddefs
 SUBDIRS_MAKERULE = \
 	@for d in `echo $^ `; do \
 	    if test -d "$$d" ; then \
-		$(ECHO) === $$d ===; \
 		if test -f "$$d/GNUmakefile.install"; then \
-		    $(MAKE) -C $$d -f GNUmakefile.install $@ || exit $$?; \
+		    $(MAKE) --silent -C $$d -f GNUmakefile.install $@ || exit $$?; \
 		else \
-		    $(MAKE) -C $$d $@ || exit $$?; \
+		    $(MAKE) --silent -C $$d $@ || exit $$?; \
 		fi; \
 	    fi; \
 	done
@@ -32,8 +31,7 @@ SUBDIRS = qmc_context qmc_desc qmc_dynamic qmc_event qmc_format \
 default default_pcp: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
-setup: $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
+setup:
 
 install install_pcp: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
