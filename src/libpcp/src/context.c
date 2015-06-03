@@ -529,16 +529,26 @@ initarchive(__pmContext	*ctxp, const char *name)
 	current = end + 1;
     }
 
-    /* Set the arch controls to refer to the first archive in the list. */
-    acp->ac_num_logs = numlogs;
-    acp->ac_log_list = loglist;
-    acp->ac_log = acp->ac_log_list[0];
-
-    /*
-     * In order to maintain API semantics with the old single archive
-     * implementation, open the current archive (first archive in the list).
-     */
     if (loglist != NULL) {
+	/* Set the archive controls to refer to the first archive in the list. */
+	acp->ac_num_logs = numlogs;
+	acp->ac_log_list = loglist;
+	acp->ac_log = acp->ac_log_list[0];
+
+	/* Initialize the archive controls. */
+	__pmLogInitialState(acp);
+	acp->ac_serial = 0;		/* not serial access, yet */
+	acp->ac_pmid_hc.nodes = 0;	/* empty hash list */
+	acp->ac_pmid_hc.hsize = 0;
+	acp->ac_end = 0.0;
+	acp->ac_want = NULL;
+	acp->ac_unbound = NULL;
+	acp->ac_cache = NULL;
+
+	/*
+	 * In order to maintain API semantics with the old single archive
+	 * implementation, open the current archive (first archive in the list).
+	 */
 	sts = __pmLogChangeArchive(ctxp, 0);
 	if (sts < 0) {
 	    --numlogs;
