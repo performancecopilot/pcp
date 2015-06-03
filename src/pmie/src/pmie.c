@@ -771,6 +771,12 @@ getargs(int argc, char *argv[])
 	dumpRules();
 #endif
 
+    /* really parse time window */
+    if (!archives) {
+	now = getReal();
+	reflectTime(dfltDelta);
+    }
+
     if (checkFlag)
 	exit(errs == 0 ? 0 : 1);	/* exit 1 for syntax errors ...
 					 * suggestion from 
