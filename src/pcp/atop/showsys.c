@@ -280,7 +280,7 @@ char *
 sysprt_PRCSYS(void *notused, void *q, int badness, int *color)
 {
         extraparam *as=q;
-        static char buf[15]="sys   ";
+        static char buf[16]="sys   ";
         val2cpustr(as->totst, buf+6);
         return buf;
 }
@@ -291,7 +291,7 @@ char *
 sysprt_PRCUSER(void *notused, void *q, int badness, int *color) 
 {
         extraparam *as=q;
-        static char buf[15]="user  ";
+        static char buf[16]="user  ";
         val2cpustr(as->totut, buf+6);
         return buf;
 }
@@ -302,7 +302,7 @@ char *
 sysprt_PRCNPROC(void *notused, void *q, int badness, int *color) 
 {
         extraparam *as=q;
-        static char buf[15]="#proc     ";
+        static char buf[16]="#proc     ";
         val2valstr(as->nproc, buf+6, 6, 0, 0);
         return buf;
 }
@@ -324,7 +324,7 @@ char *
 sysprt_PRCNSLEEPING(void *notused, void *q, int badness, int *color) 
 {
         extraparam *as=q;
-        static char buf[15]="#tslpi    ";
+        static char buf[16]="#tslpi    ";
         val2valstr(as->ntslpi, buf+8, 4, 0, 0);
         return buf;
 }
@@ -335,7 +335,7 @@ char *
 sysprt_PRCNDSLEEPING(void *notused, void *q, int badness, int *color) 
 {
         extraparam *as=q;
-        static char buf[15]="#tslpu    ";
+        static char buf[16]="#tslpu    ";
         val2valstr(as->ntslpu, buf+8, 4, 0, 0);
         return buf;
 }
@@ -346,7 +346,7 @@ char *
 sysprt_PRCNZOMBIE(void *notused, void *q, int badness, int *color) 
 {
         extraparam *as=q;
-        static char buf[15]="#zombie   ";
+        static char buf[16]="#zombie   ";
 
 	if (as->nzomb > 30)
 		*color = COLORALMOST;
@@ -366,7 +366,7 @@ sysprt_PRCNNEXIT(void *notused, void *q, int badness, int *color)
 	static char firstcall = 1;
 
         extraparam *as=q;
-        static char buf[15]="#exit     ";
+        static char buf[16]="#exit     ";
 
         if (supportflags & ACCTACTIVE)
         {
@@ -420,13 +420,13 @@ sysprt_CPUSYS(void *p, void *q, int badness, int *color)
 {
         struct sstat *sstat=p;
         extraparam *as=q;
-        static char buf[15];
+        static char buf[16];
 	float perc	= (sstat->cpu.all.stime * 100.0) / as->percputot;
 
 	if (perc > 1.0)
 		*color = -1;
 
-        sprintf(buf, "sys  %6.0f%%", perc);
+        snprintf(buf, sizeof(buf)-1, "sys  %6.0f%%", perc);
         return buf;
 }
 
@@ -437,14 +437,14 @@ sysprt_CPUUSER(void *p, void *q, int badness, int *color)
 {
         struct sstat *sstat=p;
         extraparam *as=q;
-        static char buf[15];
+        static char buf[16];
 	float perc	= (sstat->cpu.all.utime + sstat->cpu.all.ntime)
                                         * 100.0 / as->percputot;
 
 	if (perc > 1.0)
 		*color = -1;
 
-        sprintf(buf, "user %6.0f%%", perc);
+        snprintf(buf, sizeof(buf)-1, "user %6.0f%%", perc);
         return buf;
 }
 
@@ -455,14 +455,14 @@ sysprt_CPUIRQ(void *p, void *q, int badness, int *color)
 {
         struct sstat *sstat=p;
         extraparam *as=q;
-        static char buf[15];
+        static char buf[16];
         float perc = (sstat->cpu.all.Itime + sstat->cpu.all.Stime)
                                     * 100.0 / as->percputot;
 
 	if (perc > 1.0)
 		*color = -1;
 
-        sprintf(buf, "irq  %6.0f%%", perc);
+        snprintf(buf, sizeof(buf)-1, "irq  %6.0f%%", perc);
         return buf;
 }
 
@@ -473,8 +473,8 @@ sysprt_CPUIDLE(void *p, void *q, int badness, int *color)
 {
         struct sstat *sstat=p;
         extraparam *as=q;
-        static char buf[15];
-        sprintf(buf, "idle %6.0f%%", 
+        static char buf[16];
+        snprintf(buf, sizeof(buf)-1, "idle %6.0f%%", 
                 (sstat->cpu.all.itime * 100.0) / as->percputot);
         return buf;
 }
@@ -486,8 +486,8 @@ sysprt_CPUWAIT(void *p, void *q, int badness, int *color)
 {
         struct sstat *sstat=p;
         extraparam *as=q;
-        static char buf[15];
-        sprintf(buf, "wait %6.0f%%", 
+        static char buf[16];
+        snprintf(buf, sizeof(buf)-1, "wait %6.0f%%", 
                 (sstat->cpu.all.wtime * 100.0) / as->percputot);
         return buf;
 }
@@ -499,14 +499,14 @@ sysprt_CPUISYS(void *p, void *q, int badness, int *color)
 {
         struct sstat *sstat=p;
         extraparam *as=q;
-        static char buf[15];
+        static char buf[16];
 	float perc	= sstat->cpu.cpu[as->index].stime * 100.0
 							/ as->percputot;
 
 	if (perc > 1.0)
 		*color = -1;
 
-        sprintf(buf, "sys  %6.0f%%", perc);
+        snprintf(buf, sizeof(buf)-1, "sys  %6.0f%%", perc);
         return buf;
 }
 
@@ -517,7 +517,7 @@ sysprt_CPUIUSER(void *p, void *q, int badness, int *color)
 {
         struct sstat *sstat=p;
         extraparam *as=q;
-        static char buf[15];
+        static char buf[16];
 	float perc	= (sstat->cpu.cpu[as->index].utime +
                            sstat->cpu.cpu[as->index].ntime) 
 			   * 100.0 / as->percputot;
@@ -525,7 +525,7 @@ sysprt_CPUIUSER(void *p, void *q, int badness, int *color)
 	if (perc > 1.0)
 		*color = -1;
 
-        sprintf(buf, "user %6.0f%%", perc);
+        snprintf(buf, sizeof(buf)-1, "user %6.0f%%", perc);
         return buf;
 }
 
@@ -536,7 +536,7 @@ sysprt_CPUIIRQ(void *p, void *q, int badness, int *color)
 {
         struct sstat *sstat=p;
         extraparam *as=q;
-        static char buf[15];
+        static char buf[16];
 	float perc	= (sstat->cpu.cpu[as->index].Itime +
 		  	   sstat->cpu.cpu[as->index].Stime)
 			   * 100.0 / as->percputot;
@@ -544,7 +544,7 @@ sysprt_CPUIIRQ(void *p, void *q, int badness, int *color)
 	if (perc > 1.0)
 		*color = -1;
 
-        sprintf(buf, "irq  %6.0f%%", perc);
+        snprintf(buf, sizeof(buf)-1, "irq  %6.0f%%", perc);
         return buf;
 }
 
@@ -555,8 +555,8 @@ sysprt_CPUIIDLE(void *p, void *q, int badness, int *color)
 {
         struct sstat *sstat=p;
         extraparam *as=q;
-        static char buf[15];
-        sprintf(buf, "idle %6.0f%%", 
+        static char buf[16];
+        snprintf(buf, sizeof(buf)-1, "idle %6.0f%%", 
                 (sstat->cpu.cpu[as->index].itime * 100.0) / as->percputot);
         return buf;
 }
@@ -568,8 +568,8 @@ sysprt_CPUIWAIT(void *p, void *q, int badness, int *color)
 {
         struct sstat *sstat=p;
         extraparam *as=q;
-        static char buf[15];
-        sprintf(buf, "cpu%03d w%3.0f%%", 
+        static char buf[16];
+        snprintf(buf, sizeof(buf)-1, "cpu%03d w%3.0f%%", 
 		 sstat->cpu.cpu[as->index].cpunr,
                 (sstat->cpu.cpu[as->index].wtime * 100.0) / as->percputot);
         return buf;
@@ -624,7 +624,7 @@ void sumscaling(struct sstat *sstat, count_t *maxfreq,
 }
 
 
-void dofmt_cpuscale(char *buf, count_t maxfreq, count_t cnt, count_t ticks)
+static void dofmt_cpuscale(char *buf, size_t buflen, count_t maxfreq, count_t cnt, count_t ticks)
 {
 	if (ticks) 
 	{
@@ -632,12 +632,12 @@ void dofmt_cpuscale(char *buf, count_t maxfreq, count_t cnt, count_t ticks)
 		int     perc = maxfreq ? 100 * curfreq / maxfreq : 0;
 
 		strcpy(buf, "avgscal ");
-		sprintf(buf+7, "%4d%%", perc);
+		snprintf(buf+7, buflen-8, "%4d%%", perc);
         } 
         else if (maxfreq)   // max frequency is known so % can be calculated
         {
 		strcpy(buf, "curscal ");
-		sprintf(buf+7, "%4lld%%", 100 * cnt / maxfreq);
+		snprintf(buf+7, buflen-8, "%4lld%%", 100 * cnt / maxfreq);
         }
 	else	// nothing is known: print ?????
 	{
@@ -652,7 +652,7 @@ sysprt_CPUIFREQ(void *p, void *q, int badness, int *color)
 
         struct sstat *sstat=p;
         extraparam *as=q;
-        static char buf[15];
+        static char buf[16];
 
         count_t maxfreq	= sstat->cpu.cpu[as->index].freqcnt.maxfreq;
         count_t cnt	= sstat->cpu.cpu[as->index].freqcnt.cnt;
@@ -669,7 +669,7 @@ sysprt_CPUFREQ(void *p, void *q, int badness, int *color)
 {
 
         struct sstat *sstat=p;
-        static char buf[15];
+        static char buf[16];
 
         count_t maxfreq;
         count_t cnt;
@@ -689,13 +689,13 @@ sysprt_CPUISCALE(void *p, void *q, int badness, int *color)
 
         struct sstat *sstat=p;
         extraparam *as=q;
-        static char buf[15];
+        static char buf[16];
 
         count_t maxfreq = sstat->cpu.cpu[as->index].freqcnt.maxfreq;
         count_t cnt     = sstat->cpu.cpu[as->index].freqcnt.cnt;
         count_t ticks   = sstat->cpu.cpu[as->index].freqcnt.ticks;
 
-        dofmt_cpuscale(buf, maxfreq, cnt, ticks);
+        dofmt_cpuscale(buf, sizeof(buf), maxfreq, cnt, ticks);
         return buf;
 }
 
@@ -706,7 +706,7 @@ sysprt_CPUSCALE(void *p, void *q, int badness, int *color)
 {
 
         struct sstat *sstat=p;
-        static char buf[15];
+        static char buf[16];
 
         count_t maxfreq;
         count_t cnt;
@@ -714,7 +714,7 @@ sysprt_CPUSCALE(void *p, void *q, int badness, int *color)
         int     n = sstat->cpu.nrcpu;
 
         sumscaling(sstat, &maxfreq, &cnt, &ticks);
-        dofmt_cpuscale(buf, maxfreq/n, cnt/n, ticks/n);
+        dofmt_cpuscale(buf, sizeof(buf), maxfreq/n, cnt/n, ticks/n);
         return buf;
 }
 
@@ -725,13 +725,13 @@ sysprt_CPUSTEAL(void *p, void *q, int badness, int *color)
 {
         struct sstat *sstat=p;
         extraparam *as=q;
-        static char buf[15];
+        static char buf[16];
 	float perc	= sstat->cpu.all.steal * 100.0 / as->percputot;
 
 	if (perc > 1.0)
 		*color = -1;
 
-        sprintf(buf, "steal %5.0f%%", perc);
+        snprintf(buf, sizeof(buf)-1, "steal %5.0f%%", perc);
         return buf;
 }
 
@@ -742,14 +742,14 @@ sysprt_CPUISTEAL(void *p, void *q, int badness, int *color)
 {
         struct sstat *sstat=p;
         extraparam *as=q;
-        static char buf[15];
+        static char buf[16];
 	float perc	= sstat->cpu.cpu[as->index].steal * 100.0
 							/ as->percputot;
 
 	if (perc > 1.0)
 		*color = -1;
 
-        sprintf(buf, "steal %5.0f%%", perc);
+        snprintf(buf, sizeof(buf)-1, "steal %5.0f%%", perc);
         return buf;
 }
 
@@ -760,13 +760,13 @@ sysprt_CPUGUEST(void *p, void *q, int badness, int *color)
 {
         struct sstat *sstat=p;
         extraparam *as=q;
-        static char buf[15];
+        static char buf[16];
         float perc = sstat->cpu.all.guest * 100.0 / as->percputot;
 
 	if (perc > 1.0)
 		*color = -1;
 
-        sprintf(buf, "guest %5.0f%%", perc);
+        snprintf(buf, sizeof(buf)-1, "guest %5.0f%%", perc);
         return buf;
 }
 
@@ -777,13 +777,13 @@ sysprt_CPUIGUEST(void *p, void *q, int badness, int *color)
 {
         struct sstat *sstat=p;
         extraparam *as=q;
-        static char buf[15];
+        static char buf[16];
         float perc = sstat->cpu.cpu[as->index].guest * 100.0 / as->percputot;
 
 	if (perc > 1.0)
 		*color = -1;
 
-        sprintf(buf, "guest %5.0f%%", perc);
+        snprintf(buf, sizeof(buf)-1, "guest %5.0f%%", perc);
         return buf;
 }
 
@@ -793,15 +793,15 @@ char *
 sysprt_CPLAVG1(void *p, void *notused, int badness, int *color) 
 {
         struct sstat *sstat=p;
-        static char buf[15]="avg1 ";
+        static char buf[16]="avg1 ";
 
         if (sstat->cpu.lavg1  > 999.0)
         {
-                sprintf(buf+5, "%7.0f", sstat->cpu.lavg1);
+                snprintf(buf+5, sizeof(buf)-6, "%7.0f", sstat->cpu.lavg1);
         }
         else
         {
-                sprintf(buf+5, "%7.2f", sstat->cpu.lavg1);
+                snprintf(buf+5, sizeof(buf)-6, "%7.2f", sstat->cpu.lavg1);
         }
         return buf;
 }
@@ -812,15 +812,15 @@ char *
 sysprt_CPLAVG5(void *p, void *notused, int badness, int *color) 
 {
         struct sstat *sstat=p;
-        static char buf[15]="avg5 ";
+        static char buf[16]="avg5 ";
 
         if (sstat->cpu.lavg5  > 999.0)
         {
-                sprintf(buf+5, "%7.0f", sstat->cpu.lavg5);
+                snprintf(buf+5, sizeof(buf)-6, "%7.0f", sstat->cpu.lavg5);
         }
         else
         {
-                sprintf(buf+5, "%7.2f", sstat->cpu.lavg5);
+                snprintf(buf+5, sizeof(buf)-6, "%7.2f", sstat->cpu.lavg5);
         }
         return buf;
 }
@@ -831,18 +831,18 @@ char *
 sysprt_CPLAVG15(void *p, void *notused, int badness, int *color) 
 {
         struct sstat *sstat=p;
-        static char buf[15]="avg15 ";
+        static char buf[16]="avg15 ";
 
 	if (sstat->cpu.lavg15 > (2 * sstat->cpu.nrcpu) )
 		*color = COLORALMOST;
 
         if (sstat->cpu.lavg15  > 999.0)
         {
-                sprintf(buf+6, "%6.0f", sstat->cpu.lavg15);
+                snprintf(buf+6, sizeof(buf)-7, "%6.0f", sstat->cpu.lavg15);
         }
         else
         {
-                sprintf(buf+6, "%6.2f", sstat->cpu.lavg15);
+                snprintf(buf+6, sizeof(buf)-7, "%6.2f", sstat->cpu.lavg15);
         }
         return buf;
 }
@@ -1131,7 +1131,7 @@ sysprt_PAGSTEAL(void *p, void *q, int badness, int *color)
         struct sstat *sstat=p;
         extraparam *as=q;
         static char buf[16]="steal  ";
-        val2valstr(sstat->mem.pgsteal, buf+ 6, 6, as->avgval, as->nsecs);
+        val2valstr(sstat->mem.pgsteal, buf+6, 6, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1189,7 +1189,7 @@ sysprt_DSKNAME(void *p, void *q, int badness, int *color)
 	else
 		pn = as->perdsk[as->index].name;
 
-        sprintf(buf, "%12.12s", pn);
+        snprintf(buf, sizeof(buf)-1, "%12.12s", pn);
         return buf;
 }
 
@@ -1203,7 +1203,7 @@ sysprt_DSKBUSY(void *p, void *q, int badness, int *color)
 
 	*color = -1;
 
-        sprintf(buf+5,"%6.0lf%%", 
+        snprintf(buf+5, sizeof(buf)-6, "%6.0lf%%", 
                    (as->perdsk[as->index].io_ms * 100.0 / as->mstot));
         return buf;
 }
@@ -1274,9 +1274,9 @@ sysprt_DSKMBPERSECWR(void *p, void *q, int badness, int *color)
         extraparam	*as=q;
         static char	buf[16]="MBw/s ";
 	struct perdsk 	*dp = &(as->perdsk[as->index]);
+	double		value = dp->nwsect / 2.0 / 1024 / as->nsecs;
 
-        sprintf(buf+6, "%6.2lf", dp->nwsect / 2.0 / 1024 / as->nsecs);
-
+        snprintf(buf+6, sizeof(buf)-7, "%6.2lf", value);
         return buf;
 }
 
@@ -1288,8 +1288,9 @@ sysprt_DSKMBPERSECRD(void *p, void *q, int badness, int *color)
         extraparam	*as=q;
         static char	buf[16]="MBr/s ";
 	struct perdsk 	*dp = &(as->perdsk[as->index]);
+	double		value = dp->nrsect / 2.0 / 1024 / as->nsecs;
 
-        sprintf(buf+6, "%6.2lf", dp->nrsect / 2.0 / 1024 / as->nsecs);
+        snprintf(buf+6, sizeof(buf)-7, "%6.2lf", value);
         return buf;
 }
 
@@ -1301,9 +1302,9 @@ sysprt_DSKAVQUEUE(void *p, void *q, int badness, int *color)
         extraparam	*as=q;
         static char	buf[16]="avq  ";
 	struct perdsk 	*dp = &(as->perdsk[as->index]);
+	double		value = dp->io_ms ? (double)dp->avque / dp->io_ms : 0.0;
 
-	sprintf(buf+4, "%8.2f", dp->io_ms  ?
-                                (double)dp->avque / dp->io_ms : 0.0);
+	snprintf(buf+4, sizeof(buf)-5, "%8.2f", value);
         return buf;
 }
 
@@ -1321,15 +1322,15 @@ sysprt_DSKAVIO(void *p, void *q, int badness, int *color)
 
         if (tim > 100.0)
         {
-                sprintf(buf+5, "%4.0lf ms", tim);
+                snprintf(buf+5, sizeof(buf)-6, "%4.0lf ms", tim);
         } 
         else if (tim > 10.0) 
         {
-                sprintf(buf+5, "%4.1lf ms", tim);
+                snprintf(buf+5, sizeof(buf)-6, "%4.1lf ms", tim);
         }
         else 
         {
-                sprintf(buf+5, "%4.2lf ms", tim);
+                snprintf(buf+5, sizeof(buf)-6, "%4.2lf ms", tim);
         }
 
         return buf;
@@ -1676,7 +1677,7 @@ char *makenetspeed(count_t val, int nsecs)
                 c = 'T';
         }
 
-        sprintf(buf+3, "%4lld %cbps", val, c);
+        snprintf(buf+3, sizeof(buf)-4, "%4lld %cbps", val, c);
 
         return buf;
 }
