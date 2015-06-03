@@ -13,27 +13,18 @@ endif
 PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
 include $(PCP_INC_DIR)/builddefs
 
-# special variant of SUBDIRS_MAKERULE for running QA in the tree
-#
-SUBDIRS_MAKERULE = \
-	@for d in `echo $^ `; do \
-	    if test -d "$$d" ; then \
-		$(ECHO) === $$d ===; \
-		if test -f "$$d/GNUmakefile.install"; then \
-		    $(MAKE) -C $$d -f GNUmakefile.install $@ || exit $$?; \
-		else \
-		    $(MAKE) -C $$d $@ || exit $$?; \
-		fi; \
-	    fi; \
-	done
-
-SUBDIRS = src pmdas secure
+SUBDIRS = src pmdas cisco gluster pconf sadist collectl secure nfsclient \
+	  archives views qt linux unbound cifs gpfs lustre ganglia \
+	  postfix perl
 ifeq "$(ENABLE_PERFEVENT)" "true"
 SUBDIRS += perfevent
 endif
+ifeq "$(HAVE_PYTHON)" "true"
+SUBDIRS += secure
+endif
 
 default_pcp default setup: $(SUBDIRS) localconfig new remake check qa_hosts
-	$(SUBDIRS_MAKERULE)
+	$(QA_SUBDIRS_MAKERULE)
 
 LDIRT += 051.work 134.full.* \
          *.bak *.bad *.core *.full *.raw *.o core a.out core.* \

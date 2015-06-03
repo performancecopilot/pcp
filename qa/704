@@ -17,6 +17,7 @@ python -c 'from pcp import mmv' 2>/dev/null
 test $? -eq 0 || _notrun "Python MMV module not available"
 
 status=1
+$sudo rm -f $tmp.* $seq.full
 MMV_STATS_DIR="$PCP_TMP_DIR/mmv"
 MMV_STATS_FILE=pymmv
 

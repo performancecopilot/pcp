@@ -10,7 +10,7 @@ LSRCFILES = $(PROJECT) $(SOURCES)
 LDIRDIRT = build $(COMMAND).xcodeproj
 LDIRT = $(COMMAND) *.o Makefile
 
-default default_pcp:
+default default_pcp setup:
 ifeq "$(ENABLE_QT)" "true"
 	$(QTMAKE)
 	$(LNMAKE)

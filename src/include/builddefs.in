@@ -299,6 +299,19 @@ SUBDIRS_MAKERULE = \
 	    fi; \
 	done
 
+# special variant of SUBDIRS_MAKERULE when running QA
+#
+QA_SUBDIRS_MAKERULE = \
+	+@for d in `echo $^ `; do \
+	    if test -d "$$d" ; then \
+		if test -f "$$d/GNUmakefile.install"; then \
+		    $(MAKE) --silent -C $$d -f GNUmakefile.install $@ || exit $$?; \
+		else \
+		    $(MAKE) --silent -C $$d $@ || exit $$?; \
+		fi; \
+	    fi; \
+	done
+
 # prepare symbols file for the GNU toolchain (linker) for DSO PMDAs
 VERSION_SCRIPT_MAKERULE = \
 	@rm -f $@; \

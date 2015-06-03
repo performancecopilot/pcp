@@ -44,6 +44,7 @@ _filter_pmie()
 }
 
 status=1	# failure is the default!
+$sudo rm -f $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
