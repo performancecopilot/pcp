@@ -23,9 +23,6 @@
 */
 #include "netstats.h"
 
-#define	MAXLVM		2048
-#define	MAXMDD		256
-
 #define	MAXDKNAM	32
 
 /************************************************************************/

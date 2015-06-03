@@ -200,10 +200,9 @@ photosyst(struct sstat *si)
 	static pmID	pmids[SYST_NMETRICS];
 	static pmDesc	descs[SYST_NMETRICS];
 	pmResult	*result;
-	pmInDom		indom;
 	size_t		size;
 	char		**insts;
-	int		*ids, sts, i;
+	int		*ids, i;
 
 	if (!setup)
 	{

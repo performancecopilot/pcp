@@ -118,7 +118,7 @@ photoproc(struct tstat *tasks, int *taskslen)
 	static pmDesc	descs[TASK_NMETRICS];
 	pmResult	*result;
 	char		**insts;
-	int		*pids, count, sts, i;
+	int		*pids, count, i;
 
 	if (!setup)
 	{
