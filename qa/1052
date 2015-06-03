@@ -268,11 +268,11 @@ _drain_output
 
 # Let's test the ceph support by running the 'generate_ceph_metadata'
 # script on some canned data.
-mkdir ${tmp}/ceph
+mkdir -p ${tmp}/ceph
 cp ${json_qa_dir}/ceph_data1.json ${tmp}/ceph/data.json
 # Use the generate_ceph_metadata script to convert the ceph schema
 # into metadata.
-${ceph_script} -o ${tmp}/ceph/metadata.json -t ${json_qa_dir}/ceph_schema1.json
+$python ${ceph_script} -o ${tmp}/ceph/metadata.json -t ${json_qa_dir}/ceph_schema1.json
 
 # On this fetch, the 'nsources' static metric should be increased and
 # the new data source should be present. Notice we aren't grabbing all

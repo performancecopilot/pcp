@@ -116,13 +116,9 @@ Requires: python%{?default_python}
 Requires: pcp-libs = %{version}-%{release}
 %if 0%{?default_python} == 3
 Requires: python3-pcp = %{version}-%{release}
-Requires: python3-jsonpointer
-Requires: python3-six
 %endif
 %if !%{disable_python2} && 0%{?default_python} != 3
 Requires: python-pcp = %{version}-%{release}
-Requires: python-jsonpointer
-Requires: python-six
 %endif
 Obsoletes: pcp-gui-debuginfo
 Obsoletes: pcp-pmda-nvidia
@@ -1074,6 +1070,28 @@ collecting metrics about the Unbound DNS Resolver.  The PMDA is written
 in Python.
 # end pcp-pmda-unbound
 
+#
+# pcp-pmda-json
+#
+%package pmda-json
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for JSON data
+URL: http://www.pcp.io
+%if !%{disable_python3}
+Requires: python3-pcp
+Requires: python3-jsonpointer
+Requires: python3-six
+%else
+Requires: python-pcp
+Requires: python-jsonpointer
+Requires: python-six
+%endif
+%description pmda-json
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics output in JSON.  The PMDA is written in Python.
+# end pcp-pmda-json
+
 %endif 
 
 #
@@ -1340,7 +1358,7 @@ Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
 Requires: pcp-pmda-lustrecomm
 %if !%{disable_python2} || !%{disable_python3}
-Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound
+Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-json
 Requires: pcp-system-tools 
 %endif
 Requires: pcp-pmda-rpm
@@ -1368,7 +1386,7 @@ Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
 Requires: pcp-pmda-lustrecomm
 %if !%{disable_python2} || !%{disable_python3}
-Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound 
+Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-json
 %endif
 Requires: pcp-pmda-rpm
 Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
@@ -1621,6 +1639,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   grep -E -v 'gluster' |\
   grep -E -v 'zswap' |\
   grep -E -v 'unbound' |\
+  grep -E -v 'json' |\
 %endif
 
   sed -e 's#^#'%{_pmdasdir}'\/#' >base_pmdas.list
@@ -2164,6 +2183,10 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %files pmda-unbound 
 %{_pmdasdir}/unbound 
+%endif
+
+%files pmda-json
+%{_pmdasdir}/json
 %endif
 
 %files pmda-apache 
