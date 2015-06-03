@@ -1,0 +1,34 @@
+#!gmake
+
+ifdef PCP_CONF
+include $(PCP_CONF)
+else
+include $(PCP_DIR)/etc/pcp.conf
+endif
+PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
+include $(PCP_INC_DIR)/builddefs
+
+# special variant of SUBDIRS_MAKERULE for running QA in the tree
+#
+SUBDIRS_MAKERULE = \
+	@for d in `echo $^ `; do \
+	    if test -d "$$d" ; then \
+		if test -f "$$d/GNUmakefile.install"; then \
+		    $(MAKE) --silent -C $$d -f GNUmakefile.install $@ || exit $$?; \
+		else \
+		    $(MAKE) --silent -C $$d $@ || exit $$?; \
+		fi; \
+	    fi; \
+	done
+
+TESTDIR = $(PCP_VAR_DIR)/testsuite/gpfs
+
+QAFILES = mmpmon_fsios.txt
+
+LSRCFILES = $(QAFILES)
+
+default default_pcp setup: 
+
+install install_pcp:
+
+include $(BUILDRULES)
