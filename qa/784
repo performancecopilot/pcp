@@ -25,9 +25,6 @@ $python -c "from pcp import pmda" >/dev/null 2>&1
 # use our own libmicmgmt stub for QA
 export PMDAMIC_MPSS_PYTHON_DIR="$here/mic"
 
-$python -c "from micmgmt import *" >/dev/null 2>&1
-[ $? -eq 0 ] || _notrun "python micmgmt module not found"
-
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
@@ -46,15 +43,16 @@ _filter()
 
 
 # real QA test starts here
+# need to do all these as sudo so we can change to pcp user
 
-domain=137
+domain=138
 
 # real QA test starts here
 echo "== Finding mic metrics" | tee -a $seq.full
-PCP_PYTHON_PMNS=root $python "$pmda_script" 2>/dev/null > $tmp.root
+$sudo -E PCP_PYTHON_PMNS=root $python "$pmda_script" 2>/dev/null > $tmp.root
 
 echo "== Testing mic metrics" | tee -a $seq.full
-dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
+$sudo -E dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
 open pipe $python_path $pmda_script
 getdesc on
 desc mic.mgmt.numcards
