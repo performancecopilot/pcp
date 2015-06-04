@@ -1,4 +1,10 @@
 hostmetrics {
+	hinv.ncpu		NRCPUS
+	hinv.ndisk		NRDISK
+	hinv.ninterface		NRINTF
+	hinv.map.dmname		MAP_DMNAME
+	hinv.map.mdname		MAP_MDNAME
+
 	hinv.pagesize		HOST_PAGESIZE
 	kernel.all.hz		HOST_HERTZ
 

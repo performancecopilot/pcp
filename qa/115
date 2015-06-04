@@ -31,6 +31,7 @@ _cleanup()
 }
 
 status=1	# failure is the default!
+$sudo rm -f $tmp.* $seq.full
 signal=$PCP_BINADM_DIR/pmsignal
 needclean=false
 trap "_cleanup; exit \$status" 0 1 2 3 15

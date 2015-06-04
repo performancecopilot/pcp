@@ -8,6 +8,7 @@
 ** figures.
 **
 ** Copyright (C) 2000-2010 Gerlof Langeveld
+** Copyright (C) 2015 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -94,7 +95,7 @@ generic_samp(double curtime, double delta,
 	register int	i, curline, statline;
 	int		firstproc = 0, plistsz, alistsz /*, killpid, killsig */;
 	int		lastchar;
-	char		format1[16], format2[16], hhmm[16];
+	char		format1[16], format2[16];
 	char		*statmsg = NULL, statbuf[80];
 	char		 *lastsortp, curorder, autoorder;
 	char		buf[33];
@@ -217,13 +218,13 @@ generic_samp(double curtime, double delta,
         	/*
         	** print general headerlines
         	*/
-        	convdate(curtime, format1);       /* date to ascii string   */
-        	convtime(curtime, format2);       /* time to ascii string   */
+        	convdate(curtime, format1, sizeof(format1)-1); /* ascii date */
+        	convtime(curtime, format2, sizeof(format2)-1); /* ascii time */
 
 		if (screen)
 			attron(A_REVERSE);
 
-                int seclen	= val2elapstr(delta, buf);
+                int seclen	= val2elapstr(delta, buf, sizeof(buf)-1);
                 int lenavail 	= (screen ? COLS : linelen) -
 						46 - seclen - nodenamelen;
                 int len1	= lenavail / 3;
@@ -702,6 +703,12 @@ generic_samp(double curtime, double delta,
 			   ** branch to certain time stamp
                            */
                            case MSAMPBRANCH:
+#if 1
+				statmsg = "Not yet supported in this atop!";
+				beep();
+				break;
+#else
+				char hhmm[16];
                                 if (!rawreadflag)
                                 {
                                         statmsg = "Only allowed when viewing "
@@ -740,6 +747,7 @@ generic_samp(double curtime, double delta,
 				if (sellist)   free(sellist);
 
                                 return lastchar;
+#endif
 
 			   /*
 			   ** sort order automatically depending on
@@ -1007,7 +1015,7 @@ generic_samp(double curtime, double delta,
 				/* but, need different sampling vs reporting intervals */
 				if (rawreadflag)
 				{
-					statmsg = "Not possible when viewing "
+					statmsg = "Not yet possible when viewing "
 					          "raw file!";
 					beep();
 					break;
@@ -2168,7 +2176,7 @@ static struct helptext {
 	{"\t'%c'  - show next     sample in raw file\n",	MSAMPNEXT},
 	{"\t'%c'  - show previous sample in raw file\n",	MSAMPPREV},
 	{"\t'%c'  - branch to certain time in raw file\n",	MSAMPBRANCH},
-	{"\t'%c'  - rewind to begin of raw file\n",		MRESET},
+	{"\t'%c'  - rewind to beginning of raw file\n",		MRESET},
 	{"\n",							' '},
 	{"Miscellaneous commands:\n",				' '},
 	{"\t'%c'  - change interval-timer (0 = only manual trigger)\n",

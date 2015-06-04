@@ -9,6 +9,7 @@
 ** 
 ** Copyright (C) 2009-2010 JC van Winkel
 ** Copyright (C) 2000-2012 Gerlof Langeveld
+** Copyright (C) 2015 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -1408,15 +1409,17 @@ prisyst(struct sstat *sstat, int curline, int nsecs, int avgval,
 
                 printg("WWW | reqs  %s | totKB %s | byt/rq %s | iwork %s |"
                        " bwork %s |",
-                        val2valstr(sstat->www.accesses,  format1, 6,
-                                                         avgval, nsecs),
-                        val2valstr(sstat->www.totkbytes, format2, 6,
-                                                         avgval, nsecs),
-                        val2valstr(sstat->www.accesses ?
-                            sstat->www.totkbytes*1024/sstat->www.accesses : 0,
-                                                         format3, 5, 0, 0),
-                        val2valstr(sstat->www.iworkers,  format4, 6, 0, 0),
-                        val2valstr(sstat->www.bworkers,  format5, 6, 0, 0) );
+                        val2valstr(sstat->www.accesses,
+                                format1, sizeof(format1)-1, 6, avgval, nsecs),
+                        val2valstr(sstat->www.totkbytes,
+                                format2, sizeof(format2)-1, 6, avgval, nsecs),
+                        val2valstr(sstat->www.accesses == 0 ? 0 :
+                                sstat->www.totkbytes*1024/sstat->www.accesses,
+                                format3, sizeof(format3)-1, 5, 0, 0),
+                        val2valstr(sstat->www.iworkers,
+                                format4, sizeof(format4)-1, 6, 0, 0),
+                        val2valstr(sstat->www.bworkers,
+                                format5, sizeof(format5)-1, 6, 0, 0) );
                 if (!screen) 
                 {
                         printg("\n");

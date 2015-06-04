@@ -16,7 +16,7 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 CMDTARGET = pcp-atop
-LLDLIBS = $(PCPLIB) $(LIB_FOR_NCURSES) $(LIB_FOR_MATH)
+LLDLIBS = $(PCP_GUILIB) $(LIB_FOR_NCURSES) $(LIB_FOR_MATH)
 LCFLAGS = $(NCURSES_CFLAGS)
 GENMAPS = $(shell echo *.map | sed -e 's/\.map/\.h/g')
 LDIRT = pmgenmap.sh $(GENMAPS)

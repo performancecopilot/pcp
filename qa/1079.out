@@ -1503,3 +1503,6 @@ NET | p2p1      0% | pcki       4 | pcko       1 | si    2 Kbps | so    0 Kbps |
 === std err
 === done
 
+Recording an archive using atop
+Replaying an archive using atop
+done

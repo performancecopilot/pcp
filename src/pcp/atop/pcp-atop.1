@@ -35,7 +35,7 @@ Writing and reading raw logfiles:
 ] [\-g|\-m|\-d|\-n|\-u|\-p|\-s|\-c|\-v|\-o|\-y] [\-C|\-M|\-D|\-N|\-A] [\-fFG1xR] [\-L linelen] [\-Plabel[,label]...]
 .SH DESCRIPTION
 The program
-.I pcp-atop
+.B pcp-atop
 is an interactive monitor to view various aspects of load on a system.
 It shows the occupation of the most critical hardware resources 
 (from a performance point of view) on system level, i.e. cpu, memory, disk
@@ -60,15 +60,32 @@ The intervals are repeated till the number of
 (specified as command argument) is reached, or till the key 'q' is pressed
 in interactive mode.
 .PP
+When invoked via the
+.BR pcp (1)
+command, the
+.BR \-h /\c
+.BR \-\-host ,
+.BR \-a /\c
+.BR \-\-archive ,
+.BR \-O /\c
+.BR \-\-origin ,
+.BR \-s /\c
+.BR \-\-samples ,
+.BR \-t /\c
+.BR \-\-interval ,
+.BR \-Z /\c
+.BR \-\-timezone
+and several other options become indirectly available.
+.PP
 When 
-.I pcp-atop
+.B pcp-atop
 is started, it checks whether the standard output channel is connected to a
 screen, or to a file/pipe. In the first case it produces screen control 
 codes (via the ncurses library) and behaves interactively; in the second case
 it produces flat ASCII-output.
 .PP
 In interactive mode, the output of 
-.I pcp-atop
+.B pcp-atop
 scales dynamically to the current dimensions of the screen/window.
 .br
 If the window is resized horizontally, columns will be added or removed
@@ -80,26 +97,26 @@ If the window is resized vertically, lines of the process/thread list
 will be added or removed automatically.
 .PP
 Furthermore in interactive mode the output of 
-.I pcp-atop
+.B pcp-atop
 can be controlled by pressing particular keys.
 However it is also possible to specify such key as
 .B flag
 on the command line. In that case
-.I pcp-atop
+.B pcp-atop
 switches to the indicated mode on beforehand; this mode can 
 be modified again interactively. Specifying such key as flag is especially
 useful when running
-.I pcp-atop
+.B pcp-atop
 with output to a pipe or file (non-interactively).
 These flags are the same as the keys that can be pressed in interactive
 mode (see section INTERACTIVE COMMANDS).
 .br
 Additional flags are available to support storage of
-.I pcp-atop
+.B pcp-atop
 data in PCP archive format (see section PCP DATA STORAGE).
 .SH COLORS
 For the resource consumption on system level,
-.I pcp-atop
+.B pcp-atop
 uses colors to indicate that a critical occupation percentage has
 been (almost) reached. 
 A critical occupation percentage means that is likely that this load
@@ -110,7 +127,7 @@ might be more noticeable for applications/user than a CPU with a busy
 percentage of 90%.
 .br
 Currently
-.I pcp-atop
+.B pcp-atop
 uses the following default values to calculate a weighted percentage
 per resource:
 .PP
@@ -162,7 +179,7 @@ as well (see separate man-page of pcp-atoprc).
 With the key 'x' (or flag \-x), the use of colors can be suppressed.
 .SH INTERACTIVE COMMANDS
 When running
-.I pcp-atop
+.B pcp-atop
 interactively (no output redirection), keys can be pressed to control the
 output. In general, lower case keys can be used to show other information for
 the active processes and upper case keys can be used to influence the
@@ -379,7 +396,7 @@ Whether this key is active or not can be seen in the header line.
 .B z
 The pause key can be used to freeze the current situation in order to
 investigate the output on the screen. While 
-.I pcp-atop
+.B pcp-atop
 is paused, the keys described above can be pressed to show other
 information about the current list of processes.
 Whenever the pause key is pressed again,
@@ -396,7 +413,7 @@ only be triggered manually by pressing the key 't'.
 Trigger a new sample manually. This key can be pressed if the current sample
 should be finished before the timer has exceeded, or if no timer is set at all
 (interval timer defined as 0). In the latter case
-.I pcp-atop
+.B pcp-atop
 can be used as a stopwatch to measure the load being caused by a
 particular application transaction, without knowing on beforehand how many
 seconds this transaction will last.
@@ -467,7 +484,7 @@ Whether this key is active or not can be seen in the header line.
 .TP 5
 .B G
 By default, 
-.I pcp-atop
+.B pcp-atop
 shows/accumulates the processes that are alive and the processes
 that are exited during the last interval. With this key (toggle),
 showing/accumulating the processes that are exited can be suppressed.
@@ -481,7 +498,7 @@ By default only the lines are shown about system resources (CPUs, paging,
 logical volumes, disks, network interfaces) that really have been active
 during the last interval.
 With this key you can force
-.I pcp-atop
+.B pcp-atop
 to show lines of inactive resources as well.
 .br
 Whether this key is active or not can be seen in the header line.
@@ -509,7 +526,7 @@ By default lines are shown of all CPUs, disks and network interfaces
 which have been active during the last interval.
 Limiting these lines can be useful on systems with huge number CPUs,
 disks or interfaces in order to be able to run
-.I pcp-atop
+.B pcp-atop
 on a screen/window with e.g. only 24 lines.
 .br
 For all mentioned resources the maximum number of lines can be specified
@@ -559,9 +576,10 @@ Redraw the screen.
 In order to store system and process level statistics for long-term
 analysis (e.g. to check the system load and the active processes running
 yesterday between 3:00 and 4:00 PM),
-.I pcp-atop
-can store the system and process level statistics in
-the PCP archive format.
+.B pcp-atop
+can store the system and process level statistics in the PCP archive format,
+as an archive folio (see
+.BR mkaf (1)).
 .br
 By default only processes which have been active during the interval
 are stored in the raw file. When the flag
@@ -572,24 +590,12 @@ The interval (default: 10 seconds) and number of samples (default: infinite)
 can be passed as last arguments. Instead of the number of samples, the flag
 .B -S
 can be used to indicate that
-.I pcp-atop
+.B pcp-atop
 should finish anyhow before midnight.
 .PP
-A PCP archive can be read and visualized again with the flag
+A PCP archive folio can be read and visualized again with the flag
 .B -r
-followed by the filename. If no filename is specified, the file
-.BI /var/log/pcp/pmlogger/<pmcd.hostname>/YYYYMMDD
-is opened for input (where
-.I YYYYMMDD
-are digits representing the current date).
-If a filename is specified in the format YYYYMMDD (representing any valid
-date), the file
-.BI /var/log/pcp/pmlogger/<pmcd.hostname>/YYYYMMDD
-is opened.
-If a filename with the symbolic name
-.BI y
-is specified, yesterday's daily logfile is opened
-(this can be repeated so 'yyyy' indicates the logfile of four days ago). 
+followed by the filename.
 .br
 The samples from the file can be viewed interactively by using the key 't'
 to show the next sample, the key 'T' to show the previous sample, the
@@ -617,7 +623,7 @@ value (several times) and started by zero again,
 so do not rely on these figures.
 .PP
 For every sample
-.I pcp-atop
+.B pcp-atop
 first shows the lines related to system level activity. If a particular 
 system resource has not been used during the interval, the entire line
 related to this resource is suppressed. So the number of system level lines
@@ -628,7 +634,7 @@ interval. This list is by default sorted on cpu consumption, but this order
 can be changed by the keys which are previously described.
 .PP
 If values have to be shown by
-.I pcp-atop
+.B pcp-atop
 which do not fit in the column width,
 another format is used. If e.g. a cpu-consumption of 233216 milliseconds
 should be shown in a column width of 4 positions, it is shown as `233s'
@@ -1141,13 +1147,13 @@ due to system call handling.
 .B THR
 Total number of threads within this process.
 All related threads are contained in a thread group, represented by
-.I pcp-atop
+.B pcp-atop
 as one line or as a separate line when the 'y' key (or -y flag) is active.
 
 On Linux 2.4 systems it is hardly possible to determine
 which threads (i.e. processes) are related to the same thread group.
 Every thread is represented by
-.I pcp-atop
+.B pcp-atop
 as a separate line.
 .PP
 .TP 9
@@ -1477,42 +1483,28 @@ TGID (group number of related tasks/threads) and is_process (y/n).
 To monitor the current system load interactively with an interval of 5 seconds:
 .PP
 .TP 12
-.B \  pcp-atop 5
+.B \  pcp\ atop 5
 .PP
 To monitor the system load and write it to a file (in plain ASCII)
 with an interval of one minute during half an hour with active
 processes sorted on memory consumption:
 .PP
 .TP 12
-.B \  pcp-atop -M 60 30 > /log/pcp-atop.mem
+.B \  pcp\ atop -M 60 30 > /log/pcp-atop.mem
 .PP
-Store information about the system and process activity in binary compressed
-form to a file with an interval of ten minutes during an hour:
+Store information about the system and process activity in a PCP archive
+folio with an interval of ten minutes during an hour:
 .PP
 .TP 12
-.B \  pcp-atop -w /tmp/pcp-atop.raw 600 6
+.B \  pcp\ atop -w /tmp/pcp-atop 600 6
 .PP
 View the contents of this file interactively:
 .PP
-.B \  pcp-atop -r /tmp/pcp-atop.raw
+.B \  pcp\ atop -r /tmp/pcp-atop
 .PP
 View the processor and disk utilization of this file in parseable format:
 .PP
-.B \  pcp-atop -PCPU,DSK -r /tmp/pcp-atop.raw
-.PP
-View the contents of today's standard logfile interactively:
-.PP
-.B \  pcp-atop -r
-.PP
-View the contents of the standard logfile of the day before yesterday
-interactively:
-.PP
-.B \  pcp-atop -r yy
-.PP
-View the contents of the standard logfile of 2014, June 7 from
-02:00 PM onwards interactively:
-.PP
-.B \  pcp-atop -r 20140607 -b 14:00
+.B \  pcp atop -PCPU,DSK -r /tmp/pcp-atop.raw
 .PP
 .SH FILES
 .PP
@@ -1539,6 +1531,7 @@ command are not available in
 .BR pcp-atop .
 .SH SEE ALSO
 .BR pcp (1),
+.BR mkaf (1),
 .BR pcp-atopsar (1),
 .BR PCPIntro (1)
 and

@@ -1,7 +1,12 @@
 #!gmake
 
-TOPDIR = ../..
-include $(TOPDIR)/src/include/builddefs
+ifdef PCP_CONF
+include $(PCP_CONF)
+else
+include $(PCP_DIR)/etc/pcp.conf
+endif
+PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
+include $(PCP_INC_DIR)/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/gluster
 
@@ -14,10 +19,6 @@ LSRCFILES = $(SCRIPT) $(INFOFILES) $(PROFFILES)
 default default_pcp setup:
 
 install install_pcp:
-	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 755 $(SCRIPT) $(TESTDIR)/$(SCRIPT)
-	$(INSTALL) -m 644 $(INFOFILES) $(PROFFILES) $(TESTDIR)
-	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
 
 include $(BUILDRULES)
 

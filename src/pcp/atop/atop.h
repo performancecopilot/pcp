@@ -5,11 +5,9 @@
 ** the system on system-level as well as process-level.
 **
 ** Include-file describing miscellaneous constants and function-prototypes.
-** ================================================================
-** Author:      Gerlof Langeveld
-** E-mail:      gerlof.langeveld@atoptool.nl
-** Date:        November 1996
-** LINUX-port:  June 2000
+**
+** Copyright (C) 1996-2014 Gerlof Langeveld
+** Copyright (C) 2015 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -88,7 +86,6 @@ extern char		deviatonly;
 extern char		usecolors;
 extern char		threadview;
 extern char		calcpss;
-extern char		rawname[];
 extern char		rawreadflag;
 extern unsigned int	begintime, endtime;
 extern char		flaglist[];
@@ -137,15 +134,15 @@ void		generic_usage(void);
 ** miscellaneous prototypes
 */
 int		atopsar(int, char *[]);
-char   		*convtime(double, char *);
-char   		*convdate(double, char *);
+char   		*convtime(double, char *, size_t);
+char   		*convdate(double, char *, size_t);
 int   		hhmm2secs(char *, unsigned int *);
 
-char   		*val2valstr(count_t, char *, int, int, int);
-char   		*val2memstr(count_t, char *, int, int, int);
-char		*val2cpustr(count_t, char *);
-char            *val2Hzstr(count_t, char *);
-int             val2elapstr(int, char *);
+char   		*val2valstr(count_t, char *, size_t, int, int, int);
+char   		*val2memstr(count_t, char *, size_t, int, int, int);
+char		*val2cpustr(count_t, char *, size_t);
+char            *val2Hzstr(count_t, char *, size_t);
+int             val2elapstr(int, char *, size_t);
 
 int		compcpu(const void *, const void *);
 int		compdsk(const void *, const void *);
@@ -160,7 +157,7 @@ int		intfcompar(const void *, const void *);
 
 count_t		subcount(count_t, count_t);
 void  		rawread(struct pmOptions *);
-void		rawwrite(struct pmOptions *);
+void		rawwrite(const char *, const char *, struct timeval *, unsigned int, char);
 
 int 		numeric(char *);
 void		getalarm(int);

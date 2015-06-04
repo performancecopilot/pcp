@@ -50,5 +50,5 @@ procmetrics {
 	proc.id.fsuid_nm		TASK_GEN_FSUIDNM
 
 	# end marker - provides count
-	_				TASK_NMETRICS
+	.				TASK_NMETRICS
 }
