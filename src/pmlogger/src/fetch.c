@@ -21,6 +21,37 @@
 
 #include "logger.h"
 
+static int
+myLocalFetch(__pmContext *ctxp, int numpmid, pmID pmidlist[], __pmPDU **pdup)
+{
+    pmResult	*result;
+    pmID	*newlist = NULL;
+    int		newcnt, have_dm, n;
+
+    /* for derived metrics, may need to rewrite the pmidlist */
+    have_dm = newcnt = __pmPrepareFetch(ctxp, numpmid, pmidlist, &newlist);
+    if (newcnt > numpmid) {
+	/* replace args passed into myFetch */
+	numpmid = newcnt;
+	pmidlist = newlist;
+    }
+
+    if ((n = __pmFetchLocal(ctxp, numpmid, pmidlist, &result)) < 0) {
+	if (newlist != NULL)
+	    free(newlist);
+	return n;
+    }
+
+    /* process derived metrics, if any */
+    if (have_dm) {
+	__pmFinishResult(ctxp, n, &result);
+	if (newlist != NULL)
+	    free(newlist);
+    }
+
+    return __pmEncodeResult(0, result, pdup);
+}
+
 int
 myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 {
@@ -37,8 +68,12 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 	if (ctxp == NULL)
 	    return PM_ERR_NOCONTEXT;
 	if (ctxp->c_type != PM_CONTEXT_HOST) {
+	    if (ctxp->c_type == PM_CONTEXT_LOCAL)
+		n = myLocalFetch(ctxp, numpmid, pmidlist, pdup);
+	    else
+		n = PM_ERR_NOTHOST;
 	    PM_UNLOCK(ctxp->c_lock);
-	    return PM_ERR_NOTHOST;
+	    return n;
 	}
     }
     else
@@ -109,12 +144,13 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 			pmResult	*result;
 			__pmPDU		*npb;
 			int		sts;
+
 			if ((sts = __pmDecodeResult(pb, &result)) < 0) {
 			    n = sts;
 			}
 			else {
 			    __pmFinishResult(ctxp, sts, &result);
-			    if ((sts = __pmEncodeResult(ctxp->c_pmcd->pc_fd, result, &npb)) < 0)
+			    if ((sts = __pmEncodeResult(0, result, &npb)) < 0)
 				n = sts;
 			    else {
 				/* using PDU with derived metrics */

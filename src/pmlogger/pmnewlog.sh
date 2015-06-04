@@ -70,6 +70,8 @@ pmlogger options:
   -L, --linger           run even if not primary logger instance and nothing to log
   -m=MSG, --note=MSG     descriptive note to be added to the port map file
   --namespace
+  --spec-local
+  -o, --local-PMDA       metrics sourced without connecting to pmcd
   -P, --primary          execute as primary logger instance
   -r, --report           report record sizes and archive growth rate
   -t=DELTA, --interval=DELTA  default logging interval
@@ -277,11 +279,11 @@ do
 # pmlogger flags passed through
 #
 
-	-L|-r|-y)
+	-L|-o|-r|-y)
 		args="${args}$1 "
 		;;
 
-	-D|-m|-t|-T|-v)
+	-D|-K|-m|-t|-T|-v)
 		args="${args}$1 $2 "
 		shift
 		;;

@@ -1,0 +1,75 @@
+#!/bin/sh
+# PCP QA Test No. 948
+# pmlogger local context functionality
+#
+# Copyright (c) 2015 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp.*
+    $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.config
+log mandatory on 1 sec {
+    kernel.all.hz
+    hinv.pagesize
+}
+End-of-File
+
+_filter_kernel()
+{
+    sed \
+	-e "s/value $hertz/value HZ/g" \
+	-e "s/value $pagesz/value PAGESZ/g" \
+	-e 's/TIMESTAMP  /              /g' \
+    #end
+}
+
+# real QA test starts here
+hertz=`pmprobe -v kernel.all.hz | $PCP_AWK_PROG '{ print $3 }'`
+pagesz=`pmprobe -v hinv.pagesize | $PCP_AWK_PROG '{ print $3 }'`
+
+# ensure pmcd is unavailable while this test is running
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+pmlogger -c $tmp.config -l $tmp.log -T 5 --local-PMDA $tmp >$tmp.err 2>&1
+
+_filter_pmlogger_log <$tmp.log
+
+echo "verifying the archive"
+pmlogcheck $tmp
+
+# expect 3, 4 or 5 sample lines for each metric
+echo PAGESZ samples:
+pmdumplog $tmp \
+	| _filter_pmdumplog \
+	| grep 'hinv.pagesize' \
+	| _filter_kernel \
+	| sed -e 4d -e 5d
+echo HZ samples:
+pmdumplog $tmp \
+	| _filter_pmdumplog \
+	| grep 'kernel.all.hz' \
+	| _filter_kernel \
+	| sed -e 4d -e 5d
+
+echo "Full log dump:" >> $seq.full
+pmdumplog $tmp >> $seq.full
+
+# success, all done
+status=0
+exit

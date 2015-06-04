@@ -1,0 +1,21 @@
+QA output created by 948
+Waiting for pmcd to terminate ...
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+pmlogger: End of run time, exiting
+
+Log finished DATE
+verifying the archive
+PAGESZ samples:
+              60.1.11 (hinv.pagesize): value PAGESZ
+              60.1.11 (hinv.pagesize): value PAGESZ
+              60.1.11 (hinv.pagesize): value PAGESZ
+HZ samples:
+              60.0.48 (kernel.all.hz): value HZ
+              60.0.48 (kernel.all.hz): value HZ
+              60.0.48 (kernel.all.hz): value HZ
+Starting pmcd ... 
+Starting pmlogger ... 

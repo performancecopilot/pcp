@@ -248,7 +248,6 @@ ruleset
 End-of-File
 
 pmie -v -c $tmp.config -t 0.5sec -T 2sec >$tmp.out 2>&1
-cp $tmp.config /tmp/eek
 grep expr $tmp.out >>$seq.full
 grep -v expr $tmp.out | _filter
 

@@ -39,16 +39,17 @@ int		primary;		/* Non-zero for primary pmlogger */
 char	    	*archBase;		/* base name for log files */
 char		*pmcd_host;
 char		*pmcd_host_conn;
-struct timeval	epoch;
+int		host_context = PM_CONTEXT_HOST;	 /* pmcd / local context mode */
 int		archive_version = PM_LOG_VERS02; /* Type of archive to create */
 int		linger;			/* linger with no tasks/events */
 int		rflag;			/* report sizes */
+struct timeval	epoch;
 struct timeval	delta = { 60, 0 };	/* default logging interval */
 int		exit_code;		/* code to pass to exit (zero/signum) */
 int		qa_case;		/* QA error injection state */
 char		*note;			/* note for port map file */
 
-static int 	    pmcdfd;		/* comms to pmcd */
+static int 	    pmcdfd = -1;	/* comms to pmcd */
 static __pmFdSet    fds;		/* file descriptors mask for select */
 static int	    numfds;		/* number of file descriptors in mask */
 
@@ -464,6 +465,8 @@ static pmLongOptions longopts[] = {
     { "log", 1, 'l', "FILE", "redirect diagnostics and trace output" },
     { "linger", 0, 'L', 0, "run even if not primary logger instance and nothing to log" },
     { "note", 1, 'm', "MSG", "descriptive note to be added to the port map file" },
+    PMOPT_SPECLOCAL,
+    { "local-PMDA", 0, 'o', 0, "metrics sourced without connecting to pmcd" },
     PMOPT_NAMESPACE,
     { "PID", 1, 'p', "PID", "Log specified metric for the lifetime of the pid" },
     { "primary", 0, 'P', 0, "execute as primary logger instance" },
@@ -482,7 +485,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "c:D:h:l:Lm:n:p:Prs:T:t:uU:v:V:x:y?",
+    .short_options = "c:D:h:l:K:Lm:n:op:Prs:T:t:uU:v:V:x:y?",
     .long_options = longopts,
     .short_usage = "[options] archive",
 };
@@ -561,6 +564,14 @@ main(int argc, char **argv)
 	    logfile = opts.optarg;
 	    break;
 
+	case 'K':
+	    if ((endnum = __pmSpecLocalPMDA(opts.optarg)) != NULL) {
+		pmprintf("%s: __pmSpecLocalPMDA failed: %s\n",
+			pmProgname, endnum);
+		opts.errors++;
+	    }
+	    break;
+
 	case 'L':		/* linger if not primary logger */
 	    linger = 1;
 	    break;
@@ -573,6 +584,11 @@ main(int argc, char **argv)
 
 	case 'n':		/* alternative name space file */
 	    pmnsfile = opts.optarg;
+	    break;
+
+	case 'o':		/* local context mode, no pmcd */
+	    host_context = PM_CONTEXT_LOCAL;
+	    opts.Lflag = 1;
 	    break;
 
 	case 'p':
@@ -678,10 +694,18 @@ main(int argc, char **argv)
 	}
     }
 
-    if (primary && pmcd_host != NULL) {
+    if (pmcd_host_conn != NULL && primary) {
 	pmprintf(
 	    "%s: -P and -h are mutually exclusive; use -P only when running\n"
 	    "%s on the same (local) host as the PMCD to which it connects.\n",
+		pmProgname, pmProgname);
+	opts.errors++;
+    }
+
+    if (pmcd_host_conn != NULL && host_context == PM_CONTEXT_LOCAL) {
+	pmprintf(
+	    "%s: -o and -h are mutually exclusive; use -o only when running\n"
+	    "%s on the same (local) host as the DSO PMDA(s) being used.\n",
 		pmProgname, pmProgname);
 	opts.errors++;
     }
@@ -716,9 +740,6 @@ main(int argc, char **argv)
     /* base name for archive is here ... */
     archBase = argv[opts.optind];
 
-    if (pmcd_host_conn == NULL)
-	pmcd_host_conn = "local:";
-
     /* initialise access control */
     if (__pmAccAddOp(PM_OP_LOG_ADV) < 0 ||
 	__pmAccAddOp(PM_OP_LOG_MAND) < 0 ||
@@ -734,7 +755,12 @@ main(int argc, char **argv)
 	}
     }
 
-    if ((ctx = pmNewContext(PM_CONTEXT_HOST, pmcd_host_conn)) < 0) {
+    if (host_context == PM_CONTEXT_LOCAL)
+	pmcd_host_conn = "local context";
+    else if (pmcd_host_conn == NULL)
+	pmcd_host_conn = "local:";
+
+    if ((ctx = pmNewContext(host_context, pmcd_host_conn)) < 0) {
 	fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n", pmProgname, pmcd_host_conn, pmErrStr(ctx));
 	exit(1);
     }
@@ -745,7 +771,7 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    if (rsc_fd == -1) {
+    if (rsc_fd == -1 && host_context != PM_CONTEXT_LOCAL) {
 	/* no -x, so register client id with pmcd */
 	__pmSetClientIdArgv(argc, argv);
     }
@@ -753,12 +779,14 @@ main(int argc, char **argv)
     /*
      * discover fd for comms channel to PMCD ... 
      */
-    if ((ctxp = __pmHandleToPtr(ctx)) == NULL) {
-	fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", pmProgname, ctx);
-	exit(1);
+    if (host_context != PM_CONTEXT_LOCAL) {
+	if ((ctxp = __pmHandleToPtr(ctx)) == NULL) {
+	    fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", pmProgname, ctx);
+	    exit(1);
+	}
+	pmcdfd = ctxp->c_pmcd->pc_fd;
+	PM_UNLOCK(ctxp->c_lock);
     }
-    pmcdfd = ctxp->c_pmcd->pc_fd;
-    PM_UNLOCK(ctxp->c_lock);
 
     if (configfile != NULL) {
 	if ((yyin = fopen(configfile, "r")) == NULL) {
@@ -907,7 +935,8 @@ main(int argc, char **argv)
 	    __pmFD_SET(ctlfds[i], &fds);
     }
 #ifndef IS_MINGW
-    __pmFD_SET(pmcdfd, &fds);
+    if (pmcdfd != -1)
+	__pmFD_SET(pmcdfd, &fds);
 #endif
     if (rsc_fd != -1)
 	__pmFD_SET(rsc_fd, &fds);
@@ -1213,9 +1242,11 @@ disconnect(int sts)
 	fprintf(stderr, "This is fatal for the primary logger.");
 	exit(1);
     }
-    close(pmcdfd);
-    __pmFD_CLR(pmcdfd, &fds);
-    pmcdfd = -1;
+    if (pmcdfd != -1) {
+	close(pmcdfd);
+	__pmFD_CLR(pmcdfd, &fds);
+	pmcdfd = -1;
+    }
     numfds = maxfd() + 1;
     if ((ctx = pmWhichContext()) >= 0)
 	ctxp = __pmHandleToPtr(ctx);
