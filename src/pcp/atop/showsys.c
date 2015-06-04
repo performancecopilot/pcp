@@ -9,6 +9,7 @@
 **
 ** Copyright (C) 2009 JC van Winkel
 ** Copyright (C) 2000-2012 Gerlof Langeveld
+** Copyright (C) 2015 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -281,7 +282,7 @@ sysprt_PRCSYS(void *notused, void *q, int badness, int *color)
 {
         extraparam *as=q;
         static char buf[16]="sys   ";
-        val2cpustr(as->totst, buf+6);
+        val2cpustr(as->totst, buf+6, sizeof(buf)-7);
         return buf;
 }
 
@@ -292,7 +293,7 @@ sysprt_PRCUSER(void *notused, void *q, int badness, int *color)
 {
         extraparam *as=q;
         static char buf[16]="user  ";
-        val2cpustr(as->totut, buf+6);
+        val2cpustr(as->totut, buf+6, sizeof(buf)-7);
         return buf;
 }
 
@@ -303,7 +304,7 @@ sysprt_PRCNPROC(void *notused, void *q, int badness, int *color)
 {
         extraparam *as=q;
         static char buf[16]="#proc     ";
-        val2valstr(as->nproc, buf+6, 6, 0, 0);
+        val2valstr(as->nproc, buf+6, sizeof(buf)-7, 6, 0, 0);
         return buf;
 }
 
@@ -314,7 +315,7 @@ sysprt_PRCNRUNNING(void *notused, void *q, int badness, int *color)
 {
         extraparam *as=q;
         static char buf[15]="#trun     ";
-        val2valstr(as->ntrun, buf+6, 6, 0, 0);
+        val2valstr(as->ntrun, buf+6, sizeof(buf)-7, 6, 0, 0);
         return buf;
 }
 
@@ -325,7 +326,7 @@ sysprt_PRCNSLEEPING(void *notused, void *q, int badness, int *color)
 {
         extraparam *as=q;
         static char buf[16]="#tslpi    ";
-        val2valstr(as->ntslpi, buf+8, 4, 0, 0);
+        val2valstr(as->ntslpi, buf+8, sizeof(buf)-9, 4, 0, 0);
         return buf;
 }
 
@@ -336,7 +337,7 @@ sysprt_PRCNDSLEEPING(void *notused, void *q, int badness, int *color)
 {
         extraparam *as=q;
         static char buf[16]="#tslpu    ";
-        val2valstr(as->ntslpu, buf+8, 4, 0, 0);
+        val2valstr(as->ntslpu, buf+8, sizeof(buf)-9, 4, 0, 0);
         return buf;
 }
 
@@ -354,7 +355,7 @@ sysprt_PRCNZOMBIE(void *notused, void *q, int badness, int *color)
 	if (as->nzomb > 50)
 		*color = COLORCRIT;
 
-        val2valstr(as->nzomb, buf+8, 4, 0, 0);
+        val2valstr(as->nzomb, buf+8, sizeof(buf)-9, 4, 0, 0);
         return buf;
 }
 
@@ -374,11 +375,11 @@ sysprt_PRCNNEXIT(void *notused, void *q, int badness, int *color)
 		{
 			*color = COLORCRIT;
 			buf[6] = '>';
-			val2valstr(as->nexit, buf+7, 5, as->avgval, as->nsecs);
+			val2valstr(as->nexit, buf+7, sizeof(buf)-8, 5, as->avgval, as->nsecs);
 		}
 		else
 		{
-			val2valstr(as->nexit, buf+6, 6, as->avgval, as->nsecs);
+			val2valstr(as->nexit, buf+6, sizeof(buf)-7, 6, as->avgval, as->nsecs);
 		}
 
                 return buf;
@@ -577,19 +578,19 @@ sysprt_CPUIWAIT(void *p, void *q, int badness, int *color)
 
 sys_printdef syspdef_CPUIWAIT = {"CPUIWAIT", sysprt_CPUIWAIT};
 /*******************************************************************/
-void dofmt_cpufreq(char *buf, count_t maxfreq, count_t cnt, count_t ticks)
+void dofmt_cpufreq(char *buf, size_t buflen, count_t maxfreq, count_t cnt, count_t ticks)
 {
         // if ticks != 0, do full output
         if (ticks) 
         {
             count_t curfreq	= cnt/ticks;
             strcpy(buf, "avgf ");
-            val2Hzstr(curfreq, buf+5);
+            val2Hzstr(curfreq, buf+5, buflen-6);
         } 
         else if (cnt)       // no max, no %.  if freq is known: print it
         {
             strcpy(buf, "curf ");
-            val2Hzstr(cnt, buf+5);
+            val2Hzstr(cnt, buf+5, buflen-6);
         }
         else                // nothing is known: print ?????
         {
@@ -658,7 +659,7 @@ sysprt_CPUIFREQ(void *p, void *q, int badness, int *color)
         count_t cnt	= sstat->cpu.cpu[as->index].freqcnt.cnt;
         count_t ticks	= sstat->cpu.cpu[as->index].freqcnt.ticks;
 
-        dofmt_cpufreq(buf, maxfreq, cnt, ticks);
+        dofmt_cpufreq(buf, sizeof(buf), maxfreq, cnt, ticks);
         return buf;
 }
 
@@ -677,7 +678,7 @@ sysprt_CPUFREQ(void *p, void *q, int badness, int *color)
         int     n = sstat->cpu.nrcpu;
 
         sumscaling(sstat, &maxfreq, &cnt, &ticks);
-        dofmt_cpufreq(buf, maxfreq/n, cnt/n, ticks/n);
+        dofmt_cpufreq(buf, sizeof(buf), maxfreq/n, cnt/n, ticks/n);
         return buf;
 }
 
@@ -856,7 +857,7 @@ sysprt_CPLCSW(void *p, void *q, int badness, int *color)
         extraparam *as=q;
         static char buf[16]="csw    ";
 
-        val2valstr(sstat->cpu.csw, buf+4   , 8,as->avgval,as->nsecs);
+        val2valstr(sstat->cpu.csw, buf+4, sizeof(buf)-5, 8,as->avgval,as->nsecs);
         return buf;
 }
 
@@ -869,7 +870,7 @@ sysprt_PRCCLONES(void *p, void *q, int badness, int *color)
         extraparam *as=q;
         static char buf[16]="clones ";
 
-        val2valstr(sstat->cpu.nprocs, buf+7   , 5,as->avgval,as->nsecs);
+        val2valstr(sstat->cpu.nprocs, buf+7, sizeof(buf)-8, 5,as->avgval,as->nsecs);
         return buf;
 }
 
@@ -882,7 +883,7 @@ sysprt_CPLNUMCPU(void *p, void *q, int badness, int *color)
         extraparam *as=q;
         static char buf[16]="numcpu ";
 
-        val2valstr(sstat->cpu.nrcpu, buf+7   , 5,0,as->nsecs);
+        val2valstr(sstat->cpu.nrcpu, buf+7, sizeof(buf)-8, 5,0,as->nsecs);
         return buf;
 }
 
@@ -895,7 +896,7 @@ sysprt_CPLINTR(void *p, void *q, int badness, int *color)
         extraparam *as=q;
         static char buf[16]="intr   ";
 
-        val2valstr(sstat->cpu.devint, buf+5   , 7,as->avgval,as->nsecs);
+        val2valstr(sstat->cpu.devint, buf+5, sizeof(buf)-6, 7,as->avgval,as->nsecs);
         return buf;
 }
 
@@ -907,7 +908,7 @@ sysprt_MEMTOT(void *p, void *notused, int badness, int *color)
         struct sstat *sstat=p;
         static char buf[16]="tot   ";
 	*color = -1;
-        val2memstr(sstat->mem.physmem, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.physmem, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -919,7 +920,7 @@ sysprt_MEMFREE(void *p, void *notused, int badness, int *color)
         struct sstat *sstat=p;
         static char buf[16]="free  ";
 	*color = -1;
-        val2memstr(sstat->mem.freemem, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.freemem, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -931,7 +932,7 @@ sysprt_MEMCACHE(void *p, void *notused, int badness, int *color)
         struct sstat *sstat=p;
         static char buf[16]="cache ";
 	*color = -1;
-        val2memstr(sstat->mem.cachemem, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.cachemem, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -942,7 +943,7 @@ sysprt_MEMDIRTY(void *p, void *notused, int badness, int *color)
 {
         struct sstat *sstat=p;
         static char buf[16] = "dirty ";
-        val2memstr(sstat->mem.cachedrt, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.cachedrt, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
 
         return buf;
 }
@@ -955,7 +956,7 @@ sysprt_MEMBUFFER(void *p, void *notused, int badness, int *color)
         struct sstat *sstat=p;
         static char buf[16]="buff  ";
 	*color = -1;
-        val2memstr(sstat->mem.buffermem, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.buffermem, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -967,7 +968,7 @@ sysprt_MEMSLAB(void *p, void *notused, int badness, int *color)
         struct sstat *sstat=p;
         static char buf[16]="slab  ";
 	*color = -1;
-        val2memstr(sstat->mem.slabmem, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.slabmem, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -979,7 +980,7 @@ sysprt_RECSLAB(void *p, void *notused, int badness, int *color)
         struct sstat *sstat=p;
         static char buf[16]="slrec ";
 	*color = -1;
-        val2memstr(sstat->mem.slabreclaim, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.slabreclaim, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -991,7 +992,7 @@ sysprt_SHMEM(void *p, void *notused, int badness, int *color)
         struct sstat *sstat=p;
         static char buf[16]="shmem  ";
 	*color = -1;
-        val2memstr(sstat->mem.shmem, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.shmem, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -1003,7 +1004,7 @@ sysprt_SHMRSS(void *p, void *notused, int badness, int *color)
         struct sstat *sstat=p;
         static char buf[16]="shrss  ";
 	*color = -1;
-        val2memstr(sstat->mem.shmrss, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.shmrss, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -1015,7 +1016,7 @@ sysprt_SHMSWP(void *p, void *notused, int badness, int *color)
         struct sstat *sstat=p;
         static char buf[16]="shswp  ";
 	*color = -1;
-        val2memstr(sstat->mem.shmswp, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.shmswp, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -1028,7 +1029,7 @@ sysprt_HUPTOT(void *p, void *notused, int badness, int *color)
         static char buf[16]="hptot  ";
 	*color = -1;
         val2memstr(sstat->mem.tothugepage * sstat->mem.hugepagesz,
-						buf+6, MBFORMAT, 0, 0);
+						buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -1041,7 +1042,7 @@ sysprt_HUPUSE(void *p, void *notused, int badness, int *color)
         static char buf[16]="hpuse  ";
 	*color = -1;
         val2memstr( (sstat->mem.tothugepage - sstat->mem.freehugepage) *
-				sstat->mem.hugepagesz, buf+6, MBFORMAT, 0, 0);
+				sstat->mem.hugepagesz, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -1053,7 +1054,7 @@ sysprt_VMWBAL(void *p, void *notused, int badness, int *color)
         struct sstat *sstat=p;
         static char buf[16]="vmbal  ";
 	*color = -1;
-        val2memstr(sstat->mem.vmwballoon, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.vmwballoon, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -1065,7 +1066,7 @@ sysprt_SWPTOT(void *p, void *notused, int badness, int *color)
         struct sstat *sstat=p;
         static char buf[16]="tot    ";
 	*color = -1;
-        val2memstr(sstat->mem.totswap, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.totswap, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -1077,7 +1078,7 @@ sysprt_SWPFREE(void *p, void *notused, int badness, int *color)
         struct sstat *sstat=p;
         static char buf[16]="free  ";
 	*color = -1;
-        val2memstr(sstat->mem.freeswap, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.freeswap, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -1088,7 +1089,7 @@ sysprt_SWPCOMMITTED(void *p, void *notused, int badness, int *color)
 {
         struct sstat *sstat=p;
         static char buf[16]="vmcom  ";
-        val2memstr(sstat->mem.committed, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.committed, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
 
 	if (sstat->mem.commitlim && sstat->mem.committed > sstat->mem.commitlim)
 		*color = COLORALMOST;
@@ -1103,7 +1104,7 @@ sysprt_SWPCOMMITLIM(void *p, void *notused, int badness, int *color)
 {
         struct sstat *sstat=p;
         static char buf[16]="vmlim  ";
-        val2memstr(sstat->mem.commitlim, buf+6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.commitlim, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
 
 	if (sstat->mem.commitlim && sstat->mem.committed > sstat->mem.commitlim)
 		*color = COLORINFO;
@@ -1119,7 +1120,7 @@ sysprt_PAGSCAN(void *p, void *q, int badness, int *color)
         struct sstat *sstat=p;
         extraparam *as=q;
         static char buf[16]="scan  ";
-        val2valstr(sstat->mem.pgscans, buf+5, 7, as->avgval, as->nsecs);
+        val2valstr(sstat->mem.pgscans, buf+5, sizeof(buf)-6, 7, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1131,7 +1132,7 @@ sysprt_PAGSTEAL(void *p, void *q, int badness, int *color)
         struct sstat *sstat=p;
         extraparam *as=q;
         static char buf[16]="steal  ";
-        val2valstr(sstat->mem.pgsteal, buf+6, 6, as->avgval, as->nsecs);
+        val2valstr(sstat->mem.pgsteal, buf+6, sizeof(buf)-7, 6, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1143,7 +1144,7 @@ sysprt_PAGSTALL(void *p, void *q, int badness, int *color)
         struct sstat *sstat=p;
         extraparam *as=q;
         static char buf[16]="stall  ";
-        val2valstr(sstat->mem.allocstall, buf+6, 6, as->avgval, as->nsecs);
+        val2valstr(sstat->mem.allocstall, buf+6, sizeof(buf)-7, 6, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1155,7 +1156,7 @@ sysprt_PAGSWIN(void *p, void *q, int badness, int *color)
         struct sstat *sstat=p;
         extraparam *as=q;
         static char buf[16]="swin   ";
-        val2valstr(sstat->mem.swins, buf+5, 7, as->avgval, as->nsecs);
+        val2valstr(sstat->mem.swins, buf+5, sizeof(buf)-6, 7, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1168,7 +1169,7 @@ sysprt_PAGSWOUT(void *p, void *q, int badness, int *color)
         extraparam *as=q;
         static char buf[16]="swout  ";
 	*color = -1;
-        val2valstr(sstat->mem.swouts, buf+6, 6, as->avgval, as->nsecs);
+        val2valstr(sstat->mem.swouts, buf+6, sizeof(buf)-7, 6, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1219,7 +1220,7 @@ sysprt_DSKNREAD(void *p, void *q, int badness, int *color)
 	*color = -1;
 
         val2valstr(as->perdsk[as->index].nread,  
-                   buf+5, 7, as->avgval, as->nsecs);
+                   buf+5, sizeof(buf)-6, 7, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1234,7 +1235,7 @@ sysprt_DSKNWRITE(void *p, void *q, int badness, int *color)
 	*color = -1;
 
         val2valstr(as->perdsk[as->index].nwrite, 
-        	           buf+6, 6, as->avgval, as->nsecs);
+        	           buf+6, sizeof(buf)-7, 6, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1248,7 +1249,7 @@ sysprt_DSKKBPERWR(void *p, void *q, int badness, int *color)
 	struct perdsk 	*dp = &(as->perdsk[as->index]);
 
         val2valstr(dp->nwrite ?  dp->nwsect / dp->nwrite / 2 : 0,
-                   buf+6, 6, 0, as->nsecs);
+                   buf+6, sizeof(buf)-7, 6, 0, as->nsecs);
         return buf;
 }
 
@@ -1262,7 +1263,7 @@ sysprt_DSKKBPERRD(void *p, void *q, int badness, int *color)
 	struct perdsk 	*dp = &(as->perdsk[as->index]);
 
         val2valstr(dp->nread ?  dp->nrsect / dp->nread / 2 : 0,
-                   buf+6, 6, 0, as->nsecs);
+                   buf+6, sizeof(buf)-7, 6, 0, as->nsecs);
         return buf;
 }
 
@@ -1352,7 +1353,7 @@ sysprt_NETTCPI(void *p, void *q, int badness, int *color)
         struct sstat *sstat=p;
         extraparam *as=q;
         static char buf[16]="tcpi   ";
-        val2valstr(sstat->net.tcp.InSegs,  buf+5, 7, as->avgval, as->nsecs);
+        val2valstr(sstat->net.tcp.InSegs,  buf+5, sizeof(buf)-6, 7, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1364,7 +1365,7 @@ sysprt_NETTCPO(void *p, void *q, int badness, int *color)
         struct sstat *sstat=p;
         extraparam *as=q;
         static char buf[16]="tcpo   ";
-        val2valstr(sstat->net.tcp.OutSegs,  buf+5, 7, as->avgval, as->nsecs);
+        val2valstr(sstat->net.tcp.OutSegs,  buf+5, sizeof(buf)-6, 7, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1376,7 +1377,7 @@ sysprt_NETTCPACTOPEN(void *p, void *q, int badness, int *color)
         struct sstat *sstat=p;
         extraparam *as=q;
         static char buf[16]="tcpao  ";
-        val2valstr(sstat->net.tcp.ActiveOpens,  buf+6, 6, as->avgval, as->nsecs);
+        val2valstr(sstat->net.tcp.ActiveOpens,  buf+6, sizeof(buf)-7, 6, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1388,7 +1389,7 @@ sysprt_NETTCPPASVOPEN(void *p, void *q, int badness, int *color)
         struct sstat *sstat=p;
         extraparam *as=q;
         static char buf[16]="tcppo  ";
-        val2valstr(sstat->net.tcp.PassiveOpens, buf+6, 6, as->avgval, as->nsecs);
+        val2valstr(sstat->net.tcp.PassiveOpens, buf+6, sizeof(buf)-7, 6, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1400,7 +1401,7 @@ sysprt_NETTCPRETRANS(void *p, void *q, int badness, int *color)
         struct sstat *sstat=p;
         extraparam *as=q;
         static char buf[16]="tcprs  ";
-        val2valstr(sstat->net.tcp.RetransSegs,  buf+6, 6, as->avgval, as->nsecs);
+        val2valstr(sstat->net.tcp.RetransSegs,  buf+6, sizeof(buf)-7, 6, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1412,7 +1413,7 @@ sysprt_NETTCPINERR(void *p, void *q, int badness, int *color)
         struct sstat *sstat=p;
         extraparam *as=q;
         static char buf[16]="tcpie  ";
-        val2valstr(sstat->net.tcp.InErrs,  buf+6, 6, as->avgval, as->nsecs);
+        val2valstr(sstat->net.tcp.InErrs,  buf+6, sizeof(buf)-7, 6, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1424,7 +1425,7 @@ sysprt_NETTCPORESET(void *p, void *q, int badness, int *color)
         struct sstat *sstat=p;
         extraparam *as=q;
         static char buf[16]="tcpor  ";
-        val2valstr(sstat->net.tcp.OutRsts,  buf+6, 6, as->avgval, as->nsecs);
+        val2valstr(sstat->net.tcp.OutRsts,  buf+6, sizeof(buf)-7, 6, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1436,7 +1437,7 @@ sysprt_NETUDPNOPORT(void *p, void *q, int badness, int *color)
         struct sstat *sstat=p;
         extraparam *as=q;
         static char buf[16]="udpnp  ";
-        val2valstr(sstat->net.udpv4.NoPorts,  buf+6, 6, as->avgval, as->nsecs);
+        val2valstr(sstat->net.udpv4.NoPorts,  buf+6, sizeof(buf)-7, 6, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1448,7 +1449,7 @@ sysprt_NETUDPINERR(void *p, void *q, int badness, int *color)
         struct sstat *sstat=p;
         extraparam *as=q;
         static char buf[16]="udpie  ";
-        val2valstr(sstat->net.udpv4.InErrors,  buf+6, 6, as->avgval, as->nsecs);
+        val2valstr(sstat->net.udpv4.InErrors,  buf+6, sizeof(buf)-7, 6, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1462,7 +1463,7 @@ sysprt_NETUDPI(void *p, void *q, int badness, int *color)
         static char buf[16]="udpi   ";
         count_t udpin  = sstat->net.udpv4.InDatagrams  +
                         sstat->net.udpv6.Udp6InDatagrams;
-        val2valstr(udpin,   buf+5, 7, as->avgval, as->nsecs);
+        val2valstr(udpin,   buf+5, sizeof(buf)-6, 7, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1476,7 +1477,7 @@ sysprt_NETUDPO(void *p, void *q, int badness, int *color)
         static char buf[16]="udpo   ";
         count_t udpout = sstat->net.udpv4.OutDatagrams +
                         sstat->net.udpv6.Udp6OutDatagrams;
-        val2valstr(udpout,   buf+5, 7, as->avgval, as->nsecs);
+        val2valstr(udpout,   buf+5, sizeof(buf)-6, 7, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1498,7 +1499,7 @@ sysprt_NETIPI(void *p, void *q, int badness, int *color)
         static char buf[16]="ipi    ";
         count_t ipin    = sstat->net.ipv4.InReceives  +
                         sstat->net.ipv6.Ip6InReceives;
-        val2valstr(ipin, buf+4, 8, as->avgval, as->nsecs);
+        val2valstr(ipin, buf+4, sizeof(buf)-5, 8, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1512,7 +1513,7 @@ sysprt_NETIPO(void *p, void *q, int badness, int *color)
         static char buf[16]="ipo    ";
         count_t ipout   = sstat->net.ipv4.OutRequests +
                         sstat->net.ipv6.Ip6OutRequests;
-        val2valstr(ipout, buf+4, 8, as->avgval, as->nsecs);
+        val2valstr(ipout, buf+4, sizeof(buf)-5, 8, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1526,7 +1527,7 @@ sysprt_NETIPFRW(void *p, void *q, int badness, int *color)
         static char buf[16]="ipfrw  ";
         count_t ipfrw   = sstat->net.ipv4.ForwDatagrams +
                         sstat->net.ipv6.Ip6OutForwDatagrams;
-        val2valstr(ipfrw, buf+6, 6, as->avgval, as->nsecs);
+        val2valstr(ipfrw, buf+6, sizeof(buf)-7, 6, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1540,7 +1541,7 @@ sysprt_NETIPDELIV(void *p, void *q, int badness, int *color)
         static char buf[16]="deliv  ";
         count_t ipindel = sstat->net.ipv4.InDelivers +
                         sstat->net.ipv6.Ip6InDelivers;
-        val2valstr(ipindel, buf+6, 6, as->avgval, as->nsecs);
+        val2valstr(ipindel, buf+6, sizeof(buf)-7, 6, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1554,7 +1555,7 @@ sysprt_NETICMPIN(void *p, void *q, int badness, int *color)
         static char buf[16]="icmpi  ";
         count_t icmpin = sstat->net.icmpv4.InMsgs+
                         sstat->net.icmpv6.Icmp6InMsgs;
-        val2valstr(icmpin , buf+6, 6, as->avgval, as->nsecs);
+        val2valstr(icmpin , buf+6, sizeof(buf)-7, 6, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1568,7 +1569,7 @@ sysprt_NETICMPOUT(void *p, void *q, int badness, int *color)
         static char buf[16]="icmpo  ";
         count_t icmpin = sstat->net.icmpv4.OutMsgs+
                         sstat->net.icmpv6.Icmp6OutMsgs;
-        val2valstr(icmpin , buf+6, 6, as->avgval, as->nsecs);
+        val2valstr(icmpin , buf+6, sizeof(buf)-7, 6, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1622,7 +1623,7 @@ sysprt_NETPCKI(void *p, void *q, int badness, int *color)
 	*color = -1;
 
         val2valstr(sstat->intf.intf[as->index].rpack, 
-                   buf+5, 7, as->avgval, as->nsecs);
+                   buf+5, sizeof(buf)-6, 7, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1638,7 +1639,7 @@ sysprt_NETPCKO(void *p, void *q, int badness, int *color)
 	*color = -1;
 
         val2valstr(sstat->intf.intf[as->index].spack, 
-                   buf+5, 7, as->avgval, as->nsecs);
+                   buf+5, sizeof(buf)-6, 7, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1720,7 +1721,7 @@ sysprt_NETCOLLIS(void *p, void *q, int badness, int *color)
         extraparam *as=q;
         static char buf[16]="coll  ";
         val2valstr(sstat->intf.intf[as->index].scollis, 
-                   buf+5, 7, as->avgval, as->nsecs);
+                   buf+5, sizeof(buf)-6, 7, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1733,7 +1734,7 @@ sysprt_NETMULTICASTIN(void *p, void *q, int badness, int *color)
         extraparam *as=q;
         static char buf[16]="mlti ";
         val2valstr(sstat->intf.intf[as->index].rmultic, 
-                   buf+5, 7, as->avgval, as->nsecs);
+                   buf+5, sizeof(buf)-6, 7, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1746,7 +1747,7 @@ sysprt_NETRCVERR(void *p, void *q, int badness, int *color)
         extraparam *as=q;
         static char buf[16]="erri   ";
         val2valstr(sstat->intf.intf[as->index].rerrs, 
-                   buf+5, 7, as->avgval, as->nsecs);
+                   buf+5, sizeof(buf)-6, 7, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1759,7 +1760,7 @@ sysprt_NETSNDERR(void *p, void *q, int badness, int *color)
         extraparam *as=q;
         static char buf[16]="erro   ";
         val2valstr(sstat->intf.intf[as->index].serrs, 
-                   buf+5, 7, as->avgval, as->nsecs);
+                   buf+5, sizeof(buf)-6, 7, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1772,7 +1773,7 @@ sysprt_NETRCVDROP(void *p, void *q, int badness, int *color)
         extraparam *as=q;
         static char buf[16]="drpi   ";
         val2valstr(sstat->intf.intf[as->index].rdrop,
-                   buf+5, 7, as->avgval, as->nsecs);
+                   buf+5, sizeof(buf)-6, 7, as->avgval, as->nsecs);
         return buf;
 }
 
@@ -1785,7 +1786,7 @@ sysprt_NETSNDDROP(void *p, void *q, int badness, int *color)
         extraparam *as=q;
         static char buf[16]="drpo   ";
         val2valstr(sstat->intf.intf[as->index].sdrop,
-                   buf+5, 7, as->avgval, as->nsecs);
+                   buf+5, sizeof(buf)-6, 7, as->avgval, as->nsecs);
         return buf;
 }
 

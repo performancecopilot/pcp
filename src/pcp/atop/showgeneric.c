@@ -8,6 +8,7 @@
 ** figures.
 **
 ** Copyright (C) 2000-2010 Gerlof Langeveld
+** Copyright (C) 2015 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -217,13 +218,13 @@ generic_samp(double curtime, double delta,
         	/*
         	** print general headerlines
         	*/
-        	convdate(curtime, format1);       /* date to ascii string   */
-        	convtime(curtime, format2);       /* time to ascii string   */
+        	convdate(curtime, format1, sizeof(format1)-1); /* ascii date */
+        	convtime(curtime, format2, sizeof(format2)-1); /* ascii time */
 
 		if (screen)
 			attron(A_REVERSE);
 
-                int seclen	= val2elapstr(delta, buf);
+                int seclen	= val2elapstr(delta, buf, sizeof(buf)-1);
                 int lenavail 	= (screen ? COLS : linelen) -
 						46 - seclen - nodenamelen;
                 int len1	= lenavail / 3;

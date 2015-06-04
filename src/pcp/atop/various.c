@@ -8,6 +8,7 @@
 ** time-of-day, the cpu-time consumption and the memory-occupation. 
 **
 ** Copyright (C) 2000-2010 Gerlof Langeveld
+** Copyright (C) 2015 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -35,15 +36,14 @@
 ** chartim (9 bytes long).
 */
 char *
-convtime(double timed, char *chartim)
+convtime(double timed, char *chartim, size_t buflen)
 {
 	time_t		utime = (time_t) timed;
 	struct tm 	tt;
 
 	pmLocaltime(&utime, &tt);
-
-	sprintf(chartim, "%02d:%02d:%02d", tt.tm_hour, tt.tm_min, tt.tm_sec);
-
+	snprintf(chartim, buflen, "%02d:%02d:%02d",
+		tt.tm_hour, tt.tm_min, tt.tm_sec);
 	return chartim;
 }
 
@@ -53,16 +53,14 @@ convtime(double timed, char *chartim)
 ** chardat (11 bytes long).
 */
 char *
-convdate(double timed, char *chardat)
+convdate(double timed, char *chardat, size_t buflen)
 {
 	time_t		utime = (time_t) timed;
 	struct tm 	tt;
 
 	pmLocaltime(&utime, &tt);
-
-	sprintf(chardat, "%04d/%02d/%02d",
+	snprintf(chardat, buflen, "%04d/%02d/%02d",
 		tt.tm_year+1900, tt.tm_mon+1, tt.tm_mday);
-
 	return chardat;
 }
 
@@ -108,7 +106,7 @@ hhmm2secs(char *itim, unsigned int *otim)
 ** The value might even be printed as an average for the interval-time.
 */
 char *
-val2valstr(count_t value, char *strvalue, int width, int avg, int nsecs)
+val2valstr(count_t value, char *strvalue, size_t buflen, int width, int avg, int nsecs)
 {
 	count_t	maxval, remain = 0;
 	int	exp     = 0;
@@ -125,7 +123,7 @@ val2valstr(count_t value, char *strvalue, int width, int avg, int nsecs)
 
 	if (value < maxval)
 	{
-		sprintf(strvalue, "%*lld%s", width, value, suffix);
+		snprintf(strvalue, buflen, "%*lld%s", width, value, suffix);
 	}
 	else
 	{
@@ -134,7 +132,7 @@ val2valstr(count_t value, char *strvalue, int width, int avg, int nsecs)
 			/*
 			** cannot avoid ignoring width
 			*/
-			sprintf(strvalue, "%lld%s", value, suffix);
+			snprintf(strvalue, buflen, "%lld%s", value, suffix);
 		}
 		else
 		{
@@ -155,7 +153,7 @@ val2valstr(count_t value, char *strvalue, int width, int avg, int nsecs)
 			if (remain >= 5)
 				value++;
 
-			sprintf(strvalue, "%*llde%d%s",
+			snprintf(strvalue, buflen, "%*llde%d%s",
 					width, value, exp, suffix);
 		}
 	}
@@ -174,38 +172,47 @@ val2valstr(count_t value, char *strvalue, int width, int avg, int nsecs)
 ** returnvalue: number of bytes stored
 */
 int
-val2elapstr(int value, char *strvalue)
+val2elapstr(int value, char *strvalue, size_t buflen)
 {
         char	*p=strvalue, doshow=0;
+	int	bytes, offset=0;
 
         if (value > DAYSECS) 
         {
-                p+=sprintf(p, "%dd", value/DAYSECS);
+                bytes = snprintf(p, buflen-offset, "%dd", value/DAYSECS);
+		p += bytes;
+		offset += bytes;
                 value %= DAYSECS;
 		doshow = 1;
         }
 
         if (value > HOURSECS || doshow) 
         {
-                p+=sprintf(p, "%dh", value/HOURSECS);
+                bytes = snprintf(p, buflen-offset, "%dh", value/HOURSECS);
+		p += bytes;
+		offset += bytes;
                 value %= HOURSECS;
 		doshow = 1;
         }
 
         if (value > MINSECS || doshow) 
         {
-                p+=sprintf(p, "%dm", value/MINSECS);
+                bytes = snprintf(p, buflen-offset, "%dm", value/MINSECS);
+		p += bytes;
+		offset += bytes;
                 value %= MINSECS;
 		doshow = 1;
         }
 
         if (value || doshow) 
         {
-                p+=sprintf(p, "%ds", value);
+                bytes = snprintf(p, buflen-offset, "%ds", value);
+		p += bytes;
+		offset += bytes;
 		doshow = 1;
         }
 
-        return p-strvalue;
+        return offset;
 }
 
 
@@ -219,11 +226,11 @@ val2elapstr(int value, char *strvalue)
 #define	MAXMIN		(count_t)6000
 
 char *
-val2cpustr(count_t value, char *strvalue)
+val2cpustr(count_t value, char *strvalue, size_t buflen)
 {
 	if (value < MAXMSEC)
 	{
-		sprintf(strvalue, "%2lld.%02llds", value/1000, value%1000/10);
+		snprintf(strvalue, buflen, "%2lld.%02llds", value/1000, value%1000/10);
 	}
 	else
 	{
@@ -234,7 +241,7 @@ val2cpustr(count_t value, char *strvalue)
 
         	if (value < MAXSEC) 
         	{
-               	 	sprintf(strvalue, "%2lldm%02llds", value/60, value%60);
+               	 	snprintf(strvalue, buflen, "%2lldm%02llds", value/60, value%60);
 		}
 		else
 		{
@@ -245,7 +252,7 @@ val2cpustr(count_t value, char *strvalue)
 
 			if (value < MAXMIN) 
 			{
-				sprintf(strvalue, "%2lldh%02lldm",
+				snprintf(strvalue, buflen, "%2lldh%02lldm",
 							value/60, value%60);
 			}
 			else
@@ -255,7 +262,7 @@ val2cpustr(count_t value, char *strvalue)
 				*/
 				value = (value + 30) / 60;
 
-				sprintf(strvalue, "%2lldd%02lldh",
+				snprintf(strvalue, buflen, "%2lldd%02lldh",
 						value/24, value%24);
 			}
 		}
@@ -271,11 +278,11 @@ val2cpustr(count_t value, char *strvalue)
 ** which should be able to contain at least 8 positions.
 */
 char *
-val2Hzstr(count_t value, char *strvalue)
+val2Hzstr(count_t value, char *strvalue, size_t buflen)
 {
         if (value < 1000)
         {
-                sprintf(strvalue, "%4lldMHz", value);
+                snprintf(strvalue, buflen, "%4lldMHz", value);
         }
         else
         {
@@ -287,7 +294,7 @@ val2Hzstr(count_t value, char *strvalue)
                         prefix='T';        
                         fval /= 1000.0;
                 }
-                sprintf(strvalue, "%4.2f%cHz", fval, prefix);
+                snprintf(strvalue, buflen, "%4.2f%cHz", fval, prefix);
         }
 	return strvalue;
 }
@@ -310,7 +317,7 @@ val2Hzstr(count_t value, char *strvalue)
 #define	MAXGBYTE	ONEGBYTE*999LL
 
 char *
-val2memstr(count_t value, char *strvalue, int pformat, int avgval, int nsecs)
+val2memstr(count_t value, char *strvalue, size_t buflen, int pformat, int avgval, int nsecs)
 {
 	char 	aformat;	/* advised format		*/
 	count_t	verifyval;
@@ -365,32 +372,32 @@ val2memstr(count_t value, char *strvalue, int pformat, int avgval, int nsecs)
 	switch (aformat)
 	{
 	   case	ANYFORMAT:
-		sprintf(strvalue, "%*lld%s",
+		snprintf(strvalue, buflen, "%*lld%s",
 				basewidth, value, suffix);
 		break;
 
 	   case	KBFORMAT:
-		sprintf(strvalue, "%*lldK%s",
+		snprintf(strvalue, buflen, "%*lldK%s",
 				basewidth-1, value/ONEKBYTE, suffix);
 		break;
 
 	   case	MBFORMAT:
-		sprintf(strvalue, "%*.1lfM%s",
+		snprintf(strvalue, buflen, "%*.1lfM%s",
 			basewidth-1, (double)((double)value/ONEMBYTE), suffix); 
 		break;
 
 	   case	GBFORMAT:
-		sprintf(strvalue, "%*.1lfG%s",
+		snprintf(strvalue, buflen, "%*.1lfG%s",
 			basewidth-1, (double)((double)value/ONEGBYTE), suffix);
 		break;
 
 	   case	TBFORMAT:
-		sprintf(strvalue, "%*.1lfT%s",
+		snprintf(strvalue, buflen, "%*.1lfT%s",
 			basewidth-1, (double)((double)value/ONETBYTE), suffix);
 		break;
 
 	   default:
-		sprintf(strvalue, "!TILT!");
+		snprintf(strvalue, buflen, "!TILT!");
 	}
 
 	return strvalue;

@@ -455,7 +455,7 @@ reportlive(double curtime, double numsecs, struct sstat *ss)
 		if (sampcnt == 0)
 			return;
 
-		printf(datemsg, convdate(curtime, datebuf));
+		printf(datemsg, convdate(curtime, datebuf, sizeof(datebuf)-1));
 
 		for (i=0; i < pricnt && nr > 0; i++)
 		{
@@ -470,7 +470,7 @@ reportlive(double curtime, double numsecs, struct sstat *ss)
 			if (usecolors)
 				printf(COLSETHEAD);
 
-			printf("\n%s  ", convtime(curtime-numsecs, timebuf));
+			printf("\n%s  ", convtime(curtime-numsecs, timebuf, sizeof(timebuf)-1));
 	
 			(pridef[i].prihead)(osvers, osrel, ossub);
 	
@@ -482,7 +482,7 @@ reportlive(double curtime, double numsecs, struct sstat *ss)
 			/*
 			** print line with statistical counters
 			*/
-			printf("%s  ", convtime(curtime, timebuf));
+			printf("%s  ", convtime(curtime, timebuf, sizeof(timebuf)-1));
 	
 			if ( !(pridef[i].priline)(ss, (struct tstat *)0, 0, 0,
 				numsecs, numsecs*hertz, hertz,
@@ -517,7 +517,7 @@ reportlive(double curtime, double numsecs, struct sstat *ss)
 		*/
 		if (curtime > daylim)
 		{
-			printf(datemsg, convdate(curtime, datebuf));
+			printf(datemsg, convdate(curtime, datebuf, sizeof(datebuf)-1));
 			daylim = daylimit(curtime);
 			curline++;
 		}
@@ -533,7 +533,7 @@ reportlive(double curtime, double numsecs, struct sstat *ss)
 			if (usecolors)
 				printf(COLSETHEAD);
 
-			printf("\n%s  ", convtime(curtime, timebuf));
+			printf("\n%s  ", convtime(curtime, timebuf, sizeof(timebuf)-1));
 	
 			(pridef[i].prihead)(osvers, osrel, ossub);
 
@@ -551,7 +551,7 @@ reportlive(double curtime, double numsecs, struct sstat *ss)
 		/*
 		** print line with statistical counters
 		*/
-		printf("%s  ", convtime(curtime, timebuf));
+		printf("%s  ", convtime(curtime, timebuf, sizeof(timebuf)-1));
 	
 		if ( !(rv = (pridef[i].priline)(ss, (struct tstat *)0, 0, 0,
 					numsecs, numsecs*hertz, hertz,
@@ -578,7 +578,7 @@ reportlive(double curtime, double numsecs, struct sstat *ss)
 			if (usecolors)
 				printf(COLSETHEAD);
 
-			printf("\n%s  ", convtime(curtime, timebuf));
+			printf("\n%s  ", convtime(curtime, timebuf, sizeof(timebuf)-1));
 	
 			(pridef[i].prihead)(osvers, osrel, ossub);
 
@@ -633,7 +633,7 @@ reportraw(double curtime, double numsecs,
 	*/
 	if (curtime > daylim)
 	{
-		printf(datemsg, convdate(curtime, datebuf));
+		printf(datemsg, convdate(curtime, datebuf, sizeof(datebuf)-1));
 		daylim = daylimit(curtime);
 		curline++;
 	}
@@ -674,7 +674,7 @@ reportraw(double curtime, double numsecs,
 			printf(COLSETHEAD);
 
 		timed = __pmtimevalToReal(&pretime);
-		printf("\n%s  ", convtime(timed, timebuf));
+		printf("\n%s  ", convtime(timed, timebuf, sizeof(timebuf)-1));
 
 		(pridef[prinow].prihead)(osvers, osrel, ossub);
 
@@ -698,7 +698,7 @@ reportraw(double curtime, double numsecs,
 		*/
 		if (summarycnt > 1 && sampcnt <= sampsum && totalsec)
 		{
-			printf("%s  ", convtime(lasttime, timebuf));
+			printf("%s  ", convtime(lasttime, timebuf, sizeof(timebuf)-1));
 
 			rv = (pridef[prinow].priline)(&totsyst,
 				(struct tstat *)0, 0, 0,
@@ -725,7 +725,7 @@ reportraw(double curtime, double numsecs,
 		/*
 		** print restart-line in case of logging restarted
 		*/
-		printf("%s  ", convtime(curtime, timebuf));
+		printf("%s  ", convtime(curtime, timebuf, sizeof(timebuf)-1));
 
 		printf("......................... logging restarted "
 		       ".........................\n");
@@ -750,7 +750,7 @@ reportraw(double curtime, double numsecs,
 	*/
 	if (summarycnt == 1)
 	{
-		printf("%s  ", convtime(curtime, timebuf));
+		printf("%s  ", convtime(curtime, timebuf, sizeof(timebuf)-1));
 
 		rv = (pridef[prinow].priline) (ss, ts, proclist, nactproc,
 				numsecs, numsecs*hertz, hertz,
@@ -807,7 +807,7 @@ reportraw(double curtime, double numsecs,
 			/*
 			** print output line for required report
 			*/
-			printf("%s  ", convtime(curtime, timebuf));
+			printf("%s  ", convtime(curtime, timebuf, sizeof(timebuf)-1));
 
 			rv = (pridef[prinow].priline) (&totsyst,
 					(struct tstat *)0, 0, 0,
@@ -871,7 +871,7 @@ reportheader(struct sysname *sysname, time_t mtime)
                 sysname->release,
                 sysname->version,
                 sysname->machine,
-        	convdate(mtime, cdate));
+        	convdate(mtime, cdate, sizeof(cdate)-1));
 }
 
 /*

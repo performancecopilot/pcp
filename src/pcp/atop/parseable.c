@@ -173,8 +173,8 @@ parseout(double timed, double delta,
 			/*
 			** prepare generic columns
 			*/
-			convdate(timed, datestr);
-			convtime(timed, timestr);
+			convdate(timed, datestr, sizeof(datestr)-1);
+			convtime(timed, timestr, sizeof(timestr)-1);
 
 			snprintf(header, sizeof header, "%s %s %ld %s %s %d",
 				labeldef[i].label,
