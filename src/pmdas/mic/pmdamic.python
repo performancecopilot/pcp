@@ -22,16 +22,11 @@ import cpmapi as c_api
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
 from pcp.pmapi import pmUnits, pmContext as PCP
 
+mpss_python_dir = os.environ.get('PMDAMIC_MPSS_PYTHON_DIR')
 
-conf_file = os.environ.get('PMDAMIC_CONFIG_FILE')
+if mpss_python_dir != None:
+    sys.path.insert(1, mpss_python_dir)
 
-if conf_file == None:
-    conf_file = PCP.pmGetConfig('PCP_PMDAS_DIR') + '/pmdamic_conf.py'
-    print "Setting conf file default: %s" % conf_file
-
-# mpss 3.3 rpm puts the python files in /usr/src
-sys.path.append('/usr/src')
-#sys.path.append('/projects/viz/minnus/Git/github/pcp/src/pmdas/mic')
 from micmgmt import *
 
 class MicDevInfo(Structure):
@@ -68,27 +63,18 @@ class MicDevInfo(Structure):
                 ("all_usr", c_ulonglong),
                 ("all_sys", c_ulonglong),
                 ("all_nice", c_ulonglong),
-                ("all_idle", c_ulonglong),
-# Percore
-                ("cpu_usr", POINTER(c_ulonglong)),
-                ("cpu_sys", POINTER(c_ulonglong)),
-                ("cpu_nice", POINTER(c_ulonglong)),
-                ("cpu_idle", POINTER(c_ulonglong))]
+                ("all_idle", c_ulonglong)]
 
     def __init__(self, cores):
         self.num_cores = cores
 
-        pfu = (c_ulonglong * cores)()
-        self.cpu_usr = cast(pfu, POINTER(c_ulonglong))
-
-        pfs = (c_ulonglong * cores)()
-        self.cpu_sys = cast(pfs, POINTER(c_ulonglong))
-
-        pfn = (c_ulonglong * cores)()
-        self.cpu_nice = cast(pfn, POINTER(c_ulonglong))
-
-        pfi = (c_ulonglong * cores)()
-        self.cpu_idle = cast(pfi, POINTER(c_ulonglong))
+class MicPerCoreInfo(Structure):
+    ''' Metric values for mic percore indom (one per card/core pair) '''
+# Percore
+    _fields_ = [ ("cpu_usr", c_ulonglong),
+                ("cpu_sys", c_ulonglong),
+                ("cpu_nice", c_ulonglong),
+                ("cpu_idle", c_ulonglong)]
 
 class MicPMDA(PMDA):
     '''
@@ -108,23 +94,19 @@ class MicPMDA(PMDA):
     CORE_CLUSTER = 5
     PERCORE_CLUSTER = 6
 
-    # Card indom. (Cores will be iterated by metrics)
+    # Card indom
     numcards = 0
     cards = {}
+
+    # Percore indom
+    numcardcores = 0
+    cardcores = {}
 
     # As far as I can tell, this is hard coded.
     HZ = 100
 
-    # Keep track of max number of cores found for metric count. Could have heterogeneous cards
-    maxcores = 0
-
     def init_mic(self):
         self.numcards = mic_get_ndevices()
-        for device in range(self.numcards):
-            mic = MicDevice(device)
-            numcores = mic.mic_get_cores_count()
-            if( numcores > self.maxcores ):
-                self.maxcores = numcores
         
     def update_mic(self):
         '''
@@ -132,6 +114,7 @@ class MicPMDA(PMDA):
             refresh unless you call the update functions in between.
         '''
         self.cards.clear()
+        self.cardcores.clear()
 
         for device in range(self.numcards):
             mic = MicDevice(device)
@@ -218,27 +201,21 @@ class MicPMDA(PMDA):
 
             # Per core metrics
             core_usr = mic.mic_get_user_counters()
-            cnt = 0
-            for usr in core_usr:
-                devinfo.cpu_usr[cnt] = 1000 * usr /  (devinfo.num_threads * self.HZ)
-                cnt += 1
-
             core_sys = mic.mic_get_sys_counters()
-            cnt = 0
-            for sys in core_sys:
-                devinfo.cpu_sys[cnt] = 1000 * sys / (devinfo.num_threads * self.HZ)
-                cnt += 1
-
             core_nice = mic.mic_get_nice_counters()
-            cnt = 0
-            for nice in core_nice:
-                devinfo.cpu_nice[cnt] = 1000 * nice / (devinfo.num_threads * self.HZ)
-                cnt += 1
-
             core_idle = mic.mic_get_idle_counters()
+
             cnt = 0
-            for idle in core_idle:
-                devinfo.cpu_idle[cnt] = idle
+            for usr, sys, nice, idle in zip(core_usr, core_sys, core_nice, core_idle):
+                cpuinfo = MicPerCoreInfo()
+                cpuinfo.cpu_usr = 1000 * usr /  (devinfo.num_threads * self.HZ)
+                cpuinfo.cpu_sys = 1000 * sys / (devinfo.num_threads * self.HZ)
+                cpuinfo.cpu_nice = 1000 * nice / (devinfo.num_threads * self.HZ)
+                cpuinfo.cpu_idle = idle
+
+                coreinst = "%s/core%d" % (cardname, cnt)
+
+                self.cardcores[coreinst] = cpuinfo
                 cnt += 1
 
             # Not sure if this is useful but we report it
@@ -247,6 +224,7 @@ class MicPMDA(PMDA):
             self.cards[cardname] = devinfo
 
         self.replace_indom(self.card_indom, self.cards)
+        self.replace_indom(self.cardcore_indom, self.cardcores)
 
     def mic_instance(self, serial):
         ''' Called once per "instance request" PDU '''
@@ -343,11 +321,11 @@ class MicPMDA(PMDA):
         micdata = cache.contents
 
         if (item == 0):
-            return [micdata.power , 1] #if micdata.power>=0 else [c_api.PM_ERR_PMID, 0]
+            return [micdata.power , 1] if micdata.power>=0 else [c_api.PM_ERR_PMID, 0]
         elif (item == 1):
-            return [micdata.power_w0 , 1] #if micdata.power_w0>=0 else [c_api.PM_ERR_PMID, 0]
+            return [micdata.power_w0 , 1] if micdata.power_w0>=0 else [c_api.PM_ERR_PMID, 0]
         elif (item == 2):
-            return [micdata.power_w1 , 1] #if micdata.power_w1>=0 else [c_api.PM_ERR_PMID, 0]
+            return [micdata.power_w1 , 1] if micdata.power_w1>=0 else [c_api.PM_ERR_PMID, 0]
         elif (item == 3):
             return [micdata.window0 , 1]
         elif (item == 4):
@@ -417,26 +395,23 @@ class MicPMDA(PMDA):
         Helper for the fetch callback
         '''
         
-        voidp = self.inst_lookup(self.card_indom, inst)
+        voidp = self.inst_lookup(self.cardcore_indom, inst)
 
         if(voidp == None):
             return [c_api.PM_ERR_INST, 0]
 
-        cache = cast(voidp, POINTER(MicDevInfo) )
-        micdata = cache.contents
+        cache = cast(voidp, POINTER(MicPerCoreInfo) )
+        percoredata = cache.contents
 
-        counter = item%4
-        core = (item - counter)/4
-
-        if( core < micdata.num_cores):
-            if( counter == 0 ):
-                return [micdata.cpu_usr[core], 1]
-            elif( counter == 1 ):
-                return [micdata.cpu_sys[core], 1]
-            elif( counter == 2 ):
-                return [micdata.cpu_nice[core], 1]
+        if( item < 4 ):
+            if( item == 0 ):
+                return [percoredata.cpu_usr, 1]
+            elif( item == 1 ):
+                return [percoredata.cpu_sys, 1]
+            elif( item == 2 ):
+                return [percoredata.cpu_nice, 1]
             else:
-                return [micdata.cpu_idle[core], 1]
+                return [percoredata.cpu_idle, 1]
         else:
             return [c_api.PM_ERR_PMID, 0]
 
@@ -470,7 +445,10 @@ class MicPMDA(PMDA):
         self.init_mic()
 
         self.card_indom = self.indom(0)
+        self.cardcore_indom = self.indom(1)
+
         self.add_indom(pmdaIndom(self.card_indom, self.cards))
+        self.add_indom(pmdaIndom(self.cardcore_indom, self.cardcores))
 
         # Global
         self.add_metric(name + '.mgmt.numcards', pmdaMetric(self.pmid(self.GLOBAL_CLUSTER, 0),
@@ -623,33 +601,32 @@ class MicPMDA(PMDA):
                     pmUnits(0, 1, 0, 0, c_api.PM_TIME_MSEC, 0)),
                     "Idle time for all cores")
 
-        # Percore
-        for cores in range(self.maxcores):
-            self.add_metric(name + ".mgmt.cores.core%d.usr"%cores, pmdaMetric(self.pmid(self.PERCORE_CLUSTER, cores*4),
-                c_api.PM_TYPE_U64,  self.card_indom, c_api.PM_SEM_COUNTER,
-                pmUnits(0, 1, 0, 0, c_api.PM_TIME_MSEC, 0)),
-                "User time per core")
+        # Percore metrics. Instances are cardname/coreY
+        self.add_metric(name + ".mgmt.percore.usr", pmdaMetric(self.pmid(self.PERCORE_CLUSTER, 0),
+            c_api.PM_TYPE_U64,  self.cardcore_indom, c_api.PM_SEM_COUNTER,
+            pmUnits(0, 1, 0, 0, c_api.PM_TIME_MSEC, 0)),
+            "User time per core")
 
-            self.add_metric(name + ".mgmt.cores.core%d.sys"%cores, pmdaMetric(self.pmid(self.PERCORE_CLUSTER, cores*4 + 1),
-                c_api.PM_TYPE_U64,  self.card_indom, c_api.PM_SEM_COUNTER,
-                pmUnits(0, 1, 0, 0, c_api.PM_TIME_MSEC, 0)),
-                "System time per core")
-        
-            self.add_metric(name + ".mgmt.cores.core%d.nice"%cores, pmdaMetric(self.pmid(self.PERCORE_CLUSTER, cores*4 + 2),
-                c_api.PM_TYPE_U64,  self.card_indom, c_api.PM_SEM_COUNTER,
-                pmUnits(0, 1, 0, 0, c_api.PM_TIME_MSEC, 0)),
-                "Nice time per core")
-        
-            self.add_metric(name + ".mgmt.cores.core%d.idle"%cores, pmdaMetric(self.pmid(self.PERCORE_CLUSTER, cores*4 + 3),
-                c_api.PM_TYPE_U64,  self.card_indom, c_api.PM_SEM_COUNTER,
-                pmUnits(0, 1, 0, 0, c_api.PM_TIME_MSEC, 0)),
-                "Idle time per core")
+        self.add_metric(name + ".mgmt.percore.sys", pmdaMetric(self.pmid(self.PERCORE_CLUSTER, 1),
+            c_api.PM_TYPE_U64,  self.cardcore_indom, c_api.PM_SEM_COUNTER,
+            pmUnits(0, 1, 0, 0, c_api.PM_TIME_MSEC, 0)),
+            "System time per core")
+    
+        self.add_metric(name + ".mgmt.percore.nice", pmdaMetric(self.pmid(self.PERCORE_CLUSTER, 2),
+            c_api.PM_TYPE_U64,  self.cardcore_indom, c_api.PM_SEM_COUNTER,
+            pmUnits(0, 1, 0, 0, c_api.PM_TIME_MSEC, 0)),
+            "Nice time per core")
+    
+        self.add_metric(name + ".mgmt.percore.idle", pmdaMetric(self.pmid(self.PERCORE_CLUSTER, 3),
+            c_api.PM_TYPE_U64,  self.cardcore_indom, c_api.PM_SEM_COUNTER,
+            pmUnits(0, 1, 0, 0, c_api.PM_TIME_MSEC, 0)),
+            "Idle time per core")
 
         self.set_fetch(self.mic_fetch)
         self.set_instance(self.mic_instance)
         self.set_fetch_callback(self.mic_fetch_callback)
         # So far all the stats seem to be available to any user
-        #self.set_user(PCP.pmGetConfig('PCP_USER'))
+        self.set_user(PCP.pmGetConfig('PCP_USER'))
         self.update_mic()
 
 if __name__ == '__main__':
