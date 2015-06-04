@@ -22,6 +22,7 @@
 */
 
 #include <pcp/pmapi.h>
+#include <pcp/pmafm.h>
 #include <pcp/impl.h>
 #include <stdarg.h>
 #include <ctype.h>
@@ -868,8 +869,136 @@ get_instances(const char *purpose, int value, pmDesc *descs, int **ids, char ***
 	return sts;
 }
 
-void
-rawwrite(pmOptions *opts)
+/*
+** Write a pmlogger configuration file for recording.
+*/
+static void
+rawconfig(FILE *fp, double interval)
 {
-	/* NYI - see pmRecordSetup(3) */
+	char		**p;
+	unsigned int	delta;
+	extern char	*hostmetrics[];
+	extern char	*ifpropmetrics[];
+	extern char	*systmetrics[];
+	extern char	*procmetrics[];
+
+	fprintf(fp, "log mandatory on once {\n");
+	for (p = hostmetrics; (*p)[0] != '.'; p++)
+		fprintf(fp, "    %s\n", *p);
+	for (p = ifpropmetrics; (*p)[0] != '.'; p++)
+		fprintf(fp, "    %s\n", *p);
+	fprintf(fp, "}\n\n");
+
+	delta = (unsigned int)(interval * 1000.0);	/* msecs */
+	fprintf(fp, "log mandatory on every %u milliseconds {\n", delta);
+	for (p = systmetrics; (*p)[0] != '.'; p++)
+		fprintf(fp, "    %s\n", *p);
+	for (p = procmetrics; (*p)[0] != '.'; p++)
+		fprintf(fp, "    %s\n", *p);
+	fputs("}\n", fp);
+}
+
+void
+rawwrite(const char *name, const char *host,
+	struct timeval *delta, unsigned int nsamples, char midnightflag)
+{
+	pmRecordHost	*record;
+	struct timeval	elapsed;
+	double		duration;
+	double		interval;
+	char		args[MAXPATHLEN];
+	int		sts;
+
+	interval = __pmtimevalToReal(delta);
+	duration = interval * nsamples;
+
+	if (midnightflag)
+	{
+		time_t		now = time(NULL);
+		struct tm	*tp;
+
+		tp = localtime(&now);
+
+		tp->tm_hour = 23;
+		tp->tm_min  = 59;
+		tp->tm_sec  = 59;
+
+		duration = (double) (mktime(tp) - now);
+	}
+
+	if (pmDebug & DBG_TRACE_APPL1)
+	{
+		fprintf(stderr, "%s: start recording, %.2fsec duration [%s].\n",
+			pmProgname, duration, name);
+	}
+
+	if (__pmMakePath(name, S_IRWXU|S_IRWXG|S_IROTH|S_IXOTH) < 0)
+	{
+		fprintf(stderr, "%s: making folio path %s for recording: %s\n",
+			pmProgname, name, osstrerror());
+		cleanstop(1);
+	}
+	if (chdir(name) < 0)
+	{
+		fprintf(stderr, "%s: entering folio %s for recording: %s\n",
+			pmProgname, name, strerror(oserror()));
+		cleanstop(1);
+	}
+
+	/*
+        ** Non-graphical application using libpcp_gui services - never want
+	** to see popup dialogs from pmlogger(1) here, so force the issue.
+	*/
+	putenv("PCP_XCONFIRM_PROG=/bin/true");
+
+	snprintf(args, sizeof(args), "%s.folio", basename((char *)name));
+	args[sizeof(args)-1] = '\0';
+	if (pmRecordSetup(args, pmProgname, 1) == NULL)
+	{
+		fprintf(stderr, "%s: cannot setup recording to %s: %s\n",
+			pmProgname, name, osstrerror());
+		cleanstop(1);
+	}
+	if ((sts = pmRecordAddHost(host, 1, &record)) < 0)
+	{
+		fprintf(stderr, "%s: adding host %s to recording: %s\n",
+			pmProgname, host, pmErrStr(sts));
+		cleanstop(1);
+	}
+
+	rawconfig(record->f_config, interval);
+
+	/*
+	** start pmlogger with a deadhand timer, ensuring it will stop
+	*/
+	snprintf(args, sizeof(args), "-T%.3fseconds", duration);
+	args[sizeof(args)-1] = '\0';
+	if ((sts = pmRecordControl(record, PM_REC_SETARG, args)) < 0)
+	{
+		fprintf(stderr, "%s: setting loggers arguments: %s\n",
+			pmProgname, pmErrStr(sts));
+		cleanstop(1);
+	}
+	if ((sts = pmRecordControl(NULL, PM_REC_ON, "")) < 0)
+	{
+		fprintf(stderr, "%s: failed to start recording: %s\n",
+			pmProgname, pmErrStr(sts));
+		cleanstop(1);
+	}
+
+	__pmtimevalFromReal(duration, &elapsed);
+	__pmtimevalSleep(elapsed);
+
+	if ((sts = pmRecordControl(NULL, PM_REC_OFF, "")) < 0)
+	{
+		fprintf(stderr, "%s: failed to stop recording: %s\n",
+			pmProgname, pmErrStr(sts));
+		cleanstop(1);
+	}
+
+	if (pmDebug & DBG_TRACE_APPL1)
+	{
+		fprintf(stderr, "%s: cleanly stopped recording.\n",
+			pmProgname);
+	}
 }

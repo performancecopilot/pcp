@@ -7,5 +7,5 @@ ifpropmetrics {
 	network.interface.duplex	IF_DUPLEX
 
 	# end marker - provides count
-	_				IF_NMETRICS
+	.				IF_NMETRICS
 }

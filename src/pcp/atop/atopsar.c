@@ -50,7 +50,6 @@ static char		stampalways;
 static char		usemarkers;
 static char		allresources;
 static int		numreports;
-static time_t		saved_begintime;
 static unsigned int	repeathead = 9999999;
 static unsigned int	summarycnt = 1;
 static char		*datemsg = "-------------------------- analysis "
@@ -135,15 +134,11 @@ atopsar(int argc, char *argv[])
 				break;
 
                            case 'b':		/* begin time ?          */
-				if ( !hhmm2secs(opts.optarg, &begintime) )
-					pratopsaruse(pmProgname);
-
-				saved_begintime = begintime;
+				opts.start_optarg = opts.optarg;
 				break;
 
                            case 'e':		/* end   time ?          */
-				if ( !hhmm2secs(opts.optarg, &endtime) )
-					pratopsaruse(pmProgname);
+				opts.finish_optarg = opts.optarg;
 				break;
 
 			   case 'r':		/* reading of file data ? */
@@ -307,8 +302,8 @@ atopsar(int argc, char *argv[])
 			{
 				prinow    = i;
 				daylim    = 0;
-				begintime = saved_begintime;
 				// TODO: PMAPI reading
+				// begintime = saved_begintime;
 				// rawread();
 				printf("\n");
 			}

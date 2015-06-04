@@ -86,7 +86,6 @@ extern char		deviatonly;
 extern char		usecolors;
 extern char		threadview;
 extern char		calcpss;
-extern char		rawname[];
 extern char		rawreadflag;
 extern unsigned int	begintime, endtime;
 extern char		flaglist[];
@@ -158,7 +157,7 @@ int		intfcompar(const void *, const void *);
 
 count_t		subcount(count_t, count_t);
 void  		rawread(struct pmOptions *);
-void		rawwrite(struct pmOptions *);
+void		rawwrite(const char *, const char *, struct timeval *, unsigned int, char);
 
 int 		numeric(char *);
 void		getalarm(int);

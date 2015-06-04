@@ -138,7 +138,7 @@ char		screen;
 char		acctreason;	/* accounting not active (return val) 	*/
 char		rawreadflag;
 char		rawwriteflag;
-unsigned int	begintime, endtime;
+char		*rawname;
 char		flaglist[MAXFL];
 char		deviatonly = 1;
 char      	usecolors  = 1;  /* boolean: colors for high occupation  */
@@ -263,6 +263,7 @@ main(int argc, char *argv[])
 	register int	i;
 	int		c;
 	char		*p;
+	char		path[MAXPATHLEN];
 	pmOptions	opts = {
 		.short_options = allflags,
 		.flags = PM_OPTFLAG_BOUNDARIES,
@@ -280,10 +281,8 @@ main(int argc, char *argv[])
 
 	if ( (p = getenv("HOME")) )
 	{
-		char path[MAXPATHLEN];
-
 		snprintf(path, sizeof(path), "%s/.atoprc", p);
-
+		path[sizeof(path)-1] = '\0';
 		readrc(path, 0);
 	}
 
@@ -325,12 +324,16 @@ main(int argc, char *argv[])
 				exit(0);
 
 			   case 'w':		/* writing of raw data ?      */
-				__pmAddOptArchiveFolio(&opts, opts.optarg);
+				rawname = opts.optarg;
 				rawwriteflag++;
 				break;
 
 			   case 'r':		/* reading of raw data ?      */
-				__pmAddOptArchiveFolio(&opts, opts.optarg);
+				snprintf(path, sizeof(path), "%s/%s.folio",
+					opts.optarg, basename(opts.optarg));
+				path[sizeof(path)-1] = '\0';
+				p = (!access(path, R_OK)) ? path : opts.optarg;
+				__pmAddOptArchiveFolio(&opts, p);
 				rawreadflag++;
 				break;
 
@@ -347,27 +350,25 @@ main(int argc, char *argv[])
 				break;
 
                            case 'b':		/* begin time ?               */
-				if ( !hhmm2secs(optarg, &begintime) )
-					prusage(pmProgname);
+				opts.start_optarg = opts.optarg;
 				break;
 
                            case 'e':		/* end   time ?               */
-				if ( !hhmm2secs(optarg, &endtime) )
-					prusage(pmProgname);
+				opts.finish_optarg = opts.optarg;
 				break;
 
                            case 'P':		/* parseable output?          */
-				if ( !parsedef(optarg) )
+				if ( !parsedef(opts.optarg) )
 					prusage(pmProgname);
 
 				vis.show_samp = parseout;
 				break;
 
                            case 'L':		/* line length                */
-				if ( !numeric(optarg) )
+				if ( !numeric(opts.optarg) )
 					prusage(pmProgname);
 
-				linelen = atoi(optarg);
+				linelen = atoi(opts.optarg);
 				break;
 
 			   default:		/* gather other flags */
@@ -421,7 +422,8 @@ main(int argc, char *argv[])
 	*/
 	if (rawwriteflag)
 	{
-		rawwrite(&opts);
+		char *source = (opts.nhosts > 0) ? opts.hosts[0] : "local:";
+		rawwrite(rawname, source, &interval, nsamples, midnightflag);
 		cleanstop(0);
 	}
 
@@ -465,7 +467,7 @@ engine(void)
 {
 	int 			i, j;
 	struct sigaction 	sigact;
-	double 			timelimit = 0.0, timed, delta;
+	double 			timed, delta;
 	void			getusr1(int), getusr2(int);
 
 	/*
@@ -527,20 +529,6 @@ engine(void)
 	if (interval.tv_sec || interval.tv_usec)
 		setalarm(&interval);
 
-	if (midnightflag)
-	{
-		time_t		timenow = curtime.tv_sec;
-		struct tm	tm, *tp;
-
-		tp = pmLocaltime(&timenow, &tm);
-
-		tp->tm_hour = 23;
-		tp->tm_min  = 59;
-		tp->tm_sec  = 59;
-
-		timelimit = (double)__pmMktime(tp);
-	}
-
 	/*
 	** MAIN-LOOP:
 	**    -	Wait for the requested number of seconds or for other trigger
@@ -558,15 +546,6 @@ engine(void)
 	for (sampcnt=0; sampcnt < nsamples; sampcnt++)
 	{
 		char	lastcmd;
-
-		/*
-		** if the limit-flag is specified:
-		**  check if the next sample is expected before midnight;
-		**  if not, stop atop now 
-		*/
-		if (midnightflag &&
-			__pmtimevalAdd(&curtime, &interval) > timelimit)
-			break;
 
 		/*
 		** wait for alarm-signal to arrive (except first sample)
@@ -746,7 +725,7 @@ prusage(char *myname)
 	printf("\t\tor\n");
 	printf("Usage: %s -w  file  [-S] [-%c] [interval [samples]]\n",
 					myname, MALLPROC);
-	printf("       %s -r [file] [-b hh:mm] [-e hh:mm] [-flags]\n",
+	printf("       %s -r  file  [-b hh:mm] [-e hh:mm] [-flags]\n",
 					myname);
 	printf("\n");
 	printf("\tgeneric flags:\n");
@@ -764,7 +743,6 @@ prusage(char *myname)
 	printf("\tspecific flags for raw logfiles:\n");
 	printf("\t  -w  write raw data to PCP archive folio\n");
 	printf("\t  -r  read  raw data from PCP archive folio\n");
-	printf("\t      special file: y[y...] for yesterday (repeated)\n");
 	printf("\t  -S  finish %s automatically before midnight "
 	                "(i.s.o. #samples)\n", pmProgname);
 	printf("\t  -b  begin showing data from specified time\n");
