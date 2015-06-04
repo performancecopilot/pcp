@@ -150,7 +150,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 			}
 			else {
 			    __pmFinishResult(ctxp, sts, &result);
-			    if ((sts = __pmEncodeResult(0, result, &npb)) < 0)
+			    if ((sts = __pmEncodeResult(ctxp->c_pmcd->pc_fd, result, &npb)) < 0)
 				n = sts;
 			    else {
 				/* using PDU with derived metrics */
