@@ -1,4 +1,13 @@
 QA output created by 948
+=== error cases ===
+pmlogger: -o and -h are mutually exclusive; use -o only when running
+pmlogger on the same (local) host as the DSO PMDA(s) being used.
+Usage: pmlogger [options] archive
+
+Options:
+...
+
+=== OK case ===
 Waiting for pmcd to terminate ...
 Log for pmlogger on HOST started DATE
 
@@ -17,5 +26,9 @@ HZ samples:
               60.0.48 (kernel.all.hz): value HZ
               60.0.48 (kernel.all.hz): value HZ
               60.0.48 (kernel.all.hz): value HZ
+MILLION samples:
+              30.0.13 (sampledso.long.million): value 1000000
+              30.0.13 (sampledso.long.million): value 1000000
+              30.0.13 (sampledso.long.million): value 1000000
 Starting pmcd ... 
 Starting pmlogger ... 
