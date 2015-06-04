@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2013-2014 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 # Copyright (c) 1995-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -235,7 +235,7 @@ _configure_pmlogger()
         then
             # pmlogconf file that we own, see if re-generation is needed
             cp "$configfile" $tmp/pmlogger
-            if $PMLOGCONF -c -q -h $hostname $tmp/pmlogger >$tmp/diag 2>&1
+            if $PMLOGCONF -r -c -q -h $hostname $tmp/pmlogger >$tmp/diag 2>&1
             then
 		if grep 'No changes' $tmp/diag >/dev/null 2>&1
                 then

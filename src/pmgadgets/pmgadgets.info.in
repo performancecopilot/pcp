@@ -16,5 +16,7 @@
 	<string>io.pcp.pmgadgets</string>
 	<key>NSAppSleepDisabled</key>
 	<true/>
+	<key>LSAppNapIsDisabled</key>
+	<true/>
 </dict>
 </plist>

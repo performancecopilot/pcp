@@ -6,6 +6,7 @@ TESTDIR = $(PCP_VAR_DIR)/testsuite/archives
 SRCARCH = $(shell echo *.[0-9])
 SRCMETA = $(subst .0,.meta,$(SRCARCH))
 SRCIDX = $(subst .0,.index,$(SRCARCH))
+FOLIOS = $(shell echo *.folio)
 
 SCRIPTS = mk.diff.sh mk.gap.sh mk.mysql.sh mk.schizo.sh mk.foo+.sh \
 	  mk.dynmetric.sh mk.instant.sh \
@@ -22,6 +23,6 @@ install install_pcp:
 	$(INSTALL) -m 644 $(SRCARCH) $(TESTDIR)
 	$(INSTALL) -m 644 $(SRCMETA) $(TESTDIR)
 	$(INSTALL) -m 644 $(SRCIDX) $(TESTDIR)
-	$(INSTALL) -m 644 $(OTHERS) $(CONFIGS) $(TESTDIR)
+	$(INSTALL) -m 644 $(OTHERS) $(CONFIGS) $(FOLIOS) $(TESTDIR)
 
 include $(BUILDRULES)

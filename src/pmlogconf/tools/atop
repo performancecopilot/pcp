@@ -1,67 +1,154 @@
 #pmlogconf-setup 2.0
 ident   metrics used by the atop command
 probe	kernel.uname.sysname ~ Linux ? include : exclude
-
-	disk.dev.avactive
+delta	10 seconds
 	disk.dev.read
-	disk.dev.read_bytes
-	disk.dev.total
 	disk.dev.write
-	disk.partitions.blkread
-	disk.partitions.blkwrite
-	disk.partitions.read
-	disk.partitions.write
+	disk.dev.blkread
+	disk.dev.blkwrite
+	disk.dev.aveq
+	disk.dev.avactive
+	disk.dm.read
+	disk.dm.write
+	disk.dm.blkread
+	disk.dm.blkwrite
+
+	kernel.all.pswitch
+	kernel.all.intr
+	kernel.all.sysfork
+	kernel.all.load
+	kernel.all.cpu.user
+	kernel.all.cpu.nice
+	kernel.all.cpu.sys
 	kernel.all.cpu.idle
+	kernel.all.cpu.wait.total
 	kernel.all.cpu.irq.hard
 	kernel.all.cpu.irq.soft
-	kernel.all.cpu.sys
-	kernel.all.cpu.user
-	kernel.all.cpu.wait.total
-	kernel.all.intr
-	kernel.all.load
-	kernel.all.nprocs
-	kernel.all.pswitch
-	kernel.all.uptime
-	kernel.percpu.cpu.idle
-	kernel.percpu.cpu.irq.hard
-	kernel.percpu.cpu.irq.soft
+	kernel.all.cpu.steal
+	kernel.all.cpu.guest
 	kernel.percpu.cpu.sys
 	kernel.percpu.cpu.user
+	kernel.percpu.cpu.nice
+	kernel.percpu.cpu.idle
 	kernel.percpu.cpu.wait.total
-	kernel.percpu.interrupts
+	kernel.percpu.cpu.irq.hard
+	kernel.percpu.cpu.irq.soft
+	kernel.percpu.cpu.steal
+	kernel.percpu.cpu.guest
+	hinv.cpu.clock
+
+	mem.vmstat.pgscan_direct_dma
+	mem.vmstat.pgscan_direct_dma32
+	mem.vmstat.pgscan_direct_high
+	mem.vmstat.pgscan_direct_movable
+	mem.vmstat.pgscan_direct_normal
+	mem.vmstat.pgscan_kswapd_dma
+	mem.vmstat.pgscan_kswapd_dma32
+	mem.vmstat.pgscan_kswapd_high
+	mem.vmstat.pgscan_kswapd_movable
+	mem.vmstat.pgscan_kswapd_normal
+	mem.vmstat.pgsteal_dma
+	mem.vmstat.pgsteal_dma32
+	mem.vmstat.pgsteal_high
+	mem.vmstat.pgsteal_movable
+	mem.vmstat.pgsteal_normal
+	mem.vmstat.allocstall
+	mem.util.cached
+	mem.util.dirty
+	mem.physmem
 	mem.freemem
 	mem.util.bufmem
-	mem.util.cached
-	mem.util.commitLimit
-	mem.util.committed_AS
 	mem.util.shmem
 	mem.util.slab
-	mem.util.swapFree
-	mem.util.swapTotal
-	mem.vmstat.allocstall
-	mem.vmstat.pginodesteal
-	mem.vmstat.pswpin
-	mem.vmstat.pswpout
-	mem.vmstat.slabs_scanned
-	network.icmp.inmsgs
-	network.icmp.outmsgs
+	mem.util.slabReclaimable
+	mem.util.committed_AS
+	mem.util.commitLimit
+	mem.util.hugepagesTotal
+	mem.util.hugepagesFree
+	hinv.hugepagesize
+	swap.pagesin
+	swap.pagesout
+	swap.length
+	swap.free
+
+	network.interface.baudrate
+	network.interface.duplex
 	network.interface.in.bytes
-	network.interface.in.errors
 	network.interface.in.packets
+	network.interface.in.errors
+	network.interface.in.drops
+	network.interface.in.fifo
+	network.interface.in.frame
+	network.interface.in.compressed
+	network.interface.in.mcasts
 	network.interface.out.bytes
-	network.interface.out.errors
 	network.interface.out.packets
-	network.ip.forwdatagrams
-	network.ip.indelivers
+	network.interface.out.errors
+	network.interface.out.drops
+	network.interface.out.fifo
+	network.interface.collisions
+	network.interface.out.carrier
+	network.interface.out.compressed
+	network.ip.forwarding
+	network.ip.defaultttl
 	network.ip.inreceives
+	network.ip.inhdrerrors
+	network.ip.inaddrerrors
+	network.ip.forwdatagrams
+	network.ip.inunknownprotos
+	network.ip.indiscards
+	network.ip.indelivers
 	network.ip.outrequests
+	network.ip.outdiscards
+	network.ip.outnoroutes
+	network.ip.reasmtimeout
+	network.ip.reasmreqds
+	network.ip.reasmoks
+	network.ip.reasmfails
+	network.ip.fragoks
+	network.ip.fragfails
+	network.ip.fragcreates
+	network.icmp.inmsgs
+	network.icmp.inerrors
+	network.icmp.indestunreachs
+	network.icmp.intimeexcds
+	network.icmp.inparmprobs
+	network.icmp.insrcquenchs
+	network.icmp.inredirects
+	network.icmp.inechos
+	network.icmp.inechoreps
+	network.icmp.intimestamps
+	network.icmp.intimestampreps
+	network.icmp.inaddrmasks
+	network.icmp.inaddrmaskreps
+	network.icmp.outmsgs
+	network.icmp.outerrors
+	network.icmp.outdestunreachs
+	network.icmp.outtimeexcds
+	network.icmp.outparmprobs
+	network.icmp.outsrcquenchs
+	network.icmp.outredirects
+	network.icmp.outechos
+	network.icmp.outechoreps
+	network.icmp.outtimestamps
+	network.icmp.outtimestampreps
+	network.icmp.outaddrmasks
+	network.icmp.outaddrmaskreps
+	network.tcp.rtoalgorithm
+	network.tcp.rtomin
+	network.tcp.rtomax
+	network.tcp.maxconn
 	network.tcp.activeopens
+	network.tcp.passiveopens
+	network.tcp.attemptfails
+	network.tcp.estabresets
+	network.tcp.currestab
 	network.tcp.insegs
 	network.tcp.outsegs
-	network.tcp.passiveopens
+	network.tcp.retranssegs
+	network.tcp.inerrs
+	network.tcp.outrsts
 	network.udp.indatagrams
+	network.udp.noports
+	network.udp.inerrors
 	network.udp.outdatagrams
-	proc.nprocs
-	proc.runq.blocked
-	proc.runq.defunct
-	proc.runq.sleeping
