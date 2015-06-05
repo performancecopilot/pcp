@@ -60,7 +60,6 @@
 #include "numa_meminfo.h"
 #include "namespaces.h"
 #include "interrupts.h"
-#include "devmapper.h"
 #include "ipc.h"
 
 static proc_stat_t		proc_stat;
@@ -71,7 +70,6 @@ static proc_net_tcp_t		proc_net_tcp;
 static proc_net_sockstat_t	proc_net_sockstat;
 static struct utsname		kernel_uname;
 static char 			uname_string[sizeof(kernel_uname)];
-static dev_mapper_t		dev_mapper;
 static proc_cpuinfo_t		proc_cpuinfo;
 static proc_slabinfo_t		proc_slabinfo;
 static sem_limits_t		sem_limits;
@@ -300,7 +298,7 @@ static pmdaIndom indomtab[] = {
     { NODE_INDOM, 0, NULL },
     { PROC_CGROUP_SUBSYS_INDOM, 0, NULL },
     { PROC_CGROUP_MOUNTS_INDOM, 0, NULL },
-    { LV_INDOM, 0, NULL },
+    { 0 }, /* deprecated LV_INDOM */
     { ICMPMSG_INDOM, NR_ICMPMSG_COUNTERS, _pm_proc_net_snmp_indom_id },
     { DM_INDOM, 0, NULL }, /* cached */
 };
@@ -2998,16 +2996,6 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_SCSI,0), PM_TYPE_STRING, SCSI_INDOM, PM_SEM_DISCRETE, 
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* hinv.map.lvname */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_LV,0), PM_TYPE_STRING, LV_INDOM, PM_SEM_DISCRETE,
-      PMDA_PMUNITS(0,0,0,0,0,0) }, },
-
-/* hinv.nlv */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_LV,1), PM_TYPE_U32, LV_INDOM, PM_SEM_DISCRETE,
-      PMDA_PMUNITS(0,0,0,0,0,0) }, },
-
 /*
  * /proc/cpuinfo cluster (cpu indom)
  */
@@ -3943,9 +3931,6 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, linux_container_t *cp)
     if (need_refresh[CLUSTER_SCSI])
 	refresh_proc_scsi(INDOM(SCSI_INDOM));
 
-    if (need_refresh[CLUSTER_LV])
-	refresh_dev_mapper(&dev_mapper);
-
     if (need_refresh[CLUSTER_NET_TCP])
 	refresh_proc_net_tcp(&proc_net_tcp);
 
@@ -4039,9 +4024,6 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
 	break;
     case SCSI_INDOM:
 	need_refresh[CLUSTER_SCSI]++;
-	break;
-    case LV_INDOM:
-	need_refresh[CLUSTER_LV]++;
 	break;
     case SLAB_INDOM:
 	need_refresh[CLUSTER_SLAB]++;
@@ -5171,29 +5153,6 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
     	break;
 
-    case CLUSTER_LV:
-	switch(idp->item) {
-	case 0: /* hinv.map.lvname */
-	    if (dev_mapper.nlv == 0)
-		return 0; /* no values available */
-	    atom->cp = (char *)NULL;
-	    for (i = 0; i < dev_mapper.nlv; i++) {
-		if (dev_mapper.lv[i].id == inst) {
-		    atom->cp = dev_mapper.lv[i].dev_name;
-		    break;
-		}
-	    }
-	    if (i == dev_mapper.nlv)
-	    	return PM_ERR_INST;
-	    break;
-	case 1:	/* hinv.nlv */
-	    atom->ul = dev_mapper.nlv;
-	    break;
-	default:
-	    return PM_ERR_PMID;
-	}
-    	break;
-
     case CLUSTER_KERNEL_UNAME:
 	switch(idp->item) {
 	case 5: /* pmda.uname */
@@ -5883,7 +5842,6 @@ linux_init(pmdaInterface *dp)
 
     proc_stat.cpu_indom = proc_cpuinfo.cpuindom = &indomtab[CPU_INDOM];
     numa_meminfo.node_indom = proc_cpuinfo.node_indom = &indomtab[NODE_INDOM];
-    dev_mapper.lv_indom = &indomtab[LV_INDOM];
     proc_slabinfo.indom = &indomtab[SLAB_INDOM];
 
     /*

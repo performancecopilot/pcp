@@ -62,7 +62,7 @@ Conflicts: pcp-pro < 2.2
 Conflicts: librapi
 
 # Utilities used indirectly e.g. by scripts we install
-Requires: bash gawk sed grep fileutils findutils
+Requires: bash gawk sed grep fileutils findutils which
 %if "%{_vendor}" == "suse"
 Requires: sysconfig
 %global _rcdir /etc/init.d
