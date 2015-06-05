@@ -587,6 +587,12 @@ main(int argc, char **argv)
 	    break;
 
 	case 'o':		/* local context mode, no pmcd */
+	    /*
+	     * Note, using Lflag here because this has the same
+	     * semantics as -L for all the other PCP commands, but
+	     * -L was already taken (for "linger") in pmlogger, so
+	     * we're forced to use -o on the command line.
+	     */
 	    host_context = PM_CONTEXT_LOCAL;
 	    opts.Lflag = 1;
 	    break;
