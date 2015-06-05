@@ -2541,20 +2541,25 @@ __pmLogChangeToNextArchive(__pmLogCtl *lcp)
     if (ctxp == NULL || ctxp->c_type != PM_CONTEXT_ARCHIVE)
 	return NULL;
 
-    /* Now identify the current archive in the list of archives. */
+    /* Now identify the current archive in the list of archives. Don't bother
+       to check the last one because, even if it is a match, there will be no
+       subsequent archive to switch to.
+     */
     acp = ctxp->c_archctl;
-    for (i = 0; i < acp->ac_num_logs; i++) {
+    for (i = 0; i < acp->ac_num_logs - 1; i++) {
 	if (acp->ac_log_list[i] == lcp)
 	    break; /* found it */
     }
-    if (i >= acp->ac_num_logs)
-	return NULL; /* current archive not found. */
-    if (i + 1 == acp->ac_num_logs)
-	return NULL; /* final archive in the context. */
+    if (i >= acp->ac_num_logs - 1)
+	lcp = NULL; /* no more archives */
+    else {
+	/* Switch to the next archive. */
+	__pmLogChangeArchive(ctxp, i + 1);
+	lcp = acp->ac_log;
+    }
 
-    /* Switch to the next archive. */
-    __pmLogChangeArchive(ctxp, i + 1);
-    return acp->ac_log;
+    PM_UNLOCK(ctxp->c_lock);
+    return lcp;
 }
 
 __pmTimeval *

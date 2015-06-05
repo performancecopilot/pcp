@@ -112,7 +112,7 @@ __pmBoundaryOptions(
     int			i, j;
     int			ctx, sts = 0;
     size_t		size = 0;
-    __pmContext		*ctxp;
+    __pmContext		*ctxp = NULL;
     __pmArchCtl		*acp;
     struct timeval	*begintimes = NULL, *endtimes = NULL;
 
@@ -143,9 +143,9 @@ __pmBoundaryOptions(
 	 * Handle the first archive separately for simplicity.
 	 */
 	if ((sts = __pmLogChangeArchive(ctxp, 0)) < 0)
-	    return sts;
+	    goto done;
 	if ((sts = __pmUpdateBounds(opts, 0, &begintimes[0], &endtimes[0])) < 0)
-	    return sts;
+	    goto done;
 
 	/* Now process the other archives, if any. */
 	for (i = 1; i < acp->ac_num_logs; i++) {
@@ -205,7 +205,7 @@ __pmBoundaryOptions(
 
 	/* Make the first archive the current one. */
 	if ((sts = __pmLogChangeArchive(ctxp, 0)) < 0)
-	    return sts;
+	    goto done;
     } else {
 	/* Multiple archive contexts - figure out combined start and end */
 	for (i = 0; i < opts->narchives; i++) {
@@ -224,6 +224,8 @@ __pmBoundaryOptions(
     }
 
  done:
+    if (ctxp != NULL)
+	PM_UNLOCK(ctxp->c_lock);
     if (begintimes)
 	free(begintimes);
     if (endtimes)
@@ -231,6 +233,7 @@ __pmBoundaryOptions(
     return sts;
 
  noMem:
+    PM_UNLOCK(ctxp->c_lock);
     __pmNoMem("pmGetOptions(archive)", size, PM_FATAL_ERR);
     return 0; /* keep the compiler happy */
 }
