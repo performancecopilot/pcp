@@ -24,10 +24,6 @@ RUN yum --enablerepo=pcp-testing -y install pcp pcp-monitor && yum clean all
 RUN sed -i -e 's/PCP_USER=.*$/PCP_USER=root/' -e 's/PCP_GROUP=.*$/PCP_GROUP=root/' /etc/pcp.conf
 
 #
-# Since this can be an interactive container, set the bash prompt
-RUN echo export PS1='"[pcp-monitor] "' >> /root/.bash_profile
-
-#
 # denote this as a container environment, for rc scripts
 ENV PCP_CONTAINER_IMAGE pcp-monitor
 ENV NAME pcp-monitor

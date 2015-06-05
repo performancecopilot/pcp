@@ -33,10 +33,6 @@ RUN . /etc/pcp.conf && echo "-A" >> $PCP_PMCDOPTIONS_PATH
 EXPOSE 44321
 
 #
-# Since this can be an interactive container (e.g. docker exec), set the bash prompt
-RUN echo export PS1='"[pcp-collector] "' >> /root/.bash_profile
-
-#
 # denote this as a container environment, for rc scripts
 ENV PCP_CONTAINER_IMAGE pcp-collector
 ENV NAME pcp-collector
@@ -45,7 +41,7 @@ ENV IMAGE pcp-collector
 #
 # The RUN label is used by 'atomic' command, e.g. atomic run pcp-collector
 # Other platforms without the 'atomic' command can use docker inspect to
-# extract it and use it in a script.
+# extract the RUN label  and use it in a script.
 LABEL RUN docker run -d --privileged --net=host --pid=host --ipc=host -v /sys:/sys:ro -v /proc:/proc:ro -v /etc/localtime:/etc/localtime:ro -v /var/lib/docker:/var/lib/docker:ro -v /run:/run -v /var/log:/var/log --name=pcp-collector pcp-collector
 
 #
