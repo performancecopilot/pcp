@@ -755,7 +755,8 @@ class pmOptions(object):
         self._mode = c_api.PM_MODE_INTERP # default pmSetMode access mode
 
     def __del__(self):
-        c_api.pmResetAllOptions()
+        if c_api:
+            c_api.pmResetAllOptions()
 
     ##
     # general command line option access and manipulation
