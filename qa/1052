@@ -19,9 +19,13 @@ qa_dir=`pwd`
 json_qa_dir="${qa_dir}/json"
 pmda_config_dir="${PCP_VAR_DIR}/config/pmda"
 pmda_saved_config_dir="${pmda_config_dir}/pmdajson.$seq"
-test -f "$pmda_script" || _notrun "pmdajson not supported"
+test -f "$pmda_script" || _notrun "pmdajson not installed"
 $python -c "from pcp import pmda" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
+$python -c "import jsonpointer" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python jsonpointer module not installed"
+$python -c "import six" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python six module not installed"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full

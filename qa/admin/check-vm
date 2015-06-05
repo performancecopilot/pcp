@@ -219,6 +219,9 @@ rpm?	g++				[gcc-c++]
 dpkg?	/usr/include/readline/readline.h	[libreadline-dev]
 rpm?	/usr/include/readline/readline.h	[readline-devel]
 rpm?	/usr/include/ncurses.h	[ncurses-devel] # is this a bug in the spec file?
+/usr/lib/python*/dist-packages/six.py	[python-six]
+dpkg?	/usr/lib/python*/dist-packages/jsonpointer.py	[python-json-pointer]
+rpm?	/usr/lib/python*/dist-packages/jsonpointer.py	[python-jsonpointer]
 # perl modules
 Time::HiRes			[Perl Time-HiRes perl-Time-HiRes(rpm)]
 Date::Format			[Perl TimeDate perl-TimeDate(rpm)]
