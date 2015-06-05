@@ -42,7 +42,6 @@ hinv {
     ndisk		60:0:33
     nfilesys		60:5:0
     ninterface		60:3:27
-    nlv			60:52:1
     nnode		60:0:19
     machine		60:18:7
     map		
@@ -55,7 +54,6 @@ hinv.map {
     scsi		60:15:0
     cpu_num		60:18:6
     cpu_node		60:18:8
-    lvname		60:52:0
     dmname		60:54:13
 }
 
