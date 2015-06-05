@@ -1193,7 +1193,7 @@ _get_word_size()
 	# but, apps are 64-bit on my Mac OS X
 	[ $PCP_PLATFORM = darwin ] && size=64
 	;;
-    x86_64|ia64|ppc64|s390x|aarch64)
+    x86_64|ia64|ppc64|ppc64le|s390x|aarch64)
 	size=64
 	;;
     *)
