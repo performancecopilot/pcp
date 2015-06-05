@@ -41,7 +41,7 @@ char		*pmcd_host;
 char		*pmcd_host_conn;
 int		host_context = PM_CONTEXT_HOST;	 /* pmcd / local context mode */
 int		archive_version = PM_LOG_VERS02; /* Type of archive to create */
-int		linger;			/* linger with no tasks/events */
+int		linger = 0;		/* linger with no tasks/events */
 int		rflag;			/* report sizes */
 struct timeval	epoch;
 struct timeval	delta = { 60, 0 };	/* default logging interval */
@@ -587,6 +587,12 @@ main(int argc, char **argv)
 	    break;
 
 	case 'o':		/* local context mode, no pmcd */
+	    /*
+	     * Note, using Lflag here because this has the same
+	     * semantics as -L for all the other PCP commands, but
+	     * -L was already taken (for "linger") in pmlogger, so
+	     * we're forced to use -o on the command line.
+	     */
 	    host_context = PM_CONTEXT_LOCAL;
 	    opts.Lflag = 1;
 	    break;

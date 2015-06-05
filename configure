@@ -8916,6 +8916,9 @@ $2 == 1 && / init/	{ print "OK"; exit }
 $2 == 1 && / \/etc\/init/ { print "OK"; exit }
 # Open Build Service
 $2 == 1 && / \/bin\/bash/ { print "OK"; exit }
+# similarly for a simple Docker container, e.g.
+# https://github.com/performancecopilot/pcp/issues/23
+$2 == 1 && / \/bin\/sh/ { print "OK"; exit }
 # Fedora 9
 $2 == 1 && / \/sbin\/init/ { print "OK"; exit }
 # Fedora 15
