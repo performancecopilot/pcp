@@ -55,7 +55,6 @@ cat <<End-of-File >$tmp.metrics
  60.17	network.interface.total.bytes
  60.18	tmpfs.capacity
  60.19	kernel.pernode.cpu.nice
- 60.22	hinv.nlv
 # will fail because indom is hard-wired at 256 elements, but fetch may
 # return a subset of these
 #fail ok 60.23	network.icmpmsg.intype
@@ -105,7 +104,7 @@ do
 	# some of the metrics just aren't there on FreeBSD
 	case $metric
 	in
-	    hinv.map.cpu_num|hinv.nlv|hinv.map.dmname|disk.partitions.total|hinv.map.scsi|mem.slabinfo.objects.total|filesys.used|swapdev.length|nfs.*|nfs3.*|nfs4.*|tmpfs.capacity|kernel.pernode.cpu.nice)
+	    hinv.map.cpu_num|hinv.map.dmname|disk.partitions.total|hinv.map.scsi|mem.slabinfo.objects.total|filesys.used|swapdev.length|nfs.*|nfs3.*|nfs4.*|tmpfs.capacity|kernel.pernode.cpu.nice)
 		continue
 		;;
 	esac

@@ -160,6 +160,7 @@ pmda.gfs2
 pmda.gpfs
 pmda.hotproc
 pmda.jbd2
+pmda.json
 pmda.kvm
 pmda.logger
 pmda.lustre
@@ -822,7 +823,6 @@ cgroups
 537 pmimport perl local
 538 pmie local pmstore
 539 pmpost local flakey
-540 pmda.linux local pminfo
 541 pmie #535080 local pmprobe
 542 pmdate #666344 local
 543 logutil remote pmlogextract
@@ -922,7 +922,6 @@ cgroups
 719 libpcp local valgrind
 720 libpcp local valgrind
 721 dbpmda local
-722 python local
 723 pmda.proc local
 724 pmfind local
 725 pmda.jbd2 local
@@ -1016,6 +1015,7 @@ cgroups
 845 pmda.mounts local
 860 pmda pmda.proc ostest local
 861 pmcd pmda.pmcd local
+862 pmie local
 873 pmda.linux local
 874 valgrind pmval libpcp local
 875 libpcp local valgrind
@@ -1044,7 +1044,9 @@ cgroups
 945 pmlogrewrite pmda.xfs local
 946 pmfind avahi local
 947 pmlogger local
+948 pmlogger context_local local 
 950 pmproxy avahi local
+951 pmie local
 955 pmda.linux local
 956 pmcd local
 957 pmda.linux local valgrind
@@ -1112,6 +1114,10 @@ cgroups
 1049 pmie pmieconf local
 1050 pmieconf local
 1051 pmieconf #696008 local
+1052 pmda.json local python
+1053 pmda.json pmda.install local python
+1079 pcp local
+1080 valgrind pcp local
 1091 pmns libpcp context local
 1092 libpcp local
 1108 logutil local folio pmlogextract

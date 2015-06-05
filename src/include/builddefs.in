@@ -299,6 +299,19 @@ SUBDIRS_MAKERULE = \
 	    fi; \
 	done
 
+# special variant of SUBDIRS_MAKERULE when running QA
+#
+QA_SUBDIRS_MAKERULE = \
+	+@for d in `echo $^ `; do \
+	    if test -d "$$d" ; then \
+		if test -f "$$d/GNUmakefile.install"; then \
+		    $(MAKE) --silent -C $$d -f GNUmakefile.install $@ || exit $$?; \
+		else \
+		    $(MAKE) --silent -C $$d $@ || exit $$?; \
+		fi; \
+	    fi; \
+	done
+
 # prepare symbols file for the GNU toolchain (linker) for DSO PMDAs
 VERSION_SCRIPT_MAKERULE = \
 	@rm -f $@; \
@@ -412,6 +425,7 @@ INSTALL_MAN = \
     for d in `echo $$MAN_PAGES`; do \
 	first=true; \
 	base=`echo $$d | sed -e 's/\.[0-9]//g'`; \
+	section=`echo $$d | sed -e 's/.*\.//g'`; \
 	$(AWK) <$$d ' \
 BEGIN { state=0; print "'"$$base"'" } \
 $$1==".ds" { ds["\\\\\\*\\("$$2] = $$3 } \
@@ -428,7 +442,7 @@ state==1 { for (i=1;i<=NF;i++) { \
 	| LC_COLLATE=POSIX $(PCP_SORT_PROG) -u \
 	| while read m; do \
 	    [ -z "$$m" -o "$$m" = "\\" ] && continue; \
-	    t=$(MAN_DEST)/$$m.$(MAN_SECTION); \
+	    t=$(PCP_MAN_DIR)/man$$section/$$m.$$section; \
 	    if $$first; then \
 		_tfx= ;\
 		if $(NEED_OLD_TBL_HEADER) ; then \
@@ -446,7 +460,7 @@ state==1 { for (i=1;i<=NF;i++) { \
 		if $(HAVE_XZED_MANPAGES) ; then \
 		    $(XZ) -c $$d$$_tfx > $$d.xz; _tfx=.xz; _sfx=.xz; \
 		fi; \
-		u=$$m.$(MAN_SECTION)$$_sfx; \
+		u=$$m.$$section$$_sfx; \
 		echo $(INSTALL) -m 644 $${d}$$_tfx $${t}$$_sfx; \
 		$(INSTALL) -m 644 $${d}$$_tfx $${t}$$_sfx; \
 	    else \
