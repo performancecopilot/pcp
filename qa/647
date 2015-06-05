@@ -22,6 +22,7 @@ else
 fi
 
 status=1
+$sudo rm -f $tmp.* $seq.full
 username=`id -u -n`
 done_clean=false
 MMV_STATS_DIR="$PCP_TMP_DIR/mmv"

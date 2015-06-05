@@ -5,11 +5,9 @@
 ** the system on system-level as well as process-level.
 **
 ** Include-file describing system-level counters maintained.
-** ================================================================
-** Author:      Gerlof Langeveld
-** E-mail:      gerlof.langeveld@atoptool.nl
-** Date:        November 1996
-** LINUX-port:  June 2000
+**
+** Copyright (C) 1996-2014 Gerlof Langeveld
+** Copyright (C) 2015 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -164,11 +162,10 @@ struct intfstat {
 };
 
 /************************************************************************/
-/*
-** experimental stuff for access to local HTTP daemons
-*/
-#define	HTTPREQ	"GET /server-status?auto HTTP/1.1\nHost: localhost\n\n"
 
+/*
+** Status metrics from local HTTP (Apache) daemon
+*/
 struct wwwstat {
 	count_t	accesses;	/* total number of HTTP-requests	*/
 	count_t	totkbytes;	/* total kbytes transfer for HTTP-req   */
@@ -177,9 +174,6 @@ struct wwwstat {
 	int	iworkers;	/* number of idle httpd-daemons		*/
 };
 
-#if	HTTPSTATS
-int	getwwwstat(unsigned short, struct wwwstat *);
-#endif
 /************************************************************************/
 
 struct	sstat {

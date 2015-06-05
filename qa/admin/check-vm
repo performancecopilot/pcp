@@ -257,6 +257,7 @@ dpkg?	realpath		[realpath]
 dpkg?	unbound-control		[unbound (QA optional)]
 rpm?	/usr/share/doc/python-requests*|/usr/share/doc/packages/python-requests	[python-requests (QA optional)]
 dpkg?	/usr/share/doc/python-requests|/usr/share/doc/packages/python-requests	[python-requests (QA optional)]
+rpm?	/usr/bin/logconv.pl	[389-ds-base (QA optional)]
 # pcp-gui
 dpkg?	qmake			[qt4-qmake (build optional)]
 rpm?	qmake|/usr/lib64/qt4/bin/qmake|/usr/lib/qt4/bin/qmake		[qt4-devel (build optional)]

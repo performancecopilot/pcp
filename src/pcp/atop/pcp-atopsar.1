@@ -1,10 +1,10 @@
 .TH PCP-ATOPSAR 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-.B atopsar
+.B pcp-pcp-atopsar
 - Advanced System Activity Report (atop related)
 .SH SYNOPSIS
 .P
-.B atopsar
+.B pcp\ pcp-atopsar
 [\-flags...]
 [\-r
 .I file|date
@@ -16,7 +16,7 @@
 .I hh:mm
 ]
 .br
-.B atopsar
+.B pcp-atopsar
 [\-flags...]
 .I interval
 [
@@ -25,11 +25,11 @@
 .P
 .SH DESCRIPTION
 The program
-.I atopsar
+.I pcp-atopsar
 can be used to report statistics on system level.
 .PP
 In the first synopsis line (no sampling interval specified),
-.I atopsar
+.I pcp-atopsar
 extracts data from a raw logfile that has been recorded previously by
 the program
 .I atop
@@ -42,7 +42,7 @@ program).
 You can specify the name of the logfile with the 
 .B -r
 option of the
-.I atopsar
+.I pcp-atopsar
 program.
 When a daily logfile of
 .I atop
@@ -66,14 +66,14 @@ and
 followed by a time argument of the form hh:mm.
 .PP
 In the second synopsis line,
-.B atopsar
+.B pcp-atopsar
 reads actual activity counters from the kernel with the specified
 .I interval
 (in seconds) and the specified number of
 .I samples
 (optionally).
 When
-.B atopsar
+.B pcp-atopsar
 is activated in this way it immediately sends the output for every requested
 report to standard output.
 If only one type of report is requested, the header is printed
@@ -84,7 +84,7 @@ If several reports are requested, a header is printed per sample
 followed by the statistical counters for that period.
 .PP
 Some generic flags can be specified to influence the behaviour of the
-.B atopsar
+.B pcp-atopsar
 program:
 .PP
 .TP 5
@@ -103,7 +103,7 @@ they were inactive during the interval.
 .TP 5
 .B -x
 By default
-.B atopsar
+.B pcp-atopsar
 only uses colors if output is directed to a terminal (window).
 These colors might indicate that a critical occupation percentage has
 been reached (red) or has been almost reached (cyan) for a particular
@@ -119,7 +119,7 @@ the use of colors is suppressed unconditionally.
 .TP 5
 .B -C
 By default
-.B atopsar
+.B pcp-atopsar
 only uses colors if output is directed to a terminal (window).
 These colors might indicate that a critical occupation percentage has
 been reached (red) or has been almost reached (cyan) for a particular
@@ -483,7 +483,7 @@ If the linespeed of this interface could not be determined
 (for virtual interfaces or in case that
 .B atop
 or
-.B atopsar
+.B pcp-atopsar
 had no root-privileges), a question mark is shown.
 .TP 12
 .B ipack/s
@@ -510,7 +510,7 @@ If the linespeed could not be determined (for virtual interfaces
 or in case that
 .B atop
 or
-.B atopsar
+.B pcp-atopsar
 had no root-privileges), value 0 is shown.
 .br
 The linespeed is followed by the indication 'f' (full duplex)
@@ -1002,7 +1002,7 @@ To see today's cpu-activity so far
 is logging in the background):
 .PP
 .TP 12
-.B \  atopsar
+.B \  pcp-atopsar
 .PP
 To see the memory occupation for June 5, 2012 between 10:00 and 12:30
 (supposed that
@@ -1010,19 +1010,19 @@ To see the memory occupation for June 5, 2012 between 10:00 and 12:30
 has been logging daily in the background):
 .PP
 .TP 12
-.B \  atopsar -m -r /var/log/atop_20120605 -b 10:00 -e 12:30
+.B \  pcp-atopsar -m -r /var/log/atop_20120605 -b 10:00 -e 12:30
 .br
 \ 
 .br
     or
 .TP 12
-.B \  atopsar -m -r 20120605 -b 10:00 -e 12:30
+.B \  pcp-atopsar -m -r 20120605 -b 10:00 -e 12:30
 .br
 \ 
 .br
     or, suppose it is June 8, 2012 at this moment
 .TP 12
-.B \  atopsar -m -r yyy -b 10:00 -e 12:30
+.B \  pcp-atopsar -m -r yyy -b 10:00 -e 12:30
 .PP
 Write a logfile with
 .B atop
@@ -1033,20 +1033,20 @@ afterwards:
 .TP 12
 .B \  atop       -w /tmp/atoplog 60 30
 .TP 12
-.B \  atopsar -A -r /tmp/atoplog
+.B \  pcp-atopsar -A -r /tmp/atoplog
 .PP
 To watch TCP activity evolve for ten minutes (10 samples with sixty seconds
 interval):
 .PP
 .TP 12
-.B \  atopsar -t 60 10
+.B \  pcp-atopsar -t 60 10
 .PP
 To watch the header-lines ('_' as last character) of all reports with only 
 the detail-lines showing critical resource consumption (marker '*' or '+'
 as last character):
 .PP
 .TP 12
-.B \  atopsar -AM | grep '[_*+]$'
+.B \  pcp-atopsar -AM | grep '[_*+]$'
 .PP
 .SH FILES
 .PP

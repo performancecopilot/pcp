@@ -6,11 +6,8 @@
 **
 ** Include-file describing process-level counters maintained and functions
 ** to access the process-database.
-** ================================================================
-** Author:      Gerlof Langeveld
-** E-mail:      gerlof.langeveld@atoptool.nl
-** Date:        November 1996
-** LINUX-port:  June 2000
+**
+** Copyright (C) 1996-2014 Gerlof Langeveld
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the

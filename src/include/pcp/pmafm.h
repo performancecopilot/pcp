@@ -28,7 +28,7 @@ extern "C" {
 #define PM_REC_STATUS	44
 #define PM_REC_SETARG	45
 
-typedef struct {
+typedef struct pmRecordHost {
     FILE	*f_config;	/* caller writes pmlogger configuration here */
     int		fd_ipc;		/* IPC channel to pmlogger */
     char	*logfile;	/* full pathname for pmlogger error logfile */

@@ -27,7 +27,6 @@ systmetrics {
 	kernel.percpu.cpu.steal			PERCPU_STEAL
 	kernel.percpu.cpu.guest			PERCPU_GUEST
 	hinv.cpu.clock				PERCPU_FREQCNT_CNT
-	hinv.ncpu				NRCPUS
 
 	# /proc/vmstat
 	swap.pagesin				MEM_SWINS
@@ -71,7 +70,6 @@ systmetrics {
 	ipc.shm.swp				MEM_SHMSWP
 
 	# /proc/net/dev
-	hinv.ninterface				NRINTF
 	network.interface.in.bytes		PERINTF_RBYTE
 	network.interface.in.packets		PERINTF_RPACK
 	network.interface.in.errors		PERINTF_RERRS
@@ -217,17 +215,14 @@ systmetrics {
 	disk.dev.blkwrite			PERDISK_NWSECT
 	disk.dev.avactive			PERDISK_IO_MS
 	disk.dev.aveq				PERDISK_AVEQ
-	hinv.ndisk				NRDISK
 	disk.dm.read				PERDM_NREAD
         disk.dm.blkread				PERDM_NRSECT
         disk.dm.write				PERDM_NWRITE
         disk.dm.blkwrite			PERDM_NWSECT
-	hinv.map.dmname				MAP_DMNAME
 	disk.md.read				PERMD_NREAD
         disk.md.blkread				PERMD_NRSECT
         disk.md.write				PERMD_NWRITE
         disk.md.blkwrite			PERMD_NWSECT
-	hinv.map.mdname				MAP_MDNAME
 
 	# http status
 	apache.total_accesses			WWW_ACCESSES
@@ -237,5 +232,5 @@ systmetrics {
 	apache.idle_servers			WWW_IWORKERS
 
 	# end marker - provides count
-	_					SYST_NMETRICS
+	.					SYST_NMETRICS
 }

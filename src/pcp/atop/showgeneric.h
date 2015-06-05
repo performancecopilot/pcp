@@ -6,10 +6,8 @@
 **
 ** Include-file describing prototypes and structures for visualization
 ** of counters.
-** ================================================================
-** Author:      Gerlof Langeveld
-** E-mail:      gerlof.langeveld@atoptool.nl
-** Date:        July 2002
+**
+** Copyright (C) 1996-2014 Gerlof Langeveld
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the

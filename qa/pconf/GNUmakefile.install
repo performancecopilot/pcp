@@ -1,8 +1,4 @@
 #!gmake
-#
-# Copyright (c) 2012 Red Hat.
-# Copyright (c) 2010 Aconex.  All Rights Reserved.
-#
 
 ifdef PCP_CONF
 include $(PCP_CONF)
@@ -12,14 +8,14 @@ endif
 PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
 include $(PCP_INC_DIR)/builddefs
 
-SUBDIRS = qmc_context qmc_desc qmc_dynamic qmc_event qmc_format \
-	  qmc_group qmc_hosts qmc_indom qmc_metric qmc_source
+TESTDIR = $(PCP_VAR_DIR)/testsuite/pconf
+SUBDIRS = cpu disk filesys global memory network
 
 default default_pcp: $(SUBDIRS)
 	$(QA_SUBDIRS_MAKERULE)
 
-setup: $(SUBDIRS)
+setup:
 
-install install_pcp: $(SUBDIRS)
+install install_pcp:
 
 include $(BUILDRULES)

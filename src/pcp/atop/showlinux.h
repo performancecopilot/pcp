@@ -6,11 +6,7 @@
 **
 ** This source-file contains the Linux-specific functions to calculate
 ** figures to be visualized.
-** ==========================================================================
-** Author:      JC van Winkel - AT Computing, Nijmegen, Holland
-** E-mail:      jc@ATComputing.nl
-** Date:        November 2009
-** --------------------------------------------------------------------------
+**
 ** Copyright (C) 2009 	JC van Winkel
 **
 ** This program is free software; you can redistribute it and/or modify it
@@ -22,17 +18,6 @@
 ** WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ** See the GNU General Public License for more details.
-**
-** You should have received a copy of the GNU General Public License
-** along with this program; if not, write to the Free Software
-** Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-** --------------------------------------------------------------------------
-**
-** $Log: showlinux.h,v $
-** Initial revision
-**
-** Initial
-**
 */
 #define MAXITEMS 80    /* The maximum number of items per line */
 
