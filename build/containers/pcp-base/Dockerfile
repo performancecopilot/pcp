@@ -43,8 +43,9 @@ RUN yum --enablerepo=pcp-testing -y install pcp-conf && yum clean all
 RUN sed -i -e 's/PCP_USER=.*$/PCP_USER=root/' -e 's/PCP_GROUP=.*$/PCP_GROUP=root/' /etc/pcp.conf
 
 #
-# Since this can be an interactive container, set the bash prompt
-RUN echo export PS1='"[pcp-base] "' >> /root/.bash_profile
+# Since this can be invoked an interactive container, set the bash prompt.
+# All containers layered on pcp-base inherit this, with their own name.
+RUN echo export PS1='"[$PCP_CONTAINER_IMAGE] "' >> /root/.bash_profile
 
 #
 # denote this as a container environment, for rc scripts

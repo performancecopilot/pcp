@@ -28,12 +28,8 @@ RUN sed -i -e 's/PCP_USER=.*$/PCP_USER=root/' -e 's/PCP_GROUP=.*$/PCP_GROUP=root
 EXPOSE 4330
 
 #
-# pmlogger start script checks if it's enabled.
+# pmlogger start script complains if pmlogger.service is not enabled.
 RUN systemctl enable pmlogger.service
-
-#
-# Since this can be an interactive container, set the bash prompt
-RUN echo export PS1='"[pcp-pmlogger] "' >> /root/.bash_profile
 
 #
 # denote this as a container environment, for rc scripts
