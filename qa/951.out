@@ -53,6 +53,7 @@ QA output created by 951
 19:37:35 3258304 1879364 0 471 0 0 OK OK OK
 
 === extra cases with PM_SEM_COUNTER archive ===
+pmie: timezone set to local timezone of host bozo
 DATE: rate converted UNKNOWN
 DATE: instant UNKNOWN
 DATE: rate converted UNKNOWN
@@ -77,6 +78,7 @@ DATE: rate converted OK
 DATE: instant OK
 
 === extra cases with PM_SEM_INSTANT archive ===
+pmie: timezone set to local timezone of host bozo
 DATE: raw UNKNOWN
 DATE: rate UNKNOWN
 DATE: raw UNKNOWN
