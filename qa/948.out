@@ -7,6 +7,16 @@ Usage: pmlogger [options] archive
 Options:
 ...
 
+=== linger tests ===
+--- expect error from pmlc ---
+Unable to connect to pmlogger pid PID at local:: Connection refused
+quit
+Goodbye
+--- expect success from pmlc ---
+Connected to pmlogger pid PID at local:
+quit
+Goodbye
+
 === OK case ===
 Waiting for pmcd to terminate ...
 Log for pmlogger on HOST started DATE
