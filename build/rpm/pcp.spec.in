@@ -1047,13 +1047,12 @@ Summary: Performance Co-Pilot (PCP) metrics for JSON data
 URL: http://www.pcp.io
 %if "@enable_python3@" == "true"
 Requires: python3-pcp
-Requires: python3-jsonpointer
 Requires: python3-six
 %else
 Requires: python-pcp
-Requires: python-jsonpointer
 Requires: python-six
 %endif
+Requires: python-jsonpointer
 %description pmda-json
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics output in JSON.  The PMDA is written in Python.
