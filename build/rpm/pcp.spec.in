@@ -528,7 +528,11 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for hardware counters
 URL: http://www.pcp.io
+%if "%{_vendor}" == "suse"
+Requires: libpfm4 >= 4.4
+%else
 Requires: libpfm >= 4.4
+%endif
 BuildRequires: libpfm-devel >= 4.4
 
 %description pmda-perfevent
@@ -1047,12 +1051,17 @@ Summary: Performance Co-Pilot (PCP) metrics for JSON data
 URL: http://www.pcp.io
 %if "@enable_python3@" == "true"
 Requires: python3-pcp
+%if "%{_vendor}" == "suse"
+Requires: python-jsonpointer
+%else
+Requires: python3-jsonpointer
+%endif
 Requires: python3-six
 %else
 Requires: python-pcp
+Requires: python-jsonpointer
 Requires: python-six
 %endif
-Requires: python-jsonpointer
 %description pmda-json
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics output in JSON.  The PMDA is written in Python.
