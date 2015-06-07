@@ -805,6 +805,9 @@ qmake
 enable_qt
 qt_release
 QMAKE
+pmda_json
+have_python_six
+have_python_jsonpointer
 pcp_python_prog
 have_python
 enable_python3
@@ -6302,6 +6305,56 @@ then
 else
     pcp_python_prog=$PYTHON
 fi
+
+
+
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Python module jsonpointer" >&5
+$as_echo_n "checking for Python module jsonpointer... " >&6; }
+    if test -n ""
+    then
+	txt=""
+    else
+	txt="import jsonpointer"
+    fi
+    $pcp_python_prog -c 'import sys;
+'"$txt" >>config.log 2>&1
+    if test "$?" = 0
+    then
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	eval have_python_jsonpointer=true
+    else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	eval have_python_jsonpointer=false
+    fi
+
+
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Python module six" >&5
+$as_echo_n "checking for Python module six... " >&6; }
+    if test -n ""
+    then
+	txt=""
+    else
+	txt="import six"
+    fi
+    $pcp_python_prog -c 'import sys;
+'"$txt" >>config.log 2>&1
+    if test "$?" = 0
+    then
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	eval have_python_six=true
+    else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	eval have_python_six=false
+    fi
+
+
+
+pmda_json=false
+$have_python_jsonpointer && $have_python_six && pmda_json=true
 
 
 qmake=$QMAKE

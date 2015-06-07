@@ -574,6 +574,42 @@ else
 fi
 AC_SUBST(pcp_python_prog)
 
+dnl check availability of some Python modules
+dnl usage PCP_CHECK_PYTHON_MODULE(module_name) or
+dnl PCP_CHECK_PYTHON_MODULE(module_name, <import string>)
+dnl default <import string> is "import module_name"
+dnl
+dnl sets $have_python_<module_name> as true or false
+dnl
+AC_DEFUN(PCP_CHECK_PYTHON_MODULE,
+  [ AC_MSG_CHECKING(for Python module $1)
+    if test -n "$2"
+    then
+	txt="$2"
+    else
+	txt="import $1"
+    fi
+    $pcp_python_prog -c 'import sys;
+'"$txt" >>config.log 2>&1
+    if test "$?" = 0
+    then
+	AC_MSG_RESULT(yes)
+	eval have_python_$1=true
+    else
+	AC_MSG_RESULT(no)
+	eval have_python_$1=false
+    fi
+  ])
+PCP_CHECK_PYTHON_MODULE(jsonpointer)
+AC_SUBST(have_python_jsonpointer)
+PCP_CHECK_PYTHON_MODULE(six)
+AC_SUBST(have_python_six)
+
+dnl json PMDA needs both the six and jsonpointer Pyton modules
+pmda_json=false
+$have_python_jsonpointer && $have_python_six && pmda_json=true
+AC_SUBST(pmda_json)
+
 qmake=$QMAKE
 enable_qt=false
 qt_release=release
