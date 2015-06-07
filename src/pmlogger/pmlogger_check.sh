@@ -21,7 +21,7 @@
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/rc-proc.sh
 
-PMLOGGER=pmlogger
+PMLOGGER="$PCP_BINADM_DIR/pmlogger"
 PMLOGCONF="$PCP_BINADM_DIR/pmlogconf"
 
 # error messages should go to stderr, not the GUI notifiers

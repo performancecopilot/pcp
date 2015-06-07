@@ -136,7 +136,7 @@ echo "=== instant disk.dev.total(PM_SEM_COUNTER) ==="
 echo "instant disk.dev.total;" \
 | pmie -z -v -t 1sec -a archives/instant-base >$tmp.1 2>&1
 # check
-pmval -t1 -r -a archives/instant-base disk.dev.total >$tmp.2 2>&1
+pmval -z -t1 -r -a archives/instant-base disk.dev.total >$tmp.2 2>&1
 _check_1
 
 # note that this is an instantaneous metric and values will
@@ -148,7 +148,7 @@ echo "(expect slightly smaller values than the case above)"
 echo "disk.dev.total;" \
 | pmie -z -v -t 1sec -a archives/instant-1 >$tmp.1 2>&1
 # check
-pmval -t1 -a archives/instant-1 disk.dev.total >$tmp.2 2>&1
+pmval -z -t1 -a archives/instant-1 disk.dev.total >$tmp.2 2>&1
 _check_1
 
 # note that this is a counter metric and values will be
@@ -159,7 +159,7 @@ echo "=== (rate) disk.dev.total(PM_SEM_COUNTER) ==="
 echo "disk.dev.total;" \
 | pmie -z -v -t 1sec -a archives/instant-base >$tmp.1 2>&1
 # check
-pmval -t1 -a archives/instant-base disk.dev.total >$tmp.2 2>&1
+pmval -z -t1 -a archives/instant-base disk.dev.total >$tmp.2 2>&1
 _check_1
 
 #
@@ -167,7 +167,7 @@ echo
 echo "=== rate disk.dev.total(PM_SEM_INSTANT) ==="
 echo "rate disk.dev.total;" \
 | pmie -z -v -t 1sec -a archives/instant-1 >$tmp.1 2>&1
-pmval -t1 -a archives/instant-1 disk.dev.total >$tmp.2 2>&1
+pmval -z -t1 -a archives/instant-1 disk.dev.total >$tmp.2 2>&1
 _check_2
 
 echo
@@ -190,7 +190,7 @@ otherwise
     -> print "instant BAD: read+write != total" " [%i] %v"
 ;
 End-of-File
-pmie -c $tmp.config -t 1sec -a archives/instant-base 2>&1 \
+pmie -z -c $tmp.config -t 1sec -a archives/instant-base 2>&1 \
 | _filter
 
 echo
@@ -213,7 +213,7 @@ otherwise
     -> print "rate BAD: read+write != total" " [%i] %v"
 ;
 End-of-File
-pmie -c $tmp.config -t 1sec -a archives/instant-1 2>&1 \
+pmie -z -c $tmp.config -t 1sec -a archives/instant-1 2>&1 \
 | _filter
 
 echo | tee -a $seq.full

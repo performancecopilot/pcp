@@ -34,7 +34,7 @@ pack_pcp : rpmmacros $(SPEC)
 	DEFS=`grep '^--define' rpmmacros`; \
 	eval $(RPMPROG) -ba $$DEFS \
 		--clean $(SPEC)
-	rm -f $(SPEC) $(TOPDIR)/install.manifest $(TOPDIR)/files.rpm \
+	rm -f $(TOPDIR)/install.manifest $(TOPDIR)/files.rpm \
 		rpmmacros 
 
 rpmmacros : macros.template

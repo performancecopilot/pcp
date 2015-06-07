@@ -29,7 +29,7 @@ CONF_LINE	= "linux	60	pipe	binary		$(PMDADIR)/$(CMDTARGET)"
 CFILES		= pmda.c \
 		  proc_stat.c proc_meminfo.c proc_loadavg.c \
 		  proc_net_dev.c interrupts.c filesys.c ipc.c \
-		  swapdev.c devmapper.c proc_net_rpc.c proc_partitions.c \
+		  swapdev.c proc_net_rpc.c proc_partitions.c \
 		  getinfo.c proc_net_sockstat.c proc_net_snmp.c \
 		  proc_scsi.c proc_cpuinfo.c proc_net_tcp.c proc_uptime.c \
 		  proc_slabinfo.c proc_sys_fs.c proc_vmstat.c \
@@ -39,7 +39,7 @@ CFILES		= pmda.c \
 HFILES		= clusters.h indom.h convert.h \
 		  proc_stat.h proc_meminfo.h proc_loadavg.h \
 		  proc_net_dev.h interrupts.h filesys.h ipc.h \
-		  swapdev.h devmapper.h proc_net_rpc.h proc_partitions.h \
+		  swapdev.h proc_net_rpc.h proc_partitions.h \
 		  getinfo.h proc_net_sockstat.h proc_net_snmp.h \
 		  proc_scsi.h proc_cpuinfo.h proc_net_tcp.h proc_uptime.h \
 		  proc_slabinfo.h proc_sys_fs.h proc_vmstat.h \
@@ -104,7 +104,6 @@ pmda.o:	domain.h
 filesys.o interrupts.o pmda.o:	filesys.h
 pmda.o:	getinfo.h
 pmda.o ipc.o:	ipc.h
-pmda.o devmapper.o:	devmapper.h
 numa_meminfo.o pmda.o proc_cpuinfo.o proc_partitions.o proc_stat.o:	indom.h
 interrupts.o pmda.o:	interrupts.h
 linux_table.o numa_meminfo.o pmda.o:	linux_table.h
