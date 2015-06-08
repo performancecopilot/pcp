@@ -443,12 +443,12 @@ do
 	if $qatrace
 	then
 	    pmtrace -qh $qadepot -v $qarunning "$qasrc:$seq" 2>/dev/null
-	    pmtrace -qh $qadepot -e "sh $seq" "$qasrc:$seq" >$tmp.out.1 2>&1
+	    pmtrace -qh $qadepot -e "./$seq" "$qasrc:$seq" >$tmp.out.1 2>&1
 	    sts=$?
 	    # check for trace errors on first line of test & blow them away
 	    $PCP_AWK_PROG '/pmtrace: / {if (NR != 1) print $0; next} {print $0}' $tmp.out.1 > $tmp.out
 	else
-	    sh $seq >$tmp.out 2>&1
+	    ./$seq >$tmp.out 2>&1
 	    sts=$?
 	fi
 	$timestamp && _timestamp
