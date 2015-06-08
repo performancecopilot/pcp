@@ -55,6 +55,7 @@ linux_filter()
 	-e "/disk\.dm\..*: $unavailable/d" \
 	-e "/filesys\.readonly: $unknown/d" \
 	-e "/hinv\.cpu\..*: $unavailable/d" \
+	-e "/hinv\.hugepagesize: $unavailable/d" \
 	-e "/hinv\.map\.dmname: $unavailable/d" \
 	-e "/hinv\.nlv: $unavailable/d" \
 	-e "/hinv\.node\.online: $unavailable/d" \
