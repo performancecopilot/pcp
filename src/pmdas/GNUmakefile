@@ -34,7 +34,10 @@ PLPMDAS = bonding netfilter zimbra postgresql \
 	ds389 ds389log activemq lustre gpfs
 
 ifeq "$(HAVE_PYTHON)" "true"
-PYPMDAS = gluster zswap unbound json
+PYPMDAS = gluster zswap unbound
+ifeq "$(PMDA_JSON)" "true"
+PYPMDAS += json
+endif
 endif
 
 SUBDIRS = $(CPMDAS) $(PLPMDAS) $(PYPMDAS)

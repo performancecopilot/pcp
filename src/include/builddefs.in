@@ -235,6 +235,11 @@ ENABLE_WEBAPI = @enable_webapi@
 # for code supporting both/either python2 and/or python3
 HAVE_PYTHON = @have_python@
 
+# python dependent bits
+HAVE_PYTHON_SIX = @have_python_six@
+HAVE_PYTHON_JSONPOINTER = @have_python_jsonpointer@
+PMDA_JSON = @pmda_json@
+
 # additional libraries needed for particular functions
 LIB_FOR_BASENAME = @lib_for_basename@
 LIB_FOR_DLOPEN = @lib_for_dlopen@

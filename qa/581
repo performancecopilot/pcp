@@ -204,6 +204,7 @@ _filter_pmie_log <$tmp.out \
     -e '/^DISK hd[a-z]/d' \
     -e '/^DISK sd[a-z0-9]/d' \
     -e '/^DISK dasd[a-z]/d' \
+    -e '/^DISK mmcblk[0-9]/d' \
     -e '/^DISK cmdk[0-9]/d' \
     -e '/^DISK rd\//d' \
     -e '/^DISK scsi\/host/d' \
