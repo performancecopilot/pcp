@@ -2534,6 +2534,8 @@ __pmLogChangeToNextArchive(__pmLogCtl *lcp)
 {
     __pmContext	*ctxp;
     __pmArchCtl	*acp;
+    __pmTimeval	save_origin;
+    int		save_mode;
     int		i;
 
     /* Get the current context. It must be an archive context. */
@@ -2553,9 +2555,21 @@ __pmLogChangeToNextArchive(__pmLogCtl *lcp)
     if (i >= acp->ac_num_logs - 1)
 	lcp = NULL; /* no more archives */
     else {
+	/*
+	 * We're changing to the next archive because we have reached the end of
+	 * the current one while reading forward. __pmLogChangeArchive() will
+	 * update the c_origin and c_mode fields of the current context, either
+	 * via __pmLogOpen() or directly if the new archive is already open.
+	 * However, we don't want that here, so save this information and
+	 * restore it after switching to the new archive.
+	 */
+	save_origin = ctxp->c_origin;
+	save_mode = ctxp->c_mode;
 	/* Switch to the next archive. */
 	__pmLogChangeArchive(ctxp, i + 1);
 	lcp = acp->ac_log;
+	ctxp->c_origin = save_origin;
+	ctxp->c_mode = save_mode;
     }
 
     PM_UNLOCK(ctxp->c_lock);
