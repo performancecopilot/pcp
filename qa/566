@@ -54,6 +54,7 @@ _filter_pass0()
 }
 
 # real QA test starts here
+export LC_COLLATE=POSIX
 echo "=== directory traversal and file checks ===" | tee -a $here/$seq.full
 cp src/foo.index $tmp
 ( echo; echo "TMP/foo.index alone:" ) | tee -a $here/$seq.full

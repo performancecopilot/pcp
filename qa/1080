@@ -29,7 +29,10 @@ BEGIN			{ printing=1; }
 /^=== std err ===$/	{ printing=1; }
 			{ if (printing) { print } }' | \
     sed \
-	-e "s,$ATOP,PCP-ATOP,g" \
+	-e '/Command:/{
+s,'"$ATOP"',PCP-ATOP,g
+s/ -r .*\/archives/ -r ...\/archives/
+}' \
     #end
 }
 
