@@ -1,0 +1,35 @@
+# Broken valgrind 3.10.1 seen on i686 openSUSE 13.2
+#
+# Conditional jump or move depends on uninitialised value(s)
+# at 0x408498D: __pmLogFetchInterp (interp.c:1494)
+# by 0x408017D: __pmLogFetch (logutil.c:1752)
+# by 0x4063C66: pmFetch (fetch.c:151)
+# by 0x804925B: main (interp0.c:179)
+{
+   Valgrind 3.10.1 botch - case (a)
+   Memcheck:Cond
+   fun:__pmLogFetchInterp
+   fun:__pmLogFetch
+   fun:pmFetch
+   fun:main
+}
+
+# Conditional jump or move depends on uninitialised value(s)
+# at 0x408C955: __pmLogFetchInterp (interp.c:1292)
+# by 0x408817D: __pmLogFetch (logutil.c:1752)
+# by 0x406BC66: pmFetch (fetch.c:151)
+# by 0x806C4A3: fetch_metrics (various.c:817)
+# by 0x8057114: photosyst (photosyst.c:213)
+# by 0x804A62C: engine (atop.c:566)
+# by 0x804A62C: main (atop.c:455)
+{
+   Valgrind 3.10.1 botch - case (a)
+   Memcheck:Cond
+   fun:__pmLogFetchInterp
+   fun:__pmLogFetch
+   fun:pmFetch
+   fun:fetch_metrics
+   fun:photosyst
+   fun:engine
+   fun:main
+}
