@@ -16,6 +16,7 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 [ $PCP_PLATFORM = linux ] || _notrun "Device Mapper is Linux-specific (dm)"
+which dmsetup >/dev/null 2>&1 || _notrun "dmsetup is not installed"
 
 root=$tmp.root
 export DM_SETUP_CACHE="cat $root/dmcache-caches"
