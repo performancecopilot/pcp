@@ -279,7 +279,7 @@ _ipv6_localhost()
 	echo "Arrgh ... cannot find /etc/hosts to determine IPv6 localhost name"
 	exit
     fi
-    for sniff in localhost6 ip6-localhost
+    for sniff in localhost6 ip6-localhost ipv6-localhost
     do
 	if sed -e '/^#/d' -e 's/$/ /' /etc/hosts | grep -q "[ 	]$sniff "
 	then
