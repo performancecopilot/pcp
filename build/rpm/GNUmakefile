@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2014 Red Hat.
+# Copyright (c) 2012-2015 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -34,7 +34,7 @@ pack_pcp : rpmmacros $(SPEC)
 	DEFS=`grep '^--define' rpmmacros`; \
 	eval $(RPMPROG) -ba $$DEFS \
 		--clean $(SPEC)
-	rm -f $(SPEC) $(TOPDIR)/install.manifest $(TOPDIR)/files.rpm \
+	rm -f $(TOPDIR)/install.manifest $(TOPDIR)/files.rpm \
 		rpmmacros 
 
 rpmmacros : macros.template
@@ -66,17 +66,19 @@ pcp.spec: pcp.spec.in
 	    -e's|@pmda_systemd@|$(PMDA_SYSTEMD)|g' \
 	    -e's|@pmda_infiniband@|$(PMDA_INFINIBAND)|g' \
 	    -e's|@pmda_perfevent@|$(PMDA_PERFEVENT)|g' \
+	    -e's|@pmda_json@|$(PMDA_JSON)|g' \
 	    -e's|@enable_systemd@|$(ENABLE_SYSTEMD)|g' \
 	    -e's|@enable_secure@|$(ENABLE_SECURE)|g' \
 	    -e's|@enable_probes@|$(ENABLE_PROBES)|g' \
 	    -e's|@enable_avahi@|$(ENABLE_AVAHI)|g' \
 	    -e's|@enable_qt@|$(ENABLE_QT)|g' \
-	    -e's|@enable_python@|$(ENABLE_PYTHON)|g' \
+	    -e's|@enable_python2@|$(ENABLE_PYTHON2)|g' \
 	    -e's|@enable_python3@|$(ENABLE_PYTHON3)|g' \
 	    -e's|@enable_manager@|$(ENABLE_MANAGER)|g' \
 	    -e's|@enable_webapi@|$(ENABLE_WEBAPI)|g' \
 	    -e's|@have_libmicrohttpd@|$(have_libmicrohttpd)|g' \
 	    -e's|@have_cairo@|$(have_cairo)|g' \
+	    -e's|@have_python@|$(HAVE_PYTHON)|g' \
 	    -e"s|@build_root@|$${DIST_ROOT}|g" \
 	    -e's|@pcp_sysconf_dir@|$(PCP_SYSCONF_DIR)|g' \
 	    -e's|@pcp_log_dir@|$(PCP_LOG_DIR)|g' \

@@ -1,0 +1,73 @@
+
+To build and run PCP container images :
+
+- build the PCP RPMS to be used in the container.
+  This step will not be needed when pcp-3.10.5-1 or later is in Fedora.
+  (needs PCP RPMS built using the split packages changes). First you need
+  to run Makeimages (or equiv Fedora build) and then copy all of the resulting
+  RPMs to the build/containers/RPMS directory. Then create a yum repo by
+  running: createrepo build/containers/RPMS
+
+- make sure you have "NOPASSWD: all" in your sudo config for your user
+  (see build/containers/GNUlocalrules) or be passwd prompted during the build.
+
+- cd build/containers and run make
+  This should create container images using the local docker storage,
+  and then create a gzipped tarball of each using docker-save(1).
+  These images can be copied to a docker server and then loaded onto
+  the local docker storage using docker-load (See below). Or the images
+  can be pushed to a docker repository and used with docker-pull(1), etc.
+  e.g. gzip -d < pcp-collector.tgz | sudo docker load   will create a
+  docker image called "pcp-collector", which can then be deployed using
+  "atomic run pcp-collector". Note the "atomic run" command uses the
+  RUN label defined in the Dockerfile for the docker-run(1) arguments.
+  On a non-atomic platform, use the build/contains/scripts/pcp-docker-run
+  script - it will extract the RUN label and then run docker-run(1) using
+  the appropriate command line arguments. e.g. pcp-docker-run pcp-collector
+
+Notes on individual containers :
+
+- pcp-collector
+  This container installs the pcp-collector RPMS, including the pcp base RPM
+  and all required dependencies from Fedora:latest. The start command for this
+  container is the pmcd service script (/usr/share/pcp/lib/pmcd). When that
+  script exits, the container will exit. Basically it runs pmcd and the default
+  agents in a container and exposes the host port 44321/tcp. So you can point PCP
+  monitor tools at the docker server to monitor the local docker server and all
+  the containers running on it, just as though pmcd was installed and running
+  on the docker server itself. PCP monitor tools can be used either locally
+  (see the pcp-monitor container below), or on a remote host such as a workstation,
+  running any variety of PCP. The rhel7/rhel-tools container available on
+  registry.access.redhat.com:5000 also has a copy of PCP installed, so you can
+  deploy that container and use those monitoring tools if desired.
+
+- pcp-pmlogger  (should this be called pcp-logger maybe?)
+  This container installs just the PCP base package, which contains pmlogger
+  and associated tools (pmlogconf, pmloggerdaily, etc) amoung other things.
+  It exposes port 4322 for pmlc management connections on the host interface.
+  The start command in this container is the pmlogger service script
+  (/usr/share/pcp/lib/pmlogger). When the pmlogger service script exits,
+  the container will exit. The PCP archives are created as normal below
+  /var/log/pcp/pmlogger/<hostname> on the docker server (and in all the
+  PCP containers since they all bind mount /var/log from the host).
+
+- pcp-monitor
+  This container installs the pcp-system-tools package and related dependencies,
+  including the pcp-gui package. It is used for running monitoring tools.
+  Obviosuly to monitor the local docker server, the pcp-collector container
+  would need to be running. Similarly for replaying archives and the
+  pcp-pmlogger container.
+
+- optional PMDAs
+  Initially, optional PMDAs can be configured in a running pcp-collector
+  container by running: docker exec -it pcp-collector /bin/bash
+  and then manually running the ./Install script for the agent(s) required
+  - just as you would on a server with a conventional PCP collector deployment.
+  This is work in-progress - the current scheme is the most simple and may
+  suffice, but we may also provide purpose-built containers, layered on
+  pcp-collector.
+
+- pcp-testsuite
+  This container installs everything (including pcp-testsuite obviously).
+  The default CMD is to start a bash shell, so you can run the testsuite
+  manually. Warning - things may not work - very much work in progress.

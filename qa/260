@@ -48,12 +48,17 @@ _filter_pmie()
 {
     tee -a $seq.full \
     | $PCP_AWK_PROG '
+BEGIN			{ sample = 1 }
+$1 ~ /^debug_/		{ next }
+NF == 0			{ sample++ }
 $2 == "?"		{ print; next }
 $1 == "r_xpect_one_quarter:"	{ if ($2 >= 0.246 && $2 <= 0.254) $2 = "0.25"; else $0 = $0 " !bad" }
-$1 == "pmie_xpect_120:"	{ if ($2 >= 118.0 && $2 <= 122.0) $2 = "120"; else $0 = $0 " !bad" }
-$1 == "pmie_xpect_360:"	{ if ($2 >= 357.0 && $2 <= 363.0) $2 = "360"; else $0 = $0 " !bad" }
-$1 == "derived_xpect_60:"	{ if ($2 >= 59.0 && $2 <= 61.0) $2 = "60"; else $0 = $0 " !bad" }
-$1 == "derived_xpect_180:"	{ if ($2 >= 177.0 && $2 <= 183.0) $2 = "180"; else $0 = $0 " !bad" }
+$1 == "pmie_xpect_120:"	{ if ($2 >= 115.0 && $2 <= 122.0) $2 = "120"; else $0 = $0 " !bad" }
+$1 == "pmie_xpect_360:"	{ if ($2 >= 355.0 && $2 <= 363.0) $2 = "360"; else $0 = $0 " !bad" }
+$1 == "derived_xpect_60:"	{ if (sample < 3) $2 = "<skipped>"
+				  else if ($2 >= 55.0 && $2 <= 61.0) $2 = "60"; else $0 = $0 " !bad" }
+$1 == "derived_xpect_180:"	{ if (sample < 3) $2 = "<skipped>"
+				  else if ($2 >= 170.0 && $2 <= 183.0) $2 = "180"; else $0 = $0 " !bad" }
 			{ print }'
 }
 
@@ -66,7 +71,7 @@ pmstore sampledso.const_rate.value 0 >>$seq.full 2>&1
 
 # real QA test starts here
 
-echo "=== expression trees and pmDesc propagation ==="
+echo "=== expression trees and pmDesc propagation ===" | tee -a $seq.full
 cat <<End-of-File >$tmp.config
 delta.m1 = delta(sample.const_rate.value)
 delta.m2 = delta(sampledso.const_rate.value) + sample.bigid
@@ -82,7 +87,7 @@ for args in delta
 do
     echo
     echo "=== $args ==="
-    pminfo -Dderive,appl0,appl1 -d $args >$tmp.out 2>&1
+    pminfo -Dderive,appl0,appl1 -dm $args >$tmp.out 2>&1
     _filter
 done
 
@@ -96,8 +101,8 @@ done
 # r = 60 / (60 + 180) = 0.25
 # all of the others are constant, so delta() is zero
 #
-echo
-echo "=== fetch values exercises ==="
+echo | tee -a $seq.full
+echo "=== fetch values exercises ===" | tee -a $seq.full
 cat <<End-of-File >$tmp.config
 d1 = delta(sample.const_rate.value)
 d2 = delta(sampledso.const_rate.value)
@@ -113,6 +118,10 @@ cat <<End-of-File \
 | sed \
     -e 's/.*Info: evaluator exiting/pmie: note - evaluator exiting/g' \
 | _filter_pmie
+debug_1 = sample.const_rate.value;
+debug_2 = sampledso.const_rate.value;
+debug_3 = d1;
+debug_4 = d2;
 r_xpect_one_quarter = ratio;
 l_xpect_0 = delta_l;
 ull_xpect_0 = delta_ull;

@@ -1,0 +1,143 @@
+#!/bin/sh
+# PCP QA Test No. 948
+# pmlogger local context functionality
+#
+# Copyright (c) 2015 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp.*
+    $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.config
+log mandatory on 1 sec {
+    kernel.all.hz
+    hinv.pagesize
+    sampledso.long.million
+}
+End-of-File
+
+_filter_kernel()
+{
+    sed \
+	-e "s/value $hertz$/value HZ/g" \
+	-e "s/value $pagesz$/value PAGESZ/g" \
+	-e 's/TIMESTAMP  /              /g' \
+    #end
+}
+
+_filter_usage()
+{
+    sed -e '/^Options:/{
+p
+s/.*/.../
+q
+}'
+}
+
+# Unable to connect to pmlogger pid 28124 at local:: Connection refused
+# Connected to pmlogger pid 25625 at local:
+_filter_pmlc()
+{
+    sed \
+	-e "/^Unable/s/ $pid / PID /" \
+	-e "/^Connected/s/ $pid / PID /" \
+    # end
+}
+
+# real QA test starts here
+echo "=== error cases ===" | tee -a $seq.full
+rm -f $tmp.0 $tmp.meta $tmp.index $tmp.log
+pmlogger -c /dev/null -o -h localhost $tmp -l $tmp.log 2>&1 | _filter_usage
+[ -f $tmp.log ] && cat $tmp.log >>$seq.full
+
+echo | tee -a $seq.full
+echo "=== linger tests ===" | tee -a $seq.full
+echo "--- expect error from pmlc ---" | tee -a $seq.full
+rm -f $tmp.0 $tmp.meta $tmp.index $tmp.log
+pmlogger -c /dev/null -o -l $tmp.log $tmp &
+pid=$!
+echo "pid=$pid" >>$seq.full
+cat <<End-of-File >$tmp.pmlc
+quit
+End-of-File
+sleep 1
+pmlc -e <$tmp.pmlc $! 2>&1 | _filter_pmlc
+if ps -p $pid >/dev/null
+then
+    echo "Error: pmlogger still alive!"
+    kill -TERM $pid
+fi
+[ -f $tmp.log ] && cat $tmp.log >>$seq.full
+
+echo "--- expect success from pmlc ---" | tee -a $seq.full
+rm -f $tmp.0 $tmp.meta $tmp.index $tmp.log
+pmlogger -c /dev/null -L -o -l $tmp.log $tmp &
+pid=$!
+echo "pid=$pid" >>$seq.full
+sleep 1
+pmlc -e <$tmp.pmlc $! 2>&1 | _filter_pmlc
+if ps -p $pid >/dev/null
+then
+    kill -TERM $pid
+else
+    echo "Error: pmlogger has died!"
+fi
+[ -f $tmp.log ] && cat $tmp.log >>$seq.full
+
+echo | tee -a $seq.full
+echo "=== OK case ===" | tee -a $seq.full
+hertz=`pmprobe -v kernel.all.hz | $PCP_AWK_PROG '{ print $3 }'`
+pagesz=`pmprobe -v hinv.pagesize | $PCP_AWK_PROG '{ print $3 }'`
+
+# ensure pmcd is unavailable while this test is running
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+rm -f $tmp.0 $tmp.meta $tmp.index $tmp.log
+pmlogger -c $tmp.config -l $tmp.log -T 5 --local-PMDA -K add,30,$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX,sample_init $tmp >$tmp.err 2>&1
+
+_filter_pmlogger_log <$tmp.log
+
+echo "verifying the archive"
+pmlogcheck $tmp
+
+# expect 3, 4 or 5 sample lines for each metric
+echo PAGESZ samples:
+pmdumplog $tmp \
+	| _filter_pmdumplog \
+	| grep 'hinv.pagesize' \
+	| _filter_kernel \
+	| sed -e 4d -e 5d
+echo HZ samples:
+pmdumplog $tmp \
+	| _filter_pmdumplog \
+	| grep 'kernel.all.hz' \
+	| _filter_kernel \
+	| sed -e 4d -e 5d
+echo MILLION samples:
+pmdumplog $tmp \
+	| _filter_pmdumplog \
+	| grep 'sampledso.long.million' \
+	| _filter_kernel \
+	| sed -e 4d -e 5d
+
+echo "Full log dump:" >> $seq.full
+pmdumplog $tmp >> $seq.full
+
+# success, all done
+status=0
+exit

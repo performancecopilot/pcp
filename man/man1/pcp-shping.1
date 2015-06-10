@@ -1,0 +1,53 @@
+.TH PCP-SHPING 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pcp-shping\f1 \- report on shell service availability and response
+.SH SYNOPSIS
+\f3pcp-shping\f1
+[\f3\-cl\f1]
+\f2tag\f1 ...
+.SH DESCRIPTION
+.B pcp-shping
+samples and reports on the shell-ping service metrics exported
+by the
+.BR pmdashping (1)
+agent.
+.PP
+The default report from
+.B pcp-shping
+shows two columns for each service
+.IR tag ,
+the first showing service status (zero indicating success) and the
+second service response time, for the last
+.B pmdashping
+command refresh cycle.
+.PP
+When invoked via the
+.BR pcp (1)
+command, the
+.BR \-h /\c
+.BR \-\-host ,
+.BR \-a /\c
+.BR \-\-archive ,
+.BR \-O /\c
+.BR \-\-origin ,
+.BR \-s /\c
+.BR \-\-samples ,
+.BR \-t /\c
+.BR \-\-interval ,
+.BR \-Z /\c
+.BR \-\-timezone
+and several other options become indirectly available.
+.SS Options
+The \fB\-c\fP/\fB\-\-status\fP switch displays a summary of the current
+shell-ping collector \- information about service refresh interval, the
+current command timeout setting, count of refreshes, and the full command
+line associated with each
+.IR tag .
+.PP
+The \fB\-l\fP/\fB\-\-tags\fP switch displays the valid
+.IR tag s.
+.SH "SEE ALSO"
+.BR pcp (1),
+.BR pmdashping (1)
+and
+.BR PCPIntro (1).

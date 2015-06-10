@@ -142,10 +142,12 @@ class pmErr(Exception):
         return str(errStr.decode())
 
     def progname(self):
-        return c_char_p.in_dll(LIBPCP, "pmProgname").value
+        return str(c_char_p.in_dll(LIBPCP, "pmProgname").value.decode())
 
 class pmUsageErr(Exception):
     def message(self):
+        for index in range(0, len(self.args)):
+            LIBPCP.pmprintf(str(self.args[index]).encode('utf-8'))
         return c_api.pmUsageMessage()
 
 
@@ -655,8 +657,8 @@ LIBPCP.pmFetchArchive.argtypes = [POINTER(POINTER(pmResult))]
 # PMAPI Ancilliary Support Services
 
 
-LIBPCP.pmGetConfig.restype = c_char_p
-LIBPCP.pmGetConfig.argtypes = [c_char_p]
+LIBPCP.pmGetOptionalConfig.restype = c_char_p
+LIBPCP.pmGetOptionalConfig.argtypes = [c_char_p]
 
 LIBPCP.pmErrStr_r.restype = c_char_p
 LIBPCP.pmErrStr_r.argtypes = [c_int, c_char_p, c_int]
@@ -753,7 +755,8 @@ class pmOptions(object):
         self._mode = c_api.PM_MODE_INTERP # default pmSetMode access mode
 
     def __del__(self):
-        c_api.pmResetAllOptions()
+        if c_api:
+            c_api.pmResetAllOptions()
 
     ##
     # general command line option access and manipulation
@@ -1770,7 +1773,9 @@ class pmContext(object):
         """PMAPI - Return value from environment or pcp config file """
         if type(variable) != type(b''):
             variable = variable.encode('utf-8')
-        result = LIBPCP.pmGetConfig(variable)
+        result = LIBPCP.pmGetOptionalConfig(variable)
+        if result == None:
+            return result
         return str(result.decode())
 
     @staticmethod

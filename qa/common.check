@@ -279,7 +279,7 @@ _ipv6_localhost()
 	echo "Arrgh ... cannot find /etc/hosts to determine IPv6 localhost name"
 	exit
     fi
-    for sniff in localhost6 ip6-localhost
+    for sniff in localhost6 ip6-localhost ipv6-localhost
     do
 	if sed -e '/^#/d' -e 's/$/ /' /etc/hosts | grep -q "[ 	]$sniff "
 	then
@@ -1193,7 +1193,7 @@ _get_word_size()
 	# but, apps are 64-bit on my Mac OS X
 	[ $PCP_PLATFORM = darwin ] && size=64
 	;;
-    x86_64|ia64|ppc64|s390x|aarch64)
+    x86_64|ia64|ppc64|ppc64le|s390x|aarch64)
 	size=64
 	;;
     *)
@@ -1399,7 +1399,18 @@ _change_config()
 	pat=$1
 	[ "$1" = "verbose" ] && pat=""
 
-	if which systemctl >/dev/null 2>&1
+	_have_systemctl=false
+	which systemctl >/dev/null 2>&1 && _have_systemctl=true
+	if [ -z "$pat" ]
+	then
+	    _have_service=true
+	elif [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$pat.service ]
+	then
+	    _have_service=true
+	else
+	    _have_service=false
+	fi
+	if $_have_systemctl && $_have_service
 	then
 	    # Run with systemd whenever it is available now
 	    #
@@ -1551,7 +1562,18 @@ _get_config()
 	    *)	pat=$1 ;;
 	esac
 
-	if which systemctl >/dev/null 2>&1
+	_have_systemctl=false
+	which systemctl >/dev/null 2>&1 && _have_systemctl=true
+	if [ -z "$pat" ]
+	then
+	    _have_service=true
+	elif [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$pat.service ]
+	then
+	    _have_service=true
+	else
+	    _have_service=false
+	fi
+	if $_have_systemctl && $_have_service
 	then
 	    # Run with systemd whenever it is available now
 	    #

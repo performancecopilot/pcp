@@ -40,11 +40,14 @@ _filter()
 	-e '/^proc\.id.*: No permission/d' \
 	-e '/^proc\.fd.*: No permission/d' \
 	-e '/^proc\.io.*: /d' \
+	-e '/^proc\.namespaces.*: /d' \
 	-e '/^papi\..*: No permission/d' \
 	-e '/^logger\.perfile\.reg\.records: No permission/d' \
 	-e '/^logger\.perfile\.fifo\.records: Try again./d' \
 	-e '/^logger\.perfile\.reg\.records: Try again./d' \
 	-e '/^containers\..*: pmLookupDesc: Unknown or illegal metric/d' \
+	-e '/^elasticsearch\..*: Try again./d' \
+	-e '/^apache\..*: Try again./d' \
 	-e '/^zswap\..*: Try again./d' \
 	-e '/Container not found/d' \
     #endif

@@ -1,10 +1,9 @@
 /*
  * Mounts, info on current mounts
  *
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012,2015 Red Hat.
  * Copyright (c) 2001,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2001 Alan Bailey (bailey@mcs.anl.gov or abailey@ncsa.uiuc.edu) 
- * for the portions of the code supporting the initial agent functionality.
  * All rights reserved. 
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -38,47 +37,59 @@
  *     always equals 1
  */
 
-/*
- * all metrics supported in this PMDA - one table entry for each
- */
-
 #ifdef IS_SOLARIS
 #define MOUNT_FILE "/etc/vfstab"
 #else
 #define MOUNT_FILE "/proc/mounts"
 #endif
+#define MAXFSTYPE	32
+
+enum {	/* instance domain identifiers */
+    MOUNTS_INDOM = 0,
+};
+enum {	/* metric cluster identifiers */
+    MOUNTS_CLUSTER = 0,
+};
+enum {	/* metric item identifiers */
+    MOUNTS_DEVICE = 0,
+    MOUNTS_TYPE,
+    MOUNTS_OPTIONS,
+    MOUNTS_UP,
+};
 
 static pmdaInstid *mounts;
 
 static pmdaIndom indomtab[] = {
-#define MOUNTS_INDOM    0
   { MOUNTS_INDOM, 0, NULL }
 };
 
+/*
+ * all metrics supported in this PMDA - one table entry for each
+ */
 static pmdaMetric metrictab[] = {
-/* mounts.device */
     { NULL,
-      { PMDA_PMID(0,0), PM_TYPE_STRING, MOUNTS_INDOM, PM_SEM_INSTANT,
+      { PMDA_PMID(MOUNTS_CLUSTER, MOUNTS_DEVICE),
+	PM_TYPE_STRING, MOUNTS_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { NULL,
+      { PMDA_PMID(MOUNTS_CLUSTER, MOUNTS_TYPE),
+	PM_TYPE_STRING, MOUNTS_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
-/* mounts.type */
     { NULL,
-      { PMDA_PMID(0,1), PM_TYPE_STRING, MOUNTS_INDOM, PM_SEM_INSTANT,
+      { PMDA_PMID(MOUNTS_CLUSTER, MOUNTS_OPTIONS),
+	PM_TYPE_STRING, MOUNTS_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
-/* mounts.options */
     { NULL,
-      { PMDA_PMID(0,2), PM_TYPE_STRING, MOUNTS_INDOM, PM_SEM_INSTANT,
-        PMDA_PMUNITS(0,0,0,0,0,0) }, },
-/* mounts.up */
-    { NULL,
-      { PMDA_PMID(0,3), PM_TYPE_DOUBLE, MOUNTS_INDOM, PM_SEM_INSTANT,
+      { PMDA_PMID(MOUNTS_CLUSTER, MOUNTS_UP),
+	PM_TYPE_DOUBLE, MOUNTS_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
 };
 
 typedef struct {
     int	up;
-    char device[100];
-    char type[100];
-    char options[100];
+    char device[MAXPATHLEN];
+    char type[MAXFSTYPE];
+    char options[BUFSIZ];
 } mountinfo;
 
 static mountinfo *mount_list;
@@ -213,58 +224,49 @@ done:
 static void
 mounts_refresh_mounts(void)
 {
-    FILE *fd;
-    char device[100];
-    char mount[100];
-    char type[100];
-    char options[100];
-    char junk[10];
+    FILE *fp;
+    char *path, *device, *type, *options;
+    char buf[BUFSIZ];
     int item;
-    int mount_name;
 
-    /* Clear the variables */
-    for(item = 0; item < indomtab[MOUNTS_INDOM].it_numinst; item++) {
+    /* Reset all mount structures */
+    for (item = 0; item < indomtab[MOUNTS_INDOM].it_numinst; item++) {
+	memset(&mount_list[item], 0, sizeof(mount_list[item]));
 	strcpy(mount_list[item].device, "none");
 	strcpy(mount_list[item].type, "none");
 	strcpy(mount_list[item].options, "none");
-	mount_list[item].up = 0;
     }
 
-    if ((fd = fopen(MOUNT_FILE, "r")) != NULL) {
+    if ((fp = fopen(MOUNT_FILE, "r")) == NULL)
+	return;
+
+    while (fgets(buf, sizeof(buf), fp) != NULL) {
+	if ((device = strtok(buf, " ")) == NULL)
+            continue;
 #ifdef IS_SOLARIS
-	char device_to_fsck[100];
-	char fsck_pass[100];
-	char mount_at_boot[100];
-
-	while ((fscanf(fd, "%s %s %s %s %s %s %s", 
-			device, device_to_fsck, mount, type, fsck_pass,
-			mount_at_boot, options)) == 7)
-#else
-	while ((fscanf(fd, "%s %s %s %s", device, mount, type, options)) == 4)
+	strtok(NULL, " ");	/* device_to_fsck */
 #endif
-	{
-	    if (fgets(junk, sizeof(junk), fd) == NULL) {
-		/* early EOF? will be caught in next iteration */
-		;
-	    }
+	if ((path = strtok(NULL, " ")) == NULL)
+	    continue;
+	if ((type = strtok(NULL, " ")) == NULL)
+	    continue;
+#ifdef IS_SOLARIS
+	strtok(NULL, " ");	/* fsck_pass */
+	strtok(NULL, " ");	/* mount_at_boot */
+#endif
+	if ((options = strtok(NULL, " ")) == NULL)
+	    continue;
 
-	    for (mount_name = 0;
-		 mount_name < indomtab[MOUNTS_INDOM].it_numinst; 
-		 mount_name++) {
-		if (strcmp(mount, (mounts[mount_name]).i_name) == 0) {
-		    strcpy(mount_list[mount_name].device, device);
-		    strcpy(mount_list[mount_name].type, type);
-		    strcpy(mount_list[mount_name].options, options);
-		    mount_list[mount_name].up = 1;
-		}
-	    }
-	    memset(device, 0, sizeof(device));
-	    memset(mount, 0, sizeof(mount));
-	    memset(type, 0, sizeof(type));
-	    memset(options, 0, sizeof(options));
+	for (item = 0; item < indomtab[MOUNTS_INDOM].it_numinst; item++) {
+	    if (strcmp(path, (mounts[item]).i_name) != 0)
+		continue;
+	    strncpy(mount_list[item].device, device, MAXPATHLEN-1);
+	    strncpy(mount_list[item].type, type, MAXFSTYPE-1);
+	    strncpy(mount_list[item].options, options, BUFSIZ-1);
+	    mount_list[item].up = 1;
 	}
-	fclose(fd);
     }
+    fclose(fp);
 }
 
 /*
@@ -289,18 +291,18 @@ mounts_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     __pmID_int	*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
 
-    if (idp->cluster != 0)
+    if (idp->cluster != MOUNTS_CLUSTER)
 	return PM_ERR_PMID;
     if (inst >= indomtab[MOUNTS_INDOM].it_numinst)
 	return PM_ERR_INST;
 
-    if (idp->item == 0)
+    if (idp->item == MOUNTS_DEVICE)
 	atom->cp = (mount_list[inst]).device;
-    else if (idp->item == 1)
+    else if (idp->item == MOUNTS_TYPE)
 	atom->cp = (mount_list[inst]).type;
-    else if (idp->item == 2)
+    else if (idp->item == MOUNTS_OPTIONS)
 	atom->cp = (mount_list[inst]).options;
-    else if (idp->item == 3)
+    else if (idp->item == MOUNTS_UP)
 	atom->d = (mount_list[inst]).up;
     else
 	return PM_ERR_PMID;
@@ -311,6 +313,7 @@ mounts_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
  * Initialise the agent (both daemon and DSO).
  */
 void 
+__PMDA_INIT_CALL
 mounts_init(pmdaInterface *dp)
 {
     if (isDSO) {
@@ -335,7 +338,7 @@ mounts_init(pmdaInterface *dp)
     mounts_grab_config_info();
 }
 
-pmLongOptions	longopts[] = {
+static pmLongOptions	longopts[] = {
     PMDA_OPTIONS_HEADER("Options"),
     PMOPT_DEBUG,
     PMDAOPT_DOMAIN,
@@ -345,7 +348,7 @@ pmLongOptions	longopts[] = {
     PMDA_OPTIONS_END
 };
 
-pmdaOptions	opts = {
+static pmdaOptions	opts = {
     .short_options = "D:d:l:U:?",
     .long_options = longopts,
 };

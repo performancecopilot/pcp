@@ -30,7 +30,7 @@ _filter()
 {
     sed \
         -e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
-        -e 's/value [0-9][0-9]*/value NUMBER/' \
+        -e 's/value [1-9][0-9]*/value NUMBER/' \
         -e 's/0x[0-9a-f]*/ADDR/g' \
         -e 's/[0-2][0-9]:00:00.000/TIME/' \
         -e 's/3.[0-9][0-9]*.[0-9][0-9]*/3.NUMBER.NUMBER/'
@@ -62,8 +62,9 @@ getdesc on
 attr "username" "root"
 attr 11 "0"
 store hotproc.control.config "uid==0"
+store hotproc.control.refresh "1"
 fetch hotproc.control.config
-wait 11
+wait 3
 fetch hotproc.nprocs
 EOF
 
@@ -73,8 +74,9 @@ open pipe $pipepmda -d 3
 getdesc on
 attr "username" "root"
 attr 11 "0"
-wait 11
 store hotproc.control.config 'fname=="pmdaproc"'
+store hotproc.control.refresh "1"
+wait 3
 fetch hotproc.nprocs
 EOF
 

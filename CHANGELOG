@@ -1,4 +1,40 @@
+pcp-3.10.5 (3 June 2015)
+
 pcp-3.10.4 (15 April 2015)
+    - pmdalinux: fixed kernel.pernode.cpu.* for systems with only one CPU.
+    - pmdadm: merged in pmdadmcache, added thin provisioning metrics
+    - pmcd: fix failure to recover from errors sending client attrs
+    - pmcd: don't advertise presence if -A specified.
+    - pmchart: fix metric/host selection for containers
+    - python build: support for epel5 builds using python26 packages
+    - python api: do not assume unicode is only for python3
+    - stdpmid: updated the reserved domain number ranges
+    - libpcp: fix instance request memory corruption for large requests
+    - libpcp: multi-threading fixes and pdubuf optimisations
+    - libpcp: fix Avahi-related memory corruption
+    - libpcp: fix an interpolation performance issue
+    - libpcp: fix getopt --hostsfile parsing
+    - libpcp: tighten error handling in __pmGetArchiveEnd()
+    - pmwebd: enable multi-threading by default
+    - pmwebd: correct _indom array-allocation logic
+    - pmwebd: additional ACAO headers to resource responses
+    - pcp2graphite: python version neutral handling of stdout flush
+    - pcp-verify: a new utility for verifying collector setups, especially
+      for use with containers
+    - pcp sh: fix tempfile leak with sub-commands, refactor pcp-summary
+    - rc scripts: ensure rundir directories created when needed
+    - rc scripts: ensure tmpfiles not leftover from helper scripts
+    - rc_pmcd: add .NeedRemove option for pmcd start script also
+    - pmpause: lightweight pmsleep extension for a pmcd container
+    - pmlogcheck: merge previous versions, added documentation and tests
+    - pmdumplog: new options and new log reading logic
+    - build: add missing configure check for pkg-config requirement
+    - build: Dockerfile for a pcp-pmcd container image based on Fedora
+    - build: get Mac builds going on current Mac OS X (10.9/10.10)
+    - configure: fix AC_MSG_ERROR parameter passing
+    - packaging: fix default pmlogger/pmie configs directory location
+    - packaging: simplify rpm dependencies on pcp-webjs package via %dir
+    - packaging: relax the allowed-libpfm-version checks a little
 
 pcp-3.10.3 (2 March 2015)
     - enhancement: ongoing improvements to the native containers support

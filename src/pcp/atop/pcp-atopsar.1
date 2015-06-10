@@ -1,0 +1,1073 @@
+.TH PCP-ATOPSAR 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+.B pcp-pcp-atopsar
+- Advanced System Activity Report (atop related)
+.SH SYNOPSIS
+.P
+.B pcp\ pcp-atopsar
+[\-flags...]
+[\-r
+.I file|date
+] [\-R
+.I cnt
+] [\-b
+.I hh:mm
+] [\-e
+.I hh:mm
+]
+.br
+.B pcp-atopsar
+[\-flags...]
+.I interval
+[
+.I samples
+]
+.P
+.SH DESCRIPTION
+The program
+.I pcp-atopsar
+can be used to report statistics on system level.
+.PP
+In the first synopsis line (no sampling interval specified),
+.I pcp-atopsar
+extracts data from a raw logfile that has been recorded previously by
+the program
+.I atop
+(option
+.B -w 
+of the
+.I atop
+program).
+.br
+You can specify the name of the logfile with the 
+.B -r
+option of the
+.I pcp-atopsar
+program.
+When a daily logfile of
+.I atop
+is used, named
+.B /var/log/atop/atop_YYYYMMDD
+(where YYYYMMDD reflects the date),
+the required date of the form YYYYMMDD can be specified with the
+.B -r
+option instead of the filename, or
+the symbolic name 'y' can be used for yesterday's daily logfile
+(this can be repeated so 'yyyy' indicates the logfile of four days ago).
+If the
+.B -r
+option is not specified at all, today's daily logfile is used by default.
+.br
+The starting and ending times of the report can be defined using the
+options
+.B -b
+and
+.B -e
+followed by a time argument of the form hh:mm.
+.PP
+In the second synopsis line,
+.B pcp-atopsar
+reads actual activity counters from the kernel with the specified
+.I interval
+(in seconds) and the specified number of
+.I samples
+(optionally).
+When
+.B pcp-atopsar
+is activated in this way it immediately sends the output for every requested
+report to standard output.
+If only one type of report is requested, the header is printed
+once and after every
+.I interval
+seconds the statistical counters are shown for that period.
+If several reports are requested, a header is printed per sample
+followed by the statistical counters for that period.
+.PP
+Some generic flags can be specified to influence the behaviour of the
+.B pcp-atopsar
+program:
+.PP
+.TP 5
+.B -S
+By default the timestamp at the beginning of a line is suppressed if more
+lines are shown for one interval. With this flag a timestamp is
+given for every output-line (easier for post-processing).
+.PP
+.TP 5
+.B -a
+By default certain resources as disks and network interfaces are only
+shown when they were active during the interval.
+With this flag all resources of a given type are shown, even if
+they were inactive during the interval.
+.PP
+.TP 5
+.B -x
+By default
+.B pcp-atopsar
+only uses colors if output is directed to a terminal (window).
+These colors might indicate that a critical occupation percentage has
+been reached (red) or has been almost reached (cyan) for a particular
+resource.
+See the man-page of
+.B atop
+for a detailed description of this feature (section COLORS).
+.br
+With the flag 
+.B -x
+the use of colors is suppressed unconditionally.
+.PP
+.TP 5
+.B -C
+By default
+.B pcp-atopsar
+only uses colors if output is directed to a terminal (window).
+These colors might indicate that a critical occupation percentage has
+been reached (red) or has been almost reached (cyan) for a particular
+resource.
+See the man-page of
+.B atop
+for a detailed description of this feature (section COLORS).
+.br
+With the flag 
+.B -C
+colors will always be used, even if output is not directed to a terminal.
+.PP
+.TP 5
+.B -M
+Use markers at the end of a line to indicate that a critical occupation
+percentage has been reached ('*') or has been almost reached ('+')
+for particular resources. The marker '*' is similar to the color red
+and the marker '+' to the color cyan. See the man-page of
+.B atop
+for a detailed description of these colors (section COLORS).
+.PP
+.TP 5
+.B -H
+Repeat the header line within a report for every
+.I N
+detail lines. The value of
+.I N 
+is determined dynamically in case of output to a tty/window (depending
+on the number of lines); for output to a file or pipe this value is 23.
+.PP
+.TP 5
+.B -R
+Summarize
+.I cnt
+samples into one sample. When the logfile contains e.g. samples of 10 minutes,
+the use of the flag '\-R 6' shows a report with one sample for every hour.
+.PP
+Other flags are used to define which reports are required:
+.PP
+.TP 5
+.B -A
+Show all possible reports.
+.PP
+.TP 5
+.B -c
+Report about CPU utilization (in total and per cpu).
+.PP
+.TP 5
+.B -p
+Report about processor-related matters, like load-averages and
+hardware interrupts.
+.PP
+.TP 5
+.B -P
+Report about processes.
+.PP
+.TP 5
+.B -m
+Current memory- and swap-occupation.
+.PP
+.TP 5
+.B -s
+Report about paging- and swapping-activity, and overcommitment.
+.PP
+.TP 5
+.B -l
+Report about utilization of logical volumes.
+.PP
+.TP 5
+.B -f
+Report about utilization of multiple devices.
+.PP
+.TP 5
+.B -d
+Report about utilization of disks.
+.PP
+.TP 5
+.B -i
+Report about the network interfaces.
+.PP
+.TP 5
+.B -I
+Report about errors for network-interfaces.
+.PP
+.TP 5
+.B -w
+Report about IP version 4 network traffic.
+.PP
+.TP 5
+.B -W
+Report about errors for IP version 4 traffic.
+.PP
+.TP 5
+.B -y
+General report about ICMP version 4 layer activity.
+.PP
+.TP 5
+.B -Y
+Per-type report about ICMP version 4 layer activity.
+.PP
+.TP 5
+.B -u
+Report about UDP version 4 network traffic.
+.PP
+.TP 5
+.B -z
+Report about IP version 6 network traffic.
+.PP
+.TP 5
+.B -Z
+Report about errors for IP version 6 traffic.
+.PP
+.TP 5
+.B -k
+General report about ICMP version 6 layer activity.
+.PP
+.TP 5
+.B -K
+Per-type report about ICMP version 6 layer activity.
+.PP
+.TP 5
+.B -U
+Report about UDP version 6 network traffic.
+.PP
+.TP 5
+.B -t
+Report about TCP network traffic.
+.PP
+.TP 5
+.B -T
+Report about errors for TCP-traffic.
+.PP
+.TP 5
+.B -O
+Report about top-3 processes consuming most processor capacity.
+This report is only available when using a log file (not when specifying
+an interval).
+.PP
+.TP 5
+.B -G
+Report about top-3 processes consuming most resident memory.
+This report is only available when using a log file (not when specifying
+an interval).
+.PP
+.TP 5
+.B -D
+Report about top-3 processes issueing most disk transfers.
+This report is only available when using a log file (not when specifying
+an interval).
+.PP
+.TP 5
+.B -N
+Report about top-3 processes issueing most IPv4/IPv6 socket transfers.
+This report is only available when using a log file (not when specifying
+an interval).
+.SH OUTPUT DESCRIPTION
+Depending on the requested report, a number of columns with
+output values are produced.
+The values are mostly presented as a number of events per second.
+.PP
+The output for the flag
+.B -c
+contains the following columns per cpu:
+.TP 12
+.B usr%
+Percentage of cpu-time consumed in user mode (program text) for all
+active processes running with a nice value of zero (default) or a
+negative nice value (which means a higher priority than usual).
+The cpu consumption in user mode of processes with a nice value larger
+than zero (lower priority) is indicated in the nice%-column.
+.TP 12
+.B nice%
+Percentage of cpu time consumed in user mode (i.e. program text) for all
+processes running witn a nice value larger than zero (which means with a
+lower priority than average).
+.TP 12
+.B sys%
+Percentage of cpu time consumed in system mode (kernel text) for all
+active processes. A high percentage usually indicates a lot of system calls
+being issued.
+.TP 12
+.B irq%
+Percentage of cpu time consumed for handling of device interrupts.
+.TP 12
+.B softirq%
+Percentage of cpu time consumed for soft interrupt handling.
+.TP 12
+.B steal%
+Percentage of cpu time stolen by other virtual machines
+running on the same hardware.
+.TP 12
+.B guest%
+Percentage of cpu time used by other virtual machines
+running on the same hardware (overlaps with usr%/nice%).
+.TP 12
+.B wait%
+Percentage of unused cpu time while
+at least one of the processes in wait-state awaits completion of disk I/O.
+.TP 12
+.B idle%
+Percentage of unused cpu time because all processes are in a wait-state
+but not waiting for disk-I/O.
+.PP
+The output for the flag
+.B -p
+contains the following values:
+.TP 12
+.B pswch/s
+Number of process switches (also called context switches) per second on this
+cpu. A process switch occurs at the moment that an active thread (i.e.
+the thread using a cpu) enters a wait state or has used its time slice
+completely; another thread will then be chosen to use the cpu.
+.TP 12
+.B devintr/s
+Number of hardware interrupts handled per second on this cpu.
+.TP 12
+.B  clones/s
+The number of new threads started per second.
+.TP 12
+.B loadavg1
+Load average reflecting the average number of threads in the runqueue
+or in non-interruptible wait state (usually waiting for disk or tape I/O)
+during the last minute.
+.TP 12
+.B loadavg5
+Load average reflecting the average number of threads in the runqueue
+or in non-interruptible wait state (usually waiting for disk or tape I/O)
+during the last 5 minutes.
+.TP 12
+.B loadavg15
+Load average reflecting the average number of threads in the runqueue
+or in non-interruptible wait state (usually waiting for disk or tape I/O)
+during the last 15 minutes.
+.PP
+The output for the flag
+.B -P
+contains information about the processes and threads:
+.TP 12
+.B clones/s
+The number of new threads started per second.
+.TP 12
+.B pexit/s
+.TP 12
+.B curproc
+Total number of processes present in the system.
+.TP 12
+.B curzomb
+Number of zombie processes present in the system.
+.TP 12
+.B thrrun
+Total number of threads present in the system in state 'running'.
+.TP 12
+.B thrslpi
+Total number of threads present in the system in
+state 'interruptible sleeping'.
+.TP 12
+.B thrslpu
+Total number of threads present in the system in
+state 'uninterruptible sleeping'.
+.PP
+The output for the flag
+.B -m
+contains information about the memory- and swap-utilization:
+.TP 12
+.B memtotal
+Total usable main memory size.
+.TP 12
+.B memfree
+Available main memory size at this moment (snapshot).
+.TP 12
+.B buffers
+Main memory used at this moment to cache metadata-blocks (snapshot).
+.TP 12
+.B cached
+Main memory used at this moment to cache data-blocks (snapshot).
+.TP 12
+.B dirty
+Amount of memory in the page cache that still has to be flushed to disk
+at this moment (snapshot).
+.TP 12
+.B slabmem
+Main memory used at this moment for dynamically allocated memory
+by the kernel (snapshot).
+.TP 12
+.B swptotal
+Total swap space size at this moment (snapshot).
+.TP 12
+.B swpfree
+Available swap space at this moment (snapshot).
+.PP
+The output for the flag
+.B -s
+contains information about the frequency of swapping:
+.TP 12
+.B  pagescan/s
+Number of scanned pages per second due to the fact
+that free memory drops below a particular threshold.
+.TP 12
+.B  swapin/s
+The number of memory-pages the system read from the swap-device per second.
+.TP 12
+.B  swapout/s
+The number of memory-pages the system wrote to the swap-device per second.
+.TP 12
+.B  commitspc
+The committed virtual memory space i.e.
+the reserved virtual space for all allocations of
+private memory space for processes.
+.TP 12
+.B  commitlim
+The maximum limit for the committed space, which is by default swap size
+plus 50% of memory size.
+The kernel only verifies whether the committed space exceeds the limit
+if strict overcommit handling is configured (vm.overcommit_memory is 2).
+.PP
+The output for the flags
+.B -l
+(LVM),
+.B -f
+(MD), and
+.B -d 
+(hard disk) contains the following columns per active unit:
+.TP 12
+.B disk
+Name.
+.TP 12
+.B busy
+Busy-percentage of the unit (i.e. the portion of time that the
+device was busy handling requests).
+.TP 12
+.B read/s
+Number of read-requests issued per second on this unit.
+.TP 12
+.B KB/read
+Average number of Kbytes transferred per read-request for this unit.
+.TP 12
+.B writ/s
+Number of write-requests issued per second on this unit.
+.TP 12
+.B KB/writ
+Average number of Kbytes transferred per write-request for this unit.
+.TP 12
+.B avque
+Average number of requests outstanding in the queue during the time
+that the unit is busy.
+.TP 12
+.B avserv
+Average number of milliseconds needed by a request on this unit
+(seek, latency and data-transfer).
+.PP
+The output for the flag
+.B -i
+provides information about utilization of network interfaces:
+.TP 12
+.B interf
+Name of interface.
+.TP 12
+.B busy
+Busy percentage for this interface.
+If the linespeed of this interface could not be determined
+(for virtual interfaces or in case that
+.B atop
+or
+.B pcp-atopsar
+had no root-privileges), a question mark is shown.
+.TP 12
+.B ipack/s
+Number of packets received from this interface per second.
+.TP 12
+.B opack/s
+Number of packets transmitted to this interface per second.
+.TP 12
+.B iKbyte/s
+Number of Kbytes received from this interface per second.
+.TP 12
+.B oKbyte/s
+Number of Kbytes transmitted via this interface per second.
+.TP 12
+.B imbps/s
+Effective number of megabits received per second.
+.TP 12
+.B ombps/s
+Effective number of megabits transmitted per second.
+.TP 12
+.B maxmbps/s
+Linespeed as number of megabits per second.
+If the linespeed could not be determined (for virtual interfaces
+or in case that
+.B atop
+or
+.B pcp-atopsar
+had no root-privileges), value 0 is shown.
+.br
+The linespeed is followed by the indication 'f' (full duplex)
+or 'h' (half duplex).
+.PP
+The output for the flag
+.B -I
+provides information about the failures that were detected for
+network interfaces:
+.TP 12
+.B interf
+Name of interface.
+.TP 12
+.B ierr/s
+Number of bad packets received from this interface per second.
+.TP 12
+.B oerr/s
+Number of times that packet transmission to this interface failed per second.
+.TP 12
+.B coll/s
+Number of collisions encountered per second while transmitting packets.
+.TP 12
+.B idrop/s
+Number of received packets dropped per second due to lack of buffer-space
+in the local system.
+.TP 12
+.B odrop/s
+Number of transmitted packets dropped per second due to lack of buffer-space
+in the local system.
+.TP 12
+.B iframe/s
+Number of frame alignment-errors encountered per second on received packets.
+.TP 12
+.B ocarrier/s
+Number of carrier-errors encountered per second on transmitted packets.
+.PP
+The output for the flag
+.B -w
+provides information about the utilization of the IPv4-layer
+(formal SNMP-names between brackets):
+.TP 12
+.B inrecv/s
+Number of IP datagrams received from interfaces per second, including
+those received in error (ipInReceives).
+.TP 12
+.B outreq/s
+Number of IP datagrams that local higher-layer protocols
+supplied to IP in requests for transmission per second (ipOutRequests).
+.TP 12
+.B indeliver/s
+Number of received IP datagrams that have been successfully delivered to
+higher protocol-layers per second (ipInDelivers).
+.TP 12
+.B forward/s
+Number of received IP datagrams per second for which this entity was not
+their final IP destination, as a result of which an attempt was made to
+forward (ipForwDatagrams).
+.TP 12
+.B reasmok/s
+Number of IP datagrams successfully reassembled per second (ipReasmOKs).
+.TP 12
+.B fragcreat/s
+Number of IP datagram fragments generated per second at this entity
+(ipFragCreates).
+.PP
+The output for the flag
+.B -W
+provides information about the failures that were detected in
+the IPv4-layer (formal SNMP-names between brackets):
+.TP 12
+.B in: dsc/s
+Number of input IP datagrams per second for which no problems were encountered
+to prevent their continued processing but that were discarded, e.g. for lack
+of buffer space (ipInDiscards).
+.TP 12
+.B in: hder/s
+Number of input IP datagrams per second discarded due to errors
+in the IP header (ipInHdrErrors).
+.TP 12
+.B in: ader/s
+Number of input IP datagrams per second discarded because the IP address
+in the destination field was not valid to be received by this entity
+(ipInAddrErrors).
+.TP 12
+.B in: unkp/s
+Number of inbound packets per second that were discarded because of an
+unknown or unsupported protocol (ipInUnknownProtos).
+.TP 12
+.B in: ratim/s
+Number of timeout-situations per second while other fragments were
+expected for successful reassembly (ipReasmTimeout).
+.TP 12
+.B in: rfail/s
+Number of failures detected per second by the IP reassembly algorithm
+(ipReasmFails).
+.TP 12
+.B out: dsc/s
+Number of output IP datagrams per second for which no problems were
+encountered to prevent their continued processing but that were
+discarded, e.g. for lack of buffer space (ipOutDiscards).
+.TP 12
+.B out: nrt/s
+Number of IP datagrams per second discarded because no route could be found
+(ipOutNoRoutes).
+.PP
+The output for the flag
+.B -y
+provides information about the general utilization of the ICMPv4-layer and
+some information per type of ICMP-message
+(formal SNMP-names between brackets):
+.TP 12
+.B intot/s
+Number of ICMP messages (any type) received per second at this entity
+(icmpInMsgs).
+.TP 12
+.B outtot/s
+Number of ICMP messages (any type) transmitted per second from this entity
+(icmpOutMsgs).
+.TP 12
+.B inecho/s
+Number of ICMP Echo (request) messages received per second
+(icmpInEchos).
+.TP 12
+.B inerep/s
+Number of ICMP Echo-Reply messages received per second
+(icmpInEchoReps).
+.TP 12
+.B otecho/s
+Number of ICMP Echo (request) messages transmitted per second
+(icmpOutEchos).
+.TP 12
+.B oterep/s
+Number of ICMP Echo-Reply messages transmitted per second
+(icmpOutEchoReps).
+.PP
+The output for the flag
+.B -Y
+provides information about other types of ICMPv4-messages
+(formal SNMP-names between brackets):
+.TP 12
+.B ierr/s
+Number of ICMP messages received per second but determined to have
+ICMP-specific errors (icmpInErrors).
+.TP 12
+.B isq/s
+Number of ICMP Source Quench messages received per second
+(icmpInSrcQuenchs).
+.TP 12
+.B ird/s
+Number of ICMP Redirect messages received per second
+(icmpInRedirects).
+.TP 12
+.B idu/s
+Number of ICMP Destination Unreachable messages received per second
+(icmpInDestUnreachs).
+.TP 12
+.B ite/s
+Number of ICMP Time Exceeded messages received per second
+(icmpOutTimeExcds).
+.TP 12
+.B oerr/s
+Number of ICMP messages transmitted per second but determined to have
+ICMP-specific errors (icmpOutErrors).
+.TP 12
+.B osq/s
+Number of ICMP Source Quench messages transmitted per second
+(icmpOutSrcQuenchs).
+.TP 12
+.B ord/s
+Number of ICMP Redirect messages transmitted per second
+(icmpOutRedirects).
+.TP 12
+.B odu/s
+Number of ICMP Destination Unreachable messages transmitted per second
+(icmpOutDestUnreachs).
+.TP 12
+.B ote/s
+Number of ICMP Time Exceeded messages transmitted per second
+(icmpOutTimeExcds).
+.PP
+The output for the flag
+.B -u
+provides information about the utilization of the UDPv4-layer
+(formal SNMP-names between brackets):
+.TP 12
+.B indgram/s
+Number of UDP datagrams per second delivered to UDP users (udpInDatagrams).
+.TP 12
+.B outdgram/s
+Number of UDP datagrams transmitted per second from this entity
+(udpOutDatagrams).
+.TP 12
+.B inerr/s
+Number of received UDP datagrams per second that could not be delivered
+for reasons other than the lack of an application at the destination port
+(udpInErrors).
+.TP 12
+.B noport/s
+Number of received UDP datagrams per second for which there was
+no application at the destination port (udpNoPorts).
+.PP
+The output for the flag
+.B -z
+provides information about the utilization of the IPv6-layer
+(formal SNMP-names between brackets):
+.TP 12
+.B inrecv/s
+Number of input IPv6-datagrams received from interfaces per second, including
+those received in error (ipv6IfStatsInReceives).
+.TP 12
+.B outreq/s
+Number of IPv6-datagrams per second that local higher-layer protocols
+supplied to IP in requests for transmission (ipv6IfStatsOutRequests).
+This counter does not include any forwarded datagrams.
+.TP 12
+.B inmc/s
+Number of multicast packets per second that have been received by the
+interface (ipv6IfStatsInMcastPkts).
+.TP 12
+.B outmc/s
+Number of multicast packets per second that have been transmitted to the
+interface (ipv6IfStatsOutMcastPkts).
+.TP 12
+.B indeliv/s
+Number of IP datagrams successfully delivered per second to
+IPv6 user-protocols, including ICMP (ipv6IfStatsInDelivers).
+.TP 12
+.B reasmok/s
+Number of IPv6 datagrams successfully reassembled per second
+(ipv6IfStatsReasmOKs).
+.TP 12
+.B fragcre/s
+Number of IPv6 datagram fragments generated per second at this entity
+(ipv6IfStatsOutFragCreates).
+.PP
+The output for the flag
+.B -Z
+provides information about the failures that were detected in the IPv6-layer
+(formal SNMP-names between brackets):
+.TP 12
+.B in: dsc/s
+Number of input IPv6 datagrams per second for which no problems
+were encountered to prevent their continued processing but that
+were discarded, e.g. for lack of buffer space (ipv6IfStatsInDiscards).
+.TP 12
+.B in: hder/s
+Number of input datagrams per second discarded due to errors in the
+IPv6 header (ipv6IfStatsInHdrErrors).
+.TP 12
+.B in: ader/s
+Number of input datagrams per second discarded because the IPv6 address
+in the destination field was not valid to be received by this entity
+(ipv6IfStatsInAddrErrors).
+.TP 12
+.B in: unkp/s
+Number of locally-addressed datagrams per second that were discarded because
+of an unknown or unsupported protocol (ipv6IfStatsInUnknownProtos).
+.TP 12
+.B in: ratim/s
+Number of timeout-situations per second while other IPv6 fragments were
+expected for successful reassembly (ipv6ReasmTimeout).
+.TP 12
+.B in: rfail/s
+Number of failures detected per second by the IPv6 reassembly-algorithm
+(ipv6IfStatsReasmFails).
+.TP 12
+.B out: dsc/s
+Number of output IPv6 datagrams per second for which no problems
+were encountered to prevent their continued processing but that
+were discarded, e.g. for lack of buffer space (ipv6IfStatsOutDiscards).
+.TP 12
+.B out: nrt/s
+Number of IPv6 datagrams per second discarded because no route could be found
+(ipv6IfStatsInNoRoutes).
+.PP
+The output for the flag
+.B -k
+provides information about the general utilization of the ICMPv6-layer and
+some information per type of ICMP-message
+(formal SNMP-names between brackets):
+.TP 12
+.B intot/s
+Number of ICMPv6 messages (any type) received per second at the interface
+(ipv6IfIcmpInMsgs).
+.TP 12
+.B outtot/s
+Number of ICMPv6 messages (any type) transmitted per second from this entity
+(ipv6IfIcmpOutMsgs).
+.TP 12
+.B inerr/s
+Number of ICMPv6 messages received per second that had ICMP-specific
+errors, such as bad ICMP checksums, bad length, etc (ipv6IfIcmpInErrors).
+.TP 12
+.B innsol/s
+Number of ICMP Neighbor Solicit messages received per second
+(ipv6IfIcmpInNeighborSolicits).
+.TP 12
+.B innadv/s
+Number of ICMP Neighbor Advertisement messages received per second
+(ipv6IfIcmpInNeighborAdvertisements).
+.TP 12
+.B otnsol/s
+Number of ICMP Neighbor Solicit messages transmitted per second
+(ipv6IfIcmpOutNeighborSolicits).
+.TP 12
+.B otnadv/s
+Number of ICMP Neighbor Advertisement messages transmitted per second
+(ipv6IfIcmpOutNeighborAdvertisements).
+.PP
+The output for the flag
+.B -K
+provides information about other types of ICMPv6-messages
+(formal SNMP-names between brackets):
+.TP 12
+.B iecho/s
+Number of ICMP Echo (request) messages received per second
+(ipv6IfIcmpInEchos).
+.TP 12
+.B ierep/s
+Number of ICMP Echo-Reply messages received per second
+(ipv6IfIcmpInEchoReplies).
+.TP 12
+.B oerep/s
+Number of ICMP Echo-Reply messages transmitted per second
+(ipv6IfIcmpOutEchoReplies).
+.TP 12
+.B idu/s
+Number of ICMP Destination Unreachable messages received per second
+(ipv6IfIcmpInDestUnreachs).
+.TP 12
+.B odu/s
+Number of ICMP Destination Unreachable messages transmitted per second
+(ipv6IfIcmpOutDestUnreachs).
+.TP 12
+.B ird/s
+Number of ICMP Redirect messages received per second
+(ipv6IfIcmpInRedirects).
+.TP 12
+.B ord/s
+Number of ICMP Redirect messages transmitted per second
+(ipv6IfIcmpOutRedirect).
+.TP 12
+.B ite/s
+Number of ICMP Time Exceeded messages received per second
+(ipv6IfIcmpInTimeExcds).
+.TP 12
+.B ote/s
+Number of ICMP Time Exceeded messages transmitted per second
+(ipv6IfIcmpOutTimeExcds).
+.PP
+The output for the flag
+.B -U
+provides information about the utilization of the UDPv6-layer
+(formal SNMP-names between brackets):
+.TP 12
+.B indgram/s
+Number of UDPv6 datagrams per second delivered to UDP users (udpInDatagrams),
+.TP 12
+.B outdgram/s
+Number of UDPv6 datagrams transmitted per second from this entity
+(udpOutDatagrams),
+.TP 12
+.B inerr/s
+Number of received UDPv6 datagrams per second that could not be delivered
+for reasons other than the lack of an application at the destination port
+(udpInErrors).
+.TP 12
+.B noport/s
+Number of received UDPv6 datagrams per second for which there was
+no application at the destination port (udpNoPorts).
+.PP
+The output for the flag
+.B -t
+provides information about the utilization of the TCP-layer
+(formal SNMP-names between brackets):
+.TP 12
+.B insegs/s
+Number of received segments per second, including those received in error
+(tcpInSegs).
+.TP 12
+.B outsegs/s
+Number of transmitted segments per second, excluding those containing only
+retransmitted octets (tcpOutSegs).
+.TP 12
+.B actopen/s
+Number of active opens per second that have been supported by this entity
+(tcpActiveOpens).
+.TP 12
+.B pasopen/s
+Number of passive opens per second that have been supported by this entity
+(tcpPassiveOpens).
+.TP 12
+.B nowopen
+Number of connections currently open (snapshot), for which the state
+is either ESTABLISHED or CLOSE-WAIT (tcpCurrEstab).
+.PP
+The output for the flag
+.B -T
+provides information about the failures that were detected in the TCP-layer
+(formal SNMP-names between brackets):
+.TP 12
+.B inerr/s
+Number of received segments per second received in error (tcpInErrs).
+.TP 12
+.B retrans/s
+Number of retransmitted segments per second (tcpRetransSegs).
+.TP 12
+.B attfail/s
+Number of failed connection attempts per second that have occurred at this
+entity (tcpAttemptFails).
+.TP 12
+.B estabreset/s
+Number of resets per second that have occurred at this entity
+(tcpEstabResets).
+.TP 12
+.B outreset/s
+Number of transmitted segments per second containing the RST flag
+(tcpOutRsts).
+.PP
+The output for the flag
+.B -O
+provides information about the top-3 of processes with the highest
+processor consumption:
+.TP 12
+.B pid
+Process-id (if zero, the process has exited while the
+pid could not be determined).
+.TP 12
+.B command
+The name of the process.
+.TP 12
+.B cpu%
+The percentage of cpu-capacity being consumed.
+This value can exceed 100% for a multithreaded process running on
+a multiprocessor machine.
+.PP
+The output for the flag
+.B -G
+provides information about the top-3 of processes with the highest
+memory consumption:
+.TP 12
+.B pid
+Process-id (if zero, the process has exited while the
+pid could not be determined).
+.TP 12
+.B command
+The name of the process.
+.TP 12
+.B mem%
+The percentage of resident memory-utilization by this process.
+.PP
+The output for the flag
+.B -D
+provides information about the top-3 of processes that issue
+the most read and write accesses to disk:
+.TP 12
+.B pid
+Process-id (if zero, the process has exited while the
+pid could not be determined).
+.TP 12
+.B command
+The name of the process.
+.TP 12
+.B dsk%
+The percentage of read and write accesses related to the total
+number of read and write accesses issued on disk by all processes,
+so a high percentage does not imply a high disk load on system level.
+.PP
+The output for the flag
+.B -N
+provides information about the top-3 of processes that issue
+the most socket transfers for IPv4/IPv6:
+.TP 12
+.B pid
+Process-id (if zero, the process has exited while the
+pid could not be determined).
+.TP 12
+.B command
+The name of the process.
+.TP 12
+.B net%
+The percentage of socket transfers related to the total
+number of transfers issued by all processes,
+so a high percentage does not imply a high network load on system level.
+.SH EXAMPLES
+To see today's cpu-activity so far 
+(supposed that
+.B atop
+is logging in the background):
+.PP
+.TP 12
+.B \  pcp-atopsar
+.PP
+To see the memory occupation for June 5, 2012 between 10:00 and 12:30
+(supposed that
+.B atop
+has been logging daily in the background):
+.PP
+.TP 12
+.B \  pcp-atopsar -m -r /var/log/atop_20120605 -b 10:00 -e 12:30
+.br
+\ 
+.br
+    or
+.TP 12
+.B \  pcp-atopsar -m -r 20120605 -b 10:00 -e 12:30
+.br
+\ 
+.br
+    or, suppose it is June 8, 2012 at this moment
+.TP 12
+.B \  pcp-atopsar -m -r yyy -b 10:00 -e 12:30
+.PP
+Write a logfile with
+.B atop
+to record the system behaviour for 30 minutes
+(30 samples of one minute) and produce all available reports
+afterwards:
+.PP
+.TP 12
+.B \  atop       -w /tmp/atoplog 60 30
+.TP 12
+.B \  pcp-atopsar -A -r /tmp/atoplog
+.PP
+To watch TCP activity evolve for ten minutes (10 samples with sixty seconds
+interval):
+.PP
+.TP 12
+.B \  pcp-atopsar -t 60 10
+.PP
+To watch the header-lines ('_' as last character) of all reports with only 
+the detail-lines showing critical resource consumption (marker '*' or '+'
+as last character):
+.PP
+.TP 12
+.B \  pcp-atopsar -AM | grep '[_*+]$'
+.PP
+.SH FILES
+.PP
+.TP 5
+.B /etc/atoprc
+Configuration file containing system-wide default values (mainly flags).
+See related man-page.
+.PP
+.TP 5
+.B ~/.atoprc
+Configuration file containing personal default values (mainly flags).
+See related man-page.
+.PP
+.TP 5
+.BI /var/log/atop/atop_ YYYYMMDD
+Daily data file, where
+.I YYYYMMDD
+are digits representing the date.
+.SH SEE ALSO
+.BR pcp (1),
+.BR pcp-atop (1),
+.BR PCPIntro (1)
+and
+.BR pcp-atoprc (5).

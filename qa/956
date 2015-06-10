@@ -16,6 +16,10 @@ echo "QA output created by $seq"
 _get_libpcp_config
 $unix_domain_sockets || _notrun "No unix domain socket support available"
 
+_filter()
+{
+    sed -e 's/\.\.\.*/\.\.\./g'
+}
 _cleanup()
 {
     if pmprobe -I pmcd.agent.status | grep '"dynamic"' >/dev/null
@@ -35,7 +39,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 cd $here/pmdas/dynamic
 make clean >>$here/$seq.full 2>&1
 $sudo ./Install < /dev/null >$tmp.out 2>&1
-cat $tmp.out | _filter_pmda_install
+cat $tmp.out | _filter_pmda_install | _filter
 cd $here
 
 # real QA test starts here

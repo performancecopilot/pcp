@@ -1,0 +1,24 @@
+#!gmake
+
+ifdef PCP_CONF
+include $(PCP_CONF)
+else
+include $(PCP_DIR)/etc/pcp.conf
+endif
+PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
+include $(PCP_INC_DIR)/builddefs
+
+TESTDIR = $(PCP_VAR_DIR)/testsuite/sadist
+
+SADBIN = fche-csb6-rhel6.bin 859117-rhel5.bin f16-sa20.bin \
+	 rhel5-sa20.bin
+SADXML = fche-csb6-rhel6.xml smash-rhel6.xml smash-rhel5.xml \
+	 859117-rhel5.xml 891688-dash-time.xml
+
+LSRCFILES = $(SADBIN) $(SADXML)
+
+default default_pcp setup: 
+
+install install_pcp:
+
+include $(BUILDRULES)

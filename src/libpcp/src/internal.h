@@ -34,7 +34,6 @@ extern const struct timeval * __pmDefaultRequestTimeout(void) _PCP_HIDDEN;
 extern int __pmConnectWithFNDELAY(int, void *, __pmSockLen) _PCP_HIDDEN;
 
 extern int __pmPtrToHandle(__pmContext *) _PCP_HIDDEN;
-extern int __pmFetchLocal(__pmContext *, int, pmID *, pmResult **) _PCP_HIDDEN;
 
 extern int __pmGlibGetDate (struct timespec *, char const *, struct timespec const *)  _PCP_HIDDEN;
 
@@ -257,7 +256,7 @@ typedef struct {
 } __pmServiceInfo;
 
 typedef struct {
-    const volatile unsigned	*flags;		/* Service discovery flags */
+    const volatile sig_atomic_t	*flags;		/* Service discovery flags */
     struct timeval		timeout;	/* Global timeout period */
     volatile int		timedOut;	/* Global timeout occurred */
     int				resolve;	/* Resolve discovered addresses */

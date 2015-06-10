@@ -124,7 +124,7 @@ main(int argc, char **argv)
      * d) get the instance domain identifier
      * [Note: these steps only have to be done once on startup]
      */
-    if ((sts = pmLoadNameSpace(namespace)) < 0) {
+    if ((sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
 	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
 	exit(1);
     }

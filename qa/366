@@ -3,6 +3,7 @@
 # pmlogconf - migrate from version 1.0 to 2.0
 #
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2015 Red Hat.
 #
 # Maintenance notes.
 # As pmlogconf usage grows, the generated pmlogconf files are going
@@ -36,6 +37,13 @@ echo "QA output created by $seq"
 . ./localconfig
 
 [ -f $PCP_BINADM_DIR/pmlogconf-setup ] || _notrun "pmlogconf version 2.0 not installed"
+[ -f $PCP_BINADM_DIR/pcp-atop ] || _notrun "system monitoring tools not installed"
+perl -e "use PCP::PMDA" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
+[ -f $PCP_PMDAS_DIR/mysql/pmdamysql.pl ] || _notrun "mysql pmda not installed"
+[ -f $PCP_PMDAS_DIR/postgresql/pmdapostgresql.pl ] || _notrun "postgresql pmda not installed"
+[ -f $PCP_PMDAS_DIR/zimbra/pmdazimbra.pl ] || _notrun "zimbra pmda not installed"
+[ -f $PCP_PMDAS_DIR/netfilter/pmdanetfilter.pl ] || _notrun "netfilter pmda not installed"
 
 _filter()
 {

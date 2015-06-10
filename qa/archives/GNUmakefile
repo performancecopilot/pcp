@@ -6,10 +6,12 @@ TESTDIR = $(PCP_VAR_DIR)/testsuite/archives
 SRCARCH = $(shell echo *.[0-9])
 SRCMETA = $(subst .0,.meta,$(SRCARCH))
 SRCIDX = $(subst .0,.index,$(SRCARCH))
+FOLIOS = $(shell echo *.folio)
 
 SCRIPTS = mk.diff.sh mk.gap.sh mk.mysql.sh mk.schizo.sh mk.foo+.sh \
-	mkbadlen mkbadti mkbadlabel mkbadlog
-CONFIGS = config.verify
+	  mk.dynmetric.sh mk.instant.sh \
+	  mkbadlen mkbadti mkbadlabel mkbadlog
+CONFIGS = config.verify config.shping
 OTHERS = GNUmakefile.install ds390-access.gz
 
 default default_pcp setup:
@@ -21,6 +23,6 @@ install install_pcp:
 	$(INSTALL) -m 644 $(SRCARCH) $(TESTDIR)
 	$(INSTALL) -m 644 $(SRCMETA) $(TESTDIR)
 	$(INSTALL) -m 644 $(SRCIDX) $(TESTDIR)
-	$(INSTALL) -m 644 $(OTHERS) $(CONFIGS) $(TESTDIR)
+	$(INSTALL) -m 644 $(OTHERS) $(CONFIGS) $(FOLIOS) $(TESTDIR)
 
 include $(BUILDRULES)

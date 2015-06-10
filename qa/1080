@@ -1,0 +1,48 @@
+#!/bin/sh
+# PCP QA Test No. 1080
+# Exercise pcp-atop functionality.
+#
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+ATOP="$PCP_BINADM_DIR/pcp-atop"
+test -f "$ATOP" || _notrun "$ATOP is not installed, skipped"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    $PCP_AWK_PROG '
+BEGIN			{ printing=1; }
+/^=== std out ===$/	{ printing=0; next }
+/^=== std err ===$/	{ printing=1; }
+			{ if (printing) { print } }' | \
+    sed \
+	-e '/Command:/{
+s,'"$ATOP"',PCP-ATOP,g
+s/ -r .*\/archives/ -r ...\/archives/
+}' \
+    #end
+}
+
+# real QA test starts here
+_run_valgrind $ATOP 1 3 \
+	| tee -a $here/$seq.full | _filter
+export PCP_ORIGIN=1.1
+_run_valgrind $ATOP -r $here/archives/pcp-atop.folio \
+	| tee -a $here/$seq.full | _filter
+
+# success, all done
+status=0
+exit

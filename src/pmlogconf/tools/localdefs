@@ -2,6 +2,7 @@ FILES = \
 	atop \
 	atop-proc \
 	atop-summary \
+	atop-httpstats \
 	collectl \
 	collectl-summary \
 	dmcache \

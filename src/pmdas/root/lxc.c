@@ -120,7 +120,7 @@ lxc_values_parse(FILE *pp, const char *name, container_t *values)
     char buffer[256];
     char *s, *key, *value;
 
-    values->pid = values->status = 0;
+    values->pid = values->flags = 0;
 
     while ((s = fgets(buffer, sizeof(buffer)-1, pp)) != NULL) {
 	key = s;
@@ -135,13 +135,14 @@ lxc_values_parse(FILE *pp, const char *name, container_t *values)
 	    if (strncmp(value, "RUNNING", 7) == 0 ||
 	        strncmp(value, "STOPPING", 8) == 0 ||
 	        strncmp(value, "ABORTING", 8) == 0)
-		values->status |= CONTAINER_FLAG_RUNNING;
+		values->flags |= CONTAINER_FLAG_RUNNING;
 	    if (strncmp(value, "STOPPED", 7) == 0)
-		values->status |= CONTAINER_FLAG_PAUSED;
+		values->flags |= CONTAINER_FLAG_PAUSED;
 	    if (strncmp(value, "STARTING", 7) == 0)
-		values->status |= CONTAINER_FLAG_RESTARTING;
+		values->flags |= CONTAINER_FLAG_RESTARTING;
 	}
     }
+    values->uptodate = NUM_UPTODATE;
 
     return 0;
 }

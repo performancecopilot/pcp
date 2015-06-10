@@ -38,7 +38,8 @@ _webapi_response_filter()
         -e 's/PMWEBD error, .*/PMWEBD error, XXX/g' \
         -e 's/localhost[\.a-zA-Z0-9]*/LOCALHOST/g' \
         -e 's/Date:.*/Date: DATE/' \
-        -e 's/User-Agent:.*/User-Agent: FOO/' \
+	-e 's/\[[0-9][0-9]* bytes data]/[data not shown]/' \
+        -e '/> User-Agent: /d' \
 	-e '/Connection: Keep-Alive/d' \
     # end
 }

@@ -1,7 +1,7 @@
 /*
  * Linux /proc/net/dev metrics cluster
  *
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2015 Red Hat.
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -23,19 +23,23 @@
 #include <sys/stat.h>
 #include <net/if.h>
 #include <ctype.h>
+#include "namespaces.h"
 #include "proc_net_dev.h"
 
 static int
-refresh_inet_socket()
+refresh_inet_socket(linux_container_t *container)
 {
     static int netfd = -1;
+
+    if (container)
+	return container_open_network(container);
     if (netfd < 0)
 	netfd = socket(AF_INET, SOCK_DGRAM, 0);
     return netfd;
 }
 
 static int
-refresh_net_dev_ioctl(char *name, net_interface_t *netip)
+refresh_net_dev_ioctl(char *name, net_interface_t *netip, linux_container_t *cp)
 {
     struct ethtool_cmd ecmd;
     struct ifreq ifr;
@@ -55,7 +59,7 @@ refresh_net_dev_ioctl(char *name, net_interface_t *netip)
     memset(&ifr, 0, sizeof(ifr));
 
 
-    if ((fd = refresh_inet_socket()) < 0)
+    if ((fd = refresh_inet_socket(cp)) < 0)
 	return 0;
 
     ecmd.cmd = ETHTOOL_GSET;
@@ -91,12 +95,12 @@ refresh_net_dev_ioctl(char *name, net_interface_t *netip)
 }
 
 static void
-refresh_net_ipv4_addr(char *name, net_addr_t *addr)
+refresh_net_ipv4_addr(char *name, net_addr_t *addr, linux_container_t *cp)
 {
     struct ifreq ifr;
     int fd;
 
-    if ((fd = refresh_inet_socket()) < 0)
+    if ((fd = refresh_inet_socket(cp)) < 0)
 	return;
     strncpy(ifr.ifr_name, name, IF_NAMESIZE);
     ifr.ifr_name[IF_NAMESIZE-1] = '\0';
@@ -170,7 +174,7 @@ refresh_net_hw_addr(char *name, net_addr_t *netip)
 }
 
 int
-refresh_proc_net_dev(pmInDom indom)
+refresh_proc_net_dev(pmInDom indom, linux_container_t *container)
 {
     char		buf[1024];
     FILE		*fp;
@@ -248,7 +252,7 @@ Inter-|   Receive                                                |  Transmit
 
 	/* Issue ioctls for remaining data, not exported through proc */
 	memset(&netip->ioc, 0, sizeof(netip->ioc));
-	if (refresh_net_dev_ioctl(p, netip) < 0)
+	if (refresh_net_dev_ioctl(p, netip, container) < 0)
 	    refresh_net_dev_sysfs(p, netip);
 
 	for (p=v, j=0; j < PROC_DEV_COUNTERS_PER_LINE; j++) {
@@ -276,7 +280,7 @@ Inter-|   Receive                                                |  Transmit
 }
 
 static int
-refresh_net_dev_ipv4_addr(pmInDom indom)
+refresh_net_dev_ipv4_addr(pmInDom indom, linux_container_t *container)
 {
     int n, fd, sts, numreqs = 30;
     struct ifconf ifc;
@@ -284,7 +288,7 @@ refresh_net_dev_ipv4_addr(pmInDom indom)
     net_addr_t *netip;
     static uint32_t cache_err;
 
-    if ((fd = refresh_inet_socket()) < 0)
+    if ((fd = refresh_inet_socket(container)) < 0)
 	return fd;
 
     ifc.ifc_buf = NULL;
@@ -330,10 +334,57 @@ refresh_net_dev_ipv4_addr(pmInDom indom)
 	    continue;
 	}
 
-	refresh_net_ipv4_addr(ifr->ifr_name, netip);
-	refresh_net_hw_addr(ifr->ifr_name, netip);
+	refresh_net_ipv4_addr(ifr->ifr_name, netip, container);
     }
     free(ifc.ifc_buf);
+    return 0;
+}
+
+static int
+refresh_net_dev_hw_addr(pmInDom indom)
+{
+    int sts;
+    DIR *dp;
+    char *devname;
+    struct dirent *dentry;
+    char path[MAXPATHLEN];
+    net_addr_t *netip;
+
+    static uint32_t cache_err;
+
+    snprintf(path, sizeof(path), "%s/sys/class/net", linux_statspath);
+    if ((dp = opendir(path)) != NULL) {
+	while ((dentry = readdir(dp)) != NULL) {
+	    if (dentry->d_name[0] == '.')
+		continue;
+	    devname = dentry->d_name;
+	    sts = pmdaCacheLookupName(indom, devname, NULL, (void **)&netip);
+	    if (sts == PM_ERR_INST || (sts >= 0 && netip == NULL)) {
+		/* first time since re-loaded, else new one */
+		netip = (net_addr_t *)calloc(1, sizeof(net_addr_t));
+	    }
+	    else if (sts < 0) {
+		if (cache_err++ < 10) {
+		    fprintf(stderr, "refresh_net_dev_hw_addr: "
+				"pmdaCacheLookupName(%s, %s, ...) failed: %s\n",
+			pmInDomStr(indom), devname, pmErrStr(sts));
+		}
+		continue;
+	    }
+	    if ((sts = pmdaCacheStore(indom, PMDA_CACHE_ADD, devname, (void *)netip)) < 0) {
+		if (cache_err++ < 10) {
+		    fprintf(stderr, "refresh_net_dev_hw_addr: "
+				"pmdaCacheStore(%s, PMDA_CACHE_ADD, %s, "
+				PRINTF_P_PFX "%p) failed: %s\n",
+			    pmInDomStr(indom), devname, netip, pmErrStr(sts));
+		}
+		continue;
+	    }
+
+	    refresh_net_hw_addr(devname, netip);
+	}
+	closedir(dp);
+    }
     return 0;
 }
 
@@ -393,8 +444,6 @@ refresh_net_dev_ipv6_addr(pmInDom indom)
 	snprintf(netip->ipv6, sizeof(netip->ipv6), "%s/%d", addr, plen);
 	netip->ipv6scope = (uint16_t)scope;
 	netip->has_ipv6 = 1;
-
-	refresh_net_hw_addr(devname, netip);
     }
     fclose(fp);
     return 0;
@@ -405,10 +454,10 @@ refresh_net_dev_ipv6_addr(pmInDom indom)
  * aliases (e.g. eth0, eth0:0, eth0:1, etc) - this is what ifconfig does.
  */
 int
-refresh_net_dev_addr(pmInDom indom)
+refresh_net_dev_addr(pmInDom indom, struct linux_container *container)
 {
     int sts = 0;
-    net_addr_t*p;
+    net_addr_t *p;
 
     for (pmdaCacheOp(indom, PMDA_CACHE_WALK_REWIND);;) {
 	if ((sts = pmdaCacheOp(indom, PMDA_CACHE_WALK_NEXT)) < 0)
@@ -422,8 +471,9 @@ refresh_net_dev_addr(pmInDom indom)
 
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
-    sts |= refresh_net_dev_ipv4_addr(indom);
+    sts |= refresh_net_dev_ipv4_addr(indom, container);
     sts |= refresh_net_dev_ipv6_addr(indom);
+    sts |= refresh_net_dev_hw_addr(indom);
 
     pmdaCacheOp(indom, PMDA_CACHE_SAVE);
     return sts;

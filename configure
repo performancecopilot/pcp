@@ -713,6 +713,9 @@ IB_LIBS
 PMDA_SYSTEMD
 SYSTEMD_LIBS
 SYSTEMD_CFLAGS
+HAVE_NCURSES
+ncurses_LIBS
+ncurses_CFLAGS
 lib_for_regex
 grep
 pcp_syslog_prog
@@ -738,6 +741,7 @@ LEXLIB
 LEX_OUTPUT_ROOT
 LEX
 LN_S
+book_brand
 book_toolchain
 xmlto
 XMLTO
@@ -801,14 +805,19 @@ qmake
 enable_qt
 qt_release
 QMAKE
+pmda_json
+have_python_six
+have_python_jsonpointer
 pcp_python_prog
+have_python
 enable_python3
-enable_python
+enable_python2
 PYTHON3
 PYTHON
 GIT
 LTLIBOBJS
 LIBOBJS
+pm_version_current
 PACKAGE_DISTRIBUTION
 PACKAGE_BUILD_DATE
 PACKAGE_BUILD
@@ -911,6 +920,7 @@ with_qt
 with_python
 with_python3
 with_books
+with_books_brand
 with_papi
 with_perfevent
 with_manager
@@ -952,6 +962,8 @@ CXXFLAGS
 CCC
 YACC
 YFLAGS
+ncurses_CFLAGS
+ncurses_LIBS
 SYSTEMD_CFLAGS
 SYSTEMD_LIBS
 papi_CFLAGS
@@ -1604,6 +1616,9 @@ Optional Packages:
   --with-python3          enable support for tools requiring Python3 (default
                           is on)
   --with-books            enable building of the PCP books (default is off)
+  --with-books-brand=BRAND
+                          choose the docbook brand when building the PCP books
+                          (default is common)
   --with-papi[=DIR|=MODULE]
                           enable performance api counter pmda (default is on)
                           The optional argument may be a full path of a PAPI
@@ -1652,6 +1667,10 @@ Some influential environment variables:
   YFLAGS      The list of arguments that will be passed by default to $YACC.
               This script will default YFLAGS to the empty string to avoid a
               default value of `-d' given by some make applications.
+  ncurses_CFLAGS
+              C compiler flags for ncurses, overriding pkg-config
+  ncurses_LIBS
+              linker flags for ncurses, overriding pkg-config
   SYSTEMD_CFLAGS
               C compiler flags for SYSTEMD, overriding pkg-config
   SYSTEMD_LIBS
@@ -2655,6 +2674,15 @@ if test "${with_books+set}" = set; then :
   withval=$with_books; do_books=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books=$withval"
 else
   do_books=no
+fi
+
+
+
+# Check whether --with-books-brand was given.
+if test "${with_books_brand+set}" = set; then :
+  withval=$with_books_brand; do_books_brand=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books-brand=$withval"
+else
+  do_books_brand=common
 fi
 
 
@@ -4747,6 +4775,9 @@ if test -z "$PACKAGE_DISTRIBUTION" ; then
 fi
 
 
+pm_version_current=`awk </dev/null "BEGIN { print (${PACKAGE_MAJOR}*256+${PACKAGE_MINOR})*256+${PACKAGE_REVISION} }"`
+
+
 ac_config_headers="$ac_config_headers src/include/pcp/config.h src/include/pcp/configsz.h"
 
 ac_config_files="$ac_config_files src/include/pcp/platform_defs.h"
@@ -6157,13 +6188,13 @@ done
 
 
 
-enable_python=false
+enable_python2=false
 if test "x$do_python" != "xno"; then :
 
-    enable_python=true
+    enable_python2=true
     if test -z "$PYTHON"
     then
-	enable_python=false
+	enable_python2=false
     else
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Python version" >&5
 $as_echo_n "checking Python version... " >&6; }
@@ -6173,12 +6204,12 @@ $as_echo "$PY_MAJOR.$PY_MINOR.$PY_POINT" >&6; }
 	if test "$PY_MAJOR" -lt 2; then
 	    echo WARNING: Python version 2.6 or later does not seem to be installed.
 	    echo Cannot proceed with the Python $PY_MAJOR installation found.
-	    enable_python=false
+	    enable_python2=false
 	fi
 	if test "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -lt 6 ; then
 	    echo WARNING: Python version 2.$PY_MINOR is too old.
 	    echo Python version 2.6 or later is required for Python builds.
-	    enable_python=false
+	    enable_python2=false
 	fi
 	for ac_header in python${PY_MAJOR}.${PY_MINOR}/Python.h
 do :
@@ -6193,7 +6224,7 @@ else
 
 	    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
 	    echo Cannot proceed with the Python $PY_MAJOR installation found.
-	    enable_python=false
+	    enable_python2=false
 
 fi
 
@@ -6201,7 +6232,7 @@ done
 
     fi
 
-    if test "$do_python" != "check" -a "$enable_python" != "true"
+    if test "$do_python" != "check" -a "$enable_python2" != "true"
     then
 	as_fn_error $? "cannot enable Python - no supported version found" "$LINENO" 5
     fi
@@ -6261,12 +6292,69 @@ done
 fi
 
 
+have_python=false
+if test "$enable_python2" = "true" -o "$enable_python3" = "true"
+then
+    have_python=true
+fi
+
+
 if test "$enable_python3" = "true"
 then
     pcp_python_prog=$PYTHON3
 else
     pcp_python_prog=$PYTHON
 fi
+
+
+
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Python module jsonpointer" >&5
+$as_echo_n "checking for Python module jsonpointer... " >&6; }
+    if test -n ""
+    then
+	txt=""
+    else
+	txt="import jsonpointer"
+    fi
+    $pcp_python_prog -c 'import sys;
+'"$txt" >>config.log 2>&1
+    if test "$?" = 0
+    then
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	eval have_python_jsonpointer=true
+    else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	eval have_python_jsonpointer=false
+    fi
+
+
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Python module six" >&5
+$as_echo_n "checking for Python module six... " >&6; }
+    if test -n ""
+    then
+	txt=""
+    else
+	txt="import six"
+    fi
+    $pcp_python_prog -c 'import sys;
+'"$txt" >>config.log 2>&1
+    if test "$?" = 0
+    then
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	eval have_python_six=true
+    else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	eval have_python_six=false
+    fi
+
+
+
+pmda_json=false
+$have_python_jsonpointer && $have_python_six && pmda_json=true
 
 
 qmake=$QMAKE
@@ -8346,6 +8434,13 @@ then
 fi
 
 
+book_brand="common"
+if test "$do_books_brand" != ""
+then
+    book_brand=$do_books_brand
+fi
+
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ln -s works" >&5
 $as_echo_n "checking whether ln -s works... " >&6; }
 LN_S=$as_ln_s
@@ -8872,6 +8967,11 @@ NR == 1			{ if ($1 != "UID" && $1 != "USER") exit
 # Unix variants
 $2 == 1 && / init/	{ print "OK"; exit }
 $2 == 1 && / \/etc\/init/ { print "OK"; exit }
+# Open Build Service
+$2 == 1 && / \/bin\/bash/ { print "OK"; exit }
+# similarly for a simple Docker container, e.g.
+# https://github.com/performancecopilot/pcp/issues/23
+$2 == 1 && / \/bin\/sh/ { print "OK"; exit }
 # Fedora 9
 $2 == 1 && / \/sbin\/init/ { print "OK"; exit }
 # Fedora 15
@@ -9832,6 +9932,80 @@ if test $ac_cv_lib_regex_regcomp = yes
 then
     lib_for_regex="-lregex"
 fi
+
+
+
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for ncurses" >&5
+$as_echo_n "checking for ncurses... " >&6; }
+
+if test -n "$ncurses_CFLAGS"; then
+    pkg_cv_ncurses_CFLAGS="$ncurses_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"ncurses\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "ncurses") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_ncurses_CFLAGS=`$PKG_CONFIG --cflags "ncurses" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$ncurses_LIBS"; then
+    pkg_cv_ncurses_LIBS="$ncurses_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"ncurses\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "ncurses") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_ncurses_LIBS=`$PKG_CONFIG --libs "ncurses" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        ncurses_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "ncurses" 2>&1`
+        else
+	        ncurses_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "ncurses" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$ncurses_PKG_ERRORS" >&5
+
+	have_ncurses=false
+elif test $pkg_failed = untried; then
+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	have_ncurses=false
+else
+	ncurses_CFLAGS=$pkg_cv_ncurses_CFLAGS
+	ncurses_LIBS=$pkg_cv_ncurses_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	have_ncurses=true
+fi
+HAVE_NCURSES=$have_ncurses
 
 
 

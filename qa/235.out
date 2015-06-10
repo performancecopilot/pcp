@@ -6,7 +6,9 @@ Usage: pmnsmerge [options] infile [...] outfile
 
 Options:
   -a                    process files in order, ignoring embedded _DATESTAMP control lines
+  -d, --dupok           duplicate names for the same PMID are allowed [default]
   -f, --force           force overwriting of the output file if it exists
+  -x, --nodups          duplicate names for the same PMID are not allowed
   -v, --verbose         verbose, echo input file names as processed
   -?, --help            show this usage message and exit
 
@@ -15,7 +17,9 @@ Usage: pmnsmerge [options] infile [...] outfile
 
 Options:
   -a                    process files in order, ignoring embedded _DATESTAMP control lines
+  -d, --dupok           duplicate names for the same PMID are allowed [default]
   -f, --force           force overwriting of the output file if it exists
+  -x, --nodups          duplicate names for the same PMID are not allowed
   -v, --verbose         verbose, echo input file names as processed
   -?, --help            show this usage message and exit
 
@@ -33,7 +37,7 @@ pmnsmerge: Error: cannot create output PMNS file "out-pmns": Permission denied
 [in:2] Error Parsing ASCII PMNS: Expected NAME, PMID or }
     bogus - this is not correct
           ^
-pmnsmerge: Error: pmLoadNameSpace(in): Problems parsing PMNS definitions
+pmnsmerge: Error: pmLoadASCIINameSpace(in, 1): Problems parsing PMNS definitions
 
 === duplicate PMID in same group ==
 

@@ -487,7 +487,8 @@ hotproc_eval_procs(void)
 	ioentry = fetch_proc_pid_io(pid, hotproc_poss_pid, &sts);
 	schedstatentry = fetch_proc_pid_schedstat(pid, hotproc_poss_pid, &sts);
 
-	if (!statentry || !statusentry || !ioentry || !schedstatentry) {
+        /* Note: /proc/pid/schedstat and /proc/pid/io not on all platforms */
+	if (!statentry || !statusentry /*|| !ioentry || !schedstatentry */) {
 	    /* Can happen if the process was exiting during
 	     * refresh_proc_pidlist then the above fetch's will fail.
 	     * Would be best if they were not in the list at all
@@ -544,7 +545,9 @@ hotproc_eval_procs(void)
 	/* IO demand */
 	/* Read */
 	
-	if ((f = _pm_getfield(ioentry->io_lines.readb, 1)) == NULL)
+        if( !ioentry ) /* ioentry is not enabled on all kernels */
+            ull = 0;
+	else if ((f = _pm_getfield(ioentry->io_lines.readb, 1)) == NULL)
 	    ull = 0;
 	else
 	    ull = (__uint64_t)strtoull(f, &tail, 0);
@@ -553,7 +556,9 @@ hotproc_eval_procs(void)
 
 	/* Write */
 
-	if ((f = _pm_getfield(ioentry->io_lines.writeb, 1)) == NULL)
+        if( !ioentry ) /* ioentry is not enabled on all kernels */
+            ull = 0;
+	else if ((f = _pm_getfield(ioentry->io_lines.writeb, 1)) == NULL)
 	    ull = 0;
 	else
 	    ull = (__uint64_t)strtoull(f, &tail, 0);
@@ -570,7 +575,9 @@ hotproc_eval_procs(void)
 	newnode->r_bwtime = (double)ul / hz;
 
 	/* Schedwait (run_delay) */
-	if ((f = _pm_getfield(schedstatentry->schedstat_buf, 1)) == NULL)
+        if( !schedstatentry ) /* schedstat is not enabled on all kernels */
+            ull =0;
+        else if ((f = _pm_getfield(schedstatentry->schedstat_buf, 1)) == NULL)
 	    ull = 0;
 	else
 	    ull  = (__uint64_t)strtoull(f, &tail, 0);
@@ -642,7 +649,7 @@ hotproc_eval_procs(void)
 
 	    strncpy(vars.fname, cmd, sizeof(vars.fname));
 	    if (len < sizeof(vars.fname))
-		vars.fname[len] = '\0';
+		vars.fname[len-1] = '\0'; /* Skip the closing parenthesis */
 	    vars.fname[sizeof(vars.fname) - 1] = '\0';
 	}
 
@@ -784,11 +791,7 @@ init_hotproc_pid(proc_pid_t * _hotproc_poss_pid)
 
     /* Only if we have a valid config file.  Set all the other stuff up in case we enable later */
     if( conf_gen ){
-        if ((hotproc_timer_id = __pmAFregister(&hotproc_update_interval, NULL, hotproc_timer)) < 0) {
-	    __pmNotifyErr(LOG_ERR, "error registering hotproc timer");
-	    /* OK to exit here?  Assume something really bad has happened */
-	    exit(1);
-	}
+        reset_hotproc_timer();
     }
 }
 
@@ -796,7 +799,22 @@ void
 reset_hotproc_timer(void)
 {
     __pmAFunregister(hotproc_timer_id);
-    hotproc_timer_id = __pmAFregister(&hotproc_update_interval, NULL, hotproc_timer);
+
+    if ((hotproc_timer_id = __pmAFregister(&hotproc_update_interval, NULL, hotproc_timer)) < 0) {
+        __pmNotifyErr(LOG_ERR, "error registering hotproc timer");
+	    /* OK to exit here?  Assume something really bad has happened */
+        exit(1);
+    }
+}
+
+void
+disable_hotproc()
+{
+    /* Clear out the hotlist */
+    init_hot_active_list();
+    /* Disable the timer */
+    __pmAFunregister(hotproc_timer_id);
+    conf_gen = 0;
 }
 
 static void
@@ -959,6 +977,8 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 		    free(ep->io_buf);
 		if (ep->wchan_buf != NULL)
 		    free(ep->wchan_buf);
+		if (ep->environ_buf != NULL)
+		    free(ep->environ_buf);
 
 	    	if (prev == NULL)
 		    proc_pid->pidhash.hash[i] = node->next;
@@ -1158,6 +1178,9 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
     }
     proc_pid_entry_t *ep;
     char buf[1024];
+    char *p;
+    ssize_t nread;
+
 
     *sts = 0;
     if (node == NULL) {
@@ -1250,14 +1273,73 @@ fetch_proc_pid_stat(int id, proc_pid_t *proc_pid, int *sts)
 	ep->flags |= PROC_PID_FLAG_WCHAN_FETCHED;
     }
 
+    if (!(ep->flags & PROC_PID_FLAG_ENVIRON_FETCHED)) {
+	if (ep->environ_buflen > 0)
+	    ep->environ_buf[0] = '\0';
+	if ((fd = proc_open("environ", ep)) >= 0) {
+	    nread = 0;
+	    while ( (n = read(fd, buf, sizeof(buf))) > 0) {
+
+		if ( ( nread + n ) >= ep->environ_buflen ) {
+		    ep->environ_buflen = nread + n + 1;
+		    ep->environ_buf = realloc(ep->environ_buf, ep->environ_buflen);
+		}
+
+		/* Replace nulls with spaces */
+		for(p = memchr(buf, '\0', n); p; p = memchr(p, '\0', buf + n - p) ) {
+		    *p = ' ';
+		}
+
+		memcpy( &ep->environ_buf[nread], buf, n);
+		nread += n;
+	    }
+	    if (ep->environ_buf) {
+		ep->environ_buf[nread] = '\0';
+	    }
+	    close(fd);
+	}
+    else {
+#ifdef PCP_DEBUG
+        if (pmDebug & DBG_TRACE_APPL0 ) {
+		    fprintf(stderr, "fetch_proc_pid_stat: error opening environ for pid %d (error is %s)\n", ep->id, strerror(errno) );
+        }
+#endif
+	}
+	ep->flags |= PROC_PID_FLAG_ENVIRON_FETCHED;
+    }
+
+
     if (*sts < 0)
     	return NULL;
     return ep;
 }
 
 /*
+ * Skip an initial colon-terminated header and whitespace, then comma-separate
+ * the remainder of the line by overwriting any whitespace.
+ */
+static char *
+commasep(char **buf)
+{
+    char *start, *p = *buf;
+
+    for (; *p && *p != ':'; p++);	/* skip header */
+    if (*p) p++;
+    for (; *p && isspace(*p); p++);	/* skip initial whitespace */
+    start = *buf = p;
+    for (; *p; p++) {
+	if (*p == '\n') {
+	    *p = '\0';	/* replace end of line */
+	    *buf = p + 1;
+	    break;
+	}
+	if (isspace(*p)) *p = ',';	/* replace whitespace */
+    }
+    return start;
+}
+
+/*
  * fetch a proc/<pid>/status entry for pid
- * Added by Mike Mason <mmlnx@us.ibm.com>
  */
 proc_pid_entry_t *
 fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
@@ -1376,7 +1458,6 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
 	     * nonvoluntary_ctxt_switches:	56
 	     */
 	    while (curline) {
-		/* TODO VmPeak: VmPin: VmHWM: VmPTE: ... */
 		/* small optimization ... peek at first character */
 		switch (*curline) {
 		    case 'U':
@@ -1392,10 +1473,16 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
 			    goto nomatch;
 			break;
 		    case 'V':
-			if (strncmp(curline, "VmSize:", 7) == 0)
+			if (strncmp(curline, "VmPeak:", 7) == 0)
+			    ep->status_lines.vmpeak = strsep(&curline, "\n");
+			else if (strncmp(curline, "VmSize:", 7) == 0)
 			    ep->status_lines.vmsize = strsep(&curline, "\n");
 			else if (strncmp(curline, "VmLck:", 6) == 0)
 			    ep->status_lines.vmlck = strsep(&curline, "\n");
+			else if (strncmp(curline, "VmPin:", 6) == 0)
+			    ep->status_lines.vmpin = strsep(&curline, "\n");
+			else if (strncmp(curline, "VmHWN:", 6) == 0)
+			    ep->status_lines.vmhwn = strsep(&curline, "\n");
 			else if (strncmp(curline, "VmRSS:", 6) == 0)
 			    ep->status_lines.vmrss = strsep(&curline, "\n");
 			else if (strncmp(curline, "VmData:", 7) == 0)
@@ -1406,6 +1493,8 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
 			    ep->status_lines.vmexe = strsep(&curline, "\n");
 			else if (strncmp(curline, "VmLib:", 6) == 0)
 			    ep->status_lines.vmlib = strsep(&curline, "\n");
+			else if (strncmp(curline, "VmPTE:", 6) == 0)
+			    ep->status_lines.vmpte = strsep(&curline, "\n");
 			else if (strncmp(curline, "VmSwap:", 7) == 0)
 			    ep->status_lines.vmswap = strsep(&curline, "\n");
 			else
@@ -1414,6 +1503,8 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
 		    case 'T':
 			if (strncmp(curline, "Threads:", 8) == 0)
 			    ep->status_lines.threads = strsep(&curline, "\n");
+			else if (strncmp(curline, "Tgid:", 5) == 0)
+			    ep->status_lines.tgid = strsep(&curline, "\n");
 			else
 			    goto nomatch;
 			break;
@@ -1435,9 +1526,37 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
 			else
 			    goto nomatch;
 			break;
+		    case 'N':
+			if (strncmp(curline, "Ngid:", 5) == 0)
+			    ep->status_lines.ngid = strsep(&curline, "\n");
+			else if (strncmp(curline, "NStgid:", 7) == 0) {
+			    ep->status_lines.nstgid = commasep(&curline);
+			}
+			else if (strncmp(curline, "NSpid:", 6) == 0) {
+			    ep->status_lines.nspid = commasep(&curline);
+			}
+			else if (strncmp(curline, "NSpgid:", 7) == 0)
+			    ep->status_lines.nspgid = commasep(&curline);
+			else if (strncmp(curline, "NSsid:", 6) == 0)
+			    ep->status_lines.nssid = commasep(&curline);
+			else
+			    goto nomatch;
+			break;
 		    case 'n':
 			if (strncmp(curline, "nonvoluntary_ctxt_switches:", 27) == 0)
 			    ep->status_lines.nvctxsw = strsep(&curline, "\n");
+			else
+			    goto nomatch;
+			break;
+                    case 'C':
+		        if (strncmp(curline, "Cpus_allowed_list:", 18) == 0)
+		            ep->status_lines.cpusallowed = strsep(&curline, "\n");
+			else
+			    goto nomatch;
+			break;
+                    case 'e':
+		        if (strncmp(curline, "envID:", 6) == 0)
+		            ep->status_lines.envid = strsep(&curline, "\n");
 			else
 			    goto nomatch;
 			break;

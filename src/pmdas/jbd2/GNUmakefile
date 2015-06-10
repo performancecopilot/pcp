@@ -21,6 +21,7 @@ CMDTARGET	= pmdajbd2
 LIBTARGET	= pmda_jbd2.so
 PMDAINIT	= jbd2_init
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
+LOGREWRITEDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
 CONF_LINE	= "jbd2	122	dso	$(PMDAINIT)	$(PMDADIR)/$(LIBTARGET)"
 
 CFILES		= proc_jbd2.c pmda.c
@@ -28,8 +29,8 @@ HFILES		= proc_jbd2.h convert.h
 SCRIPTS		= Install Remove
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
-LSRCFILES 	= help root root_jbd2 $(SCRIPTS)
-LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT)
+LSRCFILES 	= help root root_jbd2 $(SCRIPTS) jbd2_kernel_ulong.conf
+LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) jbd2_kernel_ulong.conf
 
 LLDLIBS		= $(PCP_PMDALIB)
 LCFLAGS		= $(INVISIBILITY)
@@ -43,7 +44,7 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: domain.h $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
+build-me: domain.h $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(LSRCFILES)
 	@if [ -f ../pmcd.conf ]; then \
 	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
@@ -55,6 +56,7 @@ install: default
 	$(INSTALL) -m 644 domain.h help $(HELPTARGETS) root root_jbd2 $(PMDADIR)
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 root_jbd2 $(PCP_VAR_DIR)/pmns/root_jbd2
+	$(INSTALL) -m 644 jbd2_kernel_ulong.conf $(LOGREWRITEDIR)/jbd2_kernel_ulong.conf
 	@$(INSTALL_MAN)
 else
 build-me:
@@ -73,6 +75,9 @@ $(VERSION_SCRIPT):
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
+
+jbd2_kernel_ulong.conf:	mk.rewrite
+	CPP="$(CPP)" INCDIR="$(TOPDIR)/src/include" ./mk.rewrite
 
 pmda.o:			domain.h
 pmda.o proc_jbd2.o:	convert.h

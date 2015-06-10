@@ -1,0 +1,239 @@
+QA output created by 774
+
+using src/ok-foo ...
+--- stdout ---
+Note: timezone set to local timezone of host "gonzo" from archive
+
+Log Label (Log Format Version 2)
+Performance metrics from host gonzo
+  commencing Fri Aug  7 04:34:32.257 1998
+  ending     Fri Aug  7 04:34:40.258 1998
+
+Descriptions for Metrics in the Log ...
+PMID: 29.0.46 (sample.lights)
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+PMID: 29.0.5 (sample.colour)
+    Data Type: 32-bit int  InDom: 29.1 0x7400001
+    Semantics: instant  Units: none
+PMID: 2.3.0 (pmcd.pmlogger.port)
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 29.0.6 (sample.bin)
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+PMID: 29.0.7 (sample.drift)
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+PMID: 29.0.2 (sample.seconds)
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+PMID: 2.3.2 (pmcd.pmlogger.archive)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+PMID: 2.3.3 (pmcd.pmlogger.host)
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+
+Instance Domains in the Log ...
+InDom: 29.1
+04:34:33.248 3 instances
+                 0 or "red"
+                 1 or "green"
+                 2 or "blue"
+InDom: 29.2
+04:34:33.248 9 instances
+                 100 or "bin-100"
+                 200 or "bin-200"
+                 300 or "bin-300"
+                 400 or "bin-400"
+                 500 or "bin-500"
+                 600 or "bin-600"
+                 700 or "bin-700"
+                 800 or "bin-800"
+                 900 or "bin-900"
+InDom: 2.1
+04:34:32.257 1 instances
+                 5403 or "5403"
+
+Temporal Index
+             Log Vol    end(meta)     end(log)
+04:34:32.257       0          132          132
+04:34:33.248       0          350          284
+04:34:40.258       0          851         1768
+
+[152 bytes]
+04:34:32.257  2.3.3 (pmcd.pmlogger.host): inst [5403 or "5403"] value "gonzo.melbourne.sgi.com"
+              2.3.0 (pmcd.pmlogger.port): inst [5403 or "5403"] value 4332
+              2.3.2 (pmcd.pmlogger.archive): inst [5403 or "5403"] value "/usr/people/kenmcd/isms/pcp/qa/src/foo"
+
+[212 bytes]
+04:34:33.248  29.0.46 (sample.lights): value "yellow"
+              29.0.7 (sample.drift): value 150
+              29.0.6 (sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [200 or "bin-200"] value 200
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+                inst [700 or "bin-700"] value 700
+                inst [800 or "bin-800"] value 800
+                inst [900 or "bin-900"] value 900
+              29.0.5 (sample.colour):
+                inst [0 or "red"] value 119
+                inst [1 or "green"] value 220
+                inst [2 or "blue"] value 321
+              29.0.2 (sample.seconds): value 890
+
+[212 bytes]
+04:34:34.248  29.0.46 (sample.lights): value "yellow"
+              29.0.7 (sample.drift): value 108
+              29.0.6 (sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [200 or "bin-200"] value 200
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+                inst [700 or "bin-700"] value 700
+                inst [800 or "bin-800"] value 800
+                inst [900 or "bin-900"] value 900
+              29.0.5 (sample.colour):
+                inst [0 or "red"] value 122
+                inst [1 or "green"] value 223
+                inst [2 or "blue"] value 324
+              29.0.2 (sample.seconds): value 891
+
+[212 bytes]
+04:34:35.258  29.0.46 (sample.lights): value "green"
+              29.0.7 (sample.drift): value 108
+              29.0.6 (sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [200 or "bin-200"] value 200
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+                inst [700 or "bin-700"] value 700
+                inst [800 or "bin-800"] value 800
+                inst [900 or "bin-900"] value 900
+              29.0.5 (sample.colour):
+                inst [0 or "red"] value 125
+                inst [1 or "green"] value 226
+                inst [2 or "blue"] value 327
+              29.0.2 (sample.seconds): value 892
+
+[212 bytes]
+04:34:36.258  29.0.46 (sample.lights): value "green"
+              29.0.7 (sample.drift): value 90
+              29.0.6 (sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [200 or "bin-200"] value 200
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+                inst [700 or "bin-700"] value 700
+                inst [800 or "bin-800"] value 800
+                inst [900 or "bin-900"] value 900
+              29.0.5 (sample.colour):
+                inst [0 or "red"] value 128
+                inst [1 or "green"] value 229
+                inst [2 or "blue"] value 330
+              29.0.2 (sample.seconds): value 893
+
+[212 bytes]
+04:34:37.258  29.0.46 (sample.lights): value "green"
+              29.0.7 (sample.drift): value 101
+              29.0.6 (sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [200 or "bin-200"] value 200
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+                inst [700 or "bin-700"] value 700
+                inst [800 or "bin-800"] value 800
+                inst [900 or "bin-900"] value 900
+              29.0.5 (sample.colour):
+                inst [0 or "red"] value 131
+                inst [1 or "green"] value 232
+                inst [2 or "blue"] value 333
+              29.0.2 (sample.seconds): value 894
+
+[212 bytes]
+04:34:38.258  29.0.46 (sample.lights): value "green"
+              29.0.7 (sample.drift): value 127
+              29.0.6 (sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [200 or "bin-200"] value 200
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+                inst [700 or "bin-700"] value 700
+                inst [800 or "bin-800"] value 800
+                inst [900 or "bin-900"] value 900
+              29.0.5 (sample.colour):
+                inst [0 or "red"] value 134
+                inst [1 or "green"] value 235
+                inst [2 or "blue"] value 336
+              29.0.2 (sample.seconds): value 895
+
+[212 bytes]
+04:34:39.258  29.0.46 (sample.lights): value "green"
+              29.0.7 (sample.drift): value 135
+              29.0.6 (sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [200 or "bin-200"] value 200
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+                inst [700 or "bin-700"] value 700
+                inst [800 or "bin-800"] value 800
+                inst [900 or "bin-900"] value 900
+              29.0.5 (sample.colour):
+                inst [0 or "red"] value 137
+                inst [1 or "green"] value 238
+                inst [2 or "blue"] value 339
+              29.0.2 (sample.seconds): value 896
+
+[208 bytes]
+04:34:40.258  29.0.46 (sample.lights): value "red"
+              29.0.7 (sample.drift): value 156
+              29.0.6 (sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [200 or "bin-200"] value 200
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+                inst [700 or "bin-700"] value 700
+                inst [800 or "bin-800"] value 800
+                inst [900 or "bin-900"] value 900
+              29.0.5 (sample.colour):
+                inst [0 or "red"] value 140
+                inst [1 or "green"] value 241
+                inst [2 or "blue"] value 342
+              29.0.2 (sample.seconds): value 897
+--- stderr ---
+
+using src/ok-foo.0 ...
+--- stdout ---
+No diffs.
+--- stderr ---
+No diffs.
+
+using src/ok-foo.meta ...
+--- stdout ---
+No diffs.
+--- stderr ---
+No diffs.
+
+using src/ok-foo.index ...
+--- stdout ---
+No diffs.
+--- stderr ---
+No diffs.

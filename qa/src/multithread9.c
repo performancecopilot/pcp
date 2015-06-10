@@ -346,9 +346,17 @@ main(int argc, char **argv)
 
     sts = pmLookupName(NMETRIC, namelist, pmidlist);
     if (sts != NMETRIC) {
-	printf("Warning: pmLookupName -> %s\n", pmErrStr(sts));
+	if (sts < 0)
+	    printf("Warning: pmLookupName -> %s\n", pmErrStr(sts));
+	else
+	    printf("Warning: pmLookupName returned %d, expected %d\n", sts, (int)(NMETRIC));
 	for (i = 0; i < NMETRIC; i++) {
-	    printf("    %s -> %s\n", namelist[i], pmIDStr(pmidlist[i]));
+	    printf("    %s -> %s", namelist[i], pmIDStr(pmidlist[i]));
+	    if (pmidlist[i] == PM_ID_NULL) {
+		sts = pmLookupName(1, &namelist[i], &pmidlist[i]);
+		printf(": %s", pmErrStr(sts));
+	    }
+	    putchar('\n');
 	}
     }
 

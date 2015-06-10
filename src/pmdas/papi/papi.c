@@ -563,7 +563,7 @@ papi_store(pmResult *result, pmdaExt *pmda)
 	    if (sts) { /* any unknown metric name encountered? */
 		sts = refresh_metrics(0); /* still enable those that we can */
 		if (sts == 0)
-		    sts = PM_ERR_CONV; /* but return overall error */
+		    sts = PM_ERR_BADSTORE; /* but return overall error */
 	    } else {
 		sts = refresh_metrics(0);
 	    }

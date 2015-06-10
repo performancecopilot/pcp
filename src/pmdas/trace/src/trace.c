@@ -1069,7 +1069,7 @@ traceStore(pmResult *result, pmdaExt *pmda)
 	}
 	else if (pmidp->item == 16) {	/* trace.control.debug */
 	    if (vsp->numval != 1 || vsp->valfmt != PM_VAL_INSITU)
-		sts = PM_ERR_CONV;
+		sts = PM_ERR_BADSTORE;
 	    else if (sts >= 0 && ((sts = pmExtractValue(vsp->valfmt,
 			&vsp->vlist[0], PM_TYPE_32, &av, PM_TYPE_32)) >= 0)) {
 		if (pmDebug != av.l) {

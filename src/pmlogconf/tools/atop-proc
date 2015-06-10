@@ -2,20 +2,42 @@
 ident   per-process metrics used by the atop command
 force	available
 delta   120 seconds
-
-	proc.id.uid_nm
-	proc.memory.datrss
-	proc.memory.librss
-	proc.memory.textrss
-	proc.memory.vmstack
 	proc.psinfo.cmd
-	proc.psinfo.maj_flt
-	proc.psinfo.minflt
-	proc.psinfo.pid
-	proc.psinfo.rss
 	proc.psinfo.sname
-	proc.psinfo.stime
+	proc.psinfo.ppid
+	proc.psinfo.minflt
+	proc.psinfo.maj_flt
 	proc.psinfo.utime
+	proc.psinfo.stime
+	proc.psinfo.priority
+	proc.psinfo.nice
+	proc.psinfo.start_time
 	proc.psinfo.vsize
-	proc.psinfo.nswap
+	proc.psinfo.rss
+	proc.psinfo.processor
+	proc.psinfo.rt_priority
+	proc.psinfo.policy
 	proc.psinfo.threads
+	proc.psinfo.tgid
+	proc.psinfo.pid
+	proc.namespaces.envid
+	proc.id.uid
+	proc.id.euid
+	proc.id.suid
+	proc.id.fsuid
+	proc.id.gid
+	proc.id.egid
+	proc.id.sgid
+	proc.id.fsgid
+	proc.memory.vmdata
+	proc.memory.vmstack
+	proc.memory.vmexe
+	proc.memory.vmlib
+	proc.memory.vmswap
+	proc.io.read_bytes
+	proc.io.write_bytes
+	proc.io.cancelled_write_bytes
+	proc.id.uid_nm
+	proc.id.euid_nm
+	proc.id.suid_nm
+	proc.id.fsuid_nm

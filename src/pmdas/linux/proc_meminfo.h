@@ -1,7 +1,7 @@
 /*
  * Linux /proc/meminfo metrics cluster
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2015 Red Hat.
  * Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -71,6 +71,7 @@ typedef struct {
     int64_t HugepagesFree;
     int64_t HugepagesRsvd;
     int64_t HugepagesSurp;
+    int64_t Hugepagesize;
     int64_t directMap4k;
     int64_t directMap2M;
     int64_t directMap1G;

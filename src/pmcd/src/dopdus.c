@@ -457,8 +457,11 @@ fail:
 int
 DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
 {
-    int		sts = 0;
+    int		sts;
     int		numids = 0;
+    int		numok;
+    int		lsts;
+    int		domain;
     pmID	*idlist = NULL;
     char	**namelist = NULL;
     int		i;
@@ -473,25 +476,30 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
     }
 
     sts = pmLookupName(numids, namelist, idlist);
+    /*
+     * even if this fails, or looks up fewer than numids, we have to
+     * check each PMID looking for dynamic metrics and process them
+     * separately with the help of the PMDA, if possible
+     */
     for (i = 0; i < numids; i++) {
-	if (idlist[i] == PM_ID_NULL) continue;
-	if (pmid_domain(idlist[i]) == DYNAMIC_PMID && pmid_item(idlist[i]) == 0) {
-	    int		lsts;
-	    int		domain = pmid_cluster(idlist[i]);
-	    /*
-	     * don't return <domain>.*.* ... all return paths from here
-	     * must either set a valid PMID in idlist[i] or indicate
-	     * the first error in the return from pmLookupName
-	     */
-	    idlist[i] = PM_ID_NULL;	/* default case if cannot translate */
-	    if ((ap = FindDomainAgent(domain)) == NULL) {
-		if (sts > 0) sts = PM_ERR_NOAGENT;
-		continue;
-	    }
-	    if (!ap->status.connected) {
-		if (sts > 0) sts = PM_ERR_NOAGENT;
-		continue;
-	    }
+	if (idlist[i] == PM_ID_NULL ||
+	    pmid_domain(idlist[i]) != DYNAMIC_PMID || pmid_item(idlist[i]) != 0)
+	    continue;
+	lsts = 0;
+	domain = pmid_cluster(idlist[i]);
+	/*
+	 * don't return <domain>.*.* ... all return paths from here
+	 * must either set a valid PMID in idlist[i] or indicate
+	 * an error via lsts
+	 */
+	idlist[i] = PM_ID_NULL;	/* default case if cannot translate */
+	if ((ap = FindDomainAgent(domain)) == NULL) {
+	    lsts = PM_ERR_NOAGENT;
+	}
+	else if (!ap->status.connected) {
+	    lsts = PM_ERR_NOAGENT;
+	}
+	else {
 	    if (ap->ipcType == AGENT_DSO) {
 		if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
 		    ap->ipc.dso.dispatch.version.four.ext->e_context = cp - client;
@@ -501,7 +509,7 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
 		}
 		else {
 		    /* Not PMDA_INTERFACE_4 or later */
-		    lsts = PM_ERR_NAME;
+		    lsts = PM_ERR_NONLEAF;
 		}
 	    }
 	    else {
@@ -547,28 +555,33 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
 		    fdfail != -1)
 		    CleanupAgent(ap, AT_COMM, fdfail);
 	    }
-	    /*
-	     * only set error status to the current error status
-	     * if this is the first error for this set of metrics
-	     */
-	    if (lsts < 0 && sts > 0) sts = lsts;
+	}
+	/*
+	 * only set error status to the current error status
+	 * if this is the first error for this set of metrics,
+	 * and it either it is a fatal error, or numids is 1
+	 */
+	if (lsts < 0 && sts > 0) {
+	    if ((lsts != PM_ERR_NAME && lsts != PM_ERR_NOAGENT &&
+		 lsts != PM_ERR_NONLEAF) || numids == 1)
+	    sts = lsts;
 	}
     }
 
-    if (sts < 0) {
-        /* If get an error which should be passed back along
-         * with valid data to the client
-         * then do NOT fail -> return status with the id-list.
-         */
-    	if (sts != PM_ERR_NAME && sts != PM_ERR_NONLEAF && sts != PM_ERR_NOAGENT)
-	  goto done;
+    if (sts < 0)
+	/* fatal error or explicit error in the numids == 1 case */
+	goto done;
+
+    numok = numids;
+    for (i = 0; i < numids; i++) {
+	if (idlist[i] == PM_ID_NULL)
+	    numok--;
     }
 
-    pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_PMNS_IDS, numids);
-    if ((sts = __pmSendIDList(cp->fd, FROM_ANON, numids, idlist, sts)) < 0) {
+    pmcd_trace(TR_XMIT_PDU, cp->fd, PDU_PMNS_IDS, numok);
+    if ((sts = __pmSendIDList(cp->fd, FROM_ANON, numids, idlist, numok)) < 0) {
 	pmcd_trace(TR_XMIT_ERR, cp->fd, PDU_PMNS_IDS, sts);
 	CleanupClient(cp, sts);
-    	goto done;
     }
 
 done:

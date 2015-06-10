@@ -87,4 +87,7 @@ chown -R pcp:pcp /var/log/pcp/pmie 2>/dev/null
 chown -R pcp:pcp /var/log/pcp/pmwebd 2>/dev/null
 chown -R pcp:pcp /var/log/pcp/pmproxy 2>/dev/null
 
+# https://github.com/performancecopilot/pcp/issues/20
+defaults write io.pcp.pmtime NSAppSleepDisabled -bool YES
+
 status=0

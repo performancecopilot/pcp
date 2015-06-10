@@ -1,0 +1,51 @@
+#!/bin/sh
+# PCP QA Test No. 995
+# pmdumplog strangeness with actual filenames for the argument
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+for ext in "" .0 .meta .index
+do
+    echo
+    echo "using src/ok-foo$ext ..."
+    pmdumplog -z -a src/ok-foo$ext >$tmp.out 2>$tmp.err
+    if [ -z "$ext" ]
+    then
+	for t in out err
+	do
+	    echo "--- std$t ---"
+	    cat $tmp.$t 
+	    mv $tmp.$t $tmp.$t.baseline
+	done
+    else
+	for t in out err
+	do
+	    echo "--- std$t ---"
+	    if diff $tmp.$t.baseline $tmp.$t >$tmp.tmp
+	    then
+		echo "No diffs."
+	    else
+		cat $tmp.tmp
+	    fi
+	done
+    fi
+done
+
+# success, all done
+status=0
+
+exit

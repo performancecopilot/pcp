@@ -40,7 +40,7 @@ enum {
 	NODE_INDOM,		/* 19 - NUMA nodes */
 	PROC_CGROUP_SUBSYS_INDOM,	/* 20 - control group subsystems -> proc PMDA */
 	PROC_CGROUP_MOUNTS_INDOM,	/* 21 - control group mounts -> proc PMDA */
-	LV_INDOM,               /* 22 - lvm devices */
+	LV_INDOM_DEPRECATED,	/* deprecated 22 - lvm devices. do not re-use. Use DM_INDOM instead */
 	ICMPMSG_INDOM,          /* 23 - icmp message types */
 	DM_INDOM,		/* 24 - device mapper devices */
 

@@ -23,7 +23,8 @@
 \f3pmdaCacheLookupName\f1,
 \f3pmdaCacheLookupKey\f1,
 \f3pmdaCacheOp\f1,
-\f3pmdaCachePurge\f1 \- manage a cache of instance domain information for a PMDA
+\f3pmdaCachePurge\f1,
+\f3pmdaCacheResize\f1 \- manage a cache of instance domain information for a PMDA
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -53,6 +54,9 @@ int pmdaCacheOp(pmInDom \fIindom\fP, int \fIop\fP);
 .br
 .ti -8n
 int pmdaCachePurge(pmInDom \fIindom\fP, time_t \fIrecent\fP);
+.br
+.ti -8n
+int pmdaCacheResize(pmInDom \fIindom\fP, int \fImaximum\fP);
 .sp
 .in
 .hy
@@ -179,6 +183,21 @@ maintains the pointer to the data
 (passed via
 .IR private ).
 .PP
+The upper bound for identifiers allocated for any given
+.I indom
+cache can be optionally
+reduced from the default (2^31\0\-\01) to some lesser
+.IR maximum ,
+using
+.BR pmdaCacheResize .
+This
+.I maximum
+will then be persisted and restored in the usual manner, and
+can thus be associated permanently with a cache once set.
+This has applications when using these interfaces as general
+purpose identifier caches, and is less applicable when using
+them for instance domain caching.
+.PP
 For cases where the PMDA developer wishes to influence the allocation
 of internal instance identifiers, e.g. for instance domains with more
 than one natural dimension, or where there is a desire to allocate the same
@@ -202,7 +221,9 @@ then
 .I name
 is used as the ``hint''.
 The ``hint'' is hashed to produce an initial instance identifier in the range
-0 to 2^31\0-\01.  If this instance identifier is already allocated, then the
+0 to 2^31\0\-\01 (or lesser
+.IR maximum ,
+if set).  If this instance identifier is already allocated, then the
 value is rehashed.  This procedure is repeated until an unallocated
 instance identifier is found, or
 .B pmdaCacheStoreKey

@@ -9,7 +9,7 @@ MULTI="pmie pmstat"
 # any other tools that can display one archive at a time ...
 # (should be disjoint from $MULTI)
 #
-SINGLE="pcp pmval pminfo pmprobe pmclient pmdumplog pmlogsummary pmlogcheck"
+SINGLE="pcp pmval pminfo pmprobe pmclient pmdumplog pmlogsummary pmlogcheck pmiostat"
 
 # the tools that know how to replay a folio they have created
 # (should be a subset of those in $MULTI and $SINGLE)

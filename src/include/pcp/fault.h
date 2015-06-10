@@ -12,8 +12,8 @@
  * License for more details.
  */
 
-#ifndef _FAULT_H
-#define _FAULT_H
+#ifndef PCP_FAULT_H
+#define PCP_FAULT_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,4 +61,4 @@ extern char *__pmFault_strdup(const char *);
 }
 #endif
 
-#endif /* _FAULT_H */
+#endif /* PCP_FAULT_H */

@@ -18,6 +18,7 @@
 
 topdir=`pwd`
 verbose=false
+srconly=false
 nonrpm=unknown
 nondeb=unknown
 
@@ -127,6 +128,10 @@ do
 	;;
     --nondeb)
 	nondeb=true
+	shift
+	;;
+    --source)
+	srconly=true
 	shift
 	;;
     --target)
@@ -445,6 +450,7 @@ packaging_rpm()
 # real build starts here
 clean_packaging
 src_tar_build
+$srconly && exit 0
 
 # short-circuit for performing builds with dpkg-buildpackage
 $nondeb || debian_build

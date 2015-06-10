@@ -54,12 +54,39 @@ do
     do
 	sum=`shasum <$bad | sed -e 's/ .*//'`
 	host=`echo "$bad" | sed -e "s;^$HOME/Logs/by-vm/;;" -e 's/\/.*//'`
+	cd `dirname $bad`
+	rm -f $tmp.ok
+	for log in `ls -r ../????-??-??`
+	do
+	    if grep '^Failures: ' $log >$tmp.fail
+	    then
+		# found a Failures: line ... is our test included in the
+		# last Failures: line?
+		#
+		if tail -1 $tmp.fail | grep " $seq" >/dev/null
+		then
+		    touch $tmp.ok
+		fi
+		break
+	    fi
+	done
+	if [ ! -f $tmp.ok ]
+	then
+	    # cleanup because test was subsequently made to pass?
+	    #
+	    echo -n "$seq: not a failure in any $host daily log ... clean up? [n] "
+	    read ans </dev/tty
+	    if [ -n "$ans" -a "$ans" = y ]
+	    then
+		rm $seq.*
+	    fi
+	    continue
+	fi
 	if grep " $sum" <$tmp.sum >/dev/null 2>&1
 	then
 	    match_host=`grep " $sum" <$tmp.sum | sed -e 's/ .*//' -e 1q`
 	    echo "$host: same $seq.out.bad as $match_host"
 	else
-	    cd `dirname $bad`
 	    for qabits in \
 		common common.check common.config common.filter common.install.cisco \
 		common.pcpweb common.product common.rc common.setup localconfig \

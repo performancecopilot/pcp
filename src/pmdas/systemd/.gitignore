@@ -2,3 +2,4 @@ domain.h
 help.dir
 help.pag
 pmdasystemd
+pmdasystemd.1.*

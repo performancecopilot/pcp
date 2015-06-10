@@ -22,7 +22,8 @@
 #include <regex.h>
 
 
-extern void yyerror(char *s);
+extern void yyerror(const char *s);
+extern void yywarn(const char *s);
 
 static char emsg[256]; /* error message */
 
@@ -37,6 +38,8 @@ int	yylineno;
 #undef unput
 #define unput(c) {yytchar=(c); ungetc(yytchar, yyin);}
 #endif /* FLEX_SCANNER */
+
+#define yyterminate() return END;
 
 %}
 
@@ -114,6 +117,9 @@ false		{ return FALSE; }
 
 [\t \r\n]+ { }
 
+<<EOF>> {
+            yyterminate();
+	}
 
 [a-zA-Z]+ {
 	    yyerror("Illegal word");

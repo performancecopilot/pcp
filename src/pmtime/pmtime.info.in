@@ -13,6 +13,10 @@
 	<key>CFBundleExecutable</key>
 	<string>pmtime</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.aconex.pmtime</string>
+	<string>io.pcp.pmtime</string>
+	<key>NSAppSleepDisabled</key>
+	<true/>
+	<key>LSAppNapIsDisabled</key>
+	<true/>
 </dict>
 </plist>

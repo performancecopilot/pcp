@@ -40,11 +40,12 @@ else
     journalctl=`which journalctl 2>/dev/null`
     if [ -n "$journalctl" ]
     then
-	if su adm -s /bin/sh -c "$journalctl --this-boot --lines=1 --no-pager >/dev/null 2>$tmp.err"
+	if su adm -s /bin/sh -c "$journalctl --this-boot --lines=1 --no-pager >/dev/null 2>$__tmp.err"
 	then
 	    # all good ... PMDA default is to run as the user adm
 	    :
 	else
+	    #debug# cat $__tmp.err
 	    echo "Warning: user adm cannot run journalctl, running PMDA as root"
 	    echo
 	    args=-Uroot

@@ -1,0 +1,49 @@
+#!/bin/sh
+# PCP QA Test No. 982
+# Exercise basic hotproc fname predicate handling via pmstore.
+#
+# Copyright (c) 2015 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = "linux" ] || _notrun "Test platform does not support hotproc"
+
+status=1
+$sudo rm -f $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter_store()
+{
+    sed -e 's/old.*new/new/g'
+}
+
+_probe_value()
+{
+    metric=$1
+    pmprobe -v $metric | tee -a $seq.full | sed -e "s/^$metric 1 //g"
+}
+
+# real QA test starts here
+$sudo pmstore hotproc.control.refresh 1 | _filter_store
+$sudo pmstore hotproc.control.config 'fname == "pmdaproc"' | _filter_store
+pmsleep 2.1
+pminfo -f hotproc.nprocs hotproc.control.refresh hotproc.control.config
+
+# Check that we handle bad input properly
+$sudo pmstore hotproc.control.config "foo==42" | _filter_store
+pminfo -f hotproc.control.config
+
+# restore defaults
+$sudo pmstore hotproc.control.refresh 10 | _filter_store
+$sudo pmstore hotproc.control.config "" | _filter_store
+$sudo pmstore hotproc.control.config "" | _filter_store
+
+status=0
+exit

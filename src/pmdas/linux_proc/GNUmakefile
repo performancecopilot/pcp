@@ -35,10 +35,11 @@ LFILES		= lex.l
 YFILES		= gram.y
 
 SCRIPTS		= Install Remove
-LOGREWRITERS	= linux_proc_migrate.conf cgroup_units.conf
+LOGREWRITERS	= linux_proc_migrate.conf cgroup_units.conf proc_kernel_ulong.conf proc_jiffies.conf
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
-LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) $(YFILES:%.y=%.tab.?)
+LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) $(YFILES:%.y=%.tab.?) \
+		  proc_kernel_ulong.conf proc_jiffies.conf
 
 LLDLIBS		= $(PCP_PMDALIB)
 LCFLAGS		= $(INVISIBILITY)
@@ -56,7 +57,7 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: domain.h root_proc $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
+build-me: domain.h root_proc $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(LOGREWRITERS)
 	@if [ -f ../pmcd.conf ]; then \
 	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
@@ -92,6 +93,9 @@ $(VERSION_SCRIPT):
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
+
+proc_kernel_ulong.conf proc_jiffies.conf:	mk.rewrite
+	CPP="$(CPP)" INCDIR="$(TOPDIR)/src/include" ./mk.rewrite
 
 gram.tab.o:	hotproc.h
 lex.o:	hotproc.h

@@ -123,7 +123,9 @@ host_state_changed(char *host, int state)
 
     if (state == hsp->state) return 0;
 
-    if (state == STATE_FAILINIT)
+    if (quiet)
+	; /* be quiet */
+    else if (state == STATE_FAILINIT)
 	__pmNotifyErr(LOG_INFO, "Cannot connect to pmcd on host %s\n", host);
     else if (state == STATE_RECONN && hsp->state != STATE_INIT)
 	__pmNotifyErr(LOG_INFO, "Re-established connection to pmcd on host %s\n", host);
@@ -501,6 +503,13 @@ findEval(Expr *x)
 	    x->eval = cndRate_n;
 	break;
 
+    case CND_INSTANT:
+	if (arity & 1)
+	    x->eval = cndInstant_1;
+	else
+	    x->eval = cndInstant_n;
+	break;
+
     case CND_NEG:
 	if (arity & 1)
 	    x->eval = cndNeg_1;
@@ -781,7 +790,9 @@ run(void)
 	enque(t);
 	t = taskq;
     }
-    __pmNotifyErr(LOG_INFO, "evaluator exiting\n");
+
+    if (!quiet)
+	__pmNotifyErr(LOG_INFO, "evaluator exiting\n");
 }
 
 

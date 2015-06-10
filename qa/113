@@ -30,7 +30,7 @@ rm -f $seq.full
 filesystems=`mount \
 	     | sed -e 's/[(,)]//g' \
              | $PCP_AWK_PROG '
-$4 == "type" && ($5 == "efs" || $5 == "xfs" || $5 == "ext2" || $5 == "ext3" || $5 == "ext4") { print $1 }
+$4 == "type" && ($5 == "efs" || $5 == "xfs" || $5 == "ext2" || $5 == "ext3" || $5 == "ext4" || $5 == "btrfs") { print $1 }
 $4 == "hfs" { print $1 }'`
 
 if [ -z "$filesystems" ]

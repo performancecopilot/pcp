@@ -28,15 +28,16 @@ CPMDAS = root pmcd \
         dm
 
 PLPMDAS = bonding netfilter zimbra postgresql \
-	dbping memcache systemtap mysql vmware kvm \
+	dbping memcache mysql vmware kvm \
 	named news pdns samba dtsrun postfix gpsd \
 	rsyslog elasticsearch snmp nginx nfsclient \
 	ds389 ds389log activemq lustre gpfs slurm
 
-ifeq "$(ENABLE_PYTHON)" "true"
+ifeq "$(HAVE_PYTHON)" "true"
 PYPMDAS = gluster zswap unbound
-else
-PYPMDAS =
+ifeq "$(PMDA_JSON)" "true"
+PYPMDAS += json
+endif
 endif
 
 SUBDIRS = $(CPMDAS) $(PLPMDAS) $(PYPMDAS)

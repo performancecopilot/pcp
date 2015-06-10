@@ -73,20 +73,20 @@ p
 			echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
 			;;
 		    *)
-			echo >&2 "_getnetworkaddr: cannot handle network mask: $mask"
+			echo >&2 "_getnetworkaddr: Warning: cannot handle network mask: $mask"
 			;;
 		esac
 		;;
 	    0)	# none?
-		echo >&2 "_getnetworkaddr: cannot get network address"
+		echo >&2 "_getnetworkaddr: Warning: cannot get network address"
 		;;
 	    *)	# multiple?
-		echo >&2 "_getnetworkaddr: cannot handle multiple network addresses:"
+		echo >&2 "_getnetworkaddr: Warning: cannot handle multiple network addresses:"
 		cat >&2 $tmp.addr
 		;;
 	esac
     else
-	echo >&2 '_getnetworkaddr: no ifconfig?'
+	echo >&2 '_getnetworkaddr: Warning: no ifconfig?'
     fi
 }
 
@@ -172,6 +172,9 @@ cat <<End-of-File >$tmp.control
 # text after [ is treated as annotation
 #
 # executables
+bash
+sed
+grep
 ed
 git
 make
@@ -182,7 +185,7 @@ bison
 gdb
 mktemp
 gawk
-cpan				[(QA optional)]
+cpan				[perl-App-cpanminus (rpm) (QA optional)]
 # optional executables
 dpkg?	dpkg-buildpackage	[dpkg-dev]
 dpkg?	dh			[debhelper]
@@ -215,7 +218,11 @@ rpm?	g++				[gcc-c++]
 # files
 dpkg?	/usr/include/readline/readline.h	[libreadline-dev]
 rpm?	/usr/include/readline/readline.h	[readline-devel]
+dpkg?	/usr/include/ncurses.h	[libncurses5-dev]
 rpm?	/usr/include/ncurses.h	[ncurses-devel] # is this a bug in the spec file?
+/usr/lib/python*/*-packages/six.py	[python-six]
+dpkg?	/usr/lib/python*/*-packages/jsonpointer.py	[python-json-pointer]
+rpm?	/usr/lib/python*/*-packages/jsonpointer.py	[python-jsonpointer]
 # perl modules
 Time::HiRes			[Perl Time-HiRes perl-Time-HiRes(rpm)]
 Date::Format			[Perl TimeDate perl-TimeDate(rpm)]
@@ -224,15 +231,15 @@ Getopt::Std			[base Perl]
 dpkg?	ExtUtils::MakeMaker	[libextutils-autoinstall-perl]
 rpm?	ExtUtils::MakeMaker	[perl-ExtUtils-MakeMaker]
 dpkg?	XML::TokeParser		[libxml-tokeparser-perl]
-rpm?	XML::TokeParser		[perl-XML-TokeParser]
+rpm?	XML::TokeParser		[perl-XML-TokeParser or from cpan]
 rpm?	RRDs::			[rrdtool-perl or perl-rrdtool or rrdtool]
 dpkg?	RRDs::			[librrds-perl]
 dpkg?	Spreadsheet::Read	[libspreadsheet-read-perl (QA optional)]
-rpm?	Spreadsheet::Read	[from cpan (QA optional)]
+rpm?	Spreadsheet::Read	[perl-Spreadsheet-Read or from cpan (QA optional)]
 dpkg?	Spreadsheet::WriteExcel	[libspreadsheet-writeexcel-perl]
-rpm?	Spreadsheet::WriteExcel	[perl-Spreadsheet-WriteExcel or cpan]
+rpm?	Spreadsheet::WriteExcel	[perl-Spreadsheet-WriteExcel or from cpan]
 rpm?	JSON::			[perl-JSON]
-Spreadsheet::ReadSXC		[from cpan (QA optional)]
+Spreadsheet::ReadSXC		[perl-Spreadsheet-ReadSXC or from cpan (QA optional)]
 rpm	time			[time]
 # other run-time
 sadf				[sysstat]
@@ -241,20 +248,21 @@ bc				[(QA optional)]
 curl				[(QA optional)]
 socat				[(QA optional)]
 dpkg?	Spreadsheet::XLSX	[libspreadsheet-xlsx-perl (QA optional)]
-rpm?	Spreadsheet::XLSX	[from cpan (QA optional)]
+rpm?	Spreadsheet::XLSX	[perl-Spreadsheet-XLSX or from cpan (QA optional)]
 dpkg?	Text::CSV_XS		[Text-CSV_XS (QA optional)]
 rpm?	Text::CSV_XS		[perl-Text-CSV_XS (QA optional)]
 crontab				[from vixie-cron?]
 valgrind			[(QA optional)]
 dpkg?	mail			[bsd-mailx (QA optional)]
 rpm?	mail			[mailx (QA optional)]
-host				[bind-utils(redhat)]
 dpkg?	apache2			[apache2 (QA optional)]
 rpm?	httpd			[httpd (QA optional)]
 dpkg?	realpath		[realpath]
 dpkg?	unbound-control		[unbound (QA optional)]
 rpm?	/usr/share/doc/python-requests*|/usr/share/doc/packages/python-requests	[python-requests (QA optional)]
 dpkg?	/usr/share/doc/python-requests|/usr/share/doc/packages/python-requests	[python-requests (QA optional)]
+rpm?	/usr/bin/logconv.pl	[389-ds-base (QA optional)]
+rpm?	/usr/lib/sasl2/libplain.so	[cyrus-sasl-plain (QA optional)]
 # pcp-gui
 dpkg?	qmake			[qt4-qmake (build optional)]
 rpm?	qmake|/usr/lib64/qt4/bin/qmake|/usr/lib/qt4/bin/qmake		[qt4-devel (build optional)]
@@ -293,6 +301,24 @@ then
 	[ -f $tmp.need ] && \
 	    echo "rpm?	/usr/share/doc/python-ctypes*	[python-ctypes]" >>$tmp.control
     fi
+fi
+
+# platform specific cases
+#
+# tests here are copied from $(TOPDIR)/configure.ac
+#
+if [ -f /etc/fedora-release ]
+then
+    # Fedora
+    echo "/usr/sbin/qshape		[postfix-perl-scripts]" >>$tmp.control
+elif [ -f /etc/redhat-release ]
+then
+    # Redhat or CentOS
+    echo "/usr/sbin/qshape		[postfix-perl-scripts]" >>$tmp.control
+    echo "host				[bind-utils]" >>$tmp.control
+elif [ -f /etc/SuSE-release ]
+then
+    echo "/usr/share/doc/packages/postfix-doc/auxiliary/qshape/qshape.pl		[postfix-doc]" >>$tmp.control
 fi
 
 cat $tmp.control \
@@ -478,31 +504,39 @@ then
     #
     cat <<End-of-File >$tmp.control
 # one line per rpm
-# rpm-name	relop	version
+# rpm-name	relop	version	pcp-pkg
 # text after # is treated as a comment
 # pcp.spec.in
 qt-devel	>=	4.4
 qt4-devel	>=	4.4
-libpfm-devel	>=	4.4
-libibmad-devel	>=	1.1.7
-libibumad-devel	>=	1.1.7
+libpfm-devel	>=	4.4	pcp-pmda-perfevent
+libpfm		>=	4.4	pcp-pmda-perfevent
+libibmad-devel	>=	1.1.7	pcp-pmda-infiniband
+libibmad	>=	1.1.7	pcp-pmda-infiniband
+libibumad-devel	>=	1.1.7	pcp-pmda-infiniband
+libibumad	>=	1.1.7	pcp-pmda-infiniband
 # configure.ac
 libmicrohttpd	>	0.9.9
-cairo-devel		>=	1.2
+cairo-devel	>=	1.2
 End-of-File
     cat $tmp.control \
     | sed -e 's/#.*//' -e '/^[ 	]*$/d' \
-    | while read rpm relop specversion
+    | while read rpm relop specversion pcp_pkg
     do
+	[ -n "$pcp_pkg" ] && pcp_pkg=" for $pcp_pkg"
 	rpm -q $rpm >$tmp.tmp 2>/dev/null
-	grep 'is not installed' $tmp.tmp >/dev/null 2>&1 && continue
-	version=`sed <$tmp.tmp -e "s/^$rpm-//" -e 's/-.*//'`
-	( echo $version; echo $specversion ) | _compare $relop
-	if [ $? = 0 ]
+	if grep 'is not installed' $tmp.tmp >/dev/null 2>&1
 	then
-	    $verbose && echo "$rpm: version installed $version, need $relop $specversion, OK"
+	    echo "Warning: $rpm not installed, need $relop $specversion$pcp_pkg"
 	else
-	    echo "Warning: $rpm version installed $version, need $relop $specversion"
+	    version=`sed <$tmp.tmp -e "s/^$rpm-//" -e 's/-.*//'`
+	    ( echo $version; echo $specversion ) | _compare $relop
+	    if [ $? = 0 ]
+	    then
+		$verbose && echo "$rpm: version installed $version, need $relop $specversion$pcp_pkg, OK"
+	    else
+		echo "Warning: $rpm version installed $version, need $relop $specversion$pcp_pkg"
+	    fi
 	fi
     done
 fi
@@ -583,6 +617,9 @@ then
 	else
 	    echo "Warning: \"$PCP_VAR_DIR/config/pcp/pmlogger/config.default\" is missing"
 	fi
+    else
+	echo "Please ignore Warnings from _getnetworkaddr unless you wish to run the"
+	echo "full PCP QA suite."
     fi
 else
     echo "Warning: \"/etc/pcp.conf\" is missing"

@@ -65,7 +65,7 @@ then
 	upstart=false
 	init=/etc/init.d/syslog
     else
-	if `which systemctl >/dev/null 2>&1`
+	if `which systemctl >/dev/null 2>&1` && [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/rsyslog.service ]
 	then
 	    systemctl=true
 	else
@@ -210,18 +210,18 @@ o8 = hinv.ncpu > 0 -> syslog "no -t or -p args" "{13}";
 
 
 // OK + holdoff
-h1 = hinv.ncpu > 0 -> syslog 1 min "-t" "foo" "-p" "local0.notice" "-t & -pinfo, 4 args [5Q] + holdoff" "{14}";
-h2 = hinv.ncpu > 0 -> syslog 1 min "-t" "foo" "-plocal0.notice" "-t & -pinfo, 3 args [5Q] + holdoff" "{14}";
-h3 = hinv.ncpu > 0 -> syslog 1 min "-tfoo" "-pinfo" "-t & -pinfo, 2 args [6D] + holdoff" "{15}";
-h4 = hinv.ncpu > 0 -> syslog 1 min "-p" "local0.info" "-p user.info, 2 args [6Q] + holdoff" "{16}";
-h5 = hinv.ncpu > 0 -> syslog 1 min "-pdaemon.info" "-pdaemon.info, 1 arg [6D] + holdoff" "{17}";
-h6 = hinv.ncpu > 0 -> syslog 1 min "-t" "foo" "-t 2 args + holdoff" "{18}";
-h7 = hinv.ncpu > 0 -> syslog 1 min "-tfoo" "-t 1 arg + holdoff" "{19}";
-h8 = hinv.ncpu > 0 -> syslog 1 min "no -t or -p args + holdoff" "{20}";
+h1 = hinv.ncpu > 0 -> syslog 5 sec "-t" "foo" "-p" "local0.notice" "-t & -pinfo, 4 args [5Q] + holdoff" "{14}";
+h2 = hinv.ncpu > 0 -> syslog 5 sec "-t" "foo" "-plocal0.notice" "-t & -pinfo, 3 args [5Q] + holdoff" "{14}";
+h3 = hinv.ncpu > 0 -> syslog 5 sec "-tfoo" "-pinfo" "-t & -pinfo, 2 args [6D] + holdoff" "{15}";
+h4 = hinv.ncpu > 0 -> syslog 5 sec "-p" "local0.info" "-p user.info, 2 args [6Q] + holdoff" "{16}";
+h5 = hinv.ncpu > 0 -> syslog 5 sec "-pdaemon.info" "-pdaemon.info, 1 arg [6D] + holdoff" "{17}";
+h6 = hinv.ncpu > 0 -> syslog 5 sec "-t" "foo" "-t 2 args + holdoff" "{18}";
+h7 = hinv.ncpu > 0 -> syslog 5 sec "-tfoo" "-t 1 arg + holdoff" "{19}";
+h8 = hinv.ncpu > 0 -> syslog 5 sec "no -t or -p args + holdoff" "{20}";
 
 End-of-File
 
-pmie -v -t 2sec -T 5sec >$tmp.log 2>&1 -c $tmp.conf &
+pmie -v -t 2sec -T 7sec >$tmp.log 2>&1 -c $tmp.conf &
 wait
 
 sed <$tmp.log \

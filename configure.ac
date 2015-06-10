@@ -107,6 +107,12 @@ AC_ARG_WITH([books],
     [do_books=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books=$withval"],
     [do_books=no])
 
+AC_ARG_WITH([books-brand],
+    [AC_HELP_STRING([--with-books-brand=BRAND],
+                    [choose the docbook brand when building the PCP books (default is common)])],
+    [do_books_brand=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books-brand=$withval"],
+    [do_books_brand=common])
+
 AC_ARG_WITH([papi],
     [AC_HELP_STRING([--with-papi@<:@=DIR|=MODULE@:>@],
 		   [enable performance api counter pmda (default is on)
@@ -462,6 +468,10 @@ if test -z "$PACKAGE_DISTRIBUTION" ; then
 fi
 AC_SUBST(PACKAGE_DISTRIBUTION)
 
+dnl generate PM_VERSION_CURRENT for header
+pm_version_current=`awk </dev/null "BEGIN { print (${PACKAGE_MAJOR}*256+${PACKAGE_MINOR})*256+${PACKAGE_REVISION} }"`
+AC_SUBST(pm_version_current)
+
 dnl output header files with cpp defs HAVE_*, etc
 AC_CONFIG_HEADERS(src/include/pcp/config.h src/include/pcp/configsz.h)
 AC_OUTPUT(src/include/pcp/platform_defs.h)
@@ -478,12 +488,12 @@ AC_CHECK_PROGS(PYTHON3, python3)
 AC_SUBST(PYTHON3)
 
 dnl check if python tools/packages wanted (need python >= 2.6)
-enable_python=false
+enable_python2=false
 AS_IF([test "x$do_python" != "xno"], [
-    enable_python=true
+    enable_python2=true
     if test -z "$PYTHON"
     then
-	enable_python=false
+	enable_python2=false
     else
 	AC_MSG_CHECKING([Python version])
 	eval `$PYTHON -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
@@ -491,26 +501,26 @@ AS_IF([test "x$do_python" != "xno"], [
 	if test "$PY_MAJOR" -lt 2; then
 	    echo WARNING: Python version 2.6 or later does not seem to be installed.
 	    echo Cannot proceed with the Python $PY_MAJOR installation found.
-	    enable_python=false
+	    enable_python2=false
 	fi
 	if test "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -lt 6 ; then
 	    echo WARNING: Python version 2.$PY_MINOR is too old.
 	    echo Python version 2.6 or later is required for Python builds.
-	    enable_python=false
+	    enable_python2=false
 	fi
 	AC_CHECK_HEADERS([python${PY_MAJOR}.${PY_MINOR}/Python.h], [], [
 	    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
 	    echo Cannot proceed with the Python $PY_MAJOR installation found.
-	    enable_python=false
+	    enable_python2=false
 	])
     fi
 
-    if test "$do_python" != "check" -a "$enable_python" != "true"
+    if test "$do_python" != "check" -a "$enable_python2" != "true"
     then
 	AC_MSG_ERROR([cannot enable Python - no supported version found])
     fi
 ])
-AC_SUBST(enable_python)
+AC_SUBST(enable_python2)
 
 dnl check if python3 tools/packages wanted (need python >= 3.3)
 enable_python3=false
@@ -547,6 +557,14 @@ AS_IF([test "x$do_python3" != "xno"], [
 ])
 AC_SUBST(enable_python3)
 
+dnl convenience macro to determine if either python is available
+have_python=false
+if test "$enable_python2" = "true" -o "$enable_python3" = "true"
+then
+    have_python=true
+fi
+AC_SUBST(have_python)
+
 dnl choose the prefered python executable (py2 -> py3 transtion)
 if test "$enable_python3" = "true"
 then
@@ -555,6 +573,42 @@ else
     pcp_python_prog=$PYTHON
 fi
 AC_SUBST(pcp_python_prog)
+
+dnl check availability of some Python modules
+dnl usage PCP_CHECK_PYTHON_MODULE(module_name) or
+dnl PCP_CHECK_PYTHON_MODULE(module_name, <import string>)
+dnl default <import string> is "import module_name"
+dnl
+dnl sets $have_python_<module_name> as true or false
+dnl
+AC_DEFUN(PCP_CHECK_PYTHON_MODULE,
+  [ AC_MSG_CHECKING(for Python module $1)
+    if test -n "$2"
+    then
+	txt="$2"
+    else
+	txt="import $1"
+    fi
+    $pcp_python_prog -c 'import sys;
+'"$txt" >>config.log 2>&1
+    if test "$?" = 0
+    then
+	AC_MSG_RESULT(yes)
+	eval have_python_$1=true
+    else
+	AC_MSG_RESULT(no)
+	eval have_python_$1=false
+    fi
+  ])
+PCP_CHECK_PYTHON_MODULE(jsonpointer)
+AC_SUBST(have_python_jsonpointer)
+PCP_CHECK_PYTHON_MODULE(six)
+AC_SUBST(have_python_six)
+
+dnl json PMDA needs both the six and jsonpointer Pyton modules
+pmda_json=false
+$have_python_jsonpointer && $have_python_six && pmda_json=true
+AC_SUBST(pmda_json)
 
 qmake=$QMAKE
 enable_qt=false
@@ -955,6 +1009,13 @@ then
 fi
 AC_SUBST(book_toolchain)
 
+book_brand="common"
+if test "$do_books_brand" != ""
+then
+    book_brand=$do_books_brand
+fi
+AC_SUBST(book_brand)
+
 dnl check if symbolic links are supported
 AC_PROG_LN_S
 if test $target_os = mingw; then
@@ -1105,6 +1166,11 @@ NR == 1			{ if ($1 != "UID" && $1 != "USER") exit
 # Unix variants
 $2 == 1 && / init/	{ print "OK"; exit }
 $2 == 1 && / \/etc\/init/ { print "OK"; exit }
+# Open Build Service
+$2 == 1 && / \/bin\/bash/ { print "OK"; exit }
+# similarly for a simple Docker container, e.g.
+# https://github.com/performancecopilot/pcp/issues/23
+$2 == 1 && / \/bin\/sh/ { print "OK"; exit }
 # Fedora 9
 $2 == 1 && / \/sbin\/init/ { print "OK"; exit }
 # Fedora 15
@@ -1261,6 +1327,9 @@ then
     lib_for_regex="-lregex"
 fi
 AC_SUBST(lib_for_regex)
+
+PKG_CHECK_MODULES([ncurses], [ncurses], [have_ncurses=true], [have_ncurses=false])
+AC_SUBST(HAVE_NCURSES, [$have_ncurses])
 
 PKG_CHECK_MODULES([SYSTEMD], [libsystemd-journal],
                   [pmda_systemd=true], [pmda_systemd=false])

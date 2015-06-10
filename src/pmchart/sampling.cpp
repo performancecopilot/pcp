@@ -203,7 +203,7 @@ SamplingItem::remove(void)
 void
 SamplingItem::setStroke(Chart::Style style, QColor color, bool antiAlias)
 {
-    int  sem = metric()->desc().desc().sem;
+    int  sem = metricPtr()->desc().desc().sem;
     bool step = (sem == PM_SEM_INSTANT || sem == PM_SEM_DISCRETE);
 
     my.curve->setLegendColor(color);
@@ -557,7 +557,7 @@ SamplingEngine::updateValues(bool forward,
 #if DESPERATE
     for (i = 0; i < my.chart->metricCount(); i++) {
 	console->post(PmChart::DebugForce, "metric[%d] value %f", i,
-			samplingItem(i)->metric()->currentValue(0));
+			samplingItem(i)->metricPtr()->currentValue(0));
     }
 #endif
 }

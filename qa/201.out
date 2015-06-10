@@ -118,7 +118,7 @@ Save ...
 Before:
 return -> 7
 After:
-1 0
+2 timestamp 2147483647
 0 timestamp 000
 1 timestamp 001
 2 timestamp 002
@@ -128,7 +128,7 @@ After:
 6 timestamp 006
 Save ...
 Before:
-1 0
+2 timestamp 2147483647
 0 timestamp 000
 1 timestamp 001
 2 timestamp 002
@@ -138,7 +138,7 @@ Before:
 6 timestamp 006
 return -> 14
 After:
-1 0
+2 timestamp 2147483647
 0 timestamp 000
 1 timestamp 001
 2 timestamp 002
@@ -155,7 +155,7 @@ After:
 13 timestamp 013
 Start save after changes ...
 Save -> 16
-1 0
+2 timestamp 2147483647
 0 timestamp 000
 1 timestamp 001
 2 timestamp 002
@@ -173,7 +173,7 @@ Save -> 16
 14 timestamp 014
 15 timestamp 015
 Save -> 17
-1 0
+2 timestamp 2147483647
 0 timestamp 000
 1 timestamp 001
 2 timestamp 002
@@ -192,7 +192,7 @@ Save -> 17
 15 timestamp 015
 16 timestamp 016
 Save -> 18
-1 0
+2 timestamp 2147483647
 0 timestamp 000
 1 timestamp 001
 2 timestamp 002
@@ -212,7 +212,7 @@ Save -> 18
 16 timestamp 016
 17 timestamp 017
 Save -> 19
-1 0
+2 timestamp 2147483647
 0 timestamp 000
 1 timestamp 001
 2 timestamp 002
@@ -233,7 +233,7 @@ Save -> 19
 17 timestamp 017
 18 timestamp 018
 Save -> 20
-1 0
+2 timestamp 2147483647
 0 timestamp 000
 1 timestamp 001
 2 timestamp 002
@@ -278,7 +278,7 @@ pmdaCacheDump: indom 123.8: nentry=20 ins_mode=0 hstate=0 hsize=16
 
 Hide 011 ...
 Save -> 0
-1 0
+2 timestamp 2147483647
 0 timestamp 000
 1 timestamp 001
 2 timestamp 002
@@ -301,7 +301,7 @@ Save -> 0
 19 timestamp 019
 Add 011 ...
 Save -> 0
-1 0
+2 timestamp 2147483647
 0 timestamp 000
 1 timestamp 001
 2 timestamp 002
@@ -324,7 +324,7 @@ Save -> 0
 19 timestamp 019
 Cull 011 ...
 Save -> 19
-1 0
+2 timestamp 2147483647
 0 timestamp 000
 1 timestamp 001
 2 timestamp 002
@@ -346,7 +346,7 @@ Save -> 19
 19 timestamp 019
 Add 011 ...
 Save -> 20
-1 0
+2 timestamp 2147483647
 0 timestamp 000
 1 timestamp 001
 2 timestamp 002
@@ -375,22 +375,22 @@ Load the instance domain ...
 PMDA_CACHE_LOAD failed: Generic error, already reported above
 -- short header --
 Load the instance domain ...
-[DATE] torture_cache(PID) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/123.13: illegal first record: 1
+[DATE] torture_cache(PID) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/123.13: illegal cache header record: 1
 
 PMDA_CACHE_LOAD failed: Generic error, already reported above
 -- bad version (x) --
 Load the instance domain ...
-[DATE] torture_cache(PID) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/123.13: illegal first record: x 0
+[DATE] torture_cache(PID) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/123.13: illegal cache header record: x 0
 
 PMDA_CACHE_LOAD failed: Generic error, already reported above
 -- bad version (2) --
 Load the instance domain ...
-[DATE] torture_cache(PID) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/123.13: illegal first record: 2 0
+[DATE] torture_cache(PID) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/123.13: illegal cache header record: 2 0
 
 PMDA_CACHE_LOAD failed: Generic error, already reported above
 -- bad ins_mode (-1) --
 Load the instance domain ...
-[DATE] torture_cache(PID) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/123.13: illegal first record: 1 -1
+[DATE] torture_cache(PID) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/123.13: illegal cache header record: 1 -1
 
 PMDA_CACHE_LOAD failed: Generic error, already reported above
 -- empty --
@@ -410,7 +410,7 @@ pmdaCacheDump: indom 123.13: nentry=7 ins_mode=0 hstate=3 hsize=16
          35  inactive (nil) longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again-longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again
          40  inactive (nil) fubar-004
          41    active (nil) fubar-009
-1 0
+2 timestamp 2147483647
 10 orig-timestamp fubar-001
 15 orig-timestamp this is a name with some spaces in it
 20 timestamp fubar-002
@@ -427,7 +427,7 @@ pmdaCacheDump: indom 123.13: nentry=7 ins_mode=1 hstate=3 hsize=16
 (        30)    empty
          35  inactive (nil) longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again-longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again
          40  inactive (nil) fubar-004
-1 1
+2 timestamp 2147483647
 0 timestamp fubar-009
 10 orig-timestamp fubar-001
 15 orig-timestamp this is a name with some spaces in it
@@ -479,7 +479,7 @@ pmdaCacheDump: indom 123.7: nentry=5 ins_mode=1 hstate=0 hsize=16
  2147483645  inactive (nil) biggest-inst-2
 (2147483646)    empty
  2147483647    active 0xdeadbeef bar
-1 1
+2 timestamp 2147483647
 0 timestamp java coffee beans
 1 timestamp another one
 2147483645 orig-timestamp biggest-inst-2
@@ -514,7 +514,7 @@ pmdaCacheDump: indom 123.11: nentry=10 ins_mode=0 hstate=0 hsize=16
 (         7)    empty
 (         8)    empty
 (         9)    empty
-1 0
+2 timestamp 2147483647
 -- not empty --
 Save -> 16
 Before purge ...
@@ -555,7 +555,7 @@ pmdaCacheDump: indom 123.11: nentry=16 ins_mode=1 hstate=0 hsize=16
          13  inactive 0xcaffe008 boring-instance-008
          14    active 0xcaffe009 boring-instance-009
 (        60)    empty
-1 1
+2 timestamp 2147483647
 0 timestamp boring-instance-000
 3 timestamp boring-instance-001
 4 timestamp boring-instance-002
@@ -1589,3 +1589,53 @@ SAVE -> 6
 CULL ALL -> 6
 SAVE -> 0
 SYNC -> 0
+
+cache resize test cases ...
+
+Populate the instance domain ...
+Save -> 20
+pmdaCacheDump: indom 123.10: nentry=20 ins_mode=0 hstate=0 hsize=16
+          0    active 0xbeef0001 000
+          1    active 0xbeef0002 001
+          2    active 0xbeef0003 002
+          3    active 0xbeef0004 003
+          4    active 0xbeef0005 004
+          5    active 0xbeef0006 005
+          6    active 0xbeef0007 006
+          7    active 0xbeef0008 007
+          8    active 0xbeef0009 008
+          9    active 0xbeef000a 009
+         10    active 0xbeef000b 010
+         11    active 0xbeef000c 011
+         12    active 0xbeef000d 012
+         13    active 0xbeef000e 013
+         14    active 0xbeef000f 014
+         15    active 0xbeef0010 015
+         16    active 0xbeef0011 016
+         17    active 0xbeef0012 017
+         18    active 0xbeef0013 018
+         19    active 0xbeef0014 019
+Resize (good) -> 0
+Resize (bad) -> -12444: Result size exceeded
+Sync -> 20
+2 timestamp 1234
+0 timestamp 000
+1 timestamp 001
+2 timestamp 002
+3 timestamp 003
+4 timestamp 004
+5 timestamp 005
+6 timestamp 006
+7 timestamp 007
+8 timestamp 008
+9 timestamp 009
+10 timestamp 010
+11 timestamp 011
+12 timestamp 012
+13 timestamp 013
+14 timestamp 014
+15 timestamp 015
+16 timestamp 016
+17 timestamp 017
+18 timestamp 018
+19 timestamp 019

@@ -62,6 +62,7 @@ char		*offsetFlag;			/* offset time specified? */
 RealTime	runTime;			/* run time interval */
 int		hostZone;			/* timezone from host? */
 char		*timeZone;			/* timezone from command line */
+int		quiet;				/* suppress default diagnostics */
 int		verbose;			/* verbosity 0, 1 or 2 */
 int		interactive;			/* interactive mode, -d */
 int		isdaemon;			/* run as a daemon */
@@ -372,7 +373,7 @@ zalloc(size_t size)
 void *
 aalloc(size_t align, size_t size)
 {
-    void	*p;
+    void	*p = NULL;
     int		sts = 0;
 #ifdef HAVE_POSIX_MEMALIGN
     sts = posix_memalign(&p, align, size);
@@ -728,17 +729,28 @@ changeSmpls(Expr **p, int nsmpls)
     int    i;
 
     if (nsmpls == x->nsmpls) return;
-    *p = x = (Expr *) ralloc(x, sizeof(Expr) + (nsmpls - 1) * sizeof(Sample));
+    x = (Expr *) ralloc(x, sizeof(Expr) + (nsmpls - 1) * sizeof(Sample));
     x->nsmpls = nsmpls;
     x->nvals = x->tspan * nsmpls;
     x->valid = 0;
     if (x->op == CND_FETCH) {
+	/* node relocated, fix pointers from associated Metric structures */
 	m = x->metrics;
 	for (i = 0; i < x->hdom; i++) {
 	    m->expr = x;
 	    m++;
 	}
     }
+    /*
+     * we have relocated node from *p to x ... need to fix the
+     * parent pointers in any descendent nodes
+     */
+    if (x->arg1 != NULL)
+	x->arg1->parent = x;
+    if (x->arg2 != NULL)
+	x->arg2->parent = x;
+
+    *p = x;
     newRingBfr(x);
 }
 
@@ -780,6 +792,14 @@ instExpr(Expr *x)
 	    if (!UNITS_UNKNOWN(arg1->units)) {
 		up = 1;
 		x->units = arg1->units;
+	    }
+	    if (x->op == CND_INSTANT && x->metrics->desc.sem == PM_SEM_COUNTER) {
+		up = 1;
+		x->units.dimTime++;
+	    }
+	    if (x->op == CND_RATE) {
+		up = 1;
+		x->units.dimTime--;
 	    }
 	}
 	else if (!UNITS_UNKNOWN(arg1->units) &&
@@ -1061,6 +1081,8 @@ static struct {
     { cndPcnt_time,	"cndPcnt_time" },
     { cndRate_1,	"cndRate_1" },
     { cndRate_n,	"cndRate_n" },
+    { cndInstant_1,	"cndInstant_1" },
+    { cndInstant_n,	"cndInstant_n" },
     { cndRise_1,	"cndRise_1" },
     { cndRise_n,	"cndRise_n" },
     { cndSome_host,	"cndSome_host" },

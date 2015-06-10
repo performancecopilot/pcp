@@ -31,14 +31,16 @@ static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),
     PMOPT_DEBUG,
     { "", 0, 'a', 0, "process files in order, ignoring embedded _DATESTAMP control lines" },
+    { "dupok", 0, 'd', 0, "duplicate names for the same PMID are allowed [default]" },
     { "force", 0, 'f', 0, "force overwriting of the output file if it exists" },
+    { "nodups", 0, 'x', 0, "duplicate names for the same PMID are not allowed" },
     { "verbose", 0, 'v', 0, "verbose, echo input file names as processed" },
     PMOPT_HELP,
     PMAPI_OPTIONS_END
 };
 
 static pmOptions opts = {
-    .short_options = "aD:dfv?",
+    .short_options = "aD:dfvx?",
     .long_options = longopts,
     .short_usage = "[options] infile [...] outfile",
 };
@@ -203,6 +205,7 @@ main(int argc, char **argv)
     int		j;
     int		force = 0;
     int		asis = 0;
+    int		dupok = 1;
     __pmnsNode	*tmp;
 
     umask((mode_t)022);		/* anything else is pretty silly */
@@ -216,7 +219,8 @@ main(int argc, char **argv)
 
 	case 'd':	/* duplicate PMIDs are OK */
 	    fprintf(stderr, "%s: Warning: -d deprecated, duplicate PMNS names allowed by default\n", pmProgname);
-	    break;
+	    dupok = 1;
+		break;
 
 	case 'D':	/* debug flag */
 	    if ((sts = __pmParseDebug(opts.optarg)) < 0) {
@@ -228,8 +232,12 @@ main(int argc, char **argv)
 	    }
 	    break;
 
-	case 'f':	/* force ... unlink file first */
+	case 'f':	/* force ... clobber output file if it exists */
 	    force = 1;
+	    break;
+
+	case 'x':	/* duplicate PMIDs are NOT OK */
+	    dupok = 0;
 	    break;
 
 	case 'v':
@@ -248,10 +256,14 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    if (force)
+    if (force) {
+	/* try to unlink, but if this fails it is OK because
+	 * we truncate the file in the fopen() below and check for
+	 * errors there
+	 */
 	unlink(argv[argc-1]);
-
-    if (access(argv[argc-1], F_OK) == 0) {
+    }
+    else if (access(argv[argc-1], F_OK) == 0) {
 	fprintf(stderr, "%s: Error: output PMNS file \"%s\" already exists!\nYou must either remove it first, or use -f\n",
 		pmProgname, argv[argc-1]);
 	exit(1);
@@ -278,9 +290,9 @@ main(int argc, char **argv)
 	if (verbose)
 	    printf("%s:\n", argv[j]);
 
-	if ((sts = pmLoadNameSpace(argv[j])) < 0) {
-	    fprintf(stderr, "%s: Error: pmLoadNameSpace(%s): %s\n",
-		pmProgname, argv[j], pmErrStr(sts));
+	if ((sts = pmLoadASCIINameSpace(argv[j], dupok)) < 0) {
+	    fprintf(stderr, "%s: Error: pmLoadASCIINameSpace(%s, %d): %s\n",
+		pmProgname, argv[j], dupok, pmErrStr(sts));
 	    exit(1);
 	}
 	{
@@ -310,9 +322,9 @@ main(int argc, char **argv)
     /*
      * now load the merged PMNS to check for errors ...
      */
-    if ((sts = pmLoadNameSpace(argv[argc-1])) < 0) {
-	fprintf(stderr, "%s: Error: pmLoadNameSpace(%s): %s\n",
-	    pmProgname, argv[argc-1], pmErrStr(sts));
+    if ((sts = pmLoadASCIINameSpace(argv[argc-1], dupok)) < 0) {
+	fprintf(stderr, "%s: Error: pmLoadASCIINameSpace(%s, %d): %s\n",
+	    pmProgname, argv[argc-1], dupok, pmErrStr(sts));
 	exit(1);
     }
 

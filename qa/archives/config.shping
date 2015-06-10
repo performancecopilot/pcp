@@ -1,0 +1,18 @@
+#
+# this one is to make the "pcp-shping" archive for PCP QA suite
+# [ pmlogger -s 5 -t 30 -c config.shping pcp-shping ]
+#
+
+log mandatory on once {
+	shping.cmd
+	shping.control.numcmd
+	shping.control.cycles
+	shping.control.cycletime
+	shping.control.timeout
+}
+
+log mandatory on default {
+	shping.status
+	shping.error
+	shping.time
+}

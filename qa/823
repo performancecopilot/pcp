@@ -69,7 +69,7 @@ sasldblistusers2 -f $tmp.passwd.db \
 echo "Ensure pmcd can read the password file" | tee -a $seq.full
 $sudo chown pcp:pcp $tmp.passwd.db
 ls -l $tmp.passwd.db >>$seq.full
-$sudo -u pcp cat $tmp.passwd.db >>$seq.full
+$sudo -u pcp od -c $tmp.passwd.db >>$seq.full
 
 echo "Start pmcd with this shiny new sasldb"
 $sudo $PCP_RC_DIR/pcp restart | tee -a $seq.full >$tmp.out

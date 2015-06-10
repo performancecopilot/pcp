@@ -13,8 +13,8 @@
  * for more details.
  */
 
-#ifndef _PMAPI_H
-#define _PMAPI_H
+#ifndef PCP_PMAPI_H
+#define PCP_PMAPI_H
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -59,7 +59,7 @@ typedef unsigned int	pmInDom;	/* Instance-Domain */
  *	{ 0, 1, -1, 0, PM_TIME_HOUR, 6 }
  * represents hours/million-events
  */
-typedef struct {
+typedef struct pmUnits {
 #ifdef HAVE_BITFIELDS_LTOR
     signed int		dimSpace : 4;	/* space dimension */
     signed int		dimTime : 4;	/* time dimension */
@@ -102,7 +102,7 @@ typedef struct {
 #define PM_COUNT_ONE	0	/* 1 */
 
 /* Performance Metric Descriptor */
-typedef struct {
+typedef struct pmDesc {
     pmID	pmid;		/* unique identifier */
     int		type;		/* base data type (see below) */
     pmInDom	indom;		/* instance domain */
@@ -187,6 +187,7 @@ typedef struct {
 #define PM_ERR_TYPE		(-PM_ERR_BASE-52)   /* Unknown or illegal metric type */
 #define PM_ERR_THREAD		(-PM_ERR_BASE-53)   /* Operation not supported for multi-threaded applications */
 #define PM_ERR_NOCONTAINER	(-PM_ERR_BASE-54)   /* Container not found */
+#define PM_ERR_BADSTORE		(-PM_ERR_BASE-55)   /* Bad input to pmstore */
 
 /* retired PM_ERR_CTXBUSY (-PM_ERR_BASE-97) Context is busy */
 #define PM_ERR_TOOSMALL		(-PM_ERR_BASE-98)   /* Insufficient elements in list */
@@ -383,7 +384,7 @@ extern int pmDelProfile(pmInDom, int, int *);
  *   2. len is the length of the len field + the real size of vbuf
  *	(which includes the null-byte terminator if there is one)
  */
-typedef struct {
+typedef struct pmValueBlock {
 #ifdef HAVE_BITFIELDS_LTOR
     unsigned int	vtype : 8;	/* value type */
     unsigned int	vlen : 24;	/* bytes for vtype/vlen + vbuf */
@@ -397,7 +398,7 @@ typedef struct {
 #define PM_VAL_HDR_SIZE	4		/* bytes for the vtype/vlen header */
 #define PM_VAL_VLEN_MAX	0x00ffffff	/* maximum vbuf[] size */
 
-typedef struct {
+typedef struct pmValue {
     int		inst;		/* instance identifier */
     union {
 	pmValueBlock	*pval;	/* pointer to value-block */
@@ -405,7 +406,7 @@ typedef struct {
     } value;
 } pmValue;
 
-typedef struct {
+typedef struct pmValueSet {
     pmID	pmid;		/* metric identifier */
     int		numval;		/* number of values */
     int		valfmt;		/* value style */
@@ -419,14 +420,14 @@ typedef struct {
 
 
 /* Result returned by pmFetch() */
-typedef struct {
+typedef struct pmResult {
     struct timeval	timestamp;	/* time stamped by collector */
     int			numpmid;	/* number of PMIDs */
     pmValueSet		*vset[1];	/* set of value sets, one per PMID */
 } pmResult;
 
 /* High resolution event timer result from pmUnpackHighResEventRecords() */
-typedef struct {
+typedef struct pmHighResResult {
     struct timespec	timestamp;	/* time stamped by collector */
     int			numpmid;	/* number of PMIDs */
     pmValueSet		*vset[1];	/* set of value sets, one per PMID */
@@ -473,12 +474,12 @@ extern int pmFetchArchive(pmResult **);
  * struct timeval is sometimes 2 x 64-bit ... we use a 2 x 32-bit format for
  * PDUs, internally within libpcp and for (external) archive logs
  */
-typedef struct {
+typedef struct __pmTimeval {
     __int32_t	tv_sec;		/* seconds since Jan. 1, 1970 */
     __int32_t	tv_usec;	/* and microseconds */
 } __pmTimeval;
 
-typedef struct {
+typedef struct __pmTimespec {
     __int64_t	tv_sec;		/* seconds since Jan. 1, 1970 */
     __int64_t	tv_nsec;	/* and nanoseconds */
 } __pmTimespec;
@@ -498,7 +499,7 @@ typedef struct {
 #define PM_LOG_VERS02	0x2
 #define PM_LOG_VOL_TI	-2	/* temporal index */
 #define PM_LOG_VOL_META	-1	/* meta data */
-typedef struct {
+typedef struct pmLogLabel {
     int		ll_magic;	/* PM_LOG_MAGIC | log format version no. */
     pid_t	ll_pid;				/* PID of logger */
     struct timeval	ll_start;		/* start of this log */
@@ -586,7 +587,7 @@ extern char *pmCtime(const time_t *, char *);
 extern struct tm *pmLocaltime(const time_t *, struct tm *);
 
 /* Parse host:metric[instances] or archive/metric[instances] */
-typedef struct {
+typedef struct pmMetricSpec {
     int		isarch;         /* source type: 0 -> live host, 1 -> archive, 2 -> local context */
     char	*source;        /* name of source host or archive */
     char	*metric;        /* name of metric */
@@ -614,9 +615,14 @@ extern int pmflush(void);
 /*
  * Wrapper for config/environment variables. Warning: this will exit() with
  * a FATAL error if /etc/pcp.conf does not exist and $PCP_CONF is not set.
- * Return values point to strings in the environment.
+ * Use the pmGetOptionalConfig variant if this behaviour is not sought.
+ * Return values point to strings in the environment, or NULL in the optional
+ * case when the requested configuration variable was not found.
  */
 extern char *pmGetConfig(const char *);
+extern char *pmGetOptionalConfig(const char *);
+
+extern int pmGetVersion(void);
 
 /*
  * Common command line argument parsing interfaces
@@ -717,10 +723,11 @@ extern char *pmGetConfig(const char *);
 #define PM_OPTFLAG_NOFLUSH	(1<<12)	/* caller issues pmflush */
 #define PM_OPTFLAG_QUIET	(1<<13)	/* silence getopt errors */
 
-struct __pmOptions;
-typedef int (*pmOptionOverride)(int, struct __pmOptions *);
+struct pmOptions;
+#define __pmOptions pmOptions /* backwards-compatible */
+typedef int (*pmOptionOverride)(int, struct pmOptions *);
 
-typedef struct {
+typedef struct pmLongOptions {
     const char *	long_opt;
     int			has_arg;
     int			short_opt;
@@ -728,7 +735,7 @@ typedef struct {
     const char *	message;
 } pmLongOptions;
 
-typedef struct __pmOptions {
+typedef struct pmOptions {
     int			version;
     int			flags;
 
@@ -800,7 +807,7 @@ extern char *pmDerivedErrStr(void);
 /*
  * Event Record support
  */
-typedef struct {
+typedef struct pmEventParameter {
     pmID		ep_pmid;
     /* vtype and vlen fields the format same as for pmValueBlock */
 #ifdef HAVE_BITFIELDS_LTOR
@@ -813,14 +820,14 @@ typedef struct {
     /* actual value (vbuf) goes here ... */
 } pmEventParameter;
 
-typedef struct {
+typedef struct pmEventRecord {
     __pmTimeval		er_timestamp;	/* must be 2 x 32-bit format */
     unsigned int	er_flags;	/* event record characteristics */
     int			er_nparams;	/* number of er_param[] entries */
     pmEventParameter	er_param[1];
 } pmEventRecord;
 
-typedef struct {
+typedef struct pmHighResEventRecord {
     __pmTimespec	er_timestamp;	/* must be 2 x 64-bit format */
     unsigned int	er_flags;	/* event record characteristics */
     int			er_nparams;	/* number of er_param[] entries */
@@ -835,7 +842,7 @@ typedef struct {
 #define PM_EVENT_FLAG_PARENT	(1U<<4)	/* 2nd parameter is parents ID */
 #define PM_EVENT_FLAG_MISSED	(1U<<31)/* nparams shows #missed events */
 
-typedef struct {
+typedef struct pmEventArray {
 		/* align initial declarations with start of pmValueBlock */
 #ifdef HAVE_BITFIELDS_LTOR
     unsigned int	ea_type : 8;	/* value type */
@@ -849,7 +856,7 @@ typedef struct {
     pmEventRecord	ea_record[1];
 } pmEventArray;
 
-typedef struct {
+typedef struct pmHighResEventArray {
 		/* align initial declarations with start of pmValueBlock */
 #ifdef HAVE_BITFIELDS_LTOR
     unsigned int	ea_type : 8;	/* value type */
@@ -888,4 +895,4 @@ extern int pmParseUnitsStr(const char *, pmUnits *, double *, char **);
 }
 #endif
 
-#endif /* _PMAPI_H */
+#endif /* PCP_PMAPI_H */

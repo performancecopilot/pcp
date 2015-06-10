@@ -12,12 +12,12 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
  */
-#ifndef _MMV_DEV_H
-#define _MMV_DEV_H
+#ifndef PCP_MMV_DEV_H
+#define PCP_MMV_DEV_H
 
 #define MMV_VERSION	1
 
-typedef enum {
+typedef enum mmv_toc_type {
     MMV_TOC_INDOMS	= 1,	/* mmv_disk_indom_t */
     MMV_TOC_INSTANCES	= 2,	/* mmv_disk_instance_t */
     MMV_TOC_METRICS	= 3,	/* mmv_disk_metric_t */
@@ -26,13 +26,13 @@ typedef enum {
 } mmv_toc_type_t;
 
 /* The way the Table Of Contents is written into the file */
-typedef struct {
+typedef struct mmv_disk_toc {
     mmv_toc_type_t	type;		/* What is it? */
     __int32_t		count;		/* Number of entries */
     __uint64_t		offset;		/* Offset of section from file start */
 } mmv_disk_toc_t;
 
-typedef struct {
+typedef struct mmv_disk_indom {
     __uint32_t		serial;		/* Unique identifier */
     __uint32_t		count;		/* Number of instances */
     __uint64_t		offset;		/* Offset of first instance */
@@ -40,18 +40,18 @@ typedef struct {
     __uint64_t		helptext;	/* Offset of long help text string */
 } mmv_disk_indom_t;
 
-typedef struct {
+typedef struct mmv_disk_instance {
     __uint64_t		indom;		/* Offset into files indom section */
     __uint32_t		padding;	/* zero filled, alignment bits */
     __int32_t		internal;	/* Internal instance ID */
     char		external[MMV_NAMEMAX];	/* External instance ID */
 } mmv_disk_instance_t;
 
-typedef struct {
+typedef struct mmv_disk_string {
     char		payload[MMV_STRINGMAX];	/* NULL terminated string */
 } mmv_disk_string_t;
 
-typedef struct {
+typedef struct mmv_disk_metric {
     char		name[MMV_NAMEMAX];
     __uint32_t		item;		/* Unique identifier */
     mmv_metric_type_t	type;
@@ -63,14 +63,14 @@ typedef struct {
     __uint64_t		helptext;	/* Offset of long help text string */
 } mmv_disk_metric_t;
 
-typedef struct {
+typedef struct mmv_disk_value {
     pmAtomValue		value;		/* Union of all possible value types */
     __int64_t		extra;		/* INTEGRAL(starttime)/STRING(offset) */
     __uint64_t		metric;		/* Offset into the metric section */
     __uint64_t		instance;	/* Offset into the instance section */
 } mmv_disk_value_t;
 
-typedef struct {
+typedef struct mmv_disk_header {
     char		magic[4];	/* MMV\0 */
     __int32_t		version;	/* version */
     __uint64_t		g1;		/* Generation numbers */
@@ -81,4 +81,4 @@ typedef struct {
     __int32_t		cluster;	/* preferred PMDA cluster identifier */
 } mmv_disk_header_t;
 
-#endif /* _MMV_DEV_H */
+#endif /* PCP_MMV_DEV_H */

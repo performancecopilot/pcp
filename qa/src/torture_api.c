@@ -249,7 +249,7 @@ load_namespace(char *namespace)
 
     gettimeofday(&then, (struct timezone *)0);
     _op++;
-    if ((sts = pmLoadNameSpace(namespace)) < 0) {
+    if ((sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
 	_err++;
 	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
 	exit(1);
@@ -300,7 +300,11 @@ test_api(void)
 
     _op++;
     n = pmLookupName(numpmid, namelist, midlist);
-    if (n != PM_ERR_NONLEAF) {	/* expect failure due to pmcd */
+    if (n < 0 && n != PM_ERR_NONLEAF) {
+	/*
+	 * PM_ERR_NONLEAF would be from an older pmcd/libpcp, before the
+	 * pmLookupName() return value fix up.
+	 */
 	_err++;
 	printf("pmLookupName: Unexpected error: %s\n", pmErrStr(n));
 	for (i = 0; i < numpmid; i++) {

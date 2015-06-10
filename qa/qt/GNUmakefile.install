@@ -12,30 +12,14 @@ endif
 PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
 include $(PCP_INC_DIR)/builddefs
 
-# special variant of SUBDIRS_MAKERULE for running QA in the tree
-#
-SUBDIRS_MAKERULE = \
-	@for d in `echo $^ `; do \
-	    if test -d "$$d" ; then \
-		$(ECHO) === $$d ===; \
-		if test -f "$$d/GNUmakefile.install"; then \
-		    $(MAKE) -C $$d -f GNUmakefile.install $@ || exit $$?; \
-		else \
-		    $(MAKE) -C $$d $@ || exit $$?; \
-		fi; \
-	    fi; \
-	done
-
 SUBDIRS = qmc_context qmc_desc qmc_dynamic qmc_event qmc_format \
 	  qmc_group qmc_hosts qmc_indom qmc_metric qmc_source
 
 default default_pcp: $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
+	$(QA_SUBDIRS_MAKERULE)
 
 setup: $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
 
 install install_pcp: $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)

@@ -1667,6 +1667,7 @@ __pmConnectLogger: PDU version=2 fd=N
 pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
 pmWhichContext() -> 0, cur=0
+pmWhichContext() -> 0, cur=0
 NotifyEndLocalContext: ...
 NotifyEndLocalContext: ...
 pmResult ... numpmid: 3

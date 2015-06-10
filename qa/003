@@ -55,6 +55,7 @@ linux_filter()
 	-e "/disk\.dm\..*: $unavailable/d" \
 	-e "/filesys\.readonly: $unknown/d" \
 	-e "/hinv\.cpu\..*: $unavailable/d" \
+	-e "/hinv\.hugepagesize: $unavailable/d" \
 	-e "/hinv\.map\.dmname: $unavailable/d" \
 	-e "/hinv\.nlv: $unavailable/d" \
 	-e "/hinv\.node\.online: $unavailable/d" \
@@ -202,7 +203,6 @@ do
 	    -e "/hinv\.interconnect: $unavailable/d" \
 	    -e "/hinv\.map\.cpu: $unavailable/d" \
 	    -e "/hinv\.map\.disk: $unavailable/d" \
-	    -e "/hinv\.map\.lvname: $unavailable/d" \
 	    -e "/hinv\.map\.node: $unavailable/d" \
 	    -e "/hinv\.map\.routerport: $unavailable/d" \
 	    -e "/hinv\.map\.router: $unavailable/d" \

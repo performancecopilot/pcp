@@ -143,7 +143,7 @@ context.o
     contexts			# guarded by __pmLock_libpcp mutex
     contexts_len		# guarded by __pmLock_libpcp mutex
     hostbuf			# single-threaded
-    ?curcontext			# thread private
+    ?curcontext			# thread private (no __thread symbols for Mac OS X)
     ?__emutls_t.curcontext	# thread private (MinGW)
     ?__emutls_v.curcontext	# thread private (MinGW)
 derive_fetch.o
@@ -164,7 +164,7 @@ derive.o
     this			# guarded by registered.mutex
     ?registered			# guarded by registered.mutex
     pmid			# guarded by registered.mutex
-    ?derive_errmsg		# thread private
+    ?derive_errmsg		# thread private (no __thread symbols for Mac OS X)
     ?__emutls_v.derive_errmsg	# thread private (MinGW)
     ?func			# const (MinGW)
     ?promote			# const (MinGW)
@@ -291,6 +291,7 @@ pmns.o
     export			# guarded by __pmLock_libpcp mutex
     fin				# guarded by __pmLock_libpcp mutex
     first			# guarded by __pmLock_libpcp mutex
+    use_cpp			# guarded by __pmLock_libpcp mutex
     fname			# guarded by __pmLock_libpcp mutex
     havePmLoadCall		# guarded by __pmLock_libpcp mutex
     last_mtim			# guarded by __pmLock_libpcp mutex
@@ -302,10 +303,10 @@ pmns.o
     seenpmid			# guarded by __pmLock_libpcp mutex
     tokbuf			# guarded by __pmLock_libpcp mutex
     tokpmid			# guarded by __pmLock_libpcp mutex
-    useExtPMNS			# guarded by __pmLock_libpcp mutex
+    ?useExtPMNS			# thread private (no __thread symbols for Mac OS X)
     repname			# guarded by __pmLock_libpcp mutex
     main_pmns			# guarded by __pmLock_libpcp mutex
-    curr_pmns			# guarded by __pmLock_libpcp mutex
+    ?curr_pmns			# thread private (no __thread symbols for Mac OS X)
     locerr			# no unsafe side-effects, see notes in pmns.c
 p_pmns.o
 p_profile.o

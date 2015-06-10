@@ -1,0 +1,48 @@
+#!/bin/sh
+# PCP QA Test No. 771
+# Run the PCP::PMDA test.pl/cvalue.c test case
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+perl -e "use PCP::PMDA" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cd perl
+if [ -f GNUmakefile.install ]
+then
+    if make -f GNUmakefile.install cvalue test.pl 2>&1 >../$seq.full
+    then
+	perl test.pl
+	status=$?
+    else
+	echo "Arrgh ... make -f GNUmakefile.install failed in qa/perl directory"
+	cat ../$seq.full
+    fi
+else
+    if make 2>&1 >../$seq.full
+    then
+	perl test.pl
+	status=$?
+    else
+	echo "Arrgh ... make failed in qa/perl directory"
+	cat ../$seq.full
+    fi
+fi
+
+# all done
+
+exit
