@@ -162,8 +162,7 @@ sub slurm_update_cluster_node_job {
             my $num_hosts = $hostlist->count();
         
             if ( $num_hosts > 0){
-                my $mypos = $hostlist->find("k05n28");
-                #my $mypos = $hostlist->find($host);
+                my $mypos = $hostlist->find($host);
                 if( $mypos >= 0){
                     # We only want jobs that are on this host
 
