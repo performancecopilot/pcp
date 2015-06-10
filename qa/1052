@@ -57,6 +57,13 @@ _drain_output()
     done
 }
 
+# We have to sort the output of certain commands (like "children"),
+# since the order of the output depends on python internal ordering.
+_drain_output_sorted()
+{
+    _drain_output | LC_COLLATE=POSIX sort
+}
+
 _filter()
 {
     tee -a $here/$seq.full | \
@@ -221,9 +228,13 @@ open pipe $python_path $pmda_script
 getdesc on
 desc json.nsources
 fetch json.nsources
-children json
 EOF
 _drain_output
+
+cat >&3 <<EOF
+children json
+EOF
+_drain_output_sorted
 
 # Now, let's add a JSON data source.
 mkdir ${tmp}/s1
@@ -234,8 +245,15 @@ cp $SRC1_DATA1 ${tmp}/s1/data.json
 # the new data source should be present.
 cat >&3 <<EOF
 fetch json.nsources
+EOF
+
+cat >&3 <<EOF
 children json
 children json.s1
+EOF
+_drain_output_sorted
+
+cat >&3 <<EOF
 fetch json.s1.string
 fetch json.s1.value
 EOF
@@ -261,9 +279,17 @@ cp $SRC2_DATA1 ${tmp}/s2/data.json
 # the new data source should be present.
 cat >&3 <<EOF
 fetch json.nsources
+EOF
+_drain_output
+
+cat >&3 <<EOF
 children json
 children json.s1
 children json.s2
+EOF
+_drain_output_sorted
+
+cat >&3 <<EOF
 instance $domain.0
 fetch json.s2.array_data.count
 fetch json.s2.array_data.value
@@ -283,10 +309,18 @@ $python ${ceph_script} -o ${tmp}/ceph/metadata.json -t ${json_qa_dir}/ceph_schem
 # the metrics from the ceph source, just a couple.
 cat >&3 <<EOF
 fetch json.nsources
+EOF
+_drain_output
+
+cat >&3 <<EOF
 children json
 children json.s1
 children json.s2
 children json.ceph
+EOF
+_drain_output_sorted
+
+cat >&3 <<EOF
 instance $domain.0
 fetch json.ceph.filestore.journal_wr_bytes.sum
 fetch json.ceph.osd.stat_bytes
