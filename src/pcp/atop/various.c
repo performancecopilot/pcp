@@ -853,6 +853,13 @@ get_instances(const char *purpose, int value, pmDesc *descs, int **ids, char ***
 
 	sts = !rawreadflag ? pmGetInDom(descs[value].indom, ids, insts) :
 			pmGetInDomArchive(descs[value].indom, ids, insts);
+	if (sts == PM_ERR_INDOM_LOG)
+	{
+		/* metrics but no indom - expected sometimes, "no values" */
+		*insts = NULL;
+		*ids = NULL;
+		return 0;
+	}
 	if (sts < 0)
 	{
 		fprintf(stderr, "%s: %s instances: %s\n",
