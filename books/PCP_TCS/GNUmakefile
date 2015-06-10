@@ -13,7 +13,7 @@ CFG = publican.cfg
 CP = cp -rdp
 LSRCFILES = $(XML) $(PUB) $(CFG) $(PDF)
 LDIRDIRT = pdf html en-US tmp
-LDIRT = built.*
+LDIRT = built.* publican.cfg
 CWD = $(shell pwd)
 
 default: build-me
@@ -21,7 +21,7 @@ default: build-me
 include $(BUILDRULES)
 
 ifeq "$(BOOK_TOOLCHAIN)" "publican"
-built.$(BOOK_TOOLCHAIN):	$(XML)
+built.$(BOOK_TOOLCHAIN):	$(XML) $(CFG)
 	@rm -fr pdf html en-US tmp
 	@mkdir -p pdf html en-US tmp
 	$(CP) $(CWD)/$(PUB) en-US/
@@ -58,6 +58,9 @@ build-me: built.$(BOOK_TOOLCHAIN)
 else
 build-me:
 endif
+
+publican.cfg : publican.cfg.in
+	$(SED) -e 's;@brand@;'$(BOOK_BRAND)';' $< > $@
 
 install: default
 #	$(INSTALL) -m 755 -d $(PCP_BOOKS_DIR)

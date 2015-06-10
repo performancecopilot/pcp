@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014-2015 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,6 +17,7 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 TARGET = pcp-dmcache
+LVTARGET = pcp-lvmcache
 MAN_SECTION = 1
 MAN_PAGES = $(TARGET).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
@@ -26,8 +27,9 @@ default: $(TARGET).py $(MAN_PAGES)
 include $(BUILDRULES)
 
 install: default
-ifeq "$(ENABLE_PYTHON)" "true"
+ifeq "$(HAVE_PYTHON)" "true"
 	$(INSTALL) -m 755 $(TARGET).py $(PCP_BINADM_DIR)/$(TARGET)
+	$(INSTALL) -S $(PCP_BINADM_DIR)/$(TARGET) $(PCP_BINADM_DIR)/$(LVTARGET)
 	@$(INSTALL_MAN)
 endif
 

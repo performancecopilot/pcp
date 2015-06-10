@@ -72,7 +72,7 @@ enum {
 	CLUSTER_INTERRUPT_LINES,/* 49 /proc/interrupts percpu interrupts */
 	CLUSTER_INTERRUPT_OTHER,/* 50 /proc/interrupts percpu interrupts */
 	PROC_PID_FD,		/* 51 /proc/<pid>/fd -> proc PMDA */
-	CLUSTER_LV,		/* 52 /dev/mapper */
+	CLUSTER_LV,		/* deprecated: do not re-use 52 */
 	CLUSTER_NET_NETSTAT,    /* 53 /proc/net/netstat */
 	CLUSTER_DM,		/* 54 disk.dm.* */
 	CLUSTER_SYSFS_DEVICES,	/* 55 /sys/devices metrics */

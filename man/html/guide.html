@@ -33,6 +33,7 @@
   <LI><A HREF="#processes">Process Level Performance Monitoring</A>
   <UL>
     <LI><A HREF="#processmon">Live and Retrospective Process Monitoring</A>
+    <LI><A HREF="#hotproc">Monitoring “Hot” Processes with Hotproc</A>
     <LI><A HREF="#instrument">Application Instrumentation</A>
   </UL>
   <LI><A HREF="#pmie">Performance Metrics Inference</A>
@@ -103,7 +104,7 @@
 </B></TD></TR>
 </TABLE>
 
-<P>To enable centralized archive log collection on the monitoring host, its pmlogger is configured to fetch performance metrics from collector hosts. Add each collector host to the pmlogger configuration file /etc/pcp/pmlogger/control and then restart the pmlogger service on the monitoring host.
+<P>To enable centralized archive log collection on the monitoring host, its pmlogger is configured to fetch performance metrics from collector hosts. Add each collector host to the pmlogger configuration file <TT>/etc/pcp/pmlogger/control</TT> and then restart the pmlogger service on the monitoring host.
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Enable recording of metrics from remote host <B><FONT COLOR="#cc0000">acme.com</FONT></B>:<B><BR>
@@ -113,7 +114,7 @@
 </B></TD></TR>
 </TABLE>
 
-<P>Checks for remote log collection will be done every half an hour. You may also wish to run /usr/libexec/pcp/bin/pmlogger_check -V -C (on Fedora/RHEL) or /usr/lib/pcp/bin/pmlogger_check -V -C (on Debian/Ubuntu) manually (service restart above issues this command internally).
+<P>Checks for remote log collection will be done every half an hour. You may also wish to run <KBD>/usr/libexec/pcp/bin/pmlogger_check -V -C</KBD> (on Fedora/RHEL) or <KBD>/usr/lib/pcp/bin/pmlogger_check -V -C</KBD> (on Debian/Ubuntu) manually (service restart above issues this command internally).
 
 <P>Note that a default configuration file (config.acme.com above) will be generated if it does not exist already. This process is optional (a custom configuration for each host can be provided instead), see the <a href="http://man7.org/linux/man-pages/man1/pmlogconf.1.html">pmlogconf(1) manual page</a> for details on this.
 
@@ -200,7 +201,7 @@ Display detailed information about a performance metric and its current values:<
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
-Monitor live disk write operations per partition with two second interval using fixed point notation (use -i instance to list only certain metrics and -r for raw values):<BR><B>
+Monitor live disk write operations per partition with two second interval using fixed point notation (use <EM>-i</EM> instance to list only certain metrics and <EM>-r</EM> for raw values):<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -t 2sec -f 3 disk.partitions.write -h <FONT COLOR="#cc0000">acme.com</FONT></B>
 </TD></TR>
 </TABLE>
@@ -235,7 +236,7 @@ Monitor system metrics in an iostat like fashion with two second interval:<BR><B
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20> 
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
-Monitor performance metrics with a GUI application with two second default interval from two different hosts. Use File-&gt;New Chart to select metrics to be included in a new view and use File-&gt;Open View to use a predefined view:<BR><B>
+Monitor performance metrics with a GUI application with two second default interval from two different hosts. Use <EM>File-&gt;New Chart</EM> to select metrics to be included in a new view and use <EM>File-&gt;Open View</EM> to use a predefined view:<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmchart.1.html">pmchart</a> -t 2sec -h <FONT COLOR="#cc0000">acme1.com</FONT> -h <FONT COLOR="#cc0000">acme2.com</FONT></B>
 </TD></TR>
 </TABLE>
@@ -243,7 +244,7 @@ Monitor performance metrics with a GUI application with two second default inter
 <a name="retro"></a>
 <H3>Retrospective Performance Analysis</H3>
 
-<P>PCP archive logs are located under /var/log/pcp/pmlogger/<B><FONT COLOR="#cc0000">hostname</FONT></B>, and the archive names indicate the date they cover. Archives are self-contained, and machine-independent so can be transfered to any machine for offline analysis.
+<P>PCP archive logs are located under <TT>/var/log/pcp/pmlogger/</TT><B><FONT COLOR="#cc0000">hostname</FONT></B>, and the archive names indicate the date they cover. Archives are self-contained, and machine-independent so can be transfered to any machine for offline analysis.
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
@@ -275,14 +276,14 @@ Display detailed information about a performance metric at the time when an arch
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
-Dump past disk write operations per partition in an archive using fixed point notation (use -i instance to list only certain metrics and -r for raw values):<BR><B>
+Dump past disk write operations per partition in an archive using fixed point notation (use <EM>-i</EM> instance to list only certain metrics and <EM>-r</EM> for raw values):<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -f 3 disk.partitions.write -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
 </TD></TR>
 </TABLE>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
-Replay past disk write operations per partition in an archive with two second interval using fixed point notation between 9 AM and 10 AM (use full dates with syntax like @"2014-08-20 14:00:00"):<BR><B>
+Replay past disk write operations per partition in an archive with two second interval using fixed point notation between 9 AM and 10 AM (use full dates with syntax like <EM>@"2014-08-20 14:00:00"</EM>):<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -d -t 2sec -f 3 disk.partitions.write -S @09:00 -T @10:00 -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
 </TD></TR>
 </TABLE>
@@ -303,7 +304,7 @@ Dump past CPU load, memory usage, and disk write operations per partition in an 
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
-Summarize differences in past performance metrics between two archives, comparing 2 AM / 3 AM in the first archive to 9 AM / 10 AM in the second archive (grep for '+' to quickly see values which were zero during the first period):<BR><B>
+Summarize differences in past performance metrics between two archives, comparing 2 AM / 3 AM in the first archive to 9 AM / 10 AM in the second archive (grep for <EM>'+'</EM> to quickly see values which were zero during the first period):<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmdiff.1.html">pmdiff</a> -S @02:00 -T @03:00 -B @09:00 -E @10:00 <FONT COLOR="#cc0000">acme.com</FONT>/20140902 <FONT COLOR="#cc0000">acme.com</FONT>/20140901</B>
 </TD></TR>
 </TABLE>
@@ -338,7 +339,7 @@ Dump past system metrics in a <a href="http://man7.org/linux/man-pages/man1/free
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
-Replay performance metrics with a GUI application with two second default interval in an archive between 9 AM and 10 AM. Use File-&gt;New Chart to select metrics to be included in a new view and use File-&gt;Open View to use a predefined view:<BR><B>
+Replay performance metrics with a GUI application with two second default interval in an archive between 9 AM and 10 AM. Use <EM>File-&gt;New Chart</EM> to select metrics to be included in a new view and use <EM>File-&gt;Open View</EM> to use a predefined view:<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmchart.1.html">pmchart</a> -t 2sec -S @09:00 -T @10:00 -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
 </TD></TR>
 </TABLE>
@@ -353,7 +354,7 @@ Merge several archives as a new combined archive (see the manual page how to wri
 <a name="visual"></a>
 <H3>Visualizing iostat and sar Data</H3>
 
-<P><a href="http://man7.org/linux/man-pages/man1/iostat.1.html">iostat</a> and <a href="http://man7.org/linux/man-pages/man1/sar.1.html">sar</a> data can be imported as PCP archives which then allows inspecting and visualizing the data with PCP tools. The <a href="http://man7.org/linux/man-pages/man1/iostat2pcp.1.html">iostat2pcp(1)</a> importer is in the pcp-import-iostat2pcp package and the <a href="http://man7.org/linux/man-pages/man1/sar2pcp.1.html">sar2pcp(1)</a> importer is in the pcp-import-sar2pcp package.
+<P><a href="http://man7.org/linux/man-pages/man1/iostat.1.html">iostat</a> and <a href="http://man7.org/linux/man-pages/man1/sar.1.html">sar</a> data can be imported as PCP archives which then allows inspecting and visualizing the data with PCP tools. The <a href="http://man7.org/linux/man-pages/man1/iostat2pcp.1.html">iostat2pcp(1)</a> importer is in the <EM>pcp-import-iostat2pcp</EM> package and the <a href="http://man7.org/linux/man-pages/man1/sar2pcp.1.html">sar2pcp(1)</a> importer is in the <EM>pcp-import-sar2pcp</EM> package.
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
@@ -366,7 +367,7 @@ Import iostat data to a new PCP archive and visualize it:<BR><B>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
-Import sar data from an existing sar archive to a new PCP archive and visualize it (sar logs are under /var/log/sysstat on Debian/Ubuntu):<BR><B>
+Import sar data from an existing sar archive to a new PCP archive and visualize it (sar logs are under <TT>/var/log/sysstat</TT> on Debian/Ubuntu):<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/sar2pcp.1.html">sar2pcp</a> /var/log/sa/sa15 sar.pcp
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmchart.1.html">pmchart</a> -t 2sec -a sar.pcp </B>
 </TD></TR>
@@ -375,7 +376,7 @@ Import sar data from an existing sar archive to a new PCP archive and visualize 
 <a name="processes"></a>
 <H1>Process Level Performance Monitoring</H1>
 
-<P>PCP provides details of each running process via the standard PCP interfaces and tools on the localhost but due to security and performance considerations, most of the process related information is not stored in archive logs by default.
+<P>PCP provides details of each running process via the standard PCP interfaces and tools on the localhost but due to security and performance considerations, most of the process related information is not stored in archive logs by default. Also for security reasons, only root can access some details of running processes of other users.
 <P>Custom application instrumentation is possible with the Memory Mapped Value (MMV) PMDA.
 
 <a name="processmon"></a>
@@ -397,7 +398,7 @@ Monitor the number of open file descriptors of the process 1234:<BR><B>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
-Monitor the CPU time, memory usage (RSS), and the number of threads of the process 1234 (-h local: is a workaround needed for the time being):<BR><B>
+Monitor the CPU time, memory usage (RSS), and the number of threads of the process 1234 (<EM>-h local:</EM> is a workaround needed for the time being):<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmdumptext.1.html">pmdumptext</a> -h local: -t 2sec 'proc.psinfo.utime[1234]' 'proc.memory.rss[1234]' 'proc.psinfo.threads[1234]'</B>
 </TD></TR>
 </TABLE>
@@ -415,6 +416,21 @@ Display the number of running processes on 2014-08-20 14:00:<BR><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -s 1 -S @"2014-08-20 14:00" proc.nprocs -a <FONT COLOR="#cc0000">acme.com</FONT>/20140820</B>
 </TD></TR>
 </TABLE>
+
+<a name="hotproc"></a>
+<H3>Monitoring “Hot” Processes with Hotproc</H3>
+
+<P>It is also possible to monitor “hot” or “interesting” processes by name with PCP 3.10.5 or later, for example all processes of which command name is <TT>java</TT> or <TT>python</TT>. This monitoring of “hot” processes can also be enabled or disabled based on certain criterias or from the command line on the fly. The metrics will be available under the namespace <EM>hotproc</EM>.
+<P>Configuring processes to be monitored contantly using the <EM>hotproc</EM> namespace can be done using the configuration file <TT>/var/lib/pcp/pmdas/proc/hotproc.conf</TT> - see the <a href="http://man7.org/linux/man-pages/man1/pmdaproc.1.html">pmdaproc(1)</a> manual page for details. This allows monitoring these processes regardless of their PIDs and also logging the metrics easily.
+
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+Enable monitoring of all Java instances on the fly and display all the collected metrics:<BR><B>
+<BR> # <a href="http://man7.org/linux/man-pages/man1/pmstore.1.html">pmstore</a> hotproc.control.config 'fname == "java"'
+<BR> # <a href="http://man7.org/linux/man-pages/man1/pminfo.1.html">pminfo</a> -f hotproc
+</TD></TR>
+</TABLE>
+
 
 <a name="instrument"></a>
 <H3>Application Instrumentation</H3>
@@ -443,7 +459,7 @@ Display the number of running processes on 2014-08-20 14:00:<BR><B>
 </B></TD></TR>
 </TABLE>
 
-<P>To enable the monitoring host to run PMIE for collector hosts, add each host to the /etc/pcp/pmie/control configuration file.
+<P>To enable the monitoring host to run PMIE for collector hosts, add each host to the <TT>/etc/pcp/pmie/control</TT> configuration file.
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Enable monitoring of metrics from remote host <B>acme.com</B>:<B>
@@ -506,16 +522,16 @@ This example shows a PMIE script, checks its syntax, runs it against an archive,
 <P>PCP PMDAs offer a way for administrators and developers to customize and extend the default PCP installation. The pcp-libs-devel package contains all the needed development related examples, headers, and libraries. New PMDAs can easily be added, below is a quick list of references for starting development:
 
 <UL>
-<LI>Some examples exist below /var/lib/pcp/pmdas/ - the simple, sample, and txmon PMDAs are easy to read PMDAs.
+<LI>Some examples exist below <TT>/var/lib/pcp/pmdas/</TT> - the simple, sample, and txmon PMDAs are easy to read PMDAs.
   <UL>
     <LI>The simple PMDA provides implementations in C, Perl and Python.</LI>
   </UL></LI>
-<LI>A simple command line monitor tool is /usr/share/pcp/demos/pmclient (C language).</LI>
-<LI>Good initial Python monitor examples are /usr/libexec/pcp/bin/pcp/pcp-* (Fedora/RHEL) or /usr/lib/pcp/bin/pcp-* (Debian/Ubuntu).
+<LI>A simple command line monitor tool is <TT>/usr/share/pcp/demos/pmclient</TT> (C language).</LI>
+<LI>Good initial Python monitor examples are <TT>/usr/libexec/pcp/bin/pcp/pcp-*</TT> (Fedora/RHEL) or <TT>/usr/lib/pcp/bin/pcp-*</TT> (Debian/Ubuntu).
   <UL>
     <LI>Slightly more complex examples are the pmiostat, pmatop, pmcollectl commands.</LI>
   </UL></LI>
-<LI>The applications in the <A HREF="http://git.pcp.io/cgi-bin/gitweb.cgi?p=pcp-webjs.git">pcp-webjs</A> source tree are helpful when developing new web applications.</LI>
+<LI>The applications in the <A HREF="https://www.sourceware.org/git/gitweb.cgi?p=pcpfans.git;a=shortlog;h=refs/heads/webjs">pcp-webjs</A> source tree are helpful when developing new web applications.</LI>
 </UL>
 
 <a name="next"></a>

@@ -295,30 +295,45 @@ cgroup_name(const char *path, int offset)
     return name;
 }
 
+static int
+check_refresh(const char *cgroup, const char *container, int container_length)
+{
+    /*
+     * See whether a refresh needed - if no container, always needed,
+     * otherwise we only refresh for a matching container name/path.
+     */
+    if (container_length > 0) {
+	while (*cgroup == '/')
+	    cgroup++;	/* do not compare any leading slashes */
+	return (strncmp(cgroup, container, container_length) == 0);
+    }
+    return 1;
+}
+
 static void
 cgroup_scan(const char *mnt, const char *path, cgroup_refresh_t refresh,
 		const char *container, int container_length)
 {
-    int length;
+    int length, mntlen = strlen(mnt) + 1;
     DIR *dirp;
     struct stat sbuf;
     struct dirent *dp;
     const char *cgname;
-    char cgpath[MAXPATHLEN];
+    char cgpath[MAXPATHLEN] = { 0 };
 
     if (path[0] == '\0') {
 	snprintf(cgpath, sizeof(cgpath), "%s%s", proc_statspath, mnt);
 	length = strlen(cgpath);
     } else {
 	snprintf(cgpath, sizeof(cgpath), "%s%s/%s", proc_statspath, mnt, path);
-	length = strlen(proc_statspath) + strlen(mnt) + 1;
+	length = strlen(proc_statspath) + mntlen;
     }
 
     if ((dirp = opendir(cgpath)) == NULL)
 	return;
 
     cgname = cgroup_name(cgpath, length);
-    if (strncmp(cgpath, container, container_length) == 0)
+    if (check_refresh(cgpath + mntlen, container, container_length))
 	refresh(cgpath, cgname);
 
     /* descend into subdirectories to find all cgroups */
@@ -337,7 +352,7 @@ cgroup_scan(const char *mnt, const char *path, cgroup_refresh_t refresh,
 	    continue;
 
 	cgname = cgroup_name(cgpath, length);
-	if (strncmp(cgpath, container, container_length) == 0)
+	if (check_refresh(cgpath + mntlen, container, container_length))
 	    refresh(cgpath, cgname);
 	cgroup_scan(mnt, cgname, refresh, container, container_length);
     }
@@ -663,6 +678,12 @@ refresh_memory(const char *path, const char *name)
     }
     snprintf(file, sizeof(file), "%s/memory.stat", path);
     read_memory_stats(file, memory);
+    snprintf(file, sizeof(file), "%s/memory.limit_in_bytes", path);
+    memory->limit = read_oneline_ull(file);
+    snprintf(file, sizeof(file), "%s/memory.usage_in_bytes", path);
+    memory->usage = read_oneline_ull(file);
+    snprintf(file, sizeof(file), "%s/memory.failcnt", path);
+    memory->failcnt = read_oneline_ull(file);
 
     pmdaCacheStore(indom, PMDA_CACHE_ADD, name, memory);
 }

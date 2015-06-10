@@ -1,0 +1,44 @@
+.TH PCP-VERIFY 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pcp-verify\f1 \- verify aspects of a PCP installation
+.SH SYNOPSIS
+\f3pcp\ verify\f1
+[\f3\-c\f1/\f3--containers\f1]
+[\f3\-s\f1/\f3--secure\f1]
+[\f3\-v\f1/\f3--verbose\f1]
+.SH DESCRIPTION
+.B pcp-verify
+inspects various aspects of a PCP collector installation and reports on
+whether it is configured correctly for certain modes of operation.
+.PP
+By default,
+.B pcp-verify
+checks that PMCD is running and no agents are in a failed state.
+These checks can be extended and refined using the command line.
+.SH OPTIONS
+Additional options are available for changing the verification performed by
+.BR pcp-verify .
+.PP
+.BR \-c /\c
+.BR \-\-containers
+verifies the collector installation for monitoring containers.
+.PP
+.BR \-s /\c
+.BR \-\-secure
+verifies that the required components for encrypted communication
+are in place.
+.PP
+.BR \-v /\c
+.BR \-\-verbose
+increase the verbosity, and report on each check as it is made.
+In the absence of any issues found,
+.B pcp-verify
+operates silently.
+.SH DIAGNOSTICS
+.B pcp-verify
+will exit with a non-zero status if it finds anything worth reporting,
+otherwise it is silent and returns zero.
+.SH "SEE ALSO"
+.BR pcp (1)
+and
+.BR PCPIntro (1).

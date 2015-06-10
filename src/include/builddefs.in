@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2014 Red Hat.
+# Copyright (c) 2012-2015 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -117,6 +117,7 @@ NSPRCFLAGS = @NSPRCFLAGS@
 SASLCFLAGS = @SASLCFLAGS@
 AVAHICFLAGS = @avahi_CFLAGS@
 CAIROCFLAGS = @cairo_CFLAGS@
+NCURSESCFLAGS = @ncurses_CFLAGS@
 LIBMICROHTTPDCFLAGS = @libmicrohttpd_CFLAGS@
 
 LDFLAGS += $(PLDFLAGS) $(WARN_OFF) $(PCP_LIBS) $(LLDFLAGS)
@@ -204,6 +205,7 @@ XMLTO	= @xmlto@
 DBLATEX	= @dblatex@
 PUBLICAN = @publican@
 BOOK_TOOLCHAIN = @book_toolchain@
+BOOK_BRAND = @book_brand@
 
 HAVE_GZIPPED_MANPAGES = @have_gzipped_manpages@
 HAVE_BZIP2ED_MANPAGES = @have_bzip2ed_manpages@
@@ -224,11 +226,19 @@ ENABLE_SECURE = @enable_secure@
 ENABLE_PROBES = @enable_probes@
 ENABLE_AVAHI = @enable_avahi@
 ENABLE_QT = @enable_qt@
-ENABLE_PYTHON = @enable_python@
+ENABLE_PYTHON2 = @enable_python2@
 ENABLE_PYTHON3 = @enable_python3@
 ENABLE_SYSTEMD = @enable_systemd@
 ENABLE_MANAGER = @enable_manager@
 ENABLE_WEBAPI = @enable_webapi@
+
+# for code supporting both/either python2 and/or python3
+HAVE_PYTHON = @have_python@
+
+# python dependent bits
+HAVE_PYTHON_SIX = @have_python_six@
+HAVE_PYTHON_JSONPOINTER = @have_python_jsonpointer@
+PMDA_JSON = @pmda_json@
 
 # additional libraries needed for particular functions
 LIB_FOR_BASENAME = @lib_for_basename@
@@ -248,6 +258,8 @@ LIB_FOR_ATOMIC = @lib_for_atomic@
 
 HAVE_CAIRO = @HAVE_CAIRO@
 LIB_FOR_CAIRO = @cairo_LIBS@
+HAVE_NCURSES = @HAVE_NCURSES@
+LIB_FOR_NCURSES = @ncurses_LIBS@
 HAVE_LIBMICROHTTPD = @HAVE_LIBMICROHTTPD@
 LIB_FOR_MICROHTTPD = @libmicrohttpd_LIBS@
 
@@ -289,6 +301,19 @@ SUBDIRS_MAKERULE = \
 	    if test -d "$$d" -a -f "$$d/GNUmakefile"; then \
 		$(ECHO) === $$d ===; \
 		$(MAKE) $(MAKEOPTS) -C $$d $@ || exit $$?; \
+	    fi; \
+	done
+
+# special variant of SUBDIRS_MAKERULE when running QA
+#
+QA_SUBDIRS_MAKERULE = \
+	+@for d in `echo $^ `; do \
+	    if test -d "$$d" ; then \
+		if test -f "$$d/GNUmakefile.install"; then \
+		    $(MAKE) --silent -C $$d -f GNUmakefile.install $@ || exit $$?; \
+		else \
+		    $(MAKE) --silent -C $$d $@ || exit $$?; \
+		fi; \
 	    fi; \
 	done
 
@@ -405,6 +430,7 @@ INSTALL_MAN = \
     for d in `echo $$MAN_PAGES`; do \
 	first=true; \
 	base=`echo $$d | sed -e 's/\.[0-9]//g'`; \
+	section=`echo $$d | sed -e 's/.*\.//g'`; \
 	$(AWK) <$$d ' \
 BEGIN { state=0; print "'"$$base"'" } \
 $$1==".ds" { ds["\\\\\\*\\("$$2] = $$3 } \
@@ -421,7 +447,7 @@ state==1 { for (i=1;i<=NF;i++) { \
 	| LC_COLLATE=POSIX $(PCP_SORT_PROG) -u \
 	| while read m; do \
 	    [ -z "$$m" -o "$$m" = "\\" ] && continue; \
-	    t=$(MAN_DEST)/$$m.$(MAN_SECTION); \
+	    t=$(PCP_MAN_DIR)/man$$section/$$m.$$section; \
 	    if $$first; then \
 		_tfx= ;\
 		if $(NEED_OLD_TBL_HEADER) ; then \
@@ -439,7 +465,7 @@ state==1 { for (i=1;i<=NF;i++) { \
 		if $(HAVE_XZED_MANPAGES) ; then \
 		    $(XZ) -c $$d$$_tfx > $$d.xz; _tfx=.xz; _sfx=.xz; \
 		fi; \
-		u=$$m.$(MAN_SECTION)$$_sfx; \
+		u=$$m.$$section$$_sfx; \
 		echo $(INSTALL) -m 644 $${d}$$_tfx $${t}$$_sfx; \
 		$(INSTALL) -m 644 $${d}$$_tfx $${t}$$_sfx; \
 	    else \

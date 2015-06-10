@@ -1,0 +1,62 @@
+Performance Co-Pilot PMDA for Monitoring Device Mapper Stats
+============================================================
+This PMDA is capable of collecting statistics from Device Mapper
+
+The PMDA collects its data through the dmsetup utility and requires that the
+program is installed in order to function. 
+
+Metrics
+=======
+
+The file ./help contains descriptions for all of the metrics which are
+exposed by this PMDA.
+
+Once the PMDA has been installed, the following command will list all of
+the available metrics and their explanatory “help” text:
+
+    + # $ pminfo -fT dm
+
+Installation
+============
+
+    + # cd $PCP_PMDAS_DIR/dm
+
+    + Check that there is no clash in the Performance Metrics Domain
+      defined in ./domain.h and the other PMDA's currently in use (see
+      $PCP_PMCDCONF_PATH). If there is, edit ./domain.h to choose another
+      domain number.
+
+    + Then simply use
+
+        # ./Install
+
+ 	and choose both the “collector” and “monitor” installation
+        configuration options.
+
+De-Installation
+===============
+
+    + Simply use
+
+        # cd $PCP_PMDAS_DIR/dm
+        #./Remove
+
+Troubleshooting
+===============
+
+    + After installing or restarting the agent, the PMCD log file
+      ($PCP_LOG_DIR/pmcd/pmcd.log) and the PMDA log file
+      ($PCP_LOG_DIR/PMCD/dm.log) should be checked for any warnings or
+      errors.
+
+    + In an event where no values are being returned for most of the
+      metrics, check to ensure that there is output given for thin
+      pool and thin volumes by the dmsetup utility (needs to be run
+      as root). 
+
+          $ dmsetup status --target thin-pool
+
+          $ dmsetup status --target thin
+
+          $ dmsetup status --target cache
+

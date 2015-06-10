@@ -1,0 +1,371 @@
+.TH PCP-ATOPRC 5 "PCP" "Performance Co-Pilot"
+.SH NAME
+.B atoprc
+- pcp-atop/pcp-atopsar related rcfile
+.SH DESCRIPTION
+This manual page documents the rcfile of the
+.I pcp-atop
+and
+.I pcp-atopsar
+commands.
+These commands can be used to monitor the system and process load on a
+system.
+.PP
+The pcp-atoprc file contains the default settings. These settings are read
+during startup, first from the system-wide rcfile
+.I /etc/atoprc
+and after that from the user-specific rcfile
+.I ~/.atoprc
+(so system-wide settings can be overruled by an individual user).
+The options in both rcfiles are identical.
+.PP
+.SH OPTIONS
+.PP
+The rcfile contains keyword-value pairs, one on every line (blank lines
+and lines starting with a #-sign are ignored).
+.br
+The following keywords can be specified:
+.PP
+.TP 4
+.B flags
+A list of default flags for
+.B pcp-atop
+can be defined here. The flags which are allowed
+are 'g', 'm', 'd', 'n', 'u', 'p', 's', 'c', 'v', 'C', 'M', 'D', 'N', 'A',
+\&'a', 'y', 'f', 'F', 'G', 'R', '1' and 'x'.
+.PP
+.TP 4
+.B interval
+The default interval value in seconds.
+.PP
+.TP 4
+.B linelen
+The length of a screen line when sending output to a file or pipe (default 80).
+.PP
+.TP 4
+.B username
+The default regular expression for the users for which active
+processes will be shown.
+.PP
+.TP 4
+.B procname
+The default regular expression for the process names to be shown.
+.PP
+.TP 4
+.B maxlinecpu
+The maximum number of active CPU's that will be shown.
+.PP
+.TP 4
+.B maxlinelvm
+The maximum number of active logical volumes that will be shown.
+.PP
+.TP 4
+.B maxlinemdd
+The maximum number of active multiple devices that will be shown.
+.PP
+.TP 4
+.B maxlinedisk
+The maximum number of active disks that will be shown.
+.PP
+.TP 4
+.B maxlineintf
+The maximum number of active network interfaces that will be shown.
+.PP
+.TP 4
+.B cpucritperc
+The busy percentage considered critical for a processor
+(see section COLORS in the man-page of the
+.I pcp-atop
+command).
+This percentage is used to determine 
+a weighted percentage for line coloring and sorting of active processes.
+When this value is zero, no line coloring or automatic sorting is performed
+for this resource.
+.PP
+.TP 4
+.B dskcritperc
+The busy percentage considered critical for a disk
+(see section COLORS in the man-page of the
+.I pcp-atop
+command).
+This percentage is used to determine 
+a weighted percentage for line coloring and sorting of active processes.
+When this value is zero, no line coloring or automatic sorting is performed
+for this resource.
+.PP
+.TP 4
+.B netcritperc
+The busy percentage considered critical for a network interface
+(see section COLORS in the man-page of the
+.I pcp-atop
+command).
+This percentage is used to determine 
+a weighted percentage for line coloring and sorting of active processes.
+When this value is zero, no line coloring or automatic sorting is performed
+for this resource.
+.PP
+.TP 4
+.B memcritperc
+The percentage considered critical for memory utilization
+(see section COLORS in the man-page of the
+.I pcp-atop
+command).
+This percentage is used to determine 
+a weighted percentage for line coloring and sorting of active processes.
+When this value is zero, no line coloring or automatic sorting is performed
+for this resource.
+.PP
+.TP 4
+.B swpcritperc
+The occupation percentage considered critical for swap space
+(see section COLORS in the man-page of the
+.I pcp-atop
+command).
+This percentage is used to determine 
+a weighted percentage for line coloring and sorting of active processes.
+When this value is zero, no line coloring or automatic sorting is performed
+for this resource.
+.PP
+.TP 4
+.B swoutcritsec
+The number of pages swapped out per second considered critical for 
+for memory utilization
+(see section COLORS in the man-page of the
+.I pcp-atop
+command).
+This threshold is used in combination with 'memcritperc' to determine a
+weighted percentage for line coloring and sorting of active processes.
+When this value is zero, no line coloring or automatic sorting is performed
+for this resource.
+.PP
+.TP 4
+.B almostcrit
+A percentage of the critical percentage to determine if the resource
+is almost critical
+(see section COLORS in the man-page of the
+.I pcp-atop
+command).
+When this value is zero, no line coloring for `almost critical' is
+performed.
+.PP
+.TP 4
+.B colorinfo
+Definition of color name for information messages (default: green).
+.br
+Allowed colors are: red green yellow blue magenta cyan black white.
+.PP
+.TP 4
+.B colorthread
+Definition of color name for thread-specific lines when using
+the 'y' option (default: yellow).
+.br
+Allowed colors are: red green yellow blue magenta cyan black white.
+.PP
+.TP 4
+.B coloralmost
+Definition of color name for almost critical resources (default: cyan).
+.br
+Allowed colors are: red green yellow blue magenta cyan black white.
+.PP
+.TP 4
+.B colorcritical
+Definition of color name for critical resources (default: red).
+.br
+Allowed colors are: red green yellow blue magenta cyan black white.
+.PP
+.TP 4
+.B pcp-atopsarflags
+A list of default flags for
+.B pcp-atopsar
+can be defined here. The flags that are allowed
+are 'S', 'x', 'C', 'M', 'H', 'a', 'A' and the flags to select
+one or more specific reports.
+.PP
+An example of the
+.B /etc/atoprc
+or
+.B ~/.atoprc
+file:
+.TP 8
+\ 
+.br
+flags\ \ \ \ \ \ \ \ \ Aaf
+.br
+interval\ \ \ \ \ \ 5
+.br
+username
+.br
+procname
+.br
+maxlinecpu\ \ \ \ 4
+.br
+maxlinedisk\ \ \ 10
+.br
+maxlineintf\ \ \ 5
+.br
+cpucritperc\ \ \ 80
+.br
+almostcrit\ \ \ \ 90
+.br
+pcp-atopsarflags\ \ CMH
+.br
+ownprocline\ \ \ PID:50 VGROW:40 RGROW:45 COMMAND-LINE:50
+.br
+ownpagline\ \ \ \ PAGSCAN:3 BLANKBOX:0 PAGSWIN:3 PAGSWOUT:7
+.PP
+The keywords 'ownprocline' and 'ownpagline' are explained in the
+subsequent section.
+.SH OWN DEFINITION OF OUTPUT LINE
+Via the rcfile it is possible to define the layout of the output lines
+yourself, i.e. you can define the layout of one line with process information
+with the keyword 'ownprocline' (to be selected with the key 'o'
+or the flag \-o) and you can redefine all lines with system information.
+.PP
+The layout of an output-line can be defined as follows
+(notice that this should be specified as one line in the rcfile):
+.PP
+\ \ \ keyword\ \ \ <columnid>:<prio> [<columnid>:<prio> ...]
+.PP
+The
+.B columnid
+is the symbolic name of a column that should shown at this position
+in the output line.
+.br
+The
+.B prio
+is a positive integer value that determines which columns have precedence
+whenever not all specified columns fit into the current screen-width.
+The higher value, the higher priority.
+.br
+The column-specifications should be separated by a space. The order
+in which columns have been specified is the order in which they will be
+shown, with respect to their priority (columns that do not fit, will be
+dropped dynamically).
+.PP
+A special columnid for system lines is 'BLANKBOX'. This indicates
+that an empty column is required at this position. Also this
+special columnid is followed by a priority (usually low). 
+.PP
+The following definition can be specified for process information:
+.PP
+.TP 4
+.B ownprocline
+The columnid's are the names of the columns that are shown in the
+normal output of the process-related lines that are shown by
+.I pcp-atop
+such as 'PID', 'CMD', 'S', ....
+The only exception is the special columnid 'SORTITEM' that is used to
+show one of the columns CPU%/DSK%/MEM%/NET%, depending on the chosen
+sort-criterium.
+.br
+An example of a user-defined process line:
+.PP
+.TP 8
+\ 
+ownprocline\ \ \ PID:20 PPID:10 SYSCPU:15 USRCPU:15
+VGROW:14 VSIZE:12 RGROW:14 RSIZE:12 ST:8 EXC:7 S:11 SORTITEM:18 CMD:20
+.PP
+The following definitions are used internally by
+.I pcp-atop
+as the default system lines (you can redefine each of them in the
+rcfile as one line):
+.PP
+.TP 4
+.B ownsysprcline
+Redefinition of line labeled with 'PRC':
+.PP
+.TP 8
+\ 
+ownsysprcline\ \ \ PRCSYS:8 PRCUSER:8 BLANKBOX:0 PRCNPROC:7 PRCNZOMBIE:5 PRCCLONES:4 BLANKBOX:0 PRCNNEXIT:6
+.PP
+.TP 4
+.B ownallcpuline
+Redefinition of line labeled with 'CPU' for total CPU-utilization:
+.PP
+.TP 8
+\ 
+ownallcpuline\ \ \ CPUSYS:8 CPUUSER:7 CPUIRQ:4 BLANKBOX:0 CPUIDLE:5 CPUWAIT:6 BLANKBOX:0 CPUSTEAL:1 CPUGUEST:3
+.PP
+.TP 4
+.B ownonecpuline
+Redefinition of line labeled with 'CPU' for utilization of one CPU:
+.PP
+.TP 8
+\ 
+ownonecpuline\ \ \ CPUISYS:8 CPUIUSER:7 CPUIIRQ:4 BLANKBOX:0 CPUIIDLE:5 CPUIWAIT:6 BLANKBOX:0 CPUISTEAL:1 CPUIGUEST:3
+.PP
+.TP 4
+.B owncplline
+Redefinition of line labeled with 'CPL':
+.PP
+.TP 8
+\ 
+owncplline\ \ \ CPLAVG1:4 CPLAVG5:3 CPLAVG15:2 BLANKBOX:0 CPLCSW:6 CPLINTR:5 BLANKBOX:0 CPLNUMCPU:1
+.PP
+.TP 4
+.B ownmemline
+Redefinition of line labeled with 'MEM':
+.PP
+.TP 8
+\ 
+ownmemline\ \ \ MEMTOT:2 MEMFREE:5 MEMCACHE:3 MEMDIRTY:1 MEMBUFFER:3 MEMSLAB:3 BLANKBOX:0 BLANKBOX:0 BLANKBOX:0 BLANKBOX:0
+.PP
+.TP 4
+.B ownswpline
+Redefinition of line labeled with 'SWP':
+.PP
+.TP 8
+\ 
+ownswpline\ \ \ SWPTOT:3 SWPFREE:4 BLANKBOX:0 BLANKBOX:0 BLANKBOX:0 BLANKBOX:0 BLANKBOX:0 BLANKBOX:0 SWPCOMMITTED:5 SWPCOMMITLIM:6
+.PP
+.TP 4
+.B ownpagline
+Redefinition of line labeled with 'PAG':
+.PP
+.TP 8
+\ 
+ownpagline\ \ \ PAGSCAN:3 PAGSTALL:1 BLANKBOX:0 PAGSWIN:4 PAGSWOUT:3
+.PP
+.TP 4
+.B owndskline
+Redefinition of lines labeled with 'LVM', 'MDD' and 'DSK':
+.PP
+.TP 8
+\ 
+owndskline\ \ \ DSKNAME:8 DSKBUSY:7 DSKNREAD:6 DSKNWRITE:6 DSKKBPERRD:4 DSKKBPERWR:4 DSKMBPERSECRD:5 DSKMBPERSECWR:5 DSKAVQUEUE:1 DSKAVIO:5
+.PP
+.TP 4
+.B ownnettrline
+Redefinition of line labeled with 'NET' for transport:
+.PP
+.TP 8
+\ 
+ownnettrline\ \ \ NETTRANSPORT:9 NETTCPI:8 NETTCPO:8 NETUDPI:8 NETUDPO:8 NETTCPACTOPEN:6 NETTCPPASVOPEN:5 NETTCPRETRANS:4 NETTCPINERR:3 NETTCPORESET:20 NETUDPNOPORT:1 NETUDPINERR:3
+.PP
+.TP 4
+.B ownnetnetline
+Redefinition of line labeled with 'NET' for network:
+.PP
+.TP 8
+\ 
+ownnetnetline\ \ \ NETNETWORK:5 NETIPI:4 NETIPO:4 NETIPFRW:4 NETIPDELIV:4 BLANKBOX:0 BLANKBOX:0 BLANKBOX:0 NETICMPIN:1 NETICMPOUT:1
+.PP
+.TP 4
+.B ownnetifline
+Redefinition of line labeled with 'NET' for interfaces:
+.PP
+.TP 8
+\ 
+ownnetifline\ \ \ NETNAME:8 NETPCKI:7 NETPCKO:7 NETSPEEDIN:6 NETSPEEDOUT:6 NETCOLLIS:3 NETMULTICASTIN:2 NETRCVERR:5 NETSNDERR:5 NETRCVDROP:4 NETSNDDROP:4
+.PP
+The lines above are shown in the order as shown by
+.I pcp-atop
+in combination with the
+.B -f
+flag (in a very wide window you should be able to see all of the columns).
+.SH SEE ALSO
+.BR pcp (1),
+.BR pcp-atop (1),
+.BR pcp-atopsar (1)
+and
+.BR PCPIntro (1).

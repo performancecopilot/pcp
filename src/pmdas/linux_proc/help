@@ -96,6 +96,10 @@ tools.  pmStore(3) must be used to set this metric (not pmstore(1)).
 @ cgroup.cpuacct.stat.user Time spent by tasks of the cgroup in user mode
 @ cgroup.cpuacct.stat.system Time spent by tasks of the cgroup in kernel mode
 @ cgroup.cpusched.shares Processor scheduler cgroup shares
+
+@ cgroup.memory.usage Current physical memory accounted to each cgroup
+@ cgroup.memory.limit Maximum memory that can be utilized by each cgroup
+@ cgroup.memory.failcnt Count of failures to allocate memory due to cgroup limit
 @ cgroup.memory.stat.cache Number of bytes of page cache memory
 @ cgroup.memory.stat.rss Anonymous and swap memory (incl transparent hugepages)
 @ cgroup.memory.stat.rss_huge Anonymous transparent hugepages

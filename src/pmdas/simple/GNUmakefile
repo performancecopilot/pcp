@@ -22,7 +22,7 @@ LLDLIBS = $(PCP_PMDALIB)
 LCFLAGS = -I.
 DFILES	= README help
 SCRIPTS = pmdasimple.perl
-ifeq "$(ENABLE_PYTHON)" "true"
+ifeq "$(HAVE_PYTHON)" "true"
 SCRIPTS += pmdasimple.python
 endif
 LSRCFILES = Install Remove pmns root $(DFILES) $(SCRIPTS) \

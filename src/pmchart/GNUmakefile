@@ -32,7 +32,7 @@ include $(BUILDRULES)
 
 ifeq "$(ENABLE_QT)" "true"
 build-me:: images wrappers
-	$(QTMAKE)
+	+$(QTMAKE)
 	$(LNMAKE)
 
 build-me:: $(SUBDIRS)

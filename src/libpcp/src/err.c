@@ -28,7 +28,20 @@ extern const char *strerror_r(int, char *, size_t);
 #endif
 
 /*
- * if you modify this table at all, be sure to remake qa/006
+ * Note:
+ *     These error codes must match the errors defined in pmapi.h
+ *     although the ordering here may be different to try and group
+ *     related errors together.
+ *
+ *     All of the errors in pmapi.h and here are also defined for
+ *     Perl applications in src/perl/PMDA/PMDA.pm and for Python
+ *     applications in src/python/pmapi.c.  To ease maintenance
+ *     effort we aim to keep the _order_ of the error codes the same
+ *     here and in the Perl and Python definitions.
+ *
+ *     And finally if you modify this table at all, be sure to check
+ *     for remakes in the QA suite, e.g. 006
+ * 
  */
 static const struct {
     int  	err;
@@ -135,6 +148,8 @@ static const struct {
         "Operation not supported for multi-threaded applications" },
     { PM_ERR_NOCONTAINER,	"PM_ERR_NOCONTAINER",
         "Container not found" },
+    { PM_ERR_BADSTORE,		"PM_ERR_BADSTORE",
+        "Bad input to pmstore" },
     /* insert new libpcp error codes here */
     { PM_ERR_NYI,		"PM_ERR_NYI",
 	"Functionality not yet implemented" },

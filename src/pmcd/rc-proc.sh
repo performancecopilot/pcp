@@ -1,7 +1,7 @@
 #
 # Common sh(1) procedures to be used in PCP rc scripts
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014-2015 Red Hat.
 # Copyright (c) 2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -30,7 +30,6 @@
 #
 
 VERBOSE_CONFIG=${VERBOSE_CONFIG-false}
-[ -z "$tmp" ] && tmp=`pwd`/rc-proc-tmp
 
 #
 # private functions
@@ -66,6 +65,13 @@ _cmds_exist()
     _have_flag=false
     [ -f $PCP_RC_DIR/$1 ] && _have_flag=true
 
+    # systemctl is special ... sometimes it is installed, but not with
+    # full systemd behind it, e.g Debian-based systems circa 2015
+    # ... see special case handling where systemctl might be used in
+    # the "do something" sections elsewhere in this file and it only
+    # makes sense to try systemctl if the corresponding
+    # $PCP_SYSTEMDUNIT_DIR/$_flag.service file exists.
+    #
     _have_systemctl=false
     _which systemctl && _have_systemctl=true
     _have_runlevel=false
@@ -139,23 +145,22 @@ is_chkconfig_on()
 	pmwebd)   [ "`. /etc/hostconfig; echo $PMWEBD`" = "-YES-" ] && _ret=0 ;;
 	pmmgr)    [ "`. /etc/hostconfig; echo $PMMGR`" = "-YES-" ] && _ret=0 ;;
 	esac
-    elif $_have_systemctl
+    elif [ "$_have_systemctl" = true -a -n "$PCP_SYSTEMDUNIT_DIR" -a -f "$PCP_SYSTEMDUNIT_DIR/$_flag.service" ]
     then
 	$VERBOSE_CONFIG && echo "is_chkconfig_on: using systemctl"
-	systemctl is-enabled "$_flag".service >$tmp.tmp 2>&1
-	_ret=$?
 	# if redirected to chkconfig, the answer is buried in stdout
-	# not in the exit status of the systemctl command
+	# otherwise it is in the exit status of the systemctl command
 	#
-	if grep 'redirecting to /sbin/chkconfig' $tmp.tmp >/dev/null 2>&1
+	if systemctl is-enabled "$_flag".service 2>&1 | grep -q 'redirecting to /sbin/chkconfig'
 	then
 	    $VERBOSE_CONFIG && echo "is_chkconfig_on: redirected to chkconfig"
-	    if grep "^$_flag[ 	][ 	]*on" $tmp.tmp >/dev/null 2>&1
+	    if systemctl is-enabled "$_flag".service 2>&1 | grep -q "^$_flag[ 	][ 	]*on"
 	    then
 		_ret=0
-	    else
-		_ret=1
 	    fi
+	else
+	    systemctl -q is-enabled "$_flag".service
+	    _ret=$?
 	fi
     elif $_have_chkconfig
     then
@@ -220,7 +225,7 @@ chkconfig_on()
 	pmwebd) echo "PMWEBD=-YES-" ;;
 	pmmgr) echo "PMMGR=-YES-" ;;
 	esac
-    elif $_have_systemctl
+    elif [ "$_have_systemctl" = true -a -n "$PCP_SYSTEMDUNIT_DIR" -a -f "$PCP_SYSTEMDUNIT_DIR/$_flag.service" ]
     then
 	systemctl --no-reload enable "$_flag".service >/dev/null 2>&1
     elif $_have_chkconfig
@@ -272,7 +277,7 @@ chkconfig_off()
     then
 	# unknown mechanism, just pretend
 	return 0
-    elif $_have_systemctl
+    elif [ "$_have_systemctl" = true -a -n "$PCP_SYSTEMDUNIT_DIR" -a -f "$PCP_SYSTEMDUNIT_DIR/$_flag.service" ]
     then
 	systemctl --no-reload disable "$_flag".service >/dev/null 2>&1
     elif $_have_chkconfig
@@ -317,7 +322,7 @@ chkconfig_on_msg()
 	return 0
     else
 	echo "    To enable $_flag, run the following as root:"
-	if $_have_systemctl
+	if [ "$_have_systemctl" = true -a -n "$PCP_SYSTEMDUNIT_DIR" -a -f "$PCP_SYSTEMDUNIT_DIR/$_flag.service" ]
 	then
 	    _cmd=`$PCP_WHICH_PROG systemctl`
 	    echo "    # $_cmd enable $_flag.service"

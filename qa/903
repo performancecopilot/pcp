@@ -47,7 +47,7 @@ pmdapapi_install()
     $sudo ./Install </dev/null >$tmp.out 2>&1
     # some warnings are reasonable (e.g., too many concurrent counters)
     num_metrics=`$sudo pminfo -f papi.available.num_counters | grep value | awk '{print $2}'`
-    if [ "$num_metrics" -eq "0" ]; then
+    if [ -z "$num_metrics" ] || [ "$num_metrics" -eq "0" ]; then
         _notrun "PAPI metrics not found on hardware"
     fi
     # Check papi metrics have appeared ... X metrics and Y values

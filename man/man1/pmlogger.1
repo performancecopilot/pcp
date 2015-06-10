@@ -21,10 +21,12 @@
 \f3pmlogger\f1
 [\f3\-c\f1 \f2configfile\f1]
 [\f3\-h\f1 \f2host\f1]
+[\f3\-K\f1 \f2spec\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-L\f1]
 [\f3\-m\f1 \f2note\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
+[\f3\-o\f1]
 [\f3\-p\f1 \f2pid\f1]
 [\f3\-P\f1]
 [\f3\-r\f1]
@@ -61,6 +63,8 @@ is 2.
 .PP
 Unless directed to another host by the
 .B \-h
+option or when directly using PMDAs via the
+.B \-o
 option,
 .B pmlogger
 will contact the Performance Metrics Collector Daemon
@@ -150,18 +154,37 @@ instance is identified by the
 .B \-P
 option.  There may be at most one ``primary''
 .B pmlogger
-instance on each system with an active
-.BR pmcd (1).
+instance on each system.
 The primary
 .B pmlogger
 instance (if any)
 must be running on the same host as the
 .BR pmcd (1)
-to which it connects, so the
+to which it connects (if any), so the
 .B \-h
 and
 .B \-P
 options are mutually exclusive.
+.PP
+Logging of some metrics is possible even in the absence of a local
+.BR pmcd (1),
+using the "local context" mode of operation.
+This is activated using the
+.B \-o
+option, and causes
+.B pmlogger
+to make use of local DSO PMDAs instead of communicating with
+.BR pmcd (1).
+When operating using a local context, the
+.B \-K
+option may be used to control the DSO PMDAs that should be
+made accessible.  The
+.I spec
+argument conforms to the syntax described in
+.BR __pmSpecLocalPMDA (3).
+More than one
+.B \-K
+option may be used.
 .PP
 When launched as a non-primary instance,
 .B pmlogger
@@ -738,6 +761,7 @@ as described in
 .BR pmdumplog (1),
 .BR pmlc (1),
 .BR pmlogger_check (1),
+.BR __pmSpecLocalPMDA (3),
 .BR pcp.conf (5),
 .BR pcp.env (5),
 .BR pmns (5)

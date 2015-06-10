@@ -4,3 +4,4 @@ pmda_jbd2.so
 help.dir
 help.pag
 exports
+jbd2_kernel_ulong.conf

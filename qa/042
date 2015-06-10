@@ -1,0 +1,82 @@
+#!/bin/sh
+# PCP QA Test No. 042
+# Exercise fixes for some containers issues.
+#
+# Copyright (c) 2015 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.docker
+
+_check_containers
+_check_docker_images busybox
+
+_cleanup()
+{
+    if [ -n "$container" ]
+    then
+        echo "== removing container" | tee -a $seq.full
+        _remove_docker_containers $container
+        container=""
+    fi 
+    rm -rf $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_pminfo()
+{
+    sed \
+	-e 's/\[[0-9][0-9]* or ".*"\]/[INST or NAME]/' \
+	-e 's/value [-?0-9.e+][-?0-9.e+]*/value NUMBER/' \
+	-e 's/value ".*"$/value STRING/' \
+    #end
+}
+
+# real QA test starts here
+container=`$docker run -d busybox sleep 15`
+echo "== container: $container" >> $seq.full
+
+echo "== kernel PMDA" | tee -a $seq.full
+# expect 2 interfaces (lo/eth0) and 2 mounts
+metrics="network.interface.in.bytes filesys.used"
+pminfo --fetch --container=$container $metrics | _filter_pminfo
+echo
+
+echo "== procfs PMDA" | tee -a $seq.full
+# expect values for a single process (sleep) and one cgroup
+metrics="proc.memory.rss cgroup.memory.stat.rss"
+pminfo --fetch --container=$container $metrics | _filter_pminfo
+echo
+
+echo "== pmcd PMDA" | tee -a $seq.full
+# expect a different hostname to local hostname
+pmprobe --values --container=$container pmcd.hostname > $tmp.chost
+pmprobe --values pmcd.hostname > $tmp.host
+container_hostname=`awk '{ print $3 }' $tmp.chost`
+localhost_hostname=`awk '{ print $3 }' $tmp.host`
+
+cat $tmp.chost $tmp.host >> $seq.full
+echo container hostname: $container_hostname >> $seq.full
+echo localhost hostname: $localhost_hostname >> $seq.full
+
+if [ $container_hostname != $localhost_hostname ]
+then
+    echo
+    echo "OK: host and container names are different"
+    echo
+else
+    echo "FAIL: hostnames match when they should not"
+    echo "localhost: $localhost_hostname"
+    echo "container: $container_hostname"
+    status=1
+    exit
+fi
+
+# success, all done
+status=0
+exit

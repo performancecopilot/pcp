@@ -457,7 +457,7 @@ list_1="vm03 vm01 vm04 vm07 vm12 vm14 vm16 vm18 vm20 vm22 vm24"
 list_2="fuji grundy vm02 vm00 vm05 vm11 vm15 vm19 vm21 vm23"
 
 args="$*"
-pcp_branch=dev
+pcp_branch=master
 pcp_tree=pcp
 cflag=false
 fflag=false
@@ -610,7 +610,10 @@ in
 	echo "grundy.sgi.com" >>$tmp.domains
 	# and open up the X server
 	#
-	DISPLAY=localhost:0.0 xhost + >/dev/null
+	# Ubuntu up to 15.04
+	#DISPLAY=localhost:0.0 xhost + >/dev/null
+	# Ubuntu 15.10
+	DISPLAY=:0.0 xhost + >/dev/null
 	;;
 esac
 

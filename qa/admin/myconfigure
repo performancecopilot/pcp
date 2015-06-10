@@ -1,7 +1,9 @@
 #!/bin/sh
 #
-# Run configure like it is run for current system ... makes workarea
-# src/include/pcp.conf match /etc/pcp.conf so "sudo make install"
+# Run configure like it is run for current system ...
+# the goal is to make the workarea files
+# src/include/pcp.conf and src/include/builddefs match /etc/pcp.conf
+# and /usr/include/pcp/builddefs so "sudo make install"
 # works without surprises
 #
 
@@ -10,11 +12,29 @@ target=`uname -s | cut -c-5 | tr 'A-Z' 'a-z'`
 # Note:	this logic needs to match the settings in Makepkgs at the
 # 	top of thes source tree
 #
-if [ ! -x /usr/bin/rpmbuild ]
+if [ -x /usr/bin/rpmbuild ]
 then
-    configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
-else
     configopts=`rpmbuild --eval '--prefix=%{_prefix} --exec-prefix=%{_exec_prefix} --bindir=%{_bindir} --sbindir=%{_sbindir} --sysconfdir=%{_sysconfdir} --datadir=%{_datadir} --includedir=%{_includedir} --libdir=%{_libdir} --libexecdir=%{_libexecdir} --localstatedir=%{_localstatedir} --sharedstatedir=%{_sharedstatedir} --mandir=%{_mandir}' 2>/dev/null`
+elif [ -f /etc/debian_version ]
+then
+    # needs to match configure_paths in debian/rules ... so just get the
+    # magic setting from there
+    #
+    if [ ! -f debian/rules ]
+    then
+	echo "Botch: cannot find debian/rules"
+	exit 1
+    fi
+    configopts=`sed -n <debian/rules -e '/^configure_paths/s/^[^=]*= *//p'`
+    if [ -z "$configopts" ]
+    then
+	echo "Botch: cannot get configopts from configure_paths in debian/rules"
+	exit 1
+    fi
+else
+    # default case, we know no better
+    #
+    configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
 fi
 
 case "$target"
@@ -46,6 +66,9 @@ fi
 
 . src/include/pcp.conf
 
+# build some useful libs ...
+#
+here=`pwd`
 cd src/include
 $PCP_MAKE_PROG
 cd ../libpcp
@@ -58,4 +81,62 @@ cd ../newhelp
 $PCP_MAKE_PROG
 cd ../libpcp_pmda
 $PCP_MAKE_PROG
+cd $here
+
+# check expected files are the same
+#
+
+tmp=/var/tmp/$$
+trap "rm -rf $tmp.* $tmp; exit 0" 0 1 2 3 15
+
+mkdir $tmp
+
+cat <<End-of-File | while read wa_file pkg_file
+src/include/pcp.conf		/etc/pcp.conf
+src/include/builddefs		/usr/include/pcp/builddefs
+src/include/pcp/config.h	/usr/include/pcp/config.h
+src/include/pcp/configsz.h	/usr/include/pcp/configsz.h
+src/include/pcp/platform_defs.h	/usr/include/pcp/platform_defs.h
+End-of-File
+do
+    if [ -f "$wa_file" ]
+    then
+	mkdir -p `dirname "$tmp/$wa_file"`
+	# no rewrite for workarea file
+	cp "$wa_file" "$tmp/$wa_file"
+	if [ -f "$pkg_file" ]
+	then
+	    mkdir -p `dirname "$tmp/$pkg_file"`
+	    # for package installed file, there are some known and
+	    # expected differences from workarea pathnames (relative to
+	    # $(TOPDIR)) to absolute pathnames ... reverse this so we
+	    # don't get false hits in the diff(1) output
+	    #
+	    sed <"$pkg_file" >"$tmp/$pkg_file" \
+		-e 's@$(PCP_DIR)/etc/pcp.conf@$(TOPDIR)/src/include/pcp.conf@' \
+		-e 's@$(PCP_BINADM_DIR)/install-sh@$(TOPDIR)/install-sh@' \
+		-e 's@$(PCP_BIN_DIR)/genpmda@$(TOPDIR)/src/genpmda/genpmda@' \
+		-e 's@$(PCP_INC_DIR)/buildrules@$(TOPDIR)/src/include/buildrules@' \
+		-e '/PACKAGE_BUILD ?=/s/[0-9][0-9]*/1/'
+	    # end
+	    ( cd $tmp; diff -uw "./$wa_file" "./$pkg_file" ) >$tmp.out
+	    if [ $? -eq 0 ]
+	    then
+		echo "Info: $pkg_file: matches configured workarea file"
+	    else
+		# different, strip ./ from start of file names in diff output
+		sed <$tmp.out \
+		    -e '/^---/s@ ./@ @' \
+		    -e '/^+++/s@ ./@ @' \
+		# end
+		echo "Warning: $pkg_file: not the same as $wa_file"
+	    fi
+	else
+	    echo "Warning: $pkg_file: not found, diff skipped"
+	fi
+    else
+	echo "Error: $wa_file: missing!"
+    fi
+done
+
 echo "== Configured pcp ($configopts)"

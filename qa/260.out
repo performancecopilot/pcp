@@ -290,27 +290,27 @@ __dmgetpmid: metric "delta.m4" -> PMID 511.0.4
 __dmgetpmid: metric "delta.m5" -> PMID 511.0.5
 __dmgetpmid: metric "delta.m6" -> PMID 511.0.6
 
-delta.m1
+delta.m1 PMID: 511.0.1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 
-delta.m2
+delta.m2 PMID: 511.0.2
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 
-delta.m3
+delta.m3 PMID: 511.0.3
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 
-delta.m4
+delta.m4 PMID: 511.0.4
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 
-delta.m5
+delta.m5 PMID: 511.0.5
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 
-delta.m6
+delta.m6 PMID: 511.0.6
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 
@@ -331,9 +331,9 @@ ull_xpect_0: 0
 f_xpect_0: 0
 d_xpect_0: 0
 pmie_xpect_120: 120
-derived_xpect_60: 60
+derived_xpect_60: <skipped>
 pmie_xpect_360: 360
-derived_xpect_180: 180
+derived_xpect_180: <skipped>
 
 r_xpect_one_quarter: 0.25
 l_xpect_0: 0

@@ -14,9 +14,10 @@ include $(TOPDIR)/src/include/builddefs
 TESTDIR = $(PCP_VAR_DIR)/testsuite
 TESTS	= $(shell sed -n -e '/^[0-9]/s/:retired//' -e '/^[0-9]/s/:reserved//' -e '/^[0-9]/s/[        ].*//' -e '/^[0-9]/p' <group)
 
-SUBDIRS = src pmdas cisco gluster pconf sadist collectl secure nfsclient mic \
-	  archives views qt linux perfevent unbound cifs gpfs lustre ganglia
-ifeq "$(ENABLE_PYTHON)" "true"
+SUBDIRS = src pmdas cisco gluster pconf sadist collectl secure nfsclient \
+	  archives views qt linux perfevent unbound cifs gpfs lustre ganglia \
+	  postfix perl json mic
+ifeq "$(HAVE_PYTHON)" "true"
 SUBDIRS += secure
 endif
 LCONFIG = localconfig
@@ -53,9 +54,9 @@ COMMON_SCRIPTS = common.install.cisco common.pcpweb
 COMMON = common.check common.config common.filter \
 	 common.product common.rc common.setup \
 	 common.secure common.gfs2 common.rpm \
-	 common.sh common.qt common.avahi \
+	 common.sh common.qt common.avahi common.docker \
 	 common.discovery common.compress common.webapi
-ifeq "$(ENABLE_PYTHON)" "true"
+ifeq "$(HAVE_PYTHON)" "true"
 COMMON += common.python 
 endif
 

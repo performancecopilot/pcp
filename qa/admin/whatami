@@ -51,6 +51,17 @@ s/ release //
 p
 }'`
     $debug && from=' [/etc/centos-release]'
+elif [ -f /etc/redhat-release ]
+then
+    # CentOS release 5.6 (Final)
+    # Red Hat Enterprise Linux Server release 6.6 (Santiago)
+    # Red Hat Enterprise Linux Server release 7.1 (Maipo)
+    #
+    os=`sed </etc/redhat-release \
+	-e 's/ release / /' \
+	-e 's/Red Hat /RH/' \
+	-e 's/Enterprise Linux /EL /'`
+    $debug && from=' [/etc/redhat-release]'
 elif [ -f /etc/lsb-release ]
 then
     # Debian-based distros tend to use this way
@@ -75,12 +86,6 @@ then
     #
     os=`sed </etc/mandriva-release -e 's/ release / /' -e 's/ (Official)/ /' -e 's/ for .*//'`
     $debug && from=' [/etc/mandriva-release]'
-elif [ -f /etc/redhat-release ]
-then
-    # CentOS release 5.6 (Final)
-    #
-    os=`sed </etc/redhat-release -e 's/ release / /'`
-    $debug && from=' [/etc/redhat-release]'
 elif [ -f /etc/gentoo-release ]
 then
     # Gentoo Base System release 2.0.3

@@ -44,30 +44,37 @@ $full && grep '<mark>' <$tmp.tmp | LC_COLLATE=POSIX sort -k 3,3n -k 4,4 >$tmp.ma
 # real QA test starts here
 for metric in hinv.ncpu kernel.all.nprocs pmcd.numagents
 do
-    echo
-    echo "=== $metric ==="
+    echo | tee -a $seq.full
+    echo "=== $metric ===" | tee -a $seq.full
+    $full && pmdumplog -zL archives/bug-1044 >>$seq.full
     $full && pmdumplog -xz archives/bug-1044 $metric | egrep '^([A-Z][a-z][a-z] )|([0-2][0-9]:)' | LC_COLLATE=POSIX sort -k 3,3n -k 4,4 >$tmp.tmp
     $full && LC_COLLATE=POSIX sort -k 3,3n -k 4,4 $tmp.tmp $tmp.mark >>$seq.full
 
-    echo
-    echo "+++ forwards +++"
-    pmval -z -Dlog -t 1hr -A 1hr -a archives/bug-1044 $metric 2>$tmp.err
+    echo | tee -a $seq.full
+    echo "+++ forwards +++" | tee -a $seq.full
+    opt='-Dlog'
+    $full && opt='-Dlog,interp'
+    pmval -z $opt -t 1hr -A 1hr -a archives/bug-1044 $metric 2>$tmp.err
     echo "log reads: `_summary <$tmp.err`"
+    $full && cat $tmp.err >>$seq.full
 
-    echo
-    echo "+++ backwards +++"
-    src/interp1 -d -s 1000 -a archives/bug-1044 -t 3600 $metric
+    echo | tee -a $seq.full
+    echo "+++ backwards +++" | tee -a $seq.full
+    $full && opt='-Dlog,interp'
+    src/interp1 $opt -d -s 1000 -a archives/bug-1044 -t 3600 $metric 2>$tmp.err
+    $full && cat $tmp.err >>$seq.full
 
     echo "`echo $metric | sed -e 's/\./_/g'` = $metric;" >>$tmp.pmie
 done
 
-echo
-echo "=== pmcd.numagents converted to discrete semantics ==="
+echo | tee -a $seq.full
+echo "=== pmcd.numagents converted to discrete semantics ===" | tee -a $seq.full
 echo "metric pmcd.numagents {  sem -> discrete }" >$tmp.config
 pmlogrewrite -c $tmp.config archives/bug-1044 $tmp
 pmval -z -Dlog -t 1hr -A 1hr -a $tmp pmcd.numagents 2>$tmp.err \
 | _filter
 echo "log reads: `_summary <$tmp.err`"
+$full && cat $tmp.err >>$seq.full
 
 echo
 echo "=== all metrics at once ==="

@@ -1,0 +1,103 @@
+#!/bin/sh
+# PCP QA Test No. 1053
+# Exercise the JSON PMDA Install/Remove, as well as the
+# mechanism by which a PMDA can be installed with no pmcd
+# process running.
+#
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+pmda_path="$PCP_PMDAS_DIR/json"
+pmda_config="${pmda_path}/config.json"
+
+[ -f $PCP_PMDAS_DIR/json/pmdajson.python ] || _notrun "JSON pmda not installed"
+$python -c "from pcp import pmda" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
+$python -c "import jsonpointer" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python jsonpointer module not installed"
+$python -c "import six" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python six module not installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+
+pmdajson_remove()
+{
+    echo
+    echo "=== remove json agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+pmdajson_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/json
+    $sudo ./Remove >/dev/null 2>&1
+    $sudo $PCP_RC_DIR/pmcd stop 2>&1 | _filter_pcp_stop
+
+    echo
+    echo "=== json agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    cat $tmp.out >>$here/$seq.full
+    # Check json metrics have appeared ... X metrics and Y values
+    _filter_pmda_install <$tmp.out \
+    | sed \
+        -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+        -e 's/[0-9][0-9]* warnings, //' \
+    | $PCP_AWK_PROG '
+/Check json metrics have appeared/    { if ($7 >= 20 && $7 <= 80) $7 = "X"
+                                          if ($10 >= 0 && $10 <= 80) $10 = "Y"
+                                        }
+                                        { print }'
+}
+
+cleanup()
+{
+    if [ -f ${pmda_config}.$seq ]; then
+	_restore_config ${pmda_config}
+    fi
+    _cleanup_pmda json
+}
+
+_prepare_pmda json
+trap "cleanup; exit \$status" 0 1 2 3 15
+
+# Save the JSON pmda config.
+if [ -f ${pmda_config} ]; then
+    _save_config ${pmda_config}
+fi
+# Create a new empty JSOM pmda config file and install it
+cat > $tmp.pmda_config << EOF
+{
+    "directory_list" : [
+    ]
+}
+EOF
+$sudo mv $tmp.pmda_config ${pmda_config}
+
+# real QA test starts here
+pmdajson_install
+
+# there may be a race if the pmda has a bit of a slow start ... pause
+# 
+sleep 3
+
+# pmcd should have been started by the Install process - check
+if pminfo -v json > $tmp.info 2> $tmp.err
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+cat $tmp.info $tmp.err
+
+pmdajson_remove
+status=0
+exit

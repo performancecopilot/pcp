@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2015 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,7 +18,7 @@
 static int	quiet;
 static char	*mechanism;
 static char	*options;
-static unsigned	discoveryFlags;
+static volatile sig_atomic_t discoveryFlags;
 
 static int override(int, pmOptions *);
 

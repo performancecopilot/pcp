@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2015 Red Hat.
 # Copyright (c) 2007 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -26,6 +27,7 @@ include $(BUILDRULES)
 
 install:	$(CMDTARGET)
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
+	$(INSTALL) -S $(PCP_BINADM_DIR)/$(CMDTARGET) $(PCP_BINADM_DIR)/pmpause
 
 default_pcp:	default
 

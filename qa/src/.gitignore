@@ -90,6 +90,7 @@ gap.meta
 getconfig
 getcontexthost
 getoptions
+getversion
 grind_conv
 grind_ctx
 hashwalk
@@ -113,6 +114,7 @@ keycache
 keycache2
 killparent
 logcontrol
+lookupnametest
 mark-bug
 matchInstanceName
 mkbig1.log

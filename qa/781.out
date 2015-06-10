@@ -4,18 +4,18 @@ QA output created by 781
 pmlogger_check [control:4]
 Warning: creating directory (logs/HOSTNAME) for PCP archive files
 + cd LOGDIR/logs/HOSTNAME
-+ $PCP_BINADM_DIR/pmlogconf -c -q -h local: ./config
++ pmlogconf -c -q -h local: ./config
 Restarting pmlogger for host "local:" ...
 + pmlogger -h local: -c ./config -m pmlogger_check ARCHIVE
 pmlogger_check [control:5]
 Warning: creating directory (logs/no.such.host.pcp.io) for PCP archive files
 + cd LOGDIR/logs/no.such.host.pcp.io
-+ $PCP_BINADM_DIR/pmlogconf -c -q -h no.such.host.pcp.io ./config
++ pmlogconf -c -q -h no.such.host.pcp.io ./config
 Restarting pmlogger for host "no.such.host.pcp.io" ...
 + pmlogger -h no.such.host.pcp.io -c ./config -m pmlogger_check ARCHIVE
 pmlogger_check [control:6]
 Warning: creating directory (logs/another.host) for PCP archive files
 + cd LOGDIR/logs/another.host
-+ $PCP_BINADM_DIR/pmlogconf -c -q -h another.host ./config
++ pmlogconf -c -q -h another.host ./config
 Restarting pmlogger for host "another.host" ...
 + pmlogger -h another.host -c ./config -m pmlogger_check ARCHIVE

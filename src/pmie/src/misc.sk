@@ -60,6 +60,7 @@ ruleset(Expr *x)
     Expr	*rp;		/* rule or action nodes */
     Expr	*save_curr;	/* save-restore curr when calling rule() */
     Expr	*other;		/* UNKNOWN/OTHERWISE clauses */
+    int		all_unknown = 1;
 
     x->valid = 0;
     op = x->arg1;
@@ -82,6 +83,10 @@ ruleset(Expr *x)
 		/* predicate is true, so stop evaluation */
 		return;
 	    }
+	    if (x->valid > 0 && *(Boolean *)x->ring == B_FALSE) {
+		/* predicate is false, so don't do UNKNOWN clause */
+		all_unknown = 0;
+	    }
 	}
 	if (op->op == RULE)
 	    break;
@@ -95,7 +100,7 @@ ruleset(Expr *x)
     other = x->arg2;
     assert(other->op == CND_OTHER);
 
-    if (x->valid == 0) {
+    if (all_unknown) {
 	/*
 	 * all predicates are B_UNKNOWN, so do the UNKNOWN action if any
 	 */

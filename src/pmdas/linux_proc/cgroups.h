@@ -79,6 +79,9 @@ typedef struct {
     __uint64_t		recent_rotated_file;
     __uint64_t		recent_scanned_anon;
     __uint64_t		recent_scanned_file;
+    __uint64_t		usage;
+    __uint64_t		limit;
+    __uint64_t		failcnt;
 } cgroup_memory_t;
 
 enum {
@@ -118,6 +121,10 @@ enum {
     CG_MEMORY_STAT_RECENT_ROTATED_FILE	= 61,
     CG_MEMORY_STAT_RECENT_SCANNED_ANON	= 62,
     CG_MEMORY_STAT_RECENT_SCANNED_FILE	= 63,
+
+    CG_MEMORY_USAGE_IN_BYTES		= 80,
+    CG_MEMORY_LIMIT_IN_BYTES		= 81,
+    CG_MEMORY_FAILCNT			= 82,
 };
 
 typedef struct {

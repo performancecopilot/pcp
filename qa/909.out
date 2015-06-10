@@ -1,0 +1,131 @@
+QA output created by 909
+simple error cases ...
+pmLookupName -> -12443: Insufficient elements in list
+
+pmLookupName -> -12357: Unknown metric name
+[0] sampledso.no.such.name PM_ID_NULL (Unknown metric name)
+
+pmLookupName -> -12357: Unknown metric name
+[0] bad.metric.name PM_ID_NULL (Unknown metric name)
+
+pmLookupName -> 2
+[0] sampledso.long.one 30.0.10
+[1] sampledso.no.such.name PM_ID_NULL (Unknown metric name)
+[2] sampledso.long.ten 30.0.11
+[3] bad.metric.name PM_ID_NULL (Unknown metric name)
+
+Using PMNS: TMP.pmns
+pmLookupName -> 2
+[0] sampledso.long.one 30.0.10
+[1] sampledso.no.such.name PM_ID_NULL (Unknown metric name)
+[2] sampledso.long.ten 30.0.11
+[3] bad.metric.name PM_ID_NULL (Unknown metric name)
+
+simple cases ...
+pmLookupName -> 1
+[0] sampledso.drift 30.0.7
+
+Using PM_CONTEXT_LOCAL context
+pmLookupName -> 1
+[0] sampledso.drift 30.0.7
+
+Using host context: HOST
+pmLookupName -> 1
+[0] sampledso.drift 30.0.7
+
+Using archive context: archives/dynmetric
+pmLookupName -> 1
+[0] sampledso.drift 30.0.7
+
+Using PMNS: TMP.pmns
+pmLookupName -> 1
+[0] sampledso.drift 30.0.7
+
+add non-terminal ...
+pmLookupName -> 2
+[0] sampledso.drift 30.0.7
+[1] sampledso PM_ID_NULL (Metric name is not a leaf in PMNS)
+[2] sampledso.bin 30.0.6
+
+Using PM_CONTEXT_LOCAL context
+pmLookupName -> 2
+[0] sampledso.drift 30.0.7
+[1] sampledso PM_ID_NULL (Metric name is not a leaf in PMNS)
+[2] sampledso.bin 30.0.6
+
+Using host context: HOST
+pmLookupName -> 2
+[0] sampledso.drift 30.0.7
+[1] sampledso PM_ID_NULL (Metric name is not a leaf in PMNS)
+[2] sampledso.bin 30.0.6
+
+Using archive context: archives/dynmetric
+pmLookupName -> 2
+[0] sampledso.drift 30.0.7
+[1] sampledso PM_ID_NULL (Metric name is not a leaf in PMNS)
+[2] sampledso.bin 30.0.6
+
+swap non-terminal for valid dynamic metric ...
+pmLookupName -> 3
+[0] sampledso.drift 30.0.7
+[1] sampledso.secret.bar 30.0.1000
+[2] sampledso.bin 30.0.6
+
+Using PM_CONTEXT_LOCAL context
+pmLookupName -> 3
+[0] sampledso.drift 30.0.7
+[1] sampledso.secret.bar 30.0.1000
+[2] sampledso.bin 30.0.6
+
+Using host context: HOST
+pmLookupName -> 3
+[0] sampledso.drift 30.0.7
+[1] sampledso.secret.bar 30.0.1000
+[2] sampledso.bin 30.0.6
+
+Using archive context: archives/dynmetric
+pmLookupName -> 3
+[0] sampledso.drift 30.0.7
+[1] sampledso.secret.bar 30.0.1000
+[2] sampledso.bin 30.0.6
+
+swap valid dynamic metric for invalid dynamic metrics ...
+pmLookupName -> 2
+[0] sampledso.drift 30.0.7
+[1] sampledso.secret PM_ID_NULL (Unknown metric name)
+[2] sampledso.secret.foo.zero PM_ID_NULL (Unknown metric name)
+[3] sampledso.bin 30.0.6
+
+Using PM_CONTEXT_LOCAL context
+pmLookupName -> 3
+[0] sampledso.drift 30.0.7
+[1] sampledso.secret 30.*.* pmNameAll: Unknown or illegal metric identifier pmNameID: Unknown or illegal metric identifier
+[2] sampledso.secret.foo.zero PM_ID_NULL (Unknown metric name)
+[3] sampledso.bin 30.0.6
+
+Using host context: HOST
+pmLookupName -> 2
+[0] sampledso.drift 30.0.7
+[1] sampledso.secret PM_ID_NULL (Unknown metric name)
+[2] sampledso.secret.foo.zero PM_ID_NULL (Unknown metric name)
+[3] sampledso.bin 30.0.6
+
+Using archive context: archives/dynmetric
+pmLookupName -> 2
+[0] sampledso.secret PM_ID_NULL (Metric name is not a leaf in PMNS)
+[1] sampledso.drift 30.0.7
+[2] sampledso.secret.foo.zero PM_ID_NULL (Unknown metric name)
+[3] sampledso.bin 30.0.6
+
+some no agent cases ...
+
+Using PM_CONTEXT_LOCAL context
+pmLookupName -> 1
+[0] sampledso.secret.bar 30.0.1000
+[1] sample.secret.bar PM_ID_NULL (No PMCD agent for domain of request)
+
+Using PMNS: TMP.pmns
+pmLookupName -> 3
+[0] noagent 246.*.* pmNameAll: Unknown or illegal metric identifier pmNameID: Unknown or illegal metric identifier
+[1] sampledso.bin 30.0.6
+[2] sampledso.secret.bar 30.*.* pmNameAll: Unknown or illegal metric identifier pmNameID: Unknown or illegal metric identifier

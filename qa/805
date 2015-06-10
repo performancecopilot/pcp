@@ -1,0 +1,86 @@
+#!/bin/sh
+# PCP QA Test No. 805
+# Exercise the postfix PMDA.
+#
+# Copyright (c) 2015 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which qshape >/dev/null 2>&1 || _notrun "No qshape binary installed"
+[ -f "$PCP_PMDAS_DIR/postfix/pmdapostfix.pl" ] || _notrun "No postfix PMDA"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+
+# prepare the PMDAs test environment
+cp $here/postfix/qshape.sh $tmp.qshape
+$sudo chown root:root $tmp.qshape
+$sudo chmod 755 $tmp.qshape
+touch $tmp.logfile
+
+export PMDA_POSTFIX_LOG=$tmp.logfile
+export PMDA_POSTFIX_REFRESH=1
+export PMDA_POSTFIX_QSHAPE=$tmp.qshape
+
+pmdapostfix_remove()
+{
+    echo
+    echo "=== remove postfix agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+pmdapostfix_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/postfix
+    $sudo ./Remove >/dev/null 2>&1
+    $sudo $PCP_RC_DIR/pmcd stop 2>&1 | _filter_pcp_stop
+
+    echo
+    echo "=== postfix agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    cat $tmp.out >>$here/$seq.full
+    # Check postfix metrics have appeared ... X metrics and Y values
+    _filter_pmda_install <$tmp.out \
+    | sed \
+        -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+        -e 's/[0-9][0-9]* warnings, //' \
+    | $PCP_AWK_PROG '
+/Check postfix metrics have appeared/   { if ($7 >= 7) $7 = "X"
+                                          if ($10 >= 50) $10 = "Y"
+                                        }
+                                        { print }'
+}
+
+_prepare_pmda postfix
+trap "_cleanup_pmda postfix; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pmdapostfix_install
+
+metrics=`pminfo postfix | LC_COLLATE=POSIX sort`
+
+for file in $here/postfix/*-log-*gz
+do
+    pmsleep 1.25
+    logfile=`basename $file`
+    gunzip < $file > $tmp.logfile
+
+    echo "=== verify postfix values - $logfile ==="
+    pminfo -f $metrics
+    echo "=== done ==="
+    echo
+done
+$sudo rm -f $tmp.logfile $tmp.qshape
+
+pmdapostfix_remove
+status=0
+exit

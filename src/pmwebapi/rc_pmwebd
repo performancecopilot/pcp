@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2013-2014 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 # Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -215,8 +215,19 @@ case "$1" in
 Error: pmwebd control file "$PCP_PMWEBDCONF_PATH" is missing, cannot start pmwebd.'
 		exit
 	    fi
-	    [ ! -d $RUNDIR ] && mkdir -p $RUNDIR
-	    cd $RUNDIR
+	    # create directory housing daemon pid file
+	    if [ ! -d "$PCP_RUN_DIR" ]
+	    then
+		mkdir -p -m 775 "$PCP_RUN_DIR"
+		chown $PCP_USER:$PCP_GROUP "$PCP_RUN_DIR"
+	    fi
+	    # create directory which will serve as cwd
+	    if [ ! -d "$RUNDIR" ]
+	    then
+		mkdir -p -m 775 "$RUNDIR"
+		chown $PCP_USER:$PCP_GROUP "$RUNDIR"
+	    fi
+	    cd "$RUNDIR"
 
 	    # salvage the previous versions of any pmwebd
 	    #
@@ -266,6 +277,8 @@ Error: pmwebd control file "$PCP_PMWEBDCONF_PATH" is missing, cannot start pmweb
 
 	    $PCP_BINADM_DIR/pmpost "start pmwebd from $pmprog"
 
+	    # finally, stop here if running in a container
+	    [ -z "$PCP_CONTAINER_IMAGE" ] || exec $PCP_BINADM_DIR/pmpause
 	fi
 	status=0
         ;;
@@ -298,6 +311,7 @@ Error: pmwebd control file "$PCP_PMWEBDCONF_PATH" is missing, cannot start pmweb
 	;;
 
   *)
+	[ -z "$PCP_CONTAINER_IMAGE" ] || exec "$@"
 	_usage
         ;;
 esac

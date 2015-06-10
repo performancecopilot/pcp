@@ -31,7 +31,7 @@ Expecting ... 1 record, u32 param = 2, u64 param = -3
 Array contains 1 records and 0 missed records
 pmHighResResult[0]
 pmHighResResult dump from ADDR timestamp: TIMESTAMPS numpmid: 3
-  511.0.1 (<noname>): numval: 1 valfmt: 0 vlist[]:
+  511.0.1 (event.flags): numval: 1 valfmt: 0 vlist[]:
    value 1 1.4012985e-45 0x1
   29.0.127 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 2 2.8025969e-45 0x2
@@ -49,9 +49,9 @@ Expecting ... 6 records, 7 missed [u32=4 u64=5 str="6"][u32=7 d=8 d=-9][u32=10 u
 Array contains 6 records and 7 missed records
 pmHighResResult[0]
 pmHighResResult dump from ADDR timestamp: TIMESTAMPS numpmid: 2
-  511.0.1 (<noname>): numval: 1 valfmt: 0 vlist[]:
+  511.0.1 (event.flags): numval: 1 valfmt: 0 vlist[]:
    value 2147483648 -0 0x80000000
-  511.0.2 (<noname>): numval: 1 valfmt: 0 vlist[]:
+  511.0.2 (event.missed): numval: 1 valfmt: 0 vlist[]:
    value 3 4.2038954e-45 0x3
 pmHighResResult[1]
 pmHighResResult dump from ADDR timestamp: TIMESTAMPS numpmid: 3
@@ -71,7 +71,7 @@ pmHighResResult dump from ADDR timestamp: TIMESTAMPS numpmid: 3
    value -9
 pmHighResResult[3]
 pmHighResResult dump from ADDR timestamp: TIMESTAMPS numpmid: 7
-  511.0.1 (<noname>): numval: 1 valfmt: 0 vlist[]:
+  511.0.1 (event.flags): numval: 1 valfmt: 0 vlist[]:
    value 2 2.8025969e-45 0x2
   29.0.127 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 10 1.4012985e-44 0xa
@@ -87,9 +87,9 @@ pmHighResResult dump from ADDR timestamp: TIMESTAMPS numpmid: 7
    value 15 2.1019477e-44 0xf
 pmHighResResult[4]
 pmHighResResult dump from ADDR timestamp: TIMESTAMPS numpmid: 2
-  511.0.1 (<noname>): numval: 1 valfmt: 0 vlist[]:
+  511.0.1 (event.flags): numval: 1 valfmt: 0 vlist[]:
    value 2147483648 -0 0x80000000
-  511.0.2 (<noname>): numval: 1 valfmt: 0 vlist[]:
+  511.0.2 (event.missed): numval: 1 valfmt: 0 vlist[]:
    value 4 5.6051939e-45 0x4
 pmHighResResult[5]
 pmHighResResult dump from ADDR timestamp: TIMESTAMPS numpmid: 3

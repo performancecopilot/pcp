@@ -122,7 +122,7 @@ Options\n\
 	}
     }
 
-    if ((sts = pmLoadNameSpace(namespace)) < 0) {
+    if (namespace != PM_NS_DEFAULT && (sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
 	printf("%s: Cannot load namespace from \"%s\": %s\n", cmd, namespace, pmErrStr(sts));
 	exit(1);
     }
@@ -174,6 +174,9 @@ Options\n\
     n = pmLookupName(numpmid, namelist, pmidlist);
     if (n < 0) {
 	fprintf(stderr, "pmLookupName: %s\n", pmErrStr(n));
+	exit(1);
+    }
+    if (n != numpmid) {
 	for (i = 0; i < numpmid; i++) {
 	    if (pmidlist[i] == PM_ID_NULL)
 		printf("	%s - not known\n", namelist[i]);

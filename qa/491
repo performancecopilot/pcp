@@ -5,17 +5,13 @@
 # Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
 #
 
-seq=`basename $0`
-echo "QA output created by $seq"
-
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 
-rm -f $seq.out $seq.full
-endian=`_get_endian`
-ln $seq.out.$endian $seq.out
+seq=`basename $0`
+echo "QA output created by $seq"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full

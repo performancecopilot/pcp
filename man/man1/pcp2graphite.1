@@ -33,6 +33,32 @@ copies of this program may be run in parallel, to populate different
 Graphite databases or subtrees, with different scaling or sampling
 intervals.
 
+Example of a systemd service file that can be used to have systemd 
+managing a single instance of pcp2graphite:
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+[Unit]
+Description=Performance Co-Pilot data pump to Graphite
+Documentation=man:pcp2graphite(8)
+After=pmcd.service
+
+[Service]
+ExecStart=/opt/pcp/pcp2graphite.py <OPTIONS>
+
+[Install]
+WantedBy=multi\-user\&.target
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+
+.SH OPTIONS
+
 .TP
 .B \-h HOST
 Specify the PMCD server where PCP metrics are to be extracted from.

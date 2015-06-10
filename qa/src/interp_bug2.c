@@ -192,7 +192,7 @@ Options\n\
 	}
     }
 
-    if ((sts = pmLoadNameSpace(namespace)) < 0) {
+    if (namespace != PM_NS_DEFAULT && (sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
 	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
 	exit(1);
     }
@@ -257,7 +257,16 @@ Options\n\
 
 
     if ((sts = pmLookupName(N_PMID_A, metrics_a, pmid_a)) != N_PMID_A) {
-	fprintf(stderr, "%s: pmLookupName: %s\n", pmProgname, pmErrStr(sts));
+	if (sts < 0)
+	    fprintf(stderr, "%s: pmLookupName: %s\n", pmProgname, pmErrStr(sts));
+	else {
+	    int		i;
+	    for (i = 0; i < sts; i++) {
+		if (pmid_a[i] != PM_ID_NULL) continue;
+		sts = pmLookupName(1, &metrics_a[i], &pmid_a[i]);
+		fprintf(stderr, "%s: %s: lookup failed: %s\n", pmProgname, metrics_a[i], pmErrStr(sts));
+	    }
+	}
 	exit(1);
     }
     for (i = 0; i < N_PMID_A; i++) {
@@ -265,7 +274,16 @@ Options\n\
     }
 
     if ((sts = pmLookupName(N_PMID_B, metrics_b, pmid_b)) != N_PMID_B) {
-	fprintf(stderr, "%s: pmLookupName: %s\n", pmProgname, pmErrStr(sts));
+	if (sts < 0)
+	    fprintf(stderr, "%s: pmLookupName: %s\n", pmProgname, pmErrStr(sts));
+	else {
+	    int		i;
+	    for (i = 0; i < sts; i++) {
+		if (pmid_b[i] != PM_ID_NULL) continue;
+		sts = pmLookupName(1, &metrics_b[i], &pmid_b[i]);
+		fprintf(stderr, "%s: %s: lookup failed: %s\n", pmProgname, metrics_b[i], pmErrStr(sts));
+	    }
+	}
 	exit(1);
     }
     for (i = 0; i < N_PMID_B; i++) {

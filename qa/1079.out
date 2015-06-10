@@ -1,0 +1,1508 @@
+QA output created by 1079
+General options (default)
+=== std out
+
+
+ATOP -           2015/05/28  15:35:04          -----------            1s elapsed
+PRC | sys    2h49m | user  15h55m | #proc    274 | #zombie    0 | no  procacct |
+CPU | sys       2% | user      8% | irq       0% | idle    387% | wait      3% |
+cpu | sys       1% | user      2% | irq       0% | idle     97% | cpu001 w  0% |
+cpu | sys       1% | user      2% | irq       0% | idle     96% | cpu002 w  1% |
+cpu | sys       0% | user      2% | irq       0% | idle     96% | cpu000 w  1% |
+cpu | sys       0% | user      2% | irq       0% | idle     97% | cpu003 w  0% |
+CPL | avg1    1.00 | avg5    1.02 | avg15   1.05 | csw 717701e3 | intr 24148e4 |
+MEM | tot     3.8M | free    0.4M | cache   1.5M | buff    0.2M | slab    0.2M |
+SWP | tot    13.3G | free   12.7G |              | vmcom   5.0M | vmlim  15.2M |
+PAG | scan 42457e3 | steal 4295e6 | stall  26324 | swin  203579 | swout 431258 |
+DSK |          sda | busy      3% | read 1577086 | write 2023e3 | avio 6.08 ms |
+NET | transport    | tcpi 4724854 | tcpo 4460194 | udpi  766685 | udpo  792760 |
+NET | network      | ipi  4334309 | ipo  4094969 | ipfrw     -1 | deliv 4316e3 |
+NET | p2p1      0% | pcki 3785081 | pcko 2363164 | si 7875 Mbps | so 5026 Mbps |
+NET | tun0      0% | pcki   19776 | pcko   20222 | si   59 Mbps | so   16 Mbps |
+NET | veth7c5   0% | pcki       8 | pcko    1651 | si    5 Kbps | so  902 Kbps |
+NET | lo      ---- | pcki 2651370 | pcko 2651370 | si 8366 Mbps | so 8366 Mbps |
+NET | docker0 ---- | pcki      61 | pcko      89 | si   33 Kbps | so  124 Kbps |
+                   *** system and process activity since boot ***
+  PID SYSCPU USRCPU  VGROW  RGROW  RDDSK  WRDSK ST EXC S  CPU CMD            
+22749 48m07s 12h53m   2.4G 791.6M   1.1G  10.2G N-   - S   6% firefox        
+ 4562 10m55s 84m30s   2.2G 285.0M 645.2M  1940K N-   - S   1% gnome-shell    
+  605 50m44s 30m07s 182.9M 22968K     0K     0K N-   - S   1% Xorg           
+  561 24m48s 28m40s   3.5G 106.6M     0K     0K N-   - S   0% java           
+ 5417  5m04s 15m01s 544.9M 40236K 80512K 402.6M N-   - S   0% xchat          
+24075  3m26s  3m59s 540.7M 50520K     0K     0K N-   - S   0% polkitd        
+23668 44.22s  4m23s 639.8M 24744K  10.5G  14.6G N-   - S   0% gnome-terminal 
+  519 86.74s  2m39s  4364K   320K     0K     0K N-   - S   0% rngd           
+    7  3m33s  0.00s     0K     0K     0K     0K N-   - S   0% rcu_sched      
+  902  2m11s 72.62s 993.5M 15432K     0K     0K N-   - S   0% docker         
+  545 38.87s  2m13s 42492K  2480K     0K     0K N-   - S   0% dbus-daemon    
+ 4522 17.23s  2m15s 418.3M  4096K     0K     0K N-   - S   0% udisksd        
+   25  2m20s  0.00s     0K     0K     0K     0K N-   - S   0% rcuos/2        
+    9  2m10s  0.00s     0K     0K     0K     0K N-   - S   0% rcuos/0        
+    1 64.84s 24.88s 51208K  5836K     0K     0K N-   - S   0% systemd        
+  699 24.33s 64.54s 433.4M  6752K     0K     0K N-   - S   0% NetworkManager 
+ 4541 16.24s 65.34s 954.2M 22008K 18616K     0K N-   - S   0% goa-daemon     
+  524 58.16s  9.03s 19140K   644K     0K     0K N-   - S   0% irqbalance     
+  311 43.64s 18.46s 255.8M 68432K     0K     0K N-   - S   0% systemd-journa 
+   32 60.92s  0.00s     0K     0K     0K     0K N-   - S   0% rcuos/3        
+   18 57.64s  0.00s     0K     0K     0K     0K N-   - S   0% rcuos/1        
+  904 16.30s 16.46s 307.4M     0K     0K     0K N-   - S   0% memcached      
+  473 32.52s  0.00s     0K     0K     0K     0K N-   - D   0% rtsx_usb_ms_1  
+  218 29.74s  0.00s     0K     0K     0K     0K N-   - S   0% kworker/2:1H   
+ 4484 13.52s 16.01s   1.2G 11600K 21260K     0K N-   - S   0% gnome-settings 
+   74 28.80s  0.00s     0K     0K     0K     0K N-   - S   0% kswapd0        
+  236 28.66s  0.00s     0K     0K     0K     0K N-   - S   0% jbd2/sda7-8    
+  532 14.71s  9.77s 34700K  1432K     0K     0K N-   - S   0% systemd-logind 
+ 4495  4.55s 17.26s 555.6M  8036K 20868K     8K N-   - S   0% pulseaudio     
+30921 14.64s  7.05s 943.5M 12752K     0K     0K N-   - S   0% rsyslogd       
+ 4547  2.56s 16.43s 312.6M  9068K 10384K     4K N-   - S   0% mission-contro 
+ 4775  3.04s 15.60s   1.3G 12740K 30212K     4K N-   - S   0% evolution-cale 
+ 1273 15.93s  1.60s 188.0M   768K     0K     0K N-   - S   0% postgres       
+  552 14.95s  2.13s 123.4M  1476K     0K     0K N-   - S   0% crond          
+ 4625  7.12s  8.37s 532.2M  1976K  2972K     4K N-   - S   0% ibus-daemon    
+  485  2.00s 13.16s 322.0M  5212K     0K     0K N-   - S   0% firewalld      
+32298 10.19s  4.60s 129.4M  1796K     0K     0K N-   - S   0% sshd           
+  488  3.92s  9.58s 362.3M  5528K     0K     0K N-   - S   0% accounts-daemo 
+ 4110  5.39s  7.94s 505.2M  7648K     0K     0K N-   - S   0% gdm-session-wo 
+  530  5.66s  6.45s 28216K  1452K     0K     0K N-   - S   0% avahi-daemon   
+ 1256  3.55s  7.86s 369.8M  2336K     0K     0K N-   - S   0% upowerd        
+   22 10.56s  0.00s     0K     0K     0K     0K N-   - S   0% ksoftirqd/2    
+  499  9.03s  1.38s 160.8M   492K     0K     0K N-   - S   0% rtkit-daemon   
+   14  9.69s  0.00s     0K     0K     0K     0K N-   - S   0% migration/1    
+ 4745  2.61s  6.86s 683.5M  2620K  2164K     0K N-   - S   0% vino-server    
+   28  9.28s  0.00s     0K     0K     0K     0K N-   - S   0% migration/3    
+  399  6.92s  2.30s 114.0M   864K     0K     0K N-   - S   0% auditd         
+ 1271  6.23s  2.52s 329.6M  1680K     0K     0K N-   - S   0% postgres       
+ 1039  8.18s  0.53s 328.8M  1156K     0K     0K N-   - S   0% postgres       
+14146  6.01s  2.61s 128.6M   928K     0K     0K N-   - S   0% sshd           
+  534  5.52s  2.03s 44068K   728K     0K     0K N-   - S   0% rpcbind        
+ 1269  5.39s  1.85s 328.8M   504K     0K     0K N-   - S   0% postgres       
+ 1270  5.70s  1.50s 328.8M    12K     0K     0K N-   - S   0% postgres       
+   15  6.99s  0.00s     0K     0K     0K     0K N-   - S   0% ksoftirqd/1    
+  444  5.01s  1.90s 80216K   576K     0K     0K N-   - S   0% audispd        
+   75  6.80s  0.00s     0K     0K     0K     0K N-   - S   0% fsnotify_mark  
+   11  6.54s  0.00s     0K     0K     0K     0K N-   - S   0% migration/0    
+   21  6.39s  0.00s     0K     0K     0K     0K N-   - S   0% migration/2    
+    3  6.06s  0.00s     0K     0K     0K     0K N-   - S   0% ksoftirqd/0    
+32158  4.11s  1.86s 128.5M   748K     0K     0K N-   - S   0% sshd           
+ 6365  0.32s  5.59s 211.8M 14500K     0K     0K N-   - S   0% perl           
+ 7171  3.97s  1.82s 128.6M  1288K     0K     0K N-   - S   0% sshd           
+12345  2.52s  2.74s 79704K  7268K     0K     0K N-   - S   0% vpnc           
+10697  3.25s  1.47s 128.5M  1072K     0K     0K N-   - S   0% sshd           
+   13  4.51s  0.00s     0K     0K     0K     0K N-   - S   0% watchdog/1     
+ 4291  1.75s  2.70s 634.5M  3668K  3136K    28K N-   - S   0% gnome-session  
+ 4172  0.52s  3.92s 836.8M  3344K     0K     0K N-   - S   0% gnome-keyring- 
+   12  4.37s  0.00s     0K     0K     0K     0K N-   - S   0% watchdog/0     
+32301  1.14s  3.15s 114.6M  4040K 567.6M   1.2G N-   - S   0% bash           
+ 4705  1.19s  3.05s   1.0G  9592K 19092K     0K N-   - S   0% evolution-alar 
+   29  4.07s  0.00s     0K     0K     0K     0K N-   - S   0% ksoftirqd/3    
+   20  3.76s  0.00s     0K     0K     0K     0K N-   - S   0% watchdog/2     
+ 4519  1.60s  2.15s 540.0M  2872K  2004K     0K N-   - S   0% gvfs-udisks2-v 
+   27  3.58s  0.00s     0K     0K     0K     0K N-   - S   0% watchdog/3     
+ 4300  1.29s  2.07s 41868K  2012K  1004K     0K N-   - S   0% dbus-daemon    
+  459  0.77s  2.53s 26216K   288K     0K     0K N-   - S   0% sedispatch     
+ 4470  1.25s  1.85s 126.6M   652K  1140K     0K N-   - S   0% at-spi2-regist 
+ 4717  0.64s  2.44s 559.9M  8500K 34900K 14184K N-   - S   0% tracker-store  
+ 6334  2.50s  0.49s 53468K  4644K     0K     0K N-   - R   0% pmdaproc       
+ 4650  0.44s  2.44s   1.3G  5008K  7868K    16K N-   - S   0% evolution-sour 
+14151  0.75s  1.74s 114.5M  4336K 105.7M 51972K N-   - S   0% bash           
+  129  2.30s  0.00s     0K     0K     0K     0K N-   - S   0% kauditd        
+ 4708  0.57s  1.58s 598.7M  6036K 16064K    44K N-   - S   0% tracker-miner- 
+  515  1.59s  0.35s 204.7M   888K     0K     0K N-   - S   0% abrt-watch-log 
+ 7175  0.47s  1.40s 114.4M  3716K   9.9G  16.1G N-   - S   0% bash           
+  502  1.40s  0.19s 100.3M   972K     0K     0K N-   - S   0% chronyd        
+ 6340  0.99s  0.47s 50728K  3864K     0K     0K N-   - S   0% pmdalinux      
+24762  0.39s  1.02s 114.3M  5296K     0K     0K N-   - S   0% bash           
+ 2613  0.56s  0.84s 146.2M   172K   824K     0K N-   - S   0% gconfd-2       
+10702  0.37s  1.00s 114.4M  3764K  7016K  8572K N-   - S   0% bash           
+ 6336  1.29s  0.04s 123.3M  3632K     0K     0K N-   - S   0% pmdashping     
+32161  0.32s  0.87s 114.3M  3696K 29524K 18196K N-   - S   0% bash           
+  335  0.65s  0.39s 46244K  1124K     0K     0K N-   - S   0% systemd-udevd  
+ 4711  0.11s  0.89s 361.2M  2988K  2308K     0K N-   - S   0% applet.py      
+ 4731  0.30s  0.70s 447.6M  1860K  2720K     0K N-   - S   0% abrt-applet    
+ 4735  0.22s  0.75s 620.2M   472K  2036K     0K N-   - S   0% deja-dup-monit 
+14240  0.12s  0.83s 331.4M 11152K     0K     0K N-   - S   0% postgres       
+ 9681  0.75s  0.20s 206.7M  7068K     0K     0K N-   - S   0% httpd          
+    2  0.89s  0.00s     0K     0K     0K     0K N-   - S   0% kthreadd       
+ 4591  0.75s  0.09s 184.6M  1872K     0K     0K N-   - S   0% cupsd          
+ 6345  0.54s  0.27s 163.4M  6956K     0K     0K N-   - S   0% perl           
+  901  0.34s  0.46s 495.6M  2344K     0K     0K N-   - S   0% libvirtd       
+ 2533  0.26s  0.52s 114.3M  3912K 138.5M  98.5M N-   - S   0% bash           
+ 6349  0.38s  0.32s 177.4M 13228K     0K     0K N-   - S   0% perl           
+23376  0.48s  0.21s 128.5M  4384K     0K     0K N-   - S   0% sshd           
+ 4641  0.15s  0.54s 759.7M  2824K  3632K     0K N-   - S   0% gnome-shell-ca 
+26154  0.61s  0.00s     0K     0K     0K     0K N-   - S   0% kworker/u16:0  
+ 6330  0.31s  0.22s 132.1M  4300K     0K     0K N-   - S   0% pmcd           
+ 4466  0.30s  0.20s 41048K  1220K   336K     0K N-   - S   0% dbus-daemon    
+  735  0.02s  0.42s 148.7M  8208K     0K    36K N-   - S   0% vim            
+  506  0.09s  0.35s 207.1M  2476K     0K     0K N-   - S   0% abrtd          
+ 8019  0.24s  0.18s 44564K   784K     0K     0K N-   - S   0% systemd        
+ 4157  0.22s  0.18s 44560K  1824K   580K     0K N-   - S   0% systemd        
+21361  0.10s  0.30s 114.3M  1788K  8864K   164K N-   - S   0% bash           
+ 1268  0.34s  0.04s 328.8M   328K     0K     0K N-   - S   0% postgres       
+ 3714  0.16s  0.19s 44560K   768K     0K     0K N-   - S   0% systemd        
+  548  0.35s  0.00s     0K     0K     0K     0K N-   - S   0% kworker/0:0    
+ 1215  0.15s  0.17s 44556K   576K     0K     0K N-   - S   0% systemd        
+  528  0.25s  0.06s 26564K   480K     0K     0K N-   - S   0% smartd         
+28985  0.21s  0.09s 121.2M  3492K     0K     0K N-   - S   0% pmproxy        
+25203  0.04s  0.25s 277.3M 12532K     0K     0K N-   - S   0% docker         
+ 4606  0.08s  0.21s 176.5M  2288K   632K  1536K N-   - S   0% dconf-service  
+ 4645  0.05s  0.23s 312.5M  1312K   904K     0K N-   - S   0% ibus-engine-si 
+  483  0.20s  0.07s 16776K   384K     0K     0K N-   - S   0% alsactl        
+  221  0.27s  0.00s     0K     0K     0K     0K N-   - S   0% kworker/0:1H   
+15541  0.09s  0.17s 51088K  4336K     0K     0K N-   - S   0% pmlogger       
+22432  0.26s  0.00s     0K     0K     0K     0K N-   - S   0% kworker/3:0    
+ 1310  0.05s  0.18s 388.6M   364K     0K     0K N-   - S   0% colord         
+  942  0.03s  0.18s 114.3M  5320K   128K    16K N-   - S   0% bash           
+30977  0.06s  0.13s 114.3M  4148K  4704K   332K N-   - S   0% bash           
+14400  0.03s  0.16s 360.8M   704K     0K     0K N-   - S   0% gdm-session-wo 
+21046  0.06s  0.12s 114.3M  1364K 130.9M 21404K N-   - S   0% bash           
+ 1086  0.17s  0.00s     0K     0K     0K     0K N-   - S   0% loop0          
+23345  0.15s  0.01s 128.3M  7108K     0K     0K N-   - S   0% sshd           
+10686  0.14s  0.01s 128.3M   848K     0K     0K N-   - S   0% sshd           
+  555  0.08s  0.06s 292.1M  2444K     0K     0K N-   - S   0% gdm            
+ 4664  0.03s  0.10s 234.1M   852K  1048K  1128K N-   - S   0% gvfsd-metadata 
+14138  0.11s  0.02s 128.3M   796K     0K     0K N-   - S   0% sshd           
+ 7167  0.12s  0.01s 128.3M   760K     0K     0K N-   - S   0% sshd           
+  889  0.11s  0.01s 128.3M  7180K     0K     0K N-   - S   0% sshd           
+32154  0.11s  0.01s 128.3M   756K     0K     0K N-   - S   0% sshd           
+23382  0.03s  0.08s 114.3M  5280K 11496K     4K N-   - S   0% bash           
+31519  0.09s  0.02s  99.8M  1704K     0K     0K N-   - S   0% dhclient       
+32283  0.10s  0.01s 128.3M   756K     0K     0K N-   - S   0% sshd           
+  217  0.11s  0.00s     0K     0K     0K     0K N-   - S   0% kworker/1:1H   
+  224  0.10s  0.00s     0K     0K     0K     0K N-   - S   0% kworker/3:1H   
+ 1087  0.10s  0.00s     0K     0K     0K     0K N-   - S   0% loop1          
+ 6366  0.01s  0.08s 218.7M 14576K     0K     0K N-   - S   0% python3        
+  591  0.05s  0.04s 373.8M  2700K     0K     0K N-   - S   0% gdm-simple-sla 
+ 3681  0.02s  0.07s 114.2M   416K   204K   596K N-   - S   0% bash           
+ 4713  0.02s  0.06s 360.4M  3612K  1016K     0K N-   - S   0% seapplet       
+ 4365  0.01s  0.07s 306.6M  2092K   888K     0K N-   - S   0% gvfsd          
+ 1998  0.08s  0.00s     0K     0K     0K     0K N-   - S   0% kworker/1:1    
+ 4551  0.02s  0.05s 308.0M  1792K  1484K     0K N-   - S   0% gvfs-mtp-volum 
+ 4557  0.02s  0.05s 316.9M  1180K  1472K     0K N-   - S   0% gvfs-gphoto2-v 
+ 4532  0.02s  0.05s 430.3M  1060K  1428K     0K N-   - S   0% gvfs-afc-volum 
+  553  0.07s  0.00s 25944K   232K     0K     0K N-   - S   0% atd            
+ 1240  0.07s  0.00s     0K     0K     0K     0K N-   - S   0% kworker/2:0    
+ 4538  0.01s  0.05s 302.1M  1240K  1216K     0K N-   - S   0% gvfs-goa-volum 
+  918  0.06s  0.00s 82832K   624K     0K     0K N-   - S   0% sshd           
+  939  0.04s  0.01s 128.3M  4128K     0K     0K N-   - S   0% sshd           
+ 5705  0.05s  0.00s     0K     0K     0K     0K N-   - S   0% kworker/u16:2  
+ 9480  0.00s  0.04s 148.6M  7980K     0K     0K N-   - S   0% vim            
+ 9682  0.02s  0.02s 206.9M  5156K     0K     0K N-   - S   0% httpd          
+ 9683  0.02s  0.02s 206.9M  5156K     0K     0K N-   - S   0% httpd          
+ 9684  0.02s  0.02s 206.9M  5156K     0K     0K N-   - S   0% httpd          
+ 9685  0.02s  0.02s 206.9M  5156K     0K     0K N-   - S   0% httpd          
+ 9686  0.02s  0.02s 206.9M  5156K     0K     0K N-   - S   0% httpd          
+ 9868  0.03s  0.01s 52532K  3716K     0K     0K N-   - S   0% pmdaapache     
+ 4631  0.01s  0.03s 427.6M  1400K  1092K     0K N-   - S   0% ibus-x11       
+23671  0.04s  0.00s  8448K   652K     0K     0K N-   - S   0% gnome-pty-help 
+  505  0.02s  0.02s 318.9M   600K     0K     0K N-   - S   0% ModemManager   
+25232  0.03s  0.00s 11796K  2804K     0K     0K N-   - S   0% bash           
+ 4600  0.01s  0.02s 501.9M  1872K   712K     0K N-   - S   0% gsd-printer    
+   35  0.03s  0.00s     0K     0K     0K     0K N-   - S   0% kdevtmpfs      
+10573  0.01s  0.00s 50464K  3708K     0K    21K N-   - S   0% pmlogger       
+25202  0.00s  0.01s 216.5M  6572K     0K     0K N-   - S   0% sudo           
+12334  0.01s  0.00s 244.9M  5788K     0K     0K N-   - S   0% nm-vpnc-servic 
+ 6339  0.01s  0.00s 52584K  3604K     0K     0K N-   - S   0% pmdasample     
+  525  0.01s  0.00s 204.7M   916K     0K     0K N-   - S   0% abrt-watch-log 
+ 4629  0.00s  0.01s 384.4M   692K   140K     0K N-   - S   0% ibus-dconf     
+  558  0.01s  0.00s 30232K   604K     0K     0K N-   - S   0% bluetoothd     
+ 1311  0.01s  0.00s 165.5M   436K     0K     0K N-   - S   0% pcscd          
+ 1035  0.00s  0.01s 44492K   432K     0K     0K N-   - S   0% rpc.statd      
+ 4840  0.00s  0.01s 294.9M   396K     0K     0K N-   - S   0% telepathy-logg 
+ 4930  0.00s  0.01s 378.6M    68K     0K     0K N-   - S   0% gvfsd-burn     
+ 8948  0.01s  0.00s     0K     0K     0K     0K N-   - S   0% kworker/2:1    
+   -1  0.00s  0.00s    -1K    -1K     0K     0K N-   -  -100%                
+10580  0.00s  0.00s    -1K    -1K     0K     0K N-   -  -100%                
+24760  0.00s  0.00s 216.5M  6900K     0K     0K N-   - S   0% sudo           
+24761  0.00s  0.00s 195.7M  5400K     0K     0K N-   - S   0% su             
+ 6374  0.00s  0.00s 52524K  3640K     0K     0K N-   - S   0% pmdasimple     
+ 6343  0.00s  0.00s 52524K  3568K     0K     0K N-   - S   0% pmdamounts     
+ 6335  0.00s  0.00s 50452K  3540K     0K     0K N-   - S   0% pmdaxfs        
+ 6333  0.00s  0.00s 50452K  3400K     0K     0K N-   - S   0% pmdaroot       
+10338  0.00s  0.00s 110.6M  3020K     0K     0K N-   - S   0% mk.atop.sh     
+ 9481  0.00s  0.00s 11544K  1912K     0K     0K N-   - S   0% cscope         
+ 1246  0.00s  0.00s 187.9M   980K     0K     0K N-   - S   0% postgres       
+ 4462  0.00s  0.00s 332.0M   664K     0K     0K N-   - S   0% at-spi-bus-lau 
+ 4369  0.00s  0.00s 289.5M   508K     0K     0K N-   - S   0% gvfsd-fuse     
+  574  0.00s  0.00s  7000K   404K     0K     0K N-   - S   0% mcelog         
+ 4299  0.00s  0.00s 13936K   192K     0K     0K N-   - S   0% dbus-launch    
+  332  0.00s  0.00s 104.4M    80K     0K     0K N-   - S   0% lvmetad        
+  564  0.00s  0.00s 27952K    16K     0K     0K N-   - S   0% avahi-daemon   
+ 1218  0.00s  0.00s 74424K     4K     0K     0K N-   - S   0% (sd-pam)       
+ 3718  0.00s  0.00s 74424K     4K     0K     0K N-   - S   0% (sd-pam)       
+ 4163  0.00s  0.00s 74424K     4K     0K     0K N-   - S   0% (sd-pam)       
+ 8024  0.00s  0.00s 74424K     4K     0K     0K N-   - S   0% (sd-pam)       
+    5  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% kworker/0:0H   
+    8  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% rcu_bh         
+   10  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% rcuob/0        
+   17  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% kworker/1:0H   
+   19  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% rcuob/1        
+   24  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% kworker/2:0H   
+   26  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% rcuob/2        
+   31  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% kworker/3:0H   
+   33  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% rcuob/3        
+   34  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% khelper        
+   36  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% netns          
+   37  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% perf           
+   38  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% writeback      
+   39  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% ksmd           
+   40  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% khugepaged     
+   41  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% crypto         
+   42  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% kintegrityd    
+   43  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% bioset         
+   44  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% kblockd        
+   45  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% ata_sff        
+   46  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% md             
+   47  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% devfreq_wq     
+   85  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% kthrotld       
+   88  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% acpi_thermal_p 
+   90  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% scsi_eh_0      
+   91  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% scsi_tmf_0     
+   92  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% scsi_eh_1      
+   93  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% scsi_tmf_1     
+   96  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% kpsmoused      
+   98  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% dm_bufio_cache 
+   99  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% ipv6_addrconf  
+  100  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% deferwq        
+  237  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% ext4-rsv-conve 
+  336  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% rpciod         
+  397  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% irq/45-mei_me  
+  464  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% hd-audio0      
+  465  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% hd-audio1      
+  472  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% kmemstick      
+  475  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% cfg80211       
+  484  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% kvm-irqfd-clea 
+  536  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% kworker/u17:0  
+  537  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% hci0           
+  538  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% hci0           
+  539  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% kworker/u17:1  
+ 1089  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% kdmflush       
+ 1093  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% bioset         
+ 1121  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% kcopyd         
+ 1122  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% bioset         
+ 1123  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% dm-thin        
+ 1124  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% bioset         
+ 4526  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% krfcommd       
+ 4839  0.00s  0.00s 23372K     0K     0K     0K N-   - S   0% obexd          
+ 5362  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% kworker/0:1    
+ 5441  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% kworker/1:3    
+ 6778  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% kworker/3:3    
+ 8319  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% glock_workqueu 
+ 8320  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% delete_workque 
+ 8321  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% gfs_recovery   
+ 9350  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% kworker/u16:1  
+10023  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% kworker/0:2    
+11904  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% xfsalloc       
+11905  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% xfs_mru_cache  
+25226  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% kdmflush       
+25227  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% bioset         
+25230  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% jbd2/dm-1-8    
+25231  0.00s  0.00s     0K     0K     0K     0K N-   - S   0% ext4-rsv-conve 
+
+
+ATOP -           2015/05/28  15:35:05          -----------            1s elapsed
+PRC | sys    0.03s | user   0.12s | #proc    274 | #zombie    0 | no  procacct |
+CPU | sys       6% | user     12% | irq       0% | idle    382% | wait      0% |
+cpu | sys       1% | user      6% | irq       0% | idle     93% | cpu001 w  0% |
+cpu | sys       3% | user      3% | irq       0% | idle     94% | cpu002 w  0% |
+cpu | sys       0% | user      3% | irq       0% | idle     97% | cpu003 w  0% |
+cpu | sys       2% | user      1% | irq       0% | idle     97% | cpu000 w  0% |
+CPL | avg1    1.00 | avg5    1.02 | avg15   1.05 | csw     1688 | intr     373 |
+MEM | tot     3.8M | free    0.4M | cache   1.5M | buff    0.2M | slab    0.2M |
+SWP | tot    13.3G | free   12.7G |              | vmcom   5.0M | vmlim  15.2M |
+DSK |          sda | busy      0% | read       0 | write      2 | avio 1.50 ms |
+NET | transport    | tcpi       4 | tcpo       6 | udpi       4 | udpo       0 |
+NET | network      | ipi        7 | ipo        6 | ipfrw      0 | deliv      7 |
+NET | p2p1      0% | pcki       8 | pcko       6 | si    9 Kbps | so    3 Kbps |
+NET | tun0      0% | pcki       2 | pcko       0 | si    1 Kbps | so    0 Kbps |
+NET | lo      ---- | pcki       3 | pcko       3 | si    5 Kbps | so    5 Kbps |
+
+  PID SYSCPU USRCPU  VGROW  RGROW  RDDSK  WRDSK ST EXC S  CPU CMD            
+22749  0.00s  0.04s     0K     0K     0K     0K --   - R   5% firefox        
+ 6334  0.02s  0.01s     0K     0K     0K     0K --   - R   5% pmdaproc       
+ 6365  0.00s  0.02s     0K     0K     0K     0K --   - S   3% perl           
+  561  0.00s  0.00s     0K     0K     0K     0K --   - S   1% java           
+14240  0.00s  0.00s     0K     0K     0K     0K --   - S   1% postgres       
+ 6330  0.00s  0.00s     0K     0K     0K     0K --   - S   1% pmcd           
+10573  0.00s  0.00s   464K   416K     0K   145K --   - S   1% pmlogger       
+  605  0.00s  0.00s   -68K     0K     0K     0K --   - S   0% Xorg           
+ 6349  0.00s  0.00s     0K     0K     0K     0K --   - S   0% perl           
+    1  0.00s  0.00s     0K     0K     0K     0K --   - S   0% systemd        
+ 6340  0.00s  0.00s     0K     0K     0K     0K --   - S   0% pmdalinux      
+ 6336  0.00s  0.00s     0K     0K     0K     0K --   - S   0% pmdashping     
+10338  0.00s  0.00s     0K     0K     0K     0K --   - S   0% mk.atop.sh     
+  545  0.00s  0.00s     0K     0K     0K     0K --   - S   0% dbus-daemon    
+10586  0.00s  0.00s 48140K  2124K     0K     0K N-   - S   0% pmsleep        
+  532  0.00s  0.00s     0K     0K     0K     0K --   - S   0% systemd-logind 
+ 1273  0.00s  0.00s     0K     0K     0K     0K --   - S   0% postgres       
+  519  0.00s  0.00s     0K     0K     0K     0K --   - S   0% rngd           
+    7  0.00s  0.00s     0K     0K     0K     0K --   - S   0% rcu_sched      
+    9  0.00s  0.00s     0K     0K     0K     0K --   - S   0% rcuos/0        
+   18  0.00s  0.00s     0K     0K     0K     0K --   - S   0% rcuos/1        
+   25  0.00s  0.00s     0K     0K     0K     0K --   - S   0% rcuos/2        
+   32  0.00s  0.00s     0K     0K     0K     0K --   - S   0% rcuos/3        
+ 5705  0.00s  0.00s     0K     0K     0K     0K --   - S   0% kworker/u16:2  
+26154  0.00s  0.00s     0K     0K     0K     0K --   - S   0% kworker/u16:0  
+
+
+ATOP -           2015/05/28  15:35:06          -----------            1s elapsed
+PRC | sys    0.04s | user   0.26s | #proc    274 | #zombie    0 | no  procacct |
+CPU | sys       5% | user     27% | irq       0% | idle    368% | wait      0% |
+cpu | sys       1% | user     19% | irq       0% | idle     80% | cpu001 w  0% |
+cpu | sys       3% | user      7% | irq       0% | idle     90% | cpu000 w  0% |
+cpu | sys       0% | user      0% | irq       0% | idle    100% | cpu003 w  0% |
+CPL | avg1    1.00 | avg5    1.02 | avg15   1.05 | csw     1718 | intr     496 |
+MEM | tot     3.8M | free    0.4M | cache   1.5M | buff    0.2M | slab    0.2M |
+SWP | tot    13.3G | free   12.7G |              | vmcom   5.0M | vmlim  15.2M |
+DSK |          sda | busy      0% | read       0 | write      3 | avio 1.33 ms |
+NET | transport    | tcpi       1 | tcpo       1 | udpi       0 | udpo       0 |
+NET | network      | ipi        1 | ipo        1 | ipfrw      0 | deliv      1 |
+NET | p2p1      0% | pcki       4 | pcko       1 | si    2 Kbps | so    0 Kbps |
+
+  PID SYSCPU USRCPU  VGROW  RGROW  RDDSK  WRDSK ST EXC S  CPU CMD            
+22749  0.01s  0.24s    64K   -52K     0K     0K --   - S  25% firefox        
+ 6334  0.03s  0.01s     0K     0K     0K     0K --   - R   4% pmdaproc       
+ 6340  0.00s  0.01s     0K     0K     0K     0K --   - S   1% pmdalinux      
+10586  0.00s  0.00s -47.0M -2125K     0K     0K --   -  -100%                
+ 6330  0.00s  0.00s     0K   132K     0K     0K --   - S   0% pmcd           
+10573  0.00s  0.00s   252K   160K     0K   141K --   - S   0% pmlogger       
+10338  0.00s  0.00s     0K     0K     0K     0K --   - S   0% mk.atop.sh     
+  524  0.00s  0.00s     0K     0K     0K     0K --   - S   0% irqbalance     
+  519  0.00s  0.00s     0K     0K     0K     0K --   - S   0% rngd           
+   25  0.00s  0.00s     0K     0K     0K     0K --   - S   0% rcuos/2        
+ 5705  0.00s  0.00s     0K     0K     0K     0K --   - S   0% kworker/u16:2  
+26154  0.00s  0.00s     0K     0K     0K     0K --   - S   0% kworker/u16:0  
+=== std err
+=== done
+
+Memory option
+=== std out
+
+
+ATOP -           2015/05/28  15:35:04          -----------            1s elapsed
+PRC | sys    2h49m | user  15h55m | #proc    274 | #zombie    0 | no  procacct |
+CPU | sys       2% | user      8% | irq       0% | idle    387% | wait      3% |
+cpu | sys       1% | user      2% | irq       0% | idle     97% | cpu001 w  0% |
+cpu | sys       1% | user      2% | irq       0% | idle     96% | cpu002 w  1% |
+cpu | sys       0% | user      2% | irq       0% | idle     96% | cpu000 w  1% |
+cpu | sys       0% | user      2% | irq       0% | idle     97% | cpu003 w  0% |
+CPL | avg1    1.00 | avg5    1.02 | avg15   1.05 | csw 717701e3 | intr 24148e4 |
+MEM | tot     3.8M | free    0.4M | cache   1.5M | buff    0.2M | slab    0.2M |
+SWP | tot    13.3G | free   12.7G |              | vmcom   5.0M | vmlim  15.2M |
+PAG | scan 42457e3 | steal 4295e6 | stall  26324 | swin  203579 | swout 431258 |
+DSK |          sda | busy      3% | read 1577086 | write 2023e3 | avio 6.08 ms |
+NET | transport    | tcpi 4724854 | tcpo 4460194 | udpi  766685 | udpo  792760 |
+NET | network      | ipi  4334309 | ipo  4094969 | ipfrw     -1 | deliv 4316e3 |
+NET | p2p1      0% | pcki 3785081 | pcko 2363164 | si 7875 Mbps | so 5026 Mbps |
+NET | tun0      0% | pcki   19776 | pcko   20222 | si   59 Mbps | so   16 Mbps |
+NET | veth7c5   0% | pcki       8 | pcko    1651 | si    5 Kbps | so  902 Kbps |
+NET | lo      ---- | pcki 2651370 | pcko 2651370 | si 8366 Mbps | so 8366 Mbps |
+NET | docker0 ---- | pcki      61 | pcko      89 | si   33 Kbps | so  124 Kbps |
+                   *** system and process activity since boot ***
+  PID VSTACK  VSIZE  RSIZE  PSIZE  VGROW  RGROW SWAPSZ  MEM CMD            
+22749   552K   2.4G 791.6M     ?K   2.4G 791.6M 32444K  21% firefox        
+ 4562   160K   2.2G 285.0M     ?K   2.2G 285.0M 215.0M   7% gnome-shell    
+  561   136K   3.5G 106.6M     ?K   3.5G 106.6M 84292K   3% java           
+  311   136K 255.8M 68432K     ?K 255.8M 68432K   172K   2% systemd-journa 
+24075   136K 540.7M 50520K     ?K 540.7M 50520K 12620K   1% polkitd        
+ 5417   208K 544.9M 40236K     ?K 544.9M 40236K  6832K   1% xchat          
+23668   136K 639.8M 24744K     ?K 639.8M 24744K  2248K   1% gnome-terminal 
+  605   136K 182.9M 22968K     ?K 182.9M 22968K  5916K   1% Xorg           
+ 4541   136K 954.2M 22008K     ?K 954.2M 22008K  1824K   1% goa-daemon     
+  902   136K 993.5M 15432K     ?K 993.5M 15432K  2620K   0% docker         
+ 6366   136K 218.7M 14576K     ?K 218.7M 14576K     0K   0% python3        
+ 6365   136K 211.8M 14500K     ?K 211.8M 14500K     0K   0% perl           
+ 6349   136K 177.4M 13228K     ?K 177.4M 13228K     0K   0% perl           
+30921   136K 943.5M 12752K     ?K 943.5M 12752K     0K   0% rsyslogd       
+ 4775   136K   1.3G 12740K     ?K   1.3G 12740K 42292K   0% evolution-cale 
+25203   136K 277.3M 12532K     ?K 277.3M 12532K     0K   0% docker         
+ 4484   136K   1.2G 11600K     ?K   1.2G 11600K  5296K   0% gnome-settings 
+14240   144K 331.4M 11152K     ?K 331.4M 11152K   336K   0% postgres       
+ 4705   136K   1.0G  9592K     ?K   1.0G  9592K  3896K   0% evolution-alar 
+ 4547   136K 312.6M  9068K     ?K 312.6M  9068K  3864K   0% mission-contro 
+ 4717   136K 559.9M  8500K     ?K 559.9M  8500K  3212K   0% tracker-store  
+  735   136K 148.7M  8208K     ?K 148.7M  8208K     0K   0% vim            
+ 4495   136K 555.6M  8036K     ?K 555.6M  8036K   988K   0% pulseaudio     
+ 9480   136K 148.6M  7980K     ?K 148.6M  7980K     0K   0% vim            
+ 4110   136K 505.2M  7648K     ?K 505.2M  7648K  3560K   0% gdm-session-wo 
+12345   136K 79704K  7268K     ?K 79704K  7268K     0K   0% vpnc           
+  889   136K 128.3M  7180K     ?K 128.3M  7180K     0K   0% sshd           
+23345   136K 128.3M  7108K     ?K 128.3M  7108K     0K   0% sshd           
+ 9681   136K 206.7M  7068K     ?K 206.7M  7068K     0K   0% httpd          
+ 6345   136K 163.4M  6956K     ?K 163.4M  6956K     0K   0% perl           
+24760   136K 216.5M  6900K     ?K 216.5M  6900K     0K   0% sudo           
+  699   136K 433.4M  6752K     ?K 433.4M  6752K   784K   0% NetworkManager 
+25202   136K 216.5M  6572K     ?K 216.5M  6572K     0K   0% sudo           
+ 4708   136K 598.7M  6036K     ?K 598.7M  6036K  1488K   0% tracker-miner- 
+    1   136K 51208K  5836K     ?K 51208K  5836K   656K   0% systemd        
+12334   136K 244.9M  5788K     ?K 244.9M  5788K     0K   0% nm-vpnc-servic 
+  488   136K 362.3M  5528K     ?K 362.3M  5528K   192K   0% accounts-daemo 
+24761   300K 195.7M  5400K     ?K 195.7M  5400K     0K   0% su             
+  942   136K 114.3M  5320K     ?K 114.3M  5320K     0K   0% bash           
+24762   136K 114.3M  5296K     ?K 114.3M  5296K     0K   0% bash           
+23382   136K 114.3M  5280K     ?K 114.3M  5280K     0K   0% bash           
+  485   136K 322.0M  5212K     ?K 322.0M  5212K 13844K   0% firewalld      
+ 9682   136K 206.9M  5156K     ?K 206.9M  5156K     0K   0% httpd          
+ 9683   136K 206.9M  5156K     ?K 206.9M  5156K     0K   0% httpd          
+ 9684   136K 206.9M  5156K     ?K 206.9M  5156K     0K   0% httpd          
+ 9685   136K 206.9M  5156K     ?K 206.9M  5156K     0K   0% httpd          
+ 9686   136K 206.9M  5156K     ?K 206.9M  5156K     0K   0% httpd          
+ 4650   136K   1.3G  5008K     ?K   1.3G  5008K  3492K   0% evolution-sour 
+ 6334   136K 53468K  4644K     ?K 53468K  4644K     0K   0% pmdaproc       
+23376   136K 128.5M  4384K     ?K 128.5M  4384K     0K   0% sshd           
+14151   136K 114.5M  4336K     ?K 114.5M  4336K    72K   0% bash           
+15541   136K 51088K  4336K     ?K 51088K  4336K     0K   0% pmlogger       
+ 6330   136K 132.1M  4300K     ?K 132.1M  4300K     0K   0% pmcd           
+30977   136K 114.3M  4148K     ?K 114.3M  4148K    48K   0% bash           
+  939   136K 128.3M  4128K     ?K 128.3M  4128K     0K   0% sshd           
+ 4522   136K 418.3M  4096K     ?K 418.3M  4096K  1068K   0% udisksd        
+32301   136K 114.6M  4040K     ?K 114.6M  4040K   516K   0% bash           
+ 2533   136K 114.3M  3912K     ?K 114.3M  3912K   272K   0% bash           
+ 6340   136K 50728K  3864K     ?K 50728K  3864K     0K   0% pmdalinux      
+10702   136K 114.4M  3764K     ?K 114.4M  3764K   484K   0% bash           
+ 7175   136K 114.4M  3716K     ?K 114.4M  3716K   520K   0% bash           
+ 9868   136K 52532K  3716K     ?K 52532K  3716K     0K   0% pmdaapache     
+10573   136K 50464K  3708K     ?K 50464K  3708K     0K   0% pmlogger       
+32161   136K 114.3M  3696K     ?K 114.3M  3696K   560K   0% bash           
+ 4291   136K 634.5M  3668K     ?K 634.5M  3668K   864K   0% gnome-session  
+ 6374   136K 52524K  3640K     ?K 52524K  3640K     0K   0% pmdasimple     
+ 6336   136K 123.3M  3632K     ?K 123.3M  3632K     0K   0% pmdashping     
+ 4713   136K 360.4M  3612K     ?K 360.4M  3612K  1244K   0% seapplet       
+ 6339   136K 52584K  3604K     ?K 52584K  3604K     0K   0% pmdasample     
+ 6343   136K 52524K  3568K     ?K 52524K  3568K     0K   0% pmdamounts     
+ 6335   136K 50452K  3540K     ?K 50452K  3540K     0K   0% pmdaxfs        
+28985   136K 121.2M  3492K     ?K 121.2M  3492K     0K   0% pmproxy        
+ 6333   136K 50452K  3400K     ?K 50452K  3400K     0K   0% pmdaroot       
+ 4172   136K 836.8M  3344K     ?K 836.8M  3344K   436K   0% gnome-keyring- 
+10338   136K 110.6M  3020K     ?K 110.6M  3020K     0K   0% mk.atop.sh     
+ 4711   136K 361.2M  2988K     ?K 361.2M  2988K  8052K   0% applet.py      
+ 4519   136K 540.0M  2872K     ?K 540.0M  2872K   840K   0% gvfs-udisks2-v 
+ 4641   136K 759.7M  2824K     ?K 759.7M  2824K  4144K   0% gnome-shell-ca 
+25232   136K 11796K  2804K     ?K 11796K  2804K     0K   0% bash           
+  591   136K 373.8M  2700K     ?K 373.8M  2700K   372K   0% gdm-simple-sla 
+ 4745   136K 683.5M  2620K     ?K 683.5M  2620K  3812K   0% vino-server    
+  545   136K 42492K  2480K     ?K 42492K  2480K   212K   0% dbus-daemon    
+  506   136K 207.1M  2476K     ?K 207.1M  2476K  1048K   0% abrtd          
+  555   136K 292.1M  2444K     ?K 292.1M  2444K   300K   0% gdm            
+  901   136K 495.6M  2344K     ?K 495.6M  2344K  5168K   0% libvirtd       
+ 1256   136K 369.8M  2336K     ?K 369.8M  2336K  1444K   0% upowerd        
+ 4606   136K 176.5M  2288K     ?K 176.5M  2288K   128K   0% dconf-service  
+ 4365   136K 306.6M  2092K     ?K 306.6M  2092K   296K   0% gvfsd          
+ 4300   136K 41868K  2012K     ?K 41868K  2012K   220K   0% dbus-daemon    
+ 4625   136K 532.2M  1976K     ?K 532.2M  1976K  1108K   0% ibus-daemon    
+ 9481   136K 11544K  1912K     ?K 11544K  1912K     0K   0% cscope         
+ 4591   136K 184.6M  1872K     ?K 184.6M  1872K   848K   0% cupsd          
+ 4600   136K 501.9M  1872K     ?K 501.9M  1872K   680K   0% gsd-printer    
+ 4731   136K 447.6M  1860K     ?K 447.6M  1860K  4044K   0% abrt-applet    
+ 4157   136K 44560K  1824K     ?K 44560K  1824K   472K   0% systemd        
+32298   136K 129.4M  1796K     ?K 129.4M  1796K  1008K   0% sshd           
+ 4551   136K 308.0M  1792K     ?K 308.0M  1792K   288K   0% gvfs-mtp-volum 
+21361   136K 114.3M  1788K     ?K 114.3M  1788K   816K   0% bash           
+31519   136K  99.8M  1704K     ?K  99.8M  1704K 12168K   0% dhclient       
+ 1271   144K 329.6M  1680K     ?K 329.6M  1680K  1056K   0% postgres       
+  552   556K 123.4M  1476K     ?K 123.4M  1476K   264K   0% crond          
+  530   136K 28216K  1452K     ?K 28216K  1452K   112K   0% avahi-daemon   
+  532   136K 34700K  1432K     ?K 34700K  1432K   192K   0% systemd-logind 
+ 4631   136K 427.6M  1400K     ?K 427.6M  1400K  1416K   0% ibus-x11       
+21046   136K 114.3M  1364K     ?K 114.3M  1364K  1152K   0% bash           
+ 4645   136K 312.5M  1312K     ?K 312.5M  1312K   520K   0% ibus-engine-si 
+ 7171   136K 128.6M  1288K     ?K 128.6M  1288K  1016K   0% sshd           
+ 4538   136K 302.1M  1240K     ?K 302.1M  1240K   384K   0% gvfs-goa-volum 
+ 4466   136K 41048K  1220K     ?K 41048K  1220K   236K   0% dbus-daemon    
+ 4557   136K 316.9M  1180K     ?K 316.9M  1180K   404K   0% gvfs-gphoto2-v 
+ 1039   144K 328.8M  1156K     ?K 328.8M  1156K   536K   0% postgres       
+  335   136K 46244K  1124K     ?K 46244K  1124K  2232K   0% systemd-udevd  
+10697   136K 128.5M  1072K     ?K 128.5M  1072K   908K   0% sshd           
+ 4532   136K 430.3M  1060K     ?K 430.3M  1060K   908K   0% gvfs-afc-volum 
+ 1246   144K 187.9M   980K     ?K 187.9M   980K   560K   0% postgres       
+  502   136K 100.3M   972K     ?K 100.3M   972K   200K   0% chronyd        
+14146   136K 128.6M   928K     ?K 128.6M   928K  1040K   0% sshd           
+  525   136K 204.7M   916K     ?K 204.7M   916K  1140K   0% abrt-watch-log 
+  515   136K 204.7M   888K     ?K 204.7M   888K  1136K   0% abrt-watch-log 
+  399   136K 114.0M   864K     ?K 114.0M   864K   292K   0% auditd         
+ 4664   136K 234.1M   852K     ?K 234.1M   852K   288K   0% gvfsd-metadata 
+10686   136K 128.3M   848K     ?K 128.3M   848K  1048K   0% sshd           
+14138   136K 128.3M   796K     ?K 128.3M   796K  1100K   0% sshd           
+ 8019   136K 44564K   784K     ?K 44564K   784K   476K   0% systemd        
+ 1273   144K 188.0M   768K     ?K 188.0M   768K   552K   0% postgres       
+ 3714   136K 44560K   768K     ?K 44560K   768K   484K   0% systemd        
+ 7167   136K 128.3M   760K     ?K 128.3M   760K  1140K   0% sshd           
+32154   136K 128.3M   756K     ?K 128.3M   756K  1140K   0% sshd           
+32283   136K 128.3M   756K     ?K 128.3M   756K  1140K   0% sshd           
+32158   136K 128.5M   748K     ?K 128.5M   748K  1180K   0% sshd           
+  534   136K 44068K   728K     ?K 44068K   728K   304K   0% rpcbind        
+14400   136K 360.8M   704K     ?K 360.8M   704K 16116K   0% gdm-session-wo 
+ 4629   136K 384.4M   692K     ?K 384.4M   692K   780K   0% ibus-dconf     
+ 4462   136K 332.0M   664K     ?K 332.0M   664K   552K   0% at-spi-bus-lau 
+ 4470   136K 126.6M   652K     ?K 126.6M   652K   400K   0% at-spi2-regist 
+23671   136K  8448K   652K     ?K  8448K   652K    44K   0% gnome-pty-help 
+  524   136K 19140K   644K     ?K 19140K   644K   132K   0% irqbalance     
+  918   136K 82832K   624K     ?K 82832K   624K   776K   0% sshd           
+  558   136K 30232K   604K     ?K 30232K   604K   376K   0% bluetoothd     
+  505   136K 318.9M   600K     ?K 318.9M   600K   784K   0% ModemManager   
+  444   136K 80216K   576K     ?K 80216K   576K   116K   0% audispd        
+ 1215   136K 44556K   576K     ?K 44556K   576K   484K   0% systemd        
+ 4369   136K 289.5M   508K     ?K 289.5M   508K   736K   0% gvfsd-fuse     
+ 1269   144K 328.8M   504K     ?K 328.8M   504K   652K   0% postgres       
+  499   136K 160.8M   492K     ?K 160.8M   492K   176K   0% rtkit-daemon   
+  528   136K 26564K   480K     ?K 26564K   480K   624K   0% smartd         
+ 4735   136K 620.2M   472K     ?K 620.2M   472K   712K   0% deja-dup-monit 
+ 1311   136K 165.5M   436K     ?K 165.5M   436K   552K   0% pcscd          
+ 1035   136K 44492K   432K     ?K 44492K   432K   832K   0% rpc.statd      
+ 3681   136K 114.2M   416K     ?K 114.2M   416K  1924K   0% bash           
+  574   136K  7000K   404K     ?K  7000K   404K   104K   0% mcelog         
+ 4840   136K 294.9M   396K     ?K 294.9M   396K   888K   0% telepathy-logg 
+  483   136K 16776K   384K     ?K 16776K   384K   228K   0% alsactl        
+ 1310   136K 388.6M   364K     ?K 388.6M   364K  4752K   0% colord         
+ 1268   144K 328.8M   328K     ?K 328.8M   328K   684K   0% postgres       
+  519   136K  4364K   320K     ?K  4364K   320K    68K   0% rngd           
+  459   136K 26216K   288K     ?K 26216K   288K   208K   0% sedispatch     
+  553   136K 25944K   232K     ?K 25944K   232K   196K   0% atd            
+ 4299   136K 13936K   192K     ?K 13936K   192K   176K   0% dbus-launch    
+ 2613   136K 146.2M   172K     ?K 146.2M   172K   252K   0% gconfd-2       
+  332   136K 104.4M    80K     ?K 104.4M    80K  1356K   0% lvmetad        
+ 4930   136K 378.6M    68K     ?K 378.6M    68K   600K   0% gvfsd-burn     
+  564   136K 27952K    16K     ?K 27952K    16K   216K   0% avahi-daemon   
+ 1270   144K 328.8M    12K     ?K 328.8M    12K   672K   0% postgres       
+ 1218   136K 74424K     4K     ?K 74424K     4K  2980K   0% (sd-pam)       
+ 3718   136K 74424K     4K     ?K 74424K     4K  3032K   0% (sd-pam)       
+ 4163   136K 74424K     4K     ?K 74424K     4K  3048K   0% (sd-pam)       
+ 8024   136K 74424K     4K     ?K 74424K     4K  3100K   0% (sd-pam)       
+    2     0K     0K     0K     ?K     0K     0K     0K   0% kthreadd       
+    3     0K     0K     0K     ?K     0K     0K     0K   0% ksoftirqd/0    
+    5     0K     0K     0K     ?K     0K     0K     0K   0% kworker/0:0H   
+    7     0K     0K     0K     ?K     0K     0K     0K   0% rcu_sched      
+    8     0K     0K     0K     ?K     0K     0K     0K   0% rcu_bh         
+    9     0K     0K     0K     ?K     0K     0K     0K   0% rcuos/0        
+   10     0K     0K     0K     ?K     0K     0K     0K   0% rcuob/0        
+   11     0K     0K     0K     ?K     0K     0K     0K   0% migration/0    
+   12     0K     0K     0K     ?K     0K     0K     0K   0% watchdog/0     
+   13     0K     0K     0K     ?K     0K     0K     0K   0% watchdog/1     
+   14     0K     0K     0K     ?K     0K     0K     0K   0% migration/1    
+   15     0K     0K     0K     ?K     0K     0K     0K   0% ksoftirqd/1    
+   17     0K     0K     0K     ?K     0K     0K     0K   0% kworker/1:0H   
+   18     0K     0K     0K     ?K     0K     0K     0K   0% rcuos/1        
+   19     0K     0K     0K     ?K     0K     0K     0K   0% rcuob/1        
+   20     0K     0K     0K     ?K     0K     0K     0K   0% watchdog/2     
+   21     0K     0K     0K     ?K     0K     0K     0K   0% migration/2    
+   22     0K     0K     0K     ?K     0K     0K     0K   0% ksoftirqd/2    
+   24     0K     0K     0K     ?K     0K     0K     0K   0% kworker/2:0H   
+   25     0K     0K     0K     ?K     0K     0K     0K   0% rcuos/2        
+   26     0K     0K     0K     ?K     0K     0K     0K   0% rcuob/2        
+   27     0K     0K     0K     ?K     0K     0K     0K   0% watchdog/3     
+   28     0K     0K     0K     ?K     0K     0K     0K   0% migration/3    
+   29     0K     0K     0K     ?K     0K     0K     0K   0% ksoftirqd/3    
+   31     0K     0K     0K     ?K     0K     0K     0K   0% kworker/3:0H   
+   32     0K     0K     0K     ?K     0K     0K     0K   0% rcuos/3        
+   33     0K     0K     0K     ?K     0K     0K     0K   0% rcuob/3        
+   34     0K     0K     0K     ?K     0K     0K     0K   0% khelper        
+   35     0K     0K     0K     ?K     0K     0K     0K   0% kdevtmpfs      
+   36     0K     0K     0K     ?K     0K     0K     0K   0% netns          
+   37     0K     0K     0K     ?K     0K     0K     0K   0% perf           
+   38     0K     0K     0K     ?K     0K     0K     0K   0% writeback      
+   39     0K     0K     0K     ?K     0K     0K     0K   0% ksmd           
+   40     0K     0K     0K     ?K     0K     0K     0K   0% khugepaged     
+   41     0K     0K     0K     ?K     0K     0K     0K   0% crypto         
+   42     0K     0K     0K     ?K     0K     0K     0K   0% kintegrityd    
+   43     0K     0K     0K     ?K     0K     0K     0K   0% bioset         
+   44     0K     0K     0K     ?K     0K     0K     0K   0% kblockd        
+   45     0K     0K     0K     ?K     0K     0K     0K   0% ata_sff        
+   46     0K     0K     0K     ?K     0K     0K     0K   0% md             
+   47     0K     0K     0K     ?K     0K     0K     0K   0% devfreq_wq     
+   74     0K     0K     0K     ?K     0K     0K     0K   0% kswapd0        
+   75     0K     0K     0K     ?K     0K     0K     0K   0% fsnotify_mark  
+   85     0K     0K     0K     ?K     0K     0K     0K   0% kthrotld       
+   88     0K     0K     0K     ?K     0K     0K     0K   0% acpi_thermal_p 
+   90     0K     0K     0K     ?K     0K     0K     0K   0% scsi_eh_0      
+   91     0K     0K     0K     ?K     0K     0K     0K   0% scsi_tmf_0     
+   92     0K     0K     0K     ?K     0K     0K     0K   0% scsi_eh_1      
+   93     0K     0K     0K     ?K     0K     0K     0K   0% scsi_tmf_1     
+   96     0K     0K     0K     ?K     0K     0K     0K   0% kpsmoused      
+   98     0K     0K     0K     ?K     0K     0K     0K   0% dm_bufio_cache 
+   99     0K     0K     0K     ?K     0K     0K     0K   0% ipv6_addrconf  
+  100     0K     0K     0K     ?K     0K     0K     0K   0% deferwq        
+  129     0K     0K     0K     ?K     0K     0K     0K   0% kauditd        
+  217     0K     0K     0K     ?K     0K     0K     0K   0% kworker/1:1H   
+  218     0K     0K     0K     ?K     0K     0K     0K   0% kworker/2:1H   
+  221     0K     0K     0K     ?K     0K     0K     0K   0% kworker/0:1H   
+  224     0K     0K     0K     ?K     0K     0K     0K   0% kworker/3:1H   
+  236     0K     0K     0K     ?K     0K     0K     0K   0% jbd2/sda7-8    
+  237     0K     0K     0K     ?K     0K     0K     0K   0% ext4-rsv-conve 
+  336     0K     0K     0K     ?K     0K     0K     0K   0% rpciod         
+  397     0K     0K     0K     ?K     0K     0K     0K   0% irq/45-mei_me  
+  464     0K     0K     0K     ?K     0K     0K     0K   0% hd-audio0      
+  465     0K     0K     0K     ?K     0K     0K     0K   0% hd-audio1      
+  472     0K     0K     0K     ?K     0K     0K     0K   0% kmemstick      
+  473     0K     0K     0K     ?K     0K     0K     0K   0% rtsx_usb_ms_1  
+  475     0K     0K     0K     ?K     0K     0K     0K   0% cfg80211       
+  484     0K     0K     0K     ?K     0K     0K     0K   0% kvm-irqfd-clea 
+  536     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u17:0  
+  537     0K     0K     0K     ?K     0K     0K     0K   0% hci0           
+  538     0K     0K     0K     ?K     0K     0K     0K   0% hci0           
+  539     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u17:1  
+  548     0K     0K     0K     ?K     0K     0K     0K   0% kworker/0:0    
+  904   136K 307.4M     0K     ?K 307.4M     0K   724K   0% memcached      
+ 1086     0K     0K     0K     ?K     0K     0K     0K   0% loop0          
+ 1087     0K     0K     0K     ?K     0K     0K     0K   0% loop1          
+ 1089     0K     0K     0K     ?K     0K     0K     0K   0% kdmflush       
+ 1093     0K     0K     0K     ?K     0K     0K     0K   0% bioset         
+ 1121     0K     0K     0K     ?K     0K     0K     0K   0% kcopyd         
+ 1122     0K     0K     0K     ?K     0K     0K     0K   0% bioset         
+ 1123     0K     0K     0K     ?K     0K     0K     0K   0% dm-thin        
+ 1124     0K     0K     0K     ?K     0K     0K     0K   0% bioset         
+ 1240     0K     0K     0K     ?K     0K     0K     0K   0% kworker/2:0    
+ 1998     0K     0K     0K     ?K     0K     0K     0K   0% kworker/1:1    
+ 4526     0K     0K     0K     ?K     0K     0K     0K   0% krfcommd       
+ 4839   136K 23372K     0K     ?K 23372K     0K   324K   0% obexd          
+ 5362     0K     0K     0K     ?K     0K     0K     0K   0% kworker/0:1    
+ 5441     0K     0K     0K     ?K     0K     0K     0K   0% kworker/1:3    
+ 5705     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:2  
+ 6778     0K     0K     0K     ?K     0K     0K     0K   0% kworker/3:3    
+ 8319     0K     0K     0K     ?K     0K     0K     0K   0% glock_workqueu 
+ 8320     0K     0K     0K     ?K     0K     0K     0K   0% delete_workque 
+ 8321     0K     0K     0K     ?K     0K     0K     0K   0% gfs_recovery   
+ 8948     0K     0K     0K     ?K     0K     0K     0K   0% kworker/2:1    
+ 9350     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:1  
+10023     0K     0K     0K     ?K     0K     0K     0K   0% kworker/0:2    
+11904     0K     0K     0K     ?K     0K     0K     0K   0% xfsalloc       
+11905     0K     0K     0K     ?K     0K     0K     0K   0% xfs_mru_cache  
+22432     0K     0K     0K     ?K     0K     0K     0K   0% kworker/3:0    
+25226     0K     0K     0K     ?K     0K     0K     0K   0% kdmflush       
+25227     0K     0K     0K     ?K     0K     0K     0K   0% bioset         
+25230     0K     0K     0K     ?K     0K     0K     0K   0% jbd2/dm-1-8    
+25231     0K     0K     0K     ?K     0K     0K     0K   0% ext4-rsv-conve 
+26154     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:0  
+   -1    -1K    -1K    -1K     ?K    -1K    -1K    -1K  -0%                
+10580    -1K    -1K    -1K     ?K    -1K    -1K    -1K  -0%                
+
+
+ATOP -           2015/05/28  15:35:05          -----------            1s elapsed
+PRC | sys    0.03s | user   0.12s | #proc    274 | #zombie    0 | no  procacct |
+CPU | sys       6% | user     12% | irq       0% | idle    382% | wait      0% |
+cpu | sys       1% | user      6% | irq       0% | idle     93% | cpu001 w  0% |
+cpu | sys       3% | user      3% | irq       0% | idle     94% | cpu002 w  0% |
+cpu | sys       0% | user      3% | irq       0% | idle     97% | cpu003 w  0% |
+cpu | sys       2% | user      1% | irq       0% | idle     97% | cpu000 w  0% |
+CPL | avg1    1.00 | avg5    1.02 | avg15   1.05 | csw     1688 | intr     373 |
+MEM | tot     3.8M | free    0.4M | cache   1.5M | buff    0.2M | slab    0.2M |
+SWP | tot    13.3G | free   12.7G |              | vmcom   5.0M | vmlim  15.2M |
+DSK |          sda | busy      0% | read       0 | write      2 | avio 1.50 ms |
+NET | transport    | tcpi       4 | tcpo       6 | udpi       4 | udpo       0 |
+NET | network      | ipi        7 | ipo        6 | ipfrw      0 | deliv      7 |
+NET | p2p1      0% | pcki       8 | pcko       6 | si    9 Kbps | so    3 Kbps |
+NET | tun0      0% | pcki       2 | pcko       0 | si    1 Kbps | so    0 Kbps |
+NET | lo      ---- | pcki       3 | pcko       3 | si    5 Kbps | so    5 Kbps |
+
+  PID VSTACK  VSIZE  RSIZE  PSIZE  VGROW  RGROW SWAPSZ  MEM CMD            
+22749   552K   2.4G 791.6M     ?K     0K     0K 32444K  21% firefox        
+  561   136K   3.5G 106.6M     ?K     0K     0K 84292K   3% java           
+  605   136K 182.8M 22968K     ?K   -68K     0K  5916K   1% Xorg           
+ 6365   136K 211.8M 14500K     ?K     0K     0K     0K   0% perl           
+ 6349   136K 177.4M 13228K     ?K     0K     0K     0K   0% perl           
+14240   144K 331.4M 11152K     ?K     0K     0K   336K   0% postgres       
+    1   136K 51208K  5836K     ?K     0K     0K   656K   0% systemd        
+ 6334   136K 53468K  4644K     ?K     0K     0K     0K   0% pmdaproc       
+ 6330   136K 132.1M  4300K     ?K     0K     0K     0K   0% pmcd           
+10573   136K 50928K  4124K     ?K   464K   416K     0K   0% pmlogger       
+ 6340   136K 50728K  3864K     ?K     0K     0K     0K   0% pmdalinux      
+ 6336   136K 123.3M  3632K     ?K     0K     0K     0K   0% pmdashping     
+10338   136K 110.6M  3020K     ?K     0K     0K     0K   0% mk.atop.sh     
+  545   136K 42492K  2480K     ?K     0K     0K   212K   0% dbus-daemon    
+10586   136K 48140K  2124K     ?K 48140K  2124K     0K   0% pmsleep        
+  532   136K 34700K  1432K     ?K     0K     0K   192K   0% systemd-logind 
+ 1273   144K 188.0M   768K     ?K     0K     0K   552K   0% postgres       
+  519   136K  4364K   320K     ?K     0K     0K    68K   0% rngd           
+    7     0K     0K     0K     ?K     0K     0K     0K   0% rcu_sched      
+    9     0K     0K     0K     ?K     0K     0K     0K   0% rcuos/0        
+   18     0K     0K     0K     ?K     0K     0K     0K   0% rcuos/1        
+   25     0K     0K     0K     ?K     0K     0K     0K   0% rcuos/2        
+   32     0K     0K     0K     ?K     0K     0K     0K   0% rcuos/3        
+ 5705     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:2  
+26154     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:0  
+
+
+ATOP -           2015/05/28  15:35:06          -----------            1s elapsed
+PRC | sys    0.04s | user   0.26s | #proc    274 | #zombie    0 | no  procacct |
+CPU | sys       5% | user     27% | irq       0% | idle    368% | wait      0% |
+cpu | sys       1% | user     19% | irq       0% | idle     80% | cpu001 w  0% |
+cpu | sys       3% | user      7% | irq       0% | idle     90% | cpu000 w  0% |
+cpu | sys       0% | user      0% | irq       0% | idle    100% | cpu003 w  0% |
+CPL | avg1    1.00 | avg5    1.02 | avg15   1.05 | csw     1718 | intr     496 |
+MEM | tot     3.8M | free    0.4M | cache   1.5M | buff    0.2M | slab    0.2M |
+SWP | tot    13.3G | free   12.7G |              | vmcom   5.0M | vmlim  15.2M |
+DSK |          sda | busy      0% | read       0 | write      3 | avio 1.33 ms |
+NET | transport    | tcpi       1 | tcpo       1 | udpi       0 | udpo       0 |
+NET | network      | ipi        1 | ipo        1 | ipfrw      0 | deliv      1 |
+NET | p2p1      0% | pcki       4 | pcko       1 | si    2 Kbps | so    0 Kbps |
+
+  PID VSTACK  VSIZE  RSIZE  PSIZE  VGROW  RGROW SWAPSZ  MEM CMD            
+22749   552K   2.4G 791.6M     ?K    64K   -52K 32444K  21% firefox        
+ 6334   136K 53468K  4644K     ?K     0K     0K     0K   0% pmdaproc       
+ 6330   136K 132.1M  4432K     ?K     0K   132K     0K   0% pmcd           
+10573   136K 51180K  4284K     ?K   252K   160K     0K   0% pmlogger       
+ 6340   136K 50728K  3864K     ?K     0K     0K     0K   0% pmdalinux      
+10338   136K 110.6M  3020K     ?K     0K     0K     0K   0% mk.atop.sh     
+  524   136K 19140K   644K     ?K     0K     0K   132K   0% irqbalance     
+  519   136K  4364K   320K     ?K     0K     0K    68K   0% rngd           
+   25     0K     0K     0K     ?K     0K     0K     0K   0% rcuos/2        
+ 5705     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:2  
+26154     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:0  
+10586    -1K    -1K    -1K     ?K -47.0M -2125K    -1K  -0%                
+=== std err
+=== done
+
+Disk option
+=== std out
+
+
+ATOP -           2015/05/28  15:35:04          -----------            1s elapsed
+PRC | sys    2h49m | user  15h55m | #proc    274 | #zombie    0 | no  procacct |
+CPU | sys       2% | user      8% | irq       0% | idle    387% | wait      3% |
+cpu | sys       1% | user      2% | irq       0% | idle     97% | cpu001 w  0% |
+cpu | sys       1% | user      2% | irq       0% | idle     96% | cpu002 w  1% |
+cpu | sys       0% | user      2% | irq       0% | idle     96% | cpu000 w  1% |
+cpu | sys       0% | user      2% | irq       0% | idle     97% | cpu003 w  0% |
+CPL | avg1    1.00 | avg5    1.02 | avg15   1.05 | csw 717701e3 | intr 24148e4 |
+MEM | tot     3.8M | free    0.4M | cache   1.5M | buff    0.2M | slab    0.2M |
+SWP | tot    13.3G | free   12.7G |              | vmcom   5.0M | vmlim  15.2M |
+PAG | scan 42457e3 | steal 4295e6 | stall  26324 | swin  203579 | swout 431258 |
+DSK |          sda | busy      3% | read 1577086 | write 2023e3 | avio 6.08 ms |
+NET | transport    | tcpi 4724854 | tcpo 4460194 | udpi  766685 | udpo  792760 |
+NET | network      | ipi  4334309 | ipo  4094969 | ipfrw     -1 | deliv 4316e3 |
+NET | p2p1      0% | pcki 3785081 | pcko 2363164 | si 7875 Mbps | so 5026 Mbps |
+NET | tun0      0% | pcki   19776 | pcko   20222 | si   59 Mbps | so   16 Mbps |
+NET | veth7c5   0% | pcki       8 | pcko    1651 | si    5 Kbps | so  902 Kbps |
+NET | lo      ---- | pcki 2651370 | pcko 2651370 | si 8366 Mbps | so 8366 Mbps |
+NET | docker0 ---- | pcki      61 | pcko      89 | si   33 Kbps | so  124 Kbps |
+                   *** system and process activity since boot ***
+  PID   TID  RDDSK  WRDSK WCANCL  DSK CMD            
+ 7175     -   9.9G  18.6G   2.5G  39% bash           
+23668     -  10.5G  17.2G   2.6G  38% gnome-terminal 
+22749     -   1.1G  13.6G   3.5G  17% firefox        
+32301     - 567.6M   1.8G 606.3M   3% bash           
+ 4562     - 645.2M  1940K     0K   1% gnome-shell    
+ 5417     - 80512K 403.8M  1140K   1% xchat          
+ 2533     - 138.5M  98.9M   428K   0% bash           
+14151     - 105.7M 129.8M 80936K   0% bash           
+21046     - 130.9M 21488K    84K   0% bash           
+ 4717     - 34900K 15300K  1116K   0% tracker-store  
+32161     - 29524K 20420K  2224K   0% bash           
+ 4775     - 30212K     4K     0K   0% evolution-cale 
+ 4484     - 21260K     0K     0K   0% gnome-settings 
+ 4495     - 20868K     8K     0K   0% pulseaudio     
+ 4705     - 19092K     0K     0K   0% evolution-alar 
+ 4541     - 18616K     0K     0K   0% goa-daemon     
+ 4708     - 16064K    44K     0K   0% tracker-miner- 
+10702     -  7016K 10296K  1724K   0% bash           
+23382     - 11496K     4K     0K   0% bash           
+ 4547     - 10384K     4K     0K   0% mission-contro 
+21361     -  8864K   276K   112K   0% bash           
+ 4650     -  7868K    16K     0K   0% evolution-sour 
+30977     -  4704K   336K     4K   0% bash           
+ 4641     -  3632K     0K     0K   0% gnome-shell-ca 
+ 4291     -  3136K    28K     0K   0% gnome-session  
+ 4625     -  2972K     4K     0K   0% ibus-daemon    
+ 4731     -  2720K     0K     0K   0% abrt-applet    
+ 4711     -  2308K     0K     0K   0% applet.py      
+ 4664     -  1048K  1148K    20K   0% gvfsd-metadata 
+ 4606     -   632K  1536K     0K   0% dconf-service  
+ 4745     -  2164K     0K     0K   0% vino-server    
+ 4735     -  2036K     0K     0K   0% deja-dup-monit 
+ 4519     -  2004K     0K     0K   0% gvfs-udisks2-v 
+ 4551     -  1484K     0K     0K   0% gvfs-mtp-volum 
+ 4557     -  1472K     0K     0K   0% gvfs-gphoto2-v 
+ 4532     -  1428K     0K     0K   0% gvfs-afc-volum 
+ 4538     -  1216K     0K     0K   0% gvfs-goa-volum 
+ 4470     -  1140K     0K     0K   0% at-spi2-regist 
+ 4631     -  1092K     0K     0K   0% ibus-x11       
+ 4713     -  1016K     0K     0K   0% seapplet       
+ 4300     -  1004K     0K     0K   0% dbus-daemon    
+ 4645     -   904K     0K     0K   0% ibus-engine-si 
+ 4365     -   888K     0K     0K   0% gvfsd          
+ 2613     -   824K     0K     0K   0% gconfd-2       
+ 3681     -   204K   600K     4K   0% bash           
+ 4600     -   712K     0K     0K   0% gsd-printer    
+ 4157     -   580K     0K     0K   0% systemd        
+ 4466     -   336K     0K     0K   0% dbus-daemon    
+  942     -   128K    20K     4K   0% bash           
+ 4629     -   140K     0K     0K   0% ibus-dconf     
+  735     -     0K    68K    32K   0% vim            
+10573     -     0K    21K     0K   0% pmlogger       
+  605     -     0K     0K     0K   0% Xorg           
+  561     -     0K     0K     0K   0% java           
+24075     -     0K     0K     0K   0% polkitd        
+  519     -     0K     0K     0K   0% rngd           
+    7     -     0K     0K     0K   0% rcu_sched      
+  902     -     0K     0K     0K   0% docker         
+  545     -     0K     0K     0K   0% dbus-daemon    
+ 4522     -     0K     0K     0K   0% udisksd        
+   25     -     0K     0K     0K   0% rcuos/2        
+    9     -     0K     0K     0K   0% rcuos/0        
+    1     -     0K     0K     0K   0% systemd        
+  699     -     0K     0K     0K   0% NetworkManager 
+  524     -     0K     0K     0K   0% irqbalance     
+  311     -     0K     0K     0K   0% systemd-journa 
+   32     -     0K     0K     0K   0% rcuos/3        
+   18     -     0K     0K     0K   0% rcuos/1        
+  904     -     0K     0K     0K   0% memcached      
+  473     -     0K     0K     0K   0% rtsx_usb_ms_1  
+  218     -     0K     0K     0K   0% kworker/2:1H   
+   74     -     0K     0K     0K   0% kswapd0        
+  236     -     0K     0K     0K   0% jbd2/sda7-8    
+  532     -     0K     0K     0K   0% systemd-logind 
+30921     -     0K     0K     0K   0% rsyslogd       
+ 1273     -     0K     0K     0K   0% postgres       
+  552     -     0K     0K     0K   0% crond          
+  485     -     0K     0K     0K   0% firewalld      
+32298     -     0K     0K     0K   0% sshd           
+  488     -     0K     0K     0K   0% accounts-daemo 
+ 4110     -     0K     0K     0K   0% gdm-session-wo 
+  530     -     0K     0K     0K   0% avahi-daemon   
+ 1256     -     0K     0K     0K   0% upowerd        
+   22     -     0K     0K     0K   0% ksoftirqd/2    
+  499     -     0K     0K     0K   0% rtkit-daemon   
+   14     -     0K     0K     0K   0% migration/1    
+   28     -     0K     0K     0K   0% migration/3    
+  399     -     0K     0K     0K   0% auditd         
+ 1271     -     0K     0K     0K   0% postgres       
+ 1039     -     0K     0K     0K   0% postgres       
+14146     -     0K     0K     0K   0% sshd           
+  534     -     0K     0K     0K   0% rpcbind        
+ 1269     -     0K     0K     0K   0% postgres       
+ 1270     -     0K     0K     0K   0% postgres       
+   15     -     0K     0K     0K   0% ksoftirqd/1    
+  444     -     0K     0K     0K   0% audispd        
+   75     -     0K     0K     0K   0% fsnotify_mark  
+   11     -     0K     0K     0K   0% migration/0    
+   21     -     0K     0K     0K   0% migration/2    
+    3     -     0K     0K     0K   0% ksoftirqd/0    
+32158     -     0K     0K     0K   0% sshd           
+ 6365     -     0K     0K     0K   0% perl           
+ 7171     -     0K     0K     0K   0% sshd           
+12345     -     0K     0K     0K   0% vpnc           
+10697     -     0K     0K     0K   0% sshd           
+   13     -     0K     0K     0K   0% watchdog/1     
+ 4172     -     0K     0K     0K   0% gnome-keyring- 
+   12     -     0K     0K     0K   0% watchdog/0     
+   29     -     0K     0K     0K   0% ksoftirqd/3    
+   20     -     0K     0K     0K   0% watchdog/2     
+   27     -     0K     0K     0K   0% watchdog/3     
+  459     -     0K     0K     0K   0% sedispatch     
+ 6334     -     0K     0K     0K   0% pmdaproc       
+  129     -     0K     0K     0K   0% kauditd        
+  515     -     0K     0K     0K   0% abrt-watch-log 
+  502     -     0K     0K     0K   0% chronyd        
+ 6340     -     0K     0K     0K   0% pmdalinux      
+24762     -     0K     0K     0K   0% bash           
+ 6336     -     0K     0K     0K   0% pmdashping     
+  335     -     0K     0K     0K   0% systemd-udevd  
+14240     -     0K     0K     0K   0% postgres       
+ 9681     -     0K     0K     0K   0% httpd          
+    2     -     0K     0K     0K   0% kthreadd       
+ 4591     -     0K     0K     0K   0% cupsd          
+ 6345     -     0K     0K     0K   0% perl           
+  901     -     0K     0K     0K   0% libvirtd       
+ 6349     -     0K     0K     0K   0% perl           
+23376     -     0K     0K     0K   0% sshd           
+26154     -     0K     0K     0K   0% kworker/u16:0  
+ 6330     -     0K     0K     0K   0% pmcd           
+  506     -     0K     0K     0K   0% abrtd          
+ 8019     -     0K     0K     0K   0% systemd        
+ 1268     -     0K     0K     0K   0% postgres       
+ 3714     -     0K     0K     0K   0% systemd        
+  548     -     0K     0K     0K   0% kworker/0:0    
+ 1215     -     0K     0K     0K   0% systemd        
+  528     -     0K     0K     0K   0% smartd         
+28985     -     0K     0K     0K   0% pmproxy        
+25203     -     0K     0K     0K   0% docker         
+  483     -     0K     0K     0K   0% alsactl        
+  221     -     0K     0K     0K   0% kworker/0:1H   
+15541     -     0K     0K     0K   0% pmlogger       
+22432     -     0K     0K     0K   0% kworker/3:0    
+ 1310     -     0K     0K     0K   0% colord         
+14400     -     0K     0K     0K   0% gdm-session-wo 
+ 1086     -     0K     0K     0K   0% loop0          
+23345     -     0K     0K     0K   0% sshd           
+10686     -     0K     0K     0K   0% sshd           
+  555     -     0K     0K     0K   0% gdm            
+14138     -     0K     0K     0K   0% sshd           
+ 7167     -     0K     0K     0K   0% sshd           
+  889     -     0K     0K     0K   0% sshd           
+32154     -     0K     0K     0K   0% sshd           
+31519     -     0K     0K     0K   0% dhclient       
+32283     -     0K     0K     0K   0% sshd           
+  217     -     0K     0K     0K   0% kworker/1:1H   
+  224     -     0K     0K     0K   0% kworker/3:1H   
+ 1087     -     0K     0K     0K   0% loop1          
+ 6366     -     0K     0K     0K   0% python3        
+  591     -     0K     0K     0K   0% gdm-simple-sla 
+ 1998     -     0K     0K     0K   0% kworker/1:1    
+  553     -     0K     0K     0K   0% atd            
+ 1240     -     0K     0K     0K   0% kworker/2:0    
+  918     -     0K     0K     0K   0% sshd           
+  939     -     0K     0K     0K   0% sshd           
+ 5705     -     0K     0K     0K   0% kworker/u16:2  
+ 9480     -     0K     0K     0K   0% vim            
+ 9682     -     0K     0K     0K   0% httpd          
+ 9683     -     0K     0K     0K   0% httpd          
+ 9684     -     0K     0K     0K   0% httpd          
+ 9685     -     0K     0K     0K   0% httpd          
+ 9686     -     0K     0K     0K   0% httpd          
+ 9868     -     0K     0K     0K   0% pmdaapache     
+23671     -     0K     0K     0K   0% gnome-pty-help 
+  505     -     0K     0K     0K   0% ModemManager   
+25232     -     0K     0K     0K   0% bash           
+   35     -     0K     0K     0K   0% kdevtmpfs      
+25202     -     0K     0K     0K   0% sudo           
+12334     -     0K     0K     0K   0% nm-vpnc-servic 
+ 6339     -     0K     0K     0K   0% pmdasample     
+  525     -     0K     0K     0K   0% abrt-watch-log 
+  558     -     0K     0K     0K   0% bluetoothd     
+ 1311     -     0K     0K     0K   0% pcscd          
+ 1035     -     0K     0K     0K   0% rpc.statd      
+ 4840     -     0K     0K     0K   0% telepathy-logg 
+ 4930     -     0K     0K     0K   0% gvfsd-burn     
+ 8948     -     0K     0K     0K   0% kworker/2:1    
+   -1     -     0K     0K     0K   0%                
+10580     -     0K     0K     0K   0%                
+24760     -     0K     0K     0K   0% sudo           
+24761     -     0K     0K     0K   0% su             
+ 6374     -     0K     0K     0K   0% pmdasimple     
+ 6343     -     0K     0K     0K   0% pmdamounts     
+ 6335     -     0K     0K     0K   0% pmdaxfs        
+ 6333     -     0K     0K     0K   0% pmdaroot       
+10338     -     0K     0K     0K   0% mk.atop.sh     
+ 9481     -     0K     0K     0K   0% cscope         
+ 1246     -     0K     0K     0K   0% postgres       
+ 4462     -     0K     0K     0K   0% at-spi-bus-lau 
+ 4369     -     0K     0K     0K   0% gvfsd-fuse     
+  574     -     0K     0K     0K   0% mcelog         
+ 4299     -     0K     0K     0K   0% dbus-launch    
+  332     -     0K     0K     0K   0% lvmetad        
+  564     -     0K     0K     0K   0% avahi-daemon   
+ 1218     -     0K     0K     0K   0% (sd-pam)       
+ 3718     -     0K     0K     0K   0% (sd-pam)       
+ 4163     -     0K     0K     0K   0% (sd-pam)       
+ 8024     -     0K     0K     0K   0% (sd-pam)       
+    5     -     0K     0K     0K   0% kworker/0:0H   
+    8     -     0K     0K     0K   0% rcu_bh         
+   10     -     0K     0K     0K   0% rcuob/0        
+   17     -     0K     0K     0K   0% kworker/1:0H   
+   19     -     0K     0K     0K   0% rcuob/1        
+   24     -     0K     0K     0K   0% kworker/2:0H   
+   26     -     0K     0K     0K   0% rcuob/2        
+   31     -     0K     0K     0K   0% kworker/3:0H   
+   33     -     0K     0K     0K   0% rcuob/3        
+   34     -     0K     0K     0K   0% khelper        
+   36     -     0K     0K     0K   0% netns          
+   37     -     0K     0K     0K   0% perf           
+   38     -     0K     0K     0K   0% writeback      
+   39     -     0K     0K     0K   0% ksmd           
+   40     -     0K     0K     0K   0% khugepaged     
+   41     -     0K     0K     0K   0% crypto         
+   42     -     0K     0K     0K   0% kintegrityd    
+   43     -     0K     0K     0K   0% bioset         
+   44     -     0K     0K     0K   0% kblockd        
+   45     -     0K     0K     0K   0% ata_sff        
+   46     -     0K     0K     0K   0% md             
+   47     -     0K     0K     0K   0% devfreq_wq     
+   85     -     0K     0K     0K   0% kthrotld       
+   88     -     0K     0K     0K   0% acpi_thermal_p 
+   90     -     0K     0K     0K   0% scsi_eh_0      
+   91     -     0K     0K     0K   0% scsi_tmf_0     
+   92     -     0K     0K     0K   0% scsi_eh_1      
+   93     -     0K     0K     0K   0% scsi_tmf_1     
+   96     -     0K     0K     0K   0% kpsmoused      
+   98     -     0K     0K     0K   0% dm_bufio_cache 
+   99     -     0K     0K     0K   0% ipv6_addrconf  
+  100     -     0K     0K     0K   0% deferwq        
+  237     -     0K     0K     0K   0% ext4-rsv-conve 
+  336     -     0K     0K     0K   0% rpciod         
+  397     -     0K     0K     0K   0% irq/45-mei_me  
+  464     -     0K     0K     0K   0% hd-audio0      
+  465     -     0K     0K     0K   0% hd-audio1      
+  472     -     0K     0K     0K   0% kmemstick      
+  475     -     0K     0K     0K   0% cfg80211       
+  484     -     0K     0K     0K   0% kvm-irqfd-clea 
+  536     -     0K     0K     0K   0% kworker/u17:0  
+  537     -     0K     0K     0K   0% hci0           
+  538     -     0K     0K     0K   0% hci0           
+  539     -     0K     0K     0K   0% kworker/u17:1  
+ 1089     -     0K     0K     0K   0% kdmflush       
+ 1093     -     0K     0K     0K   0% bioset         
+ 1121     -     0K     0K     0K   0% kcopyd         
+ 1122     -     0K     0K     0K   0% bioset         
+ 1123     -     0K     0K     0K   0% dm-thin        
+ 1124     -     0K     0K     0K   0% bioset         
+ 4526     -     0K     0K     0K   0% krfcommd       
+ 4839     -     0K     0K     0K   0% obexd          
+ 5362     -     0K     0K     0K   0% kworker/0:1    
+ 5441     -     0K     0K     0K   0% kworker/1:3    
+ 6778     -     0K     0K     0K   0% kworker/3:3    
+ 8319     -     0K     0K     0K   0% glock_workqueu 
+ 8320     -     0K     0K     0K   0% delete_workque 
+ 8321     -     0K     0K     0K   0% gfs_recovery   
+ 9350     -     0K     0K     0K   0% kworker/u16:1  
+10023     -     0K     0K     0K   0% kworker/0:2    
+11904     -     0K     0K     0K   0% xfsalloc       
+11905     -     0K     0K     0K   0% xfs_mru_cache  
+25226     -     0K     0K     0K   0% kdmflush       
+25227     -     0K     0K     0K   0% bioset         
+25230     -     0K     0K     0K   0% jbd2/dm-1-8    
+25231     -     0K     0K     0K   0% ext4-rsv-conve 
+
+
+ATOP -           2015/05/28  15:35:05          -----------            1s elapsed
+PRC | sys    0.03s | user   0.12s | #proc    274 | #zombie    0 | no  procacct |
+CPU | sys       6% | user     12% | irq       0% | idle    382% | wait      0% |
+cpu | sys       1% | user      6% | irq       0% | idle     93% | cpu001 w  0% |
+cpu | sys       3% | user      3% | irq       0% | idle     94% | cpu002 w  0% |
+cpu | sys       0% | user      3% | irq       0% | idle     97% | cpu003 w  0% |
+cpu | sys       2% | user      1% | irq       0% | idle     97% | cpu000 w  0% |
+CPL | avg1    1.00 | avg5    1.02 | avg15   1.05 | csw     1688 | intr     373 |
+MEM | tot     3.8M | free    0.4M | cache   1.5M | buff    0.2M | slab    0.2M |
+SWP | tot    13.3G | free   12.7G |              | vmcom   5.0M | vmlim  15.2M |
+DSK |          sda | busy      0% | read       0 | write      2 | avio 1.50 ms |
+NET | transport    | tcpi       4 | tcpo       6 | udpi       4 | udpo       0 |
+NET | network      | ipi        7 | ipo        6 | ipfrw      0 | deliv      7 |
+NET | p2p1      0% | pcki       8 | pcko       6 | si    9 Kbps | so    3 Kbps |
+NET | tun0      0% | pcki       2 | pcko       0 | si    1 Kbps | so    0 Kbps |
+NET | lo      ---- | pcki       3 | pcko       3 | si    5 Kbps | so    5 Kbps |
+
+  PID   TID  RDDSK  WRDSK WCANCL  DSK CMD            
+10573     -     0K   145K     0K 100% pmlogger       
+22749     -     0K     0K     0K   0% firefox        
+ 6334     -     0K     0K     0K   0% pmdaproc       
+ 6365     -     0K     0K     0K   0% perl           
+  561     -     0K     0K     0K   0% java           
+14240     -     0K     0K     0K   0% postgres       
+ 6330     -     0K     0K     0K   0% pmcd           
+  605     -     0K     0K     0K   0% Xorg           
+ 6349     -     0K     0K     0K   0% perl           
+    1     -     0K     0K     0K   0% systemd        
+ 6340     -     0K     0K     0K   0% pmdalinux      
+ 6336     -     0K     0K     0K   0% pmdashping     
+10338     -     0K     0K     0K   0% mk.atop.sh     
+  545     -     0K     0K     0K   0% dbus-daemon    
+10586     -     0K     0K     0K   0% pmsleep        
+  532     -     0K     0K     0K   0% systemd-logind 
+ 1273     -     0K     0K     0K   0% postgres       
+  519     -     0K     0K     0K   0% rngd           
+    7     -     0K     0K     0K   0% rcu_sched      
+    9     -     0K     0K     0K   0% rcuos/0        
+   18     -     0K     0K     0K   0% rcuos/1        
+   25     -     0K     0K     0K   0% rcuos/2        
+   32     -     0K     0K     0K   0% rcuos/3        
+ 5705     -     0K     0K     0K   0% kworker/u16:2  
+26154     -     0K     0K     0K   0% kworker/u16:0  
+
+
+ATOP -           2015/05/28  15:35:06          -----------            1s elapsed
+PRC | sys    0.04s | user   0.26s | #proc    274 | #zombie    0 | no  procacct |
+CPU | sys       5% | user     27% | irq       0% | idle    368% | wait      0% |
+cpu | sys       1% | user     19% | irq       0% | idle     80% | cpu001 w  0% |
+cpu | sys       3% | user      7% | irq       0% | idle     90% | cpu000 w  0% |
+cpu | sys       0% | user      0% | irq       0% | idle    100% | cpu003 w  0% |
+CPL | avg1    1.00 | avg5    1.02 | avg15   1.05 | csw     1718 | intr     496 |
+MEM | tot     3.8M | free    0.4M | cache   1.5M | buff    0.2M | slab    0.2M |
+SWP | tot    13.3G | free   12.7G |              | vmcom   5.0M | vmlim  15.2M |
+DSK |          sda | busy      0% | read       0 | write      3 | avio 1.33 ms |
+NET | transport    | tcpi       1 | tcpo       1 | udpi       0 | udpo       0 |
+NET | network      | ipi        1 | ipo        1 | ipfrw      0 | deliv      1 |
+NET | p2p1      0% | pcki       4 | pcko       1 | si    2 Kbps | so    0 Kbps |
+
+  PID   TID  RDDSK  WRDSK WCANCL  DSK CMD            
+10573     -     0K   141K     0K 100% pmlogger       
+22749     -     0K     0K     0K   0% firefox        
+ 6334     -     0K     0K     0K   0% pmdaproc       
+ 6340     -     0K     0K     0K   0% pmdalinux      
+10586     -     0K     0K     0K   0%                
+ 6330     -     0K     0K     0K   0% pmcd           
+10338     -     0K     0K     0K   0% mk.atop.sh     
+  524     -     0K     0K     0K   0% irqbalance     
+  519     -     0K     0K     0K   0% rngd           
+   25     -     0K     0K     0K   0% rcuos/2        
+ 5705     -     0K     0K     0K   0% kworker/u16:2  
+26154     -     0K     0K     0K   0% kworker/u16:0  
+=== std err
+=== done
+
+Scheduling option
+=== std out
+
+
+ATOP -           2015/05/28  15:35:04          -----------            1s elapsed
+PRC | sys    2h49m | user  15h55m | #proc    274 | #zombie    0 | no  procacct |
+CPU | sys       2% | user      8% | irq       0% | idle    387% | wait      3% |
+cpu | sys       1% | user      2% | irq       0% | idle     97% | cpu001 w  0% |
+cpu | sys       1% | user      2% | irq       0% | idle     96% | cpu002 w  1% |
+cpu | sys       0% | user      2% | irq       0% | idle     96% | cpu000 w  1% |
+cpu | sys       0% | user      2% | irq       0% | idle     97% | cpu003 w  0% |
+CPL | avg1    1.00 | avg5    1.02 | avg15   1.05 | csw 717701e3 | intr 24148e4 |
+MEM | tot     3.8M | free    0.4M | cache   1.5M | buff    0.2M | slab    0.2M |
+SWP | tot    13.3G | free   12.7G |              | vmcom   5.0M | vmlim  15.2M |
+PAG | scan 42457e3 | steal 4295e6 | stall  26324 | swin  203579 | swout 431258 |
+DSK |          sda | busy      3% | read 1577086 | write 2023e3 | avio 6.08 ms |
+NET | transport    | tcpi 4724854 | tcpo 4460194 | udpi  766685 | udpo  792760 |
+NET | network      | ipi  4334309 | ipo  4094969 | ipfrw     -1 | deliv 4316e3 |
+NET | p2p1      0% | pcki 3785081 | pcko 2363164 | si 7875 Mbps | so 5026 Mbps |
+NET | tun0      0% | pcki   19776 | pcko   20222 | si   59 Mbps | so   16 Mbps |
+NET | veth7c5   0% | pcki       8 | pcko    1651 | si    5 Kbps | so  902 Kbps |
+NET | lo      ---- | pcki 2651370 | pcko 2651370 | si 8366 Mbps | so 8366 Mbps |
+NET | docker0 ---- | pcki      61 | pcko      89 | si   33 Kbps | so  124 Kbps |
+                   *** system and process activity since boot ***
+  PID TRUN TSLPI TSLPU POLI NICE PRI RTPR CPUNR ST EXC S  CPU CMD            
+22749    0     1     0 norm    0 120    0     1 N-   - S   6% firefox        
+ 4562    0     1     0 norm    0 120    0     2 N-   - S   1% gnome-shell    
+  605    0     1     0 norm    0 120    0     2 N-   - S   1% Xorg           
+  561    0     1     0 norm    0 120    0     0 N-   - S   0% java           
+ 5417    0     1     0 norm    0 120    0     0 N-   - S   0% xchat          
+24075    0     1     0 norm    0 120    0     3 N-   - S   0% polkitd        
+23668    0     1     0 norm    0 120    0     2 N-   - S   0% gnome-terminal 
+  519    0     1     0 norm    0 120    0     3 N-   - S   0% rngd           
+    7    0     1     0 norm    0 120    0     1 N-   - S   0% rcu_sched      
+  902    0     1     0 norm    0 120    0     2 N-   - S   0% docker         
+  545    0     1     0 norm    0 120    0     1 N-   - S   0% dbus-daemon    
+ 4522    0     1     0 norm    0 120    0     1 N-   - S   0% udisksd        
+   25    0     1     0 norm    0 120    0     3 N-   - S   0% rcuos/2        
+    9    0     1     0 norm    0 120    0     3 N-   - S   0% rcuos/0        
+    1    0     1     0 norm    0 120    0     0 N-   - S   0% systemd        
+  699    0     1     0 norm    0 120    0     2 N-   - S   0% NetworkManager 
+ 4541    0     1     0 norm    0 120    0     0 N-   - S   0% goa-daemon     
+  524    0     1     0 norm    0 120    0     0 N-   - S   0% irqbalance     
+  311    0     1     0 norm    0 120    0     2 N-   - S   0% systemd-journa 
+   32    0     1     0 norm    0 120    0     0 N-   - S   0% rcuos/3        
+   18    0     1     0 norm    0 120    0     0 N-   - S   0% rcuos/1        
+  904    0     1     0 norm    0 120    0     2 N-   - S   0% memcached      
+  473    0     0     1 norm    0 120    0     0 N-   - D   0% rtsx_usb_ms_1  
+  218    0     1     0 norm    0 100    0     2 N-   - S   0% kworker/2:1H   
+ 4484    0     1     0 norm    0 120    0     2 N-   - S   0% gnome-settings 
+   74    0     1     0 norm    0 120    0     0 N-   - S   0% kswapd0        
+  236    0     1     0 norm    0 120    0     0 N-   - S   0% jbd2/sda7-8    
+  532    0     1     0 norm    0 120    0     2 N-   - S   0% systemd-logind 
+ 4495    0     1     0 norm    0 109    0     2 N-   - S   0% pulseaudio     
+30921    0     1     0 norm    0 120    0     2 N-   - S   0% rsyslogd       
+ 4547    0     1     0 norm    0 120    0     1 N-   - S   0% mission-contro 
+ 4775    0     1     0 norm    0 120    0     2 N-   - S   0% evolution-cale 
+ 1273    0     1     0 norm    0 120    0     0 N-   - S   0% postgres       
+  552    0     1     0 norm    0 120    0     0 N-   - S   0% crond          
+ 4625    0     1     0 norm    0 120    0     3 N-   - S   0% ibus-daemon    
+  485    0     1     0 norm    0 120    0     1 N-   - S   0% firewalld      
+32298    0     1     0 norm    0 120    0     0 N-   - S   0% sshd           
+  488    0     1     0 norm    0 120    0     0 N-   - S   0% accounts-daemo 
+ 4110    0     1     0 norm    0 120    0     0 N-   - S   0% gdm-session-wo 
+  530    0     1     0 norm    0 120    0     2 N-   - S   0% avahi-daemon   
+ 1256    0     1     0 norm    0 120    0     0 N-   - S   0% upowerd        
+   22    0     1     0 norm    0 120    0     2 N-   - S   0% ksoftirqd/2    
+  499    0     1     0 norm    1 121    0     0 N-   - S   0% rtkit-daemon   
+   14    0     1     0 fifo    0 100   99     1 N-   - S   0% migration/1    
+ 4745    0     1     0 norm    0 120    0     1 N-   - S   0% vino-server    
+   28    0     1     0 fifo    0 100   99     3 N-   - S   0% migration/3    
+  399    0     1     0 norm    0 116    0     2 N-   - S   0% auditd         
+ 1271    0     1     0 norm    0 120    0     1 N-   - S   0% postgres       
+ 1039    0     1     0 norm    0 120    0     0 N-   - S   0% postgres       
+14146    0     1     0 norm    0 120    0     3 N-   - S   0% sshd           
+  534    0     1     0 norm    0 120    0     0 N-   - S   0% rpcbind        
+ 1269    0     1     0 norm    0 120    0     0 N-   - S   0% postgres       
+ 1270    0     1     0 norm    0 120    0     2 N-   - S   0% postgres       
+   15    0     1     0 norm    0 120    0     1 N-   - S   0% ksoftirqd/1    
+  444    0     1     0 norm    0 112    0     2 N-   - S   0% audispd        
+   75    0     1     0 norm    0 120    0     1 N-   - S   0% fsnotify_mark  
+   11    0     1     0 fifo    0 100   99     0 N-   - S   0% migration/0    
+   21    0     1     0 fifo    0 100   99     2 N-   - S   0% migration/2    
+    3    0     1     0 norm    0 120    0     0 N-   - S   0% ksoftirqd/0    
+32158    0     1     0 norm    0 120    0     3 N-   - S   0% sshd           
+ 6365    0     1     0 norm    0 120    0     2 N-   - S   0% perl           
+ 7171    0     1     0 norm    0 120    0     3 N-   - S   0% sshd           
+12345    0     1     0 norm    0 120    0     3 N-   - S   0% vpnc           
+10697    0     1     0 norm    0 120    0     3 N-   - S   0% sshd           
+   13    0     1     0 fifo    0 100   99     1 N-   - S   0% watchdog/1     
+ 4291    0     1     0 norm    0 120    0     2 N-   - S   0% gnome-session  
+ 4172    0     1     0 norm    0 120    0     3 N-   - S   0% gnome-keyring- 
+   12    0     1     0 fifo    0 100   99     0 N-   - S   0% watchdog/0     
+32301    0     1     0 norm    0 120    0     2 N-   - S   0% bash           
+ 4705    0     1     0 norm    0 120    0     2 N-   - S   0% evolution-alar 
+   29    0     1     0 norm    0 120    0     3 N-   - S   0% ksoftirqd/3    
+   20    0     1     0 fifo    0 100   99     2 N-   - S   0% watchdog/2     
+ 4519    0     1     0 norm    0 120    0     1 N-   - S   0% gvfs-udisks2-v 
+   27    0     1     0 fifo    0 100   99     3 N-   - S   0% watchdog/3     
+ 4300    0     1     0 norm    0 120    0     1 N-   - S   0% dbus-daemon    
+  459    0     1     0 norm    0 116    0     0 N-   - S   0% sedispatch     
+ 4470    0     1     0 norm    0 120    0     3 N-   - S   0% at-spi2-regist 
+ 4717    0     1     0 norm    0 120    0     3 N-   - S   0% tracker-store  
+ 6334    1     0     0 norm    0 120    0     2 N-   - R   0% pmdaproc       
+ 4650    0     1     0 norm    0 120    0     3 N-   - S   0% evolution-sour 
+14151    0     1     0 norm    0 120    0     0 N-   - S   0% bash           
+  129    0     1     0 norm    0 120    0     0 N-   - S   0% kauditd        
+ 4708    0     1     0 norm   19 139    0     1 N-   - S   0% tracker-miner- 
+  515    0     1     0 norm    0 120    0     0 N-   - S   0% abrt-watch-log 
+ 7175    0     1     0 norm    0 120    0     2 N-   - S   0% bash           
+  502    0     1     0 norm    0 120    0     3 N-   - S   0% chronyd        
+ 6340    0     1     0 norm    0 120    0     1 N-   - S   0% pmdalinux      
+24762    0     1     0 norm    0 120    0     2 N-   - S   0% bash           
+ 2613    0     1     0 norm    0 120    0     0 N-   - S   0% gconfd-2       
+10702    0     1     0 norm    0 120    0     2 N-   - S   0% bash           
+ 6336    0     1     0 norm    0 120    0     0 N-   - S   0% pmdashping     
+32161    0     1     0 norm    0 120    0     0 N-   - S   0% bash           
+  335    0     1     0 norm    0 120    0     3 N-   - S   0% systemd-udevd  
+ 4711    0     1     0 norm    0 120    0     2 N-   - S   0% applet.py      
+ 4731    0     1     0 norm    0 120    0     2 N-   - S   0% abrt-applet    
+ 4735    0     1     0 norm    0 120    0     0 N-   - S   0% deja-dup-monit 
+14240    0     1     0 norm    0 120    0     0 N-   - S   0% postgres       
+ 9681    0     1     0 norm    0 120    0     2 N-   - S   0% httpd          
+    2    0     1     0 norm    0 120    0     3 N-   - S   0% kthreadd       
+ 4591    0     1     0 norm    0 120    0     2 N-   - S   0% cupsd          
+ 6345    0     1     0 norm    0 120    0     1 N-   - S   0% perl           
+  901    0     1     0 norm    0 120    0     1 N-   - S   0% libvirtd       
+ 2533    0     1     0 norm    0 120    0     3 N-   - S   0% bash           
+ 6349    0     1     0 norm    0 120    0     0 N-   - S   0% perl           
+23376    0     1     0 norm    0 120    0     3 N-   - S   0% sshd           
+ 4641    0     1     0 norm    0 120    0     3 N-   - S   0% gnome-shell-ca 
+26154    0     1     0 norm    0 120    0     2 N-   - S   0% kworker/u16:0  
+ 6330    0     1     0 norm    0 120    0     0 N-   - S   0% pmcd           
+ 4466    0     1     0 norm    0 120    0     2 N-   - S   0% dbus-daemon    
+  735    0     1     0 norm    0 120    0     1 N-   - S   0% vim            
+  506    0     1     0 norm    0 120    0     3 N-   - S   0% abrtd          
+ 8019    0     1     0 norm    0 120    0     2 N-   - S   0% systemd        
+ 4157    0     1     0 norm    0 120    0     0 N-   - S   0% systemd        
+21361    0     1     0 norm    0 120    0     3 N-   - S   0% bash           
+ 1268    0     1     0 norm    0 120    0     3 N-   - S   0% postgres       
+ 3714    0     1     0 norm    0 120    0     3 N-   - S   0% systemd        
+  548    0     1     0 norm    0 120    0     0 N-   - S   0% kworker/0:0    
+ 1215    0     1     0 norm    0 120    0     0 N-   - S   0% systemd        
+  528    0     1     0 norm    0 120    0     1 N-   - S   0% smartd         
+28985    0     1     0 norm    0 120    0     2 N-   - S   0% pmproxy        
+25203    0     1     0 norm    0 120    0     1 N-   - S   0% docker         
+ 4606    0     1     0 norm    0 120    0     0 N-   - S   0% dconf-service  
+ 4645    0     1     0 norm    0 120    0     3 N-   - S   0% ibus-engine-si 
+  483    0     1     0 norm   19 139    0     0 N-   - S   0% alsactl        
+  221    0     1     0 norm    0 100    0     0 N-   - S   0% kworker/0:1H   
+15541    0     1     0 norm    0 120    0     0 N-   - S   0% pmlogger       
+22432    0     1     0 norm    0 120    0     3 N-   - S   0% kworker/3:0    
+ 1310    0     1     0 norm    0 120    0     2 N-   - S   0% colord         
+  942    0     1     0 norm    0 120    0     0 N-   - S   0% bash           
+30977    0     1     0 norm    0 120    0     0 N-   - S   0% bash           
+14400    0     1     0 norm    0 120    0     0 N-   - S   0% gdm-session-wo 
+21046    0     1     0 norm    0 120    0     0 N-   - S   0% bash           
+ 1086    0     1     0 norm    0 100    0     2 N-   - S   0% loop0          
+23345    0     1     0 norm    0 120    0     0 N-   - S   0% sshd           
+10686    0     1     0 norm    0 120    0     2 N-   - S   0% sshd           
+  555    0     1     0 norm    0 120    0     1 N-   - S   0% gdm            
+ 4664    0     1     0 norm    0 120    0     1 N-   - S   0% gvfsd-metadata 
+14138    0     1     0 norm    0 120    0     2 N-   - S   0% sshd           
+ 7167    0     1     0 norm    0 120    0     0 N-   - S   0% sshd           
+  889    0     1     0 norm    0 120    0     1 N-   - S   0% sshd           
+32154    0     1     0 norm    0 120    0     2 N-   - S   0% sshd           
+23382    0     1     0 norm    0 120    0     0 N-   - S   0% bash           
+31519    0     1     0 norm    0 120    0     0 N-   - S   0% dhclient       
+32283    0     1     0 norm    0 120    0     2 N-   - S   0% sshd           
+  217    0     1     0 norm    0 100    0     1 N-   - S   0% kworker/1:1H   
+  224    0     1     0 norm    0 100    0     3 N-   - S   0% kworker/3:1H   
+ 1087    0     1     0 norm    0 100    0     1 N-   - S   0% loop1          
+ 6366    0     1     0 norm    0 120    0     2 N-   - S   0% python3        
+  591    0     1     0 norm    0 120    0     2 N-   - S   0% gdm-simple-sla 
+ 3681    0     1     0 norm    0 120    0     2 N-   - S   0% bash           
+ 4713    0     1     0 norm    0 120    0     0 N-   - S   0% seapplet       
+ 4365    0     1     0 norm    0 120    0     2 N-   - S   0% gvfsd          
+ 1998    0     1     0 norm    0 120    0     1 N-   - S   0% kworker/1:1    
+ 4551    0     1     0 norm    0 120    0     2 N-   - S   0% gvfs-mtp-volum 
+ 4557    0     1     0 norm    0 120    0     3 N-   - S   0% gvfs-gphoto2-v 
+ 4532    0     1     0 norm    0 120    0     0 N-   - S   0% gvfs-afc-volum 
+  553    0     1     0 norm    0 120    0     2 N-   - S   0% atd            
+ 1240    0     1     0 norm    0 120    0     2 N-   - S   0% kworker/2:0    
+ 4538    0     1     0 norm    0 120    0     1 N-   - S   0% gvfs-goa-volum 
+  918    0     1     0 norm    0 120    0     3 N-   - S   0% sshd           
+  939    0     1     0 norm    0 120    0     0 N-   - S   0% sshd           
+ 5705    0     1     0 norm    0 120    0     0 N-   - S   0% kworker/u16:2  
+ 9480    0     1     0 norm    0 120    0     1 N-   - S   0% vim            
+ 9682    0     1     0 norm    0 120    0     2 N-   - S   0% httpd          
+ 9683    0     1     0 norm    0 120    0     0 N-   - S   0% httpd          
+ 9684    0     1     0 norm    0 120    0     0 N-   - S   0% httpd          
+ 9685    0     1     0 norm    0 120    0     3 N-   - S   0% httpd          
+ 9686    0     1     0 norm    0 120    0     0 N-   - S   0% httpd          
+ 9868    0     1     0 norm    0 120    0     2 N-   - S   0% pmdaapache     
+ 4631    0     1     0 norm    0 120    0     1 N-   - S   0% ibus-x11       
+23671    0     1     0 norm    0 120    0     3 N-   - S   0% gnome-pty-help 
+  505    0     1     0 norm    0 120    0     0 N-   - S   0% ModemManager   
+25232    0     1     0 norm    0 120    0     2 N-   - S   0% bash           
+ 4600    0     1     0 norm    0 120    0     1 N-   - S   0% gsd-printer    
+   35    0     1     0 norm    0 120    0     0 N-   - S   0% kdevtmpfs      
+10573    0     1     0 norm    0 120    0     3 N-   - S   0% pmlogger       
+25202    0     1     0 norm    0 120    0     2 N-   - S   0% sudo           
+12334    0     1     0 norm    0 120    0     0 N-   - S   0% nm-vpnc-servic 
+ 6339    0     1     0 norm    0 120    0     1 N-   - S   0% pmdasample     
+  525    0     1     0 norm    0 120    0     1 N-   - S   0% abrt-watch-log 
+ 4629    0     1     0 norm    0 120    0     1 N-   - S   0% ibus-dconf     
+  558    0     1     0 norm    0 120    0     2 N-   - S   0% bluetoothd     
+ 1311    0     1     0 norm    0 120    0     1 N-   - S   0% pcscd          
+ 1035    0     1     0 norm    0 120    0     2 N-   - S   0% rpc.statd      
+ 4840    0     1     0 norm    0 120    0     2 N-   - S   0% telepathy-logg 
+ 4930    0     1     0 norm    0 120    0     0 N-   - S   0% gvfsd-burn     
+ 8948    0     1     0 norm    0 120    0     2 N-   - S   0% kworker/2:1    
+   -1    0     0     0 ?      -1  99   -1    -1 N-   -  -100%                
+10580    0     0     0 ?       0 120   -1    -1 N-   -  -100%                
+24760    0     1     0 norm    0 120    0     0 N-   - S   0% sudo           
+24761    0     1     0 norm    0 120    0     0 N-   - S   0% su             
+ 6374    0     1     0 norm    0 120    0     0 N-   - S   0% pmdasimple     
+ 6343    0     1     0 norm    0 120    0     0 N-   - S   0% pmdamounts     
+ 6335    0     1     0 norm    0 120    0     1 N-   - S   0% pmdaxfs        
+ 6333    0     1     0 norm    0 120    0     1 N-   - S   0% pmdaroot       
+10338    0     1     0 norm    0 120    0     0 N-   - S   0% mk.atop.sh     
+ 9481    0     1     0 norm    0 120    0     2 N-   - S   0% cscope         
+ 1246    0     1     0 norm    0 120    0     2 N-   - S   0% postgres       
+ 4462    0     1     0 norm    0 120    0     0 N-   - S   0% at-spi-bus-lau 
+ 4369    0     1     0 norm    0 120    0     1 N-   - S   0% gvfsd-fuse     
+  574    0     1     0 norm    0 120    0     3 N-   - S   0% mcelog         
+ 4299    0     1     0 norm    0 120    0     1 N-   - S   0% dbus-launch    
+  332    0     1     0 norm    0 120    0     0 N-   - S   0% lvmetad        
+  564    0     1     0 norm    0 120    0     0 N-   - S   0% avahi-daemon   
+ 1218    0     1     0 norm    0 120    0     3 N-   - S   0% (sd-pam)       
+ 3718    0     1     0 norm    0 120    0     1 N-   - S   0% (sd-pam)       
+ 4163    0     1     0 norm    0 120    0     0 N-   - S   0% (sd-pam)       
+ 8024    0     1     0 norm    0 120    0     1 N-   - S   0% (sd-pam)       
+    5    0     1     0 norm    0 100    0     0 N-   - S   0% kworker/0:0H   
+    8    0     1     0 norm    0 120    0     3 N-   - S   0% rcu_bh         
+   10    0     1     0 norm    0 120    0     3 N-   - S   0% rcuob/0        
+   17    0     1     0 norm    0 100    0     1 N-   - S   0% kworker/1:0H   
+   19    0     1     0 norm    0 120    0     3 N-   - S   0% rcuob/1        
+   24    0     1     0 norm    0 100    0     2 N-   - S   0% kworker/2:0H   
+   26    0     1     0 norm    0 120    0     0 N-   - S   0% rcuob/2        
+   31    0     1     0 norm    0 100    0     3 N-   - S   0% kworker/3:0H   
+   33    0     1     0 norm    0 120    0     1 N-   - S   0% rcuob/3        
+   34    0     1     0 norm    0 100    0     3 N-   - S   0% khelper        
+   36    0     1     0 norm    0 100    0     3 N-   - S   0% netns          
+   37    0     1     0 norm    0 100    0     3 N-   - S   0% perf           
+   38    0     1     0 norm    0 100    0     3 N-   - S   0% writeback      
+   39    0     1     0 norm    5 125    0     3 N-   - S   0% ksmd           
+   40    0     1     0 norm   19 139    0     2 N-   - S   0% khugepaged     
+   41    0     1     0 norm    0 100    0     2 N-   - S   0% crypto         
+   42    0     1     0 norm    0 100    0     2 N-   - S   0% kintegrityd    
+   43    0     1     0 norm    0 100    0     2 N-   - S   0% bioset         
+   44    0     1     0 norm    0 100    0     2 N-   - S   0% kblockd        
+   45    0     1     0 norm    0 100    0     2 N-   - S   0% ata_sff        
+   46    0     1     0 norm    0 100    0     2 N-   - S   0% md             
+   47    0     1     0 norm    0 100    0     3 N-   - S   0% devfreq_wq     
+   85    0     1     0 norm    0 100    0     2 N-   - S   0% kthrotld       
+   88    0     1     0 norm    0 100    0     1 N-   - S   0% acpi_thermal_p 
+   90    0     1     0 norm    0 120    0     1 N-   - S   0% scsi_eh_0      
+   91    0     1     0 norm    0 100    0     1 N-   - S   0% scsi_tmf_0     
+   92    0     1     0 norm    0 120    0     2 N-   - S   0% scsi_eh_1      
+   93    0     1     0 norm    0 100    0     1 N-   - S   0% scsi_tmf_1     
+   96    0     1     0 norm    0 100    0     3 N-   - S   0% kpsmoused      
+   98    0     1     0 norm    0 100    0     1 N-   - S   0% dm_bufio_cache 
+   99    0     1     0 norm    0 100    0     3 N-   - S   0% ipv6_addrconf  
+  100    0     1     0 norm    0 100    0     2 N-   - S   0% deferwq        
+  237    0     1     0 norm    0 100    0     2 N-   - S   0% ext4-rsv-conve 
+  336    0     1     0 norm    0 100    0     0 N-   - S   0% rpciod         
+  397    0     1     0 fifo    0 100   50     1 N-   - S   0% irq/45-mei_me  
+  464    0     1     0 norm    0 100    0     0 N-   - S   0% hd-audio0      
+  465    0     1     0 norm    0 100    0     0 N-   - S   0% hd-audio1      
+  472    0     1     0 norm    0 100    0     2 N-   - S   0% kmemstick      
+  475    0     1     0 norm    0 100    0     3 N-   - S   0% cfg80211       
+  484    0     1     0 norm    0 100    0     3 N-   - S   0% kvm-irqfd-clea 
+  536    0     1     0 norm    0 100    0     1 N-   - S   0% kworker/u17:0  
+  537    0     1     0 norm    0 100    0     2 N-   - S   0% hci0           
+  538    0     1     0 norm    0 100    0     2 N-   - S   0% hci0           
+  539    0     1     0 norm    0 100    0     0 N-   - S   0% kworker/u17:1  
+ 1089    0     1     0 norm    0 100    0     1 N-   - S   0% kdmflush       
+ 1093    0     1     0 norm    0 100    0     0 N-   - S   0% bioset         
+ 1121    0     1     0 norm    0 100    0     2 N-   - S   0% kcopyd         
+ 1122    0     1     0 norm    0 100    0     3 N-   - S   0% bioset         
+ 1123    0     1     0 norm    0 100    0     3 N-   - S   0% dm-thin        
+ 1124    0     1     0 norm    0 100    0     3 N-   - S   0% bioset         
+ 4526    0     1     0 norm    0 110    0     1 N-   - S   0% krfcommd       
+ 4839    0     1     0 norm    0 120    0     1 N-   - S   0% obexd          
+ 5362    0     1     0 norm    0 120    0     0 N-   - S   0% kworker/0:1    
+ 5441    0     1     0 norm    0 120    0     1 N-   - S   0% kworker/1:3    
+ 6778    0     1     0 norm    0 120    0     3 N-   - S   0% kworker/3:3    
+ 8319    0     1     0 norm    0 100    0     0 N-   - S   0% glock_workqueu 
+ 8320    0     1     0 norm    0 100    0     3 N-   - S   0% delete_workque 
+ 8321    0     1     0 norm    0 100    0     3 N-   - S   0% gfs_recovery   
+ 9350    0     1     0 norm    0 120    0     1 N-   - S   0% kworker/u16:1  
+10023    0     1     0 norm    0 120    0     0 N-   - S   0% kworker/0:2    
+11904    0     1     0 norm    0 100    0     3 N-   - S   0% xfsalloc       
+11905    0     1     0 norm    0 100    0     3 N-   - S   0% xfs_mru_cache  
+25226    0     1     0 norm    0 100    0     2 N-   - S   0% kdmflush       
+25227    0     1     0 norm    0 100    0     0 N-   - S   0% bioset         
+25230    0     1     0 norm    0 120    0     0 N-   - S   0% jbd2/dm-1-8    
+25231    0     1     0 norm    0 100    0     1 N-   - S   0% ext4-rsv-conve 
+
+
+ATOP -           2015/05/28  15:35:05          -----------            1s elapsed
+PRC | sys    0.03s | user   0.12s | #proc    274 | #zombie    0 | no  procacct |
+CPU | sys       6% | user     12% | irq       0% | idle    382% | wait      0% |
+cpu | sys       1% | user      6% | irq       0% | idle     93% | cpu001 w  0% |
+cpu | sys       3% | user      3% | irq       0% | idle     94% | cpu002 w  0% |
+cpu | sys       0% | user      3% | irq       0% | idle     97% | cpu003 w  0% |
+cpu | sys       2% | user      1% | irq       0% | idle     97% | cpu000 w  0% |
+CPL | avg1    1.00 | avg5    1.02 | avg15   1.05 | csw     1688 | intr     373 |
+MEM | tot     3.8M | free    0.4M | cache   1.5M | buff    0.2M | slab    0.2M |
+SWP | tot    13.3G | free   12.7G |              | vmcom   5.0M | vmlim  15.2M |
+DSK |          sda | busy      0% | read       0 | write      2 | avio 1.50 ms |
+NET | transport    | tcpi       4 | tcpo       6 | udpi       4 | udpo       0 |
+NET | network      | ipi        7 | ipo        6 | ipfrw      0 | deliv      7 |
+NET | p2p1      0% | pcki       8 | pcko       6 | si    9 Kbps | so    3 Kbps |
+NET | tun0      0% | pcki       2 | pcko       0 | si    1 Kbps | so    0 Kbps |
+NET | lo      ---- | pcki       3 | pcko       3 | si    5 Kbps | so    5 Kbps |
+
+  PID TRUN TSLPI TSLPU POLI NICE PRI RTPR CPUNR ST EXC S  CPU CMD            
+22749    1     0     0 norm    0 120    0     1 --   - R   5% firefox        
+ 6334    1     0     0 norm    0 120    0     0 --   - R   5% pmdaproc       
+ 6365    0     1     0 norm    0 120    0     3 --   - S   3% perl           
+  561    0     1     0 norm    0 120    0     0 --   - S   1% java           
+14240    0     1     0 norm    0 120    0     0 --   - S   1% postgres       
+ 6330    0     1     0 norm    0 120    0     2 --   - S   1% pmcd           
+10573    0     1     0 norm    0 120    0     3 --   - S   1% pmlogger       
+  605    0     1     0 norm    0 120    0     2 --   - S   0% Xorg           
+ 6349    0     1     0 norm    0 120    0     2 --   - S   0% perl           
+    1    0     1     0 norm    0 120    0     0 --   - S   0% systemd        
+ 6340    0     1     0 norm    0 120    0     1 --   - S   0% pmdalinux      
+ 6336    0     1     0 norm    0 120    0     0 --   - S   0% pmdashping     
+10338    0     1     0 norm    0 120    0     0 --   - S   0% mk.atop.sh     
+  545    0     1     0 norm    0 120    0     2 --   - S   0% dbus-daemon    
+10586    0     1     0 norm    0 120    0     0 N-   - S   0% pmsleep        
+  532    0     1     0 norm    0 120    0     3 --   - S   0% systemd-logind 
+ 1273    0     1     0 norm    0 120    0     2 --   - S   0% postgres       
+  519    0     1     0 norm    0 120    0     2 --   - S   0% rngd           
+    7    0     1     0 norm    0 120    0     3 --   - S   0% rcu_sched      
+    9    0     1     0 norm    0 120    0     2 --   - S   0% rcuos/0        
+   18    0     1     0 norm    0 120    0     3 --   - S   0% rcuos/1        
+   25    0     1     0 norm    0 120    0     1 --   - S   0% rcuos/2        
+   32    0     1     0 norm    0 120    0     3 --   - S   0% rcuos/3        
+ 5705    0     1     0 norm    0 120    0     3 --   - S   0% kworker/u16:2  
+26154    0     1     0 norm    0 120    0     0 --   - S   0% kworker/u16:0  
+
+
+ATOP -           2015/05/28  15:35:06          -----------            1s elapsed
+PRC | sys    0.04s | user   0.26s | #proc    274 | #zombie    0 | no  procacct |
+CPU | sys       5% | user     27% | irq       0% | idle    368% | wait      0% |
+cpu | sys       1% | user     19% | irq       0% | idle     80% | cpu001 w  0% |
+cpu | sys       3% | user      7% | irq       0% | idle     90% | cpu000 w  0% |
+cpu | sys       0% | user      0% | irq       0% | idle    100% | cpu003 w  0% |
+CPL | avg1    1.00 | avg5    1.02 | avg15   1.05 | csw     1718 | intr     496 |
+MEM | tot     3.8M | free    0.4M | cache   1.5M | buff    0.2M | slab    0.2M |
+SWP | tot    13.3G | free   12.7G |              | vmcom   5.0M | vmlim  15.2M |
+DSK |          sda | busy      0% | read       0 | write      3 | avio 1.33 ms |
+NET | transport    | tcpi       1 | tcpo       1 | udpi       0 | udpo       0 |
+NET | network      | ipi        1 | ipo        1 | ipfrw      0 | deliv      1 |
+NET | p2p1      0% | pcki       4 | pcko       1 | si    2 Kbps | so    0 Kbps |
+
+  PID TRUN TSLPI TSLPU POLI NICE PRI RTPR CPUNR ST EXC S  CPU CMD            
+22749    0     1     0 norm    0 120    0     1 --   - S  25% firefox        
+ 6334    1     0     0 norm    0 120    0     0 --   - R   4% pmdaproc       
+ 6340    0     1     0 norm    0 120    0     1 --   - S   1% pmdalinux      
+10586    0     0     0 ?       0 120   -1    -1 --   -  -100%                
+ 6330    0     1     0 norm    0 120    0     2 --   - S   0% pmcd           
+10573    0     1     0 norm    0 120    0     3 --   - S   0% pmlogger       
+10338    0     1     0 norm    0 120    0     0 --   - S   0% mk.atop.sh     
+  524    0     1     0 norm    0 120    0     0 --   - S   0% irqbalance     
+  519    0     1     0 norm    0 120    0     3 --   - S   0% rngd           
+   25    0     1     0 norm    0 120    0     0 --   - S   0% rcuos/2        
+ 5705    0     1     0 norm    0 120    0     0 --   - S   0% kworker/u16:2  
+26154    0     1     0 norm    0 120    0     3 --   - S   0% kworker/u16:0  
+=== std err
+=== done
+
+Recording an archive using atop
+Replaying an archive using atop
+done

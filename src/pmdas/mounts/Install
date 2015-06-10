@@ -1,8 +1,6 @@
 #! /bin/sh
 #
-#  Copyright (c) 2001 Alan Bailey (bailey@mcs.anl.gov or abailey@ncsa.uiuc.edu) 
-#  for the portions of the code supporting the initial agent functionality.
-#  All rights reserved. 
+# Copyright (c) 2001 Alan Bailey (bailey@mcs.anl.gov or abailey@ncsa.uiuc.edu) 
 # Copyright (c)  2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it

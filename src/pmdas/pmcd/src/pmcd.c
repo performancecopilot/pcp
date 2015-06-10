@@ -1051,6 +1051,8 @@ extract_service(const char *path, char *name, pid_t *pid)
     if (sep != 1)
 	return 0;
     *pid = atoi(buffer);
+    if (!__pmProcessExists(*pid))
+	return 0;
 
     /* finally setup service name to return */
     name[length] = '\0';
@@ -1771,7 +1773,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		else if (val == 1)
 		    _pmcd_trace_mask |= TR_MASK_CONN;
 		else {
-		    sts = PM_ERR_CONV;
+		    sts = PM_ERR_BADSTORE;
 		    break;
 		}
 	    }
@@ -1782,7 +1784,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		else if (val == 1)
 		    _pmcd_trace_mask |= TR_MASK_PDU;
 		else {
-		    sts = PM_ERR_CONV;
+		    sts = PM_ERR_BADSTORE;
 		    break;
 		}
 	    }
@@ -1810,7 +1812,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		else if (val == 1)
 		    _pmcd_trace_mask |= TR_MASK_NOBUF;
 		else {
-		    sts = PM_ERR_CONV;
+		    sts = PM_ERR_BADSTORE;
 		    break;
 		}
 	    }

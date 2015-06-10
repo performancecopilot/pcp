@@ -44,21 +44,36 @@ established.
 The sorts of checks it might try would include:
 
 x. process temporal index if any
-   [ ] check label
-   [ ] if missing, warn
+   [y] check label
+   [y] if missing, warn
+   [y] check for truncated entry
+   [y] check volume not negative
+   [y] check volume numbers are not decreasing
+   [y] check volume exists
+   [y] check timestamp validity (no negative parts, usec < 1000000)
+   [y] check timestamp > start from label
+   [y] check timestamps are monotonic increasing
+   [y] check data offsets are > label record and < size of data volume
+   [y] check metadata offsets are > label record and < size of metadata
+   [y] check data offsets are monotonic increasing
+   [y] check metadata offsets are not decreasing
    [ ] else load temporal index
 x. process meta file
-   [ ] check label
-   [ ] check header-trailer len for every record
+   [y] must be present
+   [y] check label
+   [y] check header-trailer len for every record
    [ ] check timestamps for indoms are monotonic increasing (and >= label
        record start)
    [ ] check timestamp and offset against temporal index (if available)
    [ ] if OK load metadata
 x. process each metric volume file
-   [ ] check label
-   [ ] check header-trailer len for every record
+   [y] check label
+   [y] check header-trailer len for every record
    [ ] check timestamps are monotonic increasing (and >= label record start)
    [ ] check timestamp and offset against temporal index (if available)
    [ ] check pmids are defined in meta data
    [ ] check instances are defined in metadata
    [ ] check value encoding matches metadata type
+
+x. misc
+   [y] must be at least one metric volume

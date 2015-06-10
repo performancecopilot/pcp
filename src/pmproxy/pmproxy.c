@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -65,6 +65,7 @@ static pmLongOptions longopts[] = {
     PMOPT_DEBUG,
     PMOPT_HELP,
     PMAPI_OPTIONS_HEADER("Service options"),
+    { "", 0, 'A', 0, "disable service advertisement" },
     { "foreground", 0, 'f', 0, "run in the foreground" },
     { "username", 1, 'U', "USER", "in daemon mode, run as named user [default pcp]" },
     PMAPI_OPTIONS_HEADER("Configuration options"),
@@ -81,7 +82,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "C:D:fi:l:L:p:P:U:x:?",
+    .short_options = "A:C:D:fi:l:L:p:P:U:x:?",
     .long_options = longopts,
 };
 
@@ -94,6 +95,10 @@ ParseOptions(int argc, char *argv[], int *nports)
 
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
+
+	case 'A':   /* disable pmproxy service advertising */
+	    __pmServerClearFeature(PM_SERVER_FEATURE_DISCOVERY);
+	    break;
 
 	case 'C':	/* path to NSS certificate database */
 	    certdb = opts.optarg;
@@ -466,6 +471,7 @@ main(int argc, char *argv[])
     umask(022);
     __pmGetUsername(&username);
     __pmSetInternalState(PM_STATE_PMCS);
+    __pmServerSetFeature(PM_SERVER_FEATURE_DISCOVERY);
 
     if ((envstr = getenv("PMPROXY_PORT")) != NULL)
 	nport = __pmServerAddPorts(envstr);
@@ -474,6 +480,7 @@ main(int argc, char *argv[])
         __pmServerAddPorts(TO_STRING(PROXY_PORT));
     GetProxyHostname();
 
+    __pmServerSetServiceSpec(PM_SERVER_PROXY_SPEC);
     if (run_daemon) {
 	fflush(stderr);
 	StartDaemon(argc, argv);

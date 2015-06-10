@@ -1,0 +1,45 @@
+QA output created by 772
+no dups
+exit status: 0
+output PMNS created
+
+no dups -x
+exit status: 0
+output PMNS created
+
+dups
+exit status: 0
+output PMNS created
+
+dups - order reversed
+exit status: 0
+output PMNS created
+
+dups -x
+Error Parsing ASCII PMNS: Duplicate metric id (7.0.2) in name space for metrics "black.sheep" and "bar.bar.two"
+
+pmnsmerge: Error: pmLoadASCIINameSpace(TMP.tmp, 0): Problems parsing PMNS definitions
+exit status: 1
+output PMNS created
+
+dups -x - order reversed
+Error Parsing ASCII PMNS: Duplicate metric id (4.*.*) in name space for metrics "white.dyno" and "dyno"
+
+pmnsmerge: Error: pmLoadASCIINameSpace(TMP.tmp, 0): Problems parsing PMNS definitions
+exit status: 1
+output PMNS created
+
+dups - 3 input files
+exit status: 0
+output PMNS created
+
+merged
+exit status: 0
+output PMNS created
+
+merged -x
+Error Parsing ASCII PMNS: Duplicate metric id (7.0.2) in name space for metrics "black.sheep" and "bar.bar.two"
+
+pmnsmerge: Error: pmLoadASCIINameSpace(TMP.merged, 0): Problems parsing PMNS definitions
+exit status: 1
+output PMNS created

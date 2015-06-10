@@ -41,11 +41,42 @@ Performance Metric Identifiers (PMIDs) via
 .PP
 The result from
 .B pmLookupName
-will be the number of names translated in the absence of errors, else 
-an error code less than zero.
-When errors are encountered, the corresponding value in
+depends on the presence of any lookup failures, their severity and the
+number of metrics being looked up.
+.IP 1. 4n
+If there are no lookup failures, the return value will be
+.IR numpmid .
+.IP 2. 4n
+If a fatal error is encountered, the return value will be less than 0.
+For example
+.BR PM_ERR_TOOSMALL ,
+.B PM_ERR_NOPMNS
+or
+.BR PM_ERR_IPC .
+.IP 3. 4n
+If
+.I numpmid
+is greater than one and non-fatal error(s) are encountered, the
+return value is the number of metric names that have successfully been
+looked up (greater than or equal to zero and less than or equal to
+.IR numpmid ).
+.IP 4. 4n
+If
+.I numpmid
+is one and a non-fatal error is encountered, the return value is the
+error code (less than zero).
+.PP
+When errors are encountered, any metrics that cannot be looked up
+result in the corresponding element of
 .I pmidlist 
-will be PM_ID_NULL.
+being set to
+.BR PM_ID_NULL .
+.PP
+The slightly convoluted error protocol allows bulk lookups, then
+probing for more error details in the case of a specific failure,
+as shown in the
+.B EXAMPLES
+section below.
 .PP
 Note that the error protocol guarantees there is a 1:1 relationship
 between the elements of
@@ -58,6 +89,55 @@ elements.
 For this reason, the caller is expected to have pre-allocated a suitably
 sized array for
 .IR pmidlist .
+.SH EXAMPLE
+.nf
+.ft CW
+#include <pcp/pmapi.h>
+
+#define NUMPMID 5
+char 	*names[] = { "sample.bin",
+		     "sample",
+		     "sample.bog",
+		     "sample.secret.bar",
+		     "sample.secret.bar.bad"
+		   };
+pmID	pmids[NUMPMID];
+
+int
+main(int argc, char **argv)
+{
+    int	sts;
+    int	numpmid = NUMPMID;
+
+    pmNewContext(PM_CONTEXT_HOST, "local:");
+
+    sts = pmLookupName(numpmid, names, pmids);
+
+    if (sts < 0) {
+	fprintf(stderr, "pmLookupName failed: %s\n", pmErrStr(sts));
+	exit(1);
+    }
+    if (sts != numpmid) {
+	/*
+	 * some of the lookups failed ... report the reason(s)
+	 */
+	int	i;
+
+	for (i = 0; i < numpmid; i++) {
+	    if (pmids[i] != PM_ID_NULL) continue;
+	    /* this one failed */
+	    sts = pmLookupName(1, &names[i], &pmids[i]);
+	    fprintf(stderr, "%s: lookup failed: %s\n", names[i], pmErrStr(sts));
+	}
+	exit(1);
+    }
+
+    /* all good ... */
+    ...
+}
+
+.ft
+.fi
 .SH SEE ALSO
 .BR PMAPI (3),
 .BR pmGetChildren (3),
@@ -82,11 +162,11 @@ and wants to use the distributed PMNS, then a call to
 must be made after the creation of a context (see 
 .BR pmNewContext (3)).
 .IP \f3PM_ERR_NAME\f1
-One or more of the elements of
-.I namelist
+.I namelist[0]
 does not correspond to a valid metric name in the PMNS.
 .IP \f3PM_ERR_NONLEAF\f1
-A name referred to a node in the PMNS but it was
+.I namelist[0]
+refers to a node in the PMNS but it was
 not a leaf node.
 .IP \f3PM_ERR_*\f1
 Other diagnostics are for protocol failures when

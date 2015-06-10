@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2012 Red Hat.
+.\" Copyright (c) 2012,2015 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -15,12 +15,15 @@
 .\"
 .TH PMGETCONFIG 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmGetConfig\f1 \- return Performance Co-Pilot configuration variable
+\f3pmGetConfig\f1,
+\f3pmGetOptionalConfig\f1 \- return values for Performance Co-Pilot configuration variables
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .br
 char *pmGetConfig(const char *\fIvariable\fP);
+.br
+char *pmGetOptionalConfig(const char *\fIvariable\fP);
 .sp
 #include <pcp/impl.h>
 .br
@@ -31,7 +34,9 @@ cc ... \-lpcp
 .SH DESCRIPTION
 The
 .B pmGetConfig
-function searches for
+and
+.B pmGetOptionalConfig
+functions search for
 .I variable
 first in the environment and then, if not found, in
 the Performance Co-Pilot (PCP) configuration file
@@ -42,6 +47,10 @@ is not already in the environment,
 it is added with a call to
 .BR putenv (3)
 before returning.
+.PP
+The
+.B pmGetOptionalConfig
+allows for failures \- either 
 .PP
 The default location of the PCP configuration file is
 .B /etc/pcp.conf
@@ -68,31 +77,31 @@ that are valid arguments to these routines.
 .SH "RETURN VALUE"
 If
 .I variable
-is not found in either the environment nor the PCP configuration file then
-the return value is an empty string.
-If the
-PCP configuration file is not found
+is not found in either the environment nor the PCP configuration file,
+or the configuration file is inaccessible, then
+.B pmGetOptionalConfig 
+returns NULL.
+.PP
+If
+.I variable
+is not found in either the environment nor the PCP configuration file, then
+.B pmGetConfig 
+returns an empty string.
+If the PCP configuration file is not found
 then a fatal error message is printed and the process will
 .BR exit (2)
 \- although this sounds drastic, it is the only course of action available
-because the PCP configuration/installation is fatally flawed.
-.PP
-If the
-.B pmGetConfig
-function returns a non-empty string,
-the returned value points into the environment and so changing
-it is a bad idea.
-This function returns the same type as the 
-.BR getenv (3)
-function (which should probably be a
-.IR "const char *" ).
+because the PCP configuration/installation is deemed fatally flawed.
 .PP
 The
 .B __pmGetAPIConfig
-routine on the other hand returns NULL on failure to lookup the requested
+routine returns NULL on failure to lookup the requested
 .IR feature .
 It does not modify the environment, and returns a pointer to a static
-read-only string which also should not be modified or freed by the caller.
+read-only string.
+.PP
+The value returned by all of these routines is either a static pointer
+or pointer into the environment, and so changing it is a bad idea.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
@@ -114,6 +123,7 @@ function.
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmconfig (1),
+.BR pmGetVersion (3),
 .BR exit (2),
 .BR PMAPI (3),
 .BR getenv (3C),

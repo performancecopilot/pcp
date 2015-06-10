@@ -3,7 +3,7 @@
 # checks functionality of pmdacifs in both DSO and daemon mode with Valgrind
 # memory testing.
 #
-# Copyright (c) 2014 Red Hat, Inc. All Rights Reserved.
+# Copyright (c) 2014-2015 Red Hat, Inc. All Rights Reserved.
 seq=`basename $0`
 
 # get standard environment, filters and checks
@@ -14,6 +14,7 @@ seq=`basename $0`
 _check_valgrind
 echo "QA output created by $seq"
 
+[ -f $PCP_PMDAS_DIR/cifs/pmdacifs ] || _notrun "cifs pmda not installed"
 [ $PCP_PLATFORM = linux ] || _notrun "CIFS PMDA is Linux-specific (uses procfs)"
 
 root=$tmp.root

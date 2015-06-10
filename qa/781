@@ -34,7 +34,7 @@ _filter()
 	-e "s,$tmp,LOGDIR,g" \
 	-e "s,$host,HOSTNAME,g" \
 	-e "s,$today\.[0-9][0-9]\.[0-9][0-9],ARCHIVE,g" \
-	-e "s@$PCP_BINADM_DIR@\$PCP_BINADM_DIR@" \
+	-e "s@$PCP_BINADM_DIR\/@@" \
     # end
 }
 

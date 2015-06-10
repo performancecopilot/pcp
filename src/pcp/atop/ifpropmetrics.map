@@ -1,0 +1,11 @@
+#
+# metric names and access macros for ifprop.[ch]
+#
+
+ifpropmetrics {
+	network.interface.baudrate	IF_SPEED
+	network.interface.duplex	IF_DUPLEX
+
+	# end marker - provides count
+	.				IF_NMETRICS
+}

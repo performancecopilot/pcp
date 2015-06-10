@@ -2,6 +2,7 @@
 # PCP QA Test No. 642
 # concurrent PMDA installs trash the PMNS?
 #
+# Copyright (c) 2015 Red Hat.
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
@@ -12,6 +13,9 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+
+[ -f $PCP_PMDAS_DIR/trace/pmdatrace ] || _notrun "trace pmda not installed"
+[ -f $PCP_PMDAS_DIR/sendmail/pmdasendmail ] || _notrun "sendmail pmda not installed"
 
 rm -f $seq.out $seq.full
 if [ $PCP_VER -ge 30813 ]

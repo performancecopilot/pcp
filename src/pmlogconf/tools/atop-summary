@@ -2,6 +2,13 @@
 ident   metrics sampled once by the atop command
 probe	kernel.uname.sysname ~ Linux ? include : exclude
 delta	once
-	hinv.cpu.clock
 	hinv.ncpu
+	hinv.ndisk
+	hinv.ninterface
+	hinv.pagesize
+	kernel.all.hz
+	kernel.uname.release
+	kernel.uname.version
+	kernel.uname.machine
+	kernel.uname.nodename
 	mem.physmem

@@ -1083,7 +1083,7 @@ main(int argc, char *argv[])
 	}
     }
 
-    if (!opts.errors && opts.optind >= argc) {
+    if (!opts.errors && opts.optind >= argc && !opts.archives) {
 	pmprintf("Error: no archive specified\n\n");
 	opts.errors++;
     }
@@ -1093,8 +1093,12 @@ main(int argc, char *argv[])
 	exit(1);
     }
 
-    archive = argv[opts.optind++];
-    __pmAddOptArchive(&opts, archive);
+    if (opts.narchives > 0) {
+	archive = opts.archives[0];
+    } else {
+	archive = argv[opts.optind++];
+	__pmAddOptArchive(&opts, archive);
+    }
     opts.flags &= ~PM_OPTFLAG_DONE;
     __pmEndOptions(&opts);
 

@@ -1,0 +1,99 @@
+#! /bin/sh
+# PCP QA Test No. 657
+# checks pmdadm functionality
+# Requires dmsetup utility to be installed, else the test will
+# not run (PMDA will fail to install).
+#
+# Copyright (c) 2015 Red Hat, Inc. All Rights Reserved.
+#
+seq=`basename $0`
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+echo "QA output created by $seq"
+
+[ $PCP_PLATFORM = linux ] || _notrun "Device Mapper is Linux-specific (dm)"
+which dmsetup >/dev/null 2>&1 || _notrun "dmsetup is not installed"
+
+root=$tmp.root
+export DM_SETUP_CACHE="cat $root/dmcache-caches"
+export DM_SETUP_THINPOOL="cat $root/dmthin-pool"
+export DM_SETUP_THIN="cat $root/dmthin-thin"
+
+# helper functions
+
+_install_pmda()
+{
+    # install the PMDA
+    cd $PCP_PMDAS_DIR/$iam
+    $sudo ./Remove < /dev/null >/dev/null 2>&1
+    $sudo ./Install < /dev/null >$tmp.out 2>&1
+    cat $tmp.out | _filter_pmda_install | sed \
+    -e '/.*pmcd.*/d' \
+    -e '/.*pmlogger.*/d' \
+    -e '/Latest.*/d' \
+    -e '/Duplicate.*/d'
+}
+
+_remove_pmda()
+{
+    cd $PCP_PMDAS_DIR/$iam
+    $sudo ./Remove < /dev/null > /dev/null 2>&1
+}
+
+_cleanup()
+{
+    $sudo rm -fr $root
+    $sudo rm -fr $tmp.*.dir
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+iam=dm
+status=1 # failure is the default!
+trap "_cleanup $iam" 0 1 2 3 15
+
+$sudo rm -fr $root
+$sudo rm -fr $tmp.*.dir
+$sudo rm -f $tmp.* $seq.full
+touch $here/$seq.full
+
+# real QA test starts here
+cd $here
+
+echo
+echo "=== Setting up QA fakeroot testing data ==="
+$sudo rm -fr $root
+mkdir $root || _fail "root in use when processing fakeroot"
+cd $root
+echo 'zz_cache: 0 1677721600 cache 8 10162/262144 128 39839/3276800 1087840 821795 116320 2057235 0 39835 0 1 writeback 2 migration_threshold 2048 mq 10 random_threshold 4 sequential_threshold 0 discard_promote_adjustment 1 read_promote_adjustment 0 write_promote_adjustment 0' > $root/dmcache-caches
+echo 'yy_pool: 0 409600 thin-pool 0 13/65536 0/3200 - rw no_discard_passdown queue_if_no_space' > $root/dmthin-pool
+echo 'vg_1-lv3: 0 8388608 thin 7000704 8388607
+vg_1-lv2: 0 8388608 thin 6832768 8388607' > $root/dmthin-thin
+cd $here
+
+echo
+echo "=== Installing Device Mapper PMDA ==="
+_prepare_pmda_install $iam
+_install_pmda
+
+echo
+echo "=== Check dm-cache metrics ==="
+pminfo -dfmtT dmcache
+
+echo
+echo "=== Check dm-thin metrics for thin pool metrics ==="
+pminfo -dfmtT dmthin.pool
+
+echo
+echo "=== Check dm-thin metrics for thin vol metrics ==="
+pminfo -dfmtT dmthin.vol
+
+# cleanup
+_remove_pmda
+
+status=0
+exit

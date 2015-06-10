@@ -13,8 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ $PCP_VER -lt 30600 ] && _notrun "Fix for __pmConfig is in PCP 3.6"
-
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

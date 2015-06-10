@@ -60,6 +60,33 @@ static char *			cgroups;	/* control.all.cgroups */
 int				conf_gen;	/* hotproc config version, if zero hotproc not configured yet */
 long				hz;
 
+/*
+ * Note on "jiffies".
+ * In the Linux kernel jiffies are always "unsigned long" (aka
+ * KERNEL_ULONG), so to scale from jiffies to milliseconds, the multiplier
+ * is 1000 / hz.
+ * Unfortunately this presents some overflow and precision challenges.
+ * 1. Variables used to hold an intermediate jiffies value should
+ *    be declared __pm_kernel_ulong_t
+ * 2. If this value is instantiated from a string (as in the /proc
+ *    stats files, it is safe to use strtoul().
+ * 3. The resultant PCP metric should be in units of msec and may be
+ *    of type KERNEL_ULONG or PM_TYPE_U64 or PM_TYPE_U32.  KERNEL_ULONG
+ *    will become one of the other types depending on the platform. In
+ *    the case of PM_TYPE+_32 overflow would occur in
+ *    (2^32-1)/(1000/hz)/(3600*24) days, and for current settings of
+ *    hz (100) this means 4971+ days or more than 13.5 years, so this is
+ *    not a practical issue nor a reason to mandate PM_TYPE_U64.
+ * 4. But if the calculation is done in 32-bit integer arithmetic we
+ *    risk earlier overflow much earlier (49+ days) because the *1000
+ *    exceeds 32-bits ... so the arithmetic should always be forced
+ *    to 64-bits by
+ *    (a) explicit cast of the jiffies (__int64_t)jiffies * 1000 / hz or
+ *    (b) declaring the variable holding the jiffies to be of type
+ *        __int64_t
+ *    we choose option (b).
+ */
+
 extern struct timeval   hotproc_update_interval;
 
 char *proc_statspath = "";	/* optional path prefix for all stats files */
@@ -193,8 +220,8 @@ static pmdaMetric metrictab[] = {
 
 /* proc.psinfo.start_time */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STAT,21), PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
-    PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) } },
+    { PMDA_PMID(CLUSTER_PID_STAT,21), PM_TYPE_U64, PROC_INDOM, PM_SEM_DISCRETE, 
+    PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
 
 /* proc.psinfo.vsize */
   { NULL,
@@ -257,17 +284,9 @@ static pmdaMetric metrictab[] = {
     PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /* proc.psinfo.wchan */
-#if defined(HAVE_64BIT_PTR)
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STAT,34), PM_TYPE_U64, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STAT,34), KERNEL_ULONG, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0) } },
-#elif defined(HAVE_32BIT_PTR)
-  { NULL,
-    { PMDA_PMID(CLUSTER_PID_STAT,34), PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
-    PMDA_PMUNITS(0,0,0,0,0,0) } },
-#else
-    error! unsupported pointer size
-#endif
 
 /* proc.psinfo.nswap */
   { NULL,
@@ -316,19 +335,22 @@ static pmdaMetric metrictab[] = {
 
 /* proc.psinfo.delayacct_blkio_time */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STAT,44), PM_TYPE_U32, PROC_INDOM, PM_SEM_COUNTER,
+    { PMDA_PMID(CLUSTER_PID_STAT,44), PM_TYPE_U64, PROC_INDOM, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
 
 /* proc.psinfo.guest_time */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STAT,45), PM_TYPE_U32, PROC_INDOM, PM_SEM_COUNTER,
+    { PMDA_PMID(CLUSTER_PID_STAT,45), PM_TYPE_U64, PROC_INDOM, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
 
 /* proc.psinfo.cguest_time */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STAT,46), PM_TYPE_U32, PROC_INDOM, PM_SEM_COUNTER,
+    { PMDA_PMID(CLUSTER_PID_STAT,46), PM_TYPE_U64, PROC_INDOM, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
-
+/* proc.psinfo.environ */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STAT,47), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
 /*
  * proc/<pid>/status cluster
  * Cluster added by Mike Mason <mmlnx@us.ibm.com>
@@ -336,167 +358,272 @@ static pmdaMetric metrictab[] = {
 
 /* proc.id.uid */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,0), PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_UID),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.euid */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,1), PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_EUID),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.suid */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,2), PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_SUID),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.fsuid */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,3), PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_FSUID),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.gid */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,4), PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_GID),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.egid */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,5), PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_EGID),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.sgid */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,6), PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_SGID),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.fsgid */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,7), PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_FSGID),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.uid_nm */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,8), PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_UID_NM),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.euid_nm */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,9), PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_EUID_NM),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.suid_nm */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,10), PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_SUID_NM),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.fsuid_nm */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,11), PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_FSUID_NM),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.gid_nm */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,12), PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_GID_NM),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.egid_nm */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,13), PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_EGID_NM),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.sgid_nm */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,14), PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_SGID_NM),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.id.fsgid_nm */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,15), PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_FSGID_NM),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.psinfo.signal_s */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,16), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_SIGNAL),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.psinfo.blocked_s */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,17), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_BLOCKED),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.psinfo.sigignore_s */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,18), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_SIGIGNORE),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.psinfo.sigcatch_s */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,19), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_SIGCATCH),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.memory.vmsize */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,20), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMSIZE),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
 /* proc.memory.vmlock */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,21), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMLOCK),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
 /* proc.memory.vmrss */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,22), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMRSS),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
 /* proc.memory.vmdata */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,23), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMDATA),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
 /* proc.memory.vmstack */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,24), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMSTACK),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
 /* proc.memory.vmexe */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,25), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMEXE),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
 /* proc.memory.vmlib */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,26), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMLIB),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
 /* proc.memory.vmswap */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,27), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMSWAP),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
 /* proc.psinfo.threads */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,28), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_THREADS),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.psinfo.vctxsw */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,29), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VCTXSW),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.psinfo.nvctxsw */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS,30), PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_NVCTXSW),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* proc.psinfo.cpusallowed */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_CPUSALLOWED),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* proc.psinfo.ngid */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_NGID),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* proc.psinfo.tgid */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_TGID),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* proc.namespaces.envid */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_ENVID),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* proc.memory.vmpeak */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMPEAK),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+
+/* proc.memory.vmpin */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMPIN),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+
+/* proc.memory.vmhwn */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMHWN),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+
+/* proc.memory.vmpte */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMPTE),
+    PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
 /* proc.psinfo.cgroups */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_CGROUP,0), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_CGROUP, PROC_PID_CGROUP),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /* proc.psinfo.labels */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_LABEL,0), PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    { PMDA_PMID(CLUSTER_PID_LABEL, PROC_PID_LABEL),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* proc.namespaces.tpid */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_NSTGID),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* proc.namespaces.pid */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_NSPID),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* proc.namespaces.pgid */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_NSPGID),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* proc.namespaces.sid */
+  { NULL,
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_NSSID),
+    PM_TYPE_STRING, PROC_INDOM, PM_SEM_DISCRETE,
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 
@@ -870,6 +997,21 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_RECENT_SCANNED_FILE), PM_TYPE_U64,
     CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
+/* cgroup.memory.usage */
+  { NULL,
+    { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_USAGE_IN_BYTES), PM_TYPE_U64,
+    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+
+/* cgroup.memory.limit */
+  { NULL,
+    { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_LIMIT_IN_BYTES), PM_TYPE_U64,
+    CGROUP_MEMORY_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+
+/* cgroup.memory.failcnt */
+  { NULL,
+    { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_FAILCNT), PM_TYPE_U64,
+    CGROUP_MEMORY_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
 /* cgroup.netclass.classid */
   { NULL,
     { PMDA_PMID(CLUSTER_NETCLS_GROUPS, CG_NETCLS_CLASSID), PM_TYPE_U64,
@@ -1240,6 +1382,9 @@ static pmdaMetric metrictab[] = {
     /* hotproc.control.config_gen */
     { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_CONFIG_GEN),
       PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
+    /* hotproc.control.reload_config */
+    { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_RELOAD_CONFIG),
+      PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
     /* hotproc.total.cpuidle */
     { NULL, {PMDA_PMID(CLUSTER_HOTPROC_GLOBAL,ITEM_HOTPROC_G_CPUIDLE),
       PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)} },
@@ -1490,7 +1635,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     pmInDom		indom;
     int			sts;
     int			have_totals;
-    unsigned long	ul;
+    __int64_t		jiffies;
     const char		*cp;
     char		*f;
     proc_pid_entry_t	*entry;
@@ -1543,32 +1688,35 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	have_totals = get_hot_totals(&ta, &ti, &tt, &tci);
 
 	switch (idp->item) {
-	case ITEM_HOTPROC_G_REFRESH:
+	case ITEM_HOTPROC_G_REFRESH: /* hotproc.control.refresh */
 	    atom->ul = hotproc_update_interval.tv_sec;
 	    break;
-	case ITEM_HOTPROC_G_CONFIG:
+	case ITEM_HOTPROC_G_CONFIG: /* hotproc.control.config */
 	    tmpbuf = get_conf_buffer();
 	    atom->cp = tmpbuf ? tmpbuf : "";
 	    break;
-	case ITEM_HOTPROC_G_CONFIG_GEN:
+	case ITEM_HOTPROC_G_CONFIG_GEN: /* hotproc.control.config_gen */
 	    atom->ul = conf_gen;
 	    break;
-	case ITEM_HOTPROC_G_CPUIDLE:
+	case ITEM_HOTPROC_G_RELOAD_CONFIG: /* hotproc.control.reload_config */
+	    atom->ul = 0;
+	    break;
+	case ITEM_HOTPROC_G_CPUIDLE: /* hotproc.total.cpuidle */
 	    atom->f = have_totals ? tci : 0;
 	    break;
-	case ITEM_HOTPROC_G_CPUBURN:
+	case ITEM_HOTPROC_G_CPUBURN: /* hotproc.total.cpuburn */
 	    atom->f = have_totals ? ta : 0;
 	    break;
-	case ITEM_HOTPROC_G_OTHER_TRANSIENT:
+	case ITEM_HOTPROC_G_OTHER_TRANSIENT: /* hotproc.total.cpuother.transient */
 	    atom->f = have_totals ? tt : 0;
 	    break;
-	case ITEM_HOTPROC_G_OTHER_NOT_CPUBURN:
+	case ITEM_HOTPROC_G_OTHER_NOT_CPUBURN: /* hotproc.total.cpuother.not_cpuburn */
 	    atom->f = have_totals ? ti : 0;
 	    break;
-	case ITEM_HOTPROC_G_OTHER_TOTAL:
+	case ITEM_HOTPROC_G_OTHER_TOTAL: /* hotproc.total.cpuother.total */
 	    atom->f = have_totals ? ti + tt : 0;
 	    break;
-	case ITEM_HOTPROC_G_OTHER_PERCENT: {
+	case ITEM_HOTPROC_G_OTHER_PERCENT: { /* hotproc.total.cpuother.percent */
 	    double other = tt + ti;
 	    double non_idle = other + ta;
 
@@ -1596,28 +1744,28 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_INST;
 
 	switch (idp->item) {
-	    case ITEM_HOTPROC_P_SYSCALLS:
+	    case ITEM_HOTPROC_P_SYSCALLS: /* No way to get this right now (maybe from systemtap?)*/
 		return PM_ERR_PMID;
 		break;
-	    case ITEM_HOTPROC_P_CTXSWITCH:
+	    case ITEM_HOTPROC_P_CTXSWITCH: /* hotproc.predicate.ctxswitch */
 		atom->f = hotnode->preds.ctxswitch;
 		break;
-	    case ITEM_HOTPROC_P_VSIZE:
+	    case ITEM_HOTPROC_P_VSIZE: /* hotproc.predicate.virtualsize */
 		atom->ul = hotnode->preds.virtualsize;
 		break;
-	    case ITEM_HOTPROC_P_RSIZE:
+	    case ITEM_HOTPROC_P_RSIZE: /* hotproc.predicate.residentsize */
 		atom->ul = hotnode->preds.residentsize;
 		break;
-	    case ITEM_HOTPROC_P_IODEMAND:
+	    case ITEM_HOTPROC_P_IODEMAND: /* hotproc.predicate.iodemand */
 		atom->f = hotnode->preds.iodemand;
 		break;
-	    case ITEM_HOTPROC_P_IOWAIT:
+	    case ITEM_HOTPROC_P_IOWAIT: /* hotproc.predicate.iowait */
 		atom->f = hotnode->preds.iowait;
 		break;
-	    case ITEM_HOTPROC_P_SCHEDWAIT:
+	    case ITEM_HOTPROC_P_SCHEDWAIT: /* hotproc.predicate.schedwait */
 		atom->f = hotnode->preds.schedwait;
 		break;
-	    case ITEM_HOTPROC_P_CPUBURN: /* not in orig hotproc */
+	    case ITEM_HOTPROC_P_CPUBURN: /* (not in orig hotproc) hotproc.predicate.cpuburn */
 		atom->f = hotnode->r_cpuburn;
 		break;
 	    default:
@@ -1641,87 +1789,87 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return sts;
 
 	    switch (idp->item) {
-		case PROC_PID_STAT_PID:
-		    atom->ul = entry->id;
-		    break;
-
-		case PROC_PID_STAT_TTYNAME:
-		    f = _pm_getfield(entry->stat_buf, PROC_PID_STAT_TTY);
-		    if (f == NULL)
-			atom->cp = "?";
-		    else {
-			dev_t dev = (dev_t)atoi(f);
-			atom->cp = get_ttyname_info(inst, dev, ttyname);
-		    }
-		    break;
-
-		case PROC_PID_STAT_CMD:
-		    f = _pm_getfield(entry->stat_buf, idp->item);
-		    if (f == NULL)
-			return 0;
-		    atom->cp = f + 1;
-		    atom->cp[strlen(atom->cp)-1] = '\0';
-		    break;
-
-		case PROC_PID_STAT_PSARGS:
-		    atom->cp = entry->name + 7;
-		    break;
-
-		case PROC_PID_STAT_STATE: /* string */
-		    f = _pm_getfield(entry->stat_buf, idp->item);
-		    if (f == NULL)
-			return 0;
-	    	    atom->cp = f;
-		    break;
-
-		case PROC_PID_STAT_VSIZE:
-		case PROC_PID_STAT_RSS_RLIM: /* bytes converted to kbytes */
-		    f = _pm_getfield(entry->stat_buf, idp->item);
-		    if (f == NULL)
-			return 0;
-		    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
-		    atom->ul /= 1024;
-		    break;
-
-		case PROC_PID_STAT_RSS: /* pages converted to kbytes */
-			f = _pm_getfield(entry->stat_buf, idp->item);
-			if (f == NULL)
-			    return 0;
-			atom->ul = (__uint32_t)strtoul(f, &tail, 0);
-			atom->ul *= _pm_system_pagesize / 1024;
-			break;
-
-		    case PROC_PID_STAT_UTIME:
-		    case PROC_PID_STAT_STIME:
-		    case PROC_PID_STAT_CUTIME:
-		    case PROC_PID_STAT_CSTIME:
-			/* unsigned jiffies converted to unsigned msecs */
-			f = _pm_getfield(entry->stat_buf, idp->item);
-			if (f == NULL)
-			    return 0;
-			ul = (__uint32_t)strtoul(f, &tail, 0);
-			_pm_assign_ulong(atom, 1000 * (double)ul / hz);
-			break;
-
-		    case PROC_PID_STAT_PRIORITY:
-		    case PROC_PID_STAT_NICE: /* signed decimal int */
-			f = _pm_getfield(entry->stat_buf, idp->item);
-			if (f == NULL)
-			    return 0;
-			atom->l = (__int32_t)strtol(f, &tail, 0);
-			break;
-
-		    case PROC_PID_STAT_WCHAN:
-		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
-			return 0;
-#if defined(HAVE_64BIT_PTR)
-		atom->ull = (__uint64_t)strtoull(f, &tail, 0);
-#else
-		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
-#endif
+	    case PROC_PID_STAT_PID: /* proc.psinfo.pid */
+		atom->ul = entry->id;
 		break;
 
-	    case PROC_PID_STAT_WCHAN_SYMBOL:
+	    case PROC_PID_STAT_TTYNAME: /* proc.psinfo.tty */
+		f = _pm_getfield(entry->stat_buf, PROC_PID_STAT_TTY);
+		if (f == NULL)
+		    atom->cp = "?";
+		else {
+		    dev_t dev = (dev_t)atoi(f);
+		    atom->cp = get_ttyname_info(inst, dev, ttyname);
+		}
+		break;
+
+	    case PROC_PID_STAT_CMD: /* proc.psinfo.cmd */
+		f = _pm_getfield(entry->stat_buf, idp->item);
+		if (f == NULL)
+		    return 0;
+		atom->cp = f + 1;
+		atom->cp[strlen(atom->cp)-1] = '\0';
+		break;
+
+	    case PROC_PID_STAT_PSARGS: /* proc.psinfo.psargs */
+		atom->cp = entry->name + 7;
+		break;
+
+	    case PROC_PID_STAT_STATE: /* string */ /* proc.psinfo.sname */
+		f = _pm_getfield(entry->stat_buf, idp->item);
+		if (f == NULL)
+		    return 0;
+	    	atom->cp = f;
+		break;
+
+	    case PROC_PID_STAT_VSIZE: /* proc.psinfo.vsize */
+	    case PROC_PID_STAT_RSS_RLIM: /* bytes converted to kbytes */ /* proc.psinfo.rss_rlim */
+		f = _pm_getfield(entry->stat_buf, idp->item);
+		if (f == NULL)
+		    return 0;
+		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+		atom->ul /= 1024;
+		break;
+
+	    case PROC_PID_STAT_RSS: /* pages converted to kbytes */ /* proc.psinfo.rss */
+		f = _pm_getfield(entry->stat_buf, idp->item);
+		if (f == NULL)
+		    return 0;
+		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+		atom->ul *= _pm_system_pagesize / 1024;
+		break;
+
+	    case PROC_PID_STAT_UTIME: /* proc.psinfo.utime */
+	    case PROC_PID_STAT_STIME: /* proc.psinfo.stime */
+	    case PROC_PID_STAT_CUTIME: /* proc.psinfo.cutime */
+	    case PROC_PID_STAT_CSTIME: /* proc.psinfo.cstime */
+		/* unsigned jiffies converted to unsigned msecs */
+		f = _pm_getfield(entry->stat_buf, idp->item);
+		if (f == NULL)
+		    return 0;
+		jiffies = (__int64_t)strtoul(f, &tail, 0);
+		_pm_assign_ulong(atom, jiffies * 1000 / hz);
+		break;
+
+	    case PROC_PID_STAT_PRIORITY: /* proc.psinfo.priority */
+	    case PROC_PID_STAT_NICE: /* signed decimal int */ /* proc.psinfo.nice */
+		f = _pm_getfield(entry->stat_buf, idp->item);
+		if (f == NULL)
+		    return 0;
+		atom->l = (__int32_t)strtol(f, &tail, 0);
+		break;
+
+	    case PROC_PID_STAT_WCHAN: /* proc.psinfo.wchan */
+		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
+		    return 0;
+		_pm_assign_ulong(atom, (__pm_kernel_ulong_t)strtoull(f, &tail, 0));
+		break;
+ 
+	    case PROC_PID_STAT_ENVIRON: /* proc.psinfo.environ */
+		atom->cp = entry->environ_buf ? entry->environ_buf : "";
+		break;
+
+	    case PROC_PID_STAT_WCHAN_SYMBOL: /* proc.psinfo.wchan_s */
 		if (entry->wchan_buf)	/* 2.6 kernel, /proc/<pid>/wchan */
 		    atom->cp = entry->wchan_buf;
 		else {		/* old school (2.4 kernels, at least) */
@@ -1733,14 +1881,13 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		    f = _pm_getfield(entry->stat_buf, PROC_PID_STAT_WCHAN);
 		    if (f == NULL)
 			return 0;
-#if defined(HAVE_64BIT_PTR)
-		    atom->ull = (__uint64_t)strtoull(f, &tail, 0);
+		    _pm_assign_ulong(atom, (__pm_kernel_ulong_t)strtoull(f, &tail, 0));
+#if defined(HAVE_64BIT_LONG)
 		    if ((wc = wchan(atom->ull)))
 			atom->cp = wc;
 		    else
 			atom->cp = atom->ull ? f : "";
 #else
-		    atom->ul  = (__uint32_t)strtoul(f, &tail, 0);
 		    if ((wc = wchan((__psint_t)atom->ul)))
 			atom->cp = wc;
 		    else
@@ -1750,27 +1897,37 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 
 	    /* The following 2 case groups need to be here since the #defines don't match the index into the buffer */
-	    case PROC_PID_STAT_RTPRIORITY:
-	    case PROC_PID_STAT_POLICY:
+	    case PROC_PID_STAT_RTPRIORITY: /* proc.psinfo.rt_priority */
+	    case PROC_PID_STAT_POLICY: /* proc.psinfo.policy */
 	    	if ((f = _pm_getfield(entry->stat_buf, idp->item - 3)) == NULL) /* Note the offset */
 		    	return 0;
 		    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	    	break;
 
-	    case PROC_PID_STAT_DELAYACCT_BLKIO_TICKS:
-	    case PROC_PID_STAT_GUEST_TIME:
-	    case PROC_PID_STAT_CGUEST_TIME:
+	    case PROC_PID_STAT_DELAYACCT_BLKIO_TICKS: /* proc.psinfo.delayacct_blkio_time */
+	    case PROC_PID_STAT_GUEST_TIME: /* proc.psinfo.guest_time */
+	    case PROC_PID_STAT_CGUEST_TIME: /* proc.psinfo.cguest_time */
 	    	/*
 		 * unsigned jiffies converted to unsigned milliseconds
 		 */
 		if ((f = _pm_getfield(entry->stat_buf, idp->item - 3)) == NULL)  /* Note the offset */
 		    return 0;
 
-		ul = (__uint32_t)strtoul(f, &tail, 0);
-		_pm_assign_ulong(atom, 1000 * (double)ul / hz);
+		jiffies = (__uint64_t)strtoul(f, &tail, 0);
+		atom->ull = jiffies * 1000 / hz;
+	    	break;
+	    case PROC_PID_STAT_START_TIME: /* proc.psinfo.start_time */
+	    	/*
+		 * unsigned jiffies converted to unsigned milliseconds
+		 */
+		if ((f = _pm_getfield(entry->stat_buf, idp->item)) == NULL)
+		    return 0;
+
+		jiffies = (__uint64_t)strtoul(f, &tail, 0);
+		atom->ull = jiffies * 1000 / hz;
 	    	break;
 
-	    default:
+	    default: /* All the rest. Direct index by item */
 		/*
 		 * unsigned decimal int
 		 */
@@ -1824,15 +1981,10 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (idp->item < NR_PROC_PID_SCHED) {
 	    if ((f = _pm_getfield(entry->schedstat_buf, idp->item)) == NULL)
 		return 0;
-	    if (idp->item == PROC_PID_SCHED_PCOUNT &&
-		mdesc->m_desc.type == PM_TYPE_U32)
-		atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+	    if (idp->item == PROC_PID_SCHED_PCOUNT)
+		_pm_assign_ulong(atom, (__pm_kernel_ulong_t)strtoul(f, &tail, 0));
 	    else
-#if defined(HAVE_64BIT_PTR)
 		atom->ull  = (__uint64_t)strtoull(f, &tail, 0);
-#else
-	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
-#endif
 	}
 	else
 	    return PM_ERR_PMID;
@@ -1849,43 +2001,43 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	switch (idp->item) {
 
-	case PROC_PID_IO_RCHAR:
+	case PROC_PID_IO_RCHAR: /* proc.io.rchar */
 	    if ((f = _pm_getfield(entry->io_lines.rchar, 1)) == NULL)
 		atom->ull = 0;
 	    else
 		atom->ull = (__uint64_t)strtoull(f, &tail, 0);
 	    break;
-	case PROC_PID_IO_WCHAR:
+	case PROC_PID_IO_WCHAR: /* proc.io.wchar */
 	    if ((f = _pm_getfield(entry->io_lines.wchar, 1)) == NULL)
 		atom->ull = 0;
 	    else
 		atom->ull = (__uint64_t)strtoull(f, &tail, 0);
 	    break;
-	case PROC_PID_IO_SYSCR:
+	case PROC_PID_IO_SYSCR: /* proc.io.syscr */
 	    if ((f = _pm_getfield(entry->io_lines.syscr, 1)) == NULL)
 		atom->ull = 0;
 	    else
 		atom->ull = (__uint64_t)strtoull(f, &tail, 0);
 	    break;
-	case PROC_PID_IO_SYSCW:
+	case PROC_PID_IO_SYSCW: /* proc.io.syscw */
 	    if ((f = _pm_getfield(entry->io_lines.syscw, 1)) == NULL)
 		atom->ull = 0;
 	    else
 		atom->ull = (__uint64_t)strtoull(f, &tail, 0);
 	    break;
-	case PROC_PID_IO_READ_BYTES:
+	case PROC_PID_IO_READ_BYTES: /* proc.io.read_bytes */
 	    if ((f = _pm_getfield(entry->io_lines.readb, 1)) == NULL)
 		atom->ull = 0;
 	    else
 		atom->ull = (__uint64_t)strtoull(f, &tail, 0);
 	    break;
-	case PROC_PID_IO_WRITE_BYTES:
+	case PROC_PID_IO_WRITE_BYTES: /* proc.io.write_bytes */
 	    if ((f = _pm_getfield(entry->io_lines.writeb, 1)) == NULL)
 		atom->ull = 0;
 	    else
 		atom->ull = (__uint64_t)strtoull(f, &tail, 0);
 	    break;
-	case PROC_PID_IO_CANCELLED_BYTES:
+	case PROC_PID_IO_CANCELLED_BYTES: /* proc.io.cancelled_write_bytes */
 	    if ((f = _pm_getfield(entry->io_lines.cancel, 1)) == NULL)
 		atom->ull = 0;
 	    else
@@ -1897,9 +2049,6 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 	break;
 
-	/*
-	 * Cluster added by Mike Mason <mmlnx@us.ibm.com>
-	 */
     case CLUSTER_HOTPROC_PID_STATUS:
 	active_proc_pid = &hotproc_pid;
 	/*FALLTHROUGH*/
@@ -1911,14 +2060,14 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	switch (idp->item) {
 
-	case PROC_PID_STATUS_UID:
-	case PROC_PID_STATUS_EUID:
-	case PROC_PID_STATUS_SUID:
-	case PROC_PID_STATUS_FSUID:
-	case PROC_PID_STATUS_UID_NM:
-	case PROC_PID_STATUS_EUID_NM:
-	case PROC_PID_STATUS_SUID_NM:
-	case PROC_PID_STATUS_FSUID_NM: {
+	case PROC_PID_STATUS_UID: /* proc.id.uid */
+	case PROC_PID_STATUS_EUID: /* proc.id.euid */
+	case PROC_PID_STATUS_SUID: /* proc.id.suid */
+	case PROC_PID_STATUS_FSUID: /* proc.id.fsuid */
+	case PROC_PID_STATUS_UID_NM: /* proc.id.uid_nm */
+	case PROC_PID_STATUS_EUID_NM: /* proc.id.euid_nm */
+	case PROC_PID_STATUS_SUID_NM: /* proc.id.suid_nm */
+	case PROC_PID_STATUS_FSUID_NM: { /* proc.id.fsuid_nm */
 	    struct passwd *pwe;
 
 	    if ((f = _pm_getfield(entry->status_lines.uid, (idp->item % 4) + 1)) == NULL)
@@ -1933,14 +2082,14 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 	break;
 
-	case PROC_PID_STATUS_GID:
-	case PROC_PID_STATUS_EGID:
-	case PROC_PID_STATUS_SGID:
-	case PROC_PID_STATUS_FSGID:
-	case PROC_PID_STATUS_GID_NM:
-	case PROC_PID_STATUS_EGID_NM:
-	case PROC_PID_STATUS_SGID_NM:
-	case PROC_PID_STATUS_FSGID_NM: {
+	case PROC_PID_STATUS_GID: /* proc.id.gid */
+	case PROC_PID_STATUS_EGID: /* proc.id.egid */
+	case PROC_PID_STATUS_SGID: /* proc.id.sgid */
+	case PROC_PID_STATUS_FSGID: /* proc.id.fsgid */
+	case PROC_PID_STATUS_GID_NM: /* proc.id.gid_nm */
+	case PROC_PID_STATUS_EGID_NM: /* proc.id.egid_nm */
+	case PROC_PID_STATUS_SGID_NM: /* proc.id.sgid_nm */
+	case PROC_PID_STATUS_FSGID_NM: { /* proc.id.fsgid_nm */
 	    struct group *gre;
 
 	    if ((f = _pm_getfield(entry->status_lines.gid, (idp->item % 4) + 1)) == NULL)
@@ -1956,101 +2105,175 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 	break;
 
-	case PROC_PID_STATUS_SIGNAL:
+	case PROC_PID_STATUS_SIGNAL: /* proc.psinfo.signal_s */
 	if ((atom->cp = _pm_getfield(entry->status_lines.sigpnd, 1)) == NULL)
 	    return 0;
 	break;
 
-	case PROC_PID_STATUS_BLOCKED:
+	case PROC_PID_STATUS_BLOCKED: /* proc.psinfo.blocked_s */
 	if ((atom->cp = _pm_getfield(entry->status_lines.sigblk, 1)) == NULL)
 	    return 0;
 	break;
 
-	case PROC_PID_STATUS_SIGCATCH:
+	case PROC_PID_STATUS_SIGCATCH: /* proc.psinfo.sigcatch_s */
 	if ((atom->cp = _pm_getfield(entry->status_lines.sigcgt, 1)) == NULL)
 	    return 0;
 	break;
 
-	case PROC_PID_STATUS_SIGIGNORE:
+	case PROC_PID_STATUS_SIGIGNORE: /* proc.psinfo.sigignore_s */
 	if ((atom->cp = _pm_getfield(entry->status_lines.sigign, 1)) == NULL)
 	    return 0;
 	break;
 
-	case PROC_PID_STATUS_VMSIZE:
+	case PROC_PID_STATUS_VMPEAK: /* proc.memory.vmpeak */
+	if ((f = _pm_getfield(entry->status_lines.vmpeak, 1)) == NULL)
+	    atom->ul = 0;
+	else
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+	break;
+
+	case PROC_PID_STATUS_VMSIZE: /* proc.memory.vmsize */
 	if ((f = _pm_getfield(entry->status_lines.vmsize, 1)) == NULL)
 	    atom->ul = 0;
 	else
 	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
-	case PROC_PID_STATUS_VMLOCK:
+	case PROC_PID_STATUS_VMPIN: /* proc.memory.vmpin */
+	if ((f = _pm_getfield(entry->status_lines.vmpin, 1)) == NULL)
+	    atom->ul = 0;
+	else
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+	break;
+
+	case PROC_PID_STATUS_VMHWN: /* proc.memory.vmhwn */
+	if ((f = _pm_getfield(entry->status_lines.vmhwn, 1)) == NULL)
+	    atom->ul = 0;
+	else
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+	break;
+
+	case PROC_PID_STATUS_VMPTE: /* proc.memory.vmpte */
+	if ((f = _pm_getfield(entry->status_lines.vmpte, 1)) == NULL)
+	    atom->ul = 0;
+	else
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+	break;
+
+	case PROC_PID_STATUS_VMLOCK: /* proc.memory.vmlock */
 	if ((f = _pm_getfield(entry->status_lines.vmlck, 1)) == NULL)
 	    atom->ul = 0;
 	else
 	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
-	case PROC_PID_STATUS_VMRSS:
+	case PROC_PID_STATUS_VMRSS: /* proc.memory.vmrss */
         if ((f = _pm_getfield(entry->status_lines.vmrss, 1)) == NULL)
             atom->ul = 0;
         else
             atom->ul = (__uint32_t)strtoul(f, &tail, 0);
         break;
 
-	case PROC_PID_STATUS_VMDATA:
+	case PROC_PID_STATUS_VMDATA: /* proc.memory.vmdata */
 	if ((f = _pm_getfield(entry->status_lines.vmdata, 1)) == NULL)
 	    atom->ul = 0;
 	else
 	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
-	case PROC_PID_STATUS_VMSTACK:
+	case PROC_PID_STATUS_VMSTACK: /* proc.memory.vmstack */
 	if ((f = _pm_getfield(entry->status_lines.vmstk, 1)) == NULL)
 	    atom->ul = 0;
 	else
 	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
-	case PROC_PID_STATUS_VMEXE:
+	case PROC_PID_STATUS_VMEXE: /* proc.memory.vmexe */
 	if ((f = _pm_getfield(entry->status_lines.vmexe, 1)) == NULL)
 	    atom->ul = 0;
 	else
 	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
-	case PROC_PID_STATUS_VMLIB:
+	case PROC_PID_STATUS_VMLIB: /* proc.memory.vmlib */
 	if ((f = _pm_getfield(entry->status_lines.vmlib, 1)) == NULL)
 	    atom->ul = 0;
 	else
 	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
-	case PROC_PID_STATUS_VMSWAP:
+	case PROC_PID_STATUS_VMSWAP: /* proc.memory.vmswap */
 	if ((f = _pm_getfield(entry->status_lines.vmswap, 1)) == NULL)
 	    atom->ul = 0;
 	else
 	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
-	case PROC_PID_STATUS_THREADS:
+	case PROC_PID_STATUS_THREADS: /* proc.psinfo.threads */
 	if ((f = _pm_getfield(entry->status_lines.threads, 1)) == NULL)
 	    atom->ul = 0;
 	else
 	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
-	case PROC_PID_STATUS_VCTXSW:
+	case PROC_PID_STATUS_VCTXSW: /* proc.psinfo.vctxsw */
 	if ((f = _pm_getfield(entry->status_lines.vctxsw, 1)) == NULL)
 	    atom->ul = 0;
 	else
 	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
-	case PROC_PID_STATUS_NVCTXSW:
+	case PROC_PID_STATUS_NVCTXSW: /* proc.psinfo.nvctxsw */
 	if ((f = _pm_getfield(entry->status_lines.nvctxsw, 1)) == NULL)
 	    atom->ul = 0;
 	else
 	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+	break;
+
+	case PROC_PID_STATUS_CPUSALLOWED: /* proc.psinfo.cpusallowed */
+	if ((atom->cp = _pm_getfield(entry->status_lines.cpusallowed, 1)) == NULL)
+	    return PM_ERR_APPVERSION;
+	break;
+
+	case PROC_PID_STATUS_NGID: /* proc.psinfo.ngid */
+	if ((f = _pm_getfield(entry->status_lines.ngid, 1)) == NULL)
+	    atom->ul = 0;	/* default to NUMA group zero */
+	else
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+	break;
+
+	case PROC_PID_STATUS_TGID: /* proc.psinfo.tgid */
+	if ((f = _pm_getfield(entry->status_lines.tgid, 1)) == NULL)
+	    return PM_ERR_APPVERSION;
+	else
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+	break;
+
+	case PROC_PID_STATUS_ENVID: /* proc.psinfo.envid */
+	if ((f = _pm_getfield(entry->status_lines.envid, 1)) == NULL)
+	    return PM_ERR_APPVERSION;
+	else
+	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
+	break;
+
+	case PROC_PID_STATUS_NSTGID: /* proc.namespaces.tgid */
+	if ((atom->cp = entry->status_lines.nstgid) == NULL)
+	    return PM_ERR_APPVERSION;
+	break;
+
+	case PROC_PID_STATUS_NSPID: /* proc.namespaces.pid */
+	if ((atom->cp = entry->status_lines.nspid) == NULL)
+	    return PM_ERR_APPVERSION;
+	break;
+
+	case PROC_PID_STATUS_NSPGID: /* proc.namespaces.pgid */
+	if ((atom->cp = entry->status_lines.nspgid) == NULL)
+	    return PM_ERR_APPVERSION;
+	break;
+
+	case PROC_PID_STATUS_NSSID: /* proc.namespaces.sid */
+	if ((atom->cp = entry->status_lines.nssid) == NULL)
+	    return PM_ERR_APPVERSION;
 	break;
 
 	default:
@@ -2062,7 +2285,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	subsys_t *ssp;
 
 	indom = INDOM(CGROUP_SUBSYS_INDOM);
-	if (idp->item == 1) {
+	if (idp->item == 1) { /* cgroup.subsys.count */
 	    atom->ul = pmdaCacheOp(indom, PMDA_CACHE_SIZE_ACTIVE);
 	    break;
 	}
@@ -2071,13 +2294,13 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (sts != PMDA_CACHE_ACTIVE)
 	    return 0;
 	switch (idp->item) {
-	case CG_SUBSYS_HIERARCHY:
+	case CG_SUBSYS_HIERARCHY: /* cgroup.subsys.hierarchy */
 	    atom->ul = ssp->hierarchy;
 	    break;
-	case CG_SUBSYS_NUMCGROUPS:
+	case CG_SUBSYS_NUMCGROUPS: /* cgroup.subsys.num_cgroups */
 	    atom->ul = ssp->num_cgroups;
 	    break;
-	case CG_SUBSYS_ENABLED:
+	case CG_SUBSYS_ENABLED: /* cgroup.subsys.enabled */
 	    atom->ul = ssp->enabled;
 	    break;
 	default:
@@ -2091,14 +2314,14 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	indom = INDOM(CGROUP_MOUNTS_INDOM);
 	switch (idp->item) {
-	case CG_MOUNTS_SUBSYS:
+	case CG_MOUNTS_SUBSYS: /* cgroup.mounts.subsys */
 	    if ((sts = pmdaCacheLookup(indom, inst, NULL, (void **)&fsp)) < 0)
 		return sts;
 	    if (sts != PMDA_CACHE_ACTIVE)
 	    	return 0;
 	    atom->cp = cgroup_find_subsys(INDOM(CGROUP_SUBSYS_INDOM), fsp);
 	    break;
-	case CG_MOUNTS_COUNT:
+	case CG_MOUNTS_COUNT: /* cgroup.mounts.count */
 	    atom->ul = pmdaCacheOp(indom, PMDA_CACHE_SIZE_ACTIVE);
 	    break;
 	default:
@@ -2116,10 +2339,10 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (sts != PMDA_CACHE_ACTIVE)
 	   return 0;
 	switch (idp->item) {
-	case CG_CPUSET_CPUS:
+	case CG_CPUSET_CPUS: /* cgroup.cpuset.cpus */
 	    atom->cp = proc_strings_lookup(cpuset->cpus);
 	    break;
-	case CG_CPUSET_MEMS:
+	case CG_CPUSET_MEMS: /* cgroup.cpuset.mems */
 	    atom->cp = proc_strings_lookup(cpuset->mems);
 	    break;
 	default:
@@ -2144,16 +2367,16 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (sts != PMDA_CACHE_ACTIVE)
 	   return 0;
 	switch (idp->item) {
-	case CG_CPUACCT_USER:
+	case CG_CPUACCT_USER: /* cgroup.cpuacct.stat.user */
 	    atom->ull = cpuacct->user;
 	    break;
-	case CG_CPUACCT_SYSTEM:
+	case CG_CPUACCT_SYSTEM: /* cgroup.cpuacct.stat.system */
 	    atom->ull = cpuacct->system;
 	    break;
-	case CG_CPUACCT_USAGE:
+	case CG_CPUACCT_USAGE: /* cgroup.cpuacct.usage */
 	    atom->ull = cpuacct->usage;
 	    break;
-	case CG_CPUACCT_PERCPU_USAGE:
+	case CG_CPUACCT_PERCPU_USAGE: /* cgroup.cpuacct.usage_percpu */
 	    atom->ull = percpuacct->usage;
 	    break;
 	default:
@@ -2171,7 +2394,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (sts != PMDA_CACHE_ACTIVE)
 	   return 0;
 	switch (idp->item) {
-	case CG_CPUSCHED_SHARES:
+	case CG_CPUSCHED_SHARES: /* cgroup.cpusched.shares */
 	    atom->ull = cpusched->shares;
 	    break;
 	default:
@@ -2189,107 +2412,116 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (sts != PMDA_CACHE_ACTIVE)
 	   return 0;
 	switch (idp->item) {
-	case CG_MEMORY_STAT_CACHE:
+	case CG_MEMORY_STAT_CACHE: /* cgroup.memory.stat.cache */
 	    atom->ull = memory->stat.cache;
 	    break;
-	case CG_MEMORY_STAT_RSS:
+	case CG_MEMORY_STAT_RSS: /* cgroup.memory.stat.rss */
 	    atom->ull = memory->stat.rss;
 	    break;
-	case CG_MEMORY_STAT_RSS_HUGE:
+	case CG_MEMORY_STAT_RSS_HUGE: /* cgroup.memory.stat.rss_huge */
 	    atom->ull = memory->stat.rss_huge;
 	    break;
-	case CG_MEMORY_STAT_MAPPED_FILE:
+	case CG_MEMORY_STAT_MAPPED_FILE: /* cgroup.memory.stat.mapped_file */
 	    atom->ull = memory->stat.mapped_file;
 	    break;
-	case CG_MEMORY_STAT_WRITEBACK:
+	case CG_MEMORY_STAT_WRITEBACK: /* cgroup.memory.stat.writeback */
 	    atom->ull = memory->stat.writeback;
 	    break;
-	case CG_MEMORY_STAT_SWAP:
+	case CG_MEMORY_STAT_SWAP: /* cgroup.memory.stat.swap */
 	    atom->ull = memory->stat.swap;
 	    break;
-	case CG_MEMORY_STAT_PGPGIN:
+	case CG_MEMORY_STAT_PGPGIN: /* cgroup.memory.stat.pgpgin */
 	    atom->ull = memory->stat.pgpgin;
 	    break;
-	case CG_MEMORY_STAT_PGPGOUT:
+	case CG_MEMORY_STAT_PGPGOUT: /* cgroup.memory.stat.pgpgout */
 	    atom->ull = memory->stat.pgpgout;
 	    break;
-	case CG_MEMORY_STAT_PGFAULT:
+	case CG_MEMORY_STAT_PGFAULT: /* cgroup.memory.stat.pgfault */
 	    atom->ull = memory->stat.pgfault;
 	    break;
-	case CG_MEMORY_STAT_PGMAJFAULT:
+	case CG_MEMORY_STAT_PGMAJFAULT: /* cgroup.memory.stat.pgmajfault */
 	    atom->ull = memory->stat.pgmajfault;
 	    break;
-	case CG_MEMORY_STAT_INACTIVE_ANON:
+	case CG_MEMORY_STAT_INACTIVE_ANON: /* cgroup.memory.stat.inactive_anon */
 	    atom->ull = memory->stat.inactive_anon;
 	    break;
-	case CG_MEMORY_STAT_ACTIVE_ANON:
+	case CG_MEMORY_STAT_ACTIVE_ANON: /* cgroup.memory.stat.active_anon */
 	    atom->ull = memory->stat.active_anon;
 	    break;
-	case CG_MEMORY_STAT_INACTIVE_FILE:
+	case CG_MEMORY_STAT_INACTIVE_FILE: /* cgroup.memory.stat.inactive_file */
 	    atom->ull = memory->stat.inactive_file;
 	    break;
-	case CG_MEMORY_STAT_ACTIVE_FILE:
+	case CG_MEMORY_STAT_ACTIVE_FILE: /* cgroup.memory.stat.active_file */
 	    atom->ull = memory->stat.active_file;
 	    break;
-	case CG_MEMORY_STAT_UNEVICTABLE:
+	case CG_MEMORY_STAT_UNEVICTABLE: /* cgroup.memory.stat.unevictable */
 	    atom->ull = memory->stat.unevictable;
 	    break;
-	case CG_MEMORY_STAT_TOTAL_CACHE:
+	case CG_MEMORY_STAT_TOTAL_CACHE: /* cgroup.memory.stat.total.cache */
 	    atom->ull = memory->total.cache;
 	    break;
-	case CG_MEMORY_STAT_TOTAL_RSS:
+	case CG_MEMORY_STAT_TOTAL_RSS: /* cgroup.memory.stat.total.rss */
 	    atom->ull = memory->total.rss;
 	    break;
-	case CG_MEMORY_STAT_TOTAL_RSS_HUGE:
+	case CG_MEMORY_STAT_TOTAL_RSS_HUGE: /* cgroup.memory.stat.total.rss_huge */
 	    atom->ull = memory->total.rss_huge;
 	    break;
-	case CG_MEMORY_STAT_TOTAL_MAPPED_FILE:
+	case CG_MEMORY_STAT_TOTAL_MAPPED_FILE: /* cgroup.memory.stat.total.mapped_file */
 	    atom->ull = memory->total.mapped_file;
 	    break;
-	case CG_MEMORY_STAT_TOTAL_WRITEBACK:
+	case CG_MEMORY_STAT_TOTAL_WRITEBACK: /* cgroup.memory.stat.total.writeback */
 	    atom->ull = memory->total.writeback;
 	    break;
-	case CG_MEMORY_STAT_TOTAL_SWAP:
+	case CG_MEMORY_STAT_TOTAL_SWAP: /* cgroup.memory.stat.total.swap */
 	    atom->ull = memory->total.swap;
 	    break;
-	case CG_MEMORY_STAT_TOTAL_PGPGIN:
+	case CG_MEMORY_STAT_TOTAL_PGPGIN: /* cgroup.memory.stat.total.pgpgin */
 	    atom->ull = memory->total.pgpgin;
 	    break;
-	case CG_MEMORY_STAT_TOTAL_PGPGOUT:
+	case CG_MEMORY_STAT_TOTAL_PGPGOUT: /* cgroup.memory.stat.total.pgpgout */
 	    atom->ull = memory->total.pgpgout;
 	    break;
-	case CG_MEMORY_STAT_TOTAL_PGFAULT:
+	case CG_MEMORY_STAT_TOTAL_PGFAULT: /* cgroup.memory.stat.total.pgfault */
 	    atom->ull = memory->total.pgfault;
 	    break;
-	case CG_MEMORY_STAT_TOTAL_PGMAJFAULT:
+	case CG_MEMORY_STAT_TOTAL_PGMAJFAULT: /* cgroup.memory.stat.total.pgmajfault */
 	    atom->ull = memory->total.pgmajfault;
 	    break;
-	case CG_MEMORY_STAT_TOTAL_INACTIVE_ANON:
+	case CG_MEMORY_STAT_TOTAL_INACTIVE_ANON: /* cgroup.memory.stat.total.inactive_anon */
 	    atom->ull = memory->total.inactive_anon;
 	    break;
-	case CG_MEMORY_STAT_TOTAL_ACTIVE_ANON:
+	case CG_MEMORY_STAT_TOTAL_ACTIVE_ANON: /* cgroup.memory.stat.total.active_anon */
 	    atom->ull = memory->total.active_anon;
 	    break;
-	case CG_MEMORY_STAT_TOTAL_INACTIVE_FILE:
+	case CG_MEMORY_STAT_TOTAL_INACTIVE_FILE: /* cgroup.memory.stat.total.inactive_file */
 	    atom->ull = memory->total.inactive_file;
 	    break;
-	case CG_MEMORY_STAT_TOTAL_ACTIVE_FILE:
+	case CG_MEMORY_STAT_TOTAL_ACTIVE_FILE: /* cgroup.memory.stat.total.active_file */
 	    atom->ull = memory->total.active_file;
 	    break;
-	case CG_MEMORY_STAT_TOTAL_UNEVICTABLE:
+	case CG_MEMORY_STAT_TOTAL_UNEVICTABLE: /* cgroup.memory.stat.total.unevictable */
 	    atom->ull = memory->total.unevictable;
 	    break;
-	case CG_MEMORY_STAT_RECENT_ROTATED_ANON:
+	case CG_MEMORY_STAT_RECENT_ROTATED_ANON: /* cgroup.memory.stat.recent.rotated_anon */
 	    atom->ull = memory->recent_rotated_anon;
 	    break;
-	case CG_MEMORY_STAT_RECENT_ROTATED_FILE:
+	case CG_MEMORY_STAT_RECENT_ROTATED_FILE: /* cgroup.memory.stat.recent.rotated_file */
 	    atom->ull = memory->recent_rotated_file;
 	    break;
-	case CG_MEMORY_STAT_RECENT_SCANNED_ANON:
+	case CG_MEMORY_STAT_RECENT_SCANNED_ANON: /* cgroup.memory.stat.recent.scanned_anon */
 	    atom->ull = memory->recent_scanned_anon;
 	    break;
-	case CG_MEMORY_STAT_RECENT_SCANNED_FILE:
+	case CG_MEMORY_STAT_RECENT_SCANNED_FILE: /* cgroup.memory.stat.recent.scanned_file */
 	    atom->ull = memory->recent_scanned_file;
+	    break;
+	case CG_MEMORY_USAGE_IN_BYTES: /* cgroup.memory.usage */
+	    atom->ull = memory->usage;
+	    break;
+	case CG_MEMORY_LIMIT_IN_BYTES: /* cgroup.memory.limit */
+	    atom->ull = memory->limit;
+	    break;
+	case CG_MEMORY_FAILCNT: /* cgroup.memory.failcnt */
+	    atom->ull = memory->failcnt;
 	    break;
 	default:
 	    return PM_ERR_PMID;
@@ -2306,7 +2538,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (sts != PMDA_CACHE_ACTIVE)
 	   return 0;
 	switch (idp->item) {
-	case CG_NETCLS_CLASSID:
+	case CG_NETCLS_CLASSID: /* cgroup.netclass.classid */
 	    atom->ull = netcls->classid;
 	    break;
 	default:
@@ -2331,202 +2563,202 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (sts != PMDA_CACHE_ACTIVE)
 	   return 0;
 	switch (idp->item) {
-	case CG_PERDEVBLKIO_IOMERGED_READ:
+	case CG_PERDEVBLKIO_IOMERGED_READ: /* cgroup.blkio.dev.io_merged.read */
 	    atom->ull = blkdev->stats.io_merged.read;
 	    break;
-	case CG_PERDEVBLKIO_IOMERGED_WRITE:
+	case CG_PERDEVBLKIO_IOMERGED_WRITE: /* cgroup.blkio.dev.io_merged.write */
 	    atom->ull = blkdev->stats.io_merged.write;
 	    break;
-	case CG_PERDEVBLKIO_IOMERGED_SYNC:
+	case CG_PERDEVBLKIO_IOMERGED_SYNC: /* cgroup.blkio.dev.io_merged.sync */
 	    atom->ull = blkdev->stats.io_merged.sync;
 	    break;
-	case CG_PERDEVBLKIO_IOMERGED_ASYNC:
+	case CG_PERDEVBLKIO_IOMERGED_ASYNC: /* cgroup.blkio.dev.io_merged.async */
 	    atom->ull = blkdev->stats.io_merged.async;
 	    break;
-	case CG_PERDEVBLKIO_IOMERGED_TOTAL:
+	case CG_PERDEVBLKIO_IOMERGED_TOTAL: /* cgroup.blkio.dev.io_merged.total */
 	    atom->ull = blkdev->stats.io_merged.total;
 	    break;
-	case CG_PERDEVBLKIO_IOQUEUED_READ:
+	case CG_PERDEVBLKIO_IOQUEUED_READ: /* cgroup.blkio.dev.io_queued.read */
 	    atom->ull = blkdev->stats.io_queued.read;
 	    break;
-	case CG_PERDEVBLKIO_IOQUEUED_WRITE:
+	case CG_PERDEVBLKIO_IOQUEUED_WRITE: /* cgroup.blkio.dev.io_queued.write */
 	    atom->ull = blkdev->stats.io_queued.write;
 	    break;
-	case CG_PERDEVBLKIO_IOQUEUED_SYNC:
+	case CG_PERDEVBLKIO_IOQUEUED_SYNC: /* cgroup.blkio.dev.io_queued.sync */
 	    atom->ull = blkdev->stats.io_queued.sync;
 	    break;
-	case CG_PERDEVBLKIO_IOQUEUED_ASYNC:
+	case CG_PERDEVBLKIO_IOQUEUED_ASYNC: /* cgroup.blkio.dev.io_queued.async */
 	    atom->ull = blkdev->stats.io_queued.async;
 	    break;
-	case CG_PERDEVBLKIO_IOQUEUED_TOTAL:
+	case CG_PERDEVBLKIO_IOQUEUED_TOTAL: /* cgroup.blkio.dev.io_queued.total */
 	    atom->ull = blkdev->stats.io_queued.total;
 	    break;
-	case CG_PERDEVBLKIO_IOSERVICEBYTES_READ:
+	case CG_PERDEVBLKIO_IOSERVICEBYTES_READ: /* cgroup.blkio.dev.io_service_bytes.read */
 	    atom->ull = blkdev->stats.io_service_bytes.read;
 	    break;
-	case CG_PERDEVBLKIO_IOSERVICEBYTES_WRITE:
+	case CG_PERDEVBLKIO_IOSERVICEBYTES_WRITE: /* cgroup.blkio.dev.io_service_bytes.write */
 	    atom->ull = blkdev->stats.io_service_bytes.write;
 	    break;
-	case CG_PERDEVBLKIO_IOSERVICEBYTES_SYNC:
+	case CG_PERDEVBLKIO_IOSERVICEBYTES_SYNC: /* cgroup.blkio.dev.io_service_bytes.sync */
 	    atom->ull = blkdev->stats.io_service_bytes.sync;
 	    break;
-	case CG_PERDEVBLKIO_IOSERVICEBYTES_ASYNC:
+	case CG_PERDEVBLKIO_IOSERVICEBYTES_ASYNC: /* cgroup.blkio.dev.io_service_bytes.async */
 	    atom->ull = blkdev->stats.io_service_bytes.async;
 	    break;
-	case CG_PERDEVBLKIO_IOSERVICEBYTES_TOTAL:
+	case CG_PERDEVBLKIO_IOSERVICEBYTES_TOTAL: /* cgroup.blkio.dev.io_service_bytes.total */
 	    atom->ull = blkdev->stats.io_service_bytes.total;
 	    break;
-	case CG_PERDEVBLKIO_IOSERVICED_READ:
+	case CG_PERDEVBLKIO_IOSERVICED_READ: /* cgroup.blkio.dev.io_serviced.read */
 	    atom->ull = blkdev->stats.io_serviced.read;
 	    break;
-	case CG_PERDEVBLKIO_IOSERVICED_WRITE:
+	case CG_PERDEVBLKIO_IOSERVICED_WRITE: /* cgroup.blkio.dev.io_serviced.write */
 	    atom->ull = blkdev->stats.io_serviced.write;
 	    break;
-	case CG_PERDEVBLKIO_IOSERVICED_SYNC:
+	case CG_PERDEVBLKIO_IOSERVICED_SYNC: /* cgroup.blkio.dev.io_serviced.sync */
 	    atom->ull = blkdev->stats.io_serviced.sync;
 	    break;
-	case CG_PERDEVBLKIO_IOSERVICED_ASYNC:
+	case CG_PERDEVBLKIO_IOSERVICED_ASYNC: /* cgroup.blkio.dev.io_serviced.async */
 	    atom->ull = blkdev->stats.io_serviced.async;
 	    break;
-	case CG_PERDEVBLKIO_IOSERVICED_TOTAL:
+	case CG_PERDEVBLKIO_IOSERVICED_TOTAL: /* cgroup.blkio.dev.io_serviced.total */
 	    atom->ull = blkdev->stats.io_serviced.total;
 	    break;
-	case CG_PERDEVBLKIO_IOSERVICETIME_READ:
+	case CG_PERDEVBLKIO_IOSERVICETIME_READ: /* cgroup.blkio.dev.io_service_time.read */
 	    atom->ull = blkdev->stats.io_service_time.read;
 	    break;
-	case CG_PERDEVBLKIO_IOSERVICETIME_WRITE:
+	case CG_PERDEVBLKIO_IOSERVICETIME_WRITE: /* cgroup.blkio.dev.io_service_time.write */
 	    atom->ull = blkdev->stats.io_service_time.write;
 	    break;
-	case CG_PERDEVBLKIO_IOSERVICETIME_SYNC:
+	case CG_PERDEVBLKIO_IOSERVICETIME_SYNC: /* cgroup.blkio.dev.io_service_time.sync */
 	    atom->ull = blkdev->stats.io_service_time.sync;
 	    break;
-	case CG_PERDEVBLKIO_IOSERVICETIME_ASYNC:
+	case CG_PERDEVBLKIO_IOSERVICETIME_ASYNC: /* cgroup.blkio.dev.io_service_time.async */
 	    atom->ull = blkdev->stats.io_service_time.async;
 	    break;
-	case CG_PERDEVBLKIO_IOSERVICETIME_TOTAL:
+	case CG_PERDEVBLKIO_IOSERVICETIME_TOTAL: /* cgroup.blkio.dev.io_service_time.total */
 	    atom->ull = blkdev->stats.io_service_time.total;
 	    break;
-	case CG_PERDEVBLKIO_IOWAITTIME_READ:
+	case CG_PERDEVBLKIO_IOWAITTIME_READ: /* cgroup.blkio.dev.io_wait_time.read */
 	    atom->ull = blkdev->stats.io_wait_time.read;
 	    break;
-	case CG_PERDEVBLKIO_IOWAITTIME_WRITE:
+	case CG_PERDEVBLKIO_IOWAITTIME_WRITE: /* cgroup.blkio.dev.io_wait_time.write */
 	    atom->ull = blkdev->stats.io_wait_time.write;
 	    break;
-	case CG_PERDEVBLKIO_IOWAITTIME_SYNC:
+	case CG_PERDEVBLKIO_IOWAITTIME_SYNC: /* cgroup.blkio.dev.io_wait_time.sync */
 	    atom->ull = blkdev->stats.io_wait_time.sync;
 	    break;
-	case CG_PERDEVBLKIO_IOWAITTIME_ASYNC:
+	case CG_PERDEVBLKIO_IOWAITTIME_ASYNC: /* cgroup.blkio.dev.io_wait_time.async */
 	    atom->ull = blkdev->stats.io_wait_time.async;
 	    break;
-	case CG_PERDEVBLKIO_IOWAITTIME_TOTAL:
+	case CG_PERDEVBLKIO_IOWAITTIME_TOTAL: /* cgroup.blkio.dev.io_wait_time.total */
 	    atom->ull = blkdev->stats.io_wait_time.total;
 	    break;
-	case CG_PERDEVBLKIO_SECTORS:
+	case CG_PERDEVBLKIO_SECTORS: /* cgroup.blkio.dev.sectors */
 	    /* sectors are 512 bytes - we export here in kilobytes */
 	    atom->ull = blkdev->stats.sectors >> 1;
 	    break;
-	case CG_PERDEVBLKIO_TIME:
+	case CG_PERDEVBLKIO_TIME: /* cgroup.blkio.dev.time */
 	    /* unsigned jiffies converted to unsigned milliseconds */
-	    atom->ull = 1000 * (double)blkdev->stats.time / hz;
+	    atom->ull = (__uint64_t)blkdev->stats.time * 1000 / hz;
 	    break;
 
-	case CG_BLKIO_IOMERGED_READ:
+	case CG_BLKIO_IOMERGED_READ: /* cgroup.blkio.all.io_merged.read */
 	    atom->ull = blkio->total.io_merged.read;
 	    break;
-	case CG_BLKIO_IOMERGED_WRITE:
+	case CG_BLKIO_IOMERGED_WRITE: /* cgroup.blkio.all.io_merged.write */
 	    atom->ull = blkio->total.io_merged.write;
 	    break;
-	case CG_BLKIO_IOMERGED_SYNC:
+	case CG_BLKIO_IOMERGED_SYNC: /* cgroup.blkio.all.io_merged.sync */
 	    atom->ull = blkio->total.io_merged.sync;
 	    break;
-	case CG_BLKIO_IOMERGED_ASYNC:
+	case CG_BLKIO_IOMERGED_ASYNC: /* cgroup.blkio.all.io_merged.async */
 	    atom->ull = blkio->total.io_merged.async;
 	    break;
-	case CG_BLKIO_IOMERGED_TOTAL:
+	case CG_BLKIO_IOMERGED_TOTAL: /* cgroup.blkio.all.io_merged.total */
 	    atom->ull = blkio->total.io_merged.total;
 	    break;
-	case CG_BLKIO_IOQUEUED_READ:
+	case CG_BLKIO_IOQUEUED_READ: /* cgroup.blkio.all.io_queued.read */
 	    atom->ull = blkio->total.io_queued.read;
 	    break;
-	case CG_BLKIO_IOQUEUED_WRITE:
+	case CG_BLKIO_IOQUEUED_WRITE: /* cgroup.blkio.all.io_queued.write */
 	    atom->ull = blkio->total.io_queued.write;
 	    break;
-	case CG_BLKIO_IOQUEUED_SYNC:
+	case CG_BLKIO_IOQUEUED_SYNC: /* cgroup.blkio.all.io_queued.sync */
 	    atom->ull = blkio->total.io_queued.sync;
 	    break;
-	case CG_BLKIO_IOQUEUED_ASYNC:
+	case CG_BLKIO_IOQUEUED_ASYNC: /* cgroup.blkio.all.io_queued.async */
 	    atom->ull = blkio->total.io_queued.async;
 	    break;
-	case CG_BLKIO_IOQUEUED_TOTAL:
+	case CG_BLKIO_IOQUEUED_TOTAL: /* cgroup.blkio.all.io_queued.total */
 	    atom->ull = blkio->total.io_queued.total;
 	    break;
-	case CG_BLKIO_IOSERVICEBYTES_READ:
+	case CG_BLKIO_IOSERVICEBYTES_READ: /* cgroup.blkio.all.io_service_bytes.read */
 	    atom->ull = blkio->total.io_service_bytes.read;
 	    break;
-	case CG_BLKIO_IOSERVICEBYTES_WRITE:
+	case CG_BLKIO_IOSERVICEBYTES_WRITE: /* cgroup.blkio.all.io_service_bytes.wrie */
 	    atom->ull = blkio->total.io_service_bytes.write;
 	    break;
-	case CG_BLKIO_IOSERVICEBYTES_SYNC:
+	case CG_BLKIO_IOSERVICEBYTES_SYNC: /* cgroup.blkio.all.io_service_bytes.sync */
 	    atom->ull = blkio->total.io_service_bytes.sync;
 	    break;
-	case CG_BLKIO_IOSERVICEBYTES_ASYNC:
+	case CG_BLKIO_IOSERVICEBYTES_ASYNC: /* cgroup.blkio.all.io_service_bytes.async */
 	    atom->ull = blkio->total.io_service_bytes.async;
 	    break;
-	case CG_BLKIO_IOSERVICEBYTES_TOTAL:
+	case CG_BLKIO_IOSERVICEBYTES_TOTAL: /* cgroup.blkio.all.io_service_bytes.total */
 	    atom->ull = blkio->total.io_service_bytes.total;
 	    break;
-	case CG_BLKIO_IOSERVICED_READ:
+	case CG_BLKIO_IOSERVICED_READ: /* cgroup.blkio.all.io_serviced.read */
 	    atom->ull = blkio->total.io_serviced.read;
 	    break;
-	case CG_BLKIO_IOSERVICED_WRITE:
+	case CG_BLKIO_IOSERVICED_WRITE: /* cgroup.blkio.all.io_serviced.write */
 	    atom->ull = blkio->total.io_serviced.write;
 	    break;
-	case CG_BLKIO_IOSERVICED_SYNC:
+	case CG_BLKIO_IOSERVICED_SYNC: /* cgroup.blkio.all.io_serviced.sync */
 	    atom->ull = blkio->total.io_serviced.sync;
 	    break;
-	case CG_BLKIO_IOSERVICED_ASYNC:
+	case CG_BLKIO_IOSERVICED_ASYNC: /* cgroup.blkio.all.io_serviced.async */
 	    atom->ull = blkio->total.io_serviced.async;
 	    break;
-	case CG_BLKIO_IOSERVICED_TOTAL:
+	case CG_BLKIO_IOSERVICED_TOTAL: /* cgroup.blkio.all.io_serviced.total */
 	    atom->ull = blkio->total.io_serviced.total;
 	    break;
-	case CG_BLKIO_IOSERVICETIME_READ:
+	case CG_BLKIO_IOSERVICETIME_READ: /* cgroup.blkio.all.io_service_time.read */
 	    atom->ull = blkio->total.io_service_time.read;
 	    break;
-	case CG_BLKIO_IOSERVICETIME_WRITE:
+	case CG_BLKIO_IOSERVICETIME_WRITE: /* cgroup.blkio.all.io_service_time.write */
 	    atom->ull = blkio->total.io_service_time.write;
 	    break;
-	case CG_BLKIO_IOSERVICETIME_SYNC:
+	case CG_BLKIO_IOSERVICETIME_SYNC: /* cgroup.blkio.all.io_service_time.sync */
 	    atom->ull = blkio->total.io_service_time.sync;
 	    break;
-	case CG_BLKIO_IOSERVICETIME_ASYNC:
+	case CG_BLKIO_IOSERVICETIME_ASYNC: /* cgroup.blkio.all.io_service_time.async */
 	    atom->ull = blkio->total.io_service_time.async;
 	    break;
-	case CG_BLKIO_IOSERVICETIME_TOTAL:
+	case CG_BLKIO_IOSERVICETIME_TOTAL: /* cgroup.blkio.all.io_service_time.total */
 	    atom->ull = blkio->total.io_service_time.total;
 	    break;
-	case CG_BLKIO_IOWAITTIME_READ:
+	case CG_BLKIO_IOWAITTIME_READ: /* cgroup.blkio.all.io_wait_time.read */
 	    atom->ull = blkio->total.io_wait_time.read;
 	    break;
-	case CG_BLKIO_IOWAITTIME_WRITE:
+	case CG_BLKIO_IOWAITTIME_WRITE: /* cgroup.blkio.all.io_wait_time.write */
 	    atom->ull = blkio->total.io_wait_time.write;
 	    break;
-	case CG_BLKIO_IOWAITTIME_SYNC:
+	case CG_BLKIO_IOWAITTIME_SYNC: /* cgroup.blkio.all.io_wait_time.sync */
 	    atom->ull = blkio->total.io_wait_time.sync;
 	    break;
-	case CG_BLKIO_IOWAITTIME_ASYNC:
+	case CG_BLKIO_IOWAITTIME_ASYNC: /* cgroup.blkio.all.io_wait_time.async */
 	    atom->ull = blkio->total.io_wait_time.async;
 	    break;
-	case CG_BLKIO_IOWAITTIME_TOTAL:
+	case CG_BLKIO_IOWAITTIME_TOTAL: /* cgroup.blkio.all.io_wait_time.total */
 	    atom->ull = blkio->total.io_wait_time.total;
 	    break;
-	case CG_BLKIO_SECTORS:
+	case CG_BLKIO_SECTORS: /* cgroup.blkio.all.sectors */
 	    /* sectors are 512 bytes - we export here in kilobytes */
 	    atom->ull = blkio->total.sectors >> 1;
 	    break;
-	case CG_BLKIO_TIME:
+	case CG_BLKIO_TIME: /* cgroup.blkio.all.time */
 	    /* unsigned jiffies converted to unsigned milliseconds */
-	    atom->ull = 1000 * (double)blkio->total.time / hz;
+	    atom->ull = (__uint64_t)blkio->total.time * 1000 / hz;
 	    break;
 
 	default:
@@ -2543,7 +2775,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_PERMISSION;
 	if (idp->item > PROC_PID_FD_COUNT)
 	    return PM_ERR_PMID;
-	if ((entry = fetch_proc_pid_fd(inst, active_proc_pid, &sts)) == NULL)
+	if ((entry = fetch_proc_pid_fd(inst, active_proc_pid, &sts)) == NULL) /* proc.fd.count */
 	    return sts;
 	atom->ul = entry->fd_count;
 	break;
@@ -2556,7 +2788,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_PERMISSION;
 	if (idp->item > PROC_PID_CGROUP)
 	    return PM_ERR_PMID;
-	if ((entry = fetch_proc_pid_cgroup(inst, active_proc_pid, &sts)) == NULL)
+	if ((entry = fetch_proc_pid_cgroup(inst, active_proc_pid, &sts)) == NULL) /* proc.psinfo.cgroups */
 	    return sts;
 	atom->cp = proc_strings_lookup(entry->cgroup_id);
 	break;
@@ -2569,7 +2801,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_PERMISSION;
 	if (idp->item > PROC_PID_LABEL)
 	    return PM_ERR_PMID;
-	if ((entry = fetch_proc_pid_label(inst, active_proc_pid, &sts)) == NULL)
+	if ((entry = fetch_proc_pid_label(inst, active_proc_pid, &sts)) == NULL) /* proc.psinfo.labels */
 	    return sts;
 	atom->cp = proc_strings_lookup(entry->label_id);
 	break;
@@ -2642,7 +2874,7 @@ proc_store(pmResult *result, pmdaExt *pmda)
 		else if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
 		    if (av.ul > 1)	/* only zero or one allowed */
-			sts = PM_ERR_CONV;
+			sts = PM_ERR_BADSTORE;
 		    else
 			threads = av.ul;
 		}
@@ -2670,25 +2902,33 @@ proc_store(pmResult *result, pmdaExt *pmda)
 	    if (!isroot)
 		sts = PM_ERR_PERMISSION;
 	    else switch (idp->item) {
-	    case ITEM_HOTPROC_G_REFRESH:
+	    case ITEM_HOTPROC_G_REFRESH: /* hotproc.control.refresh */
 		if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
 		    hotproc_update_interval.tv_sec = av.ul;
 		    reset_hotproc_timer();
 		}
 		break;
-	    case ITEM_HOTPROC_G_CONFIG: {
+	    case ITEM_HOTPROC_G_CONFIG: { /* hotproc.control.config */
 		bool_node *tree = NULL;
 		char *savebuffer;
+                int lsts;
 
 		if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				PM_TYPE_STRING, &av, PM_TYPE_STRING)) >= 0) {
 		    savebuffer = get_conf_buffer() ? strdup(get_conf_buffer()) : NULL;
 		    set_conf_buffer(av.cp);
-		    if (parse_config(&tree) != 0) {
+                    lsts = parse_config(&tree);
+		    if (lsts < 0) {
+                        /* Bad config */
 			if (savebuffer)
 			    set_conf_buffer(savebuffer);
+                        sts = PM_ERR_BADSTORE;
 		    }
+                    else if ( lsts == 0 ){
+                        /* Empty Config */
+                        disable_hotproc();
+                    }
 		    else {
 			conf_gen++;
 			new_tree(tree);
@@ -2705,6 +2945,13 @@ proc_store(pmResult *result, pmdaExt *pmda)
 		}
 		break;
 	    }
+            case ITEM_HOTPROC_G_RELOAD_CONFIG: /* hotproc.control.reload_config */
+		if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+				PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
+                    hotproc_init();
+                    reset_hotproc_timer();
+		}
+		break;
 
 	    default:
 		sts = PM_ERR_PERMISSION;

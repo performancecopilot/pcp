@@ -13,6 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ -f $PCP_PMDAS_DIR/summary/pmdasummary ] || _notrun "summary pmda not installed"
+
 rm -f $seq.out
 if [ $PCP_VER -lt 30600 ]
 then

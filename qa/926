@@ -4,6 +4,12 @@
 #
 # Copyright (c) 2015 Martins Innus.  All Rights Reserved.
 #
+# The test archives are machine specific. If a set of 
+# files for your architecture is not present, please: 
+#
+# cd  qa/ganglia && mk-gangliatest
+#
+# and submit the results.
 
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -37,7 +43,7 @@ amd64|x86_64)
     ;;
 esac
 [ -f $seq.out.$machine ] || \
-	_notrun No qualified output for `uname -m` architecture
+	_notrun No qualified output for `uname -m` architecture. Please run mk-gangliatest and submit the new files.
 ln $seq.out.$machine $seq.out || exit 1
 
 status=0        # success is the default!

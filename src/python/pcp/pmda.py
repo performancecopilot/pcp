@@ -25,7 +25,7 @@ import os
 import cpmapi
 import cpmda
 from pcp.pmapi import pmContext as PCP
-from pcp.pmapi import pmInDom, pmDesc, pmUnits
+from pcp.pmapi import pmInDom, pmDesc, pmUnits, pmErr
 
 from ctypes.util import find_library
 from ctypes import CDLL, c_int, c_long, c_char_p, c_void_p, cast, byref
@@ -55,6 +55,8 @@ LIBPCP_PMDA.pmdaCacheLookupKey.argtypes = [
        POINTER(c_int), POINTER(c_void_p)]
 LIBPCP_PMDA.pmdaCacheOp.restype = c_int
 LIBPCP_PMDA.pmdaCacheOp.argtypes = [pmInDom, c_long]
+LIBPCP_PMDA.pmdaCacheResize.restype = c_int
+LIBPCP_PMDA.pmdaCacheResize.argtypes = [pmInDom, c_int]
 
 
 ##
@@ -104,6 +106,39 @@ class pmdaIndom(Structure):
         self.it_indom = indom
         self.set_instances(indom, insts)
 
+    def __iter__(self):
+        # Generates an iterator for the cache.
+        if self.it_numinst < 0:
+            LIBPCP_PMDA.pmdaCacheOp(self.it_indom,
+                                    cpmda.PMDA_CACHE_WALK_REWIND)
+            while 1:
+                inst = LIBPCP_PMDA.pmdaCacheOp(self.it_indom,
+                                               cpmda.PMDA_CACHE_WALK_NEXT)
+                if inst < 0:
+                    break
+                name = self.inst_name_lookup(inst)
+                if name:
+                    yield (inst, name)
+        else:
+            for i in range(self.it_numinst):
+                inst = self.it_set[i].i_inst
+                name = self.inst_name_lookup(inst)
+                if name:
+                    yield (inst, name)
+
+    def inst_name_lookup(self, instance):
+        if self.it_numinst < 0:
+            name = (c_char_p)()
+            sts = LIBPCP_PMDA.pmdaCacheLookup(self.it_indom, instance,
+                                              byref(name), None)
+            if (sts == cpmda.PMDA_CACHE_ACTIVE):
+                return str(name.value.decode())
+        elif self.it_numinst > 0:
+            for inst in self.it_set:
+                if (inst.i_inst == instance):
+                    return str(inst.i_name.decode())
+        return None
+
     def set_list_instances(self, insts):
         instance_count = len(insts)
         if (instance_count == 0):
@@ -113,6 +148,7 @@ class pmdaIndom(Structure):
             instance_array[i].i_inst = insts[i].i_inst
             instance_array[i].i_name = insts[i].i_name
         self.it_set = instance_array
+        self.it_numinst = instance_count
 
     def set_dict_instances(self, indom, insts):
         LIBPCP_PMDA.pmdaCacheOp(indom, cpmda.PMDA_CACHE_INACTIVE)
@@ -133,6 +169,34 @@ class pmdaIndom(Structure):
 
     def __str__(self):
         return "pmdaIndom@%#lx indom=%#lx num=%d" % (addressof(self), self.it_indom, self.it_numinst)
+
+    def cache_load(self):
+        if self.it_numinst <= 0:
+            sts = LIBPCP_PMDA.pmdaCacheOp(self.it_indom, cpmda.PMDA_CACHE_LOAD)
+            if sts < 0:
+                raise pmErr(sts)
+        else:
+            raise pmErr(cpmapi.PM_ERR_NYI)
+
+    def cache_mark_active(self):
+        if self.it_numinst <= 0:
+            LIBPCP_PMDA.pmdaCacheOp(self.it_indom, cpmda.PMDA_CACHE_ACTIVE)
+        else:
+            raise pmErr(cpmapi.PM_ERR_NYI)
+
+    def cache_mark_inactive(self):
+        if self.it_numinst <= 0:
+            LIBPCP_PMDA.pmdaCacheOp(self.it_indom, cpmda.PMDA_CACHE_INACTIVE)
+        else:
+            raise pmErr(cpmapi.PM_ERR_NYI)
+
+    def cache_resize(self, maximum):
+        if self.it_numinst <= 0:
+            sts = LIBPCP_PMDA.pmdaCacheResize(self.it_indom, maximum)
+            if sts < 0:
+                raise pmErr(sts)
+        else:
+            raise pmErr(cpmapi.PM_ERR_NYI)
 
 class pmdaUnits(pmUnits):
     """ Wrapper class for PMDAs defining their metrics (avoids pmapi import) """
@@ -240,13 +304,21 @@ class MetricDispatch(object):
         self._indom_helptext[indomid] = text
 
     def replace_indom(self, indom, insts):
-        replacement = pmdaIndom(indom, insts)
+        # Note that this function can take a numeric indom or a
+        # pmdaIndom.
+        if isinstance(indom, pmdaIndom):
+            it_indom = indom.it_indom
+            replacement = indom
+        else:
+            it_indom = indom
+            replacement = pmdaIndom(it_indom, insts)
         # list indoms need to keep the table up-to-date for libpcp_pmda
         if (isinstance(insts, list)):
             for entry in self._indomtable:
-                if (entry.it_indom == indom):
+                if (entry.it_indom == it_indom):
                     entry = replacement
-        self._indoms[indom] = replacement
+                    break
+        self._indoms[it_indom] = replacement
 
     def inst_lookup(self, indom, instance):
         """
@@ -268,17 +340,7 @@ class MetricDispatch(object):
         a specific instance domain.
         """
         entry = self._indoms[indom]
-        if (entry.it_numinst < 0):
-            name = (c_char_p)()
-            sts = LIBPCP_PMDA.pmdaCacheLookup(indom, instance, byref(name), None)
-            if (sts == cpmda.PMDA_CACHE_ACTIVE):
-                return str(name.value.decode())
-        elif (entry.it_numinst > 0 and entry.it_indom == indom):
-            for inst in entry.it_set:
-                if (inst.i_inst == instance):
-                    return str(inst.i_name.decode())
-        return None
-
+        return entry.inst_name_lookup(instance)
 
 class PMDA(MetricDispatch):
     """ Defines a PCP performance metrics domain agent

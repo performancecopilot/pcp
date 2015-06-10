@@ -1,0 +1,58 @@
+#!/bin/sh
+# PCP QA Test No. 1079
+# Exercise pcp-atop functionality.
+#
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+ATOP="$PCP_BINADM_DIR/pcp-atop"
+test -f "$ATOP" || _notrun "$ATOP is not installed, skipped"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# read from the pcp-atop archive with various atop options
+#
+atop()
+{
+    message="$1"
+    shift
+    options="$@"
+
+    echo "$message"
+
+    pcp_options="pcp -z --origin=+1.1 --archive $here/archives/pcp-atop"
+    $pcp_options atop $options 1 >$tmp.out 2>$tmp.err
+
+    echo "=== std out"
+    cat $tmp.out
+    echo "=== std err"
+    cat $tmp.err
+    echo "=== done" && echo
+}
+
+# real QA test starts here
+atop "General options (default)"
+atop "Memory option" -m
+atop "Disk option" -d
+atop "Scheduling option" -s
+
+# write a new archive, replay with pcp-atop
+echo "Recording an archive using atop"
+$ATOP -w $tmp.atop 1 5
+echo "Replaying an archive using atop"
+$ATOP -r $tmp.atop 1 >> $seq.full
+echo "done"
+
+# success, all done
+status=0
+exit

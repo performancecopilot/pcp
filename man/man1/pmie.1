@@ -19,7 +19,7 @@
 \f3pmie\f1 \- inference engine for performance metrics
 .SH SYNOPSIS
 \f3pmie\f1
-[\f3\-bCdefHVvWxz\f1]
+[\f3\-bCdefHqVvWxz\f1]
 [\f3\-A\f1 \f2align\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-c\f1 \f2filename\f1]
@@ -170,6 +170,11 @@ will be used.
 .B \-n
 An alternative Performance Metrics Name Space (PMNS) is loaded from the file
 .IR pmnsfile .
+.TP
+.B \-q
+Suppresses diagnostic messages that would be printed to standard
+output by default, especially the "evaluator exiting" message as
+this can confuse scripts.
 .TP
 .B \-t
 The
@@ -467,6 +472,35 @@ otherwise ->
 .in
 .fi
 .ft 1
+.P
+The following rule will emit a message when some filesystem is more than
+75% full and is filling at a rate that if sustained would fill the
+filesystem to 100% in less than 30 minutes.
+.P
+.ft CW
+.nf
+.in +0.5i
+some_inst (
+    100 * filesys.used / filesys.capacity > 75 &&
+    filesys.used + 30min * (rate filesys.used) > filesys.capacity
+) -> print "filesystem will be full within 30 mins:" " %i";
+.in
+.fi
+.ft 1
+.P
+If the metric \f(CWmypmda.errors\fP counts errors then the following rule
+will emit a message if the rate of errors exceeds 1 per second provided
+the error count is less than 100.
+.P
+.ft CW
+.nf
+.in +0.5i
+mypmda.errors > 1 && instant mypmda.errors < 100
+-> print "high error rate: %v";
+.in
+.fi
+.ft 1
+.P
 .SH QUICK START
 The
 .B pmie
@@ -572,7 +606,17 @@ _
 \f(CBrising\fR	Boolean, false to true transition
 \f(CBfalling\fR	Boolean, true to false transition
 \f(CBrate\fR	Explicit rate conversion (rarely required)
+\f(CBinstant\fR	No automatic rate conversion (rarely required)
 .TE
+.P
+The \f(CBrate\fP and \f(CBinstant\fP operators are the logical inverse
+of one another, so
+an arithmetic expression \fIexpr\fP 
+is equal to \f(CBrate instant\fP \fIexpr\fP.
+The more useful cases involve using \f(CBrate\fP with a metric that
+is not a counter to determine the rate of change over time or \f(CBinstant\fP
+with a metric that is a counter to determine if the current value is
+above or below some threshold.
 .P
 Aggregate operators may be used to aggregate or summarize along
 one dimension of a set-valued expression.

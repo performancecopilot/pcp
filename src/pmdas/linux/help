@@ -2,7 +2,7 @@
 # Copyright (c) 2000,2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Portions Copyright (c) International Business Machines Corp., 2002
 # Portions Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
-# Portions Copyright (c) 2013-2014 Red Hat.
+# Portions Copyright (c) 2013-2015 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -803,6 +803,8 @@ See also network.interface.speed for the Megabytes/second value.
 @ hinv.physmem total system memory metric from /proc/meminfo
 @ hinv.pagesize Memory page size
 The memory page size of the running kernel in bytes.
+@ hinv.hugepagesize Huge page size from /proc/meminfo
+The memory huge page size of the running kernel in bytes.
 @ hinv.ncpu number of CPUs in the system
 @ hinv.ndisk number of disks in the system
 @ hinv.nfilesys number of (local) file systems currently mounted
@@ -815,10 +817,6 @@ D is controller number, C is channel number, I is device ID
 and L is the SCSI LUN number for the device. The values for this
 metric are the actual device names (sd[a-z] are SCSI disks, st[0-9]
 are SCSI tapes and scd[0-9] are SCSI CD-ROMS.
-@ hinv.nlv number of logical volumes
-@ hinv.map.lvname mapping of logical volume names for devices
-Provides a logical-volume-name to device-name mapping for the device
-mapper subsystem.
 @ filesys.capacity Total capacity of mounted filesystem (Kbytes)
 @ filesys.used Total space used on mounted filesystem (Kbytes)
 @ filesys.free Total space free on mounted filesystem (Kbytes)

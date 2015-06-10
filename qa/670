@@ -3,7 +3,7 @@
 #
 # exercise pm[Parse]UnitsStr
 #
-# Copyright (c) 2014 Red Hat, Inc.
+# Copyright (c) 2014-2015 Red Hat, Inc.
 #
 
 seq=`basename $0`
@@ -13,6 +13,8 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+
+[ -f $PCP_PMDAS_DIR/cifs/pmdacifs ] || _notrun "cifs pmda not installed"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full

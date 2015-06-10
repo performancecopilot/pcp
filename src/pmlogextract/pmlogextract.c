@@ -1864,8 +1864,13 @@ main(int argc, char **argv)
 
 	if ((sts = pmGetArchiveEnd(&unused)) < 0) {
 	    fprintf(stderr, "%s: Error: cannot get end of archive (%s): %s\n",
-		    pmProgname, iap->name, pmErrStr(sts));
-	    exit(1);
+		pmProgname, iap->name, pmErrStr(sts));
+	    if (desperate) {
+		unused.tv_sec = INT_MAX;
+		unused.tv_usec = 0;
+	    }
+	    else
+		exit(1);
 	}
 
 	if (i == 0) {

@@ -1,0 +1,52 @@
+#
+# Common shell routines for testing with Docker containers
+# Copyright (c) 2015 Red Hat.
+#
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# allow external docker binary for testing
+docker=${PCP_DOCKER_PROG:-docker}
+which $docker >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "No docker binary found"
+
+# ensure we can run at least one valid docker command
+eval $docker images >/dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    # last ditch effort - try as root, otherwise just bail out
+    docker="$sudo docker"
+    eval $docker images >/dev/null 2>&1
+    [ $? -eq 0 ] || _notrun "Cannot find a working 'docker images' command"
+fi
+
+# check whether docker images are available before attempting to use it
+# Pass in a list of image names to verify.  If any are not available,
+# the test will notrun.
+# 
+_check_docker_images()
+{
+    __command="$docker run -it --rm"
+
+    for __image in "$@"
+    do
+	__count=`eval $docker images --quiet $__image 2>/dev/null | wc -l`
+	[ "$__count" -gt 0 ] || \
+	    _notrun "Cannot find $image docker image.  Use: $__command $__image"
+    done
+}
+
+# given a list of one or more (temporary) containers started during a
+# QA test, ensure they are stopped and removed.
+#
+_remove_docker_containers()
+{
+    for __container in "$@"
+    do
+	eval $docker stop --time=2 $__container >/dev/null
+	eval $docker rm --force $__container >/dev/null
+    done
+}

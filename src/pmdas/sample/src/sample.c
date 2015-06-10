@@ -2518,7 +2518,7 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 126:	/* event.reset */
 	    case 140:	/* event.reset_highres */
 		if (vsp->numval != 1 || vsp->valfmt != PM_VAL_INSITU)
-		    sts = PM_ERR_CONV;
+		    sts = PM_ERR_BADSTORE;
 		break;
 
 	    case 24:	/* longlong.write_me */
@@ -2528,7 +2528,7 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 102:	/* ulonglong.write_me */
 	    case 120:	/* scramble.ver */
 		if (vsp->numval != 1 || vsp->valfmt == PM_VAL_INSITU)
-		    sts = PM_ERR_CONV;
+		    sts = PM_ERR_BADSTORE;
 		break;
 
 	    case 5:	/* colour */
@@ -2538,7 +2538,7 @@ sample_store(pmResult *result, pmdaExt *ep)
 		 * counter _x for a pmStore on _any_ instance
 		 */
 		if (vsp->valfmt != PM_VAL_INSITU)
-		    sts = PM_ERR_CONV;
+		    sts = PM_ERR_BADSTORE;
 		break;
 	    case 38:	/* mirage_longlong */
 		/*
@@ -2546,19 +2546,19 @@ sample_store(pmResult *result, pmdaExt *ep)
 		 * counter _x for a pmStore on _any_ instance
 		 */
 		if (vsp->valfmt == PM_VAL_INSITU)
-		    sts = PM_ERR_CONV;
+		    sts = PM_ERR_BADSTORE;
 		break;
 
 	    case 19:	/* float.write_me */
 		if (vsp->numval != 1)
-		    sts = PM_ERR_CONV;
+		    sts = PM_ERR_BADSTORE;
 		/* accommodate both old and new encoding styles for floats */
 		break;
 
 	    case 40:	/* pdu */
 		/* value is ignored, so valfmt does not matter */
 		if (vsp->numval != 1)
-		    sts = PM_ERR_CONV;
+		    sts = PM_ERR_BADSTORE;
 		break;
 
 	    default:

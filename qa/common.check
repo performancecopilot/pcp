@@ -260,7 +260,7 @@ _host_to_fqdn()
     then
 	if which domainname >/dev/null 2>&1
 	then
-	    ans=`domainname`
+	    ans=`domainname | fgrep -v '(none)'`
 	    [ -z "$ans" ] || ans="$1.$ans"
 	fi
     fi
@@ -279,7 +279,7 @@ _ipv6_localhost()
 	echo "Arrgh ... cannot find /etc/hosts to determine IPv6 localhost name"
 	exit
     fi
-    for sniff in localhost6 ip6-localhost
+    for sniff in localhost6 ip6-localhost ipv6-localhost
     do
 	if sed -e '/^#/d' -e 's/$/ /' /etc/hosts | grep -q "[ 	]$sniff "
 	then
@@ -778,6 +778,55 @@ _check_containers()
     [ $? = 0 ] || _notrun "pmdalinux has insufficient privileges as a DSO"
 }
 
+# good output from dbpmda looks like ...
+# dbpmda> open pipe /var/lib/pcp/pmdas/papi/pmdapapi -d 126
+# ...
+# dbpmda> fetch papi.system.TOT_INS
+# PMID(s): 126.0.14
+# pmResult dump from 0x25c6e00 timestamp: 0.000000 10:00:00.000 numpmid: 1
+#   126.0.14 (<noname>): numval: 1 valfmt: 1 vlist[]:
+#      value 2616
+#
+_check_papi()
+{
+    [ -f $PCP_PMDAS_DIR/papi/pmdapapi ] || _notrun "no executable for the papi PMDA"
+    [ -f $PCP_PMDAS_DIR/papi/root ] || _notrun "no PMNS for the papi PMDA"
+
+    $sudo dbpmda -n $PCP_PMDAS_DIR/papi/root -ie <<EOF >$tmp.papi.check
+open pipe $PCP_PMDAS_DIR/papi/pmdapapi -d 126 -l $tmp.papi.log
+attr "username" "root"
+attr 11 "0"
+fetch papi.system.TOT_INS
+EOF
+    echo "papi.log ..." >>$here/$seq.full
+    cat $tmp.papi.log >>$here/$seq.full
+    $sudo rm $tmp.papi.log
+    echo "_check_papi ..." >>$here/$seq.full
+    cat $tmp.papi.check >>$here/$seq.full
+    if grep ' value [0-9][0-9]*$' <$tmp.papi.check >/dev/null
+    then
+	:
+    else
+	_notrun "PAPI counters not available on this platform"
+    fi
+}
+
+_check_papi_native()
+{
+    $sudo dbpmda -n $PCP_PMDAS_DIR/papi/root -ie <<EOF >$tmp.papi.check
+open pipe $PCP_PMDAS_DIR/papi/pmdapapi -d 126
+attr "username" "root"
+attr 11 "0"
+traverse papi.system.perf
+EOF
+    echo "_check_papi_native ..." >>$here/$seq.full
+    cat $tmp.papi.check >>$here/$seq.full
+    if grep "Error PDU: Unknown metric name" <$tmp.papi.check >/dev/null
+    then
+	_notrun "PAPI native metrics not available on this platform"
+    fi
+}
+
 # valgrind support
 #
 # typical usage:
@@ -1144,7 +1193,7 @@ _get_word_size()
 	# but, apps are 64-bit on my Mac OS X
 	[ $PCP_PLATFORM = darwin ] && size=64
 	;;
-    x86_64|ia64|ppc64|s390x|aarch64)
+    x86_64|ia64|ppc64|ppc64le|s390x|aarch64)
 	size=64
 	;;
     *)
@@ -1350,7 +1399,18 @@ _change_config()
 	pat=$1
 	[ "$1" = "verbose" ] && pat=""
 
-	if which systemctl >/dev/null 2>&1
+	_have_systemctl=false
+	which systemctl >/dev/null 2>&1 && _have_systemctl=true
+	if [ -z "$pat" ]
+	then
+	    _have_service=true
+	elif [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$pat.service ]
+	then
+	    _have_service=true
+	else
+	    _have_service=false
+	fi
+	if $_have_systemctl && $_have_service
 	then
 	    # Run with systemd whenever it is available now
 	    #
@@ -1502,7 +1562,18 @@ _get_config()
 	    *)	pat=$1 ;;
 	esac
 
-	if which systemctl >/dev/null 2>&1
+	_have_systemctl=false
+	which systemctl >/dev/null 2>&1 && _have_systemctl=true
+	if [ -z "$pat" ]
+	then
+	    _have_service=true
+	elif [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$pat.service ]
+	then
+	    _have_service=true
+	else
+	    _have_service=false
+	fi
+	if $_have_systemctl && $_have_service
 	then
 	    # Run with systemd whenever it is available now
 	    #

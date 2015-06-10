@@ -205,7 +205,7 @@ _filter_optional_pmdas()
 	-e '/pmdabrocade/d' \
 	-e '/pmdacisco/d' \
 	-e '/pmdadbping/d' \
-	-e '/pmdadmcache/d' \
+	-e '/pmdadm/d' \
 	-e '/pmdadmf/d' \
 	-e '/pmdads389/d' \
 	-e '/pmda_environ/d' \
@@ -220,6 +220,7 @@ _filter_optional_pmdas()
 	-e '/pmdainfmx7/d' \
 	-e '/pmdainfmxping/d' \
 	-e '/pmdajbd2/d' \
+	-e '/pmdajson/d' \
 	-e '/pmdajstat/d' \
 	-e '/pmdakvm/d' \
 	-e '/pmdalab/d' \
@@ -299,6 +300,7 @@ _filter_top_pmns()
 	-e '/^    datatape /d' \
 	-e '/^    dbping /d' \
 	-e '/^    dmcache /d' \
+	-e '/^    dmthin /d' \
 	-e '/^    dmf /d' \
 	-e '/^    ds389 /d' \
 	-e '/^    elasticsearch /d' \
@@ -311,6 +313,7 @@ _filter_top_pmns()
 	-e '/^    infmxping /d' \
 	-e '/^    informix /d' \
 	-e '/^    jbd2 /d' \
+	-e '/^    json /d' \
 	-e '/^    jstat /d' \
 	-e '/^    kvm /d' \
 	-e '/^    lab /d' \
@@ -333,6 +336,7 @@ _filter_top_pmns()
 	-e '/^    oracle /d' \
 	-e '/^    oraping /d' \
 	-e '/^    pdns /d' \
+	-e '/^    postfix /d' \
 	-e '/^    postgresql /d' \
 	-e '/^    proc /d' \
 	-e '/^    rpm /d' \

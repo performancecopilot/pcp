@@ -27,6 +27,9 @@ pmlogger options:
   -m MSG, --note=MSG    descriptive note to be added to the port map file
   -n FILE, --namespace=FILE
                         use an alternative PMNS
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -o, --local-PMDA      metrics source is local connection to a PMDA
   -P, --primary         execute as primary logger instance
   -r, --report          report record sizes and archive growth rate
   -t DELTA, --interval=DELTA

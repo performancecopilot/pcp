@@ -12,8 +12,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#ifndef _PMDA_H
-#define _PMDA_H
+#ifndef PCP_PMDA_H
+#define PCP_PMDA_H
 
 #include <stdarg.h>
 
@@ -40,7 +40,7 @@ typedef enum {pmdaPipe, pmdaInet, pmdaUnix, pmdaUnknown, pmdaIPv6} pmdaIoType;
 /*
  * Instance description: index and name
  */
-typedef struct {
+typedef struct pmdaInstid {
     int		i_inst;		/* internal instance identifier */
     char	*i_name;	/* external instance identifier */
 } pmdaInstid;
@@ -49,7 +49,7 @@ typedef struct {
  * Instance domain description: unique instance id, number of instances in
  * this domain, and the list of instances (not null terminated).
  */
-typedef struct {
+typedef struct pmdaIndom {
     pmInDom	it_indom;	/* indom, filled in */
     int		it_numinst;	/* number of instances */
     pmdaInstid	*it_set;	/* instance identifiers */
@@ -58,7 +58,7 @@ typedef struct {
 /*
  * Metric description: handle for extending description, and the description.
  */
-typedef struct {
+typedef struct pmdaMetric {
     void	*m_user;	/* for users external use */
     pmDesc	m_desc;		/* metric description */
 } pmdaMetric;
@@ -117,7 +117,7 @@ typedef struct __pmnsNode pmnsNode;
  * pmdaInit().
  * 
  */
-typedef struct {
+typedef struct pmdaExt {
 
     unsigned int e_flags;	/* PMDA_EXT_FLAG_* bit field */
     void	*e_ext;		/* used internally within libpcp_pmda */
@@ -183,7 +183,7 @@ typedef struct {
  * pmdaDaemon and pmdaGetOpt in the case of a Daemon PMDA. It should not be
  * modified.
  */
-typedef struct {
+typedef struct pmdaInterface {
     int	domain;		/* performance metrics domain id */
     struct {
 	unsigned int	pmda_interface : 8;	/* PMDA DSO interface version */
@@ -253,7 +253,7 @@ typedef struct {
 /*
  * PM_CONTEXT_LOCAL support
  */
-typedef struct {
+typedef struct __pmDSO {
     int			domain;
     char		*name;
     char		*init;
@@ -263,8 +263,12 @@ typedef struct {
 
 extern __pmDSO *__pmLookupDSO(int /*domain*/);
 
-/* Macro that can be used to create each metrics' PMID. */
-#define PMDA_PMID(x,y) 	(((x)<<10)|(y))
+/*
+ * Macro that can be used to create each metrics' PMID.
+ * cluster has a maximum value of 2^12-1
+ * item has a maximum value of 2^10-1
+ */
+#define PMDA_PMID(cluster,item) ((((cluster)&0xfff)<<10)|((item)&0x3ff))
 
 /* Macro for pmUnits bitmap in a pmDesc declaration */
 #ifdef HAVE_BITFIELDS_LTOR
@@ -299,10 +303,11 @@ extern __pmDSO *__pmLookupDSO(int /*domain*/);
 #define PMDAOPT_USERNAME { "username",	1, 'U', "USER", \
 			"run the PMDA using the named user account" }
 
-struct __pmdaOptions;
-typedef int (*pmdaOptionOverride)(int, struct __pmdaOptions *);
+struct pmdaOptions;
+#define __pmdaOptions pmdaOptions /* backward-compatibility */
+typedef int (*pmdaOptionOverride)(int, struct pmdaOptions *);
 
-typedef struct __pmdaOptions {
+typedef struct pmdaOptions {
     int			version;
     int			flags;
     const char *	short_options;
@@ -592,6 +597,9 @@ extern pmnsNode * pmdaNodeLookup(pmnsNode *, const char *);
  * 
  * pmdaCachePurge
  *	cull inactive entries
+ *
+ * pmdaCacheResize
+ *	set the maximum instance identifier
  */
 extern int pmdaCacheStore(pmInDom, int, const char *, void *);
 extern int pmdaCacheStoreKey(pmInDom, int, const char *, int, const void *, void *);
@@ -600,6 +608,7 @@ extern int pmdaCacheLookupName(pmInDom, const char *, int *, void **);
 extern int pmdaCacheLookupKey(pmInDom, const char *, int, const void *, char **, int *, void **);
 extern int pmdaCacheOp(pmInDom, int);
 extern int pmdaCachePurge(pmInDom, time_t);
+extern int pmdaCacheResize(pmInDom, int);
 
 #define PMDA_CACHE_LOAD			1
 #define PMDA_CACHE_ADD			2
@@ -773,4 +782,4 @@ extern int __pmdaDecodeRootPDUContainer(void *, int, int *, char *, int);
 }
 #endif
 
-#endif /* _PMDA_H */
+#endif /* PCP_PMDA_H */

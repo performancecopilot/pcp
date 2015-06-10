@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012-2015 Red Hat.
 # Copyright (c) 2000-2008 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -87,10 +87,10 @@ in
 	;;
 esac
 
-# Note: _start_pmcheck() runs in the background, in parallel with
-# the rest of the script.  It might complete well after the caller
-# so tmpfile handling is especially problematic.  Goal is to speed
-# bootup by starting potentially slow (remote monitoring) pmlogger
+# Note: _start_pmcheck() runs in the background, in parallel with the rest
+# of the script (except in a container environment). It might complete well
+# after the caller so tmpfile handling is especially problematic.  Goal is
+# to speed bootup by starting potentially slow (remote monitoring) pmlogger
 # processes in the background.
 #
 _start_pmcheck()
@@ -112,7 +112,9 @@ _start_pmcheck()
 	    cat $bgtmp/pmcheck
 	fi
     fi
-    exit $bgstatus	# co-process is now complete
+    # In a container, pmlogger_check cannot run as a co-process. If it did then
+    # the pmpause signal handler would reap the pmlogger_check child and exit.
+    [ -z "$PCP_CONTAINER_IMAGE" ] && exit $bgstatus # co-process is now complete
 }
 
 _start_pmlogger()
@@ -134,7 +136,15 @@ Error: PCP archive logger control file '$PMLOGCTRL'
 	    # failures are notified by mail
 	    #
 	    $ECHO $PCP_ECHO_N "Starting pmlogger ..." "$PCP_ECHO_C"
-	    _start_pmcheck &
+	    if [ -z "$PCP_CONTAINER_IMAGE" ]
+	    then
+		# run as a co-process
+		_start_pmcheck &
+	    else
+		# container environment - no co-process
+		_start_pmcheck
+	    fi
+
 	    # success
 	    true
 	fi
@@ -259,19 +269,24 @@ case "$1" in
 	_shutdown quietly
 
 	# messages should go to stderr, not the GUI notifiers
-	#
 	unset PCP_STDERR
 
 	if [ -x $PMLOGGER ]
 	then
+	    # issue a warning if there's no chkconfig/crontab support
 	    if is_chkconfig_on pmlogger
 	    then
-		_start_pmlogger
+		:
 	    elif [ "$0" = "$pmprog" -o "$0" = "$rcprog" ]
 	    then
-		echo "$prog: Warning: Performance Co-Pilot archive logger(s) are disabled."
+		echo "$prog: Warning: Performance Co-Pilot archive logger(s) not permanently enabled."
 		chkconfig_on_msg pmlogger
 	    fi
+
+	    _start_pmlogger
+
+	    # finally, stop here if running in a container
+	    [ -z "$PCP_CONTAINER_IMAGE" ] || exec $PCP_BINADM_DIR/pmpause
 	fi
 
 	status=0
@@ -305,6 +320,7 @@ case "$1" in
 	;;
 
   *)
+	[ -z "$PCP_CONTAINER_IMAGE" ] || exec "$@"
 	_usage
         ;;
 esac

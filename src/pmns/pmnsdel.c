@@ -153,8 +153,8 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
-	fprintf(stderr, "%s: Error: pmLoadNameSpace(%s): %s\n",
+    if ((sts = pmLoadASCIINameSpace(pmnsfile, 1)) < 0) {
+	fprintf(stderr, "%s: Error: pmLoadASCIINameSpace(%s, 1): %s\n",
 		pmProgname, pmnsfile, pmErrStr(sts));
 	exit(1);
     }

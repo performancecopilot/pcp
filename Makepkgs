@@ -2,7 +2,7 @@
 #
 # Make whichever packages the system supports
 #
-# Copyright (c) 2012-2014 Red Hat.
+# Copyright (c) 2012-2015 Red Hat.
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -18,6 +18,7 @@
 
 topdir=`pwd`
 verbose=false
+srconly=false
 nonrpm=unknown
 nondeb=unknown
 
@@ -57,7 +58,7 @@ gnu_tool()
 	    exec=`which $command 2>/dev/null`
 	    if [ -n "$exec" ]
 	    then
-		if $command --help 2>&1 | egrep -q "(bug-$oldcmd@gnu.org)|(FreeBSD $gnutool)|(NetBSD $gnutool)"
+		if $command --help 2>&1 | egrep -q "(bug-$oldcmd@gnu.org)|(FreeBSD $gnutool)|(NetBSD $gnutool)|(Apple $gnutool)"
 		then
 		    echo $exec
 		    return 0
@@ -127,6 +128,10 @@ do
 	;;
     --nondeb)
 	nondeb=true
+	shift
+	;;
+    --source)
+	srconly=true
 	shift
 	;;
     --target)
@@ -445,6 +450,7 @@ packaging_rpm()
 # real build starts here
 clean_packaging
 src_tar_build
+$srconly && exit 0
 
 # short-circuit for performing builds with dpkg-buildpackage
 $nondeb || debian_build

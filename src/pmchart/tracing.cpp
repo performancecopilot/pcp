@@ -397,7 +397,8 @@ TracingItem::addTraceSpan(TracingEngine *engine, const QString &span, int slot)
 void
 TracingItem::setStroke(Chart::Style, QColor color, bool)
 {
-    QPen outline(QColor(Qt::black));
+    const QColor black(Qt::black);
+    const QPen outline(black);
     QColor darkColor(color);
     QColor alphaColor(color);
 

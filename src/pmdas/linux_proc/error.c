@@ -19,13 +19,13 @@ extern int  yylineno;
 extern char yytext[];
 
 void
-yywarn(char *s)
+yywarn(const char *s)
 {
-    fprintf(stderr, "Warning [line %d]\n%s\n", yylineno, s);
+    fprintf(stderr, "Warning [line %d] : %s\n", yylineno, s);
 }
 
 void
-yyerror(char *s)
+yyerror(const char *s)
 {
     fprintf(stderr, "Specification error in configuration\n");
     fprintf(stderr, "[line %d] %s: %s\n", yylineno, s, yytext);

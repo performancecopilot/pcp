@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2014 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 # Copyright (c) 2009,2011 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -24,78 +24,56 @@ LLDLIBS	= -lpcp
 
 STATICLIBTARGET = libpcp_pmda.a
 
-#
-# libpcp_pmda.so   -> libpcp_pmda.so.3
-# libpcp_pmda.so.2 -> libpcp_pmda.so.3
-#
-DSOVERSION_V2 = 2
-DSOVERSION_V3 = 3
+DSOVERSION = 3
+LIBTARGET = libpcp_pmda.$(DSOSUFFIX).$(DSOVERSION)
+SYMTARGET = libpcp_pmda.$(DSOSUFFIX)
+
 VERSION_SCRIPT = exports
 
-ifneq "$(TARGET_OS)" "darwin"
-LIBTARGET_V1 = libpcp_pmda.$(DSOSUFFIX)
-LIBTARGET_V2 = libpcp_pmda.$(DSOSUFFIX).$(DSOVERSION_V2)
-LIBTARGET_V3 = libpcp_pmda.$(DSOSUFFIX).$(DSOVERSION_V3)
-else
-LIBTARGET_V1 = libpcp_pmda.$(DSOSUFFIX)
-LIBTARGET_V2 = 
-LIBTARGET_V3 = libpcp_pmda.$(DSOVERSION_V3).$(DSOSUFFIX)
+ifeq "$(TARGET_OS)" "darwin"
+LIBTARGET = libpcp_pmda.$(DSOVERSION).$(DSOSUFFIX)
 endif
-ifeq "$(PACKAGE_DISTRIBUTION)" "debian"
-LIBTARGET_V2 = 
-endif
-LIBTARGET = $(LIBTARGET_V3)
-
 ifeq "$(TARGET_OS)" "mingw"
 LIBTARGET = libpcp_pmda.$(DSOSUFFIX)
 STATICLIBTARGET =
-LIBTARGET_V1 =
-LIBTARGET_V2 =
-LIBTARGET_V3 =
+SYMTARGET =
 endif
 
 ifeq "$(ENABLE_SHARED)" "no"
 LIBTARGET =
-LIBTARGET_V1 =
-LIBTARGET_V2 =
-LIBTARGET_V3 =
+SYMTARGET =
 endif
 
+LDIRT = $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
 LSRCFILES = $(VERSION_SCRIPT)
-LDIRT = $(LIBTARGET_V1) $(LIBTARGET_V2) $(LIBTARGET_V3)
 
-default: $(LIBTARGET_V1) $(LIBTARGET_V2) $(LIBTARGET) $(STATICLIBTARGET)
+default: $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
 
-ifneq ($(LIBTARGET_V1),)
-$(LIBTARGET_V1): $(LIBTARGET_V3)
-	$(LN_S) -f $(LIBTARGET_V3) $(LIBTARGET_V1)
-endif
-ifneq ($(LIBTARGET_V2),)
-$(LIBTARGET_V2): $(LIBTARGET_V3)
-	$(LN_S) -f $(LIBTARGET_V3) $(LIBTARGET_V2)
+ifneq ($(SYMTARGET),)
+$(SYMTARGET):
+	$(LN_S) -f $(LIBTARGET) $@
 endif
 
 callback.o mainloop.o open.o : libdefs.h
 
 include $(BUILDRULES)
 
-install : default
+install: default
 ifneq ($(LIBTARGET),)
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
 endif
-ifneq ($(LIBTARGET_V1),)
-	$(INSTALL) -S $(LIBTARGET_V3) $(PCP_LIB_DIR)/$(LIBTARGET_V1)
-endif
-ifneq ($(LIBTARGET_V2),)
-	$(INSTALL) -S $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET_V2)
+ifneq ($(SYMTARGET),)
+	for tt in $(SYMTARGET); do \
+	    $(INSTALL) -S $(LIBTARGET) $(PCP_LIB_DIR)/$$tt || exit 1; \
+	done
 endif
 ifneq ($(STATICLIBTARGET),)
 	$(INSTALL) -m 755 $(STATICLIBTARGET) $(PCP_LIB_DIR)/$(STATICLIBTARGET)
 endif
 
-default_pcp : default
+default_pcp:	default
 
-install_pcp : install
+install_pcp:	install
 
 ifneq ($(LIBTARGET),)
 $(LIBTARGET): $(VERSION_SCRIPT)

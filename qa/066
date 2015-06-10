@@ -85,7 +85,8 @@ cleanup()
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 	    && $sudo sh $tmp.cmd
 	echo "Restarting pmcd"
-	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	echo "+++ restarting pmcd `date` +++" >>$seq.full
+	$sudo $PCP_RC_DIR/pcp restart | tee -a $seq.full | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	_needclean=false
@@ -171,13 +172,13 @@ then
 fi
 
 _save_config $PCP_PMCDCONF_PATH
-echo "+++ stopping pmcd +++" >>$seq.full
+echo "+++ stopping pmcd `date` +++" >>$seq.full
 $sudo $PCP_RC_DIR/pcp stop | tee -a $seq.full | _filter_pcp_stop
 $sudo $signal -a pmgadgets pmchart pmview >/dev/null 2>&1
 $sudo cp $tmp $PCP_PMCDCONF_PATH
 # try to dodge bind: Address already in use
 [ $PCP_PLATFORM = solaris ] && sleep 10
-echo "+++ starting pmcd +++" >>$seq.full
+echo "+++ starting pmcd `date` +++" >>$seq.full
 $sudo $PCP_RC_DIR/pcp start | tee -a $seq.full | _filter_pcp_start
 echo "first config:"
 _myfilter_config  <$PCP_PMCDCONF_PATH

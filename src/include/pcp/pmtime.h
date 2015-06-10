@@ -11,12 +11,12 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
  */
-#ifndef PMTIME_H
-#define PMTIME_H
+#ifndef PCP_PMTIME_H
+#define PCP_PMTIME_H
 
 #include <sys/time.h>
 
-typedef enum {
+typedef enum pm_tctl_command {
     PM_TCTL_SET		= (1<<0),	// client -> server
     PM_TCTL_STEP	= (1<<1),	// server -> clients
     PM_TCTL_TZ		= (1<<2),	// server -> clients
@@ -28,7 +28,7 @@ typedef enum {
     PM_TCTL_ACK		= (1<<8),	// client -> server (except handshake)
 } pm_tctl_command;
 
-typedef enum {
+typedef enum pm_tctl_state {
     PM_STATE_STOP	= 0,
     PM_STATE_FORWARD	= 1,
     PM_STATE_BACKWARD	= 2,
@@ -40,7 +40,7 @@ typedef enum {
     PM_MODE_FAST	= 2,
 } pm_tctl_mode;
 
-typedef enum {
+typedef enum pm_tctl_source {
     PM_SOURCE_NONE	= -1,
     PM_SOURCE_HOST	= 0,
     PM_SOURCE_ARCHIVE	= 1,
@@ -48,7 +48,7 @@ typedef enum {
 
 #define PMTIME_MAGIC	0x54494D45	/* "TIME" */
 
-typedef struct {
+typedef struct pmTime {
     unsigned int	magic;
     unsigned int	length;
     pm_tctl_command	command;
@@ -80,7 +80,7 @@ typedef void (*pmTimeStateInterval)(struct timeval);
 typedef void (*pmTimeStateStepped)(struct timeval);
 typedef void (*pmTimeStateNewZone)(char *, char *);
 
-typedef struct {
+typedef struct pmTimeControls {
     pmTimeStateResume	resume;
     pmTimeStateRewind	rewind;
     pmTimeStateExited	exited;
@@ -104,4 +104,4 @@ extern void pmTimeStateMode(int, struct timeval, struct timeval *);
 extern int pmTimeStateVector(pmTimeControls *, pmTime *);
 extern void pmTimeStateBounds(pmTimeControls *, pmTime *);
 
-#endif	/* PMTIME_H */
+#endif	/* PCP_PMTIME_H */

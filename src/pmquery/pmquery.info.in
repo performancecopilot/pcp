@@ -13,6 +13,6 @@
 	<key>CFBundleExecutable</key>
 	<string>pmquery</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.aconex.pmquery</string>
+	<string>io.pcp.pmquery</string>
 </dict>
 </plist>

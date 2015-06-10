@@ -1,0 +1,57 @@
+#
+# Copyright (C) 2015 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+import sys
+import cpmapi
+from pcp import pmapi
+
+try:
+    raise pmapi.pmUsageErr("[extra usage message text]\n")
+except pmapi.pmUsageErr as usage:
+    print('++ pmapi.pmUsageErr exception handler')
+    usage.message()
+except:
+    print('-- unexpected exception, wanted pmUsageErr')
+sys.stdout.flush()
+sys.stderr.flush()
+
+try:
+    raise pmapi.pmUsageErr
+except pmapi.pmUsageErr as usage:
+    print('++ pmapi.pmUsageErr exception handler')
+    usage.message()
+except:
+    print('-- unexpected exception, wanted pmUsageErr')
+sys.stdout.flush()
+sys.stderr.flush()
+
+try:
+    raise pmapi.pmErr(cpmapi.PM_ERR_GENERIC)
+except pmapi.pmErr as error:
+    print('++ pmapi.pmErr exception handler')
+    print('%s: %s' % (error.progname(), error.message()))
+except:
+    print('-- unexpected exception, wanted pmErr')
+sys.stdout.flush()
+sys.stderr.flush()
+
+try:
+    raise pmapi.pmErr(cpmapi.PM_ERR_GENERIC, '[extra information]')
+except pmapi.pmErr as error:
+    print('++ pmapi.pmErr exception handler')
+    print('%s: %s' % (error.progname(), error.message()))
+except:
+    print('-- unexpected exception, wanted pmErr')
+sys.stdout.flush()
+sys.stderr.flush()

@@ -14,8 +14,8 @@
  * for more details.
  */
 
-#ifndef _IMPL_H
-#define _IMPL_H
+#ifndef PCP_IMPL_H
+#define PCP_IMPL_H
 
 #include <time.h>
 #include <fcntl.h>
@@ -733,10 +733,11 @@ extern __pmContext *__pmHandleToPtr(int);
 extern void __pmDumpContext(FILE *, int, pmInDom);
 
 /*
- * pmFetch helper routines, providing hooks for derivations.
+ * pmFetch helper routines, hooks for derivations and local contexts.
  */
 extern int __pmPrepareFetch(__pmContext *, int, const pmID *, pmID **);
 extern int __pmFinishResult(__pmContext *, int, pmResult **);
+extern int __pmFetchLocal(__pmContext *, int, pmID *, pmResult **);
 
 /*
  * Protocol data unit support
@@ -1489,7 +1490,7 @@ extern void *__pmLock_libpcp;			/* symbol exposure */
 extern int __pmDiscoverServicesWithOptions(const char *,
 					   const char *,
 					   const char *,
-					   const volatile unsigned *,
+					   const volatile sig_atomic_t *,
 					   char ***);
 
 
@@ -1497,4 +1498,4 @@ extern int __pmDiscoverServicesWithOptions(const char *,
 }
 #endif
 
-#endif /* _IMPL_H */
+#endif /* PCP_IMPL_H */

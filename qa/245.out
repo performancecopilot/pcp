@@ -11,7 +11,7 @@ Options:
 
 === no such PMNS file ===
 Error Parsing ASCII PMNS: Cannot open "no-such-input"
-pmnsdel: Error: pmLoadNameSpace(no-such-input): No such file or directory
+pmnsdel: Error: pmLoadASCIINameSpace(no-such-input, 1): No such file or directory
 
 === cannot open existing output file for writing ===
 
@@ -22,7 +22,7 @@ pmnsdel: Error: cannot open PMNS file "mypmns.new" for writing: Permission denie
 [mypmns:2] Error Parsing ASCII PMNS: Expected NAME, PMID or }
     bogus - this is not correct
           ^
-pmnsdel: Error: pmLoadNameSpace(mypmns): Problems parsing PMNS definitions
+pmnsdel: Error: pmLoadASCIINameSpace(mypmns, 1): Problems parsing PMNS definitions
 
 +++ Common starting PMNS for all remaing tests ...
 one PMID: 1.1.1

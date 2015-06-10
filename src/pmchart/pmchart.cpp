@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014, Red Hat.
+ * Copyright (c) 2012-2015, Red Hat.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * Copyright (c) 2006-2009, Aconex.  All Rights Reserved.
  * 

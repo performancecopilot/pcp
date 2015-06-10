@@ -1,0 +1,10 @@
+QA output created by 995
+[extra usage message text]
+Usage: pcp [options]
+++ pmapi.pmUsageErr exception handler
+Usage: pcp [options]
+++ pmapi.pmUsageErr exception handler
+++ pmapi.pmErr exception handler
+pcp: Generic error, already reported above
+++ pmapi.pmErr exception handler
+pcp: Generic error, already reported above [extra information]

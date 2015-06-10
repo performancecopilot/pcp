@@ -1,0 +1,17 @@
+QA output created by 1080
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: PCP-ATOP 1 3
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: PCP-ATOP -r .../archives/pcp-atop.folio
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

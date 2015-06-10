@@ -1,0 +1,69 @@
+#!/bin/sh
+# PCP QA Test No. 974
+# Exercise pmdaproc per-process metric extraction.
+#
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_get_libpcp_config
+$unix_domain_sockets || _notrun "No unix domain socket support available"
+pminfo proc.nprocs >/dev/null 2>&1 || _notrun "proc PMDA not installed"
+[ $PCP_PLATFORM = linux ] || _notrun "Linux proc test, only works with Linux"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    cat >$tmp.out
+    grep -v 'inst \[' $tmp.out
+    sed -n -e 's/inst \[[0-9][0-9]*/inst [N/p' $tmp.out \
+    | LC_COLLATE=POSIX sort
+}
+
+# real QA test starts here
+root=$tmp.root
+export PROC_STATSPATH=$root
+pmda=$PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init
+
+for tgz in $here/linux/procpid-*-root-*.tgz
+do
+    cd $here
+    $sudo rm -fr $root
+    mkdir $root || _fail "root in use when processing $tgz"
+    cd $root
+    tar xzf $tgz
+    base=`basename $tgz`
+
+    echo "== Extracting subtrees for later use - $base" | tee -a $seq.full
+    trees=`pminfo proc | awk -F. '{ print $2 }' | sort -u | egrep -v nproc`
+    echo $trees >> $here/$seq.full
+
+    echo "== Checking namespace and metric numbering - $base"
+    pminfo -L -K clear -K add,3,$pmda proc \
+    | LC_COLLATE=POSIX sort \
+    | tee $tmp.names >> $here/$seq.full
+
+    echo "== Checking metric descriptors and a fetch - $base"
+    for tree in $trees
+    do
+	metric=`grep $tree $tmp.names | head -1`
+	echo $metric >> $here/$seq.full
+	pminfo -L -K clear -K add,3,$pmda -d -f $metric | _filter
+    done
+
+    echo && echo "== done" && echo
+done
+
+# success, all done
+status=0
+exit

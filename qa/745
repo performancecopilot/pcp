@@ -2,7 +2,7 @@
 # PCP QA Test No. 745
 # Exercise the NVIDIA GPU PMDA using valgrind memory checking.
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014-2015 Red Hat.
 #
 
 seq=`basename $0`
@@ -12,6 +12,8 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+
+[ -f $PCP_PMDAS_DIR/nvidia/pmdanvidia ] || _notrun "nvidia pmda not installed"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full

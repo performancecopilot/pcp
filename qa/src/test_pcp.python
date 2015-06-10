@@ -125,7 +125,7 @@ def test_pcp(self):
                               api.PM_TYPE_STRING)
     machine_vp = atom.vp
     self.assertTrue(machine_u32 != machine_vp)
-    self.assertTrue(type(atom.cp) == type('') or type(atom.cp) == type(b''))
+    self.assertTrue(type(atom.cp) == type(u'') or type(atom.cp) == type(b''))
 
     # pmGetChildren
     if not self.archive_type:
@@ -310,11 +310,19 @@ def test_pcp(self):
 
     # pmParseUnitsStr
     try:
-        (units,mult) = ctx.pmParseUnitsStr("5 mb/4 seconds")
-        print("pmParseUnitsStr:", units, mult)
+        (units,mult) = ctx.pmParseUnitsStr(b"5 mb/4 seconds")
+        print("pmParseUnitsStr[bytes]:", units, mult)
         self.assertTrue(True)
     except pmapi.pmErr as error:
-        print("pmParseUnitsStr: ", error)
+        print("pmParseUnitsStr[bytes]: ", error)
+        self.assertTrue(False)
+
+    try:
+        (units,mult) = ctx.pmParseUnitsStr(u"5 mb/4 seconds")
+        print("pmParseUnitsStr[unicode]:", units, mult)
+        self.assertTrue(True)
+    except pmapi.pmErr as error:
+        print("pmParseUnitsStr[unicode]: ", error)
         self.assertTrue(False)
 
     try:

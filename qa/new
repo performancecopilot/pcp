@@ -13,7 +13,7 @@
 . ./common.rc
 
 min=700
-max=999
+max=1099
 
 tmp=/tmp/$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15

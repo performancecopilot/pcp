@@ -221,7 +221,7 @@ proc_ctx_set_threads(int ctx, unsigned int threads)
     if (pp->state == CTX_INACTIVE)
 	return PM_ERR_NOCONTEXT;
     if (threads > 1)
-	return PM_ERR_CONV;
+	return PM_ERR_BADSTORE;
 
     pp->state |= CTX_THREADS;
     pp->threads = threads;
@@ -271,7 +271,7 @@ proc_ctx_set_cgroups(int ctx, const char *cgroups)
     if (pp->state == CTX_INACTIVE)
 	return PM_ERR_NOCONTEXT;
     if (cgroups == NULL || cgroups[0] == '\0')
-	return PM_ERR_CONV;
+	return PM_ERR_BADSTORE;
 
     pp->state |= CTX_CGROUPS;
     pp->cgroups = cgroups;

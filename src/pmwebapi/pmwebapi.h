@@ -1,7 +1,7 @@
 /*
  * JSON web bridge for PMAPI.
  *
- * Copyright (c) 2011-2014 Red Hat Inc.
+ * Copyright (c) 2011-2015 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -47,7 +47,8 @@ extern unsigned new_contexts_p;		/* cleared by -N option */
 extern unsigned exit_p;			/* counted by SIG* handler */
 extern unsigned maxtimeout;			/* set by -t option */
 extern unsigned multithread;			/* set by -M option */
-
+extern unsigned graphite_timestep;              /* set by -i option */
+extern unsigned graphite_archivedir;            /* set by -I option */
 
 struct http_params: public std::multimap <std::string, std::string> {
     std::string operator [] (const std::string &) const;

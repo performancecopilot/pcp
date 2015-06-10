@@ -1,8 +1,9 @@
 .TH PCP-DMCACHE 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pcp-dmcache\f1 \- report on Device Mapper Cache devices
+\f3pcp-dmcache\f1,
+\f3pcp-lvmcache\f1 \- report on logical storage device caches
 .SH SYNOPSIS
-\f3pcp-dmcache\f1
+\f3pcp\ dmcache\f1
 [\f3\-i\f1/\f3--iops\f1]
 [\f3\-R\f1/\f3--repeat\f1 \f2N\f1]
 [\f2device\f1 ...]
@@ -12,6 +13,11 @@ reports on the activity of any configured Device Mapper Cache targets.
 The reported information includes device IOPs, cache and metadata device
 utilization, as well as hit and miss rates and ratios for both reads and
 writes for each cache device.
+.PP
+.B pcp-lvmcache
+(Logical Volume Manager cache) is an exact synonym for
+.B pcp-dmcache
+(Device Mapper cache).
 .PP
 When invoked via the
 .BR pcp (1)
@@ -47,6 +53,9 @@ displays total read and write operations instead of the default cache hit ratio.
 changes the frequency at which the column heading is displayed.
 By default, a header is displayed after every tenth sample.
 .SH "SEE ALSO"
-.BR pcp (1)
+.BR pcp (1),
+.BR pmdadm (1),
+.BR dmsetup (1),
+.BR PCPIntro (1)
 and
-.BR PCPIntro (1).
+.BR LVMCACHE (7).

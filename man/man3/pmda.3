@@ -52,41 +52,36 @@ Application Programming Interface (
 .BR PMAPI (3)) 
 library.  These procedures are designed to enable a programmer to quickly 
 build a 
-.B PMDA
+PMDA
 which can then be tested and refined.  However, this also 
 implies that a 
-.B PMDA
+PMDA
 has a particular structure which may not be suitable for 
-all applications.
+all PMDA implementations.
 .PP
 Once you are familiar with the PCP and
-.B PMDA
+PMDA
 frameworks, you can quickly implement a new 
-.B PMDA
+PMDA
 with only a few data structures and functions.  This is covered in far greater
 detail in the
 .IR "Performance Co-Pilot Programmer's Guide" .
 .PP
 A
-.B PMDA
+PMDA
 is responsible for a set of performance metrics, in the sense that it must
 respond to requests from
-.BR pmcd(1)
-for information about performance metrics, instance domains, and instantiated
-values.  The
 .BR pmcd (1)
-process generates requests on behalf of performance tools that make requests
-using 
-.BR PMAPI (3)
-routines.
+for information about performance metrics, instance domains, and instantiated
+values.
 .PP
 This man page contains sections of the 
 .B simple PMDA
 which is located at
-.IR $PCP_PMDAS_DIR/simple .
+.IR $PCP_PMDAS_DIR /simple.
 .SH COMMUNICATING WITH PMCD
 Two approaches may be used for connecting a
-.B PMDA 
+PMDA 
 to a 
 .BR pmcd (1)
 process.  A Dynamic Shared Object (DSO) can be attached by
@@ -98,26 +93,23 @@ when the
 process is started.  A procedural interface referenced through a shared data
 structure is used to handle requests from
 .BR pmcd (1)
-to the
-.BR PMDA .
+to the PMDA .
 .PP
 The preferred approach is for a separate process (daemon) to communicate with 
 .BR pmcd (1)
 using the Performance Data Units (PDU) Inter-Process Communication (IPC)
 protocol.
 .PP
-All
-.BR PMDA s
+All PMDAs
 are launched and controlled by the
 .BR pmcd (1)
 process on the local host.  The requests from the clients are received by
 .BR pmcd (1)
-and forwarded to the appropriate
-.BR PMDA s.
+and forwarded to the appropriate PMDAs.
 Responses, when required, are returned through 
 .BR pmcd (1)
 to the clients.  The requests (PDUs) that may be sent to a
-.B PMDA
+PMDA
 from
 .BR pmcd (1)
 are
@@ -128,26 +120,31 @@ are
 .BR PDU_TEXT_REQ 
 and
 .BR PDU_RESULT .
+If the PMDA implements any dynamic metrics it may also receive
+.BR PDU_PMNS_CHILD ,
+.BR PDU_PMNS_IDS ,
+.B PDU_PMNS_NAMES
+and
+.B PDU_PMNS_TRAVERSE
+PDUs.
 .SH DEFAULT CALLBACKS FOR HANDLING PDUs
 To allow a consistent framework,
 .BR pmdaMain (3)
 can be used by a daemon
-.B PMDA
+PMDA
 to handle the communication protocol using the same callbacks as a DSO
-.BR PMDA .
+PMDA.
 The structure
 .B pmdaInterface
 is used to convey the common procedural interface and state information that is
 used by 
 .BR pmcd (1)
-and a
-.BR PMDA .
+and a PMDA.
 This state information includes tables describing the supported metrics and
 instance domains.
 .PP
 As most of the
-procedural interface is identical for all 
-.BR PMDA s,
+procedural interface is identical for all PMDAs,
 they are provided as part of
 this support library
 .RB ( pmdaProfile (3),
@@ -172,7 +169,7 @@ Three structures are declared in
 .I /usr/include/pcp/pmda.h
 which provide a framework for declaring the metrics and instances supported by
 the 
-.BR PMDA .
+PMDA.
 .PP
 Every instance requires a unique integer identifier and a unique name, as defined by
 the structure
@@ -261,8 +258,7 @@ structure (the
 field is set by
 .BR pmdaInit (3)
 at run-time).  The serial value must be unique for each instance domain
-within the
-.BR PMDA . 
+within the PMDA. 
 .PP
 The indom table shown above which is usually passed to 
 .BR pmdaInit (3)
@@ -272,9 +268,7 @@ See
 .BR pmdaInit (3)
 for more details.
 .SH NAMESPACE
-Every 
-.B PMDA
-has its own unique 
+Every PMDA has its own unique 
 .B namespace 
 using the format defined in 
 .BR pmns (5). 
@@ -289,7 +283,7 @@ defines five metrics:
 and
 .IR simple . now .
 The namespace for these metrics is defined in
-.I $PCP_PMDAS_DIR/simple/pmns
+.IR $PCP_PMDAS_DIR /simple/pmns
 and is installed as:
 .PP
 .nf
@@ -312,20 +306,19 @@ simple.time {
 The domain number of
 .I 253
 is obtained from
-.IR $PCP_VAR_DIR/pmns/stdpmid .
-New 
-.BR PMDA s
+.IR $PCP_VAR_DIR /pmns/stdpmid.
+New PMDAs
 should specify a unique domain number in this file, and obtain the
 number during installation.  This allows the domain number to change by
 modifying only the file
-.IR $PCP_VAR_DIR/pmns/stdpmid .
+.IR $PCP_VAR_DIR /pmns/stdpmid.
 .PP
 The
 .I simple.time
 and
 .I simple.now
 metrics are defined in separate clusters to the other metrics which allows a
-.B PMDA
+PMDA
 to support more than 1024 metrics, as well as grouping similar metrics 
 together.  Therefore, the item numbers for a new cluster may be identical to 
 the item numbers in other clusters.  The 
@@ -340,7 +333,7 @@ and
 See the later sections on INSTALLATION and REMOVAL.
 .PP
 A simple ASCII namespace can be constructed by creating a file similar to
-.IR $PCP_PMDAS_DIR/simple/root :
+.IR $PCP_PMDAS_DIR /simple/root:
 .PP
 .nf
 .ft CW
@@ -364,7 +357,9 @@ option in most PCP tools.
 .SH METRIC DESCRIPTIONS
 Each metric requires a description
 .RB ( pmDesc ), 
-which contains its PMID, data type specification, instance domain, semantics 
+which contains its
+Performance Metric Identifier (PMID),
+data type specification, instance domain, semantics 
 and units (see 
 .BR pmLookupDesc (3)).
 A handle is also provided for application specific information in the
@@ -435,7 +430,7 @@ As with instance domains, the
 field is set by
 .BR pmdaInit (3)
 at run-time, however, the default domain is assumed to be defined by the
-.B PMDA 
+PMDA 
 in the macro
 .BR MYDOMAIN .
 .PP
@@ -448,22 +443,21 @@ See
 for more details.
 .SH DSO PMDA
 A 
-.B PMDA
+PMDA
 that is run as a DSO is opened by 
 .BR pmcd (1)
 with
 .BR dlopen (3).
-.B pmcd
-will call the 
-.BR PMDA "'s"
+.BR pmcd (1)
+will call the PMDA's
 initialization function that is specified in
-.IR $PCP_PMCDCONF_PATH. 
+.IR $PCP_PMCDCONF_PATH .
 This function is passed a pointer to a
 .B pmdaInterface 
 structure which must be completed.  Any callbacks which are
 .I not
 the default 
-.B PMDA
+PMDA
 support library callbacks must be specified in the
 .B pmdaInterface
 structure. 
@@ -477,12 +471,12 @@ calls
 which requires a callback to be set with
 .BR pmdaSetFetchCallBack (3)
 as can be seen in
-.IR $PCP_PMDAS_DIR/simple/simple.c .
+.IR $PCP_PMDAS_DIR /simple/simple.c.
 .PP
 The flag
 .B _isDSO
 is used to determine if the 
-.B PMDA
+PMDA
 is a daemon or a DSO so that the correct initialization
 routine,
 .BR pmdaDaemon (3)
@@ -491,24 +485,20 @@ or
 is called.
 .SH DAEMON PMDA
 A 
-.B PMDA
+PMDA
 that is run as a daemon is forked and executed by 
 .BR pmcd (1).
-Therefore, unlike a DSO 
-.BR PMDA ,
-the starting point for a daemon 
-.B PMDA 
-is
+Therefore, unlike a DSO PMDA,
+the starting point for a daemon PMDA is
 .BR main ().
 The agent should parse the command line arguments, create
 a log file and initialize some data structures that 
-.B pmcd
+.BR pmcd (1)
 would initialize for a DSO agent.
 .PP
 The
 .B pmdaInterface
-structure must be completely defined by the daemon
-.BR PMDA .
+structure must be completely defined by the daemon PMDA.
 The function
 .BR pmdaDaemon (3)
 can be called at the start of 
@@ -524,25 +514,22 @@ structure.
 can be mapped to a log file using 
 .BR pmdaOpenLog (3)
 to simplify debugging and error messages.  The connection to 
-.B pmcd
+.BR pmcd (1)
 can be made with
 .BR pmdaConnect (3)
 and the loop which handles the incoming PDUs,
 .BR pmdaMain (3),
 should be the last function called.  This can be seen in
-.IR $PCP_PMDAS_DIR/simple/simple.c .
+.IR $PCP_PMDAS_DIR /simple/simple.c.
 .PP
 The
 .BR simple_init ()
 routine is common to an agent that can be run as both a Daemon and DSO
-.BR PMDA .
+PMDA.
 .SH HELP TEXT
-Each 
-.B PMDA
-must be able to provide 
-.B pmcd
-with the help text for each metric.  Most 
-.BR PMDA s
+Each PMDA must be able to provide 
+.BR pmcd (1)
+with the help text for each metric.  Most PMDAs
 use specially created files with indexes to support
 efficient retrieval of the help text.
 Tools are provided with PCP to
@@ -550,34 +537,365 @@ create the help text files of appropriate format. See
 .BR newhelp (1).
 .SH INSTALLATION AND REMOVAL
 A series of shell procedures are defined in 
-.I $PCP_SHARE_DIR/lib/pmdaproc.sh 
-which greatly simplify the installation and removal of a
-.BR PMDA .
+.IR $PCP_SHARE_DIR /lib/pmdaproc.sh 
+which greatly simplify the installation and removal of a PMDA.
+.PP
 The
 .I Install
-scripts for most
-.BR PMDAs
-should only need to specify the name of the
-.B PMDA
-in
+scripts for most PMDAs
+should only need to specify the name of the PMDA in
 .BR iam ,
 call
-.B _setup
-which check licenses and whether the 
-.B PMDA
-has been previously installed,
+.B pmdaSetup
+which sets up some default variables,
+checks permissions (you have to be ``root'' to install or remove
+a PMDA), checks that you're in the right directory (somewhere that ends
+with /pmdas/\fI$iam\fP), optionally generate
+the Performance Metrics Name Space (PMNS)
+and PMDA domain
+number files for Perl or Python PMDAs, checks the PMDA domain number is
+valid, etc.,
 specify the communication protocols,
 and finally call
-.BR _install .
+.B pmdaInstall
+to do all the work of updating the PMNS, updating the
+.BR pmcd (1)
+control file, notifying or restarting
+.BR pmcd (1),
+.PP
+Beyond
+.B pmdaSetup
+and
+.BR pmdaInstall ,
+another optional helper routines is
+.B pmdaChooseConfigFile
+that may be used to interactively select or create a PMDA-specific
+configuration file,
+e.g. \c
+.BR pmdalogger (1).
+.PP
 The 
 .I Remove
-scripts are even simpler as the communication protocols are not required.
+scripts are even simpler as setting up the communication protocols
+are not required, so set the name of the PMDA in
+.IR iam ,
+then call
+.B pmdaSetup
+followed by a call to
+.BR pmdaRemove .
+.PP
 Further information is contained in the
-.I $PCP_SHARE_DIR/lib/pmdaproc.sh
-file.
+.IR $PCP_SHARE_DIR /lib/pmdaproc.sh
+file and the following section.
+.SH INSTALLATION REFINEMENTS
+As outlined below
+there are a number of variables that can be set in a PMDA's
+.I Install
+script to influence the behaviour of the installation procedures.
+These would typically need to be set before the call to
+.BR pmdaInstall ,
+but in some instances (like
+.I $iam
+and the cases specifically noted below),
+before the call to
+.BR pmdaSetup .
+.PP
+The following variables control the communication options between the PMDA
+and
+.BR pmcd (1).
+At least one of
+.IR $daemon_opt ,
+.IR $dso_opt ,
+.I $perl_opt
+or
+.I $python_opt
+must be set to define the supported mode(s) of communication.
+If more than one of these is set the user will be prompted
+to make a selection when the
+.I Install
+script is run.
+.TP 16n
+.I daemon_opt
+We are willing to install the PMDA as a daemon.
+.br
+Default: true
+.TP
+.I dso_opt
+We are willing to install the PMDA as a DSO, so
+.BR pmcd (1)
+will use
+the dynamic linking loader to attach the PMDA's DSO at run-time and
+communication from
+.BR pmcd (1)
+to the PMDA and back uses procedure calls, not an IPC channel.
+.br
+Default: false
+.TP
+.I dso_entry
+For a DSO PMDA, this is the name of the PMDA's initialization routine.
+.br
+Default: \fI${iam}\fP_init
+.TP
+.I dso_name
+For a DSO PMDA, this is the full pathanme of the PMDA's DSO file.
+.br
+Default: \fI$PCP_PMDAS_DIR\fP/\fI$iam\fP/pmda_\fI$iam\fP.\fI$dso_suffix\fP
+.TP
+.I forced_restart
+If
+.B true
+then the PMDA needs to run with the user-id of ``root'' or something
+other than the user-id of ``pcp''.  This means
+.BR pmcd (1)
+needs to be restarted and run initially as ``root'' until all the PMDAs
+are started at which time
+.BR pmcd (1)
+reverts to the user ``pcp''.
+Otherwise, the new PMDA will be run as the user ``pcp'' after
+.BR pmcd (1)
+is sent a SIGHUP signal.
+.br
+Default: true
+.TP
+.I pipe_opt
+For a daemon PMDA, is the default IPC channel via a
+.BR pipe (2)?
+.br
+Default: Platform-specific, so \fBtrue\fP for most, but \fBfalse\fP for Windows
+.TP
+.I perl_opt
+We are willing to install the PMDA as a Perl script and
+.BR pmcd (1)
+will use the
+.BR perl (1)
+interpreter to run the PMDA.
+.br
+Default: false
+.TP
+.I pmda_dir
+Full pathname to the directory where the PMDA's installation files
+(executable, script, PMNS source, help text source, etc) are to
+be found.
+.br
+Default: output from pwd(1)
+.RS 16n
+.PP
+If set, must be done before the call to
+.BR pmdaSetup .
+.RE
+.TP
+.I pmda_name
+For a daemon PMDA, this is the name of the PMDA's executable
+binary relative to the 
+.I $pmda_dir
+directory.
+.br
+Default: pmda\fI$iam\fP
+.TP
+.I python_opt
+We are willing to install the PMDA as a Python script and
+.BR pmcd (1)
+will use the
+.BR python (1)
+interpreter to run the PMDA.
+.br
+Default: false
+.TP
+.I pmda_interface
+There are multiple versions of the interface protocol between a
+PMDA and the libpcp_pmda library.  If the PMDA is built to be installed
+as a daemon or a DSO, it will included a call to
+.BR pmdaDaemon (3)
+or
+.BR pmdaDSO (3),
+and the
+.I interface
+argument there will be one of the
+.B PMDA_INTERFACE
+macros from <pcp/pmda.h>.
+The value that is used there should match the value for
+.IR pmda_interface .
+The value is only used in the installation procedure to determine
+the format of help text to be generated by
+.BR newhelp (1)
+and in this context all values of
+.I pmda_interface
+greater than 1 are equivalent (the format changed between
+.B PMDA_INTERFACE_1
+and
+.BR PMDA_INTERFACE_2 ).
+.br
+Default: 3
+.TP
+.I socket_inet_def
+For a daemon PMDA using a
+.BR socket (2)
+as the IPC channel
+the default Internet port number or service name (if known).
+.br
+Default: ""
+.TP
+.I socket_opt
+For a daemon PMDA, is the default IPC channel via a
+.BR socket (2)?
+.br
+Default: Platform-specific, so \fBfalse\fP for most, but \fBtrue\fP for Windows
+.PP
+The following variables control the PMNS options.
+.TP 16n
+.I pmns_dupok
+Most PMDAs do not have duplicate names for the same PMID in their PMNS.
+But if this is not the case,
+.I pmns_dupok
+should be set to
+.BR true .
+.br
+Default: false
+.TP
+.I pmns_name
+Each PMDA will add one or more non-leaf nodes to the top of the
+PMNS.  The most common case is that all of the metrics for a PMDA
+will be placed below the node named
+.IR $iam .
+If this is not the case, and especially when the PMDA adds more than
+one non-leaf node at the top of the PMNS,
+.I pmns_name
+needs to be set to the list of node names (separated by white space),
+e.g. for
+.BR pmdaproc (1)
+.I pmns_name
+is set to "proc cgroup hotproc".
+.br
+Default: \fI$iam\fP
+.RS 16n
+.PP
+It is most important that if
+.I pmns_name
+is set to a non-default value in the
+.I Install
+script then it must also be set to the same value in the
+.I Remove
+script.
+.RE
+.TP
+.I pmns_source
+The name of the PMDA's PMNS source file.
+By default, the name is interpreted as a relative pathname from
+the
+.I $pmda_dir
+directory.
+.br
+Default: pmns
+.PP
+The following variables provide assorted additional options associated with
+the installation of a PMDA.
+.TP 16n
+.I args
+Additional command line args for the PMDA.  These will be appended to the
+PMDA's control line in
+.IR $PCP_PMCDCONF_PATH .
+.br
+Default: ""
+.TP
+.I check_delay
+Delay (in seconds) after finishing the PMDA installation (or removal)
+before checking the availability of metrics from the PMDA.
+May need to be increased if the PMDA has a lengthy startup procedure.
+.br
+Default: 0.3
+.TP
+.I signal_delay
+Delay (in seconds) after notifying
+.BR pmcd (1)
+with a signal.  Required to allow
+.BR pmcd (1)
+to complete processing before proceeding to the next step of the
+installation (or removal).
+.br
+Default: 1
+.TP
+.I configdir
+Determines the directory in which a PMDA's configuration file will be
+stored.  Used by
+.B pmdaChooseConfigFile
+so should be set before calling that procedure.
+.br
+Default: \fI$PCP_VAR_DIR\fP/config/\fI$iam\fP
+.TP
+.I configfile
+Preferred configuration file for the PMDA.
+Used by
+.B pmdaChooseConfigFile
+so should be set before calling that procedure.
+.br
+Default: ""
+.TP
+.I default_configfile
+Default configuration file for the PMDA.
+Used by
+.B pmdaChooseConfigFile
+so should be set before calling that procedure.
+.br
+Default: ""
+.TP
+.I dso_suffix
+Standard suffix for a DSO.  Should not need to be changed under
+normal circumstances.
+.br
+Default: Platform-specific, so 'so' for Linux, 'dylib' for Mac OS X, 'dll' for Windows, etc.
+.RS 16n
+.PP
+If set, must be done before the call to
+.BR pmdaSetup .
+.RE
+.TP
+.I help_source
+The name of the help text source file that should be used as input to
+.BR pmnewhelp (1).
+By default, the name is interpreted as a relative pathname from
+the
+.I $pmda_dir
+directory.
+.br
+Default: help
+.TP
+.I python_name
+Full pathname of the Python script for a Python PMDA.
+.br
+Default: \fI$pmda_dir\fP/pmda\fI$iam\fP.python or \fI$pmda_dir\fP/pmda\fI$iam\fP.py
+.PP
+The shell procedures in 
+.IR $PCP_SHARE_DIR /lib/pmdaproc.sh 
+manipulate a number of temporary files using the variable
+.I $__tmp
+as the prefix for the name of the temporary files.
+.I $__tmp
+is a directory that is created, used and removed
+internally within the procedures of
+.IR $PCP_SHARE_DIR /lib/pmdaproc.sh 
+but can also be used as the prefix for temporary files needed by 
+a PMDA's
+.I Install
+or
+.I Remove
+scripts.
+When used in this way, 
+.I $__tmp
+should be followed by a ``.'' and then a suffix, e.g. \c
+.IR $__tmp .myfoo .
+The
+.I Install
+and
+.I Remove
+scripts should not use
+other temporary file name prefixes nor use
+.BR sh (1)
+.B trap
+statements to clean up temporary files as this is all done within
+.IR $PCP_SHARE_DIR /lib/pmdaproc.sh.
 .SH DIAGNOSTICS
 Any 
-.B PMDA
+PMDA
 which uses this library can set
 .BR PMAPI (3)
 debug control variable
@@ -629,16 +947,14 @@ and
 .BR pmdaDSO (3)).
 .SH CAVEAT
 Failing to complete any of the data structures or calling any of the library
-routines out of order may cause unexpected behavior in the
-.BR PMDA .
+routines out of order may cause unexpected behavior in the PMDA.
 .PP
 Due to changes to the
 .BR PMAPI (3)
 and
 .BR PMDA (3)
 API in the PCP 2.0 release, as described in the product release notes, 
-.BR PMDA s
-built using PCP 2.0 must specify 
+PMDAs built using PCP 2.0 must specify 
 .B PMDA_INTERFACE_2
 or later and link with
 .I libpcp_pmda.so.2
@@ -660,23 +976,23 @@ subsystem.
 .TP 10
 .I /usr/include/pcp/pmda.h
 Header file for the 
-.B PMDA
+PMDA
 support library.
 .TP
 .I /usr/lib/libpcp_pmda.so
 Dynamic library containing 
-.B PMDA 
+PMDA 
 support library routines.
 .TP
-.I $PCP_PMDAS_DIR/trivial
+.IR $PCP_PMDAS_DIR /trivial
 The source of the
 .BR "trivial PMDA" .
 .TP
-.I $PCP_PMDAS_DIR/simple
+.IR $PCP_PMDAS_DIR /simple
 The source of the
 .BR "simple PMDA" .
 .TP
-.I $PCP_PMDAS_DIR/txmon
+.IR $PCP_PMDAS_DIR /txmon
 The source of the
 .BR "txmon PMDA" .
 .TP
@@ -684,17 +1000,14 @@ The source of the
 Configuration file for
 .BR pmcd (1).
 .TP
-.I $PCP_VAR_DIR/pmns
-Location of namespace descriptions for every
-.BR PMDA .
+.IR $PCP_VAR_DIR /pmns
+Location of namespace descriptions for every PMDA.
 .TP
-.I $PCP_VAR_DIR/pmns/stdpmid
-The unique domain identifiers for each
-.BR PMDA .
+.IR $PCP_VAR_DIR /pmns/stdpmid
+The unique domain identifiers for each PMDA.
 .TP
-.I $PCP_SHARE_DIR/lib/pmdaproc.sh
-Shell procedures for installing and removing a
-.BR PMDA .
+.IR $PCP_SHARE_DIR /lib/pmdaproc.sh
+Shell procedures for installing and removing a PMDA.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
@@ -704,7 +1017,7 @@ On each installation, the file
 .I /etc/pcp.conf
 contains the local values for these variables.
 The
-.B $PCP_CONF
+.I $PCP_CONF
 variable may be used to specify an alternative
 configuration file,
 as described in

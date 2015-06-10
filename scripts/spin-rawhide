@@ -31,13 +31,17 @@ cd pcp-git
 # assuming this script can be run from anywhere (ie, not in an
 # already existing git repo)
 DATE=`date +"%a %b %d %Y"`
+TAG_DATE=`date +"%Y%m%d"`
 NAME=`git config --get-all user.name`
 EMAIL=`git config --get-all user.email`
-PCP_MAJOR_VERSION=`grep "^Version:" build/rpm/fedora.spec`
-CHANGELOG_VERSION=`echo $PCP_MAJOR_VERSION | cut -f2 -d" " | cut -f2`
-FINAL_RELEASE=`grep "define buildversion" build/rpm/fedora.spec | cut -f3 -d" "`
-GIT_VERSION_TAG=`echo 0.$(git describe | rev | cut -f1,2 -d- --output-delimiter=. | rev)`
+PCP_MAJOR_VERSION=`grep "^PACKAGE_MAJOR" VERSION.pcp | cut -f2 -d"="`
+PCP_MINOR_VERSION=`grep "^PACKAGE_MINOR" VERSION.pcp | cut -f2 -d"="`
+PCP_REVISION=`grep "^PACKAGE_REVISION" VERSION.pcp | cut -f2 -d"="`
+PCP_FULL_VERSION=`echo $PCP_MAJOR_VERSION.$PCP_MINOR_VERSION.$PCP_REVISION`
+CHANGELOG_VERSION=`echo $PCP_FULL_VERSION`
+GIT_DESCRIBE=`git describe | rev | cut -f1 -d"g" | rev`
 PCP_WEB_JS=`grep "^Source*" build/rpm/fedora.spec | grep "webjs" | cut -f2 -d" " | rev | cut -f1 -d"/" | rev`
+
 ### lets do a sanity check first
 if which fedpkg &>/dev/null; then
  :
@@ -50,6 +54,8 @@ fi
 cd ..
 fedpkg co pcp
 cd pcp
+
+GIT_VERSION_TAG=`echo 0.${TAG_DATE}git${GIT_DESCRIBE}`
 
 git diff pcp.spec ../pcp-git/build/rpm/fedora.spec > ../spec-diff
 
@@ -83,7 +89,8 @@ git archive --prefix=pcp-$CHANGELOG_VERSION/ -o ../pcp/pcp-$CHANGELOG_VERSION-$G
 # if $PCP_WEB_JS is empty, then we don't need to git archive it seperately.
 if [ ! -z $PCP_WEB_JS ]; then
     cd ..
-    git clone git://git.pcp.io/pcp-webjs.git pcp-webjs
+    #    git clone git://git.pcp.io/pcp-webjs.git pcp-webjs
+    git clone git://sourceware.org/git/pcpfans.git --branch=webjs pcp-webjs
     cd pcp-webjs
     git archive --prefix=pcp-webjs/ -o ../pcp/$PCP_WEB_JS HEAD
 fi
@@ -93,6 +100,8 @@ cd ../pcp
 
 sed -i "s/Release:.*/Release: $GIT_VERSION_TAG\%\{\?dist\}/" pcp.spec
 sed -i "s/^Source0:.*/Source0: %{name}-%{version}-$GIT_VERSION_TAG.tar.gz/" pcp.spec
+sed -i "s/%global buildversion.*/%global buildversion 0/" pcp.spec
+sed -i "s/^Version:.*/Version: $PCP_FULL_VERSION/" pcp.spec
 
 # make note in the comments if any differences from upstream fedora.spec have been merged
 if [ "$APPLY_DIFF" == 0 ]; then

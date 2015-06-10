@@ -85,6 +85,17 @@ do
 done
 _clean_tmpdirs $PCP_TMP_DIR /var/tmp pmie pmlogger
 
+# transition pmdadmcache over to pmdadm (device mapper)
+#
+PCP_PMCDCONF_PATH=/etc/pcp/pmcd/pmcd.conf
+PCP_PMDAS_DIR=/var/lib/pcp/pmdas/
+if grep -q ^dmcache $PCP_PMCDCONF_PATH 2>/dev/null
+then
+    mkdir -p -m 755 "$PCP_PMDAS_DIR/dm"
+    touch "$PCP_PMDAS_DIR/dm/.NeedInstall"
+    touch "$PCP_PMDAS_DIR/dmcache/.NeedRemove"
+fi
+
 if which invoke-rc.d >/dev/null 2>&1; then
     invoke-rc.d pmcd start
     invoke-rc.d pmlogger start

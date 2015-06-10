@@ -49,7 +49,7 @@ shping.status as follows:
 
     If shping.status is 3 (the command did not complete) then
     shping.error is a PCP error codes: see pmerr(1).  Of particular
-    relevance is -1008 (PM_ERR_TIMEOUT) when the command failed to
+    relevance is -12353 (PM_ERR_TIMEOUT) when the command failed to
     complete in the time specified by shping.control.timeout.
 
     If shping.status is 4 (the commands was not run) then shping.error

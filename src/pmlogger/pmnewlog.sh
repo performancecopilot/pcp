@@ -52,30 +52,32 @@ cat > $tmp/usage << EOF
 # Usage: [options] archive
 
 pmnewlog options:
-  -a=FILE,--access=FILE  specify access controls for the new pmlogger
-  -C=FILE,--save=FILE    save the configuration of new pmlogger in FILE
-  -c=FILE,--config=FILE  file to load configuration from
-  -N,--showme            perform a dry run, showing what would be done
-  --namespace
-  -P,--primary           execute as primary logger instance
-  -p=PID,--pid=PID       restart non-primary logger with pid
-  -s,--socks             use pmsocks
-  -V,--verbose           turn on verbose reporting of pmnewlog progress
+  -a=FILE, --access=FILE  specify access controls for the new pmlogger
+  -C=FILE, --save=FILE    save the configuration of new pmlogger in FILE
+  -c=FILE, --config=FILE  file to load configuration from
+  -N, --showme            perform a dry run, showing what would be done
+  -n=FILE, --namespace=FILE use an alternative PMNS
+  -P, --primary           execute as primary logger instance
+  -p=PID, --pid=PID       restart non-primary logger with pid
+  -s, --socks             use pmsocks
+  -V, --verbose           turn on verbose reporting of pmnewlog progress
   --help
 
 pmlogger options:
   --debug
-  -c=FILE,--config=FILE  file to load configuration from
-  -l=FILE, --log=FILE    redirect diagnostics and trace output
-  -L, --linger           run even if not primary logger instance and nothing to log
-  -m=MSG, --note=MSG     descriptive note to be added to the port map file
-  --namespace
-  -P, --primary          execute as primary logger instance
-  -r, --report           report record sizes and archive growth rate
-  -t=DELTA, --interval=DELTA  default logging interval
-  -T=TIME, --finish=TIME end of the time window
-  -v=SIZE, --volsize=SIZE  switch log volumes after size has been accumulated
-  -y                     set timezone for times to local time rather than from PMCD host
+  -c=FILE, --config=FILE  file to load configuration from
+  -l=FILE, --log=FILE     redirect diagnostics and trace output
+  -L, --linger            run even if not primary logger instance and nothing to log
+  -m=MSG, --note=MSG      descriptive note to be added to the port map file
+  -n=FILE, --namespace=FILE use an alternative PMNS
+  -K=SPEC, --spec-local=SPEC optional additional PMDA spec for local connection
+  -o, --local-PMDA        metrics source is local connection to a PMDA
+  -P, --primary           execute as primary logger instance
+  -r, --report            report record sizes and archive growth rate
+  -t=DELTA, --interval=DELTA default logging interval
+  -T=TIME, --finish=TIME  end of the time window
+  -v=SIZE, --volsize=SIZE switch log volumes after size has been accumulated
+  -y                      set timezone for times to local time rather than from PMCD host
 EOF
 
 _abandon()
@@ -277,11 +279,11 @@ do
 # pmlogger flags passed through
 #
 
-	-L|-r|-y)
+	-L|-o|-r|-y)
 		args="${args}$1 "
 		;;
 
-	-D|-m|-t|-T|-v)
+	-D|-K|-m|-t|-T|-v)
 		args="${args}$1 $2 "
 		shift
 		;;

@@ -1,0 +1,167 @@
+QA output created by 1052
+dbpmda> open pipe $PCP_PYTHON_PROG $PCP_PMDAS_DIR/json/pmdajson.python
+Start python PMDA: $PCP_PYTHON_PROG $PCP_PMDAS_DIR/json/pmdajson.python
+dbpmda> getdesc on
+dbpmda> desc json.nsources
+PMID: 137.0.0
+Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+Semantics: counter  Units: none
+dbpmda> fetch json.nsources
+PMID(s): 137.0.0
+pmResult ... numpmid: 1
+137.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
+value 0
+
+
+Metric: json
+children json
+leaf debug
+leaf nsources
+
+137.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
+Metric: json
+Metric: json.s1
+PMID(s): 137.0.0
+dbpmda> children json
+dbpmda> children json.s1
+fetch json.nsources
+leaf debug
+leaf nsources
+leaf string
+leaf value
+non-leaf s1
+pmResult ... numpmid: 1
+value 1
+fetch json.s1.string
+PMID(s): 137.1.0
+pmResult ... numpmid: 1
+137.1.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
+value "original value"
+dbpmda> fetch json.s1.value
+PMID(s): 137.1.1
+pmResult ... numpmid: 1
+137.1.1 (<noname>): numval: 1 valfmt: 1 vlist[]:
+value 0
+
+fetch json.nsources
+PMID(s): 137.0.0
+pmResult ... numpmid: 1
+137.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
+value 1
+dbpmda> fetch json.s1.string
+PMID(s): 137.1.0
+pmResult ... numpmid: 1
+137.1.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
+value "new value"
+dbpmda> fetch json.s1.value
+PMID(s): 137.1.1
+pmResult ... numpmid: 1
+137.1.1 (<noname>): numval: 1 valfmt: 1 vlist[]:
+value 99
+
+fetch json.nsources
+PMID(s): 137.0.0
+pmResult ... numpmid: 1
+137.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
+value 2
+
+
+Metric: json
+Metric: json.s1
+Metric: json.s2
+children json
+dbpmda> children json.s1
+dbpmda> children json.s2
+leaf debug
+leaf nsources
+leaf string
+leaf value
+non-leaf array_data
+non-leaf s1
+non-leaf s2
+instance 137.0
+pmInDom: 137.0
+[  0] inst: 0 name: "__internal__"
+[  1] inst: 1 name: "s1"
+[  2] inst: 2 name: "s2"
+dbpmda> fetch json.s2.array_data.count
+PMID(s): 137.2.0
+pmResult ... numpmid: 1
+137.2.0 (<noname>): numval: 2 valfmt: 1 vlist[]:
+inst [0 or ???] value 0
+inst [1 or ???] value 99
+dbpmda> fetch json.s2.array_data.value
+PMID(s): 137.2.1
+pmResult ... numpmid: 1
+137.2.1 (<noname>): numval: 2 valfmt: 1 vlist[]:
+inst [0 or ???] value 1024
+inst [1 or ???] value 2048
+
+fetch json.nsources
+PMID(s): 137.0.0
+pmResult ... numpmid: 1
+137.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
+value 3
+
+
+Metric: json
+Metric: json.ceph
+Metric: json.s1
+Metric: json.s2
+children json
+dbpmda> children json.ceph
+dbpmda> children json.s1
+dbpmda> children json.s2
+leaf debug
+leaf nsources
+leaf string
+leaf value
+non-leaf WBThrottle
+non-leaf array_data
+non-leaf ceph
+non-leaf filestore
+non-leaf leveldb
+non-leaf mutex_FileJournal__completions_lock
+non-leaf mutex_FileJournal__finisher_lock
+non-leaf mutex_FileJournal__write_lock
+non-leaf mutex_FileJournal__writeq_lock
+non-leaf mutex_JOS__ApplyManager__apply_lock
+non-leaf mutex_JOS__ApplyManager__com_lock
+non-leaf mutex_JOS__SubmitManager__lock
+non-leaf mutex_WBThrottle__lock
+non-leaf objecter
+non-leaf osd
+non-leaf recoverystate_perf
+non-leaf s1
+non-leaf s2
+non-leaf throttle_filestore_bytes
+non-leaf throttle_filestore_ops
+non-leaf throttle_msgr_dispatch_throttler_client
+non-leaf throttle_msgr_dispatch_throttler_cluster
+non-leaf throttle_msgr_dispatch_throttler_hb_back_server
+non-leaf throttle_msgr_dispatch_throttler_hb_front_server
+non-leaf throttle_msgr_dispatch_throttler_hbclient
+non-leaf throttle_msgr_dispatch_throttler_ms_objecter
+non-leaf throttle_objecter_bytes
+non-leaf throttle_objecter_ops
+non-leaf throttle_osd_client_bytes
+non-leaf throttle_osd_client_messages
+instance 137.0
+pmInDom: 137.0
+[  0] inst: 0 name: "__internal__"
+[  1] inst: 1 name: "s1"
+[  2] inst: 2 name: "s2"
+[  3] inst: 3 name: "ceph"
+dbpmda> fetch json.ceph.filestore.journal_wr_bytes.sum
+PMID(s): 137.3.15
+pmResult ... numpmid: 1
+137.3.15 (<noname>): numval: 1 valfmt: 1 vlist[]:
+value 1585152
+dbpmda> fetch json.ceph.osd.stat_bytes
+PMID(s): 137.3.182
+pmResult ... numpmid: 1
+137.3.182 (<noname>): numval: 1 valfmt: 1 vlist[]:
+value 25231224832
+
+quit
+

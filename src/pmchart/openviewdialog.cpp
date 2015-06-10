@@ -195,7 +195,6 @@ void OpenViewDialog::dirListView_activated(const QModelIndex &index)
 int OpenViewDialog::setupArchiveComboBoxes()
 {
     QIcon archiveIcon = fileIconProvider->icon(QedFileIconProvider::Archive);
-    QIcon hostIcon = fileIconProvider->icon(QFileIconProvider::Computer);
     int index = 0;
 
     for (unsigned int i = 0; i < archiveGroup->numContexts(); i++) {
@@ -209,12 +208,15 @@ int OpenViewDialog::setupArchiveComboBoxes()
 
 int OpenViewDialog::setupLiveComboBoxes()
 {
+    QIcon containerIcon = fileIconProvider->icon(QedFileIconProvider::Container);
     QIcon hostIcon = fileIconProvider->icon(QFileIconProvider::Computer);
     int index = 0;
 
     for (unsigned int i = 0; i < liveGroup->numContexts(); i++) {
 	QmcSource source = liveGroup->context(i)->source();
-	sourceComboBox->insertItem(i, hostIcon, source.host());
+	QIcon icon = source.isContainer() ? containerIcon : hostIcon;
+
+	sourceComboBox->insertItem(i, icon, source.hostLabel());
 	if (i == liveGroup->contextIndex())
 	    index = i;
     }
@@ -314,44 +316,52 @@ void OpenViewDialog::sourceComboBox_currentIndexChanged(int index)
 	archiveGroup->use((unsigned int)index);
 }
 
-bool OpenViewDialog::useLiveContext(QString source)
+bool OpenViewDialog::useLiveContext(int index)
 {
+    QmcSource source = liveGroup->context(index)->source();
+    char *sourceName = source.sourceAscii();
+    bool result = true;
     int sts;
 
-    if ((sts = liveGroup->use(PM_CONTEXT_HOST, source)) < 0) {
+    if ((sts = liveGroup->use(PM_CONTEXT_HOST, source.source())) < 0) {
 	QString msg;
 	msg.sprintf("Failed to connect to pmcd on \"%s\".\n%s.\n\n",
-		    (const char *)source.toAscii(), pmErrStr(sts));
+		    sourceName, pmErrStr(sts));
 	QMessageBox::warning(NULL, pmProgname, msg,
 		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);
-	return false;
+	result = false;
     }
-    return true;
+    free(sourceName);
+    return result;
 }
 
-bool OpenViewDialog::useArchiveContext(QString source)
+bool OpenViewDialog::useArchiveContext(int index)
 {
+    QmcSource source = archiveGroup->context(index)->source();
+    char *sourceName = source.sourceAscii();
+    bool result = true;
     int sts;
 
-    if ((sts = archiveGroup->use(PM_CONTEXT_ARCHIVE, source)) < 0) {
+    if ((sts = archiveGroup->use(PM_CONTEXT_ARCHIVE, source.source())) < 0) {
 	QString msg;
 	msg.sprintf("Failed to open archive \"%s\".\n%s.\n\n",
-		    (const char *)source.toAscii(), pmErrStr(sts));
+		    sourceName, pmErrStr(sts));
 	QMessageBox::warning(NULL, pmProgname, msg,
 		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
 		QMessageBox::NoButton, QMessageBox::NoButton);
-	return false;
+	result = false;
     }
-    return true;
+    free(sourceName);
+    return result;
 }
 
 bool OpenViewDialog::useComboBoxContext(bool arch)
 {
     if (arch == false)
-	return useLiveContext(sourceComboBox->currentText());
+	return useLiveContext(sourceComboBox->currentIndex());
     else
-	return useArchiveContext(sourceComboBox->currentText());
+	return useArchiveContext(sourceComboBox->currentIndex());
 }
 
 bool OpenViewDialog::openViewFiles(const QStringList &fl)

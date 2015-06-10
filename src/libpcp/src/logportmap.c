@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014-2015 Red Hat.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -111,8 +111,9 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
     if (result == NULL)
 	return -EINVAL;
 
-    lendir = snprintf(dir, sizeof(dir), "%s%cpmlogger",
-		pmGetConfig("PCP_TMP_DIR"), __pmPathSeparator());
+    if ((p = pmGetOptionalConfig("PCP_TMP_DIR")) == NULL)
+	return PM_ERR_GENERIC;
+    lendir = snprintf(dir, sizeof(dir), "%s%cpmlogger", p, __pmPathSeparator());
 
     /* Set up the appropriate function to select files from the control port
      * directory.  Anticipate that this will usually be an exact match for

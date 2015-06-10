@@ -1,7 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 115
 # exercises pmie_check functionality
-# See also of No. 504 ... for a version that uses pmsocks
 #
 # Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -14,21 +13,10 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.filter
 
-signal=$PCP_BINADM_DIR/pmsignal
-lhost=`hostname | sed -e 's/\..*//'`
-host=`_get_fqdn`
-remote=`./getpmcdhosts -n 1 -L 2>$tmp.out`
-rhost=`echo $remote | sed -e 's/\..*//'`
-if [ -z "$remote" ]
-then
-    cat $tmp.out >$seq.notrun
-    rm -f $tmp.out
-    exit
-fi
-needclean=false
+[ -f /etc/gentoo-release ] && _notrun "Gentoo is lacking chkconfig support"
 if [ -z "$PCP_PMIECONTROL_PATH" ]
 then
-    echo "Arrgh: Botch: PCP_PMIECONTROL_PATH not defined"
+    echo "Error: botched installation - PCP_PMIECONTROL_PATH not defined"
     exit 1
 fi
 
@@ -43,7 +31,16 @@ _cleanup()
 }
 
 status=1	# failure is the default!
+$sudo rm -f $tmp.* $seq.full
+signal=$PCP_BINADM_DIR/pmsignal
+needclean=false
 trap "_cleanup; exit \$status" 0 1 2 3 15
+
+lhost=`hostname | sed -e 's/\..*//'`
+host=`_get_fqdn`
+remote=`./getpmcdhosts -n 1 -L 2>$tmp.out`
+rhost=`echo $remote | sed -e 's/\..*//'`
+[ -z "$remote" ] && _notrun `cat $tmp.out`
 
 # Now that we have pmmgr in the mix, there is more than one pmie
 # potentially running, so lines like this
@@ -131,15 +128,9 @@ echo "pmie count at start of QA testing: $?"
 echo
 
 echo === check default install operation ===
-if [ -f /etc/gentoo-release ]
-then
-    # chconfig controls just don't work on some platforms ...
-    # so do nothing to make the number of pmies change
-    :
-else
-    $sudo $PCP_RC_DIR/pmie restart 2>&1 | _filter_pmie_start
-fi
+$sudo $PCP_RC_DIR/pmie restart 2>&1 | _filter_pmie_start
 _count_pmies
+# chkconfig no longer controls start-ability, expect non-zero
 echo "pmie count after chkconfig pmie off: $?"
 echo
 

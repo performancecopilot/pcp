@@ -1,0 +1,14 @@
+default setup install:
+
+PFILE = test.pl
+CFILE = cvalue.c
+
+cvalue:	cvalue.c
+	$(CC) -o cvalue cvalue.c
+
+# files from the perl/PMDA source directory
+#
+$(PFILE):
+	cp ../../src/perl/PMDA/$(PFILE) .
+$(CFILE):
+	cp ../../src/perl/PMDA/$(CFILE) .

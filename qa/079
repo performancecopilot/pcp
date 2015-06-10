@@ -26,12 +26,11 @@ _filter()
 
 # real QA test starts here
 
-# be careful of bytes with the high-order bit set, the behaviour of
-# od(1) differs ... we don't really care too much about the first few
-# bytes, so the tr(1) mapping is OK ...
+# Skip ... Header 12 bytes
+# plus Label fluff ... magic(4) + pid(4) + start(4)
 #
-echo "Dump first 128 bytes ..." > $seq.full
-dd bs=128 count=1 if=$ARCH.0 2>/dev/null | od -c >> $seq.full
+echo "Dump hostname & TZ ..."
+dd bs=1 skip=24 count=104 if=$ARCH.0 2>/dev/null | od -c
 
 echo ""
 TZ=EST-10

@@ -15,9 +15,10 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES = pmlogcheck.c
+CFILES = pmlogcheck.c pass0.c pass1.c pass2.c pass3.c
+HFILES = logcheck.h
 CMDTARGET = pmlogcheck$(EXECSUFFIX)
-LLDLIBS	= $(PCPLIB)
+LLDLIBS	= $(PCPLIB) $(LIB_FOR_MATH)
 
 default:	$(CMDTARGET)
 
@@ -29,3 +30,5 @@ install:	$(CMDTARGET)
 default_pcp:	default
 
 install_pcp:	install
+
+$(OBJECTS):	logcheck.h
