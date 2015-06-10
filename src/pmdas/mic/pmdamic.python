@@ -211,7 +211,7 @@ class MicPMDA(PMDA):
                 cpuinfo.cpu_usr = 1000 * usr /  (devinfo.num_threads * self.HZ)
                 cpuinfo.cpu_sys = 1000 * sys / (devinfo.num_threads * self.HZ)
                 cpuinfo.cpu_nice = 1000 * nice / (devinfo.num_threads * self.HZ)
-                cpuinfo.cpu_idle = idle
+                cpuinfo.cpu_idle = 1000 * idle / (devinfo.num_threads * self.HZ)
 
                 coreinst = "%s/core%d" % (cardname, cnt)
 
