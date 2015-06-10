@@ -1,0 +1,171 @@
+BASIC OPERATION
+
+pmdajson is a Performance Metrics Domain Agent (PMDA) which exports
+metrics from arbitrary sources generating Javascript Object Notation
+(JSON) syntax, describing metric metadata and values.
+
+JSON DATA SOURCES
+
+There are 2 sets of information needed for a particular JSON source: a
+JSON metadata file and the associated JSON data. The combination of
+the JSON metadata file and JSON data is called a JSON source. pmdajson
+exports the metrics for each JSON source as a separate hierarchy under
+the JSON pmda.
+
+For example, let's assume the following simple JSON data file:
+
+  {
+    "string_value": "testing, 1, 2, 3",
+    "read_count": 0
+  }
+
+The associated metadata file would look like the following:
+
+  {
+    "prefix" : "simple",
+    "metrics": [
+      {
+        "name": "string_value",
+        "pointer": "/string_value",
+        "type": "string",
+      },
+      {
+        "name": "read_count",
+        "pointer": "/read_count",
+        "type": "integer",
+        "description": "Times values read"
+      }
+    ]
+  }
+
+After pmdajson is installed and the config file points to the
+directory where the above JSON metadata and data files are, we can ask
+PCP for the all the metrics under 'json.simple':
+
+  # pminfo -f json.simple
+
+  json.simple.read_count
+      value 0
+
+  json.simple.string_value
+      value "testing, 1, 2, 3"
+
+METADATA FILE SYNTAX
+
+Here's a description of metadata file syntax. First the "global" options:
+
+- 'prefix' (optional): If present, the prefix string value names the
+  base of the JSON source hierarchy. If not present, the base name of
+  the directory name where the metadata file was found is used as the
+  base of the JSON source hierarchy.
+
+- 'data-path' (optional): By default, pmdajson assumes the associated
+  JSON data for this metadata file will be named 'data.json' in the
+  same directory. If this isn't the case, 'data-path' can be used to
+  tell pmdajson where the JSON data file is located.
+
+- 'data-exec' (optional): If this option is present, instead of
+  getting the JSON data from a file, instead the data-exec string
+  value names a command to be run to obtain the JSON data. If this
+  JSON source directory came from the "directory_list" config file
+  option, the command is run as user "nobody". If this JSON source
+  directory came from the "trusted_directory_list" config file option,
+  the command is run as user "root".
+
+- 'metrics' (required): Each item in the 'metrics' array describes one
+  metric. Each 'metrics' array item should contain the following
+  fields:
+
+  - 'name' (required): Metric name as a string.
+
+  - 'type' (required): Metric type as a string. Possible values are
+    'integer', 'double', 'string', or 'array'.
+
+  - 'pointer' (required): JSON pointers (RFC 6901) that describes with
+    metric location within the JSON data. Please refer to
+    <https://tools.ietf.org/html/rfc6901> for more details on JSON
+    pointer syntax.
+
+  - 'description' (optional): Metric description as a string.
+
+  - 'index' (required for arrays): Array index as a string. See the
+    'ARRAY METADATA FILE SYNTAX' section for more details.
+
+  - 'metrics' (required for arrays): List of array metrics. See the
+    'ARRAY METADATA FILE SYNTAX' section for more details.
+
+  - 'units' (optional): Metric unit description as a string. Values
+    include the standard PCP unit names.
+
+ARRAY METADATA FILE SYNTAX
+
+Here's an example of a metadata file with an array to make how an
+array works more clear. This example is from the net_xmit_json.stp
+systemtap example file:
+
+  {
+    "prefix": "net_xmit",
+    "metrics": [
+      {
+        "name": "net_xmit_data",
+        "pointer": "/net_xmit_data",
+        "type": "array",
+        "description": "Network transmit data indexed by ethernet device",
+        "index": "/__id",
+        "metrics": [
+          {
+            "name": "xmit_count",
+            "pointer": "/xmit_count",
+            "type": "integer",
+            "description": "number of packets for xmit device",
+            "units": "count"
+          },
+          {
+            "name": "xmit_latency",
+            "pointer": "/xmit_latency",
+            "type": "integer",
+            "description": "sum of latency for xmit device"
+          }
+        ]
+      }
+    ]
+  }
+
+According to the above metadata file, there is one metric called
+'net_xmit_data', which is an array. The array has 2 fields per array
+entry, 'xmit_count' and 'xmit_latency'. The data looks like this:
+
+  {
+    "net_xmit_data": [
+      {
+        "__id": "eth0",
+        "xmit_count": 352551,
+        "xmit_latency": 55
+      },
+      {
+        "__id": "fake0",
+        "xmit_count": 0,
+        "xmit_latency": 0
+      },
+      {
+        "__id": "fake1",
+        "xmit_count": 0,
+        "xmit_latency": 0
+      }
+    ]
+  }
+
+In the above example data, the 'net_xmit_data' array has 3
+entries. When pmdajson finds this data, it would look like this:
+
+  # pminfo -f json
+  
+  json.net_xmit.net_xmit_data.xmit_latency
+      inst [0 or "eth0"] value 55
+      inst [1 or "fake0"] value 0
+      inst [2 or "fake1"] value 0
+  
+  json.net_xmit.net_xmit_data.xmit_count
+      inst [0 or "eth0"] value 352551
+      inst [1 or "fake0"] value 0
+      inst [2 or "fake1"] value 0
