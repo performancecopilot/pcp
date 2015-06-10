@@ -18,6 +18,10 @@ pmda_config="${pmda_path}/config.json"
 [ -f $PCP_PMDAS_DIR/json/pmdajson.python ] || _notrun "JSON pmda not installed"
 $python -c "from pcp import pmda" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
+$python -c "import jsonpointer" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python jsonpointer module not installed"
+$python -c "import six" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python six module not installed"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full

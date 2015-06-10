@@ -1,0 +1,124 @@
+#!/bin/sh
+# PCP QA Test No. 964
+# Ensure pmlogger not started via PMDA Install if it is
+# not chkconfig'd on.
+#
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+LOCALHOST=`hostname`
+_needclean=true
+$sudo rm -rf $tmp.* $seq.full
+
+_interrupt()
+{
+    status=1
+}
+
+_cleanup()
+{
+    cd $here
+    if $_needclean
+    then
+	echo "Resetting system state"
+	_restore_loggers
+	_change_config pmlogger on
+	_restore_pmda_install simple
+	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
+	&& $sudo sh $tmp.cmd
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	_needclean=false
+    fi
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+trap "_cleanup" 0
+trap "_interrupt; _cleanup" 1 2 3 15
+
+_count_pmloggers()
+{
+    count=0
+    if [ -d $PCP_TMP_DIR/pmlogger ]
+    then cd $PCP_TMP_DIR/pmlogger
+    else return 0
+    fi
+
+    plist=`ls -1`
+    cd $here
+
+    for process in $plist
+    do
+	[ "$process" = "primary" ] && continue
+	ps -p $process >/dev/null 2>&1
+	if [ $? = 1 ]
+	then
+	    echo "urk, $PCP_TMP_DIR/pmlogger/$process has no running pmlogger instance"
+	else
+	    count=`expr $count + 1`
+	fi
+    done
+
+    return $count
+}
+
+_filter_root_install()
+{
+    _filter_pmda_install | $PCP_AWK_PROG '
+/Check containers metrics have appeared/ { if ($7 >= 0) $7 = "X"
+                                           if ($10 >= 0) $10 = "Y"
+                                         }
+                                         { print }'
+}
+
+# real QA test starts here
+_prepare_pmda_install root
+_disable_loggers
+_change_config pmlogger off
+pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
+&& $sudo sh $tmp.cmd
+$sudo rm -f $PCP_TMP_DIR/pmlogger/*
+
+_count_pmloggers
+echo "pmlogger count at start of QA testing: $?"
+echo
+
+# switch off pmcd and pmlogger
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+
+# install a PMDA, which should restart only pmcd
+cd $PCP_PMDAS_DIR/root
+$sudo ./Install < /dev/null 2>&1 | _filter_root_install
+
+# verify no pmloggers running
+_count_pmloggers
+echo "pmlogger count at end of Install (expect 0): $?"
+echo
+
+# switch default pmlogger on once more
+_restore_loggers
+_change_config pmlogger on
+
+# install a PMDA, should restart both pmcd and pmlogger
+cd $PCP_PMDAS_DIR/root
+$sudo ./Install < /dev/null 2>&1 | _filter_root_install
+
+# verify pmlogger is running
+_count_pmloggers
+echo "pmlogger count at end of Install (expect 1): $?"
+echo
+
+# success, all done
+status=0
+exit

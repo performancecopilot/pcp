@@ -11,26 +11,28 @@ PMID(s): 137.0.0
 pmResult ... numpmid: 1
 137.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
 value 0
-dbpmda> children json
+
+
 Metric: json
+children json
 leaf debug
 leaf nsources
 
-fetch json.nsources
-PMID(s): 137.0.0
-pmResult ... numpmid: 1
 137.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
-value 1
-dbpmda> children json
 Metric: json
-non-leaf s1
+Metric: json.s1
+PMID(s): 137.0.0
+dbpmda> children json
+dbpmda> children json.s1
+fetch json.nsources
 leaf debug
 leaf nsources
-dbpmda> children json.s1
-Metric: json.s1
-leaf value
 leaf string
-dbpmda> fetch json.s1.string
+leaf value
+non-leaf s1
+pmResult ... numpmid: 1
+value 1
+fetch json.s1.string
 PMID(s): 137.1.0
 pmResult ... numpmid: 1
 137.1.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
@@ -62,20 +64,22 @@ PMID(s): 137.0.0
 pmResult ... numpmid: 1
 137.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
 value 2
-dbpmda> children json
+
+
 Metric: json
-non-leaf s2
-non-leaf s1
+Metric: json.s1
+Metric: json.s2
+children json
+dbpmda> children json.s1
+dbpmda> children json.s2
 leaf debug
 leaf nsources
-dbpmda> children json.s1
-Metric: json.s1
 leaf string
 leaf value
-dbpmda> children json.s2
-Metric: json.s2
 non-leaf array_data
-dbpmda> instance 137.0
+non-leaf s1
+non-leaf s2
+instance 137.0
 pmInDom: 137.0
 [  0] inst: 0 name: "__internal__"
 [  1] inst: 1 name: "s1"
@@ -98,49 +102,51 @@ PMID(s): 137.0.0
 pmResult ... numpmid: 1
 137.0.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
 value 3
-dbpmda> children json
+
+
 Metric: json
-non-leaf ceph
-non-leaf s2
-non-leaf s1
+Metric: json.ceph
+Metric: json.s1
+Metric: json.s2
+children json
+dbpmda> children json.ceph
+dbpmda> children json.s1
+dbpmda> children json.s2
 leaf debug
 leaf nsources
-dbpmda> children json.s1
-Metric: json.s1
 leaf string
 leaf value
-dbpmda> children json.s2
-Metric: json.s2
-non-leaf array_data
-dbpmda> children json.ceph
-Metric: json.ceph
-non-leaf throttle_osd_client_messages
-non-leaf throttle_osd_client_bytes
-non-leaf throttle_objecter_ops
-non-leaf throttle_objecter_bytes
-non-leaf throttle_msgr_dispatch_throttler_ms_objecter
-non-leaf throttle_msgr_dispatch_throttler_hbclient
-non-leaf throttle_msgr_dispatch_throttler_hb_front_server
-non-leaf throttle_msgr_dispatch_throttler_hb_back_server
-non-leaf throttle_msgr_dispatch_throttler_cluster
-non-leaf throttle_msgr_dispatch_throttler_client
-non-leaf throttle_filestore_ops
-non-leaf throttle_filestore_bytes
-non-leaf recoverystate_perf
-non-leaf osd
-non-leaf objecter
-non-leaf mutex_WBThrottle__lock
-non-leaf mutex_JOS__SubmitManager__lock
-non-leaf mutex_JOS__ApplyManager__com_lock
-non-leaf mutex_JOS__ApplyManager__apply_lock
-non-leaf mutex_FileJournal__writeq_lock
-non-leaf mutex_FileJournal__write_lock
-non-leaf mutex_FileJournal__finisher_lock
-non-leaf mutex_FileJournal__completions_lock
-non-leaf leveldb
-non-leaf filestore
 non-leaf WBThrottle
-dbpmda> instance 137.0
+non-leaf array_data
+non-leaf ceph
+non-leaf filestore
+non-leaf leveldb
+non-leaf mutex_FileJournal__completions_lock
+non-leaf mutex_FileJournal__finisher_lock
+non-leaf mutex_FileJournal__write_lock
+non-leaf mutex_FileJournal__writeq_lock
+non-leaf mutex_JOS__ApplyManager__apply_lock
+non-leaf mutex_JOS__ApplyManager__com_lock
+non-leaf mutex_JOS__SubmitManager__lock
+non-leaf mutex_WBThrottle__lock
+non-leaf objecter
+non-leaf osd
+non-leaf recoverystate_perf
+non-leaf s1
+non-leaf s2
+non-leaf throttle_filestore_bytes
+non-leaf throttle_filestore_ops
+non-leaf throttle_msgr_dispatch_throttler_client
+non-leaf throttle_msgr_dispatch_throttler_cluster
+non-leaf throttle_msgr_dispatch_throttler_hb_back_server
+non-leaf throttle_msgr_dispatch_throttler_hb_front_server
+non-leaf throttle_msgr_dispatch_throttler_hbclient
+non-leaf throttle_msgr_dispatch_throttler_ms_objecter
+non-leaf throttle_objecter_bytes
+non-leaf throttle_objecter_ops
+non-leaf throttle_osd_client_bytes
+non-leaf throttle_osd_client_messages
+instance 137.0
 pmInDom: 137.0
 [  0] inst: 0 name: "__internal__"
 [  1] inst: 1 name: "s1"

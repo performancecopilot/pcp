@@ -1056,6 +1056,7 @@ cgroups
 961 pmlogextract local
 962 archive local
 963 libpcp local
+964 pmcd local
 966 secure local
 967 pmda.papi local
 972 pmda.zswap dbpmda local

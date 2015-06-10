@@ -35,7 +35,7 @@ include $(BUILDRULES)
 install_pcp install:	default 
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove generate_ceph_metadata $(PMDADIR)
-	$(INSTALL) -m 644 domain.h config.json $(PYSCRIPT) $(PMDADIR)
+	$(INSTALL) -m 644 domain.h config.json README $(PYSCRIPT) $(PMDADIR)
 	@$(INSTALL_MAN)
 
 domain.h: ../../pmns/stdpmid

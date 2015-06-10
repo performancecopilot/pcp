@@ -262,6 +262,7 @@ dpkg?	unbound-control		[unbound (QA optional)]
 rpm?	/usr/share/doc/python-requests*|/usr/share/doc/packages/python-requests	[python-requests (QA optional)]
 dpkg?	/usr/share/doc/python-requests|/usr/share/doc/packages/python-requests	[python-requests (QA optional)]
 rpm?	/usr/bin/logconv.pl	[389-ds-base (QA optional)]
+rpm?	/usr/lib/sasl2/libplain.so	[cyrus-sasl-plain (QA optional)]
 # pcp-gui
 dpkg?	qmake			[qt4-qmake (build optional)]
 rpm?	qmake|/usr/lib64/qt4/bin/qmake|/usr/lib/qt4/bin/qmake		[qt4-devel (build optional)]
@@ -503,31 +504,39 @@ then
     #
     cat <<End-of-File >$tmp.control
 # one line per rpm
-# rpm-name	relop	version
+# rpm-name	relop	version	pcp-pkg
 # text after # is treated as a comment
 # pcp.spec.in
 qt-devel	>=	4.4
 qt4-devel	>=	4.4
-libpfm-devel	>=	4.4
-libibmad-devel	>=	1.1.7
-libibumad-devel	>=	1.1.7
+libpfm-devel	>=	4.4	pcp-pmda-perfevent
+libpfm		>=	4.4	pcp-pmda-perfevent
+libibmad-devel	>=	1.1.7	pcp-pmda-infiniband
+libibmad	>=	1.1.7	pcp-pmda-infiniband
+libibumad-devel	>=	1.1.7	pcp-pmda-infiniband
+libibumad	>=	1.1.7	pcp-pmda-infiniband
 # configure.ac
 libmicrohttpd	>	0.9.9
-cairo-devel		>=	1.2
+cairo-devel	>=	1.2
 End-of-File
     cat $tmp.control \
     | sed -e 's/#.*//' -e '/^[ 	]*$/d' \
-    | while read rpm relop specversion
+    | while read rpm relop specversion pcp_pkg
     do
+	[ -n "$pcp_pkg" ] && pcp_pkg=" for $pcp_pkg"
 	rpm -q $rpm >$tmp.tmp 2>/dev/null
-	grep 'is not installed' $tmp.tmp >/dev/null 2>&1 && continue
-	version=`sed <$tmp.tmp -e "s/^$rpm-//" -e 's/-.*//'`
-	( echo $version; echo $specversion ) | _compare $relop
-	if [ $? = 0 ]
+	if grep 'is not installed' $tmp.tmp >/dev/null 2>&1
 	then
-	    $verbose && echo "$rpm: version installed $version, need $relop $specversion, OK"
+	    echo "Warning: $rpm not installed, need $relop $specversion$pcp_pkg"
 	else
-	    echo "Warning: $rpm version installed $version, need $relop $specversion"
+	    version=`sed <$tmp.tmp -e "s/^$rpm-//" -e 's/-.*//'`
+	    ( echo $version; echo $specversion ) | _compare $relop
+	    if [ $? = 0 ]
+	    then
+		$verbose && echo "$rpm: version installed $version, need $relop $specversion$pcp_pkg, OK"
+	    else
+		echo "Warning: $rpm version installed $version, need $relop $specversion$pcp_pkg"
+	    fi
 	fi
     done
 fi

@@ -50,6 +50,7 @@ then
 	-e '/disk.*bytes:/d' \
 	-e '/disk.all.avactive/d' \
 	-e '/disk.all.aveq/d' \
+	-e '/hinv.hugepagesize/d' \
 	-e '/irix.mem.util/d' \
 	-e '/irix.mem.vmstat/d' \
 	-e '/rpc.client/d' \

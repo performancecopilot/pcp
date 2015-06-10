@@ -406,7 +406,7 @@ The
 .B pmGetOptions
 function returns either when it detects a command-line option that
 is not one of the standard PCP set, or when the end of the command
-line options has been reached (at which point -1 is returned).
+line options has been reached (at which point \-1 is returned).
 Both the
 .B pmgetopt_r
 and
@@ -414,7 +414,7 @@ and
 routines return control to the caller in the same way that a regular
 .B getopt
 call would, with the return value indicating either the end of all
-processing (-1), or the single character form of the option currently
+processing (\-1), or the single character form of the option currently
 being processed, or zero for the special long-option-only case.
 For all option-processing cases, the
 .I opts
