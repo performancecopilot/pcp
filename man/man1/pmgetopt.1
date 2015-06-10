@@ -88,7 +88,7 @@ the specification,
 .B pmgetopt
 will always indicate the short form for simpler shell processing.
 If arguments are presented that do not match the configuration,
-a request for a usage message (\-\?) will be generated for the
+a request for a usage message (\-?) will be generated for the
 calling script to respond to.
 Any non-option parameters will be echoed back to the calling
 script preceded by the double-hyphen delimiter.  Thus a script
@@ -157,35 +157,35 @@ As an example, the following is a valid configuration:
 # Usage: [options] node...
 
 Options:
-    --archive
-    -d, --delay            pause between updates for archive replay
-    --host
-    --interval
-    -i=INST, --insts=INST  comma-separated metrics instance list
-    -r                     output raw counters (no rate conversion)
-    --width=N              set the width of each column of output
-    --timezone
-    --help
+    \-\-archive
+    \-d, \-\-delay            pause between updates for archive replay
+    \-\-host
+    \-\-interval
+    \-i=INST, \-\-insts=INST  comma-separated metrics instance list
+    \-r                     output raw counters (no rate conversion)
+    \-\-width=N              set the width of each column of output
+    \-\-timezone
+    \-\-help
 .EE
 .PP
 This configuration will produce the following usage message,
 when run as shown.
 .EX
-$ pmgetopt --usage --progname=clusterstat -- "$@"
+$ pmgetopt \-\-usage \-\-progname=clusterstat \-\- "$@"
 Usage: clusterstat [options] node...
 
 Options:
-  -a FILE, --archive=FILE
+  \-a FILE, \-\-archive=FILE
                         metrics source is a PCP log archive
-  -d, --delay           pause between updates for archive replay
-  -h HOST, --host=HOST  metrics source is PMCD on host
-  -t DELTA, --interval=DELTA
+  \-d, \-\-delay           pause between updates for archive replay
+  \-h HOST, \-\-host=HOST  metrics source is PMCD on host
+  \-t DELTA, \-\-interval=DELTA
                         sampling interval
-  -i INST, --insts=INST comma-separated metrics instance list
-  -r                    output raw counters (no rate conversion)
-  --width=N             set the width of each column of output
-  -Z TZ, --timezone=TZ  set reporting timezone
-  -?, --help            show this usage message and exit
+  \-i INST, \-\-insts=INST comma-separated metrics instance list
+  \-r                    output raw counters (no rate conversion)
+  \-\-width=N             set the width of each column of output
+  \-Z TZ, \-\-timezone=TZ  set reporting timezone
+  \-?, \-\-help            show this usage message and exit
 .EE
 .PP
 Several examples of
