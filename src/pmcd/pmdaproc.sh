@@ -102,11 +102,11 @@ _setup_localhost()
 #
 __wait_for_pmcd()
 {
-    # 60 seconds default seems like a reasonble max time to get going
+    # 60 seconds default seems like a reasonable max time to get going
     [ -z "$__can_wait" ] && __can_wait=${1-60}
     if pmcd_wait -t $__can_wait
     then
-	:
+	__pmcd_is_dead=false	# should be set already, force it anyway
     else
 	echo "Arrgghhh ... PMCD failed to start after $__can_wait seconds"
 	if [ -f $LOGDIR/pmcd.log ]
@@ -137,8 +137,9 @@ __restore_pmcd()
 	eval $CHOWN root $PCP_PMCDCONF_PATH
 	eval $CHMOD 644 $PCP_PMCDCONF_PATH
 	rm -f $__tmp/pmcd.conf.save
-	$PCP_RC_DIR/pcp start
+	$PCP_RC_DIR/pmcd start
 	__wait_for_pmcd
+	$__pmcd_is_dead || $PCP_RC_DIR/pmlogger condrestart
     fi
     if $__pmcd_is_dead
     then
@@ -208,13 +209,7 @@ END					{ exit status }'
 	    # allow signal processing to be done before checking status
 	    pmsleep $signal_delay
 	    __wait_for_pmcd
-	    if $__pmcd_is_dead
-	    then
-		__restore_pmcd
-		# give PMCD a chance to get back into original state
-		pmsleep 3
-		__wait_for_pmcd
-	    fi
+	    $__pmcd_is_dead && __restore_pmcd
 	fi
     fi
     rm -f $__tmp/pmcd.conf
@@ -301,9 +296,18 @@ $1=="'$myname'" && $2=="'$mydomain'"	{ next }
     else
 	log=$LOGDIR/pmcd.log
 	rm -f $log
-	$PCP_RC_DIR/pcp start
+	$PCP_RC_DIR/pmcd start
 	__wait_for_pmcd
-	$__pmcd_is_dead && __restore_pmcd
+	if $__pmcd_is_dead
+	then
+	    __restore_pmcd	# also restarts pmlogger if needed
+	else
+	    # Successfully forced a pmcd restart.  This will cause
+	    # any running pmlogger-control-file pmloggers to exit,
+	    # so if pmlogger is enabled, ensure it's restarted now.
+	    #
+	    $PCP_RC_DIR/pmlogger condrestart
+	fi
     fi
 }
 
