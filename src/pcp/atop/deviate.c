@@ -756,7 +756,8 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
  		** check if disk has been added or removed since
 		** previous interval
 		*/
-		if ( strcmp(cur->dsk.dsk[i].name, pre->dsk.dsk[j].name) != 0)
+		if (pre->dsk.dsk[j].name[0] == '\0' ||
+		    strcmp(cur->dsk.dsk[i].name, pre->dsk.dsk[j].name) != 0)
 		{
 			for (j=0; pre->dsk.dsk[j].name[0]; j++)
 			{
@@ -792,7 +793,7 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
 		/*
 		** determine new j
 		*/
-		if (pre->dsk.dsk[j].name)	// existing matching entry
+		if (pre->dsk.dsk[j].name[0] != '\0') // existing matching entry
 			j++;
 		else
 			j = realj;		// empty entry: stick to old j
@@ -818,7 +819,8 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
  		** check if md has been added or removed since
 		** previous interval
 		*/
-		if ( strcmp(cur->dsk.mdd[i].name, pre->dsk.mdd[j].name) != 0)
+		if (pre->dsk.mdd[j].name[0] == '\0' ||
+		    strcmp(cur->dsk.mdd[i].name, pre->dsk.mdd[j].name) != 0)
 		{
 			for (j=0; pre->dsk.mdd[j].name[0]; j++)
 			{
@@ -854,7 +856,7 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
 		/*
 		** determine new j
 		*/
-		if (pre->dsk.mdd[j].name)	// existing matching entry
+		if (pre->dsk.mdd[j].name[0] != '\0') // existing matching entry
 			j++;
 		else
 			j = realj;		// empty entry: stick to old j
@@ -880,7 +882,8 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
  		** check if logical volume has been added or removed since
 		** previous interval
 		*/
-		if ( strcmp(cur->dsk.lvm[i].name, pre->dsk.lvm[j].name) != 0)
+		if (pre->dsk.lvm[j].name[0] == '\0' ||
+		    strcmp(cur->dsk.lvm[i].name, pre->dsk.lvm[j].name) != 0)
 		{
 			for (j=0; pre->dsk.lvm[j].name[0]; j++)
 			{
@@ -916,7 +919,7 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
 		/*
 		** determine new j
 		*/
-		if (pre->dsk.lvm[j].name)	// existing matching entry
+		if (pre->dsk.lvm[j].name[0] != '\0') // existing matching entry
 			j++;
 		else
 			j = realj;		// empty entry: stick to old j
