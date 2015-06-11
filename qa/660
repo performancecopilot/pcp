@@ -52,6 +52,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # * additional stuff not fine transfer.c:1037: 0 0
 # *   Trying LOCALADDR...
 # * Connection refused
+# * connect to ::1 port 44323 failed: Connection refused
 # WARNING: gnome-keyring:: couldn't connect to: ...
 # * [othewise blank line]
 # [blank line]
@@ -65,6 +66,7 @@ _filter()
 	-e '/^\* additional stuff not fine/d' \
 	-e '/^\*  *Trying LOCALADDR/d' \
 	-e '/^\* Connection refused/d' \
+	-e '/^\* connect to .*: Connection refused/d' \
 	-e '/WARNING: gnome-keyring::/d' \
 	-e '/^\*$/d' \
 	-e '/^[ 	]*$/d'
