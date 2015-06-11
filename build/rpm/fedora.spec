@@ -170,7 +170,6 @@ Obsoletes: pcp-pmda-nvidia
 %global _with_perfevent --with-perfevent=yes
 %endif
 
-
 %description
 Performance Co-Pilot (PCP) provides a framework and services to support
 system-level performance monitoring and performance management. 
@@ -179,23 +178,11 @@ The PCP open source release provides a unifying abstraction for all of
 the interesting performance data in a system, and allows client
 applications to easily retrieve and process any subset of that data.
 
-
-#
-# pcp-compat
-#
 %if %{with_compat}
 Requires: pcp-compat
 %endif
 Requires: pcp-libs = @package_version@
 Obsoletes: pcp-gui-debuginfo
-
-%description
-Performance Co-Pilot (PCP) provides a framework and services to support
-system-level performance monitoring and performance management. 
-
-The PCP open source release provides a unifying abstraction for all of
-the interesting performance data in a system, and allows client
-applications to easily retrieve and process any subset of that data. 
 
 #
 # pcp-conf
@@ -1092,7 +1079,7 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics output in JSON.  The PMDA is written in Python.
 # end pcp-pmda-json
 
-%endif 
+%endif # !%{disable_python2} || !%{disable_python3}
 
 #
 # C pmdas
@@ -1296,7 +1283,7 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about other installed pmdas.  The PMDA is written in C.
 # end pcp-pmda-summary
 
-%if "@pmda_systemd@" == "true"
+### %if "@pmda_systemd@" == "true"
 #
 # pcp-pmda-systemd
 #
@@ -1310,7 +1297,7 @@ Requires: pcp-libs = %{version}-%{release}
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Systemd shell.  The PMDA is written in C.
 # end pcp-pmda-systemd
-%endif
+### %endif
 
 #
 # pcp-pmda-trace
@@ -1342,7 +1329,9 @@ collecting metrics about web server logs.  The PMDA is written in C.
 # end pcp-pmda-weblog
 # end C pmdas
 
+#
 # pcp-compat
+#
 %if %{with_compat}
 %package compat
 License: GPLv2+
@@ -1964,6 +1953,17 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %endif				# ppc
 %endif
 
+%if %{with_compat}
+%files compat
+#empty
+%endif
+
+%files monitor
+#empty
+
+%files collector
+#empty
+
 %files conf
 %dir %{_includedir}/pcp
 %{_includedir}/pcp/builddefs
@@ -2183,7 +2183,6 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %files pmda-unbound 
 %{_pmdasdir}/unbound 
-%endif
 
 %files pmda-json
 %{_pmdasdir}/json
@@ -2231,8 +2230,8 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %files pmda-summary 
 %{_pmdasdir}/summary 
 
-#%files pmda-systemd 
-#%{_pmdasdir}/systemd 
+%files pmda-systemd 
+%{_pmdasdir}/systemd 
 
 %files pmda-trace 
 %{_pmdasdir}/trace 
