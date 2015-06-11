@@ -1442,7 +1442,7 @@ DEVFILELIST=`ls -1 $BACKDIR/debian/lib*-dev.{install,dirs}`
 sed -e 's/^/\//' $CFGFILELIST >cfg_files
 sed -e 's/^/\//' $LIBFILELIST >libs_files
 sed -e 's/^/\//' $DEVFILELIST >devel_files
-%ifarch x86_64 ppc64 s390x
+%ifarch x86_64 ppc64 ppc64le aarch64 s390x
 sed -i -e 's/usr\/lib\//usr\/lib64\//' libs_files
 sed -i -e 's/usr\/lib\//usr\/lib64\//' devel_files
 %endif
