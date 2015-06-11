@@ -37,17 +37,28 @@ signal=$PCP_BINADM_DIR/pmsignal
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 cd $here/pmdas/dynamic
-make clean >>$here/$seq.full 2>&1
+if [ -f GNUmakefile.install ]
+then
+    make -f GNUmakefile.install clean >>$here/$seq.full 2>&1
+    make -f GNUmakefile.install >>$here/$seq.full 2>&1
+else
+    make clean >>$here/$seq.full 2>&1
+    make >>$here/$seq.full 2>&1
+fi
 $sudo ./Install < /dev/null >$tmp.out 2>&1
-cat $tmp.out | _filter_pmda_install | _filter
+cat $tmp.out | tee -a $here/$seq.full | _filter_pmda_install | _filter
 cd $here
 
 # real QA test starts here
 echo "Initial check of some metric access"
 pmprobe -h unix: -i hinv.ncpu
 
+pmsleep 0.2
+
 echo "Terminate a PMDA needing attributes"
 $sudo $signal -a pmdadynamic >> $seq.full 2>&1
+
+pmsleep 0.2
 
 echo "Tickle access to the failed PMDA, must see 'Try Again'"
 pmprobe -h unix: -i hinv.ncpu
