@@ -1071,6 +1071,25 @@ in Python.
 # end pcp-pmda-unbound
 
 #
+# pcp-pmda-mic
+#
+%package pmda-mic
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for Intel MIC cards
+URL: http://www.pcp.io
+%if !%{disable_python3}
+Requires: python3-pcp
+%else
+Requires: python-pcp
+%endif
+%description pmda-mic
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about Intel MIC cards.  The PMDA is written
+in Python.
+# end pcp-pmda-mic
+
+#
 # pcp-pmda-json
 #
 %package pmda-json
@@ -1358,7 +1377,7 @@ Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
 Requires: pcp-pmda-lustrecomm
 %if !%{disable_python2} || !%{disable_python3}
-Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-json
+Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic pcp-pmda-json
 Requires: pcp-system-tools 
 %endif
 Requires: pcp-pmda-rpm
@@ -1386,7 +1405,7 @@ Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
 Requires: pcp-pmda-lustrecomm
 %if !%{disable_python2} || !%{disable_python3}
-Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-json
+Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic pcp-pmda-json
 %endif
 Requires: pcp-pmda-rpm
 Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
@@ -1639,6 +1658,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   grep -E -v 'gluster' |\
   grep -E -v 'zswap' |\
   grep -E -v 'unbound' |\
+  grep -E -v 'mic' |\
   grep -E -v 'json' |\
 %endif
 
@@ -2183,6 +2203,10 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %files pmda-unbound 
 %{_pmdasdir}/unbound 
+%endif
+
+%files pmda-mic 
+%{_pmdasdir}/mic 
 %endif
 
 %files pmda-json

@@ -1046,6 +1046,25 @@ collecting metrics about the Unbound DNS Resolver.  The PMDA is written
 in Python.
 # end pcp-pmda-unbound
 
+#
+# pcp-pmda-mic
+#
+%package pmda-mic
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for Intel MIC cards
+URL: http://www.pcp.io
+%if "@enable_python3@" == "true"
+Requires: python3-pcp
+%else
+Requires: python-pcp
+%endif
+%description pmda-mic
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about Intel MIC cards.  The PMDA is written
+in Python.
+# end pcp-pmda-mic
+
 %if "@pmda_json@" == "true"
 #
 # pcp-pmda-json
@@ -1341,7 +1360,7 @@ Requires: pcp-pmda-dm pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
 %if "@have_python@" == "true"
-Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-system-tools 
+Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic pcp-system-tools 
 %endif
 %if "@pmda_json@" == "true"
 Requires: pcp-pmda-json
@@ -1372,7 +1391,7 @@ Requires: pcp-pmda-dm pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
 %if "@have_python@" == "true"
-Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound
+Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 %endif
 %if "@pmda_json@" == "true"
 Requires: pcp-pmda-json
@@ -1563,6 +1582,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/dm' > pmda_dm_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'gluster|pmdas/gluster' > pmda_gluster_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'zswap|pmdas/zswap' > pmda_zswap_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'unbound|pmdas/unbound' > pmda_unbound_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'mic|pmdas/mic' > pmda_mic_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'json|pmdas/json' > pmda_json_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pcp-|pmatop|pmiostat|pmlogconf/tools/' | \
 egrep -e 'atop|collectl|dmcache|free|iostat|numastat|verify|uptime|shping' | \
@@ -1601,7 +1621,7 @@ touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files
 
 %if "@have_python@" == "true"
 touch pmda_gluster_files pmda_zswap_files pmda_unbound_files \
-      system_tools_files
+      pmda_mic_files system_tools_files
 %if "@pmda_json@" == "true"
 touch pmda_json_file 
 %endif
@@ -1652,6 +1672,7 @@ BEGIN {
     while( getline < "pmda_gluster_files") pmda_gluster[$0]=1;
     while( getline < "pmda_zswap_files") pmda_zswap[$0]=1;
     while( getline < "pmda_unbound_files") pmda_unbound[$0]=1;
+    while( getline < "pmda_mic_files") pmda_mic[$0]=1;
     while( getline < "pmda_json_files") pmda_json[$0]=1;
     while( getline < "export_pcp2graphite_files") export_pcp2graphite[$0]=1;
 %endif
@@ -1724,6 +1745,7 @@ BEGIN {
     else if (pmda_gluster[$NF]) f="pmda_gluster_files.rpm";
     else if (pmda_zswap[$NF]) f="pmda_zswap_files.rpm";
     else if (pmda_unbound[$NF]) f="pmda_unbound_files.rpm";
+    else if (pmda_mic[$NF]) f="pmda_mic_files.rpm";
     else if (pmda_json[$NF]) f="pmda_json_files.rpm";
     else if (export_pcp2graphite[$NF]) f="export_pcp2graphite_files.rpm";
 %endif
@@ -2086,6 +2108,8 @@ cd
 %files pmda-zswap -f pmda_zswap_files.rpm
 
 %files pmda-unbound -f pmda_unbound_files.rpm
+
+%files pmda-mic -f pmda_mic_files.rpm
 
 %if "@pmda_json@" == "true"
 %files pmda-json -f pmda_json_files.rpm
