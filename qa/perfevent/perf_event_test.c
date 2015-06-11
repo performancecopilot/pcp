@@ -158,7 +158,7 @@ void test_lots_of_counters()
         printf("data[%d].name = %s data[%d].instances = %d\n", i, data[i].name, i, data[i].ninstances);
         for(j = 0; j < data[i].ninstances; j++)
         {
-            printf("\tvalue[%d] = %llu\n", j, data[i].data[j].value);
+            printf("\tvalue[%d] = %llu\n", j, (long long unsigned int)data[i].data[j].value);
         }
     }
 
@@ -414,7 +414,7 @@ void test_rapl()
         printf("data[%d].name = %s data[%d].instances = %d\n", i, data[i].name, i, data[i].ninstances);
         for(j = 0; j < data[i].ninstances; j++)
         {
-            printf("\tvalue[%d] = %llu\n", j, data[i].data[j].value);
+            printf("\tvalue[%d] = %llu\n", j, (long long unsigned int)data[i].data[j].value);
         }
     }
 
