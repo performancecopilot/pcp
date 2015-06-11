@@ -17,9 +17,17 @@ trap "$sudo rm -f $tmp.*; exit" 0 1 2 3 15
 
 _do_ls()
 {
+    # hostname length affects the pmcd.pmlogger metrics in volume 0
+    # such that we need to cater for an extra large range of possible
+    # volume sizes in the first volume for long-hostname-hosts.
     $PCP_AWK_PROG '
 /Cannot/	{ print; next }
-		{ print $9,int($5/100)*100 "-" 100+int($5/100)*100,"bytes" }' \
+		{ if (int($9) == 0 && int($5) >= 700 && int($5) <= 900) {
+		    print $9,"700-900","bytes"
+		  } else {
+		    print $9,int($5/100)*100 "-" 100+int($5/100)*100,"bytes"
+		  }
+		}' \
     | sed -e "s;$tmp;MYLOG;"
 }
 

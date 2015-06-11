@@ -5811,6 +5811,7 @@ linux_init(pmdaInterface *dp)
     char	*envpath;
     __pmID_int	*idp;
 
+    /* optional overrides of some globals for testing */
     if ((envpath = getenv("LINUX_PAGESIZE")) != NULL)
 	_pm_system_pagesize = atoi(envpath);
     else

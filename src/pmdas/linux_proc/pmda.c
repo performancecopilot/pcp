@@ -3055,7 +3055,11 @@ proc_init(pmdaInterface *dp)
     int		nmetrics = sizeof(metrictab)/sizeof(metrictab[0]);
     char	*envpath;
 
-    hz = sysconf(_SC_CLK_TCK);
+    /* optional overrides of some globals for testing */
+    if ((envpath = getenv("PROC_HERTZ")) != NULL)
+	hz = atoi(envpath);
+    else
+	hz = sysconf(_SC_CLK_TCK);
     if ((envpath = getenv("PROC_PAGESIZE")) != NULL)
 	_pm_system_pagesize = atoi(envpath);
     else
