@@ -10,7 +10,7 @@
 #include <pcp/pmda.h>
 #include <arpa/inet.h>
 
-static __uint32_t hash(const char *, int, __uint32_t);
+static __uint32_t hash(const signed char *, int, __uint32_t);
 
 /* hash attempts looking for hash synonyms */
 #define MAXPOKE 200000
@@ -102,7 +102,7 @@ main(int argc, char **argv)
 	    mykey = (void *)name;
 	}
 	key = htonl(key);
-	try = hash((char *)mykey, mykeylen, 0);
+	try = hash((const signed char *)mykey, mykeylen, 0);
 	key = ntohl(key);
 	/* strip top bit ... instance id must be positive */
 	inst = try & ~(1 << (8*sizeof(__uint32_t)-1));
@@ -366,7 +366,7 @@ acceptable.  Do NOT use for cryptographic purposes.
 */
 
 static __uint32_t
-hash(const char *k, int length, __uint32_t initval)
+hash(const signed char *k, int length, __uint32_t initval)
 {
    __uint32_t a,b,c,len;
 
