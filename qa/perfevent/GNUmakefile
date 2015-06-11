@@ -14,6 +14,7 @@ ROOTFILES =     config/syntax_error.txt \
 		fakefs.tar.gz
 
 TESTHARNESS = perfevent_test perfevent_coverage
+LDIRT += $(TESTHARNESS) fakefs $(OUTDIR)
 LSRCFILES = $(ROOTFILES) GNUmakefile.install
 
 ifeq "$(PMDA_PERFEVENT)" "true"
