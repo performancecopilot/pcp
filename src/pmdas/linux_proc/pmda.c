@@ -3056,7 +3056,10 @@ proc_init(pmdaInterface *dp)
     char	*envpath;
 
     hz = sysconf(_SC_CLK_TCK);
-    _pm_system_pagesize = getpagesize();
+    if ((envpath = getenv("PROC_PAGESIZE")) != NULL)
+	_pm_system_pagesize = atoi(envpath);
+    else
+	_pm_system_pagesize = getpagesize();
     if ((envpath = getenv("PROC_STATSPATH")) != NULL)
 	proc_statspath = envpath;
 

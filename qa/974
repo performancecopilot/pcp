@@ -17,6 +17,7 @@ _get_libpcp_config
 $unix_domain_sockets || _notrun "No unix domain socket support available"
 pminfo proc.nprocs >/dev/null 2>&1 || _notrun "proc PMDA not installed"
 [ $PCP_PLATFORM = linux ] || _notrun "Linux proc test, only works with Linux"
+page_size=`pmprobe -v hinv.pagesize | cut -d" " -f 3`
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
@@ -33,6 +34,7 @@ _filter()
 # real QA test starts here
 root=$tmp.root
 export PROC_STATSPATH=$root
+export PROC_PAGESIZE=4096
 pmda=$PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init
 
 for tgz in $here/linux/procpid-*-root-*.tgz
