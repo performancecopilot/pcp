@@ -789,6 +789,22 @@ in Perl.
 #end pcp-pmda-lustre
 
 #
+# pcp-pmda-lustrecomm
+#
+%package pmda-lustrecomm
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for the Lustre Filesytem Comms
+URL: http://www.pcp.io
+
+%description pmda-lustrecomm
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about the Lustre Filesystem Comms.  The PMDA is written
+in C.
+
+#end pcp-pmda-lustrecomm
+
+#
 # pcp-pmda-memcache
 #
 %package pmda-memcache
@@ -1428,6 +1444,7 @@ Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-p
 Requires: pcp-pmda-apache pcp-pmda-bash pcp-pmda-cisco pcp-pmda-dm pcp-pmda-gfs2
 Requires: pcp-pmda-lmsensors pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
+Requires: pcp-pmda-lustrecomm
 %if "@have_python@" == "true"
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-system-tools 
 %endif
@@ -1459,6 +1476,7 @@ Requires: pcp-pmda-samba pcp-pmda-snmp pcp-pmda-vmware pcp-pmda-zimbra
 Requires: pcp-pmda-apache pcp-pmda-bash pcp-pmda-cisco pcp-pmda-dm pcp-pmda-gfs2
 Requires: pcp-pmda-lmsensors pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
+Requires: pcp-pmda-lustrecomm
 %if "@have_python@" == "true"
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound
 %endif
@@ -1639,6 +1657,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/elasticsearch' > pmda_elastic
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gpfs' > pmda_gpfs_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gpsd' > pmda_gpsd_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/kvm' > pmda_kvm_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lustrecomm' > pmda_lustrecomm_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lustre' > pmda_lustre_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/memcache' > pmda_memcache_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mysql' > pmda_mysql_files
@@ -1687,8 +1706,9 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/weblog' > pmda_weblog_files
 touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files \
       pmda_perfevent_files pmda_activemq_files pmda_bonding_files pmda_dbping_files \
       pmda_ds389_files pmda_ds389log_files pmda_elasticsearch_files pmda_gpfs_files \
-      pmda_gpsd_files pmda_kvm_files pmda_lustre_files pmda_memcache_files pmda_mysql_files \
-      pmda_named_files pmda_netfilter_files pmda_news_files pmda_nfsclient_files \
+      pmda_gpsd_files pmda_kvm_files pmda_lustre_files pmda_lustrecomm_files \
+      pmda_memcache_files pmda_mysql_files pmda_named_files \
+      pmda_netfilter_files pmda_news_files pmda_nfsclient_files \
       pmda_nginx_files pmda_pdns_files pmda_postfix_files pmda_postgresql_files \
       pmda_rsyslog_files pmda_samba_files pmda_snmp_files \
       pmda_vmware_files pmda_zimbra_files pmda_apache_files pmda_bash_files \
@@ -1729,6 +1749,7 @@ BEGIN {
     while( getline < "pmda_gpfs_files") pmda_gpfs[$0]=1;
     while( getline < "pmda_gpsd_files") pmda_gpsd[$0]=1;
     while( getline < "pmda_kvm_files") pmda_kvm[$0]=1;
+    while( getline < "pmda_lustrecomm_files") pmda_lustrecomm[$0]=1;
     while( getline < "pmda_lustre_files") pmda_lustre[$0]=1;
     while( getline < "pmda_memcache_files") pmda_memcache[$0]=1;
     while( getline < "pmda_mysql_files") pmda_mysql[$0]=1;
@@ -1802,6 +1823,7 @@ BEGIN {
     else if (pmda_gpfs[$NF]) f="pmda_gpfs_files.rpm";
     else if (pmda_gpsd[$NF]) f="pmda_gpsd_files.rpm";
     else if (pmda_kvm[$NF]) f="pmda_kvm_files.rpm";
+    else if (pmda_lustrecomm[$NF]) f="pmda_lustrecomm_files.rpm";
     else if (pmda_lustre[$NF]) f="pmda_lustre_files.rpm";
     else if (pmda_memcache[$NF]) f="pmda_memcache_files.rpm";
     else if (pmda_mysql[$NF]) f="pmda_mysql_files.rpm";
@@ -2176,6 +2198,8 @@ cd
 %files pmda-kvm -f pmda_kvm_files.rpm
 
 %files pmda-lustre -f pmda_lustre_files.rpm
+
+%files pmda-lustrecomm -f pmda_lustrecomm_files.rpm
 
 %files pmda-memcache -f pmda_memcache_files.rpm
 
