@@ -1633,13 +1633,25 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
 
 # all base pcp package files except those split out into sub packages
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
+  grep -E -v 'pmiostat|pmatop' |\
   sed -e 's#^#'%{_bindir}'\/#' >base_bin.list
-# seperate the pcp-system-tools package files
+#
+# Seperate the pcp-system-tools package files.
+#
+# pmatop and pmiostat (and other python client tools) are symlinks to the
+# pcp-foo variant, and so should also be in pcp-system-tools
+%if !%{disable_python2} || !%{disable_python3}
+ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
+  grep -E 'pmiostat|pmatop' |\
+  sed -e 's#^#'%{_bindir}'\/#' >pcp_system_tools.list
+%endif
+
 %if !%{disable_python2} || !%{disable_python3}
 ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
   grep -E 'atop|collectl|dmcache|free|iostat|numastat|verify|uptime|shping' |\
-  sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >pcp_system_tools.list
+  sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >>pcp_system_tools.list
 %endif
+
 ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
 %if !%{disable_python2} || !%{disable_python3}
   grep -E -v 'atop|collectl|dmcache|free|iostat|numastat|verify|uptime|shping' |\
