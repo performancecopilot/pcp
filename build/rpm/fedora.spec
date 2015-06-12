@@ -473,6 +473,27 @@ Requires: perl-PCP-LogImport = %{version}-%{release}
 Performance Co-Pilot (PCP) front-end tools for importing ganglia data
 into standard PCP archive logs for replay with any PCP monitoring tool.
 
+%if !%{disable_python2} || !%{disable_python3}
+#
+# pcp-export-pcp2graphite
+#
+%package export-pcp2graphite
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for exporting PCP metrics to Graphite
+URL: http://www.pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp = %{version}-%{release}
+%else
+Requires: python-pcp = %{version}-%{release}
+%endif
+
+%description export-pcp2graphite
+Performance Co-Pilot (PCP) front-end tools for exporting metric values
+to graphite (http://graphite.readthedocs.org).
+%endif
+
 #
 # pcp-import-collectl2pcp
 #
@@ -1363,7 +1384,7 @@ Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shpin
 Requires: pcp-pmda-lustrecomm
 %if !%{disable_python2} || !%{disable_python3}
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-json
-Requires: pcp-system-tools 
+Requires: pcp-system-tools pcp-export-pcp2graphite
 %endif
 Requires: pcp-pmda-rpm
 Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
@@ -1649,7 +1670,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
 
 # all base pcp package files except those split out into sub packages
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
-  grep -E -v 'pmiostat|pmatop' |\
+  grep -E -v 'pmiostat|pmatop|pcp2graphite' |\
   sed -e 's#^#'%{_bindir}'\/#' >base_bin.list
 #
 # Seperate the pcp-system-tools package files.
@@ -2200,7 +2221,11 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %files pmda-json
 %{_pmdasdir}/json
-%endif
+
+%files export-pcp2graphite
+%{_bindir}/pcp2graphite
+
+%endif # !%{disable_python2} || !%{disable_python3}
 
 %files pmda-apache 
 %{_pmdasdir}/apache 
