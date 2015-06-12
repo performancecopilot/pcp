@@ -1672,7 +1672,7 @@ cat base_bin.list base_exec.list base_man.list |\
   grep -E "$PCP_GUI" >> pcp-gui.list
 %endif
 cat base_pmdas.list base_bin.list base_exec.list base_man.list |\
-  grep -E -v 'pmdaib|pmmgr|pmweb|pmsnap|2pcp' |\
+  grep -E -v 'pmdaib|pmmgr|pmweb|pmsnap|2pcp|pmdas/systemd' |\
   grep -E -v "$PCP_GUI|pixmaps|pcp-doc|tutorials" |\
   grep -E -v %{_confdir} | grep -E -v %{_logsdir} > base.list
 
