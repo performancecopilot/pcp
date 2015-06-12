@@ -1169,6 +1169,21 @@ is written in C.
 # end pcp-pmda-lmsensors
 
 #
+# pcp-pmda-logger
+#
+%package pmda-logger
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics from arbitrary log files
+URL: http://www.pcp.io
+Requires: pcp-libs = %{version}-%{release}
+%description pmda-logger
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics from a specified set of log files (or pipes).  The PMDA
+is written in C, and supports both sampled and event-style metrics.
+# end pcp-pmda-logger
+
+#
 # pcp-pmda-mailq
 #
 %package pmda-mailq
@@ -1344,7 +1359,7 @@ Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp
 Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql
 Requires: pcp-pmda-dm pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
-Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
+Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-logger
 Requires: pcp-pmda-lustrecomm
 %if !%{disable_python2} || !%{disable_python3}
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-json
@@ -1373,7 +1388,7 @@ Requires: pcp-pmda-samba pcp-pmda-snmp pcp-pmda-vmware pcp-pmda-zimbra
 Requires: pcp-pmda-dm pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
-Requires: pcp-pmda-lustrecomm
+Requires: pcp-pmda-lustrecomm pcp-pmda-logger
 %if !%{disable_python2} || !%{disable_python3}
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-json
 %endif
@@ -1611,6 +1626,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   grep -E -v 'cisco' |\
   grep -E -v 'gfs2' |\
   grep -E -v 'lmsensors' |\
+  grep -E -v 'logger' |\
   grep -E -v 'mailq' |\
   grep -E -v 'mounts' |\
   grep -E -v 'nvidia' |\
@@ -2203,6 +2219,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 
 %files pmda-lmsensors 
 %{_pmdasdir}/lmsensors 
+
+%files pmda-logger 
+%{_pmdasdir}/logger 
 
 %files pmda-mailq 
 %{_pmdasdir}/mailq 
