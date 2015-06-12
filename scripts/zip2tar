@@ -29,9 +29,6 @@ then
 	exit 1
 fi
 
-zip=`realpath $zip`
-tgz=`realpath $tgz`
-
 cd $tmp
 unzip -q "$zip"
 cd *
