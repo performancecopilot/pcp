@@ -20,7 +20,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-static __uint32_t hash(const char *, int, __uint32_t);
+static __uint32_t hash(const signed char *, int, __uint32_t);
 
 /*
  * simple linked list for each cache at this stage
@@ -91,7 +91,7 @@ get_hashlen(hdr_t *h, const char *str)
 }
 
 static unsigned int
-hash_str(const char *str, int len)
+hash_str(const signed char *str, int len)
 {
     return hash(str, len, 0);
 }
@@ -369,7 +369,7 @@ find_entry(hdr_t *h, const char *name, int inst, int *sts)
 	if (h->ctl_name == NULL)
 	    /* no hash, use linear search */
 	    return find_name(h, name, sts);
-	for (e = h->ctl_name[hash_str(name, hashlen) & h->hbits]; e != NULL; e = e->h_name) {
+	for (e = h->ctl_name[hash_str((const signed char *)name, hashlen) & h->hbits]; e != NULL; e = e->h_name) {
 	    if (e->state != PMDA_CACHE_EMPTY) {
 		if ((*sts = name_eq(e, name, hashlen)))
 		    return e;
@@ -437,7 +437,7 @@ redo_hash(hdr_t *h, int resize)
 	    for (e = old_name[oldi]; e != NULL; ) {
 		t = e;
 		e = e->h_name;
-		i = hash_str(t->name, t->hashlen) & h->hbits;
+		i = hash_str((const signed char *)t->name, t->hashlen) & h->hbits;
 		t->h_name = h->ctl_name[i];
 		h->ctl_name[i] = t;
 	    }
@@ -704,7 +704,7 @@ retry:
 
     /* link into the name hash list, if any */
     if (h->ctl_name != NULL) {
-	i = hash_str(e->name, e->hashlen) & h->hbits;
+	i = hash_str((const signed char *)e->name, e->hashlen) & h->hbits;
 	e->h_name = h->ctl_name[i];
 	h->ctl_name[i] = e;
     }
@@ -1117,7 +1117,7 @@ pmdaCacheStoreKey(pmInDom indom, int flags, const char *name, int keylen, const 
     else {
 	/* we're in the inst guessing game ... */
 	for (i = 0; i < MAX_HASH_TRY; i++) {
-	    try = hash(mykey, mykeylen, try);
+	    try = hash((const signed char *)mykey, mykeylen, try);
 	    /* strip top bit ... instance id must be positive */
 	    inst = try & ~(1 << (8*sizeof(__uint32_t)-1));
 	    e = find_entry(h, NULL, inst, &sts);
@@ -1557,7 +1557,7 @@ acceptable.  Do NOT use for cryptographic purposes.
 */
 
 static __uint32_t
-hash(const char *k, int length, __uint32_t initval)
+hash(const signed char *k, int length, __uint32_t initval)
 {
    __uint32_t a,b,c,len;
 
