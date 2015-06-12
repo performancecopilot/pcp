@@ -2731,7 +2731,7 @@ fi
 
 # Check whether --with-webjs was given.
 if test "${with_webjs+set}" = set; then :
-  withval=$with_webjs; do_webjs=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books=$withval"
+  withval=$with_webjs; do_webjs=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webjs=$withval"
 else
   do_webjs=no
 fi

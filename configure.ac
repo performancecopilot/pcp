@@ -142,7 +142,7 @@ AC_ARG_WITH([webapi],
 AC_ARG_WITH([webjs],
     [AC_HELP_STRING([--with-webjs],
                     [enable building of webjs packages (default is off)])],
-    [do_webjs=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-books=$withval"],
+    [do_webjs=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webjs=$withval"],
     [do_webjs=no])
 
 AC_ARG_WITH([vector],
