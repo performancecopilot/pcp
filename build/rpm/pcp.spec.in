@@ -212,6 +212,79 @@ Co-Pilot (PCP) client API (PMAPI) to RESTful web applications using the
 HTTP (PMWEBAPI) protocol.
 %endif
 
+%if "@have_webjs@" == "true"
+#
+# pcp-webjs
+#
+%package webjs
+License: ASL2.0 and MIT and CC-BY
+Group: Applications/Internet
+%if @rpm_version@ >= 4060000
+BuildArch: noarch
+%endif
+Requires: pcp-webapp-graphite pcp-webapp-grafana pcp-webapp-vector
+Summary: Performance Co-Pilot (PCP) web applications
+URL: http://www.pcp.io
+
+%description webjs
+Javascript web application content for the Performance Co-Pilot (PCP)
+web service.
+%endif
+
+%if "@have_vector@" == "true" || "@have_webjs@" == "true"
+%package webapp-vector
+License: ASL2.0
+Group: Applications/Internet
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+BuildArch: noarch
+%endif
+Summary: Vector web application for Performance Co-Pilot (PCP)
+URL: https://github.com/Netflix/vector
+
+%description webapp-vector
+Vector web application for the Performance Co-Pilot (PCP).
+%endif
+
+%if "@have_webjs@" == "true"
+%package webapp-grafana
+License: ASL2.0
+Group: Applications/Internet
+Conflicts: pcp-webjs < 3.10.4
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+BuildArch: noarch
+%endif
+Summary: Grafana web application for Performance Co-Pilot (PCP)
+URL: https://grafana.org
+
+%description webapp-grafana
+Grafana is an open source, feature rich metrics dashboard and graph
+editor.  This package provides a Grafana that uses the Performance
+Co-Pilot (PCP) as the data repository.  Other Grafana backends are
+not used.
+
+Grafana can render time series dashboards at the browser via flot.js
+(more interactive, slower, for beefy browsers) or alternately at the
+server via png (less interactive, faster).
+%endif
+
+%if "@have_webjs@" == "true"
+%package webapp-graphite
+License: ASL2.0
+Group: Applications/Internet
+Conflicts: pcp-webjs < 3.10.4
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+BuildArch: noarch
+%endif
+Summary: Graphite web application for Performance Co-Pilot (PCP)
+URL: http://graphite.readthedocs.org
+
+%description webapp-graphite
+Graphite is a highly scalable real-time graphing system. This package
+provides a graphite version that uses the Performance Co-Pilot (PCP)
+as the data repository, and Graphites web interface renders it. The
+Carbon and Whisper subsystems of Graphite are not included nor used.
+%endif
+
 #
 # perl-PCP-PMDA. This is the PCP agent perl binding.
 #
@@ -1437,10 +1510,19 @@ rm -Rf $RPM_BUILD_ROOT
 NO_CHOWN=true
 BACKDIR=`pwd`;
 DIST_ROOT=$RPM_BUILD_ROOT
+WEBAPP_ROOT=${RPM_BUILD_ROOT}@pcp_share_dir@/webapps
 DIST_MANIFEST=`pwd`/install.manifest
 export NO_CHOWN DIST_ROOT DIST_MANIFEST
 rm -f $DIST_MANIFEST
 @make@ install_pcp
+%if "@have_webjs@" == "true"
+rm -fr $WEBAPP_ROOT && mkdir -p -m 755 $WEBAPP_ROOT
+tar -xz -C $WEBAPP_ROOT -f $BACKDIR/../build/tar/webjs.tar.gz
+%endif
+%if "@have_vector@" == "true"
+rm -fr $WEBAPP_ROOT/vector && mkdir -p -m 755 $WEBAPP_ROOT/vector
+tar -xz -C $WEBAPP_ROOT/vector -f $BACKDIR/../build/tar/vector.tar.gz
+%endif
 
 PCP_CONF=$BACKDIR/src/include/pcp.conf
 export PCP_CONF
@@ -2030,6 +2112,34 @@ cd
 %files manager -f manager_files.rpm
 # %config(missingok,noreplace) /etc/pcp/pmmgr
 # set via awk processing above
+%endif
+
+%if "@have_webjs@" == "true"
+%files webjs
+# duplicate directories from pcp and pcp-webapi, but rpm copes with that.
+%dir @pcp_share_dir@
+%dir @pcp_share_dir@/webapps
+@pcp_share_dir@/webapps/*.png
+@pcp_share_dir@/webapps/*.ico
+@pcp_share_dir@/webapps/*.html
+@pcp_share_dir@/webapps/blinkenlights
+
+%files webapp-grafana
+%dir @pcp_share_dir@
+%dir @pcp_share_dir@/webapps
+@pcp_share_dir@/webapps/grafana
+
+%files webapp-graphite
+%dir @pcp_share_dir@
+%dir @pcp_share_dir@/webapps
+@pcp_share_dir@/webapps/graphite
+%endif
+
+%if "@have_vector@" == "true" || "@have_webjs@" == "true"
+%files webapp-vector
+%dir @pcp_share_dir@
+%dir @pcp_share_dir@/webapps
+@pcp_share_dir@/webapps/vector
 %endif
 
 %files testsuite -f testsuite_files.rpm

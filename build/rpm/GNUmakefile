@@ -79,8 +79,11 @@ pcp.spec: pcp.spec.in
 	    -e's|@have_libmicrohttpd@|$(have_libmicrohttpd)|g' \
 	    -e's|@have_cairo@|$(have_cairo)|g' \
 	    -e's|@have_python@|$(HAVE_PYTHON)|g' \
+	    -e's|@have_vector@|$(HAVE_VECTOR)|g' \
+	    -e's|@have_webjs@|$(HAVE_WEBJS)|g' \
 	    -e"s|@build_root@|$${DIST_ROOT}|g" \
 	    -e's|@pcp_sysconf_dir@|$(PCP_SYSCONF_DIR)|g' \
+	    -e's|@pcp_share_dir@|$(PCP_SHARE_DIR)|g' \
 	    -e's|@pcp_log_dir@|$(PCP_LOG_DIR)|g' \
 	    -e's|@pcp_var_dir@|$(PCP_VAR_DIR)|g' \
 	    -e's|@pcp_etc_dir@|$(PCP_ETC_DIR)|g' \
