@@ -1529,8 +1529,6 @@ rm -f $RPM_BUILD_ROOT/%{_bindir}/sheet2pcp $RPM_BUILD_ROOT/%{_mandir}/man1/sheet
 rm -f $RPM_BUILD_ROOT/%{_includedir}/pcp/configsz.h
 
 %if %{disable_microhttpd}
-rm -f $RPM_BUILD_ROOT/%{_mandir}/man1/pmwebd.*
-rm -f $RPM_BUILD_ROOT/%{_mandir}/man3/PMWEBAPI.*
 rm -fr $RPM_BUILD_ROOT/%{_confdir}/pmwebd
 rm -fr $RPM_BUILD_ROOT/%{_initddir}/pmwebd
 rm -fr $RPM_BUILD_ROOT/%{_unitdir}/pmwebd.service
@@ -1647,10 +1645,12 @@ ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
   grep -E -v 'atop|collectl|dmcache|free|iostat|numastat|verify|uptime|shping' |\
 %endif
   sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >base_exec.list
-ls -1 $RPM_BUILD_ROOT/%{_mandir}/man1 |\
-  sed -e 's#^#'%{_mandir}'\/man1\/#' >base_man.list
 ls -1 $RPM_BUILD_ROOT/%{_booksdir} |\
   sed -e 's#^#'%{_booksdir}'\/#' > pcp-doc.list
+ls -1 $RPM_BUILD_ROOT/%{_mandir}/man1 |\
+  sed -e 's#^#'%{_mandir}'\/man1\/#' >>pcp-doc.list
+ls -1 $RPM_BUILD_ROOT/%{_mandir}/man5 |\
+  sed -e 's#^#'%{_mandir}'\/man5\/#' >>pcp-doc.list
 ls -1 $RPM_BUILD_ROOT/%{_datadir}/pcp/demos/tutorials |\
   sed -e 's#^#'%{_datadir}/pcp/demos/tutorials'\/#' >>pcp-doc.list
 %if !%{disable_qt}
@@ -1666,7 +1666,7 @@ cat base_pmdas.list base_bin.list base_exec.list base_man.list |\
 
 # all devel pcp package files except those split out into sub packages
 ls -1 $RPM_BUILD_ROOT/%{_mandir}/man3 |\
-sed -e 's#^#'%{_mandir}'\/man3\/#' | grep -E -v '3pm|PMWEBAPI' >devel.list
+sed -e 's#^#'%{_mandir}'\/man3\/#' | grep -v '3pm' >>pcp-doc.list
 ls -1 $RPM_BUILD_ROOT/%{_datadir}/pcp/demos |\
 sed -e 's#^#'%{_datadir}'\/pcp\/demos\/#' | grep -E -v tutorials >> devel.list
 
@@ -1915,7 +1915,6 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %{_unitdir}/pmie.service
 %{_unitdir}/pmproxy.service
 %endif
-%{_mandir}/man5/*
 %config(noreplace) %{_sysconfdir}/sasl2/pmcd.conf
 %config(noreplace) %{_sysconfdir}/cron.d/pcp-pmlogger
 %config(noreplace) %{_sysconfdir}/cron.d/pcp-pmie
@@ -2012,8 +2011,6 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 # duplicate directories from pcp and pcp-webjs, but rpm copes with that.
 %dir %{_datadir}/pcp
 %dir %{_datadir}/pcp/webapps
-%{_mandir}/man1/pmwebd.1*
-%{_mandir}/man3/PMWEBAPI.3*
 %endif
 
 %files webjs
@@ -2049,48 +2046,37 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %attr(0775,pcp,pcp) %{_logsdir}/pmmgr
 %config(missingok,noreplace) %{_confdir}/pmmgr
 %config(noreplace) %{_confdir}/pmmgr/pmmgr.options
-%{_mandir}/man1/pmmgr.1*
 
 %files import-sar2pcp
 %{_bindir}/sar2pcp
-%{_mandir}/man1/sar2pcp.1*
 
 %files import-iostat2pcp
 %{_bindir}/iostat2pcp
-%{_mandir}/man1/iostat2pcp.1*
 
 %files import-mrtg2pcp
 %{_bindir}/mrtg2pcp
-%{_mandir}/man1/mrtg2pcp.1*
 
 %files import-ganglia2pcp
 %{_bindir}/ganglia2pcp
-%{_mandir}/man1/ganglia2pcp.1*
 
 %files import-collectl2pcp
 %{_bindir}/collectl2pcp
-%{_mandir}/man1/collectl2pcp.1*
 
 %if !%{disable_papi}
 %files pmda-papi
 %{_pmdasdir}/papi
-%{_mandir}/man1/pmdapapi.1*
 %endif
 
 %if !%{disable_perfevent}
 %files pmda-perfevent
 %{_pmdasdir}/perfevent
 %config(noreplace) %{_pmdasdir}/perfevent/perfevent.conf
-%{_mandir}/man1/perfalloc.1*
-%{_mandir}/man1/pmdaperfevent.1*
-%{_mandir}/man5/perfevent.conf.5*
 %endif
 
 %if !%{disable_infiniband}
 %files pmda-infiniband
 %{_pmdasdir}/ib
 %{_pmdasdir}/infiniband
-%{_mandir}/man1/pmdaib.1*
 %endif
 
 %files pmda-activemq
