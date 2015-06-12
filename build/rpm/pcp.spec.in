@@ -1164,6 +1164,21 @@ is written in C.
 # end pcp-pmda-lmsensors
 
 #
+# pcp-pmda-logger
+#
+%package pmda-logger
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics from arbitrary log files
+URL: http://www.pcp.io
+Requires: pcp-libs = @package_version@
+%description pmda-logger
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics from a specified set of log files (or pipes).  The PMDA
+is written in C, and supports both sampled and event-style metrics.
+# end pcp-pmda-logger
+
+#
 # pcp-pmda-mailq
 #
 %package pmda-mailq
@@ -1337,8 +1352,8 @@ Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-
 Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pmda-lustre
 Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
 Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql
-Requires: pcp-pmda-dm pcp-pmda-apache
-Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
+Requires: pcp-pmda-apache pcp-pmda-bash pcp-pmda-cisco pcp-pmda-dm pcp-pmda-gfs2
+Requires: pcp-pmda-lmsensors pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
 %if "@have_python@" == "true"
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-system-tools 
@@ -1368,8 +1383,8 @@ Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pm
 Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
 Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql
 Requires: pcp-pmda-samba pcp-pmda-snmp pcp-pmda-vmware pcp-pmda-zimbra
-Requires: pcp-pmda-dm pcp-pmda-apache
-Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
+Requires: pcp-pmda-apache pcp-pmda-bash pcp-pmda-cisco pcp-pmda-dm pcp-pmda-gfs2
+Requires: pcp-pmda-lmsensors pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
 %if "@have_python@" == "true"
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound
@@ -1575,6 +1590,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/cifs' > pmda_cifs_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/cisco' > pmda_cisco_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gfs2' > pmda_gfs2_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lmsensors' > pmda_lmsensors_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/logger' > pmda_logger_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mailq' > pmda_mailq_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mounts' > pmda_mounts_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/nvidia' > pmda_nvidia_files
@@ -1594,7 +1610,8 @@ touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files
       pmda_nginx_files pmda_pdns_files pmda_postfix_files pmda_postgresql_files \
       pmda_rsyslog_files pmda_samba_files pmda_snmp_files \
       pmda_vmware_files pmda_zimbra_files pmda_apache_files pmda_bash_files \
-      pmda_cifs_files pmda_cisco_files pmda_gfs2_files pmda_lmsensors_files \
+      pmda_cifs_files pmda_cisco_files pmda_gfs2_files \
+      pmda_lmsensors_files pmda_logger_files \
       pmda_mailq_files pmda_mounts_files pmda_nvidia_files pmda_roomtemp_files \
       pmda_rpm_files pmda_sendmail_files pmda_shping_files pmda_summary_files \
       pmda_trace_files pmda_weblog_files pmda_dm_files pmda_systemd_files
@@ -1661,6 +1678,7 @@ BEGIN {
     while( getline < "pmda_cisco_files") pmda_cisco[$0]=1;
     while( getline < "pmda_gfs2_files") pmda_gfs2[$0]=1;
     while( getline < "pmda_lmsensors_files") pmda_lmsensors[$0]=1;
+    while( getline < "pmda_logger_files") pmda_logger[$0]=1;
     while( getline < "pmda_mailq_files") pmda_mailq[$0]=1;
     while( getline < "pmda_mounts_files") pmda_mounts[$0]=1;
     while( getline < "pmda_nvidia_files") pmda_nvidia[$0]=1;
@@ -1733,6 +1751,7 @@ BEGIN {
     else if (pmda_cisco[$NF]) f="pmda_cisco_files.rpm";
     else if (pmda_gfs2[$NF]) f="pmda_gfs2_files.rpm";
     else if (pmda_lmsensors[$NF]) f="pmda_lmsensors_files.rpm";
+    else if (pmda_logger[$NF]) f="pmda_logger_files.rpm";
     else if (pmda_mailq[$NF]) f="pmda_mailq_files.rpm";
     else if (pmda_mounts[$NF]) f="pmda_mounts_files.rpm";
     else if (pmda_nvidia[$NF]) f="pmda_nvidia_files.rpm";
@@ -2105,6 +2124,8 @@ cd
 %files pmda-gfs2 -f pmda_gfs2_files.rpm
 
 %files pmda-lmsensors -f pmda_lmsensors_files.rpm
+
+%files pmda-logger -f pmda_logger_files.rpm
 
 %files pmda-mailq -f pmda_mailq_files.rpm
 
