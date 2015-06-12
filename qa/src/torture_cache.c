@@ -7,6 +7,8 @@
 #include <pcp/impl.h>
 #include <pcp/pmda.h>
 
+#define FORQA 251
+
 static pmInDom		indom;
 static __pmInDom_int	*indomp;
 static char		*xxx = "xxxsomefunnyinstancenamestringthatcanbechoppedabout";
@@ -19,7 +21,7 @@ _a(int load, int verbose, int extra)
     int		inst;
     int		sts;
 
-    indomp->domain = 123;
+    indomp->domain = FORQA;
     indomp->serial = 7;
 
     if (load) {
@@ -169,7 +171,7 @@ _b(void)
     int		sts;
     char	cmd[2*MAXPATHLEN+30];
 
-    indomp->domain = 123;
+    indomp->domain = FORQA;
     indomp->serial = 8;
 
     sprintf(cmd, "rm -f %s/config/pmda/%s", pmGetConfig("PCP_VAR_DIR"), pmInDomStr(indom));
@@ -269,7 +271,7 @@ _c(void)
     int		inst;
     int		sts;
 
-    indomp->domain = 123;
+    indomp->domain = FORQA;
     indomp->serial = 13;
 
     fprintf(stderr, "Load the instance domain ...\n");
@@ -309,7 +311,7 @@ _e(int since)
     int		sts;
     int		inst;
 
-    indomp->domain = 123;
+    indomp->domain = FORQA;
     indomp->serial = 11;
 
     sts = pmdaCacheOp(indom, PMDA_CACHE_LOAD);
@@ -356,7 +358,7 @@ _g(void)
     int		inst;
     int		i;
 
-    indomp->domain = 123;
+    indomp->domain = FORQA;
     indomp->serial = 7;
 
     for (i = 0; i < 254; i++) {
@@ -393,7 +395,7 @@ _h(void)
     int		inst;
     int		i;
 
-    indomp->domain = 123;
+    indomp->domain = FORQA;
     indomp->serial = 17;
 
     sts = pmdaCacheOp(indom, PMDA_CACHE_LOAD);
@@ -436,7 +438,7 @@ _i(int style)
     int		i;
     static int	first = 1;
 
-    indomp->domain = 123;
+    indomp->domain = FORQA;
     indomp->serial = 15;
 
     if (first) {
@@ -546,7 +548,7 @@ _j(void)
     int		sts;
     int		i;
 
-    indomp->domain = 123;
+    indomp->domain = FORQA;
     indomp->serial = 10;
 
     fprintf(stderr, "\nPopulate the instance domain ...\n");
