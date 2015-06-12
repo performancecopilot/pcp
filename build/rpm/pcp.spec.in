@@ -1601,7 +1601,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp-doc|man.*\.[1-9].*' | egrep -v 'ou
 awk '{print $NF}' $DIST_MANIFEST | egrep 'tutorials' >>docs_files
 %if "@enable_qt@" == "true"
 PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
-awk '{print $NF}' $DIST_MANIFEST | egrep "$PCP_GUI|pixmaps" > gui_files
+awk '{print $NF}' $DIST_MANIFEST | egrep "$PCP_GUI|applications|pixmaps" | egrep -v man/ > gui_files
 %endif
 %if "@enable_webapi@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pmwebd|webapps|PMWEBAPI' >webapi_files
