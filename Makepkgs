@@ -21,6 +21,8 @@ verbose=false
 srconly=false
 nonrpm=unknown
 nondeb=unknown
+vector=false
+webjs=false
 
 if [ ! -d .git ]
 then
@@ -139,6 +141,16 @@ do
 	target=$1
 	shift
 	;;
+    --with-vector)
+	configopts="$configopts $opt"
+	vector=true
+	shift
+	;;
+    --with-webjs)
+	configopts="$configopts $opt"
+	webjs=true
+	shift
+	;;
     *)
 	# Add remaining options to the ./configure command line
 	configopts="$configopts $opt"
@@ -180,12 +192,14 @@ esac
 VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
 
 LOGDIR=$topdir/Logs
-rm -rf $LOGDIR
+rm -rf "$LOGDIR"
 mkdir -p "$LOGDIR"
 
 source=pcp-${VERSION}
 SRCDIR=$topdir/$source
 SRCTAR=$topdir/build/tar/$source.src.tar.gz
+SRCWEBJS=$topdir/build/tar/webjs.tar.gz
+SRCVECTOR=$topdir/build/tar/vector.tar.gz
 
 build_failure()
 {
@@ -223,6 +237,44 @@ fix_version()
 	echo "Arrgh ... expect both these to exist ..."
 	ls -l "$1" "$2"
 	exit 1
+    fi
+}
+
+# Download sources from external repositories that we might want
+# to include with the PCP packages.
+#
+third_parties()
+{
+    if $vector
+    then
+	if [ ! -f "$SRCVECTOR" ]
+	then
+	    echo "== Downloading Vector webapp"
+	    wget -q -O "$SRCVECTOR" \
+https://bintray.com/artifact/download/netflixoss/downloads/vector.tar.gz
+	    [ $? -eq 0 ] && echo "Wrote: $SRCVECTOR"
+	fi
+	if [ -f "$SRCVECTOR" ]
+	then
+	    DESTVECTOR="$topdir/$source/build/tar/"`basename $SRCVECTOR`
+	    cp "$SRCVECTOR" "$DESTVECTOR"
+	fi
+    fi
+
+    if $webjs
+    then
+	if [ ! -f "$SRCWEBJS" ]
+	then
+	    echo "== Downloading webjs webapps"
+	    wget -q -O $tmp/js.zip \
+https://github.com/performancecopilot/pcp-webjs/archive/master.zip
+	    [ $? -eq 0 ] && ./scripts/zip2tar $tmp/js.zip $SRCWEBJS
+	fi
+	if [ -f "$SRCWEBJS" ]
+	then
+	    DESTWEBJS="$topdir/$source/build/tar/"`basename $SRCWEBJS`
+	    cp "$SRCWEBJS" "$DESTWEBJS"
+	fi
     fi
 }
 
@@ -456,6 +508,9 @@ $srconly && exit 0
 $nondeb || debian_build
 
 prepare_build
+
+# download any requested third party sources we're packaging
+third_parties
 
 # shift into the clean packaging build tree from here onward
 cd "$SRCDIR"

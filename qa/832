@@ -67,7 +67,7 @@ End-Of-File
 $sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
 
 echo "Start pmcd with modified \$PCP_PMCDOPTIONS_PATH (pmcd.options)" | tee -a $seq.full
-$sudo $PCP_RC_DIR/pcp restart 2>&1 | tee -a $seq.full >$tmp.out
+$sudo $PCP_RC_DIR/pmcd restart 2>&1 | tee -a $seq.full >$tmp.out
 _wait_for_pmcd 5 unix: 2>&1 | tee -a $seq.full | _filter
 grep -i 'starting pmcd' $tmp.out \
 | _filter \

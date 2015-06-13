@@ -139,6 +139,19 @@ AC_ARG_WITH([webapi],
     [do_webapi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webapi=$withval"],
     [do_webapi=check])
 
+AC_ARG_WITH([webjs],
+    [AC_HELP_STRING([--with-webjs],
+                    [enable building of webjs packages (default is off)])],
+    [do_webjs=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webjs=$withval"],
+    [do_webjs=no])
+
+AC_ARG_WITH([vector],
+    [AC_HELP_STRING([--with-vector],
+                    [enable building of vector package (default is off)])],
+    [do_vector=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-vector=$withval"],
+    [do_vector=no])
+
+
 #
 # Note: the following environment variables may be
 # set to override the defaults.
@@ -605,10 +618,10 @@ AC_SUBST(have_python_jsonpointer)
 PCP_CHECK_PYTHON_MODULE(six)
 AC_SUBST(have_python_six)
 
-dnl json PMDA needs both the six and jsonpointer Pyton modules
+dnl json PMDA needs both the six and jsonpointer Python modules
 pmda_json=false
 $have_python_jsonpointer && $have_python_six && pmda_json=true
-AC_SUBST(pmda_json)
+AC_SUBST(PMDA_JSON, $pmda_json)
 
 qmake=$QMAKE
 enable_qt=false
@@ -1504,9 +1517,6 @@ AS_IF([test "x$do_manager" != "xno"], [
     fi
 ])
 AC_SUBST(enable_manager)
-
-dnl Capture special options passed to configure
-AC_SUBST(PACKAGE_CONFIGURE)
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
@@ -2770,6 +2780,24 @@ AC_TRY_COMPILE(
 ],
 [
 ], AC_DEFINE(HAVE_AI_ADDRCONFIG, [1], [AI_ADDRCONFIG macro]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+
+dnl Find external source tarballs for packaging
+
+have_vector=false
+if test -f ./build/tar/vector.tar.gz
+then
+    AC_MSG_NOTICE([adding Vector webapp to the build])
+    have_vector=true
+fi
+AC_SUBST(have_vector)
+
+have_webjs=false
+if test -f ./build/tar/webjs.tar.gz
+then
+    AC_MSG_NOTICE([adding webjs webapps to the build])
+    have_webjs=true
+fi
+AC_SUBST(have_webjs)
 
 dnl Capture special options passed to configure
 AC_SUBST(PACKAGE_CONFIGURE)
