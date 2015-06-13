@@ -15,7 +15,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
-. ./localconfig
 
 rm -f $seq.out
 if [ $PCP_PLATFORM = irix -a \( $PCP_EOE_VER -ge 60512 -o \

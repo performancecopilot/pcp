@@ -9,9 +9,6 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard filters
-. ./common.filter
-. ./common.check
 . ./common.pcpweb
 
 [ -f $PCP_PMDAS_DIR/weblog/pmdaweblog ] || _notrun "weblog PMDA not installed"

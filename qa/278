@@ -74,7 +74,6 @@ bytes=`cat $tmp.? | wc -c | sed -e 's/ //g'`
 
 if [ $PCP_PLATFORM = irix ]
 then
-    . ./localconfig
     # V1 support deprecated in PCP 2.3 and/or IRIX 6.5.19
     #
     if [ $PCP_VER -ge 20300 -o $PCP_EOE_VER -ge 60519 ]

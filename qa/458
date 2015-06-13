@@ -11,7 +11,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
-. ./localconfig
 
 [ -d $PCP_PMDAS_DIR/logger ] || _notrun "No pmdalogger installed"
 [ $PCP_VER -ge 30610 ] || _notrun "Installed pmdalogger is too old"

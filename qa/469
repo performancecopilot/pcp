@@ -16,7 +16,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-. ./localconfig
 if [ $PCP_EOE_VER -eq 20000 ]
 then
     echo "Do not run this test with PCP 2.0" >$seq.notrun
