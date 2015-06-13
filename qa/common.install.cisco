@@ -29,7 +29,7 @@ fi
 
 #DEBUG# echo PCP_VER=$PCP_VER
 
-here=`pwd`
+_here=`pwd`
 cd $2
 
 # melbourne-l0 (was wanptg) should have no password ... complain to
@@ -77,11 +77,11 @@ quit
 
 End-of-File
 	#DEBUG# cat $tmp
-	$sudo ./Install <$tmp >>$here/$1.out
+	$sudo ./Install <$tmp >>$_here/$1.out
     ;;
 
 #    *.engr.*)
-#	cat <<End-of-File | $sudo ./Install >>$here/$1.out
+#	cat <<End-of-File | $sudo ./Install >>$_here/$1.out
 #both
 #b43-11-cisco6-168.corp
 #
