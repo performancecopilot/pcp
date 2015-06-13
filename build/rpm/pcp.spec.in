@@ -20,7 +20,11 @@ BuildRequires: readline-devel
 BuildRequires: avahi-devel
 %endif
 %if "@enable_secure@" == "true"
+%if "%{_vendor}" == "suse"
+BuildRequires: mozilla-nss-devel
+%else
 BuildRequires: nss-devel
+%endif
 BuildRequires: cyrus-sasl-devel
 %endif
 %if "@enable_probes@" == "true"
@@ -516,7 +520,11 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for Infiniband HCAs and switches
 URL: http://www.pcp.io
 Requires: pcp-libs = @package_version@
+%if "%{_vendor}" == "suse"
+Requires: libibmad5 >= 1.1.7 libibumad3 >= 1.1.7
+%else
 Requires: libibmad >= 1.1.7 libibumad >= 1.1.7
+%endif
 BuildRequires: libibmad-devel >= 1.1.7 libibumad-devel >= 1.1.7
 
 %description pmda-infiniband
