@@ -1917,6 +1917,9 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
     /sbin/service pmproxy condrestart
 %endif
 
+cd $PCP_PMNS_DIR && ./Rebuild -s && rm -f .NeedRebuild
+cd
+
 %post libs -p /sbin/ldconfig
 %postun libs -p /sbin/ldconfig
 
@@ -2321,6 +2324,7 @@ chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 - Replacement of pmatop/pcp-atop(1) utility (BZ 1160811, BZ 1018575)
 - Reduced installation size for minimal applications (BZ 1182184)
 - Ensure pmlogger start scripts wait on pmcd startup (BZ 1185760)
+- Need to run pmcd at least once before pmval -L will work (BZ 185749)
 
 * Wed Apr 15 2015 Nathan Scott <nathans@redhat.com> - 3.10.4-1
 - Update to latest PCP, pcp-webjs and Vector sources.
