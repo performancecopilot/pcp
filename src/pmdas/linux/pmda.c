@@ -1871,6 +1871,35 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_PARTITIONS,8), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
+/* disk.partitions.read_merge*/
+    { NULL,
+      { PMDA_PMID(CLUSTER_PARTITIONS,9), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.partitions.write_merge */
+    { NULL,
+      { PMDA_PMID(CLUSTER_PARTITIONS,10), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.partitions.avactive */
+    { NULL,
+      { PMDA_PMID(CLUSTER_PARTITIONS,11), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* disk.partitions.aveq */
+    { NULL,
+      { PMDA_PMID(CLUSTER_PARTITIONS,12), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* disk.partitions.read_rawactive */
+    { NULL,
+      { PMDA_PMID(CLUSTER_PARTITIONS,13), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* disk.partitions.write_rawactive */
+    { NULL,
+      { PMDA_PMID(CLUSTER_PARTITIONS,14), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 		
 /* disk.dev.read_bytes */
     { NULL, 
