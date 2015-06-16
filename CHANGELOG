@@ -1,3 +1,7 @@
+pcp-3.10.6 (31 July 2015)
+    - packaging: minor fedora.spec updates for el5 
+    - bump VERSION, RPM specs and deb versions for 3.10.6
+
 pcp-3.10.5 (15 June 2015)
     - packaging: rebuild pmns in %post in fedora.spec
     - build: changes for SUSE SLES 12
