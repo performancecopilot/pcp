@@ -1143,6 +1143,8 @@ collecting metrics about the Unbound DNS Resolver.  The PMDA is written
 in Python.
 # end pcp-pmda-unbound
 
+%endif 
+
 %if "@pmda_json@" == "true"
 #
 # pcp-pmda-json
@@ -1170,8 +1172,6 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics output in JSON.  The PMDA is written in Python.
 # end pcp-pmda-json
 %endif
-
-%endif 
 
 #
 # C pmdas
@@ -1683,11 +1683,13 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/snmp' > pmda_snmp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/vmware' > pmda_vmware_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/zimbra' > pmda_zimbra_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/dm' > pmda_dm_files
+%if "@pmda_json@" == "true"
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/json' > pmda_json_files
+%endif
 %if "@have_python@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gluster' > pmda_gluster_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/zswap' > pmda_zswap_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/unbound' > pmda_unbound_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/json' > pmda_json_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pcp-|pmatop|pmiostat' | \
 egrep -e 'atop|collectl|dmcache|free|iostat|numastat|verify|uptime|shping' | \
 egrep -v 'testsuite|pmlogconf|pmieconf' \
@@ -1729,9 +1731,9 @@ touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files
 %if "@have_python@" == "true"
 touch pmda_gluster_files pmda_zswap_files pmda_unbound_files \
       system_tools_files
+%endif
 %if "@pmda_json@" == "true"
 touch pmda_json_file 
-%endif
 %endif
 
 rm -f *_files.rpm
@@ -1780,8 +1782,10 @@ BEGIN {
     while( getline < "pmda_gluster_files") pmda_gluster[$0]=1;
     while( getline < "pmda_zswap_files") pmda_zswap[$0]=1;
     while( getline < "pmda_unbound_files") pmda_unbound[$0]=1;
-    while( getline < "pmda_json_files") pmda_json[$0]=1;
     while( getline < "export_pcp2graphite_files") export_pcp2graphite[$0]=1;
+%endif
+%if "@pmda_json@" == "true"
+    while( getline < "pmda_json_files") pmda_json[$0]=1;
 %endif
     while( getline < "pmda_apache_files") pmda_apache[$0]=1;
     while( getline < "pmda_bash_files") pmda_bash[$0]=1;
@@ -1854,8 +1858,10 @@ BEGIN {
     else if (pmda_gluster[$NF]) f="pmda_gluster_files.rpm";
     else if (pmda_zswap[$NF]) f="pmda_zswap_files.rpm";
     else if (pmda_unbound[$NF]) f="pmda_unbound_files.rpm";
-    else if (pmda_json[$NF]) f="pmda_json_files.rpm";
     else if (export_pcp2graphite[$NF]) f="export_pcp2graphite_files.rpm";
+%endif
+%if "@pmda_json@" == "true"
+    else if (pmda_json[$NF]) f="pmda_json_files.rpm";
 %endif
     else if (pmda_apache[$NF]) f="pmda_apache_files.rpm";
     else if (pmda_bash[$NF]) f="pmda_bash_files.rpm";
@@ -2248,11 +2254,11 @@ cd
 
 %files pmda-unbound -f pmda_unbound_files.rpm
 
-%if "@pmda_json@" == "true"
-%files pmda-json -f pmda_json_files.rpm
+%files export-pcp2graphite -f export_pcp2graphite_files.rpm
 %endif
 
-%files export-pcp2graphite -f export_pcp2graphite_files.rpm
+%if "@pmda_json@" == "true"
+%files pmda-json -f pmda_json_files.rpm
 %endif
 
 %files pmda-apache -f pmda_apache_files.rpm
