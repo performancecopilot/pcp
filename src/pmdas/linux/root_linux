@@ -300,6 +300,12 @@ disk.partitions {
     read_bytes		60:10:6
     write_bytes		60:10:7
     total_bytes		60:10:8
+    read_merge          60:10:9
+    write_merge         60:10:10
+    avactive            60:10:11
+    aveq                60:10:12
+    read_rawactive      60:10:13
+    write_rawactive     60:10:14
 }
 
 mem {
