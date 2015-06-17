@@ -345,7 +345,8 @@ second's worth of IO being accounted for within any one second, leading to
 >100% utilisation.  It is suitable mainly for use in calculations with other
 metrics, e.g. mirroring the results from existing performance tools:
 
- iostat.partitions.r_await = delta(disk.partitions.read_rawactive) / delta(disk.partitions.read)
+ iostat.partitions.r_await = delta(disk.partitions.read_rawactive) /
+                             delta(disk.partitions.read)
 
 @ disk.partitions.write_rawactive per-disk-partition raw count of active write time
 When converted to a rate, this metric represents the raw utilization of
@@ -355,7 +356,8 @@ second's worth of IO being accounted for within any one second, leading to
 >100% utilisation.  It is suitable mainly for use in calculations with other
 metrics, e.g. mirroring the results from existing performance tools:
 
- iostat.partitions.w_await = delta(disk.partitions.write_rawactive) / delta(disk.partitions.write)
+ iostat.partitions.w_await = delta(disk.partitions.write_rawactive) /
+                             delta(disk.partitions.write)
 
 @ swap.pagesin pages read from swap devices due to demand for physical memory
 @ swap.pagesout pages written to swap devices due to demand for physical memory
