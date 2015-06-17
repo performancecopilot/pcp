@@ -1078,7 +1078,7 @@ collecting metrics about the Unbound DNS Resolver.  The PMDA is written
 in Python.
 # end pcp-pmda-unbound
 
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+%if 0%{?rhel} == 0 || 0%{?rhel} > 6
 #
 # pcp-pmda-json
 #
@@ -1104,7 +1104,7 @@ BuildRequires: python-six
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics output in JSON.  The PMDA is written in Python.
 # end pcp-pmda-json
-%endif # 0%{?rhel} == 0 || 0%{?rhel} > 5
+%endif # 0%{?rhel} == 0 || 0%{?rhel} > 6
 
 %endif # !%{disable_python2} || !%{disable_python3}
 
@@ -1392,8 +1392,10 @@ Requires: pcp-pmda-lustrecomm
 %if !%{disable_python2} || !%{disable_python3}
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound
 Requires: pcp-system-tools pcp-export-pcp2graphite
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+%if 0%{?rhel} == 0 || 0%{?rhel} > 6
 Requires: pcp-pmda-json
+%endif # 0%{?rhel} == 0 || 0%{?rhel} > 6
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
 Requires: pcp-pmda-rpm
 %endif # 0%{?rhel} == 0 || 0%{?rhel} > 5
 %endif # !%{disable_python2} || !%{disable_python3}
@@ -1422,9 +1424,9 @@ Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shpin
 Requires: pcp-pmda-lustrecomm pcp-pmda-logger
 %if !%{disable_python2} || !%{disable_python3}
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+%if 0%{?rhel} == 0 || 0%{?rhel} > 6
 Requires: pcp-pmda-json
-%endif # 0%{?rhel} == 0 || 0%{?rhel} > 5
+%endif # 0%{?rhel} == 0 || 0%{?rhel} > 6
 %endif # !%{disable_python2} || !%{disable_python3}
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 Requires: pcp-pmda-rpm
@@ -2237,10 +2239,10 @@ cd
 %files pmda-unbound 
 %{_pmdasdir}/unbound 
 
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+%if 0%{?rhel} == 0 || 0%{?rhel} > 6
 %files pmda-json
 %{_pmdasdir}/json
-%endif # 0%{?rhel} == 0 || 0%{?rhel} > 5
+%endif # 0%{?rhel} == 0 || 0%{?rhel} > 6
 
 %files export-pcp2graphite
 %{_bindir}/pcp2graphite

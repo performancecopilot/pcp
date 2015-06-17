@@ -6380,6 +6380,7 @@ $as_echo "no" >&6; }
 
 pmda_json=false
 $have_python_jsonpointer && $have_python_six && pmda_json=true
+test $have_python -a "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -le 6 && pmda_json=false
 PMDA_JSON=$pmda_json
 
 
