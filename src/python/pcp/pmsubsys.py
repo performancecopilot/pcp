@@ -220,7 +220,7 @@ class Subsystem(object):
                         self.metric_values[j] = 0
                 elif metric_result.contents.get_numval(j) > 1:
                     self.metric_values[j] = copy.copy(value)
-
+        pcp.pmFreeResult(metric_result)
 
 # Processor  --------------------------------------------------------------
 
