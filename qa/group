@@ -1103,6 +1103,7 @@ cgroups
 1021 libqmc local
 1022 pmdumptext local
 1023 pmdumptext local
+1024 pmda.linux local
 1025 pmdumptext pmlogger pmdumplog pmloglabel local
 1026 pmdumptext remote
 1027 pmdumptext local pmstore

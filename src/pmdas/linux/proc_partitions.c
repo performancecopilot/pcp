@@ -355,9 +355,11 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom, pmInDom dm
 		&p->wr_ios, &p->wr_merges, &p->wr_sectors, &p->wr_ticks,
 		&p->ios_in_flight, &p->io_ticks, &p->aveq);
 	    if (n != 14) {
-                /* In 2.6.25, the full statistic set is again available for partitions and
-                   disk and partition statistics are consistent again. */
-                _pm_have_kernel_2_6_partition_stats = 1;
+                /*
+		 * From 2.6.25 onward, the full set of statistics is
+		 * available again for both partitions and disks.
+		 */
+		_pm_have_kernel_2_6_partition_stats = 1;
 		p->rd_merges = p->wr_merges = p->wr_ticks =
 			p->ios_in_flight = p->io_ticks = p->aveq = 0;
 		/* Linux source: block/genhd.c::diskstats_show(2) */

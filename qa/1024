@@ -1,0 +1,42 @@
+#!/bin/sh
+# PCP QA Test No. 1024
+# Exercise Linux PMDA block driver metrics.
+#
+# Copyright (c) 2015 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+root=$tmp.root
+export LINUX_STATSPATH=$root
+pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
+metrics="disk.all disk.dev disk.dm disk.partitions"
+
+for tgz in $here/linux/blkdev-root-*.tgz
+do
+    rm -fr $root
+    mkdir $root || _fail "root in use when processing $tgz"
+    cd $root
+    tar xzf $tgz
+    base=`basename $tgz`
+
+    echo "== Checking metric values - $base"
+    pminfo -L -K clear -K add,60,$pmda -f $metrics
+    echo && echo "== done" && echo
+    cd $here
+done
+
+# success, all done
+status=0
+exit
