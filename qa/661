@@ -54,7 +54,8 @@ echo "crashers"
 #echo "GET  HTTP/1.0
 # | $PCP_BINADM_DIR/telnet-probe localhost 44323
 
-function _filter_curl_i() {
+_filter_curl_i()
+{
     tr -d '\r' |                      # drop ^M from httpd results
     sed -e 's,^Date:.*$,Date: XXX,' |
     grep -v 'Connection:.*Alive'      # some microhttpd versions add this
