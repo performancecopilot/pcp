@@ -6,23 +6,27 @@
 # is available with valid user setting (user:apikey).
 #
 
+sudo=`which sudo`	# can be cleared via .bintrayrc
 topdir=`pwd`
-if [ ! -e $topdir/VERSION.pcp ]
-then
-    echo "Not in a PCP git tree - missing VERSION.pcp"
-    exit 1
-fi
-if [ ! -e $topdir/.bintrayrc ]
-then
-    echo "Tree is not configured - missing .bintrayrc"
-    exit 1
-fi
 
-. $topdir/.bintrayrc
-. $topdir/VERSION.pcp
+quit()
+{
+    echo $*
+    exit 1
+}
+
+[ -e "${topdir}/VERSION.pcp" ] || quit "Not a PCP git tree, missing VERSION.pcp"
+[ -e "${topdir}/.bintrayrc" ] || quit "Tree is unconfigured, missing .bintrayrc"
+
+. ${topdir}/.bintrayrc
+. ${topdir}/VERSION.pcp
 
 version=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
 buildversion=${version}-${PACKAGE_BUILD}
+
+[ -z "${user}" ] && quit "user is not configured (via .bintrayrc)"
+[ -z "${email}" ] && quit "email is not configured (via .bintrayrc)"
+[ -z "${apikey}" ] && quit "apikey is not configured (via .bintrayrc)"
 
 generic_upload()
 {
@@ -31,20 +35,21 @@ generic_upload()
     vers="$3"
 
     curl \
-	-T ${file} -u ${user} \
+	-T ${file} -u ${user}:${apikey} \
 	-H "X-BinTray-Package:${path}" -H "X-Bintray-Version:${vers}" \
     https://api.bintray.com/content/pcp/Generic/${path}/${vers}/${file}
 }
 
 container_upload()
 {
-    file="$1"
-    vers="$2"
+    path="$1"
+    file="$2"
+    vers="$3"
 
-    curl \
-	-T ${file} -u ${user} \
-	-H "X-BinTray-Package:Docker-PCP" -H "X-Bintray-Version:${vers}" \
-    https://api.bintray.com/content/pcp/Containers/Docker-PCP/${vers}/${file}
+    docker login -u ${user} -p ${apikey} -e ${email} pcp-docker-pcp.bintray.io
+    $sudo docker tag ${path} \
+	pcp-docker-pcp.bintray.io/${path}:${vers}
+    docker push pcp-docker-pcp.bintray.io/${path}:${vers}
 }
 
 verify_asset()
@@ -85,5 +90,5 @@ do
     [ -d ${image} ] || continue
     cd ${here}/build/containers/${image}
     verify_asset ${image}.tgz && \
-    container_upload ${image}.tgz ${version}
+    container_upload ${image} ${image}.tgz ${version}
 done

@@ -13,7 +13,7 @@
 # Dockerfile to build the pcp-pmlogger container image, layered on pcp-base.
 #
 FROM pcp-base:latest
-MAINTAINER PCP developers <pcp@pcp.io>
+MAINTAINER PCP Development Team <pcp@oss.sgi.com>
 
 #
 # install pcp and it's dependencies, clean the cache.

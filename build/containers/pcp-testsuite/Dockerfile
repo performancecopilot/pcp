@@ -16,7 +16,7 @@
 # and pcp-pmlogger containers.
 #
 FROM pcp-base:latest
-MAINTAINER PCP developers <pcp@pcp.io>
+MAINTAINER PCP Development Team <pcp@oss.sgi.com>
 
 #
 # install everything and dependencies, clean the cache.
