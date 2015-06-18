@@ -31,6 +31,7 @@ _filter_pmcd_log()
 	-e '/^->/s/->[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/->        /' \
 	-e "s;$PCP_PMCDCONF_PATH;\$PCP_PMCDCONF_PATH;" \
 	-e '/get_scsi_sn:/d' \
+	-e '/refresh_proc_scsi/d' \
 	-e '/Info: CleanupAgent/d' \
 	-e '/using .* kmem interface/d' \
 	-e '/pmcd_wait failed: exit status:/d' \
