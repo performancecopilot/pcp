@@ -1162,6 +1162,8 @@ collecting metrics about Intel MIC cards.  The PMDA is written
 in Python.
 # end pcp-pmda-mic
 
+%endif
+
 %if "@pmda_json@" == "true"
 #
 # pcp-pmda-json
@@ -1707,7 +1709,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/json' > pmda_json_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gluster' > pmda_gluster_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/zswap' > pmda_zswap_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/unbound' > pmda_unbound_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'mic|pmdas/mic' > pmda_mic_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mic' > pmda_mic_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pcp-|pmatop|pmcollectl|pmiostat' |\
 egrep -e 'atop|collectl|dmcache|free|iostat|numastat|verify|uptime|shping' | \
 egrep -v 'testsuite|pmlogconf|pmieconf' \
@@ -2275,6 +2277,7 @@ cd
 %files pmda-unbound -f pmda_unbound_files.rpm
 
 %files pmda-mic -f pmda_mic_files.rpm
+
 %files export-pcp2graphite -f export_pcp2graphite_files.rpm
 %endif
 
