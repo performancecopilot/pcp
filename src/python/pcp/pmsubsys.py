@@ -270,9 +270,7 @@ class Subsystem(object):
                          'disk.dev.write','disk.dev.write_bytes',
                          'disk.dev.write_merge',
                          'disk.partitions.blkread', 'disk.partitions.blkwrite',
-                         'disk.partitions.read', 'disk.partitions.write',
-                         'hinv.map.lvname'
-                         ]
+                         'disk.partitions.read', 'disk.partitions.write' ]
 
 # Memory  -----------------------------------------------------------------
 

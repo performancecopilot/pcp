@@ -17,6 +17,7 @@ include $(TOPDIR)/src/include/builddefs
 
 TARGET = pcp-collectl
 PYFILES	= $(TARGET).py
+MAN_PAGES = $(TARGET).1
 
 default default_pcp: $(PYFILES)
 
@@ -25,5 +26,6 @@ include $(BUILDRULES)
 install install_pcp: $(PYFILES)
 ifeq "$(HAVE_PYTHON)" "true"
 	$(INSTALL) -m 755 $(PYFILES) $(PCP_BINADM_DIR)/$(TARGET)
-	$(INSTALL) -S $(PCP_BINADM_DIR)/$(CMDTARGET) $(PCP_BIN_DIR)/pmcollectl
+	$(INSTALL) -S $(PCP_BINADM_DIR)/$(TARGET) $(PCP_BIN_DIR)/pmcollectl
+	@$(INSTALL_MAN)
 endif

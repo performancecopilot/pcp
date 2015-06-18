@@ -1687,16 +1687,16 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
 
 # all base pcp package files except those split out into sub packages
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
-  grep -E -v 'pmiostat|pmatop|pcp2graphite' |\
+  grep -E -v 'pmiostat|pmcollectl|pmatop|pcp2graphite' |\
   sed -e 's#^#'%{_bindir}'\/#' >base_bin.list
 #
 # Seperate the pcp-system-tools package files.
 #
-# pmatop and pmiostat (and other python client tools) are symlinks to the
-# pcp-foo variant, and so should also be in pcp-system-tools
+# pmatop, pmcollectl and pmiostat are back-compat symlinks to their
+# pcp(1) sub-command variants so must also be in pcp-system-tools.
 %if !%{disable_python2} || !%{disable_python3}
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
-  grep -E 'pmiostat|pmatop' |\
+  grep -E 'pmiostat|pmcollectl|pmatop' |\
   sed -e 's#^#'%{_bindir}'\/#' >pcp_system_tools.list
 %endif
 

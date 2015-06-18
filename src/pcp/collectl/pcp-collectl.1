@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright 2012, Red Hat.
+.\" Copyright 2012-2015, Red Hat.
 .\" Copyright 2003-2011, Hewlett-Packard Development Company, LP
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -13,15 +13,16 @@
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
 .\"
-.TH PMCOLLECTL 1 "PCP" "Performance Co-Pilot"
+.TH PCP-COLLECTL 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmcollectl\f1 \- collect data that describes the current system status
+\f3pmcollectl\f1,
+\f3pcp-collectl\f1 \- collect data that describes the current system status
 .SH SYNOPSIS
-\f3pmcollectl\f1
+\f3pcp\ collectl\f1
 [\f3\-f\f1 \f2file\f1 | \f3\-p\f1 \f2file\f1 ...]
 \f2[options\f1 ...]
 .SH DESCRIPTION
-.B pmcollectl
+.B pcp-collectl
 is a system-level performance monitoring utility that records or displays
 specific operating system data for one or more sets of subsystems.
 Any of the subsystems (such as CPU, Disks, Memory or Sockets) can be
@@ -29,7 +30,7 @@ included or excluded from data collection.
 Data can either be displayed immediately to a terminal, or stored in files
 for retrospective analysis.
 .PP
-.B pmcollectl
+.B pcp-collectl
 is a
 .BR python (1)
 script providing much of the functionality available from the
@@ -42,7 +43,7 @@ simplify its implementation, as well as provide more of the
 .B collectl
 functionality on platforms other than Linux.
 .PP
-.B pmcollectl
+.B pcp-collectl
 has two primary modes of operation:
 .IP 1. 0.3i
 Record Mode (\f3\-f\f1 or \f3\-\-filename\f1 option) which reads data
@@ -57,7 +58,7 @@ raw
 format data, rather they are archives created by the
 .BR pmlogger (1)
 utility (possibly indirectly, through use of the \f3\-f\f1 option to
-.BR pmcollectl ).
+.BR pcp-collectl ).
 .PP
 .SH "RECORD MODE OPTIONS"
 In this mode data is taken from a 
@@ -73,7 +74,7 @@ instead of displaying metrics from the local host.
 .PP
 .\" .B "--align"
 .\" .RS
-.\" .BR pmcollectl
+.\" .BR pcp-collectl
 .\" sample monitoring will be aligned such that a sample will always be taken at the 
 .\" top of a minute (this does NOT mean the first sample will occur then) so that all
 .\" instances of
@@ -99,7 +100,7 @@ The number of samples to record.
 .\" .B "\-D, --daemon"
 .\" .RS
 .\" Run
-.\" .BR pmcollectl
+.\" .BR pcp-collectl
 .\" as a daemon, primarily used when starting as a service.
 .\" This option sets the sampling interval to once every 10 seconds by default.
 .\" .RE
@@ -215,7 +216,7 @@ displayed.  If you write data for CPUs and DISKs to a raw file and play it back
 with \-sc, you will only see CPU data.  If you play it back with \f3\-scm\f1 you
 will still only see CPU data since memory data was not collected.  
 .\" However, when  used with \f3\-P\f1,
-.\" .B pmcollectl
+.\" .B pcp-collectl
 .\" will always honor the subsystems specified with 
 .\" this switch so in the previous example you will see CPU
 .\" data plus memory data of all 0s.  
@@ -321,12 +322,12 @@ if multiple subsystems are involved each needs their own header.
 .SH "SEE ALSO"
 .BR PCPIntro (1),
 .BR collectl (1),
+.BR collectl2pcp (1),
 .BR perl (1),
 .BR python (1),
 .BR pmlogger (1),
 .BR pmcd (1),
 .BR pmprobe (1),
-.BR pmval (1),
 .BR PMAPI (3),
 and
 .BR pcp.conf (5).
