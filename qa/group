@@ -443,7 +443,7 @@ cgroups
 156 pmda.sample pmda.proc local pmcd_wait pmda.install
 157 pmlogger local
 158 pmval pmie local
-159 pmda.cisco pmda.proc remote pmda.install
+159 pmda.cisco local pmda.install
 160 libpcp local
 161 pmlogger local
 162 pmda pmda.proc local pmda.shping pmda.install
@@ -1104,6 +1104,7 @@ cgroups
 1021 libqmc local
 1022 pmdumptext local
 1023 pmdumptext local
+1024 pmda.linux local
 1025 pmdumptext pmlogger pmdumplog pmloglabel local
 1026 pmdumptext remote
 1027 pmdumptext local pmstore

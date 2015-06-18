@@ -887,7 +887,7 @@ End-of-File
 		fi
 	    else
 		ssh -t -q $host "sync; sleep 2; sync; ( sudo poweroff || sudo halt )" -f </dev/null >/dev/null 2>&1 &
-		sleep 20
+		sleep 60
 		sudo virsh shutdown $domain >/dev/null 2>&1
 		sleep 10
 		# seems a bit harsh, but we've given you two chances to

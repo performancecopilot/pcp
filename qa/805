@@ -31,9 +31,10 @@ export PMDA_POSTFIX_QSHAPE=$tmp.qshape
 
 pmdapostfix_remove()
 {
-    echo
-    echo "=== remove postfix agent ==="
+    echo | tee -a $here/$seq.full
+    echo "=== remove postfix agent ===" | tee -a $here/$seq.full
     $sudo ./Remove >$tmp.out 2>&1
+    cat $tmp.out >>$here/$seq.full
     _filter_pmda_remove <$tmp.out
 }
 
@@ -44,8 +45,8 @@ pmdapostfix_install()
     $sudo ./Remove >/dev/null 2>&1
     $sudo $PCP_RC_DIR/pmcd stop 2>&1 | _filter_pcp_stop
 
-    echo
-    echo "=== postfix agent installation ==="
+    echo | tee -a $here/$seq.full
+    echo "=== postfix agent installation ===" | tee -a $here/$seq.full
     $sudo ./Install </dev/null >$tmp.out 2>&1
     cat $tmp.out >>$here/$seq.full
     # Check postfix metrics have appeared ... X metrics and Y values
@@ -74,10 +75,10 @@ do
     logfile=`basename $file`
     gunzip < $file > $tmp.logfile
 
-    echo "=== verify postfix values - $logfile ==="
+    echo "=== verify postfix values - $logfile ===" | tee -a $here/$seq.full
     pminfo -f $metrics
-    echo "=== done ==="
-    echo
+    echo "=== done ===" | tee -a $here/$seq.full
+    echo | tee -a $here/$seq.full
 done
 $sudo rm -f $tmp.logfile $tmp.qshape
 

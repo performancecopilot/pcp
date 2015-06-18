@@ -33,6 +33,8 @@ _filter()
 # real QA test starts here
 root=$tmp.root
 export PROC_STATSPATH=$root
+export PROC_PAGESIZE=4096
+export PROC_HERTZ=100
 pmda=$PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init
 
 for tgz in $here/linux/procpid-*-root-*.tgz

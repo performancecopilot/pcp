@@ -18,6 +18,7 @@ pmda_interface=4
 dso_opt=true
 dso_name=`pwd`/bigun.${dso_suffix}
 daemon_opt=false
+forced_restart=false
 
 pmdaSetup
 pmdaInstall

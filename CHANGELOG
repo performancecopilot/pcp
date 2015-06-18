@@ -1,4 +1,154 @@
-pcp-3.10.5 (3 June 2015)
+pcp-3.10.6 (31 July 2015)
+    - packaging: minor fedora.spec updates for el5 
+    - bump VERSION, RPM specs and deb versions for 3.10.6
+
+pcp-3.10.5 (15 June 2015)
+    - packaging: rebuild pmns in %post in fedora.spec
+    - build: changes for SUSE SLES 12
+    - ds389log: fixes to match updated logconv.pl
+    - build: realpath not needed, and not there on older platforms
+    - build: fix configure typo causing accidental books build
+    - packaging: fedora spec updates to be more consistent with Makepkgs
+    - build: add ppc64le to rpm 64bit lib macro list
+    - libpcp: pmdaCache: hash determinism across compilers/platforms
+    - pmda proc: Proc metrics depend on page size
+    - pcp-atop: fix folio recording replay with DM indom
+    - pcp-atop: fix bounds checking on disk names (valgrind)
+    - pmdaproc.sh: ensure pmloggers not started if disabled
+    - json pmda: tolerate json array instances that are missing
+    - pmnewlog: usage tweaks
+    - packaging, build: json pmda: make build and packaging conditional
+    - configure: add /bin/sh as possible pid==1 candidate
+    - pmlogger: initialize linger
+    - pmdalinux: Deprecate hinv.nlv and hinv.map.lvname, add hinv.map.dmname
+    - python: fix bug found by qa/739, unguarded destructor call
+    - pmlogger: add comment explaining -o => opts.Lflag usage
+    - pmnewlog: clean up usage message
+    - pcp-atop: implement record mode functionality (-w option)
+    - pcp-atop: resolve a print-buffer overflow on large I/O values
+    - build: src/include/builddefs.in: promote QA SUBDIRS
+    - pmie: prevent premature rule evaluation in pmie live mode
+    - pmlogger: add initial support for running in local context mode
+    - rc scripts: Use full path to pmlogger in pmlogger_check
+    - containers: Use pcp-base as the base image for all other PCP containers
+    - containers: introduce pcp-base container, for layering
+    - pcp-atop: reading from PCP archives now operational
+    - rc scripts: Don't fork pmcheck co-processes in a container environment
+    - pmlogconf: use the correct dm metrics in the atop set
+    - pmtime: further workarounds for App Nap on Mac OS X
+    - pcp-atop: archive mode and md/lvm device support
+    - pmie: fix for ruleset UNKNOWN case
+    - pmie: add new 'instant' operator, with doc updates
+    - pmda json: Skip sources with the same name in the JSON PMDA
+    - pmlogger_check: re-process every logconf group on config updates
+    - pmlogconf: qa and other updates following recent additions
+    - pmfind, pmsleep: Use sig_atomic_t within signal handlers
+    - pmda json: Add python 2/3 compatibility fixes
+    - packaging: ensure pmiostat and pmatop symlinks end up in system-tools
+    - pcp-atop: feature-filled PMAPI version of atop
+    - containers: configuration of optional PMDAs in pcp-collector container
+    - containers: prototype Dockerfiles and build infrastructure (not integrated)
+    - build: retire old pmtop sources and man page
+    - build: allow for multiple man pages below one src subdir
+    - pmdaproc: add two /proc/pid/status metrics, used by atop
+    - pmdaproc.sh: fix temp file handling
+    - packaging: Mirror pcp.spec.in package into fedora.spec
+    - pmdalinux: restore pmlogrewrite config file name
+    - build: add struct declarations for application headers
+    - build: add ncurses configure checking via pkg-config for console tools
+    - packaging: debian: add missing pmGetOptionalConfig.3.gz entry
+    - pmda linux_proc: cleanup up the jiffies -> msec calculations
+    - linux pmda: fix up types for some disk i/o metrics
+    - jbd2 pmda: add pmlogrewrite support for KERNEL_ULONG metrics
+    - pmlogextract: fix additional corner case for -d
+    - pmdalinux: code refactoring, common source files for ipc metrics
+    - pmdaroot: Fix NULL pointer deref for initial root_container_search(NULL)
+    - pmdaproc: ensure environ_buf buffer correctly setup on refresh
+    - docs: correct the pmmktime(3) return code - not a pointer
+    - pmie: add quiet mode to suppress default diagnostics
+    - python pmda api: Fix problems when returning fetch errors
+    - pcp.sh: ensure usage always generated via --help option
+    - pmdas: handle multiple pmchart config files for pmda installs
+    - pcp-shping: report shell-ping availability/response times
+    - pmda linux proc: Fixup some of the time types in linux_proc descriptors
+    - pmda json: Ignore cache load erros, fix refresh metric bug
+    - pmda json: Improve the JSON PMDA by use of indom caches
+    - libpcp python: Improve indom cache handling, add Add pmdaCacheResize()
+    - libpcp: add a pmGetOptionalConfig(3) for safe use in DSOs
+    - pmdaroot: fix order of pmdaConnect/Init for slow start case
+    - build: improve parallel builds, use make %{?_smp_mflags}
+    - pmdaroot: Add some additional DBG_TRACE_ATTR debug printfs
+    - build: update mac plist properties, attempt an appnap workaround
+    - pmdaroot: fix race and segv with short-lived containers
+    - docs: man/pmda.3: document the hidden variables in pmdaproc.sh
+    - pmdaproc.sh: rework, retire perl_args and python_args
+    - pmdalinux: fix container issues, especially with networking metrics
+    - libpcp: allow duplicates pmns names
+    - build: work-around bugs in RPM filter-requires
+    - build, packaging: lots of conditional Requires clauses
+    - packaging: Wrap pcp-pmda-rpm and pcp-gui with proper %if checks
+    - docs: Fix location of pcp-webjs gitweb in the pcp guide
+    - build: spin-rawhide: Extract version info from VERSION.pcp
+    - build: add rpm conflict handling for pcp command in librapi
+    - packaging: Add pcp-doc to pcp-compat deps to avoid losing man pages on upgrade
+    - packaging: Rename pcp-pmda-nvidia rpm to pcp-pmda-nvidia-gpu
+    - perl binding: refine perl PMDA interface error codes
+    - build: pmda.h: refine PMDA_PMID macro
+    - packaging, build: rpm packaging split - split out most PMDAs
+    - build: Add configure psproc check for /bin/bash for open build systems
+    - pmdaproc: consistent error code for missing proc.psinfo metrics
+    - pmda systemd: re-enable with reworked regex in file selection
+    - packaging: add pcp-compat package for back-compat upgrades
+    - pmdapostfix: logfiles are root-readable only, drop setuser (RHBZ #1213724)
+    - pcp-lvmcache: added link, an exact synonym for pcp-dmcache
+    - docs: add a configure switch for publican brand support
+    - libpcp: add pmGetVersion
+    - rc scripts: more cautious approach to using systemctl for Debian
+    - docs: describe hotproc in the quick reference guide
+    - pmda json: add an empty "trusted_directory_list" to default config file
+    - libpcp: new error code PM_ERR_BADSTORE for malformed pmstore input
+    - hotproc: update the pmdaproc manpage with hotproc info
+    - hotproc: Allow config file reload
+    - hotproc: disallow hotproc.conf with global write mode
+    - pmda postfix: bugfix to report mails submitted using mail program
+    - hotproc: support disabling via pmstore
+    - pmdaproc: add help text for new cgroup mem metrics
+    - pmiostat: Add pmiostat to the list of tools known to pmafm
+    - pmda root: fix for root_root installer problem on Mac OS X
+    - pcp-monitor and pcp-collector 'meta' packages to pcp.spec.in
+    - libpcp: libpcp/check-statics: more Mac OS X changes
+    - pmda postfix: Force restart for postfix pmda installation to change gid
+    - libpcp: p_profile.c: add fault injection points in libpcp_fault
+    - pmnscomp: remove code ... no longer used - deprecated
+    - libpcp: avoid pmcpp when loading PMNS for the most common usage
+    - pmda rpm: check return status from pthread_create
+    - hotproc: add guards for missing ioentry
+    - pmdumplog: fix cmdline filename handling
+    - pmdaproc: additional proc memory, namespace and memory cgroup metrics
+    - python: exception handling improvements
+    - pmdamounts: fix stack corruption for large mount options
+    - libpcp: pmns.c pmNameID and pmNameAll error handling fix
+    - pmwebd: add -I option for opening directories-as-archives for graphite
+    - pmwebd: graphite-png rendering: tweak graphics
+    - pmwebd: compressed archive mitigation, skip them in graphite mode
+    - pmwebd: crash fix: png-rendered multiple graphs with corrupt archives
+    - pmwebd: handle exit_p requested during graphite data-mass gathering
+    - pmwebd: fix little memory leak for fts() during interrupted rendering
+    - pmwebd: add a "-i MIN-INTERVAL" option for graphite time-precision control
+    - hotproc: cleanups, gracefully handle no schedstat, config cleanup
+    - pmiostat: accumulate -x arguments, remove duplicate error handling
+    - ds389log: init metrics with PM_ERR_AGAIN not zero
+    - pmdads389[log]: make configuration variables actually configurable
+    - pmdads389: make more resilient to server failures
+    - libpcp: interp.c: massive performance improvement in archive replay
+    - build: scripts to set up a buildbot 
+    - libpcp: pmLookupName() error handling, especially for dynamic metrics
+    - hotproc: hotproc : fix an off by one error for fname configs
+    - rc scripts: Allow more than one .NeedInstall to occur at a time
+    - pmie: remove unnecessary 2 second delay at live startup
+    - pmiostat: usage message cleanup
+    - build: pmchart: porting work to current macosx compiler
+    - packaging: Build pmns in RPM spec for faster startup
 
 pcp-3.10.4 (15 April 2015)
     - pmdalinux: fixed kernel.pernode.cpu.* for systems with only one CPU.

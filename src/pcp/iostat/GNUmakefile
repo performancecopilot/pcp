@@ -16,7 +16,7 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 CMDTARGET = pcp-iostat
-LDIRT = $(CMDTARGET)
+MAN_PAGES = $(CMDTARGET).1
 
 default: $(CMDTARGET).py
 
@@ -26,6 +26,7 @@ install: default
 ifeq "$(HAVE_PYTHON)" "true"
 	$(INSTALL) -m 755 $(CMDTARGET).py $(PCP_BINADM_DIR)/$(CMDTARGET)
 	$(INSTALL) -S $(PCP_BINADM_DIR)/$(CMDTARGET) $(PCP_BIN_DIR)/pmiostat
+	@$(INSTALL_MAN)
 endif
 
 default_pcp: default

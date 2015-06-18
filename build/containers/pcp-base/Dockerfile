@@ -15,7 +15,7 @@
 # for all other PCP containers, i.e. layered.
 #
 FROM fedora:latest
-MAINTAINER PCP developers <pcp@pcp.io>
+MAINTAINER PCP Development Team <pcp@oss.sgi.com>
 
 # update the Fedora base image and clean the yum cache
 # (normally disabled during development)

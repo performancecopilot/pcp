@@ -329,6 +329,36 @@ Cumulative number of bytes read and written since system boot time
 (subject to counter wrap) for individual disk partitions or logical
 volumes.
 
+@ disk.partitions.read_merge per-disk-partition count of merged read requests
+
+@ disk.partitions.write_merge per-disk-partition count of merged write requests
+
+@ disk.partitions.avactive per-disk-partition device count of active time
+
+@ disk.partitions.aveq per-disk-partition device time averaged count of request queue length
+
+@ disk.partitions.read_rawactive per-disk-partition raw count of active read time
+When converted to a rate, this metric represents the raw utilization of
+the device during the sampling interval as a result of reads.  Accounting for
+this metric is only done on I/O completion and can thus result in more than a
+second's worth of IO being accounted for within any one second, leading to
+>100% utilisation.  It is suitable mainly for use in calculations with other
+metrics, e.g. mirroring the results from existing performance tools:
+
+ iostat.partitions.r_await = delta(disk.partitions.read_rawactive) /
+                             delta(disk.partitions.read)
+
+@ disk.partitions.write_rawactive per-disk-partition raw count of active write time
+When converted to a rate, this metric represents the raw utilization of
+the device during the sampling interval as a result of writes.  Accounting for
+this metric is only done on I/O completion and can thus result in more than a
+second's worth of IO being accounted for within any one second, leading to
+>100% utilisation.  It is suitable mainly for use in calculations with other
+metrics, e.g. mirroring the results from existing performance tools:
+
+ iostat.partitions.w_await = delta(disk.partitions.write_rawactive) /
+                             delta(disk.partitions.write)
+
 @ swap.pagesin pages read from swap devices due to demand for physical memory
 @ swap.pagesout pages written to swap devices due to demand for physical memory
 @ swap.in number of swap in operations

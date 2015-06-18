@@ -9,9 +9,9 @@ _usage()
 {
     echo "Usage: $0 [options] [vm ...]"
     echo 'Options:'
+    echo '  -a      report all tests [default is to report only failing tests]'
     echo '  -d      debug'
-    echo '  -f      sort failure map on %bad [default sort of Test #]'
-    echo '  -n      report not run tests (reported as "-")'
+    echo '  -f      sort failure map on %fail [default sort of Test #]'
     echo '  -m N    minimum number of tests run to be reported [default 60]'
     echo '  -n      report not run tests (reported as "-")'
     echo '  -r      only most recent results date [default report all dates]'
@@ -26,12 +26,15 @@ minrun=60
 
 debug=false
 recent=false
+aflag=false
 nflag=false
 failsort=false
-while getopts 'dfm:nr?' p
+while getopts 'adfm:nr?' p
 do
     case "$p"
     in
+	a)	aflag=true
+		;;
 	d)	debug=true
 		;;
 	f)	failsort=true
@@ -276,7 +279,8 @@ then
     | awk '
 function heading() {
     printf "%4.4s","Host"
-    printf " %4.4s",""
+    printf " %5.5s",""			# %fail
+    if (nflag) printf " %5.5s",""	# %pass
     for (i = 0; i < nh; i++) {
 	if (host[i] ~ /^vm/)
 	    printf " %2.2s",substr(host[i],length(host[i])-1)
@@ -289,10 +293,15 @@ function heading() {
     }
     printf "\n"
 }
-BEGIN	{ nh = 0; state = 0 }
+BEGIN	{ nh = 0
+	  state = 0
+	  nflag = 0
+	  if ("'"$aflag"'" == "true") nflag = 1
+	}
 $1 == "---"	{ heading()
 		  printf "%4.4s","Test"
-		  printf " %4.4s","%bad"
+		  printf " %5.5s","%fail"
+		  if (nflag) printf " %5.5s","%pass"
 		  for (i = 0; i < nh; i++) printf " %2.2s"," "
                   printf " %4.4s QA groups\n","Test"
 		  state = 1
@@ -301,22 +310,37 @@ $1 == "---"	{ heading()
 		}
 state == 0	{ host[nh] = $1; nh++; next }
 $1 != last	{ if (last != "---") {
-		      printf "%04d",last
-		      pct = 0
+		      bad = 0
 		      for (i = 0; i < nh; i++) {
-			  if (fail[i] != " " && fail[i] != "-") pct++
+			  if (fail[i] != " " && fail[i] != "-") bad++
 		      }
-		      printf " %3d%%",int(0.5+100*pct/'$numqahosts')
-		      for (i = 0; i < nh; i++) {
-			  printf " %2.2s",fail[i]
+		      if (nflag) {
+			  ntry = pass = 0
+			  for (i = 0; i < nh; i++) {
+			      if (fail[i] == " ") pass++
+			      if (fail[i] != "-") ntry++
+			  }
 		      }
-		      printf " %4.4s ",last
-		      cmd = "grep \"^" last " \" $HOME/src/pcp/qa/group | sed -e \"s/^[0-9]* //\""
-		      system(cmd)
+		      if (bad > 0 || "'"$aflag"'" == "true") {
+			  printf "%04d",last
+			  printf "  %3d%%",int(0.5+100*bad/'$numqahosts')
+			  if (nflag) {
+			      if (ntry > 0)
+				  printf "  %3d%%",int(0.5+100*pass/ntry)
+			      else
+				  printf "  %3d%%",0
+			  }
+			  for (i = 0; i < nh; i++) {
+			      printf " %2.2s",fail[i]
+			  }
+			  printf " %4.4s ",last
+			  cmd = "grep \"^" last " \" $HOME/src/pcp/qa/group | sed -e \"s/^[0-9]* //\""
+			  system(cmd)
+		      }
 		  }
 		  for (i = 0; i < nh; i++) fail[i] = " "
 		  last = $1
-		}
+		 }
 $1 == last	{ for (i = 0; i < nh; i++) {
 		    if (host[i] == $3) {
 			fail[i] = $2

@@ -851,8 +851,10 @@ class JsonSource(object):
                 try:
                     index = self.__array_indexes[full_name]
                 except KeyError:
-                    self.log("array index for '%s' cannot be found" % full_name)
-                    return [c_api.PM_ERR_INDOM, 0]
+                    # This is not a real error!  Our saved indom cache
+                    # might list some ancient indom strings that don't
+                    # happen to be currently represented in the data.
+                    return [c_api.PM_ERR_INST, 0]
                 return [metric_info.pointer.resolve(metrics_array[index]), 1]
             except (KeyError, TypeError):
                 self.log("Error while fetching metrics for array %s"

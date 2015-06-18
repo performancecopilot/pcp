@@ -1,0 +1,94 @@
+#!/bin/sh
+# 
+# Automate package uploading to bintray.com.
+#
+# Run in the top-level of a tree, ensuring .bintrayrc
+# is available with valid user setting (user:apikey).
+#
+
+sudo=`which sudo`	# can be cleared via .bintrayrc
+topdir=`pwd`
+
+quit()
+{
+    echo $*
+    exit 1
+}
+
+[ -e "${topdir}/VERSION.pcp" ] || quit "Not a PCP git tree, missing VERSION.pcp"
+[ -e "${topdir}/.bintrayrc" ] || quit "Tree is unconfigured, missing .bintrayrc"
+
+. ${topdir}/.bintrayrc
+. ${topdir}/VERSION.pcp
+
+version=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
+buildversion=${version}-${PACKAGE_BUILD}
+
+[ -z "${user}" ] && quit "user is not configured (via .bintrayrc)"
+[ -z "${email}" ] && quit "email is not configured (via .bintrayrc)"
+[ -z "${apikey}" ] && quit "apikey is not configured (via .bintrayrc)"
+
+generic_upload()
+{
+    path="$1"
+    file="$2"
+    vers="$3"
+
+    curl \
+	-T ${file} -u ${user}:${apikey} \
+	-H "X-BinTray-Package:${path}" -H "X-Bintray-Version:${vers}" \
+    https://api.bintray.com/content/pcp/Generic/${path}/${vers}/${file}
+}
+
+container_upload()
+{
+    path="$1"
+    file="$2"
+    vers="$3"
+
+    docker login -u ${user} -p ${apikey} -e ${email} pcp-docker-pcp.bintray.io
+    $sudo docker tag ${path} \
+	pcp-docker-pcp.bintray.io/${path}:${vers}
+    docker push pcp-docker-pcp.bintray.io/${path}:${vers}
+}
+
+verify_asset()
+{
+    file="$1"
+
+    test -f "${file}" || return 0
+    echo -n "Found ${file}, upload? (y/N)"
+    read yesno
+    test "X${yesno}" = "XN" -o "X${yesno}" = "Xn" || return 1
+    return 0
+}
+
+# Source
+cd ${here}/build/tar
+verify_asset pcp-${version}.src.tar.gz && \
+generic_upload Source pcp-${version}.src.tar.gz ${version}
+
+# Mac OS X
+cd ${here}/build/mac
+verify_asset pcp-${buildversion}.dmg && \
+generic_upload MacOSX-PCP pcp-${buildversion}.dmg ${version}
+
+# Windows
+cd ${here}/build/win
+verify_asset pcp-${buildversion}.msi && \
+generic_upload Windows-PCP pcp-${buildversion}.msi ${version}
+
+# Solaris
+cd ${here}/build/sun
+verify_asset pcp-${version} && \
+generic_upload Solaris-PCP pcp-${version} ${version}
+
+# Docker
+cd ${here}/build/containers
+for image in *
+do
+    [ -d ${image} ] || continue
+    cd ${here}/build/containers/${image}
+    verify_asset ${image}.tgz && \
+    container_upload ${image} ${image}.tgz ${version}
+done

@@ -2,9 +2,6 @@
 # PCP QA Test No. 469
 # test for long help text exceeding maximum length
 #
-# Don't test the libirixpmda help text metrics here.
-# Test them in the libirixpmda QA
-#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
@@ -15,14 +12,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
-
-. ./localconfig
-if [ $PCP_EOE_VER -eq 20000 ]
-then
-    echo "Do not run this test with PCP 2.0" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

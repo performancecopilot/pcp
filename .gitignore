@@ -9,6 +9,7 @@ Logs
 .census
 .DS_Store
 .gitcensus
+.bintrayrc
 autom4te.cache
 config.status
 pcp.lsm

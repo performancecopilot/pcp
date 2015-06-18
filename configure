@@ -619,7 +619,10 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='lib_for_curses
+ac_subst_vars='PACKAGE_CONFIGURE
+have_webjs
+have_vector
+lib_for_curses
 lib_for_readline
 pcp_mpi_dirs
 lib_for_atomic
@@ -691,7 +694,6 @@ fmt_pthread
 lib_for_pthreads
 fmt_pid
 rdynamic_flag
-PACKAGE_CONFIGURE
 enable_manager
 enable_webapi
 HAVE_CAIRO
@@ -805,7 +807,7 @@ qmake
 enable_qt
 qt_release
 QMAKE
-pmda_json
+PMDA_JSON
 have_python_six
 have_python_jsonpointer
 pcp_python_prog
@@ -925,6 +927,8 @@ with_papi
 with_perfevent
 with_manager
 with_webapi
+with_webjs
+with_vector
 enable_ssp
 enable_pie
 enable_visibility
@@ -1626,6 +1630,8 @@ Optional Packages:
   --with-perfevent        enable perfevent pmda (default is on)
   --with-manager          enable daemon manager (default is on)
   --with-webapi           enable REST API daemon (default is on)
+  --with-webjs            enable building of webjs packages (default is off)
+  --with-vector           enable building of vector package (default is off)
   --with-configdir        configuration directory [LOCALSTATEDIR/pcp/config]
   --with-perl_installdirs perl installdirs [vendor]
   --with-perl_install_base
@@ -2720,6 +2726,25 @@ if test "${with_webapi+set}" = set; then :
 else
   do_webapi=check
 fi
+
+
+
+# Check whether --with-webjs was given.
+if test "${with_webjs+set}" = set; then :
+  withval=$with_webjs; do_webjs=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webjs=$withval"
+else
+  do_webjs=no
+fi
+
+
+
+# Check whether --with-vector was given.
+if test "${with_vector+set}" = set; then :
+  withval=$with_vector; do_vector=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-vector=$withval"
+else
+  do_vector=no
+fi
+
 
 
 #
@@ -6355,6 +6380,8 @@ $as_echo "no" >&6; }
 
 pmda_json=false
 $have_python_jsonpointer && $have_python_six && pmda_json=true
+test $have_python -a "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -le 6 && pmda_json=false
+PMDA_JSON=$pmda_json
 
 
 qmake=$QMAKE
@@ -10787,8 +10814,6 @@ if test "x$do_manager" != "xno"; then :
 fi
 
 
-
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking return type of signal handlers" >&5
 $as_echo_n "checking return type of signal handlers... " >&6; }
 if ${ac_cv_type_signal+:} false; then :
@@ -14759,6 +14784,25 @@ else
 $as_echo "no" >&6; }
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+
+have_vector=false
+if test -f ./build/tar/vector.tar.gz
+then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: adding Vector webapp to the build" >&5
+$as_echo "$as_me: adding Vector webapp to the build" >&6;}
+    have_vector=true
+fi
+
+
+have_webjs=false
+if test -f ./build/tar/webjs.tar.gz
+then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: adding webjs webapps to the build" >&5
+$as_echo "$as_me: adding webjs webapps to the build" >&6;}
+    have_webjs=true
+fi
+
 
 
 
