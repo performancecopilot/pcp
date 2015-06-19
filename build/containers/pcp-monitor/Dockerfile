@@ -17,7 +17,7 @@ MAINTAINER PCP Development Team <pcp@oss.sgi.com>
 
 #
 # install pcp and it's dependencies, clean the cache.
-RUN yum --enablerepo=pcp-testing -y install pcp pcp-monitor && yum clean all
+RUN dnf --enablerepo=pcp-devel -y install pcp pcp-monitor && dnf clean all
 
 #
 # Run in the container as root - avoid PCP_USER mismatch with the host

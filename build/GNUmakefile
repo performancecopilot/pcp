@@ -23,7 +23,7 @@ LDIRT = pack_pcp.bin pack_pro.bin pro.src
 LDIRDIRT = deb $(TOPDIR)/$(PACKAGE_NAME)-?.?.?
 
 # for clean and clobber
-SUBDIRS = tar rpm mac aix sun
+SUBDIRS = tar rpm mac aix sun containers
 
 default install default_pcp install_pcp : $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
