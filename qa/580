@@ -9,9 +9,9 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
+. ./common.product
 . ./common.filter
 . ./common.check
-. ./common.product
 
 rm -f $seq.out
 case $PCP_PLATFORM

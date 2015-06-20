@@ -94,8 +94,8 @@ mkdir -p \$RPM_BUILD_ROOT/%{_localstatedir}/qaplayer
 %dir %{_localstatedir}/qaplayer
 End-of-file
 
-    echo file: $dir/qaplayer.spec >> seq.full
-    cat $dir/qaplayer.spec >> $seq.full
+    echo file: $dir/qaplayer.spec >> $here/$seq.full
+    cat $dir/qaplayer.spec >> $here/$seq.full
 
     # prepare a source tarball
     mkdir qaplayer-1.0 2>/dev/null
@@ -112,7 +112,7 @@ End-of-file
 	--define '_srcrpmdir %{_topdir}' \
 	--define '_specdir %{_topdir}' \
 	--define '_rpmfilename %%{NAME}-%%{VERSION}-%%{RELEASE}.noarch.rpm' \
-	$dir/qaplayer.spec >> $seq.full 2>&1
+	$dir/qaplayer.spec >> $here/$seq.full 2>&1
 
     rpm_dbg_pkg=$dir/qaplayer-debuginfo-1.0-1.noarch.rpm
     rpm_bin_pkg=$dir/qaplayer-1.0-1.noarch.rpm
@@ -140,9 +140,9 @@ _rpm_package_install()
 	then
 	    echo "$rpm_name already installed!?!"
 	else
-	    echo "Installing $rpm_name" | tee -a $seq.full
-	    echo "RPM pathname: $rpm_bin_pkg" >> $seq.full
-	    $sudo rpm -i $rpm_bin_pkg >> $seq.full 2>&1
+	    echo "Installing $rpm_name" | tee -a $here/$seq.full
+	    echo "RPM pathname: $rpm_bin_pkg" >> $here/$seq.full
+	    $sudo rpm -i $rpm_bin_pkg >> $here/$seq.full 2>&1
 	    $sudo rpm -qa >> $seq.full 2>&1
 	fi
     fi
@@ -170,8 +170,8 @@ _rpm_package_remove()
     then
 	if rpm -q $rpm_name >/dev/null 2>&1
 	then
-	    echo "Removing $rpm_name" | tee -a $seq.full
-	    $sudo rpm -e $rpm_name >> $seq.full 2>&1
+	    echo "Removing $rpm_name" | tee -a $here/$seq.full
+	    $sudo rpm -e $rpm_name >> $here/$seq.full 2>&1
 	fi
     fi
 }

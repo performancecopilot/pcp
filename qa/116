@@ -12,6 +12,7 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+
 . ./common.config
 
 [ -z "$PCPQA_HYPHEN_HOST" -o "$PCPQA_HYPHEN_HOST" = "some-host" ] && \

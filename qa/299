@@ -8,8 +8,12 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
 rm -f $seq.out
-. ./localconfig
 if [ $PCP_PLATFORM = irix -a $PCP_EOE_VER -le 60510 ]
 then
 	ln $seq.out.1 $seq.out
@@ -19,11 +23,6 @@ then
 else
 	ln $seq.out.3 $seq.out
 fi
-
-# get standard filters
-. ./common.product
-. ./common.filter
-. ./common.check
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
