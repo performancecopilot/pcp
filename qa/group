@@ -847,7 +847,7 @@ cgroups
 565 pmda.sendmail local pmda.install
 566 pmlogcheck local
 569 pmprobe #679693 local sanity
-570 pmns #690735 local
+570:retired pmns #690735 local
 571 pmlogger local pmdumplog
 572 pmcd pmda local pmda.install pmda.sample pmda.simple pmda.trivial
 574 libpcp pmns compat local sanity
