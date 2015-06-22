@@ -925,6 +925,7 @@ with_books
 with_books_brand
 with_papi
 with_perfevent
+with_pmdajson
 with_manager
 with_webapi
 with_webjs
@@ -1628,6 +1629,7 @@ Optional Packages:
                           The optional argument may be a full path of a PAPI
                           installation prefix, or a pkgconfig module name.
   --with-perfevent        enable perfevent pmda (default is on)
+  --with-pmdajson         enable JSON pmda (default is on)
   --with-manager          enable daemon manager (default is on)
   --with-webapi           enable REST API daemon (default is on)
   --with-webjs            enable building of webjs packages (default is off)
@@ -2707,6 +2709,15 @@ if test "${with_perfevent+set}" = set; then :
   withval=$with_perfevent; do_perfevent=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perfevent=$withval"
 else
   do_perfevent=check
+fi
+
+
+
+# Check whether --with-pmdajson was given.
+if test "${with_pmdajson+set}" = set; then :
+  withval=$with_pmdajson; do_pmdajson=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdajson=$withval"
+else
+  do_pmdajson=check
 fi
 
 
@@ -6379,8 +6390,15 @@ $as_echo "no" >&6; }
 
 
 pmda_json=false
-$have_python_jsonpointer && $have_python_six && pmda_json=true
-test $have_python -a "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -le 6 && pmda_json=false
+if test "x$do_pmdajson" = "xyes"; then :
+  pmda_json=true
+fi
+if test "x$do_pmdajson" = "xcheck"; then :
+
+            $have_python_jsonpointer && $have_python_six && pmda_json=true
+    test $have_python -a "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -le 6 && pmda_json=false
+
+fi
 PMDA_JSON=$pmda_json
 
 
