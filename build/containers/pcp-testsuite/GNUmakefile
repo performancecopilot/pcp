@@ -19,9 +19,9 @@ include $(TOPDIR)/src/include/builddefs
 CONTAINER = pcp-testsuite
 LDIRT = $(CONTAINER).tgz RPMS
 
-default default_pcp : $(CONTAINER).tgz
+default default_pcp install install_pcp:
 
-install install_pcp:
+pack pack_pcp: $(CONTAINER).tgz
 
 # rule to build $(CONTAINER).tgz from Dockerfile
 include ../GNUlocalrules
