@@ -566,10 +566,10 @@ level performance management.  It includes tutorials, HOWTOs,
 and other detailed documentation about the internals of core
 PCP utilities and daemons, and the PCP graphical tools.
 
+%if "@pmda_papi@" == "true"
 #
 # pcp-pmda-papi
 #
-%if "@pmda_papi@" == "true"
 %package pmda-papi
 License: GPLv2+
 Group: Applications/System
@@ -1332,10 +1332,10 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Room temperature metrics.  The PMDA is written in C.
 # end pcp-pmda-roomtemp
 
+%if "@pmda_rpm@" == "true"
 #
 # pcp-pmda-rpm
 #
-%if "@pmda_rpm@" == "true"
 %package pmda-rpm
 License: GPLv2+
 Group: Applications/System
@@ -1706,7 +1706,9 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mailq' > pmda_mailq_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mounts' > pmda_mounts_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/nvidia' > pmda_nvidia_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/roomtemp' > pmda_roomtemp_files
+%if "@pmda_rpm@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/rpm' > pmda_rpm_files
+%endif
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/sendmail' > pmda_sendmail_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/shping' > pmda_shping_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/summary' > pmda_summary_files
