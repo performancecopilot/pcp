@@ -25,19 +25,13 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 # real QA test starts here
 pmda=$PCP_PDMAS_DIR/linux/pmda_linux.$DSO_SUFFIX,linux_init
 
-if [ -d ./src ]
-then
-    continue
-else
-    _notrun "Cannot find testsuite/src/ dir"
-fi
-cd ./src
+cd $here/src
 make qa_shmctl.so >$here/$seq.full 2>&1
-cd
-LD_PRELOAD=`pwd`/src/qa_shmctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.tot
-LD_PRELOAD=`pwd`/src/qa_shmctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.rss
-LD_PRELOAD=`pwd`/src/qa_shmctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.swp
+cd $here
+LD_PRELOAD=$here/src/qa_shmctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.tot
+LD_PRELOAD=$here/src/qa_shmctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.rss
+LD_PRELOAD=$here/src/qa_shmctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.swp
+
 # success, all done
 status=0
-
 exit
