@@ -25,7 +25,7 @@ deflate=none	# default compression mode (e.g. bzip2)
 inflate=none	# default compression mode (e.g. unbzip2)
 suffix=.huh	# default compression file suffix (e.g. bz2)
 
-$sudo rm -rf $tmp $tmp.* $seq.full
+$sudo rm -rf $tmp $tmp.* $here/$seq.full
 trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 _prepare_compress()

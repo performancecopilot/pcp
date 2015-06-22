@@ -8,9 +8,9 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard filters
-. ./common.filter
+# get standard environment, filters and checks
 . ./common.product
+. ./common.filter
 . ./common.check
 
 perl -e "use PCP::PMDA" >/dev/null 2>&1

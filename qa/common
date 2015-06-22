@@ -70,7 +70,7 @@ _havesudo()
 _haveagents()
 {
     restart=false
-    here=`pwd`
+    _here=`pwd`
 
     # PMDAs than need to be here for QA
     #
@@ -150,7 +150,7 @@ _haveagents()
 		fi
 		if $reinstall
 		then
-		    [ -f $here/$iam.out ] && cat $here/$iam.out
+		    [ -f $_here/$iam.out ] && cat $_here/$iam.out
 		    echo "Cannot make PMDA $agent work, ... giving up!"
 		    exit 1
 		else
@@ -164,18 +164,18 @@ _haveagents()
 			_log_fyi $PCP_LOG_DIR/pmcd/pmcd.log $agentlog
 			cd $agentdir
 			unset ROOT TOOLROOT MAKEFLAGS
-			$sudo ./Remove </dev/null >>$here/$iam.out
+			$sudo ./Remove </dev/null >>$_here/$iam.out
 			case $agent
 			in
 			    cisco)
-				cd $here
+				cd $_here
 				./common.install.cisco $iam $agentdir
 				;;
 			    *)
-				$sudo ./Install </dev/null >>$here/$iam.out
+				$sudo ./Install </dev/null >>$_here/$iam.out
 				;;
 			esac
-			cd $here
+			cd $_here
 			reinstall=true
 		    else
 			echo "Cannot find PMDA directory ($agentdir)"

@@ -8,6 +8,13 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+. ./common.config
+
 if [ "`pmsocks echo ok 2>&1`" != ok ]
 then
     echo "pmsocks is not installed and/or not configured" >$seq.notrun
@@ -16,7 +23,6 @@ then
 fi
 
 rm -f $seq.out
-. ./localconfig
 if [ $PCP_PLATFORM = linux ]
 then
     ln $seq.out.linux $seq.out
@@ -26,12 +32,6 @@ then
 else
     echo "Warning: no validated output for $PCP_PLATFORM"
 fi
-
-# get standard filters
-. ./common.filter
-. ./common.check
-. ./common.product
-. ./common.config
 
 status=0
 signal=$PCP_BINADM_DIR/pmsignal

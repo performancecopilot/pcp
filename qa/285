@@ -23,7 +23,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
-. ./localconfig
 
 if [ $PCP_PLATFORM = irix ]
 then

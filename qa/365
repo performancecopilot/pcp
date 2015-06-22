@@ -12,7 +12,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.check
 . ./common.filter
-. ./localconfig
 
 rm -f $seq.out
 _get_libpcp_config
