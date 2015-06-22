@@ -42,7 +42,7 @@ RUN dnf --enablerepo=pcp-devel -y install pcp-conf && dnf clean all
 RUN sed -i -e 's/PCP_USER=.*$/PCP_USER=root/' -e 's/PCP_GROUP=.*$/PCP_GROUP=root/' /etc/pcp.conf
 
 #
-# Since this can be invoked an interactive container, set the bash prompt.
+# Since this can be invoked as an interactive container, set the bash prompt.
 # All containers layered on pcp-base inherit this, with their own name.
 RUN echo export PS1='"[$PCP_CONTAINER_IMAGE] "' >> /root/.bash_profile
 

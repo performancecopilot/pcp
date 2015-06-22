@@ -520,7 +520,7 @@ packaging_containers()
 	echo 'Error: docker not enabled or not properly configured for non-root access.'
 	echo 'Check the docker service is enabled and running. You can allow non-root access'
 	echo 'as follows: edit /etc/sysconfig/docker and add OPTIONS="-G gid" where gid is a'
-	echo 'group name than you are a member of. Then restart the docker service.'
+	echo 'group name that you are a member of. Then restart the docker service.'
 	touch $tmp/failed
     fi
 

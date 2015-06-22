@@ -16,7 +16,7 @@
 #
 # To avoid having to run the docker commands as root, you can run the docker
 # daemon with -G groupname  where groupname is a group you're in. Edit
-# /etc/sysconfig/docker (or equiv for your disro) and set the OPTIONS variable
+# /etc/sysconfig/docker (or equiv for your distro) and set the OPTIONS variable
 # e.g. OPTIONS="-G wheel", then restart the docker service. This allows users
 # in group e.g. 'wheel' access to the local docker unix domain socket interface.
 
