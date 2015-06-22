@@ -1201,6 +1201,9 @@ See also the kernel.uname.* metrics
 @ ipc.shm.max_seg maximum number of shared segments in system (from shmctl(..,IPC_INFO,..))
 @ ipc.shm.max_segproc maximum number of shared segments per process (from shmctl(..,IPC_INFO,..))
 @ ipc.shm.max_shmsys maximum amount of shared memory in system in pages (from shmctl(..,IPC_INFO,..))
+@ ipc.shm.tot total number of shared memory pages (from shmctl(..,SHM_INFO,..))
+@ ipc.shm.rss number of resident shared memory pages (from shmctl(..,SHM_INFO,..))
+@ ipc.shm.swp number of swapped shared memory pages (from shmctl(..,SHM_INFO,..))
 
 @ vfs.files.count number of in-use file structures
 @ vfs.files.free number of available file structures
