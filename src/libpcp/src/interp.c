@@ -345,7 +345,7 @@ dumpicp(const char *tag, instcntl_t *icp)
  * UPD_MARK_BACK, &done - specifically looking for lower bound
  * UPD_MARK_BACK, &done - specifically looking for upper bound
  */
-static void
+static int
 update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int *done)
 {
     /*
@@ -422,7 +422,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 #endif
 	    }
 	}
-	return;
+	return 0;
     }
 
     changed = 0;
@@ -433,6 +433,18 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 	pcp = (pmidcntl_t *)hp->data;
 	if (pcp->valfmt == -1 && logrp->vset[k]->numval > 0)
 	    pcp->valfmt = logrp->vset[k]->valfmt;
+	else if (pcp->valfmt != -1 && logrp->vset[k]->numval > 0 && pcp->valfmt != logrp->vset[k]->valfmt) {
+	    /* bad archive ... value encoding in pmResult has changed */
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_LOG) {
+		char	strbuf[20];
+		fprintf(stderr, "update_bounds: corrupted archive: PMID %s: valfmt changed from %d to %d\n",
+		    pmIDStr_r(logrp->vset[k]->pmid, strbuf, sizeof(strbuf)),
+		    pcp->valfmt, logrp->vset[k]->valfmt);
+	    }
+#endif
+	    return PM_ERR_LOGREC;
+	}
 	for (icp = pcp->first; icp != NULL; icp = icp->next) {
 	    for (i = 0; i < logrp->vset[k]->numval; i++) {
 		if (logrp->vset[k]->vlist[i].inst == icp->inst ||
@@ -536,15 +548,16 @@ next_inst:
 	}
     }
 
-    return;
+    return 0;
 }
 
-static void
+static int
 do_roll(__pmContext *ctxp, double t_req)
 {
     pmResult	*logrp;
     __pmTimeval	tmp;
     double	t_this;
+    int		sts;
 
     /*
      * now roll forwards in the direction of log reading
@@ -566,7 +579,9 @@ do_roll(__pmContext *ctxp, double t_req)
 	    ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
 	    assert(ctxp->c_archctl->ac_offset >= 0);
 	    ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
-	    update_bounds(ctxp, t_req, logrp, UPD_MARK_FORW, NULL);
+	    sts = update_bounds(ctxp, t_req, logrp, UPD_MARK_FORW, NULL);
+	    if (sts < 0)
+		return sts;
 	}
     }
     else {
@@ -585,9 +600,12 @@ do_roll(__pmContext *ctxp, double t_req)
 	    ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
 	    assert(ctxp->c_archctl->ac_offset >= 0);
 	    ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
-	    update_bounds(ctxp, t_req, logrp, UPD_MARK_BACK, NULL);
+	    sts = update_bounds(ctxp, t_req, logrp, UPD_MARK_BACK, NULL);
+	    if (sts < 0)
+		return sts;
 	}
     }
+    return 0;
 }
 
 #define pmXTBdeltaToTimeval(d, m, t) { \
@@ -796,6 +814,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	}
     }
 
+    i = 0;
     if (ctxp->c_archctl->ac_serial == 0) {
 	/* need gross positioning from temporal index */
 	__pmLogSetTime(ctxp);
@@ -819,7 +838,11 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
 		assert(ctxp->c_archctl->ac_offset >= 0);
 		ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
-		update_bounds(ctxp, t_req, logrp, UPD_MARK_NONE, NULL);
+		sts = update_bounds(ctxp, t_req, logrp, UPD_MARK_NONE, NULL);
+		if (sts < 0) {
+		    free(rp);
+		    return sts;
+		}
 	    }
 	}
 	else {
@@ -833,7 +856,11 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
 		assert(ctxp->c_archctl->ac_offset >= 0);
 		ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
-		update_bounds(ctxp, t_req, logrp, UPD_MARK_NONE, NULL);
+		sts = update_bounds(ctxp, t_req, logrp, UPD_MARK_NONE, NULL);
+		if (sts < 0) {
+		    free(rp);
+		    return sts;
+		}
 	    }
 	}
 	ctxp->c_archctl->ac_serial = 1;
@@ -875,7 +902,11 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 			done_roll = 1;
 			if (ctxp->c_delta > 0)  {
 			    /* forwards before scanning back */
-			    do_roll(ctxp, t_req);
+			    sts = do_roll(ctxp, t_req);
+			    if (sts < 0) {
+				free(rp);
+				return sts;
+			    }
 			}
 		    }
 		}
@@ -937,7 +968,11 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		assert(ctxp->c_archctl->ac_offset >= 0);
 		ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 	    }
-	    update_bounds(ctxp, t_req, logrp, UPD_MARK_BACK, &done);
+	    sts = update_bounds(ctxp, t_req, logrp, UPD_MARK_BACK, &done);
+	    if (sts < 0) {
+		free(rp);
+		return sts;
+	    }
 
 	    /*
 	     * forget about those that can never be found from here
@@ -989,7 +1024,11 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 			done_roll = 1;
 			if (ctxp->c_delta < 0)  {
 			    /* backwards before scanning forwards */
-			    do_roll(ctxp, t_req);
+			    sts = do_roll(ctxp, t_req);
+			    if (sts < 0) {
+				free(rp);
+				return sts;
+			    }
 			}
 		    }
 		}
@@ -1051,7 +1090,11 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		assert(ctxp->c_archctl->ac_offset >= 0);
 		ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 	    }
-	    update_bounds(ctxp, t_req, logrp, UPD_MARK_FORW, &done);
+	    sts = update_bounds(ctxp, t_req, logrp, UPD_MARK_FORW, &done);
+	    if (sts < 0) {
+		free(rp);
+		return sts;
+	    }
 
 	    /*
 	     * forget about those that can never be found from here
