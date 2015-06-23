@@ -121,16 +121,28 @@ Validates the integrity of each of the log volumes of the PCP archive, usually
 .IB archive .1\c
 , etc.
 .PP
-Of particular interest are wrapped values for counter metrics (\c
+There is some basic integrity checks to ensure the encoding of
+values for each metric remains consistent and the values are well formed
+across all the observations in the archive.
+.PP
+Also the timestamps for the observations are expected to be
+monotonically increasing as the archive is tranversed.
+.PP
+Additional attention is given to
+counter metrics (\c
 .I type
 from
 .BR pmLookupDesc (3)
 is
 .BR PM_SEM_COUNTER )
 which are expected to have monotonically increasing values.
+If the values are not monotonic increasing this may suggest
+a counter wrap has happened or there has been some interruption
+or reset to
+the underlying source of the performance data that is no captured in
+the archive.
 .PP
-For each metric having ``counter'' semantics (i.e. the metric is expected to
-increase monotonically) which has been detected as having wrapped at some
+For each counter metric which has been detected as having wrapped at some
 point in the archive,
 .B pmlogcheck
 produces output describing the metric name (with instance identifiers where
