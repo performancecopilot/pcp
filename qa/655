@@ -9,10 +9,6 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
 . ./common.gfs2
 
 # Attempt to set up the gfs2 pmda test enviroment

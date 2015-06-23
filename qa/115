@@ -8,10 +8,10 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard filters
+# get standard environment, filters and checks
 . ./common.product
-. ./common.check
 . ./common.filter
+. ./common.check
 
 [ -f /etc/gentoo-release ] && _notrun "Gentoo is lacking chkconfig support"
 if [ -z "$PCP_PMIECONTROL_PATH" ]

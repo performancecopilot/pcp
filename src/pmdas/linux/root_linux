@@ -221,6 +221,9 @@ ipc.shm {
     max_seg		60:23:2
     max_segproc		60:23:3
     max_shmsys		60:23:4
+    tot			60:56:0
+    rss			60:56:1
+    swp			60:56:2
 }
 
 pmda {

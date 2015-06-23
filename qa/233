@@ -14,14 +14,14 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard filters
+# get standard environment, filters and checks
 . ./common.product
 . ./common.filter
+. ./common.check
 
 status=0
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-. ./localconfig
 if [ $PCP_PLATFORM = linux ]; then
     echo "fetchrate tests not run on linux: sysinfo is too slow" >$seq.notrun
     echo "$seq: [not run] `cat $seq.notrun`"

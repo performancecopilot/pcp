@@ -23,6 +23,7 @@ nonrpm=unknown
 nondeb=unknown
 vector=false
 webjs=false
+containers=false
 
 if [ ! -d .git ]
 then
@@ -149,6 +150,10 @@ do
     --with-webjs)
 	configopts="$configopts $opt"
 	webjs=true
+	shift
+	;;
+    --with-containers)
+	containers=true
 	shift
 	;;
     *)
@@ -499,6 +504,37 @@ packaging_rpm()
     [ -f $tmp/failed ] && build_failure Packaging RPMs via pack_pcp
 }
 
+packaging_containers()
+{
+    echo
+    echo "== Building container packages, log is in $LOGDIR/pcp" | tee -a $LOGDIR/pcp
+    rm -f $tmp/failed
+
+    if docker version >/dev/null 2>&1; then
+	v=$(docker version | sed -e 's/\./ /g' | awk '/Server version/ {print $3*10+$4}')
+	if [ -z "$v" -o "$v" -lt 14 ]; then
+	    echo 'Error: docker version too old. Containers build skipped.'
+	    touch $tmp/failed
+	fi
+    else
+	echo 'Error: docker not enabled or not properly configured for non-root access.'
+	echo 'Check the docker service is enabled and running. You can allow non-root access'
+	echo 'as follows: edit /etc/sysconfig/docker and add OPTIONS="-G gid" where gid is a'
+	echo 'group name that you are a member of. Then restart the docker service.'
+	touch $tmp/failed
+    fi
+
+    [ -f $tmp/failed ] && build_failure Packaging containers, docker configuration
+
+    if $verbose ; then
+	($MAKE -C build/containers pack_pcp 2>&1 || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
+    else
+	($MAKE -C build/containers pack_pcp 2>&1 || touch $tmp/failed) >>$LOGDIR/pcp 2>&1
+    fi
+
+    [ -f $tmp/failed ] && build_failure Packaging containers via pack_pcp
+}
+
 # real build starts here
 clean_packaging
 src_tar_build
@@ -523,8 +559,18 @@ if $nonrpm
 then
     default_build	# perform a complete build in-situ
     packaging_pcp	# create all known package formats
+    if $containers; then
+    	echo "Warning: --with-containers skipped - currently only available on RPM platforms"
+    fi
 else
     packaging_rpm
+fi
+
+#
+# --with-containers, currently only for RPM platforms with docker
+if $containers
+then
+    packaging_containers
 fi
 
 # success!

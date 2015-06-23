@@ -79,6 +79,7 @@ static proc_uptime_t		proc_uptime;
 static proc_sys_fs_t		proc_sys_fs;
 static sysfs_kernel_t		sysfs_kernel;
 static numa_meminfo_t		numa_meminfo;
+static shm_info_t              _shm_info;
 
 static int		_isDSO = 1;	/* =0 I am a daemon */
 static int		rootfd = -1;	/* af_unix pmdaroot */
@@ -3203,6 +3204,21 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_MSG_LIMITS, 7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
+/* ipc.shm.tot */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SHM_INFO, 0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* ipc.shm.rss */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SHM_INFO, 1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* ipc.shm.swp */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SHM_INFO, 2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
 /*
  * shared memory limits cluster
  * Cluster added by Mike Mason <mmlnx@us.ibm.com>
@@ -3974,6 +3990,9 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, linux_container_t *cp)
 
     if (need_refresh[CLUSTER_MSG_LIMITS])
         refresh_msg_limits(&msg_limits);
+
+    if (need_refresh[CLUSTER_SHM_INFO])
+        refresh_shm_info(&_shm_info);
 
     if (need_refresh[CLUSTER_SHM_LIMITS])
         refresh_shm_limits(&shm_limits);
@@ -5337,6 +5356,22 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 	break;
 
+    case CLUSTER_SHM_INFO:
+	switch (idp->item) {
+	case 0: /* ipc.shm.tot */
+	    atom->ul = _shm_info.shm_tot;
+	    break;
+	case 1: /* ipc.shm.rss */
+	    atom->ul = _shm_info.shm_rss;
+	    break;
+	case 2: /* ipc.shm.swp */
+	    atom->ul = _shm_info.shm_swp;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
     /*
      * Cluster added by Mike Mason <mmlnx@us.ibm.com>
      */
@@ -5697,6 +5732,7 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	case CLUSTER_SEM_LIMITS:
 	case CLUSTER_MSG_LIMITS:
 	case CLUSTER_SHM_LIMITS:
+	case CLUSTER_SHM_INFO:
 	    ns_flags |= LINUX_NAMESPACE_IPC;
 	    break;
 	}

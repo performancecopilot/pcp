@@ -8,12 +8,12 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard filters
+# get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
+
 . ./common.config
-. ./localconfig
 
 if [ "`pmsocks echo ok 2>&1`" != ok ]
 then

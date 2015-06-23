@@ -76,6 +76,7 @@ enum {
 	CLUSTER_NET_NETSTAT,    /* 53 /proc/net/netstat */
 	CLUSTER_DM,		/* 54 disk.dm.* */
 	CLUSTER_SYSFS_DEVICES,	/* 55 /sys/devices metrics */
+	CLUSTER_SHM_INFO,       /* 56 shmctl(SHM_INFO) system call */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };

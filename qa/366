@@ -34,7 +34,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
-. ./localconfig
 
 [ -f $PCP_BINADM_DIR/pmlogconf-setup ] || _notrun "pmlogconf version 2.0 not installed"
 [ -f $PCP_BINADM_DIR/pcp-atop ] || _notrun "system monitoring tools not installed"

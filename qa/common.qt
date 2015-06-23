@@ -1,12 +1,12 @@
-. /etc/pcp.conf
-. ./common.sh
-. ./common.check
+# get standard environment, filters and checks
+. ./common.product
 . ./common.filter
+. ./common.check
+
 . ./common.config
 
-tmp=/tmp/$$
-here=`pwd`
-sudo=sudo
+export PCP_STDERR=""
+
 host=`hostname`
 
 if [ -z "$DISPLAY" ]

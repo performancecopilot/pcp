@@ -8,8 +8,12 @@
 seq=`basename $0`
 
 rm -f $seq.out
-. ./localconfig
-rm -f $seq.out
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
 if [ $PCP_PLATFORM = linux ]
 then
     if [ $PCP_VER -lt 30103 ]
@@ -57,10 +61,6 @@ else
 fi
 
 echo "QA output created by $seq"
-
-# get standard filters
-. ./common.product
-. ./common.filter
 
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 

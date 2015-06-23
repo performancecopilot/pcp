@@ -181,7 +181,7 @@ applications to easily retrieve and process any subset of that data.
 %if %{with_compat}
 Requires: pcp-compat
 %endif
-Requires: pcp-libs = @package_version@
+Requires: pcp-libs = %{version}-%{release}
 Obsoletes: pcp-gui-debuginfo
 
 #

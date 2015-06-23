@@ -196,7 +196,8 @@ MYFILES += $(SRCARCH) \
 	sa-sysstat-9.0.4 sa-sysstat-9.0.6 sa-sysstat-9.0.6.1 \
 	sa-sysstat-10.0.1 sa-sysstat-10.0.5 sa-sysstat-10.2.0 \
 	sa-sysstat-9.0.4_rh6.5 \
-	permslist
+	permslist \
+	qa_shmctl.c
 
 MYSCRIPTS = grind-tools ipcs_clear make.dodgey mkarch-all \
 	mkeventrec mkinterpmark mkmirage mkproc mkrewrite mksample_expr \
@@ -775,6 +776,9 @@ units-parse: units-parse.c
 # --- miscellaneous
 #
 qa_timezone.$(DSOSUFFIX):	qa_timezone.o
+	$(LD) -shared -o $@ -nostdlib $<
+
+qa_shmctl.$(DSOSUFFIX):	 qa_shmctl.o
 	$(LD) -shared -o $@ -nostdlib $<
 
 ifneq ($(NVIDIAQALIB),)

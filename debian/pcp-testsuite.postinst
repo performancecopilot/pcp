@@ -4,4 +4,4 @@
 getent group pcpqa >/dev/null || groupadd -r pcpqa
 getent passwd pcpqa >/dev/null || \
   useradd -c "PCP Quality Assurance" -g pcpqa -d /var/lib/pcp/testsuite -m -r -s /bin/bash pcpqa
-chown -R pcpqa:pcpqa /var/lib/pcp/testsuite 2>/dev/null || true
+chown -RH pcpqa:pcpqa /var/lib/pcp/testsuite 2>/dev/null || true
