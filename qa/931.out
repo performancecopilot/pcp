@@ -1,0 +1,104 @@
+QA output created by 931
+Note: timezone set to local timezone of host "vm-rawhide-64" from archive
+
+metric:    network.interface.in.bytes
+archive:   archives/archive-20141125-000009
+host:      vm-rawhide-64
+start:     Sun Nov 23 19:41:47 2014
+end:       Mon Nov 24 18:59:39 2014
+semantics: cumulative counter (converting to rate)
+units:     byte (converting to byte / sec)
+samples:   1398
+interval:  60.00 sec
+19:41:47.810  No values available
+19:42:47.810  No values available
+
+                               lo                  ens3 
+19:43:47.810  No values available
+19:44:47.810                  0.0                 770.4 
+19:45:47.810                  0.0                 655.2 
+19:46:47.810                  0.0                 685.9 
+19:47:47.810                  0.0                 641.3 
+19:48:47.810                  0.0                1454.2 
+19:49:47.810                  0.0                 552.7 
+19:50:47.810                  0.0                 245.4 
+19:51:47.810                  0.0                 599.7 
+19:52:47.810                  0.0                 568.1 
+19:53:47.810                  0.0                 522.5 
+19:54:47.810                  0.0                 598.5 
+19:55:47.810                  0.0                 696.1 
+19:56:47.810                  0.0                 699.6 
+19:57:47.810                  0.0                 698.7 
+19:58:47.810                  0.0                1276.7 
+19:59:47.810                  0.0                 176.5 
+20:00:47.810                  0.0                 797.9 
+20:01:47.810                  0.0                 766.9 
+20:02:47.810                  0.0                 646.3 
+20:03:47.810                  0.0              973126.4 
+20:04:47.810                  0.0                3664.4 
+20:05:47.810                  0.0                1868.2 
+20:06:47.810                  0.0                1028.2 
+20:07:47.810                  0.0                1387.1 
+20:08:47.810                  0.0                 717.3 
+20:09:47.810                  0.0                 754.2 
+20:10:47.810                  0.0                  73.4 
+20:11:47.810                  0.0                 619.6 
+20:12:47.810                  0.0                 656.7 
+20:13:47.810                  0.0                 711.1 
+20:14:47.810                  0.0                 636.6 
+20:15:47.810                  0.0                1937.7 
+20:16:47.810                  0.0                 840.1 
+20:17:47.810                  0.0                 738.7 
+20:18:47.810                  0.0                 773.5 
+20:19:47.810                  0.0                 584.8 
+20:20:47.810                  0.0                 784.8 
+20:21:47.810                  0.0                 744.2 
+20:22:47.810                  0.0                 797.1 
+20:23:47.810                  0.0                 715.8 
+20:24:47.810                  0.0                 572.0 
+20:25:47.810  No values available
+20:26:47.810  No values available
+
+                               lo                  ens3 
+20:27:47.810  No values available
+20:28:47.810                  0.0                 777.7 
+20:29:47.810                  0.0                 748.1 
+20:30:47.810               5142.6                 757.0 
+20:31:47.810  No values available
+20:32:47.810  No values available
+20:33:47.810  No values available
+20:34:47.810  No values available
+20:35:47.810  No values available
+20:36:47.810  No values available
+20:37:47.810  No values available
+20:38:47.810  No values available
+20:39:47.810  No values available
+20:40:47.810  No values available
+20:41:47.810  No values available
+20:42:47.810  No values available
+20:43:47.810  No values available
+
+                               lo                  ens3 
+20:44:47.810  No values available
+20:45:47.810                793.4                 609.2 
+20:46:47.810                638.7                 610.6 
+20:47:47.810                532.9                 688.2 
+20:48:47.810  No values available
+20:49:47.810  No values available
+
+                               lo                  ens3 
+20:50:47.810  No values available
+20:51:47.810               1062.2                 779.0 
+20:52:47.810               1093.0                 745.7 
+20:53:47.810               1077.0                 777.2 
+20:54:47.810               1377.8                 795.5 
+20:55:47.810  No values available
+20:56:47.810  No values available
+20:57:47.810  No values available
+
+                               lo                  ens3 
+20:58:47.810  No values available
+20:59:47.810  No values available
+21:00:47.810  No values available
+
+pmval: pmFetch: Corrupted record in a PCP archive log
