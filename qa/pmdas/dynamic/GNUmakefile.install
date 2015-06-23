@@ -27,12 +27,12 @@ endif
 
 CFILES	= dynamic.c
 CMDTARGET = pmdadynamic
-TARGETS = $(LIBTARGET) $(CMDTARGET)
+TARGETS = $(CMDTARGET)
 LDIRT	= *.log help.dir help.pag
 
 LLDLIBS = -lpcp_pmda -lpcp $(LIB_FOR_MATH) $(LIB_FOR_DLOPEN) $(LIB_FOR_PTHREADS)
 
-default default_pcp setup:: $(TARGETS)
+default default_pcp setup:
 
 install install_pcp: default
 

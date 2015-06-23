@@ -748,7 +748,7 @@ else
     x=`pwd`
     while [ -n "$x" -a "$x" != / ]
     do
-	prot=`ls -ld "$x" | sed -e 's/[ 	].*//'`
+	prot=`ls -ldL "$x" | sed -e 's/[ 	].*//'`
 	case $prot
 	in
 	    dr?xr?xr?[xt]*)
