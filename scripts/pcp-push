@@ -75,7 +75,15 @@ push=`echo "$pull" | sed -e 's/^git:/ssh:/' -e "s;/git.pcp.io/;/git.pcp.io/oss/g
 push="$push $branch"
 echo "Changes committed to $pull $branch" >/tmp/msg
 echo >>/tmp/msg
-git shortlog --no-merges --numbered $range >>/tmp/msg
+git shortlog --no-merges --numbered $range >$tmp.tmp
+if [ -s $tmp.tmp ]
+then
+    cat $tmp.tmp >>/tmp/msg
+else
+    echo "Nothing to push ... bye."
+    rm -f /tmp/msg
+    exit
+fi
 git log --no-merges -p $range | diffstat -p1 >>/tmp/msg
 if $short
 then
