@@ -2978,7 +2978,6 @@ then
 
 $as_echo "#define IS_SOLARIS 1" >>confdefs.h
 
-    export PATH="$PATH:/opt/SunStudioExpress/bin"
     export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing"
     export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any"
 elif test $target_os = aix
@@ -3941,7 +3940,7 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-if test "x$enable_ssp" != xno; then :
+if test $cc_is_gcc -a "x$enable_ssp" != xno; then :
 
    save_CFLAGS="$CFLAGS"
    CFLAGS="$CFLAGS -fstack-protector-all -D_FORTIFY_SOURCE=2"
@@ -3969,7 +3968,7 @@ if test "${enable_pie+set}" = set; then :
   enableval=$enable_pie;
 fi
 
-if test "x$enable_pie" != xno; then :
+if test $cc_is_gcc -a "x$enable_pie" != xno; then :
 
    PIECFLAGS='-fPIE'
    PIELDFLAGS='-pie -Wl,-z,relro -Wl,-z,now'
@@ -4009,7 +4008,7 @@ if test "${enable_visibility+set}" = set; then :
   enableval=$enable_visibility;
 fi
 
-if test "x$enable_visibility" != xno; then :
+if test $cc_is_gcc -a "x$enable_visibility" != xno; then :
 
    INVISIBILITY="-fvisibility=hidden"
    save_CFLAGS="$CFLAGS"
@@ -9012,6 +9011,7 @@ NR == 1			{ if ($1 != "UID" && $1 != "USER") exit
 # Unix variants
 $2 == 1 && / init/	{ print "OK"; exit }
 $2 == 1 && / \/etc\/init/ { print "OK"; exit }
+$2 == 1 && / \/usr\/sbin\/init/ { print "OK"; exit }
 # Open Build Service
 $2 == 1 && / \/bin\/bash/ { print "OK"; exit }
 # similarly for a simple Docker container, e.g.
@@ -11590,7 +11590,7 @@ main ()
   return 0;
 }
 _ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
+if ac_fn_c_try_link "$LINENO"; then :
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
      rdynamic_flag=-rdynamic
@@ -11600,7 +11600,8 @@ $as_echo "no" >&6; }
      rdynamic_flag=
 
 fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
 CFLAGS="$save_CFLAGS"
 
 
