@@ -56,6 +56,8 @@ my @postfix_received_dom = (
 		1 => 'smtp',
 	     );
 
+my $setup = defined($ENV{'PCP_PERL_PMNS'}) || defined($ENV{'PCP_PERL_DOMAIN'});
+
 sub postfix_do_refresh
 {
     QUEUE:
@@ -226,7 +228,7 @@ if (defined($ENV{'PMDA_POSTFIX_QSHAPE'})) {
     $qshape = $ENV{'PMDA_POSTFIX_QSHAPE'};
     $qshape_args = '';
 }
-$pmda->log("qshape cmd: $qshape $qshape_args <qname>");
+if (!$setup) { $pmda->log("qshape cmd: $qshape $qshape_args <qname>"); }
 
 if (defined($ENV{'PMDA_POSTFIX_REFRESH'})) { $refresh = $ENV{'PMDA_POSTFIX_REFRESH'}; }
 
@@ -241,7 +243,7 @@ unless(defined($logfile))
     pmda->log("Fatal: No Postfix log file found in: @logfiles");
     die 'No Postfix log file found';
 }
-$pmda->log("logfile: $logfile");
+if (!$setup) { $pmda->log("logfile: $logfile"); }
 
 $pmda->add_indom($postfix_queues_indom, \@postfix_queues_dom, '', '');
 $pmda->add_indom($postfix_sent_indom, \@postfix_sent_dom, '', '');
