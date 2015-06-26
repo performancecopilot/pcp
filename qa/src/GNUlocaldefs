@@ -210,7 +210,7 @@ CFILES_TARGETS = $(CFILES)
 
 TARGETS = $(subst broken_pmda,,$(basename $(CFILES_TARGETS))) \
 	chkctx2_lite template \
-	fetchrate_lite pv
+	fetchrate_lite pv qa_shmctl.$(DSOSUFFIX)
 
 ifeq ($(HAVE_64), 1)
 TARGETS	+= pv64
@@ -778,8 +778,10 @@ units-parse: units-parse.c
 qa_timezone.$(DSOSUFFIX):	qa_timezone.o
 	$(LD) -shared -o $@ -nostdlib $<
 
-qa_shmctl.$(DSOSUFFIX):	 qa_shmctl.o
-	$(LD) -shared -o $@ -nostdlib $<
+qa_shmctl.$(DSOSUFFIX):	 qa_shmctl.c
+	$(CC) -fPIC -c qa_shmctl.c
+	$(LD) -shared -o $@ -nostdlib qa_shmctl.o
+	@rm -f qa_shmctl.o
 
 ifneq ($(NVIDIAQALIB),)
 $(NVIDIAQALIB):	nvidia-ml.o

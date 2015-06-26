@@ -25,9 +25,6 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 # real QA test starts here
 pmda=$PCP_PDMAS_DIR/linux/pmda_linux.$DSO_SUFFIX,linux_init
 
-cd $here/src
-make qa_shmctl.so >$here/$seq.full 2>&1
-cd $here
 LD_PRELOAD=$here/src/qa_shmctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.tot
 LD_PRELOAD=$here/src/qa_shmctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.rss
 LD_PRELOAD=$here/src/qa_shmctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.swp
