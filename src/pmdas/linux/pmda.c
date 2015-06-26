@@ -3207,17 +3207,17 @@ static pmdaMetric metrictab[] = {
 /* ipc.shm.tot */
   { NULL,
     { PMDA_PMID(CLUSTER_SHM_INFO, 0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
-    PMDA_PMUNITS(0,0,0,0,0,0)}},
+    PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)}},
 
 /* ipc.shm.rss */
   { NULL,
     { PMDA_PMID(CLUSTER_SHM_INFO, 1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
-    PMDA_PMUNITS(0,0,0,0,0,0)}},
+    PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)}},
 
 /* ipc.shm.swp */
   { NULL,
     { PMDA_PMID(CLUSTER_SHM_INFO, 2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
-    PMDA_PMUNITS(0,0,0,0,0,0)}},
+    PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)}},
 
 /*
  * shared memory limits cluster
