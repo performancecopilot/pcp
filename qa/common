@@ -733,6 +733,23 @@ else
     then
 	# running QA in the tree
 	${MAKE:-make} -f GNUmakefile.install setup
+	cd pmdas
+	if ${MAKE:-make} setup >$tmp.tmp 2>&1
+	then
+	    :
+	else
+	    cat $tmp.tmp
+	    echo "Warning: pmdas: $MAKE -f GNUmakefile.install setup failed"
+	fi
+	cd broken
+	if ${MAKE:-make} -f GNUmakefile.install broken_v2.dir >$tmp.tmp 2>&1
+	then
+	    :
+	else
+	    cat $tmp.tmp
+	    echo "Warning: pmdas/broken: $MAKE -f GNUmakefile.install broken_v2.dir failed"
+	fi
+	cd ../..
     else
 	${MAKE:-make} setup
     fi
