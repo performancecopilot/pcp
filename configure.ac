@@ -642,6 +642,7 @@ AS_IF([test "x$do_qt" != "xno"], [
     if test -z "$QMAKE"
     then
 	AC_PATH_PROGS(QMAKE, [qmake-qt4 qmake],, [$QTDIR/bin:/usr/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin])
+	test $cc_is_gcc -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
     fi
     qmake=$QMAKE
     if test -z "$QMAKE"

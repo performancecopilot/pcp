@@ -6456,6 +6456,7 @@ fi
   test -n "$QMAKE" && break
 done
 
+	test $cc_is_gcc -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
     fi
     qmake=$QMAKE
     if test -z "$QMAKE"
