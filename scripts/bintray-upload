@@ -44,15 +44,14 @@ generic_upload()
 
 rpm_upload()
 {
-    path="$1"; file="$2"; vers="$3"; build="$4"; suffix="$5"
+    distro="$1"; file="$2"; vers="$3"; build="$4"
 
-    target=`echo $file | sed -e "s/${vers}-${build}/$vers-$build.$suffix/g"`
-    url="https://api.bintray.com/content/pcp/rpm/${path}/${vers}/${target}"
+    target=`echo $file | sed -e "s/${vers}-${build}/$vers-$build.${distro}/g"`
+    url="https://api.bintray.com/content/pcp/${distro}/${target}"
     echo "Uploading ${file} to:" && echo "    ${url}"
     curl \
 	-T ${file} -u ${user}:${apikey} \
-	-H "X-BinTray-Package:${path}" -H "X-Bintray-Version:${vers}" \
-	"${url};publish=1"
+	"${url};bt_package=pcp;bt_version=${vers};publish=1"
     echo
 }
 
@@ -132,29 +131,29 @@ fi
 # RPM packages 
 if cd ${topdir}/pcp-${version}/build/rpm 2>/dev/null
 then
-    # $distro is something like "RHEL-7-PCP", $suffix is "el7"
+    # $distro is something like "el7"
     [ -z "${distro}" ] && quit "distro is not configured (via .bintrayrc)"
-    [ -z "${suffix}" ] && quit "suffix is not configured (via .bintrayrc)"
     previous=no
+    srcrpm=`echo *.src.rpm`
     for rpm in *.rpm
     do
+	[ "${rpm}" = "${srcrpm}" ] && continue
 	verify_asset ${rpm} ${previous} && \
 	previous=yes && \
-	rpm_upload ${distro} ${rpm} ${version} ${buildid} ${suffix}
+	rpm_upload ${distro} ${rpm} ${version} ${buildid}
     done
 fi
 
 # DEB packages 
 if cd ${topdir}/build/deb 2>/dev/null
 then
-    # $distro is something like "Debian-7-PCP", $suffix is "wheezy"
+    # $distro is something like "wheezy"
     [ -z "${distro}" ] && quit "distro is not configured (via .bintrayrc)"
-    [ -z "${suffix}" ] && quit "suffix is not configured (via .bintrayrc)"
     previous=no
     for deb in *.deb
     do
 	verify_asset ${deb} ${previous} && \
 	previous=yes && \
-	deb_upload ${distro} ${deb} ${version} ${buildid} ${suffix}
+	deb_upload ${distro} ${deb} ${version} ${buildid}
     done
 fi
