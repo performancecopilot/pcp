@@ -23,7 +23,8 @@ $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-pmda=$PCP_PDMAS_DIR/linux/pmda_linux.$DSO_SUFFIX,linux_init
+export LINUX_PAGESIZE=4096
+pmda=$PCP_PMDAS_DIR/linux/pmda_linux.$DSO_SUFFIX,linux_init
 
 cd $here/src
 make qa_shmctl.so >$here/$seq.full 2>&1

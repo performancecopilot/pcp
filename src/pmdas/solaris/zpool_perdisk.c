@@ -28,7 +28,7 @@ static char *
 make_vdev_name(zpool_handle_t *zp, const char *pname, nvlist_t *child)
 {
 	char *name = NULL;
-	char *cname = zpool_vdev_name(zh, zp, child, B_FALSE);
+	char *cname = zpool_vdev_name(zh, zp, child, B_FALSE, B_FALSE);
 	uint_t size;
 
 	if (cname == NULL) {

@@ -298,8 +298,8 @@ photosyst(struct sstat *si)
 	si->mem.hugepagesz = extract_count_t(result, descs, HUGEPAGESZ);
 
 	/* shmctl(2) */
-	si->mem.shmrss = extract_count_t(result, descs, MEM_SHMRSS);
-	si->mem.shmswp = extract_count_t(result, descs, MEM_SHMSWP);
+	si->mem.shmrss = extract_count_t(result, descs, MEM_SHMRSS) * 1024;
+	si->mem.shmswp = extract_count_t(result, descs, MEM_SHMSWP) * 1024;
 
 	/* /proc/net/dev */
 	nrintf = get_instances("interfaces", PERINTF_RBYTE, descs, &ids, &insts);
