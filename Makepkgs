@@ -17,6 +17,7 @@
 #
 
 topdir=`pwd`
+signed=false
 verbose=false
 srconly=false
 nonrpm=unknown
@@ -131,6 +132,10 @@ do
 	;;
     --nondeb)
 	nondeb=true
+	shift
+	;;
+    --signed)
+	signed=true
 	shift
 	;;
     --source)
@@ -385,11 +390,8 @@ debian_buildpackage()
     echo "== Building deb packages using dpkg-buildpackage"
 
     SUDO=${SUDO:-fakeroot}
-    # Don't try to sign packages unless you're Nathan Scott!
-    # Otherwise we risk Makepkgs exiting with a non-zero status.
-    #
     sign=''
-    [ "`id -un`" != "nathans" ] && sign='-us -uc'
+    $signed -o -n "$DEB_SIGN_KEYID" && sign='-us -uc'
     rm -f $tmp/failed
     if $verbose ; then
 	(dpkg-buildpackage $sign -r$SUDO || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
