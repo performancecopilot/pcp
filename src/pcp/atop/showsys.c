@@ -907,8 +907,9 @@ sysprt_MEMTOT(void *p, void *notused, int badness, int *color)
 {
         struct sstat *sstat=p;
         static char buf[16]="tot   ";
+        count_t value = sstat->mem.physmem * 1024;
+        val2memstr(value, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
 	*color = -1;
-        val2memstr(sstat->mem.physmem, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -919,8 +920,9 @@ sysprt_MEMFREE(void *p, void *notused, int badness, int *color)
 {
         struct sstat *sstat=p;
         static char buf[16]="free  ";
+        count_t value = sstat->mem.freemem * 1024;
 	*color = -1;
-        val2memstr(sstat->mem.freemem, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
+        val2memstr(value, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -931,8 +933,9 @@ sysprt_MEMCACHE(void *p, void *notused, int badness, int *color)
 {
         struct sstat *sstat=p;
         static char buf[16]="cache ";
+        count_t value = sstat->mem.cachemem * 1024;
+        val2memstr(value, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
 	*color = -1;
-        val2memstr(sstat->mem.cachemem, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -943,8 +946,9 @@ sysprt_MEMDIRTY(void *p, void *notused, int badness, int *color)
 {
         struct sstat *sstat=p;
         static char buf[16] = "dirty ";
-        val2memstr(sstat->mem.cachedrt, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
-
+        count_t value = sstat->mem.cachedrt * 1024;
+        val2memstr(value, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
+	*color = -1;
         return buf;
 }
 
@@ -955,8 +959,9 @@ sysprt_MEMBUFFER(void *p, void *notused, int badness, int *color)
 {
         struct sstat *sstat=p;
         static char buf[16]="buff  ";
+        count_t value = sstat->mem.buffermem * 1024;
+        val2memstr(value, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
 	*color = -1;
-        val2memstr(sstat->mem.buffermem, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -967,8 +972,9 @@ sysprt_MEMSLAB(void *p, void *notused, int badness, int *color)
 {
         struct sstat *sstat=p;
         static char buf[16]="slab  ";
+        count_t value = sstat->mem.slabmem * 1024;
+        val2memstr(value, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
 	*color = -1;
-        val2memstr(sstat->mem.slabmem, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -979,8 +985,9 @@ sysprt_RECSLAB(void *p, void *notused, int badness, int *color)
 {
         struct sstat *sstat=p;
         static char buf[16]="slrec ";
+        count_t value = sstat->mem.slabreclaim * 1024;
+        val2memstr(value, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
 	*color = -1;
-        val2memstr(sstat->mem.slabreclaim, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -991,8 +998,9 @@ sysprt_SHMEM(void *p, void *notused, int badness, int *color)
 {
         struct sstat *sstat=p;
         static char buf[16]="shmem  ";
+        count_t value = sstat->mem.shmem * 1024;
+        val2memstr(value, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
 	*color = -1;
-        val2memstr(sstat->mem.shmem, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -1003,8 +1011,9 @@ sysprt_SHMRSS(void *p, void *notused, int badness, int *color)
 {
         struct sstat *sstat=p;
         static char buf[16]="shrss  ";
+        count_t value = sstat->mem.shmrss * 1024;
+        val2memstr(value, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
 	*color = -1;
-        val2memstr(sstat->mem.shmrss, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -1015,8 +1024,9 @@ sysprt_SHMSWP(void *p, void *notused, int badness, int *color)
 {
         struct sstat *sstat=p;
         static char buf[16]="shswp  ";
+        count_t value = sstat->mem.shmswp * 1024;
+        val2memstr(value, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
 	*color = -1;
-        val2memstr(sstat->mem.shmswp, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
         return buf;
 }
 
@@ -1089,7 +1099,9 @@ sysprt_SWPCOMMITTED(void *p, void *notused, int badness, int *color)
 {
         struct sstat *sstat=p;
         static char buf[16]="vmcom  ";
-        val2memstr(sstat->mem.committed, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
+	count_t value = sstat->mem.committed * 1024;
+
+        val2memstr(value, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
 
 	if (sstat->mem.commitlim && sstat->mem.committed > sstat->mem.commitlim)
 		*color = COLORALMOST;
@@ -1104,7 +1116,9 @@ sysprt_SWPCOMMITLIM(void *p, void *notused, int badness, int *color)
 {
         struct sstat *sstat=p;
         static char buf[16]="vmlim  ";
-        val2memstr(sstat->mem.commitlim, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
+	count_t value = sstat->mem.commitlim * 1024;
+
+        val2memstr(value, buf+6, sizeof(buf)-7, MBFORMAT, 0, 0);
 
 	if (sstat->mem.commitlim && sstat->mem.committed > sstat->mem.commitlim)
 		*color = COLORINFO;
