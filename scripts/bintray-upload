@@ -62,7 +62,7 @@ deb_upload()
 
     deb="deb_distribution=${suffix};deb_component=main;deb_architecture=any,all"
     target=`echo ${file} | sed -e "s/${vers}/${vers}-${build}${suffix}/g"`
-    url="https://api.bintray.com/content/pcp/rpm/${path}/${vers}/${target}"
+    url="https://api.bintray.com/content/pcp/deb/${path}/${vers}/${target}"
     echo "Uploading ${file} to:" && echo "    ${url}"
     curl \
 	-T ${file} -u ${user}:${apikey} \
@@ -155,6 +155,6 @@ then
     do
 	verify_asset ${deb} ${previous} && \
 	previous=yes && \
-	rpm_upload ${distro} ${deb} ${version} ${buildid} ${suffix}
+	deb_upload ${distro} ${deb} ${version} ${buildid} ${suffix}
     done
 fi
