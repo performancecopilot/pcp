@@ -66,16 +66,13 @@ do
     base=`basename $tgz`
 
     echo "== Checking metric values - $base" | tee -a $here/$seq.full
-    pminfo -L -K clear -K add,60,$pmda -f $metrics \
+    pminfo -L -K clear -K add,60,$pmda -f $metrics 2>&1 \
     | tee -a $here/$seq.full \
     | _slice_sort_reassemble
-    ( echo && echo "== done" && echo ) | tee -a $here/$seq
+    ( echo && echo "== done" && echo ) | tee -a $here/$seq.full
     cd $here
 done
 
 # success, all done
 status=0
 exit
-
-== done
-
