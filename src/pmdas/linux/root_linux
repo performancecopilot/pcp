@@ -253,6 +253,7 @@ disk.dev {
     avactive		60:0:46
     read_rawactive	60:0:72
     write_rawactive	60:0:73
+    total_rawactive	60:0:79
     aveq		60:0:47
     scheduler		60:0:59
 }
@@ -272,6 +273,7 @@ disk.all {
     avactive		60:0:44
     read_rawactive	60:0:74
     write_rawactive	60:0:75
+    total_rawactive	60:0:80
     aveq		60:0:45
 }
 
@@ -291,6 +293,7 @@ disk.dm {
     aveq		60:54:12
     read_rawactive	60:54:14
     write_rawactive	60:54:15
+    total_rawactive	60:54:16
 }
 
 disk.partitions {
@@ -309,6 +312,7 @@ disk.partitions {
     aveq                60:10:12
     read_rawactive      60:10:13
     write_rawactive     60:10:14
+    total_rawactive	60:10:15
 }
 
 mem {

@@ -426,6 +426,7 @@ static pmID disk_metric_table[] = {
     /* disk.dev.scheduler */	     PMDA_PMID(CLUSTER_STAT,59),
     /* disk.dev.read_rawactive */    PMDA_PMID(CLUSTER_STAT,72),
     /* disk.dev.write_rawactive	*/   PMDA_PMID(CLUSTER_STAT,73),
+    /* disk.dev.total_rawactive	*/   PMDA_PMID(CLUSTER_STAT,79),
 
     /* disk.all.read */		     PMDA_PMID(CLUSTER_STAT,24),
     /* disk.all.write */	     PMDA_PMID(CLUSTER_STAT,25),
@@ -442,6 +443,7 @@ static pmID disk_metric_table[] = {
     /* disk.all.aveq */		     PMDA_PMID(CLUSTER_STAT,45),
     /* disk.all.read_rawactive */    PMDA_PMID(CLUSTER_STAT,74),
     /* disk.all.write_rawactive	*/   PMDA_PMID(CLUSTER_STAT,75),
+    /* disk.all.total_rawactive	*/   PMDA_PMID(CLUSTER_STAT,80),
 
     /* disk.partitions.read */	     PMDA_PMID(CLUSTER_PARTITIONS,0),
     /* disk.partitions.write */	     PMDA_PMID(CLUSTER_PARTITIONS,1),
@@ -458,6 +460,7 @@ static pmID disk_metric_table[] = {
     /* disk.partitions.aveq */       PMDA_PMID(CLUSTER_PARTITIONS,12),
     /* disk.partitions.read_rawactive */  PMDA_PMID(CLUSTER_PARTITIONS,13),
     /* disk.partitions.write_rawactive */ PMDA_PMID(CLUSTER_PARTITIONS,14),
+    /* disk.partitions.total_rawactive */ PMDA_PMID(CLUSTER_PARTITIONS,15),
 
 
     /* hinv.ndisk */                 PMDA_PMID(CLUSTER_STAT,33),
@@ -478,6 +481,7 @@ static pmID disk_metric_table[] = {
     /* hinv.map.dmname */	     PMDA_PMID(CLUSTER_DM,13),
     /* disk.dm.read_rawactive */     PMDA_PMID(CLUSTER_DM,14),
     /* disk.dm.write_rawactive */    PMDA_PMID(CLUSTER_DM,15),
+    /* disk.dm.total_rawactive */    PMDA_PMID(CLUSTER_DM,16),
 };
 
 int
@@ -653,6 +657,11 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return PM_ERR_INST;
 	    atom->ul = p->wr_ticks;
 	    break;
+	case 79: /* disk.dev.total_rawactive already ms from /proc/diskstats */
+	    if (p == NULL)
+		return PM_ERR_INST;
+	    atom->ul = p->rd_ticks + p->wr_ticks;
+	    break;
 	default:
 	    /* disk.all.* is a singular instance domain */
 	    atom->ull = 0;
@@ -706,6 +715,9 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		    break;
 		case 75: /* disk.all.write_rawactive ... already msec from /proc/diskstats */
 		    atom->ull += p->wr_ticks;
+		    break;
+		case 80: /* disk.all.total_rawactive ... already msec from /proc/diskstats */
+		    atom->ull += p->rd_ticks + p->wr_ticks;
 		    break;
 		default:
 		    return PM_ERR_PMID;
@@ -785,6 +797,12 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
                 else
                     atom->ul = p->wr_ticks;
                 break;
+            case 15: /* disk.partitions.total_rawactive */
+                if (_pm_have_kernel_2_6_partition_stats)
+                    return PM_ERR_APPVERSION; /* no read_rawactive or write_rawactive for partition in 2.6 */
+                else
+                    atom->ul = p->rd_ticks + p->wr_ticks;
+                break;
 	    default:
 	    return PM_ERR_PMID;
 	}
@@ -841,6 +859,9 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 15: /* disk.dm.write_rawactive */
 	    atom->ul = p->wr_ticks;
+	    break;
+	case 16: /* disk.dm.total_rawactive */
+	    atom->ul = p->rd_ticks + p->wr_ticks;
 	    break;
 	default:
 	    return PM_ERR_PMID;
