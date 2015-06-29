@@ -236,7 +236,6 @@ then
 elif test $target_os = solaris
 then
     AC_DEFINE(IS_SOLARIS, [1], [Platform is Solaris])
-    export PATH="$PATH:/opt/SunStudioExpress/bin"
     export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing"
     export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any"
 elif test $target_os = aix
@@ -279,7 +278,7 @@ fi
 # Add some security-related gcc flags
 AC_ARG_ENABLE([ssp],
   [AS_HELP_STRING([--disable-ssp], [disable gcc stack-protector])])
-AS_IF([test "x$enable_ssp" != xno],[
+AS_IF([test $cc_is_gcc -a "x$enable_ssp" != xno],[
    save_CFLAGS="$CFLAGS"
    CFLAGS="$CFLAGS -fstack-protector-all -D_FORTIFY_SOURCE=2"
    AC_COMPILE_IFELSE([AC_LANG_SOURCE([int something ();])], [
@@ -291,7 +290,7 @@ AS_IF([test "x$enable_ssp" != xno],[
 # Check for even more security-related gcc/linker flags, useful for daemons
 AC_ARG_ENABLE([pie],
   [AS_HELP_STRING([--disable-pie], [disable position-independent-executable])])
-AS_IF([test "x$enable_pie" != xno],[
+AS_IF([test $cc_is_gcc -a "x$enable_pie" != xno],[
    PIECFLAGS='-fPIE'
    PIELDFLAGS='-pie -Wl,-z,relro -Wl,-z,now'
    save_CFLAGS="$CFLAGS"
@@ -314,7 +313,7 @@ AC_SUBST(PIECFLAGS)
 # Check for support for symbol hiding via gcc flags
 AC_ARG_ENABLE([visibility],
   [AS_HELP_STRING([--disable-visibility], [disable gcc symbol visibility])])
-AS_IF([test "x$enable_visibility" != xno],[
+AS_IF([test $cc_is_gcc -a "x$enable_visibility" != xno],[
    INVISIBILITY="-fvisibility=hidden"
    save_CFLAGS="$CFLAGS"
    CFLAGS="$CFLAGS -c $INVISIBILITY"
@@ -643,6 +642,7 @@ AS_IF([test "x$do_qt" != "xno"], [
     if test -z "$QMAKE"
     then
 	AC_PATH_PROGS(QMAKE, [qmake-qt4 qmake],, [$QTDIR/bin:/usr/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin])
+	test $cc_is_gcc -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
     fi
     qmake=$QMAKE
     if test -z "$QMAKE"
@@ -1190,6 +1190,7 @@ NR == 1			{ if ($1 != "UID" && $1 != "USER") exit
 # Unix variants
 $2 == 1 && / init/	{ print "OK"; exit }
 $2 == 1 && / \/etc\/init/ { print "OK"; exit }
+$2 == 1 && / \/usr\/sbin\/init/ { print "OK"; exit }
 # Open Build Service
 $2 == 1 && / \/bin\/bash/ { print "OK"; exit }
 # similarly for a simple Docker container, e.g.
@@ -1662,7 +1663,7 @@ dnl This is e.g., needed on linux for pmcd loading pmda_pmcd.so.
 AC_MSG_CHECKING([if linker supports -rdynamic])
 save_CFLAGS="$CFLAGS"
 CFLAGS="-rdynamic"
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([])],
+AC_LINK_IFELSE([AC_LANG_PROGRAM([])],
     [AC_MSG_RESULT([yes])
      rdynamic_flag=-rdynamic],
     [AC_MSG_RESULT([no])

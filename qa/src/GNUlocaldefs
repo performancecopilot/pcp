@@ -217,7 +217,7 @@ TARGETS	+= pv64
 endif
 
 LCFLAGS = -DHAVE_TRACE
-LLDLIBS	= $(PCPLIB) $(LDFLAGS)
+LLDLIBS	= $(LDFLAGS) $(PCPLIB)
 
 ifneq ($(NVIDIAQALIB),)
 LIBTARGET = true
@@ -227,7 +227,7 @@ TARGETS += $(NVIDIAQALIB)
 endif
 
 # libpcp_trace is ready
-TRACELIB	= -lpcp_trace $(LLDLIBS)
+TRACELIB	= $(LLDLIBS) -lpcp_trace
 
 # all archives, except the ones checked into the source tree,
 # then add executables beyond $(TARGETS)
@@ -450,64 +450,64 @@ domain.h:	$(PCP_VAR_DIR)/pmns/stdpmid
 
 pmdashutdown:	pmdashutdown.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
 
 dumb_pmda: dumb_pmda.c
-	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
 
 pmdacache: pmdacache.c
-	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
 
 pmdaqueue: pmdaqueue.c
-	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
 
 rootclient: rootclient.c
-	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
 
 atomstr: atomstr.c
-	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
 
 keycache: keycache.c
-	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
 
 keycache2: keycache2.c
-	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
 
 badpmda: badpmda.c
-	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
 
 # --- need libpcp_gui
 #
 
 record:	record.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_gui $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_gui
 
 record-setarg: record-setarg.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_gui $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_gui
 
 # --- need libpcp_mmv
 #
 mmv_genstats:	mmv_genstats.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_mmv $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_mmv
 
 mmv_instances:	mmv_instances.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_mmv $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_mmv
 
 mmv_noinit:	mmv_noinit.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_mmv $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_mmv
 
 mmv_nostats:	mmv_nostats.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_mmv $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_mmv
 
 pducheck:	pducheck.o 
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ pducheck.o  $(TRACELIB) -lpcp_pmda $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ pducheck.o  $(TRACELIB) $(LDLIBS) -lpcp_pmda
 
 pducrash:	pducrash.o 
 	rm -f $@
@@ -519,7 +519,7 @@ pdu-server:	pdu-server.o
 
 torture_cache:	torture_cache.o 
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ torture_cache.o -lpcp_pmda $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ torture_cache.o $(LDLIBS) -lpcp_pmda
 
 obs:	obs.c
 	rm -f $@
@@ -542,11 +542,11 @@ tabort:	tabort.c
 
 check_import:	check_import.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_import $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_import
 
 check_import_name:	check_import_name.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_import $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_import
 
 # --- need libpcp_fault
 #

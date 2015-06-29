@@ -11,8 +11,8 @@ cpu | sys       1% | user      2% | irq       0% | idle     96% | cpu002 w  1% |
 cpu | sys       0% | user      2% | irq       0% | idle     96% | cpu000 w  1% |
 cpu | sys       0% | user      2% | irq       0% | idle     97% | cpu003 w  0% |
 CPL | avg1    1.00 | avg5    1.02 | avg15   1.05 | csw 717701e3 | intr 24148e4 |
-MEM | tot     3.8M | free    0.4M | cache   1.5M | buff    0.2M | slab    0.2M |
-SWP | tot    13.3G | free   12.7G |              | vmcom   5.0M | vmlim  15.2M |
+MEM | tot     3.8G | free  421.5M | cache   1.5G | buff  173.4M | slab  206.1M |
+SWP | tot    13.3G | free   12.7G |              | vmcom   5.0G | vmlim  15.2G |
 PAG | scan 42457e3 | steal 4295e6 | stall  26324 | swin  203579 | swout 431258 |
 DSK |          sda | busy      3% | read 1577086 | write 2023e3 | avio 6.08 ms |
 NET | transport    | tcpi 4724854 | tcpo 4460194 | udpi  766685 | udpo  792760 |
@@ -308,8 +308,8 @@ cpu | sys       3% | user      3% | irq       0% | idle     94% | cpu002 w  0% |
 cpu | sys       0% | user      3% | irq       0% | idle     97% | cpu003 w  0% |
 cpu | sys       2% | user      1% | irq       0% | idle     97% | cpu000 w  0% |
 CPL | avg1    1.00 | avg5    1.02 | avg15   1.05 | csw     1688 | intr     373 |
-MEM | tot     3.8M | free    0.4M | cache   1.5M | buff    0.2M | slab    0.2M |
-SWP | tot    13.3G | free   12.7G |              | vmcom   5.0M | vmlim  15.2M |
+MEM | tot     3.8G | free  420.8M | cache   1.5G | buff  173.4M | slab  206.1M |
+SWP | tot    13.3G | free   12.7G |              | vmcom   5.0G | vmlim  15.2G |
 DSK |          sda | busy      0% | read       0 | write      2 | avio 1.50 ms |
 NET | transport    | tcpi       4 | tcpo       6 | udpi       4 | udpo       0 |
 NET | network      | ipi        7 | ipo        6 | ipfrw      0 | deliv      7 |
@@ -352,8 +352,8 @@ cpu | sys       1% | user     19% | irq       0% | idle     80% | cpu001 w  0% |
 cpu | sys       3% | user      7% | irq       0% | idle     90% | cpu000 w  0% |
 cpu | sys       0% | user      0% | irq       0% | idle    100% | cpu003 w  0% |
 CPL | avg1    1.00 | avg5    1.02 | avg15   1.05 | csw     1718 | intr     496 |
-MEM | tot     3.8M | free    0.4M | cache   1.5M | buff    0.2M | slab    0.2M |
-SWP | tot    13.3G | free   12.7G |              | vmcom   5.0M | vmlim  15.2M |
+MEM | tot     3.8G | free  420.9M | cache   1.5G | buff  173.4M | slab  206.1M |
+SWP | tot    13.3G | free   12.7G |              | vmcom   5.0G | vmlim  15.2G |
 DSK |          sda | busy      0% | read       0 | write      3 | avio 1.33 ms |
 NET | transport    | tcpi       1 | tcpo       1 | udpi       0 | udpo       0 |
 NET | network      | ipi        1 | ipo        1 | ipfrw      0 | deliv      1 |
@@ -387,8 +387,8 @@ cpu | sys       1% | user      2% | irq       0% | idle     96% | cpu002 w  1% |
 cpu | sys       0% | user      2% | irq       0% | idle     96% | cpu000 w  1% |
 cpu | sys       0% | user      2% | irq       0% | idle     97% | cpu003 w  0% |
 CPL | avg1    1.00 | avg5    1.02 | avg15   1.05 | csw 717701e3 | intr 24148e4 |
-MEM | tot     3.8M | free    0.4M | cache   1.5M | buff    0.2M | slab    0.2M |
-SWP | tot    13.3G | free   12.7G |              | vmcom   5.0M | vmlim  15.2M |
+MEM | tot     3.8G | free  421.5M | cache   1.5G | buff  173.4M | slab  206.1M |
+SWP | tot    13.3G | free   12.7G |              | vmcom   5.0G | vmlim  15.2G |
 PAG | scan 42457e3 | steal 4295e6 | stall  26324 | swin  203579 | swout 431258 |
 DSK |          sda | busy      3% | read 1577086 | write 2023e3 | avio 6.08 ms |
 NET | transport    | tcpi 4724854 | tcpo 4460194 | udpi  766685 | udpo  792760 |
@@ -684,8 +684,8 @@ cpu | sys       3% | user      3% | irq       0% | idle     94% | cpu002 w  0% |
 cpu | sys       0% | user      3% | irq       0% | idle     97% | cpu003 w  0% |
 cpu | sys       2% | user      1% | irq       0% | idle     97% | cpu000 w  0% |
 CPL | avg1    1.00 | avg5    1.02 | avg15   1.05 | csw     1688 | intr     373 |
-MEM | tot     3.8M | free    0.4M | cache   1.5M | buff    0.2M | slab    0.2M |
-SWP | tot    13.3G | free   12.7G |              | vmcom   5.0M | vmlim  15.2M |
+MEM | tot     3.8G | free  420.8M | cache   1.5G | buff  173.4M | slab  206.1M |
+SWP | tot    13.3G | free   12.7G |              | vmcom   5.0G | vmlim  15.2G |
 DSK |          sda | busy      0% | read       0 | write      2 | avio 1.50 ms |
 NET | transport    | tcpi       4 | tcpo       6 | udpi       4 | udpo       0 |
 NET | network      | ipi        7 | ipo        6 | ipfrw      0 | deliv      7 |
@@ -728,8 +728,8 @@ cpu | sys       1% | user     19% | irq       0% | idle     80% | cpu001 w  0% |
 cpu | sys       3% | user      7% | irq       0% | idle     90% | cpu000 w  0% |
 cpu | sys       0% | user      0% | irq       0% | idle    100% | cpu003 w  0% |
 CPL | avg1    1.00 | avg5    1.02 | avg15   1.05 | csw     1718 | intr     496 |
-MEM | tot     3.8M | free    0.4M | cache   1.5M | buff    0.2M | slab    0.2M |
-SWP | tot    13.3G | free   12.7G |              | vmcom   5.0M | vmlim  15.2M |
+MEM | tot     3.8G | free  420.9M | cache   1.5G | buff  173.4M | slab  206.1M |
+SWP | tot    13.3G | free   12.7G |              | vmcom   5.0G | vmlim  15.2G |
 DSK |          sda | busy      0% | read       0 | write      3 | avio 1.33 ms |
 NET | transport    | tcpi       1 | tcpo       1 | udpi       0 | udpo       0 |
 NET | network      | ipi        1 | ipo        1 | ipfrw      0 | deliv      1 |
@@ -763,8 +763,8 @@ cpu | sys       1% | user      2% | irq       0% | idle     96% | cpu002 w  1% |
 cpu | sys       0% | user      2% | irq       0% | idle     96% | cpu000 w  1% |
 cpu | sys       0% | user      2% | irq       0% | idle     97% | cpu003 w  0% |
 CPL | avg1    1.00 | avg5    1.02 | avg15   1.05 | csw 717701e3 | intr 24148e4 |
-MEM | tot     3.8M | free    0.4M | cache   1.5M | buff    0.2M | slab    0.2M |
-SWP | tot    13.3G | free   12.7G |              | vmcom   5.0M | vmlim  15.2M |
+MEM | tot     3.8G | free  421.5M | cache   1.5G | buff  173.4M | slab  206.1M |
+SWP | tot    13.3G | free   12.7G |              | vmcom   5.0G | vmlim  15.2G |
 PAG | scan 42457e3 | steal 4295e6 | stall  26324 | swin  203579 | swout 431258 |
 DSK |          sda | busy      3% | read 1577086 | write 2023e3 | avio 6.08 ms |
 NET | transport    | tcpi 4724854 | tcpo 4460194 | udpi  766685 | udpo  792760 |
@@ -1060,8 +1060,8 @@ cpu | sys       3% | user      3% | irq       0% | idle     94% | cpu002 w  0% |
 cpu | sys       0% | user      3% | irq       0% | idle     97% | cpu003 w  0% |
 cpu | sys       2% | user      1% | irq       0% | idle     97% | cpu000 w  0% |
 CPL | avg1    1.00 | avg5    1.02 | avg15   1.05 | csw     1688 | intr     373 |
-MEM | tot     3.8M | free    0.4M | cache   1.5M | buff    0.2M | slab    0.2M |
-SWP | tot    13.3G | free   12.7G |              | vmcom   5.0M | vmlim  15.2M |
+MEM | tot     3.8G | free  420.8M | cache   1.5G | buff  173.4M | slab  206.1M |
+SWP | tot    13.3G | free   12.7G |              | vmcom   5.0G | vmlim  15.2G |
 DSK |          sda | busy      0% | read       0 | write      2 | avio 1.50 ms |
 NET | transport    | tcpi       4 | tcpo       6 | udpi       4 | udpo       0 |
 NET | network      | ipi        7 | ipo        6 | ipfrw      0 | deliv      7 |
@@ -1104,8 +1104,8 @@ cpu | sys       1% | user     19% | irq       0% | idle     80% | cpu001 w  0% |
 cpu | sys       3% | user      7% | irq       0% | idle     90% | cpu000 w  0% |
 cpu | sys       0% | user      0% | irq       0% | idle    100% | cpu003 w  0% |
 CPL | avg1    1.00 | avg5    1.02 | avg15   1.05 | csw     1718 | intr     496 |
-MEM | tot     3.8M | free    0.4M | cache   1.5M | buff    0.2M | slab    0.2M |
-SWP | tot    13.3G | free   12.7G |              | vmcom   5.0M | vmlim  15.2M |
+MEM | tot     3.8G | free  420.9M | cache   1.5G | buff  173.4M | slab  206.1M |
+SWP | tot    13.3G | free   12.7G |              | vmcom   5.0G | vmlim  15.2G |
 DSK |          sda | busy      0% | read       0 | write      3 | avio 1.33 ms |
 NET | transport    | tcpi       1 | tcpo       1 | udpi       0 | udpo       0 |
 NET | network      | ipi        1 | ipo        1 | ipfrw      0 | deliv      1 |
@@ -1139,8 +1139,8 @@ cpu | sys       1% | user      2% | irq       0% | idle     96% | cpu002 w  1% |
 cpu | sys       0% | user      2% | irq       0% | idle     96% | cpu000 w  1% |
 cpu | sys       0% | user      2% | irq       0% | idle     97% | cpu003 w  0% |
 CPL | avg1    1.00 | avg5    1.02 | avg15   1.05 | csw 717701e3 | intr 24148e4 |
-MEM | tot     3.8M | free    0.4M | cache   1.5M | buff    0.2M | slab    0.2M |
-SWP | tot    13.3G | free   12.7G |              | vmcom   5.0M | vmlim  15.2M |
+MEM | tot     3.8G | free  421.5M | cache   1.5G | buff  173.4M | slab  206.1M |
+SWP | tot    13.3G | free   12.7G |              | vmcom   5.0G | vmlim  15.2G |
 PAG | scan 42457e3 | steal 4295e6 | stall  26324 | swin  203579 | swout 431258 |
 DSK |          sda | busy      3% | read 1577086 | write 2023e3 | avio 6.08 ms |
 NET | transport    | tcpi 4724854 | tcpo 4460194 | udpi  766685 | udpo  792760 |
@@ -1436,8 +1436,8 @@ cpu | sys       3% | user      3% | irq       0% | idle     94% | cpu002 w  0% |
 cpu | sys       0% | user      3% | irq       0% | idle     97% | cpu003 w  0% |
 cpu | sys       2% | user      1% | irq       0% | idle     97% | cpu000 w  0% |
 CPL | avg1    1.00 | avg5    1.02 | avg15   1.05 | csw     1688 | intr     373 |
-MEM | tot     3.8M | free    0.4M | cache   1.5M | buff    0.2M | slab    0.2M |
-SWP | tot    13.3G | free   12.7G |              | vmcom   5.0M | vmlim  15.2M |
+MEM | tot     3.8G | free  420.8M | cache   1.5G | buff  173.4M | slab  206.1M |
+SWP | tot    13.3G | free   12.7G |              | vmcom   5.0G | vmlim  15.2G |
 DSK |          sda | busy      0% | read       0 | write      2 | avio 1.50 ms |
 NET | transport    | tcpi       4 | tcpo       6 | udpi       4 | udpo       0 |
 NET | network      | ipi        7 | ipo        6 | ipfrw      0 | deliv      7 |
@@ -1480,8 +1480,8 @@ cpu | sys       1% | user     19% | irq       0% | idle     80% | cpu001 w  0% |
 cpu | sys       3% | user      7% | irq       0% | idle     90% | cpu000 w  0% |
 cpu | sys       0% | user      0% | irq       0% | idle    100% | cpu003 w  0% |
 CPL | avg1    1.00 | avg5    1.02 | avg15   1.05 | csw     1718 | intr     496 |
-MEM | tot     3.8M | free    0.4M | cache   1.5M | buff    0.2M | slab    0.2M |
-SWP | tot    13.3G | free   12.7G |              | vmcom   5.0M | vmlim  15.2M |
+MEM | tot     3.8G | free  420.9M | cache   1.5G | buff  173.4M | slab  206.1M |
+SWP | tot    13.3G | free   12.7G |              | vmcom   5.0G | vmlim  15.2G |
 DSK |          sda | busy      0% | read       0 | write      3 | avio 1.33 ms |
 NET | transport    | tcpi       1 | tcpo       1 | udpi       0 | udpo       0 |
 NET | network      | ipi        1 | ipo        1 | ipfrw      0 | deliv      1 |

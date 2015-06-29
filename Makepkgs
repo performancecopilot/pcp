@@ -17,6 +17,7 @@
 #
 
 topdir=`pwd`
+signed=false
 verbose=false
 srconly=false
 nonrpm=unknown
@@ -61,7 +62,7 @@ gnu_tool()
 	    exec=`which $command 2>/dev/null`
 	    if [ -n "$exec" ]
 	    then
-		if $command --help 2>&1 | egrep -q "(bug-$oldcmd@gnu.org)|(FreeBSD $gnutool)|(NetBSD $gnutool)|(Apple $gnutool)"
+		if $command --help 2>&1 | egrep "(bug-$oldcmd@gnu.org)|(FreeBSD $gnutool)|(NetBSD $gnutool)|(Apple $gnutool)" >/dev/null
 		then
 		    echo $exec
 		    return 0
@@ -133,6 +134,10 @@ do
 	nondeb=true
 	shift
 	;;
+    --signed)
+	signed=true
+	shift
+	;;
     --source)
 	srconly=true
 	shift
@@ -187,9 +192,9 @@ in
 	ARCH=`uname -m`
 	[ -f /etc/slackware-version -a "$ARCH" = x86_64 ] && configopts="$configopts --libdir=/usr/lib64"
 	;;
-    sunos)
+    sunos|SunOS)
 	ARCH=`isainfo -k`
-	[ "$ARCH" = amd64 -o "$ARCH" = sparcv9 ] && configopts="$configopts --disable-ssp --libdir=/usr/lib/64"
+	[ "$ARCH" = amd64 -o "$ARCH" = sparcv9 ] && configopts="$configopts --libdir=/usr/lib/64"
 	;;
 esac
 
@@ -385,11 +390,8 @@ debian_buildpackage()
     echo "== Building deb packages using dpkg-buildpackage"
 
     SUDO=${SUDO:-fakeroot}
-    # Don't try to sign packages unless you're Nathan Scott!
-    # Otherwise we risk Makepkgs exiting with a non-zero status.
-    #
     sign=''
-    [ "`id -un`" != "nathans" ] && sign='-us -uc'
+    $signed -o -n "$DEB_SIGN_KEYID" && sign='-us -uc'
     rm -f $tmp/failed
     if $verbose ; then
 	(dpkg-buildpackage $sign -r$SUDO || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp

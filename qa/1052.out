@@ -97,6 +97,75 @@ pmResult ... numpmid: 1
 inst [0 or ???] value 1024
 inst [1 or ???] value 2048
 
+2 0 2147483647
+0 TIMESTAMP first
+1 TIMESTAMP second
+instance 137.4
+pmInDom: 137.4
+[  0] inst: 0 name: "first"
+[  1] inst: 1 name: "second"
+
+fetch json.s2.array_data.count
+PMID(s): 137.2.0
+pmResult ... numpmid: 1
+137.2.0 (<noname>): numval: 2 valfmt: 1 vlist[]:
+inst [1 or ???] value 100
+inst [2 or ???] value 3
+dbpmda> fetch json.s2.array_data.value
+PMID(s): 137.2.1
+pmResult ... numpmid: 1
+137.2.1 (<noname>): numval: 2 valfmt: 1 vlist[]:
+inst [1 or ???] value 2049
+inst [2 or ???] value 3072
+dbpmda> instance 137.4
+pmInDom: 137.4
+[  0] inst: 1 name: "second"
+[  1] inst: 2 name: "third"
+
+2 0 2147483647
+0 TIMESTAMP first
+1 TIMESTAMP second
+2 TIMESTAMP third
+fetch json.s2.array_data.count
+PMID(s): 137.2.0
+pmResult ... numpmid: 1
+137.2.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
+inst [3 or ???] value 4
+dbpmda> fetch json.s2.array_data.value
+PMID(s): 137.2.1
+pmResult ... numpmid: 1
+137.2.1 (<noname>): numval: 2 valfmt: 1 vlist[]:
+inst [0 or ???] value 1025
+inst [3 or ???] value 999
+dbpmda> instance 137.4
+pmInDom: 137.4
+[  0] inst: 0 name: "first"
+[  1] inst: 3 name: "fourth"
+
+2 0 2147483647
+0 TIMESTAMP first
+1 TIMESTAMP second
+2 TIMESTAMP third
+3 TIMESTAMP fourth
+fetch json.s2.array_data.count
+PMID(s): 137.2.0
+pmResult ... numpmid: 1
+137.2.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
+inst [0 or ???] value 2
+dbpmda> fetch json.s2.array_data.value
+PMID(s): 137.2.1
+pmResult ... numpmid: 1
+137.2.1 (<noname>): numval: 1 valfmt: 1 vlist[]:
+inst [0 or ???] value 1026
+dbpmda> instance 137.4
+pmInDom: 137.4
+[  0] inst: 0 name: "first"
+
+2 0 2147483647
+0 TIMESTAMP first
+1 TIMESTAMP second
+2 TIMESTAMP third
+3 TIMESTAMP fourth
 fetch json.nsources
 PMID(s): 137.0.0
 pmResult ... numpmid: 1
