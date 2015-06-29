@@ -43,6 +43,9 @@ disk.all.read_rawactive
 disk.all.write_rawactive
     value 520526656
 
+disk.all.total_rawactive
+    value 532651954
+
 disk.all.aveq
     value 532716500
 
@@ -87,6 +90,9 @@ disk.dev.read_rawactive
 
 disk.dev.write_rawactive
     inst [N or "sda"] value 520526656
+
+disk.dev.total_rawactive
+    inst [N or "sda"] value 532651954
 
 disk.dev.aveq
     inst [N or "sda"] value 532716500
@@ -138,6 +144,9 @@ disk.dm.read_rawactive
 
 disk.dm.write_rawactive
     inst [N or "docker-8:7-1974438-pool"] value 7895
+
+disk.dm.total_rawactive
+    inst [N or "docker-8:7-1974438-pool"] value 16194
 
 disk.partitions.read
     inst [N or "sda1"] value 8457
@@ -332,6 +341,19 @@ disk.partitions.write_rawactive
     inst [N or "sda7"] value 511278010
     inst [N or "sda8"] value 0
     inst [N or "sda9"] value 8768694
+    inst [N or "sr0"] value 0
+
+disk.partitions.total_rawactive
+    inst [N or "sda1"] value 23259
+    inst [N or "sda10"] value 21933
+    inst [N or "sda2"] value 18046
+    inst [N or "sda3"] value 13799
+    inst [N or "sda4"] value 16166
+    inst [N or "sda5"] value 14881
+    inst [N or "sda6"] value 11657
+    inst [N or "sda7"] value 522648549
+    inst [N or "sda8"] value 18237
+    inst [N or "sda9"] value 9382874
     inst [N or "sr0"] value 0
 
 == done
