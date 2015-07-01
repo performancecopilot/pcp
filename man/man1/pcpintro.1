@@ -839,12 +839,27 @@ with the user, and in particular is used when authentication is
 being performed.
 .TP
 .B PCP_DERIVED_CONFIG
-When set, this variable defines the path to a file that contains
+When set, this variable defines a colon separated list of
+files and/or directories (the syntax is the same as for the
+.B $PATH
+variable for
+.BR sh (1)).
+The components are expanded into a list of files as follows: 
+if a component of
+.B $PCP_DERIVED_CONFIG
+is a file, then that file is added to the list, else if a component
+is a directory then recursive descent is used to enumerate all
+files below that directory and these are added to the list.
+.RS
+.PP
+Each file in the resulting list is assumed to 
+contain
 definitions of derived metrics as per the syntax described in
-.BR pmLoadDerivedConfig (3).
+.BR pmLoadDerivedConfig (3),
+and these are loaded in order.
+.PP
 Derived metrics may be used to extend the available metrics with
 new (derived) metrics using simple arithmetic expressions.
-.RS
 .PP
 If 
 .B PCP_DERIVED_CONFIG
@@ -853,6 +868,12 @@ as each new source of performance metrics is established (i.e. each
 time a
 .BR pmNewContext (3)
 is called) or when requests are made against the PMNS.
+.PP
+Any component in the
+.B $PCP_DERIVED_CONFIG
+list or the expanded list of files that is not a file, or is not a directory
+or is not accessible (due to permissions or a bad symbolic link) will
+be silently ignored.
 .RE
 .TP
 .B PCP_SECURE_SOCKETS
