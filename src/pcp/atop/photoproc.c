@@ -99,7 +99,7 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp)
 		break;
 	}
 
-	if (task->gen.tgid && task->gen.tgid != task->gen.tgid)
+	if (task->gen.tgid > 0 && task->gen.tgid != pid)
 		task->gen.isproc = 0;
 
 	if (task->dsk.rsz >= 0)
@@ -111,7 +111,7 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp)
 }
 
 int
-photoproc(struct tstat *tasks, int *taskslen)
+photoproc(struct tstat **tasks, int *taskslen)
 {
 	static int	setup;
 	static pmID	pmids[TASK_NMETRICS];
@@ -138,8 +138,8 @@ photoproc(struct tstat *tasks, int *taskslen)
 		if (count > ents)
 			ents = count;
 		size = ents * sizeof(struct tstat);
-		tasks = (struct tstat *)realloc(tasks, size);
-		ptrverify(tasks, "photoproc [%ld]\n", (long)size);
+		*tasks = (struct tstat *)realloc(*tasks, size);
+		ptrverify(*tasks, "photoproc [%ld]\n", (long)size);
 
 		*taskslen = ents;
 	}
@@ -149,7 +149,7 @@ photoproc(struct tstat *tasks, int *taskslen)
 		if (pmDebug & DBG_TRACE_APPL0)
 			fprintf(stderr, "%s: updating process %d: %s\n",
 				pmProgname, pids[i], insts[i]);
-		update_task(&tasks[i], pids[i], insts[i], result, descs);
+		update_task(&(*tasks)[i], pids[i], insts[i], result, descs);
 	}
 	if (pmDebug & DBG_TRACE_APPL0)
 		fprintf(stderr, "%s: done %d processes\n", pmProgname, count);
