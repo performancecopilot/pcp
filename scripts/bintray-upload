@@ -2,9 +2,8 @@
 # 
 # Automate package uploading to bintray.com.
 #
-# Run in the top-level of a tree, ensuring .bintrayrc
-# is available with valid user setting (user:apikey).
-#
+# Run in the top-level of a tree, ensuring .bintrayrc is available with
+# valid user setting (username, email, apikey, distro, gpgphrase).
 
 sudo=`which sudo`	# can be cleared via .bintrayrc
 topdir=`pwd`
@@ -21,53 +20,47 @@ quit()
 . ${topdir}/.bintrayrc
 . ${topdir}/VERSION.pcp
 
-buildid=${PACKAGE_BUILD}
 version=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
-buildversion=${version}-${buildid}
+buildversion=${version}-${PACKAGE_BUILD}
 
 [ -z "${user}" ] && quit "user is not configured (via .bintrayrc)"
 [ -z "${email}" ] && quit "email is not configured (via .bintrayrc)"
 [ -z "${apikey}" ] && quit "apikey is not configured (via .bintrayrc)"
+[ -z "${gpgpass}" ] && quit "passphrase is not configured (via .bintrayrc)"
 
-generic_upload()
+pkg_upload()
 {
-    path="$1"; file="$2"; vers="$3"
+    distro="$1"; file="$2"; vers="$3"
 
-    url="https://api.bintray.com/content/pcp/Generic/${path}/${vers}/${file}"
+    url="https://api.bintray.com/content/pcp/${distro}/${file}"
     echo "Uploading ${file} to:" && echo "    ${url}"
     curl \
 	-T ${file} -u ${user}:${apikey} \
-	-H "X-BinTray-Package:${path}" -H "X-Bintray-Version:${vers}" \
-	"${url};publish=1"
-    echo
-}
-
-rpm_upload()
-{
-    distro="$1"; file="$2"; vers="$3"; build="$4"
-
-    target=`echo $file | sed -e "s/${vers}-${build}/$vers-$build.${distro}/g"`
-    url="https://api.bintray.com/content/pcp/${distro}/${target}"
-    echo "Uploading ${file} to:" && echo "    ${url}"
-    curl \
-	-T ${file} -u ${user}:${apikey} \
+	-H "X-GPG-PASSPHRASE: ${gpgpass}" \
 	"${url};bt_package=pcp;bt_version=${vers};publish=1"
     echo
 }
 
 deb_upload()
 {
-    path="$1"; file="$2"; vers="$3"; build="$4"; suffix="$5"
+    distro="$1"; file="$2"; vers="$3"; arch="$4"
 
-    deb="deb_distribution=${suffix};deb_component=main;deb_architecture=any,all"
-    target=`echo ${file} | sed -e "s/${vers}/${vers}-${build}${suffix}/g"`
-    url="https://api.bintray.com/content/pcp/deb/${path}/${vers}/${target}"
+    deb="deb_distribution=${distro};deb_component=main;deb_architecture=${arch}"
+    url="https://api.bintray.com/content/pcp/${distro}/${file}"
     echo "Uploading ${file} to:" && echo "    ${url}"
     curl \
 	-T ${file} -u ${user}:${apikey} \
-	-H "X-BinTray-Package:${path}" -H "X-Bintray-Version:${vers}" \
-	"${url};${deb};publish=1"
+	-H "X-GPG-PASSPHRASE: ${gpgpass}" \
+	"${url};${deb};bt_package=pcp;bt_version=${vers};publish=1"
     echo
+}
+
+sign_repository()
+{
+    repo="$1"
+    url="https://api.bintray.com/calc_metadata/pcp/${repo}"
+    echo "Signing repository ${repo} via:" && echo "    ${url}"
+    curl -X POST -H "X-GPG-PASSPHRASE: ${gpgpass}" -u ${user}:${apikey} "${url}"
 }
 
 container_upload()
@@ -97,22 +90,22 @@ verify_asset()
 # Source
 cd ${topdir}/build/tar 2>/dev/null && \
 verify_asset pcp-${version}.src.tar.gz && \
-generic_upload Source pcp-${version}.src.tar.gz ${version}
+pkg_upload source pcp-${version}.src.tar.gz ${version}
 
 # Mac OS X
 cd ${topdir}/build/mac 2>/dev/null && \
 verify_asset pcp-${buildversion}.dmg && \
-generic_upload MacOSX-PCP pcp-${buildversion}.dmg ${version}
+pkg_upload macosx pcp-${buildversion}.dmg ${version}
 
 # Windows
 cd ${topdir}/build/win 2>/dev/null && \
 verify_asset pcp-${buildversion}.msi && \
-generic_upload Windows-PCP pcp-${buildversion}.msi ${version}
+pkg_upload windows pcp-${buildversion}.msi ${version}
 
 # Solaris
 cd ${topdir}/build/sun 2>/dev/null && \
 verify_asset pcp-${version} && \
-generic_upload Solaris-PCP pcp-${version} ${version}
+pkg_upload solaris pcp-${version} ${version}
 
 # Docker images
 if cd ${topdir}/pcp-${version}/build/containers 2>/dev/null
@@ -140,20 +133,23 @@ then
 	[ "${rpm}" = "${srcrpm}" ] && continue
 	verify_asset ${rpm} ${previous} && \
 	previous=yes && \
-	rpm_upload ${distro} ${rpm} ${version} ${buildid}
+	pkg_upload ${distro} ${rpm} ${version}
     done
+    [ $previous = yes ] && sign_repository ${distro}
 fi
 
 # DEB packages 
 if cd ${topdir}/build/deb 2>/dev/null
 then
-    # $distro is something like "wheezy"
+    # $distro is something like "wheezy", $arch is like "amd64" or "i386"
     [ -z "${distro}" ] && quit "distro is not configured (via .bintrayrc)"
+    [ -z "${arch}" ] && quit "arch is not configured (via .bintrayrc)"
     previous=no
-    for deb in *.deb
+    for deb in *.deb *.tar.gz
     do
 	verify_asset ${deb} ${previous} && \
 	previous=yes && \
-	deb_upload ${distro} ${deb} ${version} ${buildid}
+	deb_upload ${distro} ${deb} ${version} ${arch}
     done
+    [ $previous = yes ] && sign_repository ${distro}
 fi
