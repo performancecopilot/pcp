@@ -3940,10 +3940,25 @@ linux_statsfile(const char *path, char *buffer, int size)
     return fopen(buffer, "r");
 }
 
-static void
-linux_refresh(pmdaExt *pmda, int *need_refresh, linux_container_t *cp)
+static linux_container_t *
+linux_ctx_container(int ctx)
 {
+    if (ctx < num_ctx && ctx >= 0 && ctxtab[ctx].container.name)
+	return &ctxtab[ctx].container;
+    return NULL;
+}
+
+static int
+linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
+{
+    linux_container_t *cp = linux_ctx_container(context);
     int need_refresh_mtab = 0;
+    int need_net_ioctl = 0;
+    int open_ns_fds = 0;
+    int sts = 0;
+
+    if (cp && (sts = container_lookup(rootfd, cp)) < 0)
+	return sts;
 
     if (need_refresh[CLUSTER_PARTITIONS])
     	refresh_proc_partitions(INDOM(DISK_INDOM),
@@ -3965,14 +3980,60 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, linux_container_t *cp)
     if (need_refresh[CLUSTER_LOADAVG])
 	refresh_proc_loadavg(&proc_loadavg);
 
-    if (need_refresh[CLUSTER_NET_DEV])
+    if (need_refresh[CLUSTER_NET_NFS])
+	refresh_proc_net_rpc(&proc_net_rpc);
+
+    if (need_refresh[CLUSTER_NET_SOCKSTAT])
+	refresh_proc_net_sockstat(&proc_net_sockstat);
+
+    if (need_refresh[CLUSTER_NET_SNMP])
+	refresh_proc_net_snmp(&_pm_proc_net_snmp);
+
+    if (need_refresh[CLUSTER_NET_TCP])
+	refresh_proc_net_tcp(&proc_net_tcp);
+
+    if (need_refresh[CLUSTER_NET_NETSTAT])
+	refresh_proc_net_netstat(&_pm_proc_net_netstat);
+
+    if (need_refresh[CLUSTER_NET_DEV]) {
+	sts = container_nsenter(cp, LINUX_NAMESPACE_NET, &open_ns_fds);
+	if (sts < 0) goto done;
 	refresh_proc_net_dev(INDOM(NET_DEV_INDOM), cp);
+	container_nsleave(cp, LINUX_NAMESPACE_NET);
+    }
 
-    if (need_refresh[CLUSTER_NET_ADDR])
-	refresh_net_dev_addr(INDOM(NET_ADDR_INDOM), cp);
+    if (need_refresh[CLUSTER_NET_ADDR] ||
+	need_refresh[CLUSTER_FILESYS] ||
+	need_refresh[CLUSTER_TMPFS] ||
+	need_refresh[REFRESH_NET_MTU] ||
+	need_refresh[REFRESH_NET_SPEED] ||
+	need_refresh[REFRESH_NET_DUPLEX] ||
+	need_refresh[REFRESH_NET_LINKUP] ||
+	need_refresh[REFRESH_NET_RUNNING]) {
 
-    if (need_refresh[CLUSTER_FILESYS] || need_refresh[CLUSTER_TMPFS])
-	refresh_filesys(INDOM(FILESYS_INDOM), INDOM(TMPFS_INDOM), cp);
+	sts = container_nsenter(cp, LINUX_NAMESPACE_MNT, &open_ns_fds);
+	if (sts < 0) goto done;
+	if (need_refresh[CLUSTER_NET_ADDR])
+	    refresh_net_dev_addr(INDOM(NET_ADDR_INDOM), cp);
+	need_net_ioctl = refresh_net_sysfs(INDOM(NET_DEV_INDOM), need_refresh);
+	if (need_refresh[CLUSTER_FILESYS] || need_refresh[CLUSTER_TMPFS])
+	    refresh_filesys(INDOM(FILESYS_INDOM), INDOM(TMPFS_INDOM), cp);
+	container_nsleave(cp, LINUX_NAMESPACE_MNT);
+
+	if (need_net_ioctl) {
+	    sts = container_nsenter(cp, LINUX_NAMESPACE_NET, &open_ns_fds);
+	    if (sts < 0) goto done;
+	    refresh_net_ioctl(INDOM(NET_DEV_INDOM), cp, need_refresh);
+	    container_nsleave(cp, LINUX_NAMESPACE_NET);
+	}
+    }
+
+    if (need_refresh[CLUSTER_KERNEL_UNAME]) {
+	sts = container_nsenter(cp, LINUX_NAMESPACE_UTS, &open_ns_fds);
+	if (sts < 0) goto done;
+	uname(&kernel_uname);
+	container_nsleave(cp, LINUX_NAMESPACE_UTS);
+    }
 
     if (need_refresh[CLUSTER_INTERRUPTS] ||
 	need_refresh[CLUSTER_INTERRUPT_LINES] ||
@@ -3982,26 +4043,8 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, linux_container_t *cp)
     if (need_refresh[CLUSTER_SWAPDEV])
 	refresh_swapdev(INDOM(SWAPDEV_INDOM));
 
-    if (need_refresh[CLUSTER_NET_NFS])
-	refresh_proc_net_rpc(&proc_net_rpc);
-
-    if (need_refresh[CLUSTER_NET_SOCKSTAT])
-	refresh_proc_net_sockstat(&proc_net_sockstat);
-
-    if (need_refresh[CLUSTER_KERNEL_UNAME])
-	uname(&kernel_uname);
-
-    if (need_refresh[CLUSTER_NET_SNMP])
-	refresh_proc_net_snmp(&_pm_proc_net_snmp);
-
     if (need_refresh[CLUSTER_SCSI])
 	refresh_proc_scsi(INDOM(SCSI_INDOM));
-
-    if (need_refresh[CLUSTER_NET_TCP])
-	refresh_proc_net_tcp(&proc_net_tcp);
-
-    if (need_refresh[CLUSTER_NET_NETSTAT])
-	refresh_proc_net_netstat(&_pm_proc_net_netstat);
 
     if (need_refresh[CLUSTER_SLAB])
 	refresh_proc_slabinfo(&proc_slabinfo);
@@ -4030,25 +4073,19 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, linux_container_t *cp)
     if (need_refresh[CLUSTER_SYSFS_KERNEL])
     	refresh_sysfs_kernel(&sysfs_kernel);
 
+done:
     if (need_refresh_mtab)
 	pmdaDynamicMetricTable(pmda);
-}
-
-static linux_container_t *
-linux_ctx_container(int ctx)
-{
-    if (ctx < num_ctx && ctx >= 0 && ctxtab[ctx].container.name)
-	return &ctxtab[ctx].container;
-    return NULL;
+    container_close(cp, open_ns_fds);
+    return sts;
 }
 
 static int
 linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
 {
-    linux_container_t	*container = NULL;
     __pmInDom_int	*indomp = (__pmInDom_int *)&indom;
-    int			need_refresh[NUM_CLUSTERS] = {0};
-    int			sts, ns_flags = 0;
+    int			need_refresh[NUM_REFRESHES] = {0};
+    int			sts;
 
     switch (indomp->serial) {
     case DISK_INDOM:
@@ -4067,19 +4104,15 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
 	break;
     case NET_DEV_INDOM:
 	need_refresh[CLUSTER_NET_DEV]++;
-	ns_flags |= LINUX_NAMESPACE_NET;
 	break;
     case NET_ADDR_INDOM:
 	need_refresh[CLUSTER_NET_ADDR]++;
-	ns_flags |= LINUX_NAMESPACE_NET;
 	break;
     case FILESYS_INDOM:
 	need_refresh[CLUSTER_FILESYS]++;
-	ns_flags |= LINUX_NAMESPACE_MNT;
 	break;
     case TMPFS_INDOM:
 	need_refresh[CLUSTER_TMPFS]++;
-	ns_flags |= LINUX_NAMESPACE_MNT;
 	break;
     case SWAPDEV_INDOM:
 	need_refresh[CLUSTER_SWAPDEV]++;
@@ -4089,7 +4122,6 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
     case NFS4_CLI_INDOM:
     case NFS4_SVR_INDOM:
 	need_refresh[CLUSTER_NET_NFS]++;
-	ns_flags |= LINUX_NAMESPACE_MNT;
 	break;
     case SCSI_INDOM:
 	need_refresh[CLUSTER_SCSI]++;
@@ -4103,18 +4135,9 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
     /* no default label : pmdaInstance will pick up errors */
     }
 
-    if ((container = linux_ctx_container(pmda->e_context)) != NULL) {
-	sts = container_enter_namespaces(rootfd, container, ns_flags);
-	if (sts < 0)
-	    return sts;
-    }
-    linux_refresh(pmda, need_refresh, container);
-    sts = pmdaInstance(indom, inst, name, result, pmda);
-    if (container) {
-	container_close_network(container);
-	container_leave_namespaces(rootfd, ns_flags);
-    }
-    return sts;
+    if ((sts = linux_refresh(pmda, need_refresh, pmda->e_context)) < 0)
+	return sts;
+    return pmdaInstance(indom, inst, name, result, pmda);
 }
 
 /*
@@ -5702,9 +5725,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 static int
 linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
-    linux_container_t	*container = NULL;
-    int			need_refresh[NUM_CLUSTERS] = {0};
-    int			i, sts, ns_flags = 0;
+    int		i, sts, need_refresh[NUM_REFRESHES] = {0};
 
     for (i = 0; i < numpmid; i++) {
 	__pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
@@ -5734,43 +5755,32 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    need_refresh[CLUSTER_STAT]++;
 	    break;
 
-	case CLUSTER_KERNEL_UNAME:
-	    ns_flags |= LINUX_NAMESPACE_UTS;
-	    break;
-
 	case CLUSTER_NET_DEV:
-	case CLUSTER_NET_ADDR:
-	    ns_flags |= LINUX_NAMESPACE_NET;
-	    ns_flags |= LINUX_NAMESPACE_MNT;	/* for /sys access */
-	    break;
-
-	case CLUSTER_NET_NFS:
-	case CLUSTER_FILESYS:
-	case CLUSTER_TMPFS:
-	    ns_flags |= LINUX_NAMESPACE_MNT;
-	    break;
-
-	case CLUSTER_SEM_LIMITS:
-	case CLUSTER_MSG_LIMITS:
-	case CLUSTER_SHM_LIMITS:
-	case CLUSTER_SHM_INFO:
-	    ns_flags |= LINUX_NAMESPACE_IPC;
+	    switch (idp->item) {
+	    case 21:	/* network.interface.mtu */
+		need_refresh[REFRESH_NET_MTU]++;
+		break;
+	    case 22:	/* network.interface.speed */
+	    case 23:	/* network.interface.baudrate */
+		need_refresh[REFRESH_NET_SPEED]++;
+		break;
+	    case 24:	/* network.interface.duplex */
+		need_refresh[REFRESH_NET_DUPLEX]++;
+		break;
+	    case 25:	/* network.interface.up */
+		need_refresh[REFRESH_NET_LINKUP]++;
+		break;
+	    case 26:	/* network.interface.running */
+		need_refresh[REFRESH_NET_RUNNING]++;
+		break;
+	    }
 	    break;
 	}
     }
 
-    if ((container = linux_ctx_container(pmda->e_context)) != NULL) {
-	sts = container_enter_namespaces(rootfd, container, ns_flags);
-	if (sts < 0)
-	    return sts;
-    }
-    linux_refresh(pmda, need_refresh, container);
-    sts = pmdaFetch(numpmid, pmidlist, resp, pmda);
-    if (container) {
-	container_close_network(container);
-	container_leave_namespaces(rootfd, ns_flags);
-    }
-    return sts;
+    if ((sts = linux_refresh(pmda, need_refresh, pmda->e_context)) < 0)
+	return sts;
+    return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
 static int

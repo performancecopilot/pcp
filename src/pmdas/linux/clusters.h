@@ -81,4 +81,17 @@ enum {
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };
 
+/*
+ * Extra refresh array indices for fine-grained (within-cluster) refresh
+ */
+enum {
+	REFRESH_NET_MTU = NUM_CLUSTERS,
+	REFRESH_NET_SPEED,
+	REFRESH_NET_DUPLEX,
+	REFRESH_NET_LINKUP,
+	REFRESH_NET_RUNNING,
+
+	NUM_REFRESHES		/* one more than highest refresh index */
+};
+
 #endif /* _CLUSTERS_H */
