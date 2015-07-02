@@ -17,7 +17,7 @@ MAINTAINER PCP Development Team <pcp@oss.sgi.com>
 
 #
 # install pcp-collector and it's dependencies, clean the cache.
-RUN dnf --enablerepo=pcp-devel -y install pcp pcp-collector && dnf clean all
+RUN dnf --enablerepo=pcp-devel -y install pcp pcp-collector python-pcp && dnf clean all
 
 #
 # Disable service advertising - no avahi daemon in the container
