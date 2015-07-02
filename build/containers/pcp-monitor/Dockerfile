@@ -20,10 +20,6 @@ MAINTAINER PCP Development Team <pcp@oss.sgi.com>
 RUN dnf --enablerepo=pcp-devel -y install pcp pcp-monitor && dnf clean all
 
 #
-# Run in the container as root - avoid PCP_USER mismatch with the host
-RUN sed -i -e 's/PCP_USER=.*$/PCP_USER=root/' -e 's/PCP_GROUP=.*$/PCP_GROUP=root/' /etc/pcp.conf
-
-#
 # denote this as a container environment, for rc scripts
 ENV PCP_CONTAINER_IMAGE pcp-monitor
 ENV NAME pcp-monitor
