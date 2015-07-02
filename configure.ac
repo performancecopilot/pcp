@@ -300,10 +300,62 @@ then
     exit 1
 fi
 
+dnl check if user wants their own C compiler
+cflags_abi=
+AC_PROG_CC(suncc gcc cc)
+if test $target_os = solaris
+then
+    AC_PATH_PROG(CCPATH,$CC,$CC)
+    cc=$CCPATH
+    if test "$GCC" = "yes"
+    then
+	CFLAGS="$CFLAGS $CFLAGS_IF_GCC"
+    else
+	CFLAGS="$CFLAGS $CFLAGS_IF_SUNCC"
+    fi
+    if test "$use_64bit" = "no"
+    then
+	:
+    else
+	AC_MSG_CHECKING([for 64 bit Solaris host])
+	case `isainfo -k`
+	in
+	    amd64|sparcv9)
+		cflags_abi=-m64
+		CFLAGS="$CFLAGS -m64"
+		LDFLAGS="$LDFLAGS -m64"
+		AC_MSG_RESULT(yes)
+		;;
+	    *)
+		AC_MSG_RESULT(no)
+		;;
+	esac
+    fi
+else
+    cc=$CC
+fi
+AC_SUBST(cc)
+cc_is_gcc=$GCC
+AC_SUBST(cc_is_gcc)
+AC_SUBST(cflags_abi)
+PCFLAGS=$CFLAGS
+AC_SUBST(PCFLAGS)
+AC_PROG_CXX
+cxx=$CXX
+AC_SUBST(cxx)
+PLDFLAGS=$LDFLAGS
+AC_SUBST(PLDFLAGS)
+
+dnl for cc use locally in configure (not exported via $PCFLAGS),
+dnl add -O in case -D_FORTIFY_SOURCE has been added to CFLAGS above,
+dnl as -D_FORTIFY_SOURCE requires -O but we've separated optimization
+dnl flags out into $CFLAGS_OPT for our build infrastructure
+CFLAGS="-O $CFLAGS"
+
 # Add some security-related gcc flags
 AC_ARG_ENABLE([ssp],
   [AS_HELP_STRING([--disable-ssp], [disable gcc stack-protector])])
-AS_IF([test $cc_is_gcc -a "x$enable_ssp" != xno],[
+AS_IF([test "$cc_is_gcc" = yes -a "$enable_ssp" != no],[
    save_CFLAGS="$CFLAGS"
    CFLAGS="$CFLAGS -fstack-protector-all -D_FORTIFY_SOURCE=2"
    AC_COMPILE_IFELSE([AC_LANG_SOURCE([int something ();])], [
@@ -315,7 +367,7 @@ AS_IF([test $cc_is_gcc -a "x$enable_ssp" != xno],[
 # Check for even more security-related gcc/linker flags, useful for daemons
 AC_ARG_ENABLE([pie],
   [AS_HELP_STRING([--disable-pie], [disable position-independent-executable])])
-AS_IF([test $cc_is_gcc -a "x$enable_pie" != xno],[
+AS_IF([test "$cc_is_gcc" = yes -a "$enable_pie" != no],[
    PIECFLAGS='-fPIE'
    PIELDFLAGS='-pie -Wl,-z,relro -Wl,-z,now'
    save_CFLAGS="$CFLAGS"
@@ -338,7 +390,7 @@ AC_SUBST(PIECFLAGS)
 # Check for support for symbol hiding via gcc flags
 AC_ARG_ENABLE([visibility],
   [AS_HELP_STRING([--disable-visibility], [disable gcc symbol visibility])])
-AS_IF([test $cc_is_gcc -a "x$enable_visibility" != xno],[
+AS_IF([test "$cc_is_gcc" = yes -a "$enable_visibility" != no],[
    INVISIBILITY="-fvisibility=hidden"
    save_CFLAGS="$CFLAGS"
    CFLAGS="$CFLAGS -c $INVISIBILITY"
@@ -652,7 +704,7 @@ AS_IF([test "x$do_qt" != "xno"], [
     if test -z "$QMAKE"
     then
 	AC_PATH_PROGS(QMAKE, [qmake-qt4 qmake],, [$QTDIR/bin:/usr/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin])
-	test $cc_is_gcc -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
+	test "$cc_is_gcc" = yes -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
     fi
     qmake=$QMAKE
     if test -z "$QMAKE"
@@ -687,58 +739,6 @@ AS_IF([test "x$do_qt" != "xno"], [
 AC_SUBST(qt_release)
 AC_SUBST(enable_qt)
 AC_SUBST(qmake)
-
-dnl check if user wants their own C compiler
-cflags_abi=
-AC_PROG_CC(suncc gcc cc)
-if test $target_os = solaris
-then
-    AC_PATH_PROG(CCPATH,$CC,$CC)
-    cc=$CCPATH
-    if test "$GCC" = "yes"
-    then
-	CFLAGS="$CFLAGS $CFLAGS_IF_GCC"
-    else
-	CFLAGS="$CFLAGS $CFLAGS_IF_SUNCC"
-    fi
-    if test "$use_64bit" = "no"
-    then
-	:
-    else
-	AC_MSG_CHECKING([for 64 bit Solaris host])
-	case `isainfo -k`
-	in
-	    amd64|sparcv9)
-		cflags_abi=-m64
-		CFLAGS="$CFLAGS -m64"
-		LDFLAGS="$LDFLAGS -m64"
-		AC_MSG_RESULT(yes)
-		;;
-	    *)
-		AC_MSG_RESULT(no)
-		;;
-	esac
-    fi
-else
-    cc=$CC
-fi
-AC_SUBST(cc)
-cc_is_gcc=$GCC
-AC_SUBST(cc_is_gcc)
-AC_SUBST(cflags_abi)
-PCFLAGS=$CFLAGS
-AC_SUBST(PCFLAGS)
-AC_PROG_CXX
-cxx=$CXX
-AC_SUBST(cxx)
-PLDFLAGS=$LDFLAGS
-AC_SUBST(PLDFLAGS)
-
-dnl for cc use locally in configure (not exported via $PCFLAGS),
-dnl add -O in case -D_FORTIFY_SOURCE has been added to CFLAGS above,
-dnl as -D_FORTIFY_SOURCE requires -O but we've separated optimization
-dnl flags out into $CFLAGS_OPT for our build infrastructure
-CFLAGS="-O $CFLAGS"
 
 dnl check if user wants their own make program
 dnl note: all makefiles in this package use the gmake syntax
@@ -1234,11 +1234,12 @@ AC_CHECK_HEADERS(endian.h standards.h sys/byteorder.h)
 AC_CHECK_HEADERS(libgen.h sys/param.h sys/mman.h sys/un.h)
 AC_CHECK_HEADERS(values.h stdint.h ieeefp.h math.h)
 AC_CHECK_HEADERS(pwd.h grp.h regex.h sys/wait.h)
-AC_CHECK_HEADERS(termio.h termios.h sys/termios.h sys/ioctl.h)
-AC_CHECK_HEADERS(netdb.h sys/socket.h netinet/in.h netinet/tcp.h arpa/inet.h)
+AC_CHECK_HEADERS(termio.h termios.h sys/termios.h sys/ioctl.h sys/socket.h)
+AC_CHECK_HEADERS(netdb.h net/if.h netinet/in.h netinet/tcp.h arpa/inet.h)
 AC_CHECK_HEADERS(windows.h winsock2.h ws2tcpip.h)
 AC_CHECK_HEADERS(execinfo.h bits/wordsize.h)
 AC_CHECK_HEADERS(iptypes.h, [], [], [#include <windows.h>])
+AC_CHECK_HEADERS(iphlpapi.h, [], [], [#include <winsock2.h>])
 AC_CHECK_HEADERS(fts.h)
 
 dnl Check if we have <sys/endian.h> ... standard way
@@ -1472,7 +1473,7 @@ AC_CHECK_FUNCS(mktime nanosleep usleep unsetenv)
 AC_CHECK_FUNCS(select socket gethostname getpeerucred getpeereid)
 AC_CHECK_FUNCS(uname syslog __clone pipe2 fcntl ioctl)
 AC_CHECK_FUNCS(prctl setlinebuf waitpid atexit kill)
-AC_CHECK_FUNCS(chown getcwd scandir mkstemp)
+AC_CHECK_FUNCS(chown fchmod getcwd scandir mkstemp)
 AC_CHECK_FUNCS(brk sbrk posix_memalign memalign valloc)
 AC_CHECK_FUNCS(signal sighold sigrelse tcgetattr)
 AC_CHECK_FUNCS(regex regcmp regexec regcomp)
