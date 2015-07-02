@@ -49,8 +49,8 @@
  *
  * All access to registered is controlled by the registered.mutex.
  *
- * No locking needed in init() to protect need_init and the getenv()
- * call, as we always lock the registered.mutex before calling init().
+ * No locking needed in __dminit() to protect need_init and the getenv()
+ * call, as we always lock the registered.mutex before calling __dminit().
  *
  * The context locking protocol ensures that when any of the routines
  * below are called with a __pmContext * argument, that argument is
@@ -68,6 +68,7 @@
 #include "impl.h"
 #include "internal.h"
 #include "fault.h"
+#include <sys/stat.h>
 #ifdef IS_MINGW
 extern const char *strerror_r(int, char *, size_t);
 #endif
@@ -219,26 +220,130 @@ PM_FAULT_CHECK(PM_FAULT_PMAPI);
     return 0;
 }
 
+#if 0
+#include <strings.h>
+#include <string.h>
+#include <stdio.h>
+#include <malloc.h>
+#include <sys/types.h>
+#include <dirent.h>
+#include <unistd.h>
+#include <errno.h>
+#include <pcp/pmapi.h>
+#include <pcp/impl.h>
+#endif
+
+/*
+ * Handle one component of the : separated $PCP_DERIVED_CONFIG
+ * If descend is 1 and name is a directory then we will process all
+ * the files in that directory, otherwise directories are skipped.
+ * Note: for the current implementation, descend is always 1.
+ */
+void
+__dminit_component(const char *name, int descend)
+{
+    struct stat sbuf;
+    if (stat(name, &sbuf) < 0) {
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_DERIVE) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "Warning: $PCP_DERIVED_CONFIG component: %s: %s\n",
+		name, pmErrStr_r(-errno, errmsg, sizeof(errmsg)));
+	}
+#endif
+	/* probably no such file or directory, silently ignore this one */
+	return;
+    }
+    if (S_ISREG(sbuf.st_mode)) {
+	/* regular file or symlink to a regular file, load it */
+	int	sts;
+	sts = pmLoadDerivedConfig(name);
+#ifdef PCP_DEBUG
+	if (sts < 0 && pmDebug & DBG_TRACE_DERIVE) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "pmLoadDerivedConfig(%s): %s\n", name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+#endif
+	return;
+    }
+    if (descend && S_ISDIR(sbuf.st_mode)) {
+	/* directory, descend to process all files in the directory */
+	DIR		*dirp;
+	struct dirent	*dp;
+	if ((dirp = opendir(name)) == NULL) {
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_DERIVE) {
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "Warning: $PCP_DERIVED_CONFIG directory component: %s: %s\n",
+		    name, pmErrStr_r(-errno, errmsg, sizeof(errmsg)));
+	    }
+#endif
+	    /* probably permissions issue, silently ignore this one */
+	    return;
+	}
+	while (errno = 0, (dp = readdir(dirp)) != NULL) {
+	    char	path[MAXPATHLEN+1];
+	    /*
+	     * skip "." and ".." and recursively call __dminit_component()
+	     * to process the directory entries ... descend is passed down
+	     */
+	    if (strcmp(dp->d_name, ".") == 0) continue;
+	    if (strcmp(dp->d_name, "..") == 0) continue;
+	    snprintf(path, sizeof(path), "%s%c%s", name, __pmPathSeparator(), dp->d_name);
+	    __dminit_component(path, descend);
+	}
+#ifdef PCP_DEBUG
+	/* error is most unlikely and ignore unless -Dderive specified */
+	if (errno != 0 && pmDebug & DBG_TRACE_DERIVE) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "Warning: %s: readdir failed: %s\n",
+		name, pmErrStr_r(-errno, errmsg, sizeof(errmsg)));
+	}
+#endif
+	return;
+    }
+    /* otherwise not a file or symlink to a real file or a directory */
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_DERIVE) {
+	fprintf(stderr, "Warning: $PCP_DERIVED_CONFIG component: %s: unexpected st_mode=%o?\n",
+	    name, sbuf.st_mode);
+    }
+#endif
+}
+
+/* parse, split and process : separated components from $PCP_DERIVED_CONFIG */
+void
+__dminit_parse(const char *path)
+{
+    const char	*p = path;
+    const char	*q;
+    while ((q = index(p, ':')) != NULL) {
+	char	*name = strndup(p, q-p+1);
+	name[q-p] = '\0';
+	__dminit_component(name, 1);
+	free(name);
+	p = q+1;
+    }
+    if (*p != '\0')
+	__dminit_component(p, 1);
+}
+
+/*
+ * initialization for Derived Metrics ...
+ */
 static void
-init(void)
+__dminit(void)
 {
     if (need_init) {
 	char	*configpath;
 
 	if ((configpath = getenv("PCP_DERIVED_CONFIG")) != NULL) {
-	    int	sts;
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_DERIVE) {
 		fprintf(stderr, "Derived metric initialization from $PCP_DERIVED_CONFIG\n");
 	    }
 #endif
-	    sts = pmLoadDerivedConfig(configpath);
-#ifdef PCP_DEBUG
-	    if (sts < 0 && (pmDebug & DBG_TRACE_DERIVE)) {
-		char	errmsg[PM_MAXERRMSGLEN];
-		fprintf(stderr, "pmLoadDerivedConfig -> %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-	    }
-#endif
+	    __dminit_parse(configpath);
 	}
 	need_init = 0;
     }
@@ -1555,7 +1660,7 @@ __dmtraverse(const char *name, char ***namelist)
 #endif
 #endif
     PM_LOCK(registered.mutex);
-    init();
+    __dminit();
 
     for (i = 0; i < registered.nmetric; i++) {
 	/*
@@ -1598,7 +1703,7 @@ __dmchildren(const char *name, char ***offspring, int **statuslist)
 #endif
 #endif
     PM_LOCK(registered.mutex);
-    init();
+    __dminit();
 
     for (i = 0; i < registered.nmetric; i++) {
 	/*
@@ -1696,7 +1801,7 @@ __dmgetpmid(const char *name, pmID *dp)
 #endif
 #endif
     PM_LOCK(registered.mutex);
-    init();
+    __dminit();
 
     for (i = 0; i < registered.nmetric; i++) {
 	if (strcmp(name, registered.mlist[i].name) == 0) {
@@ -1720,7 +1825,7 @@ __dmgetname(pmID pmid, char ** name)
 #endif
 #endif
     PM_LOCK(registered.mutex);
-    init();
+    __dminit();
 
     for (i = 0; i < registered.nmetric; i++) {
 	if (pmid == registered.mlist[i].pmid) {
@@ -1752,7 +1857,7 @@ __dmopencontext(__pmContext *ctxp)
 #endif
 #endif
     PM_LOCK(registered.mutex);
-    init();
+    __dminit();
 
 #ifdef PCP_DEBUG
     if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL1)) {
@@ -1811,7 +1916,7 @@ __dmclosecontext(__pmContext *ctxp)
     int		i;
     ctl_t	*cp = (ctl_t *)ctxp->c_dm;
 
-    /* if needed, init() called in __dmopencontext beforehand */
+    /* if needed, __dminit() called in __dmopencontext beforehand */
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_DERIVE) {
@@ -1833,7 +1938,7 @@ __dmdesc(__pmContext *ctxp, pmID pmid, pmDesc *desc)
     int		i;
     ctl_t	*cp = (ctl_t *)ctxp->c_dm;
 
-    /* if needed, init() called in __dmopencontext beforehand */
+    /* if needed, __dminit() called in __dmopencontext beforehand */
 
     if (cp == NULL) return PM_ERR_PMID;
 

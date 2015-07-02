@@ -529,6 +529,5 @@ myname.a
 myname.gcov.d
 myname.gcov.e
 Derived metric initialization from $PCP_DERIVED_CONFIG
-pmLoadDerivedConfig("/no/such/file")
-pmLoadDerivedConfig -> No such file or directory
+Warning: $PCP_DERIVED_CONFIG component: /no/such/file: No such file or directory
 Error: no.such.metric: Unknown metric name

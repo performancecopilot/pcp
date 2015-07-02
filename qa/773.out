@@ -1,0 +1,160 @@
+QA output created by 773
+
+=== PCP_DERIVED_CONFIG=A ===
+
+qa.A PMID: 511.0.N
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+=== PCP_DERIVED_CONFIG=TMP.derive/A ===
+
+qa.A PMID: 511.0.N
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+=== PCP_DERIVED_CONFIG=. ===
+
+qa.A PMID: 511.0.N
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+=== PCP_DERIVED_CONFIG=TMP.derive ===
+
+qa.A PMID: 511.0.N
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+=== PCP_DERIVED_CONFIG=A:B ===
+
+qa.A PMID: 511.0.N
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+qa.B PMID: 511.0.N
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+=== PCP_DERIVED_CONFIG=TMP.derive/A:TMP.derive/B ===
+
+qa.A PMID: 511.0.N
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+qa.B PMID: 511.0.N
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+=== PCP_DERIVED_CONFIG=. ===
+
+qa.A PMID: 511.0.N
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+qa.B PMID: 511.0.N
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+=== PCP_DERIVED_CONFIG=TMP.derive ===
+
+qa.A PMID: 511.0.N
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+qa.B PMID: 511.0.N
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+=== PCP_DERIVED_CONFIG=A:B:sub ===
+
+qa.A PMID: 511.0.N
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+qa.B PMID: 511.0.N
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+qa.C PMID: 511.0.N
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+=== PCP_DERIVED_CONFIG=TMP.derive/A:TMP.derive/B:TMP.derive/sub ===
+
+qa.A PMID: 511.0.N
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+qa.B PMID: 511.0.N
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+qa.C PMID: 511.0.N
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+=== PCP_DERIVED_CONFIG=. ===
+
+qa.A PMID: 511.0.N
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+qa.B PMID: 511.0.N
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+qa.C PMID: 511.0.N
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+=== PCP_DERIVED_CONFIG=TMP.derive ===
+
+qa.A PMID: 511.0.N
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+qa.B PMID: 511.0.N
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+qa.C PMID: 511.0.N
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+=== cases with errors ===
+
+=== PCP_DERIVED_CONFIG=. ===
+
+qa.A PMID: 511.0.N
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+qa.B PMID: 511.0.N
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+qa.C PMID: 511.0.N
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+qa.D PMID: 511.0.N
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Derived metric initialization from $PCP_DERIVED_CONFIG
+Warning: $PCP_DERIVED_CONFIG component: ./E: No such file or directory
+Warning: $PCP_DERIVED_CONFIG component: ./dev/tty: unexpected st_mode=20644?
+Warning: $PCP_DERIVED_CONFIG directory component: ./blocked: Permission denied
+__dmgetpmid: metric "qa.A" -> PMID 511.0.N
+__dmgetpmid: metric "qa.B" -> PMID 511.0.N
+__dmgetpmid: metric "qa.C" -> PMID 511.0.N
+__dmgetpmid: metric "qa.D" -> PMID 511.0.N
+__dmopencontext: bind metric[N] qa.A
+__dmopencontext: bind metric[N] qa.B
+__dmopencontext: bind metric[N] qa.C
+__dmopencontext: bind metric[N] qa.D
+pmLoadDerivedConfig("./A")
+pmLoadDerivedConfig("./B")
+pmLoadDerivedConfig("./D")
+pmLoadDerivedConfig("./sub/C")
+pmRegisterDerived: register metric[N] qa.A = sample.bin
+pmRegisterDerived: register metric[N] qa.B = sample.long.one+sample.long.ten
+pmRegisterDerived: register metric[N] qa.C = sample.longlong.one+sample.longlong.ten
+pmRegisterDerived: register metric[N] qa.D = sample.longlong.one+sample.longlong.ten

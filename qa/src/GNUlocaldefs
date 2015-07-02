@@ -210,7 +210,11 @@ CFILES_TARGETS = $(CFILES)
 
 TARGETS = $(subst broken_pmda,,$(basename $(CFILES_TARGETS))) \
 	chkctx2_lite template \
-	fetchrate_lite pv qa_shmctl.$(DSOSUFFIX)
+	fetchrate_lite pv
+
+ifeq "$(TARGET_OS)" "linux"
+TARGETS += qa_shmctl.$(DSOSUFFIX)
+endif
 
 ifeq ($(HAVE_64), 1)
 TARGETS	+= pv64

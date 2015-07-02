@@ -1,0 +1,83 @@
+#!/bin/sh
+# PCP QA Test No. 773
+# PCP_DERIVED_CONFIG changes to $PATH-like syntax
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+mkdir $tmp.derive
+cd $tmp.derive
+
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g" \
+	-e '/PMID/s/511.0.[0-9][0-9]*/511.0.N/' \
+    #
+}
+
+_run()
+{
+    echo
+    echo "=== PCP_DERIVED_CONFIG=$1 ===" | _filter
+    export PCP_DERIVED_CONFIG="$1"
+    pminfo qa \
+    | LC_COLLATE=POSIX sort \
+    | xargs pminfo $debug -md 2>$tmp.err \
+    | _filter
+    if [ -s $tmp.err ]
+    then
+	sed <$tmp.err \
+	    -e 's/metric\[[0-9][0-9]*/metric[N/' \
+	    -e '/PMID/s/511.0.[0-9][0-9]*/511.0.N/' \
+	    | LC_COLLATE=POSIX sort
+    fi
+}
+
+# real QA test starts here
+pwd=`pwd`
+echo "qa.A = sample.bin" >A
+_run A
+_run $pwd/A
+_run .
+_run $pwd
+
+echo "qa.B = sample.long.one+sample.long.ten" >B
+_run A:B
+_run $pwd/A:$pwd/B
+_run .
+_run $pwd
+
+mkdir sub
+echo "qa.C = sample.longlong.one+sample.longlong.ten" >sub/C
+_run A:B:sub
+_run $pwd/A:$pwd/B:$pwd/sub
+_run .
+_run $pwd
+
+echo "=== cases with errors ==="
+mkdir blocked
+chmod 0 blocked
+mkdir dev
+$sudo mknod dev/tty c 5 0
+echo "qa.D = sample.longlong.one+sample.longlong.ten" >$tmp.D
+ln -s $tmp.D D
+ln -s $tmp.E E
+debug='-Dderive'
+_run .
+
+# success, all done
+status=0
+
+exit
