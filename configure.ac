@@ -157,6 +157,27 @@ AC_ARG_WITH([vector],
     [do_vector=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-vector=$withval"],
     [do_vector=no])
 
+dnl things set in the environment by Makepkgs never make it into an RPM
+dnl build where the environment is stripped ... use a --with-foo=path
+dnl construct to workaround this
+
+AC_ARG_WITH([make],
+    [AC_HELP_STRING([--with-make],
+                    [path to GNU compatible make(1) (default is empty for auto discovery)])],
+    [MAKE=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-make=$withval"],
+    [MAKE=''])
+
+AC_ARG_WITH([tar],
+    [AC_HELP_STRING([--with-tar],
+                    [path to GNU compatible tar(1) (default is empty for auto discovery)])],
+    [TAR=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-tar=$withval"],
+    [TAR=''])
+
+AC_ARG_WITH([zip],
+    [AC_HELP_STRING([--with-zip],
+                    [path to GNU compatible zip(1) (default is empty for auto discovery)])],
+    [ZIP=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-zip=$withval"],
+    [ZIP=''])
 
 #
 # Note: the following environment variables may be

@@ -930,6 +930,9 @@ with_manager
 with_webapi
 with_webjs
 with_vector
+with_make
+with_tar
+with_zip
 enable_ssp
 enable_pie
 enable_visibility
@@ -1634,6 +1637,12 @@ Optional Packages:
   --with-webapi           enable REST API daemon (default is on)
   --with-webjs            enable building of webjs packages (default is off)
   --with-vector           enable building of vector package (default is off)
+  --with-make             path to GNU compatible make(1) (default is empty for
+                          auto discovery)
+  --with-tar              path to GNU compatible tar(1) (default is empty for
+                          auto discovery)
+  --with-zip              path to GNU compatible zip(1) (default is empty for
+                          auto discovery)
   --with-configdir        configuration directory [LOCALSTATEDIR/pcp/config]
   --with-perl_installdirs perl installdirs [vendor]
   --with-perl_install_base
@@ -2756,6 +2765,33 @@ else
   do_vector=no
 fi
 
+
+
+
+# Check whether --with-make was given.
+if test "${with_make+set}" = set; then :
+  withval=$with_make; MAKE=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-make=$withval"
+else
+  MAKE=''
+fi
+
+
+
+# Check whether --with-tar was given.
+if test "${with_tar+set}" = set; then :
+  withval=$with_tar; TAR=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-tar=$withval"
+else
+  TAR=''
+fi
+
+
+
+# Check whether --with-zip was given.
+if test "${with_zip+set}" = set; then :
+  withval=$with_zip; ZIP=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-zip=$withval"
+else
+  ZIP=''
+fi
 
 
 #

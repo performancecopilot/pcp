@@ -113,6 +113,10 @@ else
     # This set is based on Fedora 22 %configure macro from /usr/lib/rpm/macros,
     # and is known to work as far back as RHEL5.
     configopts=`rpmbuild --eval '--prefix=%{_prefix} --exec-prefix=%{_exec_prefix} --bindir=%{_bindir} --sbindir=%{_sbindir} --sysconfdir=%{_sysconfdir} --datadir=%{_datadir} --includedir=%{_includedir} --libdir=%{_libdir} --libexecdir=%{_libexecdir} --localstatedir=%{_localstatedir} --sharedstatedir=%{_sharedstatedir} --mandir=%{_mandir}' 2>/dev/null`
+    # rpmbuild clears the environment, so force these settings into the
+    # rpm build configure
+    #
+    configopt="$configopts --with-make=$MAKE --with-tar=$TAR --with-zip=$ZIP"
 fi
 
 for opt in $*
@@ -159,6 +163,18 @@ do
 	;;
     --with-containers)
 	containers=true
+	shift
+	;;
+    --with-make)
+	MAKE=$1
+	shift
+	;;
+    --with-tar)
+	TAR=$1
+	shift
+	;;
+    --with-zip)
+	ZIP=$1
 	shift
 	;;
     *)
