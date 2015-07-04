@@ -3144,12 +3144,6 @@ then
     exit 1
 fi
 
-# Add some security-related gcc flags
-# Check whether --enable-ssp was given.
-if test "${enable_ssp+set}" = set; then :
-  enableval=$enable_ssp;
-fi
-
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -3940,7 +3934,22 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-if test $cc_is_gcc -a "x$enable_ssp" != xno; then :
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+int foo;
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+# Add some security-related gcc flags
+# Check whether --enable-ssp was given.
+if test "${enable_ssp+set}" = set; then :
+  enableval=$enable_ssp;
+fi
+
+if test "x$GCC" = xyes -a "x$enable_ssp" != xno; then :
 
    save_CFLAGS="$CFLAGS"
    CFLAGS="$CFLAGS -fstack-protector-all -D_FORTIFY_SOURCE=2"
@@ -3968,7 +3977,7 @@ if test "${enable_pie+set}" = set; then :
   enableval=$enable_pie;
 fi
 
-if test $cc_is_gcc -a "x$enable_pie" != xno; then :
+if test "x$GCC" = xyes -a "x$enable_pie" != xno; then :
 
    PIECFLAGS='-fPIE'
    PIELDFLAGS='-pie -Wl,-z,relro -Wl,-z,now'
@@ -4008,7 +4017,7 @@ if test "${enable_visibility+set}" = set; then :
   enableval=$enable_visibility;
 fi
 
-if test $cc_is_gcc -a "x$enable_visibility" != xno; then :
+if test "x$GCC" = xyes -a "x$enable_visibility" != xno; then :
 
    INVISIBILITY="-fvisibility=hidden"
    save_CFLAGS="$CFLAGS"
@@ -6456,7 +6465,7 @@ fi
   test -n "$QMAKE" && break
 done
 
-	test $cc_is_gcc -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
+	test "x$GCC" = xyes -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
     fi
     qmake=$QMAKE
     if test -z "$QMAKE"

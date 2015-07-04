@@ -275,10 +275,15 @@ then
     exit 1
 fi
 
+dnl this does nothing useful towards PCP configuration but it does
+dnl trigger the autoconf generated C compiler probing to test if
+dnl the GNU C compiler (gcc) is in play which we need below ...
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([int foo;])], [ ], [ ])
+
 # Add some security-related gcc flags
 AC_ARG_ENABLE([ssp],
   [AS_HELP_STRING([--disable-ssp], [disable gcc stack-protector])])
-AS_IF([test $cc_is_gcc -a "x$enable_ssp" != xno],[
+AS_IF([test "x$GCC" = xyes -a "x$enable_ssp" != xno],[
    save_CFLAGS="$CFLAGS"
    CFLAGS="$CFLAGS -fstack-protector-all -D_FORTIFY_SOURCE=2"
    AC_COMPILE_IFELSE([AC_LANG_SOURCE([int something ();])], [
@@ -290,7 +295,7 @@ AS_IF([test $cc_is_gcc -a "x$enable_ssp" != xno],[
 # Check for even more security-related gcc/linker flags, useful for daemons
 AC_ARG_ENABLE([pie],
   [AS_HELP_STRING([--disable-pie], [disable position-independent-executable])])
-AS_IF([test $cc_is_gcc -a "x$enable_pie" != xno],[
+AS_IF([test "x$GCC" = xyes -a "x$enable_pie" != xno],[
    PIECFLAGS='-fPIE'
    PIELDFLAGS='-pie -Wl,-z,relro -Wl,-z,now'
    save_CFLAGS="$CFLAGS"
@@ -313,7 +318,7 @@ AC_SUBST(PIECFLAGS)
 # Check for support for symbol hiding via gcc flags
 AC_ARG_ENABLE([visibility],
   [AS_HELP_STRING([--disable-visibility], [disable gcc symbol visibility])])
-AS_IF([test $cc_is_gcc -a "x$enable_visibility" != xno],[
+AS_IF([test "x$GCC" = xyes -a "x$enable_visibility" != xno],[
    INVISIBILITY="-fvisibility=hidden"
    save_CFLAGS="$CFLAGS"
    CFLAGS="$CFLAGS -c $INVISIBILITY"
@@ -642,7 +647,7 @@ AS_IF([test "x$do_qt" != "xno"], [
     if test -z "$QMAKE"
     then
 	AC_PATH_PROGS(QMAKE, [qmake-qt4 qmake],, [$QTDIR/bin:/usr/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin])
-	test $cc_is_gcc -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
+	test "x$GCC" = xyes -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
     fi
     qmake=$QMAKE
     if test -z "$QMAKE"
