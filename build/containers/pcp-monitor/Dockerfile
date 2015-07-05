@@ -17,7 +17,7 @@ MAINTAINER PCP Development Team <pcp@oss.sgi.com>
 
 #
 # install pcp and it's dependencies, clean the cache.
-RUN dnf --enablerepo=pcp-devel -y install pcp pcp-monitor python-pcp && dnf clean all
+RUN dnf --enablerepo=pcp-devel -y install pcp pcp-monitor && dnf clean all
 
 #
 # denote this as a container environment, for rc scripts
