@@ -1,0 +1,84 @@
+#!/bin/sh
+# PCP QA Test No. 777
+# instant() for derived metrics
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.config
+qa.instant.milliseconds = instant(sample.milliseconds)
+qa.instant.ulong.bin_ctr = instant(sample.ulong.bin_ctr)
+qa.instant.lights = instant(sample.lights)
+qa.instant.dynamic.discrete = instant(sample.dynamic.discrete)
+qa.instant.drift = instant(sampledso.drift)
+qa.instant.pmlogger.port = instant(pmcd.pmlogger.port)
+End-of-File
+
+# real QA test starts here
+export PCP_DERIVED_CONFIG=$tmp.config
+pmprobe -v qa.instant.milliseconds sample.milliseconds >$tmp.out
+cat $tmp.out >>$here/$seq.full
+# expect 3rd value to be the same in these two lines of output ...
+# qa.instant.milliseconds 1 91065894.656
+# sample.milliseconds 1 91065894.656
+#
+$PCP_AWK_PROG <$tmp.out '
+NR == 1	{ t = $3 }
+NR == 2 { if (t == $3) print "OK"
+	  else print "qa.instant.milliseconds",t,"!= sample.milliseconds",$3
+	}'
+
+echo
+echo "=== metadata ==="
+pminfo -d \
+    sample.milliseconds qa.instant.milliseconds \
+    sample.ulong.bin_ctr qa.instant.ulong.bin_ctr \
+    sample.lights qa.instant.lights \
+    sample.dynamic.discrete qa.instant.dynamic.discrete \
+    sampledso.drift qa.instant.drift \
+    pmcd.pmlogger.port qa.instant.pmlogger.port \
+
+echo
+echo "=== pmie tests ==="
+cat <<End-of-File >$tmp.pmie
+uncooked = sample.ulong.bin_ctr;
+cooked = qa.instant.ulong.bin_ctr / 1024;
+reverse = rate(qa.instant.milliseconds) == sample.milliseconds;
+reverse2 = all_inst (qa.instant.dynamic.discrete == sample.dynamic.discrete);
+reverse3 = qa.instant.drift == sampledso.drift;
+End-of-File
+
+pmie -v -c $tmp.pmie -t 1sec -T 3sec 2>&1 \
+| sed -e '/ Info: evaluator exiting/d'
+
+echo
+echo "=== archive tests ==="
+cat <<End-of-File >$tmp.pmie
+raw = sample.milliseconds;
+cooked = qa.instant.milliseconds;
+reverse = rate(qa.instant.milliseconds) == sample.milliseconds;
+reverse4 = qa.instant.pmlogger.port == pmcd.pmlogger.port;
+End-of-File
+pmie -v -z -c $tmp.pmie -t 10sec -A 10sec -a src/sample-secs 2>&1 \
+| sed -e '/ Info: evaluator exiting/d'
+
+echo
+pmval -z -t 15sec -A 15sec -a src/951127.23.01_v2 sample.lights
+pmval -z -t 15sec -A 15sec -a src/951127.23.01_v2 qa.instant.lights
+
+# success, all done
+status=0
+
+exit

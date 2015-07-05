@@ -976,6 +976,7 @@ cgroups
 774 pmdumplog local
 775 sanity pmfind local
 776 pmfind local
+777 derive pmprobe pmie local
 779 pmda local
 780 pmwebapi local
 781 logutil local
