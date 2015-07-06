@@ -8,10 +8,10 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
+# get standard environment, filters and checks
 . ./common.product
-. ./common.check
 . ./common.filter
-. ./localconfig
+. ./common.check
 
 trap "rm -rf $tmp $tmp.*; exit" 0 1 2 3 15
 

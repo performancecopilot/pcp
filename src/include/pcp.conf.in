@@ -173,7 +173,6 @@ PCP_SYSLOG_PROG=@pcp_syslog_prog@
 
 # running process list
 PCP_PS_PROG=@pcp_ps_prog@
-PCP_PS_HAVE_BSD=@pcp_ps_have_bsd@
 PCP_PS_ALL_FLAGS=@pcp_ps_all_flags@
 
 # preferred python executable

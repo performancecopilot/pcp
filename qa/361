@@ -8,10 +8,10 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard filters
+# get standard environment, filters and checks
 . ./common.product
+. ./common.filter
 . ./common.check
-. ./localconfig
 
 [ $PCP_PLATFORM = linux ] || _notrun "tests pmdalinux functionality on Linux only"
 

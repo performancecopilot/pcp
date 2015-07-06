@@ -32,7 +32,7 @@ built.$(BOOK_TOOLCHAIN):	$(XML) $(CFG)
 	$(CP) $(CWD)/$(TOPDIR)/images en-US/
 	$(PUBLICAN) build --langs=en-US --formats=pdf
 	$(PUBLICAN) build --langs=en-US --formats=html,html-single
-	$(LN_S) $(CWD)/en-US/pdf/*.pdf pdf/$(IAM).pdf
+	$(LN_S) $(CWD)/tmp/en-US/pdf/*.pdf pdf/$(IAM).pdf
 endif
 
 ifeq "$(BOOK_TOOLCHAIN)" "dblatex"

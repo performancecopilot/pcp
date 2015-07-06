@@ -76,8 +76,22 @@ enum {
 	CLUSTER_NET_NETSTAT,    /* 53 /proc/net/netstat */
 	CLUSTER_DM,		/* 54 disk.dm.* */
 	CLUSTER_SYSFS_DEVICES,	/* 55 /sys/devices metrics */
+	CLUSTER_SHM_INFO,       /* 56 shmctl(SHM_INFO) system call */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
+};
+
+/*
+ * Extra refresh array indices for fine-grained (within-cluster) refresh
+ */
+enum {
+	REFRESH_NET_MTU = NUM_CLUSTERS,
+	REFRESH_NET_SPEED,
+	REFRESH_NET_DUPLEX,
+	REFRESH_NET_LINKUP,
+	REFRESH_NET_RUNNING,
+
+	NUM_REFRESHES		/* one more than highest refresh index */
 };
 
 #endif /* _CLUSTERS_H */

@@ -127,8 +127,6 @@ quick=true
 check=false
 . ./common
 
-here=`pwd`
-
 for id
 do
     case "$id"

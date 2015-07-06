@@ -130,5 +130,5 @@ int		deviattask(struct tstat *, int, struct tstat *, int, int,
 				struct tstat *, struct sstat *, unsigned int *,
 				int *, int *, int *, int *, int *);
 
-int		photoproc(struct tstat *, int *);
+int		photoproc(struct tstat **, int *);
 unsigned int	countprocs(void);

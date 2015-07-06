@@ -22,6 +22,21 @@
 #include "ipc.h"
 
 int
+refresh_shm_info(shm_info_t *_shm_info)
+{
+    static struct shm_info shm_info;
+    extern size_t _pm_system_pagesize;
+
+    if (shmctl(0, SHM_INFO, (struct shmid_ds *) &shm_info) < 0)
+	return -oserror();
+
+    _shm_info->shm_tot = shm_info.shm_tot * _pm_system_pagesize;
+    _shm_info->shm_rss = shm_info.shm_rss * _pm_system_pagesize;
+    _shm_info->shm_swp = shm_info.shm_swp * _pm_system_pagesize;
+    return 0;
+}
+
+int
 refresh_shm_limits(shm_limits_t *shm_limits)
 {
     static struct shminfo shminfo;

@@ -141,8 +141,23 @@ Error: PCP archive logger control file '$PMLOGCTRL'
 		# run as a co-process
 		_start_pmcheck &
 	    else
-		# container environment - no co-process
+		#
+		# Container environment
+		#
+		
+		# no co-process - all pmloggers are started serially
 		_start_pmcheck
+
+		# Set up the host crontab for pmlogger_{check,daily).
+		# This needs to be robust for when the container isn't running
+		# so that a failing crontab entry doesn't spam the host logs.
+		if [ ! -f /etc/cron.d/pcp-pmlogger ]
+		then
+		    # Note the pcp-pmlogger/Dockerfile removes the regular crontab entry.
+		    # We only set this up once - changes thereafter will be persistent.
+		    cp $PCP_VAR_DIR/config/pmlogger/crontab.docker /etc/cron.d/pcp-pmlogger
+		    $PCP_BINADM_DIR/pmpost "pmlogger rc script installed /etc/cron.d/pcp-pmlogger"
+		fi
 	    fi
 
 	    # success
@@ -284,6 +299,9 @@ case "$1" in
 	    fi
 
 	    _start_pmlogger
+
+	    # started crond if in a container
+	    [ -z "$PCP_CONTAINER_IMAGE" ] || /usr/sbin/crond -i -s
 
 	    # finally, stop here if running in a container
 	    [ -z "$PCP_CONTAINER_IMAGE" ] || exec $PCP_BINADM_DIR/pmpause

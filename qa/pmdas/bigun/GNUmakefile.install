@@ -34,7 +34,7 @@ LDIRT = help.pag help.dir
 
 LLDLIBS = -lpcp_pmda -lpcp $(LIB_FOR_MATH) $(LIB_FOR_DLOPEN) $(LIB_FOR_PTHREADS)
 
-default default_pcp setup: $(TARGETS)
+default default_pcp setup:
 
 $(LIBTARGET):	bigun.o
 

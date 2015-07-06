@@ -5,8 +5,10 @@
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
-. ./localconfig
+# get standard environment, filters and checks
 . ./common.product
+. ./common.filter
+. ./common.check
 
 _installed()
 {

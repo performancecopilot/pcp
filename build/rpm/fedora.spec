@@ -7,8 +7,7 @@ Release: %{buildversion}%{?dist}
 License: GPLv2+ and LGPLv2.1+ and CC-BY
 URL: http://www.pcp.io
 Group: Applications/System
-Source0: ftp://ftp.pcp.io/projects/pcp/download/%{name}-%{version}.src.tar.gz
-# From: git://sourceware.org/git/pcpfans.git --branch=webjs
+Source0: pcp-%{version}.src.tar.gz
 Source1: pcp-webjs.src.tar.gz
 
 # Compat check for distros that already have single install pmda's
@@ -43,7 +42,7 @@ Source1: pcp-webjs.src.tar.gz
 %if 0%{?rhel} == 5
 %global default_python 26
 %endif
-# No python3 development environment before el7
+# No python3 development environment before el8
 %if 0%{?rhel} == 0 || 0%{?rhel} > 7
 %global disable_python3 0
 # Do we wish to mandate python3 use in pcp?  (f22+ and el8+)
@@ -54,11 +53,54 @@ Source1: pcp-webjs.src.tar.gz
 %global disable_python3 1
 %endif
 
+# support for pmdajson
+%if 0%{?rhel} == 0 || 0%{?rhel} > 6
+%if !%{disable_python2} || !%{disable_python3}
+%global disable_json 0
+%else
+%global disable_json 1
+%endif
+%else
+%global disable_json 1
+%endif
+
+# support for pmdarpm
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+%global disable_rpm 0
+%else
+%global disable_rpm 1
+%endif
+
 # Qt development and runtime environment missing components before el6
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %global disable_qt 0
 %else
 %global disable_qt 1
+%endif
+
+# systemd services and pmdasystemd
+%if 0%{?fedora} >= 19 || 0%{?rhel} >= 7
+%global disable_systemd 0
+%else
+%global disable_systemd 1
+%endif
+
+# systemtap static probing, missing before el6 and on some architectures
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+%ifnarch ppc ppc64
+%global disable_sdt 0
+%else
+%global disable_sdt 1
+%endif
+%else
+%global disable_sdt 1
+%endif
+
+# rpm producing "noarch" packages
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+%global disable_noarch 0
+%else
+%global disable_noarch 1
 %endif
 
 # prevent conflicting binary and man page install for pcp(1)
@@ -94,16 +136,12 @@ BuildRequires: libmicrohttpd-devel
 %if !%{disable_cairo}
 BuildRequires: cairo-devel
 %endif
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+%if !%{disable_sdt}
 BuildRequires: systemtap-sdt-devel
-%else
-%ifnarch ppc ppc64
-BuildRequires: systemtap-sdt-devel
-%endif
 %endif
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: initscripts man
-%if 0%{?fedora} >= 18 || 0%{?rhel} >= 7
+%if !%{disable_systemd}
 BuildRequires: systemd-devel
 %endif
 %if !%{disable_qt}
@@ -137,13 +175,11 @@ Obsoletes: pcp-pmda-nvidia
 %if 0%{?fedora} >= 20 || 0%{?rhel} >= 8
 %global _with_doc --with-docdir=%{_docdir}/%{name}
 %endif
-%if 0%{?fedora} >= 19 || 0%{?rhel} >= 7
+
+%if %{disable_systemd}
 %global _initddir %{_datadir}/pcp/lib
-%global disable_systemd 0
 %else
 %global _initddir %{_sysconfdir}/rc.d/init.d
-%global _with_initd --with-rcdir=%{_initddir}
-%global disable_systemd 1
 %endif
 
 # we never want Infiniband on s390 platforms
@@ -170,6 +206,12 @@ Obsoletes: pcp-pmda-nvidia
 %global _with_perfevent --with-perfevent=yes
 %endif
 
+%if %{disable_json}
+%global _with_json --with-pmdajson=no
+%else
+%global _with_json --with-pmdajson=yes
+%endif
+
 %description
 Performance Co-Pilot (PCP) provides a framework and services to support
 system-level performance monitoring and performance management. 
@@ -181,7 +223,7 @@ applications to easily retrieve and process any subset of that data.
 %if %{with_compat}
 Requires: pcp-compat
 %endif
-Requires: pcp-libs = @package_version@
+Requires: pcp-libs = %{version}-%{release}
 Obsoletes: pcp-gui-debuginfo
 
 #
@@ -283,7 +325,7 @@ HTTP (PMWEBAPI) protocol.
 %package webjs
 License: ASL2.0 and MIT and CC-BY
 Group: Applications/Internet
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+%if !%{disable_noarch}
 BuildArch: noarch
 %endif
 Requires: pcp-webapp-graphite pcp-webapp-grafana pcp-webapp-vector
@@ -297,7 +339,7 @@ web service.
 %package webapp-vector
 License: ASL2.0
 Group: Applications/Internet
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+%if !%{disable_noarch}
 BuildArch: noarch
 %endif
 Summary: Vector web application for Performance Co-Pilot (PCP)
@@ -310,7 +352,7 @@ Vector web application for the Performance Co-Pilot (PCP).
 License: ASL2.0
 Group: Applications/Internet
 Conflicts: pcp-webjs < 3.10.4
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+%if !%{disable_noarch}
 BuildArch: noarch
 %endif
 Summary: Grafana web application for Performance Co-Pilot (PCP)
@@ -330,7 +372,7 @@ server via png (less interactive, faster).
 License: ASL2.0
 Group: Applications/Internet
 Conflicts: pcp-webjs < 3.10.4
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+%if !%{disable_noarch}
 BuildArch: noarch
 %endif
 Summary: Graphite web application for Performance Co-Pilot (PCP)
@@ -1078,7 +1120,6 @@ collecting metrics about the Unbound DNS Resolver.  The PMDA is written
 in Python.
 # end pcp-pmda-unbound
 
-%if 0%{?rhel} == 0 || 0%{?rhel} > 6
 #
 # pcp-pmda-mic
 #
@@ -1098,6 +1139,9 @@ collecting metrics about Intel MIC cards.  The PMDA is written
 in Python.
 # end pcp-pmda-mic
 
+%endif # !%{disable_python2} || !%{disable_python3}
+
+%if !%{disable_json}
 #
 # pcp-pmda-json
 #
@@ -1110,22 +1154,16 @@ URL: http://www.pcp.io
 Requires: python3-pcp
 Requires: python3-jsonpointer
 Requires: python3-six
-BuildRequires: python3-jsonpointer
-BuildRequires: python3-six
 %else
 Requires: python-pcp
 Requires: python-jsonpointer
 Requires: python-six
-BuildRequires: python-jsonpointer
-BuildRequires: python-six
 %endif
 %description pmda-json
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics output in JSON.  The PMDA is written in Python.
 # end pcp-pmda-json
-%endif # 0%{?rhel} == 0 || 0%{?rhel} > 6
-
-%endif # !%{disable_python2} || !%{disable_python3}
+%endif
 
 #
 # C pmdas
@@ -1286,7 +1324,7 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Room temperature metrics.  The PMDA is written in C.
 # end pcp-pmda-roomtemp
 
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+%if !%{disable_rpm}
 #
 # pcp-pmda-rpm
 #
@@ -1300,7 +1338,7 @@ Requires: pcp = %{version}-%{release}
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the rpms.  The PMDA is written in C.
 # end pcp-pmda-rpm
-%endif # 0%{?rhel} == 0 || 0%{?rhel} > 5
+%endif
 
 #
 # pcp-pmda-sendmail
@@ -1345,7 +1383,7 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about other installed pmdas.  The PMDA is written in C.
 # end pcp-pmda-summary
 
-%if 0%{?fedora} >= 18 || 0%{?rhel} >= 7
+%if !%{disable_systemd}
 #
 # pcp-pmda-systemd
 #
@@ -1411,13 +1449,13 @@ Requires: pcp-pmda-lustrecomm
 %if !%{disable_python2} || !%{disable_python3}
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 Requires: pcp-system-tools pcp-export-pcp2graphite
-%if 0%{?rhel} == 0 || 0%{?rhel} > 6
+%endif
+%if !%{disable_json}
 Requires: pcp-pmda-json
-%endif # 0%{?rhel} == 0 || 0%{?rhel} > 6
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+%endif
+%if !%{disable_rpm}
 Requires: pcp-pmda-rpm
-%endif # 0%{?rhel} == 0 || 0%{?rhel} > 5
-%endif # !%{disable_python2} || !%{disable_python3}
+%endif
 Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
 Requires: pcp-doc
 %description compat
@@ -1443,13 +1481,13 @@ Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shpin
 Requires: pcp-pmda-lustrecomm pcp-pmda-logger
 %if !%{disable_python2} || !%{disable_python3}
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
-%if 0%{?rhel} == 0 || 0%{?rhel} > 6
+%endif
+%if !%{disable_json}
 Requires: pcp-pmda-json
-%endif # 0%{?rhel} == 0 || 0%{?rhel} > 6
-%endif # !%{disable_python2} || !%{disable_python3}
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+%endif
+%if !%{disable_rpm}
 Requires: pcp-pmda-rpm
-%endif # 0%{?rhel} == 0 || 0%{?rhel} > 5
+%endif
 Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
 %description collector
 This package contains the PCP metric collection dependencies.  This includes
@@ -1521,7 +1559,8 @@ Summary: Performance Co-Pilot (PCP) System and Monitoring Tools
 URL: http://www.pcp.io
 %if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
-%else
+%endif
+%if !%{disable_python2}
 Requires: python-pcp = %{version}-%{release}
 %endif
 %description -n pcp-system-tools
@@ -1553,11 +1592,15 @@ monitoring systems using live and archived Performance Co-Pilot
 %package -n pcp-doc
 License: GPLv2+ and CC-BY
 Group: Documentation
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+%if !%{disable_noarch}
 BuildArch: noarch
 %endif
 Summary: Documentation and tutorial for the Performance Co-Pilot
 URL: http://www.pcp.io
+# http://fedoraproject.org/wiki/Packaging:Conflicts "Splitting Packages"
+# (all man pages migrated to pcp-doc during great package split of '15)
+Conflicts: pcp-pmda-pmda < 3.10.5
+Conflicts: pcp-pmda-infiniband < 3.10.5
 
 %description -n pcp-doc
 Documentation and tutorial for the Performance Co-Pilot
@@ -1612,7 +1655,6 @@ rmdir pcp-webjs
 %if %{disable_infiniband}
 # remove pmdainfiniband on platforms lacking IB devel packages.
 rm -f $RPM_BUILD_ROOT/%{_pmdasdir}/ib
-rm -f $RPM_BUILD_ROOT/%{_mandir}/man1/pmdaib.1*
 rm -fr $RPM_BUILD_ROOT/%{_pmdasdir}/infiniband
 %endif
 
@@ -1646,63 +1688,59 @@ done
 
 # list of PMDAs in the base pkg
 ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
-  grep -E -v 'simple|sample|trivial|txmon' |\
-  grep -E -v 'perfevent|perfalloc.1' |\
-  grep -E -v '^ib$|infiniband' |\
-  grep -E -v 'papi' |\
-  grep -E -v 'activemq' |\
-  grep -E -v 'bonding' |\
-  grep -E -v 'dbping' |\
-  grep -E -v 'ds389log'|\
-  grep -E -v 'ds389' |\
-  grep -E -v 'elasticsearch' |\
-  grep -E -v 'gpfs' |\
-  grep -E -v 'gpsd' |\
-  grep -E -v 'kvm' |\
-  grep -E -v 'lustre' |\
-  grep -E -v 'lustrecomm' |\
-  grep -E -v 'memcache' |\
-  grep -E -v 'mysql' |\
-  grep -E -v 'named' |\
-  grep -E -v 'netfilter' |\
-  grep -E -v 'news' |\
-  grep -E -v 'nfsclient' |\
-  grep -E -v 'nginx' |\
-  grep -E -v 'pdns' |\
-  grep -E -v 'postfix' |\
-  grep -E -v 'postgresql' |\
-  grep -E -v 'rsyslog' |\
-  grep -E -v 'samba' |\
-  grep -E -v 'snmp' |\
-  grep -E -v 'vmware' |\
-  grep -E -v 'zimbra' |\
-  grep -E -v 'dm' |\
-  grep -E -v 'apache' |\
-  grep -E -v 'bash' |\
-  grep -E -v 'cifs' |\
-  grep -E -v 'cisco' |\
-  grep -E -v 'gfs2' |\
-  grep -E -v 'lmsensors' |\
-  grep -E -v 'logger' |\
-  grep -E -v 'mailq' |\
-  grep -E -v 'mounts' |\
-  grep -E -v 'nvidia' |\
-  grep -E -v 'roomtemp' |\
-  grep -E -v 'rpm' |\
-  grep -E -v 'sendmail' |\
-  grep -E -v 'shping' |\
-  grep -E -v 'summary' |\
-  grep -E -v 'trace' |\
-  grep -E -v 'weblog' |\
-
-%if !%{disable_python2} || !%{disable_python3}
-  grep -E -v 'gluster' |\
-  grep -E -v 'zswap' |\
-  grep -E -v 'unbound' |\
-  grep -E -v 'mic' |\
-  grep -E -v 'json' |\
-%endif
-
+  grep -E -v '^simple|sample|trivial|txmon' |\
+  grep -E -v '^perfevent|perfalloc.1' |\
+  grep -E -v '^ib$|^infiniband' |\
+  grep -E -v '^papi' |\
+  grep -E -v '^activemq' |\
+  grep -E -v '^bonding' |\
+  grep -E -v '^dbping' |\
+  grep -E -v '^ds389log'|\
+  grep -E -v '^ds389' |\
+  grep -E -v '^elasticsearch' |\
+  grep -E -v '^gpfs' |\
+  grep -E -v '^gpsd' |\
+  grep -E -v '^kvm' |\
+  grep -E -v '^lustre' |\
+  grep -E -v '^lustrecomm' |\
+  grep -E -v '^memcache' |\
+  grep -E -v '^mysql' |\
+  grep -E -v '^named' |\
+  grep -E -v '^netfilter' |\
+  grep -E -v '^news' |\
+  grep -E -v '^nfsclient' |\
+  grep -E -v '^nginx' |\
+  grep -E -v '^pdns' |\
+  grep -E -v '^postfix' |\
+  grep -E -v '^postgresql' |\
+  grep -E -v '^rsyslog' |\
+  grep -E -v '^samba' |\
+  grep -E -v '^snmp' |\
+  grep -E -v '^vmware' |\
+  grep -E -v '^zimbra' |\
+  grep -E -v '^dm' |\
+  grep -E -v '^apache' |\
+  grep -E -v '^bash' |\
+  grep -E -v '^cifs' |\
+  grep -E -v '^cisco' |\
+  grep -E -v '^gfs2' |\
+  grep -E -v '^lmsensors' |\
+  grep -E -v '^logger' |\
+  grep -E -v '^mailq' |\
+  grep -E -v '^mounts' |\
+  grep -E -v '^nvidia' |\
+  grep -E -v '^roomtemp' |\
+  grep -E -v '^sendmail' |\
+  grep -E -v '^shping' |\
+  grep -E -v '^summary' |\
+  grep -E -v '^trace' |\
+  grep -E -v '^weblog' |\
+  grep -E -v '^rpm' |\
+  grep -E -v '^json' |\
+  grep -E -v '^mic' |\
+  grep -E -v '^gluster' |\
+  grep -E -v '^zswap' |\
+  grep -E -v '^unbound' |\
   sed -e 's#^#'%{_pmdasdir}'\/#' >base_pmdas.list
 
 # all base pcp package files except those split out into sub packages
@@ -1710,7 +1748,7 @@ ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
   grep -E -v 'pmiostat|pmcollectl|pmatop|pcp2graphite' |\
   sed -e 's#^#'%{_bindir}'\/#' >base_bin.list
 #
-# Seperate the pcp-system-tools package files.
+# Separate the pcp-system-tools package files.
 #
 # pmatop, pmcollectl and pmiostat are back-compat symlinks to their
 # pcp(1) sub-command variants so must also be in pcp-system-tools.
@@ -1718,9 +1756,6 @@ ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
   grep -E 'pmiostat|pmcollectl|pmatop' |\
   sed -e 's#^#'%{_bindir}'\/#' >pcp_system_tools.list
-%endif
-
-%if !%{disable_python2} || !%{disable_python3}
 ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
   grep -E 'atop|collectl|dmcache|free|iostat|numastat|verify|uptime|shping' |\
   sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >>pcp_system_tools.list
@@ -2031,14 +2066,8 @@ cd
 %{_localstatedir}/lib/pcp/config/pmlogrewrite
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmda
 
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+%if !%{disable_sdt}
 %{tapsetdir}/pmcd.stp
-%else				# rhel5
-%ifarch ppc ppc64
-# no systemtap-sdt-devel
-%else				# ! ppc
-%{tapsetdir}/pmcd.stp
-%endif				# ppc
 %endif
 
 %if %{with_compat}
@@ -2259,14 +2288,14 @@ cd
 %files pmda-unbound 
 %{_pmdasdir}/unbound 
 
-%files pmda-json
-%{_pmdasdir}/json
-%endif # 0%{?rhel} == 0 || 0%{?rhel} > 6
-
 %files export-pcp2graphite
 %{_bindir}/pcp2graphite
-
 %endif # !%{disable_python2} || !%{disable_python3}
+
+%if !%{disable_json}
+%files pmda-json
+%{_pmdasdir}/json
+%endif
 
 %files pmda-apache 
 %{_pmdasdir}/apache 
@@ -2301,10 +2330,10 @@ cd
 %files pmda-roomtemp 
 %{_pmdasdir}/roomtemp 
 
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+%if !%{disable_rpm}
 %files pmda-rpm 
 %{_pmdasdir}/rpm 
-%endif # 0%{?rhel} == 0 || 0%{?rhel} > 5
+%endif
 
 %files pmda-sendmail 
 %{_pmdasdir}/sendmail 
@@ -2315,10 +2344,10 @@ cd
 %files pmda-summary 
 %{_pmdasdir}/summary 
 
-%if 0%{?fedora} >= 18 || 0%{?rhel} >= 7
+%if !%{disable_systemd}
 %files pmda-systemd 
 %{_pmdasdir}/systemd 
-%endif # 0%{?fedora} >= 18 || 0%{?rhel} >= 7
+%endif
 
 %files pmda-trace 
 %{_pmdasdir}/trace 

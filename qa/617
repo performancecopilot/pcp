@@ -13,7 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 . ./common.product
-. ./localconfig
 
 rm -f $seq.out
 if [ $PCP_VER -ge 30801 ]

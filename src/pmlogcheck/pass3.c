@@ -26,6 +26,7 @@ typedef struct {
 
 typedef struct {
     pmDesc		desc;
+    int			valfmt;
     double		scale;
     instData		**instlist;
     unsigned int	listsize;
@@ -291,6 +292,10 @@ docheck(pmResult *result)
 	    /* create a new one & add to list */
 	    checkdata = (checkData*) malloc(sizeof(checkData));
 	    newHashItem(vsp, &desc, checkdata, &result->timestamp);
+	    if (vsp->numval > 0)
+		checkdata->valfmt = vsp->valfmt;
+	    else
+		checkdata->valfmt = -1;
 	    if (__pmHashAdd(checkdata->desc.pmid, (void*)checkdata, &hashlist) < 0) {
 		fprintf(stderr, "%s.%d:[", l_archname, l_ctxp->c_archctl->ac_vol);
 		print_stamp(stderr, &result->timestamp);
@@ -309,6 +314,23 @@ docheck(pmResult *result)
 	}
 	else {	/* pmid exists - update statistics */
 	    checkdata = (checkData *)hptr->data;
+	    if (vsp->numval > 0) {
+		if (checkdata->valfmt == -1)
+		    checkdata->valfmt = vsp->valfmt;
+		else if (checkdata->valfmt != vsp->valfmt) {
+		    /*
+		     * this is not supposed to happen ... when values
+		     * are present valfmt should be the same for all
+		     * pmValueSets for a given PMID
+		     */
+		    fprintf(stderr, "%s.%d:[", l_archname, l_ctxp->c_archctl->ac_vol);
+		    print_stamp(stderr, &result->timestamp);
+		    fprintf(stderr, "] ");
+		    print_metric(stderr, vsp->pmid);
+		    fprintf(stderr, ": encoding botch valfmt=%d not %d as expected\n", vsp->valfmt, checkdata->valfmt);
+		    continue;
+		}
+	    }
 	    for (j = 0; j < vsp->numval; j++) {	/* iterate thro result values */
 		vp = &vsp->vlist[j];
 		k = j;	/* index into stored inst list, result may differ */

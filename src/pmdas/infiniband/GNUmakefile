@@ -46,6 +46,7 @@ install: default
 else
 build-me:
 install:
+	@$(INSTALL_MAN)
 endif
 
 ib.o:	domain.h

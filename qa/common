@@ -70,7 +70,7 @@ _havesudo()
 _haveagents()
 {
     restart=false
-    here=`pwd`
+    _here=`pwd`
 
     # PMDAs than need to be here for QA
     #
@@ -150,7 +150,7 @@ _haveagents()
 		fi
 		if $reinstall
 		then
-		    [ -f $here/$iam.out ] && cat $here/$iam.out
+		    [ -f $_here/$iam.out ] && cat $_here/$iam.out
 		    echo "Cannot make PMDA $agent work, ... giving up!"
 		    exit 1
 		else
@@ -164,18 +164,18 @@ _haveagents()
 			_log_fyi $PCP_LOG_DIR/pmcd/pmcd.log $agentlog
 			cd $agentdir
 			unset ROOT TOOLROOT MAKEFLAGS
-			$sudo ./Remove </dev/null >>$here/$iam.out
+			$sudo ./Remove </dev/null >>$_here/$iam.out
 			case $agent
 			in
 			    cisco)
-				cd $here
+				cd $_here
 				./common.install.cisco $iam $agentdir
 				;;
 			    *)
-				$sudo ./Install </dev/null >>$here/$iam.out
+				$sudo ./Install </dev/null >>$_here/$iam.out
 				;;
 			esac
-			cd $here
+			cd $_here
 			reinstall=true
 		    else
 			echo "Cannot find PMDA directory ($agentdir)"
@@ -733,6 +733,23 @@ else
     then
 	# running QA in the tree
 	${MAKE:-make} -f GNUmakefile.install setup
+	cd pmdas
+	if ${MAKE:-make} setup >$tmp.tmp 2>&1
+	then
+	    :
+	else
+	    cat $tmp.tmp
+	    echo "Warning: pmdas: $MAKE -f GNUmakefile.install setup failed"
+	fi
+	cd broken
+	if ${MAKE:-make} -f GNUmakefile.install broken_v2.dir >$tmp.tmp 2>&1
+	then
+	    :
+	else
+	    cat $tmp.tmp
+	    echo "Warning: pmdas/broken: $MAKE -f GNUmakefile.install broken_v2.dir failed"
+	fi
+	cd ../..
     else
 	${MAKE:-make} setup
     fi
@@ -748,7 +765,7 @@ else
     x=`pwd`
     while [ -n "$x" -a "$x" != / ]
     do
-	prot=`ls -ld "$x" | sed -e 's/[ 	].*//'`
+	prot=`ls -ldL "$x" | sed -e 's/[ 	].*//'`
 	case $prot
 	in
 	    dr?xr?xr?[xt]*)
