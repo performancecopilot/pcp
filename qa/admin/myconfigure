@@ -18,9 +18,9 @@ then
     eval `rpmbuild --eval 'vendor=%{_vendor}' 2>/dev/null`
     if [ "$vendor" = suse ]
     then
-	configopts="$configopts --with-rcdir=/etc/rc.d/init.d
+	configopts="$configopts --with-rcdir=/etc/rc.d/init.d"
     else
-	configopts="$configopts --with-rcdir=/etc/init.d
+	configopts="$configopts --with-rcdir=/etc/init.d"
     fi
 elif [ -f /etc/debian_version ]
 then
