@@ -35,9 +35,12 @@ typedef struct linux_container {
     char	*name;
 } linux_container_t;
 
-extern int container_enter_namespaces(int, linux_container_t *, int);
-extern int container_leave_namespaces(int, int);
+extern int container_lookup(int, linux_container_t *);
+extern int container_close(linux_container_t *, int);
 
 extern int container_open_network(linux_container_t *);
 extern void container_close_network(linux_container_t *);
+
+extern int container_nsenter(linux_container_t *, int, int *);
+extern int container_nsleave(linux_container_t *, int);
 

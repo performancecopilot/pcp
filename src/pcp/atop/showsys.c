@@ -164,6 +164,9 @@ void showsysline(sys_printpair* elemptr,
                         }
                 }
 
+                // ensure we do not write outside newelems memory
+                if (lowestprio_index < 0)
+                        break;
                 // lowest priority item found, remove from newelems;
                 memmove(newelems+lowestprio_index, 
                         newelems+lowestprio_index+1, 

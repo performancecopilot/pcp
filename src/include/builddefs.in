@@ -38,6 +38,10 @@ PACKAGE_DISTRIBUTION ?= @PACKAGE_DISTRIBUTION@
 SGI_CHROOT_BUILD ?= 0
 SGI_ISSP_BUILD ?= 0
 
+# see build/containers/GNUlocalrules and build/containers/*/GNUmakefile
+CONTAINER_VERSION = $(PACKAGE_VERSION)-$(PACKAGE_BUILD)
+CONTAINER_ARCH = $(shell uname -p)
+
 BUILDRULES = $(TOPDIR)/src/include/buildrules
 
 # LCFLAGS, LLDFLAGS, LLDLIBS, LDIRT may be specified in local makefiles.

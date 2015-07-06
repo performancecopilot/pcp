@@ -19,6 +19,7 @@
 #include "impl.h"
 #include "pmda.h"
 #include "indom.h"
+#include "clusters.h"
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <net/if.h>
@@ -38,8 +39,9 @@ refresh_inet_socket(linux_container_t *container)
     return netfd;
 }
 
-static int
-refresh_net_dev_ioctl(char *name, net_interface_t *netip, linux_container_t *cp)
+static void
+refresh_net_dev_ioctl(char *name, net_interface_t *netip,
+		linux_container_t *cp, int *need_refresh)
 {
     struct ethtool_cmd ecmd;
     struct ifreq ifr;
@@ -58,40 +60,46 @@ refresh_net_dev_ioctl(char *name, net_interface_t *netip, linux_container_t *cp)
     memset(&ecmd, 0, sizeof(ecmd));
     memset(&ifr, 0, sizeof(ifr));
 
-
     if ((fd = refresh_inet_socket(cp)) < 0)
-	return 0;
+	return;
 
-    ecmd.cmd = ETHTOOL_GSET;
-    ifr.ifr_data = (caddr_t)&ecmd;
-    strncpy(ifr.ifr_name, name, IF_NAMESIZE);
-    ifr.ifr_name[IF_NAMESIZE-1] = '\0';
-    if (!(ioctl(fd, SIOCGIFMTU, &ifr) < 0))
-	netip->ioc.mtu = ifr.ifr_mtu;
+    if (need_refresh[REFRESH_NET_MTU]) {
+	ecmd.cmd = ETHTOOL_GSET;
+	ifr.ifr_data = (caddr_t)&ecmd;
+	strncpy(ifr.ifr_name, name, IF_NAMESIZE);
+	ifr.ifr_name[IF_NAMESIZE-1] = '\0';
+	if (!(ioctl(fd, SIOCGIFMTU, &ifr) < 0))
+	    netip->ioc.mtu = ifr.ifr_mtu;
+    }
 
-    ecmd.cmd = ETHTOOL_GSET;
-    ifr.ifr_data = (caddr_t)&ecmd;
-    strncpy(ifr.ifr_name, name, IF_NAMESIZE);
-    ifr.ifr_name[IF_NAMESIZE-1] = '\0';
-    if (!(ioctl(fd, SIOCGIFFLAGS, &ifr) < 0)) {
-	netip->ioc.linkup = !!(ifr.ifr_flags & IFF_UP);
-	netip->ioc.running = !!(ifr.ifr_flags & IFF_RUNNING);
+    if (need_refresh[REFRESH_NET_LINKUP] ||
+	need_refresh[REFRESH_NET_RUNNING]) {
+	ecmd.cmd = ETHTOOL_GSET;
+	ifr.ifr_data = (caddr_t)&ecmd;
+	strncpy(ifr.ifr_name, name, IF_NAMESIZE);
+	ifr.ifr_name[IF_NAMESIZE-1] = '\0';
+	if (!(ioctl(fd, SIOCGIFFLAGS, &ifr) < 0)) {
+	    netip->ioc.linkup = !!(ifr.ifr_flags & IFF_UP);
+	    netip->ioc.running = !!(ifr.ifr_flags & IFF_RUNNING);
+	}
     }
-    /* ETHTOOL ioctl -> non-root permissions issues for old kernels */
-    ecmd.cmd = ETHTOOL_GSET;
-    ifr.ifr_data = (caddr_t)&ecmd;
-    strncpy(ifr.ifr_name, name, IF_NAMESIZE);
-    ifr.ifr_name[IF_NAMESIZE-1] = '\0';
-    if (!(ioctl(fd, SIOCETHTOOL, &ifr) < 0)) {
-	/*
-	 * speed is defined in ethtool.h and returns the speed in
-	 * Mbps, so 100 for 100Mbps, 1000 for 1Gbps, etc
-	 */
-	netip->ioc.speed = ecmd.speed;
-	netip->ioc.duplex = ecmd.duplex + 1;
-	return 0;
+
+    if (need_refresh[REFRESH_NET_SPEED] ||
+	need_refresh[REFRESH_NET_DUPLEX]) {
+	/* ETHTOOL ioctl -> non-root permissions issues for old kernels */
+	ecmd.cmd = ETHTOOL_GSET;
+	ifr.ifr_data = (caddr_t)&ecmd;
+	strncpy(ifr.ifr_name, name, IF_NAMESIZE);
+	ifr.ifr_name[IF_NAMESIZE-1] = '\0';
+	if (!(ioctl(fd, SIOCETHTOOL, &ifr) < 0)) {
+	    /*
+	     * speed is defined in ethtool.h and returns the speed in
+	     * Mbps, so 100 for 100Mbps, 1000 for 1Gbps, etc
+	     */
+	    netip->ioc.speed = ecmd.speed;
+	    netip->ioc.duplex = ecmd.duplex + 1;
+	}
     }
-    return -ENOSYS;	/* caller should try ioctl alternatives */
 }
 
 static void
@@ -129,30 +137,58 @@ read_oneline(const char *path, char *buffer)
 	if (i == 1)
 	    return buffer;
     }
-    return "";
+    return NULL;
 }
 
-static void
-refresh_net_dev_sysfs(char *name, net_interface_t *netip)
+static int
+refresh_net_dev_sysfs(char *name, net_interface_t *netip, int *need_refresh)
 {
     char path[MAXPATHLEN];
     char line[64];
-    char *duplex;
+    char *value;
 
-    snprintf(path, sizeof(path), "%s/sys/class/net/%s/speed", linux_statspath, name);
-    path[sizeof(path)-1] = '\0';
-    netip->ioc.speed = atoi(read_oneline(path, line));
-
-    snprintf(path, sizeof(path), "%s/sys/class/net/%s/duplex", linux_statspath, name);
-    path[sizeof(path)-1] = '\0';
-    duplex = read_oneline(path, line);
-
-    if (strcmp(duplex, "full") == 0)
-	netip->ioc.duplex = 2;
-    else if (strcmp(duplex, "half") == 0)
-	netip->ioc.duplex = 1;
-    else	/* eh? */
-	netip->ioc.duplex = 0;
+    if (need_refresh[REFRESH_NET_MTU]) {
+	snprintf(path, sizeof(path), "%s/sys/class/net/%s/mtu",
+		linux_statspath, name);
+	path[sizeof(path)-1] = '\0';
+	value = read_oneline(path, line);
+	if (value == NULL)
+	    return PM_ERR_AGAIN;	/* no sysfs, try ioctl */
+	netip->ioc.mtu = atoi(value);
+    }
+    if (need_refresh[REFRESH_NET_SPEED]) {
+	snprintf(path, sizeof(path), "%s/sys/class/net/%s/speed",
+		linux_statspath, name);
+	path[sizeof(path)-1] = '\0';
+	value = read_oneline(path, line);
+	if (value)
+	    netip->ioc.speed = atoi(value);
+    }
+    if (need_refresh[REFRESH_NET_LINKUP] ||
+	need_refresh[REFRESH_NET_RUNNING]) {
+	snprintf(path, sizeof(path), "%s/sys/class/net/%s/flags",
+		linux_statspath, name);
+	path[sizeof(path)-1] = '\0';
+	value = read_oneline(path, line);
+	if (value) {
+	    unsigned long flags = strtoul(value, &value, 16);
+	    netip->ioc.linkup = !!(flags & IFF_UP);
+	    netip->ioc.running = !!(flags & IFF_RUNNING);
+	}
+    }
+    if (need_refresh[REFRESH_NET_DUPLEX]) {
+	snprintf(path, sizeof(path), "%s/sys/class/net/%s/duplex",
+		linux_statspath, name);
+	path[sizeof(path)-1] = '\0';
+	value = read_oneline(path, line);
+	if (value == NULL)
+	    netip->ioc.duplex = 0;
+	else if (strcmp(value, "half") == 0)
+	    netip->ioc.duplex = 1;
+	else if (strcmp(value, "full") == 0)
+	    netip->ioc.duplex = 2;
+    }
+    return 0;
 }
 
 static void
@@ -162,29 +198,29 @@ refresh_net_hw_addr(char *name, net_addr_t *netip)
     char line[64];
     char *value;
 
-    snprintf(path, sizeof(path), "%s/sys/class/net/%s/address", linux_statspath, name);
+    snprintf(path, sizeof(path), "%s/sys/class/net/%s/address",
+		linux_statspath, name);
     path[sizeof(path)-1] = '\0';
-
     value = read_oneline(path, line);
-
-    if (value[0] != '\0')
+    if (value) {
 	netip->has_hw = 1;
-    strncpy(netip->hw_addr, value, sizeof(netip->hw_addr));
-    netip->hw_addr[sizeof(netip->hw_addr)-1] = '\0';
+	strncpy(netip->hw_addr, value, sizeof(netip->hw_addr));
+	netip->hw_addr[sizeof(netip->hw_addr)-1] = '\0';
+    } else {
+	netip->hw_addr[0] = '\0';
+    }
 }
 
 int
 refresh_proc_net_dev(pmInDom indom, linux_container_t *container)
 {
+    static uint32_t	gen;	/* refresh generation number */
+    static uint32_t	cache_err;	/* throttle messages */
     char		buf[1024];
     FILE		*fp;
-    unsigned long long	llval;
     char		*p, *v;
     int			j, sts;
     net_interface_t	*netip;
-
-    static uint64_t	gen;	/* refresh generation number */
-    static uint32_t	cache_err;
 
     if ((fp = linux_statsfile("/proc/net/dev", buf, sizeof(buf))) == NULL)
     	return -oserror();
@@ -195,8 +231,8 @@ refresh_proc_net_dev(pmInDom indom, linux_container_t *container)
 	 * subsequent changes to be saved
 	 */
 	pmdaCacheOp(indom, PMDA_CACHE_LOAD);
+	gen++;
     }
-    gen++;
 
     /*
 Inter-|   Receive                                                |  Transmit
@@ -230,18 +266,6 @@ Inter-|   Receive                                                |  Transmit
 	    }
 	    continue;
 	}
-	if (netip->last_gen != gen-1) {
-	    /*
-	     * rediscovered one that went away and has returned
-	     *
-	     * kernel counters are reset, so clear last_counters to
-	     * avoid false overflows
-	     */
-	    for (j=0; j < PROC_DEV_COUNTERS_PER_LINE; j++) {
-		netip->last_counters[j] = 0;
-	    }
-	}
-	netip->last_gen = gen;
 	if ((sts = pmdaCacheStore(indom, PMDA_CACHE_ADD, p, (void *)netip)) < 0) {
 	    if (cache_err++ < 10) {
 		fprintf(stderr, "refresh_proc_net_dev: pmdaCacheStore(%s, PMDA_CACHE_ADD, %s, " PRINTF_P_PFX "%p) failed: %s\n",
@@ -250,33 +274,55 @@ Inter-|   Receive                                                |  Transmit
 	    continue;
 	}
 
-	/* Issue ioctls for remaining data, not exported through proc */
 	memset(&netip->ioc, 0, sizeof(netip->ioc));
-	if (refresh_net_dev_ioctl(p, netip, container) < 0)
-	    refresh_net_dev_sysfs(p, netip);
-
 	for (p=v, j=0; j < PROC_DEV_COUNTERS_PER_LINE; j++) {
 	    for (; !isdigit((int)*p); p++) {;}
-	    sscanf(p, "%llu", &llval);
-	    if (llval >= netip->last_counters[j]) {
-		netip->counters[j] +=
-		    llval - netip->last_counters[j];
-	    }
-	    else {
-	    	/* 32bit counter has wrapped */
-		netip->counters[j] +=
-		    llval + (UINT_MAX - netip->last_counters[j]);
-	    }
-	    netip->last_counters[j] = llval;
+	    sscanf(p, "%llu", (long long unsigned int *)&netip->counters[j]);
 	    for (; !isspace((int)*p); p++) {;}
 	}
     }
 
-    pmdaCacheOp(indom, PMDA_CACHE_SAVE);
+    if (!container)
+	pmdaCacheOp(indom, PMDA_CACHE_SAVE);
 
     /* success */
     fclose(fp);
     return 0;
+}
+
+int
+refresh_net_sysfs(pmInDom indom, int *need_refresh)
+{
+    net_interface_t	*netip;
+    char		*p;
+    int			sts = 0;
+
+    for (pmdaCacheOp(indom, PMDA_CACHE_WALK_REWIND);;) {
+	if ((sts = pmdaCacheOp(indom, PMDA_CACHE_WALK_NEXT)) < 0)
+	    break;
+	if (!pmdaCacheLookup(indom, sts, &p, (void **)&netip) || !p)
+	    continue;
+	if ((sts = refresh_net_dev_sysfs(p, netip, need_refresh)) < 0)
+	    break;
+    }
+    return sts;
+}
+
+int
+refresh_net_ioctl(pmInDom indom, linux_container_t *cp, int *need_refresh)
+{
+    net_interface_t	*netip;
+    char		*p;
+    int			sts = 0;
+
+    for (pmdaCacheOp(indom, PMDA_CACHE_WALK_REWIND);;) {
+	if ((sts = pmdaCacheOp(indom, PMDA_CACHE_WALK_NEXT)) < 0)
+	    break;
+	if (!pmdaCacheLookup(indom, sts, &p, (void **)&netip) || !p)
+	    continue;
+	refresh_net_dev_ioctl(p, netip, cp, need_refresh);
+    }
+    return sts;
 }
 
 static int
@@ -454,7 +500,7 @@ refresh_net_dev_ipv6_addr(pmInDom indom)
  * aliases (e.g. eth0, eth0:0, eth0:1, etc) - this is what ifconfig does.
  */
 int
-refresh_net_dev_addr(pmInDom indom, struct linux_container *container)
+refresh_net_dev_addr(pmInDom indom, linux_container_t *cp)
 {
     int sts = 0;
     net_addr_t *p;
@@ -471,7 +517,7 @@ refresh_net_dev_addr(pmInDom indom, struct linux_container *container)
 
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
-    sts |= refresh_net_dev_ipv4_addr(indom, container);
+    sts |= refresh_net_dev_ipv4_addr(indom, cp);
     sts |= refresh_net_dev_ipv6_addr(indom);
     sts |= refresh_net_dev_hw_addr(indom);
 

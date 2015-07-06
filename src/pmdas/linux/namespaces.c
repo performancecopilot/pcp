@@ -96,32 +96,8 @@ set_namespace_fds(int nsflags, int *fdset)
     return sts;
 }
 
-/*
- * Use setns(2) syscall to switch temporarily to a different namespace.
- * On the first call for each namespace we stash away a file descriptor
- * that will get us back to where we started.
- * Note: the NameSpaceFdsReq PDU is sent by the caller (contents depend
- * on whether we switch for a specific process ID or a container name).
- */
-static int
-process_enter_namespaces(int pid, int nsflags)
-{
-    int sts;
-
-    /* open my own namespace fds, stash 'em for LeaveNameSpaces */
-    if ((sts = open_namespace_fds(nsflags, 0, self_fdset)) < 0)
-	return sts;
-
-    /* open namespace fds for pid */
-    if ((sts = open_namespace_fds(nsflags, pid, root_fdset)) < 0)
-	return sts;
-
-    /* finally switch local namespaces */
-    return set_namespace_fds(nsflags, root_fdset);
-}
-
 int
-container_enter_namespaces(int fd, linux_container_t *cp, int nsflags)
+container_lookup(int fd, linux_container_t *cp)
 {
     char pdubuf[BUFSIZ], name[MAXPATHLEN], *np;
     int	sts, pid = 0;
@@ -147,8 +123,6 @@ container_enter_namespaces(int fd, linux_container_t *cp, int nsflags)
 	cp->name = np;
     }
     cp->pid = pid;
-    if ((sts = process_enter_namespaces(pid, nsflags)) < 0)
-	return sts;
     return 0;
 }
 
@@ -179,37 +153,62 @@ close_namespace_fds(int nsflags, int *fdset)
 }
 
 /*
- * And another setns(2) to switch back to the original namespace
+ * Use setns(2) syscall to switch temporarily to a different namespace.
+ * On the first call for each namespace we stash away a file descriptor
+ * that will get us back to where we started.
  */
 int
-container_leave_namespaces(int fd, int nsflags)
+container_nsenter(linux_container_t *cp, int nsflags, int *openfds)
 {
     int		sts;
 
-    if (fd < 0)
-	return PM_ERR_NOTCONN;
+    if (!cp)
+	return 0;
+    if ((nsflags & (*openfds)) == 0) {
+	if ((sts = open_namespace_fds(nsflags, 0, self_fdset)) < 0)
+	    return sts;
+	if ((sts = open_namespace_fds(nsflags, cp->pid, root_fdset)) < 0)
+	    return sts;
+	*openfds |= nsflags;
+    }
+    return set_namespace_fds(nsflags, root_fdset);
+}
 
-    sts = set_namespace_fds(nsflags, self_fdset);
-    close_namespace_fds(nsflags, root_fdset);
-    return sts;
+/*
+ * And another setns(2) to switch back to the original namespace
+ */
+int
+container_nsleave(linux_container_t *cp, int nsflags)
+{
+    if (!cp)
+	return 0;
+    return set_namespace_fds(nsflags, self_fdset);
 }
 
 #else
 int
-container_enter_namespaces(int fd, linux_container_t *lcp, int nsflags)
+container_nsenter(linux_container_t *cp, int nsflags, int *openfds)
 {
-    (void)fd;
-    (void)lcp;
+    (void)openfds;
     (void)nsflags;
-    return PM_ERR_APPVERSION;
+    (void)cp;
+    return 0;
 }
 
 int
-container_leave_namespaces(int fd, int nsflags)
+container_nsleave(linux_container_t *cp, int nsflags)
 {
-    (void)fd;
     (void)nsflags;
-    return PM_ERR_APPVERSION;
+    (void)cp;
+    return 0;
+}
+
+static int
+close_namespace_fds(int nsflags, int *fdset)
+{
+    (void)nsflags;
+    (void)fdset;
+    return 0;
 }
 #endif
 
@@ -227,4 +226,14 @@ container_close_network(linux_container_t *cp)
     if (cp->netfd != -1)
 	close(cp->netfd);
     cp->netfd = -1;
+}
+
+int
+container_close(linux_container_t *cp, int openfds)
+{
+    if (!cp)
+	return 0;
+    close_namespace_fds(openfds, root_fdset);
+    container_close_network(cp);
+    return 0;
 }

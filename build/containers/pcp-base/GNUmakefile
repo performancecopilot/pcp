@@ -22,12 +22,12 @@ include $(TOPDIR)/src/include/builddefs
 PACKAGES=../../rpm
 
 CONTAINER = pcp-base
-LDIRT = $(CONTAINER).tgz RPMS
+LDIRT = $(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz RPMS
 
 default default_pcp install install_pcp:
 	@echo nothing to do
 
-pack_pcp: RPMS $(CONTAINER).tgz
+pack_pcp: RPMS $(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz
 
 RPMS: # Docker build runs createrepo RPMS
 	@echo Using PCP RPMS from $(PACKAGES)

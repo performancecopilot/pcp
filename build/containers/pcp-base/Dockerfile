@@ -45,6 +45,7 @@ RUN sed -i -e 's/PCP_USER=.*$/PCP_USER=root/' -e 's/PCP_GROUP=.*$/PCP_GROUP=root
 # Since this can be invoked as an interactive container, set the bash prompt.
 # All containers layered on pcp-base inherit this, with their own name.
 RUN echo export PS1='"[$PCP_CONTAINER_IMAGE] "' >> /root/.bash_profile
+RUN echo PATH=/usr/bin:$PATH >> /root/.bash_profile
 
 #
 # denote this as a container environment, for rc scripts

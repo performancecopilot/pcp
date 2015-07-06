@@ -721,8 +721,6 @@ ncurses_CFLAGS
 lib_for_regex
 grep
 pcp_syslog_prog
-pcp_ps_all_flags
-pcp_ps_have_bsd
 pcp_ps_prog
 echo_c
 echo_n
@@ -826,7 +824,6 @@ PACKAGE_BUILD
 PACKAGE_REVISION
 PACKAGE_MINOR
 PACKAGE_MAJOR
-pcp_platform_paths
 enable_systemd
 pcp_systemdunit_dir
 SYSTEMD_SYSTEMUNITDIR
@@ -854,6 +851,8 @@ CC
 PKG_CONFIG_LIBDIR
 PKG_CONFIG_PATH
 PKG_CONFIG
+pcp_ps_all_flags
+pcp_platform_paths
 target_os
 target_vendor
 target_cpu
@@ -2945,7 +2944,7 @@ if test -z "$target"
 then
     echo '
 FATAL ERROR: Cannot guess your target, try explicit specification
-             using --target or ask pcp@mail.performancecopilot.org'
+             using --target or mailto: pcp@oss.sgi.com to ask.'
     rm -rf conftest conftest.*
     exit 1
 else
@@ -2975,6 +2974,7 @@ FATAL ERROR: Cannot perform cross-compilation without a file to source
     fi
 fi
 
+
 target_distro=$target_os
 if test $target_os = linux
 then
@@ -2989,6 +2989,8 @@ $as_echo "#define IS_LINUX 1" >>confdefs.h
     test -f /etc/gentoo-release && target_distro=gentoo
     test -f /etc/mandriva-release && target_distro=mandriva
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
+    pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
+    pcp_ps_all_flags=-efw
 elif test $target_os = darwin
 then
 
@@ -3003,12 +3005,16 @@ $as_echo "#define IS_DARWIN 1" >>confdefs.h
 	CFLAGS="$CFLAGS -arch x86_64"
     fi
     export CFLAGS
+    pcp_platform_paths='/usr/local/bin'
+    pcp_ps_all_flags=auxww
 elif test $target_os = mingw
 then
 
 $as_echo "#define IS_MINGW 1" >>confdefs.h
 
     CFLAGS="-fno-strict-aliasing"
+    pcp_platform_paths=''
+    pcp_ps_all_flags=-efW
 elif test $target_os = solaris
 then
 
@@ -3016,12 +3022,16 @@ $as_echo "#define IS_SOLARIS 1" >>confdefs.h
 
     export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing"
     export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any"
+    pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/usr/sfw/bin'
+    pcp_ps_all_flags=-ef
 elif test $target_os = aix
 then
 
 $as_echo "#define IS_AIX 1" >>confdefs.h
 
     export CFLAGS="-qcpluscmt"
+    pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
+    pcp_ps_all_flags=-ef
 elif test $target_os = freebsd || test $target_os = kfreebsd
 then
 
@@ -3029,6 +3039,14 @@ $as_echo "#define IS_FREEBSD 1" >>confdefs.h
 
     test -f /etc/debian_version && target_distro=debian
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
+    if $target_os = kfreebsd
+    then
+	pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
+	pcp_ps_all_flags=-efw
+    else
+	pcp_platform_paths='/usr/bin/X11:/usr/bsd'
+	pcp_ps_all_flags=auxww
+    fi
 elif test $target_os = gnu
 then
 
@@ -3036,6 +3054,8 @@ $as_echo "#define IS_GNU 1" >>confdefs.h
 
     test -f /etc/debian_version && target_distro=debian
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
+    pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
+    pcp_ps_all_flags=-efw
 elif test $target_os = netbsdelf
 then
     target_os=netbsd
@@ -3043,12 +3063,16 @@ then
 $as_echo "#define IS_NETBSD 1" >>confdefs.h
 
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE -D_NETBSD_SOURCE"
+    pcp_platform_paths='/usr/pkg/bin'
+    pcp_ps_all_flags=auxww
 else
     echo
     echo "FATAL ERROR: need platform-specific customization for \"$target_os\""
     rm -rf conftest conftest.*
     exit 1
 fi
+
+
 
 
 
@@ -4816,21 +4840,6 @@ fi
     fi
 
 fi
-
-
-# setup additional platform-specific binary search PATH components
-pcp_platform_paths=""
-case $target_os
-in
-    aix)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin';;
-    linux|kfreebsd)
-		pcp_platform_paths='/usr/bin/X11:/usr/local/bin';;
-    mingw)	pcp_platform_paths='';;
-    darwin)	pcp_platform_paths='/usr/local/bin';;
-    solaris)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/usr/sfw/bin';;
-    freebsd)	pcp_platform_paths='/usr/bin/X11:/usr/bsd';;
-    netbsd)	pcp_platform_paths='/usr/pkg/bin';;
-esac
 
 
 # NB: No AC_PREFIX_DEFAULT is needed, as the default configure invocation
@@ -9042,82 +9051,6 @@ then
 else
     pcp_ps_prog=ps
 fi
-
-
-if test "$cross_compiling" != "yes"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for ps style" >&5
-$as_echo_n "checking for ps style... " >&6; }
-    pcp_ps_all_flags=''
-    if $pcp_ps_prog -ef >conftest.out 2>/dev/null
-    then
-	ans=`$awk <conftest.out '
-NR == 1			{ if ($1 != "UID" && $1 != "USER") exit
-			  if ($2 != "PID") exit
-			}
-# Unix variants
-$2 == 1 && / init/	{ print "OK"; exit }
-$2 == 1 && / \/etc\/init/ { print "OK"; exit }
-$2 == 1 && / \/usr\/sbin\/init/ { print "OK"; exit }
-# Open Build Service
-$2 == 1 && / \/bin\/bash/ { print "OK"; exit }
-# similarly for a simple Docker container, e.g.
-# https://github.com/performancecopilot/pcp/issues/23
-$2 == 1 && / \/bin\/sh/ { print "OK"; exit }
-# Fedora 9
-$2 == 1 && / \/sbin\/init/ { print "OK"; exit }
-# Fedora 15
-$2 == 1 && / \/bin\/systemd/ { print "OK"; exit }
-# Fedora 17
-$2 == 1 && / \/usr\/lib\/systemd\/systemd/ { print "OK"; exit }
-# Debian sid
-$2 == 1 && / \/lib\/systemd\/systemd/ { print "OK"; exit }'`
-	if test "$ans" = OK
-	then
-	    pcp_ps_have_bsd=false
-	    pcp_ps_all_flags=-ef
-	    { $as_echo "$as_me:${as_lineno-$LINENO}: result: SysV" >&5
-$as_echo "SysV" >&6; }
-	fi
-    fi
-
-    if test -z "$pcp_ps_all_flags" && $pcp_ps_prog auxww >conftest.out 2>/dev/null
-    then
-	ans=`$awk <conftest.out '
-NR == 1			{ if ($1 != "UID" && $1 != "USER") exit
-			  if ($2 != "PID") exit
-			}
-$2 == 1 && / init/	{ print "OK"; exit }
-$2 == 1 && / \/sbin\/init/ { print "OK"; exit }
-$2 == 1 && / \/sbin\/launchd/ { print "OK"; exit }
-$2 == 1 && / \/init/	{ print "OK"; exit }'`
-	if test "$ans" = OK
-	then
-	    pcp_ps_have_bsd=true
-	    pcp_ps_all_flags=auxww
-	    { $as_echo "$as_me:${as_lineno-$LINENO}: result: BSD" >&5
-$as_echo "BSD" >&6; }
-	fi
-    fi
-
-        if $pcp_ps_prog ${pcp_ps_all_flags}w >/dev/null 2>&1
-    then
-	if test $target_os != solaris
-	then
-	    pcp_ps_all_flags=${pcp_ps_all_flags}w
-	fi
-    fi
-fi
-
-if test -z "$pcp_ps_all_flags"
-then
-        { $as_echo "$as_me:${as_lineno-$LINENO}: result: unknown" >&5
-$as_echo "unknown" >&6; }
-    echo "FATAL ERROR: could not determine how to get the \"all processes with arguments\""
-    echo "format output from your ps(1)."
-    rm -rf conftest conftest.*
-    exit 1
-fi
-
 
 
 if test $target_os = mingw

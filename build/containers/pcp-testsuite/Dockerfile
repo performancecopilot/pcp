@@ -23,10 +23,6 @@ MAINTAINER PCP Development Team <pcp@oss.sgi.com>
 RUN dnf --enablerepo=pcp-devel -y install pcp pcp-collector pcp-monitor pcp-testsuite && dnf clean all
 
 #
-# Run in the container as root - avoids PCP_USER mismatches
-RUN sed -i -e 's/PCP_USER=.*$/PCP_USER=root/' -e 's/PCP_GROUP=.*$/PCP_GROUP=root/' /etc/pcp.conf
-
-#
 # Disable service advertising - no avahi daemon in the container
 # (dodges warnings from pmcd attempting to connect during startup)
 RUN . /etc/pcp.conf && echo "-A" >> $PCP_PMCDOPTIONS_PATH
