@@ -1,7 +1,7 @@
 '\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2014 Red Hat Inc.  All Rights Reserved.
+.\" Copyright (c) 2014-2015 Red Hat.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -12,15 +12,15 @@
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
 .\"
-.TH PMIOSTAT 1 "PCP" "Performance Co-Pilot"
+.TH PCP-IOSTAT 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmiostat\f1 \- performance metrics i/o statistics tool
+\f3pmiostat\f1,
+\f3pcp-iostat\f1 \- performance metrics i/o statistics tool
 .\" literals use .B or \f3
 .\" arguments use .I or \f2
 .SH SYNOPSIS
-\f3pmiostat\f1
+\f3pcp\ iostat\f1
 [\f3\-A\f1 \f2align\f1 \f3--align=\f2TIME\f1]
 [\f3\-a\f1 \f2archive\f1 \f3--archive=\f2FILE\f1]
 [\f3\-h\f1 \f2host\f1 \f3--host=\f2HOST\f1]
@@ -50,10 +50,10 @@
 .ft R
 .in
 ..
-.B pmiostat
+.B pcp-iostat
 reports I/O statistics for scsi devices (by default) or device-mapper devices (if the \f3-x dm\f1 option is specified).
 By default
-.B pmiostat
+.B pcp-iostat
 reports live data for the local host but can also report for a remote host (\f3-h\fP) or from a previously captured PCP archive (\f3-a\fP).
 .PP
 The
@@ -70,7 +70,7 @@ for a complete description of these options.
 .PP
 The other options which control the source, timing and layout of the information
 reported by
-.B pmiostat
+.B pcp-iostat
 are as follows:
 .TP 5
 .B \-a
@@ -92,7 +92,7 @@ If
 is 0 or
 .B \-s
 is not specified, 
-.B pmiostat
+.B pcp-iostat
 will sample and report continuously (in real time mode) or until the end
 of the PCP archive (in archive mode).
 .TP
@@ -114,10 +114,10 @@ the reporting interval.
 .TP
 .B \-Z
 By default,
-.B pmiostat
+.B pcp-iostat
 reports the time of day according to the local timezone on the
 system where
-.B pmiostat
+.B pcp-iostat
 is run.
 The
 .B \-Z
@@ -146,7 +146,7 @@ Specifies a comma separated list of one or more extended reporting options as fo
 \f3H\fP - omit the heading, which is otherwise reported every 24 samples.
 .SH REPORT
 The columns in the
-.B pmiostat
+.B pcp-iostat
 report have the following interpretation :
 .TP
 .B Timestamp
@@ -214,15 +214,12 @@ configuration file,
 as described in
 .BR pcp.conf (5).
 .SH SEE ALSO
+.BR pcp (1),
 .BR PCPIntro (1),
+.BR iostat2pcp (1),
 .BR pmcd (1),
 .BR pmchart (1),
-.BR pmdumplog (1),
-.BR pminfo (1),
 .BR pmlogger (1),
-.BR pmtime (1),
-.BR PMAPI (3),
-.BR __pmSpecLocalPMDA (3),
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).

@@ -1,0 +1,78 @@
+#!/bin/sh
+# PCP QA Test No. 1024
+# Exercise Linux PMDA block driver metrics.
+#
+# Copyright (c) 2015 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# instance assignments (internal ids) are not deterministic
+# due to the local indom cache state that is outside the control
+# of QA, so map all internal instance ids to N and sort ...
+# need to alternate slicing between sort and don't sort blocks
+#
+_slice_sort_reassemble()
+{
+    sed \
+	-e 's/\([0-9][0-9]*\) or "docker/N or "docker/' \
+	-e 's/\([0-9][0-9]*\) or "sd/N or "sd/' \
+	-e 's/\([0-9][0-9]*\) or "sr/N or "sr/' \
+    | $PCP_AWK_PROG '
+BEGIN	{ part = 0; suffix = sprintf("%03d", part) }
+part > 0 && NF == 0 {
+	    part++; suffix = sprintf("%03d", part)
+	}
+	{ print >"'"$tmp"'.part." suffix }
+/^disk\.partitions/ {
+	    part++; suffix = sprintf("%03d.sort", part)
+	}'
+    for part in $tmp.part.*
+    do
+	case $part
+	in
+	    *.sort)
+		LC_COLLATE=POSIX sort $part
+		;;
+	    *)
+		cat $part
+		;;
+	esac
+    done
+}
+
+# real QA test starts here
+root=$tmp.root
+export LINUX_STATSPATH=$root
+pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
+metrics="disk.all disk.dev disk.dm disk.partitions"
+
+for tgz in $here/linux/blkdev-root-*.tgz
+do
+    rm -fr $root
+    mkdir $root || _fail "root in use when processing $tgz"
+    cd $root
+    tar xzf $tgz
+    base=`basename $tgz`
+
+    echo "== Checking metric values - $base" | tee -a $here/$seq.full
+    pminfo -L -K clear -K add,60,$pmda -f $metrics 2>&1 \
+    | tee -a $here/$seq.full \
+    | _slice_sort_reassemble
+    ( echo && echo "== done" && echo ) | tee -a $here/$seq.full
+    cd $here
+done
+
+# success, all done
+status=0
+exit

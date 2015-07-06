@@ -2,25 +2,25 @@ QA output created by 201
 basic operation tests ...
 Add foo ...
 return -> 0
-pmdaCacheDump: indom 123.7: nentry=1 ins_mode=0 hstate=3 hsize=16
+pmdaCacheDump: indom 251.7: nentry=1 ins_mode=0 hstate=3 hsize=16
           0    active (nil) foo
 
 Add bar ...
 return -> 1
-pmdaCacheDump: indom 123.7: nentry=2 ins_mode=0 hstate=3 hsize=16
+pmdaCacheDump: indom 251.7: nentry=2 ins_mode=0 hstate=3 hsize=16
           0    active (nil) foo
           1    active 0xdeadbeef bar
 
 Add java coffee beans ...
 return -> 2
-pmdaCacheDump: indom 123.7: nentry=3 ins_mode=0 hstate=3 hsize=16
+pmdaCacheDump: indom 251.7: nentry=3 ins_mode=0 hstate=3 hsize=16
           0    active (nil) foo
           1    active 0xdeadbeef bar
           2    active 0xcafecafe java coffee beans [match len=4]
 
 Add another one ...
 return -> 3
-pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
+pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
           0    active (nil) foo
           1    active 0xdeadbeef bar
           2    active 0xcafecafe java coffee beans [match len=4]
@@ -28,7 +28,7 @@ pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
 
 Hide another one ...
 return -> 3
-pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
+pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
           0    active (nil) foo
           1    active 0xdeadbeef bar
           2    active 0xcafecafe java coffee beans [match len=4]
@@ -36,16 +36,16 @@ pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
 
 Cull foo ...
 return -> 0
-pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
+pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
 (         0)    empty
           1    active 0xdeadbeef bar
           2    active 0xcafecafe java coffee beans [match len=4]
           3  inactive (nil) another one [match len=7]
 
 Cull foo again, should fail ...
-pmdaCache store: indom 123.7: instance "foo" not in cache: flags=4 not allowed
+pmdaCache store: indom 251.7: instance "foo" not in cache: flags=4 not allowed
 return -> -12360: Unknown or illegal instance identifier
-pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
+pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
 (         0)    empty
           1    active 0xdeadbeef bar
           2    active 0xcafecafe java coffee beans [match len=4]
@@ -58,7 +58,7 @@ inactive entries: 1
 
 Probe bar ...
 return -> 1
-pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
+pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
 (         0)    empty
           1    active 0xdeadbeef bar
           2    active 0xcafecafe java coffee beans [match len=4]
@@ -66,7 +66,7 @@ pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
 
 Probe another one (hidden) ...
 return -> 3 [inactive]
-pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
+pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
 (         0)    empty
           1    active 0xdeadbeef bar
           2    active 0xcafecafe java coffee beans [match len=4]
@@ -74,9 +74,9 @@ pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
 
 Add foo in another indom ...
 return -> 0
-pmdaCacheDump: indom 123.8: nentry=1 ins_mode=0 hstate=3 hsize=16
+pmdaCacheDump: indom 251.8: nentry=1 ins_mode=0 hstate=3 hsize=16
           0    active (nil) foo
-pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
+pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
 (         0)    empty
           1    active 0xdeadbeef bar
           2    active 0xcafecafe java coffee beans [match len=4]
@@ -84,12 +84,12 @@ pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
 
 Probe bar (not in this indom) ...
 return -> -12360: Unknown or illegal instance identifier
-pmdaCacheDump: indom 123.8: nentry=1 ins_mode=0 hstate=3 hsize=16
+pmdaCacheDump: indom 251.8: nentry=1 ins_mode=0 hstate=3 hsize=16
           0    active (nil) foo
 
 Mark all active ...
 return -> 1
-pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
+pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
 (         0)    empty
           1    active 0xdeadbeef bar
           2    active 0xcafecafe java coffee beans [match len=4]
@@ -97,7 +97,7 @@ pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
 
 Mark all inactive ...
 return -> 3
-pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
+pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
 (         0)    empty
           1  inactive 0xdeadbeef bar
           2  inactive 0xcafecafe java coffee beans [match len=4]
@@ -105,7 +105,7 @@ pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
 
 Cull all ...
 return -> 3
-pmdaCacheDump: indom 123.7: nentry=4 ins_mode=0 hstate=3 hsize=16
+pmdaCacheDump: indom 251.7: nentry=4 ins_mode=0 hstate=3 hsize=16
 (         0)    empty
 (         1)    empty
 (         2)    empty
@@ -254,7 +254,7 @@ Save -> 20
 17 timestamp 017
 18 timestamp 018
 19 timestamp 019
-pmdaCacheDump: indom 123.8: nentry=20 ins_mode=0 hstate=0 hsize=16
+pmdaCacheDump: indom 251.8: nentry=20 ins_mode=0 hstate=0 hsize=16
           0    active 0xbeef0001 000
           1  inactive 0xbeef0002 001
           2  inactive 0xbeef0003 002
@@ -371,38 +371,38 @@ Save -> 20
 load tests ...
 -- empty file --
 Load the instance domain ...
-[DATE] torture_cache(PID) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/123.13: empty file?
+[DATE] torture_cache(PID) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/251.13: empty file?
 PMDA_CACHE_LOAD failed: Generic error, already reported above
 -- short header --
 Load the instance domain ...
-[DATE] torture_cache(PID) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/123.13: illegal cache header record: 1
+[DATE] torture_cache(PID) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/251.13: illegal cache header record: 1
 
 PMDA_CACHE_LOAD failed: Generic error, already reported above
 -- bad version (x) --
 Load the instance domain ...
-[DATE] torture_cache(PID) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/123.13: illegal cache header record: x 0
+[DATE] torture_cache(PID) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/251.13: illegal cache header record: x 0
 
 PMDA_CACHE_LOAD failed: Generic error, already reported above
 -- bad version (2) --
 Load the instance domain ...
-[DATE] torture_cache(PID) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/123.13: illegal cache header record: 2 0
+[DATE] torture_cache(PID) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/251.13: illegal cache header record: 2 0
 
 PMDA_CACHE_LOAD failed: Generic error, already reported above
 -- bad ins_mode (-1) --
 Load the instance domain ...
-[DATE] torture_cache(PID) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/123.13: illegal cache header record: 1 -1
+[DATE] torture_cache(PID) Error: pmdaCacheOp: $PCP_VAR_DIR/config/pmda/251.13: illegal cache header record: 1 -1
 
 PMDA_CACHE_LOAD failed: Generic error, already reported above
 -- empty --
 Load the instance domain ...
 PMDA_CACHE_HIDE failed for "fubar-001": Unknown or illegal instance identifier
 PMDA_CACHE_CULL failed for "fubar-003": Unknown or illegal instance identifier
-pmdaCacheDump: indom 123.13: nentry=2 ins_mode=0 hstate=3 hsize=16
+pmdaCacheDump: indom 251.13: nentry=2 ins_mode=0 hstate=3 hsize=16
           0    active (nil) fubar-002
           1    active (nil) fubar-009
 -- interesting --
 Load the instance domain ...
-pmdaCacheDump: indom 123.13: nentry=7 ins_mode=0 hstate=3 hsize=16
+pmdaCacheDump: indom 251.13: nentry=7 ins_mode=0 hstate=3 hsize=16
          10  inactive (nil) fubar-001
          15  inactive (nil) this is a name with some spaces in it [match len=4]
          20    active (nil) fubar-002
@@ -419,7 +419,7 @@ pmdaCacheDump: indom 123.13: nentry=7 ins_mode=0 hstate=3 hsize=16
 41 timestamp fubar-009
 -- interesting (PMDA_CACHE_REUSE) --
 Load the instance domain ...
-pmdaCacheDump: indom 123.13: nentry=7 ins_mode=1 hstate=3 hsize=16
+pmdaCacheDump: indom 251.13: nentry=7 ins_mode=1 hstate=3 hsize=16
           0    active (nil) fubar-009
          10  inactive (nil) fubar-001
          15  inactive (nil) this is a name with some spaces in it [match len=4]
@@ -438,7 +438,7 @@ pmdaCacheDump: indom 123.13: nentry=7 ins_mode=1 hstate=3 hsize=16
 test inst wrap and ins_mode change ...
 Load the instance domain ...
 After PMDA_CACHE_LOAD
-pmdaCacheDump: indom 123.7: nentry=1 ins_mode=0 hstate=0 hsize=16
+pmdaCacheDump: indom 251.7: nentry=1 ins_mode=0 hstate=0 hsize=16
  2147483645  inactive (nil) biggest-inst-2
 Add foo ...
 return -> 2147483646
@@ -459,7 +459,7 @@ Cull foo ...
 return -> 2147483646
 
 Cull foo again, should fail ...
-pmdaCache store: indom 123.7: instance "foo" not in cache: flags=4 not allowed
+pmdaCache store: indom 251.7: instance "foo" not in cache: flags=4 not allowed
 return -> -12360: Unknown or illegal instance identifier
 
 Count instances ...
@@ -473,7 +473,7 @@ return -> 2147483647
 Probe another one (hidden) ...
 return -> 1 [inactive]
 After cache_save hstate={DIRTY_INSTANCE}
-pmdaCacheDump: indom 123.7: nentry=5 ins_mode=1 hstate=0 hsize=16
+pmdaCacheDump: indom 251.7: nentry=5 ins_mode=1 hstate=0 hsize=16
           0    active 0xcafecafe java coffee beans [match len=4]
           1  inactive (nil) another one [match len=7]
  2147483645  inactive (nil) biggest-inst-2
@@ -489,7 +489,7 @@ test purge operation ...
 -- empty @ start and end --
 Save -> 10
 Before purge ...
-pmdaCacheDump: indom 123.11: nentry=10 ins_mode=0 hstate=0 hsize=16
+pmdaCacheDump: indom 251.11: nentry=10 ins_mode=0 hstate=0 hsize=16
           0    active 0xcaffe000 boring-instance-000
           1  inactive 0xcaffe001 boring-instance-001
           2  inactive 0xcaffe002 boring-instance-002
@@ -503,7 +503,7 @@ pmdaCacheDump: indom 123.11: nentry=10 ins_mode=0 hstate=0 hsize=16
 Purged 10 entries
 After purge ...
 Save -> 0
-pmdaCacheDump: indom 123.11: nentry=10 ins_mode=0 hstate=0 hsize=16
+pmdaCacheDump: indom 251.11: nentry=10 ins_mode=0 hstate=0 hsize=16
 (         0)    empty
 (         1)    empty
 (         2)    empty
@@ -518,7 +518,7 @@ pmdaCacheDump: indom 123.11: nentry=10 ins_mode=0 hstate=0 hsize=16
 -- not empty --
 Save -> 16
 Before purge ...
-pmdaCacheDump: indom 123.11: nentry=16 ins_mode=1 hstate=0 hsize=16
+pmdaCacheDump: indom 251.11: nentry=16 ins_mode=1 hstate=0 hsize=16
           0    active 0xcaffe000 boring-instance-000
           1  inactive (nil) fubar-001
           2  inactive (nil) fubar-002
@@ -538,7 +538,7 @@ pmdaCacheDump: indom 123.11: nentry=16 ins_mode=1 hstate=0 hsize=16
 Purged 6 entries
 After purge ...
 Save -> 10
-pmdaCacheDump: indom 123.11: nentry=16 ins_mode=1 hstate=0 hsize=16
+pmdaCacheDump: indom 251.11: nentry=16 ins_mode=1 hstate=0 hsize=16
           0    active 0xcaffe000 boring-instance-000
 (         1)    empty
 (         2)    empty
@@ -568,7 +568,7 @@ pmdaCacheDump: indom 123.11: nentry=16 ins_mode=1 hstate=0 hsize=16
 14 timestamp boring-instance-009
 
 exercise hash-table re-sizing ...
-pmdaCacheDump: indom 123.7: nentry=254 ins_mode=0 hstate=3 hsize=64
+pmdaCacheDump: indom 251.7: nentry=254 ins_mode=0 hstate=3 hsize=64
           1    active 0xdeaf0001 hashing-instance-001
           2  inactive 0xdeaf0002 hashing-instance-002
           3    active 0xdeaf0003 hashing-instance-003
@@ -965,7 +965,7 @@ return -> 255
 
 Probe another one (hidden) ...
 return -> 257 [inactive]
-pmdaCacheDump: indom 123.7: nentry=258 ins_mode=0 hstate=3 hsize=128
+pmdaCacheDump: indom 251.7: nentry=258 ins_mode=0 hstate=3 hsize=128
           1    active 0xdeaf0001 hashing-instance-001
           2  inactive 0xdeaf0002 hashing-instance-002
           3    active 0xdeaf0003 hashing-instance-003
@@ -1594,7 +1594,7 @@ cache resize test cases ...
 
 Populate the instance domain ...
 Save -> 20
-pmdaCacheDump: indom 123.10: nentry=20 ins_mode=0 hstate=0 hsize=16
+pmdaCacheDump: indom 251.10: nentry=20 ins_mode=0 hstate=0 hsize=16
           0    active 0xbeef0001 000
           1    active 0xbeef0002 001
           2    active 0xbeef0003 002

@@ -220,7 +220,7 @@ class Subsystem(object):
                         self.metric_values[j] = 0
                 elif metric_result.contents.get_numval(j) > 1:
                     self.metric_values[j] = copy.copy(value)
-
+        pcp.pmFreeResult(metric_result)
 
 # Processor  --------------------------------------------------------------
 
@@ -270,9 +270,7 @@ class Subsystem(object):
                          'disk.dev.write','disk.dev.write_bytes',
                          'disk.dev.write_merge',
                          'disk.partitions.blkread', 'disk.partitions.blkwrite',
-                         'disk.partitions.read', 'disk.partitions.write',
-                         'hinv.map.lvname'
-                         ]
+                         'disk.partitions.read', 'disk.partitions.write' ]
 
 # Memory  -----------------------------------------------------------------
 

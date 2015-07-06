@@ -17,10 +17,14 @@
 #
 
 topdir=`pwd`
+signed=false
 verbose=false
 srconly=false
 nonrpm=unknown
 nondeb=unknown
+vector=false
+webjs=false
+docker=false
 
 if [ ! -d .git ]
 then
@@ -58,7 +62,7 @@ gnu_tool()
 	    exec=`which $command 2>/dev/null`
 	    if [ -n "$exec" ]
 	    then
-		if $command --help 2>&1 | egrep -q "(bug-$oldcmd@gnu.org)|(FreeBSD $gnutool)|(NetBSD $gnutool)|(Apple $gnutool)"
+		if $command --help 2>&1 | egrep "(bug-$oldcmd@gnu.org)|(FreeBSD $gnutool)|(NetBSD $gnutool)|(Apple $gnutool)" >/dev/null
 		then
 		    echo $exec
 		    return 0
@@ -109,6 +113,10 @@ else
     # This set is based on Fedora 22 %configure macro from /usr/lib/rpm/macros,
     # and is known to work as far back as RHEL5.
     configopts=`rpmbuild --eval '--prefix=%{_prefix} --exec-prefix=%{_exec_prefix} --bindir=%{_bindir} --sbindir=%{_sbindir} --sysconfdir=%{_sysconfdir} --datadir=%{_datadir} --includedir=%{_includedir} --libdir=%{_libdir} --libexecdir=%{_libexecdir} --localstatedir=%{_localstatedir} --sharedstatedir=%{_sharedstatedir} --mandir=%{_mandir}' 2>/dev/null`
+    # rpmbuild clears the environment, so force these settings into the
+    # rpm build configure
+    #
+    configopt="$configopts --with-make=$MAKE --with-tar=$TAR --with-zip=$ZIP"
 fi
 
 for opt in $*
@@ -130,6 +138,10 @@ do
 	nondeb=true
 	shift
 	;;
+    --signed)
+	signed=true
+	shift
+	;;
     --source)
 	srconly=true
 	shift
@@ -137,6 +149,32 @@ do
     --target)
 	shift
 	target=$1
+	shift
+	;;
+    --with-vector)
+	configopts="$configopts $opt"
+	vector=true
+	shift
+	;;
+    --with-webjs)
+	configopts="$configopts $opt"
+	webjs=true
+	shift
+	;;
+    --with-docker)
+	docker=true
+	shift
+	;;
+    --with-make)
+	MAKE=$1
+	shift
+	;;
+    --with-tar)
+	TAR=$1
+	shift
+	;;
+    --with-zip)
+	ZIP=$1
 	shift
 	;;
     *)
@@ -170,9 +208,9 @@ in
 	ARCH=`uname -m`
 	[ -f /etc/slackware-version -a "$ARCH" = x86_64 ] && configopts="$configopts --libdir=/usr/lib64"
 	;;
-    sunos)
+    sunos|SunOS)
 	ARCH=`isainfo -k`
-	[ "$ARCH" = amd64 -o "$ARCH" = sparcv9 ] && configopts="$configopts --disable-ssp --libdir=/usr/lib/64"
+	[ "$ARCH" = amd64 -o "$ARCH" = sparcv9 ] && configopts="$configopts --libdir=/usr/lib/64"
 	;;
 esac
 
@@ -180,12 +218,14 @@ esac
 VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
 
 LOGDIR=$topdir/Logs
-rm -rf $LOGDIR
+rm -rf "$LOGDIR"
 mkdir -p "$LOGDIR"
 
 source=pcp-${VERSION}
 SRCDIR=$topdir/$source
 SRCTAR=$topdir/build/tar/$source.src.tar.gz
+SRCWEBJS=$topdir/build/tar/webjs.tar.gz
+SRCVECTOR=$topdir/build/tar/vector.tar.gz
 
 build_failure()
 {
@@ -223,6 +263,44 @@ fix_version()
 	echo "Arrgh ... expect both these to exist ..."
 	ls -l "$1" "$2"
 	exit 1
+    fi
+}
+
+# Download sources from external repositories that we might want
+# to include with the PCP packages.
+#
+third_parties()
+{
+    if $vector
+    then
+	if [ ! -f "$SRCVECTOR" ]
+	then
+	    echo "== Downloading Vector webapp"
+	    wget -q -O "$SRCVECTOR" \
+https://bintray.com/artifact/download/netflixoss/downloads/vector.tar.gz
+	    [ $? -eq 0 ] && echo "Wrote: $SRCVECTOR"
+	fi
+	if [ -f "$SRCVECTOR" ]
+	then
+	    DESTVECTOR="$topdir/$source/build/tar/"`basename $SRCVECTOR`
+	    cp "$SRCVECTOR" "$DESTVECTOR"
+	fi
+    fi
+
+    if $webjs
+    then
+	if [ ! -f "$SRCWEBJS" ]
+	then
+	    echo "== Downloading webjs webapps"
+	    wget -q -O $tmp/js.zip \
+https://github.com/performancecopilot/pcp-webjs/archive/master.zip
+	    [ $? -eq 0 ] && ./scripts/zip2tar $tmp/js.zip $SRCWEBJS
+	fi
+	if [ -f "$SRCWEBJS" ]
+	then
+	    DESTWEBJS="$topdir/$source/build/tar/"`basename $SRCWEBJS`
+	    cp "$SRCWEBJS" "$DESTWEBJS"
+	fi
     fi
 }
 
@@ -328,11 +406,8 @@ debian_buildpackage()
     echo "== Building deb packages using dpkg-buildpackage"
 
     SUDO=${SUDO:-fakeroot}
-    # Don't try to sign packages unless you're Nathan Scott!
-    # Otherwise we risk Makepkgs exiting with a non-zero status.
-    #
     sign=''
-    [ "`id -un`" != "nathans" ] && sign='-us -uc'
+    $signed -o -n "$DEB_SIGN_KEYID" && sign='-us -uc'
     rm -f $tmp/failed
     if $verbose ; then
 	(dpkg-buildpackage $sign -r$SUDO || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
@@ -447,6 +522,37 @@ packaging_rpm()
     [ -f $tmp/failed ] && build_failure Packaging RPMs via pack_pcp
 }
 
+packaging_docker()
+{
+    echo
+    echo "== Building docker container images, log is in $LOGDIR/pcp" | tee -a $LOGDIR/pcp
+    rm -f $tmp/failed
+
+    if docker version >/dev/null 2>&1; then
+	v=$(docker version | sed -e 's/\./ /g' | awk '/Server version/ {print $3*10+$4}')
+	if [ -z "$v" -o "$v" -lt 14 ]; then
+	    echo 'Error: docker version too old. Containers build skipped.'
+	    touch $tmp/failed
+	fi
+    else
+	echo 'Error: docker not enabled or not properly configured for non-root access.'
+	echo 'Check the docker service is enabled and running. You can allow non-root access'
+	echo 'as follows: edit /etc/sysconfig/docker and add OPTIONS="-G gid" where gid is a'
+	echo 'group name that you are a member of. Then restart the docker service.'
+	touch $tmp/failed
+    fi
+
+    [ -f $tmp/failed ] && build_failure Packaging docker images, docker configuration
+
+    if $verbose ; then
+	($MAKE -C build/containers pack_pcp 2>&1 || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
+    else
+	($MAKE -C build/containers pack_pcp 2>&1 || touch $tmp/failed) >>$LOGDIR/pcp 2>&1
+    fi
+
+    [ -f $tmp/failed ] && build_failure Packaging docker containers via pack_pcp
+}
+
 # real build starts here
 clean_packaging
 src_tar_build
@@ -456,6 +562,9 @@ $srconly && exit 0
 $nondeb || debian_build
 
 prepare_build
+
+# download any requested third party sources we're packaging
+third_parties
 
 # shift into the clean packaging build tree from here onward
 cd "$SRCDIR"
@@ -468,8 +577,18 @@ if $nonrpm
 then
     default_build	# perform a complete build in-situ
     packaging_pcp	# create all known package formats
+    if $containers; then
+    	echo "Warning: --with-containers skipped - currently only available on RPM platforms"
+    fi
 else
     packaging_rpm
+fi
+
+#
+# --with-docker, currently only for RPM platforms with docker
+if $docker
+then
+    packaging_docker
 fi
 
 # success!

@@ -221,6 +221,9 @@ ipc.shm {
     max_seg		60:23:2
     max_segproc		60:23:3
     max_shmsys		60:23:4
+    tot			60:56:0
+    rss			60:56:1
+    swp			60:56:2
 }
 
 pmda {
@@ -250,6 +253,7 @@ disk.dev {
     avactive		60:0:46
     read_rawactive	60:0:72
     write_rawactive	60:0:73
+    total_rawactive	60:0:79
     aveq		60:0:47
     scheduler		60:0:59
 }
@@ -269,6 +273,7 @@ disk.all {
     avactive		60:0:44
     read_rawactive	60:0:74
     write_rawactive	60:0:75
+    total_rawactive	60:0:80
     aveq		60:0:45
 }
 
@@ -288,6 +293,7 @@ disk.dm {
     aveq		60:54:12
     read_rawactive	60:54:14
     write_rawactive	60:54:15
+    total_rawactive	60:54:16
 }
 
 disk.partitions {
@@ -300,6 +306,13 @@ disk.partitions {
     read_bytes		60:10:6
     write_bytes		60:10:7
     total_bytes		60:10:8
+    read_merge          60:10:9
+    write_merge         60:10:10
+    avactive            60:10:11
+    aveq                60:10:12
+    read_rawactive      60:10:13
+    write_rawactive     60:10:14
+    total_rawactive	60:10:15
 }
 
 mem {

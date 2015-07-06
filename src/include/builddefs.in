@@ -38,6 +38,10 @@ PACKAGE_DISTRIBUTION ?= @PACKAGE_DISTRIBUTION@
 SGI_CHROOT_BUILD ?= 0
 SGI_ISSP_BUILD ?= 0
 
+# see build/containers/GNUlocalrules and build/containers/*/GNUmakefile
+CONTAINER_VERSION = $(PACKAGE_VERSION)-$(PACKAGE_BUILD)
+CONTAINER_ARCH = $(shell uname -p)
+
 BUILDRULES = $(TOPDIR)/src/include/buildrules
 
 # LCFLAGS, LLDFLAGS, LLDLIBS, LDIRT may be specified in local makefiles.
@@ -238,7 +242,10 @@ HAVE_PYTHON = @have_python@
 # python dependent bits
 HAVE_PYTHON_SIX = @have_python_six@
 HAVE_PYTHON_JSONPOINTER = @have_python_jsonpointer@
-PMDA_JSON = @pmda_json@
+
+# for building packages from external sources
+HAVE_VECTOR = @have_vector@
+HAVE_WEBJS = @have_webjs@
 
 # additional libraries needed for particular functions
 LIB_FOR_BASENAME = @lib_for_basename@
@@ -271,6 +278,7 @@ PAPI_LIBS = @PAPI_LIBS@
 PFM_LIBS = @PFM_LIBS@
 IB_LIBS = @IB_LIBS@
 PMDA_RPM = @PMDA_RPM@
+PMDA_JSON = @PMDA_JSON@
 PMDA_PAPI = @PMDA_PAPI@
 PMDA_SYSTEMD = @PMDA_SYSTEMD@
 PMDA_PERFEVENT = @PMDA_PERFEVENT@

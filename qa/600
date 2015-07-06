@@ -45,7 +45,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-. ./localconfig
 if [ $PCP_EOE_VER -le 20100 \
     -o \( $PCP_EOE_VER -ge 60500 -a $PCP_EOE_VER -le 60508 \) ]
 then

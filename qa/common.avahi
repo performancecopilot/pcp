@@ -29,7 +29,7 @@ avahi_cleanup()
 
 avahi_service()
 {
-    $sudo "$PCP_RC_DIR/$service" restart > $seq.full 2>&1
+    $sudo "$PCP_RC_DIR/$service" restart > $here/$seq.full 2>&1
 }
 
 avahi_verify()
@@ -40,7 +40,7 @@ avahi_verify()
     #
     hostname=`hostname | sed -e 's/\..*//'`
     avahi-browse -rt -d local "_$service._tcp" | \
-	tee -a $seq.full | \
+	tee -a $here/$seq.full | \
 	grep -m1 "hostname = .$hostname.local]" | \
 	sed -e "s/$hostname/HOSTNAME/g"
 }

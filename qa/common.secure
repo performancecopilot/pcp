@@ -91,26 +91,26 @@ nss_setup_certificates()
 {
     certdomain=`nss_subject_name $qahost $hostname`
 
-    echo "setup_certificates host details:" >> $seq.full
-    echo "HOST=$hostname" >> $seq.full
-    echo "QAHOST=$qahost" >> $seq.full
-    echo "DOMAIN=$certdomain" >> $seq.full
+    echo "setup_certificates host details:" >> $here/$seq.full
+    echo "HOST=$hostname" >> $here/$seq.full
+    echo "QAHOST=$qahost" >> $here/$seq.full
+    echo "DOMAIN=$certdomain" >> $here/$seq.full
 
     # create self-signed (-x) server certificate locally
-    echo "== Creating local certificates" | tee -a $seq.full
+    echo "== Creating local certificates" | tee -a $here/$seq.full
     $sudo certutil $certopts -S -x \
 	-n "Local CA certificate" -s "cn=Local PCP Installation, $certdomain"  \
-	-t "CT,,"  >> $seq.full 2>&1
+	-t "CT,,"  >> $here/$seq.full 2>&1
     sleep 1 # so that the next cert does not get the same serial number
     $sudo certutil $certopts -S \
 	-n "PCP Collector certificate" -s "cn=PCP Collector" \
 	-c "Local CA certificate" -8 "$qahost,$hostname" \
-	-t "P,," >> $seq.full 2>&1
-    echo "== Certificate DB and local certificates created" | tee -a $seq.full
+	-t "P,," >> $here/$seq.full 2>&1
+    echo "== Certificate DB and local certificates created" | tee -a $here/$seq.full
 
     # export ascii copy of the certificate for later use
     $sudo certutil $certopts -L -n "Local CA certificate" -a > $tmp.cacert.asc
-    cat $tmp.cacert.asc >> $seq.full
+    cat $tmp.cacert.asc >> $here/$seq.full
 }
 
 nss_setup_collector()
@@ -127,7 +127,7 @@ nss_setup_collector()
     echo "$seq.password" > $tmp.password
     $sudo mv $tmp.password $collectorpw
 
-    echo "== Creating empty certificate DB" | tee -a $seq.full
+    echo "== Creating empty certificate DB" | tee -a $here/$seq.full
     $sudo certutil $certopts -N
 
     $withcerts && nss_setup_certificates $fqdn $host
@@ -147,14 +147,14 @@ nss_setup_collector()
 End-Of-File
     $sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
     $sudo chown root:root $PCP_PMCDOPTIONS_PATH
-    echo "Start pmcd, modified \$PCP_PMCDOPTIONS_PATH (pmcd.options):" | tee -a $seq.full
-    $sudo $PCP_RC_DIR/pcp restart | tee -a $seq.full >$tmp.out
+    echo "Start pmcd, modified \$PCP_PMCDOPTIONS_PATH (pmcd.options):" | tee -a $here/$seq.full
+    $sudo $PCP_RC_DIR/pcp restart | tee -a $here/$seq.full >$tmp.out
     _wait_for_pmcd
     grep -i 'starting pmcd' $tmp.out | sed -e "s/$$/MYPID/" | _filter_pcp_start
-    echo "Checking pmcd.log for unexpected messages" | tee -a $seq.full
+    echo "Checking pmcd.log for unexpected messages" | tee -a $here/$seq.full
     egrep 'Error:|Info:' $tmp.pmcd.log
-    cat $tmp.pmcd.log >> $seq.full
-    echo "--- end of pmcd.log ---" >> $seq.full
+    cat $tmp.pmcd.log >> $here/$seq.full
+    echo "--- end of pmcd.log ---" >> $here/$seq.full
 }
 
 nss_setup_empty_userdb()

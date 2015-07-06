@@ -8,9 +8,10 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
+# get standard environment, filters and checks
 . ./common.product
-. ./common.check
 . ./common.filter
+. ./common.check
 
 if [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
 then

@@ -13,7 +13,7 @@ unset HTTP_PROXY
 
 _webapi_header_filter()
 {
-    tee -a $seq.full \
+    tee -a $here/$seq.full \
     | col -b \
     | sed \
 	-e 's/^\(Content-Length:\) [0-9][0-9]*/\1 SIZE/g' \
@@ -25,7 +25,7 @@ _webapi_header_filter()
 
 _webapi_response_filter()
 {
-    tee -a $seq.full \
+    tee -a $here/$seq.full \
     | col -b \
     | sed -e 's,#[0-9]*,####,g' \
         -e 's/ connected$//g' \
@@ -91,7 +91,7 @@ _wait_for_pmwebd_logfile()
     sleep 2		# let it start up
     if [ -f "$logfile" ]
     then
-	cat "$logfile" >>$seq.full
+	cat "$logfile" >>$here/$seq.full
     else
 	echo "pmwebd failed to start, $logfile not created"
 	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mwebd'

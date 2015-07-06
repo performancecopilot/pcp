@@ -20,7 +20,11 @@ BuildRequires: readline-devel
 BuildRequires: avahi-devel
 %endif
 %if "@enable_secure@" == "true"
+%if "%{_vendor}" == "suse"
+BuildRequires: mozilla-nss-devel
+%else
 BuildRequires: nss-devel
+%endif
 BuildRequires: cyrus-sasl-devel
 %endif
 %if "@enable_probes@" == "true"
@@ -210,6 +214,79 @@ Requires: pcp-libs = @package_version@
 Provides a daemon (pmwebd) that binds a large subset of the Performance
 Co-Pilot (PCP) client API (PMAPI) to RESTful web applications using the
 HTTP (PMWEBAPI) protocol.
+%endif
+
+%if "@have_webjs@" == "true"
+#
+# pcp-webjs
+#
+%package webjs
+License: ASL2.0 and MIT and CC-BY
+Group: Applications/Internet
+%if @rpm_version@ >= 4060000
+BuildArch: noarch
+%endif
+Requires: pcp-webapp-graphite pcp-webapp-grafana pcp-webapp-vector
+Summary: Performance Co-Pilot (PCP) web applications
+URL: http://www.pcp.io
+
+%description webjs
+Javascript web application content for the Performance Co-Pilot (PCP)
+web service.
+%endif
+
+%if "@have_vector@" == "true" || "@have_webjs@" == "true"
+%package webapp-vector
+License: ASL2.0
+Group: Applications/Internet
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+BuildArch: noarch
+%endif
+Summary: Vector web application for Performance Co-Pilot (PCP)
+URL: https://github.com/Netflix/vector
+
+%description webapp-vector
+Vector web application for the Performance Co-Pilot (PCP).
+%endif
+
+%if "@have_webjs@" == "true"
+%package webapp-grafana
+License: ASL2.0
+Group: Applications/Internet
+Conflicts: pcp-webjs < 3.10.4
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+BuildArch: noarch
+%endif
+Summary: Grafana web application for Performance Co-Pilot (PCP)
+URL: https://grafana.org
+
+%description webapp-grafana
+Grafana is an open source, feature rich metrics dashboard and graph
+editor.  This package provides a Grafana that uses the Performance
+Co-Pilot (PCP) as the data repository.  Other Grafana backends are
+not used.
+
+Grafana can render time series dashboards at the browser via flot.js
+(more interactive, slower, for beefy browsers) or alternately at the
+server via png (less interactive, faster).
+%endif
+
+%if "@have_webjs@" == "true"
+%package webapp-graphite
+License: ASL2.0
+Group: Applications/Internet
+Conflicts: pcp-webjs < 3.10.4
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+BuildArch: noarch
+%endif
+Summary: Graphite web application for Performance Co-Pilot (PCP)
+URL: http://graphite.readthedocs.org
+
+%description webapp-graphite
+Graphite is a highly scalable real-time graphing system. This package
+provides a graphite version that uses the Performance Co-Pilot (PCP)
+as the data repository, and Graphites web interface renders it. The
+Carbon and Whisper subsystems of Graphite are not included nor used.
 %endif
 
 #
@@ -438,7 +515,8 @@ Summary: Performance Co-Pilot (PCP) System and Monitoring Tools
 URL: http://www.pcp.io
 %if "@enable_python3@" == "true"
 Requires: python3-pcp = @package_version@
-%else
+%endif
+%if "@enable_python2@" == "true"
 Requires: python-pcp = @package_version@
 %endif
 %description -n pcp-system-tools
@@ -489,10 +567,10 @@ level performance management.  It includes tutorials, HOWTOs,
 and other detailed documentation about the internals of core
 PCP utilities and daemons, and the PCP graphical tools.
 
+%if "@pmda_papi@" == "true"
 #
 # pcp-pmda-papi
 #
-%if "@pmda_papi@" == "true"
 %package pmda-papi
 License: GPLv2+
 Group: Applications/System
@@ -516,7 +594,11 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for Infiniband HCAs and switches
 URL: http://www.pcp.io
 Requires: pcp-libs = @package_version@
+%if "%{_vendor}" == "suse"
+Requires: libibmad5 >= 1.1.7 libibumad3 >= 1.1.7
+%else
 Requires: libibmad >= 1.1.7 libibumad >= 1.1.7
+%endif
 BuildRequires: libibmad-devel >= 1.1.7 libibumad-devel >= 1.1.7
 
 %description pmda-infiniband
@@ -714,6 +796,22 @@ collecting metrics about the Lustre Filesystem.  The PMDA is written
 in Perl.
 
 #end pcp-pmda-lustre
+
+#
+# pcp-pmda-lustrecomm
+#
+%package pmda-lustrecomm
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for the Lustre Filesytem Comms
+URL: http://www.pcp.io
+
+%description pmda-lustrecomm
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about the Lustre Filesystem Comms.  The PMDA is written
+in C.
+
+#end pcp-pmda-lustrecomm
 
 #
 # pcp-pmda-memcache
@@ -1046,6 +1144,8 @@ collecting metrics about the Unbound DNS Resolver.  The PMDA is written
 in Python.
 # end pcp-pmda-unbound
 
+%endif 
+
 %if "@pmda_json@" == "true"
 #
 # pcp-pmda-json
@@ -1073,8 +1173,6 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics output in JSON.  The PMDA is written in Python.
 # end pcp-pmda-json
 %endif
-
-%endif 
 
 #
 # C pmdas
@@ -1164,6 +1262,21 @@ is written in C.
 # end pcp-pmda-lmsensors
 
 #
+# pcp-pmda-logger
+#
+%package pmda-logger
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics from arbitrary log files
+URL: http://www.pcp.io
+Requires: pcp-libs = @package_version@
+%description pmda-logger
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics from a specified set of log files (or pipes).  The PMDA
+is written in C, and supports both sampled and event-style metrics.
+# end pcp-pmda-logger
+
+#
 # pcp-pmda-mailq
 #
 %package pmda-mailq
@@ -1220,10 +1333,10 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Room temperature metrics.  The PMDA is written in C.
 # end pcp-pmda-roomtemp
 
+%if "@pmda_rpm@" == "true"
 #
 # pcp-pmda-rpm
 #
-%if "@pmda_rpm@" == "true"
 %package pmda-rpm
 License: GPLv2+
 Group: Applications/System
@@ -1337,9 +1450,10 @@ Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-
 Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pmda-lustre
 Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
 Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql
-Requires: pcp-pmda-dm pcp-pmda-apache
-Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
+Requires: pcp-pmda-apache pcp-pmda-bash pcp-pmda-cisco pcp-pmda-dm pcp-pmda-gfs2
+Requires: pcp-pmda-lmsensors pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
+Requires: pcp-pmda-lustrecomm
 %if "@have_python@" == "true"
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-system-tools 
 %endif
@@ -1368,9 +1482,10 @@ Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pm
 Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
 Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql
 Requires: pcp-pmda-samba pcp-pmda-snmp pcp-pmda-vmware pcp-pmda-zimbra
-Requires: pcp-pmda-dm pcp-pmda-apache
-Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
+Requires: pcp-pmda-apache pcp-pmda-bash pcp-pmda-cisco pcp-pmda-dm pcp-pmda-gfs2
+Requires: pcp-pmda-lmsensors pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
+Requires: pcp-pmda-lustrecomm
 %if "@have_python@" == "true"
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound
 %endif
@@ -1422,10 +1537,19 @@ rm -Rf $RPM_BUILD_ROOT
 NO_CHOWN=true
 BACKDIR=`pwd`;
 DIST_ROOT=$RPM_BUILD_ROOT
+WEBAPP_ROOT=${RPM_BUILD_ROOT}@pcp_share_dir@/webapps
 DIST_MANIFEST=`pwd`/install.manifest
 export NO_CHOWN DIST_ROOT DIST_MANIFEST
 rm -f $DIST_MANIFEST
 @make@ install_pcp
+%if "@have_webjs@" == "true"
+rm -fr $WEBAPP_ROOT && mkdir -p -m 755 $WEBAPP_ROOT
+tar -xz -C $WEBAPP_ROOT -f $BACKDIR/../build/tar/webjs.tar.gz
+%endif
+%if "@have_vector@" == "true"
+rm -fr $WEBAPP_ROOT/vector && mkdir -p -m 755 $WEBAPP_ROOT/vector
+tar -xz -C $WEBAPP_ROOT/vector -f $BACKDIR/../build/tar/vector.tar.gz
+%endif
 
 PCP_CONF=$BACKDIR/src/include/pcp.conf
 export PCP_CONF
@@ -1442,7 +1566,7 @@ DEVFILELIST=`ls -1 $BACKDIR/debian/lib*-dev.{install,dirs}`
 sed -e 's/^/\//' $CFGFILELIST >cfg_files
 sed -e 's/^/\//' $LIBFILELIST >libs_files
 sed -e 's/^/\//' $DEVFILELIST >devel_files
-%ifarch x86_64 ppc64 s390x
+%ifarch x86_64 ppc64 ppc64le aarch64 s390x
 sed -i -e 's/usr\/lib\//usr\/lib64\//' libs_files
 sed -i -e 's/usr\/lib\//usr\/lib64\//' devel_files
 %endif
@@ -1504,7 +1628,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp-doc|man.*\.[1-9].*' | egrep -v 'ou
 awk '{print $NF}' $DIST_MANIFEST | egrep 'tutorials' >>docs_files
 %if "@enable_qt@" == "true"
 PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
-awk '{print $NF}' $DIST_MANIFEST | egrep "$PCP_GUI|pixmaps" > gui_files
+awk '{print $NF}' $DIST_MANIFEST | egrep "$PCP_GUI|applications|pixmaps" | egrep -v '/pcp-doc/|/man/|pmtime.h' > gui_files
 %endif
 %if "@enable_webapi@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pmwebd|webapps|PMWEBAPI' >webapi_files
@@ -1524,77 +1648,85 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2graphite' >export_pcp2graphite_fil
 awk '{print $NF}' $DIST_MANIFEST | egrep 'infiniband|pmdaib|pmdas/ib' >pmda_infiniband_files
 %endif
 %if "@pmda_papi@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdapapi|pmdas/papi' >pmda_papi_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdas/papi' >pmda_papi_files
 %endif
 %if "@pmda_perfevent@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'perfevent|perfalloc.1' > pmda_perfevent_files
 %endif
 %if "@pmda_systemd@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pmdasystemd|pmdas/systemd' > pmda_systemd_files
+awk '{print $NF}' $DIST_MANIFEST | grep 'pmdas/systemd' > pmda_systemd_files
 %endif
 
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'activemq|pmdas/activemq' > pmda_activemq_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'bonding|pmdas/bonding' > pmda_bonding_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'dbping|pmdas/dbping' > pmda_dbping_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'ds389log|pmdas/ds389log' > pmda_ds389log_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'ds389|pmdas/ds389' > pmda_ds389_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'elasticsearch|pmdas/elasticsearch' > pmda_elasticsearch_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'gpfs|pmdas/gpfs' > pmda_gpfs_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'gpsd|pmdas/gpsd' > pmda_gpsd_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'kvm|pmdas/kvm' > pmda_kvm_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'lustre|pmdas/lustre' > pmda_lustre_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'memcache|pmdas/memcache' > pmda_memcache_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'mysql|pmdas/mysql' > pmda_mysql_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'named|pmdas/named' > pmda_named_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'netfilter|pmdas/netfilter' > pmda_netfilter_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'news|pmdas/news' > pmda_news_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'nfsclient|pmdas/nfsclient' > pmda_nfsclient_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'nginx|pmdas/nginx' > pmda_nginx_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pdns|pmdas/pdns' > pmda_pdns_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'postfix|pmdas/postfix' > pmda_postfix_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'postgresql|pmdas/postgresql' > pmda_postgresql_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'rsyslog|pmdas/rsyslog' > pmda_rsyslog_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'samba|pmdas/samba' > pmda_samba_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'snmp|pmdas/snmp' > pmda_snmp_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'vmware|pmdas/vmware' > pmda_vmware_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'zimbra|pmdas/zimbra' > pmda_zimbra_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/activemq' > pmda_activemq_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/bonding' > pmda_bonding_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/dbping' > pmda_dbping_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/ds389log' > pmda_ds389log_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/ds389' > pmda_ds389_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/elasticsearch' > pmda_elasticsearch_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gpfs' > pmda_gpfs_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gpsd' > pmda_gpsd_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/kvm' > pmda_kvm_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lustrecomm' > pmda_lustrecomm_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lustre' > pmda_lustre_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/memcache' > pmda_memcache_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mysql' > pmda_mysql_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/named' > pmda_named_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/netfilter' > pmda_netfilter_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/news' > pmda_news_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/nfsclient' > pmda_nfsclient_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/nginx' > pmda_nginx_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/pdns' > pmda_pdns_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/postfix' > pmda_postfix_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/postgresql' > pmda_postgresql_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/rsyslog' > pmda_rsyslog_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/samba' > pmda_samba_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/snmp' > pmda_snmp_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/vmware' > pmda_vmware_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/zimbra' > pmda_zimbra_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/dm' > pmda_dm_files
+%if "@pmda_json@" == "true"
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/json' > pmda_json_files
+%endif
 %if "@have_python@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'gluster|pmdas/gluster' > pmda_gluster_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'zswap|pmdas/zswap' > pmda_zswap_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'unbound|pmdas/unbound' > pmda_unbound_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'json|pmdas/json' > pmda_json_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pcp-|pmatop|pmiostat|pmlogconf/tools/' | \
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gluster' > pmda_gluster_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/zswap' > pmda_zswap_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/unbound' > pmda_unbound_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pcp-|pmatop|pmcollectl|pmiostat' |\
 egrep -e 'atop|collectl|dmcache|free|iostat|numastat|verify|uptime|shping' | \
-egrep -v 'testsuite' \
+egrep -v 'testsuite|pmlogconf|pmieconf' \
 	    > system_tools_files
 %endif
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'apache|pmdas/apache' > pmda_apache_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'bash|pmdas/bash' > pmda_bash_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'cifs|pmdas/cifs' > pmda_cifs_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'cisco|pmdas/cisco' > pmda_cisco_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'gfs2|pmdas/gfs2' > pmda_gfs2_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'lmsensors|pmdas/lmsensors' > pmda_lmsensors_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'mailq|pmdas/mailq' > pmda_mailq_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'mounts|pmdas/mounts' > pmda_mounts_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'nvidia|pmdas/nvidia' > pmda_nvidia_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'roomtemp|pmdas/roomtemp' > pmda_roomtemp_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'rpm|pmdas/rpm' > pmda_rpm_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'sendmail|pmdas/sendmail' > pmda_sendmail_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'shping|pmdas/shping' > pmda_shping_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/apache' > pmda_apache_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/bash' > pmda_bash_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/cifs' > pmda_cifs_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/cisco' > pmda_cisco_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gfs2' > pmda_gfs2_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lmsensors' > pmda_lmsensors_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/logger' > pmda_logger_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mailq' > pmda_mailq_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mounts' > pmda_mounts_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/nvidia' > pmda_nvidia_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/roomtemp' > pmda_roomtemp_files
+%if "@pmda_rpm@" == "true"
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/rpm' > pmda_rpm_files
+%endif
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/sendmail' > pmda_sendmail_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/shping' > pmda_shping_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/summary' > pmda_summary_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/trace' > pmda_trace_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'weblog|pmdas/weblog' > pmda_weblog_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/weblog' > pmda_weblog_files
 
 touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files \
       pmda_perfevent_files pmda_activemq_files pmda_bonding_files pmda_dbping_files \
       pmda_ds389_files pmda_ds389log_files pmda_elasticsearch_files pmda_gpfs_files \
-      pmda_gpsd_files pmda_kvm_files pmda_lustre_files pmda_memcache_files pmda_mysql_files \
-      pmda_named_files pmda_netfilter_files pmda_news_files pmda_nfsclient_files \
+      pmda_gpsd_files pmda_kvm_files pmda_lustre_files pmda_lustrecomm_files \
+      pmda_memcache_files pmda_mysql_files pmda_named_files \
+      pmda_netfilter_files pmda_news_files pmda_nfsclient_files \
       pmda_nginx_files pmda_pdns_files pmda_postfix_files pmda_postgresql_files \
       pmda_rsyslog_files pmda_samba_files pmda_snmp_files \
       pmda_vmware_files pmda_zimbra_files pmda_apache_files pmda_bash_files \
-      pmda_cifs_files pmda_cisco_files pmda_gfs2_files pmda_lmsensors_files \
+      pmda_cifs_files pmda_cisco_files pmda_gfs2_files \
+      pmda_lmsensors_files pmda_logger_files \
       pmda_mailq_files pmda_mounts_files pmda_nvidia_files pmda_roomtemp_files \
       pmda_rpm_files pmda_sendmail_files pmda_shping_files pmda_summary_files \
       pmda_trace_files pmda_weblog_files pmda_dm_files pmda_systemd_files
@@ -1602,9 +1734,9 @@ touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files
 %if "@have_python@" == "true"
 touch pmda_gluster_files pmda_zswap_files pmda_unbound_files \
       system_tools_files
+%endif
 %if "@pmda_json@" == "true"
 touch pmda_json_file 
-%endif
 %endif
 
 rm -f *_files.rpm
@@ -1630,6 +1762,7 @@ BEGIN {
     while( getline < "pmda_gpfs_files") pmda_gpfs[$0]=1;
     while( getline < "pmda_gpsd_files") pmda_gpsd[$0]=1;
     while( getline < "pmda_kvm_files") pmda_kvm[$0]=1;
+    while( getline < "pmda_lustrecomm_files") pmda_lustrecomm[$0]=1;
     while( getline < "pmda_lustre_files") pmda_lustre[$0]=1;
     while( getline < "pmda_memcache_files") pmda_memcache[$0]=1;
     while( getline < "pmda_mysql_files") pmda_mysql[$0]=1;
@@ -1652,8 +1785,10 @@ BEGIN {
     while( getline < "pmda_gluster_files") pmda_gluster[$0]=1;
     while( getline < "pmda_zswap_files") pmda_zswap[$0]=1;
     while( getline < "pmda_unbound_files") pmda_unbound[$0]=1;
-    while( getline < "pmda_json_files") pmda_json[$0]=1;
     while( getline < "export_pcp2graphite_files") export_pcp2graphite[$0]=1;
+%endif
+%if "@pmda_json@" == "true"
+    while( getline < "pmda_json_files") pmda_json[$0]=1;
 %endif
     while( getline < "pmda_apache_files") pmda_apache[$0]=1;
     while( getline < "pmda_bash_files") pmda_bash[$0]=1;
@@ -1661,6 +1796,7 @@ BEGIN {
     while( getline < "pmda_cisco_files") pmda_cisco[$0]=1;
     while( getline < "pmda_gfs2_files") pmda_gfs2[$0]=1;
     while( getline < "pmda_lmsensors_files") pmda_lmsensors[$0]=1;
+    while( getline < "pmda_logger_files") pmda_logger[$0]=1;
     while( getline < "pmda_mailq_files") pmda_mailq[$0]=1;
     while( getline < "pmda_mounts_files") pmda_mounts[$0]=1;
     while( getline < "pmda_nvidia_files") pmda_nvidia[$0]=1;
@@ -1702,6 +1838,7 @@ BEGIN {
     else if (pmda_gpfs[$NF]) f="pmda_gpfs_files.rpm";
     else if (pmda_gpsd[$NF]) f="pmda_gpsd_files.rpm";
     else if (pmda_kvm[$NF]) f="pmda_kvm_files.rpm";
+    else if (pmda_lustrecomm[$NF]) f="pmda_lustrecomm_files.rpm";
     else if (pmda_lustre[$NF]) f="pmda_lustre_files.rpm";
     else if (pmda_memcache[$NF]) f="pmda_memcache_files.rpm";
     else if (pmda_mysql[$NF]) f="pmda_mysql_files.rpm";
@@ -1724,8 +1861,10 @@ BEGIN {
     else if (pmda_gluster[$NF]) f="pmda_gluster_files.rpm";
     else if (pmda_zswap[$NF]) f="pmda_zswap_files.rpm";
     else if (pmda_unbound[$NF]) f="pmda_unbound_files.rpm";
-    else if (pmda_json[$NF]) f="pmda_json_files.rpm";
     else if (export_pcp2graphite[$NF]) f="export_pcp2graphite_files.rpm";
+%endif
+%if "@pmda_json@" == "true"
+    else if (pmda_json[$NF]) f="pmda_json_files.rpm";
 %endif
     else if (pmda_apache[$NF]) f="pmda_apache_files.rpm";
     else if (pmda_bash[$NF]) f="pmda_bash_files.rpm";
@@ -1733,6 +1872,7 @@ BEGIN {
     else if (pmda_cisco[$NF]) f="pmda_cisco_files.rpm";
     else if (pmda_gfs2[$NF]) f="pmda_gfs2_files.rpm";
     else if (pmda_lmsensors[$NF]) f="pmda_lmsensors_files.rpm";
+    else if (pmda_logger[$NF]) f="pmda_logger_files.rpm";
     else if (pmda_mailq[$NF]) f="pmda_mailq_files.rpm";
     else if (pmda_mounts[$NF]) f="pmda_mounts_files.rpm";
     else if (pmda_nvidia[$NF]) f="pmda_nvidia_files.rpm";
@@ -2013,6 +2153,34 @@ cd
 # set via awk processing above
 %endif
 
+%if "@have_webjs@" == "true"
+%files webjs
+# duplicate directories from pcp and pcp-webapi, but rpm copes with that.
+%dir @pcp_share_dir@
+%dir @pcp_share_dir@/webapps
+@pcp_share_dir@/webapps/*.png
+@pcp_share_dir@/webapps/*.ico
+@pcp_share_dir@/webapps/*.html
+@pcp_share_dir@/webapps/blinkenlights
+
+%files webapp-grafana
+%dir @pcp_share_dir@
+%dir @pcp_share_dir@/webapps
+@pcp_share_dir@/webapps/grafana
+
+%files webapp-graphite
+%dir @pcp_share_dir@
+%dir @pcp_share_dir@/webapps
+@pcp_share_dir@/webapps/graphite
+%endif
+
+%if "@have_vector@" == "true" || "@have_webjs@" == "true"
+%files webapp-vector
+%dir @pcp_share_dir@
+%dir @pcp_share_dir@/webapps
+@pcp_share_dir@/webapps/vector
+%endif
+
 %files testsuite -f testsuite_files.rpm
 %defattr(-,pcpqa,pcpqa)
 
@@ -2047,6 +2215,8 @@ cd
 %files pmda-kvm -f pmda_kvm_files.rpm
 
 %files pmda-lustre -f pmda_lustre_files.rpm
+
+%files pmda-lustrecomm -f pmda_lustrecomm_files.rpm
 
 %files pmda-memcache -f pmda_memcache_files.rpm
 
@@ -2087,11 +2257,11 @@ cd
 
 %files pmda-unbound -f pmda_unbound_files.rpm
 
-%if "@pmda_json@" == "true"
-%files pmda-json -f pmda_json_files.rpm
+%files export-pcp2graphite -f export_pcp2graphite_files.rpm
 %endif
 
-%files export-pcp2graphite -f export_pcp2graphite_files.rpm
+%if "@pmda_json@" == "true"
+%files pmda-json -f pmda_json_files.rpm
 %endif
 
 %files pmda-apache -f pmda_apache_files.rpm
@@ -2105,6 +2275,8 @@ cd
 %files pmda-gfs2 -f pmda_gfs2_files.rpm
 
 %files pmda-lmsensors -f pmda_lmsensors_files.rpm
+
+%files pmda-logger -f pmda_logger_files.rpm
 
 %files pmda-mailq -f pmda_mailq_files.rpm
 

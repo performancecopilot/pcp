@@ -39,6 +39,11 @@ under Version 2.1 of the GNU Lesser General Public License, or
 On Debian systems, refer to /usr/share/common-licenses/LGPL-2.1
 for the complete text of the GNU Lesser General Public License.
 
+Certain documentation components (books, tutorials, some manuals)
+are licensed under the Version 3.0 Creative Commons Attribution
+Share-Alike (CC-BY-SA) license.  The complete license text is at
+http://creativecommons.org/licenses/by-sa/3.0/
+
 A modified version of the Qt QColorPicker class is included in
 this package, in the files src/pmchart/qcolorpicker.{h,cpp}.
 

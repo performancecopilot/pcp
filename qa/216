@@ -17,7 +17,8 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
-. ./localconfig
+
+which netstat >/dev/null 2>&1 || _notrun "netstat not installed"
 
 if [ $PCP_PLATFORM != linux ]
 then

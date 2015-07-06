@@ -616,7 +616,7 @@ _writable_primary_logger()
 {
     _configfile="$PCP_VAR_DIR/config/pmlogger/config.default"
 
-    echo "_open_primary_logger checking config file: $_configfile" >>$seq.full
+    echo "_open_primary_logger checking config file: $_configfile" >>$here/$seq.full
 
     # first, move aside the default configuration file
     _save_config "$_configfile"
@@ -624,7 +624,7 @@ _writable_primary_logger()
     # next, create a new default configuration file
     PMLOGCONF="$PCP_BINADM_DIR/pmlogconf"
     test -f "$_configfile" || \
-	$sudo $PMLOGCONF -q -h localhost "$_configfile" >>$seq.full 2>&1
+	$sudo $PMLOGCONF -q -h localhost "$_configfile" >>$here/$seq.full 2>&1
 
     # finally, open it up to local access from pmlc
     sed <"$_configfile" >$tmp.sed-i \
@@ -681,7 +681,7 @@ _setup_purify()
     RSU_LICENSE_MAP=/usr/Rational/config/LICENSE_MAP
     export LM_LICENSE_FILE RSU_LICENSE_MAP
 
-    rm -f $seq.full
+    rm -f $here/$seq.full
     _path=$1
     _prog=`echo $_path | sed -e 's#.*/##'`
     _pure_prog="$_prog.pure"
@@ -880,7 +880,7 @@ _run_valgrind()
     if [ -f $here/valgrind-suppress-$__version ]
     then
 	__extra="--suppressions=$here/valgrind-suppress-$__version"
-	echo "Warning: using extra $__extra" >>$seq.full
+	echo "Warning: using extra $__extra" >>$here/$seq.full
     else
 	__extra=''
     fi
@@ -893,8 +893,8 @@ _run_valgrind()
     cat $tmp._valgrind.out
     echo "=== std err ==="
     cat $tmp._valgrind.err
-    echo "=== valgrind report ===" >>$seq.full
-    cat $tmp._valgrind >>$seq.full
+    echo "=== valgrind report ===" >>$here/$seq.full
+    cat $tmp._valgrind >>$here/$seq.full
     echo "=== filtered valgrind report ==="
     _filter_valgrind <$tmp._valgrind
 }
@@ -917,7 +917,7 @@ if which valgrind >/dev/null 2>&1; then
     if [ -f $here/valgrind-suppress-$__version ]
     then
         __extra="--suppressions=$here/valgrind-suppress-$__version"
-        echo "Warning: using extra $__extra" >>$seq.full
+        echo "Warning: using extra $__extra" >>$here/$seq.full
     else
 	__extra=''
     fi

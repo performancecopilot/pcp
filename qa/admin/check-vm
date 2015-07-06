@@ -247,6 +247,7 @@ sadf				[sysstat]
 bc				[(QA optional)]
 curl				[(QA optional)]
 socat				[(QA optional)]
+avahi-browse			[avahi-utils (QA optional)]
 dpkg?	Spreadsheet::XLSX	[libspreadsheet-xlsx-perl (QA optional)]
 rpm?	Spreadsheet::XLSX	[perl-Spreadsheet-XLSX or from cpan (QA optional)]
 dpkg?	Text::CSV_XS		[Text-CSV_XS (QA optional)]
@@ -256,7 +257,7 @@ valgrind			[(QA optional)]
 dpkg?	mail			[bsd-mailx (QA optional)]
 rpm?	mail			[mailx (QA optional)]
 dpkg?	apache2			[apache2 (QA optional)]
-rpm?	httpd			[httpd (QA optional)]
+rpm?	httpd|/etc/apache2/httpd.conf	[httpd or apache2 (QA optional)]
 dpkg?	realpath		[realpath]
 dpkg?	unbound-control		[unbound (QA optional)]
 rpm?	/usr/share/doc/python-requests*|/usr/share/doc/packages/python-requests	[python-requests (QA optional)]
@@ -276,9 +277,9 @@ dpkg?	/usr/include/python*/Python.h	[python-dev]
 rpm?	/usr/lib*/python*/curses	[python-curses]
 # nss
 dpkg?	/usr/include/nspr/nspr.h	[libnspr4-dev (build optional)]
-rpm?	/usr/include/nspr4/nspr.h	[nspr-devel (build optional)]
+rpm?	/usr/include/nspr4/nspr.h	[nspr-devel or mozilla-nspr-devel (build optional)]
 dpkg?	/usr/include/nss/nss.h		[libnss3-dev (build optional)]
-rpm?	/usr/include/nss3/nss.h		[nss-devel (build optional)]
+rpm?	/usr/include/nss3/nss.h		[nss-devel or mozilla-nss-devel (build optional)]
 dpkg?	certutil			[libnss3-tools (build optional)]
 rpm?	certutil			[nss-tools or mozilla-nss-tools (build optional)]
 End-of-File
@@ -347,19 +348,6 @@ do
 	    \[*)
 	    	break
 		;;
-	    /*)
-		rm -f $tmp.tmp
-		for file in `echo "$app" | sed -e 's/|/ /g'`
-		do
-		    if [ -f "$file" -o -d "$file" ]
-		    then
-			touch $tmp.tmp
-			break
-		    fi
-		done
-		[ -f $tmp.tmp ]
-		ok=$?
-		;;
 	    *::)
 		# special case Perl, no module name
 		echo "use `echo $app | sed -e 's/::$//'`;" | perl >/dev/null 2>&1
@@ -371,15 +359,27 @@ do
 		echo "use $app;" | perl >/dev/null 2>&1
 		ok=$?
 		;;
-	    *)
+	    *)  # file, directory or executable tests, separated by |
 		rm -f $tmp.tmp
-		for exec in `echo "$app" | sed -e 's/|/ /g'`
+		for obj in `echo "$app" | sed -e 's/|/ /g'`
 		do
-		    if which $exec >/dev/null 2>&1
-		    then
-			touch $tmp.tmp
-			break
-		    fi
+		    case "$obj"
+		    in
+			/*)
+			    if [ -f "$obj" -o -d "$obj" ]
+			    then
+				touch $tmp.tmp
+				break
+			    fi
+			    ;;
+			*)
+			    if which $obj >/dev/null 2>&1
+			    then
+				touch $tmp.tmp
+				break
+			    fi
+			    ;;
+		    esac
 		done
 		[ -f $tmp.tmp ]
 		ok=$?
@@ -507,35 +507,77 @@ then
 # rpm-name	relop	version	pcp-pkg
 # text after # is treated as a comment
 # pcp.spec.in
-qt-devel	>=	4.4
-qt4-devel	>=	4.4
-libpfm-devel	>=	4.4	pcp-pmda-perfevent
-libpfm		>=	4.4	pcp-pmda-perfevent
-libibmad-devel	>=	1.1.7	pcp-pmda-infiniband
-libibmad	>=	1.1.7	pcp-pmda-infiniband
-libibumad-devel	>=	1.1.7	pcp-pmda-infiniband
-libibumad	>=	1.1.7	pcp-pmda-infiniband
-# configure.ac
-libmicrohttpd	>	0.9.9
-cairo-devel	>=	1.2
+qt-devel|qt4-devel|libqt4-devel	>=	4.4
+libpfm-devel			>=	4.4	pcp-pmda-perfevent
+libpfm|libpfm4			>=	4.4	pcp-pmda-perfevent
+libibmad-devel			>=	1.1.7	pcp-pmda-infiniband
+libibmad|libibmad5		>=	1.1.7	pcp-pmda-infiniband
+libibumad-devel			>=	1.1.7	pcp-pmda-infiniband
+libibumad|libibumad3		>=	1.1.7	pcp-pmda-infiniband
 End-of-File
     cat $tmp.control \
     | sed -e 's/#.*//' -e '/^[ 	]*$/d' \
-    | while read rpm relop specversion pcp_pkg
+    | while read rpmlist relop specversion pcp_pkg
     do
 	[ -n "$pcp_pkg" ] && pcp_pkg=" for $pcp_pkg"
-	rpm -q $rpm >$tmp.tmp 2>/dev/null
-	if grep 'is not installed' $tmp.tmp >/dev/null 2>&1
+	rm -f $tmp.found $tmp.notfound
+	for rpm in `echo "$rpmlist" | sed -e 's/|/ /g'`
+	do
+	    rpm -q $rpm >$tmp.tmp 2>/dev/null
+	    if grep 'is not installed' $tmp.tmp >/dev/null 2>&1
+	    then
+		$verbose && echo "$rpm: not installed, need $relop $specversion$pcp_pkg, OK"
+		echo "Warning: $rpm not installed, need $relop $specversion$pcp_pkg" >>$tmp.notfound
+	    else
+		touch $tmp.found
+		version=`sed <$tmp.tmp -e "s/^$rpm-//" -e 's/-.*//'`
+		( echo $version; echo $specversion ) | _compare $relop
+		if [ $? = 0 ]
+		then
+		    $verbose && echo "$rpm: version installed $version, need $relop $specversion$pcp_pkg, OK"
+		else
+		    echo "Warning: $rpm version installed $version, need $relop $specversion$pcp_pkg"
+		fi
+	    fi
+	done
+	if [ -f $tmp.found ]
 	then
-	    echo "Warning: $rpm not installed, need $relop $specversion$pcp_pkg"
+	    :
 	else
-	    version=`sed <$tmp.tmp -e "s/^$rpm-//" -e 's/-.*//'`
-	    ( echo $version; echo $specversion ) | _compare $relop
+	    $verbose || cat $tmp.notfound
+	fi
+    done
+fi
+
+if which pkg-config >/dev/null 2>&1
+then
+    # PKG_CHECK_MODULES() in configure.ac
+    #
+    cat <<End-of-File >$tmp.control
+# one line per rpm
+# lib-name	relop	version	pcp-pkg
+# text after # is treated as a comment
+libmicrohttpd	>	0.9.9
+cairo		>=	1.2
+cairo-ft	>=	1.2
+cairo-png	>=	1.2
+End-of-File
+    cat $tmp.control \
+    | sed -e 's/#.*//' -e '/^[ 	]*$/d' \
+    | while read lib relop version pcp_pkg
+    do
+	[ -n "$pcp_pkg" ] && pcp_pkg=" for $pcp_pkg"
+	libversion=`pkg-config --modversion "$lib" 2>/dev/null`
+	if [ -z "$libversion" ]
+	then
+	    echo "Warning: Package $lib not known to pkg-config , need $relop $version$pcp_pkg"
+	else
+	    ( echo $libversion; echo $version ) | _compare $relop
 	    if [ $? = 0 ]
 	    then
-		$verbose && echo "$rpm: version installed $version, need $relop $specversion$pcp_pkg, OK"
+		$verbose && echo "$lib: version installed $libversion, need $relop $version$pcp_pkg, OK"
 	    else
-		echo "Warning: $rpm version installed $version, need $relop $specversion$pcp_pkg"
+		echo "Warning: $lib version installed $libversion, need $relop $version$pcp_pkg"
 	    fi
 	fi
     done

@@ -196,7 +196,8 @@ MYFILES += $(SRCARCH) \
 	sa-sysstat-9.0.4 sa-sysstat-9.0.6 sa-sysstat-9.0.6.1 \
 	sa-sysstat-10.0.1 sa-sysstat-10.0.5 sa-sysstat-10.2.0 \
 	sa-sysstat-9.0.4_rh6.5 \
-	permslist
+	permslist \
+	qa_shmctl.c
 
 MYSCRIPTS = grind-tools ipcs_clear make.dodgey mkarch-all \
 	mkeventrec mkinterpmark mkmirage mkproc mkrewrite mksample_expr \
@@ -211,12 +212,16 @@ TARGETS = $(subst broken_pmda,,$(basename $(CFILES_TARGETS))) \
 	chkctx2_lite template \
 	fetchrate_lite pv
 
+ifeq "$(TARGET_OS)" "linux"
+TARGETS += qa_shmctl.$(DSOSUFFIX)
+endif
+
 ifeq ($(HAVE_64), 1)
 TARGETS	+= pv64
 endif
 
 LCFLAGS = -DHAVE_TRACE
-LLDLIBS	= $(PCPLIB) $(LDFLAGS)
+LLDLIBS	= $(LDFLAGS) $(PCPLIB)
 
 ifneq ($(NVIDIAQALIB),)
 LIBTARGET = true
@@ -226,7 +231,7 @@ TARGETS += $(NVIDIAQALIB)
 endif
 
 # libpcp_trace is ready
-TRACELIB	= -lpcp_trace $(LLDLIBS)
+TRACELIB	= $(LLDLIBS) -lpcp_trace
 
 # all archives, except the ones checked into the source tree,
 # then add executables beyond $(TARGETS)
@@ -449,64 +454,64 @@ domain.h:	$(PCP_VAR_DIR)/pmns/stdpmid
 
 pmdashutdown:	pmdashutdown.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
 
 dumb_pmda: dumb_pmda.c
-	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
 
 pmdacache: pmdacache.c
-	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
 
 pmdaqueue: pmdaqueue.c
-	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
 
 rootclient: rootclient.c
-	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
 
 atomstr: atomstr.c
-	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
 
 keycache: keycache.c
-	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
 
 keycache2: keycache2.c
-	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
 
 badpmda: badpmda.c
-	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c -lpcp_pmda $(LDLIBS)
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
 
 # --- need libpcp_gui
 #
 
 record:	record.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_gui $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_gui
 
 record-setarg: record-setarg.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_gui $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_gui
 
 # --- need libpcp_mmv
 #
 mmv_genstats:	mmv_genstats.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_mmv $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_mmv
 
 mmv_instances:	mmv_instances.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_mmv $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_mmv
 
 mmv_noinit:	mmv_noinit.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_mmv $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_mmv
 
 mmv_nostats:	mmv_nostats.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_mmv $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_mmv
 
 pducheck:	pducheck.o 
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ pducheck.o  $(TRACELIB) -lpcp_pmda $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ pducheck.o  $(TRACELIB) $(LDLIBS) -lpcp_pmda
 
 pducrash:	pducrash.o 
 	rm -f $@
@@ -518,7 +523,7 @@ pdu-server:	pdu-server.o
 
 torture_cache:	torture_cache.o 
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ torture_cache.o -lpcp_pmda $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ torture_cache.o $(LDLIBS) -lpcp_pmda
 
 obs:	obs.c
 	rm -f $@
@@ -541,11 +546,11 @@ tabort:	tabort.c
 
 check_import:	check_import.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_import $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_import
 
 check_import_name:	check_import_name.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c -lpcp_import $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_import
 
 # --- need libpcp_fault
 #
@@ -776,6 +781,11 @@ units-parse: units-parse.c
 #
 qa_timezone.$(DSOSUFFIX):	qa_timezone.o
 	$(LD) -shared -o $@ -nostdlib $<
+
+qa_shmctl.$(DSOSUFFIX):	 qa_shmctl.c
+	$(CC) -fPIC -c qa_shmctl.c
+	$(LD) -shared -o $@ -nostdlib qa_shmctl.o
+	@rm -f qa_shmctl.o
 
 ifneq ($(NVIDIAQALIB),)
 $(NVIDIAQALIB):	nvidia-ml.o

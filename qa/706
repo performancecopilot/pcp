@@ -9,13 +9,7 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-. ./common.setup
 . ./common.pcpweb
-
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
 
 status=1	# failure is the default!
 

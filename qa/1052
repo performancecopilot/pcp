@@ -76,6 +76,13 @@ _filter()
     #end
 }
 
+_filter2()
+{
+    tee -a $here/$seq.full | \
+    sed \
+	-e '2,$s/^\([0-9][0-9]*\) [0-9][0-9]* /\1 TIMESTAMP /'
+}
+
 cleanup()
 {
     cd $here
@@ -166,6 +173,9 @@ EOF
 # SRC2 is more complicated, and has an array.
 SRC2_METADATA="${tmp}/s2_metadata.json"
 SRC2_DATA1="${tmp}/s2_data1.json"
+SRC2_DATA2="${tmp}/s2_data2.json"
+SRC2_DATA3="${tmp}/s2_data3.json"
+SRC2_DATA4="${tmp}/s2_data4.json"
 cat > ${SRC2_METADATA} <<EOF
 {
   "metrics": [
@@ -206,6 +216,49 @@ cat > ${SRC2_DATA1} <<EOF
   ]
 }
 EOF
+cat > ${SRC2_DATA2} <<EOF
+{
+  "array_data": [
+    {
+      "__id": "third",
+      "count": 3,
+      "value": 3072
+    },
+    {
+      "__id": "second",
+      "count": 100,
+      "value": 2049
+    }
+  ]
+}
+EOF
+cat > ${SRC2_DATA3} <<EOF
+{
+  "array_data": [
+    {
+      "__id": "first",
+      "count": 1,
+      "value": 1025
+    },
+    {
+      "__id": "fourth",
+      "count": 4,
+      "value": 999
+    }
+  ]
+}
+EOF
+cat > ${SRC2_DATA4} <<EOF
+{
+  "array_data": [
+    {
+      "__id": "first",
+      "count": 2,
+      "value": 1026
+    }
+  ]
+}
+EOF
 
 #
 # real QA test starts here
@@ -216,6 +269,7 @@ PCP_PYTHON_PMNS=root $python "$pmda_script" > ${pmns_root}
 
 # Start dbpmda in the background, redirecting its stdin/stdout to the
 # fifos.
+cd $here	# create pmda log file somewhere safe (for debugging)
 $sudo dbpmda -n ${pmns_root} -ie <${fifo_in} >${fifo_out} 2>&1 &
 
 # Open fd 3 for write and fd 4 for read. Note that we need to avoid
@@ -295,6 +349,50 @@ fetch json.s2.array_data.count
 fetch json.s2.array_data.value
 EOF
 _drain_output
+
+# Let's test proper indom support with the 2nd source. First, find out
+# what the current indom state looks like.
+cat ${pmda_config_dir}/${domain}.4 | _filter2
+cat >&3 <<EOF
+instance $domain.4
+EOF
+_drain_output
+
+# Copy a new data file in and see how the instance values change. The
+# instance command just returns "active" instances, not all instances.
+cp $SRC2_DATA2 ${tmp}/s2/data.json
+cat >&3 <<EOF
+fetch json.s2.array_data.count
+fetch json.s2.array_data.value
+instance $domain.4
+EOF
+_drain_output
+# We should see all instances by looking at the indom cache file.
+cat ${pmda_config_dir}/${domain}.4 | _filter2
+
+# Let's try another indom test. This data file reuses an inactive
+# instance and adds a new one.
+cp $SRC2_DATA3 ${tmp}/s2/data.json
+cat >&3 <<EOF
+fetch json.s2.array_data.count
+fetch json.s2.array_data.value
+instance $domain.4
+EOF
+_drain_output
+# We should see all instances by looking at the indom cache file.
+cat ${pmda_config_dir}/${domain}.4 | _filter2
+
+# Let's try another indom test. This data file just reuses an
+# instance.
+cp $SRC2_DATA4 ${tmp}/s2/data.json
+cat >&3 <<EOF
+fetch json.s2.array_data.count
+fetch json.s2.array_data.value
+instance $domain.4
+EOF
+_drain_output
+# We should see all instances by looking at the indom cache file.
+cat ${pmda_config_dir}/${domain}.4 | _filter2
 
 # Let's test the ceph support by running the 'generate_ceph_metadata'
 # script on some canned data.

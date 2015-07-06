@@ -443,7 +443,7 @@ cgroups
 156 pmda.sample pmda.proc local pmcd_wait pmda.install
 157 pmlogger local
 158 pmval pmie local
-159 pmda.cisco pmda.proc remote pmda.install
+159 pmda.cisco local pmda.install
 160 libpcp local
 161 pmlogger local
 162 pmda pmda.proc local pmda.shping pmda.install
@@ -847,7 +847,7 @@ cgroups
 565 pmda.sendmail local pmda.install
 566 pmlogcheck local
 569 pmprobe #679693 local sanity
-570 pmns #690735 local
+570:retired pmns #690735 local
 571 pmlogger local pmdumplog
 572 pmcd pmda local pmda.install pmda.sample pmda.simple pmda.trivial
 574 libpcp pmns compat local sanity
@@ -972,9 +972,11 @@ cgroups
 770 libpcp pdu fault local
 771 perl local
 772 pmns local
+773 derive local
 774 pmdumplog local
 775 sanity pmfind local
 776 pmfind local
+777 derive pmprobe pmie local
 779 pmda local
 780 pmwebapi local
 781 logutil local
@@ -1021,6 +1023,7 @@ cgroups
 875 libpcp local valgrind
 876 pmda.xfs local
 885 pmda.linux local
+888 pmda.linux local
 897 pmlc pmlogger local
 898 pmlogmv local 
 899 libpcp getopt local
@@ -1039,6 +1042,7 @@ cgroups
 928 archive local
 929 logutil local
 930 pmlogrewrite local
+931 archive pmval local
 943 pmprobe pmda.proc local
 944 pmcd secure local
 945 pmlogrewrite pmda.xfs local
@@ -1103,6 +1107,7 @@ cgroups
 1021 libqmc local
 1022 pmdumptext local
 1023 pmdumptext local
+1024 pmda.linux local
 1025 pmdumptext pmlogger pmdumplog pmloglabel local
 1026 pmdumptext remote
 1027 pmdumptext local pmstore

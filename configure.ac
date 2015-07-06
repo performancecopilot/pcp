@@ -127,6 +127,12 @@ AC_ARG_WITH([perfevent],
     [do_perfevent=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-perfevent=$withval"],
     [do_perfevent=check])
 
+AC_ARG_WITH([pmdajson],
+    [AC_HELP_STRING([--with-pmdajson],
+		   [enable JSON pmda (default is on)])],
+    [do_pmdajson=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdajson=$withval"],
+    [do_pmdajson=check])
+
 AC_ARG_WITH([manager],
     [AC_HELP_STRING([--with-manager],
 		   [enable daemon manager (default is on)])],
@@ -138,6 +144,40 @@ AC_ARG_WITH([webapi],
 		   [enable REST API daemon (default is on)])],
     [do_webapi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webapi=$withval"],
     [do_webapi=check])
+
+AC_ARG_WITH([webjs],
+    [AC_HELP_STRING([--with-webjs],
+                    [enable building of webjs packages (default is off)])],
+    [do_webjs=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webjs=$withval"],
+    [do_webjs=no])
+
+AC_ARG_WITH([vector],
+    [AC_HELP_STRING([--with-vector],
+                    [enable building of vector package (default is off)])],
+    [do_vector=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-vector=$withval"],
+    [do_vector=no])
+
+dnl things set in the environment by Makepkgs never make it into an RPM
+dnl build where the environment is stripped ... use a --with-foo=path
+dnl construct to workaround this
+
+AC_ARG_WITH([make],
+    [AC_HELP_STRING([--with-make],
+                    [path to GNU compatible make(1) (default is empty for auto discovery)])],
+    [MAKE=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-make=$withval"],
+    [MAKE=''])
+
+AC_ARG_WITH([tar],
+    [AC_HELP_STRING([--with-tar],
+                    [path to GNU compatible tar(1) (default is empty for auto discovery)])],
+    [TAR=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-tar=$withval"],
+    [TAR=''])
+
+AC_ARG_WITH([zip],
+    [AC_HELP_STRING([--with-zip],
+                    [path to GNU compatible zip(1) (default is empty for auto discovery)])],
+    [ZIP=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-zip=$withval"],
+    [ZIP=''])
 
 #
 # Note: the following environment variables may be
@@ -152,7 +192,7 @@ if test -z "$target"
 then
     echo '
 FATAL ERROR: Cannot guess your target, try explicit specification
-             using --target or ask pcp@mail.performancecopilot.org'
+             using --target or mailto: pcp@oss.sgi.com to ask.'
     rm -rf conftest conftest.*
     exit 1
 else
@@ -186,6 +226,7 @@ fi
 
 dnl CFLAGS setting is a co-dependency between here and PCFLAGS in
 dnl src/include/builddefs.in ... need to be the same in both places
+
 target_distro=$target_os
 if test $target_os = linux
 then
@@ -198,6 +239,8 @@ then
     test -f /etc/gentoo-release && target_distro=gentoo
     test -f /etc/mandriva-release && target_distro=mandriva
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
+    pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
+    pcp_ps_all_flags=-efw
 elif test $target_os = darwin
 then
     AC_DEFINE(IS_DARWIN, [1], [Platform is Darwin (Mac OS X)])
@@ -210,41 +253,62 @@ then
 	CFLAGS="$CFLAGS -arch x86_64"
     fi
     export CFLAGS
+    pcp_platform_paths='/usr/local/bin'
+    pcp_ps_all_flags=auxww
 elif test $target_os = mingw
 then
     AC_DEFINE(IS_MINGW, [1], [Platform is MinGW (Windows)])
     CFLAGS="-fno-strict-aliasing"
+    pcp_platform_paths=''
+    pcp_ps_all_flags=-efW
 elif test $target_os = solaris
 then
     AC_DEFINE(IS_SOLARIS, [1], [Platform is Solaris])
-    export PATH="$PATH:/opt/SunStudioExpress/bin"
     export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing"
     export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any"
+    pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/usr/sfw/bin'
+    pcp_ps_all_flags=-ef
 elif test $target_os = aix
 then
     AC_DEFINE(IS_AIX, [1], [Platform is AIX])
     export CFLAGS="-qcpluscmt"
+    pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
+    pcp_ps_all_flags=-ef
 elif test $target_os = freebsd || test $target_os = kfreebsd
 then
     AC_DEFINE(IS_FREEBSD, [1], [Platform is FreeBSD])
     test -f /etc/debian_version && target_distro=debian
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
+    if $target_os = kfreebsd
+    then
+	pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
+	pcp_ps_all_flags=-efw
+    else
+	pcp_platform_paths='/usr/bin/X11:/usr/bsd'
+	pcp_ps_all_flags=auxww
+    fi
 elif test $target_os = gnu
 then
     AC_DEFINE(IS_GNU, [1], [Platform is GNU Hurd])
     test -f /etc/debian_version && target_distro=debian
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
+    pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
+    pcp_ps_all_flags=-efw
 elif test $target_os = netbsdelf
 then
     target_os=netbsd
     AC_DEFINE(IS_NETBSD, [1], [Platform is NetBSD])
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE -D_NETBSD_SOURCE"
+    pcp_platform_paths='/usr/pkg/bin'
+    pcp_ps_all_flags=auxww
 else
     echo
     echo "FATAL ERROR: need platform-specific customization for \"$target_os\""
     rm -rf conftest conftest.*
     exit 1
 fi
+AC_SUBST(pcp_platform_paths)
+AC_SUBST(pcp_ps_all_flags)
 
 PKG_PROG_PKG_CONFIG
 if test -z "$PKG_CONFIG"
@@ -257,10 +321,15 @@ then
     exit 1
 fi
 
+dnl this does nothing useful towards PCP configuration but it does
+dnl trigger the autoconf generated C compiler probing to test if
+dnl the GNU C compiler (gcc) is in play which we need below ...
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([int foo;])], [ ], [ ])
+
 # Add some security-related gcc flags
 AC_ARG_ENABLE([ssp],
   [AS_HELP_STRING([--disable-ssp], [disable gcc stack-protector])])
-AS_IF([test "x$enable_ssp" != xno],[
+AS_IF([test "x$GCC" = xyes -a "x$enable_ssp" != xno],[
    save_CFLAGS="$CFLAGS"
    CFLAGS="$CFLAGS -fstack-protector-all -D_FORTIFY_SOURCE=2"
    AC_COMPILE_IFELSE([AC_LANG_SOURCE([int something ();])], [
@@ -272,7 +341,7 @@ AS_IF([test "x$enable_ssp" != xno],[
 # Check for even more security-related gcc/linker flags, useful for daemons
 AC_ARG_ENABLE([pie],
   [AS_HELP_STRING([--disable-pie], [disable position-independent-executable])])
-AS_IF([test "x$enable_pie" != xno],[
+AS_IF([test "x$GCC" = xyes -a "x$enable_pie" != xno],[
    PIECFLAGS='-fPIE'
    PIELDFLAGS='-pie -Wl,-z,relro -Wl,-z,now'
    save_CFLAGS="$CFLAGS"
@@ -295,7 +364,7 @@ AC_SUBST(PIECFLAGS)
 # Check for support for symbol hiding via gcc flags
 AC_ARG_ENABLE([visibility],
   [AS_HELP_STRING([--disable-visibility], [disable gcc symbol visibility])])
-AS_IF([test "x$enable_visibility" != xno],[
+AS_IF([test "x$GCC" = xyes -a "x$enable_visibility" != xno],[
    INVISIBILITY="-fvisibility=hidden"
    save_CFLAGS="$CFLAGS"
    CFLAGS="$CFLAGS -c $INVISIBILITY"
@@ -430,21 +499,6 @@ AS_IF([test "x$do_systemd" != "xno"], [
     fi
 ])
 AC_SUBST(enable_systemd)
-
-# setup additional platform-specific binary search PATH components
-pcp_platform_paths=""
-case $target_os
-in
-    aix)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin';;
-    linux|kfreebsd)
-		pcp_platform_paths='/usr/bin/X11:/usr/local/bin';;
-    mingw)	pcp_platform_paths='';;
-    darwin)	pcp_platform_paths='/usr/local/bin';;
-    solaris)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/usr/sfw/bin';;
-    freebsd)	pcp_platform_paths='/usr/bin/X11:/usr/bsd';;
-    netbsd)	pcp_platform_paths='/usr/pkg/bin';;
-esac
-AC_SUBST(pcp_platform_paths)
 
 # NB: No AC_PREFIX_DEFAULT is needed, as the default configure invocation
 # targets a build for non-system directories such as /usr/local.
@@ -605,10 +659,15 @@ AC_SUBST(have_python_jsonpointer)
 PCP_CHECK_PYTHON_MODULE(six)
 AC_SUBST(have_python_six)
 
-dnl json PMDA needs both the six and jsonpointer Pyton modules
 pmda_json=false
-$have_python_jsonpointer && $have_python_six && pmda_json=true
-AC_SUBST(pmda_json)
+AS_IF([test "x$do_pmdajson" = "xyes"], [pmda_json=true])
+AS_IF([test "x$do_pmdajson" = "xcheck"], [
+    dnl JSON PMDA needs both the six and jsonpointer Python modules
+    dnl Python 2.6 is also too old for this PMDA.
+    $have_python_jsonpointer && $have_python_six && pmda_json=true
+    test $have_python -a "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -le 6 && pmda_json=false
+])
+AC_SUBST(PMDA_JSON, $pmda_json)
 
 qmake=$QMAKE
 enable_qt=false
@@ -619,6 +678,7 @@ AS_IF([test "x$do_qt" != "xno"], [
     if test -z "$QMAKE"
     then
 	AC_PATH_PROGS(QMAKE, [qmake-qt4 qmake],, [$QTDIR/bin:/usr/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin])
+	test "x$GCC" = xyes -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
     fi
     qmake=$QMAKE
     if test -z "$QMAKE"
@@ -1152,81 +1212,6 @@ else
 fi
 AC_SUBST(pcp_ps_prog)
 
-dnl ps variants, need $pcp_ps_prog and $awk from above
-dnl want user in col 1, pid in col 2, and command+ps args at the end
-if test "$cross_compiling" != "yes"; then
-    AC_MSG_CHECKING([for ps style])
-    pcp_ps_all_flags=''
-    if $pcp_ps_prog -ef >conftest.out 2>/dev/null
-    then
-	ans=`$awk <conftest.out '
-NR == 1			{ if ($1 != "UID" && $1 != "USER") exit
-			  if ($2 != "PID") exit
-			}
-# Unix variants
-$2 == 1 && / init/	{ print "OK"; exit }
-$2 == 1 && / \/etc\/init/ { print "OK"; exit }
-# Open Build Service
-$2 == 1 && / \/bin\/bash/ { print "OK"; exit }
-# similarly for a simple Docker container, e.g.
-# https://github.com/performancecopilot/pcp/issues/23
-$2 == 1 && / \/bin\/sh/ { print "OK"; exit }
-# Fedora 9
-$2 == 1 && / \/sbin\/init/ { print "OK"; exit }
-# Fedora 15
-$2 == 1 && / \/bin\/systemd/ { print "OK"; exit }
-# Fedora 17
-$2 == 1 && / \/usr\/lib\/systemd\/systemd/ { print "OK"; exit }
-# Debian sid
-$2 == 1 && / \/lib\/systemd\/systemd/ { print "OK"; exit }'`
-	if test "$ans" = OK
-	then
-	    pcp_ps_have_bsd=false
-	    pcp_ps_all_flags=-ef
-	    AC_MSG_RESULT(SysV)
-	fi
-    fi
-
-    if test -z "$pcp_ps_all_flags" && $pcp_ps_prog auxww >conftest.out 2>/dev/null
-    then
-	ans=`$awk <conftest.out '
-NR == 1			{ if ($1 != "UID" && $1 != "USER") exit
-			  if ($2 != "PID") exit
-			}
-$2 == 1 && / init/	{ print "OK"; exit }
-$2 == 1 && / \/sbin\/init/ { print "OK"; exit }
-$2 == 1 && / \/sbin\/launchd/ { print "OK"; exit }
-$2 == 1 && / \/init/	{ print "OK"; exit }'`
-	if test "$ans" = OK
-	then
-	    pcp_ps_have_bsd=true
-	    pcp_ps_all_flags=auxww
-	    AC_MSG_RESULT(BSD)
-	fi
-    fi
-
-    dnl checking for w(ide) option so more psargs chars
-    if $pcp_ps_prog ${pcp_ps_all_flags}w >/dev/null 2>&1
-    then
-	if test $target_os != solaris
-	then
-	    pcp_ps_all_flags=${pcp_ps_all_flags}w
-	fi
-    fi
-fi
-
-if test -z "$pcp_ps_all_flags"
-then
-    dnl this is bad ... need to expand the cases or relax the tests
-    AC_MSG_RESULT(unknown)
-    echo "FATAL ERROR: could not determine how to get the \"all processes with arguments\""
-    echo "format output from your ps(1)."
-    rm -rf conftest conftest.*
-    exit 1
-fi
-AC_SUBST(pcp_ps_have_bsd)
-AC_SUBST(pcp_ps_all_flags)
-
 dnl set platform specific event logger
 if test $target_os = mingw
 then
@@ -1505,9 +1490,6 @@ AS_IF([test "x$do_manager" != "xno"], [
 ])
 AC_SUBST(enable_manager)
 
-dnl Capture special options passed to configure
-AC_SUBST(PACKAGE_CONFIGURE)
-
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
 AC_FUNC_WAIT3
@@ -1641,7 +1623,7 @@ dnl This is e.g., needed on linux for pmcd loading pmda_pmcd.so.
 AC_MSG_CHECKING([if linker supports -rdynamic])
 save_CFLAGS="$CFLAGS"
 CFLAGS="-rdynamic"
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([])],
+AC_LINK_IFELSE([AC_LANG_PROGRAM([])],
     [AC_MSG_RESULT([yes])
      rdynamic_flag=-rdynamic],
     [AC_MSG_RESULT([no])
@@ -2770,6 +2752,24 @@ AC_TRY_COMPILE(
 ],
 [
 ], AC_DEFINE(HAVE_AI_ADDRCONFIG, [1], [AI_ADDRCONFIG macro]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+
+dnl Find external source tarballs for packaging
+
+have_vector=false
+if test -f ./build/tar/vector.tar.gz
+then
+    AC_MSG_NOTICE([adding Vector webapp to the build])
+    have_vector=true
+fi
+AC_SUBST(have_vector)
+
+have_webjs=false
+if test -f ./build/tar/webjs.tar.gz
+then
+    AC_MSG_NOTICE([adding webjs webapps to the build])
+    have_webjs=true
+fi
+AC_SUBST(have_webjs)
 
 dnl Capture special options passed to configure
 AC_SUBST(PACKAGE_CONFIGURE)

@@ -14,6 +14,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+which netstat >/dev/null 2>&1 || _notrun "netstat not installed"
+
 rm -f $seq.out
 _get_libpcp_config
 if $ipv6 ; then

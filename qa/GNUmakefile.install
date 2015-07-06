@@ -13,17 +13,17 @@ endif
 PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
 include $(PCP_INC_DIR)/builddefs
 
-SUBDIRS = src pmdas cisco gluster pconf sadist collectl secure nfsclient \
+SUBDIRS = src pmdas cisco gluster pconf sadist collectl nfsclient \
 	  archives views qt linux unbound cifs gpfs lustre ganglia \
-	  postfix perl
-ifeq "$(ENABLE_PERFEVENT)" "true"
+	  postfix perl json
+ifeq "$(PMDA_PERFEVENT)" "true"
 SUBDIRS += perfevent
 endif
 ifeq "$(HAVE_PYTHON)" "true"
 SUBDIRS += secure
 endif
 
-default_pcp default setup: $(SUBDIRS) localconfig new remake check qa_hosts
+default default_pcp setup: $(SUBDIRS) localconfig new remake check qa_hosts
 	$(QA_SUBDIRS_MAKERULE)
 
 LDIRT += 051.work 134.full.* \

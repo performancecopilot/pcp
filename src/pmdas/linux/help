@@ -137,29 +137,58 @@ and merging adjacent requests into larger ones to reduce seek activity,
 but certainly not limited to that).
 
 @ disk.dev.avactive per-disk count of active time
+Counts the number of milliseconds for which at least one I/O is in
+progresss for each device.
+
 When converted to a rate, this metric represents the average utilization of
 the disk during the sampling interval.  A value of 0.5 (or 50%) means the
 disk was active (i.e. busy) half the time.
 
-@ disk.dev.read_rawactive per-disk raw count of active read time
-When converted to a rate, this metric represents the raw utilization of
-the disk during the sampling interval as a result of reads.  Accounting for
-this metric is only done on I/O completion and can thus result in more than a
-second's worth of IO being accounted for within any one second, leading to
->100% utilisation.  It is suitable mainly for use in calculations with other
-metrics, e.g. mirroring the results from existing performance tools:
+@ disk.dev.read_rawactive per-disk raw count of read response time
+For each completed read on each disk the response time (queue time plus
+service time) in milliseconds is added to the associated instance of
+this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding reads for a disk.  When divided by the number
+of completed reads for a disk (disk.dev.read), the value represents the
+stochastic average of the read response (or wait) time for that disk.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
 
  iostat.dev.r_await = delta(disk.dev.read_rawactive) / delta(disk.dev.read)
 
-@ disk.dev.write_rawactive per-disk raw count of active write time
-When converted to a rate, this metric represents the raw utilization of
-the disk during the sampling interval as a result of writes.  Accounting for
-this metric is only done on I/O completion and can thus result in more than a
-second's worth of IO being accounted for within any one second, leading to
->100% utilisation.  It is suitable mainly for use in calculations with other
-metrics, e.g. mirroring the results from existing performance tools:
+@ disk.dev.write_rawactive per-disk raw count of write response time
+For each completed write on each disk the response time (queue time plus
+service time) in milliseconds is added to the associated instance of
+this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding writes for a disk.  When divided by
+the number of completed writes for a disk (disk.dev.write), the value
+represents the stochastic average of the write response (or wait)
+time for that disk.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
 
  iostat.dev.w_await = delta(disk.dev.write_rawactive) / delta(disk.dev.write)
+
+@ disk.dev.total_rawactive per-disk raw count of I/O response time
+For each completed I/O on each disk the response time (queue time plus
+service time) in milliseconds is added to the associated instance of
+this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding I/Os for a disk.  When divided by the number
+of completed I/Os for a disk (disk.dev.total), the value represents the
+stochastic average of the I/O response (or wait) time for that disk.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.dev.await = delta(disk.dev.total_rawactive) / delta(disk.dev.total)
 
 @ disk.dev.aveq per-disk time averaged count of request queue length
 When converted to a rate, this metric represents the time averaged disk
@@ -196,28 +225,62 @@ Count of write requests that were merged with an already queued write request.
 @ disk.dm.write_merge per-device-mapper device count of merged write requests
 
 @ disk.dm.avactive per-device-mapper device count of active time
+Counts the number of milliseconds for which at least one I/O is in
+progresss for each device-mapper device.
+
+When converted to a rate, this metric represents the average utilization
+of the device during the sampling interval.  A value of 0.5 (or 50%)
+means the device was active (i.e. busy) half the time.
 
 @ disk.dm.aveq per-device-mapper device time averaged count of request queue length
 
-@ disk.dm.read_rawactive per-device-mapper raw count of active read time
-When converted to a rate, this metric represents the raw utilization of
-the device during the sampling interval as a result of reads.  Accounting for
-this metric is only done on I/O completion and can thus result in more than a
-second's worth of IO being accounted for within any one second, leading to
->100% utilisation.  It is suitable mainly for use in calculations with other
-metrics, e.g. mirroring the results from existing performance tools:
+@ disk.dm.read_rawactive per-device-mapper raw count of read response time
+For each completed read on each device-mapper device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding reads for a device-mapper device.
+When divided by the number of completed reads for a device-mapper device
+(disk.dm.read), the value represents the stochastic average of the read
+response (or wait) time for that device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
 
  iostat.dm.r_await = delta(disk.dm.read_rawactive) / delta(disk.dm.read)
 
-@ disk.dm.write_rawactive per-device-mapper raw count of active write time
-When converted to a rate, this metric represents the raw utilization of
-the device during the sampling interval as a result of writes.  Accounting for
-this metric is only done on I/O completion and can thus result in more than a
-second's worth of IO being accounted for within any one second, leading to
->100% utilisation.  It is suitable mainly for use in calculations with other
-metrics, e.g. mirroring the results from existing performance tools:
+@ disk.dm.write_rawactive per-device-mapper raw count of write response time
+For each completed write on each device-mapper device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding writes for a device-mapper device.
+When divided by the number of completed writes for a device-mapper device
+(disk.dm.write), the value represents the stochastic average of the
+write response (or wait) time for that device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
 
  iostat.dm.w_await = delta(disk.dm.write_rawactive) / delta(disk.dm.write)
+
+@ disk.dm.total_rawactive per-device-mapper raw count of I/O response time
+For each completed I/O on each device-mapper device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding I/Os for a device-mapper device.
+When divided by the number of completed I/Os for a device-mapper device
+(disk.dm.total), the value represents the stochastic average of the I/O
+response (or wait) time for that device-mapper device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.dm.await = delta(disk.dm.total_rawactive) / delta(disk.dm.total)
 
 @ hinv.map.dmname per-device-mapper device persistent name mapping to dm-[0-9]*
 
@@ -228,29 +291,48 @@ Total count of read requests that were merged with an already queued read reques
 Total count of write requests that were merged with an already queued write request.
 
 @ disk.all.avactive total count of active time, summed for all disks
-When converted to a rate, this metric represents the average utilization of
-all disks during the sampling interval.  A value of 0.25 (or 25%) means that
-on average every disk was active (i.e. busy) one quarter of the time.
+Counts the number of milliseconds for which at least one I/O is in
+progresss on each disk, summed across all disks.
 
-@ disk.all.read_rawactive raw count of active read time, summed for all disks
-When converted to a rate, this metric represents the raw utilization of all
-disks during the sampling interval due to read requests.  The accounting for
-this metric is only done on I/O completion and can thus result in more than a
-second's worth of IO being accounted for within any one second, leading to
->100% utilisation.  It is suitable mainly for use in calculations with other
-metrics, e.g. mirroring the results from existing performance tools:
+When converted to a rate and divided by the number of disks (hinv.ndisk),
+this metric represents the average utilization of all disks during the
+sampling interval.  A value of 0.25 (or 25%) means that on average every
+disk was active (i.e. busy) one quarter of the time.
+
+@ disk.all.read_rawactive raw count of read response time, summed for all disks
+For each completed read on every disk the response time (queue time plus
+service time) in milliseconds is added to this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding reads across all disks.  When divided
+by the number of completed reads for all disks (disk.all.read), value
+represents the stochastic average of the read response (or wait) time
+across all disks.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
 
  iostat.all.r_await = delta(disk.all.read_rawactive) / delta(disk.all.read)
 
-@ disk.all.write_rawactive raw count of active write time, summed for all disks
-When converted to a rate, this metric represents the raw utilization of all
-disks during the sampling interval due to write requests.  The accounting for
-this metric is only done on I/O completion and can thus result in more than a
-second's worth of IO being accounted for within any one second, leading to
->100% utilisation.  It is suitable mainly for use in calculations with other
-metrics, e.g. mirroring the result from existing performance tools:
+@ disk.all.write_rawactive raw count of write response time, summed for all disks
+For each completed write on every disk the response time (queue time
+plus service time) in milliseconds is added to this metric.
 
- iostat.all.w_await = delta(disk.all.write_rawactive) / delta(disk.all.write)
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding writes across all disks.  When divided by
+the number of completed writes for all disks (disk.all.write), value
+represents the stochastic average of the write response (or wait) time
+across all disks.
+
+@ disk.all.total_rawactive raw count of I/O response time, summed for all disks
+For each completed I/O on every disk the response time (queue time
+plus service time) in milliseconds is added to this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding I/Os across all disks.  When divided by
+the number of completed I/Os for all disks (disk.all.total), value
+represents the stochastic average of the I/O response (or wait) time
+across all disks.
 
 @ disk.all.aveq total time averaged count of request queue length, summed for all disks
 When converted to a rate, this metric represents the average across all disks
@@ -328,6 +410,65 @@ counter wrap) for individual disk partitions or logical volumes.
 Cumulative number of bytes read and written since system boot time
 (subject to counter wrap) for individual disk partitions or logical
 volumes.
+
+@ disk.partitions.read_merge per-disk-partition count of merged read requests
+
+@ disk.partitions.write_merge per-disk-partition count of merged write requests
+
+@ disk.partitions.avactive per-disk-partition device count of active time
+Counts the number of milliseconds for which at least one I/O is in
+progresss for each disk partition.
+
+When converted to a rate, this metric represents the average utilization
+of the disk partition during the sampling interval.  A value of 0.5
+(or 50%) means the disk partition was active (i.e. busy) half the time.
+
+@ disk.partitions.aveq per-disk-partition device time averaged count of request queue length
+
+@ disk.partitions.read_rawactive per-disk-partition raw count of read response time
+For each completed read on each disk partition the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding reads for a disk partition.  When divided by
+the number of completed reads for a disk partition (disk.partitions.read),
+the value represents the stochastic average of the read response (or wait)
+time for that disk partition.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.partitions.r_await = delta(disk.partitions.read_rawactive) /
+                             delta(disk.partitions.read)
+
+@ disk.partitions.write_rawactive per-disk-partition raw count of write response time
+For each completed write on each disk partition the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding writes for a disk partition.
+When divided by the number of completed writes for a disk partition
+(disk.partitions.write), the value represents the stochastic average of
+the write response (or wait) time for that disk partition.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.partitions.w_await = delta(disk.partitions.write_rawactive) /
+                             delta(disk.partitions.write)
+
+@ disk.partitions.total_rawactive per-disk-partition raw count of I/O response time
+For each completed I/O on each disk partition the response time (queue
+time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding I/Os for a disk partition.
+When divided by the number of completed I/Os for a disk partition
+(disk.partitions.total), the value represents the stochastic average of
+the I/O response (or wait) time for that disk partition.
 
 @ swap.pagesin pages read from swap devices due to demand for physical memory
 @ swap.pagesout pages written to swap devices due to demand for physical memory
@@ -1171,6 +1312,9 @@ See also the kernel.uname.* metrics
 @ ipc.shm.max_seg maximum number of shared segments in system (from shmctl(..,IPC_INFO,..))
 @ ipc.shm.max_segproc maximum number of shared segments per process (from shmctl(..,IPC_INFO,..))
 @ ipc.shm.max_shmsys maximum amount of shared memory in system in pages (from shmctl(..,IPC_INFO,..))
+@ ipc.shm.tot total number of shared memory pages (from shmctl(..,SHM_INFO,..))
+@ ipc.shm.rss number of resident shared memory pages (from shmctl(..,SHM_INFO,..))
+@ ipc.shm.swp number of swapped shared memory pages (from shmctl(..,SHM_INFO,..))
 
 @ vfs.files.count number of in-use file structures
 @ vfs.files.free number of available file structures

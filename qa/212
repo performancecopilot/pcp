@@ -8,17 +8,17 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-. ./localconfig
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
 if [ $PCP_PLATFORM != irix ]
 then
     echo "This version of cisco PMDA does not use sprocs" >$seq.notrun
     echo "$seq: [not run] `cat $seq.notrun`"
     exit 0
 fi
-
-. ./common.product
-. ./common.check
-. ./common.filter
 
 status=0
 _needclean=true

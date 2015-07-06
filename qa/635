@@ -13,7 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-. ./localconfig
 [ $PCP_PLATFORM = linux ] || _notrun "Depends on Linux netstat -ai output format"
 
 status=0	# success is the default!

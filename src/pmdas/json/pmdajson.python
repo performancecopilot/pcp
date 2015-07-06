@@ -158,6 +158,14 @@ class IndomCache(pmdaIndom):
         self.__values = OrderedDict()
         # '__names_by_values' is the inversion of '__values'.
         self.__names_by_values = {}
+
+        # The indom cache has a notion of "inactive" values (values
+        # we've seen before, but are not in the current fetch) and
+        # "active" values (values in the current fetch). Seting the
+        # active state from python is a bit tricky. '__active_values'
+        # contains a dictionary of active values.
+        self.__active_values = OrderedDict()
+
         pmdaIndom.__init__(self, pmda.indom(self.serial), self.__values)
         try:
             self.__pmda.add_indom(self)
@@ -193,6 +201,12 @@ class IndomCache(pmdaIndom):
             self.__nextval = value + 1
         self.__names_by_values[value] = name
 
+    def set_active(self, name):
+        ''' Mark a indom as active. '''
+        if name not in self.__values:
+            raise KeyError(name)
+        self.__active_values[name] = self.__values[name]
+
     def lookup_name(self, name):
         '''
         Lookup name in an indom cache and return its associated value.
@@ -219,6 +233,15 @@ class IndomCache(pmdaIndom):
         # Note that set_dict_instances() saves the cache to disk.
         self.set_dict_instances(self.it_indom, self.__values)
 
+        # If we've got active values, we want to call
+        # set_dict_instances() on them. This will leave all the items
+        # in the cache, but mark the ones in the __active_values
+        # dictionary as "active". Everything else will be marked as
+        # "inactive".
+        if len(self.__active_values) > 0:
+            self.set_dict_instances(self.it_indom, self.__active_values)
+            self.__active_values.clear()
+
     def load(self):
         ''' Load indom cache values. '''
         if self.__pmda.debug:
@@ -229,7 +252,6 @@ class IndomCache(pmdaIndom):
             self.cache_load()
         except pmErr:
             return
-        self.cache_mark_active()
         for (inst, name) in self:
             self.add_value(name, inst)
 
@@ -492,6 +514,9 @@ class JsonSource(object):
                         # This indom value wasn't found in the indom
                         # cache. Add it.
                         self.__indom_cache.add_value(indom_value)
+                    # Mark both old values and new values that we've
+                    # seen in this fetch operation as active.
+                    self.__indom_cache.set_active(indom_value)
             except KeyError:
                 self.log("Error while refreshing indom for array %s"
                          % metric_info.name)
@@ -851,8 +876,10 @@ class JsonSource(object):
                 try:
                     index = self.__array_indexes[full_name]
                 except KeyError:
-                    self.log("array index for '%s' cannot be found" % full_name)
-                    return [c_api.PM_ERR_INDOM, 0]
+                    # This is not a real error!  Our saved indom cache
+                    # might list some ancient indom strings that don't
+                    # happen to be currently represented in the data.
+                    return [c_api.PM_ERR_INST, 0]
                 return [metric_info.pointer.resolve(metrics_array[index]), 1]
             except (KeyError, TypeError):
                 self.log("Error while fetching metrics for array %s"

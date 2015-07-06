@@ -51,10 +51,6 @@ fi
 
 _needclean=true
 
-# get standard filters
-. ./common.filter
-. ./common.check
-
 # _wait_for_pmcd_from_remote remote-host [max-wait]
 #
 _wait_for_pmcd_from_remote()

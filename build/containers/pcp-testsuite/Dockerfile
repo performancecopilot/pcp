@@ -16,15 +16,11 @@
 # and pcp-pmlogger containers.
 #
 FROM pcp-base:latest
-MAINTAINER PCP developers <pcp@pcp.io>
+MAINTAINER PCP Development Team <pcp@oss.sgi.com>
 
 #
 # install everything and dependencies, clean the cache.
-RUN yum --enablerepo=pcp-testing -y install pcp pcp-collector pcp-monitor pcp-testsuite && yum clean all
-
-#
-# Run in the container as root - avoids PCP_USER mismatches
-RUN sed -i -e 's/PCP_USER=.*$/PCP_USER=root/' -e 's/PCP_GROUP=.*$/PCP_GROUP=root/' /etc/pcp.conf
+RUN dnf --enablerepo=pcp-devel -y install pcp pcp-collector pcp-monitor pcp-testsuite && dnf clean all
 
 #
 # Disable service advertising - no avahi daemon in the container

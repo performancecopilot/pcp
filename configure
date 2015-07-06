@@ -619,7 +619,10 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='lib_for_curses
+ac_subst_vars='PACKAGE_CONFIGURE
+have_webjs
+have_vector
+lib_for_curses
 lib_for_readline
 pcp_mpi_dirs
 lib_for_atomic
@@ -691,7 +694,6 @@ fmt_pthread
 lib_for_pthreads
 fmt_pid
 rdynamic_flag
-PACKAGE_CONFIGURE
 enable_manager
 enable_webapi
 HAVE_CAIRO
@@ -719,8 +721,6 @@ ncurses_CFLAGS
 lib_for_regex
 grep
 pcp_syslog_prog
-pcp_ps_all_flags
-pcp_ps_have_bsd
 pcp_ps_prog
 echo_c
 echo_n
@@ -805,7 +805,7 @@ qmake
 enable_qt
 qt_release
 QMAKE
-pmda_json
+PMDA_JSON
 have_python_six
 have_python_jsonpointer
 pcp_python_prog
@@ -824,7 +824,6 @@ PACKAGE_BUILD
 PACKAGE_REVISION
 PACKAGE_MINOR
 PACKAGE_MAJOR
-pcp_platform_paths
 enable_systemd
 pcp_systemdunit_dir
 SYSTEMD_SYSTEMUNITDIR
@@ -852,6 +851,8 @@ CC
 PKG_CONFIG_LIBDIR
 PKG_CONFIG_PATH
 PKG_CONFIG
+pcp_ps_all_flags
+pcp_platform_paths
 target_os
 target_vendor
 target_cpu
@@ -923,8 +924,14 @@ with_books
 with_books_brand
 with_papi
 with_perfevent
+with_pmdajson
 with_manager
 with_webapi
+with_webjs
+with_vector
+with_make
+with_tar
+with_zip
 enable_ssp
 enable_pie
 enable_visibility
@@ -1624,8 +1631,17 @@ Optional Packages:
                           The optional argument may be a full path of a PAPI
                           installation prefix, or a pkgconfig module name.
   --with-perfevent        enable perfevent pmda (default is on)
+  --with-pmdajson         enable JSON pmda (default is on)
   --with-manager          enable daemon manager (default is on)
   --with-webapi           enable REST API daemon (default is on)
+  --with-webjs            enable building of webjs packages (default is off)
+  --with-vector           enable building of vector package (default is off)
+  --with-make             path to GNU compatible make(1) (default is empty for
+                          auto discovery)
+  --with-tar              path to GNU compatible tar(1) (default is empty for
+                          auto discovery)
+  --with-zip              path to GNU compatible zip(1) (default is empty for
+                          auto discovery)
   --with-configdir        configuration directory [LOCALSTATEDIR/pcp/config]
   --with-perl_installdirs perl installdirs [vendor]
   --with-perl_install_base
@@ -2705,6 +2721,15 @@ fi
 
 
 
+# Check whether --with-pmdajson was given.
+if test "${with_pmdajson+set}" = set; then :
+  withval=$with_pmdajson; do_pmdajson=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdajson=$withval"
+else
+  do_pmdajson=check
+fi
+
+
+
 # Check whether --with-manager was given.
 if test "${with_manager+set}" = set; then :
   withval=$with_manager; do_manager=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-manager=$withval"
@@ -2719,6 +2744,52 @@ if test "${with_webapi+set}" = set; then :
   withval=$with_webapi; do_webapi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webapi=$withval"
 else
   do_webapi=check
+fi
+
+
+
+# Check whether --with-webjs was given.
+if test "${with_webjs+set}" = set; then :
+  withval=$with_webjs; do_webjs=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webjs=$withval"
+else
+  do_webjs=no
+fi
+
+
+
+# Check whether --with-vector was given.
+if test "${with_vector+set}" = set; then :
+  withval=$with_vector; do_vector=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-vector=$withval"
+else
+  do_vector=no
+fi
+
+
+
+
+# Check whether --with-make was given.
+if test "${with_make+set}" = set; then :
+  withval=$with_make; MAKE=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-make=$withval"
+else
+  MAKE=''
+fi
+
+
+
+# Check whether --with-tar was given.
+if test "${with_tar+set}" = set; then :
+  withval=$with_tar; TAR=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-tar=$withval"
+else
+  TAR=''
+fi
+
+
+
+# Check whether --with-zip was given.
+if test "${with_zip+set}" = set; then :
+  withval=$with_zip; ZIP=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-zip=$withval"
+else
+  ZIP=''
 fi
 
 
@@ -2873,7 +2944,7 @@ if test -z "$target"
 then
     echo '
 FATAL ERROR: Cannot guess your target, try explicit specification
-             using --target or ask pcp@mail.performancecopilot.org'
+             using --target or mailto: pcp@oss.sgi.com to ask.'
     rm -rf conftest conftest.*
     exit 1
 else
@@ -2903,6 +2974,7 @@ FATAL ERROR: Cannot perform cross-compilation without a file to source
     fi
 fi
 
+
 target_distro=$target_os
 if test $target_os = linux
 then
@@ -2917,6 +2989,8 @@ $as_echo "#define IS_LINUX 1" >>confdefs.h
     test -f /etc/gentoo-release && target_distro=gentoo
     test -f /etc/mandriva-release && target_distro=mandriva
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
+    pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
+    pcp_ps_all_flags=-efw
 elif test $target_os = darwin
 then
 
@@ -2931,26 +3005,33 @@ $as_echo "#define IS_DARWIN 1" >>confdefs.h
 	CFLAGS="$CFLAGS -arch x86_64"
     fi
     export CFLAGS
+    pcp_platform_paths='/usr/local/bin'
+    pcp_ps_all_flags=auxww
 elif test $target_os = mingw
 then
 
 $as_echo "#define IS_MINGW 1" >>confdefs.h
 
     CFLAGS="-fno-strict-aliasing"
+    pcp_platform_paths=''
+    pcp_ps_all_flags=-efW
 elif test $target_os = solaris
 then
 
 $as_echo "#define IS_SOLARIS 1" >>confdefs.h
 
-    export PATH="$PATH:/opt/SunStudioExpress/bin"
     export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing"
     export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any"
+    pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/usr/sfw/bin'
+    pcp_ps_all_flags=-ef
 elif test $target_os = aix
 then
 
 $as_echo "#define IS_AIX 1" >>confdefs.h
 
     export CFLAGS="-qcpluscmt"
+    pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
+    pcp_ps_all_flags=-ef
 elif test $target_os = freebsd || test $target_os = kfreebsd
 then
 
@@ -2958,6 +3039,14 @@ $as_echo "#define IS_FREEBSD 1" >>confdefs.h
 
     test -f /etc/debian_version && target_distro=debian
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
+    if $target_os = kfreebsd
+    then
+	pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
+	pcp_ps_all_flags=-efw
+    else
+	pcp_platform_paths='/usr/bin/X11:/usr/bsd'
+	pcp_ps_all_flags=auxww
+    fi
 elif test $target_os = gnu
 then
 
@@ -2965,6 +3054,8 @@ $as_echo "#define IS_GNU 1" >>confdefs.h
 
     test -f /etc/debian_version && target_distro=debian
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
+    pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
+    pcp_ps_all_flags=-efw
 elif test $target_os = netbsdelf
 then
     target_os=netbsd
@@ -2972,12 +3063,16 @@ then
 $as_echo "#define IS_NETBSD 1" >>confdefs.h
 
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE -D_NETBSD_SOURCE"
+    pcp_platform_paths='/usr/pkg/bin'
+    pcp_ps_all_flags=auxww
 else
     echo
     echo "FATAL ERROR: need platform-specific customization for \"$target_os\""
     rm -rf conftest conftest.*
     exit 1
 fi
+
+
 
 
 
@@ -3107,12 +3202,6 @@ then
     echo "in the environment, or install the pkgconfig package."
     rm -rf conftest conftest.*
     exit 1
-fi
-
-# Add some security-related gcc flags
-# Check whether --enable-ssp was given.
-if test "${enable_ssp+set}" = set; then :
-  enableval=$enable_ssp;
 fi
 
 ac_ext=c
@@ -3905,7 +3994,22 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-if test "x$enable_ssp" != xno; then :
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+int foo;
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+# Add some security-related gcc flags
+# Check whether --enable-ssp was given.
+if test "${enable_ssp+set}" = set; then :
+  enableval=$enable_ssp;
+fi
+
+if test "x$GCC" = xyes -a "x$enable_ssp" != xno; then :
 
    save_CFLAGS="$CFLAGS"
    CFLAGS="$CFLAGS -fstack-protector-all -D_FORTIFY_SOURCE=2"
@@ -3933,7 +4037,7 @@ if test "${enable_pie+set}" = set; then :
   enableval=$enable_pie;
 fi
 
-if test "x$enable_pie" != xno; then :
+if test "x$GCC" = xyes -a "x$enable_pie" != xno; then :
 
    PIECFLAGS='-fPIE'
    PIELDFLAGS='-pie -Wl,-z,relro -Wl,-z,now'
@@ -3973,7 +4077,7 @@ if test "${enable_visibility+set}" = set; then :
   enableval=$enable_visibility;
 fi
 
-if test "x$enable_visibility" != xno; then :
+if test "x$GCC" = xyes -a "x$enable_visibility" != xno; then :
 
    INVISIBILITY="-fvisibility=hidden"
    save_CFLAGS="$CFLAGS"
@@ -4736,21 +4840,6 @@ fi
     fi
 
 fi
-
-
-# setup additional platform-specific binary search PATH components
-pcp_platform_paths=""
-case $target_os
-in
-    aix)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin';;
-    linux|kfreebsd)
-		pcp_platform_paths='/usr/bin/X11:/usr/local/bin';;
-    mingw)	pcp_platform_paths='';;
-    darwin)	pcp_platform_paths='/usr/local/bin';;
-    solaris)	pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/usr/sfw/bin';;
-    freebsd)	pcp_platform_paths='/usr/bin/X11:/usr/bsd';;
-    netbsd)	pcp_platform_paths='/usr/pkg/bin';;
-esac
 
 
 # NB: No AC_PREFIX_DEFAULT is needed, as the default configure invocation
@@ -6354,7 +6443,16 @@ $as_echo "no" >&6; }
 
 
 pmda_json=false
-$have_python_jsonpointer && $have_python_six && pmda_json=true
+if test "x$do_pmdajson" = "xyes"; then :
+  pmda_json=true
+fi
+if test "x$do_pmdajson" = "xcheck"; then :
+
+            $have_python_jsonpointer && $have_python_six && pmda_json=true
+    test $have_python -a "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -le 6 && pmda_json=false
+
+fi
+PMDA_JSON=$pmda_json
 
 
 qmake=$QMAKE
@@ -6412,6 +6510,7 @@ fi
   test -n "$QMAKE" && break
 done
 
+	test "x$GCC" = xyes -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
     fi
     qmake=$QMAKE
     if test -z "$QMAKE"
@@ -8954,81 +9053,6 @@ else
 fi
 
 
-if test "$cross_compiling" != "yes"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for ps style" >&5
-$as_echo_n "checking for ps style... " >&6; }
-    pcp_ps_all_flags=''
-    if $pcp_ps_prog -ef >conftest.out 2>/dev/null
-    then
-	ans=`$awk <conftest.out '
-NR == 1			{ if ($1 != "UID" && $1 != "USER") exit
-			  if ($2 != "PID") exit
-			}
-# Unix variants
-$2 == 1 && / init/	{ print "OK"; exit }
-$2 == 1 && / \/etc\/init/ { print "OK"; exit }
-# Open Build Service
-$2 == 1 && / \/bin\/bash/ { print "OK"; exit }
-# similarly for a simple Docker container, e.g.
-# https://github.com/performancecopilot/pcp/issues/23
-$2 == 1 && / \/bin\/sh/ { print "OK"; exit }
-# Fedora 9
-$2 == 1 && / \/sbin\/init/ { print "OK"; exit }
-# Fedora 15
-$2 == 1 && / \/bin\/systemd/ { print "OK"; exit }
-# Fedora 17
-$2 == 1 && / \/usr\/lib\/systemd\/systemd/ { print "OK"; exit }
-# Debian sid
-$2 == 1 && / \/lib\/systemd\/systemd/ { print "OK"; exit }'`
-	if test "$ans" = OK
-	then
-	    pcp_ps_have_bsd=false
-	    pcp_ps_all_flags=-ef
-	    { $as_echo "$as_me:${as_lineno-$LINENO}: result: SysV" >&5
-$as_echo "SysV" >&6; }
-	fi
-    fi
-
-    if test -z "$pcp_ps_all_flags" && $pcp_ps_prog auxww >conftest.out 2>/dev/null
-    then
-	ans=`$awk <conftest.out '
-NR == 1			{ if ($1 != "UID" && $1 != "USER") exit
-			  if ($2 != "PID") exit
-			}
-$2 == 1 && / init/	{ print "OK"; exit }
-$2 == 1 && / \/sbin\/init/ { print "OK"; exit }
-$2 == 1 && / \/sbin\/launchd/ { print "OK"; exit }
-$2 == 1 && / \/init/	{ print "OK"; exit }'`
-	if test "$ans" = OK
-	then
-	    pcp_ps_have_bsd=true
-	    pcp_ps_all_flags=auxww
-	    { $as_echo "$as_me:${as_lineno-$LINENO}: result: BSD" >&5
-$as_echo "BSD" >&6; }
-	fi
-    fi
-
-        if $pcp_ps_prog ${pcp_ps_all_flags}w >/dev/null 2>&1
-    then
-	if test $target_os != solaris
-	then
-	    pcp_ps_all_flags=${pcp_ps_all_flags}w
-	fi
-    fi
-fi
-
-if test -z "$pcp_ps_all_flags"
-then
-        { $as_echo "$as_me:${as_lineno-$LINENO}: result: unknown" >&5
-$as_echo "unknown" >&6; }
-    echo "FATAL ERROR: could not determine how to get the \"all processes with arguments\""
-    echo "format output from your ps(1)."
-    rm -rf conftest conftest.*
-    exit 1
-fi
-
-
-
 if test $target_os = mingw
 then
     pcp_syslog_prog=pcp-eventlog
@@ -10787,8 +10811,6 @@ if test "x$do_manager" != "xno"; then :
 fi
 
 
-
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking return type of signal handlers" >&5
 $as_echo_n "checking return type of signal handlers... " >&6; }
 if ${ac_cv_type_signal+:} false; then :
@@ -11547,7 +11569,7 @@ main ()
   return 0;
 }
 _ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
+if ac_fn_c_try_link "$LINENO"; then :
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
      rdynamic_flag=-rdynamic
@@ -11557,7 +11579,8 @@ $as_echo "no" >&6; }
      rdynamic_flag=
 
 fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
 CFLAGS="$save_CFLAGS"
 
 
@@ -14759,6 +14782,25 @@ else
 $as_echo "no" >&6; }
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+
+have_vector=false
+if test -f ./build/tar/vector.tar.gz
+then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: adding Vector webapp to the build" >&5
+$as_echo "$as_me: adding Vector webapp to the build" >&6;}
+    have_vector=true
+fi
+
+
+have_webjs=false
+if test -f ./build/tar/webjs.tar.gz
+then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: adding webjs webapps to the build" >&5
+$as_echo "$as_me: adding webjs webapps to the build" >&6;}
+    have_webjs=true
+fi
+
 
 
 

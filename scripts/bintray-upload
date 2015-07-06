@@ -1,0 +1,155 @@
+#!/bin/sh
+# 
+# Automate package uploading to bintray.com.
+#
+# Run in the top-level of a tree, ensuring .bintrayrc is available with
+# valid user setting (username, email, apikey, distro, gpgphrase).
+
+sudo=`which sudo`	# can be cleared via .bintrayrc
+topdir=`pwd`
+
+quit()
+{
+    echo $*
+    exit 1
+}
+
+[ -e "${topdir}/VERSION.pcp" ] || quit "Not a PCP git tree, missing VERSION.pcp"
+[ -e "${topdir}/.bintrayrc" ] || quit "Tree is unconfigured, missing .bintrayrc"
+
+. ${topdir}/.bintrayrc
+. ${topdir}/VERSION.pcp
+
+version=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
+buildversion=${version}-${PACKAGE_BUILD}
+
+[ -z "${user}" ] && quit "user is not configured (via .bintrayrc)"
+[ -z "${email}" ] && quit "email is not configured (via .bintrayrc)"
+[ -z "${apikey}" ] && quit "apikey is not configured (via .bintrayrc)"
+[ -z "${gpgpass}" ] && quit "passphrase is not configured (via .bintrayrc)"
+
+pkg_upload()
+{
+    distro="$1"; file="$2"; vers="$3"
+
+    url="https://api.bintray.com/content/pcp/${distro}/${file}"
+    echo "Uploading ${file} to:" && echo "    ${url}"
+    curl \
+	-T ${file} -u ${user}:${apikey} \
+	-H "X-GPG-PASSPHRASE: ${gpgpass}" \
+	"${url};bt_package=pcp;bt_version=${vers};publish=1"
+    echo
+}
+
+deb_upload()
+{
+    distro="$1"; file="$2"; vers="$3"; arch="$4"
+
+    deb="deb_distribution=${distro};deb_component=main;deb_architecture=${arch}"
+    url="https://api.bintray.com/content/pcp/${distro}/${file}"
+    echo "Uploading ${file} to:" && echo "    ${url}"
+    curl \
+	-T ${file} -u ${user}:${apikey} \
+	-H "X-GPG-PASSPHRASE: ${gpgpass}" \
+	"${url};${deb};bt_package=pcp;bt_version=${vers};publish=1"
+    echo
+}
+
+sign_repository()
+{
+    repo="$1"
+    url="https://api.bintray.com/calc_metadata/pcp/${repo}"
+    echo "Signing repository ${repo} via:" && echo "    ${url}"
+    curl -X POST -H "X-GPG-PASSPHRASE: ${gpgpass}" -u ${user}:${apikey} "${url}"
+}
+
+container_upload()
+{
+    path="$1"; file="$2"; vers="$3"
+
+    docker login -u ${user} -p ${apikey} -e ${email} pcp-docker-pcp.bintray.io
+    $sudo docker tag ${path} \
+	pcp-docker-pcp.bintray.io/${path}:${vers}
+    docker push pcp-docker-pcp.bintray.io/${path}:${vers}
+}
+
+verify_asset()
+{
+    file="$1"
+    prev="$2"
+
+    test -f "${file}" || return 1
+    # batch mode - if we said yes already, say yes again
+    test "X${prev}" = "Xyes" && return 0
+    echo -n "Found ${file}, upload? (y/N) "
+    read yesno
+    test "X${yesno}" = "Xy" -o "X${yesno}" = "XY" && return 0
+    return 1
+}
+
+# Source
+cd ${topdir}/build/tar 2>/dev/null && \
+verify_asset pcp-${version}.src.tar.gz && \
+pkg_upload source pcp-${version}.src.tar.gz ${version}
+
+# Mac OS X
+cd ${topdir}/build/mac 2>/dev/null && \
+verify_asset pcp-${buildversion}.dmg && \
+pkg_upload macosx pcp-${buildversion}.dmg ${version}
+
+# Windows
+cd ${topdir}/build/win 2>/dev/null && \
+verify_asset pcp-${buildversion}.msi && \
+pkg_upload windows pcp-${buildversion}.msi ${version}
+
+# Solaris
+cd ${topdir}/build/sun 2>/dev/null && \
+verify_asset pcp-${version} && \
+pkg_upload solaris pcp-${version} ${version}
+
+# Docker images
+if cd ${topdir}/pcp-${version}/build/containers 2>/dev/null
+then
+    previous=no
+    for image in *
+    do
+	[ -d ${image} ] || continue
+	cd ${topdir}/pcp-${version}/build/containers/${image}
+	verify_asset ${image}.tgz ${previous} && \
+	previous=yes && \
+	container_upload ${image} ${image}.tgz ${version}
+    done
+fi
+
+# RPM packages 
+if cd ${topdir}/pcp-${version}/build/rpm 2>/dev/null
+then
+    # $distro is something like "el7"
+    [ -z "${distro}" ] && quit "distro is not configured (via .bintrayrc)"
+    previous=no
+    srcrpm=`echo *.src.rpm`
+    for rpm in *.rpm
+    do
+	[ "${rpm}" = "${srcrpm}" ] && continue
+	verify_asset ${rpm} ${previous} && \
+	previous=yes && \
+	pkg_upload ${distro} ${rpm} ${version}
+    done
+    [ $previous = yes ] && sign_repository ${distro}
+fi
+
+# DEB packages 
+if cd ${topdir}/build/deb 2>/dev/null
+then
+    # $distro is something like "wheezy", $arch is like "amd64" or "i386"
+    [ -z "${distro}" ] && quit "distro is not configured (via .bintrayrc)"
+    [ -z "${arch}" ] && quit "arch is not configured (via .bintrayrc)"
+    previous=no
+    for deb in *.deb *.tar.gz
+    do
+	verify_asset ${deb} ${previous} && \
+	previous=yes && \
+	deb_upload ${distro} ${deb} ${version} ${arch}
+    done
+    [ $previous = yes ] && sign_repository ${distro}
+fi

@@ -40,8 +40,6 @@ typedef struct {
 #define PROC_DEV_COUNTERS_PER_LINE   16
 
 typedef struct {
-    uint64_t	last_gen;
-    uint64_t	last_counters[PROC_DEV_COUNTERS_PER_LINE];
     uint64_t	counters[PROC_DEV_COUNTERS_PER_LINE];
     net_dev_t	ioc;
 } net_interface_t;
@@ -98,4 +96,7 @@ struct ethtool_cmd {
 struct linux_container;
 extern int refresh_proc_net_dev(pmInDom, struct linux_container *);
 extern int refresh_net_dev_addr(pmInDom, struct linux_container *);
+extern int refresh_net_ioctl(pmInDom, struct linux_container *, int *);
+extern int refresh_net_sysfs(pmInDom, int *);
+
 extern char *lookup_ipv6_scope(int);
