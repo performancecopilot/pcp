@@ -224,7 +224,7 @@ code fragment could be used.
 .in +0.5i
 struct timeval mytime;
 
-mytime.tv_sec = 0x7fffffff;
+mytime.tv_sec = 0x7fffffff; /* or use pmGetArchiveEnd(&mtime) */
 pmSetMode(PM_MODE_BACK, &mytime, 0);
 pmFetchArchive(&result);
 mytime = result->timestamp;
