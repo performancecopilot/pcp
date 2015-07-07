@@ -1,0 +1,41 @@
+QA output created by 778
+Waiting for pmcd to terminate ...
+
+=== postgresql agent installation ===
+You will need to choose an appropriate configuration for installation of
+the "postgresql" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Starting pmcd ... 
+Starting pmlogger ... 
+Check postgresql metrics have appeared ... X metrics and Y values
+
+=== check values with pmie ===
+DATE: postgresql.active.xlog_current_location_offset: OK
+DATE: postgresql.stat.activity.datid: OK
+DATE: postgresql.stat.all_indexes.idx_tup_read: OK
+DATE: postgresql.stat.all_tables.idx_tup_fetch: OK
+DATE: postgresql.stat.database.tup_returned: OK
+DATE: postgresql.stat.sys_indexes.idx_scan: OK
+DATE: postgresql.stat.sys_tables.idx_tup_fetch: OK
+DATE: postgresql.stat.xact.all_tables.seq_scan: OK
+DATE: postgresql.stat.xact.sys_tables.idx_scan: OK
+DATE: postgresql.statio.sys_indexes.idx_blks_hit: OK
+DATE: postgresql.statio.sys_tables.idx_blks_read: OK
+
+=== remove postgresql agent ===
+Culling the Performance Metrics Name Space ...
+postgresql ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check postgresql metrics have gone away ... OK
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
