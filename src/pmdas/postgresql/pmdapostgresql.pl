@@ -18,10 +18,16 @@ use PCP::PMDA;
 use DBI;
 
 my $database = 'dbi:Pg:dbname=postgres';
-my $username = 'postgres';
-my $password = '';	# DBI parameter, typically unused for postgres
+my $username = 'postgres';	# DB username for DB login
+my $password = '';		# DBI parameter, typically unused for postgres
+my $os_user = '';		# O/S user to run the PMDA (defaults to $username)
 
 # Configuration files for overriding the above settings
+# Note: each .conf file may override a setting from a previous .conf
+#       file ... so the order of evaluation is important to determine
+#       who "wins", namely app defaults, then system defaults, then
+#       PMDA defaults, then current directory
+#
 for my $file (	'/etc/pcpdbi.conf',	# system defaults (lowest priority)
 		pmda_config('PCP_PMDAS_DIR') . '/postgresql/postgresql.conf',
 		'./postgresql.conf' ) {	# current directory (high priority)
@@ -249,6 +255,7 @@ sub postgresql_version_query
 sub postgresql_connection_setup
 {
     if (!defined($dbh)) {
+	$pmda->log("connect to DB $database as user $username");
 	$dbh = DBI->connect($database, $username, $password,
 			    {AutoCommit => 1, pg_bool_tf => 0});
 	if (defined($dbh)) {
@@ -1463,5 +1470,11 @@ postgresql_indoms_setup();
 $pmda->set_fetch_callback(\&postgresql_fetch_callback);
 $pmda->set_fetch(\&postgresql_connection_setup);
 $pmda->set_refresh(\&postgresql_refresh);
-$pmda->set_user('postgres');
+if ($os_user eq '') {
+    # default is to use $username, but could have been changed by
+    # one of the configuration files
+    $os_user = $username;
+}
+$pmda->log("Change to UID of user \"$os_user\"");
+$pmda->set_user($os_user);
 $pmda->run;

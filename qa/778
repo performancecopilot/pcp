@@ -1,0 +1,166 @@
+#!/bin/sh
+# PCP QA Test No. 778
+# Install/Remove postgresql PMDA and check some basic metrics
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+echo '\q' | $sudo -u postgres psql >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "Cannot run psql as the postgres user, postgresql not installed or running?"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+pmdapostgresql_remove()
+{
+    echo | tee -a $here/$seq.full
+    echo "=== remove postgresql agent ===" | tee -a $here/$seq.full
+    $sudo ./Remove >$tmp.out 2>&1
+    cat $tmp.out >>$here/$seq.full
+    _filter_pmda_remove <$tmp.out
+}
+
+pmdapostgresql_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/postgresql
+    $sudo ./Remove >/dev/null 2>&1
+    $sudo $PCP_RC_DIR/pmcd stop 2>&1 | _filter_pcp_stop
+
+    echo | tee -a $here/$seq.full
+    echo "=== postgresql agent installation ===" | tee -a $here/$seq.full
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    cat $tmp.out >>$here/$seq.full
+    # filter lines like ...
+    # Check postgresql metrics have appeared ... 4 warnings, 208 metrics and 6839 values
+    # into
+    # Check postgresql metrics have appeared ... X metrics and Y values
+    _filter_pmda_install <$tmp.out \
+    | sed \
+        -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+        -e 's/[0-9][0-9]* warnings, //' \
+    | $PCP_AWK_PROG '
+/Check postgresql metrics have appeared/   { if ($7 >= 200) $7 = "X"
+                                          if ($10 >= 6500) $10 = "Y"
+                                        }
+                                        { print }'
+}
+
+_prepare_pmda postgresql
+trap "_cleanup_pmda postgresql; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pmdapostgresql_install
+
+echo
+echo "=== check values with pmie ==="
+cat <<End-of-File | pmie -t 2sec -T 5sec 2>$tmp.err >$tmp.out
+// metrics chosen almost at random .. sort of 1 per cluster and
+// metrics where at least one instance is expected to have a
+// value > 0
+//
+
+ruleset
+    postgresql.active.xlog_current_location_offset > 0
+    -> print "postgresql.active.xlog_current_location_offset: OK"
+else
+    postgresql.active.xlog_current_location_offset <= 0
+    -> print "postgresql.active.xlog_current_location_offset: BAD" " %v"
+;
+
+ruleset
+    sum_inst instant(postgresql.statio.sys_tables.idx_blks_read) > 0
+    -> print "postgresql.statio.sys_tables.idx_blks_read: OK"
+otherwise
+    -> print "postgresql.statio.sys_tables.idx_blks_read: BAD" & shell "pminfo -f postgresql.statio.sys_tables.idx_blks_read >>$tmp.bad"
+;
+
+ruleset
+    sum_inst instant(postgresql.statio.sys_indexes.idx_blks_hit) > 0
+    -> print "postgresql.statio.sys_indexes.idx_blks_hit: OK"
+otherwise
+    -> print "postgresql.statio.sys_indexes.idx_blks_hit: BAD" & shell "pminfo -f postgresql.statio.sys_indexes.idx_blks_hit >>$tmp.bad"
+;
+
+ruleset
+    postgresql.stat.activity.datid > 0
+    -> print "postgresql.stat.activity.datid: OK"
+else
+    postgresql.stat.activity.datid <= 0
+    -> print "postgresql.stat.activity.datid: BAD" " %v"
+;
+
+ruleset
+    sum_inst instant(postgresql.stat.sys_indexes.idx_scan) > 0
+    -> print "postgresql.stat.sys_indexes.idx_scan: OK"
+otherwise
+    -> print "postgresql.stat.sys_indexes.idx_scan: BAD" & shell "pminfo -f postgresql.stat.sys_indexes.idx_scan >>$tmp.bad"
+;
+
+ruleset
+    sum_inst instant(postgresql.stat.database.tup_returned) > 0
+    -> print "postgresql.stat.database.tup_returned: OK"
+otherwise
+    -> print "postgresql.stat.database.tup_returned: BAD" & shell "pminfo -f postgresql.stat.database.tup_returned >>$tmp.bad"
+;
+
+ruleset
+    sum_inst instant(postgresql.stat.sys_tables.idx_tup_fetch) > 0
+    -> print "postgresql.stat.sys_tables.idx_tup_fetch: OK"
+otherwise
+    -> print "postgresql.stat.sys_tables.idx_tup_fetch: BAD" & shell "pminfo -f postgresql.stat.sys_tables.idx_tup_fetch >>$tmp.bad"
+;
+
+ruleset
+    sum_inst instant(postgresql.stat.xact.all_tables.seq_scan) > 0
+    -> print "postgresql.stat.xact.all_tables.seq_scan: OK"
+otherwise
+    -> print "postgresql.stat.xact.all_tables.seq_scan: BAD" & shell "pminfo -f postgresql.stat.xact.all_tables.seq_scan >>$tmp.bad"
+;
+
+ruleset
+    sum_inst instant(postgresql.stat.xact.sys_tables.idx_scan) > 0
+    -> print "postgresql.stat.xact.sys_tables.idx_scan: OK"
+otherwise
+    -> print "postgresql.stat.xact.sys_tables.idx_scan: BAD" & shell "pminfo -f postgresql.stat.xact.sys_tables.idx_scan >>$tmp.bad"
+;
+
+ruleset
+    sum_inst instant(postgresql.stat.all_tables.idx_tup_fetch) > 0
+    -> print "postgresql.stat.all_tables.idx_tup_fetch: OK"
+otherwise
+    -> print "postgresql.stat.all_tables.idx_tup_fetch: BAD" & shell "pminfo -f postgresql.stat.all_tables.idx_tup_fetch >>$tmp.bad"
+;
+
+ruleset
+    sum_inst instant(postgresql.stat.all_indexes.idx_tup_read) > 0
+    -> print "postgresql.stat.all_indexes.idx_tup_read: OK"
+otherwise
+    -> print "postgresql.stat.all_indexes.idx_tup_read: BAD" & shell "pminfo -f postgresql.stat.all_indexes.idx_tup_read >>$tmp.bad"
+;
+
+End-of-File
+
+cat $tmp.out >>$here/$seq.full
+cat $tmp.err >>$here/$seq.full
+_filter_pmie_log <$tmp.out \
+| LC_COLLATE=POSIX sort \
+| uniq
+[ -f $tmp.bad ] && cat $tmp.bad
+
+echo "PMDA log file ..." >>$here/$seq.full
+$sudo cat $PCP_LOG_DIR/pmcd/postgresql.log >>$here/$seq.full
+
+pmdapostgresql_remove
+
+status=0
+exit
