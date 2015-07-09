@@ -66,8 +66,9 @@ our $host = hostname;
 # Array ref for all jobs
 our $all_jobs_ref;
 
+# Don't need to share these.  Only used in the slurm thread
+my $jobs_update_time = 0;
 sub slurm_init {
-   # Don't need to share this.  Only used in the slurm thread
    $slurm = Slurm::new();
 }
 
@@ -97,19 +98,23 @@ sub slurm_update_cluster_gen {
 
 sub slurm_update_jobs {
 
-    # TODO: use the time so we only update on changes
+    # Use the time so we only update on changes
     #
     # This could take a while
-    # Returns a hash ref where the only element we care about is the job_array array
-    my $jobmsg = $slurm->load_jobs(0, 0);
+    # Returns a hash ref where the main element we care about is the job_array array
+    my $jobmsg = $slurm->load_jobs($jobs_update_time, 0);
 
     unless($jobmsg) {
         # This can fail if the slurm controller has not come up yet
-        # No good way to figure out if this is just a delay or fatal error
-        # So just log it and try again later
-        warn "Failed to load job info: " . $slurm->strerror();
+        # Or if there is no state change from the previous try.
+        # If there is no state change, the main thread will just use existing data.
+        # No good way to figure this out
+        # So just try again later
         return;
     }
+
+    # Grab the update time to use for the next query
+    $jobs_update_time = $jobmsg->{last_update};
 
     # The array holds hash refs that map to: job_info_t from slurm.h
     $all_jobs_ref = \@{ $jobmsg->{job_array} };
@@ -155,6 +160,7 @@ sub slurm_update_cluster_node_job {
         
             if ( !(defined $nodelist and length $nodelist) ){
                 # We only care about jobs that are running
+                # The api seems to return completed jobs for some undetermined time after they have ended
                 next;
             }
         
