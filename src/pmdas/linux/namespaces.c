@@ -185,7 +185,20 @@ container_nsleave(linux_container_t *cp, int nsflags)
     return set_namespace_fds(nsflags, self_fdset);
 }
 
-#else
+#else /* !HAVE_SETNS */
+
+/*
+ * without setns(2), these all do nothing (successfully)
+ */
+
+int
+container_lookup(int fd, linux_container_t *cp)
+{
+    (void)fd;
+    (void)cp;
+    return 0;
+}
+
 int
 container_nsenter(linux_container_t *cp, int nsflags, int *openfds)
 {
@@ -210,7 +223,7 @@ close_namespace_fds(int nsflags, int *fdset)
     (void)fdset;
     return 0;
 }
-#endif
+#endif /* !HAVE_SETNS */
 
 int
 container_open_network(linux_container_t *cp)
@@ -233,7 +246,10 @@ container_close(linux_container_t *cp, int openfds)
 {
     if (!cp)
 	return 0;
+#ifdef HAVE_SETNS
+    /* if HAVE_SETNS isn't defined, this is a noop */
     close_namespace_fds(openfds, root_fdset);
+#endif
     container_close_network(cp);
     return 0;
 }
