@@ -264,6 +264,10 @@ rpm?	/usr/share/doc/python-requests*|/usr/share/doc/packages/python-requests	[py
 dpkg?	/usr/share/doc/python-requests|/usr/share/doc/packages/python-requests	[python-requests (QA optional)]
 rpm?	/usr/bin/logconv.pl	[389-ds-base (QA optional)]
 rpm?	/usr/lib/sasl2/libplain.so	[cyrus-sasl-plain (QA optional)]
+dpkg?	DBI::			[libclass-dbi-perl (postgresql QA optional)]
+rpm?	DBI::			[perl-DBI (postgresql QA optional)]
+dpkg?	DBD::Pg			[libdbd-pg-perl (postgresql QA optional)]
+rpm?	DBD::Pg			[perl-DBD-Pg (postgresql QA optional)]
 # pcp-gui
 dpkg?	qmake			[qt4-qmake (build optional)]
 rpm?	qmake|/usr/lib64/qt4/bin/qmake|/usr/lib/qt4/bin/qmake		[qt4-devel (build optional)]
