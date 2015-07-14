@@ -24,6 +24,9 @@
 .br
 \f3pmdbg\f1
 \f3\-l\f1
+.br
+\f3pmdbg\f1
+\f3\-D\f1 \f2name\f1[,\f2name\f1 ...]
 .SH DESCRIPTION
 The components of the Performance Co-Pilot (PCP) use
 a global vector of bit-fields
@@ -34,6 +37,19 @@ with a
 .B \-l
 argument prints out the mnemonic and decimal values of all
 the bit-fields in the debug control vector.
+.PP
+.B pmdbg
+with a
+.B \-D
+argument parses the list of
+\fInames\fP(s) using
+.BR __pmParseDebug (3)
+and reports the corresponding decimal value.  This is most useful
+when debugging and wanting to set the internal value of the
+control vector (\c
+.BR pmDebug )
+via a debugger, e.g.
+.BR gdb (1).
 .PP
 In the alternative usage, the
 .I code
