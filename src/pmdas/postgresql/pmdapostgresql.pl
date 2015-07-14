@@ -1,4 +1,4 @@
-#
+
 # Copyright (c) 2011 Nathan Scott.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -21,6 +21,8 @@ my $database = 'dbi:Pg:dbname=postgres';
 my $username = 'postgres';	# DB username for DB login
 my $password = '';		# DBI parameter, typically unused for postgres
 my $os_user = '';		# O/S user to run the PMDA (defaults to $username)
+my $version;			# DB version
+my $max_version = '9.4';	# Highest DB version PMDA has been tested with
 
 # Configuration files for overriding the above settings
 # Note: each .conf file may override a setting from a previous .conf
@@ -107,12 +109,12 @@ my %tables_by_cluster = (
 	name	=> 'pg_stat_xact_user_functions',
 	setup	=> \&setup_xact_user_functions,
 	indom	=> $function_indom,
-	refresh => \&refresh_user_functions }, # identical refresh routine
+	refresh => \&refresh_xact_user_functions },
     '5'	 => {
 	name	=> 'pg_stat_database_conflicts',
 	setup	=> \&setup_database_conflicts,
 	indom	=> $database_indom,
-	refresh => \&refresh_database }, # identical refresh routine
+	refresh => \&refresh_database_conflicts },
     '6'	 => {
 	name	=> 'pg_stat_replication',
 	setup	=> \&setup_replication,
@@ -260,7 +262,14 @@ sub postgresql_connection_setup
 			    {AutoCommit => 1, pg_bool_tf => 0});
 	if (defined($dbh)) {
 	    $pmda->log("PostgreSQL connection established");
-	    my $version = postgresql_version_query();
+	    my $raw_version = postgresql_version_query();
+	    $version = $raw_version;
+	    # extract NN.NN version number, potentially from a much
+	    # longer string, e.g. pick 9.4 from:
+	    #     EnterpriseDB 9.4.1.4 on x86_64-unknown-linux-gnu ...
+	    #
+	    $version =~ s/^[^0-9]*([0-9][0-9]*\.[0-9][0-9]*)\..*/$1/;
+	    $pmda->log("Version: $version [from DB $raw_version]");
 
 	    foreach my $key (keys %tables_by_name) {
 		my $minversion = $tables_by_name{$key}{version};
@@ -347,7 +356,7 @@ sub postgresql_fetch_callback
     $key =~ s/\.[a-zA-Z0-9_]*$//;
     $key =~ s/\./_/g;
 
-    # $pmda->log("fetch_cb $metric_name $cluster:$item ($inst) - $key");
+    #debug# $pmda->log("fetch_cb $metric_name $cluster:$item ($inst) - $key");
 
     $valueref = $tables_by_name{$key}{values}{"$inst"};
     if (!defined($valueref)) {
@@ -384,6 +393,107 @@ sub refresh_results
     return undef;
 }
 
+my %warn_version;
+my %warn_ncol;
+
+# handle fields one at a time, cherry picking to accommodate column
+# re-ordering in the columns of the performance views across
+# Postgresql releases
+# Call as ...
+#     cherrypick(tablename, ref_to_ctl, ref_to_vlist)
+#
+sub cherrypick {
+    my $table = shift;
+    my $ctlp = shift;
+    my $vlistp = shift;
+    my @vlist = @{$vlistp};
+    my %ctl = %{$ctlp};
+    my $map;
+    my $ncol;
+    my @ret = ();
+
+    if (defined($ctl{$version})) {
+	$map = $ctl{$version}{map};
+	$ncol = $ctl{$version}{ncol};
+    } else {
+	if (!defined($warn_version{$table})) {
+	    $pmda->log("$table: no map for version $version, assuming $max_version");
+	    $warn_version{$table} = 'y';
+	}
+	$map = $ctl{$max_version}{map};
+	$ncol = $ctl{$max_version}{ncol};
+    }
+
+    if ($#vlist != $ncol-1 && !defined($warn_ncol{$table})) {
+	$pmda->log("$table: version $version: fetched" . $#vlist+1 . " columns, expecting $ncol");
+	$warn_ncol{$table} = 'y';
+    }
+    for my $j (0 .. $#{$map}) { # for each metric (item field)
+	my $pick = ${$map}[$j];
+	if ($pick == -1) {
+	    # no matching column
+	    $ret[$j] = ''
+	}
+	else {
+	    # even if $j == $pick, we still do the conditional copy
+	    # to map null values (e.g. the client_* columns) into
+	    # an empty string
+	    $ret[$j] = defined($vlist[$pick]) ? $vlist[$pick] : '';
+	}
+    }
+    return \@ret;
+}
+
+# Need mapping here because the pg_stat_activity schema changed across
+# releases.
+#
+# Metric        item field  Columns in known releases (base 0)
+#			    9.0  9.1  9.2  9.4
+# ...datid		 0    0    0    0    0
+# ...datname		 1    1    1    1    1
+# n/a (pid)		 -    2    2    2    2
+# ...usesysid		 3    3    3    3    3
+# ...usename		 4    4    4    4    4
+# ...application_name	 5    5    5    5    5
+# ...client_addr	 6    6    6    6    6
+# ...client_hostname	 7    -    7    7    7
+# ...client_port	 8    7    8    8    8
+# ...backend_start	 9    8    9    9    9
+# ...xact_start		10    9   10   10   10
+# ...query_start	11   10   11   11   11
+# n/a (state_change)	 -    -    -   12   12
+# ...waiting		12   11   12   13   13
+# n/a (state)		 -    -    -   14   14
+# n/a (backend_xid)	 -    -    -    -   15
+# n/a (backend_xmin)	 -    -    -    -   16
+# ...current_query	13   12   13   15   17
+#
+# 9.3 is the same as 9.2
+# 9.5 is the same as 9.4
+
+# one map per version with a different schema
+# one map entry for each item in a PMID for the activity cluster, so
+# 0 .. 13
+# each map entry specifies the corresponding column from the
+# pg_stat_activity table
+#
+# 9.0 does not have client_hostname
+my @activity_map_9_0 = ( 0, 1, -1, 3, 4, 5, 6, -1, 7, 8, 9, 10, 11, 12 );
+# 9.1 appears to have been the baseline for the PMDA implementation
+my @activity_map_9_1 = ( 0, 1, -1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 );
+# 9.2 and 9.3 are the same
+my @activity_map_9_2 = ( 0, 1, -1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15 );
+# 9.4 and 9.5 are the same
+my @activity_map_9_4 = ( 0, 1, -1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 17 );
+my %activity_ctl = (
+    '9.0' => { ncol => 13, map => \@activity_map_9_0 },
+    '9.1' => { ncol => 14, map => \@activity_map_9_1 },
+    '9.2' => { ncol => 16, map => \@activity_map_9_2 },
+    '9.3' => { ncol => 16, map => \@activity_map_9_2 },
+    '9.4' => { ncol => 18, map => \@activity_map_9_4 },
+    '9.5' => { ncol => 18, map => \@activity_map_9_4 },
+);
+
 sub refresh_activity
 {
     my $tableref = shift;
@@ -395,18 +505,15 @@ sub refresh_activity
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
 	    my $instid = $process_instances[($i*2)] = "$result->[$i][2]";
 	    $tableref = $result->[$i];
+	    $tableref = cherrypick('pg_stat_activity', \%activity_ctl, $tableref);
 	    $process_instances[($i*2)+1] = "$tableref->[2] $tableref->[5]";
-	    # 9.0 does not have client_hostname, deal with that first
-	    splice @$tableref, 7, 0, (undef) unless (@$tableref > 13);
-	    # special case needed for 'client_*' columns (6 -> 8), may be null
-	    for my $j (6 .. 8) {	# for each special case column
-		$tableref->[$j] = '' unless (defined($tableref->[$j]));
-	    }
 	    $table{values}{$instid} = $tableref;
 	}
     }
     $pmda->replace_indom($process_indom, \@process_instances);
 }
+
+my $replication_report_bad = 1;	# report unexpected number of values only once
 
 sub refresh_replication
 {
@@ -418,6 +525,11 @@ sub refresh_replication
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
 	    my $instid = $replicant_instances[($i*2)] = "$result->[$i][2]";
+	    if ($#{$result->[$i]}+1 != 16 && $replication_report_bad == 1) {
+		my $ncol = $#{$result->[$i]}+1;
+		$pmda->log("pg_stat_replication: version $version: fetched $ncol columns, expecting 16");
+		$replication_report_bad = 0;
+	    }
 	    $replicant_instances[($i*2)+1] = "$result->[$i][2] $result->[$i][5]";
 	    # special case needed for 'client_*' columns (4 -> 5)
 	    for my $j (4 .. 5) {	# for each special case column
@@ -429,13 +541,56 @@ sub refresh_replication
     $pmda->replace_indom($replicant_indom, \@replicant_instances);
 }
 
+# Need mapping here because the pg_stat_bgwriter schema changed across
+# releases.
+#
+# Metric        	item field  Columns in known releases (base 0)
+#				    9.0  9.1  9.2
+# ...checkpoints_timed		 0    0    0    0
+# ...checkpoints_req		 1    1    1    1
+# n/a (checkpoint_write_time)	 -    -    -    2
+# n/a (checkpoint_sync_time)	 -    -    -    3
+# ...buffers_checkpoint		 2    2    2    4
+# ...buffers_clean		 3    3    3    5
+# ...maxwritten_clean		 4    4    4    6
+# ...buffers_backend		 5    -    5    7
+# n/a (buffers_backend_fsync)	 -    -    6    8
+# ...buffers_alloc		 6    8    7    9
+# n/a (stats_reset)		 -    -    8   10
+#
+# 9.3, 9.4 and 9.5 are the same as 9.2
+
+# one map per version with a different schema
+# one map entry for each item in a PMID for the bgwriter cluster, so
+# 0 .. 6
+# each map entry specifies the corresponding column from the
+# pg_stat_bgwriter table
+#
+my @bgwriter_map_9_0 = ( 0, 1, 2, 3, 4, -1, 8 );
+# 9.1 appears to have been the baseline for the PMDA implementation
+my @bgwriter_map_9_1 = ( 0, 1, 2, 3, 4, 5, 7 );
+my @bgwriter_map_9_2 = ( 0, 1, 4, 5, 6, 7, 9 );
+my %bgwriter_ctl = (
+    '9.0' => { ncol => 7, map => \@bgwriter_map_9_0 },
+    '9.1' => { ncol => 9, map => \@bgwriter_map_9_1 },
+    '9.2' => { ncol => 11, map => \@bgwriter_map_9_2 },
+    '9.3' => { ncol => 11, map => \@bgwriter_map_9_2 },
+    '9.4' => { ncol => 11, map => \@bgwriter_map_9_2 },
+    '9.5' => { ncol => 11, map => \@bgwriter_map_9_2 },
+);
+
 sub refresh_bgwriter
 {
     my $tableref = shift;
     my $result = refresh_results($tableref);
     my %table = %$tableref;
 
-    $table{values}{"$pm_in_null"} = \@{$result->[0]} unless (!defined($result));
+    if (defined($result)) {
+	# only one row returned
+	$tableref = $result->[0];
+	$tableref = cherrypick('pg_stat_bgwriter', \%bgwriter_ctl, $tableref);
+	$table{values}{"$pm_in_null"} = $tableref;
+    }
 }
 
 sub refresh_active_functions
@@ -493,6 +648,53 @@ sub refresh_recovery_functions
     }
 }
 
+# Need mapping here because the pg_stat_database schema changed across
+# releases.
+#
+# Metric        item field  Columns in known releases (base 0)
+#			    9.0  9.1  9.2
+# n/a (datid)		 -    0    0    0
+# n/a (datname)		 -    1    1    1	- instance id
+# ...numbackends	 2    2    2    2
+# ...xact_commit	 3    3    3    3
+# ...xact_rollback	 4    4    4    4
+# ...blks_read		 5    5    5    4
+# ...blks_hit		 6    6    6    4
+# ...tup_returned	 7    7    7    4
+# ...tup_fetched	 8    8    8    4
+# ...tup_inserted	 9    9    9    4
+# ...tup_updated	10   10   10   10
+# ...tup_deleted	11   11   11   11
+# ...conflicts		12    -   12   12
+# n/a (temp_files)	 -    -    -   13
+# n/a (temp_bytes)	 -    -    -   14
+# n/a (deadlocks)	 -    -    -   15
+# n/a (blk_read_time)	 -    -    -   16
+# n/a (blk_write_time)	 -    -    -   17
+# ...stats_reset	13    -   13   18
+
+#
+# 9.3, 9.4 and 9.5 all the same as 9.2
+
+# one map per version with a different schema
+# one map entry for each item in a PMID for the database cluster, so
+# 0 .. 13
+# each map entry specifies the corresponding column from the
+# pg_stat_database table
+#
+my @database_map_9_0 = ( 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, -1, -1 );
+# 9.1 appears to have been the baseline for the PMDA implementation
+my @database_map_9_1 = ( 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 );
+my @database_map_9_2 = ( 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 18 );
+my %database_ctl = (
+    '9.0' => { ncol => 12, map => \@database_map_9_0 },
+    '9.1' => { ncol => 14, map => \@database_map_9_1 },
+    '9.2' => { ncol => 19, map => \@database_map_9_2 },
+    '9.3' => { ncol => 19, map => \@database_map_9_2 },
+    '9.4' => { ncol => 19, map => \@database_map_9_2 },
+    '9.5' => { ncol => 19, map => \@database_map_9_2 },
+);
+
 sub refresh_database
 {
     my $tableref = shift;
@@ -503,12 +705,40 @@ sub refresh_database
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
 	    my $instid = $database_instances[($i*2)] = $result->[$i][0];
+	    $tableref = $result->[$i];
+	    $tableref = cherrypick('pg_stat_database', \%database_ctl, $tableref);
+	    $database_instances[($i*2)+1] = $result->[$i][1];
+	    $table{values}{$instid} = $tableref;
+	}
+    }
+    $pmda->replace_indom($database_indom, \@database_instances);
+}
+
+my $database_conflicts_report_bad = 1;	# report unexpected number of values only once
+
+sub refresh_database_conflicts
+{
+    my $tableref = shift;
+    my $result = refresh_results($tableref);
+    my %table = %$tableref;
+
+    @database_instances = ();		# refresh indom too
+    if (defined($result)) {
+	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
+	    my $instid = $database_instances[($i*2)] = $result->[$i][0];
+	    if ($#{$result->[$i]}+1 != 7 && $database_conflicts_report_bad == 1) {
+		my $ncol = $#{$result->[$i]}+1;
+		$pmda->log("pg_stat_database_conflicts: version $version: fetched $ncol columns, expecting 7");
+		$database_conflicts_report_bad = 0;
+	    }
 	    $database_instances[($i*2)+1] = $result->[$i][1];
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
     $pmda->replace_indom($database_indom, \@database_instances);
 }
+
+my $user_functions_report_bad = 1;	# report unexpected number of values only once
 
 sub refresh_user_functions
 {
@@ -520,12 +750,90 @@ sub refresh_user_functions
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
 	    my $instid = $function_instances[($i*2)] = $result->[$i][0];
+	    if ($#{$result->[$i]}+1 != 13 && $user_functions_report_bad == 1) {
+		my $ncol = $#{$result->[$i]}+1;
+		$pmda->log("pg_stat_user_functions: version $version: fetched $ncol columns, expecting 13");
+		$user_functions_report_bad = 0;
+	    }
 	    $function_instances[($i*2)+1] = $result->[$i][2];
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
     $pmda->replace_indom($function_indom, \@function_instances);
 }
+
+my $xact_user_functions_report_bad = 1;	# report unexpected number of values only once
+
+sub refresh_xact_user_functions
+{
+    my $tableref = shift;
+    my $result = refresh_results($tableref);
+    my %table = %$tableref;
+
+    @function_instances = ();		# refresh indom too
+    if (defined($result)) {
+	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
+	    my $instid = $function_instances[($i*2)] = $result->[$i][0];
+	    if ($#{$result->[$i]}+1 != 13 && $xact_user_functions_report_bad == 1) {
+		my $ncol = $#{$result->[$i]}+1;
+		$pmda->log("pg_stat_xact_user_functions: version $version: fetched $ncol columns, expecting 13");
+		$xact_user_functions_report_bad = 0;
+	    }
+	    $function_instances[($i*2)+1] = $result->[$i][2];
+	    $table{values}{$instid} = $result->[$i];
+	}
+    }
+    $pmda->replace_indom($function_indom, \@function_instances);
+}
+
+# Need mapping here because the pg_stat_all_tables schema changed across
+# releases.
+#
+# Metric        item field  Columns in known releases (base 0)
+#			    9.0  9.1  9.4
+# n/a (relid)		 -    0    0    0	- instance id
+# ...schemaname 	 1    1    1    1
+# n/a (relname)		 -    2    2    2	- instance name
+# ...seq_scan   	 3    3    3    3
+# ...seq_tup_read        4    4    4    4
+# ...idx_scan   	 5    5    5    5
+# ...idx_tup_fetch       6    6    6    6
+# ...n_tup_ins  	 7    7    7    7
+# ...n_tup_upd  	 8    8    8    8
+# ...n_tup_del  	 9    9    9    9
+# ...n_tup_hot_upd      10   10   10   10
+# ...n_live_tup 	11   11   11   11
+# ...n_dead_tup 	12   12   12   12
+# n/a (n_mod_since_analyze) - -    -   13
+# ...last_vacuum        13   13   13   14
+# ...last_autovacuum    14   14   14   15
+# ...last_analyze       15   15   15   16
+# ...last_autoanalyze   16   16   16   17
+# n/a (vacuum_count)	 -    -   17   18
+# n/a (autovacuum_count) -    -   18   19
+# n/a (analyze_count)	 -    -   19   20
+# n/a (autoanalyze_count)-    -   20   21
+#
+# 9.2 and 9.3 are the same as 9.1
+# 9.5 is the same as 9.4
+
+# one map per version with a different schema
+# one map entry for each item in a PMID for the all_tables cluster, so
+# 0 .. 16
+# each map entry specifies the corresponding column from the
+# pg_stat_all_tables table
+#
+my @all_tables_map_9_0 = ( 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 );
+my @all_tables_map_9_1 = ( 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 );
+my @all_tables_map_9_4 = ( 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17 );
+my %all_tables_ctl = (
+    '9.0' => { ncol => 17, map => \@all_tables_map_9_0 },
+    '9.1' => { ncol => 21, map => \@all_tables_map_9_1 },
+    '9.2' => { ncol => 21, map => \@all_tables_map_9_1 },
+    '9.3' => { ncol => 21, map => \@all_tables_map_9_1 },
+    '9.4' => { ncol => 22, map => \@all_tables_map_9_4 },
+    '9.5' => { ncol => 22, map => \@all_tables_map_9_4 },
+);
 
 sub refresh_all_tables
 {
@@ -537,12 +845,15 @@ sub refresh_all_tables
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
 	    my $instid = $all_rel_instances[($i*2)] = $result->[$i][0];
-	    $all_rel_instances[($i*2)+1] = $result->[$i][2];
-	    # special case needed for 'last_*' columns (13 -> 16)
-	    for my $j (13 .. 16) {	# for each special case column
-		$result->[$i][$j] = '' unless (defined($result->[$i][$j]));
+	    $tableref = $result->[$i];
+	    $tableref = cherrypick('pg_stat_all_tables', \%all_tables_ctl, $tableref);
+	    # we've seen some strange null values in fields that should be
+	    # integers, so translate '' to 0
+	    for my $j (3 .. 16) {	# for each numeric metric
+		if ($tableref->[$j] eq '') { $tableref->[$j] = 0; }
 	    }
-	    $table{values}{$instid} = $result->[$i];
+	    $all_rel_instances[($i*2)+1] = $tableref->[2];
+	    $table{values}{$instid} = $tableref;
 	}
     }
     $pmda->replace_indom($all_rel_indom, \@all_rel_instances);
@@ -558,12 +869,17 @@ sub refresh_sys_tables
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
 	    my $instid = $sys_rel_instances[($i*2)] = $result->[$i][0];
-	    $sys_rel_instances[($i*2)+1] = $result->[$i][2];
-	    # special case needed for 'last_*' columns (13 -> 16)
-	    for my $j (13 .. 16) {	# for each special case column
-		$result->[$i][$j] = '' unless (defined($result->[$i][$j]));
+	    $tableref = $result->[$i];
+	    # Schema for pg_stat_sys_tables follows pg_stat_all_tables
+	    #
+	    $tableref = cherrypick('pg_stat_sys_tables', \%all_tables_ctl, $tableref);
+	    # we've seen some strange null values in fields that should be
+	    # integers, so translate '' to 0
+	    for my $j (3 .. 16) {	# for each numeric metric
+		if ($tableref->[$j] eq '') { $tableref->[$j] = 0; }
 	    }
-	    $table{values}{$instid} = $result->[$i];
+	    $sys_rel_instances[($i*2)+1] = $tableref->[2];
+	    $table{values}{$instid} = $tableref;
 	}
     }
     $pmda->replace_indom($sys_rel_indom, \@sys_rel_instances);
@@ -579,16 +895,26 @@ sub refresh_user_tables
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
 	    my $instid = $user_rel_instances[($i*2)] = $result->[$i][0];
-	    $user_rel_instances[($i*2)+1] = $result->[$i][2];
-	    # special case needed for 'last_*' columns (13 -> 16)
-	    for my $j (13 .. 16) {	# for each special case column
-		$result->[$i][$j] = '' unless (defined($result->[$i][$j]));
+	    $tableref = $result->[$i];
+	    # Schema for pg_stat_user_tables follows pg_stat_all_tables
+	    #
+	    $tableref = cherrypick('pg_stat_user_tables', \%all_tables_ctl, $tableref);
+	    # we've seen some strange null values in fields that should be
+	    # integers, so translate '' to 0
+	    for my $j (3 .. 16) {	# for each numeric metric
+		if ($tableref->[$j] eq '') { $tableref->[$j] = 0; }
 	    }
-	    $table{values}{$instid} = $result->[$i];
+	    $user_rel_instances[($i*2)+1] = $tableref->[2];
+	    $table{values}{$instid} = $tableref;
 	}
     }
     $pmda->replace_indom($user_rel_indom, \@user_rel_instances);
 }
+
+# TODO not in 9.0, X in 9.1, 11 in 9.4
+# also for xact_sys_tables, xact_user_tables (use same schema)
+
+my $xact_all_tables_report_bad = 1;	# report unexpected number of values only once
 
 sub refresh_xact_all_tables
 {
@@ -600,12 +926,19 @@ sub refresh_xact_all_tables
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
 	    my $instid = $all_rel_instances[($i*2)] = $result->[$i][0];
+	    if ($#{$result->[$i]}+1 != 11 && $xact_all_tables_report_bad == 1) {
+		my $ncol = $#{$result->[$i]}+1;
+		$pmda->log("pg_stat_xact_all_tables: version $version: fetched $ncol columns, expecting 11");
+		$xact_all_tables_report_bad = 0;
+	    }
 	    $all_rel_instances[($i*2)+1] = $result->[$i][2];
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
     $pmda->replace_indom($all_rel_indom, \@all_rel_instances);
 }
+
+my $xact_sys_tables_report_bad = 1;	# report unexpected number of values only once
 
 sub refresh_xact_sys_tables
 {
@@ -617,12 +950,19 @@ sub refresh_xact_sys_tables
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
 	    my $instid = $sys_rel_instances[($i*2)] = $result->[$i][0];
+	    if ($#{$result->[$i]}+1 != 11 && $xact_sys_tables_report_bad == 1) {
+		my $ncol = $#{$result->[$i]}+1;
+		$pmda->log("pg_stat_xact_sys_tables: version $version: fetched $ncol columns, expecting 11");
+		$xact_sys_tables_report_bad = 0;
+	    }
 	    $sys_rel_instances[($i*2)+1] = $result->[$i][2];
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
     $pmda->replace_indom($sys_rel_indom, \@sys_rel_instances);
 }
+
+my $xact_user_tables_report_bad = 1;	# report unexpected number of values only once
 
 sub refresh_xact_user_tables
 {
@@ -634,12 +974,21 @@ sub refresh_xact_user_tables
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
 	    my $instid = $user_rel_instances[($i*2)] = $result->[$i][0];
+	    if ($#{$result->[$i]}+1 != 11 && $xact_user_tables_report_bad == 1) {
+		my $ncol = $#{$result->[$i]}+1;
+		$pmda->log("pg_stat_xact_user_tables: version $version: fetched $ncol columns, expecting 11");
+		$xact_user_tables_report_bad = 0;
+	    }
 	    $user_rel_instances[($i*2)+1] = $result->[$i][2];
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
     $pmda->replace_indom($user_rel_indom, \@user_rel_instances);
 }
+
+my $all_indexes_report_bad = 1;	# report unexpected number of values only once
+
+# TODO 8 in 9.5, 7 in 9.1
 
 sub refresh_all_indexes
 {
@@ -651,12 +1000,19 @@ sub refresh_all_indexes
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
 	    my $instid = $all_index_instances[($i*2)] = $result->[$i][1];
+	    if ($#{$result->[$i]}+1 != 8 && $all_indexes_report_bad == 1) {
+		my $ncol = $#{$result->[$i]}+1;
+		$pmda->log("pg_stat_all_indexes: version $version: fetched $ncol columns, expecting 8");
+		$all_indexes_report_bad = 0;
+	    }
 	    $all_index_instances[($i*2)+1] = $result->[$i][4];
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
     $pmda->replace_indom($all_index_indom, \@all_index_instances);
 }
+
+my $sys_indexes_report_bad = 1;	# report unexpected number of values only once
 
 sub refresh_sys_indexes
 {
@@ -668,12 +1024,19 @@ sub refresh_sys_indexes
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
 	    my $instid = $sys_index_instances[($i*2)] = $result->[$i][1];
+	    if ($#{$result->[$i]}+1 != 8 && $sys_indexes_report_bad == 1) {
+		my $ncol = $#{$result->[$i]}+1;
+		$pmda->log("pg_stat_sys_indexes: version $version: fetched $ncol columns, expecting 8");
+		$sys_indexes_report_bad = 0;
+	    }
 	    $sys_index_instances[($i*2)+1] = $result->[$i][4];
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
     $pmda->replace_indom($sys_index_indom, \@sys_index_instances);
 }
+
+my $user_indexes_report_bad = 1;	# report unexpected number of values only once
 
 sub refresh_user_indexes
 {
@@ -685,12 +1048,19 @@ sub refresh_user_indexes
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
 	    my $instid = $user_index_instances[($i*2)] = $result->[$i][1];
+	    if ($#{$result->[$i]}+1 != 8 && $user_indexes_report_bad == 1) {
+		my $ncol = $#{$result->[$i]}+1;
+		$pmda->log("pg_stat_user_indexes: version $version: fetched $ncol columns, expecting 8");
+		$user_indexes_report_bad = 0;
+	    }
 	    $user_index_instances[($i*2)+1] = $result->[$i][4];
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
     $pmda->replace_indom($user_index_indom, \@user_index_instances);
 }
+
+my $io_all_tables_report_bad = 1;	# report unexpected number of values only once
 
 sub refresh_io_all_tables
 {
@@ -702,12 +1072,19 @@ sub refresh_io_all_tables
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
 	    my $instid = $all_rel_instances[($i*2)] = $result->[$i][0];
+	    if ($#{$result->[$i]}+1 != 11 && $io_all_tables_report_bad == 1) {
+		my $ncol = $#{$result->[$i]}+1;
+		$pmda->log("pg_statio_all_tables: version $version: fetched $ncol columns, expecting 11");
+		$io_all_tables_report_bad = 0;
+	    }
 	    $all_rel_instances[($i*2)+1] = $result->[$i][2];
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
     $pmda->replace_indom($all_rel_indom, \@all_rel_instances);
 }
+
+my $io_sys_tables_report_bad = 1;	# report unexpected number of values only once
 
 sub refresh_io_sys_tables
 {
@@ -719,12 +1096,19 @@ sub refresh_io_sys_tables
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
 	    my $instid = $sys_rel_instances[($i*2)] = $result->[$i][0];
+	    if ($#{$result->[$i]}+1 != 11 && $io_sys_tables_report_bad == 1) {
+		my $ncol = $#{$result->[$i]}+1;
+		$pmda->log("pg_statio_sys_tables: version $version: fetched $ncol columns, expecting 11");
+		$io_sys_tables_report_bad = 0;
+	    }
 	    $sys_rel_instances[($i*2)+1] = $result->[$i][2];
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
     $pmda->replace_indom($sys_rel_indom, \@sys_rel_instances);
 }
+
+my $io_user_tables_report_bad = 1;	# report unexpected number of values only once
 
 sub refresh_io_user_tables
 {
@@ -736,12 +1120,19 @@ sub refresh_io_user_tables
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
 	    my $instid = $user_rel_instances[($i*2)] = $result->[$i][0];
+	    if ($#{$result->[$i]}+1 != 11 && $io_user_tables_report_bad == 1) {
+		my $ncol = $#{$result->[$i]}+1;
+		$pmda->log("pg_statio_user_tables: version $version: fetched $ncol columns, expecting 11");
+		$io_user_tables_report_bad = 0;
+	    }
 	    $user_rel_instances[($i*2)+1] = $result->[$i][2];
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
     $pmda->replace_indom($user_rel_indom, \@user_rel_instances);
 }
+
+my $io_all_indexes_report_bad = 1;	# report unexpected number of values only once
 
 sub refresh_io_all_indexes
 {
@@ -753,12 +1144,19 @@ sub refresh_io_all_indexes
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
 	    my $instid = $all_index_instances[($i*2)] = $result->[$i][1];
+	    if ($#{$result->[$i]}+1 != 7 && $io_all_indexes_report_bad == 1) {
+		my $ncol = $#{$result->[$i]}+1;
+		$pmda->log("pg_statio_all_indexes: version $version: fetched $ncol columns, expecting 7");
+		$io_all_indexes_report_bad = 0;
+	    }
 	    $all_index_instances[($i*2)+1] = $result->[$i][4];
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
     $pmda->replace_indom($all_index_indom, \@all_index_instances);
 }
+
+my $io_sys_indexes_report_bad = 1;	# report unexpected number of values only once
 
 sub refresh_io_sys_indexes
 {
@@ -770,12 +1168,19 @@ sub refresh_io_sys_indexes
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
 	    my $instid = $sys_index_instances[($i*2)] = $result->[$i][1];
+	    if ($#{$result->[$i]}+1 != 13 && $io_sys_indexes_report_bad == 1) {
+		my $ncol = $#{$result->[$i]}+1;
+		$pmda->log("pg_statio_sys_indexes: version $version: fetched $ncol columns, expecting 13");
+		$io_sys_indexes_report_bad = 0;
+	    }
 	    $sys_index_instances[($i*2)+1] = $result->[$i][4];
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
     $pmda->replace_indom($sys_index_indom, \@sys_index_instances);
 }
+
+my $io_user_indexes_report_bad = 1;	# report unexpected number of values only once
 
 sub refresh_io_user_indexes
 {
@@ -787,12 +1192,19 @@ sub refresh_io_user_indexes
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
 	    my $instid = $user_index_instances[($i*2)] = $result->[$i][1];
+	    if ($#{$result->[$i]}+1 != 13 && $io_user_indexes_report_bad == 1) {
+		my $ncol = $#{$result->[$i]}+1;
+		$pmda->log("pg_statio_user_indexes: version $version: fetched $ncol columns, expecting 13");
+		$io_user_indexes_report_bad = 0;
+	    }
 	    $user_index_instances[($i*2)+1] = $result->[$i][4];
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
     $pmda->replace_indom($user_index_indom, \@user_index_instances);
 }
+
+my $io_all_sequences_report_bad = 1;	# report unexpected number of values only once
 
 sub refresh_io_all_sequences
 {
@@ -804,12 +1216,19 @@ sub refresh_io_all_sequences
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
 	    my $instid = $all_seq_instances[($i*2)] = $result->[$i][0];
+	    if ($#{$result->[$i]}+1 != 13 && $io_all_sequences_report_bad == 1) {
+		my $ncol = $#{$result->[$i]}+1;
+		$pmda->log("pg_statio_all_sequences: version $version: fetched $ncol columns, expecting 13");
+		$io_all_sequences_report_bad = 0;
+	    }
 	    $all_seq_instances[($i*2)+1] = $result->[$i][2];
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
     $pmda->replace_indom($all_seq_indom, \@all_seq_instances);
 }
+
+my $io_sys_sequences_report_bad = 1;	# report unexpected number of values only once
 
 sub refresh_io_sys_sequences
 {
@@ -821,12 +1240,19 @@ sub refresh_io_sys_sequences
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
 	    my $instid = $sys_seq_instances[($i*2)] = $result->[$i][0];
+	    if ($#{$result->[$i]}+1 != 13 && $io_sys_sequences_report_bad == 1) {
+		my $ncol = $#{$result->[$i]}+1;
+		$pmda->log("pg_statio_sys_sequences: version $version: fetched $ncol columns, expecting 13");
+		$io_sys_sequences_report_bad = 0;
+	    }
 	    $sys_seq_instances[($i*2)+1] = $result->[$i][2];
 	    $table{values}{$instid} = $result->[$i];
 	}
     }
     $pmda->replace_indom($sys_seq_indom, \@sys_seq_instances);
 }
+
+my $io_user_sequences_report_bad = 1;	# report unexpected number of values only once
 
 sub refresh_io_user_sequences
 {
@@ -838,6 +1264,11 @@ sub refresh_io_user_sequences
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {	# for each row (instance) returned
 	    my $instid = $user_seq_instances[($i*2)] = $result->[$i][0];
+	    if ($#{$result->[$i]}+1 != 13 && $io_user_sequences_report_bad == 1) {
+		my $ncol = $#{$result->[$i]}+1;
+		$pmda->log("pg_statio_user_sequences: version $version: fetched $ncol columns, expecting 13");
+		$io_user_sequences_report_bad = 0;
+	    }
 	    $user_seq_instances[($i*2)+1] = $result->[$i][2];
 	    $table{values}{$instid} = $result->[$i];
 	}
@@ -915,7 +1346,7 @@ server machine or that this is an internal process such as autovacuum.');
 'Client host name is derived from reverse DNS lookup of
 postgresql.stat.activity.client_addr. This field will only be non-null
 for IP connections, and only when log_hostname is enabled.');
-    $pmda->add_metric(pmda_pmid($cluster,8), PM_TYPE_U32, $indom,
+    $pmda->add_metric(pmda_pmid($cluster,8), PM_TYPE_32, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'postgresql.stat.activity.client_port',
 		  'Client TCP port number',
@@ -984,7 +1415,7 @@ server machine.');
 'Host name of the connected client, as reported by a reverse DNS lookup of
 postgresql.stat.replication.client_addr. This field will only be non-null
 for IP connections, and only when log_hostname is enabled.');
-    $pmda->add_metric(pmda_pmid($cluster,6), PM_TYPE_U32, $indom,
+    $pmda->add_metric(pmda_pmid($cluster,6), PM_TYPE_32, $indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'postgresql.stat.replication.client_port',
 		  'WAL client TCP port',
@@ -1461,7 +1892,7 @@ sub setup_user_functions
 
 #
 # Main PMDA thread of execution starts here - setup metrics and callbacks
-# drop root priveleges, then call PMDA 'run' routine to talk to pmcd.
+# drop root privileges, then call PMDA 'run' routine to talk to pmcd.
 #
 $pmda = PCP::PMDA->new('postgresql', 110);
 postgresql_metrics_setup();
@@ -1475,6 +1906,9 @@ if ($os_user eq '') {
     # one of the configuration files
     $os_user = $username;
 }
-$pmda->log("Change to UID of user \"$os_user\"");
-$pmda->set_user($os_user);
+if (!defined($ENV{PCP_PERL_PMNS}) && !defined($ENV{PCP_PERL_DOMAIN})) {
+    # really running as the PMDA, not setup from Install
+    $pmda->log("Change to UID of user \"$os_user\"");
+    $pmda->set_user($os_user);
+}
 $pmda->run;
