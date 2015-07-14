@@ -216,13 +216,6 @@ container_nsleave(linux_container_t *cp, int nsflags)
     return 0;
 }
 
-static int
-close_namespace_fds(int nsflags, int *fdset)
-{
-    (void)nsflags;
-    (void)fdset;
-    return 0;
-}
 #endif /* !HAVE_SETNS */
 
 int
