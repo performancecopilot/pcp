@@ -267,7 +267,7 @@ sub dtsrun_setup_instances
 }
 
 my $logfile = '';
-if (!defined($ENV{PCP_PERL_PMNS} && !defined($ENV{PCP_PERL_DOMAIN}))) {
+if (!defined($ENV{PCP_PERL_PMNS}) && !defined($ENV{PCP_PERL_DOMAIN})) {
     die "No dtsrun statistics file specified\n" unless (defined($ARGV[0]));
     $logfile = $ARGV[0];
     die "Cannot find a valid dtsrun statistics file\n" unless -f $logfile;
