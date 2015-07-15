@@ -143,8 +143,10 @@ foo(FILE *f, char *fn, int i, void *closure)
 		}
 	    }
 	}
-	if (keep == 0)
+	if (keep == 0) {
 	    free(names);
+	    names = NULL; /* silence coverity */
+	}
 	free(stsset);
 	fprintf(f, " pmGetChildrenStatus OK");
 	if ((sts = pmGetChildren(namelist[i], &names)) < 0) {

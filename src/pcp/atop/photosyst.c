@@ -302,6 +302,8 @@ photosyst(struct sstat *si)
 	si->mem.shmswp = extract_count_t(result, descs, MEM_SHMSWP) * 1024;
 
 	/* /proc/net/dev */
+	insts = NULL; /* silence coverity */
+	ids = NULL;
 	nrintf = get_instances("interfaces", PERINTF_RBYTE, descs, &ids, &insts);
 	if (nrintf > onrintf)
 	{
@@ -443,6 +445,8 @@ photosyst(struct sstat *si)
 	si->net.udpv6.Udp6OutDatagrams = extract_count_t(result, descs, UDPV6_OutDatagrams);
 
 	/* /proc/diskstats or /proc/partitions */
+	insts = NULL; /* silence coverity */
+	ids = NULL;
 	nrdisk = get_instances("disks", PERDISK_NREAD, descs, &ids, &insts);
 	if (nrdisk > onrdisk)
 	{
@@ -463,6 +467,8 @@ photosyst(struct sstat *si)
 	free(ids);
 
 	/* Device mapper and logical volume (DM/LVM) devices */
+	insts = NULL; /* silence coverity */
+	ids = NULL;
 	nrlvm = get_instances("lvm", PERDM_NREAD, descs, &ids, &insts);
 	if (nrlvm > onrlvm)
 	{
@@ -483,6 +489,8 @@ photosyst(struct sstat *si)
 	free(ids);
 
 	/* Multi-device driver (MD) devices */
+	insts = NULL; /* silence coverity */
+	ids = NULL;
 	nrmdd = get_instances("md", PERMD_NREAD, descs, &ids, &insts);
 	if (nrmdd > onrmdd)
 	{
