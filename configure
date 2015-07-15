@@ -929,6 +929,9 @@ with_manager
 with_webapi
 with_webjs
 with_vector
+with_make
+with_tar
+with_zip
 enable_ssp
 enable_pie
 enable_visibility
@@ -1633,6 +1636,12 @@ Optional Packages:
   --with-webapi           enable REST API daemon (default is on)
   --with-webjs            enable building of webjs packages (default is off)
   --with-vector           enable building of vector package (default is off)
+  --with-make             path to GNU compatible make(1) (default is empty for
+                          auto discovery)
+  --with-tar              path to GNU compatible tar(1) (default is empty for
+                          auto discovery)
+  --with-zip              path to GNU compatible zip(1) (default is empty for
+                          auto discovery)
   --with-configdir        configuration directory [LOCALSTATEDIR/pcp/config]
   --with-perl_installdirs perl installdirs [vendor]
   --with-perl_install_base
@@ -2755,6 +2764,33 @@ else
   do_vector=no
 fi
 
+
+
+
+# Check whether --with-make was given.
+if test "${with_make+set}" = set; then :
+  withval=$with_make; MAKE=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-make=$withval"
+else
+  MAKE=''
+fi
+
+
+
+# Check whether --with-tar was given.
+if test "${with_tar+set}" = set; then :
+  withval=$with_tar; TAR=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-tar=$withval"
+else
+  TAR=''
+fi
+
+
+
+# Check whether --with-zip was given.
+if test "${with_zip+set}" = set; then :
+  withval=$with_zip; ZIP=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-zip=$withval"
+else
+  ZIP=''
+fi
 
 
 #
@@ -4117,7 +4153,7 @@ if test "${enable_ssp+set}" = set; then :
 fi
 
 
-if test "$cc_is_gcc" = yes -a "$enable_ssp" != no; then :
+if test "x$cc_is_gcc" = xyes -a "x$enable_ssp" != no; then :
 
    save_CFLAGS="$CFLAGS"
    CFLAGS="$CFLAGS -fstack-protector-all -D_FORTIFY_SOURCE=2"
@@ -4145,7 +4181,7 @@ if test "${enable_pie+set}" = set; then :
   enableval=$enable_pie;
 fi
 
-if test "$cc_is_gcc" = yes -a "$enable_pie" != no; then :
+if test "x$cc_is_gcc" = xyes -a "x$enable_pie" != xno; then :
 
    PIECFLAGS='-fPIE'
    PIELDFLAGS='-pie -Wl,-z,relro -Wl,-z,now'
@@ -4185,7 +4221,7 @@ if test "${enable_visibility+set}" = set; then :
   enableval=$enable_visibility;
 fi
 
-if test "$cc_is_gcc" = yes -a "$enable_visibility" != no; then :
+if test "x$cc_is_gcc" = xyes -a "$enable_visibility" != no; then :
 
    INVISIBILITY="-fvisibility=hidden"
    save_CFLAGS="$CFLAGS"
@@ -6618,7 +6654,7 @@ fi
   test -n "$QMAKE" && break
 done
 
-	test "$cc_is_gcc" = yes -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
+	test "x$cc_is_gcc" = xyes -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
     fi
     qmake=$QMAKE
     if test -z "$QMAKE"

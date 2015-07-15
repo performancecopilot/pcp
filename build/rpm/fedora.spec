@@ -1540,7 +1540,8 @@ Summary: Performance Co-Pilot (PCP) System and Monitoring Tools
 URL: http://www.pcp.io
 %if !%{disable_python3}
 Requires: python3-pcp = %{version}-%{release}
-%else
+%endif
+%if !%{disable_python2}
 Requires: python-pcp = %{version}-%{release}
 %endif
 %description -n pcp-system-tools

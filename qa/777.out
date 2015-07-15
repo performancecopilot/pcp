@@ -1,0 +1,150 @@
+QA output created by 777
+OK
+
+=== metadata ===
+
+sample.milliseconds
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: millisec
+
+qa.instant.milliseconds
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: millisec
+
+sample.ulong.bin_ctr
+    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: counter  Units: Kbyte
+
+qa.instant.ulong.bin_ctr
+    Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: Kbyte
+
+sample.lights
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+
+qa.instant.lights
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+
+sample.dynamic.discrete
+    Data Type: 32-bit int  InDom: 29.7 0x7400007
+    Semantics: discrete  Units: count
+
+qa.instant.dynamic.discrete
+    Data Type: 32-bit int  InDom: 29.7 0x7400007
+    Semantics: discrete  Units: count
+
+sampledso.drift
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+qa.instant.drift
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+pmcd.pmlogger.port
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+
+qa.instant.pmlogger.port
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+
+=== pmie tests ===
+uncooked: ? ? ? ? ? ? ? ? ?
+cooked: 100 200 300 400 500 600 700 800 900
+reverse: unknown
+reverse2: true
+reverse3: true
+
+uncooked: 0 0 0 0 0 0 0 0 0
+cooked: 100 200 300 400 500 600 700 800 900
+reverse: true
+reverse2: true
+reverse3: true
+
+uncooked: 0 0 0 0 0 0 0 0 0
+cooked: 100 200 300 400 500 600 700 800 900
+reverse: true
+reverse2: true
+reverse3: true
+
+uncooked: 0 0 0 0 0 0 0 0 0
+cooked: 100 200 300 400 500 600 700 800 900
+reverse: true
+reverse2: true
+reverse3: true
+
+
+=== archive tests ===
+pmie: timezone set to local timezone of host rattle
+raw (Mon May  1 20:36:50 2000): ?
+cooked (Mon May  1 20:36:50 2000): 380437
+reverse (Mon May  1 20:36:50 2000): unknown
+reverse4 (Mon May  1 20:36:50 2000): true
+
+raw (Mon May  1 20:37:00 2000): 1.00
+cooked (Mon May  1 20:37:00 2000): 380447
+reverse (Mon May  1 20:37:00 2000): true
+reverse4 (Mon May  1 20:37:00 2000): true
+
+raw (Mon May  1 20:37:10 2000): 1.00
+cooked (Mon May  1 20:37:10 2000): 380457
+reverse (Mon May  1 20:37:10 2000): true
+reverse4 (Mon May  1 20:37:10 2000): true
+
+raw (Mon May  1 20:37:20 2000): 1.00
+cooked (Mon May  1 20:37:20 2000): 380467
+reverse (Mon May  1 20:37:20 2000): true
+reverse4 (Mon May  1 20:37:20 2000): true
+
+raw (Mon May  1 20:37:30 2000): 1.00
+cooked (Mon May  1 20:37:30 2000): 380477
+reverse (Mon May  1 20:37:30 2000): true
+reverse4 (Mon May  1 20:37:30 2000): true
+
+raw (Mon May  1 20:37:40 2000): 1.00
+cooked (Mon May  1 20:37:40 2000): 380487
+reverse (Mon May  1 20:37:40 2000): true
+reverse4 (Mon May  1 20:37:40 2000): true
+
+
+Note: timezone set to local timezone of host "gonzo" from archive
+
+metric:    sample.lights
+archive:   src/951127.23.01_v2
+host:      gonzo
+start:     Mon Nov 27 23:01:45 1995
+end:       Mon Nov 27 23:03:38 1995
+semantics: discrete instantaneous value
+units:     none
+samples:   8
+interval:  15.00 sec
+23:01:45.000  No values available
+23:02:00.000  No values available
+23:02:15.000  No values available
+23:02:30.000             "yellow"
+23:02:45.000             "yellow"
+23:03:00.000             "yellow"
+23:03:15.000             "yellow"
+23:03:30.000                "red"
+Note: timezone set to local timezone of host "gonzo" from archive
+
+metric:    qa.instant.lights
+archive:   src/951127.23.01_v2
+host:      gonzo
+start:     Mon Nov 27 23:01:45 1995
+end:       Mon Nov 27 23:03:38 1995
+semantics: discrete instantaneous value
+units:     none
+samples:   8
+interval:  15.00 sec
+23:01:45.000  No values available
+23:02:00.000  No values available
+23:02:15.000  No values available
+23:02:30.000             "yellow"
+23:02:45.000             "yellow"
+23:03:00.000             "yellow"
+23:03:15.000             "yellow"
+23:03:30.000                "red"

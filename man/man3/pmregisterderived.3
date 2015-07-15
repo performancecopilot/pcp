@@ -121,7 +121,11 @@ The following unary functions operate on a single performance metric
 and return one or more values.
 For all functions (except
 .ft CW
-count()\c
+count()
+.ft P
+and
+.ft CW
+instant()\c
 .ft R
 ), the type of the operand metric must be arithmetic 
 (integer of various sizes and signedness, float or
@@ -173,6 +177,16 @@ and
 There is one value in the result
 for each instance that appears in both the current and the previous
 sample.
+T}
+_
+instant(x)	T{
+Returns the current value of the metric x, even it has
+the semantics of a counter, i.e. PM_SEM_COUNTER.
+The semantics of the derived metric are based on the semantics of the
+operand (x); if x has semantics PM_SEM_COUNTER, the semantics of
+instant(x) is PM_SEM_INSTANT, otherwise the semantics of the derived metric
+is the same as the semantics of the metric x.
+.fi
 T}
 _
 max(x)	T{

@@ -103,7 +103,7 @@ static char		*derive_errmsg;
 static const char	*type_dbg[] = {
 	"ERROR", "EOF", "UNDEF", "NUMBER", "NAME", "PLUS", "MINUS",
 	"STAR", "SLASH", "LPAREN", "RPAREN", "AVG", "COUNT", "DELTA",
-	"MAX", "MIN", "SUM", "ANON", "RATE" };
+	"MAX", "MIN", "SUM", "ANON", "RATE", "INSTANT" };
 static const char	type_c[] = {
 	'\0', '\0', '\0', '\0', '\0', '+', '-', '*', '/', '(', ')', '\0' };
 
@@ -120,6 +120,7 @@ static const struct {
     { L_SUM,	"sum" },
     { L_ANON,	"anon" },
     { L_RATE,	"rate" },
+    { L_INSTANT,"instant" },
     { L_UNDEF,	NULL }
 };
 
@@ -631,6 +632,7 @@ void report_sem_error(char *name, node_t *np)
 	case L_COUNT:
 	case L_DELTA:
 	case L_RATE:
+	case L_INSTANT:
 	case L_MAX:
 	case L_MIN:
 	case L_SUM:
@@ -994,11 +996,13 @@ check_expr(int n, node_t *np)
 	 * delta()	expect numeric operand, result is instantaneous
 	 * rate()	expect numeric operand, dimension of time must be
 	 * 		0 or 1, result is instantaneous
+	 * instant()	result is instantaneous
 	 * aggr funcs	most expect numeric operand, result is instantaneous
 	 *		and singular
 	 */
 	if (np->type == L_AVG || np->type == L_COUNT
-	    || np->type == L_DELTA || np->type == L_RATE
+	    || np->type == L_DELTA 
+	    || np->type == L_RATE || np->type == L_INSTANT
 	    || np->type == L_MAX || np->type == L_MIN || np->type == L_SUM) {
 	    if (np->type == L_COUNT) {
 		/* count() has its own type and units */
@@ -1006,6 +1010,17 @@ check_expr(int n, node_t *np)
 		memset((void *)&np->desc.units, 0, sizeof(np->desc.units));
 		np->desc.units.dimCount = 1;
 		np->desc.units.scaleCount = PM_COUNT_ONE;
+		np->desc.sem = PM_SEM_INSTANT;
+	    }
+	    else if (np->type == L_INSTANT) {
+		/*
+		 * semantics are INSTANT if operand is COUNTER, else
+		 * inherit the semantics of the operand
+		 */
+		if (np->left->desc.sem == PM_SEM_COUNTER)
+		    np->desc.sem = PM_SEM_INSTANT;
+		else
+		    np->desc.sem = np->left->desc.sem;
 	    }
 	    else {
 		/* others inherit, but need arithmetic operand */
@@ -1022,9 +1037,9 @@ check_expr(int n, node_t *np)
 			report_sem_error(registered.mlist[n].name, np);
 			return -1;
 		}
+		np->desc.sem = PM_SEM_INSTANT;
 	    }
-	    np->desc.sem = PM_SEM_INSTANT;
-	    if (np->type == L_DELTA || np->type == L_RATE) {
+	    if (np->type == L_DELTA || np->type == L_RATE || np->type == L_INSTANT) {
 		/* inherit indom */
 		if (np->type == L_RATE) {
 		    /*
@@ -1267,7 +1282,8 @@ parse(int level)
 		    state = P_LEAF_PAREN;
 		}
 		else if (type == L_AVG || type == L_COUNT
-			 || type == L_DELTA || type == L_RATE
+			 || type == L_DELTA
+			 || type == L_RATE || type == L_INSTANT
 		         || type == L_MAX || type == L_MIN || type == L_SUM 
 			 || type == L_ANON) {
 		    expr = curr = newnode(type);
@@ -1286,7 +1302,8 @@ parse(int level)
 		    if (state == P_LEAF_PAREN ||
 		        curr->type == L_NAME || curr->type == L_NUMBER ||
 			curr->type == L_AVG || curr->type == L_COUNT ||
-			curr->type == L_DELTA || curr->type == L_RATE ||
+			curr->type == L_DELTA ||
+			curr->type == L_RATE || curr->type == L_INSTANT ||
 			curr->type == L_MAX || curr->type == L_MIN ||
 			curr->type == L_SUM || curr->type == L_ANON ||
 		        type == L_PLUS || type == L_MINUS) {
@@ -1341,7 +1358,8 @@ parse(int level)
 		    state = P_LEAF_PAREN;
 		}
 		else if (type == L_AVG || type == L_COUNT
-			 || type == L_DELTA || type == L_RATE
+			 || type == L_DELTA
+			 || type == L_RATE || type == L_INSTANT
 		         || type == L_MAX || type == L_MIN || type == L_SUM
 			 || type == L_ANON) {
 		    np = newnode(type);

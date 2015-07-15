@@ -157,6 +157,27 @@ AC_ARG_WITH([vector],
     [do_vector=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-vector=$withval"],
     [do_vector=no])
 
+dnl things set in the environment by Makepkgs never make it into an RPM
+dnl build where the environment is stripped ... use a --with-foo=path
+dnl construct to workaround this
+
+AC_ARG_WITH([make],
+    [AC_HELP_STRING([--with-make],
+                    [path to GNU compatible make(1) (default is empty for auto discovery)])],
+    [MAKE=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-make=$withval"],
+    [MAKE=''])
+
+AC_ARG_WITH([tar],
+    [AC_HELP_STRING([--with-tar],
+                    [path to GNU compatible tar(1) (default is empty for auto discovery)])],
+    [TAR=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-tar=$withval"],
+    [TAR=''])
+
+AC_ARG_WITH([zip],
+    [AC_HELP_STRING([--with-zip],
+                    [path to GNU compatible zip(1) (default is empty for auto discovery)])],
+    [ZIP=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-zip=$withval"],
+    [ZIP=''])
 
 #
 # Note: the following environment variables may be
@@ -355,7 +376,7 @@ CFLAGS="-O $CFLAGS"
 # Add some security-related gcc flags
 AC_ARG_ENABLE([ssp],
   [AS_HELP_STRING([--disable-ssp], [disable gcc stack-protector])])
-AS_IF([test "$cc_is_gcc" = yes -a "$enable_ssp" != no],[
+AS_IF([test "x$cc_is_gcc" = xyes -a "x$enable_ssp" != no],[
    save_CFLAGS="$CFLAGS"
    CFLAGS="$CFLAGS -fstack-protector-all -D_FORTIFY_SOURCE=2"
    AC_COMPILE_IFELSE([AC_LANG_SOURCE([int something ();])], [
@@ -367,7 +388,7 @@ AS_IF([test "$cc_is_gcc" = yes -a "$enable_ssp" != no],[
 # Check for even more security-related gcc/linker flags, useful for daemons
 AC_ARG_ENABLE([pie],
   [AS_HELP_STRING([--disable-pie], [disable position-independent-executable])])
-AS_IF([test "$cc_is_gcc" = yes -a "$enable_pie" != no],[
+AS_IF([test "x$cc_is_gcc" = xyes -a "x$enable_pie" != xno],[
    PIECFLAGS='-fPIE'
    PIELDFLAGS='-pie -Wl,-z,relro -Wl,-z,now'
    save_CFLAGS="$CFLAGS"
@@ -390,7 +411,7 @@ AC_SUBST(PIECFLAGS)
 # Check for support for symbol hiding via gcc flags
 AC_ARG_ENABLE([visibility],
   [AS_HELP_STRING([--disable-visibility], [disable gcc symbol visibility])])
-AS_IF([test "$cc_is_gcc" = yes -a "$enable_visibility" != no],[
+AS_IF([test "x$cc_is_gcc" = xyes -a "$enable_visibility" != no],[
    INVISIBILITY="-fvisibility=hidden"
    save_CFLAGS="$CFLAGS"
    CFLAGS="$CFLAGS -c $INVISIBILITY"
@@ -704,7 +725,7 @@ AS_IF([test "x$do_qt" != "xno"], [
     if test -z "$QMAKE"
     then
 	AC_PATH_PROGS(QMAKE, [qmake-qt4 qmake],, [$QTDIR/bin:/usr/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin])
-	test "$cc_is_gcc" = yes -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
+	test "x$cc_is_gcc" = xyes -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
     fi
     qmake=$QMAKE
     if test -z "$QMAKE"

@@ -20,17 +20,23 @@ N=`sed -n '/value/s/    value //p' $tmp.out`
 sed "s/$N/N/" $tmp.out
 N=`expr $N + 4`
 
-KILL=""
 for i in 1 2 3 4
 do
-    sh -c "pmval -s2 -t5 pmcd.numagents" >/dev/null 2>&1 &
-    KILL="$KILL $!"
+    pmval -s3 -t5 pmcd.numagents >$tmp.$i 2>&1 &
 done
 
-sleep 2
-pminfo -f pmcd.numclients >$tmp.out
+while true
+do
+    touch $tmp.started
+    for i in 1 2 3 4
+    do
+	[ -s $tmp.$i ] || rm -f $tmp.started
+    done
+    [ -f $tmp.started ] && break
+    sleep 2
+done
 
-wait
+pminfo -f pmcd.numclients >$tmp.out
 
 if grep "value $N" $tmp.out >/dev/null
 then

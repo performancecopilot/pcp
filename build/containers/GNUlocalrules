@@ -20,7 +20,7 @@
 # e.g. OPTIONS="-G wheel", then restart the docker service. This allows users
 # in group e.g. 'wheel' access to the local docker unix domain socket interface.
 
-$(CONTAINER).tgz: Dockerfile
-	docker build --no-cache -t $(CONTAINER) .
-	docker save $(CONTAINER) | gzip > $(CONTAINER).tgz 
-	@echo Wrote: $(PWD)/$(CONTAINER).tgz
+$(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz: Dockerfile
+	docker build --no-cache -t $(CONTAINER):latest .
+	docker save $(CONTAINER) | gzip > $(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz 
+	@echo Wrote: $(PWD)/$(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz

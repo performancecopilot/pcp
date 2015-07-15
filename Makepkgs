@@ -24,7 +24,7 @@ nonrpm=unknown
 nondeb=unknown
 vector=false
 webjs=false
-containers=false
+docker=false
 
 if [ ! -d .git ]
 then
@@ -113,6 +113,10 @@ else
     # This set is based on Fedora 22 %configure macro from /usr/lib/rpm/macros,
     # and is known to work as far back as RHEL5.
     configopts=`rpmbuild --eval '--prefix=%{_prefix} --exec-prefix=%{_exec_prefix} --bindir=%{_bindir} --sbindir=%{_sbindir} --sysconfdir=%{_sysconfdir} --datadir=%{_datadir} --includedir=%{_includedir} --libdir=%{_libdir} --libexecdir=%{_libexecdir} --localstatedir=%{_localstatedir} --sharedstatedir=%{_sharedstatedir} --mandir=%{_mandir}' 2>/dev/null`
+    # rpmbuild clears the environment, so force these settings into the
+    # rpm build configure
+    #
+    configopt="$configopts --with-make=$MAKE --with-tar=$TAR --with-zip=$ZIP"
 fi
 
 for opt in $*
@@ -157,8 +161,20 @@ do
 	webjs=true
 	shift
 	;;
-    --with-containers)
-	containers=true
+    --with-docker)
+	docker=true
+	shift
+	;;
+    --with-make)
+	MAKE=$1
+	shift
+	;;
+    --with-tar)
+	TAR=$1
+	shift
+	;;
+    --with-zip)
+	ZIP=$1
 	shift
 	;;
     *)
@@ -506,10 +522,10 @@ packaging_rpm()
     [ -f $tmp/failed ] && build_failure Packaging RPMs via pack_pcp
 }
 
-packaging_containers()
+packaging_docker()
 {
     echo
-    echo "== Building container packages, log is in $LOGDIR/pcp" | tee -a $LOGDIR/pcp
+    echo "== Building docker container images, log is in $LOGDIR/pcp" | tee -a $LOGDIR/pcp
     rm -f $tmp/failed
 
     if docker version >/dev/null 2>&1; then
@@ -526,7 +542,7 @@ packaging_containers()
 	touch $tmp/failed
     fi
 
-    [ -f $tmp/failed ] && build_failure Packaging containers, docker configuration
+    [ -f $tmp/failed ] && build_failure Packaging docker images, docker configuration
 
     if $verbose ; then
 	($MAKE -C build/containers pack_pcp 2>&1 || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
@@ -534,7 +550,7 @@ packaging_containers()
 	($MAKE -C build/containers pack_pcp 2>&1 || touch $tmp/failed) >>$LOGDIR/pcp 2>&1
     fi
 
-    [ -f $tmp/failed ] && build_failure Packaging containers via pack_pcp
+    [ -f $tmp/failed ] && build_failure Packaging docker containers via pack_pcp
 }
 
 # real build starts here
@@ -569,10 +585,10 @@ else
 fi
 
 #
-# --with-containers, currently only for RPM platforms with docker
-if $containers
+# --with-docker, currently only for RPM platforms with docker
+if $docker
 then
-    packaging_containers
+    packaging_docker
 fi
 
 # success!

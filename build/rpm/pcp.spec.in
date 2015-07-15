@@ -515,7 +515,8 @@ Summary: Performance Co-Pilot (PCP) System and Monitoring Tools
 URL: http://www.pcp.io
 %if "@enable_python3@" == "true"
 Requires: python3-pcp = @package_version@
-%else
+%endif
+%if "@enable_python2@" == "true"
 Requires: python-pcp = @package_version@
 %endif
 %description -n pcp-system-tools

@@ -195,7 +195,20 @@ container_close(linux_container_t *cp, int openfds)
     return 0;
 }
 
-#else
+#else /* !HAVE_SETNS */
+
+/*
+ * without setns(2), these all do nothing (successfully)
+ */
+
+int
+container_lookup(int fd, linux_container_t *cp)
+{
+    (void)fd;
+    (void)cp;
+    return 0;
+}
+
 int
 container_lookup(int fd, linux_container_t *cp)
 {
@@ -228,8 +241,7 @@ container_close(linux_container_t *cp, int openfds)
     (void)cp;
     return 0;
 }
-
-#endif
+#endif /* !HAVE_SETNS */
 
 int
 container_open_network(linux_container_t *cp)
