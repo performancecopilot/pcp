@@ -1,3 +1,4 @@
+#!/usr/bin/pcp python
 """ Test creation of PCP MMV metrics via the pcp.mmv python module """
 #
 # Copyright (C) 2013 Red Hat Inc.

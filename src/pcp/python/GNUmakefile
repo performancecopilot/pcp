@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2014 Red Hat.
+# Copyright (c) 2015 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -10,30 +10,20 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-#
+# 
 
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-IAM	= gluster
-PYSCRIPT = pmda$(IAM).python
-LDIRT	= domain.h root pmns $(IAM).log
+TARGET = pcp-python
 
-DOMAIN	= GLUSTER
-PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
-
-MAN_SECTION = 1
-MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
-MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
-
-default_pcp default:	check_domain
+default: $(TARGET).sh
 
 include $(BUILDRULES)
 
-install_pcp install:	default 
-	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PYSCRIPT) $(PMDADIR)
-	@$(INSTALL_MAN)
+install: default
+	$(INSTALL) -m 755 $(TARGET).sh $(PCP_BINADM_DIR)/$(TARGET)
 
-check_domain:	../../pmns/stdpmid
-	$(DOMAIN_PYTHONRULE)
+default_pcp : default
+
+install_pcp : install

@@ -32,8 +32,7 @@ include $(BUILDRULES)
 
 install_pcp install:	default 
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 $(PYSCRIPT) $(PMDADIR)/$(PYSCRIPT)
+	$(INSTALL) -m 755 Install Remove $(PYSCRIPT) $(PMDADIR)
 	@$(INSTALL_MAN)
 
 check_domain:	../../pmns/stdpmid

@@ -1658,15 +1658,6 @@ for f in $RPM_BUILD_ROOT/%{_initddir}/{pcp,pmcd,pmlogger,pmie,pmwebd,pmmgr,pmpro
 	sed -i -e '/^# chkconfig/s/:.*$/: - 95 05/' -e '/^# Default-Start:/s/:.*$/:/' $f
 done
 
-%if 0%{?default_python} != 0
-# defaulting to explicit python version requires /usr/bin/pythonN hashbang
-# lines (for either python3 or python26 on epel5), make it so:
-for f in `find $RPM_BUILD_ROOT -type f -print`
-do
-    sed -i -e "1 s|^#!/usr/bin/python\b|#!/usr/bin/python%{default_python}|" $f
-done
-%endif
-
 # list of PMDAs in the base pkg
 ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   grep -E -v '^simple|sample|trivial|txmon' |\
