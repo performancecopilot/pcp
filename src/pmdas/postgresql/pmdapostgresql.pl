@@ -911,9 +911,6 @@ sub refresh_user_tables
     $pmda->replace_indom($user_rel_indom, \@user_rel_instances);
 }
 
-# TODO not in 9.0, X in 9.1, 11 in 9.4
-# also for xact_sys_tables, xact_user_tables (use same schema)
-
 my $xact_all_tables_report_bad = 1;	# report unexpected number of values only once
 
 sub refresh_xact_all_tables
