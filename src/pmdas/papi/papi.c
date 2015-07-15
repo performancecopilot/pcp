@@ -801,20 +801,31 @@ papi_internal_init(pmdaInterface *dp)
 		memcpy(&papi_info[i].info, &info, sizeof(PAPI_event_info_t));
 		tokenized_string = strtok(info.symbol, "::: -");
 		while (tokenized_string != NULL) {
-		    strcat(local_native_metric_name, tokenized_string);
+		    size_t remaining = sizeof(local_native_metric_name) -
+			strlen(local_native_metric_name) - 1;
+		    if (remaining < 1)
+			break;
+		    strncat(local_native_metric_name, tokenized_string, remaining);
 		    was_tokenized = 1;
 		    tokenized_string=strtok(NULL, "::: -");
-		    if (tokenized_string)
-			strcat(local_native_metric_name, ".");
+		    if (tokenized_string) {
+			remaining = sizeof(local_native_metric_name) -
+			    strlen(local_native_metric_name) - 1;
+			if (remaining < 1)
+			    break;
+			strncat(local_native_metric_name, ".", remaining);
+		    }
 		}
 		if (!was_tokenized) {
-		    memcpy(&papi_info[i].papi_string_code, info.symbol, strlen(info.symbol));
-		    snprintf(entry, sizeof(entry),"papi.system.%s", papi_info[i].papi_string_code);
+		    strncpy(papi_info[i].papi_string_code, info.symbol,
+			    sizeof(papi_info[i].papi_string_code) - 1);
 		}
 		else {
-		    strncpy(papi_info[i].papi_string_code, local_native_metric_name, strlen(local_native_metric_name));
-		    snprintf(entry, sizeof(entry),"papi.system.%s", papi_info[i].papi_string_code);
+		    strncpy(papi_info[i].papi_string_code,
+			    local_native_metric_name,
+			    sizeof(papi_info[i].papi_string_code) - 1);
 		}
+		snprintf(entry, sizeof(entry),"papi.system.%s", papi_info[i].papi_string_code);
 		pmid = pmid_build(dp->domain, CLUSTER_PAPI, i);
 		papi_info[i].pmid = pmid;
 		__pmAddPMNSNode(papi_tree, pmid, entry);
