@@ -655,16 +655,16 @@ Chart::YAxisTitle(void) const
 void
 Chart::setYAxisTitle(const char *p)
 {
-    QwtText *t;
+    QwtText t;
     bool enable = (my.tab->currentGadget() == this);
 
     if (!p || *p == '\0')
-	t = new QwtText(" ");	// for y-axis alignment (space is invisible)
+	t = QwtText(" ");	// for y-axis alignment (space is invisible)
     else
-	t = new QwtText(p);
-    t->setFont(*globalFont);
-    t->setColor(enable ? globalSettings.chartHighlight : "black");
-    setAxisTitle(QwtPlot::yLeft, *t);
+	t = QwtText(p);
+    t.setFont(*globalFont);
+    t.setColor(enable ? globalSettings.chartHighlight : "black");
+    setAxisTitle(QwtPlot::yLeft, t);
 }
 
 void
