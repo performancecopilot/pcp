@@ -780,6 +780,8 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Lustre Filesytem Comms
 URL: http://www.pcp.io
+Requires: pcp = %{version}-%{release}
+Requires: pcp-libs = %{version}-%{release}
 
 %description pmda-lustrecomm
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1144,7 +1146,7 @@ Requires: python-six
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics output in JSON.  The PMDA is written in Python.
 # end pcp-pmda-json
-%endif
+%endif # !%{disable_json}
 
 #
 # C pmdas
@@ -1300,6 +1302,7 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Roomtemp shell
 URL: http://www.pcp.io
 Requires: pcp = %{version}-%{release}
+Requires: pcp-libs = %{version}-%{release}
 %description pmda-roomtemp
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Room temperature metrics.  The PMDA is written in C.
@@ -1315,6 +1318,7 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Rpm shell
 URL: http://www.pcp.io
 Requires: pcp = %{version}-%{release}
+Requires: pcp-libs = %{version}-%{release}
 %description pmda-rpm
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the rpms.  The PMDA is written in C.
@@ -1330,6 +1334,7 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Sendmail shell
 URL: http://www.pcp.io
 Requires: pcp = %{version}-%{release}
+Requires: pcp-libs = %{version}-%{release}
 %description pmda-sendmail
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about Sendmail traffic metrics.  The PMDA is written in C.
@@ -1359,6 +1364,7 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Summary shell
 URL: http://www.pcp.io
 Requires: pcp = %{version}-%{release}
+Requires: pcp-libs = %{version}-%{release}
 %description pmda-summary
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about other installed pmdas.  The PMDA is written in C.
@@ -1404,6 +1410,7 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Weblog shell
 URL: http://www.pcp.io
 Requires: pcp = %{version}-%{release}
+Requires: pcp-libs = %{version}-%{release}
 %description pmda-weblog
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about web server logs.  The PMDA is written in C.
@@ -1544,6 +1551,7 @@ Requires: python3-pcp = %{version}-%{release}
 %if !%{disable_python2}
 Requires: python-pcp = %{version}-%{release}
 %endif
+Requires: pcp-libs = %{version}-%{release}
 %description -n pcp-system-tools
 This PCP module contains additional system monitoring tools written
 in python.
@@ -1605,7 +1613,7 @@ rm -Rf $RPM_BUILD_ROOT
 %if !%{disable_python2} && 0%{?default_python} != 3
 export PYTHON=python%{?default_python}
 %endif
-%configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_perfevent}
+%configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_perfevent} %{?_with_json}
 make %{?_smp_mflags} default_pcp
 
 %install
