@@ -249,7 +249,7 @@ class _interruptCollectPrint(_CollectPrint):
     def print_header1_detail(self):
         print('# INTERRUPT DETAILS')
         sys.stdout.write('# Int    ')
-        for k in self.ss.get_metric_value('hinv.ncpu'):
+        for k in range(self.ss.get_metric_value('hinv.ncpu')):
             sys.stdout.write('Cpu%d ' % k)
         print('Type            Device(s)')
     def print_header1_verbose(self):
@@ -292,7 +292,7 @@ class _interruptCollectPrint(_CollectPrint):
                 sys.stdout.write("%-8s" % self.ss.metrics[j_i].split(".")[3])
                 for i in range(ncpu):
                     sys.stdout.write("%4d " % (self.ss.get_scalar_value(j_i, i)))
-                text = (pm.pmLookupText(self.ss.metric_pmids[j_i], c_api.PM_TEXT_ONELINE))
+                text = (pm.pmLookupText(self.ss.metric_pmids[j_i], c_api.PM_TEXT_ONELINE)).decode("utf-8")
                 print("%-18s %s" % (text[:(str.index(text, " "))],
                                  text[(str.index(text, " ")):]))
     def print_verbose(self):
