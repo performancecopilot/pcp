@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/pcp python
 #
 # Copyright (C) 2014 Red Hat.
 #

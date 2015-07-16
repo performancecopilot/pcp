@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/pcp python
 #
 # Copyright (C) 2012-2015 Red Hat.
 #
@@ -15,10 +15,7 @@
 
 """System status collector using the libpcp Wrapper module
 
-Additional Information:
-
-Performance Co-Pilot Web Site
-http://www.performancecopilot.org
+Additional Information: http://pcp.io
 """
 
 # ignore line too long, missing docstring, method could be a function,
