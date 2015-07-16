@@ -389,6 +389,7 @@ dump_result(pmResult *resp)
 
 	if (i > 0)
 	    printf("            ");
+	names = NULL; /* silence coverity */
 	n = pmNameAll(vsp->pmid, &names);
 	if (vsp->numval == 0) {
 	    printf("  %s (", pmIDStr(vsp->pmid));
@@ -438,6 +439,7 @@ dumpDesc(__pmContext *ctxp)
     for (i = 0; i < ctxp->c_archctl->ac_log->l_hashpmid.hsize; i++) {
 	for (hp = ctxp->c_archctl->ac_log->l_hashpmid.hash[i]; hp != NULL; hp = hp->next) {
 	    dp = (pmDesc *)hp->data;
+	    names = NULL; /* silence coverity */
 	    sts = pmNameAll(dp->pmid, &names);
 	    if (sts < 0)
 		printf("PMID: %s (%s)\n", pmIDStr(dp->pmid), "<noname>");

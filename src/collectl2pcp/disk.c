@@ -34,8 +34,8 @@ put_disk_str(const char *leaf, char *inst, char *value)
 	indom = pmInDom_build(LINUX_DOMAIN, DISK_INDOM);
     }
 
-    strcpy(metric, subtree);
-    strcat(metric, leaf);
+    strncpy(metric, subtree, sizeof(metric) - 1);
+    strncat(metric, leaf, sizeof(metric) - strlen(metric) - 1);
 
     put_str_value(metric, indom, inst, value);
 }

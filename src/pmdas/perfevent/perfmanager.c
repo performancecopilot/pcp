@@ -237,6 +237,7 @@ perfmanagerhandle_t *manager_init(const char *configfilename)
 
     if( 0 == perf) {
         free(mgr);
+	close(fp);
         return 0;
     }
 
@@ -244,6 +245,7 @@ perfmanagerhandle_t *manager_init(const char *configfilename)
     if( 0 == mgr->monitor)
     {
         free(mgr);
+	close(fp);
         return 0;
     }
 

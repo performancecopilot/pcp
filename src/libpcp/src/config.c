@@ -262,6 +262,7 @@ pmgetconfig(const char *name, int fatal)
 	val = "";
 	return val;
     }
+    PM_UNLOCK(__pmLock_libpcp);
 
     if ((val = getenv(name)) == NULL) {
 	if (!fatal)
@@ -272,7 +273,6 @@ pmgetconfig(const char *name, int fatal)
     if (pmDebug & DBG_TRACE_CONFIG)
 	fprintf(stderr, "pmgetconfig: %s=%s\n", name, val);
 
-    PM_UNLOCK(__pmLock_libpcp);
     return val;
 }
 

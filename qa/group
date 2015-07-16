@@ -1126,6 +1126,7 @@ cgroups
 1053 pmda.json pmda.install local python
 1079 pcp local
 1080 valgrind pcp local
+1081 python pcp local
 1091 pmns libpcp context local
 1092 libpcp local
 1108 logutil local folio pmlogextract

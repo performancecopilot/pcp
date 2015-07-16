@@ -1,3 +1,4 @@
+#!/usr/bin/pcp python
 """ Test metric value extraction/reporting using the pcp.pmcc module """
 #
 # Copyright (C) 2013-2015 Red Hat Inc.

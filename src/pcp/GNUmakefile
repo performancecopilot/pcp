@@ -23,6 +23,7 @@ SUBDIRS = \
 	free \
 	iostat \
 	numastat \
+	python \
 	shping \
 	summary \
 	uptime \

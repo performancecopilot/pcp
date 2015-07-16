@@ -1,3 +1,4 @@
+#!/usr/bin/pcp python
 '''
 Python implementation of the "slow_python" Performance Metrics Domain Agent.
 '''
