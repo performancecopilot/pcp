@@ -562,6 +562,7 @@ do_work(task_t *tp)
 	}
 
 	__pmOverrideLastFd(fileno(logctl.l_mfp));
+	resp = NULL; /* silence coverity */
 	if ((sts = __pmDecodeResult(pb, &resp)) < 0) {
 	    fprintf(stderr, "__pmDecodeResult: %s\n", pmErrStr(sts));
 	    exit(1);

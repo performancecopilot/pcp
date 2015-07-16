@@ -289,7 +289,7 @@ main(int argc, char *argv[])
 
     if (strcmp(archdirname, ".") == 0)
 	/* skip ./ prefix */
-	strncpy(archname, archbasename, sizeof(archname));
+	strncpy(archname, archbasename, sizeof(archname) - 1);
     else
 	snprintf(archname, sizeof(archname), "%s%c%s", archdirname, sep, archbasename);
 

@@ -429,10 +429,6 @@ numeric(char *ns)
 void
 ptrverify(const void *ptr, const char *errormsg, ...)
 {
-	va_list args;
-
-        va_start(args, errormsg);
-
 	if (!ptr)
 	{
 		acctswoff();
@@ -442,6 +438,7 @@ ptrverify(const void *ptr, const char *errormsg, ...)
 			(vis.show_end)();
 
         	va_list args;
+		va_start(args, errormsg);
 		fprintf(stderr, errormsg, args);
         	va_end  (args);
 

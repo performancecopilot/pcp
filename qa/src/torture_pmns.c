@@ -344,6 +344,7 @@ test_api(void)
 		}
 		free(back);
 	    }
+	    allnames = NULL; /* silence coverity */
 	    n = pmNameAll(midlist[i], &allnames);
 	    REPORT("pmNameAll", n);
 	    if (n >= 0) {
