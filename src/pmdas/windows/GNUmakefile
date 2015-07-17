@@ -24,7 +24,7 @@ HFILES		= hypnotoad.h
 LCFLAGS		= -DWIN32_LEAN_AND_MEAN -D_WIN32_WINNT=0x0500 \
 		  -I$(WINDIR)/include
 LLDFLAGS	= -L$(WINDIR)/lib
-LLDLIBS		= $(PCP_PMDALIB) -lpcp_pdh
+LLDLIBS		= $(PCP_PMDALIB) -lpdh
 PMNS		= pmns.disk pmns.kernel pmns.mem pmns.network \
 		  pmns.sqlserver pmns.filesys pmns.hinv pmns.pmda \
 		  pmns.process
@@ -80,4 +80,4 @@ domain.h: ../../pmns/stdpmid
 $(OBJECTS):	hypnotoad.h domain.h
 
 pdhlist.exe:	pdhlist.o error.o
-	$(CCF) -o pdhlist.exe pdhlist.o error.o $(LLDFLAGS) -lpcp_pdh
+	$(CCF) -o pdhlist.exe pdhlist.o error.o $(LLDFLAGS) -lpdh
