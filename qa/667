@@ -58,7 +58,8 @@ fgrep -q pcp.hinv.ncpu $tmp.socat.out
 _full_stash
 
 echo "=== 2. pcp2graphite text, 2-second aligned  ===" | tee -a $seq.full
-socat tcp-listen:$port_text,reuseaddr,fork - >$tmp.socat.out 2>$tmp.socat.err &
+rm -f $tmp.socat.out $tmp.socat.err
+socat tcp-listen:$port_text,reuseaddr,fork - >>$tmp.socat.out 2>>$tmp.socat.err &
 pid=$!
 sleep 2
 $pcp2graphite -t 2 -P $port_text -u "/$scale" -m foobar. hinv.ncpu sample.datasize >$tmp.p2g.out 2>$tmp.p2g.err &
@@ -73,7 +74,8 @@ grep 'Excluding' $tmp.p2g.err
 _full_stash
 
 echo "=== 3. pcp2graphite bad-instance tolerance ===" | tee -a $seq.full
-socat tcp-listen:$port_text,reuseaddr,fork - >$tmp.socat.out 2>$tmp.socat.err &
+rm -f $tmp.socat.out $tmp.socat.err
+socat tcp-listen:$port_text,reuseaddr,fork - >>$tmp.socat.out 2>>$tmp.socat.err &
 pid=$!
 sleep 2
 $pcp2graphite -t 2 -P $port_text sample.bogus_bin sample.aggregate.null sample.string.hullo NoSuchMetric sample.bad >$tmp.p2g.out 2>$tmp.p2g.err &
