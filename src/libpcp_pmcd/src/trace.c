@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013,2015 Red Hat.
  * Copyright (c) 1995-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -45,8 +45,8 @@ static unsigned int	next;
  * to 1, pmcd.control.traceconn (trace connections) and/or
  * pmcd.control.tracepdu (trace PDUs)
  */
-PMCD_INTERN int		_pmcd_trace_nbufs = 20;
-PMCD_INTERN int		_pmcd_trace_mask;
+PMCD_DATA int		_pmcd_trace_nbufs = 20;
+PMCD_DATA int		_pmcd_trace_mask;
 
 void
 pmcd_init_trace(int n)
