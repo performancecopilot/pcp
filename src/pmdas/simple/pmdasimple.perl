@@ -1,3 +1,4 @@
+#!/usr/bin/perl
 #
 # Copyright (c) 2012 Red Hat.
 # Copyright (c) 2008,2012 Aconex.  All Rights Reserved.

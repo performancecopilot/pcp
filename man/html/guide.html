@@ -36,6 +36,7 @@
     <LI><A HREF="#hotproc">Monitoring “Hot” Processes with Hotproc</A>
     <LI><A HREF="#instrument">Application Instrumentation</A>
   </UL>
+  <LI><A HREF="#derived">Derived Metrics</A>
   <LI><A HREF="#pmie">Performance Metrics Inference</A>
   <LI><A HREF="#web">Web Services</A>
   <UL>
@@ -427,7 +428,7 @@ Display the number of running processes on 2014-08-20 14:00:<BR><B>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Enable monitoring of all Java instances on the fly and display all the collected metrics:<BR><B>
 <BR> # <a href="http://man7.org/linux/man-pages/man1/pmstore.1.html">pmstore</a> hotproc.control.config 'fname == "java"'
-<BR> # <a href="http://man7.org/linux/man-pages/man1/pminfo.1.html">pminfo</a> -f hotproc
+<BR> # <a href="http://man7.org/linux/man-pages/man1/pminfo.1.html">pminfo</a> -f hotproc</B>
 </TD></TR>
 </TABLE>
 
@@ -442,6 +443,28 @@ Enable monitoring of all Java instances on the fly and display all the collected
 <P>Instrumentation of unaltered Java applications is a known feature request and is planned for a not-too-distant release.
 
 <P>See the <A HREF="http://www.pcp.io/doc/pcp-programmers-guide.pdf">Performance Co-Pilot Programmer's Guide PDF</A> for more information about application instrumentation.
+
+<a name="derived"></a>
+<H1>Derived Metrics</H1>
+
+<P>PCP provides a wide range of performance metrics but still in some cases the readily available metrics may not exactly provide what is needed. Derived metrics (see <a href="http://man7.org/linux/man-pages/man3/pmloadderivedconfig.3.html">pmLoadDerivedConfig(3)</a>) may be used to extend the available metrics with new (derived) metrics by using simple arithmetic expressions (see <a href="http://man7.org/linux/man-pages/man3/pmregisterderived.3.html">pmRegisterDerived(3)</a>).
+
+<P>The following example illustrates how to define corresponding metrics which are displayed by <KBD>sar -d</KBD> but are not provided by default by PCP:
+
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+Create a file containing definitions of derived metrics and point PCP_DERIVED_CONFIG to it when running PCP utilities:</BR><B>
+<BR> $ cat ./pcp-deriv-metrics.conf
+<BR> disk.dev.avqsz = disk.dev.read_rawactive + disk.dev.write_rawactive
+<BR> disk.dev.avrqsz = 2 * rate(disk.dev.total_bytes) / rate(disk.dev.total)
+<BR> disk.dev.await = 1000 * (rate(disk.dev.read_rawactive) + rate(disk.dev.write_rawactive)) / rate(disk.dev.total)
+<BR> $ export PCP_DERIVED_CONFIG=./pcp-deriv-metrics.conf
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -t 2sec -f 3 disk.dev.avqsz
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -t 2sec -f 3 disk.dev.avrqsz -h <FONT COLOR="#cc0000">acme.com</FONT>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -t 2sec -f 3 disk.dev.await -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
+</TD></TR>
+</TABLE>
+
 
 <a name="pmie"></a>
 <H1>Performance Metrics Inference</H1>
@@ -480,7 +503,7 @@ Enable monitoring of all Java instances on the fly and display all the collected
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 This example shows a PMIE script, checks its syntax, runs it against an archive, and prints a simple message if more than 5 GB of memory was in use between 9 AM and 10 AM using one minute sampling interval:<BR><B>
 <BR> $ cat pmie.ex</B>
-<PRE><B>bloated = (  mem.util.used > 5 Gbyte )
+<PRE><B>bloated = ( mem.util.used > 5 Gbyte )
       -> print "%v memory used on %h!"</B></PRE><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmie.1.html">pmie</a> -C pmie.ex
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmie.1.html">pmie</a> -t 1min -c pmie.ex -S @09:00 -T @10:00 -a <FONT COLOR="#cc0000">acme.com</FONT>/20140820</B>

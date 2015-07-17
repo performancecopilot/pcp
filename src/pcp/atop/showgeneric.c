@@ -960,7 +960,6 @@ generic_samp(double curtime, double delta,
 #if 1
 				statmsg = "Not supported in this atop!";
 				beep();
-				break;
 #else
 				if (rawreadflag)	// TODO: or via remote pmcd, or...?
 				{
@@ -1003,8 +1002,8 @@ generic_samp(double curtime, double delta,
 				if (!paused)
 					setalarm2(3, 0); /* set short timer */
 
-#endif
 				firstproc = 0;
+#endif
 				break;
 
 			   /*

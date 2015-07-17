@@ -141,6 +141,7 @@ static uint64_t detect_cpu(void) {
 			sscanf(result,"%*s%*s%s",vendor);
 
 			if (strncmp(vendor,"GenuineIntel",12)) {
+			    	fclose(fff);
 				return -1;
 			}
 		}
@@ -148,6 +149,7 @@ static uint64_t detect_cpu(void) {
 		if (!strncmp(result,"cpu family",10)) {
 			sscanf(result,"%*s%*s%*s%d",&family);
 			if (family!=6) {
+			    	fclose(fff);
 				return -1;
 			}
 		}

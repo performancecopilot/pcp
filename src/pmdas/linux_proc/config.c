@@ -68,18 +68,10 @@ FILE *
 open_config(char configfile[])
 {
     FILE *conf;
+    int fd;
     struct stat sb;
 
     hotproc_configfile = strdup(configfile);
-
-    if( stat(hotproc_configfile, &sb) == -1 )
-        return NULL;
-
-    if( sb.st_mode & S_IWOTH){
-        fprintf(stderr, "Hotproc config file : %s has global write permission, ignoring\n",
-            hotproc_configfile);
-        return NULL;
-    }
 
     if ((conf = fopen(hotproc_configfile, "r")) == NULL) {
 	if (pmDebug & DBG_TRACE_APPL0) {
@@ -88,6 +80,20 @@ open_config(char configfile[])
 	}
 	return NULL;
     }
+
+    fd = fileno(conf);
+    if( fstat(fd, &sb) == -1 ) {
+	fclose(conf);
+        return NULL;
+    }
+
+    if( sb.st_mode & S_IWOTH){
+        fprintf(stderr, "Hotproc config file : %s has global write permission, ignoring\n",
+            hotproc_configfile);
+	fclose(conf);
+        return NULL;
+    }
+
     return conf;
 }
 

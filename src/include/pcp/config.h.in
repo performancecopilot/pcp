@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 2003 Moser, Inc.  All Rights Reserved.
  * Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -136,8 +136,10 @@ extern "C" {
 #undef HAVE_WS2TCPIP_H
 #undef HAVE_EXECINFO_H
 #undef HAVE_IPTYPES_H
-#undef HAVE_NETDB_H
+#undef HAVE_IPHLPAPI_H
 #undef HAVE_SYS_SOCKET_H
+#undef HAVE_NETDB_H
+#undef HAVE_NET_IF_H
 #undef HAVE_NETINET_IN_H
 #undef HAVE_NETINET_TCP_H
 #undef HAVE_ARPA_INET_H
@@ -232,6 +234,7 @@ extern "C" {
 #undef HAVE_KILL
 
 #undef HAVE_CHOWN
+#undef HAVE_FCHMOD
 #undef HAVE_GETCWD
 #undef HAVE_SCANDIR
 #undef HAVE_MKSTEMP
@@ -548,6 +551,7 @@ extern const char *wsastrerror(int);
 #define HAVE_DLOPEN
 #define HAVE_FNDELAY
 
+#define SHUT_RDWR	SD_BOTH
 #define MAP_FAILED	NULL
 #define O_NDELAY	0
 #define SIGHUP		(NSIG+1)

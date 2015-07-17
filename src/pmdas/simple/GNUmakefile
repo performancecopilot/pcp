@@ -25,8 +25,6 @@ SCRIPTS = pmdasimple.perl
 ifeq "$(HAVE_PYTHON)" "true"
 SCRIPTS += pmdasimple.python
 endif
-LSRCFILES = Install Remove pmns root $(DFILES) $(SCRIPTS) \
-	simple.conf GNUmakefile.install
 
 IAM	= simple
 DOMAIN	= SIMPLE
@@ -40,10 +38,10 @@ include $(BUILDRULES)
 
 install_pcp install:	default 
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PMDADIR)
+	$(INSTALL) -m 755 Install Remove $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
 	$(INSTALL) -m 644 root pmns domain.h simple.conf $(PMDADIR)
-	$(INSTALL) -m 644 $(CFILES) $(DFILES) $(SCRIPTS) $(PMDADIR)
+	$(INSTALL) -m 644 $(CFILES) $(DFILES) $(PMDADIR)
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)

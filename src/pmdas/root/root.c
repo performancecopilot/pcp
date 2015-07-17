@@ -153,10 +153,10 @@ root_container_search(const char *query)
     }
 
     if (pmDebug & DBG_TRACE_ATTR) {
-	if (found)
+	if (found) /* query must be non-NULL */
 	    __pmNotifyErr(LOG_DEBUG, "found container: %s (%s/%d) pid=%d\n",
-				name, query ? query : "NULL", best, found->pid);
-	else
+				name, query, best, found->pid);
+	else /* query may be NULL */
 	    __pmNotifyErr(LOG_DEBUG, "container %s not matched\n", query ? query : "NULL");
     }
 
