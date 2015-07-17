@@ -288,6 +288,18 @@ pmGetOptionalConfig(const char *name)
     return pmgetconfig(name, PM_RECOV_ERR);
 }
 
+int
+__pmGetUsername(char **username)
+{
+    char *user = pmGetOptionalConfig("PCP_USER");
+    if (user && user[0] != '\0') {
+	*username = user;
+	return 1;
+    }
+    *username = "pcp";
+    return 0;
+}
+
 /*
  * Details of runtime features available in the built libpcp
  */
