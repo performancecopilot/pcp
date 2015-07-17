@@ -281,7 +281,11 @@ __pmServerCreatePIDFile(const char *spec, int verbose)
     }
     atexit(pidonexit);
     fprintf(pidfile, "%" FMT_PID, getpid());
+#ifdef HAVE_FCHMOD
     (void)fchmod(fileno(pidfile), S_IRUSR | S_IRGRP | S_IROTH);
+#else
+    (void)chmod(pidpath, S_IRUSR | S_IRGRP | S_IROTH);
+#endif
     fclose(pidfile);
     return 0;
 }
