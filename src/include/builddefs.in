@@ -79,7 +79,7 @@ ifeq "$(TARGET_OS)" "mingw"
 DSOSUFFIX = dll
 EXECSUFFIX = .exe
 SHELLSUFFIX = .sh
-PLDLIBS = -lwsock32
+PLDLIBS = -lwsock32 -liphlpapi
 endif
 ifeq "$(TARGET_OS)" "solaris"
 PLDFLAGS += -fPIC
