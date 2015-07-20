@@ -407,7 +407,7 @@ debian_buildpackage()
 
     SUDO=${SUDO:-fakeroot}
     sign=''
-    $signed -o -n "$DEB_SIGN_KEYID" && sign='-us -uc'
+    $signed && [ -n "$DEB_SIGN_KEYID" ] && sign='-us -uc'
     rm -f $tmp/failed
     if $verbose ; then
 	(dpkg-buildpackage $sign -r$SUDO || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
