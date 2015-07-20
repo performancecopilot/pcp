@@ -612,7 +612,8 @@ if __name__ == '__main__':
         subsys.append(disk)
         subsys.append(net)
         if opts.create_archive:
-            subsys.append(interrupt, memory)
+            subsys.append(interrupt)
+            subsys.append(memory)
 
     if opts.duration_arg != 0:
         (timeval, errmsg) = pm.pmParseInterval(str(opts.duration_arg))
