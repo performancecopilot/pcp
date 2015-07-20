@@ -12,7 +12,7 @@ SCRIPTS = mk.diff.sh mk.gap.sh mk.mysql.sh mk.schizo.sh mk.foo+.sh \
 	  mk.dynmetric.sh mk.instant.sh \
 	  mkbadlen mkbadti mkbadlabel mkbadlog
 CONFIGS = config.verify config.shping
-OTHERS = ds390-access.gz
+OTHERS = ds390-access.gz collectl-qa
 
 default default_pcp setup:
 

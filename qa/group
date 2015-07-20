@@ -1017,6 +1017,7 @@ cgroups
 843 pmda local python
 844 pmda.linux local
 845 pmda.mounts local
+850 python local
 860 pmda pmda.proc ostest local
 861 pmcd pmda.pmcd local
 862 pmie local
