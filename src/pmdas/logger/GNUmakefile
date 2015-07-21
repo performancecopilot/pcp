@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2011 Nathan Scott.  All Rights Reversed.
-# Copyright (c) 2011-2012 Red Hat Inc.
+# Copyright (c) 2011-2015 Red Hat Inc.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -30,7 +30,7 @@ PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
 LDIRT	= domain.h *.o $(IAM).log $(CMDTARGET)
 
-default: domain.h $(CMDTARGET)
+default: $(CMDTARGET)
 
 include $(BUILDRULES)
 
@@ -41,16 +41,14 @@ install:	default
 	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
 	$(INSTALL) -m 755 $(CMDTARGET) $(PMDADIR)/$(CMDTARGET)
 
-logger.o: domain.h
 event.o logger.o: event.h
 util.o event.o logger.o: util.h
-
-.NOTPARALLEL:
-.ORDER:	domain.h $(OBJECTS)
 
 default_pcp : default
 
 install_pcp : install
+
+$(OBJECTS): domain.h
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)

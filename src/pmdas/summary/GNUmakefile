@@ -1,5 +1,6 @@
 #
 # Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2015 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -50,7 +51,8 @@ endif
 $(IAM)$(EXECSUFFIX):	$(OBJECTS)
 
 mainloop.o summary.o pmda.o:	summary.h
-summary.o pmda.o:	domain.h
+
+$(OBJECTS): domain.h
 
 domain.h:	../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)

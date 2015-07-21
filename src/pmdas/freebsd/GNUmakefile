@@ -38,7 +38,7 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "freebsd"
-build-me: domain.h $(LIBTARGET) $(CMDTARGET) help.dir help.pag
+build-me: $(LIBTARGET) $(CMDTARGET) help.dir help.pag
 	@if [ -f ../pmcd.conf ]; then \
 	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \

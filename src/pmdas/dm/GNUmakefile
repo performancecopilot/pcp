@@ -37,7 +37,7 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: domain.h $(CMDTARGET) $(LIBTARGET)
+build-me: $(CMDTARGET) $(LIBTARGET)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
@@ -52,6 +52,8 @@ endif
 default_pcp : default
 
 install_pcp : install
+
+$(OBJECTS): domain.h
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)

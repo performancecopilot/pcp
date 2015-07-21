@@ -57,7 +57,7 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: domain.h root_proc $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(LOGREWRITERS)
+build-me: root_proc $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(LOGREWRITERS)
 	@if [ -f ../pmcd.conf ]; then \
 	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
@@ -93,6 +93,8 @@ $(VERSION_SCRIPT):
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
+
+$(OBJECTS): domain.h
 
 proc_kernel_ulong.conf proc_jiffies.conf:	mk.rewrite
 	CPP="$(CPP)" INCDIR="$(TOPDIR)/src/include" ./mk.rewrite

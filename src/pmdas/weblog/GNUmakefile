@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2000-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2015 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -62,7 +63,7 @@ endif
 
 weblog$(EXECSUFFIX):	$(OBJECTS)
 
-weblog.o:	domain.h
+$(OBJECTS): domain.h
 
 check_match$(EXECSUFFIX):	check_match.o
 	$(CCF) -o $@ $(LDFLAGS) check_match.o $(LDLIBS)

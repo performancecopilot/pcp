@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2012 Nathan Scott.  All Rights Reversed.
+# Copyright (c) 2015 Red Hat Inc.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -51,7 +52,7 @@ endif
 
 $(IAM)$(EXECSUFFIX):	$(OBJECTS)
 
-bash.o: domain.h
+$(OBJECTS): domain.h
 event.o bash.o util.o: event.h
 
 domain.h: ../../pmns/stdpmid
