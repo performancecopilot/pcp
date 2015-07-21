@@ -504,16 +504,17 @@ class _Options(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option_callback)
         opts.pmSetOverrideCallback(self.override)
-        opts.pmSetShortOptions("vp:c:f:R:i:s:h:?")
+        opts.pmSetShortOptions("vpa:c:f:R:i:s:h:?")
         opts.pmSetLongOptionText("")
         opts.pmSetLongOptionText("Interactive: pcp collectl [-v] [-s subsys] [-c N] [-i N] [-R N]")
         opts.pmSetLongOptionText("Write raw logfile: pcp collectl -f rawfile [-c N] [-i N] [-R N]")
-        opts.pmSetLongOptionText("Read raw logfile: pcp collectl -p rawfile")
+        opts.pmSetLongOptionText("Read raw logfile: pcp collectl [-p|-a] rawfile")
         opts.pmSetLongOptionHeader("Options")
         opts.pmSetLongOptionHost()
         opts.pmSetLongOptionVersion()
         opts.pmSetLongOption("verbose", 0, 'v', '', "Produce verbose output")
         opts.pmSetLongOption("playback", 0, 'p', '', "Read sample data from file")
+        opts.pmSetLongOption("archive", 0, 'a', '', "Read sample data from archive")
         opts.pmSetLongOption("count", 1, 'c', 'COUNT', "Number of samples")
         opts.pmSetLongOption("filename", 1, 'f', 'FILENAME', "Name of output file")
         opts.pmSetLongOption("runtime", 1, 'R', 'N', "How long to take samples")
@@ -556,6 +557,10 @@ class _Options(object):
             self.duration_arg = optarg
         elif opt == 'p':
             self.opts.pmSetOptionArchiveFolio(optarg)
+            self.input_file = optarg
+            self.replay_archive = True
+        elif opt == 'a':
+            self.opts.pmSetOptionArchiveList(optarg)
             self.input_file = optarg
             self.replay_archive = True
         elif opt == 'f':
