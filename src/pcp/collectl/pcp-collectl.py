@@ -504,7 +504,7 @@ class _Options(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option_callback)
         opts.pmSetOverrideCallback(self.override)
-        opts.pmSetShortOptions("vpa:c:f:R:i:s:h:?")
+        opts.pmSetShortOptions("vp:a:c:f:R:i:s:h:?")
         opts.pmSetLongOptionText("")
         opts.pmSetLongOptionText("Interactive: pcp collectl [-v] [-s subsys] [-c N] [-i N] [-R N]")
         opts.pmSetLongOptionText("Write raw logfile: pcp collectl -f rawfile [-c N] [-i N] [-R N]")
