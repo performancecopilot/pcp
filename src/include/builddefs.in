@@ -66,6 +66,7 @@ PCP_LIBS = $(PCPLIB_LDFLAGS)
 # 	../../configure.ac (likewise for PLDFLAGS and LDFLAGS).
 #
 TARGET_OS = @target_os@
+CROSS_COMPILING = @cross_compiling@
 PCFLAGS = @PCFLAGS@
 PLDFLAGS = @PLDFLAGS@
 ifneq (, $(filter linux kfreebsd gnu, $(TARGET_OS)))
@@ -235,6 +236,9 @@ ENABLE_PYTHON3 = @enable_python3@
 ENABLE_SYSTEMD = @enable_systemd@
 ENABLE_MANAGER = @enable_manager@
 ENABLE_WEBAPI = @enable_webapi@
+
+# for code supporting any modern version of perl
+HAVE_PERL = @have_perl@
 
 # for code supporting both/either python2 and/or python3
 HAVE_PYTHON = @have_python@

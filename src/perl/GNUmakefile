@@ -15,7 +15,9 @@
 TOPDIR	= ../..
 include $(TOPDIR)/src/include/builddefs
 
+ifeq "$(HAVE_PERL)" "true"
 SUBDIRS	= PMDA LogSummary MMV LogImport
+endif
 
 default: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
