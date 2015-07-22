@@ -176,7 +176,12 @@ PCP_PS_PROG=@pcp_ps_prog@
 PCP_PS_ALL_FLAGS=@pcp_ps_all_flags@
 
 # preferred python executable
+# Standard program: python, python26, python3 (or empty)
 PCP_PYTHON_PROG=@pcp_python_prog@
+
+# preferred perl executable
+# Standard program: perl (or empty)
+PCP_PERL_PROG=@pcp_perl_prog@
 
 # locate executables
 PCP_WHICH_PROG=@which@

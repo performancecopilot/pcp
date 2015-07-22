@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2015 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -33,7 +34,7 @@ LDIRT	= *.log *.dir *.pag root_aix domain.h
 default:	build-me
 
 ifeq "$(TARGET_OS)" "aix" 
-build-me: common.h root_aix domain.h $(CMDTARGET) $(LIBTARGET) help.dir help.pag
+build-me: common.h root_aix $(CMDTARGET) $(LIBTARGET) help.dir help.pag
 	@if [ -f ../pmcd.conf ]; then \
 	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
@@ -59,13 +60,15 @@ default_pcp : default
 install_pcp : install
 
 help.dir help.pag: help root_aix
-	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_aix -v 2 -o help < help
+	$(NEWHELP) -n root_aix -v 2 -o help < help
 
 root_aix:	../../pmns/stdpmid
 	rm -f root_aix
 	sed -e 's;<stdpmid>;"../../pmns/stdpmid";' <root \
-	| $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmcpp/pmcpp \
+	| ( $(PMCPP) ) \
 	| sed -e '/^#/d' -e '/^$$/d' >root_aix
+
+$(OBJECTS): domain.h
 
 domain.h:	../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)

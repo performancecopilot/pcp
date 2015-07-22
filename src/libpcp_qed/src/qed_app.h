@@ -18,6 +18,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QPixmapCache>
 #include <QtGui/QFont>
+#include <qmc_time.h>
 
 class QedApp : public QApplication
 {

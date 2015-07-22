@@ -52,8 +52,10 @@ mkdir_r(char *path)
 	if (mkdir_r(dirname(strdup(path))) < 0)
 	    return -1;
 	sts = mkdir2(path, 0775);
+#ifndef IS_MINGW
 	if (chown(path, 0, gid) < 0)
 	    fprintf(stderr, "pmpost: cannot set dir gid[%d]: %s\n", gid, path);
+#endif
 	return sts;
     }
     else if ((sbuf.st_mode & S_IFDIR) == 0) {
@@ -128,9 +130,11 @@ main(int argc, char **argv)
 	    fprintf(stderr, "pmpost: cannot create file \"%s\": %s\n",
 		notices, osstrerror());
 	    exit(1);
+#ifndef IS_MINGW
 	} else if ((fchown(fd, 0, gid)) < 0) {
 	    fprintf(stderr, "pmpost: cannot set file gid \"%s\": %s\n",
 		notices, osstrerror());
+#endif
 	}
 	lastday = LAST_NEWFILE;
     }

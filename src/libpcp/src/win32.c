@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2015 Red Hat.
  * Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -422,9 +422,16 @@ sleep(unsigned int seconds)
     return 0;
 }
 
-void setlinebuf(FILE *stream)
+void
+setlinebuf(FILE *stream)
 {
     setvbuf(stream, NULL, _IONBF, 0);	/* no line buffering in Win32 */
+}
+
+int
+fsync(int fd)
+{
+    return FlushFileBuffers((HANDLE)_get_osfhandle(fd)) ? 0 : -1;
 }
 
 long int

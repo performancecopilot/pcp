@@ -63,7 +63,7 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: domain.h $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(LSRCFILES)
+build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(LSRCFILES)
 	@if [ -f ../pmcd.conf ]; then \
 	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
@@ -87,10 +87,12 @@ default_pcp : default
 install_pcp : install
 
 $(HELPTARGETS) : help
-	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_linux -v 2 -o help < help
+	$(NEWHELP) -n root_linux -v 2 -o help < help
 
 $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)
+
+$(OBJECTS): domain.h
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
@@ -100,7 +102,6 @@ linux_kernel_ulong.conf:	mk.rewrite
 
 interrupts.o pmda.o proc_partitions.o:	clusters.h
 pmda.o proc_partitions.o:	convert.h
-pmda.o:	domain.h
 filesys.o interrupts.o pmda.o:	filesys.h
 pmda.o:	getinfo.h
 pmda.o ipc.o:	ipc.h

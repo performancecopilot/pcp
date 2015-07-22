@@ -8,7 +8,6 @@ include $(TOPDIR)/src/include/builddefs
 TESTDIR = $(PCP_VAR_DIR)/testsuite/qt
 SUBDIRS = qmc_context qmc_desc qmc_dynamic qmc_event qmc_format \
 	  qmc_group qmc_hosts qmc_indom qmc_metric qmc_source
-LSRCFILES = GNUmakefile.install setup-executables
 
 default setup default_pcp: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)

@@ -40,7 +40,6 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	kernel.percpu.cpu.sys
 	kernel.percpu.cpu.user
 	kernel.percpu.cpu.wait.total
-	kernel.percpu.interrupts
 	mem.freemem
 	mem.physmem
 	mem.util.anonpages

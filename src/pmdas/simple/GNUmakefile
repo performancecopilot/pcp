@@ -32,7 +32,7 @@ PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
 LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).so
 
-default_pcp default:	domain.h $(CMDTARGET)
+default_pcp default:	$(CMDTARGET)
 
 include $(BUILDRULES)
 
@@ -42,6 +42,8 @@ install_pcp install:	default
 	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
 	$(INSTALL) -m 644 root pmns domain.h simple.conf $(PMDADIR)
 	$(INSTALL) -m 644 $(CFILES) $(DFILES) $(PMDADIR)
+
+$(OBJECTS): domain.h
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)

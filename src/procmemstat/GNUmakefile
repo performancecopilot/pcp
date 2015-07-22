@@ -34,13 +34,14 @@ install: $(TARGETS)
 
 procmemstat.o : pmnsmap.h
 
-pmnsmap.h:	pmnsmap.spec
-	PCP_CONF=$(TOPDIR)/src/include/pcp.conf; export PCP_CONF; \
-	sed -e "s;^\. \$PCP_DIR/etc/pcp.env;. $(TOPDIR)/src/include/pcp.env;" \
-	../pmgenmap/pmgenmap.sh >runme.sh; \
-	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmcpp/pmcpp -D$(TARGET_OS) pmnsmap.spec \
+pmgenmap.sh:
+	sed -e "s;^\. .PCP_DIR.etc.pcp.env;. $(TOPDIR)/src/include/pcp.env;" \
+	$(TOPDIR)/src/pmgenmap/pmgenmap.sh > pmgenmap.sh
+
+pmnsmap.h:	pmgenmap.sh pmnsmap.spec
+	$(PMCPP) -D$(TARGET_OS) pmnsmap.spec \
 	| sed -e '/^#/d' -e '/^$$/d' >pmnsmap.i
-	sh ./runme.sh pmnsmap.i >pmnsmap.h
+	$(PMGENMAP) pmnsmap.i >pmnsmap.h
 
 GNUmakefile.install.xxx:	GNUmakefile.install
 	sed -e "s;<CPP>;$(PCP_BINADM_DIR)/pmcpp -D$(TARGET_OS);" <GNUmakefile.install >GNUmakefile.install.xxx

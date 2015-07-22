@@ -86,7 +86,7 @@ print_stamp(FILE *f, struct timeval *stamp)
 	char	*yr;
 	char	timebuf[32];	/* for pmCtime result + .xxx */
 
-	ddmm = pmCtime(&stamp->tv_sec, timebuf);
+	ddmm = pmCtime((const time_t *)&stamp->tv_sec, timebuf);
 	ddmm[10] = ' ';
 	ddmm[11] = '\0';
 	yr = &ddmm[20];

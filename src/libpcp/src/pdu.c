@@ -33,7 +33,7 @@
 #include "impl.h"
 #include "internal.h"
 
-INTERN int	pmDebug;		/* the real McCoy */
+PCP_DATA int	pmDebug;		/* the real McCoy */
 
 /*
  * Performance Instrumentation
@@ -42,8 +42,8 @@ INTERN int	pmDebug;		/* the real McCoy */
 
 static unsigned int	inctrs[PDU_MAX+1];
 static unsigned int	outctrs[PDU_MAX+1];
-INTERN unsigned int	*__pmPDUCntIn = inctrs;
-INTERN unsigned int	*__pmPDUCntOut = outctrs;
+PCP_DATA unsigned int	*__pmPDUCntIn = inctrs;
+PCP_DATA unsigned int	*__pmPDUCntOut = outctrs;
 
 #ifdef PCP_DEBUG
 static int		mypid = -1;

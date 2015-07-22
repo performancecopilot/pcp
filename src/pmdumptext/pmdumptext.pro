@@ -8,4 +8,5 @@ debug:DESTDIR	= build/release
 LIBS		+= -L../libpcp/src
 LIBS		+= -L../libpcp_qmc/src -L../libpcp_qmc/src/$$DESTDIR
 LIBS		+= -lpcp_qmc -lpcp
+win32:LIBS	+= -lwsock32 -liphlpapi
 QT		-= gui
