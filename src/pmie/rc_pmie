@@ -39,18 +39,6 @@ rcprog=$PCP_DIR/etc/init.d/pmie
 pmprog=$PCP_RC_DIR/pmie
 prog=$PCP_RC_DIR/`basename $0`
 
-# search for your mail agent of choice ...
-#
-MAIL=''
-for try in Mail mail email
-do
-    if which $try >/dev/null 2>&1
-    then
-	MAIL=$try
-	break
-    fi
-done
-
 tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
 status=1
 trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
@@ -123,25 +111,18 @@ _start_pmie()
 	bgstatus=$?
 	if [ -s $bgtmp/pmie ]
 	then
-	    $PCP_BINADM_DIR/pmpost "pmie_check start failed in $prog, mailing output to root"
-	    if [ ! -z "$MAIL" ]
-	    then
-		$MAIL -s "pmie_check start failed in $prog" root <$bgtmp/pmie >/dev/null 2>&1
-	    else
-		echo "$prog: pmie_check start failed ..."
-		cat $bgtmp/pmie
-	    fi
+	    logfile=$PCP_LOG_DIR/pmie/pmie_check.log
+	    mv -f $bgtmp/pmie $logfile
+
+	    message="pmie_check start failed in $prog, see $logfile"
+	    $PCP_SYSLOG_PROG -s -p daemon.warning "$message"
+	    $PCP_BINADM_DIR/pmpost "$message"
 	fi
     else
 	bgstatus=$?
-	$PCP_BINADM_DIR/pmpost "pmcd_wait failed in $prog: exit status: $bgstatus" 
-	if [ ! -z "$MAIL" ]
-	then
-	    echo "pmcd_wait: exit status: $bgstatus" | $MAIL -s "pmcd_wait failed in $prog" root
-	else
-	    echo "$prog: pmcd_wait failed ..."
-	    echo "pmcd_wait: exit status: $bgstatus"
-	fi
+	message="pmcd_wait failed in $prog: exit status: $bgstatus" 
+	$PCP_SYSLOG_PROG -s -p daemon.warning "$message"
+	$PCP_BINADM_DIR/pmpost "$message"
     fi
     exit $bgstatus	# co-process is now complete
 }
@@ -161,14 +142,12 @@ _shutdown()
     pmie_check -s >$tmp/pmie 2>&1
     if [ -s $tmp/pmie ]
     then
-	$PCP_BINADM_DIR/pmpost "pmie_check stop failed in $prog, mailing output to root"
-	if [ ! -z "$MAIL" ]
-	then
-	    $MAIL -s "pmie_check stop failed in $prog" root <$tmp/pmie
-	else
-	    echo "$prog: pmie_check stop failed ..."
-	    cat $tmp/pmie
-	fi
+	logfile=$PCP_LOG_DIR/pmie/pmie_check.log
+	mv -f $tmp/pmie $logfile
+
+	message="pmie_check stop failed in $prog, see $logfile"
+	$PCP_SYSLOG_PROG -s -p daemon.warning "$message"
+	$PCP_BINADM_DIR/pmpost "$message"
     fi
 
     if [ "$1" = quietly ]
