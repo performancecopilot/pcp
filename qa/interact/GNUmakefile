@@ -3,7 +3,6 @@ include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(subst pcp,pcp-gui,$(PCP_VAR_DIR))/testsuite/interact
 TESTCASES = $(shell echo *-testcases)
-LSRCFILES = $(TESTCASES) GNUmakefile.install
 
 default setup:
 

@@ -63,11 +63,10 @@ ifeq "$(HAVE_PYTHON)" "true"
 COMMON += common.python 
 endif
 
-OTHERS = group qa_hosts.master README \
+OTHERS = GNUmakefile.install group qa_hosts.master README \
 	 valgrind-suppress sanity.coverage
 
 DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || ls -1 | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$' | egrep -v '^[0-9][0-9][0-9]*\.(full|out\.bad|notrun|work)' | tee qa_outfiles)
-LSRCFILES = $(SCRIPTS) $(COMMON_SCRIPTS) $(COMMON) $(TESTS) $(DOTOUTFILES) $(OTHERS) GNUmakefile.install
 
 qa_outfiles:
 	@echo $(DOTOUTFILES) > qa_outfiles

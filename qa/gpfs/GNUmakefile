@@ -7,8 +7,6 @@ TESTDIR = $(PCP_VAR_DIR)/testsuite/gpfs
 
 QAFILES = mmpmon_fsios.txt
 
-LSRCFILES = $(QAFILES)
-
 default default_pcp setup: 
 
 install install_pcp:

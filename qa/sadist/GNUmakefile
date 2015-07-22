@@ -10,8 +10,6 @@ SADBIN = fche-csb6-rhel6.bin 859117-rhel5.bin f16-sa20.bin \
 SADXML = fche-csb6-rhel6.xml smash-rhel6.xml smash-rhel5.xml \
 	 859117-rhel5.xml 891688-dash-time.xml
 
-LSRCFILES = $(SADBIN) $(SADXML)
-
 default default_pcp setup: 
 
 install install_pcp:
