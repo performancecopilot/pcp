@@ -163,7 +163,7 @@ printstamp(struct timeval *stamp, int delimiter)
 	char	*ddmm;
 	char	*yr;
 
-	ddmm = pmCtime(&stamp->tv_sec, timebuf);
+	ddmm = pmCtime((const time_t *)&stamp->tv_sec, timebuf);
 	ddmm[10] = ' ';
 	ddmm[11] = '\0';
 	yr = &ddmm[20];
@@ -194,7 +194,7 @@ printlabel(void)
     printf("Log Label (Log Format Version %d)\n", label.ll_magic & 0xff);
     printf("Performance metrics from host %s\n", label.ll_hostname);
 
-    ddmm = pmCtime(&opts.start.tv_sec, timebuf);
+    ddmm = pmCtime((const time_t *)&opts.start.tv_sec, timebuf);
     ddmm[10] = '\0';
     yr = &ddmm[20];
     printf("  commencing %s ", ddmm);
@@ -206,7 +206,7 @@ printlabel(void)
 	printf("  ending     UNKNOWN\n");
     }
     else {
-	ddmm = pmCtime(&opts.finish.tv_sec, timebuf);
+	ddmm = pmCtime((const time_t *)&opts.finish.tv_sec, timebuf);
 	ddmm[10] = '\0';
 	yr = &ddmm[20];
 	printf("  ending     %s ", ddmm);
