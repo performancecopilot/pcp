@@ -409,8 +409,10 @@ debian_buildpackage()
     echo "== Building deb packages using dpkg-buildpackage"
 
     SUDO=${SUDO:-fakeroot}
-    sign=''
-    $signed -o -n "$DEB_SIGN_KEYID" && sign='-us -uc'
+    # don't sign by default
+    sign='-us -uc'
+    # sign if --signed and $DEB_SIGN_KEYID set in the environment
+    $signed && [ -n "$DEB_SIGN_KEYID" ] && sign=''
     rm -f $tmp/failed
     if $verbose ; then
 	(dpkg-buildpackage $sign -r$SUDO || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp

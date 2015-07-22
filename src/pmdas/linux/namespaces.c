@@ -210,14 +210,6 @@ container_lookup(int fd, linux_container_t *cp)
 }
 
 int
-container_lookup(int fd, linux_container_t *cp)
-{
-    (void)fd;
-    (void)cp;
-    return 0;
-}
-
-int
 container_nsenter(linux_container_t *cp, int nsflags, int *openfds)
 {
     (void)openfds;
