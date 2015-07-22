@@ -43,11 +43,11 @@ s;delta: 99[456789][0-9]$;delta: 10000 +/- 60;
 #
     $PCP_AWK_PROG <$tmp.out '
 BEGIN	{ s = '$1'
-	  lo[50] = 33; hi[50] = 50
-	  lo[20] = 35; hi[20] = 45
-	  lo[16] = 35; hi[16] = 45
-	  lo[10] = 34; hi[10] = 40
-	  lo[8] = 34; hi[8] = 40
+	  lo[50] = 30; hi[50] = 50
+	  lo[20] = 30; hi[20] = 45
+	  lo[16] = 30; hi[16] = 45
+	  lo[10] = 30; hi[10] = 40
+	  lo[8] = 30; hi[8] = 40
 	}
 /samples required/	{ if (lo[s] <= $4 && $4 <= hi[s])
 			    print $1 " samples required " lo[s] "-" hi[s] " log reads"
