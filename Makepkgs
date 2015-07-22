@@ -580,9 +580,6 @@ if $nonrpm
 then
     default_build	# perform a complete build in-situ
     packaging_pcp	# create all known package formats
-    if $containers; then
-    	echo "Warning: --with-containers skipped - currently only available on RPM platforms"
-    fi
 else
     packaging_rpm
 fi
