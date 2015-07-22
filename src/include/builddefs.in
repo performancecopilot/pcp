@@ -692,7 +692,7 @@ WINDOW = mac
 endif
 ifeq ($(PCP_PLATFORM),mingw)
 QTMAKE = $(QMAKE) CONFIG+=$(QT_RELEASE) && $(QTFIX) <Makefile >Makefile.fix && mv Makefile.fix Makefile && $(MAKE) -f Makefile
-BINARY = $(QT_RELEASE)/$(COMMAND)
+BINARY = build/$(QT_RELEASE)/$(COMMAND)$(EXECSUFFIX)
 LNMAKE =
 WINDOW = win
 endif
