@@ -67,12 +67,12 @@ install_pcp : install
 $(OBJECTS):	common.h
 
 $(HELPTARGETS): help root_solaris
-	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_solaris -v 2 -o help < help
+	$(NEWHELP) -n root_solaris -v 2 -o help < help
 
 root_solaris: ../../pmns/stdpmid $(PMNS) root
 	rm -f root_solaris
 	sed -e 's;<stdpmid>;"../../pmns/stdpmid";' <root \
-	| $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmcpp/pmcpp \
+	| ( $(PMCPP) ) \
 	| sed -e '/^#/d' -e '/^$$/d' >root_solaris
 
 domain.h: ../../pmns/stdpmid

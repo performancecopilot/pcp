@@ -17,7 +17,7 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 IAM = mmv
-TARGET = mmvdump$(EXECSUFFIX)
+CMDTARGET = mmvdump$(EXECSUFFIX)
 CFILES = mmvdump.c
 
 SUBDIRS = src
@@ -25,7 +25,7 @@ SUBDIRS = src
 LCFILES = acme.c
 LTARGET = acme$(EXECSUFFIX)
 LSRCFILES = $(LCFILES) README.demos Makefile.demos
-TARGETS = $(TARGET) $(LTARGET)
+TARGETS = $(CMDTARGET) $(LTARGET)
 
 LLDFLAGS = -L$(TOPDIR)/src/libpcp_mmv/src -L$(TOPDIR)/src/libpcp/src
 LLDLIBS = -lpcp_mmv $(PCPLIB)
@@ -53,7 +53,7 @@ install_pcp install :: $(SUBDIRS)
 
 install_pcp install :: $(SUBDIRS)
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 $(TARGET) $(PMDADIR)/$(TARGET)
+	$(INSTALL) -m 755 $(CMDTARGET) $(PMDADIR)/$(CMDTARGET)
 	$(INSTALL) -m 755 -d $(DEMODIR)
 	$(INSTALL) -m 644 Makefile.demos $(DEMODIR)/Makefile
 	$(INSTALL) -m 644 README.demos $(DEMODIR)/README

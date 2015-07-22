@@ -69,7 +69,7 @@ default_pcp : default
 install_pcp : install
 
 $(HELPTARGETS) : help
-	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_xfs -v 2 -o help < help
+	$(NEWHELP) -n root_xfs -v 2 -o help < help
 
 $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)

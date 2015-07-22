@@ -59,12 +59,12 @@ default_pcp : default
 install_pcp : install
 
 help.dir help.pag: help root_aix
-	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_aix -v 2 -o help < help
+	$(NEWHELP) -n root_aix -v 2 -o help < help
 
 root_aix:	../../pmns/stdpmid
 	rm -f root_aix
 	sed -e 's;<stdpmid>;"../../pmns/stdpmid";' <root \
-	| $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmcpp/pmcpp \
+	| ( $(PMCPP) ) \
 	| sed -e '/^#/d' -e '/^$$/d' >root_aix
 
 domain.h:	../../pmns/stdpmid

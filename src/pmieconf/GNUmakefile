@@ -57,7 +57,7 @@ makefiles:
 local: $(SUBDIRS)
 	@rm -fr rules; mkdir rules
 	$(SUBDIRS_MAKERULE)
-	$(RUN_IN_BUILD_ENV) ./$(CMDTARGET) -F -r rules -f local
+	$(PMIECONF) -F -r rules -f local
 
 pmlogconf: $(SUBDIRS)
 	@rm -f pmlogconf
