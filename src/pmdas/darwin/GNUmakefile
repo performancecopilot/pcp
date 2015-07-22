@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2015 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -37,7 +38,7 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "darwin" 
-build-me: root_darwin domain.h $(LIBTARGET) $(CMDTARGET) help.dir help.pag
+build-me: root_darwin $(LIBTARGET) $(CMDTARGET) help.dir help.pag
 	@if [ -f ../pmcd.conf ]; then \
 	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
@@ -66,6 +67,8 @@ root_darwin: ../../pmns/stdpmid root pmns
 	sed -e 's;<stdpmid>;"../../pmns/stdpmid";' <root \
 	| ( $(PMCPP) ) \
 	| sed -e '/^#/d' -e '/^$$/d' >root_darwin
+
+$(OBJECTS): domain.h
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)

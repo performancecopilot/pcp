@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2014 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -40,7 +40,7 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(PMDA_RPM)" "true"
-build-me: domain.h $(CMDTARGET) $(LIBTARGET)
+build-me: $(CMDTARGET) $(LIBTARGET)
 
 install:	default 
 	$(INSTALL) -m 755 -d $(PMDADIR)
@@ -58,6 +58,8 @@ install_pcp : install
 
 $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)
+
+$(OBJECTS): domain.h
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)

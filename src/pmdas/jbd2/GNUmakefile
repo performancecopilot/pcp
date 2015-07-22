@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -44,7 +44,7 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: domain.h $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(LSRCFILES)
+build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(LSRCFILES)
 	@if [ -f ../pmcd.conf ]; then \
 	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
@@ -73,13 +73,14 @@ $(HELPTARGETS) : help
 $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)
 
+$(OBJECTS): domain.h
+
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
 jbd2_kernel_ulong.conf:	mk.rewrite
 	CPP="$(CPP)" INCDIR="$(TOPDIR)/src/include" ./mk.rewrite
 
-pmda.o:			domain.h
 pmda.o proc_jbd2.o:	convert.h
 pmda.o proc_jbd2.o:	proc_jbd2.h
 pmda.o:			$(VERSION_SCRIPT)

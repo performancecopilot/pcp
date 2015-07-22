@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2011 Nathan Scott.  All Rights Reversed.
-# Copyright (c) 2011-2012 Red Hat Inc.
+# Copyright (c) 2011-2015 Red Hat Inc.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -35,7 +35,7 @@ default: build-me
 include $(BUILDRULES)
 
 ifneq "$(TARGET_OS)" "mingw"
-build-me: domain.h $(CMDTARGET)
+build-me: $(CMDTARGET)
 
 install:	build-me
 	$(INSTALL) -m 755 -d $(PMDADIR)
@@ -48,16 +48,14 @@ build-me:
 install:
 endif
 
-logger.o: domain.h
 event.o logger.o: event.h
 util.o event.o logger.o: util.h
-
-.NOTPARALLEL:
-.ORDER:	domain.h $(OBJECTS)
 
 default_pcp : default
 
 install_pcp : install
+
+$(OBJECTS): domain.h
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)

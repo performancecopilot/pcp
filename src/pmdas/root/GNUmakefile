@@ -34,7 +34,7 @@ LDIRT		= $(HELPTARGETS) pmns domain.h $(VERSION_SCRIPT)
 LCFLAGS		= -DJSMN_PARENT_LINKS
 LLDLIBS		= $(PCP_PMDALIB)
 
-default:	domain.h $(CMDTARGET) $(HELPTARGETS) pmns
+default:	$(CMDTARGET) $(HELPTARGETS) pmns
 	@if [ -f ../pmcd.conf ]; then \
 	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
@@ -59,6 +59,8 @@ $(HELPTARGETS) : help
 
 $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)
+
+$(OBJECTS): domain.h
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
