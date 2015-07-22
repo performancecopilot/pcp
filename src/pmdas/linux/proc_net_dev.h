@@ -95,8 +95,15 @@ struct ethtool_cmd {
 
 struct linux_container;
 extern int refresh_proc_net_dev(pmInDom, struct linux_container *);
-extern int refresh_net_dev_addr(pmInDom, struct linux_container *);
+extern void refresh_net_addr_ioctl(pmInDom, struct linux_container *, int *);
 extern int refresh_net_ioctl(pmInDom, struct linux_container *, int *);
+extern void refresh_net_addr_sysfs(pmInDom, int *);
 extern int refresh_net_sysfs(pmInDom, int *);
+
+extern void refresh_net_addr_sysfs(pmInDom, int *);
+extern void refresh_net_addr_ioctl(pmInDom, struct linux_container *, int *);
+
+extern void clear_net_addr_indom(pmInDom);
+extern void store_net_addr_indom(pmInDom, struct linux_container *);
 
 extern char *lookup_ipv6_scope(int);

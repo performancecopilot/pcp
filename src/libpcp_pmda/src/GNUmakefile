@@ -21,6 +21,7 @@ CFILES	= callback.c open.c mainloop.c help.c cache.c tree.c context.c \
 	  events.c queues.c dynamic.c pduroot.c root.c
 HFILES	= libdefs.h queues.h
 LLDLIBS	= -lpcp
+LCFLAGS += -DPMDA_INTERNAL
 
 STATICLIBTARGET = libpcp_pmda.a
 

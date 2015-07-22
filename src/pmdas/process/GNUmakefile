@@ -3,6 +3,7 @@
 #  for the portions of the code supporting the initial agent functionality.
 #  All rights reserved.
 # Copyright (c)  2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2015 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -59,7 +60,7 @@ default_pcp : default
 
 install_pcp : install
 
-process.o: domain.h
+$(OBJECTS): domain.h
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)

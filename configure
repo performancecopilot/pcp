@@ -795,6 +795,9 @@ qmake
 enable_qt
 qt_release
 QMAKE
+have_perl
+pcp_perl_prog
+PERL
 PMDA_JSON
 have_python_six
 have_python_jsonpointer
@@ -853,6 +856,7 @@ PKG_CONFIG_PATH
 PKG_CONFIG
 pcp_ps_all_flags
 pcp_platform_paths
+cross_compiling
 target_os
 target_vendor
 target_cpu
@@ -2973,6 +2977,7 @@ FATAL ERROR: Cannot perform cross-compilation without a file to source
 	exit 1
     fi
 fi
+
 
 
 target_distro=$target_os
@@ -6525,18 +6530,27 @@ done
 fi
 
 
-have_python=false
-if test "$enable_python2" = "true" -o "$enable_python3" = "true"
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for any python version" >&5
+$as_echo_n "checking for any python version... " >&6; }
+if test "$cross_compiling" = "yes"; then
+    ans=$have_python
+    echo "cross-compile -> \"$ans\"" >&5
+elif test "$enable_python2" = "true" -o "$enable_python3" = "true"
 then
     have_python=true
+else
+    have_python=false
 fi
 
 
 if test "$enable_python3" = "true"
 then
     pcp_python_prog=$PYTHON3
-else
+elif test "$enable_python2" = "true"
+then
     pcp_python_prog=$PYTHON
+else
+    pcp_python_prog=""
 fi
 
 
@@ -6597,6 +6611,66 @@ if test "x$do_pmdajson" = "xcheck"; then :
 
 fi
 PMDA_JSON=$pmda_json
+
+
+for ac_prog in perl
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_PERL+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$PERL"; then
+  ac_cv_prog_PERL="$PERL" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_PERL="$ac_prog"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+PERL=$ac_cv_prog_PERL
+if test -n "$PERL"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PERL" >&5
+$as_echo "$PERL" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test -n "$PERL" && break
+done
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for any perl version" >&5
+$as_echo_n "checking for any perl version... " >&6; }
+if test "$cross_compiling" = "yes"; then
+    ans=$have_perl
+    echo "cross-compile -> \"$ans\"" >&5
+elif test -n "$PERL"
+then
+    pcp_perl_prog=$PERL
+    have_perl=true
+else
+    pcp_perl_prog=""
+    have_perl=false
+fi
+
 
 
 qmake=$QMAKE

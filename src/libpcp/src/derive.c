@@ -136,8 +136,7 @@ static const struct {
 static const char	*state_dbg[] = {
 	"INIT", "LEAF", "LEAF_PAREN", "BINOP", "FUNC_OP", "FUNC_END" };
 
-#ifdef PM_MULTI_THREAD
-#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+#if defined(PM_MULTI_THREAD) && !defined(PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP)
 static void
 initialize_mutex(void)
 {
@@ -180,7 +179,8 @@ initialize_mutex(void)
 	exit(4);
     }
 }
-#endif
+#else
+# define initialize_mutex() do { } while (0)
 #endif
 
 /* Register an anonymous metric */
@@ -220,19 +220,6 @@ PM_FAULT_CHECK(PM_FAULT_PMAPI);
     }
     return 0;
 }
-
-#if 0
-#include <strings.h>
-#include <string.h>
-#include <stdio.h>
-#include <malloc.h>
-#include <sys/types.h>
-#include <dirent.h>
-#include <unistd.h>
-#include <errno.h>
-#include <pcp/pmapi.h>
-#include <pcp/impl.h>
-#endif
 
 /*
  * Handle one component of the : separated $PCP_DERIVED_CONFIG
@@ -1462,11 +1449,7 @@ pmRegisterDerived(const char *name, const char *expr)
     int			i;
 
     PM_INIT_LOCKS();
-#ifdef PM_MULTI_THREAD
-#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
     initialize_mutex();
-#endif
-#endif
     PM_LOCK(registered.mutex);
 
 #ifdef PCP_DEBUG
@@ -1672,11 +1655,7 @@ __dmtraverse(const char *name, char ***namelist)
     char	**list = NULL;
     int		matchlen = strlen(name);
 
-#ifdef PM_MULTI_THREAD
-#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
     initialize_mutex();
-#endif
-#endif
     PM_LOCK(registered.mutex);
     __dminit();
 
@@ -1715,11 +1694,7 @@ __dmchildren(const char *name, char ***offspring, int **statuslist)
     int		start;
     int		len;
 
-#ifdef PM_MULTI_THREAD
-#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
     initialize_mutex();
-#endif
-#endif
     PM_LOCK(registered.mutex);
     __dminit();
 
@@ -1813,11 +1788,7 @@ __dmgetpmid(const char *name, pmID *dp)
 {
     int		i;
 
-#ifdef PM_MULTI_THREAD
-#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
     initialize_mutex();
-#endif
-#endif
     PM_LOCK(registered.mutex);
     __dminit();
 
@@ -1837,11 +1808,7 @@ __dmgetname(pmID pmid, char ** name)
 {
     int		i;
 
-#ifdef PM_MULTI_THREAD
-#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
     initialize_mutex();
-#endif
-#endif
     PM_LOCK(registered.mutex);
     __dminit();
 
@@ -1869,11 +1836,7 @@ __dmopencontext(__pmContext *ctxp)
     int		sts;
     ctl_t	*cp;
 
-#ifdef PM_MULTI_THREAD
-#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
     initialize_mutex();
-#endif
-#endif
     PM_LOCK(registered.mutex);
     __dminit();
 
@@ -1972,8 +1935,7 @@ __dmdesc(__pmContext *ctxp, pmID pmid, pmDesc *desc)
     return PM_ERR_PMID;
 }
 
-#ifdef PM_MULTI_THREAD
-#ifdef PM_MULTI_THREAD_DEBUG
+#if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
 /*
  * return true if lock == registered.mutex ... no locking here to avoid
  * recursion ad nauseum
@@ -1983,5 +1945,4 @@ __pmIsDeriveLock(void *lock)
 {
     return lock == (void *)&registered.mutex;
 }
-#endif
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -36,18 +36,18 @@ typedef struct {
     __pmHashCtl		attrs;		/* Connection attributes (tuples) */
 } ClientInfo;
 
-PMCD_EXTERN ClientInfo	*client;		/* Array of clients */
-PMCD_EXTERN int		nClients;		/* Number of entries in array */
+PMCD_DATA extern ClientInfo *client;		/* Array of clients */
+PMCD_DATA extern int	nClients;		/* Number of entries in array */
 extern int		maxClientFd;		/* largest fd for a client */
 extern __pmFdSet	clientFds;		/* for client select() */
-PMCD_EXTERN int		this_client_id;		/* client for current request */
+PMCD_DATA extern int	this_client_id;		/* client for current request */
 
 /* prototypes */
 extern ClientInfo *AcceptNewClient(int);
 extern int NewClient(void);
 extern void DeleteClient(ClientInfo *);
-extern ClientInfo *GetClient(int);
-PMCD_EXTERN void ShowClients(FILE *m);
+PMCD_CALL extern ClientInfo *GetClient(int);
+PMCD_CALL extern void ShowClients(FILE *m);
 extern int CheckClientAccess(ClientInfo *);
 extern int CheckAccountAccess(ClientInfo *);
 

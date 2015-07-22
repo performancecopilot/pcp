@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2013,2015 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -164,17 +164,6 @@ NewClient(void)
     if (i >= nClients)
 	nClients = i + 1;
     return i;
-}
-
-/*
- * Expose ClientInfo struct for client #n
- */
-ClientInfo *
-GetClient(int n)
-{
-    if (0 <= n && n < nClients && client[n].status.connected)
-	return &client[n];
-    return NULL;
 }
 
 void

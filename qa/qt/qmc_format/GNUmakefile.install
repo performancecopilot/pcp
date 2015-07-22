@@ -6,13 +6,12 @@ endif
 PATH    = $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
 include $(PCP_INC_DIR)/builddefs
 
-COMMAND = qmc_format
-PROJECT = $(COMMAND).pro
-
-default setup install:
 ifeq "$(ENABLE_QT)" "true"
-	$(QTMAKE)
-	$(LNMAKE)
+COMMAND = qmc_format
+else
+COMMAND =
 endif
+
+default setup install: $(COMMAND)
 
 include $(BUILDRULES)

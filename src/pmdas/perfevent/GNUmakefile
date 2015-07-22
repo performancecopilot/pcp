@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2007-2010 Aconex.  All Rights Reserved.
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -40,7 +40,7 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(PMDA_PERFEVENT)" "true"
-build-me: domain.h $(CMDTARGET) $(HELPTARGETS) perfalloc
+build-me: $(CMDTARGET) $(HELPTARGETS) perfalloc
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
@@ -62,6 +62,7 @@ LLDLIBS += $(LIB_FOR_RT) $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS)
 LCFLAGS = -I.
 CFLAGS += -DVERSION=\"$(VERSION)\"
 
+$(OBJECTS): domain.h
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)

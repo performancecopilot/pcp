@@ -90,13 +90,14 @@ static char	*fmt = "DBG_TRACE_%-11.11s %7d  %s\n";
 
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("General options"),
+    PMOPT_DEBUG,
     { "list", 0, 'l', 0, "displays mnemonic and decimal values of PCP debug bitfields" },
     PMOPT_HELP,
     PMAPI_OPTIONS_END
 };
 
 static pmOptions opts = {
-    .short_options = "l?",
+    .short_options = "D:l?",
     .long_options = longopts,
     .short_usage = "[options] [code ..]",
 };
@@ -116,6 +117,17 @@ main(int argc, char **argv)
 	    for (i = 0; i < nfoo; i++)
 		printf(fmt, foo[i].name, foo[i].flag, foo[i].text);
 	    exit(0);
+	    /*NOTREACHED*/
+
+	case 'D':
+	    if ((i = __pmParseDebug(opts.optarg)) < 0) {
+		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n", pmProgname, opts.optarg);
+		exit(1);
+	    }
+	    else 
+		printf("%s = %d\n", opts.optarg, i);
+	    exit(0);
+	    /*NOTREACHED*/
 
 	case '?':
 	default:

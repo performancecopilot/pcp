@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2015 Red Hat Inc.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -50,7 +51,7 @@ LLDLIBS += -lpcp_pmcd
 PCPLIB_LDFLAGS += -L$(TOPDIR)/src/libpcp_pmcd/src
 endif
 
-default: $(LIBTARGET) domain.h
+default: $(LIBTARGET)
 
 install: default
 	$(INSTALL) -m 755 -d $(PCP_PMDAS_DIR)/pmcd
@@ -61,6 +62,8 @@ include $(BUILDRULES)
 default_pcp : default
 
 install_pcp : install
+
+$(OBJECTS): domain.h
 
 domain.h: $(TOPDIR)/src/pmns/stdpmid
 	$(DOMAIN_MAKERULE)

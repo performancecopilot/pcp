@@ -13,16 +13,11 @@ status=0	# success is the default!
 $sudo rm -fr $tmp.* $seq.full
 trap "cd $here; rm -fr $tmp.*; exit \$status" 0 1 2 3 15
 
-# have to handle fields running together also, e.g.
-# #cpu sys inter  ctxsw KBRead  Reads KBWrit Writes KBIn  PktIn  KBOut  PktOut
-#    2   0 95275856 356314893103563901 2210486 11706200 1019087858678 4517773 628989 2707860
-# assume 12 or more digits is really 2 numbers
 remove_extra_whitespace()
 {
     sed \
 	-e 's/>>>.*<<<//g' \
 	-e 's/[0-9]/9/g' \
-	-e 's/999999999999/9 9/g' \
 	-e 's/9[9]*/9/g' \
 	-e 's/  *$//' \
 	-e '/^ *$/d' \

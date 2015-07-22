@@ -36,7 +36,7 @@ default:	build-me
 
 include $(BUILDRULES)
 
-ifeq "$(TARGET_OS)" "mingw"
+ifeq "$(TARGET_OS)" ""# "mingw"
 build-me: root_etw $(LSRCFILES) $(LIBTARGET) $(EXTRATARGETS)
 	@if [ -f ../pmcd.conf ]; then \
 	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
@@ -56,7 +56,7 @@ install:
 endif
 
 help.dir help.pag : help root_etw
-	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_etw -v 2 -o help < help
+	$(NEWHELP) -n root_etw -v 2 -o help < help
 
 default_pcp:	default
 
@@ -65,7 +65,7 @@ install_pcp:	install
 root_etw:	../../pmns/stdpmid $(PMNS)
 	rm -f root_etw
 	sed -e 's;<stdpmid>;"../../pmns/stdpmid";' <root \
-	| $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmcpp/pmcpp \
+	| ( $(PMCPP) ) \
 	| sed -e '/^#/d' -e '/^$$/d' >root_etw
 
 domain.h: ../../pmns/stdpmid

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -20,22 +20,26 @@
 #include "impl.h"
 #include "pmda.h"
 
-#ifdef IS_MINGW
-#ifdef PMCD_INTERNAL
-#define PMCD_INTERN __declspec(dllexport)
-#define PMCD_EXTERN
+/*
+ * Symbol visibility macros for pmcd and libpcp_pmcd MinGW builds
+ */
+#if !defined(IS_MINGW)
+# define PMCD_CALL
+# define PMCD_DATA
 #else
-#define PMCD_INTERN
-#define PMCD_EXTERN __declspec(dllimport)
-#endif
-#else /*!MINGW*/
-#define PMCD_INTERN
-#define PMCD_EXTERN extern
+# if defined(PMCD_INTERNAL)
+#  define PMCD_CALL __declspec(dllexport)
+#  define PMCD_DATA __declspec(dllexport)
+# else
+#  define PMCD_CALL __declspec(dllimport)
+#  define PMCD_DATA __declspec(dllimport)
+# endif
 #endif
 
 #include "client.h"
 
-/* Structures of type-specific info for each kind of domain agent-PMCD 
+/*
+ * Structures of type-specific info for each kind of domain agent-PMCD 
  * connection (DSO, socket, pipe).
  */
 
@@ -98,8 +102,8 @@ typedef struct {
     } ipc;
 } AgentInfo;
 
-PMCD_EXTERN AgentInfo	*agent;		/* Array of domain agent structs */
-PMCD_EXTERN int		nAgents;	/* Number of agents in array */
+PMCD_DATA extern AgentInfo	*agent;		/* Array of domain agent structs */
+PMCD_DATA extern int		nAgents;	/* Number of agents in array */
 
 /*
  * DomainId-to-AgentIndex map
@@ -143,7 +147,7 @@ extern void CleanupAgent(AgentInfo *, int, int);
 extern int HarvestAgents(unsigned int);
 
 /* timeout to PMDAs (secs) */
-PMCD_EXTERN int	_pmcd_timeout;
+PMCD_DATA extern int	_pmcd_timeout;
 
 /* timeout for credentials */
 extern int	_creds_timeout;
@@ -169,8 +173,8 @@ extern int	_creds_timeout;
 /*
  * trace control
  */
-PMCD_EXTERN int		_pmcd_trace_mask;
-PMCD_EXTERN int		_pmcd_trace_nbufs;
+PMCD_DATA extern int	_pmcd_trace_mask;
+PMCD_DATA extern int	_pmcd_trace_nbufs;
 
 /*
  * trace mask bits
@@ -182,9 +186,9 @@ PMCD_EXTERN int		_pmcd_trace_nbufs;
 /*
  * routines
  */
-extern void pmcd_init_trace(int);
-extern void pmcd_trace(int, int, int, int);
-extern void pmcd_dump_trace(FILE *);
+PMCD_CALL extern void pmcd_init_trace(int);
+PMCD_CALL extern void pmcd_trace(int, int, int, int);
+PMCD_CALL extern void pmcd_dump_trace(FILE *);
 extern int pmcd_load_libpcp_pmda(void);
 
 /*
@@ -220,10 +224,10 @@ extern pmResult **SplitResult(pmResult *);
  * Highest known file descriptor used for a Client or an Agent connection.
  * This is reported in the pmcd.openfds metric.
  */
-PMCD_EXTERN int pmcd_hi_openfds;
-extern void pmcd_openfds_sethi(int);
+PMCD_DATA extern int pmcd_hi_openfds;
+PMCD_CALL extern void pmcd_openfds_sethi(int);
 
 /* Explicitly requested hostname (pmcd.hostname metric) */
-PMCD_EXTERN char *_pmcd_hostname;
+PMCD_DATA extern char *_pmcd_hostname;
 
 #endif /* _PMCD_H */

@@ -223,6 +223,7 @@ FATAL ERROR: Cannot perform cross-compilation without a file to source
 	exit 1
     fi
 fi
+AC_SUBST(cross_compiling)
 
 dnl CFLAGS setting is a co-dependency between here and PCFLAGS in
 dnl src/include/builddefs.in ... need to be the same in both places
@@ -580,11 +581,11 @@ AC_OUTPUT(src/include/pcp/platform_defs.h)
 AC_CHECK_PROGS(GIT, git)
 AC_SUBST(GIT)
 
-dnl check if python available for the build
+dnl check if python available for the build and runtime
 AC_CHECK_PROGS(PYTHON, python)
 AC_SUBST(PYTHON)
 
-dnl check if python3 available for the build
+dnl check if python3 available for the build and runtime
 AC_CHECK_PROGS(PYTHON3, python3)
 AC_SUBST(PYTHON3)
 
@@ -659,10 +660,15 @@ AS_IF([test "x$do_python3" != "xno"], [
 AC_SUBST(enable_python3)
 
 dnl convenience macro to determine if either python is available
-have_python=false
-if test "$enable_python2" = "true" -o "$enable_python3" = "true"
+AC_MSG_CHECKING([for any python version])
+if test "$cross_compiling" = "yes"; then
+    ans=$have_python
+    echo "cross-compile -> \"$ans\"" >&5
+elif test "$enable_python2" = "true" -o "$enable_python3" = "true"
 then
     have_python=true
+else
+    have_python=false
 fi
 AC_SUBST(have_python)
 
@@ -670,8 +676,11 @@ dnl choose the prefered python executable (py2 -> py3 transtion)
 if test "$enable_python3" = "true"
 then
     pcp_python_prog=$PYTHON3
-else
+elif test "$enable_python2" = "true"
+then
     pcp_python_prog=$PYTHON
+else
+    pcp_python_prog=""
 fi
 AC_SUBST(pcp_python_prog)
 
@@ -715,6 +724,25 @@ AS_IF([test "x$do_pmdajson" = "xcheck"], [
     test $have_python -a "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -le 6 && pmda_json=false
 ])
 AC_SUBST(PMDA_JSON, $pmda_json)
+
+dnl check if perl available for the build and runtime
+AC_CHECK_PROGS(PERL, perl)
+AC_SUBST(PERL)
+
+AC_MSG_CHECKING([for any perl version])
+if test "$cross_compiling" = "yes"; then
+    ans=$have_perl
+    echo "cross-compile -> \"$ans\"" >&5
+elif test -n "$PERL"
+then
+    pcp_perl_prog=$PERL
+    have_perl=true
+else
+    pcp_perl_prog=""
+    have_perl=false
+fi
+AC_SUBST(pcp_perl_prog)
+AC_SUBST(have_perl)
 
 qmake=$QMAKE
 enable_qt=false
