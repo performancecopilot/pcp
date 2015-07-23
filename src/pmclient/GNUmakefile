@@ -37,10 +37,12 @@ install:	$(CMDTARGET)
 
 pmclient.o:	pmnsmap.h
 
-pmnsmap.h:	pmnsmap.spec
+pmgenmap.sh:
 	sed -e "s;^\. .PCP_DIR.etc.pcp.env;. $(TOPDIR)/src/include/pcp.env;" \
-	../pmgenmap/pmgenmap.sh >runme.sh; \
-	$(RUN_IN_BUILD_ENV) sh ./runme.sh pmnsmap.spec >pmnsmap.h
+	$(TOPDIR)/src/pmgenmap/pmgenmap.sh > pmgenmap.sh
+
+pmnsmap.h:	pmgenmap.sh pmnsmap.spec
+	$(PMGENMAP) pmnsmap.spec > pmnsmap.h
 
 default_pcp:	default
 

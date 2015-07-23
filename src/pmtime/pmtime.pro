@@ -19,6 +19,6 @@ LIBS		+= -L../libpcp/src
 LIBS		+= -L../libpcp_qwt/src -L../libpcp_qwt/src/$$DESTDIR
 LIBS		+= -L../libpcp_qmc/src -L../libpcp_qmc/src/$$DESTDIR
 LIBS		+= -lpcp_qwt -lpcp_qmc -lpcp
-win32:LIBS	+= -lwsock32
+win32:LIBS	+= -lwsock32 -liphlpapi
 QT		+= network
 QMAKE_INFO_PLIST = pmtime.info

@@ -443,7 +443,7 @@ doargs(int argc, char **argv)
 	char		*tp;
 	int		i;
 	fprintf(stderr, "first=%.6f", __pmtimevalToReal(&first));
-	tp = pmCtime(&first.tv_sec, timebuf);
+	tp = pmCtime((const time_t *)&first.tv_sec, timebuf);
 	/*
 	 * tp -> Ddd Mmm DD HH:MM:SS YYYY\n
 	 *       0   4   8  1      1 2  2 2
@@ -451,10 +451,10 @@ doargs(int argc, char **argv)
 	 */
 	fprintf(stderr, " [%24.24s]\n", tp);
 	fprintf(stderr, "now=%.6f", __pmtimevalToReal(&now));
-	tp = pmCtime(&now.tv_sec, timebuf);
+	tp = pmCtime((const time_t *)&now.tv_sec, timebuf);
 	fprintf(stderr, " [%24.24s]\n", tp);
 	fprintf(stderr, "last=%.6f", __pmtimevalToReal(&last));
-	tp = pmCtime(&last.tv_sec, timebuf);
+	tp = pmCtime((const time_t *)&last.tv_sec, timebuf);
 	fprintf(stderr, " [%24.24s]\n", tp);
 	fprintf(stderr, "delta=%.6f\n", __pmtimevalToReal(&delta));
 	if (samples != ALL_SAMPLES)

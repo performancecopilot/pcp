@@ -66,8 +66,10 @@ networking/nfs4-client
 networking/nfs4-server
 tools/atop
 tools/collectl
+tools/collectl-interrupts
 tools/dmcache
 tools/mpstat
+tools/mpstat-interrupts
 tools/vmstat
 tools/iostat
 tools/sar

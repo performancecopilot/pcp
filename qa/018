@@ -15,8 +15,9 @@ echo "QA output created by $seq"
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
-src/t_fetch 127
+src/t_fetch 245
 
 # NOTE!!!!
 #
-# 127 is MAGIC and should not be a domain assigned to a PMDA in pmcd.options
+# 245 is MAGIC and must not be a domain assigned to a PMDA in pmcd.options
+# (it is the reserved "log import" API number, so that is quite unlikely).

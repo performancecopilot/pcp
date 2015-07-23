@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2000-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2015 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -39,7 +40,7 @@ install:	default
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
 	$(INSTALL) -m 644 pmlogconf.summary $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/summary
 
-mailq.o:	domain.h
+$(OBJECTS): domain.h
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)

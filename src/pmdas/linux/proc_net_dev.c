@@ -282,11 +282,11 @@ Inter-|   Receive                                                |  Transmit
 	}
     }
 
-    if (!container)
-	pmdaCacheOp(indom, PMDA_CACHE_SAVE);
-
     /* success */
     fclose(fp);
+
+    if (!container)
+	pmdaCacheOp(indom, PMDA_CACHE_SAVE);
     return 0;
 }
 
@@ -499,30 +499,45 @@ refresh_net_dev_ipv6_addr(pmInDom indom)
  * This separate indom provides the addresses for all interfaces including
  * aliases (e.g. eth0, eth0:0, eth0:1, etc) - this is what ifconfig does.
  */
-int
-refresh_net_dev_addr(pmInDom indom, linux_container_t *cp)
+void
+clear_net_addr_indom(pmInDom indom)
 {
-    int sts = 0;
     net_addr_t *p;
+    int	inst;
 
     for (pmdaCacheOp(indom, PMDA_CACHE_WALK_REWIND);;) {
-	if ((sts = pmdaCacheOp(indom, PMDA_CACHE_WALK_NEXT)) < 0)
+	if ((inst = pmdaCacheOp(indom, PMDA_CACHE_WALK_NEXT)) < 0)
 	    break;
-	if (!pmdaCacheLookup(indom, sts, NULL, (void **)&p) || !p)
+	if (!pmdaCacheLookup(indom, inst, NULL, (void **)&p) || !p)
 	    continue;
 	p->has_inet = 0;
 	p->has_ipv6 = 0;
 	p->has_hw   = 0;
     }
-
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
+}
 
-    sts |= refresh_net_dev_ipv4_addr(indom, cp);
-    sts |= refresh_net_dev_ipv6_addr(indom);
-    sts |= refresh_net_dev_hw_addr(indom);
+void
+store_net_addr_indom(pmInDom indom, linux_container_t *container)
+{
+    if (!container)
+	pmdaCacheOp(indom, PMDA_CACHE_SAVE);
+}
 
-    pmdaCacheOp(indom, PMDA_CACHE_SAVE);
-    return sts;
+void
+refresh_net_addr_sysfs(pmInDom indom, int *need_refresh)
+{
+    if (need_refresh[REFRESH_NETADDR_HW])
+	refresh_net_dev_hw_addr(indom);
+}
+
+void
+refresh_net_addr_ioctl(pmInDom indom, linux_container_t *cp, int *need_refresh)
+{
+    if (need_refresh[REFRESH_NETADDR_INET])
+	refresh_net_dev_ipv4_addr(indom, cp);
+    if (need_refresh[REFRESH_NETADDR_IPV6])
+	refresh_net_dev_ipv6_addr(indom);
 }
 
 char *

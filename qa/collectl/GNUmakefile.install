@@ -13,8 +13,6 @@ TESTDIR = $(PCP_VAR_DIR)/testsuite/collectl
 RAWFILES = $(shell echo *.raw)
 BIGFILES = $(shell echo *.raw.gz)
 
-LSRCFILES = $(RAWFILES) $(BIGFILES)
-
 default default_pcp setup: 
 
 install install_pcp:

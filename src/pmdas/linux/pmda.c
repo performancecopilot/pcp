@@ -3954,7 +3954,7 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     linux_container_t *cp = linux_ctx_container(context);
     int need_refresh_mtab = 0;
     int need_net_ioctl = 0;
-    int open_ns_fds = 0;
+    int ns_fds = 0;
     int sts = 0;
 
     if (cp && (sts = container_lookup(rootfd, cp)) < 0)
@@ -3995,42 +3995,67 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     if (need_refresh[CLUSTER_NET_NETSTAT])
 	refresh_proc_net_netstat(&_pm_proc_net_netstat);
 
-    if (need_refresh[CLUSTER_NET_DEV]) {
-	sts = container_nsenter(cp, LINUX_NAMESPACE_NET, &open_ns_fds);
-	if (sts < 0) goto done;
-	refresh_proc_net_dev(INDOM(NET_DEV_INDOM), cp);
-	container_nsleave(cp, LINUX_NAMESPACE_NET);
-    }
-
-    if (need_refresh[CLUSTER_NET_ADDR] ||
+    /*
+     * Network interface metrics and namespaces are complicated by a
+     * need to be in the right namespace at the right time (for /sys
+     * -> MNTNS, for /proc or ioctl -> NETNS) - and the two have been
+     * found to be mutually exclusive from the point of view of access
+     * via the setns(2) syscall.  We also have a further complicating
+     * factor where some values are available *either* by sysfs (newer
+     * kernels), *or* ioctl (older kernels).
+     */
+    if (need_refresh[CLUSTER_NET_DEV] ||
+	need_refresh[CLUSTER_NET_ADDR] ||
 	need_refresh[CLUSTER_FILESYS] ||
 	need_refresh[CLUSTER_TMPFS] ||
 	need_refresh[REFRESH_NET_MTU] ||
 	need_refresh[REFRESH_NET_SPEED] ||
 	need_refresh[REFRESH_NET_DUPLEX] ||
 	need_refresh[REFRESH_NET_LINKUP] ||
-	need_refresh[REFRESH_NET_RUNNING]) {
+	need_refresh[REFRESH_NET_RUNNING] ||
+	need_refresh[REFRESH_NETADDR_INET] ||
+	need_refresh[REFRESH_NETADDR_IPV6] ||
+	need_refresh[REFRESH_NETADDR_HW]) {
+	pmInDom netaddr = INDOM(NET_ADDR_INDOM);
+	pmInDom netdev = INDOM(NET_DEV_INDOM);
 
-	sts = container_nsenter(cp, LINUX_NAMESPACE_MNT, &open_ns_fds);
-	if (sts < 0) goto done;
 	if (need_refresh[CLUSTER_NET_ADDR])
-	    refresh_net_dev_addr(INDOM(NET_ADDR_INDOM), cp);
-	need_net_ioctl = refresh_net_sysfs(INDOM(NET_DEV_INDOM), need_refresh);
+	    clear_net_addr_indom(netaddr);
+	if (need_refresh[REFRESH_NETADDR_INET])
+	    need_net_ioctl = 1;
+	if (need_refresh[REFRESH_NETADDR_IPV6])
+	    need_net_ioctl = 1;
+
+	if (need_refresh[CLUSTER_NET_DEV]) {
+	    if ((sts = container_nsenter(cp, LINUX_NAMESPACE_NET, &ns_fds)) < 0)
+		goto done;
+	    refresh_proc_net_dev(netdev, cp);
+	    container_nsleave(cp, LINUX_NAMESPACE_NET);
+	}
+
+	if ((sts = container_nsenter(cp, LINUX_NAMESPACE_MNT, &ns_fds)) < 0)
+	    goto done;
+	refresh_net_addr_sysfs(netaddr, need_refresh);
+	need_net_ioctl |= refresh_net_sysfs(netdev, need_refresh);
 	if (need_refresh[CLUSTER_FILESYS] || need_refresh[CLUSTER_TMPFS])
 	    refresh_filesys(INDOM(FILESYS_INDOM), INDOM(TMPFS_INDOM), cp);
 	container_nsleave(cp, LINUX_NAMESPACE_MNT);
 
 	if (need_net_ioctl) {
-	    sts = container_nsenter(cp, LINUX_NAMESPACE_NET, &open_ns_fds);
-	    if (sts < 0) goto done;
-	    refresh_net_ioctl(INDOM(NET_DEV_INDOM), cp, need_refresh);
+	    if ((sts = container_nsenter(cp, LINUX_NAMESPACE_NET, &ns_fds)) < 0)
+		goto done;
+	    refresh_net_addr_ioctl(netaddr, cp, need_refresh);
+	    refresh_net_ioctl(netdev, cp, need_refresh);
 	    container_nsleave(cp, LINUX_NAMESPACE_NET);
 	}
+
+	if (need_refresh[CLUSTER_NET_ADDR])
+	    store_net_addr_indom(netaddr, cp);
     }
 
     if (need_refresh[CLUSTER_KERNEL_UNAME]) {
-	sts = container_nsenter(cp, LINUX_NAMESPACE_UTS, &open_ns_fds);
-	if (sts < 0) goto done;
+	if ((sts = container_nsenter(cp, LINUX_NAMESPACE_UTS, &ns_fds)) < 0)
+	    goto done;
 	uname(&kernel_uname);
 	container_nsleave(cp, LINUX_NAMESPACE_UTS);
     }
@@ -4076,7 +4101,7 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 done:
     if (need_refresh_mtab)
 	pmdaDynamicMetricTable(pmda);
-    container_close(cp, open_ns_fds);
+    container_close(cp, ns_fds);
     return sts;
 }
 
@@ -4107,6 +4132,9 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
 	break;
     case NET_ADDR_INDOM:
 	need_refresh[CLUSTER_NET_ADDR]++;
+	need_refresh[REFRESH_NETADDR_INET]++;
+	need_refresh[REFRESH_NETADDR_IPV6]++;
+	need_refresh[REFRESH_NETADDR_HW]++;
 	break;
     case FILESYS_INDOM:
 	need_refresh[CLUSTER_FILESYS]++;
@@ -5772,6 +5800,21 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		break;
 	    case 26:	/* network.interface.running */
 		need_refresh[REFRESH_NET_RUNNING]++;
+		break;
+	    }
+	    break;
+
+	case CLUSTER_NET_ADDR:
+	    switch (idp->item) {
+	    case 0:	/* network.interface.ipv4_addr */
+		need_refresh[REFRESH_NETADDR_INET]++;
+		break;
+	    case 1:	/* network.interface.ipv6_addr */
+	    case 2:	/* network.interface.ipv6_scope */
+		need_refresh[REFRESH_NETADDR_IPV6]++;
+		break;
+	    case 3:	/* network.interface.hw_addr */
+		need_refresh[REFRESH_NETADDR_HW]++;
 		break;
 	    }
 	    break;

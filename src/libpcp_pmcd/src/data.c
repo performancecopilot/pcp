@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012,2015 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -20,14 +20,14 @@
  * in a DSO as well, due to linkage oddities with Windows DLLs.
  */
 
-PMCD_INTERN int	pmcd_hi_openfds = -1;   /* Highest open pmcd file descriptor */
-PMCD_INTERN int	_pmcd_done;		/* flag from pmcd pmda */
-PMCD_INTERN int	_pmcd_timeout = 5;	/* Timeout for hung agents */
+PMCD_DATA int	pmcd_hi_openfds = -1;   /* Highest open pmcd file descriptor */
+PMCD_DATA int	_pmcd_done;		/* flag from pmcd pmda */
+PMCD_DATA int	_pmcd_timeout = 5;	/* Timeout for hung agents */
 
-PMCD_INTERN int	nAgents;		/* Number of active agents */
-PMCD_INTERN AgentInfo *agent;		/* Array of agent info structs */
+PMCD_DATA int	nAgents;		/* Number of active agents */
+PMCD_DATA AgentInfo *agent;		/* Array of agent info structs */
 
-PMCD_INTERN char *_pmcd_hostname;	/* Explicitly requested hostname */
+PMCD_DATA char *_pmcd_hostname;		/* Explicitly requested hostname */
 
 /*
  * File descriptors are used as an internal index with the advent

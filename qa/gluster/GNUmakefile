@@ -9,8 +9,6 @@ SCRIPT = test.sh
 INFOFILES = $(shell echo info-*)
 PROFFILES = $(shell echo profile-*)
 
-LSRCFILES = $(SCRIPT) $(INFOFILES) $(PROFFILES)
-
 default default_pcp setup:
 
 install install_pcp:

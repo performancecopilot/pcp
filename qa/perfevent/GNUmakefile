@@ -15,7 +15,6 @@ ROOTFILES =     config/syntax_error.txt \
 
 TESTHARNESS = perfevent_test perfevent_coverage
 LDIRT += $(TESTHARNESS) fakefs $(OUTDIR)
-LSRCFILES = $(ROOTFILES) GNUmakefile.install
 
 ifeq "$(PMDA_PERFEVENT)" "true"
 default setup default_pcp: $(TESTHARNESS)

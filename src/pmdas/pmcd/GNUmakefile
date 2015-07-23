@@ -52,6 +52,6 @@ install_pcp install :: $(SUBDIRS)
 	$(INSTALL) -m 644 root_pmcd $(PCP_VAR_DIR)/pmns/root_pmcd
 
 help.dir: help root_pmcd 
-	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -v 2 -n root_pmcd -o help < help
+	$(NEWHELP) -v 2 -n root_pmcd -o help < help
 
 include $(BUILDRULES)

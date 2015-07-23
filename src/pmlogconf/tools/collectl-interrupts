@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident   percpu interrupt metrics for collectl
+probe	kernel.uname.sysname ~ Linux ? available : exclude
+	kernel.percpu.interrupts

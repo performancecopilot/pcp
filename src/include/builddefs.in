@@ -66,6 +66,7 @@ PCP_LIBS = $(PCPLIB_LDFLAGS)
 # 	../../configure.ac (likewise for PLDFLAGS and LDFLAGS).
 #
 TARGET_OS = @target_os@
+CROSS_COMPILING = @cross_compiling@
 PCFLAGS = @PCFLAGS@
 PLDFLAGS = @PLDFLAGS@
 ifneq (, $(filter linux kfreebsd gnu, $(TARGET_OS)))
@@ -79,7 +80,7 @@ ifeq "$(TARGET_OS)" "mingw"
 DSOSUFFIX = dll
 EXECSUFFIX = .exe
 SHELLSUFFIX = .sh
-PLDLIBS = -lwsock32
+PLDLIBS = -lwsock32 -liphlpapi
 endif
 ifeq "$(TARGET_OS)" "solaris"
 PLDFLAGS += -fPIC
@@ -236,6 +237,9 @@ ENABLE_SYSTEMD = @enable_systemd@
 ENABLE_MANAGER = @enable_manager@
 ENABLE_WEBAPI = @enable_webapi@
 
+# for code supporting any modern version of perl
+HAVE_PERL = @have_perl@
+
 # for code supporting both/either python2 and/or python3
 HAVE_PYTHON = @have_python@
 
@@ -302,6 +306,21 @@ RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf LIBPATH=$(TOPDIR)/src
 endif
 ifeq "$(TARGET_OS)" "mingw"
 RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf PATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$PATH USERPROFILE=`pwd` PCP_ALT_CPP=`pwd`/$(TOPDIR)/src/pmcpp/pmcpp
+endif
+
+# when cross-compiling, we cannot use RUN_IN_BUILD_ENV, so any binaries
+# from PCP we need in the build must be installed on the build machine.
+#
+ifeq "$(CROSS_COMPILING)" "yes"
+NEWHELP = . $$PCP_DIR/etc/pcp.conf && $$PCP_BINADM_DIR/newhelp
+PMIECONF = . $$PCP_DIR/etc/pcp.conf && $$PCP_BIN_DIR/pmieconf
+PMGENMAP = . $$PCP_DIR/etc/pcp.conf && $$PCP_BIN_DIR/pmgenmap
+PMCPP = . $$PCP_DIR/etc/pcp.conf && $$PCP_BINADM_DIR/pmcpp
+else
+NEWHELP = $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp
+PMIECONF = $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmieconf/pmieconf
+PMGENMAP = $(RUN_IN_BUILD_ENV) sh ./pmgenmap.sh
+PMCPP = $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmcpp/pmcpp
 endif
 
 SUBDIRS_MAKERULE = \
@@ -692,7 +711,7 @@ WINDOW = mac
 endif
 ifeq ($(PCP_PLATFORM),mingw)
 QTMAKE = $(QMAKE) CONFIG+=$(QT_RELEASE) && $(QTFIX) <Makefile >Makefile.fix && mv Makefile.fix Makefile && $(MAKE) -f Makefile
-BINARY = $(QT_RELEASE)/$(COMMAND)
+BINARY = build/$(QT_RELEASE)/$(COMMAND)$(EXECSUFFIX)
 LNMAKE =
 WINDOW = win
 endif
