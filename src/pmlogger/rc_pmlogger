@@ -95,7 +95,7 @@ _start_pmcheck()
 	mv -f $bgtmp/pmcheck $logfile
 
 	message="pmlogger_check failed in $prog, see $logfile"
-	$PCP_SYSLOG_PROG -s -p daemon.warning "$message"
+	$PCP_SYSLOG_PROG -p daemon.warning "$message"
 	$PCP_BINADM_DIR/pmpost "$message"
     fi
     # In a container, pmlogger_check cannot run as a co-process. If it did then
