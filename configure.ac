@@ -1289,7 +1289,7 @@ AC_CHECK_HEADERS(windows.h winsock2.h ws2tcpip.h)
 AC_CHECK_HEADERS(execinfo.h bits/wordsize.h)
 AC_CHECK_HEADERS(iptypes.h, [], [], [#include <windows.h>])
 AC_CHECK_HEADERS(iphlpapi.h, [], [], [#include <winsock2.h>])
-AC_CHECK_HEADERS(fts.h)
+AC_CHECK_HEADERS(fts.h libzfs.h)
 
 dnl Check if we have <sys/endian.h> ... standard way
 AC_MSG_CHECKING([for sys/endian.h ])
@@ -2554,13 +2554,34 @@ dnl Check for FNDELAY defined in <fcntl.h>
 if test "$ac_cv_header_fcntl_h" = "yes"
 then
     AC_MSG_CHECKING([for FNDELAY in fcntl.h])
-        AC_TRY_COMPILE(
-	[
-	    #include <fcntl.h>
+    AC_TRY_COMPILE([#include <fcntl.h>],
+	[ int i = FNDELAY; ],
+	AC_DEFINE(HAVE_FNDELAY, [1], [FNDELAY macro])
+	AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+fi
+
+dnl check for zpool_vdev_name API style from <libzfs.h>
+if test "$ac_cv_header_libzfs_h" = "yes"
+then
+    AC_MSG_CHECKING([for 5-argument style zpool_vdev_name])
+    AC_TRY_COMPILE([#include <libzfs.h>],
+	[ libzfs_handle_t *zh;
+	  zpool_handle_t *zp;
+	  nvlist_t *np;
+	  (void) zpool_vdev_name(zh, zp, np, B_FALSE, B_FALSE);
 	],
-	[
-	    int i = FNDELAY;
-	], AC_DEFINE(HAVE_FNDELAY, [1], [FNDELAY macro]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+	AC_DEFINE(HAVE_ZPOOL_VDEV_NAME_5ARG, [1], [5-arg zpool_vdev_name])
+	AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+
+    AC_MSG_CHECKING([for 4-argument style zpool_vdev_name])
+    AC_TRY_COMPILE([#include <libzfs.h>],
+	[ libzfs_handle_t *zh;
+	  zpool_handle_t *zp;
+	  nvlist_t *np;
+	  (void) zpool_vdev_name(zh, zp, np, B_FALSE);
+	],
+	AC_DEFINE(HAVE_ZPOOL_VDEV_NAME_4ARG, [1], [4-arg zpool_vdev_name])
+	AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 fi
 
 dnl Check for Network Security Services (NSS) and

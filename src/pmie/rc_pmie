@@ -115,13 +115,13 @@ _start_pmie()
 	    mv -f $bgtmp/pmie $logfile
 
 	    message="pmie_check start failed in $prog, see $logfile"
-	    $PCP_SYSLOG_PROG -s -p daemon.warning "$message"
+	    $PCP_SYSLOG_PROG -p daemon.warning "$message"
 	    $PCP_BINADM_DIR/pmpost "$message"
 	fi
     else
 	bgstatus=$?
 	message="pmcd_wait failed in $prog: exit status: $bgstatus" 
-	$PCP_SYSLOG_PROG -s -p daemon.warning "$message"
+	$PCP_SYSLOG_PROG -p daemon.warning "$message"
 	$PCP_BINADM_DIR/pmpost "$message"
     fi
     exit $bgstatus	# co-process is now complete
@@ -146,7 +146,7 @@ _shutdown()
 	mv -f $tmp/pmie $logfile
 
 	message="pmie_check stop failed in $prog, see $logfile"
-	$PCP_SYSLOG_PROG -s -p daemon.warning "$message"
+	$PCP_SYSLOG_PROG -p daemon.warning "$message"
 	$PCP_BINADM_DIR/pmpost "$message"
     fi
 

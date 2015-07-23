@@ -73,6 +73,8 @@
 extern const char *strerror_r(int, char *, size_t);
 #endif
 
+static int __dminit_configfile(const char *);
+
 static int		need_init = 1;
 static ctl_t		registered = {
 #ifdef PM_MULTI_THREAD
@@ -222,55 +224,64 @@ PM_FAULT_CHECK(PM_FAULT_PMAPI);
 }
 
 /*
- * Handle one component of the : separated $PCP_DERIVED_CONFIG
+ * Handle one component of the ':' separated derived config spec.
+ * Used for $PCP_DERIVED_CONFIG evaluation and pmLoadDerivedConfig.
+ *
  * If descend is 1 and name is a directory then we will process all
  * the files in that directory, otherwise directories are skipped.
  * Note: for the current implementation, descend is always 1.
+ *
+ * If recover is 1 then we are tolerant of failures like missing or
+ * inaccessible files/directories, otherwise we're not and an error
+ * is propagated back to the caller.
  */
-void
-__dminit_component(const char *name, int descend)
+static int
+__dminit_component(const char *name, int descend, int recover)
 {
-    struct stat sbuf;
+    struct stat	sbuf;
+    int		sts = 0;
+
     if (stat(name, &sbuf) < 0) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_DERIVE) {
 	    char	errmsg[PM_MAXERRMSGLEN];
-	    fprintf(stderr, "Warning: $PCP_DERIVED_CONFIG component: %s: %s\n",
-		name, pmErrStr_r(-errno, errmsg, sizeof(errmsg)));
+	    fprintf(stderr, "Warning: derived metrics path component: %s: %s\n",
+		name, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 	}
 #endif
-	/* probably no such file or directory, silently ignore this one */
-	return;
+	sts = -oserror();
+	goto finish;
     }
     if (S_ISREG(sbuf.st_mode)) {
 	/* regular file or symlink to a regular file, load it */
-	int	sts;
-	sts = pmLoadDerivedConfig(name);
+	sts = __dminit_configfile(name);
 #ifdef PCP_DEBUG
 	if (sts < 0 && pmDebug & DBG_TRACE_DERIVE) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "pmLoadDerivedConfig(%s): %s\n", name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
 #endif
-	return;
+	goto finish;
     }
     if (descend && S_ISDIR(sbuf.st_mode)) {
 	/* directory, descend to process all files in the directory */
 	DIR		*dirp;
 	struct dirent	*dp;
+
 	if ((dirp = opendir(name)) == NULL) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_DERIVE) {
 		char	errmsg[PM_MAXERRMSGLEN];
-		fprintf(stderr, "Warning: $PCP_DERIVED_CONFIG directory component: %s: %s\n",
-		    name, pmErrStr_r(-errno, errmsg, sizeof(errmsg)));
+		fprintf(stderr, "Warning: derived metrics path directory component: %s: %s\n",
+		    name, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 	    }
 #endif
-	    /* probably permissions issue, silently ignore this one */
-	    return;
+	    sts = -oserror();
+	    goto finish;
 	}
-	while (errno = 0, (dp = readdir(dirp)) != NULL) {
+	while (setoserror(0), (dp = readdir(dirp)) != NULL) {
 	    char	path[MAXPATHLEN+1];
+	    int		localsts;
 	    /*
 	     * skip "." and ".." and recursively call __dminit_component()
 	     * to process the directory entries ... descend is passed down
@@ -278,42 +289,53 @@ __dminit_component(const char *name, int descend)
 	    if (strcmp(dp->d_name, ".") == 0) continue;
 	    if (strcmp(dp->d_name, "..") == 0) continue;
 	    snprintf(path, sizeof(path), "%s%c%s", name, __pmPathSeparator(), dp->d_name);
-	    __dminit_component(path, descend);
+	    if ((localsts = __dminit_component(path, descend, recover)) < 0)
+		sts = localsts;
 	}
 #ifdef PCP_DEBUG
 	/* error is most unlikely and ignore unless -Dderive specified */
-	if (errno != 0 && pmDebug & DBG_TRACE_DERIVE) {
+	if (oserror() != 0 && pmDebug & DBG_TRACE_DERIVE) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "Warning: %s: readdir failed: %s\n",
-		name, pmErrStr_r(-errno, errmsg, sizeof(errmsg)));
+		name, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 	}
 #endif
-	return;
+	closedir(dirp);
+	goto finish;
     }
     /* otherwise not a file or symlink to a real file or a directory */
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_DERIVE) {
-	fprintf(stderr, "Warning: $PCP_DERIVED_CONFIG component: %s: unexpected st_mode=%o?\n",
+	fprintf(stderr, "Warning: derived metrics path component: %s: unexpected st_mode=%o?\n",
 	    name, sbuf.st_mode);
     }
 #endif
+
+finish:
+    return recover ? 0 : sts;
 }
 
-/* parse, split and process : separated components from $PCP_DERIVED_CONFIG */
-void
-__dminit_parse(const char *path)
+/*
+ * Parse, split and process ':' separated components from a
+ * derived metrics path specification.
+ */
+static int
+__dminit_parse(const char *path, int recover)
 {
     const char	*p = path;
     const char	*q;
+    int		sts = 0;
+
     while ((q = index(p, ':')) != NULL) {
 	char	*name = strndup(p, q-p+1);
 	name[q-p] = '\0';
-	__dminit_component(name, 1);
+	sts = __dminit_component(name, 1, recover);
 	free(name);
 	p = q+1;
     }
-    if (*p != '\0')
-	__dminit_component(p, 1);
+    if (*p != '\0' && sts >= 0)
+	sts = __dminit_component(p, 1, recover);
+    return sts;
 }
 
 /*
@@ -331,7 +353,7 @@ __dminit(void)
 		fprintf(stderr, "Derived metric initialization from $PCP_DERIVED_CONFIG\n");
 	    }
 #endif
-	    __dminit_parse(configpath);
+	    __dminit_parse(configpath, 1 /*recovering*/);
 	}
 	need_init = 0;
     }
@@ -1508,6 +1530,12 @@ pmRegisterDerived(const char *name, const char *expr)
 
 int
 pmLoadDerivedConfig(const char *fname)
+{
+    return __dminit_parse(fname, 0 /*non-recovering*/);
+}
+
+static int
+__dminit_configfile(const char *fname)
 {
     FILE	*fp;
     int		buflen;

@@ -250,7 +250,7 @@ sample.seconds: value OK
 sample.drift: current error Metric not defined in the PCP archive log 
 sample.milliseconds: delta: 1000 +/- 20
 
-50 samples required 33-50 log reads
+50 samples required 30-50 log reads
 
 interpolate 20, 4 seconds appart
 Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
@@ -336,7 +336,7 @@ sample.drift: current error Metric not defined in the PCP archive log
 sample.milliseconds: delta: 4000 +/- 40
 sample[17] pmFetch: End of PCP archive log
 
-17 samples required 35-45 log reads
+17 samples required 30-45 log reads
 
 interpolate 16, 5 seconds appart
 Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
@@ -407,7 +407,7 @@ sample.drift: current error Metric not defined in the PCP archive log
 sample.milliseconds: delta: 5000 +/- 40
 sample[14] pmFetch: End of PCP archive log
 
-14 samples required 35-45 log reads
+14 samples required 30-45 log reads
 
 interpolate 10, 8 seconds appart
 Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
@@ -453,7 +453,7 @@ sample.drift: current error Metric not defined in the PCP archive log
 sample.milliseconds: delta: 8000 +/- 60
 sample[9] pmFetch: End of PCP archive log
 
-9 samples required 34-40 log reads
+9 samples required 30-40 log reads
 
 interpolate 8, 10 seconds appart
 Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
@@ -489,7 +489,7 @@ sample.drift: current error Metric not defined in the PCP archive log
 sample.milliseconds: delta: 10000 +/- 60
 sample[7] pmFetch: End of PCP archive log
 
-7 samples required 34-40 log reads
+7 samples required 30-40 log reads
 
 === src/mv-interp ===
 
@@ -741,7 +741,7 @@ sample.seconds: value OK
 sample.drift: current error Metric not defined in the PCP archive log 
 sample.milliseconds: delta: 1000 +/- 20
 
-50 samples required 33-50 log reads
+50 samples required 30-50 log reads
 
 interpolate 20, 4 seconds appart
 Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
@@ -827,7 +827,7 @@ sample.drift: current error Metric not defined in the PCP archive log
 sample.milliseconds: delta: 4000 +/- 40
 sample[17] pmFetch: End of PCP archive log
 
-17 samples required 35-45 log reads
+17 samples required 30-45 log reads
 
 interpolate 16, 5 seconds appart
 Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
@@ -898,7 +898,7 @@ sample.drift: current error Metric not defined in the PCP archive log
 sample.milliseconds: delta: 5000 +/- 40
 sample[14] pmFetch: End of PCP archive log
 
-14 samples required 35-45 log reads
+14 samples required 30-45 log reads
 
 interpolate 10, 8 seconds appart
 Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
@@ -944,7 +944,7 @@ sample.drift: current error Metric not defined in the PCP archive log
 sample.milliseconds: delta: 8000 +/- 60
 sample[9] pmFetch: End of PCP archive log
 
-9 samples required 34-40 log reads
+9 samples required 30-40 log reads
 
 interpolate 8, 10 seconds appart
 Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
@@ -980,7 +980,7 @@ sample.drift: current error Metric not defined in the PCP archive log
 sample.milliseconds: delta: 10000 +/- 60
 sample[7] pmFetch: End of PCP archive log
 
-7 samples required 34-40 log reads
+7 samples required 30-40 log reads
 
 === src/noti-interp ===
 
@@ -1232,7 +1232,7 @@ sample.seconds: value OK
 sample.drift: current error Metric not defined in the PCP archive log 
 sample.milliseconds: delta: 1000 +/- 20
 
-50 samples required 33-50 log reads
+50 samples required 30-50 log reads
 
 interpolate 20, 4 seconds appart
 Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
@@ -1318,7 +1318,7 @@ sample.drift: current error Metric not defined in the PCP archive log
 sample.milliseconds: delta: 4000 +/- 40
 sample[17] pmFetch: End of PCP archive log
 
-17 samples required 35-45 log reads
+17 samples required 30-45 log reads
 
 interpolate 16, 5 seconds appart
 Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
@@ -1389,7 +1389,7 @@ sample.drift: current error Metric not defined in the PCP archive log
 sample.milliseconds: delta: 5000 +/- 40
 sample[14] pmFetch: End of PCP archive log
 
-14 samples required 35-45 log reads
+14 samples required 30-45 log reads
 
 interpolate 10, 8 seconds appart
 Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
@@ -1435,7 +1435,7 @@ sample.drift: current error Metric not defined in the PCP archive log
 sample.milliseconds: delta: 8000 +/- 60
 sample[9] pmFetch: End of PCP archive log
 
-9 samples required 34-40 log reads
+9 samples required 30-40 log reads
 
 interpolate 8, 10 seconds appart
 Warning: pmLookupDesc(sample.drift): Metric not defined in the PCP archive log
@@ -1471,4 +1471,4 @@ sample.drift: current error Metric not defined in the PCP archive log
 sample.milliseconds: delta: 10000 +/- 60
 sample[7] pmFetch: End of PCP archive log
 
-7 samples required 34-40 log reads
+7 samples required 30-40 log reads
