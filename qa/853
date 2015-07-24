@@ -130,6 +130,13 @@ some text %%{long_macro_name_and_short_value}%{long_macro_name_and_short_value}%
 End-of-File
 pmcpp -d -rs <$tmp.in
 echo "----------------------"
+cat <<End-of-File >$tmp.in
+#define Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch LLanfair
+The town of Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch is a village in Wales and is famous for being apparently the longest place name in the world.  There are lots of web pages mentioning Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch.  Locally Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch is just too much of a mouthful and so it is truncated from "Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch" to "Llanfair".  With one more mention of Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch, I think this line will be long enough.
+Phew that was a long input line ... 593 chars!
+End-of-File
+pmcpp -d <$tmp.in
+echo "----------------------"
 
 echo
 echo "=== conditionals, bells and whistles ==="

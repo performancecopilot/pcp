@@ -50,11 +50,13 @@
 #include <ctype.h>
 #include <sys/stat.h>
 #include <stdarg.h>
+#include <string.h>
 
 static int debug = 0;			/* -d sets this to 1 for debugging */
 
-/* TODO buffer overflow? */
-static char	ibuf[256];		/* input line buffer */
+static char	*ibuf;			/* input line buffer */
+static int	ibuflen = 0;
+static int	inlen;			/* input line length */
 static int	nline_in;		/* number of input lines read */
 static int	nline_out;		/* number of output lines written */
 static int	nline_sub;		/* number of lines requiring some macro substitution */
@@ -75,8 +77,9 @@ static struct {
  * macro definitions via #define
  */
 typedef struct {
-    int		len;
+    int		namelen;		/* length of name[] */
     char	*name;
+    int		valuelen;		/* length of value[] */
     char	*value;
 } macro_t;
 static macro_t	*macro = NULL;
@@ -253,8 +256,8 @@ directive(void)
 	return 1;
     
     for (i = 0; i < nmacro; i++) {
-	if (macro[i].len != namelen ||
-	    strncmp(name, macro[i].name, macro[i].len) != 0)
+	if (macro[i].namelen != namelen ||
+	    strncmp(name, macro[i].name, macro[i].namelen) != 0)
 	    continue;
 	/* found a match */
 	if (op == OP_IFDEF) {
@@ -266,7 +269,7 @@ directive(void)
 	    return 1;
 	}
 	else if (op == OP_UNDEF) {
-	    macro[i].len = 0;
+	    macro[i].namelen = 0;
 	    return 0;
 	}
 	else {
@@ -296,7 +299,7 @@ directive(void)
 	    __pmNoMem("pmcpp: macro[]", (nmacro+1)*sizeof(macro_t), PM_FATAL_ERR);
 	    /*NOTREACHED*/
 	}
-	macro[nmacro].len = namelen;
+	macro[nmacro].namelen = namelen;
 	macro[nmacro].name = (char *)malloc(namelen+1);
 	if (macro[nmacro].name == NULL) {
 	    __pmNoMem("pmcpp: name", namelen+1, PM_FATAL_ERR);
@@ -304,6 +307,7 @@ directive(void)
 	}
 	strncpy(macro[nmacro].name, name, namelen);
 	macro[nmacro].name[namelen] = '\0';
+	macro[nmacro].valuelen = valuelen;
 	macro[nmacro].value = (char *)malloc(valuelen+1);
 	if (macro[nmacro].value == NULL) {
 	    __pmNoMem("pmcpp: value", valuelen+1, PM_FATAL_ERR);
@@ -328,21 +332,33 @@ do_macro(void)
     char	*ip = ibuf;	/* next from ibuf[] to be copied */
     char	*tp;		/* start of token */
     int		len;
-    /* TODO ... buffer overflow? */
-    char	tmp[256];	/* copy output line here */
-    char	*op = tmp;
+    static char	*obuf = NULL;	/* copy output line here */
+    static int	obuflen;
+    char	*op = obuf;
     int		sub = 0;	/* true if any substitution made */
 
-    /* TODO ... avoid copy at all unless at least one macro expansion happens */
+    /*
+     * optimistic non-copying ... as we scan the input buffer we
+     * do not copy to the output buffer until at least one macro
+     * substitution has been made (sub > 0) ... this saves about
+     * 9% cpu time for the common case where most lines processed
+     * do not involve any macro processing.
+     */
 
     /* get to the start of the first possible macro name */
     if (restrict) {
-	while (*ip && *ip != ctl)
-	    *op++ = *ip++;
+	while (*ip && *ip != ctl) {
+	    if (sub)
+		*op++ = *ip;
+	    ip++;
+	}
     }
     else {
-	while (*ip && !isalpha((int)*ip) && *ip != '_')
-	    *op++ = *ip++;
+	while (*ip && !isalpha((int)*ip) && *ip != '_') {
+	    if (sub)
+		*op++ = *ip;
+	    ip++;
+	}
     }
     if (*ip == '\0')
 	return;
@@ -416,33 +432,67 @@ do_macro(void)
 		}
 		if (tlen > 0) {
 		    for (i = 0; i < nmacro; i++) {
-			if (tlen == macro[i].len &&
+			if (tlen == macro[i].namelen &&
 			    strncmp(token, macro[i].name, tlen) == 0) {
+			    int	need;	/* expected output line length */
+			    int	sofar;
 			    if (debug) printf("<<value=\"%s\"\n", macro[i].value);
 			    match = 1;
-			    if (sub == 0)
+			    /* check output buffer is big enough ...  */
+			    need = inlen - len + macro[i].valuelen;
+			    if (need > obuflen) {
+				/* resize output buffer */
+				if (obuflen == 0)
+				    obuflen = ibuflen;
+				while (need > obuflen)
+				    obuflen *= 2;
+				sofar = op - obuf;
+				if ((obuf = (char *)realloc(obuf, obuflen)) == NULL) {
+				    __pmNoMem("pmcpp: obuf realloc", obuflen, PM_FATAL_ERR);
+				    /*NOTREACHED*/
+				}
+				if (debug)
+				    printf("<<increased obuf[] to %d chars\n", obuflen);
+				op = &obuf[sofar];
+			    }
+			    if (sub == 0) {
+				/*
+				 * first macro replacement for this line, ...
+				 * copy input line up to start of macro name
+				 * to the output buffer and continue to copy
+				 * while processing to the right of here ...
+				 */
 				nline_sub++;
+				memcpy(obuf, ibuf, ip-len-ibuf);
+				op = &obuf[ip-len-ibuf];
+			    }
 			    nsub++;
 			    sub++;
-			    strcpy(op, macro[i].value);
-			    op += strlen(macro[i].value);
+			    memcpy(op, macro[i].value, macro[i].valuelen);
+			    op += macro[i].valuelen;
 			    break;
 			}
 		    }
 		}
-		if (match == 0) {
+		if (match == 0 && sub > 0) {
 		    strncpy(op, tp, len);
 		    op += len;
 		}
 	    }
 	    /* get to the start of the next possible macro name */
 	    if (restrict) {
-		while (*ip && *ip != ctl)
-		    *op++ = *ip++;
+		while (*ip && *ip != ctl) {
+		    if (sub)
+			*op++ = *ip;
+		    ip++;
+		}
 	    }
 	    else {
-		while (*ip && !isalpha((int)*ip) && *ip != '_')
-		    *op++ = *ip++;
+		while (*ip && !isalpha((int)*ip) && *ip != '_') {
+		    if (sub)
+			*op++ = *ip;
+		    ip++;
+		}
 	    }
 	    if (*ip == '\0')
 		break;
@@ -453,7 +503,7 @@ do_macro(void)
 
     if (sub) {
 	*op = '\0';
-	strcpy(ibuf, tmp);
+	memcpy(ibuf, obuf, op-obuf+1);
     }
 }
 
@@ -503,6 +553,12 @@ main(int argc, char **argv)
 
     currfile = &file_ctl[0];
 
+    ibuflen = 256;
+    if ((ibuf = (char *)malloc(ibuflen)) == NULL) {
+	__pmNoMem("pmcpp: ibuf alloc", ibuflen, PM_FATAL_ERR);
+	/*NOTREACHED*/
+    }
+
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 
@@ -517,7 +573,16 @@ main(int argc, char **argv)
 		    break;
 		}
 	    }
-	    snprintf(ibuf, sizeof(ibuf), "#define %s\n", opts.optarg);
+	    while (strlen(opts.optarg)+9 >= ibuflen) {
+		ibuflen *= 2;
+		if ((ibuf = (char *)realloc(ibuf, ibuflen)) == NULL) {
+		    __pmNoMem("pmcpp: ibuf -D realloc", ibuflen, PM_FATAL_ERR);
+		    /*NOTREACHED*/
+		}
+		if (debug)
+		    printf("<<-D doubled ibuf[] to %d chars\n", ibuflen);
+	    }
+	    snprintf(ibuf, ibuflen, "#define %s\n", opts.optarg);
 	    currfile->fname = "<arg>";
 	    currfile->lineno = opts.optind;
 	    directive();
@@ -564,7 +629,9 @@ main(int argc, char **argv)
     }
 
     for ( ; ; ) {
-	if (fgets(ibuf, sizeof(ibuf), currfile->fin) == NULL) {
+	ip = ibuf;
+more:
+	if (fgets(ip, ibuflen-(ip-ibuf), currfile->fin) == NULL) {
 	    fclose(currfile->fin);
 	    if (currfile == &file_ctl[0])
 		break;
@@ -576,6 +643,26 @@ main(int argc, char **argv)
 	    }
 	    continue;
 	}
+	/* need to make sure we have a complete line of input */
+	while (*ip != '\0')
+	    ip++;
+	if (ip[-1] != '\n') {
+	    /*
+	     * input line longer than ibuf[] ... expand buffer and
+	     * go read some more
+	     */
+	    int	sofar = ip - ibuf;
+	    ibuflen *= 2;
+	    if ((ibuf = (char *)realloc(ibuf, ibuflen)) == NULL) {
+		__pmNoMem("pmcpp: ibuf realloc", ibuflen, PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
+	    if (debug)
+		printf("<<doubled ibuf[] to %d chars\n", ibuflen);
+	    ip = &ibuf[sofar];
+	    goto more;
+	}
+	inlen = ip - ibuf + 1;
 	nline_in++;
 	currfile->lineno++;
  
