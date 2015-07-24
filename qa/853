@@ -32,11 +32,24 @@ what about eek ? expect this to be \u\r\k not \e\e\k
 eek at start of line
 at end of line eek
 text from .in file
+%ifndef test_else
+not-defined if-part
+%else
+not-defined else-part
+%endif
+%ifdef test_else
+defined if-part
+%else
+defined else-part
+%endif
+Text at end of file.
 End-of-File
 
 echo "=== simple cases ==="
 echo "----------------------"
 pmcpp -s <$tmp.in
+echo "----------------------"
+pmcpp -s --define=test_else=1 <$tmp.in
 echo "----------------------"
 
 echo
@@ -73,26 +86,49 @@ echo "----------------------"
 #
 echo
 echo "=== error cases ==="
+echo "----------------------"
 cat <<End-of-File >$tmp.in
 foo
 %ifdef eek
 bar
 End-of-File
 pmcpp -s <$tmp.in
+echo "----------------------"
+cat <<End-of-File >$tmp.in
+%macro value with embedded newline - bad
+%define multi 'one line
+two lines
+three lines'
+And is this multi multiple lines?
+End-of-File
+pmcpp -sr <$tmp.in
+echo "----------------------"
+cat <<End-of-File >$tmp.in
+# exposed #else outside #if ... scope
+test
+#else
+blah
+#endif
+End-of-File
+pmcpp -r <$tmp.in
+echo "----------------------"
 
 echo
 echo "=== macro name and corner-case expansion tests ==="
 echo "----------------------"
 cat <<End-of-File >$tmp.in
 %define _underscore_all_over_ urk
-%define multi 'one line
-two lines
-three lines'
-
-What about _underscore_all_over_?
-And is this multi multiple lines?
+What about _underscore_all_over_?  [expect urk]
 End-of-File
 pmcpp -s <$tmp.in
+echo "----------------------"
+cat <<End-of-File >$tmp.in
+%define long_macro_name_and_short_value "!"
+%define x '^a very long macro value to be sure, to be sure$'
+some text %%{long_macro_name_and_short_value}%{long_macro_name_and_short_value}%{long_macro_name_and_short_value}% [expect %!!!%]
+[expect ^...$^...$^...$] %x%x%x
+End-of-File
+pmcpp -d -rs <$tmp.in
 echo "----------------------"
 
 echo

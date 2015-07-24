@@ -7,6 +7,19 @@ what about urk ? expect this to be \u\r\k not \e\e\k
 urk at start of line
 at end of line urk
 text from .in file
+not-defined if-part
+defined else-part
+Text at end of file.
+----------------------
+text from .inc file
+Firstly, there is the mumble and "fumble" ...
+what about urk ? expect this to be \u\r\k not \e\e\k
+urk at start of line
+at end of line urk
+text from .in file
+not-defined else-part
+defined if-part
+Text at end of file.
 ----------------------
 
 === expansion with -r ===
@@ -17,24 +30,34 @@ what about eek ? expect this to be \u\r\k not \e\e\k
 eek at start of line
 at end of line eek
 text from .in file
+not-defined if-part
+defined else-part
+Text at end of file.
 ----------------------
-macro eek="urk"
-macro mumble="mumble and "fumble""
+<<macro eek="urk"
+<<macro mumble="mumble and "fumble""
 text from .inc file
 Firstly, there is the mumble ...
-token="%eek"
+<<name="%eek"
+<<value="urk"
 what about urk ? expect this to be \u\r\k not \e\e\k
-token="%{eek}"
+<<name="%{eek}"
+<<value="urk"
 and what about urk ? expect this to be \u\r\k not \e\e\k
-token="%eek"
+<<name="%eek"
+<<value="urk"
 urk <percent>eek at start of line
-token="%eek"
+<<name="%eek"
+<<value="urk"
 <percent>eek at end of line urk
-token="%{eek}"
+<<name="%{eek}"
+<<value="urk"
 urk <percent>{eek} at start of line
-token="%{eek}"
+<<name="%{eek}"
+<<value="urk"
 <percent>{eek} at end of line urk
 text from .in file
+<<lines: in 14 out 9 (modified 6) substitutions: 6
 ----------------------
 
 === -D on command line cases ===
@@ -45,6 +68,9 @@ what about urk ? expect this to be \u\r\k not \e\e\k
 urk at start of line
 at end of line urk
 blah=blah=blah=... from .in file
+not-defined if-part
+defined else-part
+Text at end of file.
 ----------------------
 blah blah blah ... from .inc file
 Firstly, there is the mumble and "fumble" ...
@@ -52,14 +78,53 @@ what about urk ? expect this to be \u\r\k not \e\e\k
 urk at start of line
 at end of line urk
 blah blah blah ... from .in file
+not-defined if-part
+defined else-part
+Text at end of file.
 ----------------------
 
 === error cases ===
+----------------------
 foo
 pmcpp: <stdin>:
 pmcpp: Error: End of input and no matching %endif for %ifdef or %ifndef at line 2
+----------------------
+%macro value with embedded newline - bad
+pmcpp: <stdin>[2]: %define multi 'one line
+pmcpp: Error: Unterminated value string in %define
+----------------------
+# 1 "<stdin>"
+# exposed #else outside #if ... scope
+test
+pmcpp: <stdin>[3]: #else
+pmcpp: Error: No matching #ifdef or #ifndef for #else
+----------------------
 
 === macro name and corner-case expansion tests ===
+----------------------
+What about urk?  [expect urk]
+----------------------
+<<macro long_macro_name_and_short_value="!"
+<<macro x="^a very long macro value to be sure, to be sure$"
+<<name="%"
+<<name="%{long_macro_name_and_short_value}"
+<<value="!"
+<<name="%{long_macro_name_and_short_value}"
+<<value="!"
+<<name="%{long_macro_name_and_short_value}"
+<<value="!"
+<<name="%"
+<<name="%"
+<<name="%"
+some text %!!!% [expect %!!!%]
+<<name="%x"
+<<value="^a very long macro value to be sure, to be sure$"
+<<name="%x"
+<<value="^a very long macro value to be sure, to be sure$"
+<<name="%x"
+<<value="^a very long macro value to be sure, to be sure$"
+[expect ^...$^...$^...$] ^a very long macro value to be sure, to be sure$^a very long macro value to be sure, to be sure$^a very long macro value to be sure, to be sure$
+<<lines: in 4 out 2 (modified 2) substitutions: 6
 ----------------------
 
 === conditionals, bells and whistles ===
