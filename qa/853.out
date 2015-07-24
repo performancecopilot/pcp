@@ -1,0 +1,82 @@
+QA output created by 853
+=== simple cases ===
+----------------------
+text from .inc file
+Firstly, there is the mumble and "fumble" ...
+what about urk ? expect this to be \u\r\k not \e\e\k
+urk at start of line
+at end of line urk
+text from .in file
+----------------------
+
+=== expansion with -r ===
+----------------------
+text from .inc file
+Firstly, there is the mumble ...
+what about eek ? expect this to be \u\r\k not \e\e\k
+eek at start of line
+at end of line eek
+text from .in file
+----------------------
+macro eek="urk"
+macro mumble="mumble and "fumble""
+text from .inc file
+Firstly, there is the mumble ...
+token="%eek"
+what about urk ? expect this to be \u\r\k not \e\e\k
+token="%{eek}"
+and what about urk ? expect this to be \u\r\k not \e\e\k
+token="%eek"
+urk <percent>eek at start of line
+token="%eek"
+<percent>eek at end of line urk
+token="%{eek}"
+urk <percent>{eek} at start of line
+token="%{eek}"
+<percent>{eek} at end of line urk
+text from .in file
+----------------------
+
+=== -D on command line cases ===
+----------------------
+blah=blah=blah=... from .inc file
+Firstly, there is the mumble and "fumble" ...
+what about urk ? expect this to be \u\r\k not \e\e\k
+urk at start of line
+at end of line urk
+blah=blah=blah=... from .in file
+----------------------
+blah blah blah ... from .inc file
+Firstly, there is the mumble and "fumble" ...
+what about urk ? expect this to be \u\r\k not \e\e\k
+urk at start of line
+at end of line urk
+blah blah blah ... from .in file
+----------------------
+
+=== error cases ===
+foo
+pmcpp: <stdin>:
+pmcpp: Error: End of input and no matching %endif for %ifdef or %ifndef at line 2
+
+=== macro name and corner-case expansion tests ===
+----------------------
+
+=== conditionals, bells and whistles ===
+----------------------
+
+log mandatory on 1minute {
+    disk.dev
+}
+
+----------------------
+
+log mandatory on 1minute {
+    disk.dev
+}
+
+log mandatory on 15 sec {
+    kernel.all.cpu.user
+    kernel.all.cpu.sys
+}
+----------------------
