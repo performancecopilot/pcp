@@ -317,8 +317,6 @@ directive(void)
     }
 }
 
-/* TODO ... after va_args all the errmsg[] code can go when err() is called */
-
 static void
 do_macro(void)
 {
@@ -581,31 +579,33 @@ main(int argc, char **argv)
 	nline_in++;
 	currfile->lineno++;
  
-	/* strip comments ... */
-	for (ip = ibuf; *ip ; ip++) {
-	    if (incomment) {
-		if (*ip == '*' && ip[1] == '/') {
-		    /* end of comment */
-		    incomment = 0;
-		    *ip++ = ' ';
-		    *ip = ' ';
+	if (style == STYLE_C) {
+	    /* strip comments ... */
+	    for (ip = ibuf; *ip ; ip++) {
+		if (incomment) {
+		    if (*ip == '*' && ip[1] == '/') {
+			/* end of comment */
+			incomment = 0;
+			*ip++ = ' ';
+			*ip = ' ';
+		    }
+		    else
+			*ip = ' ';
 		}
-		else
-		    *ip = ' ';
-	    }
-	    else {
-		if (*ip == '/' && ip[1] == '*') {
-		    /* start of comment */
-		    incomment = currfile->lineno;
-		    *ip++ = ' ';
-		    *ip = ' ';
+		else {
+		    if (*ip == '/' && ip[1] == '*') {
+			/* start of comment */
+			incomment = currfile->lineno;
+			*ip++ = ' ';
+			*ip = ' ';
+		    }
 		}
 	    }
+	    ip--;
+	    while (ip >= ibuf && isspace((int)*ip)) ip--;
+	    *++ip = '\n';
+	    *++ip = '\0';
 	}
-	ip--;
-	while (ip >= ibuf && isspace((int)*ip)) ip--;
-	*++ip = '\n';
-	*++ip = '\0';
 	if (incomment && ibuf[0] == '\n') {
 	    if (style == STYLE_C) {
 		printf("\n");
@@ -757,10 +757,8 @@ process:
 
     /* EOF for the top level file */
     if (incomment) {
-	char	msgbuf[80];
-	snprintf(msgbuf, sizeof(msgbuf), "Comment at line %d not terminated before end of file", incomment);
 	currfile->lineno = 0;
-	err(msgbuf);
+	err("Comment at line %d not terminated before end of file", incomment);
 	exit(1);
     }
 
