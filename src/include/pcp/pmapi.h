@@ -706,6 +706,9 @@ PCP_CALL extern int pmGetVersion(void);
 #define PMLONGOPT_CONTAINER "container"
 #define PMOPT_CONTAINER { PMLONGOPT_CONTAINER, 1, 0, "NAME", \
 		"specify an individual container to be queried" }
+#define PMLONGOPT_DERIVED "derived"
+#define PMOPT_DERIVED { PMLONGOPT_DERIVED, 1, 0, "FILE", \
+		"load derived metric definitions from FILE(s)" }
 
 /* pmOptions flags */
 #define PM_OPTFLAG_INIT		(1<<0)	/* initialisation done */

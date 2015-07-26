@@ -144,6 +144,7 @@ extern "C" {
 #undef HAVE_NETINET_TCP_H
 #undef HAVE_ARPA_INET_H
 #undef HAVE_FTS_H
+#undef HAVE_LIBZFS_H
 
 #undef HAVE_SYS_ENDIAN_H
 #undef HAVE_SYS_MACHINE_H
@@ -290,6 +291,10 @@ extern "C" {
 #undef HAVE_TRACE_BACK_STACK
 #undef HAVE_BACKTRACE
 #undef HAVE_READDIR64
+
+/* define which libzfs functions are available */
+#undef HAVE_ZPOOL_VDEV_NAME_5ARG
+#undef HAVE_ZPOOL_VDEV_NAME_4ARG
 
 /* interfaces used for Linux container support (namespaces) */
 #undef HAVE_SENDMSG

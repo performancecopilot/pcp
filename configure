@@ -3027,7 +3027,7 @@ $as_echo "#define IS_SOLARIS 1" >>confdefs.h
 
     export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing"
     export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any"
-    pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/usr/sfw/bin'
+    pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/opt/csw/bin'
     pcp_ps_all_flags=-ef
 elif test $target_os = aix
 then
@@ -9123,12 +9123,13 @@ fi
 
 done
 
-for ac_header in fts.h
+for ac_header in fts.h libzfs.h
 do :
-  ac_fn_c_check_header_mongrel "$LINENO" "fts.h" "ac_cv_header_fts_h" "$ac_includes_default"
-if test "x$ac_cv_header_fts_h" = xyes; then :
+  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
+ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
+if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
   cat >>confdefs.h <<_ACEOF
-#define HAVE_FTS_H 1
+#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
 _ACEOF
 
 fi
@@ -10321,14 +10322,16 @@ if test "x$do_webapi" != "xno"; then :
 
     enable_webapi=true
 
-    if test "$do_webapi" != "check" -a "$have_libmicrohttpd" != "true"
+    if test "$have_libmicrohttpd" != "true"
     then
+	enable_webapi=false
+	test "$do_webapi" != "check" && \
 	as_fn_error $? "libmicrohttpd is not installed, cannot enable the web API" "$LINENO" 5
     elif test "$do_webapi" != "check" -a "x$cxx" = "x"
     then
+	enable_webapi=false
+	test "$do_webapi" != "check" && \
 	as_fn_error $? "C++ compiler unavailable, cannot enable the web API" "$LINENO" 5
-    else
-	enable_webapi=$have_libmicrohttpd
     fi
 
 fi
@@ -10339,13 +10342,43 @@ if test "x$do_manager" != "xno"; then :
 
     enable_manager=true
 
-    if test "$do_manager" != "check" -a $target_os = mingw
+    if test "$target_os" = "mingw"
     then
-	as_fn_error $? "Target platform is MinGW, cannot enable daemon manager" "$LINENO" 5
-    elif test "$do_manager" != "check" -a "x$cxx" = "x"
+	enable_manager=false
+	test "$do_manager" != "check" && \
+	as_fn_error $? "MinGW build, cannot enable daemon manager" "$LINENO" 5
+    elif test "x$cxx" = "x"
     then
+	enable_manager=false
+	test "$do_manager" != "check" && \
 	as_fn_error $? "C++ compiler unavailable, cannot enable daemon manager" "$LINENO" 5
     fi
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking compilation features for daemon manager" >&5
+$as_echo_n "checking compilation features for daemon manager... " >&6; }
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+ #ifndef _XOPEN_SOURCE
+	  #define _XOPEN_SOURCE 600
+	  #endif
+	  #include <stdio.h>
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+  enable_manager=false
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
 fi
 
@@ -13465,17 +13498,13 @@ if test "$ac_cv_header_fcntl_h" = "yes"
 then
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for FNDELAY in fcntl.h" >&5
 $as_echo_n "checking for FNDELAY in fcntl.h... " >&6; }
-        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-
-	    #include <fcntl.h>
-
+#include <fcntl.h>
 int
 main ()
 {
-
-	    int i = FNDELAY;
-
+ int i = FNDELAY;
   ;
   return 0;
 }
@@ -13483,7 +13512,69 @@ _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
 
 $as_echo "#define HAVE_FNDELAY 1" >>confdefs.h
- { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+
+if test "$ac_cv_header_libzfs_h" = "yes"
+then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for 5-argument style zpool_vdev_name" >&5
+$as_echo_n "checking for 5-argument style zpool_vdev_name... " >&6; }
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <libzfs.h>
+int
+main ()
+{
+ libzfs_handle_t *zh;
+	  zpool_handle_t *zp;
+	  nvlist_t *np;
+	  (void) zpool_vdev_name(zh, zp, np, B_FALSE, B_FALSE);
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+
+$as_echo "#define HAVE_ZPOOL_VDEV_NAME_5ARG 1" >>confdefs.h
+
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for 4-argument style zpool_vdev_name" >&5
+$as_echo_n "checking for 4-argument style zpool_vdev_name... " >&6; }
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <libzfs.h>
+int
+main ()
+{
+ libzfs_handle_t *zh;
+	  zpool_handle_t *zp;
+	  nvlist_t *np;
+	  (void) zpool_vdev_name(zh, zp, np, B_FALSE);
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+
+$as_echo "#define HAVE_ZPOOL_VDEV_NAME_4ARG 1" >>confdefs.h
+
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 else
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5

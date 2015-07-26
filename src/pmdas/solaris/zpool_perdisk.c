@@ -24,11 +24,19 @@ struct vdev_stats {
 static libzfs_handle_t *zh;
 static int vdev_added;
 
+#if defined(HAVE_ZPOOL_VDEV_NAME_5ARG)
+# define zpool_vdev_name3(a,b,c)	zpool_vdev_name(a,b,c,B_FALSE,B_FALSE)
+#elif defined(HAVE_ZPOOL_VDEV_NAME_4ARG)
+# define zpool_vdev_name3(a,b,c)	zpool_vdev_name(a,b,c,B_FALSE)
+#else	/* assume original 3-argument form */
+# define zpool_vdev_name3(a,b,c)	zpool_vdev_name(a,b,c)
+#endif
+
 static char *
 make_vdev_name(zpool_handle_t *zp, const char *pname, nvlist_t *child)
 {
 	char *name = NULL;
-	char *cname = zpool_vdev_name(zh, zp, child, B_FALSE, B_FALSE);
+	char *cname = zpool_vdev_name3(zh, zp, child);
 	uint_t size;
 
 	if (cname == NULL) {

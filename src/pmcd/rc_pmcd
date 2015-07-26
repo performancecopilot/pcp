@@ -42,18 +42,6 @@ PCPLOCAL=$PCP_PMCDRCLOCAL_PATH
 RUNDIR=$PCP_LOG_DIR/pmcd
 prog=$PCP_RC_DIR/`basename $0`
 
-# search for your mail agent of choice ...
-#
-MAIL=''
-for try in Mail mail email
-do
-    if which $try >/dev/null 2>&1
-    then
-	MAIL=$try
-	break
-    fi
-done
-
 tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
 status=1
 trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
@@ -229,13 +217,9 @@ _start_pmcheck()
 	:
     else
 	status=$?
-	$PCP_BINADM_DIR/pmpost "pmcd_wait failed in $prog: exit status: $status" 
-	if [ ! -z "$MAIL" ]
-	then
-	    echo "pmcd_wait exit status: $status" | $MAIL -s "pmcd_wait failed in $prog" root
-	else
-	    echo "$prog: pmcd_wait failed: exit status: $status"
-	fi
+	message="pmcd_wait failed in $prog: exit status: $status"
+	$PCP_SYSLOG_PROG -p daemon.warning "$message"
+	$PCP_BINADM_DIR/pmpost "$message"
     fi
 }
 
