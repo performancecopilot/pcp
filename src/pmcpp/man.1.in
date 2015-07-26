@@ -1,0 +1,5 @@
+#define MYDOMAIN 27
+
+root {
+    foo	MYDOMAIN:0:0
+}
