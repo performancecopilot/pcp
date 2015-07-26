@@ -232,3 +232,57 @@ log mandatory on 15 sec {
     kernel.all.cpu.sys
 }
 ----------------------
+
+=== -I tests ===
+----------------------
+# 1 "a"
+# 1 "b"
+Text from b.
+# 2 "a"
+Text from a.
+<<lines: in 3 out 5 (modified 0) substitutions: 0
+----------------------
+# 1 "a"
+<<include "./b"?
+<<include "/var/lib/pcp/pmns/b"?
+pmcpp: a[1]: #include <b>
+pmcpp: Error: Cannot open file for #include
+----------------------
+# 1 "a"
+<<include "./b"?
+<<include "sub/b"?
+# 1 "sub/b"
+Text from b.
+# 2 "a"
+Text from a.
+<<lines: in 3 out 5 (modified 0) substitutions: 0
+----------------------
+# 1 "a"
+<<include "./b"?
+<<include "sub/b"?
+# 1 "sub/b"
+<<include "./c-foobar"?
+<<include "sub/c-foobar"?
+<<include "sub/sub-sub/c-foobar"?
+# 1 "sub/sub-sub/c-foobar"
+Text from c-foobar.
+# 2 "sub/b"
+Text from b.
+# 2 "a"
+Text from a.
+<<lines: in 5 out 8 (modified 0) substitutions: 0
+----------------------
+# 1 "sub/a"
+<<include "sub/b"?
+# 1 "sub/b"
+<<include "sub/c-foobar"?
+# 1 "sub/c-foobar"
+Text from c-foobar.
+# 2 "sub/b"
+Text from b.
+# 2 "sub/a"
+Text from a.
+<<lines: in 5 out 8 (modified 0) substitutions: 0
+----------------------
+expect no diff lines ...
+----------------------

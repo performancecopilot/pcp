@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "cd $here; rm -rf $tmp.* $tmp; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 cat <<End-of-File >$tmp.inc
@@ -163,6 +163,46 @@ End-of-File
 pmcpp -rs <$tmp.in
 echo "----------------------"
 pmcpp -rs -Dwant_cpu <$tmp.in 
+echo "----------------------"
+
+echo
+echo "=== -I tests ==="
+mkdir $tmp
+cd $tmp
+cat <<End-of-File >a
+#include <b>
+Text from a.
+End-of-File
+cat <<End-of-File >b
+Text from b.
+End-of-File
+echo "----------------------"
+pmcpp -d a
+mkdir sub
+mv b sub
+echo "----------------------"
+pmcpp -d a
+echo "----------------------"
+pmcpp -d -I sub a
+cat <<End-of-File >sub/b
+#include "c-foobar"
+Text from b.
+End-of-File
+mkdir sub/sub-sub
+cat <<End-of-File >sub/sub-sub/c-foobar
+Text from c-foobar.
+End-of-File
+echo "----------------------"
+pmcpp -d -I sub -I sub/sub-sub a
+echo "----------------------"
+mv sub/sub-sub/c-foobar sub
+mv a sub
+pmcpp -d sub/a
+echo "----------------------"
+cd $here
+echo "#include <Rebuild>" | pmcpp -P >$tmp.out
+echo expect no diff lines ...
+diff $tmp.out $PCP_VAR_DIR/pmns/Rebuild
 echo "----------------------"
 
 # success, all done
