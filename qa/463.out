@@ -181,7 +181,7 @@ pmcpp: Error: Missing macro name
 # 1 "TMP.root"
 root {
 
-pmcpp: TMP.root[3]: #define
+pmcpp: TMP.root[3]: #define 
 pmcpp: Error: Missing macro name
 ---------------- 17 -----------------
 # 1 "TMP.root"
@@ -240,5 +240,5 @@ other #cpp line errors ...
 ---------------- 26 -----------------
 # 1 "TMP.root"
 root {
-pmcpp: TMP.root[2]: #fumble
-pmcpp: Error: Unrecognized control line
+#fumble
+}

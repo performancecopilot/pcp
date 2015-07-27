@@ -24,15 +24,15 @@
  * - nested #ifdef
  * - C++ style // comments
  * - error recovery - first error is fatal
- * - -U, -P and -I command line options
+ * - -o, -W, -U, -x, ... command line options
  *
  * STYLE_SH (-s) variant
  * - intended for configuration files with sh-like comment convention,
  *   i.e. # introduces a comment
  * - pmcpp control character becomes % instead of #, so %include, %ifdef, etc
- * - no # lineno "filename" output lines
+ * - no # lineno "filename" linemarker lines
  *
- * Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 2011-2015 Ken McDonell.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -52,10 +52,10 @@
 #include <stdarg.h>
 #include <string.h>
 
-static int debug = 0;			/* -d sets this to 1 for debugging */
+static int debug;			/* -d sets this to 1 for debugging */
 
 static char	*ibuf;			/* input line buffer */
-static int	ibuflen = 0;
+static int	ibuflen;
 static int	inlen;			/* input line length */
 static int	nline_in;		/* number of input lines read */
 static int	nline_out;		/* number of output lines written */
@@ -63,7 +63,7 @@ static int	nline_sub;		/* number of lines requiring some macro substitution */
 static int	nsub;			/* number of macro substitutions */
 
 /*
- optind #include file control
+ * ?include file control
  * allow MAXLEVEL-1 levels of #include
  */
 #define MAXLEVEL	5
@@ -83,12 +83,25 @@ typedef struct {
     char	*value;
 } macro_t;
 static macro_t	*macro = NULL;
-static int	nmacro = 0;
+static int	nmacro;
+
+/*
+ * include file directories
+ */
+typedef struct {
+    char	*dirname;
+} incdir_t;
+static incdir_t	*incdir = NULL;
+static int	nincdir;
+
+static int	sep;
 
 #define STYLE_C	1
 #define STYLE_SH 2
 static int	style = STYLE_C;	/* STYLE_SH if -s on command line */
 static char	ctl = '#';
+
+static int	Pflag;			/* set if -P */
 
 #define IF_FALSE	0
 #define IF_TRUE		1
@@ -96,7 +109,7 @@ static char	ctl = '#';
 static int	in_if = IF_NONE;	/* #if... control */
 static int	if_lineno;		/* lineno of last #if... */
 
-static int	restrict = 0;		/* 1 if -r on the command line */
+static int	rflag;			/* 1 if -r on the command line */
 
 static void err(const char *, ...) __attribute__((noreturn));
 
@@ -130,10 +143,10 @@ err(const char *msg, ...)
 #define OP_ENDIF	6
 /*
  * handle pmcpp directives
- * ibuf[0] contains a pmcpp directive - # (or % for sFlag)
+ * ibuf[0] contains a pmcpp directive - # (or % for style == STYLE_SH)
  * - return 0 for do nothing and include following lines
  * - return 1 to skip following lines
- * - return -1 if not a valid directive (action depends on restrict)
+ * - return -1 if not a valid directive (action depends on rflag)
  */
 static int
 directive(void)
@@ -346,7 +359,7 @@ do_macro(void)
      */
 
     /* get to the start of the first possible macro name */
-    if (restrict) {
+    if (rflag) {
 	while (*ip && *ip != ctl) {
 	    if (sub)
 		*op++ = *ip;
@@ -369,7 +382,7 @@ do_macro(void)
 	if (ip == tp)
 	    /* skip first character of token */
 	    tok_end = 0;
-	else if (restrict) {
+	else if (rflag) {
 	    if (ip == &tp[1]) {
 		/* second character could be { or start of name */
 		if (*ip == '{' || isalnum(*ip))
@@ -412,7 +425,7 @@ do_macro(void)
 		int		tlen = len;
 		char		*token = tp;
 		if (debug) printf("<<name=\"%*.*s\"\n", len, len, tp);
-		if (restrict) {
+		if (rflag) {
 		    if (len < 2) {
 			/*
 			 * single % or # and not alpha|underscore and not {
@@ -480,7 +493,7 @@ do_macro(void)
 		}
 	    }
 	    /* get to the start of the next possible macro name */
-	    if (restrict) {
+	    if (rflag) {
 		while (*ip && *ip != ctl) {
 		    if (sub)
 			*op++ = *ip;
@@ -508,7 +521,8 @@ do_macro(void)
 }
 
 /*
- * Open a regular file for reading, checking that its regular and accessible
+ * Open a regular file (or character device, like /dev/null!) for
+ * reading, checking that it is accessible
  */
 FILE *
 openfile(const char *fname)
@@ -522,7 +536,7 @@ openfile(const char *fname)
 	fclose(fp);
 	return NULL;
     }
-    if (!S_ISREG(sbuf.st_mode)) {
+    if (!S_ISREG(sbuf.st_mode) && !S_ISCHR(sbuf.st_mode)) {
 	fclose(fp);
 	setoserror(ENOENT);
 	return NULL;
@@ -532,16 +546,53 @@ openfile(const char *fname)
 
 static pmLongOptions longopts[] = {
     PMOPT_HELP,
-    { "define", 1, 'D', "name=value", "associate a value with a macro name" },
+    { "define", 1, 'D', "name[=value]", "define a macro with an optional value" },
+    { "include", 1, 'I', "dir", "additional directory to search for include files" },
+    { "", 0, 'P', "", "do not output # lineno \"filename\" linemarkers" },
     { "restrict", 0, 'r', "", "restrict macro expansion to #name or #{name}" },
     { "shell", 0, 's', "", "use alternate control syntax with % instead of #" },
     PMAPI_OPTIONS_END
 };
 static pmOptions opts = {
-    .short_options = "dD:rs?",
+    .short_options = "dD:I:Prs?",
     .long_options = longopts,
-    .short_usage = "[-Dname ...] [file]",
+    .short_usage = "[-Prs] [-Dname[=value] ...] [-I dir ...] [infile]",
 };
+
+/*
+ * iname from ?include ?iname?
+ * oname is defined to the path of the matching file, if any.
+ * on failure, return NULL
+ */
+static FILE *
+do_include(char *iname, char **oname)
+{
+    int		i;
+    static char	tmpbuf[MAXPATHLEN];
+    FILE	*f;
+    
+    if ((f = openfile(iname)) != NULL) {
+	*oname = iname;
+	return f;
+    }
+    if (iname[0] == sep)
+	/* absolute pathname */
+	return NULL;
+
+    for (i = 0; i < nincdir; i++) {
+	if (incdir[i].dirname == NULL)
+	    continue;
+	snprintf(tmpbuf, sizeof(tmpbuf), "%s%c%s", incdir[i].dirname, sep, iname);
+	if (debug)
+	    printf("<<include \"%s\"?\n", tmpbuf);
+	if ((f = openfile(tmpbuf)) != NULL) {
+	    *oname = tmpbuf;
+	    return f;
+	}
+    }
+
+    return NULL;
+}
 
 int
 main(int argc, char **argv)
@@ -552,12 +603,29 @@ main(int argc, char **argv)
     char	*ip;
 
     currfile = &file_ctl[0];
+    sep = __pmPathSeparator();
 
+    /* input buffer starts at 256 chars, but will expand if needed */
     ibuflen = 256;
     if ((ibuf = (char *)malloc(ibuflen)) == NULL) {
 	__pmNoMem("pmcpp: ibuf alloc", ibuflen, PM_FATAL_ERR);
 	/*NOTREACHED*/
     }
+
+    /*
+     * incdir[0] is for directory of filename from command line
+     * (if given) and will be filled in later
+     * incdir[...] is for directory of filename from -I args
+     * incdir[nincdir-1] is directory $PCP_VAR_DIR/pmns
+     */
+    nincdir = 2;
+    incdir = (incdir_t *)malloc(nincdir*sizeof(incdir_t));
+    if (incdir == NULL) {
+	__pmNoMem("pmcpp: incdir[]", nincdir*sizeof(incdir_t), PM_FATAL_ERR);
+	/*NOTREACHED*/
+    }
+    incdir[0].dirname = NULL;
+    incdir[1].dirname = NULL;
 
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
@@ -588,9 +656,24 @@ main(int argc, char **argv)
 	    directive();
 	    break;
 
+	case 'I':	/* extra include search directory */
+	    nincdir++;
+	    incdir = (incdir_t *)realloc(incdir, nincdir*sizeof(incdir_t));
+	    if (incdir == NULL) {
+		__pmNoMem("pmcpp: realloc incdir[]", nincdir*sizeof(incdir_t), PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
+	    incdir[nincdir-2].dirname = opts.optarg;
+	    incdir[nincdir-1].dirname = NULL;
+	    break;
+
+	case 'P':	/* no # lineno "filename" linemarker output lines */
+	    Pflag = 1;
+	    break;
+
 	case 'r':	/* restrict macro expansion to #name or #{name} or */
 			/* with -s, %name or %{name} */
-	   restrict = 1;
+	   rflag = 1;
 	   break;
 
 	case 's':	/* input text style is shell, not C */
@@ -616,14 +699,38 @@ main(int argc, char **argv)
 	currfile->fin = stdin;
     }
     else {
+	/* input from a file */
+	static char	*dirbuf;
 	currfile->fname = argv[opts.optind];
 	currfile->fin = openfile(currfile->fname);
 	if (currfile->fin == NULL) {
 	    err((char *)pmErrStr(-oserror()));
 	    /*NOTREACHED*/
 	}
+	/*
+	 * some versions of dirname() clobber the input argument,
+	 * some do not ... hence the obscurity here
+	 */
+	dirbuf = strdup(currfile->fname);
+	if (dirbuf == NULL) {
+	    __pmNoMem("pmcpp: dir name alloc", strlen(currfile->fname)+1, PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
+	incdir[0].dirname = dirname(dirbuf);
     }
-    if (style == STYLE_C) {
+
+    /*
+     * Fill in last incdir option ... $PCP_VAR_DIR/pmns ...
+     * this is for backwards compatibility with the earlier version
+     * of pmcpp and the use from pmLoadASCIINameSpace()
+     */
+    {
+	static char	tmpbuf[MAXPATHLEN];
+	snprintf(tmpbuf, sizeof(tmpbuf), "%s%cpmns", pmGetConfig("PCP_VAR_DIR"), sep);
+	incdir[nincdir-1].dirname = tmpbuf;
+    }
+
+    if (!Pflag) {
 	printf("# %d \"%s\"\n", currfile->lineno+1, currfile->fname);
 	nline_out++;
     }
@@ -637,7 +744,7 @@ more:
 		break;
 	    free(currfile->fname);
 	    currfile--;
-	    if (style == STYLE_C) {
+	    if (!Pflag) {
 		printf("# %d \"%s\"\n", currfile->lineno+1, currfile->fname);
 		nline_out++;
 	    }
@@ -668,8 +775,10 @@ more:
  
 	if (style == STYLE_C) {
 	    /* strip comments ... */
-	    for (ip = ibuf; *ip ; ip++) {
-		if (incomment) {
+	    int		blanked = 0;
+	    for (ip = ibuf; *ip != '\n' ; ip++) {
+		if (incomment > 0) {
+		    blanked = 1;
 		    if (*ip == '*' && ip[1] == '/') {
 			/* end of comment */
 			incomment = 0;
@@ -683,21 +792,28 @@ more:
 		    if (*ip == '/' && ip[1] == '*') {
 			/* start of comment */
 			incomment = currfile->lineno;
+			blanked = 1;
 			*ip++ = ' ';
 			*ip = ' ';
 		    }
 		}
 	    }
-	    ip--;
-	    while (ip >= ibuf && isspace((int)*ip)) ip--;
-	    *++ip = '\n';
-	    *++ip = '\0';
+	    if (blanked) {
+		/*
+		 * found and stripped one or more comments or parts
+		 * thereof ... strip any trailing white space (comment
+		 * text was replaced by ' ' above)
+		 */
+		ip--;	/* currently at ' ' or '\n' */
+		while (ip >= ibuf && isspace((int)*ip))
+		    ip--;
+		*++ip = '\n';
+		*++ip = '\0';
+	    }
 	}
 	if (incomment && ibuf[0] == '\n') {
-	    if (style == STYLE_C) {
-		printf("\n");
-		nline_out++;
-	    }
+	    printf("\n");
+	    nline_out++;
 	    continue;
 	}
 
@@ -708,13 +824,10 @@ more:
 		char		*pend;
 		char		c;
 		FILE		*f;
-		static char	tmpbuf[MAXPATHLEN];
 
 		if (skip_if_false) {
-		    if (style == STYLE_C) {
-			printf("\n");
-			nline_out++;
-		    }
+		    printf("\n");
+		    nline_out++;
 		    continue;
 		}
 		p = &ibuf[strlen("?include")];
@@ -745,44 +858,7 @@ more:
 		}
 		c = *pend;
 		*pend = '\0';
-		f = openfile(p);
-		if (f == NULL && file_ctl[0].fin != stdin) {
-		    /* check in directory of file from command line */
-		    static int	sep;
-		    static char	*dir = NULL;
-		    if (dir == NULL) {
-			/*
-			 * some versions of dirname() clobber the input
-			 * argument, some do not ... hence the obscurity
-			 * here
-			 */
-			static char	*dirbuf;
-			dirbuf = strdup(file_ctl[0].fname);
-			if (dirbuf == NULL) {
-			    __pmNoMem("pmcpp: dir name alloc", strlen(file_ctl[0].fname)+1, PM_FATAL_ERR);
-			    /*NOTREACHED*/
-			}
-			dir = dirname(dirbuf);
-			sep = __pmPathSeparator();
-		    }
-		    snprintf(tmpbuf, sizeof(tmpbuf), "%s%c%s", dir, sep, p);
-		    f = openfile(tmpbuf);
-		    if (f != NULL)
-			p = tmpbuf;
-		}
-		if (f == NULL) {
-		    /* check in $PCP_VAR_DIR/pmns */
-		    static int	sep;
-		    static char	*var_dir = NULL;
-		    if (var_dir == NULL) {
-			var_dir = pmGetConfig("PCP_VAR_DIR");
-			sep = __pmPathSeparator();
-		    }
-		    snprintf(tmpbuf, sizeof(tmpbuf), "%s%cpmns%c%s", var_dir, sep, sep, p);
-		    f = openfile(tmpbuf);
-		    if (f != NULL)
-			p = tmpbuf;
-		}
+		f = do_include(p, &p);
 		if (f == NULL) {
 		    *pend = c;
 		    err("Cannot open file for %cinclude", ctl);
@@ -797,7 +873,7 @@ more:
 		    __pmNoMem("pmcpp: file name alloc", strlen(p)+1, PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
-		if (style == STYLE_C) {
+		if (!Pflag) {
 		    printf("# %d \"%s\"\n", currfile->lineno+1, currfile->fname);
 		    nline_out++;
 		}
@@ -806,32 +882,24 @@ more:
 		/* expect other pmcpp control ... */
 		skip_if_false = directive();
 		if (skip_if_false == -1) {
-		    if (restrict) {
-			/*
-			 * could be a macro expansion request, e.g. #foo
-			 * or #{foo} or * %foo or %{foo} ... charge on
-			 */
-			skip_if_false = 0;
-			goto process;
-		    }
-		    else {
-			err("Unrecognized control line");
-			/*NOTREACHED*/
-		    }
+		    /*
+		     * could be a macro expansion request, e.g. #foo
+		     * or #{foo} or * %foo or %{foo} ... or just a
+		     * random line beginning with a control character
+		     * ... charge on
+		     */
+		    skip_if_false = 0;
+		    goto process;
 		}
-		if (style == STYLE_C) {
-		    printf("\n");
-		    nline_out++;
-		}
+		printf("\n");
+		nline_out++;
 	    }
 	    continue;
 	}
 	if (skip_if_false) {
 	    /* within an if-block that is false */
-	    if (style == STYLE_C) {
-		printf("\n");
-		nline_out++;
-	    }
+	    printf("\n");
+	    nline_out++;
 	}
 	else {
 process:

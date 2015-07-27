@@ -8,7 +8,6 @@ sample.colour
 Log for pmlogger on HOST started DATE
 
 Config parsed
-Starting logger for host "HOST"
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
 After loading config ...
@@ -24,6 +23,7 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
+Starting logger for host "HOST"
 Archive basename: ARCHIVE
 logputresult: pdubuf=ADDR input len=NNN output len=NNN posn=NNN
 __pmLogPutIndex: timestamp=NNN.NNNNNN vol=0 meta posn=NNN log posn=NNN

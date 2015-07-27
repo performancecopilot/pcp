@@ -21,8 +21,9 @@
 .\" arguments use .I or \f2
 .SH SYNOPSIS
 .B pmcpp
-[\f3\-rs\f1]
+[\f3\-Prs\f1]
 [\f3\-D\f1 \f2name\f1[=\f2value\f1] ...]
+[\f3\-I\f1 \f2dir\f1 ...]
 [\f2infile\f1]
 .SH DESCRIPTION
 .B pmcpp
@@ -77,9 +78,15 @@ tries
 first, then the directory for the command line
 .I infile
 (if any),
-followed by the
+followed by any directories named in
+.B \-I
+command line arguments, and finally the
 .B $PCP_VAR_DIR/pmns
-directory.
+directory (the latter is for backwards compatibility with
+earlier versions of
+.B pmcpp
+and the implied used from
+.BR pmLoadASCIINameSpace (3)).
 .B #include
 directives may be nested, up to a maximum depth of 5.
 .IP \(bu 3n
@@ -162,6 +169,10 @@ of the input file
 .IR filename .
 .PP
 The
+.B \-P
+argument suppresses the generation of these linemarker lines.
+.PP
+The
 .B \-s
 argument changes the expected input style from C-like to shell-like
 (where # is a comment prefix).  This forces the following changes
@@ -177,14 +188,6 @@ to
 so 
 .B %include
 for example.
-.IP \(bu 3n
-Control lines are missing from the output stream, rather than
-emitting an empty line.
-.IP \(bu 3n
-In a control block that is ``false'' there are no lines in the
-output stream, rather than emitting one empty line per input line.
-.IP \(bu 3n
-The # lineno "filename" output lines are omitted.
 .IP \(bu 3n
 No comment stripping is performed.
 .PD
@@ -243,10 +246,11 @@ will be fatal.
 .IP \(bu 3n
 .BR cpp (1)
 command line options like
-.B \-U ,
-.B \-P
+.BR \-o ,
+.BR \-W ,
+.BR \-U ,
 and
-.BR \-I .
+.BR \-x .
 .PD
 .SH EXAMPLES
 .\" man.1.in from src dir

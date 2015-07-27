@@ -13,9 +13,19 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+# handle these ...
+# 1 "/tmp/853-3145.inc"
+#
+_filter()
+{
+    sed \
+	-e "/^# [1-9]/s@$tmp@TMP@" \
+    # end
+}
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "cd $here; rm -rf $tmp.* $tmp; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 cat <<End-of-File >$tmp.inc
@@ -47,15 +57,15 @@ End-of-File
 
 echo "=== simple cases ==="
 echo "----------------------"
-pmcpp -s <$tmp.in
+pmcpp -s <$tmp.in 2>&1 | _filter
 echo "----------------------"
-pmcpp -s --define=test_else=1 <$tmp.in
+pmcpp -s --define=test_else=1 <$tmp.in 2>&1 | _filter
 echo "----------------------"
 
 echo
 echo "=== expansion with -r ==="
 echo "----------------------"
-pmcpp -sr <$tmp.in
+pmcpp -sr <$tmp.in 2>&1 | _filter
 echo "----------------------"
 cat <<End-of-File >$tmp.in2
 %include "$tmp.inc"
@@ -70,15 +80,18 @@ and what about %{eek} ? expect this to be \u\r\k not \e\e\k
 <percent>{eek} at end of line %{eek}
 text from .in file
 End-of-File
-pmcpp -srd <$tmp.in2
+pmcpp -srd <$tmp.in2 2>&1 | _filter
+echo "Check lines in and out ..."
+echo "in: `wc -l <$tmp.in2 | sed -e 's/ //g'` + `wc -l <$tmp.inc | sed -e 's/ //g'`"
+echo "out: `pmcpp -sr <$tmp.in2 | wc -l | sed -e 's/ //g'`"
 echo "----------------------"
 
 echo
 echo "=== -D on command line cases ==="
 echo "----------------------"
-pmcpp -s -D text="blah=blah=blah=..." <$tmp.in
+pmcpp -s -D text="blah=blah=blah=..." <$tmp.in 2>&1 | _filter
 echo "----------------------"
-pmcpp -s -D 'text="blah blah blah ..."' <$tmp.in
+pmcpp -s -D 'text="blah blah blah ..."' <$tmp.in 2>&1 | _filter
 echo "----------------------"
 
 # Note error case coverage is spotty ... real testing for errors
@@ -92,7 +105,7 @@ foo
 %ifdef eek
 bar
 End-of-File
-pmcpp -s <$tmp.in
+pmcpp -s <$tmp.in 2>&1 | _filter
 echo "----------------------"
 cat <<End-of-File >$tmp.in
 %macro value with embedded newline - bad
@@ -101,7 +114,7 @@ two lines
 three lines'
 And is this multi multiple lines?
 End-of-File
-pmcpp -sr <$tmp.in
+pmcpp -sr <$tmp.in 2>&1 | _filter
 echo "----------------------"
 cat <<End-of-File >$tmp.in
 # exposed #else outside #if ... scope
@@ -110,7 +123,7 @@ test
 blah
 #endif
 End-of-File
-pmcpp -r <$tmp.in
+pmcpp -r <$tmp.in 2>&1 | _filter
 echo "----------------------"
 
 echo
@@ -120,7 +133,7 @@ cat <<End-of-File >$tmp.in
 %define _underscore_all_over_ urk
 What about _underscore_all_over_?  [expect urk]
 End-of-File
-pmcpp -s <$tmp.in
+pmcpp -s <$tmp.in 2>&1 | _filter
 echo "----------------------"
 cat <<End-of-File >$tmp.in
 %define long_macro_name_and_short_value "!"
@@ -128,14 +141,14 @@ cat <<End-of-File >$tmp.in
 some text %%{long_macro_name_and_short_value}%{long_macro_name_and_short_value}%{long_macro_name_and_short_value}% [expect %!!!%]
 [expect ^...$^...$^...$] %x%x%x
 End-of-File
-pmcpp -d -rs <$tmp.in
+pmcpp -d -rs <$tmp.in 2>&1 | _filter
 echo "----------------------"
 cat <<End-of-File >$tmp.in
 #define Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch LLanfair
 The town of Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch is a village in Wales and is famous for being apparently the longest place name in the world.  There are lots of web pages mentioning Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch.  Locally Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch is just too much of a mouthful and so it is truncated from "Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch" to "Llanfair".  With one more mention of Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch, I think this line will be long enough.
 Phew that was a long input line ... 593 chars!
 End-of-File
-pmcpp -d <$tmp.in
+pmcpp -d <$tmp.in 2>&1 | _filter
 echo "----------------------"
 
 echo
@@ -160,9 +173,49 @@ log mandatory on %cpu_freq {
 }
 %endif
 End-of-File
-pmcpp -rs <$tmp.in
+pmcpp -rs <$tmp.in 2>&1 | _filter
 echo "----------------------"
-pmcpp -rs -Dwant_cpu <$tmp.in 
+pmcpp -rs -Dwant_cpu <$tmp.in  2>&1 | _filter
+echo "----------------------"
+
+echo
+echo "=== -I tests ==="
+mkdir $tmp
+cd $tmp
+cat <<End-of-File >a
+#include <b>
+Text from a.
+End-of-File
+cat <<End-of-File >b
+Text from b.
+End-of-File
+echo "----------------------"
+pmcpp -d a 2>&1 | _filter
+mkdir sub
+mv b sub
+echo "----------------------"
+pmcpp -d a 2>&1 | _filter
+echo "----------------------"
+pmcpp -d -I sub a 2>&1 | _filter
+cat <<End-of-File >sub/b
+#include "c-foobar"
+Text from b.
+End-of-File
+mkdir sub/sub-sub
+cat <<End-of-File >sub/sub-sub/c-foobar
+Text from c-foobar.
+End-of-File
+echo "----------------------"
+pmcpp -d -I sub -I sub/sub-sub a 2>&1 | _filter
+echo "----------------------"
+mv sub/sub-sub/c-foobar sub
+mv a sub
+pmcpp -d sub/a 2>&1 | _filter
+echo "----------------------"
+cd $here
+echo "#include <Rebuild>" | pmcpp -P >$tmp.out
+echo expect no diff lines ...
+diff $tmp.out $PCP_VAR_DIR/pmns/Rebuild
 echo "----------------------"
 
 # success, all done

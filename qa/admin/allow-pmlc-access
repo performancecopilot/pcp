@@ -52,6 +52,25 @@ p
 }'
 	#debug# cat $tmp.addr >&2
 	num=`wc -l <$tmp.addr | sed -e 's/ //g'`
+	if [ "$num" -gt 1 ]
+	then
+	    echo >&2 "_getnetworkaddr: confused by multiple network addresses"
+	    echo >&2 "Please choose the primary address for incoming pmlc requests:"
+	    rm -f $tmp.tmp
+	    cat $tmp.addr \
+	    | while read addr stuff
+	    do
+		echo -n >&2 "$addr [y|n]?"
+		read ans </dev/tty
+		if [ "X$ans" = Xy ]
+		then
+		    echo "$addr $stuff" >$tmp.tmp
+		    break
+		fi
+	    done
+	    mv $tmp.tmp $tmp.addr
+	    num=`wc -l <$tmp.addr | sed -e 's/ //g'`
+	fi
 	case "$num"
 	in
 	    1)	# good
