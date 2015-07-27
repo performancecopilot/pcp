@@ -101,7 +101,7 @@ static int	sep;
 static int	style = STYLE_C;	/* STYLE_SH if -s on command line */
 static char	ctl = '#';
 
-static int	Pflag;			/* set if -P, implied by -s */
+static int	Pflag;			/* set if -P */
 
 #define IF_FALSE	0
 #define IF_TRUE		1
@@ -521,7 +521,8 @@ do_macro(void)
 }
 
 /*
- * Open a regular file for reading, checking that its regular and accessible
+ * Open a regular file (or character device, like /dev/null!) for
+ * reading, checking that it is accessible
  */
 FILE *
 openfile(const char *fname)
@@ -535,7 +536,7 @@ openfile(const char *fname)
 	fclose(fp);
 	return NULL;
     }
-    if (!S_ISREG(sbuf.st_mode)) {
+    if (!S_ISREG(sbuf.st_mode) && !S_ISCHR(sbuf.st_mode)) {
 	fclose(fp);
 	setoserror(ENOENT);
 	return NULL;
@@ -677,7 +678,6 @@ main(int argc, char **argv)
 
 	case 's':	/* input text style is shell, not C */
 	   style = STYLE_SH;
-	   Pflag = 1;
 	   ctl = '%';
 	   break;
 
@@ -812,10 +812,8 @@ more:
 	    }
 	}
 	if (incomment && ibuf[0] == '\n') {
-	    if (style == STYLE_C) {
-		printf("\n");
-		nline_out++;
-	    }
+	    printf("\n");
+	    nline_out++;
 	    continue;
 	}
 
@@ -828,10 +826,8 @@ more:
 		FILE		*f;
 
 		if (skip_if_false) {
-		    if (style == STYLE_C) {
-			printf("\n");
-			nline_out++;
-		    }
+		    printf("\n");
+		    nline_out++;
 		    continue;
 		}
 		p = &ibuf[strlen("?include")];
@@ -895,19 +891,15 @@ more:
 		    skip_if_false = 0;
 		    goto process;
 		}
-		if (style == STYLE_C) {
-		    printf("\n");
-		    nline_out++;
-		}
+		printf("\n");
+		nline_out++;
 	    }
 	    continue;
 	}
 	if (skip_if_false) {
 	    /* within an if-block that is false */
-	    if (style == STYLE_C) {
-		printf("\n");
-		nline_out++;
-	    }
+	    printf("\n");
+	    nline_out++;
 	}
 	else {
 process:
