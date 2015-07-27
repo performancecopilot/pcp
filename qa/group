@@ -1067,6 +1067,7 @@ cgroups
 962 archive local
 963 libpcp local
 964 pmcd local
+965 derive local
 966 secure local
 967 pmda.papi local
 972 pmda.zswap dbpmda local

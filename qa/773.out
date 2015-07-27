@@ -139,9 +139,9 @@ qa.D PMID: 511.0.N
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 Derived metric initialization from $PCP_DERIVED_CONFIG
-Warning: $PCP_DERIVED_CONFIG component: ./E: No such file or directory
-Warning: $PCP_DERIVED_CONFIG component: ./dev/tty: unexpected st_mode=20644?
-Warning: $PCP_DERIVED_CONFIG directory component: ./blocked: Permission denied
+Warning: derived metrics path component: ./E: No such file or directory
+Warning: derived metrics path component: ./dev/tty: unexpected st_mode=20644?
+Warning: derived metrics path directory component: ./blocked: Permission denied
 __dmgetpmid: metric "qa.A" -> PMID 511.0.N
 __dmgetpmid: metric "qa.B" -> PMID 511.0.N
 __dmgetpmid: metric "qa.C" -> PMID 511.0.N

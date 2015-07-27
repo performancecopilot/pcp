@@ -587,6 +587,19 @@ __pmAddOptContainer(pmOptions *opts, char *arg)
 }
 
 static void
+__pmSetDerivedMetrics(pmOptions *opts, char *arg)
+{
+    char errmsg[PM_MAXERRMSGLEN];
+    int sts;
+
+    if ((sts = pmLoadDerivedConfig(arg)) < 0) {
+	pmprintf("%s: pmLoadDerivedConfig failed: %s\n", pmProgname,
+		pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	opts->errors++;
+    }
+}
+
+static void
 __pmSetLocalContextTable(pmOptions *opts, char *arg)
 {
     char *errmsg;
@@ -857,6 +870,8 @@ pmGetOptions(int argc, char *const *argv, pmOptions *opts)
 		__pmAddOptArchiveFolio(opts, opts->optarg);
 	    else if (strcmp(opt->long_opt, PMLONGOPT_CONTAINER) == 0)
 		__pmAddOptContainer(opts, opts->optarg);
+	    else if (strcmp(opt->long_opt, PMLONGOPT_DERIVED) == 0)
+		__pmSetDerivedMetrics(opts, opts->optarg);
 	    else
 		flag = 1;
 	    break;
