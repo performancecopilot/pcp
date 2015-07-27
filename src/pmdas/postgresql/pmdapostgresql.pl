@@ -22,7 +22,17 @@ my $username = 'postgres';	# DB username for DB login
 my $password = '';		# DBI parameter, typically unused for postgres
 my $os_user = '';		# O/S user to run the PMDA (defaults to $username)
 my $version;			# DB version
+
 my $max_version = '9.4';	# Highest DB version PMDA has been tested with
+
+# Note on $max_version
+#	Testing is complete up to Postgresql Version 9.4.
+#	There are some references to 9.5 in the code below, although
+#	these are based on currently available documentation for the
+#	forthcoming 9.5 release, and as such should be treated as
+#	experimental until production versions of 9.5 are available
+#	for testing.
+#	Ken McDonell - Jul 2015
 
 # Configuration files for overriding the above settings
 # Note: each .conf file may override a setting from a previous .conf
