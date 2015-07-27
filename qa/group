@@ -993,6 +993,7 @@ cgroups
 800 pmda.proc local
 805 pmda.postfix local
 807 pcp local
+811 pmlogger pmcpp local
 813 pmda.papi local
 815 pmie local
 822:reserved pmlogrewrite
@@ -1083,6 +1084,7 @@ cgroups
 987 pmda.xfs local
 988 pmda.xfs local valgrind
 991 pcp python local
+992 pmcpp pmlogger local
 993 pmlogger pmdumplog local
 994 other verify
 995 python local
