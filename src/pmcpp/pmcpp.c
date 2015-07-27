@@ -109,7 +109,7 @@ static int	Pflag;			/* set if -P */
 static int	in_if = IF_NONE;	/* #if... control */
 static int	if_lineno;		/* lineno of last #if... */
 
-static int	restrict;		/* 1 if -r on the command line */
+static int	rflag;			/* 1 if -r on the command line */
 
 static void err(const char *, ...) __attribute__((noreturn));
 
@@ -143,10 +143,10 @@ err(const char *msg, ...)
 #define OP_ENDIF	6
 /*
  * handle pmcpp directives
- * ibuf[0] contains a pmcpp directive - # (or % for sFlag)
+ * ibuf[0] contains a pmcpp directive - # (or % for style == STYLE_SH)
  * - return 0 for do nothing and include following lines
  * - return 1 to skip following lines
- * - return -1 if not a valid directive (action depends on restrict)
+ * - return -1 if not a valid directive (action depends on rflag)
  */
 static int
 directive(void)
@@ -359,7 +359,7 @@ do_macro(void)
      */
 
     /* get to the start of the first possible macro name */
-    if (restrict) {
+    if (rflag) {
 	while (*ip && *ip != ctl) {
 	    if (sub)
 		*op++ = *ip;
@@ -382,7 +382,7 @@ do_macro(void)
 	if (ip == tp)
 	    /* skip first character of token */
 	    tok_end = 0;
-	else if (restrict) {
+	else if (rflag) {
 	    if (ip == &tp[1]) {
 		/* second character could be { or start of name */
 		if (*ip == '{' || isalnum(*ip))
@@ -425,7 +425,7 @@ do_macro(void)
 		int		tlen = len;
 		char		*token = tp;
 		if (debug) printf("<<name=\"%*.*s\"\n", len, len, tp);
-		if (restrict) {
+		if (rflag) {
 		    if (len < 2) {
 			/*
 			 * single % or # and not alpha|underscore and not {
@@ -493,7 +493,7 @@ do_macro(void)
 		}
 	    }
 	    /* get to the start of the next possible macro name */
-	    if (restrict) {
+	    if (rflag) {
 		while (*ip && *ip != ctl) {
 		    if (sub)
 			*op++ = *ip;
@@ -673,7 +673,7 @@ main(int argc, char **argv)
 
 	case 'r':	/* restrict macro expansion to #name or #{name} or */
 			/* with -s, %name or %{name} */
-	   restrict = 1;
+	   rflag = 1;
 	   break;
 
 	case 's':	/* input text style is shell, not C */
