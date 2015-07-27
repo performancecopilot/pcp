@@ -634,6 +634,29 @@ A missing
 section allows all access and is equivalent to
 .BR "allow * : all;" .
 .RE
+.PP
+The configuration (either from standard input or
+.IR configfile )
+is initially scanned by
+.BR pmcpp (1)
+with the options
+.B \-rs
+and
+\fB\-I \fI$PCP_VAR_LIB/config/pmlogger\fR.
+This extends the configuration file syntax with include file
+processing (\c
+.BR %include ),
+a common location to search for include files 
+(\fI$PCP_VAR_LIB/config/pmlogger\fR),
+macro definitions (\c
+.BR %define ),
+macro expansion (\c
+.BI % name
+and
+.BR %{ \fIname\fP } )
+and conditional inclusion of lines
+(\fB%ifdef \fIname\fR ... \fB%else\fR ... \fB%endif\fR and
+\fB%ifndef \fIname\fR ... \fB%else\fR ... \fB%endif\fR).
 .SH EXAMPLES
 For each PCP utility, there is a sample
 .B pmlogger
@@ -667,6 +690,14 @@ log advisory on every 30 minutes {
     pmcd.pdu_in.total
     pmcd.pdu_out.total
 }
+
+%include "macros.default"
+
+%ifdef %disk_detail
+log mandatory on %disk_detail_freq {
+    disk.dev
+}
+%endif
 
 [access]
 disallow * : all except enquire;
