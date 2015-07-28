@@ -111,6 +111,7 @@ extern int		lineno;
 extern int myFetch(int, pmID *, __pmPDU **);
 extern void yyerror(char *);
 extern void yywarn(char *);
+extern void yylinemarker(char *);
 extern int yylex(void);
 extern int yyparse(void);
 extern void yyend(void);

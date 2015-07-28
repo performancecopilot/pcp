@@ -50,6 +50,7 @@ static pmLongOptions longopts[] = {
     PMOPT_SPECLOCAL,
     PMOPT_LOCALPMDA,
     PMOPT_CONTAINER,
+    PMOPT_DERIVED,
     PMAPI_OPTIONS_HEADER("Reporting options"),
     { "delay", 0, 'd', 0, "delay, pause between updates for archive replay" },
     { "precision", 1, 'f', "N", "fixed output format with N digits precision" },

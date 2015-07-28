@@ -76,10 +76,10 @@ dm_cache_fetch(int item, struct cache_stats *cache_stats, pmAtomValue *atom)
             atom->ul = cache_stats->promotions;
             break;
         case CACHE_DIRTY:
-            atom->ull = cache_stats->dirty;
+            atom->ul = cache_stats->dirty;
             break;
         case CACHE_IOMODE_CODE:
-            atom->ull = cache_stats->io_mode_code;
+            atom->ul = cache_stats->io_mode_code;
             break;
         case CACHE_IOMODE:
             atom->cp = cache_stats->io_mode;
