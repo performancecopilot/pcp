@@ -34,7 +34,7 @@ CFILES		= pmda.c \
 		  proc_scsi.c proc_cpuinfo.c proc_net_tcp.c proc_uptime.c \
 		  proc_slabinfo.c proc_sys_fs.c proc_vmstat.c \
 		  sysfs_kernel.c linux_table.c numa_meminfo.c \
-		  proc_net_netstat.c namespaces.c
+		  proc_net_netstat.c namespaces.c proc_net_softnet.c
 
 HFILES		= clusters.h indom.h convert.h \
 		  proc_stat.h proc_meminfo.h proc_loadavg.h \
@@ -44,7 +44,7 @@ HFILES		= clusters.h indom.h convert.h \
 		  proc_scsi.h proc_cpuinfo.h proc_net_tcp.h proc_uptime.h \
 		  proc_slabinfo.h proc_sys_fs.h proc_vmstat.h \
 		  sysfs_kernel.h linux_table.h numa_meminfo.h \
-		  proc_net_netstat.h namespaces.h
+		  proc_net_netstat.h namespaces.h proc_net_softnet.h
 
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
