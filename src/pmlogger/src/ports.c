@@ -18,7 +18,6 @@
 #include <ctype.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <string.h>
 #include "logger.h"
 
 #if !defined(SIGRTMAX)
@@ -424,64 +423,6 @@ GetPorts(char *file)
 	exit(1);
 }
 
-#ifndef IS_MINGW
-/*
- * return 1 if arg is a hardlink to a stale pmlogger socket
- * return 0 if the argument socket hard link is valid
- */
-static int
-__pmLogStalePrimaryLoggerLink(const char *linkSocketPath)
-{
-    int stale = 1;
-    char *p;
-    DIR *dir;
-    struct dirent *dp;
-    struct stat sbuf;
-    ino_t primary_inode;
-    char dirpath[MAXPATHLEN];
-    char buf[MAXPATHLEN];
-
-    if (stat(linkSocketPath, &sbuf) < 0)
-	return 0; /* doesn't exist so can't be stale */
-    primary_inode = sbuf.st_ino;
-    fprintf(stderr, "__pmLogStalePrimaryLoggerLink: primary_inode=%d\n", primary_inode);
-    strcpy(dirpath, linkSocketPath);
-    if ((p = strrchr(dirpath, '/')) == NULL)
-    	return 0;
-    *p = '\0';
-    /* scan for /var/run/pcp/pmlogger.[0-9]*.socket with matching inode number */
-    if ((dir = opendir(dirpath)) != NULL) {
-	while ((dp = readdir(dir)) != NULL) {
-	    if (strstr(dp->d_name, ".socket") == NULL)
-		continue;
-	    snprintf(buf, sizeof(buf), "%s/%s", dirpath, dp->d_name);
-	    fprintf(stderr, "__pmLogStalePrimaryLoggerLink: checking %s ...\n", dp->d_name);
-	    if (strcmp(buf, linkSocketPath) == 0)
-	    	continue; /* skip the argument */
-	    if (stat(buf, &sbuf) == 0 && sbuf.st_ino == primary_inode) {
-		/* found the hard link, is the process still running? */
-		if ((p = strchr(dp->d_name, '.')) != NULL) {
-		    int pid = atoi(p+1);
-		    fprintf(stderr, "__pmLogStalePrimaryLoggerLink: found link %s, pid is %d\n", buf, pid);
-		    snprintf(buf, sizeof(buf), "/proc/%d/stat", pid);
-		    if (stat(buf, &sbuf) == 0) {
-			/* process is still running */
-			fprintf(stderr, "__pmLogStalePrimaryLoggerLink: process %d is still running\n", pid);
-			stale = 0;
-			break;
-		    }
-		}
-		break;
-	    }
-	}
-	closedir(dir);
-    }
-
-    fprintf(stderr, "__pmLogStalePrimaryLoggerLink: stale=%d\n", stale);
-    return stale;
-}
-#endif /* IS_MING */
-
 /* Create the control port for this pmlogger and the file containing the port
  * number so that other programs know which port to connect to.
  * If this is the primary pmlogger, create the special link to the
@@ -592,11 +533,6 @@ init_ports(void)
 	/* Create a hard link to the local socket for users wanting the primary logger. */
 	linkSocketPath = __pmLogLocalSocketDefault(PM_LOG_PRIMARY_PID, path, sizeof(path));
 #ifndef IS_MINGW
-	/* remove existing primary pmlogger hardlink if (and only if) it is stale */
-	if (__pmLogStalePrimaryLoggerLink(linkSocketPath)) {
-	    unlink(linkSocketPath);
-	    fprintf(stderr, "%s: removed stale socket hard link: %s\n", pmProgname, linkSocketPath);
-	}
 	sts = link(socketPath, linkSocketPath);
 #else
 	sts = (CreateHardLink(linkSocketPath, socketPath, NULL) == 0);
