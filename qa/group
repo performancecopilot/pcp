@@ -748,8 +748,8 @@ cgroups
 460 pmlogextract local #598265 pmdumplog
 461 pmda.logger pmda.install event local
 462 pmcd_wait local #589006 #581025
-463 pmns local
-464 pmns local
+463 pmns local pmcpp
+464 pmns local pmcpp
 465 pmdumplog local #625913 folio
 466 pmlogger local #625913
 467 pmns pmdumptext local
@@ -899,6 +899,7 @@ cgroups
 657 pmda.dm local
 660 pmwebapi local
 661 pmwebapi local
+662 pmwebapi local
 666 pmmgr local
 667 python local
 670 libpcp local
@@ -992,6 +993,7 @@ cgroups
 800 pmda.proc local
 805 pmda.postfix local
 807 pcp local
+811 pmlogger pmcpp local
 813 pmda.papi local
 815 pmie local
 822:reserved pmlogrewrite
@@ -1018,6 +1020,7 @@ cgroups
 844 pmda.linux local
 845 pmda.mounts local
 850 python local
+853 pmcpp local
 860 pmda pmda.proc ostest local
 861 pmcd pmda.pmcd local
 862 pmie local
@@ -1070,6 +1073,7 @@ cgroups
 972 pmda.zswap dbpmda local
 973 pmda.zswap pmda.install local
 974 pmda.proc local
+975 pmimport local
 976 dbpmda perl pmda.lustre local
 977 libpcp valgrind local containers
 978 libpcp getopt sanity local
@@ -1081,6 +1085,7 @@ cgroups
 987 pmda.xfs local
 988 pmda.xfs local valgrind
 991 pcp python local
+992 pmcpp pmlogger local
 993 pmlogger pmdumplog local
 994 other verify
 995 python local

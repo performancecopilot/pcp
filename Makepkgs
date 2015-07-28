@@ -214,6 +214,8 @@ in
     sunos|SunOS)
 	ARCH=`isainfo -k`
 	[ "$ARCH" = amd64 -o "$ARCH" = sparcv9 ] && configopts="$configopts --libdir=/usr/lib/64"
+	export YACC=bison
+	export LEX=flex
 	;;
 esac
 

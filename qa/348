@@ -124,7 +124,11 @@ echo "=== check values ==="
 cat $tmp.all \
 | while read metric n1 vpcp n2 vsys
 do
-    if [ "$n1" = 1 -a "$n2" = 1 ]
+    if [ "$metric" = "kvm.halt_successful_poll" ] # version-specific metrics
+    then
+	_within_tolerance $metric $vpcp $vsys 2%
+	[ $? -eq 0 ] || echo Platform $metric is out of range $vpcp vs $vsys
+    elif [ "$n1" = 1 -a "$n2" = 1 ]
     then
 	_within_tolerance $metric $vpcp $vsys 2% -v
     else

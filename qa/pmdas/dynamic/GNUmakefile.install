@@ -32,7 +32,7 @@ LDIRT	= *.log help.dir help.pag
 
 LLDLIBS = -lpcp_pmda -lpcp $(LIB_FOR_MATH) $(LIB_FOR_DLOPEN) $(LIB_FOR_PTHREADS)
 
-default default_pcp setup:
+default default_pcp setup: $(TARGETS)
 
 install install_pcp: default
 

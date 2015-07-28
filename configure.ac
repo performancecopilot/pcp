@@ -267,7 +267,7 @@ then
     AC_DEFINE(IS_SOLARIS, [1], [Platform is Solaris])
     export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing"
     export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any"
-    pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/usr/sfw/bin'
+    pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/opt/csw/bin'
     pcp_ps_all_flags=-ef
 elif test $target_os = aix
 then
@@ -1488,14 +1488,16 @@ enable_webapi=false
 AS_IF([test "x$do_webapi" != "xno"], [
     enable_webapi=true
 
-    if test "$do_webapi" != "check" -a "$have_libmicrohttpd" != "true"
+    if test "$have_libmicrohttpd" != "true"
     then
+	enable_webapi=false
+	test "$do_webapi" != "check" && \
 	AC_MSG_ERROR([libmicrohttpd is not installed, cannot enable the web API])
     elif test "$do_webapi" != "check" -a "x$cxx" = "x"
     then
+	enable_webapi=false
+	test "$do_webapi" != "check" && \
 	AC_MSG_ERROR([C++ compiler unavailable, cannot enable the web API])
-    else
-	enable_webapi=$have_libmicrohttpd
     fi
 ])
 AC_SUBST(enable_webapi)
@@ -1504,13 +1506,27 @@ enable_manager=false
 AS_IF([test "x$do_manager" != "xno"], [
     enable_manager=true
 
-    if test "$do_manager" != "check" -a $target_os = mingw
+    if test "$target_os" = "mingw"
     then
-	AC_MSG_ERROR([Target platform is MinGW, cannot enable daemon manager])
-    elif test "$do_manager" != "check" -a "x$cxx" = "x"
+	enable_manager=false
+	test "$do_manager" != "check" && \
+	AC_MSG_ERROR([MinGW build, cannot enable daemon manager])
+    elif test "x$cxx" = "x"
     then
+	enable_manager=false
+	test "$do_manager" != "check" && \
 	AC_MSG_ERROR([C++ compiler unavailable, cannot enable daemon manager])
     fi
+    AC_MSG_CHECKING([compilation features for daemon manager])
+    AC_TRY_COMPILE(
+	[ #ifndef _XOPEN_SOURCE
+	  #define _XOPEN_SOURCE 600
+	  #endif
+	  #include <stdio.h>
+	], [],
+	AC_MSG_RESULT(yes),
+	enable_manager=false
+	AC_MSG_RESULT(no))
 ])
 AC_SUBST(enable_manager)
 

@@ -33,3 +33,25 @@ yyerror(char *s)
     fprintf(stderr, "[line %d] %s\n", lineno, s);
     exit(1);
 }
+
+/*
+ * handle pmcpp line marker lines of the form
+ * # <lineno> "filename"
+ * (lexer ensures syntaxt is correct before we get here)
+ */
+void
+yylinemarker(char *ibuf)
+{
+    char	*ip = &ibuf[2];
+    char	*ep;
+
+    /* lineno will get incremented in lexer with the following newline */
+    lineno = atoi(ip)-1;
+
+    while (*ip != '"') ip++;
+    ip++;
+    ep = &ip[1];
+    while (*ep != '"') ep++;
+    free(configfile);	/* we're sure this was previously *alloc()d */
+    configfile = strndup(ip, ep-ip);
+}
