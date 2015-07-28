@@ -435,6 +435,8 @@ init_ports(void)
     int		sep = __pmPathSeparator();
     int		extlen, baselen;
     char	path[MAXPATHLEN];
+    char	pidfile[MAXPATHLEN];
+    int		pidlen;
     pid_t	mypid = getpid();
 
     /*
@@ -515,36 +517,136 @@ init_ports(void)
 	if (linkfile == NULL)
 	    __pmNoMem("primary logger link file name", n, PM_FATAL_ERR);
 	snprintf(linkfile, n, "%s%cprimary", path, sep);
-#ifndef IS_MINGW
-	sts = link(ctlfile, linkfile);
-#else
-	sts = (CreateHardLink(linkfile, ctlfile, NULL) == 0);
+
+	/*
+	 * Remove symlink if it is stale (i.e. exists but the process does not).
+	 */
+	if ((pidlen = readlink(linkfile, pidfile, sizeof(pidfile))) > 0) {
+	    /* control file name is the PID of the primary pmlogger process */
+	    pidfile[pidlen] = NULL;
+	    pid_t pid = atoi(pidfile);
+	    if (!__pmProcessExists(pid)) {
+	    	if (unlink(linkfile) != 0) {
+		    fprintf(stderr, "%s: warning: failed to remove '%s' symlink to stale control file '%s': %s\n",
+			    pmProgname, linkfile, pidfile, osstrerror());
+		}
+#ifdef PCP_DEBUG
+		else if (pmDebug & DBG_TRACE_CONTEXT) {
+		    fprintf(stderr, "%s: info: removed '%s' symlink to stale control file '%s': %s\n",
+			    pmProgname, linkfile, pidfile, osstrerror());
+		}
 #endif
-	if (sts != 0) {
-	    if (oserror() == EEXIST)
-		fprintf(stderr, "%s: there is already a primary pmlogger running, ctlfile=%s linkfile=%s\n", pmProgname, ctlfile, linkfile);
-	    else
-		fprintf(stderr, "%s: error creating primary logger link %s: %s\n",
-			pmProgname, linkfile, osstrerror());
+		/* remove the stale control file too */
+	    	if (unlink(pidfile) != 0) {
+		    fprintf(stderr, "%s: warning: failed to remove stale control file '%s': %s\n",
+			    pmProgname, pidfile, osstrerror());
+		}
+#ifdef PCP_DEBUG
+		else if (pmDebug & DBG_TRACE_CONTEXT) {
+		    fprintf(stderr, "%s: info: removed stale control file '%s': %s\n",
+			    pmProgname, pidfile, osstrerror());
+		}
+#endif
+	    }
+	}
+
+	/*
+	 * If the symlink still exists then there really is another primary logger running
+	 */
+	if (access(linkfile, F_OK) == 0) {
+	    /* configuration error - only one primary pmlogger should be configured */
+	    fprintf(stderr, "%s: ERROR: there is already a primary pmlogger running, ctlfile=%s linkfile=%s\n",
+		    pmProgname, ctlfile, linkfile);
 	    exit(1);
 	}
 
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
-	/* Create a hard link to the local socket for users wanting the primary logger. */
-	linkSocketPath = __pmLogLocalSocketDefault(PM_LOG_PRIMARY_PID, path, sizeof(path));
 #ifndef IS_MINGW
-	sts = link(socketPath, linkSocketPath);
+	sts = symlink(ctlfile, linkfile);
 #else
-	sts = (CreateHardLink(linkSocketPath, socketPath, NULL) == 0);
+	sts = (CreateSymbolicLink(linkfile, ctlfile, NULL) == 0);
 #endif
 	if (sts != 0) {
-	    if (oserror() == EEXIST)
-		fprintf(stderr, "%s: there is already a primary pmlogger running, socketPath=%s linkSocketPath=%s\n", pmProgname, socketPath, linkSocketPath);
-	    else
-		fprintf(stderr, "%s: error creating primary logger socket link %s: %s\n",
-			pmProgname, linkSocketPath, osstrerror());
+	    fprintf(stderr, "%s: error creating primary logger symbolic link %s: %s\n",
+		    pmProgname, linkfile, osstrerror());
+	}
+#ifdef PCP_DEBUG
+	else if (pmDebug & DBG_TRACE_CONTEXT) {
+	    fprintf(stderr, "%s: info: created control file symlink %s -> %s\n", pmProgname, linkfile, ctlfile);
+	}
+#endif
+
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+	/*
+	 * Create a symbolic link to the local socket for users wanting the primary logger.
+	 */
+	linkSocketPath = __pmLogLocalSocketDefault(PM_LOG_PRIMARY_PID, path, sizeof(path));
+
+	/* Remove the symlink if it points to a stale primary pmlogger socket */
+	if ((pidlen = readlink(linkSocketPath, pidfile, sizeof(pidfile))) > 0) {
+	    pidfile[pidlen] = NULL;
+	    for (i=0; i < pidlen; i++) {
+		/* first digit is the start of the PID */
+		if (isdigit(pidfile[i])) {
+		    pid_t pid = atoi(pidfile + i);
+		    if (!__pmProcessExists(pid)) {
+			if (unlink(linkSocketPath) != 0) {
+			    fprintf(stderr, "%s: warning: failed to remove '%s' symlink to stale socket '%s': %s\n",
+				    pmProgname, linkSocketPath, pidfile, osstrerror());
+			}
+#ifdef PCP_DEBUG
+			else if (pmDebug & DBG_TRACE_CONTEXT) {
+			    fprintf(stderr, "%s: info: removed '%s' symlink to stale socket '%s'\n",
+				    pmProgname, linkSocketPath, pidfile);
+			}
+#endif
+			/* remove the stale socket too */
+			if (unlink(pidfile) != 0) {
+			    fprintf(stderr, "%s: warning: failed to remove stale pmlogger socket '%s': %s\n",
+				    pmProgname, pidfile, osstrerror());
+			}
+#ifdef PCP_DEBUG
+			else if (pmDebug & DBG_TRACE_CONTEXT) {
+			    fprintf(stderr, "%s: info: removed stale pmlogger socket '%s'\n",
+				    pmProgname, pidfile);
+			}
+#endif
+		    }
+		    break;
+		}
+	    }
+	}
+
+	/*
+	 * As above, if the symlink still exists then there really is
+	 * another primary logger running - we shouldn't get to here
+	 * but maybe someone manually deleted the primary->control link.
+	 */
+	if (access(linkSocketPath, F_OK) == 0) {
+	    /* configuration error - only one primary pmlogger should be configured */
+	    fprintf(stderr, "%s: ERROR: there is already a primary pmlogger running, socketPath=%s linkSocketPath=%s\n",
+		    pmProgname, socketPath, linkSocketPath);
 	    exit(1);
 	}
+
+	/*
+	 * Create the symlink to the primary pmlogger control socket.
+	 */
+#ifndef IS_MINGW
+	sts = symlink(socketPath, linkSocketPath);
+#else
+	sts = (CreateSymbolicLink(linkSocketPath, socketPath, NULL) == 0);
+#endif
+	if (sts != 0) {
+	    fprintf(stderr, "%s: error creating primary logger socket symbolic link %s: %s\n",
+		    pmProgname, linkSocketPath, osstrerror());
+	}
+#ifdef PCP_DEBUG
+	else if (pmDebug & DBG_TRACE_CONTEXT) {
+	    fprintf(stderr, "%s: info: created primary pmlogger socket symlink %s -> %s\n",
+		    pmProgname, linkSocketPath, socketPath);
+	}
+#endif
+
 	if ((linkSocketPath = strdup(linkSocketPath)) == NULL) {
 	    fprintf(stderr, "init_ports: strdup out of memory\n");
 	    exit(1);
