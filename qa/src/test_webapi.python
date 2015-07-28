@@ -87,7 +87,8 @@ def test_metric_enumeration(ctx, prefix):
     num_metrics = 0
     f = open('webapi-pmcd-' + dbg, 'w')
     while True:
-        line = proc.stdout.readline()
+        data = proc.stdout.readline()
+        line = str(data.decode())
         if (line == ''):
             break # eof
         if line.strip() == '':
