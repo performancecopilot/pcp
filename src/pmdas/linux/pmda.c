@@ -3926,27 +3926,33 @@ static pmdaMetric metrictab[] = {
 /*
  * network.softnet cluster
  */
-    { &proc_net_softnet.processed,
+    /* network.softnet.processed */
+    { NULL,
       { PMDA_PMID(CLUSTER_NET_SOFTNET,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-    { &proc_net_softnet.dropped,
+    /* network.softnet.dropped */
+    { NULL,
       { PMDA_PMID(CLUSTER_NET_SOFTNET,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-    { &proc_net_softnet.time_squeeze,
+    /* network.softnet.time_squeeze */
+    { NULL,
       { PMDA_PMID(CLUSTER_NET_SOFTNET,2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-    { &proc_net_softnet.cpu_collision,
+    /* network.softnet.cpu_collision */
+    { NULL,
       { PMDA_PMID(CLUSTER_NET_SOFTNET,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-    { &proc_net_softnet.received_rps,
+    /* network.softnet.received_rps */
+    { NULL,
       { PMDA_PMID(CLUSTER_NET_SOFTNET,4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-    { &proc_net_softnet.flow_limit_count,
+    /* network.softnet.flow_limit_count */
+    { NULL,
       { PMDA_PMID(CLUSTER_NET_SOFTNET,5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 };
@@ -5772,6 +5778,43 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case CLUSTER_DM:
 	return proc_partitions_fetch(mdesc, inst, atom);
+
+    case CLUSTER_NET_SOFTNET:
+	switch (idp->item) {
+	case 0:	/* network.softnet.processed */
+	    if (!(proc_net_softnet.flags & SN_PROCESSED))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.processed;
+	    break;
+	case 1: /* network.softnet.dropped */
+	    if (!(proc_net_softnet.flags & SN_DROPPED))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.dropped;
+	    break;
+	case 2: /* network.softnet.time_squeeze */
+	    if (!(proc_net_softnet.flags & SN_TIME_SQUEEZE))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.time_squeeze;
+	    break;
+	case 3: /* network.softnet.cpu_collision */
+	    if (!(proc_net_softnet.flags & SN_CPU_COLLISION))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.cpu_collision;
+	    break;
+	case 4: /* network.softnet.received_rps */
+	    if (!(proc_net_softnet.flags & SN_RECEIVED_RPS))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.received_rps;
+	    break;
+	case 5: /* network.softnet.flow_limit_count */
+	    if (!(proc_net_softnet.flags & SN_FLOW_LIMIT_COUNT))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.flow_limit_count;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
 
     default: /* unknown cluster */
 	return PM_ERR_PMID;

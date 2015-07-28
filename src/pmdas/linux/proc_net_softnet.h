@@ -10,10 +10,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 /* extracted from /proc/net/softnet_stat */
@@ -25,6 +21,17 @@ typedef struct {
     uint64_t cpu_collision;
     uint64_t received_rps;
     uint64_t flow_limit_count;
+
+    unsigned flags;
 } proc_net_softnet_t;
+
+enum {
+    SN_PROCESSED	= 1<<0,
+    SN_DROPPED		= 1<<1,
+    SN_TIME_SQUEEZE	= 1<<2,
+    SN_CPU_COLLISION	= 1<<3,
+    SN_RECEIVED_RPS	= 1<<4,
+    SN_FLOW_LIMIT_COUNT	= 1<<5,
+};
 
 extern int refresh_proc_net_softnet(proc_net_softnet_t *);

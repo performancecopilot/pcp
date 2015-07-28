@@ -1122,6 +1122,7 @@ cgroups
 1027 pmdumptext local pmstore
 1028 pmdumptext local
 1029 libqmc local pmstore
+1030 pmda.linux local
 1044 pmie local pmieconf sanity
 1045 pmie local pmieconf
 1046 pmie local pmieconf

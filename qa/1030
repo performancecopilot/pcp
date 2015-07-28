@@ -1,0 +1,64 @@
+#!/bin/sh
+# PCP QA Test No. 1030
+# Exercise the Linux kernel softnet metrics.
+#
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = linux ] || _notrun "pmdalinux specific testing"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# create some data files for testing - from various kernels
+cat <<EOF > $tmp.el7
+0010c333 00000002 00000003 00000001 00000001 00000001 00000001 00000001 00000004 00000005 00000006
+000ee8f7 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+000feeeb 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+0035d448 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+EOF
+cat <<EOF > $tmp.el6
+00001409 00000002 00000003 00000000 00000000 00000000 00000001 00000001 00000004 00000005
+000071ea 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+00001532 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+00000efb 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+EOF
+cat <<EOF > $tmp.el5
+00001904 00000002 00000003 00000001 00000001 00000001 00000001 00000001 00000004
+00000534 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+00000394 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+00000165 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+EOF
+
+# real QA test starts here
+root=$tmp.root
+mkdir $root
+export LINUX_STATSPATH=$root
+pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
+metrics=`pminfo network.softnet | LC_COLLATE=POSIX sort`
+cd $here
+
+for file in el7 el6 el5
+do
+    rm -fr $root
+    mkdir -p $root/proc/net || _fail "root in use when preparing $file"
+    cp $tmp.$file $root/proc/net/softnet_stat
+ 
+    echo "== Checking metric values - $file" | tee -a $here/$seq.full
+    pminfo -L -K clear -K add,60,$pmda -f $metrics 2>&1 \
+    | tee -a $here/$seq.full
+    ( echo && echo "== done" && echo ) | tee -a $here/$seq.full
+done
+
+# success, all done
+status=0
+exit
