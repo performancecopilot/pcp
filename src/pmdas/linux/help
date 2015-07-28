@@ -941,6 +941,15 @@ See also network.interface.speed for the Megabytes/second value.
 @ network.sockstat.raw.inuse instantaneous number of raw sockets currently in use
 @ network.sockstat.raw.highest highest number of raw sockets in use at any one time since boot
 @ network.sockstat.raw.util instantaneous raw socket utilization (100 * inuse/highest)
+@ network.softnet.processed number of packets (not including netpoll) received by the interrupt handler
+@ network.softnet.dropped number of packets that were dropped because netdev_max_backlog was exceeded
+@ network.softnet.time_squeeze number of times ksoftirq ran out of netdev_budget or time slice with work remaining
+@ network.softnet.cpu_collision number of times that two cpus collided trying to get the device queue lock
+@ network.softnet.received_rps number of times rps_trigger_softirq has been called
+@ network.softnet.flow_limit_count softnet_data flow limit counter
+The network stack has to drop packets when a receive processing a CPUs backlog reaches netdev_max_backlog.
+The flow_limit_count counter is the number of times very active flows have dropped their traffic earlier
+to maintain capacity for other less active flows.
 @ hinv.physmem total system memory metric from /proc/meminfo
 @ hinv.pagesize Memory page size
 The memory page size of the running kernel in bytes.
