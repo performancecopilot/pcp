@@ -281,6 +281,23 @@ _filter_filename()
 	-e '/^[0-9][0-9][0-1][0-9][0-3][0-9][-.]/p'
 }
 
+_get_primary_logger_pid()
+{
+    file="$PCP_TMP_DIR/pmlogger/primary"
+    if [ ! -L "$file" ]
+    then
+	pid=''
+    elif which realpath >/dev/null 2>&1
+    then
+	pri=`readlink $file`
+	pid=`basename "$pri"`
+    else
+	pri=`ls -l "$file" | sed -e 's/.*-> //'`
+	pid=`basename "$pri"`
+    fi
+    echo "$pid"
+}
+
 # mails out any entries for the previous 24hrs from the PCP notices file
 # 
 if [ ! -z "$MAILME" ]
@@ -546,11 +563,10 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
         # squash them all to the officially pcp-preferred way to access it.
         host=local:
 
-	if test -f "$PCP_TMP_DIR/pmlogger/primary"
+	if test -e "$PCP_TMP_DIR/pmlogger/primary"
 	then
-	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "... try $PCP_TMP_DIR/pmlogger/primary: ""$PCP_ECHO_C"
-	    file=`readlink $PCP_TMP_DIR/pmlogger/primary`
-	    pid="`echo $file | sed -e 's/.*\/\([^/]*\)$/\1/'`"
+	    $VERY_VERBOSE && echo "... try $PCP_TMP_DIR/pmlogger/primary: "
+	    pid=`_get_primary_logger_pid`
 	    if [ -z "$pid" ]
 	    then
 		if $VERY_VERBOSE
