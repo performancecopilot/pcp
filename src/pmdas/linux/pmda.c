@@ -61,6 +61,7 @@
 #include "namespaces.h"
 #include "interrupts.h"
 #include "ipc.h"
+#include "proc_net_softnet.h"
 
 static proc_stat_t		proc_stat;
 static proc_meminfo_t		proc_meminfo;
@@ -80,6 +81,7 @@ static proc_sys_fs_t		proc_sys_fs;
 static sysfs_kernel_t		sysfs_kernel;
 static numa_meminfo_t		numa_meminfo;
 static shm_info_t              _shm_info;
+static proc_net_softnet_t	proc_net_softnet;
 
 static int		_isDSO = 1;	/* =0 I am a daemon */
 static int		rootfd = -1;	/* af_unix pmdaroot */
@@ -3921,6 +3923,38 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_DM,16), PM_TYPE_U32, DM_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
+/*
+ * network.softnet cluster
+ */
+    /* network.softnet.processed */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NET_SOFTNET,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.dropped */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NET_SOFTNET,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.time_squeeze */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NET_SOFTNET,2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.cpu_collision */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NET_SOFTNET,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.received_rps */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NET_SOFTNET,4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.flow_limit_count */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NET_SOFTNET,5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 };
 
 typedef struct {
@@ -4097,6 +4131,9 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 
     if (need_refresh[CLUSTER_SYSFS_KERNEL])
     	refresh_sysfs_kernel(&sysfs_kernel);
+
+    if (need_refresh[CLUSTER_NET_SOFTNET])
+	refresh_proc_net_softnet(&proc_net_softnet);
 
 done:
     if (need_refresh_mtab)
@@ -5742,6 +5779,43 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_DM:
 	return proc_partitions_fetch(mdesc, inst, atom);
 
+    case CLUSTER_NET_SOFTNET:
+	switch (idp->item) {
+	case 0:	/* network.softnet.processed */
+	    if (!(proc_net_softnet.flags & SN_PROCESSED))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.processed;
+	    break;
+	case 1: /* network.softnet.dropped */
+	    if (!(proc_net_softnet.flags & SN_DROPPED))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.dropped;
+	    break;
+	case 2: /* network.softnet.time_squeeze */
+	    if (!(proc_net_softnet.flags & SN_TIME_SQUEEZE))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.time_squeeze;
+	    break;
+	case 3: /* network.softnet.cpu_collision */
+	    if (!(proc_net_softnet.flags & SN_CPU_COLLISION))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.cpu_collision;
+	    break;
+	case 4: /* network.softnet.received_rps */
+	    if (!(proc_net_softnet.flags & SN_RECEIVED_RPS))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.received_rps;
+	    break;
+	case 5: /* network.softnet.flow_limit_count */
+	    if (!(proc_net_softnet.flags & SN_FLOW_LIMIT_COUNT))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.flow_limit_count;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
     default: /* unknown cluster */
 	return PM_ERR_PMID;
     }
@@ -5817,6 +5891,10 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		need_refresh[REFRESH_NETADDR_HW]++;
 		break;
 	    }
+	    break;
+
+	case CLUSTER_NET_SOFTNET:
+	    need_refresh[CLUSTER_NET_SOFTNET]++;
 	    break;
 	}
     }

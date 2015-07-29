@@ -77,6 +77,7 @@ enum {
 	CLUSTER_DM,		/* 54 disk.dm.* */
 	CLUSTER_SYSFS_DEVICES,	/* 55 /sys/devices metrics */
 	CLUSTER_SHM_INFO,       /* 56 shmctl(SHM_INFO) system call */
+	CLUSTER_NET_SOFTNET,	/* 57 /proc/net/softnet_stat */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };

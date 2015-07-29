@@ -448,6 +448,7 @@ network {
     udp
     udplite
     tcpconn
+    softnet
 }
 
 network.interface {
@@ -732,6 +733,15 @@ network.udplite {
 network.icmpmsg {
     intype		60:14:88
     outtype		60:14:89
+}
+
+network.softnet {
+    processed		60:57:0
+    dropped		60:57:1
+    time_squeeze	60:57:2
+    cpu_collision	60:57:3
+    received_rps	60:57:4
+    flow_limit_count	60:57:5
 }
 
 filesys {

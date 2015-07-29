@@ -6,6 +6,10 @@
 .SH SYNOPSIS
 .B pcp2graphite
 [\f3\-h\f1 \f2HOST\f1]
+[\f3\-a\f1 \f2ARCHIVE\f1]
+[\f3\-O\f1 \f2TIMEORIGIN\f1]
+[\f3\-T\f1 \f2TIMEFINISH\f1]
+[\f3\-s\f1 \f2SAMPLES\f1]
 [\f3\-t\f1 \f2DELTA\f1]
 [\f3\-g\f1 \f2GRAPHITEHOST\f1]
 [\f3\-p\f1 \f2PICKLEPORT\f1]
@@ -61,13 +65,33 @@ WantedBy=multi\-user\&.target
 
 .TP
 .B \-h HOST
-Specify the PMCD server where PCP metrics are to be extracted from.
+Extract metrics from given PMCD server.
 Default \f2local:\f1.
+
+." .TP
+." .B \-L
+." Extract metrics from the local context PCP PMDAs.
+."
+.TP
+.B \-a ARCHIVE
+Extract metrics from given archive.
 
 .TP
 .B \-t DELTA
-Specify the polling interval in seconds.  Polling is aligned to
-natural multiples of this interval.  Default \f260\f1.
+Specify the polling interval in seconds.  If live, polling is aligned to
+natural multiples of this interval.  Default \f260\f1
+
+.TP
+.B \-O TIMEORIGIN
+Set the time origin for archive scanning.  The default is the start of the archive.
+
+.TP
+.B \-T TIMEFINISH
+Set the time finish for archive scanning.  The default is the end of the archive.
+
+.TP
+.B \-s SAMPLES
+Set the maximum number of samples to relay.  The default is unlimited.
 
 .TP
 .B \-g GRAPHITEHOST
@@ -82,7 +106,7 @@ port \f22004\f1.
 
 .TP
 .B \-P TEXTPORT
-Select the less efficient "text" encoding for carbon-cache
+Alternately, select the less efficient "text" encoding for carbon-cache
 communication, and use the given TCP port.  This protocol is not
 default, because it requires a separate TCP connection for each
 metric.  The typical port is \f22003\f1.
