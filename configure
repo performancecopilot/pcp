@@ -11322,6 +11322,9 @@ $2 == "bozo"	{ t = $1
     'unsigned long'|'unsigned long int'|'long unsigned int')
 	_fmt='"lu"'
 	;;
+    'unsigned long long')
+	_fmt='"llu"'
+	;;
     *\*)	# pointer to a something
 	_fmt='"p"'
 	;;

@@ -201,7 +201,6 @@ in
     mingw|mingw64|windows)
 	target=mingw
 	nonrpm=true
-	configopts="$configopts --disable-ssp --without-threads"
 	export configure="/usr/bin/mingw64-configure"
 	export MAKE="/usr/bin/mingw64-make"
 	export QMAKE="/usr/bin/mingw64-qmake-qt4"
