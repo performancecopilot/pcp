@@ -185,7 +185,7 @@ bison
 gdb
 mktemp
 gawk
-cpan				[perl-App-cpanminus (rpm) (QA optional)]
+cpan				[perl-CPAN (rpm) (QA optional)]
 # optional executables
 dpkg?	dpkg-buildpackage	[dpkg-dev]
 dpkg?	dh			[debhelper]
@@ -247,7 +247,7 @@ sadf				[sysstat]
 bc				[(QA optional)]
 curl				[(QA optional)]
 socat				[(QA optional)]
-avahi-browse			[avahi-utils (QA optional)]
+avahi-browse			[avahi-tools or avahi-utils (QA optional)]
 dpkg?	Spreadsheet::XLSX	[libspreadsheet-xlsx-perl (QA optional)]
 rpm?	Spreadsheet::XLSX	[perl-Spreadsheet-XLSX or from cpan (QA optional)]
 dpkg?	Text::CSV_XS		[Text-CSV_XS (QA optional)]
@@ -263,16 +263,16 @@ dpkg?	unbound-control		[unbound (QA optional)]
 rpm?	/usr/share/doc/python-requests*|/usr/share/doc/packages/python-requests	[python-requests (QA optional)]
 dpkg?	/usr/share/doc/python-requests|/usr/share/doc/packages/python-requests	[python-requests (QA optional)]
 rpm?	/usr/bin/logconv.pl	[389-ds-base (QA optional)]
-rpm?	/usr/lib/sasl2/libplain.so	[cyrus-sasl-plain (QA optional)]
+rpm?	/usr/lib*/sasl2/libplain.so	[cyrus-sasl-plain (QA optional)]
 dpkg?	DBI::			[libclass-dbi-perl (postgresql QA optional)]
 rpm?	DBI::			[perl-DBI (postgresql QA optional)]
 dpkg?	DBD::Pg			[libdbd-pg-perl (postgresql QA optional)]
 rpm?	DBD::Pg			[perl-DBD-Pg (postgresql QA optional)]
 # pcp-gui
 dpkg?	qmake			[qt4-qmake (build optional)]
-rpm?	qmake|/usr/lib64/qt4/bin/qmake|/usr/lib/qt4/bin/qmake		[qt4-devel (build optional)]
+rpm?	qmake|/usr/lib*/qt4/bin/qmake		[qt4-devel (build optional)]
 dpkg?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[libsoqt-dev (build optional)]
-rpm?	/usr/lib/libQtCore.so|/usr/lib*/libQtCore.so|/usr/lib/qt4/lib/libQtCore.so	[qt4-devel (build optional)]
+rpm?	/usr/lib*/libQtCore.so|/usr/lib/qt4/lib/libQtCore.so	[qt4-devel (build optional)]
 dpkg?	/usr/include/Inventor/Qt/SoQt.h	[libsoqt-dev-common (build optional)]
 dpkg?	/usr/include/Inventor/SoPath.h	[libcoin60-dev or libcoin80-dev (build optional)]
 # python
