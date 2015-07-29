@@ -176,7 +176,7 @@ Obsoletes: pcp-pmda-nvidia
 %global _with_doc --with-docdir=%{_docdir}/%{name}
 %endif
 
-%if %{disable_systemd}
+%if !%{disable_systemd}
 %global _initddir %{_datadir}/pcp/lib
 %else
 %global _initddir %{_sysconfdir}/rc.d/init.d
