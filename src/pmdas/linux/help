@@ -947,8 +947,9 @@ See also network.interface.speed for the Megabytes/second value.
 @ network.softnet.cpu_collision number of times that two cpus collided trying to get the device queue lock
 @ network.softnet.received_rps number of times rps_trigger_softirq has been called
 @ network.softnet.flow_limit_count softnet_data flow limit counter
-The network stack has to drop packets when a receive processing a CPUs backlog reaches netdev_max_backlog.
-The flow_limit_count counter is the number of times very active flows have dropped their traffic earlier
+The network stack has to drop packets when a receive processing a CPUs
+backlog reaches netdev_max_backlog.  The flow_limit_count counter is
+the number of times very active flows have dropped their traffic earlier
 to maintain capacity for other less active flows.
 @ hinv.physmem total system memory metric from /proc/meminfo
 @ hinv.pagesize Memory page size
