@@ -193,19 +193,6 @@ _unlock()
     echo >$tmp/lock
 }
 
-_get_ino()
-{
-    # get inode number for $1
-    # throw away stderr (and return '') in case $1 has been removed by now
-    #
-    stat "$1" 2>/dev/null \
-    | sed -n '/Device:[ 	].*[ 	]Inode:/{
-s/Device:[ 	].*[ 	]Inode:[ 	]*//
-s/[ 	].*//
-p
-}'
-}
-
 _get_configfile()
 {
     # extract the pmlogger configuration file (-c) from a list of arguments
@@ -616,25 +603,8 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		_arch=`sed -n 3p <"$PCP_TMP_DIR/pmlogger/primary"`
 		$PCP_ECHO_PROG $PCP_ECHO_N "... try $PCP_TMP_DIR/pmlogger/primary: host=$_host arch=$_arch""$PCP_ECHO_C"
 	    fi
-	    primary_inode=`_get_ino $PCP_TMP_DIR/pmlogger/primary`
-	    $VERY_VERBOSE && echo primary_inode=$primary_inode
-	    for file in $PCP_TMP_DIR/pmlogger/*
-	    do
-		case "$file"
-		in
-		    */primary|*\*)
-			;;
-		    */[0-9]*)
-			inode=`_get_ino "$file"`
-			$VERY_VERBOSE && echo $file inode=$inode
-			if [ "$primary_inode" = "$inode" ]
-			then
-			    pid="`echo $file | sed -e 's/.*\/\([^/]*\)$/\1/'`"
-			    break
-			fi
-			;;
-		esac
-	    done
+	    file=`readlink $PCP_TMP_DIR/pmlogger/primary`
+	    pid="`echo $file | sed -e 's/.*\/\([^/]*\)$/\1/'`"
 	    if [ -z "$pid" ]
 	    then
 		if $VERY_VERBOSE
