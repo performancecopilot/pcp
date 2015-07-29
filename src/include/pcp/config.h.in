@@ -585,12 +585,16 @@ extern const char *wsastrerror(int);
 #define pipe1(fds) _pipe(fds, 4096, O_BINARY)
 
 PCP_CALL extern int fsync(int);
+PCP_CALL extern int symlink(const char *, const char *);
+PCP_CALL extern int readlink(const char *, char *, size_t);
 PCP_CALL extern void setlinebuf(FILE *);
 PCP_CALL extern char *index(const char *, int);
 PCP_CALL extern char *rindex(const char *, int);
 PCP_CALL extern char *strcasestr(const char *, const char *);
 PCP_CALL extern long int lrand48(void);
 PCP_CALL extern void srand48(long int);
+PCP_CALL extern long int random(void);
+PCP_CALL extern void srandom(unsigned int);
 
 #ifdef HAVE_STRUCT_TIMESPEC
 /*
