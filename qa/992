@@ -30,6 +30,8 @@ _filter()
 {
     sed \
 	-e "s@$tmp@TMP@g" \
+	-e "s@$PCP_BINADM_DIR@PCP_BINADM_DIR@g" \
+	-e "s@$PCP_VAR_DIR@PCP_VAR_DIR@g" \
 	-e '/(kernel\./s/[0-9.][0-9]*/PMID/' \
 	-e '/(hinv\./s/[0-9.][0-9]*/PMID/' \
 	-e '/(disk\./s/[0-9.][0-9]*/PMID/' \

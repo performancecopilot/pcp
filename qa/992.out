@@ -1,5 +1,5 @@
 QA output created by 992
-preprocessor cmd: /usr/lib/pcp/bin/pmcpp -rs TMP.config -I /usr/lib/config/pmlogger
+preprocessor cmd: PCP_BINADM_DIR/pmcpp -rs TMP.config -I /usr/lib64/config/pmlogger
 Warning [TMP.config, line 11]
 Instance "no-such-interface" is not defined for the metric "network.interface.out.packets"
 Warning [TMP.config, line 15]
@@ -32,7 +32,7 @@ Dump optfetch structures ...
 
 
 === now with disk_all defined ===
-preprocessor cmd: /usr/lib/pcp/bin/pmcpp -rs TMP.config -I /usr/lib/config/pmlogger
+preprocessor cmd: PCP_BINADM_DIR/pmcpp -rs TMP.config -I /usr/lib64/config/pmlogger
 Warning [TMP.config, line 11]
 Instance "no-such-interface" is not defined for the metric "network.interface.out.packets"
 Warning [TMP.config, line 15]

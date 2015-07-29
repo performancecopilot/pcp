@@ -498,8 +498,8 @@ do_pmcpp(char *configfile)
 {
     FILE	*f;
     char	cmd[3*MAXPATHLEN+80];
-    char	*bin_dir = pmGetOptionalConfig("PCP_BINADM_DIR");
-    char	*lib_dir = pmGetOptionalConfig("PCP_LIB_DIR");
+    char	*bin_dir = pmGetConfig("PCP_BINADM_DIR");
+    char	*lib_dir = pmGetConfig("PCP_VAR_DIR");
 
     if (configfile != NULL) {
 	if ((f = fopen(configfile, "r")) == NULL) {
@@ -511,12 +511,12 @@ do_pmcpp(char *configfile)
     }
 
     if (bin_dir == NULL) {
-	fprintf(stderr, "%s: pmGetOptionalConfig: cannot get $PCP_BINADM_DIR value\n",
+	fprintf(stderr, "%s: pmGetConfig: cannot get $PCP_BINADM_DIR value\n",
 		pmProgname);
 	exit(1);
     }
     if (lib_dir == NULL) {
-	fprintf(stderr, "%s: pmGetOptionalConfig: cannot get $PCP_LIB_DIR value\n",
+	fprintf(stderr, "%s: pmGetConfig: cannot get $PCP_VAR_DIR value\n",
 		pmProgname);
 	exit(1);
     }
