@@ -763,8 +763,8 @@ while (<INFILE>) {
 		# disk.dev.write_rawactive
 		@thisval = ($part[1], $part[2], $part[3], $part[4], $part[5] * $dev_thru_scale, $part[6] * $dev_thru_scale, $part[9]);
 		if ($#part == 13) {
+		    push @thisval, $part[10];
 		    push @thisval, $part[11];
-		    push @thisval, $part[12];
 		}
 		if (!exists($dev_prev{$instance})) {
 		    # first time seen for this instance
