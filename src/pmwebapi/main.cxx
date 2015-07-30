@@ -499,6 +499,7 @@ main (int argc, char *argv[])
     int     mhd_ipv4 = 1;
     int     mhd_ipv6 = 1;
     int    port = PMWEBD_PORT;
+    char   utc_timezone[] = "TZ=UTC";
     char *   endptr;
     struct MHD_Daemon * d4 = NULL;
     struct MHD_Daemon * d6 = NULL;
@@ -507,7 +508,7 @@ main (int argc, char *argv[])
     // NB: important to standardize on a single default timezone, since
     // we'll be interacting with web clients from anywhere, and dealing
     // with pcp servers/archvies from anywhere else.
-    (void) putenv ("TZ=UTC");
+    (void) putenv (utc_timezone);
 
     umask (022);
     char * username_str;
