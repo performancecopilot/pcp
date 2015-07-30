@@ -743,16 +743,16 @@ main (int argc, char *argv[])
         fd_set        rs;
         fd_set        ws;
         fd_set        es;
-        MHD_socket    max = 0;
+        MHD_socket    maxsock = 0;
 
         /* Based upon MHD fileserver_example_external_select.c */
         FD_ZERO (&rs);
         FD_ZERO (&ws);
         FD_ZERO (&es);
-        if (d4 && MHD_YES != MHD_get_fdset (d4, &rs, &ws, &es, &max)) {
+        if (d4 && MHD_YES != MHD_get_fdset (d4, &rs, &ws, &es, &maxsock)) {
             break;		/* fatal internal error */
         }
-        if (d6 && MHD_YES != MHD_get_fdset (d6, &rs, &ws, &es, &max)) {
+        if (d6 && MHD_YES != MHD_get_fdset (d6, &rs, &ws, &es, &maxsock)) {
             break;		/* fatal internal error */
         }
 
@@ -777,7 +777,7 @@ main (int argc, char *argv[])
             tv.tv_sec = dumpstats;
         }
 
-        select (max + 1, &rs, &ws, &es, &tv);
+        select (maxsock + 1, &rs, &ws, &es, &tv);
 
         if (d4) {
             MHD_run (d4);
