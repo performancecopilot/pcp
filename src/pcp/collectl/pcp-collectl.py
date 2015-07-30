@@ -510,13 +510,13 @@ class _Options(object):
         opts.pmSetLongOptionText("Write raw logfile: pcp collectl -f rawfile [-c N] [-i N] [-R N]")
         opts.pmSetLongOptionText("Read raw logfile: pcp collectl [-p|-a] rawfile")
         opts.pmSetLongOptionHeader("Options")
+        opts.pmSetLongOptionArchive()
         opts.pmSetLongOptionHost()
         opts.pmSetLongOptionVersion()
         opts.pmSetLongOption("verbose", 0, 'v', '', "Produce verbose output")
-        opts.pmSetLongOption("playback", 0, 'p', '', "Read sample data from file")
-        opts.pmSetLongOption("archive", 0, 'a', '', "Read sample data from archive")
+        opts.pmSetLongOption("playback", 1, 'p', 'FOLIO', "Read sample data from PCP archive folio")
         opts.pmSetLongOption("count", 1, 'c', 'COUNT', "Number of samples")
-        opts.pmSetLongOption("filename", 1, 'f', 'FILENAME', "Name of output file")
+        opts.pmSetLongOption("filename", 1, 'f', 'FOLIO', "Name of output PCP archive folio")
         opts.pmSetLongOption("runtime", 1, 'R', 'N', "How long to take samples")
         opts.pmSetLongOption("interval", 1, 'i', 'N', "The sample time interval")
         opts.pmSetLongOption("subsys", 1, 's', 'SUBSYS', "The subsystem to sample")
@@ -527,7 +527,7 @@ class _Options(object):
     def override(self, opt):
         """ Override a few standard PCP options to match free(1) """
         # pylint: disable=R0201
-        if opt == 's' or opt == 'i' or opt == 'h' or opt == "p":
+        if opt == 's' or opt == 'i' or opt == 'a' or opt == 'h' or opt == "p":
             return 1
         return 0
 
