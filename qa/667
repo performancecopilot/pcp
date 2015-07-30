@@ -26,6 +26,26 @@ status=1	# failure is the default!
 
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
+# handle differences like ...
+# (S'pcp.sample.byte_rate' vs (Vpcp.sample.byte_rate
+# (I1192055500 vs (L1192055490L
+# ?(lp0 vs <(lp0
+# F222.0 vs F222
+#
+_filter_strings()
+{
+    sed \
+	-e '/^(/{
+s/(S'"'"'/\(/
+s/'"'"'$//
+s/(V/\(/
+s/(L\(.*\)L$/(I\1/
+}' \
+	-e 's/^.(lp0/?(lp0/' \
+	-e 's/^F\([0-9][0-9]*\)\.0$/F\1/' \
+    # end
+}
+
 _full_stash()
 {
     echo "--- pcpgraphite stdout --" >>$seq.full
@@ -113,9 +133,10 @@ TZ=UTC $pcp2graphite -D0 -t 1 -O '2007-10-10 22:31:30 GMT' -T '2007-10-10 22:31:
 $signal $pid 2>/dev/null
 wait
 # while pickle format 0 is ascii, it's wrapped in a struct.pack that
-# puts some \0\0\0 goo in; we don't want that literally included in
-# the .out file
-cat $tmp.socat.out | od -A x -c
+# puts some non-ascii goo in; we don't want that literally included in
+# the .out file ... strings(1) is our friend
+#
+strings $tmp.socat.out | _filter_strings
 echo
 cat $tmp.p2g.out
 _full_stash
