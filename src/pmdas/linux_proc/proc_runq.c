@@ -29,6 +29,7 @@ proc_runq_append(const char *process, proc_runq_t *proc_runq)
     int fd, sname;
     ssize_t sz;
     char *p, buf[4096];
+    static int unknown_count;
 
     snprintf(buf, sizeof(buf), "%s/proc/%s/stat", proc_statspath, process);
     if ((fd = open(buf, O_RDONLY)) < 0)
@@ -85,7 +86,8 @@ proc_runq_append(const char *process, proc_runq_t *proc_runq)
 	/* case 'Z':
 	    break; -- already counted above */
 	default:
-	    fprintf(stderr, "UNKNOWN %c : %s\n", sname, buf);
+	    if (unknown_count++ < 3)	/* do not spam forever */
+		fprintf(stderr, "UNKNOWN %c : %s\n", sname, buf);
 	    proc_runq->unknown++;
 	    break;
     }
