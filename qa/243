@@ -34,39 +34,6 @@ _filter_err()
 	-e 's/ INADDR_ANY/ 0x0/g'
 }
 
-_filter_log()
-{
-    sleep 3
-    _filter_pmcd_log <./pmcd.log \
-    | sed \
-	-e '/^DATA: from client/d' \
-	-e 's/Cannot open 000000660066: No such file or directory//' \
-	-e 's/^$//' \
-	-e '/^00[08]:/d' \
-	-e '/pmGetPDU/{
-s/\[[0-9][0-9]*]/[PID]/
-s/from=.*/from=PID/
-}' \
-	-e '/_pmHaveMoreInput/{
-s/\[[0-9][0-9]*]/[PID]/
-s/0x[^ ]*\([^ ][^ ][^ ]\)/ADDR...\1/
-}' \
-	-e '/Piggy-back/{
-s/0x[^ ]*\([^ ][^ ][^ ]\)/ADDR...\1/
-s/from=.*/from=PID/
-}' \
-	-e '/pmXmitPDU/s/\[[0-9][0-9]*]/[PID]/' \
-	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
-	-e '/value /{
-s/value [0-9][0-9]*/value INTEGER/
-}' \
-	-e 's;pcp/lib/mips_[^.]*\.;pcp/lib/ISA.;' \
-    | $PCP_AWK_PROG '
-$3 ~ /^[0-9][0-9]*$/	{ $3 = "A_PID" }
-			{ print }'
-
-}
-
 signal=$PCP_BINADM_DIR/pmsignal
 _needclean=true
 
@@ -82,7 +49,7 @@ cleanup()
     then
 	_needclean=false
 	$signal -s TERM $my_pmcd_pid
-	sleep 1
+	pmsleep 1.5
 	unset PMCD_SOCKET
 	echo "Restart and ping pmcd ..."
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
@@ -125,7 +92,7 @@ echo
 echo "Trying to start another PMCD over the top of the first one."
 echo "Expect \"bind:  Address already in use\"...:"
 $PCP_PMCD_PROG -f -x err2 2>&1 | _filter_err &
-sleep 2
+pmsleep 2.5
 
 echo "Checking for startup errors ..."
 [ -f err2 ] && _filter_err <err2

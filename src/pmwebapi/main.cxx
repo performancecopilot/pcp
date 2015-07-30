@@ -507,7 +507,7 @@ main (int argc, char *argv[])
     // NB: important to standardize on a single default timezone, since
     // we'll be interacting with web clients from anywhere, and dealing
     // with pcp servers/archvies from anywhere else.
-    (void) setenv ("TZ", "UTC", 1);
+    (void) putenv ("TZ=UTC");
 
     umask (022);
     char * username_str;
@@ -678,10 +678,11 @@ main (int argc, char *argv[])
         pmweb_dont_start ();
     }
 
+#ifndef IS_MINGW
     /* lose root privileges if we have them */
-    if (geteuid () == 0) {
+    if (geteuid () == 0)
+#endif
         __pmSetProcessIdentity (username_str);
-    }
 
     /* tell the world we have arrived */
     __pmServerCreatePIDFile (PM_SERVER_WEBD_SPEC, 0);
@@ -726,7 +727,9 @@ main (int argc, char *argv[])
     __pmSetSignalHandler (SIGHUP, SIG_IGN);
     __pmSetSignalHandler (SIGINT, handle_signals);
     __pmSetSignalHandler (SIGTERM, handle_signals);
+#ifndef IS_MINGW
     __pmSetSignalHandler (SIGQUIT, handle_signals);
+#endif
     /* Not this one; might get it from pmcd momentary disconnection. */
     /* __pmSetSignalHandler(SIGPIPE, handle_signals); */
 
@@ -740,7 +743,7 @@ main (int argc, char *argv[])
         fd_set        rs;
         fd_set        ws;
         fd_set        es;
-        int        max = 0;
+        MHD_socket    max = 0;
 
         /* Based upon MHD fileserver_example_external_select.c */
         FD_ZERO (&rs);

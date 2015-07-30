@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -13,7 +13,6 @@
  * for more details.
  */
 
-#define _WIN32_WINNT	0x0500	/* for CreateHardLink */
 #include <math.h>
 #include <ctype.h>
 #include <sys/stat.h>
@@ -560,12 +559,7 @@ init_ports(void)
 	    exit(1);
 	}
 
-#ifndef IS_MINGW
-	sts = symlink(ctlfile, linkfile);
-#else
-	sts = (CreateSymbolicLink(linkfile, ctlfile, NULL) == 0);
-#endif
-	if (sts != 0) {
+	if ((sts = symlink(ctlfile, linkfile)) != 0) {
 	    fprintf(stderr, "%s: error creating primary logger symbolic link %s: %s\n",
 		    pmProgname, linkfile, osstrerror());
 	}
@@ -631,12 +625,7 @@ init_ports(void)
 	/*
 	 * Create the symlink to the primary pmlogger control socket.
 	 */
-#ifndef IS_MINGW
-	sts = symlink(socketPath, linkSocketPath);
-#else
-	sts = (CreateSymbolicLink(linkSocketPath, socketPath, NULL) == 0);
-#endif
-	if (sts != 0) {
+	if ((sts = symlink(socketPath, linkSocketPath)) != 0) {
 	    fprintf(stderr, "%s: error creating primary logger socket symbolic link %s: %s\n",
 		    pmProgname, linkSocketPath, osstrerror());
 	}

@@ -288,6 +288,23 @@ _get_logfile()
     done
 }
 
+_get_primary_logger_pid()
+{
+    file="$PCP_TMP_DIR/pmlogger/primary"
+    if [ ! -L "$file" ]
+    then
+	pid=''
+    elif which realpath >/dev/null 2>&1
+    then
+	pri=`readlink $file`
+	pid=`basename "$pri"`
+    else
+	pri=`ls -l "$file" | sed -e 's/.*-> //'`
+	pid=`basename "$pri"`
+    fi
+    echo "$pid"
+}
+
 _check_archive()
 {
     if [ ! -e "$logfile" ]
@@ -595,16 +612,15 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
         # in the primary logger case), but it *does* matter for pmlogconf.
         host=local:
 
-	if test -f "$PCP_TMP_DIR/pmlogger/primary"
+	if test -e "$PCP_TMP_DIR/pmlogger/primary"
 	then
 	    if $VERY_VERBOSE
 	    then 
 		_host=`sed -n 2p <"$PCP_TMP_DIR/pmlogger/primary"`
 		_arch=`sed -n 3p <"$PCP_TMP_DIR/pmlogger/primary"`
-		$PCP_ECHO_PROG $PCP_ECHO_N "... try $PCP_TMP_DIR/pmlogger/primary: host=$_host arch=$_arch""$PCP_ECHO_C"
+		echo "... try $PCP_TMP_DIR/pmlogger/primary: host=$_host arch=$_arch"
 	    fi
-	    file=`readlink $PCP_TMP_DIR/pmlogger/primary`
-	    pid="`echo $file | sed -e 's/.*\/\([^/]*\)$/\1/'`"
+	    pid=`_get_primary_logger_pid`
 	    if [ -z "$pid" ]
 	    then
 		if $VERY_VERBOSE

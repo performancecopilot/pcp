@@ -564,13 +564,10 @@ class JsonSource(object):
                         raise TypeError("Invalid metadata 'type' value")
                     if value == 'string':
                         metric_info.type = c_api.PM_TYPE_STRING
-                        metric_info.sem = c_api.PM_SEM_INSTANT
                     elif value == 'integer':
                         metric_info.type = c_api.PM_TYPE_64
-                        metric_info.sem = c_api.PM_SEM_COUNTER
                     elif value == 'double':
                         metric_info.type = c_api.PM_TYPE_DOUBLE
-                        metric_info.sem = c_api.PM_SEM_INSTANT
                     elif value == 'array':
                         # We don't allow arrays to have sub-arrays.
                         self.log("Arrays can't contain arrays")
@@ -735,13 +732,10 @@ class JsonSource(object):
                         break
                     if value == 'string':
                         metric_info.type = c_api.PM_TYPE_STRING
-                        metric_info.sem = c_api.PM_SEM_INSTANT
                     elif value == 'integer':
                         metric_info.type = c_api.PM_TYPE_64
-                        metric_info.sem = c_api.PM_SEM_COUNTER
                     elif value == 'double':
                         metric_info.type = c_api.PM_TYPE_DOUBLE
-                        metric_info.sem = c_api.PM_SEM_INSTANT
                     elif value == 'array':
                         # For arrays, we have to create metrics for
                         # each subitem in the array, using the same
@@ -1004,7 +998,6 @@ class JsonPMDA(PMDA):
         metric_info = Metric(self.pmda_name, 0, self)
         metric_info.name = 'nsources'
         metric_info.type = c_api.PM_TYPE_64
-        metric_info.sem = c_api.PM_SEM_COUNTER
         metric_info.desc = 'Number of JSON sources'
         metric_info.idx = 0
         metric_info.create()
@@ -1016,7 +1009,6 @@ class JsonPMDA(PMDA):
         metric_info = Metric(self.pmda_name, 0, self)
         metric_info.name = 'debug'
         metric_info.type = c_api.PM_TYPE_64
-        metric_info.sem = c_api.PM_SEM_INSTANT
         metric_info.desc = 'Debug logging state'
         metric_info.idx = 1
         metric_info.create()

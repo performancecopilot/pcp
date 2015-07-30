@@ -38,11 +38,8 @@ import cpmgui as c_gui
 from pcp import pmapi, pmgui
 from pcp.pmsubsys import Subsystem
 
-ME = "pmcollectl"
-
 
 # scale  -----------------------------------------------------------------
-
 
 def scale(value, magnitude):
     return (value + (magnitude / 2)) / magnitude
@@ -52,13 +49,13 @@ def scale(value, magnitude):
 
 def record(context, config, duration, path, host):
     if os.path.exists(path):
-        print(ME + "archive %s already exists\n" % path)
+        print("pcp collectl: archive %s already exists\n" % path)
         sys.exit(1)
     # Non-graphical application using libpcp_gui services - never want
     # to see popup dialogs from pmlogger(1) here, so force the issue.
     os.environ['PCP_XCONFIRM_PROG'] = '/bin/true'
     interval = pmapi.timeval.fromInterval(str(duration) + " seconds")
-    context.pmRecordSetup(path, ME, 0) # pylint: disable=W0621
+    context.pmRecordSetup(path, "pcp-collectl", 0) # pylint: disable=W0621
     context.pmRecordAddHost(host, 1, config) # just a filename
     deadhand = "-T" + str(interval) + "seconds"
     context.pmRecordControl(0, c_gui.PM_REC_SETARG, deadhand)
@@ -67,7 +64,7 @@ def record(context, config, duration, path, host):
     context.pmRecordControl(0, c_gui.PM_REC_OFF, "")
     # Note: pmlogger has a deadhand timer that will make it stop of its
     # own accord once -T limit is reached; but we send an OFF-recording
-    # message anyway for cleanliness, just prior to pmcollectl exiting.
+    # message anyway for cleanliness, just prior to pcp-collectl exiting.
 
 # record_add_creator ------------------------------------------------------
 
@@ -508,7 +505,13 @@ class _Options(object):
         opts.pmSetOptionCallback(self.option_callback)
         opts.pmSetOverrideCallback(self.override)
         opts.pmSetShortOptions("vp:c:f:R:i:s:h:?")
+        opts.pmSetLongOptionText("")
+        opts.pmSetLongOptionText("Interactive: pcp collectl [-v] [-s subsys] [-c N] [-i N] [-R N]")
+        opts.pmSetLongOptionText("Write raw logfile: pcp collectl -f rawfile [-c N] [-i N] [-R N]")
+        opts.pmSetLongOptionText("Read raw logfile: pcp collectl -p rawfile")
         opts.pmSetLongOptionHeader("Options")
+        opts.pmSetLongOptionHost()
+        opts.pmSetLongOptionVersion()
         opts.pmSetLongOption("verbose", 0, 'v', '', "Produce verbose output")
         opts.pmSetLongOption("playback", 0, 'p', '', "Read sample data from file")
         opts.pmSetLongOption("count", 1, 'c', 'COUNT', "Number of samples")
@@ -516,9 +519,6 @@ class _Options(object):
         opts.pmSetLongOption("runtime", 1, 'R', 'N', "How long to take samples")
         opts.pmSetLongOption("interval", 1, 'i', 'N', "The sample time interval")
         opts.pmSetLongOption("subsys", 1, 's', 'SUBSYS', "The subsystem to sample")
-        opts.pmSetShortUsage("[options]\nInteractive: [-v] [-h host] [-s subsys] [-c N] [-i N] [-R N]\nWrite raw logfile: pmcollectl -f rawfile [-c N] [-i N] [-R N]\nRead raw logfile: pmcollectl -p rawfile")
-        opts.pmSetLongOptionHost()
-        opts.pmSetLongOptionVersion()
         opts.pmSetLongOptionHelp()
         return opts
 
@@ -631,9 +631,9 @@ if __name__ == '__main__':
     if opts.create_archive:
         delta_seconds = c_api.pmtimevalToReal(delta.tv_sec, delta.tv_usec)
         msec = str(int(1000.0 * delta_seconds))
-        configuration = "log mandatory on every " + msec + " milliseconds { "
-        configuration += ss.dump_metrics()
-        configuration += "}"
+        configuration = "log mandatory on every " + msec + " milliseconds {\n"
+        configuration += ss.dump_metrics().replace(" ", "\n")
+        configuration += "}\n"
         if duration == 0.0:
             if opts.n_samples != 0:
                 duration = float(opts.n_samples) * delta_seconds

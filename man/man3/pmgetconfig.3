@@ -50,7 +50,14 @@ before returning.
 .PP
 The
 .B pmGetOptionalConfig
-allows for failures \- either 
+function allows for failures \- either from
+.I variable
+not being set at all, or due to the configuration file
+being missing.
+.B pmGetConfig
+is less tolerant to a missing configuration file, which it
+treats as a critical PCP installation failure \-
+see the ``RETURN VALUE'' section below for further details.
 .PP
 The default location of the PCP configuration file is
 .B /etc/pcp.conf
@@ -77,14 +84,14 @@ that are valid arguments to these routines.
 .SH "RETURN VALUE"
 If
 .I variable
-is not found in either the environment nor the PCP configuration file,
-or the configuration file is inaccessible, then
+is not found in either the environment or the PCP configuration file,
+or if the configuration file is inaccessible, then
 .B pmGetOptionalConfig 
 returns NULL.
 .PP
 If
 .I variable
-is not found in either the environment nor the PCP configuration file, then
+is found in neither the environment nor the PCP configuration file, then
 .B pmGetConfig 
 returns an empty string.
 If the PCP configuration file is not found

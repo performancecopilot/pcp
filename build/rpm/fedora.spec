@@ -176,7 +176,7 @@ Obsoletes: pcp-pmda-nvidia
 %global _with_doc --with-docdir=%{_docdir}/%{name}
 %endif
 
-%if %{disable_systemd}
+%if !%{disable_systemd}
 %global _initddir %{_datadir}/pcp/lib
 %else
 %global _initddir %{_sysconfdir}/rc.d/init.d
@@ -615,8 +615,7 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 
 %description pmda-activemq
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the ActiveMQ message broker.  The PMDA is written
-in Perl.
+collecting metrics about the ActiveMQ message broker.
 #end pcp-pmda-activemq
 
 #
@@ -631,9 +630,7 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 
 %description pmda-bonding
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about bonded network interfaces.  The PMDA is written
-in Perl.
-
+collecting metrics about bonded network interfaces.
 #end pcp-pmda-bonding
 
 #
@@ -649,8 +646,6 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 %description pmda-dbping
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Database response times and Availablility.
-The PMDA is written in Perl.
-
 #end pcp-pmda-dbping
 
 #
@@ -665,9 +660,7 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 
 %description pmda-ds389
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about a 389 Directory Server.  The PMDA is written
-in Perl.
-
+collecting metrics about a 389 Directory Server.
 #end pcp-pmda-ds389
 
 #
@@ -682,9 +675,7 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 
 %description pmda-ds389log
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about a 389 Directory Server Logger.  The PMDA is written
-in Perl.
-
+collecting metrics from a 389 Directory Server log.
 #end pcp-pmda-ds389log
 
 #
@@ -699,9 +690,7 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 
 %description pmda-elasticsearch
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about Elasticsearch.  The PMDA is written
-in Perl.
-
+collecting metrics about Elasticsearch.
 #end pcp-pmda-elasticsearch
 
 #
@@ -716,9 +705,7 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 
 %description pmda-gpfs
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the GPFS filesystem.  The PMDA is written
-in Perl.
-
+collecting metrics about the GPFS filesystem.
 #end pcp-pmda-gpfs
 
 #
@@ -733,9 +720,7 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 
 %description pmda-gpsd
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about a GPS Daemon.  The PMDA is written
-in Perl.
-
+collecting metrics about a GPS Daemon.
 #end pcp-pmda-gpsd
 
 #
@@ -750,9 +735,7 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 
 %description pmda-kvm
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Kernel based Virtual Machine.  The PMDA is written
-in Perl.
-
+collecting metrics about the Kernel based Virtual Machine.
 #end pcp-pmda-kvm
 
 #
@@ -767,9 +750,7 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 
 %description pmda-lustre
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Lustre Filesystem.  The PMDA is written
-in Perl.
-
+collecting metrics about the Lustre Filesystem.
 #end pcp-pmda-lustre
    
 #
@@ -785,9 +766,7 @@ Requires: pcp-libs = %{version}-%{release}
 
 %description pmda-lustrecomm
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Lustre Filesystem Comms.  The PMDA is written
-in C.
-
+collecting metrics about the Lustre Filesystem Comms.
 #end pcp-pmda-lustrecomm
 
 #
@@ -802,9 +781,7 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 
 %description pmda-memcache
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about Memcached.  The PMDA is written
-in Perl.
-
+collecting metrics about Memcached.
 #end pcp-pmda-memcache
 
 #
@@ -819,9 +796,7 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 
 %description pmda-mysql
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the MySQL database.  The PMDA is written
-in Perl.
-
+collecting metrics about the MySQL database.
 #end pcp-pmda-mysql
 
 #
@@ -836,9 +811,7 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 
 %description pmda-named
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Named nameserver.  The PMDA is written
-in Perl.
-
+collecting metrics about the Named nameserver.
 #end pcp-pmda-named
 
 # pcp-pmda-netfilter
@@ -852,9 +825,7 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 
 %description pmda-netfilter
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Netfilter packet filtering framework.  The
-PMDA is written in Perl.
-
+collecting metrics about the Netfilter packet filtering framework.
 #end pcp-pmda-netfilter
 
 #
@@ -869,9 +840,7 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 
 %description pmda-news
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about Usenet News.  The PMDA is written
-in Perl.
-
+collecting metrics about Usenet News.
 #end pcp-pmda-news
 
 #
@@ -886,9 +855,7 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 
 %description pmda-nginx
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Nginx Webserver.  The PMDA is written
-in Perl.
-
+collecting metrics about the Nginx Webserver.
 #end pcp-pmda-nginx
 
 #
@@ -903,8 +870,7 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 
 %description pmda-nfsclient
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics for NFS Clients.  The PMDA is written in Perl.
-
+collecting metrics for NFS Clients.
 #end pcp-pmda-nfsclient
 
 #
@@ -919,8 +885,7 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 
 %description pmda-pdns
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the PowerDNS.  The PMDA is written in Perl.
-
+collecting metrics about the PowerDNS.
 #end pcp-pmda-pdns
 
 #
@@ -944,9 +909,7 @@ Requires: postfix-doc
 
 %description pmda-postfix
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Postfix (MTA).  The PMDA is written
-in Perl.
-
+collecting metrics about the Postfix (MTA).
 #end pcp-pmda-postfix
 
 #
@@ -961,9 +924,7 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 
 %description pmda-postgresql
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the PostgreSQL database.  The PMDA is written
-in Perl.
-
+collecting metrics about the PostgreSQL database.
 #end pcp-pmda-postgresql
 
 #
@@ -978,9 +939,7 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 
 %description pmda-rsyslog
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about Rsyslog.  The PMDA is written
-in Perl.
-
+collecting metrics about Rsyslog.
 #end pcp-pmda-rsyslog
 
 #
@@ -995,8 +954,7 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 
 %description pmda-samba
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about Samba.  The PMDA is written in Perl.
-
+collecting metrics about Samba.
 #end pcp-pmda-samba
 
 #
@@ -1011,8 +969,7 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 
 %description pmda-snmp
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about SNMP.  The PMDA is written in Perl.
-
+collecting metrics about SNMP.
 #end pcp-pmda-snmp
 
 #
@@ -1027,9 +984,7 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 
 %description pmda-vmware
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics for VMware.  The PMDA is written
-in Perl.
-
+collecting metrics for VMware.
 #end pcp-pmda-vmware
 
 #
@@ -1044,8 +999,7 @@ Requires: perl-PCP-PMDA = %{version}-%{release}
 
 %description pmda-zimbra
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about Zimra.  The PMDA is written
-in Perl.
+collecting metrics about Zimbra.
 #end pcp-pmda-zimbra
 
 #
@@ -1059,8 +1013,7 @@ URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 %description pmda-dm
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Device Mapper Cache and Thin Client.  The PMDA
-is written in Python.
+collecting metrics about the Device Mapper Cache and Thin Client.
 # end pcp-pmda-dm
    
 
@@ -1080,8 +1033,7 @@ Requires: python-pcp
 %endif
 %description pmda-gluster
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the gluster filesystem.  The PMDA is written
-in Python.
+collecting metrics about the gluster filesystem.
 # end pcp-pmda-gluster
    
 #
@@ -1099,8 +1051,7 @@ Requires: python-pcp
 %endif
 %description pmda-zswap
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about compressed swap.  The PMDA is written
-in Python.
+collecting metrics about compressed swap.
 # end pcp-pmda-zswap
 
 #
@@ -1118,8 +1069,7 @@ Requires: python-pcp
 %endif
 %description pmda-unbound
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Unbound DNS Resolver.  The PMDA is written
-in Python.
+collecting metrics about the Unbound DNS Resolver.
 # end pcp-pmda-unbound
 
 %endif # !%{disable_python2} || !%{disable_python3}
@@ -1144,7 +1094,7 @@ Requires: python-six
 %endif
 %description pmda-json
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics output in JSON.  The PMDA is written in Python.
+collecting metrics output in JSON.
 # end pcp-pmda-json
 %endif # !%{disable_json}
 
@@ -1160,8 +1110,7 @@ URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 %description pmda-apache
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Apache webserver.  The PMDA is written
-in C.
+collecting metrics about the Apache webserver.
 # end pcp-pmda-apache
 
 #
@@ -1175,7 +1124,7 @@ URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 %description pmda-bash
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Bash shell.  The PMDA is written in C.
+collecting metrics about the Bash shell.
 # end pcp-pmda-bash
 
 #
@@ -1189,7 +1138,7 @@ URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 %description pmda-cifs
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Common Internet Filesytem.  The PMDA is written in C.
+collecting metrics about the Common Internet Filesytem.
 # end pcp-pmda-cifs
 
 #
@@ -1203,7 +1152,7 @@ URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 %description pmda-cisco
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about Cisco routers.  The PMDA is written in C.
+collecting metrics about Cisco routers.
 # end pcp-pmda-cisco
 
 #
@@ -1217,7 +1166,7 @@ URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 %description pmda-gfs2
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Global Filesystem v2.  The PMDA is written in C.
+collecting metrics about the Global Filesystem v2.
 # end pcp-pmda-gfs2
 
 #
@@ -1231,8 +1180,7 @@ URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 %description pmda-lmsensors
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Linux hardware monitoring sensors.  The PMDA
-is written in C.
+collecting metrics about the Linux hardware monitoring sensors.
 # end pcp-pmda-lmsensors
 
 #
@@ -1247,7 +1195,7 @@ Requires: pcp-libs = %{version}-%{release}
 %description pmda-logger
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics from a specified set of log files (or pipes).  The PMDA
-is written in C, and supports both sampled and event-style metrics.
+supports both sampled and event-style metrics.
 # end pcp-pmda-logger
 
 #
@@ -1261,8 +1209,7 @@ URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 %description pmda-mailq
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about email queues managed by sendmail.  The PMDA is
-written in C.
+collecting metrics about email queues managed by sendmail.
 # end pcp-pmda-mailq
 
 #
@@ -1276,7 +1223,7 @@ URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 %description pmda-mounts
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about filesystem mounts.  The PMDA is written in C.
+collecting metrics about filesystem mounts.
 # end pcp-pmda-mounts
 
 #
@@ -1290,7 +1237,7 @@ URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 %description pmda-nvidia-gpu
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Nvidia gpu metrics.  The PMDA is written in C.
+collecting metrics about the Nvidia gpu metrics.
 # end pcp-pmda-nvidia-gpu
 
 #
@@ -1305,7 +1252,7 @@ Requires: pcp = %{version}-%{release}
 Requires: pcp-libs = %{version}-%{release}
 %description pmda-roomtemp
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Room temperature metrics.  The PMDA is written in C.
+collecting metrics about the Room temperature metrics.
 # end pcp-pmda-roomtemp
 
 %if !%{disable_rpm}
@@ -1321,7 +1268,7 @@ Requires: pcp = %{version}-%{release}
 Requires: pcp-libs = %{version}-%{release}
 %description pmda-rpm
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the rpms.  The PMDA is written in C.
+collecting metrics about the rpms.
 # end pcp-pmda-rpm
 %endif
 
@@ -1337,7 +1284,7 @@ Requires: pcp = %{version}-%{release}
 Requires: pcp-libs = %{version}-%{release}
 %description pmda-sendmail
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about Sendmail traffic metrics.  The PMDA is written in C.
+collecting metrics about Sendmail traffic metrics.
 # end pcp-pmda-sendmail
 
 #
@@ -1352,7 +1299,7 @@ Requires: pcp-libs = %{version}-%{release}
 %description pmda-shping
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about quality of service and response time measurements of
-arbitrary shell commands.  The PMDA is written in C.
+arbitrary shell commands.
 # end pcp-pmda-shping
 
 #
@@ -1367,7 +1314,7 @@ Requires: pcp = %{version}-%{release}
 Requires: pcp-libs = %{version}-%{release}
 %description pmda-summary
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about other installed pmdas.  The PMDA is written in C.
+collecting metrics about other installed pmdas.
 # end pcp-pmda-summary
 
 %if !%{disable_systemd}
@@ -1382,9 +1329,9 @@ URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 %description pmda-systemd
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Systemd shell.  The PMDA is written in C.
+collecting metrics about the Systemd shell.
 # end pcp-pmda-systemd
-%endif # 0%{?fedora} >= 18 || 0%{?rhel} >= 7
+%endif
 
 #
 # pcp-pmda-trace
@@ -1398,7 +1345,6 @@ Requires: pcp-libs = %{version}-%{release}
 %description pmda-trace
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about transaction performance metrics from applications.
-The PMDA is written in C.
 # end pcp-pmda-trace
 
 #
@@ -1413,7 +1359,7 @@ Requires: pcp = %{version}-%{release}
 Requires: pcp-libs = %{version}-%{release}
 %description pmda-weblog
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about web server logs.  The PMDA is written in C.
+collecting metrics about web server logs.
 # end pcp-pmda-weblog
 # end C pmdas
 
@@ -2368,7 +2314,11 @@ cd
 %endif
 
 %changelog
-* Fri Jul 31 2015 Mark Goodwin <mgoodwin@redhat.com> - 3.10.6-1
+* Tue Aug 04 2015 Mark Goodwin <mgoodwin@redhat.com> - 3.10.6-1
+- Fix pcp2graphite write method invocation failure (BZ 1243123)
+- Reduce diagnostics in pmdaproc unknown state case (BZ 1224431)
+- Derived metrics via multiple files, directory expansion (BZ 1235556)
+- Update to latest PCP sources.
 
 * Mon Jun 15 2015 Mark Goodwin <mgoodwin@redhat.com> - 3.10.5-1
 - Provide and use non-exit(1)ing pmGetConfig(3) variant (BZ 1187588)

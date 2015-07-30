@@ -84,51 +84,50 @@ Sending Wed Oct 10 22:31:48 2007: pcp.sample.byte_rate 996.0 1192055508
 Sending Wed Oct 10 22:31:49 2007: pcp.sample.byte_rate 912.0 1192055509
 Sending Wed Oct 10 22:31:50 2007: pcp.sample.byte_rate 675.0 1192055510
 === 5. pcp2graphite time-limited archive transcription ===
-000000  \0  \0  \0   <   (   l   p   0  \n   (   V   p   c   p   .   s
-000010   a   m   p   l   e   .   b   y   t   e   _   r   a   t   e  \n
-000020   p   1  \n   (   L   1   1   9   2   0   5   5   4   9   0   L
-000030  \n   F   7   3   0  \n   t   p   2  \n   t   p   3  \n   a   .
-000040  \0  \0  \0   <   (   l   p   0  \n   (   V   p   c   p   .   s
-000050   a   m   p   l   e   .   b   y   t   e   _   r   a   t   e  \n
-000060   p   1  \n   (   L   1   1   9   2   0   5   5   4   9   1   L
-000070  \n   F   4   3   6  \n   t   p   2  \n   t   p   3  \n   a   .
-000080  \0  \0  \0   <   (   l   p   0  \n   (   V   p   c   p   .   s
-000090   a   m   p   l   e   .   b   y   t   e   _   r   a   t   e  \n
-0000a0   p   1  \n   (   L   1   1   9   2   0   5   5   4   9   2   L
-0000b0  \n   F   3   5   3  \n   t   p   2  \n   t   p   3  \n   a   .
-0000c0  \0  \0  \0   <   (   l   p   0  \n   (   V   p   c   p   .   s
-0000d0   a   m   p   l   e   .   b   y   t   e   _   r   a   t   e  \n
-0000e0   p   1  \n   (   L   1   1   9   2   0   5   5   4   9   3   L
-0000f0  \n   F   9   5   5  \n   t   p   2  \n   t   p   3  \n   a   .
-000100  \0  \0  \0   <   (   l   p   0  \n   (   V   p   c   p   .   s
-000110   a   m   p   l   e   .   b   y   t   e   _   r   a   t   e  \n
-000120   p   1  \n   (   L   1   1   9   2   0   5   5   4   9   4   L
-000130  \n   F   3   5   0  \n   t   p   2  \n   t   p   3  \n   a   .
-000140  \0  \0  \0   <   (   l   p   0  \n   (   V   p   c   p   .   s
-000150   a   m   p   l   e   .   b   y   t   e   _   r   a   t   e  \n
-000160   p   1  \n   (   L   1   1   9   2   0   5   5   4   9   5   L
-000170  \n   F   5   4   4  \n   t   p   2  \n   t   p   3  \n   a   .
-000180  \0  \0  \0   <   (   l   p   0  \n   (   V   p   c   p   .   s
-000190   a   m   p   l   e   .   b   y   t   e   _   r   a   t   e  \n
-0001a0   p   1  \n   (   L   1   1   9   2   0   5   5   4   9   6   L
-0001b0  \n   F   4   5   3  \n   t   p   2  \n   t   p   3  \n   a   .
-0001c0  \0  \0  \0   <   (   l   p   0  \n   (   V   p   c   p   .   s
-0001d0   a   m   p   l   e   .   b   y   t   e   _   r   a   t   e  \n
-0001e0   p   1  \n   (   L   1   1   9   2   0   5   5   4   9   7   L
-0001f0  \n   F   9   0   3  \n   t   p   2  \n   t   p   3  \n   a   .
-000200  \0  \0  \0   <   (   l   p   0  \n   (   V   p   c   p   .   s
-000210   a   m   p   l   e   .   b   y   t   e   _   r   a   t   e  \n
-000220   p   1  \n   (   L   1   1   9   2   0   5   5   4   9   8   L
-000230  \n   F   2   8   8  \n   t   p   2  \n   t   p   3  \n   a   .
-000240  \0  \0  \0   <   (   l   p   0  \n   (   V   p   c   p   .   s
-000250   a   m   p   l   e   .   b   y   t   e   _   r   a   t   e  \n
-000260   p   1  \n   (   L   1   1   9   2   0   5   5   4   9   9   L
-000270  \n   F   2   2   2  \n   t   p   2  \n   t   p   3  \n   a   .
-000280  \0  \0  \0   <   (   l   p   0  \n   (   V   p   c   p   .   s
-000290   a   m   p   l   e   .   b   y   t   e   _   r   a   t   e  \n
-0002a0   p   1  \n   (   L   1   1   9   2   0   5   5   5   0   0   L
-0002b0  \n   F   9   6   4  \n   t   p   2  \n   t   p   3  \n   a   .
-0002c0
+?(lp0
+(pcp.sample.byte_rate
+(I1192055490
+F730
+?(lp0
+(pcp.sample.byte_rate
+(I1192055491
+F436
+?(lp0
+(pcp.sample.byte_rate
+(I1192055492
+F353
+?(lp0
+(pcp.sample.byte_rate
+(I1192055493
+F955
+?(lp0
+(pcp.sample.byte_rate
+(I1192055494
+F350
+?(lp0
+(pcp.sample.byte_rate
+(I1192055495
+F544
+?(lp0
+(pcp.sample.byte_rate
+(I1192055496
+F453
+?(lp0
+(pcp.sample.byte_rate
+(I1192055497
+F903
+?(lp0
+(pcp.sample.byte_rate
+(I1192055498
+F288
+?(lp0
+(pcp.sample.byte_rate
+(I1192055499
+F222
+?(lp0
+(pcp.sample.byte_rate
+(I1192055500
+F964
 
 Relaying 1 metric(s) with prefix pcp. from archive archives/chartqa1.meta in pickled mode to localhost:2004 every 1.000000 s
 Sending Wed Oct 10 22:31:30 2007 #tuples 1

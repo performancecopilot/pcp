@@ -30,6 +30,7 @@ int
 main(int argc, char *argv[])
 {
     time_t	now;
+    time_t	check;
     int		need;
     char	*buf;
     char	*p;
@@ -110,6 +111,7 @@ main(int argc, char *argv[])
 	 * absolute), so this is Y2K safe
 	 */
 	tmp->tm_year += yr_delta;
+	/* TODO feb leap year */
     }
     if (mo_delta) {
 	/*
@@ -127,6 +129,11 @@ main(int argc, char *argv[])
 	    tmp->tm_mon -= 12;
 	    tmp->tm_year++;
 	}
+    }
+
+    if ((check = mktime(tmp)) == -1) {
+	fprintf(stderr, "%s: impossible date conversion\n", pmProgname);
+	exit(1);
     }
 
     /*
