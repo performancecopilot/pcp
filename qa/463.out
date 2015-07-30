@@ -129,6 +129,20 @@ root {
     sampledso	30:*:*
 
 }
+---------------- 8a -----------------
+
+foo
+
+bar
+mumble
+
+fumble
+---------------- 8b -----------------
+# white space after include filename
+# spaces, no comment ... this was Nathan's Mac OS X failure */
+foo
+# tab this time
+bar
 
 #include errors ...
 ---------------- 9 -----------------

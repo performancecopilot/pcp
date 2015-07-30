@@ -195,6 +195,32 @@ root {
 End-of-File
 pmcpp -DSAMPLE=29 -DSAMPLEDSO=30 -Dfoo $tmp.root 2>&1 | _filter
 
+echo "---------------- 8a -----------------"
+echo foo >$tmp.1
+echo bar >$tmp.2
+echo mumble >$tmp.3
+echo fumble >$tmp.4
+cat <<End-of-File >$tmp.in
+/* white space after include filename */
+#include "$tmp.1"    /* spaces */
+/* spaces, no comment ... this was Nathan's Mac OS X failure */
+#include <$tmp.2>    
+#include <$tmp.3>	/* tab */
+/* tab, no comment */
+#include "$tmp.4"	
+End-of-File
+pmcpp -P $tmp.in 2>&1 | _filter
+
+echo "---------------- 8b -----------------"
+cat <<End-of-File >$tmp.in
+# white space after include filename
+# spaces, no comment ... this was Nathan's Mac OS X failure */
+%include <$tmp.1>    
+# tab this time
+%include "$tmp.2"	
+End-of-File
+pmcpp -sP $tmp.in 2>&1 | _filter
+
 echo
 echo "#include errors ..."
 echo "---------------- 9 -----------------"

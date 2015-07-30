@@ -821,6 +821,7 @@ more:
 	    /* pmcpp control line */
 	    if (strncmp(&ibuf[1], "include", strlen("include")) == 0) {
 		char		*p;
+		char		*q;
 		char		*pend;
 		char		c;
 		FILE		*f;
@@ -852,7 +853,8 @@ more:
 		    err("%cinclude nesting too deep", ctl);
 		    /*NOTREACHED*/
 		}
-		if (pend[1] != '\n' && pend[1] != '\0') {
+		for (q = &pend[1]; isspace((int)*q); q++) ;
+		if (*q != '\n' && *q != '\0') {
 		    err("Unexpected extra text in %cinclude line", ctl);
 		    /*NOTREACHED*/
 		}
