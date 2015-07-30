@@ -289,6 +289,16 @@ as the data repository, and Graphites web interface renders it. The
 Carbon and Whisper subsystems of Graphite are not included nor used.
 %endif
 
+#%package enable-default
+#License: LGPLv2+
+#Group: Development/System
+#Summary: Performance Co-Pilot (PCP) Auto-Start Subrpm
+#URL: http://www.pcp.io
+#Requires: pcp = @package_version@ pcp-libs = @package_version@
+
+#%description -n pcp-enable-default
+#A PCP sub-rpm in which to automatically start the pmcd and pmlogger services
+
 #
 # perl-PCP-PMDA. This is the PCP agent perl binding.
 #
@@ -1986,6 +1996,19 @@ chown -R pcp:pcp "$PCP_LOG_DIR/pmmgr" 2>/dev/null
     /sbin/chkconfig --add pmmgr >/dev/null 2>&1
     /sbin/service pmmgr condrestart
 %endif
+%endif
+
+%post collector
+%if "@enable_systemd@" == "true"
+    systemctl restart pmcd >/dev/null 2>&1
+    systemctl restart pmlogger >/dev/null 2>&1
+    systemctl enable pmcd >/dev/null 2>&1
+    systemctl enable pmlogger >/dev/null 2>&1
+%else
+    /sbin/chkconfig --add pmcd >/dev/null 2>&1
+    /sbin/chkconfig --add pmlogger >/dev/null 2>&1
+    /sbin/service pmcd condrestart
+    /sbin/service pmlogger condrestart
 %endif
 
 %preun

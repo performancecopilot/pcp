@@ -1425,7 +1425,8 @@ Requires: pcp-pmda-rpm
 Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
 %description collector
 This package contains the PCP metric collection dependencies.  This includes
-all possible packages used to collect PCP metrics.
+all possible packages used to collect PCP metrics. pcp-collector also
+automatically starts the pmcd and pmlogger services
 # collector
 
 # pcp-monitor metapackage
@@ -1859,6 +1860,19 @@ chown -R pcp:pcp %{_logsdir}/pmmgr 2>/dev/null
 %else
     /sbin/chkconfig --add pmmgr >/dev/null 2>&1
     /sbin/service pmmgr condrestart
+%endif
+
+%post collector
+%if !%{disable_systemd}
+    systemctl restart pmcd >/dev/null 2>&1
+    systemctl restart pmlogger >/dev/null 2>&1
+    systemctl enable pmcd >/dev/null 2>&1
+    systemctl enable pmlogger >/dev/null 2>&1
+%else
+    /sbin/chkconfig --add pmcd >/dev/null 2>&1
+    /sbin/chkconfig --add pmlogger >/dev/null 2>&1
+    /sbin/service pmcd condrestart
+    /sbin/service pmlogger condrestart
 %endif
 
 %post
