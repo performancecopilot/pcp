@@ -2317,6 +2317,7 @@ cd
 * Tue Aug 04 2015 Mark Goodwin <mgoodwin@redhat.com> - 3.10.6-1
 - Fix pcp2graphite write method invocation failure (BZ 1243123)
 - Reduce diagnostics in pmdaproc unknown state case (BZ 1224431)
+- Derived metrics via multiple files, directory expansion (BZ 1235556)
 - Update to latest PCP sources.
 
 * Mon Jun 15 2015 Mark Goodwin <mgoodwin@redhat.com> - 3.10.5-1
