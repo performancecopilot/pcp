@@ -5,7 +5,7 @@ dbpmda> getdesc on
 dbpmda> desc json.nsources
 PMID: 137.0.0
 Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
-Semantics: counter  Units: none
+Semantics: instant  Units: none
 dbpmda> fetch json.nsources
 PMID(s): 137.0.0
 pmResult ... numpmid: 1
