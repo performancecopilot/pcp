@@ -43,6 +43,7 @@ pcp-3.10.6 (4 August 2015)
     - docs: correct references to pre-v3 CC-BY-SA license
     - docs: update book builds for current Publican variants
     - docs: add derived metrics section to guide.html
+    - rpms: pcp-collector meta-package default-enables pmcd+pmlogger
     - build: fix dependency problems causing parallel make races
     - build: pcp containers build support via Makepkgs
     - build: ensure pmcollectl is installed, man page updates
