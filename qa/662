@@ -11,7 +11,10 @@ echo "QA output created by $seq"
 . ./common.python
 
 pyscript=src/test_webapi.py
-$python $pyscript --version >/dev/null 2>&1 || _notrun "python modules missing"
+$python --version >/dev/null 2>&1 || _notrun "python missing"
+
+version=`$python --version 2>&1 | sed -e 's/Python //'`
+[ "$version" = "2.7.3" ] && _notrun "requests.json() broken in Python 2.7.3"
 
 $sudo rm -f $tmp.* $seq.full
 
