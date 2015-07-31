@@ -11,7 +11,7 @@ echo "QA output created by $seq"
 . ./common.python
 
 pyscript=src/test_webapi.py
-$python $pyscript --version 2>/dev/null || _notrun "python modules missing"
+$python $pyscript --version >/dev/null 2>&1 || _notrun "python modules missing"
 
 $sudo rm -f $tmp.* $seq.full
 
