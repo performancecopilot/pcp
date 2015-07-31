@@ -49,7 +49,7 @@ in
 	;;
 esac
 
-# may be using journactl, and so no syslog in the file system
+# may be using journalctl, and so no syslog in the file system
 #
 if `which journalctl >/dev/null 2>&1`
 then
@@ -179,7 +179,7 @@ _filter <$tmp.out
 
 echo
 echo "SYSLOG ..."
-if $have_journactl
+if $have_journalctl
 then
     $sudo journalctl -b -l | tail -100 >$tmp.syslog
 else
