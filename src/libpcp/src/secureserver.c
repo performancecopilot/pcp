@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  *
  * Server side security features - via Network Security Services (NSS) and
  * the Simple Authentication and Security Layer (SASL).
@@ -633,7 +633,7 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 	sts = PM_ERR_IPC;
     }
 
-    if (pinned)
+    if (pinned > 0)
 	__pmUnpinPDUBuf(pb);
     if (sts < 0)
 	return sts;
@@ -675,7 +675,7 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 	    sts = PM_ERR_IPC;
 	}
 
-	if (pinned)
+	if (pinned > 0)
 	    __pmUnpinPDUBuf(pb);
 	if (sts < 0)
 	    break;

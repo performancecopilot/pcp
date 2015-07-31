@@ -1424,8 +1424,10 @@ Requires: pcp-pmda-rpm
 %endif
 Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
 %description collector
-This package contains the PCP metric collection dependencies.  This includes
-all possible packages used to collect PCP metrics.
+This meta-package installs the PCP metric collection dependencies.  This
+includes the vast majority of packages used to collect PCP metrics.  The
+pcp-collector package also automatically enables and starts the pmcd and
+pmlogger services.
 # collector
 
 # pcp-monitor metapackage
@@ -1444,8 +1446,8 @@ Requires: pcp-system-tools
 Requires: pcp-gui
 %endif
 %description monitor
-This package contains the PCP metric monitoring dependencies. This includes all possible packages used
-to monitor PCP metrics in various ways.
+This meta-package contains the PCP performance monitoring dependencies.  This
+includes a large number of packages for analysing PCP metrics in various ways.
 # monitor
 
 %if !%{disable_python2}
@@ -1859,6 +1861,19 @@ chown -R pcp:pcp %{_logsdir}/pmmgr 2>/dev/null
 %else
     /sbin/chkconfig --add pmmgr >/dev/null 2>&1
     /sbin/service pmmgr condrestart
+%endif
+
+%post collector
+%if !%{disable_systemd}
+    systemctl restart pmcd >/dev/null 2>&1
+    systemctl restart pmlogger >/dev/null 2>&1
+    systemctl enable pmcd >/dev/null 2>&1
+    systemctl enable pmlogger >/dev/null 2>&1
+%else
+    /sbin/chkconfig --add pmcd >/dev/null 2>&1
+    /sbin/chkconfig --add pmlogger >/dev/null 2>&1
+    /sbin/service pmcd condrestart
+    /sbin/service pmlogger condrestart
 %endif
 
 %post

@@ -36,6 +36,10 @@ extern "C"
 #include <microhttpd.h>
 }
 
+#if !defined(MHD_SOCKET_DEFINED)
+typedef int MHD_socket;
+#endif
+
 /* ------------------------------------------------------------------------ */
 
 /* a subset of option flags that needs to be read by the other modules */

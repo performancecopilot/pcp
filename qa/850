@@ -27,6 +27,12 @@ pmcollectl -p archives/collectl-qa -sN
 pmcollectl -p archives/collectl-qa -sD
 pmcollectl -p archives/collectl-qa -sj
 
+pmcollectl -a archives/YWhcCi.toium.0
+pmcollectl -a archives/YWhcCi.toium.0 -sC
+pmcollectl -a archives/YWhcCi.toium.0 -sN
+pmcollectl -a archives/YWhcCi.toium.0 -sD
+pmcollectl -a archives/YWhcCi.toium.0 -sj
+
 # success, all done
 status=0
 

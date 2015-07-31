@@ -130,6 +130,7 @@ linux_filter()
 	-e "/network\.udplite\..*: $unavailable/d" \
 	-e "/network\.udp\.recvbuferrors: $unavailable/d" \
 	-e "/network\.udp\.sndbuferrors: $unavailable/d" \
+	-e "/network\.softnet\.flow_limit_count: $nosupport/d" \
 	-e "/swapdev\.free: $unavailable/d" \
 	-e "/swapdev\.length: $unavailable/d" \
 	-e "/swapdev\.maxswap: $unavailable/d" \

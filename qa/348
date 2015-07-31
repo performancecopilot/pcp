@@ -18,14 +18,8 @@ perl -e "use PCP::PMDA" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
 kvm_stats_path=/sys/kernel/debug/kvm
 $sudo [ -d $kvm_stats_path ] || _notrun "KVM sysfs interface not available"
-
-rm -f $seq.out
-if [ $PCP_VER -lt 30600 ]
-then
-    ln $seq.out.1 $seq.out || exit 1
-else
-    ln $seq.out.2 $seq.out || exit 1
-fi
+count=`$sudo ls $kvm_stats_path | wc -l`
+[ "$count" -eq 0 ] && _notrun "KVM kernel instrumentation is disabled"
 
 status=1
 done_clean=false

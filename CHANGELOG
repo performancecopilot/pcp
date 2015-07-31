@@ -37,11 +37,13 @@ pcp-3.10.6 (4 August 2015)
     - pcp-collectl: fix an interrupt subsystem crash
     - pcp-collectl: break out append statements for valid syntax
     - pcp-collectl: fix recording of data to archive folios
+    - iostat2pcp: fix off-by-one error in disk rawactive metrics
     - docs: corrections to pmdaperfevent man page
     - docs: add some missing text to pmGetConfig man page
     - docs: correct references to pre-v3 CC-BY-SA license
     - docs: update book builds for current Publican variants
     - docs: add derived metrics section to guide.html
+    - rpms: pcp-collector meta-package default-enables pmcd+pmlogger
     - build: fix dependency problems causing parallel make races
     - build: pcp containers build support via Makepkgs
     - build: ensure pmcollectl is installed, man page updates
