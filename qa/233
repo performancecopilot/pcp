@@ -3,10 +3,7 @@
 #
 # How fast can you fetch sampledso.sysinfo?
 # Using a local context (direct to the DSO) should be significantly
-# faster than going through PMCD. On Linux and IRIX the sampldso.sysinfo
-# metric ends up with a call to sysinfo which on Linux is so slow that
-# it stuffs up the timings this test is making, so.. we don't run it on
-# Linux.
+# faster than going through PMCD.
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -22,13 +19,6 @@ echo "QA output created by $seq"
 status=0
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-if [ $PCP_PLATFORM = linux ]; then
-    echo "fetchrate tests not run on linux: sysinfo is too slow" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    status=0
-    exit
-fi
-    
 _filter()
 {
     _filter_pmcd_log | $PCP_AWK_PROG '
