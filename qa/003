@@ -100,6 +100,7 @@ linux_filter()
 	-e "/network\.ip\.noect.*: $unavailable/d" \
 	-e "/network\.ip\.outbcastoctets: $unavailable/d" \
 	-e "/network\.ip\.outoctets: $unavailable/d" \
+	-e "/network\.softnet\..*: $nosupport/d" \
 	-e "/network\.tcp\.autocork.*: $unavailable/d" \
 	-e "/network\.tcp\.backlogdrop: $unavailable/d" \
 	-e "/network\.tcp\.busypoll.*: $unavailable/d" \
