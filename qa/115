@@ -87,7 +87,7 @@ _count_pmies()
 	    ps -f -p $process >>$here/$seq.full
 	    if `which pstree >/dev/null 2>&1`
 	    then
-		pstree -s $process >>$here/$seq.full
+		pstree $process >>$here/$seq.full
 	    fi
 	fi
     done
