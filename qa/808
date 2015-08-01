@@ -45,11 +45,49 @@ else
 	echo === ls -l $PCP_RUN_DIR ===
 	ls -l $PCP_RUN_DIR
 	echo === manually removing stale run files ===
-	rm -f $PCP_RUN_DIR/*pmlogger*
-    else
-	echo success, new primary logger correctly restarted
-	status=0
+	sudo rm -f $PCP_RUN_DIR/*pmlogger*
+	status=1
+	exit
     fi
+
+#
+# Next test: check primary logger restarts with legacy hardlinks present
+# This is a corner case, but can happen.
+#
+    pid=$($PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep 'pmlogger.*-P' | \
+    grep -v grep | awk '{print $2}')
+
+    echo === checking with stale legacy hard links
+    echo === killing the primary pmlogger with SIGKILL ===
+    sudo kill -9 $pid
+
+    # change the stale symlinks into hardlinks, to simulate an upgrade
+    # from an earlier version of pcp (before we converted to symlinks)
+    sudo rm -f $PCP_TMP_DIR/pmlogger/primary
+    sudo ln $PCP_TMP_DIR/pmlogger/$pid $PCP_TMP_DIR/pmlogger/primary
+    sudo rm -f $PCP_RUN_DIR/pmlogger.primary.socket
+    sudo ln $PCP_RUN_DIR/pmlogger.$pid.socket $PCP_RUN_DIR/pmlogger.primary.socket
+
+    echo === running pmlogger_check to restart primary logger ===
+    sudo $PCP_BINADM_DIR/pmlogger_check -C
+    sleep 2
+
+    newpid=$($PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep 'pmlogger.*-P' | \
+	grep -v grep | awk '{print $2}')
+
+    if [ -z "$newpid" ]; then
+    	echo FAIL pmlogger failed to start 
+	echo pid of killed primary logger is $pid
+	echo === ls -il $PCP_RUN_DIR ===
+	ls -il $PCP_RUN_DIR
+	echo === manually removing stale run files ===
+	sudo rm -f $PCP_RUN_DIR/*pmlogger*
+	status=1
+	exit
+    fi
+
+    # success
+    status=0
 fi
 
 exit
