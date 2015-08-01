@@ -161,6 +161,12 @@ Requires: python-pcp = %{version}-%{release}
 Obsoletes: pcp-gui-debuginfo
 Obsoletes: pcp-pmda-nvidia
 
+%if %{with_compat}
+Requires: pcp-compat
+%endif
+Requires: pcp-libs = %{version}-%{release}
+Obsoletes: pcp-gui-debuginfo
+
 %global tapsetdir      %{_datadir}/systemtap/tapset
 
 %global _confdir  %{_sysconfdir}/pcp
@@ -219,12 +225,6 @@ system-level performance monitoring and performance management.
 The PCP open source release provides a unifying abstraction for all of
 the interesting performance data in a system, and allows client
 applications to easily retrieve and process any subset of that data.
-
-%if %{with_compat}
-Requires: pcp-compat
-%endif
-Requires: pcp-libs = %{version}-%{release}
-Obsoletes: pcp-gui-debuginfo
 
 #
 # pcp-conf
@@ -1864,6 +1864,7 @@ chown -R pcp:pcp %{_logsdir}/pmmgr 2>/dev/null
 %endif
 
 %post collector
+%if 0%{?rhel}
 %if !%{disable_systemd}
     systemctl restart pmcd >/dev/null 2>&1
     systemctl restart pmlogger >/dev/null 2>&1
@@ -1874,6 +1875,7 @@ chown -R pcp:pcp %{_logsdir}/pmmgr 2>/dev/null
     /sbin/chkconfig --add pmlogger >/dev/null 2>&1
     /sbin/service pmcd condrestart
     /sbin/service pmlogger condrestart
+%endif
 %endif
 
 %post
