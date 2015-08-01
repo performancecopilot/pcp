@@ -15,6 +15,7 @@ echo "QA output created by $seq"
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
+( date; pminfo -f pmcd.client ) >$tmp.before
 pminfo -f pmcd.numclients | tee $here/$seq.full | sed -e '/^$/d' >$tmp.out
 N=`sed -n '/value/s/    value //p' $tmp.out`
 echo "N=$N" >>$here/$seq.full
@@ -38,6 +39,7 @@ do
 done
 
 pminfo -f pmcd.numclients | tee -a $here/$seq.full | sed -e '/^$/d' >$tmp.out
+( date; pminfo -f pmcd.client ) >$tmp.after
 
 if grep "value $N" $tmp.out >/dev/null
 then
@@ -46,7 +48,11 @@ else
     echo
     echo "Error: expected value $N"
     cat $tmp.out
-    pminfo -f pmcd.client
+    echo "--- before"
+    cat $tmp.before
+    echo
+    echo "--- after"
+    cat $tmp.after
 fi
 
 exit 0
