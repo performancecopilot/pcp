@@ -436,6 +436,7 @@ init_ports(void)
     char	path[MAXPATHLEN];
     char	pidfile[MAXPATHLEN];
     int		pidlen;
+    struct stat	sbuf;
     pid_t	mypid = getpid();
 
     /*
@@ -518,11 +519,30 @@ init_ports(void)
 	snprintf(linkfile, n, "%s%cprimary", path, sep);
 
 	/*
+	 * Remove legacy linkfile (i.e. if it exists and is NOT a symlink).
+	 * This can occur after an upgrade if pmlogger was SIGKILL'ed, but
+	 * normally an upgrade will restart pmlogger and atexit(cleanup) will
+	 * have been run, which will remove legacy hardlinks.
+	 */
+	if (stat(linkfile, &sbuf) == 0 && !S_ISLNK(sbuf.st_mode)) {
+	    if (unlink(linkfile) != 0) {
+		fprintf(stderr, "%s: warning: failed to remove '%s' hardlink to stale control file '%s': %s\n",
+			pmProgname, linkfile, pidfile, osstrerror());
+	    }
+#ifdef PCP_DEBUG
+	    else if (pmDebug & DBG_TRACE_CONTEXT) {
+		fprintf(stderr, "%s: info: removed '%s' old-style hardlink to stale control file '%s': %s\n",
+			pmProgname, linkfile, pidfile, osstrerror());
+	    }
+#endif
+	}
+
+	/*
 	 * Remove symlink if it is stale (i.e. exists but the process does not).
 	 */
 	if ((pidlen = readlink(linkfile, pidfile, sizeof(pidfile))) > 0) {
 	    /* control file name is the PID of the primary pmlogger process */
-	    pidfile[pidlen] = NULL;
+	    pidfile[pidlen] = '\0';
 	    pid_t pid = atoi(pidfile);
 	    if (!__pmProcessExists(pid)) {
 	    	if (unlink(linkfile) != 0) {
@@ -575,9 +595,26 @@ init_ports(void)
 	 */
 	linkSocketPath = __pmLogLocalSocketDefault(PM_LOG_PRIMARY_PID, path, sizeof(path));
 
+	/*
+	 * Remove legacy linkSocketPath hardlink (i.e. if it is a socket and is NOT a symlink).
+	 * This can occur after an upgrade, similarly to the control file link, see above.
+	 */
+	if (stat(linkSocketPath, &sbuf) == 0 && !S_ISLNK(sbuf.st_mode) && S_ISSOCK(sbuf.st_mode)) {
+	    if (unlink(linkSocketPath) != 0) {
+		fprintf(stderr, "%s: warning: failed to remove '%s' hardlink to stale socket '%s': %s\n",
+			pmProgname, linkSocketPath, pidfile, osstrerror());
+	    }
+#ifdef PCP_DEBUG
+	    else if (pmDebug & DBG_TRACE_CONTEXT) {
+		fprintf(stderr, "%s: info: removed '%s' old-style hardlink to stale socket '%s': %s\n",
+			pmProgname, linkSocketPath, pidfile, osstrerror());
+	    }
+#endif
+	}
+
 	/* Remove the symlink if it points to a stale primary pmlogger socket */
 	if ((pidlen = readlink(linkSocketPath, pidfile, sizeof(pidfile))) > 0) {
-	    pidfile[pidlen] = NULL;
+	    pidfile[pidlen] = '\0';
 	    for (i=0; i < pidlen; i++) {
 		/* first digit is the start of the PID */
 		if (isdigit(pidfile[i])) {
