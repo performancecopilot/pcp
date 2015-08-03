@@ -490,10 +490,7 @@ class _Options(object):
         self.verbosity = "brief"
         self.input_file = ""
         self.output_file = ""
-        self.archive = []
-        self.host = "local:"
         self.create_archive = False
-        self.replay_archive = False
         self.interval_arg = 1
         self.n_samples = 0
         self.duration_arg = 0
@@ -507,9 +504,9 @@ class _Options(object):
         opts.pmSetShortOptions("vp:a:c:f:R:i:s:h:?")
         opts.pmSetLongOptionText("")
         opts.pmSetLongOptionText("Interactive: pcp collectl [-h HOST] [options]")
+        opts.pmSetLongOptionText("Read PCP archive: pcp collectl -a ARCHIVE [options]")
+        opts.pmSetLongOptionText("Read PCP archive folio: pcp collectl -p FOLIO [options]")
         opts.pmSetLongOptionText("Write PCP archive folio: pcp collectl -f FOLIO [options]")
-        opts.pmSetLongOptionText("Read PCP archive folio: pcp collectl -p FOLIO [options']")
-        opts.pmSetLongOptionText("Read PCP archive: pcp collectl -a ARCHIVE [options']")
         opts.pmSetLongOptionHeader("Options")
         opts.pmSetLongOptionArchive()
         opts.pmSetLongOptionHost()
@@ -527,8 +524,8 @@ class _Options(object):
 
     def override(self, opt):
         """ Override standard PCP options that have different semantics """
-	""" -p FOLIO (not -p port) """
-	""" -s subsystem (not -s samplecount) """
+        """ -p FOLIO (not -p port) """
+        """ -s subsystem (not -s samplecount) """
         # pylint: disable=R0201
         if opt == 'p' or opt == 's':
             return 1
@@ -560,11 +557,6 @@ class _Options(object):
             self.duration_arg = optarg
         elif opt == 'p':
             self.opts.pmSetOptionArchiveFolio(optarg)
-            self.input_file = optarg
-            self.replay_archive = True
-        elif opt == 'a':
-            self.input_file = optarg
-            self.replay_archive = True
         elif opt == 'f':
             self.output_file = optarg
             self.create_archive = True
@@ -577,8 +569,6 @@ class _Options(object):
         elif opt == 'c':
             self.opts.pmSetOptionSamples(optarg)
             self.n_samples = int(self.opts.pmGetOptionSamples())
-        elif opt == 'h':
-            self.host = optarg
 
 # main -----------------------------------------------------------------
 
@@ -590,6 +580,7 @@ class _Options(object):
 
 if __name__ == '__main__':
     subsys = list()
+    replay_archive = False
     output_file = ""
     input_file = ""
     duration = 0.0
@@ -628,6 +619,8 @@ if __name__ == '__main__':
 
     pm = pmapi.pmContext.fromOptions(opts.opts, sys.argv)
     if pm.type == c_api.PM_CONTEXT_ARCHIVE:
+        replay_archive = True
+        input_file = opts.opts.pmGetOptionArchives()[0]
         pm.pmSetMode(c_api.PM_MODE_FORW, pmapi.timeval(0, 0), 0)
 
     # Find server-side pmcd host-name
@@ -654,7 +647,7 @@ if __name__ == '__main__':
         ss.setup_metrics(pm)
         ss.get_stats(pm)
     except pmapi.pmErr as e:
-        if opts.replay_archive:
+        if replay_archive:
             import textwrap
             print("One of the following metrics is required " + \
                   "but absent in " + input_file + "\n" + \
