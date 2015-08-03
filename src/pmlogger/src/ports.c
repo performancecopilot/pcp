@@ -188,8 +188,10 @@ GetPorts(char *file)
     int			socketsCreated = 0;
     int			ctlix;
     __pmSockAddr	*myAddr;
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     char		globalPath[MAXPATHLEN];
     char		localPath[MAXPATHLEN];
+#endif
     static int		port_base = -1;
 
     /* Try to create sockets for control connections. */
@@ -518,6 +520,7 @@ init_ports(void)
 	    __pmNoMem("primary logger link file name", n, PM_FATAL_ERR);
 	snprintf(linkfile, n, "%s%cprimary", path, sep);
 
+#ifndef IS_MINGW
 	/*
 	 * Remove legacy linkfile (i.e. if it exists and is NOT a symlink).
 	 * This can occur after an upgrade if pmlogger was SIGKILL'ed, but
@@ -536,6 +539,7 @@ init_ports(void)
 	    }
 #endif
 	}
+#endif
 
 	/*
 	 * Remove symlink if it is stale (i.e. exists but the process does not).
@@ -596,10 +600,11 @@ init_ports(void)
 	linkSocketPath = __pmLogLocalSocketDefault(PM_LOG_PRIMARY_PID, path, sizeof(path));
 
 	/*
-	 * Remove legacy linkSocketPath hardlink (i.e. if it is a socket and is NOT a symlink).
-	 * This can occur after an upgrade, similarly to the control file link, see above.
+	 * Remove legacy linkSocketPath hardlink (i.e. if it is a socket).
+	 * This can occur after an upgrade, similarly to the control file link,
+	 * see above.
 	 */
-	if (stat(linkSocketPath, &sbuf) == 0 && !S_ISLNK(sbuf.st_mode) && S_ISSOCK(sbuf.st_mode)) {
+	if (stat(linkSocketPath, &sbuf) == 0 && S_ISSOCK(sbuf.st_mode)) {
 	    if (unlink(linkSocketPath) != 0) {
 		fprintf(stderr, "%s: warning: failed to remove '%s' hardlink to stale socket '%s': %s\n",
 			pmProgname, linkSocketPath, pidfile, osstrerror());
