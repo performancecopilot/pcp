@@ -506,28 +506,31 @@ class _Options(object):
         opts.pmSetOverrideCallback(self.override)
         opts.pmSetShortOptions("vp:a:c:f:R:i:s:h:?")
         opts.pmSetLongOptionText("")
-        opts.pmSetLongOptionText("Interactive: pcp collectl [-v] [-s subsys] [-c N] [-i N] [-R N]")
-        opts.pmSetLongOptionText("Write raw logfile: pcp collectl -f rawfile [-c N] [-i N] [-R N]")
-        opts.pmSetLongOptionText("Read raw logfile: pcp collectl [-p|-a] rawfile")
+        opts.pmSetLongOptionText("Interactive: pcp collectl [-h HOST] [options]")
+        opts.pmSetLongOptionText("Write PCP archive folio: pcp collectl -f FOLIO [options]")
+        opts.pmSetLongOptionText("Read PCP archive folio: pcp collectl -p FOLIO [options']")
+        opts.pmSetLongOptionText("Read PCP archive: pcp collectl -a ARCHIVE [options']")
         opts.pmSetLongOptionHeader("Options")
         opts.pmSetLongOptionArchive()
         opts.pmSetLongOptionHost()
         opts.pmSetLongOptionVersion()
-        opts.pmSetLongOption("verbose", 0, 'v', '', "Produce verbose output")
-        opts.pmSetLongOption("playback", 1, 'p', 'FOLIO', "Read sample data from PCP archive folio")
-        opts.pmSetLongOption("count", 1, 'c', 'COUNT', "Number of samples")
-        opts.pmSetLongOption("filename", 1, 'f', 'FOLIO', "Name of output PCP archive folio")
-        opts.pmSetLongOption("runtime", 1, 'R', 'N', "How long to take samples")
-        opts.pmSetLongOption("interval", 1, 'i', 'N', "The sample time interval")
-        opts.pmSetLongOption("subsys", 1, 's', 'SUBSYS', "The subsystem to sample")
+        opts.pmSetLongOption("verbose", 0, 'v', '', "produce verbose output")
+        opts.pmSetLongOption("playback", 1, 'p', 'FOLIO', "metrics source is a PCP archive folio")
+        opts.pmSetLongOption("count", 1, 'c', 'COUNT', "number of samples")
+        opts.pmSetLongOption("filename", 1, 'f', 'FOLIO', "name of output PCP archive folio")
+        opts.pmSetLongOption("runtime", 1, 'R', 'N', "how long to take report")
+        opts.pmSetLongOption("interval", 1, 'i', 'N', "report time interval")
+        opts.pmSetLongOption("subsys", 1, 's', 'SUBSYS', "subsystem to report")
         opts.pmSetLongOptionHelp()
         return opts
 
 
     def override(self, opt):
-        """ Override a few standard PCP options to match free(1) """
+        """ Override standard PCP options that have different semantics """
+	""" -p FOLIO (not -p port) """
+	""" -s subsystem (not -s samplecount) """
         # pylint: disable=R0201
-        if opt == 's' or opt == 'i' or opt == 'a' or opt == 'h' or opt == "p":
+        if opt == 'p' or opt == 's':
             return 1
         return 0
 
@@ -560,7 +563,6 @@ class _Options(object):
             self.input_file = optarg
             self.replay_archive = True
         elif opt == 'a':
-            self.opts.pmSetOptionArchiveList(optarg)
             self.input_file = optarg
             self.replay_archive = True
         elif opt == 'f':
