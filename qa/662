@@ -16,7 +16,12 @@ pyscript=src/test_webapi.py
 $python --version >/dev/null 2>&1 || _notrun "python missing"
 
 version=`$python --version 2>&1 | sed -e 's/Python //'`
-[ "$version" = "2.7.3" ] && _notrun "requests.json() broken in Python 2.7.3"
+case "$version"
+in
+    2.7.3|2.7.4)
+	_notrun "requests.json() broken in Python $version"
+	;;
+esac
 
 $sudo rm -f $tmp.* $seq.full
 
