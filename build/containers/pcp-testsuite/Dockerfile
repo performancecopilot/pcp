@@ -41,7 +41,7 @@ ENV IMAGE pcp-testsuite
 # The RUN label is used by 'atomic' command, e.g. atomic run pcp-testsuite
 # Other platforms without the 'atomic' command can use docker inspect to
 # extract it and use it in a script.
-LABEL RUN docker run -it --privileged --net=host --pid=host --ipc=host -v /sys:/sys:ro -v /proc:/proc:ro -v /etc/localtime:/etc/localtime:ro -v /var/lib/docker:/var/lib/docker:ro -v /run:/run -v /var/log:/var/log --name=pcp-testsuite pcp-testsuite
+LABEL RUN docker run -it --privileged --net=host --pid=host --ipc=host -v /sys:/sys:ro -v /etc/localtime:/etc/localtime:ro -v /var/lib/docker:/var/lib/docker:ro -v /run:/run -v /var/log:/var/log --name=pcp-testsuite pcp-testsuite
 
 #
 # The command to run - in this case the pmcd service script. When this command

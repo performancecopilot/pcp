@@ -57,7 +57,7 @@ ENV IMAGE pcp-base
 # The RUN label is used by 'atomic' command, e.g. atomic run pcp
 # Other platforms without the 'atomic' command can use docker inspect to
 # extract it and use it in a script.
-LABEL RUN docker run -it --privileged --net=host --pid=host --ipc=host -v /sys:/sys:ro -v /proc:/proc:ro -v /etc/localtime:/etc/localtime:ro -v /var/lib/docker:/var/lib/docker:ro -v /run:/run -v /var/log:/var/log --name=pcp-base pcp-base
+LABEL RUN docker run -it --privileged --net=host --pid=host --ipc=host -v /sys:/sys:ro -v /etc/localtime:/etc/localtime:ro -v /var/lib/docker:/var/lib/docker:ro -v /run:/run -v /var/log:/var/log --name=pcp-base pcp-base
 
 #
 # The command to run (bash). When this command exits, then the container exits.
