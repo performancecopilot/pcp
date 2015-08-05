@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.10.6
+Version: 3.10.7
 %global buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -186,6 +186,7 @@ Obsoletes: pcp-gui-debuginfo
 %global _initddir %{_datadir}/pcp/lib
 %else
 %global _initddir %{_sysconfdir}/rc.d/init.d
+%global _with_initd --with-rcdir=%{_initddir}
 %endif
 
 # we never want Infiniband on s390 platforms
@@ -2331,7 +2332,10 @@ cd
 %endif
 
 %changelog
-* Tue Aug 04 2015 Mark Goodwin <mgoodwin@redhat.com> - 3.10.6-1
+* Tue Sep 16 2015 Mark Goodwin <mgoodwin@redhat.com> - 3.10.7-1
+- Work in progress, see [ http://pcp.io/roadmap ]
+
+* Tue Aug 04 2015 Nathan Scott <nathans@redhat.com> - 3.10.6-1
 - Fix pcp2graphite write method invocation failure (BZ 1243123)
 - Reduce diagnostics in pmdaproc unknown state case (BZ 1224431)
 - Derived metrics via multiple files, directory expansion (BZ 1235556)
