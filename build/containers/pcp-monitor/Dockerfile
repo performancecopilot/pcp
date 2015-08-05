@@ -28,7 +28,7 @@ ENV IMAGE pcp-monitor
 #
 # The RUN label used by the atomic command, e.g. atomic run pcp-monitor
 # The pcp-monitor is an interactive container - start command is a shell.
-LABEL RUN docker run -it --privileged --net=host --pid=host --ipc=host -v /sys:/sys:ro -v /proc:/proc:ro -v /etc/localtime:/etc/localtime:ro -v /var/lib/docker:/var/lib/docker:ro -v /run:/run -v /var/log:/var/log --name=pcp-monitor pcp-monitor
+LABEL RUN docker run -it --privileged --net=host --pid=host --ipc=host -v /sys:/sys:ro -v /etc/localtime:/etc/localtime:ro -v /var/lib/docker:/var/lib/docker:ro -v /run:/run -v /var/log:/var/log --name=pcp-monitor pcp-monitor
 
 # The command to run. The LABEL defined above specifies -i -t (interactive,
 # with terminal). An optional argument to the docker run command may be used
