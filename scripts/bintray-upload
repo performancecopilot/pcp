@@ -93,17 +93,17 @@ verify_asset pcp-${version}.src.tar.gz && \
 pkg_upload source pcp-${version}.src.tar.gz ${version}
 
 # Mac OS X
-cd ${topdir}/build/mac 2>/dev/null && \
+cd ${topdir}/pcp-${version}/build/mac 2>/dev/null && \
 verify_asset pcp-${buildversion}.dmg && \
 pkg_upload macosx pcp-${buildversion}.dmg ${version}
 
 # Windows
-cd ${topdir}/build/win 2>/dev/null && \
+cd ${topdir}/pcp-${version}/build/win 2>/dev/null && \
 verify_asset pcp-${buildversion}.msi && \
 pkg_upload windows pcp-${buildversion}.msi ${version}
 
 # Solaris
-cd ${topdir}/build/sun 2>/dev/null && \
+cd ${topdir}/pcp-${version}/build/sun 2>/dev/null && \
 verify_asset pcp-${version} && \
 pkg_upload solaris pcp-${version} ${version}
 
