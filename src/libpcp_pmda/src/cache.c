@@ -773,8 +773,7 @@ load_cache(hdr_t *h)
 		s = 0;
 	    break;
     }
-    if (s == 0 || h->ins_mode < 0 || h->ins_mode > 1 || h->maxinst < 0
-	|| h->maxinst > DEFAULT_MAXINST) {
+    if (s == 0 || h->ins_mode < 0 || h->ins_mode > 1 || h->maxinst < 0) {
 	__pmNotifyErr(LOG_ERR, 
 	     "pmdaCacheOp: %s: illegal cache header record: %s",
 	     filename, buf);
