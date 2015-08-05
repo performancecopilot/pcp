@@ -361,15 +361,11 @@ do_macro(void)
     /* get to the start of the first possible macro name */
     if (rflag) {
 	while (*ip && *ip != ctl) {
-	    if (sub)
-		*op++ = *ip;
 	    ip++;
 	}
     }
     else {
 	while (*ip && !isalpha((int)*ip) && *ip != '_') {
-	    if (sub)
-		*op++ = *ip;
 	    ip++;
 	}
     }
