@@ -15,6 +15,11 @@ echo "QA output created by $seq"
 
 test -x $PCP_BINADM_DIR/pcp-shping || _notrun "No pcp-shping(1) installed"
 
+# bizarre but true ...
+#
+[ "`echo foobar | awk '{printf "%3.3s\n",$1}'`" = foo ] || _notrun 'your version of awk is broken'
+
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15

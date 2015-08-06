@@ -181,7 +181,9 @@ echo
 echo "SYSLOG ..."
 if $have_journalctl
 then
-    $sudo journalctl -b -l | tail -100 >$tmp.syslog
+    # be careful ... --boot not supported in all versions, -l not
+    # supported in all versions
+    $sudo journalctl -b --full | tail -100 >$tmp.syslog
 else
     $sudo tail -100 $SYSLOG >$tmp.syslog
 fi
@@ -198,7 +200,7 @@ p
 echo >>$seq.full
 if $have_journalctl
 then
-    echo "=== tail journalctl -b -l ===" >>$seq.full
+    echo "=== tail journalctl -b --full ===" >>$seq.full
 else
     echo "=== tail SYSLOG ($SYSLOG) ===" >>$seq.full
 fi

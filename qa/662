@@ -10,6 +10,8 @@ echo "QA output created by $seq"
 . ./common.webapi
 . ./common.python
 
+[ -f ${PCP_BINADM_DIR}/pmwebd ] || _notrun "pmwebd package not installed"
+
 pyscript=src/test_webapi.py
 $python --version >/dev/null 2>&1 || _notrun "python missing"
 
