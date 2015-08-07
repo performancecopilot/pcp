@@ -630,6 +630,7 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 	}
     }
 
+#ifndef IS_MINGW
     /* Open a local unix domain socket, if specified, and supported. */
     if (localSocketPath != NULL) {
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
@@ -644,6 +645,7 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 		      pmProgname);
 #endif
     }
+#endif
 
     if (success)
 	return maximum;

@@ -1995,8 +1995,8 @@ GetAgentDso(AgentInfo *aPtr)
 #if defined(HAVE_DLOPEN)
     dlerror();
     dso->initFn = (void (*)(pmdaInterface*))dlsym(dso->dlHandle, dso->entryPoint);
-    dlerrstr = dlerror();
-    if (dlerrstr != NULL) {
+    if (dso->initFn == NULL) {
+        dlerrstr = dlerror();
 	fprintf(stderr, "Couldn't find init function `%s' in %s DSO: %s\n",
 		     dso->entryPoint, aPtr->pmDomainLabel, dlerrstr);
 	dlclose(dso->dlHandle);
