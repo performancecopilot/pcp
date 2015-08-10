@@ -87,13 +87,13 @@ Source1: pcp-webjs.src.tar.gz
 
 # systemtap static probing, missing before el6 and on some architectures
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
+%global disable_sdt 0
+%else
 %ifnarch ppc ppc64
 %global disable_sdt 0
 %else
 %global disable_sdt 1
 %endif
-%else
-%global disable_sdt 1
 %endif
 
 # rpm producing "noarch" packages

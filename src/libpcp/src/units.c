@@ -1460,8 +1460,8 @@ pmParseUnitsStr(const char *str, pmUnits * out, double *multiplier, char **errMs
 	    [PM_TIME_HOUR] = 3600
 	};
 	/* guaranteed by __pmParseUnitsStrPart; ensure in-range array access */
-	assert(dividend.scaleTime >= PM_TIME_NSEC && dividend.scaleTime <= PM_TIME_HOUR);
-	assert(divisor.scaleTime >= PM_TIME_NSEC && divisor.scaleTime <= PM_TIME_HOUR);
+	assert(dividend.scaleTime <= PM_TIME_HOUR);
+	assert(divisor.scaleTime <= PM_TIME_HOUR);
 	*multiplier *= pow(time_scales[dividend.scaleTime], -(double) dividend.dimTime);
 	*multiplier *= pow(time_scales[divisor.scaleTime], (double) divisor.dimTime);
 	if (out->dimTime == 0)	/* became dimensionless? */
