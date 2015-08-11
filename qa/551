@@ -24,7 +24,7 @@ cleanup()
 {
     cd $here
     rm -rf $tmp.*
-    [ $ppid -eq 0 ] || kill $ppid
+    [ $ppid -eq 0 ] || (( kill $ppid >/dev/null 2>&1 ) &)
     ppid=0
 }
 
@@ -58,7 +58,7 @@ do
         n=`expr $n + 1`
         sleep 1
     done
-    kill $ppid
+    ( kill $ppid >/dev/null 2>&1 ) &
     wait $ppid
     ppid=0
     echo "$hang_test complete" | tee -a $here/$seq.full
