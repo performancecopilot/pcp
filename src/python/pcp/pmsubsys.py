@@ -173,7 +173,7 @@ class Subsystem(object):
 
         try:
             metric_result = pcp.pmFetch(self.metric_pmids)
-            self._timestamp = metric_result.contents.timestamp
+            self._timestamp = copy.deepcopy(metric_result.contents.timestamp)
         except pmErr as e:
             self._timestamp = timeval(0, 0)
             raise e
@@ -220,7 +220,7 @@ class Subsystem(object):
                         self.metric_values[j] = 0
                 elif metric_result.contents.get_numval(j) > 1:
                     self.metric_values[j] = copy.copy(value)
-
+        pcp.pmFreeResult(metric_result)
 
 # Processor  --------------------------------------------------------------
 
@@ -270,9 +270,7 @@ class Subsystem(object):
                          'disk.dev.write','disk.dev.write_bytes',
                          'disk.dev.write_merge',
                          'disk.partitions.blkread', 'disk.partitions.blkwrite',
-                         'disk.partitions.read', 'disk.partitions.write',
-                         'hinv.map.lvname'
-                         ]
+                         'disk.partitions.read', 'disk.partitions.write' ]
 
 # Memory  -----------------------------------------------------------------
 

@@ -12,12 +12,12 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard filters
+# get standard environment, filters and checks
 . ./common.product
 . ./common.filter
+. ./common.check
 
 rm -f $seq.out $seq.full
-. ./localconfig
 if [ ! -f $seq.out.$PCP_PLATFORM ]
 then
     echo "Error: no validated output for this platform ($seq.out.$PCP_PLATFORM)"

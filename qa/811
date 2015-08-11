@@ -1,0 +1,61 @@
+#!/bin/sh
+# PCP QA Test No. 811
+# pmcpp integration with pmlogger
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.common
+%define cpu_interval "250 milliseconds"
+%define cpu_prefix kernel.all.cpu.
+
+%ifdef _cpu
+log mandatory on %cpu_interval {
+    %{cpu_prefix}user
+    %{cpu_prefix}sys
+}
+%else
+log mandatory on once { hinv.ncpu }
+%endif
+End-of-File
+
+# real QA test starts here
+echo "=== _cpu defined, config from -c ==="
+( echo "%define _cpu"; cat $tmp.common ) >$tmp.config
+pmlogger -c $tmp.config -l $tmp.log $tmp -s 1
+_filter_pmlogger_log <$tmp.log
+pminfo -a $tmp | LC_COLLATE=POSIX sort
+rm -f $tmp.0 $tmp.meta $tmp.index
+
+echo
+echo "=== _cpu defined, config from stdin ==="
+( echo "%define _cpu"; cat $tmp.common ) \
+| pmlogger -l $tmp.log $tmp -s 1
+_filter_pmlogger_log <$tmp.log
+pminfo -a $tmp | LC_COLLATE=POSIX sort
+rm -f $tmp.0 $tmp.meta $tmp.index
+
+echo
+echo "=== _cpu not defined, config from stdin ==="
+cat $tmp.common \
+| pmlogger -l $tmp.log $tmp -s 1
+_filter_pmlogger_log <$tmp.log
+pminfo -a $tmp | LC_COLLATE=POSIX sort
+rm -f $tmp.0 $tmp.meta $tmp.index
+
+# success, all done
+status=0
+
+exit

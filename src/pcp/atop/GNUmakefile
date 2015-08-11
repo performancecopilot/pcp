@@ -76,16 +76,16 @@ pmgenmap.sh:
 		$(TOPDIR)/src/pmgenmap/pmgenmap.sh >pmgenmap.sh
 
 procmetrics.h:	pmgenmap.sh procmetrics.map
-	$(RUN_IN_BUILD_ENV) sh ./pmgenmap.sh procmetrics.map > procmetrics.h
+	$(PMGENMAP) procmetrics.map > procmetrics.h
 
 systmetrics.h:	pmgenmap.sh systmetrics.map
-	$(RUN_IN_BUILD_ENV) sh ./pmgenmap.sh systmetrics.map > systmetrics.h
+	$(PMGENMAP) systmetrics.map > systmetrics.h
 
 ifpropmetrics.h:	pmgenmap.sh ifpropmetrics.map
-	$(RUN_IN_BUILD_ENV) sh ./pmgenmap.sh ifpropmetrics.map > ifpropmetrics.h
+	$(PMGENMAP) ifpropmetrics.map > ifpropmetrics.h
 
 hostmetrics.h:	pmgenmap.sh hostmetrics.map
-	$(RUN_IN_BUILD_ENV) sh ./pmgenmap.sh hostmetrics.map > hostmetrics.h
+	$(PMGENMAP) hostmetrics.map > hostmetrics.h
 
 photoproc.o:	procmetrics.h
 photosyst.o:	systmetrics.h

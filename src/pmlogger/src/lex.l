@@ -124,6 +124,8 @@ unix:[A-Za-z0-9_.-/]*		{ yylval.str = yytext; return URL; }
 local:[A-Za-z0-9_.-/]*\*	{ yylval.str = yytext; return URL; }
 local:[A-Za-z0-9_.-/]*		{ yylval.str = yytext; return URL; }
 
+^\#\ [0-9][0-9]*\ \"[^"]*\"	{ yylinemarker(yytext); }
+
 \#.*		{ }
 
 [ \t\r]+	{ }

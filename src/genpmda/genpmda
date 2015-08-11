@@ -925,7 +925,7 @@ pcp:
 	ln -s \$(TOPDIR)/src/include pcp
 
 help.dir help.pag : $oflag/help
-	\$(RUN_IN_BUILD_ENV) \$(TOPDIR)/src/newhelp/newhelp -n $oflag/root -v 2 -o help < $oflag/help
+	\$(NEWHELP) -n $oflag/root -v 2 -o help < $oflag/help
 
 \$(GCFILES) \$(GHFILES) \$(GSRCFILES) : $config
 	\$(GENPMDA) -v -i $IAM -c $config

@@ -44,10 +44,9 @@ BEGIN		{ cpucount=0; devcount=0 }
 		  if (tpsmode == 1 && devcount > 1) {
 		    sample="'$f.'"devcount-1
 		    instance=$1
-		    s=0.5	# size scale - sectors vs kilobytes
 		    printf "dev.total::%s %f\n", instance, $2		>> sample
-		    printf "dev.read_bytes::%s %f\n", instance, $3*s	>> sample
-		    printf "dev.write_bytes::%s %f\n", instance, $4*s	>> sample
+		    printf "dev.read_bytes::%s %f\n", instance, $3	>> sample
+		    printf "dev.write_bytes::%s %f\n", instance, $4	>> sample
 		  }
 		  if (devices == 1 && devcount > 1) {
 		    sample="'$f.'"devcount-1
@@ -114,7 +113,7 @@ compare_samples()
 
 	echo Verifying sample $sample
 	$PCP_AWK_PROG <$tmp.both '
-		{ if (($2-$4) > 0.000001 || ($2-$4) < -0.000001)
+		{ if (($2-$4) > 0.000002 || ($2-$4) < -0.000002)
 		    print "[",NR,"] mismatch:",$1,$2,$4
 		}'
     done

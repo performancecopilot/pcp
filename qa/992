@@ -1,0 +1,96 @@
+#!/bin/sh
+# PCP QA Test No. 992
+# test pmlogger with pmcpp integration
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# handle these ...
+# /tmp/853-3145.*
+# Dump optfetch structures from 0x7f56fa4bec30 next=0x7f56fa4bf3f0
+# ...
+# <empty line>
+# 60.0.20 (kernel.all.cpu.user):
+# 60.0.33 (hinv.ndisk):
+# 60.0.25 (disk.all.write):
+#
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e "s@$PCP_BINADM_DIR@PCP_BINADM_DIR@g" \
+	-e "s@$PCP_VAR_DIR@PCP_VAR_DIR@g" \
+	-e '/(kernel\./s/[0-9.][0-9]*/PMID/' \
+	-e '/(hinv\./s/[0-9.][0-9]*/PMID/' \
+	-e '/(disk\./s/[0-9.][0-9]*/PMID/' \
+    | $PCP_AWK_PROG '
+/^Dump optfetch structures/	{ print "Dump optfetch structures ..."
+				  skip = 1
+				  next
+				}
+skip == 1 && NF == 0		{ skip = 0 }
+skip == 0			{ print }'
+}
+
+cat <<End-of-File >$tmp.config
+# based on pmlogger(1) man page
+log mandatory on once { hinv.ndisk }
+log mandatory on every 10 minutes {
+    kernel.all.cpu.user		# singular
+    sample.lights		# indom
+    sample.long			# non-terminal
+    sample.bin [ "bin-100" "bin-300" "bin-500" "bin-700" ]	# instances
+}
+
+log mandatory on every 15 secs {
+    network.interface.out.packets [ "no-such-interface" ]	# bad instance
+}
+log mandatory on every 15 secs {
+    foo.bar				# bad metric
+}
+log mandatory on every 15 secs {
+    sample.string.write_me [ "?" ]	# no instance for singular
+}
+
+%include "$tmp.macros.default"
+
+%ifdef disk_all
+log mandatory on %disk_all_freq {
+    %disk_all.write
+}
+log mandatory on %disk_all_freq {
+    %disk_all.read [ "nodisk" ]
+}
+%endif
+End-of-File
+
+# real QA test starts here
+cat <<End-of-File >$tmp.macros.default
+%undef disk_all
+End-of-File
+pmlogger -Dlog -C -c $tmp.config $tmp 2>&1 | _filter
+
+echo
+echo "=== now with disk_all defined ==="
+cat <<End-of-File >$tmp.macros.default
+%define disk_all disk.all
+%define disk_all_freq 20sec
+End-of-File
+pmlogger -Dlog -C -c $tmp.config $tmp 2>&1 | _filter
+
+# success, all done
+status=0
+
+exit

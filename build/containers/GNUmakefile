@@ -20,12 +20,8 @@ include $(BUILDDEFS)
 
 SUBDIRS = pcp-base pcp-collector pcp-monitor pcp-pmlogger pcp-testsuite
 
-default install default_pcp install_pcp : $(BUILDDEFS) RPMS/repodata $(SUBDIRS)
+default default_pcp install install_pcp pack_pcp: $(BUILDDEFS) $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
-
-RPMS/repodata:
-	# copy locally built RPMS into here and run makerepo RPMS
-	if test ! -d RPMS/repodata; then echo need RPMS/repodata; exit 1; fi
 
 $(BUILDDEFS) : $(BUILDDEFS).in
 	@echo; echo Please run configure in $(TOPDIR) with the appropriate options to generate $@.

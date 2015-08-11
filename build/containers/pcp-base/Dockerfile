@@ -15,37 +15,37 @@
 # for all other PCP containers, i.e. layered.
 #
 FROM fedora:latest
-MAINTAINER PCP developers <pcp@pcp.io>
+MAINTAINER PCP Development Team <pcp@oss.sgi.com>
 
-# update the Fedora base image and clean the yum cache
+# update the Fedora base image and clean the dnf cache
 # (normally disabled during development)
-RUN yum -y update && yum clean all
+RUN dnf -y install createrepo.noarch && dnf -y update && dnf clean all
 
 # Set up a repo for the packages to be installed. This is only for use
 # during development. Production builds would use the Fedora packages.
-# The build expects build/containers/RPMS to have the PCP RPMS to be
-# installed in the container (and createrepo build/containers/RPMS has
-# been run to set up the yum repo).
-RUN mkdir -p /tmp/RPMS/repodata; \
-echo -e '[pcp-testing]\nname=PCP Test Yum Repository\n\
+# The build expects $(TOPDIR)/build/rpm to have the PCP RPMS to be
+# installed in the container, i.e. from the current Makepkgs build.
+RUN mkdir -p /tmp/RPMS; \
+echo -e '[pcp-devel]\nname=PCP Development Yum Repository\n\
 baseurl=file:///tmp/RPMS\ngpgcheck = 0\nenabled = 0'\
->/etc/yum.repos.d/pcp-testing.repo
+>/etc/yum.repos.d/pcp-devel.repo
 COPY RPMS/*.rpm /tmp/RPMS/
-COPY RPMS/repodata/* /tmp/RPMS/repodata/
+RUN createrepo /tmp/RPMS
 
 #
 # install minimal pcp (i.e. pcp-conf) and it's dependencies, clean the cache.
 # This is intended as the base image for all other PCP containers.
-RUN yum --enablerepo=pcp-testing -y install pcp-conf && yum clean all
+RUN dnf --enablerepo=pcp-devel -y install pcp-conf && dnf clean all
 
 #
 # Run in the container as root - avoids PCP_USER mismatches
 RUN sed -i -e 's/PCP_USER=.*$/PCP_USER=root/' -e 's/PCP_GROUP=.*$/PCP_GROUP=root/' /etc/pcp.conf
 
 #
-# Since this can be invoked an interactive container, set the bash prompt.
+# Since this can be invoked as an interactive container, set the bash prompt.
 # All containers layered on pcp-base inherit this, with their own name.
 RUN echo export PS1='"[$PCP_CONTAINER_IMAGE] "' >> /root/.bash_profile
+RUN echo PATH=/usr/bin:$PATH >> /root/.bash_profile
 
 #
 # denote this as a container environment, for rc scripts

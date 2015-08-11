@@ -15,17 +15,64 @@
 .\"
 .TH PMDAJSON 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmdajson\f1 \- Gluster Filesystem PMDA
+\f3pmdajson\f1 \- JSON PMDA
 .SH DESCRIPTION
-\f3pmdajson\f1 is a Performance Metrics Domain Agent (PMDA) which exports 
+\fBpmdajson\fR is a Performance Metrics Domain Agent (PMDA) which exports 
 metrics from arbitrary sources generating Javascript Object Notation (JSON)
 syntax, describing metric metadata and values.
 .PP
 Further details on the JSON format can be found at http://www.json.org
-.SH METRICS SCHEMA
-TODO.
+.SH JSON DATA SOURCES
+\fBpmdajson\fR searches the directories listed in the "directory_list"
+and "trusted_directory_list" config file options, looking for files
+called "metadata.json". These JSON metadata files describe the names,
+types, etc. of their associated JSON data. For example, let's assume
+the following simple JSON data file:
+.PP
+.nf
+.fam C
+  {
+    "string_value": "testing, 1, 2, 3",
+    "read_count": 0
+  }
+.fam T
+.fi
+.PP
+The associated metadata file would look like the following:
+.PP
+.nf
+.fam C
+  {
+    "metrics": [
+      {
+        "name": "string_value",
+        "pointer": "/string_value",
+        "type": "string",
+      },
+      {
+        "name": "read_count",
+        "pointer": "/read_count",
+        "type": "integer",
+        "description": "Times values read"
+      }
+    ]
+  }
+.fam T
+.fi
+.PP
+For more details on the JSON metadata format, see the README file
+included with \fBpmdajson\fR.
 .SH SECURITY MODEL
-TODO.
+JSON sources that come from "directory_list" config file option
+aren't "trusted", and any command that needs to be run to get JSON
+data is run as user "nobody".
+.PP
+JSON sources that come from "trusted_directory_list" config file
+option are trusted, and any command that needs to be run to get
+JSON data is run as user "root".
+.PP
+For more details on security, see the README file
+included with \fBpmdajson\fR.
 .SH INSTALLATION
 Install the json PMDA by using the Install script as root:
 .PP
@@ -47,6 +94,8 @@ agent is installed or removed.
 installation script for the \fBpmdajson\fR agent 
 .IP "\fB$PCP_PMDAS_DIR/json/Remove\fR" 4 
 undo installation script for the \fBpmdajson\fR agent 
+.IP "\fB$PCP_PMDAS_DIR/json/config.json\fR" 4
+configuration file for the \fBpmdajson\fR agent
 .IP "\fB$PCP_LOG_DIR/pmcd/json.log\fR" 4 
 default log file for error messages from \fBpmdajson\fR 
 .SH PCP ENVIRONMENT

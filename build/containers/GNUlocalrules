@@ -13,9 +13,14 @@
 #
 #
 # Local rule to build a container tarball.tgz from a Dockerfile.
-# Note docker commands have to run as root so this will prompt
-# for a password unless you have set up sudo with "NOPASSWD: all".
+#
+# To avoid having to run the docker commands as root, you can run the docker
+# daemon with -G groupname  where groupname is a group you're in. Edit
+# /etc/sysconfig/docker (or equiv for your distro) and set the OPTIONS variable
+# e.g. OPTIONS="-G wheel", then restart the docker service. This allows users
+# in group e.g. 'wheel' access to the local docker unix domain socket interface.
 
-$(CONTAINER).tgz: Dockerfile
-	sudo docker build --no-cache -t $(CONTAINER) .
-	sudo docker save $(CONTAINER) | gzip > $(CONTAINER).tgz 
+$(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz: Dockerfile
+	docker build --no-cache -t $(CONTAINER):latest .
+	docker save $(CONTAINER) | gzip > $(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz 
+	@echo Wrote: $(PWD)/$(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz

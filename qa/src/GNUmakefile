@@ -18,7 +18,6 @@ LLDFLAGS = -L$(TOPDIR)/src/libpcp_trace/$(LIBPCP_ABIDIR) \
 NVIDIACFLAGS = -I$(TOPDIR)/src/pmdas/nvidia
 NVIDIAQALIB = libnvidia-ml.$(DSOSUFFIX)
 
-LSRCFILES = $(MYFILES) $(MYSCRIPTS) $(PSCRIPTS) GNUmakefile.install GNUlocaldefs
 LDIRT += localconfig.h
 
 include GNUlocaldefs

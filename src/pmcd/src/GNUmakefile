@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2013 Red Hat.
+# Copyright (c) 2012,2015 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -23,8 +23,8 @@ CFILES = pmcd.c config.c dofetch.c dopdus.c dostore.c client.c agent.c util.c
 LLDLIBS	= $(PCP_PMDALIB) $(LIB_FOR_DLOPEN) -lpcp_pmcd
 PCPLIB_LDFLAGS += -L$(TOPDIR)/src/libpcp_pmcd/$(LIBPCP_ABIDIR)
 
-LLDFLAGS += $(RDYNAMIC_FLAG) $(PIELDFLAGS)
-LCFLAGS += $(PIECFLAGS)
+LLDFLAGS = $(RDYNAMIC_FLAG) $(PIELDFLAGS)
+LCFLAGS = $(PIECFLAGS)
 
 default:	$(CMDTARGET)
 

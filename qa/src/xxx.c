@@ -50,6 +50,7 @@ main()
 
     __pmProcessDataSize(NULL);
     for (i = 0; i < 10000; i++) {
+	resp = NULL; /* silence coverity */
 	if ((n = pmFetch(numpmid, pmidlist, &resp)) < 0) {
 	    fprintf(stderr, "pmFetch: %s\n", pmErrStr(n));
 	    abort();

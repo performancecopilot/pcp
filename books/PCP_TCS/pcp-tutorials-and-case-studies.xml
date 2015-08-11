@@ -8,9 +8,9 @@
 <affiliation>
 <orgname>The Performance Co-Pilot Development Team</orgname>
 <address>
-<email>pcp@mail.performancecopilot.org</email>
+<email>pcp@oss.sgi.com</email>
 <otheraddr>
-<ulink url="http://www.performancecopilot.org"/>
+<ulink url="http://pcp.io"/>
 <inlinemediaobject><imageobject><imagedata fileref="images/pcp.svg"/></imageobject></inlinemediaobject>
 </otheraddr>
 </address>
@@ -137,7 +137,7 @@ For a complete list of manual sections on a platform enter the command:</para>
 <varlistentry>
 <term><emphasis role="bold">URL</emphasis></term><listitem><para><emphasis role="bold">Description</emphasis></para></listitem></varlistentry>
 <varlistentry>
-<term><ulink url="http://www.performancecopilot.org">http://www.performancecopilot.org</ulink></term>
+<term><ulink url="http://pcp.io">http://pcp.io</ulink></term>
 <listitem><para>PCP is open source software released under
 the GNU General Public License (GPL) and GNU Lesser General Public License (LGPL)</para>
 </listitem></varlistentry>

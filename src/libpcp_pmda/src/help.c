@@ -184,7 +184,7 @@ pmdaGetInDomHelp(int handle, pmInDom indom, int type)
 /*
  * this is only here for chkhelp(1) ... export the control data strcuture
  */
-void *
+PMDA_CALL void *
 __pmdaHelpTab(void)
 {
     return (void *)tab;

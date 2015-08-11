@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2011-2014 Red Hat.
+# Copyright (c) 2011-2015 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@ include $(TOPDIR)/src/include/builddefs
 
 CXXMDTARGET = pmwebd$(EXECSUFFIX)
 HFILES = pmwebapi.h
-CXXFILES = main.cxx pmwebapi.cxx pmresapi.cxx pmgraphite.cxx util.cxx
+CXXFILES = main.cxx pmwebapi.cxx pmresapi.cxx util.cxx
 LSRCFILES = rc_pmwebd pmwebd.options
 
 LLDLIBS = $(PCPLIB) $(LIB_FOR_MICROHTTPD) $(LIB_FOR_PTHREADS) 
@@ -30,6 +30,12 @@ LLDFLAGS += $(PIELDFLAGS)
 ifeq "$(HAVE_CAIRO)" "true"
 LLDLIBS += $(LIB_FOR_CAIRO)
 LCFLAGS += -DHAVE_CAIRO $(CAIROCFLAGS)
+endif
+ifeq "$(TARGET_OS)" "mingw"
+LLDLIBS += -lws2_32
+else
+LCFLAGS += -DHAVE_GRAPHITE
+CXXFILES += pmgraphite.cxx
 endif
 
 default:	build-me

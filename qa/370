@@ -32,7 +32,7 @@ in
 	eval `pmprobe -v kernel.uname.distro | sed -e 's/.*distro 1 /distro=/g'`
 	case "$distro"
 	in
-	    Red*Hat*6.*)
+	    Red*Hat*6.*|CentOS*6.*)
 		# special case for systat in RHEL >=6.5 (see --legacy
 		# note in sar(1) on these systems for the way the sar
 		# data format and versioning was broken).
@@ -86,6 +86,8 @@ $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
+
+echo "Using src/sa-sysstat-$file_version" >>$seq.full
 
 sar2pcp src/sa-sysstat-$file_version $tmp
 

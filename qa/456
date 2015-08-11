@@ -13,7 +13,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
-. ./localconfig
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!

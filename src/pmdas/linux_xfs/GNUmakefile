@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2014 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 # Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -45,7 +45,7 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: domain.h $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
+build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
 	@if [ -f ../pmcd.conf ]; then \
 	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
@@ -69,7 +69,7 @@ default_pcp : default
 install_pcp : install
 
 $(HELPTARGETS) : help
-	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_xfs -v 2 -o help < help
+	$(NEWHELP) -n root_xfs -v 2 -o help < help
 
 $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)
@@ -77,7 +77,7 @@ $(VERSION_SCRIPT):
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
-pmda.o: domain.h
+$(OBJECTS): domain.h
 pmda.o proc_fs_xfs.o:	proc_fs_xfs.h
 filesys.o pmda.o:	filesys.h
 pmda.o: $(VERSION_SCRIPT)

@@ -13,7 +13,15 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-which qshape >/dev/null 2>&1 || _notrun "No qshape binary installed"
+if which qshape >/dev/null 2>&1
+then
+    :
+else
+    # not on the $PATH, but qshape is hiding on SuSE platforms
+    #
+    [ -f /usr/share/doc/packages/postfix-doc/auxiliary/qshape/qshape.pl ] \
+    || _notrun "No qshape binary installed"
+fi
 [ -f "$PCP_PMDAS_DIR/postfix/pmdapostfix.pl" ] || _notrun "No postfix PMDA"
 
 status=1	# failure is the default!
@@ -31,9 +39,10 @@ export PMDA_POSTFIX_QSHAPE=$tmp.qshape
 
 pmdapostfix_remove()
 {
-    echo
-    echo "=== remove postfix agent ==="
+    echo | tee -a $here/$seq.full
+    echo "=== remove postfix agent ===" | tee -a $here/$seq.full
     $sudo ./Remove >$tmp.out 2>&1
+    cat $tmp.out >>$here/$seq.full
     _filter_pmda_remove <$tmp.out
 }
 
@@ -44,8 +53,8 @@ pmdapostfix_install()
     $sudo ./Remove >/dev/null 2>&1
     $sudo $PCP_RC_DIR/pmcd stop 2>&1 | _filter_pcp_stop
 
-    echo
-    echo "=== postfix agent installation ==="
+    echo | tee -a $here/$seq.full
+    echo "=== postfix agent installation ===" | tee -a $here/$seq.full
     $sudo ./Install </dev/null >$tmp.out 2>&1
     cat $tmp.out >>$here/$seq.full
     # Check postfix metrics have appeared ... X metrics and Y values
@@ -74,12 +83,15 @@ do
     logfile=`basename $file`
     gunzip < $file > $tmp.logfile
 
-    echo "=== verify postfix values - $logfile ==="
+    echo "=== verify postfix values - $logfile ===" | tee -a $here/$seq.full
     pminfo -f $metrics
-    echo "=== done ==="
-    echo
+    echo "=== done ===" | tee -a $here/$seq.full
+    echo | tee -a $here/$seq.full
 done
 $sudo rm -f $tmp.logfile $tmp.qshape
+
+echo "PMDA log file ..." >>$here/$seq.full
+$sudo cat $PCP_LOG_DIR/pmcd/postfix.log >>$here/$seq.full
 
 pmdapostfix_remove
 status=0

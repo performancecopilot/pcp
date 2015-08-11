@@ -18,6 +18,9 @@ use PCP::PMDA;
 use Date::Manip;
 use POSIX;
 
+# 389 DS is not locale aware
+setlocale(LC_ALL, "C");
+
 our $lc_opts = '-D /dev/shm -s all';
 our $lc_ival = 30; # minimal query interval in seconds, must be >= 30
 our $ds_alog = ''; # empty - guess; ok if only one DS instance in use
@@ -62,7 +65,7 @@ sub ds389log_set_ds_access_log {
 	$ds_alog = `ls -1 $ds_logd/slapd-*/access 2>/dev/null | tail -n 1`;
 	my $un = `id -un`;
 	chomp($ds_alog); chomp($un);
-	die "$un can't read access log file \"$ds_alog\"" unless -f $ds_alog;
+	die "$un can't read access log file \"$ds_logd/slapd-*/access\"" unless -f $ds_alog;
 	$pmda->log("Using access log file $ds_alog");
 }
 
@@ -86,15 +89,17 @@ sub ds389log_fetch {
 	my $prev_log = `ls -1rt $ds_alog.2* 2>/dev/null | tail -n 1`;
 	if ($prev_log ne '') {
 		my $lastline = `tail -n 1 $prev_log`;
-		$lastline =~ tr/\[//d; $lastline =~ s/\].*//;
+		$lastline =~ s/\[//;
+		$lastline =~ s/\].*//;
+		$lastline =~ s/:/ /;
 		my $log_ts = UnixDate($lastline, "%s");
 		if (strftime("%s", @lc_prev) > $log_ts) {
 			$prev_log = '';
 		}
 	}
 
-	my $lc_start = strftime("[%d/%m/%Y:%H:%M:%S %z]", @lc_prev);
-	my $lc_end   = strftime("[%d/%m/%Y:%H:%M:%S %z]", @lc_curr);
+	my $lc_start = strftime("[%d/%b/%Y:%H:%M:%S %z]", @lc_prev);
+	my $lc_end   = strftime("[%d/%b/%Y:%H:%M:%S %z]", @lc_curr);
 	@lc_prev = @lc_curr;
 
 	my $ds_stats = "logconv.pl -cpe $lc_opts -S $lc_start -E $lc_end $ds_alog $prev_log 2>/dev/null";
@@ -104,11 +109,17 @@ sub ds389log_fetch {
 	close(STATS);
 
 	my $errors = 0; # combined
+	my $nobind = 0; # no dupes
 	foreach my $line (@stats) {
 		my $key;
 
 		if ($line =~ /^.*:/ || $line =~ /^U1/ || $line =~ /^B1/) {
 			$key = $&;
+		}
+
+		if ($key eq "Binds:") {
+			next if $nobind;
+			$nobind = 1;
 		}
 		if ($line =~ /^err=.?/) {
 			$key = 'err=X';
@@ -158,14 +169,14 @@ sub ds389log_fetch_callback {
 
 $pmda = PCP::PMDA->new('ds389log', 131);
 
-# Add and init metrics
+# Add and zero metrics
 foreach my $key (keys %data) {
 	my $name = 'ds389log.' . $data{$key}->[1] . '.' . $data{$key}->[0];
 	$pmda->add_metric(pmda_pmid($data{$key}->[2], $data{$key}->[3]),
 			PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
 			pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 			$name, '', '');
-	$metrics{$name} = PM_ERR_AGAIN;
+	$metrics{$name} = 0;
 }
 
 $pmda->set_refresh(\&ds389log_fetch);

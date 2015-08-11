@@ -64,3 +64,31 @@
    fun:gaih_inet
    fun:getaddrinfo
 }
+
+# qa/666 on vm20 similar
+#
+# Syscall param sendmsg(mmsg[0].msg_hdr) points to uninitialised byte(s)
+# at 0x58DF869: sendmmsg (sendmmsg.c:32)
+# by 0x832E8FD: __libc_res_nsend (res_send.c:1140)
+# by 0x832BD48: __libc_res_nquery (res_query.c:226)
+# by 0x832C82F: __libc_res_nsearch (res_query.c:582)
+# by 0x811EB57: _nss_dns_gethostbyname4_r (dns-host.c:314)
+# by 0x58AFB37: gaih_inet (getaddrinfo.c:849)
+# by 0x58B3953: getaddrinfo (getaddrinfo.c:2465)
+# by 0x4E7248E: __pmGetAddrInfo (in /usr/lib/libpcp.so.3)
+# by 0x4E72570: __pmAuxConnectPMCDPort (in /usr/lib/libpcp.so.3)
+# by 0x4E45DDD: __pmConnectPMCD (in /usr/lib/libpcp.so.3)
+# by 0x4E48085: pmNewContext (in /usr/lib/libpcp.so.3)
+# by 0x1124E8: pmmgr_job_spec::compute_hostid(std::string const&) (in /usr/lib/pcp/bin/pmmgr)
+{
+   Seen on vm20
+   Memcheck:Param
+   sendmsg(mmsg[0].msg_hdr)
+   fun:sendmmsg
+   fun:__libc_res_nsend
+   fun:__libc_res_nquery
+   fun:__libc_res_nsearch
+   ...
+   fun:gaih_inet
+   fun:getaddrinfo
+}

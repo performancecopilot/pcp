@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 # Copyright (c) 2001,2009 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it
@@ -38,16 +38,16 @@ LIBTARGET =
 SYMTARGET =
 endif
 
-LCFLAGS =
+LCFLAGS = -DPMI_INTERNAL
 LLDLIBS = -lpcp
 LSRCFILES = $(VERSION_SCRIPT)
 LDIRT = $(SYMTARGET) domain.h
 
 DOMAIN = PMI_DOMAIN
 
-default: domain.h $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
+default:  $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
 
-$(OBJECTS):	$(HFILES)
+$(OBJECTS): $(HFILES) domain.h
 
 include $(BUILDRULES)
 

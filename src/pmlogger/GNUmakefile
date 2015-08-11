@@ -19,7 +19,7 @@ include $(TOPDIR)/src/include/builddefs
 SUBDIRS = src
 OTHERS	= pmnewlog.sh control rc_pmlogger \
 	  pmlogger_daily.sh pmlogger_check.sh pmlogger_merge.sh pmlogmv.sh
-LDIRT	= crontab pmlogger.service
+LDIRT	= crontab crontab.docker pmlogger.service
 
 ifeq ($(TARGET_OS),linux)
 CRONTAB_USER = $(PCP_USER)
@@ -29,7 +29,7 @@ CRONTAB_USER =
 CRONTAB_PATH = $(PCP_SYSCONF_DIR)/pmlogger/crontab
 endif
 
-default:: crontab pmlogger.service
+default:: crontab crontab.docker pmlogger.service
 
 default:: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
@@ -58,6 +58,10 @@ ifeq ($(TARGET_OS),linux)
 	$(INSTALL) -m 755 -d `dirname $(CRONTAB_PATH)`
 endif
 	$(INSTALL) -m 644 crontab $(CRONTAB_PATH)
+	# In a container environment, the pmlogger rc script installs the docker version
+	# of the crontab into the host's cron.d directory. The pcp-pmlogger Dockerfile
+	# deletes the regular pcp-pmlogger crontab entry.
+	$(INSTALL) -m 644 crontab.docker $(PCP_VAR_DIR)/config/pmlogger/crontab.docker
 
 include $(BUILDRULES)
 
@@ -70,3 +74,7 @@ pmlogger.service : pmlogger.service.in
 
 crontab : crontab.in
 	$(SED) -e 's;@user@;'$(CRONTAB_USER)';' -e 's;@path@;'$(PCP_BINADM_DIR)';' $< > $@
+
+crontab.docker : crontab.docker.in
+	# docker crontab runs as root. this may change in the future.
+	$(SED) -e 's;@path@;'$(PCP_BINADM_DIR)';' $< > $@

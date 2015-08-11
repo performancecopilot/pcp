@@ -16,8 +16,18 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-LSRCFILES = pcp.sh
-SUBDIRS = atop free uptime numastat dmcache verify summary iostat shping
+SUBDIRS = \
+	atop \
+	collectl \
+	dmcache \
+	free \
+	iostat \
+	numastat \
+	python \
+	shping \
+	summary \
+	uptime \
+	verify
 
 default :: default_pcp
 

@@ -281,7 +281,11 @@ __pmServerCreatePIDFile(const char *spec, int verbose)
     }
     atexit(pidonexit);
     fprintf(pidfile, "%" FMT_PID, getpid());
+#ifdef HAVE_FCHMOD
     (void)fchmod(fileno(pidfile), S_IRUSR | S_IRGRP | S_IROTH);
+#else
+    (void)chmod(pidpath, S_IRUSR | S_IRGRP | S_IROTH);
+#endif
     fclose(pidfile);
     return 0;
 }
@@ -626,6 +630,7 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 	}
     }
 
+#ifndef IS_MINGW
     /* Open a local unix domain socket, if specified, and supported. */
     if (localSocketPath != NULL) {
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
@@ -640,6 +645,7 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 		      pmProgname);
 #endif
     }
+#endif
 
     if (success)
 	return maximum;

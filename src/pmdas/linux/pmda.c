@@ -61,6 +61,7 @@
 #include "namespaces.h"
 #include "interrupts.h"
 #include "ipc.h"
+#include "proc_net_softnet.h"
 
 static proc_stat_t		proc_stat;
 static proc_meminfo_t		proc_meminfo;
@@ -79,6 +80,8 @@ static proc_uptime_t		proc_uptime;
 static proc_sys_fs_t		proc_sys_fs;
 static sysfs_kernel_t		sysfs_kernel;
 static numa_meminfo_t		numa_meminfo;
+static shm_info_t              _shm_info;
+static proc_net_softnet_t	proc_net_softnet;
 
 static int		_isDSO = 1;	/* =0 I am a daemon */
 static int		rootfd = -1;	/* af_unix pmdaroot */
@@ -480,6 +483,11 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_STAT,73), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
+/* disk.dev.total_rawactive */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,79), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
 /* disk.all.avactive */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,44), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
@@ -505,9 +513,14 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_STAT,74), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
-/* disk.all.read_rawactive */
+/* disk.all.write_rawactive */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,75), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* disk.all.total_rawactive */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,80), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
 /* swap.pagesin */
@@ -1871,7 +1884,41 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_PARTITIONS,8), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
-		
+/* disk.partitions.read_merge*/
+    { NULL,
+      { PMDA_PMID(CLUSTER_PARTITIONS,9), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.partitions.write_merge */
+    { NULL,
+      { PMDA_PMID(CLUSTER_PARTITIONS,10), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.partitions.avactive */
+    { NULL,
+      { PMDA_PMID(CLUSTER_PARTITIONS,11), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* disk.partitions.aveq */
+    { NULL,
+      { PMDA_PMID(CLUSTER_PARTITIONS,12), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* disk.partitions.read_rawactive */
+    { NULL,
+      { PMDA_PMID(CLUSTER_PARTITIONS,13), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* disk.partitions.write_rawactive */
+    { NULL,
+      { PMDA_PMID(CLUSTER_PARTITIONS,14), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* disk.partitions.total_rawactive */
+    { NULL,
+      { PMDA_PMID(CLUSTER_PARTITIONS,15), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
 /* disk.dev.read_bytes */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,38), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
@@ -3174,6 +3221,21 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_MSG_LIMITS, 7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
+/* ipc.shm.tot */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SHM_INFO, 0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)}},
+
+/* ipc.shm.rss */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SHM_INFO, 1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)}},
+
+/* ipc.shm.swp */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SHM_INFO, 2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)}},
+
 /*
  * shared memory limits cluster
  * Cluster added by Mike Mason <mmlnx@us.ibm.com>
@@ -3855,6 +3917,44 @@ static pmdaMetric metrictab[] = {
     { NULL, 
       { PMDA_PMID(CLUSTER_DM,15), PM_TYPE_U32, DM_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+    /* disk.dm.write_rawactive */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_DM,16), PM_TYPE_U32, DM_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/*
+ * network.softnet cluster
+ */
+    /* network.softnet.processed */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NET_SOFTNET,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.dropped */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NET_SOFTNET,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.time_squeeze */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NET_SOFTNET,2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.cpu_collision */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NET_SOFTNET,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.received_rps */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NET_SOFTNET,4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.flow_limit_count */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NET_SOFTNET,5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 };
 
 typedef struct {
@@ -3874,10 +3974,25 @@ linux_statsfile(const char *path, char *buffer, int size)
     return fopen(buffer, "r");
 }
 
-static void
-linux_refresh(pmdaExt *pmda, int *need_refresh, linux_container_t *cp)
+static linux_container_t *
+linux_ctx_container(int ctx)
 {
+    if (ctx < num_ctx && ctx >= 0 && ctxtab[ctx].container.name)
+	return &ctxtab[ctx].container;
+    return NULL;
+}
+
+static int
+linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
+{
+    linux_container_t *cp = linux_ctx_container(context);
     int need_refresh_mtab = 0;
+    int need_net_ioctl = 0;
+    int ns_fds = 0;
+    int sts = 0;
+
+    if (cp && (sts = container_lookup(rootfd, cp)) < 0)
+	return sts;
 
     if (need_refresh[CLUSTER_PARTITIONS])
     	refresh_proc_partitions(INDOM(DISK_INDOM),
@@ -3899,14 +4014,85 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, linux_container_t *cp)
     if (need_refresh[CLUSTER_LOADAVG])
 	refresh_proc_loadavg(&proc_loadavg);
 
-    if (need_refresh[CLUSTER_NET_DEV])
-	refresh_proc_net_dev(INDOM(NET_DEV_INDOM), cp);
+    if (need_refresh[CLUSTER_NET_NFS])
+	refresh_proc_net_rpc(&proc_net_rpc);
 
-    if (need_refresh[CLUSTER_NET_ADDR])
-	refresh_net_dev_addr(INDOM(NET_ADDR_INDOM), cp);
+    if (need_refresh[CLUSTER_NET_SOCKSTAT])
+	refresh_proc_net_sockstat(&proc_net_sockstat);
 
-    if (need_refresh[CLUSTER_FILESYS] || need_refresh[CLUSTER_TMPFS])
-	refresh_filesys(INDOM(FILESYS_INDOM), INDOM(TMPFS_INDOM), cp);
+    if (need_refresh[CLUSTER_NET_SNMP])
+	refresh_proc_net_snmp(&_pm_proc_net_snmp);
+
+    if (need_refresh[CLUSTER_NET_TCP])
+	refresh_proc_net_tcp(&proc_net_tcp);
+
+    if (need_refresh[CLUSTER_NET_NETSTAT])
+	refresh_proc_net_netstat(&_pm_proc_net_netstat);
+
+    /*
+     * Network interface metrics and namespaces are complicated by a
+     * need to be in the right namespace at the right time (for /sys
+     * -> MNTNS, for /proc or ioctl -> NETNS) - and the two have been
+     * found to be mutually exclusive from the point of view of access
+     * via the setns(2) syscall.  We also have a further complicating
+     * factor where some values are available *either* by sysfs (newer
+     * kernels), *or* ioctl (older kernels).
+     */
+    if (need_refresh[CLUSTER_NET_DEV] ||
+	need_refresh[CLUSTER_NET_ADDR] ||
+	need_refresh[CLUSTER_FILESYS] ||
+	need_refresh[CLUSTER_TMPFS] ||
+	need_refresh[REFRESH_NET_MTU] ||
+	need_refresh[REFRESH_NET_SPEED] ||
+	need_refresh[REFRESH_NET_DUPLEX] ||
+	need_refresh[REFRESH_NET_LINKUP] ||
+	need_refresh[REFRESH_NET_RUNNING] ||
+	need_refresh[REFRESH_NETADDR_INET] ||
+	need_refresh[REFRESH_NETADDR_IPV6] ||
+	need_refresh[REFRESH_NETADDR_HW]) {
+	pmInDom netaddr = INDOM(NET_ADDR_INDOM);
+	pmInDom netdev = INDOM(NET_DEV_INDOM);
+
+	if (need_refresh[CLUSTER_NET_ADDR])
+	    clear_net_addr_indom(netaddr);
+	if (need_refresh[REFRESH_NETADDR_INET])
+	    need_net_ioctl = 1;
+	if (need_refresh[REFRESH_NETADDR_IPV6])
+	    need_net_ioctl = 1;
+
+	if (need_refresh[CLUSTER_NET_DEV]) {
+	    if ((sts = container_nsenter(cp, LINUX_NAMESPACE_NET, &ns_fds)) < 0)
+		goto done;
+	    refresh_proc_net_dev(netdev, cp);
+	    container_nsleave(cp, LINUX_NAMESPACE_NET);
+	}
+
+	if ((sts = container_nsenter(cp, LINUX_NAMESPACE_MNT, &ns_fds)) < 0)
+	    goto done;
+	refresh_net_addr_sysfs(netaddr, need_refresh);
+	need_net_ioctl |= refresh_net_sysfs(netdev, need_refresh);
+	if (need_refresh[CLUSTER_FILESYS] || need_refresh[CLUSTER_TMPFS])
+	    refresh_filesys(INDOM(FILESYS_INDOM), INDOM(TMPFS_INDOM), cp);
+	container_nsleave(cp, LINUX_NAMESPACE_MNT);
+
+	if (need_net_ioctl) {
+	    if ((sts = container_nsenter(cp, LINUX_NAMESPACE_NET, &ns_fds)) < 0)
+		goto done;
+	    refresh_net_addr_ioctl(netaddr, cp, need_refresh);
+	    refresh_net_ioctl(netdev, cp, need_refresh);
+	    container_nsleave(cp, LINUX_NAMESPACE_NET);
+	}
+
+	if (need_refresh[CLUSTER_NET_ADDR])
+	    store_net_addr_indom(netaddr, cp);
+    }
+
+    if (need_refresh[CLUSTER_KERNEL_UNAME]) {
+	if ((sts = container_nsenter(cp, LINUX_NAMESPACE_UTS, &ns_fds)) < 0)
+	    goto done;
+	uname(&kernel_uname);
+	container_nsleave(cp, LINUX_NAMESPACE_UTS);
+    }
 
     if (need_refresh[CLUSTER_INTERRUPTS] ||
 	need_refresh[CLUSTER_INTERRUPT_LINES] ||
@@ -3916,26 +4102,8 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, linux_container_t *cp)
     if (need_refresh[CLUSTER_SWAPDEV])
 	refresh_swapdev(INDOM(SWAPDEV_INDOM));
 
-    if (need_refresh[CLUSTER_NET_NFS])
-	refresh_proc_net_rpc(&proc_net_rpc);
-
-    if (need_refresh[CLUSTER_NET_SOCKSTAT])
-	refresh_proc_net_sockstat(&proc_net_sockstat);
-
-    if (need_refresh[CLUSTER_KERNEL_UNAME])
-	uname(&kernel_uname);
-
-    if (need_refresh[CLUSTER_NET_SNMP])
-	refresh_proc_net_snmp(&_pm_proc_net_snmp);
-
     if (need_refresh[CLUSTER_SCSI])
 	refresh_proc_scsi(INDOM(SCSI_INDOM));
-
-    if (need_refresh[CLUSTER_NET_TCP])
-	refresh_proc_net_tcp(&proc_net_tcp);
-
-    if (need_refresh[CLUSTER_NET_NETSTAT])
-	refresh_proc_net_netstat(&_pm_proc_net_netstat);
 
     if (need_refresh[CLUSTER_SLAB])
 	refresh_proc_slabinfo(&proc_slabinfo);
@@ -3945,6 +4113,9 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, linux_container_t *cp)
 
     if (need_refresh[CLUSTER_MSG_LIMITS])
         refresh_msg_limits(&msg_limits);
+
+    if (need_refresh[CLUSTER_SHM_INFO])
+        refresh_shm_info(&_shm_info);
 
     if (need_refresh[CLUSTER_SHM_LIMITS])
         refresh_shm_limits(&shm_limits);
@@ -3961,25 +4132,22 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, linux_container_t *cp)
     if (need_refresh[CLUSTER_SYSFS_KERNEL])
     	refresh_sysfs_kernel(&sysfs_kernel);
 
+    if (need_refresh[CLUSTER_NET_SOFTNET])
+	refresh_proc_net_softnet(&proc_net_softnet);
+
+done:
     if (need_refresh_mtab)
 	pmdaDynamicMetricTable(pmda);
-}
-
-static linux_container_t *
-linux_ctx_container(int ctx)
-{
-    if (ctx < num_ctx && ctx >= 0 && ctxtab[ctx].container.name)
-	return &ctxtab[ctx].container;
-    return NULL;
+    container_close(cp, ns_fds);
+    return sts;
 }
 
 static int
 linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
 {
-    linux_container_t	*container = NULL;
     __pmInDom_int	*indomp = (__pmInDom_int *)&indom;
-    int			need_refresh[NUM_CLUSTERS] = {0};
-    int			sts, ns_flags = 0;
+    int			need_refresh[NUM_REFRESHES] = {0};
+    int			sts;
 
     switch (indomp->serial) {
     case DISK_INDOM:
@@ -3998,19 +4166,18 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
 	break;
     case NET_DEV_INDOM:
 	need_refresh[CLUSTER_NET_DEV]++;
-	ns_flags |= LINUX_NAMESPACE_NET;
 	break;
     case NET_ADDR_INDOM:
 	need_refresh[CLUSTER_NET_ADDR]++;
-	ns_flags |= LINUX_NAMESPACE_NET;
+	need_refresh[REFRESH_NETADDR_INET]++;
+	need_refresh[REFRESH_NETADDR_IPV6]++;
+	need_refresh[REFRESH_NETADDR_HW]++;
 	break;
     case FILESYS_INDOM:
 	need_refresh[CLUSTER_FILESYS]++;
-	ns_flags |= LINUX_NAMESPACE_MNT;
 	break;
     case TMPFS_INDOM:
 	need_refresh[CLUSTER_TMPFS]++;
-	ns_flags |= LINUX_NAMESPACE_MNT;
 	break;
     case SWAPDEV_INDOM:
 	need_refresh[CLUSTER_SWAPDEV]++;
@@ -4020,7 +4187,6 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
     case NFS4_CLI_INDOM:
     case NFS4_SVR_INDOM:
 	need_refresh[CLUSTER_NET_NFS]++;
-	ns_flags |= LINUX_NAMESPACE_MNT;
 	break;
     case SCSI_INDOM:
 	need_refresh[CLUSTER_SCSI]++;
@@ -4034,18 +4200,9 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
     /* no default label : pmdaInstance will pick up errors */
     }
 
-    if ((container = linux_ctx_container(pmda->e_context)) != NULL) {
-	sts = container_enter_namespaces(rootfd, container, ns_flags);
-	if (sts < 0)
-	    return sts;
-    }
-    linux_refresh(pmda, need_refresh, container);
-    sts = pmdaInstance(indom, inst, name, result, pmda);
-    if (container) {
-	container_close_network(container);
-	container_leave_namespaces(rootfd, ns_flags);
-    }
-    return sts;
+    if ((sts = linux_refresh(pmda, need_refresh, pmda->e_context)) < 0)
+	return sts;
+    return pmdaInstance(indom, inst, name, result, pmda);
 }
 
 /*
@@ -5308,6 +5465,22 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 	break;
 
+    case CLUSTER_SHM_INFO:
+	switch (idp->item) {
+	case 0: /* ipc.shm.tot */
+	    atom->ul = _shm_info.shm_tot;
+	    break;
+	case 1: /* ipc.shm.rss */
+	    atom->ul = _shm_info.shm_rss;
+	    break;
+	case 2: /* ipc.shm.swp */
+	    atom->ul = _shm_info.shm_swp;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
     /*
      * Cluster added by Mike Mason <mmlnx@us.ibm.com>
      */
@@ -5606,6 +5779,43 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_DM:
 	return proc_partitions_fetch(mdesc, inst, atom);
 
+    case CLUSTER_NET_SOFTNET:
+	switch (idp->item) {
+	case 0:	/* network.softnet.processed */
+	    if (!(proc_net_softnet.flags & SN_PROCESSED))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.processed;
+	    break;
+	case 1: /* network.softnet.dropped */
+	    if (!(proc_net_softnet.flags & SN_DROPPED))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.dropped;
+	    break;
+	case 2: /* network.softnet.time_squeeze */
+	    if (!(proc_net_softnet.flags & SN_TIME_SQUEEZE))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.time_squeeze;
+	    break;
+	case 3: /* network.softnet.cpu_collision */
+	    if (!(proc_net_softnet.flags & SN_CPU_COLLISION))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.cpu_collision;
+	    break;
+	case 4: /* network.softnet.received_rps */
+	    if (!(proc_net_softnet.flags & SN_RECEIVED_RPS))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.received_rps;
+	    break;
+	case 5: /* network.softnet.flow_limit_count */
+	    if (!(proc_net_softnet.flags & SN_FLOW_LIMIT_COUNT))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.flow_limit_count;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
     default: /* unknown cluster */
 	return PM_ERR_PMID;
     }
@@ -5617,9 +5827,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 static int
 linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
-    linux_container_t	*container = NULL;
-    int			need_refresh[NUM_CLUSTERS] = {0};
-    int			i, sts, ns_flags = 0;
+    int		i, sts, need_refresh[NUM_REFRESHES] = {0};
 
     for (i = 0; i < numpmid; i++) {
 	__pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
@@ -5649,42 +5857,51 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    need_refresh[CLUSTER_STAT]++;
 	    break;
 
-	case CLUSTER_KERNEL_UNAME:
-	    ns_flags |= LINUX_NAMESPACE_UTS;
-	    break;
-
 	case CLUSTER_NET_DEV:
+	    switch (idp->item) {
+	    case 21:	/* network.interface.mtu */
+		need_refresh[REFRESH_NET_MTU]++;
+		break;
+	    case 22:	/* network.interface.speed */
+	    case 23:	/* network.interface.baudrate */
+		need_refresh[REFRESH_NET_SPEED]++;
+		break;
+	    case 24:	/* network.interface.duplex */
+		need_refresh[REFRESH_NET_DUPLEX]++;
+		break;
+	    case 25:	/* network.interface.up */
+		need_refresh[REFRESH_NET_LINKUP]++;
+		break;
+	    case 26:	/* network.interface.running */
+		need_refresh[REFRESH_NET_RUNNING]++;
+		break;
+	    }
+	    break;
+
 	case CLUSTER_NET_ADDR:
-	    ns_flags |= LINUX_NAMESPACE_NET;
-	    ns_flags |= LINUX_NAMESPACE_MNT;	/* for /sys access */
+	    switch (idp->item) {
+	    case 0:	/* network.interface.ipv4_addr */
+		need_refresh[REFRESH_NETADDR_INET]++;
+		break;
+	    case 1:	/* network.interface.ipv6_addr */
+	    case 2:	/* network.interface.ipv6_scope */
+		need_refresh[REFRESH_NETADDR_IPV6]++;
+		break;
+	    case 3:	/* network.interface.hw_addr */
+		need_refresh[REFRESH_NETADDR_HW]++;
+		break;
+	    }
 	    break;
 
-	case CLUSTER_NET_NFS:
-	case CLUSTER_FILESYS:
-	case CLUSTER_TMPFS:
-	    ns_flags |= LINUX_NAMESPACE_MNT;
-	    break;
-
-	case CLUSTER_SEM_LIMITS:
-	case CLUSTER_MSG_LIMITS:
-	case CLUSTER_SHM_LIMITS:
-	    ns_flags |= LINUX_NAMESPACE_IPC;
+	case CLUSTER_NET_SOFTNET:
+	    need_refresh[CLUSTER_NET_SOFTNET]++;
 	    break;
 	}
     }
 
-    if ((container = linux_ctx_container(pmda->e_context)) != NULL) {
-	sts = container_enter_namespaces(rootfd, container, ns_flags);
-	if (sts < 0)
-	    return sts;
-    }
-    linux_refresh(pmda, need_refresh, container);
-    sts = pmdaFetch(numpmid, pmidlist, resp, pmda);
-    if (container) {
-	container_close_network(container);
-	container_leave_namespaces(rootfd, ns_flags);
-    }
-    return sts;
+    if ((sts = linux_refresh(pmda, need_refresh, pmda->e_context)) < 0)
+	return sts;
+    return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
 static int
@@ -5811,7 +6028,11 @@ linux_init(pmdaInterface *dp)
     char	*envpath;
     __pmID_int	*idp;
 
-    _pm_system_pagesize = getpagesize();
+    /* optional overrides of some globals for testing */
+    if ((envpath = getenv("LINUX_PAGESIZE")) != NULL)
+	_pm_system_pagesize = atoi(envpath);
+    else
+	_pm_system_pagesize = getpagesize();
     if ((envpath = getenv("LINUX_STATSPATH")) != NULL)
 	linux_statspath = envpath;
 

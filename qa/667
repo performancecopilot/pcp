@@ -26,6 +26,26 @@ status=1	# failure is the default!
 
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
+# handle differences like ...
+# (S'pcp.sample.byte_rate' vs (Vpcp.sample.byte_rate
+# (I1192055500 vs (L1192055490L
+# ?(lp0 vs <(lp0
+# F222.0 vs F222
+#
+_filter_strings()
+{
+    sed \
+	-e '/^(/{
+s/(S'"'"'/\(/
+s/'"'"'$//
+s/(V/\(/
+s/(L\(.*\)L$/(I\1/
+}' \
+	-e 's/^.(lp0/?(lp0/' \
+	-e 's/^F\([0-9][0-9]*\)\.0$/F\1/' \
+    # end
+}
+
 _full_stash()
 {
     echo "--- pcpgraphite stdout --" >>$seq.full
@@ -51,19 +71,20 @@ p2gpid=$!
 sleep 3
 $signal $pid $p2gpid 2>/dev/null
 wait
-# python pickled format is binary, and python version dependent to boot.
-# so, just look for the presence of hinv.ncpu in the output...
+# python pickle-format 1+ is binary, and python version dependent to boot.
+# but pcp2graphite now uses ascii pickle-format 0 for maximum compatibility
 fgrep -q pcp.hinv.ncpu $tmp.socat.out
 [ $? -eq 0 ] && echo "Found pcp.hinv.ncpu in pickled output"
 _full_stash
 
 echo "=== 2. pcp2graphite text, 2-second aligned  ===" | tee -a $seq.full
-socat tcp-listen:$port_text,reuseaddr,fork - >$tmp.socat.out 2>$tmp.socat.err &
+rm -f $tmp.socat.out $tmp.socat.err
+socat tcp-listen:$port_text,reuseaddr,fork - >>$tmp.socat.out 2>>$tmp.socat.err &
 pid=$!
 sleep 2
 $pcp2graphite -t 2 -P $port_text -u "/$scale" -m foobar. hinv.ncpu sample.datasize >$tmp.p2g.out 2>$tmp.p2g.err &
 p2gpid=$!
-sleep 5 # enough for at least 2 messages
+sleep 8 # enough for at least 2 messages
 $signal $pid $p2gpid 2>/dev/null
 wait
 head -2 $tmp.socat.out |
@@ -73,12 +94,13 @@ grep 'Excluding' $tmp.p2g.err
 _full_stash
 
 echo "=== 3. pcp2graphite bad-instance tolerance ===" | tee -a $seq.full
-socat tcp-listen:$port_text,reuseaddr,fork - >$tmp.socat.out 2>$tmp.socat.err &
+rm -f $tmp.socat.out $tmp.socat.err
+socat tcp-listen:$port_text,reuseaddr,fork - >>$tmp.socat.out 2>>$tmp.socat.err &
 pid=$!
 sleep 2
 $pcp2graphite -t 2 -P $port_text sample.bogus_bin sample.aggregate.null sample.string.hullo NoSuchMetric sample.bad >$tmp.p2g.out 2>$tmp.p2g.err &
 p2gpid=$!
-sleep 5 # enough for at least 2 messages
+sleep 8 # enough for at least 2 messages
 $signal $pid $p2gpid 2>/dev/null
 wait
 # confirm time alignment
@@ -87,6 +109,38 @@ head -10 $tmp.socat.out \
     | LC_COLLATE=POSIX sort
 grep 'Excluding' $tmp.p2g.err
 _full_stash
+
+echo "=== 4. pcp2graphite count-limited archive transcription ===" | tee -a $seq.full
+rm -f $tmp.socat.out $tmp.socat.err
+socat tcp-listen:$port_text,reuseaddr,fork - >>$tmp.socat.out 2>>$tmp.socat.err &
+pid=$!
+sleep 2
+# TZ=UTC here to constrain pcp2graphite's -D0 stdout logging of time.ctime()
+TZ=UTC $pcp2graphite -D0 -t 1 -s 30 -P $port_text -a archives/chartqa1.meta sample.byte_rate >$tmp.p2g.out 2>$tmp.p2g.err
+$signal $pid 2>/dev/null
+wait
+cat $tmp.socat.out
+echo
+cat $tmp.p2g.out
+_full_stash
+
+echo "=== 5. pcp2graphite time-limited archive transcription ===" | tee -a $seq.full
+rm -f $tmp.socat.out $tmp.socat.err
+socat tcp-listen:$port_pickled,reuseaddr,fork - >>$tmp.socat.out 2>>$tmp.socat.err &
+pid=$!
+sleep 2
+TZ=UTC $pcp2graphite -D0 -t 1 -O '2007-10-10 22:31:30 GMT' -T '2007-10-10 22:31:40 GMT' -p $port_pickled -a archives/chartqa1.meta sample.byte_rate >$tmp.p2g.out 2>$tmp.p2g.err
+$signal $pid 2>/dev/null
+wait
+# while pickle format 0 is ascii, it's wrapped in a struct.pack that
+# puts some non-ascii goo in; we don't want that literally included in
+# the .out file ... strings(1) is our friend
+#
+strings $tmp.socat.out | _filter_strings
+echo
+cat $tmp.p2g.out
+_full_stash
+
 
 status=0
 exit

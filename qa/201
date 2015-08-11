@@ -39,41 +39,45 @@ _filter2()
 	-e 's/^\([0-9][0-9]*\) [0-9][0-9]* /\1 timestamp /'
 }
 
+# see src/torture_cache.c and make FORQA match
+#
+FORQA=251
+
 # real QA test starts here
 echo "basic operation tests ..."
 src/torture_cache -Dindom a 2>&1 | _filter
 
 echo
 echo "save tests ..."
-$sudo rm -f $PCP_VAR_DIR/config/pmda/123.8
-$sudo touch $PCP_VAR_DIR/config/pmda/123.8
+$sudo rm -f $PCP_VAR_DIR/config/pmda/$FORQA.8
+$sudo touch $PCP_VAR_DIR/config/pmda/$FORQA.8
 $sudo src/torture_cache b 2>&1 | _filter
 
 echo
 echo "load tests ..."
 echo "-- empty file --"
-$sudo rm -f $PCP_VAR_DIR/config/pmda/123.13
-$sudo touch $PCP_VAR_DIR/config/pmda/123.13
+$sudo rm -f $PCP_VAR_DIR/config/pmda/$FORQA.13
+$sudo touch $PCP_VAR_DIR/config/pmda/$FORQA.13
 src/torture_cache c 2>&1 | _filter
 echo "-- short header --"
 echo "1" >$tmp
-$sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.13
+$sudo mv $tmp $PCP_VAR_DIR/config/pmda/$FORQA.13
 src/torture_cache c 2>&1 | _filter
 echo "-- bad version (x) --"
 echo "x 0" >$tmp
-$sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.13
+$sudo mv $tmp $PCP_VAR_DIR/config/pmda/$FORQA.13
 src/torture_cache c 2>&1 | _filter
 echo "-- bad version (2) --"
 echo "2 0" >$tmp
-$sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.13
+$sudo mv $tmp $PCP_VAR_DIR/config/pmda/$FORQA.13
 src/torture_cache c 2>&1 | _filter
 echo "-- bad ins_mode (-1) --"
 echo "1 -1" >$tmp
-$sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.13
+$sudo mv $tmp $PCP_VAR_DIR/config/pmda/$FORQA.13
 src/torture_cache c 2>&1 | _filter
 echo "-- empty --"
 echo "1 0" >$tmp
-$sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.13
+$sudo mv $tmp $PCP_VAR_DIR/config/pmda/$FORQA.13
 src/torture_cache c 2>&1 | _filter
 echo "-- interesting --"
 cat <<End-of-File >$tmp
@@ -85,9 +89,9 @@ cat <<End-of-File >$tmp
 35 4444444 longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again-longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again
 40 4444444 fubar-004
 End-of-File
-$sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.13
+$sudo mv $tmp $PCP_VAR_DIR/config/pmda/$FORQA.13
 $sudo src/torture_cache c 2>&1 | _filter
-cat $PCP_VAR_DIR/config/pmda/123.13 | _filter2
+cat $PCP_VAR_DIR/config/pmda/$FORQA.13 | _filter2
 echo "-- interesting (PMDA_CACHE_REUSE) --"
 cat <<End-of-File >$tmp
 1 1
@@ -98,9 +102,9 @@ cat <<End-of-File >$tmp
 35 4444444 longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again-longinstancenamefromwalesllanfairpwyllgwyngyllgogeryochdrobwllllantysiliogogogoch-and-again
 40 4444444 fubar-004
 End-of-File
-$sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.13
+$sudo mv $tmp $PCP_VAR_DIR/config/pmda/$FORQA.13
 $sudo src/torture_cache c 2>&1 | _filter
-cat $PCP_VAR_DIR/config/pmda/123.13 | _filter2
+cat $PCP_VAR_DIR/config/pmda/$FORQA.13 | _filter2
 
 echo
 echo "test inst wrap and ins_mode change ..."
@@ -108,9 +112,9 @@ cat <<End-of-File >$tmp
 1 0
 2147483645 4444444 biggest-inst-2
 End-of-File
-$sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.7
+$sudo mv $tmp $PCP_VAR_DIR/config/pmda/$FORQA.7
 $sudo src/torture_cache -D indom d 2>&1 | _filter
-cat $PCP_VAR_DIR/config/pmda/123.7 | _filter2
+cat $PCP_VAR_DIR/config/pmda/$FORQA.7 | _filter2
 
 echo
 echo "test purge operation ..."
@@ -118,9 +122,9 @@ echo "-- empty @ start and end --"
 cat <<End-of-File >$tmp
 1 0
 End-of-File
-$sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.11
+$sudo mv $tmp $PCP_VAR_DIR/config/pmda/$FORQA.11
 $sudo src/torture_cache e 2>&1 | _filter
-cat $PCP_VAR_DIR/config/pmda/123.11 | _filter2
+cat $PCP_VAR_DIR/config/pmda/$FORQA.11 | _filter2
 echo "-- not empty --"
 cat <<End-of-File >$tmp
 1 1
@@ -131,9 +135,9 @@ cat <<End-of-File >$tmp
 07 5555555 fubar-005
 60 6666666 fubar-006
 End-of-File
-$sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.11
+$sudo mv $tmp $PCP_VAR_DIR/config/pmda/$FORQA.11
 $sudo src/torture_cache f 2>&1 | _filter
-cat $PCP_VAR_DIR/config/pmda/123.11 | _filter2
+cat $PCP_VAR_DIR/config/pmda/$FORQA.11 | _filter2
 
 echo
 echo "exercise hash-table re-sizing ..."
@@ -148,7 +152,7 @@ cat <<End-of-File >$tmp
 02 4444444 foobar
 End-of-File
 cat $tmp
-$sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.17
+$sudo mv $tmp $PCP_VAR_DIR/config/pmda/$FORQA.17
 $sudo src/torture_cache h 2>&1 | _filter
 echo "-- cache --"
 cat <<End-of-File >$tmp
@@ -156,7 +160,7 @@ cat <<End-of-File >$tmp
 01 4444444 foo bar
 End-of-File
 cat $tmp
-$sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.17
+$sudo mv $tmp $PCP_VAR_DIR/config/pmda/$FORQA.17
 $sudo src/torture_cache h 2>&1 | _filter
 echo "-- cache --"
 cat <<End-of-File >$tmp
@@ -164,7 +168,7 @@ cat <<End-of-File >$tmp
 01 4444444 foo blah
 End-of-File
 cat $tmp
-$sudo mv $tmp $PCP_VAR_DIR/config/pmda/123.17
+$sudo mv $tmp $PCP_VAR_DIR/config/pmda/$FORQA.17
 $sudo src/torture_cache h 2>&1 | _filter
 
 echo
@@ -172,14 +176,14 @@ echo "-- revised dirty cache semantics --"
 for a in 1 2 3
 do
     echo "+ flags=$a +"
-    $sudo rm -f $tmp $PCP_VAR_DIR/config/pmda/123.15
+    $sudo rm -f $tmp $PCP_VAR_DIR/config/pmda/$FORQA.15
     $sudo src/torture_cache i $a 2>&1 | _filter
 done
 
 echo
 echo "cache resize test cases ..."
 $sudo src/torture_cache j 2>&1 | _filter
-cat $PCP_VAR_DIR/config/pmda/123.10 | _filter2
+cat $PCP_VAR_DIR/config/pmda/$FORQA.10 | _filter2
 
 # success, all done
 exit

@@ -8,9 +8,9 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-. ./common.check
-. ./common.filter
 . ./common.product
+. ./common.filter
+. ./common.check
 
 _echo()
 {

@@ -1,5 +1,8 @@
 default setup install:
 
+clean:
+	rm -f cvalue cvalue.o
+
 PFILE = test.pl
 CFILE = cvalue.c
 

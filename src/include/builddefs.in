@@ -38,6 +38,10 @@ PACKAGE_DISTRIBUTION ?= @PACKAGE_DISTRIBUTION@
 SGI_CHROOT_BUILD ?= 0
 SGI_ISSP_BUILD ?= 0
 
+# see build/containers/GNUlocalrules and build/containers/*/GNUmakefile
+CONTAINER_VERSION = $(PACKAGE_VERSION)-$(PACKAGE_BUILD)
+CONTAINER_ARCH = $(shell uname -p)
+
 BUILDRULES = $(TOPDIR)/src/include/buildrules
 
 # LCFLAGS, LLDFLAGS, LLDLIBS, LDIRT may be specified in local makefiles.
@@ -62,6 +66,7 @@ PCP_LIBS = $(PCPLIB_LDFLAGS)
 # 	../../configure.ac (likewise for PLDFLAGS and LDFLAGS).
 #
 TARGET_OS = @target_os@
+CROSS_COMPILING = @cross_compiling@
 PCFLAGS = @PCFLAGS@
 PLDFLAGS = @PLDFLAGS@
 ifneq (, $(filter linux kfreebsd gnu, $(TARGET_OS)))
@@ -75,7 +80,7 @@ ifeq "$(TARGET_OS)" "mingw"
 DSOSUFFIX = dll
 EXECSUFFIX = .exe
 SHELLSUFFIX = .sh
-PLDLIBS = -lwsock32
+PLDLIBS = -lwsock32 -liphlpapi
 endif
 ifeq "$(TARGET_OS)" "solaris"
 PLDFLAGS += -fPIC
@@ -232,13 +237,19 @@ ENABLE_SYSTEMD = @enable_systemd@
 ENABLE_MANAGER = @enable_manager@
 ENABLE_WEBAPI = @enable_webapi@
 
+# for code supporting any modern version of perl
+HAVE_PERL = @have_perl@
+
 # for code supporting both/either python2 and/or python3
 HAVE_PYTHON = @have_python@
 
 # python dependent bits
 HAVE_PYTHON_SIX = @have_python_six@
 HAVE_PYTHON_JSONPOINTER = @have_python_jsonpointer@
-PMDA_JSON = @pmda_json@
+
+# for building packages from external sources
+HAVE_VECTOR = @have_vector@
+HAVE_WEBJS = @have_webjs@
 
 # additional libraries needed for particular functions
 LIB_FOR_BASENAME = @lib_for_basename@
@@ -271,6 +282,7 @@ PAPI_LIBS = @PAPI_LIBS@
 PFM_LIBS = @PFM_LIBS@
 IB_LIBS = @IB_LIBS@
 PMDA_RPM = @PMDA_RPM@
+PMDA_JSON = @PMDA_JSON@
 PMDA_PAPI = @PMDA_PAPI@
 PMDA_SYSTEMD = @PMDA_SYSTEMD@
 PMDA_PERFEVENT = @PMDA_PERFEVENT@
@@ -294,6 +306,21 @@ RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf LIBPATH=$(TOPDIR)/src
 endif
 ifeq "$(TARGET_OS)" "mingw"
 RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf PATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$PATH USERPROFILE=`pwd` PCP_ALT_CPP=`pwd`/$(TOPDIR)/src/pmcpp/pmcpp
+endif
+
+# when cross-compiling, we cannot use RUN_IN_BUILD_ENV, so any binaries
+# from PCP we need in the build must be installed on the build machine.
+#
+ifeq "$(CROSS_COMPILING)" "yes"
+NEWHELP = . $$PCP_DIR/etc/pcp.conf && $$PCP_BINADM_DIR/newhelp
+PMIECONF = . $$PCP_DIR/etc/pcp.conf && $$PCP_BIN_DIR/pmieconf
+PMGENMAP = . $$PCP_DIR/etc/pcp.conf && $$PCP_BIN_DIR/pmgenmap
+PMCPP = . $$PCP_DIR/etc/pcp.conf && $$PCP_BINADM_DIR/pmcpp
+else
+NEWHELP = $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp
+PMIECONF = $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmieconf/pmieconf
+PMGENMAP = $(RUN_IN_BUILD_ENV) sh ./pmgenmap.sh
+PMCPP = $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmcpp/pmcpp
 endif
 
 SUBDIRS_MAKERULE = \
@@ -684,7 +711,7 @@ WINDOW = mac
 endif
 ifeq ($(PCP_PLATFORM),mingw)
 QTMAKE = $(QMAKE) CONFIG+=$(QT_RELEASE) && $(QTFIX) <Makefile >Makefile.fix && mv Makefile.fix Makefile && $(MAKE) -f Makefile
-BINARY = $(QT_RELEASE)/$(COMMAND)
+BINARY = build/$(QT_RELEASE)/$(COMMAND)$(EXECSUFFIX)
 LNMAKE =
 WINDOW = win
 endif

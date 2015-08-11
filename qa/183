@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 
 signal=$PCP_BINADM_DIR/pmsignal
 newlog=$PCP_BINADM_DIR/pmnewlog
-trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "$sudo rm -f $tmp.* /tmp/Latest; exit \$status" 0 1 2 3 15
 status=1
 
 # used to debug qa test (tes:June/2000)
@@ -71,7 +71,7 @@ echo "=== archive exists ===" >>$seq.full
 $sudo rm -f $tmp.save.*
 _start_up_pmlogger -c $tmp.config -l $tmp.log $tmp.save >$tmp.err 2>&1
 _wait_for_pmlogger $pid $tmp.log
-$sudo $newlog -p $pid $tmp.save >$tmp.out 2>&1
+$sudo $newlog -p $pid -l $tmp.pmlogger.log $tmp.save >$tmp.out 2>&1
 ok=true
 for base in $tmp.save $tmp.save-00
 do
@@ -90,6 +90,8 @@ else
     cat $tmp.out
 fi
 $sudo $signal -a -s TERM pmlogger >/dev/null 2>&1
+echo "-- new pmlogger log file --" >>$seq.full
+cat $tmp.pmlogger.log >>$seq.full
 
 echo
 echo "=== no non-primary logger ==="

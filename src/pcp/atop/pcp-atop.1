@@ -1,7 +1,8 @@
 .TH PCP-ATOP 1 "PCP" "Performance Co-Pilot"
 .SH NAME
+.BR pmatop ,
 .B pcp-atop 
-- Advanced System & Process Monitor
+\- Advanced System and Process Monitor
 .SH SYNOPSIS
 Interactive Usage:
 .P
@@ -984,7 +985,7 @@ This information will only be shown when kernel module `netatop' is loaded.
 .TP 9
 .B NICE
 The more or less static priority that can be given to a process on a
-scale from -20 (high priority) to +19 (low priority).
+scale from \-20 (high priority) to +19 (low priority).
 .PP
 .TP 9
 .B NPROCS
@@ -1031,7 +1032,7 @@ system gives a reliable impression of the total resident memory consumed
 by all processes.
 .br
 Since gathering of all values that are needed to calculate the PSIZE is a
-relatively time-consuming task, the 'R' key (or '-R' flag) should
+relatively time-consuming task, the 'R' key (or '\-R' flag) should
 be active. Gathering these values also requires superuser privileges
 (otherwise '?K' is shown in the output).
 .PP
@@ -1148,7 +1149,7 @@ due to system call handling.
 Total number of threads within this process.
 All related threads are contained in a thread group, represented by
 .B pcp-atop
-as one line or as a separate line when the 'y' key (or -y flag) is active.
+as one line or as a separate line when the 'y' key (or \-y flag) is active.
 
 On Linux 2.4 systems it is hardly possible to determine
 which threads (i.e. processes) are related to the same thread group.

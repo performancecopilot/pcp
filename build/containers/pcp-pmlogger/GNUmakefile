@@ -17,13 +17,13 @@ include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
 CONTAINER = pcp-pmlogger
-LDIRT = $(CONTAINER).tgz
+LDIRT = $(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz
 
-default default_pcp : $(CONTAINER).tgz
+default default_pcp install install_pcp:
 
-install install_pcp:
+pack pack_pcp: $(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz
 
-# rule to build $(CONTAINER).tgz from Dockerfile
+# rule to build $(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz from Dockerfile
 include ../GNUlocalrules
 
 include $(BUILDRULES)

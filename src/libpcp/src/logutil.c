@@ -29,7 +29,7 @@
 #include <sys/wait.h>
 #endif
 
-INTERN int	__pmLogReads;
+PCP_DATA int	__pmLogReads;
 
 /*
  * Suffixes and associated compresssion application for compressed filenames.

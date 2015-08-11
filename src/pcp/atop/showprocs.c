@@ -155,6 +155,9 @@ getspacings(proc_printpair* elemptr)
                         }
                 }
                 
+                // ensure we do not write outside newelems memory
+                if (lowestprio_index < 0)
+                        break;
                 // lowest priority item found, remove from newelems;
                 col -= newelems[lowestprio_index].f->width;
                 varwidth -= newelems[lowestprio_index].f->varwidth;

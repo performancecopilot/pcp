@@ -14,6 +14,14 @@
  */
 
 typedef struct {
+    unsigned int shm_tot; /* total allocated shm */
+    unsigned int shm_rss; /* total resident shm */
+    unsigned int shm_swp; /* total swapped shm */
+} shm_info_t;
+
+extern int refresh_shm_info(shm_info_t *);
+
+typedef struct {
     unsigned int shmmax; /* maximum shared segment size (bytes) */
     unsigned int shmmin; /* minimum shared segment size (bytes) */
     unsigned int shmmni; /* maximum number of segments system wide */

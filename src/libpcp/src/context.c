@@ -653,7 +653,7 @@ INIT_CONTEXT:
 
     if (new->c_type == PM_CONTEXT_HOST) {
 	__pmHashCtl	*attrs = &new->c_attrs;
-	pmHostSpec	*hosts;
+	pmHostSpec	*hosts = NULL;
 	int		nhosts;
 	char		*errmsg;
 
@@ -664,11 +664,20 @@ INIT_CONTEXT:
 	    pmprintf("pmNewContext: bad host specification\n%s", errmsg);
 	    pmflush();
 	    free(errmsg);
+	    if (hosts != NULL)
+		__pmFreeHostAttrsSpec(hosts, nhosts, attrs);
+	    __pmHashClear(attrs);
 	    goto FAILED;
 	} else if (nhosts == 0) {
+	    if (hosts != NULL)
+		__pmFreeHostAttrsSpec(hosts, nhosts, attrs);
+	    __pmHashClear(attrs);
 	    sts = PM_ERR_NOTHOST;
 	    goto FAILED;
 	} else if ((sts = ctxflags(attrs, &new->c_flags)) < 0) {
+	    if (hosts != NULL)
+		__pmFreeHostAttrsSpec(hosts, nhosts, attrs);
+	    __pmHashClear(attrs);
 	    goto FAILED;
 	}
 

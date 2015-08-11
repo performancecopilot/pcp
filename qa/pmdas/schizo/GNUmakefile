@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012-2015 Red Hat.
 #
 
 TOPDIR = ../../..
@@ -26,6 +26,8 @@ pmda$(IAM)-A:	$(IAM)-A.o
 
 pmda$(IAM)-B:	$(IAM)-B.o
 	$(CCF) -o $@ $(LDFLAGS) $< $(LDLIBS)
+
+$(OBJECTS): domain.h
 
 install install_pcp:
 	$(INSTALL) -m 755 -d $(TESTDIR)

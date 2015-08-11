@@ -16,16 +16,22 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
+# Directory containing PCP RPMs to be installed in the base container.
+# The default is the RPMs just build by the Makepkgs script. These packages
+# will also be used to build all containers layered on pcp-base.
+PACKAGES=../../rpm
+
 CONTAINER = pcp-base
-LDIRT = $(CONTAINER).tgz RPMS
+LDIRT = $(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz RPMS
 
-default default_pcp : RPMS $(CONTAINER).tgz
+default default_pcp install install_pcp:
+	@echo nothing to do
 
-RPMS:
-	# symlink doesnt work with docker build
-	mkdir RPMS; cp -a ../RPMS/* RPMS
+pack_pcp: RPMS $(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz
 
-install install_pcp:
+RPMS: # Docker build runs createrepo RPMS
+	@echo Using PCP RPMS from $(PACKAGES)
+	cp -a $(PACKAGES) RPMS
 
 # rule to build $(CONTAINER).tgz from Dockerfile
 include ../GNUlocalrules

@@ -12,7 +12,11 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-. ./localconfig
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
 rm -f $seq.out
 if pmcd -x /dev/null -p x 2>&1 | grep '.-p requires a posi*tive numeric argument' >/dev/null
 then
@@ -27,11 +31,6 @@ else
     echo "$seq: [not run] `cat $seq.notrun`"
     exit 0
 fi
-
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
 
 signal="$sudo $PCP_BINADM_DIR/pmsignal"
 status=0	# success is the default!

@@ -86,6 +86,7 @@ typedef struct {
 #define L_SUM		14
 #define L_ANON		15
 #define L_RATE		16
+#define L_INSTANT	17
 
 extern int __dmtraverse(const char *, char ***) _PCP_HIDDEN;
 extern int __dmchildren(const char *, char ***, int **) _PCP_HIDDEN;

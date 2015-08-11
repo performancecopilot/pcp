@@ -130,9 +130,9 @@ printhdr(void)
     } else {
 	printf("archive:   %s\n", archive);
 	printf("host:      %s\n", host);
-	printf("start:     %s", pmCtime(&first.tv_sec, timebuf));
+	printf("start:     %s", pmCtime((const time_t *)&first.tv_sec, timebuf));
 	if (last.tv_sec != INT_MAX)
-	    printf("end:       %s", pmCtime(&last.tv_sec, timebuf));
+	    printf("end:       %s", pmCtime((const time_t *)&last.tv_sec, timebuf));
     }
 
     /* sample count and interval */

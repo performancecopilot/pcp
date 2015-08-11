@@ -58,7 +58,7 @@ typedef struct {
 #define CONTEXT_ACTIVE	2
 #define CONTEXT_END	3
 
-#if defined(__GNUC__) && (__GNUC__ >= 4)
+#if defined(__GNUC__) && (__GNUC__ >= 4) && !defined(IS_MINGW)
 # define _PMI_HIDDEN __attribute__ ((visibility ("hidden")))
 #else
 # define _PMI_HIDDEN

@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2000-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2015 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -48,7 +49,7 @@ build-me:
 
 install:
 else
-build-me: domain.h libmlan.a $(CMDTARGET)
+build-me: libmlan.a $(CMDTARGET)
 
 install: default 
 	$(INSTALL) -m 755 -d $(PMDADIR)
@@ -56,6 +57,8 @@ install: default
 	$(INSTALL) -m 644 $(DFILES) root pmns domain.h $(PMDADIR)
 	@$(INSTALL_MAN)
 endif
+
+$(OBJECTS): domain.h
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)

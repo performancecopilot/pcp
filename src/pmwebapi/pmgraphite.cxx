@@ -27,6 +27,7 @@
 #include <iomanip>
 #include <sstream>
 #include <set>
+#include <map>
 
 using namespace std;
 
@@ -157,10 +158,13 @@ pmgraphite_metric_decode (const string & foo)
 // ------------------------------------------------------------------------
 
 
+typedef multimap<pmInDom,string> pmis_t;
+
 struct pmg_enum_context {
     const vector <string> *patterns;
     vector <string> *output;
     string archivepart;
+    pmis_t indom_instance_parts; // filtered indom instance names
 };
 
 
@@ -223,26 +227,36 @@ pmg_enumerate_pmns (const char *name, void *cls)
 
     if (pmd.indom == PM_INDOM_NULL) { // no more
         c->output->push_back (final_metric_name);
-    } else { // nesting
-        int *instlist;
-        char **namelist;
-        sts = pmGetInDomArchive (pmd.indom, &instlist, &namelist);
-        if (sts >= 1) {
-            for (int i=0; i<sts; i++) {
-                string instance_part = pmgraphite_metric_encode (namelist[i]);
-                // must filter out mismatches here too!
-                if (c->patterns->size () > metric_parts.size ()+1) {
-                    const string & pattern = (*c->patterns)[metric_parts.size ()+1];
-                    if (fnmatch (pattern.c_str (), instance_part.c_str (), FNM_NOESCAPE) != 0) {
-                        continue;
+    } else { // has instance domain - get one more graphite name component
+        // check indom instance cache
+        if (c->indom_instance_parts.find(pmd.indom) == c->indom_instance_parts.end()) {
+            // populate it
+            int *instlist;
+            char **namelist;
+            sts = pmGetInDomArchive (pmd.indom, &instlist, &namelist);
+            if (sts >= 1) {
+                for (int i=0; i<sts; i++) {
+                    string instance_part = pmgraphite_metric_encode (namelist[i]);
+                    // must filter out mismatches here too!
+                    if (c->patterns->size () > metric_parts.size ()+1) {
+                        const string & pattern = (*c->patterns)[metric_parts.size ()+1];
+                        if (fnmatch (pattern.c_str (), instance_part.c_str (), FNM_NOESCAPE) != 0) {
+                            continue;
+                        }
                     }
+                    c->indom_instance_parts.insert(make_pair(pmd.indom, instance_part));
                 }
-                c->output->push_back (final_metric_name + "." + instance_part);
+                free (instlist);
+                free (namelist);
+            } else {
+                // should not happen
             }
-            free (instlist);
-            free (namelist);
-        } else {
-            // should not happen
+        }
+
+        // iterate across instance cache
+        pair<pmis_t::iterator,pmis_t::iterator> range = c->indom_instance_parts.equal_range(pmd.indom);
+        for (pmis_t::iterator a = range.first; a != range.second; a++) {
+            c->output->push_back (final_metric_name + "." + a->second);
         }
     }
 }

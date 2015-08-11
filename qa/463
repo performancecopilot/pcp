@@ -26,8 +26,7 @@ _filter()
 
 # real QA test starts here
 echo "no error cases ..."
-i=1
-echo "---------------- $i -----------------"
+echo "---------------- 1 -----------------"
 cat <<End-of-File >$tmp.root
 root {
     one	1:2:3
@@ -47,8 +46,7 @@ End-of-File
 pmcpp $tmp.root 2>&1 | _filter
 
 echo
-i=`expr $i + 1`
-echo "---------------- $i -----------------"
+echo "---------------- 2 -----------------"
 cat <<End-of-File >$tmp.root
 root {
     one	1:2:3
@@ -75,8 +73,7 @@ pmcpp $tmp.root 2>&1 | _filter
 rm -f $tmp.?
 
 echo
-i=`expr $i + 1`
-echo "---------------- $i -----------------"
+echo "---------------- 3 -----------------"
 cat <<End-of-File >$tmp.root
 root {
     one	1:2:3
@@ -98,8 +95,7 @@ pmcpp $tmp.root 2>&1 | _filter
 rm -f $tmp.?
 
 echo
-i=`expr $i + 1`
-echo "---------------- $i -----------------"
+echo "---------------- 4 -----------------"
 cat <<End-of-File >$tmp.root
 root {
     one	1:2:3
@@ -122,8 +118,7 @@ pmcpp $tmp.root 2>&1 | _filter
 rm -f $tmp.?
 
 echo
-i=`expr $i + 1`
-echo "---------------- $i -----------------"
+echo "---------------- 5 -----------------"
 cat <<End-of-File >$tmp.root
 #define one two
 #define foo_path3 foo.three
@@ -149,8 +144,7 @@ pmcpp $tmp.root 2>&1 | _filter
 rm -f $tmp.?
 
 echo
-i=`expr $i + 1`
-echo "---------------- $i -----------------"
+echo "---------------- 6 -----------------"
 cat <<End-of-File >$tmp.root
 /* comment at the beginning */
 root {
@@ -179,8 +173,7 @@ rm -f $tmp.?
 # <stdpmid> may vary over time
 #
 echo
-i=`expr $i + 1`
-echo "---------------- $i -----------------"
+echo "---------------- 7 -----------------"
 cat <<End-of-File >$tmp.root
 #include <stdpmid>
 root {
@@ -191,8 +184,7 @@ End-of-File
 pmcpp $tmp.root 2>&1 | _filter | sed -e '/^[ 	]*$/d'
 
 echo
-i=`expr $i + 1`
-echo "---------------- $i -----------------"
+echo "---------------- 8 -----------------"
 cat <<End-of-File >$tmp.root
 root {
 #ifdef foo
@@ -203,10 +195,35 @@ root {
 End-of-File
 pmcpp -DSAMPLE=29 -DSAMPLEDSO=30 -Dfoo $tmp.root 2>&1 | _filter
 
+echo "---------------- 8a -----------------"
+echo foo >$tmp.1
+echo bar >$tmp.2
+echo mumble >$tmp.3
+echo fumble >$tmp.4
+cat <<End-of-File >$tmp.in
+/* white space after include filename */
+#include "$tmp.1"    /* spaces */
+/* spaces, no comment ... this was Nathan's Mac OS X failure */
+#include <$tmp.2>    
+#include <$tmp.3>	/* tab */
+/* tab, no comment */
+#include "$tmp.4"	
+End-of-File
+pmcpp -P $tmp.in 2>&1 | _filter
+
+echo "---------------- 8b -----------------"
+cat <<End-of-File >$tmp.in
+# white space after include filename
+# spaces, no comment ... this was Nathan's Mac OS X failure */
+%include <$tmp.1>    
+# tab this time
+%include "$tmp.2"	
+End-of-File
+pmcpp -sP $tmp.in 2>&1 | _filter
+
 echo
 echo "#include errors ..."
-i=`expr $i + 1`
-echo "---------------- $i -----------------"
+echo "---------------- 9 -----------------"
 cat <<End-of-File >$tmp.root
 root {
 #include $tmp.1
@@ -215,8 +232,7 @@ End-of-File
 pmcpp $tmp.root 2>&1 | _filter
 rm -f $tmp.?
 
-i=`expr $i + 1`
-echo "---------------- $i -----------------"
+echo "---------------- 10 -----------------"
 cat <<End-of-File >$tmp.root
 root {
 #include "$tmp.1
@@ -224,8 +240,7 @@ root {
 End-of-File
 pmcpp $tmp.root 2>&1 | _filter
 
-i=`expr $i + 1`
-echo "---------------- $i -----------------"
+echo "---------------- 11 -----------------"
 cat <<End-of-File >$tmp.root
 root {
 #include <$tmp.1
@@ -233,8 +248,7 @@ root {
 End-of-File
 pmcpp $tmp.root 2>&1 | _filter
 
-i=`expr $i + 1`
-echo "---------------- $i -----------------"
+echo "---------------- 12 -----------------"
 cat <<End-of-File >$tmp.root
 root {
 #include "$tmp.1" junk
@@ -243,8 +257,7 @@ End-of-File
 pmcpp $tmp.root 2>&1 | _filter
 rm -f $tmp.?
 
-i=`expr $i + 1`
-echo "---------------- $i -----------------"
+echo "---------------- 13 -----------------"
 cat <<End-of-File >$tmp.root
 root {
 #include "$tmp.1"
@@ -253,8 +266,7 @@ End-of-File
 pmcpp $tmp.root 2>&1 | _filter
 rm -f $tmp.?
 
-i=`expr $i + 1`
-echo "---------------- $i -----------------"
+echo "---------------- 14 -----------------"
 cat <<End-of-File >$tmp.root
 root {
     zero	1:0:0
@@ -282,8 +294,7 @@ rm -f $tmp.?
 
 echo
 echo "#define errors ..."
-i=`expr $i + 1`
-echo "---------------- $i -----------------"
+echo "---------------- 15 -----------------"
 cat <<End-of-File >$tmp.root
 root {
 #define
@@ -291,8 +302,7 @@ root {
 End-of-File
 pmcpp $tmp.root 2>&1 | _filter
 
-i=`expr $i + 1`
-echo "---------------- $i -----------------"
+echo "---------------- 16 -----------------"
 cat <<End-of-File >$tmp.root
 root {
 /* white space at the end of the next line */
@@ -301,8 +311,7 @@ root {
 End-of-File
 pmcpp $tmp.root 2>&1 | _filter
 
-i=`expr $i + 1`
-echo "---------------- $i -----------------"
+echo "---------------- 17 -----------------"
 cat <<End-of-File >$tmp.root
 root {
 #define foo
@@ -310,8 +319,7 @@ root {
 End-of-File
 pmcpp $tmp.root 2>&1 | _filter
 
-i=`expr $i + 1`
-echo "---------------- $i -----------------"
+echo "---------------- 18 -----------------"
 cat <<End-of-File >$tmp.root
 root {
 #define bad_123_macro!name
@@ -319,8 +327,7 @@ root {
 End-of-File
 pmcpp $tmp.root 2>&1 | _filter
 
-i=`expr $i + 1`
-echo "---------------- $i -----------------"
+echo "---------------- 19 -----------------"
 cat <<End-of-File >$tmp.root
 root {
 #define dup yes
@@ -329,16 +336,14 @@ root {
 End-of-File
 pmcpp $tmp.root 2>&1 | _filter
 
-i=`expr $i + 1`
-echo "---------------- $i -----------------"
+echo "---------------- 20 -----------------"
 cat <<End-of-File >$tmp.root
 root {
 }
 End-of-File
 pmcpp -Dfoo=1 -Dfoo $tmp.root 2>&1 | _filter
 
-i=`expr $i + 1`
-echo "---------------- $i -----------------"
+echo "---------------- 21 -----------------"
 cat <<End-of-File >$tmp.root
 root {
 }
@@ -347,8 +352,7 @@ pmcpp -Dfoo-bar=1 $tmp.root 2>&1 | _filter
 
 echo
 echo "#ifdef etc errors ..."
-i=`expr $i + 1`
-echo "---------------- $i -----------------"
+echo "---------------- 22 -----------------"
 cat <<End-of-File >$tmp.root
 root {
 #ifndef extra /*does not count*/ !
@@ -356,8 +360,7 @@ root {
 End-of-File
 pmcpp $tmp.root 2>&1 | _filter
 
-i=`expr $i + 1`
-echo "---------------- $i -----------------"
+echo "---------------- 23 -----------------"
 cat <<End-of-File >$tmp.root
 root {
 #ifdef foo
@@ -367,8 +370,7 @@ root {
 End-of-File
 pmcpp $tmp.root 2>&1 | _filter
 
-i=`expr $i + 1`
-echo "---------------- $i -----------------"
+echo "---------------- 24 -----------------"
 cat <<End-of-File >$tmp.root
 root {
 #define foo yippee
@@ -381,8 +383,7 @@ root {
 End-of-File
 pmcpp $tmp.root 2>&1 | _filter
 
-i=`expr $i + 1`
-echo "---------------- $i -----------------"
+echo "---------------- 25 -----------------"
 cat <<End-of-File >$tmp.root
 root {
 #undef foo
@@ -397,8 +398,7 @@ pmcpp $tmp.root 2>&1 | _filter
 
 echo
 echo "other #cpp line errors ..."
-i=`expr $i + 1`
-echo "---------------- $i -----------------"
+echo "---------------- 26 -----------------"
 cat <<End-of-File >$tmp.root
 root {
 #fumble

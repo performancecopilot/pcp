@@ -50,6 +50,7 @@ static pmLongOptions longopts[] = {
     PMOPT_SPECLOCAL,
     PMOPT_LOCALPMDA,
     PMOPT_CONTAINER,
+    PMOPT_DERIVED,
     PMAPI_OPTIONS_HEADER("Reporting options"),
     { "delay", 0, 'd', 0, "delay, pause between updates for archive replay" },
     { "precision", 1, 'f', "N", "fixed output format with N digits precision" },
@@ -354,9 +355,9 @@ printhdr(Context *x)
     else {
 	printf("archive:   %s\n", source);
 	printf("host:      %s\n", x->hostname);
-	printf("start:     %s", pmCtime(&opts.origin.tv_sec, tbfr));
+	printf("start:     %s", pmCtime((const time_t *)&opts.origin.tv_sec, tbfr));
 	if (opts.finish.tv_sec != INT_MAX)
-	    printf("end:       %s", pmCtime(&opts.finish.tv_sec, tbfr));
+	    printf("end:       %s", pmCtime((const time_t *)&opts.finish.tv_sec, tbfr));
     }
 
     printf("semantics: ");
@@ -986,7 +987,7 @@ main(int argc, char *argv[])
 	    char		tbfr[26];
 	    char		*tp;
 	    fprintf(stderr, "getargs: first=%.6f", start);
-	    tp = pmCtime(&opts.start.tv_sec, tbfr);
+	    tp = pmCtime((const time_t *)&opts.start.tv_sec, tbfr);
 	    /*
 	     * tp -> Ddd Mmm DD HH:MM:SS YYYY\n
 	     *       0   4   8  1      1 2  2 2
@@ -994,10 +995,10 @@ main(int argc, char *argv[])
 	     */
 	    fprintf(stderr, "[%8.8s]\n", &tp[11]);
 	    fprintf(stderr, "getargs: posn=%.6f", origin);
-	    tp = pmCtime(&opts.origin.tv_sec, tbfr);
+	    tp = pmCtime((const time_t *)&opts.origin.tv_sec, tbfr);
 	    fprintf(stderr, "[%8.8s]\n", &tp[11]);
 	    fprintf(stderr, "getargs: last=%.6f", finish);
-	    tp = pmCtime(&opts.finish.tv_sec, tbfr);
+	    tp = pmCtime((const time_t *)&opts.finish.tv_sec, tbfr);
 	    fprintf(stderr, "[%8.8s]\n", &tp[11]);
 	    fprintf(stderr, "getargs: delta=%.6f samples=%d\n",
 		    delta, opts.samples);

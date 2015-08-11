@@ -29,6 +29,8 @@
 #include "indom.h"
 #include "proc_partitions.h"
 
+int _pm_have_kernel_2_6_partition_stats;
+
 extern int _pm_numdisks;
 
 /*
@@ -353,6 +355,11 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom, pmInDom dm
 		&p->wr_ios, &p->wr_merges, &p->wr_sectors, &p->wr_ticks,
 		&p->ios_in_flight, &p->io_ticks, &p->aveq);
 	    if (n != 14) {
+                /*
+		 * From 2.6.25 onward, the full set of statistics is
+		 * available again for both partitions and disks.
+		 */
+		_pm_have_kernel_2_6_partition_stats = 1;
 		p->rd_merges = p->wr_merges = p->wr_ticks =
 			p->ios_in_flight = p->io_ticks = p->aveq = 0;
 		/* Linux source: block/genhd.c::diskstats_show(2) */
@@ -419,6 +426,7 @@ static pmID disk_metric_table[] = {
     /* disk.dev.scheduler */	     PMDA_PMID(CLUSTER_STAT,59),
     /* disk.dev.read_rawactive */    PMDA_PMID(CLUSTER_STAT,72),
     /* disk.dev.write_rawactive	*/   PMDA_PMID(CLUSTER_STAT,73),
+    /* disk.dev.total_rawactive	*/   PMDA_PMID(CLUSTER_STAT,79),
 
     /* disk.all.read */		     PMDA_PMID(CLUSTER_STAT,24),
     /* disk.all.write */	     PMDA_PMID(CLUSTER_STAT,25),
@@ -435,6 +443,7 @@ static pmID disk_metric_table[] = {
     /* disk.all.aveq */		     PMDA_PMID(CLUSTER_STAT,45),
     /* disk.all.read_rawactive */    PMDA_PMID(CLUSTER_STAT,74),
     /* disk.all.write_rawactive	*/   PMDA_PMID(CLUSTER_STAT,75),
+    /* disk.all.total_rawactive	*/   PMDA_PMID(CLUSTER_STAT,80),
 
     /* disk.partitions.read */	     PMDA_PMID(CLUSTER_PARTITIONS,0),
     /* disk.partitions.write */	     PMDA_PMID(CLUSTER_PARTITIONS,1),
@@ -445,6 +454,14 @@ static pmID disk_metric_table[] = {
     /* disk.partitions.read_bytes */ PMDA_PMID(CLUSTER_PARTITIONS,6),
     /* disk.partitions.write_bytes */PMDA_PMID(CLUSTER_PARTITIONS,7),
     /* disk.partitions.total_bytes */PMDA_PMID(CLUSTER_PARTITIONS,8),
+    /* disk.partitions.read_merge */ PMDA_PMID(CLUSTER_PARTITIONS,9),
+    /* disk.partitions.write_merge */PMDA_PMID(CLUSTER_PARTITIONS,10),
+    /* disk.partitions.avactive */   PMDA_PMID(CLUSTER_PARTITIONS,11),
+    /* disk.partitions.aveq */       PMDA_PMID(CLUSTER_PARTITIONS,12),
+    /* disk.partitions.read_rawactive */  PMDA_PMID(CLUSTER_PARTITIONS,13),
+    /* disk.partitions.write_rawactive */ PMDA_PMID(CLUSTER_PARTITIONS,14),
+    /* disk.partitions.total_rawactive */ PMDA_PMID(CLUSTER_PARTITIONS,15),
+
 
     /* hinv.ndisk */                 PMDA_PMID(CLUSTER_STAT,33),
 
@@ -464,6 +481,7 @@ static pmID disk_metric_table[] = {
     /* hinv.map.dmname */	     PMDA_PMID(CLUSTER_DM,13),
     /* disk.dm.read_rawactive */     PMDA_PMID(CLUSTER_DM,14),
     /* disk.dm.write_rawactive */    PMDA_PMID(CLUSTER_DM,15),
+    /* disk.dm.total_rawactive */    PMDA_PMID(CLUSTER_DM,16),
 };
 
 int
@@ -592,17 +610,17 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 38: /* disk.dev.read_bytes */
 	    if (p == NULL)
 		return PM_ERR_INST;
-	    atom->ull = p->rd_sectors / 2;
+	    atom->ul = p->rd_sectors / 2;
 	    break;
 	case 39: /* disk.dev.write_bytes */
 	    if (p == NULL)
 		return PM_ERR_INST;
-	    atom->ull = p->wr_sectors / 2;
+	    atom->ul = p->wr_sectors / 2;
 	    break;
 	case 40: /* disk.dev.total_bytes */
 	    if (p == NULL)
 		return PM_ERR_INST;
-	    atom->ull = (p->rd_sectors + p->wr_sectors) / 2;
+	    atom->ul = (p->rd_sectors + p->wr_sectors) / 2;
 	    break;
 	case 46: /* disk.dev.avactive ... already msec from /proc/diskstats */
 	    if (p == NULL)
@@ -639,6 +657,11 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return PM_ERR_INST;
 	    atom->ul = p->wr_ticks;
 	    break;
+	case 79: /* disk.dev.total_rawactive already ms from /proc/diskstats */
+	    if (p == NULL)
+		return PM_ERR_INST;
+	    atom->ul = p->rd_ticks + p->wr_ticks;
+	    break;
 	default:
 	    /* disk.all.* is a singular instance domain */
 	    atom->ull = 0;
@@ -667,13 +690,13 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		    atom->ull += p->rd_sectors + p->wr_sectors;
 		    break;
 		case 41: /* disk.all.read_bytes */
-		    atom->ull += p->rd_sectors / 2;
+		    atom->ul += p->rd_sectors / 2;
 		    break;
 		case 42: /* disk.all.write_bytes */
-		    atom->ull += p->wr_sectors / 2;
+		    atom->ul += p->wr_sectors / 2;
 		    break;
 		case 43: /* disk.all.total_bytes */
-		    atom->ull += (p->rd_sectors + p->wr_sectors) / 2;
+		    atom->ul += (p->rd_sectors + p->wr_sectors) / 2;
 		    break;
 		case 44: /* disk.all.avactive ... already msec from /proc/diskstats */
 		    atom->ull += p->io_ticks;
@@ -692,6 +715,9 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		    break;
 		case 75: /* disk.all.write_rawactive ... already msec from /proc/diskstats */
 		    atom->ull += p->wr_ticks;
+		    break;
+		case 80: /* disk.all.total_rawactive ... already msec from /proc/diskstats */
+		    atom->ull += p->rd_ticks + p->wr_ticks;
 		    break;
 		default:
 		    return PM_ERR_PMID;
@@ -735,6 +761,48 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		atom->ul = (p->rd_sectors +
 			   p->wr_sectors) / 2;
 		break;
+            case 9: /* disk.partitions.read_merge */
+                if (_pm_have_kernel_2_6_partition_stats)
+                    return PM_ERR_APPVERSION; /* no read_merge for partition in 2.6 */
+                else
+                    _pm_assign_ulong(atom, p->rd_merges);
+                break;
+            case 10: /* disk.partitions.write_merge */
+                if (_pm_have_kernel_2_6_partition_stats)
+                    return PM_ERR_APPVERSION; /* no write_merge for partition in 2.6 */
+                else
+                    _pm_assign_ulong(atom, p->wr_merges);
+                break;
+            case 11: /* disk.partitions.avactive */
+                if (_pm_have_kernel_2_6_partition_stats)
+                    return PM_ERR_APPVERSION; /* no avactive for partition in 2.6 */
+                else
+                    atom->ul = p->io_ticks;
+                break;
+            case 12: /* disk.partitions.aveq */
+                if (_pm_have_kernel_2_6_partition_stats)
+                    return PM_ERR_APPVERSION; /* no aveq for partition in 2.6 */
+                else
+                    atom->ul = p->aveq;
+                break;
+            case 13: /* disk.partitions.read_rawactive */
+                if (_pm_have_kernel_2_6_partition_stats)
+                    return PM_ERR_APPVERSION; /* no read_rawactive for partition in 2.6 */
+                else
+                    atom->ul = p->rd_ticks;
+                break;
+            case 14: /* disk.partitions.write_rawactive */
+                if (_pm_have_kernel_2_6_partition_stats)
+                    return PM_ERR_APPVERSION; /* no write_rawactive for partition in 2.6 */
+                else
+                    atom->ul = p->wr_ticks;
+                break;
+            case 15: /* disk.partitions.total_rawactive */
+                if (_pm_have_kernel_2_6_partition_stats)
+                    return PM_ERR_APPVERSION; /* no read_rawactive or write_rawactive for partition in 2.6 */
+                else
+                    atom->ul = p->rd_ticks + p->wr_ticks;
+                break;
 	    default:
 	    return PM_ERR_PMID;
 	}
@@ -763,13 +831,13 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->ull = p->rd_sectors + p->wr_sectors;
 	    break;
 	case 6: /* disk.dm.read_bytes */
-	    atom->ull = p->rd_sectors / 2;
+	    atom->ul = p->rd_sectors / 2;
 	    break;
 	case 7: /* disk.dm.write_bytes */
-	    atom->ull = p->wr_sectors / 2;
+	    atom->ul = p->wr_sectors / 2;
 	    break;
 	case 8: /* disk.dm.total_bytes */
-	    atom->ull = (p->rd_sectors + p->wr_sectors) / 2;
+	    atom->ul = (p->rd_sectors + p->wr_sectors) / 2;
 	    break;
 	case 9: /* disk.dm.read_merge */
 	    _pm_assign_ulong(atom, p->rd_merges);
@@ -778,10 +846,10 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    _pm_assign_ulong(atom, p->wr_merges);
 	    break;
 	case 11: /* disk.dm.avactive */
-	    atom->ull = p->io_ticks;
+	    atom->ul = p->io_ticks;
 	    break;
 	case 12: /* disk.dm.aveq */
-	    atom->ull = p->aveq;
+	    atom->ul = p->aveq;
 	    break;
 	case 13: /* hinv.map.dmname */
 	    atom->cp = p->dmname;
@@ -791,6 +859,9 @@ proc_partitions_fetch(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 15: /* disk.dm.write_rawactive */
 	    atom->ul = p->wr_ticks;
+	    break;
+	case 16: /* disk.dm.total_rawactive */
+	    atom->ul = p->rd_ticks + p->wr_ticks;
 	    break;
 	default:
 	    return PM_ERR_PMID;

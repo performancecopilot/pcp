@@ -13,15 +13,11 @@
 # Dockerfile to build the pcp-pmlogger container image, layered on pcp-base.
 #
 FROM pcp-base:latest
-MAINTAINER PCP developers <pcp@pcp.io>
+MAINTAINER PCP Development Team <pcp@oss.sgi.com>
 
 #
 # install pcp and it's dependencies, clean the cache.
-RUN yum --enablerepo=pcp-testing -y install pcp && yum clean all
-
-#
-# Run in the container as root - avoid PCP_USER mismatches
-RUN sed -i -e 's/PCP_USER=.*$/PCP_USER=root/' -e 's/PCP_GROUP=.*$/PCP_GROUP=root/' /etc/pcp.conf
+RUN dnf --enablerepo=pcp-devel -y install pcp && dnf clean all
 
 #
 # Expose pmloggers/pmlc ports on the host interfaces.
@@ -30,6 +26,12 @@ EXPOSE 4330
 #
 # pmlogger start script complains if pmlogger.service is not enabled.
 RUN systemctl enable pmlogger.service
+
+#
+# Remove the crontab entry - we install our own container specific version
+# on startup into the /etc/cron.d bind mount and use the host cron service.
+# See the pmlogger rc script.
+RUN rm -f /etc/cron.d/pcp-pmlogger
 
 #
 # denote this as a container environment, for rc scripts

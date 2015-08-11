@@ -31,6 +31,7 @@ _filter_pmcd_log()
 	-e '/^->/s/->[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/->        /' \
 	-e "s;$PCP_PMCDCONF_PATH;\$PCP_PMCDCONF_PATH;" \
 	-e '/get_scsi_sn:/d' \
+	-e '/refresh_proc_scsi/d' \
 	-e '/Info: CleanupAgent/d' \
 	-e '/using .* kmem interface/d' \
 	-e '/pmcd_wait failed: exit status:/d' \
@@ -127,6 +128,7 @@ _filter_pmlogger_log()
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
 	-e 's/pmlogger([1-9][0-9]*) Error:/pmlogger(PID) Error:/' \
 	-e '/^pmlogger: Signalled (signal=[1-9][0-9]*).*/d' \
+	-e '/^preprocessor cmd: /d' \
         -e '/^\(Log for pmlogger on\) [^ ][^ ]*/s//\1 HOST/' \
 	-e '/^Starting logger/s/host ".*/host "HOST"/' \
 	-e '/^Archive basename: /s/:.*/: ARCHIVE/' \
@@ -475,6 +477,7 @@ s/\.\.\.\.*/.../
         -e '/^\.[. ]*done$/d' \
 	-e '/is not a native service, redirecting to .*chkconfig/d' \
 	-e '/^Executing .*chkconfig pm.* --level=5/d' \
+	-e "s;$PCP_RC_DIR/pmlogger;\$PCP_RC_DIR/pmlogger;" \
     | _filter_init_distro
 }
 

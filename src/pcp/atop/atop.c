@@ -574,7 +574,7 @@ engine(void)
 		*/
 		memset(curtpres, 0, curtlen * sizeof(struct tstat));
 
-		ntaskpres = photoproc(curtpres, &curtlen);
+		ntaskpres = photoproc(&curtpres, &curtlen);
 
 		/*
 		** register processes that exited during last sample;
@@ -817,18 +817,11 @@ static void
 readrc(char *path, int syslevel)
 {
 	int	i, nr, line=0, errorcnt = 0;
+	FILE	*fp;
+	char	linebuf[256], tagname[20], tagvalue[256];
 
-	/*
-	** check if this file is readable with the user's
-	** *real uid/gid* with syscall access()
-	*/
-	if ( access(path, R_OK) == 0)
+	if ((fp = fopen(path, "r")) != NULL)
 	{
-		FILE	*fp;
-		char	linebuf[256], tagname[20], tagvalue[256];
-
-		fp = fopen(path, "r");
-
 		while ( fgets(linebuf, sizeof linebuf, fp) )
 		{
 			line++;

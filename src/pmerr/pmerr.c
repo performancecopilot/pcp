@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014-2015 Red Hat.
  * Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -13,12 +13,9 @@
  * for more details.
  */
 
-#include <stdio.h>
-#include <ctype.h>
 #include "pmapi.h"
+#include "impl.h"
 #include <ctype.h>
-
-extern void __pmDumpErrTab(FILE *);
 
 int
 main(int argc, char **argv)

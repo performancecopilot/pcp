@@ -5,12 +5,14 @@ FILES = \
 	atop-httpstats \
 	collectl \
 	collectl-summary \
+	collectl-interrupts \
 	dmcache \
 	free \
 	free-summary \
 	iostat \
 	ip \
 	mpstat \
+	mpstat-interrupts \
 	numastat \
 	pcp-summary \
 	pmclient \

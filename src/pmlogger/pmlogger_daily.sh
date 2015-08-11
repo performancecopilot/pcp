@@ -281,17 +281,21 @@ _filter_filename()
 	-e '/^[0-9][0-9][0-1][0-9][0-3][0-9][-.]/p'
 }
 
-_get_ino()
+_get_primary_logger_pid()
 {
-    # get inode number for $1
-    # throw away stderr (and return '') in case $1 has been removed by now
-    #
-    stat "$1" 2>/dev/null \
-    | sed -n '/Device:[ 	].*[ 	]Inode:/{
-s/Device:[ 	].*[ 	]Inode:[ 	]*//
-s/[ 	].*//
-p
-}'
+    file="$PCP_TMP_DIR/pmlogger/primary"
+    if [ ! -L "$file" ]
+    then
+	pid=''
+    elif which realpath >/dev/null 2>&1
+    then
+	pri=`readlink $file`
+	pid=`basename "$pri"`
+    else
+	pri=`ls -l "$file" | sed -e 's/.*-> //'`
+	pid=`basename "$pri"`
+    fi
+    echo "$pid"
 }
 
 # mails out any entries for the previous 24hrs from the PCP notices file
@@ -559,28 +563,10 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
         # squash them all to the officially pcp-preferred way to access it.
         host=local:
 
-	if test -f "$PCP_TMP_DIR/pmlogger/primary"
+	if test -e "$PCP_TMP_DIR/pmlogger/primary"
 	then
-	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "... try $PCP_TMP_DIR/pmlogger/primary: ""$PCP_ECHO_C"
-	    primary_inode=`_get_ino $PCP_TMP_DIR/pmlogger/primary`
-	    $VERY_VERBOSE && echo primary_inode=$primary_inode
-	    for file in $PCP_TMP_DIR/pmlogger/*
-	    do
-		case "$file"
-		in
-		    */primary|*\*)
-			;;
-		    */[0-9]*)
-			inode=`_get_ino "$file"`
-			$VERY_VERBOSE && echo $file inode=$inode
-			if [ "$primary_inode" = "$inode" ]
-			then
-			    pid="`echo $file | sed -e 's/.*\/\([^/]*\)$/\1/'`"
-			    break
-			fi
-			;;
-		esac
-	    done
+	    $VERY_VERBOSE && echo "... try $PCP_TMP_DIR/pmlogger/primary: "
+	    pid=`_get_primary_logger_pid`
 	    if [ -z "$pid" ]
 	    then
 		if $VERY_VERBOSE

@@ -1,45 +1,67 @@
 QA output created by 709
+
+=== -c 2 -i 0.1 -sc ===
 #<--------CPU-------->
 #cpu sys inter ctxsw
 9 9 9 9
 9 9 9 9
+
+=== -c 2 -i 0.1 -sd ===
 <----------Disks----------->
 KBRead Reads KBWrit Writes
 9 9 9 9
 9 9 9 9
+
+=== -c 2 -i 0.1 -sn ===
 <----------Network---------->
 KBIn PktIn KBOut PktOut
 9 9 9 9
 9 9 9 9
+
+=== -c 2 -i 0.1 -sj ===
 #<--Int--->
 #Cpu9
 9
 9
+
+=== -c 2 -i 0.1 -sm ===
 #<-----------Memory----------->
 #Free Buff Cach Inac Slab Map
 9M 9M 9M 9M 9M 9M
 9M 9M 9M 9M 9M 9M
+
+=== -c 2 -i 0.1 -sc --verbose ===
 # CPU SUMMARY (INTR, CTXSW & PROC /sec)
 #User Nice Sys Wait IRQ Soft Steal Idle CPUs Intr Ctxsw Proc RunQ Run Avg9 Avg9 Avg9 RunT BlkT
 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9.9 9.9 9.9 9 9
 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9.9 9.9 9.9 9 9
+
+=== -c 2 -i 0.1 -sd --verbose ===
 # DISK SUMMARY (/sec)
 #KBRead RMerged Reads SizeKB KBWrite WMerged Writes SizeKB
 9 9 9 9 9 9 9 9
 9 9 9 9 9 9 9 9
+
+=== -c 2 -i 0.1 -sn --verbose ===
 # NETWORK SUMMARY (/sec)
 # KBIn PktIn SizeIn MultI CmpI ErrsI KBOut PktOut SizeO CmpO ErrsO
 9 9 9 9 9 9 9 9 9 9 9
 9 9 9 9 9 9 9 9 9 9 9
+
+=== -c 2 -i 0.1 -sm --verbose ===
 # MEMORY SUMMARY
 #<-------------------------------Physical Memory--------------------------------------><-----------Swap------------><-------Paging------>
 # Total Used Free Buff Cached Slab Mapped Anon Commit Locked Inact Total Used Free In Out Fault MajFt In Out
 9M 9M 9M 9M 9M 9M 9M 9M 9M 9M 9M 9M 9M 9M 9 9 9 9 9 9
 9M 9M 9M 9M 9M 9M 9M 9M 9M 9M 9M 9M 9M 9M 9 9 9 9 9 9
+
+=== -c 2 -i 0.1 ===
 #<--------CPU--------><----------Disks-----------><----------Network---------->
 #cpu sys inter ctxsw KBRead Reads KBWrit Writes KBIn PktIn KBOut PktOut
 9 9 9 9 9 9 9 9 9 9 9 9
 9 9 9 9 9 9 9 9 9 9 9 9
+
+=== -c 2 -i 0.1 --verbose ===
 ### RECORD
 # CPU SUMMARY (INTR, CTXSW & PROC /sec)
 #User Nice Sys Wait IRQ Soft Steal Idle CPUs Intr Ctxsw Proc RunQ Run Avg9 Avg9 Avg9 RunT BlkT
@@ -60,10 +82,14 @@ KBIn PktIn KBOut PktOut
 # NETWORK SUMMARY (/sec)
 # KBIn PktIn SizeIn MultI CmpI ErrsI KBOut PktOut SizeO CmpO ErrsO
 9 9 9 9 9 9 9 9 9 9 9
+
+=== -c 2 -i 0.1 -scd ===
 #<--------CPU--------><----------Disks----------->
 #cpu sys inter ctxsw KBRead Reads KBWrit Writes
 9 9 9 9 9 9 9 9
 9 9 9 9 9 9 9 9
+
+=== -c 2 -i 0.1 -scd --verbose ===
 ### RECORD
 # CPU SUMMARY (INTR, CTXSW & PROC /sec)
 #User Nice Sys Wait IRQ Soft Steal Idle CPUs Intr Ctxsw Proc RunQ Run Avg9 Avg9 Avg9 RunT BlkT
@@ -78,34 +104,50 @@ KBIn PktIn KBOut PktOut
 # DISK SUMMARY (/sec)
 #KBRead RMerged Reads SizeKB KBWrite WMerged Writes SizeKB
 9 9 9 9 9 9 9 9
+
+=== -c 2 -i 0.1 -p test.pmcollectl -sd ===
 <----------Disks----------->
 KBRead Reads KBWrit Writes
 9 9 9 9
 9 9 9 9
+
+=== -c 2 -i 0.1 -p test.pmcollectl -sc ===
 #<--------CPU-------->
 #cpu sys inter ctxsw
 9 9 9 9
 9 9 9 9
+
+=== -c 2 -i 0.1 -p test.pmcollectl -sn ===
 <----------Network---------->
 KBIn PktIn KBOut PktOut
 9 9 9 9
 9 9 9 9
+
+=== -c 2 -i 0.1 -p test.pmcollectl -sm ===
 #<-----------Memory----------->
 #Free Buff Cach Inac Slab Map
 9M 9M 9M 9M 9M 9M
 9M 9M 9M 9M 9M 9M
+
+=== -c 2 -i 0.1 -p test.pmcollectl -sd --verbose ===
 # DISK SUMMARY (/sec)
 #KBRead RMerged Reads SizeKB KBWrite WMerged Writes SizeKB
 9 9 9 9 9 9 9 9
 9 9 9 9 9 9 9 9
+
+=== -c 2 -i 0.1 -p test.pmcollectl -sc --verbose ===
 # CPU SUMMARY (INTR, CTXSW & PROC /sec)
 #User Nice Sys Wait IRQ Soft Steal Idle CPUs Intr Ctxsw Proc RunQ Run Avg9 Avg9 Avg9 RunT BlkT
 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9.9 9.9 9.9 9 9
 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9.9 9.9 9.9 9 9
+
+=== -c 2 -i 0.1 -p test.pmcollectl -sn --verbose ===
 # NETWORK SUMMARY (/sec)
 # KBIn PktIn SizeIn MultI CmpI ErrsI KBOut PktOut SizeO CmpO ErrsO
 9 9 9 9 9 9 9 9 9 9 9
 9 9 9 9 9 9 9 9 9 9 9
+
+=== -c 2 -i 0.1 -p test.pmcollectl -sm --verbose ===
 # MEMORY SUMMARY
 #<-------------------------------Physical Memory--------------------------------------><-----------Swap------------><-------Paging------>
 # Total Used Free Buff Cached Slab Mapped Anon Commit Locked Inact Total Used Free In Out Fault MajFt In Out
