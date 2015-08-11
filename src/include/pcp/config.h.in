@@ -570,12 +570,6 @@ extern const char *wsastrerror(int);
 #define SIGHUP		(NSIG+1)
 #define SIGUSR1		(NSIG+2)
 #define SIGBUS		(NSIG+3)
-#define S_IRGRP		0
-#define S_IWGRP		0
-#define S_IROTH		0
-#define S_IWOTH		0
-#define S_IRWXG		0
-#define S_IRWXO		0
 #define S_ISVTX		0
 
 #define fcntl(f, cmd, ...) 0

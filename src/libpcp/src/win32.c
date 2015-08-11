@@ -89,7 +89,7 @@ __pmSetSignalHandler(int sig, __pmSignalHandler func)
     char *signame, evname[64];
     HANDLE eventhdl, waithdl;
 
-    if ((signame = MapSignals(sig, &index)) < 0)
+    if ((signame = MapSignals(sig, &index)) == NULL)
 	return index;
 
     if (signals[index].callback) {	/* remove old handler */
