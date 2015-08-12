@@ -9876,12 +9876,19 @@ if test "x$do_papi" != "xno"; then :
     saved_CFLAGS="$CFLAGS"
     savedLIBS=$LIBS
 
+        CFLAGS="$papi_CFLAGS"
+    LDFLAGS="$papi_LIBS"
+
     case "$do_papi" in
-      yes|no|check) ;;
-	 */*) PAPI_ROOTDIR=$do_papi;
-	      CFLAGS="-I$PAPI_ROOTDIR/include"
-	      LDFLAGS="-L$PAPI_ROOTDIR/lib" ;;
+	yes|no|check)
+	    ;;
+	*/*)
+	    PAPI_ROOTDIR=$do_papi;
+	    CFLAGS="-I$PAPI_ROOTDIR/include"
+	    LDFLAGS="-L$PAPI_ROOTDIR/lib"
+	    ;;
 	 *)
+
 pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for papi" >&5
 $as_echo_n "checking for papi... " >&6; }
@@ -9971,12 +9978,13 @@ else
         { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 
-		CFLAGS="$papi_CFLAGS"
-		LDFLAGS="$papi_LIBS"
-fi ;;
-                # $papi_LIBS will include -lpapi harmlessly redudantly with AC_CHECK_LIB
+		  CFLAGS="$papi_CFLAGS"
+		  LDFLAGS="$papi_LIBS"
+fi
+	    ;;
     esac
 
+    # $papi_LIBS may include -lpapi harmlessly redudantly with AC_CHECK_LIB
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for PAPI_library_init in -lpapi" >&5
 $as_echo_n "checking for PAPI_library_init in -lpapi... " >&6; }
 if ${ac_cv_lib_papi_PAPI_library_init+:} false; then :
