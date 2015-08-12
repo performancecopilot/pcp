@@ -624,6 +624,7 @@ __pmAddOptArchiveFolio(pmOptions *opts, char *arg)
 		__pmNoMem("pmGetOptions(archive)", length, PM_FATAL_ERR);
 	    snprintf(p, length, "%s%c%s", dir, sep, log);
 	    __pmAddOptArchive(opts, p);
+	    free(p);
 	}
 
 	fclose(fp);
