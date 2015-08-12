@@ -1,0 +1,69 @@
+#!/usr/bin/pcp python
+#
+# Copyright (C) 2015 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Iostat Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# pylint: disable=C0103,R0914,R0902
+""" Display filesys and mount metrics """
+
+import sys
+from pcp import pmapi, pmcc
+
+METRICS = [ 'filesys.capacity', 'filesys.used', 'filesys.free',
+	    'filesys.maxfiles', 'filesys.usedfiles', 'filesys.freefiles',
+	    'filesys.full', 'filesys.blocksize', 'filesys.avail',
+	    'mounts.capacity', 'mounts.used', 'mounts.free',
+	    'mounts.maxfiles', 'mounts.usedfiles', 'mounts.freefiles',
+	    'mounts.full', 'mounts.blocksize', 'mounts.avail' ]
+
+class FilesysReport(pmcc.MetricGroupPrinter):
+    _device = ''
+    _fspath = ''
+
+    def __init__(self, device, fspath):
+        pmcc.MetricGroupPrinter.__init__(self)
+        self._device = device
+        self._fspath = fspath
+
+    def currentValue(self, group, name):
+        return dict(map(lambda x: (x[1], x[2]), group[name].netValues))
+
+    def report(self, manager):
+        group = manager["fs"]
+        names = [ 'capacity', 'used', 'free', 'maxfiles', 'usedfiles',
+                  'freefiles', 'full', 'blocksize', 'avail' ]
+        for name in names:
+            filesys = self.currentValue(group, 'filesys.' + name)
+            mounts = self.currentValue(group, 'mounts.' + name)
+            # print("%s %s %s" % (name, self._device, self._fspath))
+            print("%s %d %d" % (name,
+                filesys[self._device], mounts[self._fspath]))
+        sys.exit(0)
+
+if __name__ == '__main__':
+    try:
+        options = pmapi.pmOptions('?')
+        options.pmSetShortUsage('[options] device fspath')
+        if len(sys.argv) != 3:
+            raise pmapi.pmUsageErr()
+        manager = pmcc.MetricGroupManager.builder(options, sys.argv)
+        manager["fs"] = METRICS
+        manager.printer = FilesysReport(sys.argv[1], sys.argv[2])
+        sts = manager.run()
+        sys.exit(sts)
+    except pmapi.pmErr as error:
+        print('%s: %s\n' % (error.progname(), error.message()))
+    except pmapi.pmUsageErr as usage:
+        usage.message()
+        sys.exit(1)
+    except KeyboardInterrupt:
+        pass

@@ -163,7 +163,7 @@ PYTHONFILES = \
 	test_mmv.python test_webapi.python \
 	test_pcp_options.python test_pcp_getopts.python \
 	test_pcp_time.python test_pmnswalk.python \
-	pmapi_exceptions.python
+	pmapi_exceptions.python fsstats.python
 # not installed:
 PYFILES = $(shell echo $(PYTHONFILES) | sed -e 's/\.python/.py/g')
 else
