@@ -11329,13 +11329,21 @@ $2 == "bozo"	{ t = $1
 	_fmt='"ld"'
 	;;
     'long long'|'long long int')
-	_fmt='"lld"'
+        if test $target_os = mingw; then
+            _fmt='"I64d"'
+        else
+	    _fmt='"lld"'
+        fi
 	;;
     'unsigned long'|'unsigned long int'|'long unsigned int')
 	_fmt='"lu"'
 	;;
     'unsigned long long')
-	_fmt='"llu"'
+        if test $target_os = mingw; then
+            _fmt='"I64u"'
+        else
+	    _fmt='"llu"'
+        fi
 	;;
     *\*)	# pointer to a something
 	_fmt='"p"'
