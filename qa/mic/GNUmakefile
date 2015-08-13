@@ -3,14 +3,19 @@ include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/mic
 
-QAFILES = $(shell echo micmgmt.*)
+PYMODULES = micmgmt.python
 
-LSRCFILES = $(QAFILES)
+LSRCFILES = $(PYMODULES)
+LDIRT = micmgmt.py micmgmt.pyc micmgmt.pyo
 
-default default_pcp setup: 
+default default_pcp setup: micmgmt.py
 
 install install_pcp:
 	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 644 $(QAFILES) $(TESTDIR)
+	$(INSTALL) -m 644 $(PYMODULES) $(TESTDIR)/$(PYMODULES)
+	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
 
 include $(BUILDRULES)
+
+%.py : %.python
+        $(LN_S) $< $@
