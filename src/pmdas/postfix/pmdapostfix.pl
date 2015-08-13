@@ -234,7 +234,7 @@ if (defined($ENV{'PMDA_POSTFIX_REFRESH'})) { $refresh = $ENV{'PMDA_POSTFIX_REFRE
 
 foreach my $file ( @logfiles ) {
     if ( -r $file ) {
-	$logfile = $file;
+	$logfile = $file unless ( -d $file );
     }
 }
 if (defined($ENV{'PMDA_POSTFIX_LOG'})) { $logfile = $ENV{'PMDA_POSTFIX_LOG'}; } 
