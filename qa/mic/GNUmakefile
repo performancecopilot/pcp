@@ -18,4 +18,4 @@ install install_pcp:
 include $(BUILDRULES)
 
 %.py : %.python
-        $(LN_S) $< $@
+	$(LN_S) $< $@
