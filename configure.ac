@@ -360,31 +360,44 @@ AC_SUBST(cc)
 cc_is_gcc=$GCC
 AC_SUBST(cc_is_gcc)
 AC_SUBST(cflags_abi)
-PCFLAGS=$CFLAGS
-AC_SUBST(PCFLAGS)
-AC_PROG_CXX
-cxx=$CXX
-AC_SUBST(cxx)
+dnl these become CFLAGS and LDFLAGS for the build
+PCFLAGS="$CFLAGS"
 PLDFLAGS=$LDFLAGS
-AC_SUBST(PLDFLAGS)
 
-dnl for cc use locally in configure (not exported via $PCFLAGS),
-dnl add -O in case -D_FORTIFY_SOURCE has been added to CFLAGS above,
-dnl as -D_FORTIFY_SOURCE requires -O but we've separated optimization
-dnl flags out into $CFLAGS_OPT for our build infrastructure
-CFLAGS="-O $CFLAGS"
+if echo "$CFLAGS" | grep 'D_FORTIFY_SOURCE' >/dev/null
+then
+    dnl for cc use locally in configure (not exported via $PCFLAGS),
+    dnl add -O in case -D_FORTIFY_SOURCE has been added to CFLAGS above,
+    dnl as -D_FORTIFY_SOURCE requires -O but we've separated optimization
+    dnl flags out into $CFLAGS_OPT for our build infrastructure
+    CFLAGS="-O $PCFLAGS"
+fi
+
+dnl some versions of gcc (e.g. version 4.8.4 on Gentoo Hardened) have added
+dnl a predefined for _FORTIFY_SOURCE but only when -O is specified ... so
+dnl to be safe we have -U_FORTIFY_SOURCE before -D_FORTIFY_SOURCE=2 below
 
 # Add some security-related gcc flags
-AC_ARG_ENABLE([ssp],
-  [AS_HELP_STRING([--disable-ssp], [disable gcc stack-protector])])
-AS_IF([test "x$cc_is_gcc" = xyes -a "x$enable_ssp" != no],[
-   save_CFLAGS="$CFLAGS"
-   CFLAGS="$CFLAGS -fstack-protector-all -D_FORTIFY_SOURCE=2"
-   AC_COMPILE_IFELSE([AC_LANG_SOURCE([int something ();])], [
-       AC_MSG_NOTICE([Compiling with gcc -fstack-protector-all et al.])
-       CFLAGS="$save_CFLAGS -fstack-protector-all -D_FORTIFY_SOURCE=2"],[
-       AC_MSG_NOTICE([Compiler does not support -fstack-protector-all et al.])
-       CFLAGS="$save_CFLAGS"])])
+if echo "$CFLAGS" | grep stack-protector >/dev/null
+then
+    dnl already set, probably from the environment
+    :
+else
+    AC_ARG_ENABLE([ssp],
+      [AS_HELP_STRING([--disable-ssp], [disable gcc stack-protector])])
+    AS_IF([test "x$cc_is_gcc" = xyes -a "x$enable_ssp" != no],[
+       save_CFLAGS="$CFLAGS"
+       CFLAGS="$CFLAGS -O -fstack-protector-all -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2"
+       AC_COMPILE_IFELSE([AC_LANG_SOURCE([int something ();])], [
+	   AC_MSG_NOTICE([Compiling with gcc -fstack-protector-all et al.])
+	   PCFLAGS="$PCFLAGS -fstack-protector-all -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2"],[
+	   AC_MSG_NOTICE([Compiler does not support -fstack-protector-all et al.])
+	   CFLAGS="$save_CFLAGS"
+       ])
+    ])
+fi
+AC_SUBST(PCFLAGS)
+AC_SUBST(PLDFLAGS)
 
 # Check for even more security-related gcc/linker flags, useful for daemons
 AC_ARG_ENABLE([pie],
@@ -425,6 +438,10 @@ AS_IF([test "x$cc_is_gcc" = xyes -a "$enable_visibility" != no],[
    CFLAGS="$save_CFLAGS"
 ])
 AC_SUBST(INVISIBILITY)
+
+AC_PROG_CXX
+cxx=$CXX
+AC_SUBST(cxx)
 
 # Prevent shared libaries from being built for libpcp and other core libraries
 AC_ARG_ENABLE([shared],

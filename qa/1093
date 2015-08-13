@@ -1,0 +1,91 @@
+#!/bin/sh
+# PCP QA Test No. 1093
+# ?shell directive to pmcpp
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+cat <<End-of-File >$tmp.in
+Some text at the front.
+
+#define blah something
+---before text
+#shell 'if [ -f $tmp.flag ]; then echo "#define foo bar"; else echo ""; fi'
+---after text
+#ifdef foo
+foo is defined as #{foo}
+#else
+foo is not defined
+#endif
+#ifdef blah
+Just checking blah is defined as #blah, so should be here
+#endif
+End-of-File
+
+# real QA test starts here
+echo "=== no flag file ==="
+pmcpp -Pr <$tmp.in | _filter
+
+echo
+echo "=== flag file exists ==="
+touch $tmp.flag
+pmcpp -Pr <$tmp.in | _filter
+
+echo
+echo "=== shell style, flag file exists ==="
+sed -e 's/#/%/g' <$tmp.in \
+| pmcpp -Prs | _filter
+
+echo
+echo "=== ?shell error and signal cases ==="
+cat <<End-of-File | pmcpp -P 2>$tmp.err | _filter
+--- text before
+#shell 'exit 13'
+--- text after
+End-of-File
+_filter <$tmp.err
+cat <<'End-of-File' | pmcpp -P 2>$tmp.err | _filter
+--- text before
+#shell "kill -13 $$"
+--- text after
+End-of-File
+_filter <$tmp.err
+
+echo
+echo "=== ?shell and ?include nesting ==="
+cat <<End-of-File >$tmp.in
+--- outer text before
+%include "$tmp.shell"
+--- outer text after
+End-of-File
+cat <<End-of-File >$tmp.shell
+--- include text before
+%shell "cat $tmp.in"
+--- include text after
+End-of-File
+pmcpp -Prs $tmp.in 2>$tmp.err | _filter
+_filter <$tmp.err
+
+# success, all done
+status=0
+
+exit
