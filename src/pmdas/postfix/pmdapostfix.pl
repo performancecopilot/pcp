@@ -240,7 +240,7 @@ foreach my $file ( @logfiles ) {
 if (defined($ENV{'PMDA_POSTFIX_LOG'})) { $logfile = $ENV{'PMDA_POSTFIX_LOG'}; } 
 unless(defined($logfile))
 {
-    pmda->log("Fatal: No Postfix log file found in: @logfiles");
+    $pmda->log("Fatal: No Postfix log file found in: @logfiles");
     die 'No Postfix log file found';
 }
 if (!$setup) { $pmda->log("logfile: $logfile"); }
