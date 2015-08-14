@@ -281,6 +281,9 @@ pcp.py
 # Uses avahi
 avahi
 
+# pcp-atop and related commands
+atop
+
 # Uses Linux kernel cgroups
 cgroups
 
@@ -985,6 +988,7 @@ cgroups
 781 logutil local
 782 pmwebapi local
 783 pmda.rpm local valgrind
+785 pcp atop local
 786 context context_local libpcp local
 787 archive local pmie pmlogrewrite pmdumplog pmval flakey
 789 pmda.papi local
@@ -1133,8 +1137,8 @@ cgroups
 1051 pmieconf #696008 local
 1052 pmda.json local python
 1053 pmda.json pmda.install local python
-1079 pcp local
-1080 valgrind pcp local
+1079 pcp atop local
+1080 valgrind pcp atop local
 1081 python pcp local
 1091 pmns libpcp context local
 1092 libpcp local

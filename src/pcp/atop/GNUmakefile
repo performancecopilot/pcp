@@ -16,6 +16,8 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 CMDTARGET = pcp-atop
+DISTARGET = $(PCP_BINADM_DIR)/$(CMDTARGET)
+DISTLINKS = pcp-atopsar
 LLDFLAGS = -L$(TOPDIR)/src/libpcp_gui/src
 LLDLIBS = $(PCP_GUILIB) $(LIB_FOR_NCURSES) $(LIB_FOR_MATH)
 LCFLAGS = $(NCURSES_CFLAGS)
@@ -49,18 +51,20 @@ HFILES = \
 	showgeneric.h \
 	showlinux.h
 
-MAN_PAGES = pcp-atop.1 pcp-atoprc.5 #pcp-atopsar.1
+MAN_PAGES = pcp-atop.1 pcp-atoprc.5 pcp-atopsar.1
 
 default:	build-me
 
 include $(BUILDRULES)
 
 ifeq "$(HAVE_NCURSES)" "true"
-build-me: $(CMDTARGET)
+build-me: $(CMDTARGET) $(DISTLINKS)
 
 install: default
-	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
-	$(INSTALL) -S $(PCP_BINADM_DIR)/$(CMDTARGET) $(PCP_BIN_DIR)/pmatop
+	$(INSTALL) -m 755 $(CMDTARGET) $(DISTARGET)
+	@for link in $(DISTLINKS); do \
+	    $(INSTALL) -S $(DISTARGET) $(PCP_BINADM_DIR)/$$link; \
+	done
 	@$(INSTALL_MAN)
 else
 build-me:
@@ -70,6 +74,9 @@ endif
 default_pcp: default
 
 install_pcp: install
+
+$(DISTLINKS):	$(CMDTARGET)
+	@$(LN_S) $(CMDTARGET) $@
 
 pmgenmap.sh:
 	sed -e "s;^\. .PCP_DIR.etc.pcp.env;. $(TOPDIR)/src/include/pcp.env;" \

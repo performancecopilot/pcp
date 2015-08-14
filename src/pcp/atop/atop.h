@@ -64,9 +64,9 @@ struct visualize {
 
 struct sysname {
 	char	nodename[MAXHOSTNAMELEN];
-	char	release[16];
-	char	version[16];
-	char	machine[256];
+	char	release[72];
+	char	version[72];
+	char	machine[72];
 };
 
 /*
@@ -157,7 +157,10 @@ int		intfcompar(const void *, const void *);
 
 count_t		subcount(count_t, count_t);
 void  		rawread(struct pmOptions *);
-void		rawwrite(const char *, const char *, struct timeval *, unsigned int, char);
+void		rawfolio(struct pmOptions *);
+void		rawarchive(struct pmOptions *, const char *);
+void		rawwrite(struct pmOptions *, const char *, struct timeval *,
+			unsigned int, char);
 
 int 		numeric(char *);
 void		getalarm(int);
@@ -168,6 +171,7 @@ unsigned short 	getnumvers(void);
 void		ptrverify(const void *, const char *, ...);
 void		cleanstop(int);
 void		prusage(char *);
+void		engine(void);
 
 void		setup_globals(struct pmOptions *);
 void		setup_process(void);
@@ -188,10 +192,6 @@ count_t		extract_count_t_index(struct pmResult *, struct pmDesc *, int, int);
 char *		extract_string(struct pmResult *, struct pmDesc *, int, char *, int);
 char *		extract_string_inst(struct pmResult *, struct pmDesc *, int, char *, int, int);
 char *		extract_string_index(struct pmResult *, struct pmDesc *, int, char *, int, int);
-
-int		droprootprivs(void);
-void		regainrootprivs(void);
-FILE 		*fopen_tryroot(const char *, const char *);
 
 /*
 ** Optional netatop module interfaces
