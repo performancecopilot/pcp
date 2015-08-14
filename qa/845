@@ -8,11 +8,7 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
-
+. ./common.python
 [ $PCP_PLATFORM = mingw -o $PCP_PLATFORM = darwin ] && \
     _notrun "Test only valid on platforms with a mount table"
 
@@ -29,6 +25,7 @@ _filter_mounts()
 	-e '/\/boot/d' \
 	-e '/\/afs/d' \
 	-e 's/ value ".*"$/ value VALUE/g' \
+	-e 's/ value [0-9.]*$/ value NUMBER/g' \
    #end
 }
 
@@ -72,7 +69,12 @@ pmdamounts_install
 echo "=== verify mounts values ==="
 if pminfo -f mounts > $tmp.info 2> $tmp.err
 then
-    :
+    rootdev=`pminfo -f mounts.device | grep '"/"' | awk '{ print $6 }'`
+    eval $python $here/src/fsstats.python $rootdev "/" | \
+    while read metric filesys mounts
+    do
+	_within_tolerance $metric $filesys $mounts 1 -v		# allow +/-1%
+    done
 else
     echo "... failed! ... here is the Install log ..."
     cat $tmp.out

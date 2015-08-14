@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -156,13 +156,13 @@ connectLogger(int fd, __pmSockAddr *myAddr)
     return sts;
 }
 
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
 /*
  * Attempt connection to pmlogger via a local socket.
  */
 static int
 connectLoggerLocal(const char *local_socket)
 {
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
     char		socket_path[MAXPATHLEN];
     int			fd;
     int			sts;
@@ -202,15 +202,8 @@ connectLoggerLocal(const char *local_socket)
     }
 
     return fd;
-#else
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_CONTEXT)
-	fprintf(stderr, "__pmConnectLogger: local_socket == %s is not supported\n",
-		local_socket);
-#endif
-    return -ECONNREFUSED;
-#endif
 }
+#endif
 
 /*
  * Determine how to connect based on connectionSpec, pid and port:
@@ -239,7 +232,9 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
     void		*enumIx;
     const char		*prefix_end;
     size_t		prefix_len;
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     char		path[MAXPATHLEN];
+#endif
     int			originalPid;
     int			wasLocal;
 

@@ -85,7 +85,7 @@ MapSignals(int sig, int *index)
 int
 __pmSetSignalHandler(int sig, __pmSignalHandler func)
 {
-    int sts, index;
+    int sts, index = 0;
     char *signame, evname[64];
     HANDLE eventhdl, waithdl;
 
@@ -606,7 +606,8 @@ closelog(void)
 const char *
 strerror_r(int errnum, char *buf, size_t buflen)
 {
-    return strerror_s(buf, buflen, errnum);
+    strerror_s(buf, buflen, errnum);
+    return (const char *)buf;
 }
 
 /* Windows socket error codes - what a nightmare! */

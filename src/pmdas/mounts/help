@@ -30,7 +30,19 @@
 # blank lines before the @ line are ignored
 #
 
-@ mounts.device the currently mounted devices from mounts.conf
-@ mounts.type the filesystem types of current mounts from mounts.conf
-@ mounts.options the mount options of current mounts from mounts.conf
-@ mounts.up whether a tracked mount is currently up (one or zero)
+@ mounts.device The currently tracked mounted devices from mounts.conf
+@ mounts.type The filesystem types of current mounts from mounts.conf
+@ mounts.options The mount options of current mounts from mounts.conf
+@ mounts.up Whether a tracked mount is currently up (one or zero)
+@ mounts.capacity Total capacity of tracked filesystem mounts (Kbytes)
+@ mounts.used Total space used on tracked filesystem mounts (Kbytes)
+@ mounts.free Total space free on tracked filesystem mounts (Kbytes)
+@ mounts.maxfiles Inodes capacity of tracked filesystem mounts
+@ mounts.usedfiles Number of inodes allocated on tracked filesystem mounts
+@ mounts.freefiles Number of unallocated inodes on tracked filesystem mounts
+@ mounts.full Percentage of filesystem in use on tracked filesystem mounts
+@ mounts.blocksize Size of each block on tracked filesystem mounts (Bytes)
+@ mounts.avail Total space free to non-superusers on mounted filesystem (Kbytes)
+@ mounts.availfiles Total inodes free to non-superusers on mounted filesystem
+@ mounts.readonly Indicates whether a tracked filesystem mount is readonly
+
