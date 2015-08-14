@@ -1,0 +1,47 @@
+QA output created by 784
+== Finding mic metrics
+== Testing mic metrics
+dbpmda> open pipe $PCP_PYTHON_PROG $PCP_PMDAS_DIR/mic/pmdamic.python
+Start python PMDA: $PCP_PYTHON_PROG $PCP_PMDAS_DIR/mic/pmdamic.python
+dbpmda> getdesc on
+dbpmda> desc mic.mgmt.numcards
+PMID: 138.0.0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+dbpmda> fetch mic.mgmt.numcards
+PMID(s): 138.0.0
+pmResult ... numpmid: 1
+  138.0.0 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+dbpmda> traverse mic.mgmt.power
+Metric: mic.mgmt.power
+   mic.mgmt.power.inst
+   mic.mgmt.power.t1
+   mic.mgmt.power.t0
+   mic.mgmt.power.phys_limit
+   mic.mgmt.power.w1
+   mic.mgmt.power.low_limit
+   mic.mgmt.power.high_limit
+   mic.mgmt.power.w0
+dbpmda> traverse mic.mgmt.temp
+Metric: mic.mgmt.temp
+   mic.mgmt.temp.mem
+   mic.mgmt.temp.cpu
+   mic.mgmt.temp.memrail
+   mic.mgmt.temp.corerail
+   mic.mgmt.temp.fanout
+   mic.mgmt.temp.fanin
+   mic.mgmt.temp.uncorerail
+dbpmda> traverse mic.mgmt.info
+Metric: mic.mgmt.info
+   mic.mgmt.info.numthreads
+   mic.mgmt.info.frequency
+   mic.mgmt.info.stepping
+   mic.mgmt.info.deviceid
+   mic.mgmt.info.numcores
+dbpmda> traverse mic.mgmt.mem
+Metric: mic.mgmt.mem
+   mic.mgmt.mem.used
+   mic.mgmt.mem.free
+   mic.mgmt.mem.total
+dbpmda> 

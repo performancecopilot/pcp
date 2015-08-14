@@ -1,0 +1,68 @@
+#!/bin/sh
+# PCP QA Test No. 784
+# Test the mic pmda
+#
+# Copyright (c) 2015 Martins Innus.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./common.python
+
+python_path=`which $python`
+pmda_path="$PCP_PMDAS_DIR/mic"
+pmda_script="$pmda_path/pmdamic.python"
+test -f "$pmda_script" || _notrun "pmdamic not supported"
+
+$python -c "from pcp import pmda" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
+
+# use our own libmicmgmt stub for QA
+export PMDAMIC_MPSS_PYTHON_DIR="$here/mic"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    tee -a $seq.full | \
+    sed \
+    -e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
+    -e '/pmResult/s/ .* numpmid/ ... numpmid/' \
+    -e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*/TIMESTAMP/' \
+    -e "s;$python_path;\$PCP_PYTHON_PROG;" \
+    -e "s;$python;python;" \
+    -e "s/value [0-9]/value NUMBER/"
+}
+
+
+# real QA test starts here
+# need to do all these as sudo so we can change to pcp user
+
+domain=138
+
+# real QA test starts here
+echo "== Finding mic metrics" | tee -a $seq.full
+$sudo -E PCP_PYTHON_PMNS=root $python "$pmda_script" 2>/dev/null > $tmp.root
+
+echo "== Testing mic metrics" | tee -a $seq.full
+$sudo -E dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
+open pipe $python_path $pmda_script
+getdesc on
+desc mic.mgmt.numcards
+fetch mic.mgmt.numcards
+traverse mic.mgmt.power
+traverse mic.mgmt.temp
+traverse mic.mgmt.info
+traverse mic.mgmt.mem
+End-of-File
+
+# success, all done
+status=0
+exit
