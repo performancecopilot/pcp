@@ -34,7 +34,7 @@ __pmdaSendRootPDUInfo(int fd, int features, int status)
     pduinfo.zeroed = 0;
 
     __pmIgnoreSignalPIPE();
-    return send(fd, &pduinfo, sizeof(pduinfo), 0);
+    return send(fd, (const char *)&pduinfo, sizeof(pduinfo), 0);
 }
 
 /* Client recvs __pmdaRootPDUInfo PDUs */
@@ -44,7 +44,7 @@ __pmdaRecvRootPDUInfo(int fd, int *version, int *features)
     __pmdaRootPDUInfo	pduinfo;
     int			sts;
 
-    if ((sts = recv(fd, &pduinfo, sizeof(pduinfo), 0)) < 0)
+    if ((sts = recv(fd, (char *)&pduinfo, sizeof(pduinfo), 0)) < 0)
 	return -oserror();
     if (sts != sizeof(__pmdaRootPDUInfo))
 	return -EINVAL;
@@ -86,7 +86,7 @@ __pmdaSendRootPDUContainer(int fd, int pdutype,
 	strncpy(pdu.name, name, len);
 
     __pmIgnoreSignalPIPE();
-    return send(fd, &pdu, length, 0);
+    return send(fd, (const char *)&pdu, length, 0);
 }
 
 /* Client and server recv __pmdaRootPDUContainer PDUs */
@@ -97,7 +97,7 @@ __pmdaRecvRootPDUContainer(int fd, int type, void *buffer, int buflen)
     size_t minlength = sizeof(*pdu) - sizeof(pdu->name);
     int sts;
 
-    if ((sts = recv(fd, buffer, buflen, 0)) < 0)
+    if ((sts = recv(fd, (char *)buffer, buflen, 0)) < 0)
 	return -oserror();
     if (sts < minlength)
 	return -EINVAL;
