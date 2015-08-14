@@ -8,16 +8,11 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
 . ./common.python
-
 python_path=`which $python`
 pmda_path="$PCP_PMDAS_DIR/mic"
 pmda_script="$pmda_path/pmdamic.python"
-test -f "$pmda_script" || _notrun "pmdamic not supported"
+test -f "$pmda_script" || _notrun "pmdamic not installed"
 
 $python -c "from pcp import pmda" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
@@ -41,13 +36,10 @@ _filter()
     -e "s/value [0-9]/value NUMBER/"
 }
 
-
 # real QA test starts here
-# need to do all these as sudo so we can change to pcp user
+# (sudo use here is so that we are able to change to pcp user)
 
 domain=138
-
-# real QA test starts here
 echo "== Finding mic metrics" | tee -a $seq.full
 $sudo -E PCP_PYTHON_PMNS=root $python "$pmda_script" 2>/dev/null > $tmp.root
 
