@@ -1058,6 +1058,7 @@ PCP_CALL extern void __pmLogInitialState(__pmArchCtl *);
 PCP_CALL extern __pmTimeval *__pmLogStartTime(__pmArchCtl *);
 PCP_CALL extern int __pmLogChangeArchive(__pmContext *, int);
 PCP_CALL extern __pmLogCtl *__pmLogChangeToNextArchive(__pmLogCtl *);
+PCP_CALL extern __pmLogCtl *__pmLogChangeToPreviousArchive(__pmLogCtl *);
 PCP_CALL extern void __pmArchCtlFree (__pmArchCtl *);
 
 PCP_CALL extern int __pmLogPutDesc(__pmLogCtl *, const pmDesc *, int, char **);

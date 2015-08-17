@@ -1464,16 +1464,30 @@ __pmLogRead(__pmLogCtl *lcp, int mode, FILE *peekf, pmResult **result, int optio
 			}
 			vol--;
 		    }
-		    if (vol < lcp->l_minvol)
-			return PM_ERR_EOL;
+		    if (vol >= lcp->l_minvol)
+			continue; /* Try this volume */
+
+		    /* No more volumes. Try the previous archive, if any. */
+		    if ((lcp = __pmLogChangeToPreviousArchive(lcp)) != NULL) {
+			f = lcp->l_mfp;
+			offset = ftell(f);
+			assert(offset >= 0);
+#ifdef PCP_DEBUG
+			if (pmDebug & DBG_TRACE_LOG) {
+			    fprintf(stderr, "arch=%s vol=%d posn=%ld ",
+				    lcp->l_name, lcp->l_curvol, (long)offset);
+			}
+#endif
+			continue; /* Try this archive */
+		    }
+		    /* No more archives */
 		}
-		else
-		    return PM_ERR_EOL;
-	    }
-	    else {
-		fseek(f, -(long)sizeof(head), SEEK_CUR);
-		break;
-	    }
+		return PM_ERR_EOL;
+	   }
+	   else {
+	       fseek(f, -(long)sizeof(head), SEEK_CUR);
+	       break;
+	   }
 	}
     }
 
@@ -2516,8 +2530,7 @@ __pmLogChangeArchive(__pmContext *ctxp, int arch)
     }
     else {
 	/*
-	 * Archive is already open, set default starting state as per
-	 * __pmLogOpen
+	 * Set default starting state as per __pmLogOpen.
 	 */
 	ctxp->c_origin.tv_sec = (__int32_t)lcp->l_label.ill_start.tv_sec;
 	ctxp->c_origin.tv_usec = (__int32_t)lcp->l_label.ill_start.tv_usec;
@@ -2525,6 +2538,7 @@ __pmLogChangeArchive(__pmContext *ctxp, int arch)
     }
 
     __pmLogInitialState(acp);
+
     return sts;
 }
 
@@ -2573,6 +2587,65 @@ __pmLogChangeToNextArchive(__pmLogCtl *lcp)
     }
 
     PM_UNLOCK(ctxp->c_lock);
+    return lcp;
+}
+
+/* Advance backward to the previous archive in the context, if any. */
+__pmLogCtl *
+__pmLogChangeToPreviousArchive(__pmLogCtl *lcp)
+{
+    __pmContext		*ctxp;
+    __pmArchCtl		*acp;
+    __pmTimeval		save_origin;
+    struct timeval	end;
+    int			save_mode;
+    int			sts;
+    int			i;
+
+    /* Get the current context. It must be an archive context. */
+    ctxp = __pmHandleToPtr(pmWhichContext());
+    if (ctxp == NULL || ctxp->c_type != PM_CONTEXT_ARCHIVE)
+	return NULL;
+
+    /* Now identify the current archive in the list of archives. Don't bother
+       to check the first one because, even if it is a match, there will be no
+       previous archive to switch to.
+     */
+    acp = ctxp->c_archctl;
+    for (i = 1; i < acp->ac_num_logs; i++) {
+	if (acp->ac_log_list[i] == lcp)
+	    break; /* found it */
+    }
+    if (i >= acp->ac_num_logs) {
+	PM_UNLOCK(ctxp->c_lock);
+	return NULL;  /* no more archives */
+    }
+
+    /*
+     * We're changing to the previous archive because we have reached the
+     * beginning of the current one while reading backward.
+     * __pmLogChangeArchive() will update the c_origin and c_mode fields of
+     * the current context, either via __pmLogOpen() or directly, if the
+     * new archive is already open. However, we don't want that here, so
+     * save this information and restore it after switching to the new
+     * archive.
+     */
+    save_origin = ctxp->c_origin;
+    save_mode = ctxp->c_mode;
+    /* Switch to the next archive. */
+    __pmLogChangeArchive(ctxp, i - 1);
+    lcp = acp->ac_log;
+    ctxp->c_origin = save_origin;
+    ctxp->c_mode = save_mode;
+    PM_UNLOCK(ctxp->c_lock);
+
+    /* Set up to scan backwards from the end of the archive. */
+    end.tv_sec = INT_MAX;
+    end.tv_usec = 0;
+    sts = pmSetMode(PM_MODE_BACK, &end, 0);
+    if (sts < 0)
+	return NULL;
+
     return lcp;
 }
 
