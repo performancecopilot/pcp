@@ -36,6 +36,15 @@ _filter()
     -e "s/value [0-9]/value NUMBER/"
 }
 
+_traverse()
+{
+    $sudo -E dbpmda -n $tmp.root -ie <<EOF \
+	| grep "$1" | LC_COLLATE=POSIX sort -r
+open pipe $python_path $pmda_script
+traverse $1
+EOF
+}
+
 # real QA test starts here
 # (sudo use here is so that we are able to change to pcp user)
 
@@ -49,11 +58,13 @@ open pipe $python_path $pmda_script
 getdesc on
 desc mic.mgmt.numcards
 fetch mic.mgmt.numcards
-traverse mic.mgmt.power
-traverse mic.mgmt.temp
-traverse mic.mgmt.info
-traverse mic.mgmt.mem
 End-of-File
+
+echo "== Traversing mgmt trees"
+_traverse mic.mgmt.power
+_traverse mic.mgmt.temp
+_traverse mic.mgmt.info
+_traverse mic.mgmt.mem
 
 # success, all done
 status=0

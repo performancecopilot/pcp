@@ -193,11 +193,13 @@ class MicPMDA(PMDA):
             devinfo.num_threads = mic.mic_get_threads_core()
 
             # All core metrics are converted to ms per thread from jiffies
+            millis = devinfo.num_threads * self.HZ
+
             # Overall metrics
-            devinfo.all_usr = 1000 * mic.mic_get_user_sum() / (devinfo.num_threads * self.HZ)
-            devinfo.all_sys = 1000 * mic.mic_get_sys_sum() / (devinfo.num_threads * self.HZ)
-            devinfo.all_nice = 1000 * mic.mic_get_nice_sum() / (devinfo.num_threads * self.HZ)
-            devinfo.all_idle = 1000 * mic.mic_get_idle_sum() / (devinfo.num_threads * self.HZ)
+            devinfo.all_usr = int(1000 * mic.mic_get_user_sum() / millis)
+            devinfo.all_sys = int(1000 * mic.mic_get_sys_sum() / millis)
+            devinfo.all_nice = int(1000 * mic.mic_get_nice_sum() / millis)
+            devinfo.all_idle = int(1000 * mic.mic_get_idle_sum() / millis)
 
             # Per core metrics
             core_usr = mic.mic_get_user_counters()
@@ -208,10 +210,10 @@ class MicPMDA(PMDA):
             cnt = 0
             for usr, sys, nice, idle in zip(core_usr, core_sys, core_nice, core_idle):
                 cpuinfo = MicPerCoreInfo()
-                cpuinfo.cpu_usr = 1000 * usr /  (devinfo.num_threads * self.HZ)
-                cpuinfo.cpu_sys = 1000 * sys / (devinfo.num_threads * self.HZ)
-                cpuinfo.cpu_nice = 1000 * nice / (devinfo.num_threads * self.HZ)
-                cpuinfo.cpu_idle = 1000 * idle / (devinfo.num_threads * self.HZ)
+                cpuinfo.cpu_usr = int(1000 * usr /  millis)
+                cpuinfo.cpu_sys = int(1000 * sys / millis)
+                cpuinfo.cpu_nice = int(1000 * nice / millis)
+                cpuinfo.cpu_idle = int(1000 * idle / millis)
 
                 coreinst = "%s/core%d" % (cardname, cnt)
 

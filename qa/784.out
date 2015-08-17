@@ -13,35 +13,36 @@ PMID(s): 138.0.0
 pmResult ... numpmid: 1
   138.0.0 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
+dbpmda> 
+== Traversing mgmt trees
 dbpmda> traverse mic.mgmt.power
 Metric: mic.mgmt.power
-   mic.mgmt.power.inst
+   mic.mgmt.power.w1
+   mic.mgmt.power.w0
    mic.mgmt.power.t1
    mic.mgmt.power.t0
    mic.mgmt.power.phys_limit
-   mic.mgmt.power.w1
    mic.mgmt.power.low_limit
+   mic.mgmt.power.inst
    mic.mgmt.power.high_limit
-   mic.mgmt.power.w0
 dbpmda> traverse mic.mgmt.temp
 Metric: mic.mgmt.temp
-   mic.mgmt.temp.mem
-   mic.mgmt.temp.cpu
+   mic.mgmt.temp.uncorerail
    mic.mgmt.temp.memrail
-   mic.mgmt.temp.corerail
+   mic.mgmt.temp.mem
    mic.mgmt.temp.fanout
    mic.mgmt.temp.fanin
-   mic.mgmt.temp.uncorerail
+   mic.mgmt.temp.cpu
+   mic.mgmt.temp.corerail
 dbpmda> traverse mic.mgmt.info
 Metric: mic.mgmt.info
-   mic.mgmt.info.numthreads
-   mic.mgmt.info.frequency
    mic.mgmt.info.stepping
-   mic.mgmt.info.deviceid
+   mic.mgmt.info.numthreads
    mic.mgmt.info.numcores
+   mic.mgmt.info.frequency
+   mic.mgmt.info.deviceid
 dbpmda> traverse mic.mgmt.mem
 Metric: mic.mgmt.mem
    mic.mgmt.mem.used
-   mic.mgmt.mem.free
    mic.mgmt.mem.total
-dbpmda> 
+   mic.mgmt.mem.free
