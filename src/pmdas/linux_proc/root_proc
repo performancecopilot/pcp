@@ -57,6 +57,9 @@ cgroup.cpuacct.stat {
 
 cgroup.cpusched {
     shares		PROC:43:0
+    periods		PROC:43:1
+    throttled		PROC:43:2
+    throttled_time	PROC:43:3
 }
 
 cgroup.memory {
