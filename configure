@@ -692,6 +692,7 @@ lib_for_rt
 lib_for_basename
 fmt_pthread
 lib_for_pthreads
+fmt_int64
 fmt_pid
 rdynamic_flag
 enable_manager
@@ -9876,12 +9877,19 @@ if test "x$do_papi" != "xno"; then :
     saved_CFLAGS="$CFLAGS"
     savedLIBS=$LIBS
 
+        CFLAGS="$papi_CFLAGS"
+    LDFLAGS="$papi_LIBS"
+
     case "$do_papi" in
-      yes|no|check) ;;
-	 */*) PAPI_ROOTDIR=$do_papi;
-	      CFLAGS="-I$PAPI_ROOTDIR/include"
-	      LDFLAGS="-L$PAPI_ROOTDIR/lib" ;;
+	yes|no|check)
+	    ;;
+	*/*)
+	    PAPI_ROOTDIR=$do_papi;
+	    CFLAGS="-I$PAPI_ROOTDIR/include"
+	    LDFLAGS="-L$PAPI_ROOTDIR/lib"
+	    ;;
 	 *)
+
 pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for papi" >&5
 $as_echo_n "checking for papi... " >&6; }
@@ -9971,12 +9979,13 @@ else
         { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 
-		CFLAGS="$papi_CFLAGS"
-		LDFLAGS="$papi_LIBS"
-fi ;;
-                # $papi_LIBS will include -lpapi harmlessly redudantly with AC_CHECK_LIB
+		  CFLAGS="$papi_CFLAGS"
+		  LDFLAGS="$papi_LIBS"
+fi
+	    ;;
     esac
 
+    # $papi_LIBS may include -lpapi harmlessly redudantly with AC_CHECK_LIB
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for PAPI_library_init in -lpapi" >&5
 $as_echo_n "checking for PAPI_library_init in -lpapi... " >&6; }
 if ${ac_cv_lib_papi_PAPI_library_init+:} false; then :
@@ -11338,7 +11347,7 @@ $2 == "bozo"	{ t = $1
     'unsigned long'|'unsigned long int'|'long unsigned int')
 	_fmt='"lu"'
 	;;
-    'unsigned long long')
+    'unsigned long long'|'unsigned long long int')
         if test $target_os = mingw; then
             _fmt='"I64u"'
         else
@@ -11373,6 +11382,19 @@ _do_type
 fmt_pid="$_fmt"
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $fmt_pid" >&5
 $as_echo "$fmt_pid" >&6; }
+
+rm -rf conftest.c conftest.debug
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking printf type for int64_t" >&5
+$as_echo_n "checking printf type for int64_t... " >&6; }
+cat <<End-of-File >conftest.c
+#include <stdint.h>
+int64_t bozo;
+End-of-File
+_do_type
+fmt_int64="$_fmt"
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $fmt_int64" >&5
+$as_echo "$fmt_int64" >&6; }
 
 rm -rf conftest.c conftest.debug
 

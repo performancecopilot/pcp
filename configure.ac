@@ -1411,17 +1411,26 @@ AS_IF([test "x$do_papi" != "xno"], [
     saved_CFLAGS="$CFLAGS"
     savedLIBS=$LIBS
 
+    dnl potentially from the environment, else empty
+    CFLAGS="$papi_CFLAGS"
+    LDFLAGS="$papi_LIBS"
+
     case "$do_papi" in
-      yes|no|check) ;;
-	 */*) PAPI_ROOTDIR=$do_papi;
-	      CFLAGS="-I$PAPI_ROOTDIR/include"
-	      LDFLAGS="-L$PAPI_ROOTDIR/lib" ;;
-	 *)   PKG_CHECK_MODULES(papi,[$do_papi],[
-		CFLAGS="$papi_CFLAGS"
-		LDFLAGS="$papi_LIBS"]) ;;
-                # $papi_LIBS will include -lpapi harmlessly redudantly with AC_CHECK_LIB
+	yes|no|check)
+	    ;;
+	*/*)
+	    PAPI_ROOTDIR=$do_papi;
+	    CFLAGS="-I$PAPI_ROOTDIR/include"
+	    LDFLAGS="-L$PAPI_ROOTDIR/lib"
+	    ;;
+	 *)
+	    PKG_CHECK_MODULES(papi,[$do_papi],[
+		  CFLAGS="$papi_CFLAGS"
+		  LDFLAGS="$papi_LIBS"])
+	    ;;
     esac
 
+    # $papi_LIBS may include -lpapi harmlessly redudantly with AC_CHECK_LIB
     AC_CHECK_LIB([papi], [PAPI_library_init],
 		 [papi_libs="$LDFLAGS -lpapi"],
 		 [enable_papi=false])
@@ -1847,7 +1856,7 @@ $2 == "bozo"	{ t = $1
     'unsigned long'|'unsigned long int'|'long unsigned int')
 	_fmt='"lu"'
 	;;
-    'unsigned long long')
+    'unsigned long long'|'unsigned long long int')
         if test $target_os = mingw; then
             _fmt='"I64u"'
         else
@@ -1882,6 +1891,18 @@ _do_type
 fmt_pid="$_fmt"
 AC_MSG_RESULT($fmt_pid)
 AC_SUBST(fmt_pid)
+rm -rf conftest.c conftest.debug
+
+dnl printf type for int64_t
+AC_MSG_CHECKING([printf type for int64_t])
+cat <<End-of-File >conftest.c
+#include <stdint.h>
+int64_t bozo;
+End-of-File
+_do_type
+fmt_int64="$_fmt"
+AC_MSG_RESULT($fmt_int64)
+AC_SUBST(fmt_int64)
 rm -rf conftest.c conftest.debug
 
 if test "$do_threads" = "check" -o "$do_threads" = "yes"
