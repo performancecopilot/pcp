@@ -1747,7 +1747,7 @@ if test "$cross_compiling" = "yes"; then
 else
     cat <<End-of-File >conftest.c
 #include <stdio.h>
-main(int argc,  char **argv) { printf("%p", argv); exit(0); }
+int main(int argc,  char **argv) { printf("%p", argv); return(0); }
 End-of-File
     (eval $ac_compile) 2>&5
     (eval $ac_link) 2>&5
@@ -1894,16 +1894,64 @@ AC_SUBST(fmt_pid)
 rm -rf conftest.c conftest.debug
 
 dnl printf type for int64_t
-AC_MSG_CHECKING([printf type for int64_t])
+AC_MSG_CHECKING([printf type for int64_t ])
 cat <<End-of-File >conftest.c
+#include <stdio.h>
 #include <stdint.h>
-int64_t bozo;
+#include <inttypes.h>
+int main()
+{
+    printf("\"%s\"\n", __PRI64_PREFIX "d");
+    return(0);
+}
 End-of-File
-_do_type
-fmt_int64="$_fmt"
+ans=''
+(eval $ac_link) 2>&5
+if test -x ./conftest
+then
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+fi
+if test -z "$ans"
+then
+    dnl have to try the hardway ...
+cat <<End-of-File >conftest.c
+#include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+int main()
+{
+    char buf[[17]];
+    int64_t bozo = 0x12345678abcdLL;
+    sprintf(buf, "%lx", bozo);
+    if (strcmp(buf, "12345678abcd") == 0)
+	printf("\"ld\"\n");
+    else {
+	sprintf(buf, "%llx", bozo);
+	if (strcmp(buf, "12345678abcd") == 0)
+	    printf("\"lld\"\n");
+    }
+    return(0);
+}
+End-of-File
+    cp conftest.c /tmp/eek.c
+    (eval $ac_link) 2>&5
+    if test -x ./conftest
+    then
+	ans=`./conftest`
+	echo "./conftest -> \"$ans\"" >&5
+    fi
+fi
+if test -z "$ans"
+then
+    echo 'FATAL ERROR: Cannot determine printf format for int64_t type'
+    rm -rf conftest conftest.*
+    exit 1
+fi
+fmt_int64="$ans"
 AC_MSG_RESULT($fmt_int64)
 AC_SUBST(fmt_int64)
-rm -rf conftest.c conftest.debug
+rm -rf conftest.* conftest.debug conftest
 
 if test "$do_threads" = "check" -o "$do_threads" = "yes"
 then
