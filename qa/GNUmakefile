@@ -21,7 +21,7 @@ ifeq "$(PMDA_PERFEVENT)" "true"
 SUBDIRS += perfevent
 endif
 ifeq "$(HAVE_PYTHON)" "true"
-SUBDIRS += secure
+SUBDIRS += secure mic
 endif
 LCONFIG = localconfig
 

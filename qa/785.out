@@ -1,0 +1,75 @@
+QA output created by 785
+
+== Processor metrics
+
+        TODAY
+
+-------------------------- analysis date: 2015/05/28 --------------------------
+
+15:35:03  cpu  %usr %nice %sys %irq %softirq  %steal %guest  %wait %idle  _cpu_
+15:35:03  ......................... logging restarted .........................
+
+15:35:05  cpu  %usr %nice %sys %irq %softirq  %steal %guest  %wait %idle  _cpu_
+15:35:05  all     8     0    2    0        0       0      0      3   387
+            0     2     0    0    0        0       0      0      1    96
+            1     2     0    1    0        0       0      0      0    97
+            2     2     0    1    0        0       0      0      1    96
+            3     2     0    0    0        0       0      0      0    97
+15:35:06  all    27     0    5    0        0       0      0      0   368
+            0     7     0    3    0        0       0      0      0    90
+            1    19     0    1    0        0       0      0      0    80
+            2     0     0    0    0        0       0      0      0   100
+            3     0     0    0    0        0       0      0      0   100
+15:35:07  all     6     0    3    0        0       0      0      0   391
+            0     2     0    3    0        0       0      0      0    95
+            1     4     0    0    0        0       0      0      0    96
+            2     0     0    0    0        0       0      0      0   100
+            3     1     0    0    0        0       0      0      0    99
+
+== Disk metrics
+
+        TODAY
+
+-------------------------- analysis date: 2015/05/28 --------------------------
+
+15:35:03  disk           busy read/s KB/read  writ/s KB/writ avque avserv _dsk_
+15:35:03  ......................... logging restarted .........................
+
+15:35:05  disk           busy read/s KB/read  writ/s KB/writ avque avserv _dsk_
+15:35:05  sda            173%  124.6    34.9   159.9    43.4  22.8   6.08 ms
+15:35:06  sda             27%    0.0     0.0   200.0     4.0   2.8   1.33 ms
+15:35:07  
+
+== Network metrics
+
+        TODAY
+
+-------------------------- analysis date: 2015/05/28 --------------------------
+
+15:35:03  interf busy ipack/s opack/s iKbyte/s oKbyte/s imbps ombps maxmbps_if_
+15:35:03  ......................... logging restarted .........................
+
+15:35:05  interf busy ipack/s opack/s iKbyte/s oKbyte/s imbps ombps maxmbps_if_
+15:35:05  p2p1      ? 3785090.0 2363171.0   961346   613618  7875  5026       0  
+          wlp2s0    ?     1.0     1.0        0        0     0     0       0  
+          lo        ? 2651374.0 2651374.0  1021298  1021298  8366  8366       0  
+          tun0      ? 19779.0 20223.0     7236     2040    59    16       0  
+          ocker0    ?    62.0    90.0        4       15     0     0       0  
+          c5cc2a    ?     9.0  1652.0        1      110     0     0       0  
+15:35:06  p2p1      ?     4.0     1.0        0        0     0     0       0  
+15:35:07  p2p1      ?     3.0     0.0        0        0     0     0       0  
+          c5cc2a    ?     0.0     1.0        0        0     0     0       0  
+
+== Memory metrics
+
+        TODAY
+
+-------------------------- analysis date: 2015/05/28 --------------------------
+
+15:35:03  memtotal memfree buffers cached dirty slabmem  swptotal swpfree _mem_
+15:35:03  ......................... logging restarted .........................
+
+15:35:05  memtotal memfree buffers cached dirty slabmem  swptotal swpfree _mem_
+15:35:05     3849M    421M    173M  1535M    0M    206M  13989884M 13325040M
+15:35:06     3849M    420M    173M  1535M    0M    206M  13989884M 13325040M
+15:35:07     3849M    420M    173M  1535M    1M    206M  13989884M 13325040M

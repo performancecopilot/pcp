@@ -64,6 +64,8 @@ in interactive mode.
 When invoked via the
 .BR pcp (1)
 command, the
+.BR PCPIntro (1)
+options
 .BR \-h /\c
 .BR \-\-host ,
 .BR \-a /\c
@@ -532,7 +534,7 @@ on a screen/window with e.g. only 24 lines.
 .br
 For all mentioned resources the maximum number of lines can be specified
 interactively. When using the flag
-.B -l
+.B \-l
 the maximum number of per-cpu lines is set to 0,
 the maximum number of disk lines to 5 and
 the maximum number of interface lines to 3.
@@ -584,19 +586,32 @@ as an archive folio (see
 .br
 By default only processes which have been active during the interval
 are stored in the raw file. When the flag
-.B -a
+.B \-a
 is specified, all processes will be stored.
 .br
 The interval (default: 10 seconds) and number of samples (default: infinite)
 can be passed as last arguments. Instead of the number of samples, the flag
-.B -S
+.B \-S
 can be used to indicate that
 .B pcp-atop
 should finish anyhow before midnight.
 .PP
-A PCP archive folio can be read and visualized again with the flag
-.B -r
-followed by the filename.
+A PCP archive can be read and visualized again with the flag
+.B \-r
+followed by the filename. If no filename is specified, the file
+.BI $PCP_LOG_DIR/pmlogger/HOST/YYYYMMDD
+is opened for input (where
+.I YYYYMMDD
+are digits representing the current date, and HOST is the hostname of the
+machine being logged).
+If a filename is specified in the format YYYYMMDD (representing any valid
+date), the file
+.BI $PCP_LOG_DIR/pmlogger/HOST/YYYYMMDD
+is opened.
+If a filename with the symbolic name
+.BI y
+is specified, yesterday's daily logfile is opened
+(this can be repeated so 'yyyy' indicates the logfile of four days ago). 
 .br
 The samples from the file can be viewed interactively by using the key 't'
 to show the next sample, the key 'T' to show the previous sample, the
@@ -607,13 +622,13 @@ When output is redirected to a file or pipe,
 .B pcp-atop
 prints all samples in plain ASCII. The default line length is 80 characters
 in that case; with the flag
-.B -L
+.B \-L
 followed by an alternate line length, more (or less) columns will be shown.
 .br
 With the flag
-.B -b
+.B \-b
 (begin time) and/or
-.B -e
+.B \-e
 (end time) followed by a time argument of the form HH:MM,
 a certain time period within the raw file can be selected.
 .SH OUTPUT DESCRIPTION
@@ -644,7 +659,7 @@ For large memory figures, another unit is chosen if the value does not fit
 (Mb instead of Kb, Gb instead of Mb, Tb instead of Gb, ...).
 For other values, a kind of exponent notation is used (value 123456789
 shown in a column of 5 positions gives 123e6).
-.SH OUTPUT DESCRIPTION - SYSTEM LEVEL
+.SH OUTPUT DESCRIPTION \- SYSTEM LEVEL
 The system level information consists of the following output lines:
 .PP
 .TP 5
@@ -867,7 +882,7 @@ If the screen-width does not allow all of these counters,
 only a relevant subset is shown.
 .br
 The number of lines showing the network interfaces can be limited.
-.SH OUTPUT DESCRIPTION - PROCESS LEVEL
+.SH OUTPUT DESCRIPTION \- PROCESS LEVEL
 Following the system level information, the processes are shown from which the
 resource utilization has changed during the last interval. These processes
 might have used cpu time or issued disk or network requests. However a process
@@ -900,7 +915,7 @@ the total number of pages of the process/thread list are shown.
 .B COMMAND-LINE
 The full command line of the process (including arguments). If the length of
 the command line exceeds the length of the screen line, the arrow 
-keys -> and <- can be used for horizontal scroll.
+keys \-> and <\- can be used for horizontal scroll.
 .br
 Behind the verb `COMMAND-LINE' in the header line, the current page number
 and the total number of pages of the process/thread list are shown.
@@ -1243,7 +1258,7 @@ the process that removes/truncates the file shows
 the unflushed removed data as WCANCL.
 .SH PARSEABLE OUTPUT
 With the flag
-.B -P
+.B \-P
 followed by a list of one or more labels (comma-separated),
 parseable output is produced for each sample.
 The labels that can be specified for system-level statistics
@@ -1491,21 +1506,35 @@ with an interval of one minute during half an hour with active
 processes sorted on memory consumption:
 .PP
 .TP 12
-.B \  pcp\ atop -M 60 30 > /log/pcp-atop.mem
+.B \  pcp\ atop \-M 60 30 > /log/pcp-atop.mem
 .PP
 Store information about the system and process activity in a PCP archive
 folio with an interval of ten minutes during an hour:
 .PP
 .TP 12
-.B \  pcp\ atop -w /tmp/pcp-atop 600 6
+.B \  pcp\ atop \-w /tmp/pcp-atop 600 6
 .PP
 View the contents of this file interactively:
 .PP
-.B \  pcp\ atop -r /tmp/pcp-atop
+.B \  pcp\ atop \-r /tmp/pcp-atop
 .PP
 View the processor and disk utilization of this file in parseable format:
 .PP
-.B \  pcp atop -PCPU,DSK -r /tmp/pcp-atop.raw
+.B \  pcp\ atop \-PCPU,DSK \-r /tmp/pcp-atop.raw
+.PP
+View the contents of today's standard logfile interactively:
+.PP
+.B \  pcp\ atop -r
+.PP
+View the contents of the standard logfile of the day before yesterday
+interactively:
+.PP
+.B \  pcp\ atop -r yy
+.PP
+View the contents of the standard logfile of 2014, June 7 from
+02:00 PM onwards interactively:
+.PP
+.B \  pcp\ atop -r 20140607 -b 14:00
 .PP
 .SH FILES
 .PP
@@ -1532,8 +1561,10 @@ command are not available in
 .BR pcp-atop .
 .SH SEE ALSO
 .BR pcp (1),
-.BR mkaf (1),
 .BR pcp-atopsar (1),
+.BR mkaf (1),
+.BR pmlogger (1),
+.BR pmlogger_daily (1),
 .BR PCPIntro (1)
 and
 .BR pcp-atoprc(5).

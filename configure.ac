@@ -384,8 +384,8 @@ then
     :
 else
     AC_ARG_ENABLE([ssp],
-      [AS_HELP_STRING([--disable-ssp], [disable gcc stack-protector])])
-    AS_IF([test "x$cc_is_gcc" = xyes -a "x$enable_ssp" != no],[
+    [AS_HELP_STRING([--disable-ssp], [disable gcc stack-protector])])
+    AS_IF([test "x$cc_is_gcc" = xyes -a "x$enable_ssp" != xno ],[
        save_CFLAGS="$CFLAGS"
        CFLAGS="$CFLAGS -O -fstack-protector-all -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2"
        AC_COMPILE_IFELSE([AC_LANG_SOURCE([int something ();])], [
