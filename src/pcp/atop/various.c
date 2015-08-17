@@ -974,6 +974,11 @@ rawarchive(pmOptions *opts, const char *name)
 	/* see if a valid folio exists as specified */
 	strncpy(tmp, name, sizeof(tmp));
 	tmp[sizeof(tmp)-1] = '\0';
+	if (access(tmp, R_OK) == 0)
+	{
+		__pmAddOptArchiveFolio(opts, tmp);
+		return;
+	}
 	snprintf(path, sizeof(path), "%s/%s.folio", name, basename(tmp));
 	path[sizeof(path)-1] = '\0';
 	if (access(path, R_OK) == 0)
