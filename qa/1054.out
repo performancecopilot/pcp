@@ -1,0 +1,26 @@
+QA output created by 1054
+once case ...
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+
+Group [N metrics] {
+} logged once: NNN bytes
+pmlogger: Sample limit reached, exiting
+
+Log finished DATE
+
+other case ...
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+
+Group [N metrics] {
+} logged every NNN sec: NNN bytes or NNN Mbytes/day
+pmlogger: Sample limit reached, exiting
+
+Log finished DATE

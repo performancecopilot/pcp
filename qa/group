@@ -1138,6 +1138,7 @@ cgroups
 1051 pmieconf #696008 local
 1052 pmda.json local python
 1053 pmda.json pmda.install local python
+1054 pmlogger pmcpp local
 1079 pcp atop local
 1080 valgrind pcp atop local
 1081 python pcp local
