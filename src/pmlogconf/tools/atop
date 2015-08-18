@@ -1,7 +1,7 @@
 #pmlogconf-setup 2.0
 ident   metrics used by the atop command
 probe	kernel.uname.sysname ~ Linux ? include : exclude
-delta	10 seconds
+
 	disk.dev.read
 	disk.dev.write
 	disk.dev.blkread
