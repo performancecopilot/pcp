@@ -11387,7 +11387,11 @@ rm -rf conftest.c conftest.debug
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking printf type for int64_t " >&5
 $as_echo_n "checking printf type for int64_t ... " >&6; }
-cat <<End-of-File >conftest.c
+if test "$cross_compiling" = "yes"; then
+    ans=$printf_fmt_int64
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
 #include <stdio.h>
 #include <stdint.h>
 #include <inttypes.h>
@@ -11397,16 +11401,16 @@ int main()
     return(0);
 }
 End-of-File
-ans=''
-(eval $ac_link) 2>&5
-if test -x ./conftest
-then
-    ans=`./conftest`
-    echo "./conftest -> \"$ans\"" >&5
-fi
-if test -z "$ans"
-then
-    cat <<End-of-File >conftest.c
+    ans=''
+    (eval $ac_link) 2>&5
+    if test -x ./conftest
+    then
+	ans=`./conftest`
+	echo "./conftest -> \"$ans\"" >&5
+    fi
+    if test -z "$ans"
+    then
+		cat <<End-of-File >conftest.c
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
@@ -11425,12 +11429,12 @@ int main()
     return(0);
 }
 End-of-File
-    cp conftest.c /tmp/eek.c
-    (eval $ac_link) 2>&5
-    if test -x ./conftest
-    then
-	ans=`./conftest`
-	echo "./conftest -> \"$ans\"" >&5
+	(eval $ac_link) 2>&5
+	if test -x ./conftest
+	then
+	    ans=`./conftest`
+	    echo "./conftest -> \"$ans\"" >&5
+	fi
     fi
 fi
 if test -z "$ans"
@@ -11440,10 +11444,10 @@ then
     exit 1
 fi
 fmt_int64="$ans"
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $fmt_int64" >&5
-$as_echo "$fmt_int64" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: \"$fmt_int64\"" >&5
+$as_echo "\"$fmt_int64\"" >&6; }
 
-rm -rf conftest.* conftest.debug conftest
+rm -rf conftest.* conftest
 
 if test "$do_threads" = "check" -o "$do_threads" = "yes"
 then
