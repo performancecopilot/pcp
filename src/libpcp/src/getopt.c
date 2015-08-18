@@ -438,7 +438,7 @@ __pmAddOptArchive(pmOptions *opts, char *arg)
     else {
 	/*
 	 * One context for multiple archives. We will maintain a single,
-	 * comma-separated list of archive names.
+	 * colon-separated list of archive names (similar to $PATH).
 	 */
 	if (archives == NULL) {
 	    /* The initial name. */
@@ -451,11 +451,11 @@ __pmAddOptArchive(pmOptions *opts, char *arg)
 	    opts->narchives = 1;
 	}
 	else {
-	    /* Add a comma plus the additional name. */
+	    /* Add a colon plus the additional name. */
 	    size = strlen (*archives) + 1 + strlen (arg) + 1;
 	    if ((*archives = realloc(*archives, size)) == NULL)
 		goto noMem;
-	    strcat (*archives, ",");
+	    strcat (*archives, ":");
 	    strcat (*archives, arg);
 	}
     }
@@ -468,11 +468,11 @@ __pmAddOptArchive(pmOptions *opts, char *arg)
 }
 
 static char *
-comma_or_end(const char *start)
+delim_or_end(const char *start, char delim)
 {
     char *end;
 
-    if ((end = strchr(start, ',')) != NULL)
+    if ((end = strchr(start, delim)) != NULL)
 	return end;
     if (*start == '\0')
 	return NULL;
@@ -494,7 +494,7 @@ __pmAddOptArchiveList(pmOptions *opts, char *arg)
 
     if (!(opts->flags & PM_OPTFLAG_MULTI)) {
 	/*
-	 * Add it all at once, since we're maintaining a single comma-separated
+	 * Add it all at once, since we're maintaining a single colon-separated
 	 * list of archive names anyway.
 	*/
 	__pmAddOptArchive(opts, arg);
@@ -502,7 +502,7 @@ __pmAddOptArchiveList(pmOptions *opts, char *arg)
     }
 
     /* Add the names one at a time. */
-    while ((end = comma_or_end(start)) != NULL) {
+    while ((end = delim_or_end(start, ':')) != NULL) {
 	saveend = *end;
 	*end = '\0';
 	__pmAddOptArchive(opts, start);
@@ -706,7 +706,7 @@ __pmAddOptHostList(pmOptions *opts, char *arg)
     } else {
 	char *start = arg, *end;
 
-	while ((end = comma_or_end(start)) != NULL) {
+	while ((end = delim_or_end(start, ',')) != NULL) {
 	    size_t size = sizeof(char *) * (opts->nhosts + 1);
 	    size_t length = end - start;
 	    char **hosts = opts->hosts;
