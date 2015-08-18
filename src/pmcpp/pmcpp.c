@@ -53,7 +53,9 @@
 #include <ctype.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#if defined(HAVE_SYS_WAIT_H)
 #include <sys/wait.h>
+#endif
 #include <stdarg.h>
 #include <string.h>
 
@@ -753,6 +755,7 @@ more:
 	    if (strcmp(currfile->fname, "<shell>") == 0) {
 		int	sts;
 		sts = pclose(currfile->fin);
+#if defined(HAVE_SYS_WAIT_H)
 		if (WIFEXITED(sts)) {
 		    if (WEXITSTATUS(sts) != 0)
 			fprintf(stderr, "Warning: %cshell cmd returns %d exit status\n", ctl, WEXITSTATUS(sts));
@@ -760,6 +763,10 @@ more:
 		else if (WIFSIGNALED(sts)) {
 		    fprintf(stderr, "Warning: %cshell cmd terminated by signal %d\n", ctl, WTERMSIG(sts));
 		}
+#else
+		if (sts != 0)
+		    fprintf(stderr, "Warning:  %cshell cmd popen() returns: %d\n", ctl, sts);
+#endif
 	    }
 	    else
 		fclose(currfile->fin);
