@@ -2252,6 +2252,9 @@ cd
 
 %files export-pcp2graphite
 %{_bindir}/pcp2graphite
+
+%files pmda-mic
+%{_pmdasdir}/mic
 %endif # !%{disable_python2} || !%{disable_python3}
 
 %if !%{disable_json}
