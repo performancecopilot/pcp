@@ -6619,8 +6619,7 @@ if test "x$do_pmdajson" = "xyes"; then :
 fi
 if test "x$do_pmdajson" = "xcheck"; then :
 
-            $have_python_jsonpointer && $have_python_six && pmda_json=true
-    test $have_python -a "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -le 6 && pmda_json=false
+        $have_python_jsonpointer && $have_python_six && pmda_json=true
 
 fi
 PMDA_JSON=$pmda_json
