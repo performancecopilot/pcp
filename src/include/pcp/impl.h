@@ -1053,6 +1053,7 @@ PCP_CALL extern int __pmLogLoadIndex(__pmLogCtl *);
 PCP_CALL extern int __pmLogLoadMeta(__pmLogCtl *);
 PCP_CALL extern void __pmLogClose(__pmLogCtl *);
 PCP_CALL extern void __pmLogCacheClear(FILE *);
+PCP_CALL extern char *__pmLogBaseName(char *);
 
 PCP_CALL extern void __pmLogInitialState(__pmArchCtl *);
 PCP_CALL extern __pmTimeval *__pmLogStartTime(__pmArchCtl *);

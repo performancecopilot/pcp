@@ -740,15 +740,82 @@ __pmLogClose(__pmLogCtl *lcp)
 
 }
 
+/*
+ * If name contains '.' and the suffix is "index", "meta" or a string of
+ * digits or a string of digits followed by one of the compression suffixes,
+ * strip the suffix.
+ *
+ * Modifications are performed on the argument string in-place. If modifications
+ * are made, a pointer to the start of the modified string is returned.
+ * Otherwise, NULL is returned.
+ */
+char *
+__pmLogBaseName(char *name)
+{
+    char *q;
+    int   strip;
+    int   i;
+
+    strip = 0;
+    if ((q = strrchr(name, '.')) != NULL) {
+	if (strcmp(q, ".index") == 0) {
+	    strip = 1;
+	    goto done;
+	}
+	if (strcmp(q, ".meta") == 0) {
+	    strip = 1;
+	    goto done;
+	}
+	for (i = 0; i < ncompress; i++) {
+	    if (strcmp(q, compress_ctl[i].suff) == 0) {
+		char	*q2;
+		/*
+		 * name ends with one of the supported compressed file
+		 * suffixes, check for a string of digits before that,
+		 * e.g. if name is initially "foo.0.bz2", we want it
+		 * stripped to "foo"
+		 */
+		*q = '\0';
+		if ((q2 = strrchr(name, '.')) == NULL) {
+		    /* no . to the left of the suffix */
+		    *q = '.';
+		    goto done;
+		}
+		q = q2;
+		break;
+	    }
+	}
+	if (q[1] != '\0') {
+	    char	*end;
+	    /*
+	     * Below we don't care about the value from strtol(),
+	     * we're interested in updating the pointer "end".
+	     * The messiness is thanks to gcc and glibc ... strtol()
+	     * is marked __attribute__((warn_unused_result)) ...
+	     * to avoid warnings on all platforms, assign to a
+	     * dummy variable that is explicitly marked unused.
+	     */
+	    long	tmpl __attribute__((unused));
+	    tmpl = strtol(q+1, &end, 10);
+	    if (*end == '\0') strip = 1;
+	}
+    }
+done:
+    if (strip) {
+	*q = '\0';
+	return name;
+    }
+
+    return NULL; /* not the name of an archive file. */
+}
+
 int
 __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 {
     int		sts;
     int		blen;
     int		exists = 0;
-    int		i;
     int		sep = __pmPathSeparator();
-    char	*q;
     char	*base;
     char	*tbuf;
     char	*tp;
@@ -785,60 +852,9 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
     PM_UNLOCK(__pmLock_libpcp);
 
     if (access(name, R_OK) == 0) {
-	/*
-	 * file exists and is readable ... if name contains '.' and
-	 * suffix is "index", "meta" or a string of digits or a string
-	 * of digits followed by one of the compression suffixes,
-	 * strip the suffix
-	 */
-	int	strip = 0;
-	if ((q = strrchr(base, '.')) != NULL) {
-	    if (strcmp(q, ".index") == 0) {
-		strip = 1;
-		goto done;
-	    }
-	    if (strcmp(q, ".meta") == 0) {
-		strip = 1;
-		goto done;
-	    }
-	    for (i = 0; i < ncompress; i++) {
-		if (strcmp(q, compress_ctl[i].suff) == 0) {
-		    char	*q2;
-		    /*
-		     * name ends with one of the supported compressed file
-		     * suffixes, check for a string of digits before that,
-		     * e.g. if base is initially "foo.0.bz2", we want it
-		     * stripped to "foo"
-		     */
-		    *q = '\0';
-		    if ((q2 = strrchr(base, '.')) == NULL) {
-			/* no . to the left of the suffix */
-			*q = '.';
-			goto done;
-		    }
-		    q = q2;
-		    break;
-		}
-	    }
-	    if (q[1] != '\0') {
-		char	*end;
-		/*
-		 * Below we don't care about the value from strtol(),
-		 * we're interested in updating the pointer "end".
-		 * The messiness is thanks to gcc and glibc ... strtol()
-		 * is marked __attribute__((warn_unused_result)) ...
-		 * to avoid warnings on all platforms, assign to a
-		 * dummy variable that is explicitly marked unused.
-		 */
-		long	tmpl __attribute__((unused));
-		tmpl = strtol(q+1, &end, 10);
-		if (*end == '\0') strip = 1;
-	    }
-	}
-done:
-	if (strip) {
-	    *q = '\0';
-	}
+	/* Strip the name down to its base, if it is a known archive
+	   component file name. */
+	__pmLogBaseName(base);
     }
 
     snprintf(filename, sizeof(filename), "%s%c%s", dir, sep, base);

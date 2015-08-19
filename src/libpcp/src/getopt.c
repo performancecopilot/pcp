@@ -19,6 +19,7 @@
 #include "impl.h"
 #include "internal.h"
 #include <ctype.h>
+#include <dirent.h>
 
 #if !defined(HAVE_UNDERBAR_ENVIRON)
 #define _environ environ
@@ -411,23 +412,26 @@ __pmSetGuiPort(pmOptions *opts, char *arg)
     }
 }
 
-void
-__pmAddOptArchive(pmOptions *opts, char *arg)
+/*
+ * Add an archive name to the list. Ensure that there are no duplicates.
+ */
+static void
+addArchive(pmOptions *opts, char *arg)
 {
-    char **archives = opts->archives;
-    size_t size;
-
-    if (opts->nhosts && !(opts->flags & PM_OPTFLAG_MIXED)) {
-	pmprintf("%s: only one host or archive allowed\n", pmProgname);
-	opts->errors++;
-	return;
-    }
+    char	**archives = opts->archives;
+    char	*found;
+    size_t	size;
+    int		i;
 
     if ((opts->flags & PM_OPTFLAG_MULTI)) {
 	/*
 	 * Multiple contexts for multiple archives. See pmstat(1).
 	 * We will maintain an array of archive names.
 	 */
+	for (i = 0; i < opts->narchives; ++i) {
+	    if (strcmp(arg, archives[i]) == 0)
+		return; /* duplicate */
+	}
 	size = sizeof(char *) * (opts->narchives + 1);
 	if ((archives = realloc(archives, size)) == NULL)
 	    goto noMem;
@@ -438,7 +442,7 @@ __pmAddOptArchive(pmOptions *opts, char *arg)
     else {
 	/*
 	 * One context for multiple archives. We will maintain a single,
-	 * colon-separated list of archive names (similar to $PATH).
+	 * comma-separated list of archive names.
 	 */
 	if (archives == NULL) {
 	    /* The initial name. */
@@ -451,11 +455,17 @@ __pmAddOptArchive(pmOptions *opts, char *arg)
 	    opts->narchives = 1;
 	}
 	else {
-	    /* Add a colon plus the additional name. */
+	    if ((found = strstr(*archives, arg)) != NULL &&
+		(found == *archives || *(found - 1) == ',')) {
+		size = strlen(arg);
+		if (found[size] == ',' || found[size] == '\0')
+		    return; /* duplicate */
+	    }
+	    /* Add a comma plus the additional name. */
 	    size = strlen (*archives) + 1 + strlen (arg) + 1;
 	    if ((*archives = realloc(*archives, size)) == NULL)
 		goto noMem;
-	    strcat (*archives, ":");
+	    strcat (*archives, ",");
 	    strcat (*archives, arg);
 	}
     }
@@ -467,12 +477,63 @@ __pmAddOptArchive(pmOptions *opts, char *arg)
     __pmNoMem("pmGetOptions(archive)", size, PM_FATAL_ERR);
 }
 
+void
+__pmAddOptArchive(pmOptions *opts, char *arg)
+{
+    char	*base;
+    char	*logBase;
+    DIR		*dirp = NULL;
+#if defined(HAVE_READDIR64)
+    struct dirent64	*direntp;
+#else
+    struct dirent	*direntp;
+#endif
+
+    if (opts->nhosts && !(opts->flags & PM_OPTFLAG_MIXED)) {
+	pmprintf("%s: only one host or archive allowed\n", pmProgname);
+	opts->errors++;
+	return;
+    }
+
+    /* If 'arg' specifies a directory, then add each archive in the directory. */
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+    if ((dirp = opendir(arg)) != NULL) {
+#if defined(HAVE_READDIR64)
+	while ((direntp = readdir64(dirp)) != NULL) {
+#else
+	while ((direntp = readdir(dirp)) != NULL) {
+#endif
+	    /*
+	     * If this file is part of an archive, then add it. addArchive()
+	     * will filter out duplicates caused by the discovery of more than
+	     * one component of the same archive -  i.e. .meta and .index files. 
+	     */
+	    if ((base = strdup(direntp->d_name)) == NULL)
+		__pmNoMem("pmGetOptions(archive)", strlen(direntp->d_name), PM_FATAL_ERR);
+	    if ((logBase = __pmLogBaseName(base)) != NULL)
+		addArchive(opts, logBase);
+	    free(base);
+	}
+	closedir(dirp);
+	PM_UNLOCK(__pmLock_libpcp);
+    }
+    else {
+	PM_UNLOCK(__pmLock_libpcp);
+	/*
+	 *  It's ok if 'arg' cannot be opened as a directory. Treat it as an
+	 * archive name.
+	 */
+	addArchive(opts, arg);
+    }
+}
+
 static char *
-delim_or_end(const char *start, char delim)
+comma_or_end(const char *start)
 {
     char *end;
 
-    if ((end = strchr(start, delim)) != NULL)
+    if ((end = strchr(start, ',')) != NULL)
 	return end;
     if (*start == '\0')
 	return NULL;
@@ -494,7 +555,7 @@ __pmAddOptArchiveList(pmOptions *opts, char *arg)
 
     if (!(opts->flags & PM_OPTFLAG_MULTI)) {
 	/*
-	 * Add it all at once, since we're maintaining a single colon-separated
+	 * Add it all at once, since we're maintaining a single comma-separated
 	 * list of archive names anyway.
 	*/
 	__pmAddOptArchive(opts, arg);
@@ -502,7 +563,7 @@ __pmAddOptArchiveList(pmOptions *opts, char *arg)
     }
 
     /* Add the names one at a time. */
-    while ((end = delim_or_end(start, ':')) != NULL) {
+    while ((end = comma_or_end(start)) != NULL) {
 	saveend = *end;
 	*end = '\0';
 	__pmAddOptArchive(opts, start);
@@ -706,7 +767,7 @@ __pmAddOptHostList(pmOptions *opts, char *arg)
     } else {
 	char *start = arg, *end;
 
-	while ((end = delim_or_end(start, ',')) != NULL) {
+	while ((end = comma_or_end(start)) != NULL) {
 	    size_t size = sizeof(char *) * (opts->nhosts + 1);
 	    size_t length = end - start;
 	    char **hosts = opts->hosts;
