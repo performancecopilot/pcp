@@ -13441,13 +13441,21 @@ pcp_inc_dir=`eval echo $includedir/pcp`
 pcp_inc_dir=`eval echo $pcp_inc_dir`
 
 
-pcp_books_dir=`eval echo $datarootdir/doc/pcp-doc`
+if test $target_os = linux; then
+    pcp_books_dir=`eval echo $datarootdir/doc/pcp-doc`
+else
+    pcp_books_dir=`eval echo $datarootdir/doc/pcp`
+fi
 pcp_books_dir=`eval echo $pcp_books_dir`
 pcp_html_dir=`eval echo $pcp_books_dir/html`
 
 
 
-pcp_icons_dir=`eval echo $datarootdir/pcp-gui/pixmaps`
+if test $target_os = linux; then
+    pcp_icons_dir=`eval echo $datarootdir/pcp-gui/pixmaps`
+else
+    pcp_icons_dir=`eval echo $datarootdir/pcp/pixmaps`
+fi
 pcp_icons_dir=`eval echo $pcp_icons_dir`
 
 
