@@ -1,44 +1,44 @@
 QA output created by 1091
 PM_CONTEXT_LOCAL, default PMNS ...
-disk.dev.read
-disk.dev.write
-disk.dev.total
-disk.dev.blkread
-disk.dev.blkwrite
-disk.dev.blktotal
-disk.dev.read_bytes
-disk.dev.write_bytes
-disk.dev.total_bytes
-disk.dev.read_merge
-disk.dev.write_merge
 disk.dev.avactive
-disk.dev.read_rawactive
-disk.dev.write_rawactive
-disk.dev.total_rawactive
 disk.dev.aveq
+disk.dev.blkread
+disk.dev.blktotal
+disk.dev.blkwrite
+disk.dev.read
+disk.dev.read_bytes
+disk.dev.read_merge
+disk.dev.read_rawactive
 disk.dev.scheduler
+disk.dev.total
+disk.dev.total_bytes
+disk.dev.total_rawactive
+disk.dev.write
+disk.dev.write_bytes
+disk.dev.write_merge
+disk.dev.write_rawactive
 pmGetPMNSLocation: Loading local PMNS for local PMAPI context
 load(name=(null), dupok=1, use_cpp=0) lic case=0 fname=PCP_VAR_DIR/pmns/root
 loadascii(dupok=1, use_cpp=0) fname=PCP_VAR_DIR/pmns/root
 
 PM_CONTEXT_LOCAL, $PCP_VAR_DIR/pmns/root PMNS ...
-disk.dev.read
-disk.dev.write
-disk.dev.total
-disk.dev.blkread
-disk.dev.blkwrite
-disk.dev.blktotal
-disk.dev.read_bytes
-disk.dev.write_bytes
-disk.dev.total_bytes
-disk.dev.read_merge
-disk.dev.write_merge
 disk.dev.avactive
-disk.dev.read_rawactive
-disk.dev.write_rawactive
-disk.dev.total_rawactive
 disk.dev.aveq
+disk.dev.blkread
+disk.dev.blktotal
+disk.dev.blkwrite
+disk.dev.read
+disk.dev.read_bytes
+disk.dev.read_merge
+disk.dev.read_rawactive
 disk.dev.scheduler
+disk.dev.total
+disk.dev.total_bytes
+disk.dev.total_rawactive
+disk.dev.write
+disk.dev.write_bytes
+disk.dev.write_merge
+disk.dev.write_rawactive
 load(name=PCP_VAR_DIR/pmns/root, dupok=1, use_cpp=1) lic case=0 fname=PCP_VAR_DIR/pmns/root
 loadascii(dupok=1, use_cpp=1) fname=PCP_VAR_DIR/pmns/root
 
