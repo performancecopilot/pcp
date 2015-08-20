@@ -736,9 +736,7 @@ pmda_json=false
 AS_IF([test "x$do_pmdajson" = "xyes"], [pmda_json=true])
 AS_IF([test "x$do_pmdajson" = "xcheck"], [
     dnl JSON PMDA needs both the six and jsonpointer Python modules
-    dnl Python 2.6 is also too old for this PMDA.
     $have_python_jsonpointer && $have_python_six && pmda_json=true
-    test $have_python -a "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -le 6 && pmda_json=false
 ])
 AC_SUBST(PMDA_JSON, $pmda_json)
 
