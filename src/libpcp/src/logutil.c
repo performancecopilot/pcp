@@ -2573,9 +2573,10 @@ __pmLogChangeToNextArchive(__pmLogCtl *lcp)
     if (ctxp == NULL || ctxp->c_type != PM_CONTEXT_ARCHIVE)
 	return NULL;
 
-    /* Now identify the current archive in the list of archives. Don't bother
-       to check the last one because, even if it is a match, there will be no
-       subsequent archive to switch to.
+    /*
+     * Now identify the current archive in the list of archives. Don't bother
+     * to check the last one because, even if it is a match, there will be no
+     * subsequent archive to switch to.
      */
     acp = ctxp->c_archctl;
     for (i = 0; i < acp->ac_num_logs - 1; i++) {
@@ -2613,9 +2614,7 @@ __pmLogChangeToPreviousArchive(__pmLogCtl *lcp)
     __pmContext		*ctxp;
     __pmArchCtl		*acp;
     __pmTimeval		save_origin;
-    struct timeval	end;
     int			save_mode;
-    int			sts;
     int			i;
 
     /* Get the current context. It must be an archive context. */
@@ -2623,9 +2622,10 @@ __pmLogChangeToPreviousArchive(__pmLogCtl *lcp)
     if (ctxp == NULL || ctxp->c_type != PM_CONTEXT_ARCHIVE)
 	return NULL;
 
-    /* Now identify the current archive in the list of archives. Don't bother
-       to check the first one because, even if it is a match, there will be no
-       previous archive to switch to.
+    /*
+     * Now identify the current archive in the list of archives. Don't bother
+     * to check the first one because, even if it is a match, there will be no
+     * previous archive to switch to.
      */
     acp = ctxp->c_archctl;
     for (i = 1; i < acp->ac_num_logs; i++) {
@@ -2656,11 +2656,11 @@ __pmLogChangeToPreviousArchive(__pmLogCtl *lcp)
     PM_UNLOCK(ctxp->c_lock);
 
     /* Set up to scan backwards from the end of the archive. */
-    end.tv_sec = INT_MAX;
-    end.tv_usec = 0;
-    sts = pmSetMode(PM_MODE_BACK, &end, 0);
-    if (sts < 0)
-	return NULL;
+    __pmLogChangeVol(lcp, lcp->l_maxvol);
+    fseek(lcp->l_mfp, (long)0, SEEK_END);
+    ctxp->c_archctl->ac_offset = ftell(lcp->l_mfp);
+    assert(ctxp->c_archctl->ac_offset >= 0);
+    ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 
     return lcp;
 }
