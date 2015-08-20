@@ -120,7 +120,7 @@ def handle_json_dict(out, indent, root_name, json_dict):
         sys.stderr.write("Changed '%s' to '%s'\n" % (root_name, pcp_root_name))
     for (key, value) in iteritems(json_dict):
         if not isinstance(value, dict):
-            sys.stderr.write("Value isn't an dictionary?\n")
+            sys.stderr.write("Value isn't a dictionary?\n")
             sys.exit(1)
 
         # Decode 'type' field
@@ -164,7 +164,7 @@ def usage():
     sys.stderr.write("Options:\n")
     sys.stderr.write("    -v       Verbose mode.\n")
     sys.stderr.write("    -o FILE  Instead of the default output file"
-                     " named 'metadata.json,\n")
+                     " named 'metadata.json',\n")
     sys.stderr.write("             output to FILE instead.\n")
     sys.stderr.write("Example: %s /var/run/ceph/ceph-osd.0.asok\n"
                      % sys.argv[0])
