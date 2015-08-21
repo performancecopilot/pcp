@@ -817,12 +817,12 @@ pdh_metric_t metricdesc[] = {
       "\\Memory\\Free System Page Table Entries"
     },
 /* mem.cache.bytes */
-    { { PMDA_PMID(0,148), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    { { PMDA_PMID(0,148), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_NONE, 0, 0, 0, NULL,
-      "\\Memory\\Page Faults/sec"
+      "\\Memory\\Cache Bytes"
     },
 /* mem.cache.bytes_peak */
-    { { PMDA_PMID(0,149), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    { { PMDA_PMID(0,149), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, M_NONE, 0, 0, 0, NULL,
       "\\Memory\\Cache Bytes Peak"
     },
