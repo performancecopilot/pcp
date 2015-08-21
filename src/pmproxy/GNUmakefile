@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014-2015 Red Hat.
 # Copyright (c) 2000-2002 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -40,6 +40,7 @@ install: default
 ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmproxy.service $(PCP_SYSTEMDUNIT_DIR)/pmproxy.service
 endif
+	$(INSTALL) -m 644 pmproxy.defaults $(PCP_SYSCONFIG_DIR)/pmproxy
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_USER) -d $(PCP_LOG_DIR)/pmproxy
 

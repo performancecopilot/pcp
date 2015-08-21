@@ -22,6 +22,7 @@
 
 PMLOGGER="$PCP_BINADM_DIR/pmlogger"
 PMLOGCONF="$PCP_BINADM_DIR/pmlogconf"
+PMLOGGERENVS="$PCP_SYSCONFIG_DIR/pmlogger"
 
 # error messages should go to stderr, not the GUI notifiers
 #
@@ -703,6 +704,7 @@ END				{ print m }'`
 
 	    if [ "X$primary" = Xy ]
 	    then
+		envs=`grep ^PMLOGGER "$PMLOGGERENVS" 2>/dev/null`
 		args="-P $args"
 		iam=" primary"
 		# clean up port-map, just in case
@@ -711,6 +713,7 @@ END				{ print m }'`
 		rm -f "$PM_LOG_PORT_DIR/primary"
 	    else
 		args="-h $host $args"
+		envs=""
 		iam=""
 	    fi
 
@@ -806,7 +809,7 @@ END				{ print m }'`
 		continue
 	    else
 		$PCP_BINADM_DIR/pmpost "start pmlogger from $prog for host $host"
-		${sock_me}$PMLOGGER $args $LOGNAME >$tmp/out 2>&1 &
+		eval $envs '${sock_me}$PMLOGGER $args $LOGNAME >$tmp/out 2>&1 &'
 		pid=$!
 	    fi
 

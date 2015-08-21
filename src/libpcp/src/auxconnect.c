@@ -262,6 +262,11 @@ __pmStringToSockAddr(const char *cp)
 	    /* Set the address family to 0, meaning "not set". */
 	    addr->sockaddr.raw.sa_family = 0;
 	}
+        else if (strcmp(cp, "INADDR_LOOPBACK") == 0) {
+	    addr->sockaddr.inet.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+	    /* Set the address family to 0, meaning "not set". */
+	    addr->sockaddr.raw.sa_family = 0;
+	}
 	else {
 	    int sts;
 	    /* Determine the address family. */

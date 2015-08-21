@@ -39,6 +39,7 @@
 PMCD=$PCP_BINADM_DIR/pmcd
 PMCDOPTS=$PCP_PMCDOPTIONS_PATH
 PCPLOCAL=$PCP_PMCDRCLOCAL_PATH
+PMCDENVS=$PCP_SYSCONFIG_DIR/pmcd
 RUNDIR=$PCP_LOG_DIR/pmcd
 prog=$PCP_RC_DIR/`basename $0`
 
@@ -466,6 +467,9 @@ Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
 
 	    $ECHO $PCP_ECHO_N "Starting pmcd ..." "$PCP_ECHO_C"
 
+	    # only consider variables which start with PMCD
+	    ENVS=`grep ^PMCD $PMCDENVS 2>/dev/null`
+
 	    # only consider lines which start with a hyphen
 	    # get rid of the -f option
 	    # ensure multiple lines concat onto 1 line
@@ -478,7 +482,7 @@ Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
 			    -e 's/ $//' \
 		    | tr '\012' ' ' `
 
-	    $PMCD $OPTS
+	    eval $ENVS '$PMCD $OPTS'
             _start_pmcheck
 	    $RC_STATUS -v
 

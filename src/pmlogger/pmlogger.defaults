@@ -1,0 +1,11 @@
+# Environment variables for the primary pmlogger daemon.  See also
+# the pmlogger control file and pmlogconf(1) for additional details.
+
+# Behaviour regarding listening on external-facing interfaces;
+# unset PMLOGGER_LOCAL to allow connections from remote hosts.
+# A value of 0 permits remote connections, 1 permits local only.
+# PMLOGGER_LOCAL=1
+
+# Max length to which the queue of pending connections may grow
+# A value of 5 is the default.
+# PMLOGGER_MAXPENDING=5

@@ -786,6 +786,8 @@ main(int argc, char *argv[])
 {
     int		sts;
     int		nport = 0;
+    int		localhost = 0;
+    int		maxpending = MAXPENDING;
     char	*envstr;
 #ifdef HAVE_SA_SIGINFO
     static struct sigaction act;
@@ -800,7 +802,14 @@ main(int argc, char *argv[])
 
     if ((envstr = getenv("PMCD_PORT")) != NULL)
 	nport = __pmServerAddPorts(envstr);
+    if ((envstr = getenv("PMCD_LOCAL")) != NULL)
+	if ((localhost = atoi(envstr)) != 0)
+	    __pmServerSetFeature(PM_SERVER_FEATURE_LOCAL);
+    if ((envstr = getenv("PMCD_MAXPENDING")) != NULL)
+	maxpending = atoi(envstr);
     ParseOptions(argc, argv, &nport);
+    if (localhost)
+	__pmServerAddInterface("INADDR_LOOPBACK");
     if (nport == 0)
 	__pmServerAddPorts(TO_STRING(SERVER_PORT));
 
@@ -833,7 +842,7 @@ main(int argc, char *argv[])
     __pmSetSignalHandler(SIGBUS, SigBad);
     __pmSetSignalHandler(SIGSEGV, SigBad);
 
-    if ((sts = __pmServerOpenRequestPorts(&clientFds, MAXPENDING)) < 0)
+    if ((sts = __pmServerOpenRequestPorts(&clientFds, maxpending)) < 0)
 	DontStart();
     maxReqPortFd = maxClientFd = sts;
 

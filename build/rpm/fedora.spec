@@ -2004,6 +2004,9 @@ cd
 %config(noreplace) %{_sysconfdir}/sasl2/pmcd.conf
 %config(noreplace) %{_sysconfdir}/cron.d/pcp-pmlogger
 %config(noreplace) %{_sysconfdir}/cron.d/pcp-pmie
+%config(noreplace) %{_sysconfdir}/sysconfig/pmlogger
+%config(noreplace) %{_sysconfdir}/sysconfig/pmproxy
+%config(noreplace) %{_sysconfdir}/sysconfig/pmcd
 %config %{_sysconfdir}/bash_completion.d/pcp
 %config %{_sysconfdir}/pcp.env
 %config %{_sysconfdir}/pcp.sh

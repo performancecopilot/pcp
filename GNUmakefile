@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2014 Red Hat.
+# Copyright (c) 2012-2015 Red Hat.
 # Copyright (c) 2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -84,6 +84,7 @@ ifeq "$(findstring $(PACKAGE_DISTRIBUTION), debian redhat fedora)" ""
 	#
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_RUN_DIR)
 endif
+	$(INSTALL) -m 755 -d $(PCP_SYSCONFIG_DIR)
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)
 	$(INSTALL) -m 755 -d $(PCP_BINADM_DIR)
 	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/lib

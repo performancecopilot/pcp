@@ -1557,9 +1557,12 @@ egrep 'pcp\/(examples|demos)|pmdas\/(sample|simple|trivial|txmon)' >>devel_files
 
 #
 # Patterns for files to be marked %config(noreplace).
-# Note: /etc/pcp.{conf,env,sh} are %config but not noreplace.
-# and is treated specially below.
+# Note: /etc/pcp.{conf,env,sh} are %config but not noreplace
+# and are treated specially below.
 cat >conf_files <<EOF
+etc/sysconfig/pmcd
+etc/sysconfig/pmproxy
+etc/sysconfig/pmlogger
 etc/cron.d/pcp-pmie
 etc/cron.d/pcp-pmlogger
 pmcd/pmcd.conf
