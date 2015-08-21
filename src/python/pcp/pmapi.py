@@ -89,16 +89,17 @@ from ctypes.util import find_library
 #
 # dynamic library loads
 #
+import sys
 
 LIBPCP = CDLL(find_library("pcp"))
-LIBC = CDLL(find_library("c"))
+libc_name = "c" if sys.platform != "win32" else "msvcrt"
+LIBC = CDLL(find_library(libc_name))
 
 
 ##############################################################################
 #
 # python version information and compatibility
 #
-import sys
 
 if sys.version >= '3':
     integer_types = (int,)
