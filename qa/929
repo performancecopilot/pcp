@@ -71,13 +71,13 @@ do
 done
 
 # real QA test starts here
-$sudo $PCP_BINADM_DIR/pmlogger_daily -V -N -c $tmp.control \
-| _filter
+$sudo $PCP_BINADM_DIR/pmlogger_daily -V -N -c $tmp.control -l $tmp.log
+$sudo cat $tmp.log | _filter
 
 echo
 echo "--- -M case ---"
-$sudo $PCP_BINADM_DIR/pmlogger_daily -M -VN -c $tmp.control \
-| _filter
+$sudo $PCP_BINADM_DIR/pmlogger_daily -M -VN -c $tmp.control -l $tmp.log
+$sudo cat $tmp.log | _filter
 
 # success, all done
 status=0

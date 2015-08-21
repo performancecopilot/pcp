@@ -153,7 +153,8 @@ ls -l $tmp >>$seq.full
 #
 echo
 echo "pmlogger_daily -k 4 -V ..." >>$seq.full
-$sudo $PCP_BINADM_DIR/pmlogger_daily -c $tmp/control -k 4 -V 2>&1 \
+$sudo $PCP_BINADM_DIR/pmlogger_daily -c $tmp/control -k 4 -V -l $tmp.log
+$sudo cat $tmp.log \
 | tee -a $tmp.full \
 | _filter \
 | $PCP_AWK_PROG '
@@ -180,8 +181,6 @@ ls -l $tmp >>$seq.full
 echo
 echo "Differences ..."
 diff $tmp.before $tmp.after
-
-rm -rf $tmp/* $tmp.*
 
 # all done
 status=0
