@@ -2,6 +2,7 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+.\" Copyright (c) 2015 Red Hat
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -148,7 +149,8 @@ It does not override hosts explicitly named in the expressions
 being evaluated.  The \f2host\f1 argument is interpreted as a
 connection specification for \f2pmNewContext\f1, and is later
 mapped to the remote pmcd's self-reported host name for
-reporting purposes.
+reporting purposes.  See also the %h vs. %c substitutions in rule action
+strings below.
 .TP
 .B \-l
 Standard error is sent to
@@ -230,7 +232,7 @@ This option has the same effect as the
 option described above, except that for boolean expressions,
 only those names and values that make the expression true are printed.
 These are the same names and values accessible to rule actions as the
-%h, %i and %v bindings, as described below.
+%h, %i, %c and %v bindings, as described below.
 .TP
 .B \-x
 Execute in domain agent mode.  This mode is used within the Performance
@@ -798,6 +800,10 @@ is executed.
 \f(CB%h\fR
 Host name(s) that make the left-most top-level expression in the
 condition true.
+.TP 4n
+\f(CB%c\fR
+Connection specification string(s) or files for a PCP tool to
+reach the hosts or archives.
 .TP
 \f(CB%i\fR
 Instance(s) that make the left-most top-level expression in the
