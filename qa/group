@@ -1104,6 +1104,7 @@ cgroups
 980 python local
 981 dbpmda perl pmda.gpfs local
 982 pmda.proc pmda.hotproc local
+983 pmie local
 984 cgroups local
 987 pmda.xfs local
 988 pmda.xfs local valgrind
