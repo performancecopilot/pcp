@@ -7,7 +7,7 @@ define(['settings'], function(Settings) {
       datasources: {
         graphite: {
           type: 'graphite',
-          url: window.location.protocol."//"+window.location.hostname+":"+window.location.port+"/graphite",
+          url: window.location.protocol+"//"+window.location.hostname+":"+window.location.port+"/graphite",
         },
       },
       
