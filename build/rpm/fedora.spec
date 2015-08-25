@@ -1802,7 +1802,7 @@ done
 for daemon in pmcd pmproxy
 do
     save_configs_script >> "$PCP_LOG_DIR/configs.sh" "$PCP_SYSCONF_DIR/$daemon"\
-        "$PCP_CONFIG_DIR/$daemon" /etc/$daemon /etc/sysconfig/$daemon
+        "$PCP_CONFIG_DIR/$daemon" /etc/$daemon
 done
 exit 0
 
