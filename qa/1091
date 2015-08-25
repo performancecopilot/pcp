@@ -40,15 +40,15 @@ root {
 	test	SAMPLE:0:0
 }
 End-of-File
-
+metrics=`pminfo -Dpmns disk.dev 2>$tmp.err | LC_COLLATE=POSIX sort`
 # real QA test starts here
 echo "PM_CONTEXT_LOCAL, default PMNS ..."
-pminfo -Dpmns -L disk.dev >$tmp.out 2>$tmp.err
+pminfo -Dpmns -L $metrics >$tmp.out 2>$tmp.err
 cat $tmp.out
 _filter
 echo
 echo "PM_CONTEXT_LOCAL, \$PCP_VAR_DIR/pmns/root PMNS ..."
-pminfo -Dpmns -n $PCP_VAR_DIR/pmns/root -L disk.dev >$tmp.out 2>$tmp.err
+pminfo -Dpmns -n $PCP_VAR_DIR/pmns/root -L $metrics >$tmp.out 2>$tmp.err
 cat $tmp.out
 _filter
 echo

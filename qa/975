@@ -14,6 +14,20 @@ echo "QA output created by $seq"
 . ./common.check
 
 which iostat >/dev/null || _notrun "No local iostat binary found"
+which sar >/dev/null 2>&1 || _notrun "sar not installed"
+
+version=`sar -V 2>&1 | sed -n -e '/sysstat version /{
+s/.* //
+p
+}'`
+case "$version"
+in
+    7.0.*)	# too old
+    	_notrun "sysstat version $version too old"
+	;;
+esac
+
+
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full

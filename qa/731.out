@@ -70,7 +70,10 @@ cgroup.cpuacct.stat.system
 cgroup.cpuacct.stat.user
 cgroup.cpuacct.usage
 cgroup.cpuacct.usage_percpu
+cgroup.cpusched.periods
 cgroup.cpusched.shares
+cgroup.cpusched.throttled
+cgroup.cpusched.throttled_time
 cgroup.cpuset.cpus
 cgroup.cpuset.mems
 cgroup.memory.failcnt
@@ -118,7 +121,7 @@ cgroup.subsys.enabled
 cgroup.subsys.hierarchy
 cgroup.subsys.num_cgroups
 
-and 383 instance values.
+and 395 instance values.
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
@@ -209,7 +212,10 @@ cgroup.cpuacct.stat.system
 cgroup.cpuacct.stat.user
 cgroup.cpuacct.usage
 cgroup.cpuacct.usage_percpu
+cgroup.cpusched.periods
 cgroup.cpusched.shares
+cgroup.cpusched.throttled
+cgroup.cpusched.throttled_time
 cgroup.cpuset.cpus
 cgroup.cpuset.mems
 cgroup.memory.failcnt
@@ -257,7 +263,7 @@ cgroup.subsys.enabled
 cgroup.subsys.hierarchy
 cgroup.subsys.num_cgroups
 
-and 185 instance values.
+and 189 instance values.
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
@@ -337,7 +343,10 @@ cgroup.cpuacct.stat.system
 cgroup.cpuacct.stat.user
 cgroup.cpuacct.usage
 cgroup.cpuacct.usage_percpu
+cgroup.cpusched.periods
 cgroup.cpusched.shares
+cgroup.cpusched.throttled
+cgroup.cpusched.throttled_time
 cgroup.cpuset.cpus
 cgroup.cpuset.mems
 cgroup.memory.failcnt
@@ -385,7 +394,7 @@ cgroup.subsys.enabled
 cgroup.subsys.hierarchy
 cgroup.subsys.num_cgroups
 
-and 3518 instance values.
+and 3830 instance values.
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector

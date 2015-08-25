@@ -21,7 +21,6 @@ a PCP JSON PMDA metadata file that describes the ceph perf counters.
 import json
 import sys, getopt
 import traceback
-from collections import OrderedDict
 import subprocess
 
 # From the six module, load some python 2 vs. 3 compatibility
@@ -120,8 +119,8 @@ def handle_json_dict(out, indent, root_name, json_dict):
     if VERBOSE and pcp_root_name != root_name:
         sys.stderr.write("Changed '%s' to '%s'\n" % (root_name, pcp_root_name))
     for (key, value) in iteritems(json_dict):
-        if not isinstance(value, OrderedDict):
-            sys.stderr.write("Value isn't an OrderedDict?\n")
+        if not isinstance(value, dict):
+            sys.stderr.write("Value isn't a dictionary?\n")
             sys.exit(1)
 
         # Decode 'type' field
@@ -165,7 +164,7 @@ def usage():
     sys.stderr.write("Options:\n")
     sys.stderr.write("    -v       Verbose mode.\n")
     sys.stderr.write("    -o FILE  Instead of the default output file"
-                     " named 'metadata.json,\n")
+                     " named 'metadata.json',\n")
     sys.stderr.write("             output to FILE instead.\n")
     sys.stderr.write("Example: %s /var/run/ceph/ceph-osd.0.asok\n"
                      % sys.argv[0])
@@ -242,7 +241,7 @@ def main():
 
     # Try to convert the schema to JSON objects.
     try:
-        json_data = json.loads(out, object_pairs_hook=OrderedDict)
+        json_data = json.loads(out)
     except ValueError:
         sys.stderr.write("Couldn't parse JSON schema.\n")
         sys.stderr.write("%s" % traceback.format_exc())
@@ -256,7 +255,7 @@ def main():
                    " %s perf dump\",\n" % (indent, args[0]))
     fobj.write("%s\"metrics\": [\n" % indent)
     for (key, value) in iteritems(json_data):
-        if isinstance(value, OrderedDict):
+        if isinstance(value, dict):
             handle_json_dict(fobj, indent + "  ", key, value)
     fobj.write("\n%s]\n" % indent)
     fobj.write("}\n")

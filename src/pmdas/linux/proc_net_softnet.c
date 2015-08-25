@@ -27,16 +27,39 @@ refresh_proc_net_softnet(proc_net_softnet_t *proc_net_softnet)
     FILE *fp;
     uint64_t filler;
     proc_net_softnet_t sn;
+    static char fmt[11*7] = { '\0' };	/* 7 == strlen("%08llx ") */
+
+    if (fmt[0] == '\0') {
+	int i;
+	/*
+	 * one trip initialization to decide the correct sscanf format
+	 * for a uint64_t data type .. needs to be
+	 * "%08lx %08lx %08lx %08lx %08lx %08lx %08lx %08lx %08lx %08lx %08lx"
+	 * or
+	 * "%08llx %08llx %08llx %08llx %08llx %08llx %08llx %08llx %08llx %08llx %08llx"
+	 */
+	fmt[0] = '\0';
+	if (strcmp(FMT_INT64, "lld") == 0) {
+	    for (i = 0; i < 11; i++)
+		strcat(fmt, "%08llx ");
+	}
+	else {
+	    for (i = 0; i < 11; i++)
+		strcat(fmt, "%08lx ");
+	}
+	/* chop off last ' ' */
+	fmt[strlen(fmt)] = '\0';
+    }
 
     if ((fp = linux_statsfile("/proc/net/softnet_stat", buf, sizeof(buf))) == NULL)
 	return -oserror();
     memset(proc_net_softnet, 0, sizeof(proc_net_softnet_t));
     while (fgets(buf, sizeof(buf), fp) != NULL) {
 	memset(&sn, 0, sizeof(sn));
-	count = sscanf(buf, "%08lx %08lx %08lx %08lx %08lx %08lx %08lx %08lx %08lx %08lx %08lx",
-		    &sn.processed, &sn.dropped, &sn.time_squeeze,
-		    &filler, &filler, &filler, &filler, &filler,
-		    &sn.cpu_collision, &sn.received_rps, &sn.flow_limit_count);
+	count = sscanf(buf, fmt,
+		&sn.processed, &sn.dropped, &sn.time_squeeze,
+		&filler, &filler, &filler, &filler, &filler,
+		&sn.cpu_collision, &sn.received_rps, &sn.flow_limit_count);
 	flags = 0;
 	if (count >= 9)
 	    flags |= SN_PROCESSED | SN_DROPPED | SN_TIME_SQUEEZE | SN_CPU_COLLISION;

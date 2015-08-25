@@ -68,7 +68,10 @@ cgroup.cpuacct.stat.system
 cgroup.cpuacct.stat.user
 cgroup.cpuacct.usage
 cgroup.cpuacct.usage_percpu
+cgroup.cpusched.periods
 cgroup.cpusched.shares
+cgroup.cpusched.throttled
+cgroup.cpusched.throttled_time
 cgroup.cpuset.cpus
 cgroup.cpuset.mems
 cgroup.memory.failcnt
@@ -614,10 +617,33 @@ cgroup.cpuacct.usage_percpu
     inst [N or "/libvirt::cpu6"] value 833638956358
     inst [N or "/libvirt::cpu7"] value 872599226711
 
+cgroup.cpusched.periods
+    Data Type: 64-bit unsigned int  InDom: 3.23 0xc00017
+    Semantics: instant  Units: none
+    inst [N or "/"] value 0
+    inst [N or "/libvirt"] value 0
+    inst [N or "/libvirt/lxc"] value 0
+
 cgroup.cpusched.shares
     Data Type: 64-bit unsigned int  InDom: 3.23 0xc00017
-    Semantics: counter  Units: none
-No value(s) available!
+    Semantics: instant  Units: none
+    inst [N or "/"] value 1024
+    inst [N or "/libvirt"] value 1024
+    inst [N or "/libvirt/lxc"] value 1024
+
+cgroup.cpusched.throttled
+    Data Type: 64-bit unsigned int  InDom: 3.23 0xc00017
+    Semantics: instant  Units: none
+    inst [N or "/"] value 0
+    inst [N or "/libvirt"] value 0
+    inst [N or "/libvirt/lxc"] value 0
+
+cgroup.cpusched.throttled_time
+    Data Type: 64-bit unsigned int  InDom: 3.23 0xc00017
+    Semantics: counter  Units: nanosec
+    inst [N or "/"] value 0
+    inst [N or "/libvirt"] value 0
+    inst [N or "/libvirt/lxc"] value 0
 
 cgroup.cpuset.cpus
     Data Type: string  InDom: 3.20 0xc00014
@@ -1049,7 +1075,10 @@ cgroup.cpuacct.stat.system
 cgroup.cpuacct.stat.user
 cgroup.cpuacct.usage
 cgroup.cpuacct.usage_percpu
+cgroup.cpusched.periods
 cgroup.cpusched.shares
+cgroup.cpusched.throttled
+cgroup.cpusched.throttled_time
 cgroup.cpuset.cpus
 cgroup.cpuset.mems
 cgroup.memory.failcnt
@@ -1473,10 +1502,25 @@ cgroup.cpuacct.usage_percpu
     inst [N or "/::cpu2"] value 1635078460385
     inst [N or "/::cpu3"] value 2601525020316
 
+cgroup.cpusched.periods
+    Data Type: 64-bit unsigned int  InDom: 3.23 0xc00017
+    Semantics: instant  Units: none
+    inst [N or "/"] value 0
+
 cgroup.cpusched.shares
     Data Type: 64-bit unsigned int  InDom: 3.23 0xc00017
-    Semantics: counter  Units: none
-No value(s) available!
+    Semantics: instant  Units: none
+    inst [N or "/"] value 1024
+
+cgroup.cpusched.throttled
+    Data Type: 64-bit unsigned int  InDom: 3.23 0xc00017
+    Semantics: instant  Units: none
+    inst [N or "/"] value 0
+
+cgroup.cpusched.throttled_time
+    Data Type: 64-bit unsigned int  InDom: 3.23 0xc00017
+    Semantics: counter  Units: nanosec
+    inst [N or "/"] value 0
 
 cgroup.cpuset.cpus
     Data Type: string  InDom: 3.20 0xc00014
@@ -1820,7 +1864,10 @@ cgroup.cpuacct.stat.system
 cgroup.cpuacct.stat.user
 cgroup.cpuacct.usage
 cgroup.cpuacct.usage_percpu
+cgroup.cpusched.periods
 cgroup.cpusched.shares
+cgroup.cpusched.throttled
+cgroup.cpusched.throttled_time
 cgroup.cpuset.cpus
 cgroup.cpuset.mems
 cgroup.memory.failcnt
@@ -5503,10 +5550,333 @@ cgroup.cpuacct.usage_percpu
     inst [N or "/user.slice::cpu2"] value 0
     inst [N or "/user.slice::cpu3"] value 41011
 
+cgroup.cpusched.periods
+    Data Type: 64-bit unsigned int  InDom: 3.23 0xc00017
+    Semantics: instant  Units: none
+    inst [N or "/"] value 0
+    inst [N or "/system.slice"] value 0
+    inst [N or "/system.slice/-.mount"] value 0
+    inst [N or "/system.slice/ModemManager.service"] value 0
+    inst [N or "/system.slice/NetworkManager-wait-online.service"] value 0
+    inst [N or "/system.slice/NetworkManager.service"] value 0
+    inst [N or "/system.slice/abrt-ccpp.service"] value 0
+    inst [N or "/system.slice/abrt-oops.service"] value 0
+    inst [N or "/system.slice/abrt-vmcore.service"] value 0
+    inst [N or "/system.slice/abrt-xorg.service"] value 0
+    inst [N or "/system.slice/abrtd.service"] value 0
+    inst [N or "/system.slice/accounts-daemon.service"] value 0
+    inst [N or "/system.slice/atd.service"] value 0
+    inst [N or "/system.slice/avahi-daemon.service"] value 0
+    inst [N or "/system.slice/avahi-daemon.socket"] value 0
+    inst [N or "/system.slice/bluetooth.service"] value 0
+    inst [N or "/system.slice/chronyd.service"] value 0
+    inst [N or "/system.slice/colord.service"] value 0
+    inst [N or "/system.slice/crond.service"] value 0
+    inst [N or "/system.slice/cups.service"] value 0
+    inst [N or "/system.slice/cups.socket"] value 0
+    inst [N or "/system.slice/dbus.service"] value 0
+    inst [N or "/system.slice/dbus.socket"] value 0
+    inst [N or "/system.slice/dev-disk-by\x2did-ata\x2dST500LT012\x2d1DG142_W3P5F3RG\x2dpart9.swap"] value 0
+    inst [N or "/system.slice/dev-disk-by\x2did-wwn\x2d0x5000c50077b73cb4\x2dpart9.swap"] value 0
+    inst [N or "/system.slice/dev-disk-by\x2dpartuuid-b845133d\x2dd830\x2d4d13\x2dbbd7\x2d7fd1a510a882.swap"] value 0
+    inst [N or "/system.slice/dev-disk-by\x2duuid-d7d61c16\x2dacba\x2d4cb9\x2d85ee\x2d6368870c61da.swap"] value 0
+    inst [N or "/system.slice/dev-sda9.swap"] value 0
+    inst [N or "/system.slice/docker-f4d3b90bea1585f216da780c97cc4675827296e1c90fdc957fb2ea0c1db85a6a.scope"] value 0
+    inst [N or "/system.slice/docker.service"] value 0
+    inst [N or "/system.slice/docker.socket"] value 0
+    inst [N or "/system.slice/ebtables.service"] value 0
+    inst [N or "/system.slice/firewalld.service"] value 0
+    inst [N or "/system.slice/gdm.service"] value 0
+    inst [N or "/system.slice/httpd.service"] value 0
+    inst [N or "/system.slice/ip6tables.service"] value 0
+    inst [N or "/system.slice/iptables.service"] value 0
+    inst [N or "/system.slice/irqbalance.service"] value 0
+    inst [N or "/system.slice/iscsid.socket"] value 0
+    inst [N or "/system.slice/iscsiuio.socket"] value 0
+    inst [N or "/system.slice/kdump.service"] value 0
+    inst [N or "/system.slice/libvirt-guests.service"] value 0
+    inst [N or "/system.slice/libvirtd.service"] value 0
+    inst [N or "/system.slice/mcelog.service"] value 0
+    inst [N or "/system.slice/mdmonitor.service"] value 0
+    inst [N or "/system.slice/memcached.service"] value 0
+    inst [N or "/system.slice/netconsole.service"] value 0
+    inst [N or "/system.slice/network.service"] value 0
+    inst [N or "/system.slice/nfs-lock.service"] value 0
+    inst [N or "/system.slice/pcscd.service"] value 0
+    inst [N or "/system.slice/pcscd.socket"] value 0
+    inst [N or "/system.slice/plymouth-quit-wait.service"] value 0
+    inst [N or "/system.slice/plymouth-quit.service"] value 0
+    inst [N or "/system.slice/pmcd.service"] value 0
+    inst [N or "/system.slice/pmlogger.service"] value 0
+    inst [N or "/system.slice/polkit.service"] value 0
+    inst [N or "/system.slice/rc-local.service"] value 0
+    inst [N or "/system.slice/rngd.service"] value 0
+    inst [N or "/system.slice/rpcbind.service"] value 0
+    inst [N or "/system.slice/rpcbind.socket"] value 0
+    inst [N or "/system.slice/rsyslog.service"] value 0
+    inst [N or "/system.slice/rtkit-daemon.service"] value 0
+    inst [N or "/system.slice/run-user-1000-gvfs.mount"] value 0
+    inst [N or "/system.slice/smartd.service"] value 0
+    inst [N or "/system.slice/sshd.service"] value 0
+    inst [N or "/system.slice/sysstat.service"] value 0
+    inst [N or "/system.slice/system-getty.slice"] value 0
+    inst [N or "/system.slice/system-systemd\x2dbacklight.slice"] value 0
+    inst [N or "/system.slice/systemd-ask-password-wall.service"] value 0
+    inst [N or "/system.slice/systemd-logind.service"] value 0
+    inst [N or "/system.slice/systemd-user-sessions.service"] value 0
+    inst [N or "/system.slice/udisks2.service"] value 0
+    inst [N or "/system.slice/upower.service"] value 0
+    inst [N or "/system.slice/var-lib-docker-devicemapper-mnt-f4d3b90bea1585f216da780c97cc4675827296e1c90fdc957fb2ea0c1db85a6a.mount"] value 0
+    inst [N or "/system.slice/var-lib-docker-devicemapper.mount"] value 0
+    inst [N or "/system.slice/vmtoolsd.service"] value 0
+    inst [N or "/system.slice/wpa_supplicant.service"] value 0
+    inst [N or "/user.slice"] value 0
+
 cgroup.cpusched.shares
     Data Type: 64-bit unsigned int  InDom: 3.23 0xc00017
-    Semantics: counter  Units: none
-No value(s) available!
+    Semantics: instant  Units: none
+    inst [N or "/"] value 1024
+    inst [N or "/system.slice"] value 1024
+    inst [N or "/system.slice/-.mount"] value 1024
+    inst [N or "/system.slice/ModemManager.service"] value 1024
+    inst [N or "/system.slice/NetworkManager-wait-online.service"] value 1024
+    inst [N or "/system.slice/NetworkManager.service"] value 1024
+    inst [N or "/system.slice/abrt-ccpp.service"] value 1024
+    inst [N or "/system.slice/abrt-oops.service"] value 1024
+    inst [N or "/system.slice/abrt-vmcore.service"] value 1024
+    inst [N or "/system.slice/abrt-xorg.service"] value 1024
+    inst [N or "/system.slice/abrtd.service"] value 1024
+    inst [N or "/system.slice/accounts-daemon.service"] value 1024
+    inst [N or "/system.slice/atd.service"] value 1024
+    inst [N or "/system.slice/avahi-daemon.service"] value 1024
+    inst [N or "/system.slice/avahi-daemon.socket"] value 1024
+    inst [N or "/system.slice/bluetooth.service"] value 1024
+    inst [N or "/system.slice/chronyd.service"] value 1024
+    inst [N or "/system.slice/colord.service"] value 1024
+    inst [N or "/system.slice/crond.service"] value 1024
+    inst [N or "/system.slice/cups.service"] value 1024
+    inst [N or "/system.slice/cups.socket"] value 1024
+    inst [N or "/system.slice/dbus.service"] value 1024
+    inst [N or "/system.slice/dbus.socket"] value 1024
+    inst [N or "/system.slice/dev-disk-by\x2did-ata\x2dST500LT012\x2d1DG142_W3P5F3RG\x2dpart9.swap"] value 1024
+    inst [N or "/system.slice/dev-disk-by\x2did-wwn\x2d0x5000c50077b73cb4\x2dpart9.swap"] value 1024
+    inst [N or "/system.slice/dev-disk-by\x2dpartuuid-b845133d\x2dd830\x2d4d13\x2dbbd7\x2d7fd1a510a882.swap"] value 1024
+    inst [N or "/system.slice/dev-disk-by\x2duuid-d7d61c16\x2dacba\x2d4cb9\x2d85ee\x2d6368870c61da.swap"] value 1024
+    inst [N or "/system.slice/dev-sda9.swap"] value 1024
+    inst [N or "/system.slice/docker-f4d3b90bea1585f216da780c97cc4675827296e1c90fdc957fb2ea0c1db85a6a.scope"] value 1024
+    inst [N or "/system.slice/docker.service"] value 1024
+    inst [N or "/system.slice/docker.socket"] value 1024
+    inst [N or "/system.slice/ebtables.service"] value 1024
+    inst [N or "/system.slice/firewalld.service"] value 1024
+    inst [N or "/system.slice/gdm.service"] value 1024
+    inst [N or "/system.slice/httpd.service"] value 1024
+    inst [N or "/system.slice/ip6tables.service"] value 1024
+    inst [N or "/system.slice/iptables.service"] value 1024
+    inst [N or "/system.slice/irqbalance.service"] value 1024
+    inst [N or "/system.slice/iscsid.socket"] value 1024
+    inst [N or "/system.slice/iscsiuio.socket"] value 1024
+    inst [N or "/system.slice/kdump.service"] value 1024
+    inst [N or "/system.slice/libvirt-guests.service"] value 1024
+    inst [N or "/system.slice/libvirtd.service"] value 1024
+    inst [N or "/system.slice/mcelog.service"] value 1024
+    inst [N or "/system.slice/mdmonitor.service"] value 1024
+    inst [N or "/system.slice/memcached.service"] value 1024
+    inst [N or "/system.slice/netconsole.service"] value 1024
+    inst [N or "/system.slice/network.service"] value 1024
+    inst [N or "/system.slice/nfs-lock.service"] value 1024
+    inst [N or "/system.slice/pcscd.service"] value 1024
+    inst [N or "/system.slice/pcscd.socket"] value 1024
+    inst [N or "/system.slice/plymouth-quit-wait.service"] value 1024
+    inst [N or "/system.slice/plymouth-quit.service"] value 1024
+    inst [N or "/system.slice/pmcd.service"] value 1024
+    inst [N or "/system.slice/pmlogger.service"] value 1024
+    inst [N or "/system.slice/polkit.service"] value 1024
+    inst [N or "/system.slice/rc-local.service"] value 1024
+    inst [N or "/system.slice/rngd.service"] value 1024
+    inst [N or "/system.slice/rpcbind.service"] value 1024
+    inst [N or "/system.slice/rpcbind.socket"] value 1024
+    inst [N or "/system.slice/rsyslog.service"] value 1024
+    inst [N or "/system.slice/rtkit-daemon.service"] value 1024
+    inst [N or "/system.slice/run-user-1000-gvfs.mount"] value 1024
+    inst [N or "/system.slice/smartd.service"] value 1024
+    inst [N or "/system.slice/sshd.service"] value 1024
+    inst [N or "/system.slice/sysstat.service"] value 1024
+    inst [N or "/system.slice/system-getty.slice"] value 1024
+    inst [N or "/system.slice/system-systemd\x2dbacklight.slice"] value 1024
+    inst [N or "/system.slice/systemd-ask-password-wall.service"] value 1024
+    inst [N or "/system.slice/systemd-logind.service"] value 1024
+    inst [N or "/system.slice/systemd-user-sessions.service"] value 1024
+    inst [N or "/system.slice/udisks2.service"] value 1024
+    inst [N or "/system.slice/upower.service"] value 1024
+    inst [N or "/system.slice/var-lib-docker-devicemapper-mnt-f4d3b90bea1585f216da780c97cc4675827296e1c90fdc957fb2ea0c1db85a6a.mount"] value 1024
+    inst [N or "/system.slice/var-lib-docker-devicemapper.mount"] value 1024
+    inst [N or "/system.slice/vmtoolsd.service"] value 1024
+    inst [N or "/system.slice/wpa_supplicant.service"] value 1024
+    inst [N or "/user.slice"] value 1024
+
+cgroup.cpusched.throttled
+    Data Type: 64-bit unsigned int  InDom: 3.23 0xc00017
+    Semantics: instant  Units: none
+    inst [N or "/"] value 0
+    inst [N or "/system.slice"] value 0
+    inst [N or "/system.slice/-.mount"] value 0
+    inst [N or "/system.slice/ModemManager.service"] value 0
+    inst [N or "/system.slice/NetworkManager-wait-online.service"] value 0
+    inst [N or "/system.slice/NetworkManager.service"] value 0
+    inst [N or "/system.slice/abrt-ccpp.service"] value 0
+    inst [N or "/system.slice/abrt-oops.service"] value 0
+    inst [N or "/system.slice/abrt-vmcore.service"] value 0
+    inst [N or "/system.slice/abrt-xorg.service"] value 0
+    inst [N or "/system.slice/abrtd.service"] value 0
+    inst [N or "/system.slice/accounts-daemon.service"] value 0
+    inst [N or "/system.slice/atd.service"] value 0
+    inst [N or "/system.slice/avahi-daemon.service"] value 0
+    inst [N or "/system.slice/avahi-daemon.socket"] value 0
+    inst [N or "/system.slice/bluetooth.service"] value 0
+    inst [N or "/system.slice/chronyd.service"] value 0
+    inst [N or "/system.slice/colord.service"] value 0
+    inst [N or "/system.slice/crond.service"] value 0
+    inst [N or "/system.slice/cups.service"] value 0
+    inst [N or "/system.slice/cups.socket"] value 0
+    inst [N or "/system.slice/dbus.service"] value 0
+    inst [N or "/system.slice/dbus.socket"] value 0
+    inst [N or "/system.slice/dev-disk-by\x2did-ata\x2dST500LT012\x2d1DG142_W3P5F3RG\x2dpart9.swap"] value 0
+    inst [N or "/system.slice/dev-disk-by\x2did-wwn\x2d0x5000c50077b73cb4\x2dpart9.swap"] value 0
+    inst [N or "/system.slice/dev-disk-by\x2dpartuuid-b845133d\x2dd830\x2d4d13\x2dbbd7\x2d7fd1a510a882.swap"] value 0
+    inst [N or "/system.slice/dev-disk-by\x2duuid-d7d61c16\x2dacba\x2d4cb9\x2d85ee\x2d6368870c61da.swap"] value 0
+    inst [N or "/system.slice/dev-sda9.swap"] value 0
+    inst [N or "/system.slice/docker-f4d3b90bea1585f216da780c97cc4675827296e1c90fdc957fb2ea0c1db85a6a.scope"] value 0
+    inst [N or "/system.slice/docker.service"] value 0
+    inst [N or "/system.slice/docker.socket"] value 0
+    inst [N or "/system.slice/ebtables.service"] value 0
+    inst [N or "/system.slice/firewalld.service"] value 0
+    inst [N or "/system.slice/gdm.service"] value 0
+    inst [N or "/system.slice/httpd.service"] value 0
+    inst [N or "/system.slice/ip6tables.service"] value 0
+    inst [N or "/system.slice/iptables.service"] value 0
+    inst [N or "/system.slice/irqbalance.service"] value 0
+    inst [N or "/system.slice/iscsid.socket"] value 0
+    inst [N or "/system.slice/iscsiuio.socket"] value 0
+    inst [N or "/system.slice/kdump.service"] value 0
+    inst [N or "/system.slice/libvirt-guests.service"] value 0
+    inst [N or "/system.slice/libvirtd.service"] value 0
+    inst [N or "/system.slice/mcelog.service"] value 0
+    inst [N or "/system.slice/mdmonitor.service"] value 0
+    inst [N or "/system.slice/memcached.service"] value 0
+    inst [N or "/system.slice/netconsole.service"] value 0
+    inst [N or "/system.slice/network.service"] value 0
+    inst [N or "/system.slice/nfs-lock.service"] value 0
+    inst [N or "/system.slice/pcscd.service"] value 0
+    inst [N or "/system.slice/pcscd.socket"] value 0
+    inst [N or "/system.slice/plymouth-quit-wait.service"] value 0
+    inst [N or "/system.slice/plymouth-quit.service"] value 0
+    inst [N or "/system.slice/pmcd.service"] value 0
+    inst [N or "/system.slice/pmlogger.service"] value 0
+    inst [N or "/system.slice/polkit.service"] value 0
+    inst [N or "/system.slice/rc-local.service"] value 0
+    inst [N or "/system.slice/rngd.service"] value 0
+    inst [N or "/system.slice/rpcbind.service"] value 0
+    inst [N or "/system.slice/rpcbind.socket"] value 0
+    inst [N or "/system.slice/rsyslog.service"] value 0
+    inst [N or "/system.slice/rtkit-daemon.service"] value 0
+    inst [N or "/system.slice/run-user-1000-gvfs.mount"] value 0
+    inst [N or "/system.slice/smartd.service"] value 0
+    inst [N or "/system.slice/sshd.service"] value 0
+    inst [N or "/system.slice/sysstat.service"] value 0
+    inst [N or "/system.slice/system-getty.slice"] value 0
+    inst [N or "/system.slice/system-systemd\x2dbacklight.slice"] value 0
+    inst [N or "/system.slice/systemd-ask-password-wall.service"] value 0
+    inst [N or "/system.slice/systemd-logind.service"] value 0
+    inst [N or "/system.slice/systemd-user-sessions.service"] value 0
+    inst [N or "/system.slice/udisks2.service"] value 0
+    inst [N or "/system.slice/upower.service"] value 0
+    inst [N or "/system.slice/var-lib-docker-devicemapper-mnt-f4d3b90bea1585f216da780c97cc4675827296e1c90fdc957fb2ea0c1db85a6a.mount"] value 0
+    inst [N or "/system.slice/var-lib-docker-devicemapper.mount"] value 0
+    inst [N or "/system.slice/vmtoolsd.service"] value 0
+    inst [N or "/system.slice/wpa_supplicant.service"] value 0
+    inst [N or "/user.slice"] value 0
+
+cgroup.cpusched.throttled_time
+    Data Type: 64-bit unsigned int  InDom: 3.23 0xc00017
+    Semantics: counter  Units: nanosec
+    inst [N or "/"] value 0
+    inst [N or "/system.slice"] value 0
+    inst [N or "/system.slice/-.mount"] value 0
+    inst [N or "/system.slice/ModemManager.service"] value 0
+    inst [N or "/system.slice/NetworkManager-wait-online.service"] value 0
+    inst [N or "/system.slice/NetworkManager.service"] value 0
+    inst [N or "/system.slice/abrt-ccpp.service"] value 0
+    inst [N or "/system.slice/abrt-oops.service"] value 0
+    inst [N or "/system.slice/abrt-vmcore.service"] value 0
+    inst [N or "/system.slice/abrt-xorg.service"] value 0
+    inst [N or "/system.slice/abrtd.service"] value 0
+    inst [N or "/system.slice/accounts-daemon.service"] value 0
+    inst [N or "/system.slice/atd.service"] value 0
+    inst [N or "/system.slice/avahi-daemon.service"] value 0
+    inst [N or "/system.slice/avahi-daemon.socket"] value 0
+    inst [N or "/system.slice/bluetooth.service"] value 0
+    inst [N or "/system.slice/chronyd.service"] value 0
+    inst [N or "/system.slice/colord.service"] value 0
+    inst [N or "/system.slice/crond.service"] value 0
+    inst [N or "/system.slice/cups.service"] value 0
+    inst [N or "/system.slice/cups.socket"] value 0
+    inst [N or "/system.slice/dbus.service"] value 0
+    inst [N or "/system.slice/dbus.socket"] value 0
+    inst [N or "/system.slice/dev-disk-by\x2did-ata\x2dST500LT012\x2d1DG142_W3P5F3RG\x2dpart9.swap"] value 0
+    inst [N or "/system.slice/dev-disk-by\x2did-wwn\x2d0x5000c50077b73cb4\x2dpart9.swap"] value 0
+    inst [N or "/system.slice/dev-disk-by\x2dpartuuid-b845133d\x2dd830\x2d4d13\x2dbbd7\x2d7fd1a510a882.swap"] value 0
+    inst [N or "/system.slice/dev-disk-by\x2duuid-d7d61c16\x2dacba\x2d4cb9\x2d85ee\x2d6368870c61da.swap"] value 0
+    inst [N or "/system.slice/dev-sda9.swap"] value 0
+    inst [N or "/system.slice/docker-f4d3b90bea1585f216da780c97cc4675827296e1c90fdc957fb2ea0c1db85a6a.scope"] value 0
+    inst [N or "/system.slice/docker.service"] value 0
+    inst [N or "/system.slice/docker.socket"] value 0
+    inst [N or "/system.slice/ebtables.service"] value 0
+    inst [N or "/system.slice/firewalld.service"] value 0
+    inst [N or "/system.slice/gdm.service"] value 0
+    inst [N or "/system.slice/httpd.service"] value 0
+    inst [N or "/system.slice/ip6tables.service"] value 0
+    inst [N or "/system.slice/iptables.service"] value 0
+    inst [N or "/system.slice/irqbalance.service"] value 0
+    inst [N or "/system.slice/iscsid.socket"] value 0
+    inst [N or "/system.slice/iscsiuio.socket"] value 0
+    inst [N or "/system.slice/kdump.service"] value 0
+    inst [N or "/system.slice/libvirt-guests.service"] value 0
+    inst [N or "/system.slice/libvirtd.service"] value 0
+    inst [N or "/system.slice/mcelog.service"] value 0
+    inst [N or "/system.slice/mdmonitor.service"] value 0
+    inst [N or "/system.slice/memcached.service"] value 0
+    inst [N or "/system.slice/netconsole.service"] value 0
+    inst [N or "/system.slice/network.service"] value 0
+    inst [N or "/system.slice/nfs-lock.service"] value 0
+    inst [N or "/system.slice/pcscd.service"] value 0
+    inst [N or "/system.slice/pcscd.socket"] value 0
+    inst [N or "/system.slice/plymouth-quit-wait.service"] value 0
+    inst [N or "/system.slice/plymouth-quit.service"] value 0
+    inst [N or "/system.slice/pmcd.service"] value 0
+    inst [N or "/system.slice/pmlogger.service"] value 0
+    inst [N or "/system.slice/polkit.service"] value 0
+    inst [N or "/system.slice/rc-local.service"] value 0
+    inst [N or "/system.slice/rngd.service"] value 0
+    inst [N or "/system.slice/rpcbind.service"] value 0
+    inst [N or "/system.slice/rpcbind.socket"] value 0
+    inst [N or "/system.slice/rsyslog.service"] value 0
+    inst [N or "/system.slice/rtkit-daemon.service"] value 0
+    inst [N or "/system.slice/run-user-1000-gvfs.mount"] value 0
+    inst [N or "/system.slice/smartd.service"] value 0
+    inst [N or "/system.slice/sshd.service"] value 0
+    inst [N or "/system.slice/sysstat.service"] value 0
+    inst [N or "/system.slice/system-getty.slice"] value 0
+    inst [N or "/system.slice/system-systemd\x2dbacklight.slice"] value 0
+    inst [N or "/system.slice/systemd-ask-password-wall.service"] value 0
+    inst [N or "/system.slice/systemd-logind.service"] value 0
+    inst [N or "/system.slice/systemd-user-sessions.service"] value 0
+    inst [N or "/system.slice/udisks2.service"] value 0
+    inst [N or "/system.slice/upower.service"] value 0
+    inst [N or "/system.slice/var-lib-docker-devicemapper-mnt-f4d3b90bea1585f216da780c97cc4675827296e1c90fdc957fb2ea0c1db85a6a.mount"] value 0
+    inst [N or "/system.slice/var-lib-docker-devicemapper.mount"] value 0
+    inst [N or "/system.slice/vmtoolsd.service"] value 0
+    inst [N or "/system.slice/wpa_supplicant.service"] value 0
+    inst [N or "/user.slice"] value 0
 
 cgroup.cpuset.cpus
     Data Type: string  InDom: 3.20 0xc00014

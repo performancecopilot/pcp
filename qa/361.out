@@ -5,7 +5,10 @@ cgroup.mounts.subsys 0
 cpu metrics fetch, no user groups defined, single controller
 cgroup.mounts.count 1 1
 cgroup.mounts.subsys 1 "cpu"
-cgroup.cpusched.shares 0
+cgroup.cpusched.periods 1 "/"
+cgroup.cpusched.shares 1 "/"
+cgroup.cpusched.throttled 1 "/"
+cgroup.cpusched.throttled_time 1 "/"
 cpuacct and cpuset fetch, no user groups defined, dual controllers
 cgroup.mounts.count 1 1
 cgroup.mounts.subsys 1 "cpuacct,cpuset"

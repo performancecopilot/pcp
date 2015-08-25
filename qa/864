@@ -1,0 +1,40 @@
+#!/bin/sh
+# PCP QA Test No. 864
+# Exercise pcp-collectl(1) -R/--runtime option.
+#
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+#
+# Values reported are unimportant here, just check it runs, produces
+# a header, one row of sampled values, and then exits.
+#
+# Earlier versions of the tool did not work correctly with -R option.
+#
+
+_filter()
+{
+    sed \
+	-e 's/[0-9][0-9]*/NN/g' \
+    | tr -s ' '
+}
+
+# real QA test starts here
+rm -f $seq.full
+pcp collectl -R 1.25 -i 1 | tee -a $seq.full | _filter
+
+# success, all done
+status=0
+exit

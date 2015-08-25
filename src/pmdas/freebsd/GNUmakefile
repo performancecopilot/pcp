@@ -31,7 +31,7 @@ HFILES		= freebsd.h
 LSRCFILES	= help root_freebsd
 LDIRT		= help.dir help.pag help.sed help.tmp domain.h $(IAM).log
 
-LLDLIBS = $(PCP_PMDALIB) -ldevstat
+LLDLIBS = $(PCP_PMDALIB) -ldevstat -lkvm
 
 default:	build-me
 

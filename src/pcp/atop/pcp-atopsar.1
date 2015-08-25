@@ -1,13 +1,15 @@
 .TH PCP-ATOPSAR 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-.B pcp-pcp-atopsar
-- Advanced System Activity Report (atop related)
+.B pcp-atopsar
+- Advanced System Activity Report (pcp-atop related)
 .SH SYNOPSIS
 .P
-.B pcp\ pcp-atopsar
+.B pcp\ atopsar
 [\-flags...]
 [\-r
 .I file|date
+] [\-h
+.I host
 ] [\-R
 .I cnt
 ] [\-b
@@ -24,45 +26,52 @@
 ]
 .P
 .SH DESCRIPTION
-The program
-.I pcp-atopsar
-can be used to report statistics on system level.
+The
+.B pcp-atopsar
+program can be used to report statistics at the system level.
 .PP
 In the first synopsis line (no sampling interval specified),
-.I pcp-atopsar
+.B pcp-atopsar
 extracts data from a raw logfile that has been recorded previously by
-the program
-.I atop
-(option
-.B -w 
-of the
-.I atop
+.BR pmlogger (1)
+(or via the
+.B \-w 
+option of the
+.B pcp-atop
 program).
 .br
 You can specify the name of the logfile with the 
-.B -r
+.B \-r
 option of the
-.I pcp-atopsar
+.B pcp-atopsar
 program.
-When a daily logfile of
-.I atop
-is used, named
-.B /var/log/atop/atop_YYYYMMDD
+When a
+.B pmlogger
+daily logfile is used, named
+.B $PCP_LOG_DIR/pmlogger/[host]/YYYYMMDD
 (where YYYYMMDD reflects the date),
 the required date of the form YYYYMMDD can be specified with the
-.B -r
+.B \-r
 option instead of the filename, or
 the symbolic name 'y' can be used for yesterday's daily logfile
 (this can be repeated so 'yyyy' indicates the logfile of four days ago).
 If the
-.B -r
+.B \-r
 option is not specified at all, today's daily logfile is used by default.
+.br
+By default, the hostname of the localhost will be used when resolving
+.B pmlogger
+archives, however an alternative
+.I host
+can be specified using the
+.B \-h
+option.
 .br
 The starting and ending times of the report can be defined using the
 options
-.B -b
+.B \-b
 and
-.B -e
+.B \-e
 followed by a time argument of the form hh:mm.
 .PP
 In the second synopsis line,
@@ -83,25 +92,44 @@ seconds the statistical counters are shown for that period.
 If several reports are requested, a header is printed per sample
 followed by the statistical counters for that period.
 .PP
+When invoked via the
+.BR pcp (1)
+command, the
+.BR PCPIntro (1)
+options
+.BR \-h /\c
+.BR \-\-host ,
+.BR \-a /\c
+.BR \-\-archive ,
+.BR \-O /\c
+.BR \-\-origin ,
+.BR \-s /\c
+.BR \-\-samples ,
+.BR \-t /\c
+.BR \-\-interval ,
+.BR \-Z /\c
+.BR \-\-timezone
+and several other options become indirectly available.
+.PP
 Some generic flags can be specified to influence the behaviour of the
 .B pcp-atopsar
 program:
 .PP
 .TP 5
-.B -S
+.B \-S
 By default the timestamp at the beginning of a line is suppressed if more
 lines are shown for one interval. With this flag a timestamp is
 given for every output-line (easier for post-processing).
 .PP
 .TP 5
-.B -a
+.B \-a
 By default certain resources as disks and network interfaces are only
 shown when they were active during the interval.
 With this flag all resources of a given type are shown, even if
 they were inactive during the interval.
 .PP
 .TP 5
-.B -x
+.B \-x
 By default
 .B pcp-atopsar
 only uses colors if output is directed to a terminal (window).
@@ -113,11 +141,11 @@ See the man-page of
 for a detailed description of this feature (section COLORS).
 .br
 With the flag 
-.B -x
+.B \-x
 the use of colors is suppressed unconditionally.
 .PP
 .TP 5
-.B -C
+.B \-C
 By default
 .B pcp-atopsar
 only uses colors if output is directed to a terminal (window).
@@ -129,11 +157,11 @@ See the man-page of
 for a detailed description of this feature (section COLORS).
 .br
 With the flag 
-.B -C
+.B \-C
 colors will always be used, even if output is not directed to a terminal.
 .PP
 .TP 5
-.B -M
+.B \-M
 Use markers at the end of a line to indicate that a critical occupation
 percentage has been reached ('*') or has been almost reached ('+')
 for particular resources. The marker '*' is similar to the color red
@@ -142,7 +170,7 @@ and the marker '+' to the color cyan. See the man-page of
 for a detailed description of these colors (section COLORS).
 .PP
 .TP 5
-.B -H
+.B \-H
 Repeat the header line within a report for every
 .I N
 detail lines. The value of
@@ -151,7 +179,7 @@ is determined dynamically in case of output to a tty/window (depending
 on the number of lines); for output to a file or pipe this value is 23.
 .PP
 .TP 5
-.B -R
+.B \-R
 Summarize
 .I cnt
 samples into one sample. When the logfile contains e.g. samples of 10 minutes,
@@ -160,118 +188,118 @@ the use of the flag '\-R 6' shows a report with one sample for every hour.
 Other flags are used to define which reports are required:
 .PP
 .TP 5
-.B -A
+.B \-A
 Show all possible reports.
 .PP
 .TP 5
-.B -c
+.B \-c
 Report about CPU utilization (in total and per cpu).
 .PP
 .TP 5
-.B -p
+.B \-p
 Report about processor-related matters, like load-averages and
 hardware interrupts.
 .PP
 .TP 5
-.B -P
+.B \-P
 Report about processes.
 .PP
 .TP 5
-.B -m
+.B \-m
 Current memory- and swap-occupation.
 .PP
 .TP 5
-.B -s
+.B \-s
 Report about paging- and swapping-activity, and overcommitment.
 .PP
 .TP 5
-.B -l
+.B \-l
 Report about utilization of logical volumes.
 .PP
 .TP 5
-.B -f
+.B \-f
 Report about utilization of multiple devices.
 .PP
 .TP 5
-.B -d
+.B \-d
 Report about utilization of disks.
 .PP
 .TP 5
-.B -i
+.B \-i
 Report about the network interfaces.
 .PP
 .TP 5
-.B -I
+.B \-I
 Report about errors for network-interfaces.
 .PP
 .TP 5
-.B -w
+.B \-w
 Report about IP version 4 network traffic.
 .PP
 .TP 5
-.B -W
+.B \-W
 Report about errors for IP version 4 traffic.
 .PP
 .TP 5
-.B -y
+.B \-y
 General report about ICMP version 4 layer activity.
 .PP
 .TP 5
-.B -Y
+.B \-Y
 Per-type report about ICMP version 4 layer activity.
 .PP
 .TP 5
-.B -u
+.B \-u
 Report about UDP version 4 network traffic.
 .PP
 .TP 5
-.B -z
+.B \-z
 Report about IP version 6 network traffic.
 .PP
 .TP 5
-.B -Z
+.B \-Z
 Report about errors for IP version 6 traffic.
 .PP
 .TP 5
-.B -k
+.B \-k
 General report about ICMP version 6 layer activity.
 .PP
 .TP 5
-.B -K
+.B \-K
 Per-type report about ICMP version 6 layer activity.
 .PP
 .TP 5
-.B -U
+.B \-U
 Report about UDP version 6 network traffic.
 .PP
 .TP 5
-.B -t
+.B \-t
 Report about TCP network traffic.
 .PP
 .TP 5
-.B -T
+.B \-T
 Report about errors for TCP-traffic.
 .PP
 .TP 5
-.B -O
+.B \-O
 Report about top-3 processes consuming most processor capacity.
 This report is only available when using a log file (not when specifying
 an interval).
 .PP
 .TP 5
-.B -G
+.B \-G
 Report about top-3 processes consuming most resident memory.
 This report is only available when using a log file (not when specifying
 an interval).
 .PP
 .TP 5
-.B -D
+.B \-D
 Report about top-3 processes issueing most disk transfers.
 This report is only available when using a log file (not when specifying
 an interval).
 .PP
 .TP 5
-.B -N
+.B \-N
 Report about top-3 processes issueing most IPv4/IPv6 socket transfers.
 This report is only available when using a log file (not when specifying
 an interval).
@@ -281,7 +309,7 @@ output values are produced.
 The values are mostly presented as a number of events per second.
 .PP
 The output for the flag
-.B -c
+.B \-c
 contains the following columns per cpu:
 .TP 12
 .B usr%
@@ -324,7 +352,7 @@ Percentage of unused cpu time because all processes are in a wait-state
 but not waiting for disk-I/O.
 .PP
 The output for the flag
-.B -p
+.B \-p
 contains the following values:
 .TP 12
 .B pswch/s
@@ -355,7 +383,7 @@ or in non-interruptible wait state (usually waiting for disk or tape I/O)
 during the last 15 minutes.
 .PP
 The output for the flag
-.B -P
+.B \-P
 contains information about the processes and threads:
 .TP 12
 .B clones/s
@@ -381,7 +409,7 @@ Total number of threads present in the system in
 state 'uninterruptible sleeping'.
 .PP
 The output for the flag
-.B -m
+.B \-m
 contains information about the memory- and swap-utilization:
 .TP 12
 .B memtotal
@@ -411,7 +439,7 @@ Total swap space size at this moment (snapshot).
 Available swap space at this moment (snapshot).
 .PP
 The output for the flag
-.B -s
+.B \-s
 contains information about the frequency of swapping:
 .TP 12
 .B  pagescan/s
@@ -436,11 +464,11 @@ The kernel only verifies whether the committed space exceeds the limit
 if strict overcommit handling is configured (vm.overcommit_memory is 2).
 .PP
 The output for the flags
-.B -l
+.B \-l
 (LVM),
-.B -f
+.B \-f
 (MD), and
-.B -d 
+.B \-d 
 (hard disk) contains the following columns per active unit:
 .TP 12
 .B disk
@@ -471,7 +499,7 @@ Average number of milliseconds needed by a request on this unit
 (seek, latency and data-transfer).
 .PP
 The output for the flag
-.B -i
+.B \-i
 provides information about utilization of network interfaces:
 .TP 12
 .B interf
@@ -480,11 +508,7 @@ Name of interface.
 .B busy
 Busy percentage for this interface.
 If the linespeed of this interface could not be determined
-(for virtual interfaces or in case that
-.B atop
-or
-.B pcp-atopsar
-had no root-privileges), a question mark is shown.
+(e.g. for virtual interfaces), a question mark is shown.
 .TP 12
 .B ipack/s
 Number of packets received from this interface per second.
@@ -506,18 +530,14 @@ Effective number of megabits transmitted per second.
 .TP 12
 .B maxmbps/s
 Linespeed as number of megabits per second.
-If the linespeed could not be determined (for virtual interfaces
-or in case that
-.B atop
-or
-.B pcp-atopsar
-had no root-privileges), value 0 is shown.
+If the linespeed could not be determined (e.g. virtual interfaces),
+value 0 is shown.
 .br
 The linespeed is followed by the indication 'f' (full duplex)
 or 'h' (half duplex).
 .PP
 The output for the flag
-.B -I
+.B \-I
 provides information about the failures that were detected for
 network interfaces:
 .TP 12
@@ -548,7 +568,7 @@ Number of frame alignment-errors encountered per second on received packets.
 Number of carrier-errors encountered per second on transmitted packets.
 .PP
 The output for the flag
-.B -w
+.B \-w
 provides information about the utilization of the IPv4-layer
 (formal SNMP-names between brackets):
 .TP 12
@@ -577,7 +597,7 @@ Number of IP datagram fragments generated per second at this entity
 (ipFragCreates).
 .PP
 The output for the flag
-.B -W
+.B \-W
 provides information about the failures that were detected in
 the IPv4-layer (formal SNMP-names between brackets):
 .TP 12
@@ -617,7 +637,7 @@ Number of IP datagrams per second discarded because no route could be found
 (ipOutNoRoutes).
 .PP
 The output for the flag
-.B -y
+.B \-y
 provides information about the general utilization of the ICMPv4-layer and
 some information per type of ICMP-message
 (formal SNMP-names between brackets):
@@ -647,7 +667,7 @@ Number of ICMP Echo-Reply messages transmitted per second
 (icmpOutEchoReps).
 .PP
 The output for the flag
-.B -Y
+.B \-Y
 provides information about other types of ICMPv4-messages
 (formal SNMP-names between brackets):
 .TP 12
@@ -692,7 +712,7 @@ Number of ICMP Time Exceeded messages transmitted per second
 (icmpOutTimeExcds).
 .PP
 The output for the flag
-.B -u
+.B \-u
 provides information about the utilization of the UDPv4-layer
 (formal SNMP-names between brackets):
 .TP 12
@@ -713,7 +733,7 @@ Number of received UDP datagrams per second for which there was
 no application at the destination port (udpNoPorts).
 .PP
 The output for the flag
-.B -z
+.B \-z
 provides information about the utilization of the IPv6-layer
 (formal SNMP-names between brackets):
 .TP 12
@@ -747,7 +767,7 @@ Number of IPv6 datagram fragments generated per second at this entity
 (ipv6IfStatsOutFragCreates).
 .PP
 The output for the flag
-.B -Z
+.B \-Z
 provides information about the failures that were detected in the IPv6-layer
 (formal SNMP-names between brackets):
 .TP 12
@@ -787,7 +807,7 @@ Number of IPv6 datagrams per second discarded because no route could be found
 (ipv6IfStatsInNoRoutes).
 .PP
 The output for the flag
-.B -k
+.B \-k
 provides information about the general utilization of the ICMPv6-layer and
 some information per type of ICMP-message
 (formal SNMP-names between brackets):
@@ -821,7 +841,7 @@ Number of ICMP Neighbor Advertisement messages transmitted per second
 (ipv6IfIcmpOutNeighborAdvertisements).
 .PP
 The output for the flag
-.B -K
+.B \-K
 provides information about other types of ICMPv6-messages
 (formal SNMP-names between brackets):
 .TP 12
@@ -862,7 +882,7 @@ Number of ICMP Time Exceeded messages transmitted per second
 (ipv6IfIcmpOutTimeExcds).
 .PP
 The output for the flag
-.B -U
+.B \-U
 provides information about the utilization of the UDPv6-layer
 (formal SNMP-names between brackets):
 .TP 12
@@ -883,7 +903,7 @@ Number of received UDPv6 datagrams per second for which there was
 no application at the destination port (udpNoPorts).
 .PP
 The output for the flag
-.B -t
+.B \-t
 provides information about the utilization of the TCP-layer
 (formal SNMP-names between brackets):
 .TP 12
@@ -908,7 +928,7 @@ Number of connections currently open (snapshot), for which the state
 is either ESTABLISHED or CLOSE-WAIT (tcpCurrEstab).
 .PP
 The output for the flag
-.B -T
+.B \-T
 provides information about the failures that were detected in the TCP-layer
 (formal SNMP-names between brackets):
 .TP 12
@@ -931,7 +951,7 @@ Number of transmitted segments per second containing the RST flag
 (tcpOutRsts).
 .PP
 The output for the flag
-.B -O
+.B \-O
 provides information about the top-3 of processes with the highest
 processor consumption:
 .TP 12
@@ -948,7 +968,7 @@ This value can exceed 100% for a multithreaded process running on
 a multiprocessor machine.
 .PP
 The output for the flag
-.B -G
+.B \-G
 provides information about the top-3 of processes with the highest
 memory consumption:
 .TP 12
@@ -963,7 +983,7 @@ The name of the process.
 The percentage of resident memory-utilization by this process.
 .PP
 The output for the flag
-.B -D
+.B \-D
 provides information about the top-3 of processes that issue
 the most read and write accesses to disk:
 .TP 12
@@ -980,7 +1000,7 @@ number of read and write accesses issued on disk by all processes,
 so a high percentage does not imply a high disk load on system level.
 .PP
 The output for the flag
-.B -N
+.B \-N
 provides information about the top-3 of processes that issue
 the most socket transfers for IPv4/IPv6:
 .TP 12
@@ -1006,23 +1026,23 @@ is logging in the background):
 .PP
 To see the memory occupation for June 5, 2012 between 10:00 and 12:30
 (supposed that
-.B atop
-has been logging daily in the background):
+.B pmlogger
+has been logging daily in the background on host acme.com):
 .PP
 .TP 12
-.B \  pcp-atopsar -m -r /var/log/atop_20120605 -b 10:00 -e 12:30
+.B \  pcp-atopsar \-m \-r $PCP_LOG_DIR/pmlogger/acme.com/20120605 \-b 10:00 \-e 12:30
 .br
 \ 
 .br
     or
 .TP 12
-.B \  pcp-atopsar -m -r 20120605 -b 10:00 -e 12:30
+.B \  pcp-atopsar \-m \-r 20120605 \-b 10:00 \-e 12:30
 .br
 \ 
 .br
     or, suppose it is June 8, 2012 at this moment
 .TP 12
-.B \  pcp-atopsar -m -r yyy -b 10:00 -e 12:30
+.B \  pcp-atopsar \-m \-r yyy \-b 10:00 \-e 12:30
 .PP
 Write a logfile with
 .B atop
@@ -1031,22 +1051,22 @@ to record the system behaviour for 30 minutes
 afterwards:
 .PP
 .TP 12
-.B \  atop       -w /tmp/atoplog 60 30
+.B \  pcp-atop       \-w /tmp/atoplog 60 30
 .TP 12
-.B \  pcp-atopsar -A -r /tmp/atoplog
+.B \  pcp-atopsar \-A \-r /tmp/atoplog
 .PP
 To watch TCP activity evolve for ten minutes (10 samples with sixty seconds
 interval):
 .PP
 .TP 12
-.B \  pcp-atopsar -t 60 10
+.B \  pcp-atopsar \-t 60 10
 .PP
 To watch the header-lines ('_' as last character) of all reports with only 
 the detail-lines showing critical resource consumption (marker '*' or '+'
 as last character):
 .PP
 .TP 12
-.B \  pcp-atopsar -AM | grep '[_*+]$'
+.B \  pcp-atopsar \-AM | grep '[_*+]$'
 .PP
 .SH FILES
 .PP
@@ -1061,13 +1081,18 @@ Configuration file containing personal default values (mainly flags).
 See related man-page.
 .PP
 .TP 5
-.BI /var/log/atop/atop_ YYYYMMDD
+.BI $PCP_LOG_DIR/pmlogger/HOST/YYYYMMDD
 Daily data file, where
 .I YYYYMMDD
-are digits representing the date.
+are digits representing the date, and
+.I HOST
+is the hostname of the machine being logged.
 .SH SEE ALSO
 .BR pcp (1),
 .BR pcp-atop (1),
+.BR mkaf (1),
+.BR pmlogger (1),
+.BR pmlogger_daily (1),
 .BR PCPIntro (1)
 and
 .BR pcp-atoprc (5).

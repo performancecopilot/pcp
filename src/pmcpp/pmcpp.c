@@ -13,9 +13,12 @@
  * - macro substitution
  * - standard C-style comment stripping
  * - #include "file" or #include <file>
- *   up to a depth of 5 levels, for either syntax the directory search
- *   is hard-wired to <file>, the directory of command line file (if any)
- *   and then $PCP_VAR_DIR/pmns
+ *   up to a depth of 5 levels (#shell and/or #include)
+ *   for either syntax the directory search is hard-wired to <file>,
+ *   the directory of command line file (if any), any -I command line
+ *   dirs and then $PCP_VAR_DIR/pmns
+ * - #shell "cmd" or #shell 'cmd'
+ *   up to a depth of 5 levels (#shell and/or #include)
  * - #ifdef ... #endif and #ifndef ... #endif
  *
  * Does NOT support ...
@@ -49,6 +52,10 @@
 #include "impl.h"
 #include <ctype.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#if defined(HAVE_SYS_WAIT_H)
+#include <sys/wait.h>
+#endif
 #include <stdarg.h>
 #include <string.h>
 
@@ -590,6 +597,16 @@ do_include(char *iname, char **oname)
     return NULL;
 }
 
+static FILE *
+do_shell(const char *cmd)
+{
+    FILE	*f;
+
+    f = popen(cmd, "r");
+
+    return f;
+}
+
 int
 main(int argc, char **argv)
 {
@@ -735,9 +752,27 @@ main(int argc, char **argv)
 	ip = ibuf;
 more:
 	if (fgets(ip, ibuflen-(ip-ibuf), currfile->fin) == NULL) {
-	    fclose(currfile->fin);
+	    if (strcmp(currfile->fname, "<shell>") == 0) {
+		int	sts;
+		sts = pclose(currfile->fin);
+#if defined(HAVE_SYS_WAIT_H)
+		if (WIFEXITED(sts)) {
+		    if (WEXITSTATUS(sts) != 0)
+			fprintf(stderr, "Warning: %cshell cmd returns %d exit status\n", ctl, WEXITSTATUS(sts));
+		}
+		else if (WIFSIGNALED(sts)) {
+		    fprintf(stderr, "Warning: %cshell cmd terminated by signal %d\n", ctl, WTERMSIG(sts));
+		}
+#else
+		if (sts != 0)
+		    fprintf(stderr, "Warning:  %cshell cmd popen() returns: %d\n", ctl, sts);
+#endif
+	    }
+	    else
+		fclose(currfile->fin);
 	    if (currfile == &file_ctl[0])
 		break;
+	    /* all but the first stream have a strdup'd fname */
 	    free(currfile->fname);
 	    currfile--;
 	    if (!Pflag) {
@@ -846,7 +881,7 @@ more:
 		    /*NOTREACHED*/
 		}
 		if (currfile == &file_ctl[MAXLEVEL-1]) {
-		    err("%cinclude nesting too deep", ctl);
+		    err("%cinclude and/or %cshell nesting too deep", ctl, ctl);
 		    /*NOTREACHED*/
 		}
 		for (q = &pend[1]; isspace((int)*q); q++) ;
@@ -868,7 +903,74 @@ more:
 		currfile->fname = strdup(p);
 		*pend = c;
 		if (currfile->fname == NULL) {
-		    __pmNoMem("pmcpp: file name alloc", strlen(p)+1, PM_FATAL_ERR);
+		    __pmNoMem("pmcpp: include file name alloc", strlen(p)+1, PM_FATAL_ERR);
+		    /*NOTREACHED*/
+		}
+		if (!Pflag) {
+		    printf("# %d \"%s\"\n", currfile->lineno+1, currfile->fname);
+		    nline_out++;
+		}
+	    }
+	    else if (strncmp(&ibuf[1], "shell", strlen("shell")) == 0) {
+		char		*p;
+		char		*q;
+		char		*pend;
+		char		c;
+		FILE		*f;
+
+		if (skip_if_false) {
+		    printf("\n");
+		    nline_out++;
+		    continue;
+		}
+		p = &ibuf[strlen("?shell")];
+		while (*p && isblank((int)*p)) p++;
+		if (*p != '"' && *p != '\'') {
+		    err("Expected \" or ' after %cshell", ctl);
+		    /*NOTREACHED*/
+		}
+		pend = ++p;
+		while (*pend && *pend != '\n' &&
+		       ((p[-1] != '"' || *pend != '"') &&
+		        (p[-1] != '\'' || *pend != '\''))) pend++;
+		if (p[-1] == '"' && *pend != '"') {
+		    err("Expected \" after command");
+		    /*NOTREACHED*/
+		}
+		if (p[-1] == '\'' && *pend != '\'') {
+		    err("Expected ' after command");
+		    /*NOTREACHED*/
+		}
+		if (currfile == &file_ctl[MAXLEVEL-1]) {
+		    err("%cshell and/or %cinclude nesting too deep", ctl, ctl);
+		    /*NOTREACHED*/
+		}
+		for (q = &pend[1]; isspace((int)*q); q++) ;
+		if (*q != '\n' && *q != '\0') {
+		    err("Unexpected extra text in %cshell line", ctl);
+		    /*NOTREACHED*/
+		}
+		c = *pend;
+		*pend = '\0';
+		f = do_shell(p);
+		if (f == NULL) {
+		    /*
+		     * this almost never happens ... if the shell cmd
+		     * is bad we still get a valid FILE *, but an error
+		     * message from sh(1) goes to stderr and pclose()
+		     * will return badness
+		     */
+		    *pend = c;
+		    err("Cannot open pipe for %cshell", ctl);
+		    /*NOTREACHED*/
+		}
+		currfile++;
+		currfile->lineno = 0;
+		currfile->fin = f;
+		currfile->fname = strdup("<shell>");
+		*pend = c;
+		if (currfile->fname == NULL) {
+		    __pmNoMem("pmcpp: shell file name alloc", strlen(p)+1, PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
 		if (!Pflag) {
