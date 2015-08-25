@@ -23,13 +23,6 @@ echo ""
 LOCALHOST=`hostname`
 signal=$PCP_BINADM_DIR/pmsignal
 
-if [ -d $PCP_LOG_DIR/pmlogger ]
-then
-    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
-else
-    LOGGING_DIR=$PCP_LOG_DIR
-fi
-
 _cleanup()
 {
     $sudo $PCP_RC_DIR/pcp stop >$tmp.stop
