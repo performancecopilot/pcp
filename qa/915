@@ -1,0 +1,93 @@
+#!/bin/sh
+# PCP QA Test No. 915
+# Test local daemon access override settings in PCP_SYSCONFIG_DIR
+#
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+host=`hostname`
+[ -z "$host" ] && _notrun "Cannot discover local host name"
+interface=`_host_to_ipaddr $host`
+[ -z "$interface" ] && _notrun "Cannot translate hostname ($host) to interface"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+
+_cleanup()
+{
+    # ensure we do not leave local-only settings enabled
+    _restore_config $PCP_SYSCONFIG_DIR/pmcd
+    _restore_config $PCP_SYSCONFIG_DIR/pmproxy
+    _restore_config $PCP_SYSCONFIG_DIR/pmlogger
+
+    $sudo $PCP_RC_DIR/pmproxy condrestart >/dev/null 2>&1
+    $sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
+    _wait_for_pmcd
+    _wait_for_pmlogger
+
+    rm -rf $tmp.*
+}
+
+_filter()
+{
+    tee -a $seq.full | \
+    sed \
+	-e "s/$host/HOSTNAME/g" \
+	-e "s/$interface/INTERFACE/g" \
+    #end
+}
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+_save_config $PCP_SYSCONFIG_DIR/pmcd
+_save_config $PCP_SYSCONFIG_DIR/pmproxy
+_save_config $PCP_SYSCONFIG_DIR/pmlogger
+
+echo "# Dummy entry added by PCP QA test $seq" > $tmp.local
+echo PMCD_LOCAL=1 >> $tmp.local
+$sudo cp $tmp.local $PCP_SYSCONFIG_DIR/pmcd
+echo "# Dummy entry added by PCP QA test $seq" > $tmp.local
+echo PMPROXY_LOCAL=1 >> $tmp.local
+$sudo cp $tmp.local $PCP_SYSCONFIG_DIR/pmproxy
+echo "# Dummy entry added by PCP QA test $seq" > $tmp.local
+echo PMLOGGER_LOCAL=1 >> $tmp.local
+$sudo cp $tmp.local $PCP_SYSCONFIG_DIR/pmlogger
+
+$sudo $PCP_RC_DIR/pmproxy stop >/dev/null 2>&1
+$sudo $PCP_RC_DIR/pmproxy start 2>&1 | _filter_pmproxy_start
+$sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
+_wait_for_pmcd
+_wait_for_pmlogger
+
+echo; echo "== checking loop pmcd access, expecting success"
+pminfo -f -h localhost pmcd.feature.local 2>&1 | _filter
+
+echo; echo "== checking bad pmcd access, expect no values"
+pminfo -f -h $interface pmcd.feature.local 2>&1 | _filter
+
+echo; echo "== checking primary pmlogger started in local-only mode"
+pminfo -f -h local: pmcd.pmlogger.host 2>&1 | _filter | grep primary
+
+echo; echo "== checking loop pmlogger access, expecting success"
+echo quit | pmlc -h localhost -P 2>&1 | _filter
+
+echo; echo "== checking bad pmlogger access, expect no control"
+echo quit | pmlc -h $interface -P 2>&1 | _filter
+
+echo; echo "== checking bad pmproxy access, expect no values"
+pminfo -f -h localhost@$interface pmcd.feature.local 2>&1 | _filter
+
+echo; echo "== checking loop pmproxy access, expecting success"
+pminfo -f -h localhost@localhost pmcd.feature.local 2>&1 | _filter
+
+# success, all done
+status=0
+exit

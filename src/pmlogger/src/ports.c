@@ -323,12 +323,10 @@ GetPorts(char *file)
 		 *	PMLOGGER_LOCAL
 		 */
 		if ((env_str = getenv("PMLOGGER_LOCAL")) != NULL) {
-		    if (atoi(env_str) != 0) {
+		    if (atoi(env_str) != 0)
 			address = INADDR_LOOPBACK;
-			port_base = 0;
-		    }
 		}
-		else if ((env_str = getenv("PMLOGGER_PORT")) != NULL) {
+		if ((env_str = getenv("PMLOGGER_PORT")) != NULL) {
 		    char	*end_ptr;
 
 		    port_base = strtol(env_str, &end_ptr, 0);
