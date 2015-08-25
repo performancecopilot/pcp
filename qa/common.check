@@ -1748,6 +1748,11 @@ _disable_loggers()
 	[ ! -f $tmp.control ] && \
 		$sudo cp $PCP_PMLOGGERCONTROL_PATH $tmp.control
     fi
+    if [ -d $PCP_PMLOGGERCONTROL_PATH.d ]
+    then
+	[ ! -d $tmp.control.d ] && \
+		$sudo mv $PCP_PMLOGGERCONTROL_PATH.d $tmp.control.d
+    fi
     cat <<End-of-File >$tmp._tmp
 # dummy file created by qa/$seq on `date`
 # the goal here is to have a controlled primary logger that does
@@ -1764,6 +1769,8 @@ _restore_loggers()
 		PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
     [ -f $tmp.control ] && \
 	$sudo cp $tmp.control $PCP_PMLOGGERCONTROL_PATH
+    [ -d $tmp.control.d ] && \
+	$sudo mv $tmp.control.d $PCP_PMLOGGERCONTROL_PATH.d
 }
 
 # _check_core [dir]
