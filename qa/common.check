@@ -1737,7 +1737,7 @@ p
     fi
 }
 
-# disable all system pmloggers running via the control file
+# disable all system pmloggers running via the control file(s)
 #
 _disable_loggers()
 {
@@ -1751,7 +1751,8 @@ _disable_loggers()
     if [ -d $PCP_PMLOGGERCONTROL_PATH.d ]
     then
 	[ ! -d $tmp.control.d ] && \
-		$sudo mv $PCP_PMLOGGERCONTROL_PATH.d $tmp.control.d
+		$sudo cp -a $PCP_PMLOGGERCONTROL_PATH.d $tmp.control.d
+	$sudo rm -fr $PCP_PMLOGGERCONTROL_PATH.d
     fi
     cat <<End-of-File >$tmp._tmp
 # dummy file created by qa/$seq on `date`
@@ -1767,10 +1768,13 @@ _restore_loggers()
 {
     [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
 		PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+    if [ -d $tmp.control.d ]
+    then
+	$sudo cp -a $tmp.control.d $PCP_PMLOGGERCONTROL_PATH.d
+	$sudo rm -fr $tmp.control.d
+    fi
     [ -f $tmp.control ] && \
 	$sudo cp $tmp.control $PCP_PMLOGGERCONTROL_PATH
-    [ -d $tmp.control.d ] && \
-	$sudo mv $tmp.control.d $PCP_PMLOGGERCONTROL_PATH.d
 }
 
 # _check_core [dir]

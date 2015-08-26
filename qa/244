@@ -133,7 +133,7 @@ cleanup()
 	sleepers=`ps $PCP_PS_ALL_FLAGS | grep '[d]umb_pmda' | $PCP_AWK_PROG '$3 == 1 { print $2 }'`
 	[ ! -z "$sleepers" ] && $sudo $signal -s KILL $sleepers
     fi
-    rm -rf $tmp $tmp.*
+    $sudo rm -rf $tmp $tmp.*
 }
 
 trap cleanup 0 1 2 3 15

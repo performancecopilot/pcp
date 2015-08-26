@@ -71,7 +71,7 @@ echo 'connect primary' | pmlc
 echo
 echo "Expect this should do nothing ..." | tee -a $seq.full
 $sudo $PCP_BINADM_DIR/pmlogger_check -V -l $tmp.log
-$sudo cat $tmp.log | tee -a $seq.full | _filter
+[ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq.full | _filter
 echo 'connect primary' | pmlc
 
 pid=`_get_primary_logger_pid`
@@ -124,7 +124,7 @@ sleep 10
 echo
 echo "Expect this to quietly re-start the primary logger ..." | tee -a $seq.full
 $sudo $PCP_BINADM_DIR/pmlogger_check -l $tmp.log
-$sudo cat $tmp.log | tee -a $seq.full | _filter
+[ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq.full | _filter
 echo 'connect primary' | pmlc
 
 echo
