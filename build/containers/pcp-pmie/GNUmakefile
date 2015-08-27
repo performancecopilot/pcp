@@ -12,20 +12,18 @@
 # for more details.
 #
 
-TOPDIR = ../..
-BUILDDEFS = $(TOPDIR)/src/include/builddefs
-
-include $(BUILDDEFS)
+TOPDIR = ../../..
+include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-SUBDIRS = pcp-base pcp-collector pcp-monitor pcp-pmlogger pcp-pmie pcp-testsuite
+CONTAINER = pcp-pmie
+LDIRT = $(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz
 
-default default_pcp install install_pcp pack_pcp: $(BUILDDEFS) $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
+default default_pcp install install_pcp:
 
-$(BUILDDEFS) : $(BUILDDEFS).in
-	@echo; echo Please run configure in $(TOPDIR) with the appropriate options to generate $@.
-	@false
+pack pack_pcp: $(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz
+
+# rule to build $(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz from Dockerfile
+include ../GNUlocalrules
 
 include $(BUILDRULES)
-

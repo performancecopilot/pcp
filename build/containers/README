@@ -41,14 +41,23 @@ Notes on individual containers :
   registry.access.redhat.com:5000 also has a copy of PCP installed, so you can
   deploy that container and use those monitoring tools if desired.
 
-- pcp-pmlogger  (should this be called pcp-logger maybe?)
+- pcp-pmlogger
   This container installs just the PCP base package, which contains pmlogger
-  and associated tools (pmlogconf, pmloggerdaily, etc) amoung other things.
+  and associated tools (pmlogconf, pmlogger_daily, etc) amongst other things.
   It exposes port 4322 for pmlc management connections on the host interface.
   The start command in this container is the pmlogger service script
   (/usr/share/pcp/lib/pmlogger). When the pmlogger service script exits,
   the container will exit. The PCP archives are created as normal below
   /var/log/pcp/pmlogger/<hostname> on the docker server (and in all the
+  PCP containers since they all bind mount /var/log from the host).
+
+- pcp-pmie
+  This container installs just the PCP base package, which contains pmie
+  and associated tools (pmieconf, pmie_daily, etc) amongst other things.
+  The start command in this container is the pmie service script
+  (/usr/share/pcp/lib/pmie). When the pmie service script exits,
+  the container will exit. Any pmie logs are created as normal below
+  /var/log/pcp/pmie/<hostname> on the docker server (and in all the
   PCP containers since they all bind mount /var/log from the host).
 
 - pcp-monitor

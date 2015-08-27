@@ -58,13 +58,12 @@ endif
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmlogger
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)/pmlogger
 ifeq ($(TARGET_OS),linux)
+	# In a container environment, the rc_pmlogger script installs the
+	# Docker version of the crontab into the hosts cron.d directory.
+	$(INSTALL) -m 644 crontab.docker $(PCP_VAR_DIR)/config/pmlogger/crontab.docker
 	$(INSTALL) -m 755 -d `dirname $(CRONTAB_PATH)`
 endif
 	$(INSTALL) -m 644 crontab $(CRONTAB_PATH)
-	# In a container environment, the pmlogger rc script installs the docker version
-	# of the crontab into the host's cron.d directory. The pcp-pmlogger Dockerfile
-	# deletes the regular pcp-pmlogger crontab entry.
-	$(INSTALL) -m 644 crontab.docker $(PCP_VAR_DIR)/config/pmlogger/crontab.docker
 
 include $(BUILDRULES)
 

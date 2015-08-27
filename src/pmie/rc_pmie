@@ -90,13 +90,13 @@ _reboot_setup()
     fi
 }
 
-# Note: _start_pmie is running in the background, in parallel with
-# the rest of the script.  It might complete well after the caller
-# so tmpfile handling is especially problematic.  Goal is to speed
-# bootup by starting potentially slow (remote monitoring) processes
-# in the background.
+# Note: _start_pmcheck() runs in the background, in parallel with the rest
+# of the script (except in a container environment). It might complete well
+# after the caller so tmpfile handling is especially problematic.  The goal
+# is to speed bootup by starting potentially slow (remote monitoring) pmie
+# processes in the background.
 #
-_start_pmie()
+_start_pmcheck()
 {
     bgstatus=0
     bgtmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
@@ -124,7 +124,61 @@ _start_pmie()
 	$PCP_SYSLOG_PROG -p daemon.warning "$message"
 	$PCP_BINADM_DIR/pmpost "$message"
     fi
-    exit $bgstatus	# co-process is now complete
+    exit $bgstatus # co-process is now complete
+}
+
+_start_pmie()
+{
+    if which pmie_check >/dev/null 2>&1
+    then
+	# pmie_check uses $PMIECTRL to start everything that is needed
+	if [ ! -f $PMIECTRL ]
+	then
+	    echo "$prog:"'
+Error: PCP inference engine control file '$PMIECTRL'
+       is missing!  Cannot start any Performance Co-Pilot inference engine(s).'
+	    # failure
+	    false
+	else
+	    $ECHO $PCP_ECHO_N "Starting pmie ..." "$PCP_ECHO_C"
+
+	    # run as a co-process
+	    _start_pmcheck &
+
+	    # Container environment
+	    if [ -n "$PCP_CONTAINER_IMAGE" ]
+	    then
+		# Set up the host crontab for pmie_{check,daily}.
+		# This needs to be robust for when the container isn't running
+		# so that a failing crontab entry doesn't spam the host logs.
+		cronjob=/etc/cron.d/pcp-pmie-docker
+		if [ ! -f $cronjob ]
+		then
+		    cp $PCP_VAR_DIR/config/pmie/crontab.docker $cronjob
+		    $PCP_BINADM_DIR/pmpost "pmie script installed $cronjob"
+		fi
+
+		# In a container, pmie_check cannot run indefinitely -
+		# if it did then the pmpause signal handler would reap the
+		# pmie_check child and exit.
+		wait
+
+		# finally, stop here when running as a container
+		exec $PCP_BINADM_DIR/pmpause
+	    fi
+
+            # success
+            true
+	fi
+    else
+        echo "$prog:"'
+Warning: Performance Co-Pilot installation is incomplete (at least the
+         script "pmie_check" is missing) and the PCP inference engine(s)
+         cannot be started.'
+        # failure
+        false
+    fi
+    $RC_STATUS -v
 }
 
 _shutdown()
@@ -211,22 +265,7 @@ case "$1" in
 		chkconfig_on_msg pmie
 	    fi
 
-	    if which pmie_check >/dev/null 2>&1
-	    then
-		if [ ! -f $PMIECTRL ]
-		then
-		    echo "$prog:"'
-Error: PCP inference engine control file '$PMIECTRL'
-       is missing!  Cannot start any Performance Co-Pilot inference engine(s).'
-		else
-		    $ECHO $PCP_ECHO_N "Starting pmie ..." "$PCP_ECHO_C"
-		    _start_pmie &
-		    $RC_STATUS -v
-		fi
-	    fi
-
-	    # finally, stop here if running in a container
-	    [ -z "$PCP_CONTAINER_IMAGE" ] || exec $PCP_BINADM_DIR/pmpause
+	    _start_pmie
 	fi
 	status=0
         ;;
@@ -258,7 +297,7 @@ Error: PCP inference engine control file '$PMIECTRL'
         fi
         ;;
   *)
-	[ -z "$PCP_CONTAINER_IMAGE" ] || exec "$@"
+	[ -n "$PCP_CONTAINER_IMAGE" ] && exec "$@"
 	_usage
         ;;
 esac

@@ -127,20 +127,23 @@ Error: PCP archive logger control file '$PMLOGCTRL'
 	    # Container environment
 	    if [ -n "$PCP_CONTAINER_IMAGE" ]
 	    then
-		# In a container, pmlogger_check cannot run indefinitely -
-		# if it did then the pmpause signal handler would reap the
-		# pmlogger_check child and exit.
-		wait
-
 		# Set up the host crontab for pmlogger_{check,daily}.
 		# This needs to be robust for when the container isn't running
 		# so that a failing crontab entry doesn't spam the host logs.
-		cronjob=/etc/cron.d/pcp-pmlogger
+		cronjob=/etc/cron.d/pcp-pmlogger-docker
 		if [ ! -f $cronjob ]
 		then
 		    cp $PCP_VAR_DIR/config/pmlogger/crontab.docker $cronjob
 		    $PCP_BINADM_DIR/pmpost "pmlogger script installed $cronjob"
 		fi
+
+		# In a container, pmlogger_check cannot run indefinitely -
+		# if it did then the pmpause signal handler would reap the
+		# pmlogger_check child and exit.
+		wait
+
+		# finally, stop here when running as a container
+		exec $PCP_BINADM_DIR/pmpause
 	    fi
 
 	    # success
