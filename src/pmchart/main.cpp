@@ -534,7 +534,9 @@ main(int argc, char ** argv)
 	if (!Hflag) {
 	    for (c = 0; c < globalSettings.savedHosts.size(); c++) {
 		const QString &host = globalSettings.savedHosts.at(c);
-		__pmAddOptHost(&opts, (char *)(const char *)host.toAscii());
+		char *name = strdup((const char *)host.toAscii());
+		if (name)
+		    __pmAddOptHost(&opts, name);
 	    }
 	}
 	while (opts.optind < argc)
