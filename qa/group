@@ -37,6 +37,12 @@ verify
 ## get this group devoid of any tests.
 flakey
 
+
+# tests requiring creation/manipulation of very large files
+# (can be extremely slow on certain devices), or otherwise
+# known to take a long time (where long is approx > 3mins).
+slow
+
 ## specific apps
 ##
 # pmcd app and control infrastructure
@@ -793,7 +799,7 @@ cgroups
 502 pmlogrewrite local
 503 logutil pmlogrewrite local pmlogextract
 505 pmlogrewrite local
-506 pmlogrewrite local
+506 pmlogrewrite local slow
 507 pcp local
 508 archive pmlogreduce pmlogextract local
 509 derive pmns local
@@ -903,7 +909,7 @@ cgroups
 660 pmwebapi local
 661 pmwebapi local
 662 pmwebapi local
-666 pmmgr local
+666 pmmgr local slow
 667 python local
 670 libpcp local
 701 pmlogcheck local
