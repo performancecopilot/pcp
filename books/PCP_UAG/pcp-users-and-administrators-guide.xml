@@ -2043,6 +2043,7 @@ a connection to a PMCD. If the connection to the host is over a slow network,
 then successful establishment of the connection may not be possible before
 the time out, and the attempt is abandoned.</para>
 <para>Alternatively, there may be a firewall in-between the client tool and PMCD which is blocking the connection attempt.</para>
+<para>Finally, PMCD may be running in a mode where it does not acept remote connections, or only listening on certain interface.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term>Resolution:</term>
@@ -2058,6 +2059,8 @@ default):<literallayout class="monospaced"><userinput>telnet far-away-host 44321
 the <literal>telnet</literal> session, increase the PMAPI time out by setting
 the <literal>PMCD_CONNECT_TIMEOUT</literal> environment variable to some number
 of seconds (60 for instance), and try the PCP client tool again.</para>
+<para>Verify that PMCD is not running in local-only mode, by looking for an enabled value (one) from: <literallayout class="monospaced"><userinput>pminfo -f pmcd.feature.local</userinput></literallayout></para>
+<para>This setting is controlled from the <literal>PMCD_LOCAL</literal> environment variable usually set via <filename>${PCP_SYSCONFIG_PATH}/pmcd</filename>.</para>
 <para>If these techniques are ineffective, it is likely an intermediary firewall is blocking the client from accessing the PMCD port - resolving such issues is firewall-host platform-specific and cannot practically be covered here.</para>
 </listitem></varlistentry>
 </variablelist>
@@ -2624,6 +2627,14 @@ then every monitoring application connecting to that PMCD must also have
 this variable set in its environment before attempting a connection.</para>
 </listitem></varlistentry>
 <varlistentry>
+<term><literal>PMCD_LOCAL</literal></term>
+<listitem><para><indexterm id="ITch03-21"><primary>PMCD_LOCAL variable
+</primary></indexterm><indexterm id="IG31371889144"><primary>PMCD</primary><secondary>PMCD_LOCAL
+variable</secondary></indexterm>This setting indicates that PMCD must only
+bind to the loopback interface for incoming connections and requests.
+In this mode, connections from remote hosts are not possible.</para>
+</listitem></varlistentry>
+<varlistentry>
 <term><literal>PMCD_RECONNECT_TIMEOUT</literal></term>
 <listitem><para><indexterm id="ITch03-24"><primary>PMCD_RECONNECT_TIMEOUT
 variable</primary></indexterm><indexterm id="IG31371888146"><primary>PMCD</primary><secondary>
@@ -2668,12 +2679,31 @@ are on different hosts, then obviously <literal>PMLOGGER_PORT</literal>
 must be set to the same value in both places.</para>
 </listitem></varlistentry>
 <varlistentry>
+<term><literal>PMLOGGER_LOCAL</literal></term>
+<listitem><para><indexterm id="IG31371889148"><primary>PMLOGGER_LOCAL variable</primary></indexterm><indexterm id="IG31371888142"><primary>pmlc tool
+</primary><secondary>PMLOGGER_LOCAL variable</secondary></indexterm>This
+environment variable indicates that <command>pmlogger</command> must only
+bind to the loopback interface for <command>pmlc</command> connections and
+requests.
+In this mode, <command>pmlc</command> connections from remote hosts are not possible.
+If used, this variable should be set in the environment before <command>pmlogger</command>
+is executed.</para>
+</listitem></varlistentry>
+<varlistentry>
 <term><literal>PMPROXY_PORT</literal></term>
 <listitem><para><indexterm id="ITch03-30"><primary>PMPROXY_PORT variable
 </primary></indexterm><indexterm id="IG31371888152"><primary>pmproxy port</primary></indexterm>
 This environment variable may be used to change the base TCP/IP port number
 used by <command>pmproxy</command> to create the socket to which proxied
 clients connect, on their way to a distant <command>pmcd</command>.</para>
+</listitem></varlistentry>
+<varlistentry>
+<term><literal>PMPROXY_LOCAL</literal></term>
+<listitem><para><indexterm id="ITch03-31"><primary>PMPROXY_LOCAL variable
+</primary></indexterm><indexterm id="IG31371888151"><primary>pmproxy local</primary></indexterm>
+This setting indicates that <command>pmproxy</command> must only
+bind to the loopback interface for incoming connections and requests.
+In this mode, connections from remote hosts are not possible.</para>
 </listitem></varlistentry>
 </variablelist>
 </section>
@@ -4673,8 +4703,8 @@ processes to monitor local or remote machines.</para>
 <procedure id="Z930363467sdc">
 <title>Add a New <command>pmie</command> Instance to the <command>pmie</command> Daemon Management Framework</title>
 <step><para>Use a text editor (as superuser) to edit the <command>pmie</command>
-control file <filename>${PCP_PMIECONTROL_PATH}</filename>.
-Notice the default entry toward the end of the file, which looks like this:
+<filename>${PCP_PMIECONTROL_PATH}</filename> and <filename>${PCP_PMIECONTROL_PATH}.d</filename> control files.
+Notice the default entry, which looks like this:
 </para>
 <literallayout class="monospaced">#Host           S?  Log File                                  Arguments
 LOCALHOSTNAME   n   PCP_LOG_DIR/pmie/LOCALHOSTNAME/pmie.log   -c config.default</literallayout>
@@ -4775,7 +4805,7 @@ Generated by <command>pmieconf</command> if not manually setup beforehand.
 (templates) in its subdirectories.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>${PCP_PMIECONTROL_PATH}</filename></term>
+<term><filename>${PCP_PMIECONTROL_PATH}</filename> and <filename>${PCP_PMIECONTROL_PATH}.d</filename> files</term>
 <listitem><para>Defines which PCP collector hosts require a daemon <command>pmie</command>
 to be launched on the local host, where the configuration file
 comes from, where the <command>pmie</command> log file should be created,
@@ -5046,7 +5076,7 @@ performance charts at regular intervals.</para>
 <para><indexterm id="IG31371888259"><primary>${PCP_PMLOGGERCONTROL_PATH} file</primary>
 </indexterm>The configuration files used by these scripts can be edited to
 suit your particular needs, and are generally controlled by the
-<filename>${PCP_PMLOGGERCONTROL_PATH}</filename> file (<literal>pmsnap</literal>
+<filename>${PCP_PMLOGGERCONTROL_PATH}</filename> and <filename>${PCP_PMLOGGERCONTROL_PATH}.d</filename> files (<literal>pmsnap</literal>
 has an additional control file, <filename>${PCP_PMSNAPCONTROL_PATH}</filename>).
 Complete information on these scripts is available in the <command>pmlogger_daily(1)</command>
 and <command>pmsnap(1)</command> man pages.</para>
@@ -5151,9 +5181,8 @@ some of the archive log management and administration tasks.</para>
 <figure id="id5207462"><title>Archive Log Directory Structure</title><mediaobject><imageobject><imagedata fileref="images/log-directory.svg"/></imageobject><textobject><phrase>Archive Log Directory Structure</phrase></textobject></mediaobject></figure>
 <para><indexterm id="IG31371888266"><primary>${PCP_PMLOGGERCONTROL_PATH} file</primary>
 </indexterm>The specification of where to place the archive log files for
-particular <command>pmlogger</command> instances is encoded in the configuration
-file <filename>${PCP_PMLOGGERCONTROL_PATH}</filename>,
-and this file should be customized on each host running an instance of <command>pmlogger</command>.</para>
+particular <command>pmlogger</command> instances is encoded in the <filename>${PCP_PMLOGGERCONTROL_PATH}</filename> and <filename>${PCP_PMLOGGERCONTROL_PATH}.d</filename> configuration files,
+and these files should be customized on each host running an instance of <command>pmlogger</command>.</para>
 <para>If many archives are being created, and the associated PCP collector
 systems form peer classes based upon service type (Web servers,
 DBMS servers, NFS servers, and so on), then it may be appropriate to introduce
@@ -5251,8 +5280,8 @@ Performance Co-Pilot configuration on pluto:
  hardware: 8 cpus, 2 disks, 23960MB RAM
  timezone: EST-10
      pmcd: Version 3.8.3-1, 8 agents
-     pmda: pmcd proc xfs linux mmv infiniband gluster elasticsearch<replaceable>
- pmlogger: primary logger: pluto/20130815.10.00</replaceable>
+     pmda: pmcd proc xfs linux mmv infiniband gluster elasticsearch
+     <replaceable>pmlogger: primary logger: pluto/20130815.10.00</replaceable>
      pmie: pluto: ${PCP_LOG_DIR}/pmie/pluto/pmie.log
            venus: ${PCP_LOG_DIR}/pmie/venus/pmie.log</literallayout>
 </listitem><listitem><para>Verify that the archive files are being created
@@ -5332,9 +5361,9 @@ or arrange to have one put in place by configuration management tools like
 <ulink url="http://www.opscode.com/chef/">Chef</ulink>.</para>
 </listitem>
 </itemizedlist>
-</step><step><para>Edit <filename>${PCP_PMLOGGERCONTROL_PATH}</filename>.
+</step><step><para>Edit <filename>${PCP_PMLOGGERCONTROL_PATH}</filename>, or one of the <filename>${PCP_PMLOGGERCONTROL_PATH}.d</filename> files.
 Using the line for <literal>remote</literal> as a template, add
-the following line to the file:</para>
+the following line:</para>
 <literallayout class="monospaced"><userinput>venus  n  n  PCP_LOG_DIR/pmlogger/venus  -r -T24h10m -c config.venus</userinput></literallayout>
 </step><step><para>Start <command>pmlogger</command>:</para>
 <literallayout class="monospaced"><userinput>${PCP_BINADM_DIR}/pmlogger_check</userinput>
@@ -5348,16 +5377,16 @@ Performance Co-Pilot configuration on pluto:
  hardware: 8 cpus, 2 disks, 23960MB RAM
  timezone: EST-10
      pmcd: Version 3.8.3-1, 8 agents
-     pmda: pmcd proc linux xfs mmv infiniband gluster elasticsearch<replaceable>
- pmlogger: primary logger: pluto/20130815.10.00
+     pmda: pmcd proc linux xfs mmv infiniband gluster elasticsearch
+     <replaceable>pmlogger: primary logger: pluto/20130815.10.00
            venus.redhat.com: venus/20130815.11.15</replaceable>
 <userinput>pmlc</userinput>
 pmlc&gt; <userinput>show loggers</userinput>
 The following pmloggers are running on pluto:
         primary (19144) 5141
 pmlc&gt; <userinput>connect 5141</userinput>
-pmlc&gt; <userinput>status</userinput><replaceable>
-pmlogger [5141] on host pluto is logging metrics from host venus</replaceable>
+pmlc&gt; <userinput>status</userinput>
+<replaceable>pmlogger [5141] on host pluto is logging metrics from host venus</replaceable>
 log started      Thu Aug 15 11:15:39 2013 (times in local time)
 last log entry   Thu Aug 15 11:47:39 2013
 current time     Thu Aug 15 11:48:13 2013
@@ -5512,7 +5541,7 @@ If you wish this to happen immediately, follow up with this command:</para>
 <literallayout class="monospaced"><userinput>${PCP_BINADM_DIR}/pmlogger_check -V</userinput></literallayout>
 <para><indexterm id="IG31371888296"><primary>${PCP_PMLOGGERCONTROL_PATH} file</primary></indexterm><indexterm id="IG31371888297">
 <primary>${PCP_SYSCONF_DIR}/pmlogger/config.default file</primary></indexterm>When
-it is started in this fashion, the <filename>${PCP_PMLOGGERCONTROL_PATH}</filename>
+it is started in this fashion, the <filename>${PCP_PMLOGGERCONTROL_PATH}</filename> file (or one of the <filename>${PCP_PMLOGGERCONTROL_PATH}.d</filename> files)
 must use the second field of one configuration line to designate the primary logger,
 and usually will also use the <command>pmlogger</command> configuration file
 <filename>${PCP_SYSCONF_DIR}/pmlogger/config.default</filename> (although the latter
@@ -6379,12 +6408,12 @@ performance metrics used in the tool, for example, <filename>${PCP_VAR_DIR}/conf
 for <literal>pmstat</literal>.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>${PCP_PMLOGGERCONTROL_PATH}</filename> </term>
+<term><filename>${PCP_PMLOGGERCONTROL_PATH}</filename> or <filename>${PCP_PMLOGGERCONTROL_PATH}.d</filename> files</term>
 <listitem><para>Defines which PCP collector hosts require
 <command>pmlogger</command> to be launched on the local host, where the configuration file
 comes from, where the archive log files should be created, and <command>pmlogger</command>
 startup options.</para>
-<para>This <literal>control</literal> file supports the starting and stopping of multiple
+<para>These <literal>control</literal> files support the starting and stopping of multiple
 <command>pmlogger</command> instances that monitor local or remote hosts.</para>
 </listitem></varlistentry>
 <varlistentry>
@@ -6428,12 +6457,12 @@ is enabled in the default configuration. This file is created using <command>pmi
 the first time the daemon facility is activated.</para>
 </listitem></varlistentry>
 <varlistentry>
-<term><filename>${PCP_PMIECONTROL_PATH}</filename></term>
+<term><filename>${PCP_PMIECONTROL_PATH}</filename> and <filename>${PCP_PMIECONTROL_PATH}.d</filename> files</term>
 <listitem><para>Defines which PCP collector hosts require a daemon <command>pmie</command>
 to be monitoring from the local host, where the configuration files comes from,
 where the <command>pmie</command> log file should be created,
 and <command>pmie</command> startup options.</para>
-<para>This <literal>control</literal> file supports the starting and stopping of multiple
+<para>These <literal>control</literal> files support the starting and stopping of multiple
 <command>pmie</command> instances that are each monitoring one or more hosts.</para>
 </listitem></varlistentry>
 <varlistentry>
@@ -7302,6 +7331,7 @@ Collection System</link></primaryie>
       <secondaryie>not starting <link linkend="IG31371888109">PMCD Does Not Start</link></secondaryie>
       <secondaryie>PMCD_CONNECT_TIMEOUT variable <link linkend="IG31371888143">PCP Environment Variables</link></secondaryie>
       <secondaryie>PMCD_PORT variable <link linkend="IG31371888144">PCP Environment Variables</link></secondaryie>
+      <secondaryie>PMCD_LOCAL variable <link linkend="IG31371889144">PCP Environment Variables</link></secondaryie>
       <secondaryie>PMCD_RECONNECT_TIMEOUT variable <link linkend="IG31371888146">PCP Environment Variables</link></secondaryie>
       <secondaryie>PMCD_REQUEST_TIMEOUT variable <link linkend="IG31371888147">PCP Environment Variables</link></secondaryie>
       <secondaryie>remote connection <link linkend="IG31371888101">Cannot Connect to Remote PMCD</link></secondaryie>
@@ -7321,6 +7351,10 @@ Collection System</link></primaryie>
 
 <indexentry>
    <primaryie>PMCD_PORT variable <link linkend="IG31371888160">Running PCP Tools through a Firewall</link> <link linkend="IG31371888113">PMCD Does Not Start</link> <link linkend="ITch03-23">PCP Environment Variables</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>PMCD_LOCAL variable <link linkend="IG31371888106">Cannot Connect to Remote PMCD</link> <link linkend="ITch03-21">PCP Environment Variables</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -7625,6 +7659,7 @@ Collection System</link></secondaryie>
       <secondaryie>dynamic adjustment <link linkend="IG31371888240">Introduction to Archive Logging</link></secondaryie>
       <secondaryie>flush command <link linkend="IG31371888254">Coordination between <command>pmlogger</command> and PCP tools</link></secondaryie>
       <secondaryie>PMLOGGER_PORT variable <link linkend="IG31371888150">PCP Environment Variables</link></secondaryie>
+      <secondaryie>PMLOGGER_LOCAL variable <link linkend="IG31371888142">PCP Environment Variables</link></secondaryie>
       <secondaryie>show command <link linkend="IG31371888302">Primary <command>pmlogger</command> Cannot Start</link></secondaryie>
       <secondaryie>SIGHUP signal <link linkend="IG31371888264">Log Volumes</link></secondaryie>
       <secondaryie>TCP/IP firewall <link linkend="IG31371888159">Running PCP Tools through a Firewall</link></secondaryie>
@@ -7686,6 +7721,10 @@ Collection System</link></secondaryie>
 </indexentry>
 
 <indexentry>
+   <primaryie>PMLOGGER_LOCAL variable <link linkend="IG31371889148">PCP Environment Variables</link></primaryie>
+</indexentry>
+
+<indexentry>
    <primaryie>pmlogsummary tool <link linkend="IG3137188831">Performance Monitoring and Visualization
 </link> <link linkend="ITch07-11">Summarizing Archive Logs with <command>pmlogsummary</command></link></primaryie>
 </indexentry>
@@ -7711,6 +7750,10 @@ Collection System</link></secondaryie>
 
 <indexentry>
    <primaryie>PMPROXY_PORT variable <link linkend="ITch03-30">PCP Environment Variables</link></primaryie>
+</indexentry>
+
+<indexentry>
+   <primaryie>PMPROXY_LOCAL variable <link linkend="ITch03-31">PCP Environment Variables</link></primaryie>
 </indexentry>
 
 <indexentry>
@@ -7744,6 +7787,7 @@ Collection System</link></secondaryie>
    <primaryie>pmproxy tool</primaryie>
       <secondaryie>brief description <link linkend="ITch01-38">Performance Monitoring and Visualization</link></secondaryie>
       <secondaryie>pmproxy port <link linkend="IG31371888152">PCP Environment Variables</link></secondaryie>
+      <secondaryie>pmproxy local <link linkend="IG31371888152">PCP Environment Variables</link></secondaryie>
       <secondaryie>TCP/IP firewall <link linkend="IG31371888156">Running PCP Tools through a Firewall</link></secondaryie>
 </indexentry>
 
