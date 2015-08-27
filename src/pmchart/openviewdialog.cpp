@@ -318,6 +318,15 @@ void OpenViewDialog::sourceComboBox_currentIndexChanged(int index)
 
 bool OpenViewDialog::useLiveContext(int index)
 {
+    if (liveGroup->numContexts() == 0) {
+	QString msg("No host connections have been established yet\n");
+	QMessageBox::warning(NULL, pmProgname, msg,
+		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
+		QMessageBox::NoButton, QMessageBox::NoButton);
+	return false;
+    }
+
+    Q_ASSERT(index <= liveGroup->numContexts());
     QmcSource source = liveGroup->context(index)->source();
     char *sourceName = source.sourceAscii();
     bool result = true;
@@ -338,6 +347,15 @@ bool OpenViewDialog::useLiveContext(int index)
 
 bool OpenViewDialog::useArchiveContext(int index)
 {
+    if (archiveGroup->numContexts() == 0) {
+	QString msg("No PCP archives have been opened yet\n");
+	QMessageBox::warning(NULL, pmProgname, msg,
+		QMessageBox::Ok | QMessageBox::Default | QMessageBox::Escape,
+		QMessageBox::NoButton, QMessageBox::NoButton);
+	return false;
+    }
+
+    Q_ASSERT(index <= archiveGroup->numContexts());
     QmcSource source = archiveGroup->context(index)->source();
     char *sourceName = source.sourceAscii();
     bool result = true;
