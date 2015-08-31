@@ -16,35 +16,21 @@ echo "QA output created by $seq"
 
 [ -f $PCP_PMDAS_DIR/shping/pmdashping ] || _notrun "shping pmda not installed"
 [ -f $PCP_PMDAS_DIR/cisco/pmdacisco ] || _notrun "cisco pmda not installed"
+[ -f $PCP_PMDAS_DIR/dm/pmdadm ] || _notrun "dm pmda not installed"
 which pmieconf >/dev/null 2>&1 || _notrun "No pmieconf binary installed"
 
 status=1	# failure is the default!
 username=`id -u -n`
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
+# Some metrics unavailable by default, so skip the associated rules
+#
 cat >$tmp.cmd <<EOF
 modify all enabled yes
 modify shping enabled no
-EOF
-
-# TODO - revisit these lists periodically to see what has changed
-#
-if [ $PCP_PLATFORM = irix ]
-then
-    # Not all metrics are available in IRIX, so skip the associated
-    # rules
-    cat >>$tmp.cmd <<EOF
-modify espping enabled no
-modify environ enabled no
-modify xvm enabled no
-EOF
-else
-    # Some metrics unavailable by default, so skip the associated rules
-    #
-    cat >>$tmp.cmd <<EOF
 modify cisco enabled no
+modify dmthin enabled no
 EOF
-fi
 
 # real QA test starts here
 echo "running pmieconf with default rules..."
