@@ -248,7 +248,8 @@ pmwebapi_respond_new_context (struct MHD_Connection *connection,
     }
 
     if (context < 0) {
-        connstamp (cerr, connection) << "new context failed: " << pmErrStr (context) << endl;
+        char pmmsg[PM_MAXERRMSGLEN];
+        connstamp (cerr, connection) << "new context failed: " << pmErrStr_r (context, pmmsg, sizeof (pmmsg)) << endl;
         rc = context;
         goto out;
     }
@@ -309,7 +310,8 @@ pmwebapi_respond_new_context (struct MHD_Connection *connection,
     }
 
     if (verbosity) {
-        const char *context_hostname = pmGetContextHostName (context);
+        char hostname[MAXHOSTNAMELEN];
+        char *context_hostname = pmGetContextHostName_r (context, hostname, sizeof(hostname));
 
         timestamp (clog) << "context " << context_description << (context_hostname ? " (" : "")
                          << (context_hostname ? context_hostname : "") << (context_hostname ? ")" : "") << " (web"
@@ -381,6 +383,7 @@ metric_list_traverse (const char *metric, void *closure)
     pmID metric_id;
     pmDesc metric_desc;
     int rc;
+    char buffer[64];	/* sufficient for any type/units strings */
     char *metric_text;
     char *metrics[1] = {
         (char *) metric
@@ -422,8 +425,8 @@ metric_list_traverse (const char *metric, void *closure)
     json_key_value (*mltc->mhdb, "sem",
                     string (metric_desc.sem == PM_SEM_COUNTER ? "counter" : metric_desc.sem == PM_SEM_INSTANT
                             ? "instant" : metric_desc.sem == PM_SEM_DISCRETE ? "discrete" : "unknown"), ",");
-    json_key_value (*mltc->mhdb, "units", string (pmUnitsStr (&metric_desc.units)), ",");
-    json_key_value (*mltc->mhdb, "type", string (pmTypeStr (metric_desc.type)), "");
+    json_key_value (*mltc->mhdb, "units", string (pmUnitsStr_r (&metric_desc.units, buffer, sizeof (buffer))), ",");
+    json_key_value (*mltc->mhdb, "type", string (pmTypeStr_r (metric_desc.type, buffer, sizeof (buffer))), "");
 
     *mltc->mhdb << "}";
     mltc->num_metrics++;
@@ -549,7 +552,8 @@ pmwebapi_format_value (ostream & output, pmDesc * desc, pmValueSet * pvs, int vs
                     json_key_value (output, "name", string(fieldname));
                     free (fieldname);
                 } else {
-                    json_key_value (output, "name", string(pmIDStr (fieldvsp->pmid)));
+                    char pmidstr[20];
+                    json_key_value (output, "name", string(pmIDStr_r (fieldvsp->pmid, pmidstr, sizeof(pmidstr))));
                 }
 
                 output << "}\n";
@@ -728,7 +732,8 @@ pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
     rc = pmFetch (num_metrics, metrics, &results);
     free (metrics);		/* don't need any more */
     if (rc < 0) {
-        connstamp (cerr, connection) << "pmFetch failed: " << pmErrStr (rc) << endl;
+        char pmmsg[PM_MAXERRMSGLEN];
+        connstamp (cerr, connection) << "pmFetch failed: " << pmErrStr_r (rc, pmmsg, sizeof (pmmsg)) << endl;
         goto out;
     }
     /* NB: we don't care about the possibility of PMCD_*_AGENT bits
@@ -1165,7 +1170,8 @@ pmwebapi_respond (struct MHD_Connection *connection, const http_params & params,
     /* if-multithreaded: watch out. */
     rc = pmUseContext (c->context);
     if (rc) {
-	connstamp (cerr, connection) << "pmUseContext(" << c->context << ") failed: " << pmErrStr(rc) << endl;
+        char pmmsg[PM_MAXERRMSGLEN];
+	connstamp (cerr, connection) << "pmUseContext(" << c->context << ") failed: " << pmErrStr_r (rc, pmmsg, sizeof (pmmsg)) << endl;
         goto out;
     }
     /* -------------------------------------------------------------------- */

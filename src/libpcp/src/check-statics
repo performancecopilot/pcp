@@ -184,8 +184,8 @@ events.o
     pmid_flags			# no unsafe side-effects
     pmid_missed			# no unsafe side-effects
     ?caller                     # const
-    pmUnpackEventRecords.caller		# const
-    pmUnpackHighResEventRecords.caller	# const
+    ?pmUnpackEventRecords.caller		# const
+    ?pmUnpackHighResEventRecords.caller	# const
 fault.o
 fetchlocal.o
     splitlist			# single-threaded PM_SCOPE_DSO_PMDA
@@ -212,7 +212,7 @@ getdate.tab.o
     ?yyval_default		# local to parser ... depends on yacc/bison version
     yytable                	# const
     yytranslate            	# const
-    yyparse.yyval_default	# const
+    ?yyparse.yyval_default	# const
 getopt.o
 hash.o
 help.o
@@ -352,7 +352,7 @@ units.o
     space_keywords              # const
     time_keywords               # const
     time_scales                 # const
-    pmParseUnitsStr.time_scales	# const
+    ?pmParseUnitsStr.time_scales	# const
 util.o
     idbuf			# pmIDStr deprecated by pmIDStr_r
     indombuf			# pmInDomStr deprecated by pmInDomStr_r

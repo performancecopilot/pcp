@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2013-2014 Red Hat.
+.\" Copyright (c) 2013-2015 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -22,11 +22,13 @@
 .B $PCP_BINADM_DIR/pmie_check
 [\f3\-CNsV\f1]
 [\f3\-c\f1 \f2control\f1]
+[\f3\-l\f1 \f2logfile\f1]
 .br
 .B $PCP_BINADM_DIR/pmie_daily
 [\f3\-NV\f1]
 [\f3\-c\f1 \f2control\f1]
 [\f3\-k\f1 \f2discard\f1]
+[\f3\-l\f1 \f2logfile\f1]
 [\f3\-m\f1 \f2addresses\f1]
 [\f3\-x\f1 \f2compress\f1]
 [\f3\-X\f1 \f2program\f1]
@@ -117,15 +119,23 @@ Both
 .B pmie_check
 and
 .B pmie_daily
-are controlled by a PCP inference engine control file that specifies the
+are controlled by PCP inference engine control file(s) that specify the
 .B pmie
 instances to be managed.  The default control file is
 .B $PCP_PMIECONTROL_PATH
 but an alternate may be specified using the
 .B \-c
 option.
+If the directory
+.BR $PCP_PMLOGGERCONTROL_PATH .d
+(or
+.IR control .d
+from the
+.B \-c
+option) exists, then the contents of any additional control files therein
+will be appended to the main control file (which must exist).
 .PP
-The control file should be customized according to the following rules.
+The control file(s) should be customized according to the following rules.
 .IP 1.
 Lines beginning with a ``#'' are comments.
 .PD 0 parameters of the
@@ -152,10 +162,12 @@ $ PMCD_CONNECT_TIMEOUT=20
 .BR Warning :
 The
 .B $PCP_PMIECONTROL_PATH
-file must not be writable by any user other than root.
+and
+.BR $PCP_PMIECONTROL_PATH .d
+files must not be writable by any user other than root.
 .br
 .IP 3.
-There should be one line in the control file
+There should be one line in the control file(s)
 for each
 .B pmie
 instance of the form:
@@ -169,7 +181,7 @@ instance of the form:
 .in -4n
 
 .IP 4.
-Fields within a line of the control file
+Fields within a line of the control file(s)
 are separated by one or more spaces or tabs.
 .IP 5.
 The
@@ -255,8 +267,25 @@ and shown below.
 .ft 1
 .fi
 .PP
-The output from the
+In order to ensure that mail is not unintentionally sent when these
+scripts are run from
 .BR cron (8)
+diagnostics are always sent to log files.
+By default, these files are
+.B $PCP_LOG_DIR/pmie/pmie_daily.log
+and
+.B $PCP_LOG_DIR/pmie/pmie_check.log
+but this can be changed using the
+.B \-l
+option.
+If this log file already exists when the script starts, it will be
+renamed with a
+.I .prev
+suffix (overwriting any log file saved earlier) before diagnostics
+are generated to the new log file.
+.PP
+The output from the
+.BR cron
 execution of the scripts may be extended using the
 .B \-V
 option to the scripts which will enable verbose tracing of their activity.
@@ -279,6 +308,13 @@ the default PCP inference engine control file
 .br
 .BR Warning :
 this file must not be writable by any user other than root.
+.TP
+.BR $PCP_PMIECONTROL_PATH .d
+optional directory containing additional PCP inference engine control files,
+typically one per host
+.br
+.BR Warning :
+this files herein must not be writable by any user other than root.
 .TP
 .B $PCP_SYSCONF_DIR/pmie/crontab
 sample crontab for automated script execution by $PCP_USER (or root) -

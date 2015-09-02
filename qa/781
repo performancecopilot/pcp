@@ -18,7 +18,7 @@ _cleanup()
     # should be none running, but just in case...
     $signal -a -s TERM pmlogger >/dev/null 2>&1
     cd $here
-    $sudo rm -rf $tmp
+    $sudo rm -rf $tmp $tmp.*
 }
 
 status=1	# failure is the default!
@@ -54,9 +54,9 @@ another.host    n   n   logs/another.host  -c ./config'
 echo Using control file: > $here/$seq.full
 cat control >> $here/$seq.full
 echo pmlogger_check out: >> $here/$seq.full
-$PCP_BINADM_DIR/pmlogger_check -V -N -c control 2>&1 \
-	| tee -a $here/$seq.full \
-	| _filter
+$PCP_BINADM_DIR/pmlogger_check -V -N -c control -l $tmp.log
+cat $tmp.log | tee -a $here/$seq.full | _filter
+
 echo pmlogger_check end: >> $here/$seq.full
 find . >> $here/$seq.full
 

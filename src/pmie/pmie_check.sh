@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2013-2014 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 # Copyright (c) 1998-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -25,6 +25,7 @@ PMIE=pmie
 PMIECONF="$PCP_BIN_DIR/pmieconf"
 
 # error messages should go to stderr, not the GUI notifiers
+#
 unset PCP_STDERR
 
 # added to handle problem when /var/log/pcp is a symlink, as first
@@ -48,13 +49,27 @@ _unsymlink_path()
 tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 status=0
 echo >$tmp/lock
-trap "rm -rf \`[ -f $tmp/lock ] && cat $tmp/lock\` $tmp; exit \$status" 0 1 2 3 15
 prog=`basename $0`
+PROGLOG=$PCP_LOG_DIR/pmie/$prog.log
+USE_SYSLOG=true
 
-# control file for pmie administration ... edit the entries in this
-# file to reflect your local configuration
+_cleanup()
+{
+    $USE_SYSLOG && [ $status -ne 0 ] && \
+    $PCP_SYSLOG_PROG -p daemon.error "$prog failed - see $PROGLOG"
+    [ -s "$PROGLOG" ] || rm -f "$PROGLOG"
+    lockfile=`cat $tmp/lock 2>/dev/null`
+    rm -f "$lockfile"
+    rm -rf $tmp
+}
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# control files for pmie administration ... edit the entries in this
+# file (and optional directory) to reflect your local configuration;
+# see also -c option below.
 #
 CONTROL=$PCP_PMIECONTROL_PATH
+CONTROLDIR=$PCP_PMIECONTROL_PATH.d
 
 # NB: FQDN cleanup; don't guess a 'real name for localhost', and
 # definitely don't truncate it a la `hostname -s`.  Instead now
@@ -97,6 +112,7 @@ echo > $tmp/usage
 cat >> $tmp/usage << EOF
 Options:
   -c=FILE,--control=FILE  configuration of pmie instances to manage
+  -l=FILE,--logfile=FILE  send important diagnostic messages to FILE
   -C                      query system service runlevel information
   -N,--showme             perform a dry run, showing what would be done
   -s,--stop               stop pmie processes instead of starting them
@@ -114,11 +130,17 @@ do
     case "$1"
     in
 	-c)	CONTROL="$2"
+		CONTROLDIR="$2.d"
 		shift
 		;;
 	-C)	CHECK_RUNLEVEL=true
 		;;
+	-l)	PROGLOG="$2"
+		USE_SYSLOG=false
+		shift
+		;;
 	-N)	SHOWME=true
+		USE_SYSLOG=false
 		MV="echo + mv"
 		RM="echo + rm"
 		CP="echo + cp"
@@ -153,35 +175,38 @@ then
     exit
 fi
 
+# after argument checking, everything must be logged to ensure no mail is
+# accidentally sent from cron.  Close stdout and stderr, then open stdout
+# as our logfile and redirect stderr there too.
+#
+[ -f "$PROGLOG" ] && mv "$PROGLOG" "$PROGLOG.prev"
+exec 1>"$PROGLOG"
+exec 2>&1
+
 _error()
 {
-    echo "$prog: [$CONTROL:$line]"
-    echo "Error: $1"
+    echo "$prog: [$controlfile:$line]"
+    echo "Error: $@"
     echo "... automated performance reasoning for host \"$host\" unchanged"
     touch $tmp/err
 }
 
 _warning()
 {
-    echo "$prog [$CONTROL:$line]"
-    echo "Warning: $1"
+    echo "$prog [$controlfile:$line]"
+    echo "Warning: $@"
 }
 
-_message()
+_restarting()
 {
-    case $1
-    in
-	'restart')
-	    $PCP_ECHO_PROG $PCP_ECHO_N "Restarting pmie for host \"$host\" ...""$PCP_ECHO_C"
-	    ;;
-    esac
+    $PCP_ECHO_PROG $PCP_ECHO_N "Restarting pmie for host \"$host\" ...""$PCP_ECHO_C"
 }
 
 _lock()
 {
     # demand mutual exclusion
     #
-    rm -f $tmp/stamp
+    rm -f $tmp/stamp $tmp/out
     delay=200		# tenths of a second
     while [ $delay -ne 0 ]
     do
@@ -291,7 +316,7 @@ _check_pmie()
 		# yet, try again
 		:
 	    else
-		$VERBOSE || _message restart
+		$VERBOSE || _restarting
 		echo " process exited!"
 		if $TERSE
 		then
@@ -315,7 +340,7 @@ _check_pmie()
 	$VERBOSE && [ `expr $delay % 10` -eq 0 ] && \
 			$PCP_ECHO_PROG $PCP_ECHO_N ".""$PCP_ECHO_C"
     done
-    $VERBOSE || _message restart
+    $VERBOSE || _restarting
     echo " timed out waiting!"
     if $TERSE
     then
@@ -427,6 +452,7 @@ then
     exit
 fi
 
+# note on control file format version
 #  1.0 is the first release, and the version is set in the control file
 #  with a $version=x.y line
 #
@@ -439,31 +465,33 @@ then
     exit
 fi
 
-echo >$tmp/dir
 rm -f $tmp/err $tmp/pmies
 
-line=0
-cat "$CONTROL" \
-    | sed -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" \
-    | while read host socks logfile args
-do
-    # start in one place for each iteration (beware relative paths)
-    cd "$here"
-    line=`expr $line + 1`
+_parse_control()
+{
+    controlfile="$1"
+    line=0
 
-    # NB: FQDN cleanup: substitute the LOCALHOSTNAME marker in the config line
-    # differently for the directory and the pcp -h HOST arguments.
-    logfile_hostname=`hostname || echo localhost`
-    logfile=`echo $logfile | sed -e "s;LOCALHOSTNAME;$logfile_hostname;"`
-    logfile=`_unsymlink_path $logfile`
-    [ "x$host" = "xLOCALHOSTNAME" ] && host=local:
+    sed -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" $controlfile | \
+    while read host socks logfile args
+    do
+	# start in one place for each iteration (beware relative paths)
+	cd "$here"
+	line=`expr $line + 1`
 
-    case "$host"
-    in
-	\#*|'')	# comment or empty
+	# NB: FQDN cleanup: substitute the LOCALHOSTNAME marker in the config
+	# line differently for the directory and the pcp -h HOST arguments.
+	logfile_hostname=`hostname || echo localhost`
+	logfile=`echo $logfile | sed -e "s;LOCALHOSTNAME;$logfile_hostname;"`
+	logfile=`_unsymlink_path $logfile`
+	[ "x$host" = "xLOCALHOSTNAME" ] && host=local:
+
+	case "$host"
+	in
+	    \#*|'')	# comment or empty
 		continue
 		;;
-	\$*)	# in-line variable assignment
+	    \$*)	# in-line variable assignment
 		$SHOWME && echo "# $host $socks $logfile $args"
 		cmd=`echo "$host $socks $logfile $args" \
 		     | sed -n \
@@ -489,173 +517,183 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 			    ;;
 			*)
 			    $SHOWME && echo "+ $cmd"
+			    echo eval $cmd >>$tmp/cmd
 			    eval $cmd
 			    ;;
 		    esac
 		fi
 		continue
 		;;
-    esac
+	esac
 
-    if [ -z "$socks" -o -z "$logfile" -o -z "$args" ]
-    then
-	_error "insufficient fields in control file record"
-	continue
-    fi
-
-    $VERY_VERBOSE && echo "Check pmie -h $host -l $logfile ..."
-
-    # make sure output directory exists
-    #
-    dir=`dirname $logfile`
-    if [ ! -d "$dir" ]
-    then
-	mkdir -p -m 755 "$dir" >$tmp/err 2>&1
-	if [ ! -d "$dir" ]
+	[ -f $tmp/cmd ] && . $tmp/cmd
+	if [ -z "$socks" -o -z "$logfile" -o -z "$args" ]
 	then
-	    cat $tmp/err
-	    _error "cannot create directory ($dir) for pmie log file"
+	    _error "insufficient fields in control file record"
 	    continue
 	fi
-        chown $PCP_USER:$PCP_GROUP "$dir" >/dev/null 2>&1
-    fi
 
-    cd "$dir"
-    dir=`$PWDCMND`
-    $SHOWME && echo "+ cd $dir"
+	dir=`dirname $logfile`
+	$VERY_VERBOSE && echo "Check pmie -h $host -l $logfile ..."
 
-    # ensure pcp user will be able to write there
-    #
-    chown -R $PCP_USER:$PCP_GROUP "$dir" >/dev/null 2>&1
-    if [ ! -w "$dir" ]
-    then
-	_warning "no write access in $dir, skip lock file processing"
-	ls -ld "$dir"
-    else
-	_lock
-    fi
+	# make sure output directory exists
+	#
+	if [ ! -d "$dir" ]
+	then
+	    mkdir -p -m 755 "$dir" >$tmp/err 2>&1
+	    if [ ! -d "$dir" ]
+	    then
+		cat $tmp/err
+		_error "cannot create directory ($dir) for pmie log file"
+		continue
+	    fi
+	    chown $PCP_USER:$PCP_GROUP "$dir" >/dev/null 2>&1
+	fi
 
-    # match $logfile from control file to running pmies
-    pid=""
-    for file in $PCP_TMP_DIR/pmie/[0-9]*
-    do
-	[ "$file" = "$PCP_TMP_DIR/pmie/[0-9]*" ] && continue
-	$VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "... try $file: ""$PCP_ECHO_C"
+	cd "$dir"
+	dir=`$PWDCMND`
+	$SHOWME && echo "+ cd $dir"
 
-	p_id=`echo $file | sed -e 's,.*/,,'`
-	p_logfile=""
-	p_pmcd_host=""
+	# ensure pcp user will be able to write there
+	#
+	chown -R $PCP_USER:$PCP_GROUP "$dir" >/dev/null 2>&1
+	if [ ! -w "$dir" ]
+	then
+	    _warning "no write access in $dir, skip lock file processing"
+	    ls -ld "$dir"
+	else
+	    _lock
+	fi
 
-	# throw away stderr in case $file has been removed by now
-	eval `$PCP_BINADM_DIR/pmiestatus $file 2>/dev/null | $PCP_AWK_PROG '
+	# match $logfile from control file to running pmies
+	pid=""
+	for pidfile in $PCP_TMP_DIR/pmie/[0-9]*
+	do
+	    [ "$pidfile" = "$PCP_TMP_DIR/pmie/[0-9]*" ] && continue
+	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "... try $pidfile: ""$PCP_ECHO_C"
+
+	    p_id=`echo $pidfile | sed -e 's,.*/,,'`
+	    p_logfile=""
+	    p_pmcd_host=""
+
+	    # throw away stderr in case $pidfile has been removed by now
+	    eval `$PCP_BINADM_DIR/pmiestatus $pidfile 2>/dev/null | $PCP_AWK_PROG '
 NR == 2	{ printf "p_logfile=\"%s\"\n", $0; next }
 NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	{ next }'`
 
-	p_logfile=`_unsymlink_path $p_logfile`
-	if [ "$p_logfile" != $logfile ]
-	then
-	    $VERY_VERBOSE && echo "different logfile, skip"
-	    $VERY_VERBOSE && echo "  $p_logfile differs to $logfile"
-	elif _get_pids_by_name pmie | grep "^$p_id\$" >/dev/null
-	then
-	    $VERY_VERBOSE && echo "pmie process $p_id identified, OK"
-	    pid=$p_id
-	    break
-	else
-	    $VERY_VERBOSE && echo "pmie process $p_id not running, skip"
-	    $VERY_VERBOSE && _get_pids_by_name pmie
-	fi
-    done
-
-    if $VERY_VERBOSE
-    then
-	if [ -z "$pid" ]
-	then
-	    echo "No current pmie process exists for:"
-	else
-	    echo "Found pmie process $pid monitoring:"
-	fi
-	echo "    host = $host"
-	echo "    log file = $logfile"
-    fi
-
-    if [ -z "$pid" -a $START_PMIE = true ]
-    then
-	configfile=`_get_configfile $args`
-	if [ ! -z "$configfile" ]
-	then
-	    # if this is a relative path and not relative to cwd,
-	    # substitute in the default pmie search location.
-	    #
-	    if [ ! -f "$configfile" -a "`basename $configfile`" = "$configfile" ]
+	    p_logfile=`_unsymlink_path $p_logfile`
+	    if [ "$p_logfile" != $logfile ]
 	    then
-		configfile="$PCP_VAR_DIR/config/pmie/$configfile"
+		$VERY_VERBOSE && echo "different logfile, skip"
+		$VERY_VERBOSE && echo "  $p_logfile differs to $logfile"
+	    elif _get_pids_by_name pmie | grep "^$p_id\$" >/dev/null
+	    then
+		$VERY_VERBOSE && echo "pmie process $p_id identified, OK"
+		pid=$p_id
+		break
+	    else
+		$VERY_VERBOSE && echo "pmie process $p_id not running, skip"
+		$VERY_VERBOSE && _get_pids_by_name pmie
+	    fi
+	done
+
+	if $VERY_VERBOSE
+	then
+	    if [ -z "$pid" ]
+	    then
+		echo "No current pmie process exists for:"
+	    else
+		echo "Found pmie process $pid monitoring:"
+	    fi
+	    echo "    host = $host"
+	    echo "    log file = $logfile"
+	fi
+
+	if [ -z "$pid" -a $START_PMIE = true ]
+	then
+	    configfile=`_get_configfile $args`
+	    if [ ! -z "$configfile" ]
+	    then
+		# if this is a relative path and not relative to cwd,
+		# substitute in the default pmie search location.
+		#
+		if [ ! -f "$configfile" -a "`basename $configfile`" = "$configfile" ]
+		then
+		    configfile="$PCP_VAR_DIR/config/pmie/$configfile"
+		fi
+
+		# check configuration file exists and is up to date
+		_configure_pmie "$configfile" "$host"
 	    fi
 
-	    # check configuration file exists and is up to date
-	    _configure_pmie "$configfile" "$host"
-	fi
+	    args="-h $host -l $logfile $args"
 
-	args="-h $host -l $logfile $args"
+	    $VERBOSE && _restarting
 
-	$VERBOSE && _message restart
-
-	sock_me=''
-	if [ "$socks" = y ] 
-	then
-	    # only check for pmsocks if it's specified in the control file
-	    have_pmsocks=false
-	    if which pmsocks >/dev/null 2>&1
+	    sock_me=''
+	    if [ "$socks" = y ] 
 	    then
-		# check if pmsocks has been set up correctly
-		if pmsocks ls >/dev/null 2>&1
+		# only check for pmsocks if it's specified in the control file
+		have_pmsocks=false
+		if which pmsocks >/dev/null 2>&1
 		then
-		    have_pmsocks=true
+		    # check if pmsocks has been set up correctly
+		    if pmsocks ls >/dev/null 2>&1
+		    then
+			have_pmsocks=true
+		    fi
+		fi
+
+		if $have_pmsocks
+		then
+		    sock_me="pmsocks "
+		else
+		    echo "$prog: Warning: no pmsocks available, would run without"
+		    sock_me=""
 		fi
 	    fi
 
-	    if $have_pmsocks
+	    [ -f "$logfile" ] && eval $MV -f "$logfile" "$logfile.prior"
+
+	    if $SHOWME
 	    then
-		sock_me="pmsocks "
+		$VERBOSE && echo
+		echo "+ ${sock_me}$PMIE -b $args"
+		_unlock
+		continue
 	    else
-		echo "$prog: Warning: no pmsocks available, would run without"
-		sock_me=""
+		# since this is launched as a sort of daemon, any output should
+		# go on pmie's stderr, i.e. $logfile ... use -b for this
+		#
+		$VERY_VERBOSE && ( echo; $PCP_ECHO_PROG $PCP_ECHO_N "+ ${sock_me}$PMIE -b $args""$PCP_ECHO_C"; echo "..." )
+		$PCP_BINADM_DIR/pmpost "start pmie from $prog for host $host"
+		${sock_me}$PMIE -b $args &
+		pid=$!
 	    fi
-	fi
 
-	[ -f "$logfile" ] && eval $MV -f "$logfile" "$logfile.prior"
+	    # wait for pmie to get started, and check on its health
+	    _check_pmie $pid
 
-	if $SHOWME
+	elif [ ! -z "$pid" -a $START_PMIE = false ]
 	then
-	    $VERBOSE && echo
-	    echo "+ ${sock_me}$PMIE -b $args"
-	    _unlock
-	    continue
-	else
-	    # since this is launched as a sort of daemon, any output should
-	    # go on pmie's stderr, i.e. $logfile ... use -b for this
+	    # Send pmie a SIGTERM, which is noted as a pending shutdown.
+	    # Add pid to list of pmies sent SIGTERM - may need SIGKILL later.
 	    #
-	    $VERY_VERBOSE && ( echo; $PCP_ECHO_PROG $PCP_ECHO_N "+ ${sock_me}$PMIE -b $args""$PCP_ECHO_C"; echo "..." )
-	    $PCP_BINADM_DIR/pmpost "start pmie from $prog for host $host"
-	    ${sock_me}$PMIE -b $args &
-	    pid=$!
+	    $VERY_VERBOSE && echo "+ $KILL -s TERM $pid"
+	    eval $KILL -s TERM $pid
+	    $PCP_ECHO_PROG $PCP_ECHO_N "$pid ""$PCP_ECHO_C" >> $tmp/pmies
 	fi
 
-	# wait for pmie to get started, and check on its health
-	_check_pmie $pid
+	_unlock
+    done
+}
 
-    elif [ ! -z "$pid" -a $START_PMIE = false ]
-    then
-	# Send pmie a SIGTERM, which is noted as a pending shutdown.
-	# Add pid to list of pmies sent SIGTERM - may need SIGKILL later.
-	#
-	$VERY_VERBOSE && echo "+ $KILL -s TERM $pid"
-	eval $KILL -s TERM $pid
-	$PCP_ECHO_PROG $PCP_ECHO_N "$pid ""$PCP_ECHO_C" >> $tmp/pmies
-    fi
-
-    _unlock
+_parse_control $CONTROL
+append=`ls $CONTROLDIR 2>/dev/null | LC_COLLATE=POSIX sort`
+for controlfile in $append
+do
+    _parse_control $CONTROLDIR/$controlfile
 done
 
 # check all the SIGTERM'd pmies really died - if not, use a bigger hammer.
@@ -666,12 +704,12 @@ then
 elif [ $START_PMIE = false -a -s $tmp/pmies ]
 then
     pmielist=`cat $tmp/pmies`
-    if ps -p "$pmielist" >/dev/null 2>&1
+    if $PCP_PS_PROG -p "$pmielist" >/dev/null 2>&1
     then
 	$VERY_VERBOSE && ( echo; $PCP_ECHO_PROG $PCP_ECHO_N "+ $KILL -KILL `cat $tmp/pmies` ...""$PCP_ECHO_C" )
 	eval $KILL -s KILL $pmielist >/dev/null 2>&1
 	delay=30	# tenths of a second
-	while ps -f -p "$pmielist" >$tmp/alive 2>&1
+	while $PCP_PS_PROG -f -p "$pmielist" >$tmp/alive 2>&1
 	do
 	    if [ $delay -gt 0 ]
 	    then

@@ -150,7 +150,8 @@ echo "pmie count after attempt without control file: $?"
 echo
 
 echo === check pmie_check and custom config ===
-pmie_check -V -V -N -c $tmp.control 2>&1 | _filter
+pmie_check -V -V -N -c $tmp.control -l $tmp.log
+cat $tmp.log | _filter
 # don't bother counting pmie processes, as -N is used above!
 #
 echo

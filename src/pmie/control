@@ -33,11 +33,12 @@ $version=1.0
 # Note:	- if multiple pmie instances for the same host, then they MUST use
 #	  different log files;
 #	- any occurence of LOCALHOSTNAME will be replaced by local hostname;
-#	- pmie's configuration file search path is "./:$PCP_VAR_DIR/config/pmie/",
+#       - the default localhost pmie specification is nowadays setup
+#         via ${PCP_PMIECONTROL_PATH}.d/local
+#	- pmie configuration file search path is "./:$PCP_VAR_DIR/config/pmie/"
 #	  and the working directory ('.') is the dirname of the Log File.
 # 
 #Host           S?  Log File                                  Arguments
-LOCALHOSTNAME   n   PCP_LOG_DIR/pmie/LOCALHOSTNAME/pmie.log   -c config.default
 
 # remote host
 #remote         n   PCP_LOG_DIR/pmie/remote/pmie.log          -c config.remote

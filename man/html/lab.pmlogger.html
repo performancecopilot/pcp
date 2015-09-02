@@ -77,9 +77,10 @@ started on a collector system each time <I>pmcd</I> is started.</P>
 To turn it on, as <B>root</B> do the following:</P>
 <P>
 <TT># chkconfig pmlogger on</TT><BR>
-<TT># /etc/init.d/pcp start</TT></P>
+<TT># $PCP_RC_DIR/pcp start</TT></P>
 <P>The specification for hosts to log, and <I>pmlogger</I> options is
-given in the $PCP_CONFIG_DIR/pmlogger/control file.</P>
+given in the $PCP_PMLOGGERCONTROL_PATH file, and (optionally) files
+in the $PCP_PMLOGGERCONTROL_PATH.d directory.</P>
 <P>This has a default entry for the local host, which specifies the metrics
 to be logged, and the frequency of logging - by default, using the file
 $PCP_CONFIG_DIR/pmlogger/config.default.</P>

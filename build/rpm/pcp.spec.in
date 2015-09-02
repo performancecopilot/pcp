@@ -1557,9 +1557,12 @@ egrep 'pcp\/(examples|demos)|pmdas\/(sample|simple|trivial|txmon)' >>devel_files
 
 #
 # Patterns for files to be marked %config(noreplace).
-# Note: /etc/pcp.{conf,env,sh} are %config but not noreplace.
-# and is treated specially below.
+# Note: /etc/pcp.{conf,env,sh} are %config but not noreplace
+# and are treated specially below.
 cat >conf_files <<EOF
+etc/sysconfig/pmcd
+etc/sysconfig/pmproxy
+etc/sysconfig/pmlogger
 etc/cron.d/pcp-pmie
 etc/cron.d/pcp-pmlogger
 pmcd/pmcd.conf
@@ -1937,7 +1940,7 @@ save_configs_script()
         [ "$_dir" = "$_new" ] && continue
         if [ -d "$_dir" ]
         then
-            ( cd "$_dir" ; find . -type f -print ) | sed -e 's/^\.\///' \
+            ( cd "$_dir" ; find . -maxdepth 1 -type f ) | sed -e 's/^\.\///' \
             | while read _file
             do
                 [ "$_file" = "control" ] && continue
@@ -1965,7 +1968,7 @@ done
 for daemon in pmcd pmproxy
 do
     save_configs_script >> "$PCP_LOG_DIR/configs.sh" "$PCP_SYSCONF_DIR/$daemon"\
-        "$PCP_CONFIG_DIR/$daemon" /etc/$daemon /etc/sysconfig/$daemon
+        "$PCP_CONFIG_DIR/$daemon" /etc/$daemon
 done
 exit 0
 

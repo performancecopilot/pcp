@@ -108,7 +108,7 @@ pkgpcp_webapi = $(zip) NO_CHOWN=true DIST_ROOT=`pwd`/$(dirpcp_webapi);
 pkgpcp_python = $(zip) DIST_ROOT=`pwd`/$(dirpcp_python);
 
 configure_tools = export DEBUG=-DNDEBUG;
-configure_paths = --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --without-systemd --without-python3
+configure_paths = --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --with-sysconfigdir=/etc/default --without-systemd --without-python3
 
 checkdir = test -f debian/rules
 uninstall = cat debian/*.install | sed -e "s,^,debian/$(pcp)/," | xargs rm -f

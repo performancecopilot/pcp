@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2013-2014 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 # Copyright (c) 2007 Aconex.  All Rights Reserved.
 # Copyright (c) 1995-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -45,8 +45,20 @@ unset PCP_STDERR
 tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 status=0
 echo >$tmp/lock
-trap "rm -rf \`[ -f $tmp/lock ] && cat $tmp/lock\` $tmp; exit \$status" 0 1 2 3 15
 prog=`basename $0`
+PROGLOG=$PCP_LOG_DIR/pmie/$prog.log
+USE_SYSLOG=true
+
+_cleanup()
+{
+    $USE_SYSLOG && [ $status -ne 0 ] && \
+    $PCP_SYSLOG_PROG -p daemon.error "$prog failed - see $PROGLOG"
+    [ -s "$PROGLOG" ] || rm -f "$PROGLOG"
+    lockfile=`cat $tmp/lock 2>/dev/null`
+    rm -f "$lockfile"
+    rm -rf $tmp
+}
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
 if is_chkconfig_on pmie
 then
@@ -55,10 +67,11 @@ else
     PMIE_CTL=off
 fi
 
-# control file for pmie administration ... edit the entries in this
-# file to reflect your local configuration (see also -c option below)
-#
+# control files for pmie administration ... edit the entries in this
+# file (and optional directory) to reflect your local configuration;
+# see also -c option below.
 CONTROL=$PCP_PMIECONTROL_PATH
+CONTROLDIR=$PCP_PMIECONTROL_PATH.d
 
 # default number of days to keep pmie logfiles
 #
@@ -92,19 +105,13 @@ done
 # for substituting LOCALHOSTNAME in the third column of $CONTROL.
 
 # determine path for pwd command to override shell built-in
-# (see BugWorks ID #595416).
 PWDCMND=`which pwd 2>/dev/null | $PCP_AWK_PROG '
 BEGIN	    	{ i = 0 }
 / not in /  	{ i = 1 }
 / aliased to /  { i = 1 }
  	    	{ if ( i == 0 ) print }
 '`
-if [ -z "$PWDCMND" ]
-then
-    #  Looks like we have no choice here...
-    #  force it to a known IRIX location
-    PWDCMND=/bin/pwd
-fi
+[ -z "$PWDCMND" ] && PWDCMND=/bin/pwd
 eval $PWDCMND -P >/dev/null 2>&1
 [ $? -eq 0 ] && PWDCMND="$PWDCMND -P"
 here=`$PWDCMND`
@@ -114,6 +121,7 @@ cat >> $tmp/usage <<EOF
 Options:
   -c=FILE,--control=FILE  pmie control file
   -k=N,--discard=N        remove pmie log files after N days
+  -l=FILE,--logfile=FILE  send important diagnostic messages to FILE
   -m=ADDRs,--mail=ADDRs   send daily log files to email addresses
   -N,--showme             perform a dry run, showing what would be done
   -V,--verbose            verbose output (multiple times for very verbose)
@@ -148,6 +156,7 @@ do
     case "$1"
     in
 	-c)	CONTROL="$2"
+		CONTROLDIR="$2.d"
 		shift
 		;;
 	-k)	CULLAFTER="$2"
@@ -160,10 +169,15 @@ do
 		    exit
 		fi
 		;;
+	-l)	PROGLOG="$2"
+		USE_SYSLOG=false
+		shift
+		;;
 	-m)	MAILME="$2"
 		shift
 		;;
 	-N)	SHOWME=true
+		USE_SYSLOG=false
 		RM="echo + rm"
 		KILL="echo + kill"
 		MYARGS="$MYARGS -N"
@@ -203,6 +217,14 @@ done
 
 [ $# -ne 0 ] && _usage
 
+# after argument checking, everything must be logged to ensure no mail is
+# accidentally sent from cron.  Close stdout and stderr, then open stdout
+# as our logfile and redirect stderr there too.
+#
+[ -f "$PROGLOG" ] && mv "$PROGLOG" "$PROGLOG.prev"
+exec 1>"$PROGLOG"
+exec 2>&1
+
 if [ ! -f "$CONTROL" ]
 then
     echo "$prog: Error: cannot find control file ($CONTROL)"
@@ -214,19 +236,19 @@ SUMMARY_LOGNAME=`pmdate -1d %Y%m%d`
 
 _error()
 {
-    _report Error "$1"
+    _report Error "$@"
+    touch $tmp/err
 }
 
 _warning()
 {
-    _report Warning "$1"
+    _report Warning "$@"
 }
 
 _report()
 {
     echo "$prog: $1: $2"
-    echo "[$CONTROL:$line] ... inference engine for host \"$host\" unchanged"
-    touch $tmp/err
+    echo "[$controlfile:$line] ... inference engine for host \"$host\" unchanged"
 }
 
 _unlock()
@@ -273,34 +295,49 @@ _date_filter()
     cat $tmp/in
 }
 
+# note on control file format version
+#  1.0 is the first release, and the version is set in the control file
+#  with a $version=x.y line
+#
+version=1.0
+eval `grep '^version=' "$CONTROL" | sort -rn`
+if [ $version != "1.0" ]
+then
+    _error "unsupported version (got $version, expected 1.0)"
+    status=1
+    exit
+fi
 
 rm -f $tmp/err $tmp/mail
-line=0
-version=''
-cat $CONTROL \
-| sed -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" \
-| while read host socks logfile args
-do
-    # start in one place for each iteration (beware relative paths)
-    cd "$here"
-    line=`expr $line + 1`
 
-    # NB: FQDN cleanup: substitute the LOCALHOSTNAME marker in the config line
-    # differently for the directory and the pcp -h HOST arguments.
-    logfile_hostname=`hostname || echo localhost`
-    logfile=`echo $logfile | sed -e "s;LOCALHOSTNAME;$logfile_hostname;"`
-    logfile=`_unsymlink_path $logfile`
-    [ "x$host" = "xLOCALHOSTNAME" ] && host=local:
+_parse_control()
+{
+    controlfile="$1"
+    line=0
 
-    $VERY_VERBOSE && echo "[control:$line] host=\"$host\" socks=\"$socks\" log=\"$logfile\" args=\"$args\""
+    sed -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" $controlfile | \
+    while read host socks logfile args
+    do
+	# start in one place for each iteration (beware relative paths)
+	cd "$here"
+	line=`expr $line + 1`
 
-    case "$host"
-    in
-	\#*|'')	# comment or empty
+	# NB: FQDN cleanup: substitute the LOCALHOSTNAME marker in the config
+	# line differently for the directory and the pcp -h HOST arguments.
+	logfile_hostname=`hostname || echo localhost`
+	logfile=`echo $logfile | sed -e "s;LOCALHOSTNAME;$logfile_hostname;"`
+	logfile=`_unsymlink_path $logfile`
+	[ "x$host" = "xLOCALHOSTNAME" ] && host=local:
+
+	$VERY_VERBOSE && echo "[$controlfile:$line] host=\"$host\" socks=\"$socks\" log=\"$logfile\" args=\"$args\""
+
+	case "$host"
+	in
+	    \#*|'')	# comment or empty
 		continue
 		;;
 
-	\$*)	# in-line variable assignment
+	    \$*)	# in-line variable assignment
 		$SHOWME && echo "# $host $socks $logfile $args"
 		cmd=`echo "$host $socks $logfile $args" \
 		     | sed -n \
@@ -326,200 +363,207 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 			    ;;
 			*)
 			    $SHOWME && echo "+ $cmd"
+			    echo eval $cmd >>$tmp/cmd
 			    eval $cmd
 			    ;;
 		    esac
 		fi
 		continue
 		;;
-    esac
+	esac
 
-    if [ -z "$socks" -o -z "$logfile" -o -z "$args" ]
-    then
-	_error "insufficient fields in control file record"
-	continue
-    fi
-
-    dir=`dirname $logfile`
-    $VERY_VERBOSE && echo "Check pmie -h $host ... in $dir ..."
-
-    if [ ! -d "$dir" ]
-    then
-	if [ "$PMIE_CTL" = "on" ]
+	[ -f $tmp/cmd ] && . $tmp/cmd
+	if [ -z "$socks" -o -z "$logfile" -o -z "$args" ]
 	then
-	    _error "logfile directory ($dir) does not exist"
-	fi
-	continue
-    fi
-
-    cd $dir
-    dir=`$PWDCMND`
-    $SHOWME && echo "+ cd $dir"
-
-    if $VERBOSE
-    then
-	echo
-	echo "=== daily maintenance of pmie log files for host $host ==="
-	echo
-    fi
-
-    if [ ! -w $dir ]
-    then
-	echo "$prog: Warning: no write access in $dir, skip lock file processing"
-    else
-	# demand mutual exclusion
-	#
-	fail=true
-	rm -f $tmp/stamp
-	for try in 1 2 3 4
-	do
-	    if pmlock -v lock >$tmp/out
-	    then
-		echo $dir/lock >$tmp/lock
-		fail=false
-		break
-	    else
-		if [ ! -f $tmp/stamp ]
-		then
-		    touch -t `pmdate -30M %Y%m%d%H%M` $tmp/stamp
-		fi
-		if [ ! -z "`find lock -newer $tmp/stamp -print 2>/dev/null`" ]
-		then
-		    :
-		else
-		    echo "$prog: Warning: removing lock file older than 30 minutes"
-		    LC_TIME=POSIX ls -l $dir/lock
-		    rm -f lock
-		fi
-	    fi
-	    sleep 5
-	done
-
-	if $fail
-	then
-	    # failed to gain mutex lock
-	    #
-	    if [ -f lock ]
-	    then
-		echo "$prog: Warning: is another PCP cron job running concurrently?"
-		LC_TIME=POSIX ls -l $dir/lock
-	    else
-		echo "$prog: `cat $tmp/out`"
-	    fi
-	    _warning "failed to acquire exclusive lock ($dir/lock) ..."
+	    _error "insufficient fields in control file record"
 	    continue
 	fi
-    fi
 
-    # match $logfile from control file to running pmies
-    pid=""
-    $VERY_VERBOSE && echo "Looking for logfile=$logfile"
-    for file in `ls "$PCP_TMP_DIR/pmie"`
-    do
-	p_id=$file
-	file="$PCP_TMP_DIR/pmie/$file"
-	p_logfile=""
-	p_pmcd_host=""
+	dir=`dirname $logfile`
+	$VERY_VERBOSE && echo "Check pmie -h $host ... in $dir ..."
 
-	$VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "Check p_id=$p_id ... ""$PCP_ECHO_C"
-	if ps -p "$p_id" >/dev/null 2>&1
+	if [ ! -d "$dir" ]
 	then
-	    eval `$PCP_BINADM_DIR/pmiestatus $file | $PCP_AWK_PROG '
+	    [ "$PMIE_CTL" = "on" ] && \
+		_error "logfile directory ($dir) does not exist"
+	    continue
+	fi
+
+	cd "$dir"
+	dir=`$PWDCMND`
+	$SHOWME && echo "+ cd $dir"
+
+	if $VERBOSE
+	then
+	    echo
+	    echo "=== daily maintenance of pmie log files for host $host ==="
+	    echo
+	fi
+
+	if [ ! -w $dir ]
+	then
+	    echo "$prog: Warning: no write access in $dir, skip lock file processing"
+	else
+	    # demand mutual exclusion
+	    #
+	    fail=true
+	    rm -f $tmp/stamp
+	    for try in 1 2 3 4
+	    do
+		if pmlock -v lock >$tmp/out
+		then
+		    echo $dir/lock >$tmp/lock
+		    fail=false
+		    break
+		else
+		    if [ ! -f $tmp/stamp ]
+		    then
+			touch -t `pmdate -30M %Y%m%d%H%M` $tmp/stamp
+		    fi
+		    if [ ! -z "`find lock -newer $tmp/stamp -print 2>/dev/null`" ]
+		    then
+			:
+		    else
+			echo "$prog: Warning: removing lock file older than 30 minutes"
+			LC_TIME=POSIX ls -l $dir/lock
+			rm -f lock
+		    fi
+		fi
+		sleep 5
+	    done
+
+	    if $fail
+	    then
+		# failed to gain mutex lock
+		#
+		if [ -f lock ]
+		then
+		    echo "$prog: Warning: is another PCP cron job running concurrently?"
+		    LC_TIME=POSIX ls -l $dir/lock
+		else
+		    echo "$prog: `cat $tmp/out`"
+		fi
+		_warning "failed to acquire exclusive lock ($dir/lock) ..."
+		continue
+	    fi
+	fi
+
+	# match $logfile from control file to running pmies
+	pid=""
+	$VERY_VERBOSE && echo "Looking for logfile=$logfile"
+	for pidfile in `ls "$PCP_TMP_DIR/pmie"`
+	do
+	    p_id=$pidfile
+	    pidfile="$PCP_TMP_DIR/pmie/$pidfile"
+	    p_logfile=""
+	    p_pmcd_host=""
+
+	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "Check p_id=$p_id ... ""$PCP_ECHO_C"
+	    if $PCP_PS_PROG -p "$p_id" >/dev/null 2>&1
+	    then
+		eval `$PCP_BINADM_DIR/pmiestatus $pidfile | $PCP_AWK_PROG '
 NR == 2	{ printf "p_logfile=\"%s\"\n", $0; next }
 NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	{ next }'`
-	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "p_pmcd_host=$p_pmcd_host p_logfile=$p_logfile""$PCP_ECHO_C"
-	    p_logfile=`_unsymlink_path $p_logfile`
-	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "->$p_logfile ... ""$PCP_ECHO_C"
-	    if [ "$p_logfile" = $logfile ]
-	    then
-		pid=$p_id
-		$VERY_VERBOSE && $PCP_ECHO_PROG match
-		break
+		$VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "p_pmcd_host=$p_pmcd_host p_logfile=$p_logfile""$PCP_ECHO_C"
+		p_logfile=`_unsymlink_path $p_logfile`
+		$VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "->$p_logfile ... ""$PCP_ECHO_C"
+		if [ "$p_logfile" = $logfile ]
+		then
+		    pid=$p_id
+		    $VERY_VERBOSE && $PCP_ECHO_PROG match
+		    break
+		fi
+		$VERY_VERBOSE && $PCP_ECHO_PROG "no match"
+	    else
+		# ignore, its not a running process
+		eval $RM -f $pidfile
+		$VERY_VERBOSE && $PCP_ECHO_PROG "process has vanished"
 	    fi
-	    $VERY_VERBOSE && $PCP_ECHO_PROG "no match"
-	else
-	    # ignore, its not a running process
-	    eval $RM -f $file
-	    $VERY_VERBOSE && $PCP_ECHO_PROG "process has vanished"
-	fi
-    done
+	done
 
-    if [ -z "$pid" ]
-    then
-	if [ "$PMIE_CTL" = "on" ]
+	if [ -z "$pid" ]
 	then
-	    _error "no pmie instance running for host \"$host\""
+	    if [ "$PMIE_CTL" = "on" ]
+	    then
+		_error "no pmie instance running for host \"$host\""
+	    fi
+	else
+	    # now move current logfile name aside and SIGHUP to "roll the logs"
+	    # creating a new logfile with the old name in the process.
+	    #
+	    $SHOWME && echo "+ mv $logfile ${logfile}.{SUMMARY_LOGNAME}"
+	    if mv $logfile ${logfile}.${SUMMARY_LOGNAME}
+	    then
+		$VERY_VERBOSE && echo "+ $KILL -s HUP $pid"
+		eval $KILL -s HUP $pid
+		echo ${logfile}.${SUMMARY_LOGNAME} >> $tmp/mail
+	    else
+		_error "problems moving logfile \"$logfile\" for host \"$host\""
+		touch $tmp/err
+	    fi
 	fi
-    else
-	# now move current logfile name aside and SIGHUP to "roll the logs"
-	# creating a new logfile with the old name in the process.
+
+	# and cull old logfiles
 	#
-	$SHOWME && echo "+ mv $logfile ${logfile}.{SUMMARY_LOGNAME}"
-	if mv $logfile ${logfile}.${SUMMARY_LOGNAME}
+	if [ X"$CULLAFTER" != X"forever" ]
 	then
-	    $VERY_VERBOSE && echo "+ $KILL -s HUP $pid"
-	    eval $KILL -s HUP $pid
-	    echo ${logfile}.${SUMMARY_LOGNAME} >> $tmp/mail
-	else
-	    _error "problems moving logfile \"$logfile\" for host \"$host\""
-	    touch $tmp/err
-	fi
-    fi
-
-    # and cull old logfiles
-    #
-    if [ X"$CULLAFTER" != X"forever" ]
-    then
-	_date_filter $CULLAFTER >$tmp/list
-	if [ -s $tmp/list ]
-	then
-	    if $VERBOSE
+	    _date_filter $CULLAFTER >$tmp/list
+	    if [ -s $tmp/list ]
 	    then
-		echo "Log files older than $CULLAFTER days being removed ..."
-		fmt <$tmp/list | sed -e 's/^/    /'
-	    fi
-	    if $SHOWME
-	    then
-		cat $tmp/list | xargs echo + rm -f
-	    else
-		cat $tmp/list | xargs rm -f
+		if $VERBOSE
+		then
+		    echo "Log files older than $CULLAFTER days being removed ..."
+		    fmt <$tmp/list | sed -e 's/^/    /'
+		fi
+		if $SHOWME
+		then
+		    cat $tmp/list | xargs echo + rm -f
+		else
+		    cat $tmp/list | xargs rm -f
+		fi
 	    fi
 	fi
-    fi
 
-    # finally, compress old log files
-    # (after cull - don't compress unnecessarily)
-    #
-    if [ ! -z "$COMPRESSAFTER" ]
-    then
-	_date_filter $COMPRESSAFTER | egrep -v "$COMPRESSREGEX" >$tmp/list
-	if [ -s $tmp/list ]
+	# finally, compress old log files
+	# (after cull - don't compress unnecessarily)
+	#
+	if [ ! -z "$COMPRESSAFTER" ]
 	then
-	    if $VERBOSE
+	    _date_filter $COMPRESSAFTER | egrep -v "$COMPRESSREGEX" >$tmp/list
+	    if [ -s $tmp/list ]
 	    then
-		echo "Log files older than $COMPRESSAFTER days being compressed ..."
-		fmt <$tmp/list | sed -e 's/^/    /'
-	    fi
-	    if $SHOWME
-	    then
-		cat $tmp/list | xargs echo + $COMPRESS
-	    else
-		cat $tmp/list | xargs $COMPRESS
+		if $VERBOSE
+		then
+		    echo "Log files older than $COMPRESSAFTER days being compressed ..."
+		    fmt <$tmp/list | sed -e 's/^/    /'
+		fi
+		if $SHOWME
+		then
+		    cat $tmp/list | xargs echo + $COMPRESS
+		else
+		    cat $tmp/list | xargs $COMPRESS
+		fi
 	    fi
 	fi
-    fi
 
-    _unlock
+	_unlock
+    done
+}
 
+_parse_control $CONTROL
+append=`ls $CONTROLDIR 2>/dev/null | LC_COLLATE=POSIX sort`
+for controlfile in $append
+do
+    _parse_control $CONTROLDIR/$controlfile
 done
 
 if [ -n "$MAILME" -a -s $tmp/mail ]
 then
     logs=""
-    for file in `cat $tmp/mail`
+    for logfile in `cat $tmp/mail`
     do
-	[ -f $file ] && logs="$logs $file"
+	[ -f $logfile ] && logs="$logs $logfile"
     done
     egrep -v '( OK | OK$|^$|^Log |^pmie: PID)' $logs > $tmp/logmail
     if [ ! -s "$tmp/logmail" ]

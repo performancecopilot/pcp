@@ -113,20 +113,6 @@ _haveagents()
 	    simple)
 		probe=simple.numfetch
 		;;
-	    weblog)
-		probe=web.allservers.numalive
-		;;
-	    webping)
-		probe=webping.count
-		;;
-	    oracle)
-		eval "probe=oracle.$ORACLE_SID.version"
-		eval "agentlog=$PCP_LOG_DIR/pmcd/oracle-$ORACLE_SID.log"
-		agentdir=''
-		;;
-	    oraping)
-		probe=oraping.control.count
-		;;
 	esac
 	reinstall=false
 	while true
@@ -195,12 +181,14 @@ _havelogger()
 	echo "Primary pmlogger not running ..."
 	echo "chkconfig pmlogger on, and restart PMCD"
 	_change_config pmlogger on
-	[ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
-		PCP_PMLOGGERCONTROL_PATH="$PCP_SYSCONF_DIR/pmlogger/control"
-	if sed -e '/^#/d' "$PCP_PMLOGGERCONTROL_PATH" \
+	if sed -e '/^#/d' "${PCP_PMLOGGERCONTROL_PATH}" \
 	   | $PCP_AWK_PROG '$2 == "y" && $3 == "n" { sts=1 } END { exit 1-sts }'
 	then
-	    : echo "have primary pmlogger line in control file"
+	    : echo "have primary pmlogger line in main control file"
+	elif sed -e '/^#/d' "${PCP_PMLOGGERCONTROL_PATH}.d/local" \
+	   | $PCP_AWK_PROG '$2 == "y" && $3 == "n" { sts=1 } END { exit 1-sts }'
+	then
+	    : echo "have primary pmlogger line in local control file"
 	else
 	    : echo "no primary pmlogger line in control file"
 	    if $PCP_AWK_PROG '$2 == "y" && $3 == "n" { sts=1} END { exit 1-sts }' <$PCP_PMLOGGERCONTROL_PATH
@@ -209,28 +197,54 @@ _havelogger()
 		sed <$PCP_PMLOGGERCONTROL_PATH >$tmp.tmp \
 		    -e '/^#[^ 	][^ 	]*[ 	][ 	]*y/s/#//'
 		$sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
+	    elif $PCP_AWK_PROG '$2 == "y" && $3 == "n" { sts=1} END { exit 1-sts }' <$PCP_PMLOGGERCONTROL_PATH.d/local
+	    then
+		: echo uncomment
+		sed <$PCP_PMLOGGERCONTROL_PATH.d/local >$tmp.tmp \
+		    -e '/^#[^ 	][^ 	]*[ 	][ 	]*y/s/#//'
+		$sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH.d/local
 	    else
-	    	: echo add
-		cp $PCP_PMLOGGERCONTROL_PATH $tmp.tmp
-		if [ -e $PCP_LOG_DIR/pmlogger ]
-		then
-		    cat >>$tmp.tmp <<'End-of-File'
+		: echo add
+		cp $PCP_PMLOGGERCONTROL_PATH.d/local $tmp.tmp
+		cat >>$tmp.tmp <<'End-of-File'
 
 # added by PCP QA
 LOCALHOSTNAME	y   n	PCP_LOG_DIR/pmlogger/LOCALHOSTNAME	-c config.default
 End-of-File
-		else
-		    cat >>$tmp.tmp <<'End-of-File'
-
-# added by PCP QA
-LOCALHOSTNAME	y   n	PCP_LOG_DIR/LOCALHOSTNAME	-c config.default
-End-of-File
-		fi
-		$sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
+		$sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH.d/local
 	    fi
 	fi
 	$sudo $PCP_RC_DIR/pcp restart
 	_wait_for_pmlogger
+    fi
+}
+
+_haveremote()
+{
+    # ensure critical daemons allow for remote access
+
+    if test -f "${PCP_SYSCONFIG_DIR}/pmcd"
+    then
+	sed <$PCP_SYSCONFIG_DIR/pmcd >$tmp.tmp \
+		-e '/^PMCD_LOCAL=1/s/^/#/g'
+	diff $PCP_SYSCONFIG_DIR/pmcd $tmp.tmp >/dev/null || \
+	$sudo cp $tmp.tmp $PCP_SYSCONFIG_DIR/pmcd
+    fi
+
+    if test -f "${PCP_SYSCONFIG_DIR}/pmproxy"
+    then
+	sed <$PCP_SYSCONFIG_DIR/pmproxy >$tmp.tmp \
+		-e '/^PMPROXY_LOCAL=1/s/^/#/g'
+	diff $PCP_SYSCONFIG_DIR/pmproxy $tmp.tmp >/dev/null || \
+	$sudo cp $tmp.tmp $PCP_SYSCONFIG_DIR/pmproxy
+    fi
+
+    if test -f "${PCP_SYSCONFIG_DIR}/pmlogger"
+    then
+	sed <$PCP_SYSCONFIG_DIR/pmlogger >$tmp.tmp \
+		-e '/^PMLOGGER_LOCAL=1/s/^/#/g'
+	diff $PCP_SYSCONFIG_DIR/pmlogger $tmp.tmp >/dev/null || \
+	$sudo cp $tmp.tmp $PCP_SYSCONFIG_DIR/pmlogger
     fi
 }
 
@@ -727,6 +741,7 @@ else
 
     $OPTION_AGENTS && _haveagents
     $OPTION_LOGGER && _havelogger
+    $OPTION_REMOTE && _haveremote
     $OPTION_PMCD_TRACE && _havepmcdtrace
 
     if [ -f GNUmakefile.install ]

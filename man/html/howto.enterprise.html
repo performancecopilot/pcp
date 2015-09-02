@@ -218,7 +218,7 @@ Once the test event propagates successfully, enable <b>pmie</b> event generation
 into the TNG Framework:
 <PRE>
 wobbly# pmieconf modify global tngfw_action yes
-wobbly# /etc/init.d/pmie start
+wobbly# $PCP_RC_DIR/pmie start
 </PRE>
 </UL>
 <B>Configuration options</B> - how to customize the setup for different
@@ -230,7 +230,7 @@ The node to which events are sent is identified by the tngfw_node
 on rattle to TNG on hugh as described above:
 <PRE>
 wobbly# pmieconf modify global tngfw_node hugh
-wobbly# /etc/init.d/pmie start
+wobbly# $PCP_RC_DIR/pmie start
 </PRE>
 <LI>
 Other parameters associated with TNG events can also be specified - these
@@ -240,7 +240,7 @@ or globally for all events:
 wobbly# pmieconf modify global tngfw_color Yellow
 wobbly# pmieconf modify global tngfw_category "PMIE Events"
 wobbly# pmieconf modify cisco tngfw_color Red
-wobbly# /etc/init.d/pmie start
+wobbly# $PCP_RC_DIR/pmie start
 </PRE>
 </UL>
 
@@ -260,8 +260,8 @@ wobbly# /etc/init.d/pmie start
 Start the <b>pmcd</b>(1) daemon on the node which will receive <b>pmie</b>(1)
 events - &quot;wobbly&quot; in this example.
 <PRE>
-wobbly# /etc/init.d/snmp start
-wobbly# /etc/init.d/ovnnm start
+wobbly# service snmp start
+wobbly# service ovnnm start
 </PRE>
 
 <LI>
@@ -287,7 +287,7 @@ If this event propagates successfully, enable <b>pmie</b> event generation
 into OpenView:
 <PRE>
 rattle# pmieconf modify global ov_action yes
-rattle# /etc/init.d/pmie start
+rattle# $PCP_RC_DIR/pmie start
 </PRE>
 </UL>
 <P>
@@ -318,7 +318,7 @@ variable, so to setup event transferral from rattle to wobbly as described
 above, I ran:
 <PRE>
 # pmieconf modify global ov_node wobbly
-# /etc/init.d/pmie start
+# $PCP_RC_DIR/pmie start
 </PRE>
 <LI>
 Other parameters associated with OpenView events can also be specified - these
@@ -328,7 +328,7 @@ of events, or globally for all events:
 rattle# pmieconf modify filesys.filling ov_severity Critical
 rattle# pmieconf modify filesys.filling ov_category "Status Events"
 rattle# pmieconf modify cisco ov_severity Major
-rattle# /etc/init.d/pmie start
+rattle# $PCP_RC_DIR/pmie start
 </PRE>
 </UL>
 <CENTER>
@@ -373,7 +373,7 @@ wobbly# /opt/enlighten/bin/EventsCli -n Test -u tps -v 12345 -s 5 -q
 If this event propagates successfully, enable pmie event generation into Enlighten:
 <PRE>
 wobbly# pmieconf modify global enln_action yes
-wobbly# /etc/init.d/pmie start
+wobbly# $PCP_RC_DIR/pmie start
 </PRE>
 </UL>
 
@@ -386,7 +386,7 @@ a high of 5, and the default severity value for <b>pmie</b>(1) events is 2):
 <PRE>
 wobbly# pmieconf modify filesys.filling enln_severity 4
 wobbly# pmieconf modify cisco enln_severity 5
-wobbly# /etc/init.d/pmie start
+wobbly# $PCP_RC_DIR/pmie start
 </PRE>
 <P>
 <CENTER>
@@ -444,7 +444,7 @@ Steps involved when integrating other frameworks with PCP:
     and switch on your new framework action for all of the rules;
 <PRE>
 	# pmieconf modify global new_action yes
-	# /etc/init.d/pmie start
+	# $PCP_RC_DIR/pmie start
 </PRE>
 </UL>
 <P>If the framework is sufficiently common that other people may wish

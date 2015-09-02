@@ -104,4 +104,4 @@ extern void pmTimeStateMode(int, struct timeval, struct timeval *);
 extern int pmTimeStateVector(pmTimeControls *, pmTime *);
 extern void pmTimeStateBounds(pmTimeControls *, pmTime *);
 
-#endif	/* PCP_PMTIME_H */
+#endif /* PCP_PMTIME_H */

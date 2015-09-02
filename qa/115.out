@@ -10,6 +10,7 @@ pmie count after chkconfig pmie off: 1
 $PCP_RC_DIR/pmie:
 Error: PCP inference engine control file $PCP_PMIECONTROL_PATH
        is missing!  Cannot start any Performance Co-Pilot inference engine(s).
+failed (status=1)
 pmie count after attempt without control file: 0
 
 === check pmie_check and custom config ===
