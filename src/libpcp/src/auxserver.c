@@ -450,23 +450,33 @@ OpenRequestSocket(int port, const char *address, int *family,
 	fd = __pmCreateUnixSocket();
     }
     else {
-	if ((myAddr = __pmStringToSockAddr(address)) == NULL) {
-	    __pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) invalid address\n",
-			  port, address);
-	    goto fail;
-	}
-
 	/*
 	 * If the address is unspecified, then use the address family we
 	 * have been given, otherwise the family will be determined by
 	 * __pmStringToSockAddr.
 	 */
-	if (address == NULL ||
-	    strcmp(address, "INADDR_ANY") == 0 ||
-	    strcmp(address, "INADDR_LOOPBACK") == 0)
-	    __pmSockAddrSetFamily(myAddr, *family);
-	else
+	if (address == NULL || strcmp(address, "INADDR_ANY") == 0) {
+	    if ((myAddr = __pmSockAddrAlloc()) == NULL) {
+		__pmNoMem("OpenRequestSocket: can't allocate socket address",
+			  sizeof(*myAddr), PM_FATAL_ERR);
+	    }
+	    __pmSockAddrInit(myAddr, *family, INADDR_ANY, 0);
+	}
+	else if (strcmp(address, "INADDR_LOOPBACK") == 0) {
+	    if ((myAddr = __pmSockAddrAlloc()) == NULL) {
+		__pmNoMem("OpenRequestSocket: can't allocate socket address",
+			  sizeof(*myAddr), PM_FATAL_ERR);
+	    }
+	    __pmSockAddrInit(myAddr, *family, INADDR_LOOPBACK, 0);
+	}
+	else {
+	    if ((myAddr = __pmStringToSockAddr(address)) == NULL) {
+		__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) invalid address\n",
+			      port, address);
+		goto fail;
+	    }
 	    *family = __pmSockAddrGetFamily(myAddr);
+	}
 	__pmSockAddrSetPort(myAddr, port);
 
 	/* Create the socket. */
