@@ -23,42 +23,35 @@ echo "tomorrow: $(date '+%Y-%m-%d' -d 'tomorrow')" >>$seq.full
 echo "sunday: $(date '+%Y-%m-%d' -d 'sunday')" >>$seq.full
 echo "first sunday: $(date '+%Y-%m-%d' -d 'first sunday')" >>$seq.full
 echo "this sunday: $(date '+%Y-%m-%d' -d 'this sunday')" >>$seq.full
-echo "next sunday: $(date '+%Y-%m-%d' -d 'next sunday')" >>$seq.full
 echo "last sunday: $(date '+%Y-%m-%d' -d 'last sunday')" >>$seq.full
 echo "monday: $(date '+%Y-%m-%d' -d 'monday')" >>$seq.full
 echo "first monday: $(date '+%Y-%m-%d' -d 'first monday')" >>$seq.full
 echo "this monday: $(date '+%Y-%m-%d' -d 'this monday')" >>$seq.full
-echo "next monday: $(date '+%Y-%m-%d' -d 'next monday')" >>$seq.full
 echo "last monday: $(date '+%Y-%m-%d' -d 'last monday')" >>$seq.full
 echo "tuesday: $(date '+%Y-%m-%d' -d 'tuesday')" >>$seq.full
 echo "first tuesday: $(date '+%Y-%m-%d' -d 'first tuesday')" >>$seq.full
 echo "this tuesday: $(date '+%Y-%m-%d' -d 'this tuesday')" >>$seq.full
-echo "next tuesday: $(date '+%Y-%m-%d' -d 'next tuesday')" >>$seq.full
 echo "last tuesday: $(date '+%Y-%m-%d' -d 'last tuesday')" >>$seq.full
 echo "wednesday: $(date '+%Y-%m-%d' -d 'wednesday')" >>$seq.full
 echo "first wednesday: $(date '+%Y-%m-%d' -d 'first wednesday')" >>$seq.full
 echo "this wednesday: $(date '+%Y-%m-%d' -d 'this wednesday')" >>$seq.full
-echo "next wednesday: $(date '+%Y-%m-%d' -d 'next wednesday')" >>$seq.full
 echo "last wednesday: $(date '+%Y-%m-%d' -d 'last wednesday')" >>$seq.full
 echo "thursday: $(date '+%Y-%m-%d' -d 'thursday')" >>$seq.full
 echo "first thursday: $(date '+%Y-%m-%d' -d 'first thursday')" >>$seq.full
 echo "this thursday: $(date '+%Y-%m-%d' -d 'this thursday')" >>$seq.full
-echo "next thursday: $(date '+%Y-%m-%d' -d 'next thursday')" >>$seq.full
 echo "last thursday: $(date '+%Y-%m-%d' -d 'last thursday')" >>$seq.full
 echo "friday: $(date '+%Y-%m-%d' -d 'friday')" >>$seq.full
 echo "first friday: $(date '+%Y-%m-%d' -d 'first friday')" >>$seq.full
 echo "this friday: $(date '+%Y-%m-%d' -d 'this friday')" >>$seq.full
-echo "next friday: $(date '+%Y-%m-%d' -d 'next friday')" >>$seq.full
 echo "last friday: $(date '+%Y-%m-%d' -d 'last friday')" >>$seq.full
 echo "saturday: $(date '+%Y-%m-%d' -d 'saturday')" >>$seq.full
 echo "first saturday: $(date '+%Y-%m-%d' -d 'first saturday')" >>$seq.full
 echo "this saturday: $(date '+%Y-%m-%d' -d 'this saturday')" >>$seq.full
-echo "next saturday: $(date '+%Y-%m-%d' -d 'next saturday')" >>$seq.full
 echo "last saturday: $(date '+%Y-%m-%d' -d 'last saturday')" >>$seq.full
 
-# just as our libpcp code is based on gnulib code that has changed
+# just as our libpcp code is based on getdate code that has changed
 # over time, date(1) also may have different semantics ... try to
-# suss out if we have an older dodgey date(1)
+# suss out if we have an older, dodgey date(1)
 #
 dodgey_date=false
 TODAY=`date -d today '+%A' | tr '[a-z]' '[A-Z]'`
@@ -72,7 +65,7 @@ echo "t2=$t2" >>$seq.full
 [ "$t1" != "$t2" ] && dodgey_date=true
 echo "dodgey_date=$dodgey_date" >>$seq.full
 
-# Be careful, sunday, first sunday, next sunday and today could all be
+# Be careful, sunday, first sunday, and today could all be
 # the same date.
 # Ditto for all the other days of the week.
 #
@@ -97,15 +90,6 @@ src/rtimetest \
 /friday/s/'$(date '+%Y-%m-%d' -d 'this friday')' ..:..:../this FRIDAY/
 /saturday/s/'$(date '+%Y-%m-%d' -d 'this saturday')' ..:..:../this SATURDAY/
 }' \
-    -e '/next /{
-/sunday/s/'$(date '+%Y-%m-%d' -d 'next sunday')' ..:..:../next SUNDAY/
-/monday/s/'$(date '+%Y-%m-%d' -d 'next monday')' ..:..:../next MONDAY/
-/tuesday/s/'$(date '+%Y-%m-%d' -d 'next tuesday')' ..:..:../next TUESDAY/
-/wednesday/s/'$(date '+%Y-%m-%d' -d 'next wednesday')' ..:..:../next WEDNESDAY/
-/thursday/s/'$(date '+%Y-%m-%d' -d 'next thursday')' ..:..:../next THURSDAY/
-/friday/s/'$(date '+%Y-%m-%d' -d 'next friday')' ..:..:../next FRIDAY/
-/saturday/s/'$(date '+%Y-%m-%d' -d 'next saturday')' ..:..:../next SATURDAY/
-}' \
     -e '/last /{
 /sunday/s/'$(date '+%Y-%m-%d' -d 'last sunday')' ..:..:../last SUNDAY/
 /monday/s/'$(date '+%Y-%m-%d' -d 'last monday')' ..:..:../last MONDAY/
@@ -126,13 +110,12 @@ src/rtimetest \
     -e "/tomorrow/s/$(date '+%Y-%m-%d' -d 'tomorrow') ..:..:../TOMORROW/" \
     -e "/now/s/$(date '+%Y-%m-%d') ..:..:../TODAY/" \
     -e "/today/s/$(date '+%Y-%m-%d') ..:..:../TODAY/" \
+    -e "/next .*/d" \
 | if $dodgey_date
 then
-    sed \
-	-e "/next $today/s/$(date '+%Y-%m-%d' -d "$today week") ..:..:../next $TODAY/" \
-	-e "/first $today/s/$(date '+%Y-%m-%d' -d "$today week") ..:..:../first $TODAY/"
+    sed -e "/first $today/s/$(date '+%Y-%m-%d' -d "$today week") ..:..:../first $TODAY/"
 else
-    cat
+    sed -e "/first $today/s/$(date '+%Y-%m-%d' -d "$today") ..:..:../first $TODAY/"
 fi
 
 unset TZ

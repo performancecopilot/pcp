@@ -193,14 +193,11 @@ fetchlocal.o
 fetch.o
 freeresult.o
 getdate.tab.o
-    dst_table              	# const
-    meridian_table         	# const
-    military_table         	# const
-    month_and_day_table    	# const
-    relative_time_table    	# const
-    time_units_table       	# const
-    time_zone_table        	# const
-    universal_time_zone_table	# const
+    MilitaryTable         	# const
+    OtherTable         		# const
+    MonthDayTable    		# const
+    TimezoneTable        	# const
+    UnitsTable			# const
     yycheck                	# const
     yydefact               	# const
     yydefgoto              	# const
@@ -212,7 +209,6 @@ getdate.tab.o
     ?yyval_default		# local to parser ... depends on yacc/bison version
     yytable                	# const
     yytranslate            	# const
-    ?yyparse.yyval_default	# const
 getopt.o
 hash.o
 help.o
