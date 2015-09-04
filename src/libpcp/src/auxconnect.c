@@ -83,7 +83,9 @@ __pmSockAddrInit(__pmSockAddr *addr, int family, int address, int port)
 	addr->sockaddr.ipv6.sin6_family = family;
 	addr->sockaddr.ipv6.sin6_port = htons(port);
 	if (address == INADDR_LOOPBACK)
-	    addr->sockaddr.ipv6.sin6_addr.s6_addr[15] = 1;
+	    addr->sockaddr.ipv6.sin6_addr = in6addr_loopback;
+	else
+	    addr->sockaddr.ipv6.sin6_addr = in6addr_any;
     }
     else
 	__pmNotifyErr(LOG_ERR,
