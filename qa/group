@@ -1044,6 +1044,7 @@ cgroups
 876 pmda.xfs local
 885 pmda.linux local
 888 pmda.linux local
+892 pmcd libpcp local
 897 pmlc pmlogger local
 898 pmlogmv local 
 899 libpcp getopt local

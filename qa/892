@@ -1,0 +1,74 @@
+#!/bin/sh
+# PCP QA Test No. 892
+# Exercise daemon local-only access in IPv6 mode.
+#
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_get_libpcp_config
+$ipv6 || _notrun "IPv6 support is not available"
+host=`hostname`
+[ -z "$host" ] && _notrun "Cannot discover local host name"
+addr=`_host_to_ipv6addrs $host | head -1`
+[ -z "$addr" ] && _notrun "Cannot translate hostname ($host) to IPv6 address"
+ipv6local=`_ipv6_localhost`
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+
+_cleanup()
+{
+    # ensure we do not leave local-only settings enabled
+    _restore_config $PCP_SYSCONFIG_DIR/pmcd
+
+    $sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
+    _wait_for_pmcd
+    _wait_for_pmlogger
+
+    rm -rf $tmp.*
+}
+
+_filter()
+{
+    tee -a $seq.full | \
+    sed \
+	-e "s/$host/HOSTNAME/g" \
+	-e "s/$addr/IPV6ADDR/g" \
+    #end
+}
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+_save_config $PCP_SYSCONFIG_DIR/pmcd
+
+echo; echo "== checking loop pmcd access, expecting success"
+pminfo -f -h "pcp://$ipv6local" pmcd.feature.local 2>&1 | _filter
+
+echo; echo "== checking ipv6 pmcd access, expecting success"
+pminfo -f -h "pcp://[$addr]" pmcd.feature.local 2>&1 | _filter
+
+echo; echo "== changing default setup to local host only"; echo
+echo "# Dummy entry added by PCP QA test $seq" > $tmp.local
+echo PMCD_LOCAL=1 >> $tmp.local
+$sudo cp $tmp.local $PCP_SYSCONFIG_DIR/pmcd
+
+$sudo $PCP_RC_DIR/pmcd restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
+_wait_for_pmcd
+
+echo; echo "== checking loop pmcd access, expecting success"
+pminfo -f -h "pcp://$ipv6local" pmcd.feature.local 2>&1 | _filter
+
+echo; echo "== checking bad pmcd access, expect no values"
+pminfo -f -h "pcp://[$addr]" pmcd.feature.local 2>&1 | _filter
+
+# success, all done
+status=0
+exit

@@ -226,6 +226,24 @@ _make_helptext()
     return 0
 }
 
+_host_to_ipv6addrs()
+{
+    perl -e '
+	use strict;
+	use warnings;
+	use Socket qw(:addrinfo SOCK_RAW AF_INET AF_INET6);
+	my $hostname = "'$1'";
+        my ($err, @res) = getaddrinfo($hostname, "",
+				{socktype => SOCK_RAW, family => AF_INET6});
+	die "Cannot getaddrinfo - $err" if $err;
+	while (my $ai = shift @res) {
+	    my ($err, $ipaddr) = getnameinfo($ai->{addr},
+					NI_NUMERICHOST, NIx_NOSERV);
+	    die "Cannot getnameinfo - $err" if $err;
+	    print "$ipaddr\n";
+	}'
+}
+
 _host_to_ipaddr()
 {
     perl -MSocket -e '
