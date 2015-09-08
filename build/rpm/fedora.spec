@@ -2365,6 +2365,7 @@ cd
 - Work in progress, see [ http://pcp.io/roadmap ]
 - Resolved pmchart sigsegv opening view without context (BZ 1256708)
 - Fixed pmchart memory corruption restoring Saved Hosts (BZ 1257009)
+- Fix perl PMDA API double-free on socket error path (BZ 1258862)
 
 * Tue Aug 04 2015 Nathan Scott <nathans@redhat.com> - 3.10.6-1
 - Fix pcp2graphite write method invocation failure (BZ 1243123)

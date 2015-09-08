@@ -2,23 +2,17 @@
  * Copyright (C) 2014 Red Hat.
  * Copyright (C) 1999-2005 Trolltech AS.  All rights reserved.
  *
- * This file was derived from the QT QColorDialog class
- *
- * This file may be distributed under the terms of the Q Public License
- * as defined by Trolltech AS of Norway and appearing in the file
- * LICENSE.QPL included in the packaging of this file.
- *
- * This file may be distributed and/or modified under the terms of the
- * GNU General Public License version 2 as published by the Free Software
- * Foundation and appearing in the file LICENSE.GPL included in the
- * packaging of this file.
- *
- * Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
- * licenses may use this file in accordance with the Qt Commercial License
- * Agreement provided with the Software.
- *
- * This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
- * WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+ * This file was derived from the Qt QColorDialog class
+ * 
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+ * License for more details.
  */
 
 #include <QApplication>

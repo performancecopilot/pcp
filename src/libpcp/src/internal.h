@@ -35,7 +35,7 @@ extern int __pmConnectWithFNDELAY(int, void *, __pmSockLen) _PCP_HIDDEN;
 
 extern int __pmPtrToHandle(__pmContext *) _PCP_HIDDEN;
 
-extern int __pmGlibGetDate (struct timespec *, char const *, struct timespec const *)  _PCP_HIDDEN;
+extern int __pmGetDate(struct timespec *, char const *, struct timespec const *)  _PCP_HIDDEN;
 
 #ifdef HAVE_NETWORK_BYTEORDER
 /*
